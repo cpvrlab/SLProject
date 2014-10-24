@@ -1,0 +1,10 @@
+# Ignored files
+*.suo
+*.user
+*.sdf
+*.opensdf
+_bin
+obj
+_lib
+intermediate
+_doc
