@@ -1,0 +1,133 @@
+<!--
+//#############################################################################
+//  File:      Readme.html
+//  Purpose:   Main project page for SLProject Doxygen documentation
+//             Doxygen is a documentation tool for C syntax like languages.
+//             It automatically generates the source code.
+//             Doxygen can be found under: http://www.doxygen.org
+//             The doxygen setting are defined in the file GenerateHTMLDoc.dox.
+//             To start the generation process run GenerateHTMLDoc.bat.
+//  Author:    Marcus Hudritsch
+//  Date:      February 2014
+//  Copyright: Marcus Hudritsch, Kirchrain 18, 2572 Sutz
+//             This software is provide under the GNU General Public License
+//             Please visit: http://opensource.org/licenses/GPL-3.0
+//#############################################################################
+-->
+
+/*! 
+\mainpage SLProject
+Welcome to the SLProject. SL stands for Scene Library and is a 3D computer 
+graphics scenegraph library. It is developed at the Berne University of Applied 
+Sciences. The main purpose of the project is to serve as starting framework 
+for student and research projects. 
+The framework is built in C++ and uses OpenGL ES 2.0 so that it can run also 
+on mobile devices. Project files are provided for development environments on
+Windows, Linux, and Mac OSX. The demo application can also be built for Android 
+(>=2.3.3) and Apple iOS (>=5). 
+The framework can render alternatively with ray tracing and path tracing which 
+provides in addition high quality transparencies, reflections and soft shadows. 
+Please visit the project homepage at http://code.google.com/p/slproject/. 
+The source code is provided under the 
+<a href="http://www.gnu.org/licenses/gpl.html">GNU General Puplic License (GPL)</a>. 
+The code is provided without any warranties whether expressed or implied.<br/>
+
+
+<h2>Build Instructions:</h2>
+<ul>
+    <li>The SLProject is hosted at Google Code: <a href="http://code.google.com/p/slproject">http://code.google.com/p/slproject</a></li>
+    <li>The SVN repository is for nonmembers is readonly at: https://slproject.googlecode.com/svn</li>
+    <li><a href="https://code.google.com/p/slproject/wiki/FolderStructure">Folder structure of the repository</a></li>
+    <li><a href="https://code.google.com/p/slproject/wiki/BuildVisualStudio">Build Instructions for VisualStudio IDE under Windows</a></li>
+    <li><a href="https://code.google.com/p/slproject/wiki/BuildQtCreator">Build Instructions for QtCreator IDE under Windows, Linux or OSX</a></li>
+    <li><a href="https://code.google.com/p/slproject/wiki/BuildAndroid">Build Instructions for the Android Build in VisualStudio</a></li>
+    <li><a href="https://code.google.com/p/slproject/wiki/BuildAppleiOS">Build Instructions for the iOS Build in XCode on Mac OSX</a></li>
+    <li><a href="https://code.google.com/p/slproject/wiki/BuildMinimalOpenGLApps">More Infos on the Minimal OpenGL ES2 apps</a></li>
+    <li><a href="https://code.google.com/p/slproject/wiki/VersionHistory">Version History</a></li>
+</ul>
+
+<h2>Framework Structure:</h2>
+<ul>
+    <li>
+        The applications starting code depends on the operating system. In all cases we
+        have the most outer shell of the application that handles the window and the
+        OpenGL context creation and passes then the events to a C-function interface
+        before it is handled by the C++-framework. The following OS are supported:
+        <ul>
+            <li>
+                Windows, Linux &amp; Max OSX applications can use the <a href="http://www.glfw.org/">GLFW</a> 
+                C-library for the platform independent window and context creation. GLFW is included in the SLProject repository.
+            </li>
+            <li>
+                Windows, Linux &amp; Max OSX applications can use the <a href="http://qt-project.org/">Qt</a>
+                C++-library for the window and context creation. Qt has to be downloaded and installed additionally.
+            </li>
+            <li>
+                The Android application starts in JAVA and passes the events with JNI (Java
+                Native Interface) to the C-interface.
+            </li>
+            <li>
+                On Apple iOS Devices the application starts in ObjectiveC before it passes the
+                events to the C-interface.
+            </li>
+            <li>
+                You could in fact use any GUI library on any OS that can create OpenGL contexts.
+                Other alternatives could be 
+                <a href="http://www.fltk.org/index.php">FLTK</a>, 
+                <a href="http://www.juce.com/">Juce</a> or 
+                <a href="https://www.wxwidgets.org/">wxWidgets</a>.
+            </li>
+        </ul>
+    </li>
+    <li>
+        The toplevel class of the framework is SLScene that represents the scene with
+        its properties. The scene content is created in SLScene::onLoad.
+    </li>
+    <li>
+        SLSceneView represents a dynamic real time 3D view onto the scene. 
+        A scene can be shown in multiple sceneviews as demonstrated in the app-Viewer-Qt application.
+        An sceneview receives all events (keyboard, mouse, OpenGL etc.) from the GUI via the C-Interface (see slInterface). 
+    </li>
+    <li>
+        The scenegraph hierarchy is built with the class SLNode that can have 0-N children nodes and 0-N triangle meshes. 
+        A node can be transformed (translated, rotated and scaled) in 3D-space. 
+    </li>
+    <li>The SLMesh class is the base class for triangulated or wireframed meshes. A mesh is rendered with a material defined in SLMaterial.</li>
+    <li>The classes SLRevolver, SLSphere, SLCylinder, SLCone, SLBox, SLPolygon and SLRectangle are all inheritants from SLMesh.</li>
+    <li>The space partitioning is implemented in the classes SLAABBox and SLUniformGrid.</li>
+    <li>All OpenGL ES 2.0 code is restricted to the classes SLGLState, SLGLTexture, SLGLBuffer, SLGLShader and SLGLShaderProg.</li>
+    <li>The lighting is implemented in the classes SLMaterial, SLLight, SLLightSphere and SLLightRect.</li>
+    <li>The classes for the 2D-GUI are SLTexFont, SLText and SLButton and can be used for a simple GUI.</li>
+    <li>The ray tracer is implemented in the classes SLRaytracer and SLRay.</li>
+    <li>The linear algebra math is implemented in the classes SLMat3, SLMat4, SLVec3, SLVec4 and SLQuat.</li>
+</ul>
+
+<h2>Framework Dependencies:</h2>
+<li>The framework uses beside OpenGL the following exteral libraries that are also included in the SLProject repository:</li>
+<ul>
+    <li><a href="http://www.ijg.org/">JPEG</a> for JPEG image type loading.</li>
+    <li><a href="http://www.libpng.org/pub/png/libpng.html">PNG image type loading.</a></li>
+    <li><a href="http://zlib.net/">ZLIB</a> for compression of PNG images.</li>
+    <li><a href="http://nvwa.sourceforge.net/">nvwa</a> for memory management.</li>
+    <li><a href="http://assimp.sourceforge.net/">assimp</a> for 3D file formats loading.</li>
+    <li><a href="https://developer.oculusvr.com/">libovr</a> for Oculus Rift control.</li>
+</ul>
+
+<a name="support"></a>
+<h2>Support:</h2>
+<ul>
+   <li>The code is provided without any warranties whether expressed or implied.</li>
+   <li>No support can be provided on installation, compiler or build issues. The 
+       framework was tested on several machines using MS Visual Studio 2013 as well as on Mac OSX using XCode with GCC or LLVM compiler.</li>
+   <li>The code is provided under <a href="http://opensource.org/licenses/GPL-3.0">GNU General Puplic License (GPL)</a>. 
+      This means in general, that you must provide your code as well under GPL if you 
+      use this code.</li>
+   <li>Feedback always welcome.</li>
+</ul>
+
+<p>
+Author: marcus.hudritsch@bfh.ch and marc.wacker@bfh.ch<br>
+Date: September 2014<br>
+Copyright (c): 2002-2014 Marcus Hudritsch, Kirchrain 18, 2572 Sutz, Switzerland<br>
+</p>
+*/

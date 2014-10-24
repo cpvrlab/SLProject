@@ -1,0 +1,443 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="jpeg-8">
+      <UniqueIdentifier>{a9666033-48cf-4b70-a380-6d8462fa6afd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="png">
+      <UniqueIdentifier>{2b9b15da-4b76-401e-a5f0-20647a2945b9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="glew">
+      <UniqueIdentifier>{d409be97-4b49-4cf7-8ac2-683d193606b9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="randomc">
+      <UniqueIdentifier>{0d99598e-dd82-4fae-9528-2aaf6b783ee7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Shoemake">
+      <UniqueIdentifier>{1105022c-8b93-4e89-930b-23c69e612afc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="glfw3">
+      <UniqueIdentifier>{4dc4bc41-90fb-4c30-a99d-37e74b431856}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="nvwa">
+      <UniqueIdentifier>{ef3f0867-b07d-47b6-b3ef-0ea6a082e5ce}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="zlib">
+      <UniqueIdentifier>{e5359be2-90dd-4e68-8274-eee8570bc658}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="jpeg-8\jaricom.c">
+      <Filter>jpeg-8</Filter>
+    </ClCompile>
+    <ClCompile Include="jpeg-8\jcapimin.c">
+      <Filter>jpeg-8</Filter>
+    </ClCompile>
+    <ClCompile Include="jpeg-8\jcapistd.c">
+      <Filter>jpeg-8</Filter>
+    </ClCompile>
+    <ClCompile Include="jpeg-8\jcarith.c">
+      <Filter>jpeg-8</Filter>
+    </ClCompile>
+    <ClCompile Include="jpeg-8\jccoefct.c">
+      <Filter>jpeg-8</Filter>
+    </ClCompile>
+    <ClCompile Include="jpeg-8\jccolor.c">
+      <Filter>jpeg-8</Filter>
+    </ClCompile>
+    <ClCompile Include="jpeg-8\jcdctmgr.c">
+      <Filter>jpeg-8</Filter>
+    </ClCompile>
+    <ClCompile Include="jpeg-8\jchuff.c">
+      <Filter>jpeg-8</Filter>
+    </ClCompile>
+    <ClCompile Include="jpeg-8\jcinit.c">
+      <Filter>jpeg-8</Filter>
+    </ClCompile>
+    <ClCompile Include="jpeg-8\jcmainct.c">
+      <Filter>jpeg-8</Filter>
+    </ClCompile>
+    <ClCompile Include="jpeg-8\jcmarker.c">
+      <Filter>jpeg-8</Filter>
+    </ClCompile>
+    <ClCompile Include="jpeg-8\jcmaster.c">
+      <Filter>jpeg-8</Filter>
+    </ClCompile>
+    <ClCompile Include="jpeg-8\jcomapi.c">
+      <Filter>jpeg-8</Filter>
+    </ClCompile>
+    <ClCompile Include="jpeg-8\jcparam.c">
+      <Filter>jpeg-8</Filter>
+    </ClCompile>
+    <ClCompile Include="jpeg-8\jcprepct.c">
+      <Filter>jpeg-8</Filter>
+    </ClCompile>
+    <ClCompile Include="jpeg-8\jcsample.c">
+      <Filter>jpeg-8</Filter>
+    </ClCompile>
+    <ClCompile Include="jpeg-8\jctrans.c">
+      <Filter>jpeg-8</Filter>
+    </ClCompile>
+    <ClCompile Include="jpeg-8\jdapimin.c">
+      <Filter>jpeg-8</Filter>
+    </ClCompile>
+    <ClCompile Include="jpeg-8\jdapistd.c">
+      <Filter>jpeg-8</Filter>
+    </ClCompile>
+    <ClCompile Include="jpeg-8\jdarith.c">
+      <Filter>jpeg-8</Filter>
+    </ClCompile>
+    <ClCompile Include="jpeg-8\jdatadst.c">
+      <Filter>jpeg-8</Filter>
+    </ClCompile>
+    <ClCompile Include="jpeg-8\jdatasrc.c">
+      <Filter>jpeg-8</Filter>
+    </ClCompile>
+    <ClCompile Include="jpeg-8\jdcoefct.c">
+      <Filter>jpeg-8</Filter>
+    </ClCompile>
+    <ClCompile Include="jpeg-8\jdcolor.c">
+      <Filter>jpeg-8</Filter>
+    </ClCompile>
+    <ClCompile Include="jpeg-8\jddctmgr.c">
+      <Filter>jpeg-8</Filter>
+    </ClCompile>
+    <ClCompile Include="jpeg-8\jdhuff.c">
+      <Filter>jpeg-8</Filter>
+    </ClCompile>
+    <ClCompile Include="jpeg-8\jdinput.c">
+      <Filter>jpeg-8</Filter>
+    </ClCompile>
+    <ClCompile Include="jpeg-8\jdmainct.c">
+      <Filter>jpeg-8</Filter>
+    </ClCompile>
+    <ClCompile Include="jpeg-8\jdmarker.c">
+      <Filter>jpeg-8</Filter>
+    </ClCompile>
+    <ClCompile Include="jpeg-8\jdmaster.c">
+      <Filter>jpeg-8</Filter>
+    </ClCompile>
+    <ClCompile Include="jpeg-8\jdmerge.c">
+      <Filter>jpeg-8</Filter>
+    </ClCompile>
+    <ClCompile Include="jpeg-8\jdpostct.c">
+      <Filter>jpeg-8</Filter>
+    </ClCompile>
+    <ClCompile Include="jpeg-8\jdsample.c">
+      <Filter>jpeg-8</Filter>
+    </ClCompile>
+    <ClCompile Include="jpeg-8\jdtrans.c">
+      <Filter>jpeg-8</Filter>
+    </ClCompile>
+    <ClCompile Include="jpeg-8\jerror.c">
+      <Filter>jpeg-8</Filter>
+    </ClCompile>
+    <ClCompile Include="jpeg-8\jfdctflt.c">
+      <Filter>jpeg-8</Filter>
+    </ClCompile>
+    <ClCompile Include="jpeg-8\jfdctfst.c">
+      <Filter>jpeg-8</Filter>
+    </ClCompile>
+    <ClCompile Include="jpeg-8\jfdctint.c">
+      <Filter>jpeg-8</Filter>
+    </ClCompile>
+    <ClCompile Include="jpeg-8\jidctflt.c">
+      <Filter>jpeg-8</Filter>
+    </ClCompile>
+    <ClCompile Include="jpeg-8\jidctfst.c">
+      <Filter>jpeg-8</Filter>
+    </ClCompile>
+    <ClCompile Include="jpeg-8\jidctint.c">
+      <Filter>jpeg-8</Filter>
+    </ClCompile>
+    <ClCompile Include="jpeg-8\jmemmgr.c">
+      <Filter>jpeg-8</Filter>
+    </ClCompile>
+    <ClCompile Include="jpeg-8\jmemnobs.c">
+      <Filter>jpeg-8</Filter>
+    </ClCompile>
+    <ClCompile Include="jpeg-8\jquant1.c">
+      <Filter>jpeg-8</Filter>
+    </ClCompile>
+    <ClCompile Include="jpeg-8\jquant2.c">
+      <Filter>jpeg-8</Filter>
+    </ClCompile>
+    <ClCompile Include="jpeg-8\jutils.c">
+      <Filter>jpeg-8</Filter>
+    </ClCompile>
+    <ClCompile Include="png\png.c">
+      <Filter>png</Filter>
+    </ClCompile>
+    <ClCompile Include="png\pngerror.c">
+      <Filter>png</Filter>
+    </ClCompile>
+    <ClCompile Include="png\pngget.c">
+      <Filter>png</Filter>
+    </ClCompile>
+    <ClCompile Include="png\pngmem.c">
+      <Filter>png</Filter>
+    </ClCompile>
+    <ClCompile Include="png\pngpread.c">
+      <Filter>png</Filter>
+    </ClCompile>
+    <ClCompile Include="png\pngread.c">
+      <Filter>png</Filter>
+    </ClCompile>
+    <ClCompile Include="png\pngrio.c">
+      <Filter>png</Filter>
+    </ClCompile>
+    <ClCompile Include="png\pngrtran.c">
+      <Filter>png</Filter>
+    </ClCompile>
+    <ClCompile Include="png\pngrutil.c">
+      <Filter>png</Filter>
+    </ClCompile>
+    <ClCompile Include="png\pngset.c">
+      <Filter>png</Filter>
+    </ClCompile>
+    <ClCompile Include="png\pngtrans.c">
+      <Filter>png</Filter>
+    </ClCompile>
+    <ClCompile Include="png\pngwio.c">
+      <Filter>png</Filter>
+    </ClCompile>
+    <ClCompile Include="png\pngwrite.c">
+      <Filter>png</Filter>
+    </ClCompile>
+    <ClCompile Include="png\pngwtran.c">
+      <Filter>png</Filter>
+    </ClCompile>
+    <ClCompile Include="png\pngwutil.c">
+      <Filter>png</Filter>
+    </ClCompile>
+    <ClCompile Include="glew\src\glew.c">
+      <Filter>glew</Filter>
+    </ClCompile>
+    <ClCompile Include="randomc\mersenne.cpp">
+      <Filter>randomc</Filter>
+    </ClCompile>
+    <ClCompile Include="randomc\mother.cpp">
+      <Filter>randomc</Filter>
+    </ClCompile>
+    <ClCompile Include="randomc\rancombi.cpp">
+      <Filter>randomc</Filter>
+    </ClCompile>
+    <ClCompile Include="randomc\random.cpp">
+      <Filter>randomc</Filter>
+    </ClCompile>
+    <ClCompile Include="randomc\ranrotb.cpp">
+      <Filter>randomc</Filter>
+    </ClCompile>
+    <ClCompile Include="randomc\ranrotw.cpp">
+      <Filter>randomc</Filter>
+    </ClCompile>
+    <ClCompile Include="randomc\sobol.cpp">
+      <Filter>randomc</Filter>
+    </ClCompile>
+    <ClCompile Include="Shoemake\EulerAngles.cpp">
+      <Filter>Shoemake</Filter>
+    </ClCompile>
+    <ClCompile Include="glfw3\src\wgl_context.c">
+      <Filter>glfw3</Filter>
+    </ClCompile>
+    <ClCompile Include="glfw3\src\win32_clipboard.c">
+      <Filter>glfw3</Filter>
+    </ClCompile>
+    <ClCompile Include="glfw3\src\win32_gamma.c">
+      <Filter>glfw3</Filter>
+    </ClCompile>
+    <ClCompile Include="glfw3\src\win32_init.c">
+      <Filter>glfw3</Filter>
+    </ClCompile>
+    <ClCompile Include="glfw3\src\win32_joystick.c">
+      <Filter>glfw3</Filter>
+    </ClCompile>
+    <ClCompile Include="glfw3\src\win32_monitor.c">
+      <Filter>glfw3</Filter>
+    </ClCompile>
+    <ClCompile Include="glfw3\src\win32_time.c">
+      <Filter>glfw3</Filter>
+    </ClCompile>
+    <ClCompile Include="glfw3\src\win32_window.c">
+      <Filter>glfw3</Filter>
+    </ClCompile>
+    <ClCompile Include="glfw3\src\window.c">
+      <Filter>glfw3</Filter>
+    </ClCompile>
+    <ClCompile Include="glfw3\src\clipboard.c">
+      <Filter>glfw3</Filter>
+    </ClCompile>
+    <ClCompile Include="glfw3\src\context.c">
+      <Filter>glfw3</Filter>
+    </ClCompile>
+    <ClCompile Include="glfw3\src\gamma.c">
+      <Filter>glfw3</Filter>
+    </ClCompile>
+    <ClCompile Include="glfw3\src\init.c">
+      <Filter>glfw3</Filter>
+    </ClCompile>
+    <ClCompile Include="glfw3\src\input.c">
+      <Filter>glfw3</Filter>
+    </ClCompile>
+    <ClCompile Include="glfw3\src\joystick.c">
+      <Filter>glfw3</Filter>
+    </ClCompile>
+    <ClCompile Include="glfw3\src\monitor.c">
+      <Filter>glfw3</Filter>
+    </ClCompile>
+    <ClCompile Include="glfw3\src\time.c">
+      <Filter>glfw3</Filter>
+    </ClCompile>
+    <ClCompile Include="Shoemake\Decompose.cpp">
+      <Filter>Shoemake</Filter>
+    </ClCompile>
+    <ClCompile Include="nvwa\debug_new.cpp">
+      <Filter>nvwa</Filter>
+    </ClCompile>
+    <ClCompile Include="zlib\adler32.c">
+      <Filter>zlib</Filter>
+    </ClCompile>
+    <ClCompile Include="zlib\compress.c">
+      <Filter>zlib</Filter>
+    </ClCompile>
+    <ClCompile Include="zlib\crc32.c">
+      <Filter>zlib</Filter>
+    </ClCompile>
+    <ClCompile Include="zlib\deflate.c">
+      <Filter>zlib</Filter>
+    </ClCompile>
+    <ClCompile Include="zlib\gzclose.c">
+      <Filter>zlib</Filter>
+    </ClCompile>
+    <ClCompile Include="zlib\gzlib.c">
+      <Filter>zlib</Filter>
+    </ClCompile>
+    <ClCompile Include="zlib\gzread.c">
+      <Filter>zlib</Filter>
+    </ClCompile>
+    <ClCompile Include="zlib\gzwrite.c">
+      <Filter>zlib</Filter>
+    </ClCompile>
+    <ClCompile Include="zlib\infback.c">
+      <Filter>zlib</Filter>
+    </ClCompile>
+    <ClCompile Include="zlib\inffas8664.c">
+      <Filter>zlib</Filter>
+    </ClCompile>
+    <ClCompile Include="zlib\inffast.c">
+      <Filter>zlib</Filter>
+    </ClCompile>
+    <ClCompile Include="zlib\inflate.c">
+      <Filter>zlib</Filter>
+    </ClCompile>
+    <ClCompile Include="zlib\inftrees.c">
+      <Filter>zlib</Filter>
+    </ClCompile>
+    <ClCompile Include="zlib\ioapi.c">
+      <Filter>zlib</Filter>
+    </ClCompile>
+    <ClCompile Include="zlib\trees.c">
+      <Filter>zlib</Filter>
+    </ClCompile>
+    <ClCompile Include="zlib\uncompr.c">
+      <Filter>zlib</Filter>
+    </ClCompile>
+    <ClCompile Include="zlib\unzip.c">
+      <Filter>zlib</Filter>
+    </ClCompile>
+    <ClCompile Include="zlib\zutil.c">
+      <Filter>zlib</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="glew\include\GL\glew.h">
+      <Filter>glew</Filter>
+    </ClInclude>
+    <ClInclude Include="glew\include\GL\wglew.h">
+      <Filter>glew</Filter>
+    </ClInclude>
+    <ClInclude Include="randomc\random.h">
+      <Filter>randomc</Filter>
+    </ClInclude>
+    <ClInclude Include="randomc\randomc.h">
+      <Filter>randomc</Filter>
+    </ClInclude>
+    <ClInclude Include="Shoemake\EulerAngles.h">
+      <Filter>Shoemake</Filter>
+    </ClInclude>
+    <ClInclude Include="glfw3\src\internal.h">
+      <Filter>glfw3</Filter>
+    </ClInclude>
+    <ClInclude Include="glfw3\src\wgl_platform.h">
+      <Filter>glfw3</Filter>
+    </ClInclude>
+    <ClInclude Include="glfw3\src\win32_platform.h">
+      <Filter>glfw3</Filter>
+    </ClInclude>
+    <ClInclude Include="glfw3\include\GLFW\glfw3.h">
+      <Filter>glfw3</Filter>
+    </ClInclude>
+    <ClInclude Include="glfw3\include\GLFW\glfw3native.h">
+      <Filter>glfw3</Filter>
+    </ClInclude>
+    <ClInclude Include="Shoemake\Decompose.h">
+      <Filter>Shoemake</Filter>
+    </ClInclude>
+    <ClInclude Include="Shoemake\TypeDefs.h">
+      <Filter>Shoemake</Filter>
+    </ClInclude>
+    <ClInclude Include="nvwa\debug_new.h">
+      <Filter>nvwa</Filter>
+    </ClInclude>
+    <ClInclude Include="zlib\crc32.h">
+      <Filter>zlib</Filter>
+    </ClInclude>
+    <ClInclude Include="zlib\crypt.h">
+      <Filter>zlib</Filter>
+    </ClInclude>
+    <ClInclude Include="zlib\deflate.h">
+      <Filter>zlib</Filter>
+    </ClInclude>
+    <ClInclude Include="zlib\gzguts.h">
+      <Filter>zlib</Filter>
+    </ClInclude>
+    <ClInclude Include="zlib\inffast.h">
+      <Filter>zlib</Filter>
+    </ClInclude>
+    <ClInclude Include="zlib\inffixed.h">
+      <Filter>zlib</Filter>
+    </ClInclude>
+    <ClInclude Include="zlib\inflate.h">
+      <Filter>zlib</Filter>
+    </ClInclude>
+    <ClInclude Include="zlib\inftrees.h">
+      <Filter>zlib</Filter>
+    </ClInclude>
+    <ClInclude Include="zlib\ioapi.h">
+      <Filter>zlib</Filter>
+    </ClInclude>
+    <ClInclude Include="zlib\trees.h">
+      <Filter>zlib</Filter>
+    </ClInclude>
+    <ClInclude Include="zlib\unzip.h">
+      <Filter>zlib</Filter>
+    </ClInclude>
+    <ClInclude Include="zlib\zconf.h">
+      <Filter>zlib</Filter>
+    </ClInclude>
+    <ClInclude Include="zlib\zconf.in.h">
+      <Filter>zlib</Filter>
+    </ClInclude>
+    <ClInclude Include="zlib\zlib.h">
+      <Filter>zlib</Filter>
+    </ClInclude>
+    <ClInclude Include="zlib\zutil.h">
+      <Filter>zlib</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="randomc\RANDOMC.HTM">
+      <Filter>randomc</Filter>
+    </None>
+  </ItemGroup>
+</Project>

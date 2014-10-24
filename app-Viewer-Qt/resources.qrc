@@ -1,0 +1,24 @@
+<RCC>
+    <qresource prefix="/">
+        <file>images/ProjectionOrtho.png</file>
+        <file>images/ProjectionPersp.png</file>
+        <file>images/appIcon24.png</file>
+        <file>images/appIcon36.png</file>
+        <file>images/showAABB.png</file>
+        <file>images/showNormals.png</file>
+        <file>images/showVoxels.png</file>
+        <file>images/showWiremesh.png</file>
+        <file>images/showAxis.png</file>
+        <file>images/stopAnimation.tiff</file>
+        <file>images/showBackfaces.png</file>
+        <file>images/noTextures.png</file>
+        <file>images/splitHorizontal.png</file>
+        <file>images/splitVertical.png</file>
+        <file>images/deleteView.png</file>
+        <file>images/splitInto4Views.png</file>
+        <file>images/singleView.png</file>
+        <file>images/renderGL.png</file>
+        <file>images/renderPT.png</file>
+        <file>images/renderRT.png</file>
+    </qresource>
+</RCC>

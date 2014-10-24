@@ -1,0 +1,22 @@
+///////////////////////////
+//  To do for SLProject  //
+///////////////////////////
+
+Next Steps:
+
+Prio 1:
+ mw: doc for node transform and transform space
+
+Prio 2:
+- mw: Bone animation
+- mw: Implement our own vertex attribute semantics (like D3D already has)
+        for shaders to use and to automate shader attribute binding.
+- mw: Implement RenderQueue and RenderPriorityGroups. 
+- ??: Linux Port mit QtCreator testen und anpassen.
+- ??: Save scene as Collada dae file
+- Edit & update transforms with decompose and compose transforms
+- Edit & update material parameters
+- Edit & update parameters of plantonic meshes
+- Edit Shaderprogs by choosing alternative progs from a dropdown list
+- Integrate RackNet into lib-SLExternal
+- Solve recursive OpenGL repaints during RT and loading screens

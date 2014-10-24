@@ -1,0 +1,176 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Android">
+      <Configuration>Debug</Configuration>
+      <Platform>Android</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Android">
+      <Configuration>Release</Configuration>
+      <Platform>Android</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="apk\AndroidManifest.xml" />
+    <None Include="apk\build.xml">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="apk\project.properties" />
+    <None Include="apk\src\ch\fhnw\comgr\GLES2Activity.java" />
+    <None Include="apk\src\ch\fhnw\comgr\GLES2Lib.java" />
+    <None Include="apk\src\ch\fhnw\comgr\GLES2View.java" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="JNI_Interface.cpp" />
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{158CCAFB-7A8D-4555-91DF-99284FADABEB}</ProjectGuid>
+    <RootNamespace>pp-Demo-Android</RootNamespace>
+    <ProjectName>app-Demo-Android</ProjectName>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Label="Configuration" Condition="'$(Configuration)|$(Platform)'=='Debug|Android'">
+    <PlatformToolset>arm-linux-androideabi-4.6</PlatformToolset>
+    <AndroidArch>armv5te</AndroidArch>
+    <AndroidStlType>gnustl_static</AndroidStlType>
+  </PropertyGroup>
+  <PropertyGroup Label="Configuration" Condition="'$(Configuration)|$(Platform)'=='Release|Android'">
+    <PlatformToolset>arm-linux-androideabi-4.6</PlatformToolset>
+    <AndroidStlType>gnustl_static</AndroidStlType>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Android'">
+    <IntDir>$(SolutionDir)intermediate\$(ProjectName)\$(Configuration)\$(Platform)\</IntDir>
+    <OutDir>$(ProjectDir)$(Configuration)\$(Platform)\</OutDir>
+    <TargetName>GLES2Android</TargetName>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Android'">
+    <OutDir>$(ProjectDir)$(Configuration)\$(Platform)\</OutDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Android'">
+    <IntDir>$(SolutionDir)intermediate\$(ProjectName)\$(Configuration)\$(Platform)\</IntDir>
+    <TargetName>GLES2Android</TargetName>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Android'">
+    <AntBuild>
+      <AntBuildPath>apk</AntBuildPath>
+      <AdbRunAddCmdLine>
+      </AdbRunAddCmdLine>
+    </AntBuild>
+    <Link>
+      <AdditionalOptions>-lGLESv2 %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalDependencies>-l-SLProject;-l-SLExternal-Android;</AdditionalDependencies>
+      <AndroidSystemLibs>c;m;log;gcc;z</AndroidSystemLibs>
+      <AdditionalLibraryDirectories>$(SolutionDir)_lib\$(Configuration)\$(Platform)\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+    </Link>
+    <PostBuildEvent>
+      <Command>
+      </Command>
+    </PostBuildEvent>
+    <PostBuildEvent>
+      <Message>
+      </Message>
+    </PostBuildEvent>
+    <PreBuildEvent>
+      <Command>
+      </Command>
+    </PreBuildEvent>
+    <PreBuildEvent>
+      <Message>
+      </Message>
+    </PreBuildEvent>
+    <ClCompile>
+      <PreprocessorDefinitions>SL_GUI_JAVA;SL_OS_ANDROID;GL_FRAGMENT_PRECISION_HIGH;ASSIMP_BUILD_BOOST_WORKAROUND;ASSIMP_BUILD_NO_OWN_ZLIB;ASSIMP_BUILD_NO_OGRE_IMPORTER;__GNUC__;DISABLE_IMPORTGL</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)\include;..\include;..\lib-SLExternal;..\lib-SLExternal\jpeg-8;..\lib-SLExternal\png;..\lib-SLExternal\zlib;..\lib-SLExternal\glew\include;..\lib-SLExternal\glfw\include;..\lib-SLExternal\randomc;..\lib-SLExternal\oculus\LibOVR\Include\;..\lib-SLExternal\assimp\code\BoostWorkaround;..\lib-SLExternal\assimp\include;..\lib-SLExternal\assimp\code;..\_globals;..\_globals\SL;..\_globals\GL;..\_globals\math;..\_globals\MeshLoader;..\_globals\SpacePartitioning</AdditionalIncludeDirectories>
+      <GccExceptionHandling>false</GccExceptionHandling>
+      <RuntimeTypeInfo>false</RuntimeTypeInfo>
+      <OptimizationLevel>O0</OptimizationLevel>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalUserIncludeDirectories>..\lib-SLExternal\jpeg-8</AdditionalUserIncludeDirectories>
+    </ClCompile>
+    <ProjectReference>
+      <LinkLibraryDependencies>
+      </LinkLibraryDependencies>
+    </ProjectReference>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Android'">
+    <AntBuild>
+      <AntBuildPath>../_globals/GUI/Android/apk</AntBuildPath>
+    </AntBuild>
+    <Link>
+      <AdditionalOptions>-lGLESv2 %(AdditionalOptions)</AdditionalOptions>
+      <AndroidSystemLibs>c;m;log;gcc;z</AndroidSystemLibs>
+      <AdditionalDependencies>lib-SLExternal-Android.a;lib-SLProject.a;</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SolutionDir)_lib\$(Configuration)\$(Platform)\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+    </Link>
+    <ClCompile>
+      <PreprocessorDefinitions>SL_GUI_JAVA;GL_FRAGMENT_PRECISION_HIGH;ASSIMP_BUILD_BOOST_WORKAROUND;ASSIMP_BUILD_NO_OWN_ZLIB;ASSIMP_BUILD_NO_OGRE_IMPORTER</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)\include;..\include;..\lib-SLExternal;..\lib-SLExternal\jpeg-8;..\lib-SLExternal\png;..\lib-SLExternal\zlib;..\lib-SLExternal\glew\include;..\lib-SLExternal\glfw\include;..\lib-SLExternal\randomc;..\lib-SLExternal\oculus\LibOVR\Include\;..\lib-SLExternal\assimp\code\BoostWorkaround;..\lib-SLExternal\assimp\include;..\lib-SLExternal\assimp\code;..\_globals;..\_globals\SL;..\_globals\GL;..\_globals\math;..\_globals\MeshLoader;..\_globals\SpacePartitioning</AdditionalIncludeDirectories>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
+    </ClCompile>
+    <PreBuildEvent>
+      <Command>$(ANDROID_HOME)\platform-tools\adb logcat -c
+
+xcopy ..\_globals\oglsl\*.frag apk\assets\shaders /d/y
+xcopy ..\_globals\oglsl\*.vert apk\assets\shaders /d/y
+del apk\assets\shaders\ADS*
+
+xcopy ..\_data\models\3DS\Halloween\GUTS.BMP apk\assets\models /d/y
+xcopy ..\_data\models\3DS\Halloween\jackolan.3ds apk\assets\models /d/y
+xcopy ..\_data\models\3DS\Halloween\JACKTOP.BMP apk\assets\models /d/y
+xcopy ..\_data\models\3DS\Halloween\JACK_C.BMP apk\assets\models /d/y
+xcopy ..\_data\models\3DS\Halloween\kerze.3DS apk\assets\models /d/y
+xcopy ..\_data\models\3DS\Halloween\stem.3DS apk\assets\models /d/y
+xcopy ..\_data\models\3DS\Halloween\STEM.BMP apk\assets\models /d/y
+
+xcopy ..\_data\images\textures\CompileError.png apk\assets\textures /d/y
+xcopy ..\_data\images\textures\brick0512_C.png apk\assets\textures /d/y
+xcopy ..\_data\images\textures\bricks1_0256_C.jpg apk\assets\textures /d/y
+xcopy ..\_data\images\textures\bricks1_0512_C.jpg apk\assets\textures /d/y
+xcopy ..\_data\images\textures\brickwall0512_C.jpg apk\assets\textures /d/y
+xcopy ..\_data\images\textures\brickwall0512_G.jpg apk\assets\textures /d/y
+xcopy ..\_data\images\textures\brickwall0512_H.jpg apk\assets\textures /d/y
+xcopy ..\_data\images\textures\brickwall0512_N.jpg apk\assets\textures /d/y
+xcopy ..\_data\images\textures\Checkerboard0512_C.png apk\assets\textures /d/y
+xcopy ..\_data\images\textures\Chess0256_C.bmp apk\assets\textures /d/y
+xcopy ..\_data\images\textures\earth1024_C.jpg apk\assets\textures /d/y
+xcopy ..\_data\images\textures\earth1024_G.jpg apk\assets\textures /d/y
+xcopy ..\_data\images\textures\earth1024_H.jpg apk\assets\textures /d/y
+xcopy ..\_data\images\textures\earth1024_N.jpg apk\assets\textures /d/y
+xcopy ..\_data\images\textures\earthCloud1024_A.jpg apk\assets\textures /d/y
+xcopy ..\_data\images\textures\earthCloud1024_C.jpg apk\assets\textures /d/y
+xcopy ..\_data\images\textures\earthNight1024_C.jpg apk\assets\textures /d/y
+xcopy ..\_data\images\textures\grass0512_C.jpg apk\assets\textures /d/y
+xcopy ..\_data\images\textures\gray_0256_C.jpg apk\assets\textures /d/y
+xcopy ..\_data\images\textures\MuttenzerBox+X0512_C.png apk\assets\textures /d/y
+xcopy ..\_data\images\textures\MuttenzerBox+Y0512_C.png apk\assets\textures /d/y
+xcopy ..\_data\images\textures\MuttenzerBox+Z0512_C.png apk\assets\textures /d/y
+xcopy ..\_data\images\textures\MuttenzerBox-X0512_C.png apk\assets\textures /d/y
+xcopy ..\_data\images\textures\MuttenzerBox-Y0512_C.png apk\assets\textures /d/y
+xcopy ..\_data\images\textures\MuttenzerBox-Z0512_C.png apk\assets\textures /d/y
+xcopy ..\_data\images\textures\Pool+X0512_C.png apk\assets\textures /d/y
+xcopy ..\_data\images\textures\Pool+Y0512_C.png apk\assets\textures /d/y
+xcopy ..\_data\images\textures\Pool+Z0512_C.png apk\assets\textures /d/y
+xcopy ..\_data\images\textures\Pool-X0512_C.png apk\assets\textures /d/y
+xcopy ..\_data\images\textures\Pool-Y0512_C.png apk\assets\textures /d/y
+xcopy ..\_data\images\textures\Pool-Z0512_C.png apk\assets\textures /d/y
+xcopy ..\_data\images\textures\Testmap_0512_C.png apk\assets\textures /d/y
+xcopy ..\_data\images\textures\tile1_0256_C.jpg apk\assets\textures /d/y
+xcopy ..\_data\images\textures\tree1_1024_C.png apk\assets\textures /d/y
+xcopy ..\_data\images\textures\wood0_0256_C.jpg apk\assets\textures /d/y
+xcopy ..\_data\images\textures\wood0_0512_C.jpg apk\assets\textures /d/y
+xcopy ..\_data\images\textures\wood2_0256_C.jpg apk\assets\textures /d/y
+xcopy ..\_data\images\textures\wood2_0512_C.jpg apk\assets\textures /d/y</Command>
+    </PreBuildEvent>
+    <ProjectReference>
+      <LinkLibraryDependencies>
+      </LinkLibraryDependencies>
+    </ProjectReference>
+  </ItemDefinitionGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

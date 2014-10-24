@@ -1,0 +1,79 @@
+<project name="Scene Library JOGL Binding" default="build.all">
+	
+	<property name="external.jogl.dir" value="_external/java/jogl" />
+	<property name="lib.dir" value="lib" />
+	<property name="lib.jogl.dir" value="${lib.dir}/jogl" />
+	<property name="lib.jogl.tempFile" value="${lib.jogl.dir}/jogl.zip" />
+	
+	<target name="build.all" depends="libraries" />
+	
+	<target name="libraries" depends="libraries.jogl" />
+	
+	<target name="libraries.jogl.check">
+		<condition property="libraries.jogl.exists">
+			<available file="${lib.jogl.dir}" />
+		</condition>
+	</target>
+	
+	<target name="libraries.jogl" depends="libraries.jogl.check" unless="libraries.jogl.exists">
+		<condition property="joglostype" value="windows-i586">
+			<and>
+				<os family="windows" />
+				<or>
+					<os arch="i386" />
+					<os arch="x86" />
+				</or>
+			</and>
+		</condition>
+		<condition property="joglostype" value="macosx-universal">
+			<and>
+				<os family="mac" />
+			</and>
+		</condition>
+		<condition property="joglostype" value="windows-amd64">
+			<and>
+				<os family="windows" />
+				<os arch="amd64" />
+			</and>
+		</condition>
+		<condition property="joglostype" value="linux-i586">
+			<and>
+				<os name="Linux" />
+				<or>
+					<os arch="i386" />
+					<os arch="x86" />
+				</or>
+			</and>
+		</condition>
+		<condition property="joglostype" value="linux-amd64">
+			<and>
+				<os name="Linux" />
+				<or>
+					<os arch="AMD64" />
+					<os arch="x86_64" />
+				</or>
+			</and>
+		</condition>
+		
+		<echo>Detected operating system: ${joglostype}</echo>
+		<echo>(if invalid OS, update ant build file)</echo>
+	
+		<mkdir dir="${lib.dir}" />
+		<mkdir dir="${lib.jogl.dir}" />
+			
+		<copyfile dest="${lib.jogl.tempFile}" src="${external.jogl.dir}/jogl-2.0-${joglostype}.zip"/>
+		
+		<unzip src="${lib.jogl.tempFile}" dest="${lib.jogl.dir}">
+			<patternset>
+				<include name="**/gluegen-rt.jar" />
+				<include name="**/jogl.all.jar" />
+				<include name="**/nativewindow.all.jar" />
+				<include name="**/newt.all.jar" />
+				<include name="**/*.so" />
+				<include name="**/*.dll" />
+				<include name="**/*.jnilib" />
+			</patternset>
+			<mapper type="flatten" />
+		</unzip>
+	</target>
+</project>

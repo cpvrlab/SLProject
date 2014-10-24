@@ -1,0 +1,504 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Scene">
+      <UniqueIdentifier>{398054d8-2e8f-4f5d-bd7c-ee8f7e981d25}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Raytracer">
+      <UniqueIdentifier>{119c5e99-70ee-4766-8b25-06f54eb080a3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Light &amp; Material">
+      <UniqueIdentifier>{6d097c6f-3eb2-4443-b81d-093490df844a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Nodes">
+      <UniqueIdentifier>{5166d7f8-e849-4624-ae34-c8d84daee612}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Nodes\Meshes">
+      <UniqueIdentifier>{17d36332-222f-423e-af35-0c42bf4c37d3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Nodes\AABB &amp; Animation">
+      <UniqueIdentifier>{91a4c531-dfee-412d-91f7-8fb3052040db}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GL">
+      <UniqueIdentifier>{50684c50-1b10-4d7e-bda4-fcb6062578b5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GLSL">
+      <UniqueIdentifier>{872e8fde-fe6a-48dc-b1d0-da91f52cecd8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="SL">
+      <UniqueIdentifier>{ae21e4eb-1b16-4ee5-b1d1-04cb58a17556}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Math">
+      <UniqueIdentifier>{cf4094e0-b541-41f3-875f-f69a815d37cb}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\include\SLAABBox.h">
+      <Filter>Nodes\AABB &amp; Animation</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\SLAnimation.h">
+      <Filter>Nodes\AABB &amp; Animation</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\SLButton.h">
+      <Filter>Nodes</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\SLCamera.h">
+      <Filter>Nodes</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\SLBox.h">
+      <Filter>Nodes\Meshes</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\SLCone.h">
+      <Filter>Nodes\Meshes</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\SLMesh.h">
+      <Filter>Nodes\Meshes</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\SLCylinder.h">
+      <Filter>Nodes\Meshes</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\SLKeyframe.h">
+      <Filter>Nodes\AABB &amp; Animation</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\SLLightRect.h">
+      <Filter>Nodes</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\SLLightSphere.h">
+      <Filter>Nodes</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\SLPolygon.h">
+      <Filter>Nodes\Meshes</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\SLNode.h">
+      <Filter>Nodes</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\SLPathtracer.h">
+      <Filter>Raytracer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\SLRaytracer.h">
+      <Filter>Raytracer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\SLRay.h">
+      <Filter>Raytracer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\SLMaterial.h">
+      <Filter>Light &amp; Material</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\SLText.h">
+      <Filter>Nodes</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\SLLight.h">
+      <Filter>Light &amp; Material</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\SLScene.h">
+      <Filter>Scene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\SLSceneView.h">
+      <Filter>Scene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\SLSphere.h">
+      <Filter>Nodes\Meshes</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\SLRevolver.h">
+      <Filter>Nodes\Meshes</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\SLRectangle.h">
+      <Filter>Nodes\Meshes</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\SLSamples2D.h">
+      <Filter>Raytracer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\SLGrid.h">
+      <Filter>Nodes\Meshes</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\SLGLBuffer.h">
+      <Filter>GL</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\SLGLOculus.h">
+      <Filter>GL</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\SLGLOculusFB.h">
+      <Filter>GL</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\SLGLOVRWorkaround.h">
+      <Filter>GL</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\SLGLShader.h">
+      <Filter>GL</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\SLGLShaderProg.h">
+      <Filter>GL</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\SLGLShaderProgGeneric.h">
+      <Filter>GL</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\SLGLShaderUniform.h">
+      <Filter>GL</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\SLGLState.h">
+      <Filter>GL</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\SLGLTexture.h">
+      <Filter>GL</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\SLAccelStruct.h">
+      <Filter>Nodes\AABB &amp; Animation</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\SLUniformGrid.h">
+      <Filter>Nodes\AABB &amp; Animation</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\SL.h">
+      <Filter>SL</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\SLAssImp.h">
+      <Filter>SL</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\SLAverage.h">
+      <Filter>SL</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\SLDrawBits.h">
+      <Filter>SL</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\SLEnums.h">
+      <Filter>SL</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\SLEventHandler.h">
+      <Filter>SL</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\SLFileSystem.h">
+      <Filter>SL</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\SLImage.h">
+      <Filter>SL</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\SLInterface.h">
+      <Filter>SL</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\SLTexFont.h">
+      <Filter>SL</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\SLTimer.h">
+      <Filter>SL</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\SLUtils.h">
+      <Filter>SL</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\stdafx.h">
+      <Filter>SL</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\SLObject.h">
+      <Filter>SL</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\SLCurve.h">
+      <Filter>Math</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\SLCurveBezier.h">
+      <Filter>Math</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\SLMat3.h">
+      <Filter>Math</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\SLMat4.h">
+      <Filter>Math</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\SLMath.h">
+      <Filter>Math</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\SLPlane.h">
+      <Filter>Math</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\SLQuat4.h">
+      <Filter>Math</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\SLVec2.h">
+      <Filter>Math</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\SLVec3.h">
+      <Filter>Math</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\SLVec4.h">
+      <Filter>Math</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\TriangleBoxIntersect.h">
+      <Filter>Math</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="source\SLAABBox.cpp">
+      <Filter>Nodes\AABB &amp; Animation</Filter>
+    </ClCompile>
+    <ClCompile Include="source\SLScene.cpp">
+      <Filter>Scene</Filter>
+    </ClCompile>
+    <ClCompile Include="source\SLSceneView.cpp">
+      <Filter>Scene</Filter>
+    </ClCompile>
+    <ClCompile Include="source\SLRay.cpp">
+      <Filter>Raytracer</Filter>
+    </ClCompile>
+    <ClCompile Include="source\SLRaytracer.cpp">
+      <Filter>Raytracer</Filter>
+    </ClCompile>
+    <ClCompile Include="source\SLSamples2D.cpp">
+      <Filter>Raytracer</Filter>
+    </ClCompile>
+    <ClCompile Include="source\SLLight.cpp">
+      <Filter>Light &amp; Material</Filter>
+    </ClCompile>
+    <ClCompile Include="source\SLMaterial.cpp">
+      <Filter>Light &amp; Material</Filter>
+    </ClCompile>
+    <ClCompile Include="source\SLScene_onLoad.cpp">
+      <Filter>Scene</Filter>
+    </ClCompile>
+    <ClCompile Include="source\SLAnimation.cpp">
+      <Filter>Nodes\AABB &amp; Animation</Filter>
+    </ClCompile>
+    <ClCompile Include="source\SLPathtracer.cpp">
+      <Filter>Raytracer</Filter>
+    </ClCompile>
+    <ClCompile Include="source\SLNode.cpp">
+      <Filter>Nodes</Filter>
+    </ClCompile>
+    <ClCompile Include="source\SLText.cpp">
+      <Filter>Nodes</Filter>
+    </ClCompile>
+    <ClCompile Include="source\SLLightSphere.cpp">
+      <Filter>Nodes</Filter>
+    </ClCompile>
+    <ClCompile Include="source\SLLightRect.cpp">
+      <Filter>Nodes</Filter>
+    </ClCompile>
+    <ClCompile Include="source\SLCamera.cpp">
+      <Filter>Nodes</Filter>
+    </ClCompile>
+    <ClCompile Include="source\SLButton.cpp">
+      <Filter>Nodes</Filter>
+    </ClCompile>
+    <ClCompile Include="source\SLBox.cpp">
+      <Filter>Nodes\Meshes</Filter>
+    </ClCompile>
+    <ClCompile Include="source\SLCone.cpp">
+      <Filter>Nodes\Meshes</Filter>
+    </ClCompile>
+    <ClCompile Include="source\SLCylinder.cpp">
+      <Filter>Nodes\Meshes</Filter>
+    </ClCompile>
+    <ClCompile Include="source\SLPolygon.cpp">
+      <Filter>Nodes\Meshes</Filter>
+    </ClCompile>
+    <ClCompile Include="source\SLRectangle.cpp">
+      <Filter>Nodes\Meshes</Filter>
+    </ClCompile>
+    <ClCompile Include="source\SLRevolver.cpp">
+      <Filter>Nodes\Meshes</Filter>
+    </ClCompile>
+    <ClCompile Include="source\SLSphere.cpp">
+      <Filter>Nodes\Meshes</Filter>
+    </ClCompile>
+    <ClCompile Include="source\SLMesh.cpp">
+      <Filter>Nodes\Meshes</Filter>
+    </ClCompile>
+    <ClCompile Include="source\SLGrid.cpp">
+      <Filter>Nodes\Meshes</Filter>
+    </ClCompile>
+    <ClCompile Include="source\SLGLBuffer.cpp">
+      <Filter>GL</Filter>
+    </ClCompile>
+    <ClCompile Include="source\SLGLOculus.cpp">
+      <Filter>GL</Filter>
+    </ClCompile>
+    <ClCompile Include="source\SLGLOculusFB.cpp">
+      <Filter>GL</Filter>
+    </ClCompile>
+    <ClCompile Include="source\SLGLShader.cpp">
+      <Filter>GL</Filter>
+    </ClCompile>
+    <ClCompile Include="source\SLGLShaderProg.cpp">
+      <Filter>GL</Filter>
+    </ClCompile>
+    <ClCompile Include="source\SLGLState.cpp">
+      <Filter>GL</Filter>
+    </ClCompile>
+    <ClCompile Include="source\SLGLTexture.cpp">
+      <Filter>GL</Filter>
+    </ClCompile>
+    <ClCompile Include="source\SLUniformGrid.cpp">
+      <Filter>Nodes\AABB &amp; Animation</Filter>
+    </ClCompile>
+    <ClCompile Include="source\SL\SL.cpp">
+      <Filter>SL</Filter>
+    </ClCompile>
+    <ClCompile Include="source\SL\SLAssImp.cpp">
+      <Filter>SL</Filter>
+    </ClCompile>
+    <ClCompile Include="source\SL\SLFileSystem.cpp">
+      <Filter>SL</Filter>
+    </ClCompile>
+    <ClCompile Include="source\SL\SLImage.cpp">
+      <Filter>SL</Filter>
+    </ClCompile>
+    <ClCompile Include="source\SL\SLInterface.cpp">
+      <Filter>SL</Filter>
+    </ClCompile>
+    <ClCompile Include="source\SL\SLTexFont.cpp">
+      <Filter>SL</Filter>
+    </ClCompile>
+    <ClCompile Include="source\SL\SLTimer.cpp">
+      <Filter>SL</Filter>
+    </ClCompile>
+    <ClCompile Include="source\SL\stdafx.cpp">
+      <Filter>SL</Filter>
+    </ClCompile>
+    <ClCompile Include="source\math\SLCurveBezier.cpp">
+      <Filter>Math</Filter>
+    </ClCompile>
+    <ClCompile Include="source\math\SLPlane.cpp">
+      <Filter>Math</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Readme.html" />
+    <None Include="source\oglsl\ADS.frag">
+      <Filter>GLSL</Filter>
+    </None>
+    <None Include="source\oglsl\ADS.vert">
+      <Filter>GLSL</Filter>
+    </None>
+    <None Include="source\oglsl\ADS_Loesung.vert">
+      <Filter>GLSL</Filter>
+    </None>
+    <None Include="source\oglsl\ADSTex.frag">
+      <Filter>GLSL</Filter>
+    </None>
+    <None Include="source\oglsl\ADSTex.vert">
+      <Filter>GLSL</Filter>
+    </None>
+    <None Include="source\oglsl\ADSTex_Loesung.frag">
+      <Filter>GLSL</Filter>
+    </None>
+    <None Include="source\oglsl\ADSTex_Loesung.vert">
+      <Filter>GLSL</Filter>
+    </None>
+    <None Include="source\oglsl\BumpNormal.frag">
+      <Filter>GLSL</Filter>
+    </None>
+    <None Include="source\oglsl\BumpNormal.vert">
+      <Filter>GLSL</Filter>
+    </None>
+    <None Include="source\oglsl\BumpNormalEarth.frag">
+      <Filter>GLSL</Filter>
+    </None>
+    <None Include="source\oglsl\BumpNormalParallax.frag">
+      <Filter>GLSL</Filter>
+    </None>
+    <None Include="source\oglsl\Color.frag">
+      <Filter>GLSL</Filter>
+    </None>
+    <None Include="source\oglsl\ColorAttribute.vert">
+      <Filter>GLSL</Filter>
+    </None>
+    <None Include="source\oglsl\ColorUniform.vert">
+      <Filter>GLSL</Filter>
+    </None>
+    <None Include="source\oglsl\Diffuse.frag">
+      <Filter>GLSL</Filter>
+    </None>
+    <None Include="source\oglsl\Diffuse.vert">
+      <Filter>GLSL</Filter>
+    </None>
+    <None Include="source\oglsl\Earth.frag">
+      <Filter>GLSL</Filter>
+    </None>
+    <None Include="source\oglsl\ErrorTex.frag">
+      <Filter>GLSL</Filter>
+    </None>
+    <None Include="source\oglsl\ErrorTex.vert">
+      <Filter>GLSL</Filter>
+    </None>
+    <None Include="source\oglsl\FontTex.frag">
+      <Filter>GLSL</Filter>
+    </None>
+    <None Include="source\oglsl\FontTex.vert">
+      <Filter>GLSL</Filter>
+    </None>
+    <None Include="source\oglsl\PerPixBlinn.frag">
+      <Filter>GLSL</Filter>
+    </None>
+    <None Include="source\oglsl\PerPixBlinn.vert">
+      <Filter>GLSL</Filter>
+    </None>
+    <None Include="source\oglsl\PerPixBlinnTex.frag">
+      <Filter>GLSL</Filter>
+    </None>
+    <None Include="source\oglsl\PerPixBlinnTex.vert">
+      <Filter>GLSL</Filter>
+    </None>
+    <None Include="source\oglsl\PerVrtBlinn.frag">
+      <Filter>GLSL</Filter>
+    </None>
+    <None Include="source\oglsl\PerVrtBlinn.vert">
+      <Filter>GLSL</Filter>
+    </None>
+    <None Include="source\oglsl\PerVrtBlinnTex.frag">
+      <Filter>GLSL</Filter>
+    </None>
+    <None Include="source\oglsl\PerVrtBlinnTex.vert">
+      <Filter>GLSL</Filter>
+    </None>
+    <None Include="source\oglsl\Reflect.frag">
+      <Filter>GLSL</Filter>
+    </None>
+    <None Include="source\oglsl\Reflect.vert">
+      <Filter>GLSL</Filter>
+    </None>
+    <None Include="source\oglsl\RefractReflect.frag">
+      <Filter>GLSL</Filter>
+    </None>
+    <None Include="source\oglsl\RefractReflect.vert">
+      <Filter>GLSL</Filter>
+    </None>
+    <None Include="source\oglsl\RefractReflectDisp.frag">
+      <Filter>GLSL</Filter>
+    </None>
+    <None Include="source\oglsl\RefractReflectDisp.vert">
+      <Filter>GLSL</Filter>
+    </None>
+    <None Include="source\oglsl\SceneOculus.frag">
+      <Filter>GLSL</Filter>
+    </None>
+    <None Include="source\oglsl\SceneOculus.vert">
+      <Filter>GLSL</Filter>
+    </None>
+    <None Include="source\oglsl\StereoOculus.frag">
+      <Filter>GLSL</Filter>
+    </None>
+    <None Include="source\oglsl\StereoOculus.vert">
+      <Filter>GLSL</Filter>
+    </None>
+    <None Include="source\oglsl\StereoOculusDistortionMesh.frag">
+      <Filter>GLSL</Filter>
+    </None>
+    <None Include="source\oglsl\StereoOculusDistortionMesh.vert">
+      <Filter>GLSL</Filter>
+    </None>
+    <None Include="source\oglsl\TextureOnly.frag">
+      <Filter>GLSL</Filter>
+    </None>
+    <None Include="source\oglsl\TextureOnly.vert">
+      <Filter>GLSL</Filter>
+    </None>
+    <None Include="source\oglsl\Wave.frag">
+      <Filter>GLSL</Filter>
+    </None>
+    <None Include="source\oglsl\Wave.vert">
+      <Filter>GLSL</Filter>
+    </None>
+    <None Include="source\oglsl\WaveRefractReflect.vert">
+      <Filter>GLSL</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="ToDo.txt" />
+  </ItemGroup>
+</Project>

@@ -1,0 +1,1537 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>qtMainWindow</class>
+ <widget class="QMainWindow" name="qtMainWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>723</width>
+    <height>472</height>
+   </rect>
+  </property>
+  <property name="minimumSize">
+   <size>
+    <width>640</width>
+    <height>400</height>
+   </size>
+  </property>
+  <property name="focusPolicy">
+   <enum>Qt::NoFocus</enum>
+  </property>
+  <property name="windowTitle">
+   <string>qtMainWindow</string>
+  </property>
+  <property name="dockOptions">
+   <set>QMainWindow::AllowNestedDocks|QMainWindow::AllowTabbedDocks|QMainWindow::AnimatedDocks</set>
+  </property>
+  <widget class="QWidget" name="centralWidget"/>
+  <widget class="QMenuBar" name="menuBar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>723</width>
+     <height>22</height>
+    </rect>
+   </property>
+   <property name="defaultUp">
+    <bool>false</bool>
+   </property>
+   <property name="nativeMenuBar">
+    <bool>false</bool>
+   </property>
+   <widget class="QMenu" name="menuFile">
+    <property name="title">
+     <string>File</string>
+    </property>
+    <property name="toolTipsVisible">
+     <bool>true</bool>
+    </property>
+    <widget class="QMenu" name="menuLoad_Scene">
+     <property name="title">
+      <string>Load Scene</string>
+     </property>
+     <widget class="QMenu" name="menuGeneral_Scenes">
+      <property name="title">
+       <string>General Scenes</string>
+      </property>
+      <addaction name="actionSmall_Test_Scene"/>
+      <addaction name="actionLarge_Model"/>
+      <addaction name="actionFigure"/>
+      <addaction name="actionMesh_Loader"/>
+      <addaction name="actionTexture_Blending"/>
+      <addaction name="actionTexture_Filtering"/>
+      <addaction name="actionFrustum_Culling_1"/>
+      <addaction name="actionFrustum_Culling_2"/>
+      <addaction name="actionMass_Animation"/>
+     </widget>
+     <widget class="QMenu" name="menuShader_Scenes">
+      <property name="title">
+       <string>Shader Scenes</string>
+      </property>
+      <addaction name="actionPer_Vertex_Lighting"/>
+      <addaction name="actionPer_Pixel_Lighting"/>
+      <addaction name="actionPer_Vertex_Wave"/>
+      <addaction name="actionWater"/>
+      <addaction name="actionBump_Mapping"/>
+      <addaction name="actionParallax_Mapping"/>
+      <addaction name="actionGlass_Shader"/>
+      <addaction name="actionEarth_Shader"/>
+     </widget>
+     <widget class="QMenu" name="menuRay_Tracing_Scenes">
+      <property name="title">
+       <string>Ray Tracing Scenes</string>
+      </property>
+      <addaction name="actionRT_Spheres"/>
+      <addaction name="actionRT_Muttenzer_Box"/>
+      <addaction name="actionRT_Depth_of_Field"/>
+      <addaction name="actionSoft_Shadows"/>
+     </widget>
+     <addaction name="menuGeneral_Scenes"/>
+     <addaction name="menuShader_Scenes"/>
+     <addaction name="menuRay_Tracing_Scenes"/>
+    </widget>
+    <addaction name="menuLoad_Scene"/>
+    <addaction name="separator"/>
+    <addaction name="action_Quit"/>
+   </widget>
+   <widget class="QMenu" name="menuCamera">
+    <property name="title">
+     <string>Camera</string>
+    </property>
+    <widget class="QMenu" name="menuProjection">
+     <property name="title">
+      <string>Projection</string>
+     </property>
+     <widget class="QMenu" name="menuStereo">
+      <property name="title">
+       <string>Stereo</string>
+      </property>
+      <widget class="QMenu" name="menuEye_Separation">
+       <property name="title">
+        <string>Eye Separation</string>
+       </property>
+       <addaction name="action_eyeSepInc10"/>
+       <addaction name="action_eyeSepDec10"/>
+      </widget>
+      <widget class="QMenu" name="menuFocal_Distance">
+       <property name="title">
+        <string>Focal Distance</string>
+       </property>
+       <addaction name="action_focalDistInc"/>
+       <addaction name="action_focalDistDec"/>
+      </widget>
+      <addaction name="actionSide_by_side"/>
+      <addaction name="actionSide_by_side_proportional"/>
+      <addaction name="actionSide_by_side_distorted"/>
+      <addaction name="actionLine_by_line"/>
+      <addaction name="actionColumn_by_column"/>
+      <addaction name="actionPixel_by_pixel"/>
+      <addaction name="actionColor_Red_Cyan"/>
+      <addaction name="actionColor_Red_Green"/>
+      <addaction name="actionColor_Red_Blue"/>
+      <addaction name="actionColor_Cyan_Yellow"/>
+      <addaction name="menuEye_Separation"/>
+      <addaction name="menuFocal_Distance"/>
+     </widget>
+     <addaction name="actionPerspective"/>
+     <addaction name="actionOrthographic"/>
+     <addaction name="menuStereo"/>
+    </widget>
+    <widget class="QMenu" name="menuField_of_View">
+     <property name="title">
+      <string>Field of View</string>
+     </property>
+     <addaction name="action_fovInc10"/>
+     <addaction name="action_fovDec10"/>
+    </widget>
+    <widget class="QMenu" name="menuAnimation">
+     <property name="title">
+      <string>Animation</string>
+     </property>
+     <addaction name="actionTurntable_Y_up"/>
+     <addaction name="actionTurntable_Z_up"/>
+     <addaction name="actionWalking_Y_up"/>
+     <addaction name="actionWalking_Z_up"/>
+    </widget>
+    <widget class="QMenu" name="menuForward_Speed">
+     <property name="title">
+      <string>Forward Speed</string>
+     </property>
+     <addaction name="action_speedInc"/>
+     <addaction name="action_speedDec"/>
+    </widget>
+    <addaction name="actionReset"/>
+    <addaction name="actionUse_SceneView_Camera"/>
+    <addaction name="menuProjection"/>
+    <addaction name="menuAnimation"/>
+    <addaction name="menuField_of_View"/>
+    <addaction name="menuForward_Speed"/>
+   </widget>
+   <widget class="QMenu" name="menuRender_Flags">
+    <property name="title">
+     <string>Renderflags</string>
+    </property>
+    <addaction name="actionAntialiasing"/>
+    <addaction name="actionView_Frustum_Culling"/>
+    <addaction name="actionDepthTest"/>
+    <addaction name="actionSlowdown_on_Idle"/>
+    <addaction name="separator"/>
+    <addaction name="actionShow_Normals"/>
+    <addaction name="actionShow_Wired_Mesh"/>
+    <addaction name="actionShow_Bounding_Boxes"/>
+    <addaction name="actionShow_Axis"/>
+    <addaction name="actionShow_Backfaces"/>
+    <addaction name="actionShow_Voxels"/>
+    <addaction name="actionTextures_off"/>
+    <addaction name="actionAnimation_off"/>
+   </widget>
+   <widget class="QMenu" name="menuInfos">
+    <property name="title">
+     <string>Infos</string>
+    </property>
+    <addaction name="actionShow_DockScenegraph"/>
+    <addaction name="actionShow_DockProperties"/>
+    <addaction name="actionShow_Toolbar"/>
+    <addaction name="actionShow_Statusbar"/>
+    <addaction name="separator"/>
+    <addaction name="actionShow_Statistics"/>
+    <addaction name="actionShow_Scene_Info"/>
+    <addaction name="actionShow_Menu"/>
+    <addaction name="separator"/>
+   </widget>
+   <widget class="QMenu" name="menuRenderer">
+    <property name="title">
+     <string>Renderer</string>
+    </property>
+    <addaction name="actionOpenGL"/>
+    <addaction name="actionRay_Tracer"/>
+    <addaction name="actionPath_Tracer"/>
+   </widget>
+   <widget class="QMenu" name="menuRay_Tracing">
+    <property name="enabled">
+     <bool>true</bool>
+    </property>
+    <property name="title">
+     <string>Ray tracing</string>
+    </property>
+    <addaction name="actionRender_to_depth_1"/>
+    <addaction name="actionRender_to_depth_2"/>
+    <addaction name="actionRender_to_depth_5"/>
+    <addaction name="actionRender_to_max_depth"/>
+    <addaction name="actionConstant_Redering"/>
+    <addaction name="actionRender_Distributed_RT_features"/>
+   </widget>
+   <widget class="QMenu" name="menuPath_tracing">
+    <property name="title">
+     <string>Path tracing</string>
+    </property>
+    <addaction name="action1_Sample"/>
+    <addaction name="action10_Samples"/>
+    <addaction name="action100_Sample"/>
+    <addaction name="action1000_Samples"/>
+    <addaction name="action10000_Samples"/>
+   </widget>
+   <widget class="QMenu" name="menuWindow">
+    <property name="title">
+     <string>Window</string>
+    </property>
+    <addaction name="actionFullscreen"/>
+    <addaction name="separator"/>
+    <addaction name="actionSplit_active_view_horizontally"/>
+    <addaction name="actionSplit_active_view_vertically"/>
+    <addaction name="actionSplit_into_4_views"/>
+    <addaction name="actionDelete_active_view"/>
+    <addaction name="actionSingle_view"/>
+   </widget>
+   <widget class="QMenu" name="menuHelp">
+    <property name="title">
+     <string>Help</string>
+    </property>
+    <addaction name="actionAbout_SLProject"/>
+    <addaction name="actionAbout_Qt"/>
+    <addaction name="actionCredits"/>
+   </widget>
+   <addaction name="menuFile"/>
+   <addaction name="menuRenderer"/>
+   <addaction name="menuInfos"/>
+   <addaction name="menuCamera"/>
+   <addaction name="menuRender_Flags"/>
+   <addaction name="menuRay_Tracing"/>
+   <addaction name="menuPath_tracing"/>
+   <addaction name="menuWindow"/>
+   <addaction name="menuHelp"/>
+  </widget>
+  <widget class="QStatusBar" name="statusBar"/>
+  <widget class="QDockWidget" name="dockScenegraph">
+   <property name="sizePolicy">
+    <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+     <horstretch>0</horstretch>
+     <verstretch>0</verstretch>
+    </sizepolicy>
+   </property>
+   <property name="minimumSize">
+    <size>
+     <width>160</width>
+     <height>100</height>
+    </size>
+   </property>
+   <property name="floating">
+    <bool>false</bool>
+   </property>
+   <property name="windowTitle">
+    <string>Scenegraph</string>
+   </property>
+   <attribute name="dockWidgetArea">
+    <number>1</number>
+   </attribute>
+   <widget class="QWidget" name="dockWidgetContents">
+    <property name="layoutDirection">
+     <enum>Qt::LeftToRight</enum>
+    </property>
+    <property name="autoFillBackground">
+     <bool>false</bool>
+    </property>
+    <layout class="QVBoxLayout" name="verticalLayout_2">
+     <property name="spacing">
+      <number>0</number>
+     </property>
+     <property name="leftMargin">
+      <number>0</number>
+     </property>
+     <property name="topMargin">
+      <number>0</number>
+     </property>
+     <property name="rightMargin">
+      <number>0</number>
+     </property>
+     <property name="bottomMargin">
+      <number>0</number>
+     </property>
+     <item>
+      <widget class="QTreeWidget" name="nodeTree">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>16777215</width>
+         <height>16777215</height>
+        </size>
+       </property>
+       <property name="font">
+        <font>
+         <pointsize>10</pointsize>
+        </font>
+       </property>
+       <property name="autoScrollMargin">
+        <number>10</number>
+       </property>
+       <property name="alternatingRowColors">
+        <bool>true</bool>
+       </property>
+       <property name="selectionMode">
+        <enum>QAbstractItemView::MultiSelection</enum>
+       </property>
+       <property name="indentation">
+        <number>16</number>
+       </property>
+       <property name="animated">
+        <bool>false</bool>
+       </property>
+       <property name="columnCount">
+        <number>1</number>
+       </property>
+       <attribute name="headerVisible">
+        <bool>false</bool>
+       </attribute>
+       <column>
+        <property name="text">
+         <string notr="true">1</string>
+        </property>
+        <property name="font">
+         <font>
+          <pointsize>10</pointsize>
+         </font>
+        </property>
+       </column>
+      </widget>
+     </item>
+    </layout>
+   </widget>
+  </widget>
+  <widget class="QToolBar" name="toolBar">
+   <property name="windowTitle">
+    <string>toolBar</string>
+   </property>
+   <property name="iconSize">
+    <size>
+     <width>24</width>
+     <height>24</height>
+    </size>
+   </property>
+   <attribute name="toolBarArea">
+    <enum>TopToolBarArea</enum>
+   </attribute>
+   <attribute name="toolBarBreak">
+    <bool>false</bool>
+   </attribute>
+   <addaction name="actionOpenGL"/>
+   <addaction name="actionRay_Tracer"/>
+   <addaction name="separator"/>
+   <addaction name="actionPerspective"/>
+   <addaction name="actionOrthographic"/>
+   <addaction name="separator"/>
+   <addaction name="actionShow_Wired_Mesh"/>
+   <addaction name="actionShow_Normals"/>
+   <addaction name="actionShow_Bounding_Boxes"/>
+   <addaction name="actionShow_Voxels"/>
+   <addaction name="actionShow_Axis"/>
+   <addaction name="actionShow_Backfaces"/>
+   <addaction name="actionTextures_off"/>
+   <addaction name="actionAnimation_off"/>
+   <addaction name="separator"/>
+   <addaction name="actionSplit_active_view_vertically"/>
+   <addaction name="actionSplit_active_view_horizontally"/>
+   <addaction name="actionSplit_into_4_views"/>
+   <addaction name="actionDelete_active_view"/>
+   <addaction name="actionSingle_view"/>
+  </widget>
+  <widget class="QDockWidget" name="dockProperties">
+   <property name="minimumSize">
+    <size>
+     <width>160</width>
+     <height>100</height>
+    </size>
+   </property>
+   <property name="windowTitle">
+    <string>Properties</string>
+   </property>
+   <attribute name="dockWidgetArea">
+    <number>1</number>
+   </attribute>
+   <widget class="QWidget" name="dockWidgetContents_2">
+    <layout class="QVBoxLayout" name="verticalLayout">
+     <property name="spacing">
+      <number>0</number>
+     </property>
+     <property name="leftMargin">
+      <number>0</number>
+     </property>
+     <property name="topMargin">
+      <number>0</number>
+     </property>
+     <property name="rightMargin">
+      <number>0</number>
+     </property>
+     <property name="bottomMargin">
+      <number>0</number>
+     </property>
+     <item>
+      <widget class="qtPropertyTreeWidget" name="propertyTree">
+       <property name="font">
+        <font>
+         <pointsize>10</pointsize>
+        </font>
+       </property>
+       <property name="alternatingRowColors">
+        <bool>true</bool>
+       </property>
+       <property name="indentation">
+        <number>16</number>
+       </property>
+       <property name="rootIsDecorated">
+        <bool>true</bool>
+       </property>
+       <property name="uniformRowHeights">
+        <bool>false</bool>
+       </property>
+       <property name="animated">
+        <bool>true</bool>
+       </property>
+       <property name="headerHidden">
+        <bool>true</bool>
+       </property>
+       <property name="columnCount">
+        <number>2</number>
+       </property>
+       <attribute name="headerVisible">
+        <bool>false</bool>
+       </attribute>
+       <attribute name="headerCascadingSectionResizes">
+        <bool>false</bool>
+       </attribute>
+       <attribute name="headerDefaultSectionSize">
+        <number>150</number>
+       </attribute>
+       <attribute name="headerMinimumSectionSize">
+        <number>50</number>
+       </attribute>
+       <attribute name="headerStretchLastSection">
+        <bool>true</bool>
+       </attribute>
+       <column>
+        <property name="text">
+         <string>Property</string>
+        </property>
+       </column>
+       <column>
+        <property name="text">
+         <string>Value</string>
+        </property>
+       </column>
+      </widget>
+     </item>
+    </layout>
+   </widget>
+  </widget>
+  <action name="action_Quit">
+   <property name="text">
+    <string>Quit</string>
+   </property>
+  </action>
+  <action name="actionSmall_Test_Scene">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Small Test Scene</string>
+   </property>
+   <property name="statusTip">
+    <string>Loads a small predefined scene</string>
+   </property>
+  </action>
+  <action name="actionLarge_Model">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Large Model</string>
+   </property>
+   <property name="statusTip">
+    <string>Loads a large model xyzrgb_dragon.ply (137 MB) form https://graphics.stanford.edu/data/3Dscanrep</string>
+   </property>
+  </action>
+  <action name="actionFigure">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Figure</string>
+   </property>
+   <property name="statusTip">
+    <string>Loads a hierarchical figure with some animated objects </string>
+   </property>
+  </action>
+  <action name="actionMesh_Loader">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Mesh Loader</string>
+   </property>
+   <property name="statusTip">
+    <string>Loads some models from different mesh formats</string>
+   </property>
+  </action>
+  <action name="actionTexture_Blending">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Texture Blending</string>
+   </property>
+   <property name="statusTip">
+    <string>Loads a scene with transparent trees for depth sort testing</string>
+   </property>
+  </action>
+  <action name="actionFrustum_Culling_1">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Frustum Culling 1</string>
+   </property>
+   <property name="statusTip">
+    <string>Loads a scene with many spheres out of the view frustum for testing the frustum culling.</string>
+   </property>
+  </action>
+  <action name="actionFrustum_Culling_2">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Frustum Culling 2</string>
+   </property>
+   <property name="statusTip">
+    <string>Loads a scene many animated figures for testing the update traversal</string>
+   </property>
+  </action>
+  <action name="actionTexture_Filtering">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Texture Filtering</string>
+   </property>
+   <property name="statusTip">
+    <string>Loads a scene that tests all texture filtering modes</string>
+   </property>
+  </action>
+  <action name="actionPer_Vertex_Lighting">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Per Vertex Lighting</string>
+   </property>
+   <property name="statusTip">
+    <string>Loads a scene for standard per vertex lighting</string>
+   </property>
+  </action>
+  <action name="actionPer_Pixel_Lighting">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Per Pixel Lighting</string>
+   </property>
+   <property name="statusTip">
+    <string>Loads a scene for standard per pixel lighting</string>
+   </property>
+  </action>
+  <action name="actionPer_Vertex_Wave">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Per Vertex Wave</string>
+   </property>
+   <property name="statusTip">
+    <string>Loads a scene with a vertex wave shader</string>
+   </property>
+  </action>
+  <action name="actionWater">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Water Shader</string>
+   </property>
+   <property name="statusTip">
+    <string>Loads a scene with a water shader with reflections and refractions</string>
+   </property>
+  </action>
+  <action name="actionBump_Mapping">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Bump Mapping</string>
+   </property>
+   <property name="statusTip">
+    <string>Loads a scene with texture bump mapping</string>
+   </property>
+  </action>
+  <action name="actionParallax_Mapping">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Parallax Mapping</string>
+   </property>
+   <property name="statusTip">
+    <string>Loads a scene with texture parallax mapping</string>
+   </property>
+  </action>
+  <action name="actionGlass_Shader">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Glass Shader</string>
+   </property>
+   <property name="statusTip">
+    <string>Loads a scene with various revolving objects</string>
+   </property>
+  </action>
+  <action name="actionEarth_Shader">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Earth Shader</string>
+   </property>
+   <property name="statusTip">
+    <string>Loads a scene with a special earth shader using 6 different textures</string>
+   </property>
+  </action>
+  <action name="actionRT_Spheres">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Spheres</string>
+   </property>
+   <property name="statusTip">
+    <string>Loads a classic scene for ray tracing.</string>
+   </property>
+  </action>
+  <action name="actionRT_Muttenzer_Box">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Muttenzer Box</string>
+   </property>
+   <property name="statusTip">
+    <string>Loads a classic scene for ray tracing or path tracing</string>
+   </property>
+  </action>
+  <action name="actionRT_Depth_of_Field">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Depth of Field</string>
+   </property>
+   <property name="statusTip">
+    <string>Loads a scene for testing the depth of field feature in distributed ray tracing</string>
+   </property>
+  </action>
+  <action name="actionSoft_Shadows">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Soft Shadows</string>
+   </property>
+   <property name="statusTip">
+    <string>Loads a scene for testing the smooth shadow feature from distributed ray tracing</string>
+   </property>
+  </action>
+  <action name="actionReset">
+   <property name="text">
+    <string>Reset</string>
+   </property>
+   <property name="statusTip">
+    <string>Resets the camera position and projection. Press shift to apply on all views.</string>
+   </property>
+  </action>
+  <action name="actionPerspective">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="resources.qrc">
+     <normaloff>:/images/ProjectionPersp.png</normaloff>:/images/ProjectionPersp.png</iconset>
+   </property>
+   <property name="text">
+    <string>Perspective</string>
+   </property>
+   <property name="toolTip">
+    <string>Perspective projection</string>
+   </property>
+   <property name="statusTip">
+    <string> Shows the current view in perspective projection. Press shift to apply on all views.</string>
+   </property>
+   <property name="shortcutContext">
+    <enum>Qt::ApplicationShortcut</enum>
+   </property>
+  </action>
+  <action name="actionOrthographic">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="resources.qrc">
+     <normaloff>:/images/ProjectionOrtho.png</normaloff>:/images/ProjectionOrtho.png</iconset>
+   </property>
+   <property name="text">
+    <string>Orthographic</string>
+   </property>
+   <property name="toolTip">
+    <string>Orthographic projection</string>
+   </property>
+   <property name="statusTip">
+    <string>Shows the current view in orthographic projection without perspective shortening.</string>
+   </property>
+   <property name="shortcutContext">
+    <enum>Qt::ApplicationShortcut</enum>
+   </property>
+  </action>
+  <action name="actionSide_by_side">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Side by side </string>
+   </property>
+   <property name="statusTip">
+    <string>Shows the current view in side by side stereo projection. This type is mostly used by HDMI tv's.</string>
+   </property>
+  </action>
+  <action name="actionSide_by_side_proportional">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Side by side proportional</string>
+   </property>
+   <property name="statusTip">
+    <string>Shows the current view in proportional side by side stereo projection.</string>
+   </property>
+  </action>
+  <action name="actionSide_by_side_distorted">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Side by side distorted</string>
+   </property>
+   <property name="statusTip">
+    <string>Shows the current view in side by distorted side stereo projection. This type is used by the Oculus Rift.</string>
+   </property>
+  </action>
+  <action name="actionLine_by_line">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Line by line</string>
+   </property>
+   <property name="statusTip">
+    <string>Shows the current view in line by line stereo projection used by some tv's.</string>
+   </property>
+  </action>
+  <action name="actionColumn_by_column">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Column by column</string>
+   </property>
+   <property name="statusTip">
+    <string>Shows the current view in columns by column stereo projection used by some tv.</string>
+   </property>
+  </action>
+  <action name="actionPixel_by_pixel">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Pixel by pixel</string>
+   </property>
+   <property name="statusTip">
+    <string>Shows the current view in chessboard pattern stereo projection used by some tv's.</string>
+   </property>
+  </action>
+  <action name="actionColor_Red_Cyan">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Color Red-Cyan</string>
+   </property>
+   <property name="statusTip">
+    <string>Shows the current view in anaglyth stereo projections with the colors red and cyan.</string>
+   </property>
+  </action>
+  <action name="actionColor_Red_Green">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Color Red-Green</string>
+   </property>
+   <property name="statusTip">
+    <string>Shows the current view in anaglyth stereo projections with the colors red and green.</string>
+   </property>
+  </action>
+  <action name="actionColor_Red_Blue">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Color Red-Blue</string>
+   </property>
+   <property name="statusTip">
+    <string>Shows the current view in anaglyth stereo projections with the colors red and blue.</string>
+   </property>
+  </action>
+  <action name="actionColor_Cyan_Yellow">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Color Yellow-Blue</string>
+   </property>
+   <property name="statusTip">
+    <string>Shows the current view in anaglyth stereo projections with the colors cyan and yellow.</string>
+   </property>
+  </action>
+  <action name="action_eyeSepInc10">
+   <property name="text">
+    <string>+ 10%</string>
+   </property>
+   <property name="statusTip">
+    <string>Increases the eye separation distance by 10%</string>
+   </property>
+  </action>
+  <action name="action_eyeSepDec10">
+   <property name="text">
+    <string>- 10%</string>
+   </property>
+   <property name="statusTip">
+    <string>Decreases the eye separation distance by 10%</string>
+   </property>
+  </action>
+  <action name="action_focalDistInc">
+   <property name="text">
+    <string>+ 20%</string>
+   </property>
+   <property name="statusTip">
+    <string>Increases the focal distance to the zero parallax plan by 20%</string>
+   </property>
+  </action>
+  <action name="action_focalDistDec">
+   <property name="text">
+    <string>- 20%</string>
+   </property>
+   <property name="statusTip">
+    <string>Decreases the focal distance to the zero parallax plan by 20%</string>
+   </property>
+  </action>
+  <action name="action_fovInc10">
+   <property name="text">
+    <string>+ 10%</string>
+   </property>
+   <property name="shortcutContext">
+    <enum>Qt::ApplicationShortcut</enum>
+   </property>
+  </action>
+  <action name="action_fovDec10">
+   <property name="text">
+    <string>- 10%</string>
+   </property>
+   <property name="shortcutContext">
+    <enum>Qt::ApplicationShortcut</enum>
+   </property>
+  </action>
+  <action name="actionTurntable_Y_up">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Turntable Y up</string>
+   </property>
+   <property name="iconText">
+    <string>Turntable Rotation Y-axis up</string>
+   </property>
+   <property name="statusTip">
+    <string>Sets the current mouse camera animation to a turntable rotation around the y-axis.</string>
+   </property>
+  </action>
+  <action name="actionTurntable_Z_up">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Turntable Z up</string>
+   </property>
+   <property name="statusTip">
+    <string>Sets the current mouse camera animation to a turntable rotation around the z-axis.</string>
+   </property>
+  </action>
+  <action name="actionWalking_Y_up">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Walking Y up</string>
+   </property>
+   <property name="statusTip">
+    <string>Sets the current mouse camera animation to a walking motion with head rotation around the y-axis.</string>
+   </property>
+  </action>
+  <action name="actionWalking_Z_up">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Walking Z up</string>
+   </property>
+   <property name="statusTip">
+    <string>Sets the current mouse camera animation to a walking motion with head rotation around the z-axis.</string>
+   </property>
+  </action>
+  <action name="action_speedInc">
+   <property name="text">
+    <string>+ 20%</string>
+   </property>
+   <property name="statusTip">
+    <string>Increases the walking motion speed by 20%</string>
+   </property>
+  </action>
+  <action name="action_speedDec">
+   <property name="text">
+    <string>- 20%</string>
+   </property>
+   <property name="statusTip">
+    <string>Decreases the walking motion speed by 20%</string>
+   </property>
+  </action>
+  <action name="actionAntialiasing">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Do Antialiasing</string>
+   </property>
+   <property name="statusTip">
+    <string>Turns on the antialiasing for smooth edges if the graphic acceleration is capable for it.</string>
+   </property>
+  </action>
+  <action name="actionView_Frustum_Culling">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Do View Frustum Culling</string>
+   </property>
+   <property name="statusTip">
+    <string>Turns on the frustum culling optimization, so that only objects are rendered that are visible.</string>
+   </property>
+  </action>
+  <action name="actionSlowdown_on_Idle">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Slowdown on Idle</string>
+   </property>
+   <property name="statusTip">
+    <string>Slows down the refresh rate if no animation is going on.</string>
+   </property>
+  </action>
+  <action name="actionShow_Statistics">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Show Scene Statistics</string>
+   </property>
+   <property name="statusTip">
+    <string>Shows some rendering and scenegraph statistics in the scene view window</string>
+   </property>
+  </action>
+  <action name="actionShow_Scene_Info">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>Show Scene Info</string>
+   </property>
+   <property name="statusTip">
+    <string>Shows some scene specific info in the scene view window</string>
+   </property>
+  </action>
+  <action name="actionShow_Menu">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Show Scene Menu</string>
+   </property>
+   <property name="statusTip">
+    <string>Shows the alternative menu rendered with OpenGL</string>
+   </property>
+  </action>
+  <action name="actionAbout_SLProject">
+   <property name="text">
+    <string>About SLProject</string>
+   </property>
+   <property name="statusTip">
+    <string>Shows some SLProject information</string>
+   </property>
+  </action>
+  <action name="actionCredits">
+   <property name="text">
+    <string>About External Libraries</string>
+   </property>
+   <property name="statusTip">
+    <string>Shows the Credits dialog about the external libraries used in this project.</string>
+   </property>
+  </action>
+  <action name="actionAbout_Qt">
+   <property name="text">
+    <string>About Qt</string>
+   </property>
+   <property name="statusTip">
+    <string>Shows the Qt About dialog</string>
+   </property>
+  </action>
+  <action name="actionRay_Tracer">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="resources.qrc">
+     <normaloff>:/images/renderRT.png</normaloff>:/images/renderRT.png</iconset>
+   </property>
+   <property name="text">
+    <string>Ray Tracer</string>
+   </property>
+   <property name="statusTip">
+    <string>Renders the image with distributed ray tracing</string>
+   </property>
+  </action>
+  <action name="actionPath_Tracer">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="resources.qrc">
+     <normaloff>:/images/renderPT.png</normaloff>:/images/renderPT.png</iconset>
+   </property>
+   <property name="text">
+    <string>Path Tracer</string>
+   </property>
+   <property name="statusTip">
+    <string>Renders the scene with path tracing</string>
+   </property>
+  </action>
+  <action name="actionOpenGL">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="resources.qrc">
+     <normaloff>:/images/renderGL.png</normaloff>:/images/renderGL.png</iconset>
+   </property>
+   <property name="text">
+    <string>OpenGL</string>
+   </property>
+   <property name="statusTip">
+    <string>Renders the image with core profile OpenGL</string>
+   </property>
+  </action>
+  <action name="actionRender_to_depth_1">
+   <property name="enabled">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Render to depth 1</string>
+   </property>
+   <property name="statusTip">
+    <string>Renders the scene with ray tracing with max. 1 recursion depth.</string>
+   </property>
+  </action>
+  <action name="actionRender_to_depth_2">
+   <property name="text">
+    <string>Render to depth 2</string>
+   </property>
+   <property name="statusTip">
+    <string>Renders the scene with ray tracing with max. 2 recursion depth.</string>
+   </property>
+  </action>
+  <action name="actionRender_to_depth_5">
+   <property name="text">
+    <string>Render to depth 5</string>
+   </property>
+   <property name="statusTip">
+    <string>Renders the scene with ray tracing with max. 5 recursion depth.</string>
+   </property>
+  </action>
+  <action name="actionRender_to_max_depth">
+   <property name="text">
+    <string>Render to max. depth</string>
+   </property>
+   <property name="statusTip">
+    <string>Renders the scene with ray tracing with max. allowed recursion depth.</string>
+   </property>
+  </action>
+  <action name="actionConstant_Redering">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Constant Redering</string>
+   </property>
+   <property name="statusTip">
+    <string>Turns on constant ray tracing without antialiasing.</string>
+   </property>
+  </action>
+  <action name="actionRender_Distributed_RT_features">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Render Distributed RT features</string>
+   </property>
+   <property name="statusTip">
+    <string>Renders with distributed features of ray tracing. If turned off classic Whitted style RT is used.</string>
+   </property>
+  </action>
+  <action name="action1_Sample">
+   <property name="text">
+    <string>1 Sample</string>
+   </property>
+   <property name="statusTip">
+    <string>Renders the scene with 1 path sample per pixel.</string>
+   </property>
+  </action>
+  <action name="action10_Samples">
+   <property name="text">
+    <string>10 Samples</string>
+   </property>
+   <property name="statusTip">
+    <string>Renders the scene with 10 path sampled per pixel.</string>
+   </property>
+  </action>
+  <action name="action100_Sample">
+   <property name="text">
+    <string>100 Samples</string>
+   </property>
+   <property name="statusTip">
+    <string>Renders the scene with 100 path sampled per pixel.</string>
+   </property>
+  </action>
+  <action name="action1000_Samples">
+   <property name="text">
+    <string>1000 Samples</string>
+   </property>
+   <property name="statusTip">
+    <string>Renders the scene with 1000 path sampled per pixel.</string>
+   </property>
+  </action>
+  <action name="action10000_Samples">
+   <property name="text">
+    <string>10000 Samples</string>
+   </property>
+   <property name="statusTip">
+    <string>Renders the scene with 10000 path sampled per pixel.</string>
+   </property>
+  </action>
+  <action name="actionShow_DockScenegraph">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Show Scenegraph</string>
+   </property>
+   <property name="statusTip">
+    <string>Shows the node tree of the current scene also called scenegraph</string>
+   </property>
+  </action>
+  <action name="actionShow_Statusbar">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Show Statusbar</string>
+   </property>
+   <property name="statusTip">
+    <string>Shows the this statusbar at the bottom of the window.</string>
+   </property>
+  </action>
+  <action name="actionDepthTest">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Do Depth Test</string>
+   </property>
+   <property name="statusTip">
+    <string>Turns on or off the depth test on the depth buffer for hidden line removal.</string>
+   </property>
+  </action>
+  <action name="actionShow_Normals">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="resources.qrc">
+     <normaloff>:/images/showNormals.png</normaloff>:/images/showNormals.png</iconset>
+   </property>
+   <property name="text">
+    <string>Show Normals</string>
+   </property>
+   <property name="statusTip">
+    <string>Shows the vertex normals as a blue line. Press shift to apply on all views.</string>
+   </property>
+  </action>
+  <action name="actionShow_Wired_Mesh">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="resources.qrc">
+     <normaloff>:/images/showWiremesh.png</normaloff>:/images/showWiremesh.png</iconset>
+   </property>
+   <property name="text">
+    <string>Show Wired Mesh</string>
+   </property>
+   <property name="statusTip">
+    <string>Shows the meshes as lined polygons, so that you can see through. Press shift to apply on all views.</string>
+   </property>
+  </action>
+  <action name="actionShow_Bounding_Boxes">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="resources.qrc">
+     <normaloff>:/images/showAABB.png</normaloff>:/images/showAABB.png</iconset>
+   </property>
+   <property name="text">
+    <string>Show Bounding Boxes</string>
+   </property>
+   <property name="statusTip">
+    <string>Shows the axis aligned bounding box of the node. Press shift to apply on all views.</string>
+   </property>
+  </action>
+  <action name="actionShow_Axis">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="resources.qrc">
+     <normaloff>:/images/showAxis.png</normaloff>:/images/showAxis.png</iconset>
+   </property>
+   <property name="text">
+    <string>Show Axis</string>
+   </property>
+   <property name="statusTip">
+    <string>Shows the central orientation axis of the node. Press shift to apply on all views.</string>
+   </property>
+  </action>
+  <action name="actionShow_Backfaces">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="resources.qrc">
+     <normaloff>:/images/showBackfaces.png</normaloff>:/images/showBackfaces.png</iconset>
+   </property>
+   <property name="text">
+    <string>Show Backfaces</string>
+   </property>
+   <property name="statusTip">
+    <string>Turns off the default backface culling. Press shift to apply on all views.</string>
+   </property>
+  </action>
+  <action name="actionShow_Voxels">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="resources.qrc">
+     <normaloff>:/images/showVoxels.png</normaloff>:/images/showVoxels.png</iconset>
+   </property>
+   <property name="text">
+    <string>Show Voxels</string>
+   </property>
+   <property name="statusTip">
+    <string>Shows the voxels of the uniform grid that contain triangles in cyan color. Press shift to apply on all views.</string>
+   </property>
+  </action>
+  <action name="actionTextures_off">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="resources.qrc">
+     <normaloff>:/images/noTextures.png</normaloff>:/images/noTextures.png</iconset>
+   </property>
+   <property name="text">
+    <string>Textures off</string>
+   </property>
+   <property name="statusTip">
+    <string>Disables the texture rendering. Press shift to apply on all views.</string>
+   </property>
+  </action>
+  <action name="actionAnimation_off">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="resources.qrc">
+     <normaloff>:/images/stopAnimation.tiff</normaloff>:/images/stopAnimation.tiff</iconset>
+   </property>
+   <property name="text">
+    <string>Animation off</string>
+   </property>
+   <property name="statusTip">
+    <string>Turns off any animation. Press shift to apply on all views.</string>
+   </property>
+  </action>
+  <action name="actionFullscreen">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Fullscreen</string>
+   </property>
+   <property name="statusTip">
+    <string>Sets the window to fullscrene mode without menu, tool and statusbar. Use the ESC to end the fullscreen mode.</string>
+   </property>
+  </action>
+  <action name="actionShow_DockProperties">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Show Properties</string>
+   </property>
+   <property name="statusTip">
+    <string>Show the properties of the selected scene node or mesh</string>
+   </property>
+  </action>
+  <action name="actionShow_Toolbar">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Show Toolbar</string>
+   </property>
+  </action>
+  <action name="actionSplit_active_view_horizontally">
+   <property name="icon">
+    <iconset resource="resources.qrc">
+     <normaloff>:/images/splitHorizontal.png</normaloff>:/images/splitHorizontal.png</iconset>
+   </property>
+   <property name="text">
+    <string>Split active view horizontally</string>
+   </property>
+   <property name="statusTip">
+    <string>Splits the active view into a left and a right view</string>
+   </property>
+  </action>
+  <action name="actionSplit_active_view_vertically">
+   <property name="icon">
+    <iconset resource="resources.qrc">
+     <normaloff>:/images/splitVertical.png</normaloff>:/images/splitVertical.png</iconset>
+   </property>
+   <property name="text">
+    <string>Split active view vertically</string>
+   </property>
+   <property name="statusTip">
+    <string>Splits the active view into an uppter and a lower view</string>
+   </property>
+  </action>
+  <action name="actionDelete_active_view">
+   <property name="enabled">
+    <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="resources.qrc">
+     <normaloff>:/images/deleteView.png</normaloff>:/images/deleteView.png</iconset>
+   </property>
+   <property name="text">
+    <string>Delete active view</string>
+   </property>
+   <property name="statusTip">
+    <string>Deletes the active view if it is not the last one.</string>
+   </property>
+  </action>
+  <action name="actionSplit_into_4_views">
+   <property name="icon">
+    <iconset resource="resources.qrc">
+     <normaloff>:/images/splitInto4Views.png</normaloff>:/images/splitInto4Views.png</iconset>
+   </property>
+   <property name="text">
+    <string>Split into 4 views</string>
+   </property>
+   <property name="toolTip">
+    <string>Split active view into 4 views</string>
+   </property>
+   <property name="statusTip">
+    <string>Splits the active view in 4 equally sized views</string>
+   </property>
+  </action>
+  <action name="actionSingle_view">
+   <property name="icon">
+    <iconset resource="resources.qrc">
+     <normaloff>:/images/singleView.png</normaloff>:/images/singleView.png</iconset>
+   </property>
+   <property name="text">
+    <string>Single view</string>
+   </property>
+   <property name="toolTip">
+    <string>Single view (keep acive one)</string>
+   </property>
+   <property name="statusTip">
+    <string>Deletes all views except the acitve one</string>
+   </property>
+  </action>
+  <action name="actionMass_Animation">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Mass Animation</string>
+   </property>
+   <property name="statusTip">
+    <string>Loads a scene with a high number of animations active.</string>
+   </property>
+  </action>
+  <action name="actionUse_SceneView_Camera">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Use SceneView Camera</string>
+   </property>
+   <property name="statusTip">
+    <string>Uses the scene view camera that is not in the scene. Press shift to apply on all views.</string>
+   </property>
+  </action>
+ </widget>
+ <layoutdefault spacing="6" margin="11"/>
+ <customwidgets>
+  <customwidget>
+   <class>qtPropertyTreeWidget</class>
+   <extends>QTreeWidget</extends>
+   <header>qtPropertyTreeWidget.h</header>
+  </customwidget>
+ </customwidgets>
+ <resources>
+  <include location="resources.qrc"/>
+ </resources>
+ <connections/>
+</ui>

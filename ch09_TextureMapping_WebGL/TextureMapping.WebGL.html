@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<!--
+//#############################################################################
+//  File:      TextureMappingWebGL.html
+//  Purpose:   WebGL application for texture mapping
+//  Author:    Marcus Hudritsch
+//
+//  Remarks:   You must open this file from within a Google Chrome or Firefox
+//             browser. You must request this file from a webserver even if you
+//             work on your local filesystem. You can start a simple webserver
+//             with Python. Open a console in the directory where your WebGL 
+//             HTML page is and type: python -m http.server 8000
+//             In the browser you can open the page with:
+//  http://localhost:8000/ch09_TextureMapping_WebGL/TextureMapping.WebGL.html
+//
+//  Date:      September 2012 (HS12)
+//  Copyright: M. Hudritsch, Fachhochschule Nordwestschweiz
+//             THIS SOFTWARE IS PROVIDED FOR EDUCATIONAL PURPOSE ONLY AND
+//             WITHOUT ANY WARRANTIES WHETHER EXPRESSED OR IMPLIED.
+//#############################################################################
+ -->
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<title>Texture Mapping with WebGL</title>
+<style>
+body, html 
+{   margin: 0px;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+}	
+#WebGLCanvas 
+{   width: 100%;
+    height: 100%;
+}
+</style>
+<script type="text/javascript" src="webgl-utils.js"></script>
+<script type="text/javascript" src="webgl-debug.js"></script>
+<script type="text/javascript" src="glMatrix.js"></script>
+<script type="text/javascript" src="glUtils.js"></script>
+<script>
+    //////////////////////
+    // Global Variables //
+    //////////////////////
+    
+    var gl = null;              // Hold a reference to the WebGLContext
+    var canvas = null;          // Hold a reference to the canvas DOM object
+    
+    var modelviewMatrix = mat4.create();    // matrix for model and view transform
+    var normalMatrix = mat3.create();       // matrix for normal transform
+    var projectionMatrix = mat4.create();   // matrix for projection transform
+    var mvpMatrix = mat4.create();          // matrix for model, view and projection transform
+    
+    var numI;                   // Total NO. of indexes to draw
+    var vboV;                   // ID of the VBO for interleaved vertex attribute array
+    var vboI;                   // ID of the VBO for vertex index array
+    
+    var camZ;                   // z-distance of camera
+    var rotX;                   // rotation angles around x axis
+    var rotY;                   // rotation angles around y axis
+    var deltaX;                 // delta mouse motion in x direction
+    var deltaY;                 // delta mouse motion in y direction
+    var startX;                 // x mouse start positions
+    var startY;                 // y mouse start positions
+    var mouseLeftDown;          // Flag if mouse is down
+    
+    var globalAmbi    = [0,0,0,1];          // global ambient intensity
+    var lightPos      = [0,0,100];          // Light position in world space
+    var lightDir      = [-1,-1,-1];         // Light direction in world space
+    var lightAmbient  = [0.1,0.1,0.1,1.0];  // Light ambient intensity   
+    var lightDiffuse  = [1,1,1,1];          // Light diffuse intensity   
+    var lightSpecular = [1,1,1,1];          // Light specular intensity
+    var matAmbient    = [1,1,1,1];          // Material ambient reflection coeff.
+    var matDiffuse    = [1,1,1,1];          // Material diffuse reflection coeff.
+    var matSpecular   = [1,1,1,1];          // Material specular reflection coeff.
+    var matEmissive   = [0,0,0,1];          // Material emissive coeff.
+    var matShininess  = 100;                // Material shininess exponent
+    
+    var shaderVertID = null;                // ID of vertex shader
+    var shaderFragID = null;                // ID of fragment shader
+    var shaderProgID = null;                // ID of shader program
+    var textureID;                          // Texture object id
+
+    // Shader location variable
+    var pLoc;
+    var tLoc;
+    var nLoc;
+    var mvMatrixLoc;
+    var nMatrixLoc;
+    var mvpMatrixLoc;
+    var globalAmbiLoc;
+    var lightPosVSLoc;
+    var lightDirVSLoc;
+    var lightAmbientLoc;
+    var lightDiffuseLoc;
+    var lightSpecularLoc;
+    var matAmbientLoc;
+    var matDiffuseLoc;
+    var matSpecularLoc;
+    var matEmissiveLoc;
+    var matShininessLoc;
+    var texture0Loc;
+
+     
+    ////////////////////
+    // Event Handlers //
+    ////////////////////
+    
+    function onLoad()
+    {
+        // Attach event handlers to the canvas, document and window
+        canvas = document.getElementById("WebGLCanvas");
+        canvas.addEventListener('webglcontextlost', onContextLost, false);
+        canvas.addEventListener('webglcontextrestored', onContextRestored, false);
+        canvas.addEventListener('DOMMouseScroll', onMouseWheel, false); // Mozilla
+        canvas.addEventListener('mousewheel', onMouseWheel, false);     // Chrome
+        canvas.onmousedown = onMouseDown;
+        document.onmouseup = onMouseUp;
+        document.onmousemove = onMouseMove;
+        window.onresize = onPaint;
+        window.onunload = onClose;
+
+        // Start everything with onInit
+        gl = onInit();
+        if (!gl) return;
+
+        // Request a first paint event (webgl-utils.js)
+        window.requestAnimFrame(onPaint, canvas);
+    }
+    
+    /*
+    buildSquare creates the vertex attributes for a textured square and VBO.
+    */
+    function buildSquare()
+    {         
+        // create vertex array for interleaved position, normal and texCoord    
+        //       Position,  Normal  , texCrd,
+        var V = new Float32Array(
+            [   -1, 0, -1,  0, -1, 0,  0,  0,
+                 1, 0, -1,  0, -1, 0,  1,  0,
+                 1, 0,  1,  0, -1, 0,  1,  1,
+                -1, 0,  1,  0, -1, 0,  0,  1 ]
+            );
+        vboV = buildVBO(V, gl.ARRAY_BUFFER, gl.STATIC_DRAW);
+
+        // create index array for GL_TRIANGLES
+        var I = new Uint8Array([0, 1, 2,  0, 2, 3]);
+        vboI = buildVBO(I, gl.ELEMENT_ARRAY_BUFFER, gl.STATIC_DRAW);
+        numI = I.length;
+    }
+    
+    /*
+    onInit initializes the global variables and builds the shader program.
+    It is only called once.
+    */    
+    function onInit()
+    {
+        // Initialize WebGL with the WebGLUtils function from the Google helpers
+        canvas = document.getElementById("WebGLCanvas");
+        gl = WebGLUtils.setupWebGL(canvas);
+        if (!gl) return;
+        
+        buildSquare();
+        
+        // Set light parameters
+        globalAmbi    = [0,0,0,1];        
+        lightPos      = [0,0,100];        
+        lightDir      = [0,0,-1];       
+        lightAmbient  = [0.1,0.1,0.1,1.0];
+        lightDiffuse  = [1,1,1,1];        
+        lightSpecular = [1,1,1,1];        
+        matAmbient    = [1,1,1,1];        
+        matDiffuse    = [1,1,1,1];        
+        matSpecular   = [1,1,1,1];        
+        matEmissive   = [0,0,0,1];        
+        matShininess  = 100;              
+        
+        // backwards movement of the camera
+        camZ = -3;      
+
+        // Mouse rotation paramters
+        rotX = 0;
+        rotY = 0;
+        deltaX = 0;
+        deltaY = 0;
+        mouseLeftDown = false;
+
+        // Load an image to use. Returns a WebGLTexture object
+        textureID = buildTexture("earth1024_C.jpg");
+
+        // Load, compile & link shaders
+        shaderVertID = buildShader("ADSTex.vert", gl.VERTEX_SHADER);  
+        if (!shaderVertID) return null;
+        shaderFragID = buildShader("ADSTex.frag", gl.FRAGMENT_SHADER); 
+        if (!shaderFragID) return null;
+        shaderProgID = buildProgram(shaderVertID, shaderFragID);       
+        if (!shaderProgID) return null;
+        
+        // Activate the shader programm
+        gl.useProgram(shaderProgID); 
+                                          
+        // Get the variable locations (identifiers) within the program
+        pLoc             = gl.getAttribLocation (shaderProgID, "a_position");
+        nLoc             = gl.getAttribLocation (shaderProgID, "a_normal");
+        tLoc             = gl.getAttribLocation (shaderProgID, "a_texCoord");
+        mvMatrixLoc      = gl.getUniformLocation(shaderProgID, "u_mvMatrix");
+        nMatrixLoc       = gl.getUniformLocation(shaderProgID, "u_nMatrix");
+        mvpMatrixLoc     = gl.getUniformLocation(shaderProgID, "u_mvpMatrix");
+        globalAmbiLoc    = gl.getUniformLocation(shaderProgID, "u_globalAmbi");
+        lightPosVSLoc    = gl.getUniformLocation(shaderProgID, "u_lightPosVS");
+        lightDirVSLoc    = gl.getUniformLocation(shaderProgID, "u_lightDirVS");
+        lightAmbientLoc  = gl.getUniformLocation(shaderProgID, "u_lightAmbient");
+        lightDiffuseLoc  = gl.getUniformLocation(shaderProgID, "u_lightDiffuse");
+        lightSpecularLoc = gl.getUniformLocation(shaderProgID, "u_lightSpecular");
+        matAmbientLoc    = gl.getUniformLocation(shaderProgID, "u_matAmbient");
+        matDiffuseLoc    = gl.getUniformLocation(shaderProgID, "u_matDiffuse");
+        matSpecularLoc   = gl.getUniformLocation(shaderProgID, "u_matSpecular");
+        matEmissiveLoc   = gl.getUniformLocation(shaderProgID, "u_matEmissive");
+        matShininessLoc  = gl.getUniformLocation(shaderProgID, "u_matShininess");
+        texture0Loc      = gl.getUniformLocation(shaderProgID, "u_texture0");
+
+        // Set some OpenGL states
+        gl.clearColor(0, 0, 0, 1);      // Set the background color
+        gl.enable(gl.DEPTH_TEST);       // Enables depth test
+        gl.enable(gl.CULL_FACE);        // Enables depth test
+        
+        // Return the WebGL context object as the sign of a successfull initialization
+        return gl;
+    }
+    
+    /*
+    onResize is called when the window size has changed. It defines the projection and
+    viewport transformation.
+    */
+    function onResize()
+    {
+        if (canvas.clientWidth == canvas.width && canvas.clientHeight == canvas.height)
+            return;
+
+        canvas.width = canvas.clientWidth;
+        canvas.height = canvas.clientHeight;
+        
+        // Create a new perspective projection matrix.
+        mat4.perspective(45, canvas.clientWidth / canvas.clientHeight, 0.01, 10, projectionMatrix);
+
+        // Set the viewport and projection matrix for the scene
+        gl.viewport(0, 0, canvas.clientWidth, canvas.clientHeight);
+    }
+
+    /*!
+    onPaint does all the rendering for one frame from scratch with WebGL.
+    */
+    function onPaint()
+    {
+        // Make sure the canvas is sized correctly.
+        onResize();
+
+        // Clear the canvas
+        gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+
+        // Start with identity every frame
+        mat4.identity(modelviewMatrix); 
+        
+        // View transform: move the coordiante system away from the camera
+        mat4.translate(modelviewMatrix, [0, 0, camZ]);
+        
+        // View transform: rotate the coordinate system increasingly
+        mat4.rotateX(modelviewMatrix, (Math.PI/180) * (rotX + deltaX));
+        mat4.rotateY(modelviewMatrix, (Math.PI/180) * (rotY + deltaY));
+
+        // Transform light position & direction into view space
+        var lightPosVS = [0,0,0];
+        mat4.multiplyVec3(modelviewMatrix, lightPos, lightPosVS);
+        
+        // The light dir is not a position. We only take the rotation of the mv matrix.
+        var viewRot3 = mat3.create();
+        var viewRot4 = mat4.create();
+        mat4.toMat3(modelviewMatrix, viewRot3);
+        mat3.toMat4(viewRot3, viewRot4);
+        var lightDirVS = [0,0,0];
+        mat4.multiplyVec3(viewRot4, lightDir, lightDirVS); 
+
+        // Rotate the model so that we see it
+        mat4.rotateX(modelviewMatrix, (Math.PI/180) * -90);
+        
+        // Build the combined modelview-projection matrix
+        mat4.multiply(projectionMatrix, modelviewMatrix, mvpMatrix);
+    
+        // Construct the normal matrix from the modelview matrix
+        mat4.toInverseMat3(modelviewMatrix, normalMatrix);
+        mat3.transpose(normalMatrix);
+        
+        // Pass the matrix uniform variables
+        gl.uniformMatrix4fv(mvMatrixLoc,  false, modelviewMatrix);
+        gl.uniformMatrix3fv(nMatrixLoc,   false, normalMatrix);
+        gl.uniformMatrix4fv(mvpMatrixLoc, false, mvpMatrix);
+        
+        // Pass lighting uniforms variables
+        gl.uniform4fv(globalAmbiLoc,     globalAmbi);
+        gl.uniform3fv(lightPosVSLoc,     lightPosVS);
+        gl.uniform3fv(lightDirVSLoc,     lightDirVS);
+        gl.uniform4fv(lightAmbientLoc,   lightAmbient);
+        gl.uniform4fv(lightDiffuseLoc,   lightDiffuse);
+        gl.uniform4fv(lightSpecularLoc,  lightSpecular);
+        gl.uniform4fv(matAmbientLoc,     matAmbient); 
+        gl.uniform4fv(matDiffuseLoc,     matDiffuse); 
+        gl.uniform4fv(matSpecularLoc,    matSpecular); 
+        gl.uniform4fv(matEmissiveLoc,    matEmissive);
+        gl.uniform1f (matShininessLoc,   matShininess);
+        gl.uniform1i (texture0Loc,       0);
+
+        //////////////////////
+        // Draw with 2 VBOs //
+        //////////////////////
+        
+        // Enable all of the vertex attribute arrays
+        gl.enableVertexAttribArray(pLoc);
+        gl.enableVertexAttribArray(nLoc);
+        gl.enableVertexAttribArray(tLoc);
+        
+        // Activate VBOs
+        gl.bindBuffer(gl.ARRAY_BUFFER, vboV);
+        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, vboI);
+        
+        // Activate Texture
+        gl.bindTexture(gl.TEXTURE_2D, textureID);
+        
+        // For VBO only offset instead of data pointer
+        var sizeOfFloat = 4;
+        var stride  = 8 * sizeOfFloat;
+        var offsetN = 3 * sizeOfFloat;
+        var offsetT = 6 * sizeOfFloat;
+        gl.vertexAttribPointer(pLoc, 3, gl.FLOAT, false, stride, 0);
+        gl.vertexAttribPointer(nLoc, 3, gl.FLOAT, false, stride, offsetN);
+        gl.vertexAttribPointer(tLoc, 2, gl.FLOAT, false, stride, offsetT);
+        
+        /////////////////////////////////////////////////////////
+        // Draw model with triangles by indexes
+        gl.drawElements(gl.TRIANGLES, numI, gl.UNSIGNED_BYTE, 0);
+        /////////////////////////////////////////////////////////
+
+        // Deactivate buffers
+        //gl.bindBuffer(gl.ARRAY_BUFFER, 0);
+        //gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, 0);
+
+        // Disable the vertex arrays
+        gl.disableVertexAttribArray(pLoc);
+        gl.disableVertexAttribArray(nLoc);
+        gl.disableVertexAttribArray(tLoc);
+    }
+              
+    /*
+    onContextLost cancels the last frame 
+    */
+    function onContextLost(e)
+    {
+        e.preventDefault();
+        window.cancelAnimFrame(); // from webgl-utils.js
+    }
+
+    /*
+    onContextRestored restart by calling onInit after a context loss
+    */
+    function onContextRestored()
+    {
+        onInit();
+    }
+    
+    /*!
+    onMouseDown eventhandler starts the mouse rotation
+    */
+    function onMouseDown(event)
+    {           
+        if (event.button == 0)
+        {   mouseLeftDown = true;
+            startX = event.clientX;
+            startY = event.clientY;
+            window.requestAnimFrame(onPaint, canvas);
+        }
+    }
+    
+    /*!
+    onMouseUp eventhandler ends the mouse rotation
+    */
+    function onMouseUp(event)
+    {           
+        if (event.button == 0)
+        {   mouseLeftDown = false;
+            rotX += deltaX;
+            rotY += deltaY;
+            deltaX = 0;
+            deltaY = 0;
+            window.requestAnimFrame(onPaint, canvas);
+        }
+    }
+
+    /*!
+    onMouseMove eventhandler tracks the mouse delta since touch down (_deltaX/_deltaY)
+    */
+    function onMouseMove(event)
+    {       
+       if (mouseLeftDown)
+       {  deltaY = event.clientX - startX;
+          deltaX = event.clientY - startY;
+          window.requestAnimFrame(onPaint, canvas);
+       }
+    }
+    
+    /*!
+    onMouseWheel eventhandler moves the camera foreward or backwards
+    */
+    function onMouseWheel(event)  
+    {
+        if (event.wheelDelta > 0)
+             camZ += 0.1;
+        else camZ -= 0.1;
+        window.requestAnimFrame(onPaint, canvas);
+    }
+
+    /*!
+    onClose is called when the user closes the window and can be used for proper
+    deallocation of resources.
+    */
+    function onClose()
+    {
+       // Delete shaders & programs on GPU
+       gl.deleteShader(shaderVertID);
+       gl.deleteShader(shaderFragID);
+       gl.deleteProgram(shaderProgID);
+       
+       // Delete arrays & buffers on GPU
+       gl.deleteBuffer(vboV);
+       gl.deleteBuffer(vboI);
+    }
+    </script>
+</head>
+
+<body onload="onLoad()">
+<canvas id="WebGLCanvas">
+    If you're seeing this your web browser doesn't support the &lt;canvas>&gt; element. Ouch!
+</canvas>
+</body>
+
+</html>

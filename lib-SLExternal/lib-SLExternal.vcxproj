@@ -1,0 +1,397 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Android">
+      <Configuration>Debug</Configuration>
+      <Platform>Android</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Android">
+      <Configuration>Release</Configuration>
+      <Platform>Android</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{CCC645D3-B20F-431C-824A-7895D6E404DF}</ProjectGuid>
+    <RootNamespace>lib-SLExternal</RootNamespace>
+    <Keyword>Win32Proj</Keyword>
+    <ProjectName>lib-SLExternal</ProjectName>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <CharacterSet>Unicode</CharacterSet>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <PlatformToolset>v120</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <CharacterSet>Unicode</CharacterSet>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <PlatformToolset>v120</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Android'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <CharacterSet>Unicode</CharacterSet>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <PlatformToolset>v120</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <CharacterSet>Unicode</CharacterSet>
+    <PlatformToolset>v120</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <CharacterSet>Unicode</CharacterSet>
+    <PlatformToolset>v120</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Android'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <CharacterSet>Unicode</CharacterSet>
+    <PlatformToolset>arm-linux-androideabi-4.6</PlatformToolset>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|Android'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Android'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup>
+    <_ProjectFileVersion>10.0.30319.1</_ProjectFileVersion>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(SolutionDir)_lib\$(Configuration)\$(Platform)\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(SolutionDir)intermediate\$(ProjectName)\$(Configuration)\$(Platform)\</IntDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(SolutionDir)_lib\$(Configuration)\$(Platform)\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(SolutionDir)intermediate\$(ProjectName)\$(Configuration)\$(Platform)\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <OutDir>$(SolutionDir)_lib\$(Configuration)\$(Platform)\</OutDir>
+    <IntDir>$(SolutionDir)intermediate\$(ProjectName)\$(Configuration)\$(Platform)\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Android'">
+    <OutDir>$(SolutionDir)_lib\$(Configuration)\$(Platform)\</OutDir>
+    <IntDir>$(SolutionDir)intermediate\$(ProjectName)\$(Configuration)\$(Platform)\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <OutDir>$(SolutionDir)_lib\$(Configuration)\$(Platform)\</OutDir>
+    <IntDir>$(SolutionDir)intermediate\$(ProjectName)\$(Configuration)\$(Platform)\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Android'">
+    <OutDir>$(SolutionDir)_lib\$(Configuration)\$(Platform)\</OutDir>
+    <IntDir>$(SolutionDir)intermediate\$(ProjectName)\$(Configuration)\$(Platform)\</IntDir>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <Optimization>Disabled</Optimization>
+      <AdditionalIncludeDirectories>glfw3/include;zlib;png;$(ProjectDir);glew/include;dirent;randomc;Shoemake;oculus\LibOVR\Include;oculus\3rdParty\glext;assimp\code\BoostWorkaround;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>_GLFW_USE_OPENGL;_GLFW_WIN32;_GLFW_WGL;GLEW_STATIC;_LIB;_CRT_SECURE_NO_WARNINGS;ASSIMP_BUILD_BOOST_WORKAROUND;ASSIMP_BUILD_NO_OWN_ZLIB;WIN32;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <MinimalRebuild>false</MinimalRebuild>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <AdditionalOptions>-D_SCL_SECURE_NO_WARNINGS %(AdditionalOptions)</AdditionalOptions>
+    </ClCompile>
+    <Lib>
+      <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
+      <AdditionalDependencies>Winmm.lib;Setupapi.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Lib>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <Optimization>Disabled</Optimization>
+      <AdditionalIncludeDirectories>glfw3/include;zlib;png;$(ProjectDir);glew/include;dirent;randomc;Shoemake;oculus\LibOVR\Include;oculus\3rdParty\glext;assimp\code\BoostWorkaround;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>_GLFW_USE_OPENGL;_GLFW_WIN32;_GLFW_WGL;GLEW_STATIC;_DEBUG;_LIB;_CRT_SECURE_NO_WARNINGS;ASSIMP_BUILD_BOOST_WORKAROUND;ASSIMP_BUILD_NO_OWN_ZLIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <MinimalRebuild>false</MinimalRebuild>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <AdditionalOptions>-D_SCL_SECURE_NO_WARNINGS %(AdditionalOptions)</AdditionalOptions>
+      <BrowseInformation>false</BrowseInformation>
+      <DisableSpecificWarnings>4996</DisableSpecificWarnings>
+    </ClCompile>
+    <Lib>
+      <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
+      <TargetMachine>MachineX64</TargetMachine>
+      <AdditionalDependencies>Winmm.lib;Setupapi.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Lib>
+    <Bscmake>
+      <PreserveSbr>false</PreserveSbr>
+    </Bscmake>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Android'">
+    <ClCompile>
+      <Optimization>Disabled</Optimization>
+      <AdditionalIncludeDirectories>glfw3/include;zlib;png;$(ProjectDir);glew/include;dirent;randomc;Shoemake;oculus\LibOVR\Include;oculus\3rdParty\glext;assimp\code\BoostWorkaround;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>GL_FRAGMENT_PRECISION_HIGH;GLEW_NO_GLU;GLEW_STATIC;_DEBUG;_LIB;_CRT_SECURE_NO_WARNINGS;ASSIMP_BUILD_BOOST_WORKAROUND;ASSIMP_BUILD_NO_OWN_ZLIB;ASSIMP_BUILD_NO_OGRE_IMPORTER;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <MinimalRebuild>false</MinimalRebuild>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <AdditionalOptions>-D_SCL_SECURE_NO_WARNINGS %(AdditionalOptions)</AdditionalOptions>
+      <BrowseInformation>true</BrowseInformation>
+      <DisableSpecificWarnings>4996</DisableSpecificWarnings>
+      <GenerateDebugInformation>false</GenerateDebugInformation>
+      <OptimizationLevel>O3</OptimizationLevel>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
+      <GccExceptionHandling>true</GccExceptionHandling>
+    </ClCompile>
+    <Lib>
+      <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
+      <TargetMachine>MachineX64</TargetMachine>
+      <AdditionalDependencies>Winmm.lib;Setupapi.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Lib>
+    <Bscmake>
+      <PreserveSbr>true</PreserveSbr>
+    </Bscmake>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>glfw3/include;zlib;png;$(ProjectDir);glew/include;dirent;randomc;Shoemake;oculus\LibOVR\Include;oculus\3rdParty\glext;assimp\code\BoostWorkaround;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>_GLFW_USE_OPENGL;_GLFW_WIN32;_GLFW_WGL;GLEW_STATIC;WIN32;NDEBUG;_LIB;_CRT_SECURE_NO_WARNINGS;ASSIMP_BUILD_BOOST_WORKAROUND;ASSIMP_BUILD_NO_OWN_ZLIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>
+      </DebugInformationFormat>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+    </ClCompile>
+    <Lib>
+      <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
+      <AdditionalDependencies>Winmm.lib;Setupapi.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Lib>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>glfw3/include;zlib;png;$(ProjectDir);glew/include;dirent;randomc;Shoemake;oculus\LibOVR\Include;oculus\3rdParty\glext;assimp\code\BoostWorkaround;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>_GLFW_USE_OPENGL;_GLFW_WIN32;_GLFW_WGL;GLEW_STATIC;NDEBUG;_LIB;_CRT_SECURE_NO_WARNINGS;ASSIMP_BUILD_BOOST_WORKAROUND;ASSIMP_BUILD_NO_OWN_ZLIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>
+      </DebugInformationFormat>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <WholeProgramOptimization>false</WholeProgramOptimization>
+      <DisableSpecificWarnings>4996</DisableSpecificWarnings>
+    </ClCompile>
+    <Lib>
+      <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
+      <TargetMachine>MachineX64</TargetMachine>
+      <AdditionalDependencies>Winmm.lib;Setupapi.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Lib>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Android'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>glfw3/include;zlib;png;$(ProjectDir);glew/include;dirent;randomc;Shoemake;oculus\LibOVR\Include;oculus\3rdParty\glext;assimp\code\BoostWorkaround;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>GL_FRAGMENT_PRECISION_HIGH;GLEW_NO_GLU;GLEW_STATIC;NDEBUG;_LIB;_CRT_SECURE_NO_WARNINGS;ASSIMP_BUILD_BOOST_WORKAROUND;ASSIMP_BUILD_NO_OWN_ZLIB;ASSIMP_BUILD_NO_OGRE_IMPORTER;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>
+      </DebugInformationFormat>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <WholeProgramOptimization>false</WholeProgramOptimization>
+      <DisableSpecificWarnings>4996</DisableSpecificWarnings>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
+      <GccExceptionHandling>true</GccExceptionHandling>
+    </ClCompile>
+    <Lib>
+      <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
+      <TargetMachine>MachineX64</TargetMachine>
+      <AdditionalDependencies>Winmm.lib;Setupapi.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Lib>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="glew\src\glew.c" />
+    <ClCompile Include="glfw3\src\clipboard.c" />
+    <ClCompile Include="glfw3\src\context.c" />
+    <ClCompile Include="glfw3\src\gamma.c" />
+    <ClCompile Include="glfw3\src\init.c" />
+    <ClCompile Include="glfw3\src\input.c" />
+    <ClCompile Include="glfw3\src\joystick.c" />
+    <ClCompile Include="glfw3\src\monitor.c" />
+    <ClCompile Include="glfw3\src\time.c" />
+    <ClCompile Include="glfw3\src\wgl_context.c" />
+    <ClCompile Include="glfw3\src\win32_clipboard.c" />
+    <ClCompile Include="glfw3\src\win32_gamma.c" />
+    <ClCompile Include="glfw3\src\win32_init.c" />
+    <ClCompile Include="glfw3\src\win32_joystick.c" />
+    <ClCompile Include="glfw3\src\win32_monitor.c" />
+    <ClCompile Include="glfw3\src\win32_time.c" />
+    <ClCompile Include="glfw3\src\win32_window.c" />
+    <ClCompile Include="glfw3\src\window.c" />
+    <ClCompile Include="jpeg-8\jaricom.c" />
+    <ClCompile Include="jpeg-8\jcapimin.c" />
+    <ClCompile Include="jpeg-8\jcapistd.c" />
+    <ClCompile Include="jpeg-8\jcarith.c" />
+    <ClCompile Include="jpeg-8\jccoefct.c" />
+    <ClCompile Include="jpeg-8\jccolor.c" />
+    <ClCompile Include="jpeg-8\jcdctmgr.c" />
+    <ClCompile Include="jpeg-8\jchuff.c" />
+    <ClCompile Include="jpeg-8\jcinit.c" />
+    <ClCompile Include="jpeg-8\jcmainct.c" />
+    <ClCompile Include="jpeg-8\jcmarker.c" />
+    <ClCompile Include="jpeg-8\jcmaster.c" />
+    <ClCompile Include="jpeg-8\jcomapi.c" />
+    <ClCompile Include="jpeg-8\jcparam.c" />
+    <ClCompile Include="jpeg-8\jcprepct.c" />
+    <ClCompile Include="jpeg-8\jcsample.c" />
+    <ClCompile Include="jpeg-8\jctrans.c" />
+    <ClCompile Include="jpeg-8\jdapimin.c" />
+    <ClCompile Include="jpeg-8\jdapistd.c" />
+    <ClCompile Include="jpeg-8\jdarith.c" />
+    <ClCompile Include="jpeg-8\jdatadst.c" />
+    <ClCompile Include="jpeg-8\jdatasrc.c" />
+    <ClCompile Include="jpeg-8\jdcoefct.c" />
+    <ClCompile Include="jpeg-8\jdcolor.c" />
+    <ClCompile Include="jpeg-8\jddctmgr.c" />
+    <ClCompile Include="jpeg-8\jdhuff.c" />
+    <ClCompile Include="jpeg-8\jdinput.c" />
+    <ClCompile Include="jpeg-8\jdmainct.c" />
+    <ClCompile Include="jpeg-8\jdmarker.c" />
+    <ClCompile Include="jpeg-8\jdmaster.c" />
+    <ClCompile Include="jpeg-8\jdmerge.c" />
+    <ClCompile Include="jpeg-8\jdpostct.c" />
+    <ClCompile Include="jpeg-8\jdsample.c" />
+    <ClCompile Include="jpeg-8\jdtrans.c" />
+    <ClCompile Include="jpeg-8\jerror.c" />
+    <ClCompile Include="jpeg-8\jfdctflt.c" />
+    <ClCompile Include="jpeg-8\jfdctfst.c" />
+    <ClCompile Include="jpeg-8\jfdctint.c" />
+    <ClCompile Include="jpeg-8\jidctflt.c" />
+    <ClCompile Include="jpeg-8\jidctfst.c" />
+    <ClCompile Include="jpeg-8\jidctint.c" />
+    <ClCompile Include="jpeg-8\jmemmgr.c" />
+    <ClCompile Include="jpeg-8\jmemnobs.c" />
+    <ClCompile Include="jpeg-8\jquant1.c" />
+    <ClCompile Include="jpeg-8\jquant2.c" />
+    <ClCompile Include="jpeg-8\jutils.c" />
+    <ClCompile Include="nvwa\debug_new.cpp" />
+    <ClCompile Include="png\png.c" />
+    <ClCompile Include="png\pngerror.c" />
+    <ClCompile Include="png\pngget.c" />
+    <ClCompile Include="png\pngmem.c" />
+    <ClCompile Include="png\pngpread.c" />
+    <ClCompile Include="png\pngread.c" />
+    <ClCompile Include="png\pngrio.c" />
+    <ClCompile Include="png\pngrtran.c" />
+    <ClCompile Include="png\pngrutil.c" />
+    <ClCompile Include="png\pngset.c" />
+    <ClCompile Include="png\pngtrans.c" />
+    <ClCompile Include="png\pngwio.c" />
+    <ClCompile Include="png\pngwrite.c" />
+    <ClCompile Include="png\pngwtran.c" />
+    <ClCompile Include="png\pngwutil.c" />
+    <ClCompile Include="randomc\mersenne.cpp" />
+    <ClCompile Include="randomc\mother.cpp" />
+    <ClCompile Include="randomc\rancombi.cpp" />
+    <ClCompile Include="randomc\random.cpp" />
+    <ClCompile Include="randomc\ranrotb.cpp" />
+    <ClCompile Include="randomc\ranrotw.cpp" />
+    <ClCompile Include="randomc\sobol.cpp" />
+    <ClCompile Include="Shoemake\Decompose.cpp" />
+    <ClCompile Include="Shoemake\EulerAngles.cpp" />
+    <ClCompile Include="zlib\adler32.c" />
+    <ClCompile Include="zlib\compress.c" />
+    <ClCompile Include="zlib\crc32.c" />
+    <ClCompile Include="zlib\deflate.c" />
+    <ClCompile Include="zlib\gzclose.c" />
+    <ClCompile Include="zlib\gzlib.c" />
+    <ClCompile Include="zlib\gzread.c" />
+    <ClCompile Include="zlib\gzwrite.c" />
+    <ClCompile Include="zlib\infback.c" />
+    <ClCompile Include="zlib\inffas8664.c" />
+    <ClCompile Include="zlib\inffast.c" />
+    <ClCompile Include="zlib\inflate.c" />
+    <ClCompile Include="zlib\inftrees.c" />
+    <ClCompile Include="zlib\ioapi.c" />
+    <ClCompile Include="zlib\trees.c" />
+    <ClCompile Include="zlib\uncompr.c" />
+    <ClCompile Include="zlib\unzip.c" />
+    <ClCompile Include="zlib\zutil.c" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="glew\include\GL\glew.h" />
+    <ClInclude Include="glew\include\GL\wglew.h" />
+    <ClInclude Include="glfw3\include\GLFW\glfw3.h" />
+    <ClInclude Include="glfw3\include\GLFW\glfw3native.h" />
+    <ClInclude Include="glfw3\src\internal.h" />
+    <ClInclude Include="glfw3\src\wgl_platform.h" />
+    <ClInclude Include="glfw3\src\win32_platform.h" />
+    <ClInclude Include="nvwa\debug_new.h" />
+    <ClInclude Include="randomc\random.h" />
+    <ClInclude Include="randomc\randomc.h" />
+    <ClInclude Include="Shoemake\Decompose.h" />
+    <ClInclude Include="Shoemake\EulerAngles.h" />
+    <ClInclude Include="Shoemake\TypeDefs.h" />
+    <ClInclude Include="zlib\crc32.h" />
+    <ClInclude Include="zlib\crypt.h" />
+    <ClInclude Include="zlib\deflate.h" />
+    <ClInclude Include="zlib\gzguts.h" />
+    <ClInclude Include="zlib\inffast.h" />
+    <ClInclude Include="zlib\inffixed.h" />
+    <ClInclude Include="zlib\inflate.h" />
+    <ClInclude Include="zlib\inftrees.h" />
+    <ClInclude Include="zlib\ioapi.h" />
+    <ClInclude Include="zlib\trees.h" />
+    <ClInclude Include="zlib\unzip.h" />
+    <ClInclude Include="zlib\zconf.h" />
+    <ClInclude Include="zlib\zconf.in.h" />
+    <ClInclude Include="zlib\zlib.h" />
+    <ClInclude Include="zlib\zutil.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="randomc\RANDOMC.HTM">
+      <DeploymentContent>true</DeploymentContent>
+    </None>
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

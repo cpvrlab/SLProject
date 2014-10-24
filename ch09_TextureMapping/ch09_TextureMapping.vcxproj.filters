@@ -1,0 +1,46 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="..\_globals\SL\SLImage.cpp">
+      <Filter>SLProject</Filter>
+    </ClCompile>
+    <ClCompile Include="..\_globals\SL\stdafx.cpp">
+      <Filter>SLProject</Filter>
+    </ClCompile>
+    <ClCompile Include="TextureMapping.cpp" />
+    <ClCompile Include="..\_globals\SL\SL.cpp">
+      <Filter>SLProject</Filter>
+    </ClCompile>
+    <ClCompile Include="glUtils.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="SLProject">
+      <UniqueIdentifier>{91173a12-2db8-4773-a54b-4c7229c49556}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\_globals\math\SLVec3.h">
+      <Filter>SLProject</Filter>
+    </ClInclude>
+    <ClInclude Include="..\_globals\math\SLMat4.h">
+      <Filter>SLProject</Filter>
+    </ClInclude>
+    <ClInclude Include="..\_globals\SL\SLImage.h">
+      <Filter>SLProject</Filter>
+    </ClInclude>
+    <ClInclude Include="..\_globals\SL\stdafx.h">
+      <Filter>SLProject</Filter>
+    </ClInclude>
+    <ClInclude Include="..\_globals\math\SLMat3.h">
+      <Filter>SLProject</Filter>
+    </ClInclude>
+    <ClInclude Include="..\_globals\SL\SL.h">
+      <Filter>SLProject</Filter>
+    </ClInclude>
+    <ClInclude Include="glUtils.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\_globals\oglsl\ADSTex.frag" />
+    <None Include="..\_globals\oglsl\ADSTex.vert" />
+  </ItemGroup>
+</Project>
