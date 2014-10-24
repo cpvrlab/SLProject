@@ -6,8 +6,7 @@ SLProject is a plattform independent 3D computer graphics scene graph library
 
 SL stands for Scene Library. It is developed at the [Berne University of Applied Sciences (BFH)](http://www.bfh.ch/en/studies/bachelor/engineering_and_information_technology/information_technology.html) and used for student projects in the [cpvrLab](https://www.cpvrlab.ti.bfh.ch/). The various applications show what you can learn in one semester about 3D computer graphics in real time rendering and ray tracing. During the semester we built this framework in C++ and OpenGL ES 2.0. The framework runs without changes on Windows, Linux, Mac OSX, Android (>=2.3.3) and Apple iOS (>=5). The framework can render alternatively with ray tracing which provides in addition high quality transparencies, reflections and soft shadows. You can find the demo app also on the [Android Market](https://play.google.com/store/apps/details?id=ch.fhnw.comgr&feature=search_result#?t=W251bGwsMSwyLDEsImNoLmZobncuY29tZ3IiXQ).
 
-
-![image not found](http://wacki.github.io/slproject/images/platforms-small.png)
+![](https://raw.github.com/wacki/slproject/gh-pages/images/platforms-small.png)
 
 ###Framework Features
 
