@@ -12,34 +12,35 @@
 precision mediump float;
 #endif
 
-uniform bool   u_lightIsOn[8];      // flag if light is on
-uniform vec4   u_lightPosVS[8];     // position of light in view space
-uniform vec4   u_lightAmbient[8];   // ambient light intensity (Ia)
-uniform vec4   u_lightDiffuse[8];   // diffuse light intensity (Id)
-uniform vec4   u_lightSpecular[8];  // specular light intensity (Is)
-uniform vec3   u_lightDirVS[8];     // spot direction in view space
-uniform float  u_lightSpotCosCut[8];// cosine of spot cutoff angle
-uniform float  u_lightSpotCutoff[8];// spot cutoff angle 1-180 degrees
-uniform float  u_lightSpotExp[8];   // spot exponent
-uniform vec3   u_lightAtt[8];       // attenuation (const,linear,quadr.)
-uniform bool   u_lightDoAtt[8];     // flag if att. must be calc.
-uniform vec4   u_globalAmbient;     // Global ambient scene color
+uniform bool   u_lightIsOn[8];      //! flag if light is on
+uniform vec4   u_lightPosVS[8];     //! position of light in view space
+uniform vec4   u_lightAmbient[8];   //! ambient light intensity (Ia)
+uniform vec4   u_lightDiffuse[8];   //! diffuse light intensity (Id)
+uniform vec4   u_lightSpecular[8];  //! specular light intensity (Is)
+uniform vec3   u_lightDirVS[8];     //! spot direction in view space
+uniform float  u_lightSpotCosCut[8];//! cosine of spot cutoff angle
+uniform float  u_lightSpotCutoff[8];//! spot cutoff angle 1-180 degrees
+uniform float  u_lightSpotExp[8];   //! spot exponent
+uniform vec3   u_lightAtt[8];       //! attenuation (const,linear,quadr.)
+uniform bool   u_lightDoAtt[8];     //! flag if att. must be calc.
+uniform vec4   u_globalAmbient;     //! Global ambient scene color
 
-uniform vec4   u_matAmbient;        // ambient color reflection coefficient (ka)
-uniform vec4   u_matDiffuse;        // diffuse color reflection coefficient (kd)
-uniform vec4   u_matSpecular;       // specular color reflection coefficient (ks)
-uniform vec4   u_matEmissive;       // emissive color for selfshining materials
-uniform float  u_matShininess;      // shininess exponent
+uniform vec4   u_matAmbient;        //! ambient color reflection coefficient (ka)
+uniform vec4   u_matDiffuse;        //! diffuse color reflection coefficient (kd)
+uniform vec4   u_matSpecular;       //! specular color reflection coefficient (ks)
+uniform vec4   u_matEmissive;       //! emissive color for selfshining materials
+uniform float  u_matShininess;      //! shininess exponent
 
-uniform sampler2D u_texture0;       // Color map
-uniform sampler2D u_texture1;       // Normal map
+uniform sampler2D u_texture0;       //! Color map
+uniform sampler2D u_texture1;       //! Normal map
 
-varying vec2   v_texCoord;          // Texture coordiante varying
-varying vec3   v_L_TS;              // Vector to light 0 in tangent space
-varying vec3   v_E_TS;              // Vector to the eye in tangent space
-varying vec3   v_S_TS;              // Spot direction in tangent space
-varying float  v_d;                 // Light distance
+varying vec2   v_texCoord;          //! Texture coordiante varying
+varying vec3   v_L_TS;              //! Vector to light 0 in tangent space
+varying vec3   v_E_TS;              //! Vector to the eye in tangent space
+varying vec3   v_S_TS;              //! Spot direction in tangent space
+varying float  v_d;                 //! Light distance
 
+//! Fragment shader for classic normal map bump mapping
 void main()
 {   
     vec3 E = normalize(v_E_TS);   // normalized eye direction

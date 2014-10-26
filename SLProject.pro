@@ -16,7 +16,7 @@ app-Demo-Qt.depends = lib-SLProject
 app-Viewer-Qt.depends = lib-SLProject
 lib-SLProject.depends = lib-SLExternal
 lib-SLProject.depends = lib-SLExternal/assimp
-lib-SLProject.depends = lib-SLExternal/lib-ovr
+lib-SLProject.depends = lib-SLExternal/oculus
 
 CONFIG -= qml_debug
 
