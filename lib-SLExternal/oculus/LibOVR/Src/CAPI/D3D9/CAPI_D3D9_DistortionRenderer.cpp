@@ -5,16 +5,16 @@ Content     :   Experimental distortion renderer
 Created     :   March 7th, 2014
 Authors     :   Tom Heath
 
-Copyright   :   Copyright 2014 Oculus VR, Inc. All Rights reserved.
+Copyright   :   Copyright 2014 Oculus VR, LLC All Rights reserved.
 
-Licensed under the Oculus VR Rift SDK License Version 3.1 (the "License"); 
+Licensed under the Oculus VR Rift SDK License Version 3.2 (the "License"); 
 you may not use the Oculus VR Rift SDK except in compliance with the License, 
 which is provided at the time of installation or download, or which 
 otherwise accompanies this software in either electronic or hard copy form.
 
 You may obtain a copy of the License at
 
-http://www.oculusvr.com/licenses/LICENSE-3.1 
+http://www.oculusvr.com/licenses/LICENSE-3.2 
 
 Unless required by applicable law or agreed to in writing, the Oculus VR SDK 
 distributed under the License is distributed on an "AS IS" BASIS,
@@ -41,9 +41,23 @@ CAPI::DistortionRenderer* DistortionRenderer::Create(ovrHmd hmd,
 
 DistortionRenderer::DistortionRenderer(ovrHmd hmd, FrameTimeManager& timeManager,
                                        const HMDRenderState& renderState)
-    : CAPI::DistortionRenderer(ovrRenderAPI_D3D9, hmd, timeManager, renderState) 
+  : CAPI::DistortionRenderer(ovrRenderAPI_D3D9, hmd, timeManager, renderState),
+    Device(NULL),
+    SwapChain(NULL),
+    VertexDecl(NULL),
+    PixelShader(NULL),
+    VertexShader(NULL),
+    VertexShaderTimewarp(NULL),
+   //screenSize(),
+    ResolutionInPixels(0,0)
+  //eachEye[]
 {
+    ScreenSize.w = 0;
+    ScreenSize.h = 0;
+    InitLatencyTester(renderState);
 }
+
+
 /**********************************************/
 DistortionRenderer::~DistortionRenderer()
 {
@@ -56,8 +70,7 @@ DistortionRenderer::~DistortionRenderer()
 
 
 /******************************************************************************/
-bool DistortionRenderer::Initialize(const ovrRenderAPIConfig* apiConfig,
-                                    unsigned arg_distortionCaps)
+bool DistortionRenderer::Initialize(const ovrRenderAPIConfig* apiConfig)
 {
 	///QUESTION - what is returned bool for???  Are we happy with this true, if not config.
     const ovrD3D9Config * config = (const ovrD3D9Config*)apiConfig;
@@ -65,18 +78,22 @@ bool DistortionRenderer::Initialize(const ovrRenderAPIConfig* apiConfig,
     if (!config->D3D9.pDevice)  return false;
 
 	//Glean all the required variables from the input structures
-	device         = config->D3D9.pDevice;
-    swapChain      = config->D3D9.pSwapChain;
-	screenSize     = config->D3D9.Header.RTSize;
-	distortionCaps = arg_distortionCaps;
+	Device         = config->D3D9.pDevice;
+    SwapChain      = config->D3D9.pSwapChain;
+	ScreenSize     = config->D3D9.Header.RTSize;
 
-	GfxState = *new GraphicsState(device, distortionCaps);
+	GfxState = *new GraphicsState(Device, RState.DistortionCaps);
 
 	CreateVertexDeclaration();
 	CreateDistortionShaders();
-	Create_Distortion_Models();
+	CreateDistortionModels();
 
     return true;
+}
+
+void DistortionRenderer::InitLatencyTester(const HMDRenderState& RenderState)
+{
+    ResolutionInPixels = RenderState.OurHMDInfo.ResolutionInPixels;
 }
 
 
@@ -112,12 +129,11 @@ void DistortionRenderer::renderEndFrame()
     RenderBothDistortionMeshes();
 
     if(RegisteredPostDistortionCallback)
-        RegisteredPostDistortionCallback(device);
+        RegisteredPostDistortionCallback(Device);
 
-    if(LatencyTest2Active)
+    if (LatencyTest2Active)
     {
-        // TODO:
-        //renderLatencyPixel(LatencyTest2DrawColor);
+        renderLatencyPixel(LatencyTest2DrawColor);
     }
 }
 
@@ -156,21 +172,20 @@ void DistortionRenderer::EndFrame(bool swapBuffers)
         renderEndFrame();
     }
 
-    if(LatencyTestDrawColor)
+    if (LatencyTestActive)
     {
-		// TODO: Support latency tester quad
-        ///renderLatencyQuad(latencyTesterDrawColor);
+        renderLatencyQuad(LatencyTestDrawColor);
     }
 
     if (swapBuffers)
     {
-        if (swapChain)
+        if (SwapChain)
         {
-            swapChain->Present(NULL, NULL, NULL, NULL, 0);
+            SwapChain->Present(NULL, NULL, NULL, NULL, 0);
         }
         else
         {
-		    device->Present( NULL, NULL, NULL, NULL );
+		    Device->Present( NULL, NULL, NULL, NULL );
         }
 
         // Force GPU to flush the scene, resulting in the lowest possible latency.
@@ -178,17 +193,19 @@ void DistortionRenderer::EndFrame(bool swapBuffers)
         // Doesn't need to be done if running through the Oculus driver.
         if (RState.OurHMDInfo.InCompatibilityMode &&
             !(RState.DistortionCaps & ovrDistortionCap_ProfileNoTimewarpSpinWaits))
+        {
             WaitUntilGpuIdle();
+        }
     }
 }
 
 
 void DistortionRenderer::WaitUntilGpuIdle()
 {
-	if(device)
+	if(Device)
     {
          IDirect3DQuery9* pEventQuery=NULL ;
-         device->CreateQuery(D3DQUERYTYPE_EVENT, &pEventQuery) ;
+         Device->CreateQuery(D3DQUERYTYPE_EVENT, &pEventQuery) ;
 
          if(pEventQuery!=NULL)
          {
@@ -211,28 +228,99 @@ double DistortionRenderer::FlushGpuAndWaitTillTime(double absTime)
 }
 
 
+//-----------------------------------------------------------------------------
+// Latency Tester Quad
 
-DistortionRenderer::GraphicsState::GraphicsState(IDirect3DDevice9* d, unsigned arg_distortionCaps)
-: device(d)
-, numSavedStates(0)
-, distortionCaps(arg_distortionCaps)
+static void ConvertSRGB(unsigned char c[3])
 {
+    for (int i = 0; i < 3; ++i)
+    {
+        double d = (double)c[i];
+        double ds = d / 255.;
+
+        if (ds <= 0.04045)
+        {
+            d /= 12.92;
+        }
+        else
+        {
+            d = 255. * pow((ds + 0.055) / 1.055, 2.4);
+        }
+
+        int color = (int)d;
+        if (color < 0)
+        {
+            color = 0;
+        }
+        else if (color > 255)
+        {
+            color = 255;
+        }
+
+        c[i] = (unsigned char)color;
+    }
+}
+
+void DistortionRenderer::renderLatencyQuad(unsigned char* color)
+{
+    D3DRECT rect = { ResolutionInPixels.w / 4, ResolutionInPixels.h / 4, ResolutionInPixels.w * 3 / 4, ResolutionInPixels.h * 3 / 4 };
+    unsigned char c[3] = { color[0], color[1], color[2] };
+
+    if (RState.DistortionCaps & ovrDistortionCap_SRGB)
+    {
+        ConvertSRGB(c);
+    }
+
+    Device->Clear(1, &rect, D3DCLEAR_TARGET, D3DCOLOR_RGBA(c[0], c[1], c[2], 255), 1, 0);
+}
+
+#ifdef OVR_BUILD_DEBUG
+#define OVR_LATENCY_PIXEL_SIZE 20
+#else
+#define OVR_LATENCY_PIXEL_SIZE 5
+#endif
+
+void DistortionRenderer::renderLatencyPixel(unsigned char* color)
+{
+    D3DRECT rect = { ResolutionInPixels.w - OVR_LATENCY_PIXEL_SIZE, 0, ResolutionInPixels.w, OVR_LATENCY_PIXEL_SIZE };
+    unsigned char c[3] = { color[0], color[1], color[2] };
+
+    if (RState.DistortionCaps & ovrDistortionCap_SRGB)
+    {
+        ConvertSRGB(c);
+    }
+
+    Device->Clear(1, &rect, D3DCLEAR_TARGET, D3DCOLOR_RGBA(c[0], c[1], c[2], 255), 1, 0);
+}
+
+
+//-----------------------------------------------------------------------------
+// GraphicsState
+
+DistortionRenderer::GraphicsState::GraphicsState(IDirect3DDevice9* d, unsigned distortionCaps)
+: Device(d)
+, NumSavedStates(0)
+, DistortionCaps(distortionCaps)
+{
+    #if defined(OVR_BUILD_DEBUG)
+        memset(SavedState, 0, sizeof(SavedState));
+    #endif
 }
 
 void DistortionRenderer::GraphicsState::RecordAndSetState(int which, int type, DWORD newValue)
 {
-	SavedStateType * sst = &savedState[numSavedStates++];
+	SavedStateType * sst = &SavedState[NumSavedStates++];
 	sst->which = which;
 	sst->type = type;
 	if (which == 0)
 	{
-		device->GetSamplerState(0, (D3DSAMPLERSTATETYPE)type, &sst->valueToRevertTo);
-		device->SetSamplerState(0, (D3DSAMPLERSTATETYPE)type, newValue);
+		Device->GetSamplerState(0, (D3DSAMPLERSTATETYPE)type, &sst->valueToRevertTo);
+		Device->SetSamplerState(0, (D3DSAMPLERSTATETYPE)type, newValue);
 	}
 	else
 	{
-		device->GetRenderState((D3DRENDERSTATETYPE)type, &sst->valueToRevertTo);
-		device->SetRenderState((D3DRENDERSTATETYPE)type, newValue);
+		Device->GetRenderState((D3DRENDERSTATETYPE)type, &sst->valueToRevertTo);
+		Device->SetRenderState((D3DRENDERSTATETYPE)type, newValue);
 	}
 }
 
@@ -240,7 +328,7 @@ void DistortionRenderer::GraphicsState::Save()
 {
 	//Record and set rasterizer and sampler states.
 
-	numSavedStates=0;
+	NumSavedStates=0;
 
     RecordAndSetState(0, D3DSAMP_MINFILTER,          D3DTEXF_LINEAR );
     RecordAndSetState(0, D3DSAMP_MAGFILTER,          D3DTEXF_LINEAR );
@@ -248,7 +336,7 @@ void DistortionRenderer::GraphicsState::Save()
     RecordAndSetState(0, D3DSAMP_BORDERCOLOR,        0x000000 );
     RecordAndSetState(0, D3DSAMP_ADDRESSU,           D3DTADDRESS_BORDER );
     RecordAndSetState(0, D3DSAMP_ADDRESSV,           D3DTADDRESS_BORDER );
-    RecordAndSetState(0, D3DSAMP_SRGBTEXTURE,        (distortionCaps & ovrDistortionCap_SRGB) ? TRUE : FALSE );
+    RecordAndSetState(0, D3DSAMP_SRGBTEXTURE,        (DistortionCaps & ovrDistortionCap_SRGB) ? TRUE : FALSE );
 
 	RecordAndSetState(1, D3DRS_MULTISAMPLEANTIALIAS, FALSE );
 	RecordAndSetState(1, D3DRS_DITHERENABLE,         FALSE );
@@ -265,22 +353,22 @@ void DistortionRenderer::GraphicsState::Save()
  	RecordAndSetState(1, D3DRS_DEPTHBIAS ,           0 );
     RecordAndSetState(1, D3DRS_LIGHTING,             FALSE );
    	RecordAndSetState(1, D3DRS_FOGENABLE,            FALSE );
-    RecordAndSetState(1, D3DRS_SRGBWRITEENABLE,      (distortionCaps & ovrDistortionCap_SRGB) ? TRUE : FALSE );
+    RecordAndSetState(1, D3DRS_SRGBWRITEENABLE,      (DistortionCaps & ovrDistortionCap_SRGB) ? TRUE : FALSE );
 }
 
 
 void DistortionRenderer::GraphicsState::Restore()
 {
-	for (int i = 0; i<numSavedStates; i++)
+	for (int i = 0; i < NumSavedStates; i++)
 	{
-		SavedStateType * sst = &savedState[i];
+		SavedStateType * sst = &SavedState[i];
 		if (sst->which == 0)
 		{
-			device->SetSamplerState(0, (D3DSAMPLERSTATETYPE)sst->type, sst->valueToRevertTo);
+			Device->SetSamplerState(0, (D3DSAMPLERSTATETYPE)sst->type, sst->valueToRevertTo);
 		}
 		else
 		{
-			device->SetRenderState((D3DRENDERSTATETYPE)sst->type, sst->valueToRevertTo);
+			Device->SetRenderState((D3DRENDERSTATETYPE)sst->type, sst->valueToRevertTo);
 		}
 	}
 }

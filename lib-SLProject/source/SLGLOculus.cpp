@@ -227,7 +227,7 @@ void SLGLOculus::renderDistortion(SLint width, SLint height, SLuint tex)
         sp->uniform2f("u_eyeToSourceUVScale",  _uvScaleOffset[eye][0].x, -_uvScaleOffset[eye][0].y);
         sp->uniform2f("u_eyeToSourceUVOffset", _uvScaleOffset[eye][1].x,  _uvScaleOffset[eye][1].y);
     
-        ovrPosef eyeRenderPose = ovrHmd_GetEyePose(_hmd, (ovrEyeType)0);
+		ovrPosef eyeRenderPose = ovrHmd_GetHmdPosePerEye(_hmd, (ovrEyeType)0);
         ovrMatrix4f timeWarpMatrices[2];
         ovrHmd_GetEyeTimewarpMatrices(_hmd, (ovrEyeType)0, eyeRenderPose, timeWarpMatrices);
     
@@ -384,9 +384,9 @@ void SLGLOculus::calculateHmdValues()
     orthoScale1.y /= (SLfloat)_outputRes.y /_resolution.y;
 
     ovrMatrix4f orthoProjLeft  = ovrMatrix4f_OrthoSubProjection(projLeft, orthoScale0, orthoDistance,
-                                                                _eyeRenderDesc[0].ViewAdjust.x);
+                                                                _eyeRenderDesc[0].HmdToEyeViewOffset.x);
     ovrMatrix4f orthoProjRight = ovrMatrix4f_OrthoSubProjection(projRight, orthoScale1, orthoDistance,
-                                                                _eyeRenderDesc[1].ViewAdjust.x);
+																_eyeRenderDesc[1].HmdToEyeViewOffset.x);
 
     
     memcpy(&_projection[0], &projLeft, sizeof(ovrMatrix4f));
@@ -406,8 +406,8 @@ void SLGLOculus::calculateHmdValues()
     _orthoProjection[0] = flipY * _orthoProjection[0];
     _orthoProjection[1] = flipY * _orthoProjection[1];
     
-    memcpy(&_viewAdjust[0], &_eyeRenderDesc[0].ViewAdjust, sizeof(SLVec3f));
-    memcpy(&_viewAdjust[1], &_eyeRenderDesc[1].ViewAdjust, sizeof(SLVec3f));
+    memcpy(&_viewAdjust[0], &_eyeRenderDesc[0].HmdToEyeViewOffset, sizeof(SLVec3f));
+    memcpy(&_viewAdjust[1], &_eyeRenderDesc[1].HmdToEyeViewOffset, sizeof(SLVec3f));
     
 #else
     for (SLint i = 0; i < 2; ++i)
@@ -480,7 +480,7 @@ void SLGLOculus::beginFrame()
     for (int eyeIndex = 0; eyeIndex < 2; ++eyeIndex)
     {
         ovrEyeType eye = (ovrEyeType) eyeIndex; // _hmd->EyeRenderOrder[eyeIndex]; <-- would be the better way
-        _eyeRenderPose[eye] = ovrHmd_GetEyePose(_hmd, eye);
+		_eyeRenderPose[eye] = ovrHmd_GetHmdPosePerEye(_hmd, eye);
 
         _orientation[eyeIndex].set(_eyeRenderPose[eye].Orientation.x, 
                                    _eyeRenderPose[eye].Orientation.y, 

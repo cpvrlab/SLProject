@@ -5,16 +5,16 @@ Content     :   D3D9 utility functions for rendering
 Created     :   March 7 , 2014
 Authors     :   Tom Heath
 
-Copyright   :   Copyright 2014 Oculus VR, Inc. All Rights reserved.
+Copyright   :   Copyright 2014 Oculus VR, LLC All Rights reserved.
 
-Licensed under the Oculus VR Rift SDK License Version 3.1 (the "License"); 
+Licensed under the Oculus VR Rift SDK License Version 3.2 (the "License"); 
 you may not use the Oculus VR Rift SDK except in compliance with the License, 
 which is provided at the time of installation or download, or which 
 otherwise accompanies this software in either electronic or hard copy form.
 
 You may obtain a copy of the License at
 
-http://www.oculusvr.com/licenses/LICENSE-3.1 
+http://www.oculusvr.com/licenses/LICENSE-3.2 
 
 Unless required by applicable law or agreed to in writing, the Oculus VR SDK 
 distributed under the License is distributed on an "AS IS" BASIS,
@@ -144,20 +144,20 @@ void DistortionRenderer::CreateDistortionShaders(void)
 #if PRECOMPILE_FLAG
 	ID3DBlob * pShaderCode;
 	pShaderCode = ShaderCompile("precompiledVertexShaderSrc",VertexShaderSrc,"vs_2_0");
-	device->CreateVertexShader( ( DWORD* )pShaderCode->GetBufferPointer(), &vertexShader );
+	Device->CreateVertexShader( ( DWORD* )pShaderCode->GetBufferPointer(), &VertexShader );
     pShaderCode->Release();
 
 	pShaderCode = ShaderCompile("precompiledVertexShaderTimewarpSrc",VertexShaderTimewarpSrc,"vs_3_0");
-	device->CreateVertexShader( ( DWORD* )pShaderCode->GetBufferPointer(), &vertexShaderTimewarp );
+	Device->CreateVertexShader( ( DWORD* )pShaderCode->GetBufferPointer(), &VertexShaderTimewarp );
     pShaderCode->Release();
 
 	pShaderCode = ShaderCompile("precompiledPixelShaderSrc",PixelShaderSrc,"ps_3_0");
-	device->CreatePixelShader( ( DWORD* )pShaderCode->GetBufferPointer(), &pixelShader );
+	Device->CreatePixelShader( ( DWORD* )pShaderCode->GetBufferPointer(), &PixelShader );
     pShaderCode->Release();
 #else
-	device->CreateVertexShader( precompiledVertexShaderSrc, &vertexShader );
-	device->CreateVertexShader( precompiledVertexShaderTimewarpSrc, &vertexShaderTimewarp );
-	device->CreatePixelShader(  precompiledPixelShaderSrc, &pixelShader );
+	Device->CreateVertexShader( precompiledVertexShaderSrc, &VertexShader );
+	Device->CreateVertexShader( precompiledVertexShaderTimewarpSrc, &VertexShaderTimewarp );
+	Device->CreatePixelShader(  precompiledPixelShaderSrc, &PixelShader );
 #endif
 }
 
@@ -173,12 +173,12 @@ void DistortionRenderer::CreateVertexDeclaration(void)
         { 0, 24, D3DDECLTYPE_FLOAT2, D3DDECLMETHOD_DEFAULT, D3DDECLUSAGE_TEXCOORD, 1 },
         { 0, 32, D3DDECLTYPE_FLOAT2, D3DDECLMETHOD_DEFAULT, D3DDECLUSAGE_TEXCOORD, 2 },
 		D3DDECL_END()	};
-    device->CreateVertexDeclaration( VertexElements, &vertexDecl );
+    Device->CreateVertexDeclaration( VertexElements, &VertexDecl );
 }
 
 
 /******************************************************/
-void DistortionRenderer::Create_Distortion_Models(void)
+void DistortionRenderer::CreateDistortionModels(void)
 {
 	//Make the distortion models
 	for (int eye=0;eye<2;eye++)
@@ -188,19 +188,19 @@ void DistortionRenderer::Create_Distortion_Models(void)
 		ovrHmd_CreateDistortionMesh(HMD,
             RState.EyeRenderDesc[eye].Eye,
             RState.EyeRenderDesc[eye].Fov,
-                                    distortionCaps,
+                                    RState.DistortionCaps,
                                     &meshData);
 
 		e->numVerts = meshData.VertexCount;
 		e->numIndices = meshData.IndexCount;
 
-		device->CreateVertexBuffer( (e->numVerts)*sizeof(ovrDistortionVertex),0, 0,
+		Device->CreateVertexBuffer( (e->numVerts)*sizeof(ovrDistortionVertex),0, 0,
                                     D3DPOOL_MANAGED, &e->dxVerts, NULL );
 		ovrDistortionVertex * dxv; 	e->dxVerts->Lock( 0, 0, (void**)&dxv, 0 );
 		for (int v=0;v<e->numVerts;v++) dxv[v] = meshData.pVertexData[v];
 		e->dxVerts->Unlock();
 
-		device->CreateIndexBuffer( (e->numIndices)*sizeof(u_short),0, D3DFMT_INDEX16,
+		Device->CreateIndexBuffer( (e->numIndices)*sizeof(u_short),0, D3DFMT_INDEX16,
                                    D3DPOOL_MANAGED, &e->dxIndices, NULL );
 		unsigned short* dxi; e->dxIndices->Lock( 0, 0, (void**)&dxi, 0 );
 		for (int i=0;i<e->numIndices;i++) dxi[i] = meshData.pIndexData[i];
@@ -213,7 +213,7 @@ void DistortionRenderer::Create_Distortion_Models(void)
 /**********************************************************/
 void DistortionRenderer::RenderBothDistortionMeshes(void)
 {
-	device->BeginScene();
+	Device->BeginScene();
 
 	D3DCOLOR clearColor = D3DCOLOR_RGBA(
 		(int)(RState.ClearColor[0] * 255.0f),
@@ -221,24 +221,27 @@ void DistortionRenderer::RenderBothDistortionMeshes(void)
 		(int)(RState.ClearColor[2] * 255.0f),
 		(int)(RState.ClearColor[3] * 255.0f));
 
-	device->Clear(1, NULL, D3DCLEAR_TARGET, clearColor, 0, 0);
+	Device->Clear(0, NULL, D3DCLEAR_TARGET | D3DCLEAR_STENCIL | D3DCLEAR_ZBUFFER, clearColor, 0, 0);
 
 	for (int eye=0; eye<2; eye++)
 	{
 		FOR_EACH_EYE * e = &eachEye[eye];
-		D3DVIEWPORT9 vp; vp.X=0; vp.Y=0; vp.Width=screenSize.w;	vp.Height=screenSize.h; vp.MinZ=0; vp.MaxZ = 1;
+		D3DVIEWPORT9 vp;
+        vp.X=0; vp.Y=0;
+        vp.Width=ScreenSize.w;	vp.Height=ScreenSize.h;
+        vp.MinZ=0; vp.MaxZ = 1;
 
-		device->SetViewport(&vp);
-		device->SetStreamSource( 0, e->dxVerts,0, sizeof(ovrDistortionVertex) );
-		device->SetVertexDeclaration( vertexDecl ); 
-		device->SetIndices( e->dxIndices );
-		device->SetPixelShader( pixelShader );
-		device->SetTexture( 0, e->texture);
+		Device->SetViewport(&vp);
+		Device->SetStreamSource( 0, e->dxVerts,0, sizeof(ovrDistortionVertex) );
+		Device->SetVertexDeclaration( VertexDecl ); 
+		Device->SetIndices( e->dxIndices );
+		Device->SetPixelShader( PixelShader );
+		Device->SetTexture( 0, e->texture);
 
 		//Choose which vertex shader, with associated additional inputs
-		if (distortionCaps & ovrDistortionCap_TimeWarp)
+		if (RState.DistortionCaps & ovrDistortionCap_TimeWarp)
 		{          
-			device->SetVertexShader( vertexShaderTimewarp );  
+			Device->SetVertexShader( VertexShaderTimewarp );  
 
             ovrMatrix4f timeWarpMatrices[2];            
             ovrHmd_GetEyeTimewarpMatrices(HMD, (ovrEyeType)eye,
@@ -249,22 +252,22 @@ void DistortionRenderer::RenderBothDistortionMeshes(void)
 			timeWarpMatrices[1] = Matrix4f(timeWarpMatrices[1]).Transposed();
 
             // Feed identity like matrices in until we get proper timewarp calculation going on
-			device->SetVertexShaderConstantF(4, (float *) &timeWarpMatrices[0],4);
-			device->SetVertexShaderConstantF(20,(float *) &timeWarpMatrices[1],4);
+			Device->SetVertexShaderConstantF(4, (float *) &timeWarpMatrices[0],4);
+			Device->SetVertexShaderConstantF(20,(float *) &timeWarpMatrices[1],4);
         }
 		else
 		{
-			device->SetVertexShader( vertexShader );  
+			Device->SetVertexShader( VertexShader );  
 		}
 
 		//Set up vertex shader constants
-		device->SetVertexShaderConstantF( 0, ( FLOAT* )&(e->UVScaleOffset[0]), 1 );
-		device->SetVertexShaderConstantF( 2, ( FLOAT* )&(e->UVScaleOffset[1]), 1 );
+		Device->SetVertexShaderConstantF( 0, ( FLOAT* )&(e->UVScaleOffset[0]), 1 );
+		Device->SetVertexShaderConstantF( 2, ( FLOAT* )&(e->UVScaleOffset[1]), 1 );
 
-		device->DrawIndexedPrimitive( D3DPT_TRIANGLELIST,0,0,e->numVerts,0,e->numIndices/3);
+		Device->DrawIndexedPrimitive( D3DPT_TRIANGLELIST,0,0,e->numVerts,0,e->numIndices/3);
 	}
 
-	device->EndScene();
+	Device->EndScene();
 }
 
 }}}
