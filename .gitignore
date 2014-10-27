@@ -3,8 +3,12 @@
 *.user
 *.sdf
 *.opensdf
-_bin
+_bin*
+app*
 obj
 _lib
 intermediate
 _doc
+Makefile
+.qmake*
+GenerateHTMLDoc.log
