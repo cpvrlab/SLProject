@@ -15,6 +15,8 @@ CONFIG += staticlib
 CONFIG -= qt
 CONFIG += warn_off
 
+QMAKE_CXXFLAGS += -std=c++11
+
 DEFINES += _UNICODE
 
 #define platform variable for folder name
@@ -48,8 +50,6 @@ HEADERS += \
     LibOVR/Src/OVR_Profile.h \
     LibOVR/Src/OVR_SerialFormat.h \
     LibOVR/Src/OVR_Stereo.h \
-    LibOVR/Src/CAPI/GL/CAPI_GLE.h \
-    LibOVR/Src/CAPI/GL/CAPI_GLE_GL.h \
     LibOVR/Src/CAPI/GL/CAPI_GL_DistortionRenderer.h \
     LibOVR/Src/CAPI/GL/CAPI_GL_DistortionShaders.h \
     LibOVR/Src/CAPI/GL/CAPI_GL_HSWDisplay.h \
@@ -163,8 +163,6 @@ SOURCES += \
 macx {
 HEADERS += \
     LibOVR/Src/Displays/OVR_OSX_Display.h \
-    LibOVR/Src/Displays/OVR_OSX_FocusObserver.h \
-    LibOVR/Src/Displays/OVR_OSX_FocusReader.h \
     LibOVR/Src/Net/OVR_Unix_Socket.h
 
 
@@ -173,8 +171,6 @@ SOURCES += \
     LibOVR/Src/Net/OVR_Unix_Socket.cpp \
     LibOVR/Src/Kernel/OVR_ThreadsPthread.cpp \
     LibOVR/Src/Util/Util_SystemInfo_OSX.mm \
-    LibOVR/Src/Displays/OVR_OSX_FocusObserver.mm \
-    LibOVR/Src/Displays/OVR_OSX_FocusReader.mm
 }
 
 win32 {
@@ -208,6 +204,8 @@ HEADERS += \
     LibOVR/Src/CAPI/Shaders/SimpleTexturedQuad_ps_refl.h \
     LibOVR/Src/CAPI/Shaders/SimpleTexturedQuad_vs.h \
     LibOVR/Src/CAPI/Shaders/SimpleTexturedQuad_vs_refl.h \
+    LibOVR/Src/CAPI/GL/CAPI_GLE.h \
+    LibOVR/Src/CAPI/GL/CAPI_GLE_GL.h \
     LibOVR/Src/Displays/OVR_Win32_Display.h \
     LibOVR/Src/Displays/OVR_Win32_Dxgi_Display.h \
     LibOVR/Src/Displays/OVR_Win32_FocusReader.h \
