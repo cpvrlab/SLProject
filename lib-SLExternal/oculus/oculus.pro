@@ -38,7 +38,7 @@ INCLUDEPATH += \
     3rdParty \
     3rdParty/TinyXml \
     3rdParty/glext
- 
+
 
 HEADERS += \
     LibOVR/Src/OVR_CAPI.h \
@@ -50,6 +50,7 @@ HEADERS += \
     LibOVR/Src/OVR_Profile.h \
     LibOVR/Src/OVR_SerialFormat.h \
     LibOVR/Src/OVR_Stereo.h \
+    LibOVR/Src/CAPI/CAPI_LatencyStatistics.h \
     LibOVR/Src/CAPI/GL/CAPI_GL_DistortionRenderer.h \
     LibOVR/Src/CAPI/GL/CAPI_GL_DistortionShaders.h \
     LibOVR/Src/CAPI/GL/CAPI_GL_HSWDisplay.h \
@@ -127,6 +128,7 @@ SOURCES += \
     LibOVR/Src/CAPI/CAPI_HMDRenderState.cpp \
     LibOVR/Src/CAPI/CAPI_HMDState.cpp \
     LibOVR/Src/CAPI/CAPI_HSWDisplay.cpp \
+    LibOVR/Src/CAPI/CAPI_LatencyStatistics.cpp \
     LibOVR/Src/Kernel/OVR_Alg.cpp \
     LibOVR/Src/Kernel/OVR_Allocator.cpp \
     LibOVR/Src/Kernel/OVR_Atomic.cpp \
