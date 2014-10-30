@@ -170,6 +170,8 @@ SOURCES += \
     LibOVR/Src/Displays/OVR_OSX_Display.cpp \
     LibOVR/Src/Net/OVR_Unix_Socket.cpp \
     LibOVR/Src/Kernel/OVR_ThreadsPthread.cpp \
+
+OBJECTIVE_SOURCES += \
     LibOVR/Src/Util/Util_SystemInfo_OSX.mm \
 }
 
