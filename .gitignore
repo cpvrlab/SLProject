@@ -3,17 +3,6 @@
 *.user
 *.sdf
 *.opensdf
-<<<<<<< HEAD
-_bin*
-app*
-obj
-_lib
-intermediate
-_doc
-Makefile
-.qmake*
-GenerateHTMLDoc.log
-=======
 *.idb
 *.pdb
 *.obj
@@ -24,4 +13,7 @@ _bin-*/
 _lib/
 _doc/
 intermediate/
->>>>>>> dafdced2277b663ff1a54ac77ce394a9cc8ebe7b
+
+Makefile
+.qmake*
+GenerateHTMLDoc.log
