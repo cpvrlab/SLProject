@@ -142,8 +142,7 @@ class SLNode: public SLObject, public SLEventHandler
     virtual void            cullRec             (SLSceneView* sv);
     virtual void            drawRec             (SLSceneView* sv);
     virtual bool            hitRec              (SLRay* ray);
-    virtual void            statsRec            (SLNodeStats &stats);
-    virtual SLbool          animateRec          (SLfloat timeMS);
+    virtual void            statsRec            (SLNodeStats& stats);
     virtual SLNode*         copyRec             ();
     virtual SLAABBox&       updateAABBRec       ();
     virtual void            dumpRec             ();

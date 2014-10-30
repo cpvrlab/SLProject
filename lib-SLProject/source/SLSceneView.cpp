@@ -18,6 +18,7 @@
 #include <SLAABBox.h>
 #include <SLGLShaderProg.h>
 #include <SLAnimation.h>
+#include <SLAnimationState.h>
 #include <SLLightSphere.h>
 #include <SLLightRect.h>
 #include <SLRay.h>
@@ -497,9 +498,55 @@ SLbool SLSceneView::updateAndDrawGL3D(SLfloat elapsedTimeMS)
 
     // Do animations
     SLfloat startMS = s->timeMilliSec();
+    /// @add add old animation functionality back in
     SLbool animated = !drawBit(SL_DB_ANIMOFF) &&
-                      !s->_root3D->drawBits()->get(SL_DB_ANIMOFF) &&
-                       s->_root3D->animateRec(elapsedTimeMS);
+                      !s->_root3D->drawBits()->get(SL_DB_ANIMOFF);
+
+
+    //-------- TEMPORARY ANIMATION TEST ----------------------------
+
+    static bool animTestInit = false;
+    static SLNode* animTarget;
+    static SLAnimation* testAnim;
+    static SLNodeAnimationTrack* testAnimTrack;
+    static SLAnimationState* testAnimState;
+    SLfloat time = s->timeSec();
+    SLfloat frameTime = fmod(s->timeSec(), 7.0f);
+
+    // a node has a position already, do we just overwrite it with the one that's in the animation?
+
+    if (!animTestInit) {
+        // the single node this animation will be applied to
+        animTarget = s->_root3D->findChild<SLNode>("Sphere Light");
+
+        // create test animation
+        testAnim = new SLAnimation; // the creation of a new animation will be handled by the SLAnimationManager
+        testAnim->length(5.0f);     // the animation length parameter should be automatically set in the future (maybe)
+                                    // for now I just need a correct time set here so I do it manually.
+                                    // also when we alter the length of an animation the keyframes should check if they are still valid.
+
+        testAnimTrack = testAnim->createNodeAnimationTrack(0);
+        SLTransformKeyframe* kf0 = testAnimTrack->createNodeKeyframe(0.0f); // @todo autogenerate a keyframe at 0.0
+        SLTransformKeyframe* kf1 = testAnimTrack->createNodeKeyframe(4.0f);      
+        SLTransformKeyframe* kf2 = testAnimTrack->createNodeKeyframe(5.0f);      
+        
+        kf0->translation(SLVec3f(-1, 0, 0));
+
+        kf1->translation(SLVec3f(0, 1, 0));
+        //kf1->scale(SLVec3f(1, 3, 1));
+        kf2->translation(SLVec3f(0, 0, 0));
+
+        animTarget->translate(2, 0, 0);
+        animTarget->setInitialState();
+
+        animTestInit = true;
+    }
+    // todo why is resetToIntialState not in the apply function itself
+    animTarget->resetToInitialState();
+    testAnimTrack->applyToNode(animTarget, time);
+
+
+    // ------------------------------------------------------------
 
     // don't slow down if we're in HMD stereo mode
     animated = animated || _camera->projection() == stereoSideBySideD;
@@ -678,8 +725,11 @@ void SLSceneView::draw3DNodeLines(SLVNode &nodes)
                 nodes[i]->aabb()->drawAxisWS();
 
                 // Draw the animation curve
+                /// @add add old animation functionality back in
+                /*
                 if (nodes[i]->animation())
                     nodes[i]->animation()->drawWS();
+                    */
             }
         }
     }
@@ -2041,8 +2091,7 @@ SLbool SLSceneView::updateAndDrawRT3D(SLfloat elapsedTimeMS)
     {
         if (s->_root3D)
         {   updated = !drawBit(SL_DB_ANIMOFF) && 
-                      !s->_root3D->drawBit(SL_DB_ANIMOFF) && 
-                       s->_root3D->animateRec(40);
+                      !s->_root3D->drawBit(SL_DB_ANIMOFF); /// @add add old animation functionality back in
         }
                 
         _stateGL->modelViewMatrix.identity();
@@ -2094,9 +2143,9 @@ SLbool SLSceneView::updateAndDrawPT3D(SLfloat elapsedTimeMS)
     // if the pathtracer not yet got started
     if (_pathtracer.state()==rtReady)
     {
+        /// @add add old animation functionality back in
         updated = !drawBit(SL_DB_ANIMOFF) && 
-                      !s->_root3D->drawBit(SL_DB_ANIMOFF) && 
-                       s->_root3D->animateRec(40);
+                      !s->_root3D->drawBit(SL_DB_ANIMOFF);
 
         
         _stateGL->modelViewMatrix.identity();

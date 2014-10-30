@@ -31,12 +31,12 @@
     <Filter Include="Math">
       <UniqueIdentifier>{cf4094e0-b541-41f3-875f-f69a815d37cb}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Animation">
+      <UniqueIdentifier>{78b566b0-bd7c-4e28-8797-9e38a2226fda}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\include\SLAABBox.h">
-      <Filter>Nodes\AABB &amp; Animation</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\SLAnimation.h">
       <Filter>Nodes\AABB &amp; Animation</Filter>
     </ClInclude>
     <ClInclude Include="..\include\SLButton.h">
@@ -56,9 +56,6 @@
     </ClInclude>
     <ClInclude Include="..\include\SLCylinder.h">
       <Filter>Nodes\Meshes</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\SLKeyframe.h">
-      <Filter>Nodes\AABB &amp; Animation</Filter>
     </ClInclude>
     <ClInclude Include="..\include\SLLightRect.h">
       <Filter>Nodes</Filter>
@@ -222,6 +219,27 @@
     <ClInclude Include="..\include\TriangleBoxIntersect.h">
       <Filter>Math</Filter>
     </ClInclude>
+    <ClInclude Include="..\include\SLSkeleton.h">
+      <Filter>Animation</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\SLAnimationManager.h">
+      <Filter>Animation</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\SLKeyframe.h">
+      <Filter>Animation</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\SLBone.h">
+      <Filter>Animation</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\SLAnimationState.h">
+      <Filter>Animation</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\SLAnimationTrack.h">
+      <Filter>Animation</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\SLAnimation.h">
+      <Filter>Animation</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="source\SLAABBox.cpp">
@@ -250,9 +268,6 @@
     </ClCompile>
     <ClCompile Include="source\SLScene_onLoad.cpp">
       <Filter>Scene</Filter>
-    </ClCompile>
-    <ClCompile Include="source\SLAnimation.cpp">
-      <Filter>Nodes\AABB &amp; Animation</Filter>
     </ClCompile>
     <ClCompile Include="source\SLPathtracer.cpp">
       <Filter>Raytracer</Filter>
@@ -355,6 +370,27 @@
     </ClCompile>
     <ClCompile Include="source\math\SLPlane.cpp">
       <Filter>Math</Filter>
+    </ClCompile>
+    <ClCompile Include="source\SLBone.cpp">
+      <Filter>Animation</Filter>
+    </ClCompile>
+    <ClCompile Include="source\SLAnimationManager.cpp">
+      <Filter>Animation</Filter>
+    </ClCompile>
+    <ClCompile Include="source\SLSkeleton.cpp">
+      <Filter>Animation</Filter>
+    </ClCompile>
+    <ClCompile Include="source\SLAnimationState.cpp">
+      <Filter>Animation</Filter>
+    </ClCompile>
+    <ClCompile Include="source\SLAnimationTrack.cpp">
+      <Filter>Animation</Filter>
+    </ClCompile>
+    <ClCompile Include="source\SLAnimation.cpp">
+      <Filter>Animation</Filter>
+    </ClCompile>
+    <ClCompile Include="source\SLKeyframe.cpp">
+      <Filter>Animation</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

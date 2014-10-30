@@ -2,45 +2,33 @@
 //  File:      SLAnimation.cpp
 //  Author:    Marcus Hudritsch
 //  Date:      July 2014
-//  Codestyle: https://github.com/cpvrlab/SLProject/wiki/Coding-Style-Guidelines
+//  Codestyle: https://code.google.com/p/slproject/wiki/CodingStyleGuidelines
 //  Copyright: 2002-2014 Marcus Hudritsch
 //             This software is provide under the GNU General Public License
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
 
 #include <stdafx.h>
-#include <SLAnimation.h>
+#include <SLKeyframe.h>
 
 
-SLAnimation::SLAnimation()
+
+SLKeyframe::SLKeyframe(const SLAnimationTrack* parent, SLfloat time)
+: _parentTrack(parent), _time(time)
+{ }
+
+bool SLKeyframe::operator<(const SLKeyframe& other) const
 {
-
+    return _time < other._time;
 }
 
-SLAnimation::~SLAnimation()
-{
-
-}
-
-
-
-void SLAnimation::length(SLfloat length)
-{
-    // @todo notify the animations track to optimize their keyframes
-    _length = length;
-}
-
-SLNodeAnimationTrack* SLAnimation::createNodeAnimationTrack(SLuint handle)
-{
-    return new SLNodeAnimationTrack(this, handle);
-}
-
-
-
-
-
-
-
+    
+SLTransformKeyframe::SLTransformKeyframe(const SLAnimationTrack* parent, SLfloat time)
+: SLKeyframe(parent, time),
+_translation(0, 0, 0),
+_rotation(0, 0, 0, 1),
+_scale(1, 1, 1)
+{ }
 
 
 

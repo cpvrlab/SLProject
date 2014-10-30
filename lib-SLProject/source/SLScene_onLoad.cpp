@@ -153,11 +153,14 @@ SLNode* BuildFigureGroup(SLMaterial* material)
 
     // Add animations for left leg
     legLeft = figure->findChild<SLNode>("left leg group");
-    legLeft->animation(new SLAnimation(2, 60, SLVec3f(1,0,0), pingPongLoop));
+    /// @add add old animation functionality back in
+    //legLeft->animation(new SLAnimation(2, 60, SLVec3f(1,0,0), pingPongLoop));
     SLNode* legLowLeft = legLeft->findChild<SLNode>("leglow group");
-    legLowLeft->animation(new SLAnimation(2, 40, SLVec3f(1,0,0), pingPongLoop));
+    /// @add add old animation functionality back in
+    //legLowLeft->animation(new SLAnimation(2, 40, SLVec3f(1,0,0), pingPongLoop));
     SLNode* feetLeft = legLeft->findChild<SLNode>("feet group");
-    feetLeft->animation(new SLAnimation(2, 40, SLVec3f(1,0,0), pingPongLoop));
+    /// @add add old animation functionality back in
+    //feetLeft->animation(new SLAnimation(2, 40, SLVec3f(1,0,0), pingPongLoop));
     legRight = figure->findChild<SLNode>("right leg group");
     legRight->rotate(70, 1,0,0);
 
@@ -219,7 +222,8 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
         SLLightSphere* light1 = new SLLightSphere(0.3f);
         light1->name("light1");
         light1->position(0,0,5);
-        light1->animation(new SLAnimation(2, 4, XAxis, 4, YAxis, loop));
+        /// @add add old animation functionality back in
+        //light1->animation(new SLAnimation(2, 4, XAxis, 4, YAxis, loop));
 
         // Create ground grid
         SLMaterial* m2 = new SLMaterial(SLCol4f::WHITE);
@@ -256,19 +260,24 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
         // Bouncing balls
         SLNode* ball1 = new SLNode(new SLSphere(0.3f, 16, 16, "Ball1", m2));
         ball1->translate(0,0,4, TS_Local);
-        ball1->animation(new SLAnimation(1, SLVec3f(0,-5.2f,0), pingPongLoop, linear));
+        /// @add add old animation functionality back in
+        //ball1->animation(new SLAnimation(1, SLVec3f(0,-5.2f,0), pingPongLoop, linear));
         SLNode* ball2 = new SLNode(new SLSphere(0.3f, 16, 16, "Ball2", m2));
         ball2->translate(-1.5f,0,4, TS_Local);
-        ball2->animation(new SLAnimation(1, SLVec3f(0,-5.2f,0), pingPongLoop, inQuad));
+        /// @add add old animation functionality back in
+        //ball2->animation(new SLAnimation(1, SLVec3f(0,-5.2f,0), pingPongLoop, inQuad));
         SLNode* ball3 = new SLNode(new SLSphere(0.3f, 16, 16, "Ball3", m2));
         ball3->translate(-2.5f,0,4, TS_Local);
-        ball3->animation(new SLAnimation(1, SLVec3f(0,-5.2f,0), pingPongLoop, outQuad));
+        /// @add add old animation functionality back in
+        //ball3->animation(new SLAnimation(1, SLVec3f(0,-5.2f,0), pingPongLoop, outQuad));
         SLNode* ball4 = new SLNode(new SLSphere(0.3f, 16, 16, "Ball4", m2));
         ball4->translate( 1.5f,0,4, TS_Local);
-        ball4->animation(new SLAnimation(1, SLVec3f(0,-5.2f,0), pingPongLoop, inOutQuad));
+        /// @add add old animation functionality back in
+        //ball4->animation(new SLAnimation(1, SLVec3f(0,-5.2f,0), pingPongLoop, inOutQuad));
         SLNode* ball5 = new SLNode(new SLSphere(0.3f, 16, 16, "Ball5", m2));
         ball5->translate( 2.5f,0,4, TS_Local);
-        ball5->animation(new SLAnimation(1, SLVec3f(0,-5.2f,0), pingPongLoop, outInQuad));
+        /// @add add old animation functionality back in
+        //ball5->animation(new SLAnimation(1, SLVec3f(0,-5.2f,0), pingPongLoop, outInQuad));
 
         SLCamera* cam1 = new SLCamera();
         cam1->position(0, 0, 22);
@@ -286,18 +295,20 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
         light1->diffuse (SLCol4f(0.9f,0.9f,0.9f));
         light1->specular(SLCol4f(0.9f,0.9f,0.9f));
         light1->attenuation(1,0,0);
-        light1->animation(new SLAnimation(4, 6, ZAxis, 6, XAxis, loop));
+        /// @add add old animation functionality back in
+        //light1->animation(new SLAnimation(4, 6, ZAxis, 6, XAxis, loop));
 
         SLLightSphere* light2 = new SLLightSphere(0, 0, 0, 0.2f);
         light2->ambient (SLCol4f(0.2f,0.0f,0.0f));
         light2->diffuse (SLCol4f(0.9f,0.0f,0.0f));
         light2->specular(SLCol4f(0.9f,0.9f,0.9f));
         light2->attenuation(1,0,0);
-        SLVKeyframe light2Curve;
-        light2Curve.push_back(SLKeyframe(0, SLVec3f(-8,-4, 0)));
-        light2Curve.push_back(SLKeyframe(1, SLVec3f( 0, 4, 0)));
-        light2Curve.push_back(SLKeyframe(1, SLVec3f( 8,-4, 0)));
-        light2->animation(new SLAnimation(light2Curve, 0, pingPongLoop));
+        /// @add add old animation functionality back in
+        //SLVKeyframe light2Curve;
+        //light2Curve.push_back(SLKeyframe(0, SLVec3f(-8,-4, 0)));
+        //light2Curve.push_back(SLKeyframe(1, SLVec3f( 0, 4, 0)));
+        //light2Curve.push_back(SLKeyframe(1, SLVec3f( 8,-4, 0)));
+        //light2->animation(new SLAnimation(light2Curve, 0, pingPongLoop)); 
      
         SLNode* figure = BuildFigureGroup(m2);
 
@@ -350,7 +361,8 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
         light1->diffuse(SLCol4f(1.0f, 1.0f, 1.0f));
         light1->specular(SLCol4f(1.0f, 1.0f, 1.0f));
         light1->attenuation(1,0,0);
-        light1->animation(new SLAnimation(2,SLVec3f(0,0,-5), pingPongLoop, inOutCubic));
+        /// @add add old animation functionality back in
+        //light1->animation(new SLAnimation(2,SLVec3f(0,0,-5), pingPongLoop, inOutCubic));
         //light1->samples(8,8);
 
         SLLightSphere* light2 = new SLLightSphere(-2.5f, -2.5f, 2.5f, 0.2f);
@@ -358,7 +370,8 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
         light2->diffuse(SLCol4f(1.0f, 1.0f, 1.0f));
         light2->specular(SLCol4f(1.0f, 1.0f, 1.0f));
         light2->attenuation(1,0,0);
-        light2->animation(new SLAnimation(2,SLVec3f(0,5,0), pingPongLoop, inOutCubic));
+        /// @add add old animation functionality back in
+        //light2->animation(new SLAnimation(2,SLVec3f(0,5,0), pingPongLoop, inOutCubic));
 
 
         #if defined(SL_OS_IOS) || defined(SL_OS_ANDROID)
@@ -581,7 +594,8 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
         light1->ambient(SLCol4f(0.2f, 0.2f, 0.2f));
         light1->specular(SLCol4f(1, 1, 1));
         light1->attenuation(1,0,0);
-        light1->animation(new SLAnimation(4, 6, ZAxis, 6, XAxis, loop));
+        /// @add add old animation functionality back in
+        //light1->animation(new SLAnimation(4, 6, ZAxis, 6, XAxis, loop));
 
         // wine glass
         SLVVec3f revP;
@@ -761,7 +775,8 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
         SLNode* figure = BuildFigureGroup(m2);
 
         // Add animation for light 1
-        light1->animation(new SLAnimation(4, 12, ZAxis, 12, XAxis, loop));
+        /// @add add old animation functionality back in
+        //light1->animation(new SLAnimation(4, 12, ZAxis, 12, XAxis, loop));
 
         // Assemble scene
         SLNode* scene = new SLNode("scene group");
@@ -934,8 +949,9 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
 
                     if (lvl != 0) 
                     {   SLfloat duration = 1.0f + 5.0f * ((SLfloat)i/(SLfloat)nodesPerLvl);
-                    SLAnimation* anim = new SLAnimation(duration, SLVec3f(0, 1.0f, 0), pingPongLoop, inOutSine, "randomAnim");
-                    node->animation(anim);
+                    /// @add add old animation functionality back in
+                    //SLAnimation* anim = new SLAnimation(duration, SLVec3f(0, 1.0f, 0), pingPongLoop, inOutSine, "randomAnim");
+                    //node->animation(anim);
                 }   
             }
         }
@@ -1230,7 +1246,8 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
         light1->position(0,0,5);
         light1->lookAt(0, 0, 0);
         light1->spotCutoff(40);
-        light1->animation(new SLAnimation(2, 2, XAxis, 2, YAxis, loop));
+        /// @add add old animation functionality back in
+        //light1->animation(new SLAnimation(2, 2, XAxis, 2, YAxis, loop));
 
         SLNode* scene = new SLNode;
         scene->addChild(light1);
@@ -1281,7 +1298,8 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
         light1->position(0,0,5);
         light1->lookAt(0, 0, 0);
         light1->spotCutoff(50);
-        light1->animation(new SLAnimation(2, 2, XAxis, 2, YAxis, loop));
+        /// @add add old animation functionality back in
+        //light1->animation(new SLAnimation(2, 2, XAxis, 2, YAxis, loop));
 
         SLNode* scene = new SLNode;
         scene->addChild(light1);
@@ -1346,7 +1364,8 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
         sun->diffuse(SLCol4f(1,1,1));
         sun->specular(SLCol4f(0.2f,0.2f,0.2f));
         sun->attenuation(1,0,0);
-        sun->animation(new SLAnimation(24, 50, XAxis, 50, ZAxis, loop));
+        /// @add add old animation functionality back in
+        //sun->animation(new SLAnimation(24, 50, XAxis, 50, ZAxis, loop));
 
         SLNode* earth = new SLNode(new SLSphere(1, 36, 36, "Earth", matEarth));
         earth->rotate(90,-1,0,0);
