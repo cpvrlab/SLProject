@@ -13,7 +13,6 @@ _bin-*/
 _lib/
 _doc/
 intermediate/
-
 Makefile
 .qmake*
 GenerateHTMLDoc.log
