@@ -26,10 +26,9 @@ The source bitmap includes 224 characters starting from ascii char 32 (space) to
 ascii char 255:
 <PRE>
  !"#$%&'()*+,-./0123456789:;<=>?
-@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\]^_
+\@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\]^_
 `abcdefghijklmnopqrstuvwxyz{|}~
-€‚ƒ„…†‡‰‹‘’“”•–—™›
- ΅Ά£¤¥¦§¨©ª«¬­®―°±²³΄µ¶·ΈΉΊ»Ό½ΎΏ
+€‚ƒ„…†‡‰‹‘’“”•–—™›΅Ά£¤¥¦§¨©ª«¬­®―°±²³΄µ¶·ΈΉΊ»Ό½ΎΏ
 ΐΑΒΓΔΕΖΗΘΙΚΛΜΝΞΟΠΡÒΣΤΥΦΧΨΩΪΫάέήί
 ΰαβγδεζηθικλμνξοπρςστυφχψωϊϋόύώÿ
 </PRE>

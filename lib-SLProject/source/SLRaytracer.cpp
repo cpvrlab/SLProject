@@ -214,7 +214,7 @@ SLbool SLRaytracer::renderDistrib(SLSceneView* sv)
 //-----------------------------------------------------------------------------
 /*!
 Renders slices of 4 columns until the full width of the image is rendered. This
-method can be called as a <function> by multiple threads.
+method can be called as a function by multiple threads.
 The _next index is used and incremented by every thread. So it should be locked
 or an atomic index. I prefer not protecting it because it's faster. If the
 increment is not done proberly some pixels may get raytraced twice. Only the
@@ -267,7 +267,7 @@ void SLRaytracer::renderSlices(const bool isMainThread)
 /*!
 Renders slices of 4 columns multisampled until the full width of the image is 
 rendered. Every pixel is multisampled for depth of field lens sampling. This
-method can be called as a <function> by multiple threads.
+method can be called as a function by multiple threads.
 The _next index is used and incremented by every thread. So it should be locked
 or an atomic index. I prefer not protecting it because it's faster. If the
 increment is not done proberly some pixels may get raytraced twice. Only the
