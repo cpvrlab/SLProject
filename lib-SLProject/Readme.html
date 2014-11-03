@@ -34,7 +34,7 @@ The source code is provided under the <a href="http://www.gnu.org/licenses/gpl.h
 The code is provided without any warranties whether expressed or implied.
 </p>
 
-<p><b>Read the following wiki page for more information:</b></p>
+<h3>Read the following wiki page for more information:</h3>
 <ul>
 <li><a href="https://github.com/cpvrlab/SLProject/wiki/SLProject-Features">SLProject Features</a></li>
 <li><a href="https://github.com/cpvrlab/SLProject/wiki/Build-with-VisualStudio">Build instructions with MS Visual Studio</a></li>
@@ -47,7 +47,7 @@ The code is provided without any warranties whether expressed or implied.
 <li><a href="https://github.com/cpvrlab/SLProject/wiki/Generate-the-Documentation">How to generate the HTML Documentation using Doxygen</a></li>
 </ul>
 
-<h2>Framework Structure:</h2>
+<h3>Framework Structure:</h3>
 <ul>
     <li>
         The applications starting code depends on the operating system. In all cases we
@@ -57,8 +57,9 @@ The code is provided without any warranties whether expressed or implied.
         <ul>
             <li>
                 Windows, Linux &amp; Max OSX applications can use the <a href="http://www.glfw.org/">GLFW</a>
-C-library for the platform independent window and context creation.
-GLFW is included in the SLProject repository. </li>
+                C-library for the platform independent window and context creation.
+                GLFW is included in the SLProject repository.
+            </li>
             <li>
                 Windows, Linux &amp; Max OSX applications can use the <a href="http://qt-project.org/">Qt</a>
                 C++-library for the window and context creation. Qt has to be downloaded and installed additionally.
@@ -94,8 +95,9 @@ GLFW is included in the SLProject repository. </li>
         A node can be transformed (translated, rotated and scaled) in 3D-space. 
     </li>
     <li>The
-SLMesh class is the base class for triangulated or wireframed meshes. A
-mesh is rendered with a material defined in SLMaterial.</li>
+        SLMesh class is the base class for triangulated or wireframed meshes. A
+        mesh is rendered with a material defined in SLMaterial.
+    </li>
     <li>The classes SLRevolver, SLSphere, SLCylinder, SLCone, SLBox, SLPolygon and SLRectangle are all inheritants from SLMesh.</li>
     <li>The space partitioning is implemented in the classes SLAABBox and SLUniformGrid.</li>
     <li>All OpenGL ES 2.0 code is restricted to the classes SLGLState, SLGLTexture, SLGLBuffer, SLGLShader and SLGLShaderProg.</li>
@@ -105,8 +107,12 @@ mesh is rendered with a material defined in SLMaterial.</li>
     <li>The linear algebra math is implemented in the classes SLMat3, SLMat4, SLVec3, SLVec4 and SLQuat.</li>
 </ul>
 
-<h2>Framework Dependencies:</h2>
+<h3>Framework Dependencies:</h3>
+
+<ul>
 <li>The framework uses beside OpenGL the following exteral libraries that are also included in the SLProject repository:</li>
+</ul>
+
 <ul>
     <li><a href="http://www.ijg.org/">JPEG</a> for JPEG image type loading.</li>
     <li><a href="http://www.libpng.org/pub/png/libpng.html">PNG image type loading.</a></li>
@@ -116,17 +122,17 @@ mesh is rendered with a material defined in SLMaterial.</li>
     <li><a href="https://developer.oculusvr.com/">libovr</a> for Oculus Rift control.</li>
 </ul>
 
-<a name="support"></a>
-<h2>Support:</h2>
+<h3>Support:</h3>
 <ul>
    <li>The code is provided without any warranties whether expressed or implied.</li>
-   <li>No
-support can be provided on installation, compiler or build issues. The
-framework was tested on several machines using MS Visual Studio 2013 as
-well as on Mac OSX using XCode with GCC or LLVM compiler.</li>
+   <li>No support can be provided on installation, compiler or build issues. The
+      framework was tested on several machines using MS Visual Studio 2013 as
+      well as on Mac OSX using XCode with GCC or LLVM compiler.
+   </li>
    <li>The code is provided under <a href="http://opensource.org/licenses/GPL-3.0">GNU General Puplic License (GPL)</a>. 
       This means in general, that you must provide your code as well under GPL if you 
-      use this code.</li>
+      use this code.
+   </li>
    <li>Feedback always welcome.</li>
 </ul>
 
