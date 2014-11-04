@@ -15,8 +15,8 @@
 #include <SLSceneView.h>
 #include <SLAssImp.h>
 
-//! \file SLProject C-functions interface implementation.
-/*! \file
+//! \file SLInterface.cpp SLProject C-functions interface implementation.
+/*! \file SLInterface.cpp
 The SLInterface.cpp has all implementations of the SLProject C-Interface.
 Only these functions should called by the OS-dependend GUI applications.
 These functions can be called from any C, C++ or ObjectiveC GUI framework or
