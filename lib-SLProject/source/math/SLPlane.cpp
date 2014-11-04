@@ -3,7 +3,7 @@
 //  Author:    Marcus Hudritsch
 //  Purpose:   Implementation of the the SLPlane class
 //  Date:      July 2014
-//  Codestyle: https://code.google.com/p/slproject/wiki/CodingStyleGuidelines
+//  Codestyle: https://github.com/cpvrlab/SLProject/wiki/Coding-Style-Guidelines
 //  Copyright: 2002-2014 Marcus Hudritsch
 //             This software is provide under the GNU General Public License
 //             Please visit: http://opensource.org/licenses/GPL-3.0
