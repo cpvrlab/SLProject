@@ -1,10 +1,6 @@
 //#############################################################################
 //  File:      SL/SLInterface.h
-//  Purpose:   Delcaration of the main Scene Library C-Interface. Only these 
-//             functions should called by the OS-dependend GUI applications. 
-//             These functions can be called from any C, C++ or ObjectiveC GUI 
-//             framework or by a native API such as Java Native Interface 
-//             (JNI). See the implementation for more information.
+//  Purpose:   Delcaration of the main Scene Library C-Interface.
 //  Author:    Marcus Hudritsch
 //  Date:      July 2014
 //  Codestyle: https://code.google.com/p/slproject/wiki/CodingStyleGuidelines
@@ -19,6 +15,14 @@
 #include <stdafx.h>
 #include <SLEnums.h>
 
+//! \file SLProject C-functions interface declaration.
+/*! \file
+The SLInterface.h has all delcarations of the SLProject C-Interface.
+Only these functions should called by the OS-dependend GUI applications.
+These functions can be called from any C, C++ or ObjectiveC GUI framework or
+by a native API such as Java Native Interface (JNI).
+See the implementation for more information.
+*/
 //-----------------------------------------------------------------------------
 void    slCreateScene       (SLstring shaderPath,
                              SLstring modelPath,

@@ -1,9 +1,6 @@
 //#############################################################################
 //  File:      SL/SLInterface.cpp
-//  Purpose:   Implementation of the main Scene Library C-Interface. Only these 
-//             functions should called by the OS-dependend GUI applications. 
-//             These functions can be called from any C, C++ or ObjectiveC GUI 
-//             framework or by a native API such as Java Native Interface (JNI)
+//  Purpose:   Implementation of the main Scene Library C-Interface.
 //  Author:    Marcus Hudritsch
 //  Date:      July 2014
 //  Codestyle: https://code.google.com/p/slproject/wiki/CodingStyleGuidelines
@@ -18,6 +15,13 @@
 #include <SLSceneView.h>
 #include <SLAssImp.h>
 
+//! \file SLProject C-functions interface implementation.
+/*! \file
+The SLInterface.cpp has all implementations of the SLProject C-Interface.
+Only these functions should called by the OS-dependend GUI applications.
+These functions can be called from any C, C++ or ObjectiveC GUI framework or
+by a native API such as Java Native Interface (JNI).
+*/
 
 //-----------------------------------------------------------------------------
  //! global flag that determines if the application should be closed

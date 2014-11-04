@@ -46,8 +46,9 @@ The following standard shaders are preloaded:
   - StereoOculusDistortionMesh.vert, StereoOculusDistortionMesh.frag
 
 There will be only one scene for an application and it gets constructed in
-the C-interface function SLInterface::slCreateScene that is called by the platform
-and GUI-toolkit dependent window initialization. As examples you can see it in:
+the C-interface function slCreateScene in SLInterface.cpp that is called by the
+platform and GUI-toolkit dependent window initialization.
+As examples you can see it in:
   - app-Demo-GLFW: glfwMain.cpp in function main()
   - app-Demo-Qt: qtGLWidget::initializeGL()
   - app-Viewer-Qt: qtGLWidget::initializeGL()

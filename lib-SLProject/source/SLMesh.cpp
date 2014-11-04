@@ -26,7 +26,9 @@
 
 //-----------------------------------------------------------------------------
 /*! 
-The ctor sets the parent scene and initialises everything to 0.
+The constructor initialises everything to 0 and adds the instance to the vector
+SLScene::_meshes. All meshes are held globally in this vector and are deallocated
+in SLScene::unInit().
 */
 SLMesh::SLMesh(SLstring name) : SLObject(name)
 {   
@@ -51,7 +53,10 @@ SLMesh::SLMesh(SLstring name) : SLObject(name)
     SLScene::current->meshes().push_back(this);
 }
 //-----------------------------------------------------------------------------
-//! The destructor deletes all VBO's and C-arrays
+//! The destructor deletes everything by calling deleteData.
+/*! All meshes are held globally in the vector SLScene::_meshes and are
+deallocated when the scene is disposed in SLScene::unInit().
+*/
 SLMesh::~SLMesh()
 {  
     deleteData();    
@@ -649,7 +654,7 @@ void SLMesh::calcTangents()
 //-----------------------------------------------------------------------------
 /*!
 SLMesh::hitTriangleOS is the fast and minimum storage ray-triangle 
-intersection test by Tomas Möller and Ben Trumbore (Journal of graphics 
+intersection test by Tomas Moeller and Ben Trumbore (Journal of graphics
 tools 2, 1997).
 */
 SLbool SLMesh::hitTriangleOS(SLRay* ray, SLNode* node, SLuint iT)

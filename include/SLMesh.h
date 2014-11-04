@@ -23,9 +23,10 @@ class SLMaterial;
 class SLRay;
 
 //-----------------------------------------------------------------------------
-//!The SLMesh class represents a triangle or line mesh object w. a index
+//!An SLMesh object is a triangulated mesh that is drawn with one draw call.
 /*!
-The SLMesh class represents a single GL_TRIANGLES or GL_LINES mesh object. 
+The SLMesh class represents a single GL_TRIANGLES or GL_LINES mesh object. The
+mesh object is drawn with one draw call using the vertex indexes in I16 or I32.
 The vertex attributes are stored in arrays with equal number (numV) of elements:
 \n P (vertex position)
 \n N (vertex normals)
@@ -34,10 +35,64 @@ The vertex attributes are stored in arrays with equal number (numV) of elements:
 \n T (vertex tangents) optional
 \n I16 holds the unsigned short vertex indexes.
 \n I32 holds the unsigned int vertex indexes.
-\n\n
+\n
+\n
+The normals of a vertex are automatically calculated in the method calcNormals()
+by averageing the face normals of the adjacent triangles. A vertex has allways
+only <b>one</b> normal and is used for the lighting calculation in the shader
+programs. With such averaged normals you can created a interpolated shading on
+smooth surfaces such as a sphere.
+\n
+For objects with sharp edges such as a box you need 4 vertices per box face.
+All normals of a face point to the same direction. This means, that you have
+three times the same vertex position but with different normals for one corner
+of the box:
+\n
+\n The vertex positios and normals in P and N:
+\n numV = 24
+\n P[0] = [1,1,1]   N[0] = [1,0,0]
+\n P[1] = [1,0,1]   N[1] = [1,0,0]
+\n P[2] = [1,0,0]   N[2] = [1,0,0]
+\n P[3] = [1,1,0]   N[3] = [1,0,0]
+\n
+\n P[4] = [1,1,0]   N[4] = [0,0,-1]
+\n P[5] = [1,0,0]   N[5] = [0,0,-1]
+\n P[6] = [0,0,0]   N[6] = [0,0,-1]
+\n P[7] = [0,1,0]   N[7] = [0,0,-1]
+\n
+\n P[8] = [0,0,1]   N[8] = [-1,0,0]
+\n P[9] = [0,1,1]   N[9] = [-1,0,0]
+\n P[10]= [0,1,0]   N[10]= [-1,0,0]
+\n P[11]= [0,0,0]   N[11]= [-1,0,0]
+\n
+\n P[12]= [1,1,1]   N[12]= [0,0,1]
+\n P[13]= [0,1,1]   N[13]= [0,0,1]
+\n P[14]= [0,0,1]   N[14]= [0,0,1]
+\n P[15]= [1,0,1]   N[15]= [0,0,1]
+\n
+\n P[16]= [1,1,1]   N[16]= [0,1,0]
+\n P[17]= [1,1,0]   N[17]= [0,1,0]
+\n P[18]= [0,1,0]   N[18]= [0,1,0]
+\n P[19]= [0,1,1]   N[19]= [0,1,0]
+\n
+\n P[20]= [0,0,0]   N[20]= [0,-1,0]
+\n P[21]= [1,0,0]   N[21]= [0,-1,0]
+\n P[22]= [1,0,1]   N[22]= [0,-1,0]
+\n P[23]= [0,0,1]   N[23]= [0,-1,0]
+\n
+\n The vertex indexes in I16:
+\n I16[] = {0,1,2, 0,2,3,
+\n          4,5,6, 4,6,7,
+\n          8,9,10, 8,10,11,
+\n          12,13,14, 12,14,15,
+\n          16,17,18, 16,18,19,
+\n          20,21,22, 20,22,23}
+\n
+\image html boxVertices.png
+\n
+For all arrays a corresponding vertex buffer object (VBO) is created on the
+graphic card. All arrays remain in the main memory for ray tracing.
 A mesh uses only one material referenced by the SLMesh::_mat pointer.
-For each attribute an array vertex buffer object (VBO) is used and encapsulated
-in SLGLBuffer.
 */      
 class SLMesh : public SLObject
 {   
