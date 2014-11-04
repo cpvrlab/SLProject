@@ -46,8 +46,16 @@ smooth surfaces such as a sphere.
 For objects with sharp edges such as a box you need 4 vertices per box face.
 All normals of a face point to the same direction. This means, that you have
 three times the same vertex position but with different normals for one corner
-of the box:
+of the box.
 \n
+The following image shows a box with sharp edges and a sphere with mostly
+smooth but also 4 sharp edges. The smooth red normal as the top vertex got
+averaged because its position is only once in the array P. On the other hand
+are the vertices of the hard edges in the front of the sphere doubled.
+\n
+\image html sharpAndSmoothEdges.png
+\n
+\n The following the example creates the box with 24 vertices:
 \n The vertex positios and normals in P and N:
 \n numV = 24
 \n P[0] = [1,1,1]   N[0] = [1,0,0]
