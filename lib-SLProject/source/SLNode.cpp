@@ -60,9 +60,10 @@ SLNode::SLNode(SLMesh* mesh, SLstring name) : SLObject(name)
 }
 //-----------------------------------------------------------------------------
 /*! 
-Destructor deletes all children recursiveliy and the animation.
+Destructor deletes all children recursively and the animation.
 The meshes are not deleted. They are deleted at the end by the SLScene mesh
-vector.
+vector. The entire scenegraph is deleted by deleting the SLScene::_root3D node.
+Nodes that are not in the scenegraph will not be deleted at scene destruction.
 */ 
 SLNode::~SLNode()
 {  
@@ -80,7 +81,7 @@ SLNode::~SLNode()
 
 //-----------------------------------------------------------------------------
 /*! 
-Simply adds a mesh to its mesh pointer vector.
+Simply adds a mesh to its mesh pointer vector of the node.
 */ 
 void SLNode::addMesh(SLMesh* mesh)
 {

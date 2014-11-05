@@ -30,9 +30,9 @@ of the active camera is set in the setView method by loading the viewmatrix _vm
 into the OpenGL modelview matrix. The view matrix _vm is simply the inverse of
 the shapes world matrix _wm. Every SLSceneView instance has a pointer _camera
 to its active camera.
-Because the SLNode class is inherited from the abstract SLEventHandler
-class a camera can handle mouse & keyboard event. All camera animations are
-handled in these eventhandlers. 
+Because the SLNode class is inherited from the abstract SLEventHandler class a
+camera can handle mouse & keyboard event. All camera animations are handled in
+these eventhandlers.
 */ 
 class SLCamera: public SLNode
 {  
