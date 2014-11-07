@@ -251,6 +251,11 @@ class SLSceneView: public SLObject
 
             SLPathtracer    _pathtracer;        //!< Pathtracer
             SLbool          _stopPT;            //!< Flag to stop the PT 
+
+
+            // temporary test stuff
+            SLfloat         _time;
+            SLbool          _runAnim;
 };
 //-----------------------------------------------------------------------------
 #endif

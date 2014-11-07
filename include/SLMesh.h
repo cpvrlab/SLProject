@@ -21,6 +21,64 @@ class SLAccelStruct;
 struct SLNodeStats;
 class SLMaterial;
 class SLRay;
+class SLSkeleton;
+
+// @todo   The SLMesh and SLBuffer could use a little renovation work.
+//         Working with SLMesh at the moment feels a little clumsy
+//         since you have to handle everything in C-Buffer style.
+//         Furthermore introducing vertex semantics would help in
+//         automating vertex data upload etc.
+
+/* Problems with the current SLMesh class:
+
+    1. A single SLBuffer object per data in the mesh.
+        Position, normals, texture coordinates etc. all have their own SLBuffer instance in the mesh.
+        It is tedious to handle them and to upload the correct data.
+
+        Cue: Vertex Semantic
+
+    2. Too tightly coupled with SLMaterial.
+        e.x.:   SLMesh might need a different combination of vertex and fragment programs
+                depending on its own data. If it is an animated mesh it needs a vertex program
+                that supports GPU skinning. Then we also can choose between per vertex and per
+                fragment lighting.
+
+                For the old model it was somewhat okay to specify per vertex/fragment lighting in 
+                the material, but specifying a skinning shader in the material doesn't seem right.
+
+
+*/
+
+
+struct SLVertexBoneData
+{
+    SLuint  ids[4];
+    SLfloat weights[4];
+
+    SLVertexBoneData()
+    {
+        for(int i = 0; i < 4; i++) {
+            weights[i] = 0.0f;
+            ids[i] = 0;
+        }
+    }
+
+    SLbool addWeight(SLint id, SLfloat weight)
+    {
+        for(int i = 0; i < 4; i++) 
+        {
+            if (weights[i] == 0.0f) 
+            {
+                ids[i] = id;
+                weights[i] = weight;
+                return true;
+            }
+        }
+
+        return false;
+    }
+};
+
 
 //-----------------------------------------------------------------------------
 //!An SLMesh object is a triangulated mesh that is drawn with one draw call.
@@ -127,6 +185,8 @@ virtual void            calcMinMax     ();
         SLVec3f*        P;          //!< Array of vertex positions
         SLVec3f*        N;          //!< Array of vertex normals (opt.)
         SLCol4f*        C;          //!< Array of vertex colors (opt.)
+        SLVec4f*        Bi;         //!< Array of per vertex bone ids (opt.) 
+        SLVec4f*        Bw;         //!< Array of per vertex bone weights (opt.)
         SLVec2f*        Tc;         //!< Array of vertex tex. coords. (opt.)
         SLVec4f*        T;          //!< Array of vertex tangents (opt.)
         SLushort*       I16;        //!< Array of vertex indexes 16 bit
@@ -148,6 +208,9 @@ virtual void            calcMinMax     ();
         SLGLBuffer      _bufTc;     //!< Buffer for vertex texcoords
         SLGLBuffer      _bufT;      //!< Buffer for vertex tangents
         SLGLBuffer      _bufI;      //!< Buffer for vertex indexes
+
+        SLGLBuffer      _bufBi;     //!< Buffer for bone id
+        SLGLBuffer      _bufBw;     //!< Buffer for bone weight
                
         SLGLBuffer      _bufN2;     //!< Buffer for normal line rendering
         SLGLBuffer      _bufT2;     //!< Buffer for tangent line rendering
@@ -155,6 +218,12 @@ virtual void            calcMinMax     ();
         SLbool          _isVolume;  //!< Flag for RT if mesh is a closed volume
                
         SLAccelStruct*  _accelStruct;   //!< KD-tree or uniform grid
+
+
+        SLSkeleton*     _skeleton;      //!< the skeleton this mesh is bound to
+        SLMat4f*        _boneMatrices;  //!< private bone matrix stack for this mesh
+
+        SLbool          addWeight(SLint vertId, SLuint boneId, SLfloat weight);
 };
 //-----------------------------------------------------------------------------
 typedef std::vector<SLMesh*>  SLVMesh;

@@ -508,9 +508,11 @@ SLbool SLSceneView::updateAndDrawGL3D(SLfloat elapsedTimeMS)
     static bool animTestInit = false;
     static SLNode* animTarget;
     static SLAnimation* testAnim;
+    static SLAnimation* testAnim2;
     static SLNodeAnimationTrack* testAnimTrack;
+    static SLNodeAnimationTrack* testAnimTrack2;
     static SLAnimationState* testAnimState;
-    SLfloat time = s->timeSec();
+    if (_runAnim) _time = s->timeSec(); // increment time based on the clock
     SLfloat frameTime = fmod(s->timeSec(), 7.0f);
 
     // a node has a position already, do we just overwrite it with the one that's in the animation?
@@ -521,30 +523,44 @@ SLbool SLSceneView::updateAndDrawGL3D(SLfloat elapsedTimeMS)
 
         // create test animation
         testAnim = new SLAnimation; // the creation of a new animation will be handled by the SLAnimationManager
-        testAnim->length(5.0f);     // the animation length parameter should be automatically set in the future (maybe)
+        testAnim->length(4.0f);     // the animation length parameter should be automatically set in the future (maybe)
                                     // for now I just need a correct time set here so I do it manually.
                                     // also when we alter the length of an animation the keyframes should check if they are still valid.
 
+        testAnim2 = new SLAnimation;
+        testAnim2->length(1.0f);
+
         testAnimTrack = testAnim->createNodeAnimationTrack(0);
         SLTransformKeyframe* kf0 = testAnimTrack->createNodeKeyframe(0.0f); // @todo autogenerate a keyframe at 0.0
-        SLTransformKeyframe* kf1 = testAnimTrack->createNodeKeyframe(4.0f);      
-        SLTransformKeyframe* kf2 = testAnimTrack->createNodeKeyframe(5.0f);      
+        SLTransformKeyframe* kf1 = testAnimTrack->createNodeKeyframe(1.0f);      
+        SLTransformKeyframe* kf2 = testAnimTrack->createNodeKeyframe(3.0f);      
         
-        kf0->translation(SLVec3f(-1, 0, 0));
+        kf0->translation(SLVec3f(0, 0, 0));
 
-        kf1->translation(SLVec3f(0, 1, 0));
+        kf1->translation(SLVec3f(1, 0, 0));
         //kf1->scale(SLVec3f(1, 3, 1));
-        kf2->translation(SLVec3f(0, 0, 0));
+        kf2->translation(SLVec3f(-1, 0, 0));
 
-        animTarget->translate(2, 0, 0);
+        testAnimTrack2 = testAnim2->createNodeAnimationTrack(0);
+        kf0 = testAnimTrack2->createNodeKeyframe(0.0f); // @todo autogenerate a keyframe at 0.0
+        kf1 = testAnimTrack2->createNodeKeyframe(0.25f);      
+        kf2 = testAnimTrack2->createNodeKeyframe(0.75f);  
+        
+        kf0->translation(SLVec3f(0, 0, 0));
+
+        kf1->translation(SLVec3f(0, 0.5f, 0));
+        //kf1->scale(SLVec3f(1, 3, 1));
+        kf2->translation(SLVec3f(0, -0.5, 0));
+
         animTarget->setInitialState();
 
         animTestInit = true;
     }
-    // todo why is resetToIntialState not in the apply function itself
-    animTarget->resetToInitialState();
-    testAnimTrack->applyToNode(animTarget, time);
 
+    animTarget->resetToInitialState();
+    testAnimTrack->applyToNode(animTarget, _time);
+    testAnimTrack2->applyToNode(animTarget, _time);
+    
 
     // ------------------------------------------------------------
 
@@ -1288,6 +1304,9 @@ forwarding them to onCommand.
 SLbool SLSceneView::onKeyPress(const SLKey key, const SLKey mod)
 {  
     SLScene* s = SLScene::current;
+    
+    if (key == '1') { _runAnim = !_runAnim; return true; }
+    if (key == '2') { _time += 0.1f; return true; }
     
     if (key=='N') return onCommand(cmdNormalsToggle);
     if (key=='P') return onCommand(cmdWireMeshToggle);

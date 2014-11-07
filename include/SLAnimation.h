@@ -14,6 +14,7 @@
 #include <stdafx.h>
 #include <SLAnimationTrack.h>
 
+class SLSkeleton;
 
 /** The SLAnimation class holds a set of SLAnimationTracks
 */
@@ -27,10 +28,14 @@ public:
     SLfloat length() const { return _length; }
 
     SLNodeAnimationTrack* createNodeAnimationTrack(SLuint handle);
+    
+    void apply(SLfloat time, SLfloat weight = 1.0f, SLfloat scale = 1.0f); 
+    void apply(SLNode* node, SLfloat time, SLfloat weight = 1.0f, SLfloat scale = 1.0f); 
+    void apply(SLSkeleton* skel, SLfloat time, SLfloat weight = 1.0f, SLfloat scale = 1.0f); 
 
 protected:
-    SLfloat                         _length;
-    vector<SLNodeAnimationTrack*>   _nodeAnimations;
+    SLfloat                             _length;
+    map<SLuint, SLNodeAnimationTrack*>  _nodeAnimations;
 };
 
 

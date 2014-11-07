@@ -15,6 +15,7 @@
 #include <SLScene.h>
 #include <SLGLTexture.h>
 #include <SLMaterial.h>
+#include <SLSkeleton.h>
 
 // assimp is only included in the source file to not expose it to the rest of the framework
 #include <assimp/Importer.hpp>

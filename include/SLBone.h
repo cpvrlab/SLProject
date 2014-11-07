@@ -14,7 +14,20 @@
 
 
 #include <stdafx.h>
+#include <SLNode.h>
 
+class SLBone : public SLNode
+{
+public:
+    SLBone();
+    
+    void SLBone::offsetMat(const SLMat4f& mat);
+    SLMat4f calculateFinalMat();    /// @todo find a better name pls
+
+protected:
+    SLuint  _handle;    //!< unique handle inside its parent skeleton
+    SLMat4f _offsetMat; //!< matrix transforming this bone from bind pose to world pose
+};
 
 
 #endif

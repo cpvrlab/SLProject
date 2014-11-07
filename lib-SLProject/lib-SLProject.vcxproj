@@ -431,6 +431,7 @@
     <ClInclude Include="..\include\SLObject.h" />
     <ClInclude Include="..\include\SLPlane.h" />
     <ClInclude Include="..\include\SLQuat4.h" />
+    <ClInclude Include="..\include\SLSceneNode.h" />
     <ClInclude Include="..\include\SLSkeleton.h" />
     <ClInclude Include="..\include\SLTexFont.h" />
     <ClInclude Include="..\include\SLTimer.h" />
@@ -492,6 +493,7 @@
     <ClCompile Include="source\SLLightSphere.cpp" />
     <ClCompile Include="source\SLPolygon.cpp" />
     <ClCompile Include="source\SLRectangle.cpp" />
+    <ClCompile Include="source\SLSceneNode.cpp" />
     <ClCompile Include="source\SLSkeleton.cpp" />
     <ClCompile Include="source\SLSphere.cpp" />
     <ClCompile Include="source\SLRevolver.cpp" />

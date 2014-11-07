@@ -92,8 +92,8 @@ SLfloat SLAnimationTrack::getKeyframesAtTime(SLfloat time, SLKeyframe** k1, SLKe
     {
         return 0.0f;
     }
-    
-    SLfloat tempReturnVal = (time - t1) / (t2 -t1);
+        
+    //return 0.5f*sin(tempReturnVal*SL_PI - SL_PI*0.5f) + 0.5f; 
 
     return (time - t1) / (t2 -t1);
 }
@@ -133,10 +133,12 @@ void SLNodeAnimationTrack::calcInterpolatedKeyframe(SLfloat time, SLKeyframe* ke
     
     SLQuat4f rotation;
     rotation = kf1->rotation().slerp(kf2->rotation(), t); // @todo provide a 2 parameter implementation for lerp, slerp etc.
+    kfOut->rotation(rotation);
 
     base = kf1->scale();
     SLVec3f scale;
-    scale = base + (kf2->translation() - base) * t;
+    scale = base + (kf2->scale() - base) * t;
+    kfOut->scale(scale);
 }
 
 void SLNodeAnimationTrack::apply(SLfloat time, SLfloat weight, SLfloat scale)
@@ -146,12 +148,14 @@ void SLNodeAnimationTrack::apply(SLfloat time, SLfloat weight, SLfloat scale)
 
 void SLNodeAnimationTrack::applyToNode(SLNode* node, SLfloat time, SLfloat weight, SLfloat scale)
 {
+    if (node == NULL)
+        return;
+
     SLTransformKeyframe kf(0, time);
     calcInterpolatedKeyframe(time, &kf);
 
     SLVec3f translation = kf.translation() * weight * scale;
     node->translate(translation, TS_Parent);
-
 
     // @todo update the slerp and lerp impelemtation for quaternions
     //       there is currently no early out for 1.0 and 0.0 inputs

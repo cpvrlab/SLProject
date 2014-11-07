@@ -10,6 +10,7 @@
 
 #include <stdafx.h>
 #include <SLAnimation.h>
+#include <SLSkeleton.h>
 
 
 SLAnimation::SLAnimation()
@@ -32,11 +33,42 @@ void SLAnimation::length(SLfloat length)
 
 SLNodeAnimationTrack* SLAnimation::createNodeAnimationTrack(SLuint handle)
 {
-    return new SLNodeAnimationTrack(this, handle);
+    // track with same handle already exists
+    if (_nodeAnimations.find(handle) != _nodeAnimations.end())
+        return NULL;
+
+    _nodeAnimations[handle] = new SLNodeAnimationTrack(this, handle);
+
+    return _nodeAnimations[handle];
 }
 
+// apply all tracks to their specified targets
+void SLAnimation::apply(SLfloat time, SLfloat weight , SLfloat scale)
+{
+    map<SLuint, SLNodeAnimationTrack*>::iterator it = _nodeAnimations.begin();
+    for (; it != _nodeAnimations.end(); it++)
+        it->second->apply(time, weight, scale);
+}
 
+// apply all tracks to a single node
+void SLAnimation::apply(SLNode* node, SLfloat time, SLfloat weight, SLfloat scale)
+{
+    map<SLuint, SLNodeAnimationTrack*>::iterator it = _nodeAnimations.begin();
+    for (; it != _nodeAnimations.end(); it++)
+        it->second->applyToNode(node, time, weight, scale);
+}
 
+// apply tracks to a skeleton based on track and bone handles
+void SLAnimation::apply(SLSkeleton* skel, SLfloat time, SLfloat weight, SLfloat scale)
+{
+    map<SLuint, SLNodeAnimationTrack*>::iterator it = _nodeAnimations.begin();
+    for (; it != _nodeAnimations.end(); it++)
+    {
+        SLBone* bone = skel->getBone(it->first);
+        it->second->applyToNode(bone, time, weight, scale);
+    }
+
+}
 
 
 

@@ -14,7 +14,22 @@
 
 
 #include <stdafx.h>
+#include <SLBone.h>
+
+class SLSkeleton
+{
+public:
+    void update();
+
+    SLBone* getBone(SLuint handle);
+    SLint numBones() const { return _boneMap.size(); }
+    void getBoneWorldMatrices(SLMat4f* boneWM);
 
 
+
+protected:
+    SLBone* _root;
+    std::map<SLuint, SLBone*> _boneMap; //!< bone map for fast acces of bones
+};
 
 #endif
