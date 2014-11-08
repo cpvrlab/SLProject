@@ -58,37 +58,44 @@ The code is provided without any warranties whether expressed or implied.
         The applications starting code depends on the operating system. In all cases we
         have the most outer shell of the application that handles the window and the
         OpenGL context creation and passes then the events to a C-function interface
-        before it is handled by the C++-framework. The following OS are supported:
+        before it is handled by the C++-framework. The C-Interface of the SLProject library
+        is defined in the files SLInterface.h and SLInterface.cpp.
+        The following OS are supported and applications are provided for demonstration:
         <ul>
             <li>
                 Windows, Linux &amp; Max OSX applications can use the <a href="http://www.glfw.org/">GLFW</a>
                 C-library for the platform independent window and context creation.
-                GLFW is included in the SLProject repository.
+                GLFW is included in the SLProject repository. See the app-Demo-GLFW for demonstration.
             </li>
             <li>
-                Windows, Linux &amp; Max OSX applications can use the <a href="http://qt-project.org/">Qt</a>
+                Windows, Linux &amp; Max OSX applications can also use the <a href="http://qt-project.org/">Qt</a>
                 C++-library for the window and context creation. Qt has to be downloaded and installed additionally.
+                See the app-Demo-Qt for demonstation.
             </li>
             <li>
                 The Android application starts in JAVA and passes the events with JNI (Java
-                Native Interface) to the C-interface.
+                Native Interface) to the C-interface. See the <a href="https://github.com/cpvrlab/SLProject/wiki/Build-for-Android">
+                wiki for build instructions</a> and the app-Demo-Android for demonstration.
             </li>
             <li>
                 On Apple iOS Devices the application starts in ObjectiveC before it passes the
-                events to the C-interface.
+                events to the C-interface. See the <a href="https://github.com/cpvrlab/SLProject/wiki/Build-for-Apple-iOS">
+                wiki for build instructions</a> and the app-Demo-iOS for demonstration.
             </li>
             <li>
                 You could in fact use any GUI library on any OS that can create OpenGL contexts.
-                Other alternatives could be 
-                <a href="http://www.fltk.org/index.php">FLTK</a>, 
-                <a href="http://www.juce.com/">Juce</a> or 
-                <a href="https://www.wxwidgets.org/">wxWidgets</a>.
+                Other alternatives could be e.g.:
+                <a href="http://freeglut.sourceforge.net/">freeglut</a>
+                <a href="http://www.fltk.org/index.php">FLTK</a>
+                <a href="https://www.wxwidgets.org/">wxWidgets</a>
+                <a href="http://www.juce.com/">Juce</a>
             </li>
         </ul>
     </li>
     <li>
         The toplevel class of the framework is SLScene that represents the scene with
         its properties. The scene content is created in SLScene::onLoad.
+        It also holds one or more pointers to SLSceneView instancies.
     </li>
     <li>
         SLSceneView represents a dynamic real time 3D view onto the scene. 
