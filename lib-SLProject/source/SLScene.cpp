@@ -29,7 +29,7 @@ SLScene* SLScene::current = 0;
 //-----------------------------------------------------------------------------
 /*! The constructor of the scene does all one time initialization such as 
 loading the standard shader programs from which the pointers are stored in
-the dynamic array _shaderProgs. Custom shader programs that are loaded in a
+the vector _shaderProgs. Custom shader programs that are loaded in a
 scene must be deleted when the scene changes.
 The following standard shaders are preloaded:
   - ColorAttribute.vert, Color.frag
