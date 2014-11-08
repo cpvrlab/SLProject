@@ -93,7 +93,7 @@ The code is provided without any warranties whether expressed or implied.
         </ul>
     </li>
     <li>
-        The toplevel class of the framework is SLScene that represents the scene with
+        SLScene is the toplevel class of the framework that represents the scene with
         its properties. The scene content is created in SLScene::onLoad.
         It also holds one or more pointers to SLSceneView instancies.
     </li>
@@ -103,16 +103,25 @@ The code is provided without any warranties whether expressed or implied.
         An sceneview receives all events (keyboard, mouse, OpenGL etc.) from the GUI via the C-Interface (see slInterface). 
     </li>
     <li>
-        The scenegraph hierarchy is built with the class SLNode that can have 0-N children nodes and 0-N triangle meshes. 
-        A node can be transformed (translated, rotated and scaled) in 3D-space. 
+        SLNode is the major building block for the the scenegraph hierarchy and can have 0-N children nodes and
+        0-N triangle meshes. A node can be transformed (translated, rotated and scaled) in 3D-space.
     </li>
-    <li>The
-        SLMesh class is the base class for triangulated or wireframed meshes. A
+    <li>
+        SLMesh is the base class for triangulated or wireframed meshes. A
         mesh is rendered with a material defined in SLMaterial.
     </li>
-    <li>The classes SLRevolver, SLSphere, SLCylinder, SLCone, SLBox, SLPolygon and SLRectangle are all inheritants from SLMesh.</li>
-    <li>The space partitioning is implemented in the classes SLAABBox and SLUniformGrid.</li>
-    <li>All OpenGL ES 2.0 code is restricted to the classes SLGLState, SLGLTexture, SLGLBuffer, SLGLShader and SLGLShaderProg.</li>
+    <li>
+        SLRevolver, SLSphere, SLCylinder, SLCone, SLBox, SLPolygon and SLRectangle are all
+        inheritants from SLMesh and represent the according platonic shapes.
+    </li>
+    <li>
+        SLAABBox and SLUniformGrid implement the space partitioning.
+        Every SLNode has an axis aligned AABB that is used for fast frustum culling and ray shooting.
+    </li>
+    <li>
+        All OpenGL ES 2.0 code is restricted to the classes beginning with SLGL.
+        (SLGLState, SLGLTexture, SLGLBuffer, SLGLShader and SLGLShaderProg)
+     </li>
     <li>The lighting is implemented in the classes SLMaterial, SLLight, SLLightSphere and SLLightRect.</li>
     <li>The classes for the 2D-GUI are SLTexFont, SLText and SLButton and can be used for a simple GUI.</li>
     <li>The ray tracer is implemented in the classes SLRaytracer and SLRay.</li>
@@ -120,11 +129,7 @@ The code is provided without any warranties whether expressed or implied.
 </ul>
 
 <h3>Framework Dependencies:</h3>
-
-<ul>
-<li>The framework uses beside OpenGL the following exteral libraries that are also included in the SLProject repository:</li>
-</ul>
-
+The framework uses beside OpenGL the following exteral libraries that are also included in the SLProject repository:
 <ul>
     <li><a href="http://www.ijg.org/">JPEG</a> for JPEG image type loading.</li>
     <li><a href="http://www.libpng.org/pub/png/libpng.html">PNG image type loading.</a></li>

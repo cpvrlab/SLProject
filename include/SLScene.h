@@ -25,7 +25,7 @@ class SLText;
 //-----------------------------------------------------------------------------
 typedef std::vector<SLSceneView*> SLVSceneView; //!< Vector of SceneView pointers
 //-----------------------------------------------------------------------------
-//! Scene class representing the top level instance holding the scene structure
+//! The SLScene class represents the top level instance holding the scene structure
 /*!      
 The SLScene class holds everything that is common for all scene views such as 
 the root pointer (_root3D) to the scene, the background color, an array of
