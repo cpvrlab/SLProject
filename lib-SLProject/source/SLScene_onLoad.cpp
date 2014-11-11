@@ -65,15 +65,15 @@ SLNode* SphereGroup(SLint depth,                      // depth of recursion
 }
 //-----------------------------------------------------------------------------
 //! Build a hierarchical figurine with arms and legs
-SLNode* BuildFigureGroup(SLMaterial* material);
-SLNode* BuildFigureGroup(SLMaterial* material)
+SLNode* BuildFigureGroup(SLMaterial* mat);
+SLNode* BuildFigureGroup(SLMaterial* mat)
 {
     SLNode* cyl;
    
     // Feet
     SLNode* feet = new SLNode("feet group");
-    feet->addMesh(new SLSphere(0.2f, 16, 16, "ankle"));
-    SLNode* feetbox = new SLNode(new SLBox(-0.2f,-0.1f, 0.0f, 0.2f, 0.1f, 0.8f, "foot"));
+    feet->addMesh(new SLSphere(0.2f, 16, 16, "ankle", mat));
+    SLNode* feetbox = new SLNode(new SLBox(-0.2f,-0.1f, 0.0f, 0.2f, 0.1f, 0.8f, "foot", mat));
     feetbox->translate(0.0f,-0.25f,-0.15f, TS_Local);
     feet->addChild(feetbox);
     feet->translate(0.0f,0.0f,1.6f, TS_Local);
@@ -81,16 +81,16 @@ SLNode* BuildFigureGroup(SLMaterial* material)
    
     // Assemble low leg
     SLNode* leglow = new SLNode("leglow group");
-    leglow->addMesh(new SLSphere(0.3f, 16, 16, "knee")); 
-    cyl = new SLNode(new SLCylinder(0.2f, 1.4f, 1, 16, false, false, "shin"));            
+    leglow->addMesh(new SLSphere(0.3f, 16, 16, "knee", mat));
+    cyl = new SLNode(new SLCylinder(0.2f, 1.4f, 1, 16, false, false, "shin", mat));
     cyl->translate(0.0f, 0.0f, 0.2f, TS_Local);            
     leglow->addChild(cyl);
     leglow->addChild(feet);
    
     // Assemble leg
     SLNode* leg = new SLNode("leg group");
-    leg->addMesh(new SLSphere(0.4f, 16, 16, "hip joint"));     
-    cyl = new SLNode(new SLCylinder(0.3f, 1.0f, 1, 16, false, false, "thigh"));            
+    leg->addMesh(new SLSphere(0.4f, 16, 16, "hip joint", mat));
+    cyl = new SLNode(new SLCylinder(0.3f, 1.0f, 1, 16, false, false, "thigh", mat));
     cyl->translate(0.0f, 0.0f, 0.27f, TS_Local);           
     leg->addChild(cyl);
     leglow->translate(0.0f, 0.0f, 1.27f, TS_Local);        
@@ -109,15 +109,15 @@ SLNode* BuildFigureGroup(SLMaterial* material)
 
     // Assemble low arm
     SLNode* armlow = new SLNode("armLow group");
-    armlow->addMesh(new SLSphere(0.2f, 16, 16, "ellbow"));    
-    cyl = new SLNode(new SLCylinder(0.15f, 1.0f, 1, 16, true, false, "arm"));           
+    armlow->addMesh(new SLSphere(0.2f, 16, 16, "ellbow", mat));
+    cyl = new SLNode(new SLCylinder(0.15f, 1.0f, 1, 16, true, false, "arm", mat));
     cyl->translate(0.0f, 0.0f, 0.14f, TS_Local);           
     armlow->addChild(cyl);
 
     // Assemble arm
     SLNode* arm = new SLNode("arm group");
-    arm->addMesh(new SLSphere(0.3f, 16, 16, "shoulder"));                           
-    cyl = new SLNode(new SLCylinder(0.2f, 1.0f, 1, 16, false, false, "upper arm"));            
+    arm->addMesh(new SLSphere(0.3f, 16, 16, "shoulder", mat));
+    cyl = new SLNode(new SLCylinder(0.2f, 1.0f, 1, 16, false, false, "upper arm", mat));
     cyl->translate(0.0f, 0.0f, 0.2f, TS_Local);            
     arm->addChild(cyl);
     armlow->translate(0.0f, 0.0f, 1.2f, TS_Local);         
@@ -135,14 +135,14 @@ SLNode* BuildFigureGroup(SLMaterial* material)
     armRight->addChild(arm->copyRec());
 
     // Assemble head & neck
-    SLNode* head = new SLNode(new SLSphere(0.5f, 16, 16, "Head"));
+    SLNode* head = new SLNode(new SLSphere(0.5f, 16, 16, "head", mat));
     head->translate(0.0f, 0.0f,-0.7f, TS_Local);
-    SLNode* neck = new SLNode(new SLCylinder(0.25f, 0.3f, 1, 16, false, false, "neck"));
+    SLNode* neck = new SLNode(new SLCylinder(0.25f, 0.3f, 1, 16, false, false, "neck", mat));
     neck->translate(0.0f, 0.0f,-0.3f, TS_Local);
       
     // Assemble figure Left
     SLNode* figure = new SLNode("figure");
-    figure->addChild(new SLNode(new SLBox(-0.8f,-0.4f, 0.0f, 0.8f, 0.4f, 2.0f, "Box")));
+    figure->addChild(new SLNode(new SLBox(-0.8f,-0.4f, 0.0f, 0.8f, 0.4f, 2.0f, "chest", mat)));
     figure->addChild(head);
     figure->addChild(neck);
     figure->addChild(armLeft);
@@ -197,7 +197,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
 
     _currentID = sceneName;
 
-    if (sceneName == cmdSceneSmallTest)
+    if (sceneName == cmdSceneSmallTest) //......................................
     {
         name("Minimal Texture Example");
         info(sv, "Minimal texture mapping example with one light source.");
@@ -238,7 +238,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
         _root3D = scene;
     }
     else
-    if (sceneName == cmdSceneFigure)
+    if (sceneName == cmdSceneFigure) //.........................................
     {
         name("Hierarchical Figure Scene 2");
         info(sv, "Hierarchical scene structure and animation test. Turn on the bounding boxes to see the animation curves");
@@ -251,23 +251,23 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
         SLMesh* floorMesh = new SLRectangle(SLVec2f(-5,-5), SLVec2f(5,5), 20, 20, "FloorMesh", m1);
         SLNode* floorRect = new SLNode(floorMesh);
         floorRect->rotate(90, -1,0,0);
-        floorRect->translate(0,0,-5.5f, TS_Local);
+        floorRect->translate(0,0,-5.5f);
       
         // Bouncing balls
         SLNode* ball1 = new SLNode(new SLSphere(0.3f, 16, 16, "Ball1", m2));
-        ball1->translate(0,0,4, TS_Local);
+        ball1->translate(0,0,4);
         ball1->animation(new SLAnimation(1, SLVec3f(0,-5.2f,0), pingPongLoop, linear));
         SLNode* ball2 = new SLNode(new SLSphere(0.3f, 16, 16, "Ball2", m2));
-        ball2->translate(-1.5f,0,4, TS_Local);
+        ball2->translate(-1.5f,0,4);
         ball2->animation(new SLAnimation(1, SLVec3f(0,-5.2f,0), pingPongLoop, inQuad));
         SLNode* ball3 = new SLNode(new SLSphere(0.3f, 16, 16, "Ball3", m2));
-        ball3->translate(-2.5f,0,4, TS_Local);
+        ball3->translate(-2.5f,0,4);
         ball3->animation(new SLAnimation(1, SLVec3f(0,-5.2f,0), pingPongLoop, outQuad));
         SLNode* ball4 = new SLNode(new SLSphere(0.3f, 16, 16, "Ball4", m2));
-        ball4->translate( 1.5f,0,4, TS_Local);
+        ball4->translate( 1.5f,0,4);
         ball4->animation(new SLAnimation(1, SLVec3f(0,-5.2f,0), pingPongLoop, inOutQuad));
         SLNode* ball5 = new SLNode(new SLSphere(0.3f, 16, 16, "Ball5", m2));
-        ball5->translate( 2.5f,0,4, TS_Local);
+        ball5->translate( 2.5f,0,4);
         ball5->animation(new SLAnimation(1, SLVec3f(0,-5.2f,0), pingPongLoop, outInQuad));
 
         SLCamera* cam1 = new SLCamera();
