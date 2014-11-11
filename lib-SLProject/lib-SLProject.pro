@@ -99,7 +99,12 @@ HEADERS += \
     ../include/SLSphere.h \
     ../include/SLText.h \
     ../include/SLGrid.h \
-    ../include/SLGLOculus.h
+    ../include/SLGLOculus.h \
+    ../include/SLSkeleton.h \
+    ../include/SLAnimationManager.h \
+    ../include/SLAnimationState.h \
+    ../include/SLAnimationTrack.h \
+    ../include/SLBone.h
 
 SOURCES += \
     source/SLGLBuffer.cpp \
@@ -144,7 +149,13 @@ SOURCES += \
     source/SLText.cpp \
     source/SLPolygon.cpp \
     source/SLGrid.cpp \
-    source/SLGLOculus.cpp
+    source/SLGLOculus.cpp \
+    source/SLSkeleton.cpp \
+    source/SLAnimationManager.cpp \
+    source/SLAnimationState.cpp \
+    source/SLAnimationTrack.cpp \
+    source/SLBone.cpp \
+    source/SLKeyframe.cpp
 
 OTHER_FILES += \
     source/oglsl/BumpNormal.frag \

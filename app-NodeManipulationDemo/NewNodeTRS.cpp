@@ -38,16 +38,16 @@ SLbool NewNodeTRS::animateRec(SLfloat timeMS)
 
    if (!_drawBits.get(SL_DB_ANIMOFF))
    {  
-      if (_animation && !_animation->isFinished()) 
-      {  _animation->animate(this, timeMS);
-         gotAnimated = true;
-         // added line here
-         markDirty(); // marking ourselfes and all children dirty
-      }
+//      if (_animation && !_animation->isFinished())
+//      {  _animation->animate(this, timeMS);
+//         gotAnimated = true;
+//         // added line here
+//         markDirty(); // marking ourselfes and all children dirty
+//      }
 
       // animate children nodes for groups or group derived classes
-      for (SLint i=0; i<_children.size(); ++i)
-         if (_children[i]->animateRec(timeMS)) gotAnimated = true;
+//      for (SLint i=0; i<_children.size(); ++i)
+//         if (_children[i]->animateRec(timeMS)) gotAnimated = true;
    }
    return gotAnimated;
 }

@@ -21,8 +21,8 @@ class SLBone : public SLNode
 public:
     SLBone();
     
-    void SLBone::offsetMat(const SLMat4f& mat);
-    SLMat4f calculateFinalMat();    /// @todo find a better name pls
+    void    offsetMat           (const SLMat4f& mat);
+    SLMat4f calculateFinalMat   ();    /// @todo find a better name pls
 
 protected:
     SLuint  _handle;    //!< unique handle inside its parent skeleton
