@@ -181,7 +181,10 @@ virtual void            calcMinMax     ();
         SLbool          hitTriangleOS  (SLRay* ray, SLNode* node, SLuint iT);
 
         SLPrimitive     primitive      (){return _primitive;}
-                               
+        
+        void            skeleton(SLSkeleton* skel) { _skeleton = skel; }
+        SLbool          addWeight(SLint vertId, SLuint boneId, SLfloat weight);
+
         SLVec3f*        P;          //!< Array of vertex positions
         SLVec3f*        N;          //!< Array of vertex normals (opt.)
         SLCol4f*        C;          //!< Array of vertex colors (opt.)
@@ -222,8 +225,6 @@ virtual void            calcMinMax     ();
 
         SLSkeleton*     _skeleton;      //!< the skeleton this mesh is bound to
         SLMat4f*        _boneMatrices;  //!< private bone matrix stack for this mesh
-
-        SLbool          addWeight(SLint vertId, SLuint boneId, SLfloat weight);
 };
 //-----------------------------------------------------------------------------
 typedef std::vector<SLMesh*>  SLVMesh;

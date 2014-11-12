@@ -562,7 +562,22 @@ SLbool SLSceneView::updateAndDrawGL3D(SLfloat elapsedTimeMS)
     testAnimTrack2->applyToNode(animTarget, _time);
     
 
+
+
     // ------------------------------------------------------------
+
+    
+    //-------- TEMPORARY ANIMATION TEST 2--------------------------
+    
+    // try to animate the 0 skeleton
+    SLSkeleton* skel = s->skeletons().at(0);
+    SLAnimation* skelAnim = skel->tempGetAnim("Unnamed Animation");
+    skel->reset();
+    skelAnim->apply(skel, _time);
+
+    // ------------------------------------------------------------
+
+
 
     // don't slow down if we're in HMD stereo mode
     animated = animated || _camera->projection() == stereoSideBySideD;

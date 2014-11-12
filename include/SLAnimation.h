@@ -13,6 +13,7 @@
 
 #include <stdafx.h>
 #include <SLAnimationTrack.h>
+#include <SLBone.h>
 
 class SLSkeleton;
 
@@ -23,7 +24,10 @@ class SLAnimation
 public:
     SLAnimation();
     ~SLAnimation();
-
+    
+    const SLstring& name() { return _name; }
+    void name(const SLstring& name) { _name = name; }
+    
     void length(SLfloat length);
     SLfloat length() const { return _length; }
 
@@ -34,6 +38,7 @@ public:
     void apply(SLSkeleton* skel, SLfloat time, SLfloat weight = 1.0f, SLfloat scale = 1.0f); 
 
 protected:
+    SLstring                            _name;
     SLfloat                             _length;
     map<SLuint, SLNodeAnimationTrack*>  _nodeAnimations;
 };

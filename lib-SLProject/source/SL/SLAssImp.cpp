@@ -8,6 +8,29 @@
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
 
+/*
+
+    1. load materials
+    2. load textures
+    3. load meshes
+        > Put meshes that have bones in a list
+        > Put bones in a list (including vertex binding lists)
+            > but dont bind to mesh yet
+    4. load scene graph and skeletons
+        > if a node is a bone then load it as a skeleton root
+        > add the skeleton instance to the individual bone info
+        > determine boneId's
+    5. go over all meshes in the 'hasBone' list again
+        > add the appropriate skeleton to the mesh (based on the first skeleton in one of its bones)
+        > add bone weights, bone ids etc to the meshes as vertex data
+    6. load animations
+        > seperate node animations from skeletal animations
+
+*/
+
+// @todo findAndLoadSkeleton, loadSkeleton and loadSkeleton rec can easily be put into a single function, do that.
+// @todo add aiMat to SLMat helper function
+
 #include <stdafx.h>
 //Don't use the memory leak detector in Assimp
 
@@ -16,11 +39,23 @@
 #include <SLGLTexture.h>
 #include <SLMaterial.h>
 #include <SLSkeleton.h>
+#include <SLAnimation.h>
+#include <SLGLShaderProg.h>
 
 // assimp is only included in the source file to not expose it to the rest of the framework
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
+
+/*
+
+loadAnimation       // loads animations and builds a map of bone nodes
+loadNodesRec        // loads the node structure and loads marked bone nodes into skeleton containers
+
+// we need to assign skeletons to meshes somewhere
+// also, for now a skeleton holds the animation instances, later we need entities or something to hold them
+
+*/
 
 
 // helper functions to load an assimp scene
@@ -28,8 +63,34 @@ SLMaterial*   loadMaterial(SLint index, aiMaterial* material, SLstring modelPath
 SLGLTexture*  loadTexture(SLstring &path, SLTexType texType);
 SLMesh*       loadMesh(aiMesh *mesh);
 SLNode*       loadNodesRec(SLNode *curNode, aiNode *aiNode, SLMeshMap& meshes, SLbool loadMeshesOnly = true);
+void          findAndLoadSkeleton(aiNode* node);
+void          loadSkeleton(aiNode* node);
+SLBone*       loadSkeletonRec(aiNode* node, SLBone* parent);
+SLAnimation*  loadAnimation(aiAnimation* anim);
 SLstring      checkFilePath(SLstring modelPath, SLstring texFile);
 SLbool        aiNodeHasMesh(aiNode* node);
+
+// static vars to keep track of loaded resources
+SLSkeleton* skel = NULL;
+
+std::map<SLstring, SLNode*>  nameToNodeMapping;   // node name to SLNode instance mapping
+
+// list of meshes utilising a skeleton
+std::vector<SLMesh*> skinnedMeshes; // todo change to std::set
+
+/* List to keep track of bone nodes including the bones id. 
+    Nodes in this list won't be included in the scenegraph
+    but will be added to an SLSkeleton instance.
+*/
+
+struct BoneInformation
+{
+    SLstring name;
+    SLuint id;
+    SLMat4f offsetMat;
+};
+
+std::map<SLstring, BoneInformation>   bones; // bone node to bone id mapping
 
 //-----------------------------------------------------------------------------
 //! Default path for 3DS models used when only filename is passed in load.
@@ -68,7 +129,6 @@ SLNode* SLAssImp::load(SLstring file,        //!< File with path or on default p
     SLVMaterial materials;
     for(SLint i = 0; i < (SLint)scene->mNumMaterials; i++)
         materials.push_back(loadMaterial(i, scene->mMaterials[i], modelPath));
-      
 
     // load meshes & set their material
     SLVMesh meshes;                  // vector of all loaded meshes
@@ -80,13 +140,35 @@ SLNode* SLAssImp::load(SLstring file,        //!< File with path or on default p
             meshes.push_back(mesh);
             meshMap[i] = mesh;
         }
+    } 
+    
+    // add skinned material to the meshes with bone animations
+    // @todo: can we do this wihtout the need to put this in SLMaterial?
+    if (skinnedMeshes.size() > 0) {
+
+        SLGLShaderProgGeneric* skinningShader = new SLGLShaderProgGeneric("PerVrtBlinnSkinned.vert","PerVrtBlinn.frag");
+        for (SLint i = 0; i < skinnedMeshes.size(); i++)
+        {
+            SLMesh* mesh = skinnedMeshes[i];
+            mesh->mat->shaderProg(skinningShader);
+        }
     }
+
 
     // load the scene nodes recursively
     SLNode* root = loadNodesRec(NULL, scene->mRootNode, meshMap, loadMeshesOnly);
 
+    // load animations
+    vector<SLAnimation*> animations;
+    for (SLint i = 0; i < (SLint)scene->mNumAnimations; i++)
+        animations.push_back(loadAnimation(scene->mAnimations[i]));
+
+    // test set the animation on the skeleton
+    animations[0]->apply(skel, 3.0f);
+
     return root;
 }
+
 //-----------------------------------------------------------------------------
 /*!
 SLAssImp::loadMaterial loads the AssImp material an returns the SLMaterial.
@@ -183,6 +265,29 @@ SLGLTexture* loadTexture(SLstring& textureFile, SLTexType texType)
                                            texType);
     return texture;
 }
+SLbool isBone(const SLstring& name)
+{
+    if (bones.find(name) == bones.end())
+        return false;
+
+    return true;
+}
+
+BoneInformation* getBoneInformation(const SLstring& name)
+{
+    // create bone if its not already in the map
+    if (bones.find(name) == bones.end())
+    {
+        BoneInformation newBone;
+        newBone.name = name;
+        newBone.id = bones.size();
+
+        bones[name] = newBone;
+    }
+
+    return &bones[name];
+}
+
 //-----------------------------------------------------------------------------
 /*!
 SLAssImp::loadMesh creates a new SLMesh an copies the meshs vertex data and
@@ -255,6 +360,55 @@ SLMesh* loadMesh(aiMesh *mesh)
 
     m->calcNormals();
 
+    // load bones
+    if (mesh->HasBones())
+    {
+        skinnedMeshes.push_back(m);
+
+        m->Bi = new SLVec4f[m->numV];
+        m->Bw = new SLVec4f[m->numV];
+        
+        // make sure to initialize the weights with 0 vectors
+        std::fill_n(m->Bi, m->numV, SLVec4f(0, 0, 0, 0));
+        std::fill_n(m->Bw, m->numV, SLVec4f(0, 0, 0, 0));
+
+        for (SLint i = 0; i < mesh->mNumBones; i++)
+        {
+            aiBone* bone = mesh->mBones[i];
+            // get the bone information for this bone to add the vertex weights to its list
+            BoneInformation* boneInfo = getBoneInformation(bone->mName.C_Str());
+            
+            // update the bones offset matrix
+            memcpy(&boneInfo->offsetMat, &bone->mOffsetMatrix, sizeof(bone->mOffsetMatrix));
+            boneInfo->offsetMat.transpose();
+
+
+            for (SLint j = 0; j < bone->mNumWeights; j++)
+            {
+                // add the weight
+                SLuint vertId = bone->mWeights[j].mVertexId;
+                SLfloat weight = bone->mWeights[j].mWeight;
+
+                m->addWeight(vertId, boneInfo->id, weight);
+            }
+
+        }
+
+    }
+    cout << "imported" << m->name() << "\n";
+    cout << "weights: \n";
+
+    for (SLint i = 0; i < m->numV; i++) {
+        cout << "   "<< i << "-> (";
+            
+        if(m->Bw[i].x > 0.0f) cout << m->Bi[i].x << ": " << m->Bw[i].x << ";";
+        if(m->Bw[i].y > 0.0f) cout << m->Bi[i].y << ": " << m->Bw[i].y << ";";
+        if(m->Bw[i].z > 0.0f) cout << m->Bi[i].z << ": " << m->Bw[i].z << ";";
+        if(m->Bw[i].w > 0.0f) cout << m->Bi[i].w << ": " << m->Bw[i].w << ";";
+        
+        cout << ")\n";
+    }
+
     return m;
 }
 //-----------------------------------------------------------------------------
@@ -283,7 +437,7 @@ SLNode* loadNodesRec(
     // add the meshes
     for (SLuint i=0; i < node->mNumMeshes; ++i)
     {
-        // Only add meshes that where added to the meshMap (triangle meshes)
+        // Only add meshes that were added to the meshMap (triangle meshes)
         if (meshes.count(node->mMeshes[i]))
             curNode->addMesh(meshes[node->mMeshes[i]]);
     }
@@ -297,9 +451,153 @@ SLNode* loadNodesRec(
             curNode->addChild(child);
             loadNodesRec(child, node->mChildren[i], meshes);
         }
+        // we found a branch without meshes attached to it, try and find the skeleton root
+        else if (skinnedMeshes.size() > 0)
+        {
+            findAndLoadSkeleton(node->mChildren[i]);
+        }
     }
 
     return curNode;
+}
+void findAndLoadSkeleton(aiNode* node)
+{
+    // load skeleton if child is a bone
+    if (isBone(node->mName.C_Str()))
+    {
+        loadSkeleton(node);
+    }
+    else
+    {
+        for(SLuint i = 0; i < node->mNumChildren; i++) 
+            findAndLoadSkeleton(node->mChildren[i]);
+    }
+}
+SLNode* findLoadedNodeByName(const SLstring& name)
+{
+    if (nameToNodeMapping.find(name) != nameToNodeMapping.end())
+        return nameToNodeMapping[name];
+
+    return NULL;
+}
+
+void loadSkeleton(aiNode* node)
+{
+    // Don't allow files that contain more than one skeleton 
+    // @todo an assert here isn't right. The app shouldn't crash just because the user is trying to load an illegal file. But we lack an exception structure atm.
+    static SLint count = 0;
+    assert(count == 0 && "The specified file contains more than one skeleton, the importer currently only supports one skeleton per file");
+    count++;
+
+    // new root skeleton node found, create a skeleton
+    SLSkeleton* skeleton = new SLSkeleton;
+    skel = skeleton;
+    
+    // @todo add the skeleton to the scene
+
+    // set the skeleton reference for the skinned meshes
+    for (SLint i = 0; i < skinnedMeshes.size(); i++)
+    {
+        skinnedMeshes.at(i)->skeleton(skeleton);
+    }
+
+    // load the bones
+    SLBone* rootBone = loadSkeletonRec(node, NULL);
+    skeleton->root(rootBone);
+}
+SLBone* loadSkeletonRec(aiNode* node, SLBone* parent)
+{
+    // find the bone information for this bone
+    BoneInformation* boneInfo = getBoneInformation(node->mName.C_Str());
+
+    assert(boneInfo && "Importer Error: a node previously not marked as a bone was loaded as a bone.");
+
+    SLBone* bone;
+
+    if (parent == NULL)
+        bone = skel->createBone(boneInfo->id);
+    else
+        bone = parent->createChild(boneInfo->id);
+
+    bone->name(boneInfo->name);
+    bone->offsetMat(boneInfo->offsetMat);
+
+    // set binding pose for the bone
+    SLMat4f om;
+    memcpy(&om, &node->mTransformation, sizeof(SLMat4f));
+    om.transpose();
+    bone->om(om);
+    bone->setInitialState();
+    // start building the node tree for the skeleton
+    for (SLint i = 0; i < node->mNumChildren; i++)
+    {
+        SLBone* child = loadSkeletonRec(node->mChildren[i], bone);
+    }
+        
+    return bone;
+}
+//-----------------------------------------------------------------------------
+/*!
+SLAssImp::loadAnimation loads the scene graph node tree recursively.
+*/
+// @todo how do we handle multiple skeletons in one file?
+SLAnimation* loadAnimation(aiAnimation* anim)
+{
+    SLAnimation* result = new SLAnimation;
+    result->length(anim->mDuration);
+    if (anim->mName.length > 0)
+        result->name(anim->mName.C_Str());
+    else
+        result->name("Unnamed Animation");
+
+    
+    // exit if we didn't load a skeleton but have animations for one
+    if (skinnedMeshes.size() > 0)
+        assert(skel != NULL && "The skeleton wasn't impoted correctly.");
+
+    SLbool isSkeletonAnim = false;
+    for (SLint i = 0; i < anim->mNumChannels; i++)
+    {
+        aiNodeAnim* channel = anim->mChannels[i];
+
+        // find the node that is animated by this channel
+        SLNode* animatedNode = findLoadedNodeByName(channel->mNodeName.C_Str());
+
+        // is the affected node part of a skeleton?
+        BoneInformation* boneInfo = getBoneInformation(channel->mNodeName.C_Str());
+        SLbool isBoneNode = boneInfo != NULL;
+        SLuint nodeId = 0;
+        if (isBoneNode) nodeId = boneInfo->id;
+        if (isBoneNode) isSkeletonAnim = true;
+        
+        // bone animation channels should receive the correct node id, normal node animations just get 0
+        SLNodeAnimationTrack* track = result->createNodeAnimationTrack(nodeId);
+
+        // @todo Assimp provides keyframes seperately for position, rotation and scale, we combine them into one
+        //          So we have to add in the other two components for the assimp keyframes. The drawback here is
+        //          that we have to interpolate the missing values and that might lead to differet results.
+        //          One solution would be to just give a policy of providing the animation with keyframe values
+        //          for all three components.
+        SLint numKeyframes = max(max(channel->mNumPositionKeys, channel->mNumRotationKeys), channel->mNumScalingKeys);
+
+        for (SLint i = 0; i < numKeyframes; i++)
+        {
+            aiQuatKey rotKey = channel->mRotationKeys[i];
+
+            SLTransformKeyframe* kf = track->createNodeKeyframe(rotKey.mTime);
+            kf->rotation(SLQuat4f(rotKey.mValue.x, rotKey.mValue.y, rotKey.mValue.z, rotKey.mValue.w));
+
+            if (i < channel->mNumPositionKeys) {
+
+            }
+        }
+
+    }
+
+    if (isSkeletonAnim)
+        skel->addAnimation(result);
+
+    return result;
 }
 //-----------------------------------------------------------------------------
 /*!

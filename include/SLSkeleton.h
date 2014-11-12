@@ -15,21 +15,35 @@
 
 #include <stdafx.h>
 #include <SLBone.h>
+#include <SLAnimation.h>
 
 class SLSkeleton
 {
 public:
+    SLSkeleton();
+
     void update();
+    
+    // creates a new bone that belongs to this skeleton
+    // handle must be unique for this skeleton and also contiguous
+    SLBone* createBone(SLuint handle);
 
-    SLBone* getBone(SLuint handle);
-    SLint numBones() const { return _boneMap.size(); }
-    void getBoneWorldMatrices(SLMat4f* boneWM);
+    SLBone*     getBone(SLuint handle);
+    SLint       numBones() const { return _boneList.size(); }
+    void        getBoneWorldMatrices(SLMat4f* boneWM);
+    void        root(SLBone* bone);
+    SLBone*     root() { return _root; }
+    void        addAnimation(SLAnimation* anim);
+    void        reset();
 
-
+    SLAnimation* tempGetAnim(const SLstring& anim) { return _animations[anim]; }
 
 protected:
-    SLBone* _root;
-    std::map<SLuint, SLBone*> _boneMap; //!< bone map for fast acces of bones
+    SLBone*     _root;
+    vector<SLBone*> _boneList; //!< bone map for fast acces of bones
+    map<SLstring, SLAnimation*> _animations;
 };
+
+typedef std::vector<SLSkeleton*> SLVSkeleton;
 
 #endif

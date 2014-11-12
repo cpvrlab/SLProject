@@ -81,7 +81,7 @@ SLbool SLGLShader::createAndCompile()
         SLint compileSuccess = 0;
         glGetShaderiv(_shaderObjectGL, GL_COMPILE_STATUS, &compileSuccess);
         if (compileSuccess == GL_FALSE) 
-        {   GLchar log[256];
+        {   GLchar log[1024];
             glGetShaderInfoLog(_shaderObjectGL, sizeof(log), 0, &log[0]);
             SL_LOG("*** COMPILER ERROR ***\n");
             SL_LOG("Source file: %s\n", _shaderFile.c_str());

@@ -539,6 +539,12 @@
     <None Include="source\oglsl\WaveRefractReflect.vert">
       <Filter>GLSL</Filter>
     </None>
+    <None Include="source\oglsl\PerVrtBlinnTexSkinned.vert">
+      <Filter>GLSL</Filter>
+    </None>
+    <None Include="source\oglsl\PerVrtBlinnSkinned.vert">
+      <Filter>GLSL</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Text Include="ToDo.txt" />

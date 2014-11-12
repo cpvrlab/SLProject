@@ -555,8 +555,10 @@
     <None Include="source\oglsl\PerPixBlinnTex.vert" />
     <None Include="source\oglsl\PerVrtBlinn.frag" />
     <None Include="source\oglsl\PerVrtBlinn.vert" />
+    <None Include="source\oglsl\PerVrtBlinnSkinned.vert" />
     <None Include="source\oglsl\PerVrtBlinnTex.frag" />
     <None Include="source\oglsl\PerVrtBlinnTex.vert" />
+    <None Include="source\oglsl\PerVrtBlinnTexSkinned.vert" />
     <None Include="source\oglsl\Reflect.frag" />
     <None Include="source\oglsl\Reflect.vert" />
     <None Include="source\oglsl\RefractReflect.frag" />

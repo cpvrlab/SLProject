@@ -16,6 +16,7 @@
 #include <SLEventHandler.h>
 #include <SLLight.h>
 #include <SLNode.h>
+#include <SLSkeleton.h>
 #include <SLGLOculus.h>
 
 class SLSceneView;
@@ -69,6 +70,7 @@ class SLScene: public SLObject
             SLVEventHandler& eventHandlers  () {return _eventHandlers;}
             SLVMaterial&    materials       () {return _materials;}
             SLVMesh&        meshes          () {return _meshes;}
+            SLVSkeleton&    skeletons       () {return _skeletons;}
             SLVGLTexture&   textures        () {return _textures;}
             SLVGLShaderProg& shaderProgs    () {return _shaderProgs;}
             SLGLShaderProg* shaderProgs     (SLStdShaderProg i) {return _shaderProgs[i];}
@@ -127,6 +129,7 @@ class SLScene: public SLObject
             SLVEventHandler _eventHandlers;   //!< Vector of all event handler
 
             SLVMesh         _meshes;          //!< Vector of all meshes
+            SLVSkeleton     _skeletons;       //!< Vector of all skeletons
             SLVMaterial     _materials;       //!< Vector of all materials pointers
             SLVGLTexture    _textures;        //!< Vector of all texture pointers
             SLVGLShaderProg _shaderProgs;     //!< Vector of all shaderProg pointers

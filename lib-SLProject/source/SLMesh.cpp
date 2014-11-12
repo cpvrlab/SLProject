@@ -164,8 +164,8 @@ void SLMesh::draw(SLSceneView* sv, SLNode* node)
         if (!_bufN.id()  && N)   _bufN.generate(N, numV, 3);
         if (!_bufC.id()  && C)   _bufC.generate(C, numV, 4);
         if (!_bufTc.id() && Tc)  _bufTc.generate(Tc, numV, 2);
-        if (!_bufBi.id() && Bi)   _bufT.generate(Bi, numV, 4);
-        if (!_bufBw.id() && Bw)   _bufT.generate(Bw, numV, 4);
+        if (!_bufBi.id() && Bi)  _bufBi.generate(Bi, numV, 4);
+        if (!_bufBw.id() && Bw)  _bufBw.generate(Bw, numV, 4);
         if (!_bufT.id()  && T)   _bufT.generate(T, numV, 4);
         if (!_bufI.id()  && I16) _bufI.generate(I16, numI, 1, SL_UNSIGNED_SHORT, SL_ELEMENT_ARRAY_BUFFER);
         if (!_bufI.id()  && I32) _bufI.generate(I32, numI, 1, SL_UNSIGNED_INT,   SL_ELEMENT_ARRAY_BUFFER);  
@@ -211,14 +211,17 @@ void SLMesh::draw(SLSceneView* sv, SLNode* node)
         if (_bufT.id())  
             _bufT.bindAndEnableAttrib(sp->getAttribLocation("a_tangent"));
         if (_bufBi.id())
-            _bufBi.bindAndEnableAttrib(sp->getAttribLocation("a_boneId"));
+            _bufBi.bindAndEnableAttrib(sp->getAttribLocation("a_boneIds"));
         if (_bufBw.id())
-            _bufBw.bindAndEnableAttrib(sp->getAttribLocation("a_boneWeight"));
+            _bufBw.bindAndEnableAttrib(sp->getAttribLocation("a_boneWeights"));
 
 
         // 3.d: Upload final bone matrices
-        if (_boneMatrices)
+        if (Bi && Bw)
         {
+            //  temporary test for 2 bones
+            if (!_boneMatrices) _boneMatrices = new SLMat4f[2];
+            _skeleton->getBoneWorldMatrices(_boneMatrices);
             // @todo    be careful here, it is at the moment not guaranteed that the per vertex bone indices
             //          match the indices in this bone array. The result may be wrong or crash entirely.
             //          Imported models might use bone 0, 1, 2 and 4 but not 3. So when bone 4 is used
@@ -227,7 +230,7 @@ void SLMesh::draw(SLSceneView* sv, SLNode* node)
             // @todo    Secondly: It is a bad idea to keep the bone data in the mesh itself, this prevents us
             //          from instantiationg a single mesh with multiple animations. Needs to be addressed ASAP. (see also SLMesh class problems in SLMesh.h at the top)
             SLint locBM = sp->getUniformLocation("u_boneMatrices");
-            sp->uniformMatrix4fv(locBM, _skeleton->numBones(), (SLfloat*)_boneMatrices, false);
+            sp->uniformMatrix4fv(locBM, 2 /*_skeleton->numBones()*/, (SLfloat*)_boneMatrices, false);
         }
 
         // 3.e: Finally draw elements
@@ -239,7 +242,8 @@ void SLMesh::draw(SLSceneView* sv, SLNode* node)
         if (_bufC.id())  _bufC.disableAttribArray();
         if (_bufTc.id()) _bufTc.disableAttribArray();
         if (_bufT.id())  _bufT.disableAttribArray();
-
+        if (_bufBi.id()) _bufBi.disableAttribArray();
+        if (_bufBw.id()) _bufBw.disableAttribArray();
       
         //////////////////////////////////////
         // 4: Draw optional normals & tangents
@@ -897,6 +901,7 @@ SLbool SLMesh::addWeight(SLint vertId, SLuint boneId, SLfloat weight)
         {
             *bIdIt = (SLfloat)boneId;
             *bWeightIt = weight;
+            break;
         }
 
         bIdIt++;

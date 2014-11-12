@@ -417,6 +417,24 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
         _root3D = scene;
     }
     else
+    if (sceneName == cmdSceneSkinnedMesh01)
+    {
+        SLLightSphere* light1 = new SLLightSphere(2.5f, 2.5f, 2.5f, 0.2f);
+        light1->ambient(SLCol4f(0.1f, 0.1f, 0.1f));
+        light1->diffuse(SLCol4f(1.0f, 1.0f, 1.0f));
+        light1->specular(SLCol4f(1.0f, 1.0f, 1.0f));
+        light1->attenuation(1,0,0);
+
+        SLNode* simpleSkinnedMesh = SLAssImp::load("DAE/SkinnedCube/skinnedcube.dae");
+
+        
+        SLNode* scene = new SLNode("Scene");
+        scene->addChild(light1);
+        scene->addChild(simpleSkinnedMesh);
+
+        _root3D = scene;
+    }
+    else
     if (sceneName == cmdSceneLargeModel) //.....................................
     {
         name("Large Model Test");
