@@ -29,9 +29,7 @@ OBJECTS_DIR = ../intermediate/$$TARGET/$$CONFIGURATION/$$PLATFORM
 LIBS += -L../_lib/$$CONFIGURATION/$$PLATFORM -llib-SLProject
 LIBS += -L../_lib/$$CONFIGURATION/$$PLATFORM -llib-assimp
 LIBS += -L../_lib/$$CONFIGURATION/$$PLATFORM -llib-SLExternal
-macx: win32 {
-  LIBS += -L../_lib/$$CONFIGURATION/$$PLATFORM -llib-ovr
-}
+macx|win32 {LIBS += -L../_lib/$$CONFIGURATION/$$PLATFORM -llib-ovr}
 
 win32 {
   POST_TARGETDEPS += ../_lib/$$CONFIGURATION/$$PLATFORM/lib-SLProject.lib
