@@ -1,5 +1,5 @@
 ##############################################################################
-#  File:      assimp.pro
+#  File:      oculus.pro
 #  Purpose:   QMake project definition file for the asset import library
 #  Author:    Marcus Hudritsch
 #  Date:      September 2012 (HS12)
@@ -14,6 +14,11 @@ TARGET = lib-ovr
 CONFIG += staticlib
 CONFIG -= qt
 CONFIG += warn_off
+
+CONFIG += oculus
+linux:CONFIG -= oculus
+
+REQUIRES += oculus
 
 QMAKE_CXXFLAGS += -std=c++11
 
