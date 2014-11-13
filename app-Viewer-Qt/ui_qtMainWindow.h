@@ -1,7 +1,7 @@
 /********************************************************************************
 ** Form generated from reading UI file 'qtMainWindow.ui'
 **
-** Created by: Qt User Interface Compiler version 5.3.0
+** Created by: Qt User Interface Compiler version 5.3.2
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
 ********************************************************************************/
@@ -429,7 +429,7 @@ public:
         actionAnimation_off->setObjectName(QStringLiteral("actionAnimation_off"));
         actionAnimation_off->setCheckable(true);
         QIcon icon12;
-        icon12.addFile(QStringLiteral(":/images/stopAnimation.tiff"), QSize(), QIcon::Normal, QIcon::Off);
+        icon12.addFile(QStringLiteral(":/images/stopAnimation.png"), QSize(), QIcon::Normal, QIcon::Off);
         actionAnimation_off->setIcon(icon12);
         actionFullscreen = new QAction(qtMainWindow);
         actionFullscreen->setObjectName(QStringLiteral("actionFullscreen"));

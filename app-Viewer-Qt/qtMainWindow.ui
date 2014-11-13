@@ -1385,7 +1385,7 @@
    </property>
    <property name="icon">
     <iconset resource="resources.qrc">
-     <normaloff>:/images/stopAnimation.tiff</normaloff>:/images/stopAnimation.tiff</iconset>
+     <normaloff>:/images/stopAnimation.png</normaloff>:/images/stopAnimation.png</iconset>
    </property>
    <property name="text">
     <string>Animation off</string>
