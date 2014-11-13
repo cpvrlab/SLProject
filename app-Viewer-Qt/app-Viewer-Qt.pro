@@ -31,11 +31,8 @@ LIBS += -L../_lib/$$CONFIGURATION/$$PLATFORM -llib-assimp
 LIBS += -L../_lib/$$CONFIGURATION/$$PLATFORM -llib-SLExternal
 macx|win32 {LIBS += -L../_lib/$$CONFIGURATION/$$PLATFORM -llib-ovr}
 
-win32 {
-  POST_TARGETDEPS += ../_lib/$$CONFIGURATION/$$PLATFORM/lib-SLProject.lib
-} else {
-  POST_TARGETDEPS += ../_lib/$$CONFIGURATION/$$PLATFORM/liblib-SLProject.a
-}
+win32 {POST_TARGETDEPS += ../_lib/$$CONFIGURATION/$$PLATFORM/lib-SLProject.lib}
+else  {POST_TARGETDEPS += ../_lib/$$CONFIGURATION/$$PLATFORM/liblib-SLProject.a}
 
 include(../SLProjectCommon.pro)
 

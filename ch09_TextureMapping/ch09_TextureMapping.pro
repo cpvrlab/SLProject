@@ -16,18 +16,13 @@ win32 {contains(QMAKE_TARGET.arch, x86_64) {PLATFORM = x64} else {PLATFORM = Win
 macx {PLATFORM = macx}
 unix:!macx:!android {PLATFORM = linux}
 android {PLATFORM = android}
+
 #define configuration variable for folder name
 CONFIG(debug, debug|release) {CONFIGURATION = Debug} else {CONFIGURATION = Release}
 
-CONFIG(debug, debug|release) {
-   DESTDIR = ../_bin-Debug-$$PLATFORM
-   OBJECTS_DIR = ../intermediate/$$TARGET/Debug/$$PLATFORM
-   LIBS += -L../_lib/Debug/$$PLATFORM -llib-SLExternal
-} else {
-   DESTDIR = ../_bin-Release-$$PLATFORM
-   OBJECTS_DIR = ../intermediate/$$TARGET/Release/$$PLATFORM
-   LIBS += -L../_lib/Release/$$PLATFORM -llib-SLExternal
-}
+DESTDIR = ../_bin-$$CONFIGURATION-$$PLATFORM
+OBJECTS_DIR = ../intermediate/$$TARGET/$$CONFIGURATION/$$PLATFORM
+LIBS += -L../_lib/$$CONFIGURATION/$$PLATFORM -llib-SLExternal
 
 include(../SLProjectCommon.pro)
 
