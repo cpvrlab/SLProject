@@ -503,7 +503,7 @@ void qtMainWindow::buildPropertyTree()
             {  level2 = new qtPropertyTreeItem("Shader Program:");
                 level1->addChild(level2);
 
-                SLVShader& shaders = prog->shaderList();
+                SLVShader& shaders = prog->shaders();
                 for (int i=0; i<shaders.size(); ++i)
                 {  SLGLShader* shader = shaders[i];
                     if(shader->shaderType() ==VertexShader)

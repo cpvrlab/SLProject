@@ -64,13 +64,13 @@ class SLGLShaderProg : public SLObject
             void        addUniform1i    (SLGLShaderUniform1i* u);   //!< add int uniform
       
             //Getters
-            SLuint      programObjectGL (){return _programObjectGL;}
-            SLVShader&  shaderList      (){return _shaderList;}
+            SLuint      programObjectGL (){return _objectGL;}
+            SLVShader&  shaders         (){return _shaders;}
 
       
         //Variable location getters
-    inline  SLint       getUniformLocation(const SLchar *name){return glGetUniformLocation(_programObjectGL, name);}
-    inline  SLint       getAttribLocation(const SLchar *name){return glGetAttribLocation(_programObjectGL, name);}   
+    inline  SLint       getUniformLocation(const SLchar *name){return glGetUniformLocation(_objectGL, name);}
+    inline  SLint       getAttribLocation(const SLchar *name){return glGetAttribLocation(_objectGL, name);}
 
             //Send unform variables to program
             SLint       uniform1f       (const SLchar* name, SLfloat v0);
@@ -130,11 +130,11 @@ class SLGLShaderProg : public SLObject
       
     private:
         SLGLState*    _stateGL;         //!< Pointer to global SLGLState instance
-        SLuint        _programObjectGL; //!< OpenGL shader program object
+        SLuint        _objectGL;        //!< OpenGL shader program object
         SLbool        _isLinked;        //!< Flag if program is linked
-        SLVShader     _shaderList;      //!< Vector of all shader objects
-        SLVUniform1f  _uniform1fList;   //!< Vector of uniform1f variables
-        SLVUniform1i  _uniform1iList;   //!< Vector of uniform1i variables
+        SLVShader     _shaders;         //!< Vector of all shader objects
+        SLVUniform1f  _uniforms1f;      //!< Vector of uniform1f variables
+        SLVUniform1i  _uniforms1i;      //!< Vector of uniform1i variables
         //SLLocMap    _uniformLocHash;  //!< Hashmap for all uniform locations
         //SLLocMap    _attribLocHash;   //!< Hashmap for all attribute locations
 };

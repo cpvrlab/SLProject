@@ -33,14 +33,14 @@ class SLGLShader : public SLObject
             SLbool          createAndCompile();
             void            load(SLstring filename);
             void            loadFromMemory(SLstring program);
-            SLShaderType    shaderType() {return _shaderType;}
+            SLShaderType    shaderType() {return _type;}
 
          
     protected:         
-            SLShaderType    _shaderType;      //!< Shader type enumeration
-            SLuint          _shaderObjectGL;  //!< Program Object
-            SLstring        _shaderSource;    //!< ASCII Source-Code
-            SLstring        _shaderFile;      //!< Path & filename of shader
+            SLShaderType    _type;      //!< Shader type enumeration
+            SLuint          _objectGL;  //!< Program Object
+            SLstring        _code;      //!< ASCII Source-Code
+            SLstring        _file;      //!< Path & filename of shader
                             
 };
 //-----------------------------------------------------------------------------
