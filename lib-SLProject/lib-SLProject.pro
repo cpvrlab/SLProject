@@ -45,9 +45,6 @@ HEADERS += \
     ../include/SLGLBuffer.h \
     ../include/SLGLOculusFB.h \
     ../include/SLGLShader.h \
-    ../include/SLGLShaderProg.h \
-    ../include/SLGLShaderProgGeneric.h \
-    ../include/SLGLShaderUniform.h \
     ../include/SLGLState.h \
     ../include/SLGLTexture.h \
     ../include/SLCurve.h \
@@ -106,13 +103,16 @@ HEADERS += \
     ../include/SLSphere.h \
     ../include/SLText.h \
     ../include/SLGrid.h \
-    ../include/SLGLOculus.h
+    ../include/SLGLOculus.h \
+    ../include/SLGLProgram.h \
+    ../include/SLGLUniform.h \
+    ../include/SLGLGenericProgram.h
 
 SOURCES += \
     source/SLGLBuffer.cpp \
     source/SLGLOculusFB.cpp \
     source/SLGLShader.cpp \
-    source/SLGLShaderProg.cpp \
+    source/SLGLProgram.cpp \
     source/SLGLState.cpp \
     source/SLGLTexture.cpp \
     source/math/SLCurveBezier.cpp \
@@ -151,7 +151,7 @@ SOURCES += \
     source/SLText.cpp \
     source/SLPolygon.cpp \
     source/SLGrid.cpp \
-    source/SLGLOculus.cpp
+    source/SLGLOculus.cpp \
 
 OTHER_FILES += \
     source/oglsl/BumpNormal.frag \

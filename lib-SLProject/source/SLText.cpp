@@ -15,7 +15,7 @@
 
 #include <SLText.h>
 #include <SLScene.h>
-#include <SLGLShaderProg.h>
+#include <SLGLProgram.h>
 #include <SLGLState.h>
 
 //-----------------------------------------------------------------------------
@@ -53,7 +53,7 @@ void SLText::drawRec(SLSceneView* sv)
     _font->bindActive();
 
     // Setup shader
-    SLGLShaderProg* sp = SLScene::current->shaderProgs(FontTex);
+    SLGLProgram* sp = SLScene::current->shaderProgs(FontTex);
     SLGLState* state = SLGLState::getInstance();
     sp->useProgram();
     sp->uniformMatrix4fv("u_mvpMatrix", 1,

@@ -1,5 +1,5 @@
 //#############################################################################
-//  File:      SLGLShaderUniform1f.h
+//  File:      SLGLUniform.h
 //  Author:    Marcus Hudritsch
 //  Date:      July 2014
 //  Codestyle: https://github.com/cpvrlab/SLProject/wiki/Coding-Style-Guidelines
@@ -7,29 +7,29 @@
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
 
-#ifndef SLGLSHADERUNIFORM_H
-#define SLGLSHADERUNIFORM_H
+#ifndef SLGLUNIFORM_H
+#define SLGLUNIFORM_H
 
 #include <stdafx.h>
 #include <SLEventHandler.h>
 
 //-----------------------------------------------------------------------------
 //! Template for a single GLSL uniform variable.
-/*! Class for GLSL uniform variables that change per frame. An SLGLShaderProg
+/*! Class for GLSL uniform variables that change per frame. An SLGLProgram
 holds a list of this type of uniform variables that are applied within the 
 beginUse method. 
 */
 template<class T>
-class SLGLShaderUniform : public SLEventHandler
+class SLGLUniform : public SLEventHandler
 {
     public:
-        SLGLShaderUniform(SLUF1Type type,
-                          const SLchar* name,
-                          T value,
-                          T inc=0.0f,
-                          T min=0.0f,
-                          T max=0.0f,
-                          SLKey   keyInc=KeyNone)
+        SLGLUniform(SLUF1Type type,
+                    const SLchar* name,
+                    T value,
+                    T inc=0.0f,
+                    T min=0.0f,
+                    T max=0.0f,
+                    SLKey   keyInc=KeyNone)
         {   _name   = name;
             _value  = value;
             _min    = min;
@@ -114,12 +114,12 @@ class SLGLShaderUniform : public SLEventHandler
         SLKey       _keyInc;    //!< keyboard key incrementing const values
 };
 //-----------------------------------------------------------------------------
-typedef SLGLShaderUniform<SLfloat> SLGLShaderUniform1f;
-typedef SLGLShaderUniform<SLint>   SLGLShaderUniform1i;
-typedef SLGLShaderUniform<SLuint>  SLGLShaderUniform1u;
+typedef SLGLUniform<SLfloat> SLGLUniform1f;
+typedef SLGLUniform<SLint>   SLGLUniform1i;
+typedef SLGLUniform<SLuint>  SLGLUniform1u;
 //-----------------------------------------------------------------------------
 //! STL vector of SLGLShaderUniform1f pointers
-typedef std::vector<SLGLShaderUniform1f*>  SLVUniform1f;
-typedef std::vector<SLGLShaderUniform1i*>  SLVUniform1i;
+typedef std::vector<SLGLUniform1f*>  SLVUniform1f;
+typedef std::vector<SLGLUniform1i*>  SLVUniform1i;
 //-----------------------------------------------------------------------------
 #endif

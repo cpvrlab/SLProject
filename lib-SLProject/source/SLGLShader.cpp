@@ -16,7 +16,7 @@
 #endif
 
 #include "SLGLShader.h"
-#include "SLGLShaderProg.h"
+#include "SLGLProgram.h"
 
 //-----------------------------------------------------------------------------
 // Error Strings

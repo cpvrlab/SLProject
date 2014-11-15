@@ -22,7 +22,7 @@
 #include <SLUniformGrid.h>
 #include <SLLightSphere.h>
 #include <SLLightRect.h>
-#include <SLGLShaderProg.h>
+#include <SLGLProgram.h>
 
 //-----------------------------------------------------------------------------
 /*! 
@@ -163,11 +163,11 @@ void SLMesh::draw(SLSceneView* sv, SLNode* node)
         ///////////////////
 
         // 3.a: Apply mesh material if exists & differs from current
-        if (mat != SLMaterial::current || SLMaterial::current->shaderProg()==0)
+        if (mat != SLMaterial::current || SLMaterial::current->program()==0)
             mat->activate(_stateGL, *node->drawBits());
             
         // 3.b: Pass the matrices to the shader program
-        SLGLShaderProg* sp = SLMaterial::current->shaderProg();
+        SLGLProgram* sp = SLMaterial::current->program();
         sp->uniformMatrix4fv("u_mvMatrix",    1, (SLfloat*)&_stateGL->modelViewMatrix);
         sp->uniformMatrix4fv("u_mvpMatrix",   1, (SLfloat*)_stateGL->mvpMatrix());
 

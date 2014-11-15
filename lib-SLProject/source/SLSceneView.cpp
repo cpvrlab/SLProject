@@ -16,7 +16,7 @@
 #include <SLLight.h>
 #include <SLCamera.h>
 #include <SLAABBox.h>
-#include <SLGLShaderProg.h>
+#include <SLGLProgram.h>
 #include <SLAnimation.h>
 #include <SLLightSphere.h>
 #include <SLLightRect.h>
@@ -760,7 +760,7 @@ SLbool SLSceneView::updateAndDraw2D(SLfloat elapsedTimeMS)
         if (false)
         {
             glClear(GL_COLOR_BUFFER_BIT);
-            static SLGLShaderProgGeneric tmpShader("StereoOculus.vert", "StereoOculus.frag");
+            static SLGLGenericProgram tmpShader("StereoOculus.vert", "StereoOculus.frag");
 
             static GLuint screenQuad = 0;
             if (!screenQuad) {

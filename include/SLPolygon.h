@@ -24,25 +24,25 @@ class SLPolygon: public SLMesh
 {  public:                 
                         //! ctor for generic convex polygon
                         SLPolygon(SLVVec3f corner,
-                                    SLstring name = "Polygon",
-                                    SLMaterial* mat=0);
+                                  SLstring name = "Polygon",
+                                  SLMaterial* mat=0);
                            
                         //! ctor for generic convex polygon with texCoords          
-                        SLPolygon(SLVVec3f corner, 
-                                    SLVVec2f texcoord,
-                                    SLstring name = "Polygon",
-                                    SLMaterial* mat=0);
+                        SLPolygon(SLVVec3f corners,
+                                  SLVVec2f texcoords,
+                                  SLstring name = "Polygon",
+                                  SLMaterial* mat=0);
                                      
                         //! ctor for centered rectangle in x-y-plane (N=-z)
                         SLPolygon(SLfloat  width, 
-                                    SLfloat  height,
-                                    SLstring name,
-                                    SLMaterial* mat=0);
+                                  SLfloat  height,
+                                  SLstring name,
+                                  SLMaterial* mat=0);
                
             void        buildMesh(SLMaterial* mat);
    protected:
-            SLVVec3f    _corner;       //!< corners in ccw order
-            SLVVec2f    _texCoord;     //!< texture coords for corners
+            SLVVec3f    _corners;   //!< corners in ccw order
+            SLVVec2f    _texCoord;  //!< texture coords for corners
 };
 //-----------------------------------------------------------------------------
 #endif

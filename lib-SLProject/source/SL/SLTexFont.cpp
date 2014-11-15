@@ -16,7 +16,7 @@
 
 #include "SLTexFont.h"
 #include "SLScene.h"
-#include "SLGLShaderProg.h"
+#include "SLGLProgram.h"
 
 //-----------------------------------------------------------------------------
 // Initialize static font pointers

@@ -30,7 +30,7 @@ typedef std::vector<SLSceneView*> SLVSceneView; //!< Vector of SceneView pointer
 The SLScene class holds everything that is common for all scene views such as 
 the root pointer (_root3D) to the scene, the background color, an array of
 lights as well as the global resources (_meshes (SLMesh), _materials (SLMaterial), 
-_textures (SLGLTexture) and _shaderProgs (SLGLShaderProg)).
+_textures (SLGLTexture) and _shaderProgs (SLGLProgram)).
 All these resources and the scene with all nodes to whitch _root3D pointer points
 get deleted in the method unInit. A scene could have multiple scene views. 
 A pointer of each is stored in the vector _sceneViews. 
@@ -70,8 +70,8 @@ class SLScene: public SLObject
             SLVMaterial&    materials       () {return _materials;}
             SLVMesh&        meshes          () {return _meshes;}
             SLVGLTexture&   textures        () {return _textures;}
-            SLVGLShaderProg& shaderProgs    () {return _shaderProgs;}
-            SLGLShaderProg* shaderProgs     (SLStdShaderProg i) {return _shaderProgs[i];}
+            SLVGLProgram& shaderProgs    () {return _programs;}
+            SLGLProgram* shaderProgs     (SLStdShaderProg i) {return _programs[i];}
             SLText*         info            (SLSceneView* sv);
             SLstring        infoAbout_en    () {return _infoAbout_en;}
             SLstring        infoCredits_en  () {return _infoCredits_en;}
@@ -129,7 +129,7 @@ class SLScene: public SLObject
             SLVMesh         _meshes;          //!< Vector of all meshes
             SLVMaterial     _materials;       //!< Vector of all materials pointers
             SLVGLTexture    _textures;        //!< Vector of all texture pointers
-            SLVGLShaderProg _shaderProgs;     //!< Vector of all shaderProg pointers
+            SLVGLProgram    _programs;        //!< Vector of all shader program pointers
             SLint           _numProgsPreload; //!< No. of preloaded shaderProgs
 };
 //-----------------------------------------------------------------------------

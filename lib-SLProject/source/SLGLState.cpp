@@ -121,7 +121,6 @@ void SLGLState::initAll()
 SLGLState::~SLGLState()
 {  
     _modelViewMatrixStack.clear();
-    _projectionMatrixStack.clear();
 }
 //-----------------------------------------------------------------------------
 /*! One time initialization

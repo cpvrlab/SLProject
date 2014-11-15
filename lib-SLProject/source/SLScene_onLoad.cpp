@@ -449,7 +449,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
 
         SLMaterial* m1 = new SLMaterial("m1", SLCol4f(1,1,1), SLCol4f(0,0,0), 100);
         SLMaterial* m2 = new SLMaterial("m2", SLCol4f(1,1,1), SLCol4f(0,0,0), 100);
-        m1->shaderProg(_shaderProgs[TextureOnly]);
+        m1->program(_programs[TextureOnly]);
         m1->textures().push_back(t1);
         m2->textures().push_back(t2);
 
@@ -563,9 +563,9 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
         SLMaterial* mat5 = new SLMaterial("glass", SLCol4f::BLACK, SLCol4f::WHITE,
                                         100, 0.2f, 0.8f, 1.5f);
         mat5->textures().push_back(tex5);
-        SLGLShaderProg* sp1 = new SLGLShaderProgGeneric("RefractReflect.vert",
-                                                        "RefractReflect.frag");
-        mat5->shaderProg(sp1);
+        SLGLProgram* sp1 = new SLGLGenericProgram("RefractReflect.vert",
+                                                  "RefractReflect.frag");
+        mat5->program(sp1);
 
         // camera
         SLCamera* cam1 = new SLCamera();
@@ -808,10 +808,10 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
                                             ,GL_LINEAR);
 
         // define materials with textureOnly shader, no light needed
-        SLMaterial* matB = new SLMaterial("matB", texB,0,0,0, _shaderProgs[TextureOnly]);
-        SLMaterial* matL = new SLMaterial("matL", texL,0,0,0, _shaderProgs[TextureOnly]);
-        SLMaterial* matT = new SLMaterial("matT", texT,0,0,0, _shaderProgs[TextureOnly]);
-        SLMaterial* matR = new SLMaterial("matR", texR,0,0,0, _shaderProgs[TextureOnly]);
+        SLMaterial* matB = new SLMaterial("matB", texB,0,0,0, _programs[TextureOnly]);
+        SLMaterial* matL = new SLMaterial("matL", texL,0,0,0, _programs[TextureOnly]);
+        SLMaterial* matT = new SLMaterial("matT", texT,0,0,0, _programs[TextureOnly]);
+        SLMaterial* matR = new SLMaterial("matR", texR,0,0,0, _programs[TextureOnly]);
 
         // build polygons for bottom, left, top & right side
         SLVVec3f VB;
@@ -948,7 +948,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
         info(sv, "Per-vertex lighting with Blinn-Phong lightmodel. The reflection of 4 light sources is calculated per vertex and is then interpolated over the triangles.");
 
         // create material
-        SLMaterial* m1 = new SLMaterial("m1", 0,0,0,0, _shaderProgs[PerVrtBlinn]);
+        SLMaterial* m1 = new SLMaterial("m1", 0,0,0,0, _programs[PerVrtBlinn]);
         m1->shininess(500);
 
         SLCamera* cam1 = new SLCamera;
@@ -1012,7 +1012,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
         info(sv, "Per-pixel lighting with Blinn-Phong lightmodel. The reflection of 4 light sources is calculated per pixel.");
 
         // create material
-        SLMaterial* m1 = new SLMaterial("m1", 0,0,0,0, _shaderProgs[PerPixBlinn]);
+        SLMaterial* m1 = new SLMaterial("m1", 0,0,0,0, _programs[PerPixBlinn]);
         m1->shininess(500);
 
         SLCamera* cam1 = new SLCamera;
@@ -1083,18 +1083,18 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
         cam1->setInitialState();
 
         // Create generic shader program with 4 custom uniforms
-        SLGLShaderProg* sp = new SLGLShaderProgGeneric("Wave.vert", "Wave.frag");
-        SLGLShaderUniform1f* u_h = new SLGLShaderUniform1f(UF1Const, "u_h", 0.1f, 0.05f, 0.0f, 0.5f, (SLKey)'H');
+        SLGLProgram* sp = new SLGLGenericProgram("Wave.vert", "Wave.frag");
+        SLGLUniform1f* u_h = new SLGLUniform1f(UF1Const, "u_h", 0.1f, 0.05f, 0.0f, 0.5f, (SLKey)'H');
         _eventHandlers.push_back(u_h);
         sp->addUniform1f(u_h);
-        sp->addUniform1f(new SLGLShaderUniform1f(UF1Inc,    "u_t", 0.0f, 0.06f));
-        sp->addUniform1f(new SLGLShaderUniform1f(UF1Const,  "u_a", 2.5f));
-        sp->addUniform1f(new SLGLShaderUniform1f(UF1IncDec, "u_b", 2.2f, 0.01f, 2.0f, 2.5f));
+        sp->addUniform1f(new SLGLUniform1f(UF1Inc,    "u_t", 0.0f, 0.06f));
+        sp->addUniform1f(new SLGLUniform1f(UF1Const,  "u_a", 2.5f));
+        sp->addUniform1f(new SLGLUniform1f(UF1IncDec, "u_b", 2.2f, 0.01f, 2.0f, 2.5f));
 
         // Create materials
         SLMaterial* matWater = new SLMaterial("matWater", SLCol4f(0.45f,0.65f,0.70f),
                                                         SLCol4f::WHITE, 300);
-        matWater->shaderProg(sp);
+        matWater->program(sp);
         SLMaterial* matRed  = new SLMaterial("matRed", SLCol4f(1.00f,0.00f,0.00f));
 
         // water rectangle in the y=0 plane
@@ -1140,19 +1140,19 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
         SLGLTexture* tex2 = new SLGLTexture("tile1_0256_C.jpg");
 
         // Create generic shader program with 4 custom uniforms
-        SLGLShaderProg* sp = new SLGLShaderProgGeneric("WaveRefractReflect.vert",
-                                                       "RefractReflect.frag");
-        SLGLShaderUniform1f* u_h = new SLGLShaderUniform1f(UF1Const, "u_h", 0.1f, 0.05f, 0.0f, 0.5f, (SLKey)'H');
+        SLGLProgram* sp = new SLGLGenericProgram("WaveRefractReflect.vert",
+                                                 "RefractReflect.frag");
+        SLGLUniform1f* u_h = new SLGLUniform1f(UF1Const, "u_h", 0.1f, 0.05f, 0.0f, 0.5f, (SLKey)'H');
         _eventHandlers.push_back(u_h);
         sp->addUniform1f(u_h);
-        sp->addUniform1f(new SLGLShaderUniform1f(UF1Inc,    "u_t", 0.0f, 0.06f));
-        sp->addUniform1f(new SLGLShaderUniform1f(UF1Const,  "u_a", 2.5f));
-        sp->addUniform1f(new SLGLShaderUniform1f(UF1IncDec, "u_b", 2.2f, 0.01f, 2.0f, 2.5f));
+        sp->addUniform1f(new SLGLUniform1f(UF1Inc,    "u_t", 0.0f, 0.06f));
+        sp->addUniform1f(new SLGLUniform1f(UF1Const,  "u_a", 2.5f));
+        sp->addUniform1f(new SLGLUniform1f(UF1IncDec, "u_b", 2.2f, 0.01f, 2.0f, 2.5f));
 
         // Create materials
         SLMaterial* matWater = new SLMaterial("matWater", SLCol4f(0.45f,0.65f,0.70f),
                                                         SLCol4f::WHITE, 100, 0.1f, 0.9f, 1.5f);
-        matWater->shaderProg(sp);
+        matWater->program(sp);
         matWater->textures().push_back(tex1);
         SLMaterial* matRed  = new SLMaterial("matRed", SLCol4f(1.00f,0.00f,0.00f));
         SLMaterial* matTile = new SLMaterial("matTile");
@@ -1214,7 +1214,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
         SLGLTexture* texN = new SLGLTexture("brickwall0512_N.jpg");
 
         // Create materials
-        SLMaterial* m1 = new SLMaterial("m1", texC, texN, 0, 0, _shaderProgs[BumpNormal]);
+        SLMaterial* m1 = new SLMaterial("m1", texC, texN, 0, 0, _programs[BumpNormal]);
 
         SLCamera* cam1 = new SLCamera();
         cam1->name("cam1");
@@ -1251,9 +1251,9 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
         info(sv, "Normal map parallax mapping.");
 
         // Create shader program with 4 uniforms
-        SLGLShaderProg* sp = new SLGLShaderProgGeneric("BumpNormal.vert", "BumpNormalParallax.frag");
-        SLGLShaderUniform1f* scale = new SLGLShaderUniform1f(UF1Const, "u_scale", 0.04f, 0.002f, 0, 1, (SLKey)'X');
-        SLGLShaderUniform1f* offset = new SLGLShaderUniform1f(UF1Const, "u_offset", -0.03f, 0.002f,-1, 1, (SLKey)'O');
+        SLGLProgram* sp = new SLGLGenericProgram("BumpNormal.vert", "BumpNormalParallax.frag");
+        SLGLUniform1f* scale = new SLGLUniform1f(UF1Const, "u_scale", 0.04f, 0.002f, 0, 1, (SLKey)'X');
+        SLGLUniform1f* offset = new SLGLUniform1f(UF1Const, "u_offset", -0.03f, 0.002f,-1, 1, (SLKey)'O');
         _eventHandlers.push_back(scale);
         _eventHandlers.push_back(offset);
         sp->addUniform1f(scale);
@@ -1303,9 +1303,9 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
         info(sv, "Complex earth shader with 7 textures: daycolor, nightcolor, normal, height & gloss map of earth, color & alphamap of clouds");
 
         // Create shader program with 4 uniforms
-        SLGLShaderProg* sp = new SLGLShaderProgGeneric("BumpNormal.vert", "BumpNormalEarth.frag");
-        SLGLShaderUniform1f* scale = new SLGLShaderUniform1f(UF1Const, "u_scale", 0.02f, 0.002f, 0, 1, (SLKey)'X');
-        SLGLShaderUniform1f* offset = new SLGLShaderUniform1f(UF1Const, "u_offset", -0.02f, 0.002f,-1, 1, (SLKey)'O');
+        SLGLProgram* sp = new SLGLGenericProgram("BumpNormal.vert", "BumpNormalEarth.frag");
+        SLGLUniform1f* scale = new SLGLUniform1f(UF1Const, "u_scale", 0.02f, 0.002f, 0, 1, (SLKey)'X');
+        SLGLUniform1f* offset = new SLGLUniform1f(UF1Const, "u_offset", -0.02f, 0.002f,-1, 1, (SLKey)'O');
         _eventHandlers.push_back(scale);
         _eventHandlers.push_back(offset);
         sp->addUniform1f(scale);
@@ -1334,7 +1334,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
         matEarth->textures().push_back(texClA);
         matEarth->textures().push_back(texNC);
         matEarth->shininess(4000);
-        matEarth->shaderProg(sp);
+        matEarth->program(sp);
 
         SLCamera* cam1 = new SLCamera;
         cam1->position(0,0,4);
@@ -1368,13 +1368,13 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
             SLCol4f::GRAY);
       
         // Create reflection & glass shaders
-        SLGLShaderProg* sp1 = new SLGLShaderProgGeneric("Reflect.vert", "Reflect.frag");
-        SLGLShaderProg* sp2 = new SLGLShaderProgGeneric("RefractReflect.vert", "RefractReflect.frag");
+        SLGLProgram* sp1 = new SLGLGenericProgram("Reflect.vert", "Reflect.frag");
+        SLGLProgram* sp2 = new SLGLGenericProgram("RefractReflect.vert", "RefractReflect.frag");
    
         // Create cube mapping texture
         SLGLTexture* tex1 = new SLGLTexture("MuttenzerBox+X0512_C.png", "MuttenzerBox-X0512_C.png"
-                                            ,"MuttenzerBox+Y0512_C.png", "MuttenzerBox-Y0512_C.png"
-                                            ,"MuttenzerBox+Z0512_C.png", "MuttenzerBox-Z0512_C.png");
+                                           ,"MuttenzerBox+Y0512_C.png", "MuttenzerBox-Y0512_C.png"
+                                           ,"MuttenzerBox+Z0512_C.png", "MuttenzerBox-Z0512_C.png");
       
         SLCol4f  lightEmisRGB(7.0f, 7.0f, 7.0f);
         SLCol4f  grayRGB  (0.75f, 0.75f, 0.75f);
@@ -1391,7 +1391,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
         SLCol4f refrSpec1 (1.0f, 1.0f, 1.0f); // Tests only
         SLMaterial* refl=new SLMaterial("refl", blackRGB, refrSpec1, 1000, 1.0f);
         refl->textures().push_back(tex1);
-        refl->shaderProg(sp1);
+        refl->program(sp1);
 
         // Material for glass sphere
         SLCol4f refrDiff (0.0f, 0.0f, 0.0f, 0.01f);
@@ -1400,7 +1400,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
         refr->translucency(1000);
         refr->transmission(SLCol4f::WHITE);
         refr->textures().push_back(tex1);
-        refr->shaderProg(sp2);
+        refr->program(sp2);
    
         SLNode* sphere1 = new SLNode(new SLSphere(0.5f, 32, 32, "Sphere1", refl));
         sphere1->translate(-0.65f, -0.75f, -0.55f, TS_Local);

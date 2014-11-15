@@ -46,7 +46,7 @@ void slCreateScene(SLstring shaderPath,
 {
     assert(SLScene::current==0 && "SLScene is already created!");
    
-    SLGLShaderProg::defaultPath = shaderPath;
+    SLGLProgram::defaultPath = shaderPath;
     SLGLTexture::defaultPath    = texturePath;
     SLAssImp::defaultPath       = modelPath;
     SLGLState* stateGL          = SLGLState::getInstance();

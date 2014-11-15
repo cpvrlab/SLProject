@@ -76,20 +76,20 @@ SLScene::SLScene(SLstring name) : SLObject(name)
      
     // Load std. shader programs in order as defined in SLStdShaderProgs enum
     // In the constructor they are added the _shaderProgs vector
-    SLGLShaderProg* p;
-    p = new SLGLShaderProgGeneric("ColorAttribute.vert","Color.frag");
-    p = new SLGLShaderProgGeneric("ColorUniform.vert","Color.frag");
-    p = new SLGLShaderProgGeneric("PerVrtBlinn.vert","PerVrtBlinn.frag");
-    p = new SLGLShaderProgGeneric("PerVrtBlinnTex.vert","PerVrtBlinnTex.frag");
-    p = new SLGLShaderProgGeneric("TextureOnly.vert","TextureOnly.frag");
-    p = new SLGLShaderProgGeneric("PerPixBlinn.vert","PerPixBlinn.frag");
-    p = new SLGLShaderProgGeneric("PerPixBlinnTex.vert","PerPixBlinnTex.frag");
-    p = new SLGLShaderProgGeneric("BumpNormal.vert","BumpNormal.frag");
-    p = new SLGLShaderProgGeneric("BumpNormal.vert","BumpNormalParallax.frag");
-    p = new SLGLShaderProgGeneric("FontTex.vert","FontTex.frag");
-    p = new SLGLShaderProgGeneric("StereoOculus.vert","StereoOculus.frag");
-    p = new SLGLShaderProgGeneric("StereoOculusDistortionMesh.vert","StereoOculusDistortionMesh.frag");
-    _numProgsPreload = (SLint)_shaderProgs.size();
+    SLGLProgram* p;
+    p = new SLGLGenericProgram("ColorAttribute.vert","Color.frag");
+    p = new SLGLGenericProgram("ColorUniform.vert","Color.frag");
+    p = new SLGLGenericProgram("PerVrtBlinn.vert","PerVrtBlinn.frag");
+    p = new SLGLGenericProgram("PerVrtBlinnTex.vert","PerVrtBlinnTex.frag");
+    p = new SLGLGenericProgram("TextureOnly.vert","TextureOnly.frag");
+    p = new SLGLGenericProgram("PerPixBlinn.vert","PerPixBlinn.frag");
+    p = new SLGLGenericProgram("PerPixBlinnTex.vert","PerPixBlinnTex.frag");
+    p = new SLGLGenericProgram("BumpNormal.vert","BumpNormal.frag");
+    p = new SLGLGenericProgram("BumpNormal.vert","BumpNormalParallax.frag");
+    p = new SLGLGenericProgram("FontTex.vert","FontTex.frag");
+    p = new SLGLGenericProgram("StereoOculus.vert","StereoOculus.frag");
+    p = new SLGLGenericProgram("StereoOculusDistortionMesh.vert","StereoOculusDistortionMesh.frag");
+    _numProgsPreload = (SLint)_programs.size();
    
     // Generate std. fonts   
     SLTexFont::generateFonts();
@@ -159,8 +159,8 @@ SLScene::~SLScene()
         _textures.clear();
    
     // delete shader programs
-    for (SLuint i=0; i<_shaderProgs.size(); ++i) delete _shaderProgs[i];
-        _shaderProgs.clear();
+    for (SLuint i=0; i<_programs.size(); ++i) delete _programs[i];
+        _programs.clear();
    
     // delete fonts   
     SLTexFont::deleteFonts();
@@ -245,10 +245,10 @@ void SLScene::unInit()
     SLMaterial::current = 0;
    
     // delete custom shader programs but not default shaders
-    while (_shaderProgs.size() > _numProgsPreload) 
-    {   SLGLShaderProg* sp = _shaderProgs.back();
+    while (_programs.size() > _numProgsPreload)
+    {   SLGLProgram* sp = _programs.back();
         delete sp;
-        _shaderProgs.pop_back();
+        _programs.pop_back();
     }
    
     // clear eventHandlers

@@ -15,7 +15,7 @@
 
 #include <SLAABBox.h>
 #include <SLRay.h>
-#include <SLGLShaderProg.h>
+#include <SLGLProgram.h>
 #include <SLMesh.h>
 #include <SLScene.h>
 

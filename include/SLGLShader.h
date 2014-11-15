@@ -20,11 +20,11 @@
 /*!
 The SLGLShader class represents a shader object of the OpenGL Shading Language
 (GLSL). It can load & compile an GLSL shader file and is later on attached
-to an OpenGL shader program (SLGLShaderProg).
+to an OpenGL shader program (SLGLProgram).
 */
 class SLGLShader : public SLObject
 {  
-    friend class SLGLShaderProg;
+    friend class SLGLProgram;
     public:
                             SLGLShader(SLstring filename, 
                                        SLShaderType shaderType);

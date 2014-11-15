@@ -101,7 +101,7 @@ void SLButton::drawRec(SLSceneView* sv)
     {
         // Setup shader
         SLMaterial::current = 0;
-        SLGLShaderProg* sp = SLScene::current->shaderProgs(ColorAttribute);
+        SLGLProgram* sp = SLScene::current->shaderProgs(ColorAttribute);
         SLGLState* state = SLGLState::getInstance();
         sp->useProgram();
         sp->uniformMatrix4fv("u_mvpMatrix", 1, (SLfloat*)state->mvpMatrix());

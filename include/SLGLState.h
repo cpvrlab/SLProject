@@ -131,8 +131,6 @@ class SLGLState
         // stack operations
         SL_INLINE void pushModelViewMatrix()   {_modelViewMatrixStack.push_back(modelViewMatrix);}
         SL_INLINE void popModelViewMatrix()    {modelViewMatrix = _modelViewMatrixStack.pop_back();}
-        SL_INLINE void pushProjectionMatrix()  {_projectionMatrixStack.push_back(projectionMatrix);}
-        SL_INLINE void popProjectionMatrix()   {projectionMatrix = _projectionMatrixStack.pop_back();}
 
         //! Checks if an OpenGL error occured
         static void getGLError(char* file, int line, bool quit);
@@ -148,7 +146,6 @@ class SLGLState
         SLMat3f     _normalMatrix;           //!< matrix for the normal transform
         SLMat4f     _mvpMatrix;              //!< combined modelview-projection transform
         SLSMat4f    _modelViewMatrixStack;   //!< stack for modelView matrices
-        SLSMat4f    _projectionMatrixStack;  //!< stack for projection matrices
         SLVec4f     _lightPosVS;             //!< light pos. in view space
         SLVec3f     _lightSpotDirVS;         //!< light spot direction in view space
         SLCol4f     _globalAmbient;          //!< global ambient color

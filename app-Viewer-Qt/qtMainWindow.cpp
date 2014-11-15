@@ -22,7 +22,7 @@
 #include <SLSceneView.h>
 #include <SLMaterial.h>
 #include <SLInterface.h>
-#include <SLGLShaderProg.h>
+#include <SLGLProgram.h>
 #include <SLGLShader.h>
 #include <SLCamera.h>
 #include <SLLight.h>
@@ -498,12 +498,12 @@ void qtMainWindow::buildPropertyTree()
             level1->addChild(level2);
 
 
-            SLGLShaderProg *prog = mat->shaderProg();
+            SLGLProgram *prog = mat->program();
             if (prog)
             {  level2 = new qtPropertyTreeItem("Shader Program:");
                 level1->addChild(level2);
 
-                SLVShader& shaders = prog->shaders();
+                SLVGLShader& shaders = prog->shaders();
                 for (int i=0; i<shaders.size(); ++i)
                 {  SLGLShader* shader = shaders[i];
                     if(shader->shaderType() ==VertexShader)
