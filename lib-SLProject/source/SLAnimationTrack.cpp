@@ -62,18 +62,37 @@ SLfloat SLAnimationTrack::getKeyframesAtTime(SLfloat time, SLKeyframe** k1, SLKe
     // search lower bound kf for given time
     // kf list must be sorted by time at this point
     // @todo we could use std::lower_bounds here
+    // @todo this could be implemented much nicer
+    //      use the following algorithm:
+    //      1. find the keyframe that comes after the 'time' parameter
+    //      2. if there is no keyframe after the 'time' then set keframe 2 to the first keyframe in the list
+    //          set t2 to animationLength + the time of the keyframe
+    //      3. if there is a keyframe after 'time' then set keyframe 2 to that keyframe
+    //          set t2 to the time of the keyframe
+    //      4. now find the keyframe before keyframe 2 (if we use iterators here this is trivial!)
+    //         set keyframe 1 to the keyframe found before keyframe 2
     SLint kfIndex = 0;
     for (SLint i = 0; i < numKf; ++i)
     {
         SLKeyframe* cur = _keyframeList[i];
 
-        if (cur->time() < time)
+        if (cur->time() <= time)
         {
             *k1 = cur;
             kfIndex = i;
         }
     }
 
+    // time is than first kf
+    if (*k1 == NULL) {
+        *k1 = _keyframeList.back();
+        // as long as k1 is in the back
+    }
+
+    t1 = (*k1)->time();
+
+
+    SLbool stopCondition = (*k1) == NULL;
     if (*k1 == _keyframeList.back())
     {
         *k2 = _keyframeList.front();
@@ -85,17 +104,66 @@ SLfloat SLAnimationTrack::getKeyframesAtTime(SLfloat time, SLKeyframe** k1, SLKe
         t2 = (*k2)->time();
     }
 
-    t1 = (*k1)->time();
-
-
+    
     if (t1 == t2)
     {
         return 0.0f;
     }
-        
+
+    /// @todo   do we want to consider the edge case below or do we want imported animations to have
+    ///         to have a keyframe at 0.0 time?
+    ///         Is there a better solution for this problem?
+    ///         e.x: the astroboy animation looks wrong when doing this (but thats because it is **** and kf0 and kfn dont match up...
+    //
+    // if an animation doesn't have a keyframe at 0.0 and 
+    // k1 is the last keyframe and k2 is the first keyframe
+    // and the current timestamp is just above zero in the timeline
+    // 
+    // like this:
+    //   0.0                                animationLenth
+    //    |-.--*----------*----*------*------|~~~~*
+    //      ^  ^                      ^           ^
+    //      |  t2                     t1          t2' // t2' is where we put the t2 value if its a wrap around!
+    //     time 
+    // then the calculation below wont work because time < t1.
+    //
+    //
+    if (time < t1)
+        time += animationLength;
+
+    SLfloat t = (time - t1) / (t2 - t1);
+    bool test = t<0 || 1<t;
     //return 0.5f*sin(tempReturnVal*SL_PI - SL_PI*0.5f) + 0.5f; 
 
-    return (time - t1) / (t2 -t1);
+    
+    
+    // temporary test code below (prints out left and right keyframe for a track
+    // was used to check which keyframe interpolation failed
+    // @todo remove this when finished
+    static int kfL = -1;
+    static int kfR = -1;
+    static int kfL_last = -1;
+    static int kfR_last = -1;
+    
+    for (int i = 0; i < _keyframeList.size(); i++)
+    {
+        if (_keyframeList[i] == *k1)
+            kfL = i;
+        if (_keyframeList[i] == *k2)
+            kfR = i;
+    }
+
+    if (kfL != kfL_last) {
+        std::cout << "left: " << kfL;
+        kfL_last = kfL;
+    }
+    if (kfR != kfR_last) {
+        std::cout << "   right: " << kfR << "\n" << std::endl;
+        kfR_last = kfR;
+    }
+
+
+    return t;
 }
 
 
@@ -123,6 +191,7 @@ void SLNodeAnimationTrack::calcInterpolatedKeyframe(SLfloat time, SLKeyframe* ke
     SLTransformKeyframe* kf1 = static_cast<SLTransformKeyframe*>(k1);
     SLTransformKeyframe* kf2 = static_cast<SLTransformKeyframe*>(k2);
     
+
     // @todo optimize interpolation for all parameters
     // @todo provide more customization for the interpolation
     SLVec3f base = kf1->translation();
@@ -164,7 +233,7 @@ void SLNodeAnimationTrack::applyToNode(SLNode* node, SLfloat time, SLfloat weigh
     SLQuat4f rotation = SLQuat4f().slerp(kf.rotation(), weight);
     node->rotate(rotation, TS_Parent);
 
-    SLVec3f scl = kf.scale() * weight * scale;
+    SLVec3f scl = kf.scale();// @todo find a good way to combine scale animations, we can't just scale them by a weight factor...
     node->scale(scl);
 }
 

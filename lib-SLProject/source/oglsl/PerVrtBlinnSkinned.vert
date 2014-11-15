@@ -107,7 +107,7 @@ void main()
 						+ 	u_boneMatrices[int(a_boneIds.w)] * a_boneWeights.w;
                         
    vec3 P_VS = vec3(u_mvMatrix * boneTransform * a_position);
-   vec3 N = vec3(u_nMatrix * transpose(inverse(mat3(boneTransform))) * a_normal); 
+   vec3 N = normalize(vec3(u_nMatrix * transpose(inverse(mat3(boneTransform))) * a_normal)); 
    vec3 E = normalize(-P_VS);
 
    
@@ -129,23 +129,8 @@ void main()
 
     // For correct alpha blending overwrite alpha component
     v_color.a = u_matDiffuse.a;
-    //v_color = vec4(1, 0, 0, 1);
-
-    // colorize per vertex weight
-    float bone1Weight;
-    float bone2Weight;
-    if(a_boneIds.x == 0.0f) bone1Weight = a_boneWeights.x;
-    else if(a_boneIds.y == 0.0f) bone1Weight = a_boneWeights.y;
-
-    if(a_boneIds.x == 1.0f) bone2Weight = a_boneWeights.x;
-    else if(a_boneIds.y == 1.0f) bone2Weight = a_boneWeights.y;
-
-    //v_color = vec4(bone1Weight, bone2Weight, 0, 1);
-    if (a_position.z == -1)
-        v_color = vec4(0, 0.6f, 1.0f, 1.0f);
-    else v_color = vec4(1, 1, 1, 1);
-
-        gl_Position = u_mvpMatrix * boneTransform * a_position;
+    
+    gl_Position = u_mvpMatrix * boneTransform * a_position;
 }
 
 //-----------------------------------------------------------------------------

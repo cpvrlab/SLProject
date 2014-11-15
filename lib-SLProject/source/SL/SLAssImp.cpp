@@ -10,29 +10,41 @@
 
 /*
 
-    1. load materials
-    2. load textures
-    3. load meshes
-        > Put meshes that have bones in a list
-        > Put bones in a list (including vertex binding lists)
-            > but dont bind to mesh yet
-    4. load scene graph and skeletons
-        > if a node is a bone then load it as a skeleton root
-        > add the skeleton instance to the individual bone info
-        > determine boneId's
-    5. go over all meshes in the 'hasBone' list again
-        > add the appropriate skeleton to the mesh (based on the first skeleton in one of its bones)
-        > add bone weights, bone ids etc to the meshes as vertex data
-    6. load animations
-        > seperate node animations from skeletal animations
+    // find crash (probably because of scaling matrix again); fix keyframe interpolation (implement the proposed algo); make astroboy work again by importing him (test if he imports without bones)
 
+    1. Clean up by moving stuff back into the class
+    2. Implement the generation of keyframe values if none were provided by assimp 
+    3. try loading astroboy
+        > make astroboy work by detecting skeleton correctly
+    4. Second cleanup phase
+        1. Remove unneeded helper functions (ex.: loadSkeletonRec etc.)
+        2. Move to a more global approach
+            > load all aiNodes into a <name, node> map
+            > load all aiBones into a <name, bone> map
+            -- with this approach we might be able to load multiple skeletons in one file
+                > implement it clean, then test with a 2 skeleton file
+    3. Remove unnecessary helper functions (skeletonrec etc..)
+    4. Go over the whole importer again. Can it be improved?
+        > Maybe load references to all the nodes before actually importing the tree. So that we have full knowledge of the data before going over
+            the indivudal pieces.
+        > Check other importers as a reference.
+
+
+
+    5. Find more animations to test with!
 */
 
-// @todo findAndLoadSkeleton, loadSkeleton and loadSkeleton rec can easily be put into a single function, do that.
-// @todo add aiMat to SLMat helper function
+// @todo    findAndLoadSkeleton, loadSkeleton and loadSkeletonRec can easily be put into a single function, do that.
+// @todo    add aiMat to SLMat helper function (function that generates an SLMat out of an aiMatrix4x4)
+// @todo    Switch all the importer data and helper functions back into the importer class
+//              > Use forward declarations to use assimp types as function parameters
+// @todo    add log output to the other parts of the importer
+// @todo    fix a bug of elongated bones (The skinnedCube example has it). 
+//          It seems like the bone translations are applied twice. the keyframe translation seems
+//          to also hold the position
+//          but we set an initial position by calling setInitialState
 
 #include <stdafx.h>
-//Don't use the memory leak detector in Assimp
 
 #include <SLAssImp.h>
 #include <SLScene.h>
@@ -57,40 +69,237 @@ loadNodesRec        // loads the node structure and loads marked bone nodes into
 
 */
 
-
-// helper functions to load an assimp scene
-SLMaterial*   loadMaterial(SLint index, aiMaterial* material, SLstring modelPath);
-SLGLTexture*  loadTexture(SLstring &path, SLTexType texType);
-SLMesh*       loadMesh(aiMesh *mesh);
-SLNode*       loadNodesRec(SLNode *curNode, aiNode *aiNode, SLMeshMap& meshes, SLbool loadMeshesOnly = true);
-void          findAndLoadSkeleton(aiNode* node);
-void          loadSkeleton(aiNode* node);
-SLBone*       loadSkeletonRec(aiNode* node, SLBone* parent);
-SLAnimation*  loadAnimation(aiAnimation* anim);
-SLstring      checkFilePath(SLstring modelPath, SLstring texFile);
-SLbool        aiNodeHasMesh(aiNode* node);
-
-// static vars to keep track of loaded resources
-SLSkeleton* skel = NULL;
-
-std::map<SLstring, SLNode*>  nameToNodeMapping;   // node name to SLNode instance mapping
-
-// list of meshes utilising a skeleton
-std::vector<SLMesh*> skinnedMeshes; // todo change to std::set
-
-/* List to keep track of bone nodes including the bones id. 
-    Nodes in this list won't be included in the scenegraph
-    but will be added to an SLSkeleton instance.
-*/
-
-struct BoneInformation
+struct KeyframeData
 {
-    SLstring name;
-    SLuint id;
-    SLMat4f offsetMat;
-};
+    KeyframeData()
+    : translation(NULL), 
+    rotation(NULL),
+    scaling(NULL)
+    { } 
 
-std::map<SLstring, BoneInformation>   bones; // bone node to bone id mapping
+    KeyframeData(aiVectorKey* trans, aiQuatKey* rot, aiVectorKey* scl)
+    {
+        translation = trans;
+        rotation = rot;
+        scaling = scl;
+    }
+    
+    aiVectorKey* translation;
+    aiQuatKey* rotation;
+    aiVectorKey* scaling;
+};
+typedef std::map<SLfloat, KeyframeData> KeyframeMap;
+
+
+
+// helper functions
+
+/*  Get the correct translation out of the keyframes map for a given time
+    this function interpolates linearly if no value is present in the 
+
+    @note    this function does not wrap around to interpolate. if there is no 
+             translation key to the right of the passed in time then this function will take
+             the last known value on the left!
+*/
+SLVec3f getTranslation(SLfloat time, const KeyframeMap& keyframes)
+{
+    KeyframeMap::const_iterator it = keyframes.find(time);
+    aiVector3D result(0, 0, 0); // return 0 position of nothing was found
+
+    // If the timesamp passed in doesnt exist then something in the loading of the kfs went wrong
+    assert(it != keyframes.end() && "A KeyframeMap was passed in with an illegal timestamp."); // @todo this should throw an exception and not kill the app
+
+    aiVectorKey* transKey = it->second.translation;
+
+    // the timestamp has a valid translation value, just return the SL type
+    if (transKey)
+        result = transKey->mValue;
+    else
+    {
+        aiVectorKey* frontKey = NULL;
+        aiVectorKey* backKey = NULL;
+
+        // no translation value present, we must interpolate
+        KeyframeMap::const_reverse_iterator revIt(it);
+
+        // search to the right
+        for (; it != keyframes.end(); it++)
+        {
+            if (it->second.translation != NULL)
+            {
+                backKey = it->second.translation;
+                break;
+            }
+        }
+
+        // search to the left
+        for (; revIt != keyframes.rend(); revIt++)
+        {
+            if (revIt->second.translation != NULL)
+            {
+                frontKey = revIt->second.translation;
+                break;
+            }
+        }
+
+        if (frontKey && backKey) 
+        {
+            SLfloat frontTime = revIt->first;
+            SLfloat backTime = it->first;
+            SLfloat t = (time - frontTime) / (backTime - frontTime);
+
+            result = frontKey->mValue + (t * (backKey->mValue - frontKey->mValue));
+        }
+        else if (frontKey) 
+        {
+            result = frontKey->mValue;
+        }
+        else if (backKey)
+        {
+            result = backKey->mValue;
+        }
+    }
+    
+    return SLVec3f(result.x, result.y, result.z);
+}
+
+/*  Get the correct translation out of the keyframes map for a given time
+    this function interpolates linearly if no value is present in the 
+
+    @note    this function does not wrap around to interpolate. if there is no 
+             translation key to the right of the passed in time then this function will take
+             the last known value on the left!
+*/
+SLVec3f getScaling(SLfloat time, const KeyframeMap& keyframes)
+{
+    KeyframeMap::const_iterator it = keyframes.find(time);
+    aiVector3D result(1, 1, 1); // return unit scale if no kf was found
+
+    // If the timesamp passed in doesnt exist then something in the loading of the kfs went wrong
+    assert(it != keyframes.end() && "A KeyframeMap was passed in with an illegal timestamp."); // @todo this should throw an exception and not kill the app
+
+    aiVectorKey* scaleKey = it->second.scaling;
+
+    // the timestamp has a valid translation value, just return the SL type
+    if (scaleKey)
+        result = scaleKey->mValue;
+    else
+    {
+        aiVectorKey* frontKey = NULL;
+        aiVectorKey* backKey = NULL;
+
+        // no translation value present, we must interpolate
+        KeyframeMap::const_reverse_iterator revIt(it);
+
+        // search to the right
+        for (; it != keyframes.end(); it++)
+        {
+            if (it->second.translation != NULL)
+            {
+                backKey = it->second.scaling;
+                break;
+            }
+        }
+
+        // search to the left
+        for (; revIt != keyframes.rend(); revIt++)
+        {
+            if (revIt->second.translation != NULL)
+            {
+                frontKey = revIt->second.scaling;
+                break;
+            }
+        }
+
+        if (frontKey && backKey) 
+        {
+            SLfloat frontTime = revIt->first;
+            SLfloat backTime = it->first;
+            SLfloat t = (time - frontTime) / (backTime - frontTime);
+
+            result = frontKey->mValue + (t * (backKey->mValue - frontKey->mValue));
+        }
+        else if (frontKey) 
+        {
+            result = frontKey->mValue;
+        }
+        else if (backKey)
+        {
+            result = backKey->mValue;
+        }
+    }
+    
+    return SLVec3f(result.x, result.y, result.z);
+}
+
+/*  Get the correct translation out of the keyframes map for a given time
+    this function interpolates linearly if no value is present in the 
+
+    @note    this function does not wrap around to interpolate. if there is no 
+             translation key to the right of the passed in time then this function will take
+             the last known value on the left!
+*/
+SLQuat4f getRotation(SLfloat time, const KeyframeMap& keyframes)
+{
+    KeyframeMap::const_iterator it = keyframes.find(time);
+    aiQuaternion result(1, 0, 0, 0); // identity rotation
+
+    // If the timesamp passed in doesnt exist then something in the loading of the kfs went wrong
+    assert(it != keyframes.end() && "A KeyframeMap was passed in with an illegal timestamp."); // @todo this should throw an exception and not kill the app
+
+    aiQuatKey* rotKey = it->second.rotation;
+
+    // the timestamp has a valid translation value, just return the SL type
+    if (rotKey)
+        result = rotKey->mValue;
+    else
+    {
+        aiQuatKey* frontKey = NULL;
+        aiQuatKey* backKey = NULL;
+
+        // no translation value present, we must interpolate
+        KeyframeMap::const_reverse_iterator revIt(it);
+
+        // search to the right
+        for (; it != keyframes.end(); it++)
+        {
+            if (it->second.translation != NULL)
+            {
+                backKey = it->second.rotation;
+                break;
+            }
+        }
+
+        // search to the left
+        for (; revIt != keyframes.rend(); revIt++)
+        {
+            if (revIt->second.translation != NULL)
+            {
+                frontKey = revIt->second.rotation;
+                break;
+            }
+        }
+
+        if (frontKey && backKey) 
+        {
+            SLfloat frontTime = revIt->first;
+            SLfloat backTime = it->first;
+            SLfloat t = (time - frontTime) / (backTime - frontTime);
+
+            aiQuaternion::Interpolate(result, frontKey->mValue, backKey->mValue, t);
+        }
+        else if (frontKey) 
+        {
+            result = frontKey->mValue;
+        }
+        else if (backKey)
+        {
+            result = backKey->mValue;
+        }
+    }
+    
+    return SLQuat4f(result.x, result.y, result.z, result.w);
+}
 
 //-----------------------------------------------------------------------------
 //! Default path for 3DS models used when only filename is passed in load.
@@ -145,12 +354,15 @@ SLNode* SLAssImp::load(SLstring file,        //!< File with path or on default p
     // add skinned material to the meshes with bone animations
     // @todo: can we do this wihtout the need to put this in SLMaterial?
     if (skinnedMeshes.size() > 0) {
-
         SLGLShaderProgGeneric* skinningShader = new SLGLShaderProgGeneric("PerVrtBlinnSkinned.vert","PerVrtBlinn.frag");
+        SLGLShaderProgGeneric* skinningShaderTex = new SLGLShaderProgGeneric("PerVrtBlinnTexSkinned.vert","PerVrtBlinnTex.frag");
         for (SLint i = 0; i < skinnedMeshes.size(); i++)
         {
             SLMesh* mesh = skinnedMeshes[i];
-            mesh->mat->shaderProg(skinningShader);
+            if (mesh->Tc)
+                mesh->mat->shaderProg(skinningShaderTex);
+            else
+                mesh->mat->shaderProg(skinningShader);
         }
     }
 
@@ -163,9 +375,6 @@ SLNode* SLAssImp::load(SLstring file,        //!< File with path or on default p
     for (SLint i = 0; i < (SLint)scene->mNumAnimations; i++)
         animations.push_back(loadAnimation(scene->mAnimations[i]));
 
-    // test set the animation on the skeleton
-    animations[0]->apply(skel, 3.0f);
-
     return root;
 }
 
@@ -175,7 +384,7 @@ SLAssImp::loadMaterial loads the AssImp material an returns the SLMaterial.
 The materials and textures are added to the SLScene material and texture 
 vectors.
 */
-SLMaterial* loadMaterial(SLint index, 
+SLMaterial* SLAssImp::loadMaterial(SLint index, 
                          aiMaterial *material, 
                          SLstring modelPath)
 {
@@ -248,7 +457,7 @@ SLMaterial* loadMaterial(SLint index,
 /*!
 SLAssImp::loadTexture loads the AssImp texture an returns the SLGLTexture
 */
-SLGLTexture* loadTexture(SLstring& textureFile, SLTexType texType)
+SLGLTexture* SLAssImp::loadTexture(SLstring& textureFile, SLTexType texType)
 {
     SLVGLTexture& sceneTex = SLScene::current->textures();
 
@@ -265,7 +474,7 @@ SLGLTexture* loadTexture(SLstring& textureFile, SLTexType texType)
                                            texType);
     return texture;
 }
-SLbool isBone(const SLstring& name)
+SLbool SLAssImp::isBone(const SLstring& name)
 {
     if (bones.find(name) == bones.end())
         return false;
@@ -273,7 +482,7 @@ SLbool isBone(const SLstring& name)
     return true;
 }
 
-BoneInformation* getBoneInformation(const SLstring& name)
+SLAssImp::BoneInformation* SLAssImp::getBoneInformation(const SLstring& name)
 {
     // create bone if its not already in the map
     if (bones.find(name) == bones.end())
@@ -294,7 +503,7 @@ SLAssImp::loadMesh creates a new SLMesh an copies the meshs vertex data and
 triangle face indexes. Normals & tangents are not loaded. They are calculated
 in SLMesh.
 */
-SLMesh* loadMesh(aiMesh *mesh)
+SLMesh* SLAssImp::loadMesh(aiMesh *mesh)
 {
     // Count first the NO. of triangles in the mesh
     SLuint numTriangles = 0;
@@ -394,7 +603,7 @@ SLMesh* loadMesh(aiMesh *mesh)
 
         }
 
-    }
+    }/*
     cout << "imported" << m->name() << "\n";
     cout << "weights: \n";
 
@@ -407,7 +616,7 @@ SLMesh* loadMesh(aiMesh *mesh)
         if(m->Bw[i].w > 0.0f) cout << m->Bi[i].w << ": " << m->Bw[i].w << ";";
         
         cout << ")\n";
-    }
+    }*/
 
     return m;
 }
@@ -415,7 +624,7 @@ SLMesh* loadMesh(aiMesh *mesh)
 /*!
 SLAssImp::loadNodesRec loads the scene graph node tree recursively.
 */
-SLNode* loadNodesRec(
+SLNode* SLAssImp::loadNodesRec(
    SLNode *curNode,     //!< Pointer to the current node. Pass NULL for root node
    aiNode *node,        //!< The according assimp node. Pass NULL for root node
    SLMeshMap& meshes,   //!< Reference to the meshes vector
@@ -460,10 +669,10 @@ SLNode* loadNodesRec(
 
     return curNode;
 }
-void findAndLoadSkeleton(aiNode* node)
+void SLAssImp::findAndLoadSkeleton(aiNode* node)
 {
     // load skeleton if child is a bone
-    if (isBone(node->mName.C_Str()))
+    if (isBone(node->mName.C_Str()) ||std::string(node->mName.C_Str()) == "root" || std::string(node->mName.C_Str()) == "deformation_rig|root")
     {
         loadSkeleton(node);
     }
@@ -473,7 +682,7 @@ void findAndLoadSkeleton(aiNode* node)
             findAndLoadSkeleton(node->mChildren[i]);
     }
 }
-SLNode* findLoadedNodeByName(const SLstring& name)
+SLNode* SLAssImp::findLoadedNodeByName(const SLstring& name)
 {
     if (nameToNodeMapping.find(name) != nameToNodeMapping.end())
         return nameToNodeMapping[name];
@@ -481,7 +690,7 @@ SLNode* findLoadedNodeByName(const SLstring& name)
     return NULL;
 }
 
-void loadSkeleton(aiNode* node)
+void SLAssImp::loadSkeleton(aiNode* node)
 {
     // Don't allow files that contain more than one skeleton 
     // @todo an assert here isn't right. The app shouldn't crash just because the user is trying to load an illegal file. But we lack an exception structure atm.
@@ -505,11 +714,12 @@ void loadSkeleton(aiNode* node)
     SLBone* rootBone = loadSkeletonRec(node, NULL);
     skeleton->root(rootBone);
 }
-SLBone* loadSkeletonRec(aiNode* node, SLBone* parent)
+SLBone* SLAssImp::loadSkeletonRec(aiNode* node, SLBone* parent)
 {
     // find the bone information for this bone
     BoneInformation* boneInfo = getBoneInformation(node->mName.C_Str());
 
+    // @todo  this [the assert below] is an error, all nodes that are children of a bone should be marked as a bone
     assert(boneInfo && "Importer Error: a node previously not marked as a bone was loaded as a bone.");
 
     SLBone* bone;
@@ -522,18 +732,38 @@ SLBone* loadSkeletonRec(aiNode* node, SLBone* parent)
     bone->name(boneInfo->name);
     bone->offsetMat(boneInfo->offsetMat);
 
-    // set binding pose for the bone
+    // make sure to set the initial state to a 0 position, 0 rotation and 1 scale
+    bone->setInitialState(); // @todo it seems that assimp operates from a 0, 0, 0 initial state
+
+    // set the initial state for the bones (in case we render the model without playing its animation)
+    // an other possibility is to set the bones to the inverse offset matrix so that the model remains in
+    // its bind pose
+    // some files will report the node transformation as the animation state transformation that the
+    // model had when exporting (in case of our astroboy its in the middle of the animation=
+    // it might be more desirable to have ZERO bone transformations in the initial pose
+    // to be able to see the model without any bone modifications applied
+    // exported state
+   /*
     SLMat4f om;
     memcpy(&om, &node->mTransformation, sizeof(SLMat4f));
     om.transpose();
+    bone->om(om);*/
+    
+    // zero bone transform
+    SLMat4f om;
+    om = boneInfo->offsetMat.inverse();
+    if (parent)
+        om = parent->updateAndGetWM().inverse() * om;
     bone->om(om);
     bone->setInitialState();
+        
+    cout << "Loading bone: " << bone->name() << endl;
+
     // start building the node tree for the skeleton
     for (SLint i = 0; i < node->mNumChildren; i++)
     {
         SLBone* child = loadSkeletonRec(node->mChildren[i], bone);
     }
-        
     return bone;
 }
 //-----------------------------------------------------------------------------
@@ -541,19 +771,48 @@ SLBone* loadSkeletonRec(aiNode* node, SLBone* parent)
 SLAssImp::loadAnimation loads the scene graph node tree recursively.
 */
 // @todo how do we handle multiple skeletons in one file?
-SLAnimation* loadAnimation(aiAnimation* anim)
+SLAnimation* SLAssImp::loadAnimation(aiAnimation* anim)
 {
-    SLAnimation* result = new SLAnimation;
-    result->length(anim->mDuration);
-    if (anim->mName.length > 0)
-        result->name(anim->mName.C_Str());
-    else
-        result->name("Unnamed Animation");
+    SLstring animName = "Unnamed Animation";
+    SLfloat animTicksPerSec = (anim->mTicksPerSecond == 0) ? 30.0f : anim->mTicksPerSecond;
+    SLfloat animDuration = anim->mDuration / animTicksPerSec;
 
+    if (anim->mName.length > 0)
+        animName = anim->mName.C_Str();
+
+    // LOG output
+    if (_logVerbosity >= LogVerbosity::Minimal)
+    {
+        // [minimal log output here]
+        SL_LOG("\n");
+        SL_LOG("Loading animation %s\n", animName.c_str());
+        
+        // normal log verbosity output
+        if (_logVerbosity >= LogVerbosity::Normal)
+        {
+            // [normal log output here]
+            SL_LOG(" Duration(seconds): %f \n", animDuration);
+            SL_LOG(" Duration(ticks): %f \n", anim->mDuration);
+            SL_LOG(" Ticks per second: %f \n", animTicksPerSec);
+            SL_LOG(" Num channels: %d\n", anim->mNumChannels);
+            
+            if (_logVerbosity >= LogVerbosity::Detailed)
+            {
+                // [detailed log output here]
+                if (_logVerbosity >= LogVerbosity::Diagnostic)
+                {
+                    // [diagnostic log output here]
+                }
+            }
+        }
+    }
+
+    // create the animation
+    SLAnimation* result = new SLAnimation(animName, animDuration);
     
     // exit if we didn't load a skeleton but have animations for one
     if (skinnedMeshes.size() > 0)
-        assert(skel != NULL && "The skeleton wasn't impoted correctly.");
+        assert(skel != NULL && "The skeleton wasn't impoted correctly."); // @todo rename all global variables by adding a prefex to them that identifies their use (rename skel here)
 
     SLbool isSkeletonAnim = false;
     for (SLint i = 0; i < anim->mNumChannels; i++)
@@ -567,31 +826,124 @@ SLAnimation* loadAnimation(aiAnimation* anim)
         BoneInformation* boneInfo = getBoneInformation(channel->mNodeName.C_Str());
         SLbool isBoneNode = boneInfo != NULL;
         SLuint nodeId = 0;
-        if (isBoneNode) nodeId = boneInfo->id;
-        if (isBoneNode) isSkeletonAnim = true;
-        
+        if (isBoneNode)
+        {
+            nodeId = boneInfo->id;
+            isSkeletonAnim = true;
+
+            /// @todo [high priority!] Fix the problem described below
+            // What does this next line do?
+            //   
+            //   The testimportfile we used (Astroboy.dae) has the following properties:
+            //      > It has bones in the skeleton that aren't animated by any channel.
+            //      > The bones need a reset position of (0, 0, 0) to work properly 
+            //          because the bone position is contained in a single keyframe for every bone
+            //
+            //      Since some of the bones don't have a channel that animates them, they also lack
+            //      the bone position that the other bones get from their animation channel.
+            //      So we need to set the initial state for all bones that have a channel
+            //      to identity.
+            //      All bones that arent in a channel will receive their local bone bind pose as
+            //      reset position.
+            //
+            //      The problem stems from the design desicion to reset a whole skeleton before applying 
+            //      animations to it. If we were to reset each bone just before applying a channel to it
+            //      we wouldn't have this problem. But we coulnd't blend animations as easily.
+            //
+            skel->getBone(nodeId)->om(SLMat4f());
+            skel->getBone(nodeId)->setInitialState();
+        }
+                    
+        // LOG output
+        if (_logVerbosity >= LogVerbosity::Minimal)
+        {
+            // minimal log verbosity output
+
+            if (_logVerbosity >= LogVerbosity::Normal)
+            {
+                // normal log verbosity output
+                SL_LOG("\n");
+                SL_LOG("  Channel %d %s", i, (isBoneNode) ? "(bone animation)\n" : "\n");
+                SL_LOG("   Affected node: %s\n", channel->mNodeName.C_Str());
+
+                if (_logVerbosity >= LogVerbosity::Detailed)
+                {
+                    // full log verbosity output
+                    SL_LOG("   Num position keys: %d\n", channel->mNumPositionKeys);
+                    SL_LOG("   Num rotation keys: %d\n", channel->mNumRotationKeys);
+                    SL_LOG("   Num scaling keys: %d\n", channel->mNumScalingKeys);
+                }
+            }
+        } // Log end
+
         // bone animation channels should receive the correct node id, normal node animations just get 0
         SLNodeAnimationTrack* track = result->createNodeAnimationTrack(nodeId);
 
-        // @todo Assimp provides keyframes seperately for position, rotation and scale, we combine them into one
-        //          So we have to add in the other two components for the assimp keyframes. The drawback here is
-        //          that we have to interpolate the missing values and that might lead to differet results.
-        //          One solution would be to just give a policy of providing the animation with keyframe values
-        //          for all three components.
-        SLint numKeyframes = max(max(channel->mNumPositionKeys, channel->mNumRotationKeys), channel->mNumScalingKeys);
+        
 
-        for (SLint i = 0; i < numKeyframes; i++)
+        KeyframeMap keyframes;
+
+        // add position keys
+        for (SLint i = 0; i < channel->mNumPositionKeys; i++)
         {
-            aiQuatKey rotKey = channel->mRotationKeys[i];
+            SLfloat time = channel->mPositionKeys[i].mTime; // @todo test that we get the correct value back
+            keyframes[time] = KeyframeData(&channel->mPositionKeys[i], NULL, NULL);
+        }
+        
+        // add rotation keys
+        for (SLint i = 0; i < channel->mNumRotationKeys; i++)
+        {
+            SLfloat time = channel->mRotationKeys[i].mTime; // @todo test that we get the correct value back
 
-            SLTransformKeyframe* kf = track->createNodeKeyframe(rotKey.mTime);
-            kf->rotation(SLQuat4f(rotKey.mValue.x, rotKey.mValue.y, rotKey.mValue.z, rotKey.mValue.w));
+            if (keyframes.find(time) == keyframes.end())
+                keyframes[time] = KeyframeData(NULL, &channel->mRotationKeys[i], NULL);
+            else
+            {
+                // @todo this shouldn't abort but just throw an exception
+                assert(keyframes[time].rotation == NULL && "There were two rotation keys assigned to the same timestamp.");
+                keyframes[time].rotation = &channel->mRotationKeys[i];
+            }
+        }
+        
+        // add scaleing keys
+        for (SLint i = 0; i < channel->mNumScalingKeys; i++)
+        {
+            SLfloat time = channel->mScalingKeys[i].mTime; // @todo test that we get the correct value back
 
-            if (i < channel->mNumPositionKeys) {
-
+            if (keyframes.find(time) == keyframes.end())
+                keyframes[time] = KeyframeData(NULL, NULL, &channel->mScalingKeys[i]);
+            else
+            {
+                // @todo this shouldn't abort but just throw an exception
+                assert(keyframes[time].scaling == NULL && "There were two scaling keys assigned to the same timestamp.");
+                keyframes[time].scaling = &channel->mScalingKeys[i];
             }
         }
 
+             
+
+        
+        if (_logVerbosity >= LogVerbosity::Normal)
+            SL_LOG("   Found %d distinct keyframe timestamp(s).\n", keyframes.size());
+
+        KeyframeMap::iterator it = keyframes.begin();
+        for (; it != keyframes.end(); it++)
+        {
+            SLTransformKeyframe* kf = track->createNodeKeyframe(it->second.rotation->mTime);         
+            kf->translation(getTranslation(it->first, keyframes));
+            kf->rotation(getRotation(it->first, keyframes));
+            kf->scale(getScaling(it->first, keyframes));
+
+            // LOG output
+            if (_logVerbosity >= LogVerbosity::Detailed)
+            {
+                SL_LOG("\n");
+                SL_LOG("   Generating keyframe at time '%.2f'\n", it->first);
+                SL_LOG("    Translation: (%.2f, %.2f, %.2f) %s\n", kf->translation().x, kf->translation().y, kf->translation().z, (it->second.translation != NULL) ? "imported" : "generated");
+                SL_LOG("    Rotation: (%.2f, %.2f, %.2f, %.2f) %s\n", kf->rotation().x(), kf->rotation().y(), kf->rotation().z(), kf->rotation().w(), (it->second.rotation != NULL) ? "imported" : "generated");
+                SL_LOG("    Scale: (%.2f, %.2f, %.2f) %s\n", kf->scale().x, kf->scale().y, kf->scale().z, (it->second.scaling != NULL) ? "imported" : "generated");
+            } // Log end
+        }
     }
 
     if (isSkeletonAnim)
@@ -604,7 +956,7 @@ SLAnimation* loadAnimation(aiAnimation* anim)
 SLAssimp::aiNodeHasMesh returns true if the passed node or one of its children 
 has a mesh. aiNode can contain only transform or bone nodes without any visuals. 
 */
-SLbool aiNodeHasMesh(aiNode* node)
+SLbool SLAssImp::aiNodeHasMesh(aiNode* node)
 {
     if (node->mNumMeshes > 0) return true;
     for(SLuint i = 0; i < node->mNumChildren; i++) 
@@ -621,7 +973,7 @@ Some file formats have absolut path stored, some have relative paths.
 If a model contains absolut path it is best to put all texture files beside the
 model file in the same folder.
 */
-SLstring checkFilePath(SLstring modelPath, SLstring aiTexFile)
+SLstring SLAssImp::checkFilePath(SLstring modelPath, SLstring aiTexFile)
 {
     // Check path & file combination
     SLstring pathFile = modelPath + aiTexFile;

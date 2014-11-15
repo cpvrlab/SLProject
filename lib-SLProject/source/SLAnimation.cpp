@@ -13,16 +13,19 @@
 #include <SLSkeleton.h>
 
 
-SLAnimation::SLAnimation()
-{
 
-}
+SLAnimation::SLAnimation(SLfloat duration)
+: _name("Unnamed Animation"),
+_length(duration)
+{ }
+
+SLAnimation::SLAnimation(const SLstring& name, SLfloat duration)
+: _name(name),
+_length(duration)
+{ }
 
 SLAnimation::~SLAnimation()
-{
-
-}
-
+{}
 
 
 void SLAnimation::length(SLfloat length)

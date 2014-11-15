@@ -200,7 +200,7 @@ class SLMat4
          void        identity    ();
          void        transpose   ();
          void        invert      ();
-         SLMat4<T>   inverse     ();
+         SLMat4<T>   inverse     () const;
          SLMat3<T>   inverseTransposed();
          T           trace       () const;
 
@@ -1167,7 +1167,7 @@ void SLMat4<T>::invert()
 //-----------------------------------------------------------------------------
 //! Computes the inverse of a 4x4 non-singular matrix.
 template<class T>
-SLMat4<T> SLMat4<T>::inverse()
+SLMat4<T> SLMat4<T>::inverse() const
 {
     SLMat4<T> i;
    

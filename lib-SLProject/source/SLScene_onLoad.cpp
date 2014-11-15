@@ -375,14 +375,16 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
 
 
         #if defined(SL_OS_IOS) || defined(SL_OS_ANDROID)
-        SLNode* mesh3DS = SLAssImp::load("jackolan.3DS");
-        SLNode* meshDAE = SLAssImp::load("AstroBoy.dae");
-        SLNode* meshFBX = SLAssImp::load("Duck.fbx");
+        SLAssImp importer;
+        SLNode* mesh3DS = importer.load("jackolan.3DS");
+        SLNode* meshDAE = importer.load("AstroBoy.dae");
+        SLNode* meshFBX = importer.load("Duck.fbx");
       
         #else
-        SLNode* mesh3DS = SLAssImp::load("3DS/Halloween/Jackolan.3DS");
-        SLNode* meshDAE = SLAssImp::load("DAE/AstroBoy/AstroBoy.dae");
-        SLNode* meshFBX = SLAssImp::load("FBX/Duck/Duck.fbx");
+        SLAssImp importer;
+        SLNode* mesh3DS = importer.load("3DS/Halloween/Jackolan.3DS");
+        SLNode* meshDAE = importer.load("DAE/AstroBoy/AstroBoy.dae");
+        SLNode* meshFBX = importer.load("FBX/Duck/Duck.fbx");
         #endif
 
         // Scale to so that the AstroBoy is about 2 (meters) high.
@@ -424,8 +426,13 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
         light1->diffuse(SLCol4f(1.0f, 1.0f, 1.0f));
         light1->specular(SLCol4f(1.0f, 1.0f, 1.0f));
         light1->attenuation(1,0,0);
-
-        SLNode* simpleSkinnedMesh = SLAssImp::load("DAE/SkinnedCube/skinnedcube.dae");
+        
+        SLAssImp importer(SLAssImp::LogVerbosity::Normal);
+        SLNode* simpleSkinnedMesh = importer.load("DAE/AstroBoy/AstroBoy.dae"); // <- not working currently, dont use!
+        //SLNode* simpleSkinnedMesh = importer.load("FBX/Astroboy/astroboy_test.fbx"); 
+        //SLNode* simpleSkinnedMesh = importer.load("3DS/Astroboy/Astroboy.3ds"); 
+        //SLNode* simpleSkinnedMesh = importer.load("DAE/SkinnedCube/skinnedcube.dae");
+        simpleSkinnedMesh->scale(30.0f);
 
         
         SLNode* scene = new SLNode("Scene");
@@ -454,7 +461,8 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
         light1->specular(SLCol4f(1,1,1));
         light1->attenuation(1,0,0);
 
-        SLNode* largeModel = SLAssImp::load("PLY/xyzrgb_dragon.ply");
+        SLAssImp importer;
+        SLNode* largeModel = importer.load("PLY/xyzrgb_dragon.ply");
 
         SLNode* scene = new SLNode("Scene");
         scene->addChild(light1);

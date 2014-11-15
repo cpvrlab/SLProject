@@ -220,7 +220,7 @@ void SLMesh::draw(SLSceneView* sv, SLNode* node)
         if (Bi && Bw)
         {
             //  temporary test for 2 bones
-            if (!_boneMatrices) _boneMatrices = new SLMat4f[2];
+            if (!_boneMatrices) _boneMatrices = new SLMat4f[_skeleton->numBones()]; // @todo offload the generation of the bone matrix array to somebody else. meshes can share the same array, so it must be somewhere else..
             _skeleton->getBoneWorldMatrices(_boneMatrices);
             // @todo    be careful here, it is at the moment not guaranteed that the per vertex bone indices
             //          match the indices in this bone array. The result may be wrong or crash entirely.
@@ -230,7 +230,7 @@ void SLMesh::draw(SLSceneView* sv, SLNode* node)
             // @todo    Secondly: It is a bad idea to keep the bone data in the mesh itself, this prevents us
             //          from instantiationg a single mesh with multiple animations. Needs to be addressed ASAP. (see also SLMesh class problems in SLMesh.h at the top)
             SLint locBM = sp->getUniformLocation("u_boneMatrices");
-            sp->uniformMatrix4fv(locBM, 2 /*_skeleton->numBones()*/, (SLfloat*)_boneMatrices, false);
+            sp->uniformMatrix4fv(locBM, _skeleton->numBones(), (SLfloat*)_boneMatrices, false);
         }
 
         // 3.e: Finally draw elements

@@ -11,6 +11,13 @@
 #include <stdafx.h>
 #include <SLNode.h>
 #include <SLGLTexture.h>
+#include <SLSkeleton.h>
+
+// @todo    dont make this class static
+// @todo    rename SLAssImp to SLImporter
+//          make SLImporter a base class and put the implementation of the assimp importer in a derived class
+ //         find the best way to make this nice and clean and to provide an interface for others to
+//          write their own importers (for custom file formats for example)
 
 #ifndef SLASSIMP_H
 #define SLASSIMP_H
@@ -46,6 +53,16 @@ enum slPostProcessSteps
     SLProcess_Debone = 0x4000000
 };
 
+// forward declarations of assimp types
+// @todo    Is it good practice to not include the assimp headers here and just use forward declaration?
+//          Do some research on best practices.
+struct aiNode;
+struct aiMaterial;
+struct aiAnimation;
+struct aiMesh;
+struct aiVectorKey;
+struct aiQuatKey;
+
 //-----------------------------------------------------------------------------
 typedef std::map<int, SLMesh*> SLMeshMap;
 //-----------------------------------------------------------------------------
@@ -55,8 +72,60 @@ supported file formats and the import processing options.
 */
 class SLAssImp
 {  
-   public:
-      static SLNode*       load           (SLstring pathFilename,
+public:
+    enum LogVerbosity {
+        Quiet = 0,
+        Minimal = 1,
+        Normal = 2,
+        Detailed = 3,
+        Diagnostic = 4
+    };
+
+protected:
+
+    LogVerbosity _logVerbosity;
+
+    // @todo get the bone information struct out of here
+    struct BoneInformation
+    {
+        SLstring name;
+        SLuint id;
+        SLMat4f offsetMat;
+    };
+    
+
+    std::map<SLstring, BoneInformation>   bones; // bone node to bone id mapping
+
+    // old global vars just put in the class for now
+    // @todo clean up names, remove unneded, etc.
+    
+    SLSkeleton* skel = NULL;
+    std::map<SLstring, SLNode*>  nameToNodeMapping;   // node name to SLNode instance mapping
+
+    // list of meshes utilising a skeleton
+    std::vector<SLMesh*> skinnedMeshes;
+
+    // helper functions
+    SLMaterial*   loadMaterial(SLint index, aiMaterial* material, SLstring modelPath);
+    SLGLTexture*  loadTexture(SLstring &path, SLTexType texType);
+    SLMesh*       loadMesh(aiMesh *mesh);
+    SLNode*       loadNodesRec(SLNode *curNode, aiNode *aiNode, SLMeshMap& meshes, SLbool loadMeshesOnly = true);
+    void          findAndLoadSkeleton(aiNode* node);
+    void          loadSkeleton(aiNode* node);
+    SLBone*       loadSkeletonRec(aiNode* node, SLBone* parent);
+    SLAnimation*  loadAnimation(aiAnimation* anim);
+    SLstring      checkFilePath(SLstring modelPath, SLstring texFile);
+    SLbool        aiNodeHasMesh(aiNode* node);
+    SLbool        isBone(const SLstring& name);
+    BoneInformation* getBoneInformation(const SLstring& name);
+    SLNode* findLoadedNodeByName(const SLstring& name);
+
+public:
+    SLAssImp(LogVerbosity logVerb = Diagnostic)
+        : _logVerbosity(logVerb)
+    { }
+
+      SLNode*       load           (SLstring pathFilename,
                                            SLbool loadMeshesOnly = true,
                                            SLuint flags = 
                                              SLProcess_Triangulate

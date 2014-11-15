@@ -22,7 +22,8 @@ class SLSkeleton;
 class SLAnimation
 {
 public:
-    SLAnimation();
+    SLAnimation(SLfloat duration);
+    SLAnimation(const SLstring& name, SLfloat duration);
     ~SLAnimation();
     
     const SLstring& name() { return _name; }

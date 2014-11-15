@@ -37,6 +37,8 @@ It never changes throughout the life of a sceneview.
 */
 SLSceneView::SLSceneView() : SLObject()
 { 
+    _animMultiplier = 1.0f;
+    _runBackwards = false;
     SLScene* s = SLScene::current;
     assert(s && "No SLScene::current instance.");
    
@@ -506,13 +508,35 @@ SLbool SLSceneView::updateAndDrawGL3D(SLfloat elapsedTimeMS)
     //-------- TEMPORARY ANIMATION TEST ----------------------------
 
     static bool animTestInit = false;
+    static bool pausedLastFrame = false;
     static SLNode* animTarget;
     static SLAnimation* testAnim;
     static SLAnimation* testAnim2;
     static SLNodeAnimationTrack* testAnimTrack;
     static SLNodeAnimationTrack* testAnimTrack2;
     static SLAnimationState* testAnimState;
-    if (_runAnim) _time = s->timeSec(); // increment time based on the clock
+    static SLfloat lastFrameTime = 0.0f;
+
+
+
+    static float frameDelta = 0.0f;
+    static float animTime = 0.0f;
+    
+    if (_runAnim) {
+        frameDelta = s->timeSec() - lastFrameTime;
+        if (pausedLastFrame) {
+            frameDelta = 0.0f;
+            pausedLastFrame = false;
+        }
+        SLfloat multiplier = (_runBackwards) ? -1 : 1;
+        animTime +=  multiplier * _animMultiplier * frameDelta;
+        lastFrameTime = s->timeSec();
+    }
+    else
+        pausedLastFrame = true;
+    
+
+
     SLfloat frameTime = fmod(s->timeSec(), 7.0f);
 
     // a node has a position already, do we just overwrite it with the one that's in the animation?
@@ -522,12 +546,12 @@ SLbool SLSceneView::updateAndDrawGL3D(SLfloat elapsedTimeMS)
         animTarget = s->_root3D->findChild<SLNode>("Sphere Light");
 
         // create test animation
-        testAnim = new SLAnimation; // the creation of a new animation will be handled by the SLAnimationManager
-        testAnim->length(4.0f);     // the animation length parameter should be automatically set in the future (maybe)
+        testAnim = new SLAnimation(4.0f); // the creation of a new animation will be handled by the SLAnimationManager
+                                     // the animation length parameter should be automatically set in the future (maybe)
                                     // for now I just need a correct time set here so I do it manually.
                                     // also when we alter the length of an animation the keyframes should check if they are still valid.
 
-        testAnim2 = new SLAnimation;
+        testAnim2 = new SLAnimation(1.0f);
         testAnim2->length(1.0f);
 
         testAnimTrack = testAnim->createNodeAnimationTrack(0);
@@ -556,11 +580,11 @@ SLbool SLSceneView::updateAndDrawGL3D(SLfloat elapsedTimeMS)
 
         animTestInit = true;
     }
-
+    /*/
     animTarget->resetToInitialState();
-    testAnimTrack->applyToNode(animTarget, _time);
-    testAnimTrack2->applyToNode(animTarget, _time);
-    
+    testAnimTrack->applyToNode(animTarget, animTime);
+    testAnimTrack2->applyToNode(animTarget, animTime);
+    */
 
 
 
@@ -569,12 +593,23 @@ SLbool SLSceneView::updateAndDrawGL3D(SLfloat elapsedTimeMS)
     
     //-------- TEMPORARY ANIMATION TEST 2--------------------------
     
-    // try to animate the 0 skeleton
-    SLSkeleton* skel = s->skeletons().at(0);
-    SLAnimation* skelAnim = skel->tempGetAnim("Unnamed Animation");
-    skel->reset();
-    skelAnim->apply(skel, _time);
-
+    static bool testBool = true;
+    if (testBool)
+    {
+        //testBool = false;
+        // try to animate the 0 skeleton
+        SLSkeleton* skel = s->skeletons().at(0);
+        SLAnimation* skelAnim = skel->tempGetAnim("Unnamed Animation");
+        //SLAnimation* skelAnim = skel->tempGetAnim("AnimStack::deformation_rig|deformation_rigAction");
+        skel->reset();
+        // temporary cheat since we crash (because astroboy lacks a 0.0 keyframe)
+        
+        //_time = 0.0f;
+        //_time = fmod(_time, skelAnim->length() - 0.0416660011);
+        //_time += 0.0416660011;
+        skelAnim->apply(skel, animTime * 0.1, 1.0f);
+        //skelAnim->apply(skel, _time*2, 0.5f);
+    }
     // ------------------------------------------------------------
 
 
@@ -1322,6 +1357,9 @@ SLbool SLSceneView::onKeyPress(const SLKey key, const SLKey mod)
     
     if (key == '1') { _runAnim = !_runAnim; return true; }
     if (key == '2') { _time += 0.1f; return true; }
+    if (key == '3') { _runBackwards = !_runBackwards; return true; }
+    if (key == KeyNPAdd) { _animMultiplier += 0.1f; return true; }
+    if (key == KeyNPSubtract) { _animMultiplier += -0.1f; return true; }
     
     if (key=='N') return onCommand(cmdNormalsToggle);
     if (key=='P') return onCommand(cmdWireMeshToggle);

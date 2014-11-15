@@ -12,6 +12,8 @@
 attribute vec4 a_position;          // Vertex position attribute
 attribute vec3 a_normal;            // Vertex normal attribute
 attribute vec2 a_texCoord;          // Vertex texture coord. attribute
+attribute vec4 a_boneIds;
+attribute vec4 a_boneWeights;
 
 uniform mat4   u_mvMatrix;          // modelview matrix 
 uniform mat3   u_nMatrix;           // normal matrix=transpose(inverse(mv))
@@ -36,6 +38,8 @@ uniform vec4   u_matDiffuse;        // diffuse color reflection coefficient (kd)
 uniform vec4   u_matSpecular;       // specular color reflection coefficient (ks)
 uniform vec4   u_matEmissive;       // emissive color for selfshining materials
 uniform float  u_matShininess;      // shininess exponent
+
+uniform mat4   u_boneMatrices[100];
 
 varying vec4   v_color;             // Ambient & diffuse color at vertex
 varying vec4   v_specColor;         // Specular color at vertex
@@ -97,9 +101,15 @@ void main()
     Id = vec4(0.0);         // Diffuse light intesity
     Is = vec4(0.0);         // Specular light intesity
    
-    vec3 P_VS = vec3(u_mvMatrix * a_position);
-    vec3 N = normalize(u_nMatrix * a_normal);
-    vec3 E = normalize(-P_VS);
+   
+	mat4 boneTransform = 	u_boneMatrices[int(a_boneIds.x)] * a_boneWeights.x
+						+ 	u_boneMatrices[int(a_boneIds.y)] * a_boneWeights.y
+						+ 	u_boneMatrices[int(a_boneIds.z)] * a_boneWeights.z
+						+ 	u_boneMatrices[int(a_boneIds.w)] * a_boneWeights.w;
+                        
+   vec3 P_VS = vec3(u_mvMatrix * boneTransform * a_position);
+   vec3 N = normalize(vec3(u_nMatrix * transpose(inverse(mat3(boneTransform))) * a_normal)); 
+   vec3 E = normalize(-P_VS);
 
     // Early versions of GLSL do not allow uniforms in for loops
     for (int i=0; i<8; i++)
@@ -125,6 +135,6 @@ void main()
     //v_color = vec4(1, 0, 0, 1);
 
     // Set the transformes vertex position   
-    gl_Position = u_mvpMatrix * a_position;
+    gl_Position = u_mvpMatrix * boneTransform * a_position;
 }
 //-----------------------------------------------------------------------------
