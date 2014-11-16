@@ -36,7 +36,7 @@
 //          but we set an initial position by calling setInitialState
 
 #include <stdafx.h>
-
+#include <cstdarg> // only needed because we wrap pintf in logMessage, read the todo and fix it!
 #include <SLAssImp.h>
 #include <SLScene.h>
 #include <SLGLTexture.h>
@@ -305,16 +305,15 @@ SLstring SLAssImp::defaultPath = "../_data/models/";
 /** Default constructor, doesn't log anything
 */
 SLAssImp::SLAssImp()
-: _logConsoleVerbosity(LogVerbosity::Quiet),
-    _logFileVerbosity(LogVerbosity::Quiet)
-{
+: _logConsoleVerbosity(LV_Quiet),
+    _logFileVerbosity(LV_Quiet)
+{ }
 
-}
 //-----------------------------------------------------------------------------
 /** Constructor that only outputs console logs
 */
 SLAssImp::SLAssImp(LogVerbosity consoleVerb)
-: _logFileVerbosity(LogVerbosity::Quiet)
+: _logFileVerbosity(LV_Quiet)
 { }
 
 //-----------------------------------------------------------------------------
@@ -324,8 +323,11 @@ SLAssImp::SLAssImp(const SLstring& logFile, LogVerbosity logConsoleVerb, LogVerb
 : _logConsoleVerbosity(logConsoleVerb),
     _logFileVerbosity(logFileVerb)
 { 
-    if (_logFileVerbosity > LogVerbosity::Quiet)
-        _log.open("../log/" + logFile);
+    if (_logFileVerbosity > LV_Quiet) {
+        // @note this will fail if the ../_log directory doesn't exist!
+        _log.open(logFile);
+        // cout << strerror(errno) << endl;
+    }
 }
 
 //-----------------------------------------------------------------------------
@@ -333,38 +335,8 @@ SLAssImp::SLAssImp(const SLstring& logFile, LogVerbosity logConsoleVerb, LogVerb
 */
 SLAssImp::~SLAssImp()
 {
-    if (_logFileVerbosity > LogVerbosity::Quiet)
+    if (_logFileVerbosity > LV_Quiet)
         _log.close();
-}
-
-//-----------------------------------------------------------------------------
-/** Logs messages to the importer logfile and the console
-    @param     message     the message to add to the log
-    @param     verbosity   the verbosity of the message
-
-    @todo   Build a dedicated log class that can be instantiated (so  the importer can have its own)
-            Let this log class write to file etc.
-            Don't use printf anymore, its c. (c++11 has to_str, else we have to work with ss (ugh...))
-*/
-void SLAssImp::logMessage(const SLstring& message, LogVerbosity verbosity)
-{
-    if (_logConsoleVerbosity >= verbosity)
-        SL_LOG("%s", message.c_str());
-    if (_logFileVerbosity >= verbosity)
-        _log << message;
-}
-
-
-//-----------------------------------------------------------------------------
-/** Clears all helper containers
-*/
-void SLAssImp::clear()
-{
-    _nameToNode.clear();
-    _nameToBone.clear();
-    _boneGroups.clear();
-    _skeletonRoots.clear();
-    _skinnedMeshes.clear();
 }
 
 //-----------------------------------------------------------------------------
@@ -395,6 +367,9 @@ SLNode* SLAssImp::load(SLstring file,        //!< File with path or on default p
         SL_WARN_MSG(msg.c_str());
         return NULL;
     }
+
+    // initial scan of the scene
+    performInitialScan(scene);
 
     // load materials
     SLstring modelPath = SLUtils::getPath(file);
@@ -439,6 +414,95 @@ SLNode* SLAssImp::load(SLstring file,        //!< File with path or on default p
         animations.push_back(loadAnimation(scene->mAnimations[i]));
 
     return root;
+}
+
+//-----------------------------------------------------------------------------
+/** Logs messages to the importer logfile and the console
+    @param     message     the message to add to the log
+    @param     verbosity   the verbosity of the message
+
+    @todo   Build a dedicated log class that can be instantiated (so the importer can have its own)
+            Let this log class write to file etc.
+            Don't use printf anymore, its c. (c++11 has to_str, else we have to work with ss (ugh...))
+            I only used printf here because it allows me to combine a string with different variables
+            in only one line and I don't have an easy way to do this in c++0x. Again c++11 would be easy.
+*/
+void SLAssImp::logMessage(LogVerbosity verbosity, const char* msg, ...)
+{
+    // write message to a buffer
+    char buffer[4096];
+    std::va_list arg;
+    va_start(arg, msg);
+    std::vsnprintf(buffer, 4096, msg, arg);
+    va_end(arg);
+
+    if (_logConsoleVerbosity >= verbosity)
+        SL_LOG("%s", buffer);
+    if (_logFileVerbosity >= verbosity)
+    {
+        _log << buffer;
+        _log.flush();
+    }
+}
+
+
+//-----------------------------------------------------------------------------
+/** Clears all helper containers
+*/
+void SLAssImp::clear()
+{
+    _nameToNode.clear();
+    _nameToBone.clear();
+    _boneGroups.clear();
+    _skeletonRoots.clear();
+    _skinnedMeshes.clear();
+}
+//-----------------------------------------------------------------------------
+/** return an aiNode ptr if name exists, or null if it doesn't */
+aiNode* SLAssImp::getNodeByName(const SLstring& name)
+{
+    // @todo
+    return NULL;
+}
+
+//-----------------------------------------------------------------------------
+/** return an aiBone ptr if name exists, or null if it doesn't */
+aiBone* SLAssImp::getBoneByName(const SLstring& name)
+{
+    // @todo
+    return NULL;
+}
+
+//-----------------------------------------------------------------------------
+/** populates nameToNode, nameToBone, boneGroups, skinnedMeshes */
+void SLAssImp::performInitialScan(const aiScene* scene)
+{
+    // @todo
+}
+
+//-----------------------------------------------------------------------------
+/** scans the assimp scene graph structure and populates nameToNode */
+void SLAssImp::findAllNodes(const aiScene* scene)
+{
+    // @todo
+}
+//-----------------------------------------------------------------------------
+/** scans all meshes in the assimp scene and populates nameToBone and boneGroups */
+void SLAssImp::findAllBones(const aiScene* scene)
+{
+    // @todo
+}
+//-----------------------------------------------------------------------------
+/** goes over the boneGroups data to find non overlapping data */
+void SLAssImp::findDistinctSkeletons()
+{
+    // @todo
+}
+//-----------------------------------------------------------------------------
+/** finds the common ancestor for each remaining group in boneGroups, these are our final skeleton roots */
+void SLAssImp::findSkeletonRoots()
+{
+    // @todo
 }
 
 //-----------------------------------------------------------------------------
@@ -819,8 +883,6 @@ SLBone* SLAssImp::loadSkeletonRec(aiNode* node, SLBone* parent)
         om = parent->updateAndGetWM().inverse() * om;
     bone->om(om);
     bone->setInitialState();
-        
-    cout << "Loading bone: " << bone->name() << endl;
 
     // start building the node tree for the skeleton
     for (SLint i = 0; i < node->mNumChildren; i++)
@@ -843,33 +905,13 @@ SLAnimation* SLAssImp::loadAnimation(aiAnimation* anim)
     if (anim->mName.length > 0)
         animName = anim->mName.C_Str();
 
-    // LOG output
-    if (_logConsoleVerbosity >= LogVerbosity::Minimal)
-    {
-        // [minimal log output here]
-        SL_LOG("\n");
-        SL_LOG("Loading animation %s\n", animName.c_str());
-        
-        // normal log verbosity output
-        if (_logConsoleVerbosity >= LogVerbosity::Normal)
-        {
-            // [normal log output here]
-            SL_LOG(" Duration(seconds): %f \n", animDuration);
-            SL_LOG(" Duration(ticks): %f \n", anim->mDuration);
-            SL_LOG(" Ticks per second: %f \n", animTicksPerSec);
-            SL_LOG(" Num channels: %d\n", anim->mNumChannels);
+    // log
+    logMessage(LV_Minimal, "\nLoading animation %s\n", animName.c_str());
+    logMessage(LV_Normal, " Duration(seconds): %f \n", animDuration);
+    logMessage(LV_Normal, " Duration(ticks): %f \n", anim->mDuration);
+    logMessage(LV_Normal, " Ticks per second: %f \n", animTicksPerSec);
+    logMessage(LV_Normal, " Num channels: %d\n", anim->mNumChannels);
             
-            if (_logConsoleVerbosity >= LogVerbosity::Detailed)
-            {
-                // [detailed log output here]
-                if (_logConsoleVerbosity >= LogVerbosity::Diagnostic)
-                {
-                    // [diagnostic log output here]
-                }
-            }
-        }
-    }
-
     // create the animation
     SLAnimation* result = new SLAnimation(animName, animDuration);
     
@@ -917,27 +959,13 @@ SLAnimation* SLAssImp::loadAnimation(aiAnimation* anim)
             skel->getBone(nodeId)->setInitialState();
         }
                     
-        // LOG output
-        if (_logConsoleVerbosity >= LogVerbosity::Minimal)
-        {
-            // minimal log verbosity output
+        // log
+        logMessage(LV_Normal, "\n  Channel %d %s", i, (isBoneNode) ? "(bone animation)\n" : "\n");
+        logMessage(LV_Normal, "   Affected node: %s\n", channel->mNodeName.C_Str());
+        logMessage(LV_Detailed, "   Num position keys: %d\n", channel->mNumPositionKeys);
+        logMessage(LV_Detailed, "   Num rotation keys: %d\n", channel->mNumRotationKeys);
+        logMessage(LV_Detailed, "   Num scaling keys: %d\n", channel->mNumScalingKeys);
 
-            if (_logConsoleVerbosity >= LogVerbosity::Normal)
-            {
-                // normal log verbosity output
-                SL_LOG("\n");
-                SL_LOG("  Channel %d %s", i, (isBoneNode) ? "(bone animation)\n" : "\n");
-                SL_LOG("   Affected node: %s\n", channel->mNodeName.C_Str());
-
-                if (_logConsoleVerbosity >= LogVerbosity::Detailed)
-                {
-                    // full log verbosity output
-                    SL_LOG("   Num position keys: %d\n", channel->mNumPositionKeys);
-                    SL_LOG("   Num rotation keys: %d\n", channel->mNumRotationKeys);
-                    SL_LOG("   Num scaling keys: %d\n", channel->mNumScalingKeys);
-                }
-            }
-        } // Log end
 
         // bone animation channels should receive the correct node id, normal node animations just get 0
         SLNodeAnimationTrack* track = result->createNodeAnimationTrack(nodeId);
@@ -984,10 +1012,7 @@ SLAnimation* SLAssImp::loadAnimation(aiAnimation* anim)
         }
 
              
-
-        
-        if (_logConsoleVerbosity >= LogVerbosity::Normal)
-            SL_LOG("   Found %d distinct keyframe timestamp(s).\n", keyframes.size());
+        logMessage(LV_Normal, "   Found %d distinct keyframe timestamp(s).\n", keyframes.size());
 
         KeyframeMap::iterator it = keyframes.begin();
         for (; it != keyframes.end(); it++)
@@ -997,15 +1022,11 @@ SLAnimation* SLAssImp::loadAnimation(aiAnimation* anim)
             kf->rotation(getRotation(it->first, keyframes));
             kf->scale(getScaling(it->first, keyframes));
 
-            // LOG output
-            if (_logConsoleVerbosity >= LogVerbosity::Detailed)
-            {
-                SL_LOG("\n");
-                SL_LOG("   Generating keyframe at time '%.2f'\n", it->first);
-                SL_LOG("    Translation: (%.2f, %.2f, %.2f) %s\n", kf->translation().x, kf->translation().y, kf->translation().z, (it->second.translation != NULL) ? "imported" : "generated");
-                SL_LOG("    Rotation: (%.2f, %.2f, %.2f, %.2f) %s\n", kf->rotation().x(), kf->rotation().y(), kf->rotation().z(), kf->rotation().w(), (it->second.rotation != NULL) ? "imported" : "generated");
-                SL_LOG("    Scale: (%.2f, %.2f, %.2f) %s\n", kf->scale().x, kf->scale().y, kf->scale().z, (it->second.scaling != NULL) ? "imported" : "generated");
-            } // Log end
+            // log
+            logMessage(LV_Detailed, "\n   Generating keyframe at time '%.2f'\n", it->first);
+            logMessage(LV_Detailed, "    Translation: (%.2f, %.2f, %.2f) %s\n", kf->translation().x, kf->translation().y, kf->translation().z, (it->second.translation != NULL) ? "imported" : "generated");
+            logMessage(LV_Detailed, "    Rotation: (%.2f, %.2f, %.2f, %.2f) %s\n", kf->rotation().x(), kf->rotation().y(), kf->rotation().z(), kf->rotation().w(), (it->second.rotation != NULL) ? "imported" : "generated");
+            logMessage(LV_Detailed, "    Scale: (%.2f, %.2f, %.2f) %s\n", kf->scale().x, kf->scale().y, kf->scale().z, (it->second.scaling != NULL) ? "imported" : "generated");
         }
     }
 

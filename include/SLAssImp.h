@@ -76,11 +76,11 @@ class SLAssImp
 {  
 public:
     enum LogVerbosity {
-        Quiet = 0,
-        Minimal = 1,
-        Normal = 2,
-        Detailed = 3,
-        Diagnostic = 4
+        LV_Quiet = 0,
+        LV_Minimal = 1,
+        LV_Normal = 2,
+        LV_Detailed = 3,
+        LV_Diagnostic = 4
     };
 
 protected:
@@ -132,16 +132,16 @@ protected:
     std::vector<aiMesh*>                    _skinnedMeshes; //!< list containing all of the skinned meshes, used to assign the skinned materials
 
     // new import helpers
-    /*aiNode*         getNodeByName(const SLstring& name);    // return an aiNode ptr if name exists, or null if it doesn't
+    aiNode*         getNodeByName(const SLstring& name);    // return an aiNode ptr if name exists, or null if it doesn't
     aiBone*         getBoneByName(const SLstring& name);    // return an aiBone ptr if name exists, or null if it doesn't
 
-    void            performInitialScan(aiScene* scene);     // populates nameToNode, nameToBone, boneGroups, skinnedMeshes,
-    void            findAllNodes(aiScene* scene);           // scans the assimp scene graph structure and populates nameToNode
-    void            findAllBones(aiScene* scene);           // scans all meshes in the assimp scene and populates nameToBone and boneGroups
+    void            performInitialScan(const aiScene* scene);     // populates nameToNode, nameToBone, boneGroups, skinnedMeshes,
+    void            findAllNodes(const aiScene* scene);           // scans the assimp scene graph structure and populates nameToNode
+    void            findAllBones(const aiScene* scene);           // scans all meshes in the assimp scene and populates nameToBone and boneGroups
     void            findDistinctSkeletons();                // goes over the boneGroups data to find non overlapping data
     void            findSkeletonRoots();                    // finds the common ancestor for each remaining group in boneGroups, these are our final skeleton roots
     
-    SLGLTexture*    loadTexture(SLstring &path, SLTexType texType);
+    /*SLGLTexture*    loadTexture(SLstring &path, SLTexType texType);
     SLMaterial*     loadMaterial(SLint index, aiMaterial* material, SLstring modelPath);
     SLMesh*         loadMesh(aiMesh *mesh);
     SLNode*         loadSceneNodes(SLNode* parent, aiNode* node);
@@ -149,13 +149,13 @@ protected:
     SLAnimation*    loadAnimation(aiAnimation* anim);*/
 
     // new smaller helper
-    void logMessage(const SLstring& message, LogVerbosity verbosity);
+    void logMessage(LogVerbosity verbosity, const char* msg, ...);
     void clear();
 
 public:
     SLAssImp();
     SLAssImp(LogVerbosity consoleVerb);
-    SLAssImp(const SLstring& logFile, LogVerbosity logConsoleVerb = Normal, LogVerbosity logFileVerb = Diagnostic);
+    SLAssImp(const SLstring& logFile, LogVerbosity logConsoleVerb = LV_Normal, LogVerbosity logFileVerb = LV_Diagnostic);
     ~SLAssImp();
 
       SLNode*       load           (SLstring pathFilename,
