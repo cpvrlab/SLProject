@@ -254,7 +254,7 @@ class SLSceneView: public SLObject
 
 
             // temporary test stuff
-            SLfloat         _time;
+            SLfloat         _animTime;
             SLbool          _runAnim;
             SLbool          _runBackwards;
             SLfloat         _animMultiplier;

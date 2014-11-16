@@ -38,6 +38,7 @@ It never changes throughout the life of a sceneview.
 SLSceneView::SLSceneView() : SLObject()
 { 
     _animMultiplier = 1.0f;
+    _animTime = 0.0f;
     _runBackwards = false;
     SLScene* s = SLScene::current;
     assert(s && "No SLScene::current instance.");
@@ -520,7 +521,6 @@ SLbool SLSceneView::updateAndDrawGL3D(SLfloat elapsedTimeMS)
 
 
     static float frameDelta = 0.0f;
-    static float animTime = 0.0f;
     
     if (_runAnim) {
         frameDelta = s->timeSec() - lastFrameTime;
@@ -529,7 +529,7 @@ SLbool SLSceneView::updateAndDrawGL3D(SLfloat elapsedTimeMS)
             pausedLastFrame = false;
         }
         SLfloat multiplier = (_runBackwards) ? -1 : 1;
-        animTime +=  multiplier * _animMultiplier * frameDelta;
+        _animTime +=  multiplier * _animMultiplier * frameDelta;
         lastFrameTime = s->timeSec();
     }
     else
@@ -607,7 +607,7 @@ SLbool SLSceneView::updateAndDrawGL3D(SLfloat elapsedTimeMS)
         //_time = 0.0f;
         //_time = fmod(_time, skelAnim->length() - 0.0416660011);
         //_time += 0.0416660011;
-        skelAnim->apply(skel, animTime * 0.1, 1.0f);
+        skelAnim->apply(skel, _animTime * 0.1, 1.0f);
         //skelAnim->apply(skel, _time*2, 0.5f);
     }
     // ------------------------------------------------------------
@@ -1356,7 +1356,7 @@ SLbool SLSceneView::onKeyPress(const SLKey key, const SLKey mod)
     SLScene* s = SLScene::current;
     
     if (key == '1') { _runAnim = !_runAnim; return true; }
-    if (key == '2') { _time += 0.1f; return true; }
+    if (key == '2') { _animTime += 0.1f; return true; }
     if (key == '3') { _runBackwards = !_runBackwards; return true; }
     if (key == KeyNPAdd) { _animMultiplier += 0.1f; return true; }
     if (key == KeyNPSubtract) { _animMultiplier += -0.1f; return true; }

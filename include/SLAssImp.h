@@ -56,7 +56,9 @@ enum slPostProcessSteps
 // forward declarations of assimp types
 // @todo    Is it good practice to not include the assimp headers here and just use forward declaration?
 //          Do some research on best practices.
+struct aiScene;
 struct aiNode;
+struct aiBone;
 struct aiMaterial;
 struct aiAnimation;
 struct aiMesh;
@@ -82,8 +84,10 @@ public:
     };
 
 protected:
-
-    LogVerbosity _logVerbosity;
+    ofstream        _log;                   //!< log stream
+    SLstring        _logFile;               //!< name of the log file
+    LogVerbosity    _logConsoleVerbosity;   //!< verbosity level of log output to the console
+    LogVerbosity    _logFileVerbosity;      //!< verbosity level of log output to the file
 
     // @todo get the bone information struct out of here
     struct BoneInformation
@@ -120,10 +124,39 @@ protected:
     BoneInformation* getBoneInformation(const SLstring& name);
     SLNode* findLoadedNodeByName(const SLstring& name);
 
+    // new intermediate containers
+    std::map<SLstring, aiNode*>             _nameToNode;    //!< map containing name to aiNode releationships
+    std::map<SLstring, aiBone*>             _nameToBone;    //!< map containing name to aiBone releationships
+    std::map<int, std::vector<SLstring>>    _boneGroups;    //!< map containing bone names combined under a group, used to find skeletons
+    std::vector<aiNode*>                    _skeletonRoots; //!< list containing the root nodes for all the skeletons found
+    std::vector<aiMesh*>                    _skinnedMeshes; //!< list containing all of the skinned meshes, used to assign the skinned materials
+
+    // new import helpers
+    /*aiNode*         getNodeByName(const SLstring& name);    // return an aiNode ptr if name exists, or null if it doesn't
+    aiBone*         getBoneByName(const SLstring& name);    // return an aiBone ptr if name exists, or null if it doesn't
+
+    void            performInitialScan(aiScene* scene);     // populates nameToNode, nameToBone, boneGroups, skinnedMeshes,
+    void            findAllNodes(aiScene* scene);           // scans the assimp scene graph structure and populates nameToNode
+    void            findAllBones(aiScene* scene);           // scans all meshes in the assimp scene and populates nameToBone and boneGroups
+    void            findDistinctSkeletons();                // goes over the boneGroups data to find non overlapping data
+    void            findSkeletonRoots();                    // finds the common ancestor for each remaining group in boneGroups, these are our final skeleton roots
+    
+    SLGLTexture*    loadTexture(SLstring &path, SLTexType texType);
+    SLMaterial*     loadMaterial(SLint index, aiMaterial* material, SLstring modelPath);
+    SLMesh*         loadMesh(aiMesh *mesh);
+    SLNode*         loadSceneNodes(SLNode* parent, aiNode* node);
+    SLSkeleton*     loadSkeleton(SLBone* parent, aiNode* node);
+    SLAnimation*    loadAnimation(aiAnimation* anim);*/
+
+    // new smaller helper
+    void logMessage(const SLstring& message, LogVerbosity verbosity);
+    void clear();
+
 public:
-    SLAssImp(LogVerbosity logVerb = Diagnostic)
-        : _logVerbosity(logVerb)
-    { }
+    SLAssImp();
+    SLAssImp(LogVerbosity consoleVerb);
+    SLAssImp(const SLstring& logFile, LogVerbosity logConsoleVerb = Normal, LogVerbosity logFileVerb = Diagnostic);
+    ~SLAssImp();
 
       SLNode*       load           (SLstring pathFilename,
                                            SLbool loadMeshesOnly = true,

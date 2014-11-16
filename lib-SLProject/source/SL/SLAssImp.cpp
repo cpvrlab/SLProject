@@ -12,26 +12,17 @@
 
     // find crash (probably because of scaling matrix again); fix keyframe interpolation (implement the proposed algo); make astroboy work again by importing him (test if he imports without bones)
 
-    1. Clean up by moving stuff back into the class
-    2. Implement the generation of keyframe values if none were provided by assimp 
-    3. try loading astroboy
-        > make astroboy work by detecting skeleton correctly
-    4. Second cleanup phase
+    1. Fix the finding of the correct skeleton root node (atm we cheat by searching by name only for the astroboy!)
+    2. Clean up
         1. Remove unneeded helper functions (ex.: loadSkeletonRec etc.)
         2. Move to a more global approach
             > load all aiNodes into a <name, node> map
             > load all aiBones into a <name, bone> map
             -- with this approach we might be able to load multiple skeletons in one file
                 > implement it clean, then test with a 2 skeleton file
-    3. Remove unnecessary helper functions (skeletonrec etc..)
-    4. Go over the whole importer again. Can it be improved?
-        > Maybe load references to all the nodes before actually importing the tree. So that we have full knowledge of the data before going over
-            the indivudal pieces.
-        > Check other importers as a reference.
+            > Check other importers as a reference.
 
-
-
-    5. Find more animations to test with!
+    3. Find more animations to test with!
 */
 
 // @todo    findAndLoadSkeleton, loadSkeleton and loadSkeletonRec can easily be put into a single function, do that.
@@ -301,9 +292,81 @@ SLQuat4f getRotation(SLfloat time, const KeyframeMap& keyframes)
     return SLQuat4f(result.x, result.y, result.z, result.w);
 }
 
+
+
+
+
+
 //-----------------------------------------------------------------------------
 //! Default path for 3DS models used when only filename is passed in load.
 SLstring SLAssImp::defaultPath = "../_data/models/";
+
+//-----------------------------------------------------------------------------
+/** Default constructor, doesn't log anything
+*/
+SLAssImp::SLAssImp()
+: _logConsoleVerbosity(LogVerbosity::Quiet),
+    _logFileVerbosity(LogVerbosity::Quiet)
+{
+
+}
+//-----------------------------------------------------------------------------
+/** Constructor that only outputs console logs
+*/
+SLAssImp::SLAssImp(LogVerbosity consoleVerb)
+: _logFileVerbosity(LogVerbosity::Quiet)
+{ }
+
+//-----------------------------------------------------------------------------
+/** Constructor that allows logging to a file with different verbosity
+*/
+SLAssImp::SLAssImp(const SLstring& logFile, LogVerbosity logConsoleVerb, LogVerbosity logFileVerb)
+: _logConsoleVerbosity(logConsoleVerb),
+    _logFileVerbosity(logFileVerb)
+{ 
+    if (_logFileVerbosity > LogVerbosity::Quiet)
+        _log.open("../log/" + logFile);
+}
+
+//-----------------------------------------------------------------------------
+/** Destructor, closes the file stream if it was used
+*/
+SLAssImp::~SLAssImp()
+{
+    if (_logFileVerbosity > LogVerbosity::Quiet)
+        _log.close();
+}
+
+//-----------------------------------------------------------------------------
+/** Logs messages to the importer logfile and the console
+    @param     message     the message to add to the log
+    @param     verbosity   the verbosity of the message
+
+    @todo   Build a dedicated log class that can be instantiated (so  the importer can have its own)
+            Let this log class write to file etc.
+            Don't use printf anymore, its c. (c++11 has to_str, else we have to work with ss (ugh...))
+*/
+void SLAssImp::logMessage(const SLstring& message, LogVerbosity verbosity)
+{
+    if (_logConsoleVerbosity >= verbosity)
+        SL_LOG("%s", message.c_str());
+    if (_logFileVerbosity >= verbosity)
+        _log << message;
+}
+
+
+//-----------------------------------------------------------------------------
+/** Clears all helper containers
+*/
+void SLAssImp::clear()
+{
+    _nameToNode.clear();
+    _nameToBone.clear();
+    _boneGroups.clear();
+    _skeletonRoots.clear();
+    _skinnedMeshes.clear();
+}
+
 //-----------------------------------------------------------------------------
 /*! Loads the scene from a file and creates materials with textures, the 
 meshes and the nodes for the scene graph. Materials, textures and meshes are
@@ -781,14 +844,14 @@ SLAnimation* SLAssImp::loadAnimation(aiAnimation* anim)
         animName = anim->mName.C_Str();
 
     // LOG output
-    if (_logVerbosity >= LogVerbosity::Minimal)
+    if (_logConsoleVerbosity >= LogVerbosity::Minimal)
     {
         // [minimal log output here]
         SL_LOG("\n");
         SL_LOG("Loading animation %s\n", animName.c_str());
         
         // normal log verbosity output
-        if (_logVerbosity >= LogVerbosity::Normal)
+        if (_logConsoleVerbosity >= LogVerbosity::Normal)
         {
             // [normal log output here]
             SL_LOG(" Duration(seconds): %f \n", animDuration);
@@ -796,10 +859,10 @@ SLAnimation* SLAssImp::loadAnimation(aiAnimation* anim)
             SL_LOG(" Ticks per second: %f \n", animTicksPerSec);
             SL_LOG(" Num channels: %d\n", anim->mNumChannels);
             
-            if (_logVerbosity >= LogVerbosity::Detailed)
+            if (_logConsoleVerbosity >= LogVerbosity::Detailed)
             {
                 // [detailed log output here]
-                if (_logVerbosity >= LogVerbosity::Diagnostic)
+                if (_logConsoleVerbosity >= LogVerbosity::Diagnostic)
                 {
                     // [diagnostic log output here]
                 }
@@ -855,18 +918,18 @@ SLAnimation* SLAssImp::loadAnimation(aiAnimation* anim)
         }
                     
         // LOG output
-        if (_logVerbosity >= LogVerbosity::Minimal)
+        if (_logConsoleVerbosity >= LogVerbosity::Minimal)
         {
             // minimal log verbosity output
 
-            if (_logVerbosity >= LogVerbosity::Normal)
+            if (_logConsoleVerbosity >= LogVerbosity::Normal)
             {
                 // normal log verbosity output
                 SL_LOG("\n");
                 SL_LOG("  Channel %d %s", i, (isBoneNode) ? "(bone animation)\n" : "\n");
                 SL_LOG("   Affected node: %s\n", channel->mNodeName.C_Str());
 
-                if (_logVerbosity >= LogVerbosity::Detailed)
+                if (_logConsoleVerbosity >= LogVerbosity::Detailed)
                 {
                     // full log verbosity output
                     SL_LOG("   Num position keys: %d\n", channel->mNumPositionKeys);
@@ -923,7 +986,7 @@ SLAnimation* SLAssImp::loadAnimation(aiAnimation* anim)
              
 
         
-        if (_logVerbosity >= LogVerbosity::Normal)
+        if (_logConsoleVerbosity >= LogVerbosity::Normal)
             SL_LOG("   Found %d distinct keyframe timestamp(s).\n", keyframes.size());
 
         KeyframeMap::iterator it = keyframes.begin();
@@ -935,7 +998,7 @@ SLAnimation* SLAssImp::loadAnimation(aiAnimation* anim)
             kf->scale(getScaling(it->first, keyframes));
 
             // LOG output
-            if (_logVerbosity >= LogVerbosity::Detailed)
+            if (_logConsoleVerbosity >= LogVerbosity::Detailed)
             {
                 SL_LOG("\n");
                 SL_LOG("   Generating keyframe at time '%.2f'\n", it->first);
@@ -997,4 +1060,3 @@ SLstring SLAssImp::checkFilePath(SLstring modelPath, SLstring aiTexFile)
     return SLGLTexture::defaultPath + "TexNotFound.png";
 }
 //-----------------------------------------------------------------------------
-
