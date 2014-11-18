@@ -125,22 +125,30 @@ protected:
     SLNode* findLoadedNodeByName(const SLstring& name);
 
     // new intermediate containers
-    std::map<SLstring, aiNode*>             _nameToNode;    //!< map containing name to aiNode releationships
-    std::map<SLstring, aiBone*>             _nameToBone;    //!< map containing name to aiBone releationships
-    std::map<int, std::vector<SLstring>>    _boneGroups;    //!< map containing bone names combined under a group, used to find skeletons
-    std::vector<aiNode*>                    _skeletonRoots; //!< list containing the root nodes for all the skeletons found
-    std::vector<aiMesh*>                    _skinnedMeshes; //!< list containing all of the skinned meshes, used to assign the skinned materials
+    typedef std::map<SLstring, aiNode*> NodeMap;
+    typedef std::map<SLstring, SLMat4f> BoneMap;
+    typedef std::vector<aiNode*>        NodeList;
+    typedef std::vector<aiMesh*>        MeshList;
+
+    NodeMap		_nodeMap;    //!< map containing name to aiNode releationships
+    BoneMap		_boneMap;    //!< map containing name to bone offset matrices
+    aiNode*     _skeletonRoot;
+    MeshList	_skinnedMeshes; //!< list containing all of the skinned meshes, used to assign the skinned materials
+
+    // SL type containers
+    SLSkeleton* _skeleton;  //!< the loaded skeleton
 
     // new import helpers
     aiNode*         getNodeByName(const SLstring& name);    // return an aiNode ptr if name exists, or null if it doesn't
-    aiBone*         getBoneByName(const SLstring& name);    // return an aiBone ptr if name exists, or null if it doesn't
+	const SLMat4f*  getBoneByName(const SLstring& name);    // return an aiBone ptr if name exists, or null if it doesn't
 
     void            performInitialScan(const aiScene* scene);     // populates nameToNode, nameToBone, boneGroups, skinnedMeshes,
-    void            findAllNodes(const aiScene* scene);           // scans the assimp scene graph structure and populates nameToNode
-    void            findAllBones(const aiScene* scene);           // scans all meshes in the assimp scene and populates nameToBone and boneGroups
-    void            findDistinctSkeletons();                // goes over the boneGroups data to find non overlapping data
-    void            findSkeletonRoots();                    // finds the common ancestor for each remaining group in boneGroups, these are our final skeleton roots
-    
+    void            findNodes(aiNode* node, SLstring padding, SLbool lastChild);           // scans the assimp scene graph structure and populates nameToNode
+    void            findBones(const aiScene* scene);           // scans all meshes in the assimp scene and populates nameToBone and boneGroups
+    void            findSkeletonRoot();                    // finds the common ancestor for each remaining group in boneGroups, these are our final skeleton roots
+    void            loadSkeleton();
+
+
     /*SLGLTexture*    loadTexture(SLstring &path, SLTexType texType);
     SLMaterial*     loadMaterial(SLint index, aiMaterial* material, SLstring modelPath);
     SLMesh*         loadMesh(aiMesh *mesh);

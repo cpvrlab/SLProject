@@ -8,6 +8,8 @@
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
 
+#version 150
+
 //-----------------------------------------------------------------------------
 attribute vec4 a_position;          // Vertex position attribute
 attribute vec3 a_normal;            // Vertex normal attribute

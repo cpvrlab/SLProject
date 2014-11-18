@@ -427,7 +427,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
         light1->specular(SLCol4f(1.0f, 1.0f, 1.0f));
         light1->attenuation(1,0,0);
         
-        SLAssImp importer("TestLog.log", SLAssImp::LV_Quiet, SLAssImp::LV_Normal);
+        SLAssImp importer("TestLog.log", SLAssImp::LV_Quiet, SLAssImp::LV_Diagnostic);
         SLNode* simpleSkinnedMesh = importer.load("DAE/AstroBoy/AstroBoy.dae"); // <- not working currently, dont use!
         //SLNode* simpleSkinnedMesh = importer.load("FBX/Astroboy/astroboy_test.fbx"); 
         //SLNode* simpleSkinnedMesh = importer.load("3DS/Astroboy/Astroboy.3ds"); 

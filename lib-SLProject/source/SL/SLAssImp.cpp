@@ -37,6 +37,7 @@
 
 #include <stdafx.h>
 #include <cstdarg> // only needed because we wrap pintf in logMessage, read the todo and fix it!
+#include <iomanip> //std::setw
 #include <SLAssImp.h>
 #include <SLScene.h>
 #include <SLGLTexture.h>
@@ -371,6 +372,9 @@ SLNode* SLAssImp::load(SLstring file,        //!< File with path or on default p
     // initial scan of the scene
     performInitialScan(scene);
 
+    // load skeleton
+    loadSkeleton();
+
     // load materials
     SLstring modelPath = SLUtils::getPath(file);
     SLVMaterial materials;
@@ -413,6 +417,10 @@ SLNode* SLAssImp::load(SLstring file,        //!< File with path or on default p
     for (SLint i = 0; i < (SLint)scene->mNumAnimations; i++)
         animations.push_back(loadAnimation(scene->mAnimations[i]));
 
+
+    // clear the intermediate data
+    clear();
+
     return root;
 }
 
@@ -451,58 +459,193 @@ void SLAssImp::logMessage(LogVerbosity verbosity, const char* msg, ...)
 */
 void SLAssImp::clear()
 {
-    _nameToNode.clear();
-    _nameToBone.clear();
-    _boneGroups.clear();
-    _skeletonRoots.clear();
+    _nodeMap.clear();
+    _boneMap.clear();
+    _skeletonRoot = NULL;
+    _skeleton = NULL;
     _skinnedMeshes.clear();
 }
 //-----------------------------------------------------------------------------
 /** return an aiNode ptr if name exists, or null if it doesn't */
 aiNode* SLAssImp::getNodeByName(const SLstring& name)
 {
-    // @todo
-    return NULL;
+	if(_nodeMap.find(name) != _nodeMap.end())
+		return _nodeMap[name];
+
+	return NULL;
 }
 
 //-----------------------------------------------------------------------------
 /** return an aiBone ptr if name exists, or null if it doesn't */
-aiBone* SLAssImp::getBoneByName(const SLstring& name)
+const SLMat4f* SLAssImp::getBoneByName(const SLstring& name)
 {
-    // @todo
-    return NULL;
+	if(_boneMap.find(name) != _boneMap.end())
+		return &_boneMap[name];
+
+	return NULL;
 }
 
 //-----------------------------------------------------------------------------
 /** populates nameToNode, nameToBone, boneGroups, skinnedMeshes */
 void SLAssImp::performInitialScan(const aiScene* scene)
 {
-    // @todo
+    // populate the _nameToNode map and print the assimp structure on detailed log verbosity.
+    logMessage(LV_Detailed, "[Assimp scene]\n");
+    logMessage(LV_Detailed, "  Cameras: %d\n", scene->mNumCameras);
+    logMessage(LV_Detailed, "  Lights: %d\n", scene->mNumLights);
+    logMessage(LV_Detailed, "  Meshes: %d\n", scene->mNumMeshes);
+    logMessage(LV_Detailed, "  Materials: %d\n", scene->mNumMaterials);
+    logMessage(LV_Detailed, "  Textures: %d\n", scene->mNumTextures);
+    logMessage(LV_Detailed, "  Animations: %d\n", scene->mNumAnimations);
+    
+    logMessage(LV_Detailed, "---------------------------------------------\n");
+    logMessage(LV_Detailed, "  Node node tree: \n");
+    findNodes(scene->mRootNode, "  ", true);
+    
+    logMessage(LV_Detailed, "---------------------------------------------\n");
+    logMessage(LV_Detailed, "   Searching for skinned meshes and scanning bone names.\n");
+
+
+    findBones(scene);
+    findSkeletonRoot();
 }
 
 //-----------------------------------------------------------------------------
 /** scans the assimp scene graph structure and populates nameToNode */
-void SLAssImp::findAllNodes(const aiScene* scene)
-{
-    // @todo
+void SLAssImp::findNodes(aiNode* node, SLstring padding, SLbool lastChild)
+{ 
+    SLstring name = node->mName.C_Str();
+    // this should not happen
+    assert(_nodeMap.find(name) == _nodeMap.end() && "Duplicated node name found!");
+    _nodeMap[name] = node;
+    
+    //logMessage(LV_Detailed, "%s   |\n", padding.c_str());
+    logMessage(LV_Detailed, "%s  |-[%s]   (%d children, %d meshes)\n", 
+               padding.c_str(), 
+               name.c_str(), 
+               node->mNumChildren, 
+               node->mNumMeshes);
+    
+    if (lastChild) padding += "   ";
+    else padding += "  |";
+
+    for (SLint i = 0; i < node->mNumChildren; i++)
+    {
+        findNodes(node->mChildren[i], padding, (i == node->mNumChildren-1));
+    }
 }
 //-----------------------------------------------------------------------------
 /** scans all meshes in the assimp scene and populates nameToBone and boneGroups */
-void SLAssImp::findAllBones(const aiScene* scene)
+void SLAssImp::findBones(const aiScene* scene)
 {
-    // @todo
+    for (SLint i = 0; i < scene->mNumMeshes; i++)
+    {
+        aiMesh* mesh = scene->mMeshes[i];
+        if(!mesh->HasBones())
+            continue;
+
+		logMessage(LV_Normal, "   Mesh '%s' contains %d bones.\n", mesh->mName.C_Str(), mesh->mNumBones);
+
+		// mark this mesh as a skinned mesh
+		_skinnedMeshes.push_back(mesh);
+
+        for (SLint j = 0; j < mesh->mNumBones; j++)
+        {
+			SLstring name = mesh->mBones[j]->mName.C_Str();
+            std::map<SLstring, SLMat4f>::iterator it = _boneMap.find(name);
+			if(it != _boneMap.end())
+				continue;
+
+			SLMat4f offsetMat;
+			memcpy(&offsetMat, &mesh->mBones[j]->mOffsetMatrix, sizeof(SLMat4f));
+			offsetMat.transpose();
+			_boneMap[name] = offsetMat;
+
+
+			logMessage(LV_Detailed, "     Bone '%s' found.\n", name.c_str());
+        }
+    }
 }
-//-----------------------------------------------------------------------------
-/** goes over the boneGroups data to find non overlapping data */
-void SLAssImp::findDistinctSkeletons()
-{
-    // @todo
-}
+
 //-----------------------------------------------------------------------------
 /** finds the common ancestor for each remaining group in boneGroups, these are our final skeleton roots */
-void SLAssImp::findSkeletonRoots()
+void SLAssImp::findSkeletonRoot()
 {
-    // @todo
+	vector<NodeList> ancestorList(_boneMap.size());
+    SLint minDepth = INT_MAX;
+    SLint index = 0;
+
+    
+    logMessage(LV_Detailed, "Building bone ancestor lists.\n", _skeletonRoot->mName.C_Str());
+
+    BoneMap::iterator it = _boneMap.begin();
+    for (; it != _boneMap.end(); it++, index++)
+    {
+        aiNode* node = getNodeByName(it->first);
+        NodeList& list = ancestorList[index];
+
+        while (node)
+        {
+            list.insert(list.begin(), node);
+            node = node->mParent;
+        }
+
+        // log the gathered ancestor list if on diagnostic
+        if (LV_Diagnostic)
+        {
+            logMessage(LV_Diagnostic, "   '%s' ancestor list: ", it->first.c_str());
+            for (SLint i = 0; i < list.size(); i++)
+                logMessage(LV_Diagnostic, "'%s' ", list[i]->mName.C_Str());
+            logMessage(LV_Diagnostic, "\n");
+        }
+        else
+            logMessage(LV_Detailed, "   '%s' lies at a depth of %d\n", it->first.c_str(), list.size());
+
+        minDepth = min(minDepth, list.size());
+    }
+    
+    logMessage(LV_Detailed, "Bone ancestor lists completed, min depth: %d\n", minDepth);
+    
+    logMessage(LV_Detailed, "Searching ancestor lists for common ancestor.\n", _skeletonRoot->mName.C_Str());
+    // now we have a ancestor list for each bone node beginning with the root node
+    _skeletonRoot = NULL;
+    for (SLint i = 0; i < minDepth; i++) 
+    {
+        SLbool failed = false;
+        aiNode* lastMatch = ancestorList[0][i];
+        for (SLint j = 1; j < ancestorList.size(); j++)
+        {
+            if (ancestorList[j][i] != lastMatch)
+                failed = true;
+
+            lastMatch = ancestorList[j][i];
+        }
+
+        // all ancestors matched
+        if (!failed)
+        {
+            _skeletonRoot = lastMatch;
+            logMessage(LV_Detailed, "Found matching ancestor '%s'.\n", _skeletonRoot->mName.C_Str());
+        }
+        else
+        {
+            break;
+        }
+    }
+
+    logMessage(LV_Normal, "Determined '%s' to be the skeleton's root node.\n", _skeletonRoot->mName.C_Str());
+}
+//-----------------------------------------------------------------------------
+/** Loads the skeleton */
+void SLAssImp::loadSkeleton()
+{
+    // don't load if no skeleton root was found
+    if (!_skeletonRoot)
+        return;
+
+    logMessage(LV_Normal, "Loading skeleton skeleton.\n");
+
+
 }
 
 //-----------------------------------------------------------------------------
@@ -870,18 +1013,18 @@ SLBone* SLAssImp::loadSkeletonRec(aiNode* node, SLBone* parent)
     // it might be more desirable to have ZERO bone transformations in the initial pose
     // to be able to see the model without any bone modifications applied
     // exported state
-   /*
+    
     SLMat4f om;
     memcpy(&om, &node->mTransformation, sizeof(SLMat4f));
     om.transpose();
-    bone->om(om);*/
+    bone->om(om);
     
     // zero bone transform
-    SLMat4f om;
+    /*SLMat4f om;
     om = boneInfo->offsetMat.inverse();
     if (parent)
         om = parent->updateAndGetWM().inverse() * om;
-    bone->om(om);
+    bone->om(om);*/
     bone->setInitialState();
 
     // start building the node tree for the skeleton

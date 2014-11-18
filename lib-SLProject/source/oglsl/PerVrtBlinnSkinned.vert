@@ -105,7 +105,7 @@ void main()
 						+ 	u_boneMatrices[int(a_boneIds.y)] * a_boneWeights.y
 						+ 	u_boneMatrices[int(a_boneIds.z)] * a_boneWeights.z
 						+ 	u_boneMatrices[int(a_boneIds.w)] * a_boneWeights.w;
-                        
+                    
    vec3 P_VS = vec3(u_mvMatrix * boneTransform * a_position);
    vec3 N = normalize(vec3(u_nMatrix * transpose(inverse(mat3(boneTransform))) * a_normal)); 
    vec3 E = normalize(-P_VS);
