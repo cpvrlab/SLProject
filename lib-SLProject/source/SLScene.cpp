@@ -73,6 +73,7 @@ SLScene::SLScene(SLstring name) : SLObject(name)
     _btnCredits   = 0;
     _selectedMesh = 0;
     _selectedNode = 0;
+    _stopAnimations = false;
 
     _fps = 0;
     _elapsedTimeMS = 0;

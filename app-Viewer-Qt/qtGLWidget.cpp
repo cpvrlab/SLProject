@@ -337,7 +337,6 @@ void qtGLWidget::mouseMoveEvent(QMouseEvent *e)
     if (_sv->isSceneViewCameraActive())
          mainWindow->updateAllGLWidgets();
     else mainWindow->setMenuState();
-    cout << ".";
 }
 //-----------------------------------------------------------------------------
 /*!
