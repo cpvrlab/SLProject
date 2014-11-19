@@ -1,15 +1,20 @@
-#-------------------------------------------------
-#
-# Project created by QtCreator 2014-06-27T07:48:09
-#
-#-------------------------------------------------
+##############################################################################
+#  File:      app-Viewer-Qt.pro
+#  Purpose:   QMake project definition for SLProject Viewer Qt application
+#  Author:    Marcus Hudritsch
+#  Date:      February 2014
+#  Copyright: Marcus Hudritsch, Switzerland
+#             THIS SOFTWARE IS PROVIDED FOR EDUCATIONAL PURPOSE ONLY AND
+#             WITHOUT ANY WARRANTIES WHETHER EXPRESSED OR IMPLIED.
+##############################################################################
 
 TARGET = app-Viewer-Qt
 TEMPLATE = app
 
-CONFIG += console
-CONFIG += warn_off
-CONFIG -= qml_debug
+macx {ICON = SLProject-Icon.icns}
+
+CONFIG += desktop
+CONFIG += app_bundle
 
 QT += core gui widgets opengl
 

@@ -15,6 +15,7 @@
 #include "qtPropertyTreeItem.h"
 #include <QMessageBox>
 #include <QSplitter>
+#include <QIcon>
 #include <functional>
 
 #include <SL.h>

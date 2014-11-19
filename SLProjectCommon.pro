@@ -1,6 +1,13 @@
+##############################################################################
+#  File:      SLProject_common.pro
+#  Purpose:   QMake project definition for common SLProject projects
+#  Author:    Marcus Hudritsch
+#  Date:      February 2014
+#  Copyright: Marcus Hudritsch, Switzerland
+#             THIS SOFTWARE IS PROVIDED FOR EDUCATIONAL PURPOSE ONLY AND
+#             WITHOUT ANY WARRANTIES WHETHER EXPRESSED OR IMPLIED.
+##############################################################################
 
-
-CONFIG += console
 CONFIG += warn_off
 CONFIG -= qml_debug
 
