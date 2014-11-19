@@ -1392,7 +1392,7 @@
     <string>Animation off</string>
    </property>
    <property name="statusTip">
-    <string>Turns off scene wide allss animation.</string>
+    <string>Turns off scene wide all animations.</string>
    </property>
   </action>
   <action name="actionFullscreen">

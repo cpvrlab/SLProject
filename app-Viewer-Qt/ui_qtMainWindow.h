@@ -1069,7 +1069,7 @@ public:
 #endif // QT_NO_STATUSTIP
         actionAnimation_off->setText(QApplication::translate("qtMainWindow", "Animation off", 0));
 #ifndef QT_NO_STATUSTIP
-        actionAnimation_off->setStatusTip(QApplication::translate("qtMainWindow", "Turns off scene wide allss animation.", 0));
+        actionAnimation_off->setStatusTip(QApplication::translate("qtMainWindow", "Turns off scene wide all animations.", 0));
 #endif // QT_NO_STATUSTIP
         actionFullscreen->setText(QApplication::translate("qtMainWindow", "Fullscreen", 0));
 #ifndef QT_NO_STATUSTIP
