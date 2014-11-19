@@ -332,7 +332,7 @@ void SLGLTexture::drawSprite(SLbool doUpdate)
         _bufI.generate(I, 4, 1, SL_UNSIGNED_SHORT, SL_ELEMENT_ARRAY_BUFFER);
     }
    
-    SLGLProgram* sp = SLScene::current->shaderProgs(TextureOnly);
+    SLGLProgram* sp = SLScene::current->programs(TextureOnly);
    
     bindActive(0);              // Enable & build texture
     if (doUpdate) fullUpdate(); // Update the OpenGL texture on each draw

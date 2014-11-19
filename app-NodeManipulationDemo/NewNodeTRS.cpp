@@ -1,6 +1,7 @@
 
 #include <stdafx.h>
 #include "NewNodeTRS.h"
+#include "SLScene.h"
 #include "SLBox.h"
 #include "SLGLTexture.h"
 #include "SLMaterial.h"
@@ -36,7 +37,7 @@ SLbool NewNodeTRS::animateRec(SLfloat timeMS)
 {
    SLbool gotAnimated = false;
 
-   if (!_drawBits.get(SL_DB_ANIMOFF))
+   if (!SLScene::current->stopAnimations())
    {  
       if (_animation && !_animation->isFinished()) 
       {  _animation->animate(this, timeMS);

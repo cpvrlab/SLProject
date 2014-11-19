@@ -336,7 +336,7 @@ SLbool SLNode::animateRec(SLfloat timeMS)
 {  
     SLbool gotAnimated = false;
 
-    if (!_drawBits.get(SL_DB_ANIMOFF))
+    if (!SLScene::current->_stopAnimations)
     {  
         if (_animation && !_animation->isFinished()) 
         {  _animation->animate(this, timeMS);

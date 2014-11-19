@@ -736,6 +736,7 @@ public:
         toolBar->addAction(actionShow_Axis);
         toolBar->addAction(actionShow_Backfaces);
         toolBar->addAction(actionTextures_off);
+        toolBar->addSeparator();
         toolBar->addAction(actionAnimation_off);
         toolBar->addSeparator();
         toolBar->addAction(actionSplit_active_view_vertically);
@@ -1068,7 +1069,7 @@ public:
 #endif // QT_NO_STATUSTIP
         actionAnimation_off->setText(QApplication::translate("qtMainWindow", "Animation off", 0));
 #ifndef QT_NO_STATUSTIP
-        actionAnimation_off->setStatusTip(QApplication::translate("qtMainWindow", "Turns off any animation. Press shift to apply on all views.", 0));
+        actionAnimation_off->setStatusTip(QApplication::translate("qtMainWindow", "Turns off scene wide allss animation.", 0));
 #endif // QT_NO_STATUSTIP
         actionFullscreen->setText(QApplication::translate("qtMainWindow", "Fullscreen", 0));
 #ifndef QT_NO_STATUSTIP

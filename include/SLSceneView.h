@@ -20,7 +20,6 @@
 #include <SLPathtracer.h>
 #include <SLAABBox.h>
 #include <SLDrawBits.h>
-#include <SLAverage.h>
 #include <SLGLOculusFB.h>
 
 //-----------------------------------------------------------------------------
@@ -116,14 +115,14 @@ class SLSceneView: public SLObject
             SLbool          onCommand       (const SLCmd cmd);
             
             // Drawing subroutines
-            SLbool          updateAndDrawGL3D(SLfloat elapsedTimeSec);
-            SLbool          updateAndDrawRT3D(SLfloat elapsedTimeSec);
-            SLbool          updateAndDrawPT3D(SLfloat elapsedTimeSec);
-            void            draw3D          ();
-            void            draw3DNodeLines (SLVNode &nodes);
-            void            draw3DNodes     (SLVNode &nodes);
-            SLbool          updateAndDraw2D (SLfloat elapsedTimeSec);
-            void            draw2D          ();
+            SLbool          draw3DGL        (SLfloat elapsedTimeSec);
+            void            draw3DGLAll     ();
+            void            draw3DGLLines   (SLVNode &nodes);
+            void            draw3DGLNodes   (SLVNode &nodes);
+            void            draw2DGL        ();
+            void            draw2DGLAll     ();
+            SLbool          draw3DRT        ();
+            SLbool          draw3DPT        ();
             
             // SceneView camera
             void            initSceneViewCamera(const SLVec3f& dir = -SLVec3f::AXISZ, 
@@ -145,9 +144,9 @@ class SLSceneView: public SLObject
             void            printStats          () {_stats.print();}
 
             // Callback routines
-            cbOnWndUpdate   onWndUpdate;            //!< Callback for intermediate window repaint
-            cbOnSelectNodeMesh onSelectedNodeMesh;  //!< Callback on node selection
-            cbOnShowSysCursor onShowSysCursor;      //!< Callback for hiding and showing system cursor
+            cbOnWndUpdate       onWndUpdate;        //!< Callback for intermediate window repaint
+            cbOnSelectNodeMesh  onSelectedNodeMesh; //!< Callback on node selection
+            cbOnShowSysCursor   onShowSysCursor;    //!< Callback for hiding and showing system cursor
    
             // Setters
             void            camera          (SLCamera* camera) {_camera = camera;}
@@ -159,11 +158,12 @@ class SLSceneView: public SLObject
             void            showMenu        (SLbool show) {_showMenu = show;
                                                            SLScene::current->_menu2D = SLScene::current->_menuGL;}
             void            showInfo        (SLbool show) {_showInfo = show;}
+            void            gotPainted      (SLbool val) {_gotPainted = val;}
 
             // Getters
             SLuint          index           () {return _index;}
     inline  SLCamera*       camera          () {return _camera;}
-    inline  SLCamera*       sceneViewCamera    () {return &_sceneViewCamera;}
+    inline  SLCamera*       sceneViewCamera () {return &_sceneViewCamera;}
     inline  SLint           scrW            () {return _scrW;}
     inline  SLint           scrH            () {return _scrH;}
     inline  SLint           scrWdiv2        () {return _scrWdiv2;}
@@ -172,6 +172,7 @@ class SLSceneView: public SLObject
     inline  SLint           dpi             () {return _dpi;}
     inline  SLfloat         dpmm            () {return (float)_dpi/25.4f;}
     inline  SLQuat4f        deviceRotation  () {return _deviceRotation;}
+            SLbool          gotPainted      () {return _gotPainted;}
             SLbool          doFrustumCulling() {return _doFrustumCulling;}
             SLbool          doMultiSampling () {return _doMultiSampling;}
             SLbool          hasMultiSampling() {return _hasMultiSampling;}
@@ -180,7 +181,6 @@ class SLSceneView: public SLObject
             SLbool          showStats       () {return _showStats;}
             SLbool          showInfo        () {return _showInfo;}
             SLbool          showMenu        () {return _showMenu;}
-            SLfloat         fps             () {return _fps;}
             SLVNode*        blendNodes      () {return &_blendNodes;}
             SLVNode*        opaqueNodes     () {return &_opaqueNodes;}
             SLRaytracer*    raytracer       () {return &_raytracer;}
@@ -189,13 +189,17 @@ class SLSceneView: public SLObject
             SLGLOculusFB*   oculusFB        () {return &_oculusFB;}
             SLDrawBits*     drawBits        () {return &_drawBits;}
             SLbool          drawBit         (SLuint bit) {return _drawBits.get(bit);}
+            SLfloat         cullTimeMS      () {return _cullTimeMS;}
+            SLfloat         draw3DTimeMS    () {return _draw3DTimeMS;}
+            SLfloat         draw2DTimeMS    () {return _draw2DTimeMS;}
 
    protected:
             SLuint          _index;             //!< index of this pointer in SLScene::sceneView vector
             SLGLState*      _stateGL;           //!< Pointer to the global SLGLState instance
             SLCamera*       _camera;            //!< Pointer to the _active camera
-            SLCamera        _sceneViewCamera;      //!< Default editor camera for this SceneView (default cam not in scenegraph)
+            SLCamera        _sceneViewCamera;   //!< Default camera for this SceneView (default cam not in scenegraph)
             SLNodeStats     _stats;             //!< Statistic numbers
+            SLbool          _gotPainted;        //!< flag if this sceneview got painted
 
             SLRenderer      _renderType;        //!< rendering type (GL,RT,PT)
             
@@ -210,17 +214,14 @@ class SLSceneView: public SLObject
             SLbool          _showStats;         //!< Flag if stats should be displayed
             SLbool          _showInfo;          //!< Flag if help should be displayed
             SLbool          _showLoading;       //!< Flag if loading should be displayed
-            
-     static SLfloat         _lastFrameMS;       //!< Last frame time (this is static to work around a current bad design (see todo in onPaint))
-            SLfloat         _fps;               //!< Averaged no. of frames per second
-            SLAvgFloat      _frameTimeMS;       //!< Averaged time per frame in ms
-            SLAvgFloat      _updateTimeMS;      //!< Averaged time for update in ms
-            SLAvgFloat      _cullTimeMS;        //!< Averaged time for culling in ms
-            SLAvgFloat      _draw3DTimeMS;      //!< Averaged time for 3D drawing in ms
-            SLAvgFloat      _draw2DTimeMS;      //!< Averaged time for 2D drawing in ms
+
             SLuint          _totalBufferCount;  //!< Total NO. of VBOs in last frame
             SLuint          _totalBufferSize;   //!< Total size of buffer memory in last frame
             SLuint          _totalDrawCalls;    //!< Total NO. of drawCalls in last frame
+
+            SLfloat         _cullTimeMS;        //!< time for culling in ms
+            SLfloat         _draw3DTimeMS;      //!< time for 3D drawing in ms
+            SLfloat         _draw2DTimeMS;      //!< time for 2D drawing in ms
 
             SLbool          _mouseDownL;        //!< Flag if left mouse button is pressed
             SLbool          _mouseDownR;        //!< Flag if right mouse button is pressed

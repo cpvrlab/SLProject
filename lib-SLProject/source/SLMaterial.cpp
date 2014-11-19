@@ -90,7 +90,7 @@ SLMaterial::SLMaterial(SLCol4f uniformColor, const SLchar* name)
     _emission.set(0,0,0,0);
     _shininess = 125;
    
-    _program = SLScene::current->shaderProgs(ColorUniform);
+    _program = SLScene::current->programs(ColorUniform);
    
     _kr = 0.0f;
     _kt = 0.0f;
@@ -126,8 +126,8 @@ void SLMaterial::activate(SLGLState* state, SLDrawBits drawBits)
     // If no shader program is attached add the default shader program
     if (!_program)
     {   if (_textures.size()>0)
-             program(s->shaderProgs(PerVrtBlinnTex));
-        else program(s->shaderProgs(PerVrtBlinn));
+             program(s->programs(PerVrtBlinnTex));
+        else program(s->programs(PerVrtBlinn));
     }
 
     // Check if shader had compile error and the error texture should be shown

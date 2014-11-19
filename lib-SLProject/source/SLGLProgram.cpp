@@ -38,7 +38,7 @@ SLGLProgram::SLGLProgram(SLstring vertShaderFile,
     addShader(new SLGLShader(defaultPath+fragShaderFile, FragmentShader));
 
     // Add pointer to the global resource vectors for deallocation
-    SLScene::current->shaderProgs().push_back(this);
+    SLScene::current->programs().push_back(this);
 }
 //-----------------------------------------------------------------------------
 //! The destructor detaches all shader objects and deletes them

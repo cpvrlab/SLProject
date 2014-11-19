@@ -53,7 +53,7 @@ void SLText::drawRec(SLSceneView* sv)
     _font->bindActive();
 
     // Setup shader
-    SLGLProgram* sp = SLScene::current->shaderProgs(FontTex);
+    SLGLProgram* sp = SLScene::current->programs(FontTex);
     SLGLState* state = SLGLState::getInstance();
     sp->useProgram();
     sp->uniformMatrix4fv("u_mvpMatrix", 1,
