@@ -217,11 +217,12 @@ SLMesh* loadMesh(aiMesh *mesh)
     // copy vertex positions & texCoord
     for(SLuint i = 0; i < m->numV; ++i)
     {   m->P[i].set(mesh->mVertices[i].x, 
-        mesh->mVertices[i].y, 
-        mesh->mVertices[i].z);
+                    mesh->mVertices[i].y,
+                    mesh->mVertices[i].z);
         if (m->Tc)
-        m->Tc[i].set(mesh->mTextureCoords[0][i].x,
-        mesh->mTextureCoords[0][i].y);
+            m->Tc[i].set(mesh->mTextureCoords[0][i].x,
+                         mesh->mTextureCoords[0][i].y);
+
     }
 
     // create face index array
@@ -252,7 +253,14 @@ SLMesh* loadMesh(aiMesh *mesh)
         }
     }
 
-    m->calcNormals();
+    // Load normals if available
+    if (mesh->HasNormals())
+    {   for(SLuint i = 0; i < m->numV; ++i)
+        {   m->N[i].set(mesh->mNormals[i].x,
+                        mesh->mNormals[i].y,
+                        mesh->mNormals[i].z);
+        }
+    } else m->calcNormals();
 
     return m;
 }
