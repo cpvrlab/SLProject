@@ -126,15 +126,6 @@
     <ClInclude Include="..\include\SLGLShader.h">
       <Filter>GL</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\SLGLShaderProg.h">
-      <Filter>GL</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\SLGLShaderProgGeneric.h">
-      <Filter>GL</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\SLGLShaderUniform.h">
-      <Filter>GL</Filter>
-    </ClInclude>
     <ClInclude Include="..\include\SLGLState.h">
       <Filter>GL</Filter>
     </ClInclude>
@@ -221,6 +212,15 @@
     </ClInclude>
     <ClInclude Include="..\include\TriangleBoxIntersect.h">
       <Filter>Math</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\SLGLGenericProgram.h">
+      <Filter>GL</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\SLGLProgram.h">
+      <Filter>GL</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\SLGLUniform.h">
+      <Filter>GL</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -314,9 +314,6 @@
     <ClCompile Include="source\SLGLShader.cpp">
       <Filter>GL</Filter>
     </ClCompile>
-    <ClCompile Include="source\SLGLShaderProg.cpp">
-      <Filter>GL</Filter>
-    </ClCompile>
     <ClCompile Include="source\SLGLState.cpp">
       <Filter>GL</Filter>
     </ClCompile>
@@ -355,6 +352,9 @@
     </ClCompile>
     <ClCompile Include="source\math\SLPlane.cpp">
       <Filter>Math</Filter>
+    </ClCompile>
+    <ClCompile Include="source\SLGLProgram.cpp">
+      <Filter>GL</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
