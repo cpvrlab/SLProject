@@ -21,10 +21,11 @@ int main(int argc, char *argv[])
         for(int i = 1; i < argc; i++)
             cmdLineArgs.push_back(argv[i]);
 
-        QApplication a(argc, argv);
-        qtMainWindow w(0, cmdLineArgs);
-        w.show();
-        return a.exec();
+        QApplication app(argc, argv);
+        app.setWindowIcon(QIcon("appIcon36.png"));
+        qtMainWindow wnd(0, cmdLineArgs);
+        wnd.show();
+        return app.exec();
     #else
         QLabel note("OpenGL Support required");
         note.show();

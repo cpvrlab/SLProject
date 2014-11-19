@@ -166,6 +166,7 @@ class qtMainWindow : public QMainWindow
 
 private:
         Ui::qtMainWindow*  ui;
+        std::vector<qtGLWidget*> _allGLWidgets;
         qtGLWidget*       _activeGLWidget;
         qtNodeTreeItem*   _selectedNodeItem;
         QMenu*            _menuFile;

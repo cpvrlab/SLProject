@@ -92,10 +92,13 @@ The code is provided without any warranties whether expressed or implied.
         </ul>
     </li>
     <li>
-        SLInterface.h and SLInterface.cpp define the C-Interface of the SLProject library. 
-        We use a C-interface because this type can be called from any higher level language.
-        The SLInterface talks only to the SLScene and SLSceneView classes (blue classes).
         <ul>
+            The blue classes form the center of the SLProject framework:
+            <li>
+                SLInterface.h and SLInterface.cpp define the C-Interface of the SLProject library.
+                We use a C-interface because this type can be called from any higher level language.
+                The SLInterface talks only to the SLScene and SLSceneView classes.
+            </li>
             <li>
                 SLScene is the toplevel class of the framework that represents the scene with
                 its properties. The scene content is created in SLScene::onLoad.

@@ -234,7 +234,7 @@ void SLGLBuffer::drawArrayAsConstantColorLines(SLCol3f color,
    
     // Prepare shader
     SLMaterial::current = 0;
-    SLGLProgram* sp = SLScene::current->shaderProgs(ColorUniform);
+    SLGLProgram* sp = SLScene::current->programs(ColorUniform);
     SLGLState* state = SLGLState::getInstance();
     sp->useProgram();
     sp->uniformMatrix4fv("u_mvpMatrix", 1, (SLfloat*)state->mvpMatrix());
@@ -282,7 +282,7 @@ void SLGLBuffer::drawArrayAsConstantColorLineStrip(SLCol3f color,
    
     // Prepare shader
     SLMaterial::current = 0;
-    SLGLProgram* sp = SLScene::current->shaderProgs(ColorUniform);
+    SLGLProgram* sp = SLScene::current->programs(ColorUniform);
     SLGLState* state = SLGLState::getInstance();
     sp->useProgram();
     sp->uniformMatrix4fv("u_mvpMatrix", 1, (SLfloat*)state->mvpMatrix());
@@ -324,7 +324,7 @@ void SLGLBuffer::drawArrayAsConstantColor(SLPrimitive primitiveType,
    
     // Prepare shader
     SLMaterial::current = 0;
-    SLGLProgram* sp = SLScene::current->shaderProgs(ColorUniform);
+    SLGLProgram* sp = SLScene::current->programs(ColorUniform);
     SLGLState* state = SLGLState::getInstance();
     sp->useProgram();
     sp->uniformMatrix4fv("u_mvpMatrix", 1, (SLfloat*)state->mvpMatrix());
@@ -373,7 +373,7 @@ void SLGLBuffer::drawArrayAsConstantColorPoints(SLCol4f color,
    
     // Prepare shader
     SLMaterial::current = 0;
-    SLGLProgram* sp = SLScene::current->shaderProgs(ColorUniform);
+    SLGLProgram* sp = SLScene::current->programs(ColorUniform);
     SLGLState* state = SLGLState::getInstance();
     sp->useProgram();
     sp->uniformMatrix4fv("u_mvpMatrix", 1,

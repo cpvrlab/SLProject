@@ -185,11 +185,8 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
     // Show once the empty loading screen without scene
     // @todo review this, we still pass in the active scene view with sv. Is it necessary?
     for (SLint i = 0; i < _sceneViews.size(); ++i)
-    {
-        if (_sceneViews[i] != NULL)
-        {   _sceneViews[i]->showLoading(true);
-        }
-    }
+        if (_sceneViews[i]!=NULL)
+            _sceneViews[i]->showLoading(true);
 
     // @todo we need to repaint all the scene views so that the loading screen is visible!
     //sv->onInitialize();
@@ -1629,8 +1626,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
     //       implemented better.
 
     for (SLint i = 0; i < _sceneViews.size(); ++i)
-    {
-        if (_sceneViews[i] != NULL)
+    {   if (_sceneViews[i] != NULL)
         {   _sceneViews[i]->onInitialize();
             _sceneViews[i]->showLoading(false);
         }

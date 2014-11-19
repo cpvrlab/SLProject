@@ -73,6 +73,14 @@ SLScene::SLScene(SLstring name) : SLObject(name)
     _btnCredits   = 0;
     _selectedMesh = 0;
     _selectedNode = 0;
+
+    _fps = 0;
+    _elapsedTimeMS = 0;
+    _frameTimesMS.init();
+    _updateTimesMS.init();
+    _cullTimesMS.init();
+    _draw3DTimesMS.init();
+    _draw2DTimesMS.init();
      
     // Load std. shader programs in order as defined in SLStdShaderProgs enum
     // In the constructor they are added the _shaderProgs vector
@@ -135,7 +143,7 @@ SLScene::~SLScene()
 {
     // Delete all remaining sceneviews
     for (SLint i = 0; i < _sceneViews.size(); ++i)
-        if (_sceneViews[i])
+        if (_sceneViews[i]!=NULL)
             delete _sceneViews[i];
 
     unInit();
@@ -210,12 +218,8 @@ void SLScene::unInit()
 
     // reset existing sceneviews
     for (SLint i = 0; i < _sceneViews.size(); ++i)
-    {   if(_sceneViews[i] != NULL) 
-        {   
-            // Resets sceneview camera to their own
+        if (_sceneViews[i]!=NULL)
             _sceneViews[i]->camera(_sceneViews[i]->sceneViewCamera());
-        }
-    }
 
     // delete entire scene graph
     delete _root3D;
@@ -257,6 +261,62 @@ void SLScene::unInit()
     // reset all states
     SLGLState::getInstance()->initAll();
 }
+//-----------------------------------------------------------------------------
+//! Updates all animations in the scene after all views got painted.
+/*! Updates all animations in the scene after all views got painted.
+\return true if realy something got updated
+*/
+bool SLScene::updateIfAllViewsGotPainted()
+{
+    // Return if not all sceneview got repainted
+    for (int i = 0; i < _sceneViews.size(); ++i)
+        if (_sceneViews[i]!=NULL && !_sceneViews[i]->gotPainted())
+            return false;
+
+    // Reset all _gotPainted flags
+    for (int i = 0; i < _sceneViews.size(); ++i)
+        if (_sceneViews[i]!=NULL)
+            _sceneViews[i]->gotPainted(false);
+
+    // Calculate the elapsed time for the animation
+    _elapsedTimeMS = timeMilliSec() - _lastUpdateTimeMS;
+
+    // Sum up times of all scene views
+    SLfloat sumCullTimeMS   = 0.0f;
+    SLfloat sumDraw3DTimeMS = 0.0f;
+    SLfloat sumDraw2DTimeMS = 0.0f;
+    for (SLint i = 0; i < _sceneViews.size(); ++i)
+    {   if (_sceneViews[i]!=NULL)
+        {   sumCullTimeMS   += _sceneViews[i]->cullTimeMS();
+            sumDraw3DTimeMS += _sceneViews[i]->draw3DTimeMS();
+            sumDraw2DTimeMS += _sceneViews[i]->draw2DTimeMS();
+        }
+    }
+    _cullTimesMS.set(sumCullTimeMS);
+    _draw3DTimesMS.set(sumDraw3DTimeMS);
+    _draw2DTimesMS.set(sumDraw2DTimeMS);
+
+    // Calculate the frames per second metric
+    _frameTimesMS.set(_elapsedTimeMS);
+    _fps = 1 / _frameTimesMS.average() * 1000.0f;
+    if (_fps < 0.0f) _fps = 0.0f;
+
+    // Do animations
+    SLfloat startUpdateMS = timeMilliSec();
+    SLbool animated = !_stopAnimations && _root3D->animateRec(_elapsedTimeMS);
+
+    //@todo Don't slow down if we're in HMD stereo mode
+    //animated = animated || _ camera->projection() == stereoSideBySideD;
+
+    // Update the world matrix & AABBs efficiently
+    SLGLState::getInstance()->modelViewMatrix.identity();
+    _root3D->updateAABBRec();
+
+    _updateTimesMS.set(timeMilliSec()-startUpdateMS);
+    _lastUpdateTimeMS = timeMilliSec();
+    return animated;
+}
+
 //-----------------------------------------------------------------------------
 /*!
 SLScene::info deletes previous info text and sets new one with a max. width 
@@ -327,9 +387,9 @@ SLbool SLScene::onCommandAllSV(const SLCmd cmd)
 {
     SLbool result = false;
     for(SLint i=0; i<_sceneViews.size(); ++i)
-    {
-        result = _sceneViews[i]->onCommand(cmd) ? true : result;
-    }
+        if (_sceneViews[0]!=NULL)
+            result = _sceneViews[i]->onCommand(cmd) ? true : result;
+
     return true;
 }
 //-----------------------------------------------------------------------------

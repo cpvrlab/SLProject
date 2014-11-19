@@ -54,12 +54,13 @@ qtGLWidget::qtGLWidget(QGLFormat &format,
 {
     setFocusPolicy(Qt::ClickFocus); // to receive keyboard focus on mouse click
     setAutoBufferSwap(false);       // for correct framerate (see paintGL)
+    setMouseTracking(false);        // fires only if mouse button is pressed;
     _appPath = appPath;
     _cmdLineArgs = cmdLineArgs;
     _svIndex = 0;
     _touch2.set(-1,-1);
     _touchDelta.set(-1,-1);
-    setMouseTracking(true);
+    mainWindow->_allGLWidgets.push_back(this);
 }
 //-----------------------------------------------------------------------------
 /*!
@@ -71,15 +72,20 @@ qtGLWidget::qtGLWidget(QWidget* parent,
 {
     setFocusPolicy(Qt::ClickFocus);  // to receive keyboard focus on mouse click
     setAutoBufferSwap(false);        // for correct framerate (see paintGL)
+    setMouseTracking(false);         // fires only if mouse button is pressed;
     _sv = 0;
     _touch2.set(-1,-1);
     _touchDelta.set(-1,-1);
-    setMouseTracking(true);
+    mainWindow->_allGLWidgets.push_back(this);
 }
 
 //-----------------------------------------------------------------------------
 qtGLWidget::~qtGLWidget()
 {
+    // remove pointer from the qtGLWidget vector (so ugly!!!)
+    std::vector<qtGLWidget*>& all = mainWindow->_allGLWidgets;
+    all.erase(remove(all.begin(), all.end(), this), all.end());
+
     SL_LOG("~qtGLWidget\n");
 }
 
@@ -162,16 +168,18 @@ paintGL: Paint event handler that passes the event to the according slPaint
 function.
 */
 void qtGLWidget::paintGL()
-{   
-    bool updated = slPaint(_svIndex);
+{
+    bool sceneGotUpdated = SLScene::current->updateIfAllViewsGotPainted();
+    bool viewNeedsUpdate = slPaint(_svIndex);
 
     swapBuffers();
    
     // Build caption string with scene name and fps
-    qtGLWidget::mainWindow->setWindowTitle(slGetWindowTitle(_svIndex).c_str());
-   
+    mainWindow->setWindowTitle(slGetWindowTitle(_svIndex).c_str());
+
     // Simply call update for constant repaint. Never call paintGL directly
-    if (updated) update();
+    if (sceneGotUpdated || viewNeedsUpdate)
+        mainWindow->updateAllGLWidgets();
 }
 //-----------------------------------------------------------------------------
 /*!
@@ -219,13 +227,16 @@ void qtGLWidget::mousePressEvent(QMouseEvent *e)
         }
     } else // normal mouse down
     {   if (e->button()==Qt::LeftButton)
-        {  if (slMouseDown(_svIndex, ButtonLeft, x, y, modifiers)) updateGL();
+        {   if (slMouseDown(_svIndex, ButtonLeft, x, y, modifiers))
+                mainWindow->updateAllGLWidgets();
         } else
         if (e->button()==Qt::RightButton)
-        {  if (slMouseDown(_svIndex, ButtonRight, x, y, modifiers)) updateGL();
+        {   if (slMouseDown(_svIndex, ButtonRight, x, y, modifiers))
+                mainWindow->updateAllGLWidgets();
         } else
         if (e->button()==Qt::MidButton)
-        {  if (slMouseDown(_svIndex, ButtonMiddle, x, y, modifiers)) updateGL();
+        {   if (slMouseDown(_svIndex, ButtonMiddle, x, y, modifiers))
+                mainWindow->updateAllGLWidgets();
         }
     }
 }
@@ -256,7 +267,8 @@ void qtGLWidget::mouseReleaseEvent(QMouseEvent *e)
 
     // if only sceneview camera is used update only this GL widget
     // if a scene camera is used update all GL widgets
-    if (_sv->isSceneViewCameraActive()) updateGL(); 
+    if (_sv->isSceneViewCameraActive())
+         mainWindow->updateAllGLWidgets();
     else mainWindow->setMenuState(); 
 }
 //-----------------------------------------------------------------------------
@@ -275,13 +287,16 @@ void qtGLWidget::mouseDoubleClickEvent(QMouseEvent *e)
     int y = (int)((float)e->y() * devicePixelRatio());
 
     if (e->button()==Qt::LeftButton)
-    {  if (slDoubleClick(_svIndex, ButtonLeft, x, y, modifiers)) updateGL();
+    {   if (slDoubleClick(_svIndex, ButtonLeft, x, y, modifiers))
+            mainWindow->updateAllGLWidgets();
     } else
     if (e->button()==Qt::RightButton) 
-    {  if (slDoubleClick(_svIndex, ButtonRight, x, y, modifiers)) updateGL();
+    {   if (slDoubleClick(_svIndex, ButtonRight, x, y, modifiers))
+            mainWindow->updateAllGLWidgets();
     } else 
     if (e->button()==Qt::MidButton) 
-    {  if (slDoubleClick(_svIndex, ButtonMiddle, x, y, modifiers)) updateGL();
+    {   if (slDoubleClick(_svIndex, ButtonMiddle, x, y, modifiers))
+            mainWindow->updateAllGLWidgets();
     }
 }
 //-----------------------------------------------------------------------------
@@ -319,8 +334,10 @@ void qtGLWidget::mouseMoveEvent(QMouseEvent *e)
 
     // if only sceneview camera is used update only this GL widget
     // if a scene camera is used update all GL widgets
-    if (_sv->isSceneViewCameraActive()) updateGL(); 
-    else mainWindow->setMenuState(); 
+    if (_sv->isSceneViewCameraActive())
+         mainWindow->updateAllGLWidgets();
+    else mainWindow->setMenuState();
+    cout << ".";
 }
 //-----------------------------------------------------------------------------
 /*!
@@ -338,7 +355,8 @@ void qtGLWidget::wheelEvent(QWheelEvent *e)
 
     // if only sceneview camera is used update only this GL widget
     // if a scene camera is used update all GL widgets
-    if (_sv->isSceneViewCameraActive()) updateGL();
+    if (_sv->isSceneViewCameraActive())
+         mainWindow->updateAllGLWidgets();
     else mainWindow->setMenuState();
 } 
 //-----------------------------------------------------------------------------
@@ -388,7 +406,8 @@ void qtGLWidget::keyPressEvent(QKeyEvent* e)
     {
         // if only sceneview camera is used update only this GL widget
         // if a scene camera is used update all GL widgets
-        if (_sv->isSceneViewCameraActive()) updateGL();
+        if (_sv->isSceneViewCameraActive())
+             mainWindow->updateAllGLWidgets();
         else mainWindow->setMenuState();
     }
 }
@@ -437,7 +456,8 @@ void qtGLWidget::keyReleaseEvent(QKeyEvent* e)
     {
         // if only sceneview camera is used update only this GL widget
         // if a scene camera is used update all GL widgets
-        if (_sv->isSceneViewCameraActive()) updateGL();
+        if (_sv->isSceneViewCameraActive())
+             mainWindow->updateAllGLWidgets();
         else mainWindow->setMenuState();
     }
 }

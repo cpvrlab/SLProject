@@ -50,6 +50,8 @@ class qtGLWidget : public QGLWidget
             void            keyReleaseEvent      (QKeyEvent   *e);
 
             qtGLWidget*     splitActive          (Qt::Orientation orientation);
+
+            // Getters
             SLSceneView*    sv                   () {return _sv;}
             int             svIndex              () {return _svIndex;}
 

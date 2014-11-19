@@ -205,7 +205,7 @@ void SLGLOculus::init()
 */
 void SLGLOculus::renderDistortion(SLint width, SLint height, SLuint tex)
 {
-    SLGLProgram* sp = SLScene::current->shaderProgs(StereoOculusDistortionMesh);
+    SLGLProgram* sp = SLScene::current->programs(StereoOculusDistortionMesh);
 
     glViewport(0, 0, width, height);
     glBindFramebuffer(GL_FRAMEBUFFER, 0);

@@ -59,14 +59,15 @@ frame buffer swapping. The FPS calculation is done in slGetWindowTitle.
 */
 SLbool onPaint()
 {
-    bool updated = slPaint(svIndex);
-   
+    bool sceneGotUpdated = SLScene::current->updateIfAllViewsGotPainted();
+    bool viewNeedsUpdate = slPaint(svIndex);
+
     // Fast copy the back buffer to the front buffer. This is OS dependent.
     glfwSwapBuffers(window);
-   
-    // Show the title generetad by the scene library (FPS etc.)
+
+    // Show the title genereted by the scene library (FPS etc.)
     glfwSetWindowTitle(window, slGetWindowTitle(svIndex).c_str());
-    return updated;
+    return sceneGotUpdated || viewNeedsUpdate;
 }
 
 //-----------------------------------------------------------------------------

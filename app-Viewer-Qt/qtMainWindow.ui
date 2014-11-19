@@ -393,6 +393,7 @@
    <addaction name="actionShow_Axis"/>
    <addaction name="actionShow_Backfaces"/>
    <addaction name="actionTextures_off"/>
+   <addaction name="separator"/>
    <addaction name="actionAnimation_off"/>
    <addaction name="separator"/>
    <addaction name="actionSplit_active_view_vertically"/>
@@ -1391,7 +1392,7 @@
     <string>Animation off</string>
    </property>
    <property name="statusTip">
-    <string>Turns off any animation. Press shift to apply on all views.</string>
+    <string>Turns off scene wide allss animation.</string>
    </property>
   </action>
   <action name="actionFullscreen">
