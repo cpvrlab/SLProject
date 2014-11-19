@@ -408,12 +408,12 @@
     <ClInclude Include="..\include\SLEventHandler.h" />
     <ClInclude Include="..\include\SLFileSystem.h" />
     <ClInclude Include="..\include\SLGLBuffer.h" />
+    <ClInclude Include="..\include\SLGLGenericProgram.h" />
     <ClInclude Include="..\include\SLGLOculus.h" />
     <ClInclude Include="..\include\SLGLOculusFB.h" />
     <ClInclude Include="..\include\SLGLOVRWorkaround.h" />
+    <ClInclude Include="..\include\SLGLProgram.h" />
     <ClInclude Include="..\include\SLGLShader.h" />
-    <ClInclude Include="..\include\SLGLShaderProg.h" />
-    <ClInclude Include="..\include\SLGLShaderProgGeneric.h" />
     <ClInclude Include="..\include\SLGLShaderUniform.h" />
     <ClInclude Include="..\include\SLGLState.h" />
     <ClInclude Include="..\include\SLGLTexture.h" />
@@ -472,8 +472,8 @@
     <ClCompile Include="source\SLGLBuffer.cpp" />
     <ClCompile Include="source\SLGLOculus.cpp" />
     <ClCompile Include="source\SLGLOculusFB.cpp" />
+    <ClCompile Include="source\SLGLProgram.cpp" />
     <ClCompile Include="source\SLGLShader.cpp" />
-    <ClCompile Include="source\SLGLShaderProg.cpp" />
     <ClCompile Include="source\SLGLState.cpp" />
     <ClCompile Include="source\SLGLTexture.cpp" />
     <ClCompile Include="source\SLGrid.cpp" />
