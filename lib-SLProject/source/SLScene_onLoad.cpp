@@ -359,14 +359,14 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
 
 
         #if defined(SL_OS_IOS) || defined(SL_OS_ANDROID)
-        SLNode* mesh3DS = SLAssImp::load("jackolan.3DS");
+        SLNode* mesh3DS = SLAssImp::load("jackolan.3ds");
         SLNode* meshDAE = SLAssImp::load("AstroBoy.dae");
-        SLNode* meshFBX = SLAssImp::load("Duck.fbx");
+        SLNode* meshFBX = SLAssImp::load("duck.fbx");
       
         #else
-        SLNode* mesh3DS = SLAssImp::load("3DS/Halloween/Jackolan.3DS");
+        SLNode* mesh3DS = SLAssImp::load("3DS/Halloween/jackolan.3ds");
         SLNode* meshDAE = SLAssImp::load("DAE/AstroBoy/AstroBoy.dae");
-        SLNode* meshFBX = SLAssImp::load("FBX/Duck/Duck.fbx");
+        SLNode* meshFBX = SLAssImp::load("FBX/Duck/duck.fbx");
         #endif
 
         // Scale to so that the AstroBoy is about 2 (meters) high.

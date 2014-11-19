@@ -1,7 +1,7 @@
 /********************************************************************************
 ** Form generated from reading UI file 'qtMainWindow.ui'
 **
-** Created by: Qt User Interface Compiler version 5.3.2
+** Created by: Qt User Interface Compiler version 5.3.0
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
 ********************************************************************************/
@@ -479,7 +479,7 @@ public:
         qtMainWindow->setCentralWidget(centralWidget);
         menuBar = new QMenuBar(qtMainWindow);
         menuBar->setObjectName(QStringLiteral("menuBar"));
-        menuBar->setGeometry(QRect(0, 0, 723, 22));
+        menuBar->setGeometry(QRect(0, 0, 723, 25));
         menuBar->setDefaultUp(false);
         menuBar->setNativeMenuBar(false);
         menuFile = new QMenu(menuBar);
@@ -535,7 +535,7 @@ public:
         sizePolicy.setVerticalStretch(0);
         sizePolicy.setHeightForWidth(dockScenegraph->sizePolicy().hasHeightForWidth());
         dockScenegraph->setSizePolicy(sizePolicy);
-        dockScenegraph->setMinimumSize(QSize(160, 100));
+        dockScenegraph->setMinimumSize(QSize(160, 103));
         dockScenegraph->setFloating(false);
         dockWidgetContents = new QWidget();
         dockWidgetContents->setObjectName(QStringLiteral("dockWidgetContents"));
@@ -579,7 +579,7 @@ public:
         qtMainWindow->addToolBar(Qt::TopToolBarArea, toolBar);
         dockProperties = new QDockWidget(qtMainWindow);
         dockProperties->setObjectName(QStringLiteral("dockProperties"));
-        dockProperties->setMinimumSize(QSize(160, 100));
+        dockProperties->setMinimumSize(QSize(160, 103));
         dockWidgetContents_2 = new QWidget();
         dockWidgetContents_2->setObjectName(QStringLiteral("dockWidgetContents_2"));
         verticalLayout = new QVBoxLayout(dockWidgetContents_2);
