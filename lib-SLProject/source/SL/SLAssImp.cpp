@@ -85,6 +85,8 @@ typedef std::map<SLfloat, KeyframeData> KeyframeMap;
 
 
 // helper functions
+// @todo we can probably make the getTranslation, getRotation and getScaling functions smaller by putting the common
+//       functionality in a sepearte function
 
 /*  Get the correct translation out of the keyframes map for a given time
     this function interpolates linearly if no value is present in the 
@@ -395,12 +397,12 @@ SLNode* SLAssImp::load(SLstring file,        //!< File with path or on default p
     
     // add skinned material to the meshes with bone animations
     // @todo: Can we do skinning in the shader without the need to dictated which material to use?
-    if (skinnedMeshes.size() > 0) {
+    if (_skinnedMeshes.size() > 0) {
         SLGLShaderProgGeneric* skinningShader = new SLGLShaderProgGeneric("PerVrtBlinnSkinned.vert","PerVrtBlinn.frag");
         SLGLShaderProgGeneric* skinningShaderTex = new SLGLShaderProgGeneric("PerPixBlinnTexSkinned.vert","PerPixBlinnTex.frag");
-        for (SLint i = 0; i < skinnedMeshes.size(); i++)
+        for (SLint i = 0; i < _skinnedMeshes.size(); i++)
         {
-            SLMesh* mesh = skinnedMeshes[i];
+            SLMesh* mesh = _skinnedMeshes[i];
             if (mesh->Tc)
                 mesh->mat->shaderProg(skinningShaderTex);
             else
@@ -410,7 +412,7 @@ SLNode* SLAssImp::load(SLstring file,        //!< File with path or on default p
 
 
     // load the scene nodes recursively
-    SLNode* root = loadNodesRec(NULL, scene->mRootNode, meshMap, loadMeshesOnly);
+    _sceneRoot = loadNodesRec(NULL, scene->mRootNode, meshMap, loadMeshesOnly);
 
     // load animations
     vector<SLAnimation*> animations;
@@ -421,7 +423,7 @@ SLNode* SLAssImp::load(SLstring file,        //!< File with path or on default p
     // clear the intermediate data
     clear();
 
-    return root;
+    return _sceneRoot;
 }
 
 //-----------------------------------------------------------------------------
@@ -545,10 +547,7 @@ void SLAssImp::findBones(const aiScene* scene)
             continue;
 
 		logMessage(LV_Normal, "   Mesh '%s' contains %d bones.\n", mesh->mName.C_Str(), mesh->mNumBones);
-
-		// mark this mesh as a skinned mesh
-		_skinnedMeshes.push_back(mesh);
-
+        
         for (SLint j = 0; j < mesh->mNumBones; j++)
         {
 			SLstring name = mesh->mBones[j]->mName.C_Str();
@@ -660,6 +659,33 @@ void SLAssImp::loadSkeleton(SLBone* parent, aiNode* node)
     }
 
     bone->offsetMat(getOffsetMat(name));
+    
+    // set the initial state for the bones (in case we render the model without playing its animation)
+    // an other possibility is to set the bones to the inverse offset matrix so that the model remains in
+    // its bind pose
+    // some files will report the node transformation as the animation state transformation that the
+    // model had when exporting (in case of our astroboy its in the middle of the animation=
+    // it might be more desirable to have ZERO bone transformations in the initial pose
+    // to be able to see the model without any bone modifications applied
+    // exported state
+    
+    // set the current node transform as the initial state
+    /**/
+    SLMat4f om;
+    memcpy(&om, &node->mTransformation, sizeof(SLMat4f));
+    om.transpose();
+    bone->om(om);
+    bone->setInitialState();
+    /*/
+    // set the binding pose as initial state
+    /*SLMat4f om;
+    om = boneInfo->offsetMat.inverse();
+    if (parent)
+        om = parent->updateAndGetWM().inverse() * om;
+    bone->om(om);
+    bone->setInitialState();
+    /**/
+
 
     for (SLint i = 0; i < node->mNumChildren; i++)
         loadSkeleton(bone, node->mChildren[i]);
@@ -761,28 +787,6 @@ SLGLTexture* SLAssImp::loadTexture(SLstring& textureFile, SLTexType texType)
                                            texType);
     return texture;
 }
-SLbool SLAssImp::isBone(const SLstring& name)
-{
-    if (bones.find(name) == bones.end())
-        return false;
-
-    return true;
-}
-
-SLAssImp::BoneInformation* SLAssImp::getBoneInformation(const SLstring& name)
-{
-    // create bone if its not already in the map
-    if (bones.find(name) == bones.end())
-    {
-        BoneInformation newBone;
-        newBone.name = name;
-        newBone.id = bones.size();
-
-        bones[name] = newBone;
-    }
-
-    return &bones[name];
-}
 
 //-----------------------------------------------------------------------------
 /*!
@@ -859,7 +863,8 @@ SLMesh* SLAssImp::loadMesh(aiMesh *mesh)
     // load bones
     if (mesh->HasBones())
     {
-        skinnedMeshes.push_back(m);
+        _skinnedMeshes.push_back(m);
+        m->skeleton(_skeleton);
 
         m->Bi = new SLVec4f[m->numV];
         m->Bw = new SLVec4f[m->numV];
@@ -871,13 +876,8 @@ SLMesh* SLAssImp::loadMesh(aiMesh *mesh)
         for (SLint i = 0; i < mesh->mNumBones; i++)
         {
             aiBone* bone = mesh->mBones[i];
-            // get the bone information for this bone to add the vertex weights to its list
-            BoneInformation* boneInfo = getBoneInformation(bone->mName.C_Str());
-            
-            // update the bones offset matrix
-            memcpy(&boneInfo->offsetMat, &bone->mOffsetMatrix, sizeof(bone->mOffsetMatrix));
-            boneInfo->offsetMat.transpose();
-
+            SLBone* slBone = _skeleton->getBone(bone->mName.C_Str());
+            SLuint boneId = slBone->handle(); // @todo make sure that the returned bone actually exists, else we need to throw here since something in the importer must've gone wrong!
 
             for (SLint j = 0; j < bone->mNumWeights; j++)
             {
@@ -885,7 +885,7 @@ SLMesh* SLAssImp::loadMesh(aiMesh *mesh)
                 SLuint vertId = bone->mWeights[j].mVertexId;
                 SLfloat weight = bone->mWeights[j].mWeight;
 
-                m->addWeight(vertId, boneInfo->id, weight);
+                m->addWeight(vertId, boneId, weight);
             }
 
         }
@@ -920,7 +920,7 @@ SLNode* SLAssImp::loadNodesRec(
     // we're at the root
     if(!curNode) 
         curNode = new SLNode(node->mName.data);
-    
+        
     // load local transform
    aiMatrix4x4* M = &node->mTransformation;
    SLMat4f SLM(M->a1, M->a2, M->a3, M->a4,
@@ -941,115 +941,19 @@ SLNode* SLAssImp::loadNodesRec(
     // load children recursively
     for(SLuint i = 0; i < node->mNumChildren; i++) 
     {  
+        // skip the skeleton
+        if (node->mChildren[i] == _skeletonRoot)
+            continue;
+
         // only load children nodes with meshes or children
         if (!loadMeshesOnly || aiNodeHasMesh(node->mChildren[i]))
         {   SLNode *child = new SLNode(node->mChildren[i]->mName.data);
             curNode->addChild(child);
             loadNodesRec(child, node->mChildren[i], meshes);
         }
-        // we found a branch without meshes attached to it, try and find the skeleton root
-        else if (skinnedMeshes.size() > 0)
-        {
-            findAndLoadSkeleton(node->mChildren[i]);
-        }
     }
 
     return curNode;
-}
-void SLAssImp::findAndLoadSkeleton(aiNode* node)
-{
-    // load skeleton if child is a bone
-    if (isBone(node->mName.C_Str()) ||std::string(node->mName.C_Str()) == "root" || std::string(node->mName.C_Str()) == "deformation_rig|root")
-    {
-        loadSkeleton(node);
-    }
-    else
-    {
-        for(SLuint i = 0; i < node->mNumChildren; i++) 
-            findAndLoadSkeleton(node->mChildren[i]);
-    }
-}
-SLNode* SLAssImp::findLoadedNodeByName(const SLstring& name)
-{
-    if (nameToNodeMapping.find(name) != nameToNodeMapping.end())
-        return nameToNodeMapping[name];
-
-    return NULL;
-}
-
-void SLAssImp::loadSkeleton(aiNode* node)
-{
-    // Don't allow files that contain more than one skeleton 
-    // @todo an assert here isn't right. The app shouldn't crash just because the user is trying to load an illegal file. But we lack an exception structure atm.
-    static SLint count = 0;
-    assert(count == 0 && "The specified file contains more than one skeleton, the importer currently only supports one skeleton per file");
-    count++;
-
-    // new root skeleton node found, create a skeleton
-    SLSkeleton* skeleton = new SLSkeleton;
-    skel = skeleton;
-    
-    // @todo add the skeleton to the scene
-
-    // set the skeleton reference for the skinned meshes
-    for (SLint i = 0; i < skinnedMeshes.size(); i++)
-    {
-        skinnedMeshes.at(i)->skeleton(skeleton);
-    }
-
-    // load the bones
-    SLBone* rootBone = loadSkeletonRec(node, NULL);
-    skeleton->root(rootBone);
-}
-SLBone* SLAssImp::loadSkeletonRec(aiNode* node, SLBone* parent)
-{
-    // find the bone information for this bone
-    BoneInformation* boneInfo = getBoneInformation(node->mName.C_Str());
-
-    // @todo  this [the assert below] is an error, all nodes that are children of a bone should be marked as a bone
-    assert(boneInfo && "Importer Error: a node previously not marked as a bone was loaded as a bone.");
-
-    SLBone* bone;
-
-    if (parent == NULL)
-        bone = skel->createBone(boneInfo->id);
-    else
-        bone = parent->createChild(boneInfo->id);
-
-    bone->name(boneInfo->name);
-    bone->offsetMat(boneInfo->offsetMat);
-
-    // make sure to set the initial state to a 0 position, 0 rotation and 1 scale
-    bone->setInitialState(); // @todo it seems that assimp operates from a 0, 0, 0 initial state
-
-    // set the initial state for the bones (in case we render the model without playing its animation)
-    // an other possibility is to set the bones to the inverse offset matrix so that the model remains in
-    // its bind pose
-    // some files will report the node transformation as the animation state transformation that the
-    // model had when exporting (in case of our astroboy its in the middle of the animation=
-    // it might be more desirable to have ZERO bone transformations in the initial pose
-    // to be able to see the model without any bone modifications applied
-    // exported state
-    
-    SLMat4f om;
-    memcpy(&om, &node->mTransformation, sizeof(SLMat4f));
-    om.transpose();
-    bone->om(om);
-    
-    // zero bone transform
-    /*SLMat4f om;
-    om = boneInfo->offsetMat.inverse();
-    if (parent)
-        om = parent->updateAndGetWM().inverse() * om;
-    bone->om(om);*/
-    bone->setInitialState();
-
-    // start building the node tree for the skeleton
-    for (SLint i = 0; i < node->mNumChildren; i++)
-    {
-        SLBone* child = loadSkeletonRec(node->mChildren[i], bone);
-    }
-    return bone;
 }
 //-----------------------------------------------------------------------------
 /*!
@@ -1076,8 +980,8 @@ SLAnimation* SLAssImp::loadAnimation(aiAnimation* anim)
     SLAnimation* result = new SLAnimation(animName, animDuration);
     
     // exit if we didn't load a skeleton but have animations for one
-    if (skinnedMeshes.size() > 0)
-        assert(skel != NULL && "The skeleton wasn't impoted correctly."); // @todo rename all global variables by adding a prefex to them that identifies their use (rename skel here)
+    if (_skinnedMeshes.size() > 0)
+        assert(_skeleton != NULL && "The skeleton wasn't impoted correctly."); // @todo rename all global variables by adding a prefex to them that identifies their use (rename skel here)
 
     SLbool isSkeletonAnim = false;
     for (SLint i = 0; i < anim->mNumChannels; i++)
@@ -1085,16 +989,19 @@ SLAnimation* SLAssImp::loadAnimation(aiAnimation* anim)
         aiNodeAnim* channel = anim->mChannels[i];
 
         // find the node that is animated by this channel
-        SLNode* animatedNode = findLoadedNodeByName(channel->mNodeName.C_Str());
+        SLstring nodeName = channel->mNodeName.C_Str();
+        SLNode* affectedNode = _sceneRoot->find<SLNode>(nodeName);
+        SLuint handle = 0;
+        SLbool isBoneNode = (affectedNode == NULL);
 
-        // is the affected node part of a skeleton?
-        BoneInformation* boneInfo = getBoneInformation(channel->mNodeName.C_Str());
-        SLbool isBoneNode = boneInfo != NULL;
-        SLuint nodeId = 0;
-        if (isBoneNode)
+        // is there a skeleton and is this animation channel not affecting a normal node?
+        if (_skeletonRoot && !affectedNode)
         {
-            nodeId = boneInfo->id;
             isSkeletonAnim = true;
+            SLBone* affectedBone = _skeleton->getBone(nodeName);
+            handle = affectedBone->handle();
+            // @todo warn if we find an animation with some node channels and some bone channels
+            //       this shouldn't happen!
 
             /// @todo [high priority!] Fix the problem described below
             // What does this next line do?
@@ -1115,8 +1022,8 @@ SLAnimation* SLAssImp::loadAnimation(aiAnimation* anim)
             //      animations to it. If we were to reset each bone just before applying a channel to it
             //      we wouldn't have this problem. But we coulnd't blend animations as easily.
             //
-            skel->getBone(nodeId)->om(SLMat4f());
-            skel->getBone(nodeId)->setInitialState();
+            affectedBone->om(SLMat4f());
+            affectedBone->setInitialState();
         }
                     
         // log
@@ -1128,9 +1035,7 @@ SLAnimation* SLAssImp::loadAnimation(aiAnimation* anim)
 
 
         // bone animation channels should receive the correct node id, normal node animations just get 0
-        SLNodeAnimationTrack* track = result->createNodeAnimationTrack(nodeId);
-
-        
+        SLNodeAnimationTrack* track = result->createNodeAnimationTrack(handle);
 
         KeyframeMap keyframes;
 
@@ -1191,7 +1096,7 @@ SLAnimation* SLAssImp::loadAnimation(aiAnimation* anim)
     }
 
     if (isSkeletonAnim)
-        skel->addAnimation(result);
+        _skeleton->addAnimation(result);
 
     return result;
 }

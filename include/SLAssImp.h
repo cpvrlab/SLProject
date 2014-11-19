@@ -89,57 +89,25 @@ protected:
     LogVerbosity    _logConsoleVerbosity;   //!< verbosity level of log output to the console
     LogVerbosity    _logFileVerbosity;      //!< verbosity level of log output to the file
 
-    // @todo get the bone information struct out of here
-    struct BoneInformation
-    {
-        SLstring name;
-        SLuint id;
-        SLMat4f offsetMat;
-    };
-    
-
-    std::map<SLstring, BoneInformation>   bones; // bone node to bone id mapping
-
-    // old global vars just put in the class for now
-    // @todo clean up names, remove unneded, etc.
-    
-    SLSkeleton* skel = NULL;
-    std::map<SLstring, SLNode*>  nameToNodeMapping;   // node name to SLNode instance mapping
-
-    // list of meshes utilising a skeleton
-    std::vector<SLMesh*> skinnedMeshes;
-
-    // helper functions
-    SLMaterial*   loadMaterial(SLint index, aiMaterial* material, SLstring modelPath);
-    SLGLTexture*  loadTexture(SLstring &path, SLTexType texType);
-    SLMesh*       loadMesh(aiMesh *mesh);
-    SLNode*       loadNodesRec(SLNode *curNode, aiNode *aiNode, SLMeshMap& meshes, SLbool loadMeshesOnly = true);
-    void          findAndLoadSkeleton(aiNode* node);
-    void          loadSkeleton(aiNode* node);
-    SLBone*       loadSkeletonRec(aiNode* node, SLBone* parent);
-    SLAnimation*  loadAnimation(aiAnimation* anim);
-    SLstring      checkFilePath(SLstring modelPath, SLstring texFile);
-    SLbool        aiNodeHasMesh(aiNode* node);
-    SLbool        isBone(const SLstring& name);
-    BoneInformation* getBoneInformation(const SLstring& name);
-    SLNode* findLoadedNodeByName(const SLstring& name);
-
-    // new intermediate containers
+    // intermediate containers
     typedef std::map<SLstring, aiNode*> NodeMap;
     typedef std::map<SLstring, SLMat4f> BoneOffsetMap;
     typedef std::vector<aiNode*>        NodeList;
-    typedef std::vector<aiMesh*>        MeshList;
 
     NodeMap		    _nodeMap;           //!< map containing name to aiNode releationships
     BoneOffsetMap	_boneOffsets;    //!< map containing name to bone offset matrices
     aiNode*         _skeletonRoot;      //!< the common aiNode root for the skeleton of this file
-    MeshList	    _skinnedMeshes;     //!< list containing all of the skinned meshes, used to assign the skinned materials
 
     // SL type containers
+    typedef std::vector<SLMesh*>        MeshList;
+
+    SLNode*     _sceneRoot;
     SLSkeleton* _skeleton;  //!< the loaded skeleton
     SLuint      _boneIndex; //!< index counter used when iterating over bones
+    MeshList	_skinnedMeshes;     //!< list containing all of the skinned meshes, used to assign the skinned materials
 
-    // new import helpers
+
+    // loading helper
     aiNode*         getNodeByName(const SLstring& name);    // return an aiNode ptr if name exists, or null if it doesn't
 	const SLMat4f   getOffsetMat(const SLstring& name);    // return an aiBone ptr if name exists, or null if it doesn't
 
@@ -147,17 +115,23 @@ protected:
     void            findNodes(aiNode* node, SLstring padding, SLbool lastChild);           // scans the assimp scene graph structure and populates nameToNode
     void            findBones(const aiScene* scene);           // scans all meshes in the assimp scene and populates nameToBone and boneGroups
     void            findSkeletonRoot();                    // finds the common ancestor for each remaining group in boneGroups, these are our final skeleton roots
+    
     void            loadSkeleton(SLBone* parent, aiNode* node);
 
-
-    /*SLGLTexture*    loadTexture(SLstring &path, SLTexType texType);
     SLMaterial*     loadMaterial(SLint index, aiMaterial* material, SLstring modelPath);
+    SLGLTexture*    loadTexture(SLstring &path, SLTexType texType);
     SLMesh*         loadMesh(aiMesh *mesh);
-    SLNode*         loadSceneNodes(SLNode* parent, aiNode* node);
-    SLSkeleton*     loadSkeleton(SLBone* parent, aiNode* node);
-    SLAnimation*    loadAnimation(aiAnimation* anim);*/
+    // @todo    go over the loadNodesRec again (rename to loadSceneNodes for clarity) and improve it
+    //          add functionality to load lights etc, make it cleaner overall
+    //          add log output
+    SLNode*         loadNodesRec(SLNode *curNode, aiNode *aiNode, SLMeshMap& meshes, SLbool loadMeshesOnly = true);
+    SLAnimation*    loadAnimation(aiAnimation* anim);
+    SLstring        checkFilePath(SLstring modelPath, SLstring texFile);
+    SLbool          aiNodeHasMesh(aiNode* node);
 
-    // new smaller helper
+
+
+    // misc helper
     void logMessage(LogVerbosity verbosity, const char* msg, ...);
     void clear();
 
@@ -167,36 +141,37 @@ public:
     SLAssImp(const SLstring& logFile, LogVerbosity logConsoleVerb = LV_Normal, LogVerbosity logFileVerb = LV_Diagnostic);
     ~SLAssImp();
 
-      SLNode*       load           (SLstring pathFilename,
-                                           SLbool loadMeshesOnly = true,
-                                           SLuint flags = 
-                                             SLProcess_Triangulate
-                                            |SLProcess_JoinIdenticalVertices
-                                            |SLProcess_SplitLargeMeshes
-                                            |SLProcess_RemoveRedundantMaterials
-                                            |SLProcess_SortByPType
-                                            |SLProcess_FindDegenerates
-                                            |SLProcess_FindInvalidData
-                                            //|SLProcess_OptimizeMeshes
-                                            //|SLProcess_OptimizeGraph
-                                            //|SLProcess_CalcTangentSpace
-                                            //|SLProcess_MakeLeftHanded
-                                            //|SLProcess_RemoveComponent
-                                            //|SLProcess_GenNormals
-                                            //|SLProcess_GenSmoothNormals
-                                            //|SLProcess_PreTransformVertices
-                                            //|SLProcess_LimitBoneWeights
-                                            //|SLProcess_ValidateDataStructure
-                                            //|SLProcess_ImproveCacheLocality
-                                            //|SLProcess_FixInfacingNormals
-                                            //|SLProcess_GenUVCoords
-                                            //|SLProcess_TransformUVCoords
-                                            //|SLProcess_FindInstances
-                                            //|SLProcess_FlipUVs
-                                            //|SLProcess_FlipWindingOrder
-                                            //|SLProcess_SplitByBoneCount
-                                            //|SLProcess_Debone
-                                          );
+    SLNode* load            (SLstring pathFilename,
+                            SLbool loadMeshesOnly = true,
+                            SLuint flags = 
+                                SLProcess_Triangulate
+                            |SLProcess_JoinIdenticalVertices
+                            |SLProcess_SplitLargeMeshes
+                            |SLProcess_RemoveRedundantMaterials
+                            |SLProcess_SortByPType
+                            |SLProcess_FindDegenerates
+                            |SLProcess_FindInvalidData
+                            //|SLProcess_OptimizeMeshes
+                            //|SLProcess_OptimizeGraph
+                            //|SLProcess_CalcTangentSpace
+                            //|SLProcess_MakeLeftHanded
+                            //|SLProcess_RemoveComponent
+                            //|SLProcess_GenNormals
+                            |SLProcess_GenSmoothNormals
+                            //|SLProcess_PreTransformVertices
+                            //|SLProcess_LimitBoneWeights
+                            //|SLProcess_ValidateDataStructure
+                            //|SLProcess_ImproveCacheLocality
+                            //|SLProcess_FixInfacingNormals
+                            //|SLProcess_GenUVCoords
+                            //|SLProcess_TransformUVCoords
+                            //|SLProcess_FindInstances
+                            //|SLProcess_FlipUVs
+                            //|SLProcess_FlipWindingOrder
+                            //|SLProcess_SplitByBoneCount
+                            //|SLProcess_Debone
+                            );
+
       static SLstring      defaultPath;
 };
 //-----------------------------------------------------------------------------

@@ -18,7 +18,7 @@ SLBone* SLSkeleton::createBone(SLuint handle)
 
 SLBone* SLSkeleton::createBone(const SLstring& name, SLuint handle)
 {
-    SLBone* result = new SLBone(handle, this);
+    SLBone* result = new SLBone(name, handle, this);
     
     assert((handle >= _boneList.size() || (handle < _boneList.size() && _boneList[handle] == NULL)) && "Trying to create a bone with an already existing handle.");
 

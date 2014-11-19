@@ -598,7 +598,7 @@ SLbool SLSceneView::updateAndDrawGL3D(SLfloat elapsedTimeMS)
     {
         //testBool = false;
         // try to animate the 0 skeleton
-        SLSkeleton* skel = s->skeletons().at(1);
+        SLSkeleton* skel = s->skeletons().at(0);
         SLAnimation* skelAnim = skel->tempGetAnim("Unnamed Animation");
         //SLAnimation* skelAnim = skel->tempGetAnim("AnimStack::deformation_rig|deformation_rigAction");
         skel->reset();
