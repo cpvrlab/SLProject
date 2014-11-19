@@ -9,6 +9,7 @@
 //#############################################################################
 
 #include <stdafx.h>
+#include <SLImporter.h>
 #include <SLNode.h>
 #include <SLGLTexture.h>
 #include <SLSkeleton.h>
@@ -19,51 +20,17 @@
  //         find the best way to make this nice and clean and to provide an interface for others to
 //          write their own importers (for custom file formats for example)
 
-#ifndef SLASSIMP_H
-#define SLASSIMP_H
-
-// copy of the aiPostProcessStep enum for usage in the wrapper load function
-enum slPostProcessSteps
-{
-    SLProcess_CalcTangentSpace = 0x1,
-    SLProcess_JoinIdenticalVertices = 0x2,
-    SLProcess_MakeLeftHanded = 0x4,
-    SLProcess_Triangulate = 0x8,
-    SLProcess_RemoveComponent = 0x10,
-    SLProcess_GenNormals = 0x20,
-    SLProcess_GenSmoothNormals = 0x40,
-    SLProcess_SplitLargeMeshes = 0x80,
-    SLProcess_PreTransformVertices = 0x100,
-    SLProcess_LimitBoneWeights = 0x200,
-    SLProcess_ValidateDataStructure = 0x400,
-    SLProcess_ImproveCacheLocality = 0x800,
-    SLProcess_RemoveRedundantMaterials = 0x1000,
-    SLProcess_FixInfacingNormals = 0x2000,
-    SLProcess_SortByPType = 0x8000,
-    SLProcess_FindDegenerates = 0x10000,
-    SLProcess_FindInvalidData = 0x20000,
-    SLProcess_GenUVCoords = 0x40000,
-    SLProcess_TransformUVCoords = 0x80000,
-    SLProcess_FindInstances = 0x100000,
-    SLProcess_OptimizeMeshes = 0x200000,
-    SLProcess_OptimizeGraph = 0x400000,
-    SLProcess_FlipUVs = 0x800000,
-    SLProcess_FlipWindingOrder = 0x1000000,
-    SLProcess_SplitByBoneCount = 0x2000000,
-    SLProcess_Debone = 0x4000000
-};
+#ifndef SLASSIMPIMPORTER_H
+#define SLASSIMPIMPORTER_H
 
 // forward declarations of assimp types
 // @todo    Is it good practice to not include the assimp headers here and just use forward declaration?
 //          Do some research on best practices.
 struct aiScene;
 struct aiNode;
-struct aiBone;
 struct aiMaterial;
 struct aiAnimation;
 struct aiMesh;
-struct aiVectorKey;
-struct aiQuatKey;
 
 //-----------------------------------------------------------------------------
 typedef std::map<int, SLMesh*> SLMeshMap;
@@ -72,23 +39,9 @@ typedef std::map<int, SLMesh*> SLMeshMap;
 /*! See AssImp library (http://assimp.sourceforge.net/) documentation for 
 supported file formats and the import processing options.
 */
-class SLAssImp
+class SLAssimpImporter : public SLImporter
 {  
-public:
-    enum LogVerbosity {
-        LV_Quiet = 0,
-        LV_Minimal = 1,
-        LV_Normal = 2,
-        LV_Detailed = 3,
-        LV_Diagnostic = 4
-    };
-
 protected:
-    ofstream        _log;                   //!< log stream
-    SLstring        _logFile;               //!< name of the log file
-    LogVerbosity    _logConsoleVerbosity;   //!< verbosity level of log output to the console
-    LogVerbosity    _logFileVerbosity;      //!< verbosity level of log output to the file
-
     // intermediate containers
     typedef std::map<SLstring, aiNode*> NodeMap;
     typedef std::map<SLstring, SLMat4f> BoneOffsetMap;
@@ -132,14 +85,17 @@ protected:
 
 
     // misc helper
-    void logMessage(LogVerbosity verbosity, const char* msg, ...);
     void clear();
 
 public:
-    SLAssImp();
-    SLAssImp(LogVerbosity consoleVerb);
-    SLAssImp(const SLstring& logFile, LogVerbosity logConsoleVerb = LV_Normal, LogVerbosity logFileVerb = LV_Diagnostic);
-    ~SLAssImp();
+    SLAssimpImporter()
+    { }
+    SLAssimpImporter(SLLogVerbosity consoleVerb)
+         : SLImporter(consoleVerb)
+    { }
+    SLAssimpImporter(const SLstring& logFile, SLLogVerbosity logConsoleVerb = LV_Normal, SLLogVerbosity logFileVerb = LV_Diagnostic)
+        : SLImporter(logFile, logConsoleVerb, logFileVerb)
+    { }
 
     SLNode* load            (SLstring pathFilename,
                             SLbool loadMeshesOnly = true,
@@ -157,7 +113,7 @@ public:
                             //|SLProcess_MakeLeftHanded
                             //|SLProcess_RemoveComponent
                             //|SLProcess_GenNormals
-                            |SLProcess_GenSmoothNormals
+                            //|SLProcess_GenSmoothNormals
                             //|SLProcess_PreTransformVertices
                             //|SLProcess_LimitBoneWeights
                             //|SLProcess_ValidateDataStructure
@@ -171,8 +127,6 @@ public:
                             //|SLProcess_SplitByBoneCount
                             //|SLProcess_Debone
                             );
-
-      static SLstring      defaultPath;
 };
 //-----------------------------------------------------------------------------
 #endif // SLASSIMP_H

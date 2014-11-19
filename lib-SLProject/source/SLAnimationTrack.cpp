@@ -57,6 +57,10 @@ SLfloat SLAnimationTrack::getKeyframesAtTime(SLfloat time, SLKeyframe** k1, SLKe
     // wrap time
     if (time > animationLength)
         time = fmod(time, animationLength);
+    // @todo is it really required of us to check if time is < 0.0f here? Or should this be done higher up?
+    while (time < 0.0f)
+        time += animationLength;
+        
 
 
     // search lower bound kf for given time

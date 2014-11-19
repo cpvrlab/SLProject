@@ -403,7 +403,7 @@
     <ClInclude Include="..\include\SLAnimationTrack.h" />
     <ClInclude Include="..\include\SLAnimationManager.h" />
     <ClInclude Include="..\include\SLAnimationState.h" />
-    <ClInclude Include="..\include\SLAssImp.h" />
+    <ClInclude Include="..\include\SLAssimpImporter.h" />
     <ClInclude Include="..\include\SLAverage.h" />
     <ClInclude Include="..\include\SLBone.h" />
     <ClInclude Include="..\include\SLCurve.h" />
@@ -424,6 +424,7 @@
     <ClInclude Include="..\include\SLGLTexture.h" />
     <ClInclude Include="..\include\SLGrid.h" />
     <ClInclude Include="..\include\SLImage.h" />
+    <ClInclude Include="..\include\SLImporter.h" />
     <ClInclude Include="..\include\SLInterface.h" />
     <ClInclude Include="..\include\SLMat3.h" />
     <ClInclude Include="..\include\SLMat4.h" />
@@ -512,9 +513,10 @@
     <ClCompile Include="source\SLMesh.cpp" />
     <ClCompile Include="source\SLUniformGrid.cpp" />
     <ClCompile Include="source\SL\SL.cpp" />
-    <ClCompile Include="source\SL\SLAssImp.cpp" />
+    <ClCompile Include="source\SL\SLAssimpImporter.cpp" />
     <ClCompile Include="source\SL\SLFileSystem.cpp" />
     <ClCompile Include="source\SL\SLImage.cpp" />
+    <ClCompile Include="source\SL\SLImporter.cpp" />
     <ClCompile Include="source\SL\SLInterface.cpp" />
     <ClCompile Include="source\SL\SLTexFont.cpp" />
     <ClCompile Include="source\SL\SLTimer.cpp" />

@@ -1,5 +1,5 @@
 //#############################################################################
-//  File:      SL/SLAssImp.cpp
+//  File:      SL/SLAssimpImporter.cpp
 //  Author:    Marcus Hudritsch
 //  Date:      July 2014
 //  Codestyle: https://github.com/cpvrlab/SLProject/wiki/Coding-Style-Guidelines
@@ -37,8 +37,7 @@
 
 #include <stdafx.h>
 #include <cstdarg> // only needed because we wrap pintf in logMessage, read the todo and fix it!
-#include <iomanip> //std::setw
-#include <SLAssImp.h>
+#include <SLAssimpImporter.h>
 #include <SLScene.h>
 #include <SLGLTexture.h>
 #include <SLMaterial.h>
@@ -295,59 +294,12 @@ SLQuat4f getRotation(SLfloat time, const KeyframeMap& keyframes)
     return SLQuat4f(result.x, result.y, result.z, result.w);
 }
 
-
-
-
-
-
-//-----------------------------------------------------------------------------
-//! Default path for 3DS models used when only filename is passed in load.
-SLstring SLAssImp::defaultPath = "../_data/models/";
-
-//-----------------------------------------------------------------------------
-/** Default constructor, doesn't log anything
-*/
-SLAssImp::SLAssImp()
-: _logConsoleVerbosity(LV_Quiet),
-    _logFileVerbosity(LV_Quiet)
-{ }
-
-//-----------------------------------------------------------------------------
-/** Constructor that only outputs console logs
-*/
-SLAssImp::SLAssImp(LogVerbosity consoleVerb)
-: _logFileVerbosity(LV_Quiet)
-{ }
-
-//-----------------------------------------------------------------------------
-/** Constructor that allows logging to a file with different verbosity
-*/
-SLAssImp::SLAssImp(const SLstring& logFile, LogVerbosity logConsoleVerb, LogVerbosity logFileVerb)
-: _logConsoleVerbosity(logConsoleVerb),
-    _logFileVerbosity(logFileVerb)
-{ 
-    if (_logFileVerbosity > LV_Quiet) {
-        // @note this will fail if the ../_log directory doesn't exist!
-        _log.open(logFile);
-        // cout << strerror(errno) << endl;
-    }
-}
-
-//-----------------------------------------------------------------------------
-/** Destructor, closes the file stream if it was used
-*/
-SLAssImp::~SLAssImp()
-{
-    if (_logFileVerbosity > LV_Quiet)
-        _log.close();
-}
-
 //-----------------------------------------------------------------------------
 /*! Loads the scene from a file and creates materials with textures, the 
 meshes and the nodes for the scene graph. Materials, textures and meshes are
 added to the according vectors of SLScene for later deallocation.
 */
-SLNode* SLAssImp::load(SLstring file,        //!< File with path or on default path 
+SLNode* SLAssimpImporter::load(SLstring file,        //!< File with path or on default path 
                        SLbool loadMeshesOnly,//!< Only load nodes with meshes
                        SLuint flags)         //!< Import flags (see assimp/postprocess.h)
 {
@@ -355,7 +307,7 @@ SLNode* SLAssImp::load(SLstring file,        //!< File with path or on default p
     if (!SLFileSystem::fileExists(file))
     {   file = defaultPath + file;
         if (!SLFileSystem::fileExists(file))
-        {   SLstring msg = "SLAssImp: File not found: " + file + "\n";
+        {   SLstring msg = "SLAssimpImporter: File not found: " + file + "\n";
             SL_WARN_MSG(msg.c_str());
             return NULL;
         }
@@ -427,39 +379,9 @@ SLNode* SLAssImp::load(SLstring file,        //!< File with path or on default p
 }
 
 //-----------------------------------------------------------------------------
-/** Logs messages to the importer logfile and the console
-    @param     message     the message to add to the log
-    @param     verbosity   the verbosity of the message
-
-    @todo   Build a dedicated log class that can be instantiated (so the importer can have its own)
-            Let this log class write to file etc.
-            Don't use printf anymore, its c. (c++11 has to_str, else we have to work with ss (ugh...))
-            I only used printf here because it allows me to combine a string with different variables
-            in only one line and I don't have an easy way to do this in c++0x. Again c++11 would be easy.
-*/
-void SLAssImp::logMessage(LogVerbosity verbosity, const char* msg, ...)
-{
-    // write message to a buffer
-    char buffer[4096];
-    std::va_list arg;
-    va_start(arg, msg);
-    std::vsnprintf(buffer, 4096, msg, arg);
-    va_end(arg);
-
-    if (_logConsoleVerbosity >= verbosity)
-        SL_LOG("%s", buffer);
-    if (_logFileVerbosity >= verbosity)
-    {
-        _log << buffer;
-        _log.flush();
-    }
-}
-
-
-//-----------------------------------------------------------------------------
 /** Clears all helper containers
 */
-void SLAssImp::clear()
+void SLAssimpImporter::clear()
 {
     _nodeMap.clear();
     _boneOffsets.clear();
@@ -469,7 +391,7 @@ void SLAssImp::clear()
 }
 //-----------------------------------------------------------------------------
 /** return an aiNode ptr if name exists, or null if it doesn't */
-aiNode* SLAssImp::getNodeByName(const SLstring& name)
+aiNode* SLAssimpImporter::getNodeByName(const SLstring& name)
 {
 	if(_nodeMap.find(name) != _nodeMap.end())
 		return _nodeMap[name];
@@ -479,7 +401,7 @@ aiNode* SLAssImp::getNodeByName(const SLstring& name)
 
 //-----------------------------------------------------------------------------
 /** return an aiBone ptr if name exists, or null if it doesn't */
-const SLMat4f SLAssImp::getOffsetMat(const SLstring& name)
+const SLMat4f SLAssimpImporter::getOffsetMat(const SLstring& name)
 {
 	if(_boneOffsets.find(name) != _boneOffsets.end())
 		return _boneOffsets[name];
@@ -489,7 +411,7 @@ const SLMat4f SLAssImp::getOffsetMat(const SLstring& name)
 
 //-----------------------------------------------------------------------------
 /** populates nameToNode, nameToBone, boneGroups, skinnedMeshes */
-void SLAssImp::performInitialScan(const aiScene* scene)
+void SLAssimpImporter::performInitialScan(const aiScene* scene)
 {
     // populate the _nameToNode map and print the assimp structure on detailed log verbosity.
     logMessage(LV_Detailed, "[Assimp scene]\n");
@@ -514,7 +436,7 @@ void SLAssImp::performInitialScan(const aiScene* scene)
 
 //-----------------------------------------------------------------------------
 /** scans the assimp scene graph structure and populates nameToNode */
-void SLAssImp::findNodes(aiNode* node, SLstring padding, SLbool lastChild)
+void SLAssimpImporter::findNodes(aiNode* node, SLstring padding, SLbool lastChild)
 { 
     SLstring name = node->mName.C_Str();
     // this should not happen
@@ -538,7 +460,7 @@ void SLAssImp::findNodes(aiNode* node, SLstring padding, SLbool lastChild)
 }
 //-----------------------------------------------------------------------------
 /** scans all meshes in the assimp scene and populates nameToBone and boneGroups */
-void SLAssImp::findBones(const aiScene* scene)
+void SLAssimpImporter::findBones(const aiScene* scene)
 {
     for (SLint i = 0; i < scene->mNumMeshes; i++)
     {
@@ -569,7 +491,7 @@ void SLAssImp::findBones(const aiScene* scene)
 
 //-----------------------------------------------------------------------------
 /** finds the common ancestor for each remaining group in boneGroups, these are our final skeleton roots */
-void SLAssImp::findSkeletonRoot()
+void SLAssimpImporter::findSkeletonRoot()
 {
 	vector<NodeList> ancestorList(_boneOffsets.size());
     SLint minDepth = INT_MAX;
@@ -637,7 +559,7 @@ void SLAssImp::findSkeletonRoot()
 }
 //-----------------------------------------------------------------------------
 /** Loads the skeleton */
-void SLAssImp::loadSkeleton(SLBone* parent, aiNode* node)
+void SLAssimpImporter::loadSkeleton(SLBone* parent, aiNode* node)
 {
     if (!node)
         return;
@@ -693,11 +615,11 @@ void SLAssImp::loadSkeleton(SLBone* parent, aiNode* node)
 
 //-----------------------------------------------------------------------------
 /*!
-SLAssImp::loadMaterial loads the AssImp material an returns the SLMaterial.
+SLAssimpImporter::loadMaterial loads the AssImp material an returns the SLMaterial.
 The materials and textures are added to the SLScene material and texture 
 vectors.
 */
-SLMaterial* SLAssImp::loadMaterial(SLint index, 
+SLMaterial* SLAssimpImporter::loadMaterial(SLint index, 
                          aiMaterial *material, 
                          SLstring modelPath)
 {
@@ -768,9 +690,9 @@ SLMaterial* SLAssImp::loadMaterial(SLint index,
 }
 //-----------------------------------------------------------------------------
 /*!
-SLAssImp::loadTexture loads the AssImp texture an returns the SLGLTexture
+SLAssimpImporter::loadTexture loads the AssImp texture an returns the SLGLTexture
 */
-SLGLTexture* SLAssImp::loadTexture(SLstring& textureFile, SLTexType texType)
+SLGLTexture* SLAssimpImporter::loadTexture(SLstring& textureFile, SLTexType texType)
 {
     SLVGLTexture& sceneTex = SLScene::current->textures();
 
@@ -790,11 +712,11 @@ SLGLTexture* SLAssImp::loadTexture(SLstring& textureFile, SLTexType texType)
 
 //-----------------------------------------------------------------------------
 /*!
-SLAssImp::loadMesh creates a new SLMesh an copies the meshs vertex data and
+SLAssimpImporter::loadMesh creates a new SLMesh an copies the meshs vertex data and
 triangle face indexes. Normals & tangents are not loaded. They are calculated
 in SLMesh.
 */
-SLMesh* SLAssImp::loadMesh(aiMesh *mesh)
+SLMesh* SLAssimpImporter::loadMesh(aiMesh *mesh)
 {
     // Count first the NO. of triangles in the mesh
     SLuint numTriangles = 0;
@@ -825,9 +747,10 @@ SLMesh* SLAssImp::loadMesh(aiMesh *mesh)
     {   m->P[i].set(mesh->mVertices[i].x, 
         mesh->mVertices[i].y, 
         mesh->mVertices[i].z);
+        if (m->N)
+            m->N[i].set(mesh->mNormals[i].x, mesh->mNormals[i].y, mesh->mNormals[i].z);
         if (m->Tc)
-        m->Tc[i].set(mesh->mTextureCoords[0][i].x,
-        mesh->mTextureCoords[0][i].y);
+            m->Tc[i].set(mesh->mTextureCoords[0][i].x, mesh->mTextureCoords[0][i].y);
     }
 
     // create face index array
@@ -858,7 +781,7 @@ SLMesh* SLAssImp::loadMesh(aiMesh *mesh)
         }
     }
 
-    m->calcNormals();
+    //m->calcNormals();
 
     // load bones
     if (mesh->HasBones())
@@ -909,9 +832,9 @@ SLMesh* SLAssImp::loadMesh(aiMesh *mesh)
 }
 //-----------------------------------------------------------------------------
 /*!
-SLAssImp::loadNodesRec loads the scene graph node tree recursively.
+SLAssimpImporter::loadNodesRec loads the scene graph node tree recursively.
 */
-SLNode* SLAssImp::loadNodesRec(
+SLNode* SLAssimpImporter::loadNodesRec(
    SLNode *curNode,     //!< Pointer to the current node. Pass NULL for root node
    aiNode *node,        //!< The according assimp node. Pass NULL for root node
    SLMeshMap& meshes,   //!< Reference to the meshes vector
@@ -957,10 +880,10 @@ SLNode* SLAssImp::loadNodesRec(
 }
 //-----------------------------------------------------------------------------
 /*!
-SLAssImp::loadAnimation loads the scene graph node tree recursively.
+SLAssimpImporter::loadAnimation loads the scene graph node tree recursively.
 */
 // @todo how do we handle multiple skeletons in one file?
-SLAnimation* SLAssImp::loadAnimation(aiAnimation* anim)
+SLAnimation* SLAssimpImporter::loadAnimation(aiAnimation* anim)
 {
     SLstring animName = "Unnamed Animation";
     SLfloat animTicksPerSec = (anim->mTicksPerSecond == 0) ? 30.0f : anim->mTicksPerSecond;
@@ -1105,7 +1028,7 @@ SLAnimation* SLAssImp::loadAnimation(aiAnimation* anim)
 SLAssimp::aiNodeHasMesh returns true if the passed node or one of its children 
 has a mesh. aiNode can contain only transform or bone nodes without any visuals. 
 */
-SLbool SLAssImp::aiNodeHasMesh(aiNode* node)
+SLbool SLAssimpImporter::aiNodeHasMesh(aiNode* node)
 {
     if (node->mNumMeshes > 0) return true;
     for(SLuint i = 0; i < node->mNumChildren; i++) 
@@ -1114,7 +1037,7 @@ SLbool SLAssImp::aiNodeHasMesh(aiNode* node)
 }
 //-----------------------------------------------------------------------------
 /*! 
-SLAssImp::checkFilePath tries to build the full absolut texture file path. 
+SLAssimpImporter::checkFilePath tries to build the full absolut texture file path. 
 Some file formats have absolut path stored, some have relative paths.
 1st attempt: modelPath + aiTexFile
 2nd attempt: aiTexFile
@@ -1122,7 +1045,7 @@ Some file formats have absolut path stored, some have relative paths.
 If a model contains absolut path it is best to put all texture files beside the
 model file in the same folder.
 */
-SLstring SLAssImp::checkFilePath(SLstring modelPath, SLstring aiTexFile)
+SLstring SLAssimpImporter::checkFilePath(SLstring modelPath, SLstring aiTexFile)
 {
     // Check path & file combination
     SLstring pathFile = modelPath + aiTexFile;
@@ -1138,7 +1061,7 @@ SLstring SLAssImp::checkFilePath(SLstring modelPath, SLstring aiTexFile)
     if (SLFileSystem::fileExists(pathFile))
         return pathFile;
 
-    SLstring msg = "SLAssImp: Texture file not found: \n" + aiTexFile + 
+    SLstring msg = "SLAssimpImporter: Texture file not found: \n" + aiTexFile + 
                     "\non model path: " + modelPath + "\n";
     SL_WARN_MSG(msg.c_str());
 

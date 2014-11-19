@@ -17,7 +17,7 @@
 #include <SLSceneView.h>
 #include <SLKeyframe.h>
 #include <SLAnimation.h>
-#include <SLAssImp.h>
+#include <SLAssimpImporter.h>
 
 #include <SLCamera.h>
 #include <SLLightSphere.h>
@@ -375,13 +375,13 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
 
 
         #if defined(SL_OS_IOS) || defined(SL_OS_ANDROID)
-        SLAssImp importer;
+        SLAssimpImporter importer;
         SLNode* mesh3DS = importer.load("jackolan.3DS");
         SLNode* meshDAE = importer.load("AstroBoy.dae");
         SLNode* meshFBX = importer.load("Duck.fbx");
       
         #else
-        SLAssImp importer;
+        SLAssimpImporter importer;
         SLNode* mesh3DS = importer.load("3DS/Halloween/Jackolan.3DS");
         SLNode* meshDAE = importer.load("DAE/AstroBoy/AstroBoy.dae");
         SLNode* meshFBX = importer.load("FBX/Duck/Duck.fbx");
@@ -427,17 +427,26 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
         light1->specular(SLCol4f(1.0f, 1.0f, 1.0f));
         light1->attenuation(1,0,0);
         
-        SLAssImp importer("TestLog.log", SLAssImp::LV_Quiet, SLAssImp::LV_Diagnostic);
+        SLAssimpImporter importer("TestLog.log", LV_Quiet, LV_Diagnostic);
         SLNode* simpleSkinnedMesh = importer.load("DAE/AstroBoy/AstroBoy.dae"); // <- not working currently, dont use!
         //SLNode* simpleSkinnedMesh = importer.load("FBX/Astroboy/astroboy_test.fbx"); 
         //SLNode* simpleSkinnedMesh = importer.load("3DS/Astroboy/Astroboy.3ds"); 
         //SLNode* simpleSkinnedMesh = importer.load("DAE/SkinnedCube/skinnedcube.dae");
-        simpleSkinnedMesh->scale(30.0f);
-
+        simpleSkinnedMesh->scale(34.0f);
         
+        SLNode* simpleSkinnedMesh2 = importer.load("DAE/AstroBoy/AstroBoy.dae", true, SLProcess_Triangulate | SLProcess_GenNormals); // <- not working currently, dont use!
+        simpleSkinnedMesh2->scale(30.0f);
+        simpleSkinnedMesh2->translate(7, 0, -3);
+
+        SLNode* simpleSkinnedMesh3 = importer.load("DAE/AstroBoy/AstroBoy.dae"); // <- not working currently, dont use!
+        simpleSkinnedMesh3->scale(31.0f);
+        simpleSkinnedMesh3->translate(-8, 0, -2);
+
         SLNode* scene = new SLNode("Scene");
         scene->addChild(light1);
         scene->addChild(simpleSkinnedMesh);
+        scene->addChild(simpleSkinnedMesh2);
+        scene->addChild(simpleSkinnedMesh3);
 
         _root3D = scene;
     }
@@ -461,7 +470,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
         light1->specular(SLCol4f(1,1,1));
         light1->attenuation(1,0,0);
 
-        SLAssImp importer;
+        SLAssimpImporter importer;
         SLNode* largeModel = importer.load("PLY/xyzrgb_dragon.ply");
 
         SLNode* scene = new SLNode("Scene");

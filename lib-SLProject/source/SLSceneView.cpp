@@ -607,7 +607,39 @@ SLbool SLSceneView::updateAndDrawGL3D(SLfloat elapsedTimeMS)
         //_time = 0.0f;
         //_time = fmod(_time, skelAnim->length() - 0.0416660011);
         //_time += 0.0416660011;
-        skelAnim->apply(skel, _animTime * 0.1, 1.0f);
+        skelAnim->apply(skel, _animTime, 1.0f);
+        //skelAnim->apply(skel, _time*2, 0.5f);
+    }
+    if (testBool)
+    {
+        //testBool = false;
+        // try to animate the 0 skeleton
+        SLSkeleton* skel = s->skeletons().at(1);
+        SLAnimation* skelAnim = skel->tempGetAnim("Unnamed Animation");
+        //SLAnimation* skelAnim = skel->tempGetAnim("AnimStack::deformation_rig|deformation_rigAction");
+        skel->reset();
+        // temporary cheat since we crash (because astroboy lacks a 0.0 keyframe)
+        
+        //_time = 0.0f;
+        //_time = fmod(_time, skelAnim->length() - 0.0416660011);
+        //_time += 0.0416660011;
+        skelAnim->apply(skel, _animTime*0.8 + 0.6f, 1.0f);
+        //skelAnim->apply(skel, _time*2, 0.5f);
+    }
+    if (testBool)
+    {
+        //testBool = false;
+        // try to animate the 0 skeleton
+        SLSkeleton* skel = s->skeletons().at(2);
+        SLAnimation* skelAnim = skel->tempGetAnim("Unnamed Animation");
+        //SLAnimation* skelAnim = skel->tempGetAnim("AnimStack::deformation_rig|deformation_rigAction");
+        skel->reset();
+        // temporary cheat since we crash (because astroboy lacks a 0.0 keyframe)
+        
+        //_time = 0.0f;
+        //_time = fmod(_time, skelAnim->length() - 0.0416660011);
+        //_time += 0.0416660011;
+        skelAnim->apply(skel, _animTime*0.9 + 0.3f, 1.0f);
         //skelAnim->apply(skel, _time*2, 0.5f);
     }
     // ------------------------------------------------------------
@@ -1359,7 +1391,7 @@ SLbool SLSceneView::onKeyPress(const SLKey key, const SLKey mod)
     if (key == '2') { _animTime += 0.1f; return true; }
     if (key == '3') { _runBackwards = !_runBackwards; return true; }
     if (key == KeyNPAdd) { _animMultiplier += 0.1f; return true; }
-    if (key == KeyNPSubtract) { _animMultiplier += -0.1f; return true; }
+    if (key == KeyNPSubtract) { if(_animMultiplier > 0.1f) _animMultiplier += -0.1f; return true; }
     
     if (key=='N') return onCommand(cmdNormalsToggle);
     if (key=='P') return onCommand(cmdWireMeshToggle);

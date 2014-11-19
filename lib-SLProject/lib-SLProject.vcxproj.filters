@@ -147,9 +147,6 @@
     <ClInclude Include="..\include\SL.h">
       <Filter>SL</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\SLAssImp.h">
-      <Filter>SL</Filter>
-    </ClInclude>
     <ClInclude Include="..\include\SLAverage.h">
       <Filter>SL</Filter>
     </ClInclude>
@@ -242,6 +239,12 @@
     </ClInclude>
     <ClInclude Include="..\include\SLSceneNode.h">
       <Filter>Nodes</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\SLAssimpImporter.h">
+      <Filter>SL</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\SLImporter.h">
+      <Filter>SL</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -347,9 +350,6 @@
     <ClCompile Include="source\SL\SL.cpp">
       <Filter>SL</Filter>
     </ClCompile>
-    <ClCompile Include="source\SL\SLAssImp.cpp">
-      <Filter>SL</Filter>
-    </ClCompile>
     <ClCompile Include="source\SL\SLFileSystem.cpp">
       <Filter>SL</Filter>
     </ClCompile>
@@ -397,6 +397,12 @@
     </ClCompile>
     <ClCompile Include="source\SLSceneNode.cpp">
       <Filter>Nodes</Filter>
+    </ClCompile>
+    <ClCompile Include="source\SL\SLAssimpImporter.cpp">
+      <Filter>SL</Filter>
+    </ClCompile>
+    <ClCompile Include="source\SL\SLImporter.cpp">
+      <Filter>SL</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
