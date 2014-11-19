@@ -60,6 +60,7 @@ qtMainWindow::qtMainWindow(QWidget *parent, SLVstring cmdLineArgs) :
     format.defaultFormat();
     format.setSampleBuffers(true);
     format.setProfile(QGLFormat::CoreProfile);
+    format.setSwapInterval(1);
 
     // The composition of widget is as follows:
     //
