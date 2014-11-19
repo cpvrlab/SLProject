@@ -126,27 +126,28 @@ protected:
 
     // new intermediate containers
     typedef std::map<SLstring, aiNode*> NodeMap;
-    typedef std::map<SLstring, SLMat4f> BoneMap;
+    typedef std::map<SLstring, SLMat4f> BoneOffsetMap;
     typedef std::vector<aiNode*>        NodeList;
     typedef std::vector<aiMesh*>        MeshList;
 
-    NodeMap		_nodeMap;    //!< map containing name to aiNode releationships
-    BoneMap		_boneMap;    //!< map containing name to bone offset matrices
-    aiNode*     _skeletonRoot;
-    MeshList	_skinnedMeshes; //!< list containing all of the skinned meshes, used to assign the skinned materials
+    NodeMap		    _nodeMap;           //!< map containing name to aiNode releationships
+    BoneOffsetMap	_boneOffsets;    //!< map containing name to bone offset matrices
+    aiNode*         _skeletonRoot;      //!< the common aiNode root for the skeleton of this file
+    MeshList	    _skinnedMeshes;     //!< list containing all of the skinned meshes, used to assign the skinned materials
 
     // SL type containers
     SLSkeleton* _skeleton;  //!< the loaded skeleton
+    SLuint      _boneIndex; //!< index counter used when iterating over bones
 
     // new import helpers
     aiNode*         getNodeByName(const SLstring& name);    // return an aiNode ptr if name exists, or null if it doesn't
-	const SLMat4f*  getBoneByName(const SLstring& name);    // return an aiBone ptr if name exists, or null if it doesn't
+	const SLMat4f   getOffsetMat(const SLstring& name);    // return an aiBone ptr if name exists, or null if it doesn't
 
     void            performInitialScan(const aiScene* scene);     // populates nameToNode, nameToBone, boneGroups, skinnedMeshes,
     void            findNodes(aiNode* node, SLstring padding, SLbool lastChild);           // scans the assimp scene graph structure and populates nameToNode
     void            findBones(const aiScene* scene);           // scans all meshes in the assimp scene and populates nameToBone and boneGroups
     void            findSkeletonRoot();                    // finds the common ancestor for each remaining group in boneGroups, these are our final skeleton roots
-    void            loadSkeleton();
+    void            loadSkeleton(SLBone* parent, aiNode* node);
 
 
     /*SLGLTexture*    loadTexture(SLstring &path, SLTexType texType);

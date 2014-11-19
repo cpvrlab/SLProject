@@ -25,8 +25,14 @@ public:
     SLBone(const SLstring& name, SLuint handle, SLSkeleton* creator);
     
     SLBone* createChild(SLuint handle);
+    SLBone* createChild(const SLstring& name, SLuint handle);
+    
+    SLuint handle() const { return _handle; }
+
     void    offsetMat           (const SLMat4f& mat);
-    const SLMat4f&    offsetMat() { return _offsetMat; }
+    const SLMat4f&    offsetMat() const { return _offsetMat; }
+
+
     SLMat4f calculateFinalMat   ();    /// @todo find a better name pls
 
 protected:

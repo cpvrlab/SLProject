@@ -11,6 +11,13 @@ SLSkeleton::SLSkeleton()
 
 SLBone* SLSkeleton::createBone(SLuint handle)
 {
+    ostringstream oss;
+    oss << "Bone " << handle;
+    return createBone(oss.str(), handle);
+}
+
+SLBone* SLSkeleton::createBone(const SLstring& name, SLuint handle)
+{
     SLBone* result = new SLBone(handle, this);
     
     assert((handle >= _boneList.size() || (handle < _boneList.size() && _boneList[handle] == NULL)) && "Trying to create a bone with an already existing handle.");
@@ -26,6 +33,13 @@ SLBone* SLSkeleton::getBone(SLuint handle)
 {
     assert(handle < _boneList.size() && "Index out of bounds");
     return _boneList[handle];
+}
+
+SLBone* SLSkeleton::getBone(const SLstring& name)
+{
+    if (!_root) return NULL;
+
+    SLBone* result = _root->find<SLBone>(name);
 }
 
 void SLSkeleton::getBoneWorldMatrices(SLMat4f* boneWM)

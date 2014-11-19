@@ -545,6 +545,9 @@
     <None Include="source\oglsl\PerVrtBlinnSkinned.vert">
       <Filter>GLSL</Filter>
     </None>
+    <None Include="source\oglsl\PerPixBlinnTexSkinned.vert">
+      <Filter>GLSL</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Text Include="ToDo.txt" />

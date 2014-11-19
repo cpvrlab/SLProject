@@ -20,6 +20,13 @@ SLBone* SLBone::createChild(SLuint handle)
     return bone;
 }
 
+SLBone* SLBone::createChild(const SLstring& name, SLuint handle)
+{
+    SLBone* bone = _creator->createBone(name, handle);
+    addChild(bone);
+    return bone;
+}
+
 // set a new offset matrix
 void SLBone::offsetMat(const SLMat4f& mat)
 {

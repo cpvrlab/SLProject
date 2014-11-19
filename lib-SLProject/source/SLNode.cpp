@@ -88,7 +88,7 @@ void SLNode::addMesh(SLMesh* mesh)
     if (!mesh)
         return;
 
-    if (find(_meshes.begin(), _meshes.end(), mesh) != _meshes.end())
+    if (std::find(_meshes.begin(), _meshes.end(), mesh) != _meshes.end())
         return;
 
     // Take over mesh name if node name is default name
@@ -108,7 +108,7 @@ bool SLNode::insertMesh(SLMesh* insertM, SLMesh* afterM)
     assert(insertM && afterM);
     assert(insertM != afterM);
 
-    SLVMesh::iterator found = find(_meshes.begin(), _meshes.end(), afterM);
+    SLVMesh::iterator found = std::find(_meshes.begin(), _meshes.end(), afterM);
     if (found != _meshes.end())
     {   _meshes.insert(found, insertM);
         insertM->init(this);
@@ -240,7 +240,7 @@ bool SLNode::insertChild(SLNode* insertC, SLNode* afterC)
     assert(insertC && afterC);
     assert(insertC != afterC);
 
-    SLVNode::iterator found = find(_children.begin(), _children.end(), afterC);
+    SLVNode::iterator found = std::find(_children.begin(), _children.end(), afterC);
     if (found != _children.end())
     {   _children.insert(found, insertC);
         insertC->parent(this);

@@ -27,8 +27,10 @@ public:
     // creates a new bone that belongs to this skeleton
     // handle must be unique for this skeleton and also contiguous
     SLBone* createBone(SLuint handle);
+    SLBone* createBone(const SLstring& name, SLuint handle);
 
     SLBone*     getBone(SLuint handle);
+    SLBone*     getBone(const SLstring& name);
     SLint       numBones() const { return _boneList.size(); }
     void        getBoneWorldMatrices(SLMat4f* boneWM);
     void        root(SLBone* bone);

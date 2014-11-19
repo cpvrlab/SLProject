@@ -373,7 +373,7 @@ SLNode* SLAssImp::load(SLstring file,        //!< File with path or on default p
     performInitialScan(scene);
 
     // load skeleton
-    loadSkeleton();
+    loadSkeleton(NULL, _skeletonRoot);
 
     // load materials
     SLstring modelPath = SLUtils::getPath(file);
@@ -394,10 +394,10 @@ SLNode* SLAssImp::load(SLstring file,        //!< File with path or on default p
     } 
     
     // add skinned material to the meshes with bone animations
-    // @todo: can we do this wihtout the need to put this in SLMaterial?
+    // @todo: Can we do skinning in the shader without the need to dictated which material to use?
     if (skinnedMeshes.size() > 0) {
         SLGLShaderProgGeneric* skinningShader = new SLGLShaderProgGeneric("PerVrtBlinnSkinned.vert","PerVrtBlinn.frag");
-        SLGLShaderProgGeneric* skinningShaderTex = new SLGLShaderProgGeneric("PerVrtBlinnTexSkinned.vert","PerVrtBlinnTex.frag");
+        SLGLShaderProgGeneric* skinningShaderTex = new SLGLShaderProgGeneric("PerPixBlinnTexSkinned.vert","PerPixBlinnTex.frag");
         for (SLint i = 0; i < skinnedMeshes.size(); i++)
         {
             SLMesh* mesh = skinnedMeshes[i];
@@ -460,7 +460,7 @@ void SLAssImp::logMessage(LogVerbosity verbosity, const char* msg, ...)
 void SLAssImp::clear()
 {
     _nodeMap.clear();
-    _boneMap.clear();
+    _boneOffsets.clear();
     _skeletonRoot = NULL;
     _skeleton = NULL;
     _skinnedMeshes.clear();
@@ -477,12 +477,12 @@ aiNode* SLAssImp::getNodeByName(const SLstring& name)
 
 //-----------------------------------------------------------------------------
 /** return an aiBone ptr if name exists, or null if it doesn't */
-const SLMat4f* SLAssImp::getBoneByName(const SLstring& name)
+const SLMat4f SLAssImp::getOffsetMat(const SLstring& name)
 {
-	if(_boneMap.find(name) != _boneMap.end())
-		return &_boneMap[name];
+	if(_boneOffsets.find(name) != _boneOffsets.end())
+		return _boneOffsets[name];
 
-	return NULL;
+	return SLMat4f();
 }
 
 //-----------------------------------------------------------------------------
@@ -552,14 +552,15 @@ void SLAssImp::findBones(const aiScene* scene)
         for (SLint j = 0; j < mesh->mNumBones; j++)
         {
 			SLstring name = mesh->mBones[j]->mName.C_Str();
-            std::map<SLstring, SLMat4f>::iterator it = _boneMap.find(name);
-			if(it != _boneMap.end())
+            std::map<SLstring, SLMat4f>::iterator it = _boneOffsets.find(name);
+			if(it != _boneOffsets.end())
 				continue;
 
+            // add the offset matrix to our offset matrix map
 			SLMat4f offsetMat;
 			memcpy(&offsetMat, &mesh->mBones[j]->mOffsetMatrix, sizeof(SLMat4f));
 			offsetMat.transpose();
-			_boneMap[name] = offsetMat;
+			_boneOffsets[name] = offsetMat;
 
 
 			logMessage(LV_Detailed, "     Bone '%s' found.\n", name.c_str());
@@ -571,15 +572,15 @@ void SLAssImp::findBones(const aiScene* scene)
 /** finds the common ancestor for each remaining group in boneGroups, these are our final skeleton roots */
 void SLAssImp::findSkeletonRoot()
 {
-	vector<NodeList> ancestorList(_boneMap.size());
+	vector<NodeList> ancestorList(_boneOffsets.size());
     SLint minDepth = INT_MAX;
     SLint index = 0;
 
     
     logMessage(LV_Detailed, "Building bone ancestor lists.\n", _skeletonRoot->mName.C_Str());
 
-    BoneMap::iterator it = _boneMap.begin();
-    for (; it != _boneMap.end(); it++, index++)
+    BoneOffsetMap::iterator it = _boneOffsets.begin();
+    for (; it != _boneOffsets.end(); it++, index++)
     {
         aiNode* node = getNodeByName(it->first);
         NodeList& list = ancestorList[index];
@@ -637,15 +638,31 @@ void SLAssImp::findSkeletonRoot()
 }
 //-----------------------------------------------------------------------------
 /** Loads the skeleton */
-void SLAssImp::loadSkeleton()
+void SLAssImp::loadSkeleton(SLBone* parent, aiNode* node)
 {
-    // don't load if no skeleton root was found
-    if (!_skeletonRoot)
+    if (!node)
         return;
 
-    logMessage(LV_Normal, "Loading skeleton skeleton.\n");
 
+    SLBone* bone;
+    SLstring name = node->mName.C_Str();
+    if (!parent)
+    {
+	    logMessage(LV_Normal, "Loading skeleton skeleton.\n");
+        _skeleton = new SLSkeleton;
+        _boneIndex = 0;
+        bone = _skeleton->createBone(name, _boneIndex++); // @todo add a bone creator that also sets the bones name
+        _skeleton->root(bone);
+    }
+    else
+    {
+        bone = parent->createChild(name, _boneIndex++);
+    }
 
+    bone->offsetMat(getOffsetMat(name));
+
+    for (SLint i = 0; i < node->mNumChildren; i++)
+        loadSkeleton(bone, node->mChildren[i]);
 }
 
 //-----------------------------------------------------------------------------

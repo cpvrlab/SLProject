@@ -553,6 +553,7 @@
     <None Include="source\oglsl\PerPixBlinn.vert" />
     <None Include="source\oglsl\PerPixBlinnTex.frag" />
     <None Include="source\oglsl\PerPixBlinnTex.vert" />
+    <None Include="source\oglsl\PerPixBlinnTexSkinned.vert" />
     <None Include="source\oglsl\PerVrtBlinn.frag" />
     <None Include="source\oglsl\PerVrtBlinn.vert" />
     <None Include="source\oglsl\PerVrtBlinnSkinned.vert" />
