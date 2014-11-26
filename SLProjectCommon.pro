@@ -35,6 +35,7 @@ win32 {
     DEFINES += _GLFW_NO_DLOAD_GDI32
     DEFINES += _GLFW_NO_DLOAD_WINMM
     DEFINES -= UNICODE
+    INCLUDEPATH += ../lib-SLExternal/png
 }
 macx {
     # mac only
@@ -45,6 +46,7 @@ macx {
     LIBS += -framework OpenGL
     LIBS += -framework QuartzCore
     LIBS += -stdlib=libc++
+    INCLUDEPATH += ../lib-SLExternal/png
 }
 unix:!macx:!android {
     # linux only
