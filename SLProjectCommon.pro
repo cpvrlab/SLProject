@@ -76,7 +76,6 @@ INCLUDEPATH += \
     ../lib-SLExternal/glew/include \
     ../lib-SLExternal/glfw3/include \
     ../lib-SLExternal/zlib\
-    ../lib-SLExternal/png\
     ../lib-SLExternal/randomc \
     ../lib-SLExternal/nvwa \
     ../lib-SLExternal/jpeg-8\

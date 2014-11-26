@@ -20,5 +20,7 @@
         <file>images/renderPT.png</file>
         <file>images/renderRT.png</file>
         <file>images/stopAnimation.png</file>
+        <file>images/open.png</file>
+        <file>images/appIcon36.bmp</file>
     </qresource>
 </RCC>
