@@ -223,21 +223,6 @@ SOURCES += \
     zlib/adler32.c \
     zlib/ioapi.c \
     zlib/unzip.c \
-    png/pngwutil.c \
-    png/pngwtran.c \
-    png/pngwrite.c \
-    png/pngwio.c \
-    png/pngtrans.c \
-    png/pngset.c \
-    png/pngrutil.c \
-    png/pngrtran.c \
-    png/pngrio.c \
-    png/pngread.c \
-    png/pngpread.c \
-    png/pngmem.c \
-    png/pngget.c \
-    png/pngerror.c \
-    png/png.c \
 }
 unix:!macx:!android { #Linux only -------------------------
 INCLUDEPATH += \
@@ -264,6 +249,21 @@ SOURCES += \
 macx { #Mac OSX only --------------------------------------
 HEADERS += \
     glfw3/src/cocoa_platform.h \
+    zlib/ioapi.h \
+    zlib/unzip.h \
+    zlib/zconf.in.h \
+    zlib/zutil.h \
+    zlib/zlib.h \
+    zlib/zconf.h \
+    zlib/trees.h \
+    zlib/inftrees.h \
+    zlib/inflate.h \
+    zlib/inffixed.h \
+    zlib/inffast.h \
+    zlib/gzguts.h \
+    zlib/deflate.h \
+    zlib/crypt.h \
+    zlib/crc32.h \
 
 SOURCES += \
     glfw3/src/cocoa_time.c \
@@ -283,6 +283,23 @@ SOURCES += \
     png/pngget.c \
     png/pngerror.c \
     png/png.c \
+    zlib/zutil.c \
+    zlib/uncompr.c \
+    zlib/trees.c \
+    zlib/inftrees.c \
+    zlib/inflate.c \
+    zlib/inffast.c \
+    zlib/infback.c \
+    zlib/gzwrite.c \
+    zlib/gzread.c \
+    zlib/gzlib.c \
+    zlib/gzclose.c \
+    zlib/deflate.c \
+    zlib/crc32.c \
+    zlib/compress.c \
+    zlib/adler32.c \
+    zlib/ioapi.c \
+    zlib/unzip.c \
 
 OBJECTIVE_SOURCES += \
     glfw3/src/cocoa_clipboard.m \
@@ -290,5 +307,5 @@ OBJECTIVE_SOURCES += \
     glfw3/src/cocoa_joystick.m \
     glfw3/src/cocoa_monitor.m \
     glfw3/src/cocoa_window.m \
-    glfw3/src/nsgl_context.m
+    glfw3/src/nsgl_context.m \
 }

@@ -56,6 +56,8 @@ unix:!macx:!android {
     LIBS += -lXxf86vm   #libxf86vm
     LIBS += -ludev      #libudev-dev
     LIBS += -lpthread   #libpthread
+    LIBS += -lpng
+    LIBS += -lz
     QMAKE_CXXFLAGS += -std=c++11
     QMAKE_CXXFLAGS += -Wunused-parameter
     QMAKE_CXXFLAGS += -Wno-unused-parameter
