@@ -16,7 +16,7 @@
 #endif
 
 #include "SLGLShader.h"
-#include "SLGLShaderProg.h"
+#include "SLGLProgram.h"
 
 //-----------------------------------------------------------------------------
 // Error Strings
@@ -31,10 +31,10 @@ SLchar* aGLSLErrorString[] = {(SLchar*)"(e0000) GLSL not enabled",
 SLGLShader::SLGLShader(SLstring filename, SLShaderType shaderType) 
            :SLObject(SLUtils::getFileName(filename))
 {  
-    _shaderType = shaderType;
-    _shaderSource = "";
-    _shaderObjectGL = 0;
-    _shaderFile = filename;
+    _type = shaderType;
+    _code = "";
+    _objectGL = 0;
+    _file = filename;
    
     // Only load file at this moment, don't compile.
     load(filename);
@@ -43,8 +43,8 @@ SLGLShader::SLGLShader(SLstring filename, SLShaderType shaderType)
 SLGLShader::~SLGLShader()
 {  
     //SL_LOG("~SLGLShader(%s)\n", name().c_str());
-    if (_shaderObjectGL)  
-        glDeleteShader(_shaderObjectGL);
+    if (_objectGL)
+        glDeleteShader(_objectGL);
     GET_GL_ERROR;
 }
 //----------------------------------------------------------------------------- 
@@ -52,15 +52,15 @@ SLGLShader::~SLGLShader()
 SLbool SLGLShader::createAndCompile()
 {  
     // delete if object already exits
-    if (_shaderObjectGL) glDeleteShader(_shaderObjectGL);
+    if (_objectGL) glDeleteShader(_objectGL);
 
-    if (_shaderSource!="")
+    if (_code!="")
     {  
-        switch (_shaderType)
+        switch (_type)
         {   case VertexShader:
-                _shaderObjectGL = glCreateShader(GL_VERTEX_SHADER); break;
+                _objectGL = glCreateShader(GL_VERTEX_SHADER); break;
             case FragmentShader:
-                _shaderObjectGL = glCreateShader(GL_FRAGMENT_SHADER); break;
+                _objectGL = glCreateShader(GL_FRAGMENT_SHADER); break;
             default:
                 SL_EXIT_MSG("SLGLShader::load: Unknown shader type.");
         }
@@ -71,20 +71,20 @@ SLbool SLGLShader::createAndCompile()
 
         SLstring scrComplete = srcVersion + 
                                scrDefines + 
-                               _shaderSource;
+                               _code;
 
         const char* src = scrComplete.c_str();
-        glShaderSource(_shaderObjectGL, 1, &src, 0);   
-        glCompileShader(_shaderObjectGL);   
+        glShaderSource(_objectGL, 1, &src, 0);
+        glCompileShader(_objectGL);
 
         // Check comiler log
         SLint compileSuccess = 0;
-        glGetShaderiv(_shaderObjectGL, GL_COMPILE_STATUS, &compileSuccess);
+        glGetShaderiv(_objectGL, GL_COMPILE_STATUS, &compileSuccess);
         if (compileSuccess == GL_FALSE) 
-        {   GLchar log[1024];
-            glGetShaderInfoLog(_shaderObjectGL, sizeof(log), 0, &log[0]);
+        {   GLchar log[256];
+            glGetShaderInfoLog(_objectGL, sizeof(log), 0, &log[0]);
             SL_LOG("*** COMPILER ERROR ***\n");
-            SL_LOG("Source file: %s\n", _shaderFile.c_str());
+            SL_LOG("Source file: %s\n", _file.c_str());
             //SL_LOG("Source: %s\n", _shaderSource.c_str());
             SL_LOG("%s\n\n", log);
             return false;
@@ -108,12 +108,12 @@ void SLGLShader::load(SLstring filename)
     buffer << shaderFile.rdbuf(); 
 
     // remove comments because some stupid ARM compiler can't handle GLSL comments
-    _shaderSource = SLUtils::removeComments(buffer.str());
+    _code = SLUtils::removeComments(buffer.str());
 }
 //-----------------------------------------------------------------------------
 //! SLGLShader::load loads a shader file from memory into memory 
 void SLGLShader::loadFromMemory(const SLstring shaderSource)
 {
-    _shaderSource = shaderSource;
+    _code = shaderSource;
 }
 // ----------------------------------------------------------------------------

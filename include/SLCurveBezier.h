@@ -16,8 +16,8 @@
 #include <SLGLBuffer.h>
 
 //-----------------------------------------------------------------------------
-//!The SLCurveBezier class implements a Bézier curve interpolation
-/*!The SLCurveBezier class implements a Bézier curve interpolation. The math 
+//!The SLCurveBezier class implements a Bezier curve interpolation
+/*!The SLCurveBezier class implements a Bezier curve interpolation. The math
 is originally based on the implementation from the book:
 "Essential Mathematics for Games and Interactive Applications" from 
 James M. Van Verth and Lars M. Bishop.

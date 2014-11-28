@@ -17,23 +17,23 @@
 
 //-----------------------------------------------------------------------------
 //! SLPolygon ctor with corner points array 
-SLPolygon::SLPolygon(SLVVec3f corner, SLstring name, SLMaterial* mat) 
+SLPolygon::SLPolygon(SLVVec3f corners, SLstring name, SLMaterial* mat)
           :SLMesh(name) 
 {
-    assert(corner.size()>2);
-    _corner = corner;
+    assert(corners.size()>2);
+    _corners = corners;
     buildMesh(mat);
 }
 //-----------------------------------------------------------------------------
 //! SLPolygon ctor with corner points and its texture coords array 
-SLPolygon::SLPolygon(SLVVec3f corner, 
-                     SLVVec2f texCoord,
+SLPolygon::SLPolygon(SLVVec3f corners,
+                     SLVVec2f texCoords,
                      SLstring name, 
                      SLMaterial*   mat) :SLMesh(name)   
 {
-    assert(corner.size()>2 && texCoord.size()==corner.size());
-    _corner = corner;
-    _texCoord = texCoord;
+    assert(corners.size()>2 && texCoords.size()==corners.size());
+    _corners = corners;
+    _texCoord = texCoords;
     buildMesh(mat);
 }
 //-----------------------------------------------------------------------------
@@ -41,15 +41,15 @@ SLPolygon::SLPolygon(SLVVec3f corner,
 SLPolygon::SLPolygon(SLfloat  width, 
                      SLfloat  height,
                      SLstring name, 
-                     SLMaterial*   mat) :SLMesh(name)  
+                     SLMaterial* mat) :SLMesh(name)
 {
     assert(width>0 && height>0);
     SLfloat hw = width  * 0.5f;
     SLfloat hh = height * 0.5f;
-    _corner.push_back(SLVec3f( hw, hh));
-    _corner.push_back(SLVec3f( hw,-hh));
-    _corner.push_back(SLVec3f(-hw,-hh));
-    _corner.push_back(SLVec3f(-hw, hh));
+    _corners.push_back(SLVec3f( hw, hh));
+    _corners.push_back(SLVec3f( hw,-hh));
+    _corners.push_back(SLVec3f(-hw,-hh));
+    _corners.push_back(SLVec3f(-hw, hh));
     buildMesh(mat);
 }
 //-----------------------------------------------------------------------------
@@ -61,11 +61,11 @@ void SLPolygon::buildMesh(SLMaterial* material)
     deleteData();
    
     // Check max. allowed no. of verts
-    if (_corner.size() >= 65535) 
+    if (_corners.size() >= 65535) 
         SL_EXIT_MSG("SLPolygon::buildMesh: NO. of vertices exceeds the maximum (65535) allowed.");
 
     // allocate new arrays of SLMesh
-    numV = (SLuint)_corner.size();
+    numV = (SLuint)_corners.size();
     numI = (numV - 2) * 3 ;
     P = new SLVec3f[numV];
     N = new SLVec3f[numV];
@@ -73,8 +73,8 @@ void SLPolygon::buildMesh(SLMaterial* material)
     I16 = new SLushort[numI];
    
     // Calculate normal from the first 3 corners
-    SLVec3f v1(_corner[0]-_corner[1]);
-    SLVec3f v2(_corner[0]-_corner[2]);
+    SLVec3f v1(_corners[0]-_corners[1]);
+    SLVec3f v2(_corners[0]-_corners[2]);
     SLVec3f n(v1^v2);
     n.normalize();
    
@@ -83,13 +83,13 @@ void SLPolygon::buildMesh(SLMaterial* material)
    
     //Copy vertices and normals
     for (SLushort i=0; i<numV; ++i)
-    {   P[i] = _corner[i];
+    {   P[i] = _corners[i];
         N[i] = n;
         if (Tc) Tc[i] = _texCoord[i];
     }
    
     // Build face vertex indexes
-    for (SLuint f=0; f<_corner.size()-2; ++f) 
+    for (SLuint f=0; f<_corners.size()-2; ++f) 
     {   SLuint i = f * 3;
         I16[i  ] = 0;
         I16[i+1] = f+1;

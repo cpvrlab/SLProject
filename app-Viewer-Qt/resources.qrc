@@ -9,7 +9,6 @@
         <file>images/showVoxels.png</file>
         <file>images/showWiremesh.png</file>
         <file>images/showAxis.png</file>
-        <file>images/stopAnimation.tiff</file>
         <file>images/showBackfaces.png</file>
         <file>images/noTextures.png</file>
         <file>images/splitHorizontal.png</file>
@@ -20,5 +19,8 @@
         <file>images/renderGL.png</file>
         <file>images/renderPT.png</file>
         <file>images/renderRT.png</file>
+        <file>images/stopAnimation.png</file>
+        <file>images/open.png</file>
+        <file>images/appIcon36.bmp</file>
     </qresource>
 </RCC>

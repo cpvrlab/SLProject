@@ -29,7 +29,7 @@ using namespace std::chrono;
 #include <SLText.h>
 #include <SLGLTexture.h>
 #include <SLSamples2D.h>
-#include <SLGLShaderProg.h>
+#include <SLGLProgram.h>
 
 //-----------------------------------------------------------------------------
 SLRaytracer::SLRaytracer()

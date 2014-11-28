@@ -1,5 +1,5 @@
 //#############################################################################
-//  File:      SLGLShaderProg.h
+//  File:      SLGLProgram.h
 //  Author:    Marcus Hudritsch 
 //             Mainly based on Martin Christens GLSL Tutorial
 //             See http://www.clockworkcoders.com
@@ -9,11 +9,11 @@
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
 
-#ifndef SLGLSHADERPROGRAM_H
-#define SLGLSHADERPROGRAM_H
+#ifndef SLGLPROGRAM_H
+#define SLGLPROGRAM_H
 
 #include <stdafx.h>
-#include "SLGLShaderUniform.h"
+#include "SLGLUniform.h"
 
 class SLGLShader;
 class SLScene;
@@ -21,7 +21,7 @@ class SLMaterial;
 
 //-----------------------------------------------------------------------------
 //! STL vector type for SLGLShader pointers
-typedef std::vector<SLGLShader*>  SLVShader;
+typedef std::vector<SLGLShader*>  SLVGLShader;
 
 #if defined(TARGET_OS_IOS)
 // The TR1 unordered_map or the hash_map is not yet available on iOS
@@ -34,20 +34,20 @@ typedef map<string, int> SLLocMap;
 //-----------------------------------------------------------------------------
 //! Encapsulation of an OpenGL shader program object
 /*!
-The SLGLShaderProg base class represents a shader program object of the OpenGL 
+The SLGLProgram base class represents a shader program object of the OpenGL
 Shading Language (GLSL). Multiple SLGLShader objects can be attached and linked 
-at run time. An SLGLShaderProg object can then be attached to an SLMaterial 
-node for execution. An SLGLShaderProg object can hold an array of uniform
+at run time. An SLGLProgram object can then be attached to an SLMaterial
+node for execution. An SLGLProgram object can hold an array of uniform
 variable that can transfer variables from the CPU program to the GPU program.
 For more details on GLSL please refer to official GLSL documentation.
 */
 //-----------------------------------------------------------------------------
-class SLGLShaderProg : public SLObject
+class SLGLProgram : public SLObject
 {
     public:
-                        SLGLShaderProg  (SLstring vertShaderFile=0,
+                        SLGLProgram     (SLstring vertShaderFile=0,
                                          SLstring fragShaderFile=0);          
-    virtual            ~SLGLShaderProg  ();          
+    virtual            ~SLGLProgram     ();
 
             void        addShader       (SLGLShader* shader);         
             void        init            (); //!< create, attach & link shaders
@@ -60,17 +60,17 @@ class SLGLShaderProg : public SLObject
             void        endUse          ();
             void        useProgram      ();
       
-            void        addUniform1f    (SLGLShaderUniform1f* u);   //!< add float uniform 
-            void        addUniform1i    (SLGLShaderUniform1i* u);   //!< add int uniform
+            void        addUniform1f    (SLGLUniform1f* u);   //!< add float uniform
+            void        addUniform1i    (SLGLUniform1i* u);   //!< add int uniform
       
             //Getters
-            SLuint      programObjectGL (){return _programObjectGL;}
-            SLVShader&  shaderList      (){return _shaderList;}
+            SLuint      programObjectGL (){return _objectGL;}
+            SLVGLShader&  shaders         (){return _shaders;}
 
       
         //Variable location getters
-    inline  SLint       getUniformLocation(const SLchar *name){return glGetUniformLocation(_programObjectGL, name);}
-    inline  SLint       getAttribLocation(const SLchar *name){return glGetAttribLocation(_programObjectGL, name);}   
+    inline  SLint       getUniformLocation(const SLchar *name){return glGetUniformLocation(_objectGL, name);}
+    inline  SLint       getAttribLocation(const SLchar *name){return glGetAttribLocation(_objectGL, name);}
 
             //Send unform variables to program
             SLint       uniform1f       (const SLchar* name, SLfloat v0);
@@ -130,17 +130,17 @@ class SLGLShaderProg : public SLObject
       
     private:
         SLGLState*    _stateGL;         //!< Pointer to global SLGLState instance
-        SLuint        _programObjectGL; //!< OpenGL shader program object
+        SLuint        _objectGL;        //!< OpenGL shader program object
         SLbool        _isLinked;        //!< Flag if program is linked
-        SLVShader     _shaderList;      //!< Vector of all shader objects
-        SLVUniform1f  _uniform1fList;   //!< Vector of uniform1f variables
-        SLVUniform1i  _uniform1iList;   //!< Vector of uniform1i variables
+        SLVGLShader   _shaders;         //!< Vector of all shader objects
+        SLVUniform1f  _uniforms1f;      //!< Vector of uniform1f variables
+        SLVUniform1i  _uniforms1i;      //!< Vector of uniform1i variables
         //SLLocMap    _uniformLocHash;  //!< Hashmap for all uniform locations
         //SLLocMap    _attribLocHash;   //!< Hashmap for all attribute locations
 };
 //-----------------------------------------------------------------------------
-//! STL vector of SLGLShaderProg pointers
-typedef std::vector<SLGLShaderProg*> SLVGLShaderProg;
+//! STL vector of SLGLProgram pointers
+typedef std::vector<SLGLProgram*> SLVGLProgram;
 //-----------------------------------------------------------------------------
 #endif // SLSHADERPROGRAM_H
 

@@ -1,6 +1,13 @@
+##############################################################################
+#  File:      SLProject_common.pro
+#  Purpose:   QMake project definition for common SLProject projects
+#  Author:    Marcus Hudritsch
+#  Date:      February 2014
+#  Copyright: Marcus Hudritsch, Switzerland
+#             THIS SOFTWARE IS PROVIDED FOR EDUCATIONAL PURPOSE ONLY AND
+#             WITHOUT ANY WARRANTIES WHETHER EXPRESSED OR IMPLIED.
+##############################################################################
 
-
-CONFIG += console
 CONFIG += warn_off
 CONFIG -= qml_debug
 
@@ -14,14 +21,6 @@ CONFIG(glfw) {
    DEFINES += SL_GUI_GLFW
 }
 
-#define platform variable for folder name
-win32 {contains(QMAKE_TARGET.arch, x86_64) {PLATFORM = x64} else {PLATFORM = Win32}}
-macx {PLATFORM = macx}
-unix:!macx:!android {PLATFORM = linux}
-android {PLATFORM = android}
-
-#define configuration variable for folder name
-CONFIG(debug, debug|release) {CONFIGURATION = Debug} else {CONFIGURATION = Release}
 
 CONFIG(debug, debug|release) {DEFINES += _DEBUG}
 
@@ -36,6 +35,7 @@ win32 {
     DEFINES += _GLFW_NO_DLOAD_GDI32
     DEFINES += _GLFW_NO_DLOAD_WINMM
     DEFINES -= UNICODE
+    INCLUDEPATH += ../lib-SLExternal/png
 }
 macx {
     # mac only
@@ -46,6 +46,7 @@ macx {
     LIBS += -framework OpenGL
     LIBS += -framework QuartzCore
     LIBS += -stdlib=libc++
+    INCLUDEPATH += ../lib-SLExternal/png
 }
 unix:!macx:!android {
     # linux only
@@ -56,6 +57,9 @@ unix:!macx:!android {
     LIBS += -lXinerama  #libxinerama-dev
     LIBS += -lXxf86vm   #libxf86vm
     LIBS += -ludev      #libudev-dev
+    LIBS += -lpthread   #libpthread
+    LIBS += -lpng
+    LIBS += -lz
     QMAKE_CXXFLAGS += -std=c++11
     QMAKE_CXXFLAGS += -Wunused-parameter
     QMAKE_CXXFLAGS += -Wno-unused-parameter
@@ -76,7 +80,6 @@ INCLUDEPATH += \
     ../lib-SLExternal/glew/include \
     ../lib-SLExternal/glfw3/include \
     ../lib-SLExternal/zlib\
-    ../lib-SLExternal/png\
     ../lib-SLExternal/randomc \
     ../lib-SLExternal/nvwa \
     ../lib-SLExternal/jpeg-8\

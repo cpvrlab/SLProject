@@ -15,7 +15,7 @@
 #endif
 
 #include <SLGLOculus.h>
-#include <SLGLShaderProg.h>
+#include <SLGLProgram.h>
 #include <SLScene.h>
 
 #ifndef SL_OVR
@@ -205,7 +205,7 @@ void SLGLOculus::init()
 */
 void SLGLOculus::renderDistortion(SLint width, SLint height, SLuint tex)
 {
-    SLGLShaderProg* sp = SLScene::current->shaderProgs(StereoOculusDistortionMesh);
+    SLGLProgram* sp = SLScene::current->programs(StereoOculusDistortionMesh);
 
     glViewport(0, 0, width, height);
     glBindFramebuffer(GL_FRAMEBUFFER, 0);

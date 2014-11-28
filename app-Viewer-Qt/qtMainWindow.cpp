@@ -15,6 +15,7 @@
 #include "qtPropertyTreeItem.h"
 #include <QMessageBox>
 #include <QSplitter>
+#include <QIcon>
 #include <functional>
 
 #include <SL.h>
@@ -22,7 +23,7 @@
 #include <SLSceneView.h>
 #include <SLMaterial.h>
 #include <SLInterface.h>
-#include <SLGLShaderProg.h>
+#include <SLGLProgram.h>
 #include <SLGLShader.h>
 #include <SLCamera.h>
 #include <SLLight.h>
@@ -52,11 +53,14 @@ qtMainWindow::qtMainWindow(QWidget *parent, SLVstring cmdLineArgs) :
     _menuWindow = ui->menuWindow;
     _menuHelp = ui->menuHelp;
 
+    qtGLWidget::mainWindow = this;
+
     // on Mac OSX the sample buffers must be turned on for antialiasing
     QGLFormat format;
     format.defaultFormat();
     format.setSampleBuffers(true);
     format.setProfile(QGLFormat::CoreProfile);
+    format.setSwapInterval(1);
 
     // The composition of widget is as follows:
     //
@@ -90,7 +94,6 @@ qtMainWindow::qtMainWindow(QWidget *parent, SLVstring cmdLineArgs) :
 
     // create OpenGL widget. 
     _activeGLWidget = new qtGLWidget(format, borderWidget, "/data/data/ch.fhwn.comgr/files", cmdLineArgs);
-    qtGLWidget::mainWindow = this;
 
     // add glWidget to border and border to splitter and splitter to main window
     borderWidget->layout()->addWidget(_activeGLWidget);
@@ -202,7 +205,8 @@ void qtMainWindow::setMenuState()
     ui->actionShow_Voxels->setChecked(sv->drawBit(SL_DB_VOXELS));
     ui->actionShow_Backfaces->setChecked(sv->drawBit(SL_DB_CULLOFF));
     ui->actionTextures_off->setChecked(sv->drawBit(SL_DB_TEXOFF));
-    ui->actionAnimation_off->setChecked(sv->drawBit(SL_DB_ANIMOFF));
+
+    ui->actionAnimation_off->setChecked(s->stopAnimations());
 
     ui->actionView_Frustum_Culling->setEnabled(sv->renderType()==renderGL);
     ui->actionSlowdown_on_Idle->setEnabled(sv->renderType()==renderGL);
@@ -360,11 +364,6 @@ void qtMainWindow::buildPropertyTree()
                            bind(&SLNode::setDrawBitsRec, node, SL_DB_TEXOFF, _1));
         level1->addChild(level2);
 
-        level2 = new qtPropertyTreeItem("Animation off:", "", true);
-        level2->setGetBool(bind((bool(SLNode::*)(uint))&SLNode::drawBit, node, SL_DB_ANIMOFF),
-                           bind(&SLNode::setDrawBitsRec, node, SL_DB_ANIMOFF, _1));
-        level1->addChild(level2);
-
       
         // Show special camera properties
         if (typeid(*node)==typeid(SLCamera))
@@ -498,12 +497,12 @@ void qtMainWindow::buildPropertyTree()
             level1->addChild(level2);
 
 
-            SLGLShaderProg *prog = mat->shaderProg();
+            SLGLProgram *prog = mat->program();
             if (prog)
             {  level2 = new qtPropertyTreeItem("Shader Program:");
                 level1->addChild(level2);
 
-                SLVShader& shaders = prog->shaderList();
+                SLVGLShader& shaders = prog->shaders();
                 for (int i=0; i<shaders.size(); ++i)
                 {  SLGLShader* shader = shaders[i];
                     if(shader->shaderType() ==VertexShader)
@@ -596,9 +595,8 @@ void qtMainWindow::selectNodeOrMeshItem(SLNode* selectedNode, SLMesh* selectedMe
 //-----------------------------------------------------------------------------
 void qtMainWindow::updateAllGLWidgets()
 {
-    QList<QGLWidget*> glWidgets = centralWidget()->findChildren<QGLWidget*>();
-    for (int i = 0; i < glWidgets.size(); ++i)
-        glWidgets.at(i)->updateGL();
+    for (int i = 0; i < _allGLWidgets.size(); ++i)
+        _allGLWidgets[i]->update();
 }
 //-----------------------------------------------------------------------------
 void qtMainWindow::applyCommandOnSV(const SLCmd cmd)
@@ -1029,6 +1027,7 @@ void qtMainWindow::on_actionTextures_off_triggered()
 {
     applyCommandOnSV(cmdTextureToggle);
 }
+
 void qtMainWindow::on_actionAnimation_off_triggered()
 {
     applyCommandOnSV(cmdAnimationToggle);

@@ -22,8 +22,8 @@
 #include <SLUniformGrid.h>
 #include <SLLightSphere.h>
 #include <SLLightRect.h>
-#include <SLGLShaderProg.h>
 #include <SLSkeleton.h>
+#include <SLGLProgram.h>
 
 //-----------------------------------------------------------------------------
 /*! 
@@ -168,18 +168,18 @@ void SLMesh::draw(SLSceneView* sv, SLNode* node)
         if (!_bufBw.id() && Bw)  _bufBw.generate(Bw, numV, 4);
         if (!_bufT.id()  && T)   _bufT.generate(T, numV, 4);
         if (!_bufI.id()  && I16) _bufI.generate(I16, numI, 1, SL_UNSIGNED_SHORT, SL_ELEMENT_ARRAY_BUFFER);
-        if (!_bufI.id()  && I32) _bufI.generate(I32, numI, 1, SL_UNSIGNED_INT,   SL_ELEMENT_ARRAY_BUFFER);  
-      
+        if (!_bufI.id()  && I32) _bufI.generate(I32, numI, 1, SL_UNSIGNED_INT,   SL_ELEMENT_ARRAY_BUFFER);    
+       
         ///////////////////
         // 3: Draw elements
         ///////////////////
 
         // 3.a: Apply mesh material if exists & differs from current
-        if (mat != SLMaterial::current || SLMaterial::current->shaderProg()==0)
+        if (mat != SLMaterial::current || SLMaterial::current->program()==0)
             mat->activate(_stateGL, *node->drawBits());
             
         // 3.b: Pass the matrices to the shader program
-        SLGLShaderProg* sp = SLMaterial::current->shaderProg();
+        SLGLProgram* sp = SLMaterial::current->program();
         sp->uniformMatrix4fv("u_mvMatrix",    1, (SLfloat*)&_stateGL->modelViewMatrix);
         sp->uniformMatrix4fv("u_mvpMatrix",   1, (SLfloat*)_stateGL->mvpMatrix());
 
@@ -214,7 +214,7 @@ void SLMesh::draw(SLSceneView* sv, SLNode* node)
             _bufBi.bindAndEnableAttrib(sp->getAttribLocation("a_boneIds"));
         if (_bufBw.id())
             _bufBw.bindAndEnableAttrib(sp->getAttribLocation("a_boneWeights"));
-
+   
 
         // 3.d: Upload final bone matrices
         if (Bi && Bw)

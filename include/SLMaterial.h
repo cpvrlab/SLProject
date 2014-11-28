@@ -14,8 +14,8 @@
 #include <stdafx.h>
 #include <SLDrawBits.h>
 #include <SLGLTexture.h>
-#include <SLGLShaderProg.h>
-#include <SLGLShaderProgGeneric.h>
+#include <SLGLProgram.h>
+#include <SLGLGenericProgram.h>
 
 class SLSceneView;
 class SLNode;
@@ -45,7 +45,7 @@ class SLMaterial : public SLObject
                                        SLGLTexture* texture2=0,
                                        SLGLTexture* texture3=0,
                                        SLGLTexture* texture4=0,
-                                       SLGLShaderProg* shaderProg=0);
+                                       SLGLProgram* program=0);
 
                             //! Ctor for uniform color material without lighting
                             SLMaterial(SLCol4f uniformColor, 
@@ -91,7 +91,7 @@ class SLMaterial : public SLObject
                                                               _specular.w = 1.0f-kt;}
             void            kn              (SLfloat kn)      {assert(kn>=0.0f);
                                                               _kn = kn;}  
-            void            shaderProg      (SLGLShaderProg* sp){_shaderProg = sp;}                                   
+            void            program      (SLGLProgram* sp){_program = sp;}
             
             // Getters
             SLCol4f         ambient         () {return _ambient;}
@@ -105,7 +105,7 @@ class SLMaterial : public SLObject
             SLfloat         kt              () {return _kt;}
             SLfloat         kn              () {return _kn;}
             SLVGLTexture&   textures        () {return _textures;}
-            SLGLShaderProg* shaderProg      () {return _shaderProg;}
+            SLGLProgram*    program         () {return _program;}
 
      static SLMaterial*     defaultMaterial ();
      static void            defaultMaterial (SLMaterial* mat);
@@ -127,12 +127,11 @@ class SLMaterial : public SLObject
             SLfloat         _kr;            //!< reflection coefficient 0.0 - 1.0
             SLfloat         _kt;            //!< transmission coefficient 0.0 - 1.0
             SLfloat         _kn;            //!< refraction index
-
             SLVGLTexture    _textures;      //!< vector of texture pointers
-            SLGLShaderProg* _shaderProg;    //!< pointer to a GLSL shader program
+            SLGLProgram*    _program;       //!< pointer to a GLSL shader program
 
     private:
-        static SLMaterial*  _defaultMaterial;//!< Global default material for meshes that don't define their own.
+    static  SLMaterial*     _defaultMaterial;//!< Global default material for meshes that don't define their own.
 };
 //-----------------------------------------------------------------------------
 //! STL vector of material pointers

@@ -18,7 +18,7 @@
 #include <SLRaytracer.h>
 #include <SLSceneView.h>
 #include <SLCamera.h>
-#include <SLGLShaderProg.h>
+#include <SLGLProgram.h>
 #include <TriangleBoxIntersect.h>
       
 //-----------------------------------------------------------------------------

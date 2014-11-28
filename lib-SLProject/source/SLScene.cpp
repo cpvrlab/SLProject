@@ -29,7 +29,7 @@ SLScene* SLScene::current = 0;
 //-----------------------------------------------------------------------------
 /*! The constructor of the scene does all one time initialization such as 
 loading the standard shader programs from which the pointers are stored in
-the dynamic array _shaderProgs. Custom shader programs that are loaded in a
+the vector _shaderProgs. Custom shader programs that are loaded in a
 scene must be deleted when the scene changes.
 The following standard shaders are preloaded:
   - ColorAttribute.vert, Color.frag
@@ -73,23 +73,32 @@ SLScene::SLScene(SLstring name) : SLObject(name)
     _btnCredits   = 0;
     _selectedMesh = 0;
     _selectedNode = 0;
+    _stopAnimations = false;
+
+    _fps = 0;
+    _elapsedTimeMS = 0;
+    _frameTimesMS.init();
+    _updateTimesMS.init();
+    _cullTimesMS.init();
+    _draw3DTimesMS.init();
+    _draw2DTimesMS.init();
      
     // Load std. shader programs in order as defined in SLStdShaderProgs enum
     // In the constructor they are added the _shaderProgs vector
-    SLGLShaderProg* p;
-    p = new SLGLShaderProgGeneric("ColorAttribute.vert","Color.frag");
-    p = new SLGLShaderProgGeneric("ColorUniform.vert","Color.frag");
-    p = new SLGLShaderProgGeneric("PerVrtBlinn.vert","PerVrtBlinn.frag");
-    p = new SLGLShaderProgGeneric("PerVrtBlinnTex.vert","PerVrtBlinnTex.frag");
-    p = new SLGLShaderProgGeneric("TextureOnly.vert","TextureOnly.frag");
-    p = new SLGLShaderProgGeneric("PerPixBlinn.vert","PerPixBlinn.frag");
-    p = new SLGLShaderProgGeneric("PerPixBlinnTex.vert","PerPixBlinnTex.frag");
-    p = new SLGLShaderProgGeneric("BumpNormal.vert","BumpNormal.frag");
-    p = new SLGLShaderProgGeneric("BumpNormal.vert","BumpNormalParallax.frag");
-    p = new SLGLShaderProgGeneric("FontTex.vert","FontTex.frag");
-    p = new SLGLShaderProgGeneric("StereoOculus.vert","StereoOculus.frag");
-    p = new SLGLShaderProgGeneric("StereoOculusDistortionMesh.vert","StereoOculusDistortionMesh.frag");
-    _numProgsPreload = (SLint)_shaderProgs.size();
+    SLGLProgram* p;
+    p = new SLGLGenericProgram("ColorAttribute.vert","Color.frag");
+    p = new SLGLGenericProgram("ColorUniform.vert","Color.frag");
+    p = new SLGLGenericProgram("PerVrtBlinn.vert","PerVrtBlinn.frag");
+    p = new SLGLGenericProgram("PerVrtBlinnTex.vert","PerVrtBlinnTex.frag");
+    p = new SLGLGenericProgram("TextureOnly.vert","TextureOnly.frag");
+    p = new SLGLGenericProgram("PerPixBlinn.vert","PerPixBlinn.frag");
+    p = new SLGLGenericProgram("PerPixBlinnTex.vert","PerPixBlinnTex.frag");
+    p = new SLGLGenericProgram("BumpNormal.vert","BumpNormal.frag");
+    p = new SLGLGenericProgram("BumpNormal.vert","BumpNormalParallax.frag");
+    p = new SLGLGenericProgram("FontTex.vert","FontTex.frag");
+    p = new SLGLGenericProgram("StereoOculus.vert","StereoOculus.frag");
+    p = new SLGLGenericProgram("StereoOculusDistortionMesh.vert","StereoOculusDistortionMesh.frag");
+    _numProgsPreload = (SLint)_programs.size();
    
     // Generate std. fonts   
     SLTexFont::generateFonts();
@@ -135,7 +144,7 @@ SLScene::~SLScene()
 {
     // Delete all remaining sceneviews
     for (SLint i = 0; i < _sceneViews.size(); ++i)
-        if (_sceneViews[i])
+        if (_sceneViews[i]!=NULL)
             delete _sceneViews[i];
 
     unInit();
@@ -159,8 +168,8 @@ SLScene::~SLScene()
         _textures.clear();
    
     // delete shader programs
-    for (SLuint i=0; i<_shaderProgs.size(); ++i) delete _shaderProgs[i];
-        _shaderProgs.clear();
+    for (SLuint i=0; i<_programs.size(); ++i) delete _programs[i];
+        _programs.clear();
    
     // delete fonts   
     SLTexFont::deleteFonts();
@@ -210,12 +219,8 @@ void SLScene::unInit()
 
     // reset existing sceneviews
     for (SLint i = 0; i < _sceneViews.size(); ++i)
-    {   if(_sceneViews[i] != NULL) 
-        {   
-            // Resets sceneview camera to their own
+        if (_sceneViews[i]!=NULL)
             _sceneViews[i]->camera(_sceneViews[i]->sceneViewCamera());
-        }
-    }
 
     // delete entire scene graph
     delete _root3D;
@@ -245,10 +250,10 @@ void SLScene::unInit()
     SLMaterial::current = 0;
    
     // delete custom shader programs but not default shaders
-    while (_shaderProgs.size() > _numProgsPreload) 
-    {   SLGLShaderProg* sp = _shaderProgs.back();
+    while (_programs.size() > _numProgsPreload)
+    {   SLGLProgram* sp = _programs.back();
         delete sp;
-        _shaderProgs.pop_back();
+        _programs.pop_back();
     }
    
     // clear eventHandlers
@@ -257,6 +262,62 @@ void SLScene::unInit()
     // reset all states
     SLGLState::getInstance()->initAll();
 }
+//-----------------------------------------------------------------------------
+//! Updates all animations in the scene after all views got painted.
+/*! Updates all animations in the scene after all views got painted.
+\return true if realy something got updated
+*/
+bool SLScene::updateIfAllViewsGotPainted()
+{
+    // Return if not all sceneview got repainted
+    for (int i = 0; i < _sceneViews.size(); ++i)
+        if (_sceneViews[i]!=NULL && !_sceneViews[i]->gotPainted())
+            return false;
+
+    // Reset all _gotPainted flags
+    for (int i = 0; i < _sceneViews.size(); ++i)
+        if (_sceneViews[i]!=NULL)
+            _sceneViews[i]->gotPainted(false);
+
+    // Calculate the elapsed time for the animation
+    _elapsedTimeMS = timeMilliSec() - _lastUpdateTimeMS;
+
+    // Sum up times of all scene views
+    SLfloat sumCullTimeMS   = 0.0f;
+    SLfloat sumDraw3DTimeMS = 0.0f;
+    SLfloat sumDraw2DTimeMS = 0.0f;
+    for (SLint i = 0; i < _sceneViews.size(); ++i)
+    {   if (_sceneViews[i]!=NULL)
+        {   sumCullTimeMS   += _sceneViews[i]->cullTimeMS();
+            sumDraw3DTimeMS += _sceneViews[i]->draw3DTimeMS();
+            sumDraw2DTimeMS += _sceneViews[i]->draw2DTimeMS();
+        }
+    }
+    _cullTimesMS.set(sumCullTimeMS);
+    _draw3DTimesMS.set(sumDraw3DTimeMS);
+    _draw2DTimesMS.set(sumDraw2DTimeMS);
+
+    // Calculate the frames per second metric
+    _frameTimesMS.set(_elapsedTimeMS);
+    _fps = 1 / _frameTimesMS.average() * 1000.0f;
+    if (_fps < 0.0f) _fps = 0.0f;
+
+    // Do animations
+    SLfloat startUpdateMS = timeMilliSec();
+    SLbool animated = !_stopAnimations && _root3D->animateRec(_elapsedTimeMS);
+
+    //@todo Don't slow down if we're in HMD stereo mode
+    //animated = animated || _ camera->projection() == stereoSideBySideD;
+
+    // Update the world matrix & AABBs efficiently
+    SLGLState::getInstance()->modelViewMatrix.identity();
+    _root3D->updateAABBRec();
+
+    _updateTimesMS.set(timeMilliSec()-startUpdateMS);
+    _lastUpdateTimeMS = timeMilliSec();
+    return animated;
+}
+
 //-----------------------------------------------------------------------------
 /*!
 SLScene::info deletes previous info text and sets new one with a max. width 
@@ -327,9 +388,9 @@ SLbool SLScene::onCommandAllSV(const SLCmd cmd)
 {
     SLbool result = false;
     for(SLint i=0; i<_sceneViews.size(); ++i)
-    {
-        result = _sceneViews[i]->onCommand(cmd) ? true : result;
-    }
+        if (_sceneViews[0]!=NULL)
+            result = _sceneViews[i]->onCommand(cmd) ? true : result;
+
     return true;
 }
 //-----------------------------------------------------------------------------

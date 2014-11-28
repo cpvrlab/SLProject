@@ -31,7 +31,14 @@ bool gShouldClose = false;
 /*! Global creation function for a SLScene instance. This function should be
 called only once per application. The SLScene constructor call is delayed until
 the first SLSceneView is created to guarantee, that the OpenGL context is
-present.
+present.<br>
+<br>
+See examples usages in:
+  - app-Demo-GLFW: glfwMain.cpp in function main()
+  - app-Demo-Qt: qtGLWidget::initializeGL()
+  - app-Viewer-Qt: qtGLWidget::initializeGL()
+  - app-Demo-Android: Java_ch_fhnw_comgr_GLES2Lib_onInit()
+  - app-Demo-iOS: ViewController.m in method viewDidLoad()
 */
 void slCreateScene(SLstring shaderPath,
                    SLstring modelPath,
@@ -39,7 +46,7 @@ void slCreateScene(SLstring shaderPath,
 {
     assert(SLScene::current==0 && "SLScene is already created!");
    
-    SLGLShaderProg::defaultPath = shaderPath;
+    SLGLProgram::defaultPath = shaderPath;
     SLGLTexture::defaultPath    = texturePath;
     SLAssimpImporter::defaultPath       = modelPath;
     SLGLState* stateGL          = SLGLState::getInstance();
@@ -59,7 +66,14 @@ void slCreateScene(SLstring shaderPath,
 the sceneview. It creates the new SLSceneView instance by calling the callback
 function slNewSceneView. If you have a custom SLSceneView inherited class you 
 have to provide a similar function and pass it function pointer to 
-slCreateSceneView. You can create multiple sceneview per application.
+slCreateSceneView. You can create multiple sceneview per application.<br>
+<br>
+See examples usages in:
+  - app-Demo-GLFW: glfwMain.cpp in function main()
+  - app-Demo-Qt: qtGLWidget::initializeGL()
+  - app-Viewer-Qt: qtGLWidget::initializeGL()
+  - app-Demo-Android: Java_ch_fhnw_comgr_GLES2Lib_onInit()
+  - app-Demo-iOS: ViewController.m in method viewDidLoad()
 */
 int slCreateSceneView(int screenWidth,
                       int screenHeight,

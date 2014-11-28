@@ -22,10 +22,10 @@ class SLMaterial;
 class SLSphere: public SLRevolver 
 {  public:                     
                             SLSphere(SLfloat radius,
-                                    SLint stacks = 32,
-                                    SLint slices = 32,
-                                    SLstring name = "Sphere",
-                                    SLMaterial* mat = 0);
+                                     SLint stacks = 32,
+                                     SLint slices = 32,
+                                     SLstring name = "Sphere",
+                                     SLMaterial* mat = 0);
                                            
                             ~SLSphere(){;}
                               

@@ -89,15 +89,6 @@ INCLUDEPATH += \
     zlib \
 
 HEADERS += \
-    jpeg-8/jversion.h \
-    jpeg-8/jpeglib.h \
-    jpeg-8/jpegint.h \
-    jpeg-8/jmorecfg.h \
-    jpeg-8/jmemsys.h \
-    jpeg-8/jinclude.h \
-    jpeg-8/jerror.h \
-    jpeg-8/jdct.h \
-    jpeg-8/jconfig.h \
     glew/include/GL/glew.h \
     glfw3/include/GLFW/glfw3.h \
     glfw3/include/GLFW/glfw3native.h \
@@ -114,26 +105,21 @@ HEADERS += \
     jpeg-8/jconfig.h \
     randomc/randomc.h \
     randomc/random.h \
-    zlib/ioapi.h \
-    zlib/unzip.h \
-    zlib/zconf.in.h \
-    zlib/zutil.h \
-    zlib/zlib.h \
-    zlib/zconf.h \
-    zlib/trees.h \
-    zlib/inftrees.h \
-    zlib/inflate.h \
-    zlib/inffixed.h \
-    zlib/inffast.h \
-    zlib/gzguts.h \
-    zlib/deflate.h \
-    zlib/crypt.h \
-    zlib/crc32.h \
     Shoemake/Decompose.h \
     Shoemake/EulerAngles.h \
     Shoemake/TypeDefs.h \
 
 SOURCES += \
+    glew/src/glew.c \
+    glfw3/src/clipboard.c \
+    glfw3/src/context.c \
+    glfw3/src/gamma.c \
+    glfw3/src/init.c \
+    glfw3/src/input.c \
+    glfw3/src/joystick.c \
+    glfw3/src/monitor.c \
+    glfw3/src/time.c \
+    glfw3/src/window.c \
     jpeg-8/jutils.c \
     jpeg-8/jquant2.c \
     jpeg-8/jquant1.c \
@@ -180,6 +166,108 @@ SOURCES += \
     jpeg-8/jcapistd.c \
     jpeg-8/jcapimin.c \
     jpeg-8/jaricom.c \
+    randomc/sobol.cpp \
+    randomc/ranrotw.cpp \
+    randomc/ranrotb.cpp \
+    randomc/random.cpp \
+    randomc/mother.cpp \
+    randomc/mersenne.cpp \
+    Shoemake/EulerAngles.cpp \
+    Shoemake/Decompose.cpp \
+
+win32 { #Windows only -------------------------------------
+
+HEADERS += \
+    glfw3/src/win32_platform.h \
+    nvwa/debug_new.h \
+    zlib/ioapi.h \
+    zlib/unzip.h \
+    zlib/zconf.in.h \
+    zlib/zutil.h \
+    zlib/zlib.h \
+    zlib/zconf.h \
+    zlib/trees.h \
+    zlib/inftrees.h \
+    zlib/inflate.h \
+    zlib/inffixed.h \
+    zlib/inffast.h \
+    zlib/gzguts.h \
+    zlib/deflate.h \
+    zlib/crypt.h \
+    zlib/crc32.h \
+
+SOURCES += \
+    glfw3/src/wgl_context.c \
+    glfw3/src/win32_clipboard.c \
+    glfw3/src/win32_gamma.c \
+    glfw3/src/win32_init.c \
+    glfw3/src/win32_joystick.c \
+    glfw3/src/win32_monitor.c \
+    glfw3/src/win32_time.c \
+    glfw3/src/win32_window.c \
+    nvwa/debug_new.cpp \
+    zlib/zutil.c \
+    zlib/uncompr.c \
+    zlib/trees.c \
+    zlib/inftrees.c \
+    zlib/inflate.c \
+    zlib/inffast.c \
+    zlib/infback.c \
+    zlib/gzwrite.c \
+    zlib/gzread.c \
+    zlib/gzlib.c \
+    zlib/gzclose.c \
+    zlib/deflate.c \
+    zlib/crc32.c \
+    zlib/compress.c \
+    zlib/adler32.c \
+    zlib/ioapi.c \
+    zlib/unzip.c \
+}
+unix:!macx:!android { #Linux only -------------------------
+INCLUDEPATH += \
+    glfw3/include \
+    glfw3/src
+
+HEADERS += \
+    glfw3/src/config.h \
+    glfw3/src/x11_platform.h \
+    glfw3/src/glx_platform.h \
+    glfw3/src/internal.h \
+
+SOURCES += \
+    glfw3/src/x11_init.c \
+    glfw3/src/x11_time.c \
+    glfw3/src/x11_window.c \
+    glfw3/src/x11_monitor.c \
+    glfw3/src/x11_gamma.c \
+    glfw3/src/x11_clipboard.c \
+    glfw3/src/x11_unicode.c \
+    glfw3/src/x11_joystick.c \
+    glfw3/src/glx_context.c \
+}
+macx { #Mac OSX only --------------------------------------
+HEADERS += \
+    glfw3/src/cocoa_platform.h \
+    zlib/ioapi.h \
+    zlib/unzip.h \
+    zlib/zconf.in.h \
+    zlib/zutil.h \
+    zlib/zlib.h \
+    zlib/zconf.h \
+    zlib/trees.h \
+    zlib/inftrees.h \
+    zlib/inflate.h \
+    zlib/inffixed.h \
+    zlib/inffast.h \
+    zlib/gzguts.h \
+    zlib/deflate.h \
+    zlib/crypt.h \
+    zlib/crc32.h \
+
+SOURCES += \
+    glfw3/src/cocoa_time.c \
+    glfw3/src/cocoa_gamma.c \
     png/pngwutil.c \
     png/pngwtran.c \
     png/pngwrite.c \
@@ -210,73 +298,8 @@ SOURCES += \
     zlib/crc32.c \
     zlib/compress.c \
     zlib/adler32.c \
-    glew/src/glew.c \
-    glfw3/src/clipboard.c \
-    glfw3/src/context.c \
-    glfw3/src/gamma.c \
-    glfw3/src/init.c \
-    glfw3/src/input.c \
-    glfw3/src/joystick.c \
-    glfw3/src/monitor.c \
-    glfw3/src/time.c \
-    glfw3/src/window.c \
-    randomc/sobol.cpp \
-    randomc/ranrotw.cpp \
-    randomc/ranrotb.cpp \
-    randomc/random.cpp \
-    randomc/mother.cpp \
-    randomc/mersenne.cpp \
     zlib/ioapi.c \
     zlib/unzip.c \
-    Shoemake/EulerAngles.cpp \
-    Shoemake/Decompose.cpp \
-
-win32 { #Windows only -------------------------------------
-
-HEADERS += \
-    glfw3/src/win32_platform.h \
-    nvwa/debug_new.h \
-
-SOURCES += \
-    glfw3/src/wgl_context.c \
-    glfw3/src/win32_clipboard.c \
-    glfw3/src/win32_gamma.c \
-    glfw3/src/win32_init.c \
-    glfw3/src/win32_joystick.c \
-    glfw3/src/win32_monitor.c \
-    glfw3/src/win32_time.c \
-    glfw3/src/win32_window.c \
-    nvwa/debug_new.cpp \
-}
-unix:!macx:!android { #Linux only -------------------------
-INCLUDEPATH += \
-    glfw3/include \
-    glfw3/src
-
-HEADERS += \
-    glfw3/src/config.h \
-    glfw3/src/x11_platform.h \
-    glfw3/src/glx_platform.h \
-    glfw3/src/internal.h \
-
-SOURCES += \
-    glfw3/src/x11_init.c \
-    glfw3/src/x11_time.c \
-    glfw3/src/x11_window.c \
-    glfw3/src/x11_monitor.c \
-    glfw3/src/x11_gamma.c \
-    glfw3/src/x11_clipboard.c \
-    glfw3/src/x11_unicode.c \
-    glfw3/src/x11_joystick.c \
-    glfw3/src/glx_context.c \
-}
-macx { #Mac OSX only --------------------------------------
-HEADERS += \
-    glfw3/src/cocoa_platform.h \
-
-SOURCES += \
-    glfw3/src/cocoa_time.c \
-    glfw3/src/cocoa_gamma.c \
 
 OBJECTIVE_SOURCES += \
     glfw3/src/cocoa_clipboard.m \
@@ -284,5 +307,5 @@ OBJECTIVE_SOURCES += \
     glfw3/src/cocoa_joystick.m \
     glfw3/src/cocoa_monitor.m \
     glfw3/src/cocoa_window.m \
-    glfw3/src/nsgl_context.m
+    glfw3/src/nsgl_context.m \
 }

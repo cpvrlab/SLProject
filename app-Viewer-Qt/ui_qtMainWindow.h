@@ -429,7 +429,7 @@ public:
         actionAnimation_off->setObjectName(QStringLiteral("actionAnimation_off"));
         actionAnimation_off->setCheckable(true);
         QIcon icon12;
-        icon12.addFile(QStringLiteral(":/images/stopAnimation.tiff"), QSize(), QIcon::Normal, QIcon::Off);
+        icon12.addFile(QStringLiteral(":/images/stopAnimation.png"), QSize(), QIcon::Normal, QIcon::Off);
         actionAnimation_off->setIcon(icon12);
         actionFullscreen = new QAction(qtMainWindow);
         actionFullscreen->setObjectName(QStringLiteral("actionFullscreen"));
@@ -479,7 +479,7 @@ public:
         qtMainWindow->setCentralWidget(centralWidget);
         menuBar = new QMenuBar(qtMainWindow);
         menuBar->setObjectName(QStringLiteral("menuBar"));
-        menuBar->setGeometry(QRect(0, 0, 723, 22));
+        menuBar->setGeometry(QRect(0, 0, 723, 25));
         menuBar->setDefaultUp(false);
         menuBar->setNativeMenuBar(false);
         menuFile = new QMenu(menuBar);
@@ -535,7 +535,7 @@ public:
         sizePolicy.setVerticalStretch(0);
         sizePolicy.setHeightForWidth(dockScenegraph->sizePolicy().hasHeightForWidth());
         dockScenegraph->setSizePolicy(sizePolicy);
-        dockScenegraph->setMinimumSize(QSize(160, 100));
+        dockScenegraph->setMinimumSize(QSize(160, 103));
         dockScenegraph->setFloating(false);
         dockWidgetContents = new QWidget();
         dockWidgetContents->setObjectName(QStringLiteral("dockWidgetContents"));
@@ -579,7 +579,7 @@ public:
         qtMainWindow->addToolBar(Qt::TopToolBarArea, toolBar);
         dockProperties = new QDockWidget(qtMainWindow);
         dockProperties->setObjectName(QStringLiteral("dockProperties"));
-        dockProperties->setMinimumSize(QSize(160, 100));
+        dockProperties->setMinimumSize(QSize(160, 103));
         dockWidgetContents_2 = new QWidget();
         dockWidgetContents_2->setObjectName(QStringLiteral("dockWidgetContents_2"));
         verticalLayout = new QVBoxLayout(dockWidgetContents_2);
@@ -736,6 +736,7 @@ public:
         toolBar->addAction(actionShow_Axis);
         toolBar->addAction(actionShow_Backfaces);
         toolBar->addAction(actionTextures_off);
+        toolBar->addSeparator();
         toolBar->addAction(actionAnimation_off);
         toolBar->addSeparator();
         toolBar->addAction(actionSplit_active_view_vertically);
@@ -1068,7 +1069,7 @@ public:
 #endif // QT_NO_STATUSTIP
         actionAnimation_off->setText(QApplication::translate("qtMainWindow", "Animation off", 0));
 #ifndef QT_NO_STATUSTIP
-        actionAnimation_off->setStatusTip(QApplication::translate("qtMainWindow", "Turns off any animation. Press shift to apply on all views.", 0));
+        actionAnimation_off->setStatusTip(QApplication::translate("qtMainWindow", "Turns off scene wide all animations.", 0));
 #endif // QT_NO_STATUSTIP
         actionFullscreen->setText(QApplication::translate("qtMainWindow", "Fullscreen", 0));
 #ifndef QT_NO_STATUSTIP

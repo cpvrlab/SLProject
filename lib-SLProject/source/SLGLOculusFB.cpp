@@ -15,7 +15,7 @@
 #endif
 
 #include <SLGLOculusFB.h>
-#include <SLGLShaderProg.h>
+#include <SLGLProgram.h>
 #include <SLScene.h>
 
 //-----------------------------------------------------------------------------
@@ -160,7 +160,7 @@ void SLGLOculusFB::drawFramebuffer()
     glBindTexture(GL_TEXTURE_2D, _texID);
 
     //bind the rift shader
-    SLGLShaderProg* sp = SLScene::current->shaderProgs(StereoOculus);
+    SLGLProgram* sp = SLScene::current->programs(StereoOculus);
     sp->useProgram();
 
     _vbo.bindAndEnableAttrib(0);

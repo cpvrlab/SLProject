@@ -20,11 +20,11 @@
 /*!
 The SLGLShader class represents a shader object of the OpenGL Shading Language
 (GLSL). It can load & compile an GLSL shader file and is later on attached
-to an OpenGL shader program (SLGLShaderProg).
+to an OpenGL shader program (SLGLProgram).
 */
 class SLGLShader : public SLObject
 {  
-    friend class SLGLShaderProg;
+    friend class SLGLProgram;
     public:
                             SLGLShader(SLstring filename, 
                                        SLShaderType shaderType);
@@ -33,14 +33,14 @@ class SLGLShader : public SLObject
             SLbool          createAndCompile();
             void            load(SLstring filename);
             void            loadFromMemory(SLstring program);
-            SLShaderType    shaderType() {return _shaderType;}
+            SLShaderType    shaderType() {return _type;}
 
          
     protected:         
-            SLShaderType    _shaderType;      //!< Shader type enumeration
-            SLuint          _shaderObjectGL;  //!< Program Object
-            SLstring        _shaderSource;    //!< ASCII Source-Code
-            SLstring        _shaderFile;      //!< Path & filename of shader
+            SLShaderType    _type;      //!< Shader type enumeration
+            SLuint          _objectGL;  //!< Program Object
+            SLstring        _code;      //!< ASCII Source-Code
+            SLstring        _file;      //!< Path & filename of shader
                             
 };
 //-----------------------------------------------------------------------------

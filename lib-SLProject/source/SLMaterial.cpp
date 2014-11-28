@@ -36,7 +36,7 @@ SLMaterial::SLMaterial(const SLchar* name,
     _specular = spec;
     _emission.set(0,0,0,0);
     _shininess = shininess;
-    _shaderProg = 0;
+    _program = 0;
    
     _kr = kr;
     _kt = kt;
@@ -56,7 +56,7 @@ SLMaterial::SLMaterial(const SLchar*   name,
                        SLGLTexture*    texture2,
                        SLGLTexture*    texture3,
                        SLGLTexture*    texture4,
-                       SLGLShaderProg* shaderProg) : SLObject(name)
+                       SLGLProgram* shaderProg) : SLObject(name)
 {
     _ambient.set(1,1,1);
     _diffuse.set(1,1,1);
@@ -69,7 +69,7 @@ SLMaterial::SLMaterial(const SLchar*   name,
     if (texture3) _textures.push_back(texture3);
     if (texture4) _textures.push_back(texture4);
    
-    _shaderProg = shaderProg;
+    _program = shaderProg;
    
     _kr = 0.0f;
     _kt = 0.0f;
@@ -90,7 +90,7 @@ SLMaterial::SLMaterial(SLCol4f uniformColor, const SLchar* name)
     _emission.set(0,0,0,0);
     _shininess = 125;
    
-    _shaderProg = SLScene::current->shaderProgs(ColorUniform);
+    _program = SLScene::current->programs(ColorUniform);
    
     _kr = 0.0f;
     _kt = 0.0f;
@@ -117,21 +117,21 @@ void SLMaterial::activate(SLGLState* state, SLDrawBits drawBits)
     SLScene* s = SLScene::current;
 
     // Deactivate shader program of the current active material
-    if (current && current->shaderProg()) 
-        current->shaderProg()->endShader();
+    if (current && current->program())
+        current->program()->endShader();
 
     // Set this material as the current material
     current = this;
 
     // If no shader program is attached add the default shader program
-    if (!_shaderProg)
+    if (!_program)
     {   if (_textures.size()>0)
-             shaderProg(s->shaderProgs(PerVrtBlinnTex));
-        else shaderProg(s->shaderProgs(PerVrtBlinn));
+             program(s->programs(PerVrtBlinnTex));
+        else program(s->programs(PerVrtBlinn));
     }
 
     // Check if shader had compile error and the error texture should be shown
-    if (_shaderProg && _shaderProg->name().find("ErrorTex")!=string::npos)
+    if (_program && _program->name().find("ErrorTex")!=string::npos)
     {   _textures.clear();
         _textures.push_back(new SLGLTexture("CompileError.png"));
     }
@@ -153,7 +153,7 @@ void SLMaterial::activate(SLGLState* state, SLDrawBits drawBits)
     }
     
     // Activate the shader program now
-    shaderProg()->beginUse(this);
+    program()->beginUse(this);
 }
 //-----------------------------------------------------------------------------
 /*! 

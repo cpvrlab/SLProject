@@ -25,9 +25,8 @@ view or per single node object. Not all are used from the beginning
 #define SL_DB_BBOX       16   //!< Draw the bounding boxes of a node  
 #define SL_DB_AXIS       32   //!< Draw the coordinate axis of a node
 #define SL_DB_VOXELS     64   //!< Draw the voxels of the uniform grid 
-#define SL_DB_CULLOFF   128   //!< Turn off face culling 
-#define SL_DB_ANIMOFF   256   //!< Turn off animation
-#define SL_DB_TEXOFF    512   //!< Turn off texture mapping
+#define SL_DB_CULLOFF   128   //!< Turn off face culling
+#define SL_DB_TEXOFF    256   //!< Turn off texture mapping
 
 //-----------------------------------------------------------------------------
 //! Drawing states stored in the bits of an unsigned int

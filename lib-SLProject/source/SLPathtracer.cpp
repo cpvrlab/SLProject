@@ -30,7 +30,7 @@ using namespace std::chrono;
 #include <SLMesh.h>
 #include <SLGLTexture.h>
 #include <SLSamples2D.h>
-#include <SLGLShaderProg.h>
+#include <SLGLProgram.h>
 #include <SLRay.h>
 
 extern SLfloat rnd01();

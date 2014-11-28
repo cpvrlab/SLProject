@@ -16,7 +16,7 @@
 #include <SLLight.h>
 #include <SLCamera.h>
 #include <SLAABBox.h>
-#include <SLGLShaderProg.h>
+#include <SLGLProgram.h>
 #include <SLAnimation.h>
 #include <SLAnimationState.h>
 #include <SLLightSphere.h>
@@ -25,8 +25,6 @@
 #include <SLTexFont.h>
 #include <SLButton.h>
 #include <SLBox.h>
-
-SLfloat SLSceneView::_lastFrameMS = 0.0f;
 
 //-----------------------------------------------------------------------------
 //! SLSceneView default constructor
@@ -45,6 +43,7 @@ SLSceneView::SLSceneView() : SLObject()
     SLScene* s = SLScene::current;
     assert(s && "No SLScene::current instance.");
    
+    // Find first a zero pointer gap in
     for (SLint i=0; i<s->_sceneViews.size(); ++i)
     {  if (s->_sceneViews[i]==0)
         {   s->_sceneViews[i] = this;
@@ -61,6 +60,7 @@ SLSceneView::SLSceneView() : SLObject()
 SLSceneView::~SLSceneView()
 {  
     // Set pointer in SLScene::sceneViews vector to zero but leave it.
+    // The remaining sceneviews must keep their index in the vector
     SLScene::current->_sceneViews[_index] = 0;
     SL_LOG("~SLSceneView\n");
 }
@@ -82,6 +82,7 @@ void SLSceneView::init(SLstring name,
     _scrH = screenHeight;
     _dpi = dotsPerInch;
 	_vrMode = false;
+    _gotPainted = true;
 
     /* The window update callback function is used to refresh the ray tracing 
     image during the rendering process. The ray tracing image is drawn by OpenGL 
@@ -120,7 +121,6 @@ void SLSceneView::init(SLstring name,
     _showInfo = true;
     _showLoading = false;
 
-    _fps = 0.0f,               // Frames per second
     _scrWdiv2 = _scrW>>1;
     _scrHdiv2 = _scrH>>1;
     _scrWdivH = (SLfloat)_scrW / (SLfloat)_scrH;
@@ -304,15 +304,6 @@ void SLSceneView::onInitialize()
     _raytracer.clearData();
     _renderType = renderGL;
 
-    _fps = 0;         
-    _frameTimeMS.init(); 
-    _updateTimeMS.init();
-    _cullTimeMS.init();  
-    _draw3DTimeMS.init();
-    _draw2DTimeMS.init();
-
-
-
     // Check for multisample capability
     SLint samples;
     glGetIntegerv(GL_SAMPLES, &samples);
@@ -378,50 +369,33 @@ void SLSceneView::onResize(const SLint width, const SLint height)
 /*!
 SLSceneView::onPaint is called by window system whenever the window therefore 
 the scene needs to be painted. Depending on the renderer it calls first
-SLSceneView::updateAndDrawGL3D, SLSceneView::updateAndDrawRT3D or
-SLSceneView::updateAndDrawPT3D and then SLSceneView::updateAndDraw2D for all
-UI in 2D. The method returns true if either the 2D or 3D graph was updated or 
-waitEvents is false.
+SLSceneView::draw3DGL, SLSceneView::draw3DRT or SLSceneView::draw3DPT and
+then SLSceneView::draw2DGL for all UI in 2D. The method returns true if either
+the 2D or 3D graph was updated or waitEvents is false.
 */
 SLbool SLSceneView::onPaint()
 {  
     SLScene* s = SLScene::current;
-
-    // calculate elapsed time
-
-    // @todo VERY IMPORTANT this is an other instance where we would need a central parent
-    //       class to the scene view. the delta time should be per time step in the scene.
-    //       Inbetween those time steps the parent class does the animation update etc.
-    //       and the scene views don't need the deltaTime anymore but are merely what they
-    //       should be, which is displays for the current state of the scene.
-    //       (of course a scene view would need the delta time if it wanted to move an object)
-    SLfloat timeNowMS = s->timeMilliSec();
-    SLfloat elapsedTimeMS = timeNowMS - _lastFrameMS;
     SLGLBuffer::totalDrawCalls = 0;
+    SLbool camUpdated = false;
     
-    SLbool updated3D = false;
-   
     if (_camera  && s->_root3D)
     {   // Render the 3D scenegraph by by raytracing, pathtracing or OpenGL
         switch (_renderType)
-        {   case renderRT: updated3D = updateAndDrawRT3D(elapsedTimeMS); break;
-            case renderPT: updated3D = updateAndDrawPT3D(elapsedTimeMS); break;
-            default:       updated3D = updateAndDrawGL3D(elapsedTimeMS); break;
+        {   case renderGL: camUpdated = draw3DGL(s->_elapsedTimeMS); break;
+            case renderRT: camUpdated = draw3DRT(); break;
+            case renderPT: camUpdated = draw3DPT(); break;
         }
     };
 
     // Render the 2D GUI (menu etc.)
-    SLfloat startMS = s->timeMilliSec();
-    SLbool updated2D = updateAndDraw2D(elapsedTimeMS);
-    _draw2DTimeMS.set(s->timeMilliSec()-startMS);
+    draw2DGL();
+
     _stateGL->unbindAnythingAndFlush();
 
+    // Finish Oculus framebuffer
     if (_camera->projection() == stereoSideBySideD)
         s->oculus()->endFrame(_scrW, _scrH, _oculusFB.texID());
-
-    // Calculate the frames per second metric
-    calcFPS(elapsedTimeMS);
-    _lastFrameMS = timeNowMS;
 
     // Update statisitc of VBO's & drawcalls
     _totalBufferCount = SLGLBuffer::totalBufferCount;
@@ -429,8 +403,10 @@ SLbool SLSceneView::onPaint()
     _totalDrawCalls = SLGLBuffer::totalDrawCalls;
     SLGLBuffer::totalDrawCalls   = 0;
 
+    _gotPainted = true;
+
     // Return true if a repaint is needed
-    return !_waitEvents || updated3D || updated2D;
+    return !_waitEvents || camUpdated;
 }
 
 
@@ -455,11 +431,9 @@ SLbool CompareNodeViewDist(SLNode* a, SLNode* b)
 The following steps are processed:
 <ol>
 <li>
-<b>Animate and Update Scenegraph</b>:
-For all nodes that have an animation attached a new local transform is 
-calculated and its flag SLNode::_isWMUpToDate becomes false. On each call of
-SLSceneView::updateAndGetWM it is tested if the world matrix needs to be
-updated because of a change on the local transform.
+<b>Updates the camera</b>:
+If the camera has an animation it gets updated first.
+The camera animation is the only animation that is view dependent.
 </li>
 <li>
 <b>Clear Buffers</b>:
@@ -491,17 +465,16 @@ is drawn.
 </li>
 </ol>
 */
-SLbool SLSceneView::updateAndDrawGL3D(SLfloat elapsedTimeMS)
+SLbool SLSceneView::draw3DGL(SLfloat elapsedTimeMS)
 {
     SLScene* s = SLScene::current;
 
     preDraw();
     
-    ////////////////////////////////////
-    // 1. Animate & Update Scenegraph //
-    ////////////////////////////////////
+    /////////////////////////
+    // 1. Do camera Update //
+    /////////////////////////
 
-    // Do animations
     SLfloat startMS = s->timeMilliSec();
     /// @add add old animation functionality back in
     SLbool animated = !drawBit(SL_DB_ANIMOFF) &&
@@ -730,19 +703,9 @@ SLbool SLSceneView::updateAndDrawGL3D(SLfloat elapsedTimeMS)
 
 
 
-    // don't slow down if we're in HMD stereo mode
-    animated = animated || _camera->projection() == stereoSideBySideD;
-
     // Update camera animation seperately to process input on camera object
     SLbool camUpdated = _camera->camUpdate(elapsedTimeMS);
    
-    // Update the world matrix & AABBs efficiently
-    _stateGL->modelViewMatrix.identity();
-    s->_root3D->updateAABBRec();
-
-    _updateTimeMS.set(s->timeMilliSec()-startMS);
-
-
     //////////////////////
     // 2. Clear Buffers //
     //////////////////////
@@ -769,8 +732,6 @@ SLbool SLSceneView::updateAndDrawGL3D(SLfloat elapsedTimeMS)
     // 3. Set Projection & View //
     //////////////////////////////
 
-    startMS = s->timeMilliSec();
-
     // Set projection and viewport
     if (_camera->projection() > monoOrthographic)   
          _camera->setProjection(this, leftEye);
@@ -793,7 +754,7 @@ SLbool SLSceneView::updateAndDrawGL3D(SLfloat elapsedTimeMS)
     if (!_doFrustumCulling) 
         _camera->numRendered(_stats.numLeafNodes);
    
-    _cullTimeMS.set(s->timeMilliSec()-startMS);
+    _cullTimeMS = s->timeMilliSec() - startMS;
 
 
     ////////////////////////////////////
@@ -806,55 +767,43 @@ SLbool SLSceneView::updateAndDrawGL3D(SLfloat elapsedTimeMS)
     // but this doesn't split transparent from opaque nodes
     //s->_root3D->drawRec(this);
 
-    draw3D();
+    draw3DGLAll();
    
     // For stereo draw for right eye
     if (_camera->projection() > monoOrthographic)   
     {   _camera->setProjection(this, rightEye);
         _camera->setView(this, rightEye);
-        draw3D();
+        draw3DGLAll();
       
         // Enable all color channels again
         _stateGL->colorMask(1, 1, 1, 1); 
     }
  
-    _draw3DTimeMS.set(s->timeMilliSec()-startMS);
-
-    ////////////////////////////////
-    // 6. Draw Oculus framebuffer //
-    ////////////////////////////////
-
-    // Render framebuffer if Oculus stereo projection is used
-    if (_camera->projection() == stereoSideBySideD) 
-    {
-        // temporary oculus mesh visualization
-        //s->oculus()->endFrame(_scrW, _scrH, _oculusFB.texID());
-    }
-
+    _draw3DTimeMS = s->timeMilliSec()-startMS;
 
     postDraw();
 
     GET_GL_ERROR; // Check if any OGL errors occured
-    return animated || camUpdated;
+    return camUpdated;
 }
 //----------------------------------------------------------------------------- 
 /*!
-SLSceneView::draw3D2 renders the opaque nodes before blended nodes.
+SLSceneView::draw3DGLAll renders the opaque nodes before blended nodes.
 Opaque nodes must be drawn before the blended, transparent nodes.
 During the cull traversal all nodes with opaque materials are flagged and 
 added the to the array _opaqueNodes.
 */
-void SLSceneView::draw3D()
+void SLSceneView::draw3DGLAll()
 {  
     // Render first the opaque shapes and their helper lines 
     _stateGL->blend(false);
     _stateGL->depthMask(true);
 
-    draw3DNodeLines(_opaqueNodes);
-    draw3DNodes(_opaqueNodes);
+    draw3DGLLines(_opaqueNodes);
+    draw3DGLNodes(_opaqueNodes);
 
     // Render the helper lines of the blended shapes non-blended!
-    draw3DNodeLines(_blendNodes);
+    draw3DGLLines(_blendNodes);
 
     _stateGL->blend(true);
     _stateGL->depthMask(false);
@@ -862,7 +811,7 @@ void SLSceneView::draw3D()
     // Blended shapes must be sorted back to front
     std::sort(_blendNodes.begin(), _blendNodes.end(), CompareNodeViewDist);
 
-    draw3DNodes(_blendNodes);
+    draw3DGLNodes(_blendNodes);
 
     // Blending must be turned off again for correct anyglyph stereo modes
     _stateGL->blend(false);
@@ -870,7 +819,7 @@ void SLSceneView::draw3D()
 }
 //-----------------------------------------------------------------------------
 /*!
-SLSceneView::draw3DNodeLines draws the AABB, the axis and the animation
+SLSceneView::draw3DGLLines draws the AABB, the axis and the animation
 curves from the passed node vector directly with their world coordinates after 
 the view transform. The lines must be drawn without blending.
 Colors:
@@ -878,7 +827,7 @@ Red   : AABB of nodes with meshes
 Pink  : AABB of nodes without meshes (only child nodes)
 Yellow: AABB of selected node 
 */
-void SLSceneView::draw3DNodeLines(SLVNode &nodes)
+void SLSceneView::draw3DGLLines(SLVNode &nodes)
 {  
     // draw the opaque shapes directly w. their wm transform
     for(SLuint i=0; i<nodes.size(); ++i)
@@ -920,10 +869,10 @@ void SLSceneView::draw3DNodeLines(SLVNode &nodes)
 }
 //-----------------------------------------------------------------------------
 /*!
-SLSceneView::draw3DNodes draws the nodes meshes from the passed node vector 
+SLSceneView::draw3DGLNodes draws the nodes meshes from the passed node vector
 directly with their world coordinates after the view transform.
 */
-void SLSceneView::draw3DNodes(SLVNode &nodes)
+void SLSceneView::draw3DGLNodes(SLVNode &nodes)
 {  
     // draw the shapes directly with their wm transform
     for(SLuint i=0; i<nodes.size(); ++i)
@@ -942,24 +891,28 @@ void SLSceneView::draw3DNodes(SLVNode &nodes)
 }
 //-----------------------------------------------------------------------------
 /*!
-SLSceneView::updateAndDraw2D draws GUI tree in ortho projection. So far no
+SLSceneView::draw2DGL draws GUI tree in ortho projection. So far no
 update is done to the 2D scenegraph.
 */
-SLbool SLSceneView::updateAndDraw2D(SLfloat elapsedTimeMS)
+void SLSceneView::draw2DGL()
 {
+    SLScene* s = SLScene::current;
+    SLfloat startMS = s->timeMilliSec();
+
     if (!_showMenu &&
         !_showInfo &&
         !_showLoading &&
         !_showStats &&
         _touchDowns==0 &&
         !_mouseDownL &&
-        !_mouseDownM) return false;
+        !_mouseDownM)
+    {
+        _draw2DTimeMS = s->timeMilliSec() - startMS;
+        return;
+    }
     
-    SLScene* s = SLScene::current;
     SLfloat w2 = (SLfloat)_scrWdiv2;
     SLfloat h2 = (SLfloat)_scrHdiv2;
-    SLfloat depth = 0.9f;               // Render depth between -1 & 1
-
    
     // Set orthographic projection with 0,0,0 in the screen center
     // for now we just have one special gui case for side by side HMD stero rendering
@@ -970,7 +923,7 @@ SLbool SLSceneView::updateAndDraw2D(SLfloat elapsedTimeMS)
         // Set viewport over entire screen
         _stateGL->viewport(0, 0, _scrW, _scrH);
 
-        draw2D();
+        draw2DGLAll();
     }
     else
     {
@@ -979,20 +932,20 @@ SLbool SLSceneView::updateAndDraw2D(SLfloat elapsedTimeMS)
         // Set viewport over entire screen
         _stateGL->viewport(0, 0, _oculusFB.halfWidth(), _oculusFB.height());
         
-        draw2D();
+        draw2DGLAll();
 
         // left eye
         _stateGL->projectionMatrix.setMatrix(s->oculus()->orthoProjection(rightEye));
         // Set viewport over entire screen
         _stateGL->viewport(_oculusFB.halfWidth(), 0, _oculusFB.halfWidth(), _oculusFB.height());
         
-        draw2D();
+        draw2DGLAll();
         
         // temp visualization of the texture above
         if (false)
         {
             glClear(GL_COLOR_BUFFER_BIT);
-            static SLGLShaderProgGeneric tmpShader("StereoOculus.vert", "StereoOculus.frag");
+            static SLGLGenericProgram tmpShader("StereoOculus.vert", "StereoOculus.frag");
 
             static GLuint screenQuad = 0;
             if (!screenQuad) {
@@ -1054,14 +1007,16 @@ SLbool SLSceneView::updateAndDraw2D(SLfloat elapsedTimeMS)
         GET_GL_ERROR;                 // check if any OGL errors occured
     }
     
-   return false;
+
+   _draw2DTimeMS = s->timeMilliSec() - startMS;
+   return;
 }
 
 //-----------------------------------------------------------------------------
 /*!
-SLSceneView::draw2D draws GUI tree in ortho projection. 
+SLSceneView::draw2DGLAll draws GUI tree in ortho projection.
 */
-void SLSceneView::draw2D()
+void SLSceneView::draw2DGLAll()
 {
     SLScene* s = SLScene::current;
     SLfloat w2 = (SLfloat)_scrWdiv2;
@@ -1606,11 +1561,8 @@ SLbool SLSceneView::onCommand(const SLCmd cmd)
         case cmdVoxelsToggle:    _drawBits.toggle(SL_DB_VOXELS);   return true;
         case cmdFaceCullToggle:  _drawBits.toggle(SL_DB_CULLOFF);  return true;
         case cmdTextureToggle:   _drawBits.toggle(SL_DB_TEXOFF);   return true;
-        case cmdAnimationToggle:
-            _drawBits.toggle(SL_DB_ANIMOFF); 
-            // if we toggle animations back on take the current time
-            _lastFrameMS = s->timeMilliSec();
-            return true;
+
+        case cmdAnimationToggle: s->_stopAnimations = !s->_stopAnimations; return true;
       
         case cmdRenderOpenGL:
             _renderType = renderGL;
@@ -2022,22 +1974,22 @@ void SLSceneView::build2DInfoGL()
     SLfloat voxelsEmpty  = vox ? voxEmpty / vox*100.0f : 0.0f;
     SLfloat numRTTria = (SLfloat)_stats.numTriangles;
     SLfloat avgTriPerVox = vox ? numRTTria / (vox-voxEmpty) : 0.0f;
-    SLfloat updateTimePC = _updateTimeMS.average()/_frameTimeMS.average()*100.0f;
-    SLfloat cullTimePC = _cullTimeMS.average()/_frameTimeMS.average()*100.0f;
-    SLfloat draw3DTimePC = _draw3DTimeMS.average()/_frameTimeMS.average()*100.0f;
-    SLfloat draw2DTimePC = _draw2DTimeMS.average()/_frameTimeMS.average()*100.0f;
+    SLfloat updateTimePC = s->_updateTimesMS.average() / s->_frameTimesMS.average()*100.0f;
+    SLfloat cullTimePC   = s->_cullTimesMS.average()   / s->_frameTimesMS.average()*100.0f;
+    SLfloat draw3DTimePC = s->_draw3DTimesMS.average() / s->_frameTimesMS.average()*100.0f;
+    SLfloat draw2DTimePC = s->_draw2DTimesMS.average() / s->_frameTimesMS.average()*100.0f;
     SLfloat eyeSepPC = cam->eyeSeparation()/cam->focalDist()*100;
    
     SLchar m[2550];   // message charcter array
     m[0]=0;           // set zero length
     sprintf(m+strlen(m), "Scene: %s\\n", s->name().c_str());
     sprintf(m+strlen(m), "DPI: %d\\n", _dpi);
-    sprintf(m+strlen(m), "FPS: %4.1f  (Size: %d x %d)\\n", _fps, _scrW, _scrH);
-    sprintf(m+strlen(m), "Frame Time : %4.1f ms\\n", _frameTimeMS.average());
-    sprintf(m+strlen(m), "Update Time : %4.1f ms (%0.0f%%)\\n", _updateTimeMS.average(), updateTimePC);
-    sprintf(m+strlen(m), "Culling Time : %4.1f ms (%0.0f%%)\\n", _cullTimeMS.average(), cullTimePC);
-    sprintf(m+strlen(m), "Draw Time 3D: %4.1f ms (%0.0f%%)\\n", _draw3DTimeMS.average(), draw3DTimePC);
-    sprintf(m+strlen(m), "Draw Time 2D: %4.1f ms (%0.0f%%)\\n", _draw2DTimeMS.average(), draw2DTimePC);
+    sprintf(m+strlen(m), "FPS: %4.1f  (Size: %d x %d)\\n", s->_fps, _scrW, _scrH);
+    sprintf(m+strlen(m), "Frame Time : %4.1f ms\\n", s->_frameTimesMS.average());
+    sprintf(m+strlen(m), "Update Time : %4.1f ms (%0.0f%%)\\n", s->_updateTimesMS.average(), updateTimePC);
+    sprintf(m+strlen(m), "Culling Time : %4.1f ms (%0.0f%%)\\n", s->_cullTimesMS.average(), cullTimePC);
+    sprintf(m+strlen(m), "Draw Time 3D: %4.1f ms (%0.0f%%)\\n", s->_draw3DTimesMS.average(), draw3DTimePC);
+    sprintf(m+strlen(m), "Draw Time 2D: %4.1f ms (%0.0f%%)\\n", s->_draw2DTimesMS.average(), draw2DTimePC);
     sprintf(m+strlen(m), "Shapes in Frustum: %d\\n", cam->numRendered());
     sprintf(m+strlen(m), "NO. of drawcalls: %d\\n", _totalDrawCalls);
     sprintf(m+strlen(m), "--------------------------------------------\\n");
@@ -2200,20 +2152,6 @@ void SLSceneView::build2DMsgBoxes()
 }
 //-----------------------------------------------------------------------------
 
-
-
-
-/*! 
-SLSceneView::calcFPS calculates the precise frame per second rate. 
-The calculation is done every half second and averaged with the last FPS calc.
-*/
-SLfloat SLSceneView::calcFPS(SLfloat deltaTimeMS)
-{
-    _frameTimeMS.set(deltaTimeMS);
-    _fps = 1 / _frameTimeMS.average() * 1000.0f;
-    if (_fps < 0.0f) _fps = 0.0f;
-    return _fps;
-}
 //-----------------------------------------------------------------------------
 /*!
 Returns the window title with name & FPS
@@ -2229,7 +2167,7 @@ SLstring SLSceneView::windowTitle()
     {   if (_raytracer.continuous())
         {   sprintf(title, "%s (fps: %4.1f, Threads: %d)", 
                     s->name().c_str(), 
-                    _fps, 
+                    s->_fps,
                     _raytracer.numThreads());
         } else
         {   sprintf(title, "%s (%d%%, Threads: %d)", 
@@ -2246,7 +2184,7 @@ SLstring SLSceneView::windowTitle()
     } else
     {   sprintf(title, "%s (fps: %4.1f, %u shapes rendered)", 
                         s->name().c_str(), 
-                        _fps,
+                        s->_fps,
                         _camera->numRendered());
     }
     return SLstring(title);
@@ -2270,22 +2208,13 @@ SLSceneView::updateAndRT3D starts the raytracing or refreshes the current RT
 image during rendering. The function returns true if an animation was done 
 prior to the rendering start.
 */
-SLbool SLSceneView::updateAndDrawRT3D(SLfloat elapsedTimeMS)
+SLbool SLSceneView::draw3DRT()
 {
-    SLScene* s = SLScene::current;
     SLbool updated = false;
    
     // if the raytracer not yet got started
     if (_raytracer.state()==rtReady)
     {
-        if (s->_root3D)
-        {   updated = !drawBit(SL_DB_ANIMOFF) && 
-                      !s->_root3D->drawBit(SL_DB_ANIMOFF); /// @add add old animation functionality back in
-        }
-                
-        _stateGL->modelViewMatrix.identity();
-        s->_root3D->updateAABBRec();
-
         // Start raytracing
         if (_raytracer.distributed())
              _raytracer.renderDistrib(this);
@@ -2298,6 +2227,7 @@ SLbool SLSceneView::updateAndDrawRT3D(SLfloat elapsedTimeMS)
     // React on the stop flag (e.g. ESC)
     if(_stopRT)
     {   _renderType = renderGL;
+        SLScene* s = SLScene::current;
         s->menu2D(s->_menuGL);
         s->menu2D()->closeAll();
         updated = true;
@@ -2324,22 +2254,13 @@ SLSceneView::updateAndRT3D starts the raytracing or refreshes the current RT
 image during rendering. The function returns true if an animation was done 
 prior to the rendering start.
 */
-SLbool SLSceneView::updateAndDrawPT3D(SLfloat elapsedTimeMS)
+SLbool SLSceneView::draw3DPT()
 {
-    SLScene* s = SLScene::current;
     SLbool updated = false;
    
     // if the pathtracer not yet got started
     if (_pathtracer.state()==rtReady)
     {
-        /// @add add old animation functionality back in
-        updated = !drawBit(SL_DB_ANIMOFF) && 
-                      !s->_root3D->drawBit(SL_DB_ANIMOFF);
-
-        
-        _stateGL->modelViewMatrix.identity();
-        s->_root3D->updateAABBRec();
-
         // Start raytracing
         _pathtracer.render(this);
     }
@@ -2350,6 +2271,9 @@ SLbool SLSceneView::updateAndDrawPT3D(SLfloat elapsedTimeMS)
     // React on the stop flag (e.g. ESC)
     if(_stopPT)
     {   _renderType = renderGL;
+        SLScene* s = SLScene::current;
+        s->menu2D(s->_menuGL);
+        s->menu2D()->closeAll();
         updated = true;
     }
 

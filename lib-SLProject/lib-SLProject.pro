@@ -17,7 +17,13 @@ CONFIG += warn_off
 
 DEFINES += "SL_STARTSCENE=cmdSceneMeshLoad"
 
-include(../SLProjectCommon.pro)
+#define platform variable for folder name
+win32 {contains(QMAKE_TARGET.arch, x86_64) {PLATFORM = x64} else {PLATFORM = Win32}}
+macx {PLATFORM = macx}
+unix:!macx:!android {PLATFORM = linux}
+android {PLATFORM = android}
+#define configuration variable for folder name
+CONFIG(debug, debug|release) {CONFIGURATION = Debug} else {CONFIGURATION = Release}
 
 DESTDIR = ../_lib/$$CONFIGURATION/$$PLATFORM
 OBJECTS_DIR = ../intermediate/$$TARGET/$$CONFIGURATION/$$PLATFORM
@@ -30,6 +36,7 @@ win32 {
   POST_TARGETDEPS += ../_lib/$$CONFIGURATION/$$PLATFORM/liblib-assimp.a
 }
 
+include(../SLProjectCommon.pro)
 
 INCLUDEPATH += \
     include
@@ -38,9 +45,6 @@ HEADERS += \
     ../include/SLGLBuffer.h \
     ../include/SLGLOculusFB.h \
     ../include/SLGLShader.h \
-    ../include/SLGLShaderProg.h \
-    ../include/SLGLShaderProgGeneric.h \
-    ../include/SLGLShaderUniform.h \
     ../include/SLGLState.h \
     ../include/SLGLTexture.h \
     ../include/SLCurve.h \
@@ -100,6 +104,10 @@ HEADERS += \
     ../include/SLText.h \
     ../include/SLGrid.h \
     ../include/SLGLOculus.h \
+    ../include/SLGLProgram.h \
+    ../include/SLGLUniform.h \
+    ../include/SLGLGenericProgram.h
+    ../include/SLGLOculus.h \
     ../include/SLSkeleton.h \
     ../include/SLAnimationManager.h \
     ../include/SLAnimationState.h \
@@ -110,7 +118,7 @@ SOURCES += \
     source/SLGLBuffer.cpp \
     source/SLGLOculusFB.cpp \
     source/SLGLShader.cpp \
-    source/SLGLShaderProg.cpp \
+    source/SLGLProgram.cpp \
     source/SLGLState.cpp \
     source/SLGLTexture.cpp \
     source/math/SLCurveBezier.cpp \
@@ -195,5 +203,6 @@ OTHER_FILES += \
     source/oglsl/Wave.frag \
     source/oglsl/Wave.vert \
     source/oglsl/WaveRefractReflect.vert \
-    ToDo.txt
+    ToDo.txt \
+    Readme.html
 
