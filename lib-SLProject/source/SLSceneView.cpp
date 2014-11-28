@@ -476,10 +476,6 @@ SLbool SLSceneView::draw3DGL(SLfloat elapsedTimeMS)
     /////////////////////////
 
     SLfloat startMS = s->timeMilliSec();
-    /// @add add old animation functionality back in
-    SLbool animated = !drawBit(SL_DB_ANIMOFF) &&
-                      !s->_root3D->drawBits()->get(SL_DB_ANIMOFF);
-
 
     //-------- TEMPORARY ANIMATION TEST ----------------------------
 

@@ -17,7 +17,7 @@
 #include <SLMaterial.h>
 #include <SLSkeleton.h>
 #include <SLAnimation.h>
-#include <SLGLShaderProg.h>
+#include <SLGLProgram.h>
 
 // assimp is only included in the source file to not expose it to the rest of the framework
 #include <assimp/Importer.hpp>
@@ -315,15 +315,15 @@ SLNode* SLAssimpImporter::load(SLstring file,        //!< File with path or on d
     // add skinned material to the meshes with bone animations
     // @todo: Can we do skinning in the shader without the need to dictated which material to use?
     if (_skinnedMeshes.size() > 0) {
-        SLGLShaderProgGeneric* skinningShader = new SLGLShaderProgGeneric("PerVrtBlinnSkinned.vert","PerVrtBlinn.frag");
-        SLGLShaderProgGeneric* skinningShaderTex = new SLGLShaderProgGeneric("PerPixBlinnTexSkinned.vert","PerPixBlinnTex.frag");
+        SLGLGenericProgram* skinningShader = new SLGLGenericProgram("PerVrtBlinnSkinned.vert","PerVrtBlinn.frag");
+        SLGLGenericProgram* skinningShaderTex = new SLGLGenericProgram("PerPixBlinnTexSkinned.vert","PerPixBlinnTex.frag");
         for (SLint i = 0; i < _skinnedMeshes.size(); i++)
         {
             SLMesh* mesh = _skinnedMeshes[i];
             if (mesh->Tc)
-                mesh->mat->shaderProg(skinningShaderTex);
+                mesh->mat->program(skinningShaderTex);
             else
-                mesh->mat->shaderProg(skinningShader);
+                mesh->mat->program(skinningShader);
         }
     }
 

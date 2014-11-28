@@ -103,6 +103,7 @@ class SLScene: public SLObject
    protected:
             SLAnimationManager _animManager;  //!< Animation manager instance
             SLVSceneView    _sceneViews;      //!< Vector of all sceneview pointers
+            SLVAnimation    _animations;
             SLVSkeleton     _skeletons;       //!< Vector of all skeletons
             SLVMesh         _meshes;            //!< Vector of all meshes
             SLVMaterial     _materials;         //!< Vector of all materials pointers
@@ -149,6 +150,8 @@ class SLScene: public SLObject
             SLAvgFloat      _draw2DTimesMS;     //!< Averaged time for 2D drawing in ms
             
             SLbool          _stopAnimations;    //!< Global flag for stopping all animations
+            
+            SLGLOculus      _oculus;            //!< Oculus Rift interface
 };
 //-----------------------------------------------------------------------------
 #endif

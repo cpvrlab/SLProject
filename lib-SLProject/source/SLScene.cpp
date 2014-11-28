@@ -304,7 +304,7 @@ bool SLScene::updateIfAllViewsGotPainted()
 
     // Do animations
     SLfloat startUpdateMS = timeMilliSec();
-    SLbool animated = !_stopAnimations && _root3D->animateRec(_elapsedTimeMS);
+    //SLbool animated = !_stopAnimations && _root3D->animateRec(_elapsedTimeMS);
 
     //@todo Don't slow down if we're in HMD stereo mode
     //animated = animated || _ camera->projection() == stereoSideBySideD;
@@ -315,7 +315,7 @@ bool SLScene::updateIfAllViewsGotPainted()
 
     _updateTimesMS.set(timeMilliSec()-startUpdateMS);
     _lastUpdateTimeMS = timeMilliSec();
-    return animated;
+    return true;
 }
 
 //-----------------------------------------------------------------------------
