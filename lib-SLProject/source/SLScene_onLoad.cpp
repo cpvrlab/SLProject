@@ -421,32 +421,112 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
     else
     if (sceneName == cmdSceneSkinnedMesh01)
     {
-        SLLightSphere* light1 = new SLLightSphere(2.5f, 2.5f, 2.5f, 0.2f);
+        SLNode* scene = new SLNode("Scene");
+
+        SLLightSphere* light1 = new SLLightSphere(-3.5f, 8.5f, 3.5f, 0.2f);
         light1->ambient(SLCol4f(0.1f, 0.1f, 0.1f));
         light1->diffuse(SLCol4f(1.0f, 1.0f, 1.0f));
         light1->specular(SLCol4f(1.0f, 1.0f, 1.0f));
         light1->attenuation(1,0,0);
+        scene->addChild(light1);
         
+        
+        SLLightSphere* light2 = new SLLightSphere(3.5f, 5.5f, -4.5f, 0.2f);
+        light2->ambient(SLCol4f(0.1f, 0.1f, 0.0f));
+        light2->diffuse(SLCol4f(1.0f, 0.3f, 0.0f));
+        light2->specular(SLCol4f(1.0f, 0.3f, 0.0f));
+        light2->attenuation(1,0,0);
+        scene->addChild(light2);
+        
+        // don't show lights they're distracting
+        light1->setDrawBitsRec(SL_DB_HIDDEN, true);
+        light2->setDrawBitsRec(SL_DB_HIDDEN, true);
+
+
         SLAssimpImporter importer("TestLog.log", LV_Quiet, LV_Diagnostic);
-        SLNode* simpleSkinnedMesh = importer.load("DAE/AstroBoy/AstroBoy.dae"); // <- not working currently, dont use!
-        //SLNode* simpleSkinnedMesh = importer.load("FBX/Astroboy/astroboy_test.fbx"); 
+        importer.logFileVerbosity(LV_Quiet);
+        
+        SLNode* simpleSkinnedMesh = importer.load("DAE/Seymour/Seymour.dae"); // <- not working currently, dont use!
+        //SLNode* simpleSkinnedMesh = importer.load("FBX/Astroboy/Astroboy.fbx"); 
         //SLNode* simpleSkinnedMesh = importer.load("3DS/Astroboy/Astroboy.3ds"); 
         //SLNode* simpleSkinnedMesh = importer.load("DAE/SkinnedCube/skinnedcube.dae");
         simpleSkinnedMesh->scale(34.0f);
+        scene->addChild(simpleSkinnedMesh);
         
         SLNode* simpleSkinnedMesh2 = importer.load("DAE/AstroBoy/AstroBoy.dae", true, SLProcess_Triangulate | SLProcess_GenNormals); // <- not working currently, dont use!
         simpleSkinnedMesh2->scale(30.0f);
         simpleSkinnedMesh2->translate(7, 0, -3);
-
-        SLNode* simpleSkinnedMesh3 = importer.load("DAE/AstroBoy/AstroBoy.dae"); // <- not working currently, dont use!
-        simpleSkinnedMesh3->scale(31.0f);
-        simpleSkinnedMesh3->translate(-8, 0, -2);
-
-        SLNode* scene = new SLNode("Scene");
-        scene->addChild(light1);
-        scene->addChild(simpleSkinnedMesh);
         scene->addChild(simpleSkinnedMesh2);
-        scene->addChild(simpleSkinnedMesh3);
+                
+        SLNode* simpleSkinnedMesh3 = importer.load("DAE/SkinnedCube/skinnedcube3.dae");
+        SLNode* cubeContainer = new SLNode;
+        cubeContainer->addChild(simpleSkinnedMesh3);
+        cubeContainer->translate(0, 0, 3);
+        scene->addChild(cubeContainer);
+        
+        
+        //SLNode* simpleSkinnedMesh4 = importer.load("hardcore_chicken.dae"); // <- not working currently, dont use!
+        //simpleSkinnedMesh4->scale(0.25f);
+        //simpleSkinnedMesh4->rotate(180.0f, 0, 0, 1);
+        //simpleSkinnedMesh4->translate(4, 2, 0);
+        //scene->addChild(simpleSkinnedMesh4);
+
+        
+        //SLNode* simpleSkinnedMesh5 = importer.load("hardcore_chicken.fbx", false); // <- not working currently, dont use!
+        //simpleSkinnedMesh5->scale(0.25f);
+        //simpleSkinnedMesh5->rotate(180.0f, 0, 0, 1);
+        //simpleSkinnedMesh5->translate(8, 2, 0);
+        //scene->addChild(simpleSkinnedMesh5);
+        
+
+        
+        //importer.logFileVerbosity(LV_Diagnostic);
+        SLNode* simpleSkinnedMesh6 = importer.load("BLEND/SkinnedCube/skinnedcube3.dae");
+        SLNode* cubeContainer2 = new SLNode;
+        cubeContainer2->addChild(simpleSkinnedMesh6);
+        cubeContainer2->translate(-2, 0, 3);
+        scene->addChild(cubeContainer2);
+        //importer.logFileVerbosity(LV_Quiet);
+        
+        
+        //importer.logFileVerbosity(LV_Diagnostic);
+        SLNode* simpleSkinnedMesh7 = importer.load("DAE/SkinnedCube/skinnedcube_maya2.dae");
+        SLNode* cubeContainer3 = new SLNode;
+        cubeContainer3->addChild(simpleSkinnedMesh7);
+        cubeContainer3->translate(-4, 0, 3);
+        cubeContainer3->scale(100);
+        scene->addChild(cubeContainer3);
+        //importer.logFileVerbosity(LV_Quiet);
+        
+        //importer.logFileVerbosity(LV_Diagnostic);
+        SLNode* simpleSkinnedMesh8 = importer.load("DAE/MakeHuman/blendAnimations2.dae");
+        SLNode* cubeContainer4 = new SLNode;
+        cubeContainer4->addChild(simpleSkinnedMesh8);
+        cubeContainer4->scale(0.4f);
+        cubeContainer4->translate(-4, 0, 5);
+        scene->addChild(cubeContainer4);
+        //importer.logFileVerbosity(LV_Quiet);
+        
+        importer.logFileVerbosity(LV_Diagnostic);
+        SLNode* simpleSkinnedMesh9 = importer.load("DAE/NodeAnimation/icosphere2.dae");
+        SLNode* cubeContainer5 = new SLNode;
+        cubeContainer5->addChild(simpleSkinnedMesh9);
+        cubeContainer5->translate(6, 0, 7);
+        scene->addChild(cubeContainer5);
+        importer.logFileVerbosity(LV_Quiet);
+        /*/
+        scene->addChild(light1);
+        scene->addChild(light2);
+        scene->addChild(simpleSkinnedMesh);/*
+        scene->addChild(simpleSkinnedMesh2);
+        scene->addChild(cubeContainer);
+        scene->addChild(simpleSkinnedMesh4);
+        scene->addChild(simpleSkinnedMesh5);*/
+
+
+        SLNode* animatedBox = new SLNode(new SLBox(-0.5f, -0.5f, -0.5f, 0.5f, 0.5f, 0.5f), "AnimatedBox");
+        animatedBox->translate(0, 0, 8);
+        scene->addChild(animatedBox);
 
         _root3D = scene;
     }

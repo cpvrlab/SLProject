@@ -258,6 +258,8 @@ class SLSceneView: public SLObject
             SLbool          _runAnim;
             SLbool          _runBackwards;
             SLfloat         _animMultiplier;
+            SLbool          _showAnimWeightEffects;
+            SLfloat         _animWeightTime;
 };
 //-----------------------------------------------------------------------------
 #endif

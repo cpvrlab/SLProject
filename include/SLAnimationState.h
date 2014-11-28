@@ -14,12 +14,18 @@
 
 #include <stdafx.h>
 
+class SLAnimation;
+
 /** Animationstates keep track of running animations
 */
 class SLAnimationState
 {
 public:
 
+    SLAnimationState(SLAnimation* parent, SLfloat weight = 1.0f);
+
+    SLfloat     localTime() const { return _localTime; }
+    SLAnimation* parentAnimation() { return _parentAnim; }
     SLfloat     playbackRate() const { return _playbackRate; }
     SLfloat     weight() const { return _weight; }
     SLbool      loop() const { return _loop; }
@@ -33,11 +39,12 @@ public:
     void        advanceTime(SLfloat delta);
 
 protected:
-    SLfloat	    _localTime;
-    SLfloat	    _playbackRate;
-    SLfloat     _weight;
-    SLbool      _loop;              //!< is this animation looping
-    SLbool      _enabled;           //!< is this animation running
+    SLAnimation*    _parentAnim;       //!< the animation this state is referencing
+    SLfloat	        _localTime;
+    SLfloat	        _playbackRate;
+    SLfloat         _weight;
+    SLbool          _loop;              //!< is this animation looping
+    SLbool          _enabled;           //!< is this animation running
 };
 
 

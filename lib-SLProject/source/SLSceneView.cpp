@@ -38,6 +38,8 @@ It never changes throughout the life of a sceneview.
 SLSceneView::SLSceneView() : SLObject()
 { 
     _animMultiplier = 1.0f;
+    _animWeightTime = 1.0f;
+    _showAnimWeightEffects = false;
     _animTime = 0.0f;
     _runBackwards = false;
     SLScene* s = SLScene::current;
@@ -511,10 +513,13 @@ SLbool SLSceneView::updateAndDrawGL3D(SLfloat elapsedTimeMS)
     static bool animTestInit = false;
     static bool pausedLastFrame = false;
     static SLNode* animTarget;
+    static SLNode* animTarget2;
     static SLAnimation* testAnim;
     static SLAnimation* testAnim2;
+    static SLAnimation* testAnim3;
     static SLNodeAnimationTrack* testAnimTrack;
     static SLNodeAnimationTrack* testAnimTrack2;
+    static SLNodeAnimationTrack* testAnimTrack3;
     static SLAnimationState* testAnimState;
     static SLfloat lastFrameTime = 0.0f;
 
@@ -579,6 +584,18 @@ SLbool SLSceneView::updateAndDrawGL3D(SLfloat elapsedTimeMS)
         animTarget->setInitialState();
 
         animTestInit = true;
+
+        
+        animTarget2 = s->_root3D->findChild<SLNode>("AnimatedBox");
+        animTarget2->setInitialState();
+
+        testAnim3 = new SLAnimation(2.0f);
+        testAnimTrack3 = testAnim3->createNodeAnimationTrack(0);        
+        kf0 = testAnimTrack3->createNodeKeyframe(0.0f); // @todo autogenerate a keyframe at 0.0
+        kf1 = testAnimTrack3->createNodeKeyframe(2.0f);   
+        
+        kf0->translation(SLVec3f(0, 0, 0));
+        kf1->translation(SLVec3f(0, 2, 0));
     }
     /*/
     animTarget->resetToInitialState();
@@ -586,7 +603,11 @@ SLbool SLSceneView::updateAndDrawGL3D(SLfloat elapsedTimeMS)
     testAnimTrack2->applyToNode(animTarget, animTime);
     */
 
-
+    animTarget2->resetToInitialState();
+    testAnimTrack3->applyToNode(animTarget2, _animTime);
+    // last imported animation (icosphere) 
+    s->_root3D->findChild<SLNode>("Icosphere")->resetToInitialState();
+    s->animations()[6]->apply(_animTime);
 
     // ------------------------------------------------------------
 
@@ -607,7 +628,22 @@ SLbool SLSceneView::updateAndDrawGL3D(SLfloat elapsedTimeMS)
         //_time = 0.0f;
         //_time = fmod(_time, skelAnim->length() - 0.0416660011);
         //_time += 0.0416660011;
-        skelAnim->apply(skel, _animTime, 1.0f);
+      
+        //cout << ((sinf(_animTime*SL_DEG2RAD*40)+1.0f)/2.0f) << endl;
+
+        SLfloat animWeight = 1.0f;
+        if (_showAnimWeightEffects) {
+            _animWeightTime +=frameDelta;
+            animWeight = ((cosf((180+_animWeightTime)*SL_DEG2RAD*40)+1.0f)/2.0f);
+
+            static float lastPrint = 0.0f;
+            if (lastPrint + 0.5f < _animTime)
+            {
+                SL_LOG("Weight: %.2f\n\n\n", animWeight);
+                lastPrint = _animTime;
+            }
+        }
+        skelAnim->apply(skel, _animTime, animWeight);
         //skelAnim->apply(skel, _time*2, 0.5f);
     }
     if (testBool)
@@ -639,7 +675,55 @@ SLbool SLSceneView::updateAndDrawGL3D(SLfloat elapsedTimeMS)
         //_time = 0.0f;
         //_time = fmod(_time, skelAnim->length() - 0.0416660011);
         //_time += 0.0416660011;
-        skelAnim->apply(skel, _animTime*0.9 + 0.3f, 1.0f);
+        skelAnim->apply(skel, _animTime, 1.0f);
+        //skelAnim->apply(skel, _time*2, 0.5f);
+    }
+    if (testBool)
+    {
+        //testBool = false;
+        // try to animate the 0 skeleton
+        SLSkeleton* skel = s->skeletons().at(3);
+        SLAnimation* skelAnim = skel->tempGetAnim("Unnamed Animation");
+        //SLAnimation* skelAnim = skel->tempGetAnim("AnimStack::deformation_rig|deformation_rigAction");
+        skel->reset();
+        // temporary cheat since we crash (because astroboy lacks a 0.0 keyframe)
+        
+        //_time = 0.0f;
+        //_time = fmod(_time, skelAnim->length() - 0.0416660011);
+        //_time += 0.0416660011;
+        skelAnim->apply(skel, _animTime, 1.0f);
+        //skelAnim->apply(skel, _time*2, 0.5f);
+    }
+    if (testBool)
+    {
+        //testBool = false;
+        // try to animate the 0 skeleton
+        SLSkeleton* skel = s->skeletons().at(4);
+        SLAnimation* skelAnim = skel->tempGetAnim("combinedAnim_0");
+        //SLAnimation* skelAnim = skel->tempGetAnim("AnimStack::deformation_rig|deformation_rigAction");
+        skel->reset();
+        // temporary cheat since we crash (because astroboy lacks a 0.0 keyframe)
+        
+        //_time = 0.0f;
+        //_time = fmod(_time, skelAnim->length() - 0.0416660011);
+        //_time += 0.0416660011;
+        skelAnim->apply(skel, _animTime, 1.0f);
+        //skelAnim->apply(skel, _time*2, 0.5f);
+    }
+    if (testBool)
+    {
+        //testBool = false;
+        // try to animate the 0 skeleton
+        SLSkeleton* skel = s->skeletons().at(5);
+        SLAnimation* skelAnim = skel->tempGetAnim("Unnamed Animation");
+        //SLAnimation* skelAnim = skel->tempGetAnim("AnimStack::deformation_rig|deformation_rigAction");
+        skel->reset();
+        // temporary cheat since we crash (because astroboy lacks a 0.0 keyframe)
+        
+        //_time = 0.0f;
+        //_time = fmod(_time, skelAnim->length() - 0.0416660011);
+        //_time += 0.0416660011;
+        skelAnim->apply(skel, _animTime, 1.0f);
         //skelAnim->apply(skel, _time*2, 0.5f);
     }
     // ------------------------------------------------------------
@@ -1390,6 +1474,7 @@ SLbool SLSceneView::onKeyPress(const SLKey key, const SLKey mod)
     if (key == '1') { _runAnim = !_runAnim; return true; }
     if (key == '2') { _animTime += 0.1f; return true; }
     if (key == '3') { _runBackwards = !_runBackwards; return true; }
+    if (key == '4') { _showAnimWeightEffects = !_showAnimWeightEffects; _animWeightTime = 0.0f; return true; }
     if (key == KeyNPAdd) { _animMultiplier += 0.1f; return true; }
     if (key == KeyNPSubtract) { if(_animMultiplier > 0.1f) _animMultiplier += -0.1f; return true; }
     

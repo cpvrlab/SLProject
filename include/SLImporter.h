@@ -81,6 +81,9 @@ public:
     SLImporter(SLLogVerbosity consoleVerb);
     SLImporter(const SLstring& logFile, SLLogVerbosity logConsoleVerb = LV_Normal, SLLogVerbosity logFileVerb = LV_Diagnostic);
     ~SLImporter();
+    
+    void logConsoleVerbosity(SLLogVerbosity verb) { _logConsoleVerbosity = verb; }
+    void logFileVerbosity(SLLogVerbosity verb) { _logFileVerbosity = verb; }
 
     virtual SLNode* load    (SLstring pathFilename,
                             SLbool loadMeshesOnly = true,

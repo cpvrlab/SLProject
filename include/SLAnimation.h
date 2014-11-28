@@ -16,6 +16,7 @@
 #include <SLBone.h>
 
 class SLSkeleton;
+class SLAnimationState;
 
 /** The SLAnimation class holds a set of SLAnimationTracks
 */
@@ -32,11 +33,14 @@ public:
     void length(SLfloat length);
     SLfloat length() const { return _length; }
 
+    SLAnimationState* createAnimationState();
     SLNodeAnimationTrack* createNodeAnimationTrack(SLuint handle);
     
     void apply(SLfloat time, SLfloat weight = 1.0f, SLfloat scale = 1.0f); 
-    void apply(SLNode* node, SLfloat time, SLfloat weight = 1.0f, SLfloat scale = 1.0f); 
+    void applyToNode(SLNode* node, SLfloat time, SLfloat weight = 1.0f, SLfloat scale = 1.0f); 
     void apply(SLSkeleton* skel, SLfloat time, SLfloat weight = 1.0f, SLfloat scale = 1.0f); 
+
+    void SLAnimation::resetNodes();
 
 protected:
     SLstring                            _name;
@@ -44,7 +48,7 @@ protected:
     map<SLuint, SLNodeAnimationTrack*>  _nodeAnimations;
 };
 
-
+typedef vector<SLAnimation*> SLVAnimation;
 
 #endif
 

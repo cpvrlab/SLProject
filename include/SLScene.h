@@ -18,6 +18,7 @@
 #include <SLNode.h>
 #include <SLSkeleton.h>
 #include <SLGLOculus.h>
+#include <SLAnimationManager.h>
 
 class SLSceneView;
 class SLButton;
@@ -55,6 +56,7 @@ class SLScene: public SLObject
                                              SLCol4f color=SLCol4f::WHITE);
                            
             // Getters
+     inline SLAnimationManager& animManager () { return _animManager; }
      inline SLSceneView*    sv              (SLuint index) {return _sceneViews[index];}
      inline SLNode*         root3D          () {return _root3D;}
             SLint           currentID       () {return _currentID;}
@@ -70,6 +72,7 @@ class SLScene: public SLObject
             SLVEventHandler& eventHandlers  () {return _eventHandlers;}
             SLVMaterial&    materials       () {return _materials;}
             SLVMesh&        meshes          () {return _meshes;}
+            SLVAnimation&   animations      () {return _animations;}
             SLVSkeleton&    skeletons       () {return _skeletons;}
             SLVGLTexture&   textures        () {return _textures;}
             SLVGLShaderProg& shaderProgs    () {return _shaderProgs;}
@@ -94,6 +97,7 @@ class SLScene: public SLObject
      static SLScene*        current;          //!< global static scene pointer
 
    protected:
+            SLAnimationManager _animManager;  //!< Animation manager instance
             SLVSceneView    _sceneViews;      //!< Vector of all sceneview pointers
 
             SLNode*         _root3D;          //!< Root node for 3D scene
@@ -130,6 +134,7 @@ class SLScene: public SLObject
 
             SLVMesh         _meshes;          //!< Vector of all meshes
             SLVSkeleton     _skeletons;       //!< Vector of all skeletons
+            SLVAnimation    _animations;      //!< Vector of all animation pointers
             SLVMaterial     _materials;       //!< Vector of all materials pointers
             SLVGLTexture    _textures;        //!< Vector of all texture pointers
             SLVGLShaderProg _shaderProgs;     //!< Vector of all shaderProg pointers

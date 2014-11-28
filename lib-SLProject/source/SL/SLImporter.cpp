@@ -50,7 +50,7 @@ SLImporter::SLImporter(const SLstring& logFile, SLLogVerbosity logConsoleVerb, S
 */
 SLImporter::~SLImporter()
 {
-    if (_logFileVerbosity > LV_Quiet)
+    if (_log.is_open())
         _log.close();
 }
 

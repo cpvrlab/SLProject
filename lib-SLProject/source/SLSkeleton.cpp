@@ -2,6 +2,7 @@
 #include <stdafx.h>
 #include <SLSkeleton.h>
 #include <SLScene.h>
+#include <SLAnimationState.h>
 
 
 SLSkeleton::SLSkeleton()
@@ -67,4 +68,25 @@ void SLSkeleton::reset()
 {
     for (SLint i = 0; i < _boneList.size(); i++)
         _boneList[i]->resetToInitialState();
+}
+
+
+void SLSkeleton::updateAnimations()
+{
+    SLScene* scene = SLScene::current;
+
+    // @todo don't do this if we don't have any enabled animations
+    reset();
+
+    map<SLstring, SLAnimationState*>::iterator it;
+    for (it = _animationStates.begin(); it != _animationStates.end(); it++)
+    {
+        SLAnimationState* state = it->second;
+        if (state->enabled())
+        {
+            // state->advanceTime(scene->elapsedTime()); // get elapsed time
+            state->advanceTime(0.016f); // temporary test val
+            state->parentAnimation()->apply(this, state->localTime(), state->weight());
+        }
+    }
 }

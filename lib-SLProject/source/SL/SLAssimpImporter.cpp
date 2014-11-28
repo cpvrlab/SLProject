@@ -8,35 +8,9 @@
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
 
-/*
-
-    // find crash (probably because of scaling matrix again); fix keyframe interpolation (implement the proposed algo); make astroboy work again by importing him (test if he imports without bones)
-
-    1. Fix the finding of the correct skeleton root node (atm we cheat by searching by name only for the astroboy!)
-    2. Clean up
-        1. Remove unneeded helper functions (ex.: loadSkeletonRec etc.)
-        2. Move to a more global approach
-            > load all aiNodes into a <name, node> map
-            > load all aiBones into a <name, bone> map
-            -- with this approach we might be able to load multiple skeletons in one file
-                > implement it clean, then test with a 2 skeleton file
-            > Check other importers as a reference.
-
-    3. Find more animations to test with!
-*/
-
-// @todo    findAndLoadSkeleton, loadSkeleton and loadSkeletonRec can easily be put into a single function, do that.
-// @todo    add aiMat to SLMat helper function (function that generates an SLMat out of an aiMatrix4x4)
-// @todo    Switch all the importer data and helper functions back into the importer class
-//              > Use forward declarations to use assimp types as function parameters
 // @todo    add log output to the other parts of the importer
-// @todo    fix a bug of elongated bones (The skinnedCube example has it). 
-//          It seems like the bone translations are applied twice. the keyframe translation seems
-//          to also hold the position
-//          but we set an initial position by calling setInitialState
 
 #include <stdafx.h>
-#include <cstdarg> // only needed because we wrap pintf in logMessage, read the todo and fix it!
 #include <SLAssimpImporter.h>
 #include <SLScene.h>
 #include <SLGLTexture.h>
@@ -50,15 +24,6 @@
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
 
-/*
-
-loadAnimation       // loads animations and builds a map of bone nodes
-loadNodesRec        // loads the node structure and loads marked bone nodes into skeleton containers
-
-// we need to assign skeletons to meshes somewhere
-// also, for now a skeleton holds the animation instances, later we need entities or something to hold them
-
-*/
 
 struct KeyframeData
 {
@@ -187,7 +152,7 @@ SLVec3f getScaling(SLfloat time, const KeyframeMap& keyframes)
         // search to the right
         for (; it != keyframes.end(); it++)
         {
-            if (it->second.translation != NULL)
+            if (it->second.rotation != NULL)
             {
                 backKey = it->second.scaling;
                 break;
@@ -197,7 +162,7 @@ SLVec3f getScaling(SLfloat time, const KeyframeMap& keyframes)
         // search to the left
         for (; revIt != keyframes.rend(); revIt++)
         {
-            if (revIt->second.translation != NULL)
+            if (revIt->second.rotation != NULL)
             {
                 frontKey = revIt->second.scaling;
                 break;
@@ -256,7 +221,7 @@ SLQuat4f getRotation(SLfloat time, const KeyframeMap& keyframes)
         // search to the right
         for (; it != keyframes.end(); it++)
         {
-            if (it->second.translation != NULL)
+            if (it->second.rotation != NULL)
             {
                 backKey = it->second.rotation;
                 break;
@@ -266,7 +231,7 @@ SLQuat4f getRotation(SLfloat time, const KeyframeMap& keyframes)
         // search to the left
         for (; revIt != keyframes.rend(); revIt++)
         {
-            if (revIt->second.translation != NULL)
+            if (revIt->second.rotation != NULL)
             {
                 frontKey = revIt->second.rotation;
                 break;
@@ -374,6 +339,8 @@ SLNode* SLAssimpImporter::load(SLstring file,        //!< File with path or on d
 
     // clear the intermediate data
     clear();
+
+    logMessage(LV_Minimal, "\n---------------------------\n\n");
 
     return _sceneRoot;
 }
@@ -493,12 +460,15 @@ void SLAssimpImporter::findBones(const aiScene* scene)
 /** finds the common ancestor for each remaining group in boneGroups, these are our final skeleton roots */
 void SLAssimpImporter::findSkeletonRoot()
 {
+    // early out if we don't have any bone bindings
+    if (_boneOffsets.size() == 0) return;
+    
 	vector<NodeList> ancestorList(_boneOffsets.size());
     SLint minDepth = INT_MAX;
-    SLint index = 0;
+    SLint index = 0;    
+    _skeletonRoot = NULL;
 
-    
-    logMessage(LV_Detailed, "Building bone ancestor lists.\n", _skeletonRoot->mName.C_Str());
+    logMessage(LV_Detailed, "Building bone ancestor lists.\n");
 
     BoneOffsetMap::iterator it = _boneOffsets.begin();
     for (; it != _boneOffsets.end(); it++, index++)
@@ -525,12 +495,12 @@ void SLAssimpImporter::findSkeletonRoot()
 
         minDepth = min(minDepth, list.size());
     }
-    
+
+
     logMessage(LV_Detailed, "Bone ancestor lists completed, min depth: %d\n", minDepth);
     
-    logMessage(LV_Detailed, "Searching ancestor lists for common ancestor.\n", _skeletonRoot->mName.C_Str());
+    logMessage(LV_Detailed, "Searching ancestor lists for common ancestor.\n");
     // now we have a ancestor list for each bone node beginning with the root node
-    _skeletonRoot = NULL;
     for (SLint i = 0; i < minDepth; i++) 
     {
         SLbool failed = false;
@@ -554,6 +524,11 @@ void SLAssimpImporter::findSkeletonRoot()
             break;
         }
     }
+
+    // seems like the above can be wrong, we should just select the common ancestor that is one below the assimps root
+    // @todo fix this function up and make sure there exists a second element
+    if (!_skeletonRoot)
+    _skeletonRoot = ancestorList[0][1];
 
     logMessage(LV_Normal, "Determined '%s' to be the skeleton's root node.\n", _skeletonRoot->mName.C_Str());
 }
@@ -917,11 +892,20 @@ SLAnimation* SLAssimpImporter::loadAnimation(aiAnimation* anim)
         SLuint handle = 0;
         SLbool isBoneNode = (affectedNode == NULL);
 
+        // @todo: this is currently a work around but it can happen that we receive normal node animationtracks and bone animationtracks
+        //        we don't allow node animation tracks in a skeleton animation, so we should split an animation in two seperate 
+        //        animations if this happens. for now we just ignore node animation tracks if we already have skeleton tracks
+        //        ofc this will crash if the first track is a node anim but its just temporary
+        if (!isBoneNode && isSkeletonAnim) 
+            continue;
+
         // is there a skeleton and is this animation channel not affecting a normal node?
         if (_skeletonRoot && !affectedNode)
         {
             isSkeletonAnim = true;
             SLBone* affectedBone = _skeleton->getBone(nodeName);
+            if (affectedBone == NULL)
+                break;
             handle = affectedBone->handle();
             // @todo warn if we find an animation with some node channels and some bone channels
             //       this shouldn't happen!
@@ -945,10 +929,13 @@ SLAnimation* SLAssimpImporter::loadAnimation(aiAnimation* anim)
             //      animations to it. If we were to reset each bone just before applying a channel to it
             //      we wouldn't have this problem. But we coulnd't blend animations as easily.
             //
+            //      @note (26-11-2014) about a week after this todo. This is the fault of the imported file
+            //            the base animation must provide a keyframe for every bone in the skeleton or we will
+            //            get problems when we try to interpolate with an other animation.
             affectedBone->om(SLMat4f());
             affectedBone->setInitialState();
         }
-                    
+                            
         // log
         logMessage(LV_Normal, "\n  Channel %d %s", i, (isBoneNode) ? "(bone animation)\n" : "\n");
         logMessage(LV_Normal, "   Affected node: %s\n", channel->mNodeName.C_Str());
@@ -959,6 +946,12 @@ SLAnimation* SLAssimpImporter::loadAnimation(aiAnimation* anim)
 
         // bone animation channels should receive the correct node id, normal node animations just get 0
         SLNodeAnimationTrack* track = result->createNodeAnimationTrack(handle);
+
+        
+        // this is a node animation only, so we add a reference to the affected node to the track
+        if (affectedNode && !isSkeletonAnim) {
+            track->animationTarget(affectedNode);
+        }
 
         KeyframeMap keyframes;
 
@@ -1002,10 +995,12 @@ SLAnimation* SLAssimpImporter::loadAnimation(aiAnimation* anim)
              
         logMessage(LV_Normal, "   Found %d distinct keyframe timestamp(s).\n", keyframes.size());
 
+        SLbool breakCondition = nodeName == "rig|Hips";
+
         KeyframeMap::iterator it = keyframes.begin();
         for (; it != keyframes.end(); it++)
         {
-            SLTransformKeyframe* kf = track->createNodeKeyframe(it->second.rotation->mTime);         
+            SLTransformKeyframe* kf = track->createNodeKeyframe(it->first);         
             kf->translation(getTranslation(it->first, keyframes));
             kf->rotation(getRotation(it->first, keyframes));
             kf->scale(getScaling(it->first, keyframes));

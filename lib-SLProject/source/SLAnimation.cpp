@@ -9,6 +9,7 @@
 //#############################################################################
 
 #include <stdafx.h>
+#include <SLScene.h>
 #include <SLAnimation.h>
 #include <SLSkeleton.h>
 
@@ -17,12 +18,16 @@
 SLAnimation::SLAnimation(SLfloat duration)
 : _name("Unnamed Animation"),
 _length(duration)
-{ }
+{ 
+    SLScene::current->animations().push_back(this);
+}
 
 SLAnimation::SLAnimation(const SLstring& name, SLfloat duration)
 : _name(name),
 _length(duration)
-{ }
+{ 
+    SLScene::current->animations().push_back(this);
+}
 
 SLAnimation::~SLAnimation()
 {}
@@ -34,9 +39,18 @@ void SLAnimation::length(SLfloat length)
     _length = length;
 }
 
+
+SLAnimationState* SLAnimation::createAnimationState()
+{
+    SLScene* s = SLScene::current;
+    //s->animManager().
+    return NULL;
+}
+
 SLNodeAnimationTrack* SLAnimation::createNodeAnimationTrack(SLuint handle)
 {
     // track with same handle already exists
+    // @todo provide a function that generates the handle automatically
     if (_nodeAnimations.find(handle) != _nodeAnimations.end())
         return NULL;
 
@@ -54,7 +68,7 @@ void SLAnimation::apply(SLfloat time, SLfloat weight , SLfloat scale)
 }
 
 // apply all tracks to a single node
-void SLAnimation::apply(SLNode* node, SLfloat time, SLfloat weight, SLfloat scale)
+void SLAnimation::applyToNode(SLNode* node, SLfloat time, SLfloat weight, SLfloat scale)
 {
     map<SLuint, SLNodeAnimationTrack*>::iterator it = _nodeAnimations.begin();
     for (; it != _nodeAnimations.end(); it++)
@@ -73,8 +87,12 @@ void SLAnimation::apply(SLSkeleton* skel, SLfloat time, SLfloat weight, SLfloat 
 
 }
 
-
-
+void SLAnimation::resetNodes()
+{
+    map<SLuint, SLNodeAnimationTrack*>::iterator it = _nodeAnimations.begin();
+    for (; it != _nodeAnimations.end(); it++)
+        it->second->animationTarget()->resetToInitialState();
+}
 
 
 

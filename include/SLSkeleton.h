@@ -17,6 +17,8 @@
 #include <SLBone.h>
 #include <SLAnimation.h>
 
+class SLAnimationState;
+
 class SLSkeleton
 {
 public:
@@ -38,12 +40,15 @@ public:
     void        addAnimation(SLAnimation* anim);
     void        reset();
 
+    void        updateAnimations();
+
     SLAnimation* tempGetAnim(const SLstring& anim) { return _animations[anim]; }
 
 protected:
     SLBone*     _root;
     vector<SLBone*> _boneList; //!< bone map for fast acces of bones
     map<SLstring, SLAnimation*> _animations;
+    map<SLstring, SLAnimationState*> _animationStates;
 };
 
 typedef std::vector<SLSkeleton*> SLVSkeleton;

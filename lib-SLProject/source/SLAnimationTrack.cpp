@@ -140,7 +140,7 @@ SLfloat SLAnimationTrack::getKeyframesAtTime(SLfloat time, SLKeyframe** k1, SLKe
     //return 0.5f*sin(tempReturnVal*SL_PI - SL_PI*0.5f) + 0.5f; 
 
     
-    
+    /*
     // temporary test code below (prints out left and right keyframe for a track
     // was used to check which keyframe interpolation failed
     // @todo remove this when finished
@@ -165,14 +165,14 @@ SLfloat SLAnimationTrack::getKeyframesAtTime(SLfloat time, SLKeyframe** k1, SLKe
         std::cout << "   right: " << kfR << "\n" << std::endl;
         kfR_last = kfR;
     }
-
+    */
 
     return t;
 }
 
 
 SLNodeAnimationTrack::SLNodeAnimationTrack(SLAnimation* parent, SLuint handle)
-: SLAnimationTrack(parent, handle)
+: SLAnimationTrack(parent, handle), _animationTarget(NULL)
 { }
 
 
@@ -216,7 +216,8 @@ void SLNodeAnimationTrack::calcInterpolatedKeyframe(SLfloat time, SLKeyframe* ke
 
 void SLNodeAnimationTrack::apply(SLfloat time, SLfloat weight, SLfloat scale)
 {
-    applyToNode(_animationTarget, time, weight, scale);
+    if (_animationTarget)
+        applyToNode(_animationTarget, time, weight, scale);
 }
 
 void SLNodeAnimationTrack::applyToNode(SLNode* node, SLfloat time, SLfloat weight, SLfloat scale)

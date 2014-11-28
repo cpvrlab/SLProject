@@ -55,6 +55,9 @@ public:
     SLNodeAnimationTrack(SLAnimation* parent, SLuint handle);    
 
     SLTransformKeyframe* createNodeKeyframe(SLfloat time);
+    
+    void        animationTarget(SLNode* target) { _animationTarget = target; }
+    SLNode*     animationTarget() { return _animationTarget; }
 
     virtual void calcInterpolatedKeyframe(SLfloat time, SLKeyframe* keyframe) const;
     // apply this track to a specified node
