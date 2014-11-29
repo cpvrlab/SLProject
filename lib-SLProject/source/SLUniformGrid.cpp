@@ -13,7 +13,7 @@
 #endif
 
 #include <SLUniformGrid.h>
-#include <SLNode.h>       
+#include <SLSceneNode.h>
 #include <SLRay.h>
 #include <SLRaytracer.h>
 #include <SLSceneView.h>
@@ -317,7 +317,7 @@ Ray Mesh intersection method using the regular grid space subdivision structure
 and a voxel traversal algorithm described in "A Fast Voxel Traversal Algorithm
 for Ray Tracing" by John Amanatides and Andrew Woo.
 */
-SLbool SLUniformGrid::intersect(SLRay* ray, SLNode* node)
+SLbool SLUniformGrid::intersect(SLRay* ray, SLSceneNode* node)
 {  
     // Check first if the AABB is hit at all
     if (node->aabb()->isHitInOS(ray))

@@ -23,7 +23,7 @@
 
 //-----------------------------------------------------------------------------
 SLLightSphere::SLLightSphere(SLfloat radius, SLbool hasMesh) :
-               SLNode("LightSphere")
+               SLSceneNode("LightSphere")
 {  
     _radius = radius;
     _samples.samples(1,1,false);
@@ -46,7 +46,7 @@ SLLightSphere::SLLightSphere(SLfloat posx,
                              SLfloat diffPower,
                              SLfloat specPower,
                              SLbool hasMesh) : 
-                SLNode("Sphere Light"), 
+                SLSceneNode("Sphere Light"), 
                 SLLight(ambiPower, diffPower, specPower)
 {  
     _radius = radius;
@@ -101,7 +101,7 @@ SLbool SLLightSphere::hitRec(SLRay* ray)
     if (ray->type!=PRIMARY) return false;
    
     // call the intersection routine of the node   
-    return SLNode::hitRec(ray);
+    return SLSceneNode::hitRec(ray);
 }
 //-----------------------------------------------------------------------------
 //! SLLightSphere::statsRec updates the statistic parameters
@@ -109,7 +109,7 @@ void SLLightSphere::statsRec(SLNodeStats &stats)
 {  
     stats.numBytes += sizeof(SLLightSphere);
     stats.numBytes += _samples.sizeInBytes();
-    SLNode::statsRec(stats);
+    SLSceneNode::statsRec(stats);
 }
 //-----------------------------------------------------------------------------
 /*!
@@ -130,7 +130,7 @@ void SLLightSphere::drawMeshes(SLSceneView* sv)
                 _meshes[0]->mat->emission(_on ? diffuse() : SLCol4f::BLACK);   
    
         // now draw the inherited meshes
-        SLNode::drawMeshes(sv);
+        SLSceneNode::drawMeshes(sv);
    }
 }
 //-----------------------------------------------------------------------------

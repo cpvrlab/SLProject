@@ -57,7 +57,7 @@ SLAABBox& NewNodeTRS::updateAABBRec()
 {
     // update the wm and wmI in this current node since updateAABBRec needs them
     updateIfDirty();
-    return SLNode::updateAABBRec();
+    return SLSceneNode::updateAABBRec();
 }
 
 void NewNodeTRS::markDirty()

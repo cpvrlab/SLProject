@@ -16,7 +16,7 @@
 #include <SLGLBuffer.h>
 
 class SLSceneView;
-class SLNode;
+class SLSceneNode;
 class SLAccelStruct;
 struct SLNodeStats;
 class SLMaterial;
@@ -108,11 +108,11 @@ class SLMesh : public SLObject
                         SLMesh         (SLstring name = "Mesh");
                        ~SLMesh         ();
                
-virtual void            init           (SLNode* node);
-virtual void            draw           (SLSceneView* sv, SLNode* node);
+virtual void            init           (SLSceneNode* node);
+virtual void            draw           (SLSceneView* sv, SLSceneNode* node);
         void            addStats       (SLNodeStats &stats);
 virtual void            buildAABB      (SLAABBox &aabb, SLMat4f wmNode);
-        SLbool          hit            (SLRay* ray, SLNode* node);               
+        SLbool          hit            (SLRay* ray, SLSceneNode* node);               
 virtual void            preShade       (SLRay* ray);
                
         void            deleteData     ();
@@ -120,7 +120,7 @@ virtual void            calcNormals    ();
         void            calcTangents   ();
 virtual void            calcMinMax     ();
         void            calcCenterRad  (SLVec3f& center, SLfloat& radius);
-        SLbool          hitTriangleOS  (SLRay* ray, SLNode* node, SLuint iT);
+        SLbool          hitTriangleOS  (SLRay* ray, SLSceneNode* node, SLuint iT);
 
         SLPrimitive     primitive      (){return _primitive;}
                                

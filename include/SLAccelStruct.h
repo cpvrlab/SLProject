@@ -28,7 +28,7 @@ class SLAccelStruct
         virtual void           build          (SLVec3f minV, SLVec3f maxV) = 0;
         virtual void           updateStats    (SLNodeStats &stats) = 0;
         virtual void           draw           (SLSceneView* sv) = 0;
-        virtual SLbool         intersect      (SLRay* ray, SLNode* node) = 0;
+        virtual SLbool         intersect      (SLRay* ray, SLSceneNode* node) = 0;
         virtual void           disposeBuffers () = 0;
    
     protected:

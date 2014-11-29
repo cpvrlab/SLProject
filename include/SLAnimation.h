@@ -15,7 +15,7 @@
 #include <SLEnums.h>
 #include <SLKeyframe.h>
 
-class SLNode;
+class SLSceneNode;
 class SLCurve;
 
 //-----------------------------------------------------------------------------
@@ -92,7 +92,7 @@ class SLAnimation : SLObject
                     ~SLAnimation ();
 
       void           init        (SLVec3f* controls);
-      void           animate     (SLNode* node, SLfloat elapsedTimeMS);
+      void           animate     (SLSceneNode* node, SLfloat elapsedTimeMS);
       void           drawWS      ();
 
       SLfloat        totalTime   () {return _totalTime;}

@@ -11,7 +11,7 @@
 #ifndef QTNODETREEITEM_H
 #define QTNODETREEITEM_H
 
-#include "../include/SLNode.h"
+#include "../include/SLSceneNode.h"
 #include <QTreeWidget>
 #include <QTreeWidgetItem>
 //----------------------------------------------------------------------------
@@ -20,7 +20,7 @@ class qtNodeTreeItem : public QTreeWidgetItem
 {
     public:
                         // Constructor for the first item in the tree widget
-                        qtNodeTreeItem(SLNode* node,
+                        qtNodeTreeItem(SLSceneNode* node,
                                     QTreeWidget* parent) :
                                     QTreeWidgetItem(parent)
                         {  _node = node;
@@ -29,7 +29,7 @@ class qtNodeTreeItem : public QTreeWidgetItem
                         }
                      
                         // Constructor for an item after a previous one
-                        qtNodeTreeItem(SLNode* node,
+                        qtNodeTreeItem(SLSceneNode* node,
                                     qtNodeTreeItem* parent) :
                                     QTreeWidgetItem(parent, parent->child(parent->childCount()-1))
                         {  _node = node;
@@ -48,11 +48,11 @@ class qtNodeTreeItem : public QTreeWidgetItem
                         setBackgroundColor(0, Qt::lightGray);
                         }
 
-        SLNode*        node() {return _node;}
+        SLSceneNode*        node() {return _node;}
         SLMesh*        mesh() {return _mesh;}
 
     private:
-        SLNode*        _node;
+        SLSceneNode*        _node;
         SLMesh*        _mesh;
 };
 //----------------------------------------------------------------------------

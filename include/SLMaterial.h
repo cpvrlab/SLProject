@@ -18,7 +18,7 @@
 #include <SLGLGenericProgram.h>
 
 class SLSceneView;
-class SLNode;
+class SLSceneNode;
 
 //-----------------------------------------------------------------------------
 //! Defines a standard CG material with textures and a shader program

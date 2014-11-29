@@ -14,7 +14,7 @@
 #include <stdafx.h>
 
 #include <SLScene.h>
-#include <SLNode.h>
+#include <SLSceneNode.h>
 #include <SLEventHandler.h>
 #include <SLRaytracer.h>
 #include <SLPathtracer.h>
@@ -38,7 +38,7 @@ typedef int (*cbOnNewSceneView)();
 typedef SLbool (SL_STDCALL *cbOnWndUpdate)(void);
 
 //! Callback function typedef for select node 
-typedef void (SL_STDCALL *cbOnSelectNodeMesh)(SLNode*, SLMesh*);
+typedef void (SL_STDCALL *cbOnSelectNodeMesh)(SLSceneNode*, SLMesh*);
 
 //! Callback function typedef for showing and hiding the system cursor
 typedef void(SL_STDCALL *cbOnShowSysCursor)(bool);
@@ -57,7 +57,7 @@ If the scene contains itself no camera node the sceneview provides its own
 camere object.
 */
 class SLSceneView: public SLObject
-{   friend class SLNode;
+{   friend class SLSceneNode;
     friend class SLRaytracer;
     friend class SLPathtracer;
    
@@ -117,8 +117,8 @@ class SLSceneView: public SLObject
             // Drawing subroutines
             SLbool          draw3DGL        (SLfloat elapsedTimeSec);
             void            draw3DGLAll     ();
-            void            draw3DGLLines   (SLVNode &nodes);
-            void            draw3DGLNodes   (SLVNode &nodes);
+            void            draw3DGLLines   (SLVSceneNode &nodes);
+            void            draw3DGLNodes   (SLVSceneNode &nodes);
             void            draw2DGL        ();
             void            draw2DGLAll     ();
             SLbool          draw3DRT        ();
@@ -181,8 +181,8 @@ class SLSceneView: public SLObject
             SLbool          showStats       () {return _showStats;}
             SLbool          showInfo        () {return _showInfo;}
             SLbool          showMenu        () {return _showMenu;}
-            SLVNode*        blendNodes      () {return &_blendNodes;}
-            SLVNode*        opaqueNodes     () {return &_opaqueNodes;}
+            SLVSceneNode*   blendNodes      () {return &_blendNodes;}
+            SLVSceneNode*   opaqueNodes     () {return &_opaqueNodes;}
             SLRaytracer*    raytracer       () {return &_raytracer;}
             SLPathtracer*   pathtracer      () {return &_pathtracer;}
             SLRenderer      renderType      () {return _renderType;}
@@ -244,8 +244,8 @@ class SLSceneView: public SLObject
             SLGLOculusFB    _oculusFB;          //!< Oculus framebuffer
 			SLbool			_vrMode;			//!< Flag if we're in VR mode (forces camera to stereoD)
 
-            SLVNode         _blendNodes;        //!< Vector of blended nodes
-            SLVNode         _opaqueNodes;       //!< Vector of opaque nodes
+            SLVSceneNode    _blendNodes;        //!< Vector of blended nodes
+            SLVSceneNode    _opaqueNodes;       //!< Vector of opaque nodes
             
             SLRaytracer     _raytracer;         //!< Whitted style raytracer
             SLbool          _stopRT;            //!< Flag to stop the RT

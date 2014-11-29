@@ -408,13 +408,13 @@ SLbool SLSceneView::onPaint()
 
 //-----------------------------------------------------------------------------
 //! CompareNodeViewDist C-function declaration to avoid XCode warning
-SLbool CompareNodeViewDist(SLNode* a, SLNode* b); 
+SLbool CompareNodeViewDist(SLSceneNode* a, SLSceneNode* b); 
 //-----------------------------------------------------------------------------
 /*! 
 CompareNodeViewDist C-function serves as the sort comparison function for the 
 blend sorting.
 */
-SLbool CompareNodeViewDist(SLNode* a, SLNode* b)
+SLbool CompareNodeViewDist(SLSceneNode* a, SLSceneNode* b)
 {   if (!a) return false;
     if (!b) return true;
     return a->aabb()->sqrViewDist() > b->aabb()->sqrViewDist();
@@ -595,7 +595,7 @@ Red   : AABB of nodes with meshes
 Pink  : AABB of nodes without meshes (only child nodes)
 Yellow: AABB of selected node 
 */
-void SLSceneView::draw3DGLLines(SLVNode &nodes)
+void SLSceneView::draw3DGLLines(SLVSceneNode &nodes)
 {  
     // draw the opaque shapes directly w. their wm transform
     for(SLuint i=0; i<nodes.size(); ++i)
@@ -637,7 +637,7 @@ void SLSceneView::draw3DGLLines(SLVNode &nodes)
 SLSceneView::draw3DGLNodes draws the nodes meshes from the passed node vector
 directly with their world coordinates after the view transform.
 */
-void SLSceneView::draw3DGLNodes(SLVNode &nodes)
+void SLSceneView::draw3DGLNodes(SLVSceneNode &nodes)
 {  
     // draw the shapes directly with their wm transform
     for(SLuint i=0; i<nodes.size(); ++i)
@@ -1247,7 +1247,7 @@ commands are collected and dispatched here.
 SLbool SLSceneView::onCommand(const SLCmd cmd)
 {
     SLScene* s = SLScene::current;
-    SLNode* root3D = s->root3D();
+    SLSceneNode* root3D = s->root3D();
 
     switch(cmd)
     {

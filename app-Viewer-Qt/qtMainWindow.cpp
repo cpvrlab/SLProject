@@ -248,7 +248,7 @@ void qtMainWindow::buildNodeTree()
         addNodeTreeItem(SLScene::current->root3D(), ui->nodeTree, 0);
 }
 //-----------------------------------------------------------------------------
-void qtMainWindow::addNodeTreeItem(SLNode* node,
+void qtMainWindow::addNodeTreeItem(SLSceneNode* node,
                                    QTreeWidget* tree,
                                    qtNodeTreeItem* parent)
 {
@@ -280,7 +280,7 @@ void qtMainWindow::buildPropertyTree()
 
     qtPropertyTreeWidget::isBeingBuilt = true;
     qtPropertyTreeItem *level1, *level2, *level3;
-    SLNode* node = 0;
+    SLSceneNode* node = 0;
     bool allowEdit = false;
 
     // Show Node Properties
@@ -289,8 +289,8 @@ void qtMainWindow::buildPropertyTree()
         node = _selectedNodeItem->node();
 
         level1 = new qtPropertyTreeItem("Node Name:", "", allowEdit);
-        level1->setGetString(bind((const string&(SLNode::*)(void)const)&SLNode::name, node),
-                            bind((void(SLNode::*)(const string&))&SLNode::name, node, _1));
+        level1->setGetString(bind((const string&(SLSceneNode::*)(void)const)&SLSceneNode::name, node),
+                            bind((void(SLSceneNode::*)(const string&))&SLSceneNode::name, node, _1));
         ui->propertyTree->addTopLevelItem(level1);
       
         level1 = new qtPropertyTreeItem("No. of child nodes:",
@@ -325,43 +325,43 @@ void qtMainWindow::buildPropertyTree()
         ui->propertyTree->addTopLevelItem(level1);
 
         level2 = new qtPropertyTreeItem("Hide:", "", true);
-        level2->setGetBool(bind((bool(SLNode::*)(uint))&SLNode::drawBit, node, SL_DB_HIDDEN),
-                           bind((void(SLNode::*)(uint, bool))&SLNode::setDrawBitsRec, node, SL_DB_HIDDEN, _1));
+        level2->setGetBool(bind((bool(SLSceneNode::*)(uint))&SLSceneNode::drawBit, node, SL_DB_HIDDEN),
+                           bind((void(SLSceneNode::*)(uint, bool))&SLSceneNode::setDrawBitsRec, node, SL_DB_HIDDEN, _1));
         level1->addChild(level2);
 
         level2 = new qtPropertyTreeItem("Show Normals:", "", true);
-        level2->setGetBool(bind((bool(SLNode::*)(uint))&SLNode::drawBit, node, SL_DB_NORMALS),
-                           bind(&SLNode::setDrawBitsRec, node, SL_DB_NORMALS, _1));
+        level2->setGetBool(bind((bool(SLSceneNode::*)(uint))&SLSceneNode::drawBit, node, SL_DB_NORMALS),
+                           bind(&SLSceneNode::setDrawBitsRec, node, SL_DB_NORMALS, _1));
         level1->addChild(level2);
 
         level2 = new qtPropertyTreeItem("Show Wire Mesh:", "", true);
-        level2->setGetBool(bind((bool(SLNode::*)(uint))&SLNode::drawBit, node, SL_DB_WIREMESH),
-                           bind(&SLNode::setDrawBitsRec, node, SL_DB_WIREMESH, _1));
+        level2->setGetBool(bind((bool(SLSceneNode::*)(uint))&SLSceneNode::drawBit, node, SL_DB_WIREMESH),
+                           bind(&SLSceneNode::setDrawBitsRec, node, SL_DB_WIREMESH, _1));
         level1->addChild(level2);
 
         level2 = new qtPropertyTreeItem("Show Bounding Box:", "", true);
-        level2->setGetBool(bind((bool(SLNode::*)(uint))&SLNode::drawBit, node, SL_DB_BBOX),
-                           bind(&SLNode::setDrawBitsRec, node, SL_DB_BBOX, _1));
+        level2->setGetBool(bind((bool(SLSceneNode::*)(uint))&SLSceneNode::drawBit, node, SL_DB_BBOX),
+                           bind(&SLSceneNode::setDrawBitsRec, node, SL_DB_BBOX, _1));
         level1->addChild(level2);
 
         level2 = new qtPropertyTreeItem("Show Axis:", "", true);
-        level2->setGetBool(bind((bool(SLNode::*)(uint))&SLNode::drawBit, node, SL_DB_AXIS),
-                           bind(&SLNode::setDrawBitsRec, node, SL_DB_AXIS, _1));
+        level2->setGetBool(bind((bool(SLSceneNode::*)(uint))&SLSceneNode::drawBit, node, SL_DB_AXIS),
+                           bind(&SLSceneNode::setDrawBitsRec, node, SL_DB_AXIS, _1));
         level1->addChild(level2);
 
         level2 = new qtPropertyTreeItem("Show Voxels:", "", true);
-        level2->setGetBool(bind((bool(SLNode::*)(uint))&SLNode::drawBit, node, SL_DB_VOXELS),
-                           bind(&SLNode::setDrawBitsRec, node, SL_DB_VOXELS, _1));
+        level2->setGetBool(bind((bool(SLSceneNode::*)(uint))&SLSceneNode::drawBit, node, SL_DB_VOXELS),
+                           bind(&SLSceneNode::setDrawBitsRec, node, SL_DB_VOXELS, _1));
         level1->addChild(level2);
 
         level2 = new qtPropertyTreeItem("Show Back Faces:", "", true);
-        level2->setGetBool(bind((bool(SLNode::*)(uint))&SLNode::drawBit, node, SL_DB_CULLOFF),
-                           bind(&SLNode::setDrawBitsRec, node, SL_DB_CULLOFF, _1));
+        level2->setGetBool(bind((bool(SLSceneNode::*)(uint))&SLSceneNode::drawBit, node, SL_DB_CULLOFF),
+                           bind(&SLSceneNode::setDrawBitsRec, node, SL_DB_CULLOFF, _1));
         level1->addChild(level2);
 
         level2 = new qtPropertyTreeItem("Textures off:", "", true);
-        level2->setGetBool(bind((bool(SLNode::*)(uint))&SLNode::drawBit, node, SL_DB_TEXOFF),
-                           bind(&SLNode::setDrawBitsRec, node, SL_DB_TEXOFF, _1));
+        level2->setGetBool(bind((bool(SLSceneNode::*)(uint))&SLSceneNode::drawBit, node, SL_DB_TEXOFF),
+                           bind(&SLSceneNode::setDrawBitsRec, node, SL_DB_TEXOFF, _1));
         level1->addChild(level2);
 
       
@@ -555,7 +555,7 @@ void qtMainWindow::afterSceneLoad()
     buildNodeTree();
 }
 //-----------------------------------------------------------------------------
-void qtMainWindow::selectNodeOrMeshItem(SLNode* selectedNode, SLMesh* selectedMesh)
+void qtMainWindow::selectNodeOrMeshItem(SLSceneNode* selectedNode, SLMesh* selectedMesh)
 {
     if (selectedNode==0)
     {   ui->propertyTree->clear();
@@ -1327,7 +1327,7 @@ void qtMainWindow::on_nodeTree_itemClicked(QTreeWidgetItem *item, int column)
 void qtMainWindow::on_nodeTree_itemDoubleClicked(QTreeWidgetItem *item, int column)
 {
     SLSceneView* sv = _activeGLWidget->sv();
-    SLNode* node = ((qtNodeTreeItem*)item)->node();
+    SLSceneNode* node = ((qtNodeTreeItem*)item)->node();
 
     // Set active Camera
     if (typeid(*node)==typeid(SLCamera))

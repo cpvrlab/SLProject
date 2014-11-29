@@ -13,7 +13,7 @@
 
 #include <stdafx.h>
 #include <SLEnums.h>
-#include <SLNode.h>
+#include <SLSceneNode.h>
 #include <SLGLState.h>
 #include <SLGLBuffer.h>
 #include <SLSamples2D.h>
@@ -34,7 +34,7 @@ Because the SLNode class is inherited from the abstract SLEventHandler class a
 camera can handle mouse & keyboard event. All camera animations are handled in
 these eventhandlers.
 */ 
-class SLCamera: public SLNode
+class SLCamera: public SLSceneNode
 {  
     public:
                             SLCamera        ();

@@ -14,7 +14,7 @@
 #include <QMainWindow>
 #include <QSplitter>
 #include <SL.h>
-#include <SLNode.h>
+#include <SLSceneNode.h>
 #include <SLMesh.h>
 #include "qtGLWidget.h"
 #include "qtNodeTreeItem.h"
@@ -38,10 +38,10 @@ class qtMainWindow : public QMainWindow
         void        afterSceneLoad();
         void        buildNodeTree();
         void        buildPropertyTree();
-        void        addNodeTreeItem(SLNode* node,
+        void        addNodeTreeItem(SLSceneNode* node,
 							        QTreeWidget* tree,
 							        qtNodeTreeItem* parent);
-        void        selectNodeOrMeshItem(SLNode* selectedNode,
+        void        selectNodeOrMeshItem(SLSceneNode* selectedNode,
                                          SLMesh* selectedMesh);
         void        updateAllGLWidgets();
         void        applyCommandOnSV(const SLCmd cmd);

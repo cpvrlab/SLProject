@@ -12,7 +12,7 @@
 #define SLLIGHTRECT_H
 
 #include <stdafx.h>
-#include <SLNode.h>
+#include <SLSceneNode.h>
 #include <SLLight.h>
 
 class SLSceneView;
@@ -27,7 +27,7 @@ The light rectangle is defined with its width and height and lies initially
 centered in the x-y-plane. The light shines as a spotlight with 90 degrees 
 cutoff angle towards the negative z-axis.
 */
-class SLLightRect: public SLNode, public SLLight
+class SLLightRect: public SLSceneNode, public SLLight
 {  public:
                         SLLightRect    (SLfloat width=1, 
                                         SLfloat height=1, 

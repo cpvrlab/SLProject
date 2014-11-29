@@ -244,7 +244,7 @@ SLAnimation::animate does the transformation changes by updating the local
 transform matrix of the passed node. The shapes matrix is updated in 
 fixed order: Translation, rotation and scale. 
 */
-void SLAnimation::animate(SLNode* node, SLfloat elapsedTimeMS)
+void SLAnimation::animate(SLSceneNode* node, SLfloat elapsedTimeMS)
 {
     if (_isFinished) return;
 

@@ -12,7 +12,7 @@
 #define SLTEXT_H
 
 #include <stdafx.h>
-#include <SLNode.h>
+#include <SLSceneNode.h>
 #include <SLAABBox.h>
 #include <SLGLBuffer.h>
 #include <SLTexFont.h>
@@ -27,7 +27,7 @@ The text is passed as standard string that can contain line breaks (\\n).
 Line breaks are only inserted if a maxWidth is defined. If the lineHeightFactor
 is 1.0 the minimal line spacing is used.
 */
-class SLText: public SLNode 
+class SLText: public SLSceneNode 
 {  public:                     
                         SLText(SLstring text,
                                SLTexFont* font = SLTexFont::font09,

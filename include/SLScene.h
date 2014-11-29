@@ -15,7 +15,7 @@
 #include <SLMaterial.h>
 #include <SLEventHandler.h>
 #include <SLLight.h>
-#include <SLNode.h>
+#include <SLSceneNode.h>
 #include <SLGLOculus.h>
 #include <SLAverage.h>
 
@@ -40,14 +40,14 @@ You can access the current scene from everywhere with the static pointer _curren
 */
 class SLScene: public SLObject    
 {  
-    friend class SLNode;
+    friend class SLSceneNode;
     friend class SLSceneView;
    
     public:           
                             SLScene         (SLstring name="");
                            ~SLScene         ();
             // Setters
-            void            root3D          (SLNode* root3D){_root3D = root3D;}
+            void            root3D          (SLSceneNode* root3D){_root3D = root3D;}
             void            menu2D          (SLButton* menu2D){_menu2D = menu2D;}
             void            backColor       (SLCol4f backColor){_backColor=backColor;}
             void            globalAmbiLight (SLCol4f gloAmbi){_globalAmbiLight=gloAmbi;}
@@ -57,7 +57,7 @@ class SLScene: public SLObject
                            
             // Getters
      inline SLSceneView*    sv              (SLuint index) {return _sceneViews[index];}
-     inline SLNode*         root3D          () {return _root3D;}
+     inline SLSceneNode*         root3D          () {return _root3D;}
             SLint           currentID       () {return _currentID;}
             SLfloat         timeSec         () {return (SLfloat)_timer.getElapsedTimeInSec();}
             SLfloat         timeMilliSec    () {return (SLfloat)_timer.getElapsedTimeInMilliSec();}
@@ -78,7 +78,7 @@ class SLScene: public SLObject
             SLstring        infoAbout_en    () {return _infoAbout_en;}
             SLstring        infoCredits_en  () {return _infoCredits_en;}
             SLstring        infoHelp_en     () {return _infoHelp_en;}
-            SLNode*         selectedNode    () {return _selectedNode;}
+            SLSceneNode*         selectedNode    () {return _selectedNode;}
             SLMesh*         selectedMesh    () {return _selectedMesh;}
             SLbool          stopAnimations  () {return _stopAnimations;}
             SLGLOculus*     oculus          () {return &_oculus;}   
@@ -88,8 +88,8 @@ class SLScene: public SLObject
             void            init            ();
             void            unInit          ();
             bool            updateIfAllViewsGotPainted();
-            void            selectNode      (SLNode* nodeToSelect);
-            void            selectNodeMesh  (SLNode* nodeToSelect,
+            void            selectNode      (SLSceneNode* nodeToSelect);
+            void            selectNodeMesh  (SLSceneNode* nodeToSelect,
                                              SLMesh* meshToSelect);
             SLbool          onCommandAllSV  (const SLCmd cmd);
 
@@ -104,8 +104,8 @@ class SLScene: public SLObject
             SLVLight        _lights;            //!< Vector of all lights
             SLVEventHandler _eventHandlers;     //!< Vector of all event handler
 
-            SLNode*         _root3D;            //!< Root node for 3D scene
-            SLNode*         _selectedNode;      //!< Pointer to the selected node
+            SLSceneNode*         _root3D;            //!< Root node for 3D scene
+            SLSceneNode*         _selectedNode;      //!< Pointer to the selected node
             SLMesh*         _selectedMesh;      //!< Pointer to the selected mesh
 
             SLTimer         _timer;             //!< high precision timer

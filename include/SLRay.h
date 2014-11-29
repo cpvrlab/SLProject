@@ -14,7 +14,7 @@
 #include <SLMaterial.h>
 
 struct SLFace16;
-class  SLNode;
+class  SLSceneNode;
 class  SLMesh;
 
 //-----------------------------------------------------------------------------
@@ -93,14 +93,14 @@ class SLRay
             SLfloat     x, y;          //!< Pixel position for primary rays
             SLbool      isOutside;     //!< Flag if ray is inside of a material
             SLbool      isInsideVolume;//!< Flag if ray is in Volume
-            SLNode*     originNode;    //!< Points to the node at ray origin
+            SLSceneNode*     originNode;    //!< Points to the node at ray origin
             SLMesh*     originMesh;    //!< Points to the mesh at ray origin
             SLint       originTria;    //!< Points to the triangle at ray origin
             SLMaterial* originMat;     //!< Points to appearance at ray origin
 
             // Members set after at intersection
             SLfloat     hitU, hitV;    //!< barycentric coords in hit triangle
-            SLNode*     hitNode;       //!< Points to the intersected node
+            SLSceneNode*     hitNode;       //!< Points to the intersected node
             SLMesh*     hitMesh;       //!< Points to the intersected mesh
             SLint       hitTriangle;   //!< Points to the intersected triangle
             SLMaterial* hitMat;        //!< Points to material of intersected node

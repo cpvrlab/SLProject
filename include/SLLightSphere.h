@@ -12,7 +12,7 @@
 #define SLLIGHTSPHERE_H
 
 #include <stdafx.h>
-#include <SLNode.h>
+#include <SLSceneNode.h>
 #include <SLLight.h>
 #include <SLSamples2D.h>
 
@@ -25,7 +25,7 @@ class SLRay;
 SLLightSphere is a node and a light that can have a sphere mesh for its 
 representation.
 */
-class SLLightSphere: public SLNode, public SLLight
+class SLLightSphere: public SLSceneNode, public SLLight
 {  public:
                         SLLightSphere  (SLfloat radius = 0.3f, 
                                         SLbool  hasMesh = true);

@@ -24,7 +24,7 @@ The ctor sets all members and translates to the min. position.
 */
 SLText::SLText(SLstring text, SLTexFont* font, SLCol4f color, 
                SLfloat maxWidth, SLfloat lineHeightFactor) 
-               : SLNode("Text_"+text.substr(0,10))
+               : SLSceneNode("Text_"+text.substr(0,10))
 {
     assert(font);
     _font  = font;

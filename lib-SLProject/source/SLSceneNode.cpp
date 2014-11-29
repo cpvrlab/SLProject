@@ -1,5 +1,5 @@
 //#############################################################################
-//  File:      SLNode.cpp
+//  File:      SLSceneNode.cpp
 //  Author:    Marc Wacker, Marcus Hudritsch
 //  Date:      July 2014
 //  Codestyle: https://github.com/cpvrlab/SLProject/wiki/Coding-Style-Guidelines
@@ -13,7 +13,7 @@
 #include <debug_new.h>        // memory leak detector
 #endif
 
-#include <SLNode.h>
+#include <SLSceneNode.h>
 #include <SLAnimation.h>
 #include <SLSceneView.h>
 #include <SLRay.h>
@@ -24,7 +24,7 @@
 /*! 
 Default constructor just setting the name. 
 */ 
-SLNode::SLNode(SLstring name) : SLObject(name)
+SLSceneNode::SLSceneNode(SLstring name) : SLObject(name)
 {  
     _stateGL = SLGLState::getInstance();
     _parent = 0;
@@ -42,7 +42,7 @@ SLNode::SLNode(SLstring name) : SLObject(name)
 /*! 
 Constructor with a mesh pointer and name.
 */ 
-SLNode::SLNode(SLMesh* mesh, SLstring name) : SLObject(name)
+SLSceneNode::SLSceneNode(SLMesh* mesh, SLstring name) : SLObject(name)
 {  
     _stateGL = SLGLState::getInstance();
     _parent = 0;
@@ -65,7 +65,7 @@ The meshes are not deleted. They are deleted at the end by the SLScene mesh
 vector. The entire scenegraph is deleted by deleting the SLScene::_root3D node.
 Nodes that are not in the scenegraph will not be deleted at scene destruction.
 */ 
-SLNode::~SLNode()
+SLSceneNode::~SLSceneNode()
 {  
     //SL_LOG("~SLNode: %s\n", name().c_str());
 
@@ -83,7 +83,7 @@ SLNode::~SLNode()
 /*! 
 Simply adds a mesh to its mesh pointer vector of the node.
 */ 
-void SLNode::addMesh(SLMesh* mesh)
+void SLSceneNode::addMesh(SLMesh* mesh)
 {
     if (!mesh)
         return;
@@ -103,7 +103,7 @@ void SLNode::addMesh(SLMesh* mesh)
 Inserts a mesh pointer in the mesh pointer vector after the
 specified afterM pointer.
 */ 
-bool SLNode::insertMesh(SLMesh* insertM, SLMesh* afterM)
+bool SLSceneNode::insertMesh(SLMesh* insertM, SLMesh* afterM)
 {
     assert(insertM && afterM);
     assert(insertM != afterM);
@@ -125,7 +125,7 @@ bool SLNode::insertMesh(SLMesh* insertM, SLMesh* afterM)
 /*! 
 Removes the last mesh.
 */
-bool SLNode::removeMesh()
+bool SLSceneNode::removeMesh()
 {
     if (_meshes.size() > 0)
     {   _meshes.pop_back();
@@ -137,7 +137,7 @@ bool SLNode::removeMesh()
 /*! 
 Removes the specified mesh from the vector.
 */
-bool SLNode::removeMesh(SLMesh* mesh)
+bool SLSceneNode::removeMesh(SLMesh* mesh)
 {
     assert(mesh);
     for (SLint i=0; i<_meshes.size(); ++i)
@@ -152,7 +152,7 @@ bool SLNode::removeMesh(SLMesh* mesh)
 /*! 
 Removes the specified mesh by name from the vector.
 */
-bool SLNode::removeMesh(SLstring name)
+bool SLSceneNode::removeMesh(SLstring name)
 {
     assert(name!="");
     SLMesh* found = findMesh(name);
@@ -163,7 +163,7 @@ bool SLNode::removeMesh(SLstring name)
 /*! 
 SLNode::findMesh finds the specified mesh by name.
 */
-SLMesh* SLNode::findMesh(SLstring name)
+SLMesh* SLSceneNode::findMesh(SLstring name)
 {  
     assert(name!="");
     for (SLint i=0; i<_meshes.size(); ++i)
@@ -174,7 +174,7 @@ SLMesh* SLNode::findMesh(SLstring name)
 /*!
 Returns true if the node contains the provided mesh
 */
-SLbool SLNode::containsMesh(const SLMesh* mesh)
+SLbool SLSceneNode::containsMesh(const SLMesh* mesh)
 {
     for (SLint i = 0; i < _meshes.size(); ++i)
         if (_meshes[i] == mesh)
@@ -205,7 +205,7 @@ stack drawing.
 </li>
 </ul>
 */
-void SLNode::drawMeshes(SLSceneView* sv)
+void SLSceneNode::drawMeshes(SLSceneView* sv)
 {
     for (SLint i=0; i<_meshes.size(); ++i)
         _meshes[i]->draw(sv, this);
@@ -218,7 +218,7 @@ void SLNode::drawMeshes(SLSceneView* sv)
 /*!
 Adds a child node to the children vector
 */
-void SLNode::addChild(SLNode* child)
+void SLSceneNode::addChild(SLSceneNode* child)
 {
     assert(child);
     assert(this != child);
@@ -235,12 +235,12 @@ void SLNode::addChild(SLNode* child)
 Inserts a child node in the children vector after the 
 afterC node.
 */
-bool SLNode::insertChild(SLNode* insertC, SLNode* afterC)
+bool SLSceneNode::insertChild(SLSceneNode* insertC, SLSceneNode* afterC)
 {
     assert(insertC && afterC);
     assert(insertC != afterC);
 
-    SLVNode::iterator found = find(_children.begin(), _children.end(), afterC);
+    SLVSceneNode::iterator found = find(_children.begin(), _children.end(), afterC);
     if (found != _children.end())
     {   _children.insert(found, insertC);
         insertC->parent(this);
@@ -252,7 +252,7 @@ bool SLNode::insertChild(SLNode* insertC, SLNode* afterC)
 /*!
 Deletes all child nodes.
 */
-void SLNode::deleteChildren()
+void SLSceneNode::deleteChildren()
 {
     for (int i=0; i<_children.size(); ++i)
         delete _children[i];
@@ -262,7 +262,7 @@ void SLNode::deleteChildren()
 /*!
 Deletes the last child in the child vector.
 */
-bool SLNode::deleteChild()
+bool SLSceneNode::deleteChild()
 {
     if (_children.size() > 0)
     {  
@@ -276,7 +276,7 @@ bool SLNode::deleteChild()
 /*!
 Deletes a child from the child vector.
 */
-bool SLNode::deleteChild(SLNode* child)
+bool SLSceneNode::deleteChild(SLSceneNode* child)
 {
     assert(child);
     for (SLint i=0; i<_children.size(); ++i)
@@ -292,10 +292,10 @@ bool SLNode::deleteChild(SLNode* child)
 /*!
 Searches for a child with the name 'name' and deletes it.
 */
-bool SLNode::deleteChild(SLstring name)
+bool SLSceneNode::deleteChild(SLstring name)
 {
     assert(name!="");
-    SLNode* found = findChild<SLNode>(name);
+    SLSceneNode* found = findChild<SLSceneNode>(name);
     if (found) return deleteChild(found);
     return false;
 }
@@ -303,9 +303,9 @@ bool SLNode::deleteChild(SLstring name)
 /*!
 Searches for all nodes that contain the provided mesh
 */
-vector<SLNode*> SLNode::findChildren(const SLMesh* mesh, SLbool findRecursive)
+vector<SLSceneNode*> SLSceneNode::findChildren(const SLMesh* mesh, SLbool findRecursive)
 {
-    vector<SLNode*> list;
+    vector<SLSceneNode*> list;
     findChildrenHelper(mesh, list, findRecursive);
 
     return list;
@@ -314,11 +314,11 @@ vector<SLNode*> SLNode::findChildren(const SLMesh* mesh, SLbool findRecursive)
 /*!
 Helper function of findChildren for meshes
 */
-void SLNode::findChildrenHelper(const SLMesh* mesh, vector<SLNode*>& list, SLbool findRecursive)
+void SLSceneNode::findChildrenHelper(const SLMesh* mesh, vector<SLSceneNode*>& list, SLbool findRecursive)
 {
     for (SLint i = 0; i < _children.size(); ++i)
     {
-        SLNode* node = _children[i];
+        SLSceneNode* node = _children[i];
         if (node->containsMesh(mesh))
             list.push_back(node);
                     
@@ -332,7 +332,7 @@ Applies an animation transform to the local matrix. If an
 animation was done here or in one of the children node the function returns 
 true.
 */
-SLbool SLNode::animateRec(SLfloat timeMS)
+SLbool SLSceneNode::animateRec(SLfloat timeMS)
 {  
     SLbool gotAnimated = false;
 
@@ -357,7 +357,7 @@ the nodes children are checked recursively.
 If a node containes meshes with alpha blended materials it is added to the 
 blendedNodes vector. If not it is added to the opaqueNodes vector.
 */
-void SLNode::cullRec(SLSceneView* sv)  
+void SLSceneNode::cullRec(SLSceneView* sv)
 {     
     // Do frustum culling for all shapes except cameras & lights
     if (sv->doFrustumCulling() &&
@@ -389,7 +389,7 @@ The order of drawing doesn't matter in flat drawing because the world
 matrix (SLNode::_wm) is used for transform. See also SLNode::drawMeshes.
 The drawRec method is <b>still used</b> for the rendering of the 2D menu!
 */
-void SLNode::drawRec(SLSceneView* sv)
+void SLSceneNode::drawRec(SLSceneView* sv)
 {    
     bool rootButton = (_name == ">");
     bool loadSceneButton = (_name == "Load Scene >");
@@ -444,9 +444,9 @@ void SLNode::drawRec(SLSceneView* sv)
 Updates the statistic numbers of the passed SLNodeStats struct
 and calls recursively the same method for all children.
 */
-void SLNode::statsRec(SLNodeStats &stats)  
+void SLSceneNode::statsRec(SLNodeStats &stats)
 {  
-    stats.numBytes += sizeof(SLNode);
+    stats.numBytes += sizeof(SLSceneNode);
 
     if (_children.size() == 0)
          stats.numLeafNodes++;
@@ -465,7 +465,7 @@ test is only done if the AABB is intersected. The ray-mesh intersection is
 done in the nodes object space. The rays origin and direction is therefore 
 transformed into the object space.
 */
-bool SLNode::hitRec(SLRay* ray)
+bool SLSceneNode::hitRec(SLRay* ray)
 {
     assert(ray != 0);
 
@@ -518,9 +518,9 @@ bool SLNode::hitRec(SLRay* ray)
 /*! 
 Copies the nodes meshes and children recursively.
 */ 
-SLNode* SLNode::copyRec()
+SLSceneNode* SLSceneNode::copyRec()
 {
-    SLNode* copy = new SLNode(name());
+    SLSceneNode* copy = new SLSceneNode(name());
     copy->_om = _om;
     copy->_depth = _depth;
     copy->_isAABBUpToDate = _isAABBUpToDate;
@@ -545,7 +545,7 @@ SLNode* SLNode::copyRec()
 /*!
 Sets the parent for this node and updates its depth
 */
-void SLNode::parent(SLNode* p)
+void SLSceneNode::parent(SLSceneNode* p)
 {
     _parent = p;
 
@@ -561,7 +561,7 @@ automatically if the local transform of the node or of its parent changed.
 Nodes that are flagged for updating will recalculate their world transform
 the next time it is requested by updateAndGetWM(). 
 */
-void SLNode::needUpdate()
+void SLSceneNode::needUpdate()
 {
     // stop if we reach a node that is already flagged.
     if (!_isWMUpToDate)
@@ -585,7 +585,7 @@ This function is currently not in use but could give a slight performance
 boost if it was called instead of needUpdate for the children of a 
 node that changed.
 */
-void SLNode::needWMUpdate()
+void SLSceneNode::needWMUpdate()
 {
     // stop if we reach a node that is already flagged.
     if (!_isWMUpToDate)
@@ -605,7 +605,7 @@ changed we need to update it's world space AABB. This needs to also be propagate
 up the parent chain since the AABB of a node incorperates the AABB's of child
 nodes.
 */
-void SLNode::needAABBUpdate()
+void SLSceneNode::needAABBUpdate()
 {
     // stop if we reach a node that is already flagged.
     if (!_isAABBUpToDate)
@@ -628,7 +628,7 @@ This function is const because it has to be called from inside the updateAndGetW
 function which has to be const. Since we only update the private cache of this
 class it is ok.
 */
-void SLNode::updateWM() const
+void SLSceneNode::updateWM() const
 {
     if (_parent)
         _wm.setMatrix(_parent->updateAndGetWM() * _om); 
@@ -646,7 +646,7 @@ void SLNode::updateWM() const
 Will retrieve the current world matrix for this node.
 If the world matrix is out of date it will update it and return a current result.
 */
-const SLMat4f& SLNode::updateAndGetWM() const
+const SLMat4f& SLSceneNode::updateAndGetWM() const
 {
     if (!_isWMUpToDate)
         updateWM();
@@ -658,7 +658,7 @@ const SLMat4f& SLNode::updateAndGetWM() const
 Will retrieve the current world inverse matrix for this node.
 If the world matrix is out of date it will update it and return a current result.
 */
-const SLMat4f& SLNode::updateAndGetWMI() const
+const SLMat4f& SLSceneNode::updateAndGetWMI() const
 {
     if (!_isWMUpToDate)
         updateWM();
@@ -670,7 +670,7 @@ const SLMat4f& SLNode::updateAndGetWMI() const
 Will retrieve the current world normal matrix for this node.
 If the world matrix is out of date it will update it and return a current result.
 */
-const SLMat3f& SLNode::updateAndGetWMN() const
+const SLMat3f& SLSceneNode::updateAndGetWMN() const
 {
     if (!_isWMUpToDate)
         updateWM();
@@ -681,7 +681,7 @@ const SLMat3f& SLNode::updateAndGetWMN() const
 /*!
 Updates the axis aligned bounding box in world space. 
 */
-SLAABBox& SLNode::updateAABBRec()
+SLAABBox& SLSceneNode::updateAABBRec()
 {
     if (_isAABBUpToDate)
         return _aabb;
@@ -717,7 +717,7 @@ SLAABBox& SLNode::updateAABBRec()
 /*!
 prints the node name with the names of the meshes recursively
 */
-void SLNode::dumpRec()
+void SLSceneNode::dumpRec()
 {
     // dump node
     for (SLint i = 0; i < _depth; ++i) cout << "   ";
@@ -744,7 +744,7 @@ void SLNode::dumpRec()
 recursively sets the specified drawbit on or off.
 See also SLDrawBits.
 */
-void SLNode::setDrawBitsRec(SLuint bit, SLbool state)
+void SLSceneNode::setDrawBitsRec(SLuint bit, SLbool state)
 {
     _drawBits.set(bit, state);
     for (SLint i=0; i<_children.size(); ++i)
@@ -762,7 +762,7 @@ sets the position of this node to pos in 'relativeTo' space.
 @note using TS_Local for this function yields the same result as calling
 translate(pos, TS_Local)
 */
-void SLNode::position(const SLVec3f& pos, SLTransformSpace relativeTo)
+void SLSceneNode::position(const SLVec3f& pos, SLTransformSpace relativeTo)
 {
     if (relativeTo == TS_World && _parent)
     {   // transform position to local space
@@ -780,7 +780,7 @@ sets the rotation of this node. The axis parameter
 will be transformed into 'relativeTo' space. So an passing in an axis
 of (0, 1, 0) with TS_Local will rotate the node around its own up axis.
 */
-void SLNode::rotation(SLfloat angleDeg, const SLVec3f& axis, 
+void SLSceneNode::rotation(SLfloat angleDeg, const SLVec3f& axis,
                       SLTransformSpace relativeTo)
 {    
     if (_parent && relativeTo == TS_World)
@@ -813,7 +813,7 @@ scales this.
 @note this modifier doesn't allow for different transform spaces, so there 
 isn't the possiblity for shearing an object currently.
 */         
-void SLNode::scale(const SLVec3f& scale)
+void SLSceneNode::scale(const SLVec3f& scale)
 {
     _om.scale(scale);
     needUpdate();
@@ -823,7 +823,7 @@ void SLNode::scale(const SLVec3f& scale)
 /*!
 Moves the node by the vector 'delta' relative to the space expressed by 'relativeTo'.
 */
-void SLNode::translate(const SLVec3f& delta, SLTransformSpace relativeTo)
+void SLSceneNode::translate(const SLVec3f& delta, SLTransformSpace relativeTo)
 {
     switch (relativeTo)
     {
@@ -851,7 +851,7 @@ void SLNode::translate(const SLVec3f& delta, SLTransformSpace relativeTo)
 /*!
 Rotates the node around its local origin relative to the space expressed by 'relativeTo'.
 */
-void SLNode::rotate(SLfloat angleDeg, const SLVec3f& axis, 
+void SLSceneNode::rotate(SLfloat angleDeg, const SLVec3f& axis,
                     SLTransformSpace relativeTo)
 {
     if (relativeTo == TS_Local)
@@ -883,7 +883,7 @@ void SLNode::rotate(SLfloat angleDeg, const SLVec3f& axis,
 /*!
 Rotates the node around its local origin relative to the space expressed by 'relativeTo'.
 */
-void SLNode::rotate(const SLQuat4f& rot, SLTransformSpace relativeTo)
+void SLSceneNode::rotate(const SLQuat4f& rot, SLTransformSpace relativeTo)
 {
     SLMat4f rotation = rot.toMat4(); 
 
@@ -918,7 +918,7 @@ void SLNode::rotate(const SLQuat4f& rot, SLTransformSpace relativeTo)
 Rotates the node around an arbitrary point. The 'axis' and 'point' parameter
 are relative to the space described by 'relativeTo'. 
 */
-void SLNode::rotateAround(const SLVec3f& point, SLVec3f& axis, 
+void SLSceneNode::rotateAround(const SLVec3f& point, SLVec3f& axis,
                           SLfloat angleDeg, SLTransformSpace relativeTo)
 {
     SLVec3f localPoint = point;
@@ -948,7 +948,7 @@ Rotates the object so that it's forward vector is pointing towards the 'target'
 point. Default forward is -Z. The 'relativeTo' parameter defines in what space
 the 'target' parameter is to be interpreted in. 
 */
-void SLNode::lookAt(const SLVec3f& target, const SLVec3f& up, 
+void SLSceneNode::lookAt(const SLVec3f& target, const SLVec3f& up,
                     SLTransformSpace relativeTo)
 {
     SLVec3f pos = position();
@@ -994,7 +994,7 @@ void SLNode::lookAt(const SLVec3f& target, const SLVec3f& up,
 Scales and translates the node so that its largest
 dimension is maxDim and the center is in [0,0,0].
 */
-void SLNode::scaleToCenter(SLfloat maxDim)
+void SLSceneNode::scaleToCenter(SLfloat maxDim)
 {  
     _aabb = updateAABBRec();
     SLVec3f size(_aabb.maxWS()-_aabb.minWS());
@@ -1010,7 +1010,7 @@ void SLNode::scaleToCenter(SLfloat maxDim)
 Saves the current position as the initial state
 */
 
-void SLNode::setInitialState()
+void SLSceneNode::setInitialState()
 {
     _initialOM = _om;
 }
@@ -1018,7 +1018,7 @@ void SLNode::setInitialState()
 /*! 
 sesets this object to its initial state
 */
-void SLNode::resetToInitialState()
+void SLSceneNode::resetToInitialState()
 {
     _om = _initialOM;
     needUpdate();

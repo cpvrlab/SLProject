@@ -26,7 +26,7 @@
 SLMaterial*   loadMaterial(SLint index, aiMaterial* material, SLstring modelPath);
 SLGLTexture*  loadTexture(SLstring &path, SLTexType texType);
 SLMesh*       loadMesh(aiMesh *mesh);
-SLNode*       loadNodesRec(SLNode *curNode, aiNode *aiNode, SLMeshMap& meshes, SLbool loadMeshesOnly = true);
+SLSceneNode*       loadNodesRec(SLSceneNode *curNode, aiNode *aiNode, SLMeshMap& meshes, SLbool loadMeshesOnly = true);
 SLstring      checkFilePath(SLstring modelPath, SLstring texFile);
 SLbool        aiNodeHasMesh(aiNode* node);
 
@@ -38,7 +38,7 @@ SLstring SLAssImp::defaultPath = "../_data/models/";
 meshes and the nodes for the scene graph. Materials, textures and meshes are
 added to the according vectors of SLScene for later deallocation.
 */
-SLNode* SLAssImp::load(SLstring file,        //!< File with path or on default path 
+SLSceneNode* SLAssImp::load(SLstring file,        //!< File with path or on default path 
                        SLbool loadMeshesOnly,//!< Only load nodes with meshes
                        SLuint flags)         //!< Import flags (see assimp/postprocess.h)
 {
@@ -82,7 +82,7 @@ SLNode* SLAssImp::load(SLstring file,        //!< File with path or on default p
     }
 
     // load the scene nodes recursively
-    SLNode* root = loadNodesRec(NULL, scene->mRootNode, meshMap, loadMeshesOnly);
+    SLSceneNode* root = loadNodesRec(NULL, scene->mRootNode, meshMap, loadMeshesOnly);
 
     return root;
 }
@@ -268,15 +268,15 @@ SLMesh* loadMesh(aiMesh *mesh)
 /*!
 SLAssImp::loadNodesRec loads the scene graph node tree recursively.
 */
-SLNode* loadNodesRec(
-   SLNode *curNode,     //!< Pointer to the current node. Pass NULL for root node
+SLSceneNode* loadNodesRec(
+   SLSceneNode *curNode,     //!< Pointer to the current node. Pass NULL for root node
    aiNode *node,        //!< The according assimp node. Pass NULL for root node
    SLMeshMap& meshes,   //!< Reference to the meshes vector
    SLbool loadMeshesOnly) //!< Only load nodes with meshes
 {
     // we're at the root
     if(!curNode) 
-        curNode = new SLNode(node->mName.data);
+        curNode = new SLSceneNode(node->mName.data);
     
     // load local transform
    aiMatrix4x4* M = &node->mTransformation;
@@ -300,7 +300,7 @@ SLNode* loadNodesRec(
     {  
         // only load children nodes with meshes or children
         if (!loadMeshesOnly || aiNodeHasMesh(node->mChildren[i]))
-        {   SLNode *child = new SLNode(node->mChildren[i]->mName.data);
+        {   SLSceneNode *child = new SLSceneNode(node->mChildren[i]->mName.data);
             curNode->addChild(child);
             loadNodesRec(child, node->mChildren[i], meshes);
         }

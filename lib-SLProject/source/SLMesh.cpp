@@ -13,7 +13,7 @@
 #include <debug_new.h>        // memory leak detector
 #endif
 
-#include <SLNode.h>
+#include <SLSceneNode.h>
 #include <SLMesh.h>
 #include <SLRay.h>
 #include <SLRaytracer.h>
@@ -89,7 +89,7 @@ void SLMesh::deleteData()
 }
 //-----------------------------------------------------------------------------
 //! SLMesh::shapeInit sets the transparency flag of the AABB
-void SLMesh::init(SLNode* node)
+void SLMesh::init(SLSceneNode* node)
 {   
     if (P && N)
     {  
@@ -111,7 +111,7 @@ GL_LINES primitives are rendered with the vertex position array P,
 the normal array N, the array Tc and the index array I16 or I32. 
 Optionally you can draw the normals and/or the uniform grid voxels.
 */
-void SLMesh::draw(SLSceneView* sv, SLNode* node)
+void SLMesh::draw(SLSceneView* sv, SLSceneNode* node)
 {  
     if (P)
     {     
@@ -299,7 +299,7 @@ void SLMesh::draw(SLSceneView* sv, SLNode* node)
 SLMesh::hit does the ray-mesh intersection test. If no acceleration 
 structure is defined all triangles are tested in a brute force manner.
 */
-SLbool SLMesh::hit(SLRay* ray, SLNode* node)
+SLbool SLMesh::hit(SLRay* ray, SLSceneNode* node)
 {  
     if (_primitive != SL_TRIANGLES)
         return false;
@@ -657,7 +657,7 @@ SLMesh::hitTriangleOS is the fast and minimum storage ray-triangle
 intersection test by Tomas Moeller and Ben Trumbore (Journal of graphics
 tools 2, 1997).
 */
-SLbool SLMesh::hitTriangleOS(SLRay* ray, SLNode* node, SLuint iT)
+SLbool SLMesh::hitTriangleOS(SLRay* ray, SLSceneNode* node, SLuint iT)
 {
     #if _DEBUG
     ++SLRay::tests;

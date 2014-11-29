@@ -1,5 +1,5 @@
 //#############################################################################
-//  File:      SLNode.h
+//  File:      SLSceneNode.h
 //  Author:    Marc Wacker, Marcus Hudritsch
 //  Date:      July 2014
 //  Codestyle: https://github.com/cpvrlab/SLProject/wiki/Coding-Style-Guidelines
@@ -14,19 +14,19 @@
 #include <stdafx.h>
 #include <SLEnums.h>
 #include <SLMesh.h>
-#include <SLNode.h>
+#include <SLSceneNode.h>
 #include <SLDrawBits.h>
 #include <SLEventHandler.h>
 
 class SLSceneView;
 class SLRay;
 class SLAABBox;
-class SLNode;
+class SLSceneNode;
 class SLAnimation;
 
 //-----------------------------------------------------------------------------
 //! SLVNode typdef for a vector of SLNodes
-typedef std::vector<SLNode*>  SLVNode;
+typedef std::vector<SLSceneNode*>  SLVSceneNode;
 //-----------------------------------------------------------------------------
 //! Struct for scene graph statistics
 /*! The SLNodeStats struct holds some statistics that are set in the recursive
@@ -88,9 +88,9 @@ struct SLNodeStats
     }
 };
 //-----------------------------------------------------------------------------
-//! SLNode represents a node in a hierarchical scene graph.
+//! SLSceneNode represents a node in a hierarchical scene graph.
 /*!
-SLNode is the most important building block of the scene graph.
+SLSceneNode is the most important building block of the scene graph.
 
 A node can have 0-N children nodes in the vector _children. 
 With child nodes you can build hierarchical structures. A node without meshes 
@@ -128,15 +128,15 @@ sources in the scene.
 Cameras and lights can be placed in the scene because of their inheritance of 
 SLNode.
 */
-class SLNode: public SLObject, public SLEventHandler
+class SLSceneNode: public SLObject, public SLEventHandler
 {
     friend class SLSceneView;
 
     public:
-                            SLNode              (SLstring name="Node");
-                            SLNode              (SLMesh* mesh, SLstring name="Node");
-                            SLNode              (const SLNode& node);
-    virtual                ~SLNode              ();
+                            SLSceneNode         (SLstring name="Node");
+                            SLSceneNode         (SLMesh* mesh, SLstring name="Node");
+                            SLSceneNode         (const SLSceneNode& node);
+    virtual                ~SLSceneNode         ();
          
             // Recursive scene traversal methods (see impl. for details)
     virtual void            cullRec             (SLSceneView* sv);
@@ -144,7 +144,7 @@ class SLNode: public SLObject, public SLEventHandler
     virtual bool            hitRec              (SLRay* ray);
     virtual void            statsRec            (SLNodeStats &stats);
     virtual SLbool          animateRec          (SLfloat timeMS);
-    virtual SLNode*         copyRec             ();
+    virtual SLSceneNode*    copyRec             ();
     virtual SLAABBox&       updateAABBRec       ();
     virtual void            dumpRec             ();
             void            setDrawBitsRec      (SLuint bit, SLbool state);
@@ -163,11 +163,11 @@ class SLNode: public SLObject, public SLEventHandler
                
             // Children methods (see impl. for details)
             SLint           numChildren         () {return (SLint)_children.size();}
-            void            addChild            (SLNode* child);
-            bool            insertChild         (SLNode* insertC, SLNode* afterC);
+            void            addChild            (SLSceneNode* child);
+            bool            insertChild         (SLSceneNode* insertC, SLSceneNode* afterC);
             void            deleteChildren      ();
             bool            deleteChild         ();
-            bool            deleteChild         (SLNode* child);
+            bool            deleteChild         (SLSceneNode* child);
             bool            deleteChild         (const SLstring name);
             template<typename T>
             T*              findChild           (const SLstring &name = "", 
@@ -175,7 +175,7 @@ class SLNode: public SLObject, public SLEventHandler
             template<typename T>
             vector<T*>      findChildren        (const SLstring& name = "",
                                                  SLbool findRecursive = true);
-            vector<SLNode*> findChildren        (const SLMesh* mesh,
+            vector<SLSceneNode*> findChildren        (const SLMesh* mesh,
                                                  SLbool findRecursive = true);
             
             // local direction getter functions
@@ -226,7 +226,7 @@ class SLNode: public SLObject, public SLEventHandler
             void            resetToInitialState ();
 
             // Setters (see members)
-            void            parent              (SLNode* p);
+            void            parent              (SLSceneNode* p);
             void            om                  (const SLMat4f& mat) {_om = mat; needUpdate();}
             void            animation           (SLAnimation* a)  {_animation = a;}
             void            needUpdate          ();
@@ -234,7 +234,7 @@ class SLNode: public SLObject, public SLEventHandler
             void            needAABBUpdate      ();
                
             // Getters (see member)
-            SLNode*         parent              () {return _parent;}
+            SLSceneNode*         parent              () {return _parent;}
             SLint           depth               () {return _depth;}
       const SLMat4f&        om                  () {return _om;}
       const SLMat4f&        updateAndGetWM      () const;
@@ -245,7 +245,7 @@ class SLNode: public SLObject, public SLEventHandler
             SLAABBox*       aabb                () {return &_aabb;}
             SLAnimation*    animation           () {return _animation;}
             SLVMesh&        meshes              () {return _meshes;}
-            SLVNode&        children            () {return _children;}
+            SLVSceneNode&   children            () {return _children;}
 
     private:
             void            updateWM            () const;   
@@ -254,13 +254,13 @@ class SLNode: public SLObject, public SLEventHandler
                                                  vector<T*>& list, 
                                                  SLbool findRecursive);
             void            findChildrenHelper  (const SLMesh* mesh, 
-                                                 vector<SLNode*>& list, 
+                                                 vector<SLSceneNode*>& list, 
                                                  SLbool findRecursive);
 
     protected:
             SLGLState*   _stateGL;          //!< pointer to the global SLGLState instance
-            SLNode*      _parent;           //!< pointer to the parent node
-            SLVNode      _children;         //!< vector of children nodes
+            SLSceneNode* _parent;           //!< pointer to the parent node
+            SLVSceneNode _children;         //!< vector of children nodes
             SLVMesh      _meshes;           //!< vector of meshes of the node
             SLint        _depth;            //!< depth of the node in a scene tree
             SLMat4f      _om;               //!< object matrix for local transforms
@@ -285,11 +285,11 @@ SLNode::findChild<T> finds the first child that is of type T or a subclass of T.
 @todo Add regex functionality to the name search
 */
 template<typename T>
-T* SLNode::findChild(const SLstring &name, SLbool findRecursive)
+T* SLSceneNode::findChild(const SLstring &name, SLbool findRecursive)
 {   
     for (SLint i = 0; i < _children.size(); ++i)
     {
-        SLNode* node = _children[i];
+        SLSceneNode* node = _children[i];
         T* found = dynamic_cast<T*>(node);
         if (found && (name.size() == 0 || name == node->name()))
             return found;
@@ -314,7 +314,7 @@ subclasses of T. If a name is specified only nodes with that name are included.
 @todo Add regex functionality to the name search
 */
 template<typename T>
-vector<T*> SLNode::findChildren(const SLstring& name, SLbool findRecursive)
+vector<T*> SLSceneNode::findChildren(const SLstring& name, SLbool findRecursive)
 {
     vector<T*> list;
     findChildrenHelper<T>(name, list, findRecursive);
@@ -328,12 +328,12 @@ all newly found children to 'list'.
 @todo Add regex functionality to the name search
 */
 template<typename T>
-void SLNode::findChildrenHelper(const SLstring& name, vector<T*>& list, 
+void SLSceneNode::findChildrenHelper(const SLstring& name, vector<T*>& list, 
                                 SLbool findRecursive)
 {
     for (SLint i = 0; i < _children.size(); ++i)
     {
-        SLNode* node = _children[i];
+        SLSceneNode* node = _children[i];
         T* found = dynamic_cast<T*>(node);
         if (found && (name.size() == 0 || name == node->name()))
             list.push_back(found);
@@ -354,7 +354,7 @@ void SLNode::findChildrenHelper(const SLstring& name, vector<T*>& list,
 SLNode::position returns current local position
 @todo Save current position to be able to return a const reference here.
 */
-SL_INLINE SLVec3f SLNode::position() const
+SL_INLINE SLVec3f SLSceneNode::position() const
 {
     return _om.translation();
 }
@@ -364,7 +364,7 @@ SL_INLINE SLVec3f SLNode::position() const
 SLNode::forward returns local forward vector
 @todo Save current forward to be able to return a const reference here
 */
-SL_INLINE SLVec3f SLNode::forward() const
+SL_INLINE SLVec3f SLSceneNode::forward() const
 {
     return SLVec3f(-_om.m(8), -_om.m(9), -_om.m(10));
 }
@@ -373,7 +373,7 @@ SL_INLINE SLVec3f SLNode::forward() const
 SLNode::right returns local right vector
 @todo Save current right to be able to return a const reference here
 */
-SL_INLINE SLVec3f SLNode::right() const
+SL_INLINE SLVec3f SLSceneNode::right() const
 {
     return SLVec3f(_om.m(0), _om.m(1), _om.m(2));
 }
@@ -382,41 +382,41 @@ SL_INLINE SLVec3f SLNode::right() const
 SLNode::up returns local up vector
 @todo Save current up to be able to return a const reference here
 */
-SL_INLINE SLVec3f SLNode::up() const
+SL_INLINE SLVec3f SLSceneNode::up() const
 {
     return SLVec3f(_om.m(4), _om.m(5), _om.m(6));
 }
 //-----------------------------------------------------------------------------
-SL_INLINE void SLNode::position(SLfloat x, SLfloat y, SLfloat z, 
+SL_INLINE void SLSceneNode::position(SLfloat x, SLfloat y, SLfloat z, 
                                 SLTransformSpace relativeTo) 
 {
     position(SLVec3f(x, y, z), relativeTo);
 } 
 //-----------------------------------------------------------------------------
-SL_INLINE void SLNode::scale(SLfloat s)
+SL_INLINE void SLSceneNode::scale(SLfloat s)
 { 
     scale(SLVec3f(s, s, s));
 }
 
-SL_INLINE void SLNode::scale(SLfloat x, SLfloat y, SLfloat z)   
+SL_INLINE void SLSceneNode::scale(SLfloat x, SLfloat y, SLfloat z)   
 { 
     scale(SLVec3f(x, y, z)); 
 }
 //-----------------------------------------------------------------------------
-SL_INLINE void SLNode::translate(SLfloat x, SLfloat y, SLfloat z, 
+SL_INLINE void SLSceneNode::translate(SLfloat x, SLfloat y, SLfloat z, 
                                  SLTransformSpace relativeTo) 
 { 
     SLVec3f delta(x, y, z);
     translate(delta, relativeTo); 
 }
 //-----------------------------------------------------------------------------
-SL_INLINE void SLNode::rotate(SLfloat angleDeg, SLfloat x, SLfloat y, SLfloat z,
+SL_INLINE void SLSceneNode::rotate(SLfloat angleDeg, SLfloat x, SLfloat y, SLfloat z,
                               SLTransformSpace relativeTo) 
 { 
     rotate(angleDeg, SLVec3f(x, y, z), relativeTo); 
 }
 //-----------------------------------------------------------------------------
-SL_INLINE void SLNode::lookAt(SLfloat targetX, SLfloat targetY, SLfloat targetZ, 
+SL_INLINE void SLSceneNode::lookAt(SLfloat targetX, SLfloat targetY, SLfloat targetZ, 
                               SLfloat upX, SLfloat upY, SLfloat upZ,
                               SLTransformSpace relativeTo)
 { 
