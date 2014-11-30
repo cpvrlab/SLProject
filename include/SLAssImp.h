@@ -9,7 +9,7 @@
 //#############################################################################
 
 #include <stdafx.h>
-#include <SLSceneNode.h>
+#include <SLNode.h>
 #include <SLGLTexture.h>
 
 #ifndef SLASSIMP_H
@@ -56,7 +56,7 @@ supported file formats and the import processing options.
 class SLAssImp
 {  
    public:
-      static SLSceneNode*       load           (SLstring pathFilename,
+      static SLNode*       load           (SLstring pathFilename,
                                            SLbool loadMeshesOnly = true,
                                            SLuint flags = 
                                              SLProcess_Triangulate

@@ -25,7 +25,7 @@ extern SLfloat rnd01();
 
 //-----------------------------------------------------------------------------
 SLLightRect::SLLightRect(SLfloat w, SLfloat h, SLbool hasMesh) :
-              SLSceneNode("LightRect")
+              SLNode("LightRect")
 {  
     width(w);
     height(h);
@@ -93,7 +93,7 @@ void SLLightRect::drawRec(SLSceneView* sv)
                 _meshes[0]->mat->emission(_on ? diffuse() : SLCol4f::BLACK);   
    
         // now draw the inherited object
-        SLSceneNode::drawRec(sv);
+        SLNode::drawRec(sv);
     }
 }
 //-----------------------------------------------------------------------------
@@ -109,14 +109,14 @@ SLbool SLLightRect::hitRec(SLRay* ray)
     if (ray->type!=PRIMARY) return false;
    
     // call the intersection routine of the node   
-    return SLSceneNode::hitRec(ray);
+    return SLNode::hitRec(ray);
 }
 //-----------------------------------------------------------------------------
 //! SLLightSphere::statsRec updates the statistic parameters
 void SLLightRect::statsRec(SLNodeStats &stats)
 {  
     stats.numBytes += sizeof(SLLightRect);
-    SLSceneNode::statsRec(stats);
+    SLNode::statsRec(stats);
 }
 //-----------------------------------------------------------------------------
 /*!
@@ -138,7 +138,7 @@ void SLLightRect::drawMeshes(SLSceneView* sv)
         }
    
         // now draw the inherited meshes
-        SLSceneNode::drawMeshes(sv);
+        SLNode::drawMeshes(sv);
     }
 }
 //-----------------------------------------------------------------------------

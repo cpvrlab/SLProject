@@ -12,7 +12,7 @@
 #include <SLInterface.h>
 #include <SLScene.h>
 #include <SLSceneView.h>
-#include <SLSceneNode.h>
+#include <SLNode.h>
 
 #include <qtGLWidget.h>
 #include <QApplication>

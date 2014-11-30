@@ -90,6 +90,7 @@ HEADERS += \
     ../include/SLLightSphere.h \
     ../include/SLMaterial.h \
     ../include/SLMesh.h \
+    ../include/SLNode.h \
     ../include/SLPolygon.h \
     ../include/SLRay.h \
     ../include/SLRaytracer.h \
@@ -105,9 +106,7 @@ HEADERS += \
     ../include/SLGLOculus.h \
     ../include/SLGLProgram.h \
     ../include/SLGLUniform.h \
-    ../include/SLGLGenericProgram.h \
-    ../include/SLSceneNode.h \
-    ../include/SLNode.h
+    ../include/SLGLGenericProgram.h
 
 SOURCES += \
     source/SLGLBuffer.cpp \
@@ -138,6 +137,7 @@ SOURCES += \
     source/SLLightSphere.cpp \
     source/SLMaterial.cpp \
     source/SLMesh.cpp \
+    source/SLNode.cpp \
     source/SLRay.cpp \
     source/SLRaytracer.cpp \
     source/SLPathtracer.cpp \
@@ -152,8 +152,6 @@ SOURCES += \
     source/SLPolygon.cpp \
     source/SLGrid.cpp \
     source/SLGLOculus.cpp \
-    source/SLSceneNode.cpp \
-    source/SLNode.cpp
 
 OTHER_FILES += \
     source/oglsl/BumpNormal.frag \

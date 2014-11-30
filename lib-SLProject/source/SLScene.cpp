@@ -347,7 +347,7 @@ SLText* SLScene::info(SLSceneView* sv)
 }
 //-----------------------------------------------------------------------------
 //! Sets the _selectedNode to the passed Node and flags it as selected
-void SLScene::selectNode(SLSceneNode* nodeToSelect)
+void SLScene::selectNode(SLNode* nodeToSelect)
 {
     if (_selectedNode)
         _selectedNode->drawBits()->off(SL_DB_SELECTED);
@@ -363,7 +363,7 @@ void SLScene::selectNode(SLSceneNode* nodeToSelect)
 }
 //-----------------------------------------------------------------------------
 //! Sets the _selectedNode and _selectedMesh and flags it as selected
-void SLScene::selectNodeMesh(SLSceneNode* nodeToSelect, SLMesh* meshToSelect)
+void SLScene::selectNodeMesh(SLNode* nodeToSelect, SLMesh* meshToSelect)
 {
     if (_selectedNode)
         _selectedNode->drawBits()->off(SL_DB_SELECTED);

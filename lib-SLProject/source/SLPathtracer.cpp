@@ -25,7 +25,7 @@ using namespace std::chrono;
 #include <SLLightRect.h>
 #include <SLLight.h>
 #include <SLVolume.h>
-#include <SLSceneNode.h>
+#include <SLNode.h>
 #include <SLText.h>
 #include <SLMesh.h>
 #include <SLGLTexture.h>

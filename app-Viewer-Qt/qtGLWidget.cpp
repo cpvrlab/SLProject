@@ -12,7 +12,7 @@
 #include <SLInterface.h>
 #include <SLScene.h>
 #include <SLSceneView.h>
-#include <SLSceneNode.h>
+#include <SLNode.h>
 
 #include <qtGLWidget.h>
 #include <QMainWindow>
@@ -38,7 +38,7 @@ void onUpdateWidget()
 /*!
 C-Function callback for node and mesh selection from within the SL framework
 */
-void onSelectNodeMesh(SLSceneNode* selectedNode, SLMesh* selectedMesh)
+void onSelectNodeMesh(SLNode* selectedNode, SLMesh* selectedMesh)
 {
     qtGLWidget::mainWindow->selectNodeOrMeshItem(selectedNode, selectedMesh);
 }

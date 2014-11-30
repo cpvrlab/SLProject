@@ -408,13 +408,13 @@ SLbool SLSceneView::onPaint()
 
 //-----------------------------------------------------------------------------
 //! CompareNodeViewDist C-function declaration to avoid XCode warning
-SLbool CompareNodeViewDist(SLSceneNode* a, SLSceneNode* b); 
+SLbool CompareNodeViewDist(SLNode* a, SLNode* b); 
 //-----------------------------------------------------------------------------
 /*! 
 CompareNodeViewDist C-function serves as the sort comparison function for the 
 blend sorting.
 */
-SLbool CompareNodeViewDist(SLSceneNode* a, SLSceneNode* b)
+SLbool CompareNodeViewDist(SLNode* a, SLNode* b)
 {   if (!a) return false;
     if (!b) return true;
     return a->aabb()->sqrViewDist() > b->aabb()->sqrViewDist();
@@ -595,7 +595,7 @@ Red   : AABB of nodes with meshes
 Pink  : AABB of nodes without meshes (only child nodes)
 Yellow: AABB of selected node 
 */
-void SLSceneView::draw3DGLLines(SLVSceneNode &nodes)
+void SLSceneView::draw3DGLLines(SLVNode &nodes)
 {  
     // draw the opaque shapes directly w. their wm transform
     for(SLuint i=0; i<nodes.size(); ++i)
@@ -624,8 +624,8 @@ void SLSceneView::draw3DGLLines(SLVSceneNode &nodes)
                 nodes[i]->aabb()->drawAxisWS();
 
                 // Draw the animation curve
-                //if (nodes[i]->animation())
-                //    nodes[i]->animation()->drawWS();
+                if (nodes[i]->animation())
+                    nodes[i]->animation()->drawWS();
             }
         }
     }
@@ -637,7 +637,7 @@ void SLSceneView::draw3DGLLines(SLVSceneNode &nodes)
 SLSceneView::draw3DGLNodes draws the nodes meshes from the passed node vector
 directly with their world coordinates after the view transform.
 */
-void SLSceneView::draw3DGLNodes(SLVSceneNode &nodes)
+void SLSceneView::draw3DGLNodes(SLVNode &nodes)
 {  
     // draw the shapes directly with their wm transform
     for(SLuint i=0; i<nodes.size(); ++i)
@@ -1247,7 +1247,7 @@ commands are collected and dispatched here.
 SLbool SLSceneView::onCommand(const SLCmd cmd)
 {
     SLScene* s = SLScene::current;
-    SLSceneNode* root3D = s->root3D();
+    SLNode* root3D = s->root3D();
 
     switch(cmd)
     {

@@ -3,7 +3,7 @@
 #define TEADSADASD
 
 #include <stdafx.h>
-#include "SLSceneNode.h"
+#include "SLNode.h"
 
 //
 ///** Interface for important node functions that need to be added with the update 
@@ -114,11 +114,11 @@
 
 
 /** A completely reworked SLNode class (still inheriting SLNode to test it in the normal scene graph) */
-class NewNodeTRS : public SLSceneNode
+class NewNodeTRS : public SLNode
 {
 public:
 	NewNodeTRS(const SLstring& name = "NodeTRS")
-        : SLSceneNode(name), _position(0, 0, 0), _scale(1, 1, 1)
+        : SLNode(name), _position(0, 0, 0), _scale(1, 1, 1)
 	{     
     }
 

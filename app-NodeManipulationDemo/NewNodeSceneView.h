@@ -50,11 +50,11 @@ public:
 
     SLMat4f             _curOrigin; //!< current origin of relative space (orientation and position of axes)
 
-    SLSceneNode*             _moveBox;
-    SLSceneNode*             _moveBoxChild;
+    SLNode*             _moveBox;
+    SLNode*             _moveBoxChild;
     SLVec3f             _pivotPos;
 
-    SLSceneNode*             _axesMesh;
+    SLNode*             _axesMesh;
 
     SLText*             _infoText;
 
@@ -64,6 +64,6 @@ public:
     SLfloat             _deltaTime;
 
     SLuint              _curMode;
-    SLSceneNode*             _curObject;
+    SLNode*             _curObject;
     SLTransformSpace    _curSpace;
 };

@@ -25,7 +25,7 @@ SLProjection SLCamera::currentProjection   = monoPerspective;
 SLfloat      SLCamera::currentFOV          = 45.0f;
 SLint        SLCamera::currentDevRotation  = 0;
 //-----------------------------------------------------------------------------
-SLCamera::SLCamera() : SLSceneNode("Camera"), _maxSpeed(0, 0, 0), _curSpeed(0, 0, 0)
+SLCamera::SLCamera() : SLNode("Camera"), _maxSpeed(0, 0, 0), _curSpeed(0, 0, 0)
 {  
     _fovInit      = 0;
     _clipNear     = 0.1f;
@@ -217,7 +217,7 @@ void SLCamera::statsRec(SLNodeStats &stats)
 {  
     stats.numTriangles += 12;
     stats.numBytes += sizeof(SLCamera);
-    SLSceneNode::statsRec(stats);
+    SLNode::statsRec(stats);
 }
 //-----------------------------------------------------------------------------
 /*!

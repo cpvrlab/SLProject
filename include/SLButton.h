@@ -12,7 +12,7 @@
 #define SLBUTTON_H
 
 #include <stdafx.h>
-#include <SLSceneNode.h>
+#include <SLNode.h>
 #include <SLTexFont.h>
 #include <SLText.h>
 #include <SLSceneView.h>
@@ -31,7 +31,7 @@ The button tree is created in SLSceneView::build2DMenus and attached to
 SLScene._menu2D. Opening, closing & command execution is handled in
 onMouseDown and onMouseUp.
 */  
-class SLButton: public SLSceneNode
+class SLButton: public SLNode
 {  public:                 
                         SLButton(SLSceneView* sv,
                                 SLstring     text,

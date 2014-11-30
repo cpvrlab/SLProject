@@ -11,7 +11,7 @@
 #ifndef QTPROPERTYTREEITEM_H
 #define QTPROPERTYTREEITEM_H
 
-#include "../include/SLSceneNode.h"
+#include "../include/SLNode.h"
 #include <QTreeWidget>
 #include <QTreeWidgetItem>
 //----------------------------------------------------------------------------

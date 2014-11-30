@@ -106,7 +106,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd cmd)
 
     SLMaterial* mat = new SLMaterial("floorMat", SLCol4f::GRAY, SLCol4f::GRAY);
 
-    SLSceneNode* scene = new SLSceneNode;
+    SLNode* scene = new SLNode;
     scene->addChild(light1);
         
     
@@ -130,13 +130,13 @@ void NewNodeSceneView::postSceneLoad()
     SLMaterial* boxMat = new SLMaterial("boxMat", SLCol4f(1, 1, 1), SLCol4f(1, 1, 1));
     SLMaterial* boxChildMat = new SLMaterial("boxMat", SLCol4f(0.8f, 0.8f, 0.8f), SLCol4f(1, 1, 1));
 
-    _moveBox = new SLSceneNode("Parent");
+    _moveBox = new SLNode("Parent");
     _moveBox->position(0, 0, 2);
     _moveBox->rotation(0, SLVec3f(0, 0, 0));
     _moveBox->addMesh(new SLBox(-0.25f, -0.25f, -0.25f, 0.25f, 0.25f, 0.25f, "Box", boxMat));
     _moveBox->setInitialState();
     
-    _moveBoxChild = new SLSceneNode("Child");
+    _moveBoxChild = new SLNode("Child");
     _moveBoxChild->position(0, 1, 0);
     _moveBoxChild->rotation(0, SLVec3f(0, 0, 0));
     _moveBoxChild->setInitialState();
