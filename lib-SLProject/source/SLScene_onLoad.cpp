@@ -153,11 +153,11 @@ SLSceneNode* BuildFigureGroup(SLMaterial* mat)
 
     // Add animations for left leg
     legLeft = figure->findChild<SLSceneNode>("left leg group");
-    legLeft->animation(new SLAnimation(2, 60, SLVec3f(1,0,0), pingPongLoop));
+    //legLeft->animation(new SLAnimation(2, 60, SLVec3f(1,0,0), pingPongLoop));
     SLSceneNode* legLowLeft = legLeft->findChild<SLSceneNode>("leglow group");
-    legLowLeft->animation(new SLAnimation(2, 40, SLVec3f(1,0,0), pingPongLoop));
+    //legLowLeft->animation(new SLAnimation(2, 40, SLVec3f(1,0,0), pingPongLoop));
     SLSceneNode* feetLeft = legLeft->findChild<SLSceneNode>("feet group");
-    feetLeft->animation(new SLAnimation(2, 40, SLVec3f(1,0,0), pingPongLoop));
+    //feetLeft->animation(new SLAnimation(2, 40, SLVec3f(1,0,0), pingPongLoop));
     legRight = figure->findChild<SLSceneNode>("right leg group");
     legRight->rotate(70, 1,0,0);
 
@@ -216,7 +216,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
         SLLightSphere* light1 = new SLLightSphere(0.3f);
         light1->name("light1");
         light1->position(0,0,5);
-        light1->animation(new SLAnimation(2, 4, XAxis, 4, YAxis, loop));
+        //light1->animation(new SLAnimation(2, 4, XAxis, 4, YAxis, loop));
 
         // Create ground grid
         SLMaterial* m2 = new SLMaterial(SLCol4f::WHITE);
@@ -253,19 +253,19 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
         // Bouncing balls
         SLSceneNode* ball1 = new SLSceneNode(new SLSphere(0.3f, 16, 16, "Ball1", m2));
         ball1->translate(0,0,4);
-        ball1->animation(new SLAnimation(1, SLVec3f(0,-5.2f,0), pingPongLoop, linear));
+        //ball1->animation(new SLAnimation(1, SLVec3f(0,-5.2f,0), pingPongLoop, linear));
         SLSceneNode* ball2 = new SLSceneNode(new SLSphere(0.3f, 16, 16, "Ball2", m2));
         ball2->translate(-1.5f,0,4);
-        ball2->animation(new SLAnimation(1, SLVec3f(0,-5.2f,0), pingPongLoop, inQuad));
+        //ball2->animation(new SLAnimation(1, SLVec3f(0,-5.2f,0), pingPongLoop, inQuad));
         SLSceneNode* ball3 = new SLSceneNode(new SLSphere(0.3f, 16, 16, "Ball3", m2));
         ball3->translate(-2.5f,0,4);
-        ball3->animation(new SLAnimation(1, SLVec3f(0,-5.2f,0), pingPongLoop, outQuad));
+        //ball3->animation(new SLAnimation(1, SLVec3f(0,-5.2f,0), pingPongLoop, outQuad));
         SLSceneNode* ball4 = new SLSceneNode(new SLSphere(0.3f, 16, 16, "Ball4", m2));
         ball4->translate( 1.5f,0,4);
-        ball4->animation(new SLAnimation(1, SLVec3f(0,-5.2f,0), pingPongLoop, inOutQuad));
+        //ball4->animation(new SLAnimation(1, SLVec3f(0,-5.2f,0), pingPongLoop, inOutQuad));
         SLSceneNode* ball5 = new SLSceneNode(new SLSphere(0.3f, 16, 16, "Ball5", m2));
         ball5->translate( 2.5f,0,4);
-        ball5->animation(new SLAnimation(1, SLVec3f(0,-5.2f,0), pingPongLoop, outInQuad));
+        //ball5->animation(new SLAnimation(1, SLVec3f(0,-5.2f,0), pingPongLoop, outInQuad));
 
         SLCamera* cam1 = new SLCamera();
         cam1->position(0, 0, 22);
@@ -283,7 +283,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
         light1->diffuse (SLCol4f(0.9f,0.9f,0.9f));
         light1->specular(SLCol4f(0.9f,0.9f,0.9f));
         light1->attenuation(1,0,0);
-        light1->animation(new SLAnimation(4, 6, ZAxis, 6, XAxis, loop));
+        //light1->animation(new SLAnimation(4, 6, ZAxis, 6, XAxis, loop));
 
         SLLightSphere* light2 = new SLLightSphere(0, 0, 0, 0.2f);
         light2->ambient (SLCol4f(0.2f,0.0f,0.0f));
@@ -294,7 +294,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
         light2Curve.push_back(SLKeyframe(0, SLVec3f(-8,-4, 0)));
         light2Curve.push_back(SLKeyframe(1, SLVec3f( 0, 4, 0)));
         light2Curve.push_back(SLKeyframe(1, SLVec3f( 8,-4, 0)));
-        light2->animation(new SLAnimation(light2Curve, 0, pingPongLoop));
+        //light2->animation(new SLAnimation(light2Curve, 0, pingPongLoop));
      
         SLSceneNode* figure = BuildFigureGroup(m2);
 
@@ -347,7 +347,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
         light1->diffuse(SLCol4f(1.0f, 1.0f, 1.0f));
         light1->specular(SLCol4f(1.0f, 1.0f, 1.0f));
         light1->attenuation(1,0,0);
-        light1->animation(new SLAnimation(2,SLVec3f(0,0,-5), pingPongLoop, inOutCubic));
+        //light1->animation(new SLAnimation(2,SLVec3f(0,0,-5), pingPongLoop, inOutCubic));
         //light1->samples(8,8);
 
         SLLightSphere* light2 = new SLLightSphere(-2.5f, -2.5f, 2.5f, 0.2f);
@@ -355,7 +355,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
         light2->diffuse(SLCol4f(1.0f, 1.0f, 1.0f));
         light2->specular(SLCol4f(1.0f, 1.0f, 1.0f));
         light2->attenuation(1,0,0);
-        light2->animation(new SLAnimation(2,SLVec3f(0,5,0), pingPongLoop, inOutCubic));
+        //light2->animation(new SLAnimation(2,SLVec3f(0,5,0), pingPongLoop, inOutCubic));
 
 
         #if defined(SL_OS_IOS) || defined(SL_OS_ANDROID)
@@ -578,7 +578,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
         light1->ambient(SLCol4f(0.2f, 0.2f, 0.2f));
         light1->specular(SLCol4f(1, 1, 1));
         light1->attenuation(1,0,0);
-        light1->animation(new SLAnimation(4, 6, ZAxis, 6, XAxis, loop));
+        //light1->animation(new SLAnimation(4, 6, ZAxis, 6, XAxis, loop));
 
         // wine glass
         SLVVec3f revP;
@@ -758,7 +758,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
         SLSceneNode* figure = BuildFigureGroup(m2);
 
         // Add animation for light 1
-        light1->animation(new SLAnimation(4, 12, ZAxis, 12, XAxis, loop));
+        //light1->animation(new SLAnimation(4, 12, ZAxis, 12, XAxis, loop));
 
         // Assemble scene
         SLSceneNode* scene = new SLSceneNode("scene group");
@@ -931,11 +931,11 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
 
                     if (lvl != 0) 
                     {   SLfloat duration = 1.0f + 5.0f * ((SLfloat)i/(SLfloat)nodesPerLvl);
-                    SLAnimation* anim = new SLAnimation(duration, SLVec3f(0, 1.0f, 0), pingPongLoop, inOutSine, "randomAnim");
-                    node->animation(anim);
-                }   
+                        //SLAnimation* anim = new SLAnimation(duration, SLVec3f(0, 1.0f, 0), pingPongLoop, inOutSine, "randomAnim");
+                        //node->animation(anim);
+                    }
+                }
             }
-        }
         }
     }
     else
@@ -1227,7 +1227,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
         light1->position(0,0,5);
         light1->lookAt(0, 0, 0);
         light1->spotCutoff(40);
-        light1->animation(new SLAnimation(2, 2, XAxis, 2, YAxis, loop));
+        //light1->animation(new SLAnimation(2, 2, XAxis, 2, YAxis, loop));
 
         SLSceneNode* scene = new SLSceneNode;
         scene->addChild(light1);
@@ -1278,7 +1278,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
         light1->position(0,0,5);
         light1->lookAt(0, 0, 0);
         light1->spotCutoff(50);
-        light1->animation(new SLAnimation(2, 2, XAxis, 2, YAxis, loop));
+        //light1->animation(new SLAnimation(2, 2, XAxis, 2, YAxis, loop));
 
         SLSceneNode* scene = new SLSceneNode;
         scene->addChild(light1);
@@ -1343,7 +1343,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
         sun->diffuse(SLCol4f(1,1,1));
         sun->specular(SLCol4f(0.2f,0.2f,0.2f));
         sun->attenuation(1,0,0);
-        sun->animation(new SLAnimation(24, 50, XAxis, 50, ZAxis, loop));
+        //sun->animation(new SLAnimation(24, 50, XAxis, 50, ZAxis, loop));
 
         SLSceneNode* earth = new SLSceneNode(new SLSphere(1, 36, 36, "Earth", matEarth));
         earth->rotate(90,-1,0,0);

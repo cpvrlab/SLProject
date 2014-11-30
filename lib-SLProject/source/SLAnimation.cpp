@@ -14,7 +14,7 @@
 #endif
 
 #include <SLAnimation.h>
-#include <SLNode.h>
+#include <SLSceneNode.h>
 #include <SLCurveBezier.h>
 
 //-----------------------------------------------------------------------------

@@ -107,6 +107,7 @@ HEADERS += \
     ../include/SLGLUniform.h \
     ../include/SLGLGenericProgram.h \
     ../include/SLSceneNode.h \
+    ../include/SLNode.h
 
 SOURCES += \
     source/SLGLBuffer.cpp \
@@ -151,7 +152,8 @@ SOURCES += \
     source/SLPolygon.cpp \
     source/SLGrid.cpp \
     source/SLGLOculus.cpp \
-    source/SLSceneNode.cpp
+    source/SLSceneNode.cpp \
+    source/SLNode.cpp
 
 OTHER_FILES += \
     source/oglsl/BumpNormal.frag \

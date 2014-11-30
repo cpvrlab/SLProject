@@ -624,8 +624,8 @@ void SLSceneView::draw3DGLLines(SLVSceneNode &nodes)
                 nodes[i]->aabb()->drawAxisWS();
 
                 // Draw the animation curve
-                if (nodes[i]->animation())
-                    nodes[i]->animation()->drawWS();
+                //if (nodes[i]->animation())
+                //    nodes[i]->animation()->drawWS();
             }
         }
     }

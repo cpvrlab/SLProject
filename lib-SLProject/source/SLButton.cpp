@@ -167,7 +167,7 @@ void SLButton::drawRec(SLSceneView* sv)
     //SLNode::drawRec(sv);
     
     for (SLint i=0; i<_children.size(); ++i)
-        _children[i]->drawRec(sv);
+        ((SLSceneNode*)_children[i])->drawRec(sv);
 
 
     _stateGL->popModelViewMatrix();
@@ -318,7 +318,7 @@ SLbool SLButton::onMouseDown(const SLMouseButton button,
     // check sub menus
     if (_children.size()>0)
     {   for (SLint i=0; i<_children.size(); ++i)
-        {   SLSceneNode* btn = _children[i];
+        {   SLSceneNode* btn = (SLSceneNode*)_children[i];
             if (!btn->drawBits()->get(SL_DB_HIDDEN))
             if (btn->onMouseDown(button, x, y, mod))
                 return true;
@@ -382,7 +382,7 @@ SLbool SLButton::onMouseUp(const SLMouseButton button,
                     while (buttonParent && buttonParent->depth()>=depth())
                     {  
                         for (SLint i=0; i<buttonParent->children().size(); ++i)
-                            buttonParent->children()[i]->drawBits()->set(SL_DB_HIDDEN, true);
+                            ((SLSceneNode*)buttonParent->children()[i])->drawBits()->set(SL_DB_HIDDEN, true);
                         buttonParent->isDown(false);
                         buttonParent = (SLButton*)buttonParent->parent();
                     }
@@ -393,7 +393,7 @@ SLbool SLButton::onMouseUp(const SLMouseButton button,
                 if (btn && btn->drawBits()->get(SL_DB_HIDDEN))
                 {  
                     for (SLint i=0; i<_children.size(); ++i)
-                        _children[i]->drawBits()->set(SL_DB_HIDDEN, false);
+                        ((SLSceneNode*)_children[i])->drawBits()->set(SL_DB_HIDDEN, false);
                     buttonParent = this;
                 } 
                 else // submenu is already open so close everything
@@ -405,7 +405,7 @@ SLbool SLButton::onMouseUp(const SLMouseButton button,
                     {   if (buttonParent)
                         {  
                             for (SLint i=0; i<buttonParent->children().size(); ++i)
-                            buttonParent->children()[i]->drawBits()->set(SL_DB_HIDDEN, true);
+                            ((SLSceneNode*)buttonParent->children()[i])->drawBits()->set(SL_DB_HIDDEN, true);
                             buttonParent->isDown(false);
                             buttonParent = (SLButton*)(buttonParent->parent());
                         }
@@ -444,7 +444,7 @@ SLbool SLButton::onMouseUp(const SLMouseButton button,
     // check sub menus
     if (_children.size()>0)
     {   for (SLint i=0; i<_children.size(); ++i)
-        {   if (_children[i]->onMouseUp(button, x, y, mod))
+        {   if (((SLSceneNode*)_children[i])->onMouseUp(button, x, y, mod))
             return true;
         }
     }
