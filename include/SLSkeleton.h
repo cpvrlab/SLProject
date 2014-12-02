@@ -46,6 +46,9 @@ public:
     SLint       numAnimations() const { return _animations.size(); }
     void        reset();
 
+    // @todo find a better way to give access to the animation names to external stuff (like the gui)
+    map<SLstring, SLAnimation*> animations() { return _animations; }
+
     void        updateAnimations();
     
 protected:

@@ -37,6 +37,7 @@ class qtMainWindow : public QMainWindow
         void        beforeSceneLoad();
         void        afterSceneLoad();
         void        buildNodeTree();
+        void        updateAnimationList();
         void        buildPropertyTree();
         void        addNodeTreeItem(SLNode* node,
 							        QTreeWidget* tree,
@@ -163,6 +164,11 @@ class qtMainWindow : public QMainWindow
         void on_propertyTree_itemChanged(QTreeWidgetItem *item, int column);
         void on_dockScenegraph_visibilityChanged(bool visible);
         void on_dockProperties_visibilityChanged(bool visible);
+        
+        // @todo how do we get the designer to connect these slots automatically?
+        void on_animationTypeSelect_currentIndexChanged(const QString& text);
+        void on_animationSelect_currentIndexChanged(const QString& text);
+        //void on_animationPlayPressed();
 
 private:
         Ui::qtMainWindow*  ui;

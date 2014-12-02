@@ -13,11 +13,14 @@
 #include <QtWidgets/QAction>
 #include <QtWidgets/QApplication>
 #include <QtWidgets/QButtonGroup>
+#include <QtWidgets/QComboBox>
 #include <QtWidgets/QDockWidget>
+#include <QtWidgets/QHBoxLayout>
 #include <QtWidgets/QHeaderView>
 #include <QtWidgets/QMainWindow>
 #include <QtWidgets/QMenu>
 #include <QtWidgets/QMenuBar>
+#include <QtWidgets/QPushButton>
 #include <QtWidgets/QStatusBar>
 #include <QtWidgets/QToolBar>
 #include <QtWidgets/QTreeWidget>
@@ -120,6 +123,7 @@ public:
     QAction *actionSingle_view;
     QAction *actionMass_Animation;
     QAction *actionUse_SceneView_Camera;
+    QAction *actionAnimationPlay;
     QWidget *centralWidget;
     QMenuBar *menuBar;
     QMenu *menuFile;
@@ -152,13 +156,24 @@ public:
     QWidget *dockWidgetContents_2;
     QVBoxLayout *verticalLayout;
     qtPropertyTreeWidget *propertyTree;
+    QDockWidget *dockAnimation;
+    QWidget *dockWidgetContents_3;
+    QHBoxLayout *horizontalLayout;
+    QComboBox *animationTypeSelect;
+    QComboBox *animationSelect;
+    QPushButton *playButton;
 
     void setupUi(QMainWindow *qtMainWindow)
     {
         if (qtMainWindow->objectName().isEmpty())
             qtMainWindow->setObjectName(QStringLiteral("qtMainWindow"));
-        qtMainWindow->resize(723, 472);
-        qtMainWindow->setMinimumSize(QSize(640, 400));
+        qtMainWindow->resize(723, 565);
+        QSizePolicy sizePolicy(QSizePolicy::Preferred, QSizePolicy::Minimum);
+        sizePolicy.setHorizontalStretch(0);
+        sizePolicy.setVerticalStretch(0);
+        sizePolicy.setHeightForWidth(qtMainWindow->sizePolicy().hasHeightForWidth());
+        qtMainWindow->setSizePolicy(sizePolicy);
+        qtMainWindow->setMinimumSize(QSize(0, 0));
         qtMainWindow->setFocusPolicy(Qt::NoFocus);
         qtMainWindow->setDockOptions(QMainWindow::AllowNestedDocks|QMainWindow::AllowTabbedDocks|QMainWindow::AnimatedDocks);
         action_Quit = new QAction(qtMainWindow);
@@ -474,12 +489,14 @@ public:
         actionUse_SceneView_Camera = new QAction(qtMainWindow);
         actionUse_SceneView_Camera->setObjectName(QStringLiteral("actionUse_SceneView_Camera"));
         actionUse_SceneView_Camera->setCheckable(true);
+        actionAnimationPlay = new QAction(qtMainWindow);
+        actionAnimationPlay->setObjectName(QStringLiteral("actionAnimationPlay"));
         centralWidget = new QWidget(qtMainWindow);
         centralWidget->setObjectName(QStringLiteral("centralWidget"));
         qtMainWindow->setCentralWidget(centralWidget);
         menuBar = new QMenuBar(qtMainWindow);
         menuBar->setObjectName(QStringLiteral("menuBar"));
-        menuBar->setGeometry(QRect(0, 0, 723, 25));
+        menuBar->setGeometry(QRect(0, 0, 723, 21));
         menuBar->setDefaultUp(false);
         menuBar->setNativeMenuBar(false);
         menuFile = new QMenu(menuBar);
@@ -530,11 +547,11 @@ public:
         qtMainWindow->setStatusBar(statusBar);
         dockScenegraph = new QDockWidget(qtMainWindow);
         dockScenegraph->setObjectName(QStringLiteral("dockScenegraph"));
-        QSizePolicy sizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
-        sizePolicy.setHorizontalStretch(0);
-        sizePolicy.setVerticalStretch(0);
-        sizePolicy.setHeightForWidth(dockScenegraph->sizePolicy().hasHeightForWidth());
-        dockScenegraph->setSizePolicy(sizePolicy);
+        QSizePolicy sizePolicy1(QSizePolicy::Preferred, QSizePolicy::Preferred);
+        sizePolicy1.setHorizontalStretch(0);
+        sizePolicy1.setVerticalStretch(0);
+        sizePolicy1.setHeightForWidth(dockScenegraph->sizePolicy().hasHeightForWidth());
+        dockScenegraph->setSizePolicy(sizePolicy1);
         dockScenegraph->setMinimumSize(QSize(160, 103));
         dockScenegraph->setFloating(false);
         dockWidgetContents = new QWidget();
@@ -554,11 +571,11 @@ public:
         __qtreewidgetitem->setFont(0, font);
         nodeTree->setHeaderItem(__qtreewidgetitem);
         nodeTree->setObjectName(QStringLiteral("nodeTree"));
-        QSizePolicy sizePolicy1(QSizePolicy::Expanding, QSizePolicy::Expanding);
-        sizePolicy1.setHorizontalStretch(0);
-        sizePolicy1.setVerticalStretch(0);
-        sizePolicy1.setHeightForWidth(nodeTree->sizePolicy().hasHeightForWidth());
-        nodeTree->setSizePolicy(sizePolicy1);
+        QSizePolicy sizePolicy2(QSizePolicy::Expanding, QSizePolicy::Expanding);
+        sizePolicy2.setHorizontalStretch(0);
+        sizePolicy2.setVerticalStretch(0);
+        sizePolicy2.setHeightForWidth(nodeTree->sizePolicy().hasHeightForWidth());
+        nodeTree->setSizePolicy(sizePolicy2);
         nodeTree->setMaximumSize(QSize(16777215, 16777215));
         nodeTree->setFont(font);
         nodeTree->setAutoScrollMargin(10);
@@ -577,9 +594,10 @@ public:
         toolBar->setObjectName(QStringLiteral("toolBar"));
         toolBar->setIconSize(QSize(24, 24));
         qtMainWindow->addToolBar(Qt::TopToolBarArea, toolBar);
+        qtMainWindow->insertToolBarBreak(toolBar);
         dockProperties = new QDockWidget(qtMainWindow);
         dockProperties->setObjectName(QStringLiteral("dockProperties"));
-        dockProperties->setMinimumSize(QSize(160, 103));
+        dockProperties->setMinimumSize(QSize(160, 116));
         dockWidgetContents_2 = new QWidget();
         dockWidgetContents_2->setObjectName(QStringLiteral("dockWidgetContents_2"));
         verticalLayout = new QVBoxLayout(dockWidgetContents_2);
@@ -607,6 +625,38 @@ public:
 
         dockProperties->setWidget(dockWidgetContents_2);
         qtMainWindow->addDockWidget(static_cast<Qt::DockWidgetArea>(1), dockProperties);
+        dockAnimation = new QDockWidget(qtMainWindow);
+        dockAnimation->setObjectName(QStringLiteral("dockAnimation"));
+        QSizePolicy sizePolicy3(QSizePolicy::Fixed, QSizePolicy::Fixed);
+        sizePolicy3.setHorizontalStretch(0);
+        sizePolicy3.setVerticalStretch(0);
+        sizePolicy3.setHeightForWidth(dockAnimation->sizePolicy().hasHeightForWidth());
+        dockAnimation->setSizePolicy(sizePolicy3);
+        dockAnimation->setFloating(false);
+        dockAnimation->setFeatures(QDockWidget::NoDockWidgetFeatures);
+        dockWidgetContents_3 = new QWidget();
+        dockWidgetContents_3->setObjectName(QStringLiteral("dockWidgetContents_3"));
+        horizontalLayout = new QHBoxLayout(dockWidgetContents_3);
+        horizontalLayout->setSpacing(6);
+        horizontalLayout->setContentsMargins(11, 11, 11, 11);
+        horizontalLayout->setObjectName(QStringLiteral("horizontalLayout"));
+        animationTypeSelect = new QComboBox(dockWidgetContents_3);
+        animationTypeSelect->setObjectName(QStringLiteral("animationTypeSelect"));
+
+        horizontalLayout->addWidget(animationTypeSelect);
+
+        animationSelect = new QComboBox(dockWidgetContents_3);
+        animationSelect->setObjectName(QStringLiteral("animationSelect"));
+
+        horizontalLayout->addWidget(animationSelect);
+
+        playButton = new QPushButton(dockWidgetContents_3);
+        playButton->setObjectName(QStringLiteral("playButton"));
+
+        horizontalLayout->addWidget(playButton);
+
+        dockAnimation->setWidget(dockWidgetContents_3);
+        qtMainWindow->addDockWidget(static_cast<Qt::DockWidgetArea>(8), dockAnimation);
 
         menuBar->addAction(menuFile->menuAction());
         menuBar->addAction(menuRenderer->menuAction());
@@ -1114,6 +1164,7 @@ public:
 #ifndef QT_NO_STATUSTIP
         actionUse_SceneView_Camera->setStatusTip(QApplication::translate("qtMainWindow", "Uses the scene view camera that is not in the scene. Press shift to apply on all views.", 0));
 #endif // QT_NO_STATUSTIP
+        actionAnimationPlay->setText(QApplication::translate("qtMainWindow", "actionAnimationPlay", 0));
         menuFile->setTitle(QApplication::translate("qtMainWindow", "File", 0));
         menuLoad_Scene->setTitle(QApplication::translate("qtMainWindow", "Load Scene", 0));
         menuGeneral_Scenes->setTitle(QApplication::translate("qtMainWindow", "General Scenes", 0));
@@ -1140,6 +1191,7 @@ public:
         QTreeWidgetItem *___qtreewidgetitem = propertyTree->headerItem();
         ___qtreewidgetitem->setText(1, QApplication::translate("qtMainWindow", "Value", 0));
         ___qtreewidgetitem->setText(0, QApplication::translate("qtMainWindow", "Property", 0));
+        playButton->setText(QApplication::translate("qtMainWindow", "PushButton", 0));
     } // retranslateUi
 
 };

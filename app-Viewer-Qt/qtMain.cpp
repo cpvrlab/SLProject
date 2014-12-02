@@ -24,6 +24,7 @@ int main(int argc, char *argv[])
         QApplication app(argc, argv);
         app.setWindowIcon(QIcon("appIcon36.png"));
         qtMainWindow wnd(0, cmdLineArgs);
+        
         wnd.show();
         return app.exec();
     #else

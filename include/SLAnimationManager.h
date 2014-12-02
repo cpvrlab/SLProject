@@ -26,8 +26,13 @@ public:
     
     void addSkeleton(SLSkeleton* skel) { _skeletons.push_back(skel); }
     void addNodeAnimation(SLAnimation* anim);
+    SLbool hasNodeAnimations() { return (_nodeAnimations.size() > 0); }
     SLVSkeleton& skeletons() { return _skeletons; }
     SLAnimationState* createNodeAnimationState(SLAnimation* parent, SLfloat weight = 1.0f);
+    SLAnimationState* getAnimationState(const SLstring& name); // get the state for a specific animation
+
+    // @todo find a better way to give access to the animation names to external stuff (like the gui)
+    map<SLstring, SLAnimation*> animations() { return _nodeAnimations; }
 
     void update(); // updates all active animations
 

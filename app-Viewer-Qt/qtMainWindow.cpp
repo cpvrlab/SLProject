@@ -43,6 +43,8 @@ qtMainWindow::qtMainWindow(QWidget *parent, SLVstring cmdLineArgs) :
 
     _selectedNodeItem = 0;
 
+    ui->dockAnimation->setTitleBarWidget(new QWidget);
+
     _menuFile = ui->menuFile;
     _menuCamera = ui->menuCamera;
     _menuRenderFlags = ui->menuRender_Flags;
@@ -541,6 +543,41 @@ void qtMainWindow::buildPropertyTree()
     ui->propertyTree->update();
 }
 //-----------------------------------------------------------------------------
+void qtMainWindow::updateAnimationList()
+{
+    // clear both lists
+    ui->animationTypeSelect->clear();
+    ui->animationSelect->clear();
+
+    SLVSkeleton& skeletons = SLScene::current->animManager().skeletons();
+    map<SLstring, SLAnimation*> nodeAnims;
+
+
+
+
+
+    if (nodeAnims.size() > 0)
+    {
+        ui->animationTypeSelect->addItem("Node Animations");
+        map<SLstring, SLAnimation*>::iterator it = nodeAnims.begin();
+        for (; it != nodeAnims.end(); it++)
+        {
+            ui->animationSelect->addItem(it->second->name().c_str());
+        }
+    }
+
+    for (SLint i = 0; i < skeletons.size(); ++i)
+    {
+        ui->animationTypeSelect->addItem("Skeleton " + QString::number(i));
+    }
+
+    ui->animationTypeSelect->setCurrentIndex(0); // select first element
+
+    if (SLScene::current->root3D())
+        addNodeTreeItem(SLScene::current->root3D(), ui->nodeTree, 0);
+}
+
+//-----------------------------------------------------------------------------
 void qtMainWindow::beforeSceneLoad()
 {
     //on_actionSingle_view_triggered();
@@ -553,6 +590,7 @@ void qtMainWindow::afterSceneLoad()
 {
     setMenuState();
     buildNodeTree();
+    updateAnimationList();
 }
 //-----------------------------------------------------------------------------
 void qtMainWindow::selectNodeOrMeshItem(SLNode* selectedNode, SLMesh* selectedMesh)
@@ -1357,3 +1395,13 @@ void qtMainWindow::on_propertyTree_itemChanged(QTreeWidgetItem *item, int column
 }
 //-----------------------------------------------------------------------------
 
+
+void on_animationTypeSelect_currentIndexChanged(const QString& text)
+{
+    std::cout << "on_animationTypeSelectIndexChanged " << text.data() << "\n";
+}
+
+void on_animationSelect_currentIndexChanged(const QString& text)
+{
+    std::cout << "on_animationSelectIndexChanged " << text.data() << "\n";
+}
