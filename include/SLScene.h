@@ -64,6 +64,7 @@ class SLScene: public SLObject
             SLint           currentID       () {return _currentID;}
             SLfloat         timeSec         () {return (SLfloat)_timer.getElapsedTimeInSec();}
             SLfloat         timeMilliSec    () {return (SLfloat)_timer.getElapsedTimeInMilliSec();}
+            SLfloat         elapsedTimeSec  () { return _elapsedTimeMS * 0.001; }
             SLButton*       menu2D          () {return _menu2D;}
             SLButton*       menuGL          () {return _menuGL;}
             SLGLTexture*    texCursor       () {return _texCursor;}
@@ -74,8 +75,6 @@ class SLScene: public SLObject
             SLVEventHandler& eventHandlers  () {return _eventHandlers;}
             SLVMaterial&    materials       () {return _materials;}
             SLVMesh&        meshes          () {return _meshes;}
-            SLVAnimation&   animations      () {return _animations;}
-            SLVSkeleton&    skeletons       () {return _skeletons;}
             SLVGLTexture&   textures        () {return _textures;}
             SLVGLProgram&   programs        () {return _programs;}
             SLGLProgram*    programs        (SLStdShaderProg i) {return _programs[i];}
@@ -103,8 +102,6 @@ class SLScene: public SLObject
    protected:
             SLAnimationManager _animManager;  //!< Animation manager instance
             SLVSceneView    _sceneViews;      //!< Vector of all sceneview pointers
-            SLVAnimation    _animations;
-            SLVSkeleton     _skeletons;       //!< Vector of all skeletons
             SLVMesh         _meshes;            //!< Vector of all meshes
             SLVMaterial     _materials;         //!< Vector of all materials pointers
             SLVGLTexture    _textures;          //!< Vector of all texture pointers

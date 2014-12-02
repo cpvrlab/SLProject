@@ -13,7 +13,29 @@ SLAnimationManager::SLAnimationManager()
 }
 SLAnimationManager::~SLAnimationManager()
 {
+    clear();
+}
 
+void SLAnimationManager::clear()
+{
+    map<SLstring, SLAnimation*>::iterator it;
+    for (it = _nodeAnimations.begin(); it != _nodeAnimations.end(); it++)
+        delete it->second;
+    _nodeAnimations.clear();
+
+    for (SLint i = 0; i < _nodeAnimationStates.size(); ++i)
+        delete _nodeAnimationStates[i];
+    _nodeAnimationStates.clear();
+
+    for (SLint i = 0; i < _skeletons.size(); ++i)
+        delete _skeletons[i];
+    _skeletons.clear();
+}
+
+void SLAnimationManager::addNodeAnimation(SLAnimation* anim)
+{
+    assert(_nodeAnimations.find(anim->name()) == _nodeAnimations.end() && "node animation with same name already exists!");
+    _nodeAnimations[anim->name()] = anim;
 }
 
 SLAnimationState* SLAnimationManager::createNodeAnimationState(SLAnimation* parent, SLfloat weight)
@@ -38,8 +60,7 @@ void SLAnimationManager::update()
         if (state->enabled())
         {
             state->parentAnimation()->resetNodes(); 
-            //state->advanceTime(s->elapsedTime());
-            state->advanceTime(0.016f);
+            state->advanceTime(s->elapsedTimeSec());
             state->parentAnimation()->apply(state->localTime(), state->weight());
         }
     }

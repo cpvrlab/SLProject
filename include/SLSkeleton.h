@@ -23,6 +23,7 @@ class SLSkeleton
 {
 public:
     SLSkeleton();
+    ~SLSkeleton();
 
     void update();
     
@@ -30,6 +31,10 @@ public:
     // handle must be unique for this skeleton and also contiguous
     SLBone* createBone(SLuint handle);
     SLBone* createBone(const SLstring& name, SLuint handle);
+    
+    SLAnimationState* getAnimationState(const SLstring& name);
+
+    void        loadAnimation(const SLstring& file); // import a seperate animation that works with this skeleton
 
     SLBone*     getBone(SLuint handle);
     SLBone*     getBone(const SLstring& name);
@@ -38,12 +43,11 @@ public:
     void        root(SLBone* bone);
     SLBone*     root() { return _root; }
     void        addAnimation(SLAnimation* anim);
+    SLint       numAnimations() const { return _animations.size(); }
     void        reset();
 
     void        updateAnimations();
-
-    SLAnimation* tempGetAnim(const SLstring& anim) { return _animations[anim]; }
-
+    
 protected:
     SLBone*     _root;
     vector<SLBone*> _boneList; //!< bone map for fast acces of bones

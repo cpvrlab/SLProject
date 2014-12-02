@@ -7,7 +7,20 @@
 
 SLSkeleton::SLSkeleton()
 {
-    SLScene::current->skeletons().push_back(this);
+    SLScene::current->animManager().addSkeleton(this);
+}
+
+SLSkeleton::~SLSkeleton()
+{
+    delete _root;
+
+    map<SLstring, SLAnimation*>::iterator it1;
+    for (it1 = _animations.begin(); it1 != _animations.end(); it1++)
+        delete it1->second;
+    
+    map<SLstring, SLAnimationState*>::iterator it2;
+    for (it2 = _animationStates.begin(); it2 != _animationStates.end(); it2++)
+        delete it2->second;
 }
 
 SLBone* SLSkeleton::createBone(SLuint handle)
@@ -28,6 +41,21 @@ SLBone* SLSkeleton::createBone(const SLstring& name, SLuint handle)
     
     _boneList[handle] = result;
     return result;
+}
+
+
+SLAnimationState* SLSkeleton::getAnimationState(const SLstring& name)
+{
+    if (_animationStates.find(name) != _animationStates.end())
+        return _animationStates[name];
+
+    else if (_animations.find(name) != _animations.end())
+    {
+        _animationStates[name] = new SLAnimationState(_animations[name]);
+        return _animationStates[name];
+    }
+
+    return NULL;
 }
 
 SLBone* SLSkeleton::getBone(SLuint handle)
@@ -84,8 +112,7 @@ void SLSkeleton::updateAnimations()
         SLAnimationState* state = it->second;
         if (state->enabled())
         {
-            // state->advanceTime(scene->elapsedTime()); // get elapsed time
-            state->advanceTime(0.016f); // temporary test val
+            state->advanceTime(scene->elapsedTimeSec());
             state->parentAnimation()->apply(this, state->localTime(), state->weight());
         }
     }

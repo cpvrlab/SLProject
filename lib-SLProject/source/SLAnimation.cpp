@@ -11,6 +11,7 @@
 #include <stdafx.h>
 #include <SLScene.h>
 #include <SLAnimation.h>
+#include <SLAnimationState.h>
 #include <SLSkeleton.h>
 
 
@@ -19,18 +20,20 @@ SLAnimation::SLAnimation(SLfloat duration)
 : _name("Unnamed Animation"),
 _length(duration)
 { 
-    SLScene::current->animations().push_back(this);
 }
 
 SLAnimation::SLAnimation(const SLstring& name, SLfloat duration)
 : _name(name),
 _length(duration)
 { 
-    SLScene::current->animations().push_back(this);
 }
 
 SLAnimation::~SLAnimation()
-{}
+{
+    map<SLuint, SLNodeAnimationTrack*>::iterator it = _nodeAnimations.begin();
+    for (; it != _nodeAnimations.end(); it++)
+        delete it->second;
+}
 
 
 void SLAnimation::length(SLfloat length)
@@ -42,9 +45,8 @@ void SLAnimation::length(SLfloat length)
 
 SLAnimationState* SLAnimation::createAnimationState()
 {
-    SLScene* s = SLScene::current;
-    //s->animManager().
-    return NULL;
+    SLAnimationState* result = SLScene::current->animManager().createNodeAnimationState(this);
+    return result;
 }
 
 SLNodeAnimationTrack* SLAnimation::createNodeAnimationTrack(SLuint handle)

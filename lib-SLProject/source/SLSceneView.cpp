@@ -477,6 +477,7 @@ SLbool SLSceneView::draw3DGL(SLfloat elapsedTimeMS)
 
     SLfloat startMS = s->timeMilliSec();
 
+    /*
     //-------- TEMPORARY ANIMATION TEST ----------------------------
 
     static bool animTestInit = false;
@@ -566,11 +567,10 @@ SLbool SLSceneView::draw3DGL(SLfloat elapsedTimeMS)
         kf0->translation(SLVec3f(0, 0, 0));
         kf1->translation(SLVec3f(0, 2, 0));
     }
-    /*/
     animTarget->resetToInitialState();
     testAnimTrack->applyToNode(animTarget, animTime);
     testAnimTrack2->applyToNode(animTarget, animTime);
-    */
+    
 
     animTarget2->resetToInitialState();
     testAnimTrack3->applyToNode(animTarget2, _animTime);
@@ -696,7 +696,7 @@ SLbool SLSceneView::draw3DGL(SLfloat elapsedTimeMS)
         //skelAnim->apply(skel, _time*2, 0.5f);
     }
     // ------------------------------------------------------------
-
+    */
 
 
     // Update camera animation seperately to process input on camera object
@@ -710,7 +710,6 @@ SLbool SLSceneView::draw3DGL(SLfloat elapsedTimeMS)
     if (_camera->projection() == stereoSideBySideD)
     {   s->oculus()->beginFrame();
         
-        // @todo change SLGLOculusFB to not require a resolution here
         _oculusFB.bindFramebuffer((SLint)(s->oculus()->resolutionScale() * (SLfloat)_scrW), 
                                   (SLint)(s->oculus()->resolutionScale() * (SLfloat)_scrH)); 
     }

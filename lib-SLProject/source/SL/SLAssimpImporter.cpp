@@ -301,13 +301,12 @@ SLNode* SLAssimpImporter::load(SLstring file,        //!< File with path or on d
         materials.push_back(loadMaterial(i, scene->mMaterials[i], modelPath));
 
     // load meshes & set their material
-    SLVMesh meshes;                  // vector of all loaded meshes
     std::map<int, SLMesh*> meshMap;  // map from the ai index to our mesh
     for(SLint i = 0; i < (SLint)scene->mNumMeshes; i++)
     {   SLMesh* mesh = loadMesh(scene->mMeshes[i]);
         if (mesh != 0)
         {   mesh->mat = materials[scene->mMeshes[i]->mMaterialIndex];
-            meshes.push_back(mesh);
+            _meshes.push_back(mesh);
             meshMap[i] = mesh;
         }
     } 
@@ -460,13 +459,13 @@ void SLAssimpImporter::findBones(const aiScene* scene)
 /** finds the common ancestor for each remaining group in boneGroups, these are our final skeleton roots */
 void SLAssimpImporter::findSkeletonRoot()
 {
+    _skeletonRoot = NULL;
     // early out if we don't have any bone bindings
     if (_boneOffsets.size() == 0) return;
     
 	vector<NodeList> ancestorList(_boneOffsets.size());
     SLint minDepth = INT_MAX;
     SLint index = 0;    
-    _skeletonRoot = NULL;
 
     logMessage(LV_Detailed, "Building bone ancestor lists.\n");
 
@@ -860,7 +859,11 @@ SLAssimpImporter::loadAnimation loads the scene graph node tree recursively.
 // @todo how do we handle multiple skeletons in one file?
 SLAnimation* SLAssimpImporter::loadAnimation(aiAnimation* anim)
 {
-    SLstring animName = "Unnamed Animation";
+    int animCount = 0;
+    if (_skeleton) animCount = _skeleton->numAnimations();
+    ostringstream oss;
+    oss << "unnamed_anim_" << animCount;
+    SLstring animName = oss.str();
     SLfloat animTicksPerSec = (anim->mTicksPerSecond == 0) ? 30.0f : anim->mTicksPerSecond;
     SLfloat animDuration = anim->mDuration / animTicksPerSec;
 
@@ -873,13 +876,13 @@ SLAnimation* SLAssimpImporter::loadAnimation(aiAnimation* anim)
     logMessage(LV_Normal, " Duration(ticks): %f \n", anim->mDuration);
     logMessage(LV_Normal, " Ticks per second: %f \n", animTicksPerSec);
     logMessage(LV_Normal, " Num channels: %d\n", anim->mNumChannels);
-            
-    // create the animation
-    SLAnimation* result = new SLAnimation(animName, animDuration);
-    
+                
     // exit if we didn't load a skeleton but have animations for one
     if (_skinnedMeshes.size() > 0)
         assert(_skeleton != NULL && "The skeleton wasn't impoted correctly."); // @todo rename all global variables by adding a prefex to them that identifies their use (rename skel here)
+    
+    // create the animation
+    SLAnimation* result = new SLAnimation(animName, animDuration);
 
     SLbool isSkeletonAnim = false;
     for (SLint i = 0; i < anim->mNumChannels; i++)
@@ -943,7 +946,7 @@ SLAnimation* SLAssimpImporter::loadAnimation(aiAnimation* anim)
         logMessage(LV_Detailed, "   Num rotation keys: %d\n", channel->mNumRotationKeys);
         logMessage(LV_Detailed, "   Num scaling keys: %d\n", channel->mNumScalingKeys);
 
-
+        
         // bone animation channels should receive the correct node id, normal node animations just get 0
         SLNodeAnimationTrack* track = result->createNodeAnimationTrack(handle);
 
@@ -1013,8 +1016,15 @@ SLAnimation* SLAssimpImporter::loadAnimation(aiAnimation* anim)
         }
     }
 
+    // add the animation to the skeleton or the importers animation list
     if (isSkeletonAnim)
         _skeleton->addAnimation(result);
+    else
+    {   
+        SLScene::current->animManager().addNodeAnimation(result);
+        _nodeAnimations.push_back(result);
+    }
+     
 
     return result;
 }

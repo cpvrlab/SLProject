@@ -73,6 +73,13 @@ protected:
     SLLogVerbosity  _logConsoleVerbosity;   //!< verbosity level of log output to the console
     SLLogVerbosity  _logFileVerbosity;      //!< verbosity level of log output to the file
 
+    // the imported data for easy access after importing it
+    SLNode*         _sceneRoot;         //!< the root node of the scene
+    SLVMesh         _meshes;            //!< all imported meshes
+    SLSkeleton*     _skeleton;          //!< the imported skeleton for this file
+    SLVAnimation    _nodeAnimations;    //!< all imported node animations
+
+
     // misc helper
     void logMessage(SLLogVerbosity verbosity, const char* msg, ...);
 
@@ -115,6 +122,11 @@ public:
                             //|SLProcess_SplitByBoneCount
                             //|SLProcess_Debone
                             ) = 0;
+    
+    SLNode*         rootNode        () { return _sceneRoot; }
+    SLVMesh&        meshes          () { return _meshes; }
+    SLSkeleton*     skeleton        () { return _skeleton; }
+    SLVAnimation&   nodeAnimations  () { return _nodeAnimations; }
 
       static SLstring      defaultPath;
 };

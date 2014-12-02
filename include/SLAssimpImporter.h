@@ -54,9 +54,7 @@ protected:
     // SL type containers
     typedef std::vector<SLMesh*>        MeshList;
 
-    SLNode*     _sceneRoot;
-    SLSkeleton* _skeleton;  //!< the loaded skeleton
-    SLuint      _boneIndex; //!< index counter used when iterating over bones
+    SLuint      _boneIndex;         //!< index counter used when iterating over bones
     MeshList	_skinnedMeshes;     //!< list containing all of the skinned meshes, used to assign the skinned materials
 
 

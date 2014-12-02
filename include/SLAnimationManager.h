@@ -24,16 +24,22 @@ public:
     SLAnimationManager();
     ~SLAnimationManager();
     
+    void addSkeleton(SLSkeleton* skel) { _skeletons.push_back(skel); }
+    void addNodeAnimation(SLAnimation* anim);
+    SLVSkeleton& skeletons() { return _skeletons; }
     SLAnimationState* createNodeAnimationState(SLAnimation* parent, SLfloat weight = 1.0f);
 
     void update(); // updates all active animations
+
+    void clear();
 
 private:
     // at the moment we keep the states seperated by their application type
     // this means that we need to create them differently and that only the 
     // manager knows which state affects what type of animation
-    SLVSkeleton                 _skeletons;
-    vector<SLAnimationState*>   _nodeAnimationStates;
+    SLVSkeleton                 _skeletons;             //!< all skeleton instances
+    map<SLstring, SLAnimation*> _nodeAnimations;        //!< node animations
+    vector<SLAnimationState*>   _nodeAnimationStates;   //!< node animation states
 };
 
 #endif

@@ -22,14 +22,18 @@ SLstring SLImporter::defaultPath = "../_data/models/";
 */
 SLImporter::SLImporter()
 : _logConsoleVerbosity(LV_Quiet),
-    _logFileVerbosity(LV_Quiet)
+    _logFileVerbosity(LV_Quiet),
+    _sceneRoot(NULL),
+    _skeleton(NULL)
 { }
 
 //-----------------------------------------------------------------------------
 /** Constructor that only outputs console logs
 */
 SLImporter::SLImporter(SLLogVerbosity consoleVerb)
-: _logFileVerbosity(LV_Quiet)
+: _logFileVerbosity(LV_Quiet),
+    _sceneRoot(NULL),
+    _skeleton(NULL)
 { }
 
 //-----------------------------------------------------------------------------
@@ -37,7 +41,9 @@ SLImporter::SLImporter(SLLogVerbosity consoleVerb)
 */
 SLImporter::SLImporter(const SLstring& logFile, SLLogVerbosity logConsoleVerb, SLLogVerbosity logFileVerb)
 : _logConsoleVerbosity(logConsoleVerb),
-    _logFileVerbosity(logFileVerb)
+    _logFileVerbosity(logFileVerb),
+    _sceneRoot(NULL),
+    _skeleton(NULL)
 { 
     if (_logFileVerbosity > LV_Quiet) {
         _log.open(logFile);

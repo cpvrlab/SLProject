@@ -20,6 +20,8 @@
 #include <SLLight.h>
 #include <SLTexFont.h>
 #include <SLButton.h>
+#include <SLAnimation.h>
+#include <SLAnimationState.h>
 
 //-----------------------------------------------------------------------------
 /*! Global static scene pointer that can be used throughout the entire library
@@ -308,6 +310,13 @@ bool SLScene::updateIfAllViewsGotPainted()
 
     //@todo Don't slow down if we're in HMD stereo mode
     //animated = animated || _ camera->projection() == stereoSideBySideD;
+    static bool temp = false;
+    if (!temp) {
+        temp =  true;
+        //SLAnimationState* skelState = _animManager.skeletons()[1]->getAnimationState("unnamed_anim_0");
+        //skelState->enabled(true);
+    }
+    _animManager.update();
 
     // Update the world matrix & AABBs efficiently
     SLGLState::getInstance()->modelViewMatrix.identity();

@@ -17,6 +17,7 @@
 #include <SLSceneView.h>
 #include <SLKeyframe.h>
 #include <SLAnimation.h>
+#include <SLAnimationState.h>
 #include <SLAssimpImporter.h>
 
 #include <SLCamera.h>
@@ -506,6 +507,8 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
         
         importer.logFileVerbosity(LV_Diagnostic);
         SLNode* simpleSkinnedMesh9 = importer.load("DAE/NodeAnimation/icosphere2.dae");
+        SLAnimationState* state = importer.nodeAnimations()[0]->createAnimationState();
+        state->enabled(true);
         SLNode* cubeContainer5 = new SLNode;
         cubeContainer5->addChild(simpleSkinnedMesh9);
         cubeContainer5->translate(6, 0, 7);
