@@ -573,8 +573,6 @@ void qtMainWindow::updateAnimationList()
 
     ui->animationTypeSelect->setCurrentIndex(0); // select first element
 
-    if (SLScene::current->root3D())
-        addNodeTreeItem(SLScene::current->root3D(), ui->nodeTree, 0);
 }
 
 //-----------------------------------------------------------------------------
@@ -1396,12 +1394,41 @@ void qtMainWindow::on_propertyTree_itemChanged(QTreeWidgetItem *item, int column
 //-----------------------------------------------------------------------------
 
 
-void on_animationTypeSelect_currentIndexChanged(const QString& text)
+void qtMainWindow::on_animationTypeSelect_currentIndexChanged(const QString& text)
 {
-    std::cout << "on_animationTypeSelectIndexChanged " << text.data() << "\n";
+    SLstring selected = text.toUtf8();
+    std::cout << "on_animationTypeSelectIndexChanged " << selected << "\n";
+        
+    // clear both lists
+    ui->animationSelect->clear();
+
+
+
+
+
+
+
+    if (nodeAnims.size() > 0)
+    {
+        ui->animationTypeSelect->addItem("Node Animations");
+        map<SLstring, SLAnimation*>::iterator it = nodeAnims.begin();
+        for (; it != nodeAnims.end(); it++)
+        {
+            ui->animationSelect->addItem(it->second->name().c_str());
+        }
+    }
+
+    for (SLint i = 0; i < skeletons.size(); ++i)
+    {
+        ui->animationTypeSelect->addItem("Skeleton " + QString::number(i));
+    }
+
+    ui->animationTypeSelect->setCurrentIndex(0); // select first element
+
 }
 
-void on_animationSelect_currentIndexChanged(const QString& text)
+void qtMainWindow::on_animationSelect_currentIndexChanged(const QString& text)
 {
-    std::cout << "on_animationSelectIndexChanged " << text.data() << "\n";
+    SLstring selected = text.toUtf8();
+    std::cout << "on_animationSelectIndexChanged " << selected << "\n";
 }
