@@ -38,12 +38,12 @@ public:
 
     SLJoint*     getJoint(SLuint handle);
     SLJoint*     getJoint(const SLstring& name);
-    SLint       numJoints() const { return _jointList.size(); }
+    SLint       numJoints() const { return (SLint)_jointList.size(); }
     void        getJointWorldMatrices(SLMat4f* jointWM);
     void        root(SLJoint* joint);
     SLJoint*     root() { return _root; }
     void        addAnimation(SLAnimation* anim);
-    SLint       numAnimations() const { return _animations.size(); }
+    SLint       numAnimations() const { return (SLint)_animations.size(); }
     void        reset();
 
     // @todo find a better way to give access to the animation names to external stuff (like the gui)

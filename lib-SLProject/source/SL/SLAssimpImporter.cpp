@@ -419,7 +419,7 @@ void SLAssimpImporter::findNodes(aiNode* node, SLstring padding, SLbool lastChil
     if (lastChild) padding += "   ";
     else padding += "  |";
 
-    for (SLint i = 0; i < node->mNumChildren; i++)
+    for (SLuint i = 0; i < node->mNumChildren; i++)
     {
         findNodes(node->mChildren[i], padding, (i == node->mNumChildren-1));
     }
@@ -428,7 +428,7 @@ void SLAssimpImporter::findNodes(aiNode* node, SLstring padding, SLbool lastChil
 /** scans all meshes in the assimp scene and populates nameToBone and jointGroups */
 void SLAssimpImporter::findJoints(const aiScene* scene)
 {
-    for (SLint i = 0; i < scene->mNumMeshes; i++)
+    for (SLuint i = 0; i < scene->mNumMeshes; i++)
     {
         aiMesh* mesh = scene->mMeshes[i];
         if(!mesh->HasBones())
@@ -436,7 +436,7 @@ void SLAssimpImporter::findJoints(const aiScene* scene)
 
 		logMessage(LV_Normal, "   Mesh '%s' contains %d joints.\n", mesh->mName.C_Str(), mesh->mNumBones);
         
-        for (SLint j = 0; j < mesh->mNumBones; j++)
+        for (SLuint j = 0; j < mesh->mNumBones; j++)
         {
 			SLstring name = mesh->mBones[j]->mName.C_Str();
             std::map<SLstring, SLMat4f>::iterator it = _jointOffsets.find(name);
@@ -492,7 +492,7 @@ void SLAssimpImporter::findSkeletonRoot()
         else
             logMessage(LV_Detailed, "   '%s' lies at a depth of %d\n", it->first.c_str(), list.size());
 
-        minDepth = min(minDepth, list.size());
+        minDepth = min(minDepth, (SLint)list.size());
     }
 
 
@@ -583,7 +583,7 @@ void SLAssimpImporter::loadSkeleton(SLJoint* parent, aiNode* node)
     /**/
 
 
-    for (SLint i = 0; i < node->mNumChildren; i++)
+    for (SLuint i = 0; i < node->mNumChildren; i++)
         loadSkeleton(joint, node->mChildren[i]);
 }
 
@@ -763,20 +763,20 @@ SLMesh* SLAssimpImporter::loadMesh(aiMesh *mesh)
         _skinnedMeshes.push_back(m);
         m->skeleton(_skeleton);
 
-        m->Bi = new SLVec4f[m->numV];
-        m->Bw = new SLVec4f[m->numV];
+        m->Ji = new SLVec4f[m->numV];
+        m->Jw = new SLVec4f[m->numV];
         
         // make sure to initialize the weights with 0 vectors
-        std::fill_n(m->Bi, m->numV, SLVec4f(0, 0, 0, 0));
-        std::fill_n(m->Bw, m->numV, SLVec4f(0, 0, 0, 0));
+        std::fill_n(m->Ji, m->numV, SLVec4f(0, 0, 0, 0));
+        std::fill_n(m->Jw, m->numV, SLVec4f(0, 0, 0, 0));
 
-        for (SLint i = 0; i < mesh->mNumBones; i++)
+        for (SLuint i = 0; i < mesh->mNumBones; i++)
         {
             aiBone* joint = mesh->mBones[i];
             SLJoint* slJoint = _skeleton->getJoint(joint->mName.C_Str());
             SLuint jointId = slJoint->handle(); // @todo make sure that the returned joint actually exists, else we need to throw here since something in the importer must've gone wrong!
 
-            for (SLint j = 0; j < joint->mNumWeights; j++)
+            for (SLuint j = 0; j < joint->mNumWeights; j++)
             {
                 // add the weight
                 SLuint vertId = joint->mWeights[j].mVertexId;
@@ -864,8 +864,8 @@ SLAnimation* SLAssimpImporter::loadAnimation(aiAnimation* anim)
     ostringstream oss;
     oss << "unnamed_anim_" << animCount;
     SLstring animName = oss.str();
-    SLfloat animTicksPerSec = (anim->mTicksPerSecond == 0) ? 30.0f : anim->mTicksPerSecond;
-    SLfloat animDuration = anim->mDuration / animTicksPerSec;
+    SLfloat animTicksPerSec = (anim->mTicksPerSecond == 0) ? 30.0f : (SLfloat)anim->mTicksPerSecond;
+    SLfloat animDuration = (SLfloat)anim->mDuration / animTicksPerSec;
 
     if (anim->mName.length > 0)
         animName = anim->mName.C_Str();
@@ -885,7 +885,7 @@ SLAnimation* SLAssimpImporter::loadAnimation(aiAnimation* anim)
     SLAnimation* result = new SLAnimation(animName, animDuration);
 
     SLbool isSkeletonAnim = false;
-    for (SLint i = 0; i < anim->mNumChannels; i++)
+    for (SLuint i = 0; i < anim->mNumChannels; i++)
     {
         aiNodeAnim* channel = anim->mChannels[i];
 
@@ -961,16 +961,16 @@ SLAnimation* SLAssimpImporter::loadAnimation(aiAnimation* anim)
         KeyframeMap keyframes;
 
         // add position keys
-        for (SLint i = 0; i < channel->mNumPositionKeys; i++)
+        for (SLuint i = 0; i < channel->mNumPositionKeys; i++)
         {
-            SLfloat time = channel->mPositionKeys[i].mTime; // @todo test that we get the correct value back
+            SLfloat time = (SLfloat)channel->mPositionKeys[i].mTime; // @todo test that we get the correct value back
             keyframes[time] = KeyframeData(&channel->mPositionKeys[i], NULL, NULL);
         }
         
         // add rotation keys
-        for (SLint i = 0; i < channel->mNumRotationKeys; i++)
+        for (SLuint i = 0; i < channel->mNumRotationKeys; i++)
         {
-            SLfloat time = channel->mRotationKeys[i].mTime; // @todo test that we get the correct value back
+            SLfloat time = (SLfloat)channel->mRotationKeys[i].mTime; // @todo test that we get the correct value back
 
             if (keyframes.find(time) == keyframes.end())
                 keyframes[time] = KeyframeData(NULL, &channel->mRotationKeys[i], NULL);
@@ -983,9 +983,9 @@ SLAnimation* SLAssimpImporter::loadAnimation(aiAnimation* anim)
         }
         
         // add scaleing keys
-        for (SLint i = 0; i < channel->mNumScalingKeys; i++)
+        for (SLuint i = 0; i < channel->mNumScalingKeys; i++)
         {
-            SLfloat time = channel->mScalingKeys[i].mTime; // @todo test that we get the correct value back
+            SLfloat time = (SLfloat)channel->mScalingKeys[i].mTime; // @todo test that we get the correct value back
 
             if (keyframes.find(time) == keyframes.end())
                 keyframes[time] = KeyframeData(NULL, NULL, &channel->mScalingKeys[i]);

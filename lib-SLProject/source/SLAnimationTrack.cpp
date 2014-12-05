@@ -38,7 +38,7 @@ void SLAnimationTrack::keyframesChanged()
 SLfloat SLAnimationTrack::getKeyframesAtTime(SLfloat time, SLKeyframe** k1, SLKeyframe** k2) const
 {
     SLfloat t1, t2;
-    SLint numKf = _keyframeList.size();
+    SLint numKf = (SLint)_keyframeList.size();
     float animationLength = _parent->length();
 
     assert(animationLength > 0.0f && "Animation length is invalid.");

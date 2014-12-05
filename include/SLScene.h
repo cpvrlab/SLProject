@@ -64,7 +64,7 @@ class SLScene: public SLObject
             SLint           currentID       () {return _currentID;}
             SLfloat         timeSec         () {return (SLfloat)_timer.getElapsedTimeInSec();}
             SLfloat         timeMilliSec    () {return (SLfloat)_timer.getElapsedTimeInMilliSec();}
-            SLfloat         elapsedTimeSec  () { return _elapsedTimeMS * 0.001; }
+            SLfloat         elapsedTimeSec  () { return _elapsedTimeMS * 0.001f; }
             SLButton*       menu2D          () {return _menu2D;}
             SLButton*       menuGL          () {return _menuGL;}
             SLGLTexture*    texCursor       () {return _texCursor;}

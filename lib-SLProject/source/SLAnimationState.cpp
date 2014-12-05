@@ -44,19 +44,19 @@ void SLAnimationState::advanceTime(SLfloat delta)
 void SLAnimationState::playForward()
 {
     _enabled = true;
-    _playbackDir = 1.0;
+    _playbackDir = 1;
 }
 void SLAnimationState::playBackward()
 {
     _enabled = true;
-    _playbackDir = -1.0;
+    _playbackDir = -1;
 }
 void SLAnimationState::pause()
 {
     // @todo is a paused animation disabled OR is it enabled but just not advancing time?
     //       currently we set the direction multiplier to 0
     _enabled = true;
-    _playbackDir = 0.0;
+    _playbackDir = 0;
 }
 void SLAnimationState::skipToNextKeyframe()
 {

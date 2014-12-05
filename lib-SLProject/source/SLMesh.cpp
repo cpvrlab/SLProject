@@ -39,8 +39,8 @@ SLMesh::SLMesh(SLstring name) : SLObject(name)
     C  = 0;
     T  = 0;
     Tc = 0;
-    Bi = 0;
-    Bw = 0;
+    Ji = 0;
+    Jw = 0;
     I16 = 0;
     I32 = 0;
     numV = 0;
@@ -75,8 +75,8 @@ void SLMesh::deleteData()
     if (C)   delete[] C;    C=0;
     if (T)   delete[] T;    T=0;
     if (Tc)  delete[] Tc;   Tc=0;
-    if (Bi)  delete[] Bi;   Bi=0;
-    if (Bw)  delete[] Bw;   Bw=0;
+    if (Ji)  delete[] Ji;   Ji=0;
+    if (Jw)  delete[] Jw;   Jw=0;
     if (I16) delete[] I16;  I16=0;
     if (I32) delete[] I32;  I32=0;
 
@@ -93,8 +93,8 @@ void SLMesh::deleteData()
     _bufTc.dispose();
     _bufT.dispose(); 
     _bufI.dispose(); 
-    _bufBi.dispose();
-    _bufBw.dispose();
+    _bufJi.dispose();
+    _bufJw.dispose();
     _bufN2.dispose();
     _bufT2.dispose();
 }
@@ -164,8 +164,8 @@ void SLMesh::draw(SLSceneView* sv, SLNode* node)
         if (!_bufN.id()  && N)   _bufN.generate(N, numV, 3);
         if (!_bufC.id()  && C)   _bufC.generate(C, numV, 4);
         if (!_bufTc.id() && Tc)  _bufTc.generate(Tc, numV, 2);
-        if (!_bufBi.id() && Bi)  _bufBi.generate(Bi, numV, 4);
-        if (!_bufBw.id() && Bw)  _bufBw.generate(Bw, numV, 4);
+        if (!_bufJi.id() && Ji)  _bufJi.generate(Ji, numV, 4);
+        if (!_bufJw.id() && Jw)  _bufJw.generate(Jw, numV, 4);
         if (!_bufT.id()  && T)   _bufT.generate(T, numV, 4);
         if (!_bufI.id()  && I16) _bufI.generate(I16, numI, 1, SL_UNSIGNED_SHORT, SL_ELEMENT_ARRAY_BUFFER);
         if (!_bufI.id()  && I32) _bufI.generate(I32, numI, 1, SL_UNSIGNED_INT,   SL_ELEMENT_ARRAY_BUFFER);    
@@ -210,14 +210,14 @@ void SLMesh::draw(SLSceneView* sv, SLNode* node)
             _bufTc.bindAndEnableAttrib(sp->getAttribLocation("a_texCoord"));
         if (_bufT.id())  
             _bufT.bindAndEnableAttrib(sp->getAttribLocation("a_tangent"));
-        if (_bufBi.id())
-            _bufBi.bindAndEnableAttrib(sp->getAttribLocation("a_jointIds"));
-        if (_bufBw.id())
-            _bufBw.bindAndEnableAttrib(sp->getAttribLocation("a_jointWeights"));
+        if (_bufJi.id())
+            _bufJi.bindAndEnableAttrib(sp->getAttribLocation("a_jointIds"));
+        if (_bufJw.id())
+            _bufJw.bindAndEnableAttrib(sp->getAttribLocation("a_jointWeights"));
    
 
         // 3.d: Upload final joint matrices
-        if (Bi && Bw)
+        if (Ji && Jw)
         {
             //  temporary test for 2 joints
             if (!_jointMatrices) _jointMatrices = new SLMat4f[_skeleton->numJoints()]; // @todo offload the generation of the joint matrix array to somebody else. meshes can share the same array, so it must be somewhere else..
@@ -242,8 +242,8 @@ void SLMesh::draw(SLSceneView* sv, SLNode* node)
         if (_bufC.id())  _bufC.disableAttribArray();
         if (_bufTc.id()) _bufTc.disableAttribArray();
         if (_bufT.id())  _bufT.disableAttribArray();
-        if (_bufBi.id()) _bufBi.disableAttribArray();
-        if (_bufBw.id()) _bufBw.disableAttribArray();
+        if (_bufJi.id()) _bufJi.disableAttribArray();
+        if (_bufJw.id()) _bufJw.disableAttribArray();
       
         //////////////////////////////////////
         // 4: Draw optional normals & tangents
@@ -883,30 +883,30 @@ void SLMesh::preShade(SLRay* ray)
 // returns true if added sucessfully, false if already full
 SLbool SLMesh::addWeight(SLint vertId, SLuint jointId, SLfloat weight)
 {
-    if (!Bi || !Bw)
+    if (!Ji || !Jw)
         return false;
 
-    assert(vertId < numV && "An illegal index was passed in to SLMesh::addWeight");
+    assert(vertId < (SLint)numV && "An illegal index was passed in to SLMesh::addWeight");
     
-    SLVec4f& bId = Bi[vertId];
-    SLVec4f& bWeight = Bw[vertId];
+    SLVec4f& jId = Ji[vertId];
+    SLVec4f& jWeight = Jw[vertId];
 
     // "iterator" over our vectors
-    SLfloat* bIdIt = &bId.x;
-    SLfloat* bWeightIt = &bWeight.x;
+    SLfloat* jIdIt = &jId.x;
+    SLfloat* jWeightIt = &jWeight.x;
 
     for (SLint i = 0; i < 4; ++i)
     {
-        if (*bWeightIt == 0.0f)
+        if (*jWeightIt == 0.0f)
         {
-            *bIdIt = (SLfloat)jointId;
-            *bWeightIt = weight;
+            *jIdIt = (SLfloat)jointId;
+            *jWeightIt = weight;
             break;
         }
 
-        bIdIt++;
-        bWeightIt++;
+        jIdIt++;
+        jWeightIt++;
     }
 
-
+    return true;
 }

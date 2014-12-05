@@ -69,6 +69,7 @@ SLJoint* SLSkeleton::getJoint(const SLstring& name)
     if (!_root) return NULL;
 
     SLJoint* result = _root->find<SLJoint>(name);
+    return result;
 }
 
 void SLSkeleton::getJointWorldMatrices(SLMat4f* jointWM)
