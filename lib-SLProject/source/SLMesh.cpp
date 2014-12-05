@@ -48,7 +48,7 @@ SLMesh::SLMesh(SLstring name) : SLObject(name)
     minP.set( FLT_MAX,  FLT_MAX,  FLT_MAX);
     maxP.set(-FLT_MAX, -FLT_MAX, -FLT_MAX);
    
-    _boneMatrices = 0;
+    _jointMatrices = 0;
 
     _stateGL = SLGLState::getInstance();  
     _isVolume = true; // is used for RT to decide inside/outside
@@ -80,7 +80,7 @@ void SLMesh::deleteData()
     if (I16) delete[] I16;  I16=0;
     if (I32) delete[] I32;  I32=0;
 
-    if (_boneMatrices) delete[] _boneMatrices; _boneMatrices = 0;
+    if (_jointMatrices) delete[] _jointMatrices; _jointMatrices = 0;
 
     if (_accelStruct) 
     {   delete _accelStruct;      
@@ -211,26 +211,26 @@ void SLMesh::draw(SLSceneView* sv, SLNode* node)
         if (_bufT.id())  
             _bufT.bindAndEnableAttrib(sp->getAttribLocation("a_tangent"));
         if (_bufBi.id())
-            _bufBi.bindAndEnableAttrib(sp->getAttribLocation("a_boneIds"));
+            _bufBi.bindAndEnableAttrib(sp->getAttribLocation("a_jointIds"));
         if (_bufBw.id())
-            _bufBw.bindAndEnableAttrib(sp->getAttribLocation("a_boneWeights"));
+            _bufBw.bindAndEnableAttrib(sp->getAttribLocation("a_jointWeights"));
    
 
-        // 3.d: Upload final bone matrices
+        // 3.d: Upload final joint matrices
         if (Bi && Bw)
         {
-            //  temporary test for 2 bones
-            if (!_boneMatrices) _boneMatrices = new SLMat4f[_skeleton->numBones()]; // @todo offload the generation of the bone matrix array to somebody else. meshes can share the same array, so it must be somewhere else..
-            _skeleton->getJointWorldMatrices(_boneMatrices);
-            // @todo    be careful here, it is at the moment not guaranteed that the per vertex bone indices
-            //          match the indices in this bone array. The result may be wrong or crash entirely.
-            //          Imported models might use bone 0, 1, 2 and 4 but not 3. So when bone 4 is used
+            //  temporary test for 2 joints
+            if (!_jointMatrices) _jointMatrices = new SLMat4f[_skeleton->numJoints()]; // @todo offload the generation of the joint matrix array to somebody else. meshes can share the same array, so it must be somewhere else..
+            _skeleton->getJointWorldMatrices(_jointMatrices);
+            // @todo    be careful here, it is at the moment not guaranteed that the per vertex joint indices
+            //          match the indices in this joint array. The result may be wrong or crash entirely.
+            //          Imported models might use joint 0, 1, 2 and 4 but not 3. So when joint 4 is used
             //          in the shader we'll access out of bound memory for index 4
 
-            // @todo    Secondly: It is a bad idea to keep the bone data in the mesh itself, this prevents us
+            // @todo    Secondly: It is a bad idea to keep the joint data in the mesh itself, this prevents us
             //          from instantiationg a single mesh with multiple animations. Needs to be addressed ASAP. (see also SLMesh class problems in SLMesh.h at the top)
-            SLint locBM = sp->getUniformLocation("u_boneMatrices");
-            sp->uniformMatrix4fv(locBM, _skeleton->numBones(), (SLfloat*)_boneMatrices, false);
+            SLint locBM = sp->getUniformLocation("u_jointMatrices");
+            sp->uniformMatrix4fv(locBM, _skeleton->numJoints(), (SLfloat*)_jointMatrices, false);
         }
 
         // 3.e: Finally draw elements
@@ -879,9 +879,9 @@ void SLMesh::preShade(SLRay* ray)
 
 //-----------------------------------------------------------------------------
 
-// adds an bone weight to the specified vertex id (max 4 weights per vertex)
+// adds an joint weight to the specified vertex id (max 4 weights per vertex)
 // returns true if added sucessfully, false if already full
-SLbool SLMesh::addWeight(SLint vertId, SLuint boneId, SLfloat weight)
+SLbool SLMesh::addWeight(SLint vertId, SLuint jointId, SLfloat weight)
 {
     if (!Bi || !Bw)
         return false;
@@ -899,7 +899,7 @@ SLbool SLMesh::addWeight(SLint vertId, SLuint boneId, SLfloat weight)
     {
         if (*bWeightIt == 0.0f)
         {
-            *bIdIt = (SLfloat)boneId;
+            *bIdIt = (SLfloat)jointId;
             *bWeightIt = weight;
             break;
         }

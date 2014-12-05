@@ -13,8 +13,8 @@
 //-----------------------------------------------------------------------------
 attribute vec4 a_position;          // Vertex position attribute
 attribute vec3 a_normal;            // Vertex normal attribute
-attribute vec4 a_boneIds;
-attribute vec4 a_boneWeights;
+attribute vec4 a_jointIds;
+attribute vec4 a_jointWeights;
 
 uniform mat4   u_mvMatrix;          // modelview matrix 
 uniform mat3   u_nMatrix;           // normal matrix=transpose(inverse(mv))
@@ -40,7 +40,7 @@ uniform vec4   u_matSpecular;       // specular color reflection coefficient (ks
 uniform vec4   u_matEmissive;       // emissive color for selfshining materials
 uniform float  u_matShininess;      // shininess exponent
 
-uniform mat4   u_boneMatrices[100];
+uniform mat4   u_jointMatrices[100];
 
 varying vec4   v_color;             // The resulting color per vertex
 
@@ -101,13 +101,13 @@ void main()
     Is = vec4(0.0);         // Specular light intesity
    
    
-	mat4 boneTransform = 	u_boneMatrices[int(a_boneIds.x)] * a_boneWeights.x
-						+ 	u_boneMatrices[int(a_boneIds.y)] * a_boneWeights.y
-						+ 	u_boneMatrices[int(a_boneIds.z)] * a_boneWeights.z
-						+ 	u_boneMatrices[int(a_boneIds.w)] * a_boneWeights.w;
+	mat4 jointTransform = 	u_jointMatrices[int(a_jointIds.x)] * a_jointWeights.x
+						+ 	u_jointMatrices[int(a_jointIds.y)] * a_jointWeights.y
+						+ 	u_jointMatrices[int(a_jointIds.z)] * a_jointWeights.z
+						+ 	u_jointMatrices[int(a_jointIds.w)] * a_jointWeights.w;
                     
-   vec3 P_VS = vec3(u_mvMatrix * boneTransform * a_position);
-   vec3 N = normalize(vec3(u_nMatrix * transpose(inverse(mat3(boneTransform))) * a_normal)); 
+   vec3 P_VS = vec3(u_mvMatrix * jointTransform * a_position);
+   vec3 N = normalize(vec3(u_nMatrix * transpose(inverse(mat3(jointTransform))) * a_normal)); 
    vec3 E = normalize(-P_VS);
 
    
@@ -130,7 +130,7 @@ void main()
     // For correct alpha blending overwrite alpha component
     v_color.a = u_matDiffuse.a;
     
-    gl_Position = u_mvpMatrix * boneTransform * a_position;
+    gl_Position = u_mvpMatrix * jointTransform * a_position;
 }
 
 //-----------------------------------------------------------------------------

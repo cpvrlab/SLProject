@@ -50,12 +50,12 @@ class SLSkeleton;
 */
 
 
-struct SLVertexBoneData
+struct SLVertexJointData
 {
     SLuint  ids[4];
     SLfloat weights[4];
 
-    SLVertexBoneData()
+    SLVertexJointData()
     {
         for(int i = 0; i < 4; i++) {
             weights[i] = 0.0f;
@@ -183,13 +183,13 @@ virtual void            calcMinMax     ();
         SLPrimitive     primitive      (){return _primitive;}
         
         void            skeleton(SLSkeleton* skel) { _skeleton = skel; }
-        SLbool          addWeight(SLint vertId, SLuint boneId, SLfloat weight);
+        SLbool          addWeight(SLint vertId, SLuint jointId, SLfloat weight);
 
         SLVec3f*        P;          //!< Array of vertex positions
         SLVec3f*        N;          //!< Array of vertex normals (opt.)
         SLCol4f*        C;          //!< Array of vertex colors (opt.)
-        SLVec4f*        Bi;         //!< Array of per vertex bone ids (opt.) 
-        SLVec4f*        Bw;         //!< Array of per vertex bone weights (opt.)
+        SLVec4f*        Bi;         //!< Array of per vertex joint ids (opt.) 
+        SLVec4f*        Bw;         //!< Array of per vertex joint weights (opt.)
         SLVec2f*        Tc;         //!< Array of vertex tex. coords. (opt.)
         SLVec4f*        T;          //!< Array of vertex tangents (opt.)
         SLushort*       I16;        //!< Array of vertex indexes 16 bit
@@ -212,8 +212,8 @@ virtual void            calcMinMax     ();
         SLGLBuffer      _bufT;      //!< Buffer for vertex tangents
         SLGLBuffer      _bufI;      //!< Buffer for vertex indexes
 
-        SLGLBuffer      _bufBi;     //!< Buffer for bone id
-        SLGLBuffer      _bufBw;     //!< Buffer for bone weight
+        SLGLBuffer      _bufBi;     //!< Buffer for joint id
+        SLGLBuffer      _bufBw;     //!< Buffer for joint weight
                
         SLGLBuffer      _bufN2;     //!< Buffer for normal line rendering
         SLGLBuffer      _bufT2;     //!< Buffer for tangent line rendering
@@ -224,7 +224,7 @@ virtual void            calcMinMax     ();
 
 
         SLSkeleton*     _skeleton;      //!< the skeleton this mesh is bound to
-        SLMat4f*        _boneMatrices;  //!< private bone matrix stack for this mesh
+        SLMat4f*        _jointMatrices;  //!< private joint matrix stack for this mesh
 };
 //-----------------------------------------------------------------------------
 typedef std::vector<SLMesh*>  SLVMesh;

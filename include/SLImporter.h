@@ -29,7 +29,7 @@ enum SLPostProcessSteps
     SLProcess_GenSmoothNormals = 0x40,
     SLProcess_SplitLargeMeshes = 0x80,
     SLProcess_PreTransformVertices = 0x100,
-    SLProcess_LimitBoneWeights = 0x200,
+    SLProcess_LimitJointWeights = 0x200,
     SLProcess_ValidateDataStructure = 0x400,
     SLProcess_ImproveCacheLocality = 0x800,
     SLProcess_RemoveRedundantMaterials = 0x1000,
@@ -44,8 +44,8 @@ enum SLPostProcessSteps
     SLProcess_OptimizeGraph = 0x400000,
     SLProcess_FlipUVs = 0x800000,
     SLProcess_FlipWindingOrder = 0x1000000,
-    SLProcess_SplitByBoneCount = 0x2000000,
-    SLProcess_Debone = 0x4000000
+    SLProcess_SplitByJointCount = 0x2000000,
+    SLProcess_Dejoint = 0x4000000
 };
 
 // @todo build a dedicated log class that defines this verbosity levels
@@ -110,7 +110,7 @@ public:
                             //|SLProcess_GenNormals
                             //|SLProcess_GenSmoothNormals
                             //|SLProcess_PreTransformVertices
-                            //|SLProcess_LimitBoneWeights
+                            //|SLProcess_LimitJointWeights
                             //|SLProcess_ValidateDataStructure
                             //|SLProcess_ImproveCacheLocality
                             //|SLProcess_FixInfacingNormals
@@ -119,8 +119,8 @@ public:
                             //|SLProcess_FindInstances
                             //|SLProcess_FlipUVs
                             //|SLProcess_FlipWindingOrder
-                            //|SLProcess_SplitByBoneCount
-                            //|SLProcess_Debone
+                            //|SLProcess_SplitByJointCount
+                            //|SLProcess_Dejoint
                             ) = 0;
     
     SLNode*         rootNode        () { return _sceneRoot; }

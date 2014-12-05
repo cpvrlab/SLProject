@@ -44,28 +44,28 @@ class SLAssimpImporter : public SLImporter
 protected:
     // intermediate containers
     typedef std::map<SLstring, aiNode*> NodeMap;
-    typedef std::map<SLstring, SLMat4f> BoneOffsetMap;
+    typedef std::map<SLstring, SLMat4f> JointOffsetMap;
     typedef std::vector<aiNode*>        NodeList;
 
     NodeMap		    _nodeMap;           //!< map containing name to aiNode releationships
-    BoneOffsetMap	_boneOffsets;    //!< map containing name to bone offset matrices
+    JointOffsetMap	_jointOffsets;    //!< map containing name to joint offset matrices
     aiNode*         _skeletonRoot;      //!< the common aiNode root for the skeleton of this file
 
     // SL type containers
     typedef std::vector<SLMesh*>        MeshList;
 
-    SLuint      _boneIndex;         //!< index counter used when iterating over bones
+    SLuint      _jointIndex;         //!< index counter used when iterating over joints
     MeshList	_skinnedMeshes;     //!< list containing all of the skinned meshes, used to assign the skinned materials
 
 
     // loading helper
     aiNode*         getNodeByName(const SLstring& name);    // return an aiNode ptr if name exists, or null if it doesn't
-	const SLMat4f   getOffsetMat(const SLstring& name);    // return an aiBone ptr if name exists, or null if it doesn't
+	const SLMat4f   getOffsetMat(const SLstring& name);    // return an aiJoint ptr if name exists, or null if it doesn't
 
-    void            performInitialScan(const aiScene* scene);     // populates nameToNode, nameToBone, boneGroups, skinnedMeshes,
+    void            performInitialScan(const aiScene* scene);     // populates nameToNode, nameToJoint, jointGroups, skinnedMeshes,
     void            findNodes(aiNode* node, SLstring padding, SLbool lastChild);           // scans the assimp scene graph structure and populates nameToNode
-    void            findBones(const aiScene* scene);           // scans all meshes in the assimp scene and populates nameToBone and boneGroups
-    void            findSkeletonRoot();                    // finds the common ancestor for each remaining group in boneGroups, these are our final skeleton roots
+    void            findJoints(const aiScene* scene);           // scans all meshes in the assimp scene and populates nameToJoint and jointGroups
+    void            findSkeletonRoot();                    // finds the common ancestor for each remaining group in jointGroups, these are our final skeleton roots
     
     void            loadSkeleton(SLJoint* parent, aiNode* node);
 
@@ -113,7 +113,7 @@ public:
                             //|SLProcess_GenNormals
                             //|SLProcess_GenSmoothNormals
                             //|SLProcess_PreTransformVertices
-                            //|SLProcess_LimitBoneWeights
+                            //|SLProcess_LimitJointWeights
                             //|SLProcess_ValidateDataStructure
                             //|SLProcess_ImproveCacheLocality
                             //|SLProcess_FixInfacingNormals
@@ -122,8 +122,8 @@ public:
                             //|SLProcess_FindInstances
                             //|SLProcess_FlipUVs
                             //|SLProcess_FlipWindingOrder
-                            //|SLProcess_SplitByBoneCount
-                            //|SLProcess_Debone
+                            //|SLProcess_SplitByJointCount
+                            //|SLProcess_Dejoint
                             );
 };
 //-----------------------------------------------------------------------------

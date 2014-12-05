@@ -38,7 +38,7 @@ public:
 
     SLJoint*     getJoint(SLuint handle);
     SLJoint*     getJoint(const SLstring& name);
-    SLint       numBones() const { return _jointList.size(); }
+    SLint       numJoints() const { return _jointList.size(); }
     void        getJointWorldMatrices(SLMat4f* jointWM);
     void        root(SLJoint* joint);
     SLJoint*     root() { return _root; }

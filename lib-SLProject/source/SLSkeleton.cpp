@@ -26,7 +26,7 @@ SLSkeleton::~SLSkeleton()
 SLJoint* SLSkeleton::createJoint(SLuint handle)
 {
     ostringstream oss;
-    oss << "Bone " << handle;
+    oss << "Joint " << handle;
     return createJoint(oss.str(), handle);
 }
 
@@ -34,7 +34,7 @@ SLJoint* SLSkeleton::createJoint(const SLstring& name, SLuint handle)
 {
     SLJoint* result = new SLJoint(name, handle, this);
     
-    assert((handle >= _jointList.size() || (handle < _jointList.size() && _jointList[handle] == NULL)) && "Trying to create a bone with an already existing handle.");
+    assert((handle >= _jointList.size() || (handle < _jointList.size() && _jointList[handle] == NULL)) && "Trying to create a joint with an already existing handle.");
 
     if (_jointList.size() <= handle)
         _jointList.resize(handle+1);
@@ -71,20 +71,20 @@ SLJoint* SLSkeleton::getJoint(const SLstring& name)
     SLJoint* result = _root->find<SLJoint>(name);
 }
 
-void SLSkeleton::getJointWorldMatrices(SLMat4f* boneWM)
+void SLSkeleton::getJointWorldMatrices(SLMat4f* jointWM)
 {
     // @todo this is asking for a crash...
     for (SLint i = 0; i < _jointList.size(); i++)
     {
-        boneWM[i] = _jointList[i]->updateAndGetWM() * _jointList[i]->offsetMat();
+        jointWM[i] = _jointList[i]->updateAndGetWM() * _jointList[i]->offsetMat();
     }
 }
 
-void SLSkeleton::root(SLJoint* bone)
+void SLSkeleton::root(SLJoint* joint)
 {
     if (_root)
 
-    _root = bone;
+    _root = joint;
 }
 
 void SLSkeleton::addAnimation(SLAnimation* anim)

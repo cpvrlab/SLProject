@@ -112,14 +112,14 @@ void SLAnimation::applyToNode(SLNode* node, SLfloat time, SLfloat weight, SLfloa
         it->second->applyToNode(node, time, weight, scale);
 }
 
-// apply tracks to a skeleton based on track and bone handles
+// apply tracks to a skeleton based on track and joint handles
 void SLAnimation::apply(SLSkeleton* skel, SLfloat time, SLfloat weight, SLfloat scale)
 {
     map<SLuint, SLNodeAnimationTrack*>::iterator it = _nodeAnimations.begin();
     for (; it != _nodeAnimations.end(); it++)
     {
-        SLJoint* bone = skel->getJoint(it->first);
-        it->second->applyToNode(bone, time, weight, scale);
+        SLJoint* joint = skel->getJoint(it->first);
+        it->second->applyToNode(joint, time, weight, scale);
     }
 
 }

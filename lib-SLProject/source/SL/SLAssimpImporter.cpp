@@ -311,7 +311,7 @@ SLNode* SLAssimpImporter::load(SLstring file,        //!< File with path or on d
         }
     } 
     
-    // add skinned material to the meshes with bone animations
+    // add skinned material to the meshes with joint animations
     // @todo: Can we do skinning in the shader without the need to dictated which material to use?
     if (_skinnedMeshes.size() > 0) {
         SLGLGenericProgram* skinningShader = new SLGLGenericProgram("PerVrtBlinnSkinned.vert","PerVrtBlinn.frag");
@@ -350,7 +350,7 @@ SLNode* SLAssimpImporter::load(SLstring file,        //!< File with path or on d
 void SLAssimpImporter::clear()
 {
     _nodeMap.clear();
-    _boneOffsets.clear();
+    _jointOffsets.clear();
     _skeletonRoot = NULL;
     _skeleton = NULL;
     _skinnedMeshes.clear();
@@ -369,14 +369,14 @@ aiNode* SLAssimpImporter::getNodeByName(const SLstring& name)
 /** return an aiBone ptr if name exists, or null if it doesn't */
 const SLMat4f SLAssimpImporter::getOffsetMat(const SLstring& name)
 {
-	if(_boneOffsets.find(name) != _boneOffsets.end())
-		return _boneOffsets[name];
+	if(_jointOffsets.find(name) != _jointOffsets.end())
+		return _jointOffsets[name];
 
 	return SLMat4f();
 }
 
 //-----------------------------------------------------------------------------
-/** populates nameToNode, nameToBone, boneGroups, skinnedMeshes */
+/** populates nameToNode, nameToBone, jointGroups, skinnedMeshes */
 void SLAssimpImporter::performInitialScan(const aiScene* scene)
 {
     // populate the _nameToNode map and print the assimp structure on detailed log verbosity.
@@ -393,10 +393,10 @@ void SLAssimpImporter::performInitialScan(const aiScene* scene)
     findNodes(scene->mRootNode, "  ", true);
     
     logMessage(LV_Detailed, "---------------------------------------------\n");
-    logMessage(LV_Detailed, "   Searching for skinned meshes and scanning bone names.\n");
+    logMessage(LV_Detailed, "   Searching for skinned meshes and scanning joint names.\n");
 
 
-    findBones(scene);
+    findJoints(scene);
     findSkeletonRoot();
 }
 
@@ -425,8 +425,8 @@ void SLAssimpImporter::findNodes(aiNode* node, SLstring padding, SLbool lastChil
     }
 }
 //-----------------------------------------------------------------------------
-/** scans all meshes in the assimp scene and populates nameToBone and boneGroups */
-void SLAssimpImporter::findBones(const aiScene* scene)
+/** scans all meshes in the assimp scene and populates nameToBone and jointGroups */
+void SLAssimpImporter::findJoints(const aiScene* scene)
 {
     for (SLint i = 0; i < scene->mNumMeshes; i++)
     {
@@ -434,20 +434,20 @@ void SLAssimpImporter::findBones(const aiScene* scene)
         if(!mesh->HasBones())
             continue;
 
-		logMessage(LV_Normal, "   Mesh '%s' contains %d bones.\n", mesh->mName.C_Str(), mesh->mNumBones);
+		logMessage(LV_Normal, "   Mesh '%s' contains %d joints.\n", mesh->mName.C_Str(), mesh->mNumBones);
         
         for (SLint j = 0; j < mesh->mNumBones; j++)
         {
 			SLstring name = mesh->mBones[j]->mName.C_Str();
-            std::map<SLstring, SLMat4f>::iterator it = _boneOffsets.find(name);
-			if(it != _boneOffsets.end())
+            std::map<SLstring, SLMat4f>::iterator it = _jointOffsets.find(name);
+			if(it != _jointOffsets.end())
 				continue;
 
             // add the offset matrix to our offset matrix map
 			SLMat4f offsetMat;
 			memcpy(&offsetMat, &mesh->mBones[j]->mOffsetMatrix, sizeof(SLMat4f));
 			offsetMat.transpose();
-			_boneOffsets[name] = offsetMat;
+			_jointOffsets[name] = offsetMat;
 
 
 			logMessage(LV_Detailed, "     Bone '%s' found.\n", name.c_str());
@@ -456,21 +456,21 @@ void SLAssimpImporter::findBones(const aiScene* scene)
 }
 
 //-----------------------------------------------------------------------------
-/** finds the common ancestor for each remaining group in boneGroups, these are our final skeleton roots */
+/** finds the common ancestor for each remaining group in jointGroups, these are our final skeleton roots */
 void SLAssimpImporter::findSkeletonRoot()
 {
     _skeletonRoot = NULL;
-    // early out if we don't have any bone bindings
-    if (_boneOffsets.size() == 0) return;
+    // early out if we don't have any joint bindings
+    if (_jointOffsets.size() == 0) return;
     
-	vector<NodeList> ancestorList(_boneOffsets.size());
+	vector<NodeList> ancestorList(_jointOffsets.size());
     SLint minDepth = INT_MAX;
     SLint index = 0;    
 
-    logMessage(LV_Detailed, "Building bone ancestor lists.\n");
+    logMessage(LV_Detailed, "Building joint ancestor lists.\n");
 
-    BoneOffsetMap::iterator it = _boneOffsets.begin();
-    for (; it != _boneOffsets.end(); it++, index++)
+    JointOffsetMap::iterator it = _jointOffsets.begin();
+    for (; it != _jointOffsets.end(); it++, index++)
     {
         aiNode* node = getNodeByName(it->first);
         NodeList& list = ancestorList[index];
@@ -499,7 +499,7 @@ void SLAssimpImporter::findSkeletonRoot()
     logMessage(LV_Detailed, "Bone ancestor lists completed, min depth: %d\n", minDepth);
     
     logMessage(LV_Detailed, "Searching ancestor lists for common ancestor.\n");
-    // now we have a ancestor list for each bone node beginning with the root node
+    // now we have a ancestor list for each joint node beginning with the root node
     for (SLint i = 0; i < minDepth; i++) 
     {
         SLbool failed = false;
@@ -539,30 +539,30 @@ void SLAssimpImporter::loadSkeleton(SLJoint* parent, aiNode* node)
         return;
 
 
-    SLJoint* bone;
+    SLJoint* joint;
     SLstring name = node->mName.C_Str();
     if (!parent)
     {
 	    logMessage(LV_Normal, "Loading skeleton skeleton.\n");
         _skeleton = new SLSkeleton;
-        _boneIndex = 0;
-        bone = _skeleton->createJoint(name, _boneIndex++); // @todo add a bone creator that also sets the bones name
-        _skeleton->root(bone);
+        _jointIndex = 0;
+        joint = _skeleton->createJoint(name, _jointIndex++); // @todo add a joint creator that also sets the joints name
+        _skeleton->root(joint);
     }
     else
     {
-        bone = parent->createChild(name, _boneIndex++);
+        joint = parent->createChild(name, _jointIndex++);
     }
 
-    bone->offsetMat(getOffsetMat(name));
+    joint->offsetMat(getOffsetMat(name));
     
-    // set the initial state for the bones (in case we render the model without playing its animation)
-    // an other possibility is to set the bones to the inverse offset matrix so that the model remains in
+    // set the initial state for the joints (in case we render the model without playing its animation)
+    // an other possibility is to set the joints to the inverse offset matrix so that the model remains in
     // its bind pose
     // some files will report the node transformation as the animation state transformation that the
     // model had when exporting (in case of our astroboy its in the middle of the animation=
-    // it might be more desirable to have ZERO bone transformations in the initial pose
-    // to be able to see the model without any bone modifications applied
+    // it might be more desirable to have ZERO joint transformations in the initial pose
+    // to be able to see the model without any joint modifications applied
     // exported state
     
     // set the current node transform as the initial state
@@ -570,21 +570,21 @@ void SLAssimpImporter::loadSkeleton(SLJoint* parent, aiNode* node)
     SLMat4f om;
     memcpy(&om, &node->mTransformation, sizeof(SLMat4f));
     om.transpose();
-    bone->om(om);
-    bone->setInitialState();
+    joint->om(om);
+    joint->setInitialState();
     /*/
     // set the binding pose as initial state
     SLMat4f om;
-    om = bone->offsetMat().inverse();
+    om = joint->offsetMat().inverse();
     if (parent)
         om = parent->updateAndGetWM().inverse() * om;
-    bone->om(om);
-    bone->setInitialState();
+    joint->om(om);
+    joint->setInitialState();
     /**/
 
 
     for (SLint i = 0; i < node->mNumChildren; i++)
-        loadSkeleton(bone, node->mChildren[i]);
+        loadSkeleton(joint, node->mChildren[i]);
 }
 
 //-----------------------------------------------------------------------------
@@ -757,7 +757,7 @@ SLMesh* SLAssimpImporter::loadMesh(aiMesh *mesh)
 
     //m->calcNormals();
 
-    // load bones
+    // load joints
     if (mesh->HasBones())
     {
         _skinnedMeshes.push_back(m);
@@ -772,17 +772,17 @@ SLMesh* SLAssimpImporter::loadMesh(aiMesh *mesh)
 
         for (SLint i = 0; i < mesh->mNumBones; i++)
         {
-            aiBone* bone = mesh->mBones[i];
-            SLJoint* slBone = _skeleton->getJoint(bone->mName.C_Str());
-            SLuint boneId = slBone->handle(); // @todo make sure that the returned bone actually exists, else we need to throw here since something in the importer must've gone wrong!
+            aiBone* joint = mesh->mBones[i];
+            SLJoint* slJoint = _skeleton->getJoint(joint->mName.C_Str());
+            SLuint jointId = slJoint->handle(); // @todo make sure that the returned joint actually exists, else we need to throw here since something in the importer must've gone wrong!
 
-            for (SLint j = 0; j < bone->mNumWeights; j++)
+            for (SLint j = 0; j < joint->mNumWeights; j++)
             {
                 // add the weight
-                SLuint vertId = bone->mWeights[j].mVertexId;
-                SLfloat weight = bone->mWeights[j].mWeight;
+                SLuint vertId = joint->mWeights[j].mVertexId;
+                SLfloat weight = joint->mWeights[j].mWeight;
 
-                m->addWeight(vertId, boneId, weight);
+                m->addWeight(vertId, jointId, weight);
             }
 
         }
@@ -895,7 +895,7 @@ SLAnimation* SLAssimpImporter::loadAnimation(aiAnimation* anim)
         SLuint handle = 0;
         SLbool isBoneNode = (affectedNode == NULL);
 
-        // @todo: this is currently a work around but it can happen that we receive normal node animationtracks and bone animationtracks
+        // @todo: this is currently a work around but it can happen that we receive normal node animationtracks and joint animationtracks
         //        we don't allow node animation tracks in a skeleton animation, so we should split an animation in two seperate 
         //        animations if this happens. for now we just ignore node animation tracks if we already have skeleton tracks
         //        ofc this will crash if the first track is a node anim but its just temporary
@@ -910,30 +910,30 @@ SLAnimation* SLAssimpImporter::loadAnimation(aiAnimation* anim)
             if (affectedBone == NULL)
                 break;
             handle = affectedBone->handle();
-            // @todo warn if we find an animation with some node channels and some bone channels
+            // @todo warn if we find an animation with some node channels and some joint channels
             //       this shouldn't happen!
 
             /// @todo [high priority!] Fix the problem described below
             // What does this next line do?
             //   
             //   The testimportfile we used (Astroboy.dae) has the following properties:
-            //      > It has bones in the skeleton that aren't animated by any channel.
-            //      > The bones need a reset position of (0, 0, 0) to work properly 
-            //          because the bone position is contained in a single keyframe for every bone
+            //      > It has joints in the skeleton that aren't animated by any channel.
+            //      > The joints need a reset position of (0, 0, 0) to work properly 
+            //          because the joint position is contained in a single keyframe for every joint
             //
-            //      Since some of the bones don't have a channel that animates them, they also lack
-            //      the bone position that the other bones get from their animation channel.
-            //      So we need to set the initial state for all bones that have a channel
+            //      Since some of the joints don't have a channel that animates them, they also lack
+            //      the joint position that the other joints get from their animation channel.
+            //      So we need to set the initial state for all joints that have a channel
             //      to identity.
-            //      All bones that arent in a channel will receive their local bone bind pose as
+            //      All joints that arent in a channel will receive their local joint bind pose as
             //      reset position.
             //
             //      The problem stems from the design desicion to reset a whole skeleton before applying 
-            //      animations to it. If we were to reset each bone just before applying a channel to it
+            //      animations to it. If we were to reset each joint just before applying a channel to it
             //      we wouldn't have this problem. But we coulnd't blend animations as easily.
             //
             //      @note (26-11-2014) about a week after this todo. This is the fault of the imported file
-            //            the base animation must provide a keyframe for every bone in the skeleton or we will
+            //            the base animation must provide a keyframe for every joint in the skeleton or we will
             //            get problems when we try to interpolate with an other animation.
             SLMat4f prevOM = affectedBone->om();
             affectedBone->om(SLMat4f());
@@ -942,14 +942,14 @@ SLAnimation* SLAssimpImporter::loadAnimation(aiAnimation* anim)
         }
                             
         // log
-        logMessage(LV_Normal, "\n  Channel %d %s", i, (isBoneNode) ? "(bone animation)\n" : "\n");
+        logMessage(LV_Normal, "\n  Channel %d %s", i, (isBoneNode) ? "(joint animation)\n" : "\n");
         logMessage(LV_Normal, "   Affected node: %s\n", channel->mNodeName.C_Str());
         logMessage(LV_Detailed, "   Num position keys: %d\n", channel->mNumPositionKeys);
         logMessage(LV_Detailed, "   Num rotation keys: %d\n", channel->mNumRotationKeys);
         logMessage(LV_Detailed, "   Num scaling keys: %d\n", channel->mNumScalingKeys);
 
         
-        // bone animation channels should receive the correct node id, normal node animations just get 0
+        // joint animation channels should receive the correct node id, normal node animations just get 0
         SLNodeAnimationTrack* track = result->createNodeAnimationTrack(handle);
 
         
@@ -1033,7 +1033,7 @@ SLAnimation* SLAssimpImporter::loadAnimation(aiAnimation* anim)
 //-----------------------------------------------------------------------------
 /*!
 SLAssimp::aiNodeHasMesh returns true if the passed node or one of its children 
-has a mesh. aiNode can contain only transform or bone nodes without any visuals. 
+has a mesh. aiNode can contain only transform or joint nodes without any visuals. 
 */
 SLbool SLAssimpImporter::aiNodeHasMesh(aiNode* node)
 {
