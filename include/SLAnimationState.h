@@ -23,6 +23,14 @@ class SLAnimationState
 public:
 
     SLAnimationState(SLAnimation* parent, SLfloat weight = 1.0f);
+    
+    void        playForward();
+    void        playBackward();
+    void        pause();
+    void        skipToNextKeyframe();
+    void        skipToPrevKeyframe();
+    void        skipToStart();
+    void        skipToEnd();
 
     SLfloat     localTime() const { return _localTime; }
     SLAnimation* parentAnimation() { return _parentAnim; }
@@ -31,6 +39,7 @@ public:
     SLbool      loop() const { return _loop; }
     SLbool      enabled() const { return _enabled; }
 
+    void        localTime(SLfloat time) { _localTime = time; }
     void        playbackRate(SLfloat pr) { _playbackRate = pr; }
     void        weight(SLfloat weight) { _weight = weight; }
     void        loop(SLbool val) { _loop = val; }
@@ -45,6 +54,7 @@ protected:
     SLfloat         _weight;
     SLbool          _loop;              //!< is this animation looping
     SLbool          _enabled;           //!< is this animation running
+    SLshort         _playbackDir;
 };
 
 

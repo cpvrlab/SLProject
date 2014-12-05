@@ -32,8 +32,10 @@ public:
     
     void length(SLfloat length);
     SLfloat length() const { return _length; }
+    
+    SLfloat nextKeyframeTime(SLfloat time);
+    SLfloat prevKeyframeTime(SLfloat time);
 
-    SLAnimationState* createAnimationState();
     SLNodeAnimationTrack* createNodeAnimationTrack(SLuint handle);
     
     void apply(SLfloat time, SLfloat weight = 1.0f, SLfloat scale = 1.0f); 

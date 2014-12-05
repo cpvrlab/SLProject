@@ -566,7 +566,7 @@ void SLAssimpImporter::loadSkeleton(SLBone* parent, aiNode* node)
     // exported state
     
     // set the current node transform as the initial state
-    /**/
+    /**
     SLMat4f om;
     memcpy(&om, &node->mTransformation, sizeof(SLMat4f));
     om.transpose();
@@ -574,8 +574,8 @@ void SLAssimpImporter::loadSkeleton(SLBone* parent, aiNode* node)
     bone->setInitialState();
     /*/
     // set the binding pose as initial state
-    /*SLMat4f om;
-    om = boneInfo->offsetMat.inverse();
+    SLMat4f om;
+    om = bone->offsetMat().inverse();
     if (parent)
         om = parent->updateAndGetWM().inverse() * om;
     bone->om(om);
@@ -935,8 +935,10 @@ SLAnimation* SLAssimpImporter::loadAnimation(aiAnimation* anim)
             //      @note (26-11-2014) about a week after this todo. This is the fault of the imported file
             //            the base animation must provide a keyframe for every bone in the skeleton or we will
             //            get problems when we try to interpolate with an other animation.
+            SLMat4f prevOM = affectedBone->om();
             affectedBone->om(SLMat4f());
             affectedBone->setInitialState();
+            affectedBone->om(prevOM);
         }
                             
         // log

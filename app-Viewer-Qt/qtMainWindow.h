@@ -16,6 +16,7 @@
 #include <SL.h>
 #include <SLNode.h>
 #include <SLMesh.h>
+#include <SLAnimationState.h>
 #include "qtGLWidget.h"
 #include "qtNodeTreeItem.h"
 #include "ui_qtMainWindow.h"
@@ -38,6 +39,7 @@ class qtMainWindow : public QMainWindow
         void        afterSceneLoad();
         void        buildNodeTree();
         void        updateAnimationList();
+        void        updateAnimationTimeline();
         void        buildPropertyTree();
         void        addNodeTreeItem(SLNode* node,
 							        QTreeWidget* tree,
@@ -164,10 +166,26 @@ class qtMainWindow : public QMainWindow
         void on_propertyTree_itemChanged(QTreeWidgetItem *item, int column);
         void on_dockScenegraph_visibilityChanged(bool visible);
         void on_dockProperties_visibilityChanged(bool visible);
+
+        // animation
+        void on_animAnimatedObjectSelect_currentIndexChanged(int index);
+        void on_animAnimationSelect_currentIndexChanged(int index);
+
+        void on_animSkipStartButton_clicked();
+        void on_animSkipEndButton_clicked();
+        void on_animPrevKeyframeButton_clicked();
+        void on_animNextKeyframeButton_clicked();
+        void on_animPlayForwardButton_clicked();
+        void on_animPlayBackwardButton_clicked();
+        void on_animPauseButton_clicked();
+        void on_animStopButton_clicked();
+
+        void on_animTimelineSlider_sliderMoved(int value);
+        void on_animTimelineSlider_sliderPressed(int value);
         
-        void on_animationTypeSelect_currentIndexChanged(int index);
-        void on_animationSelect_currentIndexChanged(int index);
-        //void on_animationPlayPressed();
+        void on_animWeightInput_valueChanged(double d);
+        void on_animSpeedInput_valueChanged(double d);
+        
 
 private:
         Ui::qtMainWindow*  ui;
@@ -178,11 +196,14 @@ private:
         QMenu*            _menuRenderer;
         QMenu*            _menuInfos;
         QMenu*            _menuCamera;
+        QMenu*            _menuAnimation;
         QMenu*            _menuRenderFlags;
         QMenu*            _menuRayTracing;
         QMenu*            _menuPathTracing;
         QMenu*            _menuWindow;
         QMenu*            _menuHelp;
+
+        SLAnimationState*   _selectedAnim;
 };
 
 #endif // MAINWINDOW_H

@@ -104,14 +104,14 @@ void SLSkeleton::updateAnimations()
     SLScene* scene = SLScene::current;
 
     // @todo don't do this if we don't have any enabled animations
-    reset();
+    //reset();
 
     map<SLstring, SLAnimationState*>::iterator it;
     for (it = _animationStates.begin(); it != _animationStates.end(); it++)
     {
         SLAnimationState* state = it->second;
         if (state->enabled())
-        {
+        {reset();
             state->advanceTime(scene->elapsedTimeSec());
             state->parentAnimation()->apply(this, state->localTime(), state->weight());
         }

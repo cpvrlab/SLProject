@@ -152,7 +152,7 @@
      <addaction name="action_fovInc10"/>
      <addaction name="action_fovDec10"/>
     </widget>
-    <widget class="QMenu" name="menuAnimation">
+    <widget class="QMenu" name="menuCamAnimation">
      <property name="title">
       <string>Animation</string>
      </property>
@@ -171,7 +171,7 @@
     <addaction name="actionReset"/>
     <addaction name="actionUse_SceneView_Camera"/>
     <addaction name="menuProjection"/>
-    <addaction name="menuAnimation"/>
+    <addaction name="menuCamAnimation"/>
     <addaction name="menuField_of_View"/>
     <addaction name="menuForward_Speed"/>
    </widget>
@@ -259,11 +259,25 @@
     <addaction name="actionAbout_Qt"/>
     <addaction name="actionCredits"/>
    </widget>
+   <widget class="QMenu" name="menuAnimation">
+    <property name="title">
+     <string>Animation</string>
+    </property>
+    <addaction name="actionAnimPlayForward"/>
+    <addaction name="actionAnimPlayBackward"/>
+    <addaction name="actionAnimPause"/>
+    <addaction name="actionAnimStop"/>
+    <addaction name="actionAnimNextKeyframe"/>
+    <addaction name="actionAnimPrevKeyframe"/>
+    <addaction name="actionAnimSkipToEnd"/>
+    <addaction name="actionAnimSkipToStart"/>
+   </widget>
    <addaction name="menuFile"/>
    <addaction name="menuRenderer"/>
    <addaction name="menuInfos"/>
    <addaction name="menuCamera"/>
    <addaction name="menuRender_Flags"/>
+   <addaction name="menuAnimation"/>
    <addaction name="menuRay_Tracing"/>
    <addaction name="menuPath_tracing"/>
    <addaction name="menuWindow"/>
@@ -503,80 +517,238 @@
      <verstretch>0</verstretch>
     </sizepolicy>
    </property>
+   <property name="minimumSize">
+    <size>
+     <width>331</width>
+     <height>70</height>
+    </size>
+   </property>
    <property name="floating">
     <bool>false</bool>
    </property>
    <property name="features">
     <set>QDockWidget::NoDockWidgetFeatures</set>
    </property>
+   <property name="windowTitle">
+    <string>Animation</string>
+   </property>
    <attribute name="dockWidgetArea">
     <number>8</number>
    </attribute>
    <widget class="QWidget" name="dockWidgetContents_3">
-    <layout class="QHBoxLayout" name="horizontalLayout">
+    <property name="sizePolicy">
+     <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
+      <horstretch>0</horstretch>
+      <verstretch>0</verstretch>
+     </sizepolicy>
+    </property>
+    <layout class="QVBoxLayout" name="verticalLayout_3">
+     <property name="spacing">
+      <number>2</number>
+     </property>
+     <property name="leftMargin">
+      <number>4</number>
+     </property>
+     <property name="topMargin">
+      <number>2</number>
+     </property>
+     <property name="rightMargin">
+      <number>4</number>
+     </property>
+     <property name="bottomMargin">
+      <number>2</number>
+     </property>
      <item>
-      <widget class="QComboBox" name="animationTypeSelect"/>
-     </item>
-     <item>
-      <widget class="QComboBox" name="animationSelect"/>
-     </item>
-     <item>
-      <widget class="QLineEdit" name="animWeightInput">
+      <widget class="QWidget" name="widget_2" native="true">
        <property name="sizePolicy">
-        <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+        <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
          <horstretch>0</horstretch>
          <verstretch>0</verstretch>
         </sizepolicy>
        </property>
+       <layout class="QHBoxLayout" name="horizontalLayout">
+        <property name="spacing">
+         <number>2</number>
+        </property>
+        <property name="leftMargin">
+         <number>0</number>
+        </property>
+        <property name="topMargin">
+         <number>0</number>
+        </property>
+        <property name="rightMargin">
+         <number>0</number>
+        </property>
+        <property name="bottomMargin">
+         <number>0</number>
+        </property>
+        <item>
+         <widget class="QComboBox" name="animAnimatedObjectSelect">
+          <item>
+           <property name="text">
+            <string>Animated objects</string>
+           </property>
+          </item>
+         </widget>
+        </item>
+        <item>
+         <widget class="QComboBox" name="animAnimationSelect">
+          <item>
+           <property name="text">
+            <string>Animations</string>
+           </property>
+          </item>
+         </widget>
+        </item>
+       </layout>
       </widget>
      </item>
      <item>
-      <widget class="QToolButton" name="skipStartButton">
-       <property name="text">
-        <string>skipStart</string>
+      <widget class="QWidget" name="widget" native="true">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
        </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QToolButton" name="prevKeyframeButton">
-       <property name="text">
-        <string>prevKeyframe</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QToolButton" name="playBackwardButton">
-       <property name="text">
-        <string>playBackward</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QToolButton" name="pauseButton">
-       <property name="text">
-        <string>pause</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QToolButton" name="playForwardButton">
-       <property name="text">
-        <string>playForward</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QToolButton" name="nextKeyframeButton">
-       <property name="text">
-        <string>nextKeyframe</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QToolButton" name="skipEndButton">
-       <property name="text">
-        <string>skipEnd</string>
-       </property>
+       <layout class="QHBoxLayout" name="horizontalLayout_2">
+        <property name="spacing">
+         <number>2</number>
+        </property>
+        <property name="leftMargin">
+         <number>0</number>
+        </property>
+        <property name="topMargin">
+         <number>0</number>
+        </property>
+        <property name="rightMargin">
+         <number>0</number>
+        </property>
+        <property name="bottomMargin">
+         <number>0</number>
+        </property>
+        <item>
+         <widget class="QToolButton" name="animSkipStartButton">
+          <property name="text">
+           <string>skipStart</string>
+          </property>
+          <property name="icon">
+           <iconset>
+            <normaloff>images/animGoToStart.png</normaloff>images/animGoToStart.png</iconset>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QToolButton" name="animPrevKeyframeButton">
+          <property name="text">
+           <string>prevKeyframe</string>
+          </property>
+          <property name="icon">
+           <iconset>
+            <normaloff>images/animPrevKF.png</normaloff>images/animPrevKF.png</iconset>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QToolButton" name="animPlayBackwardButton">
+          <property name="text">
+           <string>playBackward</string>
+          </property>
+          <property name="icon">
+           <iconset>
+            <normaloff>images/animPlayBackwards.png</normaloff>images/animPlayBackwards.png</iconset>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QToolButton" name="animStopButton">
+          <property name="text">
+           <string>...</string>
+          </property>
+          <property name="icon">
+           <iconset>
+            <normaloff>images/animStop.png</normaloff>images/animStop.png</iconset>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QToolButton" name="animPauseButton">
+          <property name="text">
+           <string>pause</string>
+          </property>
+          <property name="icon">
+           <iconset>
+            <normaloff>images/animPause.png</normaloff>images/animPause.png</iconset>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QToolButton" name="animPlayForwardButton">
+          <property name="text">
+           <string>playForward</string>
+          </property>
+          <property name="icon">
+           <iconset>
+            <normaloff>images/animPlay.png</normaloff>images/animPlay.png</iconset>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QToolButton" name="animNextKeyframeButton">
+          <property name="text">
+           <string>nextKeyframe</string>
+          </property>
+          <property name="icon">
+           <iconset>
+            <normaloff>images/animNextKF.png</normaloff>images/animNextKF.png</iconset>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QToolButton" name="animSkipEndButton">
+          <property name="text">
+           <string>skipEnd</string>
+          </property>
+          <property name="icon">
+           <iconset>
+            <normaloff>images/animGoToEnd.png</normaloff>images/animGoToEnd.png</iconset>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QDoubleSpinBox" name="animSpeedInput">
+          <property name="maximum">
+           <double>20.000000000000000</double>
+          </property>
+          <property name="singleStep">
+           <double>0.100000000000000</double>
+          </property>
+          <property name="value">
+           <double>1.000000000000000</double>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QDoubleSpinBox" name="animWeightInput">
+          <property name="maximum">
+           <double>10.000000000000000</double>
+          </property>
+          <property name="singleStep">
+           <double>0.100000000000000</double>
+          </property>
+          <property name="value">
+           <double>1.000000000000000</double>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QSlider" name="animTimelineSlider">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+         </widget>
+        </item>
+       </layout>
       </widget>
      </item>
     </layout>
@@ -1625,9 +1797,79 @@
     <string>Uses the scene view camera that is not in the scene. Press shift to apply on all views.</string>
    </property>
   </action>
-  <action name="actionAnimationPlay">
+  <action name="actionAnimPlayForward">
+   <property name="icon">
+    <iconset>
+     <normaloff>images/animPlay.png</normaloff>images/animPlay.png</iconset>
+   </property>
    <property name="text">
-    <string>actionAnimationPlay</string>
+    <string>Play forward</string>
+   </property>
+   <property name="toolTip">
+    <string>Play animation forward</string>
+   </property>
+  </action>
+  <action name="actionAnimPause">
+   <property name="icon">
+    <iconset>
+     <normaloff>images/animPause.png</normaloff>images/animPause.png</iconset>
+   </property>
+   <property name="text">
+    <string>Pause</string>
+   </property>
+  </action>
+  <action name="actionAnimPlayBackward">
+   <property name="icon">
+    <iconset>
+     <normaloff>images/animPlayBackwards.png</normaloff>images/animPlayBackwards.png</iconset>
+   </property>
+   <property name="text">
+    <string>Play backward</string>
+   </property>
+  </action>
+  <action name="actionAnimNextKeyframe">
+   <property name="icon">
+    <iconset>
+     <normaloff>images/animNextKF.png</normaloff>images/animNextKF.png</iconset>
+   </property>
+   <property name="text">
+    <string>Next keyframe</string>
+   </property>
+  </action>
+  <action name="actionAnimPrevKeyframe">
+   <property name="icon">
+    <iconset>
+     <normaloff>images/animPrevKF.png</normaloff>images/animPrevKF.png</iconset>
+   </property>
+   <property name="text">
+    <string>Previous keyframe</string>
+   </property>
+  </action>
+  <action name="actionAnimSkipToStart">
+   <property name="icon">
+    <iconset>
+     <normaloff>images/animGoToStart.png</normaloff>images/animGoToStart.png</iconset>
+   </property>
+   <property name="text">
+    <string>Skip to first frame</string>
+   </property>
+  </action>
+  <action name="actionAnimSkipToEnd">
+   <property name="icon">
+    <iconset>
+     <normaloff>images/animGoToEnd.png</normaloff>images/animGoToEnd.png</iconset>
+   </property>
+   <property name="text">
+    <string>Skip to last frame</string>
+   </property>
+  </action>
+  <action name="actionAnimStop">
+   <property name="icon">
+    <iconset>
+     <normaloff>images/animStop.png</normaloff>images/animStop.png</iconset>
+   </property>
+   <property name="text">
+    <string>Stop</string>
    </property>
   </action>
  </widget>
@@ -1642,5 +1884,134 @@
  <resources>
   <include location="resources.qrc"/>
  </resources>
- <connections/>
+ <connections>
+  <connection>
+   <sender>actionAnimPlayForward</sender>
+   <signal>triggered()</signal>
+   <receiver>animPlayForwardButton</receiver>
+   <slot>click()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>115</x>
+     <y>623</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionAnimPlayBackward</sender>
+   <signal>triggered()</signal>
+   <receiver>animPlayBackwardButton</receiver>
+   <slot>click()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>65</x>
+     <y>623</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionAnimPause</sender>
+   <signal>triggered()</signal>
+   <receiver>animPauseButton</receiver>
+   <slot>click()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>90</x>
+     <y>623</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionAnimNextKeyframe</sender>
+   <signal>triggered()</signal>
+   <receiver>animNextKeyframeButton</receiver>
+   <slot>click()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>140</x>
+     <y>623</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionAnimPrevKeyframe</sender>
+   <signal>triggered()</signal>
+   <receiver>animPrevKeyframeButton</receiver>
+   <slot>click()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>40</x>
+     <y>623</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionAnimSkipToEnd</sender>
+   <signal>triggered()</signal>
+   <receiver>animSkipEndButton</receiver>
+   <slot>click()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>165</x>
+     <y>623</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionAnimSkipToStart</sender>
+   <signal>triggered()</signal>
+   <receiver>animSkipStartButton</receiver>
+   <slot>click()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>15</x>
+     <y>623</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionAnimStop</sender>
+   <signal>triggered()</signal>
+   <receiver>animStopButton</receiver>
+   <slot>click()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>90</x>
+     <y>623</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
 </ui>

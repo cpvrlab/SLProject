@@ -42,10 +42,45 @@ void SLAnimation::length(SLfloat length)
     _length = length;
 }
 
-
-SLAnimationState* SLAnimation::createAnimationState()
+SLfloat SLAnimation::nextKeyframeTime(SLfloat time)
 {
-    SLAnimationState* result = SLScene::current->animManager().createNodeAnimationState(this);
+    // find the closest keyframe time to the right
+    SLfloat result = _length;
+    SLKeyframe* kf1;
+    SLKeyframe* kf2;
+    
+    map<SLuint, SLNodeAnimationTrack*>::iterator it = _nodeAnimations.begin();
+    for (; it != _nodeAnimations.end(); it++)
+    {
+        it->second->getKeyframesAtTime(time, &kf1, &kf2);
+        if (kf2->time() < result && kf2->time() >= time)
+            result = kf2->time();
+    }
+
+    return result;
+}
+
+SLfloat SLAnimation::prevKeyframeTime(SLfloat time)
+{
+    // find the closest keyframe time to the right
+    SLfloat result = 0.0;
+    SLKeyframe* kf1;
+    SLKeyframe* kf2;
+
+    // shift the time a little bit to the left or else the getKeyframesAtTime function
+    // would return the same keyframe over and over again
+    time -= 0.01f; 
+    if (time <= 0.0f)
+        return 0.0f;
+
+    map<SLuint, SLNodeAnimationTrack*>::iterator it = _nodeAnimations.begin();
+    for (; it != _nodeAnimations.end(); it++)
+    {
+        it->second->getKeyframesAtTime(time, &kf1, &kf2);
+        if (kf1->time() > result && kf1->time() <= time)
+            result = kf1->time();
+    }
+
     return result;
 }
 

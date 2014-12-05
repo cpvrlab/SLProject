@@ -310,12 +310,6 @@ bool SLScene::updateIfAllViewsGotPainted()
 
     //@todo Don't slow down if we're in HMD stereo mode
     //animated = animated || _ camera->projection() == stereoSideBySideD;
-    static bool temp = false;
-    if (!temp) {
-        temp =  true;
-        //SLAnimationState* skelState = _animManager.skeletons()[1]->getAnimationState("unnamed_anim_0");
-        //skelState->enabled(true);
-    }
     _animManager.update();
 
     // Update the world matrix & AABBs efficiently

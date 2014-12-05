@@ -7,6 +7,7 @@ SLAnimationState::SLAnimationState(SLAnimation* parent, SLfloat weight)
 : _parentAnim(parent), 
 _localTime(0.0f),
 _playbackRate(1.0f),
+_playbackDir(1),
 _weight(weight),
 _loop(true),
 _enabled(false)
@@ -17,7 +18,7 @@ void SLAnimationState::advanceTime(SLfloat delta)
     if (!_enabled)
         return;
 
-    _localTime += delta * _playbackRate;
+    _localTime += delta * _playbackRate * _playbackDir;
 
     // fix invalid inputs
     if (_localTime > _parentAnim->length())
@@ -36,4 +37,42 @@ void SLAnimationState::advanceTime(SLfloat delta)
         else
             _localTime = 0.0f;
     }     
+}
+
+
+
+void SLAnimationState::playForward()
+{
+    _enabled = true;
+    _playbackDir = 1.0;
+}
+void SLAnimationState::playBackward()
+{
+    _enabled = true;
+    _playbackDir = -1.0;
+}
+void SLAnimationState::pause()
+{
+    // @todo is a paused animation disabled OR is it enabled but just not advancing time?
+    //       currently we set the direction multiplier to 0
+    _enabled = true;
+    _playbackDir = 0.0;
+}
+void SLAnimationState::skipToNextKeyframe()
+{
+    SLfloat time = _parentAnim->nextKeyframeTime(_localTime);
+    localTime(time);
+}
+void SLAnimationState::skipToPrevKeyframe()
+{
+    SLfloat time = _parentAnim->prevKeyframeTime(_localTime);
+    localTime(time);
+}
+void SLAnimationState::skipToStart()
+{
+    localTime(0.0f);
+}
+void SLAnimationState::skipToEnd()
+{
+    localTime(_parentAnim->length());
 }

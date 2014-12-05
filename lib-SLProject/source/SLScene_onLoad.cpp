@@ -359,9 +359,17 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
         light1->diffuse(SLCol4f(1.0f, 1.0f, 1.0f));
         light1->specular(SLCol4f(1.0f, 1.0f, 1.0f));
         light1->attenuation(1,0,0);
+        light1->setInitialState();
         /// @add add old animation functionality back in
         //light1->animation(new SLAnimation(2,SLVec3f(0,0,-5), pingPongLoop, inOutCubic));
-        //light1->samples(8,8);
+        light1->samples(8,8);
+        SLAnimation* anim = new SLAnimation("anim_light1_backforth", 2.0f); // 2 second animation
+        _animManager.addNodeAnimation(anim); // @todo don't make us call this function, add a createNodeAnim in the manager!
+        SLNodeAnimationTrack* track = anim->createNodeAnimationTrack(0);
+        track->animationTarget(light1);
+        track->createNodeKeyframe(0.0f);    // @todo auto create a 0.0 keyframe!
+        track->createNodeKeyframe(1.0f)->translation(SLVec3f(0.0f, 0.0f, -5.0f)); // @ todo add looping behaviours again (pingpong etc)
+        _animManager.getNodeAnimationState("anim_light1_backforth")->enabled(true);
 
         SLLightSphere* light2 = new SLLightSphere(-2.5f, -2.5f, 2.5f, 0.2f);
         light2->ambient(SLCol4f(0.1f, 0.1f, 0.1f));
@@ -507,8 +515,6 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
         
         importer.logFileVerbosity(LV_Diagnostic);
         SLNode* simpleSkinnedMesh9 = importer.load("DAE/NodeAnimation/icosphere2.dae");
-        SLAnimationState* state = importer.nodeAnimations()[0]->createAnimationState();
-        state->enabled(true);
         SLNode* cubeContainer5 = new SLNode;
         cubeContainer5->addChild(simpleSkinnedMesh9);
         cubeContainer5->translate(6, 0, 7);
