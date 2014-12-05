@@ -22,6 +22,7 @@
 #include <QtWidgets/QMenu>
 #include <QtWidgets/QMenuBar>
 #include <QtWidgets/QSlider>
+#include <QtWidgets/QSpacerItem>
 #include <QtWidgets/QStatusBar>
 #include <QtWidgets/QToolBar>
 #include <QtWidgets/QToolButton>
@@ -175,6 +176,7 @@ public:
     QComboBox *animAnimationSelect;
     QWidget *widget;
     QHBoxLayout *horizontalLayout_2;
+    QSpacerItem *horizontalSpacer;
     QToolButton *animSkipStartButton;
     QToolButton *animPrevKeyframeButton;
     QToolButton *animPlayBackwardButton;
@@ -185,6 +187,8 @@ public:
     QToolButton *animSkipEndButton;
     QDoubleSpinBox *animSpeedInput;
     QDoubleSpinBox *animWeightInput;
+    QComboBox *animEasingSelect;
+    QSpacerItem *horizontalSpacer_2;
     QSlider *animTimelineSlider;
     QToolBar *toolBar_2;
 
@@ -696,7 +700,7 @@ public:
         sizePolicy3.setVerticalStretch(0);
         sizePolicy3.setHeightForWidth(dockAnimation->sizePolicy().hasHeightForWidth());
         dockAnimation->setSizePolicy(sizePolicy3);
-        dockAnimation->setMinimumSize(QSize(331, 70));
+        dockAnimation->setMinimumSize(QSize(391, 94));
         dockAnimation->setFloating(false);
         dockAnimation->setFeatures(QDockWidget::AllDockWidgetFeatures);
         dockWidgetContents_3 = new QWidget();
@@ -739,6 +743,10 @@ public:
         horizontalLayout_2->setContentsMargins(11, 11, 11, 11);
         horizontalLayout_2->setObjectName(QStringLiteral("horizontalLayout_2"));
         horizontalLayout_2->setContentsMargins(0, 0, 0, 0);
+        horizontalSpacer = new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
+
+        horizontalLayout_2->addItem(horizontalSpacer);
+
         animSkipStartButton = new QToolButton(widget);
         animSkipStartButton->setObjectName(QStringLiteral("animSkipStartButton"));
         animSkipStartButton->setIcon(icon23);
@@ -789,6 +797,8 @@ public:
 
         animSpeedInput = new QDoubleSpinBox(widget);
         animSpeedInput->setObjectName(QStringLiteral("animSpeedInput"));
+        sizePolicy3.setHeightForWidth(animSpeedInput->sizePolicy().hasHeightForWidth());
+        animSpeedInput->setSizePolicy(sizePolicy3);
         animSpeedInput->setMaximum(20);
         animSpeedInput->setSingleStep(0.1);
         animSpeedInput->setValue(1);
@@ -797,20 +807,36 @@ public:
 
         animWeightInput = new QDoubleSpinBox(widget);
         animWeightInput->setObjectName(QStringLiteral("animWeightInput"));
+        sizePolicy3.setHeightForWidth(animWeightInput->sizePolicy().hasHeightForWidth());
+        animWeightInput->setSizePolicy(sizePolicy3);
         animWeightInput->setMaximum(10);
         animWeightInput->setSingleStep(0.1);
         animWeightInput->setValue(1);
 
         horizontalLayout_2->addWidget(animWeightInput);
 
-        animTimelineSlider = new QSlider(widget);
-        animTimelineSlider->setObjectName(QStringLiteral("animTimelineSlider"));
-        animTimelineSlider->setOrientation(Qt::Horizontal);
+        animEasingSelect = new QComboBox(widget);
+        animEasingSelect->setObjectName(QStringLiteral("animEasingSelect"));
+        QSizePolicy sizePolicy4(QSizePolicy::MinimumExpanding, QSizePolicy::Fixed);
+        sizePolicy4.setHorizontalStretch(0);
+        sizePolicy4.setVerticalStretch(0);
+        sizePolicy4.setHeightForWidth(animEasingSelect->sizePolicy().hasHeightForWidth());
+        animEasingSelect->setSizePolicy(sizePolicy4);
 
-        horizontalLayout_2->addWidget(animTimelineSlider);
+        horizontalLayout_2->addWidget(animEasingSelect);
+
+        horizontalSpacer_2 = new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
+
+        horizontalLayout_2->addItem(horizontalSpacer_2);
 
 
         verticalLayout_3->addWidget(widget);
+
+        animTimelineSlider = new QSlider(dockWidgetContents_3);
+        animTimelineSlider->setObjectName(QStringLiteral("animTimelineSlider"));
+        animTimelineSlider->setOrientation(Qt::Horizontal);
+
+        verticalLayout_3->addWidget(animTimelineSlider);
 
         dockAnimation->setWidget(dockWidgetContents_3);
         qtMainWindow->addDockWidget(static_cast<Qt::DockWidgetArea>(8), dockAnimation);
@@ -1396,6 +1422,31 @@ public:
         animPlayForwardButton->setText(QApplication::translate("qtMainWindow", "playForward", 0));
         animNextKeyframeButton->setText(QApplication::translate("qtMainWindow", "nextKeyframe", 0));
         animSkipEndButton->setText(QApplication::translate("qtMainWindow", "skipEnd", 0));
+        animEasingSelect->clear();
+        animEasingSelect->insertItems(0, QStringList()
+         << QApplication::translate("qtMainWindow", "Easing curve", 0)
+         << QApplication::translate("qtMainWindow", "linear", 0)
+         << QApplication::translate("qtMainWindow", "quadratic in", 0)
+         << QApplication::translate("qtMainWindow", "quadratic out", 0)
+         << QApplication::translate("qtMainWindow", "quadratic in -> out", 0)
+         << QApplication::translate("qtMainWindow", "quadratic out -> in", 0)
+         << QApplication::translate("qtMainWindow", "cubic in", 0)
+         << QApplication::translate("qtMainWindow", "cubic out", 0)
+         << QApplication::translate("qtMainWindow", "cubic in -> out", 0)
+         << QApplication::translate("qtMainWindow", "cubic out -> in", 0)
+         << QApplication::translate("qtMainWindow", "quartic in", 0)
+         << QApplication::translate("qtMainWindow", "quartic out", 0)
+         << QApplication::translate("qtMainWindow", "quartic in -> out", 0)
+         << QApplication::translate("qtMainWindow", "quartic out -> in", 0)
+         << QApplication::translate("qtMainWindow", "quintic in", 0)
+         << QApplication::translate("qtMainWindow", "quintic out", 0)
+         << QApplication::translate("qtMainWindow", "quintic in -> out", 0)
+         << QApplication::translate("qtMainWindow", "quintic out -> in", 0)
+         << QApplication::translate("qtMainWindow", "sine in", 0)
+         << QApplication::translate("qtMainWindow", "sine out", 0)
+         << QApplication::translate("qtMainWindow", "sine in -> out", 0)
+         << QApplication::translate("qtMainWindow", "sine out -> in", 0)
+        );
         toolBar_2->setWindowTitle(QApplication::translate("qtMainWindow", "toolBar_2", 0));
     } // retranslateUi
 

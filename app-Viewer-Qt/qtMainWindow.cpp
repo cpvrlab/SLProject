@@ -1456,6 +1456,7 @@ void qtMainWindow::on_animAnimationSelect_currentIndexChanged(int index)
     _selectedAnim = state;
     ui->animSpeedInput->setValue(state->playbackRate());
     ui->animWeightInput->setValue(state->weight());
+    ui->animEasingSelect->setCurrentIndex(state->easing());
 
     std::cout << "on_animationSelectIndexChanged " << index << " " << state->parentAnimation()->name() << "\n";
 
@@ -1527,20 +1528,23 @@ void qtMainWindow::on_animStopButton_clicked()
 
     _selectedAnim->enabled(false);
 }
+
+//-----------------------------------------------------------------------------
+void qtMainWindow::on_animEasingSelect_currentIndexChanged(int index)
+{
+    if (!_selectedAnim)
+        return;
+
+    SLfloat localTime = _selectedAnim->localTime(); // preserve the local time before switching the easing
+    _selectedAnim->easing((SLEasingCurve)index);
+    _selectedAnim->localTime(localTime);
+}
 //-----------------------------------------------------------------------------
 void qtMainWindow::on_animTimelineSlider_sliderMoved(int value)
 {
     if (!_selectedAnim)
         return;
     
-    SLfloat time = (SLfloat)value / 100.0 * _selectedAnim->parentAnimation()->length();
-    _selectedAnim->localTime(time);
-}
-void qtMainWindow::on_animTimelineSlider_sliderPressed(int value)
-{
-    if (!_selectedAnim)
-        return;
-
     SLfloat time = (SLfloat)value / 100.0 * _selectedAnim->parentAnimation()->length();
     _selectedAnim->localTime(time);
 }

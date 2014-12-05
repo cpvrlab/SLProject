@@ -20,7 +20,7 @@
 QT_BEGIN_MOC_NAMESPACE
 struct qt_meta_stringdata_qtMainWindow_t {
     QByteArrayData data[118];
-    char stringdata[3739];
+    char stringdata[3743];
 };
 #define QT_MOC_LITERAL(idx, ofs, len) \
     Q_STATIC_BYTE_ARRAY_DATA_HEADER_INITIALIZER_WITH_OFFSET(len, \
@@ -141,12 +141,12 @@ QT_MOC_LITERAL(108, 3478, 32),
 QT_MOC_LITERAL(109, 3511, 33),
 QT_MOC_LITERAL(110, 3545, 26),
 QT_MOC_LITERAL(111, 3572, 25),
-QT_MOC_LITERAL(112, 3598, 33),
-QT_MOC_LITERAL(113, 3632, 5),
-QT_MOC_LITERAL(114, 3638, 35),
-QT_MOC_LITERAL(115, 3674, 31),
-QT_MOC_LITERAL(116, 3706, 1),
-QT_MOC_LITERAL(117, 3708, 30)
+QT_MOC_LITERAL(112, 3598, 39),
+QT_MOC_LITERAL(113, 3638, 33),
+QT_MOC_LITERAL(114, 3672, 5),
+QT_MOC_LITERAL(115, 3678, 31),
+QT_MOC_LITERAL(116, 3710, 1),
+QT_MOC_LITERAL(117, 3712, 30)
     },
     "qtMainWindow\0on_action_Quit_triggered\0"
     "\0on_actionSmall_Test_Scene_triggered\0"
@@ -253,10 +253,10 @@ QT_MOC_LITERAL(117, 3708, 30)
     "on_animPlayBackwardButton_clicked\0"
     "on_animPauseButton_clicked\0"
     "on_animStopButton_clicked\0"
+    "on_animEasingSelect_currentIndexChanged\0"
     "on_animTimelineSlider_sliderMoved\0"
-    "value\0on_animTimelineSlider_sliderPressed\0"
-    "on_animWeightInput_valueChanged\0d\0"
-    "on_animSpeedInput_valueChanged"
+    "value\0on_animWeightInput_valueChanged\0"
+    "d\0on_animSpeedInput_valueChanged"
 };
 #undef QT_MOC_LITERAL
 
@@ -380,7 +380,7 @@ static const uint qt_meta_data_qtMainWindow[] = {
      110,    0,  682,    2, 0x08 /* Private */,
      111,    0,  683,    2, 0x08 /* Private */,
      112,    1,  684,    2, 0x08 /* Private */,
-     114,    1,  687,    2, 0x08 /* Private */,
+     113,    1,  687,    2, 0x08 /* Private */,
      115,    1,  690,    2, 0x08 /* Private */,
      117,    1,  693,    2, 0x08 /* Private */,
 
@@ -490,8 +490,8 @@ static const uint qt_meta_data_qtMainWindow[] = {
     QMetaType::Void,
     QMetaType::Void,
     QMetaType::Void,
-    QMetaType::Void, QMetaType::Int,  113,
-    QMetaType::Void, QMetaType::Int,  113,
+    QMetaType::Void, QMetaType::Int,  102,
+    QMetaType::Void, QMetaType::Int,  114,
     QMetaType::Void, QMetaType::Double,  116,
     QMetaType::Void, QMetaType::Double,  116,
 
@@ -608,8 +608,8 @@ void qtMainWindow::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id
         case 102: _t->on_animPlayBackwardButton_clicked(); break;
         case 103: _t->on_animPauseButton_clicked(); break;
         case 104: _t->on_animStopButton_clicked(); break;
-        case 105: _t->on_animTimelineSlider_sliderMoved((*reinterpret_cast< int(*)>(_a[1]))); break;
-        case 106: _t->on_animTimelineSlider_sliderPressed((*reinterpret_cast< int(*)>(_a[1]))); break;
+        case 105: _t->on_animEasingSelect_currentIndexChanged((*reinterpret_cast< int(*)>(_a[1]))); break;
+        case 106: _t->on_animTimelineSlider_sliderMoved((*reinterpret_cast< int(*)>(_a[1]))); break;
         case 107: _t->on_animWeightInput_valueChanged((*reinterpret_cast< double(*)>(_a[1]))); break;
         case 108: _t->on_animSpeedInput_valueChanged((*reinterpret_cast< double(*)>(_a[1]))); break;
         default: ;

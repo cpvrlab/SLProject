@@ -380,6 +380,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
         track->createNodeKeyframe(0.0f);    // @todo auto create a 0.0 keyframe!
         track->createNodeKeyframe(1.0f)->translation(SLVec3f(0.0f, 0.0f, -5.0f)); // @ todo add looping behaviours again (pingpong etc)
         _animManager.getNodeAnimationState("anim_light1_backforth")->enabled(true);
+        _animManager.getNodeAnimationState("anim_light1_backforth")->easing(EC_inQuad);
 
         SLLightSphere* light2 = new SLLightSphere(-2.5f, -2.5f, 2.5f, 0.2f);
         light2->ambient(SLCol4f(0.1f, 0.1f, 0.1f));

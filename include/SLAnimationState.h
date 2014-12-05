@@ -24,37 +24,48 @@ public:
 
     SLAnimationState(SLAnimation* parent, SLfloat weight = 1.0f);
     
-    void        playForward();
-    void        playBackward();
-    void        pause();
-    void        skipToNextKeyframe();
-    void        skipToPrevKeyframe();
-    void        skipToStart();
-    void        skipToEnd();
+    // control functions
+    void            playForward();
+    void            playBackward();
+    void            pause();
+    void            skipToNextKeyframe();
+    void            skipToPrevKeyframe();
+    void            skipToStart();
+    void            skipToEnd();
 
-    SLfloat     localTime() const { return _localTime; }
-    SLAnimation* parentAnimation() { return _parentAnim; }
-    SLfloat     playbackRate() const { return _playbackRate; }
-    SLfloat     weight() const { return _weight; }
-    SLbool      loop() const { return _loop; }
-    SLbool      enabled() const { return _enabled; }
+    // getters
+    SLfloat         localTime() const { return _localTime; }
+    SLAnimation*    parentAnimation() { return _parentAnim; }
+    SLfloat         playbackRate() const { return _playbackRate; }
+    SLfloat         weight() const { return _weight; }
+    SLbool          loop() const { return _loop; }
+    SLbool          enabled() const { return _enabled; }
+    SLEasingCurve   easing() const { return _easing; }
 
-    void        localTime(SLfloat time) { _localTime = time; }
+    // setters
+    void        localTime(SLfloat time) { _localTime = time; _linearLocalTime = calcEasingTimeInv(time); }
     void        playbackRate(SLfloat pr) { _playbackRate = pr; }
     void        weight(SLfloat weight) { _weight = weight; }
     void        loop(SLbool val) { _loop = val; }
     void        enabled(SLbool val) { _enabled = val; }
+    void        easing(SLEasingCurve ec) { _easing = ec; }
 
+    // advance time by the input real time delta
     void        advanceTime(SLfloat delta);
+    SLfloat     calcEasingTime(SLfloat time) const;
+    SLfloat     calcEasingTimeInv(SLfloat time) const;
 
 protected:
     SLAnimation*    _parentAnim;       //!< the animation this state is referencing
     SLfloat	        _localTime;
+    SLfloat         _linearLocalTime;  //!< linear local time used to be able to utilize the _easing property
     SLfloat	        _playbackRate;
     SLfloat         _weight;
     SLbool          _loop;              //!< is this animation looping
     SLbool          _enabled;           //!< is this animation running
     SLshort         _playbackDir;
+    SLEasingCurve   _easing;            //!< easing modifier curve (to customize start and end point easing)
+    SLAnimMode      _loopingBehaviour;  //!< We support different looping behaviours
 };
 
 

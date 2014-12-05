@@ -519,8 +519,8 @@
    </property>
    <property name="minimumSize">
     <size>
-     <width>331</width>
-     <height>70</height>
+     <width>391</width>
+     <height>94</height>
     </size>
    </property>
    <property name="floating">
@@ -628,6 +628,19 @@
          <number>0</number>
         </property>
         <item>
+         <spacer name="horizontalSpacer">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>40</width>
+            <height>20</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+        <item>
          <widget class="QToolButton" name="animSkipStartButton">
           <property name="text">
            <string>skipStart</string>
@@ -717,6 +730,12 @@
         </item>
         <item>
          <widget class="QDoubleSpinBox" name="animSpeedInput">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
           <property name="maximum">
            <double>20.000000000000000</double>
           </property>
@@ -730,6 +749,12 @@
         </item>
         <item>
          <widget class="QDoubleSpinBox" name="animWeightInput">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
           <property name="maximum">
            <double>10.000000000000000</double>
           </property>
@@ -742,13 +767,146 @@
          </widget>
         </item>
         <item>
-         <widget class="QSlider" name="animTimelineSlider">
+         <widget class="QComboBox" name="animEasingSelect">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <item>
+           <property name="text">
+            <string>Easing curve</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>linear</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>quadratic in</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>quadratic out</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>quadratic in -&gt; out</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>quadratic out -&gt; in</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>cubic in</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>cubic out</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>cubic in -&gt; out</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>cubic out -&gt; in</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>quartic in</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>quartic out</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>quartic in -&gt; out</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>quartic out -&gt; in</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>quintic in</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>quintic out</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>quintic in -&gt; out</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>quintic out -&gt; in</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>sine in</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>sine out</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>sine in -&gt; out</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>sine out -&gt; in</string>
+           </property>
+          </item>
+         </widget>
+        </item>
+        <item>
+         <spacer name="horizontalSpacer_2">
           <property name="orientation">
            <enum>Qt::Horizontal</enum>
           </property>
-         </widget>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>40</width>
+            <height>20</height>
+           </size>
+          </property>
+         </spacer>
         </item>
        </layout>
+      </widget>
+     </item>
+     <item>
+      <widget class="QSlider" name="animTimelineSlider">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
       </widget>
      </item>
     </layout>
