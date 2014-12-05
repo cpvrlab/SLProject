@@ -27,7 +27,7 @@ public:
 
     void update();
     
-    // creates a new bone that belongs to this skeleton
+    // creates a new joint that belongs to this skeleton
     // handle must be unique for this skeleton and also contiguous
     SLJoint* createJoint(SLuint handle);
     SLJoint* createJoint(const SLstring& name, SLuint handle);
@@ -36,11 +36,11 @@ public:
 
     void        loadAnimation(const SLstring& file); // import a seperate animation that works with this skeleton
 
-    SLJoint*     getBone(SLuint handle);
-    SLJoint*     getBone(const SLstring& name);
+    SLJoint*     getJoint(SLuint handle);
+    SLJoint*     getJoint(const SLstring& name);
     SLint       numBones() const { return _jointList.size(); }
-    void        getBoneWorldMatrices(SLMat4f* boneWM);
-    void        root(SLJoint* bone);
+    void        getJointWorldMatrices(SLMat4f* jointWM);
+    void        root(SLJoint* joint);
     SLJoint*     root() { return _root; }
     void        addAnimation(SLAnimation* anim);
     SLint       numAnimations() const { return _animations.size(); }
@@ -53,7 +53,7 @@ public:
     
 protected:
     SLJoint*     _root;
-    vector<SLJoint*> _jointList; //!< bone map for fast acces of bones
+    vector<SLJoint*> _jointList; //!< joint map for fast acces of joints
     map<SLstring, SLAnimation*> _animations;
     map<SLstring, SLAnimationState*> _animationStates;
 };

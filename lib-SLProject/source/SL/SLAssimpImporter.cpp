@@ -773,7 +773,7 @@ SLMesh* SLAssimpImporter::loadMesh(aiMesh *mesh)
         for (SLint i = 0; i < mesh->mNumBones; i++)
         {
             aiBone* bone = mesh->mBones[i];
-            SLJoint* slBone = _skeleton->getBone(bone->mName.C_Str());
+            SLJoint* slBone = _skeleton->getJoint(bone->mName.C_Str());
             SLuint boneId = slBone->handle(); // @todo make sure that the returned bone actually exists, else we need to throw here since something in the importer must've gone wrong!
 
             for (SLint j = 0; j < bone->mNumWeights; j++)
@@ -906,7 +906,7 @@ SLAnimation* SLAssimpImporter::loadAnimation(aiAnimation* anim)
         if (_skeletonRoot && !affectedNode)
         {
             isSkeletonAnim = true;
-            SLJoint* affectedBone = _skeleton->getBone(nodeName);
+            SLJoint* affectedBone = _skeleton->getJoint(nodeName);
             if (affectedBone == NULL)
                 break;
             handle = affectedBone->handle();

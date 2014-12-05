@@ -58,20 +58,20 @@ SLAnimationState* SLSkeleton::getAnimationState(const SLstring& name)
     return NULL;
 }
 
-SLJoint* SLSkeleton::getBone(SLuint handle)
+SLJoint* SLSkeleton::getJoint(SLuint handle)
 {
     assert(handle < _jointList.size() && "Index out of bounds");
     return _jointList[handle];
 }
 
-SLJoint* SLSkeleton::getBone(const SLstring& name)
+SLJoint* SLSkeleton::getJoint(const SLstring& name)
 {
     if (!_root) return NULL;
 
     SLJoint* result = _root->find<SLJoint>(name);
 }
 
-void SLSkeleton::getBoneWorldMatrices(SLMat4f* boneWM)
+void SLSkeleton::getJointWorldMatrices(SLMat4f* boneWM)
 {
     // @todo this is asking for a crash...
     for (SLint i = 0; i < _jointList.size(); i++)

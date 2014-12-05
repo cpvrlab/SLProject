@@ -221,7 +221,7 @@ void SLMesh::draw(SLSceneView* sv, SLNode* node)
         {
             //  temporary test for 2 bones
             if (!_boneMatrices) _boneMatrices = new SLMat4f[_skeleton->numBones()]; // @todo offload the generation of the bone matrix array to somebody else. meshes can share the same array, so it must be somewhere else..
-            _skeleton->getBoneWorldMatrices(_boneMatrices);
+            _skeleton->getJointWorldMatrices(_boneMatrices);
             // @todo    be careful here, it is at the moment not guaranteed that the per vertex bone indices
             //          match the indices in this bone array. The result may be wrong or crash entirely.
             //          Imported models might use bone 0, 1, 2 and 4 but not 3. So when bone 4 is used
