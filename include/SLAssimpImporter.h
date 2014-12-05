@@ -67,7 +67,7 @@ protected:
     void            findBones(const aiScene* scene);           // scans all meshes in the assimp scene and populates nameToBone and boneGroups
     void            findSkeletonRoot();                    // finds the common ancestor for each remaining group in boneGroups, these are our final skeleton roots
     
-    void            loadSkeleton(SLBone* parent, aiNode* node);
+    void            loadSkeleton(SLJoint* parent, aiNode* node);
 
     SLMaterial*     loadMaterial(SLint index, aiMaterial* material, SLstring modelPath);
     SLGLTexture*    loadTexture(SLstring &path, SLTexType texType);

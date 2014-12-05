@@ -14,7 +14,7 @@
 
 
 #include <stdafx.h>
-#include <SLBone.h>
+#include <SLJoint.h>
 #include <SLAnimation.h>
 
 class SLAnimationState;
@@ -29,19 +29,19 @@ public:
     
     // creates a new bone that belongs to this skeleton
     // handle must be unique for this skeleton and also contiguous
-    SLBone* createBone(SLuint handle);
-    SLBone* createBone(const SLstring& name, SLuint handle);
+    SLJoint* createJoint(SLuint handle);
+    SLJoint* createJoint(const SLstring& name, SLuint handle);
     
     SLAnimationState* getAnimationState(const SLstring& name);
 
     void        loadAnimation(const SLstring& file); // import a seperate animation that works with this skeleton
 
-    SLBone*     getBone(SLuint handle);
-    SLBone*     getBone(const SLstring& name);
-    SLint       numBones() const { return _boneList.size(); }
+    SLJoint*     getBone(SLuint handle);
+    SLJoint*     getBone(const SLstring& name);
+    SLint       numBones() const { return _jointList.size(); }
     void        getBoneWorldMatrices(SLMat4f* boneWM);
-    void        root(SLBone* bone);
-    SLBone*     root() { return _root; }
+    void        root(SLJoint* bone);
+    SLJoint*     root() { return _root; }
     void        addAnimation(SLAnimation* anim);
     SLint       numAnimations() const { return _animations.size(); }
     void        reset();
@@ -52,8 +52,8 @@ public:
     void        updateAnimations();
     
 protected:
-    SLBone*     _root;
-    vector<SLBone*> _boneList; //!< bone map for fast acces of bones
+    SLJoint*     _root;
+    vector<SLJoint*> _jointList; //!< bone map for fast acces of bones
     map<SLstring, SLAnimation*> _animations;
     map<SLstring, SLAnimationState*> _animationStates;
 };

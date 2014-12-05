@@ -48,7 +48,6 @@ qtMainWindow::qtMainWindow(QWidget *parent, SLVstring cmdLineArgs) :
     _selectedNodeItem = 0;
 
     _selectedAnim = NULL;
-    ui->dockAnimation->setTitleBarWidget(new QWidget);
 
     _menuFile = ui->menuFile;
     _menuCamera = ui->menuCamera;

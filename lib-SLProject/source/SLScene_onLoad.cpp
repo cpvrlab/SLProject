@@ -156,6 +156,16 @@ SLNode* BuildFigureGroup(SLMaterial* mat)
     legLeft = figure->findChild<SLNode>("left leg group");
     /// @add add old animation functionality back in
     //legLeft->animation(new SLAnimation(2, 60, SLVec3f(1,0,0), pingPongLoop));
+    
+    SLAnimation* anim = new SLAnimation("figure animation", 2.0f);
+    SLNodeAnimationTrack* track = anim->createNodeAnimationTrack(0);
+    track->animationTarget(legLeft);
+    track->createNodeKeyframe(0.0f);    // @todo auto create a 0.0 keyframe!
+    track->createNodeKeyframe(1.0f)->rotation(SLQuat4f(60, SLVec3f(1, 0, 0))); // @ todo add looping behaviours again (pingpong etc)
+    SLScene::current->animManager().addNodeAnimation(anim); // @todo don't make us call this function, add a createNodeAnim in the manager!
+    SLScene::current->animManager().getNodeAnimationState("figure animation")->enabled(true);
+
+
     SLNode* legLowLeft = legLeft->findChild<SLNode>("leglow group");
     /// @add add old animation functionality back in
     //legLowLeft->animation(new SLAnimation(2, 40, SLVec3f(1,0,0), pingPongLoop));
@@ -376,8 +386,18 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
         light2->diffuse(SLCol4f(1.0f, 1.0f, 1.0f));
         light2->specular(SLCol4f(1.0f, 1.0f, 1.0f));
         light2->attenuation(1,0,0);
+        light2->setInitialState();
         /// @add add old animation functionality back in
         //light2->animation(new SLAnimation(2,SLVec3f(0,5,0), pingPongLoop, inOutCubic));
+        
+        anim = new SLAnimation("anim_light2_backforth", 2.0f); // 2 second animation
+        _animManager.addNodeAnimation(anim); // @todo don't make us call this function, add a createNodeAnim in the manager!
+        track = anim->createNodeAnimationTrack(0);
+        track->animationTarget(light2);
+        track->createNodeKeyframe(0.0f);    // @todo auto create a 0.0 keyframe!
+        track->createNodeKeyframe(1.0f)->translation(SLVec3f(0.0f, 5.0f, 0.0f)); // @ todo add looping behaviours again (pingpong etc)
+        _animManager.getNodeAnimationState("anim_light2_backforth")->enabled(true);
+
 
 
         #if defined(SL_OS_IOS) || defined(SL_OS_ANDROID)

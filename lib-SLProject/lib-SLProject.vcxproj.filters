@@ -225,9 +225,6 @@
     <ClInclude Include="..\include\SLKeyframe.h">
       <Filter>Animation</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\SLBone.h">
-      <Filter>Animation</Filter>
-    </ClInclude>
     <ClInclude Include="..\include\SLAnimationState.h">
       <Filter>Animation</Filter>
     </ClInclude>
@@ -245,6 +242,9 @@
     </ClInclude>
     <ClInclude Include="..\include\SLImporter.h">
       <Filter>SL</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\SLJoint.h">
+      <Filter>Animation</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -374,9 +374,6 @@
     <ClCompile Include="source\SLGLProgram.cpp">
       <Filter>GL</Filter>
     </ClCompile>
-    <ClCompile Include="source\SLBone.cpp">
-      <Filter>Animation</Filter>
-    </ClCompile>
     <ClCompile Include="source\SLAnimationManager.cpp">
       <Filter>Animation</Filter>
     </ClCompile>
@@ -403,6 +400,9 @@
     </ClCompile>
     <ClCompile Include="source\SL\SLImporter.cpp">
       <Filter>SL</Filter>
+    </ClCompile>
+    <ClCompile Include="source\SLJoint.cpp">
+      <Filter>Animation</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

@@ -23,23 +23,23 @@ SLSkeleton::~SLSkeleton()
         delete it2->second;
 }
 
-SLBone* SLSkeleton::createBone(SLuint handle)
+SLJoint* SLSkeleton::createJoint(SLuint handle)
 {
     ostringstream oss;
     oss << "Bone " << handle;
-    return createBone(oss.str(), handle);
+    return createJoint(oss.str(), handle);
 }
 
-SLBone* SLSkeleton::createBone(const SLstring& name, SLuint handle)
+SLJoint* SLSkeleton::createJoint(const SLstring& name, SLuint handle)
 {
-    SLBone* result = new SLBone(name, handle, this);
+    SLJoint* result = new SLJoint(name, handle, this);
     
-    assert((handle >= _boneList.size() || (handle < _boneList.size() && _boneList[handle] == NULL)) && "Trying to create a bone with an already existing handle.");
+    assert((handle >= _jointList.size() || (handle < _jointList.size() && _jointList[handle] == NULL)) && "Trying to create a bone with an already existing handle.");
 
-    if (_boneList.size() <= handle)
-        _boneList.resize(handle+1);
+    if (_jointList.size() <= handle)
+        _jointList.resize(handle+1);
     
-    _boneList[handle] = result;
+    _jointList[handle] = result;
     return result;
 }
 
@@ -58,29 +58,29 @@ SLAnimationState* SLSkeleton::getAnimationState(const SLstring& name)
     return NULL;
 }
 
-SLBone* SLSkeleton::getBone(SLuint handle)
+SLJoint* SLSkeleton::getBone(SLuint handle)
 {
-    assert(handle < _boneList.size() && "Index out of bounds");
-    return _boneList[handle];
+    assert(handle < _jointList.size() && "Index out of bounds");
+    return _jointList[handle];
 }
 
-SLBone* SLSkeleton::getBone(const SLstring& name)
+SLJoint* SLSkeleton::getBone(const SLstring& name)
 {
     if (!_root) return NULL;
 
-    SLBone* result = _root->find<SLBone>(name);
+    SLJoint* result = _root->find<SLJoint>(name);
 }
 
 void SLSkeleton::getBoneWorldMatrices(SLMat4f* boneWM)
 {
     // @todo this is asking for a crash...
-    for (SLint i = 0; i < _boneList.size(); i++)
+    for (SLint i = 0; i < _jointList.size(); i++)
     {
-        boneWM[i] = _boneList[i]->updateAndGetWM() * _boneList[i]->offsetMat();
+        boneWM[i] = _jointList[i]->updateAndGetWM() * _jointList[i]->offsetMat();
     }
 }
 
-void SLSkeleton::root(SLBone* bone)
+void SLSkeleton::root(SLJoint* bone)
 {
     if (_root)
 
@@ -94,8 +94,8 @@ void SLSkeleton::addAnimation(SLAnimation* anim)
 
 void SLSkeleton::reset()
 {
-    for (SLint i = 0; i < _boneList.size(); i++)
-        _boneList[i]->resetToInitialState();
+    for (SLint i = 0; i < _jointList.size(); i++)
+        _jointList[i]->resetToInitialState();
 }
 
 

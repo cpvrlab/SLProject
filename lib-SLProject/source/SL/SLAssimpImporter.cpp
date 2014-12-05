@@ -533,20 +533,20 @@ void SLAssimpImporter::findSkeletonRoot()
 }
 //-----------------------------------------------------------------------------
 /** Loads the skeleton */
-void SLAssimpImporter::loadSkeleton(SLBone* parent, aiNode* node)
+void SLAssimpImporter::loadSkeleton(SLJoint* parent, aiNode* node)
 {
     if (!node)
         return;
 
 
-    SLBone* bone;
+    SLJoint* bone;
     SLstring name = node->mName.C_Str();
     if (!parent)
     {
 	    logMessage(LV_Normal, "Loading skeleton skeleton.\n");
         _skeleton = new SLSkeleton;
         _boneIndex = 0;
-        bone = _skeleton->createBone(name, _boneIndex++); // @todo add a bone creator that also sets the bones name
+        bone = _skeleton->createJoint(name, _boneIndex++); // @todo add a bone creator that also sets the bones name
         _skeleton->root(bone);
     }
     else
@@ -773,7 +773,7 @@ SLMesh* SLAssimpImporter::loadMesh(aiMesh *mesh)
         for (SLint i = 0; i < mesh->mNumBones; i++)
         {
             aiBone* bone = mesh->mBones[i];
-            SLBone* slBone = _skeleton->getBone(bone->mName.C_Str());
+            SLJoint* slBone = _skeleton->getBone(bone->mName.C_Str());
             SLuint boneId = slBone->handle(); // @todo make sure that the returned bone actually exists, else we need to throw here since something in the importer must've gone wrong!
 
             for (SLint j = 0; j < bone->mNumWeights; j++)
@@ -906,7 +906,7 @@ SLAnimation* SLAssimpImporter::loadAnimation(aiAnimation* anim)
         if (_skeletonRoot && !affectedNode)
         {
             isSkeletonAnim = true;
-            SLBone* affectedBone = _skeleton->getBone(nodeName);
+            SLJoint* affectedBone = _skeleton->getBone(nodeName);
             if (affectedBone == NULL)
                 break;
             handle = affectedBone->handle();

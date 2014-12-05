@@ -118,7 +118,7 @@ void SLAnimation::apply(SLSkeleton* skel, SLfloat time, SLfloat weight, SLfloat 
     map<SLuint, SLNodeAnimationTrack*>::iterator it = _nodeAnimations.begin();
     for (; it != _nodeAnimations.end(); it++)
     {
-        SLBone* bone = skel->getBone(it->first);
+        SLJoint* bone = skel->getBone(it->first);
         it->second->applyToNode(bone, time, weight, scale);
     }
 

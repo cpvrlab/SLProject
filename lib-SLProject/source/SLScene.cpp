@@ -261,6 +261,8 @@ void SLScene::unInit()
     // clear eventHandlers
     _eventHandlers.clear();
 
+    _animManager.clear();
+
     // reset all states
     SLGLState::getInstance()->initAll();
 }

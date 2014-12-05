@@ -698,7 +698,7 @@ public:
         dockAnimation->setSizePolicy(sizePolicy3);
         dockAnimation->setMinimumSize(QSize(331, 70));
         dockAnimation->setFloating(false);
-        dockAnimation->setFeatures(QDockWidget::NoDockWidgetFeatures);
+        dockAnimation->setFeatures(QDockWidget::AllDockWidgetFeatures);
         dockWidgetContents_3 = new QWidget();
         dockWidgetContents_3->setObjectName(QStringLiteral("dockWidgetContents_3"));
         sizePolicy.setHeightForWidth(dockWidgetContents_3->sizePolicy().hasHeightForWidth());

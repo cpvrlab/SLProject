@@ -13,7 +13,7 @@
 
 #include <stdafx.h>
 #include <SLAnimationTrack.h>
-#include <SLBone.h>
+#include <SLJoint.h>
 
 class SLSkeleton;
 class SLAnimationState;
