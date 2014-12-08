@@ -1534,7 +1534,7 @@ void qtMainWindow::on_animEasingSelect_currentIndexChanged(int index)
 {
     if (!_selectedAnim)
         return;
-
+    // @todo add the time preservation back in when the inverse functions are implemented
     SLfloat localTime = _selectedAnim->localTime(); // preserve the local time before switching the easing
     _selectedAnim->easing((SLEasingCurve)index);
     _selectedAnim->localTime(localTime);
