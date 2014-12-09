@@ -13,10 +13,12 @@
 #define SLANIMATIONTRACK_H
 
 #include <stdafx.h>
+#include <SLEnums.h>
 #include <SLKeyframe.h>
 
 class SLNode;
 class SLAnimation;
+class SLCurve;
 
 // @todo order the keyframe sets based on their time value
 // @todo provide an iterator over the keyframes
@@ -34,6 +36,7 @@ public:
     SLfloat         getKeyframesAtTime(SLfloat time, SLKeyframe** k1, SLKeyframe** k2) const;
     virtual void    calcInterpolatedKeyframe(SLfloat time, SLKeyframe* keyframe) const = 0; // we need a way to get an output value for a time we put in
 	virtual void	apply(SLfloat time, SLfloat weight = 1.0f, SLfloat scale = 1.0f) = 0; // applies the animation clip to its target
+    SLuint  numKeyframes() { return (SLuint)_keyframeList.size(); }
 
 protected:
     SLAnimation*            _parent;
@@ -54,18 +57,28 @@ class SLNodeAnimationTrack : public SLAnimationTrack
 public:
     SLNodeAnimationTrack(SLAnimation* parent, SLuint handle);    
 
+    // static creator functions for common animation types (old SLAnimation constructors)
+    static SLNodeAnimationTrack* createEllipticTrack(SLAnimation* parent,
+                                                     SLfloat radiusA, SLAxis axisA,
+                                                     SLfloat radiusB, SLAxis axisB);
+
     SLTransformKeyframe* createNodeKeyframe(SLfloat time);
     
-    void        animationTarget(SLNode* target) { _animationTarget = target; }
-    SLNode*     animationTarget() { return _animationTarget; }
+    void            animationTarget(SLNode* target) { _animationTarget = target; }
+    SLNode*         animationTarget() { return _animationTarget; }
 
-    virtual void calcInterpolatedKeyframe(SLfloat time, SLKeyframe* keyframe) const;
+    virtual void    calcInterpolatedKeyframe(SLfloat time, SLKeyframe* keyframe) const;
     // apply this track to a specified node
-    virtual void apply(SLfloat time, SLfloat weight = 1.0f, SLfloat scale = 1.0f);
-    virtual void applyToNode(SLNode* node, SLfloat time, SLfloat weight = 1.0f, SLfloat scale = 1.0f);
+    virtual void    apply(SLfloat time, SLfloat weight = 1.0f, SLfloat scale = 1.0f);
+    virtual void    applyToNode(SLNode* node, SLfloat time, SLfloat weight = 1.0f, SLfloat scale = 1.0f);
 
 protected:
-    SLNode*         _animationTarget;   //!< the default target for this track
+    SLNode*                 _animationTarget;   //!< the default target for this track
+    SLAnimInterpolationMode _translationInterpolation;
+    SLbool                  _rebuildInterpolationCurve;
+    SLCurve*                _interpolationCurve;
+
+    void                buildInterpolationCurve() const;
 
     virtual SLKeyframe* createKeyframeImpl(SLfloat time);
 };

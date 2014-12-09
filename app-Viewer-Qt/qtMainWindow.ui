@@ -519,7 +519,7 @@
    </property>
    <property name="minimumSize">
     <size>
-     <width>391</width>
+     <width>509</width>
      <height>94</height>
     </size>
    </property>
@@ -882,6 +882,30 @@
           <item>
            <property name="text">
             <string>sine out -&gt; in</string>
+           </property>
+          </item>
+         </widget>
+        </item>
+        <item>
+         <widget class="QComboBox" name="animLoopingSelect">
+          <item>
+           <property name="text">
+            <string>Play once</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>Loop</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>Ping pong</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>Ping pong loop</string>
            </property>
           </item>
          </widget>

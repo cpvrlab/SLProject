@@ -158,6 +158,7 @@ SLNode* BuildFigureGroup(SLMaterial* mat)
     //legLeft->animation(new SLAnimation(2, 60, SLVec3f(1,0,0), pingPongLoop));
     
     SLAnimation* anim = new SLAnimation("figure animation", 2.0f);
+    legLeft->setInitialState();
     SLNodeAnimationTrack* track = anim->createNodeAnimationTrack(0);
     track->animationTarget(legLeft);
     track->createNodeKeyframe(0.0f);    // @todo auto create a 0.0 keyframe!
@@ -169,9 +170,20 @@ SLNode* BuildFigureGroup(SLMaterial* mat)
     SLNode* legLowLeft = legLeft->findChild<SLNode>("leglow group");
     /// @add add old animation functionality back in
     //legLowLeft->animation(new SLAnimation(2, 40, SLVec3f(1,0,0), pingPongLoop));
+    legLowLeft->setInitialState();
+    track = anim->createNodeAnimationTrack(1);
+    track->animationTarget(legLowLeft);
+    track->createNodeKeyframe(0.0f);    // @todo auto create a 0.0 keyframe!
+    track->createNodeKeyframe(1.0f)->rotation(SLQuat4f(40, SLVec3f(1, 0, 0))); // @ todo add looping behaviours again (pingpong etc)
+
     SLNode* feetLeft = legLeft->findChild<SLNode>("feet group");
     /// @add add old animation functionality back in
-    //feetLeft->animation(new SLAnimation(2, 40, SLVec3f(1,0,0), pingPongLoop));
+    //feetLeft->animation(new SLAnimation(2, 40, SLVec3f(1,0,0), pingPongLoop));track = anim->createNodeAnimationTrack(0);
+    feetLeft->setInitialState();
+    track = anim->createNodeAnimationTrack(2);
+    track->animationTarget(feetLeft);
+    track->createNodeKeyframe(0.0f);    // @todo auto create a 0.0 keyframe!
+    track->createNodeKeyframe(1.0f)->rotation(SLQuat4f(40, SLVec3f(1, 0, 0))); // @ todo add looping behaviours again (pingpong etc)
     legRight = figure->findChild<SLNode>("right leg group");
     legRight->rotate(70, 1,0,0);
 
@@ -229,9 +241,13 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
         // Create a spherical light source at 0,0,5
         SLLightSphere* light1 = new SLLightSphere(0.3f);
         light1->name("light1");
-        light1->position(0,0,5);
         /// @add add old animation functionality back in
         //light1->animation(new SLAnimation(2, 4, XAxis, 4, YAxis, loop));
+        SLAnimation* anim = new SLAnimation("Sun animation", 2.0f);
+        SLNodeAnimationTrack* track = SLNodeAnimationTrack::createEllipticTrack(anim, 6, XAxis, 6, ZAxis);
+        track->animationTarget(light1);
+        _animManager.addNodeAnimation(anim);
+        _animManager.getNodeAnimationState("Sun animation")->enabled(true);
 
         // Create ground grid
         SLMaterial* m2 = new SLMaterial(SLCol4f::WHITE);
@@ -1508,6 +1524,10 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
         sun->attenuation(1,0,0);
         /// @add add old animation functionality back in
         //sun->animation(new SLAnimation(24, 50, XAxis, 50, ZAxis, loop));
+        SLAnimation* anim = new SLAnimation("Sun animation", 24.0f);
+        SLNodeAnimationTrack* track = SLNodeAnimationTrack::createEllipticTrack(anim, 50, XAxis, 50, ZAxis);
+        _animManager.addNodeAnimation(anim);
+        _animManager.getNodeAnimationState("Sun animation")->enabled(true);
 
         SLNode* earth = new SLNode(new SLSphere(1, 36, 36, "Earth", matEarth));
         earth->rotate(90,-1,0,0);

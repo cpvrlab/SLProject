@@ -3,6 +3,7 @@
 #include <SLAnimationTrack.h>
 #include <SLAnimation.h>
 #include <SLNode.h>
+#include <SLCurveBezier.h>
 
 SLAnimationTrack::SLAnimationTrack(SLAnimation* parent, SLuint handle)
 : _parent(parent), _handle(handle)
@@ -134,45 +135,15 @@ SLfloat SLAnimationTrack::getKeyframesAtTime(SLfloat time, SLKeyframe** k1, SLKe
     //
     if (time < t1)
         time += animationLength;
-
-    SLfloat t = (time - t1) / (t2 - t1);
-    bool test = t<0 || 1<t;
-    //return 0.5f*sin(tempReturnVal*SL_PI - SL_PI*0.5f) + 0.5f; 
-
-    
-    /*
-    // temporary test code below (prints out left and right keyframe for a track
-    // was used to check which keyframe interpolation failed
-    // @todo remove this when finished
-    static int kfL = -1;
-    static int kfR = -1;
-    static int kfL_last = -1;
-    static int kfR_last = -1;
-    
-    for (int i = 0; i < _keyframeList.size(); i++)
-    {
-        if (_keyframeList[i] == *k1)
-            kfL = i;
-        if (_keyframeList[i] == *k2)
-            kfR = i;
-    }
-
-    if (kfL != kfL_last) {
-        std::cout << "left: " << kfL;
-        kfL_last = kfL;
-    }
-    if (kfR != kfR_last) {
-        std::cout << "   right: " << kfR << "\n" << std::endl;
-        kfR_last = kfR;
-    }
-    */
-
-    return t;
+        
+    return (time - t1) / (t2 - t1);
 }
 
 
 SLNodeAnimationTrack::SLNodeAnimationTrack(SLAnimation* parent, SLuint handle)
-: SLAnimationTrack(parent, handle), _animationTarget(NULL)
+: SLAnimationTrack(parent, handle), _animationTarget(NULL),
+_translationInterpolation(AIM_Linear),
+_rebuildInterpolationCurve(true)
 { }
 
 
@@ -200,7 +171,14 @@ void SLNodeAnimationTrack::calcInterpolatedKeyframe(SLfloat time, SLKeyframe* ke
     // @todo provide more customization for the interpolation
     SLVec3f base = kf1->translation();
     SLVec3f translation;
-    translation = base + (kf2->translation() - base) * t; // @todo implement general interpolation functions
+    if (_translationInterpolation == AIM_Linear)
+        translation = base + (kf2->translation() - base) * t; // @todo implement general interpolation functions
+    else
+    {
+        if (_rebuildInterpolationCurve)
+            buildInterpolationCurve();
+        translation = _interpolationCurve->evaluate(time);
+    }
 
     kfOut->translation(translation);
     
@@ -242,7 +220,91 @@ void SLNodeAnimationTrack::applyToNode(SLNode* node, SLfloat time, SLfloat weigh
     node->scale(scl);
 }
 
+void SLNodeAnimationTrack::buildInterpolationCurve() const
+{
+    SLVec3f;
+}
+
 SLKeyframe* SLNodeAnimationTrack::createKeyframeImpl(SLfloat time)
 {
     return new SLTransformKeyframe(this, time);
+}
+
+
+
+
+// static track creators
+SLNodeAnimationTrack* SLNodeAnimationTrack::createEllipticTrack(SLAnimation* parent,
+                                          SLfloat radiusA, SLAxis axisA,
+                                          SLfloat radiusB, SLAxis axisB)
+{
+    assert(axisA!=axisB && radiusA>0 && radiusB>0);
+    SLNodeAnimationTrack* result = parent->createNodeAnimationTrack(0); // @todo auto handle creation
+
+
+    /* The ellipse is defined by 5 keyframes: A,B,C,D and again A
+
+        c2----B----c1
+
+    c3                 c0
+    ¦                   ¦
+    ¦         ¦         ¦
+    C       --0--       A
+    ¦         ¦         ¦
+    ¦                   ¦
+    c4                 c7 
+
+        c5----D----c6
+    */
+
+    SLVec3f A(0,0,0); A.comp[axisA] =  radiusA;
+    SLVec3f B(0,0,0); B.comp[axisB] =  radiusB;
+    SLVec3f C(0,0,0); C.comp[axisA] = -radiusA;
+    SLVec3f D(0,0,0); D.comp[axisB] = -radiusB;
+
+    // Control points with the magic factor kappa for control points
+    SLfloat k = 0.5522847498f;
+
+    SLVec3f controls[8];
+    for (SLint i=0; i<8; ++i) controls[i].set(0,0,0);
+    controls[0].comp[axisA] = radiusA; controls[0].comp[axisB] = k *  radiusB;
+    controls[1].comp[axisB] = radiusB; controls[1].comp[axisA] = k *  radiusA;
+    controls[2].comp[axisB] = radiusB; controls[2].comp[axisA] = k * -radiusA;
+    controls[3].comp[axisA] =-radiusA; controls[3].comp[axisB] = k *  radiusB;
+    controls[4].comp[axisA] =-radiusA; controls[4].comp[axisB] = k * -radiusB;
+    controls[5].comp[axisB] =-radiusB; controls[5].comp[axisA] = k * -radiusA;
+    controls[6].comp[axisB] =-radiusB; controls[6].comp[axisA] = k *  radiusA;
+    controls[7].comp[axisA] = radiusA; controls[7].comp[axisB] = k * -radiusB;
+
+    // Add keyframes
+    SLfloat t4 = parent->length() / 4.0f;
+    result->createNodeKeyframe(0.0f * t4)->translation(A);
+    result->createNodeKeyframe(1.0f * t4)->translation(B);
+    result->createNodeKeyframe(2.0f * t4)->translation(C);
+    result->createNodeKeyframe(3.0f * t4)->translation(D);
+    result->createNodeKeyframe(4.0f * t4)->translation(A);
+
+
+    // Build curve data w. cummulated times
+    SLVec3f* points = new SLVec3f[result->numKeyframes()];
+    SLfloat* times  = new SLfloat[result->numKeyframes()];
+    SLfloat  curTime = 0;
+    for (SLint i=0; i<result->numKeyframes(); ++i)
+    {   
+        SLTransformKeyframe* kf = (SLTransformKeyframe*)result->_keyframeList[i];
+        points[i] =kf->translation();
+        times[i] = kf->time();
+    }
+
+    // create curve and delete temp arrays again
+    //_curve = new SLCurveBezier(points, times, (SLint)_keyframes.size(), controls);
+    result->_interpolationCurve = new SLCurveBezier(points, times, (SLint)result->numKeyframes(), controls);
+
+    delete[] points;
+    delete[] times;
+    
+    result->_translationInterpolation = AIM_Bezier;
+    result->_rebuildInterpolationCurve = false;
+
+    return result;
 }

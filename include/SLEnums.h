@@ -210,15 +210,21 @@ enum SLEye
     centerEye = 0,
     rightEye  = 1
 };
-
 //-----------------------------------------------------------------------------
 //! Enumeration for animation modes
-enum SLAnimMode
+enum SLAnimInterpolationMode
 {
-    once,          //!< foreward once
-    loop,          //!< foreward loop
-    pingPong,      //!< forwards and backwards
-    pingPongLoop   //!< forwards and backwards loop
+    AIM_Linear,
+    AIM_Bezier
+};
+//-----------------------------------------------------------------------------
+//! Enumeration for animation modes
+enum SLAnimLoopingBehaviour
+{
+    ALB_once = 0,          //!< play once
+    ALB_loop = 1,          //!< loop
+    ALB_pingPong = 2,      //!< play once in two directions
+    ALB_pingPongLoop = 3   //!< loop forward and backwards
 };
 
 //-----------------------------------------------------------------------------

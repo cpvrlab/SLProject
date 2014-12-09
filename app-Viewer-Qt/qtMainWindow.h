@@ -181,6 +181,7 @@ class qtMainWindow : public QMainWindow
         void on_animStopButton_clicked();
         
         void on_animEasingSelect_currentIndexChanged(int index);
+        void on_animLoopingSelect_currentIndexChanged(int index);
 
         void on_animTimelineSlider_sliderMoved(int value);
         

@@ -34,19 +34,19 @@ public:
     void            skipToEnd();
 
     // getters
-    SLfloat         localTime() const { return _localTime; }
-    SLAnimation*    parentAnimation() { return _parentAnim; }
-    SLfloat         playbackRate() const { return _playbackRate; }
-    SLfloat         weight() const { return _weight; }
-    SLbool          loop() const { return _loop; }
-    SLbool          enabled() const { return _enabled; }
-    SLEasingCurve   easing() const { return _easing; }
+    SLfloat                 localTime() const { return _localTime; }
+    SLAnimation*            parentAnimation() { return _parentAnim; }
+    SLfloat                 playbackRate() const { return _playbackRate; }
+    SLfloat                 weight() const { return _weight; }
+    SLAnimLoopingBehaviour  loop() const { return _loopingBehaviour; }
+    SLbool                  enabled() const { return _enabled; }
+    SLEasingCurve           easing() const { return _easing; }
 
     // setters
     void        localTime(SLfloat time) { _localTime = time; _linearLocalTime = calcEasingTimeInv(time); }
     void        playbackRate(SLfloat pr) { _playbackRate = pr; }
     void        weight(SLfloat weight) { _weight = weight; }
-    void        loop(SLbool val) { _loop = val; }
+    void        loop(SLAnimLoopingBehaviour lb) { _loopingBehaviour = lb; }
     void        enabled(SLbool val) { _enabled = val; }
     void        easing(SLEasingCurve ec) { _easing = ec; }
 
@@ -56,17 +56,15 @@ public:
     SLfloat     calcEasingTimeInv(SLfloat time) const;
 
 protected:
-    SLAnimation*    _parentAnim;       //!< the animation this state is referencing
-    SLfloat	        _localTime;
-    SLfloat         _linearLocalTime;  //!< linear local time used to be able to utilize the _easing property
-    SLfloat	        _playbackRate;
-    SLfloat         _weight;
-    SLbool          _loop;              //!< is this animation looping
-    SLbool          _enabled;           //!< is this animation running
-    SLshort         _playbackDir;
-    SLEasingCurve   _easing;            //!< easing modifier curve (to customize start and end point easing)
-    SLAnimMode      _loopingBehaviour;  //!< We support different looping behaviours
+    SLAnimation*            _parentAnim;       //!< the animation this state is referencing
+    SLfloat                 _localTime;
+    SLfloat                 _linearLocalTime;  //!< linear local time used to be able to utilize the _easing property
+    SLfloat                 _playbackRate;
+    SLfloat                 _weight;
+    SLbool                  _enabled;           //!< is this animation running
+    SLshort                 _playbackDir;
+    SLEasingCurve           _easing;            //!< easing modifier curve (to customize start and end point easing)
+    SLAnimLoopingBehaviour  _loopingBehaviour;  //!< We support different looping behaviours
 };
-
 
 #endif

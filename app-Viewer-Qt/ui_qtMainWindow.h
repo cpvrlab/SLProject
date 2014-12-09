@@ -188,6 +188,7 @@ public:
     QDoubleSpinBox *animSpeedInput;
     QDoubleSpinBox *animWeightInput;
     QComboBox *animEasingSelect;
+    QComboBox *animLoopingSelect;
     QSpacerItem *horizontalSpacer_2;
     QSlider *animTimelineSlider;
     QToolBar *toolBar_2;
@@ -700,7 +701,7 @@ public:
         sizePolicy3.setVerticalStretch(0);
         sizePolicy3.setHeightForWidth(dockAnimation->sizePolicy().hasHeightForWidth());
         dockAnimation->setSizePolicy(sizePolicy3);
-        dockAnimation->setMinimumSize(QSize(391, 94));
+        dockAnimation->setMinimumSize(QSize(509, 94));
         dockAnimation->setFloating(false);
         dockAnimation->setFeatures(QDockWidget::AllDockWidgetFeatures);
         dockWidgetContents_3 = new QWidget();
@@ -824,6 +825,11 @@ public:
         animEasingSelect->setSizePolicy(sizePolicy4);
 
         horizontalLayout_2->addWidget(animEasingSelect);
+
+        animLoopingSelect = new QComboBox(widget);
+        animLoopingSelect->setObjectName(QStringLiteral("animLoopingSelect"));
+
+        horizontalLayout_2->addWidget(animLoopingSelect);
 
         horizontalSpacer_2 = new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
 
@@ -1446,6 +1452,13 @@ public:
          << QApplication::translate("qtMainWindow", "sine out", 0)
          << QApplication::translate("qtMainWindow", "sine in -> out", 0)
          << QApplication::translate("qtMainWindow", "sine out -> in", 0)
+        );
+        animLoopingSelect->clear();
+        animLoopingSelect->insertItems(0, QStringList()
+         << QApplication::translate("qtMainWindow", "Play once", 0)
+         << QApplication::translate("qtMainWindow", "Loop", 0)
+         << QApplication::translate("qtMainWindow", "Ping pong", 0)
+         << QApplication::translate("qtMainWindow", "Ping pong loop", 0)
         );
         toolBar_2->setWindowTitle(QApplication::translate("qtMainWindow", "toolBar_2", 0));
     } // retranslateUi
