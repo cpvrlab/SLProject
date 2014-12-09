@@ -105,7 +105,7 @@ SLbool SLCamera::camUpdate(SLfloat elapsedTimeMS)
       
         SLVec3f delta(_curSpeed * elapsedTimeMS / 1000.0f);
 
-        translate(delta, TS_Local);
+        //translate(delta, TS_Local);
       
         return true;
     }
@@ -583,7 +583,7 @@ SLbool SLCamera::onMouseMove(const SLMouseButton button,
             rot.translate(-rtP);
 			
             _om.setMatrix(rot * _om);
-            needUpdate();
+            needWMUpdate();
         }
         else if (_camAnim==turntableZUp) //..................................
         {
@@ -594,7 +594,7 @@ SLbool SLCamera::onMouseMove(const SLMouseButton button,
             rot.translate(-rtP);
          
             _om.setMatrix(rot * _om);
-            needUpdate();
+            needWMUpdate();
         }
         else if (_camAnim==walkingYUp) //....................................
         {

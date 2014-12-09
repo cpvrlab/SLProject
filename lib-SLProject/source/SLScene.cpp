@@ -77,6 +77,7 @@ SLScene::SLScene(SLstring name) : SLObject(name)
 
     _fps = 0;
     _elapsedTimeMS = 0;
+    _lastUpdateTimeMS = 0;
     _frameTimesMS.init();
     _updateTimesMS.init();
     _cullTimesMS.init();
@@ -281,6 +282,7 @@ bool SLScene::updateIfAllViewsGotPainted()
 
     // Calculate the elapsed time for the animation
     _elapsedTimeMS = timeMilliSec() - _lastUpdateTimeMS;
+    _lastUpdateTimeMS = timeMilliSec();
 
     // Sum up times of all scene views
     SLfloat sumCullTimeMS   = 0.0f;
@@ -314,7 +316,6 @@ bool SLScene::updateIfAllViewsGotPainted()
     _root3D->updateAABBRec();
 
     _updateTimesMS.set(timeMilliSec()-startUpdateMS);
-    _lastUpdateTimeMS = timeMilliSec();
     return animated;
 }
 

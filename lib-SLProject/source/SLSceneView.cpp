@@ -517,10 +517,10 @@ SLbool SLSceneView::draw3DGL(SLfloat elapsedTimeMS)
     // Do frustum culling
     _camera->setFrustumPlanes(); 
     _blendNodes.clear();
-    _opaqueNodes.clear();
-    s->_root3D->cullRec(this);        
-    if (!_doFrustumCulling) 
-        _camera->numRendered(_stats.numLeafNodes);
+    _opaqueNodes.clear();     
+    if (_doFrustumCulling) 
+        s->_root3D->cullRec(this);   
+    _camera->numRendered(_stats.numLeafNodes);
    
     _cullTimeMS = s->timeMilliSec() - startMS;
 
@@ -577,7 +577,7 @@ void SLSceneView::draw3DGLAll()
     _stateGL->depthMask(false);
 
     // Blended shapes must be sorted back to front
-    std::sort(_blendNodes.begin(), _blendNodes.end(), CompareNodeViewDist);
+    //std::sort(_blendNodes.begin(), _blendNodes.end(), CompareNodeViewDist);
 
     draw3DGLNodes(_blendNodes);
 

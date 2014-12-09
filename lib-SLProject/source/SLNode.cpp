@@ -592,7 +592,6 @@ void SLNode::needWMUpdate()
         return;
 
     _isWMUpToDate = false;
-    _isAABBUpToDate = false;
 
     // mark the WM of the children dirty since their parent just changed
     for (SLint i=0; i<_children.size(); ++i)
