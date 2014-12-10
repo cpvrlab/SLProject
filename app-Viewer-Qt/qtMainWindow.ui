@@ -598,9 +598,9 @@
         </widget>
        </item>
        <item>
-        <widget class="QSlider" name="animTimelineSlider">
+        <widget class="QAnimationSlider" name="animTimelineSlider">
          <property name="sizePolicy">
-          <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+          <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
            <horstretch>0</horstretch>
            <verstretch>0</verstretch>
           </sizepolicy>
@@ -663,8 +663,14 @@ border: 1px solid #aaa;
 border-radius: 4px;
 }</string>
          </property>
-         <property name="pageStep">
+         <property name="maximum">
+          <number>999</number>
+         </property>
+         <property name="singleStep">
           <number>10</number>
+         </property>
+         <property name="pageStep">
+          <number>100</number>
          </property>
          <property name="value">
           <number>0</number>
@@ -2283,6 +2289,11 @@ border-radius: 4px;
    <class>qtPropertyTreeWidget</class>
    <extends>QTreeWidget</extends>
    <header>qtPropertyTreeWidget.h</header>
+  </customwidget>
+  <customwidget>
+   <class>QAnimationSlider</class>
+   <extends>QSlider</extends>
+   <header>qtAnimationSlider.h</header>
   </customwidget>
  </customwidgets>
  <resources>

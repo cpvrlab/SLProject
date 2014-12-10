@@ -235,27 +235,27 @@ See http://qt-project.org/doc/qt-4.8/qeasingcurve.html#Type-enum
 */
 enum SLEasingCurve
 {
-    EC_linear = 1,      //!< linear easing with constant velocity
-    EC_inQuad = 2,      //!< quadratic easing in, acceleration from zero velocity
-    EC_outQuad = 3,     //!< quadratic easing out, decelerating to zero velocity
-    EC_inOutQuad = 4,   //!< quadratic easing in and then out  
-    EC_outInQuad = 5,   //!< quadratic easing out and then in
-    EC_inCubic = 6,     //!< qubic in easing in, acceleration from zero velocity
-    EC_outCubic = 7,    //!< qubic easing out, decelerating to zero velocity
-    EC_inOutCubic = 8,  //!< qubic easing in and then out 
-    EC_outInCubic = 9,  //!< qubic easing out and then in
-    EC_inQuart = 10,    //!< quartic easing in, acceleration from zero velocity
-    EC_outQuart = 11,   //!< quartic easing out, decelerating to zero velocity
-    EC_inOutQuart = 12, //!< quartic easing in and then out 
-    EC_outInQuart = 13, //!< quartic easing out and then in
-    EC_inQuint = 14,    //!< quintic easing in, acceleration from zero velocity
-    EC_outQuint = 15,   //!< quintic easing out, decelerating to zero velocity
-    EC_inOutQuint = 16, //!< quintic easing in and then out 
-    EC_outInQuint = 17, //!< quintic easing out and then in
-    EC_inSine = 18,     //!< sine ieasing in, acceleration from zero velocity
-    EC_outSine = 19,    //!< sine easing out, decelerating to zero velocity
-    EC_inOutSine = 20,  //!< sine easing in and then out  
-    EC_outInSine = 21,   //!< sine easing out and then in
+    EC_linear = 0,      //!< linear easing with constant velocity
+    EC_inQuad = 1,      //!< quadratic easing in, acceleration from zero velocity
+    EC_outQuad = 2,     //!< quadratic easing out, decelerating to zero velocity
+    EC_inOutQuad = 3,   //!< quadratic easing in and then out  
+    EC_outInQuad = 4,   //!< quadratic easing out and then in
+    EC_inCubic = 5,     //!< qubic in easing in, acceleration from zero velocity
+    EC_outCubic = 6,    //!< qubic easing out, decelerating to zero velocity
+    EC_inOutCubic = 7,  //!< qubic easing in and then out 
+    EC_outInCubic = 8,  //!< qubic easing out and then in
+    EC_inQuart = 9,    //!< quartic easing in, acceleration from zero velocity
+    EC_outQuart = 10,   //!< quartic easing out, decelerating to zero velocity
+    EC_inOutQuart = 11, //!< quartic easing in and then out 
+    EC_outInQuart = 12, //!< quartic easing out and then in
+    EC_inQuint = 13,    //!< quintic easing in, acceleration from zero velocity
+    EC_outQuint = 14,   //!< quintic easing out, decelerating to zero velocity
+    EC_inOutQuint = 15, //!< quintic easing in and then out 
+    EC_outInQuint = 16, //!< quintic easing out and then in
+    EC_inSine = 17,     //!< sine ieasing in, acceleration from zero velocity
+    EC_outSine = 18,    //!< sine easing out, decelerating to zero velocity
+    EC_inOutSine = 19,  //!< sine easing in and then out  
+    EC_outInSine = 20,   //!< sine easing out and then in
 };
 //-----------------------------------------------------------------------------
 //! Describes the relative space a transformation is applied in.

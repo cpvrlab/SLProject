@@ -11,6 +11,7 @@
 #include "qtMainWindow.h"
 #include "ui_qtMainWindow.h"
 #include "qtGLWidget.h"
+#include "qtAnimationSlider.h"
 #include "qtPropertyTreeWidget.h"
 #include "qtPropertyTreeItem.h"
 #include <QMessageBox>
@@ -111,6 +112,8 @@ qtMainWindow::qtMainWindow(QWidget *parent, SLVstring cmdLineArgs) :
     borderWidget->show();
     _activeGLWidget->show();
 
+
+    // set dark color palette
     QPalette darkPalette;
     darkPalette.setColor(QPalette::Window, QColor(53,53,53));
     darkPalette.setColor(QPalette::WindowText, Qt::white);
@@ -598,12 +601,12 @@ void qtMainWindow::updateAnimationTimeline()
         return;
     
     SLfloat time = _selectedAnim->localTime();
-    QString timeMin = QString("%1").arg((int)floor(time), 2, 10, QChar('0'));
-    QString timeSec = QString("%1").arg((int)floor(SL_fract(time)*60), 2, 10, QChar('0'));
-    ui->animTimelineSlider->blockSignals(true);
-    ui->animTimelineSlider->setSliderPosition(_selectedAnim->localTime()/_selectedAnim->parentAnimation()->length()*100);
-    ui->animTimelineSlider->blockSignals(false);
-    ui->animCurrentTimeLabel->setText(timeMin + ":" + timeSec);
+    QString timeMin = QString("%1").arg((int)floor(time / 60.0f), 2, 10, QChar('0'));
+    QString timeSec = QString("%1").arg((int)floor(fmod(time, 60.0f)), 2, 10, QChar('0'));
+    QString timeSecFrac =  QString("%1").arg((int)(SL_fract(time)*100.0f), 2, 10, QChar('0')); // @todo there is probably a better solution for this 
+    
+    ui->animTimelineSlider->setSliderPosNoSignal(time/_selectedAnim->parentAnimation()->length());
+    ui->animCurrentTimeLabel->setText(timeMin + ":" + timeSec + "." + timeSecFrac);
 }
 
 //-----------------------------------------------------------------------------
@@ -613,6 +616,7 @@ void qtMainWindow::beforeSceneLoad()
     _selectedNodeItem = 0;
     ui->nodeTree->clear();
     ui->propertyTree->clear();
+    updateAnimationList();
 }
 //-----------------------------------------------------------------------------
 void qtMainWindow::afterSceneLoad()
@@ -1480,14 +1484,16 @@ void qtMainWindow::on_animAnimationSelect_currentIndexChanged(int index)
     _selectedAnim = state;
 
     SLfloat time = state->parentAnimation()->length();
-    QString timeMin = QString("%1").arg((int)floor(time), 2, 10, QChar('0'));
-    QString timeSec = QString("%1").arg((int)floor(SL_fract(time)*60), 2, 10, QChar('0'));
+    QString timeMin = QString("%1").arg((int)floor(time / 60.0f), 2, 10, QChar('0'));
+    QString timeSec = QString("%1").arg((int)floor(fmod(time, 60.0f)), 2, 10, QChar('0'));
+    QString timeSecFrac =  QString("%1").arg((int)(SL_fract(time)*100.0f), 2, 10, QChar('0')); // @todo there is probably a better solution for this 
     
     ui->animSpeedInput->setValue(state->playbackRate());
     ui->animWeightInput->setValue(state->weight());
     ui->animEasingSelect->setCurrentIndex(state->easing());
     ui->animLoopingSelect->setCurrentIndex(state->loop());
-    ui->animDurationLabel->setText(timeMin + ":" + timeSec);
+    ui->animDurationLabel->setText(timeMin + ":" + timeSec + "." + timeSecFrac);
+    ui->animTimelineSlider->setMaximum(floor(time * 1000)); // set slider maximum to millisec of animation length
 
     std::cout << "on_animationSelectIndexChanged " << index << " " << state->parentAnimation()->name() << "\n";
 
@@ -1586,10 +1592,8 @@ void qtMainWindow::on_animTimelineSlider_valueChanged(int value)
     if (!_selectedAnim)
         return;
     
-    SLfloat time = (SLfloat)value / 100.0 * _selectedAnim->parentAnimation()->length();
+    SLfloat time = ui->animTimelineSlider->getNormalizedValue() * _selectedAnim->parentAnimation()->length();
     _selectedAnim->localTime(time);
-
-    cout << "moved\n";
 }
 
 void qtMainWindow::on_animWeightInput_valueChanged(double d)

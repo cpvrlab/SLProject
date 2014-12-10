@@ -22,7 +22,6 @@
 #include <QtWidgets/QMainWindow>
 #include <QtWidgets/QMenu>
 #include <QtWidgets/QMenuBar>
-#include <QtWidgets/QSlider>
 #include <QtWidgets/QSpacerItem>
 #include <QtWidgets/QStatusBar>
 #include <QtWidgets/QToolBar>
@@ -30,6 +29,7 @@
 #include <QtWidgets/QTreeWidget>
 #include <QtWidgets/QVBoxLayout>
 #include <QtWidgets/QWidget>
+#include "qtAnimationSlider.h"
 #include "qtPropertyTreeWidget.h"
 
 QT_BEGIN_NAMESPACE
@@ -173,7 +173,7 @@ public:
     QVBoxLayout *verticalLayout_3;
     QHBoxLayout *horizontalLayout;
     QLabel *animCurrentTimeLabel;
-    QSlider *animTimelineSlider;
+    QAnimationSlider *animTimelineSlider;
     QLabel *animDurationLabel;
     QHBoxLayout *horizontalLayout_4;
     QSpacerItem *horizontalSpacer_2;
@@ -201,7 +201,7 @@ public:
     {
         if (qtMainWindow->objectName().isEmpty())
             qtMainWindow->setObjectName(QStringLiteral("qtMainWindow"));
-        qtMainWindow->resize(507, 651);
+        qtMainWindow->resize(800, 654);
         QSizePolicy sizePolicy(QSizePolicy::Preferred, QSizePolicy::Minimum);
         sizePolicy.setHorizontalStretch(0);
         sizePolicy.setVerticalStretch(0);
@@ -568,7 +568,7 @@ public:
         qtMainWindow->setCentralWidget(centralWidget);
         menuBar = new QMenuBar(qtMainWindow);
         menuBar->setObjectName(QStringLiteral("menuBar"));
-        menuBar->setGeometry(QRect(0, 0, 507, 21));
+        menuBar->setGeometry(QRect(0, 0, 800, 21));
         menuBar->setDefaultUp(false);
         menuBar->setNativeMenuBar(false);
         menuFile = new QMenu(menuBar);
@@ -734,9 +734,9 @@ public:
 
         horizontalLayout->addWidget(animCurrentTimeLabel);
 
-        animTimelineSlider = new QSlider(dockWidgetContents_3);
+        animTimelineSlider = new QAnimationSlider(dockWidgetContents_3);
         animTimelineSlider->setObjectName(QStringLiteral("animTimelineSlider"));
-        QSizePolicy sizePolicy5(QSizePolicy::Preferred, QSizePolicy::Fixed);
+        QSizePolicy sizePolicy5(QSizePolicy::Expanding, QSizePolicy::Fixed);
         sizePolicy5.setHorizontalStretch(0);
         sizePolicy5.setVerticalStretch(0);
         sizePolicy5.setHeightForWidth(animTimelineSlider->sizePolicy().hasHeightForWidth());
@@ -796,7 +796,9 @@ public:
 "border: 1px solid #aaa;\n"
 "border-radius: 4px;\n"
 "}"));
-        animTimelineSlider->setPageStep(10);
+        animTimelineSlider->setMaximum(999);
+        animTimelineSlider->setSingleStep(10);
+        animTimelineSlider->setPageStep(100);
         animTimelineSlider->setValue(0);
         animTimelineSlider->setSliderPosition(0);
         animTimelineSlider->setOrientation(Qt::Horizontal);

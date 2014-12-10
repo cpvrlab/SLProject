@@ -25,6 +25,7 @@
     <ClInclude Include="ui_qtMainWindow.h">
       <Filter>Generated</Filter>
     </ClInclude>
+    <ClInclude Include="qtAnimationSlider.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Generated">
