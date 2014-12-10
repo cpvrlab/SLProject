@@ -82,10 +82,6 @@ qtGLWidget::qtGLWidget(QWidget* parent,
 //-----------------------------------------------------------------------------
 qtGLWidget::~qtGLWidget()
 {
-    // remove pointer from the qtGLWidget vector (so ugly!!!)
-    std::vector<qtGLWidget*>& all = mainWindow->_allGLWidgets;
-    all.erase(remove(all.begin(), all.end(), this), all.end());
-
     SL_LOG("~qtGLWidget\n");
 }
 
