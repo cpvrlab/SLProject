@@ -1293,6 +1293,7 @@ void qtMainWindow::on_actionDelete_active_view_triggered()
     activeSplitter->setParent(0);
     delete _activeGLWidget->sv();
     delete activeSplitter;
+    _allGLWidgets.erase(std::remove(_allGLWidgets.begin(), _allGLWidgets.end(), _activeGLWidget), _allGLWidgets.end());
 
     // Get other widget
     for (int i=0; i < parentSplitter->count(); ++i)
