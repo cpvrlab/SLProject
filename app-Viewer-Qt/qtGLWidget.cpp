@@ -264,8 +264,8 @@ void qtGLWidget::mouseReleaseEvent(QMouseEvent *e)
     // if only sceneview camera is used update only this GL widget
     // if a scene camera is used update all GL widgets
     if (_sv->isSceneViewCameraActive())
-         mainWindow->updateAllGLWidgets();
-    else mainWindow->setMenuState(); 
+        update();
+    else mainWindow->updateAllGLWidgets();
 }
 //-----------------------------------------------------------------------------
 /*!
@@ -331,8 +331,8 @@ void qtGLWidget::mouseMoveEvent(QMouseEvent *e)
     // if only sceneview camera is used update only this GL widget
     // if a scene camera is used update all GL widgets
     if (_sv->isSceneViewCameraActive())
-         mainWindow->updateAllGLWidgets();
-    else mainWindow->setMenuState();
+        update();
+    else mainWindow->updateAllGLWidgets();
 }
 //-----------------------------------------------------------------------------
 /*!
@@ -351,8 +351,8 @@ void qtGLWidget::wheelEvent(QWheelEvent *e)
     // if only sceneview camera is used update only this GL widget
     // if a scene camera is used update all GL widgets
     if (_sv->isSceneViewCameraActive())
-         mainWindow->updateAllGLWidgets();
-    else mainWindow->setMenuState();
+        update();
+    else mainWindow->updateAllGLWidgets();
 } 
 //-----------------------------------------------------------------------------
 /*!
@@ -402,8 +402,8 @@ void qtGLWidget::keyPressEvent(QKeyEvent* e)
         // if only sceneview camera is used update only this GL widget
         // if a scene camera is used update all GL widgets
         if (_sv->isSceneViewCameraActive())
-             mainWindow->updateAllGLWidgets();
-        else mainWindow->setMenuState();
+            update();
+        else mainWindow->updateAllGLWidgets();
     }
 }
 //-----------------------------------------------------------------------------
