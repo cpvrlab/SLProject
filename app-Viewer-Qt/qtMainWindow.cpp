@@ -110,6 +110,23 @@ qtMainWindow::qtMainWindow(QWidget *parent, SLVstring cmdLineArgs) :
     splitter->show();
     borderWidget->show();
     _activeGLWidget->show();
+
+    QPalette darkPalette;
+    darkPalette.setColor(QPalette::Window, QColor(53,53,53));
+    darkPalette.setColor(QPalette::WindowText, Qt::white);
+    darkPalette.setColor(QPalette::Base, QColor(25,25,25));
+    darkPalette.setColor(QPalette::AlternateBase, QColor(53,53,53));
+    darkPalette.setColor(QPalette::ToolTipBase, Qt::white);
+    darkPalette.setColor(QPalette::ToolTipText, Qt::white);
+    darkPalette.setColor(QPalette::Text, Qt::white);
+    darkPalette.setColor(QPalette::Button, QColor(53,53,53));
+    darkPalette.setColor(QPalette::ButtonText, Qt::white);
+    darkPalette.setColor(QPalette::BrightText, Qt::red);
+    darkPalette.setColor(QPalette::Link, QColor(42, 130, 218));
+    darkPalette.setColor(QPalette::Highlight, QColor(42, 130, 218));
+    darkPalette.setColor(QPalette::HighlightedText, Qt::black);
+
+    setPalette(darkPalette);
 }
 
 qtMainWindow::~qtMainWindow()
@@ -579,8 +596,14 @@ void qtMainWindow::updateAnimationTimeline()
 {
     if (!_selectedAnim)
         return;
-
-    ui->animTimelineSlider->setValue(_selectedAnim->localTime()/_selectedAnim->parentAnimation()->length()*100);
+    
+    SLfloat time = _selectedAnim->localTime();
+    QString timeMin = QString("%1").arg((int)floor(time), 2, 10, QChar('0'));
+    QString timeSec = QString("%1").arg((int)floor(SL_fract(time)*60), 2, 10, QChar('0'));
+    ui->animTimelineSlider->blockSignals(true);
+    ui->animTimelineSlider->setSliderPosition(_selectedAnim->localTime()/_selectedAnim->parentAnimation()->length()*100);
+    ui->animTimelineSlider->blockSignals(false);
+    ui->animCurrentTimeLabel->setText(timeMin + ":" + timeSec);
 }
 
 //-----------------------------------------------------------------------------
@@ -1455,10 +1478,16 @@ void qtMainWindow::on_animAnimationSelect_currentIndexChanged(int index)
     SLAnimationState* state = ui->animAnimationSelect->itemData(index).value<SLAnimationState*>();
     if (!state) return;
     _selectedAnim = state;
+
+    SLfloat time = state->parentAnimation()->length();
+    QString timeMin = QString("%1").arg((int)floor(time), 2, 10, QChar('0'));
+    QString timeSec = QString("%1").arg((int)floor(SL_fract(time)*60), 2, 10, QChar('0'));
+    
     ui->animSpeedInput->setValue(state->playbackRate());
     ui->animWeightInput->setValue(state->weight());
     ui->animEasingSelect->setCurrentIndex(state->easing());
     ui->animLoopingSelect->setCurrentIndex(state->loop());
+    ui->animDurationLabel->setText(timeMin + ":" + timeSec);
 
     std::cout << "on_animationSelectIndexChanged " << index << " " << state->parentAnimation()->name() << "\n";
 
@@ -1552,13 +1581,15 @@ void qtMainWindow::on_animLoopingSelect_currentIndexChanged(int index)
 }
 
 //-----------------------------------------------------------------------------
-void qtMainWindow::on_animTimelineSlider_sliderMoved(int value)
+void qtMainWindow::on_animTimelineSlider_valueChanged(int value)
 {
     if (!_selectedAnim)
         return;
     
     SLfloat time = (SLfloat)value / 100.0 * _selectedAnim->parentAnimation()->length();
     _selectedAnim->localTime(time);
+
+    cout << "moved\n";
 }
 
 void qtMainWindow::on_animWeightInput_valueChanged(double d)

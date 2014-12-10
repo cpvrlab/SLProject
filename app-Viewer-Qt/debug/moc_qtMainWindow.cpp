@@ -20,7 +20,7 @@
 QT_BEGIN_MOC_NAMESPACE
 struct qt_meta_stringdata_qtMainWindow_t {
     QByteArrayData data[119];
-    char stringdata[3784];
+    char stringdata[3785];
 };
 #define QT_MOC_LITERAL(idx, ofs, len) \
     Q_STATIC_BYTE_ARRAY_DATA_HEADER_INITIALIZER_WITH_OFFSET(len, \
@@ -143,11 +143,11 @@ QT_MOC_LITERAL(110, 3545, 26),
 QT_MOC_LITERAL(111, 3572, 25),
 QT_MOC_LITERAL(112, 3598, 39),
 QT_MOC_LITERAL(113, 3638, 40),
-QT_MOC_LITERAL(114, 3679, 33),
-QT_MOC_LITERAL(115, 3713, 5),
-QT_MOC_LITERAL(116, 3719, 31),
-QT_MOC_LITERAL(117, 3751, 1),
-QT_MOC_LITERAL(118, 3753, 30)
+QT_MOC_LITERAL(114, 3679, 34),
+QT_MOC_LITERAL(115, 3714, 5),
+QT_MOC_LITERAL(116, 3720, 31),
+QT_MOC_LITERAL(117, 3752, 1),
+QT_MOC_LITERAL(118, 3754, 30)
     },
     "qtMainWindow\0on_action_Quit_triggered\0"
     "\0on_actionSmall_Test_Scene_triggered\0"
@@ -256,7 +256,7 @@ QT_MOC_LITERAL(118, 3753, 30)
     "on_animStopButton_clicked\0"
     "on_animEasingSelect_currentIndexChanged\0"
     "on_animLoopingSelect_currentIndexChanged\0"
-    "on_animTimelineSlider_sliderMoved\0"
+    "on_animTimelineSlider_valueChanged\0"
     "value\0on_animWeightInput_valueChanged\0"
     "d\0on_animSpeedInput_valueChanged"
 };
@@ -614,7 +614,7 @@ void qtMainWindow::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id
         case 104: _t->on_animStopButton_clicked(); break;
         case 105: _t->on_animEasingSelect_currentIndexChanged((*reinterpret_cast< int(*)>(_a[1]))); break;
         case 106: _t->on_animLoopingSelect_currentIndexChanged((*reinterpret_cast< int(*)>(_a[1]))); break;
-        case 107: _t->on_animTimelineSlider_sliderMoved((*reinterpret_cast< int(*)>(_a[1]))); break;
+        case 107: _t->on_animTimelineSlider_valueChanged((*reinterpret_cast< int(*)>(_a[1]))); break;
         case 108: _t->on_animWeightInput_valueChanged((*reinterpret_cast< double(*)>(_a[1]))); break;
         case 109: _t->on_animSpeedInput_valueChanged((*reinterpret_cast< double(*)>(_a[1]))); break;
         default: ;

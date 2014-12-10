@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>925</width>
-    <height>657</height>
+    <width>800</width>
+    <height>654</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -37,7 +37,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>925</width>
+     <width>800</width>
      <height>21</height>
     </rect>
    </property>
@@ -512,15 +512,15 @@
   </widget>
   <widget class="QDockWidget" name="dockAnimation">
    <property name="sizePolicy">
-    <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+    <sizepolicy hsizetype="Fixed" vsizetype="Minimum">
      <horstretch>0</horstretch>
      <verstretch>0</verstretch>
     </sizepolicy>
    </property>
    <property name="minimumSize">
     <size>
-     <width>509</width>
-     <height>94</height>
+     <width>507</width>
+     <height>102</height>
     </size>
    </property>
    <property name="floating">
@@ -559,379 +559,601 @@
       <number>2</number>
      </property>
      <item>
-      <widget class="QWidget" name="widget_2" native="true">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
+      <layout class="QHBoxLayout" name="horizontalLayout">
+       <property name="spacing">
+        <number>10</number>
        </property>
-       <layout class="QHBoxLayout" name="horizontalLayout">
-        <property name="spacing">
-         <number>2</number>
-        </property>
-        <property name="leftMargin">
-         <number>0</number>
-        </property>
-        <property name="topMargin">
-         <number>0</number>
-        </property>
-        <property name="rightMargin">
-         <number>0</number>
-        </property>
-        <property name="bottomMargin">
-         <number>0</number>
-        </property>
-        <item>
-         <widget class="QComboBox" name="animAnimatedObjectSelect">
-          <item>
-           <property name="text">
-            <string>Animated objects</string>
-           </property>
-          </item>
-         </widget>
-        </item>
-        <item>
-         <widget class="QComboBox" name="animAnimationSelect">
-          <item>
-           <property name="text">
-            <string>Animations</string>
-           </property>
-          </item>
-         </widget>
-        </item>
-       </layout>
-      </widget>
+       <property name="leftMargin">
+        <number>3</number>
+       </property>
+       <property name="topMargin">
+        <number>0</number>
+       </property>
+       <property name="rightMargin">
+        <number>3</number>
+       </property>
+       <item>
+        <widget class="QLabel" name="animCurrentTimeLabel">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="minimumSize">
+          <size>
+           <width>20</width>
+           <height>0</height>
+          </size>
+         </property>
+         <property name="layoutDirection">
+          <enum>Qt::LeftToRight</enum>
+         </property>
+         <property name="text">
+          <string>--:--</string>
+         </property>
+         <property name="indent">
+          <number>0</number>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QSlider" name="animTimelineSlider">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="mouseTracking">
+          <bool>true</bool>
+         </property>
+         <property name="styleSheet">
+          <string notr="true">QSlider::groove:horizontal {
+border: 1px solid #bbb;
+background: white;
+height: 10px;
+border-radius: 4px;
+}
+
+QSlider::sub-page:horizontal {
+background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+    stop:0 #EDA215, stop:1 #C98300);
+border: 1px solid #bbb;
+height: 10px;
+border-radius: 4px;
+}
+
+QSlider::add-page:horizontal {
+background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+    stop:0 #cdcdcd, stop:1 #fafafa);
+border: 1px solid #ddd;
+height: 10px;
+border-radius: 4px;
+}
+
+QSlider::handle:horizontal {
+background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+    stop:0 #fff, stop:1 #ccc);
+border: 1px solid #bbb;
+width: 15px;
+margin-top: -3px;
+margin-bottom: -3px;
+border-radius:8px;
+}
+
+QSlider::handle:horizontal:hover {
+background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+    stop:0 #fff, stop:1 #ddd);
+}
+
+QSlider::sub-page:horizontal:disabled {
+background: #bbb;
+border-color: #999;
+}
+
+QSlider::add-page:horizontal:disabled {
+background: #eee;
+border-color: #999;
+}
+
+QSlider::handle:horizontal:disabled {
+background: #eee;
+border: 1px solid #aaa;
+border-radius: 4px;
+}</string>
+         </property>
+         <property name="pageStep">
+          <number>10</number>
+         </property>
+         <property name="value">
+          <number>0</number>
+         </property>
+         <property name="sliderPosition">
+          <number>0</number>
+         </property>
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLabel" name="animDurationLabel">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="minimumSize">
+          <size>
+           <width>20</width>
+           <height>0</height>
+          </size>
+         </property>
+         <property name="text">
+          <string>--:--</string>
+         </property>
+         <property name="margin">
+          <number>0</number>
+         </property>
+         <property name="indent">
+          <number>0</number>
+         </property>
+        </widget>
+       </item>
+      </layout>
      </item>
      <item>
-      <widget class="QWidget" name="widget" native="true">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
+      <layout class="QHBoxLayout" name="horizontalLayout_4">
+       <property name="spacing">
+        <number>0</number>
        </property>
-       <layout class="QHBoxLayout" name="horizontalLayout_2">
-        <property name="spacing">
-         <number>2</number>
-        </property>
-        <property name="leftMargin">
-         <number>0</number>
-        </property>
-        <property name="topMargin">
-         <number>0</number>
-        </property>
-        <property name="rightMargin">
-         <number>0</number>
-        </property>
-        <property name="bottomMargin">
-         <number>0</number>
-        </property>
-        <item>
-         <spacer name="horizontalSpacer">
-          <property name="orientation">
-           <enum>Qt::Horizontal</enum>
-          </property>
-          <property name="sizeHint" stdset="0">
-           <size>
-            <width>40</width>
-            <height>20</height>
-           </size>
-          </property>
-         </spacer>
-        </item>
-        <item>
-         <widget class="QToolButton" name="animSkipStartButton">
-          <property name="text">
-           <string>skipStart</string>
-          </property>
-          <property name="icon">
-           <iconset>
-            <normaloff>images/animGoToStart.png</normaloff>images/animGoToStart.png</iconset>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QToolButton" name="animPrevKeyframeButton">
-          <property name="text">
-           <string>prevKeyframe</string>
-          </property>
-          <property name="icon">
-           <iconset>
-            <normaloff>images/animPrevKF.png</normaloff>images/animPrevKF.png</iconset>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QToolButton" name="animPlayBackwardButton">
-          <property name="text">
-           <string>playBackward</string>
-          </property>
-          <property name="icon">
-           <iconset>
-            <normaloff>images/animPlayBackwards.png</normaloff>images/animPlayBackwards.png</iconset>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QToolButton" name="animStopButton">
-          <property name="text">
-           <string>...</string>
-          </property>
-          <property name="icon">
-           <iconset>
-            <normaloff>images/animStop.png</normaloff>images/animStop.png</iconset>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QToolButton" name="animPauseButton">
-          <property name="text">
-           <string>pause</string>
-          </property>
-          <property name="icon">
-           <iconset>
-            <normaloff>images/animPause.png</normaloff>images/animPause.png</iconset>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QToolButton" name="animPlayForwardButton">
-          <property name="text">
-           <string>playForward</string>
-          </property>
-          <property name="icon">
-           <iconset>
-            <normaloff>images/animPlay.png</normaloff>images/animPlay.png</iconset>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QToolButton" name="animNextKeyframeButton">
-          <property name="text">
-           <string>nextKeyframe</string>
-          </property>
-          <property name="icon">
-           <iconset>
-            <normaloff>images/animNextKF.png</normaloff>images/animNextKF.png</iconset>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QToolButton" name="animSkipEndButton">
-          <property name="text">
-           <string>skipEnd</string>
-          </property>
-          <property name="icon">
-           <iconset>
-            <normaloff>images/animGoToEnd.png</normaloff>images/animGoToEnd.png</iconset>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QDoubleSpinBox" name="animSpeedInput">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-          <property name="maximum">
-           <double>20.000000000000000</double>
-          </property>
-          <property name="singleStep">
-           <double>0.100000000000000</double>
-          </property>
-          <property name="value">
-           <double>1.000000000000000</double>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QDoubleSpinBox" name="animWeightInput">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-          <property name="maximum">
-           <double>10.000000000000000</double>
-          </property>
-          <property name="singleStep">
-           <double>0.100000000000000</double>
-          </property>
-          <property name="value">
-           <double>1.000000000000000</double>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QComboBox" name="animEasingSelect">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-          <item>
-           <property name="text">
-            <string>Easing curve</string>
+       <item>
+        <spacer name="horizontalSpacer_2">
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>40</width>
+           <height>20</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+       <item>
+        <layout class="QVBoxLayout" name="verticalLayout_5">
+         <property name="spacing">
+          <number>0</number>
+         </property>
+         <property name="leftMargin">
+          <number>0</number>
+         </property>
+         <property name="rightMargin">
+          <number>0</number>
+         </property>
+         <property name="bottomMargin">
+          <number>0</number>
+         </property>
+         <item>
+          <layout class="QHBoxLayout" name="horizontalLayout_5">
+           <property name="spacing">
+            <number>1</number>
            </property>
-          </item>
-          <item>
-           <property name="text">
-            <string>linear</string>
+           <property name="leftMargin">
+            <number>0</number>
            </property>
-          </item>
-          <item>
-           <property name="text">
-            <string>quadratic in</string>
+           <item>
+            <widget class="QComboBox" name="animAnimatedObjectSelect">
+             <property name="toolTip">
+              <string>Select animation target</string>
+             </property>
+             <property name="statusTip">
+              <string>Select animation target</string>
+             </property>
+             <item>
+              <property name="text">
+               <string>Animated objects</string>
+              </property>
+             </item>
+            </widget>
+           </item>
+           <item>
+            <widget class="QComboBox" name="animAnimationSelect">
+             <property name="toolTip">
+              <string>Select animations</string>
+             </property>
+             <property name="statusTip">
+              <string>Select animation of the selected object</string>
+             </property>
+             <item>
+              <property name="text">
+               <string>Animations</string>
+              </property>
+             </item>
+            </widget>
+           </item>
+          </layout>
+         </item>
+         <item>
+          <layout class="QHBoxLayout" name="horizontalLayout_6">
+           <property name="spacing">
+            <number>1</number>
            </property>
-          </item>
-          <item>
-           <property name="text">
-            <string>quadratic out</string>
-           </property>
-          </item>
-          <item>
-           <property name="text">
-            <string>quadratic in -&gt; out</string>
-           </property>
-          </item>
-          <item>
-           <property name="text">
-            <string>quadratic out -&gt; in</string>
-           </property>
-          </item>
-          <item>
-           <property name="text">
-            <string>cubic in</string>
-           </property>
-          </item>
-          <item>
-           <property name="text">
-            <string>cubic out</string>
-           </property>
-          </item>
-          <item>
-           <property name="text">
-            <string>cubic in -&gt; out</string>
-           </property>
-          </item>
-          <item>
-           <property name="text">
-            <string>cubic out -&gt; in</string>
-           </property>
-          </item>
-          <item>
-           <property name="text">
-            <string>quartic in</string>
-           </property>
-          </item>
-          <item>
-           <property name="text">
-            <string>quartic out</string>
-           </property>
-          </item>
-          <item>
-           <property name="text">
-            <string>quartic in -&gt; out</string>
-           </property>
-          </item>
-          <item>
-           <property name="text">
-            <string>quartic out -&gt; in</string>
-           </property>
-          </item>
-          <item>
-           <property name="text">
-            <string>quintic in</string>
-           </property>
-          </item>
-          <item>
-           <property name="text">
-            <string>quintic out</string>
-           </property>
-          </item>
-          <item>
-           <property name="text">
-            <string>quintic in -&gt; out</string>
-           </property>
-          </item>
-          <item>
-           <property name="text">
-            <string>quintic out -&gt; in</string>
-           </property>
-          </item>
-          <item>
-           <property name="text">
-            <string>sine in</string>
-           </property>
-          </item>
-          <item>
-           <property name="text">
-            <string>sine out</string>
-           </property>
-          </item>
-          <item>
-           <property name="text">
-            <string>sine in -&gt; out</string>
-           </property>
-          </item>
-          <item>
-           <property name="text">
-            <string>sine out -&gt; in</string>
-           </property>
-          </item>
-         </widget>
-        </item>
-        <item>
-         <widget class="QComboBox" name="animLoopingSelect">
-          <item>
-           <property name="text">
-            <string>Play once</string>
-           </property>
-          </item>
-          <item>
-           <property name="text">
-            <string>Loop</string>
-           </property>
-          </item>
-          <item>
-           <property name="text">
-            <string>Ping pong</string>
-           </property>
-          </item>
-          <item>
-           <property name="text">
-            <string>Ping pong loop</string>
-           </property>
-          </item>
-         </widget>
-        </item>
-        <item>
-         <spacer name="horizontalSpacer_2">
-          <property name="orientation">
-           <enum>Qt::Horizontal</enum>
-          </property>
-          <property name="sizeHint" stdset="0">
-           <size>
-            <width>40</width>
-            <height>20</height>
-           </size>
-          </property>
-         </spacer>
-        </item>
-       </layout>
-      </widget>
-     </item>
-     <item>
-      <widget class="QSlider" name="animTimelineSlider">
-       <property name="orientation">
-        <enum>Qt::Horizontal</enum>
-       </property>
-      </widget>
+           <item>
+            <widget class="QToolButton" name="animSkipStartButton">
+             <property name="toolTip">
+              <string>Skip to start</string>
+             </property>
+             <property name="statusTip">
+              <string>Skip to beginning of the selected animation</string>
+             </property>
+             <property name="text">
+              <string>skipStart</string>
+             </property>
+             <property name="icon">
+              <iconset>
+               <normaloff>images/animGoToStart.png</normaloff>images/animGoToStart.png</iconset>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QToolButton" name="animPrevKeyframeButton">
+             <property name="toolTip">
+              <string>Previous keyframe</string>
+             </property>
+             <property name="statusTip">
+              <string>Skip to previous keyframe of the selected animation</string>
+             </property>
+             <property name="text">
+              <string>prevKeyframe</string>
+             </property>
+             <property name="icon">
+              <iconset>
+               <normaloff>images/animPrevKF.png</normaloff>images/animPrevKF.png</iconset>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QToolButton" name="animPlayBackwardButton">
+             <property name="toolTip">
+              <string>Play backward</string>
+             </property>
+             <property name="statusTip">
+              <string>Play the selected animation backward</string>
+             </property>
+             <property name="text">
+              <string>playBackward</string>
+             </property>
+             <property name="icon">
+              <iconset>
+               <normaloff>images/animPlayBackwards.png</normaloff>images/animPlayBackwards.png</iconset>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QToolButton" name="animStopButton">
+             <property name="toolTip">
+              <string>Disable animation</string>
+             </property>
+             <property name="statusTip">
+              <string>Disable the selected animation</string>
+             </property>
+             <property name="text">
+              <string>...</string>
+             </property>
+             <property name="icon">
+              <iconset>
+               <normaloff>images/animStop.png</normaloff>images/animStop.png</iconset>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QToolButton" name="animPauseButton">
+             <property name="toolTip">
+              <string>Pause</string>
+             </property>
+             <property name="statusTip">
+              <string>Pause the selected animation</string>
+             </property>
+             <property name="text">
+              <string>pause</string>
+             </property>
+             <property name="icon">
+              <iconset>
+               <normaloff>images/animPause.png</normaloff>images/animPause.png</iconset>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QToolButton" name="animPlayForwardButton">
+             <property name="toolTip">
+              <string>Play forward</string>
+             </property>
+             <property name="statusTip">
+              <string>Play the selected animation forward</string>
+             </property>
+             <property name="text">
+              <string>playForward</string>
+             </property>
+             <property name="icon">
+              <iconset>
+               <normaloff>images/animPlay.png</normaloff>images/animPlay.png</iconset>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QToolButton" name="animNextKeyframeButton">
+             <property name="toolTip">
+              <string>Next keyframe</string>
+             </property>
+             <property name="statusTip">
+              <string>Skip to next keyframe of the selected animation</string>
+             </property>
+             <property name="text">
+              <string>nextKeyframe</string>
+             </property>
+             <property name="icon">
+              <iconset>
+               <normaloff>images/animNextKF.png</normaloff>images/animNextKF.png</iconset>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QToolButton" name="animSkipEndButton">
+             <property name="toolTip">
+              <string>Skip to end</string>
+             </property>
+             <property name="statusTip">
+              <string>Skip to end of the selected animation</string>
+             </property>
+             <property name="text">
+              <string>skipEnd</string>
+             </property>
+             <property name="icon">
+              <iconset>
+               <normaloff>images/animGoToEnd.png</normaloff>images/animGoToEnd.png</iconset>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QDoubleSpinBox" name="animSpeedInput">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>43</width>
+               <height>16777215</height>
+              </size>
+             </property>
+             <property name="toolTip">
+              <string>Playback speed</string>
+             </property>
+             <property name="statusTip">
+              <string>Set the playback speed for the selected animation</string>
+             </property>
+             <property name="maximum">
+              <double>20.000000000000000</double>
+             </property>
+             <property name="singleStep">
+              <double>0.100000000000000</double>
+             </property>
+             <property name="value">
+              <double>1.000000000000000</double>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QDoubleSpinBox" name="animWeightInput">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>43</width>
+               <height>16777215</height>
+              </size>
+             </property>
+             <property name="toolTip">
+              <string>Animation weight</string>
+             </property>
+             <property name="statusTip">
+              <string>Set the weight for the selected animation</string>
+             </property>
+             <property name="maximum">
+              <double>10.000000000000000</double>
+             </property>
+             <property name="singleStep">
+              <double>0.100000000000000</double>
+             </property>
+             <property name="value">
+              <double>1.000000000000000</double>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QComboBox" name="animEasingSelect">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="toolTip">
+              <string>Easing curve</string>
+             </property>
+             <property name="statusTip">
+              <string>Set the easing curve for the selected animation</string>
+             </property>
+             <item>
+              <property name="text">
+               <string>linear</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>quad in</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>quad out</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>quadc in -&gt; out</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>quad out -&gt; in</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>cubic in</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>cubic out</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>cubic in -&gt; out</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>cubic out -&gt; in</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>quartic in</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>quartic out</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>quartic in -&gt; out</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>quartic out -&gt; in</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>quintic in</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>quintic out</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>quintic in -&gt; out</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>quintic out -&gt; in</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>sine in</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>sine out</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>sine in -&gt; out</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>sine out -&gt; in</string>
+              </property>
+             </item>
+            </widget>
+           </item>
+           <item>
+            <widget class="QComboBox" name="animLoopingSelect">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="toolTip">
+              <string>Loop Behaviour</string>
+             </property>
+             <property name="statusTip">
+              <string>Select the looping behaviour for the selected animation</string>
+             </property>
+             <item>
+              <property name="text">
+               <string>Play once</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>Loop</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>Ping pong</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>Ping pong loop</string>
+              </property>
+             </item>
+            </widget>
+           </item>
+          </layout>
+         </item>
+        </layout>
+       </item>
+       <item>
+        <spacer name="horizontalSpacer">
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>40</width>
+           <height>20</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+      </layout>
      </item>
     </layout>
    </widget>

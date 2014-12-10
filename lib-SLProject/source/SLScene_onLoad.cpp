@@ -162,7 +162,7 @@ SLNode* BuildFigureGroup(SLMaterial* mat)
     SLNodeAnimationTrack* track = anim->createNodeAnimationTrack(0);
     track->animationTarget(legLeft);
     track->createNodeKeyframe(0.0f);    // @todo auto create a 0.0 keyframe!
-    track->createNodeKeyframe(1.0f)->rotation(SLQuat4f(60, SLVec3f(1, 0, 0))); // @ todo add looping behaviours again (pingpong etc)
+    track->createNodeKeyframe(2.0f)->rotation(SLQuat4f(60, SLVec3f(1, 0, 0))); // @ todo add looping behaviours again (pingpong etc)
     SLScene::current->animManager().addNodeAnimation(anim); // @todo don't make us call this function, add a createNodeAnim in the manager!
     SLScene::current->animManager().getNodeAnimationState("figure animation")->enabled(true);
 
@@ -174,7 +174,7 @@ SLNode* BuildFigureGroup(SLMaterial* mat)
     track = anim->createNodeAnimationTrack(1);
     track->animationTarget(legLowLeft);
     track->createNodeKeyframe(0.0f);    // @todo auto create a 0.0 keyframe!
-    track->createNodeKeyframe(1.0f)->rotation(SLQuat4f(40, SLVec3f(1, 0, 0))); // @ todo add looping behaviours again (pingpong etc)
+    track->createNodeKeyframe(2.0f)->rotation(SLQuat4f(40, SLVec3f(1, 0, 0))); // @ todo add looping behaviours again (pingpong etc)
 
     SLNode* feetLeft = legLeft->findChild<SLNode>("feet group");
     /// @add add old animation functionality back in
@@ -183,7 +183,7 @@ SLNode* BuildFigureGroup(SLMaterial* mat)
     track = anim->createNodeAnimationTrack(2);
     track->animationTarget(feetLeft);
     track->createNodeKeyframe(0.0f);    // @todo auto create a 0.0 keyframe!
-    track->createNodeKeyframe(1.0f)->rotation(SLQuat4f(40, SLVec3f(1, 0, 0))); // @ todo add looping behaviours again (pingpong etc)
+    track->createNodeKeyframe(2.0f)->rotation(SLQuat4f(40, SLVec3f(1, 0, 0))); // @ todo add looping behaviours again (pingpong etc)
     legRight = figure->findChild<SLNode>("right leg group");
     legRight->rotate(70, 1,0,0);
 

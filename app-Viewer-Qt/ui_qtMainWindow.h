@@ -18,6 +18,7 @@
 #include <QtWidgets/QDoubleSpinBox>
 #include <QtWidgets/QHBoxLayout>
 #include <QtWidgets/QHeaderView>
+#include <QtWidgets/QLabel>
 #include <QtWidgets/QMainWindow>
 #include <QtWidgets/QMenu>
 #include <QtWidgets/QMenuBar>
@@ -170,13 +171,17 @@ public:
     QDockWidget *dockAnimation;
     QWidget *dockWidgetContents_3;
     QVBoxLayout *verticalLayout_3;
-    QWidget *widget_2;
     QHBoxLayout *horizontalLayout;
+    QLabel *animCurrentTimeLabel;
+    QSlider *animTimelineSlider;
+    QLabel *animDurationLabel;
+    QHBoxLayout *horizontalLayout_4;
+    QSpacerItem *horizontalSpacer_2;
+    QVBoxLayout *verticalLayout_5;
+    QHBoxLayout *horizontalLayout_5;
     QComboBox *animAnimatedObjectSelect;
     QComboBox *animAnimationSelect;
-    QWidget *widget;
-    QHBoxLayout *horizontalLayout_2;
-    QSpacerItem *horizontalSpacer;
+    QHBoxLayout *horizontalLayout_6;
     QToolButton *animSkipStartButton;
     QToolButton *animPrevKeyframeButton;
     QToolButton *animPlayBackwardButton;
@@ -189,15 +194,14 @@ public:
     QDoubleSpinBox *animWeightInput;
     QComboBox *animEasingSelect;
     QComboBox *animLoopingSelect;
-    QSpacerItem *horizontalSpacer_2;
-    QSlider *animTimelineSlider;
+    QSpacerItem *horizontalSpacer;
     QToolBar *toolBar_2;
 
     void setupUi(QMainWindow *qtMainWindow)
     {
         if (qtMainWindow->objectName().isEmpty())
             qtMainWindow->setObjectName(QStringLiteral("qtMainWindow"));
-        qtMainWindow->resize(925, 657);
+        qtMainWindow->resize(507, 651);
         QSizePolicy sizePolicy(QSizePolicy::Preferred, QSizePolicy::Minimum);
         sizePolicy.setHorizontalStretch(0);
         sizePolicy.setVerticalStretch(0);
@@ -564,7 +568,7 @@ public:
         qtMainWindow->setCentralWidget(centralWidget);
         menuBar = new QMenuBar(qtMainWindow);
         menuBar->setObjectName(QStringLiteral("menuBar"));
-        menuBar->setGeometry(QRect(0, 0, 925, 21));
+        menuBar->setGeometry(QRect(0, 0, 507, 21));
         menuBar->setDefaultUp(false);
         menuBar->setNativeMenuBar(false);
         menuFile = new QMenu(menuBar);
@@ -696,12 +700,12 @@ public:
         qtMainWindow->addDockWidget(static_cast<Qt::DockWidgetArea>(1), dockProperties);
         dockAnimation = new QDockWidget(qtMainWindow);
         dockAnimation->setObjectName(QStringLiteral("dockAnimation"));
-        QSizePolicy sizePolicy3(QSizePolicy::Fixed, QSizePolicy::Fixed);
+        QSizePolicy sizePolicy3(QSizePolicy::Fixed, QSizePolicy::Minimum);
         sizePolicy3.setHorizontalStretch(0);
         sizePolicy3.setVerticalStretch(0);
         sizePolicy3.setHeightForWidth(dockAnimation->sizePolicy().hasHeightForWidth());
         dockAnimation->setSizePolicy(sizePolicy3);
-        dockAnimation->setMinimumSize(QSize(509, 94));
+        dockAnimation->setMinimumSize(QSize(507, 102));
         dockAnimation->setFloating(false);
         dockAnimation->setFeatures(QDockWidget::AllDockWidgetFeatures);
         dockWidgetContents_3 = new QWidget();
@@ -713,136 +717,235 @@ public:
         verticalLayout_3->setContentsMargins(11, 11, 11, 11);
         verticalLayout_3->setObjectName(QStringLiteral("verticalLayout_3"));
         verticalLayout_3->setContentsMargins(4, 2, 4, 2);
-        widget_2 = new QWidget(dockWidgetContents_3);
-        widget_2->setObjectName(QStringLiteral("widget_2"));
-        sizePolicy.setHeightForWidth(widget_2->sizePolicy().hasHeightForWidth());
-        widget_2->setSizePolicy(sizePolicy);
-        horizontalLayout = new QHBoxLayout(widget_2);
-        horizontalLayout->setSpacing(2);
-        horizontalLayout->setContentsMargins(11, 11, 11, 11);
+        horizontalLayout = new QHBoxLayout();
+        horizontalLayout->setSpacing(10);
         horizontalLayout->setObjectName(QStringLiteral("horizontalLayout"));
-        horizontalLayout->setContentsMargins(0, 0, 0, 0);
-        animAnimatedObjectSelect = new QComboBox(widget_2);
+        horizontalLayout->setContentsMargins(3, 0, 3, -1);
+        animCurrentTimeLabel = new QLabel(dockWidgetContents_3);
+        animCurrentTimeLabel->setObjectName(QStringLiteral("animCurrentTimeLabel"));
+        QSizePolicy sizePolicy4(QSizePolicy::Fixed, QSizePolicy::Fixed);
+        sizePolicy4.setHorizontalStretch(0);
+        sizePolicy4.setVerticalStretch(0);
+        sizePolicy4.setHeightForWidth(animCurrentTimeLabel->sizePolicy().hasHeightForWidth());
+        animCurrentTimeLabel->setSizePolicy(sizePolicy4);
+        animCurrentTimeLabel->setMinimumSize(QSize(20, 0));
+        animCurrentTimeLabel->setLayoutDirection(Qt::LeftToRight);
+        animCurrentTimeLabel->setIndent(0);
+
+        horizontalLayout->addWidget(animCurrentTimeLabel);
+
+        animTimelineSlider = new QSlider(dockWidgetContents_3);
+        animTimelineSlider->setObjectName(QStringLiteral("animTimelineSlider"));
+        QSizePolicy sizePolicy5(QSizePolicy::Preferred, QSizePolicy::Fixed);
+        sizePolicy5.setHorizontalStretch(0);
+        sizePolicy5.setVerticalStretch(0);
+        sizePolicy5.setHeightForWidth(animTimelineSlider->sizePolicy().hasHeightForWidth());
+        animTimelineSlider->setSizePolicy(sizePolicy5);
+        animTimelineSlider->setMouseTracking(true);
+        animTimelineSlider->setStyleSheet(QLatin1String("QSlider::groove:horizontal {\n"
+"border: 1px solid #bbb;\n"
+"background: white;\n"
+"height: 10px;\n"
+"border-radius: 4px;\n"
+"}\n"
+"\n"
+"QSlider::sub-page:horizontal {\n"
+"background: qlineargradient(x1:0, y1:0, x2:0, y2:1,\n"
+"    stop:0 #EDA215, stop:1 #C98300);\n"
+"border: 1px solid #bbb;\n"
+"height: 10px;\n"
+"border-radius: 4px;\n"
+"}\n"
+"\n"
+"QSlider::add-page:horizontal {\n"
+"background: qlineargradient(x1:0, y1:0, x2:0, y2:1,\n"
+"    stop:0 #cdcdcd, stop:1 #fafafa);\n"
+"border: 1px solid #ddd;\n"
+"height: 10px;\n"
+"border-radius: 4px;\n"
+"}\n"
+"\n"
+"QSlider::handle:horizontal {\n"
+"background: qlineargradient(x1:0, y1:0, x2:0, y2:1,\n"
+"    stop:0 #fff, stop:1 #ccc);\n"
+"border: 1px solid #bbb;\n"
+"width: 15px;\n"
+"margin-top: -3px;\n"
+"margin-bottom: -3px;\n"
+"border-radius:8px;\n"
+"}\n"
+"\n"
+"QSlider::handle:horizontal:hover {\n"
+"background: qlineargradient(x1:0, y1:0, x2:0, y2:1,\n"
+"    stop:0 #fff, stop:1 #ddd);\n"
+"}\n"
+"\n"
+"QSlider::sub-page:horizontal:disabled {\n"
+"background: #bbb;\n"
+"borde"
+                        "r-color: #999;\n"
+"}\n"
+"\n"
+"QSlider::add-page:horizontal:disabled {\n"
+"background: #eee;\n"
+"border-color: #999;\n"
+"}\n"
+"\n"
+"QSlider::handle:horizontal:disabled {\n"
+"background: #eee;\n"
+"border: 1px solid #aaa;\n"
+"border-radius: 4px;\n"
+"}"));
+        animTimelineSlider->setPageStep(10);
+        animTimelineSlider->setValue(0);
+        animTimelineSlider->setSliderPosition(0);
+        animTimelineSlider->setOrientation(Qt::Horizontal);
+
+        horizontalLayout->addWidget(animTimelineSlider);
+
+        animDurationLabel = new QLabel(dockWidgetContents_3);
+        animDurationLabel->setObjectName(QStringLiteral("animDurationLabel"));
+        sizePolicy4.setHeightForWidth(animDurationLabel->sizePolicy().hasHeightForWidth());
+        animDurationLabel->setSizePolicy(sizePolicy4);
+        animDurationLabel->setMinimumSize(QSize(20, 0));
+        animDurationLabel->setMargin(0);
+        animDurationLabel->setIndent(0);
+
+        horizontalLayout->addWidget(animDurationLabel);
+
+
+        verticalLayout_3->addLayout(horizontalLayout);
+
+        horizontalLayout_4 = new QHBoxLayout();
+        horizontalLayout_4->setSpacing(0);
+        horizontalLayout_4->setObjectName(QStringLiteral("horizontalLayout_4"));
+        horizontalSpacer_2 = new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
+
+        horizontalLayout_4->addItem(horizontalSpacer_2);
+
+        verticalLayout_5 = new QVBoxLayout();
+        verticalLayout_5->setSpacing(0);
+        verticalLayout_5->setObjectName(QStringLiteral("verticalLayout_5"));
+        verticalLayout_5->setContentsMargins(0, -1, 0, 0);
+        horizontalLayout_5 = new QHBoxLayout();
+        horizontalLayout_5->setSpacing(1);
+        horizontalLayout_5->setObjectName(QStringLiteral("horizontalLayout_5"));
+        horizontalLayout_5->setContentsMargins(0, -1, -1, -1);
+        animAnimatedObjectSelect = new QComboBox(dockWidgetContents_3);
         animAnimatedObjectSelect->setObjectName(QStringLiteral("animAnimatedObjectSelect"));
 
-        horizontalLayout->addWidget(animAnimatedObjectSelect);
+        horizontalLayout_5->addWidget(animAnimatedObjectSelect);
 
-        animAnimationSelect = new QComboBox(widget_2);
+        animAnimationSelect = new QComboBox(dockWidgetContents_3);
         animAnimationSelect->setObjectName(QStringLiteral("animAnimationSelect"));
 
-        horizontalLayout->addWidget(animAnimationSelect);
+        horizontalLayout_5->addWidget(animAnimationSelect);
 
 
-        verticalLayout_3->addWidget(widget_2);
+        verticalLayout_5->addLayout(horizontalLayout_5);
 
-        widget = new QWidget(dockWidgetContents_3);
-        widget->setObjectName(QStringLiteral("widget"));
-        sizePolicy.setHeightForWidth(widget->sizePolicy().hasHeightForWidth());
-        widget->setSizePolicy(sizePolicy);
-        horizontalLayout_2 = new QHBoxLayout(widget);
-        horizontalLayout_2->setSpacing(2);
-        horizontalLayout_2->setContentsMargins(11, 11, 11, 11);
-        horizontalLayout_2->setObjectName(QStringLiteral("horizontalLayout_2"));
-        horizontalLayout_2->setContentsMargins(0, 0, 0, 0);
-        horizontalSpacer = new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
-
-        horizontalLayout_2->addItem(horizontalSpacer);
-
-        animSkipStartButton = new QToolButton(widget);
+        horizontalLayout_6 = new QHBoxLayout();
+        horizontalLayout_6->setSpacing(1);
+        horizontalLayout_6->setObjectName(QStringLiteral("horizontalLayout_6"));
+        animSkipStartButton = new QToolButton(dockWidgetContents_3);
         animSkipStartButton->setObjectName(QStringLiteral("animSkipStartButton"));
         animSkipStartButton->setIcon(icon23);
 
-        horizontalLayout_2->addWidget(animSkipStartButton);
+        horizontalLayout_6->addWidget(animSkipStartButton);
 
-        animPrevKeyframeButton = new QToolButton(widget);
+        animPrevKeyframeButton = new QToolButton(dockWidgetContents_3);
         animPrevKeyframeButton->setObjectName(QStringLiteral("animPrevKeyframeButton"));
         animPrevKeyframeButton->setIcon(icon22);
 
-        horizontalLayout_2->addWidget(animPrevKeyframeButton);
+        horizontalLayout_6->addWidget(animPrevKeyframeButton);
 
-        animPlayBackwardButton = new QToolButton(widget);
+        animPlayBackwardButton = new QToolButton(dockWidgetContents_3);
         animPlayBackwardButton->setObjectName(QStringLiteral("animPlayBackwardButton"));
         animPlayBackwardButton->setIcon(icon20);
 
-        horizontalLayout_2->addWidget(animPlayBackwardButton);
+        horizontalLayout_6->addWidget(animPlayBackwardButton);
 
-        animStopButton = new QToolButton(widget);
+        animStopButton = new QToolButton(dockWidgetContents_3);
         animStopButton->setObjectName(QStringLiteral("animStopButton"));
         animStopButton->setIcon(icon25);
 
-        horizontalLayout_2->addWidget(animStopButton);
+        horizontalLayout_6->addWidget(animStopButton);
 
-        animPauseButton = new QToolButton(widget);
+        animPauseButton = new QToolButton(dockWidgetContents_3);
         animPauseButton->setObjectName(QStringLiteral("animPauseButton"));
         animPauseButton->setIcon(icon19);
 
-        horizontalLayout_2->addWidget(animPauseButton);
+        horizontalLayout_6->addWidget(animPauseButton);
 
-        animPlayForwardButton = new QToolButton(widget);
+        animPlayForwardButton = new QToolButton(dockWidgetContents_3);
         animPlayForwardButton->setObjectName(QStringLiteral("animPlayForwardButton"));
         animPlayForwardButton->setIcon(icon18);
 
-        horizontalLayout_2->addWidget(animPlayForwardButton);
+        horizontalLayout_6->addWidget(animPlayForwardButton);
 
-        animNextKeyframeButton = new QToolButton(widget);
+        animNextKeyframeButton = new QToolButton(dockWidgetContents_3);
         animNextKeyframeButton->setObjectName(QStringLiteral("animNextKeyframeButton"));
         animNextKeyframeButton->setIcon(icon21);
 
-        horizontalLayout_2->addWidget(animNextKeyframeButton);
+        horizontalLayout_6->addWidget(animNextKeyframeButton);
 
-        animSkipEndButton = new QToolButton(widget);
+        animSkipEndButton = new QToolButton(dockWidgetContents_3);
         animSkipEndButton->setObjectName(QStringLiteral("animSkipEndButton"));
         animSkipEndButton->setIcon(icon24);
 
-        horizontalLayout_2->addWidget(animSkipEndButton);
+        horizontalLayout_6->addWidget(animSkipEndButton);
 
-        animSpeedInput = new QDoubleSpinBox(widget);
+        animSpeedInput = new QDoubleSpinBox(dockWidgetContents_3);
         animSpeedInput->setObjectName(QStringLiteral("animSpeedInput"));
-        sizePolicy3.setHeightForWidth(animSpeedInput->sizePolicy().hasHeightForWidth());
-        animSpeedInput->setSizePolicy(sizePolicy3);
+        sizePolicy4.setHeightForWidth(animSpeedInput->sizePolicy().hasHeightForWidth());
+        animSpeedInput->setSizePolicy(sizePolicy4);
+        animSpeedInput->setMaximumSize(QSize(43, 16777215));
         animSpeedInput->setMaximum(20);
         animSpeedInput->setSingleStep(0.1);
         animSpeedInput->setValue(1);
 
-        horizontalLayout_2->addWidget(animSpeedInput);
+        horizontalLayout_6->addWidget(animSpeedInput);
 
-        animWeightInput = new QDoubleSpinBox(widget);
+        animWeightInput = new QDoubleSpinBox(dockWidgetContents_3);
         animWeightInput->setObjectName(QStringLiteral("animWeightInput"));
-        sizePolicy3.setHeightForWidth(animWeightInput->sizePolicy().hasHeightForWidth());
-        animWeightInput->setSizePolicy(sizePolicy3);
+        sizePolicy4.setHeightForWidth(animWeightInput->sizePolicy().hasHeightForWidth());
+        animWeightInput->setSizePolicy(sizePolicy4);
+        animWeightInput->setMaximumSize(QSize(43, 16777215));
         animWeightInput->setMaximum(10);
         animWeightInput->setSingleStep(0.1);
         animWeightInput->setValue(1);
 
-        horizontalLayout_2->addWidget(animWeightInput);
+        horizontalLayout_6->addWidget(animWeightInput);
 
-        animEasingSelect = new QComboBox(widget);
+        animEasingSelect = new QComboBox(dockWidgetContents_3);
         animEasingSelect->setObjectName(QStringLiteral("animEasingSelect"));
-        QSizePolicy sizePolicy4(QSizePolicy::MinimumExpanding, QSizePolicy::Fixed);
-        sizePolicy4.setHorizontalStretch(0);
-        sizePolicy4.setVerticalStretch(0);
-        sizePolicy4.setHeightForWidth(animEasingSelect->sizePolicy().hasHeightForWidth());
-        animEasingSelect->setSizePolicy(sizePolicy4);
+        QSizePolicy sizePolicy6(QSizePolicy::Minimum, QSizePolicy::Fixed);
+        sizePolicy6.setHorizontalStretch(0);
+        sizePolicy6.setVerticalStretch(0);
+        sizePolicy6.setHeightForWidth(animEasingSelect->sizePolicy().hasHeightForWidth());
+        animEasingSelect->setSizePolicy(sizePolicy6);
 
-        horizontalLayout_2->addWidget(animEasingSelect);
+        horizontalLayout_6->addWidget(animEasingSelect);
 
-        animLoopingSelect = new QComboBox(widget);
+        animLoopingSelect = new QComboBox(dockWidgetContents_3);
         animLoopingSelect->setObjectName(QStringLiteral("animLoopingSelect"));
+        sizePolicy6.setHeightForWidth(animLoopingSelect->sizePolicy().hasHeightForWidth());
+        animLoopingSelect->setSizePolicy(sizePolicy6);
 
-        horizontalLayout_2->addWidget(animLoopingSelect);
-
-        horizontalSpacer_2 = new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
-
-        horizontalLayout_2->addItem(horizontalSpacer_2);
+        horizontalLayout_6->addWidget(animLoopingSelect);
 
 
-        verticalLayout_3->addWidget(widget);
+        verticalLayout_5->addLayout(horizontalLayout_6);
 
-        animTimelineSlider = new QSlider(dockWidgetContents_3);
-        animTimelineSlider->setObjectName(QStringLiteral("animTimelineSlider"));
-        animTimelineSlider->setOrientation(Qt::Horizontal);
 
-        verticalLayout_3->addWidget(animTimelineSlider);
+        horizontalLayout_4->addLayout(verticalLayout_5);
+
+        horizontalSpacer = new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
+
+        horizontalLayout_4->addItem(horizontalSpacer);
+
+
+        verticalLayout_3->addLayout(horizontalLayout_4);
 
         dockAnimation->setWidget(dockWidgetContents_3);
         qtMainWindow->addDockWidget(static_cast<Qt::DockWidgetArea>(8), dockAnimation);
@@ -1412,30 +1515,103 @@ public:
         ___qtreewidgetitem->setText(1, QApplication::translate("qtMainWindow", "Value", 0));
         ___qtreewidgetitem->setText(0, QApplication::translate("qtMainWindow", "Property", 0));
         dockAnimation->setWindowTitle(QApplication::translate("qtMainWindow", "Animation", 0));
+        animCurrentTimeLabel->setText(QApplication::translate("qtMainWindow", "--:--", 0));
+        animDurationLabel->setText(QApplication::translate("qtMainWindow", "--:--", 0));
         animAnimatedObjectSelect->clear();
         animAnimatedObjectSelect->insertItems(0, QStringList()
          << QApplication::translate("qtMainWindow", "Animated objects", 0)
         );
+#ifndef QT_NO_TOOLTIP
+        animAnimatedObjectSelect->setToolTip(QApplication::translate("qtMainWindow", "Select animation target", 0));
+#endif // QT_NO_TOOLTIP
+#ifndef QT_NO_STATUSTIP
+        animAnimatedObjectSelect->setStatusTip(QApplication::translate("qtMainWindow", "Select animation target", 0));
+#endif // QT_NO_STATUSTIP
         animAnimationSelect->clear();
         animAnimationSelect->insertItems(0, QStringList()
          << QApplication::translate("qtMainWindow", "Animations", 0)
         );
+#ifndef QT_NO_TOOLTIP
+        animAnimationSelect->setToolTip(QApplication::translate("qtMainWindow", "Select animations", 0));
+#endif // QT_NO_TOOLTIP
+#ifndef QT_NO_STATUSTIP
+        animAnimationSelect->setStatusTip(QApplication::translate("qtMainWindow", "Select animation of the selected object", 0));
+#endif // QT_NO_STATUSTIP
+#ifndef QT_NO_TOOLTIP
+        animSkipStartButton->setToolTip(QApplication::translate("qtMainWindow", "Skip to start", 0));
+#endif // QT_NO_TOOLTIP
+#ifndef QT_NO_STATUSTIP
+        animSkipStartButton->setStatusTip(QApplication::translate("qtMainWindow", "Skip to beginning of the selected animation", 0));
+#endif // QT_NO_STATUSTIP
         animSkipStartButton->setText(QApplication::translate("qtMainWindow", "skipStart", 0));
+#ifndef QT_NO_TOOLTIP
+        animPrevKeyframeButton->setToolTip(QApplication::translate("qtMainWindow", "Previous keyframe", 0));
+#endif // QT_NO_TOOLTIP
+#ifndef QT_NO_STATUSTIP
+        animPrevKeyframeButton->setStatusTip(QApplication::translate("qtMainWindow", "Skip to previous keyframe of the selected animation", 0));
+#endif // QT_NO_STATUSTIP
         animPrevKeyframeButton->setText(QApplication::translate("qtMainWindow", "prevKeyframe", 0));
+#ifndef QT_NO_TOOLTIP
+        animPlayBackwardButton->setToolTip(QApplication::translate("qtMainWindow", "Play backward", 0));
+#endif // QT_NO_TOOLTIP
+#ifndef QT_NO_STATUSTIP
+        animPlayBackwardButton->setStatusTip(QApplication::translate("qtMainWindow", "Play the selected animation backward", 0));
+#endif // QT_NO_STATUSTIP
         animPlayBackwardButton->setText(QApplication::translate("qtMainWindow", "playBackward", 0));
+#ifndef QT_NO_TOOLTIP
+        animStopButton->setToolTip(QApplication::translate("qtMainWindow", "Disable animation", 0));
+#endif // QT_NO_TOOLTIP
+#ifndef QT_NO_STATUSTIP
+        animStopButton->setStatusTip(QApplication::translate("qtMainWindow", "Disable the selected animation", 0));
+#endif // QT_NO_STATUSTIP
         animStopButton->setText(QApplication::translate("qtMainWindow", "...", 0));
+#ifndef QT_NO_TOOLTIP
+        animPauseButton->setToolTip(QApplication::translate("qtMainWindow", "Pause", 0));
+#endif // QT_NO_TOOLTIP
+#ifndef QT_NO_STATUSTIP
+        animPauseButton->setStatusTip(QApplication::translate("qtMainWindow", "Pause the selected animation", 0));
+#endif // QT_NO_STATUSTIP
         animPauseButton->setText(QApplication::translate("qtMainWindow", "pause", 0));
+#ifndef QT_NO_TOOLTIP
+        animPlayForwardButton->setToolTip(QApplication::translate("qtMainWindow", "Play forward", 0));
+#endif // QT_NO_TOOLTIP
+#ifndef QT_NO_STATUSTIP
+        animPlayForwardButton->setStatusTip(QApplication::translate("qtMainWindow", "Play the selected animation forward", 0));
+#endif // QT_NO_STATUSTIP
         animPlayForwardButton->setText(QApplication::translate("qtMainWindow", "playForward", 0));
+#ifndef QT_NO_TOOLTIP
+        animNextKeyframeButton->setToolTip(QApplication::translate("qtMainWindow", "Next keyframe", 0));
+#endif // QT_NO_TOOLTIP
+#ifndef QT_NO_STATUSTIP
+        animNextKeyframeButton->setStatusTip(QApplication::translate("qtMainWindow", "Skip to next keyframe of the selected animation", 0));
+#endif // QT_NO_STATUSTIP
         animNextKeyframeButton->setText(QApplication::translate("qtMainWindow", "nextKeyframe", 0));
+#ifndef QT_NO_TOOLTIP
+        animSkipEndButton->setToolTip(QApplication::translate("qtMainWindow", "Skip to end", 0));
+#endif // QT_NO_TOOLTIP
+#ifndef QT_NO_STATUSTIP
+        animSkipEndButton->setStatusTip(QApplication::translate("qtMainWindow", "Skip to end of the selected animation", 0));
+#endif // QT_NO_STATUSTIP
         animSkipEndButton->setText(QApplication::translate("qtMainWindow", "skipEnd", 0));
+#ifndef QT_NO_TOOLTIP
+        animSpeedInput->setToolTip(QApplication::translate("qtMainWindow", "Playback speed", 0));
+#endif // QT_NO_TOOLTIP
+#ifndef QT_NO_STATUSTIP
+        animSpeedInput->setStatusTip(QApplication::translate("qtMainWindow", "Set the playback speed for the selected animation", 0));
+#endif // QT_NO_STATUSTIP
+#ifndef QT_NO_TOOLTIP
+        animWeightInput->setToolTip(QApplication::translate("qtMainWindow", "Animation weight", 0));
+#endif // QT_NO_TOOLTIP
+#ifndef QT_NO_STATUSTIP
+        animWeightInput->setStatusTip(QApplication::translate("qtMainWindow", "Set the weight for the selected animation", 0));
+#endif // QT_NO_STATUSTIP
         animEasingSelect->clear();
         animEasingSelect->insertItems(0, QStringList()
-         << QApplication::translate("qtMainWindow", "Easing curve", 0)
          << QApplication::translate("qtMainWindow", "linear", 0)
-         << QApplication::translate("qtMainWindow", "quadratic in", 0)
-         << QApplication::translate("qtMainWindow", "quadratic out", 0)
-         << QApplication::translate("qtMainWindow", "quadratic in -> out", 0)
-         << QApplication::translate("qtMainWindow", "quadratic out -> in", 0)
+         << QApplication::translate("qtMainWindow", "quad in", 0)
+         << QApplication::translate("qtMainWindow", "quad out", 0)
+         << QApplication::translate("qtMainWindow", "quadc in -> out", 0)
+         << QApplication::translate("qtMainWindow", "quad out -> in", 0)
          << QApplication::translate("qtMainWindow", "cubic in", 0)
          << QApplication::translate("qtMainWindow", "cubic out", 0)
          << QApplication::translate("qtMainWindow", "cubic in -> out", 0)
@@ -1453,6 +1629,12 @@ public:
          << QApplication::translate("qtMainWindow", "sine in -> out", 0)
          << QApplication::translate("qtMainWindow", "sine out -> in", 0)
         );
+#ifndef QT_NO_TOOLTIP
+        animEasingSelect->setToolTip(QApplication::translate("qtMainWindow", "Easing curve", 0));
+#endif // QT_NO_TOOLTIP
+#ifndef QT_NO_STATUSTIP
+        animEasingSelect->setStatusTip(QApplication::translate("qtMainWindow", "Set the easing curve for the selected animation", 0));
+#endif // QT_NO_STATUSTIP
         animLoopingSelect->clear();
         animLoopingSelect->insertItems(0, QStringList()
          << QApplication::translate("qtMainWindow", "Play once", 0)
@@ -1460,6 +1642,12 @@ public:
          << QApplication::translate("qtMainWindow", "Ping pong", 0)
          << QApplication::translate("qtMainWindow", "Ping pong loop", 0)
         );
+#ifndef QT_NO_TOOLTIP
+        animLoopingSelect->setToolTip(QApplication::translate("qtMainWindow", "Loop Behaviour", 0));
+#endif // QT_NO_TOOLTIP
+#ifndef QT_NO_STATUSTIP
+        animLoopingSelect->setStatusTip(QApplication::translate("qtMainWindow", "Select the looping behaviour for the selected animation", 0));
+#endif // QT_NO_STATUSTIP
         toolBar_2->setWindowTitle(QApplication::translate("qtMainWindow", "toolBar_2", 0));
     } // retranslateUi
 

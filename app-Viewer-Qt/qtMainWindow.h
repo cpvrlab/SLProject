@@ -183,7 +183,7 @@ class qtMainWindow : public QMainWindow
         void on_animEasingSelect_currentIndexChanged(int index);
         void on_animLoopingSelect_currentIndexChanged(int index);
 
-        void on_animTimelineSlider_sliderMoved(int value);
+        void on_animTimelineSlider_valueChanged(int value);
         
         void on_animWeightInput_valueChanged(double d);
         void on_animSpeedInput_valueChanged(double d);

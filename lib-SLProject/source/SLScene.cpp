@@ -310,6 +310,7 @@ bool SLScene::updateIfAllViewsGotPainted()
 
     // Do animations
     SLfloat startUpdateMS = timeMilliSec();
+    SLbool animated = true;
     //SLbool animated = !_stopAnimations && _root3D->animateRec(_elapsedTimeMS);
 
     //@todo Don't slow down if we're in HMD stereo mode
