@@ -610,57 +610,57 @@
          </property>
          <property name="styleSheet">
           <string notr="true">QSlider::groove:horizontal {
-border: 1px solid #bbb;
-background: white;
-height: 10px;
-border-radius: 4px;
+	border: 1px solid #bbb;
+	background: white;
+	height: 10px;
+	border-radius: 4px;
 }
 
 QSlider::sub-page:horizontal {
-background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
-    stop:0 #EDA215, stop:1 #C98300);
-border: 1px solid #bbb;
-height: 10px;
-border-radius: 4px;
+	background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+    	stop:0 #EDA215, stop:1 #C98300);
+	border: 1px solid #bbb;
+	height: 10px;
+	border-radius: 4px;
 }
 
 QSlider::add-page:horizontal {
-background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
-    stop:0 #cdcdcd, stop:1 #fafafa);
-border: 1px solid #ddd;
-height: 10px;
-border-radius: 4px;
+	background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+  	  stop:0 #cdcdcd, stop:1 #fafafa);
+	border: 1px solid #ddd;
+	height: 10px;
+	border-radius: 4px;
 }
 
 QSlider::handle:horizontal {
-background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
-    stop:0 #fff, stop:1 #ccc);
-border: 1px solid #bbb;
-width: 15px;
-margin-top: -3px;
-margin-bottom: -3px;
-border-radius:8px;
+	background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+	    stop:0 #fff, stop:1 #ccc);
+	border: 1px solid #bbb;
+	width: 15px;
+	margin-top: -3px;
+	margin-bottom: -3px;
+	border-radius:8px;
 }
 
 QSlider::handle:horizontal:hover {
-background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
-    stop:0 #fff, stop:1 #ddd);
+	background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+    	stop:0 #fff, stop:1 #ddd);
 }
 
 QSlider::sub-page:horizontal:disabled {
-background: #bbb;
-border-color: #999;
+	background: #bbb;
+	border-color: #999;
 }
 
 QSlider::add-page:horizontal:disabled {
-background: #eee;
-border-color: #999;
+	background: #eee;
+	border-color: #999;
 }
 
 QSlider::handle:horizontal:disabled {
-background: #eee;
-border: 1px solid #aaa;
-border-radius: 4px;
+	background: #eee;
+	border: 1px solid #aaa;
+	border-radius: 4px;
 }</string>
          </property>
          <property name="maximum">
