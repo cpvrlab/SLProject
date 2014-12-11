@@ -19,7 +19,7 @@
 #include <SLEnums.h>
 //-----------------------------------------------------------------------------
 // GLobal application variables
-GLFWwindow* window;                 //!< The global glfw window handle.
+GLFWwindow* window;                 //!< The global glfw window handle
 SLint       svIndex;                //!< SceneView index
 SLint       scrWidth;               //!< Window width at start up
 SLint       scrHeight;              //!< Window height at start up
