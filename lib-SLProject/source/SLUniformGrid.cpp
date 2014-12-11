@@ -113,25 +113,25 @@ void SLUniformGrid::build(SLVec3f minV, SLVec3f maxV)
         // Copy triangle vertices into SLfloat array[3][3]
         SLuint i = t * 3;
         if (_m->I16)
-        {   vert[0][0] = _m->P[_m->I16[i  ]].x; 
-            vert[0][1] = _m->P[_m->I16[i  ]].y; 
-            vert[0][2] = _m->P[_m->I16[i  ]].z;
-            vert[1][0] = _m->P[_m->I16[i+1]].x; 
-            vert[1][1] = _m->P[_m->I16[i+1]].y; 
-            vert[1][2] = _m->P[_m->I16[i+1]].z;
-            vert[2][0] = _m->P[_m->I16[i+2]].x; 
-            vert[2][1] = _m->P[_m->I16[i+2]].y; 
-            vert[2][2] = _m->P[_m->I16[i+2]].z;
+        {   vert[0][0] = _m->pos()[_m->I16[i  ]].x; 
+            vert[0][1] = _m->pos()[_m->I16[i  ]].y; 
+            vert[0][2] = _m->pos()[_m->I16[i  ]].z;
+            vert[1][0] = _m->pos()[_m->I16[i+1]].x; 
+            vert[1][1] = _m->pos()[_m->I16[i+1]].y; 
+            vert[1][2] = _m->pos()[_m->I16[i+1]].z;
+            vert[2][0] = _m->pos()[_m->I16[i+2]].x; 
+            vert[2][1] = _m->pos()[_m->I16[i+2]].y; 
+            vert[2][2] = _m->pos()[_m->I16[i+2]].z;
         } else
-        {   vert[0][0] = _m->P[_m->I32[i  ]].x; 
-            vert[0][1] = _m->P[_m->I32[i  ]].y; 
-            vert[0][2] = _m->P[_m->I32[i  ]].z;
-            vert[1][0] = _m->P[_m->I32[i+1]].x; 
-            vert[1][1] = _m->P[_m->I32[i+1]].y; 
-            vert[1][2] = _m->P[_m->I32[i+1]].z;
-            vert[2][0] = _m->P[_m->I32[i+2]].x; 
-            vert[2][1] = _m->P[_m->I32[i+2]].y; 
-            vert[2][2] = _m->P[_m->I32[i+2]].z;
+        {   vert[0][0] = _m->pos()[_m->I32[i  ]].x; 
+            vert[0][1] = _m->pos()[_m->I32[i  ]].y; 
+            vert[0][2] = _m->pos()[_m->I32[i  ]].z;
+            vert[1][0] = _m->pos()[_m->I32[i+1]].x; 
+            vert[1][1] = _m->pos()[_m->I32[i+1]].y; 
+            vert[1][2] = _m->pos()[_m->I32[i+1]].z;
+            vert[2][0] = _m->pos()[_m->I32[i+2]].x; 
+            vert[2][1] = _m->pos()[_m->I32[i+2]].y; 
+            vert[2][2] = _m->pos()[_m->I32[i+2]].z;
         }
         // Min. and max. point of triangle
         SLVec3f minT = SLVec3f(SL_min(vert[0][0], vert[1][0], vert[2][0]),

@@ -315,7 +315,7 @@ SLNode* SLAssimpImporter::load(SLstring file,        //!< File with path or on d
     // @todo: Can we do skinning in the shader without the need to dictated which material to use?
     if (_skinnedMeshes.size() > 0) {
         SLGLGenericProgram* skinningShader = new SLGLGenericProgram("PerVrtBlinnSkinned.vert","PerVrtBlinn.frag");
-        SLGLGenericProgram* skinningShaderTex = new SLGLGenericProgram("PerPixBlinnTexSkinned.vert","PerPixBlinnTex.frag");
+        SLGLGenericProgram* skinningShaderTex = new SLGLGenericProgram("PerPixBlinnTex.vert","PerPixBlinnTex.frag");
         for (SLint i = 0; i < _skinnedMeshes.size(); i++)
         {
             SLMesh* mesh = _skinnedMeshes[i];

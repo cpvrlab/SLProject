@@ -34,6 +34,10 @@ in SLScene::unInit().
 SLMesh::SLMesh(SLstring name) : SLObject(name)
 {   
     _primitive = SL_TRIANGLES;
+    finalP = &P;
+    finalN = &N;
+    cpuSkinningP = 0;
+    cpuSkinningN = 0;
     P  = 0;
     N  = 0;
     C  = 0;
@@ -49,7 +53,7 @@ SLMesh::SLMesh(SLstring name) : SLObject(name)
     maxP.set(-FLT_MAX, -FLT_MAX, -FLT_MAX);
    
     _jointMatrices = 0;
-    _skinningMethod = SM_HardwareSkinning;
+    _skinningMethod = SM_SoftwareSkinning;
 
     _stateGL = SLGLState::getInstance();  
     _isVolume = true; // is used for RT to decide inside/outside
@@ -114,6 +118,9 @@ void SLMesh::init(SLNode* node)
         // build tangents for bump mapping
         if (mat->needsTangents() && Tc && T==0)
             calcTangents();
+
+        // set the final position and normal pointers
+
     }
 }
 //-----------------------------------------------------------------------------
@@ -195,8 +202,6 @@ void SLMesh::draw(SLSceneView* sv, SLNode* node)
         // 3.d: determine the skinning method
 
         // pointers to the final position and normal buffers
-        SLVec3f* finalP = P; // we could use smart ptrs here
-        SLVec3f* finalN = N;
         if (Ji && Jw)
         {
             // update the joint matrix array
@@ -219,46 +224,15 @@ void SLMesh::draw(SLSceneView* sv, SLNode* node)
             }
             else
             {
-                // software skinning, do transforms locally into a temporary position and normal
-
-                // first test implementation
-                // @todo: we need to swap vertex shaders out if we switch the skinning method!
-                //        the dynamic programs of opengl would come in handy here!
-                SLint locBM = sp->getUniformLocation("u_jointMatrices");
-                sp->uniformMatrix4fv(locBM, _skeleton->numJoints(), (SLfloat*)_jointMatrices, false);
-                _bufP.dispose();
-                _bufN.dispose();
-                finalP = new SLVec3f[numV];
-                finalN = new SLVec3f[numV];
-                // iterate over all vertices and write to new buffers
-                for (SLint i = 0; i < numV; ++i)
-                {
-                    SLVec4f pos = P[i];
-                    SLVec3f norm = N[i];
-                    SLVec4f jointWeights = Jw[i];
-                    SLVec4i jointIndices(Ji[i].x, Ji[i].y, Ji[i].z, Ji[i].w);
-                    
-                    SLMat4f finalTransform = _jointMatrices[jointIndices.x];// * jointWeights.x;
-                        /*+ _jointMatrices[jointIndices.y] * jointWeights.y
-                        + _jointMatrices[jointIndices.z] * jointWeights.z
-                        + _jointMatrices[jointIndices.w] * jointWeights.w;*/
-
-                    SLMat3f finalTransform3x3 = finalTransform.mat3();
-                    finalTransform3x3.invert();
-                    finalTransform3x3.transpose();
-
-                    pos = finalTransform * pos;
-                    finalP[i] = SLVec3f(pos.x, pos.y, pos.z);
-                    finalN[i] = finalTransform3x3 * norm;
-                }
+                doSoftwareSkinning();                
             }
         }
-        
+
         //////////////////////
         // 2: Build VBO's once
         //////////////////////
-        if (!_bufP.id()) _bufP.generate(finalP, numV, 3);
-        if (!_bufN.id()  && N)   _bufN.generate(finalN, numV, 3);
+        if (!_bufP.id()) _bufP.generate(pos(), numV, 3);
+        if (!_bufN.id()  && N)   _bufN.generate(norm(), numV, 3);
         if (!_bufC.id()  && C)   _bufC.generate(C, numV, 4);
         if (!_bufTc.id() && Tc)  _bufTc.generate(Tc, numV, 2);
         if (!_bufJi.id() && Ji)  _bufJi.generate(Ji, numV, 4);
@@ -267,15 +241,6 @@ void SLMesh::draw(SLSceneView* sv, SLNode* node)
         if (!_bufI.id()  && I16) _bufI.generate(I16, numI, 1, SL_UNSIGNED_SHORT, SL_ELEMENT_ARRAY_BUFFER);
         if (!_bufI.id()  && I32) _bufI.generate(I32, numI, 1, SL_UNSIGNED_INT,   SL_ELEMENT_ARRAY_BUFFER);    
 
-        // temporary delete the final buffers if we're doing cpu skinning
-
-        if (_skinningMethod == SM_SoftwareSkinning)
-        {
-            if (Ji && Jw) {
-                delete[] finalP;
-                delete[] finalN;
-            }
-        }
 
         // 3.c: Enable attribute pointers
         _bufP.bindAndEnableAttrib(sp->getAttribLocation("a_position"));
@@ -454,12 +419,12 @@ void SLMesh::calcMinMax()
 
     // calc min and max point of all vertices
     for (SLuint i=0; i<numV; ++i)
-    {   if (P[i].x < minP.x) minP.x = P[i].x;
-        if (P[i].x > maxP.x) maxP.x = P[i].x;
-        if (P[i].y < minP.y) minP.y = P[i].y;
-        if (P[i].y > maxP.y) maxP.y = P[i].y;
-        if (P[i].z < minP.z) minP.z = P[i].z;
-        if (P[i].z > maxP.z) maxP.z = P[i].z;
+    {   if (pos()[i].x < minP.x) minP.x = pos()[i].x;
+        if (pos()[i].x > maxP.x) maxP.x = pos()[i].x;
+        if (pos()[i].y < minP.y) minP.y = pos()[i].y;
+        if (pos()[i].y > maxP.y) maxP.y = pos()[i].y;
+        if (pos()[i].z < minP.z) minP.z = pos()[i].z;
+        if (pos()[i].z > maxP.z) maxP.z = pos()[i].z;
     } 
 }
 //-----------------------------------------------------------------------------
@@ -771,13 +736,13 @@ SLbool SLMesh::hitTriangleOS(SLRay* ray, SLNode* node, SLuint iT)
    
     // get the corner vertices
     if (I16)
-    {   A = P[I16[iT  ]];
-        B = P[I16[iT+1]];
-        C = P[I16[iT+2]];
+    {   A = pos()[I16[iT  ]];
+        B = pos()[I16[iT+1]];
+        C = pos()[I16[iT+2]];
     } else
-    {   A = P[I32[iT  ]];
-        B = P[I32[iT+1]];
-        C = P[I32[iT+2]];
+    {   A = pos()[I32[iT  ]];
+        B = pos()[I32[iT+1]];
+        C = pos()[I32[iT+2]];
     }
    
     // find vectors for two edges sharing the triangle vertex A
@@ -892,9 +857,9 @@ void SLMesh::preShade(SLRay* ray)
     ray->hitPoint.set(ray->origin + ray->length * ray->dir);
       
     // calculate the interpolated normal with vertex normals in object space
-    ray->hitNormal.set(N[iA] * (1-(ray->hitU+ray->hitV)) + 
-                       N[iB] * ray->hitU + 
-                       N[iC] * ray->hitV);
+    ray->hitNormal.set(norm()[iA] * (1-(ray->hitU+ray->hitV)) + 
+                       norm()[iB] * ray->hitU + 
+                       norm()[iC] * ray->hitV);
                       
     // transform normal back to world space
     ray->hitNormal.set(ray->hitNode->updateAndGetWMN() * ray->hitNormal);
@@ -969,4 +934,64 @@ SLbool SLMesh::addWeight(SLint vertId, SLuint jointId, SLfloat weight)
     }
 
     return true;
+}
+//-----------------------------------------------------------------------------
+SLVec3f* SLMesh::pos()
+{
+    return *finalP;
+}
+//-----------------------------------------------------------------------------
+SLVec3f* SLMesh::norm()
+{
+    return *finalN;
+}
+
+void SLMesh::doSoftwareSkinning()
+{
+    // temporarily set finalP here
+    // @todo move the setting of finalP to the setSkinningMethod function
+    finalP = &cpuSkinningP;
+    finalN = &cpuSkinningN;
+    // @todo dont dispose but update the buffers after this method call
+    _bufP.dispose();
+    _bufN.dispose();
+    cpuSkinningP = new SLVec3f[numV];
+    cpuSkinningN = new SLVec3f[numV];
+    // iterate over all vertices and write to new buffers
+    for (SLint i = 0; i < numV; ++i)
+    {
+        cpuSkinningP[i] = SLVec3f::ZERO;
+        cpuSkinningN[i] = SLVec3f::ZERO;
+
+        SLVec4f pos = P[i];
+        SLVec3f norm = N[i];
+        SLfloat jointWeights[4] = {Jw[i].x, Jw[i].y, Jw[i].z, Jw[i].w};
+        SLint jointIndices[4] = {(SLint)Ji[i].x, (SLint)Ji[i].y, (SLint)Ji[i].z, (SLint)Ji[i].w};
+                    
+        // accumulate final normal and positions
+        for (SLint j = 0; j < 4; ++j)
+        {
+            if (jointWeights[j] > 0.0f)
+            {
+                const SLMat4f& jm = _jointMatrices[jointIndices[j]];
+                SLVec4f tempPos = jm * pos;
+                cpuSkinningP[i].x += tempPos.x * jointWeights[j];
+                cpuSkinningP[i].y += tempPos.y * jointWeights[j];
+                cpuSkinningP[i].z += tempPos.z * jointWeights[j];
+
+                SLMat3f jnm = jm.mat3();
+                jnm.invert();
+                jnm.transpose();
+                cpuSkinningN[i] += jnm * norm * jointWeights[j];
+            }
+        }
+    }
+
+    // temp force recalculation of accel struct      
+    // @ todo find a good way to brute force an update on just this mesh
+    minP.set( FLT_MAX,  FLT_MAX,  FLT_MAX);
+    maxP.set(-FLT_MAX, -FLT_MAX, -FLT_MAX);
+
+    // lag fest inc, just a test
+    //SLScene::current->root3D()->needUpdate();
 }

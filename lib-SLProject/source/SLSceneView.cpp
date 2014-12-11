@@ -2210,6 +2210,7 @@ SLbool SLSceneView::draw3DRT()
     // if the raytracer not yet got started
     if (_raytracer.state()==rtReady)
     {
+        SLScene::current->_root3D->needUpdate();
         // Start raytracing
         if (_raytracer.distributed())
              _raytracer.renderDistrib(this);

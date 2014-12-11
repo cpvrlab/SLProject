@@ -183,10 +183,19 @@ virtual void            calcMinMax     ();
 
         SLPrimitive     primitive      (){return _primitive;}
         
+        void            doSoftwareSkinning();
         void            skinningMethod(SLSkinningMethod method) { _skinningMethod = method; }
         SLSkinningMethod skinningMethod() const { return _skinningMethod; }
         void            skeleton(SLSkeleton* skel) { _skeleton = skel; }
         SLbool          addWeight(SLint vertId, SLuint jointId, SLfloat weight);
+        
+        // getter for position and normal data for rendering
+        SLVec3f*        pos();
+        SLVec3f*        norm();
+
+        // temporary software skinning buffers
+        SLVec3f*        cpuSkinningP; //!< buffer for the cpu skinning position data
+        SLVec3f*        cpuSkinningN; //!< buffer for the cpu skinning normal data
 
         SLVec3f*        P;          //!< Array of vertex positions
         SLVec3f*        N;          //!< Array of vertex normals (opt.)
@@ -229,6 +238,9 @@ virtual void            calcMinMax     ();
         SLSkeleton*     _skeleton;      //!< the skeleton this mesh is bound to
         SLMat4f*        _jointMatrices; //!< private joint matrix stack for this mesh
 
+        // ptrs to final position and normal containers
+        SLVec3f**       finalP;     
+        SLVec3f**       finalN;
 };
 //-----------------------------------------------------------------------------
 typedef std::vector<SLMesh*>  SLVMesh;

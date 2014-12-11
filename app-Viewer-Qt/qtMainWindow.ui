@@ -626,7 +626,7 @@ QSlider::sub-page:horizontal {
 
 QSlider::add-page:horizontal {
 	background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
-  	  stop:0 #cdcdcd, stop:1 #fafafa);
+		stop:0 #cdcdcd, stop:1 #fafafa);
 	border: 1px solid #ddd;
 	height: 10px;
 	border-radius: 4px;
