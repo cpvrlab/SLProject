@@ -32,7 +32,7 @@ SLVec2i     touchDelta;             //!< Delta between two fingers in x
 SLint       lastWidth;              //!< Last window width in pixels
 SLint       lastHeight;             //!< Last window height in pixels
 SLint       lastMouseWheelPos;      //!< Last mouse wheel position
-SLfloat     lastMouseDownTime = 0.0f; //!< Last mouse press time
+SLfloat     lastMouseDownTime = 0.0f;//!< Last mouse press time
 SLKey       modifiers=KeyNone;      //!< last modifier keys
 SLbool      fullscreen = false;     //!< flag if window is in fullscreen mode
 
