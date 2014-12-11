@@ -90,6 +90,7 @@ class SLMat4
         SLMat4<T>&  operator=   (const SLMat4& A);         //!< assignment operator
         SLMat4<T>   operator*   (const SLMat4& A) const;   //!< matrix-matrix multiplication
         SLMat4<T>&  operator*=  (const SLMat4& A);         //!< matrix-matrix multiplication
+        SLMat4<T>   operator+   (const SLMat4& A) const;   //!< matrix-matrix addition
         SLVec3<T>   operator*   (const SLVec3<T>& v) const;//!< SLVec3 mult w. persp div
         SLVec4<T>   operator*   (const SLVec4<T>& v) const;//!< SLVec4 mult
         SLMat4<T>   operator*   (const T a) const;         //!< scalar mult
@@ -104,6 +105,7 @@ class SLMat4
         void        multiply    (const SLMat4& A);
         SLVec3<T>   multVec     (const SLVec3<T> v) const;
         SLVec4<T>   multVec     (const SLVec4<T> v) const;
+        void        add         (const SLMat4& A);
         void        translate   (const T tx, const T ty, const T tz=0);
         void        translate   (const SLVec2<T>& t);
         void        translate   (const SLVec3<T>& t);
@@ -350,6 +352,18 @@ SLMat4<T>& SLMat4<T>::operator *=(const SLMat4& A)
     return *this;
 }
 //-----------------------------------------------------------------------------
+/*
+!Matrix - matrix multiplication
+*/
+template<class T>
+SLMat4<T> SLMat4<T>::operator+(const SLMat4& A) const
+{
+    SLMat4<T> newM((T*)this);
+    newM.add(A);
+    return newM;
+}
+
+//-----------------------------------------------------------------------------
 /*!
 Matrix - 3D vector multiplication with perspective division
 */
@@ -449,6 +463,17 @@ void SLMat4<T>::multiply(const SLMat4& A)
               //     | 1  5  9 13 |   | 1  5  9 13 |
               // M = | 2  6 10 14 | x | 2  6 10 14 |
               //     | 3  7 11 15 |   | 3  7 11 15 |
+}
+
+//-----------------------------------------------------------------------------
+/*!
+Adds the matrix to an other matrix A.
+*/
+template<class T>
+void SLMat4<T>::add(const SLMat4& A)
+{
+    for (SLint i = 0; i < 16; ++i)
+        _m[i] = _m[i] + A._m[i];
 }
 //-----------------------------------------------------------------------------
 /*!

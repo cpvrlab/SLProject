@@ -265,6 +265,13 @@ enum SLTransformSpace
     TS_Parent,  
     TS_Local,    
 };
+//-----------------------------------------------------------------------------
+//! Skinning methods
+enum SLSkinningMethod
+{
+    SM_HardwareSkinning, //!< Do vertex skinning on the GPU
+    SM_SoftwareSkinning  //!< Do vertex skinning on the CPU
+};
 
 //-----------------------------------------------------------------------------
 //! Shader type enumeration for vertex or fragment (pixel) shader

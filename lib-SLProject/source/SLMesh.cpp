@@ -49,6 +49,7 @@ SLMesh::SLMesh(SLstring name) : SLObject(name)
     maxP.set(-FLT_MAX, -FLT_MAX, -FLT_MAX);
    
     _jointMatrices = 0;
+    _skinningMethod = SM_HardwareSkinning;
 
     _stateGL = SLGLState::getInstance();  
     _isVolume = true; // is used for RT to decide inside/outside
@@ -156,19 +157,6 @@ void SLMesh::draw(SLSceneView* sv, SLNode* node)
             _stateGL->polygonOffset(true, 1.0f, 1.0f);
 
 
-        //////////////////////
-        // 2: Build VBO's once
-        //////////////////////
-
-        if (!_bufP.id()) _bufP.generate(P, numV, 3);
-        if (!_bufN.id()  && N)   _bufN.generate(N, numV, 3);
-        if (!_bufC.id()  && C)   _bufC.generate(C, numV, 4);
-        if (!_bufTc.id() && Tc)  _bufTc.generate(Tc, numV, 2);
-        if (!_bufJi.id() && Ji)  _bufJi.generate(Ji, numV, 4);
-        if (!_bufJw.id() && Jw)  _bufJw.generate(Jw, numV, 4);
-        if (!_bufT.id()  && T)   _bufT.generate(T, numV, 4);
-        if (!_bufI.id()  && I16) _bufI.generate(I16, numI, 1, SL_UNSIGNED_SHORT, SL_ELEMENT_ARRAY_BUFFER);
-        if (!_bufI.id()  && I32) _bufI.generate(I32, numI, 1, SL_UNSIGNED_INT,   SL_ELEMENT_ARRAY_BUFFER);    
        
         ///////////////////
         // 3: Draw elements
@@ -199,7 +187,96 @@ void SLMesh::draw(SLSceneView* sv, SLNode* node)
         {   _stateGL->buildNormalMatrix();
             sp->uniformMatrix3fv(locNM, 1, (SLfloat*)_stateGL->normalMatrix());
         }
-                              
+             
+
+        
+
+        
+        // 3.d: determine the skinning method
+
+        // pointers to the final position and normal buffers
+        SLVec3f* finalP = P; // we could use smart ptrs here
+        SLVec3f* finalN = N;
+        if (Ji && Jw)
+        {
+            // update the joint matrix array
+            if (!_jointMatrices) _jointMatrices = new SLMat4f[_skeleton->numJoints()]; // @todo offload the generation of the joint matrix array to somebody else. meshes can share the same array, so it must be somewhere else..
+            _skeleton->getJointWorldMatrices(_jointMatrices);
+            if (_skinningMethod == SM_HardwareSkinning)
+            {            
+                // hardware skinning, just upload the data to the shader
+                
+                // @todo    be careful here, it is at the moment not guaranteed that the per vertex joint indices
+                //          match the indices in this joint array. The result may be wrong or crash entirely.
+                //          Imported models might use joint 0, 1, 2 and 4 but not 3. So when joint 4 is used
+                //          in the shader we'll access out of bound memory for index 4
+
+                // @todo    Secondly: It is a bad idea to keep the joint data in the mesh itself, this prevents us
+                //          from instantiationg a single mesh with multiple animations. Needs to be addressed ASAP. (see also SLMesh class problems in SLMesh.h at the top)
+                SLint locBM = sp->getUniformLocation("u_jointMatrices");
+                sp->uniformMatrix4fv(locBM, _skeleton->numJoints(), (SLfloat*)_jointMatrices, false);
+                
+            }
+            else
+            {
+                // software skinning, do transforms locally into a temporary position and normal
+
+                // first test implementation
+                // @todo: we need to swap vertex shaders out if we switch the skinning method!
+                //        the dynamic programs of opengl would come in handy here!
+                SLint locBM = sp->getUniformLocation("u_jointMatrices");
+                sp->uniformMatrix4fv(locBM, _skeleton->numJoints(), (SLfloat*)_jointMatrices, false);
+                _bufP.dispose();
+                _bufN.dispose();
+                finalP = new SLVec3f[numV];
+                finalN = new SLVec3f[numV];
+                // iterate over all vertices and write to new buffers
+                for (SLint i = 0; i < numV; ++i)
+                {
+                    SLVec4f pos = P[i];
+                    SLVec3f norm = N[i];
+                    SLVec4f jointWeights = Jw[i];
+                    SLVec4i jointIndices(Ji[i].x, Ji[i].y, Ji[i].z, Ji[i].w);
+                    
+                    SLMat4f finalTransform = _jointMatrices[jointIndices.x];// * jointWeights.x;
+                        /*+ _jointMatrices[jointIndices.y] * jointWeights.y
+                        + _jointMatrices[jointIndices.z] * jointWeights.z
+                        + _jointMatrices[jointIndices.w] * jointWeights.w;*/
+
+                    SLMat3f finalTransform3x3 = finalTransform.mat3();
+                    finalTransform3x3.invert();
+                    finalTransform3x3.transpose();
+
+                    pos = finalTransform * pos;
+                    finalP[i] = SLVec3f(pos.x, pos.y, pos.z);
+                    finalN[i] = finalTransform3x3 * norm;
+                }
+            }
+        }
+        
+        //////////////////////
+        // 2: Build VBO's once
+        //////////////////////
+        if (!_bufP.id()) _bufP.generate(finalP, numV, 3);
+        if (!_bufN.id()  && N)   _bufN.generate(finalN, numV, 3);
+        if (!_bufC.id()  && C)   _bufC.generate(C, numV, 4);
+        if (!_bufTc.id() && Tc)  _bufTc.generate(Tc, numV, 2);
+        if (!_bufJi.id() && Ji)  _bufJi.generate(Ji, numV, 4);
+        if (!_bufJw.id() && Jw)  _bufJw.generate(Jw, numV, 4);
+        if (!_bufT.id()  && T)   _bufT.generate(T, numV, 4);
+        if (!_bufI.id()  && I16) _bufI.generate(I16, numI, 1, SL_UNSIGNED_SHORT, SL_ELEMENT_ARRAY_BUFFER);
+        if (!_bufI.id()  && I32) _bufI.generate(I32, numI, 1, SL_UNSIGNED_INT,   SL_ELEMENT_ARRAY_BUFFER);    
+
+        // temporary delete the final buffers if we're doing cpu skinning
+
+        if (_skinningMethod == SM_SoftwareSkinning)
+        {
+            if (Ji && Jw) {
+                delete[] finalP;
+                delete[] finalN;
+            }
+        }
+
         // 3.c: Enable attribute pointers
         _bufP.bindAndEnableAttrib(sp->getAttribLocation("a_position"));
         if (_bufN.id()) 
@@ -215,24 +292,7 @@ void SLMesh::draw(SLSceneView* sv, SLNode* node)
         if (_bufJw.id())
             _bufJw.bindAndEnableAttrib(sp->getAttribLocation("a_jointWeights"));
    
-
-        // 3.d: Upload final joint matrices
-        if (Ji && Jw)
-        {
-            //  temporary test for 2 joints
-            if (!_jointMatrices) _jointMatrices = new SLMat4f[_skeleton->numJoints()]; // @todo offload the generation of the joint matrix array to somebody else. meshes can share the same array, so it must be somewhere else..
-            _skeleton->getJointWorldMatrices(_jointMatrices);
-            // @todo    be careful here, it is at the moment not guaranteed that the per vertex joint indices
-            //          match the indices in this joint array. The result may be wrong or crash entirely.
-            //          Imported models might use joint 0, 1, 2 and 4 but not 3. So when joint 4 is used
-            //          in the shader we'll access out of bound memory for index 4
-
-            // @todo    Secondly: It is a bad idea to keep the joint data in the mesh itself, this prevents us
-            //          from instantiationg a single mesh with multiple animations. Needs to be addressed ASAP. (see also SLMesh class problems in SLMesh.h at the top)
-            SLint locBM = sp->getUniformLocation("u_jointMatrices");
-            sp->uniformMatrix4fv(locBM, _skeleton->numJoints(), (SLfloat*)_jointMatrices, false);
-        }
-
+        
         // 3.e: Finally draw elements
         _bufI.bindAndDrawElementsAs(_primitive, numI, 0);
 

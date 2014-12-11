@@ -14,6 +14,7 @@
 #include <stdafx.h>
 #include <SLAABBox.h>
 #include <SLGLBuffer.h>
+#include <SLEnums.h>
 
 class SLSceneView;
 class SLNode;
@@ -182,6 +183,8 @@ virtual void            calcMinMax     ();
 
         SLPrimitive     primitive      (){return _primitive;}
         
+        void            skinningMethod(SLSkinningMethod method) { _skinningMethod = method; }
+        SLSkinningMethod skinningMethod() const { return _skinningMethod; }
         void            skeleton(SLSkeleton* skel) { _skeleton = skel; }
         SLbool          addWeight(SLint vertId, SLuint jointId, SLfloat weight);
 
@@ -222,9 +225,10 @@ virtual void            calcMinMax     ();
                
         SLAccelStruct*  _accelStruct;   //!< KD-tree or uniform grid
 
-
+        SLSkinningMethod _skinningMethod;
         SLSkeleton*     _skeleton;      //!< the skeleton this mesh is bound to
         SLMat4f*        _jointMatrices; //!< private joint matrix stack for this mesh
+
 };
 //-----------------------------------------------------------------------------
 typedef std::vector<SLMesh*>  SLVMesh;
