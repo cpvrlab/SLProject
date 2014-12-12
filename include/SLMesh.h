@@ -171,6 +171,7 @@ virtual void            init           (SLNode* node);
 virtual void            draw           (SLSceneView* sv, SLNode* node);
         void            addStats       (SLNodeStats &stats);
 virtual void            buildAABB      (SLAABBox &aabb, SLMat4f wmNode);
+        void            updateAccelStruct();
         SLbool          hit            (SLRay* ray, SLNode* node);               
 virtual void            preShade       (SLRay* ray);
                
@@ -237,6 +238,7 @@ virtual void            calcMinMax     ();
         SLSkinningMethod _skinningMethod;
         SLSkeleton*     _skeleton;      //!< the skeleton this mesh is bound to
         SLMat4f*        _jointMatrices; //!< private joint matrix stack for this mesh
+        SLbool          _accelStructOutOfDate;
 
         // ptrs to final position and normal containers
         SLVec3f**       finalP;     

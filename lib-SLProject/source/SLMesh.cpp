@@ -58,6 +58,7 @@ SLMesh::SLMesh(SLstring name) : SLObject(name)
     _stateGL = SLGLState::getInstance();  
     _isVolume = true; // is used for RT to decide inside/outside
     _accelStruct = 0; // no initial acceleration structure
+    _accelStructOutOfDate = true;
 
     // Add this mesh to the global resource vector for deallocation
     SLScene::current->meshes().push_back(this);
@@ -376,6 +377,9 @@ SLbool SLMesh::hit(SLRay* ray, SLNode* node)
     if (!ray->isOutside && ray->originNode != node) 
         return false;
      
+    // update accel struct if it's out of date
+    updateAccelStruct();
+
     if (_accelStruct)
         return _accelStruct->intersect(ray, node);
     else
@@ -539,30 +543,31 @@ the min & max points in WS with the passed WM of the node.
 */
 void SLMesh::buildAABB(SLAABBox &aabb, SLMat4f wmNode)
 {   
-    // Calculate min & max in object space only once
-    if(minP==SLVec3f( FLT_MAX,  FLT_MAX,  FLT_MAX) &&
-       maxP==SLVec3f(-FLT_MAX, -FLT_MAX, -FLT_MAX))
-    {  calcMinMax();
-   
-        // Enlarge aabb for avoiding rounding errors 0.5%
+    // update accel struct and calculate min max
+    //updateAccelStruct();
+    calcMinMax();
+    // Apply world matrix
+    aabb.fromOStoWS(minP, maxP, wmNode);
+}
+
+void SLMesh::updateAccelStruct()
+{
+    if (_accelStructOutOfDate)
+    {
+        calcMinMax();
         SLVec3f distMinMax = maxP - minP;
         SLfloat addon = distMinMax.length() * 0.005f;
         minP -= addon;
         maxP += addon;
-   
-        // Recreate acceleration structure for triangle meshes
-        delete _accelStruct;
+
+        _accelStructOutOfDate = false;
+        if (_accelStruct) delete _accelStruct;
         _accelStruct = 0;
         if (_primitive == SL_TRIANGLES)
             _accelStruct = new SLUniformGrid(this);
-
-        // Build accelerations structure for more than 5 triangles
         if (_accelStruct && numI > 5*3) 
             _accelStruct->build(minP, maxP);
     }
-   
-    // Apply world matrix
-    aabb.fromOStoWS(minP, maxP, wmNode);
 }
 //-----------------------------------------------------------------------------
 //! SLMesh::calcNormals recalculates vertex normals for triangle meshes.
@@ -960,6 +965,8 @@ void SLMesh::doSoftwareSkinning()
     // @todo move the setting of finalP to the setSkinningMethod function
     finalP = &cpuSkinningP;
     finalN = &cpuSkinningN;
+
+    _accelStructOutOfDate = true;
         
     cpuSkinningP = new SLVec3f[numV];
     if (N) cpuSkinningN = new SLVec3f[numV];
@@ -998,14 +1005,10 @@ void SLMesh::doSoftwareSkinning()
     // update buffers
     if (_bufP.id()) _bufP.update(pos(), numV, 0);
     if (_bufN.id() && N) _bufN.update(norm(), numV, 0);
-    //_bufP.dispose();
-    //_bufN.dispose();
 
-    // temp force recalculation of accel struct      
-    // @ todo find a good way to brute force an update on just this mesh
-    minP.set( FLT_MAX,  FLT_MAX,  FLT_MAX);
-    maxP.set(-FLT_MAX, -FLT_MAX, -FLT_MAX);
-
-    // lag fest inc, just a test
-    SLScene::current->root3D()->needUpdate();
+    // @todo Find a better approach to do this
+    SLVNode nodes = SLScene::current->root3D()->findChildren(this);
+    for (SLint i = 0; i < nodes.size(); ++i)
+        nodes[i]->needAABBUpdate();
+    //SLScene::current->root3D()->needUpdate();
 }

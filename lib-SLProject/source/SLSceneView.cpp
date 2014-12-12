@@ -25,6 +25,7 @@
 #include <SLTexFont.h>
 #include <SLButton.h>
 #include <SLBox.h>
+#include <SLCapsule3.h>
 
 //-----------------------------------------------------------------------------
 //! SLSceneView default constructor
@@ -699,6 +700,7 @@ SLbool SLSceneView::draw3DGL(SLfloat elapsedTimeMS)
     */
 
 
+
     // Update camera animation seperately to process input on camera object
     SLbool camUpdated = _camera->camUpdate(elapsedTimeMS);
    
@@ -761,6 +763,7 @@ SLbool SLSceneView::draw3DGL(SLfloat elapsedTimeMS)
     // We could also draw the scenegraph recursively
     // but this doesn't split transparent from opaque nodes
     //s->_root3D->drawRec(this);
+
 
     draw3DGLAll();
    

@@ -48,7 +48,6 @@ public:
         
     QString getCurrentTimeString() const
     {
-        cout << getNormalizedValue() << endl;
         return getTimeStringForPos(value());
     }
     QString getDurationTimeString() const
