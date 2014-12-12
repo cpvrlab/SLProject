@@ -759,7 +759,7 @@ public:
 "\n"
 "QSlider::add-page:horizontal {\n"
 "	background: qlineargradient(x1:0, y1:0, x2:0, y2:1,\n"
-"  	  stop:0 #cdcdcd, stop:1 #fafafa);\n"
+"		stop:0 #cdcdcd, stop:1 #fafafa);\n"
 "	border: 1px solid #ddd;\n"
 "	height: 10px;\n"
 "	border-radius: 4px;\n"
@@ -781,8 +781,8 @@ public:
 "}\n"
 "\n"
 "QSlider::sub-page:horizontal:disabled {\n"
-"	bac"
-                        "kground: #bbb;\n"
+"	backgr"
+                        "ound: #bbb;\n"
 "	border-color: #999;\n"
 "}\n"
 "\n"
@@ -1518,6 +1518,9 @@ public:
         ___qtreewidgetitem->setText(0, QApplication::translate("qtMainWindow", "Property", 0));
         dockAnimation->setWindowTitle(QApplication::translate("qtMainWindow", "Animation", 0));
         animCurrentTimeLabel->setText(QApplication::translate("qtMainWindow", "--:--", 0));
+#ifndef QT_NO_TOOLTIP
+        animTimelineSlider->setToolTip(QString());
+#endif // QT_NO_TOOLTIP
         animDurationLabel->setText(QApplication::translate("qtMainWindow", "--:--", 0));
         animAnimatedObjectSelect->clear();
         animAnimatedObjectSelect->insertItems(0, QStringList()

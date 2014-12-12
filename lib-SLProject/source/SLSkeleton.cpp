@@ -95,6 +95,9 @@ void SLSkeleton::addAnimation(SLAnimation* anim)
 
 void SLSkeleton::reset()
 {
+    // mark the skeleton as changed
+    changed(true);
+    // update all joints
     for (SLint i = 0; i < _jointList.size(); i++)
         _jointList[i]->resetToInitialState();
 }
@@ -104,17 +107,38 @@ void SLSkeleton::updateAnimations()
 {
     SLScene* scene = SLScene::current;
 
-    // @todo don't do this if we don't have any enabled animations
+    /// @todo IMPORTANT: don't do this if we don't have any enabled animations, current workaround won't allow for blending!
     //reset();
 
+    // first advance time on all animations
+    _changed = false;
     map<SLstring, SLAnimationState*>::iterator it;
     for (it = _animationStates.begin(); it != _animationStates.end(); it++)
     {
         SLAnimationState* state = it->second;
         if (state->enabled())
-        {reset();
+        {
             state->advanceTime(scene->elapsedTimeSec());
+            // mark skeleton as changed if a state is different
+            if (state->changed())
+                _changed = true;
+        }
+    }
+
+    // return if nothing changed
+    if (!_changed)
+        return;
+
+    // reset the skeleton and apply all enabled animations
+    reset();
+
+    for (it = _animationStates.begin(); it != _animationStates.end(); it++)
+    {
+        SLAnimationState* state = it->second;
+        if (state->enabled())
+        {
             state->parentAnimation()->apply(this, state->localTime(), state->weight());
+            state->changed(false); // remove changed dirty flag from the state again
         }
     }
 }

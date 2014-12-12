@@ -6,6 +6,7 @@
 SLAnimationState::SLAnimationState(SLAnimation* parent, SLfloat weight)
 : _parentAnim(parent), 
 _localTime(0.0f),
+_linearLocalTime(0.0f),
 _playbackRate(1.0f),
 _playbackDir(1),
 _weight(weight),
@@ -18,6 +19,12 @@ void SLAnimationState::advanceTime(SLfloat delta)
 {
     if (!_enabled)
         return;
+
+    if (delta == 0.0f)
+        return;
+
+    // preserve time before update
+    SLfloat prevTime = _linearLocalTime;
 
     _linearLocalTime += delta * _playbackRate * _playbackDir;
     
@@ -36,15 +43,26 @@ void SLAnimationState::advanceTime(SLfloat delta)
     // fix negative inputs, playback rate could be negative
     else if (_linearLocalTime < 0.0f)
     {
+        while (_linearLocalTime < 0.0f)
+            _linearLocalTime += _parentAnim->length();
+
         switch (_loopingBehaviour)
         {
         case ALB_once: _linearLocalTime = 0.0f; _enabled = false; break;
-        case ALB_loop: _linearLocalTime = fmod(_localTime, _parentAnim->length()) + _parentAnim->length(); break;
+        case ALB_loop: _linearLocalTime = fmod(_localTime, _parentAnim->length()); break;
         case ALB_pingPong: _linearLocalTime = 0.0f; _enabled = false; break; // at the moment pingPong stops when reaching 0, if we start with a reverse direction this is illogical
         case ALB_pingPongLoop: _linearLocalTime = 0.0f; _playbackDir *= -1.0f; break;
         }
     }     
 
+    // don't go any further, nothing's changed
+    if (_linearLocalTime == prevTime)
+        return;
+
+    // mark the state as changed
+    _gotChanged = true;
+
+    // update the final eased local time
     _localTime = calcEasingTime(_linearLocalTime);
 }
 
@@ -86,6 +104,20 @@ void SLAnimationState::skipToEnd()
     localTime(_parentAnim->length());
 }
 
+void SLAnimationState::localTime(SLfloat time)
+{
+    if (_localTime == time)
+        return;
+
+    // Set the eased time
+    _localTime = time; 
+
+    // calculate the equivalent linear time from the new eased time
+    _linearLocalTime = calcEasingTimeInv(time);
+
+    // mark changed
+    _gotChanged = true;
+}
 
 //-----------------------------------------------------------------------------
 //! Applies the easing time curve to the input time.

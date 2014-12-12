@@ -86,6 +86,8 @@ void SLMesh::deleteData()
     if (I32) delete[] I32;  I32=0;
 
     if (_jointMatrices) delete[] _jointMatrices; _jointMatrices = 0;
+    if (cpuSkinningP) delete[] cpuSkinningP;
+    if (cpuSkinningN) delete[] cpuSkinningN;
 
     if (_accelStruct) 
     {   delete _accelStruct;      
@@ -204,9 +206,14 @@ void SLMesh::draw(SLSceneView* sv, SLNode* node)
         // pointers to the final position and normal buffers
         if (Ji && Jw)
         {
-            // update the joint matrix array
-            if (!_jointMatrices) _jointMatrices = new SLMat4f[_skeleton->numJoints()]; // @todo offload the generation of the joint matrix array to somebody else. meshes can share the same array, so it must be somewhere else..
-            _skeleton->getJointWorldMatrices(_jointMatrices);
+            // only update joint matrices if the skeleton changed
+            if (_skeleton->changed())
+            {
+                // update the joint matrix array
+                if (!_jointMatrices) _jointMatrices = new SLMat4f[_skeleton->numJoints()]; // @todo offload the generation of the joint matrix array to somebody else. meshes can share the same array, so it must be somewhere else..
+                _skeleton->getJointWorldMatrices(_jointMatrices);
+            }
+
             if (_skinningMethod == SM_HardwareSkinning)
             {            
                 // hardware skinning, just upload the data to the shader
@@ -224,7 +231,8 @@ void SLMesh::draw(SLSceneView* sv, SLNode* node)
             }
             else
             {
-                doSoftwareSkinning();                
+                if (_skeleton->changed())
+                    doSoftwareSkinning();                
             }
         }
 
@@ -952,19 +960,16 @@ void SLMesh::doSoftwareSkinning()
     // @todo move the setting of finalP to the setSkinningMethod function
     finalP = &cpuSkinningP;
     finalN = &cpuSkinningN;
-    // @todo dont dispose but update the buffers after this method call
-    _bufP.dispose();
-    _bufN.dispose();
+        
     cpuSkinningP = new SLVec3f[numV];
-    cpuSkinningN = new SLVec3f[numV];
+    if (N) cpuSkinningN = new SLVec3f[numV];
+
     // iterate over all vertices and write to new buffers
     for (SLint i = 0; i < numV; ++i)
     {
         cpuSkinningP[i] = SLVec3f::ZERO;
-        cpuSkinningN[i] = SLVec3f::ZERO;
+        if (N) cpuSkinningN[i] = SLVec3f::ZERO;
 
-        SLVec4f pos = P[i];
-        SLVec3f norm = N[i];
         SLfloat jointWeights[4] = {Jw[i].x, Jw[i].y, Jw[i].z, Jw[i].w};
         SLint jointIndices[4] = {(SLint)Ji[i].x, (SLint)Ji[i].y, (SLint)Ji[i].z, (SLint)Ji[i].w};
                     
@@ -974,18 +979,27 @@ void SLMesh::doSoftwareSkinning()
             if (jointWeights[j] > 0.0f)
             {
                 const SLMat4f& jm = _jointMatrices[jointIndices[j]];
-                SLVec4f tempPos = jm * pos;
+                SLVec4f tempPos = jm * SLVec4f(P[i]);
                 cpuSkinningP[i].x += tempPos.x * jointWeights[j];
                 cpuSkinningP[i].y += tempPos.y * jointWeights[j];
                 cpuSkinningP[i].z += tempPos.z * jointWeights[j];
 
-                SLMat3f jnm = jm.mat3();
-                jnm.invert();
-                jnm.transpose();
-                cpuSkinningN[i] += jnm * norm * jointWeights[j];
+                if (N) 
+                {
+                    SLMat3f jnm = jm.mat3();
+                    jnm.invert();
+                    jnm.transpose();
+                    cpuSkinningN[i] += jnm * N[i] * jointWeights[j];
+                }
             }
         }
     }
+
+    // update buffers
+    if (_bufP.id()) _bufP.update(pos(), numV, 0);
+    if (_bufN.id() && N) _bufN.update(norm(), numV, 0);
+    //_bufP.dispose();
+    //_bufN.dispose();
 
     // temp force recalculation of accel struct      
     // @ todo find a good way to brute force an update on just this mesh
@@ -993,5 +1007,5 @@ void SLMesh::doSoftwareSkinning()
     maxP.set(-FLT_MAX, -FLT_MAX, -FLT_MAX);
 
     // lag fest inc, just a test
-    //SLScene::current->root3D()->needUpdate();
+    SLScene::current->root3D()->needUpdate();
 }

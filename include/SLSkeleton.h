@@ -19,6 +19,8 @@
 
 class SLAnimationState;
 
+/** @todo add documentation to skeleton class (explain how to achieve multiple instances of the same skeletal animations with one skeleton)
+*/
 class SLSkeleton
 {
 public:
@@ -46,6 +48,10 @@ public:
     SLint       numAnimations() const { return (SLint)_animations.size(); }
     void        reset();
 
+    SLbool      changed() const { return _changed; }
+    void        changed(SLbool changed) { _changed = changed; }
+
+
     // @todo find a better way to give access to the animation names to external stuff (like the gui)
     map<SLstring, SLAnimation*> animations() { return _animations; }
 
@@ -56,6 +62,7 @@ protected:
     vector<SLJoint*> _jointList; //!< joint map for fast acces of joints
     map<SLstring, SLAnimation*> _animations;
     map<SLstring, SLAnimationState*> _animationStates;
+    SLbool      _changed;       //!< did this skeleton change this frame (attribute for skeleton instance)
 };
 
 typedef std::vector<SLSkeleton*> SLVSkeleton;

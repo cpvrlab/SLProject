@@ -41,14 +41,16 @@ public:
     SLAnimLoopingBehaviour  loop() const { return _loopingBehaviour; }
     SLbool                  enabled() const { return _enabled; }
     SLEasingCurve           easing() const { return _easing; }
+    SLbool                  changed() const { return _gotChanged; }
 
     // setters
-    void        localTime(SLfloat time) { _localTime = time; _linearLocalTime = calcEasingTimeInv(time); }
+    void        localTime(SLfloat time);
     void        playbackRate(SLfloat pr) { _playbackRate = pr; }
     void        weight(SLfloat weight) { _weight = weight; }
     void        loop(SLAnimLoopingBehaviour lb) { _loopingBehaviour = lb; }
     void        enabled(SLbool val) { _enabled = val; }
     void        easing(SLEasingCurve ec) { _easing = ec; }
+    void        changed(SLbool changed) { _gotChanged = changed; }
 
     // advance time by the input real time delta
     void        advanceTime(SLfloat delta);
@@ -65,6 +67,7 @@ protected:
     SLshort                 _playbackDir;
     SLEasingCurve           _easing;            //!< easing modifier curve (to customize start and end point easing)
     SLAnimLoopingBehaviour  _loopingBehaviour;  //!< We support different looping behaviours
+    SLbool                  _gotChanged;        //!< Did this state change in the last frame
 };
 
 #endif

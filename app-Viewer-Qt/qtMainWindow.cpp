@@ -600,13 +600,8 @@ void qtMainWindow::updateAnimationTimeline()
     if (!_selectedAnim)
         return;
     
-    SLfloat time = _selectedAnim->localTime();
-    QString timeMin = QString("%1").arg((int)floor(time / 60.0f), 2, 10, QChar('0'));
-    QString timeSec = QString("%1").arg((int)floor(fmod(time, 60.0f)), 2, 10, QChar('0'));
-    QString timeSecFrac =  QString("%1").arg((int)(SL_fract(time)*100.0f), 2, 10, QChar('0')); // @todo there is probably a better solution for this 
-    
-    ui->animTimelineSlider->setSliderPosNoSignal(time/_selectedAnim->parentAnimation()->length());
-    ui->animCurrentTimeLabel->setText(timeMin + ":" + timeSec + "." + timeSecFrac);
+    ui->animTimelineSlider->setCurrentTime(_selectedAnim->localTime());
+    ui->animCurrentTimeLabel->setText(ui->animTimelineSlider->getCurrentTimeString());
 }
 
 //-----------------------------------------------------------------------------
@@ -1483,17 +1478,13 @@ void qtMainWindow::on_animAnimationSelect_currentIndexChanged(int index)
     if (!state) return;
     _selectedAnim = state;
 
-    SLfloat time = state->parentAnimation()->length();
-    QString timeMin = QString("%1").arg((int)floor(time / 60.0f), 2, 10, QChar('0'));
-    QString timeSec = QString("%1").arg((int)floor(fmod(time, 60.0f)), 2, 10, QChar('0'));
-    QString timeSecFrac =  QString("%1").arg((int)(SL_fract(time)*100.0f), 2, 10, QChar('0')); // @todo there is probably a better solution for this 
-    
     ui->animSpeedInput->setValue(state->playbackRate());
     ui->animWeightInput->setValue(state->weight());
     ui->animEasingSelect->setCurrentIndex(state->easing());
     ui->animLoopingSelect->setCurrentIndex(state->loop());
-    ui->animDurationLabel->setText(timeMin + ":" + timeSec + "." + timeSecFrac);
-    ui->animTimelineSlider->setMaximum(floor(time * 1000)); // set slider maximum to millisec of animation length
+
+    ui->animTimelineSlider->setAnimDuration(state->parentAnimation()->length());
+    ui->animDurationLabel->setText(ui->animTimelineSlider->getDurationTimeString());
 
     std::cout << "on_animationSelectIndexChanged " << index << " " << state->parentAnimation()->name() << "\n";
 
@@ -1592,8 +1583,7 @@ void qtMainWindow::on_animTimelineSlider_valueChanged(int value)
     if (!_selectedAnim)
         return;
     
-    SLfloat time = ui->animTimelineSlider->getNormalizedValue() * _selectedAnim->parentAnimation()->length();
-    _selectedAnim->localTime(time);
+    _selectedAnim->localTime(ui->animTimelineSlider->getNormalizedValue() * _selectedAnim->parentAnimation()->length());
 }
 
 void qtMainWindow::on_animWeightInput_valueChanged(double d)
