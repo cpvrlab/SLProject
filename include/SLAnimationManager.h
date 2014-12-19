@@ -17,18 +17,27 @@
 
 class SLAnimation;
 class SLAnimationState;
-
+//-----------------------------------------------------------------------------
+//! SLAnimationManager is the central class for all animation handling.
+/*! 
+    Keeps a list of all skeleton instances.
+    Also keeps a map of simple node animations that affect normal 
+    SLNodes in the scene graph.
+    The manager is responsible for advancing the time of the enabled
+    animations and to manage their life time.
+*/
 class SLAnimationManager
 {
 public:
-    SLAnimationManager();
     ~SLAnimationManager();
     
     void addSkeleton(SLSkeleton* skel) { _skeletons.push_back(skel); }
-    void addNodeAnimation(SLAnimation* anim);
     SLbool hasNodeAnimations() { return (_nodeAnimations.size() > 0); }
     SLVSkeleton& skeletons() { return _skeletons; }
     SLAnimationState* getNodeAnimationState(const SLstring& name); // get the state for a specific animation
+
+    SLAnimation* createNodeAnimation(SLfloat duration);
+    SLAnimation* createNodeAnimation(const SLstring& name, SLfloat duration);
 
     // @todo find a better way to give access to the animation names to external stuff (like the gui)
     map<SLstring, SLAnimation*> animations() { return _nodeAnimations; }

@@ -17,17 +17,21 @@
 
 class SLAnimationTrack;
 
-// new keyframe
+//-----------------------------------------------------------------------------
+//! Base class for all keyframes
+/*! 
+    @todo document
+*/
 class SLKeyframe
 {
 public:
     SLKeyframe(const SLAnimationTrack* parent, SLfloat time);
     
-    void        time(SLfloat t) { _time = t; }
-    SLfloat     time() const { return _time; }
-    SLbool      isValid() const { _isValid; }
+    void                    time(SLfloat t) { _time = t; }
+    SLfloat                 time() const { return _time; }
+    SLbool                  isValid() const { _isValid; }
 
-    bool operator<(const SLKeyframe& other) const;
+    bool                    operator<(const SLKeyframe& other) const;
 
 protected:
     const SLAnimationTrack* _parentTrack;	//!< owning animation track for this keyframe
@@ -36,7 +40,10 @@ protected:
 };
 
 
-/** Special keyframe for node animations
+//-----------------------------------------------------------------------------
+//! SLTransformKeyframe is a specialized SLKeyframe for node transformations
+/*!     
+    Keeps track of translation, rotation and scale.
 */
 class SLTransformKeyframe : public SLKeyframe
 {
@@ -53,15 +60,15 @@ public:
     const SLVec3f&  scale() const { return _scale; }
 
 protected:
-    SLVec3f     _translation;
-    SLQuat4f    _rotation;
-    SLVec3f     _scale;
+    SLVec3f         _translation;
+    SLQuat4f        _rotation;
+    SLVec3f         _scale;
 };
 
 
-/** Generic keyframe for special objects 
-    @todo ...
-*/
+///-----------------------------------------------------------------------------
+//! Generic keyframe for special objects 
+/*!     @todo ... */
 class SLNumericKeyframe : public SLKeyframe
 {
 public:
@@ -69,7 +76,7 @@ protected:
 };
 
 
-typedef std::vector<SLKeyframe>  SLVKeyframe;
+typedef std::vector<SLKeyframe*>  SLVKeyframe;
 
 #endif
 

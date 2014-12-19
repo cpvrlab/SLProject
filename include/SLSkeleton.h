@@ -16,10 +16,31 @@
 #include <stdafx.h>
 #include <SLJoint.h>
 #include <SLAnimation.h>
+#include <SLAnimationState.h>
 
 class SLAnimationState;
 
-/** @todo add documentation to skeleton class (explain how to achieve multiple instances of the same skeletal animations with one skeleton)
+//-----------------------------------------------------------------------------
+//! SLSkeleton keeps track of a skeletons joint and animations
+/*! 
+    An SLSkeleton keeps track of its SLJoints in a tree structure.
+    It is very similar to how a scene graph works. 
+    SLAnimations for this skeleton are also kept in this class. The SLAnimations
+    have tracks corresponding to the individual SLJoints in the skeleton.
+
+    @note   The current implementation doesn't support multiple instances of the same
+            skeleton animation. It is however not that far away from supporting it.
+            Currently the SLSkeleton class keeps both a SLAnimation map
+            and an SLAnimationState map. We can split this into two classes
+            by creating an SLSkeletonInstance class we that keeps the 
+            SLAnimationState map that references its parent SLSkeleton
+            we would be able to create multiple SLSkeletonInstance instances
+            that use the same SLAnimations but with different states.
+
+            This leaves the problem of SLMesh that is not able to be instantiated
+            without copying the data into a completely seperate SLMesh. But the
+            solution for SLMesh would take the same approach by creating a 
+            mesh instance class that is able to use SLSkeletonInstance.
 */
 class SLSkeleton
 {
@@ -31,38 +52,46 @@ public:
     
     // creates a new joint that belongs to this skeleton
     // handle must be unique for this skeleton and also contiguous
-    SLJoint* createJoint(SLuint handle);
-    SLJoint* createJoint(const SLstring& name, SLuint handle);
+    SLJoint*            createJoint(SLuint handle);
+    SLJoint*            createJoint(const SLstring& name, SLuint handle);
     
-    SLAnimationState* getAnimationState(const SLstring& name);
+    SLAnimationState*   getAnimationState(const SLstring& name);
 
-    void        loadAnimation(const SLstring& file); // import a seperate animation that works with this skeleton
+    void                loadAnimation(const SLstring& file); // import a seperate animation that works with this skeleton
 
-    SLJoint*     getJoint(SLuint handle);
-    SLJoint*     getJoint(const SLstring& name);
-    SLint       numJoints() const { return (SLint)_jointList.size(); }
-    void        getJointWorldMatrices(SLMat4f* jointWM);
-    void        root(SLJoint* joint);
-    SLJoint*     root() { return _root; }
-    void        addAnimation(SLAnimation* anim);
-    SLint       numAnimations() const { return (SLint)_animations.size(); }
-    void        reset();
+    SLJoint*            getJoint(SLuint handle);
+    SLJoint*            getJoint(const SLstring& name);
+    SLint               numJoints() const { return (SLint)_jointList.size(); }
+    void                getJointWorldMatrices(SLMat4f* jointWM);
+    void                root(SLJoint* joint);
+    SLJoint*            root() { return _root; }
+    SLAnimation*        createAnimation(const SLstring& name, SLfloat duration);
+    SLint               numAnimations() const { return (SLint)_animations.size(); }
+    void                reset();
 
-    SLbool      changed() const { return _changed; }
-    void        changed(SLbool changed) { _changed = changed; }
+    SLbool              changed() const { return _changed; }
+    void                changed(SLbool changed) { _changed = changed; }
+    
+    const SLVec3f&      minOS();
+    const SLVec3f&      maxOS();
 
-
-    // @todo find a better way to give access to the animation names to external stuff (like the gui)
+    // @todo this accessor was needed by the qt gui, is there a better way?
     map<SLstring, SLAnimation*> animations() { return _animations; }
 
-    void        updateAnimations();
+    void                updateAnimations();
     
 protected:
-    SLJoint*     _root;
-    vector<SLJoint*> _jointList; //!< joint map for fast acces of joints
-    map<SLstring, SLAnimation*> _animations;
-    map<SLstring, SLAnimationState*> _animationStates;
-    SLbool      _changed;       //!< did this skeleton change this frame (attribute for skeleton instance)
+    SLJoint*            _root;              //!< root joint
+    vector<SLJoint*>    _jointList;         //!< joint list for fast access and index to joint mapping
+    map<SLstring, SLAnimation*> _animations;        //!< animations for this skeleton
+    map<SLstring, SLAnimationState*> _animationStates;  //!< animation states for this skeleton
+    SLbool              _changed;           //!< did this skeleton change this frame (attribute for skeleton instance)
+    SLVec3f             _minOS;             //!< min point in os space for this skeleton (attribute for skeleton instance)
+    SLVec3f             _maxOS;             //!< max point in os space for this skeleton (attribute for skeleton instance)
+    SLbool              _minMaxOutOfDate;
+
+    void updateMinMax();
+
 };
 
 typedef std::vector<SLSkeleton*> SLVSkeleton;

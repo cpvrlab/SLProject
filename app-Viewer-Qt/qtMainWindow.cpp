@@ -572,6 +572,7 @@ void qtMainWindow::buildPropertyTree()
 void qtMainWindow::updateAnimationList()
 {
     // clear both lists
+    SLbool hasAnimations = false;
     ui->animAnimatedObjectSelect->clear();
     ui->animAnimationSelect->clear();
 
@@ -581,16 +582,29 @@ void qtMainWindow::updateAnimationList()
     _selectedAnim = NULL;
     SLVSkeleton& skeletons = SLScene::current->animManager().skeletons();
     
-    if (SLScene::current->animManager().animations().size() > 0)
+    if (SLScene::current->animManager().animations().size() > 0) 
+    {
         ui->animAnimatedObjectSelect->addItem("Node Animations", 0);
+        hasAnimations = true;
+    }
 
     for (SLint i = 0; i < skeletons.size(); ++i)
     {
         SLint index = ui->animAnimatedObjectSelect->count();
         ui->animAnimatedObjectSelect->addItem("Skeleton " + QString::number(i), i+1);
+        hasAnimations = true;
     }
 
-    ui->animAnimatedObjectSelect->setCurrentIndex(0); // select first element
+    if (hasAnimations)
+    {
+        ui->animAnimatedObjectSelect->setCurrentIndex(1); // select first item        
+        ui->dockAnimation->show();
+    }
+    else
+    {
+        // hide the animation ui element completely since we don't need it
+        ui->dockAnimation->hide();
+    }
 
 }
 
@@ -602,6 +616,41 @@ void qtMainWindow::updateAnimationTimeline()
     
     ui->animTimelineSlider->setCurrentTime(_selectedAnim->localTime());
     ui->animCurrentTimeLabel->setText(ui->animTimelineSlider->getCurrentTimeString());
+}
+
+//-----------------------------------------------------------------------------
+void qtMainWindow::selectAnimationFromNode(SLNode* node)
+{
+    for(auto& kv : SLScene::current->animManager().animations())
+    {
+        if (kv.second->affectsNode(node))
+        {
+            // select node animations
+            ui->animAnimatedObjectSelect->setCurrentIndex(1);
+
+            // find and select correct animation
+            SLAnimationState* state = SLScene::current->animManager().getNodeAnimationState(kv.second->name());
+            QVariant variant;
+            variant.setValue<SLAnimationState*>(state);
+            SLint index = ui->animAnimationSelect->findData(variant);
+            ui->animAnimationSelect->setCurrentIndex(index);
+        }
+    }
+
+    for (auto mesh : node->meshes())
+    {
+        if (!mesh->skeleton())
+            continue;
+
+        SLint selectIndex = 1;
+        for (auto skeleton : SLScene::current->animManager().skeletons())
+        {
+            // find and select the skeleton
+            if (mesh->skeleton() == skeleton)
+                ui->animAnimatedObjectSelect->setCurrentIndex(ui->animAnimatedObjectSelect->findData(selectIndex));
+            ++selectIndex;
+        }
+    }
 }
 
 //-----------------------------------------------------------------------------
@@ -628,6 +677,10 @@ void qtMainWindow::selectNodeOrMeshItem(SLNode* selectedNode, SLMesh* selectedMe
         ui->nodeTree->collapseAll();
         return;
     }
+    
+
+    // select animation related to this node if it exists
+    selectAnimationFromNode(selectedNode);
 
     QTreeWidgetItemIterator it(ui->nodeTree);
     while (*it) 
@@ -1439,14 +1492,12 @@ void qtMainWindow::on_animAnimatedObjectSelect_currentIndexChanged(int index)
     // node animations selected
     if (data == 0)
     {
-        map<SLstring, SLAnimation*> nodeAnims = SLScene::current->animManager().animations();
-        map<SLstring, SLAnimation*>::iterator it = nodeAnims.begin();
-        for (; it != nodeAnims.end(); it++)
+        for (auto& kv : SLScene::current->animManager().animations())
         {
-            SLAnimationState* state = SLScene::current->animManager().getNodeAnimationState(it->second->name());
+            SLAnimationState* state = SLScene::current->animManager().getNodeAnimationState(kv.second->name());
             QVariant variant;
             variant.setValue<SLAnimationState*>(state);
-            ui->animAnimationSelect->addItem(it->second->name().c_str(), variant);
+            ui->animAnimationSelect->addItem(kv.second->name().c_str(), variant);
         }
     }
     // skeleton selected
@@ -1455,14 +1506,12 @@ void qtMainWindow::on_animAnimatedObjectSelect_currentIndexChanged(int index)
         int skeletonIndex = data - 1;
         SLSkeleton* skeleton = SLScene::current->animManager().skeletons()[skeletonIndex];
         
-        map<SLstring, SLAnimation*> animations = skeleton->animations();
-        map<SLstring, SLAnimation*>::iterator it = animations.begin();
-        for (; it != animations.end(); it++)
+        for (auto& kv : skeleton->animations())
         {
-            SLAnimationState* state = skeleton->getAnimationState(it->second->name());
+            SLAnimationState* state = skeleton->getAnimationState(kv.second->name());
             QVariant variant;
             variant.setValue<SLAnimationState*>(state);
-            ui->animAnimationSelect->addItem(it->second->name().c_str(), variant);
+            ui->animAnimationSelect->addItem(kv.second->name().c_str(), variant);
         }
     }
 

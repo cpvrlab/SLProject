@@ -40,6 +40,7 @@ class qtMainWindow : public QMainWindow
         void        buildNodeTree();
         void        updateAnimationList();
         void        updateAnimationTimeline();
+        void        selectAnimationFromNode(SLNode* node);
         void        buildPropertyTree();
         void        addNodeTreeItem(SLNode* node,
 							        QTreeWidget* tree,

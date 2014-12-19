@@ -25,6 +25,9 @@
 #include <assimp/postprocess.h>
 
 
+//-----------------------------------------------------------------------------
+/*! @todo document
+*/
 struct KeyframeData
 {
     KeyframeData()
@@ -48,6 +51,9 @@ typedef std::map<SLfloat, KeyframeData> KeyframeMap;
 
 
 
+//-----------------------------------------------------------------------------
+/*! @todo document
+*/
 // helper functions
 // @todo we can probably make the getTranslation, getRotation and getScaling functions smaller by putting the common
 //       functionality in a sepearte function
@@ -121,6 +127,9 @@ SLVec3f getTranslation(SLfloat time, const KeyframeMap& keyframes)
     return SLVec3f(result.x, result.y, result.z);
 }
 
+//-----------------------------------------------------------------------------
+/*! @todo document
+*/
 /*  Get the correct translation out of the keyframes map for a given time
     this function interpolates linearly if no value is present in the 
 
@@ -190,6 +199,9 @@ SLVec3f getScaling(SLfloat time, const KeyframeMap& keyframes)
     return SLVec3f(result.x, result.y, result.z);
 }
 
+//-----------------------------------------------------------------------------
+/*! @todo document
+*/
 /*  Get the correct translation out of the keyframes map for a given time
     this function interpolates linearly if no value is present in the 
 
@@ -310,21 +322,15 @@ SLNode* SLAssimpImporter::load(SLstring file,        //!< File with path or on d
             meshMap[i] = mesh;
         }
     } 
-    
-    // add skinned material to the meshes with joint animations
-    // @todo: Can we do skinning in the shader without the need to dictated which material to use?
+    /*
+    // enable hardware skinning on loaded meshes
     if (_skinnedMeshes.size() > 0) {
-        SLGLGenericProgram* skinningShader = new SLGLGenericProgram("PerVrtBlinnSkinned.vert","PerVrtBlinn.frag");
-        SLGLGenericProgram* skinningShaderTex = new SLGLGenericProgram("PerPixBlinnTex.vert","PerPixBlinnTex.frag");
         for (SLint i = 0; i < _skinnedMeshes.size(); i++)
         {
             SLMesh* mesh = _skinnedMeshes[i];
-            if (mesh->Tc)
-                mesh->mat->program(skinningShaderTex);
-            else
-                mesh->mat->program(skinningShader);
+            mesh->skinningMethod(SM_HardwareSkinning);
         }
-    }
+    }*/
 
 
     // load the scene nodes recursively
@@ -783,25 +789,15 @@ SLMesh* SLAssimpImporter::loadMesh(aiMesh *mesh)
                 SLfloat weight = joint->mWeights[j].mWeight;
 
                 m->addWeight(vertId, jointId, weight);
+
+                // check if the bones max radius changed
+                // @todo this is very specific to this loaded mesh, when we add skeleton instances this radius calculation has to be done on the instance!
+                slJoint->calcMaxRadius(SLVec3f(mesh->mVertices[vertId].x, mesh->mVertices[vertId].y, mesh->mVertices[vertId].z));
             }
 
         }
 
-    }/*
-    cout << "imported" << m->name() << "\n";
-    cout << "weights: \n";
-
-    for (SLint i = 0; i < m->numV; i++) {
-        cout << "   "<< i << "-> (";
-            
-        if(m->Bw[i].x > 0.0f) cout << m->Bi[i].x << ": " << m->Bw[i].x << ";";
-        if(m->Bw[i].y > 0.0f) cout << m->Bi[i].y << ": " << m->Bw[i].y << ";";
-        if(m->Bw[i].z > 0.0f) cout << m->Bi[i].z << ": " << m->Bw[i].z << ";";
-        if(m->Bw[i].w > 0.0f) cout << m->Bi[i].w << ": " << m->Bw[i].w << ";";
-        
-        cout << ")\n";
-    }*/
-
+    }
     return m;
 }
 //-----------------------------------------------------------------------------
@@ -856,7 +852,6 @@ SLNode* SLAssimpImporter::loadNodesRec(
 /*!
 SLAssimpImporter::loadAnimation loads the scene graph node tree recursively.
 */
-// @todo how do we handle multiple skeletons in one file?
 SLAnimation* SLAssimpImporter::loadAnimation(aiAnimation* anim)
 {
     int animCount = 0;
@@ -882,7 +877,15 @@ SLAnimation* SLAssimpImporter::loadAnimation(aiAnimation* anim)
         assert(_skeleton != NULL && "The skeleton wasn't impoted correctly."); // @todo rename all global variables by adding a prefex to them that identifies their use (rename skel here)
     
     // create the animation
-    SLAnimation* result = new SLAnimation(animName, animDuration);
+    SLAnimation* result;
+    if (_skeleton)
+        result = _skeleton->createAnimation(animName, animDuration);
+    else
+    {
+        result = SLScene::current->animManager().createNodeAnimation(animName, animDuration);
+        _nodeAnimations.push_back(result);
+    }
+
 
     SLbool isSkeletonAnim = false;
     for (SLuint i = 0; i < anim->mNumChannels; i++)
@@ -1017,17 +1020,7 @@ SLAnimation* SLAssimpImporter::loadAnimation(aiAnimation* anim)
             logMessage(LV_Detailed, "    Scale: (%.2f, %.2f, %.2f) %s\n", kf->scale().x, kf->scale().y, kf->scale().z, (it->second.scaling != NULL) ? "imported" : "generated");
         }
     }
-
-    // add the animation to the skeleton or the importers animation list
-    if (isSkeletonAnim)
-        _skeleton->addAnimation(result);
-    else
-    {   
-        SLScene::current->animManager().addNodeAnimation(result);
-        _nodeAnimations.push_back(result);
-    }
-     
-
+    
     return result;
 }
 //-----------------------------------------------------------------------------

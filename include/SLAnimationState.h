@@ -16,7 +16,22 @@
 
 class SLAnimation;
 
-/** Animationstates keep track of running animations
+//-----------------------------------------------------------------------------
+//! Manages a single state of an SLAnimation
+/*! 
+    This class manages the local time of SLAnimations.
+    It manages the way the time advances and how the
+    time loops. 
+    It is possible to have multiple states per animation.
+    If we keep track of what nodes are affacted by which
+    SLAnimationState we can only manipulate these nodes
+    for the time kept in the SLAnimationState.
+
+    A practical example for this behaviour would be special
+    skeleton instances that only keep track of SLAnimationStates
+    for their parent SLSkeleton. The skeleton instance can then
+    change its skeletal data based on the states and the actual
+    SLAnimation has to only exist once in memory.
 */
 class SLAnimationState
 {
@@ -25,13 +40,13 @@ public:
     SLAnimationState(SLAnimation* parent, SLfloat weight = 1.0f);
     
     // control functions
-    void            playForward();
-    void            playBackward();
-    void            pause();
-    void            skipToNextKeyframe();
-    void            skipToPrevKeyframe();
-    void            skipToStart();
-    void            skipToEnd();
+    void                    playForward();
+    void                    playBackward();
+    void                    pause();
+    void                    skipToNextKeyframe();
+    void                    skipToPrevKeyframe();
+    void                    skipToStart();
+    void                    skipToEnd();
 
     // getters
     SLfloat                 localTime() const { return _localTime; }
@@ -44,18 +59,18 @@ public:
     SLbool                  changed() const { return _gotChanged; }
 
     // setters
-    void        localTime(SLfloat time);
-    void        playbackRate(SLfloat pr) { _playbackRate = pr; }
-    void        weight(SLfloat weight) { _weight = weight; }
-    void        loop(SLAnimLoopingBehaviour lb) { _loopingBehaviour = lb; }
-    void        enabled(SLbool val) { _enabled = val; }
-    void        easing(SLEasingCurve ec) { _easing = ec; }
-    void        changed(SLbool changed) { _gotChanged = changed; }
+    void                    localTime(SLfloat time);
+    void                    playbackRate(SLfloat pr) { _playbackRate = pr; }
+    void                    weight(SLfloat weight) { _weight = weight; _gotChanged = true; }
+    void                    loop(SLAnimLoopingBehaviour lb) { _loopingBehaviour = lb; }
+    void                    enabled(SLbool val) { _enabled = val; }
+    void                    easing(SLEasingCurve ec) { _easing = ec; }
+    void                    changed(SLbool changed) { _gotChanged = changed; }
 
     // advance time by the input real time delta
-    void        advanceTime(SLfloat delta);
-    SLfloat     calcEasingTime(SLfloat time) const;
-    SLfloat     calcEasingTimeInv(SLfloat time) const;
+    void                    advanceTime(SLfloat delta);
+    SLfloat                 calcEasingTime(SLfloat time) const;
+    SLfloat                 calcEasingTimeInv(SLfloat time) const;
 
 protected:
     SLAnimation*            _parentAnim;       //!< the animation this state is referencing

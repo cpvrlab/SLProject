@@ -7,15 +7,16 @@
 
 
 
-SLAnimationManager::SLAnimationManager()
-{
 
-}
+//-----------------------------------------------------------------------------
+/*! destructor */
 SLAnimationManager::~SLAnimationManager()
 {
     clear();
 }
 
+//-----------------------------------------------------------------------------
+/*! Clears and deletes all node animations and skeletons */
 void SLAnimationManager::clear()
 {
     map<SLstring, SLAnimation*>::iterator it;
@@ -33,12 +34,41 @@ void SLAnimationManager::clear()
     _skeletons.clear();
 }
 
-void SLAnimationManager::addNodeAnimation(SLAnimation* anim)
+//-----------------------------------------------------------------------------
+/*! Creates a new node animation
+    @param  duration    length of the animation
+*/
+SLAnimation* SLAnimationManager::createNodeAnimation(SLfloat duration)
 {
-    assert(_nodeAnimations.find(anim->name()) == _nodeAnimations.end() && "node animation with same name already exists!");
-    _nodeAnimations[anim->name()] = anim;
+    SLuint index = (SLuint)_nodeAnimations.size();
+    ostringstream oss;
+
+    do
+    {   
+        oss.clear();
+        oss << "NodeAnimation_" << index;
+        index++;
+    }
+    while (_nodeAnimations.find(oss.str()) != _nodeAnimations.end());
+     
+    return createNodeAnimation(oss.str(), duration);
 }
 
+//-----------------------------------------------------------------------------
+/*! Creates a new node animation
+    @param  name        the animation name
+    @param  duration    length of the animation
+*/
+SLAnimation* SLAnimationManager::createNodeAnimation(const SLstring& name, SLfloat duration)
+{
+    assert(_nodeAnimations.find(name) == _nodeAnimations.end() && "node animation with same name already exists!");
+    SLAnimation* anim = new SLAnimation(name, duration);
+    _nodeAnimations[name] = anim;
+    return anim;
+}
+
+//-----------------------------------------------------------------------------
+/*! Returns the state of a node animation by name if it exists. */
 SLAnimationState* SLAnimationManager::getNodeAnimationState(const SLstring& name)
 {
     if (_nodeAnimationStates.find(name) != _nodeAnimationStates.end())
@@ -53,10 +83,15 @@ SLAnimationState* SLAnimationManager::getNodeAnimationState(const SLstring& name
     return NULL;
 }
 
+//-----------------------------------------------------------------------------
+/*! Advances the time of all enabled animation states. */
 void SLAnimationManager::update()
 {
     SLScene* s = SLScene::current;
 
+    // return if animations are off
+    if (s->stopAnimations())
+        return;
     // advance time for node animations and apply them
     // @todo currently we can't blend between normal node animations because we reset them
     // per state. so the last state that affects a node will have its animation applied.

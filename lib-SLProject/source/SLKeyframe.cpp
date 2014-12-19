@@ -13,16 +13,25 @@
 
 
 
+//-----------------------------------------------------------------------------
+/*! @todo document
+*/
 SLKeyframe::SLKeyframe(const SLAnimationTrack* parent, SLfloat time)
 : _parentTrack(parent), _time(time)
 { }
 
+//-----------------------------------------------------------------------------
+/*! @todo document
+*/
 bool SLKeyframe::operator<(const SLKeyframe& other) const
 {
     return _time < other._time;
 }
 
     
+//-----------------------------------------------------------------------------
+/*! @todo document
+*/
 SLTransformKeyframe::SLTransformKeyframe(const SLAnimationTrack* parent, SLfloat time)
 : SLKeyframe(parent, time),
 _translation(0, 0, 0),

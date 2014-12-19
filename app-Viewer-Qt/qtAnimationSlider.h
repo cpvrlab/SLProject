@@ -14,66 +14,93 @@
 #include <qevent.h>
 #include <qslider.h>
 #include <qtooltip.h>
+#include <iomanip>
 
+//----------------------------------------------------------------------------
+//! Specialized QSlider that provides more mouse interactions and time
 class QAnimationSlider : public QSlider
 {
 public:
+
+    /*! @todo document */
     QAnimationSlider(QWidget* parent) 
         : QSlider(parent) 
     {}
-
+    
+    /*! @todo document */
     void setCurrentTime(float time)
     {
         setSliderPosNoSignal(time/_animDuration);
+        updateCurrentTimeString();
     }
-
+    
+    /*! @todo document */
     void setAnimDuration(float dur) 
     { 
         _animDuration = dur;
         // set slider maximum to millisec of animation length
-        setMaximum(floor(_animDuration * 1000)); 
+        setMaximum(floor(_animDuration * 100.0f)); 
     }
-
+    
+    /*! @todo document */
     void setSliderPosNoSignal(float normVal) // set slider pos [0,1]
     {
         blockSignals(true);
         setSliderPosition(round(minimum() +normVal * (maximum() - minimum())));
         blockSignals(false);
     }
-
+    
+    /*! @todo document */
     float getNormalizedValue() const
     {
         return (float)(value() - minimum()) / (maximum() - minimum());
     }
         
+    /*! @todo document */
+    void updateCurrentTimeString()
+    {
+        static int prevPos = value();
+        if (prevPos == value())
+            return;
+        
+        _currentTimeString = getTimeStringForPos(value());
+    }
+    
+    /*! @todo document */
     QString getCurrentTimeString() const
     {
-        return getTimeStringForPos(value());
+        return _currentTimeString;
     }
+    
+    /*! @todo document */
     QString getDurationTimeString() const
     {
         return getTimeString(_animDuration);
     }
-
-protected:
-    float _currentTime;
-    float _animDuration;
-
-    QString getTimeStringForPos(int sliderPos) const
-    {
-        float time = (float)sliderPos/1000.0f;
-        return getTimeString(time);
-    }
-
+    
+    /*! @todo document */
     QString getTimeString(float time) const
     {
-        QString timeMin = QString("%1").arg((int)floor(time / 60.0f), 2, 10, QChar('0'));
-        QString timeSec = QString("%1").arg((int)floor(fmod(time, 60.0f)), 2, 10, QChar('0'));
-        // @todo there is probably an easier way to format the seconds as 00.00 but this has to do for now
-        QString timeSecFrac =  QString("%1").arg((int)(SL_fract(time)*100.0f), 2, 10, QChar('0')); 
-        return QString(timeMin + ":" + timeSec + "." + timeSecFrac);
+        ostringstream oss;
+        oss.precision(2);
+        oss << setfill('0') << setw(2) << (int)floor(time / 60.0f);
+        oss << ":" << fixed << setfill('0') << setw(5) << fmod(time, 60.0f);
+        return QString::fromStdString(oss.str());
     }
 
+protected:
+    float _currentTime;                 //!< @todo document
+    float _animDuration;                //!< @todo document
+    QString _currentTimeString;         //!< @todo document
+    
+    /*! @todo document */
+    QString getTimeStringForPos(int sliderPos) const
+    {
+        float time = (float)sliderPos/100.0f;
+        return getTimeString(time);
+    }
+    
+    /*! @todo document */
     void mousePressEvent(QMouseEvent* event)
     {
         if (event->button() == Qt::LeftButton)
@@ -84,7 +111,8 @@ protected:
         else
             QSlider::mousePressEvent(event);
     }
-
+    
+    /*! @todo document */
     void mouseMoveEvent(QMouseEvent* event)
     {
         if (event->buttons() & Qt::LeftButton)
@@ -103,7 +131,8 @@ protected:
                            getTimeStringForPos(mapRelMousePosToValue(event->x(), event->y())),
                            this, rect());
     }
-
+    
+    /*! @todo document */
     // maps relative mouse coordinates to slider values
     int mapRelMousePosToValue(float x, float y)
     {

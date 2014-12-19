@@ -246,12 +246,6 @@
     <ClInclude Include="..\include\SLJoint.h">
       <Filter>Animation</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\SLCapsule3.h">
-      <Filter>Nodes\AABB &amp; Animation</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\SLOBBox.h">
-      <Filter>Nodes\AABB &amp; Animation</Filter>
-    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="source\SLAABBox.cpp">
@@ -409,12 +403,6 @@
     </ClCompile>
     <ClCompile Include="source\SLJoint.cpp">
       <Filter>Animation</Filter>
-    </ClCompile>
-    <ClCompile Include="source\SLCapsule3.cpp">
-      <Filter>Nodes\AABB &amp; Animation</Filter>
-    </ClCompile>
-    <ClCompile Include="source\SLOBBox.cpp">
-      <Filter>Nodes\AABB &amp; Animation</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

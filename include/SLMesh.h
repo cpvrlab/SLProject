@@ -185,9 +185,10 @@ virtual void            calcMinMax     ();
         SLPrimitive     primitive      (){return _primitive;}
         
         void            doSoftwareSkinning();
-        void            skinningMethod(SLSkinningMethod method) { _skinningMethod = method; }
+        void            skinningMethod(SLSkinningMethod method);
         SLSkinningMethod skinningMethod() const { return _skinningMethod; }
         void            skeleton(SLSkeleton* skel) { _skeleton = skel; }
+        const SLSkeleton* skeleton() const { return _skeleton; }
         SLbool          addWeight(SLint vertId, SLuint jointId, SLfloat weight);
         
         // getter for position and normal data for rendering
@@ -243,6 +244,8 @@ virtual void            calcMinMax     ();
         // ptrs to final position and normal containers
         SLVec3f**       finalP;     
         SLVec3f**       finalN;
+
+        void            notifyParentNodesAABBUpdate() const;
 };
 //-----------------------------------------------------------------------------
 typedef std::vector<SLMesh*>  SLVMesh;

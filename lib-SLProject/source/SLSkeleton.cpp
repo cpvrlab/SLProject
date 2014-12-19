@@ -5,11 +5,18 @@
 #include <SLAnimationState.h>
 
 
+//-----------------------------------------------------------------------------
+/*! @todo document
+*/
 SLSkeleton::SLSkeleton()
+: _minOS(-1, -1, -1), _maxOS(1, 1, 1), _minMaxOutOfDate(true)
 {
     SLScene::current->animManager().addSkeleton(this);
 }
 
+//-----------------------------------------------------------------------------
+/*! @todo document
+*/
 SLSkeleton::~SLSkeleton()
 {
     delete _root;
@@ -23,6 +30,9 @@ SLSkeleton::~SLSkeleton()
         delete it2->second;
 }
 
+//-----------------------------------------------------------------------------
+/*! @todo document
+*/
 SLJoint* SLSkeleton::createJoint(SLuint handle)
 {
     ostringstream oss;
@@ -30,6 +40,9 @@ SLJoint* SLSkeleton::createJoint(SLuint handle)
     return createJoint(oss.str(), handle);
 }
 
+//-----------------------------------------------------------------------------
+/*! @todo document
+*/
 SLJoint* SLSkeleton::createJoint(const SLstring& name, SLuint handle)
 {
     SLJoint* result = new SLJoint(name, handle, this);
@@ -44,6 +57,9 @@ SLJoint* SLSkeleton::createJoint(const SLstring& name, SLuint handle)
 }
 
 
+//-----------------------------------------------------------------------------
+/*! @todo document
+*/
 SLAnimationState* SLSkeleton::getAnimationState(const SLstring& name)
 {
     if (_animationStates.find(name) != _animationStates.end())
@@ -58,12 +74,18 @@ SLAnimationState* SLSkeleton::getAnimationState(const SLstring& name)
     return NULL;
 }
 
+//-----------------------------------------------------------------------------
+/*! @todo document
+*/
 SLJoint* SLSkeleton::getJoint(SLuint handle)
 {
     assert(handle < _jointList.size() && "Index out of bounds");
     return _jointList[handle];
 }
 
+//-----------------------------------------------------------------------------
+/*! @todo document
+*/
 SLJoint* SLSkeleton::getJoint(const SLstring& name)
 {
     if (!_root) return NULL;
@@ -72,6 +94,9 @@ SLJoint* SLSkeleton::getJoint(const SLstring& name)
     return result;
 }
 
+//-----------------------------------------------------------------------------
+/*! @todo document
+*/
 void SLSkeleton::getJointWorldMatrices(SLMat4f* jointWM)
 {
     // @todo this is asking for a crash...
@@ -81,6 +106,9 @@ void SLSkeleton::getJointWorldMatrices(SLMat4f* jointWM)
     }
 }
 
+//-----------------------------------------------------------------------------
+/*! @todo document
+*/
 void SLSkeleton::root(SLJoint* joint)
 {
     if (_root)
@@ -88,11 +116,20 @@ void SLSkeleton::root(SLJoint* joint)
     _root = joint;
 }
 
-void SLSkeleton::addAnimation(SLAnimation* anim)
+//-----------------------------------------------------------------------------
+/*! @todo document
+*/
+SLAnimation* SLSkeleton::createAnimation(const SLstring& name, SLfloat duration)
 {
-    _animations[anim->name()] = anim;
+    assert(_animations.find(name) == _animations.end() && "animation with same name already exists!");
+    SLAnimation* anim = new SLAnimation(name, duration);
+    _animations[name] = anim;
+    return anim;
 }
 
+//-----------------------------------------------------------------------------
+/*! @todo document
+*/
 void SLSkeleton::reset()
 {
     // mark the skeleton as changed
@@ -102,7 +139,9 @@ void SLSkeleton::reset()
         _jointList[i]->resetToInitialState();
 }
 
-
+//-----------------------------------------------------------------------------
+/*! @todo document
+*/
 void SLSkeleton::updateAnimations()
 {
     SLScene* scene = SLScene::current;
@@ -141,4 +180,66 @@ void SLSkeleton::updateAnimations()
             state->changed(false); // remove changed dirty flag from the state again
         }
     }
+
+    _minMaxOutOfDate = true;
+}
+
+
+//-----------------------------------------------------------------------------
+/*! @todo document
+*/
+const SLVec3f& SLSkeleton::minOS()
+{
+    if (_minMaxOutOfDate)
+        updateMinMax();
+    
+    return _minOS;
+}
+
+//-----------------------------------------------------------------------------
+/*! @todo document
+*/
+const SLVec3f& SLSkeleton::maxOS()
+{
+    if (_minMaxOutOfDate)
+        updateMinMax();
+
+    return _maxOS;
+}
+
+//-----------------------------------------------------------------------------
+/*! @todo document
+*/
+void SLSkeleton::updateMinMax()
+{    
+    // recalculate the new min and max os based on bone radius
+    SLbool firstSet = false;
+    for (SLint i = 0; i < _jointList.size(); i++)
+    {
+        SLfloat r = _jointList[i]->radius();
+        // ignore joints with a zero radius
+        if (r == 0.0f)
+            continue;
+
+        SLVec3f jointPos = _jointList[i]->updateAndGetWM().translation();
+        SLVec3f curMin = jointPos - SLVec3f(r, r, r);
+        SLVec3f curMax = jointPos + SLVec3f(r, r, r);
+        if (!firstSet)
+        {
+            _minOS = curMin;
+            _maxOS = curMax;
+            firstSet = true;
+        }
+        else
+        {
+            _minOS.x = min(_minOS.x, curMin.x);
+            _minOS.y = min(_minOS.y, curMin.y);
+            _minOS.z = min(_minOS.z, curMin.z);
+
+            _maxOS.x = max(_maxOS.x, curMax.x);
+            _maxOS.y = max(_maxOS.y, curMax.y);
+            _maxOS.z = max(_maxOS.z, curMax.z);
+        }
+    }
+    _minMaxOutOfDate = false;
 }

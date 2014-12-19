@@ -25,7 +25,6 @@
 #include <SLTexFont.h>
 #include <SLButton.h>
 #include <SLBox.h>
-#include <SLCapsule3.h>
 
 //-----------------------------------------------------------------------------
 //! SLSceneView default constructor
@@ -316,6 +315,9 @@ void SLSceneView::onInitialize()
         // build axis aligned bounding box hierarchy after init
         clock_t t = clock();
         s->_root3D->updateAABBRec();
+
+        for (SLint i = 0; i < s->meshes().size(); ++i)
+            s->meshes()[i]->updateAccelStruct();
       
         SL_LOG("Time for AABBs : %5.3f sec.\n", 
                 (SLfloat)(clock()-t)/(SLfloat)CLOCKS_PER_SEC);

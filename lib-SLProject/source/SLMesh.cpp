@@ -52,8 +52,9 @@ SLMesh::SLMesh(SLstring name) : SLObject(name)
     minP.set( FLT_MAX,  FLT_MAX,  FLT_MAX);
     maxP.set(-FLT_MAX, -FLT_MAX, -FLT_MAX);
    
+    _skeleton = NULL;
     _jointMatrices = 0;
-    _skinningMethod = SM_SoftwareSkinning;
+    _skinningMethod = SM_SoftwareSkinning;//SM_HardwareSkinning;//SM_SoftwareSkinning;
 
     _stateGL = SLGLState::getInstance();  
     _isVolume = true; // is used for RT to decide inside/outside
@@ -208,30 +209,40 @@ void SLMesh::draw(SLSceneView* sv, SLNode* node)
         if (Ji && Jw)
         {
             // only update joint matrices if the skeleton changed
+            if (!_jointMatrices) _jointMatrices = new SLMat4f[_skeleton->numJoints()]; // @todo offload the generation of the joint matrix array to somebody else. meshes can share the same array, so it must be somewhere else..
             if (_skeleton->changed())
             {
                 // update the joint matrix array
-                if (!_jointMatrices) _jointMatrices = new SLMat4f[_skeleton->numJoints()]; // @todo offload the generation of the joint matrix array to somebody else. meshes can share the same array, so it must be somewhere else..
                 _skeleton->getJointWorldMatrices(_jointMatrices);
             }
 
             if (_skinningMethod == SM_HardwareSkinning)
             {            
-                // hardware skinning, just upload the data to the shader
-                
-                // @todo    be careful here, it is at the moment not guaranteed that the per vertex joint indices
-                //          match the indices in this joint array. The result may be wrong or crash entirely.
-                //          Imported models might use joint 0, 1, 2 and 4 but not 3. So when joint 4 is used
-                //          in the shader we'll access out of bound memory for index 4
-
                 // @todo    Secondly: It is a bad idea to keep the joint data in the mesh itself, this prevents us
-                //          from instantiationg a single mesh with multiple animations. Needs to be addressed ASAP. (see also SLMesh class problems in SLMesh.h at the top)
+                //          from instantiating a single mesh with multiple animations. Needs to be addressed ASAP. (see also SLMesh class problems in SLMesh.h at the top)
                 SLint locBM = sp->getUniformLocation("u_jointMatrices");
                 sp->uniformMatrix4fv(locBM, _skeleton->numJoints(), (SLfloat*)_jointMatrices, false);
                 
+                // notify all owning nodes about a mesh change
+                notifyParentNodesAABBUpdate();
             }
             else
             {
+                // init the dynamic buffer data if needed   
+                if (!cpuSkinningP)
+                {
+                    cpuSkinningP = new SLVec3f[numV];
+                    for (SLuint i = 0; i < numV; ++i)
+                        cpuSkinningP[i] = P[i];
+                }
+                if (!cpuSkinningN && N) 
+                {
+                    cpuSkinningN = new SLVec3f[numV];
+                    for (SLuint i = 0; i < numV; ++i)
+                        cpuSkinningN[i] = N[i];
+                }
+
+                // update the dynamic buffer if needed
                 if (_skeleton->changed())
                     doSoftwareSkinning();                
             }
@@ -545,7 +556,13 @@ void SLMesh::buildAABB(SLAABBox &aabb, SLMat4f wmNode)
 {   
     // update accel struct and calculate min max
     //updateAccelStruct();
-    calcMinMax();
+    if (_skeleton)
+    {
+        minP = _skeleton->minOS();
+        maxP = _skeleton->maxOS();
+    }     
+    else
+        calcMinMax();
     // Apply world matrix
     aabb.fromOStoWS(minP, maxP, wmNode);
 }
@@ -948,6 +965,40 @@ SLbool SLMesh::addWeight(SLint vertId, SLuint jointId, SLfloat weight)
 
     return true;
 }
+void SLMesh::skinningMethod(SLSkinningMethod method) 
+{ 
+    if (method == _skinningMethod)
+        return;
+
+    // return if this isnt a skinned mesh
+    if (!_skeleton || !Ji || !Jw)
+        return;
+
+    _skinningMethod = method;
+
+    if (_skinningMethod == SM_HardwareSkinning)
+    {
+        finalP = &P;
+        finalN = &N;
+
+        // if we are a textured mesh
+        if (Tc)
+        {
+            SLGLGenericProgram* skinningShaderTex = new SLGLGenericProgram("PerPixBlinnTexSkinned.vert","PerPixBlinnTex.frag");
+            mat->program(skinningShaderTex);
+        }
+        else
+        {
+            SLGLGenericProgram* skinningShader = new SLGLGenericProgram("PerVrtBlinnSkinned.vert","PerVrtBlinn.frag");
+            mat->program(skinningShader);
+        }
+    }
+    else
+    {
+        mat->program(0);
+    }
+}
+
 //-----------------------------------------------------------------------------
 SLVec3f* SLMesh::pos()
 {
@@ -965,18 +1016,16 @@ void SLMesh::doSoftwareSkinning()
     // @todo move the setting of finalP to the setSkinningMethod function
     finalP = &cpuSkinningP;
     finalN = &cpuSkinningN;
-
+    
     _accelStructOutOfDate = true;
         
-    cpuSkinningP = new SLVec3f[numV];
-    if (N) cpuSkinningN = new SLVec3f[numV];
-
     // iterate over all vertices and write to new buffers
-    for (SLint i = 0; i < numV; ++i)
+    for (SLuint i = 0; i < numV; ++i)
     {
         cpuSkinningP[i] = SLVec3f::ZERO;
         if (N) cpuSkinningN[i] = SLVec3f::ZERO;
 
+        // array form for easier iteration
         SLfloat jointWeights[4] = {Jw[i].x, Jw[i].y, Jw[i].z, Jw[i].w};
         SLint jointIndices[4] = {(SLint)Ji[i].x, (SLint)Ji[i].y, (SLint)Ji[i].z, (SLint)Ji[i].w};
                     
@@ -1006,9 +1055,14 @@ void SLMesh::doSoftwareSkinning()
     if (_bufP.id()) _bufP.update(pos(), numV, 0);
     if (_bufN.id() && N) _bufN.update(norm(), numV, 0);
 
-    // @todo Find a better approach to do this
+    // notify all owning nodes about a mesh change
+    notifyParentNodesAABBUpdate();
+}
+
+
+void SLMesh::notifyParentNodesAABBUpdate() const
+{
     SLVNode nodes = SLScene::current->root3D()->findChildren(this);
     for (SLint i = 0; i < nodes.size(); ++i)
         nodes[i]->needAABBUpdate();
-    //SLScene::current->root3D()->needUpdate();
 }

@@ -429,8 +429,6 @@
     <ClInclude Include="..\include\SLMat3.h" />
     <ClInclude Include="..\include\SLMat4.h" />
     <ClInclude Include="..\include\SLMath.h" />
-    <ClInclude Include="..\include\SLCapsule3.h" />
-    <ClInclude Include="..\include\SLOBBox.h" />
     <ClInclude Include="..\include\SLObject.h" />
     <ClInclude Include="..\include\SLPlane.h" />
     <ClInclude Include="..\include\SLQuat4.h" />
@@ -477,7 +475,6 @@
     <ClCompile Include="source\SLAnimationTrack.cpp" />
     <ClCompile Include="source\SLAnimationManager.cpp" />
     <ClCompile Include="source\SLAnimationState.cpp" />
-    <ClCompile Include="source\SLCapsule3.cpp" />
     <ClCompile Include="source\SLJoint.cpp" />
     <ClCompile Include="source\SLBox.cpp" />
     <ClCompile Include="source\SLButton.cpp" />
@@ -495,7 +492,6 @@
     <ClCompile Include="source\SLKeyframe.cpp" />
     <ClCompile Include="source\SLLightRect.cpp" />
     <ClCompile Include="source\SLLightSphere.cpp" />
-    <ClCompile Include="source\SLOBBox.cpp" />
     <ClCompile Include="source\SLPolygon.cpp" />
     <ClCompile Include="source\SLRectangle.cpp" />
     <ClCompile Include="source\SLSceneNode.cpp" />
