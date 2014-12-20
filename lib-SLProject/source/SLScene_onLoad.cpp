@@ -462,7 +462,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
         _root3D = scene;
     }
     else
-    if (sceneName == cmdSceneSkinnedMesh01)
+    if (sceneName == cmdSceneSkinnedMesh01) //..................................
     {
         SLNode* scene = new SLNode("Scene");
 

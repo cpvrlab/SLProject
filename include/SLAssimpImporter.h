@@ -1,6 +1,6 @@
 //#############################################################################
-//  File:      SL/SLAssImp.h
-//  Author:    Marcus Hudritsch
+//  File:      SLAssimpImporter.h
+//  Author:    Marcus Hudritsch, Marc Wacker
 //  Date:      July 2014
 //  Codestyle: https://github.com/cpvrlab/SLProject/wiki/Coding-Style-Guidelines
 //  Copyright: 2002-2014 Marcus Hudritsch
@@ -47,20 +47,20 @@ protected:
     typedef std::map<SLstring, SLMat4f> JointOffsetMap;
     typedef std::vector<aiNode*>        NodeList;
 
-    NodeMap		    _nodeMap;           //!< map containing name to aiNode releationships
-    JointOffsetMap	_jointOffsets;    //!< map containing name to joint offset matrices
-    aiNode*         _skeletonRoot;      //!< the common aiNode root for the skeleton of this file
+    NodeMap		    _nodeMap;       //!< map containing name to aiNode releationships
+    JointOffsetMap	_jointOffsets;  //!< map containing name to joint offset matrices
+    aiNode*         _skeletonRoot;  //!< the common aiNode root for the skeleton of this file
 
     // SL type containers
     typedef std::vector<SLMesh*>        MeshList;
 
-    SLuint      _jointIndex;         //!< index counter used when iterating over joints
+    SLuint      _jointIndex;        //!< index counter used when iterating over joints
     MeshList	_skinnedMeshes;     //!< list containing all of the skinned meshes, used to assign the skinned materials
 
 
     // loading helper
     aiNode*         getNodeByName(const SLstring& name);    // return an aiNode ptr if name exists, or null if it doesn't
-	const SLMat4f   getOffsetMat(const SLstring& name);    // return an aiJoint ptr if name exists, or null if it doesn't
+    const SLMat4f   getOffsetMat(const SLstring& name);     // return an aiJoint ptr if name exists, or null if it doesn't
 
     void            performInitialScan(const aiScene* scene);     // populates nameToNode, nameToJoint, jointGroups, skinnedMeshes,
     void            findNodes(aiNode* node, SLstring padding, SLbool lastChild);           // scans the assimp scene graph structure and populates nameToNode

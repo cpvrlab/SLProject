@@ -42,7 +42,7 @@ public:
     void applyToNode(SLNode* node, SLfloat time, SLfloat weight = 1.0f, SLfloat scale = 1.0f); 
     void apply(SLSkeleton* skel, SLfloat time, SLfloat weight = 1.0f, SLfloat scale = 1.0f); 
 
-    void SLAnimation::resetNodes();
+    void resetNodes();
 
 protected:
     SLstring                            _name;

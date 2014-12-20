@@ -189,6 +189,10 @@ class qtMainWindow : public QMainWindow
         void on_animSpeedInput_valueChanged(double d);
         
 
+        void on_actionShow_Animation_Controler_triggered();
+
+        void on_dockAnimation_visibilityChanged(bool visible);
+
 private:
         Ui::qtMainWindow*  ui;
         std::vector<qtGLWidget*> _allGLWidgets;
