@@ -1,13 +1,12 @@
 //#############################################################################
-//  File:      SLAnimation.h
-//  Author:    Marcus Hudritsch
-//  Date:      July 2014
-//  Codestyle: https://code.google.com/p/slproject/wiki/CodingStyleGuidelines
+//  File:      SLAnimationTrack.h
+//  Author:    Marc Wacker
+//  Date:      Autumn 2014
+//  Codestyle: https://github.com/cpvrlab/SLProject/wiki/Coding-Style-Guidelines
 //  Copyright: 2002-2014 Marcus Hudritsch
 //             This software is provide under the GNU General Public License
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
-
 
 #ifndef SLANIMATIONTRACK_H
 #define SLANIMATIONTRACK_H
@@ -23,35 +22,38 @@ class SLCurve;
 // @todo order the keyframe sets based on their time value
 // @todo provide an iterator over the keyframes
 
-/** Virtual baseclass for specialized animation clips.
-*/
+//-----------------------------------------------------------------------------
+//! Virtual baseclass for specialized animation clips.
 class SLAnimationTrack
 {
 public:
-    SLAnimationTrack(SLAnimation* parent, SLuint handle);
-    ~SLAnimationTrack();
+                        SLAnimationTrack        (SLAnimation* parent,
+                                                 SLuint handle);
+                       ~SLAnimationTrack        ();
 
-    SLKeyframe* createKeyframe(SLfloat time);   // create and add a new keyframe
+            SLKeyframe* createKeyframe          (SLfloat time);   // create and add a new keyframe
 
-    SLfloat         getKeyframesAtTime(SLfloat time, SLKeyframe** k1, SLKeyframe** k2) const;
-    virtual void    calcInterpolatedKeyframe(SLfloat time, SLKeyframe* keyframe) const = 0; // we need a way to get an output value for a time we put in
-	virtual void	apply(SLfloat time, SLfloat weight = 1.0f, SLfloat scale = 1.0f) = 0; // applies the animation clip to its target
-    SLuint  numKeyframes() { return (SLuint)_keyframeList.size(); }
+            SLfloat     getKeyframesAtTime      (SLfloat time,
+                                                 SLKeyframe** k1,
+                                                 SLKeyframe** k2) const;
+    virtual void        calcInterpolatedKeyframe(SLfloat time,
+                                                 SLKeyframe* keyframe) const = 0; // we need a way to get an output value for a time we put in
+    virtual void        apply                   (SLfloat time,
+                                                 SLfloat weight = 1.0f,
+                                                 SLfloat scale = 1.0f) = 0; // applies the animation clip to its target
+            SLuint      numKeyframes            () { return (SLuint)_keyframes.size(); }
 
 protected:
-    SLAnimation*            _parent;
-    SLuint                  _handle;            //!< unique handle for this track inside its parent animation
-    vector<SLKeyframe*>     _keyframeList;
-	SLfloat                 _localTime;
+            void        keyframesChanged        ();
+    virtual SLKeyframe* createKeyframeImpl      (SLfloat time) = 0;
 
-    void keyframesChanged();
-    virtual SLKeyframe* createKeyframeImpl(SLfloat time) = 0;
-
+    SLAnimation*       _parent;
+    SLuint             _handle;     //!< unique handle for this track inside its parent animation
+    SLVKeyframe        _keyframes;
+    SLfloat            _localTime;
 };
-
-
-/** Specialized animation track for animating nodes
-*/
+//-----------------------------------------------------------------------------
+//! Specialized animation track for animating nodes
 class SLNodeAnimationTrack : public SLAnimationTrack
 {
 public:
@@ -73,17 +75,18 @@ public:
     virtual void    applyToNode(SLNode* node, SLfloat time, SLfloat weight = 1.0f, SLfloat scale = 1.0f);
 
 protected:
-    SLNode*                 _animationTarget;   //!< the default target for this track
-    SLAnimInterpolationMode _translationInterpolation;
-    SLbool                  _rebuildInterpolationCurve;
-    SLCurve*                _interpolationCurve;
+    SLNode*             _animationTarget;   //!< the default target for this track
+    SLAnimInterpolation _translationInterpolation;
+    SLbool              _rebuildInterpolationCurve;
+    SLCurve*            _interpolationCurve;
 
     void                buildInterpolationCurve() const;
 
     virtual SLKeyframe* createKeyframeImpl(SLfloat time);
 };
-
-
+//-----------------------------------------------------------------------------
+typedef map<SLuint, SLNodeAnimationTrack*> SLMNodeAnimationTrack;
+//-----------------------------------------------------------------------------
 #endif
 
 

@@ -1,3 +1,12 @@
+//#############################################################################
+//  File:      SLAnimationTrack.cpp
+//  Author:    Marc Wacker
+//  Date:      Autumn 2014
+//  Codestyle: https://github.com/cpvrlab/SLProject/wiki/Coding-Style-Guidelines
+//  Copyright: 2002-2014 Marcus Hudritsch
+//             This software is provide under the GNU General Public License
+//             Please visit: http://opensource.org/licenses/GPL-3.0
+//#############################################################################
 
 #include <stdafx.h>
 #include <SLAnimationTrack.h>
@@ -5,30 +14,35 @@
 #include <SLNode.h>
 #include <SLCurveBezier.h>
 
+//-----------------------------------------------------------------------------
 SLAnimationTrack::SLAnimationTrack(SLAnimation* parent, SLuint handle)
-: _parent(parent), _handle(handle)
-{ }
-
-SLAnimationTrack::~SLAnimationTrack()
+                 :_parent(parent), _handle(handle)
 {
-    for (SLint i = 0; i < _keyframeList.size(); ++i)
-        delete _keyframeList[i];
+
 }
 
+//-----------------------------------------------------------------------------
+SLAnimationTrack::~SLAnimationTrack()
+{
+    for (SLint i = 0; i < _keyframes.size(); ++i)
+        delete _keyframes[i];
+}
+
+//-----------------------------------------------------------------------------
 SLKeyframe* SLAnimationTrack::createKeyframe(SLfloat time)
 {
     SLKeyframe* kf = createKeyframeImpl(time);
-    _keyframeList.push_back(kf);
-
+    _keyframes.push_back(kf);
     return kf;
 }
 
+//-----------------------------------------------------------------------------
 void SLAnimationTrack::keyframesChanged()
 {
     // @todo ...
 }
 
-
+//-----------------------------------------------------------------------------
 // @todo support the special case of animationtracks that contain invalid keyframes
 //       animationLength:   |----------------|
 //       Keyframes:          *                    *
@@ -39,7 +53,7 @@ void SLAnimationTrack::keyframesChanged()
 SLfloat SLAnimationTrack::getKeyframesAtTime(SLfloat time, SLKeyframe** k1, SLKeyframe** k2) const
 {
     SLfloat t1, t2;
-    SLint numKf = (SLint)_keyframeList.size();
+    SLint numKf = (SLint)_keyframes.size();
     float animationLength = _parent->length();
 
     assert(animationLength > 0.0f && "Animation length is invalid.");
@@ -51,7 +65,7 @@ SLfloat SLAnimationTrack::getKeyframesAtTime(SLfloat time, SLKeyframe** k1, SLKe
         return 0.0f;
     if (numKf < 2)
     {
-        *k1 = *k2 = _keyframeList[0];
+        *k1 = *k2 = _keyframes[0];
         return 0.0f;
     }
 
@@ -62,8 +76,6 @@ SLfloat SLAnimationTrack::getKeyframesAtTime(SLfloat time, SLKeyframe** k1, SLKe
     while (time < 0.0f)
         time += animationLength;
         
-
-
     // search lower bound kf for given time
     // kf list must be sorted by time at this point
     // @todo we could use std::lower_bounds here
@@ -79,7 +91,7 @@ SLfloat SLAnimationTrack::getKeyframesAtTime(SLfloat time, SLKeyframe** k1, SLKe
     SLint kfIndex = 0;
     for (SLint i = 0; i < numKf; ++i)
     {
-        SLKeyframe* cur = _keyframeList[i];
+        SLKeyframe* cur = _keyframes[i];
 
         if (cur->time() <= time)
         {
@@ -90,22 +102,20 @@ SLfloat SLAnimationTrack::getKeyframesAtTime(SLfloat time, SLKeyframe** k1, SLKe
 
     // time is than first kf
     if (*k1 == NULL) {
-        *k1 = _keyframeList.back();
+        *k1 = _keyframes.back();
         // as long as k1 is in the back
     }
 
     t1 = (*k1)->time();
 
-
-    SLbool stopCondition = (*k1) == NULL;
-    if (*k1 == _keyframeList.back())
+    if (*k1 == _keyframes.back())
     {
-        *k2 = _keyframeList.front();
+        *k2 = _keyframes.front();
         t2 = animationLength + (*k2)->time();
     }
     else
     {
-        *k2 = _keyframeList[kfIndex+1];
+        *k2 = _keyframes[kfIndex+1];
         t2 = (*k2)->time();
     }
 
@@ -139,19 +149,21 @@ SLfloat SLAnimationTrack::getKeyframesAtTime(SLfloat time, SLKeyframe** k1, SLKe
     return (time - t1) / (t2 - t1);
 }
 
-
+//-----------------------------------------------------------------------------
 SLNodeAnimationTrack::SLNodeAnimationTrack(SLAnimation* parent, SLuint handle)
-: SLAnimationTrack(parent, handle), _animationTarget(NULL),
-_translationInterpolation(AIM_Linear),
-_rebuildInterpolationCurve(true)
-{ }
+                     :SLAnimationTrack(parent, handle),
+                      _animationTarget(NULL),
+                      _translationInterpolation(AI_Linear),
+                      _rebuildInterpolationCurve(true)
+{
 
-
+}
+//-----------------------------------------------------------------------------
 SLTransformKeyframe* SLNodeAnimationTrack::createNodeKeyframe(SLfloat time)
 {
     return static_cast<SLTransformKeyframe*>(createKeyframe(time));
 }
-
+//-----------------------------------------------------------------------------
 void SLNodeAnimationTrack::calcInterpolatedKeyframe(SLfloat time, SLKeyframe* keyframe) const
 {
     SLKeyframe* k1;
@@ -171,7 +183,7 @@ void SLNodeAnimationTrack::calcInterpolatedKeyframe(SLfloat time, SLKeyframe* ke
     // @todo provide more customization for the interpolation
     SLVec3f base = kf1->translation();
     SLVec3f translation;
-    if (_translationInterpolation == AIM_Linear)
+    if (_translationInterpolation == AI_Linear)
         translation = base + (kf2->translation() - base) * t; // @todo implement general interpolation functions
     else
     {
@@ -191,13 +203,13 @@ void SLNodeAnimationTrack::calcInterpolatedKeyframe(SLfloat time, SLKeyframe* ke
     scale = base + (kf2->scale() - base) * t;
     kfOut->scale(scale);
 }
-
+//-----------------------------------------------------------------------------
 void SLNodeAnimationTrack::apply(SLfloat time, SLfloat weight, SLfloat scale)
 {
     if (_animationTarget)
         applyToNode(_animationTarget, time, weight, scale);
 }
-
+//-----------------------------------------------------------------------------
 void SLNodeAnimationTrack::applyToNode(SLNode* node, SLfloat time, SLfloat weight, SLfloat scale)
 {
     if (node == NULL)
@@ -220,19 +232,19 @@ void SLNodeAnimationTrack::applyToNode(SLNode* node, SLfloat time, SLfloat weigh
     node->scale(scl);
 }
 
+//-----------------------------------------------------------------------------
 void SLNodeAnimationTrack::buildInterpolationCurve() const
 {
     SLVec3f;
 }
 
+//-----------------------------------------------------------------------------
 SLKeyframe* SLNodeAnimationTrack::createKeyframeImpl(SLfloat time)
 {
     return new SLTransformKeyframe(this, time);
 }
 
-
-
-
+//-----------------------------------------------------------------------------
 // static track creators
 SLNodeAnimationTrack* SLNodeAnimationTrack::createEllipticTrack(SLAnimation* parent,
                                           SLfloat radiusA, SLAxis axisA,
@@ -291,7 +303,7 @@ SLNodeAnimationTrack* SLNodeAnimationTrack::createEllipticTrack(SLAnimation* par
     SLfloat  curTime = 0;
     for (SLint i=0; i<result->numKeyframes(); ++i)
     {   
-        SLTransformKeyframe* kf = (SLTransformKeyframe*)result->_keyframeList[i];
+        SLTransformKeyframe* kf = (SLTransformKeyframe*)result->_keyframes[i];
         points[i] =kf->translation();
         times[i] = kf->time();
     }
@@ -303,8 +315,9 @@ SLNodeAnimationTrack* SLNodeAnimationTrack::createEllipticTrack(SLAnimation* par
     delete[] points;
     delete[] times;
     
-    result->_translationInterpolation = AIM_Bezier;
+    result->_translationInterpolation = AI_Bezier;
     result->_rebuildInterpolationCurve = false;
 
     return result;
 }
+//-----------------------------------------------------------------------------

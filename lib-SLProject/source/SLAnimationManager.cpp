@@ -1,3 +1,12 @@
+//#############################################################################
+//  File:      SLAnimationManager.cpp
+//  Author:    Marc Wacker
+//  Date:      Autumn 2014
+//  Codestyle: https://github.com/cpvrlab/SLProject/wiki/Coding-Style-Guidelines
+//  Copyright: 2002-2014 Marcus Hudritsch
+//             This software is provide under the GNU General Public License
+//             Please visit: http://opensource.org/licenses/GPL-3.0
+//#############################################################################
 
 #include <stdafx.h>
 #include <SLScene.h>
@@ -5,25 +14,25 @@
 #include <SLAnimationState.h>
 #include <SLAnimationManager.h>
 
-
-
+//-----------------------------------------------------------------------------
 SLAnimationManager::SLAnimationManager()
 {
 
 }
+//-----------------------------------------------------------------------------
 SLAnimationManager::~SLAnimationManager()
 {
     clear();
 }
-
+//-----------------------------------------------------------------------------
 void SLAnimationManager::clear()
 {
-    map<SLstring, SLAnimation*>::iterator it;
+    SLMAnimation::iterator it;
     for (it = _nodeAnimations.begin(); it != _nodeAnimations.end(); it++)
         delete it->second;
     _nodeAnimations.clear();
     
-    map<SLstring, SLAnimationState*>::iterator it2;
+    SLMAnimationState::iterator it2;
     for (it2 = _nodeAnimationStates.begin(); it2 != _nodeAnimationStates.end(); it2++)
         delete it2->second;
     _nodeAnimationStates.clear();
@@ -32,18 +41,18 @@ void SLAnimationManager::clear()
         delete _skeletons[i];
     _skeletons.clear();
 }
-
+//-----------------------------------------------------------------------------
 void SLAnimationManager::addNodeAnimation(SLAnimation* anim)
 {
-    assert(_nodeAnimations.find(anim->name()) == _nodeAnimations.end() && "node animation with same name already exists!");
+    assert(_nodeAnimations.find(anim->name()) == _nodeAnimations.end() &&
+           "node animation with same name already exists!");
     _nodeAnimations[anim->name()] = anim;
 }
-
+//-----------------------------------------------------------------------------
 SLAnimationState* SLAnimationManager::getNodeAnimationState(const SLstring& name)
 {
     if (_nodeAnimationStates.find(name) != _nodeAnimationStates.end())
         return _nodeAnimationStates[name];
-
     else if (_nodeAnimations.find(name) != _nodeAnimations.end())
     {
         _nodeAnimationStates[name] = new SLAnimationState(_nodeAnimations[name]);
@@ -52,7 +61,7 @@ SLAnimationState* SLAnimationManager::getNodeAnimationState(const SLstring& name
 
     return NULL;
 }
-
+//-----------------------------------------------------------------------------
 void SLAnimationManager::update()
 {
     SLScene* s = SLScene::current;
@@ -63,7 +72,7 @@ void SLAnimationManager::update()
     // we need to save the states differently if we want them.
 
 
-    map<SLstring, SLAnimationState*>::iterator it;
+    SLMAnimationState::iterator it;
     for (it = _nodeAnimationStates.begin(); it != _nodeAnimationStates.end(); it++)
     {
         SLAnimationState* state = it->second;
@@ -81,3 +90,5 @@ void SLAnimationManager::update()
         _skeletons[i]->updateAnimations();
     }
 }
+
+//-----------------------------------------------------------------------------

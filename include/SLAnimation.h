@@ -1,7 +1,7 @@
 //#############################################################################
 //  File:      SLAnimation.h
-//  Author:    Marcus Hudritsch
-//  Date:      July 2014
+//  Author:    Marc Wacker
+//  Date:      Autumn 2014
 //  Codestyle: https://github.com/cpvrlab/SLProject/wiki/Coding-Style-Guidelines
 //  Copyright: 2002-2014 Marcus Hudritsch
 //             This software is provide under the GNU General Public License
@@ -15,43 +15,50 @@
 #include <SLAnimationTrack.h>
 #include <SLJoint.h>
 
+//-----------------------------------------------------------------------------
 class SLSkeleton;
-class SLAnimationState;
 
-/** The SLAnimation class holds a set of SLAnimationTracks
-*/
+//! The SLAnimation class holds a set of SLAnimationTracks
 class SLAnimation
 {
 public:
-    SLAnimation(SLfloat duration);
-    SLAnimation(const SLstring& name, SLfloat duration);
-    ~SLAnimation();
+                        SLAnimation(SLfloat duration);
+                        SLAnimation(const SLstring& name, SLfloat duration);
+                       ~SLAnimation();
     
-    const SLstring& name() { return _name; }
-    void name(const SLstring& name) { _name = name; }
-    
-    void length(SLfloat length);
-    SLfloat length() const { return _length; }
-    
-    SLfloat nextKeyframeTime(SLfloat time);
-    SLfloat prevKeyframeTime(SLfloat time);
+    const   SLstring&   name        () { return _name; }
+            void        length      (SLfloat length);
 
-    SLNodeAnimationTrack* createNodeAnimationTrack(SLuint handle);
-    
-    void apply(SLfloat time, SLfloat weight = 1.0f, SLfloat scale = 1.0f); 
-    void applyToNode(SLNode* node, SLfloat time, SLfloat weight = 1.0f, SLfloat scale = 1.0f); 
-    void apply(SLSkeleton* skel, SLfloat time, SLfloat weight = 1.0f, SLfloat scale = 1.0f); 
+            SLfloat     length      () const { return _length; }
+            void        name        (const SLstring& name) { _name = name; }
 
-    void resetNodes();
+            SLfloat     nextKeyframeTime(SLfloat time);
+            SLfloat     prevKeyframeTime(SLfloat time);
+
+            SLNodeAnimationTrack* createNodeAnimationTrack(SLuint handle);
+    
+            void        apply       (SLfloat time,
+                                     SLfloat weight = 1.0f,
+                                     SLfloat scale = 1.0f);
+            void        applyToNode (SLNode* node,
+                                     SLfloat time,
+                                     SLfloat weight = 1.0f,
+                                     SLfloat scale = 1.0f);
+            void        apply       (SLSkeleton* skel,
+                                     SLfloat time,
+                                     SLfloat weight = 1.0f,
+                                     SLfloat scale = 1.0f);
+            void        resetNodes  ();
 
 protected:
-    SLstring                            _name;
-    SLfloat                             _length;
-    map<SLuint, SLNodeAnimationTrack*>  _nodeAnimations;
+    SLstring                _name;
+    SLfloat                 _length;
+    SLMNodeAnimationTrack   _nodeAnimations;
 };
-
-typedef vector<SLAnimation*> SLVAnimation;
-
+//-----------------------------------------------------------------------------
+typedef vector<SLAnimation*>        SLVAnimation;
+typedef map<SLstring, SLAnimation*> SLMAnimation;
+//-----------------------------------------------------------------------------
 #endif
 
 

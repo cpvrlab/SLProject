@@ -1443,8 +1443,8 @@ void qtMainWindow::on_animAnimatedObjectSelect_currentIndexChanged(int index)
     // node animations selected
     if (data == 0)
     {
-        map<SLstring, SLAnimation*> nodeAnims = SLScene::current->animManager().animations();
-        map<SLstring, SLAnimation*>::iterator it = nodeAnims.begin();
+        SLMAnimation nodeAnims = SLScene::current->animManager().animations();
+        SLMAnimation::iterator it = nodeAnims.begin();
         for (; it != nodeAnims.end(); it++)
         {
             SLAnimationState* state = SLScene::current->animManager().getNodeAnimationState(it->second->name());
@@ -1459,8 +1459,8 @@ void qtMainWindow::on_animAnimatedObjectSelect_currentIndexChanged(int index)
         int skeletonIndex = data - 1;
         SLSkeleton* skeleton = SLScene::current->animManager().skeletons()[skeletonIndex];
         
-        map<SLstring, SLAnimation*> animations = skeleton->animations();
-        map<SLstring, SLAnimation*>::iterator it = animations.begin();
+        SLMAnimation animations = skeleton->animations();
+        SLMAnimation::iterator it = animations.begin();
         for (; it != animations.end(); it++)
         {
             SLAnimationState* state = skeleton->getAnimationState(it->second->name());
@@ -1562,7 +1562,7 @@ void qtMainWindow::on_animLoopingSelect_currentIndexChanged(int index)
     if (!_selectedAnim)
         return;
 
-    _selectedAnim->loop((SLAnimLoopingBehaviour)(index));
+    _selectedAnim->loop((SLAnimLooping)(index));
 }
 void qtMainWindow::on_animTimelineSlider_valueChanged(int value)
 {

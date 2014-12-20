@@ -109,11 +109,11 @@ HEADERS += \
     ../include/SLJoint.h \
     ../include/SLGLOculus.h \
     ../include/SLSkeleton.h \
+    ../include/SLAssimpImporter.h \
+    ../include/SLImporter.h \
     ../include/SLAnimationManager.h \
     ../include/SLAnimationState.h \
-    ../include/SLAnimationTrack.h \
-    ../include/SLAssimpImporter.h \
-    ../include/SLImporter.h
+    ../include/SLAnimationTrack.h
 
 SOURCES += \
     source/SLGLBuffer.cpp \
@@ -159,13 +159,13 @@ SOURCES += \
     source/SLGrid.cpp \
     source/SLGLOculus.cpp \
     source/SLSkeleton.cpp \
-    source/SLAnimationManager.cpp \
-    source/SLAnimationState.cpp \
-    source/SLAnimationTrack.cpp \
     source/SLKeyframe.cpp \
     source/SL/SLAssimpImporter.cpp \
     source/SL/SLImporter.cpp \
-    source/SLJoint.cpp
+    source/SLJoint.cpp \
+    source/SLAnimationState.cpp \
+    source/SLAnimationManager.cpp \
+    source/SLAnimationTrack.cpp
 
 OTHER_FILES += \
     source/oglsl/BumpNormal.frag \

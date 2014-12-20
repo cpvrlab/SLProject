@@ -17,7 +17,7 @@
 #include <SLSceneView.h>
 #include <SLKeyframe.h>
 #include <SLAnimation.h>
-#include <SLAnimationState.h>
+#include <SLAnimationManager.h>
 #include <SLAssimpImporter.h>
 
 #include <SLCamera.h>

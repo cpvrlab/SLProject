@@ -40,16 +40,56 @@ typedef std::map<int, SLMesh*> SLMeshMap;
 supported file formats and the import processing options.
 */
 class SLAssimpImporter : public SLImporter
-{  
+{
+    public:
+                SLAssimpImporter() {}
+                SLAssimpImporter(SLLogVerbosity consoleVerb)
+                    : SLImporter(consoleVerb) { }
+                SLAssimpImporter(const SLstring& logFile,
+                                 SLLogVerbosity logConsoleVerb = LV_Normal,
+                                 SLLogVerbosity logFileVerb = LV_Diagnostic)
+                    : SLImporter(logFile, logConsoleVerb, logFileVerb) { }
+
+            SLNode*     load    (SLstring pathFilename,
+                                SLbool loadMeshesOnly = true,
+                                SLuint flags =
+                                 SLProcess_Triangulate
+                                |SLProcess_JoinIdenticalVertices
+                                |SLProcess_SplitLargeMeshes
+                                |SLProcess_RemoveRedundantMaterials
+                                |SLProcess_SortByPType
+                                |SLProcess_FindDegenerates
+                                |SLProcess_FindInvalidData
+                                //|SLProcess_OptimizeMeshes
+                                //|SLProcess_OptimizeGraph
+                                //|SLProcess_CalcTangentSpace
+                                //|SLProcess_MakeLeftHanded
+                                //|SLProcess_RemoveComponent
+                                //|SLProcess_GenNormals
+                                //|SLProcess_GenSmoothNormals
+                                //|SLProcess_PreTransformVertices
+                                //|SLProcess_LimitJointWeights
+                                //|SLProcess_ValidateDataStructure
+                                //|SLProcess_ImproveCacheLocality
+                                //|SLProcess_FixInfacingNormals
+                                //|SLProcess_GenUVCoords
+                                //|SLProcess_TransformUVCoords
+                                //|SLProcess_FindInstances
+                                //|SLProcess_FlipUVs
+                                //|SLProcess_FlipWindingOrder
+                                //|SLProcess_SplitByJointCount
+                                //|SLProcess_Dejoint
+                                );
+
 protected:
     // intermediate containers
-    typedef std::map<SLstring, aiNode*> NodeMap;
-    typedef std::map<SLstring, SLMat4f> JointOffsetMap;
-    typedef std::vector<aiNode*>        NodeList;
+    typedef std::map<SLstring, aiNode*> SLNodeMap;
+    typedef std::map<SLstring, SLMat4f> SLJointOffsetMap;
+    typedef std::vector<aiNode*>        SLVaiNode;
 
-    NodeMap		    _nodeMap;       //!< map containing name to aiNode releationships
-    JointOffsetMap	_jointOffsets;  //!< map containing name to joint offset matrices
-    aiNode*         _skeletonRoot;  //!< the common aiNode root for the skeleton of this file
+    SLNodeMap		    _nodeMap;       //!< map containing name to aiNode releationships
+    SLJointOffsetMap	_jointOffsets;  //!< map containing name to joint offset matrices
+    aiNode*             _skeletonRoot;  //!< the common aiNode root for the skeleton of this file
 
     // SL type containers
     typedef std::vector<SLMesh*>        MeshList;
@@ -85,46 +125,6 @@ protected:
     // misc helper
     void clear();
 
-public:
-    SLAssimpImporter()
-    { }
-    SLAssimpImporter(SLLogVerbosity consoleVerb)
-         : SLImporter(consoleVerb)
-    { }
-    SLAssimpImporter(const SLstring& logFile, SLLogVerbosity logConsoleVerb = LV_Normal, SLLogVerbosity logFileVerb = LV_Diagnostic)
-        : SLImporter(logFile, logConsoleVerb, logFileVerb)
-    { }
-
-    SLNode* load            (SLstring pathFilename,
-                            SLbool loadMeshesOnly = true,
-                            SLuint flags = 
-                                SLProcess_Triangulate
-                            |SLProcess_JoinIdenticalVertices
-                            |SLProcess_SplitLargeMeshes
-                            |SLProcess_RemoveRedundantMaterials
-                            |SLProcess_SortByPType
-                            |SLProcess_FindDegenerates
-                            |SLProcess_FindInvalidData
-                            //|SLProcess_OptimizeMeshes
-                            //|SLProcess_OptimizeGraph
-                            //|SLProcess_CalcTangentSpace
-                            //|SLProcess_MakeLeftHanded
-                            //|SLProcess_RemoveComponent
-                            //|SLProcess_GenNormals
-                            //|SLProcess_GenSmoothNormals
-                            //|SLProcess_PreTransformVertices
-                            //|SLProcess_LimitJointWeights
-                            //|SLProcess_ValidateDataStructure
-                            //|SLProcess_ImproveCacheLocality
-                            //|SLProcess_FixInfacingNormals
-                            //|SLProcess_GenUVCoords
-                            //|SLProcess_TransformUVCoords
-                            //|SLProcess_FindInstances
-                            //|SLProcess_FlipUVs
-                            //|SLProcess_FlipWindingOrder
-                            //|SLProcess_SplitByJointCount
-                            //|SLProcess_Dejoint
-                            );
 };
 //-----------------------------------------------------------------------------
 #endif // SLASSIMP_H

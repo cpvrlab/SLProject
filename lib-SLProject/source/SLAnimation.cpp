@@ -1,7 +1,7 @@
 //#############################################################################
 //  File:      SLAnimation.cpp
-//  Author:    Marcus Hudritsch
-//  Date:      July 2014
+//  Author:    Marc Wacker
+//  Date:      Autumn 2014
 //  Codestyle: https://github.com/cpvrlab/SLProject/wiki/Coding-Style-Guidelines
 //  Copyright: 2002-2014 Marcus Hudritsch
 //             This software is provide under the GNU General Public License
@@ -11,37 +11,37 @@
 #include <stdafx.h>
 #include <SLScene.h>
 #include <SLAnimation.h>
-#include <SLAnimationState.h>
+#include <SLAnimationManager.h>
 #include <SLSkeleton.h>
 
-
-
+//-----------------------------------------------------------------------------
 SLAnimation::SLAnimation(SLfloat duration)
-: _name("Unnamed Animation"),
-_length(duration)
+            :_name("Unnamed Animation"), _length(duration)
 { 
 }
 
+//-----------------------------------------------------------------------------
 SLAnimation::SLAnimation(const SLstring& name, SLfloat duration)
-: _name(name),
-_length(duration)
+            : _name(name), _length(duration)
 { 
 }
 
+//-----------------------------------------------------------------------------
 SLAnimation::~SLAnimation()
 {
-    map<SLuint, SLNodeAnimationTrack*>::iterator it = _nodeAnimations.begin();
+    SLMNodeAnimationTrack::iterator it = _nodeAnimations.begin();
     for (; it != _nodeAnimations.end(); it++)
         delete it->second;
 }
 
-
+//-----------------------------------------------------------------------------
 void SLAnimation::length(SLfloat length)
 {
     // @todo notify the animations track to optimize their keyframes
     _length = length;
 }
 
+//-----------------------------------------------------------------------------
 SLfloat SLAnimation::nextKeyframeTime(SLfloat time)
 {
     // find the closest keyframe time to the right
@@ -49,7 +49,7 @@ SLfloat SLAnimation::nextKeyframeTime(SLfloat time)
     SLKeyframe* kf1;
     SLKeyframe* kf2;
     
-    map<SLuint, SLNodeAnimationTrack*>::iterator it = _nodeAnimations.begin();
+    SLMNodeAnimationTrack::iterator it = _nodeAnimations.begin();
     for (; it != _nodeAnimations.end(); it++)
     {
         it->second->getKeyframesAtTime(time, &kf1, &kf2);
@@ -60,6 +60,7 @@ SLfloat SLAnimation::nextKeyframeTime(SLfloat time)
     return result;
 }
 
+//-----------------------------------------------------------------------------
 SLfloat SLAnimation::prevKeyframeTime(SLfloat time)
 {
     // find the closest keyframe time to the right
@@ -73,7 +74,7 @@ SLfloat SLAnimation::prevKeyframeTime(SLfloat time)
     if (time <= 0.0f)
         return 0.0f;
 
-    map<SLuint, SLNodeAnimationTrack*>::iterator it = _nodeAnimations.begin();
+    SLMNodeAnimationTrack::iterator it = _nodeAnimations.begin();
     for (; it != _nodeAnimations.end(); it++)
     {
         it->second->getKeyframesAtTime(time, &kf1, &kf2);
@@ -84,6 +85,7 @@ SLfloat SLAnimation::prevKeyframeTime(SLfloat time)
     return result;
 }
 
+//-----------------------------------------------------------------------------
 SLNodeAnimationTrack* SLAnimation::createNodeAnimationTrack(SLuint handle)
 {
     // track with same handle already exists
@@ -96,26 +98,29 @@ SLNodeAnimationTrack* SLAnimation::createNodeAnimationTrack(SLuint handle)
     return _nodeAnimations[handle];
 }
 
+//-----------------------------------------------------------------------------
 // apply all tracks to their specified targets
 void SLAnimation::apply(SLfloat time, SLfloat weight , SLfloat scale)
 {
-    map<SLuint, SLNodeAnimationTrack*>::iterator it = _nodeAnimations.begin();
+    SLMNodeAnimationTrack::iterator it = _nodeAnimations.begin();
     for (; it != _nodeAnimations.end(); it++)
         it->second->apply(time, weight, scale);
 }
 
+//-----------------------------------------------------------------------------
 // apply all tracks to a single node
 void SLAnimation::applyToNode(SLNode* node, SLfloat time, SLfloat weight, SLfloat scale)
 {
-    map<SLuint, SLNodeAnimationTrack*>::iterator it = _nodeAnimations.begin();
+    SLMNodeAnimationTrack::iterator it = _nodeAnimations.begin();
     for (; it != _nodeAnimations.end(); it++)
         it->second->applyToNode(node, time, weight, scale);
 }
 
+//-----------------------------------------------------------------------------
 // apply tracks to a skeleton based on track and joint handles
 void SLAnimation::apply(SLSkeleton* skel, SLfloat time, SLfloat weight, SLfloat scale)
 {
-    map<SLuint, SLNodeAnimationTrack*>::iterator it = _nodeAnimations.begin();
+    SLMNodeAnimationTrack::iterator it = _nodeAnimations.begin();
     for (; it != _nodeAnimations.end(); it++)
     {
         SLJoint* joint = skel->getJoint(it->first);
@@ -124,14 +129,15 @@ void SLAnimation::apply(SLSkeleton* skel, SLfloat time, SLfloat weight, SLfloat 
 
 }
 
+//-----------------------------------------------------------------------------
 void SLAnimation::resetNodes()
 {
-    map<SLuint, SLNodeAnimationTrack*>::iterator it = _nodeAnimations.begin();
+    SLMNodeAnimationTrack::iterator it = _nodeAnimations.begin();
     for (; it != _nodeAnimations.end(); it++)
         it->second->animationTarget()->resetToInitialState();
 }
 
-
+//-----------------------------------------------------------------------------
 
 
 

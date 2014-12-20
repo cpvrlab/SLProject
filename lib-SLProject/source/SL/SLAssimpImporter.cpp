@@ -463,17 +463,17 @@ void SLAssimpImporter::findSkeletonRoot()
     // early out if we don't have any joint bindings
     if (_jointOffsets.size() == 0) return;
     
-	vector<NodeList> ancestorList(_jointOffsets.size());
+	vector<SLVaiNode> ancestorList(_jointOffsets.size());
     SLint minDepth = INT_MAX;
     SLint index = 0;    
 
     logMessage(LV_Detailed, "Building joint ancestor lists.\n");
 
-    JointOffsetMap::iterator it = _jointOffsets.begin();
+    SLJointOffsetMap::iterator it = _jointOffsets.begin();
     for (; it != _jointOffsets.end(); it++, index++)
     {
         aiNode* node = getNodeByName(it->first);
-        NodeList& list = ancestorList[index];
+        SLVaiNode& list = ancestorList[index];
 
         while (node)
         {
