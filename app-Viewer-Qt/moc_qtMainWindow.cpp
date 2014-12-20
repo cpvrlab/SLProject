@@ -97,59 +97,59 @@ QT_MOC_LITERAL(64, 2081, 25),
 QT_MOC_LITERAL(65, 2107, 30),
 QT_MOC_LITERAL(66, 2138, 38),
 QT_MOC_LITERAL(67, 2177, 38),
-QT_MOC_LITERAL(68, 2216, 34),
-QT_MOC_LITERAL(69, 2251, 34),
-QT_MOC_LITERAL(70, 2286, 28),
-QT_MOC_LITERAL(71, 2315, 31),
-QT_MOC_LITERAL(72, 2347, 34),
-QT_MOC_LITERAL(73, 2382, 26),
-QT_MOC_LITERAL(74, 2409, 27),
-QT_MOC_LITERAL(75, 2437, 36),
-QT_MOC_LITERAL(76, 2474, 36),
-QT_MOC_LITERAL(77, 2511, 36),
-QT_MOC_LITERAL(78, 2548, 38),
-QT_MOC_LITERAL(79, 2587, 36),
-QT_MOC_LITERAL(80, 2624, 49),
-QT_MOC_LITERAL(81, 2674, 27),
-QT_MOC_LITERAL(82, 2702, 29),
-QT_MOC_LITERAL(83, 2732, 29),
-QT_MOC_LITERAL(84, 2762, 31),
-QT_MOC_LITERAL(85, 2794, 32),
-QT_MOC_LITERAL(86, 2827, 29),
-QT_MOC_LITERAL(87, 2857, 49),
-QT_MOC_LITERAL(88, 2907, 47),
-QT_MOC_LITERAL(89, 2955, 37),
-QT_MOC_LITERAL(90, 2993, 37),
-QT_MOC_LITERAL(91, 3031, 30),
-QT_MOC_LITERAL(92, 3062, 23),
-QT_MOC_LITERAL(93, 3086, 16),
-QT_MOC_LITERAL(94, 3103, 4),
-QT_MOC_LITERAL(95, 3108, 6),
-QT_MOC_LITERAL(96, 3115, 29),
-QT_MOC_LITERAL(97, 3145, 27),
-QT_MOC_LITERAL(98, 3173, 35),
-QT_MOC_LITERAL(99, 3209, 7),
-QT_MOC_LITERAL(100, 3217, 35),
-QT_MOC_LITERAL(101, 3253, 47),
-QT_MOC_LITERAL(102, 3301, 5),
-QT_MOC_LITERAL(103, 3307, 42),
-QT_MOC_LITERAL(104, 3350, 30),
-QT_MOC_LITERAL(105, 3381, 28),
-QT_MOC_LITERAL(106, 3410, 33),
-QT_MOC_LITERAL(107, 3444, 33),
-QT_MOC_LITERAL(108, 3478, 32),
-QT_MOC_LITERAL(109, 3511, 33),
-QT_MOC_LITERAL(110, 3545, 26),
-QT_MOC_LITERAL(111, 3572, 25),
-QT_MOC_LITERAL(112, 3598, 39),
-QT_MOC_LITERAL(113, 3638, 40),
-QT_MOC_LITERAL(114, 3679, 34),
-QT_MOC_LITERAL(115, 3714, 5),
-QT_MOC_LITERAL(116, 3720, 31),
-QT_MOC_LITERAL(117, 3752, 1),
-QT_MOC_LITERAL(118, 3754, 30),
-QT_MOC_LITERAL(119, 3785, 43),
-QT_MOC_LITERAL(120, 3829, 34)
+QT_MOC_LITERAL(68, 2216, 43),
+QT_MOC_LITERAL(69, 2260, 34),
+QT_MOC_LITERAL(70, 2295, 34),
+QT_MOC_LITERAL(71, 2330, 28),
+QT_MOC_LITERAL(72, 2359, 31),
+QT_MOC_LITERAL(73, 2391, 34),
+QT_MOC_LITERAL(74, 2426, 26),
+QT_MOC_LITERAL(75, 2453, 27),
+QT_MOC_LITERAL(76, 2481, 36),
+QT_MOC_LITERAL(77, 2518, 36),
+QT_MOC_LITERAL(78, 2555, 36),
+QT_MOC_LITERAL(79, 2592, 38),
+QT_MOC_LITERAL(80, 2631, 36),
+QT_MOC_LITERAL(81, 2668, 49),
+QT_MOC_LITERAL(82, 2718, 27),
+QT_MOC_LITERAL(83, 2746, 29),
+QT_MOC_LITERAL(84, 2776, 29),
+QT_MOC_LITERAL(85, 2806, 31),
+QT_MOC_LITERAL(86, 2838, 32),
+QT_MOC_LITERAL(87, 2871, 29),
+QT_MOC_LITERAL(88, 2901, 49),
+QT_MOC_LITERAL(89, 2951, 47),
+QT_MOC_LITERAL(90, 2999, 37),
+QT_MOC_LITERAL(91, 3037, 37),
+QT_MOC_LITERAL(92, 3075, 30),
+QT_MOC_LITERAL(93, 3106, 23),
+QT_MOC_LITERAL(94, 3130, 16),
+QT_MOC_LITERAL(95, 3147, 4),
+QT_MOC_LITERAL(96, 3152, 6),
+QT_MOC_LITERAL(97, 3159, 29),
+QT_MOC_LITERAL(98, 3189, 27),
+QT_MOC_LITERAL(99, 3217, 35),
+QT_MOC_LITERAL(100, 3253, 7),
+QT_MOC_LITERAL(101, 3261, 35),
+QT_MOC_LITERAL(102, 3297, 34),
+QT_MOC_LITERAL(103, 3332, 47),
+QT_MOC_LITERAL(104, 3380, 5),
+QT_MOC_LITERAL(105, 3386, 42),
+QT_MOC_LITERAL(106, 3429, 30),
+QT_MOC_LITERAL(107, 3460, 28),
+QT_MOC_LITERAL(108, 3489, 33),
+QT_MOC_LITERAL(109, 3523, 33),
+QT_MOC_LITERAL(110, 3557, 32),
+QT_MOC_LITERAL(111, 3590, 33),
+QT_MOC_LITERAL(112, 3624, 26),
+QT_MOC_LITERAL(113, 3651, 25),
+QT_MOC_LITERAL(114, 3677, 39),
+QT_MOC_LITERAL(115, 3717, 40),
+QT_MOC_LITERAL(116, 3758, 34),
+QT_MOC_LITERAL(117, 3793, 5),
+QT_MOC_LITERAL(118, 3799, 31),
+QT_MOC_LITERAL(119, 3831, 1),
+QT_MOC_LITERAL(120, 3833, 30)
     },
     "qtMainWindow\0on_action_Quit_triggered\0"
     "\0on_actionSmall_Test_Scene_triggered\0"
@@ -217,6 +217,7 @@ QT_MOC_LITERAL(120, 3829, 34)
     "on_actionPath_Tracer_triggered\0"
     "on_actionShow_DockScenegraph_triggered\0"
     "on_actionShow_DockProperties_triggered\0"
+    "on_actionShow_Animation_Controler_triggered\0"
     "on_actionShow_Statistics_triggered\0"
     "on_actionShow_Scene_Info_triggered\0"
     "on_actionShow_Menu_triggered\0"
@@ -246,6 +247,7 @@ QT_MOC_LITERAL(120, 3829, 34)
     "on_propertyTree_itemChanged\0"
     "on_dockScenegraph_visibilityChanged\0"
     "visible\0on_dockProperties_visibilityChanged\0"
+    "on_dockAnimation_visibilityChanged\0"
     "on_animAnimatedObjectSelect_currentIndexChanged\0"
     "index\0on_animAnimationSelect_currentIndexChanged\0"
     "on_animSkipStartButton_clicked\0"
@@ -260,9 +262,7 @@ QT_MOC_LITERAL(120, 3829, 34)
     "on_animLoopingSelect_currentIndexChanged\0"
     "on_animTimelineSlider_valueChanged\0"
     "value\0on_animWeightInput_valueChanged\0"
-    "d\0on_animSpeedInput_valueChanged\0"
-    "on_actionShow_Animation_Controler_triggered\0"
-    "on_dockAnimation_visibilityChanged"
+    "d\0on_animSpeedInput_valueChanged"
 };
 #undef QT_MOC_LITERAL
 
@@ -370,27 +370,27 @@ static const uint qt_meta_data_qtMainWindow[] = {
       89,    0,  661,    2, 0x08 /* Private */,
       90,    0,  662,    2, 0x08 /* Private */,
       91,    0,  663,    2, 0x08 /* Private */,
-      92,    2,  664,    2, 0x08 /* Private */,
-      96,    2,  669,    2, 0x08 /* Private */,
-      97,    2,  674,    2, 0x08 /* Private */,
-      98,    1,  679,    2, 0x08 /* Private */,
-     100,    1,  682,    2, 0x08 /* Private */,
-     101,    1,  685,    2, 0x08 /* Private */,
-     103,    1,  688,    2, 0x08 /* Private */,
-     104,    0,  691,    2, 0x08 /* Private */,
-     105,    0,  692,    2, 0x08 /* Private */,
-     106,    0,  693,    2, 0x08 /* Private */,
-     107,    0,  694,    2, 0x08 /* Private */,
-     108,    0,  695,    2, 0x08 /* Private */,
-     109,    0,  696,    2, 0x08 /* Private */,
-     110,    0,  697,    2, 0x08 /* Private */,
-     111,    0,  698,    2, 0x08 /* Private */,
-     112,    1,  699,    2, 0x08 /* Private */,
-     113,    1,  702,    2, 0x08 /* Private */,
-     114,    1,  705,    2, 0x08 /* Private */,
-     116,    1,  708,    2, 0x08 /* Private */,
-     118,    1,  711,    2, 0x08 /* Private */,
-     119,    0,  714,    2, 0x08 /* Private */,
+      92,    0,  664,    2, 0x08 /* Private */,
+      93,    2,  665,    2, 0x08 /* Private */,
+      97,    2,  670,    2, 0x08 /* Private */,
+      98,    2,  675,    2, 0x08 /* Private */,
+      99,    1,  680,    2, 0x08 /* Private */,
+     101,    1,  683,    2, 0x08 /* Private */,
+     102,    1,  686,    2, 0x08 /* Private */,
+     103,    1,  689,    2, 0x08 /* Private */,
+     105,    1,  692,    2, 0x08 /* Private */,
+     106,    0,  695,    2, 0x08 /* Private */,
+     107,    0,  696,    2, 0x08 /* Private */,
+     108,    0,  697,    2, 0x08 /* Private */,
+     109,    0,  698,    2, 0x08 /* Private */,
+     110,    0,  699,    2, 0x08 /* Private */,
+     111,    0,  700,    2, 0x08 /* Private */,
+     112,    0,  701,    2, 0x08 /* Private */,
+     113,    0,  702,    2, 0x08 /* Private */,
+     114,    1,  703,    2, 0x08 /* Private */,
+     115,    1,  706,    2, 0x08 /* Private */,
+     116,    1,  709,    2, 0x08 /* Private */,
+     118,    1,  712,    2, 0x08 /* Private */,
      120,    1,  715,    2, 0x08 /* Private */,
 
  // slots: parameters
@@ -484,13 +484,15 @@ static const uint qt_meta_data_qtMainWindow[] = {
     QMetaType::Void,
     QMetaType::Void,
     QMetaType::Void,
-    QMetaType::Void, 0x80000000 | 93, QMetaType::Int,   94,   95,
-    QMetaType::Void, 0x80000000 | 93, QMetaType::Int,   94,   95,
-    QMetaType::Void, 0x80000000 | 93, QMetaType::Int,   94,   95,
-    QMetaType::Void, QMetaType::Bool,   99,
-    QMetaType::Void, QMetaType::Bool,   99,
-    QMetaType::Void, QMetaType::Int,  102,
-    QMetaType::Void, QMetaType::Int,  102,
+    QMetaType::Void,
+    QMetaType::Void, 0x80000000 | 94, QMetaType::Int,   95,   96,
+    QMetaType::Void, 0x80000000 | 94, QMetaType::Int,   95,   96,
+    QMetaType::Void, 0x80000000 | 94, QMetaType::Int,   95,   96,
+    QMetaType::Void, QMetaType::Bool,  100,
+    QMetaType::Void, QMetaType::Bool,  100,
+    QMetaType::Void, QMetaType::Bool,  100,
+    QMetaType::Void, QMetaType::Int,  104,
+    QMetaType::Void, QMetaType::Int,  104,
     QMetaType::Void,
     QMetaType::Void,
     QMetaType::Void,
@@ -499,13 +501,11 @@ static const uint qt_meta_data_qtMainWindow[] = {
     QMetaType::Void,
     QMetaType::Void,
     QMetaType::Void,
-    QMetaType::Void, QMetaType::Int,  102,
-    QMetaType::Void, QMetaType::Int,  102,
-    QMetaType::Void, QMetaType::Int,  115,
-    QMetaType::Void, QMetaType::Double,  117,
-    QMetaType::Void, QMetaType::Double,  117,
-    QMetaType::Void,
-    QMetaType::Void, QMetaType::Bool,   99,
+    QMetaType::Void, QMetaType::Int,  104,
+    QMetaType::Void, QMetaType::Int,  104,
+    QMetaType::Void, QMetaType::Int,  117,
+    QMetaType::Void, QMetaType::Double,  119,
+    QMetaType::Void, QMetaType::Double,  119,
 
        0        // eod
 };
@@ -581,52 +581,52 @@ void qtMainWindow::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id
         case 63: _t->on_actionPath_Tracer_triggered(); break;
         case 64: _t->on_actionShow_DockScenegraph_triggered(); break;
         case 65: _t->on_actionShow_DockProperties_triggered(); break;
-        case 66: _t->on_actionShow_Statistics_triggered(); break;
-        case 67: _t->on_actionShow_Scene_Info_triggered(); break;
-        case 68: _t->on_actionShow_Menu_triggered(); break;
-        case 69: _t->on_actionShow_Toolbar_triggered(); break;
-        case 70: _t->on_actionAbout_SLProject_triggered(); break;
-        case 71: _t->on_actionCredits_triggered(); break;
-        case 72: _t->on_actionAbout_Qt_triggered(); break;
-        case 73: _t->on_actionRender_to_depth_1_triggered(); break;
-        case 74: _t->on_actionRender_to_depth_2_triggered(); break;
-        case 75: _t->on_actionRender_to_depth_5_triggered(); break;
-        case 76: _t->on_actionRender_to_max_depth_triggered(); break;
-        case 77: _t->on_actionConstant_Redering_triggered(); break;
-        case 78: _t->on_actionRender_Distributed_RT_features_triggered(); break;
-        case 79: _t->on_action1_Sample_triggered(); break;
-        case 80: _t->on_action10_Samples_triggered(); break;
-        case 81: _t->on_action100_Sample_triggered(); break;
-        case 82: _t->on_action1000_Samples_triggered(); break;
-        case 83: _t->on_action10000_Samples_triggered(); break;
-        case 84: _t->on_actionFullscreen_triggered(); break;
-        case 85: _t->on_actionSplit_active_view_horizontally_triggered(); break;
-        case 86: _t->on_actionSplit_active_view_vertically_triggered(); break;
-        case 87: _t->on_actionSplit_into_4_views_triggered(); break;
-        case 88: _t->on_actionDelete_active_view_triggered(); break;
-        case 89: _t->on_actionSingle_view_triggered(); break;
-        case 90: _t->on_nodeTree_itemClicked((*reinterpret_cast< QTreeWidgetItem*(*)>(_a[1])),(*reinterpret_cast< int(*)>(_a[2]))); break;
-        case 91: _t->on_nodeTree_itemDoubleClicked((*reinterpret_cast< QTreeWidgetItem*(*)>(_a[1])),(*reinterpret_cast< int(*)>(_a[2]))); break;
-        case 92: _t->on_propertyTree_itemChanged((*reinterpret_cast< QTreeWidgetItem*(*)>(_a[1])),(*reinterpret_cast< int(*)>(_a[2]))); break;
-        case 93: _t->on_dockScenegraph_visibilityChanged((*reinterpret_cast< bool(*)>(_a[1]))); break;
-        case 94: _t->on_dockProperties_visibilityChanged((*reinterpret_cast< bool(*)>(_a[1]))); break;
-        case 95: _t->on_animAnimatedObjectSelect_currentIndexChanged((*reinterpret_cast< int(*)>(_a[1]))); break;
-        case 96: _t->on_animAnimationSelect_currentIndexChanged((*reinterpret_cast< int(*)>(_a[1]))); break;
-        case 97: _t->on_animSkipStartButton_clicked(); break;
-        case 98: _t->on_animSkipEndButton_clicked(); break;
-        case 99: _t->on_animPrevKeyframeButton_clicked(); break;
-        case 100: _t->on_animNextKeyframeButton_clicked(); break;
-        case 101: _t->on_animPlayForwardButton_clicked(); break;
-        case 102: _t->on_animPlayBackwardButton_clicked(); break;
-        case 103: _t->on_animPauseButton_clicked(); break;
-        case 104: _t->on_animStopButton_clicked(); break;
-        case 105: _t->on_animEasingSelect_currentIndexChanged((*reinterpret_cast< int(*)>(_a[1]))); break;
-        case 106: _t->on_animLoopingSelect_currentIndexChanged((*reinterpret_cast< int(*)>(_a[1]))); break;
-        case 107: _t->on_animTimelineSlider_valueChanged((*reinterpret_cast< int(*)>(_a[1]))); break;
-        case 108: _t->on_animWeightInput_valueChanged((*reinterpret_cast< double(*)>(_a[1]))); break;
-        case 109: _t->on_animSpeedInput_valueChanged((*reinterpret_cast< double(*)>(_a[1]))); break;
-        case 110: _t->on_actionShow_Animation_Controler_triggered(); break;
-        case 111: _t->on_dockAnimation_visibilityChanged((*reinterpret_cast< bool(*)>(_a[1]))); break;
+        case 66: _t->on_actionShow_Animation_Controler_triggered(); break;
+        case 67: _t->on_actionShow_Statistics_triggered(); break;
+        case 68: _t->on_actionShow_Scene_Info_triggered(); break;
+        case 69: _t->on_actionShow_Menu_triggered(); break;
+        case 70: _t->on_actionShow_Toolbar_triggered(); break;
+        case 71: _t->on_actionAbout_SLProject_triggered(); break;
+        case 72: _t->on_actionCredits_triggered(); break;
+        case 73: _t->on_actionAbout_Qt_triggered(); break;
+        case 74: _t->on_actionRender_to_depth_1_triggered(); break;
+        case 75: _t->on_actionRender_to_depth_2_triggered(); break;
+        case 76: _t->on_actionRender_to_depth_5_triggered(); break;
+        case 77: _t->on_actionRender_to_max_depth_triggered(); break;
+        case 78: _t->on_actionConstant_Redering_triggered(); break;
+        case 79: _t->on_actionRender_Distributed_RT_features_triggered(); break;
+        case 80: _t->on_action1_Sample_triggered(); break;
+        case 81: _t->on_action10_Samples_triggered(); break;
+        case 82: _t->on_action100_Sample_triggered(); break;
+        case 83: _t->on_action1000_Samples_triggered(); break;
+        case 84: _t->on_action10000_Samples_triggered(); break;
+        case 85: _t->on_actionFullscreen_triggered(); break;
+        case 86: _t->on_actionSplit_active_view_horizontally_triggered(); break;
+        case 87: _t->on_actionSplit_active_view_vertically_triggered(); break;
+        case 88: _t->on_actionSplit_into_4_views_triggered(); break;
+        case 89: _t->on_actionDelete_active_view_triggered(); break;
+        case 90: _t->on_actionSingle_view_triggered(); break;
+        case 91: _t->on_nodeTree_itemClicked((*reinterpret_cast< QTreeWidgetItem*(*)>(_a[1])),(*reinterpret_cast< int(*)>(_a[2]))); break;
+        case 92: _t->on_nodeTree_itemDoubleClicked((*reinterpret_cast< QTreeWidgetItem*(*)>(_a[1])),(*reinterpret_cast< int(*)>(_a[2]))); break;
+        case 93: _t->on_propertyTree_itemChanged((*reinterpret_cast< QTreeWidgetItem*(*)>(_a[1])),(*reinterpret_cast< int(*)>(_a[2]))); break;
+        case 94: _t->on_dockScenegraph_visibilityChanged((*reinterpret_cast< bool(*)>(_a[1]))); break;
+        case 95: _t->on_dockProperties_visibilityChanged((*reinterpret_cast< bool(*)>(_a[1]))); break;
+        case 96: _t->on_dockAnimation_visibilityChanged((*reinterpret_cast< bool(*)>(_a[1]))); break;
+        case 97: _t->on_animAnimatedObjectSelect_currentIndexChanged((*reinterpret_cast< int(*)>(_a[1]))); break;
+        case 98: _t->on_animAnimationSelect_currentIndexChanged((*reinterpret_cast< int(*)>(_a[1]))); break;
+        case 99: _t->on_animSkipStartButton_clicked(); break;
+        case 100: _t->on_animSkipEndButton_clicked(); break;
+        case 101: _t->on_animPrevKeyframeButton_clicked(); break;
+        case 102: _t->on_animNextKeyframeButton_clicked(); break;
+        case 103: _t->on_animPlayForwardButton_clicked(); break;
+        case 104: _t->on_animPlayBackwardButton_clicked(); break;
+        case 105: _t->on_animPauseButton_clicked(); break;
+        case 106: _t->on_animStopButton_clicked(); break;
+        case 107: _t->on_animEasingSelect_currentIndexChanged((*reinterpret_cast< int(*)>(_a[1]))); break;
+        case 108: _t->on_animLoopingSelect_currentIndexChanged((*reinterpret_cast< int(*)>(_a[1]))); break;
+        case 109: _t->on_animTimelineSlider_valueChanged((*reinterpret_cast< int(*)>(_a[1]))); break;
+        case 110: _t->on_animWeightInput_valueChanged((*reinterpret_cast< double(*)>(_a[1]))); break;
+        case 111: _t->on_animSpeedInput_valueChanged((*reinterpret_cast< double(*)>(_a[1]))); break;
         default: ;
         }
     }
