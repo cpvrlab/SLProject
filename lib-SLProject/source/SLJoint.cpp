@@ -5,14 +5,14 @@
 
 
 //-----------------------------------------------------------------------------
-/*! @todo document
+/*! Constructor
 */
 SLJoint::SLJoint(SLuint handle, SLSkeleton* creator)
 : _handle(handle), _creator(creator), SLNode("Unnamed Joint"), _radius(0)
 { }
 
 //-----------------------------------------------------------------------------
-/*! @todo document
+/*! Constructor
 */
 SLJoint::SLJoint(const SLstring& name, SLuint handle, SLSkeleton* creator)
 : _handle(handle), _creator(creator), SLNode(name), _radius(0)
@@ -20,7 +20,7 @@ SLJoint::SLJoint(const SLstring& name, SLuint handle, SLSkeleton* creator)
 
 
 //-----------------------------------------------------------------------------
-/*! @todo document
+/*! Creation function to create a new child joint for this joint.
 */
 SLJoint* SLJoint::createChild(SLuint handle)
 {
@@ -30,7 +30,7 @@ SLJoint* SLJoint::createChild(SLuint handle)
 }
 
 //-----------------------------------------------------------------------------
-/*! @todo document
+/*! Creation function to create a new child joint for this joint.
 */
 SLJoint* SLJoint::createChild(const SLstring& name, SLuint handle)
 {
@@ -40,7 +40,7 @@ SLJoint* SLJoint::createChild(const SLstring& name, SLuint handle)
 }
 
 //-----------------------------------------------------------------------------
-/*! @todo document
+/*! Getter for the offset matrix of this specific joint.
 */
 void SLJoint::offsetMat(const SLMat4f& mat)
 {
@@ -49,7 +49,7 @@ void SLJoint::offsetMat(const SLMat4f& mat)
 
 
 //-----------------------------------------------------------------------------
-/*! @todo document
+/*! Updates the current max radius with the input vertex position in joint space.
 */
 void SLJoint::calcMaxRadius(const SLVec3f& vec)
 {
@@ -59,7 +59,7 @@ void SLJoint::calcMaxRadius(const SLVec3f& vec)
 }
 
 //-----------------------------------------------------------------------------
-/*! @todo document
+/*! Getter that calculates the final joint transform matrix.
 */
 SLMat4f SLJoint::calculateFinalMat()
 {

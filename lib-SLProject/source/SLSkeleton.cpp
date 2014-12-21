@@ -6,7 +6,7 @@
 
 
 //-----------------------------------------------------------------------------
-/*! @todo document
+/*! Constructor
 */
 SLSkeleton::SLSkeleton()
 : _minOS(-1, -1, -1), _maxOS(1, 1, 1), _minMaxOutOfDate(true)
@@ -15,7 +15,7 @@ SLSkeleton::SLSkeleton()
 }
 
 //-----------------------------------------------------------------------------
-/*! @todo document
+/*! Destructor
 */
 SLSkeleton::~SLSkeleton()
 {
@@ -31,7 +31,7 @@ SLSkeleton::~SLSkeleton()
 }
 
 //-----------------------------------------------------------------------------
-/*! @todo document
+/*! Creates a new joint owned by this skeleton with a default name.
 */
 SLJoint* SLSkeleton::createJoint(SLuint handle)
 {
@@ -41,7 +41,7 @@ SLJoint* SLSkeleton::createJoint(SLuint handle)
 }
 
 //-----------------------------------------------------------------------------
-/*! @todo document
+/*! Creates a new joint owned by this skeleton.
 */
 SLJoint* SLSkeleton::createJoint(const SLstring& name, SLuint handle)
 {
@@ -58,7 +58,7 @@ SLJoint* SLSkeleton::createJoint(const SLstring& name, SLuint handle)
 
 
 //-----------------------------------------------------------------------------
-/*! @todo document
+/*! Returns an animation state by name.
 */
 SLAnimationState* SLSkeleton::getAnimationState(const SLstring& name)
 {
@@ -75,7 +75,7 @@ SLAnimationState* SLSkeleton::getAnimationState(const SLstring& name)
 }
 
 //-----------------------------------------------------------------------------
-/*! @todo document
+/*! Returns an SLJoint by it's internal handle.
 */
 SLJoint* SLSkeleton::getJoint(SLuint handle)
 {
@@ -84,7 +84,7 @@ SLJoint* SLSkeleton::getJoint(SLuint handle)
 }
 
 //-----------------------------------------------------------------------------
-/*! @todo document
+/*! returns an SLJoint by name.
 */
 SLJoint* SLSkeleton::getJoint(const SLstring& name)
 {
@@ -95,7 +95,7 @@ SLJoint* SLSkeleton::getJoint(const SLstring& name)
 }
 
 //-----------------------------------------------------------------------------
-/*! @todo document
+/*! Fills a SLMat4f array with the final joint matrices for this skeleton.
 */
 void SLSkeleton::getJointWorldMatrices(SLMat4f* jointWM)
 {
@@ -107,7 +107,7 @@ void SLSkeleton::getJointWorldMatrices(SLMat4f* jointWM)
 }
 
 //-----------------------------------------------------------------------------
-/*! @todo document
+/*! Setter for the root joint of this skeleton.
 */
 void SLSkeleton::root(SLJoint* joint)
 {
@@ -117,7 +117,7 @@ void SLSkeleton::root(SLJoint* joint)
 }
 
 //-----------------------------------------------------------------------------
-/*! @todo document
+/*! Create a nw animation owned by this skeleton.
 */
 SLAnimation* SLSkeleton::createAnimation(const SLstring& name, SLfloat duration)
 {
@@ -128,7 +128,7 @@ SLAnimation* SLSkeleton::createAnimation(const SLstring& name, SLfloat duration)
 }
 
 //-----------------------------------------------------------------------------
-/*! @todo document
+/*! Resets all joints.
 */
 void SLSkeleton::reset()
 {
@@ -140,7 +140,7 @@ void SLSkeleton::reset()
 }
 
 //-----------------------------------------------------------------------------
-/*! @todo document
+/*! Updates the skelenton based on its active animation states
 */
 void SLSkeleton::updateAnimations()
 {
@@ -186,7 +186,7 @@ void SLSkeleton::updateAnimations()
 
 
 //-----------------------------------------------------------------------------
-/*! @todo document
+/*! getter for current the current min object space vertex.
 */
 const SLVec3f& SLSkeleton::minOS()
 {
@@ -197,7 +197,7 @@ const SLVec3f& SLSkeleton::minOS()
 }
 
 //-----------------------------------------------------------------------------
-/*! @todo document
+/*! getter for current the current max object space vertex.
 */
 const SLVec3f& SLSkeleton::maxOS()
 {
@@ -208,7 +208,8 @@ const SLVec3f& SLSkeleton::maxOS()
 }
 
 //-----------------------------------------------------------------------------
-/*! @todo document
+/*! Calculate the current min and max values in local space based on joint
+radii.
 */
 void SLSkeleton::updateMinMax()
 {    

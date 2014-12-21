@@ -176,7 +176,7 @@ SLNodeAnimationTrack::~SLNodeAnimationTrack()
 }
 
 //-----------------------------------------------------------------------------
-/*! @todo document
+/*! Creates a new SLTransformKeyframe at 'time'.
 */
 SLTransformKeyframe* SLNodeAnimationTrack::createNodeKeyframe(SLfloat time)
 {
@@ -184,7 +184,7 @@ SLTransformKeyframe* SLNodeAnimationTrack::createNodeKeyframe(SLfloat time)
 }
 
 //-----------------------------------------------------------------------------
-/*! @todo document
+/*! Calculates a new keyframe based on the input time and interpolation functions.
 */
 void SLNodeAnimationTrack::calcInterpolatedKeyframe(SLfloat time, SLKeyframe* keyframe) const
 {
@@ -201,12 +201,10 @@ void SLNodeAnimationTrack::calcInterpolatedKeyframe(SLfloat time, SLKeyframe* ke
     SLTransformKeyframe* kf2 = static_cast<SLTransformKeyframe*>(k2);
     
 
-    // @todo optimize interpolation for all parameters
-    // @todo provide more customization for the interpolation
     SLVec3f base = kf1->translation();
     SLVec3f translation;
     if (_translationInterpolation == AIM_Linear)
-        translation = base + (kf2->translation() - base) * t; // @todo implement general interpolation functions
+        translation = base + (kf2->translation() - base) * t; 
     else
     {
         if (_rebuildInterpolationCurve)
@@ -227,7 +225,7 @@ void SLNodeAnimationTrack::calcInterpolatedKeyframe(SLfloat time, SLKeyframe* ke
 }
 
 //-----------------------------------------------------------------------------
-/*! @todo document
+/*! Applies the animation with the input timestamp to the set animation target if it exists.
 */
 void SLNodeAnimationTrack::apply(SLfloat time, SLfloat weight, SLfloat scale)
 {
@@ -236,7 +234,7 @@ void SLNodeAnimationTrack::apply(SLfloat time, SLfloat weight, SLfloat scale)
 }
 
 //-----------------------------------------------------------------------------
-/*! @todo document
+/*! Applies the animation to the input node with the input timestamp and weight.
 */
 void SLNodeAnimationTrack::applyToNode(SLNode* node, SLfloat time, SLfloat weight, SLfloat scale)
 {
@@ -261,7 +259,7 @@ void SLNodeAnimationTrack::applyToNode(SLNode* node, SLfloat time, SLfloat weigh
 }
 
 //-----------------------------------------------------------------------------
-/*! @todo document
+/*! Rebuilds the translation interpolation bezier curve.
 */
 void SLNodeAnimationTrack::buildInterpolationCurve() const
 {
@@ -286,7 +284,7 @@ void SLNodeAnimationTrack::buildInterpolationCurve() const
 }
 
 //-----------------------------------------------------------------------------
-/*! @todo document
+/*! Implementation for the keyframe creation function.
 */
 SLKeyframe* SLNodeAnimationTrack::createKeyframeImpl(SLfloat time)
 {
@@ -294,7 +292,7 @@ SLKeyframe* SLNodeAnimationTrack::createKeyframeImpl(SLfloat time)
 }
 
 //-----------------------------------------------------------------------------
-/*! @todo document
+/*! setter for the interpoilation curve
 */
 void SLNodeAnimationTrack::interpolationCurve(SLCurve* curve)
 {

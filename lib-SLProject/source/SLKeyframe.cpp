@@ -14,14 +14,14 @@
 
 
 //-----------------------------------------------------------------------------
-/*! @todo document
+/*! Constructor for default keyframes.
 */
 SLKeyframe::SLKeyframe(const SLAnimationTrack* parent, SLfloat time)
 : _parentTrack(parent), _time(time)
 { }
 
 //-----------------------------------------------------------------------------
-/*! @todo document
+/*! Comperator operator.
 */
 bool SLKeyframe::operator<(const SLKeyframe& other) const
 {
@@ -30,7 +30,7 @@ bool SLKeyframe::operator<(const SLKeyframe& other) const
 
     
 //-----------------------------------------------------------------------------
-/*! @todo document
+/*! Constructor for specialized transform keyframes.
 */
 SLTransformKeyframe::SLTransformKeyframe(const SLAnimationTrack* parent, SLfloat time)
 : SLKeyframe(parent, time),
