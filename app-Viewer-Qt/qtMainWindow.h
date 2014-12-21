@@ -134,6 +134,7 @@ class qtMainWindow : public QMainWindow
 
         void on_actionShow_DockScenegraph_triggered();
         void on_actionShow_DockProperties_triggered();
+        void on_actionShow_Animation_Controler_triggered();
         void on_actionShow_Statistics_triggered();
         void on_actionShow_Scene_Info_triggered();
         void on_actionShow_Menu_triggered();
@@ -167,11 +168,11 @@ class qtMainWindow : public QMainWindow
         void on_propertyTree_itemChanged(QTreeWidgetItem *item, int column);
         void on_dockScenegraph_visibilityChanged(bool visible);
         void on_dockProperties_visibilityChanged(bool visible);
+        void on_dockAnimation_visibilityChanged(bool visible);
 
         // animation
         void on_animAnimatedObjectSelect_currentIndexChanged(int index);
         void on_animAnimationSelect_currentIndexChanged(int index);
-
         void on_animSkipStartButton_clicked();
         void on_animSkipEndButton_clicked();
         void on_animPrevKeyframeButton_clicked();
@@ -180,16 +181,12 @@ class qtMainWindow : public QMainWindow
         void on_animPlayBackwardButton_clicked();
         void on_animPauseButton_clicked();
         void on_animStopButton_clicked();
-        
         void on_animEasingSelect_currentIndexChanged(int index);
         void on_animLoopingSelect_currentIndexChanged(int index);
-
         void on_animTimelineSlider_valueChanged(int value);
-        
         void on_animWeightInput_valueChanged(double d);
         void on_animSpeedInput_valueChanged(double d);
         
-
 private:
         Ui::qtMainWindow*  ui;
         std::vector<qtGLWidget*> _allGLWidgets;

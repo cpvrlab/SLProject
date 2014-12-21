@@ -212,19 +212,19 @@ enum SLEye
 };
 //-----------------------------------------------------------------------------
 //! Enumeration for animation modes
-enum SLAnimInterpolationMode
+enum SLAnimInterpolation
 {
-    AIM_Linear,
-    AIM_Bezier
+    AI_Linear,
+    AI_Bezier
 };
 //-----------------------------------------------------------------------------
 //! Enumeration for animation modes
-enum SLAnimLoopingBehaviour
+enum SLAnimLooping
 {
-    ALB_once = 0,          //!< play once
-    ALB_loop = 1,          //!< loop
-    ALB_pingPong = 2,      //!< play once in two directions
-    ALB_pingPongLoop = 3   //!< loop forward and backwards
+    AL_once = 0,          //!< play once
+    AL_loop = 1,          //!< loop
+    AL_pingPong = 2,      //!< play once in two directions
+    AL_pingPongLoop = 3   //!< loop forward and backwards
 };
 
 //-----------------------------------------------------------------------------
@@ -244,7 +244,7 @@ enum SLEasingCurve
     EC_outCubic = 6,    //!< qubic easing out, decelerating to zero velocity
     EC_inOutCubic = 7,  //!< qubic easing in and then out 
     EC_outInCubic = 8,  //!< qubic easing out and then in
-    EC_inQuart = 9,    //!< quartic easing in, acceleration from zero velocity
+    EC_inQuart = 9,     //!< quartic easing in, acceleration from zero velocity
     EC_outQuart = 10,   //!< quartic easing out, decelerating to zero velocity
     EC_inOutQuart = 11, //!< quartic easing in and then out 
     EC_outInQuart = 12, //!< quartic easing out and then in
@@ -255,7 +255,7 @@ enum SLEasingCurve
     EC_inSine = 17,     //!< sine ieasing in, acceleration from zero velocity
     EC_outSine = 18,    //!< sine easing out, decelerating to zero velocity
     EC_inOutSine = 19,  //!< sine easing in and then out  
-    EC_outInSine = 20,   //!< sine easing out and then in
+    EC_outInSine = 20,  //!< sine easing out and then in
 };
 //-----------------------------------------------------------------------------
 //! Describes the relative space a transformation is applied in.

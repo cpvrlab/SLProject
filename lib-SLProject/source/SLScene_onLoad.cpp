@@ -17,7 +17,7 @@
 #include <SLSceneView.h>
 #include <SLKeyframe.h>
 #include <SLAnimation.h>
-#include <SLAnimationState.h>
+#include <SLAnimationManager.h>
 #include <SLAssimpImporter.h>
 
 #include <SLCamera.h>
@@ -155,7 +155,7 @@ SLNode* BuildFigureGroup(SLMaterial* mat)
     // Add animations for left leg
     legLeft = figure->findChild<SLNode>("left leg group");
     ;
-    SLAnimation* anim = SLAnimation::createAnimation("figure animation", 2.0f, true, EC_inOutQuint, ALB_pingPongLoop);
+    SLAnimation* anim = SLAnimation::createAnimation("figure animation", 2.0f, true, EC_inOutQuint, AL_pingPongLoop);
     anim->createSimpleRotationNodeTrack(legLeft, 60, SLVec3f(1, 0, 0));
 
     SLNode* legLowLeft = legLeft->findChild<SLNode>("leglow group");
@@ -260,27 +260,27 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
         // Bouncing balls
         SLNode* ball1 = new SLNode(new SLSphere(0.3f, 16, 16, "Ball1", m2));
         ball1->translate(0,0,4, TS_Local);
-        SLAnimation* ball1Anim = SLAnimation::createAnimation("Ball1_anim", 1.0f, true, EC_linear, ALB_pingPongLoop);
+        SLAnimation* ball1Anim = SLAnimation::createAnimation("Ball1_anim", 1.0f, true, EC_linear, AL_pingPongLoop);
         ball1Anim->createSimpleTranslationNodeTrack(ball1, SLVec3f(0.0f, -5.2f, 0.0f));
 
         SLNode* ball2 = new SLNode(new SLSphere(0.3f, 16, 16, "Ball2", m2));
         ball2->translate(-1.5f,0,4, TS_Local);
-        SLAnimation* ball2Anim = SLAnimation::createAnimation("Ball2_anim", 1.0f, true, EC_inQuad, ALB_pingPongLoop);
+        SLAnimation* ball2Anim = SLAnimation::createAnimation("Ball2_anim", 1.0f, true, EC_inQuad, AL_pingPongLoop);
         ball2Anim->createSimpleTranslationNodeTrack(ball2, SLVec3f(0.0f, -5.2f, 0.0f));
 
         SLNode* ball3 = new SLNode(new SLSphere(0.3f, 16, 16, "Ball3", m2));
         ball3->translate(-2.5f,0,4, TS_Local);
-        SLAnimation* ball3Anim = SLAnimation::createAnimation("Ball3_anim", 1.0f, true, EC_outQuad, ALB_pingPongLoop);
+        SLAnimation* ball3Anim = SLAnimation::createAnimation("Ball3_anim", 1.0f, true, EC_outQuad, AL_pingPongLoop);
         ball3Anim->createSimpleTranslationNodeTrack(ball3, SLVec3f(0.0f, -5.2f, 0.0f));
 
         SLNode* ball4 = new SLNode(new SLSphere(0.3f, 16, 16, "Ball4", m2));
         ball4->translate( 1.5f,0,4, TS_Local);
-        SLAnimation* ball4Anim = SLAnimation::createAnimation("Ball4_anim", 1.0f, true, EC_inOutQuad, ALB_pingPongLoop);
+        SLAnimation* ball4Anim = SLAnimation::createAnimation("Ball4_anim", 1.0f, true, EC_inOutQuad, AL_pingPongLoop);
         ball4Anim->createSimpleTranslationNodeTrack(ball4, SLVec3f(0.0f, -5.2f, 0.0f));
 
         SLNode* ball5 = new SLNode(new SLSphere(0.3f, 16, 16, "Ball5", m2));
         ball5->translate( 2.5f,0,4, TS_Local);
-        SLAnimation* ball5Anim = SLAnimation::createAnimation("Ball5_anim", 1.0f, true, EC_outInQuad, ALB_pingPongLoop);
+        SLAnimation* ball5Anim = SLAnimation::createAnimation("Ball5_anim", 1.0f, true, EC_outInQuad, AL_pingPongLoop);
         ball5Anim->createSimpleTranslationNodeTrack(ball5, SLVec3f(0.0f, -5.2f, 0.0f));
 
         SLCamera* cam1 = new SLCamera();
@@ -309,13 +309,13 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
         light2->attenuation(1,0,0);
         light2->translate(-8, -4, 0, TS_World);
 
-        SLAnimation* light2Anim = SLAnimation::createAnimation("light2_anim", 2.0f, true, EC_linear, ALB_pingPongLoop);
+        SLAnimation* light2Anim = SLAnimation::createAnimation("light2_anim", 2.0f, true, EC_linear, AL_pingPongLoop);
         SLNodeAnimationTrack* track = light2Anim->createNodeAnimationTrack();
         track->animationTarget(light2);
         track->createNodeKeyframe(0.0f);
         track->createNodeKeyframe(1.0f)->translation(SLVec3f(8, 8, 0));
         track->createNodeKeyframe(2.0f)->translation(SLVec3f(16, 0, 0));
-        track->translationInterpolation(AIM_Bezier);
+        track->translationInterpolation(AI_Bezier);
 
      
         SLNode* figure = BuildFigureGroup(m2);
@@ -370,7 +370,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
         light1->specular(SLCol4f(1.0f, 1.0f, 1.0f));
         light1->attenuation(1,0,0);
         light1->samples(8,8);
-        SLAnimation* anim = SLAnimation::createAnimation("anim_light1_backforth", 2.0f, true, EC_inOutQuad, ALB_pingPongLoop);
+        SLAnimation* anim = SLAnimation::createAnimation("anim_light1_backforth", 2.0f, true, EC_inOutQuad, AL_pingPongLoop);
         anim->createSimpleTranslationNodeTrack(light1, SLVec3f(0.0f, 0.0f, -5.0f));
 
 
@@ -379,7 +379,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
         light2->diffuse(SLCol4f(1.0f, 1.0f, 1.0f));
         light2->specular(SLCol4f(1.0f, 1.0f, 1.0f));
         light2->attenuation(1,0,0);     
-        anim = SLAnimation::createAnimation("anim_light2_updown", 2.0f, true, EC_inOutQuint, ALB_pingPongLoop);
+        anim = SLAnimation::createAnimation("anim_light2_updown", 2.0f, true, EC_inOutQuint, AL_pingPongLoop);
         anim->createSimpleTranslationNodeTrack(light2, SLVec3f(0.0f, 5.0f, 0.0f));
 
 
@@ -428,7 +428,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
         _root3D = scene;
     }
     else
-    if (sceneName == cmdSceneSkinnedMesh01)
+    if (sceneName == cmdSceneSkinnedMesh01) //..................................
     {
         SLNode* scene = new SLNode("Scene");
 
@@ -1077,7 +1077,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
                     SLfloat duration = 1.0f + 5.0f * ((SLfloat)i/(SLfloat)nodesPerLvl);
                     ostringstream oss;;
                     oss << "random anim " << nodeIndex++;
-                    SLAnimation* anim = SLAnimation::createAnimation(oss.str(), duration, true, EC_inOutSine, ALB_pingPongLoop);
+                    SLAnimation* anim = SLAnimation::createAnimation(oss.str(), duration, true, EC_inOutSine, AL_pingPongLoop);
                     anim->createSimpleTranslationNodeTrack(node, SLVec3f(0.0f, 1.0f, 0.0f));
                 }
             }

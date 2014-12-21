@@ -194,6 +194,7 @@ void qtMainWindow::setMenuState()
     // Menu Info
     ui->actionShow_DockScenegraph->setChecked(ui->dockScenegraph->isVisible());
     ui->actionShow_DockProperties->setChecked(ui->dockProperties->isVisible());
+    ui->actionShow_Animation_Controler->setChecked(ui->dockAnimation->isVisible());
     ui->actionShow_Toolbar->setChecked(ui->toolBar->isVisible());
     ui->actionShow_Statusbar->setChecked(ui->statusBar->isVisible());
     ui->actionShow_Statistics->setChecked(sv->showStats());
@@ -582,7 +583,7 @@ void qtMainWindow::updateAnimationList()
     _selectedAnim = NULL;
     SLVSkeleton& skeletons = SLScene::current->animManager().skeletons();
     
-    if (SLScene::current->animManager().animations().size() > 0) 
+    if (SLScene::current->animManager().animations().size() > 0)
     {
         ui->animAnimatedObjectSelect->addItem("Node Animations", 0);
         hasAnimations = true;
@@ -677,7 +678,7 @@ void qtMainWindow::selectNodeOrMeshItem(SLNode* selectedNode, SLMesh* selectedMe
         ui->nodeTree->collapseAll();
         return;
     }
-    
+
 
     // select animation related to this node if it exists
     selectAnimationFromNode(selectedNode);
@@ -958,6 +959,13 @@ void qtMainWindow::on_actionShow_DockProperties_triggered()
         ui->dockProperties->hide();
     else 
         ui->dockProperties->show();
+}
+void qtMainWindow::on_actionShow_Animation_Controler_triggered()
+{
+    if (ui->dockAnimation->isVisible())
+        ui->dockAnimation->hide();
+    else
+        ui->dockAnimation->show();
 }
 void qtMainWindow::on_actionShow_Toolbar_triggered()
 {
@@ -1423,10 +1431,7 @@ void qtMainWindow::on_actionDelete_active_view_triggered()
     setMenuState();
 }
 
-
-
 // Other Slots
-//-----------------------------------------------------------------------------
 void qtMainWindow::on_nodeTree_itemClicked(QTreeWidgetItem *item, int column)
 {
     SLScene* s = SLScene::current;
@@ -1445,7 +1450,6 @@ void qtMainWindow::on_nodeTree_itemClicked(QTreeWidgetItem *item, int column)
     buildPropertyTree();
     updateAllGLWidgets();
 }
-//-----------------------------------------------------------------------------
 void qtMainWindow::on_nodeTree_itemDoubleClicked(QTreeWidgetItem *item, int column)
 {
     SLSceneView* sv = _activeGLWidget->sv();
@@ -1460,26 +1464,26 @@ void qtMainWindow::on_nodeTree_itemDoubleClicked(QTreeWidgetItem *item, int colu
     // we need to set the menu state because the scene camera might not be active anymore
     setMenuState();
 }
-//-----------------------------------------------------------------------------
 void qtMainWindow::on_dockScenegraph_visibilityChanged(bool visible)
 {
     setMenuState();
 }
-//-----------------------------------------------------------------------------
 void qtMainWindow::on_dockProperties_visibilityChanged(bool visible)
 {
     setMenuState();
 }
-//-----------------------------------------------------------------------------
+void qtMainWindow::on_dockAnimation_visibilityChanged(bool visible)
+{
+    setMenuState();
+}
 void qtMainWindow::on_propertyTree_itemChanged(QTreeWidgetItem *item, int column)
 {
     ((qtPropertyTreeItem*)item)->onItemChanged(column);
     ui->propertyTree->update();
     updateAllGLWidgets();
 }
-//-----------------------------------------------------------------------------
 
-
+// Animation Controller
 void qtMainWindow::on_animAnimatedObjectSelect_currentIndexChanged(int index)
 {
     int data = ui->animAnimatedObjectSelect->itemData(index).toInt();
@@ -1520,7 +1524,6 @@ void qtMainWindow::on_animAnimatedObjectSelect_currentIndexChanged(int index)
     std::cout << "on_animationSelectIndexChanged " << index << " " << ui->animAnimatedObjectSelect->itemData(index).toInt() << "\n";
 
 }
-
 void qtMainWindow::on_animAnimationSelect_currentIndexChanged(int index)
 {
     SLAnimationState* state = ui->animAnimationSelect->itemData(index).value<SLAnimationState*>();
@@ -1538,10 +1541,6 @@ void qtMainWindow::on_animAnimationSelect_currentIndexChanged(int index)
     std::cout << "on_animationSelectIndexChanged " << index << " " << state->parentAnimation()->name() << "\n";
 
 }
-
-
-
-//-----------------------------------------------------------------------------
 void qtMainWindow::on_animSkipStartButton_clicked()
 {
     if (!_selectedAnim)
@@ -1549,7 +1548,6 @@ void qtMainWindow::on_animSkipStartButton_clicked()
 
     _selectedAnim->skipToStart();
 }
-//-----------------------------------------------------------------------------
 void qtMainWindow::on_animSkipEndButton_clicked()
 {
     if (!_selectedAnim)
@@ -1557,7 +1555,6 @@ void qtMainWindow::on_animSkipEndButton_clicked()
 
     _selectedAnim->skipToEnd();
 }
-//-----------------------------------------------------------------------------
 void qtMainWindow::on_animPrevKeyframeButton_clicked()
 {
     if (!_selectedAnim)
@@ -1565,7 +1562,6 @@ void qtMainWindow::on_animPrevKeyframeButton_clicked()
 
     _selectedAnim->skipToPrevKeyframe();
 }
-//-----------------------------------------------------------------------------
 void qtMainWindow::on_animNextKeyframeButton_clicked()
 {
     if (!_selectedAnim)
@@ -1573,7 +1569,6 @@ void qtMainWindow::on_animNextKeyframeButton_clicked()
 
     _selectedAnim->skipToNextKeyframe();
 }
-//-----------------------------------------------------------------------------
 void qtMainWindow::on_animPlayForwardButton_clicked()
 {
     if (!_selectedAnim)
@@ -1581,7 +1576,6 @@ void qtMainWindow::on_animPlayForwardButton_clicked()
 
     _selectedAnim->playForward();
 }
-//-----------------------------------------------------------------------------
 void qtMainWindow::on_animPlayBackwardButton_clicked()
 {
     if (!_selectedAnim)
@@ -1589,7 +1583,6 @@ void qtMainWindow::on_animPlayBackwardButton_clicked()
 
     _selectedAnim->playBackward();
 }
-//-----------------------------------------------------------------------------
 void qtMainWindow::on_animPauseButton_clicked()
 {
     if (!_selectedAnim)
@@ -1597,7 +1590,6 @@ void qtMainWindow::on_animPauseButton_clicked()
 
     _selectedAnim->pause();
 }
-//-----------------------------------------------------------------------------
 void qtMainWindow::on_animStopButton_clicked()
 {
     if (!_selectedAnim)
@@ -1605,8 +1597,6 @@ void qtMainWindow::on_animStopButton_clicked()
 
     _selectedAnim->enabled(false);
 }
-
-//-----------------------------------------------------------------------------
 void qtMainWindow::on_animEasingSelect_currentIndexChanged(int index)
 {
     if (!_selectedAnim)
@@ -1616,17 +1606,13 @@ void qtMainWindow::on_animEasingSelect_currentIndexChanged(int index)
     _selectedAnim->easing((SLEasingCurve)index);
     _selectedAnim->localTime(localTime);
 }
-
-//-----------------------------------------------------------------------------
 void qtMainWindow::on_animLoopingSelect_currentIndexChanged(int index)
 {
     if (!_selectedAnim)
         return;
 
-    _selectedAnim->loop((SLAnimLoopingBehaviour)(index));
+    _selectedAnim->loop((SLAnimLooping)(index));
 }
-
-//-----------------------------------------------------------------------------
 void qtMainWindow::on_animTimelineSlider_valueChanged(int value)
 {
     if (!_selectedAnim)
@@ -1634,7 +1620,6 @@ void qtMainWindow::on_animTimelineSlider_valueChanged(int value)
     
     _selectedAnim->localTime(ui->animTimelineSlider->getNormalizedValue() * _selectedAnim->parentAnimation()->length());
 }
-
 void qtMainWindow::on_animWeightInput_valueChanged(double d)
 {
     if (!_selectedAnim)
@@ -1642,7 +1627,6 @@ void qtMainWindow::on_animWeightInput_valueChanged(double d)
 
     _selectedAnim->weight(d);
 }
-
 void qtMainWindow::on_animSpeedInput_valueChanged(double d)
 {
     if (!_selectedAnim)

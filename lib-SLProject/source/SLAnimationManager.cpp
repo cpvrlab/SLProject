@@ -1,3 +1,12 @@
+//#############################################################################
+//  File:      SLAnimationManager.cpp
+//  Author:    Marc Wacker
+//  Date:      Autumn 2014
+//  Codestyle: https://github.com/cpvrlab/SLProject/wiki/Coding-Style-Guidelines
+//  Copyright: 2002-2014 Marcus Hudritsch
+//             This software is provide under the GNU General Public License
+//             Please visit: http://opensource.org/licenses/GPL-3.0
+//#############################################################################
 
 #include <stdafx.h>
 #include <SLScene.h>
@@ -19,12 +28,12 @@ SLAnimationManager::~SLAnimationManager()
 /*! Clears and deletes all node animations and skeletons */
 void SLAnimationManager::clear()
 {
-    map<SLstring, SLAnimation*>::iterator it;
+    SLMAnimation::iterator it;
     for (it = _nodeAnimations.begin(); it != _nodeAnimations.end(); it++)
         delete it->second;
     _nodeAnimations.clear();
     
-    map<SLstring, SLAnimationState*>::iterator it2;
+    SLMAnimationState::iterator it2;
     for (it2 = _nodeAnimationStates.begin(); it2 != _nodeAnimationStates.end(); it2++)
         delete it2->second;
     _nodeAnimationStates.clear();
@@ -73,7 +82,6 @@ SLAnimationState* SLAnimationManager::getNodeAnimationState(const SLstring& name
 {
     if (_nodeAnimationStates.find(name) != _nodeAnimationStates.end())
         return _nodeAnimationStates[name];
-
     else if (_nodeAnimations.find(name) != _nodeAnimations.end())
     {
         _nodeAnimationStates[name] = new SLAnimationState(_nodeAnimations[name]);
@@ -98,7 +106,7 @@ void SLAnimationManager::update()
     // we need to save the states differently if we want them.
 
 
-    map<SLstring, SLAnimationState*>::iterator it;
+    SLMAnimationState::iterator it;
     for (it = _nodeAnimationStates.begin(); it != _nodeAnimationStates.end(); it++)
     {
         SLAnimationState* state = it->second;
@@ -116,3 +124,5 @@ void SLAnimationManager::update()
         _skeletons[i]->updateAnimations();
     }
 }
+
+//-----------------------------------------------------------------------------

@@ -18,7 +18,7 @@
 #include <SLAABBox.h>
 #include <SLGLProgram.h>
 #include <SLAnimation.h>
-#include <SLAnimationState.h>
+#include <SLAnimationManager.h>
 #include <SLLightSphere.h>
 #include <SLLightRect.h>
 #include <SLRay.h>
@@ -493,7 +493,7 @@ SLbool SLSceneView::draw3DGL(SLfloat elapsedTimeMS)
     static SLNodeAnimationTrack* testAnimTrack;
     static SLNodeAnimationTrack* testAnimTrack2;
     static SLNodeAnimationTrack* testAnimTrack3;
-    static SLAnimationState* testAnimState;
+    static SLAnimManager* testAnimState;
     static SLfloat lastFrameTime = 0.0f;
 
 

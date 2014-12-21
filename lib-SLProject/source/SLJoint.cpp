@@ -1,3 +1,12 @@
+//#############################################################################
+//  File:      SLJoint.cpp
+//  Author:    Marc Wacker
+//  Date:      Autumn 2014
+//  Codestyle: https://github.com/cpvrlab/SLProject/wiki/Coding-Style-Guidelines
+//  Copyright: 2002-2014 Marcus Hudritsch
+//             This software is provide under the GNU General Public License
+//             Please visit: http://opensource.org/licenses/GPL-3.0
+//#############################################################################
 
 #include <stdafx.h>
 #include <SLJoint.h>
@@ -53,7 +62,7 @@ void SLJoint::offsetMat(const SLMat4f& mat)
 */
 void SLJoint::calcMaxRadius(const SLVec3f& vec)
 {
-    //
+// 
     SLVec3f boneSpaceVec = _offsetMat * vec;
     _radius = max(_radius, boneSpaceVec.length());
 }
@@ -65,3 +74,4 @@ SLMat4f SLJoint::calculateFinalMat()
 {
     return updateAndGetWM() * _offsetMat;
 }
+//-----------------------------------------------------------------------------

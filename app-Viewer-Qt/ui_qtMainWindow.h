@@ -135,6 +135,7 @@ public:
     QAction *actionAnimSkipToStart;
     QAction *actionAnimSkipToEnd;
     QAction *actionAnimStop;
+    QAction *actionShow_Animation_Controler;
     QWidget *centralWidget;
     QMenuBar *menuBar;
     QMenu *menuFile;
@@ -195,7 +196,6 @@ public:
     QComboBox *animEasingSelect;
     QComboBox *animLoopingSelect;
     QSpacerItem *horizontalSpacer;
-    QToolBar *toolBar_2;
 
     void setupUi(QMainWindow *qtMainWindow)
     {
@@ -428,6 +428,7 @@ public:
         actionShow_Statusbar = new QAction(qtMainWindow);
         actionShow_Statusbar->setObjectName(QStringLiteral("actionShow_Statusbar"));
         actionShow_Statusbar->setCheckable(true);
+        actionShow_Statusbar->setChecked(true);
         actionDepthTest = new QAction(qtMainWindow);
         actionDepthTest->setObjectName(QStringLiteral("actionDepthTest"));
         actionDepthTest->setCheckable(true);
@@ -563,12 +564,16 @@ public:
         QIcon icon25;
         icon25.addFile(QStringLiteral("images/animStop.png"), QSize(), QIcon::Normal, QIcon::Off);
         actionAnimStop->setIcon(icon25);
+        actionShow_Animation_Controler = new QAction(qtMainWindow);
+        actionShow_Animation_Controler->setObjectName(QStringLiteral("actionShow_Animation_Controler"));
+        actionShow_Animation_Controler->setCheckable(true);
+        actionShow_Animation_Controler->setChecked(true);
         centralWidget = new QWidget(qtMainWindow);
         centralWidget->setObjectName(QStringLiteral("centralWidget"));
         qtMainWindow->setCentralWidget(centralWidget);
         menuBar = new QMenuBar(qtMainWindow);
         menuBar->setObjectName(QStringLiteral("menuBar"));
-        menuBar->setGeometry(QRect(0, 0, 800, 21));
+        menuBar->setGeometry(QRect(0, 0, 800, 22));
         menuBar->setDefaultUp(false);
         menuBar->setNativeMenuBar(false);
         menuFile = new QMenu(menuBar);
@@ -705,7 +710,7 @@ public:
         sizePolicy3.setVerticalStretch(0);
         sizePolicy3.setHeightForWidth(dockAnimation->sizePolicy().hasHeightForWidth());
         dockAnimation->setSizePolicy(sizePolicy3);
-        dockAnimation->setMinimumSize(QSize(507, 102));
+        dockAnimation->setMinimumSize(QSize(620, 114));
         dockAnimation->setFloating(false);
         dockAnimation->setFeatures(QDockWidget::AllDockWidgetFeatures);
         dockWidgetContents_3 = new QWidget();
@@ -851,49 +856,65 @@ public:
         horizontalLayout_6->setObjectName(QStringLiteral("horizontalLayout_6"));
         animSkipStartButton = new QToolButton(dockWidgetContents_3);
         animSkipStartButton->setObjectName(QStringLiteral("animSkipStartButton"));
-        animSkipStartButton->setIcon(icon23);
+        QIcon icon26;
+        icon26.addFile(QStringLiteral(":/images/animGoToStart.png"), QSize(), QIcon::Normal, QIcon::Off);
+        animSkipStartButton->setIcon(icon26);
 
         horizontalLayout_6->addWidget(animSkipStartButton);
 
         animPrevKeyframeButton = new QToolButton(dockWidgetContents_3);
         animPrevKeyframeButton->setObjectName(QStringLiteral("animPrevKeyframeButton"));
-        animPrevKeyframeButton->setIcon(icon22);
+        QIcon icon27;
+        icon27.addFile(QStringLiteral(":/images/animPrevKF.png"), QSize(), QIcon::Normal, QIcon::Off);
+        animPrevKeyframeButton->setIcon(icon27);
 
         horizontalLayout_6->addWidget(animPrevKeyframeButton);
 
         animPlayBackwardButton = new QToolButton(dockWidgetContents_3);
         animPlayBackwardButton->setObjectName(QStringLiteral("animPlayBackwardButton"));
-        animPlayBackwardButton->setIcon(icon20);
+        QIcon icon28;
+        icon28.addFile(QStringLiteral(":/images/animPlayBackwards.png"), QSize(), QIcon::Normal, QIcon::Off);
+        animPlayBackwardButton->setIcon(icon28);
 
         horizontalLayout_6->addWidget(animPlayBackwardButton);
 
         animStopButton = new QToolButton(dockWidgetContents_3);
         animStopButton->setObjectName(QStringLiteral("animStopButton"));
-        animStopButton->setIcon(icon25);
+        QIcon icon29;
+        icon29.addFile(QStringLiteral(":/images/animStop.png"), QSize(), QIcon::Normal, QIcon::Off);
+        animStopButton->setIcon(icon29);
 
         horizontalLayout_6->addWidget(animStopButton);
 
         animPauseButton = new QToolButton(dockWidgetContents_3);
         animPauseButton->setObjectName(QStringLiteral("animPauseButton"));
-        animPauseButton->setIcon(icon19);
+        QIcon icon30;
+        icon30.addFile(QStringLiteral(":/images/animPause.png"), QSize(), QIcon::Normal, QIcon::Off);
+        animPauseButton->setIcon(icon30);
 
         horizontalLayout_6->addWidget(animPauseButton);
 
         animPlayForwardButton = new QToolButton(dockWidgetContents_3);
         animPlayForwardButton->setObjectName(QStringLiteral("animPlayForwardButton"));
-        animPlayForwardButton->setIcon(icon18);
+        QIcon icon31;
+        icon31.addFile(QStringLiteral(":/images/animPlay.png"), QSize(), QIcon::Normal, QIcon::Off);
+        animPlayForwardButton->setIcon(icon31);
 
         horizontalLayout_6->addWidget(animPlayForwardButton);
 
         animNextKeyframeButton = new QToolButton(dockWidgetContents_3);
         animNextKeyframeButton->setObjectName(QStringLiteral("animNextKeyframeButton"));
-        animNextKeyframeButton->setIcon(icon21);
+        QIcon icon32;
+        icon32.addFile(QStringLiteral(":/images/animNextKF.png"), QSize(), QIcon::Normal, QIcon::Off);
+        animNextKeyframeButton->setIcon(icon32);
 
         horizontalLayout_6->addWidget(animNextKeyframeButton);
 
         animSkipEndButton = new QToolButton(dockWidgetContents_3);
         animSkipEndButton->setObjectName(QStringLiteral("animSkipEndButton"));
-        animSkipEndButton->setIcon(icon24);
+        QIcon icon33;
+        icon33.addFile(QStringLiteral(":/images/animGoToEnd.png"), QSize(), QIcon::Normal, QIcon::Off);
+        animSkipEndButton->setIcon(icon33);
 
         horizontalLayout_6->addWidget(animSkipEndButton);
 
@@ -951,9 +972,6 @@ public:
 
         dockAnimation->setWidget(dockWidgetContents_3);
         qtMainWindow->addDockWidget(static_cast<Qt::DockWidgetArea>(8), dockAnimation);
-        toolBar_2 = new QToolBar(qtMainWindow);
-        toolBar_2->setObjectName(QStringLiteral("toolBar_2"));
-        qtMainWindow->addToolBar(Qt::TopToolBarArea, toolBar_2);
 
         menuBar->addAction(menuFile->menuAction());
         menuBar->addAction(menuRenderer->menuAction());
@@ -1040,6 +1058,7 @@ public:
         menuRender_Flags->addAction(actionAnimation_off);
         menuInfos->addAction(actionShow_DockScenegraph);
         menuInfos->addAction(actionShow_DockProperties);
+        menuInfos->addAction(actionShow_Animation_Controler);
         menuInfos->addAction(actionShow_Toolbar);
         menuInfos->addAction(actionShow_Statusbar);
         menuInfos->addSeparator();
@@ -1391,7 +1410,7 @@ public:
 #ifndef QT_NO_STATUSTIP
         action10000_Samples->setStatusTip(QApplication::translate("qtMainWindow", "Renders the scene with 10000 path sampled per pixel.", 0));
 #endif // QT_NO_STATUSTIP
-        actionShow_DockScenegraph->setText(QApplication::translate("qtMainWindow", "Show Scenegraph", 0));
+        actionShow_DockScenegraph->setText(QApplication::translate("qtMainWindow", "Show Scenegraph Tree", 0));
 #ifndef QT_NO_STATUSTIP
         actionShow_DockScenegraph->setStatusTip(QApplication::translate("qtMainWindow", "Shows the node tree of the current scene also called scenegraph", 0));
 #endif // QT_NO_STATUSTIP
@@ -1439,7 +1458,7 @@ public:
 #ifndef QT_NO_STATUSTIP
         actionFullscreen->setStatusTip(QApplication::translate("qtMainWindow", "Sets the window to fullscrene mode without menu, tool and statusbar. Use the ESC to end the fullscreen mode.", 0));
 #endif // QT_NO_STATUSTIP
-        actionShow_DockProperties->setText(QApplication::translate("qtMainWindow", "Show Properties", 0));
+        actionShow_DockProperties->setText(QApplication::translate("qtMainWindow", "Show Properties Tree", 0));
 #ifndef QT_NO_STATUSTIP
         actionShow_DockProperties->setStatusTip(QApplication::translate("qtMainWindow", "Show the properties of the selected scene node or mesh", 0));
 #endif // QT_NO_STATUSTIP
@@ -1489,6 +1508,7 @@ public:
         actionAnimSkipToStart->setText(QApplication::translate("qtMainWindow", "Skip to first frame", 0));
         actionAnimSkipToEnd->setText(QApplication::translate("qtMainWindow", "Skip to last frame", 0));
         actionAnimStop->setText(QApplication::translate("qtMainWindow", "Stop", 0));
+        actionShow_Animation_Controler->setText(QApplication::translate("qtMainWindow", "Show Animation Controller", 0));
         menuFile->setTitle(QApplication::translate("qtMainWindow", "File", 0));
         menuLoad_Scene->setTitle(QApplication::translate("qtMainWindow", "Load Scene", 0));
         menuGeneral_Scenes->setTitle(QApplication::translate("qtMainWindow", "General Scenes", 0));
@@ -1653,7 +1673,6 @@ public:
 #ifndef QT_NO_STATUSTIP
         animLoopingSelect->setStatusTip(QApplication::translate("qtMainWindow", "Select the looping behaviour for the selected animation", 0));
 #endif // QT_NO_STATUSTIP
-        toolBar_2->setWindowTitle(QApplication::translate("qtMainWindow", "toolBar_2", 0));
     } // retranslateUi
 
 };

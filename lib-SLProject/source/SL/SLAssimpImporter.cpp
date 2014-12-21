@@ -469,17 +469,17 @@ void SLAssimpImporter::findSkeletonRoot()
     // early out if we don't have any joint bindings
     if (_jointOffsets.size() == 0) return;
     
-	vector<NodeList> ancestorList(_jointOffsets.size());
+	vector<SLVaiNode> ancestorList(_jointOffsets.size());
     SLint minDepth = INT_MAX;
     SLint index = 0;    
 
     logMessage(LV_Detailed, "Building joint ancestor lists.\n");
 
-    JointOffsetMap::iterator it = _jointOffsets.begin();
+    SLJointOffsetMap::iterator it = _jointOffsets.begin();
     for (; it != _jointOffsets.end(); it++, index++)
     {
         aiNode* node = getNodeByName(it->first);
-        NodeList& list = ancestorList[index];
+        SLVaiNode& list = ancestorList[index];
 
         while (node)
         {
@@ -1025,8 +1025,9 @@ SLAnimation* SLAssimpImporter::loadAnimation(aiAnimation* anim)
 }
 //-----------------------------------------------------------------------------
 /*!
-SLAssimp::aiNodeHasMesh returns true if the passed node or one of its children 
-has a mesh. aiNode can contain only transform or joint nodes without any visuals. 
+SLAssimpImporter::aiNodeHasMesh returns true if the passed node or one of its
+children has a mesh. aiNode can contain only transform or joint nodes without
+any visuals.
 */
 SLbool SLAssimpImporter::aiNodeHasMesh(aiNode* node)
 {
@@ -1062,7 +1063,7 @@ SLstring SLAssimpImporter::checkFilePath(SLstring modelPath, SLstring aiTexFile)
         return pathFile;
 
     SLstring msg = "SLAssimpImporter: Texture file not found: \n" + aiTexFile + 
-                    "\non model path: " + modelPath + "\n";
+                   "\non model path: " + modelPath + "\n";
     SL_WARN_MSG(msg.c_str());
 
     // Return path for texture not found image;

@@ -1,23 +1,32 @@
+//#############################################################################
+//  File:      SLAnimationState.cpp
+//  Author:    Marc Wacker
+//  Date:      Autumn 2014
+//  Codestyle: https://github.com/cpvrlab/SLProject/wiki/Coding-Style-Guidelines
+//  Copyright: 2002-2014 Marcus Hudritsch
+//             This software is provide under the GNU General Public License
+//             Please visit: http://opensource.org/licenses/GPL-3.0
+//#############################################################################
 
 #include <stdafx.h>
-#include "SLAnimation.h"
-#include "SLAnimationState.h"
+#include <SLAnimation.h>
+#include <SLAnimationState.h>
 
 //-----------------------------------------------------------------------------
 /*! Constructor
 */
 SLAnimationState::SLAnimationState(SLAnimation* parent, SLfloat weight)
-    : _parentAnim(parent), 
-    _localTime(0.0f),
-    _linearLocalTime(0.0f),
-    _playbackRate(1.0f),
-    _playbackDir(1),
-    _weight(weight),
-    _enabled(false),
-    _easing(EC_linear),
-    _loopingBehaviour(ALB_loop)
-{ }
-
+: _parentAnim(parent), 
+_localTime(0.0f),
+_linearLocalTime(0.0f),
+_playbackRate(1.0f),
+_playbackDir(1),
+_weight(weight),
+_enabled(false),
+_easing(EC_linear),
+_loopingBehaviour(AL_loop)
+{
+}
 //-----------------------------------------------------------------------------
 /*! Advances the time of the state based on its different easing parameters.
 */
@@ -40,10 +49,10 @@ void SLAnimationState::advanceTime(SLfloat delta)
         // wrap around on loop, else just stay on last frame
         switch (_loopingBehaviour)
         {
-        case ALB_once: _linearLocalTime = _parentAnim->length(); _enabled = false; break;
-        case ALB_loop: _linearLocalTime = 0.0f; break;
-        case ALB_pingPong: _linearLocalTime = _parentAnim->length(); _playbackDir *= -1; break;
-        case ALB_pingPongLoop: _linearLocalTime = _parentAnim->length(); _playbackDir *= -1; break;
+        case AL_once:          _linearLocalTime = _parentAnim->length(); _enabled = false; break;
+        case AL_loop:          _linearLocalTime = 0.0f; break;
+        case AL_pingPong:      _linearLocalTime = _parentAnim->length(); _playbackDir *= -1; break;
+        case AL_pingPongLoop:  _linearLocalTime = _parentAnim->length(); _playbackDir *= -1; break;
         }
     }
     // fix negative inputs, playback rate could be negative
@@ -54,10 +63,10 @@ void SLAnimationState::advanceTime(SLfloat delta)
 
         switch (_loopingBehaviour)
         {
-        case ALB_once: _linearLocalTime = 0.0f; _enabled = false; break;
-        case ALB_loop: _linearLocalTime = _parentAnim->length(); break;
-        case ALB_pingPong: _linearLocalTime = 0.0f; _enabled = false; break; // at the moment pingPong stops when reaching 0, if we start with a reverse direction this is illogical
-        case ALB_pingPongLoop: _linearLocalTime = 0.0f; _playbackDir *= -1; break;
+        case AL_once:          _linearLocalTime = 0.0f; _enabled = false; break;
+        case AL_loop:          _linearLocalTime = _parentAnim->length(); break;
+        case AL_pingPong:      _linearLocalTime = 0.0f; _enabled = false; break; // at the moment pingPong stops when reaching 0, if we start with a reverse direction this is illogical
+        case AL_pingPongLoop:  _linearLocalTime = 0.0f; _playbackDir *= -1; break;
         }
     }     
 
@@ -247,3 +256,4 @@ SLfloat SLAnimationState::calcEasingTimeInv(SLfloat time) const
 
     return y * _parentAnim->length();
 }
+//-----------------------------------------------------------------------------

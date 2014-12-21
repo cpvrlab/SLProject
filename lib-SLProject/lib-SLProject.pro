@@ -59,7 +59,7 @@ HEADERS += \
     ../include/SLVec4.h \
     ../include/TriangleBoxIntersect.h \
     ../include/SL.h \
-    ../include/SLAssImp.h \
+    ../include/SLAccelStruct.h \
     ../include/SLAverage.h \
     ../include/SLDrawBits.h \
     ../include/SLEnums.h \
@@ -74,7 +74,6 @@ HEADERS += \
     ../include/SLUtils.h \
     ../include/SLVector.h \
     ../include/stdafx.h \
-    ../include/SLAccelStruct.h \
     ../include/SLUniformGrid.h \
     ../include/EulerAngles.h \
     ../include/SLAABBox.h \
@@ -106,13 +105,15 @@ HEADERS += \
     ../include/SLGLOculus.h \
     ../include/SLGLProgram.h \
     ../include/SLGLUniform.h \
-    ../include/SLGLGenericProgram.h
+    ../include/SLGLGenericProgram.h \
+    ../include/SLJoint.h \
     ../include/SLGLOculus.h \
     ../include/SLSkeleton.h \
+    ../include/SLAssimpImporter.h \
+    ../include/SLImporter.h \
     ../include/SLAnimationManager.h \
     ../include/SLAnimationState.h \
-    ../include/SLAnimationTrack.h \
-    ../include/SLBone.h
+    ../include/SLAnimationTrack.h
 
 SOURCES += \
     source/SLGLBuffer.cpp \
@@ -124,7 +125,6 @@ SOURCES += \
     source/math/SLCurveBezier.cpp \
     source/math/SLPlane.cpp \
     source/SL/SL.cpp \
-    source/SL/SLAssImp.cpp \
     source/SL/SLFileSystem.cpp \
     source/SL/SLImage.cpp \
     source/SL/SLInterface.cpp \
@@ -159,11 +159,13 @@ SOURCES += \
     source/SLGrid.cpp \
     source/SLGLOculus.cpp \
     source/SLSkeleton.cpp \
-    source/SLAnimationManager.cpp \
+    source/SLKeyframe.cpp \
+    source/SL/SLAssimpImporter.cpp \
+    source/SL/SLImporter.cpp \
+    source/SLJoint.cpp \
     source/SLAnimationState.cpp \
-    source/SLAnimationTrack.cpp \
-    source/SLBone.cpp \
-    source/SLKeyframe.cpp
+    source/SLAnimationManager.cpp \
+    source/SLAnimationTrack.cpp
 
 OTHER_FILES += \
     source/oglsl/BumpNormal.frag \

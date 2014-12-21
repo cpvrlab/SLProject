@@ -38,7 +38,7 @@
      <x>0</x>
      <y>0</y>
      <width>800</width>
-     <height>21</height>
+     <height>22</height>
     </rect>
    </property>
    <property name="defaultUp">
@@ -199,6 +199,7 @@
     </property>
     <addaction name="actionShow_DockScenegraph"/>
     <addaction name="actionShow_DockProperties"/>
+    <addaction name="actionShow_Animation_Controler"/>
     <addaction name="actionShow_Toolbar"/>
     <addaction name="actionShow_Statusbar"/>
     <addaction name="separator"/>
@@ -519,8 +520,8 @@
    </property>
    <property name="minimumSize">
     <size>
-     <width>507</width>
-     <height>102</height>
+     <width>620</width>
+     <height>114</height>
     </size>
    </property>
    <property name="floating">
@@ -802,8 +803,8 @@ QSlider::handle:horizontal:disabled {
               <string>skipStart</string>
              </property>
              <property name="icon">
-              <iconset>
-               <normaloff>images/animGoToStart.png</normaloff>images/animGoToStart.png</iconset>
+              <iconset resource="resources.qrc">
+               <normaloff>:/images/animGoToStart.png</normaloff>:/images/animGoToStart.png</iconset>
              </property>
             </widget>
            </item>
@@ -819,8 +820,8 @@ QSlider::handle:horizontal:disabled {
               <string>prevKeyframe</string>
              </property>
              <property name="icon">
-              <iconset>
-               <normaloff>images/animPrevKF.png</normaloff>images/animPrevKF.png</iconset>
+              <iconset resource="resources.qrc">
+               <normaloff>:/images/animPrevKF.png</normaloff>:/images/animPrevKF.png</iconset>
              </property>
             </widget>
            </item>
@@ -836,8 +837,8 @@ QSlider::handle:horizontal:disabled {
               <string>playBackward</string>
              </property>
              <property name="icon">
-              <iconset>
-               <normaloff>images/animPlayBackwards.png</normaloff>images/animPlayBackwards.png</iconset>
+              <iconset resource="resources.qrc">
+               <normaloff>:/images/animPlayBackwards.png</normaloff>:/images/animPlayBackwards.png</iconset>
              </property>
             </widget>
            </item>
@@ -853,8 +854,8 @@ QSlider::handle:horizontal:disabled {
               <string>...</string>
              </property>
              <property name="icon">
-              <iconset>
-               <normaloff>images/animStop.png</normaloff>images/animStop.png</iconset>
+              <iconset resource="resources.qrc">
+               <normaloff>:/images/animStop.png</normaloff>:/images/animStop.png</iconset>
              </property>
             </widget>
            </item>
@@ -870,8 +871,8 @@ QSlider::handle:horizontal:disabled {
               <string>pause</string>
              </property>
              <property name="icon">
-              <iconset>
-               <normaloff>images/animPause.png</normaloff>images/animPause.png</iconset>
+              <iconset resource="resources.qrc">
+               <normaloff>:/images/animPause.png</normaloff>:/images/animPause.png</iconset>
              </property>
             </widget>
            </item>
@@ -887,8 +888,8 @@ QSlider::handle:horizontal:disabled {
               <string>playForward</string>
              </property>
              <property name="icon">
-              <iconset>
-               <normaloff>images/animPlay.png</normaloff>images/animPlay.png</iconset>
+              <iconset resource="resources.qrc">
+               <normaloff>:/images/animPlay.png</normaloff>:/images/animPlay.png</iconset>
              </property>
             </widget>
            </item>
@@ -904,8 +905,8 @@ QSlider::handle:horizontal:disabled {
               <string>nextKeyframe</string>
              </property>
              <property name="icon">
-              <iconset>
-               <normaloff>images/animNextKF.png</normaloff>images/animNextKF.png</iconset>
+              <iconset resource="resources.qrc">
+               <normaloff>:/images/animNextKF.png</normaloff>:/images/animNextKF.png</iconset>
              </property>
             </widget>
            </item>
@@ -921,8 +922,8 @@ QSlider::handle:horizontal:disabled {
               <string>skipEnd</string>
              </property>
              <property name="icon">
-              <iconset>
-               <normaloff>images/animGoToEnd.png</normaloff>images/animGoToEnd.png</iconset>
+              <iconset resource="resources.qrc">
+               <normaloff>:/images/animGoToEnd.png</normaloff>:/images/animGoToEnd.png</iconset>
              </property>
             </widget>
            </item>
@@ -1166,17 +1167,6 @@ QSlider::handle:horizontal:disabled {
      </item>
     </layout>
    </widget>
-  </widget>
-  <widget class="QToolBar" name="toolBar_2">
-   <property name="windowTitle">
-    <string>toolBar_2</string>
-   </property>
-   <attribute name="toolBarArea">
-    <enum>TopToolBarArea</enum>
-   </attribute>
-   <attribute name="toolBarBreak">
-    <bool>false</bool>
-   </attribute>
   </widget>
   <action name="action_Quit">
    <property name="text">
@@ -1932,7 +1922,7 @@ QSlider::handle:horizontal:disabled {
     <bool>true</bool>
    </property>
    <property name="text">
-    <string>Show Scenegraph</string>
+    <string>Show Scenegraph Tree</string>
    </property>
    <property name="statusTip">
     <string>Shows the node tree of the current scene also called scenegraph</string>
@@ -1940,6 +1930,9 @@ QSlider::handle:horizontal:disabled {
   </action>
   <action name="actionShow_Statusbar">
    <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
     <bool>true</bool>
    </property>
    <property name="text">
@@ -2102,7 +2095,7 @@ QSlider::handle:horizontal:disabled {
     <bool>true</bool>
    </property>
    <property name="text">
-    <string>Show Properties</string>
+    <string>Show Properties Tree</string>
    </property>
    <property name="statusTip">
     <string>Show the properties of the selected scene node or mesh</string>
@@ -2283,6 +2276,17 @@ QSlider::handle:horizontal:disabled {
    </property>
    <property name="text">
     <string>Stop</string>
+   </property>
+  </action>
+  <action name="actionShow_Animation_Controler">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Show Animation Controller</string>
    </property>
   </action>
  </widget>

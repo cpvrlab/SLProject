@@ -1,3 +1,12 @@
+//#############################################################################
+//  File:      SLSkeleton.cpp
+//  Author:    Marc Wacker
+//  Date:      Autumn 2014
+//  Codestyle: https://github.com/cpvrlab/SLProject/wiki/Coding-Style-Guidelines
+//  Copyright: 2002-2014 Marcus Hudritsch
+//             This software is provide under the GNU General Public License
+//             Please visit: http://opensource.org/licenses/GPL-3.0
+//#############################################################################
 
 #include <stdafx.h>
 #include <SLSkeleton.h>
@@ -21,11 +30,11 @@ SLSkeleton::~SLSkeleton()
 {
     delete _root;
 
-    map<SLstring, SLAnimation*>::iterator it1;
+    SLMAnimation::iterator it1;
     for (it1 = _animations.begin(); it1 != _animations.end(); it1++)
         delete it1->second;
     
-    map<SLstring, SLAnimationState*>::iterator it2;
+    SLMAnimationState::iterator it2;
     for (it2 = _animationStates.begin(); it2 != _animationStates.end(); it2++)
         delete it2->second;
 }
@@ -47,12 +56,14 @@ SLJoint* SLSkeleton::createJoint(const SLstring& name, SLuint handle)
 {
     SLJoint* result = new SLJoint(name, handle, this);
     
-    assert((handle >= _jointList.size() || (handle < _jointList.size() && _jointList[handle] == NULL)) && "Trying to create a joint with an already existing handle.");
+    assert((handle >= _joints.size() ||
+           (handle < _joints.size() && _joints[handle] == NULL)) &&
+          "Trying to create a joint with an already existing handle.");
 
-    if (_jointList.size() <= handle)
-        _jointList.resize(handle+1);
+    if (_joints.size() <= handle)
+        _joints.resize(handle+1);
     
-    _jointList[handle] = result;
+    _joints[handle] = result;
     return result;
 }
 
@@ -79,8 +90,8 @@ SLAnimationState* SLSkeleton::getAnimationState(const SLstring& name)
 */
 SLJoint* SLSkeleton::getJoint(SLuint handle)
 {
-    assert(handle < _jointList.size() && "Index out of bounds");
-    return _jointList[handle];
+    assert(handle < _joints.size() && "Index out of bounds");
+    return _joints[handle];
 }
 
 //-----------------------------------------------------------------------------
@@ -100,9 +111,9 @@ SLJoint* SLSkeleton::getJoint(const SLstring& name)
 void SLSkeleton::getJointWorldMatrices(SLMat4f* jointWM)
 {
     // @todo this is asking for a crash...
-    for (SLint i = 0; i < _jointList.size(); i++)
+    for (SLint i = 0; i < _joints.size(); i++)
     {
-        jointWM[i] = _jointList[i]->updateAndGetWM() * _jointList[i]->offsetMat();
+        jointWM[i] = _joints[i]->updateAndGetWM() * _joints[i]->offsetMat();
     }
 }
 
@@ -112,7 +123,6 @@ void SLSkeleton::getJointWorldMatrices(SLMat4f* jointWM)
 void SLSkeleton::root(SLJoint* joint)
 {
     if (_root)
-
     _root = joint;
 }
 
@@ -134,9 +144,10 @@ void SLSkeleton::reset()
 {
     // mark the skeleton as changed
     changed(true);
+
     // update all joints
-    for (SLint i = 0; i < _jointList.size(); i++)
-        _jointList[i]->resetToInitialState();
+    for (SLint i = 0; i < _joints.size(); i++)
+        _joints[i]->resetToInitialState();
 }
 
 //-----------------------------------------------------------------------------
@@ -146,12 +157,13 @@ void SLSkeleton::updateAnimations()
 {
     SLScene* scene = SLScene::current;
 
-    /// @todo IMPORTANT: don't do this if we don't have any enabled animations, current workaround won't allow for blending!
+    /// @todo IMPORTANT: don't do this if we don't have any enabled animations,
+    /// current workaround won't allow for blending!
     //reset();
 
     // first advance time on all animations
     _changed = false;
-    map<SLstring, SLAnimationState*>::iterator it;
+    SLMAnimationState::iterator it;
     for (it = _animationStates.begin(); it != _animationStates.end(); it++)
     {
         SLAnimationState* state = it->second;
@@ -215,14 +227,14 @@ void SLSkeleton::updateMinMax()
 {    
     // recalculate the new min and max os based on bone radius
     SLbool firstSet = false;
-    for (SLint i = 0; i < _jointList.size(); i++)
+    for (SLint i = 0; i < _joints.size(); i++)
     {
-        SLfloat r = _jointList[i]->radius();
+        SLfloat r = _joints[i]->radius();
         // ignore joints with a zero radius
         if (r == 0.0f)
             continue;
 
-        SLVec3f jointPos = _jointList[i]->updateAndGetWM().translation();
+        SLVec3f jointPos = _joints[i]->updateAndGetWM().translation();
         SLVec3f curMin = jointPos - SLVec3f(r, r, r);
         SLVec3f curMax = jointPos + SLVec3f(r, r, r);
         if (!firstSet)
@@ -244,3 +256,4 @@ void SLSkeleton::updateMinMax()
     }
     _minMaxOutOfDate = false;
 }
+//-----------------------------------------------------------------------------
