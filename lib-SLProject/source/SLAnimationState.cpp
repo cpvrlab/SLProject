@@ -16,15 +16,15 @@
 /*! Constructor
 */
 SLAnimationState::SLAnimationState(SLAnimation* parent, SLfloat weight)
-: _parentAnim(parent), 
-_localTime(0.0f),
-_linearLocalTime(0.0f),
-_playbackRate(1.0f),
-_playbackDir(1),
-_weight(weight),
-_enabled(false),
-_easing(EC_linear),
-_loopingBehaviour(AL_loop)
+                : _parentAnim(parent),
+                _localTime(0.0f),
+                _linearLocalTime(0.0f),
+                _playbackRate(1.0f),
+                _playbackDir(1),
+                _weight(weight),
+                _enabled(false),
+                _easing(EC_linear),
+                _loopingBehaviour(AL_loop)
 {
 }
 //-----------------------------------------------------------------------------

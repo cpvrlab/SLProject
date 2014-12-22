@@ -46,8 +46,6 @@ class SLSkeleton;
 
                 For the old model it was somewhat okay to specify per vertex/fragment lighting in 
                 the material, but specifying a skinning shader in the material doesn't seem right.
-
-
 */
 
 
@@ -225,7 +223,6 @@ virtual void            calcMinMax     ();
         SLGLBuffer      _bufTc;     //!< Buffer for vertex texcoords
         SLGLBuffer      _bufT;      //!< Buffer for vertex tangents
         SLGLBuffer      _bufI;      //!< Buffer for vertex indexes
-
         SLGLBuffer      _bufJi;     //!< Buffer for joint id
         SLGLBuffer      _bufJw;     //!< Buffer for joint weight
                

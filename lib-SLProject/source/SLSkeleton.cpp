@@ -75,7 +75,6 @@ SLAnimationState* SLSkeleton::getAnimationState(const SLstring& name)
 {
     if (_animationStates.find(name) != _animationStates.end())
         return _animationStates[name];
-
     else if (_animations.find(name) != _animations.end())
     {
         _animationStates[name] = new SLAnimationState(_animations[name]);
@@ -100,7 +99,6 @@ SLJoint* SLSkeleton::getJoint(SLuint handle)
 SLJoint* SLSkeleton::getJoint(const SLstring& name)
 {
     if (!_root) return NULL;
-
     SLJoint* result = _root->find<SLJoint>(name);
     return result;
 }
@@ -131,7 +129,8 @@ void SLSkeleton::root(SLJoint* joint)
 */
 SLAnimation* SLSkeleton::createAnimation(const SLstring& name, SLfloat duration)
 {
-    assert(_animations.find(name) == _animations.end() && "animation with same name already exists!");
+    assert(_animations.find(name) == _animations.end() &&
+           "animation with same name already exists!");
     SLAnimation* anim = new SLAnimation(name, duration);
     _animations[name] = anim;
     return anim;

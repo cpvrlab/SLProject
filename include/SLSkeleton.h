@@ -44,40 +44,37 @@ class SLAnimationManager;
 class SLSkeleton
 {
 public:
-    SLSkeleton();
-    ~SLSkeleton();
+                        SLSkeleton();
+                       ~SLSkeleton();
 
-    void        update();
-    
-    // creates a new joint that belongs to this skeleton
-    // handle must be unique for this skeleton and also contiguous
-    SLJoint*    createJoint(SLuint handle);
-    SLJoint*    createJoint(const SLstring& name, SLuint handle);
-    
+            void        update();
+
+            SLJoint*    createJoint     (SLuint handle);
+            SLJoint*    createJoint     (const SLstring& name, SLuint handle);
+        SLAnimation*    createAnimation (const SLstring& name, SLfloat duration);
+
+            void        loadAnimation   (const SLstring& file);
+            void        addAnimation    (SLAnimation* anim);
+            void        getJointWorldMatrices(SLMat4f* jointWM);
+            void        reset           ();
+
+            // Getters
     SLAnimationState*   getAnimationState(const SLstring& name);
+    SLMAnimation        animations      () { return _animations; }
+            SLint       numAnimations   () const { return (SLint)_animations.size(); }
+            SLJoint*    getJoint        (SLuint handle);
+            SLJoint*    getJoint        (const SLstring& name);
+            SLint       numJoints       () const { return (SLint)_joints.size(); }
+            SLJoint*    root            () { return _root; }
+            SLbool      changed         () const { return _changed; }
+    const   SLVec3f&    minOS();
+    const   SLVec3f&    maxOS();
 
-    void        loadAnimation   (const SLstring& file); // import a seperate animation that works with this skeleton
-
-    SLJoint*    getJoint        (SLuint handle);
-    SLJoint*    getJoint        (const SLstring& name);
-    SLint       numJoints       () const { return (SLint)_joints.size(); }
-    void        getJointWorldMatrices(SLMat4f* jointWM);
-    void        root            (SLJoint* joint);
-    SLJoint*    root            () { return _root; }
-    void        addAnimation    (SLAnimation* anim);
-    SLint       numAnimations   () const { return (SLint)_animations.size(); }
-    void        reset           ();
-
-    SLbool      changed         () const { return _changed; }
-    void        changed         (SLbool changed) { _changed = changed; }
-
-    const SLVec3f&      minOS();
-    const SLVec3f&      maxOS();
-
-    SLAnimation*        createAnimation(const SLstring& name, SLfloat duration);
+            // Setters
+            void        root            (SLJoint* joint);
+            void        changed         (SLbool changed) { _changed = changed; }
 
     // @todo find a better way to give access to the animation names to external stuff (like the gui)
-    SLMAnimation        animations() { return _animations; }
     void                updateAnimations();
     
 protected:
