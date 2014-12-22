@@ -15,8 +15,8 @@
 #include <SLJoint.h>
 #include <SLAnimation.h>
 #include <SLAnimationState.h>
-#include <SLAnimationManager.h>
 
+class SLAnimationManager;
 
 
 //-----------------------------------------------------------------------------
@@ -75,12 +75,14 @@ public:
     const SLVec3f&      maxOS();
 
     SLAnimation*        createAnimation(const SLstring& name, SLfloat duration);
-    // @todo find a better way to give access to the animation names to external stuff (like the gui)
-    SLMAnimation animations() { return _animations; }
 
+    // @todo find a better way to give access to the animation names to external stuff (like the gui)
+    SLMAnimation        animations() { return _animations; }
     void                updateAnimations();
     
 protected:
+    void                updateMinMax();
+
     SLJoint*            _root;              //!< root joint
     SLVJoint            _joints;            //!< joint list for fast access and index to joint mapping
     SLMAnimation        _animations;        //!< animations for this skeleton
@@ -88,9 +90,7 @@ protected:
     SLbool              _changed;           //!< did this skeleton change this frame (attribute for skeleton instance)
     SLVec3f             _minOS;             //!< min point in os space for this skeleton (attribute for skeleton instance)
     SLVec3f             _maxOS;             //!< max point in os space for this skeleton (attribute for skeleton instance)
-    SLbool              _minMaxOutOfDate;
-
-    void updateMinMax();
+    SLbool              _minMaxOutOfDate;   //!< ???
 
 };
 //-----------------------------------------------------------------------------

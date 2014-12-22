@@ -373,7 +373,6 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
         SLAnimation* anim = SLAnimation::createAnimation("anim_light1_backforth", 2.0f, true, EC_inOutQuad, AL_pingPongLoop);
         anim->createSimpleTranslationNodeTrack(light1, SLVec3f(0.0f, 0.0f, -5.0f));
 
-
         SLLightSphere* light2 = new SLLightSphere(-2.5f, -2.5f, 2.5f, 0.2f);
         light2->ambient(SLCol4f(0.1f, 0.1f, 0.1f));
         light2->diffuse(SLCol4f(1.0f, 1.0f, 1.0f));
@@ -381,7 +380,6 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
         light2->attenuation(1,0,0);     
         anim = SLAnimation::createAnimation("anim_light2_updown", 2.0f, true, EC_inOutQuint, AL_pingPongLoop);
         anim->createSimpleTranslationNodeTrack(light2, SLVec3f(0.0f, 5.0f, 0.0f));
-
 
         #if defined(SL_OS_IOS) || defined(SL_OS_ANDROID)
         SLAssimpImporter importer;

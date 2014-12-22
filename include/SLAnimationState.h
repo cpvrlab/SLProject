@@ -23,7 +23,7 @@ class SLAnimation;
     It manages the way the time advances and how the
     time loops. 
     It is possible to have multiple states per animation.
-    If we keep track of what nodes are affacted by which
+    If we keep track of what nodes are affected by which
     SLAnimationState we can only manipulate these nodes
     for the time kept in the SLAnimationState.
 

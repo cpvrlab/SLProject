@@ -49,15 +49,15 @@ protected:
     /// Keyframe creator function for derived implementations
     virtual SLKeyframe* createKeyframeImpl(SLfloat time) = 0;
     
-    SLAnimation*        _parent;            //!< parent animation that created this track
-    SLuint              _handle;            //!< unique handle for this track inside its parent animation
-    SLVKeyframe         _keyframes;         //!< keyframe list for this track
+    SLAnimation*        _parent;    //!< parent animation that created this track
+    SLuint              _handle;    //!< unique handle for this track inside its parent animation
+    SLVKeyframe         _keyframes; //!< keyframe list for this track
 
 };
 
 
 //-----------------------------------------------------------------------------
-/*! Specialized SLAnimationTrack for node animations */
+//! Specialized SLAnimationTrack for node animations
 class SLNodeAnimationTrack : public SLAnimationTrack
 {
 public:
@@ -70,7 +70,6 @@ public:
     SLNode*             animationTarget() { return _animationTarget; }
 
     virtual void        calcInterpolatedKeyframe(SLfloat time, SLKeyframe* keyframe) const;
-
     virtual void        apply(SLfloat time, SLfloat weight = 1.0f, SLfloat scale = 1.0f);
     virtual void        applyToNode(SLNode* node, SLfloat time, SLfloat weight = 1.0f, SLfloat scale = 1.0f);
     
@@ -78,10 +77,10 @@ public:
     void                translationInterpolation(SLAnimInterpolation interp) { _translationInterpolation = interp; }
 
 protected:
-    SLNode*                 _animationTarget;           //!< the default target for this track
-    SLAnimInterpolation     _translationInterpolation;  //!< interpolation mode for translations (bezier or linear)
-    SLbool                  _rebuildInterpolationCurve; //!< dirty flag of the bezier curve
-    mutable SLCurve*        _interpolationCurve;        //!< the translation interpolation curve
+    SLNode*             _animationTarget;           //!< the default target for this track
+    SLAnimInterpolation _translationInterpolation;  //!< interpolation mode for translations (bezier or linear)
+    SLbool              _rebuildInterpolationCurve; //!< dirty flag of the bezier curve
+    mutable SLCurve*    _interpolationCurve;        //!< the translation interpolation curve
 
 
     void                buildInterpolationCurve() const;
