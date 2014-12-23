@@ -75,7 +75,7 @@ public:
             void        changed         (SLbool changed) { _changed = changed; }
 
     // @todo find a better way to give access to the animation names to external stuff (like the gui)
-    void                updateAnimations();
+    SLbool              updateAnimations(SLfloat elapsedTimeSec);
     
 protected:
     void                updateMinMax();

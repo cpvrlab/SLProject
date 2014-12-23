@@ -150,12 +150,10 @@ void SLSkeleton::reset()
 }
 
 //-----------------------------------------------------------------------------
-/*! Updates the skelenton based on its active animation states
+/*! Updates the skeleton based on its active animation states
 */
-void SLSkeleton::updateAnimations()
+SLbool SLSkeleton::updateAnimations(SLfloat elapsedTimeSec)
 {
-    SLScene* scene = SLScene::current;
-
     /// @todo IMPORTANT: don't do this if we don't have any enabled animations,
     /// current workaround won't allow for blending!
     //reset();
@@ -168,16 +166,16 @@ void SLSkeleton::updateAnimations()
         SLAnimationState* state = it->second;
         if (state->enabled())
         {
-            state->advanceTime(scene->elapsedTimeSec());
+            state->advanceTime(elapsedTimeSec);
+
             // mark skeleton as changed if a state is different
-            if (state->changed())
-                _changed = true;
+            _changed = state->changed();
         }
     }
 
     // return if nothing changed
     if (!_changed)
-        return;
+        return false;
 
     // reset the skeleton and apply all enabled animations
     reset();
@@ -193,6 +191,7 @@ void SLSkeleton::updateAnimations()
     }
 
     _minMaxOutOfDate = true;
+    return true;
 }
 
 

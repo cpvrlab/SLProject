@@ -201,7 +201,7 @@ public:
     {
         if (qtMainWindow->objectName().isEmpty())
             qtMainWindow->setObjectName(QStringLiteral("qtMainWindow"));
-        qtMainWindow->resize(800, 654);
+        qtMainWindow->resize(696, 623);
         QSizePolicy sizePolicy(QSizePolicy::Preferred, QSizePolicy::Minimum);
         sizePolicy.setHorizontalStretch(0);
         sizePolicy.setVerticalStretch(0);
@@ -573,7 +573,7 @@ public:
         qtMainWindow->setCentralWidget(centralWidget);
         menuBar = new QMenuBar(qtMainWindow);
         menuBar->setObjectName(QStringLiteral("menuBar"));
-        menuBar->setGeometry(QRect(0, 0, 800, 22));
+        menuBar->setGeometry(QRect(0, 0, 696, 22));
         menuBar->setDefaultUp(false);
         menuBar->setNativeMenuBar(false);
         menuFile = new QMenu(menuBar);
@@ -710,7 +710,7 @@ public:
         sizePolicy3.setVerticalStretch(0);
         sizePolicy3.setHeightForWidth(dockAnimation->sizePolicy().hasHeightForWidth());
         dockAnimation->setSizePolicy(sizePolicy3);
-        dockAnimation->setMinimumSize(QSize(620, 114));
+        dockAnimation->setMinimumSize(QSize(560, 114));
         dockAnimation->setFloating(false);
         dockAnimation->setFeatures(QDockWidget::AllDockWidgetFeatures);
         dockWidgetContents_3 = new QWidget();
@@ -734,6 +734,9 @@ public:
         sizePolicy4.setHeightForWidth(animCurrentTimeLabel->sizePolicy().hasHeightForWidth());
         animCurrentTimeLabel->setSizePolicy(sizePolicy4);
         animCurrentTimeLabel->setMinimumSize(QSize(20, 0));
+        QFont font1;
+        font1.setPointSize(12);
+        animCurrentTimeLabel->setFont(font1);
         animCurrentTimeLabel->setLayoutDirection(Qt::LeftToRight);
         animCurrentTimeLabel->setIndent(0);
 
@@ -815,6 +818,7 @@ public:
         sizePolicy4.setHeightForWidth(animDurationLabel->sizePolicy().hasHeightForWidth());
         animDurationLabel->setSizePolicy(sizePolicy4);
         animDurationLabel->setMinimumSize(QSize(20, 0));
+        animDurationLabel->setFont(font1);
         animDurationLabel->setMargin(0);
         animDurationLabel->setIndent(0);
 
@@ -826,7 +830,7 @@ public:
         horizontalLayout_4 = new QHBoxLayout();
         horizontalLayout_4->setSpacing(0);
         horizontalLayout_4->setObjectName(QStringLiteral("horizontalLayout_4"));
-        horizontalSpacer_2 = new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
+        horizontalSpacer_2 = new QSpacerItem(0, 0, QSizePolicy::Expanding, QSizePolicy::Minimum);
 
         horizontalLayout_4->addItem(horizontalSpacer_2);
 
@@ -920,9 +924,12 @@ public:
 
         animSpeedInput = new QDoubleSpinBox(dockWidgetContents_3);
         animSpeedInput->setObjectName(QStringLiteral("animSpeedInput"));
+        animSpeedInput->setEnabled(true);
         sizePolicy4.setHeightForWidth(animSpeedInput->sizePolicy().hasHeightForWidth());
         animSpeedInput->setSizePolicy(sizePolicy4);
+        animSpeedInput->setMinimumSize(QSize(40, 0));
         animSpeedInput->setMaximumSize(QSize(43, 16777215));
+        animSpeedInput->setFont(font1);
         animSpeedInput->setMaximum(20);
         animSpeedInput->setSingleStep(0.1);
         animSpeedInput->setValue(1);
@@ -933,7 +940,9 @@ public:
         animWeightInput->setObjectName(QStringLiteral("animWeightInput"));
         sizePolicy4.setHeightForWidth(animWeightInput->sizePolicy().hasHeightForWidth());
         animWeightInput->setSizePolicy(sizePolicy4);
+        animWeightInput->setMinimumSize(QSize(40, 0));
         animWeightInput->setMaximumSize(QSize(43, 16777215));
+        animWeightInput->setFont(font1);
         animWeightInput->setMaximum(10);
         animWeightInput->setSingleStep(0.1);
         animWeightInput->setValue(1);
@@ -963,7 +972,7 @@ public:
 
         horizontalLayout_4->addLayout(verticalLayout_5);
 
-        horizontalSpacer = new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
+        horizontalSpacer = new QSpacerItem(0, 0, QSizePolicy::Expanding, QSizePolicy::Minimum);
 
         horizontalLayout_4->addItem(horizontalSpacer);
 

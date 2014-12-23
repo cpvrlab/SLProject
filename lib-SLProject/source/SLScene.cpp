@@ -310,12 +310,7 @@ bool SLScene::updateIfAllViewsGotPainted()
 
     // Do animations
     SLfloat startUpdateMS = timeMilliSec();
-    SLbool animated = true;
-    //SLbool animated = !_stopAnimations && _root3D->animateRec(_elapsedTimeMS);
-
-    //@todo Don't slow down if we're in HMD stereo mode
-    //animated = animated || _ camera->projection() == stereoSideBySideD;
-    _animManager.update();
+    SLbool animated = !_stopAnimations && _animManager.update(elapsedTimeSec());
 
     // Update the world matrix & AABBs efficiently
     SLGLState::getInstance()->modelViewMatrix.identity();

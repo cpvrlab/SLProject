@@ -35,7 +35,6 @@ public:
     void            addSkeleton(SLSkeleton* skel) { _skeletons.push_back(skel); }
     void            addNodeAnimation(SLAnimation* anim);
     SLbool          hasNodeAnimations() { return (_nodeAnimations.size() > 0); }
-    SLVSkeleton&    skeletons() { return _skeletons; }
     SLAnimationState* getNodeAnimationState(const SLstring& name); // get the state for a specific animation
 
     SLAnimation*    createNodeAnimation(SLfloat duration);
@@ -43,7 +42,9 @@ public:
 
     // @todo find a better way to give access to the animation names to external stuff (like the gui)
     SLMAnimation    animations() { return _nodeAnimations; }
-    void            update();
+    SLVSkeleton&    skeletons() { return _skeletons; }
+
+    SLbool          update(SLfloat elapsedTimeSec);
     void            clear();
 
 private:

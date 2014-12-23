@@ -14,6 +14,7 @@
 #include "qtAnimationSlider.h"
 #include "qtPropertyTreeWidget.h"
 #include "qtPropertyTreeItem.h"
+#include <qstylefactory.h>
 #include <QMessageBox>
 #include <QSplitter>
 #include <QIcon>
@@ -1160,6 +1161,7 @@ void qtMainWindow::on_actionTextures_off_triggered()
 void qtMainWindow::on_actionAnimation_off_triggered()
 {
     applyCommandOnSV(cmdAnimationToggle);
+    ui->dockAnimation->setEnabled(!ui->actionAnimation_off->isChecked());
 }
 
 // Menu Ray Tracing

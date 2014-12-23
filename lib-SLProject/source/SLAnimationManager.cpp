@@ -93,13 +93,9 @@ SLAnimationState* SLAnimationManager::getNodeAnimationState(const SLstring& name
 
 //-----------------------------------------------------------------------------
 //! Advances the time of all enabled animation states.
-void SLAnimationManager::update()
+SLbool SLAnimationManager::update(SLfloat elapsedTimeSec)
 {
-    SLScene* s = SLScene::current;
-
-    // return if animations are off
-    if (s->stopAnimations())
-        return;
+    SLbool updated = false;
 
     // advance time for node animations and apply them
     // @todo currently we can't blend between normal node animations because we reset them
@@ -112,17 +108,19 @@ void SLAnimationManager::update()
         SLAnimationState* state = it->second;
         if (state->enabled())
         {
-            state->parentAnimation()->resetNodes(); 
-            state->advanceTime(s->elapsedTimeSec());
+            state->parentAnimation()->resetNodes();
+            state->advanceTime(elapsedTimeSec);
             state->parentAnimation()->apply(state->localTime(), state->weight());
+            updated = true;
         }
     }
     
     // update the skeletons seperately 
     for (SLint i = 0; i < _skeletons.size(); ++i)
     {
-        _skeletons[i]->updateAnimations();
+        updated |= _skeletons[i]->updateAnimations(elapsedTimeSec);
     }
+    return updated;
 }
 
 //-----------------------------------------------------------------------------

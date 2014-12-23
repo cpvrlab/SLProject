@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>800</width>
-    <height>654</height>
+    <width>696</width>
+    <height>623</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -37,7 +37,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>800</width>
+     <width>696</width>
      <height>22</height>
     </rect>
    </property>
@@ -520,7 +520,7 @@
    </property>
    <property name="minimumSize">
     <size>
-     <width>620</width>
+     <width>560</width>
      <height>114</height>
     </size>
    </property>
@@ -586,6 +586,11 @@
            <width>20</width>
            <height>0</height>
           </size>
+         </property>
+         <property name="font">
+          <font>
+           <pointsize>12</pointsize>
+          </font>
          </property>
          <property name="layoutDirection">
           <enum>Qt::LeftToRight</enum>
@@ -701,6 +706,11 @@ QSlider::handle:horizontal:disabled {
            <height>0</height>
           </size>
          </property>
+         <property name="font">
+          <font>
+           <pointsize>12</pointsize>
+          </font>
+         </property>
          <property name="text">
           <string>--:--</string>
          </property>
@@ -726,8 +736,8 @@ QSlider::handle:horizontal:disabled {
          </property>
          <property name="sizeHint" stdset="0">
           <size>
-           <width>40</width>
-           <height>20</height>
+           <width>0</width>
+           <height>0</height>
           </size>
          </property>
         </spacer>
@@ -929,17 +939,31 @@ QSlider::handle:horizontal:disabled {
            </item>
            <item>
             <widget class="QDoubleSpinBox" name="animSpeedInput">
+             <property name="enabled">
+              <bool>true</bool>
+             </property>
              <property name="sizePolicy">
               <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                <horstretch>0</horstretch>
                <verstretch>0</verstretch>
               </sizepolicy>
              </property>
+             <property name="minimumSize">
+              <size>
+               <width>40</width>
+               <height>0</height>
+              </size>
+             </property>
              <property name="maximumSize">
               <size>
                <width>43</width>
                <height>16777215</height>
               </size>
+             </property>
+             <property name="font">
+              <font>
+               <pointsize>12</pointsize>
+              </font>
              </property>
              <property name="toolTip">
               <string>Playback speed</string>
@@ -966,11 +990,22 @@ QSlider::handle:horizontal:disabled {
                <verstretch>0</verstretch>
               </sizepolicy>
              </property>
+             <property name="minimumSize">
+              <size>
+               <width>40</width>
+               <height>0</height>
+              </size>
+             </property>
              <property name="maximumSize">
               <size>
                <width>43</width>
                <height>16777215</height>
               </size>
+             </property>
+             <property name="font">
+              <font>
+               <pointsize>12</pointsize>
+              </font>
              </property>
              <property name="toolTip">
               <string>Animation weight</string>
@@ -1157,8 +1192,8 @@ QSlider::handle:horizontal:disabled {
          </property>
          <property name="sizeHint" stdset="0">
           <size>
-           <width>40</width>
-           <height>20</height>
+           <width>0</width>
+           <height>0</height>
           </size>
          </property>
         </spacer>
