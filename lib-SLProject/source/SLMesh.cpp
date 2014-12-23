@@ -198,18 +198,14 @@ void SLMesh::draw(SLSceneView* sv, SLNode* node)
         {   _stateGL->buildNormalMatrix();
             sp->uniformMatrix3fv(locNM, 1, (SLfloat*)_stateGL->normalMatrix());
         }
-             
 
-        
-
-        
-        // 3.d: determine the skinning method
-
-        // pointers to the final position and normal buffers
+        // 3.d: Do CPU or GPU skinning for animated meshes
         if (Ji && Jw)
         {
             // only update joint matrices if the skeleton changed
-            if (!_jointMatrices) _jointMatrices = new SLMat4f[_skeleton->numJoints()]; // @todo offload the generation of the joint matrix array to somebody else. meshes can share the same array, so it must be somewhere else..
+            if (!_jointMatrices)
+                _jointMatrices = new SLMat4f[_skeleton->numJoints()]; // @todo offload the generation of the joint matrix array to somebody else. meshes can share the same array, so it must be somewhere else..
+
             if (_skeleton->changed())
             {
                 // update the joint matrix array
@@ -244,13 +240,15 @@ void SLMesh::draw(SLSceneView* sv, SLNode* node)
 
                 // update the dynamic buffer if needed
                 if (_skeleton->changed())
-                    doSoftwareSkinning();                
+                    transformSkin();
             }
         }
+
 
         //////////////////////
         // 2: Build VBO's once
         //////////////////////
+
         if (!_bufP.id()) _bufP.generate(pos(), numV, 3);
         if (!_bufN.id()  && N)   _bufN.generate(norm(), numV, 3);
         if (!_bufC.id()  && C)   _bufC.generate(C, numV, 4);
@@ -1009,8 +1007,14 @@ SLVec3f* SLMesh::norm()
 {
     return *finalN;
 }
-
-void SLMesh::doSoftwareSkinning()
+//-----------------------------------------------------------------------------
+//! Transforms the vertex positions and normals with by joint weights
+/*! If the mesh is used for skinned skeleton animation this method transforms
+each vertex and normal by max. four joints of the skeleton. Each joint has
+a weight and an index. After the transform the VBO have to be updated.
+This skinning process can also be done (a lot faster) on the GPU.
+*/
+void SLMesh::transformSkin()
 {
     // temporarily set finalP here
     // @todo move the setting of finalP to the setSkinningMethod function
@@ -1027,7 +1031,10 @@ void SLMesh::doSoftwareSkinning()
 
         // array form for easier iteration
         SLfloat jointWeights[4] = {Jw[i].x, Jw[i].y, Jw[i].z, Jw[i].w};
-        SLint jointIndices[4] = {(SLint)Ji[i].x, (SLint)Ji[i].y, (SLint)Ji[i].z, (SLint)Ji[i].w};
+        SLint jointIndices[4] = {(SLint)Ji[i].x,
+                                 (SLint)Ji[i].y,
+                                 (SLint)Ji[i].z,
+                                 (SLint)Ji[i].w};
                     
         // accumulate final normal and positions
         for (SLint j = 0; j < 4; ++j)
@@ -1059,10 +1066,11 @@ void SLMesh::doSoftwareSkinning()
     notifyParentNodesAABBUpdate();
 }
 
-
+//-----------------------------------------------------------------------------
 void SLMesh::notifyParentNodesAABBUpdate() const
 {
     SLVNode nodes = SLScene::current->root3D()->findChildren(this);
     for (SLint i = 0; i < nodes.size(); ++i)
         nodes[i]->needAABBUpdate();
 }
+//-----------------------------------------------------------------------------

@@ -182,11 +182,11 @@ virtual void            calcMinMax     ();
 
         SLPrimitive     primitive      (){return _primitive;}
         
-        void            doSoftwareSkinning();
+        void            transformSkin();
         void            skinningMethod(SLSkinningMethod method);
         SLSkinningMethod skinningMethod() const { return _skinningMethod; }
         void            skeleton(SLSkeleton* skel) { _skeleton = skel; }
-        const SLSkeleton* skeleton() const { return _skeleton; }
+  const SLSkeleton*     skeleton() const { return _skeleton; }
         SLbool          addWeight(SLint vertId, SLuint jointId, SLfloat weight);
         
         // getter for position and normal data for rendering
@@ -200,12 +200,13 @@ virtual void            calcMinMax     ();
         SLVec3f*        P;          //!< Array of vertex positions
         SLVec3f*        N;          //!< Array of vertex normals (opt.)
         SLCol4f*        C;          //!< Array of vertex colors (opt.)
-        SLVec4f*        Ji;         //!< Array of per vertex joint ids (opt.) 
-        SLVec4f*        Jw;         //!< Array of per vertex joint weights (opt.)
         SLVec2f*        Tc;         //!< Array of vertex tex. coords. (opt.)
         SLVec4f*        T;          //!< Array of vertex tangents (opt.)
+        SLVec4f*        Ji;         //!< Array of per vertex joint ids (opt.)
+        SLVec4f*        Jw;         //!< Array of per vertex joint weights (opt.)
         SLushort*       I16;        //!< Array of vertex indexes 16 bit
         SLuint*         I32;        //!< Array of vertex indexes 32 bit
+
         SLuint          numV;       //!< Number of elements in P, N, C, T & Tc   
         SLuint          numI;       //!< Number of elements in I16 or I32
         SLMaterial*     mat;        //!< Pointer to the material
@@ -231,12 +232,12 @@ virtual void            calcMinMax     ();
                
         SLbool          _isVolume;  //!< Flag for RT if mesh is a closed volume
                
-        SLAccelStruct*  _accelStruct;   //!< KD-tree or uniform grid
+        SLAccelStruct*  _accelStruct;           //!< KD-tree or uniform grid
+        SLbool          _accelStructOutOfDate;  //!< flag id accel.struct needs update
 
-        SLSkinningMethod _skinningMethod;
-        SLSkeleton*     _skeleton;      //!< the skeleton this mesh is bound to
-        SLMat4f*        _jointMatrices; //!< private joint matrix stack for this mesh
-        SLbool          _accelStructOutOfDate;
+        SLSkinningMethod _skinningMethod;   //!< CPU or GPU skinning method
+        SLSkeleton*     _skeleton;          //!< the skeleton this mesh is bound to
+        SLMat4f*        _jointMatrices;     //!< private joint matrix stack for this mesh
 
         // ptrs to final position and normal containers
         SLVec3f**       finalP;     
