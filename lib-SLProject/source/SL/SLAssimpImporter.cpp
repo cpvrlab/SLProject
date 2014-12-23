@@ -277,8 +277,8 @@ meshes and the nodes for the scene graph. Materials, textures and meshes are
 added to the according vectors of SLScene for later deallocation.
 */
 SLNode* SLAssimpImporter::load(SLstring file,        //!< File with path or on default path 
-                       SLbool loadMeshesOnly,//!< Only load nodes with meshes
-                       SLuint flags)         //!< Import flags (see assimp/postprocess.h)
+                               SLbool loadMeshesOnly,//!< Only load nodes with meshes
+                               SLuint flags)         //!< Import flags (see assimp/postprocess.h)
 {
     // Check existance
     if (!SLFileSystem::fileExists(file))
@@ -600,8 +600,8 @@ The materials and textures are added to the SLScene material and texture
 vectors.
 */
 SLMaterial* SLAssimpImporter::loadMaterial(SLint index, 
-                         aiMaterial *material, 
-                         SLstring modelPath)
+                                           aiMaterial *material,
+                                           SLstring modelPath)
 {
     // Get the materials name
     aiString matName;
@@ -672,12 +672,12 @@ SLMaterial* SLAssimpImporter::loadMaterial(SLint index,
 /*!
 SLAssimpImporter::loadTexture loads the AssImp texture an returns the SLGLTexture
 */
-SLGLTexture* SLAssimpImporter::loadTexture(SLstring& textureFile, SLTexType texType)
+SLGLTexture* SLAssimpImporter::loadTexture(SLstring& textureFile,
+                                           SLTexType texType)
 {
     SLVGLTexture& sceneTex = SLScene::current->textures();
 
     // return if a texture with the same file allready exists
-    SLbool exists = false;
     for (SLint i=0; i<sceneTex.size(); ++i)
         if (sceneTex[i]->name()==textureFile) 
             return sceneTex[i];
@@ -780,7 +780,7 @@ SLMesh* SLAssimpImporter::loadMesh(aiMesh *mesh)
         {
             aiBone* joint = mesh->mBones[i];
             SLJoint* slJoint = _skeleton->getJoint(joint->mName.C_Str());
-            SLuint jointId = slJoint->handle(); // @todo make sure that the returned joint actually exists, else we need to throw here since something in the importer must've gone wrong!
+            SLuint jointId = slJoint->id(); // @todo make sure that the returned joint actually exists, else we need to throw here since something in the importer must've gone wrong!
 
             for (SLuint j = 0; j < joint->mNumWeights; j++)
             {
@@ -805,10 +805,10 @@ SLMesh* SLAssimpImporter::loadMesh(aiMesh *mesh)
 SLAssimpImporter::loadNodesRec loads the scene graph node tree recursively.
 */
 SLNode* SLAssimpImporter::loadNodesRec(
-   SLNode *curNode,     //!< Pointer to the current node. Pass NULL for root node
-   aiNode *node,        //!< The according assimp node. Pass NULL for root node
-   SLMeshMap& meshes,   //!< Reference to the meshes vector
-   SLbool loadMeshesOnly) //!< Only load nodes with meshes
+   SLNode *curNode,         //!< Pointer to the current node. Pass NULL for root node
+   aiNode *node,            //!< The according assimp node. Pass NULL for root node
+   SLMeshMap& meshes,       //!< Reference to the meshes vector
+   SLbool loadMeshesOnly)   //!< Only load nodes with meshes
 {
     // we're at the root
     if(!curNode) 
@@ -895,24 +895,24 @@ SLAnimation* SLAssimpImporter::loadAnimation(aiAnimation* anim)
         // find the node that is animated by this channel
         SLstring nodeName = channel->mNodeName.C_Str();
         SLNode* affectedNode = _sceneRoot->find<SLNode>(nodeName);
-        SLuint handle = 0;
-        SLbool isBoneNode = (affectedNode == NULL);
+        SLuint id = 0;
+        SLbool isJointNode = (affectedNode == NULL);
 
         // @todo: this is currently a work around but it can happen that we receive normal node animationtracks and joint animationtracks
         //        we don't allow node animation tracks in a skeleton animation, so we should split an animation in two seperate 
         //        animations if this happens. for now we just ignore node animation tracks if we already have skeleton tracks
         //        ofc this will crash if the first track is a node anim but its just temporary
-        if (!isBoneNode && isSkeletonAnim) 
+        if (!isJointNode && isSkeletonAnim)
             continue;
 
         // is there a skeleton and is this animation channel not affecting a normal node?
         if (_skeletonRoot && !affectedNode)
         {
             isSkeletonAnim = true;
-            SLJoint* affectedBone = _skeleton->getJoint(nodeName);
-            if (affectedBone == NULL)
+            SLJoint* affectedJoint = _skeleton->getJoint(nodeName);
+            if (affectedJoint == NULL)
                 break;
-            handle = affectedBone->handle();
+            id = affectedJoint->id();
             // @todo warn if we find an animation with some node channels and some joint channels
             //       this shouldn't happen!
 
@@ -938,14 +938,14 @@ SLAnimation* SLAssimpImporter::loadAnimation(aiAnimation* anim)
             //      @note (26-11-2014) about a week after this todo. This is the fault of the imported file
             //            the base animation must provide a keyframe for every joint in the skeleton or we will
             //            get problems when we try to interpolate with an other animation.
-            SLMat4f prevOM = affectedBone->om();
-            affectedBone->om(SLMat4f());
-            affectedBone->setInitialState();
-            affectedBone->om(prevOM);
+            SLMat4f prevOM = affectedJoint->om();
+            affectedJoint->om(SLMat4f());
+            affectedJoint->setInitialState();
+            affectedJoint->om(prevOM);
         }
                             
         // log
-        logMessage(LV_Normal, "\n  Channel %d %s", i, (isBoneNode) ? "(joint animation)\n" : "\n");
+        logMessage(LV_Normal, "\n  Channel %d %s", i, (isJointNode) ? "(joint animation)\n" : "\n");
         logMessage(LV_Normal, "   Affected node: %s\n", channel->mNodeName.C_Str());
         logMessage(LV_Detailed, "   Num position keys: %d\n", channel->mNumPositionKeys);
         logMessage(LV_Detailed, "   Num rotation keys: %d\n", channel->mNumRotationKeys);
@@ -953,12 +953,12 @@ SLAnimation* SLAssimpImporter::loadAnimation(aiAnimation* anim)
 
         
         // joint animation channels should receive the correct node id, normal node animations just get 0
-        SLNodeAnimationTrack* track = result->createNodeAnimationTrack(handle);
+        SLNodeAnimationTrack* track = result->createNodeAnimationTrack(id);
 
         
         // this is a node animation only, so we add a reference to the affected node to the track
         if (affectedNode && !isSkeletonAnim) {
-            track->animationTarget(affectedNode);
+            track->animatedNode(affectedNode);
         }
 
         KeyframeMap keyframes;
@@ -1000,10 +1000,7 @@ SLAnimation* SLAssimpImporter::loadAnimation(aiAnimation* anim)
             }
         }
 
-             
         logMessage(LV_Normal, "   Found %d distinct keyframe timestamp(s).\n", keyframes.size());
-
-        SLbool breakCondition = nodeName == "rig|Hips";
 
         KeyframeMap::iterator it = keyframes.begin();
         for (; it != keyframes.end(); it++)

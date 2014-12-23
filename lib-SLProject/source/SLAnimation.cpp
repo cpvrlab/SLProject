@@ -28,8 +28,8 @@ SLAnimation::SLAnimation(const SLstring& name, SLfloat duration)
 */
 SLAnimation::~SLAnimation()
 {
-    SLMNodeAnimationTrack::iterator it = _nodeAnimations.begin();
-    for (; it != _nodeAnimations.end(); it++)
+    SLMNodeAnimationTrack::iterator it = _nodeAnimTracks.begin();
+    for (; it != _nodeAnimTracks.end(); it++)
         delete it->second;
 }
 
@@ -52,8 +52,8 @@ SLfloat SLAnimation::nextKeyframeTime(SLfloat time)
     SLKeyframe* kf1;
     SLKeyframe* kf2;
     
-    SLMNodeAnimationTrack::iterator it = _nodeAnimations.begin();
-    for (; it != _nodeAnimations.end(); it++)
+    SLMNodeAnimationTrack::iterator it = _nodeAnimTracks.begin();
+    for (; it != _nodeAnimTracks.end(); it++)
     {
         it->second->getKeyframesAtTime(time, &kf1, &kf2);
         if (kf2->time() < result && kf2->time() >= time)
@@ -79,8 +79,8 @@ SLfloat SLAnimation::prevKeyframeTime(SLfloat time)
     if (time <= 0.0f)
         return 0.0f;
 
-    SLMNodeAnimationTrack::iterator it = _nodeAnimations.begin();
-    for (; it != _nodeAnimations.end(); it++)
+    SLMNodeAnimationTrack::iterator it = _nodeAnimTracks.begin();
+    for (; it != _nodeAnimTracks.end(); it++)
     {
         it->second->getKeyframesAtTime(time, &kf1, &kf2);
         if (kf1->time() > result && kf1->time() <= time)
@@ -96,10 +96,10 @@ in this animation.
 */
 SLbool SLAnimation::affectsNode(SLNode* node)
 {
-    map<SLuint, SLNodeAnimationTrack*>::iterator it = _nodeAnimations.begin();
-    for (; it != _nodeAnimations.end(); ++it)
+    map<SLuint, SLNodeAnimationTrack*>::iterator it = _nodeAnimTracks.begin();
+    for (; it != _nodeAnimTracks.end(); ++it)
     {
-        if (it->second->animationTarget() == node)
+        if (it->second->animatedNode() == node)
             return true;
     }
 
@@ -113,8 +113,8 @@ SLNodeAnimationTrack* SLAnimation::createNodeAnimationTrack()
 {
     SLuint freeIndex = 0;
     
-    map<SLuint, SLNodeAnimationTrack*>::iterator it = _nodeAnimations.begin();
-    for (; it != _nodeAnimations.end() && freeIndex == it->first; ++it, ++freeIndex)
+    map<SLuint, SLNodeAnimationTrack*>::iterator it = _nodeAnimTracks.begin();
+    for (; it != _nodeAnimTracks.end() && freeIndex == it->first; ++it, ++freeIndex)
     { }
 
     return createNodeAnimationTrack(freeIndex);
@@ -123,16 +123,16 @@ SLNodeAnimationTrack* SLAnimation::createNodeAnimationTrack()
 //-----------------------------------------------------------------------------
 /*! Creates a new SLNodeAnimationTrack with the passed in handle.
 */
-SLNodeAnimationTrack* SLAnimation::createNodeAnimationTrack(SLuint handle)
+SLNodeAnimationTrack* SLAnimation::createNodeAnimationTrack(SLuint id)
 {
     // track with same handle already exists
     // @todo provide a function that generates the handle automatically
-    if (_nodeAnimations.find(handle) != _nodeAnimations.end())
+    if (_nodeAnimTracks.find(id) != _nodeAnimTracks.end())
         return NULL;
 
-    _nodeAnimations[handle] = new SLNodeAnimationTrack(this, handle);
+    _nodeAnimTracks[id] = new SLNodeAnimationTrack(this);
 
-    return _nodeAnimations[handle];
+    return _nodeAnimTracks[id];
 }
 
 //-----------------------------------------------------------------------------
@@ -140,8 +140,8 @@ SLNodeAnimationTrack* SLAnimation::createNodeAnimationTrack(SLuint handle)
 */
 void SLAnimation::apply(SLfloat time, SLfloat weight , SLfloat scale)
 {
-    SLMNodeAnimationTrack::iterator it = _nodeAnimations.begin();
-    for (; it != _nodeAnimations.end(); it++)
+    SLMNodeAnimationTrack::iterator it = _nodeAnimTracks.begin();
+    for (; it != _nodeAnimTracks.end(); it++)
         it->second->apply(time, weight, scale);
 }
 
@@ -150,8 +150,8 @@ void SLAnimation::apply(SLfloat time, SLfloat weight , SLfloat scale)
 */
 void SLAnimation::applyToNode(SLNode* node, SLfloat time, SLfloat weight, SLfloat scale)
 {
-    SLMNodeAnimationTrack::iterator it = _nodeAnimations.begin();
-    for (; it != _nodeAnimations.end(); it++)
+    SLMNodeAnimationTrack::iterator it = _nodeAnimTracks.begin();
+    for (; it != _nodeAnimTracks.end(); it++)
         it->second->applyToNode(node, time, weight, scale);
 }
 
@@ -160,8 +160,8 @@ void SLAnimation::applyToNode(SLNode* node, SLfloat time, SLfloat weight, SLfloa
 */
 void SLAnimation::apply(SLSkeleton* skel, SLfloat time, SLfloat weight, SLfloat scale)
 {
-    SLMNodeAnimationTrack::iterator it = _nodeAnimations.begin();
-    for (; it != _nodeAnimations.end(); it++)
+    SLMNodeAnimationTrack::iterator it = _nodeAnimTracks.begin();
+    for (; it != _nodeAnimTracks.end(); it++)
     {
         SLJoint* joint = skel->getJoint(it->first);
         it->second->applyToNode(joint, time, weight, scale);
@@ -174,9 +174,9 @@ void SLAnimation::apply(SLSkeleton* skel, SLfloat time, SLfloat weight, SLfloat 
 */
 void SLAnimation::resetNodes()
 {
-    SLMNodeAnimationTrack::iterator it = _nodeAnimations.begin();
-    for (; it != _nodeAnimations.end(); it++)
-        it->second->animationTarget()->resetToInitialState();
+    SLMNodeAnimationTrack::iterator it = _nodeAnimTracks.begin();
+    for (; it != _nodeAnimTracks.end(); it++)
+        it->second->animatedNode()->resetToInitialState();
 }
 
 //-----------------------------------------------------------------------------
@@ -208,7 +208,7 @@ SLNodeAnimationTrack* SLAnimation::createSimpleTranslationNodeTrack(SLNode* targ
 {
     SLNodeAnimationTrack* track = createNodeAnimationTrack();
     target->setInitialState();
-    track->animationTarget(target);
+    track->animatedNode(target);
     track->createNodeKeyframe(0.0f); // create zero kf
     track->createNodeKeyframe(length())->translation(endPos); // create end scale keyframe
     return track;
@@ -223,7 +223,7 @@ SLNodeAnimationTrack* SLAnimation::createSimpleRotationNodeTrack(SLNode* target,
 {
     SLNodeAnimationTrack* track = createNodeAnimationTrack();
     target->setInitialState();
-    track->animationTarget(target);
+    track->animatedNode(target);
     track->createNodeKeyframe(0.0f); // create zero kf
     track->createNodeKeyframe(length())->rotation(SLQuat4f(angleDeg, axis)); // create end scale keyframe
     return track;
@@ -237,7 +237,7 @@ SLNodeAnimationTrack* SLAnimation::createSimpleScalingNodeTrack(SLNode* target,
 {    
     SLNodeAnimationTrack* track = createNodeAnimationTrack();
     target->setInitialState();
-    track->animationTarget(target);
+    track->animatedNode(target);
     track->createNodeKeyframe(0.0f); // create zero kf
     track->createNodeKeyframe(length())->scale(endScale); // create end scale keyframe
     return track;
@@ -253,7 +253,7 @@ SLNodeAnimationTrack* SLAnimation::createEllipticNodeTrack(SLNode* target,
     assert(axisA!=axisB && radiusA>0 && radiusB>0);
     SLNodeAnimationTrack* track = createNodeAnimationTrack();
     target->setInitialState();
-    track->animationTarget(target);
+    track->animatedNode(target);
 
     /* The ellipse is defined by 5 keyframes: A,B,C,D and again A
 

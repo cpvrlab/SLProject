@@ -13,6 +13,7 @@
 #include <SLAnimation.h>
 #include <SLAnimationState.h>
 #include <SLAnimationManager.h>
+#include <SLSkeleton.h>
 
 //-----------------------------------------------------------------------------
 //! destructor

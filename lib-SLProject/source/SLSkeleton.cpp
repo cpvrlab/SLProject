@@ -42,28 +42,28 @@ SLSkeleton::~SLSkeleton()
 //-----------------------------------------------------------------------------
 /*! Creates a new joint owned by this skeleton with a default name.
 */
-SLJoint* SLSkeleton::createJoint(SLuint handle)
+SLJoint* SLSkeleton::createJoint(SLuint id)
 {
     ostringstream oss;
-    oss << "Joint " << handle;
-    return createJoint(oss.str(), handle);
+    oss << "Joint " << id;
+    return createJoint(oss.str(), id);
 }
 
 //-----------------------------------------------------------------------------
 /*! Creates a new joint owned by this skeleton.
 */
-SLJoint* SLSkeleton::createJoint(const SLstring& name, SLuint handle)
+SLJoint* SLSkeleton::createJoint(const SLstring& name, SLuint id)
 {
-    SLJoint* result = new SLJoint(name, handle, this);
+    SLJoint* result = new SLJoint(name, id, this);
     
-    assert((handle >= _joints.size() ||
-           (handle < _joints.size() && _joints[handle] == NULL)) &&
-          "Trying to create a joint with an already existing handle.");
+    assert((id >= _joints.size() ||
+           (id < _joints.size() && _joints[id] == NULL)) &&
+          "Trying to create a joint with an already existing id.");
 
-    if (_joints.size() <= handle)
-        _joints.resize(handle+1);
+    if (_joints.size() <= id)
+        _joints.resize(id+1);
     
-    _joints[handle] = result;
+    _joints[id] = result;
     return result;
 }
 
@@ -85,12 +85,12 @@ SLAnimationState* SLSkeleton::getAnimationState(const SLstring& name)
 }
 
 //-----------------------------------------------------------------------------
-/*! Returns an SLJoint by it's internal handle.
+/*! Returns an SLJoint by it's internal id.
 */
-SLJoint* SLSkeleton::getJoint(SLuint handle)
+SLJoint* SLSkeleton::getJoint(SLuint id)
 {
-    assert(handle < _joints.size() && "Index out of bounds");
-    return _joints[handle];
+    assert(id < _joints.size() && "Index out of bounds");
+    return _joints[id];
 }
 
 //-----------------------------------------------------------------------------

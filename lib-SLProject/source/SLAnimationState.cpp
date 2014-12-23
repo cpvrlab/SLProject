@@ -16,7 +16,7 @@
 /*! Constructor
 */
 SLAnimationState::SLAnimationState(SLAnimation* parent, SLfloat weight)
-                : _parentAnim(parent),
+                : _animation(parent),
                 _localTime(0.0f),
                 _linearLocalTime(0.0f),
                 _playbackRate(1.0f),
@@ -44,27 +44,27 @@ void SLAnimationState::advanceTime(SLfloat delta)
     _linearLocalTime += delta * _playbackRate * _playbackDir;
     
     // fix invalid inputs
-    if (_linearLocalTime > _parentAnim->length())
+    if (_linearLocalTime > _animation->length())
     {
         // wrap around on loop, else just stay on last frame
         switch (_loopingBehaviour)
         {
-        case AL_once:          _linearLocalTime = _parentAnim->length(); _enabled = false; break;
+        case AL_once:          _linearLocalTime = _animation->length(); _enabled = false; break;
         case AL_loop:          _linearLocalTime = 0.0f; break;
-        case AL_pingPong:      _linearLocalTime = _parentAnim->length(); _playbackDir *= -1; break;
-        case AL_pingPongLoop:  _linearLocalTime = _parentAnim->length(); _playbackDir *= -1; break;
+        case AL_pingPong:      _linearLocalTime = _animation->length(); _playbackDir *= -1; break;
+        case AL_pingPongLoop:  _linearLocalTime = _animation->length(); _playbackDir *= -1; break;
         }
     }
     // fix negative inputs, playback rate could be negative
     else if (_linearLocalTime < 0.0f)
     {
         while (_linearLocalTime < 0.0f)
-            _linearLocalTime += _parentAnim->length();
+            _linearLocalTime += _animation->length();
 
         switch (_loopingBehaviour)
         {
         case AL_once:          _linearLocalTime = 0.0f; _enabled = false; break;
-        case AL_loop:          _linearLocalTime = _parentAnim->length(); break;
+        case AL_loop:          _linearLocalTime = _animation->length(); break;
         case AL_pingPong:      _linearLocalTime = 0.0f; _enabled = false; break; // at the moment pingPong stops when reaching 0, if we start with a reverse direction this is illogical
         case AL_pingPongLoop:  _linearLocalTime = 0.0f; _playbackDir *= -1; break;
         }
@@ -115,7 +115,7 @@ void SLAnimationState::pause()
 */
 void SLAnimationState::skipToNextKeyframe()
 {
-    SLfloat time = _parentAnim->nextKeyframeTime(_localTime);
+    SLfloat time = _animation->nextKeyframeTime(_localTime);
     localTime(time);
 }
 
@@ -124,7 +124,7 @@ void SLAnimationState::skipToNextKeyframe()
 */
 void SLAnimationState::skipToPrevKeyframe()
 {
-    SLfloat time = _parentAnim->prevKeyframeTime(_localTime);
+    SLfloat time = _animation->prevKeyframeTime(_localTime);
     localTime(time);
 }
 
@@ -142,7 +142,7 @@ void SLAnimationState::skipToStart()
 */
 void SLAnimationState::skipToEnd()
 {
-    localTime(_parentAnim->length());
+    localTime(_animation->length());
 }
 
 //-----------------------------------------------------------------------------
@@ -170,7 +170,7 @@ See http://qt-project.org/doc/qt-4.8/qeasingcurve.html#Type-enum
 */
 SLfloat SLAnimationState::calcEasingTime(SLfloat time) const
 {
-    SLfloat x = time / _parentAnim->length();
+    SLfloat x = time / _animation->length();
     SLfloat y = 0.0f;
 
     switch (_easing)
@@ -205,7 +205,7 @@ SLfloat SLAnimationState::calcEasingTime(SLfloat time) const
         default: y = x; 
     }
     
-    return y * _parentAnim->length();
+    return y * _animation->length();
 }
 
 //-----------------------------------------------------------------------------
@@ -213,7 +213,7 @@ SLfloat SLAnimationState::calcEasingTime(SLfloat time) const
 */
 SLfloat SLAnimationState::calcEasingTimeInv(SLfloat time) const
 {
-    SLfloat x = time / _parentAnim->length();
+    SLfloat x = time / _animation->length();
     SLfloat y = 0.0f;
 
     switch (_easing)
@@ -254,6 +254,6 @@ SLfloat SLAnimationState::calcEasingTimeInv(SLfloat time) const
         default: y = x; 
     }
 
-    return y * _parentAnim->length();
+    return y * _animation->length();
 }
 //-----------------------------------------------------------------------------

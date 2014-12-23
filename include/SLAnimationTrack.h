@@ -29,12 +29,10 @@ class SLCurve;
 class SLAnimationTrack
 {
 public:
-                        SLAnimationTrack        (SLAnimation* parent,
-                                                 SLuint handle);
+                        SLAnimationTrack        (SLAnimation* parent);
                        ~SLAnimationTrack        ();
 
             SLKeyframe* createKeyframe          (SLfloat time);   // create and add a new keyframe
-
             SLfloat     getKeyframesAtTime      (SLfloat time,
                                                  SLKeyframe** k1,
                                                  SLKeyframe** k2) const;
@@ -49,42 +47,38 @@ protected:
     /// Keyframe creator function for derived implementations
     virtual SLKeyframe* createKeyframeImpl(SLfloat time) = 0;
     
-    SLAnimation*        _parent;    //!< parent animation that created this track
-    SLuint              _handle;    //!< unique handle for this track inside its parent animation
+    SLAnimation*        _animation; //!< parent animation that created this track
     SLVKeyframe         _keyframes; //!< keyframe list for this track
-
 };
-
 
 //-----------------------------------------------------------------------------
 //! Specialized SLAnimationTrack for node animations
 class SLNodeAnimationTrack : public SLAnimationTrack
 {
 public:
-    SLNodeAnimationTrack(SLAnimation* parent, SLuint handle);    
-    ~SLNodeAnimationTrack();
+                        SLNodeAnimationTrack(SLAnimation* parent);
+                       ~SLNodeAnimationTrack();
 
-    SLTransformKeyframe* createNodeKeyframe(SLfloat time);
+            SLTransformKeyframe* createNodeKeyframe(SLfloat time);
     
-    void                animationTarget(SLNode* target) { _animationTarget = target; }
-    SLNode*             animationTarget() { return _animationTarget; }
+            void        animatedNode(SLNode* target) { _animatedNode = target; }
+            SLNode*     animatedNode() { return _animatedNode; }
 
     virtual void        calcInterpolatedKeyframe(SLfloat time, SLKeyframe* keyframe) const;
     virtual void        apply(SLfloat time, SLfloat weight = 1.0f, SLfloat scale = 1.0f);
     virtual void        applyToNode(SLNode* node, SLfloat time, SLfloat weight = 1.0f, SLfloat scale = 1.0f);
     
-    void                interpolationCurve(SLCurve* curve);
-    void                translationInterpolation(SLAnimInterpolation interp) { _translationInterpolation = interp; }
+            void        interpolationCurve(SLCurve* curve);
+            void        translationInterpolation(SLAnimInterpolation interp) { _translationInterpolation = interp; }
 
-protected:
-    SLNode*             _animationTarget;           //!< the default target for this track
-    SLAnimInterpolation _translationInterpolation;  //!< interpolation mode for translations (bezier or linear)
-    SLbool              _rebuildInterpolationCurve; //!< dirty flag of the bezier curve
-    mutable SLCurve*    _interpolationCurve;        //!< the translation interpolation curve
-
-
+protected:       
     void                buildInterpolationCurve() const;
     virtual SLKeyframe* createKeyframeImpl(SLfloat time);
+
+    SLNode*             _animatedNode;              //!< the target node for this track_nodeID
+    mutable SLCurve*    _interpolationCurve;        //!< the translation interpolation curve
+    SLAnimInterpolation _translationInterpolation;  //!< interpolation mode for translations (bezier or linear)
+    SLbool              _rebuildInterpolationCurve; //!< dirty flag of the bezier curve
 };
 //-----------------------------------------------------------------------------
 typedef map<SLuint, SLNodeAnimationTrack*> SLMNodeAnimationTrack;

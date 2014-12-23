@@ -38,8 +38,8 @@ public:
     SLVSkeleton&    skeletons() { return _skeletons; }
     SLAnimationState* getNodeAnimationState(const SLstring& name); // get the state for a specific animation
 
-    SLAnimation* createNodeAnimation(SLfloat duration);
-    SLAnimation* createNodeAnimation(const SLstring& name, SLfloat duration);
+    SLAnimation*    createNodeAnimation(SLfloat duration);
+    SLAnimation*    createNodeAnimation(const SLstring& name, SLfloat duration);
 
     // @todo find a better way to give access to the animation names to external stuff (like the gui)
     SLMAnimation    animations() { return _nodeAnimations; }

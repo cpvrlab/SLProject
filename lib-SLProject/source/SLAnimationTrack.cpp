@@ -17,8 +17,8 @@
 //-----------------------------------------------------------------------------
 /*! Constructor
 */
-SLAnimationTrack::SLAnimationTrack(SLAnimation* parent, SLuint handle)
-                 :_parent(parent), _handle(handle)
+SLAnimationTrack::SLAnimationTrack(SLAnimation* animation)
+                 :_animation(animation)
 { }
 
 //-----------------------------------------------------------------------------
@@ -60,11 +60,13 @@ SLKeyframe* SLAnimationTrack::keyframe(SLuint index)
     then the k2 result will be the first keyframe in the list.
     If only one keyframe exists the two values will be equivalent.
 */
-SLfloat SLAnimationTrack::getKeyframesAtTime(SLfloat time, SLKeyframe** k1, SLKeyframe** k2) const
+SLfloat SLAnimationTrack::getKeyframesAtTime(SLfloat time,
+                                             SLKeyframe** k1,
+                                             SLKeyframe** k2) const
 {
     SLfloat t1, t2;
     SLint numKf = (SLint)_keyframes.size();
-    float animationLength = _parent->length();
+    float animationLength = _animation->length();
 
     assert(animationLength > 0.0f && "Animation length is invalid.");
 
@@ -163,9 +165,9 @@ SLfloat SLAnimationTrack::getKeyframesAtTime(SLfloat time, SLKeyframe** k1, SLKe
 //-----------------------------------------------------------------------------
 /*! Constructor for specialized NodeAnimationTrack
 */
-SLNodeAnimationTrack::SLNodeAnimationTrack(SLAnimation* parent, SLuint handle)
-                     :SLAnimationTrack(parent, handle),
-                      _animationTarget(NULL),
+SLNodeAnimationTrack::SLNodeAnimationTrack(SLAnimation* animation)
+                     :SLAnimationTrack(animation),
+                      _animatedNode(NULL),
                       _interpolationCurve(NULL),
                       _translationInterpolation(AI_Linear),
                       _rebuildInterpolationCurve(true)
@@ -191,7 +193,8 @@ SLTransformKeyframe* SLNodeAnimationTrack::createNodeKeyframe(SLfloat time)
 //-----------------------------------------------------------------------------
 /*! Calculates a new keyframe based on the input time and interpolation functions.
 */
-void SLNodeAnimationTrack::calcInterpolatedKeyframe(SLfloat time, SLKeyframe* keyframe) const
+void SLNodeAnimationTrack::calcInterpolatedKeyframe(SLfloat time,
+                                                    SLKeyframe* keyframe) const
 {
     SLKeyframe* k1;
     SLKeyframe* k2;
@@ -202,8 +205,8 @@ void SLNodeAnimationTrack::calcInterpolatedKeyframe(SLfloat time, SLKeyframe* ke
         return;
 
     SLTransformKeyframe* kfOut = static_cast<SLTransformKeyframe*>(keyframe);
-    SLTransformKeyframe* kf1 = static_cast<SLTransformKeyframe*>(k1);
-    SLTransformKeyframe* kf2 = static_cast<SLTransformKeyframe*>(k2);
+    SLTransformKeyframe* kf1   = static_cast<SLTransformKeyframe*>(k1);
+    SLTransformKeyframe* kf2   = static_cast<SLTransformKeyframe*>(k2);
     
 
     SLVec3f base = kf1->translation();
@@ -234,14 +237,17 @@ void SLNodeAnimationTrack::calcInterpolatedKeyframe(SLfloat time, SLKeyframe* ke
 */
 void SLNodeAnimationTrack::apply(SLfloat time, SLfloat weight, SLfloat scale)
 {
-    if (_animationTarget)
-        applyToNode(_animationTarget, time, weight, scale);
+    if (_animatedNode)
+        applyToNode(_animatedNode, time, weight, scale);
 }
 
 //-----------------------------------------------------------------------------
 /*! Applies the animation to the input node with the input timestamp and weight.
 */
-void SLNodeAnimationTrack::applyToNode(SLNode* node, SLfloat time, SLfloat weight, SLfloat scale)
+void SLNodeAnimationTrack::applyToNode(SLNode* node,
+                                       SLfloat time,
+                                       SLfloat weight,
+                                       SLfloat scale)
 {
     if (node == NULL)
         return;

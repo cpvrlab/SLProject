@@ -49,8 +49,8 @@ public:
 
             void        update();
 
-            SLJoint*    createJoint     (SLuint handle);
-            SLJoint*    createJoint     (const SLstring& name, SLuint handle);
+            SLJoint*    createJoint     (SLuint id);
+            SLJoint*    createJoint     (const SLstring& name, SLuint id);
         SLAnimation*    createAnimation (const SLstring& name, SLfloat duration);
 
             void        loadAnimation   (const SLstring& file);
@@ -62,7 +62,7 @@ public:
     SLAnimationState*   getAnimationState(const SLstring& name);
     SLMAnimation        animations      () { return _animations; }
             SLint       numAnimations   () const { return (SLint)_animations.size(); }
-            SLJoint*    getJoint        (SLuint handle);
+            SLJoint*    getJoint        (SLuint id);
             SLJoint*    getJoint        (const SLstring& name);
             SLint       numJoints       () const { return (SLint)_joints.size(); }
             SLJoint*    root            () { return _root; }
@@ -85,8 +85,8 @@ protected:
     SLMAnimation        _animations;        //!< animations for this skeleton
     SLMAnimationState   _animationStates;   //!< animation states for this skeleton
     SLbool              _changed;           //!< did this skeleton change this frame (attribute for skeleton instance)
-    SLVec3f             _minOS;             //!< min point in os space for this skeleton (attribute for skeleton instance)
-    SLVec3f             _maxOS;             //!< max point in os space for this skeleton (attribute for skeleton instance)
+    SLVec3f             _minOS;             //!< min point in os for this skeleton (attribute for skeleton instance)
+    SLVec3f             _maxOS;             //!< max point in os for this skeleton (attribute for skeleton instance)
     SLbool              _minMaxOutOfDate;   //!< ???
 
 };

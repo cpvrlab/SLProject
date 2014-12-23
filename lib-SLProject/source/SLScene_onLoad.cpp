@@ -311,7 +311,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
 
         SLAnimation* light2Anim = SLAnimation::createAnimation("light2_anim", 2.0f, true, EC_linear, AL_pingPongLoop);
         SLNodeAnimationTrack* track = light2Anim->createNodeAnimationTrack();
-        track->animationTarget(light2);
+        track->animatedNode(light2);
         track->createNodeKeyframe(0.0f);
         track->createNodeKeyframe(1.0f)->translation(SLVec3f(8, 8, 0));
         track->createNodeKeyframe(2.0f)->translation(SLVec3f(16, 0, 0));

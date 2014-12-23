@@ -50,7 +50,7 @@ public:
 
     // getters
     SLfloat         localTime       () const { return _localTime; }
-    SLAnimation*    parentAnimation () { return _parentAnim; }
+    SLAnimation*    parentAnimation () { return _animation; }
     SLfloat         playbackRate    () const { return _playbackRate; }
     SLfloat         weight          () const { return _weight; }
     SLAnimLooping   loop            () const { return _loopingBehaviour; }
@@ -73,14 +73,15 @@ public:
     SLfloat         calcEasingTimeInv(SLfloat time) const;
 
 protected:
-    SLAnimation*    _parentAnim;        //!< the animation this state is referencing
+    SLAnimation*    _animation;         //!< the animation this state is referencing
     SLfloat         _localTime;         //!< the current local timestamp (eased time)
-    SLfloat         _linearLocalTime;   //!< linear local time used for _easing property
-    SLfloat         _playbackRate;      //!< the current playback speed
     SLfloat         _weight;            //!< the current weight
-    SLbool          _enabled;           //!< is this animation running
+    SLfloat         _playbackRate;      //!< the current playback speed
     SLshort         _playbackDir;       //!< the current playback direction
+    SLbool          _enabled;           //!< is this animation running
     SLEasingCurve   _easing;            //!< easing modifier curve (to customize start and end point easing)
+    SLfloat         _linearLocalTime;   //!< linear local time used for _easing property
+
     SLAnimLooping   _loopingBehaviour;  //!< We support different looping behaviours
     SLbool          _gotChanged;        //!< Did this state change in the last frame
 };
