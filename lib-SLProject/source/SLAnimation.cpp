@@ -184,16 +184,16 @@ void SLAnimation::resetNodes()
 
 //-----------------------------------------------------------------------------
 /*! Creates new SLAnimation istance for node animations. It will already create and set parameters
-for the respective SLAnimationState.
+for the respective SLAnimationPlay.
 */
-SLAnimation* SLAnimation::createAnimation(const SLstring& name,
+SLAnimation* SLAnimation::create(const SLstring& name,
                                           SLfloat duration,
                                           SLbool enabled,
                                           SLEasingCurve easing,
                                           SLAnimLooping looping)
 {
     SLAnimation* anim = SLScene::current->animManager().createNodeAnimation(name, duration);
-    SLAnimationState* state = SLScene::current->animManager().getNodeAnimationState(anim->name());
+    SLAnimationPlay* state = SLScene::current->animManager().getNodeAnimationPlay(anim->name());
     state->enabled(enabled);
     state->easing(easing);
     state->loop(looping);

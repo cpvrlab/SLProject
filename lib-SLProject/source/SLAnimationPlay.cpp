@@ -1,5 +1,5 @@
 //#############################################################################
-//  File:      SLAnimationState.cpp
+//  File:      SLAnimationPlay.cpp
 //  Author:    Marc Wacker
 //  Date:      Autumn 2014
 //  Codestyle: https://github.com/cpvrlab/SLProject/wiki/Coding-Style-Guidelines
@@ -10,12 +10,12 @@
 
 #include <stdafx.h>
 #include <SLAnimation.h>
-#include <SLAnimationState.h>
+#include <SLAnimationPlay.h>
 
 //-----------------------------------------------------------------------------
 /*! Constructor
 */
-SLAnimationState::SLAnimationState(SLAnimation* parent, SLfloat weight)
+SLAnimationPlay::SLAnimationPlay(SLAnimation* parent, SLfloat weight)
                 : _animation(parent),
                 _localTime(0.0f),
                 _linearLocalTime(0.0f),
@@ -28,9 +28,9 @@ SLAnimationState::SLAnimationState(SLAnimation* parent, SLfloat weight)
 {
 }
 //-----------------------------------------------------------------------------
-/*! Advances the time of the state based on its different easing parameters.
+/*! Advances the time of the play based on its different easing parameters.
 */
-void SLAnimationState::advanceTime(SLfloat delta)
+void SLAnimationPlay::advanceTime(SLfloat delta)
 {
     if (!_enabled)
         return;
@@ -74,7 +74,7 @@ void SLAnimationState::advanceTime(SLfloat delta)
     if (_linearLocalTime == prevTime)
         return;
 
-    // mark the state as changed
+    // mark the play as changed
     _gotChanged = true;
 
     // update the final eased local time
@@ -82,27 +82,27 @@ void SLAnimationState::advanceTime(SLfloat delta)
 }
 
 //-----------------------------------------------------------------------------
-/*! Set this state to be playing forward.
+/*! Set this play to be playing forward.
 */
-void SLAnimationState::playForward()
+void SLAnimationPlay::playForward()
 {
     _enabled = true;
     _playbackDir = 1;
 }
 
 //-----------------------------------------------------------------------------
-/*! Set this state to be playing backward.
+/*! Set this play to be playing backward.
 */
-void SLAnimationState::playBackward()
+void SLAnimationPlay::playBackward()
 {
     _enabled = true;
     _playbackDir = -1;
 }
 
 //-----------------------------------------------------------------------------
-/*! Set this state to be paused.
+/*! Set this play to be paused.
 */
-void SLAnimationState::pause()
+void SLAnimationPlay::pause()
 {
     // @todo is a paused animation disabled OR is it enabled but just not advancing time?
     //       currently we set the direction multiplier to 0
@@ -111,18 +111,18 @@ void SLAnimationState::pause()
 }
 
 //-----------------------------------------------------------------------------
-/*! Set the local time of this state to be on the time of the next keyframe.
+/*! Set the local time of this play to be on the time of the next keyframe.
 */
-void SLAnimationState::skipToNextKeyframe()
+void SLAnimationPlay::skipToNextKeyframe()
 {
     SLfloat time = _animation->nextKeyframeTime(_localTime);
     localTime(time);
 }
 
 //-----------------------------------------------------------------------------
-/*! Set the local time of this state to be on the time of the previous keyframe.
+/*! Set the local time of this play to be on the time of the previous keyframe.
 */
-void SLAnimationState::skipToPrevKeyframe()
+void SLAnimationPlay::skipToPrevKeyframe()
 {
     SLfloat time = _animation->prevKeyframeTime(_localTime);
     localTime(time);
@@ -130,9 +130,9 @@ void SLAnimationState::skipToPrevKeyframe()
 
 
 //-----------------------------------------------------------------------------
-/*! Set the local time of this state to the starting time.
+/*! Set the local time of this play to the starting time.
 */
-void SLAnimationState::skipToStart()
+void SLAnimationPlay::skipToStart()
 {
     localTime(0.0f);
 }
@@ -140,7 +140,7 @@ void SLAnimationState::skipToStart()
 //-----------------------------------------------------------------------------
 /*! Set the local time of this animation to the end time.
 */
-void SLAnimationState::skipToEnd()
+void SLAnimationPlay::skipToEnd()
 {
     localTime(_animation->length());
 }
@@ -149,7 +149,7 @@ void SLAnimationState::skipToEnd()
 /*! Setter for the local time parameter. Takes the currently active easing
 curve into consideration.
 */
-void SLAnimationState::localTime(SLfloat time)
+void SLAnimationPlay::localTime(SLfloat time)
 {
     // Set the eased time
     _localTime = time; 
@@ -168,7 +168,7 @@ void SLAnimationState::localTime(SLfloat time)
 easing curve type that are taken from Qt QAnimation and QEasingCurve class. 
 See http://qt-project.org/doc/qt-4.8/qeasingcurve.html#Type-enum
 */
-SLfloat SLAnimationState::calcEasingTime(SLfloat time) const
+SLfloat SLAnimationPlay::calcEasingTime(SLfloat time) const
 {
     SLfloat x = time / _animation->length();
     SLfloat y = 0.0f;
@@ -211,7 +211,7 @@ SLfloat SLAnimationState::calcEasingTime(SLfloat time) const
 //-----------------------------------------------------------------------------
 /*! Inverse functions for the above easing curve functions.
 */
-SLfloat SLAnimationState::calcEasingTimeInv(SLfloat time) const
+SLfloat SLAnimationPlay::calcEasingTimeInv(SLfloat time) const
 {
     SLfloat x = time / _animation->length();
     SLfloat y = 0.0f;

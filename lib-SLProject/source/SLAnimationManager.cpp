@@ -11,7 +11,7 @@
 #include <stdafx.h>
 #include <SLScene.h>
 #include <SLAnimation.h>
-#include <SLAnimationState.h>
+#include <SLAnimationPlay.h>
 #include <SLAnimationManager.h>
 #include <SLSkeleton.h>
 
@@ -31,10 +31,10 @@ void SLAnimationManager::clear()
         delete it->second;
     _nodeAnimations.clear();
     
-    SLMAnimationState::iterator it2;
-    for (it2 = _nodeAnimationStates.begin(); it2 != _nodeAnimationStates.end(); it2++)
+    SLMAnimationPlay::iterator it2;
+    for (it2 = _nodeAnimationPlays.begin(); it2 != _nodeAnimationPlays.end(); it2++)
         delete it2->second;
-    _nodeAnimationStates.clear();
+    _nodeAnimationPlays.clear();
 
     for (SLint i = 0; i < _skeletons.size(); ++i)
         delete _skeletons[i];
@@ -76,41 +76,41 @@ SLAnimation* SLAnimationManager::createNodeAnimation(const SLstring& name, SLflo
 }
 
 //-----------------------------------------------------------------------------
-//! Returns the state of a node animation by name if it exists.
-SLAnimationState* SLAnimationManager::getNodeAnimationState(const SLstring& name)
+//! Returns the play of a node animation by name if it exists.
+SLAnimationPlay* SLAnimationManager::getNodeAnimationPlay(const SLstring& name)
 {
-    if (_nodeAnimationStates.find(name) != _nodeAnimationStates.end())
-        return _nodeAnimationStates[name];
+    if (_nodeAnimationPlays.find(name) != _nodeAnimationPlays.end())
+        return _nodeAnimationPlays[name];
 
     else if (_nodeAnimations.find(name) != _nodeAnimations.end())
     {
-        _nodeAnimationStates[name] = new SLAnimationState(_nodeAnimations[name]);
-        return _nodeAnimationStates[name];
+        _nodeAnimationPlays[name] = new SLAnimationPlay(_nodeAnimations[name]);
+        return _nodeAnimationPlays[name];
     }
 
     return NULL;
 }
 
 //-----------------------------------------------------------------------------
-//! Advances the time of all enabled animation states.
+//! Advances the time of all enabled animation plays.
 SLbool SLAnimationManager::update(SLfloat elapsedTimeSec)
 {
     SLbool updated = false;
 
     // advance time for node animations and apply them
     // @todo currently we can't blend between normal node animations because we reset them
-    // per state. so the last state that affects a node will have its animation applied.
-    // we need to save the states differently if we want them.
+    // per play. so the last plays that affects a node will have its animation applied.
+    // we need to save the plays differently if we want them.
 
-    SLMAnimationState::iterator it;
-    for (it = _nodeAnimationStates.begin(); it != _nodeAnimationStates.end(); it++)
+    SLMAnimationPlay::iterator it;
+    for (it = _nodeAnimationPlays.begin(); it != _nodeAnimationPlays.end(); it++)
     {
-        SLAnimationState* state = it->second;
-        if (state->enabled())
+        SLAnimationPlay* play = it->second;
+        if (play->enabled())
         {
-            state->parentAnimation()->resetNodes();
-            state->advanceTime(elapsedTimeSec);
-            state->parentAnimation()->apply(state->localTime(), state->weight());
+            play->parentAnimation()->resetNodes();
+            play->advanceTime(elapsedTimeSec);
+            play->parentAnimation()->apply(play->localTime(), play->weight());
             updated = true;
         }
     }

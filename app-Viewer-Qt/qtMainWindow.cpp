@@ -31,12 +31,12 @@
 #include <SLLight.h>
 #include <SLLightRect.h>
 #include <SLLightSphere.h>
-#include <SLAnimationState.h>
+#include <SLAnimationPlay.h>
 
 using namespace std::placeholders;
 
 // register an sl type to use it as data in combo boxes
-Q_DECLARE_METATYPE(SLAnimationState*);
+Q_DECLARE_METATYPE(SLAnimationPlay*);
 
 //-----------------------------------------------------------------------------
 bool qtPropertyTreeWidget::isBeingBuilt = false;
@@ -631,9 +631,9 @@ void qtMainWindow::selectAnimationFromNode(SLNode* node)
             ui->animAnimatedObjectSelect->setCurrentIndex(1);
 
             // find and select correct animation
-            SLAnimationState* state = SLScene::current->animManager().getNodeAnimationState(kv.second->name());
+            SLAnimationPlay* play = SLScene::current->animManager().getNodeAnimationPlay(kv.second->name());
             QVariant variant;
-            variant.setValue<SLAnimationState*>(state);
+            variant.setValue<SLAnimationPlay*>(play);
             SLint index = ui->animAnimationSelect->findData(variant);
             ui->animAnimationSelect->setCurrentIndex(index);
         }
@@ -1500,9 +1500,9 @@ void qtMainWindow::on_animAnimatedObjectSelect_currentIndexChanged(int index)
     {
         for (auto& kv : SLScene::current->animManager().animations())
         {
-            SLAnimationState* state = SLScene::current->animManager().getNodeAnimationState(kv.second->name());
+            SLAnimationPlay* play = SLScene::current->animManager().getNodeAnimationPlay(kv.second->name());
             QVariant variant;
-            variant.setValue<SLAnimationState*>(state);
+            variant.setValue<SLAnimationPlay*>(play);
             ui->animAnimationSelect->addItem(kv.second->name().c_str(), variant);
         }
     }
@@ -1514,9 +1514,9 @@ void qtMainWindow::on_animAnimatedObjectSelect_currentIndexChanged(int index)
         
         for (auto& kv : skeleton->animations())
         {
-            SLAnimationState* state = skeleton->getAnimationState(kv.second->name());
+            SLAnimationPlay* play = skeleton->getAnimationPlay(kv.second->name());
             QVariant variant;
-            variant.setValue<SLAnimationState*>(state);
+            variant.setValue<SLAnimationPlay*>(play);
             ui->animAnimationSelect->addItem(kv.second->name().c_str(), variant);
         }
     }
@@ -1528,19 +1528,19 @@ void qtMainWindow::on_animAnimatedObjectSelect_currentIndexChanged(int index)
 }
 void qtMainWindow::on_animAnimationSelect_currentIndexChanged(int index)
 {
-    SLAnimationState* state = ui->animAnimationSelect->itemData(index).value<SLAnimationState*>();
-    if (!state) return;
-    _selectedAnim = state;
+    SLAnimationPlay* play = ui->animAnimationSelect->itemData(index).value<SLAnimationPlay*>();
+    if (!play) return;
+    _selectedAnim = play;
 
-    ui->animSpeedInput->setValue(state->playbackRate());
-    ui->animWeightInput->setValue(state->weight());
-    ui->animEasingSelect->setCurrentIndex(state->easing());
-    ui->animLoopingSelect->setCurrentIndex(state->loop());
+    ui->animSpeedInput->setValue(play->playbackRate());
+    ui->animWeightInput->setValue(play->weight());
+    ui->animEasingSelect->setCurrentIndex(play->easing());
+    ui->animLoopingSelect->setCurrentIndex(play->loop());
 
-    ui->animTimelineSlider->setAnimDuration(state->parentAnimation()->length());
+    ui->animTimelineSlider->setAnimDuration(play->parentAnimation()->length());
     ui->animDurationLabel->setText(ui->animTimelineSlider->getDurationTimeString());
 
-    std::cout << "on_animationSelectIndexChanged " << index << " " << state->parentAnimation()->name() << "\n";
+    std::cout << "on_animationSelectIndexChanged " << index << " " << play->parentAnimation()->name() << "\n";
 
 }
 void qtMainWindow::on_animSkipStartButton_clicked()

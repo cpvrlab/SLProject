@@ -155,7 +155,7 @@ SLNode* BuildFigureGroup(SLMaterial* mat)
     // Add animations for left leg
     legLeft = figure->findChild<SLNode>("left leg group");
     ;
-    SLAnimation* anim = SLAnimation::createAnimation("figure animation", 2.0f, true, EC_inOutQuint, AL_pingPongLoop);
+    SLAnimation* anim = SLAnimation::create("figure animation", 2.0f, true, EC_inOutQuint, AL_pingPongLoop);
     anim->createSimpleRotationNodeTrack(legLeft, 60, SLVec3f(1, 0, 0));
 
     SLNode* legLowLeft = legLeft->findChild<SLNode>("leglow group");
@@ -221,7 +221,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
         // Create a spherical light source at 0,0,5
         SLLightSphere* light1 = new SLLightSphere(0.3f);
         light1->name("light1");
-        SLAnimation* anim = SLAnimation::createAnimation("lightcircleanim", 2.0f);
+        SLAnimation* anim = SLAnimation::create("lightcircleanim", 2.0f);
         anim->createEllipticNodeTrack(light1, 4, XAxis, 4, YAxis);
 
         // Create ground grid
@@ -260,27 +260,27 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
         // Bouncing balls
         SLNode* ball1 = new SLNode(new SLSphere(0.3f, 16, 16, "Ball1", m2));
         ball1->translate(0,0,4, TS_Local);
-        SLAnimation* ball1Anim = SLAnimation::createAnimation("Ball1_anim", 1.0f, true, EC_linear, AL_pingPongLoop);
+        SLAnimation* ball1Anim = SLAnimation::create("Ball1_anim", 1.0f, true, EC_linear, AL_pingPongLoop);
         ball1Anim->createSimpleTranslationNodeTrack(ball1, SLVec3f(0.0f, -5.2f, 0.0f));
 
         SLNode* ball2 = new SLNode(new SLSphere(0.3f, 16, 16, "Ball2", m2));
         ball2->translate(-1.5f,0,4, TS_Local);
-        SLAnimation* ball2Anim = SLAnimation::createAnimation("Ball2_anim", 1.0f, true, EC_inQuad, AL_pingPongLoop);
+        SLAnimation* ball2Anim = SLAnimation::create("Ball2_anim", 1.0f, true, EC_inQuad, AL_pingPongLoop);
         ball2Anim->createSimpleTranslationNodeTrack(ball2, SLVec3f(0.0f, -5.2f, 0.0f));
 
         SLNode* ball3 = new SLNode(new SLSphere(0.3f, 16, 16, "Ball3", m2));
         ball3->translate(-2.5f,0,4, TS_Local);
-        SLAnimation* ball3Anim = SLAnimation::createAnimation("Ball3_anim", 1.0f, true, EC_outQuad, AL_pingPongLoop);
+        SLAnimation* ball3Anim = SLAnimation::create("Ball3_anim", 1.0f, true, EC_outQuad, AL_pingPongLoop);
         ball3Anim->createSimpleTranslationNodeTrack(ball3, SLVec3f(0.0f, -5.2f, 0.0f));
 
         SLNode* ball4 = new SLNode(new SLSphere(0.3f, 16, 16, "Ball4", m2));
         ball4->translate( 1.5f,0,4, TS_Local);
-        SLAnimation* ball4Anim = SLAnimation::createAnimation("Ball4_anim", 1.0f, true, EC_inOutQuad, AL_pingPongLoop);
+        SLAnimation* ball4Anim = SLAnimation::create("Ball4_anim", 1.0f, true, EC_inOutQuad, AL_pingPongLoop);
         ball4Anim->createSimpleTranslationNodeTrack(ball4, SLVec3f(0.0f, -5.2f, 0.0f));
 
         SLNode* ball5 = new SLNode(new SLSphere(0.3f, 16, 16, "Ball5", m2));
         ball5->translate( 2.5f,0,4, TS_Local);
-        SLAnimation* ball5Anim = SLAnimation::createAnimation("Ball5_anim", 1.0f, true, EC_outInQuad, AL_pingPongLoop);
+        SLAnimation* ball5Anim = SLAnimation::create("Ball5_anim", 1.0f, true, EC_outInQuad, AL_pingPongLoop);
         ball5Anim->createSimpleTranslationNodeTrack(ball5, SLVec3f(0.0f, -5.2f, 0.0f));
 
         SLCamera* cam1 = new SLCamera();
@@ -299,7 +299,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
         light1->diffuse (SLCol4f(0.9f,0.9f,0.9f));
         light1->specular(SLCol4f(0.9f,0.9f,0.9f));
         light1->attenuation(1,0,0);
-        SLAnimation* light1Anim = SLAnimation::createAnimation("Light1_anim", 4.0f);
+        SLAnimation* light1Anim = SLAnimation::create("Light1_anim", 4.0f);
         light1Anim->createEllipticNodeTrack(light1, 6, ZAxis, 6, XAxis);
 
         SLLightSphere* light2 = new SLLightSphere(0, 0, 0, 0.2f);
@@ -309,7 +309,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
         light2->attenuation(1,0,0);
         light2->translate(-8, -4, 0, TS_World);
 
-        SLAnimation* light2Anim = SLAnimation::createAnimation("light2_anim", 2.0f, true, EC_linear, AL_pingPongLoop);
+        SLAnimation* light2Anim = SLAnimation::create("light2_anim", 2.0f, true, EC_linear, AL_pingPongLoop);
         SLNodeAnimationTrack* track = light2Anim->createNodeAnimationTrack();
         track->animatedNode(light2);
         track->createNodeKeyframe(0.0f);
@@ -370,7 +370,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
         light1->specular(SLCol4f(1.0f, 1.0f, 1.0f));
         light1->attenuation(1,0,0);
         light1->samples(8,8);
-        SLAnimation* anim = SLAnimation::createAnimation("anim_light1_backforth", 2.0f, true, EC_inOutQuad, AL_pingPongLoop);
+        SLAnimation* anim = SLAnimation::create("anim_light1_backforth", 2.0f, true, EC_inOutQuad, AL_pingPongLoop);
         anim->createSimpleTranslationNodeTrack(light1, SLVec3f(0.0f, 0.0f, -5.0f));
 
         SLLightSphere* light2 = new SLLightSphere(-2.5f, -2.5f, 2.5f, 0.2f);
@@ -378,7 +378,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
         light2->diffuse(SLCol4f(1.0f, 1.0f, 1.0f));
         light2->specular(SLCol4f(1.0f, 1.0f, 1.0f));
         light2->attenuation(1,0,0);     
-        anim = SLAnimation::createAnimation("anim_light2_updown", 2.0f, true, EC_inOutQuint, AL_pingPongLoop);
+        anim = SLAnimation::create("anim_light2_updown", 2.0f, true, EC_inOutQuint, AL_pingPongLoop);
         anim->createSimpleTranslationNodeTrack(light2, SLVec3f(0.0f, 5.0f, 0.0f));
 
         #if defined(SL_OS_IOS) || defined(SL_OS_ANDROID)
@@ -716,7 +716,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
         light1->ambient(SLCol4f(0.2f, 0.2f, 0.2f));
         light1->specular(SLCol4f(1, 1, 1));
         light1->attenuation(1,0,0);
-        SLAnimation* anim = SLAnimation::createAnimation("light1_anim", 4.0f);
+        SLAnimation* anim = SLAnimation::create("light1_anim", 4.0f);
         anim->createEllipticNodeTrack(light1, 6.0f, ZAxis, 6.0f, XAxis);
         
 
@@ -898,7 +898,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
         SLNode* figure = BuildFigureGroup(m2);
 
         // Add animation for light 1
-        SLAnimation* anim = SLAnimation::createAnimation("light1_anim", 4.0f);
+        SLAnimation* anim = SLAnimation::create("light1_anim", 4.0f);
         anim->createEllipticNodeTrack(light1, 12.0f, ZAxis, 12.0f, XAxis);
 
 
@@ -1075,7 +1075,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
                     SLfloat duration = 1.0f + 5.0f * ((SLfloat)i/(SLfloat)nodesPerLvl);
                     ostringstream oss;;
                     oss << "random anim " << nodeIndex++;
-                    SLAnimation* anim = SLAnimation::createAnimation(oss.str(), duration, true, EC_inOutSine, AL_pingPongLoop);
+                    SLAnimation* anim = SLAnimation::create(oss.str(), duration, true, EC_inOutSine, AL_pingPongLoop);
                     anim->createSimpleTranslationNodeTrack(node, SLVec3f(0.0f, 1.0f, 0.0f));
                 }
             }
@@ -1371,7 +1371,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
         light1->lookAt(0, 0, 0);
         light1->spotCutoff(40);
 
-        SLAnimation* anim = SLAnimation::createAnimation("light1_anim", 2.0f);
+        SLAnimation* anim = SLAnimation::create("light1_anim", 2.0f);
         anim->createEllipticNodeTrack(light1, 2.0f, XAxis, 2.0f, YAxis);
 
         SLNode* scene = new SLNode;
@@ -1424,7 +1424,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
         light1->lookAt(0, 0, 0);
         light1->spotCutoff(50);
 
-        SLAnimation* anim = SLAnimation::createAnimation("light1_anim", 2.0f);
+        SLAnimation* anim = SLAnimation::create("light1_anim", 2.0f);
         anim->createEllipticNodeTrack(light1, 2.0f, XAxis, 2.0f, YAxis);
 
         SLNode* scene = new SLNode;
@@ -1491,7 +1491,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
         sun->specular(SLCol4f(0.2f,0.2f,0.2f));
         sun->attenuation(1,0,0);
         
-        SLAnimation* anim = SLAnimation::createAnimation("light1_anim", 24.0f);
+        SLAnimation* anim = SLAnimation::create("light1_anim", 24.0f);
         anim->createEllipticNodeTrack(sun, 50.0f, XAxis, 50.0f, ZAxis);
 
         SLNode* earth = new SLNode(new SLSphere(1, 36, 36, "Earth", matEarth));

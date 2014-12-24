@@ -49,7 +49,7 @@ public:
             void        resetNodes  ();
 
     // static creator 
-    static SLAnimation* createAnimation(const SLstring& name,
+    static SLAnimation* create(const SLstring& name,
                                         SLfloat duration,
                                         SLbool enabled = true,
                                         SLEasingCurve easing = EC_linear,

@@ -15,7 +15,7 @@
 #include <stdafx.h>
 #include <SLAnimation.h>
 #include <SLAnimationManager.h>
-#include <SLAnimationState.h>
+#include <SLAnimationPlay.h>
 #include <SLSkeleton.h>
 
 //-----------------------------------------------------------------------------
@@ -35,7 +35,7 @@ public:
     void            addSkeleton(SLSkeleton* skel) { _skeletons.push_back(skel); }
     void            addNodeAnimation(SLAnimation* anim);
     SLbool          hasNodeAnimations() { return (_nodeAnimations.size() > 0); }
-    SLAnimationState* getNodeAnimationState(const SLstring& name); // get the state for a specific animation
+    SLAnimationPlay* getNodeAnimationPlay(const SLstring& name);
 
     SLAnimation*    createNodeAnimation(SLfloat duration);
     SLAnimation*    createNodeAnimation(const SLstring& name, SLfloat duration);
@@ -50,7 +50,7 @@ public:
 private:
     SLVSkeleton         _skeletons;             //!< all skeleton instances
     SLMAnimation        _nodeAnimations;        //!< node animations
-    SLMAnimationState   _nodeAnimationStates;   //!< node animation states
+    SLMAnimationPlay    _nodeAnimationPlays;   //!< node animation plays
 };
 //-----------------------------------------------------------------------------
 #endif

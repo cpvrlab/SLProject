@@ -1,6 +1,6 @@
 //#############################################################################
-//  File:      SLAnimationState.h
-//  Author:    Marc Wacker
+//  File:      SLAnimationPlay.h
+//  Author:    Marc Wacker, Marcus Hudritsch
 //  Date:      Autumn 2014
 //  Codestyle: https://code.google.com/p/slproject/wiki/CodingStyleGuidelines
 //  Copyright: 2002-2014 Marcus Hudritsch
@@ -8,8 +8,8 @@
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
 
-#ifndef SLANIMATIONSTATE_H
-#define SLANIMATIONSTATE_H
+#ifndef SLANIMATIONPLAY_H
+#define SLANIMATIONPLAY_H
 
 #include <stdafx.h>
 #include <SLEnums.h>
@@ -17,26 +17,23 @@
 class SLAnimation;
 
 //-----------------------------------------------------------------------------
-//! Manages a single state of an SLAnimation
+//! Manages a play of an SLAnimation
 /*! 
-    This class manages the local time of SLAnimations.
-    It manages the way the time advances and how the
-    time loops. 
-    It is possible to have multiple states per animation.
-    If we keep track of what nodes are affected by which
-    SLAnimationState we can only manipulate these nodes
-    for the time kept in the SLAnimationState.
+    This class manages the play states and the local time of SLAnimations.
+    It manages the way the time advances and how the time loops.
+    It is possible to have multiple states per animation. If we keep track
+    of what nodes are affected by which SLAnimationPlay we can only manipulate
+    these nodes for the time kept in the SLAnimationPlay.
 
-    A practical example for this behaviour would be special
-    skeleton instances that only keep track of SLAnimationStates
-    for their parent SLSkeleton. The skeleton instance can then
-    change its skeletal data based on the states and the actual
-    SLAnimation has to only exist once in memory.
+    A practical example for this behaviour would be special skeleton instances
+    that only keep track of SLAnimationPlay for their parent SLSkeleton.
+    The skeleton instance can then change its skeletal data based on the
+    states and the actual SLAnimation has to only exist once in memory.
 */
-class SLAnimationState
+class SLAnimationPlay
 {
 public:
-                    SLAnimationState(SLAnimation* parent,
+                    SLAnimationPlay (SLAnimation* parent,
                                      SLfloat weight = 1.0f);
 
     // control functions
@@ -73,7 +70,7 @@ public:
     SLfloat         calcEasingTimeInv(SLfloat time) const;
 
 protected:
-    SLAnimation*    _animation;         //!< the animation this state is referencing
+    SLAnimation*    _animation;         //!< the animation this plays is referencing
     SLfloat         _localTime;         //!< the current local timestamp (eased time)
     SLfloat         _weight;            //!< the current weight
     SLfloat         _playbackRate;      //!< the current playback speed
@@ -83,9 +80,9 @@ protected:
     SLfloat         _linearLocalTime;   //!< linear local time used for _easing property
 
     SLAnimLooping   _loopingBehaviour;  //!< We support different looping behaviours
-    SLbool          _gotChanged;        //!< Did this state change in the last frame
+    SLbool          _gotChanged;        //!< Did this play change in the last frame
 };
 //-----------------------------------------------------------------------------
-typedef std::map<SLstring, SLAnimationState*> SLMAnimationState;
+typedef std::map<SLstring, SLAnimationPlay*> SLMAnimationPlay;
 //-----------------------------------------------------------------------------
 #endif
