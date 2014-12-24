@@ -400,9 +400,9 @@
     <ClInclude Include="..\include\SL.h" />
     <ClInclude Include="..\include\SLAccelStruct.h" />
     <ClInclude Include="..\include\SLAnimation.h" />
+    <ClInclude Include="..\include\SLAnimationPlay.h" />
     <ClInclude Include="..\include\SLAnimationTrack.h" />
     <ClInclude Include="..\include\SLAnimationManager.h" />
-    <ClInclude Include="..\include\SLAnimationState.h" />
     <ClInclude Include="..\include\SLAssimpImporter.h" />
     <ClInclude Include="..\include\SLAverage.h" />
     <ClInclude Include="..\include\SLJoint.h" />
@@ -472,9 +472,9 @@
     <ClCompile Include="source\math\SLCurveBezier.cpp" />
     <ClCompile Include="source\math\SLPlane.cpp" />
     <ClCompile Include="source\SLAnimation.cpp" />
+    <ClCompile Include="source\SLAnimationPlay.cpp" />
     <ClCompile Include="source\SLAnimationTrack.cpp" />
     <ClCompile Include="source\SLAnimationManager.cpp" />
-    <ClCompile Include="source\SLAnimationState.cpp" />
     <ClCompile Include="source\SLJoint.cpp" />
     <ClCompile Include="source\SLBox.cpp" />
     <ClCompile Include="source\SLButton.cpp" />
