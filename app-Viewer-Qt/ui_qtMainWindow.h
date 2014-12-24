@@ -201,7 +201,7 @@ public:
     {
         if (qtMainWindow->objectName().isEmpty())
             qtMainWindow->setObjectName(QStringLiteral("qtMainWindow"));
-        qtMainWindow->resize(696, 623);
+        qtMainWindow->resize(560, 625);
         QSizePolicy sizePolicy(QSizePolicy::Preferred, QSizePolicy::Minimum);
         sizePolicy.setHorizontalStretch(0);
         sizePolicy.setVerticalStretch(0);
@@ -573,7 +573,7 @@ public:
         qtMainWindow->setCentralWidget(centralWidget);
         menuBar = new QMenuBar(qtMainWindow);
         menuBar->setObjectName(QStringLiteral("menuBar"));
-        menuBar->setGeometry(QRect(0, 0, 696, 22));
+        menuBar->setGeometry(QRect(0, 0, 560, 21));
         menuBar->setDefaultUp(false);
         menuBar->setNativeMenuBar(false);
         menuFile = new QMenu(menuBar);
@@ -929,7 +929,10 @@ public:
         animSpeedInput->setSizePolicy(sizePolicy4);
         animSpeedInput->setMinimumSize(QSize(40, 0));
         animSpeedInput->setMaximumSize(QSize(43, 16777215));
-        animSpeedInput->setFont(font1);
+        QFont font2;
+        font2.setFamily(QStringLiteral("Segoe UI"));
+        font2.setPointSize(10);
+        animSpeedInput->setFont(font2);
         animSpeedInput->setMaximum(20);
         animSpeedInput->setSingleStep(0.1);
         animSpeedInput->setValue(1);
@@ -942,7 +945,7 @@ public:
         animWeightInput->setSizePolicy(sizePolicy4);
         animWeightInput->setMinimumSize(QSize(40, 0));
         animWeightInput->setMaximumSize(QSize(43, 16777215));
-        animWeightInput->setFont(font1);
+        animWeightInput->setFont(font2);
         animWeightInput->setMaximum(10);
         animWeightInput->setSingleStep(0.1);
         animWeightInput->setValue(1);

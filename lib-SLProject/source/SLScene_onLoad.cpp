@@ -263,25 +263,25 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
         SLAnimation* ball1Anim = SLAnimation::create("Ball1_anim", 1.0f, true, EC_linear, AL_pingPongLoop);
         ball1Anim->createSimpleTranslationNodeTrack(ball1, SLVec3f(0.0f, -5.2f, 0.0f));
 
-        SLNode* ball2 = new SLNode(new SLSphere(0.3f, 16, 16, "Ball2", m2));
-        ball2->translate(-1.5f,0,4, TS_Local);
-        SLAnimation* ball2Anim = SLAnimation::create("Ball2_anim", 1.0f, true, EC_inQuad, AL_pingPongLoop);
-        ball2Anim->createSimpleTranslationNodeTrack(ball2, SLVec3f(0.0f, -5.2f, 0.0f));
+        //SLNode* ball2 = new SLNode(new SLSphere(0.3f, 16, 16, "Ball2", m2));
+        //ball2->translate(-1.5f,0,4, TS_Local);
+        //SLAnimation* ball2Anim = SLAnimation::create("Ball2_anim", 1.0f, true, EC_inQuad, AL_pingPongLoop);
+        //ball2Anim->createSimpleTranslationNodeTrack(ball2, SLVec3f(0.0f, -5.2f, 0.0f));
 
-        SLNode* ball3 = new SLNode(new SLSphere(0.3f, 16, 16, "Ball3", m2));
-        ball3->translate(-2.5f,0,4, TS_Local);
-        SLAnimation* ball3Anim = SLAnimation::create("Ball3_anim", 1.0f, true, EC_outQuad, AL_pingPongLoop);
-        ball3Anim->createSimpleTranslationNodeTrack(ball3, SLVec3f(0.0f, -5.2f, 0.0f));
+        //SLNode* ball3 = new SLNode(new SLSphere(0.3f, 16, 16, "Ball3", m2));
+        //ball3->translate(-2.5f,0,4, TS_Local);
+        //SLAnimation* ball3Anim = SLAnimation::create("Ball3_anim", 1.0f, true, EC_outQuad, AL_pingPongLoop);
+        //ball3Anim->createSimpleTranslationNodeTrack(ball3, SLVec3f(0.0f, -5.2f, 0.0f));
 
-        SLNode* ball4 = new SLNode(new SLSphere(0.3f, 16, 16, "Ball4", m2));
-        ball4->translate( 1.5f,0,4, TS_Local);
-        SLAnimation* ball4Anim = SLAnimation::create("Ball4_anim", 1.0f, true, EC_inOutQuad, AL_pingPongLoop);
-        ball4Anim->createSimpleTranslationNodeTrack(ball4, SLVec3f(0.0f, -5.2f, 0.0f));
+        //SLNode* ball4 = new SLNode(new SLSphere(0.3f, 16, 16, "Ball4", m2));
+        //ball4->translate( 1.5f,0,4, TS_Local);
+        //SLAnimation* ball4Anim = SLAnimation::create("Ball4_anim", 1.0f, true, EC_inOutQuad, AL_pingPongLoop);
+        //ball4Anim->createSimpleTranslationNodeTrack(ball4, SLVec3f(0.0f, -5.2f, 0.0f));
 
-        SLNode* ball5 = new SLNode(new SLSphere(0.3f, 16, 16, "Ball5", m2));
-        ball5->translate( 2.5f,0,4, TS_Local);
-        SLAnimation* ball5Anim = SLAnimation::create("Ball5_anim", 1.0f, true, EC_outInQuad, AL_pingPongLoop);
-        ball5Anim->createSimpleTranslationNodeTrack(ball5, SLVec3f(0.0f, -5.2f, 0.0f));
+        //SLNode* ball5 = new SLNode(new SLSphere(0.3f, 16, 16, "Ball5", m2));
+        //ball5->translate( 2.5f,0,4, TS_Local);
+        //SLAnimation* ball5Anim = SLAnimation::create("Ball5_anim", 1.0f, true, EC_outInQuad, AL_pingPongLoop);
+        //ball5Anim->createSimpleTranslationNodeTrack(ball5, SLVec3f(0.0f, -5.2f, 0.0f));
 
         SLCamera* cam1 = new SLCamera();
         cam1->position(0, 0, 22);
@@ -327,10 +327,10 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
         scene->addChild(cam2);
         scene->addChild(floorRect);
         scene->addChild(ball1);
-        scene->addChild(ball2);
-        scene->addChild(ball3);
-        scene->addChild(ball4);
-        scene->addChild(ball5);
+        //scene->addChild(ball2);
+        //scene->addChild(ball3);
+        //scene->addChild(ball4);
+        //scene->addChild(ball5);
         scene->addChild(figure);
      
         // Set backround color, active camera & the root pointer

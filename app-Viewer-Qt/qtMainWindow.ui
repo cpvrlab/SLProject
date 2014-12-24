@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>696</width>
-    <height>623</height>
+    <width>560</width>
+    <height>625</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -37,8 +37,8 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>696</width>
-     <height>22</height>
+     <width>560</width>
+     <height>21</height>
     </rect>
    </property>
    <property name="defaultUp">
@@ -962,7 +962,8 @@ QSlider::handle:horizontal:disabled {
              </property>
              <property name="font">
               <font>
-               <pointsize>12</pointsize>
+               <family>Segoe UI</family>
+               <pointsize>10</pointsize>
               </font>
              </property>
              <property name="toolTip">
@@ -1004,7 +1005,8 @@ QSlider::handle:horizontal:disabled {
              </property>
              <property name="font">
               <font>
-               <pointsize>12</pointsize>
+               <family>Segoe UI</family>
+               <pointsize>10</pointsize>
               </font>
              </property>
              <property name="toolTip">
