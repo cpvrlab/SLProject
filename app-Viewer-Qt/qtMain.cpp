@@ -10,6 +10,7 @@
 
 #include <SL.h>
 #include <QApplication>
+#include <qstylefactory.h>
 #include "qtMainWindow.h"
 #include "qtGLWidget.h"
 
@@ -22,8 +23,10 @@ int main(int argc, char *argv[])
             cmdLineArgs.push_back(argv[i]);
 
         QApplication app(argc, argv);
+        app.setStyle(QStyleFactory::create("Fusion"));
         app.setWindowIcon(QIcon("appIcon36.png"));
         qtMainWindow wnd(0, cmdLineArgs);
+        
         wnd.show();
         return app.exec();
     #else

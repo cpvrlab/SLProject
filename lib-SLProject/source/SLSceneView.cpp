@@ -18,6 +18,7 @@
 #include <SLAABBox.h>
 #include <SLGLProgram.h>
 #include <SLAnimation.h>
+#include <SLAnimationManager.h>
 #include <SLLightSphere.h>
 #include <SLLightRect.h>
 #include <SLRay.h>
@@ -34,6 +35,11 @@ It never changes throughout the life of a sceneview.
 */
 SLSceneView::SLSceneView() : SLObject()
 { 
+    _animMultiplier = 1.0f;
+    _animWeightTime = 1.0f;
+    _showAnimWeightEffects = false;
+    _animTime = 0.0f;
+    _runBackwards = false;
     SLScene* s = SLScene::current;
     assert(s && "No SLScene::current instance.");
    
@@ -45,7 +51,7 @@ SLSceneView::SLSceneView() : SLObject()
             return;
         }
     }
-
+   
     // No gaps, so add it and get the index back.
     s->_sceneViews.push_back(this);
     _index = (SLuint)s->_sceneViews.size() - 1;
@@ -309,6 +315,9 @@ void SLSceneView::onInitialize()
         // build axis aligned bounding box hierarchy after init
         clock_t t = clock();
         s->_root3D->updateAABBRec();
+
+        for (SLint i = 0; i < s->meshes().size(); ++i)
+            s->meshes()[i]->updateAccelStruct();
       
         SL_LOG("Time for AABBs : %5.3f sec.\n", 
                 (SLfloat)(clock()-t)/(SLfloat)CLOCKS_PER_SEC);
@@ -372,7 +381,7 @@ SLbool SLSceneView::onPaint()
     SLScene* s = SLScene::current;
     SLGLBuffer::totalDrawCalls = 0;
     SLbool camUpdated = false;
-   
+    
     if (_camera  && s->_root3D)
     {   // Render the 3D scenegraph by by raytracing, pathtracing or OpenGL
         switch (_renderType)
@@ -471,9 +480,232 @@ SLbool SLSceneView::draw3DGL(SLfloat elapsedTimeMS)
 
     SLfloat startMS = s->timeMilliSec();
 
+    /*
+    //-------- TEMPORARY ANIMATION TEST ----------------------------
+
+    static bool animTestInit = false;
+    static bool pausedLastFrame = false;
+    static SLNode* animTarget;
+    static SLNode* animTarget2;
+    static SLAnimation* testAnim;
+    static SLAnimation* testAnim2;
+    static SLAnimation* testAnim3;
+    static SLNodeAnimationTrack* testAnimTrack;
+    static SLNodeAnimationTrack* testAnimTrack2;
+    static SLNodeAnimationTrack* testAnimTrack3;
+    static SLAnimManager* testAnimState;
+    static SLfloat lastFrameTime = 0.0f;
+
+
+
+    static float frameDelta = 0.0f;
+    
+    if (_runAnim) {
+        frameDelta = s->timeSec() - lastFrameTime;
+        if (pausedLastFrame) {
+            frameDelta = 0.0f;
+            pausedLastFrame = false;
+        }
+        SLfloat multiplier = (_runBackwards) ? -1 : 1;
+        _animTime +=  multiplier * _animMultiplier * frameDelta;
+        lastFrameTime = s->timeSec();
+    }
+    else
+        pausedLastFrame = true;
+    
+
+
+    SLfloat frameTime = fmod(s->timeSec(), 7.0f);
+
+    // a node has a position already, do we just overwrite it with the one that's in the animation?
+
+    if (!animTestInit) {
+        // the single node this animation will be applied to
+        animTarget = s->_root3D->findChild<SLNode>("Sphere Light");
+
+        // create test animation
+        testAnim = new SLAnimation(4.0f); // the creation of a new animation will be handled by the SLAnimationManager
+                                     // the animation length parameter should be automatically set in the future (maybe)
+                                    // for now I just need a correct time set here so I do it manually.
+                                    // also when we alter the length of an animation the keyframes should check if they are still valid.
+
+        testAnim2 = new SLAnimation(1.0f);
+        testAnim2->length(1.0f);
+
+        testAnimTrack = testAnim->createNodeAnimationTrack(0);
+        SLTransformKeyframe* kf0 = testAnimTrack->createNodeKeyframe(0.0f); // @todo autogenerate a keyframe at 0.0
+        SLTransformKeyframe* kf1 = testAnimTrack->createNodeKeyframe(1.0f);      
+        SLTransformKeyframe* kf2 = testAnimTrack->createNodeKeyframe(3.0f);      
+        
+        kf0->translation(SLVec3f(0, 0, 0));
+
+        kf1->translation(SLVec3f(1, 0, 0));
+        //kf1->scale(SLVec3f(1, 3, 1));
+        kf2->translation(SLVec3f(-1, 0, 0));
+
+        testAnimTrack2 = testAnim2->createNodeAnimationTrack(0);
+        kf0 = testAnimTrack2->createNodeKeyframe(0.0f); // @todo autogenerate a keyframe at 0.0
+        kf1 = testAnimTrack2->createNodeKeyframe(0.25f);      
+        kf2 = testAnimTrack2->createNodeKeyframe(0.75f);  
+        
+        kf0->translation(SLVec3f(0, 0, 0));
+
+        kf1->translation(SLVec3f(0, 0.5f, 0));
+        //kf1->scale(SLVec3f(1, 3, 1));
+        kf2->translation(SLVec3f(0, -0.5, 0));
+
+        animTarget->setInitialState();
+
+        animTestInit = true;
+
+        
+        animTarget2 = s->_root3D->findChild<SLNode>("AnimatedBox");
+        animTarget2->setInitialState();
+
+        testAnim3 = new SLAnimation(2.0f);
+        testAnimTrack3 = testAnim3->createNodeAnimationTrack(0);        
+        kf0 = testAnimTrack3->createNodeKeyframe(0.0f); // @todo autogenerate a keyframe at 0.0
+        kf1 = testAnimTrack3->createNodeKeyframe(2.0f);   
+        
+        kf0->translation(SLVec3f(0, 0, 0));
+        kf1->translation(SLVec3f(0, 2, 0));
+    }
+    animTarget->resetToInitialState();
+    testAnimTrack->applyToNode(animTarget, animTime);
+    testAnimTrack2->applyToNode(animTarget, animTime);
+    
+
+    animTarget2->resetToInitialState();
+    testAnimTrack3->applyToNode(animTarget2, _animTime);
+    // last imported animation (icosphere) 
+    s->_root3D->findChild<SLNode>("Icosphere")->resetToInitialState();
+    s->animations()[6]->apply(_animTime);
+
+    // ------------------------------------------------------------
+
+    
+    //-------- TEMPORARY ANIMATION TEST 2--------------------------
+    
+    static bool testBool = true;
+    if (testBool)
+    {
+        //testBool = false;
+        // try to animate the 0 skeleton
+        SLSkeleton* skel = s->skeletons().at(0);
+        SLAnimation* skelAnim = skel->tempGetAnim("Unnamed Animation");
+        //SLAnimation* skelAnim = skel->tempGetAnim("AnimStack::deformation_rig|deformation_rigAction");
+        skel->reset();
+        // temporary cheat since we crash (because astroboy lacks a 0.0 keyframe)
+        
+        //_time = 0.0f;
+        //_time = fmod(_time, skelAnim->length() - 0.0416660011);
+        //_time += 0.0416660011;
+      
+        //cout << ((sinf(_animTime*SL_DEG2RAD*40)+1.0f)/2.0f) << endl;
+
+        SLfloat animWeight = 1.0f;
+        if (_showAnimWeightEffects) {
+            _animWeightTime +=frameDelta;
+            animWeight = ((cosf((180+_animWeightTime)*SL_DEG2RAD*40)+1.0f)/2.0f);
+
+            static float lastPrint = 0.0f;
+            if (lastPrint + 0.5f < _animTime)
+            {
+                SL_LOG("Weight: %.2f\n\n\n", animWeight);
+                lastPrint = _animTime;
+            }
+        }
+        skelAnim->apply(skel, _animTime, animWeight);
+        //skelAnim->apply(skel, _time*2, 0.5f);
+    }
+    if (testBool)
+    {
+        //testBool = false;
+        // try to animate the 0 skeleton
+        SLSkeleton* skel = s->skeletons().at(1);
+        SLAnimation* skelAnim = skel->tempGetAnim("Unnamed Animation");
+        //SLAnimation* skelAnim = skel->tempGetAnim("AnimStack::deformation_rig|deformation_rigAction");
+        skel->reset();
+        // temporary cheat since we crash (because astroboy lacks a 0.0 keyframe)
+        
+        //_time = 0.0f;
+        //_time = fmod(_time, skelAnim->length() - 0.0416660011);
+        //_time += 0.0416660011;
+        skelAnim->apply(skel, _animTime*0.8 + 0.6f, 1.0f);
+        //skelAnim->apply(skel, _time*2, 0.5f);
+    }
+    if (testBool)
+    {
+        //testBool = false;
+        // try to animate the 0 skeleton
+        SLSkeleton* skel = s->skeletons().at(2);
+        SLAnimation* skelAnim = skel->tempGetAnim("Unnamed Animation");
+        //SLAnimation* skelAnim = skel->tempGetAnim("AnimStack::deformation_rig|deformation_rigAction");
+        skel->reset();
+        // temporary cheat since we crash (because astroboy lacks a 0.0 keyframe)
+        
+        //_time = 0.0f;
+        //_time = fmod(_time, skelAnim->length() - 0.0416660011);
+        //_time += 0.0416660011;
+        skelAnim->apply(skel, _animTime, 1.0f);
+        //skelAnim->apply(skel, _time*2, 0.5f);
+    }
+    if (testBool)
+    {
+        //testBool = false;
+        // try to animate the 0 skeleton
+        SLSkeleton* skel = s->skeletons().at(3);
+        SLAnimation* skelAnim = skel->tempGetAnim("Unnamed Animation");
+        //SLAnimation* skelAnim = skel->tempGetAnim("AnimStack::deformation_rig|deformation_rigAction");
+        skel->reset();
+        // temporary cheat since we crash (because astroboy lacks a 0.0 keyframe)
+        
+        //_time = 0.0f;
+        //_time = fmod(_time, skelAnim->length() - 0.0416660011);
+        //_time += 0.0416660011;
+        skelAnim->apply(skel, _animTime, 1.0f);
+        //skelAnim->apply(skel, _time*2, 0.5f);
+    }
+    if (testBool)
+    {
+        //testBool = false;
+        // try to animate the 0 skeleton
+        SLSkeleton* skel = s->skeletons().at(4);
+        SLAnimation* skelAnim = skel->tempGetAnim("combinedAnim_0");
+        //SLAnimation* skelAnim = skel->tempGetAnim("AnimStack::deformation_rig|deformation_rigAction");
+        skel->reset();
+        // temporary cheat since we crash (because astroboy lacks a 0.0 keyframe)
+        
+        //_time = 0.0f;
+        //_time = fmod(_time, skelAnim->length() - 0.0416660011);
+        //_time += 0.0416660011;
+        skelAnim->apply(skel, _animTime, 1.0f);
+        //skelAnim->apply(skel, _time*2, 0.5f);
+    }
+    if (testBool)
+    {
+        //testBool = false;
+        // try to animate the 0 skeleton
+        SLSkeleton* skel = s->skeletons().at(5);
+        SLAnimation* skelAnim = skel->tempGetAnim("Unnamed Animation");
+        //SLAnimation* skelAnim = skel->tempGetAnim("AnimStack::deformation_rig|deformation_rigAction");
+        skel->reset();
+        // temporary cheat since we crash (because astroboy lacks a 0.0 keyframe)
+        
+        //_time = 0.0f;
+        //_time = fmod(_time, skelAnim->length() - 0.0416660011);
+        //_time += 0.0416660011;
+        skelAnim->apply(skel, _animTime, 1.0f);
+        //skelAnim->apply(skel, _time*2, 0.5f);
+    }
+    // ------------------------------------------------------------
+    */
+
+
+
     // Update camera animation seperately to process input on camera object
     SLbool camUpdated = _camera->camUpdate(elapsedTimeMS);
-
+   
     //////////////////////
     // 2. Clear Buffers //
     //////////////////////
@@ -482,7 +714,6 @@ SLbool SLSceneView::draw3DGL(SLfloat elapsedTimeMS)
     if (_camera->projection() == stereoSideBySideD)
     {   s->oculus()->beginFrame();
         
-        // @todo change SLGLOculusFB to not require a resolution here
         _oculusFB.bindFramebuffer((SLint)(s->oculus()->resolutionScale() * (SLfloat)_scrW), 
                                   (SLint)(s->oculus()->resolutionScale() * (SLfloat)_scrH)); 
     }
@@ -534,6 +765,7 @@ SLbool SLSceneView::draw3DGL(SLfloat elapsedTimeMS)
     // We could also draw the scenegraph recursively
     // but this doesn't split transparent from opaque nodes
     //s->_root3D->drawRec(this);
+
 
     draw3DGLAll();
    
@@ -624,8 +856,11 @@ void SLSceneView::draw3DGLLines(SLVNode &nodes)
                 nodes[i]->aabb()->drawAxisWS();
 
                 // Draw the animation curve
+                /// @add add old animation functionality back in
+                /*
                 if (nodes[i]->animation())
                     nodes[i]->animation()->drawWS();
+                    */
             }
         }
     }
@@ -675,7 +910,7 @@ void SLSceneView::draw2DGL()
         _draw2DTimeMS = s->timeMilliSec() - startMS;
         return;
     }
-
+    
     SLfloat w2 = (SLfloat)_scrWdiv2;
     SLfloat h2 = (SLfloat)_scrHdiv2;
    
@@ -1190,6 +1425,13 @@ forwarding them to onCommand.
 SLbool SLSceneView::onKeyPress(const SLKey key, const SLKey mod)
 {  
     SLScene* s = SLScene::current;
+    
+    if (key == '1') { _runAnim = !_runAnim; return true; }
+    if (key == '2') { _animTime += 0.1f; return true; }
+    if (key == '3') { _runBackwards = !_runBackwards; return true; }
+    if (key == '4') { _showAnimWeightEffects = !_showAnimWeightEffects; _animWeightTime = 0.0f; return true; }
+    if (key == KeyNPAdd) { _animMultiplier += 0.1f; return true; }
+    if (key == KeyNPSubtract) { if(_animMultiplier > 0.1f) _animMultiplier += -0.1f; return true; }
     
     if (key=='N') return onCommand(cmdNormalsToggle);
     if (key=='P') return onCommand(cmdWireMeshToggle);
@@ -1973,6 +2215,7 @@ SLbool SLSceneView::draw3DRT()
     // if the raytracer not yet got started
     if (_raytracer.state()==rtReady)
     {
+        SLScene::current->_root3D->needUpdate();
         // Start raytracing
         if (_raytracer.distributed())
              _raytracer.renderDistrib(this);

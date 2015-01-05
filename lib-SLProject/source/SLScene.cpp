@@ -20,6 +20,8 @@
 #include <SLLight.h>
 #include <SLTexFont.h>
 #include <SLButton.h>
+#include <SLAnimation.h>
+#include <SLAnimationManager.h>
 
 //-----------------------------------------------------------------------------
 /*! Global static scene pointer that can be used throughout the entire library
@@ -260,6 +262,8 @@ void SLScene::unInit()
     // clear eventHandlers
     _eventHandlers.clear();
 
+    _animManager.clear();
+
     // reset all states
     SLGLState::getInstance()->initAll();
 }
@@ -306,10 +310,7 @@ bool SLScene::updateIfAllViewsGotPainted()
 
     // Do animations
     SLfloat startUpdateMS = timeMilliSec();
-    SLbool animated = !_stopAnimations && _root3D->animateRec(_elapsedTimeMS);
-
-    //@todo Don't slow down if we're in HMD stereo mode
-    //animated = animated || _ camera->projection() == stereoSideBySideD;
+    SLbool animated = !_stopAnimations && _animManager.update(elapsedTimeSec());
 
     // Update the world matrix & AABBs efficiently
     SLGLState::getInstance()->modelViewMatrix.identity();

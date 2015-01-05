@@ -14,6 +14,7 @@
 #include <stdafx.h>
 #include <SLAABBox.h>
 #include <SLGLBuffer.h>
+#include <SLEnums.h>
 
 class SLSceneView;
 class SLNode;
@@ -21,6 +22,62 @@ class SLAccelStruct;
 struct SLNodeStats;
 class SLMaterial;
 class SLRay;
+class SLSkeleton;
+
+// @todo   The SLMesh and SLBuffer could use a little renovation work.
+//         Working with SLMesh at the moment feels a little clumsy
+//         since you have to handle everything in C-Buffer style.
+//         Furthermore introducing vertex semantics would help in
+//         automating vertex data upload etc.
+
+/* Problems with the current SLMesh class:
+
+    1. A single SLBuffer object per data in the mesh.
+        Position, normals, texture coordinates etc. all have their own SLBuffer instance in the mesh.
+        It is tedious to handle them and to upload the correct data.
+
+        Cue: Vertex Semantic
+
+    2. Too tightly coupled with SLMaterial.
+        e.x.:   SLMesh might need a different combination of vertex and fragment programs
+                depending on its own data. If it is an animated mesh it needs a vertex program
+                that supports GPU skinning. Then we also can choose between per vertex and per
+                fragment lighting.
+
+                For the old model it was somewhat okay to specify per vertex/fragment lighting in 
+                the material, but specifying a skinning shader in the material doesn't seem right.
+*/
+
+
+struct SLVertexJointData
+{
+    SLuint  ids[4];
+    SLfloat weights[4];
+
+    SLVertexJointData()
+    {
+        for(int i = 0; i < 4; i++) {
+            weights[i] = 0.0f;
+            ids[i] = 0;
+        }
+    }
+
+    SLbool addWeight(SLint id, SLfloat weight)
+    {
+        for(int i = 0; i < 4; i++) 
+        {
+            if (weights[i] == 0.0f) 
+            {
+                ids[i] = id;
+                weights[i] = weight;
+                return true;
+            }
+        }
+
+        return false;
+    }
+};
+
 
 //-----------------------------------------------------------------------------
 //!An SLMesh object is a triangulated mesh that is drawn with one draw call.
@@ -112,6 +169,7 @@ virtual void            init           (SLNode* node);
 virtual void            draw           (SLSceneView* sv, SLNode* node);
         void            addStats       (SLNodeStats &stats);
 virtual void            buildAABB      (SLAABBox &aabb, SLMat4f wmNode);
+        void            updateAccelStruct();
         SLbool          hit            (SLRay* ray, SLNode* node);               
 virtual void            preShade       (SLRay* ray);
                
@@ -123,14 +181,32 @@ virtual void            calcMinMax     ();
         SLbool          hitTriangleOS  (SLRay* ray, SLNode* node, SLuint iT);
 
         SLPrimitive     primitive      (){return _primitive;}
-                               
+        
+        void            transformSkin();
+        void            skinningMethod(SLSkinningMethod method);
+        SLSkinningMethod skinningMethod() const { return _skinningMethod; }
+        void            skeleton(SLSkeleton* skel) { _skeleton = skel; }
+  const SLSkeleton*     skeleton() const { return _skeleton; }
+        SLbool          addWeight(SLint vertId, SLuint jointId, SLfloat weight);
+        
+        // getter for position and normal data for rendering
+        SLVec3f*        pos();
+        SLVec3f*        norm();
+
+        // temporary software skinning buffers
+        SLVec3f*        cpuSkinningP; //!< buffer for the cpu skinning position data
+        SLVec3f*        cpuSkinningN; //!< buffer for the cpu skinning normal data
+
         SLVec3f*        P;          //!< Array of vertex positions
         SLVec3f*        N;          //!< Array of vertex normals (opt.)
         SLCol4f*        C;          //!< Array of vertex colors (opt.)
         SLVec2f*        Tc;         //!< Array of vertex tex. coords. (opt.)
         SLVec4f*        T;          //!< Array of vertex tangents (opt.)
+        SLVec4f*        Ji;         //!< Array of per vertex joint ids (opt.)
+        SLVec4f*        Jw;         //!< Array of per vertex joint weights (opt.)
         SLushort*       I16;        //!< Array of vertex indexes 16 bit
         SLuint*         I32;        //!< Array of vertex indexes 32 bit
+
         SLuint          numV;       //!< Number of elements in P, N, C, T & Tc   
         SLuint          numI;       //!< Number of elements in I16 or I32
         SLMaterial*     mat;        //!< Pointer to the material
@@ -148,13 +224,26 @@ virtual void            calcMinMax     ();
         SLGLBuffer      _bufTc;     //!< Buffer for vertex texcoords
         SLGLBuffer      _bufT;      //!< Buffer for vertex tangents
         SLGLBuffer      _bufI;      //!< Buffer for vertex indexes
+        SLGLBuffer      _bufJi;     //!< Buffer for joint id
+        SLGLBuffer      _bufJw;     //!< Buffer for joint weight
                
         SLGLBuffer      _bufN2;     //!< Buffer for normal line rendering
         SLGLBuffer      _bufT2;     //!< Buffer for tangent line rendering
                
         SLbool          _isVolume;  //!< Flag for RT if mesh is a closed volume
                
-        SLAccelStruct*  _accelStruct;   //!< KD-tree or uniform grid
+        SLAccelStruct*  _accelStruct;           //!< KD-tree or uniform grid
+        SLbool          _accelStructOutOfDate;  //!< flag id accel.struct needs update
+
+        SLSkinningMethod _skinningMethod;   //!< CPU or GPU skinning method
+        SLSkeleton*     _skeleton;          //!< the skeleton this mesh is bound to
+        SLMat4f*        _jointMatrices;     //!< private joint matrix stack for this mesh
+
+        // ptrs to final position and normal containers
+        SLVec3f**       finalP;     
+        SLVec3f**       finalN;
+
+        void            notifyParentNodesAABBUpdate() const;
 };
 //-----------------------------------------------------------------------------
 typedef std::vector<SLMesh*>  SLVMesh;

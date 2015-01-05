@@ -142,8 +142,7 @@ class SLNode: public SLObject, public SLEventHandler
     virtual void            cullRec             (SLSceneView* sv);
     virtual void            drawRec             (SLSceneView* sv);
     virtual bool            hitRec              (SLRay* ray);
-    virtual void            statsRec            (SLNodeStats &stats);
-    virtual SLbool          animateRec          (SLfloat timeMS);
+    virtual void            statsRec            (SLNodeStats& stats);
     virtual SLNode*         copyRec             ();
     virtual SLAABBox&       updateAABBRec       ();
     virtual void            dumpRec             ();
@@ -169,6 +168,9 @@ class SLNode: public SLObject, public SLEventHandler
             bool            deleteChild         ();
             bool            deleteChild         (SLNode* child);
             bool            deleteChild         (const SLstring name);
+            template<typename T>
+            T*              find                (const SLstring &name = "", 
+                                                 SLbool findRecursive = true);
             template<typename T>
             T*              findChild           (const SLstring &name = "", 
                                                  SLbool findRecursive = true);
@@ -281,11 +283,24 @@ class SLNode: public SLObject, public SLEventHandler
 
 //-----------------------------------------------------------------------------
 /*!
+SLNode::findChild<T> searches a node tree including the node this function has been called on
+for a name.
+*/
+template<typename T>
+T* SLNode::find(const SLstring& name, SLbool findRecursive)
+{    
+    T* found = dynamic_cast<T*>(this);
+    if (found && (name.size() == 0 || name == _name))
+        return found;
+    return findChild<T>(name, findRecursive);
+}
+//-----------------------------------------------------------------------------
+/*!
 SLNode::findChild<T> finds the first child that is of type T or a subclass of T.
 @todo Add regex functionality to the name search
 */
 template<typename T>
-T* SLNode::findChild(const SLstring &name, SLbool findRecursive)
+T* SLNode::findChild(const SLstring& name, SLbool findRecursive)
 {   
     for (SLint i = 0; i < _children.size(); ++i)
     {

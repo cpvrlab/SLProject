@@ -31,12 +31,12 @@
     <Filter Include="Math">
       <UniqueIdentifier>{cf4094e0-b541-41f3-875f-f69a815d37cb}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Animation">
+      <UniqueIdentifier>{78b566b0-bd7c-4e28-8797-9e38a2226fda}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\include\SLAABBox.h">
-      <Filter>Nodes\AABB &amp; Animation</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\SLAnimation.h">
       <Filter>Nodes\AABB &amp; Animation</Filter>
     </ClInclude>
     <ClInclude Include="..\include\SLButton.h">
@@ -56,9 +56,6 @@
     </ClInclude>
     <ClInclude Include="..\include\SLCylinder.h">
       <Filter>Nodes\Meshes</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\SLKeyframe.h">
-      <Filter>Nodes\AABB &amp; Animation</Filter>
     </ClInclude>
     <ClInclude Include="..\include\SLLightRect.h">
       <Filter>Nodes</Filter>
@@ -141,9 +138,6 @@
     <ClInclude Include="..\include\SL.h">
       <Filter>SL</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\SLAssImp.h">
-      <Filter>SL</Filter>
-    </ClInclude>
     <ClInclude Include="..\include\SLAverage.h">
       <Filter>SL</Filter>
     </ClInclude>
@@ -222,6 +216,36 @@
     <ClInclude Include="..\include\SLGLUniform.h">
       <Filter>GL</Filter>
     </ClInclude>
+    <ClInclude Include="..\include\SLSkeleton.h">
+      <Filter>Animation</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\SLAnimationManager.h">
+      <Filter>Animation</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\SLKeyframe.h">
+      <Filter>Animation</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\SLAnimationTrack.h">
+      <Filter>Animation</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\SLAnimation.h">
+      <Filter>Animation</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\SLSceneNode.h">
+      <Filter>Nodes</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\SLAssimpImporter.h">
+      <Filter>SL</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\SLImporter.h">
+      <Filter>SL</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\SLJoint.h">
+      <Filter>Animation</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\SLAnimationPlay.h">
+      <Filter>Animation</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="source\SLAABBox.cpp">
@@ -250,9 +274,6 @@
     </ClCompile>
     <ClCompile Include="source\SLScene_onLoad.cpp">
       <Filter>Scene</Filter>
-    </ClCompile>
-    <ClCompile Include="source\SLAnimation.cpp">
-      <Filter>Nodes\AABB &amp; Animation</Filter>
     </ClCompile>
     <ClCompile Include="source\SLPathtracer.cpp">
       <Filter>Raytracer</Filter>
@@ -326,9 +347,6 @@
     <ClCompile Include="source\SL\SL.cpp">
       <Filter>SL</Filter>
     </ClCompile>
-    <ClCompile Include="source\SL\SLAssImp.cpp">
-      <Filter>SL</Filter>
-    </ClCompile>
     <ClCompile Include="source\SL\SLFileSystem.cpp">
       <Filter>SL</Filter>
     </ClCompile>
@@ -355,6 +373,36 @@
     </ClCompile>
     <ClCompile Include="source\SLGLProgram.cpp">
       <Filter>GL</Filter>
+    </ClCompile>
+    <ClCompile Include="source\SLAnimationManager.cpp">
+      <Filter>Animation</Filter>
+    </ClCompile>
+    <ClCompile Include="source\SLSkeleton.cpp">
+      <Filter>Animation</Filter>
+    </ClCompile>
+    <ClCompile Include="source\SLAnimationTrack.cpp">
+      <Filter>Animation</Filter>
+    </ClCompile>
+    <ClCompile Include="source\SLAnimation.cpp">
+      <Filter>Animation</Filter>
+    </ClCompile>
+    <ClCompile Include="source\SLKeyframe.cpp">
+      <Filter>Animation</Filter>
+    </ClCompile>
+    <ClCompile Include="source\SLSceneNode.cpp">
+      <Filter>Nodes</Filter>
+    </ClCompile>
+    <ClCompile Include="source\SL\SLAssimpImporter.cpp">
+      <Filter>SL</Filter>
+    </ClCompile>
+    <ClCompile Include="source\SL\SLImporter.cpp">
+      <Filter>SL</Filter>
+    </ClCompile>
+    <ClCompile Include="source\SLJoint.cpp">
+      <Filter>Animation</Filter>
+    </ClCompile>
+    <ClCompile Include="source\SLAnimationPlay.cpp">
+      <Filter>Animation</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -495,6 +543,15 @@
       <Filter>GLSL</Filter>
     </None>
     <None Include="source\oglsl\WaveRefractReflect.vert">
+      <Filter>GLSL</Filter>
+    </None>
+    <None Include="source\oglsl\PerVrtBlinnTexSkinned.vert">
+      <Filter>GLSL</Filter>
+    </None>
+    <None Include="source\oglsl\PerVrtBlinnSkinned.vert">
+      <Filter>GLSL</Filter>
+    </None>
+    <None Include="source\oglsl\PerPixBlinnTexSkinned.vert">
       <Filter>GLSL</Filter>
     </None>
   </ItemGroup>

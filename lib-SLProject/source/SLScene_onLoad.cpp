@@ -17,7 +17,8 @@
 #include <SLSceneView.h>
 #include <SLKeyframe.h>
 #include <SLAnimation.h>
-#include <SLAssImp.h>
+#include <SLAnimationManager.h>
+#include <SLAssimpImporter.h>
 
 #include <SLCamera.h>
 #include <SLLightSphere.h>
@@ -153,11 +154,16 @@ SLNode* BuildFigureGroup(SLMaterial* mat)
 
     // Add animations for left leg
     legLeft = figure->findChild<SLNode>("left leg group");
-    legLeft->animation(new SLAnimation(2, 60, SLVec3f(1,0,0), pingPongLoop));
+    ;
+    SLAnimation* anim = SLAnimation::create("figure animation", 2.0f, true, EC_inOutQuint, AL_pingPongLoop);
+    anim->createSimpleRotationNodeTrack(legLeft, 60, SLVec3f(1, 0, 0));
+
     SLNode* legLowLeft = legLeft->findChild<SLNode>("leglow group");
-    legLowLeft->animation(new SLAnimation(2, 40, SLVec3f(1,0,0), pingPongLoop));
+    anim->createSimpleRotationNodeTrack(legLowLeft, 40, SLVec3f(1, 0, 0));
+
     SLNode* feetLeft = legLeft->findChild<SLNode>("feet group");
-    feetLeft->animation(new SLAnimation(2, 40, SLVec3f(1,0,0), pingPongLoop));
+    anim->createSimpleRotationNodeTrack(feetLeft, 40, SLVec3f(1, 0, 0));
+
     legRight = figure->findChild<SLNode>("right leg group");
     legRight->rotate(70, 1,0,0);
 
@@ -215,8 +221,8 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
         // Create a spherical light source at 0,0,5
         SLLightSphere* light1 = new SLLightSphere(0.3f);
         light1->name("light1");
-        light1->position(0,0,5);
-        light1->animation(new SLAnimation(2, 4, XAxis, 4, YAxis, loop));
+        SLAnimation* anim = SLAnimation::create("lightcircleanim", 2.0f);
+        anim->createEllipticNodeTrack(light1, 4, XAxis, 4, YAxis);
 
         // Create ground grid
         SLMaterial* m2 = new SLMaterial(SLCol4f::WHITE);
@@ -250,22 +256,32 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
         floorRect->rotate(90, -1,0,0);
         floorRect->translate(0,0,-5.5f);
       
+
         // Bouncing balls
         SLNode* ball1 = new SLNode(new SLSphere(0.3f, 16, 16, "Ball1", m2));
-        ball1->translate(0,0,4);
-        ball1->animation(new SLAnimation(1, SLVec3f(0,-5.2f,0), pingPongLoop, linear));
-        SLNode* ball2 = new SLNode(new SLSphere(0.3f, 16, 16, "Ball2", m2));
-        ball2->translate(-1.5f,0,4);
-        ball2->animation(new SLAnimation(1, SLVec3f(0,-5.2f,0), pingPongLoop, inQuad));
-        SLNode* ball3 = new SLNode(new SLSphere(0.3f, 16, 16, "Ball3", m2));
-        ball3->translate(-2.5f,0,4);
-        ball3->animation(new SLAnimation(1, SLVec3f(0,-5.2f,0), pingPongLoop, outQuad));
-        SLNode* ball4 = new SLNode(new SLSphere(0.3f, 16, 16, "Ball4", m2));
-        ball4->translate( 1.5f,0,4);
-        ball4->animation(new SLAnimation(1, SLVec3f(0,-5.2f,0), pingPongLoop, inOutQuad));
-        SLNode* ball5 = new SLNode(new SLSphere(0.3f, 16, 16, "Ball5", m2));
-        ball5->translate( 2.5f,0,4);
-        ball5->animation(new SLAnimation(1, SLVec3f(0,-5.2f,0), pingPongLoop, outInQuad));
+        ball1->translate(0,0,4, TS_Local);
+        SLAnimation* ball1Anim = SLAnimation::create("Ball1_anim", 1.0f, true, EC_linear, AL_pingPongLoop);
+        ball1Anim->createSimpleTranslationNodeTrack(ball1, SLVec3f(0.0f, -5.2f, 0.0f));
+
+        //SLNode* ball2 = new SLNode(new SLSphere(0.3f, 16, 16, "Ball2", m2));
+        //ball2->translate(-1.5f,0,4, TS_Local);
+        //SLAnimation* ball2Anim = SLAnimation::create("Ball2_anim", 1.0f, true, EC_inQuad, AL_pingPongLoop);
+        //ball2Anim->createSimpleTranslationNodeTrack(ball2, SLVec3f(0.0f, -5.2f, 0.0f));
+
+        //SLNode* ball3 = new SLNode(new SLSphere(0.3f, 16, 16, "Ball3", m2));
+        //ball3->translate(-2.5f,0,4, TS_Local);
+        //SLAnimation* ball3Anim = SLAnimation::create("Ball3_anim", 1.0f, true, EC_outQuad, AL_pingPongLoop);
+        //ball3Anim->createSimpleTranslationNodeTrack(ball3, SLVec3f(0.0f, -5.2f, 0.0f));
+
+        //SLNode* ball4 = new SLNode(new SLSphere(0.3f, 16, 16, "Ball4", m2));
+        //ball4->translate( 1.5f,0,4, TS_Local);
+        //SLAnimation* ball4Anim = SLAnimation::create("Ball4_anim", 1.0f, true, EC_inOutQuad, AL_pingPongLoop);
+        //ball4Anim->createSimpleTranslationNodeTrack(ball4, SLVec3f(0.0f, -5.2f, 0.0f));
+
+        //SLNode* ball5 = new SLNode(new SLSphere(0.3f, 16, 16, "Ball5", m2));
+        //ball5->translate( 2.5f,0,4, TS_Local);
+        //SLAnimation* ball5Anim = SLAnimation::create("Ball5_anim", 1.0f, true, EC_outInQuad, AL_pingPongLoop);
+        //ball5Anim->createSimpleTranslationNodeTrack(ball5, SLVec3f(0.0f, -5.2f, 0.0f));
 
         SLCamera* cam1 = new SLCamera();
         cam1->position(0, 0, 22);
@@ -283,18 +299,24 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
         light1->diffuse (SLCol4f(0.9f,0.9f,0.9f));
         light1->specular(SLCol4f(0.9f,0.9f,0.9f));
         light1->attenuation(1,0,0);
-        light1->animation(new SLAnimation(4, 6, ZAxis, 6, XAxis, loop));
+        SLAnimation* light1Anim = SLAnimation::create("Light1_anim", 4.0f);
+        light1Anim->createEllipticNodeTrack(light1, 6, ZAxis, 6, XAxis);
 
         SLLightSphere* light2 = new SLLightSphere(0, 0, 0, 0.2f);
         light2->ambient (SLCol4f(0.2f,0.0f,0.0f));
         light2->diffuse (SLCol4f(0.9f,0.0f,0.0f));
         light2->specular(SLCol4f(0.9f,0.9f,0.9f));
         light2->attenuation(1,0,0);
-        SLVKeyframe light2Curve;
-        light2Curve.push_back(SLKeyframe(0, SLVec3f(-8,-4, 0)));
-        light2Curve.push_back(SLKeyframe(1, SLVec3f( 0, 4, 0)));
-        light2Curve.push_back(SLKeyframe(1, SLVec3f( 8,-4, 0)));
-        light2->animation(new SLAnimation(light2Curve, 0, pingPongLoop));
+        light2->translate(-8, -4, 0, TS_World);
+
+        SLAnimation* light2Anim = SLAnimation::create("light2_anim", 2.0f, true, EC_linear, AL_pingPongLoop);
+        SLNodeAnimationTrack* track = light2Anim->createNodeAnimationTrack();
+        track->animatedNode(light2);
+        track->createNodeKeyframe(0.0f);
+        track->createNodeKeyframe(1.0f)->translation(SLVec3f(8, 8, 0));
+        track->createNodeKeyframe(2.0f)->translation(SLVec3f(16, 0, 0));
+        track->translationInterpolation(AI_Bezier);
+
      
         SLNode* figure = BuildFigureGroup(m2);
 
@@ -305,10 +327,10 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
         scene->addChild(cam2);
         scene->addChild(floorRect);
         scene->addChild(ball1);
-        scene->addChild(ball2);
-        scene->addChild(ball3);
-        scene->addChild(ball4);
-        scene->addChild(ball5);
+        //scene->addChild(ball2);
+        //scene->addChild(ball3);
+        //scene->addChild(ball4);
+        //scene->addChild(ball5);
         scene->addChild(figure);
      
         // Set backround color, active camera & the root pointer
@@ -347,26 +369,29 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
         light1->diffuse(SLCol4f(1.0f, 1.0f, 1.0f));
         light1->specular(SLCol4f(1.0f, 1.0f, 1.0f));
         light1->attenuation(1,0,0);
-        light1->animation(new SLAnimation(2,SLVec3f(0,0,-5), pingPongLoop, inOutCubic));
-        //light1->samples(8,8);
+        light1->samples(8,8);
+        SLAnimation* anim = SLAnimation::create("anim_light1_backforth", 2.0f, true, EC_inOutQuad, AL_pingPongLoop);
+        anim->createSimpleTranslationNodeTrack(light1, SLVec3f(0.0f, 0.0f, -5.0f));
 
         SLLightSphere* light2 = new SLLightSphere(-2.5f, -2.5f, 2.5f, 0.2f);
         light2->ambient(SLCol4f(0.1f, 0.1f, 0.1f));
         light2->diffuse(SLCol4f(1.0f, 1.0f, 1.0f));
         light2->specular(SLCol4f(1.0f, 1.0f, 1.0f));
-        light2->attenuation(1,0,0);
-        light2->animation(new SLAnimation(2,SLVec3f(0,5,0), pingPongLoop, inOutCubic));
-
+        light2->attenuation(1,0,0);     
+        anim = SLAnimation::create("anim_light2_updown", 2.0f, true, EC_inOutQuint, AL_pingPongLoop);
+        anim->createSimpleTranslationNodeTrack(light2, SLVec3f(0.0f, 5.0f, 0.0f));
 
         #if defined(SL_OS_IOS) || defined(SL_OS_ANDROID)
-        SLNode* mesh3DS = SLAssImp::load("jackolan.3ds");
-        SLNode* meshDAE = SLAssImp::load("AstroBoy.dae");
-        SLNode* meshFBX = SLAssImp::load("duck.fbx");
+        SLAssimpImporter importer;
+        SLNode* mesh3DS = importer.load("jackolan.3DS");
+        SLNode* meshDAE = importer.load("AstroBoy.dae");
+        SLNode* meshFBX = importer.load("Duck.fbx");
       
         #else
-        SLNode* mesh3DS = SLAssImp::load("3DS/Halloween/jackolan.3ds");
-        SLNode* meshDAE = SLAssImp::load("DAE/AstroBoy/AstroBoy.dae");
-        SLNode* meshFBX = SLAssImp::load("FBX/Duck/duck.fbx");
+        SLAssimpImporter importer;
+        SLNode* mesh3DS = importer.load("3DS/Halloween/Jackolan.3DS");
+        SLNode* meshDAE = importer.load("DAE/AstroBoy/AstroBoy.dae");
+        SLNode* meshFBX = importer.load("FBX/Duck/Duck.fbx");
         #endif
 
         // Scale to so that the AstroBoy is about 2 (meters) high.
@@ -401,6 +426,118 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
         _root3D = scene;
     }
     else
+    if (sceneName == cmdSceneSkinnedMesh01) //..................................
+    {
+        SLNode* scene = new SLNode("Scene");
+
+        SLLightSphere* light1 = new SLLightSphere(-3.5f, 8.5f, 3.5f, 0.2f);
+        light1->ambient(SLCol4f(0.1f, 0.1f, 0.1f));
+        light1->diffuse(SLCol4f(1.0f, 1.0f, 1.0f));
+        light1->specular(SLCol4f(1.0f, 1.0f, 1.0f));
+        light1->attenuation(1,0,0);
+        scene->addChild(light1);
+        
+        
+        SLLightSphere* light2 = new SLLightSphere(3.5f, 5.5f, -4.5f, 0.2f);
+        light2->ambient(SLCol4f(0.1f, 0.1f, 0.0f));
+        light2->diffuse(SLCol4f(1.0f, 0.3f, 0.0f));
+        light2->specular(SLCol4f(1.0f, 0.3f, 0.0f));
+        light2->attenuation(1,0,0);
+        scene->addChild(light2);
+        
+        // don't show lights they're distracting
+        light1->setDrawBitsRec(SL_DB_HIDDEN, true);
+        light2->setDrawBitsRec(SL_DB_HIDDEN, true);
+
+
+        SLAssimpImporter importer("TestLog.log", LV_Quiet, LV_Diagnostic);
+        importer.logFileVerbosity(LV_Quiet);
+        
+        SLNode* simpleSkinnedMesh = importer.load("DAE/Seymour/Seymour.dae"); // <- not working currently, dont use!
+        //SLNode* simpleSkinnedMesh = importer.load("FBX/Astroboy/Astroboy.fbx"); 
+        //SLNode* simpleSkinnedMesh = importer.load("3DS/Astroboy/Astroboy.3ds"); 
+        //SLNode* simpleSkinnedMesh = importer.load("DAE/SkinnedCube/skinnedcube.dae");
+        simpleSkinnedMesh->scale(34.0f);
+        scene->addChild(simpleSkinnedMesh);
+        
+        SLNode* simpleSkinnedMesh2 = importer.load("DAE/AstroBoy/AstroBoy.dae", true, SLProcess_Triangulate | SLProcess_GenNormals); // <- not working currently, dont use!
+        simpleSkinnedMesh2->scale(30.0f);
+        simpleSkinnedMesh2->translate(7, 0, -3);
+        scene->addChild(simpleSkinnedMesh2);
+                
+        SLNode* simpleSkinnedMesh3 = importer.load("DAE/SkinnedCube/skinnedcube3.dae");
+        SLNode* cubeContainer = new SLNode;
+        cubeContainer->addChild(simpleSkinnedMesh3);
+        cubeContainer->translate(0, 0, 3);
+        scene->addChild(cubeContainer);
+        
+        
+        //SLNode* simpleSkinnedMesh4 = importer.load("hardcore_chicken.dae"); // <- not working currently, dont use!
+        //simpleSkinnedMesh4->scale(0.25f);
+        //simpleSkinnedMesh4->rotate(180.0f, 0, 0, 1);
+        //simpleSkinnedMesh4->translate(4, 2, 0);
+        //scene->addChild(simpleSkinnedMesh4);
+
+        
+        //SLNode* simpleSkinnedMesh5 = importer.load("hardcore_chicken.fbx", false); // <- not working currently, dont use!
+        //simpleSkinnedMesh5->scale(0.25f);
+        //simpleSkinnedMesh5->rotate(180.0f, 0, 0, 1);
+        //simpleSkinnedMesh5->translate(8, 2, 0);
+        //scene->addChild(simpleSkinnedMesh5);
+        
+
+        
+        //importer.logFileVerbosity(LV_Diagnostic);
+        SLNode* simpleSkinnedMesh6 = importer.load("BLEND/SkinnedCube/skinnedcube3.dae");
+        SLNode* cubeContainer2 = new SLNode;
+        cubeContainer2->addChild(simpleSkinnedMesh6);
+        cubeContainer2->translate(-2, 0, 3);
+        scene->addChild(cubeContainer2);
+        //importer.logFileVerbosity(LV_Quiet);
+        
+        
+        //importer.logFileVerbosity(LV_Diagnostic);
+        SLNode* simpleSkinnedMesh7 = importer.load("DAE/SkinnedCube/skinnedcube_maya2.dae");
+        SLNode* cubeContainer3 = new SLNode;
+        cubeContainer3->addChild(simpleSkinnedMesh7);
+        cubeContainer3->translate(-4, 0, 3);
+        cubeContainer3->scale(100);
+        scene->addChild(cubeContainer3);
+        //importer.logFileVerbosity(LV_Quiet);
+        
+        //importer.logFileVerbosity(LV_Diagnostic);
+        SLNode* simpleSkinnedMesh8 = importer.load("DAE/MakeHuman/blendAnimations2.dae");
+        SLNode* cubeContainer4 = new SLNode;
+        cubeContainer4->addChild(simpleSkinnedMesh8);
+        cubeContainer4->scale(0.4f);
+        cubeContainer4->translate(-4, 0, 5);
+        scene->addChild(cubeContainer4);
+        //importer.logFileVerbosity(LV_Quiet);
+        
+        importer.logFileVerbosity(LV_Diagnostic);
+        SLNode* simpleSkinnedMesh9 = importer.load("DAE/NodeAnimation/icosphere2.dae");
+        SLNode* cubeContainer5 = new SLNode;
+        cubeContainer5->addChild(simpleSkinnedMesh9);
+        cubeContainer5->translate(6, 0, 7);
+        scene->addChild(cubeContainer5);
+        importer.logFileVerbosity(LV_Quiet);
+        /*/
+        scene->addChild(light1);
+        scene->addChild(light2);
+        scene->addChild(simpleSkinnedMesh);/*
+        scene->addChild(simpleSkinnedMesh2);
+        scene->addChild(cubeContainer);
+        scene->addChild(simpleSkinnedMesh4);
+        scene->addChild(simpleSkinnedMesh5);*/
+
+
+        SLNode* animatedBox = new SLNode(new SLBox(-0.5f, -0.5f, -0.5f, 0.5f, 0.5f, 0.5f), "AnimatedBox");
+        animatedBox->translate(0, 0, 8);
+        scene->addChild(animatedBox);
+
+        _root3D = scene;
+    }
+    else
     if (sceneName == cmdSceneLargeModel) //.....................................
     {
         name("Large Model Test");
@@ -420,7 +557,8 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
         light1->specular(SLCol4f(1,1,1));
         light1->attenuation(1,0,0);
 
-        SLNode* largeModel = SLAssImp::load("PLY/xyzrgb_dragon.ply");
+        SLAssimpImporter importer;
+        SLNode* largeModel = importer.load("PLY/xyzrgb_dragon.ply");
 
         SLNode* scene = new SLNode("Scene");
         scene->addChild(light1);
@@ -561,7 +699,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
                                         100, 0.2f, 0.8f, 1.5f);
         mat5->textures().push_back(tex5);
         SLGLProgram* sp1 = new SLGLGenericProgram("RefractReflect.vert",
-                                                  "RefractReflect.frag");
+                                                        "RefractReflect.frag");
         mat5->program(sp1);
 
         // camera
@@ -578,7 +716,9 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
         light1->ambient(SLCol4f(0.2f, 0.2f, 0.2f));
         light1->specular(SLCol4f(1, 1, 1));
         light1->attenuation(1,0,0);
-        light1->animation(new SLAnimation(4, 6, ZAxis, 6, XAxis, loop));
+        SLAnimation* anim = SLAnimation::create("light1_anim", 4.0f);
+        anim->createEllipticNodeTrack(light1, 6.0f, ZAxis, 6.0f, XAxis);
+        
 
         // wine glass
         SLVVec3f revP;
@@ -758,7 +898,9 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
         SLNode* figure = BuildFigureGroup(m2);
 
         // Add animation for light 1
-        light1->animation(new SLAnimation(4, 12, ZAxis, 12, XAxis, loop));
+        SLAnimation* anim = SLAnimation::create("light1_anim", 4.0f);
+        anim->createEllipticNodeTrack(light1, 12.0f, ZAxis, 12.0f, XAxis);
+
 
         // Assemble scene
         SLNode* scene = new SLNode("scene group");
@@ -910,6 +1052,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
         // first parent is the scene root
         parents.push_back(_root3D);
 
+        SLint nodeIndex = 0;
         for(SLint lvl = 0; lvl < levels; ++lvl) 
         {   curParentsVector = parents;
             parents.clear();
@@ -929,13 +1072,13 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
                     node->translate(pos, TS_Local);
                     //node->scale(1.1f);
 
-                    if (lvl != 0) 
-                    {   SLfloat duration = 1.0f + 5.0f * ((SLfloat)i/(SLfloat)nodesPerLvl);
-                    SLAnimation* anim = new SLAnimation(duration, SLVec3f(0, 1.0f, 0), pingPongLoop, inOutSine, "randomAnim");
-                    node->animation(anim);
-                }   
+                    SLfloat duration = 1.0f + 5.0f * ((SLfloat)i/(SLfloat)nodesPerLvl);
+                    ostringstream oss;;
+                    oss << "random anim " << nodeIndex++;
+                    SLAnimation* anim = SLAnimation::create(oss.str(), duration, true, EC_inOutSine, AL_pingPongLoop);
+                    anim->createSimpleTranslationNodeTrack(node, SLVec3f(0.0f, 1.0f, 0.0f));
+                }
             }
-        }
         }
     }
     else
@@ -1138,7 +1281,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
 
         // Create generic shader program with 4 custom uniforms
         SLGLProgram* sp = new SLGLGenericProgram("WaveRefractReflect.vert",
-                                                 "RefractReflect.frag");
+                                                       "RefractReflect.frag");
         SLGLUniform1f* u_h = new SLGLUniform1f(UF1Const, "u_h", 0.1f, 0.05f, 0.0f, 0.5f, (SLKey)'H');
         _eventHandlers.push_back(u_h);
         sp->addUniform1f(u_h);
@@ -1227,7 +1370,9 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
         light1->position(0,0,5);
         light1->lookAt(0, 0, 0);
         light1->spotCutoff(40);
-        light1->animation(new SLAnimation(2, 2, XAxis, 2, YAxis, loop));
+
+        SLAnimation* anim = SLAnimation::create("light1_anim", 2.0f);
+        anim->createEllipticNodeTrack(light1, 2.0f, XAxis, 2.0f, YAxis);
 
         SLNode* scene = new SLNode;
         scene->addChild(light1);
@@ -1278,7 +1423,9 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
         light1->position(0,0,5);
         light1->lookAt(0, 0, 0);
         light1->spotCutoff(50);
-        light1->animation(new SLAnimation(2, 2, XAxis, 2, YAxis, loop));
+
+        SLAnimation* anim = SLAnimation::create("light1_anim", 2.0f);
+        anim->createEllipticNodeTrack(light1, 2.0f, XAxis, 2.0f, YAxis);
 
         SLNode* scene = new SLNode;
         scene->addChild(light1);
@@ -1343,7 +1490,9 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
         sun->diffuse(SLCol4f(1,1,1));
         sun->specular(SLCol4f(0.2f,0.2f,0.2f));
         sun->attenuation(1,0,0);
-        sun->animation(new SLAnimation(24, 50, XAxis, 50, ZAxis, loop));
+        
+        SLAnimation* anim = SLAnimation::create("light1_anim", 24.0f);
+        anim->createEllipticNodeTrack(sun, 50.0f, XAxis, 50.0f, ZAxis);
 
         SLNode* earth = new SLNode(new SLSphere(1, 36, 36, "Earth", matEarth));
         earth->rotate(90,-1,0,0);
@@ -1370,8 +1519,8 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
    
         // Create cube mapping texture
         SLGLTexture* tex1 = new SLGLTexture("MuttenzerBox+X0512_C.png", "MuttenzerBox-X0512_C.png"
-                                           ,"MuttenzerBox+Y0512_C.png", "MuttenzerBox-Y0512_C.png"
-                                           ,"MuttenzerBox+Z0512_C.png", "MuttenzerBox-Z0512_C.png");
+                                            ,"MuttenzerBox+Y0512_C.png", "MuttenzerBox-Y0512_C.png"
+                                            ,"MuttenzerBox+Z0512_C.png", "MuttenzerBox-Z0512_C.png");
       
         SLCol4f  lightEmisRGB(7.0f, 7.0f, 7.0f);
         SLCol4f  grayRGB  (0.75f, 0.75f, 0.75f);

@@ -1,7 +1,7 @@
 //#############################################################################
 //  File:      SLAnimation.h
-//  Author:    Marcus Hudritsch
-//  Date:      July 2014
+//  Author:    Marc Wacker
+//  Date:      Autumn 2014
 //  Codestyle: https://github.com/cpvrlab/SLProject/wiki/Coding-Style-Guidelines
 //  Copyright: 2002-2014 Marcus Hudritsch
 //             This software is provide under the GNU General Public License
@@ -12,105 +12,74 @@
 #define SLANIMATION_H
 
 #include <stdafx.h>
+#include <SLAnimationTrack.h>
+#include <SLJoint.h>
 #include <SLEnums.h>
-#include <SLKeyframe.h>
 
-class SLNode;
-class SLCurve;
+class SLSkeleton;
 
 //-----------------------------------------------------------------------------
-//! SLAnimation implements simple keyframe animation.
-/*!
-An animation consists out of at least two keyframes. A keyframe is defines 
-position (translation), rotation and scaling for a specific time point with in 
-an animation. An animation interpolates between two keyframes the position, 
-rotation and scaling.
-The first keyframe's time will allways be 0. The _totalTime of an animation in
-seconds is the sum of all keyframe times.
-The animation is applied to the owner shapes local transform matrix in 
-animate(SLNode* node, SLfloat elapsedTimeMS) proportional to the elapsed
-time of the frame.
-The animation mode [once, loop, pingPong, pingPongLoop] determines what happens
-if the total animation time is over.
-Because the transform matrices of the owner node is modified during animation,
-the animation instance keep the original owner matrices in _om and _wm.
-The animation easing determines how constant the velocity of the animation. It
-is defined by an easing curve that is by default set to a linear motion with 
-a constant speed. See the declaration of SLEasingCurve for all possible easing
-curves.
+//! SLAnimation is the
+/*! 
+    SLAnimation is a container for multiple types of SLAnimationTracks that 
+    should be kept together. For example a walk animation would consist of
+    all the SLAnimationTracks that make a SLSkeleton walk.
+    The SLAnimation is also the one that knows the length of the animation.
 */
-class SLAnimation : SLObject
+class SLAnimation
 {
-   public:           //! Multiple keyframes animation ctor
-                     SLAnimation (SLVKeyframe keyframes,
-                                  SLVec3f* controls = 0,
-                                  SLAnimMode mode = once, 
-                                  SLEasingCurve easing = linear,
-                                  SLstring name="myKeyframesAnimation");
-                                  
-                     //! Single keyframe animation ctor
-                     SLAnimation (SLKeyframe keyframe,
-                                  SLAnimMode mode = once,
-                                  SLEasingCurve easing = linear, 
-                                  SLstring name="myKeyframeAnimation");
+public:
+                        SLAnimation(const SLstring& name, SLfloat duration);
+                       ~SLAnimation();
+    
+            SLfloat     nextKeyframeTime(SLfloat time);
+            SLfloat     prevKeyframeTime(SLfloat time);
+            SLbool      affectsNode (SLNode* node);
+            void        apply       (SLfloat time,
+                                     SLfloat weight = 1.0f,
+                                     SLfloat scale = 1.0f);
+            void        applyToNode (SLNode* node,
+                                     SLfloat time,
+                                     SLfloat weight = 1.0f,
+                                     SLfloat scale = 1.0f);
+            void        apply       (SLSkeleton* skel,
+                                     SLfloat time,
+                                     SLfloat weight = 1.0f,
+                                     SLfloat scale = 1.0f);
+            void        resetNodes  ();
 
-                     //! Single translation animation
-                     SLAnimation (SLfloat time,
-                                  SLVec3f translation,
-                                  SLAnimMode mode = once,
-                                  SLEasingCurve easing = linear, 
-                                  SLstring name="myTranslationAnimation");
-                     
-                     //! Single rotation animation
-                     SLAnimation (SLfloat time,
-                                  SLfloat angleDEG,
-                                  SLVec3f rotationAxis,
-                                  SLAnimMode mode = once,
-                                  SLEasingCurve easing = linear,
-                                  SLstring name="myRotationAnimation");
-                     
-                     //! Single scaling animation
-                     SLAnimation (SLfloat time,
-                                  SLfloat scaleX,
-                                  SLfloat scaleY,
-                                  SLfloat scaleZ,
-                                  SLAnimMode mode = once,
-                                  SLEasingCurve easing = linear,
-                                  SLstring name="myScalingAnimation");
-                     
-                     //! Elliptic animation with 2 radiis on 2 axis
-                     SLAnimation (SLfloat time,
-                                  SLfloat radiusA, SLAxis axisA,
-                                  SLfloat radiusB, SLAxis axisB,
-                                  SLAnimMode mode = once,
-                                  SLEasingCurve easing = linear,
-                                  SLstring name="myEllipticAnimation");
+    // static creator 
+    static SLAnimation* create(const SLstring& name,
+                                        SLfloat duration,
+                                        SLbool enabled = true,
+                                        SLEasingCurve easing = EC_linear,
+                                        SLAnimLooping looping = AL_loop);
+    // track creators
+    SLNodeAnimationTrack* createNodeAnimationTrack();
+    SLNodeAnimationTrack* createNodeAnimationTrack(SLuint handle);
+    SLNodeAnimationTrack* createSimpleTranslationNodeTrack(SLNode* target, const SLVec3f& endPos);
+    SLNodeAnimationTrack* createSimpleRotationNodeTrack(SLNode* target, SLfloat angleDeg, const SLVec3f& axis);
+    SLNodeAnimationTrack* createSimpleScalingNodeTrack(SLNode* target, const SLVec3f& endScale);
+    SLNodeAnimationTrack* createEllipticNodeTrack(SLNode* target, 
+                                                  SLfloat radiusA, SLAxis axisA,
+                                                  SLfloat radiusB, SLAxis axisB);
+    // Getters
+    const   SLstring&   name        () { return _name; }
+            SLfloat     length      () const { return _length; }
 
-                     //!Copy constructor
-                     SLAnimation (SLAnimation& anim);
+    // Setters
+            void        name        (const SLstring& name) { _name = name; }
+            void        length      (SLfloat length);
 
-                    ~SLAnimation ();
-
-      void           init        (SLVec3f* controls);
-      void           animate     (SLNode* node, SLfloat elapsedTimeMS);
-      void           drawWS      ();
-
-      SLfloat        totalTime   () {return _totalTime;}
-      SLbool         isFinished  () {return _isFinished;}
-
-   private:
-      SLfloat        easing      (SLfloat time);
-
-      SLVKeyframe    _keyframes;    //!< Vector with keyframes
-      SLCurve*       _curve;        //!< Interpolation curve for translation
-      SLfloat        _totalTime;    //!< Total cummultated time in seconds 
-      SLfloat        _currentTime;  //!< Current time in seconds during anim.
-      SLbool         _isFinished;   //!< Flag if animation is finished
-      SLAnimMode     _mode;         //!< Animation mode
-      SLEasingCurve  _easing;       //!< Easing curve type
-      SLfloat        _direction;    //!< Direction 1=forewards -1=backwards
-      SLMat4f        _om;           //!< Original object transform matrix
-      SLMat4f        _wm;           //!< Original world transform matrix
+protected:
+    SLstring                _name;              //!< name of the animation
+    SLfloat                 _length;            //!< duration of the animation
+    SLMNodeAnimationTrack   _nodeAnimTracks;    //!< map of all the node tracks in this animation
 };
 //-----------------------------------------------------------------------------
+typedef vector<SLAnimation*>        SLVAnimation;
+typedef map<SLstring, SLAnimation*> SLMAnimation;
+//-----------------------------------------------------------------------------
 #endif
+
+

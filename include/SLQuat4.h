@@ -33,6 +33,11 @@ class SLQuat4
                     SLQuat4        (const SLVec3<T>& v0, const SLVec3<T>& v1);
                     SLQuat4        (const T pitchRAD, const T yawRAD, const T rollRAD);
       
+        T           x              () const { return _x; }
+        T           y              () const { return _y; }
+        T           z              () const { return _z; }
+        T           w              () const { return _w; }
+
         void        set            (T x, T y, T z, T w);
         void        fromMat3       (const SLMat3<T>& m);
         void        fromAngleAxis  (const T angleRAD, 
@@ -601,6 +606,48 @@ inline void SLQuat4<T>::lerp(const SLQuat4<T>& q1,
 template <class T>
 inline SLQuat4<T> SLQuat4<T>::slerp(const SLQuat4<T>& q2, const T t) const
 {
+    /// @todo clean up the code below and find a working algorithm (or check the original shoemake implementation for errors)
+    // Not 100% slerp, uses lerp in case of close angle! note the todo above this line!
+    SLfloat factor = t;
+	// calc cosine theta
+	T cosom = _x * q2._x + _y * q2._y + _z * q2._z + _w * q2._w;
+
+	// adjust signs (if necessary)
+	SLQuat4<T> endCpy = q2;
+	if( cosom < static_cast<T>(0.0))
+	{
+		cosom = -cosom;
+		endCpy._x = -endCpy._x;   // Reverse all signs
+		endCpy._y = -endCpy._y;
+		endCpy._z = -endCpy._z;
+		endCpy._w = -endCpy._w;
+	} 
+
+	// Calculate coefficients
+	T sclp, sclq;
+	if( (static_cast<T>(1.0) - cosom) > static_cast<T>(0.0001)) // 0.0001 -> some epsillon
+	{
+		// Standard case (slerp)
+		T omega, sinom;
+		omega = acos( cosom); // extract theta from dot product's cos theta
+		sinom = sin( omega);
+		sclp  = sin( (static_cast<T>(1.0) - factor) * omega) / sinom;
+		sclq  = sin( factor * omega) / sinom;
+	} else
+	{
+		// Very close, do linear interp (because it's faster)
+		sclp = static_cast<T>(1.0) - factor;
+		sclq = factor;
+	}
+
+    SLQuat4<T> out;
+	out._x = sclp * _x + sclq * endCpy._x;
+	out._y = sclp * _y + sclq * endCpy._y;
+	out._z = sclp * _z + sclq * endCpy._z;
+	out._w = sclp * _w + sclq * endCpy._w;
+    return out;
+    
+    /*ODL
     // Ken Shoemake's famous method.
     assert(t>=0 && t<=1 && "Wrong t in SLQuat4::slerp");
 
@@ -625,8 +672,8 @@ inline SLQuat4<T> SLQuat4<T>::slerp(const SLQuat4<T>& q2, const T t) const
     SLQuat4<T> q = scaled(cos(theta)) + v2.scaled(sin(theta));
     q.normalize();
     return q;
+    */
 }
-
 //-----------------------------------------------------------------------------
 //! Spherical linear interpolation
 template <class T>

@@ -22,5 +22,15 @@
         <file>images/stopAnimation.png</file>
         <file>images/open.png</file>
         <file>images/appIcon36.bmp</file>
+        <file>images/animFastBackwards.png</file>
+        <file>images/animFastForeward.png</file>
+        <file>images/animGoToEnd.png</file>
+        <file>images/animGoToStart.png</file>
+        <file>images/animNextKF.png</file>
+        <file>images/animPause.png</file>
+        <file>images/animPlay.png</file>
+        <file>images/animPlayBackwards.png</file>
+        <file>images/animPrevKF.png</file>
+        <file>images/animStop.png</file>
     </qresource>
 </RCC>

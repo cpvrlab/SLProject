@@ -11,8 +11,10 @@
 #include "qtMainWindow.h"
 #include "ui_qtMainWindow.h"
 #include "qtGLWidget.h"
+#include "qtAnimationSlider.h"
 #include "qtPropertyTreeWidget.h"
 #include "qtPropertyTreeItem.h"
+#include <qstylefactory.h>
 #include <QMessageBox>
 #include <QSplitter>
 #include <QIcon>
@@ -29,8 +31,12 @@
 #include <SLLight.h>
 #include <SLLightRect.h>
 #include <SLLightSphere.h>
+#include <SLAnimationPlay.h>
 
 using namespace std::placeholders;
+
+// register an sl type to use it as data in combo boxes
+Q_DECLARE_METATYPE(SLAnimationPlay*);
 
 //-----------------------------------------------------------------------------
 bool qtPropertyTreeWidget::isBeingBuilt = false;
@@ -43,8 +49,11 @@ qtMainWindow::qtMainWindow(QWidget *parent, SLVstring cmdLineArgs) :
 
     _selectedNodeItem = 0;
 
+    _selectedAnim = NULL;
+
     _menuFile = ui->menuFile;
     _menuCamera = ui->menuCamera;
+    _menuAnimation = ui->menuAnimation;
     _menuRenderFlags = ui->menuRender_Flags;
     _menuRenderer = ui->menuRenderer;
     _menuInfos = ui->menuInfos;
@@ -103,6 +112,25 @@ qtMainWindow::qtMainWindow(QWidget *parent, SLVstring cmdLineArgs) :
     splitter->show();
     borderWidget->show();
     _activeGLWidget->show();
+
+
+    // set dark color palette
+    QPalette darkPalette;
+    darkPalette.setColor(QPalette::Window, QColor(53,53,53));
+    darkPalette.setColor(QPalette::WindowText, Qt::white);
+    darkPalette.setColor(QPalette::Base, QColor(25,25,25));
+    darkPalette.setColor(QPalette::AlternateBase, QColor(53,53,53));
+    darkPalette.setColor(QPalette::ToolTipBase, Qt::white);
+    darkPalette.setColor(QPalette::ToolTipText, Qt::white);
+    darkPalette.setColor(QPalette::Text, Qt::white);
+    darkPalette.setColor(QPalette::Button, QColor(53,53,53));
+    darkPalette.setColor(QPalette::ButtonText, Qt::white);
+    darkPalette.setColor(QPalette::BrightText, Qt::red);
+    darkPalette.setColor(QPalette::Link, QColor(42, 130, 218));
+    darkPalette.setColor(QPalette::Highlight, QColor(42, 130, 218));
+    darkPalette.setColor(QPalette::HighlightedText, Qt::black);
+
+    setPalette(darkPalette);
 }
 
 qtMainWindow::~qtMainWindow()
@@ -125,6 +153,7 @@ void qtMainWindow::setMenuState()
     ui->menuBar->addMenu(_menuRenderer);
     ui->menuBar->addMenu(_menuInfos);
     ui->menuBar->addMenu(_menuCamera);
+    ui->menuBar->addMenu(_menuAnimation);
     ui->menuBar->addMenu(_menuRenderFlags);
     if (sv->renderType()==renderRT)
         ui->menuBar->addMenu(_menuRayTracing);
@@ -166,6 +195,7 @@ void qtMainWindow::setMenuState()
     // Menu Info
     ui->actionShow_DockScenegraph->setChecked(ui->dockScenegraph->isVisible());
     ui->actionShow_DockProperties->setChecked(ui->dockProperties->isVisible());
+    ui->actionShow_Animation_Controler->setChecked(ui->dockAnimation->isVisible());
     ui->actionShow_Toolbar->setChecked(ui->toolBar->isVisible());
     ui->actionShow_Statusbar->setChecked(ui->statusBar->isVisible());
     ui->actionShow_Statistics->setChecked(sv->showStats());
@@ -541,18 +571,105 @@ void qtMainWindow::buildPropertyTree()
     ui->propertyTree->update();
 }
 //-----------------------------------------------------------------------------
+void qtMainWindow::updateAnimationList()
+{
+    // clear both lists
+    SLbool hasAnimations = false;
+    ui->animAnimatedObjectSelect->clear();
+    ui->animAnimationSelect->clear();
+
+    ui->animAnimatedObjectSelect->addItem("Select Target", -1);
+    ui->animAnimationSelect->addItem("Select animation", -1);
+
+    _selectedAnim = NULL;
+    SLVSkeleton& skeletons = SLScene::current->animManager().skeletons();
+    
+    if (SLScene::current->animManager().animations().size() > 0)
+    {
+        ui->animAnimatedObjectSelect->addItem("Node Animations", 0);
+        hasAnimations = true;
+    }
+
+    for (SLint i = 0; i < skeletons.size(); ++i)
+    {
+        SLint index = ui->animAnimatedObjectSelect->count();
+        ui->animAnimatedObjectSelect->addItem("Skeleton " + QString::number(i), i+1);
+        hasAnimations = true;
+    }
+
+    if (hasAnimations)
+    {
+        ui->animAnimatedObjectSelect->setCurrentIndex(1); // select first item        
+        ui->dockAnimation->show();
+    }
+    else
+    {
+        // hide the animation ui element completely since we don't need it
+        ui->dockAnimation->hide();
+    }
+
+}
+
+//-----------------------------------------------------------------------------
+void qtMainWindow::updateAnimationTimeline()
+{
+    if (!_selectedAnim)
+        return;
+    
+    ui->animTimelineSlider->setCurrentTime(_selectedAnim->localTime());
+    ui->animCurrentTimeLabel->setText(ui->animTimelineSlider->getCurrentTimeString());
+}
+
+//-----------------------------------------------------------------------------
+void qtMainWindow::selectAnimationFromNode(SLNode* node)
+{
+    for(auto& kv : SLScene::current->animManager().animations())
+    {
+        if (kv.second->affectsNode(node))
+        {
+            // select node animations
+            ui->animAnimatedObjectSelect->setCurrentIndex(1);
+
+            // find and select correct animation
+            SLAnimationPlay* play = SLScene::current->animManager().getNodeAnimationPlay(kv.second->name());
+            QVariant variant;
+            variant.setValue<SLAnimationPlay*>(play);
+            SLint index = ui->animAnimationSelect->findData(variant);
+            ui->animAnimationSelect->setCurrentIndex(index);
+        }
+    }
+
+    for (auto mesh : node->meshes())
+    {
+        if (!mesh->skeleton())
+            continue;
+
+        SLint selectIndex = 1;
+        for (auto skeleton : SLScene::current->animManager().skeletons())
+        {
+            // find and select the skeleton
+            if (mesh->skeleton() == skeleton)
+                ui->animAnimatedObjectSelect->setCurrentIndex(ui->animAnimatedObjectSelect->findData(selectIndex));
+            ++selectIndex;
+        }
+    }
+}
+
+//-----------------------------------------------------------------------------
 void qtMainWindow::beforeSceneLoad()
 {
     //on_actionSingle_view_triggered();
     _selectedNodeItem = 0;
     ui->nodeTree->clear();
     ui->propertyTree->clear();
+    updateAnimationList();
 }
 //-----------------------------------------------------------------------------
 void qtMainWindow::afterSceneLoad()
 {
     setMenuState();
     buildNodeTree();
+    updateAnimationList();
 }
 //-----------------------------------------------------------------------------
 void qtMainWindow::selectNodeOrMeshItem(SLNode* selectedNode, SLMesh* selectedMesh)
@@ -562,6 +679,10 @@ void qtMainWindow::selectNodeOrMeshItem(SLNode* selectedNode, SLMesh* selectedMe
         ui->nodeTree->collapseAll();
         return;
     }
+
+
+    // select animation related to this node if it exists
+    selectAnimationFromNode(selectedNode);
 
     QTreeWidgetItemIterator it(ui->nodeTree);
     while (*it) 
@@ -597,6 +718,8 @@ void qtMainWindow::updateAllGLWidgets()
 {
     for (int i = 0; i < _allGLWidgets.size(); ++i)
         _allGLWidgets[i]->update();
+
+    updateAnimationTimeline();
 }
 //-----------------------------------------------------------------------------
 void qtMainWindow::applyCommandOnSV(const SLCmd cmd)
@@ -838,6 +961,13 @@ void qtMainWindow::on_actionShow_DockProperties_triggered()
     else 
         ui->dockProperties->show();
 }
+void qtMainWindow::on_actionShow_Animation_Controler_triggered()
+{
+    if (ui->dockAnimation->isVisible())
+        ui->dockAnimation->hide();
+    else
+        ui->dockAnimation->show();
+}
 void qtMainWindow::on_actionShow_Toolbar_triggered()
 {
     ui->toolBar->setVisible(!ui->toolBar->isVisible());
@@ -1031,6 +1161,7 @@ void qtMainWindow::on_actionTextures_off_triggered()
 void qtMainWindow::on_actionAnimation_off_triggered()
 {
     applyCommandOnSV(cmdAnimationToggle);
+    ui->dockAnimation->setEnabled(!ui->actionAnimation_off->isChecked());
 }
 
 // Menu Ray Tracing
@@ -1302,10 +1433,7 @@ void qtMainWindow::on_actionDelete_active_view_triggered()
     setMenuState();
 }
 
-
-
 // Other Slots
-//-----------------------------------------------------------------------------
 void qtMainWindow::on_nodeTree_itemClicked(QTreeWidgetItem *item, int column)
 {
     SLScene* s = SLScene::current;
@@ -1324,7 +1452,6 @@ void qtMainWindow::on_nodeTree_itemClicked(QTreeWidgetItem *item, int column)
     buildPropertyTree();
     updateAllGLWidgets();
 }
-//-----------------------------------------------------------------------------
 void qtMainWindow::on_nodeTree_itemDoubleClicked(QTreeWidgetItem *item, int column)
 {
     SLSceneView* sv = _activeGLWidget->sv();
@@ -1339,22 +1466,173 @@ void qtMainWindow::on_nodeTree_itemDoubleClicked(QTreeWidgetItem *item, int colu
     // we need to set the menu state because the scene camera might not be active anymore
     setMenuState();
 }
-//-----------------------------------------------------------------------------
 void qtMainWindow::on_dockScenegraph_visibilityChanged(bool visible)
 {
     setMenuState();
 }
-//-----------------------------------------------------------------------------
 void qtMainWindow::on_dockProperties_visibilityChanged(bool visible)
 {
     setMenuState();
 }
-//-----------------------------------------------------------------------------
+void qtMainWindow::on_dockAnimation_visibilityChanged(bool visible)
+{
+    setMenuState();
+}
 void qtMainWindow::on_propertyTree_itemChanged(QTreeWidgetItem *item, int column)
 {
     ((qtPropertyTreeItem*)item)->onItemChanged(column);
     ui->propertyTree->update();
     updateAllGLWidgets();
 }
-//-----------------------------------------------------------------------------
 
+// Animation Controller
+void qtMainWindow::on_animAnimatedObjectSelect_currentIndexChanged(int index)
+{
+    int data = ui->animAnimatedObjectSelect->itemData(index).toInt();
+
+    if (data == -1)
+        return;
+
+    ui->animAnimationSelect->clear();
+
+    // node animations selected
+    if (data == 0)
+    {
+        for (auto& kv : SLScene::current->animManager().animations())
+        {
+            SLAnimationPlay* play = SLScene::current->animManager().getNodeAnimationPlay(kv.second->name());
+            QVariant variant;
+            variant.setValue<SLAnimationPlay*>(play);
+            ui->animAnimationSelect->addItem(kv.second->name().c_str(), variant);
+        }
+    }
+    // skeleton selected
+    else
+    {
+        int skeletonIndex = data - 1;
+        SLSkeleton* skeleton = SLScene::current->animManager().skeletons()[skeletonIndex];
+        
+        for (auto& kv : skeleton->animations())
+        {
+            SLAnimationPlay* play = skeleton->getAnimationPlay(kv.second->name());
+            QVariant variant;
+            variant.setValue<SLAnimationPlay*>(play);
+            ui->animAnimationSelect->addItem(kv.second->name().c_str(), variant);
+        }
+    }
+
+    ui->animAnimationSelect->setCurrentIndex(0);
+
+    std::cout << "on_animationSelectIndexChanged " << index << " " << ui->animAnimatedObjectSelect->itemData(index).toInt() << "\n";
+
+}
+void qtMainWindow::on_animAnimationSelect_currentIndexChanged(int index)
+{
+    SLAnimationPlay* play = ui->animAnimationSelect->itemData(index).value<SLAnimationPlay*>();
+    if (!play) return;
+    _selectedAnim = play;
+
+    ui->animSpeedInput->setValue(play->playbackRate());
+    ui->animWeightInput->setValue(play->weight());
+    ui->animEasingSelect->setCurrentIndex(play->easing());
+    ui->animLoopingSelect->setCurrentIndex(play->loop());
+
+    ui->animTimelineSlider->setAnimDuration(play->parentAnimation()->length());
+    ui->animDurationLabel->setText(ui->animTimelineSlider->getDurationTimeString());
+
+    std::cout << "on_animationSelectIndexChanged " << index << " " << play->parentAnimation()->name() << "\n";
+
+}
+void qtMainWindow::on_animSkipStartButton_clicked()
+{
+    if (!_selectedAnim)
+        return;
+
+    _selectedAnim->skipToStart();
+}
+void qtMainWindow::on_animSkipEndButton_clicked()
+{
+    if (!_selectedAnim)
+        return;
+
+    _selectedAnim->skipToEnd();
+}
+void qtMainWindow::on_animPrevKeyframeButton_clicked()
+{
+    if (!_selectedAnim)
+        return;
+
+    _selectedAnim->skipToPrevKeyframe();
+}
+void qtMainWindow::on_animNextKeyframeButton_clicked()
+{
+    if (!_selectedAnim)
+        return;
+
+    _selectedAnim->skipToNextKeyframe();
+}
+void qtMainWindow::on_animPlayForwardButton_clicked()
+{
+    if (!_selectedAnim)
+        return;
+
+    _selectedAnim->playForward();
+}
+void qtMainWindow::on_animPlayBackwardButton_clicked()
+{
+    if (!_selectedAnim)
+        return;
+
+    _selectedAnim->playBackward();
+}
+void qtMainWindow::on_animPauseButton_clicked()
+{
+    if (!_selectedAnim)
+        return;
+
+    _selectedAnim->pause();
+}
+void qtMainWindow::on_animStopButton_clicked()
+{
+    if (!_selectedAnim)
+        return;
+
+    _selectedAnim->enabled(false);
+}
+void qtMainWindow::on_animEasingSelect_currentIndexChanged(int index)
+{
+    if (!_selectedAnim)
+        return;
+    // @todo add the time preservation back in when the inverse functions are implemented
+    SLfloat localTime = _selectedAnim->localTime(); // preserve the local time before switching the easing
+    _selectedAnim->easing((SLEasingCurve)index);
+    _selectedAnim->localTime(localTime);
+}
+void qtMainWindow::on_animLoopingSelect_currentIndexChanged(int index)
+{
+    if (!_selectedAnim)
+        return;
+
+    _selectedAnim->loop((SLAnimLooping)(index));
+}
+void qtMainWindow::on_animTimelineSlider_valueChanged(int value)
+{
+    if (!_selectedAnim)
+        return;
+    
+    _selectedAnim->localTime(ui->animTimelineSlider->getNormalizedValue() * _selectedAnim->parentAnimation()->length());
+}
+void qtMainWindow::on_animWeightInput_valueChanged(double d)
+{
+    if (!_selectedAnim)
+        return;
+
+    _selectedAnim->weight(d);
+}
+void qtMainWindow::on_animSpeedInput_valueChanged(double d)
+{
+    if (!_selectedAnim)
+        return;
+
+    _selectedAnim->playbackRate(d);
+}

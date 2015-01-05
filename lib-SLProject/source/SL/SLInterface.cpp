@@ -13,7 +13,7 @@
 #include <SLInterface.h>
 #include <SLScene.h>
 #include <SLSceneView.h>
-#include <SLAssImp.h>
+#include <SLAssimpImporter.h>
 
 //! \file SLInterface.cpp SLProject C-functions interface implementation.
 /*! \file SLInterface.cpp
@@ -48,7 +48,7 @@ void slCreateScene(SLstring shaderPath,
    
     SLGLProgram::defaultPath = shaderPath;
     SLGLTexture::defaultPath    = texturePath;
-    SLAssImp::defaultPath       = modelPath;
+    SLAssimpImporter::defaultPath       = modelPath;
     SLGLState* stateGL          = SLGLState::getInstance();
     
     SL_LOG("Path to Models  : %s\n", modelPath.c_str());

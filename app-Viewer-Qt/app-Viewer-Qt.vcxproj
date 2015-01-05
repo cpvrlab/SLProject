@@ -271,6 +271,7 @@
     <ClCompile Include="qtGLWidget.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="qtAnimationSlider.h" />
     <ClInclude Include="qtPropertyTreeItem.h" />
     <ClInclude Include="qtPropertyTreeWidget.h" />
     <ClInclude Include="ui_qtMainWindow.h" />

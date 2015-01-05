@@ -9,7 +9,7 @@
 #include "SLLightSphere.h"
 #include "SLText.h"
 #include "SLTexFont.h"
-#include "SLAssImp.h"
+#include "SLAssImpImporter.h"
 
 #include "NewNodeSceneView.h"
 #include "NewNodeTRS.h"
@@ -143,14 +143,14 @@ void NewNodeSceneView::postSceneLoad()
     _moveBoxChild->addMesh(new SLBox(-0.25f, -0.25f, -0.25f, 0.25f, 0.25f, 0.25f, "Box", boxChildMat));
     _moveBox->addChild(_moveBoxChild);
     
-
-    _axesMesh = SLAssImp::load("FBX/Axes/axes_blender.fbx");
+    SLAssimpImporter importer;
+    _axesMesh = importer.load("FBX/Axes/axes_blender.fbx");
 
     SLScene::current->root3D()->addChild(_moveBox);
     SLScene::current->root3D()->addChild(_axesMesh);
 
-    if (!_curObject) {
-        _curObject = _moveBox;
+    if (!_curObject)
+    {   _curObject = _moveBox;
         SLScene::current->selectNodeMesh(_curObject, _curObject->meshes()[0]);
     }
     updateInfoText();

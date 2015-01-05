@@ -1,7 +1,7 @@
 //#############################################################################
 //  File:      SLAnimation.cpp
-//  Author:    Marcus Hudritsch
-//  Date:      July 2014
+//  Author:    Marc Wacker
+//  Date:      Autumn 2014
 //  Codestyle: https://github.com/cpvrlab/SLProject/wiki/Coding-Style-Guidelines
 //  Copyright: 2002-2014 Marcus Hudritsch
 //             This software is provide under the GNU General Public License
@@ -9,130 +9,251 @@
 //#############################################################################
 
 #include <stdafx.h>
-#ifdef SL_MEMLEAKDETECT       // set in SL.h for debug config only
-#include <debug_new.h>        // memory leak detector
-#endif
-
+#include <SLScene.h>
 #include <SLAnimation.h>
-#include <SLNode.h>
+#include <SLAnimationManager.h>
+#include <SLSkeleton.h>
 #include <SLCurveBezier.h>
 
 //-----------------------------------------------------------------------------
-/*! 
-Animation ctor for multiple keyframe animation where the keyframe translation
-positions will define a Bézier curve. The control points of the Bézier curve
-will be automatically calculated if controls a zero pointer. If an array of 
-control points is passed it must have the size of 2*(numKeyframes-1).
+/*! Constructor
 */
-SLAnimation::SLAnimation(SLVKeyframe keyframes,
-                         SLVec3f* controls,
-                         SLAnimMode mode,
-                         SLEasingCurve easing,
-                         SLstring name) : SLObject(name)
+SLAnimation::SLAnimation(const SLstring& name, SLfloat duration)
+            : _name(name), _length(duration)
+{ 
+}
+
+//-----------------------------------------------------------------------------
+/*! Destructor
+*/
+SLAnimation::~SLAnimation()
 {
-    _keyframes = keyframes;
-    _mode = mode;
-    _easing = easing;
-    _curve = 0;
-    init(controls);
+    SLMNodeAnimationTrack::iterator it = _nodeAnimTracks.begin();
+    for (; it != _nodeAnimTracks.end(); it++)
+        delete it->second;
 }
+
 //-----------------------------------------------------------------------------
-/*! 
-Animation ctor for single keyframe animation. The animation will interpolate
-between 2 keyframes: An initial keyframe without any transform at time zero and
-the passed keyframe transform at time passed.
+/*! Setter for the animation length
 */
-SLAnimation::SLAnimation(SLKeyframe keyframe,
-                         SLAnimMode mode, 
-                         SLEasingCurve easing, 
-                         SLstring name) : SLObject(name)
-{  
-    _keyframes.push_back(SLKeyframe());
-    _keyframes.push_back(keyframe);
-    _mode = mode;
-    _easing = easing;
-    _curve = 0;
-    init(0);
-}
-//-----------------------------------------------------------------------------
-/*! 
-Animation ctor for single translation animation. The animation will interpolate
-between 2 keyframes: An initial keyframe without any transform at time zero and
-the translation transform at time passed.
-*/
-SLAnimation::SLAnimation(SLfloat time, 
-                         SLVec3f position,
-                         SLAnimMode mode,
-                         SLEasingCurve easing,
-                         SLstring name) : SLObject(name)
+void SLAnimation::length(SLfloat length)
 {
-    _keyframes.push_back(SLKeyframe());
-    _keyframes.push_back(SLKeyframe(time, position));
-    _mode = mode;
-    _easing = easing;
-    _curve = 0;
-    init(0);
+    // @todo notify the animations track to optimize their keyframes
+    _length = length;
 }
+
 //-----------------------------------------------------------------------------
-/*! 
-Animation ctor for single rotation animation. The animation will interpolate
-between 2 keyframes: An initial keyframe without any transform at time zero and
-the rotation transform at time passed.
+/*! Returns the timestamp for the next keyframe in all of the tracks.
 */
-SLAnimation::SLAnimation(SLfloat time, 
-                         SLfloat rotAngleDEG, 
-                         SLVec3f rotAxis, 
-                         SLAnimMode mode,
-                         SLEasingCurve easing,
-                         SLstring name) : SLObject(name)
+SLfloat SLAnimation::nextKeyframeTime(SLfloat time)
 {
-    _keyframes.push_back(SLKeyframe());
-    _keyframes.push_back(SLKeyframe(time, 
-                                    rotAngleDEG, 
-                                    rotAxis));
-    _mode = mode;
-    _easing = easing;
-    _curve = 0;
-    init(0);
+    // find the closest keyframe time to the right
+    SLfloat result = _length;
+    SLKeyframe* kf1;
+    SLKeyframe* kf2;
+    
+    SLMNodeAnimationTrack::iterator it = _nodeAnimTracks.begin();
+    for (; it != _nodeAnimTracks.end(); it++)
+    {
+        it->second->getKeyframesAtTime(time, &kf1, &kf2);
+        if (kf2->time() < result && kf2->time() >= time)
+            result = kf2->time();
+    }
+
+    return result;
 }
+
 //-----------------------------------------------------------------------------
-/*! 
-Animation ctor for single scaling animation. The animation will interpolate
-between 2 keyframes: An initial keyframe without any transform at time zero and
-the scaling transform at time passed.
+/*! Returns the timestamp for the previous keyframe in all of the tracks.
 */
-SLAnimation::SLAnimation(SLfloat time, 
-                         SLfloat scaleX, 
-                         SLfloat scaleY,
-                         SLfloat scaleZ, 
-                         SLAnimMode mode,
-                         SLEasingCurve easing,
-                         SLstring name) : SLObject(name)
+SLfloat SLAnimation::prevKeyframeTime(SLfloat time)
 {
-    _keyframes.push_back(SLKeyframe());
-    _keyframes.push_back(SLKeyframe(time, 
-                                    scaleX, scaleY, scaleZ));
-    _mode = mode;
-    _easing = easing;
-    _curve = 0;
-    init(0);
+    // find the closest keyframe time to the right
+    SLfloat result = 0.0;
+    SLKeyframe* kf1;
+    SLKeyframe* kf2;
+
+    // shift the time a little bit to the left or else the getKeyframesAtTime function
+    // would return the same keyframe over and over again
+    time -= 0.01f; 
+    if (time <= 0.0f)
+        return 0.0f;
+
+    SLMNodeAnimationTrack::iterator it = _nodeAnimTracks.begin();
+    for (; it != _nodeAnimTracks.end(); it++)
+    {
+        it->second->getKeyframesAtTime(time, &kf1, &kf2);
+        if (kf1->time() > result && kf1->time() <= time)
+            result = kf1->time();
+    }
+
+    return result;
 }
+
 //-----------------------------------------------------------------------------
-/*! 
-Elliptic animation in a plane defined by 2 radiis along the coordinate axisA 
-and axisB. 
-The control points to approximate an ellipse or a circle with a Bézier curve
-use the magic factor kappa. 
-See: http://www.whizkidtech.redprince.net/bezier/circle/kappa/
+/*! Returns true if node is the animationTarget of any of the SLNodeAnimationTracks
+in this animation.
 */
-SLAnimation::SLAnimation(SLfloat time,
-                         SLfloat radiusA, SLAxis axisA,
-                         SLfloat radiusB, SLAxis axisB,
-                         SLAnimMode mode,
-                         SLEasingCurve easing,
-                         SLstring name) : SLObject(name)
-{  
+SLbool SLAnimation::affectsNode(SLNode* node)
+{
+    map<SLuint, SLNodeAnimationTrack*>::iterator it = _nodeAnimTracks.begin();
+    for (; it != _nodeAnimTracks.end(); ++it)
+    {
+        if (it->second->animatedNode() == node)
+            return true;
+    }
+
+    return false;
+}
+
+//-----------------------------------------------------------------------------
+/*! Creates a new SLNodeAnimationTrack with the next free handle.
+*/
+SLNodeAnimationTrack* SLAnimation::createNodeAnimationTrack()
+{
+    SLuint freeIndex = 0;
+    
+    map<SLuint, SLNodeAnimationTrack*>::iterator it = _nodeAnimTracks.begin();
+    for (; it != _nodeAnimTracks.end() && freeIndex == it->first; ++it, ++freeIndex)
+    { }
+
+    return createNodeAnimationTrack(freeIndex);
+}
+
+//-----------------------------------------------------------------------------
+/*! Creates a new SLNodeAnimationTrack with the passed in handle.
+*/
+SLNodeAnimationTrack* SLAnimation::createNodeAnimationTrack(SLuint id)
+{
+    // track with same handle already exists
+    // @todo provide a function that generates the handle automatically
+    if (_nodeAnimTracks.find(id) != _nodeAnimTracks.end())
+        return NULL;
+
+    _nodeAnimTracks[id] = new SLNodeAnimationTrack(this);
+
+    return _nodeAnimTracks[id];
+}
+
+//-----------------------------------------------------------------------------
+/*! Applies all animation tracks for the passed in timestamp, weight and scale.
+*/
+void SLAnimation::apply(SLfloat time, SLfloat weight , SLfloat scale)
+{
+    SLMNodeAnimationTrack::iterator it = _nodeAnimTracks.begin();
+    for (; it != _nodeAnimTracks.end(); it++)
+        it->second->apply(time, weight, scale);
+}
+
+//-----------------------------------------------------------------------------
+/*! Applies all node tracks of this animation on a single node
+*/
+void SLAnimation::applyToNode(SLNode* node, SLfloat time, SLfloat weight, SLfloat scale)
+{
+    SLMNodeAnimationTrack::iterator it = _nodeAnimTracks.begin();
+    for (; it != _nodeAnimTracks.end(); it++)
+        it->second->applyToNode(node, time, weight, scale);
+}
+
+//-----------------------------------------------------------------------------
+/*! Applies all the tracks to their respective joints in the passed in skeleton.
+*/
+void SLAnimation::apply(SLSkeleton* skel, SLfloat time, SLfloat weight, SLfloat scale)
+{
+    SLMNodeAnimationTrack::iterator it = _nodeAnimTracks.begin();
+    for (; it != _nodeAnimTracks.end(); it++)
+    {
+        SLJoint* joint = skel->getJoint(it->first);
+        it->second->applyToNode(joint, time, weight, scale);
+    }
+
+}
+
+//-----------------------------------------------------------------------------
+/*! Resets all default animation targets to their initial state.
+*/
+void SLAnimation::resetNodes()
+{
+    SLMNodeAnimationTrack::iterator it = _nodeAnimTracks.begin();
+    for (; it != _nodeAnimTracks.end(); it++)
+        it->second->animatedNode()->resetToInitialState();
+}
+
+//-----------------------------------------------------------------------------
+
+
+//-----------------------------------------------------------------------------
+/*! Creates new SLAnimation istance for node animations. It will already create and set parameters
+for the respective SLAnimationPlay.
+*/
+SLAnimation* SLAnimation::create(const SLstring& name,
+                                          SLfloat duration,
+                                          SLbool enabled,
+                                          SLEasingCurve easing,
+                                          SLAnimLooping looping)
+{
+    SLAnimation* anim = SLScene::current->animManager().createNodeAnimation(name, duration);
+    SLAnimationPlay* state = SLScene::current->animManager().getNodeAnimationPlay(anim->name());
+    state->enabled(enabled);
+    state->easing(easing);
+    state->loop(looping);
+    return anim;
+}
+
+//-----------------------------------------------------------------------------
+/*! Specialized SLNodeAnimationTrack creator for a two keyframe translation animation
+*/
+SLNodeAnimationTrack* SLAnimation::createSimpleTranslationNodeTrack(SLNode* target,
+                                                                    const SLVec3f& endPos)
+{
+    SLNodeAnimationTrack* track = createNodeAnimationTrack();
+    target->setInitialState();
+    track->animatedNode(target);
+    track->createNodeKeyframe(0.0f); // create zero kf
+    track->createNodeKeyframe(length())->translation(endPos); // create end scale keyframe
+    return track;
+}
+
+//-----------------------------------------------------------------------------
+/*! Specialized SLNodeAnimationTrack creator for a two keyframe rotation animation
+*/
+SLNodeAnimationTrack* SLAnimation::createSimpleRotationNodeTrack(SLNode* target,
+                                                                 SLfloat angleDeg,
+                                                                 const SLVec3f& axis)
+{
+    SLNodeAnimationTrack* track = createNodeAnimationTrack();
+    target->setInitialState();
+    track->animatedNode(target);
+    track->createNodeKeyframe(0.0f); // create zero kf
+    track->createNodeKeyframe(length())->rotation(SLQuat4f(angleDeg, axis)); // create end scale keyframe
+    return track;
+}
+  
+//-----------------------------------------------------------------------------
+/*! Specialized SLNodeAnimationTrack creator for a two keyframe scaling animation
+*/
+SLNodeAnimationTrack* SLAnimation::createSimpleScalingNodeTrack(SLNode* target,
+                                                                const SLVec3f& endScale)
+{    
+    SLNodeAnimationTrack* track = createNodeAnimationTrack();
+    target->setInitialState();
+    track->animatedNode(target);
+    track->createNodeKeyframe(0.0f); // create zero kf
+    track->createNodeKeyframe(length())->scale(endScale); // create end scale keyframe
+    return track;
+}
+  
+//-----------------------------------------------------------------------------
+/*! Specialized SLNodeAnimationTrack creator for an elliptic node animation
+*/
+SLNodeAnimationTrack* SLAnimation::createEllipticNodeTrack(SLNode* target, 
+                                                           SLfloat radiusA, SLAxis axisA,
+                                                           SLfloat radiusB, SLAxis axisB)
+{
     assert(axisA!=axisB && radiusA>0 && radiusB>0);
+    SLNodeAnimationTrack* track = createNodeAnimationTrack();
+    target->setInitialState();
+    track->animatedNode(target);
 
     /* The ellipse is defined by 5 keyframes: A,B,C,D and again A
 
@@ -169,239 +290,31 @@ SLAnimation::SLAnimation(SLfloat time,
     controls[7].comp[axisA] = radiusA; controls[7].comp[axisB] = k * -radiusB;
 
     // Add keyframes
-    SLfloat t4 = time / 4.0f;
-    _keyframes.push_back(SLKeyframe(0,  A));
-    _keyframes.push_back(SLKeyframe(t4, B));
-    _keyframes.push_back(SLKeyframe(t4, C));
-    _keyframes.push_back(SLKeyframe(t4, D));
-    _keyframes.push_back(SLKeyframe(t4, A));
-   
-    _curve = 0;
-    _mode = mode;
-    _easing = easing;
-    init(controls);
-}
-//-----------------------------------------------------------------------------
-SLAnimation::SLAnimation(SLAnimation& anim)
-{
-    _keyframes = anim._keyframes;
-    _curve = 0;
-    _totalTime = anim._totalTime;
-    _currentTime = anim._currentTime;
-    _direction = anim._direction;
-    _isFinished = anim._isFinished;
-    _mode = anim._mode;
-    _easing = anim._easing;
-    _wm = anim._wm;
-    _om = anim._om;
-    init(0);
-}
-//-----------------------------------------------------------------------------
-SLAnimation::~SLAnimation()
-{
-    if (_curve) delete _curve;
-}
-//-----------------------------------------------------------------------------
-/*!
-SLAnimation::init loops through all keyframes and determines the total 
-animation time. If more than two keyframes exist a Bézier curve is created for
-the position interpolation.
-*/
-void SLAnimation::init(SLVec3f* controls)
-{
-    // Cummulate total time
-    _totalTime = 0;
-    for (SLint i=0; i<_keyframes.size(); ++i)
-        _totalTime += _keyframes[i].time();
+    SLfloat t4 = length() / 4.0f;
+    track->createNodeKeyframe(0.0f * t4)->translation(A);
+    track->createNodeKeyframe(1.0f * t4)->translation(B);
+    track->createNodeKeyframe(2.0f * t4)->translation(C);
+    track->createNodeKeyframe(3.0f * t4)->translation(D);
+    track->createNodeKeyframe(4.0f * t4)->translation(A);
 
-    if (_keyframes.size() > 1)
-    {
-        if (_curve) delete _curve;
 
-        // Build curve data w. cummulated times
-        SLVec3f* points = new SLVec3f[_keyframes.size()];
-        SLfloat* times  = new SLfloat[_keyframes.size()];
-        SLfloat  curTime = 0;
-        for (SLint i=0; i<_keyframes.size(); ++i)
-        {   curTime += _keyframes[i].time();
-            points[i] = _keyframes[i].position();
-            times[i] = curTime;
-        }
-
-        // create curve and delete temp arrays again
-        _curve = new SLCurveBezier(points, times, (SLint)_keyframes.size(), controls);
-        delete[] points;
-        delete[] times;
+    // Build curve data w. cummulated times
+    SLVec3f* points = new SLVec3f[track->numKeyframes()];
+    SLfloat* times  = new SLfloat[track->numKeyframes()];
+    for (SLuint i=0; i<track->numKeyframes(); ++i)
+    {   
+        SLTransformKeyframe* kf = (SLTransformKeyframe*)track->keyframe(i);
+        points[i] =kf->translation();
+        times[i] = kf->time();
     }
 
-    _currentTime =-1.0f;
-    _direction   = 1.0f;
-    _isFinished  = false;
+    // create curve and delete temp arrays again
+    track->interpolationCurve(new SLCurveBezier(points, times, (SLint)track->numKeyframes(), controls));
+    track->translationInterpolation(AI_Bezier);
+
+    delete[] points;
+    delete[] times;
+
+
+    return track;
 }
-//-----------------------------------------------------------------------------
-/*!
-SLAnimation::animate does the transformation changes by updating the local
-transform matrix of the passed node. The shapes matrix is updated in 
-fixed order: Translation, rotation and scale. 
-*/
-void SLAnimation::animate(SLNode* node, SLfloat elapsedTimeMS)
-{
-    if (_isFinished) return;
-
-    // Get the original object transform once
-    if (_currentTime < 0)
-    {   _om = node->om();
-        //_wm = node->wm();
-        _currentTime = 0.0f;
-    }
-
-    // Apply the easing curve to the current time
-    SLfloat easingTime = easing(_currentTime);
-
-    // Determine involved neighbouring keyframes
-    SLKeyframe *k1=0, *k2=0;   // Pointers to previous and next keyframe   
-    SLfloat t1 = 0.0f, t2;     // Time of previous and next keyframe
-    SLfloat frac;              // fraction of next keyframe (0-1)
-
-    for (SLint i=0; i<_keyframes.size()-1; ++i)
-    {  
-        // Cummulated time at last frame
-        t1 += _keyframes[i].time();
-      
-        if (easingTime >= t1 && easingTime <=  t1 + _keyframes[i+1].time())
-        {  k1 = &_keyframes[i];
-            k2 = &_keyframes[i+1];
-            t2 = t1 + k2->time();
-            frac = (easingTime - t1) / (t2-t1);
-            break;
-        }
-    }
-
-    if (k1 && k2)
-    {
-        // Reset original object transform
-        node->om(_om);
-
-        // Add translation if the keyframes positions are different
-        if (k1->position() != k2->position())
-            node->translate(_curve->evaluate(easingTime), TS_Local);
-   
-        // Add rotation if the keyframe rotations are different
-        if (k1->orientation() != k2->orientation())
-        {  
-            // if previous rotation is a zero rotation do an angle interpolation
-            if (k1->orientation()==SLQuat4f(0,0,0,1))
-            {  SLfloat angleDEG;
-            SLVec3f axis;
-            k2->orientation().toAngleAxis(angleDEG, axis);
-            node->rotate(frac * angleDEG, axis);
-            }
-            else // otherwise do quaternion interpolation
-                node->rotate(k1->orientation().lerp(k2->orientation(), frac)); // node->multiply(k1->orientation().lerp(k2->orientation(), frac).toMat4());
-        }
-        // Add scaling if the keyframe scalings are different
-        if (k1->scaling() != k2->scaling())
-            node->scale((1-frac)*k1->scaling() + frac*k2->scaling());
-      
-        // increment or decrement time
-        _currentTime += elapsedTimeMS / 1000.0f * _direction;
-    }
-
-    //cout << _currentTime << endl;
-
-    // Handle the animation mode
-    if (_currentTime > _totalTime)
-    {  
-        switch (_mode)
-        {   case once:
-                _currentTime = 0.0f;
-                _isFinished = true;
-                break;
-            case loop:
-                _currentTime = 0.0f;
-                break;
-            case pingPong:
-            case pingPongLoop:
-                _currentTime = _totalTime;
-                _direction = -1.0f;
-                break;
-            default: 
-                _isFinished = true;
-                break;
-        }
-    } 
-    else
-    if (_currentTime < 0.0f)
-    {
-        _currentTime = 0.0f;
-        _direction = 1.0f;      
-        if (_mode == pingPong)
-            _isFinished = true;
-    }
-}
-//-----------------------------------------------------------------------------
-/*!
-SLAnimation::draw draws the animation curve in world space if the AABB of the
-animation owner are drawn.
-*/
-void SLAnimation::drawWS()
-{   
-    if (_keyframes.size() > 1 && _curve)
-        _curve->draw(_wm);
-}
-//-----------------------------------------------------------------------------
-//! Applies the easing time curve to the input time.
-/*! See also the declaration of the SLEasingCurve enumeration for the different
-easing curve type that are taken from Qt QAnimation and QEasingCurve class. 
-See http://qt-project.org/doc/qt-4.8/qeasingcurve.html#Type-enum
-*/
-SLfloat SLAnimation::easing(SLfloat time)
-{
-    SLfloat x = time / _totalTime;
-    SLfloat y = 0.0f;
-
-    switch (_easing)
-    {
-        case linear:      y = x; break;
-
-        case inQuad:      y =                  pow(x     ,2.0f);        break;
-        case outQuad:     y =                 -pow(x-1.0f,2.0f) + 1.0f; break;
-        case inOutQuad:   y =  (x<0.5f) ? 2.0f*pow(x     ,2.0f) : 
-                                        -2.0f*pow(x-1.0f,2.0f) + 1.0f; break;
-        case outInQuad:   y =  (x<0.5f) ?-2.0f*pow(x-0.5f,2.0f) + 0.5f : 
-                                          2.0f*pow(x-0.5f,2.0f) + 0.5f; break;
-   
-        case inCubic:     y =                  pow(x     ,3.0f);        break;
-        case outCubic:    y =                  pow(x-1.0f,3.0f) + 1.0f; break;
-        case inOutCubic:  y =  (x<0.5f) ? 4.0f*pow(x     ,3.0f) : 
-                                          4.0f*pow(x-1.0f,3.0f) + 1.0f; break;
-        case outInCubic:  y =             4.0f*pow(x-0.5f,3.0f) + 0.5f; break;
-
-        case inQuart:     y =                  pow(x     ,4.0f);        break;
-        case outQuart:    y =                 -pow(x-1.0f,4.0f) + 1.0f; break;
-        case inOutQuart:  y =  (x<0.5f) ? 8.0f*pow(x     ,4.0f) : 
-                                         -8.0f*pow(x-1.0f,4.0f) + 1.0f; break;
-        case outInQuart:  y =  (x<0.5f) ?-8.0f*pow(x-0.5f,4.0f) + 0.5f : 
-                                          8.0f*pow(x-0.5f,4.0f) + 0.5f; break;
-   
-        case inQuint:     y =                  pow(x     ,5.0f);        break;
-        case outQuint:    y =                  pow(x-1.0f,5.0f) + 1.0f; break;
-        case inOutQuint:  y =  (x<0.5f) ?16.0f*pow(x     ,5.0f) : 
-                                         16.0f*pow(x-1.0f,5.0f) + 1.0f; break;
-        case outInQuint:  y =            16.0f*pow(x-0.5f,5.0f) + 0.5f; break;
-
-        case inSine:      y =      sin(x*SL_PI*0.5f- SL_PI*0.5f)+ 1.0f; break;
-        case outSine:     y =      sin(x*SL_PI*0.5f);                   break;
-        case inOutSine:   y = 0.5f*sin(x*SL_PI - SL_PI*0.5f) + 0.5f;    break;
-        case outInSine:   y = (x<0.5f) ? 
-                            0.5f*sin(x*SL_PI) : 
-                            0.5f*sin(x*SL_PI - SL_PI) + 1.0f;         break;                                  
-        default: y = x; 
-    }
-
-    SLfloat newTime = y * _totalTime;
-    //printf("time: %5.3f, easing: %5.3f\n", time, newTime);
-
-    return newTime;
-}
-//-----------------------------------------------------------------------------

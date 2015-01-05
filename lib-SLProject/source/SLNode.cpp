@@ -88,7 +88,7 @@ void SLNode::addMesh(SLMesh* mesh)
     if (!mesh)
         return;
 
-    if (find(_meshes.begin(), _meshes.end(), mesh) != _meshes.end())
+    if (std::find(_meshes.begin(), _meshes.end(), mesh) != _meshes.end())
         return;
 
     // Take over mesh name if node name is default name
@@ -108,7 +108,7 @@ bool SLNode::insertMesh(SLMesh* insertM, SLMesh* afterM)
     assert(insertM && afterM);
     assert(insertM != afterM);
 
-    SLVMesh::iterator found = find(_meshes.begin(), _meshes.end(), afterM);
+    SLVMesh::iterator found = std::find(_meshes.begin(), _meshes.end(), afterM);
     if (found != _meshes.end())
     {   _meshes.insert(found, insertM);
         insertM->init(this);
@@ -240,7 +240,7 @@ bool SLNode::insertChild(SLNode* insertC, SLNode* afterC)
     assert(insertC && afterC);
     assert(insertC != afterC);
 
-    SLVNode::iterator found = find(_children.begin(), _children.end(), afterC);
+    SLVNode::iterator found = std::find(_children.begin(), _children.end(), afterC);
     if (found != _children.end())
     {   _children.insert(found, insertC);
         insertC->parent(this);
@@ -328,29 +328,6 @@ void SLNode::findChildrenHelper(const SLMesh* mesh, vector<SLNode*>& list, SLboo
 }
 //-----------------------------------------------------------------------------
 /*!
-Applies an animation transform to the local matrix. If an
-animation was done here or in one of the children node the function returns 
-true.
-*/
-SLbool SLNode::animateRec(SLfloat timeMS)
-{  
-    SLbool gotAnimated = false;
-
-    if (!SLScene::current->_stopAnimations)
-    {  
-        if (_animation && !_animation->isFinished()) 
-        {  _animation->animate(this, timeMS);
-            gotAnimated = true;
-        }
-
-        // animate children nodes for groups or group derived classes
-        for (SLint i=0; i<_children.size(); ++i)
-            if (_children[i]->animateRec(timeMS)) gotAnimated = true;
-    }
-    return gotAnimated;
-}
-//-----------------------------------------------------------------------------
-/*!
 Does the view frustum culling by checking whether the AABB is 
 inside the view frustum. The check is done in world space. If a AABB is visible
 the nodes children are checked recursively.
@@ -433,9 +410,11 @@ void SLNode::drawRec(SLSceneView* sv)
             _aabb.drawWS(SLCol3f(1,1,0));
 
         // Draw the animation curve
+        /// @add add old animation functionality back in
+        /*
         if (_animation)
             _animation->drawWS();
-         
+         */
         _stateGL->popModelViewMatrix(); 
     }
 }
