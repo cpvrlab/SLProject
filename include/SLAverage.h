@@ -8,10 +8,11 @@
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
 
-#include <stdafx.h>
 
 #ifndef SLAVERAGE_H
 #define SLAVERAGE_H
+
+#include <stdafx.h>
 
 //-----------------------------------------------------------------------------
 //!SLAverage template class provides an average value from a fixed size array.
