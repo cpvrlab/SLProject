@@ -308,6 +308,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
         light2->specular(SLCol4f(0.9f,0.9f,0.9f));
         light2->attenuation(1,0,0);
         light2->translate(-8, -4, 0, TS_World);
+        light2->setInitialState();
 
         SLAnimation* light2Anim = SLAnimation::create("light2_anim", 2.0f, true, EC_linear, AL_pingPongLoop);
         SLNodeAnimationTrack* track = light2Anim->createNodeAnimationTrack();
