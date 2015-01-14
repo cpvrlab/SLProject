@@ -184,17 +184,52 @@ protected:
 
 
 
+// @note this is just temporary test code here! Clean it up and implement it better for the final product
 class SLRiggedLeapHandListener : public SLLeapHandListener
 {
 public:
-    SLRiggedLeapHandListener(SLSkeleton* skel);
+    SLRiggedLeapHandListener()
+    {
+        for (SLint i = 0; i < 5; ++i) {
+            for (SLint j = 0; j < 4; ++j) {
+                _leftFingers[i][j] = _rightFingers[i][j] = NULL;
+            }
+        }
+    }
+
+    void setSkeleton(SLSkeleton* skel){
+        _skeleton = skel;
+    }
     
-    void setLWrist(const SLstring& name);
-    void setRWrist(const SLstring& name);
-    void setLArm(const SLstring& name);
-    void setRArm(const SLstring& name);
-    void setLFingerJoint(SLint boneType, const SLstring& name);
-    void setRFingerJoint(SLint boneType, const SLstring& name);
+    void setLWrist(const SLstring& name)
+    {
+        _leftWrist = _skeleton->getJoint(name);
+    }
+    void setRWrist(const SLstring& name)
+    {
+        _rightWrist = _skeleton->getJoint(name);
+    }
+    void setLArm(const SLstring& name)
+    {
+
+    }
+    void setRArm(const SLstring& name)
+    {
+
+    }
+    // @todo provide enums for finger type and bone type
+    void setLFingerJoint(SLint fingerType, SLint boneType, const SLstring& name)
+    {
+        if (!_skeleton) return;
+
+        _leftFingers[fingerType][boneType] = _skeleton->getJoint(name);
+    }
+    void setRFingerJoint(SLint fingerType, SLint boneType, const SLstring& name)
+    {
+        if (!_skeleton) return;
+
+        _rightFingers[fingerType][boneType] = _skeleton->getJoint(name);
+    }
 
     /*
     leap bone types
@@ -205,41 +240,41 @@ public:
     */
 
 protected:
+    
+    SLSkeleton* _skeleton;
+    SLJoint* _leftFingers[5][4];
+    SLJoint* _rightFingers[5][4];
+    SLJoint* _leftWrist;
+    SLJoint* _rightWrist;
 
     virtual void onLeapHandChange(const vector<SLLeapHand>& hands)
-    {/*
+    {
+        
         for (SLint i = 0; i < hands.size(); ++i)
         {
-            SLNode* hand = (hands[i].isLeft()) ? leftHand : rightHand;
-            
-            hand->position(hands[i].palmPosition());
-            
-            SLfloat angle;
-            SLVec3f axis;
-            hands[i].palmRotation().toAngleAxis(angle, axis);
-            hand->rotation(angle, axis, TS_Parent);
+            if (!hands[i].isLeft()) {
+                SLQuat4f rot = hands[i].palmRotation();
+                SLJoint* jnt = _rightWrist;
 
+                SLQuat4f corrected = SLQuat4f(90.0f, SLVec3f(-1, 0, 0)) * rot * SLQuat4f(90.0f, SLVec3f(1, 0, 0));
+                jnt->rotation(corrected);
+            }
+            
             for (SLint j = 0; j < hands[i].fingers().size(); ++j)
-            {
-                for (SLint k = 0; k < 5; ++k) {
-                    SLNode* joint = (hands[i].isLeft()) ? leftJoints[j][k] : rightJoints[j][k];
-
-                    joint->position(hands[i].fingers()[j].jointPosition(k));
-                }
-                
+            {                
                 for (SLint k = 0; k < 4; ++k) {
                     
-                    SLNode* bone = (hands[i].isLeft()) ? leftBones[j][k] : rightBones[j][k];
-                    bone->position(hands[i].fingers()[j].boneCenter(k));
-                    
-                    SLfloat angle;
-                    SLVec3f axis;
-                    hands[i].fingers()[j].boneRotation(k).toAngleAxis(angle, axis);
-                    bone->rotation(angle, axis, TS_Parent);
+                    SLJoint* bone = (hands[i].isLeft()) ? _leftFingers[j][k] : _rightFingers[j][k];
+                    if (bone == NULL)
+                        continue;
+
+                    SLQuat4f relRot = hands[i].fingers()[j].boneRotation(k) * hands[i].fingers()[j].boneRotation(k-1).inverted();
+                    SLQuat4f correctedRot = relRot * SLQuat4f(90.0f, SLVec3f(1, 0, 0));
+
+                    bone->rotation(correctedRot, TS_Parent);
                 }
             }
-        }*/
-
+        }
     }
 };
 
@@ -264,13 +299,9 @@ private:
     //SampleListener      _leapListener;
     //Leap::Controller    _leapController;
 
+    SLJoint*            _root;
     SLLeapController    _leapController;
     SampleHandListener  _slHandListener;
-
-    SLNode*            _palmLeft;
-    SLNode*            _palmRight;
-    
-    SLNode**            _leftHandJoints;
-    SLNode**            _rightHandJoints;
+    SLRiggedLeapHandListener _riggedListener;
 
 };

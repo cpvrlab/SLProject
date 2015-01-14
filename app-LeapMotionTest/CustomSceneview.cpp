@@ -232,8 +232,21 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd cmd)
 
     SLNode* scene = new SLNode;
     scene->addChild(light1);
-        
     
+
+    
+    SLAssimpImporter importer;
+    SLNode* meshDAE = importer.load("DAE/AstroBoy/AstroBoy.dae");
+    /*
+    for (SLuint i = 0; i < importer.meshes().size(); ++i) {
+        importer.meshes()[i]->skinningMethod(SM_HardwareSkinning);
+    }*/
+
+    // Scale to so that the AstroBoy is about 2 (meters) high.
+    meshDAE->scale(10.0f);
+    meshDAE->translate(0,-3.33f, 0, TS_Local);
+    scene->addChild(meshDAE);
+
     SLCamera* cam1 = new SLCamera;
     cam1->position(-4, 3, 3);
     cam1->lookAt(0, 0, 1);
@@ -252,9 +265,6 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd cmd)
 CustomSceneView::~CustomSceneView()
 {
     _leapController.removeHandListener(&_slHandListener);
-    
-    delete[] _leftHandJoints;
-    delete[] _rightHandJoints;
 }
 
 void CustomSceneView::postSceneLoad()
@@ -263,42 +273,39 @@ void CustomSceneView::postSceneLoad()
     //_leapController.setPolicy(Leap::Controller::POLICY_BACKGROUND_FRAMES);
 
     _leapController.registerHandListener(&_slHandListener);
+    _leapController.registerHandListener(&_riggedListener);
     _slHandListener.init();
-
-    _palmLeft = new SLNode;
-    _palmLeft->addMesh(new SLSphere(0.05f));
-    _palmRight = new SLNode;
-    _palmRight->addMesh(new SLSphere(0.05f));
+    _riggedListener.setSkeleton(SLScene::current->animManager().skeletons()[0]);
     
-    SLScene::current->root3D()->addChild(_palmLeft);
-    SLScene::current->root3D()->addChild(_palmRight);
+    _riggedListener.setLWrist("L_wrist");
+    _riggedListener.setRWrist("R_wrist");
+    // thumb
+    /*_riggedListener.setLFingerJoint(0, 1, "L_thumbOrient");
+    _riggedListener.setLFingerJoint(0, 2, "L_thumb_01");
+    _riggedListener.setLFingerJoint(0, 3, "L_thumb_02");*/
+    // index
+    _riggedListener.setLFingerJoint(1, 2, "L_index_01");
+    _riggedListener.setRFingerJoint(1, 2, "R_index_01");
+    /*_riggedListener.setLFingerJoint(1, 2, "L_index_02");
+    // middle
+    _riggedListener.setLFingerJoint(2, 1, "L_middle_01");
+    _riggedListener.setLFingerJoint(2, 2, "L_middle_02");
+    // pinky
+    _riggedListener.setLFingerJoint(4, 1, "L_pinky_01");
+    _riggedListener.setLFingerJoint(4, 2, "L_pinky_02");
 
-    
-    _leftHandJoints = new SLNode*[26];
-    _rightHandJoints = new SLNode*[26];
-    
-    SLMaterial* mat = new SLMaterial("glowing mat", SLVec4f::CYAN, SLVec4f::WHITE, 100.0f, 1.0f, 0.0f, 1.0f);
+    */
 
-    for (int i = 0; i < 26; ++i) {
-        _leftHandJoints[i] = new SLNode;
-        _leftHandJoints[i]->addMesh(new SLSphere(0.05f, 12, 12, "sphere", mat));
-        SLScene::current->root3D()->addChild(_leftHandJoints[i]);
-        _rightHandJoints[i] = new SLNode;
-        _rightHandJoints[i]->addMesh(new SLSphere(0.05f, 12, 12, "sphere", mat));
-        SLScene::current->root3D()->addChild(_rightHandJoints[i]);
-    }
+    _root = SLScene::current->animManager().skeletons()[0]->getJoint("root");
 }
 
 void CustomSceneView::preDraw()
-{/*
-    _palmLeft->position(_leapListener.posLeft/200.0f);
-    _palmRight->position(_leapListener.posRight/200.0f);
-
-
-    for (int i = 0; i < 26; ++i) {
-        _leftHandJoints[i]->position(_leapListener.positionsLeft[i] * 0.01f);
-        _rightHandJoints[i]->position(_leapListener.positionsRight[i] * 0.01f);
-    }*/
+{
+    //_root->rotate(1, 0, 1, 1); 
+    // @note we need to force an update on the skeleton here
+    //       since updateAnimations resets this dirty flag and the listener
+    //       isn't guaranteed to come before draw but afte ranimation is called
+    SLScene::current->animManager().skeletons()[0]->changed(true);
 }
 
 
