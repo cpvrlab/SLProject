@@ -21,7 +21,7 @@
 #include <SLTexFont.h>
 #include <SLButton.h>
 #include <SLAnimation.h>
-#include <SLAnimationManager.h>
+#include <SLAnimManager.h>
 
 //-----------------------------------------------------------------------------
 /*! Global static scene pointer that can be used throughout the entire library

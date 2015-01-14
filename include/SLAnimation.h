@@ -12,14 +12,14 @@
 #define SLANIMATION_H
 
 #include <stdafx.h>
-#include <SLAnimationTrack.h>
+#include <SLAnimTrack.h>
 #include <SLJoint.h>
 #include <SLEnums.h>
 
 class SLSkeleton;
 
 //-----------------------------------------------------------------------------
-//! SLAnimation is the
+//! SLAnimation is the ???
 /*! 
     SLAnimation is a container for multiple types of SLAnimationTracks that 
     should be kept together. For example a walk animation would consist of
@@ -55,14 +55,14 @@ public:
                                          SLEasingCurve easing = EC_linear,
                                          SLAnimLooping looping = AL_loop);
     // track creators
-    SLNodeAnimationTrack* createNodeAnimationTrack();
-    SLNodeAnimationTrack* createNodeAnimationTrack(SLuint handle);
-    SLNodeAnimationTrack* createSimpleTranslationNodeTrack(SLNode* target, const SLVec3f& endPos);
-    SLNodeAnimationTrack* createSimpleRotationNodeTrack(SLNode* target, SLfloat angleDeg, const SLVec3f& axis);
-    SLNodeAnimationTrack* createSimpleScalingNodeTrack(SLNode* target, const SLVec3f& endScale);
-    SLNodeAnimationTrack* createEllipticNodeTrack(SLNode* target, 
-                                                  SLfloat radiusA, SLAxis axisA,
-                                                  SLfloat radiusB, SLAxis axisB);
+    SLNodeAnimTrack*    createNodeAnimationTrack        ();
+    SLNodeAnimTrack*    createNodeAnimationTrack        (SLuint handle);
+    SLNodeAnimTrack*    createSimpleTranslationNodeTrack(SLNode* target, const SLVec3f& endPos);
+    SLNodeAnimTrack*    createSimpleRotationNodeTrack   (SLNode* target, SLfloat angleDeg, const SLVec3f& axis);
+    SLNodeAnimTrack*    createSimpleScalingNodeTrack    (SLNode* target, const SLVec3f& endScale);
+    SLNodeAnimTrack*    createEllipticNodeTrack         (SLNode* target,
+                                                         SLfloat radiusA, SLAxis axisA,
+                                                         SLfloat radiusB, SLAxis axisB);
     // Getters
     const   SLstring&   name            () { return _name; }
             SLfloat     length          () const { return _length; }
@@ -72,9 +72,9 @@ public:
             void        length          (SLfloat length);
 
 protected:
-    SLstring                _name;              //!< name of the animation
-    SLfloat                 _length;            //!< duration of the animation
-    SLMNodeAnimationTrack   _nodeAnimTracks;    //!< map of all the node tracks in this animation
+    SLstring            _name;              //!< name of the animation
+    SLfloat             _length;            //!< duration of the animation in seconds
+    SLMNodeAnimTrack    _nodeAnimTracks;    //!< map of all the node tracks in this animation
 };
 //-----------------------------------------------------------------------------
 typedef vector<SLAnimation*>        SLVAnimation;

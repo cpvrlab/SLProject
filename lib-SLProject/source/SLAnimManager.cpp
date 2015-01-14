@@ -1,5 +1,5 @@
 //#############################################################################
-//  File:      SLAnimationManager.cpp
+//  File:      SLAnimManager.cpp
 //  Author:    Marc Wacker
 //  Date:      Autumn 2014
 //  Codestyle: https://github.com/cpvrlab/SLProject/wiki/Coding-Style-Guidelines
@@ -11,30 +11,30 @@
 #include <stdafx.h>
 #include <SLScene.h>
 #include <SLAnimation.h>
-#include <SLAnimationPlay.h>
-#include <SLAnimationManager.h>
+#include <SLAnimPlayback.h>
+#include <SLAnimManager.h>
 #include <SLSkeleton.h>
 
 //-----------------------------------------------------------------------------
 //! destructor
-SLAnimationManager::~SLAnimationManager()
+SLAnimManager::~SLAnimManager()
 {
     clear();
 }
 
 //-----------------------------------------------------------------------------
 //! Clears and deletes all node animations and skeletons
-void SLAnimationManager::clear()
+void SLAnimManager::clear()
 {
     SLMAnimation::iterator it;
     for (it = _nodeAnimations.begin(); it != _nodeAnimations.end(); it++)
         delete it->second;
     _nodeAnimations.clear();
     
-    SLMAnimationPlay::iterator it2;
-    for (it2 = _nodeAnimationPlays.begin(); it2 != _nodeAnimationPlays.end(); it2++)
+    SLMAnimPlayback::iterator it2;
+    for (it2 = _nodeAnimPlaybacks.begin(); it2 != _nodeAnimPlaybacks.end(); it2++)
         delete it2->second;
-    _nodeAnimationPlays.clear();
+    _nodeAnimPlaybacks.clear();
 
     for (SLint i = 0; i < _skeletons.size(); ++i)
         delete _skeletons[i];
@@ -45,7 +45,7 @@ void SLAnimationManager::clear()
 /*! Creates a new node animation
     @param  duration    length of the animation
 */
-SLAnimation* SLAnimationManager::createNodeAnimation(SLfloat duration)
+SLAnimation* SLAnimManager::createNodeAnimation(SLfloat duration)
 {
     SLuint index = (SLuint)_nodeAnimations.size();
     ostringstream oss;
@@ -66,7 +66,7 @@ SLAnimation* SLAnimationManager::createNodeAnimation(SLfloat duration)
     @param  name        the animation name
     @param  duration    length of the animation
 */
-SLAnimation* SLAnimationManager::createNodeAnimation(const SLstring& name, SLfloat duration)
+SLAnimation* SLAnimManager::createNodeAnimation(const SLstring& name, SLfloat duration)
 {
     assert(_nodeAnimations.find(name) == _nodeAnimations.end() &&
            "node animation with same name already exists!");
@@ -76,16 +76,16 @@ SLAnimation* SLAnimationManager::createNodeAnimation(const SLstring& name, SLflo
 }
 
 //-----------------------------------------------------------------------------
-//! Returns the play of a node animation by name if it exists.
-SLAnimationPlay* SLAnimationManager::getNodeAnimationPlay(const SLstring& name)
+//! Returns the playback of a node animation by name if it exists.
+SLAnimPlayback* SLAnimManager::getNodeAnimPlayack(const SLstring& name)
 {
-    if (_nodeAnimationPlays.find(name) != _nodeAnimationPlays.end())
-        return _nodeAnimationPlays[name];
+    if (_nodeAnimPlaybacks.find(name) != _nodeAnimPlaybacks.end())
+        return _nodeAnimPlaybacks[name];
 
     else if (_nodeAnimations.find(name) != _nodeAnimations.end())
     {
-        _nodeAnimationPlays[name] = new SLAnimationPlay(_nodeAnimations[name]);
-        return _nodeAnimationPlays[name];
+        _nodeAnimPlaybacks[name] = new SLAnimPlayback(_nodeAnimations[name]);
+        return _nodeAnimPlaybacks[name];
     }
 
     return NULL;
@@ -93,24 +93,24 @@ SLAnimationPlay* SLAnimationManager::getNodeAnimationPlay(const SLstring& name)
 
 //-----------------------------------------------------------------------------
 //! Advances the time of all enabled animation plays.
-SLbool SLAnimationManager::update(SLfloat elapsedTimeSec)
+SLbool SLAnimManager::update(SLfloat elapsedTimeSec)
 {
     SLbool updated = false;
 
     // advance time for node animations and apply them
     // @todo currently we can't blend between normal node animations because we reset them
-    // per play. so the last plays that affects a node will have its animation applied.
+    // per playbackplay. so the last plays that affects a node will have its animation applied.
     // we need to save the plays differently if we want them.
 
-    SLMAnimationPlay::iterator it;
-    for (it = _nodeAnimationPlays.begin(); it != _nodeAnimationPlays.end(); it++)
+    SLMAnimPlayback::iterator it;
+    for (it = _nodeAnimPlaybacks.begin(); it != _nodeAnimPlaybacks.end(); it++)
     {
-        SLAnimationPlay* play = it->second;
-        if (play->enabled())
+        SLAnimPlayback* playback = it->second;
+        if (playback->enabled())
         {
-            play->parentAnimation()->resetNodes();
-            play->advanceTime(elapsedTimeSec);
-            play->parentAnimation()->apply(play->localTime(), play->weight());
+            playback->parentAnimation()->resetNodes();
+            playback->advanceTime(elapsedTimeSec);
+            playback->parentAnimation()->apply(playback->localTime(), playback->weight());
             updated = true;
         }
     }

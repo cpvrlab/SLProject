@@ -16,7 +16,7 @@
 #include <SL.h>
 #include <SLNode.h>
 #include <SLMesh.h>
-#include <SLAnimationPlay.h>
+#include <SLAnimPlayback.h>
 #include "qtGLWidget.h"
 #include "qtNodeTreeItem.h"
 #include "ui_qtMainWindow.h"
@@ -203,7 +203,7 @@ private:
         QMenu*            _menuWindow;
         QMenu*            _menuHelp;
 
-        SLAnimationPlay*   _selectedAnim;
+        SLAnimPlayback*   _selectedAnim;
 };
 
 #endif // MAINWINDOW_H

@@ -17,7 +17,7 @@
 #include <SLSceneView.h>
 #include <SLKeyframe.h>
 #include <SLAnimation.h>
-#include <SLAnimationManager.h>
+#include <SLAnimManager.h>
 #include <SLAssimpImporter.h>
 
 #include <SLCamera.h>
@@ -311,7 +311,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
         light2->setInitialState();
 
         SLAnimation* light2Anim = SLAnimation::create("light2_anim", 2.0f, true, EC_linear, AL_pingPongLoop);
-        SLNodeAnimationTrack* track = light2Anim->createNodeAnimationTrack();
+        SLNodeAnimTrack* track = light2Anim->createNodeAnimationTrack();
         track->animatedNode(light2);
         track->createNodeKeyframe(0.0f);
         track->createNodeKeyframe(1.0f)->translation(SLVec3f(8, 8, 0));

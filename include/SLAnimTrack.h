@@ -1,5 +1,5 @@
 //#############################################################################
-//  File:      SLAnimationTrack.h
+//  File:      SLAnimTrack.h
 //  Author:    Marc Wacker
 //  Date:      Autumn 2014
 //  Codestyle: https://github.com/cpvrlab/SLProject/wiki/Coding-Style-Guidelines
@@ -8,8 +8,8 @@
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
 
-#ifndef SLANIMATIONTRACK_H
-#define SLANIMATIONTRACK_H
+#ifndef SLANIMTRACK_H
+#define SLANIMTRACK_H
 
 #include <stdafx.h>
 #include <SLEnums.h>
@@ -26,11 +26,11 @@ class SLCurve;
     at most. For example a track in a skeleton animation will affect one
     joint at a time.
 */
-class SLAnimationTrack
+class SLAnimTrack
 {
 public:
-                        SLAnimationTrack        (SLAnimation* parent);
-                       ~SLAnimationTrack        ();
+                        SLAnimTrack             (SLAnimation* parent);
+                       ~SLAnimTrack             ();
 
             SLKeyframe* createKeyframe          (SLfloat time);   // create and add a new keyframe
             SLfloat     getKeyframesAtTime      (SLfloat time,
@@ -52,12 +52,12 @@ protected:
 };
 
 //-----------------------------------------------------------------------------
-//! Specialized SLAnimationTrack for node animations
-class SLNodeAnimationTrack : public SLAnimationTrack
+//! Specialized animation track for node animations
+class SLNodeAnimTrack : public SLAnimTrack
 {
 public:
-                        SLNodeAnimationTrack    (SLAnimation* parent);
-                       ~SLNodeAnimationTrack    ();
+                        SLNodeAnimTrack         (SLAnimation* parent);
+                       ~SLNodeAnimTrack         ();
 
    SLTransformKeyframe* createNodeKeyframe      (SLfloat time);
     
@@ -81,7 +81,7 @@ protected:
     SLbool              _rebuildInterpolationCurve; //!< dirty flag of the bezier curve
 };
 //-----------------------------------------------------------------------------
-typedef map<SLuint, SLNodeAnimationTrack*> SLMNodeAnimationTrack;
+typedef map<SLuint, SLNodeAnimTrack*> SLMNodeAnimTrack;
 //-----------------------------------------------------------------------------
 #endif
 

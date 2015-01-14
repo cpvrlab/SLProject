@@ -16,7 +16,7 @@
 //-----------------------------------------------------------------------------
 /*! Constructor for default keyframes.
 */
-SLKeyframe::SLKeyframe(const SLAnimationTrack* parent, SLfloat time)
+SLKeyframe::SLKeyframe(const SLAnimTrack* parent, SLfloat time)
 : _parentTrack(parent), _time(time)
 { }
 
@@ -32,7 +32,7 @@ bool SLKeyframe::operator<(const SLKeyframe& other) const
 //-----------------------------------------------------------------------------
 /*! Constructor for specialized transform keyframes.
 */
-SLTransformKeyframe::SLTransformKeyframe(const SLAnimationTrack* parent, SLfloat time)
+SLTransformKeyframe::SLTransformKeyframe(const SLAnimTrack* parent, SLfloat time)
 : SLKeyframe(parent, time),
 _translation(0, 0, 0),
 _rotation(0, 0, 0, 1),

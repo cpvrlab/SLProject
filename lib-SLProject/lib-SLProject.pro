@@ -111,9 +111,9 @@ HEADERS += \
     ../include/SLSkeleton.h \
     ../include/SLAssimpImporter.h \
     ../include/SLImporter.h \
-    ../include/SLAnimationManager.h \
-    ../include/SLAnimationTrack.h \
-    ../include/SLAnimationPlay.h
+    ../include/SLAnimPlayback.h \
+    ../include/SLAnimTrack.h \
+    ../include/SLAnimManager.h
 
 SOURCES += \
     source/SLGLBuffer.cpp \
@@ -163,9 +163,9 @@ SOURCES += \
     source/SL/SLAssimpImporter.cpp \
     source/SL/SLImporter.cpp \
     source/SLJoint.cpp \
-    source/SLAnimationManager.cpp \
-    source/SLAnimationTrack.cpp \
-    source/SLAnimationPlay.cpp
+    source/SLAnimManager.cpp \
+    source/SLAnimTrack.cpp \
+    source/SLAnimPlayback.cpp
 
 OTHER_FILES += \
     source/oglsl/BumpNormal.frag \

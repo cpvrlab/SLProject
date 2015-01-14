@@ -11,7 +11,7 @@
 #include <stdafx.h>
 #include <SLSkeleton.h>
 #include <SLScene.h>
-#include <SLAnimationPlay.h>
+#include <SLAnimPlayback.h>
 
 
 //-----------------------------------------------------------------------------
@@ -34,8 +34,8 @@ SLSkeleton::~SLSkeleton()
     for (it1 = _animations.begin(); it1 != _animations.end(); it1++)
         delete it1->second;
     
-    SLMAnimationPlay::iterator it2;
-    for (it2 = _animationPlays.begin(); it2 != _animationPlays.end(); it2++)
+    SLMAnimPlayback::iterator it2;
+    for (it2 = _animPlaybacks.begin(); it2 != _animPlaybacks.end(); it2++)
         delete it2->second;
 }
 
@@ -71,14 +71,14 @@ SLJoint* SLSkeleton::createJoint(const SLstring& name, SLuint id)
 //-----------------------------------------------------------------------------
 /*! Returns an animation state by name.
 */
-SLAnimationPlay* SLSkeleton::getAnimationPlay(const SLstring& name)
+SLAnimPlayback* SLSkeleton::getAnimPlayback(const SLstring& name)
 {
-    if (_animationPlays.find(name) != _animationPlays.end())
-        return _animationPlays[name];
+    if (_animPlaybacks.find(name) != _animPlaybacks.end())
+        return _animPlaybacks[name];
     else if (_animations.find(name) != _animations.end())
     {
-        _animationPlays[name] = new SLAnimationPlay(_animations[name]);
-        return _animationPlays[name];
+        _animPlaybacks[name] = new SLAnimPlayback(_animations[name]);
+        return _animPlaybacks[name];
     }
 
     return NULL;
@@ -160,10 +160,10 @@ SLbool SLSkeleton::updateAnimations(SLfloat elapsedTimeSec)
 
     // first advance time on all animations
     _changed = false;
-    SLMAnimationPlay::iterator it;
-    for (it = _animationPlays.begin(); it != _animationPlays.end(); it++)
+    SLMAnimPlayback::iterator it;
+    for (it = _animPlaybacks.begin(); it != _animPlaybacks.end(); it++)
     {
-        SLAnimationPlay* state = it->second;
+        SLAnimPlayback* state = it->second;
         if (state->enabled())
         {
             state->advanceTime(elapsedTimeSec);
@@ -180,9 +180,9 @@ SLbool SLSkeleton::updateAnimations(SLfloat elapsedTimeSec)
     // reset the skeleton and apply all enabled animations
     reset();
 
-    for (it = _animationPlays.begin(); it != _animationPlays.end(); it++)
+    for (it = _animPlaybacks.begin(); it != _animPlaybacks.end(); it++)
     {
-        SLAnimationPlay* state = it->second;
+        SLAnimPlayback* state = it->second;
         if (state->enabled())
         {
             state->parentAnimation()->apply(this, state->localTime(), state->weight());

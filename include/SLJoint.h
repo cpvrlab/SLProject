@@ -45,9 +45,7 @@ protected:
     SLuint          _id;        //!< unique id inside its parent skeleton
     SLSkeleton*     _skeleton;  //!< the skeleton this joint belongs to
     SLMat4f         _offsetMat; //!< matrix transforming this joint from bind pose to world pose
-
-    // specific information for the mesh this skeleton is bound to (should be moved to a skeleton instance class later, or removed entierely)
-    SLfloat         _radius;
+    SLfloat         _radius;    //!< info for the mesh this skeleton is bound to (should be moved to a skeleton instance class later, or removed entierely)
 };
 //-----------------------------------------------------------------------------
 typedef std::vector<SLJoint*> SLVJoint;

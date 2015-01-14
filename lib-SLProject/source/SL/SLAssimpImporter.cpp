@@ -953,7 +953,7 @@ SLAnimation* SLAssimpImporter::loadAnimation(aiAnimation* anim)
 
         
         // joint animation channels should receive the correct node id, normal node animations just get 0
-        SLNodeAnimationTrack* track = result->createNodeAnimationTrack(id);
+        SLNodeAnimTrack* track = result->createNodeAnimationTrack(id);
 
         
         // this is a node animation only, so we add a reference to the affected node to the track

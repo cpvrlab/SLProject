@@ -14,9 +14,9 @@
 #include <stdafx.h>
 #include <SLJoint.h>
 #include <SLAnimation.h>
-#include <SLAnimationPlay.h>
+#include <SLAnimPlayback.h>
 
-class SLAnimationManager;
+class SLAnimManager;
 
 
 //-----------------------------------------------------------------------------
@@ -30,9 +30,9 @@ class SLAnimationManager;
     @note   The current implementation doesn't support multiple instances of the same
             skeleton animation. It is however not that far away from supporting it.
             Currently the SLSkeleton class keeps both a SLAnimation map
-            and an SLAnimationPlay map. We can split this into two classes
+            and an SLAnimPlayback map. We can split this into two classes
             by creating an SLSkeletonInstance class we that keeps the 
-            SLAnimationPlay map that references its parent SLSkeleton
+            SLAnimPlayback map that references its parent SLSkeleton
             we would be able to create multiple SLSkeletonInstance instances
             that use the same SLAnimations but with different states.
 
@@ -59,7 +59,7 @@ public:
             void        reset           ();
 
             // Getters
-    SLAnimationPlay*    getAnimationPlay(const SLstring& name);
+    SLAnimPlayback*     getAnimPlayback (const SLstring& name);
     SLMAnimation        animations      () { return _animations; }
             SLint       numAnimations   () const { return (SLint)_animations.size(); }
             SLJoint*    getJoint        (SLuint id);
@@ -83,11 +83,11 @@ protected:
     SLJoint*            _root;              //!< root joint
     SLVJoint            _joints;            //!< joint list for fast access and index to joint mapping
     SLMAnimation        _animations;        //!< animations for this skeleton
-    SLMAnimationPlay    _animationPlays;    //!< animation plays for this skeleton
+    SLMAnimPlayback     _animPlaybacks;     //!< animation playbacks for this skeleton
     SLbool              _changed;           //!< did this skeleton change this frame (attribute for skeleton instance)
     SLVec3f             _minOS;             //!< min point in os for this skeleton (attribute for skeleton instance)
     SLVec3f             _maxOS;             //!< max point in os for this skeleton (attribute for skeleton instance)
-    SLbool              _minMaxOutOfDate;   //!< ???
+    SLbool              _minMaxOutOfDate;   //!< Dirty flag aabb rebuild
 
 };
 //-----------------------------------------------------------------------------

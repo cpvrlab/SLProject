@@ -18,7 +18,7 @@
 #include <SLAABBox.h>
 #include <SLGLProgram.h>
 #include <SLAnimation.h>
-#include <SLAnimationManager.h>
+#include <SLAnimManager.h>
 #include <SLLightSphere.h>
 #include <SLLightRect.h>
 #include <SLRay.h>
