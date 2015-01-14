@@ -387,7 +387,8 @@ SLbool SLMesh::hit(SLRay* ray, SLNode* node)
         return false;
      
     // update accel struct if it's out of date
-    updateAccelStruct();
+    if (_accelStructOutOfDate)
+        updateAccelStruct();
 
     if (_accelStruct)
         return _accelStruct->intersect(ray, node);
@@ -564,25 +565,27 @@ void SLMesh::buildAABB(SLAABBox &aabb, SLMat4f wmNode)
     // Apply world matrix
     aabb.fromOStoWS(minP, maxP, wmNode);
 }
-
+//-----------------------------------------------------------------------------
+/*! SLMesh::updateAccelStruct rebuilds the acceleration structure if the dirty
+flag is set. This can happen for mesh animations.
+*/
 void SLMesh::updateAccelStruct()
 {
-    if (_accelStructOutOfDate)
-    {
-        calcMinMax();
-        SLVec3f distMinMax = maxP - minP;
-        SLfloat addon = distMinMax.length() * 0.005f;
-        minP -= addon;
-        maxP += addon;
+    calcMinMax();
+    SLVec3f distMinMax = maxP - minP;
+    SLfloat addon = distMinMax.length() * 0.005f;
+    minP -= addon;
+    maxP += addon;
 
-        _accelStructOutOfDate = false;
-        if (_accelStruct) delete _accelStruct;
-        _accelStruct = 0;
-        if (_primitive == SL_TRIANGLES)
-            _accelStruct = new SLUniformGrid(this);
-        if (_accelStruct && numI > 5*3) 
-            _accelStruct->build(minP, maxP);
-    }
+    _accelStructOutOfDate = false;
+    if (_accelStruct) delete _accelStruct;
+
+    _accelStruct = 0;
+    if (_primitive == SL_TRIANGLES)
+        _accelStruct = new SLUniformGrid(this);
+
+    if (_accelStruct && numI > 5*3)
+        _accelStruct->build(minP, maxP);
 }
 //-----------------------------------------------------------------------------
 //! SLMesh::calcNormals recalculates vertex normals for triangle meshes.
