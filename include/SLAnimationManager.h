@@ -50,7 +50,7 @@ public:
 private:
     SLVSkeleton         _skeletons;             //!< all skeleton instances
     SLMAnimation        _nodeAnimations;        //!< node animations
-    SLMAnimationPlay    _nodeAnimationPlays;   //!< node animation plays
+    SLMAnimationPlay    _nodeAnimationPlays;    //!< node animation plays
 };
 //-----------------------------------------------------------------------------
 #endif

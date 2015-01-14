@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>560</width>
-    <height>625</height>
+    <width>762</width>
+    <height>623</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -37,8 +37,8 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>560</width>
-     <height>21</height>
+     <width>762</width>
+     <height>22</height>
     </rect>
    </property>
    <property name="defaultUp">
@@ -520,7 +520,7 @@
    </property>
    <property name="minimumSize">
     <size>
-     <width>560</width>
+     <width>614</width>
      <height>114</height>
     </size>
    </property>
@@ -1057,12 +1057,12 @@ QSlider::handle:horizontal:disabled {
              </item>
              <item>
               <property name="text">
-               <string>quadc in -&gt; out</string>
+               <string>quadc in &gt; out</string>
               </property>
              </item>
              <item>
               <property name="text">
-               <string>quad out -&gt; in</string>
+               <string>quad out &gt; in</string>
               </property>
              </item>
              <item>
@@ -1077,12 +1077,12 @@ QSlider::handle:horizontal:disabled {
              </item>
              <item>
               <property name="text">
-               <string>cubic in -&gt; out</string>
+               <string>cubic in &gt; out</string>
               </property>
              </item>
              <item>
               <property name="text">
-               <string>cubic out -&gt; in</string>
+               <string>cubic out &gt; in</string>
               </property>
              </item>
              <item>
@@ -1097,12 +1097,12 @@ QSlider::handle:horizontal:disabled {
              </item>
              <item>
               <property name="text">
-               <string>quartic in -&gt; out</string>
+               <string>quartic in &gt; out</string>
               </property>
              </item>
              <item>
               <property name="text">
-               <string>quartic out -&gt; in</string>
+               <string>quartic out &gt; in</string>
               </property>
              </item>
              <item>
@@ -1117,12 +1117,12 @@ QSlider::handle:horizontal:disabled {
              </item>
              <item>
               <property name="text">
-               <string>quintic in -&gt; out</string>
+               <string>quintic in &gt; out</string>
               </property>
              </item>
              <item>
               <property name="text">
-               <string>quintic out -&gt; in</string>
+               <string>quintic out &gt; in</string>
               </property>
              </item>
              <item>
@@ -1137,12 +1137,12 @@ QSlider::handle:horizontal:disabled {
              </item>
              <item>
               <property name="text">
-               <string>sine in -&gt; out</string>
+               <string>sine in &gt; out</string>
               </property>
              </item>
              <item>
               <property name="text">
-               <string>sine out -&gt; in</string>
+               <string>sine out &gt; in</string>
               </property>
              </item>
             </widget>

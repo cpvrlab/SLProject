@@ -29,31 +29,31 @@ class SLSkeleton;
 class SLAnimation
 {
 public:
-                        SLAnimation(const SLstring& name, SLfloat duration);
-                       ~SLAnimation();
+                        SLAnimation     (const SLstring& name, SLfloat duration);
+                       ~SLAnimation     ();
     
             SLfloat     nextKeyframeTime(SLfloat time);
             SLfloat     prevKeyframeTime(SLfloat time);
-            SLbool      affectsNode (SLNode* node);
-            void        apply       (SLfloat time,
-                                     SLfloat weight = 1.0f,
-                                     SLfloat scale = 1.0f);
-            void        applyToNode (SLNode* node,
-                                     SLfloat time,
-                                     SLfloat weight = 1.0f,
-                                     SLfloat scale = 1.0f);
-            void        apply       (SLSkeleton* skel,
-                                     SLfloat time,
-                                     SLfloat weight = 1.0f,
-                                     SLfloat scale = 1.0f);
-            void        resetNodes  ();
+            SLbool      affectsNode     (SLNode* node);
+            void        apply           (SLfloat time,
+                                         SLfloat weight = 1.0f,
+                                         SLfloat scale = 1.0f);
+            void        applyToNode     (SLNode* node,
+                                         SLfloat time,
+                                         SLfloat weight = 1.0f,
+                                         SLfloat scale = 1.0f);
+            void        apply           (SLSkeleton* skel,
+                                         SLfloat time,
+                                         SLfloat weight = 1.0f,
+                                         SLfloat scale = 1.0f);
+            void        resetNodes      ();
 
     // static creator 
-    static SLAnimation* create(const SLstring& name,
-                                        SLfloat duration,
-                                        SLbool enabled = true,
-                                        SLEasingCurve easing = EC_linear,
-                                        SLAnimLooping looping = AL_loop);
+    static SLAnimation* create          (const SLstring& name,
+                                         SLfloat duration,
+                                         SLbool enabled = true,
+                                         SLEasingCurve easing = EC_linear,
+                                         SLAnimLooping looping = AL_loop);
     // track creators
     SLNodeAnimationTrack* createNodeAnimationTrack();
     SLNodeAnimationTrack* createNodeAnimationTrack(SLuint handle);
@@ -64,12 +64,12 @@ public:
                                                   SLfloat radiusA, SLAxis axisA,
                                                   SLfloat radiusB, SLAxis axisB);
     // Getters
-    const   SLstring&   name        () { return _name; }
-            SLfloat     length      () const { return _length; }
+    const   SLstring&   name            () { return _name; }
+            SLfloat     length          () const { return _length; }
 
     // Setters
-            void        name        (const SLstring& name) { _name = name; }
-            void        length      (SLfloat length);
+            void        name            (const SLstring& name) { _name = name; }
+            void        length          (SLfloat length);
 
 protected:
     SLstring                _name;              //!< name of the animation

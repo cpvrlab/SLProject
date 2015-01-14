@@ -1,7 +1,7 @@
 /********************************************************************************
 ** Form generated from reading UI file 'qtMainWindow.ui'
 **
-** Created by: Qt User Interface Compiler version 5.3.1
+** Created by: Qt User Interface Compiler version 5.3.2
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
 ********************************************************************************/
@@ -201,7 +201,7 @@ public:
     {
         if (qtMainWindow->objectName().isEmpty())
             qtMainWindow->setObjectName(QStringLiteral("qtMainWindow"));
-        qtMainWindow->resize(560, 625);
+        qtMainWindow->resize(762, 623);
         QSizePolicy sizePolicy(QSizePolicy::Preferred, QSizePolicy::Minimum);
         sizePolicy.setHorizontalStretch(0);
         sizePolicy.setVerticalStretch(0);
@@ -573,7 +573,7 @@ public:
         qtMainWindow->setCentralWidget(centralWidget);
         menuBar = new QMenuBar(qtMainWindow);
         menuBar->setObjectName(QStringLiteral("menuBar"));
-        menuBar->setGeometry(QRect(0, 0, 560, 21));
+        menuBar->setGeometry(QRect(0, 0, 762, 22));
         menuBar->setDefaultUp(false);
         menuBar->setNativeMenuBar(false);
         menuFile = new QMenu(menuBar);
@@ -710,7 +710,7 @@ public:
         sizePolicy3.setVerticalStretch(0);
         sizePolicy3.setHeightForWidth(dockAnimation->sizePolicy().hasHeightForWidth());
         dockAnimation->setSizePolicy(sizePolicy3);
-        dockAnimation->setMinimumSize(QSize(560, 114));
+        dockAnimation->setMinimumSize(QSize(614, 114));
         dockAnimation->setFloating(false);
         dockAnimation->setFeatures(QDockWidget::AllDockWidgetFeatures);
         dockWidgetContents_3 = new QWidget();
@@ -1647,24 +1647,24 @@ public:
          << QApplication::translate("qtMainWindow", "linear", 0)
          << QApplication::translate("qtMainWindow", "quad in", 0)
          << QApplication::translate("qtMainWindow", "quad out", 0)
-         << QApplication::translate("qtMainWindow", "quadc in -> out", 0)
-         << QApplication::translate("qtMainWindow", "quad out -> in", 0)
+         << QApplication::translate("qtMainWindow", "quadc in > out", 0)
+         << QApplication::translate("qtMainWindow", "quad out > in", 0)
          << QApplication::translate("qtMainWindow", "cubic in", 0)
          << QApplication::translate("qtMainWindow", "cubic out", 0)
-         << QApplication::translate("qtMainWindow", "cubic in -> out", 0)
-         << QApplication::translate("qtMainWindow", "cubic out -> in", 0)
+         << QApplication::translate("qtMainWindow", "cubic in > out", 0)
+         << QApplication::translate("qtMainWindow", "cubic out > in", 0)
          << QApplication::translate("qtMainWindow", "quartic in", 0)
          << QApplication::translate("qtMainWindow", "quartic out", 0)
-         << QApplication::translate("qtMainWindow", "quartic in -> out", 0)
-         << QApplication::translate("qtMainWindow", "quartic out -> in", 0)
+         << QApplication::translate("qtMainWindow", "quartic in > out", 0)
+         << QApplication::translate("qtMainWindow", "quartic out > in", 0)
          << QApplication::translate("qtMainWindow", "quintic in", 0)
          << QApplication::translate("qtMainWindow", "quintic out", 0)
-         << QApplication::translate("qtMainWindow", "quintic in -> out", 0)
-         << QApplication::translate("qtMainWindow", "quintic out -> in", 0)
+         << QApplication::translate("qtMainWindow", "quintic in > out", 0)
+         << QApplication::translate("qtMainWindow", "quintic out > in", 0)
          << QApplication::translate("qtMainWindow", "sine in", 0)
          << QApplication::translate("qtMainWindow", "sine out", 0)
-         << QApplication::translate("qtMainWindow", "sine in -> out", 0)
-         << QApplication::translate("qtMainWindow", "sine out -> in", 0)
+         << QApplication::translate("qtMainWindow", "sine in > out", 0)
+         << QApplication::translate("qtMainWindow", "sine out > in", 0)
         );
 #ifndef QT_NO_TOOLTIP
         animEasingSelect->setToolTip(QApplication::translate("qtMainWindow", "Easing curve", 0));
