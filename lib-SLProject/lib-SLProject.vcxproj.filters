@@ -219,13 +219,7 @@
     <ClInclude Include="..\include\SLSkeleton.h">
       <Filter>Animation</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\SLAnimationManager.h">
-      <Filter>Animation</Filter>
-    </ClInclude>
     <ClInclude Include="..\include\SLKeyframe.h">
-      <Filter>Animation</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\SLAnimationTrack.h">
       <Filter>Animation</Filter>
     </ClInclude>
     <ClInclude Include="..\include\SLAnimation.h">
@@ -243,7 +237,13 @@
     <ClInclude Include="..\include\SLJoint.h">
       <Filter>Animation</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\SLAnimationPlay.h">
+    <ClInclude Include="..\include\SLAnimManager.h">
+      <Filter>Animation</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\SLAnimPlayback.h">
+      <Filter>Animation</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\SLAnimTrack.h">
       <Filter>Animation</Filter>
     </ClInclude>
   </ItemGroup>
@@ -374,13 +374,7 @@
     <ClCompile Include="source\SLGLProgram.cpp">
       <Filter>GL</Filter>
     </ClCompile>
-    <ClCompile Include="source\SLAnimationManager.cpp">
-      <Filter>Animation</Filter>
-    </ClCompile>
     <ClCompile Include="source\SLSkeleton.cpp">
-      <Filter>Animation</Filter>
-    </ClCompile>
-    <ClCompile Include="source\SLAnimationTrack.cpp">
       <Filter>Animation</Filter>
     </ClCompile>
     <ClCompile Include="source\SLAnimation.cpp">
@@ -401,7 +395,13 @@
     <ClCompile Include="source\SLJoint.cpp">
       <Filter>Animation</Filter>
     </ClCompile>
-    <ClCompile Include="source\SLAnimationPlay.cpp">
+    <ClCompile Include="source\SLAnimManager.cpp">
+      <Filter>Animation</Filter>
+    </ClCompile>
+    <ClCompile Include="source\SLAnimPlayback.cpp">
+      <Filter>Animation</Filter>
+    </ClCompile>
+    <ClCompile Include="source\SLAnimTrack.cpp">
       <Filter>Animation</Filter>
     </ClCompile>
   </ItemGroup>
