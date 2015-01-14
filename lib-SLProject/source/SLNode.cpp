@@ -758,30 +758,44 @@ sets the rotation of this node. The axis parameter
 will be transformed into 'relativeTo' space. So an passing in an axis
 of (0, 1, 0) with TS_Local will rotate the node around its own up axis.
 */
-void SLNode::rotation(SLfloat angleDeg, const SLVec3f& axis, 
+void SLNode::rotation(const SLQuat4f& rot, 
                       SLTransformSpace relativeTo)
 {    
+    SLMat4f rotation = rot.toMat4(); 
+
     if (_parent && relativeTo == TS_World)
     {
-        SLMat4f rot;
-        rot.translate(updateAndGetWM().translation());
-        rot.rotation(angleDeg, axis);
-        rot.translate(-updateAndGetWM().translation());
-        _om = _parent->updateAndGetWMI() * rot * updateAndGetWM();
+        SLMat4f rotMat;
+        rotMat.translate(updateAndGetWM().translation());
+        rotMat.multiply(rotation);
+        rotMat.translate(-updateAndGetWM().translation());
+        _om = _parent->updateAndGetWMI() * rotMat * updateAndGetWM();
         needUpdate();
         return;
     }
     else if (relativeTo == TS_Parent)
     {   // relative to parent, reset current rotation and just rotate again
         _om.rotation(0, 0, 0, 0);
-        rotate(angleDeg, axis, relativeTo);
+        rotate(rot, relativeTo);
     }
     else
     {
         // in TS_Local everything is relative to our current orientation
-        rotate(angleDeg, axis, relativeTo);
+        rotate(rot, relativeTo);
     }
 
+}
+//-----------------------------------------------------------------------------
+/*!
+sets the rotation of this node. The axis parameter
+will be transformed into 'relativeTo' space. So an passing in an axis
+of (0, 1, 0) with TS_Local will rotate the node around its own up axis.
+*/
+void SLNode::rotation(SLfloat angleDeg, const SLVec3f& axis, 
+                      SLTransformSpace relativeTo)
+{    
+    SLQuat4f rot(angleDeg, axis);
+    rotation(rot, relativeTo);
 }
 //-----------------------------------------------------------------------------
 /*!
@@ -829,38 +843,6 @@ void SLNode::translate(const SLVec3f& delta, SLTransformSpace relativeTo)
 /*!
 Rotates the node around its local origin relative to the space expressed by 'relativeTo'.
 */
-void SLNode::rotate(SLfloat angleDeg, const SLVec3f& axis, 
-                    SLTransformSpace relativeTo)
-{
-    if (relativeTo == TS_Local)
-    {
-        _om.rotate(angleDeg, axis);
-    }
-    else if (_parent && relativeTo == TS_World)
-    {
-        SLMat4f rot;
-        rot.translate(updateAndGetWM().translation());
-        rot.rotate(angleDeg, axis);
-        rot.translate(-updateAndGetWM().translation());
-
-        _om = _parent->updateAndGetWMI() * rot * updateAndGetWM();
-    }
-    else // relativeTo == TS_Parent || relativeTo == TS_World && !_parent
-    {            
-        SLMat4f rot;
-        rot.translate(position());
-        rot.rotate(angleDeg, axis);
-        rot.translate(-position());
-                
-        _om.setMatrix(rot * _om);
-    }
-
-    needUpdate();
-}
-//-----------------------------------------------------------------------------
-/*!
-Rotates the node around its local origin relative to the space expressed by 'relativeTo'.
-*/
 void SLNode::rotate(const SLQuat4f& rot, SLTransformSpace relativeTo)
 {
     SLMat4f rotation = rot.toMat4(); 
@@ -890,6 +872,16 @@ void SLNode::rotate(const SLQuat4f& rot, SLTransformSpace relativeTo)
     }
 
     needUpdate();
+}
+//-----------------------------------------------------------------------------
+/*!
+Rotates the node around its local origin relative to the space expressed by 'relativeTo'.
+*/
+void SLNode::rotate(SLfloat angleDeg, const SLVec3f& axis, 
+                    SLTransformSpace relativeTo)
+{
+    SLQuat4f rot(angleDeg, axis);
+    rotate(rot, relativeTo);
 }
 //-----------------------------------------------------------------------------
 /*!
