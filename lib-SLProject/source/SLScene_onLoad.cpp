@@ -528,7 +528,12 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
         // Add animation for light 1
         SLAnimation* anim = SLAnimation::create("light1_anim", 4.0f);
         anim->createEllipticNodeTrack(light1, 12.0f, ZAxis, 12.0f, XAxis);
-
+        
+        // set the skinning method of the loaded meshes
+        // @note RT currently only works with software skinning
+        //for (SLint i = 0; i < importer.meshes().size(); ++i)
+        //    importer.meshes()[i]->skinningMethod(SM_HardwareSkinning);
+        
 
         // Assemble scene
         SLNode* scene = new SLNode("scene group");

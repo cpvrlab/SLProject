@@ -167,6 +167,8 @@ void qtMainWindow::setMenuState()
     ui->actionLarge_Model->setChecked(s->currentID()==cmdSceneLargeModel);
     ui->actionFigure->setChecked(s->currentID()==cmdSceneFigure);
     ui->actionMesh_Loader->setChecked(s->currentID()==cmdSceneMeshLoad);
+    ui->actionSeymour_Army->setChecked(s->currentID()==cmdSceneSeymourArmy);
+    ui->actionSkeletal_Animation->setChecked(s->currentID()==cmdSceneSkeletalAnimation);
     ui->actionTexture_Blending->setChecked(s->currentID()==cmdSceneTextureBlend);
     ui->actionTexture_Filtering->setChecked(s->currentID()==cmdSceneTextureFilter);
     ui->actionFrustum_Culling_1->setChecked(s->currentID()==cmdSceneFrustumCull1);
@@ -817,6 +819,18 @@ void qtMainWindow::on_actionMesh_Loader_triggered()
 {
     beforeSceneLoad();
     _activeGLWidget->sv()->onCommand(cmdSceneMeshLoad);
+    afterSceneLoad();
+}
+void qtMainWindow::on_actionSkeletal_Animation_triggered()
+{
+    beforeSceneLoad();
+    _activeGLWidget->sv()->onCommand(cmdSceneSkeletalAnimation);
+    afterSceneLoad();
+}
+void qtMainWindow::on_actionSeymour_Army_triggered()
+{
+    beforeSceneLoad();
+    _activeGLWidget->sv()->onCommand(cmdSceneSeymourArmy);
     afterSceneLoad();
 }
 void qtMainWindow::on_actionTexture_Blending_triggered()

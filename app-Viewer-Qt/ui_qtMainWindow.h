@@ -1,7 +1,7 @@
 /********************************************************************************
 ** Form generated from reading UI file 'qtMainWindow.ui'
 **
-** Created by: Qt User Interface Compiler version 5.4.0
+** Created by: Qt User Interface Compiler version 5.3.1
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
 ********************************************************************************/
@@ -136,6 +136,8 @@ public:
     QAction *actionAnimSkipToEnd;
     QAction *actionAnimStop;
     QAction *actionShow_Animation_Controler;
+    QAction *actionSkeletal_Animation;
+    QAction *actionSeymour_Army;
     QWidget *centralWidget;
     QMenuBar *menuBar;
     QMenu *menuFile;
@@ -568,12 +570,18 @@ public:
         actionShow_Animation_Controler->setObjectName(QStringLiteral("actionShow_Animation_Controler"));
         actionShow_Animation_Controler->setCheckable(true);
         actionShow_Animation_Controler->setChecked(true);
+        actionSkeletal_Animation = new QAction(qtMainWindow);
+        actionSkeletal_Animation->setObjectName(QStringLiteral("actionSkeletal_Animation"));
+        actionSkeletal_Animation->setCheckable(true);
+        actionSeymour_Army = new QAction(qtMainWindow);
+        actionSeymour_Army->setObjectName(QStringLiteral("actionSeymour_Army"));
+        actionSeymour_Army->setCheckable(true);
         centralWidget = new QWidget(qtMainWindow);
         centralWidget->setObjectName(QStringLiteral("centralWidget"));
         qtMainWindow->setCentralWidget(centralWidget);
         menuBar = new QMenuBar(qtMainWindow);
         menuBar->setObjectName(QStringLiteral("menuBar"));
-        menuBar->setGeometry(QRect(0, 0, 762, 22));
+        menuBar->setGeometry(QRect(0, 0, 762, 21));
         menuBar->setDefaultUp(false);
         menuBar->setNativeMenuBar(false);
         menuFile = new QMenu(menuBar);
@@ -1010,6 +1018,8 @@ public:
         menuGeneral_Scenes->addAction(actionFrustum_Culling_1);
         menuGeneral_Scenes->addAction(actionFrustum_Culling_2);
         menuGeneral_Scenes->addAction(actionMass_Animation);
+        menuGeneral_Scenes->addAction(actionSkeletal_Animation);
+        menuGeneral_Scenes->addAction(actionSeymour_Army);
         menuShader_Scenes->addAction(actionPer_Vertex_Lighting);
         menuShader_Scenes->addAction(actionPer_Pixel_Lighting);
         menuShader_Scenes->addAction(actionPer_Vertex_Wave);
@@ -1521,6 +1531,14 @@ public:
         actionAnimSkipToEnd->setText(QApplication::translate("qtMainWindow", "Skip to last frame", 0));
         actionAnimStop->setText(QApplication::translate("qtMainWindow", "Stop", 0));
         actionShow_Animation_Controler->setText(QApplication::translate("qtMainWindow", "Show Animation Controller", 0));
+        actionSkeletal_Animation->setText(QApplication::translate("qtMainWindow", "Skeletal Animation", 0));
+#ifndef QT_NO_STATUSTIP
+        actionSkeletal_Animation->setStatusTip(QApplication::translate("qtMainWindow", "Loads a scene with a few skeletal animation samples.", 0));
+#endif // QT_NO_STATUSTIP
+        actionSeymour_Army->setText(QApplication::translate("qtMainWindow", "Seymour Army", 0));
+#ifndef QT_NO_STATUSTIP
+        actionSeymour_Army->setStatusTip(QApplication::translate("qtMainWindow", "Loads a scene with many identical animated characters.", 0));
+#endif // QT_NO_STATUSTIP
         menuFile->setTitle(QApplication::translate("qtMainWindow", "File", 0));
         menuLoad_Scene->setTitle(QApplication::translate("qtMainWindow", "Load Scene", 0));
         menuGeneral_Scenes->setTitle(QApplication::translate("qtMainWindow", "General Scenes", 0));

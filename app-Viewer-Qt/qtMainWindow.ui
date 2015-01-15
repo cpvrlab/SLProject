@@ -38,7 +38,7 @@
      <x>0</x>
      <y>0</y>
      <width>762</width>
-     <height>22</height>
+     <height>21</height>
     </rect>
    </property>
    <property name="defaultUp">
@@ -71,6 +71,8 @@
       <addaction name="actionFrustum_Culling_1"/>
       <addaction name="actionFrustum_Culling_2"/>
       <addaction name="actionMass_Animation"/>
+      <addaction name="actionSkeletal_Animation"/>
+      <addaction name="actionSeymour_Army"/>
      </widget>
      <widget class="QMenu" name="menuShader_Scenes">
       <property name="title">
@@ -2324,6 +2326,28 @@ QSlider::handle:horizontal:disabled {
    </property>
    <property name="text">
     <string>Show Animation Controller</string>
+   </property>
+  </action>
+  <action name="actionSkeletal_Animation">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Skeletal Animation</string>
+   </property>
+   <property name="statusTip">
+    <string>Loads a scene with a few skeletal animation samples.</string>
+   </property>
+  </action>
+  <action name="actionSeymour_Army">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Seymour Army</string>
+   </property>
+   <property name="statusTip">
+    <string>Loads a scene with many identical animated characters.</string>
    </property>
   </action>
  </widget>
