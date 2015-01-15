@@ -60,6 +60,8 @@ enum SLCmd
     cmdSceneSmallTest,   // Loads the different scenes
     cmdSceneFigure,   
     cmdSceneMeshLoad,
+    cmdSceneSeymourArmy,
+    cmdSceneSkeletalAnimation,
     cmdSceneSkinnedMesh01,
     cmdSceneLargeModel,
     cmdSceneRevolver,

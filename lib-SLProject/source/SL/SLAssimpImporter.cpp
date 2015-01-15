@@ -280,6 +280,9 @@ SLNode* SLAssimpImporter::load(SLstring file,        //!< File with path or on d
                                SLbool loadMeshesOnly,//!< Only load nodes with meshes
                                SLuint flags)         //!< Import flags (see assimp/postprocess.h)
 {
+    // clear the intermediate data
+    clear();
+
     // Check existance
     if (!SLFileSystem::fileExists(file))
     {   file = defaultPath + file;
@@ -342,8 +345,6 @@ SLNode* SLAssimpImporter::load(SLstring file,        //!< File with path or on d
         animations.push_back(loadAnimation(scene->mAnimations[i]));
 
 
-    // clear the intermediate data
-    clear();
 
     logMessage(LV_Minimal, "\n---------------------------\n\n");
 

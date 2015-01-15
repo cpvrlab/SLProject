@@ -139,7 +139,7 @@
     <ClCompile>
       <Optimization>Disabled</Optimization>
       <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)\include;..\include;..\lib-SLExternal;..\lib-SLExternal\jpeg-8;..\lib-SLExternal\png;..\lib-SLExternal\zlib;..\lib-SLExternal\glew\include;..\lib-SLExternal\glfw3\include;..\lib-SLExternal\randomc;..\lib-SLExternal\oculus\LibOVR\Include\;..\lib-SLExternal\nvwa;..\lib-SLExternal\assimp\include;..\lib-SLExternal\assimp\code</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>SL_GUI_GLFW;SL_STARTSCENE#cmdSceneSkinnedMesh01;SL_RT1;GLEW_STATIC;_DEBUG;UNICODE;WIN32;_WINDOWS</PreprocessorDefinitions>
+      <PreprocessorDefinitions>SL_GUI_GLFW;SL_STARTSCENE#cmdSceneSkeletalAnimation;SL_RT1;GLEW_STATIC;_DEBUG;UNICODE;WIN32;_WINDOWS</PreprocessorDefinitions>
       <TreatWChar_tAsBuiltInType>false</TreatWChar_tAsBuiltInType>
       <OpenMPSupport>false</OpenMPSupport>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
@@ -222,7 +222,7 @@
       <Optimization>Full</Optimization>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)\include;..\include;..\lib-SLExternal;..\lib-SLExternal\jpeg-8;..\lib-SLExternal\png;..\lib-SLExternal\zlib;..\lib-SLExternal\glew\include;..\lib-SLExternal\glfw3\include;..\lib-SLExternal\randomc;..\lib-SLExternal\oculus\LibOVR\Include\;..\lib-SLExternal\nvwa;..\lib-SLExternal\assimp\include;..\lib-SLExternal\assimp\code</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>SL_GUI_GLFW;SL_STARTSCENE#cmdSceneMeshLoad;SL_RT1;GLEW_STATIC;UNICODE;WIN32;_WINDOWS</PreprocessorDefinitions>
+      <PreprocessorDefinitions>SL_GUI_GLFW;SL_STARTSCENE#cmdSceneSeymourArmy;SL_RT1;GLEW_STATIC;UNICODE;WIN32;_WINDOWS</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <BufferSecurityCheck>true</BufferSecurityCheck>
       <FunctionLevelLinking>true</FunctionLevelLinking>
