@@ -18,6 +18,16 @@
 class SLSkeleton;
 //-----------------------------------------------------------------------------
 //! Specialized SLNode that represents a single joint (or bone) in a skeleton
+/*! 
+    The handle of the joint must be unique among the other joints in the 
+    parent/creator skeleton. 
+
+    The main addition of SLJoint to the base SLNode is the offset matrix.
+    The offset matrix is the inverse transformation of the joint's 
+    binding pose in mesh space.
+    It is used to transform the vertices of a rigged mesh to the origin 
+    of the joint to be able to manipulate them in the join's space.
+*/
 class SLJoint : public SLNode
 {
 public:

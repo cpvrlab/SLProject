@@ -44,27 +44,27 @@ void SLAnimPlayback::advanceTime(SLfloat delta)
     _linearLocalTime += delta * _playbackRate * _playbackDir;
     
     // fix invalid inputs
-    if (_linearLocalTime > _animation->length())
+    if (_linearLocalTime > _animation->lengthSec())
     {
         // wrap around on loop, else just stay on last frame
         switch (_loopingBehaviour)
         {
-        case AL_once:          _linearLocalTime = _animation->length(); _enabled = false; break;
+        case AL_once:          _linearLocalTime = _animation->lengthSec(); _enabled = false; break;
         case AL_loop:          _linearLocalTime = 0.0f; break;
-        case AL_pingPong:      _linearLocalTime = _animation->length(); _playbackDir *= -1; break;
-        case AL_pingPongLoop:  _linearLocalTime = _animation->length(); _playbackDir *= -1; break;
+        case AL_pingPong:      _linearLocalTime = _animation->lengthSec(); _playbackDir *= -1; break;
+        case AL_pingPongLoop:  _linearLocalTime = _animation->lengthSec(); _playbackDir *= -1; break;
         }
     }
     // fix negative inputs, playback rate could be negative
     else if (_linearLocalTime < 0.0f)
     {
         while (_linearLocalTime < 0.0f)
-            _linearLocalTime += _animation->length();
+            _linearLocalTime += _animation->lengthSec();
 
         switch (_loopingBehaviour)
         {
         case AL_once:          _linearLocalTime = 0.0f; _enabled = false; break;
-        case AL_loop:          _linearLocalTime = _animation->length(); break;
+        case AL_loop:          _linearLocalTime = _animation->lengthSec(); break;
         case AL_pingPong:      _linearLocalTime = 0.0f; _enabled = false; break; // at the moment pingPong stops when reaching 0, if we start with a reverse direction this is illogical
         case AL_pingPongLoop:  _linearLocalTime = 0.0f; _playbackDir *= -1; break;
         }
@@ -142,7 +142,7 @@ void SLAnimPlayback::skipToStart()
 */
 void SLAnimPlayback::skipToEnd()
 {
-    localTime(_animation->length());
+    localTime(_animation->lengthSec());
 }
 
 //-----------------------------------------------------------------------------
@@ -170,7 +170,7 @@ See http://qt-project.org/doc/qt-4.8/qeasingcurve.html#Type-enum
 */
 SLfloat SLAnimPlayback::calcEasingTime(SLfloat time) const
 {
-    SLfloat x = time / _animation->length();
+    SLfloat x = time / _animation->lengthSec();
     SLfloat y = 0.0f;
 
     switch (_easing)
@@ -205,7 +205,7 @@ SLfloat SLAnimPlayback::calcEasingTime(SLfloat time) const
         default: y = x; 
     }
     
-    return y * _animation->length();
+    return y * _animation->lengthSec();
 }
 
 //-----------------------------------------------------------------------------
@@ -213,7 +213,7 @@ SLfloat SLAnimPlayback::calcEasingTime(SLfloat time) const
 */
 SLfloat SLAnimPlayback::calcEasingTimeInv(SLfloat time) const
 {
-    SLfloat x = time / _animation->length();
+    SLfloat x = time / _animation->lengthSec();
     SLfloat y = 0.0f;
 
     switch (_easing)
@@ -254,6 +254,6 @@ SLfloat SLAnimPlayback::calcEasingTimeInv(SLfloat time) const
         default: y = x; 
     }
 
-    return y * _animation->length();
+    return y * _animation->lengthSec();
 }
 //-----------------------------------------------------------------------------

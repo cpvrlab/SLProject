@@ -19,7 +19,7 @@
 /*! Constructor
 */
 SLAnimation::SLAnimation(const SLstring& name, SLfloat duration)
-            : _name(name), _length(duration)
+            : _name(name), _lengthSec(duration)
 { 
 }
 
@@ -36,10 +36,10 @@ SLAnimation::~SLAnimation()
 //-----------------------------------------------------------------------------
 /*! Setter for the animation length
 */
-void SLAnimation::length(SLfloat length)
+void SLAnimation::lengthSec(SLfloat lengthSec)
 {
     // @todo notify the animations track to optimize their keyframes
-    _length = length;
+    _lengthSec = lengthSec;
 }
 
 //-----------------------------------------------------------------------------
@@ -48,7 +48,7 @@ void SLAnimation::length(SLfloat length)
 SLfloat SLAnimation::nextKeyframeTime(SLfloat time)
 {
     // find the closest keyframe time to the right
-    SLfloat result = _length;
+    SLfloat result = _lengthSec;
     SLKeyframe* kf1;
     SLKeyframe* kf2;
     
@@ -210,7 +210,7 @@ SLNodeAnimTrack* SLAnimation::createSimpleTranslationNodeTrack(SLNode* target,
     target->setInitialState();
     track->animatedNode(target);
     track->createNodeKeyframe(0.0f); // create zero kf
-    track->createNodeKeyframe(length())->translation(endPos); // create end scale keyframe
+    track->createNodeKeyframe(lengthSec())->translation(endPos); // create end scale keyframe
     return track;
 }
 
@@ -225,7 +225,7 @@ SLNodeAnimTrack* SLAnimation::createSimpleRotationNodeTrack(SLNode* target,
     target->setInitialState();
     track->animatedNode(target);
     track->createNodeKeyframe(0.0f); // create zero kf
-    track->createNodeKeyframe(length())->rotation(SLQuat4f(angleDeg, axis)); // create end scale keyframe
+    track->createNodeKeyframe(lengthSec())->rotation(SLQuat4f(angleDeg, axis)); // create end scale keyframe
     return track;
 }
   
@@ -239,7 +239,7 @@ SLNodeAnimTrack* SLAnimation::createSimpleScalingNodeTrack(SLNode* target,
     target->setInitialState();
     track->animatedNode(target);
     track->createNodeKeyframe(0.0f); // create zero kf
-    track->createNodeKeyframe(length())->scale(endScale); // create end scale keyframe
+    track->createNodeKeyframe(lengthSec())->scale(endScale); // create end scale keyframe
     return track;
 }
   
@@ -290,7 +290,7 @@ SLNodeAnimTrack* SLAnimation::createEllipticNodeTrack(SLNode* target,
     controls[7].comp[axisA] = radiusA; controls[7].comp[axisB] = k * -radiusB;
 
     // Add keyframes
-    SLfloat t4 = length() / 4.0f;
+    SLfloat t4 = lengthSec() / 4.0f;
     track->createNodeKeyframe(0.0f * t4)->translation(A);
     track->createNodeKeyframe(1.0f * t4)->translation(B);
     track->createNodeKeyframe(2.0f * t4)->translation(C);

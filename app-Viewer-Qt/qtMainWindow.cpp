@@ -1536,7 +1536,7 @@ void qtMainWindow::on_animAnimationSelect_currentIndexChanged(int index)
     ui->animWeightInput->setValue(play->weight());
     ui->animEasingSelect->setCurrentIndex(play->easing());
     ui->animLoopingSelect->setCurrentIndex(play->loop());
-    ui->animTimelineSlider->setAnimDuration(play->parentAnimation()->length());
+    ui->animTimelineSlider->setAnimDuration(play->parentAnimation()->lengthSec());
     ui->animDurationLabel->setText(ui->animTimelineSlider->getDurationTimeString());
 
     std::cout << "on_animationSelectIndexChanged " << index << " " << play->parentAnimation()->name() << "\n";
@@ -1619,7 +1619,7 @@ void qtMainWindow::on_animTimelineSlider_valueChanged(int value)
     if (!_selectedAnim)
         return;
     
-    _selectedAnim->localTime(ui->animTimelineSlider->getNormalizedValue() * _selectedAnim->parentAnimation()->length());
+    _selectedAnim->localTime(ui->animTimelineSlider->getNormalizedValue() * _selectedAnim->parentAnimation()->lengthSec());
 }
 void qtMainWindow::on_animWeightInput_valueChanged(double d)
 {

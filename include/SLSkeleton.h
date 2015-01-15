@@ -40,6 +40,12 @@ class SLAnimManager;
             without copying the data into a completely seperate SLMesh. But the
             solution for SLMesh would take the same approach by creating a 
             mesh instance class that is able to use SLSkeletonInstance.
+
+    @note   The current version of the SLAssimpImporter only supports the loading of a single animation.
+            This limitation is mainly because there are very few 3D programs
+            that make use of the possibility to export multiple animations in
+            a single file. This means we would need to extend our importer to
+            be able to load more animations for an already loaded skeleton.
 */
 class SLSkeleton
 {

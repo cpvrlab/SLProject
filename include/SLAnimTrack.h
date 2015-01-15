@@ -53,6 +53,11 @@ protected:
 
 //-----------------------------------------------------------------------------
 //! Specialized animation track for node animations
+/*! 
+    Allows for translation, scale and rotation parameters to be animated.
+    Also allows for either linear or bezier interpolation of the position
+    parameter in the track.
+*/
 class SLNodeAnimTrack : public SLAnimTrack
 {
 public:

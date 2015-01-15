@@ -19,12 +19,19 @@
 class SLSkeleton;
 
 //-----------------------------------------------------------------------------
-//! SLAnimation is the ???
+//! SLAnimation is the base container for all animation data.
 /*! 
     SLAnimation is a container for multiple types of SLAnimationTracks that 
     should be kept together. For example a walk animation would consist of
     all the SLAnimationTracks that make a SLSkeleton walk.
     The SLAnimation is also the one that knows the length of the animation.
+
+    An animation for a SLSkeleton with n joints must consist of 1 to n 
+    SLNodeAnimTrack. The SLAnimation class keeps a map with 
+    index -> SLNodeAnimTrack pairs, the index for the SLNodeAnimTrack
+    must match the index of a bone in the target SLSkeleton.
+    This method allows us to animate multiple identical, or similar 
+    SLSkeletons with the same SLAnimation.
 */
 class SLAnimation
 {
@@ -65,15 +72,15 @@ public:
                                                          SLfloat radiusB, SLAxis axisB);
     // Getters
     const   SLstring&   name            () { return _name; }
-            SLfloat     length          () const { return _length; }
+            SLfloat     lengthSec       () const { return _lengthSec; }
 
     // Setters
             void        name            (const SLstring& name) { _name = name; }
-            void        length          (SLfloat length);
+            void        lengthSec       (SLfloat lengthSec);
 
 protected:
     SLstring            _name;              //!< name of the animation
-    SLfloat             _length;            //!< duration of the animation in seconds
+    SLfloat             _lengthSec;            //!< duration of the animation in seconds
     SLMNodeAnimTrack    _nodeAnimTracks;    //!< map of all the node tracks in this animation
 };
 //-----------------------------------------------------------------------------
