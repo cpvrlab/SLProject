@@ -167,7 +167,9 @@
     <ClCompile Include="glfwMain.cpp" />
     <ClCompile Include="SLLeapController.cpp" />
     <ClCompile Include="SLLeapFinger.cpp" />
+    <ClCompile Include="SLLeapGesture.cpp" />
     <ClCompile Include="SLLeapHand.cpp" />
+    <ClCompile Include="SLLeapTool.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CustomSceneView.h" />

@@ -47,10 +47,59 @@ void SLLeapController::onFrame(const Leap::Controller& controller)
         _prevFrameHandCount = hands.count();
     }
 
+    // notify tool listeners
+    if (_toolListeners.size())
+    {
+        std::vector<SLLeapTool> slTools;
+             
+        Leap::ToolList tools = frame.tools();
+        for (Leap::ToolList::const_iterator tl = tools.begin(); tl != tools.end(); ++tl)
+        {
+            const Leap::Tool tool = *tl;
 
-    // @todo    notify tool listeners
+            if (tool.isValid()) {
+                SLLeapTool slTool;
+                slTool.leapTool(tool);
+                slTools.push_back(slTool);
+            }
+        }
 
-    // @todo    notify gesture listeners
+        if (slTools.size() || _prevFrameToolCount > 0)
+        {
+            for (SLint i = 0; i < _toolListeners.size(); ++i)
+                _toolListeners[i]->onLeapToolChange(slTools);
+        }
+
+        _prevFrameToolCount = tools.count();
+    }
+
+    // notify gesture listeners
+    if (_gestureListeners.size())
+    {
+        Leap::GestureList gestures = frame.gestures();
+        for (Leap::GestureList::const_iterator gl = gestures.begin(); gl != gestures.end(); ++gl)
+        {
+            Leap::Gesture gesture = *gl;
+
+            SLLeapGesture* slGesture = NULL;
+            switch (gesture.type())
+            {
+            case Leap::Gesture::TYPE_CIRCLE:       slGesture = new SLLeapCircleGesture; break;
+            case Leap::Gesture::TYPE_SWIPE:        slGesture = new SLLeapSwipeGesture; break;
+            case Leap::Gesture::TYPE_KEY_TAP:      slGesture = new SLLeapKeyTapGesture; break;
+            case Leap::Gesture::TYPE_SCREEN_TAP:   slGesture = new SLLeapScreenTapGesture; break;
+            }
+
+            if (slGesture)
+            {
+                slGesture->leapGesture(gesture);
+                for (SLint i = 0; i < _gestureListeners.size(); ++i)
+                    _gestureListeners[i]->onLeapGesture(*slGesture);
+
+                delete slGesture;
+            }
+        }
+    }
 }
 
 
@@ -62,7 +111,7 @@ void SLLeapController::registerHandListener(SLLeapHandListener* listener)
 {
     _handListeners.push_back(listener);
 }
-void SLLeapController::registerGestureListener(SLLeapToolListener* listener)
+void SLLeapController::registerToolListener(SLLeapToolListener* listener)
 {
     _toolListeners.push_back(listener);
 }
@@ -78,7 +127,7 @@ void SLLeapController::removeHandListener(SLLeapHandListener* listener)
     v.erase(remove(v.begin(), v.end(), listener), v.end());
 }
 
-void SLLeapController::removeGestureListener(SLLeapToolListener* listener)
+void SLLeapController::removeToolListener(SLLeapToolListener* listener)
 {
     SLVLeapToolListenerPtr& v = _toolListeners;
     v.erase(remove(v.begin(), v.end(), listener), v.end());

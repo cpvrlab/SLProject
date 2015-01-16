@@ -271,10 +271,17 @@ void CustomSceneView::postSceneLoad()
 {
     //_leapController.addListener(_leapListener);
     //_leapController.setPolicy(Leap::Controller::POLICY_BACKGROUND_FRAMES);
+    _leapController.leapController().enableGesture(Leap::Gesture::TYPE_CIRCLE);
+    _leapController.leapController().enableGesture(Leap::Gesture::TYPE_KEY_TAP);
+    _leapController.leapController().enableGesture(Leap::Gesture::TYPE_SCREEN_TAP);
+    _leapController.leapController().enableGesture(Leap::Gesture::TYPE_SWIPE);
 
     _leapController.registerHandListener(&_slHandListener);
     _leapController.registerHandListener(&_riggedListener);
+    _leapController.registerToolListener(&_slToolListener);
+    _leapController.registerGestureListener(&_gestureListener);
     _slHandListener.init();
+    _slToolListener.init();
     _riggedListener.setSkeleton(SLScene::current->animManager().skeletons()[0]);
     
     _riggedListener.setLWrist("L_wrist");
@@ -301,7 +308,11 @@ void CustomSceneView::postSceneLoad()
     _riggedListener.setRFingerJoint(4, 1, "R_pinky_01");
     _riggedListener.setRFingerJoint(4, 2, "R_pinky_02");
 
+    /*
+        Before continuing with the mapping above try and import one of the leap hand models and map the input to those (the ones used in the unity demos)
+        And complete the todo (to check tutorials on how to bind kinect/leap on custom skeletons in unity/blender/maya...
     
+    */
 
     _root = SLScene::current->animManager().skeletons()[0]->getJoint("root");
 }

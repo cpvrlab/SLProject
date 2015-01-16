@@ -113,6 +113,13 @@ inline SLQuat4<T>::SLQuat4(const T angleDEG, const SLVec3<T>& axis)
 
 //-----------------------------------------------------------------------------
 template <class T>
+inline SLQuat4<T>::SLQuat4(const SLVec3<T>& v0, const SLVec3<T>& v1)
+{
+    fromVec3(v0, v1);
+}
+                    
+//-----------------------------------------------------------------------------
+template <class T>
 inline SLQuat4<T>::SLQuat4(const T pitchRAD, const T yawRAD, const T rollRAD)
 {
     fromEulerAngles(pitchRAD, yawRAD, rollRAD);

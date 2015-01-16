@@ -182,6 +182,54 @@ protected:
     }
 };
 
+class SampleToolListener : public SLLeapToolListener
+{
+public:
+    void init()
+    {
+        SLScene* s = SLScene::current;
+        
+        SLMesh* toolTipMesh = new SLSphere(0.03f);
+        SLMesh* toolMesh = new SLCylinder(0.015f, 5.0f);
+        
+        _toolNode = new SLNode;
+        _toolNode->addMesh(toolTipMesh);
+        _toolNode->addMesh(toolMesh);
+
+        s->root3D()->addChild(_toolNode);
+    }
+
+protected:
+    // only one tool allowed currently
+    SLNode* _toolNode;
+
+    virtual void onLeapToolChange(const vector<SLLeapTool>& tools)
+    {
+        if (tools.size() == 0)
+            return;
+
+        const SLLeapTool& tool = tools[0];
+
+        _toolNode->position(tool.toolTipPosition());
+        _toolNode->rotation(tool.toolRotation());
+    }
+};
+
+class SampleGestureListener : public SLLeapGestureListener
+{
+
+protected:
+    virtual void onLeapGesture(const SLLeapGesture& gesture)
+    {
+        switch (gesture.type())
+        {
+        case SLLeapGesture::Swipe: SL_LOG("SWIPE\n") break;
+        case SLLeapGesture::KeyTap: SL_LOG("KEY TAP\n") break;
+        case SLLeapGesture::ScreenTap: SL_LOG("SCREEN TAP\n") break;
+        case SLLeapGesture::Circle: SL_LOG("CIRCLE\n") break;
+        }
+    }
+};
 
 
 // @note this is just temporary test code here! Clean it up and implement it better for the final product
@@ -342,5 +390,6 @@ private:
     SLLeapController    _leapController;
     SampleHandListener  _slHandListener;
     SLRiggedLeapHandListener _riggedListener;
-
+    SampleToolListener  _slToolListener;
+    SampleGestureListener _gestureListener;
 };

@@ -15,13 +15,11 @@
 #include <SLLeapFinger.h>
 #include <SLLeapHand.h>
 #include <SLLeapTool.h>
+#include <SLLeapGesture.h>
 
 
 // @note    we could slap togeter a simple c++ delegate if we could use c++11
 //          which would allow us to not have to define these listener interfaces.
-
-// temporary forward declaration for not yet implemented classes
-class SLLeapGesture;
 
 // listener interfaces
 class SLLeapGestureListener
@@ -42,7 +40,7 @@ class SLLeapToolListener
 {
 friend class SLLeapController;
 protected:
-    virtual void onLeapHandChange(const SLLeapTool& tool) = 0;
+    virtual void onLeapToolChange(const vector<SLLeapTool>& tools) = 0;
 };
 
 // @note    below is a good example of a smart ptr usecase
@@ -65,11 +63,11 @@ public:
     
     void registerGestureListener(SLLeapGestureListener* listener);
     void registerHandListener(SLLeapHandListener* listener);
-    void registerGestureListener(SLLeapToolListener* listener);
+    void registerToolListener(SLLeapToolListener* listener);
     
     void removeGestureListener(SLLeapGestureListener* listener);
     void removeHandListener(SLLeapHandListener* listener);
-    void removeGestureListener(SLLeapToolListener* listener);
+    void removeToolListener(SLLeapToolListener* listener);
     
     // @todo    can we declare this function private somehow
     virtual void onFrame(const Leap::Controller&);
@@ -84,10 +82,13 @@ public:
     //virtual void onDeviceChange(const Leap::Controller&);
     //virtual void onServiceConnect(const Leap::Controller&);
     //virtual void onServiceDisconnect(const Leap::Controller&);
+
+    const Leap::Controller& leapController() const { return _leapController; }
 protected:
     Leap::Controller    _leapController;
     
     SLint               _prevFrameHandCount;
+    SLint               _prevFrameToolCount;
 
     SLVLeapGestureListenerPtr   _gestureListeners;
     SLVLeapHandListenerPtr      _handListeners;

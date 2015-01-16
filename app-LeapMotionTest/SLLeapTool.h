@@ -18,9 +18,15 @@ class SLLeapTool
 {
 public:
 
+    void leapTool(const Leap::Tool& tool) { _tool = tool; }
+
+    SLQuat4f    toolRotation() const;
+    SLVec3f     toolTipPosition() const;
+    SLVec3f     toolTipVelocity() const;
+
+
 protected:
     Leap::Tool  _tool;
-
 };
 
 #endif
