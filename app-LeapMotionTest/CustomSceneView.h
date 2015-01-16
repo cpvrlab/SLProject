@@ -195,6 +195,10 @@ public:
                 _leftFingers[i][j] = _rightFingers[i][j] = NULL;
             }
         }
+        axis1 = SLVec3f(1, 0, 0);
+        axis2 = SLVec3f(0, 1, 0);
+        axis2 = SLVec3f(0, 0, 1);
+        dir = 1;
     }
 
     void setSkeleton(SLSkeleton* skel){
@@ -228,6 +232,8 @@ public:
     {
         if (!_skeleton) return;
 
+        if (_skeleton->getJoint(name))
+            _skeleton->getJoint(name)->setInitialState();
         _rightFingers[fingerType][boneType] = _skeleton->getJoint(name);
     }
 
@@ -238,6 +244,13 @@ public:
         TYPE_INTERMEDIATE = 2   Bone between the tip and the base.
         TYPE_DISTAL = 3         Bone at the tip of the finger.
     */
+
+    SLQuat4f correction1;
+    SLQuat4f correction2;
+    SLVec3f axis1;
+    SLVec3f axis2;
+    SLVec3f axis3;
+    int dir;
 
 protected:
     
@@ -268,10 +281,36 @@ protected:
                     if (bone == NULL)
                         continue;
 
-                    SLQuat4f relRot = hands[i].fingers()[j].boneRotation(k) * hands[i].fingers()[j].boneRotation(k-1).inverted();
-                    SLQuat4f correctedRot = relRot * SLQuat4f(90.0f, SLVec3f(1, 0, 0));
+                    
+                    SLQuat4f current = hands[i].fingers()[j].boneRotation(k);
+                    SLQuat4f parent = hands[i].fingers()[j].boneRotation(k-1);
+                    SLfloat angleCurrent;
+                    SLfloat angleParent;
+                    SLVec3f axisCurrent;
+                    SLVec3f axisParent;
+                    
+                    current.toAngleAxis(angleCurrent, axisCurrent);
+                    parent.toAngleAxis(angleParent, axisParent);
 
-                    bone->rotation(correctedRot, TS_Parent);
+
+                    SLQuat4f relRot = hands[i].fingers()[j].boneRotation(k) * hands[i].fingers()[j].boneRotation(k-1).inverted();
+                    //SLQuat4f correctedRot = correction1 * correction2 * relRot * correction1.inverted() * correction2.inverted();
+                    //SLQuat4f correctedRot = SLQuat4f(90.0f, dir * axis1) * SLQuat4f(90.0f, dir * axis2) * SLQuat4f(90.0f, dir * axis3) * relRot * SLQuat4f(90.0f, -dir * axis3) * SLQuat4f(90.0f, -dir * axis2) * SLQuat4f(90.0f, -dir * axis1);
+                    SLQuat4f correctedRot = SLQuat4f(180.0f, SLVec3f(-1, 0, 0)) * SLQuat4f(180.0f, dir * axis3) * relRot * SLQuat4f(180.0f, -dir * axis3) * SLQuat4f(180.0f, SLVec3f(1, 0, 0));
+                    correctedRot = relRot;
+                    
+                    relRot.toAngleAxis(angleCurrent, axisCurrent);
+                    if (j == 0 && k == 3) {
+                        correctedRot = correction1 * correction2 * relRot * correction2.inverted() * correction1.inverted();
+                    }
+
+                    if (bone->name() == "L_index_02")
+                    {
+                        SL_LOG("current axis: %.2f, %.2f, %.2f     %.2f\n", axisCurrent.x,axisCurrent.y,axisCurrent.z,angleCurrent);
+                    }
+//                    SLQuat4f correctedRot = SLQuat4f(90.0f, SLVec3f(0, 0, 1)) * relRot * SLQuat4f(90.0f, SLVec3f(1, 0, 0));
+                    bone->resetToInitialState();
+                    bone->rotate(correctedRot, TS_Local);
                 }
             }
         }

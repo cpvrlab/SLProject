@@ -280,21 +280,28 @@ void CustomSceneView::postSceneLoad()
     _riggedListener.setLWrist("L_wrist");
     _riggedListener.setRWrist("R_wrist");
     // thumb
-    /*_riggedListener.setLFingerJoint(0, 1, "L_thumbOrient");
-    _riggedListener.setLFingerJoint(0, 2, "L_thumb_01");
-    _riggedListener.setLFingerJoint(0, 3, "L_thumb_02");*/
+    //_riggedListener.setLFingerJoint(0, 1, "L_thumbOrient");
+    _riggedListener.setLFingerJoint(0, 1, "L_thumb_01");
+    _riggedListener.setLFingerJoint(0, 3, "L_thumb_02");
+    _riggedListener.setRFingerJoint(0, 1, "R_thumb_01");
+    _riggedListener.setRFingerJoint(0, 3, "R_thumb_02");
     // index
-    _riggedListener.setLFingerJoint(1, 2, "L_index_01");
-    _riggedListener.setRFingerJoint(1, 2, "R_index_01");
-    /*_riggedListener.setLFingerJoint(1, 2, "L_index_02");
+    _riggedListener.setLFingerJoint(1, 1, "L_index_01");
+    _riggedListener.setLFingerJoint(1, 2, "L_index_02");
+    _riggedListener.setRFingerJoint(1, 1, "R_index_01");
+    _riggedListener.setRFingerJoint(1, 2, "R_index_02");
     // middle
     _riggedListener.setLFingerJoint(2, 1, "L_middle_01");
     _riggedListener.setLFingerJoint(2, 2, "L_middle_02");
+    _riggedListener.setRFingerJoint(2, 1, "R_middle_01");
+    _riggedListener.setRFingerJoint(2, 2, "R_middle_01");
     // pinky
     _riggedListener.setLFingerJoint(4, 1, "L_pinky_01");
     _riggedListener.setLFingerJoint(4, 2, "L_pinky_02");
+    _riggedListener.setRFingerJoint(4, 1, "R_pinky_01");
+    _riggedListener.setRFingerJoint(4, 2, "R_pinky_02");
 
-    */
+    
 
     _root = SLScene::current->animManager().skeletons()[0]->getJoint("root");
 }
@@ -318,6 +325,35 @@ void CustomSceneView::postDraw()
 // some basic manipulation for now
 SLbool CustomSceneView::onKeyPress(const SLKey key, const SLKey mod)
 {
+    static float angle1 = -90.0f;
+    static float angle2 = 90.0f;
+    static SLVec3f axis1 = SLVec3f(1, 0, 0);
+    static SLVec3f axis2 = SLVec3f(1, 0, 0);
+    static SLVec3f axis3 = SLVec3f(1, 0, 0);
+    switch (key)
+    {        
+    case 'Q':  axis1 = SLVec3f(1, 0, 0); _riggedListener.axis1 = axis1; break;
+    case 'W':  axis1 = SLVec3f(0, 1, 0); _riggedListener.axis1 = axis1;break;
+    case 'E':  axis1 = SLVec3f(0, 0, 1); _riggedListener.axis1 = axis1;break;
+    case 'R':  axis2 = SLVec3f(1, 0, 0); _riggedListener.axis2 = axis2;break;
+    case 'T':  axis2 = SLVec3f(0, 1, 0); _riggedListener.axis2 = axis2;break;
+    case 'Z':  axis2 = SLVec3f(0, 0, 1); _riggedListener.axis2 = axis2;break;
+    case 'U':  axis3 = SLVec3f(1, 0, 0); _riggedListener.axis3 = axis3;break;
+    case 'I':  axis3 = SLVec3f(0, 1, 0); _riggedListener.axis3 = axis3;break;
+    case 'O':  axis3 = SLVec3f(0, 0, 1); _riggedListener.axis3 = axis3;break;
+    case 'P': _riggedListener.dir *= -1; break;
+
+    case 'A': angle1 += 5; SL_LOG("angle1: %.2f\n", angle1); break;
+    case 'S': angle1 -= 5; SL_LOG("angle1: %.2f\n", angle1); break;
+    case 'D': angle2 += 5; SL_LOG("angle2: %.2f\n", angle2); break;
+    case 'F': angle2 -= 5; SL_LOG("angle2: %.2f\n", angle2); break;
+    }
+
+    _riggedListener.correction1 = SLQuat4f(angle1, axis1);
+    _riggedListener.correction2 = SLQuat4f(angle2, axis2);
+
+    
+
     return false;
 }
 

@@ -50,6 +50,7 @@ SLVec3f SLLeapFinger::boneDirection(SLint boneType) const
 
 SLQuat4f SLLeapFinger::boneRotation(SLint boneType) const
 {
+    /*
     Leap::Bone::Type type = static_cast<Leap::Bone::Type>(boneType);
     Leap::Vector& bX = _finger.bone(type).basis().xBasis;
     Leap::Vector& bY = _finger.bone(type).basis().yBasis;
@@ -65,5 +66,21 @@ SLQuat4f SLLeapFinger::boneRotation(SLint boneType) const
         basis = basis * flipZ;
     }
     
-    return SLQuat4f(basis);
+    return SLQuat4f(basis);*/
+
+    Leap::Bone::Type type = static_cast<Leap::Bone::Type>(boneType);
+    Leap::Vector& bX = _finger.bone(type).basis().xBasis;
+    Leap::Vector& bY = _finger.bone(type).basis().yBasis;
+    Leap::Vector& bZ = _finger.bone(type).basis().zBasis;
+    
+    Leap::Vector up = _finger.bone(type).basis().transformDirection(Leap::Vector(0, 1, 0));
+    Leap::Vector forward = _finger.bone(type).basis().transformDirection(Leap::Vector(0, 0, -1));
+    /*
+    if (_hand.isLeft()) 
+    {
+        up.z *= -1;
+        forward.z *= -1;
+    }*/
+    
+    return TestUtil::QuaternionLookRotation(SLVec3f(forward.x, forward.y, forward.z), SLVec3f(up.x, up.y, up.z));
 }

@@ -14,7 +14,7 @@ SLVec3f SLLeapHand::palmPosition() const
 
 
 SLQuat4f SLLeapHand::palmRotation() const
-{
+{/*
     Leap::Vector& bX = _hand.basis().xBasis;
     Leap::Vector& bY = _hand.basis().yBasis;
     Leap::Vector& bZ = _hand.basis().zBasis;
@@ -34,7 +34,22 @@ SLQuat4f SLLeapHand::palmRotation() const
         basis = basis * flipZ;
     }
 
-    return SLQuat4f(basis);
+    return SLQuat4f(basis);*/
+
+    Leap::Vector& bX = _hand.basis().xBasis;
+    Leap::Vector& bY = _hand.basis().yBasis;
+    Leap::Vector& bZ = _hand.basis().zBasis;
+    
+    Leap::Vector up = _hand.basis().transformDirection(Leap::Vector(0, 1, 0));
+    Leap::Vector forward = _hand.basis().transformDirection(Leap::Vector(0, 0, -1));
+    /*
+    if (_hand.isLeft()) 
+    {
+        up.z *= -1;
+        forward.z *= -1;
+    }*/
+    
+    return TestUtil::QuaternionLookRotation(SLVec3f(forward.x, forward.y, forward.z), SLVec3f(up.x, up.y, up.z));
 }
 
 
@@ -59,7 +74,7 @@ SLVec3f SLLeapHand::armDirection() const
     return SLVec3f();
 }
 SLQuat4f SLLeapHand::armRotation() const
-{
+{/*
     Leap::Vector& bX = _hand.arm().basis().xBasis;
     Leap::Vector& bY = _hand.arm().basis().yBasis;
     Leap::Vector& bZ = _hand.arm().basis().zBasis;
@@ -79,7 +94,22 @@ SLQuat4f SLLeapHand::armRotation() const
         basis = basis * flipZ;
     }
 
-    return SLQuat4f(basis);
+    return SLQuat4f(basis);*/
+
+    Leap::Vector& bX = _hand.arm().basis().xBasis;
+    Leap::Vector& bY = _hand.arm().basis().yBasis;
+    Leap::Vector& bZ = _hand.arm().basis().zBasis;
+    
+    Leap::Vector up = _hand.arm().basis().transformDirection(Leap::Vector(0, 1, 0));
+    Leap::Vector forward = _hand.arm().basis().transformDirection(Leap::Vector(0, 0, -1));
+    /*
+    if (_hand.isLeft()) 
+    {
+        up.z *= -1;
+        forward.z *= -1;
+    }*/
+    
+    return TestUtil::QuaternionLookRotation(SLVec3f(forward.x, forward.y, forward.z), SLVec3f(up.x, up.y, up.z));
 }
 
 void SLLeapHand::leapHand(const Leap::Hand& hand)

@@ -781,6 +781,7 @@ void SLNode::rotation(const SLQuat4f& rot,
     else
     {
         // in TS_Local everything is relative to our current orientation
+        _om.rotation(0, 0, 0, 0);
         rotate(rot, relativeTo);
     }
 
