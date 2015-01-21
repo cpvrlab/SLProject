@@ -327,6 +327,10 @@ void SLNode::findChildrenHelper(const SLMesh* mesh, vector<SLNode*>& list, SLboo
     }
 }
 //-----------------------------------------------------------------------------
+
+
+
+//-----------------------------------------------------------------------------
 /*!
 Applies an animation transform to the local matrix. If an
 animation was done here or in one of the children node the function returns 
