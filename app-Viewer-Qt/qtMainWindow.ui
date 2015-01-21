@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>762</width>
-    <height>623</height>
+    <width>614</width>
+    <height>625</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -37,7 +37,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>762</width>
+     <width>614</width>
      <height>21</height>
     </rect>
    </property>
@@ -94,7 +94,8 @@
       <addaction name="actionRT_Spheres"/>
       <addaction name="actionRT_Muttenzer_Box"/>
       <addaction name="actionRT_Depth_of_Field"/>
-      <addaction name="actionSoft_Shadows"/>
+      <addaction name="actionRT_Soft_Shadows"/>
+      <addaction name="actionRT_Lens"/>
      </widget>
      <addaction name="menuGeneral_Scenes"/>
      <addaction name="menuShader_Scenes"/>
@@ -591,7 +592,7 @@
          </property>
          <property name="font">
           <font>
-           <pointsize>12</pointsize>
+           <pointsize>10</pointsize>
           </font>
          </property>
          <property name="layoutDirection">
@@ -710,7 +711,7 @@ QSlider::handle:horizontal:disabled {
          </property>
          <property name="font">
           <font>
-           <pointsize>12</pointsize>
+           <pointsize>10</pointsize>
           </font>
          </property>
          <property name="text">
@@ -964,8 +965,8 @@ QSlider::handle:horizontal:disabled {
              </property>
              <property name="font">
               <font>
-               <family>Segoe UI</family>
-               <pointsize>10</pointsize>
+               <family>MS Shell Dlg 2</family>
+               <pointsize>8</pointsize>
               </font>
              </property>
              <property name="toolTip">
@@ -1007,8 +1008,8 @@ QSlider::handle:horizontal:disabled {
              </property>
              <property name="font">
               <font>
-               <family>Segoe UI</family>
-               <pointsize>10</pointsize>
+               <family>MS Shell Dlg 2</family>
+               <pointsize>8</pointsize>
               </font>
              </property>
              <property name="toolTip">
@@ -1421,7 +1422,7 @@ QSlider::handle:horizontal:disabled {
     <string>Loads a scene for testing the depth of field feature in distributed ray tracing</string>
    </property>
   </action>
-  <action name="actionSoft_Shadows">
+  <action name="actionRT_Soft_Shadows">
    <property name="checkable">
     <bool>true</bool>
    </property>
@@ -2348,6 +2349,14 @@ QSlider::handle:horizontal:disabled {
    </property>
    <property name="statusTip">
     <string>Loads a scene with many identical animated characters.</string>
+   </property>
+  </action>
+  <action name="actionRT_Lens">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Lens</string>
    </property>
   </action>
  </widget>

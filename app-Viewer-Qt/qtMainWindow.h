@@ -86,8 +86,9 @@ class qtMainWindow : public QMainWindow
         void on_actionMass_Animation_triggered();
         void on_actionRT_Spheres_triggered();
         void on_actionRT_Muttenzer_Box_triggered();
+        void on_actionRT_Soft_Shadows_triggered();
         void on_actionRT_Depth_of_Field_triggered();
-        void on_actionSoft_Shadows_triggered();
+        void on_actionRT_Lens_triggered();
 
         void on_actionReset_triggered();
         void on_actionUse_SceneView_Camera_triggered();

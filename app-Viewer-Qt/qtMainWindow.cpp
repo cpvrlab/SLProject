@@ -184,8 +184,9 @@ void qtMainWindow::setMenuState()
     ui->actionMass_Animation->setChecked(s->currentID()==cmdSceneMassAnimation);
     ui->actionRT_Spheres->setChecked(s->currentID()==cmdSceneRTSpheres);
     ui->actionRT_Muttenzer_Box->setChecked(s->currentID()==cmdSceneRTMuttenzerBox);
+    ui->actionRT_Soft_Shadows->setChecked(s->currentID()==cmdSceneRTSoftShadows);
     ui->actionRT_Depth_of_Field->setChecked(s->currentID()==cmdSceneRTDoF);
-    ui->actionSoft_Shadows->setChecked(s->currentID()==cmdSceneRTSoftShadows);
+    ui->actionRT_Lens->setChecked(s->currentID()==cmdSceneRTLens);
 
     // Menu Renderer
     ui->actionOpenGL->setChecked(sv->renderType()==renderGL);
@@ -929,7 +930,13 @@ void qtMainWindow::on_actionRT_Depth_of_Field_triggered()
     _activeGLWidget->sv()->onCommand(cmdSceneRTDoF);
     afterSceneLoad();
 }
-void qtMainWindow::on_actionSoft_Shadows_triggered()
+void qtMainWindow::on_actionRT_Lens_triggered()
+{
+    beforeSceneLoad();
+    _activeGLWidget->sv()->onCommand(cmdSceneRTLens);
+    afterSceneLoad();
+}
+void qtMainWindow::on_actionRT_Soft_Shadows_triggered()
 {
     beforeSceneLoad();
     _activeGLWidget->sv()->onCommand(cmdSceneRTSoftShadows);

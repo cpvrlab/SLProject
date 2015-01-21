@@ -31,6 +31,7 @@
 #include <SLSphere.h>
 #include <SLRectangle.h>
 #include <SLGrid.h>
+#include <SLLens.h>
 
 SLNode* SphereGroup(SLint, SLfloat, SLfloat, SLfloat, SLfloat, SLint, SLMaterial*, SLMaterial*);
 //-----------------------------------------------------------------------------
@@ -1793,6 +1794,82 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
         scene->addChild(cam1);
 
         _backColor.set(SLCol4f(0.1f,0.4f,0.8f));
+        sv->camera(cam1);
+        _root3D = scene;
+    }
+    else
+    if (sceneName == cmdSceneRTLens) //........................................
+	{
+        name("Ray tracing: Lens test");
+        info(sv,"Ray tracing lens test scene.");
+
+        // Create textures and materials
+        SLGLTexture* texC = new SLGLTexture("VisionExample.png");
+        //SLGLTexture* texC = new SLGLTexture("Checkerboard0512_C.png");
+        
+        SLMaterial* mT = new SLMaterial("mT", texC, 0, 0, 0); mT->kr(0.5f);
+
+        // Glass material
+        // name, ambient, specular,	shininess, kr(reflectivity), kt(transparency), kn(refraction)
+        SLMaterial* matLens = new SLMaterial("lens", SLCol4f(0.0f, 0.0f, 0.0f), SLCol4f(0.5f, 0.5f, 0.5f), 100, 0.5f, 0.5f, 1.5f);
+        //SLGLShaderProg* sp1 = new SLGLShaderProgGeneric("RefractReflect.vert", "RefractReflect.frag");
+        //matLens->shaderProg(sp1);
+
+        #ifndef SL_GLES2
+            SLint numSamples = 10;
+        #else
+            SLint numSamples = 6;
+        #endif
+
+        // Scene
+        SLCamera* cam1 = new SLCamera;
+        cam1->position(0, 8, 0);
+        cam1->lookAt(0, 0, 0);
+        cam1->focalDist(6);
+        cam1->lensDiameter(0.4f);
+        cam1->lensSamples()->samples(numSamples, numSamples);
+        cam1->setInitialState();
+
+        // Light
+        //SLLightSphere* light1 = new SLLightSphere(15, 20, 15, 0.1f);
+        //light1->attenuation(0, 0, 1);
+
+        // Plane
+        //SLNode* rect = new SLNode(new SLRectangle(SLVec2f(-20, -20), SLVec2f(20, 20), 50, 20, "Rect", mT));
+        //rect->translate(0, 0, 0, TS_Local);
+        //rect->rotate(90, -1, 0, 0);
+
+        SLLightSphere* light1 = new SLLightSphere(1, 6, 1, 0.1f);
+        light1->attenuation(0, 0, 1);
+        
+
+        SLNode* rect = new SLNode(new SLRectangle(SLVec2f(-5, -5), SLVec2f(5, 5), 20, 20, "Rect", mT));
+        rect->rotate(90, -1, 0, 0);
+        rect->translate(0, 0, -0.0f, TS_Local);
+
+        // Lens from eye prescription card   
+        //SLNode* lensA = new SLNode(new SLLens(0.50f, -0.50f, 4.0f, 0.0f, 32, 32, "presbyopic", matLens));   // Weitsichtig
+        //SLNode* lensB = new SLNode(new SLLens(-0.65f, -0.10f, 4.0f, 0.0f, 32, 32, "myopic", matLens));      // Kurzsichtig
+        //lensA->translate(-2, 1, -2, TS_Local);
+        //lensB->translate(2, 1, -2, TS_Local);
+
+        // Lens with radius
+        //SLNode* lensC = new SLNode(new SLLens(5.0, 4.0, 4.0f, 0.0f, 32, 32, "presbyopic", matLens));        // Weitsichtig
+        SLNode* lensD = new SLNode(new SLLens(-15.0, -15.0, 1.0f, 0.1f, 32, 32, "myopic", matLens));          // Kurzsichtig
+        //lensC->translate(-2, 1, 2, TS_Local);
+        lensD->translate(0, 6, 0, TS_Local);
+
+        // Node
+        SLNode* scene = new SLNode;
+        //scene->addChild(lensA);
+        //scene->addChild(lensB);
+        //scene->addChild(lensC);
+        scene->addChild(lensD);
+        scene->addChild(rect);
+        scene->addChild(light1);
+        scene->addChild(cam1);
+
+        _backColor.set(SLCol4f(0.1f, 0.4f, 0.8f));
         sv->camera(cam1);
         _root3D = scene;
     }

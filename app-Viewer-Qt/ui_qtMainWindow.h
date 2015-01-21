@@ -1,7 +1,7 @@
 /********************************************************************************
 ** Form generated from reading UI file 'qtMainWindow.ui'
 **
-** Created by: Qt User Interface Compiler version 5.3.1
+** Created by: Qt User Interface Compiler version 5.3.2
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
 ********************************************************************************/
@@ -57,7 +57,7 @@ public:
     QAction *actionRT_Spheres;
     QAction *actionRT_Muttenzer_Box;
     QAction *actionRT_Depth_of_Field;
-    QAction *actionSoft_Shadows;
+    QAction *actionRT_Soft_Shadows;
     QAction *actionReset;
     QAction *actionPerspective;
     QAction *actionOrthographic;
@@ -138,6 +138,7 @@ public:
     QAction *actionShow_Animation_Controler;
     QAction *actionSkeletal_Animation;
     QAction *actionSeymour_Army;
+    QAction *actionRT_Lens;
     QWidget *centralWidget;
     QMenuBar *menuBar;
     QMenu *menuFile;
@@ -203,7 +204,7 @@ public:
     {
         if (qtMainWindow->objectName().isEmpty())
             qtMainWindow->setObjectName(QStringLiteral("qtMainWindow"));
-        qtMainWindow->resize(762, 623);
+        qtMainWindow->resize(614, 625);
         QSizePolicy sizePolicy(QSizePolicy::Preferred, QSizePolicy::Minimum);
         sizePolicy.setHorizontalStretch(0);
         sizePolicy.setVerticalStretch(0);
@@ -271,9 +272,9 @@ public:
         actionRT_Depth_of_Field = new QAction(qtMainWindow);
         actionRT_Depth_of_Field->setObjectName(QStringLiteral("actionRT_Depth_of_Field"));
         actionRT_Depth_of_Field->setCheckable(true);
-        actionSoft_Shadows = new QAction(qtMainWindow);
-        actionSoft_Shadows->setObjectName(QStringLiteral("actionSoft_Shadows"));
-        actionSoft_Shadows->setCheckable(true);
+        actionRT_Soft_Shadows = new QAction(qtMainWindow);
+        actionRT_Soft_Shadows->setObjectName(QStringLiteral("actionRT_Soft_Shadows"));
+        actionRT_Soft_Shadows->setCheckable(true);
         actionReset = new QAction(qtMainWindow);
         actionReset->setObjectName(QStringLiteral("actionReset"));
         actionPerspective = new QAction(qtMainWindow);
@@ -576,12 +577,15 @@ public:
         actionSeymour_Army = new QAction(qtMainWindow);
         actionSeymour_Army->setObjectName(QStringLiteral("actionSeymour_Army"));
         actionSeymour_Army->setCheckable(true);
+        actionRT_Lens = new QAction(qtMainWindow);
+        actionRT_Lens->setObjectName(QStringLiteral("actionRT_Lens"));
+        actionRT_Lens->setCheckable(true);
         centralWidget = new QWidget(qtMainWindow);
         centralWidget->setObjectName(QStringLiteral("centralWidget"));
         qtMainWindow->setCentralWidget(centralWidget);
         menuBar = new QMenuBar(qtMainWindow);
         menuBar->setObjectName(QStringLiteral("menuBar"));
-        menuBar->setGeometry(QRect(0, 0, 762, 21));
+        menuBar->setGeometry(QRect(0, 0, 614, 21));
         menuBar->setDefaultUp(false);
         menuBar->setNativeMenuBar(false);
         menuFile = new QMenu(menuBar);
@@ -742,9 +746,7 @@ public:
         sizePolicy4.setHeightForWidth(animCurrentTimeLabel->sizePolicy().hasHeightForWidth());
         animCurrentTimeLabel->setSizePolicy(sizePolicy4);
         animCurrentTimeLabel->setMinimumSize(QSize(20, 0));
-        QFont font1;
-        font1.setPointSize(12);
-        animCurrentTimeLabel->setFont(font1);
+        animCurrentTimeLabel->setFont(font);
         animCurrentTimeLabel->setLayoutDirection(Qt::LeftToRight);
         animCurrentTimeLabel->setIndent(0);
 
@@ -826,7 +828,7 @@ public:
         sizePolicy4.setHeightForWidth(animDurationLabel->sizePolicy().hasHeightForWidth());
         animDurationLabel->setSizePolicy(sizePolicy4);
         animDurationLabel->setMinimumSize(QSize(20, 0));
-        animDurationLabel->setFont(font1);
+        animDurationLabel->setFont(font);
         animDurationLabel->setMargin(0);
         animDurationLabel->setIndent(0);
 
@@ -937,10 +939,10 @@ public:
         animSpeedInput->setSizePolicy(sizePolicy4);
         animSpeedInput->setMinimumSize(QSize(40, 0));
         animSpeedInput->setMaximumSize(QSize(43, 16777215));
-        QFont font2;
-        font2.setFamily(QStringLiteral("Segoe UI"));
-        font2.setPointSize(10);
-        animSpeedInput->setFont(font2);
+        QFont font1;
+        font1.setFamily(QStringLiteral("MS Shell Dlg 2"));
+        font1.setPointSize(8);
+        animSpeedInput->setFont(font1);
         animSpeedInput->setMaximum(20);
         animSpeedInput->setSingleStep(0.1);
         animSpeedInput->setValue(1);
@@ -953,7 +955,7 @@ public:
         animWeightInput->setSizePolicy(sizePolicy4);
         animWeightInput->setMinimumSize(QSize(40, 0));
         animWeightInput->setMaximumSize(QSize(43, 16777215));
-        animWeightInput->setFont(font2);
+        animWeightInput->setFont(font1);
         animWeightInput->setMaximum(10);
         animWeightInput->setSingleStep(0.1);
         animWeightInput->setValue(1);
@@ -1031,7 +1033,8 @@ public:
         menuRay_Tracing_Scenes->addAction(actionRT_Spheres);
         menuRay_Tracing_Scenes->addAction(actionRT_Muttenzer_Box);
         menuRay_Tracing_Scenes->addAction(actionRT_Depth_of_Field);
-        menuRay_Tracing_Scenes->addAction(actionSoft_Shadows);
+        menuRay_Tracing_Scenes->addAction(actionRT_Soft_Shadows);
+        menuRay_Tracing_Scenes->addAction(actionRT_Lens);
         menuCamera->addAction(actionReset);
         menuCamera->addAction(actionUse_SceneView_Camera);
         menuCamera->addAction(menuProjection->menuAction());
@@ -1235,9 +1238,9 @@ public:
 #ifndef QT_NO_STATUSTIP
         actionRT_Depth_of_Field->setStatusTip(QApplication::translate("qtMainWindow", "Loads a scene for testing the depth of field feature in distributed ray tracing", 0));
 #endif // QT_NO_STATUSTIP
-        actionSoft_Shadows->setText(QApplication::translate("qtMainWindow", "Soft Shadows", 0));
+        actionRT_Soft_Shadows->setText(QApplication::translate("qtMainWindow", "Soft Shadows", 0));
 #ifndef QT_NO_STATUSTIP
-        actionSoft_Shadows->setStatusTip(QApplication::translate("qtMainWindow", "Loads a scene for testing the smooth shadow feature from distributed ray tracing", 0));
+        actionRT_Soft_Shadows->setStatusTip(QApplication::translate("qtMainWindow", "Loads a scene for testing the smooth shadow feature from distributed ray tracing", 0));
 #endif // QT_NO_STATUSTIP
         actionReset->setText(QApplication::translate("qtMainWindow", "Reset", 0));
 #ifndef QT_NO_STATUSTIP
@@ -1539,6 +1542,7 @@ public:
 #ifndef QT_NO_STATUSTIP
         actionSeymour_Army->setStatusTip(QApplication::translate("qtMainWindow", "Loads a scene with many identical animated characters.", 0));
 #endif // QT_NO_STATUSTIP
+        actionRT_Lens->setText(QApplication::translate("qtMainWindow", "Lens", 0));
         menuFile->setTitle(QApplication::translate("qtMainWindow", "File", 0));
         menuLoad_Scene->setTitle(QApplication::translate("qtMainWindow", "Load Scene", 0));
         menuGeneral_Scenes->setTitle(QApplication::translate("qtMainWindow", "General Scenes", 0));

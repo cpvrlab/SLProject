@@ -246,6 +246,9 @@
     <ClInclude Include="..\include\SLAnimTrack.h">
       <Filter>Animation</Filter>
     </ClInclude>
+    <ClInclude Include="..\include\SLLens.h">
+      <Filter>Nodes\Meshes</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="source\SLAABBox.cpp">
@@ -403,6 +406,9 @@
     </ClCompile>
     <ClCompile Include="source\SLAnimTrack.cpp">
       <Filter>Animation</Filter>
+    </ClCompile>
+    <ClCompile Include="source\SLLens.cpp">
+      <Filter>Nodes\Meshes</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

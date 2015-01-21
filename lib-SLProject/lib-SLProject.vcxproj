@@ -426,6 +426,7 @@
     <ClInclude Include="..\include\SLImage.h" />
     <ClInclude Include="..\include\SLImporter.h" />
     <ClInclude Include="..\include\SLInterface.h" />
+    <ClInclude Include="..\include\SLLens.h" />
     <ClInclude Include="..\include\SLMat3.h" />
     <ClInclude Include="..\include\SLMat4.h" />
     <ClInclude Include="..\include\SLMath.h" />
@@ -490,6 +491,7 @@
     <ClCompile Include="source\SLGLTexture.cpp" />
     <ClCompile Include="source\SLGrid.cpp" />
     <ClCompile Include="source\SLKeyframe.cpp" />
+    <ClCompile Include="source\SLLens.cpp" />
     <ClCompile Include="source\SLLightRect.cpp" />
     <ClCompile Include="source\SLLightSphere.cpp" />
     <ClCompile Include="source\SLPolygon.cpp" />

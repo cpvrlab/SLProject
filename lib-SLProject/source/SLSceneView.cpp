@@ -1320,12 +1320,13 @@ SLbool SLSceneView::onCommand(const SLCmd cmd)
         case cmdSceneRTSpheres:
         case cmdSceneRTMuttenzerBox:
         case cmdSceneRTSoftShadows:
-        case cmdSceneRTDoF:        s->onLoad(this, (SLCmd)cmd); return false;
+        case cmdSceneRTDoF:
+        case cmdSceneRTLens:        s->onLoad(this, (SLCmd)cmd); return false;
 
-        case cmdUseSceneViewCamera:  switchToSceneViewCamera(); return true;
-        case cmdStatsToggle:      _showStats = !_showStats; return true;
-        case cmdSceneInfoToggle:  _showInfo = !_showInfo; return true;
-        case cmdWaitEventsToggle: _waitEvents = !_waitEvents; return true;
+        case cmdUseSceneViewCamera: switchToSceneViewCamera(); return true;
+        case cmdStatsToggle:        _showStats = !_showStats; return true;
+        case cmdSceneInfoToggle:    _showInfo = !_showInfo; return true;
+        case cmdWaitEventsToggle:   _waitEvents = !_waitEvents; return true;
         case cmdMultiSampleToggle:
             _doMultiSampling = !_doMultiSampling;
             _raytracer.aaSamples(_doMultiSampling?3:1);
@@ -1587,6 +1588,7 @@ void SLSceneView::build2DMenus()
     mn3->addChild(new SLButton(this, "Muttenzer Box", f, cmdSceneRTMuttenzerBox, true, curS==cmdSceneRTMuttenzerBox, mn2));
     mn3->addChild(new SLButton(this, "Soft Shadows", f, cmdSceneRTSoftShadows, true, curS==cmdSceneRTSoftShadows, mn2));
     mn3->addChild(new SLButton(this, "Depth of Field", f, cmdSceneRTDoF, true, curS==cmdSceneRTDoF, mn2));
+    mn3->addChild(new SLButton(this, "Lens Test", f, cmdSceneRTLens, true, curS==cmdSceneRTLens, mn2));
 
     mn2 = new SLButton(this, "Camera >", f); mn1->addChild(mn2);
    
