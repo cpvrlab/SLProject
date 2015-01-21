@@ -84,6 +84,7 @@ HEADERS += \
     ../include/SLCone.h \
     ../include/SLCylinder.h \
     ../include/SLKeyframe.h \
+    ../include/SLLens.h \
     ../include/SLLight.h \
     ../include/SLLightRect.h \
     ../include/SLLightSphere.h \
@@ -138,6 +139,7 @@ SOURCES += \
     source/SLCamera.cpp \
     source/SLCone.cpp \
     source/SLCylinder.cpp \
+    source/SLLens.cpp \
     source/SLLight.cpp \
     source/SLLightRect.cpp \
     source/SLLightSphere.cpp \
