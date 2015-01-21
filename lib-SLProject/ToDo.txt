@@ -5,12 +5,11 @@
 Next Steps:
 
 Prio 1:
- mw: doc for node transform and transform space
+ mw: In der Small Test Scene die Lichtquelle vor die Textur verschieben.
+ mw: RT mit Animationen läuft nicht immer.
+ mh: Im continuous RT haben gewisse AABB Aussetzer.
 
 Prio 2:
-- mw: Joint animation
-- mw: Implement our own vertex attribute semantics (like D3D already has)
-        for shaders to use and to automate shader attribute binding.
 - mw: Implement RenderQueue and RenderPriorityGroups. 
 - ??: Linux Port mit QtCreator testen und anpassen.
 - ??: Save scene as Collada dae file
