@@ -269,7 +269,9 @@ void SLScene::unInit()
 }
 //-----------------------------------------------------------------------------
 //! Updates all animations in the scene after all views got painted.
-/*! Updates all animations in the scene after all views got painted.
+/*! Updates all animations in the scene after all views got painted and
+calculates the elapsed time for one frame in all views. A scene can be displayed
+in multiple views as demonstrated in the app-Viewer-Qt example.
 \return true if realy something got updated
 */
 bool SLScene::updateIfAllViewsGotPainted()
@@ -310,7 +312,10 @@ bool SLScene::updateIfAllViewsGotPainted()
 
     // Do animations
     SLfloat startUpdateMS = timeMilliSec();
+
+    ////////////////////////////////////////////////////////////////////////////
     SLbool animated = !_stopAnimations && _animManager.update(elapsedTimeSec());
+    ////////////////////////////////////////////////////////////////////////////
 
     // Update the world matrix & AABBs efficiently
     SLGLState::getInstance()->modelViewMatrix.identity();

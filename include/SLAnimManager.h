@@ -25,6 +25,8 @@ A single instance of this class is hold by the SLScene instance and is
 responsible for updating the enabled animations and to manage their life time.
 If keeps a list of all skeletons and node animations and also holds a list of
 all animation playback controllers.
+The update of all animations is done before the rendering of all SLSceneView in
+SLScene::updateIfAllViewsGotPainted by calling the SLAnimManager::update.
 */
 class SLAnimManager
 {

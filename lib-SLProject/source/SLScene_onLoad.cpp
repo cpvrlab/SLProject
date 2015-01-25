@@ -221,9 +221,9 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
 
         // Create a spherical light source at 0,0,5
         SLLightSphere* light1 = new SLLightSphere(0.3f);
+        light1->position(0,0,5);
+        light1->lookAt(0, 0, 0);
         light1->name("light1");
-        SLAnimation* anim = SLAnimation::create("lightcircleanim", 2.0f);
-        anim->createEllipticNodeTrack(light1, 4, XAxis, 4, YAxis);
 
         // Create ground grid
         SLMaterial* m2 = new SLMaterial(SLCol4f::WHITE);
@@ -396,6 +396,11 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
         SLNode* meshFBX = importer.load("FBX/Duck/Duck.fbx");
         #endif
 
+        // Start animation
+        SLAnimPlayback* charAnim = importer.skeleton()->getAnimPlayback("unnamed_anim_0");
+        charAnim->playForward();
+        charAnim->playbackRate(0.5f);
+
         // Scale to so that the AstroBoy is about 2 (meters) high.
         if (mesh3DS) {mesh3DS->scale(0.1f);  mesh3DS->translate(-22.0f, 1.9f, 3.5f, TS_Local);}
         if (meshDAE) {meshDAE->scale(30.0f); meshDAE->translate(0,-10,0, TS_Local);}
@@ -428,8 +433,11 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
         _root3D = scene;
     }
     else
-    if (sceneName == cmdSceneSkeletalAnimation) //.......................................
+    if (sceneName == cmdSceneSkeletalAnimation) //..............................
     {
+        name("Skeletal Animation Test");
+        info(sv, "Skeletal Animation Test Scene");
+
         SLAssimpImporter importer;
         SLNode* character = importer.load("DAE/AstroBoy/AstroBoy.dae");
         SLAnimPlayback* charAnim = importer.skeleton()->getAnimPlayback("unnamed_anim_0");
@@ -442,8 +450,6 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
         SLNode* box3 = importer.load("DAE/SkinnedCube/skinnedcube5.dae");
         SLAnimPlayback* box3Anim = importer.skeleton()->getAnimPlayback("unnamed_anim_0");
 
-
-        
         box1->translate(3, 0, 0);
         box2->translate(-3, 0, 0);
         box3->translate(0, 3, 0);
@@ -490,11 +496,9 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
         _root3D = scene;
     }
     else
-    if (sceneName == cmdSceneSeymourArmy) //.......................................
+    if (sceneName == cmdSceneSeymourArmy) //....................................
     {
         // Mass animation scene of identitcal Seymours
-
-        
         name("Frustum Culling Test 2");
         info(sv, "View frustum culling: Only objects in view frustum are rendered. You can turn view culling off in the render flags.");
         // Create textures and materials
@@ -1037,7 +1041,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
         _root3D = scene;
     }
     else
-    if (sceneName == cmdSceneMassAnimation) //..........................................
+    if (sceneName == cmdSceneMassAnimation) //..................................
     {   
         name("Mass Animation");
         info(sv, "Performance test for transform updates from many animations.");
@@ -1798,7 +1802,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
         _root3D = scene;
     }
     else
-    if (sceneName == cmdSceneRTLens) //........................................
+    if (sceneName == cmdSceneRTLens) //.........................................
 	{
         name("Ray tracing: Lens test");
         info(sv,"Ray tracing lens test scene.");

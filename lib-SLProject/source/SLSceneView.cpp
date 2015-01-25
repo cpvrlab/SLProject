@@ -406,7 +406,8 @@ SLbool SLSceneView::onPaint()
     _totalDrawCalls = SLGLBuffer::totalDrawCalls;
     SLGLBuffer::totalDrawCalls   = 0;
 
-    _gotPainted = true;
+    // Set gotPainted only to true if RT is not busy
+    _gotPainted = _renderType==renderGL || raytracer()->state()!=rtBusy;
 
     // Return true if a repaint is needed
     return !_waitEvents || camUpdated;

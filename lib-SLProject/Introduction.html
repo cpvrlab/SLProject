@@ -146,7 +146,8 @@ The red animation classes provide the functionality for simple node animations o
         SLAnimManager: A single instance of this class is hold by the SLScene instance and is
         responsible for updating the enabled animations and to manage their life time.
         If keeps a list of all skeletons and node animations and also holds a list of
-        all animation playback controllers.
+        all animation playback controllers. The update of all animations is done before
+        the rendering of all SLSceneView.
     </li>
     <li>
         SLAnimPlayback manages the playback state and the local time of an SLAnimation.
