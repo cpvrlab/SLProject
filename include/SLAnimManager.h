@@ -20,12 +20,11 @@
 
 //-----------------------------------------------------------------------------
 //! SLAnimManager is the central class for all animation handling.
-/*! 
-    Keeps a list of all skeleton instances.
-    Also keeps a map of simple node animations that affect normal 
-    SLNodes in the scene graph.
-    The manager is responsible for advancing the time of the enabled
-    animations and to manage their life time.
+/*!   
+A single instance of this class is hold by the SLScene instance and is
+responsible for updating the enabled animations and to manage their life time.
+If keeps a list of all skeletons and node animations and also holds a list of
+all animation playback controllers.
 */
 class SLAnimManager
 {

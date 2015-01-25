@@ -19,16 +19,18 @@ class SLAnimation;
 //-----------------------------------------------------------------------------
 //! Manages the playback of an SLAnimation
 /*! 
-    This class manages the playback states and the local time of SLAnimations.
-    It manages the way the time advances and how the time loops.
-    It is possible to have multiple states per animation. If we keep track
-    of what nodes are affected by which SLAnimPlayback we can only manipulate
-    these nodes for the time kept in the SLAnimPlayback.
+This class manages the playback state and the local time of an SLAnimation.
+It manages the way the time advances and how the animation loops. It has all
+functionality to play, pause, stop, enable, speedup and slowdown a playback.
+A list of all SLAnimPlayback is hold by the SLAnimManager.
 
-    A practical example for this behaviour would be special skeleton instances
-    that only keep track of SLAnimPlayback for their parent SLSkeleton.
-    The skeleton instance can then change its skeletal data based on the
-    states and the actual SLAnimation has to only exist once in memory.
+It is possible to have multiple playbacks per animation. If we keep track
+of which nodes are affected by which SLAnimPlayback we can only manipulate
+these nodes for the time kept in the SLAnimPlayback.
+A practical example for this behaviour would be special skeleton instances
+that only keep track of SLAnimPlayback for their parent SLSkeleton.
+The skeleton instance can then change its skeletal data based on the
+states and the actual SLAnimation has to only exist once in memory.
 */
 class SLAnimPlayback
 {

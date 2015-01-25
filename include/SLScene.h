@@ -100,7 +100,6 @@ class SLScene: public SLObject
      static SLScene*        current;            //!< global static scene pointer
 
    protected:
-            SLAnimManager   _animManager;       //!< Animation manager instance
             SLVSceneView    _sceneViews;        //!< Vector of all sceneview pointers
             SLVMesh         _meshes;            //!< Vector of all meshes
             SLVMaterial     _materials;         //!< Vector of all materials pointers
@@ -108,6 +107,7 @@ class SLScene: public SLObject
             SLVGLProgram    _programs;          //!< Vector of all shader program pointers
             SLVLight        _lights;            //!< Vector of all lights
             SLVEventHandler _eventHandlers;     //!< Vector of all event handler
+            SLAnimManager   _animManager;       //!< Animation manager instance
             
             SLNode*         _root3D;            //!< Root node for 3D scene
             SLNode*         _selectedNode;      //!< Pointer to the selected node

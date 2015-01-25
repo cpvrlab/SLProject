@@ -208,5 +208,7 @@ OTHER_FILES += \
     source/oglsl/Wave.vert \
     source/oglsl/WaveRefractReflect.vert \
     ToDo.txt \
-    Readme.html
+    Readme.html \
+    Introduction.html
+
 

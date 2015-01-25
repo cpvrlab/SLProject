@@ -631,13 +631,6 @@ void SLSceneView::draw3DGLLines(SLVNode &nodes)
             if (drawBit(SL_DB_AXIS) || nodes[i]->drawBit(SL_DB_AXIS))
             {  
                 nodes[i]->aabb()->drawAxisWS();
-
-                // Draw the animation curve
-                /// @add add old animation functionality back in
-                /*
-                if (nodes[i]->animation())
-                    nodes[i]->animation()->drawWS();
-                    */
             }
         }
     }

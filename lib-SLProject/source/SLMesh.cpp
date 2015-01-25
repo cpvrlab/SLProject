@@ -34,8 +34,8 @@ in SLScene::unInit().
 SLMesh::SLMesh(SLstring name) : SLObject(name)
 {   
     _primitive = SL_TRIANGLES;
-    finalP = &P;
-    finalN = &N;
+    _finalP = &P;
+    _finalN = &N;
     cpuSkinningP = 0;
     cpuSkinningN = 0;
     P  = 0;
@@ -934,9 +934,9 @@ void SLMesh::preShade(SLRay* ray)
 }
 
 //-----------------------------------------------------------------------------
-
-// adds an joint weight to the specified vertex id (max 4 weights per vertex)
-// returns true if added sucessfully, false if already full
+/*! Adds an joint weight to the specified vertex id (max 4 weights per vertex)
+returns true if added sucessfully, false if already full
+*/
 SLbool SLMesh::addWeight(SLint vertId, SLuint jointId, SLfloat weight)
 {
     if (!Ji || !Jw)
@@ -966,12 +966,16 @@ SLbool SLMesh::addWeight(SLint vertId, SLuint jointId, SLfloat weight)
 
     return true;
 }
+
+//-----------------------------------------------------------------------------
+/*! Sets the current skinning method
+*/
 void SLMesh::skinningMethod(SLSkinningMethod method) 
 { 
     if (method == _skinningMethod)
         return;
 
-    // return if this isnt a skinned mesh
+    // return if this isn't a skinned mesh
     if (!_skeleton || !Ji || !Jw)
         return;
 
@@ -979,18 +983,17 @@ void SLMesh::skinningMethod(SLSkinningMethod method)
 
     if (_skinningMethod == SM_HardwareSkinning)
     {
-        finalP = &P;
-        finalN = &N;
+        _finalP = &P;
+        _finalN = &N;
 
         // if we are a textured mesh
         if (Tc)
-        {
-            SLGLGenericProgram* skinningShaderTex = new SLGLGenericProgram("PerPixBlinnTexSkinned.vert","PerPixBlinnTex.frag");
+        {   SLGLGenericProgram* skinningShaderTex = new SLGLGenericProgram("PerPixBlinnTexSkinned.vert",
+                                                                           "PerPixBlinnTex.frag");
             mat->program(skinningShaderTex);
-        }
-        else
-        {
-            SLGLGenericProgram* skinningShader = new SLGLGenericProgram("PerVrtBlinnSkinned.vert","PerVrtBlinn.frag");
+        } else
+        {   SLGLGenericProgram* skinningShader = new SLGLGenericProgram("PerVrtBlinnSkinned.vert",
+                                                                        "PerVrtBlinn.frag");
             mat->program(skinningShader);
         }
     }
@@ -1000,16 +1003,6 @@ void SLMesh::skinningMethod(SLSkinningMethod method)
     }
 }
 
-//-----------------------------------------------------------------------------
-SLVec3f* SLMesh::pos()
-{
-    return *finalP;
-}
-//-----------------------------------------------------------------------------
-SLVec3f* SLMesh::norm()
-{
-    return *finalN;
-}
 //-----------------------------------------------------------------------------
 //! Transforms the vertex positions and normals with by joint weights
 /*! If the mesh is used for skinned skeleton animation this method transforms
@@ -1021,8 +1014,8 @@ void SLMesh::transformSkin()
 {
     // temporarily set finalP here
     // @todo move the setting of finalP to the setSkinningMethod function
-    finalP = &cpuSkinningP;
-    finalN = &cpuSkinningN;
+    _finalP = &cpuSkinningP;
+    _finalN = &cpuSkinningN;
     
     _accelStructOutOfDate = true;
         

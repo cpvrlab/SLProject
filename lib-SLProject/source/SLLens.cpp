@@ -71,7 +71,7 @@ To correct myopic (short-sightedness) a diverging lens is needed.
 \image html Lens.png
 
 \param radiusBot SLfloat The radius of the front side of the lens
-\param cylinder SLfloat The radius of the back side of the lens
+\param radiusTop SLfloat The radius of the back side of the lens
 \param diameter SLfloat The diameter (h) of the lens
 \param thickness SLfloat The space between the primary planes of lens sides (d)
 \param stacks SLint
@@ -153,6 +153,7 @@ void SLLens::init(SLfloat diopterBot,
 \brief Generate the lens with given front and back radius
 \param radiusBot radius of the lens front side
 \param radiusTop radius of the lens back side
+\param mat the material pointer that is passed to SLRevolver
 */
 void SLLens::generateLens(SLfloat radiusBot, SLfloat radiusTop, SLMaterial* mat)
 {

@@ -21,17 +21,15 @@ class SLSkeleton;
 //-----------------------------------------------------------------------------
 //! SLAnimation is the base container for all animation data.
 /*! 
-    SLAnimation is a container for multiple types of SLAnimationTracks that 
-    should be kept together. For example a walk animation would consist of
-    all the SLAnimationTracks that make a SLSkeleton walk.
-    The SLAnimation is also the one that knows the length of the animation.
+SLAnimation is a container for multiple SLAnimTrack that build an animation.
+E.g. a walk animation would consist of all the SLAnimTrack that make a
+SLSkeleton walk. It also knows the length of the animation.
 
-    An animation for a SLSkeleton with n joints must consist of 1 to n 
-    SLNodeAnimTrack. The SLAnimation class keeps a map with 
-    index -> SLNodeAnimTrack pairs, the index for the SLNodeAnimTrack
-    must match the index of a bone in the target SLSkeleton.
-    This method allows us to animate multiple identical, or similar 
-    SLSkeletons with the same SLAnimation.
+An animation for a SLSkeleton with n joints must consist of 1 to n
+SLNodeAnimTrack. The SLAnimation class keeps a map with index -> SLNodeAnimTrack
+pairs, the index for the SLNodeAnimTrack must match the index of a bone in the
+target SLSkeleton. This method allows us to animate multiple identical, or similar
+SLSkeletons with the same SLAnimation.
 */
 class SLAnimation
 {

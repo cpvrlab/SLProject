@@ -38,7 +38,7 @@ protected:
 //-----------------------------------------------------------------------------
 //! SLTransformKeyframe is a specialized SLKeyframe for node transformations
 /*!     
-    Keeps track of translation, rotation and scale.
+Keeps track of translation, rotation and scale.
 */
 class SLTransformKeyframe : public SLKeyframe
 {

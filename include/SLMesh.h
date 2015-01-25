@@ -48,32 +48,28 @@ class SLSkeleton;
                 the material, but specifying a skinning shader in the material doesn't seem right.
 */
 
-
+//-----------------------------------------------------------------------------
+//! ???
 struct SLVertexJointData
 {
     SLuint  ids[4];
     SLfloat weights[4];
 
     SLVertexJointData()
-    {
-        for(int i = 0; i < 4; i++) {
-            weights[i] = 0.0f;
+    {   for(int i = 0; i < 4; i++)
+        {   weights[i] = 0.0f;
             ids[i] = 0;
         }
     }
 
     SLbool addWeight(SLint id, SLfloat weight)
-    {
-        for(int i = 0; i < 4; i++) 
-        {
-            if (weights[i] == 0.0f) 
-            {
-                ids[i] = id;
+    {   for(int i = 0; i < 4; i++)
+        {   if (weights[i] == 0.0f)
+            {   ids[i] = id;
                 weights[i] = weight;
                 return true;
             }
         }
-
         return false;
     }
 };
@@ -90,6 +86,7 @@ The vertex attributes are stored in arrays with equal number (numV) of elements:
 \n C (vertex color)
 \n Tc (vertex texture coordinates) optional
 \n T (vertex tangents) optional
+\n Jw (vertex joint weights) optional
 \n I16 holds the unsigned short vertex indexes.
 \n I32 holds the unsigned int vertex indexes.
 \n
@@ -158,6 +155,14 @@ are the vertices of the hard edges in the front of the sphere doubled.
 For all arrays a corresponding vertex buffer object (VBO) is created on the
 graphic card. All arrays remain in the main memory for ray tracing.
 A mesh uses only one material referenced by the SLMesh::_mat pointer.
+\n
+\n
+If a mesh is associated with a skeleton all its vertices and normals are
+transformed every frame by the joint weights. Every vertex of a mesh has
+weights for four joints by which it can be influenced. This transform is
+called skinning and can be done in CPU in the method transformSkin or by
+a vertex shader. If the skinning is done on CPU two additional arrays
+(_finalP and _finalN) for the transformed vertices and normals are needed.
 */      
 class SLMesh : public SLObject
 {   
@@ -190,8 +195,8 @@ virtual void            calcMinMax     ();
         SLbool          addWeight(SLint vertId, SLuint jointId, SLfloat weight);
         
         // getter for position and normal data for rendering
-        SLVec3f*        pos();
-        SLVec3f*        norm();
+        SLVec3f*        pos() {return *_finalP;}
+        SLVec3f*        norm(){return *_finalN;}
 
         // temporary software skinning buffers
         SLVec3f*        cpuSkinningP; //!< buffer for the cpu skinning position data
@@ -237,11 +242,9 @@ virtual void            calcMinMax     ();
 
         SLSkinningMethod _skinningMethod;   //!< CPU or GPU skinning method
         SLSkeleton*     _skeleton;          //!< the skeleton this mesh is bound to
-        SLMat4f*        _jointMatrices;     //!< private joint matrix stack for this mesh
-
-        // ptrs to final position and normal containers
-        SLVec3f**       finalP;     
-        SLVec3f**       finalN;
+        SLMat4f*        _jointMatrices;     //!< joint matrix stack for this mesh
+        SLVec3f**       _finalP;            //!< pointer to final vertex position array
+        SLVec3f**       _finalN;            //!< pointer to final vertex normal array
 
         void            notifyParentNodesAABBUpdate() const;
 };

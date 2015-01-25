@@ -22,9 +22,10 @@ class SLCurve;
 //-----------------------------------------------------------------------------
 //! Abstract base class for SLAnimationTracks providing time and keyframe functions
 /*! 
-    An animation track is a specialized track that affects one object or value
-    at most. For example a track in a skeleton animation will affect one
-    joint at a time.
+An animation track is a specialized track that affects a single SLNode or an
+SLJoint of an SLSkeleton by interpolating its transform. It holds therefore a
+list of SLKeyframe. For a smooth motion it can interpolate the transform at a
+given time between two neighboring SLKeyframe.
 */
 class SLAnimTrack
 {

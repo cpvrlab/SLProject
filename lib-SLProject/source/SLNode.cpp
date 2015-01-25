@@ -409,12 +409,6 @@ void SLNode::drawRec(SLSceneView* sv)
         if (showSELECT)
             _aabb.drawWS(SLCol3f(1,1,0));
 
-        // Draw the animation curve
-        /// @add add old animation functionality back in
-        /*
-        if (_animation)
-            _animation->drawWS();
-         */
         _stateGL->popModelViewMatrix(); 
     }
 }
