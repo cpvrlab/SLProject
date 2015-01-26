@@ -1,7 +1,7 @@
 /********************************************************************************
 ** Form generated from reading UI file 'qtMainWindow.ui'
 **
-** Created by: Qt User Interface Compiler version 5.3.2
+** Created by: Qt User Interface Compiler version 5.4.0
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
 ********************************************************************************/
@@ -204,7 +204,7 @@ public:
     {
         if (qtMainWindow->objectName().isEmpty())
             qtMainWindow->setObjectName(QStringLiteral("qtMainWindow"));
-        qtMainWindow->resize(614, 625);
+        qtMainWindow->resize(728, 623);
         QSizePolicy sizePolicy(QSizePolicy::Preferred, QSizePolicy::Minimum);
         sizePolicy.setHorizontalStretch(0);
         sizePolicy.setVerticalStretch(0);
@@ -585,7 +585,7 @@ public:
         qtMainWindow->setCentralWidget(centralWidget);
         menuBar = new QMenuBar(qtMainWindow);
         menuBar->setObjectName(QStringLiteral("menuBar"));
-        menuBar->setGeometry(QRect(0, 0, 614, 21));
+        menuBar->setGeometry(QRect(0, 0, 728, 22));
         menuBar->setDefaultUp(false);
         menuBar->setNativeMenuBar(false);
         menuFile = new QMenu(menuBar);

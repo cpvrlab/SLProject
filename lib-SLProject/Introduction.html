@@ -19,9 +19,9 @@
 /*! 
 \page Introduction Topdown Introduction
 \tableofcontents
-\section interface Application Interface
+\section app Application code
 <p>
-The applications starting code depends on the operating system (gray boxes in the diagram below)
+The applications starting code depends on the operating system (gray boxes in the class diagram below)
 In all cases we have the most outer shell of the application that handles the window and the
 OpenGL context creation and passes then the events to a C-function interface
 before it is handled by the C++-framework.
@@ -75,7 +75,7 @@ The blue classes form the center of the SLProject framework:
     <li>
         SLSceneView represents a dynamic real time 3D view onto the scene.
         A scene can be shown in multiple sceneviews as demonstrated in the app-Viewer-Qt application.
-        An sceneview receives all events (keyboard, mouse, OpenGL etc.) from the GUI via the C-Interface (see SLInterface.h).
+        A sceneview receives all events (keyboard, mouse, OpenGL etc.) from the GUI via the C-Interface (see SLInterface.h).
     </li>
 </ul>
 </p>
@@ -97,7 +97,7 @@ A node can be transformed (translated, rotated and scaled) in 3D-space.
 
 \section mesh Mesh classes
 <p>
-SLMesh is the base class for triangulated or wireframed meshes (red classes). A
+SLMesh is the base class for triangulated or wireframed meshes (pink classes). A
 mesh is rendered with a material defined in SLMaterial.
 A mesh has all the vertex attributes such as position, normals, texture coordinates.
 The triangles are defined by indexes into the vertex attribute arrays.

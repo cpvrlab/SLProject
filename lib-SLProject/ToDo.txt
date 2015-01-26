@@ -5,8 +5,6 @@
 Next Steps:
 
 Prio 1:
- mw: In der Small Test Scene die Lichtquelle vor die Textur verschieben.
- mw: RT mit Animationen läuft nicht immer.
  mh: Im continuous RT haben gewisse AABB Aussetzer.
 
 Prio 2:

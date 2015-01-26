@@ -386,14 +386,14 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
         #if defined(SL_OS_IOS) || defined(SL_OS_ANDROID)
         SLAssimpImporter importer;
         SLNode* mesh3DS = importer.load("jackolan.3DS");
-        SLNode* meshDAE = importer.load("AstroBoy.dae");
         SLNode* meshFBX = importer.load("Duck.fbx");
+        SLNode* meshDAE = importer.load("AstroBoy.dae");
       
         #else
         SLAssimpImporter importer;
         SLNode* mesh3DS = importer.load("3DS/Halloween/Jackolan.3DS");
-        SLNode* meshDAE = importer.load("DAE/AstroBoy/AstroBoy.dae");
         SLNode* meshFBX = importer.load("FBX/Duck/Duck.fbx");
+        SLNode* meshDAE = importer.load("DAE/AstroBoy/AstroBoy.dae");
         #endif
 
         // Start animation
@@ -506,7 +506,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
         SLMaterial* m1 = new SLMaterial("m1", t1); m1->specular(SLCol4f::BLACK);
 
         // Define a light
-        SLLightSphere* light1 = new SLLightSphere(0, 20, 0, 0.5f);
+        SLLightSphere* light1 = new SLLightSphere(0, 40, 0, 0.5f);
         light1->ambient (SLCol4f(0.2f,0.2f,0.2f));
         light1->diffuse (SLCol4f(0.9f,0.9f,0.9f));
         light1->specular(SLCol4f(0.9f,0.9f,0.9f));
@@ -529,15 +529,11 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
         SLNode* center = importer.load("DAE/AstroBoy/AstroBoy.dae");
         center->scale(100);
         importer.skeleton()->getAnimPlayback("unnamed_anim_0")->playForward();
-
-        // Add animation for light 1
-        SLAnimation* anim = SLAnimation::create("light1_anim", 4.0f);
-        anim->createEllipticNodeTrack(light1, 12.0f, ZAxis, 12.0f, XAxis);
         
         // set the skinning method of the loaded meshes
         // @note RT currently only works with software skinning
         //for (SLint i = 0; i < importer.meshes().size(); ++i)
-        //    importer.meshes()[i]->skinningMethod(SM_HardwareSkinning);
+        //   importer.meshes()[i]->skinningMethod(SM_HardwareSkinning);
         
 
         // Assemble scene
