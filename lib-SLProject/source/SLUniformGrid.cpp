@@ -24,21 +24,22 @@
 //-----------------------------------------------------------------------------
 SLUniformGrid::SLUniformGrid(SLMesh* m) : SLAccelStruct(m)
 {  
+    _vox         = 0;
     _voxCnt      = 0;
     _voxCntEmpty = 0;
     _voxMaxTria  = 0;
     _voxAvgTria  = 0;
-    _vox         = 0;
 }
 //-----------------------------------------------------------------------------
 SLUniformGrid::~SLUniformGrid()
 {  
     for (SLuint i=0; i<_voxCnt; ++i) 
-        if (_vox[i])
+    {   if (_vox[i])
             delete _vox[i];
+    }
     delete[] _vox;
 
-    _vox = 0;
+    _vox         = 0;
     _voxCnt      = 0;
     _voxCntEmpty = 0;
     _voxMaxTria  = 0;
@@ -55,9 +56,10 @@ void SLUniformGrid::build(SLVec3f minV, SLVec3f maxV)
    
     // delete voxel array if it already exits
     if (_vox)
-    {  for (SLuint i=0; i<_voxCnt; ++i) 
-            if (_vox[i])
-            delete _vox[i];
+    {   for (SLuint i=0; i<_voxCnt; ++i) 
+        {   if (_vox[i])
+                delete _vox[i];
+        }
         delete[] _vox;
         _vox = 0;
     }
@@ -65,21 +67,6 @@ void SLUniformGrid::build(SLVec3f minV, SLVec3f maxV)
     // Calculate uniform grid 
     // Calc. voxel resolution, extent and allocate voxel array
     SLVec3f size = _maxV - _minV;
-   
-    //Wald's method
-    //SLfloat voxDensity = 5.0;
-    //SLfloat vol = size.x * size.y * size.z;
-    //SLfloat nr = (SLfloat)pow(voxDensity*_numTria/vol,1.0f/3.0f);
-    //_voxResX = max(1, (SLint)(size.x*nr));
-    //_voxResY = max(1, (SLint)(size.x*nr));
-    //_voxResZ = max(1, (SLint)(size.x*nr));
-   
-    // Cleary & Wyvills method 
-    //SLfloat voxDensity = 8.0;
-    //SLfloat nr = (SLfloat)pow(voxDensity*numF,1.0f/3.0f);
-    //_voxResX = max(1, (SLint)nr);
-    //_voxResY = max(1, (SLint)nr);
-    //_voxResZ = max(1, (SLint)nr);
    
     // Woo's method
     SLfloat voxDensity = 20.0f;
@@ -189,8 +176,9 @@ void SLUniformGrid::build(SLVec3f minV, SLVec3f maxV)
    
     // Reduce dynamic arrays to real size
     for (i=0; i<_voxCnt; ++i) 
-        if (_vox[i])
+    {   if (_vox[i])
             _vox[i]->reserve(_vox[i]->size());
+    }
 
     /*
     // dump for debugging

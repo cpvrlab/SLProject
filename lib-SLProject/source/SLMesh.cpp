@@ -577,15 +577,13 @@ void SLMesh::updateAccelStruct()
     minP -= addon;
     maxP += addon;
 
-    _accelStructOutOfDate = false;
-    if (_accelStruct) delete _accelStruct;
-
-    _accelStruct = 0;
-    if (_primitive == SL_TRIANGLES)
+    if (_accelStruct==0 && _primitive == SL_TRIANGLES)
         _accelStruct = new SLUniformGrid(this);
 
     if (_accelStruct && numI > 5*3)
         _accelStruct->build(minP, maxP);
+
+    _accelStructOutOfDate = false;
 }
 //-----------------------------------------------------------------------------
 //! SLMesh::calcNormals recalculates vertex normals for triangle meshes.
@@ -968,7 +966,7 @@ SLbool SLMesh::addWeight(SLint vertId, SLuint jointId, SLfloat weight)
 }
 
 //-----------------------------------------------------------------------------
-/*! Sets the current skinning method
+/*! Sets the current skinning method.
 */
 void SLMesh::skinningMethod(SLSkinningMethod method) 
 { 

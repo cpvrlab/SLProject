@@ -424,8 +424,8 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
         scene->addChild(rf);
         scene->addChild(rt);
         if (mesh3DS) scene->addChild(mesh3DS);
-        if (meshDAE) scene->addChild(meshDAE);
         if (meshFBX) scene->addChild(meshFBX);
+        if (meshDAE) scene->addChild(meshDAE);
         scene->addChild(cam1);
 
         _backColor.set(0.5f,0.5f,0.5f);
