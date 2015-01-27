@@ -532,8 +532,8 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
         
         // set the skinning method of the loaded meshes
         // @note RT currently only works with software skinning
-        //for (SLint i = 0; i < importer.meshes().size(); ++i)
-        //   importer.meshes()[i]->skinningMethod(SM_HardwareSkinning);
+        for (SLint i = 0; i < importer.meshes().size(); ++i)
+           importer.meshes()[i]->skinningMethod(SM_HardwareSkinning);
         
 
         // Assemble scene

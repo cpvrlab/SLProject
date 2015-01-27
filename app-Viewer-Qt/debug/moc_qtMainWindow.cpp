@@ -1,7 +1,7 @@
 /****************************************************************************
 ** Meta object code from reading C++ file 'qtMainWindow.h'
 **
-** Created by: The Qt Meta Object Compiler version 67 (Qt 5.3.2)
+** Created by: The Qt Meta Object Compiler version 67 (Qt 5.4.0)
 **
 ** WARNING! All changes made in this file will be lost!
 *****************************************************************************/
@@ -12,7 +12,7 @@
 #if !defined(Q_MOC_OUTPUT_REVISION)
 #error "The header file 'qtMainWindow.h' doesn't include <QObject>."
 #elif Q_MOC_OUTPUT_REVISION != 67
-#error "This file was generated using the moc from 5.3.2. It"
+#error "This file was generated using the moc from 5.4.0. It"
 #error "cannot be used with the include files from this version of Qt."
 #error "(The moc has changed too much.)"
 #endif
@@ -29,130 +29,131 @@ struct qt_meta_stringdata_qtMainWindow_t {
     )
 static const qt_meta_stringdata_qtMainWindow_t qt_meta_stringdata_qtMainWindow = {
     {
-QT_MOC_LITERAL(0, 0, 12),
-QT_MOC_LITERAL(1, 13, 24),
-QT_MOC_LITERAL(2, 38, 0),
-QT_MOC_LITERAL(3, 39, 35),
-QT_MOC_LITERAL(4, 75, 30),
-QT_MOC_LITERAL(5, 106, 25),
-QT_MOC_LITERAL(6, 132, 30),
-QT_MOC_LITERAL(7, 163, 37),
-QT_MOC_LITERAL(8, 201, 31),
-QT_MOC_LITERAL(9, 233, 35),
-QT_MOC_LITERAL(10, 269, 36),
-QT_MOC_LITERAL(11, 306, 36),
-QT_MOC_LITERAL(12, 343, 36),
-QT_MOC_LITERAL(13, 380, 38),
-QT_MOC_LITERAL(14, 419, 37),
-QT_MOC_LITERAL(15, 457, 34),
-QT_MOC_LITERAL(16, 492, 24),
-QT_MOC_LITERAL(17, 517, 31),
-QT_MOC_LITERAL(18, 549, 35),
-QT_MOC_LITERAL(19, 585, 31),
-QT_MOC_LITERAL(20, 617, 31),
-QT_MOC_LITERAL(21, 649, 33),
-QT_MOC_LITERAL(22, 683, 29),
-QT_MOC_LITERAL(23, 713, 35),
-QT_MOC_LITERAL(24, 749, 34),
-QT_MOC_LITERAL(25, 784, 36),
-QT_MOC_LITERAL(26, 821, 26),
-QT_MOC_LITERAL(27, 848, 24),
-QT_MOC_LITERAL(28, 873, 39),
-QT_MOC_LITERAL(29, 913, 30),
-QT_MOC_LITERAL(30, 944, 31),
-QT_MOC_LITERAL(31, 976, 31),
-QT_MOC_LITERAL(32, 1008, 44),
-QT_MOC_LITERAL(33, 1053, 41),
-QT_MOC_LITERAL(34, 1095, 31),
-QT_MOC_LITERAL(35, 1127, 35),
-QT_MOC_LITERAL(36, 1163, 33),
-QT_MOC_LITERAL(37, 1197, 33),
-QT_MOC_LITERAL(38, 1231, 34),
-QT_MOC_LITERAL(39, 1266, 33),
-QT_MOC_LITERAL(40, 1300, 36),
-QT_MOC_LITERAL(41, 1337, 31),
-QT_MOC_LITERAL(42, 1369, 31),
-QT_MOC_LITERAL(43, 1401, 32),
-QT_MOC_LITERAL(44, 1434, 32),
-QT_MOC_LITERAL(45, 1467, 28),
-QT_MOC_LITERAL(46, 1496, 28),
-QT_MOC_LITERAL(47, 1525, 33),
-QT_MOC_LITERAL(48, 1559, 33),
-QT_MOC_LITERAL(49, 1593, 31),
-QT_MOC_LITERAL(50, 1625, 31),
-QT_MOC_LITERAL(51, 1657, 28),
-QT_MOC_LITERAL(52, 1686, 28),
-QT_MOC_LITERAL(53, 1715, 31),
-QT_MOC_LITERAL(54, 1747, 39),
-QT_MOC_LITERAL(55, 1787, 35),
-QT_MOC_LITERAL(56, 1823, 28),
-QT_MOC_LITERAL(57, 1852, 33),
-QT_MOC_LITERAL(58, 1886, 31),
-QT_MOC_LITERAL(59, 1918, 34),
-QT_MOC_LITERAL(60, 1953, 38),
-QT_MOC_LITERAL(61, 1992, 28),
-QT_MOC_LITERAL(62, 2021, 33),
-QT_MOC_LITERAL(63, 2055, 30),
-QT_MOC_LITERAL(64, 2086, 31),
-QT_MOC_LITERAL(65, 2118, 32),
-QT_MOC_LITERAL(66, 2151, 29),
-QT_MOC_LITERAL(67, 2181, 25),
-QT_MOC_LITERAL(68, 2207, 30),
-QT_MOC_LITERAL(69, 2238, 38),
-QT_MOC_LITERAL(70, 2277, 38),
-QT_MOC_LITERAL(71, 2316, 43),
-QT_MOC_LITERAL(72, 2360, 34),
-QT_MOC_LITERAL(73, 2395, 34),
-QT_MOC_LITERAL(74, 2430, 28),
-QT_MOC_LITERAL(75, 2459, 31),
-QT_MOC_LITERAL(76, 2491, 34),
-QT_MOC_LITERAL(77, 2526, 26),
-QT_MOC_LITERAL(78, 2553, 27),
-QT_MOC_LITERAL(79, 2581, 36),
-QT_MOC_LITERAL(80, 2618, 36),
-QT_MOC_LITERAL(81, 2655, 36),
-QT_MOC_LITERAL(82, 2692, 38),
-QT_MOC_LITERAL(83, 2731, 36),
-QT_MOC_LITERAL(84, 2768, 49),
-QT_MOC_LITERAL(85, 2818, 27),
-QT_MOC_LITERAL(86, 2846, 29),
-QT_MOC_LITERAL(87, 2876, 29),
-QT_MOC_LITERAL(88, 2906, 31),
-QT_MOC_LITERAL(89, 2938, 32),
-QT_MOC_LITERAL(90, 2971, 29),
-QT_MOC_LITERAL(91, 3001, 49),
-QT_MOC_LITERAL(92, 3051, 47),
-QT_MOC_LITERAL(93, 3099, 37),
-QT_MOC_LITERAL(94, 3137, 37),
-QT_MOC_LITERAL(95, 3175, 30),
-QT_MOC_LITERAL(96, 3206, 23),
-QT_MOC_LITERAL(97, 3230, 16),
-QT_MOC_LITERAL(98, 3247, 4),
-QT_MOC_LITERAL(99, 3252, 6),
-QT_MOC_LITERAL(100, 3259, 29),
-QT_MOC_LITERAL(101, 3289, 27),
-QT_MOC_LITERAL(102, 3317, 35),
-QT_MOC_LITERAL(103, 3353, 7),
-QT_MOC_LITERAL(104, 3361, 35),
-QT_MOC_LITERAL(105, 3397, 34),
-QT_MOC_LITERAL(106, 3432, 47),
-QT_MOC_LITERAL(107, 3480, 5),
-QT_MOC_LITERAL(108, 3486, 42),
-QT_MOC_LITERAL(109, 3529, 30),
-QT_MOC_LITERAL(110, 3560, 28),
-QT_MOC_LITERAL(111, 3589, 33),
-QT_MOC_LITERAL(112, 3623, 33),
-QT_MOC_LITERAL(113, 3657, 32),
-QT_MOC_LITERAL(114, 3690, 33),
-QT_MOC_LITERAL(115, 3724, 26),
-QT_MOC_LITERAL(116, 3751, 25),
-QT_MOC_LITERAL(117, 3777, 39),
-QT_MOC_LITERAL(118, 3817, 40),
-QT_MOC_LITERAL(119, 3858, 34),
-QT_MOC_LITERAL(120, 3893, 5),
-QT_MOC_LITERAL(121, 3899, 31),
-QT_MOC_LITERAL(122, 3931, 1),
-QT_MOC_LITERAL(123, 3933, 30)
+QT_MOC_LITERAL(0, 0, 12), // "qtMainWindow"
+QT_MOC_LITERAL(1, 13, 24), // "on_action_Quit_triggered"
+QT_MOC_LITERAL(2, 38, 0), // ""
+QT_MOC_LITERAL(3, 39, 35), // "on_actionSmall_Test_Scene_tri..."
+QT_MOC_LITERAL(4, 75, 30), // "on_actionLarge_Model_triggered"
+QT_MOC_LITERAL(5, 106, 25), // "on_actionFigure_triggered"
+QT_MOC_LITERAL(6, 132, 30), // "on_actionMesh_Loader_triggered"
+QT_MOC_LITERAL(7, 163, 37), // "on_actionSkeletal_Animation_t..."
+QT_MOC_LITERAL(8, 201, 31), // "on_actionSeymour_Army_triggered"
+QT_MOC_LITERAL(9, 233, 35), // "on_actionTexture_Blending_tri..."
+QT_MOC_LITERAL(10, 269, 36), // "on_actionTexture_Filtering_tr..."
+QT_MOC_LITERAL(11, 306, 36), // "on_actionFrustum_Culling_1_tr..."
+QT_MOC_LITERAL(12, 343, 36), // "on_actionFrustum_Culling_2_tr..."
+QT_MOC_LITERAL(13, 380, 38), // "on_actionPer_Vertex_Lighting_..."
+QT_MOC_LITERAL(14, 419, 37), // "on_actionPer_Pixel_Lighting_t..."
+QT_MOC_LITERAL(15, 457, 34), // "on_actionPer_Vertex_Wave_trig..."
+QT_MOC_LITERAL(16, 492, 24), // "on_actionWater_triggered"
+QT_MOC_LITERAL(17, 517, 31), // "on_actionBump_Mapping_triggered"
+QT_MOC_LITERAL(18, 549, 35), // "on_actionParallax_Mapping_tri..."
+QT_MOC_LITERAL(19, 585, 31), // "on_actionGlass_Shader_triggered"
+QT_MOC_LITERAL(20, 617, 31), // "on_actionEarth_Shader_triggered"
+QT_MOC_LITERAL(21, 649, 33), // "on_actionMass_Animation_trigg..."
+QT_MOC_LITERAL(22, 683, 29), // "on_actionRT_Spheres_triggered"
+QT_MOC_LITERAL(23, 713, 35), // "on_actionRT_Muttenzer_Box_tri..."
+QT_MOC_LITERAL(24, 749, 34), // "on_actionRT_Soft_Shadows_trig..."
+QT_MOC_LITERAL(25, 784, 36), // "on_actionRT_Depth_of_Field_tr..."
+QT_MOC_LITERAL(26, 821, 26), // "on_actionRT_Lens_triggered"
+QT_MOC_LITERAL(27, 848, 24), // "on_actionReset_triggered"
+QT_MOC_LITERAL(28, 873, 39), // "on_actionUse_SceneView_Camera..."
+QT_MOC_LITERAL(29, 913, 30), // "on_actionPerspective_triggered"
+QT_MOC_LITERAL(30, 944, 31), // "on_actionOrthographic_triggered"
+QT_MOC_LITERAL(31, 976, 31), // "on_actionSide_by_side_triggered"
+QT_MOC_LITERAL(32, 1008, 44), // "on_actionSide_by_side_proport..."
+QT_MOC_LITERAL(33, 1053, 41), // "on_actionSide_by_side_distort..."
+QT_MOC_LITERAL(34, 1095, 31), // "on_actionLine_by_line_triggered"
+QT_MOC_LITERAL(35, 1127, 35), // "on_actionColumn_by_column_tri..."
+QT_MOC_LITERAL(36, 1163, 33), // "on_actionPixel_by_pixel_trigg..."
+QT_MOC_LITERAL(37, 1197, 33), // "on_actionColor_Red_Cyan_trigg..."
+QT_MOC_LITERAL(38, 1231, 34), // "on_actionColor_Red_Green_trig..."
+QT_MOC_LITERAL(39, 1266, 33), // "on_actionColor_Red_Blue_trigg..."
+QT_MOC_LITERAL(40, 1300, 36), // "on_actionColor_Cyan_Yellow_tr..."
+QT_MOC_LITERAL(41, 1337, 31), // "on_action_eyeSepInc10_triggered"
+QT_MOC_LITERAL(42, 1369, 31), // "on_action_eyeSepDec10_triggered"
+QT_MOC_LITERAL(43, 1401, 32), // "on_action_focalDistInc_triggered"
+QT_MOC_LITERAL(44, 1434, 32), // "on_action_focalDistDec_triggered"
+QT_MOC_LITERAL(45, 1467, 28), // "on_action_fovInc10_triggered"
+QT_MOC_LITERAL(46, 1496, 28), // "on_action_fovDec10_triggered"
+QT_MOC_LITERAL(47, 1525, 33), // "on_actionTurntable_Y_up_trigg..."
+QT_MOC_LITERAL(48, 1559, 33), // "on_actionTurntable_Z_up_trigg..."
+QT_MOC_LITERAL(49, 1593, 31), // "on_actionWalking_Y_up_triggered"
+QT_MOC_LITERAL(50, 1625, 31), // "on_actionWalking_Z_up_triggered"
+QT_MOC_LITERAL(51, 1657, 28), // "on_action_speedInc_triggered"
+QT_MOC_LITERAL(52, 1686, 28), // "on_action_speedDec_triggered"
+QT_MOC_LITERAL(53, 1715, 31), // "on_actionAntialiasing_triggered"
+QT_MOC_LITERAL(54, 1747, 39), // "on_actionView_Frustum_Culling..."
+QT_MOC_LITERAL(55, 1787, 35), // "on_actionSlowdown_on_Idle_tri..."
+QT_MOC_LITERAL(56, 1823, 28), // "on_actionDepthTest_triggered"
+QT_MOC_LITERAL(57, 1852, 33), // "on_actionShow_Statusbar_trigg..."
+QT_MOC_LITERAL(58, 1886, 31), // "on_actionShow_Normals_triggered"
+QT_MOC_LITERAL(59, 1918, 34), // "on_actionShow_Wired_Mesh_trig..."
+QT_MOC_LITERAL(60, 1953, 38), // "on_actionShow_Bounding_Boxes_..."
+QT_MOC_LITERAL(61, 1992, 28), // "on_actionShow_Axis_triggered"
+QT_MOC_LITERAL(62, 2021, 33), // "on_actionShow_Backfaces_trigg..."
+QT_MOC_LITERAL(63, 2055, 30), // "on_actionShow_Voxels_triggered"
+QT_MOC_LITERAL(64, 2086, 31), // "on_actionTextures_off_triggered"
+QT_MOC_LITERAL(65, 2118, 32), // "on_actionAnimation_off_triggered"
+QT_MOC_LITERAL(66, 2151, 29), // "on_actionRay_Tracer_triggered"
+QT_MOC_LITERAL(67, 2181, 25), // "on_actionOpenGL_triggered"
+QT_MOC_LITERAL(68, 2207, 30), // "on_actionPath_Tracer_triggered"
+QT_MOC_LITERAL(69, 2238, 38), // "on_actionShow_DockScenegraph_..."
+QT_MOC_LITERAL(70, 2277, 38), // "on_actionShow_DockProperties_..."
+QT_MOC_LITERAL(71, 2316, 43), // "on_actionShow_Animation_Contr..."
+QT_MOC_LITERAL(72, 2360, 34), // "on_actionShow_Statistics_trig..."
+QT_MOC_LITERAL(73, 2395, 34), // "on_actionShow_Scene_Info_trig..."
+QT_MOC_LITERAL(74, 2430, 28), // "on_actionShow_Menu_triggered"
+QT_MOC_LITERAL(75, 2459, 31), // "on_actionShow_Toolbar_triggered"
+QT_MOC_LITERAL(76, 2491, 34), // "on_actionAbout_SLProject_trig..."
+QT_MOC_LITERAL(77, 2526, 26), // "on_actionCredits_triggered"
+QT_MOC_LITERAL(78, 2553, 27), // "on_actionAbout_Qt_triggered"
+QT_MOC_LITERAL(79, 2581, 36), // "on_actionRender_to_depth_1_tr..."
+QT_MOC_LITERAL(80, 2618, 36), // "on_actionRender_to_depth_2_tr..."
+QT_MOC_LITERAL(81, 2655, 36), // "on_actionRender_to_depth_5_tr..."
+QT_MOC_LITERAL(82, 2692, 38), // "on_actionRender_to_max_depth_..."
+QT_MOC_LITERAL(83, 2731, 36), // "on_actionConstant_Redering_tr..."
+QT_MOC_LITERAL(84, 2768, 49), // "on_actionRender_Distributed_R..."
+QT_MOC_LITERAL(85, 2818, 27), // "on_action1_Sample_triggered"
+QT_MOC_LITERAL(86, 2846, 29), // "on_action10_Samples_triggered"
+QT_MOC_LITERAL(87, 2876, 29), // "on_action100_Sample_triggered"
+QT_MOC_LITERAL(88, 2906, 31), // "on_action1000_Samples_triggered"
+QT_MOC_LITERAL(89, 2938, 32), // "on_action10000_Samples_triggered"
+QT_MOC_LITERAL(90, 2971, 29), // "on_actionFullscreen_triggered"
+QT_MOC_LITERAL(91, 3001, 49), // "on_actionSplit_active_view_ho..."
+QT_MOC_LITERAL(92, 3051, 47), // "on_actionSplit_active_view_ve..."
+QT_MOC_LITERAL(93, 3099, 37), // "on_actionSplit_into_4_views_t..."
+QT_MOC_LITERAL(94, 3137, 37), // "on_actionDelete_active_view_t..."
+QT_MOC_LITERAL(95, 3175, 30), // "on_actionSingle_view_triggered"
+QT_MOC_LITERAL(96, 3206, 23), // "on_nodeTree_itemClicked"
+QT_MOC_LITERAL(97, 3230, 16), // "QTreeWidgetItem*"
+QT_MOC_LITERAL(98, 3247, 4), // "item"
+QT_MOC_LITERAL(99, 3252, 6), // "column"
+QT_MOC_LITERAL(100, 3259, 29), // "on_nodeTree_itemDoubleClicked"
+QT_MOC_LITERAL(101, 3289, 27), // "on_propertyTree_itemChanged"
+QT_MOC_LITERAL(102, 3317, 35), // "on_dockScenegraph_visibilityC..."
+QT_MOC_LITERAL(103, 3353, 7), // "visible"
+QT_MOC_LITERAL(104, 3361, 35), // "on_dockProperties_visibilityC..."
+QT_MOC_LITERAL(105, 3397, 34), // "on_dockAnimation_visibilityCh..."
+QT_MOC_LITERAL(106, 3432, 47), // "on_animAnimatedObjectSelect_c..."
+QT_MOC_LITERAL(107, 3480, 5), // "index"
+QT_MOC_LITERAL(108, 3486, 42), // "on_animAnimationSelect_curren..."
+QT_MOC_LITERAL(109, 3529, 30), // "on_animSkipStartButton_clicked"
+QT_MOC_LITERAL(110, 3560, 28), // "on_animSkipEndButton_clicked"
+QT_MOC_LITERAL(111, 3589, 33), // "on_animPrevKeyframeButton_cli..."
+QT_MOC_LITERAL(112, 3623, 33), // "on_animNextKeyframeButton_cli..."
+QT_MOC_LITERAL(113, 3657, 32), // "on_animPlayForwardButton_clicked"
+QT_MOC_LITERAL(114, 3690, 33), // "on_animPlayBackwardButton_cli..."
+QT_MOC_LITERAL(115, 3724, 26), // "on_animPauseButton_clicked"
+QT_MOC_LITERAL(116, 3751, 25), // "on_animStopButton_clicked"
+QT_MOC_LITERAL(117, 3777, 39), // "on_animEasingSelect_currentIn..."
+QT_MOC_LITERAL(118, 3817, 40), // "on_animLoopingSelect_currentI..."
+QT_MOC_LITERAL(119, 3858, 34), // "on_animTimelineSlider_valueCh..."
+QT_MOC_LITERAL(120, 3893, 5), // "value"
+QT_MOC_LITERAL(121, 3899, 31), // "on_animWeightInput_valueChanged"
+QT_MOC_LITERAL(122, 3931, 1), // "d"
+QT_MOC_LITERAL(123, 3933, 30) // "on_animSpeedInput_valueChanged"
+
     },
     "qtMainWindow\0on_action_Quit_triggered\0"
     "\0on_actionSmall_Test_Scene_triggered\0"
@@ -649,7 +650,7 @@ void qtMainWindow::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id
 
 const QMetaObject qtMainWindow::staticMetaObject = {
     { &QMainWindow::staticMetaObject, qt_meta_stringdata_qtMainWindow.data,
-      qt_meta_data_qtMainWindow,  qt_static_metacall, 0, 0}
+      qt_meta_data_qtMainWindow,  qt_static_metacall, Q_NULLPTR, Q_NULLPTR}
 };
 
 
@@ -660,7 +661,7 @@ const QMetaObject *qtMainWindow::metaObject() const
 
 void *qtMainWindow::qt_metacast(const char *_clname)
 {
-    if (!_clname) return 0;
+    if (!_clname) return Q_NULLPTR;
     if (!strcmp(_clname, qt_meta_stringdata_qtMainWindow.stringdata))
         return static_cast<void*>(const_cast< qtMainWindow*>(this));
     return QMainWindow::qt_metacast(_clname);

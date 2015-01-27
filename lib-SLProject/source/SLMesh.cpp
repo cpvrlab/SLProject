@@ -200,7 +200,7 @@ void SLMesh::draw(SLSceneView* sv, SLNode* node)
         }
 
         // 3.d: Do CPU or GPU skinning for animated meshes
-        if (Ji && Jw)
+        if (_skeleton && Ji && Jw)
         {
             // only update joint matrices if the skeleton changed
             if (!_jointMatrices)
@@ -222,26 +222,6 @@ void SLMesh::draw(SLSceneView* sv, SLNode* node)
                 // notify all owning nodes about a mesh change
                 notifyParentNodesAABBUpdate();
             }
-            else
-            {
-                // init the dynamic buffer data if needed   
-                if (!cpuSkinningP)
-                {
-                    cpuSkinningP = new SLVec3f[numV];
-                    for (SLuint i = 0; i < numV; ++i)
-                        cpuSkinningP[i] = P[i];
-                }
-                if (!cpuSkinningN && N) 
-                {
-                    cpuSkinningN = new SLVec3f[numV];
-                    for (SLuint i = 0; i < numV; ++i)
-                        cpuSkinningN[i] = N[i];
-                }
-
-                // update the dynamic buffer if needed
-                if (_skeleton->changed())
-                    transformSkin();
-            }
         }
 
 
@@ -249,7 +229,7 @@ void SLMesh::draw(SLSceneView* sv, SLNode* node)
         // 2: Build VBO's once
         //////////////////////
 
-        if (!_bufP.id()) _bufP.generate(pos(), numV, 3);
+        if (!_bufP.id())         _bufP.generate(pos(), numV, 3);
         if (!_bufN.id()  && N)   _bufN.generate(norm(), numV, 3);
         if (!_bufC.id()  && C)   _bufC.generate(C, numV, 4);
         if (!_bufTc.id() && Tc)  _bufTc.generate(Tc, numV, 2);
@@ -580,7 +560,7 @@ void SLMesh::updateAccelStruct()
     if (_accelStruct==0 && _primitive == SL_TRIANGLES)
         _accelStruct = new SLUniformGrid(this);
 
-    if (_accelStruct && numI > 5*3)
+    if (_accelStruct && numI > 15)
         _accelStruct->build(minP, maxP);
 
     _accelStructOutOfDate = false;
@@ -1007,14 +987,38 @@ void SLMesh::skinningMethod(SLSkinningMethod method)
 each vertex and normal by max. four joints of the skeleton. Each joint has
 a weight and an index. After the transform the VBO have to be updated.
 This skinning process can also be done (a lot faster) on the GPU.
+This software skinning is also needed for ray or path tracing.  
 */
 void SLMesh::transformSkin()
 {
+    // return if skeleton has not changed
+    if (!_skeleton->changed()) return;
+
+    // create the secondary buffers for P and N once   
+    if (!cpuSkinningP)
+    {   cpuSkinningP = new SLVec3f[numV];
+        for (SLuint i = 0; i < numV; ++i)
+            cpuSkinningP[i] = P[i];
+    }
+    if (!cpuSkinningN && N) 
+    {   cpuSkinningN = new SLVec3f[numV];
+        for (SLuint i = 0; i < numV; ++i)
+            cpuSkinningN[i] = N[i];
+    }
+
+    // Create array for joint matrices once
+    if (!_jointMatrices)
+        _jointMatrices = new SLMat4f[_skeleton->numJoints()];
+
+    // update the joint matrix array
+    _skeleton->getJointWorldMatrices(_jointMatrices);
+
     // temporarily set finalP here
     // @todo move the setting of finalP to the setSkinningMethod function
     _finalP = &cpuSkinningP;
     _finalN = &cpuSkinningN;
     
+    // flag acceleration structure to be rebuilt
     _accelStructOutOfDate = true;
         
     // iterate over all vertices and write to new buffers
@@ -1025,15 +1029,14 @@ void SLMesh::transformSkin()
 
         // array form for easier iteration
         SLfloat jointWeights[4] = {Jw[i].x, Jw[i].y, Jw[i].z, Jw[i].w};
-        SLint jointIndices[4] = {(SLint)Ji[i].x,
-                                 (SLint)Ji[i].y,
-                                 (SLint)Ji[i].z,
-                                 (SLint)Ji[i].w};
+        SLint   jointIndices[4] = {(SLint)Ji[i].x,
+                                   (SLint)Ji[i].y,
+                                   (SLint)Ji[i].z,
+                                   (SLint)Ji[i].w};
                     
         // accumulate final normal and positions
         for (SLint j = 0; j < 4; ++j)
-        {
-            if (jointWeights[j] > 0.0f)
+        {   if (jointWeights[j] > 0.0f)
             {
                 const SLMat4f& jm = _jointMatrices[jointIndices[j]];
                 SLVec4f tempPos = jm * SLVec4f(P[i]);
@@ -1042,19 +1045,22 @@ void SLMesh::transformSkin()
                 cpuSkinningP[i].z += tempPos.z * jointWeights[j];
 
                 if (N) 
-                {
-                    SLMat3f jnm = jm.mat3();
+                {   SLMat3f jnm = jm.mat3();
                     jnm.invert();
                     jnm.transpose();
                     cpuSkinningN[i] += jnm * N[i] * jointWeights[j];
                 }
             }
         }
-    }
+    }  
 
-    // update buffers
-    if (_bufP.id()) _bufP.update(pos(), numV, 0);
-    if (_bufN.id() && N) _bufN.update(norm(), numV, 0);
+    // update or create buffers
+    if (_bufP.id()) 
+         _bufP.update(pos(), numV, 0);
+    else _bufP.generate(pos(), numV, 3);
+    if (_bufN.id() && N) 
+         _bufN.update(norm(), numV, 0);
+    else _bufN.generate(norm(), numV, 3);
 
     // notify all owning nodes about a mesh change
     notifyParentNodesAABBUpdate();
