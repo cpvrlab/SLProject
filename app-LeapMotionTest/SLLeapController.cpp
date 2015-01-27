@@ -7,21 +7,27 @@
 /** Constructor */
 SLLeapController::SLLeapController()
 {
-    _leapController.addListener(*this);
+    //_leapController.addListener(*this);
     _leapController.setPolicy(Leap::Controller::POLICY_BACKGROUND_FRAMES);
 }
 
 SLLeapController::~SLLeapController()
 {
-    _leapController.removeListener(*this);
+    //_leapController.removeListener(*this);
 }
 
-
-void SLLeapController::onFrame(const Leap::Controller& controller)
+void SLLeapController::poll()
 {
     const Leap::Frame frame = _leapController.frame();
 
+    if (_prevFrameId != frame.id())
+        onFrame(frame);
 
+    _prevFrameId = frame.id();
+}
+
+void SLLeapController::onFrame(const Leap::Frame frame)
+{
     if (_handListeners.size())
     {
         std::vector<SLLeapHand> slHands;

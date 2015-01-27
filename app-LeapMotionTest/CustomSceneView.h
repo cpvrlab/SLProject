@@ -5,6 +5,7 @@
 #include <SLBox.h>
 #include <SLSphere.h>
 #include <SLCylinder.h>
+
 #pragma warning(disable:4996)
 
 
@@ -220,14 +221,14 @@ class SampleGestureListener : public SLLeapGestureListener
 
 protected:
     virtual void onLeapGesture(const SLLeapGesture& gesture)
-    {
+    {/*
         switch (gesture.type())
         {
         case SLLeapGesture::Swipe: SL_LOG("SWIPE\n") break;
         case SLLeapGesture::KeyTap: SL_LOG("KEY TAP\n") break;
         case SLLeapGesture::ScreenTap: SL_LOG("SCREEN TAP\n") break;
         case SLLeapGesture::Circle: SL_LOG("CIRCLE\n") break;
-        }
+        }*/
     }
 };
 
@@ -313,13 +314,11 @@ protected:
         
         for (SLint i = 0; i < hands.size(); ++i)
         {
-            if (!hands[i].isLeft()) {
                 SLQuat4f rot = hands[i].palmRotation();
-                SLJoint* jnt = _rightWrist;
-
-                SLQuat4f corrected = SLQuat4f(90.0f, SLVec3f(-1, 0, 0)) * rot * SLQuat4f(90.0f, SLVec3f(1, 0, 0));
-                jnt->rotation(corrected);
-            }
+                SLJoint* jnt = (hands[i].isLeft()) ? _leftWrist : _rightWrist;
+                //jnt->resetToInitialState();
+                jnt->rotation(rot, TS_World);
+                jnt->position(hands[i].palmPosition()*10, TS_World);
             
             for (SLint j = 0; j < hands[i].fingers().size(); ++j)
             {                
@@ -329,36 +328,9 @@ protected:
                     if (bone == NULL)
                         continue;
 
-                    
-                    SLQuat4f current = hands[i].fingers()[j].boneRotation(k);
-                    SLQuat4f parent = hands[i].fingers()[j].boneRotation(k-1);
-                    SLfloat angleCurrent;
-                    SLfloat angleParent;
-                    SLVec3f axisCurrent;
-                    SLVec3f axisParent;
-                    
-                    current.toAngleAxis(angleCurrent, axisCurrent);
-                    parent.toAngleAxis(angleParent, axisParent);
-
-
-                    SLQuat4f relRot = hands[i].fingers()[j].boneRotation(k) * hands[i].fingers()[j].boneRotation(k-1).inverted();
-                    //SLQuat4f correctedRot = correction1 * correction2 * relRot * correction1.inverted() * correction2.inverted();
-                    //SLQuat4f correctedRot = SLQuat4f(90.0f, dir * axis1) * SLQuat4f(90.0f, dir * axis2) * SLQuat4f(90.0f, dir * axis3) * relRot * SLQuat4f(90.0f, -dir * axis3) * SLQuat4f(90.0f, -dir * axis2) * SLQuat4f(90.0f, -dir * axis1);
-                    SLQuat4f correctedRot = SLQuat4f(180.0f, SLVec3f(-1, 0, 0)) * SLQuat4f(180.0f, dir * axis3) * relRot * SLQuat4f(180.0f, -dir * axis3) * SLQuat4f(180.0f, SLVec3f(1, 0, 0));
-                    correctedRot = relRot;
-                    
-                    relRot.toAngleAxis(angleCurrent, axisCurrent);
-                    if (j == 0 && k == 3) {
-                        correctedRot = correction1 * correction2 * relRot * correction2.inverted() * correction1.inverted();
-                    }
-
-                    if (bone->name() == "L_index_02")
-                    {
-                        SL_LOG("current axis: %.2f, %.2f, %.2f     %.2f\n", axisCurrent.x,axisCurrent.y,axisCurrent.z,angleCurrent);
-                    }
-//                    SLQuat4f correctedRot = SLQuat4f(90.0f, SLVec3f(0, 0, 1)) * relRot * SLQuat4f(90.0f, SLVec3f(1, 0, 0));
-                    bone->resetToInitialState();
-                    bone->rotate(correctedRot, TS_Local);
+                    SLQuat4f relRot = hands[i].fingers()[j].boneRotation(k);
+                    //bone->resetToInitialState();
+                    bone->rotation(relRot, TS_World);
                 }
             }
         }
@@ -392,4 +364,6 @@ private:
     SLRiggedLeapHandListener _riggedListener;
     SampleToolListener  _slToolListener;
     SampleGestureListener _gestureListener;
+
+    SLNode* _playbackCube;
 };

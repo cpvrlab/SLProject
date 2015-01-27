@@ -141,9 +141,6 @@ SLAnimation* SLSkeleton::createAnimation(const SLstring& name, SLfloat duration)
 */
 void SLSkeleton::reset()
 {
-    // mark the skeleton as changed
-    changed(true);
-
     // update all joints
     for (SLint i = 0; i < _joints.size(); i++)
         _joints[i]->resetToInitialState();
@@ -158,8 +155,10 @@ SLbool SLSkeleton::updateAnimations(SLfloat elapsedTimeSec)
     /// current workaround won't allow for blending!
     //reset();
 
-    // first advance time on all animations
+    // reset the changed flag
     _changed = false;
+
+    SLbool activeAnims = false;
     SLMAnimationPlay::iterator it;
     for (it = _animationPlays.begin(); it != _animationPlays.end(); it++)
     {
@@ -169,12 +168,12 @@ SLbool SLSkeleton::updateAnimations(SLfloat elapsedTimeSec)
             state->advanceTime(elapsedTimeSec);
 
             // mark skeleton as changed if a state is different
-            _changed = state->changed();
+            activeAnims = state->changed();
         }
     }
 
     // return if nothing changed
-    if (!_changed)
+    if (!activeAnims)
         return false;
 
     // reset the skeleton and apply all enabled animations

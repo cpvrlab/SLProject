@@ -233,7 +233,7 @@ class SLNode: public SLObject, public SLEventHandler
             void            parent              (SLNode* p);
             void            om                  (const SLMat4f& mat) {_om = mat; needUpdate();}
             void            animation           (SLAnimation* a)  {_animation = a;}
-            void            needUpdate          ();
+    virtual void            needUpdate          ();
             void            needWMUpdate        ();
             void            needAABBUpdate      ();
                

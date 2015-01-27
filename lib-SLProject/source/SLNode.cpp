@@ -760,18 +760,73 @@ of (0, 1, 0) with TS_Local will rotate the node around its own up axis.
 */
 void SLNode::rotation(const SLQuat4f& rot, 
                       SLTransformSpace relativeTo)
-{    
+{   
     SLMat4f rotation = rot.toMat4(); 
-
+    
+    
     if (_parent && relativeTo == TS_World)
     {
-        SLMat4f rotMat;
-        rotMat.translate(updateAndGetWM().translation());
-        rotMat.multiply(rotation);
-        rotMat.translate(-updateAndGetWM().translation());
-        _om = _parent->updateAndGetWMI() * rotMat * updateAndGetWM();
+
+        SLfloat prevOffset = _om.translation().length();
+        SLMat4f prevOM = _om;
+        SLMat4f prevWM = updateAndGetWM();
+        //SLMat4f prevWMI = updateAndGetWMI();
+        /*SLMat4f prevParentWM = _parent->updateAndGetWM();
+        SLMat4f prevParentOM = _parent->_om;
+        SLMat4f prevParentParentWM = _parent->_parent->updateAndGetWM();
+        SLMat4f prevParentParentOM = _parent->_parent->_om;*/
+        
+        
+        SLMat4f omWithoutRot1 = _om;
+        omWithoutRot1.translation(0, 0, 0);
+        SLVec4f before = omWithoutRot1.multVec(SLVec4f(0, 0, -1, 1));
+
+        _om.rotation(0, 1, 0, 0);
         needUpdate();
-        return;
+               
+
+        SLVec3f worldPos = updateAndGetWM().translation();
+        SLMat4f finalTrnfrm = rotation;
+        finalTrnfrm.translation(worldPos);
+
+        SLMat4f prntTrnfrm = _parent->_wm.inverse();
+        prntTrnfrm.translation(0, 0, 0);
+        
+        SLMat4f finalTrnfrm2 = SLMat4f();
+        finalTrnfrm2.translation(worldPos);
+
+        updateAndGetWM();
+
+        SLMat4f rotMat;
+        rotMat.translate(worldPos);
+        rotMat.multiply(rotation);
+        rotMat.translate(-worldPos);
+
+        // apply rotation onto the world space position and then bring it back to local
+        //_om = rotMat * prntTrnfrm;
+        _om = _parent->_wm.inverse() * rotMat * _wm * prntTrnfrm;
+
+        if (_om.translation().length() - prevOffset > 1.0f)
+        {
+            SLint i = 0;
+        }
+        /*/
+        static vector<SLQuat4f> rotations;
+        rotations.push_back(rot);
+
+        static ofstream ofs;
+        static bool logging = false;
+        if (!logging) {
+            ofs.open("hand_recording.log");
+            logging = true;
+        }
+
+        //ostringstream oss;
+        ofs << "SLQuat4f(" << rot.x() << ", " << rot.y() << ", " << rot.z() << ", " << rot.w() << "), ";
+        ofs.flush();
+        /**/
+
+        needUpdate();
     }
     else if (relativeTo == TS_Parent)
     {   // relative to parent, reset current rotation and just rotate again
@@ -782,9 +837,8 @@ void SLNode::rotation(const SLQuat4f& rot,
     {
         // in TS_Local everything is relative to our current orientation
         _om.rotation(0, 0, 0, 0);
-        rotate(rot, relativeTo);
+        _om *= rotation;
     }
-
 }
 //-----------------------------------------------------------------------------
 /*!
@@ -846,8 +900,9 @@ Rotates the node around its local origin relative to the space expressed by 'rel
 */
 void SLNode::rotate(const SLQuat4f& rot, SLTransformSpace relativeTo)
 {
+    SLQuat4f norm = rot.normalized();
     SLMat4f rotation = rot.toMat4(); 
-
+    
     
     if (relativeTo == TS_Local)
     {
@@ -860,7 +915,7 @@ void SLNode::rotate(const SLQuat4f& rot, SLTransformSpace relativeTo)
         rot.multiply(rotation);
         rot.translate(-updateAndGetWM().translation());
 
-        _om = _parent->updateAndGetWMI() * rot * updateAndGetWM();
+        _om = _parent->_wm.inverse() * rot * updateAndGetWM();
     }
     else // relativeTo == TS_Parent || relativeTo == TS_World && !_parent
     {            

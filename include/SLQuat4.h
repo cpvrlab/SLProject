@@ -51,7 +51,7 @@ class SLQuat4
         void        toAngleAxis    (T& angleDEG, SLVec3<T>& axis) const;
       
         T           dot         (const SLQuat4<T>& q) const;
-        T           length      ();
+        T           length      () const;
         SLQuat4<T>  normalized  () const;
         T           normalize   ();
         SLQuat4<T>  inverted    () const;
@@ -412,7 +412,7 @@ inline T SLQuat4<T>::dot(const SLQuat4<T>& q) const
 
 //-----------------------------------------------------------------------------
 template <class T>
-inline T SLQuat4<T>::length()
+inline T SLQuat4<T>::length() const
 {
     return sqrt(_x*_x + _y*_y + _z*_z + _w*_w);
 }
@@ -422,24 +422,24 @@ template <class T>
 SLQuat4<T> SLQuat4<T>::normalized() const
 {
     T len = length();
-    SLQuat4<T> normalized;
+    SLQuat4<T> norm;
 
     if (len > FLT_EPSILON)
     {
         T invLen = ((T)1)/len;
-        normalized._x = _x *= invLen;
-        normalized._y = _y *= invLen;
-        normalized._z = _z *= invLen;
-        normalized._w = _w *= invLen;
+        norm._x = _x * invLen;
+        norm._y = _y * invLen;
+        norm._z = _z * invLen;
+        norm._w = _w * invLen;
     } else
     {  // set invalid result to flag the error.
-        normalized._x = (T)0;
-        normalized._y = (T)0;
-        normalized._z = (T)0;
-        normalized._w = (T)0;
+        norm._x = (T)0;
+        norm._y = (T)0;
+        norm._z = (T)0;
+        norm._w = (T)0;
     }
 
-    return normalized;
+    return norm;
 }
 
 //-----------------------------------------------------------------------------

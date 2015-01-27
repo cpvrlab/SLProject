@@ -1,3 +1,4 @@
+//#############################################################################
 //  File:      SLLeapController.h
 //  Author:    Marc Wacker
 //  Date:      January 2015
@@ -16,6 +17,8 @@
 #include <SLLeapHand.h>
 #include <SLLeapTool.h>
 #include <SLLeapGesture.h>
+
+#include <SLInputDevice.h>
 
 
 // @note    we could slap togeter a simple c++ delegate if we could use c++11
@@ -55,7 +58,7 @@ typedef vector<SLLeapToolListener*> SLVLeapToolListenerPtr;
 ///         events up and when a new frame update happens we contact the gesture listeners with all events.
 ///         For  the hand listeners we only ever need the newest hand status, same for tools, but we should
 ///         look into it still.
-class SLLeapController : public Leap::Listener
+class SLLeapController : public SLInputDevice
 {
 public:
     SLLeapController();
@@ -70,7 +73,7 @@ public:
     void removeToolListener(SLLeapToolListener* listener);
     
     // @todo    can we declare this function private somehow
-    virtual void onFrame(const Leap::Controller&);
+    virtual void onFrame(const Leap::Frame);
     // unneeded rest of Leap::Listener interface, just kept here while developing
     // @todo remove the commented out functions below
     //virtual void onInit(const Leap::Controller&);
@@ -83,8 +86,11 @@ public:
     //virtual void onServiceConnect(const Leap::Controller&);
     //virtual void onServiceDisconnect(const Leap::Controller&);
 
+    virtual void poll();
+
     const Leap::Controller& leapController() const { return _leapController; }
 protected:
+    int64_t             _prevFrameId;
     Leap::Controller    _leapController;
     
     SLint               _prevFrameHandCount;

@@ -11,7 +11,7 @@
 #include "SLTexFont.h"
 #include "SLAssImpImporter.h"
 
-
+#include "SLInputManager.h"
 #include "CustomSceneView.h"
 
 using namespace Leap; // dont use using!
@@ -225,27 +225,42 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd cmd)
     _backColor.set(0.1f,0.1f,0.1f);
     
     SLLightSphere* light1 = new SLLightSphere(0.1f);
-    light1->position(2, 1, 3);
+    light1->position(2, -4, 3);
 
+    SLLightSphere* light2 = new SLLightSphere(0.1f);
+    light2->ambient(SLCol4f(0.2f, 0.1f, 0.0f, 1.0f));
+    light2->diffuse(SLCol4f(2.0f, 0.9f, 0.5f, 1.0f));
+    light2->position(2, 1, -3);
+    
+    SLLightSphere* light3 = new SLLightSphere(0.1f);
+    light3->position(-5, 15, 10);
 
     SLMaterial* mat = new SLMaterial("floorMat", SLCol4f::GRAY, SLCol4f::GRAY);
 
     SLNode* scene = new SLNode;
     scene->addChild(light1);
+    scene->addChild(light2);
+    scene->addChild(light3);
     
-
     
-    SLAssimpImporter importer;
+    SLAssimpImporter importer("Importer.log");
     SLNode* meshDAE = importer.load("DAE/AstroBoy/AstroBoy.dae");
-    /*
-    for (SLuint i = 0; i < importer.meshes().size(); ++i) {
-        importer.meshes()[i]->skinningMethod(SM_HardwareSkinning);
-    }*/
+    importer.logFileVerbosity(LV_Detailed);
+    SLNode* meshDAE2 = importer.load("DAE/Hands/rigged_hands.dae");
 
+    
+    for (SLint i = 0; i < importer.meshes().size(); ++i)
+        importer.meshes()[i]->skinningMethod(SM_HardwareSkinning);
+
+    
     // Scale to so that the AstroBoy is about 2 (meters) high.
     meshDAE->scale(10.0f);
     meshDAE->translate(0,-3.33f, 0, TS_Local);
     scene->addChild(meshDAE);
+
+    meshDAE2->scale(10);
+    meshDAE2->translate(0, 0, 5);
+    scene->addChild(meshDAE2);
 
     SLCamera* cam1 = new SLCamera;
     cam1->position(-4, 3, 3);
@@ -282,8 +297,62 @@ void CustomSceneView::postSceneLoad()
     _leapController.registerGestureListener(&_gestureListener);
     _slHandListener.init();
     _slToolListener.init();
-    _riggedListener.setSkeleton(SLScene::current->animManager().skeletons()[0]);
+    _riggedListener.setSkeleton(SLScene::current->animManager().skeletons()[1]);
     
+    //_riggedListener.setScaleCorrection(SLVec3f(10, 10, 10));
+
+    _riggedListener.setLWrist("L_Wrist");
+    _riggedListener.setRWrist("R_Wrist");
+    
+    _riggedListener.setRFingerJoint(0, 1, "R_ThumbA");
+    _riggedListener.setRFingerJoint(0, 2, "R_ThumbB");
+    _riggedListener.setRFingerJoint(0, 3, "R_ThumbC");
+    
+    _riggedListener.setRFingerJoint(1, 0, "R_IndexA");
+    _riggedListener.setRFingerJoint(1, 1, "R_IndexB");
+    _riggedListener.setRFingerJoint(1, 2, "R_IndexC");
+    _riggedListener.setRFingerJoint(1, 3, "R_IndexD");
+    
+    _riggedListener.setRFingerJoint(2, 0, "R_MiddleA");
+    _riggedListener.setRFingerJoint(2, 1, "R_MiddleB");
+    _riggedListener.setRFingerJoint(2, 2, "R_MiddleC");
+    _riggedListener.setRFingerJoint(2, 3, "R_MiddleD");
+    
+    _riggedListener.setRFingerJoint(3, 0, "R_RingA");
+    _riggedListener.setRFingerJoint(3, 1, "R_RingB");
+    _riggedListener.setRFingerJoint(3, 2, "R_RingC");
+    _riggedListener.setRFingerJoint(3, 3, "R_RingD");
+    
+    _riggedListener.setRFingerJoint(4, 0, "R_PinkyA");
+    _riggedListener.setRFingerJoint(4, 1, "R_PinkyB");
+    _riggedListener.setRFingerJoint(4, 2, "R_PinkyC");
+    _riggedListener.setRFingerJoint(4, 3, "R_PinkyD");
+    
+    
+    _riggedListener.setLFingerJoint(0, 1, "L_ThumbA");
+    _riggedListener.setLFingerJoint(0, 2, "L_ThumbB");
+    _riggedListener.setLFingerJoint(0, 3, "L_ThumbC");
+    
+    _riggedListener.setLFingerJoint(1, 0, "L_IndexA");
+    _riggedListener.setLFingerJoint(1, 1, "L_IndexB");
+    _riggedListener.setLFingerJoint(1, 2, "L_IndexC");
+    _riggedListener.setLFingerJoint(1, 3, "L_IndexD");
+    
+    _riggedListener.setLFingerJoint(2, 0, "L_MiddleA");
+    _riggedListener.setLFingerJoint(2, 1, "L_MiddleB");
+    _riggedListener.setLFingerJoint(2, 2, "L_MiddleC");
+    _riggedListener.setLFingerJoint(2, 3, "L_MiddleD");
+    
+    _riggedListener.setLFingerJoint(3, 0, "L_RingA");
+    _riggedListener.setLFingerJoint(3, 1, "L_RingB");
+    _riggedListener.setLFingerJoint(3, 2, "L_RingC");
+    _riggedListener.setLFingerJoint(3, 3, "L_RingD");
+    
+    _riggedListener.setLFingerJoint(4, 0, "L_PinkyA");
+    _riggedListener.setLFingerJoint(4, 1, "L_PinkyB");
+    _riggedListener.setLFingerJoint(4, 2, "L_PinkyC");
+    _riggedListener.setLFingerJoint(4, 3, "L_PinkyD");
+    /*
     _riggedListener.setLWrist("L_wrist");
     _riggedListener.setRWrist("R_wrist");
     // thumb
@@ -307,12 +376,15 @@ void CustomSceneView::postSceneLoad()
     _riggedListener.setLFingerJoint(4, 2, "L_pinky_02");
     _riggedListener.setRFingerJoint(4, 1, "R_pinky_01");
     _riggedListener.setRFingerJoint(4, 2, "R_pinky_02");
-
+    */
     /*
         Before continuing with the mapping above try and import one of the leap hand models and map the input to those (the ones used in the unity demos)
         And complete the todo (to check tutorials on how to bind kinect/leap on custom skeletons in unity/blender/maya...
     
     */
+
+    _playbackCube = new SLNode(new SLBox(0.5f));
+    SLScene::current->root3D()->addChild(_playbackCube);
 
     _root = SLScene::current->animManager().skeletons()[0]->getJoint("root");
 }
@@ -323,7 +395,11 @@ void CustomSceneView::preDraw()
     // @note we need to force an update on the skeleton here
     //       since updateAnimations resets this dirty flag and the listener
     //       isn't guaranteed to come before draw but afte ranimation is called
-    SLScene::current->animManager().skeletons()[0]->changed(true);
+    //SLScene::current->animManager().skeletons()[0]->changed(true);
+    //SLScene::current->animManager().skeletons()[1]->changed(true);
+
+
+    SLInputManager::instance().update();
 }
 
 
@@ -336,34 +412,21 @@ void CustomSceneView::postDraw()
 // some basic manipulation for now
 SLbool CustomSceneView::onKeyPress(const SLKey key, const SLKey mod)
 {
-    static float angle1 = -90.0f;
-    static float angle2 = 90.0f;
-    static SLVec3f axis1 = SLVec3f(1, 0, 0);
-    static SLVec3f axis2 = SLVec3f(1, 0, 0);
-    static SLVec3f axis3 = SLVec3f(1, 0, 0);
-    switch (key)
-    {        
-    case 'Q':  axis1 = SLVec3f(1, 0, 0); _riggedListener.axis1 = axis1; break;
-    case 'W':  axis1 = SLVec3f(0, 1, 0); _riggedListener.axis1 = axis1;break;
-    case 'E':  axis1 = SLVec3f(0, 0, 1); _riggedListener.axis1 = axis1;break;
-    case 'R':  axis2 = SLVec3f(1, 0, 0); _riggedListener.axis2 = axis2;break;
-    case 'T':  axis2 = SLVec3f(0, 1, 0); _riggedListener.axis2 = axis2;break;
-    case 'Z':  axis2 = SLVec3f(0, 0, 1); _riggedListener.axis2 = axis2;break;
-    case 'U':  axis3 = SLVec3f(1, 0, 0); _riggedListener.axis3 = axis3;break;
-    case 'I':  axis3 = SLVec3f(0, 1, 0); _riggedListener.axis3 = axis3;break;
-    case 'O':  axis3 = SLVec3f(0, 0, 1); _riggedListener.axis3 = axis3;break;
-    case 'P': _riggedListener.dir *= -1; break;
+    // temp test of leapmotion model axes
+    SLSkeleton* skel = SLScene::current->animManager().skeletons()[1];
+    SLJoint* indexJoint = skel->getJoint("R_IndexC");
+    int dir = 1;
+    if (indexJoint) {
+        if (mod == KeyShift)
+            dir = -1;
 
-    case 'A': angle1 += 5; SL_LOG("angle1: %.2f\n", angle1); break;
-    case 'S': angle1 -= 5; SL_LOG("angle1: %.2f\n", angle1); break;
-    case 'D': angle2 += 5; SL_LOG("angle2: %.2f\n", angle2); break;
-    case 'F': angle2 -= 5; SL_LOG("angle2: %.2f\n", angle2); break;
+        switch (key)
+        {
+        case 'Y': indexJoint->rotate(dir*5, 1, 0, 0); break;
+        case 'X': indexJoint->rotate(dir*5, 0, 1, 0); break;
+        case 'C': indexJoint->rotate(dir*5, 0, 0, 1); break;
+        }
     }
-
-    _riggedListener.correction1 = SLQuat4f(angle1, axis1);
-    _riggedListener.correction2 = SLQuat4f(angle2, axis2);
-
-    
 
     return false;
 }

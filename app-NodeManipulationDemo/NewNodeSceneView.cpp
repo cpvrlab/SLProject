@@ -208,11 +208,11 @@ void NewNodeSceneView::translateObject(SLVec3f val)
 
 void NewNodeSceneView::rotateObject(SLVec3f val)
 {
-    SLfloat angle = 22.5;
+    SLfloat angle = 22.5f;
     if (_continuousInput)
         angle *= _deltaTime;
 
-    _curObject->rotate(angle, val, _curSpace);
+    _curObject->rotation(angle, val, _curSpace);
 }
 
 void NewNodeSceneView::rotateObjectAroundPivot(SLVec3f val)
