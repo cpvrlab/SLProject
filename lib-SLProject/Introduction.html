@@ -2,12 +2,8 @@
 <html><head><!--
 //#############################################################################
 //  File:      Introduction.html
-//  Purpose:   Main project page for SLProject Doxygen documentation
-//             Doxygen is a documentation tool for C syntax like languages.
-//             It automatically generates the source code.
-//             Doxygen can be found under: http://www.doxygen.org
-//             The doxygen setting are defined in the file GenerateHTMLDoc.dox.
-//             To start the generation process run GenerateHTMLDoc.bat.
+//  Purpose:   HTML page documentation page integrated in the Doxygen docs
+//             with a topdown documentation on the SLProject framework.
 //  Author:    Marcus Hudritsch
 //  Date:      January 2015
 //  Copyright: Marcus Hudritsch, Kirchrain 18, 2572 Sutz
@@ -19,12 +15,28 @@
 /*! 
 \page Introduction Topdown Introduction
 \tableofcontents
+
+
+\section diagram Class Diagram
+<p>
+The following class diagram gives you an overview of the major classes with of its important variables and methods:
+<ul>
+    <li>The <b>gray boxes</b> are the application side that depends on the OS and the GUI toolkit.</li>
+    <li>The <b>blue classes</b> form the center with the SLScene and the SLSceneview class.</li>
+    <li>The <b>yellow classes</b> define the materials that are responsible for the visual appearances of the mesh objects.</li>
+    <li>The <b>green classes</b> build the scenegraph that defines the spacial structure of the visible objects.</li>
+    <li>The <b>pink classes</b> define a single triangulated mesh object.</li>
+    <li>The <b>red classes</b> build the animation framework</li>
+</ul>
+<img src="../images/SLProject_UML_min.svg" width="100%">
+</p>
+
 \section app Application code
 <p>
-The applications starting code depends on the operating system (gray boxes in the class diagram below)
+The applications starting code (gray boxes in the class diagram below) depends on the operating system 
 In all cases we have the most outer shell of the application that handles the window and the
-OpenGL context creation and passes then the events to a C-function interface
-before it is handled by the C++-framework.
+OpenGL context creation and passes then the events to a thin C-function interface
+before it is handled by the C++-framework in the library lib-SLProject.
 The following OS are supported and applications are provided for demonstration:
 <ul>
     <li>
@@ -52,7 +64,8 @@ The following OS are supported and applications are provided for demonstration:
         Other alternatives could be e.g.
         <a href="http://freeglut.sourceforge.net/">freeglut</a>,
         <a href="http://www.fltk.org/index.php">FLTK</a>,
-        <a href="http://www.wxwidgets.org/">wxWidgets</a> or
+        <a href="http://www.wxwidgets.org/">wxWidgets</a>,
+        <a href="http://www.nanapro.org/en-us/">Nana</a> or
         <a href="http://www.juce.com/">Juce</a>
     </li>
 </ul>
@@ -75,7 +88,8 @@ The blue classes form the center of the SLProject framework:
     <li>
         SLSceneView represents a dynamic real time 3D view onto the scene.
         A scene can be shown in multiple sceneviews as demonstrated in the app-Viewer-Qt application.
-        A sceneview receives all events (keyboard, mouse, OpenGL etc.) from the GUI via the C-Interface (see SLInterface.h).
+        A sceneview receives all events (keyboard, mouse, OpenGL etc.) 
+        from the GUI via the C-Interface (see SLInterface.h).
     </li>
 </ul>
 </p>
@@ -87,7 +101,8 @@ and can have 0-N children nodes and 0-N triangle meshes.
 A node can be transformed (translated, rotated and scaled) in 3D-space.
 <ul>
     <li>
-        SLLightSphere and SLLightRect are from SLNode derived and define lights that can be placed and directed in space.
+        SLLightSphere and SLLightRect are from SLNode derived and define lights 
+        that can be placed and directed in space.
     </li>
     <li>
         SLCamera that defines the view to the scene.
@@ -188,20 +203,6 @@ The red animation classes provide the functionality for simple node animations o
         to be able to manipulate them in the join's space.
     </li>
 </ul>
-</p>
-
-\section diagram Class Diagram
-<p>
-The following class diagram shows only the major classes with some of its important variables and methods:
-<ul>
-    <li>The <b>gray boxes</b> are the application side that depends on the OS and the GUI toolkit.</li>
-    <li>The <b>blue classes</b> form the center with the scene and the sceneview both accessed by the C-interface from the application side.</li>
-    <li>The <b>yellow classes</b> define the materials that are responsible for the visual appearances of the mesh objects.</li>
-    <li>The <b>green classes</b> build the scenegraph that defines the spacial structure of the visible objects.</li>
-    <li>The <b>pink classes</b> define a single triangulated mesh object.</li>
-    <li>The <b>red classes</b> build the animation framework</li>
-</ul>
-<img src="../images/SLProject_UML_min.svg" width="100%">
 </p>
 
 <p>
