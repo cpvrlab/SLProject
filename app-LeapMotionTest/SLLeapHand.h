@@ -1,3 +1,4 @@
+//#############################################################################
 //  File:      SLLeapController.h
 //  Author:    Marc Wacker
 //  Date:      January 2015
@@ -14,47 +15,38 @@
 #include <Leap.h>
 #include <SLLeapFinger.h>
 
-/*
-
-this class will hold a set of SLLeapFingers.
-+ specialized versions of SLLeapHand like SLLeapRiggedHand will be able to hold weak references to bones
-    for wrist and arm for manipulation
-
-    see the unity integration for inspiration
-
-*/
 
 class SLLeapHand
 {
 public:
-    SLLeapHand();
+                SLLeapHand      ();
 
     // getters
-    SLVec3f     palmPosition() const;
-    SLQuat4f    palmRotation() const;
+    SLVec3f     palmPosition    () const;
+    SLQuat4f    palmRotation    () const;
 
 
-    SLVec3f     wristPosition() const;
-    SLVec3f     elbowPosition() const;
+    SLVec3f     wristPosition   () const;
+    SLVec3f     elbowPosition   () const;
     
-    SLVec3f     armCenter() const;
-    SLVec3f     armDirection() const;
-    SLQuat4f    armRotation() const;
+    SLVec3f     armCenter       () const;
+    SLVec3f     armDirection    () const;
+    SLQuat4f    armRotation     () const;
 
 
-    SLbool      isLeft() const { return _hand.isLeft(); }
+    SLbool      isLeft          () const { return _hand.isLeft(); }
 
-    void        leapHand(const Leap::Hand& hand);
+    void        leapHand        (const Leap::Hand& hand);
 
     // return iterator over fingers
     const SLVLeapFinger& fingers() const { return _fingers; }
 
-    float       pinchStrength() const;
-    float       grabStrength() const;
+    float       pinchStrength   () const;
+    float       grabStrength    () const;
 
 protected:
-    Leap::Hand      _hand;
-    SLVLeapFinger    _fingers;
+    Leap::Hand      _hand;      //!< Leap hand object
+    SLVLeapFinger   _fingers;   //!< Vector of all SLLeapFinger objects for this hand
 
 };
 

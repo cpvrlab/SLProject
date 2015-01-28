@@ -249,9 +249,9 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd cmd)
     SLNode* meshDAE2 = importer.load("DAE/Hands/rigged_hands.dae");
 
     
-    for (SLint i = 0; i < importer.meshes().size(); ++i)
-        importer.meshes()[i]->skinningMethod(SM_HardwareSkinning);
-
+    for (SLint i = 0; i < importer.meshes().size(); ++i) {
+        //importer.meshes()[i]->skinningMethod(SM_HardwareSkinning);
+    }
     
     // Scale to so that the AstroBoy is about 2 (meters) high.
     meshDAE->scale(10.0f);
@@ -279,7 +279,6 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd cmd)
 
 CustomSceneView::~CustomSceneView()
 {
-    _leapController.removeHandListener(&_slHandListener);
 }
 
 void CustomSceneView::postSceneLoad()
@@ -389,11 +388,18 @@ void CustomSceneView::postSceneLoad()
     // cubes to grab and interact with
     _currentGrabbedObject = NULL;
 
-    SLint numBoxes = 5;
-    for (SLint i = 0; i < numBoxes; ++i) {
-        _movableBoxes.push_back(new SLNode(new SLBox(-0.15f, -0.15f, -0.15f, 0.15f, 0.15f, 0.15f)));
-        SLScene::current->root3D()->addChild(_movableBoxes[i]);
-        _movableBoxes[i]->translate(i * 0.5f, 2.0f, 0.0f);
+    SLfloat colSpacing = 0.5f;
+    SLfloat rowSpacing = 0.5f;
+    SLint cols = 10;
+    SLint rows = 5;
+    SLint index = 0;
+    for (SLint i = 0; i < cols; ++i) {
+        for(SLint j = 0; j < rows; ++j) {
+
+            _movableBoxes.push_back(new SLNode(new SLBox(-0.15f, -0.15f, -0.15f, 0.15f, 0.15f, 0.15f)));
+            SLScene::current->root3D()->addChild(_movableBoxes[index]);
+            _movableBoxes[index++]->translate((float)i * colSpacing - 0.5f * (float)cols * colSpacing, 2.0f + rowSpacing * (float)j, 0.0f);
+        }
     }
 
     
@@ -444,8 +450,6 @@ void CustomSceneView::grabCallback(SLVec3f& pos, SLQuat4f& rot)
             cube->position().z + radius > pos.z)
         {
             _currentGrabbedObject = cube;
-            _initialRotation = SLQuat4f(_currentGrabbedObject->updateAndGetWM().mat3());
-            _initialPosition = _currentGrabbedObject->position();
             return;
         }
     }
@@ -455,12 +459,10 @@ void CustomSceneView::moveCallback(SLVec3f& pos, SLQuat4f& rot)
     if (!_currentGrabbedObject) 
         return;
 
-
-    //SLQuat4f relRot = rot.inverted() * _prevRotation * _initialRotation;
-    //SLQuat4f relRot = rot.inverted() * _prevRotation.inverted() * _initialRotation;
     SLQuat4f relRot = _prevRotation * rot.inverted();
     relRot.invert();
     _prevRotation = rot;
+
     _currentGrabbedObject->translate(pos - _prevPosition, TS_World);
     _currentGrabbedObject->rotate(relRot, TS_World);
 

@@ -1,3 +1,14 @@
+//#############################################################################
+//  File:      SLLeapHand.cpp
+//  Author:    Marc Wacker
+//  Date:      January 2015
+//  Codestyle: https://github.com/cpvrlab/SLProject/wiki/Coding-Style-Guidelines
+//  Copyright: 2002-2014 Marcus Hudritsch
+//             This software is provide under the GNU General Public License
+//             Please visit: http://opensource.org/licenses/GPL-3.0
+//#############################################################################
+
+#include  <stdafx.h>
 #include <SLLeapHand.h>
 
 SLLeapHand::SLLeapHand()
@@ -14,7 +25,7 @@ SLVec3f SLLeapHand::palmPosition() const
 
 
 SLQuat4f SLLeapHand::palmRotation() const
-{/*
+{
     Leap::Vector& bX = _hand.basis().xBasis;
     Leap::Vector& bY = _hand.basis().yBasis;
     Leap::Vector& bZ = _hand.basis().zBasis;
@@ -26,30 +37,12 @@ SLQuat4f SLLeapHand::palmRotation() const
                   bX.y, bY.y, bZ.y,
                   bX.z, bY.z, bZ.z);
     
-    // flip from left handed to right handed
-    if (_hand.isLeft()) 
-    {
-        SLMat3f flipZ;
-        flipZ.scale(1, 1, -1);
-        basis = basis * flipZ;
-    }
+    // @note we don't seem to have to convert the left hand from a LH system to a RH system
 
-    return SLQuat4f(basis);*/
-
-    Leap::Vector& bX = _hand.basis().xBasis;
-    Leap::Vector& bY = _hand.basis().yBasis;
-    Leap::Vector& bZ = _hand.basis().zBasis;
+    SLVec3f slUp = basis * SLVec3f::AXISY;
+    SLVec3f slForward = basis * -SLVec3f::AXISZ;
     
-    Leap::Vector up = _hand.basis().transformDirection(Leap::Vector(0, 1, 0));
-    Leap::Vector forward = _hand.basis().transformDirection(Leap::Vector(0, 0, -1));
-    /*
-    if (_hand.isLeft()) 
-    {
-        up.z *= -1;
-        forward.z *= -1;
-    }*/
-    
-    return TestUtil::QuaternionLookRotation(SLVec3f(forward.x, forward.y, forward.z), SLVec3f(up.x, up.y, up.z));
+    return SLQuat4f::fromLookRotation(slForward, slUp);
 }
 
 
@@ -74,42 +67,21 @@ SLVec3f SLLeapHand::armDirection() const
     return SLVec3f();
 }
 SLQuat4f SLLeapHand::armRotation() const
-{/*
+{
     Leap::Vector& bX = _hand.arm().basis().xBasis;
     Leap::Vector& bY = _hand.arm().basis().yBasis;
     Leap::Vector& bZ = _hand.arm().basis().zBasis;
-    // @note    We enter the Leap::Matrix's row vectors as
-    //          column vectors in the SLMat3 since
-    //          Leap::Matrix is row major and this saves
-    //          us an additional call to SLMat3.transpose
+    
     SLMat3f basis(bX.x, bY.x, bZ.x,
                   bX.y, bY.y, bZ.y,
                   bX.z, bY.z, bZ.z);
     
-    // flip from left handed to right handed
-    if (_hand.isLeft()) 
-    {
-        SLMat3f flipZ;
-        flipZ.scale(1, 1, -1);
-        basis = basis * flipZ;
-    }
+    // @note we don't seem to have to convert the left hand from a LH system to a RH system
 
-    return SLQuat4f(basis);*/
-
-    Leap::Vector& bX = _hand.arm().basis().xBasis;
-    Leap::Vector& bY = _hand.arm().basis().yBasis;
-    Leap::Vector& bZ = _hand.arm().basis().zBasis;
+    SLVec3f slUp = basis * SLVec3f::AXISY;
+    SLVec3f slForward = basis * -SLVec3f::AXISZ;
     
-    Leap::Vector up = _hand.arm().basis().transformDirection(Leap::Vector(0, 1, 0));
-    Leap::Vector forward = _hand.arm().basis().transformDirection(Leap::Vector(0, 0, -1));
-    /*
-    if (_hand.isLeft()) 
-    {
-        up.z *= -1;
-        forward.z *= -1;
-    }*/
-    
-    return TestUtil::QuaternionLookRotation(SLVec3f(forward.x, forward.y, forward.z), SLVec3f(up.x, up.y, up.z));
+    return SLQuat4f::fromLookRotation(slForward, slUp);
 }
 
 void SLLeapHand::leapHand(const Leap::Hand& hand)

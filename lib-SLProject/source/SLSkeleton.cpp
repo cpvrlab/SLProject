@@ -186,8 +186,6 @@ SLbool SLSkeleton::updateAnimations(SLfloat elapsedTimeSec)
             state->changed(false); // remove changed dirty flag from the state again
         }
     }
-
-    _minMaxOutOfDate = true;
     return true;
 }
 

@@ -175,6 +175,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CustomSceneView.h" />
+    <ClInclude Include="SampleListeners.h" />
     <ClInclude Include="SLInputManager.h" />
     <ClInclude Include="SLInputDevice.h" />
     <ClInclude Include="SLLeapController.h" />

@@ -1,7 +1,7 @@
 //#############################################################################
 //  File:      SLInputDevice.h
 //  Author:    Marc Wacker
-//  Date:      Spring 2015
+//  Date:      January 2015
 //  Codestyle: https://github.com/cpvrlab/SLProject/wiki/Coding-Style-Guidelines
 //  Copyright: 2002-2014 Marcus Hudritsch
 //             This software is provide under the GNU General Public License

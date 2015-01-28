@@ -1,4 +1,14 @@
+//#############################################################################
+//  File:      SLLeapFinger.cpp
+//  Author:    Marc Wacker
+//  Date:      January 2015
+//  Codestyle: https://github.com/cpvrlab/SLProject/wiki/Coding-Style-Guidelines
+//  Copyright: 2002-2014 Marcus Hudritsch
+//             This software is provide under the GNU General Public License
+//             Please visit: http://opensource.org/licenses/GPL-3.0
+//#############################################################################
 
+#include  <stdafx.h>
 #include <SLLeapFinger.h>
 
 SLLeapFinger::SLLeapFinger(Leap::Finger::Type type)
@@ -49,38 +59,20 @@ SLVec3f SLLeapFinger::boneDirection(SLint boneType) const
 }
 
 SLQuat4f SLLeapFinger::boneRotation(SLint boneType) const
-{
-    /*
+{    
     Leap::Bone::Type type = static_cast<Leap::Bone::Type>(boneType);
     Leap::Vector& bX = _finger.bone(type).basis().xBasis;
     Leap::Vector& bY = _finger.bone(type).basis().yBasis;
     Leap::Vector& bZ = _finger.bone(type).basis().zBasis;
+    
     SLMat3f basis(bX.x, bY.x, bZ.x,
                   bX.y, bY.y, bZ.y,
                   bX.z, bY.z, bZ.z);
+    
+    // @note we don't seem to have to convert the left hand from a LH system to a RH system
 
-    if (_hand.isLeft()) 
-    {
-        SLMat3f flipZ;
-        flipZ.scale(1, 1, -1);
-        basis = basis * flipZ;
-    }
+    SLVec3f slUp = basis * SLVec3f::AXISY;
+    SLVec3f slForward = basis * -SLVec3f::AXISZ;
     
-    return SLQuat4f(basis);*/
-
-    Leap::Bone::Type type = static_cast<Leap::Bone::Type>(boneType);
-    Leap::Vector& bX = _finger.bone(type).basis().xBasis;
-    Leap::Vector& bY = _finger.bone(type).basis().yBasis;
-    Leap::Vector& bZ = _finger.bone(type).basis().zBasis;
-    
-    Leap::Vector up = _finger.bone(type).basis().transformDirection(Leap::Vector(0, 1, 0));
-    Leap::Vector forward = _finger.bone(type).basis().transformDirection(Leap::Vector(0, 0, -1));
-    /*
-    if (_hand.isLeft()) 
-    {
-        up.z *= -1;
-        forward.z *= -1;
-    }*/
-    
-    return TestUtil::QuaternionLookRotation(SLVec3f(forward.x, forward.y, forward.z), SLVec3f(up.x, up.y, up.z));
+    return SLQuat4f::fromLookRotation(slForward, slUp);
 }

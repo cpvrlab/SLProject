@@ -1,3 +1,4 @@
+//#############################################################################
 //  File:      SLLeapTool.h
 //  Author:    Marc Wacker
 //  Date:      January 2015
@@ -17,16 +18,14 @@
 class SLLeapTool
 {
 public:
+    void        leapTool        (const Leap::Tool& tool) { _tool = tool; }
 
-    void leapTool(const Leap::Tool& tool) { _tool = tool; }
-
-    SLQuat4f    toolRotation() const;
-    SLVec3f     toolTipPosition() const;
-    SLVec3f     toolTipVelocity() const;
-
+    SLQuat4f    toolRotation    () const;
+    SLVec3f     toolTipPosition () const;
+    SLVec3f     toolTipVelocity () const;
 
 protected:
-    Leap::Tool  _tool;
+    Leap::Tool  _tool;  //!< leap tool object
 };
 
 #endif

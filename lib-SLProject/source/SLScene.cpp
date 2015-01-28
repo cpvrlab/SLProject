@@ -320,20 +320,36 @@ bool SLScene::updateIfAllViewsGotPainted()
     SLfloat startUpdateMS = timeMilliSec();
 
     ////////////////////////////////////////////////////////////////////////////
-    SLbool animated = !_stopAnimations && _animManager.update(elapsedTimeSec());
+    SLbool userInputChange = false;
+
+    /// @todo   we need to reset all skeleton changed flags before processing ANY input events and animating them
+    ///         currently the call to SLAnimationManager::update will reset all changed flags of the skeletons
+    ///         this leaves us with no place to process input events correctly if we wanted to update a skeleton.
+    ///         the old method of doing the skinning in the draw code till works though, since the input events are 
+    ///         guaranteed to happen before but after the reset of the flags...
+    ///         this is why the leapmotion demo hands work when GPU skinned...
+    ///         
+    ///         I will first address the issue of the leap hands not updating their AABB however...
+
+    for(SLint i = 0; i < _animManager.skeletons().size(); ++i)
+        userInputChange |= _animManager.skeletons()[i]->changed();
+    SLbool animated = _animManager.update(elapsedTimeSec()) && !_stopAnimations;
     ////////////////////////////////////////////////////////////////////////////
+    animated |= userInputChange;
 
     // Update AABBs, skins and acceleration structures
+    
+    // Update AABBs efficiently
+    SLGLState::getInstance()->modelViewMatrix.identity();
+    _root3D->updateAABBRec();
+
     if (animated)
     {   
-        // Update AABBs efficiently
-        SLGLState::getInstance()->modelViewMatrix.identity();
-        _root3D->updateAABBRec();
 
         // Do software skinning on all changed skeletons
         for (SLuint i=0; i<_meshes.size(); ++i) 
         {   if (_meshes[i]->skeleton() && 
-                _meshes[i]->skeleton()->changed() &&
+                /*_meshes[i]->skeleton()->changed() &&*/ // <-- a propper update cycle order would let us use this here we can't however reset the skeletons above since input is processed after the call of this function....
                 _meshes[i]->skinningMethod() == SM_SoftwareSkinning)
             {   
                 _meshes[i]->transformSkin();

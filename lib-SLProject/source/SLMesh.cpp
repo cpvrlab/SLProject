@@ -210,6 +210,7 @@ void SLMesh::draw(SLSceneView* sv, SLNode* node)
             {
                 // update the joint matrix array
                 _skeleton->getJointWorldMatrices(_jointMatrices);
+                notifyParentNodesAABBUpdate();
             }
 
             if (_skinningMethod == SM_HardwareSkinning)
@@ -218,9 +219,6 @@ void SLMesh::draw(SLSceneView* sv, SLNode* node)
                 //          from instantiating a single mesh with multiple animations. Needs to be addressed ASAP. (see also SLMesh class problems in SLMesh.h at the top)
                 SLint locBM = sp->getUniformLocation("u_jointMatrices");
                 sp->uniformMatrix4fv(locBM, _skeleton->numJoints(), (SLfloat*)_jointMatrices, false);
-                
-                // notify all owning nodes about a mesh change
-                notifyParentNodesAABBUpdate();
             }
         }
 
@@ -992,7 +990,8 @@ This software skinning is also needed for ray or path tracing.
 void SLMesh::transformSkin()
 {
     // return if skeleton has not changed
-    if (!_skeleton->changed()) return;
+    /// @todo  the line below is commented out because of a problem with the update cycle order (input is processed after the call to this so we can't know if the skeleton changed or not...)
+    //if (!_skeleton->changed()) return;
 
     // create the secondary buffers for P and N once   
     if (!cpuSkinningP)
@@ -1062,8 +1061,6 @@ void SLMesh::transformSkin()
          _bufN.update(norm(), numV, 0);
     else _bufN.generate(norm(), numV, 3);
 
-    // notify all owning nodes about a mesh change
-    notifyParentNodesAABBUpdate();
 }
 
 //-----------------------------------------------------------------------------
