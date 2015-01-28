@@ -563,6 +563,9 @@ void SLMesh::updateAccelStruct()
     if (_accelStruct && numI > 15)
         _accelStruct->build(minP, maxP);
 
+    // we changed, so we have to dispose of the visualization
+    _accelStruct->disposeBuffers();
+
     _accelStructOutOfDate = false;
 }
 //-----------------------------------------------------------------------------
