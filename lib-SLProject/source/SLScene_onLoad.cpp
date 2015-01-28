@@ -496,9 +496,9 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
         _root3D = scene;
     }
     else
-    if (sceneName == cmdSceneSeymourArmy) //....................................
+    if (sceneName == cmdSceneAstroboyArmyCPU ||sceneName == cmdSceneAstroboyArmyGPU) //....................................
     {
-        // Mass animation scene of identitcal Seymours
+        // Mass animation scene of identitcal Astroboy models
         name("Frustum Culling Test 2");
         info(sv, "View frustum culling: Only objects in view frustum are rendered. You can turn view culling off in the render flags.");
         // Create textures and materials
@@ -532,9 +532,11 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
         
         // set the skinning method of the loaded meshes
         // @note RT currently only works with software skinning
-        for (SLint i = 0; i < importer.meshes().size(); ++i)
-           importer.meshes()[i]->skinningMethod(SM_HardwareSkinning);
-        
+        if (sceneName == cmdSceneAstroboyArmyGPU) 
+        {
+            for (SLint i = 0; i < importer.meshes().size(); ++i)
+               importer.meshes()[i]->skinningMethod(SM_HardwareSkinning);
+        }
 
         // Assemble scene
         SLNode* scene = new SLNode("scene group");

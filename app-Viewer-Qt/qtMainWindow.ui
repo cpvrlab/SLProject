@@ -38,7 +38,7 @@
      <x>0</x>
      <y>0</y>
      <width>728</width>
-     <height>22</height>
+     <height>21</height>
     </rect>
    </property>
    <property name="defaultUp">
@@ -72,7 +72,8 @@
       <addaction name="actionFrustum_Culling_2"/>
       <addaction name="actionMass_Animation"/>
       <addaction name="actionSkeletal_Animation"/>
-      <addaction name="actionSeymour_Army"/>
+      <addaction name="actionAstroboy_Army_GPU"/>
+      <addaction name="actionAstroboy_Army_CPU"/>
      </widget>
      <widget class="QMenu" name="menuShader_Scenes">
       <property name="title">
@@ -2340,12 +2341,12 @@ QSlider::handle:horizontal:disabled {
     <string>Loads a scene with a few skeletal animation samples.</string>
    </property>
   </action>
-  <action name="actionSeymour_Army">
+  <action name="actionAstroboy_Army_GPU">
    <property name="checkable">
     <bool>true</bool>
    </property>
    <property name="text">
-    <string>Seymour Army</string>
+    <string>Astroboy Army (GPU)</string>
    </property>
    <property name="statusTip">
     <string>Loads a scene with many identical animated characters.</string>
@@ -2357,6 +2358,17 @@ QSlider::handle:horizontal:disabled {
    </property>
    <property name="text">
     <string>Lens</string>
+   </property>
+  </action>
+  <action name="actionAstroboy_Army_CPU">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Astroboy Army (CPU)</string>
+   </property>
+   <property name="statusTip">
+    <string>Loads a scene with many identical animated characters.</string>
    </property>
   </action>
  </widget>

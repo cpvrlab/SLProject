@@ -1,7 +1,7 @@
 /********************************************************************************
 ** Form generated from reading UI file 'qtMainWindow.ui'
 **
-** Created by: Qt User Interface Compiler version 5.4.0
+** Created by: Qt User Interface Compiler version 5.3.1
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
 ********************************************************************************/
@@ -137,8 +137,9 @@ public:
     QAction *actionAnimStop;
     QAction *actionShow_Animation_Controler;
     QAction *actionSkeletal_Animation;
-    QAction *actionSeymour_Army;
+    QAction *actionAstroboy_Army_GPU;
     QAction *actionRT_Lens;
+    QAction *actionAstroboy_Army_CPU;
     QWidget *centralWidget;
     QMenuBar *menuBar;
     QMenu *menuFile;
@@ -574,18 +575,21 @@ public:
         actionSkeletal_Animation = new QAction(qtMainWindow);
         actionSkeletal_Animation->setObjectName(QStringLiteral("actionSkeletal_Animation"));
         actionSkeletal_Animation->setCheckable(true);
-        actionSeymour_Army = new QAction(qtMainWindow);
-        actionSeymour_Army->setObjectName(QStringLiteral("actionSeymour_Army"));
-        actionSeymour_Army->setCheckable(true);
+        actionAstroboy_Army_GPU = new QAction(qtMainWindow);
+        actionAstroboy_Army_GPU->setObjectName(QStringLiteral("actionAstroboy_Army_GPU"));
+        actionAstroboy_Army_GPU->setCheckable(true);
         actionRT_Lens = new QAction(qtMainWindow);
         actionRT_Lens->setObjectName(QStringLiteral("actionRT_Lens"));
         actionRT_Lens->setCheckable(true);
+        actionAstroboy_Army_CPU = new QAction(qtMainWindow);
+        actionAstroboy_Army_CPU->setObjectName(QStringLiteral("actionAstroboy_Army_CPU"));
+        actionAstroboy_Army_CPU->setCheckable(true);
         centralWidget = new QWidget(qtMainWindow);
         centralWidget->setObjectName(QStringLiteral("centralWidget"));
         qtMainWindow->setCentralWidget(centralWidget);
         menuBar = new QMenuBar(qtMainWindow);
         menuBar->setObjectName(QStringLiteral("menuBar"));
-        menuBar->setGeometry(QRect(0, 0, 728, 22));
+        menuBar->setGeometry(QRect(0, 0, 728, 21));
         menuBar->setDefaultUp(false);
         menuBar->setNativeMenuBar(false);
         menuFile = new QMenu(menuBar);
@@ -1021,7 +1025,8 @@ public:
         menuGeneral_Scenes->addAction(actionFrustum_Culling_2);
         menuGeneral_Scenes->addAction(actionMass_Animation);
         menuGeneral_Scenes->addAction(actionSkeletal_Animation);
-        menuGeneral_Scenes->addAction(actionSeymour_Army);
+        menuGeneral_Scenes->addAction(actionAstroboy_Army_GPU);
+        menuGeneral_Scenes->addAction(actionAstroboy_Army_CPU);
         menuShader_Scenes->addAction(actionPer_Vertex_Lighting);
         menuShader_Scenes->addAction(actionPer_Pixel_Lighting);
         menuShader_Scenes->addAction(actionPer_Vertex_Wave);
@@ -1538,11 +1543,15 @@ public:
 #ifndef QT_NO_STATUSTIP
         actionSkeletal_Animation->setStatusTip(QApplication::translate("qtMainWindow", "Loads a scene with a few skeletal animation samples.", 0));
 #endif // QT_NO_STATUSTIP
-        actionSeymour_Army->setText(QApplication::translate("qtMainWindow", "Seymour Army", 0));
+        actionAstroboy_Army_GPU->setText(QApplication::translate("qtMainWindow", "Astroboy Army (GPU)", 0));
 #ifndef QT_NO_STATUSTIP
-        actionSeymour_Army->setStatusTip(QApplication::translate("qtMainWindow", "Loads a scene with many identical animated characters.", 0));
+        actionAstroboy_Army_GPU->setStatusTip(QApplication::translate("qtMainWindow", "Loads a scene with many identical animated characters.", 0));
 #endif // QT_NO_STATUSTIP
         actionRT_Lens->setText(QApplication::translate("qtMainWindow", "Lens", 0));
+        actionAstroboy_Army_CPU->setText(QApplication::translate("qtMainWindow", "Astroboy Army (CPU)", 0));
+#ifndef QT_NO_STATUSTIP
+        actionAstroboy_Army_CPU->setStatusTip(QApplication::translate("qtMainWindow", "Loads a scene with many identical animated characters.", 0));
+#endif // QT_NO_STATUSTIP
         menuFile->setTitle(QApplication::translate("qtMainWindow", "File", 0));
         menuLoad_Scene->setTitle(QApplication::translate("qtMainWindow", "Load Scene", 0));
         menuGeneral_Scenes->setTitle(QApplication::translate("qtMainWindow", "General Scenes", 0));

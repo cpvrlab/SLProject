@@ -1297,7 +1297,8 @@ SLbool SLSceneView::onCommand(const SLCmd cmd)
         case cmdSceneLargeModel:
         case cmdSceneMeshLoad:
         case cmdSceneSkeletalAnimation:
-        case cmdSceneSeymourArmy:
+        case cmdSceneAstroboyArmyCPU:
+        case cmdSceneAstroboyArmyGPU:
         case cmdSceneRevolver:
         case cmdSceneTextureFilter:
         case cmdSceneFrustumCull1:

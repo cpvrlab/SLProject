@@ -70,7 +70,8 @@ class qtMainWindow : public QMainWindow
         void on_actionFigure_triggered();
         void on_actionMesh_Loader_triggered();
         void on_actionSkeletal_Animation_triggered();
-        void on_actionSeymour_Army_triggered();
+        void on_actionAstroboy_Army_GPU_triggered();
+        void on_actionAstroboy_Army_CPU_triggered();
         void on_actionTexture_Blending_triggered();
         void on_actionTexture_Filtering_triggered();
         void on_actionFrustum_Culling_1_triggered();

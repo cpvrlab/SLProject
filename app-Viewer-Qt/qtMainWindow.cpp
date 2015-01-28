@@ -167,7 +167,8 @@ void qtMainWindow::setMenuState()
     ui->actionLarge_Model->setChecked(s->currentID()==cmdSceneLargeModel);
     ui->actionFigure->setChecked(s->currentID()==cmdSceneFigure);
     ui->actionMesh_Loader->setChecked(s->currentID()==cmdSceneMeshLoad);
-    ui->actionSeymour_Army->setChecked(s->currentID()==cmdSceneSeymourArmy);
+    ui->actionAstroboy_Army_CPU->setChecked(s->currentID()==cmdSceneAstroboyArmyCPU);
+    ui->actionAstroboy_Army_GPU->setChecked(s->currentID()==cmdSceneAstroboyArmyGPU);
     ui->actionSkeletal_Animation->setChecked(s->currentID()==cmdSceneSkeletalAnimation);
     ui->actionTexture_Blending->setChecked(s->currentID()==cmdSceneTextureBlend);
     ui->actionTexture_Filtering->setChecked(s->currentID()==cmdSceneTextureFilter);
@@ -828,10 +829,16 @@ void qtMainWindow::on_actionSkeletal_Animation_triggered()
     _activeGLWidget->sv()->onCommand(cmdSceneSkeletalAnimation);
     afterSceneLoad();
 }
-void qtMainWindow::on_actionSeymour_Army_triggered()
+void qtMainWindow::on_actionAstroboy_Army_CPU_triggered()
 {
     beforeSceneLoad();
-    _activeGLWidget->sv()->onCommand(cmdSceneSeymourArmy);
+    _activeGLWidget->sv()->onCommand(cmdSceneAstroboyArmyCPU);
+    afterSceneLoad();
+}
+void qtMainWindow::on_actionAstroboy_Army_GPU_triggered()
+{
+    beforeSceneLoad();
+    _activeGLWidget->sv()->onCommand(cmdSceneAstroboyArmyGPU);
     afterSceneLoad();
 }
 void qtMainWindow::on_actionTexture_Blending_triggered()
