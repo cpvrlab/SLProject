@@ -49,7 +49,6 @@ void onClose(GLFWwindow* window)
 //-----------------------------------------------------------------------------
 /*!
 onPaint: Paint event handler that passes the event to the slPaint function. 
-
 */
 SLbool onPaint()
 {

@@ -18,6 +18,13 @@
 class SLSkeleton;
 //-----------------------------------------------------------------------------
 //! Specialized SLNode that represents a single joint (or bone) in a skeleton
+/*!
+The main addition of SLJoint to the base SLNode is the offset matrix.
+The offset matrix is the inverse transformation of the joint's binding pose in
+mesh space. It is used to transform the vertices of a rigged mesh to the origin
+of the joint to be able to manipulate them in the join's space.
+The ID of the joint must be unique among all joints in the parent skeleton.
+*/
 class SLJoint : public SLNode
 {
 public:
@@ -47,9 +54,7 @@ protected:
     SLuint          _id;        //!< unique id inside its parent skeleton
     SLSkeleton*     _skeleton;  //!< the skeleton this joint belongs to
     SLMat4f         _offsetMat; //!< matrix transforming this joint from bind pose to world pose
-
-    // specific information for the mesh this skeleton is bound to (should be moved to a skeleton instance class later, or removed entierely)
-    SLfloat         _radius;
+    SLfloat         _radius;    //!< info for the mesh this skeleton is bound to (should be moved to a skeleton instance class later, or removed entierely)
 };
 //-----------------------------------------------------------------------------
 typedef std::vector<SLJoint*> SLVJoint;

@@ -82,7 +82,8 @@ SLVector<T,U>::SLVector(const SLVector& a)
 //-----------------------------------------------------------------------------
 template<class T, class U> 
 SLVector<T,U>::~SLVector()
-{  delete[] _contents;
+{  
+    delete[] _contents;
 }
 //-----------------------------------------------------------------------------
 /*!

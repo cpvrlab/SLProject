@@ -31,12 +31,12 @@
 #include <SLLight.h>
 #include <SLLightRect.h>
 #include <SLLightSphere.h>
-#include <SLAnimationPlay.h>
+#include <SLAnimPlayback.h>
 
 using namespace std::placeholders;
 
 // register an sl type to use it as data in combo boxes
-Q_DECLARE_METATYPE(SLAnimationPlay*);
+Q_DECLARE_METATYPE(SLAnimPlayback*);
 
 //-----------------------------------------------------------------------------
 bool qtPropertyTreeWidget::isBeingBuilt = false;
@@ -167,6 +167,8 @@ void qtMainWindow::setMenuState()
     ui->actionLarge_Model->setChecked(s->currentID()==cmdSceneLargeModel);
     ui->actionFigure->setChecked(s->currentID()==cmdSceneFigure);
     ui->actionMesh_Loader->setChecked(s->currentID()==cmdSceneMeshLoad);
+    ui->actionSeymour_Army->setChecked(s->currentID()==cmdSceneSeymourArmy);
+    ui->actionSkeletal_Animation->setChecked(s->currentID()==cmdSceneSkeletalAnimation);
     ui->actionTexture_Blending->setChecked(s->currentID()==cmdSceneTextureBlend);
     ui->actionTexture_Filtering->setChecked(s->currentID()==cmdSceneTextureFilter);
     ui->actionFrustum_Culling_1->setChecked(s->currentID()==cmdSceneFrustumCull1);
@@ -182,8 +184,9 @@ void qtMainWindow::setMenuState()
     ui->actionMass_Animation->setChecked(s->currentID()==cmdSceneMassAnimation);
     ui->actionRT_Spheres->setChecked(s->currentID()==cmdSceneRTSpheres);
     ui->actionRT_Muttenzer_Box->setChecked(s->currentID()==cmdSceneRTMuttenzerBox);
+    ui->actionRT_Soft_Shadows->setChecked(s->currentID()==cmdSceneRTSoftShadows);
     ui->actionRT_Depth_of_Field->setChecked(s->currentID()==cmdSceneRTDoF);
-    ui->actionSoft_Shadows->setChecked(s->currentID()==cmdSceneRTSoftShadows);
+    ui->actionRT_Lens->setChecked(s->currentID()==cmdSceneRTLens);
 
     // Menu Renderer
     ui->actionOpenGL->setChecked(sv->renderType()==renderGL);
@@ -631,9 +634,9 @@ void qtMainWindow::selectAnimationFromNode(SLNode* node)
             ui->animAnimatedObjectSelect->setCurrentIndex(1);
 
             // find and select correct animation
-            SLAnimationPlay* play = SLScene::current->animManager().getNodeAnimationPlay(kv.second->name());
+            SLAnimPlayback* play = SLScene::current->animManager().getNodeAnimPlayack(kv.second->name());
             QVariant variant;
-            variant.setValue<SLAnimationPlay*>(play);
+            variant.setValue<SLAnimPlayback*>(play);
             SLint index = ui->animAnimationSelect->findData(variant);
             ui->animAnimationSelect->setCurrentIndex(index);
         }
@@ -819,6 +822,18 @@ void qtMainWindow::on_actionMesh_Loader_triggered()
     _activeGLWidget->sv()->onCommand(cmdSceneMeshLoad);
     afterSceneLoad();
 }
+void qtMainWindow::on_actionSkeletal_Animation_triggered()
+{
+    beforeSceneLoad();
+    _activeGLWidget->sv()->onCommand(cmdSceneSkeletalAnimation);
+    afterSceneLoad();
+}
+void qtMainWindow::on_actionSeymour_Army_triggered()
+{
+    beforeSceneLoad();
+    _activeGLWidget->sv()->onCommand(cmdSceneSeymourArmy);
+    afterSceneLoad();
+}
 void qtMainWindow::on_actionTexture_Blending_triggered()
 {
     beforeSceneLoad();
@@ -915,7 +930,13 @@ void qtMainWindow::on_actionRT_Depth_of_Field_triggered()
     _activeGLWidget->sv()->onCommand(cmdSceneRTDoF);
     afterSceneLoad();
 }
-void qtMainWindow::on_actionSoft_Shadows_triggered()
+void qtMainWindow::on_actionRT_Lens_triggered()
+{
+    beforeSceneLoad();
+    _activeGLWidget->sv()->onCommand(cmdSceneRTLens);
+    afterSceneLoad();
+}
+void qtMainWindow::on_actionRT_Soft_Shadows_triggered()
 {
     beforeSceneLoad();
     _activeGLWidget->sv()->onCommand(cmdSceneRTSoftShadows);
@@ -1500,9 +1521,9 @@ void qtMainWindow::on_animAnimatedObjectSelect_currentIndexChanged(int index)
     {
         for (auto& kv : SLScene::current->animManager().animations())
         {
-            SLAnimationPlay* play = SLScene::current->animManager().getNodeAnimationPlay(kv.second->name());
+            SLAnimPlayback* play = SLScene::current->animManager().getNodeAnimPlayack(kv.second->name());
             QVariant variant;
-            variant.setValue<SLAnimationPlay*>(play);
+            variant.setValue<SLAnimPlayback*>(play);
             ui->animAnimationSelect->addItem(kv.second->name().c_str(), variant);
         }
     }
@@ -1514,9 +1535,9 @@ void qtMainWindow::on_animAnimatedObjectSelect_currentIndexChanged(int index)
         
         for (auto& kv : skeleton->animations())
         {
-            SLAnimationPlay* play = skeleton->getAnimationPlay(kv.second->name());
+            SLAnimPlayback* play = skeleton->getAnimPlayback(kv.second->name());
             QVariant variant;
-            variant.setValue<SLAnimationPlay*>(play);
+            variant.setValue<SLAnimPlayback*>(play);
             ui->animAnimationSelect->addItem(kv.second->name().c_str(), variant);
         }
     }
@@ -1528,7 +1549,7 @@ void qtMainWindow::on_animAnimatedObjectSelect_currentIndexChanged(int index)
 }
 void qtMainWindow::on_animAnimationSelect_currentIndexChanged(int index)
 {
-    SLAnimationPlay* play = ui->animAnimationSelect->itemData(index).value<SLAnimationPlay*>();
+    SLAnimPlayback* play = ui->animAnimationSelect->itemData(index).value<SLAnimPlayback*>();
     if (!play) return;
     _selectedAnim = play;
 
@@ -1536,8 +1557,7 @@ void qtMainWindow::on_animAnimationSelect_currentIndexChanged(int index)
     ui->animWeightInput->setValue(play->weight());
     ui->animEasingSelect->setCurrentIndex(play->easing());
     ui->animLoopingSelect->setCurrentIndex(play->loop());
-
-    ui->animTimelineSlider->setAnimDuration(play->parentAnimation()->length());
+    ui->animTimelineSlider->setAnimDuration(play->parentAnimation()->lengthSec());
     ui->animDurationLabel->setText(ui->animTimelineSlider->getDurationTimeString());
 
     std::cout << "on_animationSelectIndexChanged " << index << " " << play->parentAnimation()->name() << "\n";
@@ -1620,7 +1640,7 @@ void qtMainWindow::on_animTimelineSlider_valueChanged(int value)
     if (!_selectedAnim)
         return;
     
-    _selectedAnim->localTime(ui->animTimelineSlider->getNormalizedValue() * _selectedAnim->parentAnimation()->length());
+    _selectedAnim->localTime(ui->animTimelineSlider->getNormalizedValue() * _selectedAnim->parentAnimation()->lengthSec());
 }
 void qtMainWindow::on_animWeightInput_valueChanged(double d)
 {

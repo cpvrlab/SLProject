@@ -32,6 +32,7 @@ void main(void)
 						+ 	u_jointMatrices[int(a_jointIds.z)] * a_jointWeights.z
 						+ 	u_jointMatrices[int(a_jointIds.w)] * a_jointWeights.w;
                         
+                                     
     v_P_VS = vec3(u_mvMatrix * jointTransform * a_position);
     v_N_VS = vec3(u_nMatrix * transpose(inverse(mat3(jointTransform))) * a_normal);  
     v_texCoord = a_texCoord;

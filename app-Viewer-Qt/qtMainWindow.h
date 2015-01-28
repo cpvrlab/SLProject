@@ -16,7 +16,7 @@
 #include <SL.h>
 #include <SLNode.h>
 #include <SLMesh.h>
-#include <SLAnimationPlay.h>
+#include <SLAnimPlayback.h>
 #include "qtGLWidget.h"
 #include "qtNodeTreeItem.h"
 #include "ui_qtMainWindow.h"
@@ -69,6 +69,8 @@ class qtMainWindow : public QMainWindow
         void on_actionLarge_Model_triggered();
         void on_actionFigure_triggered();
         void on_actionMesh_Loader_triggered();
+        void on_actionSkeletal_Animation_triggered();
+        void on_actionSeymour_Army_triggered();
         void on_actionTexture_Blending_triggered();
         void on_actionTexture_Filtering_triggered();
         void on_actionFrustum_Culling_1_triggered();
@@ -84,8 +86,9 @@ class qtMainWindow : public QMainWindow
         void on_actionMass_Animation_triggered();
         void on_actionRT_Spheres_triggered();
         void on_actionRT_Muttenzer_Box_triggered();
+        void on_actionRT_Soft_Shadows_triggered();
         void on_actionRT_Depth_of_Field_triggered();
-        void on_actionSoft_Shadows_triggered();
+        void on_actionRT_Lens_triggered();
 
         void on_actionReset_triggered();
         void on_actionUse_SceneView_Camera_triggered();
@@ -203,7 +206,7 @@ private:
         QMenu*            _menuWindow;
         QMenu*            _menuHelp;
 
-        SLAnimationPlay*   _selectedAnim;
+        SLAnimPlayback*   _selectedAnim;
 };
 
 #endif // MAINWINDOW_H

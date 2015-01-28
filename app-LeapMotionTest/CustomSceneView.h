@@ -141,41 +141,32 @@ protected:
             SLNode* wrist = (hands[i].isLeft()) ? leftWrist : rightWrist;
             SLNode* arm = (hands[i].isLeft()) ? leftArm : rightArm;
             
-            hand->position(hands[i].palmPosition());
-            
-            SLfloat angle;
-            SLVec3f axis;
-            hands[i].palmRotation().toAngleAxis(angle, axis);
-            hand->rotation(angle, axis, TS_Parent);
+            hand->position(hands[i].palmPosition());            
+            hand->rotation(hands[i].palmRotation(), TS_World);
             
             SLQuat4f test = hands[i].palmRotation();
-            hand->rotation(hands[i].palmRotation(), TS_Parent);
+            hand->rotation(hands[i].palmRotation(), TS_World);
 
             elbow->position(hands[i].elbowPosition());
             wrist->position(hands[i].wristPosition());
             
             arm->position(hands[i].armCenter());
-            hands[i].armRotation().toAngleAxis(angle, axis);
-            arm->rotation(angle, axis, TS_Parent);
+            arm->rotation(hands[i].armRotation(), TS_World);
 
 
             for (SLint j = 0; j < hands[i].fingers().size(); ++j)
             {
+                // set joint positions
                 for (SLint k = 0; k < 5; ++k) {
                     SLNode* joint = (hands[i].isLeft()) ? leftJoints[j][k] : rightJoints[j][k];
-
                     joint->position(hands[i].fingers()[j].jointPosition(k));
                 }
                 
-                for (SLint k = 0; k < 4; ++k) {
-                    
+                // set bone positions
+                for (SLint k = 0; k < 4; ++k) {                    
                     SLNode* bone = (hands[i].isLeft()) ? leftBones[j][k] : rightBones[j][k];
                     bone->position(hands[i].fingers()[j].boneCenter(k));
-                    
-                    SLfloat angle;
-                    SLVec3f axis;
-                    hands[i].fingers()[j].boneRotation(k).toAngleAxis(angle, axis);
-                    bone->rotation(angle, axis, TS_Parent);
+                    bone->rotation(hands[i].fingers()[j].boneRotation(k), TS_World);
                 }
             }
         }
@@ -218,7 +209,6 @@ protected:
 
 class SampleGestureListener : public SLLeapGestureListener
 {
-
 protected:
     virtual void onLeapGesture(const SLLeapGesture& gesture)
     {/*
@@ -311,26 +301,22 @@ protected:
 
     virtual void onLeapHandChange(const vector<SLLeapHand>& hands)
     {
-        
         for (SLint i = 0; i < hands.size(); ++i)
         {
-                SLQuat4f rot = hands[i].palmRotation();
-                SLJoint* jnt = (hands[i].isLeft()) ? _leftWrist : _rightWrist;
-                //jnt->resetToInitialState();
-                jnt->rotation(rot, TS_World);
-                jnt->position(hands[i].palmPosition()*10, TS_World);
+            SLQuat4f rot = hands[i].palmRotation();
+            SLJoint* jnt = (hands[i].isLeft()) ? _leftWrist : _rightWrist;
+
+            jnt->rotation(rot, TS_World);
+            jnt->position(hands[i].palmPosition()*10, TS_World);
             
             for (SLint j = 0; j < hands[i].fingers().size(); ++j)
             {                
-                for (SLint k = 0; k < 4; ++k) {
-                    
+                for (SLint k = 0; k < 4; ++k) {                    
                     SLJoint* bone = (hands[i].isLeft()) ? _leftFingers[j][k] : _rightFingers[j][k];
                     if (bone == NULL)
                         continue;
 
-                    SLQuat4f relRot = hands[i].fingers()[j].boneRotation(k);
-                    //bone->resetToInitialState();
-                    bone->rotation(relRot, TS_World);
+                    bone->rotation(hands[i].fingers()[j].boneRotation(k), TS_World);
                 }
             }
         }
@@ -355,15 +341,9 @@ public:
     SLbool              update();
 
 private:
-    //SampleListener      _leapListener;
-    //Leap::Controller    _leapController;
-
-    SLJoint*            _root;
-    SLLeapController    _leapController;
-    SampleHandListener  _slHandListener;
-    SLRiggedLeapHandListener _riggedListener;
-    SampleToolListener  _slToolListener;
-    SampleGestureListener _gestureListener;
-
-    SLNode* _playbackCube;
+    SLLeapController            _leapController;
+    SampleHandListener          _slHandListener;
+    SLRiggedLeapHandListener    _riggedListener;
+    SampleToolListener          _slToolListener;
+    SampleGestureListener       _gestureListener;
 };

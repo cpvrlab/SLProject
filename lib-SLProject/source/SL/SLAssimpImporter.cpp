@@ -280,6 +280,9 @@ SLNode* SLAssimpImporter::load(SLstring file,        //!< File with path or on d
                                SLbool loadMeshesOnly,//!< Only load nodes with meshes
                                SLuint flags)         //!< Import flags (see assimp/postprocess.h)
 {
+    // clear the intermediate data
+    clear();
+
     // Check existance
     if (!SLFileSystem::fileExists(file))
     {   file = defaultPath + file;
@@ -342,8 +345,6 @@ SLNode* SLAssimpImporter::load(SLstring file,        //!< File with path or on d
         animations.push_back(loadAnimation(scene->mAnimations[i]));
 
 
-    // clear the intermediate data
-    clear();
 
     logMessage(LV_Minimal, "\n---------------------------\n\n");
 
@@ -953,7 +954,7 @@ SLAnimation* SLAssimpImporter::loadAnimation(aiAnimation* anim)
 
         
         // joint animation channels should receive the correct node id, normal node animations just get 0
-        SLNodeAnimationTrack* track = result->createNodeAnimationTrack(id);
+        SLNodeAnimTrack* track = result->createNodeAnimationTrack(id);
 
         
         // this is a node animation only, so we add a reference to the affected node to the track

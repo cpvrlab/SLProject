@@ -1,5 +1,5 @@
 //#############################################################################
-//  File:      SLAnimationPlay.cpp
+//  File:      SLAnimPlay.cpp
 //  Author:    Marc Wacker
 //  Date:      Autumn 2014
 //  Codestyle: https://github.com/cpvrlab/SLProject/wiki/Coding-Style-Guidelines
@@ -10,12 +10,12 @@
 
 #include <stdafx.h>
 #include <SLAnimation.h>
-#include <SLAnimationPlay.h>
+#include <SLAnimPlayback.h>
 
 //-----------------------------------------------------------------------------
 /*! Constructor
 */
-SLAnimationPlay::SLAnimationPlay(SLAnimation* parent, SLfloat weight)
+SLAnimPlayback::SLAnimPlayback(SLAnimation* parent, SLfloat weight)
                 : _animation(parent),
                 _localTime(0.0f),
                 _linearLocalTime(0.0f),
@@ -28,9 +28,9 @@ SLAnimationPlay::SLAnimationPlay(SLAnimation* parent, SLfloat weight)
 {
 }
 //-----------------------------------------------------------------------------
-/*! Advances the time of the play based on its different easing parameters.
+/*! Advances the time of the playbackplay based on its different easing parameters.
 */
-void SLAnimationPlay::advanceTime(SLfloat delta)
+void SLAnimPlayback::advanceTime(SLfloat delta)
 {
     if (!_enabled)
         return;
@@ -44,27 +44,27 @@ void SLAnimationPlay::advanceTime(SLfloat delta)
     _linearLocalTime += delta * _playbackRate * _playbackDir;
     
     // fix invalid inputs
-    if (_linearLocalTime > _animation->length())
+    if (_linearLocalTime > _animation->lengthSec())
     {
         // wrap around on loop, else just stay on last frame
         switch (_loopingBehaviour)
         {
-        case AL_once:          _linearLocalTime = _animation->length(); _enabled = false; break;
+        case AL_once:          _linearLocalTime = _animation->lengthSec(); _enabled = false; break;
         case AL_loop:          _linearLocalTime = 0.0f; break;
-        case AL_pingPong:      _linearLocalTime = _animation->length(); _playbackDir *= -1; break;
-        case AL_pingPongLoop:  _linearLocalTime = _animation->length(); _playbackDir *= -1; break;
+        case AL_pingPong:      _linearLocalTime = _animation->lengthSec(); _playbackDir *= -1; break;
+        case AL_pingPongLoop:  _linearLocalTime = _animation->lengthSec(); _playbackDir *= -1; break;
         }
     }
     // fix negative inputs, playback rate could be negative
     else if (_linearLocalTime < 0.0f)
     {
         while (_linearLocalTime < 0.0f)
-            _linearLocalTime += _animation->length();
+            _linearLocalTime += _animation->lengthSec();
 
         switch (_loopingBehaviour)
         {
         case AL_once:          _linearLocalTime = 0.0f; _enabled = false; break;
-        case AL_loop:          _linearLocalTime = _animation->length(); break;
+        case AL_loop:          _linearLocalTime = _animation->lengthSec(); break;
         case AL_pingPong:      _linearLocalTime = 0.0f; _enabled = false; break; // at the moment pingPong stops when reaching 0, if we start with a reverse direction this is illogical
         case AL_pingPongLoop:  _linearLocalTime = 0.0f; _playbackDir *= -1; break;
         }
@@ -74,7 +74,7 @@ void SLAnimationPlay::advanceTime(SLfloat delta)
     if (_linearLocalTime == prevTime)
         return;
 
-    // mark the play as changed
+    // mark the playback as changed
     _gotChanged = true;
 
     // update the final eased local time
@@ -82,27 +82,27 @@ void SLAnimationPlay::advanceTime(SLfloat delta)
 }
 
 //-----------------------------------------------------------------------------
-/*! Set this play to be playing forward.
+/*! Set this playback to be playing forward.
 */
-void SLAnimationPlay::playForward()
+void SLAnimPlayback::playForward()
 {
     _enabled = true;
     _playbackDir = 1;
 }
 
 //-----------------------------------------------------------------------------
-/*! Set this play to be playing backward.
+/*! Set this playback to be playing backward.
 */
-void SLAnimationPlay::playBackward()
+void SLAnimPlayback::playBackward()
 {
     _enabled = true;
     _playbackDir = -1;
 }
 
 //-----------------------------------------------------------------------------
-/*! Set this play to be paused.
+/*! Set this playback to be paused.
 */
-void SLAnimationPlay::pause()
+void SLAnimPlayback::pause()
 {
     // @todo is a paused animation disabled OR is it enabled but just not advancing time?
     //       currently we set the direction multiplier to 0
@@ -111,18 +111,18 @@ void SLAnimationPlay::pause()
 }
 
 //-----------------------------------------------------------------------------
-/*! Set the local time of this play to be on the time of the next keyframe.
+/*! Set the local time of this playback to be on the time of the next keyframe.
 */
-void SLAnimationPlay::skipToNextKeyframe()
+void SLAnimPlayback::skipToNextKeyframe()
 {
     SLfloat time = _animation->nextKeyframeTime(_localTime);
     localTime(time);
 }
 
 //-----------------------------------------------------------------------------
-/*! Set the local time of this play to be on the time of the previous keyframe.
+/*! Set the local time of this playback to be on the time of the previous keyframe.
 */
-void SLAnimationPlay::skipToPrevKeyframe()
+void SLAnimPlayback::skipToPrevKeyframe()
 {
     SLfloat time = _animation->prevKeyframeTime(_localTime);
     localTime(time);
@@ -130,9 +130,9 @@ void SLAnimationPlay::skipToPrevKeyframe()
 
 
 //-----------------------------------------------------------------------------
-/*! Set the local time of this play to the starting time.
+/*! Set the local time of this playback to the starting time.
 */
-void SLAnimationPlay::skipToStart()
+void SLAnimPlayback::skipToStart()
 {
     localTime(0.0f);
 }
@@ -140,16 +140,16 @@ void SLAnimationPlay::skipToStart()
 //-----------------------------------------------------------------------------
 /*! Set the local time of this animation to the end time.
 */
-void SLAnimationPlay::skipToEnd()
+void SLAnimPlayback::skipToEnd()
 {
-    localTime(_animation->length());
+    localTime(_animation->lengthSec());
 }
 
 //-----------------------------------------------------------------------------
 /*! Setter for the local time parameter. Takes the currently active easing
 curve into consideration.
 */
-void SLAnimationPlay::localTime(SLfloat time)
+void SLAnimPlayback::localTime(SLfloat time)
 {
     // Set the eased time
     _localTime = time; 
@@ -168,9 +168,9 @@ void SLAnimationPlay::localTime(SLfloat time)
 easing curve type that are taken from Qt QAnimation and QEasingCurve class. 
 See http://qt-project.org/doc/qt-4.8/qeasingcurve.html#Type-enum
 */
-SLfloat SLAnimationPlay::calcEasingTime(SLfloat time) const
+SLfloat SLAnimPlayback::calcEasingTime(SLfloat time) const
 {
-    SLfloat x = time / _animation->length();
+    SLfloat x = time / _animation->lengthSec();
     SLfloat y = 0.0f;
 
     switch (_easing)
@@ -205,15 +205,15 @@ SLfloat SLAnimationPlay::calcEasingTime(SLfloat time) const
         default: y = x; 
     }
     
-    return y * _animation->length();
+    return y * _animation->lengthSec();
 }
 
 //-----------------------------------------------------------------------------
 /*! Inverse functions for the above easing curve functions.
 */
-SLfloat SLAnimationPlay::calcEasingTimeInv(SLfloat time) const
+SLfloat SLAnimPlayback::calcEasingTimeInv(SLfloat time) const
 {
-    SLfloat x = time / _animation->length();
+    SLfloat x = time / _animation->lengthSec();
     SLfloat y = 0.0f;
 
     switch (_easing)
@@ -254,6 +254,6 @@ SLfloat SLAnimationPlay::calcEasingTimeInv(SLfloat time) const
         default: y = x; 
     }
 
-    return y * _animation->length();
+    return y * _animation->lengthSec();
 }
 //-----------------------------------------------------------------------------

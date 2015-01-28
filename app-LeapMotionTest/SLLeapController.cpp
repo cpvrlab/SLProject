@@ -9,6 +9,10 @@ SLLeapController::SLLeapController()
 {
     //_leapController.addListener(*this);
     _leapController.setPolicy(Leap::Controller::POLICY_BACKGROUND_FRAMES);
+    _leapController.enableGesture(Leap::Gesture::TYPE_SWIPE);
+    _leapController.enableGesture(Leap::Gesture::TYPE_KEY_TAP);
+    _leapController.enableGesture(Leap::Gesture::TYPE_SCREEN_TAP);
+    _leapController.enableGesture(Leap::Gesture::TYPE_SWIPE);
 }
 
 SLLeapController::~SLLeapController()

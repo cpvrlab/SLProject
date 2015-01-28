@@ -62,9 +62,8 @@ SLImporter::~SLImporter()
 
 //-----------------------------------------------------------------------------
 /** Logs messages to the importer logfile and the console
-    @param     message     the message to add to the log
-    @param     verbosity   the verbosity of the message
-
+    @param     msg          the message to add to the log
+    @param     verbosity    the verbosity of the message
     @todo   Build a dedicated log class that can be instantiated (so the importer can have its own)
             Let this log class write to file etc.
             Don't use printf anymore, its c. (c++11 has to_str, else we have to work with ss (ugh...))

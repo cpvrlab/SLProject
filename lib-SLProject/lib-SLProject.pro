@@ -84,6 +84,7 @@ HEADERS += \
     ../include/SLCone.h \
     ../include/SLCylinder.h \
     ../include/SLKeyframe.h \
+    ../include/SLLens.h \
     ../include/SLLight.h \
     ../include/SLLightRect.h \
     ../include/SLLightSphere.h \
@@ -111,9 +112,9 @@ HEADERS += \
     ../include/SLSkeleton.h \
     ../include/SLAssimpImporter.h \
     ../include/SLImporter.h \
-    ../include/SLAnimationManager.h \
-    ../include/SLAnimationTrack.h \
-    ../include/SLAnimationPlay.h
+    ../include/SLAnimPlayback.h \
+    ../include/SLAnimTrack.h \
+    ../include/SLAnimManager.h
 
 SOURCES += \
     source/SLGLBuffer.cpp \
@@ -138,6 +139,7 @@ SOURCES += \
     source/SLCamera.cpp \
     source/SLCone.cpp \
     source/SLCylinder.cpp \
+    source/SLLens.cpp \
     source/SLLight.cpp \
     source/SLLightRect.cpp \
     source/SLLightSphere.cpp \
@@ -163,9 +165,9 @@ SOURCES += \
     source/SL/SLAssimpImporter.cpp \
     source/SL/SLImporter.cpp \
     source/SLJoint.cpp \
-    source/SLAnimationManager.cpp \
-    source/SLAnimationTrack.cpp \
-    source/SLAnimationPlay.cpp
+    source/SLAnimManager.cpp \
+    source/SLAnimTrack.cpp \
+    source/SLAnimPlayback.cpp
 
 OTHER_FILES += \
     source/oglsl/BumpNormal.frag \
@@ -206,5 +208,7 @@ OTHER_FILES += \
     source/oglsl/Wave.vert \
     source/oglsl/WaveRefractReflect.vert \
     ToDo.txt \
-    Readme.html
+    Readme.html \
+    Introduction.html
+
 

@@ -409,12 +409,6 @@ void SLNode::drawRec(SLSceneView* sv)
         if (showSELECT)
             _aabb.drawWS(SLCol3f(1,1,0));
 
-        // Draw the animation curve
-        /// @add add old animation functionality back in
-        /*
-        if (_animation)
-            _animation->drawWS();
-         */
         _stateGL->popModelViewMatrix(); 
     }
 }
@@ -763,81 +757,33 @@ void SLNode::rotation(const SLQuat4f& rot,
 {   
     SLMat4f rotation = rot.toMat4(); 
     
-    
     if (_parent && relativeTo == TS_World)
     {
-
-        SLfloat prevOffset = _om.translation().length();
-        SLMat4f prevOM = _om;
-        SLMat4f prevWM = updateAndGetWM();
-        //SLMat4f prevWMI = updateAndGetWMI();
-        /*SLMat4f prevParentWM = _parent->updateAndGetWM();
-        SLMat4f prevParentOM = _parent->_om;
-        SLMat4f prevParentParentWM = _parent->_parent->updateAndGetWM();
-        SLMat4f prevParentParentOM = _parent->_parent->_om;*/
+        // get the inverse parent rotation to remove it from our current rotation
+        // we want the input quaternion to absolutely set our new rotation relative 
+        // to the world axes
+        SLMat4f parentRotInv = _parent->updateAndGetWMI();
+        parentRotInv.translation(0, 0, 0);
         
-        
-        SLMat4f omWithoutRot1 = _om;
-        omWithoutRot1.translation(0, 0, 0);
-        SLVec4f before = omWithoutRot1.multVec(SLVec4f(0, 0, -1, 1));
-
-        _om.rotation(0, 1, 0, 0);
+        // set the om rotation to the inverse of the parents rotation to achieve a
+        // 0, 0, 0 relative rotation in world space
+        _om.rotation(0, 0, 0, 0);
+        _om *= parentRotInv;
         needUpdate();
-               
-
-        SLVec3f worldPos = updateAndGetWM().translation();
-        SLMat4f finalTrnfrm = rotation;
-        finalTrnfrm.translation(worldPos);
-
-        SLMat4f prntTrnfrm = _parent->_wm.inverse();
-        prntTrnfrm.translation(0, 0, 0);
-        
-        SLMat4f finalTrnfrm2 = SLMat4f();
-        finalTrnfrm2.translation(worldPos);
-
-        updateAndGetWM();
-
-        SLMat4f rotMat;
-        rotMat.translate(worldPos);
-        rotMat.multiply(rotation);
-        rotMat.translate(-worldPos);
-
-        // apply rotation onto the world space position and then bring it back to local
-        //_om = rotMat * prntTrnfrm;
-        _om = _parent->_wm.inverse() * rotMat * _wm * prntTrnfrm;
-
-        if (_om.translation().length() - prevOffset > 1.0f)
-        {
-            SLint i = 0;
-        }
-        /*/
-        static vector<SLQuat4f> rotations;
-        rotations.push_back(rot);
-
-        static ofstream ofs;
-        static bool logging = false;
-        if (!logging) {
-            ofs.open("hand_recording.log");
-            logging = true;
-        }
-
-        //ostringstream oss;
-        ofs << "SLQuat4f(" << rot.x() << ", " << rot.y() << ", " << rot.z() << ", " << rot.w() << "), ";
-        ofs.flush();
-        /**/
-
-        needUpdate();
+        rotate(rot, relativeTo);
     }
     else if (relativeTo == TS_Parent)
     {   // relative to parent, reset current rotation and just rotate again
         _om.rotation(0, 0, 0, 0);
+        needUpdate();
         rotate(rot, relativeTo);
     }
     else
     {
         // in TS_Local everything is relative to our current orientation
-        _om.rotation(0, 0, 0, 0);
+        _om.rotation(0, 0, 0, 0);        
         _om *= rotation;
+        needUpdate();
     }
 }
 //-----------------------------------------------------------------------------

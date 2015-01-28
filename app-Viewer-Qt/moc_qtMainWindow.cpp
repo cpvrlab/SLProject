@@ -19,8 +19,8 @@
 
 QT_BEGIN_MOC_NAMESPACE
 struct qt_meta_stringdata_qtMainWindow_t {
-    QByteArrayData data[121];
-    char stringdata[3864];
+    QByteArrayData data[124];
+    char stringdata[3964];
 };
 #define QT_MOC_LITERAL(idx, ofs, len) \
     Q_STATIC_BYTE_ARRAY_DATA_HEADER_INITIALIZER_WITH_OFFSET(len, \
@@ -36,120 +36,123 @@ QT_MOC_LITERAL(3, 39, 35), // "on_actionSmall_Test_Scene_tri..."
 QT_MOC_LITERAL(4, 75, 30), // "on_actionLarge_Model_triggered"
 QT_MOC_LITERAL(5, 106, 25), // "on_actionFigure_triggered"
 QT_MOC_LITERAL(6, 132, 30), // "on_actionMesh_Loader_triggered"
-QT_MOC_LITERAL(7, 163, 35), // "on_actionTexture_Blending_tri..."
-QT_MOC_LITERAL(8, 199, 36), // "on_actionTexture_Filtering_tr..."
-QT_MOC_LITERAL(9, 236, 36), // "on_actionFrustum_Culling_1_tr..."
-QT_MOC_LITERAL(10, 273, 36), // "on_actionFrustum_Culling_2_tr..."
-QT_MOC_LITERAL(11, 310, 38), // "on_actionPer_Vertex_Lighting_..."
-QT_MOC_LITERAL(12, 349, 37), // "on_actionPer_Pixel_Lighting_t..."
-QT_MOC_LITERAL(13, 387, 34), // "on_actionPer_Vertex_Wave_trig..."
-QT_MOC_LITERAL(14, 422, 24), // "on_actionWater_triggered"
-QT_MOC_LITERAL(15, 447, 31), // "on_actionBump_Mapping_triggered"
-QT_MOC_LITERAL(16, 479, 35), // "on_actionParallax_Mapping_tri..."
-QT_MOC_LITERAL(17, 515, 31), // "on_actionGlass_Shader_triggered"
-QT_MOC_LITERAL(18, 547, 31), // "on_actionEarth_Shader_triggered"
-QT_MOC_LITERAL(19, 579, 33), // "on_actionMass_Animation_trigg..."
-QT_MOC_LITERAL(20, 613, 29), // "on_actionRT_Spheres_triggered"
-QT_MOC_LITERAL(21, 643, 35), // "on_actionRT_Muttenzer_Box_tri..."
-QT_MOC_LITERAL(22, 679, 36), // "on_actionRT_Depth_of_Field_tr..."
-QT_MOC_LITERAL(23, 716, 31), // "on_actionSoft_Shadows_triggered"
-QT_MOC_LITERAL(24, 748, 24), // "on_actionReset_triggered"
-QT_MOC_LITERAL(25, 773, 39), // "on_actionUse_SceneView_Camera..."
-QT_MOC_LITERAL(26, 813, 30), // "on_actionPerspective_triggered"
-QT_MOC_LITERAL(27, 844, 31), // "on_actionOrthographic_triggered"
-QT_MOC_LITERAL(28, 876, 31), // "on_actionSide_by_side_triggered"
-QT_MOC_LITERAL(29, 908, 44), // "on_actionSide_by_side_proport..."
-QT_MOC_LITERAL(30, 953, 41), // "on_actionSide_by_side_distort..."
-QT_MOC_LITERAL(31, 995, 31), // "on_actionLine_by_line_triggered"
-QT_MOC_LITERAL(32, 1027, 35), // "on_actionColumn_by_column_tri..."
-QT_MOC_LITERAL(33, 1063, 33), // "on_actionPixel_by_pixel_trigg..."
-QT_MOC_LITERAL(34, 1097, 33), // "on_actionColor_Red_Cyan_trigg..."
-QT_MOC_LITERAL(35, 1131, 34), // "on_actionColor_Red_Green_trig..."
-QT_MOC_LITERAL(36, 1166, 33), // "on_actionColor_Red_Blue_trigg..."
-QT_MOC_LITERAL(37, 1200, 36), // "on_actionColor_Cyan_Yellow_tr..."
-QT_MOC_LITERAL(38, 1237, 31), // "on_action_eyeSepInc10_triggered"
-QT_MOC_LITERAL(39, 1269, 31), // "on_action_eyeSepDec10_triggered"
-QT_MOC_LITERAL(40, 1301, 32), // "on_action_focalDistInc_triggered"
-QT_MOC_LITERAL(41, 1334, 32), // "on_action_focalDistDec_triggered"
-QT_MOC_LITERAL(42, 1367, 28), // "on_action_fovInc10_triggered"
-QT_MOC_LITERAL(43, 1396, 28), // "on_action_fovDec10_triggered"
-QT_MOC_LITERAL(44, 1425, 33), // "on_actionTurntable_Y_up_trigg..."
-QT_MOC_LITERAL(45, 1459, 33), // "on_actionTurntable_Z_up_trigg..."
-QT_MOC_LITERAL(46, 1493, 31), // "on_actionWalking_Y_up_triggered"
-QT_MOC_LITERAL(47, 1525, 31), // "on_actionWalking_Z_up_triggered"
-QT_MOC_LITERAL(48, 1557, 28), // "on_action_speedInc_triggered"
-QT_MOC_LITERAL(49, 1586, 28), // "on_action_speedDec_triggered"
-QT_MOC_LITERAL(50, 1615, 31), // "on_actionAntialiasing_triggered"
-QT_MOC_LITERAL(51, 1647, 39), // "on_actionView_Frustum_Culling..."
-QT_MOC_LITERAL(52, 1687, 35), // "on_actionSlowdown_on_Idle_tri..."
-QT_MOC_LITERAL(53, 1723, 28), // "on_actionDepthTest_triggered"
-QT_MOC_LITERAL(54, 1752, 33), // "on_actionShow_Statusbar_trigg..."
-QT_MOC_LITERAL(55, 1786, 31), // "on_actionShow_Normals_triggered"
-QT_MOC_LITERAL(56, 1818, 34), // "on_actionShow_Wired_Mesh_trig..."
-QT_MOC_LITERAL(57, 1853, 38), // "on_actionShow_Bounding_Boxes_..."
-QT_MOC_LITERAL(58, 1892, 28), // "on_actionShow_Axis_triggered"
-QT_MOC_LITERAL(59, 1921, 33), // "on_actionShow_Backfaces_trigg..."
-QT_MOC_LITERAL(60, 1955, 30), // "on_actionShow_Voxels_triggered"
-QT_MOC_LITERAL(61, 1986, 31), // "on_actionTextures_off_triggered"
-QT_MOC_LITERAL(62, 2018, 32), // "on_actionAnimation_off_triggered"
-QT_MOC_LITERAL(63, 2051, 29), // "on_actionRay_Tracer_triggered"
-QT_MOC_LITERAL(64, 2081, 25), // "on_actionOpenGL_triggered"
-QT_MOC_LITERAL(65, 2107, 30), // "on_actionPath_Tracer_triggered"
-QT_MOC_LITERAL(66, 2138, 38), // "on_actionShow_DockScenegraph_..."
-QT_MOC_LITERAL(67, 2177, 38), // "on_actionShow_DockProperties_..."
-QT_MOC_LITERAL(68, 2216, 43), // "on_actionShow_Animation_Contr..."
-QT_MOC_LITERAL(69, 2260, 34), // "on_actionShow_Statistics_trig..."
-QT_MOC_LITERAL(70, 2295, 34), // "on_actionShow_Scene_Info_trig..."
-QT_MOC_LITERAL(71, 2330, 28), // "on_actionShow_Menu_triggered"
-QT_MOC_LITERAL(72, 2359, 31), // "on_actionShow_Toolbar_triggered"
-QT_MOC_LITERAL(73, 2391, 34), // "on_actionAbout_SLProject_trig..."
-QT_MOC_LITERAL(74, 2426, 26), // "on_actionCredits_triggered"
-QT_MOC_LITERAL(75, 2453, 27), // "on_actionAbout_Qt_triggered"
-QT_MOC_LITERAL(76, 2481, 36), // "on_actionRender_to_depth_1_tr..."
-QT_MOC_LITERAL(77, 2518, 36), // "on_actionRender_to_depth_2_tr..."
-QT_MOC_LITERAL(78, 2555, 36), // "on_actionRender_to_depth_5_tr..."
-QT_MOC_LITERAL(79, 2592, 38), // "on_actionRender_to_max_depth_..."
-QT_MOC_LITERAL(80, 2631, 36), // "on_actionConstant_Redering_tr..."
-QT_MOC_LITERAL(81, 2668, 49), // "on_actionRender_Distributed_R..."
-QT_MOC_LITERAL(82, 2718, 27), // "on_action1_Sample_triggered"
-QT_MOC_LITERAL(83, 2746, 29), // "on_action10_Samples_triggered"
-QT_MOC_LITERAL(84, 2776, 29), // "on_action100_Sample_triggered"
-QT_MOC_LITERAL(85, 2806, 31), // "on_action1000_Samples_triggered"
-QT_MOC_LITERAL(86, 2838, 32), // "on_action10000_Samples_triggered"
-QT_MOC_LITERAL(87, 2871, 29), // "on_actionFullscreen_triggered"
-QT_MOC_LITERAL(88, 2901, 49), // "on_actionSplit_active_view_ho..."
-QT_MOC_LITERAL(89, 2951, 47), // "on_actionSplit_active_view_ve..."
-QT_MOC_LITERAL(90, 2999, 37), // "on_actionSplit_into_4_views_t..."
-QT_MOC_LITERAL(91, 3037, 37), // "on_actionDelete_active_view_t..."
-QT_MOC_LITERAL(92, 3075, 30), // "on_actionSingle_view_triggered"
-QT_MOC_LITERAL(93, 3106, 23), // "on_nodeTree_itemClicked"
-QT_MOC_LITERAL(94, 3130, 16), // "QTreeWidgetItem*"
-QT_MOC_LITERAL(95, 3147, 4), // "item"
-QT_MOC_LITERAL(96, 3152, 6), // "column"
-QT_MOC_LITERAL(97, 3159, 29), // "on_nodeTree_itemDoubleClicked"
-QT_MOC_LITERAL(98, 3189, 27), // "on_propertyTree_itemChanged"
-QT_MOC_LITERAL(99, 3217, 35), // "on_dockScenegraph_visibilityC..."
-QT_MOC_LITERAL(100, 3253, 7), // "visible"
-QT_MOC_LITERAL(101, 3261, 35), // "on_dockProperties_visibilityC..."
-QT_MOC_LITERAL(102, 3297, 34), // "on_dockAnimation_visibilityCh..."
-QT_MOC_LITERAL(103, 3332, 47), // "on_animAnimatedObjectSelect_c..."
-QT_MOC_LITERAL(104, 3380, 5), // "index"
-QT_MOC_LITERAL(105, 3386, 42), // "on_animAnimationSelect_curren..."
-QT_MOC_LITERAL(106, 3429, 30), // "on_animSkipStartButton_clicked"
-QT_MOC_LITERAL(107, 3460, 28), // "on_animSkipEndButton_clicked"
-QT_MOC_LITERAL(108, 3489, 33), // "on_animPrevKeyframeButton_cli..."
-QT_MOC_LITERAL(109, 3523, 33), // "on_animNextKeyframeButton_cli..."
-QT_MOC_LITERAL(110, 3557, 32), // "on_animPlayForwardButton_clicked"
-QT_MOC_LITERAL(111, 3590, 33), // "on_animPlayBackwardButton_cli..."
-QT_MOC_LITERAL(112, 3624, 26), // "on_animPauseButton_clicked"
-QT_MOC_LITERAL(113, 3651, 25), // "on_animStopButton_clicked"
-QT_MOC_LITERAL(114, 3677, 39), // "on_animEasingSelect_currentIn..."
-QT_MOC_LITERAL(115, 3717, 40), // "on_animLoopingSelect_currentI..."
-QT_MOC_LITERAL(116, 3758, 34), // "on_animTimelineSlider_valueCh..."
-QT_MOC_LITERAL(117, 3793, 5), // "value"
-QT_MOC_LITERAL(118, 3799, 31), // "on_animWeightInput_valueChanged"
-QT_MOC_LITERAL(119, 3831, 1), // "d"
-QT_MOC_LITERAL(120, 3833, 30) // "on_animSpeedInput_valueChanged"
+QT_MOC_LITERAL(7, 163, 37), // "on_actionSkeletal_Animation_t..."
+QT_MOC_LITERAL(8, 201, 31), // "on_actionSeymour_Army_triggered"
+QT_MOC_LITERAL(9, 233, 35), // "on_actionTexture_Blending_tri..."
+QT_MOC_LITERAL(10, 269, 36), // "on_actionTexture_Filtering_tr..."
+QT_MOC_LITERAL(11, 306, 36), // "on_actionFrustum_Culling_1_tr..."
+QT_MOC_LITERAL(12, 343, 36), // "on_actionFrustum_Culling_2_tr..."
+QT_MOC_LITERAL(13, 380, 38), // "on_actionPer_Vertex_Lighting_..."
+QT_MOC_LITERAL(14, 419, 37), // "on_actionPer_Pixel_Lighting_t..."
+QT_MOC_LITERAL(15, 457, 34), // "on_actionPer_Vertex_Wave_trig..."
+QT_MOC_LITERAL(16, 492, 24), // "on_actionWater_triggered"
+QT_MOC_LITERAL(17, 517, 31), // "on_actionBump_Mapping_triggered"
+QT_MOC_LITERAL(18, 549, 35), // "on_actionParallax_Mapping_tri..."
+QT_MOC_LITERAL(19, 585, 31), // "on_actionGlass_Shader_triggered"
+QT_MOC_LITERAL(20, 617, 31), // "on_actionEarth_Shader_triggered"
+QT_MOC_LITERAL(21, 649, 33), // "on_actionMass_Animation_trigg..."
+QT_MOC_LITERAL(22, 683, 29), // "on_actionRT_Spheres_triggered"
+QT_MOC_LITERAL(23, 713, 35), // "on_actionRT_Muttenzer_Box_tri..."
+QT_MOC_LITERAL(24, 749, 34), // "on_actionRT_Soft_Shadows_trig..."
+QT_MOC_LITERAL(25, 784, 36), // "on_actionRT_Depth_of_Field_tr..."
+QT_MOC_LITERAL(26, 821, 26), // "on_actionRT_Lens_triggered"
+QT_MOC_LITERAL(27, 848, 24), // "on_actionReset_triggered"
+QT_MOC_LITERAL(28, 873, 39), // "on_actionUse_SceneView_Camera..."
+QT_MOC_LITERAL(29, 913, 30), // "on_actionPerspective_triggered"
+QT_MOC_LITERAL(30, 944, 31), // "on_actionOrthographic_triggered"
+QT_MOC_LITERAL(31, 976, 31), // "on_actionSide_by_side_triggered"
+QT_MOC_LITERAL(32, 1008, 44), // "on_actionSide_by_side_proport..."
+QT_MOC_LITERAL(33, 1053, 41), // "on_actionSide_by_side_distort..."
+QT_MOC_LITERAL(34, 1095, 31), // "on_actionLine_by_line_triggered"
+QT_MOC_LITERAL(35, 1127, 35), // "on_actionColumn_by_column_tri..."
+QT_MOC_LITERAL(36, 1163, 33), // "on_actionPixel_by_pixel_trigg..."
+QT_MOC_LITERAL(37, 1197, 33), // "on_actionColor_Red_Cyan_trigg..."
+QT_MOC_LITERAL(38, 1231, 34), // "on_actionColor_Red_Green_trig..."
+QT_MOC_LITERAL(39, 1266, 33), // "on_actionColor_Red_Blue_trigg..."
+QT_MOC_LITERAL(40, 1300, 36), // "on_actionColor_Cyan_Yellow_tr..."
+QT_MOC_LITERAL(41, 1337, 31), // "on_action_eyeSepInc10_triggered"
+QT_MOC_LITERAL(42, 1369, 31), // "on_action_eyeSepDec10_triggered"
+QT_MOC_LITERAL(43, 1401, 32), // "on_action_focalDistInc_triggered"
+QT_MOC_LITERAL(44, 1434, 32), // "on_action_focalDistDec_triggered"
+QT_MOC_LITERAL(45, 1467, 28), // "on_action_fovInc10_triggered"
+QT_MOC_LITERAL(46, 1496, 28), // "on_action_fovDec10_triggered"
+QT_MOC_LITERAL(47, 1525, 33), // "on_actionTurntable_Y_up_trigg..."
+QT_MOC_LITERAL(48, 1559, 33), // "on_actionTurntable_Z_up_trigg..."
+QT_MOC_LITERAL(49, 1593, 31), // "on_actionWalking_Y_up_triggered"
+QT_MOC_LITERAL(50, 1625, 31), // "on_actionWalking_Z_up_triggered"
+QT_MOC_LITERAL(51, 1657, 28), // "on_action_speedInc_triggered"
+QT_MOC_LITERAL(52, 1686, 28), // "on_action_speedDec_triggered"
+QT_MOC_LITERAL(53, 1715, 31), // "on_actionAntialiasing_triggered"
+QT_MOC_LITERAL(54, 1747, 39), // "on_actionView_Frustum_Culling..."
+QT_MOC_LITERAL(55, 1787, 35), // "on_actionSlowdown_on_Idle_tri..."
+QT_MOC_LITERAL(56, 1823, 28), // "on_actionDepthTest_triggered"
+QT_MOC_LITERAL(57, 1852, 33), // "on_actionShow_Statusbar_trigg..."
+QT_MOC_LITERAL(58, 1886, 31), // "on_actionShow_Normals_triggered"
+QT_MOC_LITERAL(59, 1918, 34), // "on_actionShow_Wired_Mesh_trig..."
+QT_MOC_LITERAL(60, 1953, 38), // "on_actionShow_Bounding_Boxes_..."
+QT_MOC_LITERAL(61, 1992, 28), // "on_actionShow_Axis_triggered"
+QT_MOC_LITERAL(62, 2021, 33), // "on_actionShow_Backfaces_trigg..."
+QT_MOC_LITERAL(63, 2055, 30), // "on_actionShow_Voxels_triggered"
+QT_MOC_LITERAL(64, 2086, 31), // "on_actionTextures_off_triggered"
+QT_MOC_LITERAL(65, 2118, 32), // "on_actionAnimation_off_triggered"
+QT_MOC_LITERAL(66, 2151, 29), // "on_actionRay_Tracer_triggered"
+QT_MOC_LITERAL(67, 2181, 25), // "on_actionOpenGL_triggered"
+QT_MOC_LITERAL(68, 2207, 30), // "on_actionPath_Tracer_triggered"
+QT_MOC_LITERAL(69, 2238, 38), // "on_actionShow_DockScenegraph_..."
+QT_MOC_LITERAL(70, 2277, 38), // "on_actionShow_DockProperties_..."
+QT_MOC_LITERAL(71, 2316, 43), // "on_actionShow_Animation_Contr..."
+QT_MOC_LITERAL(72, 2360, 34), // "on_actionShow_Statistics_trig..."
+QT_MOC_LITERAL(73, 2395, 34), // "on_actionShow_Scene_Info_trig..."
+QT_MOC_LITERAL(74, 2430, 28), // "on_actionShow_Menu_triggered"
+QT_MOC_LITERAL(75, 2459, 31), // "on_actionShow_Toolbar_triggered"
+QT_MOC_LITERAL(76, 2491, 34), // "on_actionAbout_SLProject_trig..."
+QT_MOC_LITERAL(77, 2526, 26), // "on_actionCredits_triggered"
+QT_MOC_LITERAL(78, 2553, 27), // "on_actionAbout_Qt_triggered"
+QT_MOC_LITERAL(79, 2581, 36), // "on_actionRender_to_depth_1_tr..."
+QT_MOC_LITERAL(80, 2618, 36), // "on_actionRender_to_depth_2_tr..."
+QT_MOC_LITERAL(81, 2655, 36), // "on_actionRender_to_depth_5_tr..."
+QT_MOC_LITERAL(82, 2692, 38), // "on_actionRender_to_max_depth_..."
+QT_MOC_LITERAL(83, 2731, 36), // "on_actionConstant_Redering_tr..."
+QT_MOC_LITERAL(84, 2768, 49), // "on_actionRender_Distributed_R..."
+QT_MOC_LITERAL(85, 2818, 27), // "on_action1_Sample_triggered"
+QT_MOC_LITERAL(86, 2846, 29), // "on_action10_Samples_triggered"
+QT_MOC_LITERAL(87, 2876, 29), // "on_action100_Sample_triggered"
+QT_MOC_LITERAL(88, 2906, 31), // "on_action1000_Samples_triggered"
+QT_MOC_LITERAL(89, 2938, 32), // "on_action10000_Samples_triggered"
+QT_MOC_LITERAL(90, 2971, 29), // "on_actionFullscreen_triggered"
+QT_MOC_LITERAL(91, 3001, 49), // "on_actionSplit_active_view_ho..."
+QT_MOC_LITERAL(92, 3051, 47), // "on_actionSplit_active_view_ve..."
+QT_MOC_LITERAL(93, 3099, 37), // "on_actionSplit_into_4_views_t..."
+QT_MOC_LITERAL(94, 3137, 37), // "on_actionDelete_active_view_t..."
+QT_MOC_LITERAL(95, 3175, 30), // "on_actionSingle_view_triggered"
+QT_MOC_LITERAL(96, 3206, 23), // "on_nodeTree_itemClicked"
+QT_MOC_LITERAL(97, 3230, 16), // "QTreeWidgetItem*"
+QT_MOC_LITERAL(98, 3247, 4), // "item"
+QT_MOC_LITERAL(99, 3252, 6), // "column"
+QT_MOC_LITERAL(100, 3259, 29), // "on_nodeTree_itemDoubleClicked"
+QT_MOC_LITERAL(101, 3289, 27), // "on_propertyTree_itemChanged"
+QT_MOC_LITERAL(102, 3317, 35), // "on_dockScenegraph_visibilityC..."
+QT_MOC_LITERAL(103, 3353, 7), // "visible"
+QT_MOC_LITERAL(104, 3361, 35), // "on_dockProperties_visibilityC..."
+QT_MOC_LITERAL(105, 3397, 34), // "on_dockAnimation_visibilityCh..."
+QT_MOC_LITERAL(106, 3432, 47), // "on_animAnimatedObjectSelect_c..."
+QT_MOC_LITERAL(107, 3480, 5), // "index"
+QT_MOC_LITERAL(108, 3486, 42), // "on_animAnimationSelect_curren..."
+QT_MOC_LITERAL(109, 3529, 30), // "on_animSkipStartButton_clicked"
+QT_MOC_LITERAL(110, 3560, 28), // "on_animSkipEndButton_clicked"
+QT_MOC_LITERAL(111, 3589, 33), // "on_animPrevKeyframeButton_cli..."
+QT_MOC_LITERAL(112, 3623, 33), // "on_animNextKeyframeButton_cli..."
+QT_MOC_LITERAL(113, 3657, 32), // "on_animPlayForwardButton_clicked"
+QT_MOC_LITERAL(114, 3690, 33), // "on_animPlayBackwardButton_cli..."
+QT_MOC_LITERAL(115, 3724, 26), // "on_animPauseButton_clicked"
+QT_MOC_LITERAL(116, 3751, 25), // "on_animStopButton_clicked"
+QT_MOC_LITERAL(117, 3777, 39), // "on_animEasingSelect_currentIn..."
+QT_MOC_LITERAL(118, 3817, 40), // "on_animLoopingSelect_currentI..."
+QT_MOC_LITERAL(119, 3858, 34), // "on_animTimelineSlider_valueCh..."
+QT_MOC_LITERAL(120, 3893, 5), // "value"
+QT_MOC_LITERAL(121, 3899, 31), // "on_animWeightInput_valueChanged"
+QT_MOC_LITERAL(122, 3931, 1), // "d"
+QT_MOC_LITERAL(123, 3933, 30) // "on_animSpeedInput_valueChanged"
 
     },
     "qtMainWindow\0on_action_Quit_triggered\0"
@@ -157,6 +160,8 @@ QT_MOC_LITERAL(120, 3833, 30) // "on_animSpeedInput_valueChanged"
     "on_actionLarge_Model_triggered\0"
     "on_actionFigure_triggered\0"
     "on_actionMesh_Loader_triggered\0"
+    "on_actionSkeletal_Animation_triggered\0"
+    "on_actionSeymour_Army_triggered\0"
     "on_actionTexture_Blending_triggered\0"
     "on_actionTexture_Filtering_triggered\0"
     "on_actionFrustum_Culling_1_triggered\0"
@@ -172,8 +177,9 @@ QT_MOC_LITERAL(120, 3833, 30) // "on_animSpeedInput_valueChanged"
     "on_actionMass_Animation_triggered\0"
     "on_actionRT_Spheres_triggered\0"
     "on_actionRT_Muttenzer_Box_triggered\0"
+    "on_actionRT_Soft_Shadows_triggered\0"
     "on_actionRT_Depth_of_Field_triggered\0"
-    "on_actionSoft_Shadows_triggered\0"
+    "on_actionRT_Lens_triggered\0"
     "on_actionReset_triggered\0"
     "on_actionUse_SceneView_Camera_triggered\0"
     "on_actionPerspective_triggered\0"
@@ -273,7 +279,7 @@ static const uint qt_meta_data_qtMainWindow[] = {
        7,       // revision
        0,       // classname
        0,    0, // classinfo
-     112,   14, // methods
+     115,   14, // methods
        0,    0, // properties
        0,    0, // enums/sets
        0,    0, // constructors
@@ -281,118 +287,121 @@ static const uint qt_meta_data_qtMainWindow[] = {
        0,       // signalCount
 
  // slots: name, argc, parameters, tag, flags
-       1,    0,  574,    2, 0x08 /* Private */,
-       3,    0,  575,    2, 0x08 /* Private */,
-       4,    0,  576,    2, 0x08 /* Private */,
-       5,    0,  577,    2, 0x08 /* Private */,
-       6,    0,  578,    2, 0x08 /* Private */,
-       7,    0,  579,    2, 0x08 /* Private */,
-       8,    0,  580,    2, 0x08 /* Private */,
-       9,    0,  581,    2, 0x08 /* Private */,
-      10,    0,  582,    2, 0x08 /* Private */,
-      11,    0,  583,    2, 0x08 /* Private */,
-      12,    0,  584,    2, 0x08 /* Private */,
-      13,    0,  585,    2, 0x08 /* Private */,
-      14,    0,  586,    2, 0x08 /* Private */,
-      15,    0,  587,    2, 0x08 /* Private */,
-      16,    0,  588,    2, 0x08 /* Private */,
-      17,    0,  589,    2, 0x08 /* Private */,
-      18,    0,  590,    2, 0x08 /* Private */,
-      19,    0,  591,    2, 0x08 /* Private */,
-      20,    0,  592,    2, 0x08 /* Private */,
-      21,    0,  593,    2, 0x08 /* Private */,
-      22,    0,  594,    2, 0x08 /* Private */,
-      23,    0,  595,    2, 0x08 /* Private */,
-      24,    0,  596,    2, 0x08 /* Private */,
-      25,    0,  597,    2, 0x08 /* Private */,
-      26,    0,  598,    2, 0x08 /* Private */,
-      27,    0,  599,    2, 0x08 /* Private */,
-      28,    0,  600,    2, 0x08 /* Private */,
-      29,    0,  601,    2, 0x08 /* Private */,
-      30,    0,  602,    2, 0x08 /* Private */,
-      31,    0,  603,    2, 0x08 /* Private */,
-      32,    0,  604,    2, 0x08 /* Private */,
-      33,    0,  605,    2, 0x08 /* Private */,
-      34,    0,  606,    2, 0x08 /* Private */,
-      35,    0,  607,    2, 0x08 /* Private */,
-      36,    0,  608,    2, 0x08 /* Private */,
-      37,    0,  609,    2, 0x08 /* Private */,
-      38,    0,  610,    2, 0x08 /* Private */,
-      39,    0,  611,    2, 0x08 /* Private */,
-      40,    0,  612,    2, 0x08 /* Private */,
-      41,    0,  613,    2, 0x08 /* Private */,
-      42,    0,  614,    2, 0x08 /* Private */,
-      43,    0,  615,    2, 0x08 /* Private */,
-      44,    0,  616,    2, 0x08 /* Private */,
-      45,    0,  617,    2, 0x08 /* Private */,
-      46,    0,  618,    2, 0x08 /* Private */,
-      47,    0,  619,    2, 0x08 /* Private */,
-      48,    0,  620,    2, 0x08 /* Private */,
-      49,    0,  621,    2, 0x08 /* Private */,
-      50,    0,  622,    2, 0x08 /* Private */,
-      51,    0,  623,    2, 0x08 /* Private */,
-      52,    0,  624,    2, 0x08 /* Private */,
-      53,    0,  625,    2, 0x08 /* Private */,
-      54,    0,  626,    2, 0x08 /* Private */,
-      55,    0,  627,    2, 0x08 /* Private */,
-      56,    0,  628,    2, 0x08 /* Private */,
-      57,    0,  629,    2, 0x08 /* Private */,
-      58,    0,  630,    2, 0x08 /* Private */,
-      59,    0,  631,    2, 0x08 /* Private */,
-      60,    0,  632,    2, 0x08 /* Private */,
-      61,    0,  633,    2, 0x08 /* Private */,
-      62,    0,  634,    2, 0x08 /* Private */,
-      63,    0,  635,    2, 0x08 /* Private */,
-      64,    0,  636,    2, 0x08 /* Private */,
-      65,    0,  637,    2, 0x08 /* Private */,
-      66,    0,  638,    2, 0x08 /* Private */,
-      67,    0,  639,    2, 0x08 /* Private */,
-      68,    0,  640,    2, 0x08 /* Private */,
-      69,    0,  641,    2, 0x08 /* Private */,
-      70,    0,  642,    2, 0x08 /* Private */,
-      71,    0,  643,    2, 0x08 /* Private */,
-      72,    0,  644,    2, 0x08 /* Private */,
-      73,    0,  645,    2, 0x08 /* Private */,
-      74,    0,  646,    2, 0x08 /* Private */,
-      75,    0,  647,    2, 0x08 /* Private */,
-      76,    0,  648,    2, 0x08 /* Private */,
-      77,    0,  649,    2, 0x08 /* Private */,
-      78,    0,  650,    2, 0x08 /* Private */,
-      79,    0,  651,    2, 0x08 /* Private */,
-      80,    0,  652,    2, 0x08 /* Private */,
-      81,    0,  653,    2, 0x08 /* Private */,
-      82,    0,  654,    2, 0x08 /* Private */,
-      83,    0,  655,    2, 0x08 /* Private */,
-      84,    0,  656,    2, 0x08 /* Private */,
-      85,    0,  657,    2, 0x08 /* Private */,
-      86,    0,  658,    2, 0x08 /* Private */,
-      87,    0,  659,    2, 0x08 /* Private */,
-      88,    0,  660,    2, 0x08 /* Private */,
-      89,    0,  661,    2, 0x08 /* Private */,
-      90,    0,  662,    2, 0x08 /* Private */,
-      91,    0,  663,    2, 0x08 /* Private */,
-      92,    0,  664,    2, 0x08 /* Private */,
-      93,    2,  665,    2, 0x08 /* Private */,
-      97,    2,  670,    2, 0x08 /* Private */,
-      98,    2,  675,    2, 0x08 /* Private */,
-      99,    1,  680,    2, 0x08 /* Private */,
-     101,    1,  683,    2, 0x08 /* Private */,
-     102,    1,  686,    2, 0x08 /* Private */,
-     103,    1,  689,    2, 0x08 /* Private */,
-     105,    1,  692,    2, 0x08 /* Private */,
-     106,    0,  695,    2, 0x08 /* Private */,
-     107,    0,  696,    2, 0x08 /* Private */,
-     108,    0,  697,    2, 0x08 /* Private */,
-     109,    0,  698,    2, 0x08 /* Private */,
-     110,    0,  699,    2, 0x08 /* Private */,
-     111,    0,  700,    2, 0x08 /* Private */,
-     112,    0,  701,    2, 0x08 /* Private */,
-     113,    0,  702,    2, 0x08 /* Private */,
-     114,    1,  703,    2, 0x08 /* Private */,
-     115,    1,  706,    2, 0x08 /* Private */,
-     116,    1,  709,    2, 0x08 /* Private */,
-     118,    1,  712,    2, 0x08 /* Private */,
-     120,    1,  715,    2, 0x08 /* Private */,
+       1,    0,  589,    2, 0x08 /* Private */,
+       3,    0,  590,    2, 0x08 /* Private */,
+       4,    0,  591,    2, 0x08 /* Private */,
+       5,    0,  592,    2, 0x08 /* Private */,
+       6,    0,  593,    2, 0x08 /* Private */,
+       7,    0,  594,    2, 0x08 /* Private */,
+       8,    0,  595,    2, 0x08 /* Private */,
+       9,    0,  596,    2, 0x08 /* Private */,
+      10,    0,  597,    2, 0x08 /* Private */,
+      11,    0,  598,    2, 0x08 /* Private */,
+      12,    0,  599,    2, 0x08 /* Private */,
+      13,    0,  600,    2, 0x08 /* Private */,
+      14,    0,  601,    2, 0x08 /* Private */,
+      15,    0,  602,    2, 0x08 /* Private */,
+      16,    0,  603,    2, 0x08 /* Private */,
+      17,    0,  604,    2, 0x08 /* Private */,
+      18,    0,  605,    2, 0x08 /* Private */,
+      19,    0,  606,    2, 0x08 /* Private */,
+      20,    0,  607,    2, 0x08 /* Private */,
+      21,    0,  608,    2, 0x08 /* Private */,
+      22,    0,  609,    2, 0x08 /* Private */,
+      23,    0,  610,    2, 0x08 /* Private */,
+      24,    0,  611,    2, 0x08 /* Private */,
+      25,    0,  612,    2, 0x08 /* Private */,
+      26,    0,  613,    2, 0x08 /* Private */,
+      27,    0,  614,    2, 0x08 /* Private */,
+      28,    0,  615,    2, 0x08 /* Private */,
+      29,    0,  616,    2, 0x08 /* Private */,
+      30,    0,  617,    2, 0x08 /* Private */,
+      31,    0,  618,    2, 0x08 /* Private */,
+      32,    0,  619,    2, 0x08 /* Private */,
+      33,    0,  620,    2, 0x08 /* Private */,
+      34,    0,  621,    2, 0x08 /* Private */,
+      35,    0,  622,    2, 0x08 /* Private */,
+      36,    0,  623,    2, 0x08 /* Private */,
+      37,    0,  624,    2, 0x08 /* Private */,
+      38,    0,  625,    2, 0x08 /* Private */,
+      39,    0,  626,    2, 0x08 /* Private */,
+      40,    0,  627,    2, 0x08 /* Private */,
+      41,    0,  628,    2, 0x08 /* Private */,
+      42,    0,  629,    2, 0x08 /* Private */,
+      43,    0,  630,    2, 0x08 /* Private */,
+      44,    0,  631,    2, 0x08 /* Private */,
+      45,    0,  632,    2, 0x08 /* Private */,
+      46,    0,  633,    2, 0x08 /* Private */,
+      47,    0,  634,    2, 0x08 /* Private */,
+      48,    0,  635,    2, 0x08 /* Private */,
+      49,    0,  636,    2, 0x08 /* Private */,
+      50,    0,  637,    2, 0x08 /* Private */,
+      51,    0,  638,    2, 0x08 /* Private */,
+      52,    0,  639,    2, 0x08 /* Private */,
+      53,    0,  640,    2, 0x08 /* Private */,
+      54,    0,  641,    2, 0x08 /* Private */,
+      55,    0,  642,    2, 0x08 /* Private */,
+      56,    0,  643,    2, 0x08 /* Private */,
+      57,    0,  644,    2, 0x08 /* Private */,
+      58,    0,  645,    2, 0x08 /* Private */,
+      59,    0,  646,    2, 0x08 /* Private */,
+      60,    0,  647,    2, 0x08 /* Private */,
+      61,    0,  648,    2, 0x08 /* Private */,
+      62,    0,  649,    2, 0x08 /* Private */,
+      63,    0,  650,    2, 0x08 /* Private */,
+      64,    0,  651,    2, 0x08 /* Private */,
+      65,    0,  652,    2, 0x08 /* Private */,
+      66,    0,  653,    2, 0x08 /* Private */,
+      67,    0,  654,    2, 0x08 /* Private */,
+      68,    0,  655,    2, 0x08 /* Private */,
+      69,    0,  656,    2, 0x08 /* Private */,
+      70,    0,  657,    2, 0x08 /* Private */,
+      71,    0,  658,    2, 0x08 /* Private */,
+      72,    0,  659,    2, 0x08 /* Private */,
+      73,    0,  660,    2, 0x08 /* Private */,
+      74,    0,  661,    2, 0x08 /* Private */,
+      75,    0,  662,    2, 0x08 /* Private */,
+      76,    0,  663,    2, 0x08 /* Private */,
+      77,    0,  664,    2, 0x08 /* Private */,
+      78,    0,  665,    2, 0x08 /* Private */,
+      79,    0,  666,    2, 0x08 /* Private */,
+      80,    0,  667,    2, 0x08 /* Private */,
+      81,    0,  668,    2, 0x08 /* Private */,
+      82,    0,  669,    2, 0x08 /* Private */,
+      83,    0,  670,    2, 0x08 /* Private */,
+      84,    0,  671,    2, 0x08 /* Private */,
+      85,    0,  672,    2, 0x08 /* Private */,
+      86,    0,  673,    2, 0x08 /* Private */,
+      87,    0,  674,    2, 0x08 /* Private */,
+      88,    0,  675,    2, 0x08 /* Private */,
+      89,    0,  676,    2, 0x08 /* Private */,
+      90,    0,  677,    2, 0x08 /* Private */,
+      91,    0,  678,    2, 0x08 /* Private */,
+      92,    0,  679,    2, 0x08 /* Private */,
+      93,    0,  680,    2, 0x08 /* Private */,
+      94,    0,  681,    2, 0x08 /* Private */,
+      95,    0,  682,    2, 0x08 /* Private */,
+      96,    2,  683,    2, 0x08 /* Private */,
+     100,    2,  688,    2, 0x08 /* Private */,
+     101,    2,  693,    2, 0x08 /* Private */,
+     102,    1,  698,    2, 0x08 /* Private */,
+     104,    1,  701,    2, 0x08 /* Private */,
+     105,    1,  704,    2, 0x08 /* Private */,
+     106,    1,  707,    2, 0x08 /* Private */,
+     108,    1,  710,    2, 0x08 /* Private */,
+     109,    0,  713,    2, 0x08 /* Private */,
+     110,    0,  714,    2, 0x08 /* Private */,
+     111,    0,  715,    2, 0x08 /* Private */,
+     112,    0,  716,    2, 0x08 /* Private */,
+     113,    0,  717,    2, 0x08 /* Private */,
+     114,    0,  718,    2, 0x08 /* Private */,
+     115,    0,  719,    2, 0x08 /* Private */,
+     116,    0,  720,    2, 0x08 /* Private */,
+     117,    1,  721,    2, 0x08 /* Private */,
+     118,    1,  724,    2, 0x08 /* Private */,
+     119,    1,  727,    2, 0x08 /* Private */,
+     121,    1,  730,    2, 0x08 /* Private */,
+     123,    1,  733,    2, 0x08 /* Private */,
 
  // slots: parameters
     QMetaType::Void,
@@ -486,14 +495,17 @@ static const uint qt_meta_data_qtMainWindow[] = {
     QMetaType::Void,
     QMetaType::Void,
     QMetaType::Void,
-    QMetaType::Void, 0x80000000 | 94, QMetaType::Int,   95,   96,
-    QMetaType::Void, 0x80000000 | 94, QMetaType::Int,   95,   96,
-    QMetaType::Void, 0x80000000 | 94, QMetaType::Int,   95,   96,
-    QMetaType::Void, QMetaType::Bool,  100,
-    QMetaType::Void, QMetaType::Bool,  100,
-    QMetaType::Void, QMetaType::Bool,  100,
-    QMetaType::Void, QMetaType::Int,  104,
-    QMetaType::Void, QMetaType::Int,  104,
+    QMetaType::Void,
+    QMetaType::Void,
+    QMetaType::Void,
+    QMetaType::Void, 0x80000000 | 97, QMetaType::Int,   98,   99,
+    QMetaType::Void, 0x80000000 | 97, QMetaType::Int,   98,   99,
+    QMetaType::Void, 0x80000000 | 97, QMetaType::Int,   98,   99,
+    QMetaType::Void, QMetaType::Bool,  103,
+    QMetaType::Void, QMetaType::Bool,  103,
+    QMetaType::Void, QMetaType::Bool,  103,
+    QMetaType::Void, QMetaType::Int,  107,
+    QMetaType::Void, QMetaType::Int,  107,
     QMetaType::Void,
     QMetaType::Void,
     QMetaType::Void,
@@ -502,11 +514,11 @@ static const uint qt_meta_data_qtMainWindow[] = {
     QMetaType::Void,
     QMetaType::Void,
     QMetaType::Void,
-    QMetaType::Void, QMetaType::Int,  104,
-    QMetaType::Void, QMetaType::Int,  104,
-    QMetaType::Void, QMetaType::Int,  117,
-    QMetaType::Void, QMetaType::Double,  119,
-    QMetaType::Void, QMetaType::Double,  119,
+    QMetaType::Void, QMetaType::Int,  107,
+    QMetaType::Void, QMetaType::Int,  107,
+    QMetaType::Void, QMetaType::Int,  120,
+    QMetaType::Void, QMetaType::Double,  122,
+    QMetaType::Void, QMetaType::Double,  122,
 
        0        // eod
 };
@@ -521,113 +533,116 @@ void qtMainWindow::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id
         case 2: _t->on_actionLarge_Model_triggered(); break;
         case 3: _t->on_actionFigure_triggered(); break;
         case 4: _t->on_actionMesh_Loader_triggered(); break;
-        case 5: _t->on_actionTexture_Blending_triggered(); break;
-        case 6: _t->on_actionTexture_Filtering_triggered(); break;
-        case 7: _t->on_actionFrustum_Culling_1_triggered(); break;
-        case 8: _t->on_actionFrustum_Culling_2_triggered(); break;
-        case 9: _t->on_actionPer_Vertex_Lighting_triggered(); break;
-        case 10: _t->on_actionPer_Pixel_Lighting_triggered(); break;
-        case 11: _t->on_actionPer_Vertex_Wave_triggered(); break;
-        case 12: _t->on_actionWater_triggered(); break;
-        case 13: _t->on_actionBump_Mapping_triggered(); break;
-        case 14: _t->on_actionParallax_Mapping_triggered(); break;
-        case 15: _t->on_actionGlass_Shader_triggered(); break;
-        case 16: _t->on_actionEarth_Shader_triggered(); break;
-        case 17: _t->on_actionMass_Animation_triggered(); break;
-        case 18: _t->on_actionRT_Spheres_triggered(); break;
-        case 19: _t->on_actionRT_Muttenzer_Box_triggered(); break;
-        case 20: _t->on_actionRT_Depth_of_Field_triggered(); break;
-        case 21: _t->on_actionSoft_Shadows_triggered(); break;
-        case 22: _t->on_actionReset_triggered(); break;
-        case 23: _t->on_actionUse_SceneView_Camera_triggered(); break;
-        case 24: _t->on_actionPerspective_triggered(); break;
-        case 25: _t->on_actionOrthographic_triggered(); break;
-        case 26: _t->on_actionSide_by_side_triggered(); break;
-        case 27: _t->on_actionSide_by_side_proportional_triggered(); break;
-        case 28: _t->on_actionSide_by_side_distorted_triggered(); break;
-        case 29: _t->on_actionLine_by_line_triggered(); break;
-        case 30: _t->on_actionColumn_by_column_triggered(); break;
-        case 31: _t->on_actionPixel_by_pixel_triggered(); break;
-        case 32: _t->on_actionColor_Red_Cyan_triggered(); break;
-        case 33: _t->on_actionColor_Red_Green_triggered(); break;
-        case 34: _t->on_actionColor_Red_Blue_triggered(); break;
-        case 35: _t->on_actionColor_Cyan_Yellow_triggered(); break;
-        case 36: _t->on_action_eyeSepInc10_triggered(); break;
-        case 37: _t->on_action_eyeSepDec10_triggered(); break;
-        case 38: _t->on_action_focalDistInc_triggered(); break;
-        case 39: _t->on_action_focalDistDec_triggered(); break;
-        case 40: _t->on_action_fovInc10_triggered(); break;
-        case 41: _t->on_action_fovDec10_triggered(); break;
-        case 42: _t->on_actionTurntable_Y_up_triggered(); break;
-        case 43: _t->on_actionTurntable_Z_up_triggered(); break;
-        case 44: _t->on_actionWalking_Y_up_triggered(); break;
-        case 45: _t->on_actionWalking_Z_up_triggered(); break;
-        case 46: _t->on_action_speedInc_triggered(); break;
-        case 47: _t->on_action_speedDec_triggered(); break;
-        case 48: _t->on_actionAntialiasing_triggered(); break;
-        case 49: _t->on_actionView_Frustum_Culling_triggered(); break;
-        case 50: _t->on_actionSlowdown_on_Idle_triggered(); break;
-        case 51: _t->on_actionDepthTest_triggered(); break;
-        case 52: _t->on_actionShow_Statusbar_triggered(); break;
-        case 53: _t->on_actionShow_Normals_triggered(); break;
-        case 54: _t->on_actionShow_Wired_Mesh_triggered(); break;
-        case 55: _t->on_actionShow_Bounding_Boxes_triggered(); break;
-        case 56: _t->on_actionShow_Axis_triggered(); break;
-        case 57: _t->on_actionShow_Backfaces_triggered(); break;
-        case 58: _t->on_actionShow_Voxels_triggered(); break;
-        case 59: _t->on_actionTextures_off_triggered(); break;
-        case 60: _t->on_actionAnimation_off_triggered(); break;
-        case 61: _t->on_actionRay_Tracer_triggered(); break;
-        case 62: _t->on_actionOpenGL_triggered(); break;
-        case 63: _t->on_actionPath_Tracer_triggered(); break;
-        case 64: _t->on_actionShow_DockScenegraph_triggered(); break;
-        case 65: _t->on_actionShow_DockProperties_triggered(); break;
-        case 66: _t->on_actionShow_Animation_Controler_triggered(); break;
-        case 67: _t->on_actionShow_Statistics_triggered(); break;
-        case 68: _t->on_actionShow_Scene_Info_triggered(); break;
-        case 69: _t->on_actionShow_Menu_triggered(); break;
-        case 70: _t->on_actionShow_Toolbar_triggered(); break;
-        case 71: _t->on_actionAbout_SLProject_triggered(); break;
-        case 72: _t->on_actionCredits_triggered(); break;
-        case 73: _t->on_actionAbout_Qt_triggered(); break;
-        case 74: _t->on_actionRender_to_depth_1_triggered(); break;
-        case 75: _t->on_actionRender_to_depth_2_triggered(); break;
-        case 76: _t->on_actionRender_to_depth_5_triggered(); break;
-        case 77: _t->on_actionRender_to_max_depth_triggered(); break;
-        case 78: _t->on_actionConstant_Redering_triggered(); break;
-        case 79: _t->on_actionRender_Distributed_RT_features_triggered(); break;
-        case 80: _t->on_action1_Sample_triggered(); break;
-        case 81: _t->on_action10_Samples_triggered(); break;
-        case 82: _t->on_action100_Sample_triggered(); break;
-        case 83: _t->on_action1000_Samples_triggered(); break;
-        case 84: _t->on_action10000_Samples_triggered(); break;
-        case 85: _t->on_actionFullscreen_triggered(); break;
-        case 86: _t->on_actionSplit_active_view_horizontally_triggered(); break;
-        case 87: _t->on_actionSplit_active_view_vertically_triggered(); break;
-        case 88: _t->on_actionSplit_into_4_views_triggered(); break;
-        case 89: _t->on_actionDelete_active_view_triggered(); break;
-        case 90: _t->on_actionSingle_view_triggered(); break;
-        case 91: _t->on_nodeTree_itemClicked((*reinterpret_cast< QTreeWidgetItem*(*)>(_a[1])),(*reinterpret_cast< int(*)>(_a[2]))); break;
-        case 92: _t->on_nodeTree_itemDoubleClicked((*reinterpret_cast< QTreeWidgetItem*(*)>(_a[1])),(*reinterpret_cast< int(*)>(_a[2]))); break;
-        case 93: _t->on_propertyTree_itemChanged((*reinterpret_cast< QTreeWidgetItem*(*)>(_a[1])),(*reinterpret_cast< int(*)>(_a[2]))); break;
-        case 94: _t->on_dockScenegraph_visibilityChanged((*reinterpret_cast< bool(*)>(_a[1]))); break;
-        case 95: _t->on_dockProperties_visibilityChanged((*reinterpret_cast< bool(*)>(_a[1]))); break;
-        case 96: _t->on_dockAnimation_visibilityChanged((*reinterpret_cast< bool(*)>(_a[1]))); break;
-        case 97: _t->on_animAnimatedObjectSelect_currentIndexChanged((*reinterpret_cast< int(*)>(_a[1]))); break;
-        case 98: _t->on_animAnimationSelect_currentIndexChanged((*reinterpret_cast< int(*)>(_a[1]))); break;
-        case 99: _t->on_animSkipStartButton_clicked(); break;
-        case 100: _t->on_animSkipEndButton_clicked(); break;
-        case 101: _t->on_animPrevKeyframeButton_clicked(); break;
-        case 102: _t->on_animNextKeyframeButton_clicked(); break;
-        case 103: _t->on_animPlayForwardButton_clicked(); break;
-        case 104: _t->on_animPlayBackwardButton_clicked(); break;
-        case 105: _t->on_animPauseButton_clicked(); break;
-        case 106: _t->on_animStopButton_clicked(); break;
-        case 107: _t->on_animEasingSelect_currentIndexChanged((*reinterpret_cast< int(*)>(_a[1]))); break;
-        case 108: _t->on_animLoopingSelect_currentIndexChanged((*reinterpret_cast< int(*)>(_a[1]))); break;
-        case 109: _t->on_animTimelineSlider_valueChanged((*reinterpret_cast< int(*)>(_a[1]))); break;
-        case 110: _t->on_animWeightInput_valueChanged((*reinterpret_cast< double(*)>(_a[1]))); break;
-        case 111: _t->on_animSpeedInput_valueChanged((*reinterpret_cast< double(*)>(_a[1]))); break;
+        case 5: _t->on_actionSkeletal_Animation_triggered(); break;
+        case 6: _t->on_actionSeymour_Army_triggered(); break;
+        case 7: _t->on_actionTexture_Blending_triggered(); break;
+        case 8: _t->on_actionTexture_Filtering_triggered(); break;
+        case 9: _t->on_actionFrustum_Culling_1_triggered(); break;
+        case 10: _t->on_actionFrustum_Culling_2_triggered(); break;
+        case 11: _t->on_actionPer_Vertex_Lighting_triggered(); break;
+        case 12: _t->on_actionPer_Pixel_Lighting_triggered(); break;
+        case 13: _t->on_actionPer_Vertex_Wave_triggered(); break;
+        case 14: _t->on_actionWater_triggered(); break;
+        case 15: _t->on_actionBump_Mapping_triggered(); break;
+        case 16: _t->on_actionParallax_Mapping_triggered(); break;
+        case 17: _t->on_actionGlass_Shader_triggered(); break;
+        case 18: _t->on_actionEarth_Shader_triggered(); break;
+        case 19: _t->on_actionMass_Animation_triggered(); break;
+        case 20: _t->on_actionRT_Spheres_triggered(); break;
+        case 21: _t->on_actionRT_Muttenzer_Box_triggered(); break;
+        case 22: _t->on_actionRT_Soft_Shadows_triggered(); break;
+        case 23: _t->on_actionRT_Depth_of_Field_triggered(); break;
+        case 24: _t->on_actionRT_Lens_triggered(); break;
+        case 25: _t->on_actionReset_triggered(); break;
+        case 26: _t->on_actionUse_SceneView_Camera_triggered(); break;
+        case 27: _t->on_actionPerspective_triggered(); break;
+        case 28: _t->on_actionOrthographic_triggered(); break;
+        case 29: _t->on_actionSide_by_side_triggered(); break;
+        case 30: _t->on_actionSide_by_side_proportional_triggered(); break;
+        case 31: _t->on_actionSide_by_side_distorted_triggered(); break;
+        case 32: _t->on_actionLine_by_line_triggered(); break;
+        case 33: _t->on_actionColumn_by_column_triggered(); break;
+        case 34: _t->on_actionPixel_by_pixel_triggered(); break;
+        case 35: _t->on_actionColor_Red_Cyan_triggered(); break;
+        case 36: _t->on_actionColor_Red_Green_triggered(); break;
+        case 37: _t->on_actionColor_Red_Blue_triggered(); break;
+        case 38: _t->on_actionColor_Cyan_Yellow_triggered(); break;
+        case 39: _t->on_action_eyeSepInc10_triggered(); break;
+        case 40: _t->on_action_eyeSepDec10_triggered(); break;
+        case 41: _t->on_action_focalDistInc_triggered(); break;
+        case 42: _t->on_action_focalDistDec_triggered(); break;
+        case 43: _t->on_action_fovInc10_triggered(); break;
+        case 44: _t->on_action_fovDec10_triggered(); break;
+        case 45: _t->on_actionTurntable_Y_up_triggered(); break;
+        case 46: _t->on_actionTurntable_Z_up_triggered(); break;
+        case 47: _t->on_actionWalking_Y_up_triggered(); break;
+        case 48: _t->on_actionWalking_Z_up_triggered(); break;
+        case 49: _t->on_action_speedInc_triggered(); break;
+        case 50: _t->on_action_speedDec_triggered(); break;
+        case 51: _t->on_actionAntialiasing_triggered(); break;
+        case 52: _t->on_actionView_Frustum_Culling_triggered(); break;
+        case 53: _t->on_actionSlowdown_on_Idle_triggered(); break;
+        case 54: _t->on_actionDepthTest_triggered(); break;
+        case 55: _t->on_actionShow_Statusbar_triggered(); break;
+        case 56: _t->on_actionShow_Normals_triggered(); break;
+        case 57: _t->on_actionShow_Wired_Mesh_triggered(); break;
+        case 58: _t->on_actionShow_Bounding_Boxes_triggered(); break;
+        case 59: _t->on_actionShow_Axis_triggered(); break;
+        case 60: _t->on_actionShow_Backfaces_triggered(); break;
+        case 61: _t->on_actionShow_Voxels_triggered(); break;
+        case 62: _t->on_actionTextures_off_triggered(); break;
+        case 63: _t->on_actionAnimation_off_triggered(); break;
+        case 64: _t->on_actionRay_Tracer_triggered(); break;
+        case 65: _t->on_actionOpenGL_triggered(); break;
+        case 66: _t->on_actionPath_Tracer_triggered(); break;
+        case 67: _t->on_actionShow_DockScenegraph_triggered(); break;
+        case 68: _t->on_actionShow_DockProperties_triggered(); break;
+        case 69: _t->on_actionShow_Animation_Controler_triggered(); break;
+        case 70: _t->on_actionShow_Statistics_triggered(); break;
+        case 71: _t->on_actionShow_Scene_Info_triggered(); break;
+        case 72: _t->on_actionShow_Menu_triggered(); break;
+        case 73: _t->on_actionShow_Toolbar_triggered(); break;
+        case 74: _t->on_actionAbout_SLProject_triggered(); break;
+        case 75: _t->on_actionCredits_triggered(); break;
+        case 76: _t->on_actionAbout_Qt_triggered(); break;
+        case 77: _t->on_actionRender_to_depth_1_triggered(); break;
+        case 78: _t->on_actionRender_to_depth_2_triggered(); break;
+        case 79: _t->on_actionRender_to_depth_5_triggered(); break;
+        case 80: _t->on_actionRender_to_max_depth_triggered(); break;
+        case 81: _t->on_actionConstant_Redering_triggered(); break;
+        case 82: _t->on_actionRender_Distributed_RT_features_triggered(); break;
+        case 83: _t->on_action1_Sample_triggered(); break;
+        case 84: _t->on_action10_Samples_triggered(); break;
+        case 85: _t->on_action100_Sample_triggered(); break;
+        case 86: _t->on_action1000_Samples_triggered(); break;
+        case 87: _t->on_action10000_Samples_triggered(); break;
+        case 88: _t->on_actionFullscreen_triggered(); break;
+        case 89: _t->on_actionSplit_active_view_horizontally_triggered(); break;
+        case 90: _t->on_actionSplit_active_view_vertically_triggered(); break;
+        case 91: _t->on_actionSplit_into_4_views_triggered(); break;
+        case 92: _t->on_actionDelete_active_view_triggered(); break;
+        case 93: _t->on_actionSingle_view_triggered(); break;
+        case 94: _t->on_nodeTree_itemClicked((*reinterpret_cast< QTreeWidgetItem*(*)>(_a[1])),(*reinterpret_cast< int(*)>(_a[2]))); break;
+        case 95: _t->on_nodeTree_itemDoubleClicked((*reinterpret_cast< QTreeWidgetItem*(*)>(_a[1])),(*reinterpret_cast< int(*)>(_a[2]))); break;
+        case 96: _t->on_propertyTree_itemChanged((*reinterpret_cast< QTreeWidgetItem*(*)>(_a[1])),(*reinterpret_cast< int(*)>(_a[2]))); break;
+        case 97: _t->on_dockScenegraph_visibilityChanged((*reinterpret_cast< bool(*)>(_a[1]))); break;
+        case 98: _t->on_dockProperties_visibilityChanged((*reinterpret_cast< bool(*)>(_a[1]))); break;
+        case 99: _t->on_dockAnimation_visibilityChanged((*reinterpret_cast< bool(*)>(_a[1]))); break;
+        case 100: _t->on_animAnimatedObjectSelect_currentIndexChanged((*reinterpret_cast< int(*)>(_a[1]))); break;
+        case 101: _t->on_animAnimationSelect_currentIndexChanged((*reinterpret_cast< int(*)>(_a[1]))); break;
+        case 102: _t->on_animSkipStartButton_clicked(); break;
+        case 103: _t->on_animSkipEndButton_clicked(); break;
+        case 104: _t->on_animPrevKeyframeButton_clicked(); break;
+        case 105: _t->on_animNextKeyframeButton_clicked(); break;
+        case 106: _t->on_animPlayForwardButton_clicked(); break;
+        case 107: _t->on_animPlayBackwardButton_clicked(); break;
+        case 108: _t->on_animPauseButton_clicked(); break;
+        case 109: _t->on_animStopButton_clicked(); break;
+        case 110: _t->on_animEasingSelect_currentIndexChanged((*reinterpret_cast< int(*)>(_a[1]))); break;
+        case 111: _t->on_animLoopingSelect_currentIndexChanged((*reinterpret_cast< int(*)>(_a[1]))); break;
+        case 112: _t->on_animTimelineSlider_valueChanged((*reinterpret_cast< int(*)>(_a[1]))); break;
+        case 113: _t->on_animWeightInput_valueChanged((*reinterpret_cast< double(*)>(_a[1]))); break;
+        case 114: _t->on_animSpeedInput_valueChanged((*reinterpret_cast< double(*)>(_a[1]))); break;
         default: ;
         }
     }
@@ -658,13 +673,13 @@ int qtMainWindow::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
     if (_id < 0)
         return _id;
     if (_c == QMetaObject::InvokeMetaMethod) {
-        if (_id < 112)
+        if (_id < 115)
             qt_static_metacall(this, _c, _id, _a);
-        _id -= 112;
+        _id -= 115;
     } else if (_c == QMetaObject::RegisterMethodArgumentMetaType) {
-        if (_id < 112)
+        if (_id < 115)
             *reinterpret_cast<int*>(_a[0]) = -1;
-        _id -= 112;
+        _id -= 115;
     }
     return _id;
 }

@@ -13,14 +13,14 @@
 
 #include <stdafx.h>
 
-class SLAnimationTrack;
+class SLAnimTrack;
 
 //-----------------------------------------------------------------------------
 //! Base class for all keyframes
 class SLKeyframe
 {
 public:
-                            SLKeyframe  (const SLAnimationTrack* parent,
+                            SLKeyframe  (const SLAnimTrack* parent,
                                          SLfloat time);
 
             bool            operator<   (const SLKeyframe& other) const;
@@ -30,20 +30,20 @@ public:
             SLbool          isValid     () const { _isValid; }
 
 protected:
-    const   SLAnimationTrack* _parentTrack;	//!< owning animation track for this keyframe
-            SLfloat         _time;		    //!< temporal position in local time relative to the keyframes parent clip
+    const   SLAnimTrack*    _parentTrack;	//!< owning animation track for this keyframe
+            SLfloat         _time;		    //!< temporal position in local time relative to the keyframes parent clip in seconds
             SLbool          _isValid;       //!< is this keyframe in use inside its parent track
 };
 
 //-----------------------------------------------------------------------------
 //! SLTransformKeyframe is a specialized SLKeyframe for node transformations
 /*!     
-    Keeps track of translation, rotation and scale.
+Keeps track of translation, rotation and scale.
 */
 class SLTransformKeyframe : public SLKeyframe
 {
 public:    
-                        SLTransformKeyframe(const SLAnimationTrack* parent,
+                        SLTransformKeyframe(const SLAnimTrack* parent,
                                             SLfloat time);
 
     // Setters
@@ -60,15 +60,6 @@ protected:
             SLVec3f     _translation;
             SLQuat4f    _rotation;
             SLVec3f     _scale;
-};
-
-//-----------------------------------------------------------------------------
-//! Generic keyframe for special objects 
-/*!     @todo ... */
-class SLNumericKeyframe : public SLKeyframe
-{
-public:
-protected:
 };
 //-----------------------------------------------------------------------------
 typedef std::vector<SLKeyframe*>  SLVKeyframe;

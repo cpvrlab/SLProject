@@ -21,7 +21,7 @@
 #include <SLTexFont.h>
 #include <SLButton.h>
 #include <SLAnimation.h>
-#include <SLAnimationManager.h>
+#include <SLAnimManager.h>
 
 //-----------------------------------------------------------------------------
 /*! Global static scene pointer that can be used throughout the entire library
@@ -269,7 +269,9 @@ void SLScene::unInit()
 }
 //-----------------------------------------------------------------------------
 //! Updates all animations in the scene after all views got painted.
-/*! Updates all animations in the scene after all views got painted.
+/*! Updates all animations in the scene after all views got painted and
+calculates the elapsed time for one frame in all views. A scene can be displayed
+in multiple views as demonstrated in the app-Viewer-Qt example.
 \return true if realy something got updated
 */
 bool SLScene::updateIfAllViewsGotPainted()
@@ -292,11 +294,17 @@ bool SLScene::updateIfAllViewsGotPainted()
     SLfloat sumCullTimeMS   = 0.0f;
     SLfloat sumDraw3DTimeMS = 0.0f;
     SLfloat sumDraw2DTimeMS = 0.0f;
+    SLbool renderTypeIsRT = false;
+    SLbool voxelsAreShown = false;
     for (SLint i = 0; i < _sceneViews.size(); ++i)
     {   if (_sceneViews[i]!=NULL)
         {   sumCullTimeMS   += _sceneViews[i]->cullTimeMS();
             sumDraw3DTimeMS += _sceneViews[i]->draw3DTimeMS();
             sumDraw2DTimeMS += _sceneViews[i]->draw2DTimeMS();
+            if (!renderTypeIsRT && _sceneViews[i]->renderType()==renderRT)
+                renderTypeIsRT = true;
+            if (!voxelsAreShown && _sceneViews[i]->drawBit(SL_DB_VOXELS))
+                voxelsAreShown = true;
         }
     }
     _cullTimesMS.set(sumCullTimeMS);
@@ -310,11 +318,32 @@ bool SLScene::updateIfAllViewsGotPainted()
 
     // Do animations
     SLfloat startUpdateMS = timeMilliSec();
-    SLbool animated = !_stopAnimations && _animManager.update(elapsedTimeSec());
 
-    // Update the world matrix & AABBs efficiently
-    SLGLState::getInstance()->modelViewMatrix.identity();
-    _root3D->updateAABBRec();
+    ////////////////////////////////////////////////////////////////////////////
+    SLbool animated = !_stopAnimations && _animManager.update(elapsedTimeSec());
+    ////////////////////////////////////////////////////////////////////////////
+
+    // Update AABBs, skins and acceleration structures
+    if (animated)
+    {   
+        // Update AABBs efficiently
+        SLGLState::getInstance()->modelViewMatrix.identity();
+        _root3D->updateAABBRec();
+
+        // Do software skinning on all changed skeletons
+        for (SLuint i=0; i<_meshes.size(); ++i) 
+        {   if (_meshes[i]->skeleton() && 
+                _meshes[i]->skeleton()->changed() &&
+                _meshes[i]->skinningMethod() == SM_SoftwareSkinning)
+            {   
+                _meshes[i]->transformSkin();
+
+                // update acceleration structure for RT
+                if (renderTypeIsRT || voxelsAreShown)
+                    _meshes[i]->updateAccelStruct();
+            }
+        }
+    }
 
     _updateTimesMS.set(timeMilliSec()-startUpdateMS);
     return animated;

@@ -284,51 +284,56 @@ CustomSceneView::~CustomSceneView()
 
 void CustomSceneView::postSceneLoad()
 {
-    //_leapController.addListener(_leapListener);
-    //_leapController.setPolicy(Leap::Controller::POLICY_BACKGROUND_FRAMES);
-    _leapController.leapController().enableGesture(Leap::Gesture::TYPE_CIRCLE);
-    _leapController.leapController().enableGesture(Leap::Gesture::TYPE_KEY_TAP);
-    _leapController.leapController().enableGesture(Leap::Gesture::TYPE_SCREEN_TAP);
-    _leapController.leapController().enableGesture(Leap::Gesture::TYPE_SWIPE);
-
+    // register our custom listeners with the leap input controller
     _leapController.registerHandListener(&_slHandListener);
     _leapController.registerHandListener(&_riggedListener);
     _leapController.registerToolListener(&_slToolListener);
     _leapController.registerGestureListener(&_gestureListener);
+
+    // init the tool and hand listener (aka build the meshes and add them to the scene root)
     _slHandListener.init();
     _slToolListener.init();
+
+    // set the skeleton that this rigged listener should control
+    // @todo allow for an easier way to search and find the desired skeleton via name strings
     _riggedListener.setSkeleton(SLScene::current->animManager().skeletons()[1]);
     
     //_riggedListener.setScaleCorrection(SLVec3f(10, 10, 10));
 
+    // set the wrist joints
     _riggedListener.setLWrist("L_Wrist");
     _riggedListener.setRWrist("R_Wrist");
     
+    // bind the thumb joints to the correct leap bones
     _riggedListener.setRFingerJoint(0, 1, "R_ThumbA");
     _riggedListener.setRFingerJoint(0, 2, "R_ThumbB");
     _riggedListener.setRFingerJoint(0, 3, "R_ThumbC");
     
+    // bind the index finger joints to the correct leap bones
     _riggedListener.setRFingerJoint(1, 0, "R_IndexA");
     _riggedListener.setRFingerJoint(1, 1, "R_IndexB");
     _riggedListener.setRFingerJoint(1, 2, "R_IndexC");
     _riggedListener.setRFingerJoint(1, 3, "R_IndexD");
     
+    // bind the middle finger joints to the correct leap bones
     _riggedListener.setRFingerJoint(2, 0, "R_MiddleA");
     _riggedListener.setRFingerJoint(2, 1, "R_MiddleB");
     _riggedListener.setRFingerJoint(2, 2, "R_MiddleC");
     _riggedListener.setRFingerJoint(2, 3, "R_MiddleD");
     
+    // bind the ring finger joints to the correct leap bones
     _riggedListener.setRFingerJoint(3, 0, "R_RingA");
     _riggedListener.setRFingerJoint(3, 1, "R_RingB");
     _riggedListener.setRFingerJoint(3, 2, "R_RingC");
     _riggedListener.setRFingerJoint(3, 3, "R_RingD");
     
+    // bind the pinky joints to the correct leap bones
     _riggedListener.setRFingerJoint(4, 0, "R_PinkyA");
     _riggedListener.setRFingerJoint(4, 1, "R_PinkyB");
     _riggedListener.setRFingerJoint(4, 2, "R_PinkyC");
     _riggedListener.setRFingerJoint(4, 3, "R_PinkyD");
     
-    
+    // same as above for the LEFT hand
     _riggedListener.setLFingerJoint(0, 1, "L_ThumbA");
     _riggedListener.setLFingerJoint(0, 2, "L_ThumbB");
     _riggedListener.setLFingerJoint(0, 3, "L_ThumbC");
@@ -352,7 +357,8 @@ void CustomSceneView::postSceneLoad()
     _riggedListener.setLFingerJoint(4, 1, "L_PinkyB");
     _riggedListener.setLFingerJoint(4, 2, "L_PinkyC");
     _riggedListener.setLFingerJoint(4, 3, "L_PinkyD");
-    /*
+
+    /* OLD ASTROBOY BIND, NEEDS TO BE REDONE
     _riggedListener.setLWrist("L_wrist");
     _riggedListener.setRWrist("R_wrist");
     // thumb
@@ -377,34 +383,20 @@ void CustomSceneView::postSceneLoad()
     _riggedListener.setRFingerJoint(4, 1, "R_pinky_01");
     _riggedListener.setRFingerJoint(4, 2, "R_pinky_02");
     */
-    /*
-        Before continuing with the mapping above try and import one of the leap hand models and map the input to those (the ones used in the unity demos)
-        And complete the todo (to check tutorials on how to bind kinect/leap on custom skeletons in unity/blender/maya...
     
-    */
-
-    _playbackCube = new SLNode(new SLBox(0.5f));
-    SLScene::current->root3D()->addChild(_playbackCube);
-
     _root = SLScene::current->animManager().skeletons()[0]->getJoint("root");
 }
 
 void CustomSceneView::preDraw()
 {
-    //_root->rotate(1, 0, 1, 1); 
-    // @note we need to force an update on the skeleton here
-    //       since updateAnimations resets this dirty flag and the listener
-    //       isn't guaranteed to come before draw but afte ranimation is called
-    //SLScene::current->animManager().skeletons()[0]->changed(true);
-    //SLScene::current->animManager().skeletons()[1]->changed(true);
-
-
+    // before drawing the next frame update all input devices
     SLInputManager::instance().update();
 }
 
 
 void CustomSceneView::postDraw()
 {
+    // hacked in world grid with x, z axes marked by color
     drawXZGrid(_camera->updateAndGetVM());
 }
 
@@ -412,26 +404,10 @@ void CustomSceneView::postDraw()
 // some basic manipulation for now
 SLbool CustomSceneView::onKeyPress(const SLKey key, const SLKey mod)
 {
-    // temp test of leapmotion model axes
-    SLSkeleton* skel = SLScene::current->animManager().skeletons()[1];
-    SLJoint* indexJoint = skel->getJoint("R_IndexC");
-    int dir = 1;
-    if (indexJoint) {
-        if (mod == KeyShift)
-            dir = -1;
-
-        switch (key)
-        {
-        case 'Y': indexJoint->rotate(dir*5, 1, 0, 0); break;
-        case 'X': indexJoint->rotate(dir*5, 0, 1, 0); break;
-        case 'C': indexJoint->rotate(dir*5, 0, 0, 1); break;
-        }
-    }
-
-    return false;
+    return SLSceneView::onKeyPress(key, mod);
 }
 
 SLbool CustomSceneView::onKeyRelease(const SLKey key, const SLKey mod)
 {
-    return false;
+    return SLSceneView::onKeyRelease(key, mod);
 }

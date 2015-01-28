@@ -18,7 +18,7 @@
 #include <SLNode.h>
 #include <SLSkeleton.h>
 #include <SLGLOculus.h>
-#include <SLAnimationManager.h>
+#include <SLAnimManager.h>
 #include <SLAverage.h>
 
 class SLSceneView;
@@ -58,7 +58,7 @@ class SLScene: public SLObject
             void            stopAnimations  (SLbool stop){_stopAnimations = stop;}
                            
             // Getters
-     inline SLAnimationManager& animManager () { return _animManager; }
+     inline SLAnimManager&  animManager     () { return _animManager; }
      inline SLSceneView*    sv              (SLuint index) {return _sceneViews[index];}
      inline SLNode*         root3D          () {return _root3D;}
             SLint           currentID       () {return _currentID;}
@@ -100,14 +100,14 @@ class SLScene: public SLObject
      static SLScene*        current;            //!< global static scene pointer
 
    protected:
-            SLAnimationManager _animManager;  //!< Animation manager instance
-            SLVSceneView    _sceneViews;      //!< Vector of all sceneview pointers
+            SLVSceneView    _sceneViews;        //!< Vector of all sceneview pointers
             SLVMesh         _meshes;            //!< Vector of all meshes
             SLVMaterial     _materials;         //!< Vector of all materials pointers
             SLVGLTexture    _textures;          //!< Vector of all texture pointers
             SLVGLProgram    _programs;          //!< Vector of all shader program pointers
             SLVLight        _lights;            //!< Vector of all lights
             SLVEventHandler _eventHandlers;     //!< Vector of all event handler
+            SLAnimManager   _animManager;       //!< Animation manager instance
             
             SLNode*         _root3D;            //!< Root node for 3D scene
             SLNode*         _selectedNode;      //!< Pointer to the selected node
