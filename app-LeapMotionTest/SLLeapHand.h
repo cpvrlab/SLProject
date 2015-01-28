@@ -49,6 +49,8 @@ public:
     // return iterator over fingers
     const SLVLeapFinger& fingers() const { return _fingers; }
 
+    float       pinchStrength() const;
+    float       grabStrength() const;
 
 protected:
     Leap::Hand      _hand;

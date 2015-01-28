@@ -118,3 +118,13 @@ void SLLeapHand::leapHand(const Leap::Hand& hand)
     for (SLint i = 0; i < _fingers.size(); ++i)
         _fingers[i].leapHand(hand);
 }
+
+float SLLeapHand::pinchStrength() const
+{
+    return _hand.pinchStrength();
+}
+
+float SLLeapHand::grabStrength() const
+{
+    return _hand.grabStrength();
+}

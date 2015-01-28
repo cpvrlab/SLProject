@@ -307,7 +307,7 @@ protected:
             SLJoint* jnt = (hands[i].isLeft()) ? _leftWrist : _rightWrist;
 
             jnt->rotation(rot, TS_World);
-            jnt->position(hands[i].palmPosition()*10, TS_World);
+            jnt->position(hands[i].palmPosition()*7.5, TS_World);
             
             for (SLint j = 0; j < hands[i].fingers().size(); ++j)
             {                
@@ -319,6 +319,64 @@ protected:
                     bone->rotation(hands[i].fingers()[j].boneRotation(k), TS_World);
                 }
             }
+        }
+    }
+};
+
+class SampleObjectMover : public SLLeapHandListener
+{
+public:
+    SampleObjectMover()
+    : grabThreshold(0.9f)
+    { }
+
+    void setGrabThreshold(SLfloat t) { grabThreshold = t; }
+    void setGrabCallback(std::function<void(SLVec3f&, SLQuat4f&)> cb) { grabCallback = cb; }
+    void setReleaseCallback(std::function<void()> cb) { releaseCallback = cb; }
+    void setMoveCallback(std::function<void(SLVec3f&, SLQuat4f&)> cb) { moveCallback = cb; }
+
+protected:
+    SLfloat grabThreshold;
+    SLbool grabbing;
+
+    std::function<void(SLVec3f&, SLQuat4f&)> grabCallback;
+    std::function<void()> releaseCallback;
+    std::function<void(SLVec3f&, SLQuat4f&)> moveCallback;
+
+    virtual void onLeapHandChange(const vector<SLLeapHand>& hands)
+    {
+        for (SLint i = 0; i < hands.size(); ++i)
+        {
+            SLLeapHand hand = hands[i];
+
+            // just use the right hand for a first test
+            if (hand.isLeft())
+                return;
+
+            // For now just the intermediate position between thumb and index finger
+            // @note  a pinch can also be between any other finger and the tumb, so this
+            //        currently only works for index and thumb pinches
+            SLVec3f grabPosition = hand.fingers()[0].tipPosition() + 
+                                   hand.fingers()[1].tipPosition();
+            grabPosition *= 0.5f;
+            SLQuat4f palmRotation = hand.palmRotation();
+
+            if (hand.pinchStrength() > grabThreshold) {
+                if (grabbing) {
+                    moveCallback(grabPosition, palmRotation);
+                }
+                else {
+                    grabCallback(grabPosition, palmRotation);
+                    grabbing = true;
+                }
+            }
+            else {
+                if (grabbing) {
+                    releaseCallback();
+                    grabbing = false;
+                }
+            }
+
         }
     }
 };
@@ -346,4 +404,15 @@ private:
     SLRiggedLeapHandListener    _riggedListener;
     SampleToolListener          _slToolListener;
     SampleGestureListener       _gestureListener;
+    SampleObjectMover           _objectMover;
+    vector<SLNode*>             _movableBoxes;
+    SLNode*                     _currentGrabbedObject;
+    SLQuat4f                    _prevRotation;
+    SLVec3f                     _prevPosition;
+    SLQuat4f                    _initialRotation;
+    SLVec3f                     _initialPosition;
+
+    void grabCallback(SLVec3f&, SLQuat4f&);
+    void moveCallback(SLVec3f&, SLQuat4f&);
+    void releaseCallback();
 };

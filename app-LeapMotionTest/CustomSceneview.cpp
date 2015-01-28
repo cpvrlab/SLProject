@@ -258,7 +258,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd cmd)
     meshDAE->translate(0,-3.33f, 0, TS_Local);
     scene->addChild(meshDAE);
 
-    meshDAE2->scale(10);
+    meshDAE2->scale(12.5);
     meshDAE2->translate(0, 0, 5);
     scene->addChild(meshDAE2);
 
@@ -289,7 +289,8 @@ void CustomSceneView::postSceneLoad()
     _leapController.registerHandListener(&_riggedListener);
     _leapController.registerToolListener(&_slToolListener);
     _leapController.registerGestureListener(&_gestureListener);
-
+    _leapController.registerHandListener(&_objectMover);
+    
     // init the tool and hand listener (aka build the meshes and add them to the scene root)
     _slHandListener.init();
     _slToolListener.init();
@@ -383,8 +384,22 @@ void CustomSceneView::postSceneLoad()
     _riggedListener.setRFingerJoint(4, 1, "R_pinky_01");
     _riggedListener.setRFingerJoint(4, 2, "R_pinky_02");
     */
+
+
+    // cubes to grab and interact with
+    _currentGrabbedObject = NULL;
+
+    SLint numBoxes = 5;
+    for (SLint i = 0; i < numBoxes; ++i) {
+        _movableBoxes.push_back(new SLNode(new SLBox(-0.15f, -0.15f, -0.15f, 0.15f, 0.15f, 0.15f)));
+        SLScene::current->root3D()->addChild(_movableBoxes[i]);
+        _movableBoxes[i]->translate(i * 0.5f, 2.0f, 0.0f);
+    }
+
     
-    _root = SLScene::current->animManager().skeletons()[0]->getJoint("root");
+    _objectMover.setGrabCallback(std::bind(&CustomSceneView::grabCallback,this,placeholders::_1,placeholders::_2));
+    _objectMover.setReleaseCallback(std::bind(&CustomSceneView::releaseCallback,this));
+    _objectMover.setMoveCallback(std::bind(&CustomSceneView::moveCallback,this,placeholders::_1,placeholders::_2));
 }
 
 void CustomSceneView::preDraw()
@@ -410,4 +425,49 @@ SLbool CustomSceneView::onKeyPress(const SLKey key, const SLKey mod)
 SLbool CustomSceneView::onKeyRelease(const SLKey key, const SLKey mod)
 {
     return SLSceneView::onKeyRelease(key, mod);
+}
+
+
+
+void CustomSceneView::grabCallback(SLVec3f& pos, SLQuat4f& rot)
+{
+    _prevRotation = rot;
+    _prevPosition = pos;
+    
+    SLfloat radius = 0.3f;
+    for (auto cube : _movableBoxes) {
+        if (cube->position().x - radius < pos.x &&
+            cube->position().y - radius < pos.y &&
+            cube->position().z - radius < pos.z &&
+            cube->position().x + radius > pos.x &&
+            cube->position().y + radius > pos.y &&
+            cube->position().z + radius > pos.z)
+        {
+            _currentGrabbedObject = cube;
+            _initialRotation = SLQuat4f(_currentGrabbedObject->updateAndGetWM().mat3());
+            _initialPosition = _currentGrabbedObject->position();
+            return;
+        }
+    }
+}
+void CustomSceneView::moveCallback(SLVec3f& pos, SLQuat4f& rot)
+{
+    if (!_currentGrabbedObject) 
+        return;
+
+
+    //SLQuat4f relRot = rot.inverted() * _prevRotation * _initialRotation;
+    //SLQuat4f relRot = rot.inverted() * _prevRotation.inverted() * _initialRotation;
+    SLQuat4f relRot = _prevRotation * rot.inverted();
+    relRot.invert();
+    _prevRotation = rot;
+    _currentGrabbedObject->translate(pos - _prevPosition, TS_World);
+    _currentGrabbedObject->rotate(relRot, TS_World);
+
+    _prevPosition = pos;
+}
+void CustomSceneView::releaseCallback()
+{
+    _currentGrabbedObject = NULL;
+    SL_LOG("RELEASED\n");
 }
