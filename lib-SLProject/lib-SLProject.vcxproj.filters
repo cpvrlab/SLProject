@@ -560,6 +560,7 @@
     <None Include="source\oglsl\PerPixBlinnTexSkinned.vert">
       <Filter>GLSL</Filter>
     </None>
+    <None Include="Introduction.html" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="ToDo.txt" />

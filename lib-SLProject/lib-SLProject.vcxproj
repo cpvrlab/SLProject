@@ -531,6 +531,7 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
+    <None Include="Introduction.html" />
     <None Include="Readme.html" />
     <None Include="source\oglsl\ADS.frag" />
     <None Include="source\oglsl\ADS.vert" />
