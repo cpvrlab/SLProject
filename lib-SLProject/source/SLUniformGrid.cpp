@@ -63,6 +63,9 @@ void SLUniformGrid::build(SLVec3f minV, SLVec3f maxV)
         delete[] _vox;
         _vox = 0;
     }
+
+    // dispose the visualization buffer
+    disposeBuffers();
    
     // Calculate uniform grid 
     // Calc. voxel resolution, extent and allocate voxel array

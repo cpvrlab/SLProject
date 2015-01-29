@@ -1,7 +1,7 @@
 /********************************************************************************
 ** Form generated from reading UI file 'qtMainWindow.ui'
 **
-** Created by: Qt User Interface Compiler version 5.3.1
+** Created by: Qt User Interface Compiler version 5.4.0
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
 ********************************************************************************/
@@ -140,6 +140,7 @@ public:
     QAction *actionAstroboy_Army_GPU;
     QAction *actionRT_Lens;
     QAction *actionAstroboy_Army_CPU;
+    QAction *actionSuperAnimation;
     QWidget *centralWidget;
     QMenuBar *menuBar;
     QMenu *menuFile;
@@ -147,6 +148,7 @@ public:
     QMenu *menuGeneral_Scenes;
     QMenu *menuShader_Scenes;
     QMenu *menuRay_Tracing_Scenes;
+    QMenu *menuAnimation_Scenes;
     QMenu *menuCamera;
     QMenu *menuProjection;
     QMenu *menuStereo;
@@ -205,7 +207,7 @@ public:
     {
         if (qtMainWindow->objectName().isEmpty())
             qtMainWindow->setObjectName(QStringLiteral("qtMainWindow"));
-        qtMainWindow->resize(728, 623);
+        qtMainWindow->resize(906, 679);
         QSizePolicy sizePolicy(QSizePolicy::Preferred, QSizePolicy::Minimum);
         sizePolicy.setHorizontalStretch(0);
         sizePolicy.setVerticalStretch(0);
@@ -584,12 +586,14 @@ public:
         actionAstroboy_Army_CPU = new QAction(qtMainWindow);
         actionAstroboy_Army_CPU->setObjectName(QStringLiteral("actionAstroboy_Army_CPU"));
         actionAstroboy_Army_CPU->setCheckable(true);
+        actionSuperAnimation = new QAction(qtMainWindow);
+        actionSuperAnimation->setObjectName(QStringLiteral("actionSuperAnimation"));
         centralWidget = new QWidget(qtMainWindow);
         centralWidget->setObjectName(QStringLiteral("centralWidget"));
         qtMainWindow->setCentralWidget(centralWidget);
         menuBar = new QMenuBar(qtMainWindow);
         menuBar->setObjectName(QStringLiteral("menuBar"));
-        menuBar->setGeometry(QRect(0, 0, 728, 21));
+        menuBar->setGeometry(QRect(0, 0, 906, 31));
         menuBar->setDefaultUp(false);
         menuBar->setNativeMenuBar(false);
         menuFile = new QMenu(menuBar);
@@ -603,6 +607,8 @@ public:
         menuShader_Scenes->setObjectName(QStringLiteral("menuShader_Scenes"));
         menuRay_Tracing_Scenes = new QMenu(menuLoad_Scene);
         menuRay_Tracing_Scenes->setObjectName(QStringLiteral("menuRay_Tracing_Scenes"));
+        menuAnimation_Scenes = new QMenu(menuLoad_Scene);
+        menuAnimation_Scenes->setObjectName(QStringLiteral("menuAnimation_Scenes"));
         menuCamera = new QMenu(menuBar);
         menuCamera->setObjectName(QStringLiteral("menuCamera"));
         menuProjection = new QMenu(menuCamera);
@@ -647,7 +653,7 @@ public:
         sizePolicy1.setVerticalStretch(0);
         sizePolicy1.setHeightForWidth(dockScenegraph->sizePolicy().hasHeightForWidth());
         dockScenegraph->setSizePolicy(sizePolicy1);
-        dockScenegraph->setMinimumSize(QSize(160, 103));
+        dockScenegraph->setMinimumSize(QSize(160, 138));
         dockScenegraph->setFloating(false);
         dockWidgetContents = new QWidget();
         dockWidgetContents->setObjectName(QStringLiteral("dockWidgetContents"));
@@ -691,7 +697,7 @@ public:
         qtMainWindow->addToolBar(Qt::TopToolBarArea, toolBar);
         dockProperties = new QDockWidget(qtMainWindow);
         dockProperties->setObjectName(QStringLiteral("dockProperties"));
-        dockProperties->setMinimumSize(QSize(160, 116));
+        dockProperties->setMinimumSize(QSize(160, 138));
         dockWidgetContents_2 = new QWidget();
         dockWidgetContents_2->setObjectName(QStringLiteral("dockWidgetContents_2"));
         verticalLayout = new QVBoxLayout(dockWidgetContents_2);
@@ -726,7 +732,7 @@ public:
         sizePolicy3.setVerticalStretch(0);
         sizePolicy3.setHeightForWidth(dockAnimation->sizePolicy().hasHeightForWidth());
         dockAnimation->setSizePolicy(sizePolicy3);
-        dockAnimation->setMinimumSize(QSize(614, 114));
+        dockAnimation->setMinimumSize(QSize(643, 126));
         dockAnimation->setFloating(false);
         dockAnimation->setFeatures(QDockWidget::AllDockWidgetFeatures);
         dockWidgetContents_3 = new QWidget();
@@ -1014,6 +1020,7 @@ public:
         menuFile->addAction(action_Quit);
         menuLoad_Scene->addAction(menuGeneral_Scenes->menuAction());
         menuLoad_Scene->addAction(menuShader_Scenes->menuAction());
+        menuLoad_Scene->addAction(menuAnimation_Scenes->menuAction());
         menuLoad_Scene->addAction(menuRay_Tracing_Scenes->menuAction());
         menuGeneral_Scenes->addAction(actionSmall_Test_Scene);
         menuGeneral_Scenes->addAction(actionLarge_Model);
@@ -1023,10 +1030,6 @@ public:
         menuGeneral_Scenes->addAction(actionTexture_Filtering);
         menuGeneral_Scenes->addAction(actionFrustum_Culling_1);
         menuGeneral_Scenes->addAction(actionFrustum_Culling_2);
-        menuGeneral_Scenes->addAction(actionMass_Animation);
-        menuGeneral_Scenes->addAction(actionSkeletal_Animation);
-        menuGeneral_Scenes->addAction(actionAstroboy_Army_GPU);
-        menuGeneral_Scenes->addAction(actionAstroboy_Army_CPU);
         menuShader_Scenes->addAction(actionPer_Vertex_Lighting);
         menuShader_Scenes->addAction(actionPer_Pixel_Lighting);
         menuShader_Scenes->addAction(actionPer_Vertex_Wave);
@@ -1040,6 +1043,10 @@ public:
         menuRay_Tracing_Scenes->addAction(actionRT_Depth_of_Field);
         menuRay_Tracing_Scenes->addAction(actionRT_Soft_Shadows);
         menuRay_Tracing_Scenes->addAction(actionRT_Lens);
+        menuAnimation_Scenes->addAction(actionMass_Animation);
+        menuAnimation_Scenes->addAction(actionSkeletal_Animation);
+        menuAnimation_Scenes->addAction(actionAstroboy_Army_GPU);
+        menuAnimation_Scenes->addAction(actionAstroboy_Army_CPU);
         menuCamera->addAction(actionReset);
         menuCamera->addAction(actionUse_SceneView_Camera);
         menuCamera->addAction(menuProjection->menuAction());
@@ -1552,11 +1559,13 @@ public:
 #ifndef QT_NO_STATUSTIP
         actionAstroboy_Army_CPU->setStatusTip(QApplication::translate("qtMainWindow", "Loads a scene with many identical animated characters.", 0));
 #endif // QT_NO_STATUSTIP
+        actionSuperAnimation->setText(QApplication::translate("qtMainWindow", "SuperAnimation", 0));
         menuFile->setTitle(QApplication::translate("qtMainWindow", "File", 0));
         menuLoad_Scene->setTitle(QApplication::translate("qtMainWindow", "Load Scene", 0));
         menuGeneral_Scenes->setTitle(QApplication::translate("qtMainWindow", "General Scenes", 0));
         menuShader_Scenes->setTitle(QApplication::translate("qtMainWindow", "Shader Scenes", 0));
         menuRay_Tracing_Scenes->setTitle(QApplication::translate("qtMainWindow", "Ray Tracing Scenes", 0));
+        menuAnimation_Scenes->setTitle(QApplication::translate("qtMainWindow", "Animation Scenes", 0));
         menuCamera->setTitle(QApplication::translate("qtMainWindow", "Camera", 0));
         menuProjection->setTitle(QApplication::translate("qtMainWindow", "Projection", 0));
         menuStereo->setTitle(QApplication::translate("qtMainWindow", "Stereo", 0));

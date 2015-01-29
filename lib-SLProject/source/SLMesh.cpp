@@ -561,12 +561,9 @@ void SLMesh::updateAccelStruct()
         _accelStruct = new SLUniformGrid(this);
 
     if (_accelStruct && numI > 15)
-        _accelStruct->build(minP, maxP);
-
-    // we changed, so we have to dispose of the visualization
-    _accelStruct->disposeBuffers();
-
-    _accelStructOutOfDate = false;
+    {   _accelStruct->build(minP, maxP);
+        _accelStructOutOfDate = false;
+    }
 }
 //-----------------------------------------------------------------------------
 //! SLMesh::calcNormals recalculates vertex normals for triangle meshes.
