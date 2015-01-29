@@ -22,6 +22,7 @@
 #include <SLButton.h>
 #include <SLAnimation.h>
 #include <SLAnimManager.h>
+#include <SLInputManager.h>
 
 //-----------------------------------------------------------------------------
 /*! Global static scene pointer that can be used throughout the entire library
@@ -319,31 +320,50 @@ bool SLScene::updateIfAllViewsGotPainted()
     // Do animations
     SLfloat startUpdateMS = timeMilliSec();
 
+    // reset the dirty flag on all skeletons
+    // @todo    put this functionality in the anim manager
+    // @note    This would not be necessary if we had a 1 to 1 relationship of meshes to skeletons
+    //          then  the mesh could just mark the skeleton as clean after retrieving the new data.
+    //          Currently however we could have multiple meshes that reference the same skeleton.
+    //          This could be solved by taking the mesh/submesh architecture approach. All logically
+    //          grouped meshes are submeshes to one mesh. For example a character with glasses and clothes
+    //          would consist of a submesh for the glasses, the clothing and the character body. The 
+    //          skeleton data update would then be done on mesh level which in turn updates all of its submeshes.
+    //
+    //          For now we need to reset the dirty flag manually at the start of each frame because of the above note.
+    for(SLint i = 0; i < _animManager.skeletons().size(); ++i)
+        _animManager.skeletons()[i]->changed(false);
+
+    // Update and receive input events from custom input devices and queued up system input (system input not implemented yet)
+    SLInputManager::instance().update();
+
     ////////////////////////////////////////////////////////////////////////////
-    SLbool animated = !_stopAnimations && _animManager.update(elapsedTimeSec());
+    SLbool animated = _animManager.update(elapsedTimeSec()) && !_stopAnimations;
     ////////////////////////////////////////////////////////////////////////////
 
-    // Update AABBs, skins and acceleration structures
-    if (animated)
-    {   
-        // Update AABBs efficiently
-        SLGLState::getInstance()->modelViewMatrix.identity();
-        _root3D->updateAABBRec();
+    /// @todo   implement a nicer way to determine if something in the scene has changed.
+    ///         we could do it currently ba checking the _root3D->isAABBUpToDate flag
+    ///         if anything at all moved this frame then the root node should be marked.
+    ///         but it doesn't seem that nice of a solution.
 
-        // Do software skinning on all changed skeletons
-        for (SLuint i=0; i<_meshes.size(); ++i) 
-        {   if (_meshes[i]->skeleton() && 
-                _meshes[i]->skeleton()->changed() &&
-                _meshes[i]->skinningMethod() == SM_SoftwareSkinning)
-            {   
-                _meshes[i]->transformSkin();
+    // Update AABBs efficiently
+    SLGLState::getInstance()->modelViewMatrix.identity();
+    _root3D->updateAABBRec();
 
-                // update acceleration structure for RT
-                if (renderTypeIsRT || voxelsAreShown)
-                    _meshes[i]->updateAccelStruct();
-            }
+    // Do software skinning on all changed skeletons
+    for (SLuint i=0; i<_meshes.size(); ++i) 
+    {   if (_meshes[i]->skeleton() && 
+            _meshes[i]->skeleton()->changed() && 
+            _meshes[i]->skinningMethod() == SM_SoftwareSkinning)
+        {   
+            _meshes[i]->transformSkin();
+
+            // update acceleration structure for RT
+            if (renderTypeIsRT || voxelsAreShown)
+                _meshes[i]->updateAccelStruct();
         }
     }
+    
 
     _updateTimesMS.set(timeMilliSec()-startUpdateMS);
     return animated;

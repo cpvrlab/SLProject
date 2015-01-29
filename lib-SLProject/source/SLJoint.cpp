@@ -65,3 +65,17 @@ SLMat4f SLJoint::calcFinalMat()
     return updateAndGetWM() * _offsetMat;
 }
 //-----------------------------------------------------------------------------
+
+
+//-----------------------------------------------------------------------------
+/*! Getter that calculates the final joint transform matrix.
+*/
+void SLJoint::needUpdate()
+{
+    SLNode::needUpdate();
+
+    // a joint must always know it's creator
+    assert(_skeleton && "Joint didn't have a valid creator");
+    _skeleton->changed(true);
+}
+//-----------------------------------------------------------------------------
