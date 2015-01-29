@@ -19,7 +19,7 @@
 #include <SLEnums.h>
 //-----------------------------------------------------------------------------
 // GLobal application variables
-GLFWwindow* window;                 //!< The global glfw window handle.
+GLFWwindow* window;                 //!< The global glfw window handle
 SLint       svIndex;                //!< SceneView index
 SLint       scrWidth;               //!< Window width at start up
 SLint       scrHeight;              //!< Window height at start up
@@ -32,7 +32,7 @@ SLVec2i     touchDelta;             //!< Delta between two fingers in x
 SLint       lastWidth;              //!< Last window width in pixels
 SLint       lastHeight;             //!< Last window height in pixels
 SLint       lastMouseWheelPos;      //!< Last mouse wheel position
-SLfloat     lastMouseDownTime = 0.0f; //!< Last mouse press time
+SLfloat     lastMouseDownTime = 0.0f;//!< Last mouse press time
 SLKey       modifiers=KeyNone;      //!< last modifier keys
 SLbool      fullscreen = false;     //!< flag if window is in fullscreen mode
 
@@ -48,7 +48,7 @@ void onClose(GLFWwindow* window)
 
 //-----------------------------------------------------------------------------
 /*!
-onPaint: Paint event handler that passes the event to the slPaint function.
+onPaint: Paint event handler that passes the event to the slPaint function. 
 */
 SLbool onPaint()
 {
@@ -483,6 +483,21 @@ int main(int argc, char *argv[])
         if (!onPaint()) 
             glfwWaitEvents();
         else glfwPollEvents();
+
+        /*
+        // @todo    new update cycle, we begin a frame by checking if we have running animations or simulations
+        //          or if the app has continuous drawing enabled. Then we either wait for system events or poll them
+        //          then we poll custom devices. and finally we draw.
+        if (!wantsUpdate())
+            glfwWaitEvents();
+        else {
+            glfwPollEvents();
+            slPoll();
+        }
+
+        updateAndPaint();
+        */
+
     }
    
     slTerminate();

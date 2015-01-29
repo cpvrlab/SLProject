@@ -36,7 +36,7 @@ SLGLShader::SLGLShader(SLstring filename, SLShaderType shaderType)
     _objectGL = 0;
     _file = filename;
    
-    // Only load file at this moment, don't compile.
+    // Only load file at this moment, don't compile it.
     load(filename);
 }
 //----------------------------------------------------------------------------- 

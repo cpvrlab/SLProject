@@ -40,6 +40,8 @@ public:
     void            calcMaxRadius(const SLVec3f& vec);
     SLMat4f         calcFinalMat();
 
+    void            needUpdate();
+
     // Setters
     void            offsetMat   (const SLMat4f& mat) { _offsetMat = mat; }
 

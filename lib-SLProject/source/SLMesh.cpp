@@ -199,28 +199,35 @@ void SLMesh::draw(SLSceneView* sv, SLNode* node)
             sp->uniformMatrix3fv(locNM, 1, (SLfloat*)_stateGL->normalMatrix());
         }
 
+        // @note for now this is only the hardware skinned version here
+        // @tood some stuff is duplicated in here that is also in the software skinning function (like creation of the jointmatrices array
+        //       and the changed check and notifying of nodes.
         // 3.d: Do CPU or GPU skinning for animated meshes
         if (_skeleton && Ji && Jw)
         {
-            // only update joint matrices if the skeleton changed
-            if (!_jointMatrices)
-                _jointMatrices = new SLMat4f[_skeleton->numJoints()]; // @todo offload the generation of the joint matrix array to somebody else. meshes can share the same array, so it must be somewhere else..
-
-            if (_skeleton->changed())
-            {
-                // update the joint matrix array
-                _skeleton->getJointWorldMatrices(_jointMatrices);
-            }
-
             if (_skinningMethod == SM_HardwareSkinning)
-            {            
+            {  
+                if (!_jointMatrices)
+                _jointMatrices = new SLMat4f[_skeleton->numJoints()]; 
+
+                if (_skeleton->changed())
+                {
+                    // update the joint matrix array
+                    _skeleton->getJointWorldMatrices(_jointMatrices);
+                    // remove the changed flag from the skeleton since our joint matrices are up to date again
+                    // @note    the skeleton referenced here would be the skeletoninstance proposed in the documentation
+                    //          of SLSkeleton. So the _jointMatrices array is the only thing that is concerned with the changed flag
+                    //_skeleton->changed(false); // can't do that here since multiple meshes might reference the same skeleton... mesh/submesh architecture would solve this problem
+                    // notify all nodes that contain this mesh about the change
+                    notifyParentNodesAABBUpdate();
+                }
+          
                 // @todo    Secondly: It is a bad idea to keep the joint data in the mesh itself, this prevents us
                 //          from instantiating a single mesh with multiple animations. Needs to be addressed ASAP. (see also SLMesh class problems in SLMesh.h at the top)
+                //          In short, the solution would be an entity class which is an instance of a mesh (same mesh data) which can be animated. the original buffers
+                //          would be in the original mesh and the cpu skinned buffers in the entity. or if gpu skinned it would just be the jointmatrices array that's in the entity.
                 SLint locBM = sp->getUniformLocation("u_jointMatrices");
                 sp->uniformMatrix4fv(locBM, _skeleton->numJoints(), (SLfloat*)_jointMatrices, false);
-                
-                // notify all owning nodes about a mesh change
-                notifyParentNodesAABBUpdate();
             }
         }
 
@@ -950,6 +957,9 @@ SLbool SLMesh::addWeight(SLint vertId, SLuint jointId, SLfloat weight)
 
 //-----------------------------------------------------------------------------
 /*! Sets the current skinning method.
+@todo   This function is still kindof hackish, we manually change the material in the mesh. The skinning
+        shouldn't rely on a material however, the shader should know if it needs skinning variables and 
+        transformations and apply them to the current used shader.
 */
 void SLMesh::skinningMethod(SLSkinningMethod method) 
 { 
@@ -995,7 +1005,7 @@ This software skinning is also needed for ray or path tracing.
 void SLMesh::transformSkin()
 {
     // return if skeleton has not changed
-    if (!_skeleton->changed()) return;
+    //if (!_skeleton->changed()) return;
 
     // create the secondary buffers for P and N once   
     if (!cpuSkinningP)
@@ -1015,6 +1025,9 @@ void SLMesh::transformSkin()
 
     // update the joint matrix array
     _skeleton->getJointWorldMatrices(_jointMatrices);
+    // remove the changed flag from the skeleton
+    //_skeleton->changed(false); // can't do that here since multiple meshes might reference the same skeleton... mesh/submesh architecture would solve this problem
+    notifyParentNodesAABBUpdate();
 
     // temporarily set finalP here
     // @todo move the setting of finalP to the setSkinningMethod function
@@ -1065,8 +1078,6 @@ void SLMesh::transformSkin()
          _bufN.update(norm(), numV, 0);
     else _bufN.generate(norm(), numV, 3);
 
-    // notify all owning nodes about a mesh change
-    notifyParentNodesAABBUpdate();
 }
 
 //-----------------------------------------------------------------------------

@@ -45,13 +45,15 @@ class SLQuat4
         void        fromEulerAngles(const T pitchRAD, const T yawRAD, const T rollRAD);
         void        fromVec3       (const SLVec3<T>& v0, const SLVec3<T>& v1);
 
+ static SLQuat4<T>  fromLookRotation(const SLVec3<T>& forward, const SLVec3<T>& up);
+
         SLMat3<T>   toMat3         () const;
         SLMat4<T>   toMat4         () const;
         SLVec4<T>   toVec4         () const;
         void        toAngleAxis    (T& angleDEG, SLVec3<T>& axis) const;
       
         T           dot         (const SLQuat4<T>& q) const;
-        T           length      ();
+        T           length      () const;
         SLQuat4<T>  normalized  () const;
         T           normalize   ();
         SLQuat4<T>  inverted    () const;
@@ -111,6 +113,13 @@ inline SLQuat4<T>::SLQuat4(const T angleDEG, const SLVec3<T>& axis)
     fromAngleAxis(angleDEG*SL_DEG2RAD, axis.x, axis.y, axis.z);
 }
 
+//-----------------------------------------------------------------------------
+template <class T>
+inline SLQuat4<T>::SLQuat4(const SLVec3<T>& v0, const SLVec3<T>& v1)
+{
+    fromVec3(v0, v1);
+}
+                    
 //-----------------------------------------------------------------------------
 template <class T>
 inline SLQuat4<T>::SLQuat4(const T pitchRAD, const T yawRAD, const T rollRAD)
@@ -191,6 +200,68 @@ void SLQuat4<T>::fromVec3(const SLVec3<T>& v0, const SLVec3<T>& v1)
     _w = s * (T)0.5;
 }
 
+//-----------------------------------------------------------------------------
+template <class T>
+SLQuat4<T>  SLQuat4<T>::fromLookRotation(const SLVec3<T>& forward, const SLVec3<T>& up)
+{
+    SLVec3f vector = forward;
+    vector.normalize();
+    SLVec3f vector2;
+    vector2.cross(up, vector);
+    vector2.normalize();
+    SLVec3f vector3;
+    vector3.cross(vector, vector2);
+    vector3.normalize();
+    float m00 = vector2.x;
+    float m01 = vector2.y;
+    float m02 = vector2.z;
+    float m10 = vector3.x;
+    float m11 = vector3.y;
+    float m12 = vector3.z;
+    float m20 = vector.x;
+    float m21 = vector.y;
+    float m22 = vector.z;
+ 
+    float num8 = (m00 + m11) + m22;
+    SLQuat4<T> quaternion;
+    if (num8 > 0.0f)
+    {
+        float num = (float)sqrt(num8 + 1.0f);
+        quaternion._w = num * 0.5f;
+        num = 0.5f / num;
+        quaternion._x = (m12 - m21) * num;
+        quaternion._y = (m20 - m02) * num;
+        quaternion._z = (m01 - m10) * num;
+    }
+    else if ((m00 >= m11) && (m00 >= m22))
+    {
+        float num7 = (float)sqrt(((1.0f + m00) - m11) - m22);
+        float num4 = 0.5f / num7;
+        quaternion._x = 0.5f * num7;
+        quaternion._y = (m01 + m10) * num4;
+        quaternion._z = (m02 + m20) * num4;
+        quaternion._w = (m12 - m21) * num4;
+    }
+    else if (m11 > m22)
+    {
+        float num6 = (float)sqrt(((1.0f + m11) - m00) - m22);
+        float num3 = 0.5f / num6;
+        quaternion._x = (m10+ m01) * num3;
+        quaternion._y = 0.5f * num6;
+        quaternion._z = (m21 + m12) * num3;
+        quaternion._w = (m20 - m02) * num3;
+    }
+    else
+    {
+        float num5 = (float)sqrt(((1.0f + m22) - m00) - m11);
+        float num2 = 0.5f / num5;
+        quaternion._x = (m20 + m02) * num2;
+        quaternion._y = (m21 + m12) * num2;
+        quaternion._z = 0.5f * num5;
+        quaternion._w = (m01 - m10) * num2;
+    }
+    return quaternion;
+}
 //-----------------------------------------------------------------------------
 template <class T>
 void SLQuat4<T>::fromAngleAxis(const T angleRAD, 
@@ -405,7 +476,7 @@ inline T SLQuat4<T>::dot(const SLQuat4<T>& q) const
 
 //-----------------------------------------------------------------------------
 template <class T>
-inline T SLQuat4<T>::length()
+inline T SLQuat4<T>::length() const
 {
     return sqrt(_x*_x + _y*_y + _z*_z + _w*_w);
 }
@@ -415,24 +486,24 @@ template <class T>
 SLQuat4<T> SLQuat4<T>::normalized() const
 {
     T len = length();
-    SLQuat4<T> normalized;
+    SLQuat4<T> norm;
 
     if (len > FLT_EPSILON)
     {
         T invLen = ((T)1)/len;
-        normalized._x = _x *= invLen;
-        normalized._y = _y *= invLen;
-        normalized._z = _z *= invLen;
-        normalized._w = _w *= invLen;
+        norm._x = _x * invLen;
+        norm._y = _y * invLen;
+        norm._z = _z * invLen;
+        norm._w = _w * invLen;
     } else
     {  // set invalid result to flag the error.
-        normalized._x = (T)0;
-        normalized._y = (T)0;
-        normalized._z = (T)0;
-        normalized._w = (T)0;
+        norm._x = (T)0;
+        norm._y = (T)0;
+        norm._z = (T)0;
+        norm._w = (T)0;
     }
 
-    return normalized;
+    return norm;
 }
 
 //-----------------------------------------------------------------------------

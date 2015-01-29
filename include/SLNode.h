@@ -192,8 +192,10 @@ class SLNode: public SLObject, public SLEventHandler
             void            position            (SLfloat x, SLfloat y, SLfloat z, 
                                                  SLTransformSpace relativeTo = TS_Parent);
             
+            void            rotation            (const SLQuat4f& rot, 
+                                                 SLTransformSpace relativeTo = TS_Parent);    
             void            rotation            (SLfloat angleDeg, const SLVec3f& axis,
-                                                 SLTransformSpace relativeTo = TS_Local);
+                                                 SLTransformSpace relativeTo = TS_Parent);
             void            scale               (SLfloat s);
             void            scale               (SLfloat x, SLfloat y, SLfloat z);
             void            scale               (const SLVec3f& scale);
@@ -202,14 +204,14 @@ class SLNode: public SLObject, public SLEventHandler
                                                  SLTransformSpace relativeTo = TS_Local);
             void            translate           (SLfloat x, SLfloat y, SLfloat z, 
                                                  SLTransformSpace relativeTo = TS_Local);
-
+            
+            void            rotate              (const SLQuat4f& rot, 
+                                                 SLTransformSpace relativeTo = TS_Local);  
+            void            rotate              (SLfloat angleDeg, const SLVec3f& axis, 
+                                                 SLTransformSpace relativeTo = TS_Local);  
             void            rotate              (SLfloat angleDeg, 
                                                  SLfloat x, SLfloat y, SLfloat z,
-                                                 SLTransformSpace relativeTo = TS_Local);
-            void            rotate              (SLfloat angleDeg, const SLVec3f& axis, 
-                                                 SLTransformSpace relativeTo = TS_Local);
-            void            rotate              (const SLQuat4f& rot, 
-                                                 SLTransformSpace relativeTo = TS_Local);     
+                                                 SLTransformSpace relativeTo = TS_Local); 
 
             void            rotateAround        (const SLVec3f& point, 
                                                  SLVec3f& axis, SLfloat angleDeg,
@@ -231,7 +233,7 @@ class SLNode: public SLObject, public SLEventHandler
             void            parent              (SLNode* p);
             void            om                  (const SLMat4f& mat) {_om = mat; needUpdate();}
             void            animation           (SLAnimation* a)  {_animation = a;}
-            void            needUpdate          ();
+    virtual void            needUpdate          ();
             void            needWMUpdate        ();
             void            needAABBUpdate      ();
                
