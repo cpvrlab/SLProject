@@ -386,7 +386,8 @@ void CustomSceneView::postSceneLoad()
 
 
     // cubes to grab and interact with
-    _currentGrabbedObject = NULL;
+    _currentGrabbedObject[0] = NULL;
+    _currentGrabbedObject[1] = NULL;
 
     SLfloat colSpacing = 0.5f;
     SLfloat rowSpacing = 0.5f;
@@ -403,15 +404,14 @@ void CustomSceneView::postSceneLoad()
     }
 
     
-    _objectMover.setGrabCallback(std::bind(&CustomSceneView::grabCallback,this,placeholders::_1,placeholders::_2));
-    _objectMover.setReleaseCallback(std::bind(&CustomSceneView::releaseCallback,this));
-    _objectMover.setMoveCallback(std::bind(&CustomSceneView::moveCallback,this,placeholders::_1,placeholders::_2));
+    _objectMover.setGrabCallback(std::bind(&CustomSceneView::grabCallback,this,placeholders::_1,placeholders::_2,placeholders::_3));
+    _objectMover.setReleaseCallback(std::bind(&CustomSceneView::releaseCallback,this,placeholders::_1));
+    _objectMover.setMoveCallback(std::bind(&CustomSceneView::moveCallback,this,placeholders::_1,placeholders::_2,placeholders::_3));
 }
 
 void CustomSceneView::preDraw()
 {
-    // before drawing the next frame update all input devices
-    SLInputManager::instance().update();
+    
 }
 
 
@@ -435,12 +435,14 @@ SLbool CustomSceneView::onKeyRelease(const SLKey key, const SLKey mod)
 
 
 
-void CustomSceneView::grabCallback(SLVec3f& pos, SLQuat4f& rot)
+void CustomSceneView::grabCallback(SLVec3f& pos, SLQuat4f& rot, bool isLeft)
 {
-    _prevRotation = rot;
-    _prevPosition = pos;
+    SLint index = (isLeft) ? 0 : 1;
+
+    _prevRotation[index] = rot;
+    _prevPosition[index] = pos;
     
-    SLfloat radius = 0.3f;
+    SLfloat radius = 0.2f;
     for (auto cube : _movableBoxes) {
         if (cube->position().x - radius < pos.x &&
             cube->position().y - radius < pos.y &&
@@ -449,27 +451,32 @@ void CustomSceneView::grabCallback(SLVec3f& pos, SLQuat4f& rot)
             cube->position().y + radius > pos.y &&
             cube->position().z + radius > pos.z)
         {
-            _currentGrabbedObject = cube;
+            _currentGrabbedObject[index] = cube;
             return;
         }
     }
 }
-void CustomSceneView::moveCallback(SLVec3f& pos, SLQuat4f& rot)
+void CustomSceneView::moveCallback(SLVec3f& pos, SLQuat4f& rot, bool isLeft)
 {
-    if (!_currentGrabbedObject) 
+    SLint index = (isLeft) ? 0 : 1;
+
+    if (!_currentGrabbedObject[index]) 
         return;
+    
 
-    SLQuat4f relRot = _prevRotation * rot.inverted();
+    SLQuat4f relRot = _prevRotation[index] * rot.inverted();
     relRot.invert();
-    _prevRotation = rot;
+    _prevRotation[index] = rot;
 
-    _currentGrabbedObject->translate(pos - _prevPosition, TS_World);
-    _currentGrabbedObject->rotate(relRot, TS_World);
+    _currentGrabbedObject[index]->translate(pos - _prevPosition[index], TS_World);
+    _currentGrabbedObject[index]->rotate(relRot, TS_World);
 
-    _prevPosition = pos;
+    _prevPosition[index] = pos;
 }
-void CustomSceneView::releaseCallback()
+void CustomSceneView::releaseCallback(bool isLeft)
 {
-    _currentGrabbedObject = NULL;
+    SLint index = (isLeft) ? 0 : 1;
+
+    _currentGrabbedObject[index] = NULL;
     SL_LOG("RELEASED\n");
 }

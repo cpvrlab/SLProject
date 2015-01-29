@@ -35,11 +35,11 @@ private:
     SampleGestureListener       _gestureListener;
     SampleObjectMover           _objectMover;
     vector<SLNode*>             _movableBoxes;
-    SLNode*                     _currentGrabbedObject;
-    SLQuat4f                    _prevRotation;
-    SLVec3f                     _prevPosition;
+    SLNode*                     _currentGrabbedObject[2];
+    SLQuat4f                    _prevRotation[2];
+    SLVec3f                     _prevPosition[2];
 
-    void grabCallback(SLVec3f&, SLQuat4f&);
-    void moveCallback(SLVec3f&, SLQuat4f&);
-    void releaseCallback();
+    void grabCallback(SLVec3f&, SLQuat4f&, bool);
+    void moveCallback(SLVec3f&, SLQuat4f&, bool);
+    void releaseCallback(bool);
 };

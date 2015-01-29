@@ -52,7 +52,7 @@ typedef vector<SLLeapHandListener*> SLVLeapHandListenerPtr;
 typedef vector<SLLeapToolListener*> SLVLeapToolListenerPtr;
 
 // leap controller input device
-class SLLeapController : public SLInputDevice
+class SLLeapController : public SLInputDevice, public Leap::Listener
 {
 public:
                     SLLeapController();
@@ -68,6 +68,11 @@ public:
     
     // SLInputDevice function implementation
     virtual void poll();
+
+    virtual void onFrame(const Leap::Controller&)
+    {
+        SLint i = 0;
+    }
     
 protected:
     int64_t                     _prevFrameId;
@@ -81,7 +86,7 @@ protected:
     SLVLeapToolListenerPtr      _toolListeners;
 
     
-    virtual void onFrame(const Leap::Frame);
+    virtual void onFrame(const Leap::Frame&);
 };
 
 

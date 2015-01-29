@@ -394,6 +394,7 @@ SLbool SLSceneView::onPaint()
     // Render the 2D GUI (menu etc.)
     draw2DGL();
 
+
     _stateGL->unbindAnythingAndFlush();
 
     // Finish Oculus framebuffer
@@ -556,6 +557,8 @@ SLbool SLSceneView::draw3DGL(SLfloat elapsedTimeMS)
         // Enable all color channels again
         _stateGL->colorMask(1, 1, 1, 1); 
     }
+
+
  
     _draw3DTimeMS = s->timeMilliSec()-startMS;
 

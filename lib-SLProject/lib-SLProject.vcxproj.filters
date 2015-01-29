@@ -34,6 +34,9 @@
     <Filter Include="Animation">
       <UniqueIdentifier>{78b566b0-bd7c-4e28-8797-9e38a2226fda}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Input">
+      <UniqueIdentifier>{d4a3c382-a5bf-4836-a8f6-0f22cde70947}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\include\SLAABBox.h">
@@ -249,6 +252,15 @@
     <ClInclude Include="..\include\SLLens.h">
       <Filter>Nodes\Meshes</Filter>
     </ClInclude>
+    <ClInclude Include="..\include\SLInputDevice.h">
+      <Filter>Input</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\SLInputManager.h">
+      <Filter>Input</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\SLInputEvent.h">
+      <Filter>Input</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="source\SLAABBox.cpp">
@@ -409,6 +421,12 @@
     </ClCompile>
     <ClCompile Include="source\SLLens.cpp">
       <Filter>Nodes\Meshes</Filter>
+    </ClCompile>
+    <ClCompile Include="source\SLInputDevice.cpp">
+      <Filter>Input</Filter>
+    </ClCompile>
+    <ClCompile Include="source\SLInputManager.cpp">
+      <Filter>Input</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

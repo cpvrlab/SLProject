@@ -17,7 +17,8 @@
 /** Constructor */
 SLLeapController::SLLeapController()
 {
-    _leapController.setPolicy(Leap::Controller::POLICY_BACKGROUND_FRAMES);
+    _leapController.addListener(*this);
+    //_leapController.setPolicy(Leap::Controller::POLICY_BACKGROUND_FRAMES);
     _leapController.enableGesture(Leap::Gesture::TYPE_SWIPE);
     _leapController.enableGesture(Leap::Gesture::TYPE_KEY_TAP);
     _leapController.enableGesture(Leap::Gesture::TYPE_SCREEN_TAP);
@@ -38,7 +39,7 @@ void SLLeapController::poll()
     _prevFrameId = frame.id();
 }
 
-void SLLeapController::onFrame(const Leap::Frame frame)
+void SLLeapController::onFrame(const Leap::Frame& frame)
 {
     if (_handListeners.size())
     {

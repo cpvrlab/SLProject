@@ -151,12 +151,7 @@ void SLSkeleton::reset()
 */
 SLbool SLSkeleton::updateAnimations(SLfloat elapsedTimeSec)
 {
-    /// @todo IMPORTANT: don't do this if we don't have any enabled animations,
-    /// current workaround won't allow for blending!
-    //reset();
-
-    // reset the changed flag
-    _changed = false;
+    SLbool animated = false;
     SLMAnimPlayback::iterator it;
     for (it = _animPlaybacks.begin(); it != _animPlaybacks.end(); it++)
     {
@@ -164,14 +159,12 @@ SLbool SLSkeleton::updateAnimations(SLfloat elapsedTimeSec)
         if (state->enabled())
         {
             state->advanceTime(elapsedTimeSec);
-
-            // mark skeleton as changed if a state is different
-            _changed = state->changed();
+            animated |= state->changed();
         }
     }
 
     // return if nothing changed
-    if (!_changed)
+    if (!animated)
         return false;
 
     // reset the skeleton and apply all enabled animations

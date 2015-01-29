@@ -483,6 +483,21 @@ int main(int argc, char *argv[])
         if (!onPaint()) 
             glfwWaitEvents();
         else glfwPollEvents();
+
+        /*
+        // @todo    new update cycle, we begin a frame by checking if we have running animations or simulations
+        //          or if the app has continuous drawing enabled. Then we either wait for system events or poll them
+        //          then we poll custom devices. and finally we draw.
+        if (!wantsUpdate())
+            glfwWaitEvents();
+        else {
+            glfwPollEvents();
+            slPoll();
+        }
+
+        updateAndPaint();
+        */
+
     }
    
     slTerminate();
