@@ -80,8 +80,8 @@ void SLInputManager::processQueuedEvents()
 
         case SLInputEvent::MouseMove:          { const SLMouseEvent* me = (const SLMouseEvent*)e; sv->onMouseMove(me->x, me->y); } break;
         case SLInputEvent::MouseDown:          { const SLMouseEvent* me = (const SLMouseEvent*)e; sv->onMouseDown(me->button, me->x, me->y, me->modifier); } break;
-        case SLInputEvent::MouseUp:            { const SLMouseEvent* me = (const SLMouseEvent*)e; sv->onMouseDown(me->button, me->x, me->y, me->modifier); } break;
-        case SLInputEvent::MouseDoubleClick:   { const SLMouseEvent* me = (const SLMouseEvent*)e; sv->onMouseDown(me->button, me->x, me->y, me->modifier); } break;
+        case SLInputEvent::MouseUp:            { const SLMouseEvent* me = (const SLMouseEvent*)e; sv->onMouseUp(me->button, me->x, me->y, me->modifier); } break;
+        case SLInputEvent::MouseDoubleClick:   { const SLMouseEvent* me = (const SLMouseEvent*)e; sv->onDoubleClick(me->button, me->x, me->y, me->modifier); } break;
         case SLInputEvent::MouseWheel:         { const SLMouseEvent* me = (const SLMouseEvent*)e; sv->onMouseWheel(me->y, me->modifier); } break;
 
         case SLInputEvent::Touch2Move:         { const SLTouchEvent* te = (const SLTouchEvent*)e; sv->onTouch2Move(te->x1, te->y1, te->x2, te->y2); } break;

@@ -310,6 +310,8 @@ bool slKeyPress(int sceneViewIndex, SLKey key, SLKey modifier)
     e->key = key;
     e->modifier = modifier;
 
+    SL_LOG("sent event: %d\n", e);
+
     SLInputManager::instance().queueEvent(e);
     return true; // @todo remove return from the interface input, this doesn't concern the outer layers
 }

@@ -170,11 +170,9 @@ static void onMouseButton(GLFWwindow* window, int button, int action, int mods)
 
             // Do parallel double finger move
             if (modifiers & KeyShift)
-            {  if (slTouch2Down(svIndex, x, y, x - touchDelta.x, y - touchDelta.y))
-                onPaint();
+            {  slTouch2Down(svIndex, x, y, x - touchDelta.x, y - touchDelta.y);
             } else // Do concentric double finger pinch
-            {  if (slTouch2Down(svIndex, x, y, touch2.x, touch2.y))
-                onPaint();
+            {  slTouch2Down(svIndex, x, y, touch2.x, touch2.y);
             }
         } 
         else  // Do standard mouse down
@@ -187,13 +185,13 @@ static void onMouseButton(GLFWwindow* window, int button, int action, int mods)
             {  
                 switch (button)
                 {   case GLFW_MOUSE_BUTTON_LEFT:
-                        if (slDoubleClick(svIndex, ButtonLeft, x, y, modifiers)) onPaint();
+                        slDoubleClick(svIndex, ButtonLeft, x, y, modifiers);
                         break;
                     case GLFW_MOUSE_BUTTON_RIGHT:
-                        if (slDoubleClick(svIndex, ButtonRight, x, y, modifiers)) onPaint();
+                        slDoubleClick(svIndex, ButtonRight, x, y, modifiers);
                         break;
                     case GLFW_MOUSE_BUTTON_MIDDLE:
-                        if (slDoubleClick(svIndex, ButtonMiddle, x, y, modifiers)) onPaint();
+                        slDoubleClick(svIndex, ButtonMiddle, x, y, modifiers);
                         break;
                 }
             } 
@@ -201,13 +199,13 @@ static void onMouseButton(GLFWwindow* window, int button, int action, int mods)
             {
                 switch (button)
                 {   case GLFW_MOUSE_BUTTON_LEFT:
-                        if (slMouseDown(svIndex, ButtonLeft, x, y, modifiers)) onPaint();
+                        slMouseDown(svIndex, ButtonLeft, x, y, modifiers);
                         break;
                     case GLFW_MOUSE_BUTTON_RIGHT:
-                        if (slMouseDown(svIndex, ButtonRight, x, y, modifiers)) onPaint();
+                        slMouseDown(svIndex, ButtonRight, x, y, modifiers);
                         break;
                     case GLFW_MOUSE_BUTTON_MIDDLE:
-                        if (slMouseDown(svIndex, ButtonMiddle, x, y, modifiers)) onPaint();
+                        slMouseDown(svIndex, ButtonMiddle, x, y, modifiers);
                         break;
                 }
             }
@@ -220,23 +218,21 @@ static void onMouseButton(GLFWwindow* window, int button, int action, int mods)
         {  
             // Do parallel double finger move
             if (modifiers & KeyShift)
-            {   if (slTouch2Up(svIndex, x, y, x - (touch2.x - x), y - (touch2.y - y)))
-                onPaint();
+            {   slTouch2Up(svIndex, x, y, x - (touch2.x - x), y - (touch2.y - y));
             } else // Do concentric double finger pinch
-            {   if (slTouch2Up(svIndex, x, y, touch2.x, touch2.y))
-                onPaint(); 
+            {   slTouch2Up(svIndex, x, y, touch2.x, touch2.y); 
             }   
         } 
         else  // Do standard mouse down
         {  switch (button)
             {   case GLFW_MOUSE_BUTTON_LEFT:
-                    if (slMouseUp(svIndex, ButtonLeft, x, y, modifiers)) onPaint(); 
+                    slMouseUp(svIndex, ButtonLeft, x, y, modifiers); 
                     break;
                 case GLFW_MOUSE_BUTTON_RIGHT:
-                    if (slMouseUp(svIndex, ButtonRight, x, y, modifiers)) onPaint(); 
+                    slMouseUp(svIndex, ButtonRight, x, y, modifiers); 
                     break;
                 case GLFW_MOUSE_BUTTON_MIDDLE:
-                    if (slMouseUp(svIndex, ButtonMiddle, x, y, modifiers)) onPaint(); 
+                    slMouseUp(svIndex, ButtonMiddle, x, y, modifiers); 
                     break;
             }
         }
@@ -275,7 +271,7 @@ static void onMouseMove(GLFWwindow* window, double x, double y)
             slTouch2Move(svIndex, (int)x, (int)y, touch2.x, touch2.y);
         }
     } else // Do normal mouse move
-        if (slMouseMove(svIndex, (int)x, (int)y)) onPaint();
+        slMouseMove(svIndex, (int)x, (int)y);
 }
 
 //-----------------------------------------------------------------------------
@@ -288,7 +284,7 @@ static void onMouseWheel(GLFWwindow* window, double xscroll, double yscroll)
     int dY = (int)yscroll;
     if (dY==0) dY = (int)(SL_sign(yscroll));
 
-    if (slMouseWheel(svIndex, dY, modifiers)) onPaint();
+    slMouseWheel(svIndex, dY, modifiers);
 }
 
 //-----------------------------------------------------------------------------
