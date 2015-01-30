@@ -223,6 +223,21 @@ SOURCES += \
     zlib/adler32.c \
     zlib/ioapi.c \
     zlib/unzip.c \
+    png/pngwutil.c \
+    png/pngwtran.c \
+    png/pngwrite.c \
+    png/pngwio.c \
+    png/pngtrans.c \
+    png/pngset.c \
+    png/pngrutil.c \
+    png/pngrtran.c \
+    png/pngrio.c \
+    png/pngread.c \
+    png/pngpread.c \
+    png/pngmem.c \
+    png/pngget.c \
+    png/pngerror.c \
+    png/png.c \
 }
 unix:!macx:!android { #Linux only -------------------------
 INCLUDEPATH += \

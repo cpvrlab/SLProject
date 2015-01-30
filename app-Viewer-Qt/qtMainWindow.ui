@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>728</width>
-    <height>623</height>
+    <width>906</width>
+    <height>679</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -37,8 +37,8 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>728</width>
-     <height>21</height>
+     <width>906</width>
+     <height>31</height>
     </rect>
    </property>
    <property name="defaultUp">
@@ -70,10 +70,6 @@
       <addaction name="actionTexture_Filtering"/>
       <addaction name="actionFrustum_Culling_1"/>
       <addaction name="actionFrustum_Culling_2"/>
-      <addaction name="actionMass_Animation"/>
-      <addaction name="actionSkeletal_Animation"/>
-      <addaction name="actionAstroboy_Army_GPU"/>
-      <addaction name="actionAstroboy_Army_CPU"/>
      </widget>
      <widget class="QMenu" name="menuShader_Scenes">
       <property name="title">
@@ -98,8 +94,18 @@
       <addaction name="actionRT_Soft_Shadows"/>
       <addaction name="actionRT_Lens"/>
      </widget>
+     <widget class="QMenu" name="menuAnimation_Scenes">
+      <property name="title">
+       <string>Animation Scenes</string>
+      </property>
+      <addaction name="actionMass_Animation"/>
+      <addaction name="actionSkeletal_Animation"/>
+      <addaction name="actionAstroboy_Army_GPU"/>
+      <addaction name="actionAstroboy_Army_CPU"/>
+     </widget>
      <addaction name="menuGeneral_Scenes"/>
      <addaction name="menuShader_Scenes"/>
+     <addaction name="menuAnimation_Scenes"/>
      <addaction name="menuRay_Tracing_Scenes"/>
     </widget>
     <addaction name="menuLoad_Scene"/>
@@ -299,7 +305,7 @@
    <property name="minimumSize">
     <size>
      <width>160</width>
-     <height>103</height>
+     <height>138</height>
     </size>
    </property>
    <property name="floating">
@@ -431,7 +437,7 @@
    <property name="minimumSize">
     <size>
      <width>160</width>
-     <height>116</height>
+     <height>138</height>
     </size>
    </property>
    <property name="windowTitle">
@@ -524,8 +530,8 @@
    </property>
    <property name="minimumSize">
     <size>
-     <width>614</width>
-     <height>114</height>
+     <width>643</width>
+     <height>126</height>
     </size>
    </property>
    <property name="floating">
@@ -2369,6 +2375,11 @@ QSlider::handle:horizontal:disabled {
    </property>
    <property name="statusTip">
     <string>Loads a scene with many identical animated characters.</string>
+   </property>
+  </action>
+  <action name="actionSuperAnimation">
+   <property name="text">
+    <string>SuperAnimation</string>
    </property>
   </action>
  </widget>

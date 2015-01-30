@@ -465,8 +465,8 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
         box3Anim->playForward();
 
         // Define camera
-        SLCamera* cam1 = new SLCamera;
-        cam1->position(0,10,18);
+        SLCamera* cam1 = new SLCamera();
+        cam1->position(0,2,10);
         cam1->lookAt(0, 2, 0);
         cam1->setInitialState();
 
@@ -496,17 +496,16 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
         _root3D = scene;
     }
     else
-    if (sceneName == cmdSceneAstroboyArmyCPU ||sceneName == cmdSceneAstroboyArmyGPU) //....................................
+    if (sceneName == cmdSceneAstroboyArmyCPU ||
+        sceneName == cmdSceneAstroboyArmyGPU) //................................
     {
-        // Mass animation scene of identitcal Astroboy models
-        name("Frustum Culling Test 2");
-        info(sv, "View frustum culling: Only objects in view frustum are rendered. You can turn view culling off in the render flags.");
-        // Create textures and materials
-        SLGLTexture* t1 = new SLGLTexture("grass0512_C.jpg", GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR);
-        SLMaterial* m1 = new SLMaterial("m1", t1); m1->specular(SLCol4f::BLACK);
+        info(sv, "Mass animation scene of identitcal Astroboy models");
+
+        // Create materials
+        SLMaterial* m1 = new SLMaterial("m1", SLCol4f::GRAY); m1->specular(SLCol4f::BLACK);
 
         // Define a light
-        SLLightSphere* light1 = new SLLightSphere(0, 40, 0, 0.5f);
+        SLLightSphere* light1 = new SLLightSphere(100, 40, 100, 1);
         light1->ambient (SLCol4f(0.2f,0.2f,0.2f));
         light1->diffuse (SLCol4f(0.9f,0.9f,0.9f));
         light1->specular(SLCol4f(0.9f,0.9f,0.9f));
@@ -533,10 +532,12 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
         // set the skinning method of the loaded meshes
         // @note RT currently only works with software skinning
         if (sceneName == cmdSceneAstroboyArmyGPU) 
-        {
+        {   name("Astroboy army skinned on GPU");
             for (SLint i = 0; i < importer.meshes().size(); ++i)
                importer.meshes()[i]->skinningMethod(SM_HardwareSkinning);
-        }
+        } else
+            name("Astroboy army skinned on CPU");
+
 
         // Assemble scene
         SLNode* scene = new SLNode("scene group");
@@ -545,8 +546,12 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
         scene->addChild(center);
         scene->addChild(cam1);
 
-        // create spheres around the center sphere
-        SLint size = 5;
+        // create astroboys around the center astroboy
+        #ifdef SL_GLES2
+        SLint size = 4;
+        #else
+        SLint size = 8;
+        #endif
         for (SLint iZ=-size; iZ<=size; ++iZ)
         {   for (SLint iX=-size; iX<=size; ++iX)
             {   

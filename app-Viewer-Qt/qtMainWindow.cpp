@@ -113,7 +113,6 @@ qtMainWindow::qtMainWindow(QWidget *parent, SLVstring cmdLineArgs) :
     borderWidget->show();
     _activeGLWidget->show();
 
-
     // set dark color palette
     QPalette darkPalette;
     darkPalette.setColor(QPalette::Window, QColor(53,53,53));

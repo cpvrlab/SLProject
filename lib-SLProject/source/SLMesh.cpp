@@ -568,12 +568,9 @@ void SLMesh::updateAccelStruct()
         _accelStruct = new SLUniformGrid(this);
 
     if (_accelStruct && numI > 15)
-        _accelStruct->build(minP, maxP);
-
-    // we changed, so we have to dispose of the visualization
-    _accelStruct->disposeBuffers();
-
-    _accelStructOutOfDate = false;
+    {   _accelStruct->build(minP, maxP);
+        _accelStructOutOfDate = false;
+    }
 }
 //-----------------------------------------------------------------------------
 //! SLMesh::calcNormals recalculates vertex normals for triangle meshes.
@@ -1055,15 +1052,19 @@ void SLMesh::transformSkin()
         {   if (jointWeights[j] > 0.0f)
             {
                 const SLMat4f& jm = _jointMatrices[jointIndices[j]];
-                SLVec4f tempPos = jm * SLVec4f(P[i]);
+                SLVec4f tempPos = jm * P[i];
                 cpuSkinningP[i].x += tempPos.x * jointWeights[j];
                 cpuSkinningP[i].y += tempPos.y * jointWeights[j];
                 cpuSkinningP[i].z += tempPos.z * jointWeights[j];
 
                 if (N) 
-                {   SLMat3f jnm = jm.mat3();
-                    jnm.invert();
-                    jnm.transpose();
+                {   // Build the 3x3 submatrix in GLSL 110 (= mat3 jt3 = mat3(jt))
+                    // for the normal transform that is the normally the inverse transpose.
+                    // The inverse transpose can be ignored as long as we only have
+                    // rotation and uniform scaling in the 3x3 submatrix.
+                    SLMat3f jnm = jm.mat3();
+                    //jnm.invert();
+                    //jnm.transpose();
                     cpuSkinningN[i] += jnm * N[i] * jointWeights[j];
                 }
             }
