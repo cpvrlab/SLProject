@@ -319,8 +319,8 @@ static void onKeyAction(GLFWwindow* window, int GLFWKey, int scancode, int actio
             glfwSetWindowSize(window, scrWidth, scrHeight);
             glfwSetWindowPos(window, 10, 30);   
         } else 
-        if (slKeyPress(svIndex, key, modifiers)) // ESC during RT stops it and returns false
-        {   onClose(window);
+        {   slKeyPress(svIndex, key, modifiers);
+            onClose(window);
             glfwSetWindowShouldClose(window, GL_TRUE);
         }
     } else 

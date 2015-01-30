@@ -335,24 +335,12 @@ bool SLScene::updateIfAllViewsGotPainted()
         _animManager.skeletons()[i]->changed(false);
 
     // Process queued up system events and poll custom input devices
-    SLInputManager::instance().pollEvents();
+    SLbool animatedOrChanged = SLInputManager::instance().pollEvents();
 
     ////////////////////////////////////////////////////////////////////////////
-    SLbool animated = _animManager.update(elapsedTimeSec()) && !_stopAnimations;
+    animatedOrChanged |= !_stopAnimations && _animManager.update(elapsedTimeSec());
     ////////////////////////////////////////////////////////////////////////////
-
-    /// @todo   implement a nicer way to determine if something in the scene has changed.
-    ///         we could do it currently by checking the _root3D->isAABBUpToDate flag
-    ///         if anything at all moved this frame then the root node should be marked.
-    ///         but it doesn't seem that nice of a solution.
-    ///         
-    ///         the problem is, that the 'animated' flag won't be marked if some input 
-    ///         event modified anything in the scene.
-
-    // Update AABBs efficiently. The updateAABBRec call won't generate any overhead if nothing changed
-    SLGLState::getInstance()->modelViewMatrix.identity();
-    _root3D->updateAABBRec();
-
+    
     // Do software skinning on all changed skeletons
     for (SLuint i=0; i<_meshes.size(); ++i) 
     {   if (_meshes[i]->skeleton() && 
@@ -360,6 +348,7 @@ bool SLScene::updateIfAllViewsGotPainted()
             _meshes[i]->skinningMethod() == SM_SoftwareSkinning)
         {   
             _meshes[i]->transformSkin();
+            animatedOrChanged = true;
 
             // update acceleration structure for RT
             if (renderTypeIsRT || voxelsAreShown)
@@ -367,8 +356,13 @@ bool SLScene::updateIfAllViewsGotPainted()
         }
     }
     
+    // Update AABBs efficiently. The updateAABBRec call won't generate any overhead if nothing changed
+    SLGLState::getInstance()->modelViewMatrix.identity();
+    _root3D->updateAABBRec();
+
+
     _updateTimesMS.set(timeMilliSec()-startUpdateMS);
-    return animated;
+    return animatedOrChanged;
 }
 
 //-----------------------------------------------------------------------------

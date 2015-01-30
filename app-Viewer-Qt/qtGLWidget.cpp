@@ -215,26 +215,26 @@ void qtGLWidget::mousePressEvent(QMouseEvent *e)
 
         // Do parallel double finger move
         if (modifiers & KeyShift)
-        {   if (slTouch2Down(_svIndex, x, y, x - _touchDelta.x, y - _touchDelta.y))
-                updateGL();
+        {   slTouch2Down(_svIndex, x, y, x - _touchDelta.x, y - _touchDelta.y);
         } else // Do concentric double finger pinch
-        {   if (slTouch2Down(_svIndex, x, y, _touch2.x, _touch2.y))
-                updateGL();
+        {   slTouch2Down(_svIndex, x, y, _touch2.x, _touch2.y);
         }
     } else // normal mouse down
     {   if (e->button()==Qt::LeftButton)
-        {   if (slMouseDown(_svIndex, ButtonLeft, x, y, modifiers))
-                mainWindow->updateAllGLWidgets();
+        {   slMouseDown(_svIndex, ButtonLeft, x, y, modifiers);
         } else
         if (e->button()==Qt::RightButton)
-        {   if (slMouseDown(_svIndex, ButtonRight, x, y, modifiers))
-                mainWindow->updateAllGLWidgets();
+        {   slMouseDown(_svIndex, ButtonRight, x, y, modifiers);
         } else
         if (e->button()==Qt::MidButton)
-        {   if (slMouseDown(_svIndex, ButtonMiddle, x, y, modifiers))
-                mainWindow->updateAllGLWidgets();
+        {   slMouseDown(_svIndex, ButtonMiddle, x, y, modifiers);
         }
     }
+    // if only sceneview camera is used update only this GL widget
+    // if a scene camera is used update all GL widgets
+    if (_sv->isSceneViewCameraActive())
+        update();
+    else mainWindow->updateAllGLWidgets();
 }
 //-----------------------------------------------------------------------------
 /*!
@@ -283,17 +283,19 @@ void qtGLWidget::mouseDoubleClickEvent(QMouseEvent *e)
     int y = (int)((float)e->y() * devicePixelRatio());
 
     if (e->button()==Qt::LeftButton)
-    {   if (slDoubleClick(_svIndex, ButtonLeft, x, y, modifiers))
-            mainWindow->updateAllGLWidgets();
+    {   slDoubleClick(_svIndex, ButtonLeft, x, y, modifiers);
     } else
     if (e->button()==Qt::RightButton) 
-    {   if (slDoubleClick(_svIndex, ButtonRight, x, y, modifiers))
-            mainWindow->updateAllGLWidgets();
+    {   slDoubleClick(_svIndex, ButtonRight, x, y, modifiers);
     } else 
     if (e->button()==Qt::MidButton) 
-    {   if (slDoubleClick(_svIndex, ButtonMiddle, x, y, modifiers))
-            mainWindow->updateAllGLWidgets();
+    {   slDoubleClick(_svIndex, ButtonMiddle, x, y, modifiers);
     }
+    // if only sceneview camera is used update only this GL widget
+    // if a scene camera is used update all GL widgets
+    if (_sv->isSceneViewCameraActive())
+        update();
+    else mainWindow->updateAllGLWidgets();
 }
 //-----------------------------------------------------------------------------
 /*!
@@ -397,14 +399,12 @@ void qtGLWidget::keyPressEvent(QKeyEvent* e)
     if (key==KeyEsc && qtGLWidget::mainWindow->isFullScreen())
         qtGLWidget::mainWindow->on_actionFullscreen_triggered();
    
-    if (slKeyPress(_svIndex, key, modifiers)) 
-    {
-        // if only sceneview camera is used update only this GL widget
-        // if a scene camera is used update all GL widgets
-        if (_sv->isSceneViewCameraActive())
-            update();
-        else mainWindow->updateAllGLWidgets();
-    }
+    slKeyPress(_svIndex, key, modifiers);
+    // if only sceneview camera is used update only this GL widget
+    // if a scene camera is used update all GL widgets
+    if (_sv->isSceneViewCameraActive())
+        update();
+    else mainWindow->updateAllGLWidgets();
 }
 //-----------------------------------------------------------------------------
 /*!
@@ -447,14 +447,12 @@ void qtGLWidget::keyReleaseEvent(QKeyEvent* e)
         case Qt::Key_Tab:       key = KeyTab;      break;
     }
 
-    if(slKeyRelease(_svIndex, key, modifiers)) 
-    {
-        // if only sceneview camera is used update only this GL widget
-        // if a scene camera is used update all GL widgets
-        if (_sv->isSceneViewCameraActive())
-             mainWindow->updateAllGLWidgets();
-        else mainWindow->setMenuState();
-    }
+    slKeyRelease(_svIndex, key, modifiers);
+    // if only sceneview camera is used update only this GL widget
+    // if a scene camera is used update all GL widgets
+    if (_sv->isSceneViewCameraActive())
+        update();
+    else mainWindow->updateAllGLWidgets();
 }
 //-----------------------------------------------------------------------------
 //! Splits the current QGLWidget in two the old and new QGLWidget

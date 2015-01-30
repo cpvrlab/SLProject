@@ -1567,7 +1567,6 @@ void qtMainWindow::on_animAnimationSelect_currentIndexChanged(int index)
     ui->animDurationLabel->setText(ui->animTimelineSlider->getDurationTimeString());
 
     std::cout << "on_animationSelectIndexChanged " << index << " " << play->parentAnimation()->name() << "\n";
-
 }
 void qtMainWindow::on_animSkipStartButton_clicked()
 {
@@ -1575,6 +1574,7 @@ void qtMainWindow::on_animSkipStartButton_clicked()
         return;
 
     _selectedAnim->skipToStart();
+    updateAllGLWidgets();
 }
 void qtMainWindow::on_animSkipEndButton_clicked()
 {
@@ -1582,6 +1582,7 @@ void qtMainWindow::on_animSkipEndButton_clicked()
         return;
 
     _selectedAnim->skipToEnd();
+    updateAllGLWidgets();
 }
 void qtMainWindow::on_animPrevKeyframeButton_clicked()
 {
@@ -1589,6 +1590,7 @@ void qtMainWindow::on_animPrevKeyframeButton_clicked()
         return;
 
     _selectedAnim->skipToPrevKeyframe();
+    updateAllGLWidgets();
 }
 void qtMainWindow::on_animNextKeyframeButton_clicked()
 {
@@ -1596,6 +1598,7 @@ void qtMainWindow::on_animNextKeyframeButton_clicked()
         return;
 
     _selectedAnim->skipToNextKeyframe();
+    updateAllGLWidgets();
 }
 void qtMainWindow::on_animPlayForwardButton_clicked()
 {
@@ -1603,6 +1606,7 @@ void qtMainWindow::on_animPlayForwardButton_clicked()
         return;
 
     _selectedAnim->playForward();
+    updateAllGLWidgets();
 }
 void qtMainWindow::on_animPlayBackwardButton_clicked()
 {
@@ -1610,6 +1614,7 @@ void qtMainWindow::on_animPlayBackwardButton_clicked()
         return;
 
     _selectedAnim->playBackward();
+    updateAllGLWidgets();
 }
 void qtMainWindow::on_animPauseButton_clicked()
 {
@@ -1617,6 +1622,7 @@ void qtMainWindow::on_animPauseButton_clicked()
         return;
 
     _selectedAnim->pause();
+    updateAllGLWidgets();
 }
 void qtMainWindow::on_animStopButton_clicked()
 {
@@ -1640,6 +1646,7 @@ void qtMainWindow::on_animLoopingSelect_currentIndexChanged(int index)
         return;
 
     _selectedAnim->loop((SLAnimLooping)(index));
+    updateAllGLWidgets();
 }
 void qtMainWindow::on_animTimelineSlider_valueChanged(int value)
 {
@@ -1647,6 +1654,7 @@ void qtMainWindow::on_animTimelineSlider_valueChanged(int value)
         return;
     
     _selectedAnim->localTime(ui->animTimelineSlider->getNormalizedValue() * _selectedAnim->parentAnimation()->lengthSec());
+    updateAllGLWidgets();
 }
 void qtMainWindow::on_animWeightInput_valueChanged(double d)
 {
@@ -1654,6 +1662,7 @@ void qtMainWindow::on_animWeightInput_valueChanged(double d)
         return;
 
     _selectedAnim->weight(d);
+    updateAllGLWidgets();
 }
 void qtMainWindow::on_animSpeedInput_valueChanged(double d)
 {
@@ -1661,4 +1670,5 @@ void qtMainWindow::on_animSpeedInput_valueChanged(double d)
         return;
 
     _selectedAnim->playbackRate(d);
+    updateAllGLWidgets();
 }
