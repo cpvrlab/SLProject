@@ -34,14 +34,13 @@ public:
     static SLInputManager& instance();
 
     void pollEvents();
-
     void queueEvent(const SLInputEvent* e);
 
 private:
-    static SLInputManager _instance;            //!< the singleton instance of the input manager
+    static SLInputManager   _instance;          //!< the singleton instance of the input manager
 
-    SLInputEventPtrQueue  _systemEventQueue;    //!< queue for known system events
-    SLVInputDevice _devices;                    //!< list of activated SLInputDevices 
+    SLInputEventPtrQueue    _systemEventQueue;  //!< queue for known system events
+    SLVInputDevice          _devices;           //!< list of activated SLInputDevices 
 
     // prevent instantiation
     SLInputManager()
