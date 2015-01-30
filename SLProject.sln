@@ -69,6 +69,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "lib-assimp", "lib-SLExterna
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "lib-ovr", "lib-SLExternal\oculus\LibOVR\Projects\Win32\VS2013\LibOVR.vcxproj", "{EA50E705-5113-49E5-B105-2512EDC8DDC6}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "app-LeapMotionTest", "app-LeapMotionTest\app-LeapMotionTest.vcxproj", "{2C959818-92F9-44E7-8F02-78A840404D80}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Android = Debug|Android
@@ -316,6 +318,24 @@ Global
 		{EA50E705-5113-49E5-B105-2512EDC8DDC6}.Release|x64.Build.0 = Release|x64
 		{EA50E705-5113-49E5-B105-2512EDC8DDC6}.Release|x86.ActiveCfg = Release|Win32
 		{EA50E705-5113-49E5-B105-2512EDC8DDC6}.Release|x86.Build.0 = Release|Win32
+		{2C959818-92F9-44E7-8F02-78A840404D80}.Debug|Android.ActiveCfg = Debug|Win32
+		{2C959818-92F9-44E7-8F02-78A840404D80}.Debug|Mixed Platforms.ActiveCfg = Debug|Win32
+		{2C959818-92F9-44E7-8F02-78A840404D80}.Debug|Mixed Platforms.Build.0 = Debug|Win32
+		{2C959818-92F9-44E7-8F02-78A840404D80}.Debug|Win32.ActiveCfg = Debug|Win32
+		{2C959818-92F9-44E7-8F02-78A840404D80}.Debug|Win32.Build.0 = Debug|Win32
+		{2C959818-92F9-44E7-8F02-78A840404D80}.Debug|x64.ActiveCfg = Debug|x64
+		{2C959818-92F9-44E7-8F02-78A840404D80}.Debug|x64.Build.0 = Debug|x64
+		{2C959818-92F9-44E7-8F02-78A840404D80}.Debug|x86.ActiveCfg = Debug|Win32
+		{2C959818-92F9-44E7-8F02-78A840404D80}.Debug|x86.Build.0 = Debug|Win32
+		{2C959818-92F9-44E7-8F02-78A840404D80}.Release|Android.ActiveCfg = Release|Win32
+		{2C959818-92F9-44E7-8F02-78A840404D80}.Release|Mixed Platforms.ActiveCfg = Release|Win32
+		{2C959818-92F9-44E7-8F02-78A840404D80}.Release|Mixed Platforms.Build.0 = Release|Win32
+		{2C959818-92F9-44E7-8F02-78A840404D80}.Release|Win32.ActiveCfg = Release|Win32
+		{2C959818-92F9-44E7-8F02-78A840404D80}.Release|Win32.Build.0 = Release|Win32
+		{2C959818-92F9-44E7-8F02-78A840404D80}.Release|x64.ActiveCfg = Release|x64
+		{2C959818-92F9-44E7-8F02-78A840404D80}.Release|x64.Build.0 = Release|x64
+		{2C959818-92F9-44E7-8F02-78A840404D80}.Release|x86.ActiveCfg = Release|Win32
+		{2C959818-92F9-44E7-8F02-78A840404D80}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
