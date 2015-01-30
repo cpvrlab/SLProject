@@ -15,5 +15,22 @@
 
 SLInputDevice::SLInputDevice()
 {
+    // enable any input device on creation
+    // @todo is this good practice?
+    enable();
+}
+
+SLInputDevice::~SLInputDevice()
+{
+    disable();
+}
+
+void SLInputDevice::enable()
+{
     SLInputManager::instance()._devices.push_back(this);
+}
+void SLInputDevice::disable()
+{
+    SLVInputDevice& dl = SLInputManager::instance()._devices;
+    dl.erase(remove(dl.begin(), dl.end(), this), dl.end());
 }

@@ -19,7 +19,10 @@ class SLInputDevice
 {
 public:
     SLInputDevice();
+    ~SLInputDevice();
     
+    void enable();
+    void disable();
     virtual void poll() { }
 };
 

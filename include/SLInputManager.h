@@ -12,6 +12,7 @@
 #define SLINPUTMANAGER_H
 
 #include <stdafx.h>
+#include <SLInputEvent.h>
 #include <SLInputDevice.h>
 
 //-----------------------------------------------------------------------------
@@ -26,14 +27,19 @@ public:
 
     void update();
 
+    void queueEvent(const SLInputEvent* e);
+
 private:
     static SLInputManager _instance;
+
+    SLInputEventPtrQueue  _systemEventQueue;
+    SLVInputDevice _devices;
 
     // prevent instantiation
     SLInputManager()
     { }
 
-    SLVInputDevice _devices;
+    void processQueuedEvents();
 };
 
 

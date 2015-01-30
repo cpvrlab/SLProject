@@ -17,6 +17,7 @@
 #include <sstream>
 #include <fstream>
 #include <vector>
+#include <queue>
 #include <typeinfo>
 #include <string>
 #include <algorithm>
