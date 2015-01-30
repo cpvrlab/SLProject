@@ -13,6 +13,9 @@
 #include <SLInputDevice.h>
 
 
+//-----------------------------------------------------------------------------
+/** Constructor for SLInputDevices. This will automatically enable the device,
+adding them to the SLInputManager. */
 SLInputDevice::SLInputDevice()
 {
     // enable any input device on creation
@@ -20,15 +23,23 @@ SLInputDevice::SLInputDevice()
     enable();
 }
 
+//-----------------------------------------------------------------------------
+/** The destructor removes the device from SLInputManager again if necessary. */
 SLInputDevice::~SLInputDevice()
 {
     disable();
 }
 
+//-----------------------------------------------------------------------------
+/** Enabling an SLInputDevice will add it to the device list kept by 
+SLInputManager */
 void SLInputDevice::enable()
 {
     SLInputManager::instance()._devices.push_back(this);
 }
+//-----------------------------------------------------------------------------
+/** Enabling an SLInputDevice will remove it from the device list kept by 
+SLInputManager */
 void SLInputDevice::disable()
 {
     SLVInputDevice& dl = SLInputManager::instance()._devices;

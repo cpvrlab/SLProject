@@ -52,6 +52,7 @@ bool    slTouch2Up          (int sceneViewIndex, int x1, int y1, int x2, int y2)
 bool    slMouseWheel        (int sceneViewIndex, int pos, SLKey modifier);
 bool    slKeyPress          (int sceneViewIndex, SLKey key, SLKey modifier);
 bool    slKeyRelease        (int sceneViewIndex, SLKey key, SLKey modifier);
+void    slCharInput         (int sceneViewIndex, unsigned int character);
 bool    slCommand           (int sceneViewIndex, SLCmd command);
 void    slRotationPYR       (int sceneViewIndex, float pitchRAD, float yawRAD, float rollRAD);
 void    slRotationQUAT      (int sceneViewIndex, float angleRAD, float axisX, float axisY, float axisZ);

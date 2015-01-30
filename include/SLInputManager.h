@@ -16,24 +16,32 @@
 #include <SLInputDevice.h>
 
 //-----------------------------------------------------------------------------
-//! Simple input manager, for now a singleton that handles the polling of SLInputDevices
+//! SLInputManager. manages system input and custom input devices.
+/*! Every user input has to go through the SLInputManager. System event's
+like touch, mouse, character input will be encapsulated in SLInputEvent
+subclasses and will be queued up before being sent to the relevant SLSceneView.
+Custom SLInputDevices can also be created. The SLInputDevices are guaranteed to 
+receive a call to their poll() function whenever the SLInputManager requires them
+to send out new events.
+
+SLInputManager is a singleton class and only ever exists once.
+*/
 class SLInputManager
 {
 friend class SLInputDevice;
 
 public:
-    ~SLInputManager();
     static SLInputManager& instance();
 
-    void update();
+    void pollEvents();
 
     void queueEvent(const SLInputEvent* e);
 
 private:
-    static SLInputManager _instance;
+    static SLInputManager _instance;            //!< the singleton instance of the input manager
 
-    SLInputEventPtrQueue  _systemEventQueue;
-    SLVInputDevice _devices;
+    SLInputEventPtrQueue  _systemEventQueue;    //!< queue for known system events
+    SLVInputDevice _devices;                    //!< list of activated SLInputDevices 
 
     // prevent instantiation
     SLInputManager()

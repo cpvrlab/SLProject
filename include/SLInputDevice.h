@@ -21,12 +21,11 @@ public:
     SLInputDevice();
     ~SLInputDevice();
     
-    void enable();
-    void disable();
-    virtual void poll() { }
+    void            enable  ();
+    void            disable ();
+    virtual void    poll    () = 0;
 };
 
 typedef vector<SLInputDevice*> SLVInputDevice;
-
 
 #endif

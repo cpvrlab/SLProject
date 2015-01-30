@@ -326,6 +326,18 @@ bool slKeyRelease(int sceneViewIndex, SLKey key, SLKey modifier)
     SLInputManager::instance().queueEvent(e);
     return true; // @todo remove return from the interface input, this doesn't concern the outer layers
 }
+
+//-----------------------------------------------------------------------------
+/*! Global event handler for unicode character input.
+*/
+void slCharInput(int sceneViewIndex, unsigned int character)
+{
+    SLCharInputEvent* e = new SLCharInputEvent();
+    e->svIndex = sceneViewIndex;
+    e->character = character;
+
+    SLInputManager::instance().queueEvent(e);
+}
 //-----------------------------------------------------------------------------
 /*! Global event handler for keyboard key release events. 
 */

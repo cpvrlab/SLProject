@@ -334,19 +334,22 @@ bool SLScene::updateIfAllViewsGotPainted()
     for(SLint i = 0; i < _animManager.skeletons().size(); ++i)
         _animManager.skeletons()[i]->changed(false);
 
-    // Update and receive input events from custom input devices and queued up system input (system input not implemented yet)
-    SLInputManager::instance().update();
+    // Process queued up system events and poll custom input devices
+    SLInputManager::instance().pollEvents();
 
     ////////////////////////////////////////////////////////////////////////////
     SLbool animated = _animManager.update(elapsedTimeSec()) && !_stopAnimations;
     ////////////////////////////////////////////////////////////////////////////
 
     /// @todo   implement a nicer way to determine if something in the scene has changed.
-    ///         we could do it currently ba checking the _root3D->isAABBUpToDate flag
+    ///         we could do it currently by checking the _root3D->isAABBUpToDate flag
     ///         if anything at all moved this frame then the root node should be marked.
     ///         but it doesn't seem that nice of a solution.
+    ///         
+    ///         the problem is, that the 'animated' flag won't be marked if some input 
+    ///         event modified anything in the scene.
 
-    // Update AABBs efficiently
+    // Update AABBs efficiently. The updateAABBRec call won't generate any overhead if nothing changed
     SLGLState::getInstance()->modelViewMatrix.identity();
     _root3D->updateAABBRec();
 
@@ -364,7 +367,6 @@ bool SLScene::updateIfAllViewsGotPainted()
         }
     }
     
-
     _updateTimesMS.set(timeMilliSec()-startUpdateMS);
     return animated;
 }
