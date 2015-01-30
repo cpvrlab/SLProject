@@ -19,14 +19,14 @@
 SLInputManager SLInputManager::_instance;
 
 //-----------------------------------------------------------------------------
-/** static accessor to the singleton instance of this class */
+/*! static accessor to the singleton instance of this class */
 SLInputManager& SLInputManager::instance()
 {
     return _instance;
 }
 
 //-----------------------------------------------------------------------------
-/** Sends any queued up system event's to their correct receiver and 
+/*! Sends any queued up system event's to their correct receiver and
 polls all activated SLInputDevices. 
 
 @note   The event queue is similar to how Qt manages it's events. The main difference
@@ -52,7 +52,7 @@ void SLInputManager::pollEvents()
 }
 
 //-----------------------------------------------------------------------------
-/** Add a new SLInputEvent to the event queue. The queue will be emtied when
+/*! Add a new SLInputEvent to the event queue. The queue will be emtied when
 a call to SLInputManager::pollEvents is made. The passed in SLInputEvents have 
 to be dynamically allocated by the user, the deallocation is handled by the
 SLInputManager */
@@ -62,7 +62,7 @@ void SLInputManager::queueEvent(const SLInputEvent* e)
 }
 
 //-----------------------------------------------------------------------------
-/** Work off any queued up input event's and notify the correct receiver.
+/*! Work off any queued up input event's and notify the correct receiver.
 @note   this is similar to the Qt QObject::event function.*/
 void SLInputManager::processQueuedEvents()
 {

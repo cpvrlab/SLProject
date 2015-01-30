@@ -212,14 +212,19 @@ OTHER_FILES += \
     source/oglsl/Wave.frag \
     source/oglsl/Wave.vert \
     source/oglsl/WaveRefractReflect.vert \
-    ToDo.txt \
-    Readme.html \
-    Introduction.html
+    ToDo.txt
 
 DISTFILES += \
     source/oglsl/PerPixBlinnTexSkinned.vert \
     source/oglsl/PerVrtBlinnSkinned.vert \
     source/oglsl/PerVrtBlinnTexSkinned.vert \
-    source/oglsl/PerPixBlinnSkinned.vert
+    source/oglsl/PerPixBlinnSkinned.vert \
+    OneFrame.ml \
+    Doxyfile \
+    Introduction.md \
+    SLProject.md \
+    One Frame.md \
+    One Frame.md \
+    One_Frame.md
 
 

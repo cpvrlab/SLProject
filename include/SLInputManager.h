@@ -43,8 +43,7 @@ private:
     SLVInputDevice          _devices;           //!< list of activated SLInputDevices 
 
     // prevent instantiation
-    SLInputManager()
-    { }
+    SLInputManager(){ }
 
     void processQueuedEvents();
 };
