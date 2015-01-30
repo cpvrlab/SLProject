@@ -1567,7 +1567,6 @@ void SLSceneView::build2DMenus()
     mn3->addChild(new SLButton(this, "Frustum Culling 1", f, cmdSceneFrustumCull1, true, curS==cmdSceneFrustumCull1, mn2));
     mn3->addChild(new SLButton(this, "Frustum Culling 2", f, cmdSceneFrustumCull2, true, curS==cmdSceneFrustumCull2, mn2));
     mn3->addChild(new SLButton(this, "Texture Filtering", f, cmdSceneTextureFilter, true, curS==cmdSceneTextureFilter, mn2));
-    mn3->addChild(new SLButton(this, "Mass Animation", f, cmdSceneMassAnimation, true, curS==cmdSceneMassAnimation, mn2));
 
     mn3 = new SLButton(this, "Shader >", f);
     mn2->addChild(mn3);
@@ -1579,7 +1578,14 @@ void SLSceneView::build2DMenus()
     mn3->addChild(new SLButton(this, "Parallax Mapping", f, cmdSceneBumpParallax, true, curS==cmdSceneBumpParallax, mn2));
     mn3->addChild(new SLButton(this, "Glass Shader", f, cmdSceneRevolver, true, curS==cmdSceneRevolver, mn2));
     mn3->addChild(new SLButton(this, "Earth Shader", f, cmdSceneEarth, true, curS==cmdSceneEarth, mn2));
-   
+
+    mn3 = new SLButton(this, "Animation >", f);
+    mn2->addChild(mn3);
+    mn3->addChild(new SLButton(this, "Mass Animation", f, cmdSceneMassAnimation, true, curS==cmdSceneMassAnimation, mn2));
+    mn3->addChild(new SLButton(this, "Astroboy Army CPU", f, cmdSceneAstroboyArmyCPU, true, curS==cmdSceneAstroboyArmyCPU, mn2));
+    mn3->addChild(new SLButton(this, "Astroboy Army GPU", f, cmdSceneAstroboyArmyGPU, true, curS==cmdSceneAstroboyArmyGPU, mn2));
+    mn3->addChild(new SLButton(this, "Skeletal Animation", f, cmdSceneSkeletalAnimation, true, curS==cmdSceneSkeletalAnimation, mn2));
+
     mn3 = new SLButton(this, "Ray tracing >", f);
     mn2->addChild(mn3);
     mn3->addChild(new SLButton(this, "Spheres", f, cmdSceneRTSpheres, true, curS==cmdSceneRTSpheres, mn2));

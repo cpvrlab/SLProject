@@ -1,17 +1,18 @@
 //#############################################################################
-//  File:      PerPixBlinnTexSkinned.vert
-//  Purpose:   GLSL vertex program for per pixel Blinn-Phong lighting with
-//             Texture Mapping and vertex skinning
-//  Author:    Marc Wacker and Marcus Hudritsch
-//  Date:      January 2015
-//  Copyright: 2002-2015 Marcus Hudritsch
+//  File:      PerPixBlinn.vert
+//  Purpose:   GLSL vertex program for per fragment Blinn-Phong lighting
+//  Author:    Marcus Hudritsch
+//  Date:      February 2014
+//  Copyright: 2002-2014 Marcus Hudritsch
 //             This software is provide under the GNU General Public License
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
 
 attribute   vec4  a_position;    // Vertex position attribute
 attribute   vec3  a_normal;      // Vertex normal attribute
-attribute   vec2  a_texCoord;    // Vertex texture coordiante attribute
+attribute   vec2  a_texCoord;    // Vertex texture attribute
+attribute   vec4  a_color;       // Vertex color attribute
+attribute   vec3  a_tangent;     // Vertex tangent attribute
 attribute   vec4  a_jointIds;    // Vertex joint indexes attributes
 attribute   vec4  a_jointWeights;// Vertex joint weights attributes
 
@@ -45,12 +46,12 @@ void main(void)
     jnm[0][1] = jm[0][1]; jnm[1][1] = jm[1][1]; jnm[2][1] = jm[2][1];
     jnm[0][2] = jm[0][2]; jnm[1][2] = jm[1][2]; jnm[2][2] = jm[2][2];
 
-    v_P_VS = vec3(u_mvMatrix * jm * a_position);
-    v_N_VS = vec3(u_nMatrix * jnm * a_normal);
+   v_P_VS = vec3(u_mvMatrix * jm * a_position);
+   v_N_VS = vec3(u_nMatrix * jnm * a_normal);
+   v_N_VS = normalize(v_N_VS);
+   v_texCoord = a_texCoord;
 
-    v_texCoord = a_texCoord;
-
-    // Transform the vertex with the modelview and joint matrix
-    gl_Position = u_mvpMatrix * jm * a_position;
+   // Transform the vertex with the modelview and joint matrix
+   gl_Position = u_mvpMatrix * jm * a_position;
 }
 //-----------------------------------------------------------------------------

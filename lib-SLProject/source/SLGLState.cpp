@@ -154,6 +154,8 @@ void SLGLState::buildInverseMatrix()
 //-----------------------------------------------------------------------------
 /*! Builds the normal matrix by the inverse transposed modelview matrix. Only
 the linear 3x3 submatrix of the modelview matrix with the rotation is inversed.
+The inverse transposed could be ignored as long as we would only have rotation
+and uniform scaling in the 3x3 submatrix.
 */
 void SLGLState::buildNormalMatrix()
 {

@@ -114,7 +114,10 @@ HEADERS += \
     ../include/SLImporter.h \
     ../include/SLAnimPlayback.h \
     ../include/SLAnimTrack.h \
-    ../include/SLAnimManager.h
+    ../include/SLAnimManager.h \
+    ../include/SLInputDevice.h \
+    ../include/SLInputEvent.h \
+    ../include/SLInputManager.h
 
 SOURCES += \
     source/SLGLBuffer.cpp \
@@ -167,7 +170,9 @@ SOURCES += \
     source/SLJoint.cpp \
     source/SLAnimManager.cpp \
     source/SLAnimTrack.cpp \
-    source/SLAnimPlayback.cpp
+    source/SLAnimPlayback.cpp \
+    source/SLInputDevice.cpp \
+    source/SLInputManager.cpp
 
 OTHER_FILES += \
     source/oglsl/BumpNormal.frag \
@@ -210,5 +215,11 @@ OTHER_FILES += \
     ToDo.txt \
     Readme.html \
     Introduction.html
+
+DISTFILES += \
+    source/oglsl/PerPixBlinnTexSkinned.vert \
+    source/oglsl/PerVrtBlinnSkinned.vert \
+    source/oglsl/PerVrtBlinnTexSkinned.vert \
+    source/oglsl/PerPixBlinnSkinned.vert
 
 
