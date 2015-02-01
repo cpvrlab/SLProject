@@ -147,9 +147,8 @@ function.
 void qtGLWidget::paintGL()
 {
     makeCurrent();
-   
-    bool sceneGotUpdated = SLScene::current->updateIfAllViewsGotPainted();
-    bool viewNeedsUpdate = slPaint(_svIndex);
+
+    bool viewNeedsRepaint = slUpdateAndPaint(_svIndex);
 
     swapBuffers();
    
@@ -157,7 +156,7 @@ void qtGLWidget::paintGL()
     this->setWindowTitle(slGetWindowTitle(_svIndex).c_str());
    
     // Simply call update for constant repaint. Never call paintGL directly
-    if (sceneGotUpdated || viewNeedsUpdate)
+    if (viewNeedsRepaint)
         update();
 }
 //-----------------------------------------------------------------------------

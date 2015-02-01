@@ -225,6 +225,6 @@ DISTFILES += \
     SLProject.md \
     One Frame.md \
     One Frame.md \
-    One_Frame.md
+    onPaint.md
 
 

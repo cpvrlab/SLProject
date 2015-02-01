@@ -54,7 +54,7 @@ SLMesh::SLMesh(SLstring name) : SLObject(name)
    
     _skeleton = NULL;
     _jointMatrices = 0;
-    _skinningMethod = SM_SoftwareSkinning;//SM_HardwareSkinning;//SM_SoftwareSkinning;
+    _skinningMethod = SM_SoftwareSkinning;
 
     _stateGL = SLGLState::getInstance();  
     _isVolume = true; // is used for RT to decide inside/outside
@@ -260,9 +260,9 @@ void SLMesh::draw(SLSceneView* sv, SLNode* node)
             _bufJw.bindAndEnableAttrib(sp->getAttribLocation("a_jointWeights"));
    
 
-        /////////////////////////////////////
-        // 5): Finally bind and draw elements
-        /////////////////////////////////////
+        ///////////////////////////////
+        // 5): Finally do the draw call
+        ///////////////////////////////
 
         _bufI.bindAndDrawElementsAs(_primitive, numI, 0);
 
@@ -293,12 +293,12 @@ void SLMesh::draw(SLSceneView* sv, SLNode* node)
             SLVec3f* V2;
          
             if (!_bufN2.id())
-            {  // scalefactor r from scaled radius for normals & tangents
+            {   // scalefactor r from scaled radius for normals & tangents
                 // build array between vertex and normal target point
                 V2 = new SLVec3f[numV*2]; 
                 for (SLuint i=0; i < numV; ++i)
-                {   V2[i<<1] = P[i];
-                    V2[(i<<1)+1].set(P[i] + N[i]*r);
+                {   V2[i<<1] = pos()[i];
+                    V2[(i<<1)+1].set(pos()[i] + norm()[i]*r);
                 }
             
                 // Create buffer object for normals
@@ -307,9 +307,9 @@ void SLMesh::draw(SLSceneView* sv, SLNode* node)
                 if (T)
                 {   if (!_bufT2.id())
                     {   for (SLuint i=0; i < numV; ++i)
-                        {  V2[(i<<1)+1].set(P[i].x+T[i].x*r, 
-                                            P[i].y+T[i].y*r, 
-                                            P[i].z+T[i].z*r);
+                        {  V2[(i<<1)+1].set(pos()[i].x+T[i].x*r,
+                                            pos()[i].y+T[i].y*r,
+                                            pos()[i].z+T[i].z*r);
                         }
                
                         // Create buffer object for tangents
@@ -1003,9 +1003,6 @@ This software skinning is also needed for ray or path tracing.
 */
 void SLMesh::transformSkin()
 {
-    // return if skeleton has not changed
-    //if (!_skeleton->changed()) return;
-
     // create the secondary buffers for P and N once   
     if (!cpuSkinningP)
     {   cpuSkinningP = new SLVec3f[numV];
@@ -1024,12 +1021,10 @@ void SLMesh::transformSkin()
 
     // update the joint matrix array
     _skeleton->getJointWorldMatrices(_jointMatrices);
-    // remove the changed flag from the skeleton
-    //_skeleton->changed(false); // can't do that here since multiple meshes might reference the same skeleton... mesh/submesh architecture would solve this problem
+
     notifyParentNodesAABBUpdate();
 
-    // temporarily set finalP here
-    // @todo move the setting of finalP to the setSkinningMethod function
+    // temporarily set finalP and finalN
     _finalP = &cpuSkinningP;
     _finalN = &cpuSkinningN;
     
@@ -1080,7 +1075,6 @@ void SLMesh::transformSkin()
     if (_bufN.id() && N) 
          _bufN.update(norm(), numV, 0);
     else _bufN.generate(norm(), numV, 3);
-
 }
 
 //-----------------------------------------------------------------------------

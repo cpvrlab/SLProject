@@ -161,10 +161,13 @@ void slTerminate()
 This function must be called for each frame. After the frame is generated the
 OS must swap the OpenGL's backbuffer to the visible front buffer.
 */
-bool slPaint(int sceneViewIndex)
+bool slUpdateAndPaint(int sceneViewIndex)
 {  
     SLSceneView* sv = SLScene::current->sv(sceneViewIndex);
-    return sv->onPaint();
+    bool sceneGotUpdated = SLScene::current->updateIfAllViewsGotPainted();
+    bool viewNeedsUpdate =  sv->onPaint();
+    return sceneGotUpdated || viewNeedsUpdate;
+
 }
 //-----------------------------------------------------------------------------
 /*! Global resize function that must be called whenever the OpenGL frame

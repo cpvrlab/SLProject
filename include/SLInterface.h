@@ -41,7 +41,7 @@ bool    slShouldClose       ();
 void    slShouldClose       (bool val);
 void    slTerminate         ();
 void    slResize            (int sceneViewIndex, int width, int height);
-bool    slPaint             (int sceneViewIndex);
+bool    slUpdateAndPaint    (int sceneViewIndex);
 void    slMouseDown         (int sceneViewIndex, SLMouseButton button, int x, int y, SLKey modifier);
 void    slMouseMove         (int sceneViewIndex, int x, int y);
 void    slMouseUp           (int sceneViewIndex, SLMouseButton button, int x, int y, SLKey modifier);

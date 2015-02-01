@@ -52,15 +52,15 @@ onPaint: Paint event handler that passes the event to the slPaint function.
 */
 SLbool onPaint()
 {
-    bool sceneGotUpdated = SLScene::current->updateIfAllViewsGotPainted();
-    bool viewNeedsUpdate = slPaint(svIndex);
+    bool viewNeedsRepaint = slUpdateAndPaint(svIndex);
    
     // Fast copy the back buffer to the front buffer. This is OS dependent.
     glfwSwapBuffers(window);
    
     // Show the title genereted by the scene library (FPS etc.)
     glfwSetWindowTitle(window, slGetWindowTitle(svIndex).c_str());
-    return sceneGotUpdated || viewNeedsUpdate;
+
+    return viewNeedsRepaint;
 }
 
 //-----------------------------------------------------------------------------
@@ -477,22 +477,8 @@ int main(int argc, char *argv[])
         // if no updated occured wait for the next event (power saving)
         if (!onPaint()) 
             glfwWaitEvents();
-        else glfwPollEvents();
-
-        /*
-        // @todo    new update cycle, we begin a frame by checking if we have running animations or simulations
-        //          or if the app has continuous drawing enabled. Then we either wait for system events or poll them
-        //          then we poll custom devices. and finally we draw.
-        if (!wantsUpdate())
-            glfwWaitEvents();
-        else {
+        else
             glfwPollEvents();
-            slPoll();
-        }
-
-        updateAndPaint();
-        */
-
     }
    
     slTerminate();
