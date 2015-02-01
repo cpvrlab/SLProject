@@ -580,8 +580,8 @@ void SLSceneView::draw3DGLAll()
     _stateGL->blend(false);
     _stateGL->depthMask(true);
 
-    draw3DGLLines(_opaqueNodes);
     draw3DGLNodes(_opaqueNodes);
+    draw3DGLLines(_opaqueNodes);
 
     // Render the helper lines of the blended shapes non-blended!
     draw3DGLLines(_blendNodes);
@@ -590,8 +590,7 @@ void SLSceneView::draw3DGLAll()
     _stateGL->depthMask(false);
 
     // Blended shapes must be sorted back to front
-    //std::sort(_blendNodes.begin(), _blendNodes.end(), CompareNodeViewDist);
-
+    std::sort(_blendNodes.begin(), _blendNodes.end(), CompareNodeViewDist);
     draw3DGLNodes(_blendNodes);
 
     // Blending must be turned off again for correct anyglyph stereo modes

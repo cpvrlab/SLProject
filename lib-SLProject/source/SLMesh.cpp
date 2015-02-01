@@ -139,7 +139,7 @@ void SLMesh::draw(SLSceneView* sv, SLNode* node)
     if (P)
     {     
         ////////////////////////
-        // 1: Check drawing bits
+        // 1) Apply Drawing Bits
         ////////////////////////
             
         // Return if hidden
@@ -169,20 +169,20 @@ void SLMesh::draw(SLSceneView* sv, SLNode* node)
 
 
        
-        ///////////////////
-        // 3: Draw elements
-        ///////////////////
+        /////////////////////////////
+        // 2) Apply Uniform Variables
+        /////////////////////////////
 
-        // 3.a: Apply mesh material if exists & differs from current
+        // 2.a) Apply mesh material if exists & differs from current
         if (mat != SLMaterial::current || SLMaterial::current->program()==0)
             mat->activate(_stateGL, *node->drawBits());
             
-        // 3.b: Pass the matrices to the shader program
+        // 2.b) Pass the matrices to the shader program
         SLGLProgram* sp = SLMaterial::current->program();
         sp->uniformMatrix4fv("u_mvMatrix",    1, (SLfloat*)&_stateGL->modelViewMatrix);
         sp->uniformMatrix4fv("u_mvpMatrix",   1, (SLfloat*)_stateGL->mvpMatrix());
 
-        // 3.c: Build & pass inverse & normal matrix only if needed
+        // 2.c) Build & pass inverse & normal matrix only if needed
         SLint locIM = sp->getUniformLocation("u_invMvMatrix");
         SLint locNM = sp->getUniformLocation("u_nMatrix");
         if (locIM>=0 && locNM>=0) 
@@ -199,42 +199,36 @@ void SLMesh::draw(SLSceneView* sv, SLNode* node)
             sp->uniformMatrix3fv(locNM, 1, (SLfloat*)_stateGL->normalMatrix());
         }
 
-        // @note for now this is only the hardware skinned version here
-        // @tood some stuff is duplicated in here that is also in the software skinning function (like creation of the jointmatrices array
-        //       and the changed check and notifying of nodes.
-        // 3.d: Do CPU or GPU skinning for animated meshes
-        if (_skeleton && Ji && Jw)
+        // 2.d) Do GPU skinning for animated meshes
+        if (_skeleton && Ji && Jw && _skinningMethod == SM_HardwareSkinning)
         {
-            if (_skinningMethod == SM_HardwareSkinning)
-            {  
-                if (!_jointMatrices)
-                _jointMatrices = new SLMat4f[_skeleton->numJoints()]; 
+            if (!_jointMatrices)
+            _jointMatrices = new SLMat4f[_skeleton->numJoints()];
 
-                if (_skeleton->changed())
-                {
-                    // update the joint matrix array
-                    _skeleton->getJointWorldMatrices(_jointMatrices);
-                    // remove the changed flag from the skeleton since our joint matrices are up to date again
-                    // @note    the skeleton referenced here would be the skeletoninstance proposed in the documentation
-                    //          of SLSkeleton. So the _jointMatrices array is the only thing that is concerned with the changed flag
-                    //_skeleton->changed(false); // can't do that here since multiple meshes might reference the same skeleton... mesh/submesh architecture would solve this problem
-                    // notify all nodes that contain this mesh about the change
-                    notifyParentNodesAABBUpdate();
-                }
-          
-                // @todo    Secondly: It is a bad idea to keep the joint data in the mesh itself, this prevents us
-                //          from instantiating a single mesh with multiple animations. Needs to be addressed ASAP. (see also SLMesh class problems in SLMesh.h at the top)
-                //          In short, the solution would be an entity class which is an instance of a mesh (same mesh data) which can be animated. the original buffers
-                //          would be in the original mesh and the cpu skinned buffers in the entity. or if gpu skinned it would just be the jointmatrices array that's in the entity.
-                SLint locBM = sp->getUniformLocation("u_jointMatrices");
-                sp->uniformMatrix4fv(locBM, _skeleton->numJoints(), (SLfloat*)_jointMatrices, false);
+            if (_skeleton->changed())
+            {
+                // update the joint matrix array
+                _skeleton->getJointWorldMatrices(_jointMatrices);
+                // remove the changed flag from the skeleton since our joint matrices are up to date again
+                // @note    the skeleton referenced here would be the skeletoninstance proposed in the documentation
+                //          of SLSkeleton. So the _jointMatrices array is the only thing that is concerned with the changed flag
+                //_skeleton->changed(false); // can't do that here since multiple meshes might reference the same skeleton... mesh/submesh architecture would solve this problem
+                // notify all nodes that contain this mesh about the change
+                notifyParentNodesAABBUpdate();
             }
+
+            // @todo    Secondly: It is a bad idea to keep the joint data in the mesh itself, this prevents us
+            //          from instantiating a single mesh with multiple animations. Needs to be addressed ASAP. (see also SLMesh class problems in SLMesh.h at the top)
+            //          In short, the solution would be an entity class which is an instance of a mesh (same mesh data) which can be animated. the original buffers
+            //          would be in the original mesh and the cpu skinned buffers in the entity. or if gpu skinned it would just be the jointmatrices array that's in the entity.
+            SLint locBM = sp->getUniformLocation("u_jointMatrices");
+            sp->uniformMatrix4fv(locBM, _skeleton->numJoints(), (SLfloat*)_jointMatrices, false);
         }
 
 
-        //////////////////////
-        // 2: Build VBO's once
-        //////////////////////
+        /////////////////////
+        // 3) Build VBOs once
+        /////////////////////
 
         if (!_bufP.id())         _bufP.generate(pos(), numV, 3);
         if (!_bufN.id()  && N)   _bufN.generate(norm(), numV, 3);
@@ -247,7 +241,10 @@ void SLMesh::draw(SLSceneView* sv, SLNode* node)
         if (!_bufI.id()  && I32) _bufI.generate(I32, numI, 1, SL_UNSIGNED_INT,   SL_ELEMENT_ARRAY_BUFFER);    
 
 
-        // 3.c: Enable attribute pointers
+        ////////////////////////////////////////
+        // 4) Bind and enable attribute pointers
+        ////////////////////////////////////////
+
         _bufP.bindAndEnableAttrib(sp->getAttribLocation("a_position"));
         if (_bufN.id()) 
             _bufN.bindAndEnableAttrib(sp->getAttribLocation("a_normal"));
@@ -262,11 +259,17 @@ void SLMesh::draw(SLSceneView* sv, SLNode* node)
         if (_bufJw.id())
             _bufJw.bindAndEnableAttrib(sp->getAttribLocation("a_jointWeights"));
    
-        
-        // 3.e: Finally draw elements
+
+        /////////////////////////////////////
+        // 5): Finally bind and draw elements
+        /////////////////////////////////////
+
         _bufI.bindAndDrawElementsAs(_primitive, numI, 0);
 
-        // 3.f: Disable attribute pointers
+        ////////////////////////////////
+        // 6) Disable attribute pointers
+        ////////////////////////////////
+
         _bufP.disableAttribArray();
         if (_bufN.id())  _bufN.disableAttribArray();
         if (_bufC.id())  _bufC.disableAttribArray();
@@ -276,7 +279,7 @@ void SLMesh::draw(SLSceneView* sv, SLNode* node)
         if (_bufJw.id()) _bufJw.disableAttribArray();
       
         //////////////////////////////////////
-        // 4: Draw optional normals & tangents
+        // 7) Draw optional normals & tangents
         //////////////////////////////////////
 
         // All helper lines must be drawn without blending
@@ -321,14 +324,13 @@ void SLMesh::draw(SLSceneView* sv, SLNode* node)
             if (blended) _stateGL->blend(false);
         } 
         else
-        {  
-            // release buffer objects for normal & tangent rendering
+        {   // release buffer objects for normal & tangent rendering
             if (_bufN2.id()) _bufN2.dispose();
             if (_bufT2.id()) _bufT2.dispose();
         }
 
         //////////////////////////////////////////
-        // 5: Draw optional acceleration structure
+        // 8) Draw optional acceleration structure
         //////////////////////////////////////////
 
         if (_accelStruct) 

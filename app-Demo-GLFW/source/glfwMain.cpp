@@ -138,7 +138,6 @@ static void onResize(GLFWwindow* window, int width, int height)
     slResize(svIndex, (int)(width*scr2fbX), (int)(height*scr2fbY));
 }
 
-
 //-----------------------------------------------------------------------------
 /*!
 Mouse button eventhandler forwards the events to the slMouseDown or slMouseUp.
