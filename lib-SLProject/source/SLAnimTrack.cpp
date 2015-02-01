@@ -46,7 +46,7 @@ SLKeyframe* SLAnimTrack::createKeyframe(SLfloat time)
 //-----------------------------------------------------------------------------
 /*! Getter for keyframes by index.
 */
-SLKeyframe* SLAnimTrack::keyframe(SLuint index)
+SLKeyframe* SLAnimTrack::keyframe(SLint index)
 {
     if (index < 0 || index >= numKeyframes())
         return NULL;

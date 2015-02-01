@@ -16,6 +16,7 @@
 
 #include <stdafx.h>
 
+//-------------------------------------------------------------------------------------
 enum DistortionEqnType
 {
     Distortion_No_Override  = -1,    
@@ -35,7 +36,6 @@ enum DistortionEqnType
 enum HmdTypeEnum
 {
     HmdType_None,
-
     HmdType_DKProto,            // First duct-tape model, never sold.
     HmdType_DK1,                // DevKit1 - on sale to developers.
     HmdType_DKHDProto,          // DKHD - shown at various shows, never sold.
@@ -45,9 +45,7 @@ enum HmdTypeEnum
     HmdType_DK2,
 
     // Reminder - this header file is public - codenames only!
-
     HmdType_Unknown,            // Used for unnamed HW lab experiments.
-
     HmdType_LAST
 };
 //-------------------------------------------------------------------------------------
@@ -78,7 +76,6 @@ enum EyeCupType
     EyeCup_DK1A = 0,
     EyeCup_DK1B = 1,
     EyeCup_DK1C = 2,
-
     EyeCup_DK2A = 3,
 
     // Internal R&D codenames.
@@ -96,12 +93,13 @@ enum EyeCupType
     EyeCup_LAST
 };
 
+//-------------------------------------------------------------------------------------
 bool FitCubicPolynomial ( float *pResult, const float *pFitX, const float *pFitY )
 {
-    float d0 = ( ( pFitX[0]-pFitX[1] ) * ( pFitX[0]-pFitX[2] ) * ( pFitX[0]-pFitX[3] ) );
-    float d1 = ( ( pFitX[1]-pFitX[2] ) * ( pFitX[1]-pFitX[3] ) * ( pFitX[1]-pFitX[0] ) );
-    float d2 = ( ( pFitX[2]-pFitX[3] ) * ( pFitX[2]-pFitX[0] ) * ( pFitX[2]-pFitX[1] ) );
-    float d3 = ( ( pFitX[3]-pFitX[0] ) * ( pFitX[3]-pFitX[1] ) * ( pFitX[3]-pFitX[2] ) );
+    float d0 = ((pFitX[0]-pFitX[1]) * (pFitX[0]-pFitX[2]) * (pFitX[0]-pFitX[3]));
+    float d1 = ((pFitX[1]-pFitX[2]) * (pFitX[1]-pFitX[3]) * (pFitX[1]-pFitX[0]));
+    float d2 = ((pFitX[2]-pFitX[3]) * (pFitX[2]-pFitX[0]) * (pFitX[2]-pFitX[1]));
+    float d3 = ((pFitX[3]-pFitX[0]) * (pFitX[3]-pFitX[1]) * (pFitX[3]-pFitX[2]));
 
     if ( ( d0 == 0.0f ) || ( d1 == 0.0f ) || ( d2 == 0.0f ) || ( d3 == 0.0f ) )
     {
@@ -130,6 +128,7 @@ bool FitCubicPolynomial ( float *pResult, const float *pFitX, const float *pFitY
     return true;
 }
 
+//-------------------------------------------------------------------------------------
 enum { NumCoefficients = 11 };
 #define TPH_SPLINE_STATISTICS 0
 #if TPH_SPLINE_STATISTICS
@@ -144,7 +143,7 @@ static int num_out_of_range_over_3 = 0;
 static float percent_out_of_range;
 #endif
 
-
+//-------------------------------------------------------------------------------------
 float EvalCatmullRom10Spline ( float const *K, float scaledVal )
 {
     int const NumSegments = NumCoefficients;
@@ -215,6 +214,7 @@ float EvalCatmullRom10Spline ( float const *K, float scaledVal )
     return res;
 }
 
+//-------------------------------------------------------------------------------------
 struct LensConfig
 {
     // The result is a scaling applied to the distance from the center of the lens.
@@ -460,13 +460,15 @@ struct LensConfig
     float               MaxInvR;
 };
 
+//-------------------------------------------------------------------------------------
 struct ovrSizei {
     int w, h;
 };
+//-------------------------------------------------------------------------------------
 struct ovrSizef {
     float w, h;
 };
-
+//-------------------------------------------------------------------------------------
 struct HmdRenderInfo
 {
     // The start of this structure is intentionally very similar to HMDInfo in OVER_Device.h
@@ -544,8 +546,9 @@ struct HmdRenderInfo
 
 };
 
+//-------------------------------------------------------------------------------------
 SLMat4f ovrMatrix4f_OrthoSubProjection(SLMat4f projection, SLVec2f orthoScale,
-                                                      float orthoDistance, float eyeViewAdjustX)
+                                       float orthoDistance, float eyeViewAdjustX)
 {
 
     float orthoHorizontalOffset = eyeViewAdjustX / orthoDistance;
@@ -621,6 +624,7 @@ SLMat4f ovrMatrix4f_OrthoSubProjection(SLMat4f projection, SLVec2f orthoScale,
     return ortho;
 }
 
+//-------------------------------------------------------------------------------------
 struct DistortionRenderDesc
 {
     // The raw lens values.
@@ -634,6 +638,7 @@ struct DistortionRenderDesc
     SLVec2f            PixelsPerTanAngleAtCenter;
 };
 
+//-------------------------------------------------------------------------------------
 typedef struct ovrDistortionVertex_
 {
     SLVec2f ScreenPosNDC;    // [-1,+1],[-1,+1] over the entire framebuffer.
@@ -644,6 +649,7 @@ typedef struct ovrDistortionVertex_
     SLVec2f TanEyeAnglesB;    
 } ovrDistortionVertex;
 
+//-------------------------------------------------------------------------------------
 typedef struct ovrDistortionMesh_
 {
     ovrDistortionVertex* pVertexData;
@@ -652,6 +658,7 @@ typedef struct ovrDistortionMesh_
     unsigned int         IndexCount;
 } ovrDistortionMesh;
 
+//-------------------------------------------------------------------------------------
 struct DistortionMeshVertexData
 {
     // [-1,+1],[-1,+1] over the entire framebuffer.
@@ -667,7 +674,6 @@ struct DistortionMeshVertexData
     SLVec2f    TanEyeAnglesG;
     SLVec2f    TanEyeAnglesB;    
 };
-
 
 //-----------------------------------------------------------------------------------
 // A set of "reverse-mapping" functions, mapping from real-world and/or texture space back to the framebuffer.
@@ -694,6 +700,7 @@ SLVec2f TransformTanFovSpaceToScreenNDC( DistortionRenderDesc const &distortion,
     return framebufferNDC;
 }
 
+//-------------------------------------------------------------------------------------
 // Same, with chromatic aberration correction.
 void TransformScreenNDCToTanFovSpaceChroma ( SLVec2f *resultR, SLVec2f *resultG, SLVec2f *resultB, 
                                              DistortionRenderDesc const &distortion,
@@ -712,6 +719,7 @@ void TransformScreenNDCToTanFovSpaceChroma ( SLVec2f *resultR, SLVec2f *resultG,
     *resultB = tanEyeAngleDistorted * distortionScales.z;
 }
 
+//-------------------------------------------------------------------------------------
 typedef struct ovrFovPort_
 {
     /// The tangent of the angle between the viewing vector and the top edge of the field of view.
@@ -724,7 +732,7 @@ typedef struct ovrFovPort_
     float RightTan;
 } ovrFovPort;
 
-
+//-------------------------------------------------------------------------------------
 struct ScaleAndOffset2D
 {
     SLVec2f Scale;
@@ -735,8 +743,7 @@ struct ScaleAndOffset2D
     { }
 };
 
-
-
+//-------------------------------------------------------------------------------------
 SLVec2f TransformTanFovSpaceToRendertargetNDC( ScaleAndOffset2D const &eyeToSourceNDC,
                                                 SLVec2f const &tanEyeAngle )
 {
@@ -746,6 +753,7 @@ SLVec2f TransformTanFovSpaceToRendertargetNDC( ScaleAndOffset2D const &eyeToSour
     return textureNDC;
 }
 
+//-------------------------------------------------------------------------------------
 SLVec2f TransformRendertargetNDCToTanFovSpace( const ScaleAndOffset2D &eyeToSourceNDC,
                                                 const SLVec2f &textureNDC )
 {
@@ -755,6 +763,7 @@ SLVec2f TransformRendertargetNDCToTanFovSpace( const ScaleAndOffset2D &eyeToSour
     return tanEyeAngle;
 }
 
+//-------------------------------------------------------------------------------------
 ScaleAndOffset2D CreateNDCScaleAndOffsetFromFov ( ovrFovPort tanHalfFov )
 {
     float projXScale = 2.0f / ( tanHalfFov.LeftTan + tanHalfFov.RightTan );
@@ -772,6 +781,7 @@ ScaleAndOffset2D CreateNDCScaleAndOffsetFromFov ( ovrFovPort tanHalfFov )
     return result;
 }
 
+//-------------------------------------------------------------------------------------
 SLMat4f CreateProjection( bool rightHanded, ovrFovPort tanHalfFov,
                             float zNear /*= 0.01f*/, float zFar /*= 10000.0f*/ )
 {
@@ -823,6 +833,7 @@ SLMat4f CreateProjection( bool rightHanded, ovrFovPort tanHalfFov,
     return projection;
 }
 
+//-------------------------------------------------------------------------------------
 void createSLDistortionMesh( DistortionMeshVertexData **ppVertices, uint16_t **ppTriangleListIndices,
                            int *pNumVertices, int *pNumTriangles,
                            bool rightEye,
@@ -1004,6 +1015,7 @@ static const int DMA_NumTrisPerEye  = (DMA_GridSize)*(DMA_GridSize)*2;
 }
 
 
+//-------------------------------------------------------------------------------------
 void createSLDistortionMesh(SLEye eye, SLGLBuffer& vb, SLGLBuffer& ib)
 {
     // fill the variables below with useful data from dk2
@@ -1203,6 +1215,7 @@ void createSLDistortionMesh(SLEye eye, SLGLBuffer& vb, SLGLBuffer& ib)
      
 }
 
+//-------------------------------------------------------------------------------------
 #endif
 
 #endif

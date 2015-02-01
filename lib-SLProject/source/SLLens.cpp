@@ -13,8 +13,8 @@
 #endif
 
 using namespace std;
-#include "SLMaterial.h"
-#include "SLLens.h"
+#include <SLMaterial.h>
+#include <SLLens.h>
 
 //-----------------------------------------------------------------------------
 /*!

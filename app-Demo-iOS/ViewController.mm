@@ -150,7 +150,7 @@ float GetSeconds()
 //-----------------------------------------------------------------------------
 - (void)glkView:(GLKView *)view drawInRect:(CGRect)rect
 {
-   slPaint(svIndex);
+   slUpdateAndPaint(svIndex);
 }
 //-----------------------------------------------------------------------------
 // touchesBegan receives the finger thouch down events
