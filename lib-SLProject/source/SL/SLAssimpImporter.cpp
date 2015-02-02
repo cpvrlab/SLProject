@@ -794,6 +794,8 @@ SLMesh* SLAssimpImporter::loadMesh(aiMesh *mesh)
                                                    mesh->mVertices[vertId].z));
                 }
             }
+            else
+                SL_LOG("Failed to load joint of skeleton in SLAssimpImporter::loadMesh");
         }
 
     }
