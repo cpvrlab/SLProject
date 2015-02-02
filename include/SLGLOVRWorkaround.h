@@ -1153,7 +1153,7 @@ void createSLDistortionMesh(SLEye eye, SLGLBuffer& vb, SLGLBuffer& ib)
     unsigned short* indexData;
     int triangleCount = 0;
     int vertexCount = 0;
-    bool rightEye = (eye == rightEye);
+    bool rightEye = (eye == SLEye::rightEye);
     ScaleAndOffset2D      eyeToSourceNDC = CreateNDCScaleAndOffsetFromFov(fov);
     eyeToSourceNDC.Scale.x = 0.929788947f;
     eyeToSourceNDC.Scale.y = 0.752283394f;
@@ -1173,11 +1173,11 @@ void createSLDistortionMesh(SLEye eye, SLGLBuffer& vb, SLGLBuffer& ib)
 
 
     // Now parse the vertex data and create a render ready vertex buffer from it
-    DistortionVertex* pVBVerts = new DistortionVertex[vertexCount];
+    SLGLOcculusDistortionVertex* pVBVerts = new SLGLOcculusDistortionVertex[vertexCount];
 
     vector<SLuint> tempIndex;
 
-    DistortionVertex* v = pVBVerts;
+    SLGLOcculusDistortionVertex* v = pVBVerts;
     ovrDistortionVertex * ov = vertexData;
     for ( unsigned vertNum = 0; vertNum < vertexCount; vertNum++ )
     {

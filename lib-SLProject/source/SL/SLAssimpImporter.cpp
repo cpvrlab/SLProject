@@ -771,21 +771,29 @@ SLMesh* SLAssimpImporter::loadMesh(aiMesh *mesh)
         {
             aiBone* joint = mesh->mBones[i];
             SLJoint* slJoint = _skeleton->getJoint(joint->mName.C_Str());
-            SLuint jointId = slJoint->id(); // @todo make sure that the returned joint actually exists, else we need to throw here since something in the importer must've gone wrong!
-
-            for (SLuint j = 0; j < joint->mNumWeights; j++)
+            
+            // @todo On OSX it happens from time to time that slJoint is NULL
+            if (slJoint)
             {
-                // add the weight
-                SLuint vertId = joint->mWeights[j].mVertexId;
-                SLfloat weight = joint->mWeights[j].mWeight;
+                SLuint jointId = slJoint->id();
 
-                m->addWeight(vertId, jointId, weight);
+                for (SLuint j = 0; j < joint->mNumWeights; j++)
+                {
+                    // add the weight
+                    SLuint vertId = joint->mWeights[j].mVertexId;
+                    SLfloat weight = joint->mWeights[j].mWeight;
 
-                // check if the bones max radius changed
-                // @todo this is very specific to this loaded mesh, when we add skeleton instances this radius calculation has to be done on the instance!
-                slJoint->calcMaxRadius(SLVec3f(mesh->mVertices[vertId].x, mesh->mVertices[vertId].y, mesh->mVertices[vertId].z));
+                    m->addWeight(vertId, jointId, weight);
+
+                    // check if the bones max radius changed
+                    // @todo this is very specific to this loaded mesh,
+                    //       when we add skeleton instances this radius
+                    //       calculation has to be done on the instance!
+                    slJoint->calcMaxRadius(SLVec3f(mesh->mVertices[vertId].x,
+                                                   mesh->mVertices[vertId].y,
+                                                   mesh->mVertices[vertId].z));
+                }
             }
-
         }
 
     }
