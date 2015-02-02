@@ -81,6 +81,8 @@ struct SLSceneNodeStats
 };
 /// @todo switch to this node for the scene graph and move the functionality that is specific to the scenenode
 ///         in here. A base SLNode doesn't need to hold meshes.
+///         Advantages of this approach are: The concrete implementations like SLSceneNode and SLJoint
+///         can provide concrete addChild and createChild implementations that use their type.
 
 //-----------------------------------------------------------------------------
 //! SLSceneNode represents a node in the scene graph and is a specialization of SLNode.

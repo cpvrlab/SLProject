@@ -180,12 +180,6 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
     cout << "------------------------------------------------------------------" << endl;
     init();
 
-    // @todo in the onload function we only notify the active scene view about the completion
-    ///       of the loading process. But all scene views might want to update their editor
-    ///       cameras after a new scene has been loaded.
-    // Note: we currently reset the cameras of ALL scene views to their respective editor
-    //       cameras. 
-
 
     // Show once the empty loading screen without scene
     // @todo review this, we still pass in the active scene view with sv. Is it necessary?
@@ -1921,10 +1915,6 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
     }
 
     // call onInitialize on all scene views
-    // @todo The parameter sv now marks the active scene view (which will recieve the
-    //       cameras of the loaded scene, if any) this needs review and needs to be
-    //       implemented better.
-
     for (SLint i = 0; i < _sceneViews.size(); ++i)
     {   if (_sceneViews[i] != NULL)
         {   _sceneViews[i]->onInitialize();

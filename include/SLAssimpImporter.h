@@ -18,8 +18,6 @@
 #define SLASSIMPIMPORTER_H
 
 // forward declarations of assimp types
-// @todo    Is it good practice to not include the assimp headers here and just use forward declaration?
-//          Do some research on best practices.
 struct aiScene;
 struct aiNode;
 struct aiMaterial;
@@ -106,9 +104,6 @@ protected:
     SLMaterial*     loadMaterial(SLint index, aiMaterial* material, SLstring modelPath);
     SLGLTexture*    loadTexture(SLstring &path, SLTexType texType);
     SLMesh*         loadMesh(aiMesh *mesh);
-    // @todo    go over the loadNodesRec again (rename to loadSceneNodes for clarity) and improve it
-    //          add functionality to load lights etc, make it cleaner overall
-    //          add log output
     SLNode*         loadNodesRec(SLNode *curNode, aiNode *aiNode, SLMeshMap& meshes, SLbool loadMeshesOnly = true);
     SLAnimation*    loadAnimation(aiAnimation* anim);
     SLstring        checkFilePath(SLstring modelPath, SLstring texFile);

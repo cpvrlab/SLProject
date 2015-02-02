@@ -83,9 +83,14 @@ class SLQuat4
         SLQuat4<T>& operator*=  (const SLQuat4<T>& q2);
         SLQuat4<T>& operator*=  (const T s);
         
+    static SLQuat4 IDENTITY;
+
     private:
         T  _x, _y, _z, _w;
 };
+
+//-----------------------------------------------------------------------------
+template<class T> SLQuat4<T> SLQuat4<T>::IDENTITY   = SLQuat4<T>(0.0f, 0.0f, 0.0f, 1.0f);
 
 //-----------------------------------------------------------------------------
 template <class T>
@@ -718,7 +723,7 @@ inline SLQuat4<T> SLQuat4<T>::slerp(const SLQuat4<T>& q2, const T t) const
 	out._w = sclp * _w + sclq * endCpy._w;
     return out;
     
-    /*ODL
+    /*OLD
     // Ken Shoemake's famous method.
     assert(t>=0 && t<=1 && "Wrong t in SLQuat4::slerp");
 

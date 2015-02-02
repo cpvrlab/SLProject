@@ -1544,9 +1544,6 @@ void qtMainWindow::on_animAnimatedObjectSelect_currentIndexChanged(int index)
     }
 
     ui->animAnimationSelect->setCurrentIndex(0);
-
-    std::cout << "on_animationSelectIndexChanged " << index << " " << ui->animAnimatedObjectSelect->itemData(index).toInt() << "\n";
-
 }
 void qtMainWindow::on_animAnimationSelect_currentIndexChanged(int index)
 {
@@ -1560,8 +1557,6 @@ void qtMainWindow::on_animAnimationSelect_currentIndexChanged(int index)
     ui->animLoopingSelect->setCurrentIndex(play->loop());
     ui->animTimelineSlider->setAnimDuration(play->parentAnimation()->lengthSec());
     ui->animDurationLabel->setText(ui->animTimelineSlider->getDurationTimeString());
-
-    std::cout << "on_animationSelectIndexChanged " << index << " " << play->parentAnimation()->name() << "\n";
 }
 void qtMainWindow::on_animSkipStartButton_clicked()
 {

@@ -85,13 +85,8 @@ public:
 
             // Setters
             void        root            (SLJoint* joint);
-            /// @todo   remove the _minMaxOutOfDate again, the _changed flag should suffice, however while implementing the leap motion
-            ///         I noticed an error the update cycle should go like this: process input, do animations, update data (mesh data, aabb's etc), render.
-            ///         The _minMaxOutOfDate was only set when animations were applied, that is wrong, it should be applied when a bone changes its transform
-            ///         The problem now, and why minmaxoutofdate is still here is that we can't yet guarantee the above update cycle.
-            void        changed         (SLbool changed) { _changed = changed; _minMaxOutOfDate = changed; }
+            void        changed         (SLbool changed) { _changed = changed; _minMaxOutOfDate = true; }
 
-    // @todo find a better way to give access to the animation names to external stuff (like the gui)
     SLbool              updateAnimations(SLfloat elapsedTimeSec);
     
 protected:

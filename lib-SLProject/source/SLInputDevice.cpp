@@ -19,7 +19,6 @@ adding them to the SLInputManager. */
 SLInputDevice::SLInputDevice()
 {
     // enable any input device on creation
-    // @todo is this good practice?
     enable();
 }
 

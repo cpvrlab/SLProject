@@ -104,8 +104,7 @@ void SLAnimPlayback::playBackward()
 */
 void SLAnimPlayback::pause()
 {
-    // @todo is a paused animation disabled OR is it enabled but just not advancing time?
-    //       currently we set the direction multiplier to 0
+    // a paused anmation is an enabled animation that has a 0 direction multiplier
     _enabled = true;
     _playbackDir = 0;
 }

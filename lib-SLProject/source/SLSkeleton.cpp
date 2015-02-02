@@ -108,7 +108,6 @@ SLJoint* SLSkeleton::getJoint(const SLstring& name)
 */
 void SLSkeleton::getJointWorldMatrices(SLMat4f* jointWM)
 {
-    // @todo this is asking for a crash...
     for (SLint i = 0; i < _joints.size(); i++)
     {
         jointWM[i] = _joints[i]->updateAndGetWM() * _joints[i]->offsetMat();
