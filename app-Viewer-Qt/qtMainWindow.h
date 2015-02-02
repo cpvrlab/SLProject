@@ -69,13 +69,11 @@ class qtMainWindow : public QMainWindow
         void on_actionLarge_Model_triggered();
         void on_actionFigure_triggered();
         void on_actionMesh_Loader_triggered();
-        void on_actionSkeletal_Animation_triggered();
-        void on_actionAstroboy_Army_GPU_triggered();
-        void on_actionAstroboy_Army_CPU_triggered();
         void on_actionTexture_Blending_triggered();
         void on_actionTexture_Filtering_triggered();
         void on_actionFrustum_Culling_1_triggered();
         void on_actionFrustum_Culling_2_triggered();
+
         void on_actionPer_Vertex_Lighting_triggered();
         void on_actionPer_Pixel_Lighting_triggered();
         void on_actionPer_Vertex_Wave_triggered();
@@ -84,7 +82,13 @@ class qtMainWindow : public QMainWindow
         void on_actionParallax_Mapping_triggered();
         void on_actionGlass_Shader_triggered();
         void on_actionEarth_Shader_triggered();
+
+        void on_actionNode_Animation_triggered();
+        void on_actionSkeletal_Animation_triggered();
+        void on_actionAstroboy_Army_GPU_triggered();
+        void on_actionAstroboy_Army_CPU_triggered();
         void on_actionMass_Animation_triggered();
+
         void on_actionRT_Spheres_triggered();
         void on_actionRT_Muttenzer_Box_triggered();
         void on_actionRT_Soft_Shadows_triggered();

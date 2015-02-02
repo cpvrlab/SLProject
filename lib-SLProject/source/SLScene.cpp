@@ -275,7 +275,7 @@ calculates the elapsed time for one frame in all views. A scene can be displayed
 in multiple views as demonstrated in the app-Viewer-Qt example.
 \return true if realy something got updated
 */
-bool SLScene::updateIfAllViewsGotPainted()
+bool SLScene::onUpdate()
 {
     // Return if not all sceneview got repainted
     for (int i = 0; i < _sceneViews.size(); ++i)

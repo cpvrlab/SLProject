@@ -1298,22 +1298,26 @@ SLbool SLSceneView::onCommand(const SLCmd cmd)
         case cmdSceneFigure:
         case cmdSceneLargeModel:
         case cmdSceneMeshLoad:
-        case cmdSceneSkeletalAnimation:
-        case cmdSceneAstroboyArmyCPU:
-        case cmdSceneAstroboyArmyGPU:
         case cmdSceneRevolver:
         case cmdSceneTextureFilter:
         case cmdSceneFrustumCull1:
         case cmdSceneFrustumCull2:
         case cmdSceneTextureBlend:
+
         case cmdScenePerVertexBlinn:
         case cmdScenePerPixelBlinn:
         case cmdScenePerVertexWave:
         case cmdSceneWater:
         case cmdSceneBumpNormal:  
         case cmdSceneBumpParallax:
-        case cmdSceneEarth: 
+        case cmdSceneEarth:
+
         case cmdSceneMassAnimation:
+        case cmdSceneNodeAnimation:
+        case cmdSceneSkeletalAnimation:
+        case cmdSceneAstroboyArmyCPU:
+        case cmdSceneAstroboyArmyGPU:
+
         case cmdSceneRTSpheres:
         case cmdSceneRTMuttenzerBox:
         case cmdSceneRTSoftShadows:
@@ -1584,6 +1588,7 @@ void SLSceneView::build2DMenus()
     mn3->addChild(new SLButton(this, "Astroboy Army CPU", f, cmdSceneAstroboyArmyCPU, true, curS==cmdSceneAstroboyArmyCPU, mn2));
     mn3->addChild(new SLButton(this, "Astroboy Army GPU", f, cmdSceneAstroboyArmyGPU, true, curS==cmdSceneAstroboyArmyGPU, mn2));
     mn3->addChild(new SLButton(this, "Skeletal Animation", f, cmdSceneSkeletalAnimation, true, curS==cmdSceneSkeletalAnimation, mn2));
+    mn3->addChild(new SLButton(this, "Node Animation", f, cmdSceneNodeAnimation, true, curS==cmdSceneNodeAnimation, mn2));
 
     mn3 = new SLButton(this, "Ray tracing >", f);
     mn2->addChild(mn3);

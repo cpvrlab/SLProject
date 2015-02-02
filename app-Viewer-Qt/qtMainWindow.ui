@@ -38,7 +38,7 @@
      <x>0</x>
      <y>0</y>
      <width>906</width>
-     <height>31</height>
+     <height>22</height>
     </rect>
    </property>
    <property name="defaultUp">
@@ -98,6 +98,7 @@
       <property name="title">
        <string>Animation Scenes</string>
       </property>
+      <addaction name="actionNode_Animation"/>
       <addaction name="actionMass_Animation"/>
       <addaction name="actionSkeletal_Animation"/>
       <addaction name="actionAstroboy_Army_GPU"/>
@@ -2233,10 +2234,10 @@ QSlider::handle:horizontal:disabled {
     <bool>true</bool>
    </property>
    <property name="text">
-    <string>Mass Animation</string>
+    <string>Mass Animations</string>
    </property>
    <property name="statusTip">
-    <string>Loads a scene with a high number of animations active.</string>
+    <string>Loads a scene with a high number of skeleton animations active.</string>
    </property>
   </action>
   <action name="actionUse_SceneView_Camera">
@@ -2355,7 +2356,7 @@ QSlider::handle:horizontal:disabled {
     <string>Astroboy Army (GPU)</string>
    </property>
    <property name="statusTip">
-    <string>Loads a scene with many identical animated characters.</string>
+    <string>Loads a scene with many identical GPU animated characters.</string>
    </property>
   </action>
   <action name="actionRT_Lens">
@@ -2374,12 +2375,23 @@ QSlider::handle:horizontal:disabled {
     <string>Astroboy Army (CPU)</string>
    </property>
    <property name="statusTip">
-    <string>Loads a scene with many identical animated characters.</string>
+    <string>Loads a scene with many identical CPU animated characters.</string>
    </property>
   </action>
   <action name="actionSuperAnimation">
    <property name="text">
     <string>SuperAnimation</string>
+   </property>
+  </action>
+  <action name="actionNode_Animation">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Node Animations</string>
+   </property>
+   <property name="statusTip">
+    <string>Loads a scene with multiple node animations active.</string>
    </property>
   </action>
  </widget>

@@ -157,17 +157,18 @@ void slTerminate()
     SLScene::current = 0;
 }
 //-----------------------------------------------------------------------------
-/*! Global rendering function that simply calls the sceneview's onPaint method.
-This function must be called for each frame. After the frame is generated the
-OS must swap the OpenGL's backbuffer to the visible front buffer.
+/*! Global rendering function that first updates the scene due to user or
+device inputs and due to active animations. This happens only if all sceneviews
+where finished with rendering. After the update sceneviews onPaint routine is
+called to initiate the rendering of the frame. If either the onUpdate or onPaint
+returned true a new frame should be drawn.
 */
 bool slUpdateAndPaint(int sceneViewIndex)
 {  
     SLSceneView* sv = SLScene::current->sv(sceneViewIndex);
-    bool sceneGotUpdated = SLScene::current->updateIfAllViewsGotPainted();
+    bool sceneGotUpdated = SLScene::current->onUpdate();
     bool viewNeedsUpdate =  sv->onPaint();
     return sceneGotUpdated || viewNeedsUpdate;
-
 }
 //-----------------------------------------------------------------------------
 /*! Global resize function that must be called whenever the OpenGL frame
