@@ -14,12 +14,6 @@
 #include <SLGLTexture.h>
 #include <SLSkeleton.h>
 
-// @todo    dont make this class static
-// @todo    rename SLAssImp to SLImporter
-//          make SLImporter a base class and put the implementation of the assimp importer in a derived class
- //         find the best way to make this nice and clean and to provide an interface for others to
-//          write their own importers (for custom file formats for example)
-
 #ifndef SLASSIMPIMPORTER_H
 #define SLASSIMPIMPORTER_H
 

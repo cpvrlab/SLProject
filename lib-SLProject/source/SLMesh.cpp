@@ -230,8 +230,8 @@ void SLMesh::draw(SLSceneView* sv, SLNode* node)
         // 3) Build VBOs once
         /////////////////////
 
-        if (!_bufP.id())         _bufP.generate(pos(), numV, 3);
-        if (!_bufN.id()  && N)   _bufN.generate(norm(), numV, 3);
+        if (!_bufP.id())         _bufP.generate(finalP(), numV, 3);
+        if (!_bufN.id()  && N)   _bufN.generate(finalN(), numV, 3);
         if (!_bufC.id()  && C)   _bufC.generate(C, numV, 4);
         if (!_bufTc.id() && Tc)  _bufTc.generate(Tc, numV, 2);
         if (!_bufJi.id() && Ji)  _bufJi.generate(Ji, numV, 4);
@@ -288,37 +288,34 @@ void SLMesh::draw(SLSceneView* sv, SLNode* node)
 
         if (N && (sv->drawBit(SL_DB_NORMALS) || node->drawBit(SL_DB_NORMALS)))
         {  
-            // scale the normals to 5% of the surounding sphere
+            // scalefactor r 5% from scaled radius for normals & tangents
+            // build array between vertex and normal target point
             float r = node->aabb()->radiusOS() * 0.05f;
-            SLVec3f* V2;
-         
-            if (!_bufN2.id())
-            {   // scalefactor r from scaled radius for normals & tangents
-                // build array between vertex and normal target point
-                V2 = new SLVec3f[numV*2]; 
-                for (SLuint i=0; i < numV; ++i)
-                {   V2[i<<1] = pos()[i];
-                    V2[(i<<1)+1].set(pos()[i] + norm()[i]*r);
-                }
-            
-                // Create buffer object for normals
-                _bufN2.generate(V2, numV*2, 3);
-            
-                if (T)
-                {   if (!_bufT2.id())
-                    {   for (SLuint i=0; i < numV; ++i)
-                        {  V2[(i<<1)+1].set(pos()[i].x+T[i].x*r,
-                                            pos()[i].y+T[i].y*r,
-                                            pos()[i].z+T[i].z*r);
-                        }
-               
-                        // Create buffer object for tangents
-                        _bufT2.generate(V2, numV*2, 3);
-                    }
-                } 
-                delete[] V2;
-
+            SLVec3f* V2 = new SLVec3f[numV*2];
+            for (SLuint i=0; i < numV; ++i)
+            {   V2[i<<1] = finalP()[i];
+                V2[(i<<1)+1].set(finalP()[i] + finalN()[i]*r);
             }
+
+            // Create or update buffer object for normals
+            if (_bufN2.id())
+                 _bufN2.update(V2, numV*2, 0);
+            else _bufN2.generate(V2, numV*2, 3);
+
+            if (T)
+            {   for (SLuint i=0; i < numV; ++i)
+                {  V2[(i<<1)+1].set(finalP()[i].x+T[i].x*r,
+                                    finalP()[i].y+T[i].y*r,
+                                    finalP()[i].z+T[i].z*r);
+                }
+
+                // Create or update buffer object for tangents
+                if (_bufT2.id())
+                     _bufT2.update(V2, numV*2, 3);
+                else _bufT2.generate(V2, numV*2, 3);
+            }
+            delete[] V2;
+
             _bufN2.drawArrayAsConstantColorLines(SLCol3f::BLUE);
             if (T) _bufT2.drawArrayAsConstantColorLines(SLCol3f::RED);
             if (blended) _stateGL->blend(false);
@@ -430,12 +427,12 @@ void SLMesh::calcMinMax()
 
     // calc min and max point of all vertices
     for (SLuint i=0; i<numV; ++i)
-    {   if (pos()[i].x < minP.x) minP.x = pos()[i].x;
-        if (pos()[i].x > maxP.x) maxP.x = pos()[i].x;
-        if (pos()[i].y < minP.y) minP.y = pos()[i].y;
-        if (pos()[i].y > maxP.y) maxP.y = pos()[i].y;
-        if (pos()[i].z < minP.z) minP.z = pos()[i].z;
-        if (pos()[i].z > maxP.z) maxP.z = pos()[i].z;
+    {   if (finalP()[i].x < minP.x) minP.x = finalP()[i].x;
+        if (finalP()[i].x > maxP.x) maxP.x = finalP()[i].x;
+        if (finalP()[i].y < minP.y) minP.y = finalP()[i].y;
+        if (finalP()[i].y > maxP.y) maxP.y = finalP()[i].y;
+        if (finalP()[i].z < minP.z) minP.z = finalP()[i].z;
+        if (finalP()[i].z > maxP.z) maxP.z = finalP()[i].z;
     } 
 }
 //-----------------------------------------------------------------------------
@@ -754,13 +751,13 @@ SLbool SLMesh::hitTriangleOS(SLRay* ray, SLNode* node, SLuint iT)
    
     // get the corner vertices
     if (I16)
-    {   A = pos()[I16[iT  ]];
-        B = pos()[I16[iT+1]];
-        C = pos()[I16[iT+2]];
+    {   A = finalP()[I16[iT  ]];
+        B = finalP()[I16[iT+1]];
+        C = finalP()[I16[iT+2]];
     } else
-    {   A = pos()[I32[iT  ]];
-        B = pos()[I32[iT+1]];
-        C = pos()[I32[iT+2]];
+    {   A = finalP()[I32[iT  ]];
+        B = finalP()[I32[iT+1]];
+        C = finalP()[I32[iT+2]];
     }
    
     // find vectors for two edges sharing the triangle vertex A
@@ -875,9 +872,9 @@ void SLMesh::preShade(SLRay* ray)
     ray->hitPoint.set(ray->origin + ray->length * ray->dir);
       
     // calculate the interpolated normal with vertex normals in object space
-    ray->hitNormal.set(norm()[iA] * (1-(ray->hitU+ray->hitV)) + 
-                       norm()[iB] * ray->hitU + 
-                       norm()[iC] * ray->hitV);
+    ray->hitNormal.set(finalN()[iA] * (1-(ray->hitU+ray->hitV)) +
+                       finalN()[iB] * ray->hitU +
+                       finalN()[iC] * ray->hitV);
                       
     // transform normal back to world space
     ray->hitNormal.set(ray->hitNode->updateAndGetWMN() * ray->hitNormal);
@@ -1070,11 +1067,13 @@ void SLMesh::transformSkin()
 
     // update or create buffers
     if (_bufP.id()) 
-         _bufP.update(pos(), numV, 0);
-    else _bufP.generate(pos(), numV, 3);
-    if (_bufN.id() && N) 
-         _bufN.update(norm(), numV, 0);
-    else _bufN.generate(norm(), numV, 3);
+         _bufP.update(finalP(), numV, 0);
+    else _bufP.generate(finalP(), numV, 3);
+    if (N)
+    {   if (_bufN.id())
+             _bufN.update(finalN(), numV, 0);
+        else _bufN.generate(finalN(), numV, 3);
+    }
 }
 
 //-----------------------------------------------------------------------------

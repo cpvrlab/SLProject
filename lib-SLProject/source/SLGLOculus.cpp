@@ -26,19 +26,18 @@
 //-----------------------------------------------------------------------------
 /*! Constructor initializing with default values
 */
-SLGLOculus::SLGLOculus()
-: _usingDebugHmd(false),
-_positionTrackingEnabled(false),
-_lowPersistanceEnabled(false),
-_timeWarpEnabled(false),
-_displaySleep(false),
-_isConnected(false),
-_isCameraConnected(false),
-_isPositionTracked(false)
+SLGLOculus::SLGLOculus() : _usingDebugHmd(false),
+                           _positionTrackingEnabled(false),
+                           _lowPersistanceEnabled(false),
+                           _timeWarpEnabled(false),
+                           _displaySleep(false),
+                           _isConnected(false),
+                           _isCameraConnected(false),
+                           _isPositionTracked(false)
 {
-#ifdef SL_OVR
+    #ifdef SL_OVR
     _hmd = NULL;
-#endif
+    #endif
     init();
 }
 //-----------------------------------------------------------------------------
@@ -133,11 +132,11 @@ void SLGLOculus::init()
                                        _uvScaleOffset[eyeNum]);
 
         // Now parse the vertex data and create a render ready vertex buffer from it
-        DistortionVertex* pVBVerts = new DistortionVertex[meshData.VertexCount];
+        SLGLOcculusDistortionVertex* pVBVerts = new SLGLOcculusDistortionVertex[meshData.VertexCount];
 
         vector<SLuint> tempIndex;
 
-        DistortionVertex* v = pVBVerts;
+        SLGLOcculusDistortionVertex* v = pVBVerts;
         ovrDistortionVertex * ov = meshData.pVertexData;
         for ( unsigned vertNum = 0; vertNum < meshData.VertexCount; vertNum++ )
         {
@@ -169,8 +168,6 @@ void SLGLOculus::init()
         // somehow passing in meshData.pIndexData doesn't work...
         _distortionMeshIB[eyeNum].generate(&tempIndex[0], meshData.IndexCount, 1,
                                            SL_UNSIGNED_INT, SL_ELEMENT_ARRAY_BUFFER, SL_STATIC_DRAW);
-
-
         delete[] pVBVerts;
         ovrHmd_DestroyDistortionMesh( &meshData );  
     }
@@ -198,7 +195,6 @@ void SLGLOculus::init()
 #endif
 
 }
-
 
 //-----------------------------------------------------------------------------
 /*! Renders the distortion mesh with timewarp and chromatic abberation

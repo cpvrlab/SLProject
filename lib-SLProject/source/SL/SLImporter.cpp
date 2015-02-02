@@ -18,7 +18,7 @@
 SLstring SLImporter::defaultPath = "../_data/models/";
 
 //-----------------------------------------------------------------------------
-/** Default constructor, doesn't log anything
+/*! Default constructor, doesn't log anything
 */
 SLImporter::SLImporter()
            : _logConsoleVerbosity(LV_Quiet),
@@ -28,7 +28,7 @@ SLImporter::SLImporter()
 { }
 
 //-----------------------------------------------------------------------------
-/** Constructor that only outputs console logs
+/*! Constructor that only outputs console logs
 */
 SLImporter::SLImporter(SLLogVerbosity consoleVerb)
            : _logFileVerbosity(LV_Quiet),
@@ -37,7 +37,7 @@ SLImporter::SLImporter(SLLogVerbosity consoleVerb)
 { }
 
 //-----------------------------------------------------------------------------
-/** Constructor that allows logging to a file with different verbosity
+/*! Constructor that allows logging to a file with different verbosity
 */
 SLImporter::SLImporter(const SLstring& logFile, SLLogVerbosity logConsoleVerb, SLLogVerbosity logFileVerb)
 : _logConsoleVerbosity(logConsoleVerb),
@@ -45,14 +45,12 @@ SLImporter::SLImporter(const SLstring& logFile, SLLogVerbosity logConsoleVerb, S
     _sceneRoot(NULL),
     _skeleton(NULL)
 { 
-    if (_logFileVerbosity > LV_Quiet) {
+    if (_logFileVerbosity > LV_Quiet)
         _log.open(logFile);
-        // cout << strerror(errno) << endl;
-    }
 }
 
 //-----------------------------------------------------------------------------
-/** Destructor, closes the file stream if it was used
+/*! Destructor, closes the file stream if it was used
 */
 SLImporter::~SLImporter()
 {
@@ -61,9 +59,9 @@ SLImporter::~SLImporter()
 }
 
 //-----------------------------------------------------------------------------
-/** Logs messages to the importer logfile and the console
-    @param     msg          the message to add to the log
-    @param     verbosity    the verbosity of the message
+/*! Logs messages to the importer logfile and the console
+    @param  msg          the message to add to the log
+    @param  verbosity    the verbosity of the message
     @todo   Build a dedicated log class that can be instantiated (so the importer can have its own)
             Let this log class write to file etc.
             Don't use printf anymore, its c. (c++11 has to_str, else we have to work with ss (ugh...))
@@ -87,3 +85,4 @@ void SLImporter::logMessage(SLLogVerbosity verbosity, const char* msg, ...)
         _log.flush();
     }
 }
+//-----------------------------------------------------------------------------

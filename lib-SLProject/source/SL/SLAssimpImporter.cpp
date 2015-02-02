@@ -26,17 +26,16 @@
 
 
 //-----------------------------------------------------------------------------
-/*! @todo document
-*/
-struct KeyframeData
+//! Temporary struct that hold keyframe data during assimp import.
+struct SLImportKeyframe
 {
-    KeyframeData()
+    SLImportKeyframe()
     : translation(NULL), 
     rotation(NULL),
     scaling(NULL)
     { } 
 
-    KeyframeData(aiVectorKey* trans, aiQuatKey* rot, aiVectorKey* scl)
+    SLImportKeyframe(aiVectorKey* trans, aiQuatKey* rot, aiVectorKey* scl)
     {
         translation = trans;
         rotation = rot;
@@ -47,23 +46,20 @@ struct KeyframeData
     aiQuatKey* rotation;
     aiVectorKey* scaling;
 };
-typedef std::map<SLfloat, KeyframeData> KeyframeMap;
+typedef std::map<SLfloat, SLImportKeyframe> KeyframeMap;
 
 
 
 //-----------------------------------------------------------------------------
-/*! @todo document
-*/
+//! @todo document
 // helper functions
-// @todo we can probably make the getTranslation, getRotation and getScaling functions smaller by putting the common
-//       functionality in a sepearte function
-
-/*  Get the correct translation out of the keyframes map for a given time
-    this function interpolates linearly if no value is present in the 
-
-    @note    this function does not wrap around to interpolate. if there is no 
-             translation key to the right of the passed in time then this function will take
-             the last known value on the left!
+/* @todo we can probably make the getTranslation, getRotation and getScaling
+functions smaller by putting the common functionality in a sepearte function
+Get the correct translation out of the keyframes map for a given time
+this function interpolates linearly if no value is present in the
+@note    this function does not wrap around to interpolate. if there is no
+         translation key to the right of the passed in time then this function will take
+         the last known value on the left!
 */
 SLVec3f getTranslation(SLfloat time, const KeyframeMap& keyframes)
 {
@@ -71,7 +67,8 @@ SLVec3f getTranslation(SLfloat time, const KeyframeMap& keyframes)
     aiVector3D result(0, 0, 0); // return 0 position of nothing was found
 
     // If the timesamp passed in doesnt exist then something in the loading of the kfs went wrong
-    assert(it != keyframes.end() && "A KeyframeMap was passed in with an illegal timestamp."); // @todo this should throw an exception and not kill the app
+    // @todo this should throw an exception and not kill the app
+    assert(it != keyframes.end() && "A KeyframeMap was passed in with an illegal timestamp.");
 
     aiVectorKey* transKey = it->second.translation;
 
@@ -128,9 +125,8 @@ SLVec3f getTranslation(SLfloat time, const KeyframeMap& keyframes)
 }
 
 //-----------------------------------------------------------------------------
-/*! @todo document
-*/
-/*  Get the correct translation out of the keyframes map for a given time
+//! @todo document
+/*! Get the correct translation out of the keyframes map for a given time
     this function interpolates linearly if no value is present in the 
 
     @note    this function does not wrap around to interpolate. if there is no 
@@ -143,7 +139,8 @@ SLVec3f getScaling(SLfloat time, const KeyframeMap& keyframes)
     aiVector3D result(1, 1, 1); // return unit scale if no kf was found
 
     // If the timesamp passed in doesnt exist then something in the loading of the kfs went wrong
-    assert(it != keyframes.end() && "A KeyframeMap was passed in with an illegal timestamp."); // @todo this should throw an exception and not kill the app
+    // @todo this should throw an exception and not kill the app
+    assert(it != keyframes.end() && "A KeyframeMap was passed in with an illegal timestamp.");
 
     aiVectorKey* scaleKey = it->second.scaling;
 
@@ -200,9 +197,8 @@ SLVec3f getScaling(SLfloat time, const KeyframeMap& keyframes)
 }
 
 //-----------------------------------------------------------------------------
-/*! @todo document
-*/
-/*  Get the correct translation out of the keyframes map for a given time
+//! @todo document
+/*! Get the correct translation out of the keyframes map for a given time
     this function interpolates linearly if no value is present in the 
 
     @note    this function does not wrap around to interpolate. if there is no 
@@ -215,7 +211,8 @@ SLQuat4f getRotation(SLfloat time, const KeyframeMap& keyframes)
     aiQuaternion result(1, 0, 0, 0); // identity rotation
 
     // If the timesamp passed in doesnt exist then something in the loading of the kfs went wrong
-    assert(it != keyframes.end() && "A KeyframeMap was passed in with an illegal timestamp."); // @todo this should throw an exception and not kill the app
+    // @todo this should throw an exception and not kill the app
+    assert(it != keyframes.end() && "A KeyframeMap was passed in with an illegal timestamp.");
 
     aiQuatKey* rotKey = it->second.rotation;
 
@@ -324,17 +321,7 @@ SLNode* SLAssimpImporter::load(SLstring file,        //!< File with path or on d
             _meshes.push_back(mesh);
             meshMap[i] = mesh;
         }
-    } 
-    /*
-    // enable hardware skinning on loaded meshes
-    if (_skinnedMeshes.size() > 0) {
-        for (SLint i = 0; i < _skinnedMeshes.size(); i++)
-        {
-            SLMesh* mesh = _skinnedMeshes[i];
-            mesh->skinningMethod(SM_HardwareSkinning);
-        }
-    }*/
-
+    }
 
     // load the scene nodes recursively
     _sceneRoot = loadNodesRec(NULL, scene->mRootNode, meshMap, loadMeshesOnly);
@@ -344,16 +331,13 @@ SLNode* SLAssimpImporter::load(SLstring file,        //!< File with path or on d
     for (SLint i = 0; i < (SLint)scene->mNumAnimations; i++)
         animations.push_back(loadAnimation(scene->mAnimations[i]));
 
-
-
     logMessage(LV_Minimal, "\n---------------------------\n\n");
 
     return _sceneRoot;
 }
 
 //-----------------------------------------------------------------------------
-/** Clears all helper containers
-*/
+//! Clears all helper containers
 void SLAssimpImporter::clear()
 {
     _nodeMap.clear();
@@ -363,7 +347,7 @@ void SLAssimpImporter::clear()
     _skinnedMeshes.clear();
 }
 //-----------------------------------------------------------------------------
-/** return an aiNode ptr if name exists, or null if it doesn't */
+//! Return an aiNode ptr if name exists, or null if it doesn't
 aiNode* SLAssimpImporter::getNodeByName(const SLstring& name)
 {
 	if(_nodeMap.find(name) != _nodeMap.end())
@@ -373,7 +357,7 @@ aiNode* SLAssimpImporter::getNodeByName(const SLstring& name)
 }
 
 //-----------------------------------------------------------------------------
-/** return an aiBone ptr if name exists, or null if it doesn't */
+//! Returns an aiBone ptr if name exists, or null if it doesn't
 const SLMat4f SLAssimpImporter::getOffsetMat(const SLstring& name)
 {
 	if(_jointOffsets.find(name) != _jointOffsets.end())
@@ -383,7 +367,7 @@ const SLMat4f SLAssimpImporter::getOffsetMat(const SLstring& name)
 }
 
 //-----------------------------------------------------------------------------
-/** populates nameToNode, nameToBone, jointGroups, skinnedMeshes */
+//! Populates nameToNode, nameToBone, jointGroups, skinnedMeshes
 void SLAssimpImporter::performInitialScan(const aiScene* scene)
 {
     // populate the _nameToNode map and print the assimp structure on detailed log verbosity.
@@ -408,7 +392,7 @@ void SLAssimpImporter::performInitialScan(const aiScene* scene)
 }
 
 //-----------------------------------------------------------------------------
-/** scans the assimp scene graph structure and populates nameToNode */
+//! Scans the assimp scene graph structure and populates nameToNode
 void SLAssimpImporter::findNodes(aiNode* node, SLstring padding, SLbool lastChild)
 { 
     SLstring name = node->mName.C_Str();
@@ -432,7 +416,9 @@ void SLAssimpImporter::findNodes(aiNode* node, SLstring padding, SLbool lastChil
     }
 }
 //-----------------------------------------------------------------------------
-/** scans all meshes in the assimp scene and populates nameToBone and jointGroups */
+/*! Scans all meshes in the assimp scene and populates nameToBone and
+jointGroups
+*/
 void SLAssimpImporter::findJoints(const aiScene* scene)
 {
     for (SLuint i = 0; i < scene->mNumMeshes; i++)
@@ -463,7 +449,9 @@ void SLAssimpImporter::findJoints(const aiScene* scene)
 }
 
 //-----------------------------------------------------------------------------
-/** finds the common ancestor for each remaining group in jointGroups, these are our final skeleton roots */
+/*! Finds the common ancestor for each remaining group in jointGroups,
+these are our final skeleton roots
+*/
 void SLAssimpImporter::findSkeletonRoot()
 {
     _skeletonRoot = NULL;
@@ -539,7 +527,7 @@ void SLAssimpImporter::findSkeletonRoot()
     logMessage(LV_Normal, "Determined '%s' to be the skeleton's root node.\n", _skeletonRoot->mName.C_Str());
 }
 //-----------------------------------------------------------------------------
-/** Loads the skeleton */
+//! Loads the skeleton
 void SLAssimpImporter::loadSkeleton(SLJoint* parent, aiNode* node)
 {
     if (!node)
@@ -553,7 +541,9 @@ void SLAssimpImporter::loadSkeleton(SLJoint* parent, aiNode* node)
 	    logMessage(LV_Normal, "Loading skeleton skeleton.\n");
         _skeleton = new SLSkeleton;
         _jointIndex = 0;
-        joint = _skeleton->createJoint(name, _jointIndex++); // @todo add a joint creator that also sets the joints name
+
+        // @todo add a joint creator that also sets the joints name
+        joint = _skeleton->createJoint(name, _jointIndex++);
         _skeleton->root(joint);
     }
     else
@@ -968,7 +958,7 @@ SLAnimation* SLAssimpImporter::loadAnimation(aiAnimation* anim)
         for (SLuint i = 0; i < channel->mNumPositionKeys; i++)
         {
             SLfloat time = (SLfloat)channel->mPositionKeys[i].mTime; // @todo test that we get the correct value back
-            keyframes[time] = KeyframeData(&channel->mPositionKeys[i], NULL, NULL);
+            keyframes[time] = SLImportKeyframe(&channel->mPositionKeys[i], NULL, NULL);
         }
         
         // add rotation keys
@@ -977,7 +967,7 @@ SLAnimation* SLAssimpImporter::loadAnimation(aiAnimation* anim)
             SLfloat time = (SLfloat)channel->mRotationKeys[i].mTime; // @todo test that we get the correct value back
 
             if (keyframes.find(time) == keyframes.end())
-                keyframes[time] = KeyframeData(NULL, &channel->mRotationKeys[i], NULL);
+                keyframes[time] = SLImportKeyframe(NULL, &channel->mRotationKeys[i], NULL);
             else
             {
                 // @todo this shouldn't abort but just throw an exception
@@ -992,7 +982,7 @@ SLAnimation* SLAssimpImporter::loadAnimation(aiAnimation* anim)
             SLfloat time = (SLfloat)channel->mScalingKeys[i].mTime; // @todo test that we get the correct value back
 
             if (keyframes.find(time) == keyframes.end())
-                keyframes[time] = KeyframeData(NULL, NULL, &channel->mScalingKeys[i]);
+                keyframes[time] = SLImportKeyframe(NULL, NULL, &channel->mScalingKeys[i]);
             else
             {
                 // @todo this shouldn't abort but just throw an exception

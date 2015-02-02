@@ -14,9 +14,7 @@
 #include <SLRaytracer.h>
 
 //-----------------------------------------------------------------------------
-/* 
-Classic Monte Carlo Pathtracing algorithm for real global illumination
-*/
+//! Classic Monte Carlo Pathtracing algorithm for real global illumination
 class SLPathtracer : public SLRaytracer
 {  public:           
                         SLPathtracer();

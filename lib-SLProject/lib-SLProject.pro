@@ -68,7 +68,6 @@ HEADERS += \
     ../include/SLImage.h \
     ../include/SLInterface.h \
     ../include/SLObject.h \
-    ../include/SLParallel.h \
     ../include/SLTexFont.h \
     ../include/SLTimer.h \
     ../include/SLUtils.h \

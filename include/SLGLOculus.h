@@ -25,7 +25,9 @@
 
 //using namespace OVR;
 
-struct DistortionVertex
+//-----------------------------------------------------------------------------
+//! Distorted vertex used to draw in the Occulus frame buffer.
+struct SLGLOcculusDistortionVertex
 {
     SLVec2f screenPosNDC;
     float   timeWarpFactor;
@@ -37,8 +39,6 @@ struct DistortionVertex
 
 //-----------------------------------------------------------------------------
 //! Wrapper around Oculus Rift
-/*!
-*/
 class SLGLOculus
 {
     public:
