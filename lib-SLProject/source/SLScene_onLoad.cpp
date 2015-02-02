@@ -242,11 +242,10 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
         info(sv, "Hierarchical scene structure.");
 
         // Create textures and materials
-        SLGLTexture* tex1 = new SLGLTexture("Checkerboard0512_C.png");
-        SLMaterial* m1 = new SLMaterial("m1", tex1); m1->kr(0.5f);
-        SLMaterial* m2 = new SLMaterial("m2", SLCol4f::WHITE*0.5, SLCol4f::WHITE,128, 0.5f, 0.0f, 1.0f);
+        SLMaterial* m1 = new SLMaterial("m1", SLCol4f::WHITE*0.6, SLCol4f::WHITE,128, 0.5f, 0.0f, 1.0f);
+        SLMaterial* m2 = new SLMaterial("m2", SLCol4f::WHITE*0.3, SLCol4f::WHITE,128, 0.5f, 0.0f, 1.0f);
 
-        SLMesh* floorMesh = new SLRectangle(SLVec2f(-5,-5), SLVec2f(5,5), 20, 20, "FloorMesh", m1);
+        SLMesh* floorMesh = new SLRectangle(SLVec2f(-5,-5), SLVec2f(5,5), 20, 20, "FloorMesh", m2);
         SLNode* floorRect = new SLNode(floorMesh);
         floorRect->rotate(90, -1,0,0);
         floorRect->translate(0,0,-5.5f);
@@ -256,11 +255,11 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
         cam1->lookAt(0, 0, 0);
         cam1->focalDist(22);
         cam1->setInitialState();
-        SLCamera* cam2 = new SLCamera;
-        cam2->position(10, 0, 0);
-        cam2->lookAt(0, 0, 0);
-        cam2->focalDist(5);
-        cam2->setInitialState();
+//        SLCamera* cam2 = new SLCamera;
+//        cam2->position(10, 0, 0);
+//        cam2->lookAt(0, 0, 0);
+//        cam2->focalDist(5);
+//        cam2->setInitialState();
 
         SLLightSphere* light1 = new SLLightSphere(5, 5, 5, 0.5f);
         light1->ambient (SLCol4f(0.2f,0.2f,0.2f));
@@ -268,12 +267,12 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
         light1->specular(SLCol4f(0.9f,0.9f,0.9f));
         light1->attenuation(1,0,0);
 
-        SLNode* figure = BuildFigureGroup(m2);
+        SLNode* figure = BuildFigureGroup(m1);
 
         SLNode* scene = new SLNode("Scene");
         scene->addChild(light1);
         scene->addChild(cam1);
-        scene->addChild(cam2);
+        //scene->addChild(cam2);
         scene->addChild(floorRect);
         scene->addChild(figure);
      
