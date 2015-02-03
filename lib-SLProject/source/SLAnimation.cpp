@@ -299,9 +299,8 @@ SLNodeAnimTrack* SLAnimation::createEllipticNodeTrack(SLNode* target,
     // Build curve data w. cummulated times
     SLVec3f* points = new SLVec3f[track->numKeyframes()];
     SLfloat* times  = new SLfloat[track->numKeyframes()];
-    for (SLuint i=0; i<track->numKeyframes(); ++i)
-    {   
-        SLTransformKeyframe* kf = (SLTransformKeyframe*)track->keyframe(i);
+    for (SLint i=0; i<track->numKeyframes(); ++i)
+    {   SLTransformKeyframe* kf = (SLTransformKeyframe*)track->keyframe(i);
         points[i] =kf->translation();
         times[i] = kf->time();
     }

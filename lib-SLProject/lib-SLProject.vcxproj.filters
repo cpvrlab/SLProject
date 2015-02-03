@@ -228,9 +228,6 @@
     <ClInclude Include="..\include\SLAnimation.h">
       <Filter>Animation</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\SLSceneNode.h">
-      <Filter>Nodes</Filter>
-    </ClInclude>
     <ClInclude Include="..\include\SLAssimpImporter.h">
       <Filter>SL</Filter>
     </ClInclude>
@@ -397,9 +394,6 @@
     </ClCompile>
     <ClCompile Include="source\SLKeyframe.cpp">
       <Filter>Animation</Filter>
-    </ClCompile>
-    <ClCompile Include="source\SLSceneNode.cpp">
-      <Filter>Nodes</Filter>
     </ClCompile>
     <ClCompile Include="source\SL\SLAssimpImporter.cpp">
       <Filter>SL</Filter>

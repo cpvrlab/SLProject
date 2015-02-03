@@ -236,8 +236,8 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
         info(sv, "Hierarchical scene structure.");
 
         // Create textures and materials
-        SLMaterial* m1 = new SLMaterial("m1", SLCol4f(0.6f,0.6f,0.6f,0.5f), SLCol4f::WHITE,128, 0.5f, 0.0f, 1.0f);
-        SLMaterial* m2 = new SLMaterial("m2", SLCol4f::WHITE*0.3, SLCol4f::WHITE,128, 0.5f, 0.0f, 1.0f);
+        SLMaterial* m1 = new SLMaterial("m1", SLCol4f(0.6f,0.6f,0.6f,0.5f), SLCol4f::WHITE,128, 0.2f, 0.8f, 1.5f);
+        SLMaterial* m2 = new SLMaterial("m2", SLCol4f::WHITE*0.3f, SLCol4f::WHITE,128, 0.5f, 0.0f, 1.0f);
 
         SLMesh* floorMesh = new SLRectangle(SLVec2f(-5,-5), SLVec2f(5,5), 20, 20, "FloorMesh", m2);
         SLNode* floorRect = new SLNode(floorMesh);
