@@ -345,8 +345,6 @@ void SLCamera::setProjection(SLSceneView* sv, const SLEye eye)
             // The ortographic projection should have its near clip plane behind the camera
             // rather than slightly in front of it. Else we will see cross sections of scenes if
             // we zoom in close
-            // @todo For now we just use the far plane as near for the ortho projection.
-            //       we should however make it a little more clear.
             _stateGL->projectionMatrix.ortho(left,right,bottom,top, -_clipNear, _clipFar);
             break;
 
@@ -450,7 +448,6 @@ void SLCamera::setView(SLSceneView* sv, const SLEye eye)
 {  
     SLScene* s = SLScene::current;
    
-    // @todo Fix all the views below. not nice to copy the vm around
     SLMat4f vm = updateAndGetWMI();
 
     if (eye == centerEye)

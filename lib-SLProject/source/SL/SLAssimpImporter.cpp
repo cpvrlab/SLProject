@@ -8,8 +8,6 @@
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
 
-// @todo    add log output to the other parts of the importer
-
 #include <stdafx.h>
 #include <SLAssimpImporter.h>
 #include <SLScene.h>
@@ -26,7 +24,7 @@
 
 
 //-----------------------------------------------------------------------------
-//! Temporary struct that hold keyframe data during assimp import.
+//! Temporary struct to hold keyframe data during assimp import.
 struct SLImportKeyframe
 {
     SLImportKeyframe()
@@ -51,12 +49,8 @@ typedef std::map<SLfloat, SLImportKeyframe> KeyframeMap;
 
 
 //-----------------------------------------------------------------------------
-//! @todo document
-// helper functions
-/* @todo we can probably make the getTranslation, getRotation and getScaling
-functions smaller by putting the common functionality in a sepearte function
-Get the correct translation out of the keyframes map for a given time
-this function interpolates linearly if no value is present in the
+/* Get the correct translation out of the keyframes map for a given time
+this function interpolates linearly if no value is present in the map.
 @note    this function does not wrap around to interpolate. if there is no
          translation key to the right of the passed in time then this function will take
          the last known value on the left!
@@ -66,7 +60,7 @@ SLVec3f getTranslation(SLfloat time, const KeyframeMap& keyframes)
     KeyframeMap::const_iterator it = keyframes.find(time);
     aiVector3D result(0, 0, 0); // return 0 position of nothing was found
 
-    // If the timesamp passed in doesnt exist then something in the loading of the kfs went wrong
+    // If the timestamp passed in doesnt exist then something in the loading of the kfs went wrong
     // @todo this should throw an exception and not kill the app
     assert(it != keyframes.end() && "A KeyframeMap was passed in with an illegal timestamp.");
 
@@ -125,12 +119,11 @@ SLVec3f getTranslation(SLfloat time, const KeyframeMap& keyframes)
 }
 
 //-----------------------------------------------------------------------------
-//! @todo document
-/*! Get the correct translation out of the keyframes map for a given time
-    this function interpolates linearly if no value is present in the 
+/*! Get the correct scaling out of the keyframes map for a given time
+    this function interpolates linearly if no value is present in the map.
 
     @note    this function does not wrap around to interpolate. if there is no 
-             translation key to the right of the passed in time then this function will take
+             scaling key to the right of the passed in time then this function will take
              the last known value on the left!
 */
 SLVec3f getScaling(SLfloat time, const KeyframeMap& keyframes)
@@ -138,7 +131,7 @@ SLVec3f getScaling(SLfloat time, const KeyframeMap& keyframes)
     KeyframeMap::const_iterator it = keyframes.find(time);
     aiVector3D result(1, 1, 1); // return unit scale if no kf was found
 
-    // If the timesamp passed in doesnt exist then something in the loading of the kfs went wrong
+    // If the timestamp passed in doesnt exist then something in the loading of the kfs went wrong
     // @todo this should throw an exception and not kill the app
     assert(it != keyframes.end() && "A KeyframeMap was passed in with an illegal timestamp.");
 
@@ -197,12 +190,11 @@ SLVec3f getScaling(SLfloat time, const KeyframeMap& keyframes)
 }
 
 //-----------------------------------------------------------------------------
-//! @todo document
-/*! Get the correct translation out of the keyframes map for a given time
+/*! Get the correct rotation out of the keyframes map for a given time
     this function interpolates linearly if no value is present in the 
 
     @note    this function does not wrap around to interpolate. if there is no 
-             translation key to the right of the passed in time then this function will take
+             rotation key to the right of the passed in time then this function will take
              the last known value on the left!
 */
 SLQuat4f getRotation(SLfloat time, const KeyframeMap& keyframes)
@@ -542,7 +534,6 @@ void SLAssimpImporter::loadSkeleton(SLJoint* parent, aiNode* node)
         _skeleton = new SLSkeleton;
         _jointIndex = 0;
 
-        // @todo add a joint creator that also sets the joints name
         joint = _skeleton->createJoint(name, _jointIndex++);
         _skeleton->root(joint);
     }
@@ -787,7 +778,7 @@ SLMesh* SLAssimpImporter::loadMesh(aiMesh *mesh)
 
                     // check if the bones max radius changed
                     // @todo this is very specific to this loaded mesh,
-                    //       when we add skeleton instances this radius
+                    //       when we add a skeleton instances class this radius
                     //       calculation has to be done on the instance!
                     slJoint->calcMaxRadius(SLVec3f(mesh->mVertices[vertId].x,
                                                    mesh->mVertices[vertId].y,
@@ -875,7 +866,7 @@ SLAnimation* SLAssimpImporter::loadAnimation(aiAnimation* anim)
                 
     // exit if we didn't load a skeleton but have animations for one
     if (_skinnedMeshes.size() > 0)
-        assert(_skeleton != NULL && "The skeleton wasn't impoted correctly."); // @todo rename all global variables by adding a prefex to them that identifies their use (rename skel here)
+        assert(_skeleton != NULL && "The skeleton wasn't impoted correctly."); 
     
     // create the animation
     SLAnimation* result;
@@ -901,7 +892,7 @@ SLAnimation* SLAssimpImporter::loadAnimation(aiAnimation* anim)
 
         // @todo: this is currently a work around but it can happen that we receive normal node animationtracks and joint animationtracks
         //        we don't allow node animation tracks in a skeleton animation, so we should split an animation in two seperate 
-        //        animations if this happens. for now we just ignore node animation tracks if we already have skeleton tracks
+        //        animations if this happens. for now we just ignore node animation tracks if we already have joint tracks
         //        ofc this will crash if the first track is a node anim but its just temporary
         if (!isJointNode && isSkeletonAnim)
             continue;
@@ -936,9 +927,6 @@ SLAnimation* SLAssimpImporter::loadAnimation(aiAnimation* anim)
             //      animations to it. If we were to reset each joint just before applying a channel to it
             //      we wouldn't have this problem. But we coulnd't blend animations as easily.
             //
-            //      @note (26-11-2014) about a week after this todo. This is the fault of the imported file
-            //            the base animation must provide a keyframe for every joint in the skeleton or we will
-            //            get problems when we try to interpolate with an other animation.
             SLMat4f prevOM = affectedJoint->om();
             affectedJoint->om(SLMat4f());
             affectedJoint->setInitialState();
@@ -967,14 +955,14 @@ SLAnimation* SLAssimpImporter::loadAnimation(aiAnimation* anim)
         // add position keys
         for (SLuint i = 0; i < channel->mNumPositionKeys; i++)
         {
-            SLfloat time = (SLfloat)channel->mPositionKeys[i].mTime; // @todo test that we get the correct value back
+            SLfloat time = (SLfloat)channel->mPositionKeys[i].mTime; 
             keyframes[time] = SLImportKeyframe(&channel->mPositionKeys[i], NULL, NULL);
         }
         
         // add rotation keys
         for (SLuint i = 0; i < channel->mNumRotationKeys; i++)
         {
-            SLfloat time = (SLfloat)channel->mRotationKeys[i].mTime; // @todo test that we get the correct value back
+            SLfloat time = (SLfloat)channel->mRotationKeys[i].mTime;
 
             if (keyframes.find(time) == keyframes.end())
                 keyframes[time] = SLImportKeyframe(NULL, &channel->mRotationKeys[i], NULL);
@@ -989,7 +977,7 @@ SLAnimation* SLAssimpImporter::loadAnimation(aiAnimation* anim)
         // add scaleing keys
         for (SLuint i = 0; i < channel->mNumScalingKeys; i++)
         {
-            SLfloat time = (SLfloat)channel->mScalingKeys[i].mTime; // @todo test that we get the correct value back
+            SLfloat time = (SLfloat)channel->mScalingKeys[i].mTime; 
 
             if (keyframes.find(time) == keyframes.end())
                 keyframes[time] = SLImportKeyframe(NULL, NULL, &channel->mScalingKeys[i]);

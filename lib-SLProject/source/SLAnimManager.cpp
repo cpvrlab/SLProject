@@ -99,8 +99,8 @@ SLbool SLAnimManager::update(SLfloat elapsedTimeSec)
 
     // advance time for node animations and apply them
     // @todo currently we can't blend between normal node animations because we reset them
-    // per playbackplay. so the last plays that affects a node will have its animation applied.
-    // we need to save the plays differently if we want them.
+    // per animplayback. so the last playback that affects a node will have its animation applied.
+    // we need to save the playback differently if we want to blend them.
 
     SLMAnimPlayback::iterator it;
     for (it = _nodeAnimPlaybacks.begin(); it != _nodeAnimPlaybacks.end(); it++)

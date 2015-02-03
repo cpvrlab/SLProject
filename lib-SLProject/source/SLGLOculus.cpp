@@ -468,10 +468,6 @@ void SLGLOculus::beginFrame()
     _isCameraConnected = (trackState.StatusFlags & ovrStatus_PositionConnected) ? true : false;
     _isPositionTracked = (trackState.StatusFlags & ovrStatus_PositionTracked) ? true : false;
 
-    // @todo   put the framebuffer in the oculus class and add the oculus class as a member
-    //          to SLSceneView. Do we need multiple sceneviews supported with the rift?
-    //          this also leaves the problem of
-
     // code for binding frame buffer here 
     for (int eyeIndex = 0; eyeIndex < 2; ++eyeIndex)
     {

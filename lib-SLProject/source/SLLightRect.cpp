@@ -51,7 +51,7 @@ SLLightRect::SLLightRect(SLfloat w, SLfloat h, SLbool hasMesh) :
 /*! 
 SLLightRect::init sets the light id, the light states & creates an 
 emissive mat.
-@@todo properly remove this function and find a clean way to init lights in a scene
+@todo properly remove this function and find a clean way to init lights in a scene
 */
 void SLLightRect::init()
 {  
