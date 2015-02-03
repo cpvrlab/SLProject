@@ -31,22 +31,20 @@ class SLInputManager
 friend class SLInputDevice;
 
 public:
-    static  SLInputManager& instance    ();
+    static  SLInputManager& instance        ();
 
-            SLbool          pollEvents  ();
-            void            queueEvent  (const SLInputEvent* e);
+            SLbool          pollEvents      ();
+            void            queueEvent      (const SLInputEvent* e);
 
 private:
-    static SLInputManager   _instance;          //!< the singleton instance of the input manager
+    static  SLInputManager  _instance;      //!< the singleton instance of the input manager
+            SLQInputEvent   _systemEvents;  //!< queue for known system events
+            SLVInputDevice  _devices;       //!< list of activated SLInputDevices
 
-    SLInputEventPtrQueue    _systemEventQueue;  //!< queue for known system events
-    SLVInputDevice          _devices;           //!< list of activated SLInputDevices 
+                            // Constructor is private to prevent instantiation
+                            SLInputManager  (){ }
 
-    // prevent instantiation
-    SLInputManager(){ }
-
-    SLbool processQueuedEvents();
+            SLbool          processQueuedEvents();
 };
-
-
+//-----------------------------------------------------------------------------
 #endif

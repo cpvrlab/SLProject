@@ -137,7 +137,7 @@ class SLCamera: public SLNode
             SLfloat         _clipFar;               //!< Dist. to the far clipping plane
             SLPlane         _plane[6];              //!< 6 frustum planes (t, b, l, r, n, f)
             SLuint          _numRendered;           //!< num. of shapes in frustum
-            enum {T=0,B,L,R,N,F};                   //!< enum for planes
+            enum {T=0,B,L,R,N,F};                   // enumeration for frustum planes
                
             SLGLBuffer      _bufP;                  //!< Buffer object for visualization
                

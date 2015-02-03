@@ -59,7 +59,7 @@ to be dynamically allocated by the user, the deallocation is handled by the
 SLInputManager */
 void SLInputManager::queueEvent(const SLInputEvent* e)
 {
-    _systemEventQueue.push(e);
+    _systemEvents.push(e);
 }
 
 //-----------------------------------------------------------------------------
@@ -67,7 +67,7 @@ void SLInputManager::queueEvent(const SLInputEvent* e)
 @note   this is similar to the Qt QObject::event function.*/
 SLbool SLInputManager::processQueuedEvents()
 {
-    SLInputEventPtrQueue& q = _systemEventQueue;
+    SLQInputEvent& q = _systemEvents;
 
     // flag if an event has been consumed by a receiver
     SLbool eventConsumed = false;

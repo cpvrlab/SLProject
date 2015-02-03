@@ -73,76 +73,76 @@ SLNode* BuildFigureGroup(SLMaterial* mat, SLbool withAnimation)
     SLNode* cyl;
    
     // Feet
-    SLNode* feet = new SLNode("feet group");
+    SLNode* feet = new SLNode("feet group (T13,R6)");
     feet->addMesh(new SLSphere(0.2f, 16, 16, "ankle", mat));
-    SLNode* feetbox = new SLNode(new SLBox(-0.2f,-0.1f, 0.0f, 0.2f, 0.1f, 0.8f, "foot", mat));
+    SLNode* feetbox = new SLNode(new SLBox(-0.2f,-0.1f, 0.0f, 0.2f, 0.1f, 0.8f, "foot", mat), "feet (T14)");
     feetbox->translate(0.0f,-0.25f,-0.15f, TS_Local);
     feet->addChild(feetbox);
     feet->translate(0.0f,0.0f,1.6f, TS_Local);
     feet->rotate(-90.0f, 1.0f, 0.0f, 0.0f);
    
     // Assemble low leg
-    SLNode* leglow = new SLNode("leglow group");
+    SLNode* leglow = new SLNode("low leg group (T11, R5)");
     leglow->addMesh(new SLSphere(0.3f, 16, 16, "knee", mat));
-    cyl = new SLNode(new SLCylinder(0.2f, 1.4f, 1, 16, false, false, "shin", mat));
+    cyl = new SLNode(new SLCylinder(0.2f, 1.4f, 1, 16, false, false, "shin", mat), "shin (T12)");
     cyl->translate(0.0f, 0.0f, 0.2f, TS_Local);            
     leglow->addChild(cyl);
     leglow->addChild(feet);
+    leglow->translate(0.0f, 0.0f, 1.27f, TS_Local);
+    leglow->rotate(0, 1.0f, 0.0f, 0.0f);
    
     // Assemble leg
-    SLNode* leg = new SLNode("leg group");
+    SLNode* leg = new SLNode("leg group ()");
     leg->addMesh(new SLSphere(0.4f, 16, 16, "hip joint", mat));
-    cyl = new SLNode(new SLCylinder(0.3f, 1.0f, 1, 16, false, false, "thigh", mat));
+    cyl = new SLNode(new SLCylinder(0.3f, 1.0f, 1, 16, false, false, "thigh", mat), "thigh (T10)");
     cyl->translate(0.0f, 0.0f, 0.27f, TS_Local);           
     leg->addChild(cyl);
-    leglow->translate(0.0f, 0.0f, 1.27f, TS_Local);        
-    leglow->rotate(0, 1.0f, 0.0f, 0.0f);
     leg->addChild(leglow);
 
     // Assemble left & right leg
-    SLNode* legLeft = new SLNode("left leg group");
+    SLNode* legLeft = new SLNode("left leg group (T8)");
     legLeft->translate(-0.4f, 0.0f, 2.2f, TS_Local);
     legLeft->addChild(leg);
-    SLNode* legRight= new SLNode("right leg group");           
+    SLNode* legRight= new SLNode("right leg group (T9)");
     legRight->translate(0.4f, 0.0f, 2.2f, TS_Local);       
     legRight->addChild(leg->copyRec());
 
     // Assemble low arm
-    SLNode* armlow = new SLNode("armLow group");
+    SLNode* armlow = new SLNode("low arm group (T6,R4)");
     armlow->addMesh(new SLSphere(0.2f, 16, 16, "ellbow", mat));
-    cyl = new SLNode(new SLCylinder(0.15f, 1.0f, 1, 16, true, false, "arm", mat));
+    cyl = new SLNode(new SLCylinder(0.15f, 1.0f, 1, 16, true, false, "low arm", mat), "T7");
     cyl->translate(0.0f, 0.0f, 0.14f, TS_Local);           
     armlow->addChild(cyl);
+    armlow->translate(0.0f, 0.0f, 1.2f, TS_Local);
+    armlow->rotate(45, -1.0f, 0.0f, 0.0f);
 
     // Assemble arm
-    SLNode* arm = new SLNode("arm group");
+    SLNode* arm = new SLNode("arm group ()");
     arm->addMesh(new SLSphere(0.3f, 16, 16, "shoulder", mat));
-    cyl = new SLNode(new SLCylinder(0.2f, 1.0f, 1, 16, false, false, "upper arm", mat));
+    cyl = new SLNode(new SLCylinder(0.2f, 1.0f, 1, 16, false, false, "upper arm", mat), "upper arm (T5)");
     cyl->translate(0.0f, 0.0f, 0.2f, TS_Local);            
     arm->addChild(cyl);
-    armlow->translate(0.0f, 0.0f, 1.2f, TS_Local);         
-    armlow->rotate(45, -1.0f, 0.0f, 0.0f);       
     arm->addChild(armlow);
 
     // Assemble left & right arm
-    SLNode* armLeft = new SLNode("left arm group");
+    SLNode* armLeft = new SLNode("left arm group (T3,R2)");
     armLeft->translate(-1.1f, 0.0f, 0.3f, TS_Local);       
     armLeft->rotate(10, -1,0,0);
     armLeft->addChild(arm);
-    SLNode* armRight= new SLNode("right arm group");
+    SLNode* armRight= new SLNode("right arm group (T4,R3)");
     armRight->translate(1.1f, 0.0f, 0.3f, TS_Local);       
     armRight->rotate(-60, -1,0,0);
     armRight->addChild(arm->copyRec());
 
     // Assemble head & neck
-    SLNode* head = new SLNode(new SLSphere(0.5f, 16, 16, "head", mat));
+    SLNode* head = new SLNode(new SLSphere(0.5f, 16, 16, "head", mat), "head (T1)");
     head->translate(0.0f, 0.0f,-0.7f, TS_Local);
-    SLNode* neck = new SLNode(new SLCylinder(0.25f, 0.3f, 1, 16, false, false, "neck", mat));
+    SLNode* neck = new SLNode(new SLCylinder(0.25f, 0.3f, 1, 16, false, false, "neck", mat), "neck (T2)");
     neck->translate(0.0f, 0.0f,-0.3f, TS_Local);
       
     // Assemble figure Left
-    SLNode* figure = new SLNode("figure");
-    figure->addChild(new SLNode(new SLBox(-0.8f,-0.4f, 0.0f, 0.8f, 0.4f, 2.0f, "chest", mat)));
+    SLNode* figure = new SLNode("figure group (R1)");
+    figure->addChild(new SLNode(new SLBox(-0.8f,-0.4f, 0.0f, 0.8f, 0.4f, 2.0f, "chest", mat), "chest"));
     figure->addChild(head);
     figure->addChild(neck);
     figure->addChild(armLeft);
@@ -242,7 +242,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
         info(sv, "Hierarchical scene structure.");
 
         // Create textures and materials
-        SLMaterial* m1 = new SLMaterial("m1", SLCol4f::WHITE*0.6, SLCol4f::WHITE,128, 0.5f, 0.0f, 1.0f);
+        SLMaterial* m1 = new SLMaterial("m1", SLCol4f(0.6f,0.6f,0.6f,0.5f), SLCol4f::WHITE,128, 0.5f, 0.0f, 1.0f);
         SLMaterial* m2 = new SLMaterial("m2", SLCol4f::WHITE*0.3, SLCol4f::WHITE,128, 0.5f, 0.0f, 1.0f);
 
         SLMesh* floorMesh = new SLRectangle(SLVec2f(-5,-5), SLVec2f(5,5), 20, 20, "FloorMesh", m2);

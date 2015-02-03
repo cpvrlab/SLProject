@@ -149,7 +149,7 @@ public:
     { }
 };
 
-typedef std::queue<const SLInputEvent*> SLInputEventPtrQueue;
-
+//-----------------------------------------------------------------------------
+typedef std::queue<const SLInputEvent*> SLQInputEvent;
 //-----------------------------------------------------------------------------
 #endif
