@@ -29,14 +29,17 @@ SLLeapController::~SLLeapController()
 {
 }
 
-void SLLeapController::poll()
+SLbool SLLeapController::poll()
 {
     const Leap::Frame frame = _leapController.frame();
 
-    if (_prevFrameId != frame.id())
+    if (_prevFrameId != frame.id()) {
         onFrame(frame);
+        _prevFrameId = frame.id();
+        return true;
+    }
 
-    _prevFrameId = frame.id();
+    return false;
 }
 
 void SLLeapController::onFrame(const Leap::Frame& frame)

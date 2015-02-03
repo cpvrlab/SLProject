@@ -67,7 +67,7 @@ public:
             void    removeToolListener     (SLLeapToolListener* listener);
     
     // SLInputDevice function implementation
-    virtual void poll();
+    virtual SLbool poll();
 
     virtual void onFrame(const Leap::Controller&)
     {

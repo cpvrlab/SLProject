@@ -18,11 +18,10 @@
 #include <SLSceneView.h>
 #include <SLEnums.h>
 
-#include "CustomSceneView.h"
-
+#include <CustomSceneView.h>
 //-----------------------------------------------------------------------------
 // GLobal application variables
-GLFWwindow* window;                 //!< The global glfw window handle.
+GLFWwindow* window;                 //!< The global glfw window handle
 SLint       svIndex;                //!< SceneView index
 SLint       scrWidth;               //!< Window width at start up
 SLint       scrHeight;              //!< Window height at start up
@@ -30,14 +29,12 @@ SLfloat     scr2fbX;                //!< Factor from screen to framebuffer coord
 SLfloat     scr2fbY;                //!< Factor from screen to framebuffer coords
 SLint       mouseX;                 //!< Last mouse position x in pixels
 SLint       mouseY;                 //!< Last mouse position y in pixels
-SLint       touchX2;                //!< Last finger touch 2 position x in pixels
-SLint       touchY2;                //!< Last finger touch 2 position y in pixels
-SLint       touchDeltaX;            //!< Delta between two fingers in x
-SLint       touchDeltaY;            //!< Delta between two fingers in <
+SLVec2i     touch2;                 //!< Last finger touch 2 position in pixels
+SLVec2i     touchDelta;             //!< Delta between two fingers in x
 SLint       lastWidth;              //!< Last window width in pixels
 SLint       lastHeight;             //!< Last window height in pixels
 SLint       lastMouseWheelPos;      //!< Last mouse wheel position
-SLfloat     lastMouseDownTime = 0.0f; //!< Last mouse press time
+SLfloat     lastMouseDownTime = 0.0f;//!< Last mouse press time
 SLKey       modifiers=KeyNone;      //!< last modifier keys
 SLbool      fullscreen = false;     //!< flag if window is in fullscreen mode
 
@@ -54,20 +51,18 @@ void onClose(GLFWwindow* window)
 //-----------------------------------------------------------------------------
 /*!
 onPaint: Paint event handler that passes the event to the slPaint function. 
-For accurate frame rate meassurement we have to take the time after the OpenGL 
-frame buffer swapping. The FPS calculation is done in slGetWindowTitle.
 */
 SLbool onPaint()
 {
-    bool sceneGotUpdated = SLScene::current->updateIfAllViewsGotPainted();
-    bool viewNeedsUpdate = slPaint(svIndex);
-
+    bool viewNeedsRepaint = slUpdateAndPaint(svIndex);
+   
     // Fast copy the back buffer to the front buffer. This is OS dependent.
     glfwSwapBuffers(window);
-
+   
     // Show the title genereted by the scene library (FPS etc.)
     glfwSetWindowTitle(window, slGetWindowTitle(svIndex).c_str());
-    return sceneGotUpdated || viewNeedsUpdate;
+
+    return viewNeedsRepaint;
 }
 
 //-----------------------------------------------------------------------------
@@ -139,11 +134,11 @@ static void onResize(GLFWwindow* window, int width, int height)
     lastWidth = width;
     lastHeight = height;
 
+
     // width & height are in screen coords.
     // We need to scale them to framebuffer coords.
     slResize(svIndex, (int)(width*scr2fbX), (int)(height*scr2fbY));
 }
-
 
 //-----------------------------------------------------------------------------
 /*!
@@ -166,13 +161,19 @@ static void onMouseButton(GLFWwindow* window, int button, int action, int mods)
         // simulate double touch from touch devices
         if (modifiers & KeyAlt) 
         {  
+            // init for first touch
+            if (touch2.x < 0)
+            {   int scrW2 = lastWidth / 2;
+                int scrH2 = lastHeight / 2;
+                touch2.set(scrW2 - (x - scrW2), scrH2 - (y - scrH2));
+                touchDelta.set(x - touch2.x, y - touch2.y);
+            }
+
             // Do parallel double finger move
             if (modifiers & KeyShift)
-            {  if (slTouch2Down(svIndex, x, y, x - touchDeltaX, y - touchDeltaY))
-                onPaint();
+            {  slTouch2Down(svIndex, x, y, x - touchDelta.x, y - touchDelta.y);
             } else // Do concentric double finger pinch
-            {  if (slTouch2Down(svIndex, x, y, touchX2, touchY2))
-                onPaint();
+            {  slTouch2Down(svIndex, x, y, touch2.x, touch2.y);
             }
         } 
         else  // Do standard mouse down
@@ -185,13 +186,13 @@ static void onMouseButton(GLFWwindow* window, int button, int action, int mods)
             {  
                 switch (button)
                 {   case GLFW_MOUSE_BUTTON_LEFT:
-                        if (slDoubleClick(svIndex, ButtonLeft, x, y, modifiers)) onPaint();
+                        slDoubleClick(svIndex, ButtonLeft, x, y, modifiers);
                         break;
                     case GLFW_MOUSE_BUTTON_RIGHT:
-                        if (slDoubleClick(svIndex, ButtonRight, x, y, modifiers)) onPaint();
+                        slDoubleClick(svIndex, ButtonRight, x, y, modifiers);
                         break;
                     case GLFW_MOUSE_BUTTON_MIDDLE:
-                        if (slDoubleClick(svIndex, ButtonMiddle, x, y, modifiers)) onPaint();
+                        slDoubleClick(svIndex, ButtonMiddle, x, y, modifiers);
                         break;
                 }
             } 
@@ -199,13 +200,13 @@ static void onMouseButton(GLFWwindow* window, int button, int action, int mods)
             {
                 switch (button)
                 {   case GLFW_MOUSE_BUTTON_LEFT:
-                        if (slMouseDown(svIndex, ButtonLeft, x, y, modifiers)) onPaint();
+                        slMouseDown(svIndex, ButtonLeft, x, y, modifiers);
                         break;
                     case GLFW_MOUSE_BUTTON_RIGHT:
-                        if (slMouseDown(svIndex, ButtonRight, x, y, modifiers)) onPaint();
+                        slMouseDown(svIndex, ButtonRight, x, y, modifiers);
                         break;
                     case GLFW_MOUSE_BUTTON_MIDDLE:
-                        if (slMouseDown(svIndex, ButtonMiddle, x, y, modifiers)) onPaint();
+                        slMouseDown(svIndex, ButtonMiddle, x, y, modifiers);
                         break;
                 }
             }
@@ -218,23 +219,21 @@ static void onMouseButton(GLFWwindow* window, int button, int action, int mods)
         {  
             // Do parallel double finger move
             if (modifiers & KeyShift)
-            {   if (slTouch2Up(svIndex, x, y, x - (touchX2 - x), y - (touchY2 - y)))
-                onPaint();
+            {   slTouch2Up(svIndex, x, y, x - (touch2.x - x), y - (touch2.y - y));
             } else // Do concentric double finger pinch
-            {   if (slTouch2Up(svIndex, x, y, touchX2, touchY2))
-                onPaint(); 
+            {   slTouch2Up(svIndex, x, y, touch2.x, touch2.y); 
             }   
         } 
         else  // Do standard mouse down
         {  switch (button)
             {   case GLFW_MOUSE_BUTTON_LEFT:
-                    if (slMouseUp(svIndex, ButtonLeft, x, y, modifiers)) onPaint(); 
+                    slMouseUp(svIndex, ButtonLeft, x, y, modifiers); 
                     break;
                 case GLFW_MOUSE_BUTTON_RIGHT:
-                    if (slMouseUp(svIndex, ButtonRight, x, y, modifiers)) onPaint(); 
+                    slMouseUp(svIndex, ButtonRight, x, y, modifiers); 
                     break;
                 case GLFW_MOUSE_BUTTON_MIDDLE:
-                    if (slMouseUp(svIndex, ButtonMiddle, x, y, modifiers)) onPaint(); 
+                    slMouseUp(svIndex, ButtonMiddle, x, y, modifiers); 
                     break;
             }
         }
@@ -261,19 +260,19 @@ static void onMouseMove(GLFWwindow* window, double x, double y)
     {  
         // Do parallel double finger move
         if (modifiers & KeyShift)
-        {   slTouch2Move(svIndex, (int)x, (int)y, (int)x - touchDeltaX, (int)y - touchDeltaY);
+        {   slTouch2Move(svIndex, (int)x, (int)y, (int)x - touchDelta.x, (int)y - touchDelta.y);
         } 
         else // Do concentric double finger pinch
         {   int scrW2 = lastWidth / 2;
             int scrH2 = lastHeight / 2;
-            touchX2 = scrW2 - ((int)x - scrW2);
-            touchY2 = scrH2 - ((int)y - scrH2);
-            touchDeltaX = (int)x - touchX2;
-            touchDeltaY = (int)y - touchY2;
-            slTouch2Move(svIndex, (int)x, (int)y, touchX2, touchY2);
+            touch2.x = scrW2 - ((int)x - scrW2);
+            touch2.y = scrH2 - ((int)y - scrH2);
+            touchDelta.x = (int)x - touch2.x;
+            touchDelta.y = (int)y - touch2.y;
+            slTouch2Move(svIndex, (int)x, (int)y, touch2.x, touch2.y);
         }
     } else // Do normal mouse move
-        if (slMouseMove(svIndex, (int)x, (int)y)) onPaint();
+        slMouseMove(svIndex, (int)x, (int)y);
 }
 
 //-----------------------------------------------------------------------------
@@ -286,7 +285,7 @@ static void onMouseWheel(GLFWwindow* window, double xscroll, double yscroll)
     int dY = (int)yscroll;
     if (dY==0) dY = (int)(SL_sign(yscroll));
 
-    if (slMouseWheel(svIndex, dY, modifiers)) onPaint();
+    slMouseWheel(svIndex, dY, modifiers);
 }
 
 //-----------------------------------------------------------------------------
@@ -321,8 +320,8 @@ static void onKeyAction(GLFWwindow* window, int GLFWKey, int scancode, int actio
             glfwSetWindowSize(window, scrWidth, scrHeight);
             glfwSetWindowPos(window, 10, 30);   
         } else 
-        if (slKeyPress(svIndex, key, modifiers)) // ESC during RT stops it and returns false
-        {   onClose(window);
+        {   slKeyPress(svIndex, key, modifiers);
+            onClose(window);
             glfwSetWindowShouldClose(window, GL_TRUE);
         }
     } else 
@@ -357,10 +356,23 @@ void onGLFWError(int error, const char* description)
     fputs(description, stderr);
 }
 
+
 SLuint createCustomSceneView()
 {
     CustomSceneView* test = new CustomSceneView;
     return test->index();
+}
+
+//-----------------------------------------------------------------------------
+/*!
+Toggle system cursor callback
+*/
+void onShowCursor(bool val)
+{
+    if (!val)
+        glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
+    else
+        glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
 }
 
 //-----------------------------------------------------------------------------
@@ -370,9 +382,9 @@ The C main procedure running the GLFW GUI application.
 int main(int argc, char *argv[])
 {  
     // set command line arguments
-    SLVstring cmdLineArgs;
+    SLVstring* cmdLineArgs = new SLVstring();
     for(int i = 1; i < argc; i++)
-	    cmdLineArgs.push_back(argv[i]);
+	    cmdLineArgs->push_back(argv[i]);
 
     if (!glfwInit())
     {   fprintf(stderr, "Failed to initialize GLFW\n");
@@ -383,12 +395,26 @@ int main(int argc, char *argv[])
    
     // Enable fullscreen anti aliasing with 4 samples
     glfwWindowHint(GLFW_SAMPLES, 4);
-    //glfwWindowHint(GLFW_DECORATED, false); // start without any window frame
+
+    //Using higher OpenGL Version than 2.1 is not possible
+    //because we use no version in the GLSL shader files.
+    //glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+    //glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 2);
+    //glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+    //glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 
     scrWidth = 640;
     scrHeight = 480;
+    touch2.set(-1,-1);
+    touchDelta.set(-1,-1);
 
     window = glfwCreateWindow(scrWidth, scrHeight, "My Title", NULL, NULL);
+    //get real window size
+    glfwGetWindowSize(window, &scrWidth, &scrHeight);
+
+    //temp fullscreen
+    //window = glfwCreateWindow(1920, 1080, "My Title", glfwGetPrimaryMonitor(), NULL);
+
     if (!window)
     {   glfwTerminate();
         exit(EXIT_FAILURE);
@@ -422,26 +448,29 @@ int main(int argc, char *argv[])
     glfwSetWindowTitle(window, "SLProject Test Application");
     glfwSetWindowPos(window, 10, 30);
 
+   
     // Set number of monitor refreshes between 2 buffer swaps
     glfwSwapInterval(1);
 
     // Set your own physical screen dpi
     int dpi = (int)(142 * scr2fbX);
-    cout << "GUI Library    : GLFW" << endl;
-    cout << "DPI Resolution : " << dpi << endl;
+    cout << "GUI Library     : GLFW" << endl;
+    cout << "DPI Resolution  : " << dpi << endl;
 
     slCreateScene("../lib-SLProject/source/oglsl/",
                   "../_data/models/",
                   "../_data/images/textures/");
 
+
     svIndex = slCreateSceneView((int)(scrWidth  * scr2fbX),
                                 (int)(scrHeight * scr2fbY),
                                 dpi, 
                                 (SLCmd)SL_STARTSCENE,
-                                cmdLineArgs,
-                                (void*)&onPaint,
+                                *cmdLineArgs,
+                                (void*)&onPaint, 
                                 0,
-                                (void*)createCustomSceneView);
+                                (void*)createCustomSceneView,
+                                (void*)&onShowCursor);
 
     // Set GLFW callback functions
     glfwSetKeyCallback(window, onKeyAction);
@@ -452,18 +481,19 @@ int main(int argc, char *argv[])
     glfwSetWindowCloseCallback(window, onClose);
 
     // Event loop
-    while (!glfwWindowShouldClose(window))
+    while (!slShouldClose())
     {
         // if no updated occured wait for the next event (power saving)
         if (!onPaint()) 
             glfwWaitEvents();
-        else glfwPollEvents();
+        else
+            glfwPollEvents();
     }
-    slTerminate();
    
+    slTerminate();
     glfwDestroyWindow(window);
     glfwTerminate();
+    delete cmdLineArgs;
     exit(0);
 }
 //-----------------------------------------------------------------------------
-
