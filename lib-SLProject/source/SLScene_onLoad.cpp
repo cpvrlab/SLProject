@@ -338,9 +338,10 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
 
         // Scale to so that the AstroBoy is about 2 (meters) high.
         if (mesh3DS) {mesh3DS->scale(0.1f);  mesh3DS->translate(-22.0f, 1.9f, 3.5f, TS_Local);}
-        if (meshDAE) {meshDAE->scale(30.0f); meshDAE->translate(0,-10,0, TS_Local);}
-        if (meshFBX) {meshFBX->scale(0.1f);  meshFBX->scale(0.1f); meshFBX->translate(200, 30, -30, TS_Local); meshFBX->rotate(-90,0,1,0);}// define rectangles for the surrounding box
-
+        if (meshDAE) {meshDAE->scale(0.33f); meshDAE->translate(0,-9,0, TS_Local);}
+        if (meshFBX) {meshFBX->scale(0.1f);  meshFBX->scale(0.1f); meshFBX->translate(200, 30, -30, TS_Local); meshFBX->rotate(-90,0,1,0);}
+        
+        // define rectangles for the surrounding box
         SLfloat b=3; // edge size of rectangles
         SLNode *rb, *rl, *rr, *rf, *rt;
         SLuint res = 20;
