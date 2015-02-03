@@ -60,16 +60,13 @@ enum SLCmd
     cmdSceneSmallTest,   // Loads the different scenes
     cmdSceneFigure,   
     cmdSceneMeshLoad,
-    cmdSceneAstroboyArmyGPU,
-    cmdSceneAstroboyArmyCPU,
-    cmdSceneSkeletalAnimation,
-    cmdSceneSkinnedMesh01,
     cmdSceneLargeModel,
     cmdSceneRevolver,
     cmdSceneTextureFilter,
     cmdSceneTextureBlend,
     cmdSceneFrustumCull1,
     cmdSceneFrustumCull2,
+
     cmdScenePerVertexBlinn,
     cmdScenePerPixelBlinn,
     cmdScenePerVertexWave,
@@ -79,6 +76,12 @@ enum SLCmd
     cmdSceneEarth,
     cmdSceneMassAnimation,
     cmdSceneTerrain,
+
+    cmdSceneSkeletalAnimation,
+    cmdSceneNodeAnimation,
+    cmdSceneAstroboyArmyGPU,
+    cmdSceneAstroboyArmyCPU,
+
     cmdSceneRTMuttenzerBox,
     cmdSceneRTSpheres,
     cmdSceneRTSoftShadows,

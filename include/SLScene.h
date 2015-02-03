@@ -91,11 +91,11 @@ class SLScene: public SLObject
    virtual  void            onLoad          (SLSceneView* sv, SLCmd sceneName);
             void            init            ();
             void            unInit          ();
-            bool            updateIfAllViewsGotPainted();
+            bool            onUpdate        ();
+            SLbool          onCommandAllSV  (const SLCmd cmd);
             void            selectNode      (SLNode* nodeToSelect);
             void            selectNodeMesh  (SLNode* nodeToSelect,
                                              SLMesh* meshToSelect);
-            SLbool          onCommandAllSV  (const SLCmd cmd);
 
      static SLScene*        current;            //!< global static scene pointer
 

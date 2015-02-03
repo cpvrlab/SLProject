@@ -23,7 +23,10 @@ public:
     
     void            enable  ();
     void            disable ();
-    virtual void    poll    () = 0;
+
+    /** Polls a custom input device. returns true if the poll resulted in
+    event's being sent out that were accepted by some receiver. */
+    virtual SLbool  poll    () = 0;
 };
 
 typedef vector<SLInputDevice*> SLVInputDevice;

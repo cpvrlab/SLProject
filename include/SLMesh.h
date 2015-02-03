@@ -49,33 +49,6 @@ class SLSkeleton;
 */
 
 //-----------------------------------------------------------------------------
-//! ???
-struct SLVertexJointData
-{
-    SLuint  ids[4];
-    SLfloat weights[4];
-
-    SLVertexJointData()
-    {   for(int i = 0; i < 4; i++)
-        {   weights[i] = 0.0f;
-            ids[i] = 0;
-        }
-    }
-
-    SLbool addWeight(SLint id, SLfloat weight)
-    {   for(int i = 0; i < 4; i++)
-        {   if (weights[i] == 0.0f)
-            {   ids[i] = id;
-                weights[i] = weight;
-                return true;
-            }
-        }
-        return false;
-    }
-};
-
-
-//-----------------------------------------------------------------------------
 //!An SLMesh object is a triangulated mesh that is drawn with one draw call.
 /*!
 The SLMesh class represents a single GL_TRIANGLES or GL_LINES mesh object. The
@@ -195,8 +168,8 @@ virtual void            calcMinMax     ();
         SLbool          addWeight(SLint vertId, SLuint jointId, SLfloat weight);
         
         // getter for position and normal data for rendering
-        SLVec3f*        pos() {return *_finalP;}
-        SLVec3f*        norm(){return *_finalN;}
+        SLVec3f*        finalP() {return *_finalP;}
+        SLVec3f*        finalN() {return *_finalN;}
 
         // temporary software skinning buffers
         SLVec3f*        cpuSkinningP; //!< buffer for the cpu skinning position data

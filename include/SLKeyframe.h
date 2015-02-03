@@ -27,7 +27,7 @@ public:
 
             void            time        (SLfloat t) { _time = t; }
             SLfloat         time        () const { return _time; }
-            SLbool          isValid     () const { _isValid; }
+            SLbool          isValid     () const { return _isValid; }
 
 protected:
     const   SLAnimTrack*    _parentTrack;	//!< owning animation track for this keyframe

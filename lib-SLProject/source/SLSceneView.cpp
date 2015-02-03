@@ -580,8 +580,8 @@ void SLSceneView::draw3DGLAll()
     _stateGL->blend(false);
     _stateGL->depthMask(true);
 
-    draw3DGLLines(_opaqueNodes);
     draw3DGLNodes(_opaqueNodes);
+    draw3DGLLines(_opaqueNodes);
 
     // Render the helper lines of the blended shapes non-blended!
     draw3DGLLines(_blendNodes);
@@ -590,8 +590,7 @@ void SLSceneView::draw3DGLAll()
     _stateGL->depthMask(false);
 
     // Blended shapes must be sorted back to front
-    //std::sort(_blendNodes.begin(), _blendNodes.end(), CompareNodeViewDist);
-
+    std::sort(_blendNodes.begin(), _blendNodes.end(), CompareNodeViewDist);
     draw3DGLNodes(_blendNodes);
 
     // Blending must be turned off again for correct anyglyph stereo modes
@@ -1299,22 +1298,26 @@ SLbool SLSceneView::onCommand(const SLCmd cmd)
         case cmdSceneFigure:
         case cmdSceneLargeModel:
         case cmdSceneMeshLoad:
-        case cmdSceneSkeletalAnimation:
-        case cmdSceneAstroboyArmyCPU:
-        case cmdSceneAstroboyArmyGPU:
         case cmdSceneRevolver:
         case cmdSceneTextureFilter:
         case cmdSceneFrustumCull1:
         case cmdSceneFrustumCull2:
         case cmdSceneTextureBlend:
+
         case cmdScenePerVertexBlinn:
         case cmdScenePerPixelBlinn:
         case cmdScenePerVertexWave:
         case cmdSceneWater:
         case cmdSceneBumpNormal:  
         case cmdSceneBumpParallax:
-        case cmdSceneEarth: 
+        case cmdSceneEarth:
+
         case cmdSceneMassAnimation:
+        case cmdSceneNodeAnimation:
+        case cmdSceneSkeletalAnimation:
+        case cmdSceneAstroboyArmyCPU:
+        case cmdSceneAstroboyArmyGPU:
+
         case cmdSceneRTSpheres:
         case cmdSceneRTMuttenzerBox:
         case cmdSceneRTSoftShadows:
@@ -1585,6 +1588,7 @@ void SLSceneView::build2DMenus()
     mn3->addChild(new SLButton(this, "Astroboy Army CPU", f, cmdSceneAstroboyArmyCPU, true, curS==cmdSceneAstroboyArmyCPU, mn2));
     mn3->addChild(new SLButton(this, "Astroboy Army GPU", f, cmdSceneAstroboyArmyGPU, true, curS==cmdSceneAstroboyArmyGPU, mn2));
     mn3->addChild(new SLButton(this, "Skeletal Animation", f, cmdSceneSkeletalAnimation, true, curS==cmdSceneSkeletalAnimation, mn2));
+    mn3->addChild(new SLButton(this, "Node Animation", f, cmdSceneNodeAnimation, true, curS==cmdSceneNodeAnimation, mn2));
 
     mn3 = new SLButton(this, "Ray tracing >", f);
     mn2->addChild(mn3);

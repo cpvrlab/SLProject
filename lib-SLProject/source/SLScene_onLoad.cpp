@@ -67,84 +67,82 @@ SLNode* SphereGroup(SLint depth,                      // depth of recursion
 }
 //-----------------------------------------------------------------------------
 //! Build a hierarchical figurine with arms and legs
-SLNode* BuildFigureGroup(SLMaterial* mat);
-SLNode* BuildFigureGroup(SLMaterial* mat)
+SLNode* BuildFigureGroup(SLMaterial* mat, SLbool withAnimation = false);
+SLNode* BuildFigureGroup(SLMaterial* mat, SLbool withAnimation)
 {
     SLNode* cyl;
    
     // Feet
-    SLNode* feet = new SLNode("feet group");
+    SLNode* feet = new SLNode("feet group (T13,R6)");
     feet->addMesh(new SLSphere(0.2f, 16, 16, "ankle", mat));
-    SLNode* feetbox = new SLNode(new SLBox(-0.2f,-0.1f, 0.0f, 0.2f, 0.1f, 0.8f, "foot", mat));
+    SLNode* feetbox = new SLNode(new SLBox(-0.2f,-0.1f, 0.0f, 0.2f, 0.1f, 0.8f, "foot", mat), "feet (T14)");
     feetbox->translate(0.0f,-0.25f,-0.15f, TS_Local);
     feet->addChild(feetbox);
     feet->translate(0.0f,0.0f,1.6f, TS_Local);
     feet->rotate(-90.0f, 1.0f, 0.0f, 0.0f);
    
     // Assemble low leg
-    SLNode* leglow = new SLNode("leglow group");
+    SLNode* leglow = new SLNode("low leg group (T11, R5)");
     leglow->addMesh(new SLSphere(0.3f, 16, 16, "knee", mat));
-    cyl = new SLNode(new SLCylinder(0.2f, 1.4f, 1, 16, false, false, "shin", mat));
+    cyl = new SLNode(new SLCylinder(0.2f, 1.4f, 1, 16, false, false, "shin", mat), "shin (T12)");
     cyl->translate(0.0f, 0.0f, 0.2f, TS_Local);            
     leglow->addChild(cyl);
     leglow->addChild(feet);
+    leglow->translate(0.0f, 0.0f, 1.27f, TS_Local);
+    leglow->rotate(0, 1.0f, 0.0f, 0.0f);
    
     // Assemble leg
-    SLNode* leg = new SLNode("leg group");
+    SLNode* leg = new SLNode("leg group ()");
     leg->addMesh(new SLSphere(0.4f, 16, 16, "hip joint", mat));
-    cyl = new SLNode(new SLCylinder(0.3f, 1.0f, 1, 16, false, false, "thigh", mat));
+    cyl = new SLNode(new SLCylinder(0.3f, 1.0f, 1, 16, false, false, "thigh", mat), "thigh (T10)");
     cyl->translate(0.0f, 0.0f, 0.27f, TS_Local);           
     leg->addChild(cyl);
-    leglow->translate(0.0f, 0.0f, 1.27f, TS_Local);        
-    leglow->rotate(5, 1.0f, 0.0f, 0.0f);         
     leg->addChild(leglow);
 
     // Assemble left & right leg
-    SLNode* legLeft = new SLNode("left leg group");
+    SLNode* legLeft = new SLNode("left leg group (T8)");
     legLeft->translate(-0.4f, 0.0f, 2.2f, TS_Local);
-    legLeft->rotate(-45, 1,0,0);
-    legLeft->addChild(leg);               
-    SLNode* legRight= new SLNode("right leg group");           
+    legLeft->addChild(leg);
+    SLNode* legRight= new SLNode("right leg group (T9)");
     legRight->translate(0.4f, 0.0f, 2.2f, TS_Local);       
-    legRight->rotate(70, -1,0,0);
-    legRight->addChild(leg->copyRec());  
+    legRight->addChild(leg->copyRec());
 
     // Assemble low arm
-    SLNode* armlow = new SLNode("armLow group");
+    SLNode* armlow = new SLNode("low arm group (T6,R4)");
     armlow->addMesh(new SLSphere(0.2f, 16, 16, "ellbow", mat));
-    cyl = new SLNode(new SLCylinder(0.15f, 1.0f, 1, 16, true, false, "arm", mat));
+    cyl = new SLNode(new SLCylinder(0.15f, 1.0f, 1, 16, true, false, "low arm", mat), "T7");
     cyl->translate(0.0f, 0.0f, 0.14f, TS_Local);           
     armlow->addChild(cyl);
+    armlow->translate(0.0f, 0.0f, 1.2f, TS_Local);
+    armlow->rotate(45, -1.0f, 0.0f, 0.0f);
 
     // Assemble arm
-    SLNode* arm = new SLNode("arm group");
+    SLNode* arm = new SLNode("arm group ()");
     arm->addMesh(new SLSphere(0.3f, 16, 16, "shoulder", mat));
-    cyl = new SLNode(new SLCylinder(0.2f, 1.0f, 1, 16, false, false, "upper arm", mat));
+    cyl = new SLNode(new SLCylinder(0.2f, 1.0f, 1, 16, false, false, "upper arm", mat), "upper arm (T5)");
     cyl->translate(0.0f, 0.0f, 0.2f, TS_Local);            
     arm->addChild(cyl);
-    armlow->translate(0.0f, 0.0f, 1.2f, TS_Local);         
-    armlow->rotate(45, -1.0f, 0.0f, 0.0f);       
     arm->addChild(armlow);
 
     // Assemble left & right arm
-    SLNode* armLeft = new SLNode("left arm group");
+    SLNode* armLeft = new SLNode("left arm group (T3,R2)");
     armLeft->translate(-1.1f, 0.0f, 0.3f, TS_Local);       
     armLeft->rotate(10, -1,0,0);
     armLeft->addChild(arm);
-    SLNode* armRight= new SLNode("right arm group");
+    SLNode* armRight= new SLNode("right arm group (T4,R3)");
     armRight->translate(1.1f, 0.0f, 0.3f, TS_Local);       
     armRight->rotate(-60, -1,0,0);
     armRight->addChild(arm->copyRec());
 
     // Assemble head & neck
-    SLNode* head = new SLNode(new SLSphere(0.5f, 16, 16, "head", mat));
+    SLNode* head = new SLNode(new SLSphere(0.5f, 16, 16, "head", mat), "head (T1)");
     head->translate(0.0f, 0.0f,-0.7f, TS_Local);
-    SLNode* neck = new SLNode(new SLCylinder(0.25f, 0.3f, 1, 16, false, false, "neck", mat));
+    SLNode* neck = new SLNode(new SLCylinder(0.25f, 0.3f, 1, 16, false, false, "neck", mat), "neck (T2)");
     neck->translate(0.0f, 0.0f,-0.3f, TS_Local);
       
     // Assemble figure Left
-    SLNode* figure = new SLNode("figure");
-    figure->addChild(new SLNode(new SLBox(-0.8f,-0.4f, 0.0f, 0.8f, 0.4f, 2.0f, "chest", mat)));
+    SLNode* figure = new SLNode("figure group (R1)");
+    figure->addChild(new SLNode(new SLBox(-0.8f,-0.4f, 0.0f, 0.8f, 0.4f, 2.0f, "chest", mat), "chest"));
     figure->addChild(head);
     figure->addChild(neck);
     figure->addChild(armLeft);
@@ -154,19 +152,19 @@ SLNode* BuildFigureGroup(SLMaterial* mat)
     figure->rotate(90, 1,0,0);
 
     // Add animations for left leg
-    legLeft = figure->findChild<SLNode>("left leg group");
-    ;
-    SLAnimation* anim = SLAnimation::create("figure animation", 2.0f, true, EC_inOutQuint, AL_pingPongLoop);
-    anim->createSimpleRotationNodeTrack(legLeft, 60, SLVec3f(1, 0, 0));
+    if (withAnimation)
+    {
+        legLeft = figure->findChild<SLNode>("left leg group");
+        legLeft->rotate(30, -1,0,0);
+        SLAnimation* anim = SLAnimation::create("figure animation", 2.0f, true, EC_inOutQuint, AL_pingPongLoop);
+        anim->createSimpleRotationNodeTrack(legLeft, 60, SLVec3f(1, 0, 0));
 
-    SLNode* legLowLeft = legLeft->findChild<SLNode>("leglow group");
-    anim->createSimpleRotationNodeTrack(legLowLeft, 40, SLVec3f(1, 0, 0));
+        SLNode* legLowLeft = legLeft->findChild<SLNode>("leglow group");
+        anim->createSimpleRotationNodeTrack(legLowLeft, 40, SLVec3f(1, 0, 0));
 
-    SLNode* feetLeft = legLeft->findChild<SLNode>("feet group");
-    anim->createSimpleRotationNodeTrack(feetLeft, 40, SLVec3f(1, 0, 0));
-
-    legRight = figure->findChild<SLNode>("right leg group");
-    legRight->rotate(70, 1,0,0);
+        SLNode* feetLeft = legLeft->findChild<SLNode>("feet group");
+        anim->createSimpleRotationNodeTrack(feetLeft, 40, SLVec3f(1, 0, 0));
+    }
 
     return figure;
 }
@@ -182,22 +180,12 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
     cout << "------------------------------------------------------------------" << endl;
     init();
 
-    // @todo in the onload function we only notify the active scene view about the completion
-    ///       of the loading process. But all scene views might want to update their editor
-    ///       cameras after a new scene has been loaded.
-    // Note: we currently reset the cameras of ALL scene views to their respective editor
-    //       cameras. 
-
 
     // Show once the empty loading screen without scene
     // @todo review this, we still pass in the active scene view with sv. Is it necessary?
     for (SLint i = 0; i < _sceneViews.size(); ++i)
         if (_sceneViews[i]!=NULL)
             _sceneViews[i]->showLoading(true);
-
-    // @todo we need to repaint all the scene views so that the loading screen is visible!
-    //sv->onInitialize();
-    //sv->onWndUpdate();
 
     _currentID = sceneName;
 
@@ -244,95 +232,42 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
     else
     if (sceneName == cmdSceneFigure) //.........................................
     {
-        name("Hierarchical Figure Scene 2");
-        info(sv, "Hierarchical scene structure and animation test. Turn on the bounding boxes to see the animation curves");
+        name("Hierarchical Figure Scene");
+        info(sv, "Hierarchical scene structure.");
 
         // Create textures and materials
-        SLGLTexture* tex1 = new SLGLTexture("Checkerboard0512_C.png");
-        SLMaterial* m1 = new SLMaterial("m1", tex1); m1->kr(0.5f);
-        SLMaterial* m2 = new SLMaterial("m2", SLCol4f::WHITE*0.5, SLCol4f::WHITE,128, 0.5f, 0.0f, 1.0f);
+        SLMaterial* m1 = new SLMaterial("m1", SLCol4f(0.6f,0.6f,0.6f,0.5f), SLCol4f::WHITE,128, 0.5f, 0.0f, 1.0f);
+        SLMaterial* m2 = new SLMaterial("m2", SLCol4f::WHITE*0.3, SLCol4f::WHITE,128, 0.5f, 0.0f, 1.0f);
 
-        SLMesh* floorMesh = new SLRectangle(SLVec2f(-5,-5), SLVec2f(5,5), 20, 20, "FloorMesh", m1);
+        SLMesh* floorMesh = new SLRectangle(SLVec2f(-5,-5), SLVec2f(5,5), 20, 20, "FloorMesh", m2);
         SLNode* floorRect = new SLNode(floorMesh);
         floorRect->rotate(90, -1,0,0);
         floorRect->translate(0,0,-5.5f);
-      
-
-        // Bouncing balls
-        SLNode* ball1 = new SLNode(new SLSphere(0.3f, 16, 16, "Ball1", m2));
-        ball1->translate(0,0,4, TS_Local);
-        SLAnimation* ball1Anim = SLAnimation::create("Ball1_anim", 1.0f, true, EC_linear, AL_pingPongLoop);
-        ball1Anim->createSimpleTranslationNodeTrack(ball1, SLVec3f(0.0f, -5.2f, 0.0f));
-
-        SLNode* ball2 = new SLNode(new SLSphere(0.3f, 16, 16, "Ball2", m2));
-        ball2->translate(-1.5f,0,4, TS_Local);
-        SLAnimation* ball2Anim = SLAnimation::create("Ball2_anim", 1.0f, true, EC_inQuad, AL_pingPongLoop);
-        ball2Anim->createSimpleTranslationNodeTrack(ball2, SLVec3f(0.0f, -5.2f, 0.0f));
-
-        SLNode* ball3 = new SLNode(new SLSphere(0.3f, 16, 16, "Ball3", m2));
-        ball3->translate(-2.5f,0,4, TS_Local);
-        SLAnimation* ball3Anim = SLAnimation::create("Ball3_anim", 1.0f, true, EC_outQuad, AL_pingPongLoop);
-        ball3Anim->createSimpleTranslationNodeTrack(ball3, SLVec3f(0.0f, -5.2f, 0.0f));
-
-        SLNode* ball4 = new SLNode(new SLSphere(0.3f, 16, 16, "Ball4", m2));
-        ball4->translate( 1.5f,0,4, TS_Local);
-        SLAnimation* ball4Anim = SLAnimation::create("Ball4_anim", 1.0f, true, EC_inOutQuad, AL_pingPongLoop);
-        ball4Anim->createSimpleTranslationNodeTrack(ball4, SLVec3f(0.0f, -5.2f, 0.0f));
-
-        SLNode* ball5 = new SLNode(new SLSphere(0.3f, 16, 16, "Ball5", m2));
-        ball5->translate( 2.5f,0,4, TS_Local);
-        SLAnimation* ball5Anim = SLAnimation::create("Ball5_anim", 1.0f, true, EC_outInQuad, AL_pingPongLoop);
-        ball5Anim->createSimpleTranslationNodeTrack(ball5, SLVec3f(0.0f, -5.2f, 0.0f));
 
         SLCamera* cam1 = new SLCamera();
         cam1->position(0, 0, 22);
         cam1->lookAt(0, 0, 0);
         cam1->focalDist(22);
         cam1->setInitialState();
-        SLCamera* cam2 = new SLCamera;
-        cam2->position(5, 0, 0);
-        cam2->lookAt(0, 0, 0);
-        cam2->focalDist(5);
-        cam2->setInitialState();
+//        SLCamera* cam2 = new SLCamera;
+//        cam2->position(10, 0, 0);
+//        cam2->lookAt(0, 0, 0);
+//        cam2->focalDist(5);
+//        cam2->setInitialState();
 
-        SLLightSphere* light1 = new SLLightSphere(0, 2, 0, 0.5f);
+        SLLightSphere* light1 = new SLLightSphere(5, 5, 5, 0.5f);
         light1->ambient (SLCol4f(0.2f,0.2f,0.2f));
         light1->diffuse (SLCol4f(0.9f,0.9f,0.9f));
         light1->specular(SLCol4f(0.9f,0.9f,0.9f));
         light1->attenuation(1,0,0);
-        SLAnimation* light1Anim = SLAnimation::create("Light1_anim", 4.0f);
-        light1Anim->createEllipticNodeTrack(light1, 6, ZAxis, 6, XAxis);
 
-        SLLightSphere* light2 = new SLLightSphere(0, 0, 0, 0.2f);
-        light2->ambient (SLCol4f(0.2f,0.0f,0.0f));
-        light2->diffuse (SLCol4f(0.9f,0.0f,0.0f));
-        light2->specular(SLCol4f(0.9f,0.9f,0.9f));
-        light2->attenuation(1,0,0);
-        light2->translate(-8, -4, 0, TS_World);
-        light2->setInitialState();
-
-        SLAnimation* light2Anim = SLAnimation::create("light2_anim", 2.0f, true, EC_linear, AL_pingPongLoop);
-        SLNodeAnimTrack* track = light2Anim->createNodeAnimationTrack();
-        track->animatedNode(light2);
-        track->createNodeKeyframe(0.0f);
-        track->createNodeKeyframe(1.0f)->translation(SLVec3f(8, 8, 0));
-        track->createNodeKeyframe(2.0f)->translation(SLVec3f(16, 0, 0));
-        track->translationInterpolation(AI_Bezier);
-
-     
-        SLNode* figure = BuildFigureGroup(m2);
+        SLNode* figure = BuildFigureGroup(m1);
 
         SLNode* scene = new SLNode("Scene");
         scene->addChild(light1);
-        scene->addChild(light2);
         scene->addChild(cam1);
-        scene->addChild(cam2);
+        //scene->addChild(cam2);
         scene->addChild(floorRect);
-        scene->addChild(ball1);
-        scene->addChild(ball2);
-        scene->addChild(ball3);
-        scene->addChild(ball4);
-        scene->addChild(ball5);
         scene->addChild(figure);
      
         // Set backround color, active camera & the root pointer
@@ -432,147 +367,6 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
         //sv->camera(cam1);
         _root3D = scene;
     }
-    else
-    if (sceneName == cmdSceneSkeletalAnimation) //..............................
-    {
-        name("Skeletal Animation Test");
-        info(sv, "Skeletal Animation Test Scene");
-
-        SLAssimpImporter importer;
-        SLNode* character = importer.load("DAE/AstroBoy/AstroBoy.dae");
-        SLAnimPlayback* charAnim = importer.skeleton()->getAnimPlayback("unnamed_anim_0");
-        character->scale(20);
-        
-        SLNode* box1 = importer.load("DAE/SkinnedCube/skinnedcube2.dae");
-        SLAnimPlayback* box1Anim = importer.skeleton()->getAnimPlayback("unnamed_anim_0");
-        SLNode* box2 = importer.load("DAE/SkinnedCube/skinnedcube4.dae");
-        SLAnimPlayback* box2Anim = importer.skeleton()->getAnimPlayback("unnamed_anim_0");
-        SLNode* box3 = importer.load("DAE/SkinnedCube/skinnedcube5.dae");
-        SLAnimPlayback* box3Anim = importer.skeleton()->getAnimPlayback("unnamed_anim_0");
-
-        box1->translate(3, 0, 0);
-        box2->translate(-3, 0, 0);
-        box3->translate(0, 3, 0);
-        
-        box1Anim->easing(EC_inOutSine);
-        box2Anim->easing(EC_inOutSine);
-        box3Anim->loop(AL_pingPongLoop);
-        box3Anim->easing(EC_inOutCubic);
-        
-        charAnim->playForward();
-        box1Anim->playForward();
-        box2Anim->playForward();
-        box3Anim->playForward();
-
-        // Define camera
-        SLCamera* cam1 = new SLCamera();
-        cam1->position(0,2,10);
-        cam1->lookAt(0, 2, 0);
-        cam1->setInitialState();
-
-        // Define a light
-        SLLightSphere* light1 = new SLLightSphere(10, 10, 5, 0.5f);
-        light1->ambient (SLCol4f(0.2f,0.2f,0.2f));
-        light1->diffuse (SLCol4f(0.9f,0.9f,0.9f));
-        light1->specular(SLCol4f(0.9f,0.9f,0.9f));
-        light1->attenuation(1,0,0);
-        
-        
-        SLMaterial* m2 = new SLMaterial(SLCol4f::WHITE);
-        SLGrid* grid = new SLGrid(SLVec3f(-5,0,-5), SLVec3f(5,0,5), 20, 20, "Grid", m2);
-
-        // Assemble scene
-        SLNode* scene = new SLNode("scene group");
-        scene->addChild(light1);
-        scene->addChild(character);
-        scene->addChild(box1);
-        scene->addChild(box2);
-        scene->addChild(box3);
-        scene->addChild(new SLNode(grid, "grid"));
-        
-        // Set backround color, active camera & the root pointer
-        _backColor.set(SLCol4f(0.1f,0.4f,0.8f));
-        sv->camera(cam1);
-        _root3D = scene;
-    }
-    else
-    if (sceneName == cmdSceneAstroboyArmyCPU ||
-        sceneName == cmdSceneAstroboyArmyGPU) //................................
-    {
-        info(sv, "Mass animation scene of identitcal Astroboy models");
-
-        // Create materials
-        SLMaterial* m1 = new SLMaterial("m1", SLCol4f::GRAY); m1->specular(SLCol4f::BLACK);
-
-        // Define a light
-        SLLightSphere* light1 = new SLLightSphere(100, 40, 100, 1);
-        light1->ambient (SLCol4f(0.2f,0.2f,0.2f));
-        light1->diffuse (SLCol4f(0.9f,0.9f,0.9f));
-        light1->specular(SLCol4f(0.9f,0.9f,0.9f));
-        light1->attenuation(1,0,0);
-
-        // Define camera
-        SLCamera* cam1 = new SLCamera;
-        cam1->position(0,100,180);
-        cam1->lookAt(0, 0, 0);
-        cam1->setInitialState();
-
-        // Floor rectangle
-        SLNode* rect = new SLNode(new SLRectangle(SLVec2f(-100,-100), 
-                                                  SLVec2f( 100, 100), 
-                                                  SLVec2f(   0,   0), 
-                                                  SLVec2f(  50,  50), 50, 50, "Floor", m1));
-        rect->rotate(90, -1,0,0);
-        
-        SLAssimpImporter importer;
-        SLNode* center = importer.load("DAE/AstroBoy/AstroBoy.dae");
-        center->scale(100);
-        importer.skeleton()->getAnimPlayback("unnamed_anim_0")->playForward();
-        
-        // set the skinning method of the loaded meshes
-        // @note RT currently only works with software skinning
-        if (sceneName == cmdSceneAstroboyArmyGPU) 
-        {   name("Astroboy army skinned on GPU");
-            for (SLint i = 0; i < importer.meshes().size(); ++i)
-               importer.meshes()[i]->skinningMethod(SM_HardwareSkinning);
-        } else
-            name("Astroboy army skinned on CPU");
-
-
-        // Assemble scene
-        SLNode* scene = new SLNode("scene group");
-        scene->addChild(light1);
-        scene->addChild(rect);
-        scene->addChild(center);
-        scene->addChild(cam1);
-
-        // create astroboys around the center astroboy
-        #ifdef SL_GLES2
-        SLint size = 4;
-        #else
-        SLint size = 8;
-        #endif
-        for (SLint iZ=-size; iZ<=size; ++iZ)
-        {   for (SLint iX=-size; iX<=size; ++iX)
-            {   
-                SLbool shift = iX%2 != 0;
-                if (iX!=0 || iZ!=0)
-                {   SLNode* n = new SLNode;
-                    float xt = float(iX) * 9.0f;
-                    float zt = float(iZ) * 9.0f + ((shift) ? 4.5f : 0.0f);
-                    n->translate(xt, 0, zt, TS_Local);
-                    for (SLint i = 0; i < importer.meshes().size(); ++i)
-                        n->addMesh(importer.meshes()[i]);
-                    scene->addChild(n);
-                }
-            }
-        }
-
-        // Set backround color, active camera & the root pointer
-        _backColor.set(SLCol4f(0.1f,0.4f,0.8f));
-        sv->camera(cam1);
-        _root3D = scene;
-    }    
     else
     if (sceneName == cmdSceneLargeModel) //.....................................
     {
@@ -1044,80 +838,6 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
         _root3D = scene;
     }
     else
-    if (sceneName == cmdSceneMassAnimation) //..................................
-    {   
-        name("Mass Animation");
-        info(sv, "Performance test for transform updates from many animations.");
-
-        init();
-   
-        SLLightSphere* light1 = new SLLightSphere(7,7,0, 0.1f, 5, 10);
-        light1->attenuation(0,0,1);
-        light1->translate(-3, 5, 2, TS_Local);
-   
-        // build a basic scene to have a reference for the occuring rotations
-        SLMaterial* genericMat = new SLMaterial("some material");
-
-        // we use the same mesh to viasualize all the nodes
-        SLBox* box = new SLBox(-0.5f, -0.5f, -0.5f, 0.5f, 0.5f, 0.5f, "box", genericMat);
-
-        _root3D = new SLNode;
-        _root3D->addChild(light1);
-        
-        // we build a stack of levels, each level has a grid of boxes on it
-        // each box on this grid has an other grid above it with child nodes
-        // best results are achieved if gridSize is an uneven number.
-        // (gridSize^2)^levels = num nodes. handle with care.
-        const SLint levels =3;
-        const SLint gridSize = 3;
-        const SLint gridHalf = gridSize / 2;
-        const SLint nodesPerLvl = gridSize * gridSize;
-
-
-        // node spacing per level
-        // nodes are 1^3 in size, we want to space the levels so that the densest levels meet
-        // (so exactly 1 unit spacing between blocks)
-        SLfloat nodeSpacing[levels];
-        for(SLint i = 0; i < levels; ++i)
-            nodeSpacing[(levels-1)-i] = (SLfloat)pow((SLfloat)gridSize, (SLfloat)i);
-
-        // lists to keep track of previous grid level to set parents correctly
-        vector<SLNode*> parents;
-        vector<SLNode*> curParentsVector;
-
-        // first parent is the scene root
-        parents.push_back(_root3D);
-
-        SLint nodeIndex = 0;
-        for(SLint lvl = 0; lvl < levels; ++lvl) 
-        {   curParentsVector = parents;
-            parents.clear();
-            // for each parent in the previous level, add a completely new grid
-            for(SLint p=0; p < curParentsVector.size(); ++p)
-            {   for(SLint i = 0; i < nodesPerLvl; ++i) 
-                {   SLNode* node = new SLNode("MassAnimNode");
-                    node->addMesh(box);
-                    curParentsVector[p]->addChild(node);
-                    parents.push_back(node);
-
-                    // position
-                    SLfloat x = (SLfloat)(i % gridSize - gridHalf);
-                    SLfloat z = (SLfloat)((i > 0) ? i / gridSize - gridHalf : -gridHalf);
-                    SLVec3f pos(x*nodeSpacing[lvl] *1.1f, 1.5f, z*nodeSpacing[lvl]*1.1f);
-
-                    node->translate(pos, TS_Local);
-                    //node->scale(1.1f);
-
-                    SLfloat duration = 1.0f + 5.0f * ((SLfloat)i/(SLfloat)nodesPerLvl);
-                    ostringstream oss;;
-                    oss << "random anim " << nodeIndex++;
-                    SLAnimation* anim = SLAnimation::create(oss.str(), duration, true, EC_inOutSine, AL_pingPongLoop);
-                    anim->createSimpleTranslationNodeTrack(node, SLVec3f(0.0f, 1.0f, 0.0f));
-                }
-            }
-        }
-    }
-    else
     if (sceneName == cmdScenePerVertexBlinn) //.................................
     {
         name("Blinn-Phong per vertex lighting");
@@ -1543,6 +1263,319 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
         _root3D = scene;
     }
     else
+    if (sceneName == cmdSceneSkeletalAnimation) //..............................
+    {
+        name("Skeletal Animation Test");
+        info(sv, "Skeletal Animation Test Scene");
+
+        SLAssimpImporter importer;
+        SLNode* character = importer.load("DAE/AstroBoy/AstroBoy.dae");
+        SLAnimPlayback* charAnim = importer.skeleton()->getAnimPlayback("unnamed_anim_0");
+        character->scale(20);
+
+        SLNode* box1 = importer.load("DAE/SkinnedCube/skinnedcube2.dae");
+        SLAnimPlayback* box1Anim = importer.skeleton()->getAnimPlayback("unnamed_anim_0");
+        SLNode* box2 = importer.load("DAE/SkinnedCube/skinnedcube4.dae");
+        SLAnimPlayback* box2Anim = importer.skeleton()->getAnimPlayback("unnamed_anim_0");
+        SLNode* box3 = importer.load("DAE/SkinnedCube/skinnedcube5.dae");
+        SLAnimPlayback* box3Anim = importer.skeleton()->getAnimPlayback("unnamed_anim_0");
+
+        box1->translate(3, 0, 0);
+        box2->translate(-3, 0, 0);
+        box3->translate(0, 3, 0);
+
+        box1Anim->easing(EC_inOutSine);
+        box2Anim->easing(EC_inOutSine);
+        box3Anim->loop(AL_pingPongLoop);
+        box3Anim->easing(EC_inOutCubic);
+
+        charAnim->playForward();
+        box1Anim->playForward();
+        box2Anim->playForward();
+        box3Anim->playForward();
+
+        // Define camera
+        SLCamera* cam1 = new SLCamera();
+        cam1->position(0,2,10);
+        cam1->lookAt(0, 2, 0);
+        cam1->setInitialState();
+
+        // Define a light
+        SLLightSphere* light1 = new SLLightSphere(10, 10, 5, 0.5f);
+        light1->ambient (SLCol4f(0.2f,0.2f,0.2f));
+        light1->diffuse (SLCol4f(0.9f,0.9f,0.9f));
+        light1->specular(SLCol4f(0.9f,0.9f,0.9f));
+        light1->attenuation(1,0,0);
+
+
+        SLMaterial* m2 = new SLMaterial(SLCol4f::WHITE);
+        SLGrid* grid = new SLGrid(SLVec3f(-5,0,-5), SLVec3f(5,0,5), 20, 20, "Grid", m2);
+
+        // Assemble scene
+        SLNode* scene = new SLNode("scene group");
+        scene->addChild(light1);
+        scene->addChild(character);
+        scene->addChild(box1);
+        scene->addChild(box2);
+        scene->addChild(box3);
+        scene->addChild(new SLNode(grid, "grid"));
+
+        // Set backround color, active camera & the root pointer
+        _backColor.set(SLCol4f(0.1f,0.4f,0.8f));
+        sv->camera(cam1);
+        _root3D = scene;
+    }
+    else
+    if (sceneName == cmdSceneNodeAnimation) //..................................
+    {
+        name("Node Animations");
+        info(sv, "Node animations with different easing curves.");
+
+        // Create textures and materials
+        SLGLTexture* tex1 = new SLGLTexture("Checkerboard0512_C.png");
+        SLMaterial* m1 = new SLMaterial("m1", tex1); m1->kr(0.5f);
+        SLMaterial* m2 = new SLMaterial("m2", SLCol4f::WHITE*0.5, SLCol4f::WHITE,128, 0.5f, 0.0f, 1.0f);
+
+        SLMesh* floorMesh = new SLRectangle(SLVec2f(-5,-5), SLVec2f(5,5), 20, 20, "FloorMesh", m1);
+        SLNode* floorRect = new SLNode(floorMesh);
+        floorRect->rotate(90, -1,0,0);
+        floorRect->translate(0,0,-5.5f);
+
+        // Bouncing balls
+        SLNode* ball1 = new SLNode(new SLSphere(0.3f, 16, 16, "Ball1", m2));
+        ball1->translate(0,0,4, TS_Local);
+        SLAnimation* ball1Anim = SLAnimation::create("Ball1_anim", 1.0f, true, EC_linear, AL_pingPongLoop);
+        ball1Anim->createSimpleTranslationNodeTrack(ball1, SLVec3f(0.0f, -5.2f, 0.0f));
+
+        SLNode* ball2 = new SLNode(new SLSphere(0.3f, 16, 16, "Ball2", m2));
+        ball2->translate(-1.5f,0,4, TS_Local);
+        SLAnimation* ball2Anim = SLAnimation::create("Ball2_anim", 1.0f, true, EC_inQuad, AL_pingPongLoop);
+        ball2Anim->createSimpleTranslationNodeTrack(ball2, SLVec3f(0.0f, -5.2f, 0.0f));
+
+        SLNode* ball3 = new SLNode(new SLSphere(0.3f, 16, 16, "Ball3", m2));
+        ball3->translate(-2.5f,0,4, TS_Local);
+        SLAnimation* ball3Anim = SLAnimation::create("Ball3_anim", 1.0f, true, EC_outQuad, AL_pingPongLoop);
+        ball3Anim->createSimpleTranslationNodeTrack(ball3, SLVec3f(0.0f, -5.2f, 0.0f));
+
+        SLNode* ball4 = new SLNode(new SLSphere(0.3f, 16, 16, "Ball4", m2));
+        ball4->translate( 1.5f,0,4, TS_Local);
+        SLAnimation* ball4Anim = SLAnimation::create("Ball4_anim", 1.0f, true, EC_inOutQuad, AL_pingPongLoop);
+        ball4Anim->createSimpleTranslationNodeTrack(ball4, SLVec3f(0.0f, -5.2f, 0.0f));
+
+        SLNode* ball5 = new SLNode(new SLSphere(0.3f, 16, 16, "Ball5", m2));
+        ball5->translate( 2.5f,0,4, TS_Local);
+        SLAnimation* ball5Anim = SLAnimation::create("Ball5_anim", 1.0f, true, EC_outInQuad, AL_pingPongLoop);
+        ball5Anim->createSimpleTranslationNodeTrack(ball5, SLVec3f(0.0f, -5.2f, 0.0f));
+
+        SLCamera* cam1 = new SLCamera();
+        cam1->position(0, 0, 22);
+        cam1->lookAt(0, 0, 0);
+        cam1->focalDist(22);
+        cam1->setInitialState();
+        SLCamera* cam2 = new SLCamera;
+        cam2->position(5, 0, 0);
+        cam2->lookAt(0, 0, 0);
+        cam2->focalDist(5);
+        cam2->setInitialState();
+
+        SLLightSphere* light1 = new SLLightSphere(0, 2, 0, 0.5f);
+        light1->ambient (SLCol4f(0.2f,0.2f,0.2f));
+        light1->diffuse (SLCol4f(0.9f,0.9f,0.9f));
+        light1->specular(SLCol4f(0.9f,0.9f,0.9f));
+        light1->attenuation(1,0,0);
+        SLAnimation* light1Anim = SLAnimation::create("Light1_anim", 4.0f);
+        light1Anim->createEllipticNodeTrack(light1, 6, ZAxis, 6, XAxis);
+
+        SLLightSphere* light2 = new SLLightSphere(0, 0, 0, 0.2f);
+        light2->ambient (SLCol4f(0.2f,0.0f,0.0f));
+        light2->diffuse (SLCol4f(0.9f,0.0f,0.0f));
+        light2->specular(SLCol4f(0.9f,0.9f,0.9f));
+        light2->attenuation(1,0,0);
+        light2->translate(-8, -4, 0, TS_World);
+        light2->setInitialState();
+
+        SLAnimation* light2Anim = SLAnimation::create("light2_anim", 2.0f, true, EC_linear, AL_pingPongLoop);
+        SLNodeAnimTrack* track = light2Anim->createNodeAnimationTrack();
+        track->animatedNode(light2);
+        track->createNodeKeyframe(0.0f);
+        track->createNodeKeyframe(1.0f)->translation(SLVec3f(8, 8, 0));
+        track->createNodeKeyframe(2.0f)->translation(SLVec3f(16, 0, 0));
+        track->translationInterpolation(AI_Bezier);
+
+
+        SLNode* figure = BuildFigureGroup(m2, true);
+
+        SLNode* scene = new SLNode("Scene");
+        scene->addChild(light1);
+        scene->addChild(light2);
+        scene->addChild(cam1);
+        scene->addChild(cam2);
+        scene->addChild(floorRect);
+        scene->addChild(ball1);
+        scene->addChild(ball2);
+        scene->addChild(ball3);
+        scene->addChild(ball4);
+        scene->addChild(ball5);
+        scene->addChild(figure);
+
+        // Set backround color, active camera & the root pointer
+        _backColor.set(SLCol4f(0.1f,0.4f,0.8f));
+        sv->camera(cam1);
+        _root3D = scene;
+    }
+    else
+    if (sceneName == cmdSceneMassAnimation) //..................................
+    {
+        name("Mass Animation");
+        info(sv, "Performance test for transform updates from many animations.");
+
+        init();
+
+        SLLightSphere* light1 = new SLLightSphere(7,7,0, 0.1f, 5, 10);
+        light1->attenuation(0,0,1);
+        light1->translate(-3, 5, 2, TS_Local);
+
+        // build a basic scene to have a reference for the occuring rotations
+        SLMaterial* genericMat = new SLMaterial("some material");
+
+        // we use the same mesh to viasualize all the nodes
+        SLBox* box = new SLBox(-0.5f, -0.5f, -0.5f, 0.5f, 0.5f, 0.5f, "box", genericMat);
+
+        _root3D = new SLNode;
+        _root3D->addChild(light1);
+
+        // we build a stack of levels, each level has a grid of boxes on it
+        // each box on this grid has an other grid above it with child nodes
+        // best results are achieved if gridSize is an uneven number.
+        // (gridSize^2)^levels = num nodes. handle with care.
+        const SLint levels =3;
+        const SLint gridSize = 3;
+        const SLint gridHalf = gridSize / 2;
+        const SLint nodesPerLvl = gridSize * gridSize;
+
+
+        // node spacing per level
+        // nodes are 1^3 in size, we want to space the levels so that the densest levels meet
+        // (so exactly 1 unit spacing between blocks)
+        SLfloat nodeSpacing[levels];
+        for(SLint i = 0; i < levels; ++i)
+            nodeSpacing[(levels-1)-i] = (SLfloat)pow((SLfloat)gridSize, (SLfloat)i);
+
+        // lists to keep track of previous grid level to set parents correctly
+        vector<SLNode*> parents;
+        vector<SLNode*> curParentsVector;
+
+        // first parent is the scene root
+        parents.push_back(_root3D);
+
+        SLint nodeIndex = 0;
+        for(SLint lvl = 0; lvl < levels; ++lvl)
+        {   curParentsVector = parents;
+            parents.clear();
+            // for each parent in the previous level, add a completely new grid
+            for(SLint p=0; p < curParentsVector.size(); ++p)
+            {   for(SLint i = 0; i < nodesPerLvl; ++i)
+                {   SLNode* node = new SLNode("MassAnimNode");
+                    node->addMesh(box);
+                    curParentsVector[p]->addChild(node);
+                    parents.push_back(node);
+
+                    // position
+                    SLfloat x = (SLfloat)(i % gridSize - gridHalf);
+                    SLfloat z = (SLfloat)((i > 0) ? i / gridSize - gridHalf : -gridHalf);
+                    SLVec3f pos(x*nodeSpacing[lvl] *1.1f, 1.5f, z*nodeSpacing[lvl]*1.1f);
+
+                    node->translate(pos, TS_Local);
+                    //node->scale(1.1f);
+
+                    SLfloat duration = 1.0f + 5.0f * ((SLfloat)i/(SLfloat)nodesPerLvl);
+                    ostringstream oss;;
+                    oss << "random anim " << nodeIndex++;
+                    SLAnimation* anim = SLAnimation::create(oss.str(), duration, true, EC_inOutSine, AL_pingPongLoop);
+                    anim->createSimpleTranslationNodeTrack(node, SLVec3f(0.0f, 1.0f, 0.0f));
+                }
+            }
+        }
+    }
+    else
+    if (sceneName == cmdSceneAstroboyArmyCPU ||
+        sceneName == cmdSceneAstroboyArmyGPU) //................................
+    {
+        info(sv, "Mass animation scene of identitcal Astroboy models");
+
+        // Create materials
+        SLMaterial* m1 = new SLMaterial("m1", SLCol4f::GRAY); m1->specular(SLCol4f::BLACK);
+
+        // Define a light
+        SLLightSphere* light1 = new SLLightSphere(100, 40, 100, 1);
+        light1->ambient (SLCol4f(0.2f,0.2f,0.2f));
+        light1->diffuse (SLCol4f(0.9f,0.9f,0.9f));
+        light1->specular(SLCol4f(0.9f,0.9f,0.9f));
+        light1->attenuation(1,0,0);
+
+        // Define camera
+        SLCamera* cam1 = new SLCamera;
+        cam1->position(0,100,180);
+        cam1->lookAt(0, 0, 0);
+        cam1->setInitialState();
+
+        // Floor rectangle
+        SLNode* rect = new SLNode(new SLRectangle(SLVec2f(-100,-100),
+                                                  SLVec2f( 100, 100),
+                                                  SLVec2f(   0,   0),
+                                                  SLVec2f(  50,  50), 50, 50, "Floor", m1));
+        rect->rotate(90, -1,0,0);
+
+        SLAssimpImporter importer;
+        SLNode* center = importer.load("DAE/AstroBoy/AstroBoy.dae");
+        center->scale(100);
+        importer.skeleton()->getAnimPlayback("unnamed_anim_0")->playForward();
+
+        // set the skinning method of the loaded meshes
+        // @note RT currently only works with software skinning
+        if (sceneName == cmdSceneAstroboyArmyGPU)
+        {   name("Astroboy army skinned on GPU");
+            for (SLint i = 0; i < importer.meshes().size(); ++i)
+               importer.meshes()[i]->skinningMethod(SM_HardwareSkinning);
+        } else
+            name("Astroboy army skinned on CPU");
+
+
+        // Assemble scene
+        SLNode* scene = new SLNode("scene group");
+        scene->addChild(light1);
+        scene->addChild(rect);
+        scene->addChild(center);
+        scene->addChild(cam1);
+
+        // create astroboys around the center astroboy
+        #ifdef SL_GLES2
+        SLint size = 4;
+        #else
+        SLint size = 8;
+        #endif
+        for (SLint iZ=-size; iZ<=size; ++iZ)
+        {   for (SLint iX=-size; iX<=size; ++iX)
+            {
+                SLbool shift = iX%2 != 0;
+                if (iX!=0 || iZ!=0)
+                {   SLNode* n = new SLNode;
+                    float xt = float(iX) * 9.0f;
+                    float zt = float(iZ) * 9.0f + ((shift) ? 4.5f : 0.0f);
+                    n->translate(xt, 0, zt, TS_Local);
+                    for (SLint i = 0; i < importer.meshes().size(); ++i)
+                        n->addMesh(importer.meshes()[i]);
+                    scene->addChild(n);
+                }
+            }
+        }
+
+        // Set backround color, active camera & the root pointer
+        _backColor.set(SLCol4f(0.1f,0.4f,0.8f));
+        sv->camera(cam1);
+        _root3D = scene;
+    }
+    else
     if (sceneName == cmdSceneRTMuttenzerBox) //.................................
     {
         name("Muttenzer Box (RT)");
@@ -1882,10 +1915,6 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
     }
 
     // call onInitialize on all scene views
-    // @todo The parameter sv now marks the active scene view (which will recieve the
-    //       cameras of the loaded scene, if any) this needs review and needs to be
-    //       implemented better.
-
     for (SLint i = 0; i < _sceneViews.size(); ++i)
     {   if (_sceneViews[i] != NULL)
         {   _sceneViews[i]->onInitialize();

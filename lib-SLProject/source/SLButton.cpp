@@ -281,7 +281,6 @@ SLButton::buildAABB builds and returns the axis-aligned bounding box.
 SLAABBox& SLButton::updateAABBRec()
 {  
     // build AABB of subMenus
-    // @todo Update the function name for SLButton to also use update only!
     SLNode::updateAABBRec();
    
     // calculate min & max in object space

@@ -369,7 +369,6 @@ void SLNode::findChildrenHelper(const SLstring& name, vector<T*>& list,
 //-----------------------------------------------------------------------------
 /*!
 SLNode::position returns current local position
-@todo Save current position to be able to return a const reference here.
 */
 SL_INLINE SLVec3f SLNode::position() const
 {
@@ -379,7 +378,6 @@ SL_INLINE SLVec3f SLNode::position() const
 //-----------------------------------------------------------------------------
 /*!
 SLNode::forward returns local forward vector
-@todo Save current forward to be able to return a const reference here
 */
 SL_INLINE SLVec3f SLNode::forward() const
 {
@@ -388,7 +386,6 @@ SL_INLINE SLVec3f SLNode::forward() const
 //-----------------------------------------------------------------------------
 /*!
 SLNode::right returns local right vector
-@todo Save current right to be able to return a const reference here
 */
 SL_INLINE SLVec3f SLNode::right() const
 {
@@ -397,7 +394,6 @@ SL_INLINE SLVec3f SLNode::right() const
 //-----------------------------------------------------------------------------
 /*!
 SLNode::up returns local up vector
-@todo Save current up to be able to return a const reference here
 */
 SL_INLINE SLVec3f SLNode::up() const
 {

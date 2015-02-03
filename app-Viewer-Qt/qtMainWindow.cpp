@@ -112,24 +112,6 @@ qtMainWindow::qtMainWindow(QWidget *parent, SLVstring cmdLineArgs) :
     splitter->show();
     borderWidget->show();
     _activeGLWidget->show();
-
-    // set dark color palette
-    QPalette darkPalette;
-    darkPalette.setColor(QPalette::Window, QColor(53,53,53));
-    darkPalette.setColor(QPalette::WindowText, Qt::white);
-    darkPalette.setColor(QPalette::Base, QColor(25,25,25));
-    darkPalette.setColor(QPalette::AlternateBase, QColor(53,53,53));
-    darkPalette.setColor(QPalette::ToolTipBase, Qt::white);
-    darkPalette.setColor(QPalette::ToolTipText, Qt::white);
-    darkPalette.setColor(QPalette::Text, Qt::white);
-    darkPalette.setColor(QPalette::Button, QColor(53,53,53));
-    darkPalette.setColor(QPalette::ButtonText, Qt::white);
-    darkPalette.setColor(QPalette::BrightText, Qt::red);
-    darkPalette.setColor(QPalette::Link, QColor(42, 130, 218));
-    darkPalette.setColor(QPalette::Highlight, QColor(42, 130, 218));
-    darkPalette.setColor(QPalette::HighlightedText, Qt::black);
-
-    setPalette(darkPalette);
 }
 
 qtMainWindow::~qtMainWindow()
@@ -166,13 +148,11 @@ void qtMainWindow::setMenuState()
     ui->actionLarge_Model->setChecked(s->currentID()==cmdSceneLargeModel);
     ui->actionFigure->setChecked(s->currentID()==cmdSceneFigure);
     ui->actionMesh_Loader->setChecked(s->currentID()==cmdSceneMeshLoad);
-    ui->actionAstroboy_Army_CPU->setChecked(s->currentID()==cmdSceneAstroboyArmyCPU);
-    ui->actionAstroboy_Army_GPU->setChecked(s->currentID()==cmdSceneAstroboyArmyGPU);
-    ui->actionSkeletal_Animation->setChecked(s->currentID()==cmdSceneSkeletalAnimation);
     ui->actionTexture_Blending->setChecked(s->currentID()==cmdSceneTextureBlend);
     ui->actionTexture_Filtering->setChecked(s->currentID()==cmdSceneTextureFilter);
     ui->actionFrustum_Culling_1->setChecked(s->currentID()==cmdSceneFrustumCull1);
     ui->actionFrustum_Culling_2->setChecked(s->currentID()==cmdSceneFrustumCull2);
+
     ui->actionPer_Vertex_Lighting->setChecked(s->currentID()==cmdScenePerVertexBlinn);
     ui->actionPer_Pixel_Lighting->setChecked(s->currentID()==cmdScenePerPixelBlinn);
     ui->actionPer_Vertex_Wave->setChecked(s->currentID()==cmdScenePerVertexWave);
@@ -181,7 +161,13 @@ void qtMainWindow::setMenuState()
     ui->actionParallax_Mapping->setChecked(s->currentID()==cmdSceneBumpParallax);
     ui->actionGlass_Shader->setChecked(s->currentID()==cmdSceneRevolver);
     ui->actionEarth_Shader->setChecked(s->currentID()==cmdSceneEarth);
+
+    ui->actionNode_Animation->setChecked(s->currentID()==cmdSceneNodeAnimation);
+    ui->actionSkeletal_Animation->setChecked(s->currentID()==cmdSceneSkeletalAnimation);
+    ui->actionAstroboy_Army_CPU->setChecked(s->currentID()==cmdSceneAstroboyArmyCPU);
+    ui->actionAstroboy_Army_GPU->setChecked(s->currentID()==cmdSceneAstroboyArmyGPU);
     ui->actionMass_Animation->setChecked(s->currentID()==cmdSceneMassAnimation);
+
     ui->actionRT_Spheres->setChecked(s->currentID()==cmdSceneRTSpheres);
     ui->actionRT_Muttenzer_Box->setChecked(s->currentID()==cmdSceneRTMuttenzerBox);
     ui->actionRT_Soft_Shadows->setChecked(s->currentID()==cmdSceneRTSoftShadows);
@@ -822,24 +808,6 @@ void qtMainWindow::on_actionMesh_Loader_triggered()
     _activeGLWidget->sv()->onCommand(cmdSceneMeshLoad);
     afterSceneLoad();
 }
-void qtMainWindow::on_actionSkeletal_Animation_triggered()
-{
-    beforeSceneLoad();
-    _activeGLWidget->sv()->onCommand(cmdSceneSkeletalAnimation);
-    afterSceneLoad();
-}
-void qtMainWindow::on_actionAstroboy_Army_CPU_triggered()
-{
-    beforeSceneLoad();
-    _activeGLWidget->sv()->onCommand(cmdSceneAstroboyArmyCPU);
-    afterSceneLoad();
-}
-void qtMainWindow::on_actionAstroboy_Army_GPU_triggered()
-{
-    beforeSceneLoad();
-    _activeGLWidget->sv()->onCommand(cmdSceneAstroboyArmyGPU);
-    afterSceneLoad();
-}
 void qtMainWindow::on_actionTexture_Blending_triggered()
 {
     beforeSceneLoad();
@@ -864,6 +832,7 @@ void qtMainWindow::on_actionFrustum_Culling_2_triggered()
     _activeGLWidget->sv()->onCommand(cmdSceneFrustumCull2);
     afterSceneLoad();
 }
+
 void qtMainWindow::on_actionPer_Vertex_Lighting_triggered()
 {
     beforeSceneLoad();
@@ -912,12 +881,38 @@ void qtMainWindow::on_actionEarth_Shader_triggered()
     _activeGLWidget->sv()->onCommand(cmdSceneEarth);
     afterSceneLoad();
 }
+
+void qtMainWindow::on_actionNode_Animation_triggered()
+{
+    beforeSceneLoad();
+    _activeGLWidget->sv()->onCommand(cmdSceneNodeAnimation);
+    afterSceneLoad();
+}
+void qtMainWindow::on_actionSkeletal_Animation_triggered()
+{
+    beforeSceneLoad();
+    _activeGLWidget->sv()->onCommand(cmdSceneSkeletalAnimation);
+    afterSceneLoad();
+}
+void qtMainWindow::on_actionAstroboy_Army_CPU_triggered()
+{
+    beforeSceneLoad();
+    _activeGLWidget->sv()->onCommand(cmdSceneAstroboyArmyCPU);
+    afterSceneLoad();
+}
+void qtMainWindow::on_actionAstroboy_Army_GPU_triggered()
+{
+    beforeSceneLoad();
+    _activeGLWidget->sv()->onCommand(cmdSceneAstroboyArmyGPU);
+    afterSceneLoad();
+}
 void qtMainWindow::on_actionMass_Animation_triggered()
 {
     beforeSceneLoad();
     _activeGLWidget->sv()->onCommand(cmdSceneMassAnimation);
     afterSceneLoad();
 }
+
 void qtMainWindow::on_actionRT_Spheres_triggered()
 {
     beforeSceneLoad();
@@ -1549,9 +1544,6 @@ void qtMainWindow::on_animAnimatedObjectSelect_currentIndexChanged(int index)
     }
 
     ui->animAnimationSelect->setCurrentIndex(0);
-
-    std::cout << "on_animationSelectIndexChanged " << index << " " << ui->animAnimatedObjectSelect->itemData(index).toInt() << "\n";
-
 }
 void qtMainWindow::on_animAnimationSelect_currentIndexChanged(int index)
 {
@@ -1565,9 +1557,6 @@ void qtMainWindow::on_animAnimationSelect_currentIndexChanged(int index)
     ui->animLoopingSelect->setCurrentIndex(play->loop());
     ui->animTimelineSlider->setAnimDuration(play->parentAnimation()->lengthSec());
     ui->animDurationLabel->setText(ui->animTimelineSlider->getDurationTimeString());
-
-    std::cout << "on_animationSelectIndexChanged " << index << " " << play->parentAnimation()->name() << "\n";
-
 }
 void qtMainWindow::on_animSkipStartButton_clicked()
 {
@@ -1575,6 +1564,7 @@ void qtMainWindow::on_animSkipStartButton_clicked()
         return;
 
     _selectedAnim->skipToStart();
+    updateAllGLWidgets();
 }
 void qtMainWindow::on_animSkipEndButton_clicked()
 {
@@ -1582,6 +1572,7 @@ void qtMainWindow::on_animSkipEndButton_clicked()
         return;
 
     _selectedAnim->skipToEnd();
+    updateAllGLWidgets();
 }
 void qtMainWindow::on_animPrevKeyframeButton_clicked()
 {
@@ -1589,6 +1580,7 @@ void qtMainWindow::on_animPrevKeyframeButton_clicked()
         return;
 
     _selectedAnim->skipToPrevKeyframe();
+    updateAllGLWidgets();
 }
 void qtMainWindow::on_animNextKeyframeButton_clicked()
 {
@@ -1596,6 +1588,7 @@ void qtMainWindow::on_animNextKeyframeButton_clicked()
         return;
 
     _selectedAnim->skipToNextKeyframe();
+    updateAllGLWidgets();
 }
 void qtMainWindow::on_animPlayForwardButton_clicked()
 {
@@ -1603,6 +1596,7 @@ void qtMainWindow::on_animPlayForwardButton_clicked()
         return;
 
     _selectedAnim->playForward();
+    updateAllGLWidgets();
 }
 void qtMainWindow::on_animPlayBackwardButton_clicked()
 {
@@ -1610,6 +1604,7 @@ void qtMainWindow::on_animPlayBackwardButton_clicked()
         return;
 
     _selectedAnim->playBackward();
+    updateAllGLWidgets();
 }
 void qtMainWindow::on_animPauseButton_clicked()
 {
@@ -1617,6 +1612,7 @@ void qtMainWindow::on_animPauseButton_clicked()
         return;
 
     _selectedAnim->pause();
+    updateAllGLWidgets();
 }
 void qtMainWindow::on_animStopButton_clicked()
 {
@@ -1640,6 +1636,7 @@ void qtMainWindow::on_animLoopingSelect_currentIndexChanged(int index)
         return;
 
     _selectedAnim->loop((SLAnimLooping)(index));
+    updateAllGLWidgets();
 }
 void qtMainWindow::on_animTimelineSlider_valueChanged(int value)
 {
@@ -1647,6 +1644,7 @@ void qtMainWindow::on_animTimelineSlider_valueChanged(int value)
         return;
     
     _selectedAnim->localTime(ui->animTimelineSlider->getNormalizedValue() * _selectedAnim->parentAnimation()->lengthSec());
+    updateAllGLWidgets();
 }
 void qtMainWindow::on_animWeightInput_valueChanged(double d)
 {
@@ -1654,6 +1652,7 @@ void qtMainWindow::on_animWeightInput_valueChanged(double d)
         return;
 
     _selectedAnim->weight(d);
+    updateAllGLWidgets();
 }
 void qtMainWindow::on_animSpeedInput_valueChanged(double d)
 {
@@ -1661,4 +1660,5 @@ void qtMainWindow::on_animSpeedInput_valueChanged(double d)
         return;
 
     _selectedAnim->playbackRate(d);
+    updateAllGLWidgets();
 }

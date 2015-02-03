@@ -157,14 +157,18 @@ void slTerminate()
     SLScene::current = 0;
 }
 //-----------------------------------------------------------------------------
-/*! Global rendering function that simply calls the sceneview's onPaint method.
-This function must be called for each frame. After the frame is generated the
-OS must swap the OpenGL's backbuffer to the visible front buffer.
+/*! Global rendering function that first updates the scene due to user or
+device inputs and due to active animations. This happens only if all sceneviews
+where finished with rendering. After the update sceneviews onPaint routine is
+called to initiate the rendering of the frame. If either the onUpdate or onPaint
+returned true a new frame should be drawn.
 */
-bool slPaint(int sceneViewIndex)
+bool slUpdateAndPaint(int sceneViewIndex)
 {  
     SLSceneView* sv = SLScene::current->sv(sceneViewIndex);
-    return sv->onPaint();
+    bool sceneGotUpdated = SLScene::current->onUpdate();
+    bool viewNeedsUpdate =  sv->onPaint();
+    return sceneGotUpdated || viewNeedsUpdate;
 }
 //-----------------------------------------------------------------------------
 /*! Global resize function that must be called whenever the OpenGL frame
@@ -182,7 +186,7 @@ void slResize(int sceneViewIndex, int width, int height)
 //-----------------------------------------------------------------------------
 /*! Global event handler for mouse button down events. 
 */
-bool slMouseDown(int sceneViewIndex, SLMouseButton button, 
+void slMouseDown(int sceneViewIndex, SLMouseButton button, 
                  int xpos, int ypos, SLKey modifier) 
 {  
     SLMouseEvent* e = new SLMouseEvent(SLInputEvent::MouseDown);
@@ -193,12 +197,11 @@ bool slMouseDown(int sceneViewIndex, SLMouseButton button,
     e->modifier = modifier;
 
     SLInputManager::instance().queueEvent(e);
-    return true; // @todo remove return from the interface input, this doesn't concern the outer layers
 }
 //-----------------------------------------------------------------------------
 /*! Global event handler for mouse move events.
 */
-bool slMouseMove(int sceneViewIndex, int x, int y)
+void slMouseMove(int sceneViewIndex, int x, int y)
 {  
     SLMouseEvent* e = new SLMouseEvent(SLInputEvent::MouseMove);
     e->svIndex = sceneViewIndex;
@@ -206,12 +209,11 @@ bool slMouseMove(int sceneViewIndex, int x, int y)
     e->y = y;
 
     SLInputManager::instance().queueEvent(e);
-    return true; // @todo remove return from the interface input, this doesn't concern the outer layers
 }
 //-----------------------------------------------------------------------------
 /*! Global event handler for mouse button up events.
 */
-bool slMouseUp(int sceneViewIndex, SLMouseButton button, 
+void slMouseUp(int sceneViewIndex, SLMouseButton button, 
                int xpos, int ypos, SLKey modifier) 
 {  
     SLMouseEvent* e = new SLMouseEvent(SLInputEvent::MouseUp);
@@ -222,12 +224,11 @@ bool slMouseUp(int sceneViewIndex, SLMouseButton button,
     e->modifier = modifier;
 
     SLInputManager::instance().queueEvent(e);
-    return true; // @todo remove return from the interface input, this doesn't concern the outer layers
 }
 //-----------------------------------------------------------------------------
 /*! Global event handler for double click events.
 */
-bool slDoubleClick(int sceneViewIndex, SLMouseButton button, 
+void slDoubleClick(int sceneViewIndex, SLMouseButton button, 
                    int xpos, int ypos, SLKey modifier) 
 {  
     SLMouseEvent* e = new SLMouseEvent(SLInputEvent::MouseDoubleClick);
@@ -238,13 +239,12 @@ bool slDoubleClick(int sceneViewIndex, SLMouseButton button,
     e->modifier = modifier;
 
     SLInputManager::instance().queueEvent(e);
-    return true; // @todo remove return from the interface input, this doesn't concern the outer layers
 }
 //-----------------------------------------------------------------------------
 /*! Global event handler for the two finger touch down events of touchscreen 
 devices.
 */
-bool slTouch2Down(int sceneViewIndex, int xpos1, int ypos1, int xpos2, int ypos2) 
+void slTouch2Down(int sceneViewIndex, int xpos1, int ypos1, int xpos2, int ypos2) 
 {  
     SLTouchEvent* e = new SLTouchEvent(SLInputEvent::Touch2Down);
     e->svIndex = sceneViewIndex;
@@ -254,12 +254,11 @@ bool slTouch2Down(int sceneViewIndex, int xpos1, int ypos1, int xpos2, int ypos2
     e->y2 = ypos2;
 
     SLInputManager::instance().queueEvent(e);
-    return true; // @todo remove return from the interface input, this doesn't concern the outer layers
 }
 //-----------------------------------------------------------------------------
 /*! Global event handler for the two finger move events of touchscreen devices. 
 */
-bool slTouch2Move(int sceneViewIndex, int xpos1, int ypos1, int xpos2, int ypos2) 
+void slTouch2Move(int sceneViewIndex, int xpos1, int ypos1, int xpos2, int ypos2) 
 {  
     SLTouchEvent* e = new SLTouchEvent(SLInputEvent::Touch2Move);
     e->svIndex = sceneViewIndex;
@@ -269,13 +268,12 @@ bool slTouch2Move(int sceneViewIndex, int xpos1, int ypos1, int xpos2, int ypos2
     e->y2 = ypos2;
 
     SLInputManager::instance().queueEvent(e);
-    return true; // @todo remove return from the interface input, this doesn't concern the outer layers
 }
 //-----------------------------------------------------------------------------
 /*! Global event handler for the two finger touch up events of touchscreen 
 devices. 
 */
-bool slTouch2Up(int sceneViewIndex, int xpos1, int ypos1, int xpos2, int ypos2) 
+void slTouch2Up(int sceneViewIndex, int xpos1, int ypos1, int xpos2, int ypos2) 
 {
     SLTouchEvent* e = new SLTouchEvent(SLInputEvent::Touch2Up);
     e->svIndex = sceneViewIndex;
@@ -285,12 +283,11 @@ bool slTouch2Up(int sceneViewIndex, int xpos1, int ypos1, int xpos2, int ypos2)
     e->y2 = ypos2;
 
     SLInputManager::instance().queueEvent(e);
-    return true; // @todo remove return from the interface input, this doesn't concern the outer layers
 }
 //-----------------------------------------------------------------------------
 /*! Global event handler for mouse wheel events. 
 */
-bool slMouseWheel(int sceneViewIndex, int pos, SLKey modifier)
+void slMouseWheel(int sceneViewIndex, int pos, SLKey modifier)
 {  
     SLMouseEvent* e = new SLMouseEvent(SLInputEvent::MouseWheel);
     e->svIndex = sceneViewIndex;
@@ -298,12 +295,11 @@ bool slMouseWheel(int sceneViewIndex, int pos, SLKey modifier)
     e->modifier = modifier;
 
     SLInputManager::instance().queueEvent(e);
-    return true; // @todo remove return from the interface input, this doesn't concern the outer layers
 }
 //-----------------------------------------------------------------------------
 /*! Global event handler for keyboard key press events. 
 */
-bool slKeyPress(int sceneViewIndex, SLKey key, SLKey modifier) 
+void slKeyPress(int sceneViewIndex, SLKey key, SLKey modifier) 
 {  
     SLKeyEvent* e = new SLKeyEvent(SLInputEvent::KeyDown);
     e->svIndex = sceneViewIndex;
@@ -311,12 +307,11 @@ bool slKeyPress(int sceneViewIndex, SLKey key, SLKey modifier)
     e->modifier = modifier;
 
     SLInputManager::instance().queueEvent(e);
-    return true; // @todo remove return from the interface input, this doesn't concern the outer layers
 }
 //-----------------------------------------------------------------------------
 /*! Global event handler for keyboard key release events. 
 */
-bool slKeyRelease(int sceneViewIndex, SLKey key, SLKey modifier) 
+void slKeyRelease(int sceneViewIndex, SLKey key, SLKey modifier) 
 {  
     SLKeyEvent* e = new SLKeyEvent(SLInputEvent::KeyUp);
     e->svIndex = sceneViewIndex;
@@ -324,7 +319,6 @@ bool slKeyRelease(int sceneViewIndex, SLKey key, SLKey modifier)
     e->modifier = modifier;
 
     SLInputManager::instance().queueEvent(e);
-    return true; // @todo remove return from the interface input, this doesn't concern the outer layers
 }
 
 //-----------------------------------------------------------------------------
@@ -341,13 +335,12 @@ void slCharInput(int sceneViewIndex, unsigned int character)
 //-----------------------------------------------------------------------------
 /*! Global event handler for keyboard key release events. 
 */
-bool slCommand(int sceneViewIndex, SLCmd command) 
+void slCommand(int sceneViewIndex, SLCmd command) 
 {  
     SLCommandEvent* e = new SLCommandEvent;
     e->cmd = command;
     
     SLInputManager::instance().queueEvent(e);
-    return true; // @todo remove return from the interface input, this doesn't concern the outer layers
 }
 //-----------------------------------------------------------------------------
 /*! Global event handler for device rotation change with Euler angles pitch

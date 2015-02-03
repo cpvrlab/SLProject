@@ -8,7 +8,7 @@
 //#############################################################################
 
 #ifndef SLLENS_H
-#define SL_LENS_H
+#define SLLENS_H
 
 #include <stdafx.h>
 #include "SLRevolver.h"

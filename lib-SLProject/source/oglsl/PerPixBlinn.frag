@@ -12,41 +12,41 @@
 precision mediump float;
 #endif
 
-varying vec3   v_P_VS;              // Interpol. point of illum. in view space (VS)
-varying vec3   v_N_VS;              // Interpol. normal at v_P_VS in view space
+varying vec3   v_P_VS;              //!< Interpol. point of illum. in view space (VS)
+varying vec3   v_N_VS;              //!< Interpol. normal at v_P_VS in view space
 
-uniform int    u_numLightsUsed;     // NO. of lights used light arrays
-uniform bool   u_lightIsOn[8];      // flag if light is on
-uniform vec4   u_lightPosVS[8];     // position of light in view space
-uniform vec4   u_lightAmbient[8];   // ambient light intensity (Ia)
-uniform vec4   u_lightDiffuse[8];   // diffuse light intensity (Id)
-uniform vec4   u_lightSpecular[8];  // specular light intensity (Is)
-uniform vec3   u_lightDirVS[8];     // spot direction in view space
-uniform float  u_lightSpotCutoff[8];// spot cutoff angle 1-180 degrees
-uniform float  u_lightSpotCosCut[8];// cosine of spot cutoff angle
-uniform float  u_lightSpotExp[8];   // spot exponent
-uniform vec3   u_lightAtt[8];       // attenuation (const,linear,quadr.)
-uniform bool   u_lightDoAtt[8];     // flag if att. must be calc.
-uniform vec4   u_globalAmbient;     // Global ambient scene color
+uniform int    u_numLightsUsed;     //!< NO. of lights used light arrays
+uniform bool   u_lightIsOn[8];      //!< flag if light is on
+uniform vec4   u_lightPosVS[8];     //!< position of light in view space
+uniform vec4   u_lightAmbient[8];   //!< ambient light intensity (Ia)
+uniform vec4   u_lightDiffuse[8];   //!< diffuse light intensity (Id)
+uniform vec4   u_lightSpecular[8];  //!< specular light intensity (Is)
+uniform vec3   u_lightDirVS[8];     //!< spot direction in view space
+uniform float  u_lightSpotCutoff[8];//!< spot cutoff angle 1-180 degrees
+uniform float  u_lightSpotCosCut[8];//!< cosine of spot cutoff angle
+uniform float  u_lightSpotExp[8];   //!< spot exponent
+uniform vec3   u_lightAtt[8];       //!< attenuation (const,linear,quadr.)
+uniform bool   u_lightDoAtt[8];     //!< flag if att. must be calc.
+uniform vec4   u_globalAmbient;     //!< Global ambient scene color
 
-uniform vec4   u_matAmbient;        // ambient color reflection coefficient (ka)
-uniform vec4   u_matDiffuse;        // diffuse color reflection coefficient (kd)
-uniform vec4   u_matSpecular;       // specular color reflection coefficient (ks)
-uniform vec4   u_matEmissive;       // emissive color for selfshining materials
-uniform float  u_matShininess;      // shininess exponent
+uniform vec4   u_matAmbient;        //!< ambient color reflection coefficient (ka)
+uniform vec4   u_matDiffuse;        //!< diffuse color reflection coefficient (kd)
+uniform vec4   u_matSpecular;       //!< specular color reflection coefficient (ks)
+uniform vec4   u_matEmissive;       //!< emissive color for selfshining materials
+uniform float  u_matShininess;      //!< shininess exponent
 
-uniform int    u_projection;        // type of stereo
-uniform int    u_stereoEye;         // -1=left, 0=center, 1=right 
-uniform mat3   u_stereoColorFilter; // color filter matrix
+uniform int    u_projection;        //!< type of stereo
+uniform int    u_stereoEye;         //!< -1=left, 0=center, 1=right
+uniform mat3   u_stereoColorFilter; //!< color filter matrix
 
 //-----------------------------------------------------------------------------
-void PointLight (in    int  i,   // OpenGL light number
-                 in    vec3 P_VS,// Point of illumination in VS
-                 in    vec3 N,   // Normalized normal at v_P_VS
-                 in    vec3 E,   // Normalized vector from v_P_VS to view in VS
-                 inout vec4 Ia,  // Ambient light intesity
-                 inout vec4 Id,  // Diffuse light intesity
-                 inout vec4 Is)  // Specular light intesity
+void PointLight (in    int  i,      //!< OpenGL light number
+                 in    vec3 P_VS,   //!< Point of illumination in VS
+                 in    vec3 N,      //!< Normalized normal at v_P_VS
+                 in    vec3 E,      //!< Normalized vector from v_P_VS to view in VS
+                 inout vec4 Ia,     //!< Ambient light intesity
+                 inout vec4 Id,     //!< Diffuse light intesity
+                 inout vec4 Is)     //!< Specular light intesity
 {  
     // Vector from v_P_VS to the light in VS
     vec3 L = u_lightPosVS[i].xyz - v_P_VS;

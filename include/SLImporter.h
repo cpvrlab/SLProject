@@ -17,7 +17,8 @@
 #ifndef SLIMPORTER_H
 #define SLIMPORTER_H
 
-// copy of the aiPostProcessStep enum for usage in the wrapper load function
+//-----------------------------------------------------------------------------
+//! Copy of the aiPostProcessStep enum for usage in the wrapper load function
 enum SLPostProcessSteps
 {
     SLProcess_CalcTangentSpace = 0x1,
@@ -48,8 +49,10 @@ enum SLPostProcessSteps
     SLProcess_Dejoint = 0x4000000
 };
 
+//-----------------------------------------------------------------------------
 // @todo build a dedicated log class that defines this verbosity levels
-enum SLLogVerbosity {
+enum SLLogVerbosity
+{
     LV_Quiet = 0,
     LV_Minimal = 1,
     LV_Normal = 2,
@@ -60,9 +63,7 @@ enum SLLogVerbosity {
 //-----------------------------------------------------------------------------
 typedef std::map<int, SLMesh*> SLMeshMap;
 //-----------------------------------------------------------------------------
-//! Interface for importer implementations
-/*
-*/
+//! Interface for 3D file format importer implementations
 class SLImporter
 {  
 public:
@@ -131,4 +132,4 @@ public:
       static SLstring      defaultPath;
 };
 //-----------------------------------------------------------------------------
-#endif // SLASSIMP_H
+#endif // SLIMPORTER_H

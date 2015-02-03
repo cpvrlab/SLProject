@@ -38,7 +38,6 @@ SLAnimation::~SLAnimation()
 */
 void SLAnimation::lengthSec(SLfloat lengthSec)
 {
-    // @todo notify the animations track to optimize their keyframes
     _lengthSec = lengthSec;
 }
 
@@ -126,7 +125,6 @@ SLNodeAnimTrack* SLAnimation::createNodeAnimationTrack()
 SLNodeAnimTrack* SLAnimation::createNodeAnimationTrack(SLuint id)
 {
     // track with same handle already exists
-    // @todo provide a function that generates the handle automatically
     if (_nodeAnimTracks.find(id) != _nodeAnimTracks.end())
         return NULL;
 

@@ -1,7 +1,7 @@
 /********************************************************************************
 ** Form generated from reading UI file 'qtMainWindow.ui'
 **
-** Created by: Qt User Interface Compiler version 5.4.0
+** Created by: Qt User Interface Compiler version 5.3.1
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
 ********************************************************************************/
@@ -141,6 +141,7 @@ public:
     QAction *actionRT_Lens;
     QAction *actionAstroboy_Army_CPU;
     QAction *actionSuperAnimation;
+    QAction *actionNode_Animation;
     QWidget *centralWidget;
     QMenuBar *menuBar;
     QMenu *menuFile;
@@ -588,12 +589,15 @@ public:
         actionAstroboy_Army_CPU->setCheckable(true);
         actionSuperAnimation = new QAction(qtMainWindow);
         actionSuperAnimation->setObjectName(QStringLiteral("actionSuperAnimation"));
+        actionNode_Animation = new QAction(qtMainWindow);
+        actionNode_Animation->setObjectName(QStringLiteral("actionNode_Animation"));
+        actionNode_Animation->setCheckable(true);
         centralWidget = new QWidget(qtMainWindow);
         centralWidget->setObjectName(QStringLiteral("centralWidget"));
         qtMainWindow->setCentralWidget(centralWidget);
         menuBar = new QMenuBar(qtMainWindow);
         menuBar->setObjectName(QStringLiteral("menuBar"));
-        menuBar->setGeometry(QRect(0, 0, 906, 31));
+        menuBar->setGeometry(QRect(0, 0, 906, 22));
         menuBar->setDefaultUp(false);
         menuBar->setNativeMenuBar(false);
         menuFile = new QMenu(menuBar);
@@ -1043,6 +1047,7 @@ public:
         menuRay_Tracing_Scenes->addAction(actionRT_Depth_of_Field);
         menuRay_Tracing_Scenes->addAction(actionRT_Soft_Shadows);
         menuRay_Tracing_Scenes->addAction(actionRT_Lens);
+        menuAnimation_Scenes->addAction(actionNode_Animation);
         menuAnimation_Scenes->addAction(actionMass_Animation);
         menuAnimation_Scenes->addAction(actionSkeletal_Animation);
         menuAnimation_Scenes->addAction(actionAstroboy_Army_GPU);
@@ -1526,9 +1531,9 @@ public:
 #ifndef QT_NO_STATUSTIP
         actionSingle_view->setStatusTip(QApplication::translate("qtMainWindow", "Deletes all views except the acitve one", 0));
 #endif // QT_NO_STATUSTIP
-        actionMass_Animation->setText(QApplication::translate("qtMainWindow", "Mass Animation", 0));
+        actionMass_Animation->setText(QApplication::translate("qtMainWindow", "Mass Animations", 0));
 #ifndef QT_NO_STATUSTIP
-        actionMass_Animation->setStatusTip(QApplication::translate("qtMainWindow", "Loads a scene with a high number of animations active.", 0));
+        actionMass_Animation->setStatusTip(QApplication::translate("qtMainWindow", "Loads a scene with a high number of skeleton animations active.", 0));
 #endif // QT_NO_STATUSTIP
         actionUse_SceneView_Camera->setText(QApplication::translate("qtMainWindow", "Use SceneView Camera", 0));
 #ifndef QT_NO_STATUSTIP
@@ -1552,14 +1557,18 @@ public:
 #endif // QT_NO_STATUSTIP
         actionAstroboy_Army_GPU->setText(QApplication::translate("qtMainWindow", "Astroboy Army (GPU)", 0));
 #ifndef QT_NO_STATUSTIP
-        actionAstroboy_Army_GPU->setStatusTip(QApplication::translate("qtMainWindow", "Loads a scene with many identical animated characters.", 0));
+        actionAstroboy_Army_GPU->setStatusTip(QApplication::translate("qtMainWindow", "Loads a scene with many identical GPU animated characters.", 0));
 #endif // QT_NO_STATUSTIP
         actionRT_Lens->setText(QApplication::translate("qtMainWindow", "Lens", 0));
         actionAstroboy_Army_CPU->setText(QApplication::translate("qtMainWindow", "Astroboy Army (CPU)", 0));
 #ifndef QT_NO_STATUSTIP
-        actionAstroboy_Army_CPU->setStatusTip(QApplication::translate("qtMainWindow", "Loads a scene with many identical animated characters.", 0));
+        actionAstroboy_Army_CPU->setStatusTip(QApplication::translate("qtMainWindow", "Loads a scene with many identical CPU animated characters.", 0));
 #endif // QT_NO_STATUSTIP
         actionSuperAnimation->setText(QApplication::translate("qtMainWindow", "SuperAnimation", 0));
+        actionNode_Animation->setText(QApplication::translate("qtMainWindow", "Node Animations", 0));
+#ifndef QT_NO_STATUSTIP
+        actionNode_Animation->setStatusTip(QApplication::translate("qtMainWindow", "Loads a scene with multiple node animations active.", 0));
+#endif // QT_NO_STATUSTIP
         menuFile->setTitle(QApplication::translate("qtMainWindow", "File", 0));
         menuLoad_Scene->setTitle(QApplication::translate("qtMainWindow", "Load Scene", 0));
         menuGeneral_Scenes->setTitle(QApplication::translate("qtMainWindow", "General Scenes", 0));

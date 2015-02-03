@@ -14,7 +14,7 @@
 #include <stdafx.h>
 
 //-----------------------------------------------------------------------------
-// Win32 BITMAPFILEHEADER struct for BMP loading
+//! Win32 BITMAPFILEHEADER struct for BMP loading
 #pragma pack(push,2)
 typedef struct tagBMP_FILEHEADER     
 {
@@ -26,7 +26,7 @@ typedef struct tagBMP_FILEHEADER
 } sBMP_FILEHEADER;
 #pragma pack(pop)
 //-----------------------------------------------------------------------------
-// Win32 BITMAPINFOHEADER struct for BMP loading
+//! Win32 BITMAPINFOHEADER struct for BMP loading
 typedef struct tagBMP_INFOHEADER
 {
     SLuint   biSize;

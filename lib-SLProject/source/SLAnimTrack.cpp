@@ -46,7 +46,7 @@ SLKeyframe* SLAnimTrack::createKeyframe(SLfloat time)
 //-----------------------------------------------------------------------------
 /*! Getter for keyframes by index.
 */
-SLKeyframe* SLAnimTrack::keyframe(SLuint index)
+SLKeyframe* SLAnimTrack::keyframe(SLint index)
 {
     if (index < 0 || index >= numKeyframes())
         return NULL;
@@ -94,7 +94,7 @@ SLfloat SLAnimTrack::getKeyframesAtTime(SLfloat time,
     // @todo this could be implemented much nicer
     //      use the following algorithm:
     //      1. find the keyframe that comes after the 'time' parameter
-    //      2. if there is no keyframe after the 'time' then set keframe 2 to the first keyframe in the list
+    //      2. if there is no keyframe after 'time' then set keframe 2 to the first keyframe in the list
     //          set t2 to animationLength + the time of the keyframe
     //      3. if there is a keyframe after 'time' then set keyframe 2 to that keyframe
     //          set t2 to the time of the keyframe
@@ -261,7 +261,6 @@ void SLNodeAnimTrack::applyToNode(SLNode* node,
     // @todo update the slerp and lerp impelemtation for quaternions
     //       there is currently no early out for 1.0 and 0.0 inputs
     //       also provide a non OO version.
-    // @todo define quaternion constants for identity quats
     SLQuat4f rotation = SLQuat4f().slerp(kf.rotation(), weight);
     node->rotate(rotation, TS_Parent);
 

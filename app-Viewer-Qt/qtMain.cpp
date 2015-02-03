@@ -23,9 +23,26 @@ int main(int argc, char *argv[])
             cmdLineArgs.push_back(argv[i]);
 
         QApplication app(argc, argv);
-        app.setStyle(QStyleFactory::create("Fusion"));
         app.setWindowIcon(QIcon("appIcon36.png"));
         qtMainWindow wnd(0, cmdLineArgs);
+
+        // Set dark Fusion style
+//        app.setStyle(QStyleFactory::create("Fusion"));
+//        QPalette darkPalette;
+//        wnd.darkPalette.setColor(QPalette::Window, QColor(53,53,53));
+//        wnd.darkPalette.setColor(QPalette::WindowText, Qt::white);
+//        wnd.darkPalette.setColor(QPalette::Base, QColor(25,25,25));
+//        wnd.darkPalette.setColor(QPalette::AlternateBase, QColor(53,53,53));
+//        wnd.darkPalette.setColor(QPalette::ToolTipBase, Qt::white);
+//        wnd.darkPalette.setColor(QPalette::ToolTipText, Qt::white);
+//        wnd.darkPalette.setColor(QPalette::Text, Qt::white);
+//        wnd.darkPalette.setColor(QPalette::Button, QColor(53,53,53));
+//        wnd.darkPalette.setColor(QPalette::ButtonText, Qt::white);
+//        wnd.darkPalette.setColor(QPalette::BrightText, Qt::red);
+//        wnd.darkPalette.setColor(QPalette::Link, QColor(42, 130, 218));
+//        wnd.darkPalette.setColor(QPalette::Highlight, QColor(42, 130, 218));
+//        wnd.darkPalette.setColor(QPalette::HighlightedText, Qt::black);
+//        wnd.setPalette(darkPalette);
         
         wnd.show();
         return app.exec();

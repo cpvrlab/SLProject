@@ -42,8 +42,8 @@ public:
     virtual void        apply                   (SLfloat time,
                                                  SLfloat weight = 1.0f,
                                                  SLfloat scale = 1.0f) = 0; // applies the animation clip to its target
-            SLuint      numKeyframes            () const { return (SLuint)_keyframes.size(); }
-            SLKeyframe* keyframe                (SLuint index);
+            SLint       numKeyframes            () const { return (SLint)_keyframes.size(); }
+            SLKeyframe* keyframe                (SLint index);
 protected:
     /// Keyframe creator function for derived implementations
     virtual SLKeyframe* createKeyframeImpl      (SLfloat time) = 0;
