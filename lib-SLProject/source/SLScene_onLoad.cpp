@@ -211,7 +211,9 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
         SLLightSphere* light1 = new SLLightSphere(0.3f);
         light1->position(0,0,5);
         light1->lookAt(0, 0, 0);
-        light1->name("light1");
+        light1->name("light1");        
+        SLAnimation* light1Anim = SLAnimation::create("Light1_anim", 4.0f);
+        light1Anim->createEllipticNodeTrack(light1, 6, YAxis, 6, XAxis);
 
         // Create ground grid
         SLMaterial* m2 = new SLMaterial(SLCol4f::WHITE);
