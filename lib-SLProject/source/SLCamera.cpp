@@ -428,12 +428,12 @@ void SLCamera::setProjection(SLSceneView* sv, const SLEye eye)
         switch (_projection) 
         {   case stereoColorRC:
             _stateGL->stereoColorFilter.setMatrix(0.29f, 0.59f, 0.12f,
-                                                    0.00f, 1.00f, 0.00f,
-                                                    0.00f, 0.00f, 1.00f); break;
+                                                  0.00f, 1.00f, 0.00f,
+                                                  0.00f, 0.00f, 1.00f); break;
             case stereoColorYB:
             _stateGL->stereoColorFilter.setMatrix(1.00f, 0.00f, 0.00f,
-                                                    0.00f, 1.00f, 0.00f,
-                                                    0.15f, 0.15f, 0.70f); break;
+                                                  0.00f, 1.00f, 0.00f,
+                                                  0.15f, 0.15f, 0.70f); break;
             default: break;
         }
     }
