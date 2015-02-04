@@ -1272,7 +1272,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
         SLAssimpImporter importer;
         SLNode* character = importer.load("DAE/AstroBoy/AstroBoy.dae");
         SLAnimPlayback* charAnim = importer.skeleton()->getAnimPlayback("unnamed_anim_0");
-        character->scale(0.2);
+        character->scale(0.2f);
 
         SLNode* box1 = importer.load("DAE/SkinnedCube/skinnedcube2.dae");
         SLAnimPlayback* box1Anim = importer.skeleton()->getAnimPlayback("unnamed_anim_0");

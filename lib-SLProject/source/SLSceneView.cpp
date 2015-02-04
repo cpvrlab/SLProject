@@ -545,7 +545,6 @@ SLbool SLSceneView::draw3DGL(SLfloat elapsedTimeMS)
     // but this doesn't split transparent from opaque nodes
     //s->_root3D->drawRec(this);
 
-
     draw3DGLAll();
    
     // For stereo draw for right eye
@@ -553,13 +552,11 @@ SLbool SLSceneView::draw3DGL(SLfloat elapsedTimeMS)
     {   _camera->setProjection(this, rightEye);
         _camera->setView(this, rightEye);
         draw3DGLAll();
-      
-        // Enable all color channels again
-        _stateGL->colorMask(1, 1, 1, 1); 
     }
+      
+    // Enable all color channels again
+    _stateGL->colorMask(1, 1, 1, 1); 
 
-
- 
     _draw3DTimeMS = s->timeMilliSec()-startMS;
 
     postDraw();
