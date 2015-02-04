@@ -61,9 +61,9 @@ SLVec3f SLLeapFinger::boneDirection(SLint boneType) const
 SLQuat4f SLLeapFinger::boneRotation(SLint boneType) const
 {    
     Leap::Bone::Type type = static_cast<Leap::Bone::Type>(boneType);
-    Leap::Vector& bX = _finger.bone(type).basis().xBasis;
-    Leap::Vector& bY = _finger.bone(type).basis().yBasis;
-    Leap::Vector& bZ = _finger.bone(type).basis().zBasis;
+    Leap::Vector bX = _finger.bone(type).basis().xBasis;
+    Leap::Vector bY = _finger.bone(type).basis().yBasis;
+    Leap::Vector bZ = _finger.bone(type).basis().zBasis;
     
     SLMat3f basis(bX.x, bY.x, bZ.x,
                   bX.y, bY.y, bZ.y,

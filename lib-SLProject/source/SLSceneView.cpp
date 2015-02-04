@@ -857,7 +857,7 @@ void SLSceneView::draw2DGLAll()
 
     // Draw scene info text if menuGL or menuRT is closed
     if (!_showLoading && 
-        _showInfo && s->_info && 
+        _showInfo && s->_info &&
         _camera->projection()<=monoOrthographic &&
         (s->_menu2D==s->_menuGL || 
          s->_menu2D==s->_menuRT ||

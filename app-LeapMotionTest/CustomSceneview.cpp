@@ -221,6 +221,10 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd cmd)
 {
     init();
 
+
+    name("LeapMotion Test Example");
+    info(sv, "LeapMotion Test Example");
+
     
     _backColor.set(0.1f,0.1f,0.1f);
     

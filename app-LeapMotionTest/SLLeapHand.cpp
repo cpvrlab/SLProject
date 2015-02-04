@@ -26,9 +26,9 @@ SLVec3f SLLeapHand::palmPosition() const
 
 SLQuat4f SLLeapHand::palmRotation() const
 {
-    Leap::Vector& bX = _hand.basis().xBasis;
-    Leap::Vector& bY = _hand.basis().yBasis;
-    Leap::Vector& bZ = _hand.basis().zBasis;
+    Leap::Vector bX = _hand.basis().xBasis;
+    Leap::Vector bY = _hand.basis().yBasis;
+    Leap::Vector bZ = _hand.basis().zBasis;
     // @note    We enter the Leap::Matrix's row vectors as
     //          column vectors in the SLMat3 since
     //          Leap::Matrix is row major and this saves
@@ -68,9 +68,9 @@ SLVec3f SLLeapHand::armDirection() const
 }
 SLQuat4f SLLeapHand::armRotation() const
 {
-    Leap::Vector& bX = _hand.arm().basis().xBasis;
-    Leap::Vector& bY = _hand.arm().basis().yBasis;
-    Leap::Vector& bZ = _hand.arm().basis().zBasis;
+    Leap::Vector bX = _hand.arm().basis().xBasis;
+    Leap::Vector bY = _hand.arm().basis().yBasis;
+    Leap::Vector bZ = _hand.arm().basis().zBasis;
     
     SLMat3f basis(bX.x, bY.x, bZ.x,
                   bX.y, bY.y, bZ.y,
