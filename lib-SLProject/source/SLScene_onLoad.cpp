@@ -154,15 +154,15 @@ SLNode* BuildFigureGroup(SLMaterial* mat, SLbool withAnimation)
     // Add animations for left leg
     if (withAnimation)
     {
-        legLeft = figure->findChild<SLNode>("left leg group");
+        legLeft = figure->findChild<SLNode>("left leg group (T8)");
         legLeft->rotate(30, -1,0,0);
         SLAnimation* anim = SLAnimation::create("figure animation", 2.0f, true, EC_inOutQuint, AL_pingPongLoop);
         anim->createSimpleRotationNodeTrack(legLeft, 60, SLVec3f(1, 0, 0));
 
-        SLNode* legLowLeft = legLeft->findChild<SLNode>("leglow group");
+        SLNode* legLowLeft = legLeft->findChild<SLNode>("low leg group (T11, R5)");
         anim->createSimpleRotationNodeTrack(legLowLeft, 40, SLVec3f(1, 0, 0));
 
-        SLNode* feetLeft = legLeft->findChild<SLNode>("feet group");
+        SLNode* feetLeft = legLeft->findChild<SLNode>("feet group (T13,R6)");
         anim->createSimpleRotationNodeTrack(feetLeft, 40, SLVec3f(1, 0, 0));
     }
 
