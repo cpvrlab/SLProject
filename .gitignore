@@ -6,6 +6,7 @@
 *.idb
 *.pdb
 *.obj
+*.md5
 obj/
 ipch/
 _bin/

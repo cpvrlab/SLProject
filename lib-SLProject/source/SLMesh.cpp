@@ -130,9 +130,25 @@ void SLMesh::init(SLNode* node)
 //-----------------------------------------------------------------------------
 /*! 
 SLMesh::draw does the OpenGL rendering of the mesh. The GL_TRIANGLES or 
-GL_LINES primitives are rendered with the vertex position array P, 
+GL_LINES primitives are rendered normally with the vertex position array P,
 the normal array N, the array Tc and the index array I16 or I32. 
 Optionally you can draw the normals and/or the uniform grid voxels.
+<p> The method performs the following steps:</p>
+<p>
+1) Apply the drawing bits<br>
+2) Apply the uniform variables to the shader<br>
+2a) Activate a shader program if it is not yet in use and apply all its material paramters.<br>
+2b) Pass the modelview and modelview-projection matrix to the shader.<br>
+2c) If needed build and pass the inverse modelview and the normal matrix.<br>
+2d) If the mesh has a skeleton and HW skinning is applied pass the joint matrices.<br>
+3) Build VBOs once<br>
+4) Bind and enable attribute pointers<br>
+5) Finally do the draw call<br>
+6) Disable attribute pointers<br>
+7) Draw optional normals & tangents<br>
+8) Draw optional acceleration structure<br>
+</p>
+Please view also the full process of rendering <a href="md_on_paint.html"><b>one frame</b></a>
 */
 void SLMesh::draw(SLSceneView* sv, SLNode* node)
 {  
