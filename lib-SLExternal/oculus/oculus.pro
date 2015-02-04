@@ -24,6 +24,8 @@ QMAKE_CXXFLAGS += -std=c++11
 
 DEFINES += _UNICODE
 
+LIBS += Shell32.lib
+
 #define platform variable for folder name
 win32 {contains(QMAKE_TARGET.arch, x86_64) {PLATFORM = x64} else {PLATFORM = Win32}}
 macx {PLATFORM = macx}

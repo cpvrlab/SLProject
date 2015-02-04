@@ -17,4 +17,6 @@ intermediate/
 Makefile
 .qmake*
 GenerateHTMLDoc.log
-.autosave
+*.autosave
+*.Release
+*.Debug
