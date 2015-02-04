@@ -338,7 +338,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
 
         // Scale to so that the AstroBoy is about 2 (meters) high.
         if (mesh3DS) {mesh3DS->scale(0.1f);  mesh3DS->translate(-22.0f, 1.9f, 3.5f, TS_Local);}
-        if (meshDAE) {meshDAE->scale(0.33f); meshDAE->translate(0,-9,0, TS_Local);}
+        if (meshDAE) {meshDAE->translate(0,-3,0, TS_Local); meshDAE->scale(0.3f);}
         if (meshFBX) {meshFBX->scale(0.1f);  meshFBX->scale(0.1f); meshFBX->translate(200, 30, -30, TS_Local); meshFBX->rotate(-90,0,1,0);}
         
         // define rectangles for the surrounding box
@@ -1272,7 +1272,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
         SLAssimpImporter importer;
         SLNode* character = importer.load("DAE/AstroBoy/AstroBoy.dae");
         SLAnimPlayback* charAnim = importer.skeleton()->getAnimPlayback("unnamed_anim_0");
-        character->scale(20);
+        character->scale(0.2);
 
         SLNode* box1 = importer.load("DAE/SkinnedCube/skinnedcube2.dae");
         SLAnimPlayback* box1Anim = importer.skeleton()->getAnimPlayback("unnamed_anim_0");
@@ -1529,7 +1529,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
 
         SLAssimpImporter importer;
         SLNode* center = importer.load("DAE/AstroBoy/AstroBoy.dae");
-        center->scale(100);
+        //center->scale(100);
         importer.skeleton()->getAnimPlayback("unnamed_anim_0")->playForward();
 
         // set the skinning method of the loaded meshes
