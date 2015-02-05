@@ -12,6 +12,9 @@
 #ifdef SL_MEMLEAKDETECT       // set in SL.h for debug config only
 #include <debug_new.h>        // memory leak detector
 #endif
+
+#include <iomanip>
+
 #include <SLAssimpImporter.h>
 #include <SLScene.h>
 #include <SLGLTexture.h>
@@ -391,14 +394,39 @@ void SLAssimpImporter::performInitialScan(const aiScene* scene)
 void SLAssimpImporter::findNodes(aiNode* node, SLstring padding, SLbool lastChild)
 { 
     SLstring name = node->mName.C_Str();
+    /*
+    /// @todo we can't allow for duplicate node names, ever at the moment. The 'solution' below
+    ///       only hides the problem and moves it to a different part.
+    // rename duplicate node names
+    SLstring renamedString;
+    if (_nodeMap.find(name) != _nodeMap.end())
+    {
+        SLint index = 0;
+        std::ostringstream ss;
+        SLstring lastMatch = name;
+        while (_nodeMap.find(lastMatch) != _nodeMap.end()) 
+        {
+            ss.str(SLstring());
+            ss.clear();
+            ss << name << "_" << std::setw( 2 ) << std::setfill( '0' ) << index;
+            lastMatch = ss.str();
+            index++;
+        }
+        ss.str(SLstring());
+        ss.clear();
+        ss << "(renamed from '" << name << "')";
+        renamedString = ss.str();
+        name = lastMatch;
+    }*/
+
     // this should not happen
     assert(_nodeMap.find(name) == _nodeMap.end() && "Duplicated node name found!");
     _nodeMap[name] = node;
-    
+
     //logMessage(LV_Detailed, "%s   |\n", padding.c_str());
     logMessage(LV_Detailed, "%s  |-[%s]   (%d children, %d meshes)\n", 
                padding.c_str(), 
-               name.c_str(), 
+               name.c_str(),
                node->mNumChildren, 
                node->mNumMeshes);
     
