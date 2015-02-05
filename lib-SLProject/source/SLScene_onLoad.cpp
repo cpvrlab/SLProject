@@ -327,7 +327,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
         SLNode* meshDAE = importer.load("AstroBoy.dae");
       
         #else
-        SLAssimpImporter importer("Importer.log");
+        SLAssimpImporter importer;
         SLNode* mesh3DS = importer.load("3DS/Halloween/Jackolan.3DS");
         SLNode* meshFBX = importer.load("FBX/Duck/Duck.fbx");
         SLNode* meshDAE = importer.load("DAE/AstroBoy/AstroBoy.dae");
