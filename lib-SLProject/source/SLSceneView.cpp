@@ -1997,8 +1997,16 @@ SLbool SLSceneView::draw3DRT()
     // if the raytracer not yet got started
     if (_raytracer.state()==rtReady)
     {
+        SLScene* s = SLScene::current;
+
         // Update transforms and aabbs
-        SLScene::current->_root3D->needUpdate();
+        s->root3D()->needUpdate();
+
+        // Do software skinning on all changed skeletons
+        for (SLuint i=0; i<s->meshes().size(); ++i) 
+        {   
+            s->meshes()[i]->updateAccelStruct();
+        }
 
         // Start raytracing
         if (_raytracer.distributed())
@@ -2046,6 +2054,17 @@ SLbool SLSceneView::draw3DPT()
     // if the pathtracer not yet got started
     if (_pathtracer.state()==rtReady)
     {
+        SLScene* s = SLScene::current;
+
+        // Update transforms and aabbs
+        s->root3D()->needUpdate();
+
+        // Do software skinning on all changed skeletons
+        for (SLuint i=0; i<s->meshes().size(); ++i) 
+        {   
+            s->meshes()[i]->updateAccelStruct();
+        }
+
         // Start raytracing
         _pathtracer.render(this);
     }

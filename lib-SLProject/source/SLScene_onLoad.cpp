@@ -340,7 +340,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
 
         // Scale to so that the AstroBoy is about 2 (meters) high.
         if (mesh3DS) {mesh3DS->scale(0.1f);  mesh3DS->translate(-22.0f, 1.9f, 3.5f, TS_Local);}
-        if (meshDAE) {meshDAE->translate(0,-3,0, TS_Local); meshDAE->scale(0.3f);}
+        if (meshDAE) {meshDAE->translate(0,-3,0, TS_Local); meshDAE->scale(2.7f);}
         if (meshFBX) {meshFBX->scale(0.1f);  meshFBX->scale(0.1f); meshFBX->translate(200, 30, -30, TS_Local); meshFBX->rotate(-90,0,1,0);}
         
         // define rectangles for the surrounding box
@@ -1274,7 +1274,6 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
         SLAssimpImporter importer;
         SLNode* character = importer.load("DAE/AstroBoy/AstroBoy.dae");
         SLAnimPlayback* charAnim = importer.skeleton()->getAnimPlayback("unnamed_anim_0");
-        character->scale(0.2f);
 
         SLNode* box1 = importer.load("DAE/SkinnedCube/skinnedcube2.dae");
         SLAnimPlayback* box1Anim = importer.skeleton()->getAnimPlayback("unnamed_anim_0");
@@ -1519,13 +1518,13 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
 
         // Define camera
         SLCamera* cam1 = new SLCamera;
-        cam1->position(0,100,180);
+        cam1->position(0, 20, 20);
         cam1->lookAt(0, 0, 0);
         cam1->setInitialState();
 
         // Floor rectangle
-        SLNode* rect = new SLNode(new SLRectangle(SLVec2f(-100,-100),
-                                                  SLVec2f( 100, 100),
+        SLNode* rect = new SLNode(new SLRectangle(SLVec2f(-20,-20),
+                                                  SLVec2f( 20, 20),
                                                   SLVec2f(   0,   0),
                                                   SLVec2f(  50,  50), 50, 50, "Floor", m1));
         rect->rotate(90, -1,0,0);
@@ -1564,8 +1563,8 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
                 SLbool shift = iX%2 != 0;
                 if (iX!=0 || iZ!=0)
                 {   SLNode* n = new SLNode;
-                    float xt = float(iX) * 9.0f;
-                    float zt = float(iZ) * 9.0f + ((shift) ? 4.5f : 0.0f);
+                    float xt = float(iX) * 1.0f;
+                    float zt = float(iZ) * 1.0f + ((shift) ? 0.5f : 0.0f);
                     n->translate(xt, 0, zt, TS_Local);
                     for (SLint i = 0; i < importer.meshes().size(); ++i)
                         n->addMesh(importer.meshes()[i]);

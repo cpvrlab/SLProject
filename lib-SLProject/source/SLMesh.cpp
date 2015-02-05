@@ -228,7 +228,9 @@ void SLMesh::draw(SLSceneView* sv, SLNode* node)
                 // remove the changed flag from the skeleton since our joint matrices are up to date again
                 // @note    the skeleton referenced here would be the skeletoninstance proposed in the documentation
                 //          of SLSkeleton. So the _jointMatrices array is the only thing that is concerned with the changed flag
-                //_skeleton->changed(false); // can't do that here since multiple meshes might reference the same skeleton... mesh/submesh architecture would solve this problem
+                //          however currently we don't have that and multiple meshes need to know if a skeleton changed this frame.
+                //          This is why we can't reset the skeleton changed flag at this point in time. If only one entity or mesh required
+                //          the information we wouldn't have a problem.
                 // notify all nodes that contain this mesh about the change
                 notifyParentNodesAABBUpdate();
             }
@@ -388,10 +390,6 @@ SLbool SLMesh::hit(SLRay* ray, SLNode* node)
     if (!ray->isOutside && ray->originNode != node) 
         return false;
      
-    // update accel struct if it's out of date
-    if (_accelStructOutOfDate)
-        updateAccelStruct();
-
     if (_accelStruct)
         return _accelStruct->intersect(ray, node);
     else
@@ -573,6 +571,9 @@ flag is set. This can happen for mesh animations.
 */
 void SLMesh::updateAccelStruct()
 {
+    if (!_accelStructOutOfDate)
+        return;
+
     calcMinMax();
     SLVec3f distMinMax = maxP - minP;
     SLfloat addon = distMinMax.length() * 0.005f;

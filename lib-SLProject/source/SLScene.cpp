@@ -350,10 +350,11 @@ bool SLScene::onUpdate()
             _meshes[i]->transformSkin();
             animatedOrChanged = true;
 
-            // update acceleration structure for RT
-            if (renderTypeIsRT || voxelsAreShown)
-                _meshes[i]->updateAccelStruct();
         }
+
+        // update any out of date acceleration structure for RT or if they're being rendered.
+        if (renderTypeIsRT || voxelsAreShown)
+            _meshes[i]->updateAccelStruct();
     }
     
     // Update AABBs efficiently. The updateAABBRec call won't generate any overhead if nothing changed

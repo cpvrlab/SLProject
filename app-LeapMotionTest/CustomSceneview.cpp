@@ -257,9 +257,6 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd cmd)
         //importer.meshes()[i]->skinningMethod(SM_HardwareSkinning);
     }
     
-    // Scale to so that the AstroBoy is about 2 (meters) high.
-    meshDAE->scale(10.0f);
-    meshDAE->translate(0,-3.33f, 0, TS_Local);
     scene->addChild(meshDAE);
 
     meshDAE2->scale(12.5);
