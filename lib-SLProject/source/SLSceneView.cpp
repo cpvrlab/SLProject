@@ -529,8 +529,7 @@ SLbool SLSceneView::draw3DGL(SLfloat elapsedTimeMS)
     _camera->setFrustumPlanes(); 
     _blendNodes.clear();
     _opaqueNodes.clear();     
-    if (_doFrustumCulling) 
-        s->_root3D->cullRec(this);   
+    s->_root3D->cullRec(this);   
     _camera->numRendered(_stats.numLeafNodes);
    
     _cullTimeMS = s->timeMilliSec() - startMS;
