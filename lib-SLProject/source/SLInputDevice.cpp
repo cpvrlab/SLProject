@@ -9,9 +9,11 @@
 //#############################################################################
 
 #include <stdafx.h>
+#ifdef SL_MEMLEAKDETECT       // set in SL.h for debug config only
+#include <debug_new.h>        // memory leak detector
+#endif
 #include <SLInputManager.h>
 #include <SLInputDevice.h>
-
 
 //-----------------------------------------------------------------------------
 /*! Constructor for SLInputDevices. This will automatically enable the device,

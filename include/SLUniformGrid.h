@@ -34,6 +34,7 @@ class SLUniformGrid : public SLAccelStruct
                 SLbool         intersect      (SLRay* ray, SLNode* node);
                
                 // Delete the vertex buffer object if not rendered anymore
+                void           deleteAll      ();
                 void           disposeBuffers (){if (_bufP.id()) _bufP.dispose();}
                    
     private:

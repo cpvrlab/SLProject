@@ -534,8 +534,9 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="Introduction.html" />
-    <None Include="Readme.html" />
+    <None Include="Introduction.md" />
+    <None Include="onPaint.md" />
+    <None Include="SLProject.md" />
     <None Include="source\oglsl\ADS.frag" />
     <None Include="source\oglsl\ADS.vert" />
     <None Include="source\oglsl\ADSTex.frag" />

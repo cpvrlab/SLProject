@@ -88,8 +88,8 @@ void SLMesh::deleteData()
     if (I32) delete[] I32;  I32=0;
 
     if (_jointMatrices) delete[] _jointMatrices; _jointMatrices = 0;
-    if (cpuSkinningP) delete[] cpuSkinningP;
-    if (cpuSkinningN) delete[] cpuSkinningN;
+    if (cpuSkinningP)   delete[] cpuSkinningP; cpuSkinningP = 0;
+    if (cpuSkinningN)   delete[] cpuSkinningN; cpuSkinningN = 0;
 
     if (_accelStruct) 
     {   delete _accelStruct;      

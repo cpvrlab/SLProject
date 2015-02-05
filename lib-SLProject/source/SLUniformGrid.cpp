@@ -33,19 +33,30 @@ SLUniformGrid::SLUniformGrid(SLMesh* m) : SLAccelStruct(m)
 //-----------------------------------------------------------------------------
 SLUniformGrid::~SLUniformGrid()
 {  
-    for (SLuint i=0; i<_voxCnt; ++i) 
-    {   if (_vox[i])
-            delete _vox[i];
+    deleteAll();
+}
+//-----------------------------------------------------------------------------
+//! Deletes the entire uniform grid data
+void SLUniformGrid::deleteAll()
+{
+    if (_vox)
+    {   for (SLuint i=0; i<_voxCnt; ++i) 
+        {   if (_vox[i])
+            {   _vox[i]->clear();
+                delete _vox[i];
+            }
+        }
+        delete[] _vox;
     }
-    delete[] _vox;
 
     _vox         = 0;
     _voxCnt      = 0;
     _voxCntEmpty = 0;
     _voxMaxTria  = 0;
     _voxAvgTria  = 0;
+    
+    disposeBuffers();
 }
-
 //-----------------------------------------------------------------------------
 /*! Builds the uniform grid for ray tracing acceleration
 */
@@ -54,18 +65,7 @@ void SLUniformGrid::build(SLVec3f minV, SLVec3f maxV)
     _minV = minV;
     _maxV = maxV;
    
-    // delete voxel array if it already exits
-    if (_vox)
-    {   for (SLuint i=0; i<_voxCnt; ++i) 
-        {   if (_vox[i])
-                delete _vox[i];
-        }
-        delete[] _vox;
-        _vox = 0;
-    }
-
-    // dispose the visualization buffer
-    disposeBuffers();
+    deleteAll();
    
     // Calculate uniform grid 
     // Calc. voxel resolution, extent and allocate voxel array

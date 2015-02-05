@@ -9,9 +9,11 @@
 //#############################################################################
 
 #include <stdafx.h>
+#ifdef SL_MEMLEAKDETECT       // set in SL.h for debug config only
+#include <debug_new.h>        // memory leak detector
+#endif
 #include <cstdarg> // only needed because we wrap pintf in logMessage, read the todo and fix it!
 #include <SLImporter.h>
-
 
 //-----------------------------------------------------------------------------
 //! Default path for 3DS models used when only filename is passed in load.

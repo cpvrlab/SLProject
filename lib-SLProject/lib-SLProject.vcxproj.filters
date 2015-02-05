@@ -424,7 +424,6 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="Readme.html" />
     <None Include="source\oglsl\ADS.frag">
       <Filter>GLSL</Filter>
     </None>
@@ -572,7 +571,9 @@
     <None Include="source\oglsl\PerPixBlinnTexSkinned.vert">
       <Filter>GLSL</Filter>
     </None>
-    <None Include="Introduction.html" />
+    <None Include="Introduction.md" />
+    <None Include="SLProject.md" />
+    <None Include="onPaint.md" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="ToDo.txt" />
