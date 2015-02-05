@@ -1153,7 +1153,11 @@ void createSLDistortionMesh(SLEye eye, SLGLBuffer& vb, SLGLBuffer& ib)
     unsigned short* indexData;
     int triangleCount = 0;
     int vertexCount = 0;
+    #ifdef SL_GUI_JAVA
+    bool rightEye = (eye == rightEye);
+    #else
     bool rightEye = (eye == SLEye::rightEye);
+    #endif
     ScaleAndOffset2D      eyeToSourceNDC = CreateNDCScaleAndOffsetFromFov(fov);
     eyeToSourceNDC.Scale.x = 0.929788947f;
     eyeToSourceNDC.Scale.y = 0.752283394f;

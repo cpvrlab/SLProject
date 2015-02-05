@@ -42,13 +42,13 @@ SLImporter::SLImporter(SLLogVerbosity consoleVerb)
 /*! Constructor that allows logging to a file with different verbosity
 */
 SLImporter::SLImporter(const SLstring& logFile, SLLogVerbosity logConsoleVerb, SLLogVerbosity logFileVerb)
-: _logConsoleVerbosity(logConsoleVerb),
-    _logFileVerbosity(logFileVerb),
-    _sceneRoot(NULL),
-    _skeleton(NULL)
+           : _logConsoleVerbosity(logConsoleVerb),
+             _logFileVerbosity(logFileVerb),
+             _sceneRoot(NULL),
+             _skeleton(NULL)
 { 
     if (_logFileVerbosity > LV_Quiet)
-        _log.open(logFile);
+        _log.open(logFile.c_str());
 }
 
 //-----------------------------------------------------------------------------
@@ -72,6 +72,9 @@ SLImporter::~SLImporter()
 */
 void SLImporter::logMessage(SLLogVerbosity verbosity, const char* msg, ...)
 {
+    #if defined(SL_OS_ANDROID)
+    #define SL_LOG(msg);
+    #else
     // write message to a buffer
     char buffer[4096];
     std::va_list arg;
@@ -86,5 +89,6 @@ void SLImporter::logMessage(SLLogVerbosity verbosity, const char* msg, ...)
         _log << buffer;
         _log.flush();
     }
+    #endif
 }
 //-----------------------------------------------------------------------------

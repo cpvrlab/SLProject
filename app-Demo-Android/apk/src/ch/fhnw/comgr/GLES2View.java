@@ -361,7 +361,7 @@ class GLES2View extends GLSurfaceView
 		
 		public void onDrawFrame(GL10 gl) 
 		{
-			if (GLES2Lib.onPaint())
+			if (GLES2Lib.onUpdateAndPaint())
 			{	GLES2Lib.view.requestRender();
 			}
 		}
