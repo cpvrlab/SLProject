@@ -1316,6 +1316,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
 
         // Assemble scene
         SLNode* scene = new SLNode("scene group");
+        scene->addChild(cam1);
         scene->addChild(light1);
         scene->addChild(character);
         scene->addChild(box1);
