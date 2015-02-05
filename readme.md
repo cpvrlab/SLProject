@@ -1,1 +1,1 @@
-See the [SLProject Homepage](http://cpvrlab.github.io/SLProject/) for more information.
+See the [SLProject Homepage](http://cpvrlab.github.io/SLProject_doc/) for more information.
