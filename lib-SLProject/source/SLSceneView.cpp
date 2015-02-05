@@ -13,6 +13,7 @@
 #include <debug_new.h>        // memory leak detector
 #endif
 
+#include <slInterface.h>
 #include <SLLight.h>
 #include <SLCamera.h>
 #include <SLAABBox.h>
@@ -1264,11 +1265,7 @@ SLbool SLSceneView::onCommand(const SLCmd cmd)
     switch(cmd)
     {
         case cmdQuit:
-            // @todo not a clean exit here. we need system access to stop the loop
-            //        that isn't handled by us but by the window system. Would be solved
-            //        if we had SLApplication::stop which stops the loop handled by
-            //        SLApplication
-            exit(0);
+            slShouldClose(true);
         case cmdAboutToggle:
             if (s->_menu2D)
             {   if (s->_menu2D == s->_menuGL)
