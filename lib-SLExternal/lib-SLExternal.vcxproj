@@ -391,6 +391,9 @@
       <DeploymentContent>true</DeploymentContent>
     </None>
   </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="glew\build\glew.rc" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
