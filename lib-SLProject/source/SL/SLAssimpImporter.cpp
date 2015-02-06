@@ -939,7 +939,11 @@ SLAnimation* SLAssimpImporter::loadAnimation(aiAnimation* anim)
             // @todo warn if we find an animation with some node channels and some joint channels
             //       this shouldn't happen!
 
-            /// @todo [high priority!] Fix the problem described below
+            /// @todo [high priority!] Address the problem of some bones not containing an animation channel
+            ///         when importing. Current workaround is to set their reset position to their bind pose.
+            ///         This will however fail if we have multiple animations affecting a single model and fading
+            ///         some of them out or in. This will require us to provide animations that have a channel
+            ///         for all bones even if they're just positional.
             // What does this next line do?
             //   
             //   The testimportfile we used (Astroboy.dae) has the following properties:
