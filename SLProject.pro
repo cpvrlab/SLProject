@@ -8,7 +8,7 @@ SUBDIRS += lib-SLProject
 SUBDIRS += app-Demo-GLFW
 SUBDIRS += app-Demo-Qt
 SUBDIRS += app-Viewer-Qt
-SUBDIRS += app-LeapMotionTest
+SUBDIRS +=
 SUBDIRS += app-NodeManipulationDemo
 SUBDIRS += ch09_TextureMapping
 
