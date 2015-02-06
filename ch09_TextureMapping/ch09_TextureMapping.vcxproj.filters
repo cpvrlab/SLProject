@@ -1,17 +1,11 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <ClCompile Include="..\_globals\SL\SLImage.cpp">
-      <Filter>SLProject</Filter>
-    </ClCompile>
-    <ClCompile Include="..\_globals\SL\stdafx.cpp">
-      <Filter>SLProject</Filter>
-    </ClCompile>
     <ClCompile Include="TextureMapping.cpp" />
-    <ClCompile Include="..\_globals\SL\SL.cpp">
-      <Filter>SLProject</Filter>
-    </ClCompile>
     <ClCompile Include="glUtils.cpp" />
+    <ClCompile Include="..\lib-SLProject\source\SL\SL.cpp" />
+    <ClCompile Include="..\lib-SLProject\source\SL\SLImage.cpp" />
+    <ClCompile Include="..\lib-SLProject\source\SL\stdafx.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="SLProject">
@@ -19,28 +13,16 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\_globals\math\SLVec3.h">
-      <Filter>SLProject</Filter>
-    </ClInclude>
-    <ClInclude Include="..\_globals\math\SLMat4.h">
-      <Filter>SLProject</Filter>
-    </ClInclude>
-    <ClInclude Include="..\_globals\SL\SLImage.h">
-      <Filter>SLProject</Filter>
-    </ClInclude>
-    <ClInclude Include="..\_globals\SL\stdafx.h">
-      <Filter>SLProject</Filter>
-    </ClInclude>
-    <ClInclude Include="..\_globals\math\SLMat3.h">
-      <Filter>SLProject</Filter>
-    </ClInclude>
-    <ClInclude Include="..\_globals\SL\SL.h">
-      <Filter>SLProject</Filter>
-    </ClInclude>
     <ClInclude Include="glUtils.h" />
+    <ClInclude Include="..\include\SLMat3.h" />
+    <ClInclude Include="..\include\SLMat4.h" />
+    <ClInclude Include="..\include\SLVec3.h" />
+    <ClInclude Include="..\include\SL.h" />
+    <ClInclude Include="..\include\SLImage.h" />
+    <ClInclude Include="..\include\stdafx.h" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\_globals\oglsl\ADSTex.frag" />
-    <None Include="..\_globals\oglsl\ADSTex.vert" />
+    <None Include="..\lib-SLProject\source\oglsl\ADSTex.frag" />
+    <None Include="..\lib-SLProject\source\oglsl\ADSTex.vert" />
   </ItemGroup>
 </Project>
