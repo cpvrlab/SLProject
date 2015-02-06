@@ -142,8 +142,7 @@ class SLNode: public SLObject, public SLEventHandler
     virtual void            cullRec             (SLSceneView* sv);
     virtual void            drawRec             (SLSceneView* sv);
     virtual bool            hitRec              (SLRay* ray);
-    virtual void            statsRec            (SLNodeStats &stats);
-    virtual SLbool          animateRec          (SLfloat timeMS);
+    virtual void            statsRec            (SLNodeStats& stats);
     virtual SLNode*         copyRec             ();
     virtual SLAABBox&       updateAABBRec       ();
     virtual void            dumpRec             ();
@@ -170,6 +169,9 @@ class SLNode: public SLObject, public SLEventHandler
             bool            deleteChild         (SLNode* child);
             bool            deleteChild         (const SLstring name);
             template<typename T>
+            T*              find                (const SLstring &name = "", 
+                                                 SLbool findRecursive = true);
+            template<typename T>
             T*              findChild           (const SLstring &name = "", 
                                                  SLbool findRecursive = true);
             template<typename T>
@@ -190,8 +192,10 @@ class SLNode: public SLObject, public SLEventHandler
             void            position            (SLfloat x, SLfloat y, SLfloat z, 
                                                  SLTransformSpace relativeTo = TS_Parent);
             
+            void            rotation            (const SLQuat4f& rot, 
+                                                 SLTransformSpace relativeTo = TS_Parent);    
             void            rotation            (SLfloat angleDeg, const SLVec3f& axis,
-                                                 SLTransformSpace relativeTo = TS_Local);
+                                                 SLTransformSpace relativeTo = TS_Parent);
             void            scale               (SLfloat s);
             void            scale               (SLfloat x, SLfloat y, SLfloat z);
             void            scale               (const SLVec3f& scale);
@@ -200,14 +204,14 @@ class SLNode: public SLObject, public SLEventHandler
                                                  SLTransformSpace relativeTo = TS_Local);
             void            translate           (SLfloat x, SLfloat y, SLfloat z, 
                                                  SLTransformSpace relativeTo = TS_Local);
-
+            
+            void            rotate              (const SLQuat4f& rot, 
+                                                 SLTransformSpace relativeTo = TS_Local);  
+            void            rotate              (SLfloat angleDeg, const SLVec3f& axis, 
+                                                 SLTransformSpace relativeTo = TS_Local);  
             void            rotate              (SLfloat angleDeg, 
                                                  SLfloat x, SLfloat y, SLfloat z,
-                                                 SLTransformSpace relativeTo = TS_Local);
-            void            rotate              (SLfloat angleDeg, const SLVec3f& axis, 
-                                                 SLTransformSpace relativeTo = TS_Local);
-            void            rotate              (const SLQuat4f& rot, 
-                                                 SLTransformSpace relativeTo = TS_Local);     
+                                                 SLTransformSpace relativeTo = TS_Local); 
 
             void            rotateAround        (const SLVec3f& point, 
                                                  SLVec3f& axis, SLfloat angleDeg,
@@ -229,7 +233,7 @@ class SLNode: public SLObject, public SLEventHandler
             void            parent              (SLNode* p);
             void            om                  (const SLMat4f& mat) {_om = mat; needUpdate();}
             void            animation           (SLAnimation* a)  {_animation = a;}
-            void            needUpdate          ();
+    virtual void            needUpdate          ();
             void            needWMUpdate        ();
             void            needAABBUpdate      ();
                
@@ -281,11 +285,24 @@ class SLNode: public SLObject, public SLEventHandler
 
 //-----------------------------------------------------------------------------
 /*!
+SLNode::findChild<T> searches a node tree including the node this function has been called on
+for a name.
+*/
+template<typename T>
+T* SLNode::find(const SLstring& name, SLbool findRecursive)
+{    
+    T* found = dynamic_cast<T*>(this);
+    if (found && (name.size() == 0 || name == _name))
+        return found;
+    return findChild<T>(name, findRecursive);
+}
+//-----------------------------------------------------------------------------
+/*!
 SLNode::findChild<T> finds the first child that is of type T or a subclass of T.
 @todo Add regex functionality to the name search
 */
 template<typename T>
-T* SLNode::findChild(const SLstring &name, SLbool findRecursive)
+T* SLNode::findChild(const SLstring& name, SLbool findRecursive)
 {   
     for (SLint i = 0; i < _children.size(); ++i)
     {
@@ -352,7 +369,6 @@ void SLNode::findChildrenHelper(const SLstring& name, vector<T*>& list,
 //-----------------------------------------------------------------------------
 /*!
 SLNode::position returns current local position
-@todo Save current position to be able to return a const reference here.
 */
 SL_INLINE SLVec3f SLNode::position() const
 {
@@ -362,7 +378,6 @@ SL_INLINE SLVec3f SLNode::position() const
 //-----------------------------------------------------------------------------
 /*!
 SLNode::forward returns local forward vector
-@todo Save current forward to be able to return a const reference here
 */
 SL_INLINE SLVec3f SLNode::forward() const
 {
@@ -371,7 +386,6 @@ SL_INLINE SLVec3f SLNode::forward() const
 //-----------------------------------------------------------------------------
 /*!
 SLNode::right returns local right vector
-@todo Save current right to be able to return a const reference here
 */
 SL_INLINE SLVec3f SLNode::right() const
 {
@@ -380,7 +394,6 @@ SL_INLINE SLVec3f SLNode::right() const
 //-----------------------------------------------------------------------------
 /*!
 SLNode::up returns local up vector
-@todo Save current up to be able to return a const reference here
 */
 SL_INLINE SLVec3f SLNode::up() const
 {

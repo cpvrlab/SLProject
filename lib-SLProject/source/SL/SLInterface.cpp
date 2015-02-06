@@ -13,7 +13,9 @@
 #include <SLInterface.h>
 #include <SLScene.h>
 #include <SLSceneView.h>
-#include <SLAssImp.h>
+#include <SLAssimpImporter.h>
+
+#include <SLInputManager.h>
 
 //! \file SLInterface.cpp SLProject C-functions interface implementation.
 /*! \file SLInterface.cpp
@@ -48,7 +50,7 @@ void slCreateScene(SLstring shaderPath,
    
     SLGLProgram::defaultPath = shaderPath;
     SLGLTexture::defaultPath    = texturePath;
-    SLAssImp::defaultPath       = modelPath;
+    SLAssimpImporter::defaultPath       = modelPath;
     SLGLState* stateGL          = SLGLState::getInstance();
     
     SL_LOG("Path to Models  : %s\n", modelPath.c_str());
@@ -155,14 +157,18 @@ void slTerminate()
     SLScene::current = 0;
 }
 //-----------------------------------------------------------------------------
-/*! Global rendering function that simply calls the sceneview's onPaint method.
-This function must be called for each frame. After the frame is generated the
-OS must swap the OpenGL's backbuffer to the visible front buffer.
+/*! Global rendering function that first updates the scene due to user or
+device inputs and due to active animations. This happens only if all sceneviews
+where finished with rendering. After the update sceneviews onPaint routine is
+called to initiate the rendering of the frame. If either the onUpdate or onPaint
+returned true a new frame should be drawn.
 */
-bool slPaint(int sceneViewIndex)
+bool slUpdateAndPaint(int sceneViewIndex)
 {  
     SLSceneView* sv = SLScene::current->sv(sceneViewIndex);
-    return sv->onPaint();
+    bool sceneGotUpdated = SLScene::current->onUpdate();
+    bool viewNeedsUpdate =  sv->onPaint();
+    return sceneGotUpdated || viewNeedsUpdate;
 }
 //-----------------------------------------------------------------------------
 /*! Global resize function that must be called whenever the OpenGL frame
@@ -170,101 +176,171 @@ changes it's size.
 */
 void slResize(int sceneViewIndex, int width, int height)
 {
-    SLSceneView* sv = SLScene::current->sv(sceneViewIndex);
-    sv->onResize(width, height);
+    SLResizeEvent* e = new SLResizeEvent;
+    e->svIndex = sceneViewIndex;
+    e->width = width;
+    e->height = height;
+
+    SLInputManager::instance().queueEvent(e);
 }
 //-----------------------------------------------------------------------------
 /*! Global event handler for mouse button down events. 
 */
-bool slMouseDown(int sceneViewIndex, SLMouseButton button, 
+void slMouseDown(int sceneViewIndex, SLMouseButton button, 
                  int xpos, int ypos, SLKey modifier) 
 {  
-    SLSceneView* sv = SLScene::current->sv(sceneViewIndex);
-    return sv->onMouseDown(button, xpos, ypos, modifier);
+    SLMouseEvent* e = new SLMouseEvent(SLInputEvent::MouseDown);
+    e->svIndex = sceneViewIndex;
+    e->button = button;
+    e->x = xpos;
+    e->y = ypos;
+    e->modifier = modifier;
+
+    SLInputManager::instance().queueEvent(e);
 }
 //-----------------------------------------------------------------------------
 /*! Global event handler for mouse move events.
 */
-bool slMouseMove(int sceneViewIndex, int x, int y)
+void slMouseMove(int sceneViewIndex, int x, int y)
 {  
-    SLSceneView* sv = SLScene::current->sv(sceneViewIndex);
-    return sv->onMouseMove(x, y);
+    SLMouseEvent* e = new SLMouseEvent(SLInputEvent::MouseMove);
+    e->svIndex = sceneViewIndex;
+    e->x = x;
+    e->y = y;
+
+    SLInputManager::instance().queueEvent(e);
 }
 //-----------------------------------------------------------------------------
 /*! Global event handler for mouse button up events.
 */
-bool slMouseUp(int sceneViewIndex, SLMouseButton button, 
+void slMouseUp(int sceneViewIndex, SLMouseButton button, 
                int xpos, int ypos, SLKey modifier) 
 {  
-    SLSceneView* sv = SLScene::current->sv(sceneViewIndex);
-    return sv->onMouseUp(button, xpos, ypos, modifier);
+    SLMouseEvent* e = new SLMouseEvent(SLInputEvent::MouseUp);
+    e->svIndex = sceneViewIndex;
+    e->button = button;
+    e->x = xpos;
+    e->y = ypos;
+    e->modifier = modifier;
+
+    SLInputManager::instance().queueEvent(e);
 }
 //-----------------------------------------------------------------------------
 /*! Global event handler for double click events.
 */
-bool slDoubleClick(int sceneViewIndex, SLMouseButton button, 
+void slDoubleClick(int sceneViewIndex, SLMouseButton button, 
                    int xpos, int ypos, SLKey modifier) 
 {  
-    SLSceneView* sv = SLScene::current->sv(sceneViewIndex);
-    return sv->onDoubleClick(ButtonLeft, xpos, ypos, modifier);
+    SLMouseEvent* e = new SLMouseEvent(SLInputEvent::MouseDoubleClick);
+    e->svIndex = sceneViewIndex;
+    e->button = button;
+    e->x = xpos;
+    e->y = ypos;
+    e->modifier = modifier;
+
+    SLInputManager::instance().queueEvent(e);
 }
 //-----------------------------------------------------------------------------
 /*! Global event handler for the two finger touch down events of touchscreen 
 devices.
 */
-bool slTouch2Down(int sceneViewIndex, int xpos1, int ypos1, int xpos2, int ypos2) 
+void slTouch2Down(int sceneViewIndex, int xpos1, int ypos1, int xpos2, int ypos2) 
 {  
-    SLSceneView* sv = SLScene::current->sv(sceneViewIndex);
-    return sv->onTouch2Down(xpos1, ypos1, xpos2, ypos2);
+    SLTouchEvent* e = new SLTouchEvent(SLInputEvent::Touch2Down);
+    e->svIndex = sceneViewIndex;
+    e->x1 = xpos1;
+    e->y1 = ypos1;
+    e->x2 = xpos2;
+    e->y2 = ypos2;
+
+    SLInputManager::instance().queueEvent(e);
 }
 //-----------------------------------------------------------------------------
 /*! Global event handler for the two finger move events of touchscreen devices. 
 */
-bool slTouch2Move(int sceneViewIndex, int xpos1, int ypos1, int xpos2, int ypos2) 
+void slTouch2Move(int sceneViewIndex, int xpos1, int ypos1, int xpos2, int ypos2) 
 {  
-    SLSceneView* sv = SLScene::current->sv(sceneViewIndex);
-    return sv->onTouch2Move(xpos1, ypos1, xpos2, ypos2);
+    SLTouchEvent* e = new SLTouchEvent(SLInputEvent::Touch2Move);
+    e->svIndex = sceneViewIndex;
+    e->x1 = xpos1;
+    e->y1 = ypos1;
+    e->x2 = xpos2;
+    e->y2 = ypos2;
+
+    SLInputManager::instance().queueEvent(e);
 }
 //-----------------------------------------------------------------------------
 /*! Global event handler for the two finger touch up events of touchscreen 
 devices. 
 */
-bool slTouch2Up(int sceneViewIndex, int xpos1, int ypos1, int xpos2, int ypos2) 
-{  
-    SLSceneView* sv = SLScene::current->sv(sceneViewIndex);
-    return sv->onTouch2Up(xpos1, ypos1, xpos2, ypos2);
+void slTouch2Up(int sceneViewIndex, int xpos1, int ypos1, int xpos2, int ypos2) 
+{
+    SLTouchEvent* e = new SLTouchEvent(SLInputEvent::Touch2Up);
+    e->svIndex = sceneViewIndex;
+    e->x1 = xpos1;
+    e->y1 = ypos1;
+    e->x2 = xpos2;
+    e->y2 = ypos2;
+
+    SLInputManager::instance().queueEvent(e);
 }
 //-----------------------------------------------------------------------------
 /*! Global event handler for mouse wheel events. 
 */
-bool slMouseWheel(int sceneViewIndex, int pos, SLKey modifier)
+void slMouseWheel(int sceneViewIndex, int pos, SLKey modifier)
 {  
-    SLSceneView* sv = SLScene::current->sv(sceneViewIndex);
-    return sv->onMouseWheel(pos, modifier);
+    SLMouseEvent* e = new SLMouseEvent(SLInputEvent::MouseWheel);
+    e->svIndex = sceneViewIndex;
+    e->y = pos;
+    e->modifier = modifier;
+
+    SLInputManager::instance().queueEvent(e);
 }
 //-----------------------------------------------------------------------------
 /*! Global event handler for keyboard key press events. 
 */
-bool slKeyPress(int sceneViewIndex, SLKey key, SLKey modifier) 
+void slKeyPress(int sceneViewIndex, SLKey key, SLKey modifier) 
 {  
-    SLSceneView* sv = SLScene::current->sv(sceneViewIndex);
-    return sv->onKeyPress(key, modifier);
+    SLKeyEvent* e = new SLKeyEvent(SLInputEvent::KeyDown);
+    e->svIndex = sceneViewIndex;
+    e->key = key;
+    e->modifier = modifier;
+
+    SLInputManager::instance().queueEvent(e);
 }
 //-----------------------------------------------------------------------------
 /*! Global event handler for keyboard key release events. 
 */
-bool slKeyRelease(int sceneViewIndex, SLKey key, SLKey modifier) 
+void slKeyRelease(int sceneViewIndex, SLKey key, SLKey modifier) 
 {  
-    SLSceneView* sv = SLScene::current->sv(sceneViewIndex);
-    return sv->onKeyRelease(key, modifier);
+    SLKeyEvent* e = new SLKeyEvent(SLInputEvent::KeyUp);
+    e->svIndex = sceneViewIndex;
+    e->key = key;
+    e->modifier = modifier;
+
+    SLInputManager::instance().queueEvent(e);
+}
+
+//-----------------------------------------------------------------------------
+/*! Global event handler for unicode character input.
+*/
+void slCharInput(int sceneViewIndex, unsigned int character)
+{
+    SLCharInputEvent* e = new SLCharInputEvent();
+    e->svIndex = sceneViewIndex;
+    e->character = character;
+
+    SLInputManager::instance().queueEvent(e);
 }
 //-----------------------------------------------------------------------------
 /*! Global event handler for keyboard key release events. 
 */
-bool slCommand(int sceneViewIndex, SLCmd command) 
+void slCommand(int sceneViewIndex, SLCmd command) 
 {  
-    SLSceneView* sv = SLScene::current->sv(sceneViewIndex);
-    return sv->onCommand(command);
+    SLCommandEvent* e = new SLCommandEvent;
+    e->cmd = command;
+    
+    SLInputManager::instance().queueEvent(e);
 }
 //-----------------------------------------------------------------------------
 /*! Global event handler for device rotation change with Euler angles pitch
@@ -274,8 +350,14 @@ which the yaw angle is set to zero by subtracting the average yaw in this time.
 void slRotationPYR(int sceneViewIndex, 
                    float pitchRAD, float yawRAD, float rollRAD)
 {
-    SLSceneView* sv = SLScene::current->sv(sceneViewIndex);
-    sv->onRotationPYR(pitchRAD, yawRAD, rollRAD, 3.0f);
+    SLRotationEvent* e = new SLRotationEvent(SLInputEvent::DeviceRotationPYR);
+    e->svIndex = sceneViewIndex;
+    e->x = pitchRAD;
+    e->y = yawRAD;
+    e->z = rollRAD;
+    e->w = 3.0f;
+
+    SLInputManager::instance().queueEvent(e);
 }
 //-----------------------------------------------------------------------------
 /*! Global event handler for device rotation change with angle & and axis. 
@@ -283,8 +365,14 @@ void slRotationPYR(int sceneViewIndex,
 void slRotationQUAT(int sceneViewIndex, 
                     float quatX, float quatY, float quatZ, float quatW)
 {
-    SLSceneView* sv = SLScene::current->sv(sceneViewIndex);
-    sv->onRotationQUAT(quatX, quatY, quatZ, quatW);
+    SLRotationEvent* e = new SLRotationEvent(SLInputEvent::DeviceRotationPYR);
+    e->svIndex = sceneViewIndex;
+    e->x = quatX;
+    e->y = quatY;
+    e->z = quatZ;
+    e->w = quatW;
+
+    SLInputManager::instance().queueEvent(e);
 }
 //-----------------------------------------------------------------------------
 /*! Global function to retrieve a window title text generated by the scene

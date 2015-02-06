@@ -201,7 +201,7 @@ static bool parseEdid( byte* edid, OVR::Win32::DisplayEDID& edidResult )
 {
 	unsigned i;
 	byte* block;
-	char* monitor_name = "Unknown";
+    const char* monitor_name = "Unknown";
 	byte checksum = 0;
 
 	for( i = 0; i < EDID_LENGTH; i++ )

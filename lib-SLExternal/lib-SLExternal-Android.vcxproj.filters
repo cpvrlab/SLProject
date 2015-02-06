@@ -435,9 +435,6 @@
     <ClCompile Include="zlib\zutil.c">
       <Filter>zlib</Filter>
     </ClCompile>
-    <ClCompile Include="glew\src\glew.c">
-      <Filter>glew</Filter>
-    </ClCompile>
     <ClCompile Include="randomc\mersenne.cpp">
       <Filter>randomc</Filter>
     </ClCompile>
@@ -915,6 +912,9 @@
     <ClCompile Include="assimp\code\StandardShapes.cpp">
       <Filter>assimp\code\core</Filter>
     </ClCompile>
+    <ClCompile Include="glew\src\glew.c">
+      <Filter>glew</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="zlib\crc32.h">
@@ -952,12 +952,6 @@
     </ClInclude>
     <ClInclude Include="zlib\zutil.h">
       <Filter>zlib</Filter>
-    </ClInclude>
-    <ClInclude Include="glew\include\GL\glew.h">
-      <Filter>glew</Filter>
-    </ClInclude>
-    <ClInclude Include="glew\include\GL\wglew.h">
-      <Filter>glew</Filter>
     </ClInclude>
     <ClInclude Include="randomc\random.h">
       <Filter>randomc</Filter>
@@ -1664,6 +1658,12 @@
     <ClInclude Include="assimp\code\Vertex.h">
       <Filter>assimp\code\core</Filter>
     </ClInclude>
+    <ClInclude Include="glew\include\GL\glew.h">
+      <Filter>glew</Filter>
+    </ClInclude>
+    <ClInclude Include="glew\include\GL\wglew.h">
+      <Filter>glew</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="randomc\RANDOMC.HTM">
@@ -1696,5 +1696,10 @@
     <None Include="assimp\code\BlenderDNA.inl">
       <Filter>assimp\code\importers\blend</Filter>
     </None>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="glew\build\glew.rc">
+      <Filter>glew</Filter>
+    </ResourceCompile>
   </ItemGroup>
 </Project>

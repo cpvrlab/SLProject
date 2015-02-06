@@ -17,10 +17,10 @@ class SLSceneView;
 class SLRay;
 
 //-----------------------------------------------------------------------------
-//! Abstract Light class
-/*!      
-The abstract SLLight class encapsulates an invisible light source according to 
-the OpenGL specification.
+//! Abstract Light class for OpenGL light sources.
+/*! The abstract SLLight class encapsulates an invisible light source according
+to the OpenGL specification. The derivatives SLLightSphere and SLLightRect will
+also derive from SLNode and can therefore be freely placed in space.
 */
 class SLLight
 {  public:

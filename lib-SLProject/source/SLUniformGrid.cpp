@@ -24,27 +24,39 @@
 //-----------------------------------------------------------------------------
 SLUniformGrid::SLUniformGrid(SLMesh* m) : SLAccelStruct(m)
 {  
+    _vox         = 0;
     _voxCnt      = 0;
     _voxCntEmpty = 0;
     _voxMaxTria  = 0;
     _voxAvgTria  = 0;
-    _vox         = 0;
 }
 //-----------------------------------------------------------------------------
 SLUniformGrid::~SLUniformGrid()
 {  
-    for (SLuint i=0; i<_voxCnt; ++i) 
-        if (_vox[i])
-            delete _vox[i];
-    delete[] _vox;
+    deleteAll();
+}
+//-----------------------------------------------------------------------------
+//! Deletes the entire uniform grid data
+void SLUniformGrid::deleteAll()
+{
+    if (_vox)
+    {   for (SLuint i=0; i<_voxCnt; ++i) 
+        {   if (_vox[i])
+            {   _vox[i]->clear();
+                delete _vox[i];
+            }
+        }
+        delete[] _vox;
+    }
 
-    _vox = 0;
+    _vox         = 0;
     _voxCnt      = 0;
     _voxCntEmpty = 0;
     _voxMaxTria  = 0;
     _voxAvgTria  = 0;
+    
+    disposeBuffers();
 }
-
 //-----------------------------------------------------------------------------
 /*! Builds the uniform grid for ray tracing acceleration
 */
@@ -53,33 +65,11 @@ void SLUniformGrid::build(SLVec3f minV, SLVec3f maxV)
     _minV = minV;
     _maxV = maxV;
    
-    // delete voxel array if it already exits
-    if (_vox)
-    {  for (SLuint i=0; i<_voxCnt; ++i) 
-            if (_vox[i])
-            delete _vox[i];
-        delete[] _vox;
-        _vox = 0;
-    }
+    deleteAll();
    
     // Calculate uniform grid 
     // Calc. voxel resolution, extent and allocate voxel array
     SLVec3f size = _maxV - _minV;
-   
-    //Wald's method
-    //SLfloat voxDensity = 5.0;
-    //SLfloat vol = size.x * size.y * size.z;
-    //SLfloat nr = (SLfloat)pow(voxDensity*_numTria/vol,1.0f/3.0f);
-    //_voxResX = max(1, (SLint)(size.x*nr));
-    //_voxResY = max(1, (SLint)(size.x*nr));
-    //_voxResZ = max(1, (SLint)(size.x*nr));
-   
-    // Cleary & Wyvills method 
-    //SLfloat voxDensity = 8.0;
-    //SLfloat nr = (SLfloat)pow(voxDensity*numF,1.0f/3.0f);
-    //_voxResX = max(1, (SLint)nr);
-    //_voxResY = max(1, (SLint)nr);
-    //_voxResZ = max(1, (SLint)nr);
    
     // Woo's method
     SLfloat voxDensity = 20.0f;
@@ -113,25 +103,25 @@ void SLUniformGrid::build(SLVec3f minV, SLVec3f maxV)
         // Copy triangle vertices into SLfloat array[3][3]
         SLuint i = t * 3;
         if (_m->I16)
-        {   vert[0][0] = _m->P[_m->I16[i  ]].x; 
-            vert[0][1] = _m->P[_m->I16[i  ]].y; 
-            vert[0][2] = _m->P[_m->I16[i  ]].z;
-            vert[1][0] = _m->P[_m->I16[i+1]].x; 
-            vert[1][1] = _m->P[_m->I16[i+1]].y; 
-            vert[1][2] = _m->P[_m->I16[i+1]].z;
-            vert[2][0] = _m->P[_m->I16[i+2]].x; 
-            vert[2][1] = _m->P[_m->I16[i+2]].y; 
-            vert[2][2] = _m->P[_m->I16[i+2]].z;
+        {   vert[0][0] = _m->finalP()[_m->I16[i  ]].x;
+            vert[0][1] = _m->finalP()[_m->I16[i  ]].y;
+            vert[0][2] = _m->finalP()[_m->I16[i  ]].z;
+            vert[1][0] = _m->finalP()[_m->I16[i+1]].x;
+            vert[1][1] = _m->finalP()[_m->I16[i+1]].y;
+            vert[1][2] = _m->finalP()[_m->I16[i+1]].z;
+            vert[2][0] = _m->finalP()[_m->I16[i+2]].x;
+            vert[2][1] = _m->finalP()[_m->I16[i+2]].y;
+            vert[2][2] = _m->finalP()[_m->I16[i+2]].z;
         } else
-        {   vert[0][0] = _m->P[_m->I32[i  ]].x; 
-            vert[0][1] = _m->P[_m->I32[i  ]].y; 
-            vert[0][2] = _m->P[_m->I32[i  ]].z;
-            vert[1][0] = _m->P[_m->I32[i+1]].x; 
-            vert[1][1] = _m->P[_m->I32[i+1]].y; 
-            vert[1][2] = _m->P[_m->I32[i+1]].z;
-            vert[2][0] = _m->P[_m->I32[i+2]].x; 
-            vert[2][1] = _m->P[_m->I32[i+2]].y; 
-            vert[2][2] = _m->P[_m->I32[i+2]].z;
+        {   vert[0][0] = _m->finalP()[_m->I32[i  ]].x;
+            vert[0][1] = _m->finalP()[_m->I32[i  ]].y;
+            vert[0][2] = _m->finalP()[_m->I32[i  ]].z;
+            vert[1][0] = _m->finalP()[_m->I32[i+1]].x;
+            vert[1][1] = _m->finalP()[_m->I32[i+1]].y;
+            vert[1][2] = _m->finalP()[_m->I32[i+1]].z;
+            vert[2][0] = _m->finalP()[_m->I32[i+2]].x;
+            vert[2][1] = _m->finalP()[_m->I32[i+2]].y;
+            vert[2][2] = _m->finalP()[_m->I32[i+2]].z;
         }
         // Min. and max. point of triangle
         SLVec3f minT = SLVec3f(SL_min(vert[0][0], vert[1][0], vert[2][0]),
@@ -189,8 +179,9 @@ void SLUniformGrid::build(SLVec3f minV, SLVec3f maxV)
    
     // Reduce dynamic arrays to real size
     for (i=0; i<_voxCnt; ++i) 
-        if (_vox[i])
+    {   if (_vox[i])
             _vox[i]->reserve(_vox[i]->size());
+    }
 
     /*
     // dump for debugging

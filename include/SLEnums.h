@@ -66,6 +66,7 @@ enum SLCmd
     cmdSceneTextureBlend,
     cmdSceneFrustumCull1,
     cmdSceneFrustumCull2,
+
     cmdScenePerVertexBlinn,
     cmdScenePerPixelBlinn,
     cmdScenePerVertexWave,
@@ -75,10 +76,17 @@ enum SLCmd
     cmdSceneEarth,
     cmdSceneMassAnimation,
     cmdSceneTerrain,
+
+    cmdSceneSkeletalAnimation,
+    cmdSceneNodeAnimation,
+    cmdSceneAstroboyArmyGPU,
+    cmdSceneAstroboyArmyCPU,
+
     cmdSceneRTMuttenzerBox,
     cmdSceneRTSpheres,
     cmdSceneRTSoftShadows,
     cmdSceneRTDoF,
+    cmdSceneRTLens,
 
     cmdMultiSampleToggle,// Toggles multisampling
     cmdDepthTestToggle,  // Toggles the depth test flag
@@ -209,15 +217,21 @@ enum SLEye
     centerEye = 0,
     rightEye  = 1
 };
-
 //-----------------------------------------------------------------------------
 //! Enumeration for animation modes
-enum SLAnimMode
+enum SLAnimInterpolation
 {
-    once,          //!< foreward once
-    loop,          //!< foreward loop
-    pingPong,      //!< forwards and backwards
-    pingPongLoop   //!< forwards and backwards loop
+    AI_Linear,
+    AI_Bezier
+};
+//-----------------------------------------------------------------------------
+//! Enumeration for animation modes
+enum SLAnimLooping
+{
+    AL_once = 0,          //!< play once
+    AL_loop = 1,          //!< loop
+    AL_pingPong = 2,      //!< play once in two directions
+    AL_pingPongLoop = 3   //!< loop forward and backwards
 };
 
 //-----------------------------------------------------------------------------
@@ -228,27 +242,27 @@ See http://qt-project.org/doc/qt-4.8/qeasingcurve.html#Type-enum
 */
 enum SLEasingCurve
 {
-    linear,     //!< linear easing with constant velocity
-    inQuad,     //!< quadratic easing in, acceleration from zero velocity
-    outQuad,    //!< quadratic easing out, decelerating to zero velocity
-    inOutQuad,  //!< quadratic easing in and then out  
-    outInQuad,  //!< quadratic easing out and then in
-    inCubic,    //!< qubic in easing in, acceleration from zero velocity
-    outCubic,   //!< qubic easing out, decelerating to zero velocity
-    inOutCubic, //!< qubic easing in and then out 
-    outInCubic, //!< qubic easing out and then in
-    inQuart,    //!< quartic easing in, acceleration from zero velocity
-    outQuart,   //!< quartic easing out, decelerating to zero velocity
-    inOutQuart, //!< quartic easing in and then out 
-    outInQuart, //!< quartic easing out and then in
-    inQuint,    //!< quintic easing in, acceleration from zero velocity
-    outQuint,   //!< quintic easing out, decelerating to zero velocity
-    inOutQuint, //!< quintic easing in and then out 
-    outInQuint, //!< quintic easing out and then in
-    inSine,     //!< sine ieasing in, acceleration from zero velocity
-    outSine,    //!< sine easing out, decelerating to zero velocity
-    inOutSine,  //!< sine easing in and then out  
-    outInSine   //!< sine easing out and then in
+    EC_linear = 0,      //!< linear easing with constant velocity
+    EC_inQuad = 1,      //!< quadratic easing in, acceleration from zero velocity
+    EC_outQuad = 2,     //!< quadratic easing out, decelerating to zero velocity
+    EC_inOutQuad = 3,   //!< quadratic easing in and then out  
+    EC_outInQuad = 4,   //!< quadratic easing out and then in
+    EC_inCubic = 5,     //!< qubic in easing in, acceleration from zero velocity
+    EC_outCubic = 6,    //!< qubic easing out, decelerating to zero velocity
+    EC_inOutCubic = 7,  //!< qubic easing in and then out 
+    EC_outInCubic = 8,  //!< qubic easing out and then in
+    EC_inQuart = 9,     //!< quartic easing in, acceleration from zero velocity
+    EC_outQuart = 10,   //!< quartic easing out, decelerating to zero velocity
+    EC_inOutQuart = 11, //!< quartic easing in and then out 
+    EC_outInQuart = 12, //!< quartic easing out and then in
+    EC_inQuint = 13,    //!< quintic easing in, acceleration from zero velocity
+    EC_outQuint = 14,   //!< quintic easing out, decelerating to zero velocity
+    EC_inOutQuint = 15, //!< quintic easing in and then out 
+    EC_outInQuint = 16, //!< quintic easing out and then in
+    EC_inSine = 17,     //!< sine ieasing in, acceleration from zero velocity
+    EC_outSine = 18,    //!< sine easing out, decelerating to zero velocity
+    EC_inOutSine = 19,  //!< sine easing in and then out  
+    EC_outInSine = 20,  //!< sine easing out and then in
 };
 //-----------------------------------------------------------------------------
 //! Describes the relative space a transformation is applied in.
@@ -257,6 +271,13 @@ enum SLTransformSpace
     TS_World, 
     TS_Parent,  
     TS_Local,    
+};
+//-----------------------------------------------------------------------------
+//! Skinning methods
+enum SLSkinningMethod
+{
+    SM_HardwareSkinning, //!< Do vertex skinning on the GPU
+    SM_SoftwareSkinning  //!< Do vertex skinning on the CPU
 };
 
 //-----------------------------------------------------------------------------

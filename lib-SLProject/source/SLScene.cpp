@@ -20,6 +20,9 @@
 #include <SLLight.h>
 #include <SLTexFont.h>
 #include <SLButton.h>
+#include <SLAnimation.h>
+#include <SLAnimManager.h>
+#include <SLInputManager.h>
 
 //-----------------------------------------------------------------------------
 /*! Global static scene pointer that can be used throughout the entire library
@@ -260,15 +263,19 @@ void SLScene::unInit()
     // clear eventHandlers
     _eventHandlers.clear();
 
+    _animManager.clear();
+
     // reset all states
     SLGLState::getInstance()->initAll();
 }
 //-----------------------------------------------------------------------------
 //! Updates all animations in the scene after all views got painted.
-/*! Updates all animations in the scene after all views got painted.
+/*! Updates all animations in the scene after all views got painted and
+calculates the elapsed time for one frame in all views. A scene can be displayed
+in multiple views as demonstrated in the app-Viewer-Qt example.
 \return true if realy something got updated
 */
-bool SLScene::updateIfAllViewsGotPainted()
+bool SLScene::onUpdate()
 {
     // Return if not all sceneview got repainted
     for (int i = 0; i < _sceneViews.size(); ++i)
@@ -288,11 +295,17 @@ bool SLScene::updateIfAllViewsGotPainted()
     SLfloat sumCullTimeMS   = 0.0f;
     SLfloat sumDraw3DTimeMS = 0.0f;
     SLfloat sumDraw2DTimeMS = 0.0f;
+    SLbool renderTypeIsRT = false;
+    SLbool voxelsAreShown = false;
     for (SLint i = 0; i < _sceneViews.size(); ++i)
     {   if (_sceneViews[i]!=NULL)
         {   sumCullTimeMS   += _sceneViews[i]->cullTimeMS();
             sumDraw3DTimeMS += _sceneViews[i]->draw3DTimeMS();
             sumDraw2DTimeMS += _sceneViews[i]->draw2DTimeMS();
+            if (!renderTypeIsRT && _sceneViews[i]->renderType()==renderRT)
+                renderTypeIsRT = true;
+            if (!voxelsAreShown && _sceneViews[i]->drawBit(SL_DB_VOXELS))
+                voxelsAreShown = true;
         }
     }
     _cullTimesMS.set(sumCullTimeMS);
@@ -306,17 +319,51 @@ bool SLScene::updateIfAllViewsGotPainted()
 
     // Do animations
     SLfloat startUpdateMS = timeMilliSec();
-    SLbool animated = !_stopAnimations && _root3D->animateRec(_elapsedTimeMS);
 
-    //@todo Don't slow down if we're in HMD stereo mode
-    //animated = animated || _ camera->projection() == stereoSideBySideD;
+    // reset the dirty flag on all skeletons
+    // @todo    put this functionality in the anim manager
+    // @note    This would not be necessary if we had a 1 to 1 relationship of meshes to skeletons
+    //          then  the mesh could just mark the skeleton as clean after retrieving the new data.
+    //          Currently however we could have multiple meshes that reference the same skeleton.
+    //          This could be solved by taking the mesh/submesh architecture approach. All logically
+    //          grouped meshes are submeshes to one mesh. For example a character with glasses and clothes
+    //          would consist of a submesh for the glasses, the clothing and the character body. The 
+    //          skeleton data update would then be done on mesh level which in turn updates all of its submeshes.
+    //
+    //          For now we need to reset the dirty flag manually at the start of each frame because of the above note.
+    for(SLint i = 0; i < _animManager.skeletons().size(); ++i)
+        _animManager.skeletons()[i]->changed(false);
 
-    // Update the world matrix & AABBs efficiently
+    // Process queued up system events and poll custom input devices
+    SLbool animatedOrChanged = SLInputManager::instance().pollEvents();
+
+    ////////////////////////////////////////////////////////////////////////////
+    animatedOrChanged |= !_stopAnimations && _animManager.update(elapsedTimeSec());
+    ////////////////////////////////////////////////////////////////////////////
+    
+    // Do software skinning on all changed skeletons
+    for (SLuint i=0; i<_meshes.size(); ++i) 
+    {   if (_meshes[i]->skeleton() && 
+            _meshes[i]->skeleton()->changed() && 
+            _meshes[i]->skinningMethod() == SM_SoftwareSkinning)
+        {   
+            _meshes[i]->transformSkin();
+            animatedOrChanged = true;
+
+        }
+
+        // update any out of date acceleration structure for RT or if they're being rendered.
+        if (renderTypeIsRT || voxelsAreShown)
+            _meshes[i]->updateAccelStruct();
+    }
+    
+    // Update AABBs efficiently. The updateAABBRec call won't generate any overhead if nothing changed
     SLGLState::getInstance()->modelViewMatrix.identity();
     _root3D->updateAABBRec();
 
+
     _updateTimesMS.set(timeMilliSec()-startUpdateMS);
-    return animated;
+    return animatedOrChanged;
 }
 
 //-----------------------------------------------------------------------------

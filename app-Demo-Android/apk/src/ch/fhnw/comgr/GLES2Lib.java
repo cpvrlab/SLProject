@@ -40,22 +40,22 @@ public class GLES2Lib {
 	public static int 			 dpi;
     public static boolean        RTIsRunning = false;	
 
-	public static native void    onInit        (int width, int height, int dotsPerInch, String FilePath);
-	public static native boolean onPaint       ();
-	public static native void    onResize      (int width, int height);
-	public static native void    onMenuButton  ();
-	public static native boolean onMouseDown   (int button, int x, int y);
-	public static native boolean onMouseUp     (int button, int x, int y);
-	public static native boolean onMouseMove   (int x, int y);
-	public static native boolean onMouseWheel  (int pos);
-	public static native boolean onTouch2Down  (int x1, int y1, int x2, int y2);
-	public static native boolean onTouch2Up    (int x1, int y1, int x2, int y2);
-	public static native boolean onTouch2Move  (int x1, int y1, int x2, int y2);
-	public static native boolean onDoubleClick (int button, int x, int y);
-	public static native void    onRotationPYR (float pitchRAD, float yawRAD, float rollRAD);
-	public static native void    onRotationQUAT(float quatX, float quatY, float quatZ, float quatW);
-	public static native void    onStopRT      ();
-	public static native void    onClose       ();
+	public static native void    onInit          (int width, int height, int dotsPerInch, String FilePath);
+	public static native boolean onUpdateAndPaint();
+	public static native void    onResize        (int width, int height);
+	public static native void    onMenuButton    ();
+	public static native boolean onMouseDown     (int button, int x, int y);
+	public static native boolean onMouseUp       (int button, int x, int y);
+	public static native boolean onMouseMove     (int x, int y);
+	public static native boolean onMouseWheel    (int pos);
+	public static native boolean onTouch2Down    (int x1, int y1, int x2, int y2);
+	public static native boolean onTouch2Up      (int x1, int y1, int x2, int y2);
+	public static native boolean onTouch2Move    (int x1, int y1, int x2, int y2);
+	public static native boolean onDoubleClick   (int button, int x, int y);
+	public static native void    onRotationPYR   (float pitchRAD, float yawRAD, float rollRAD);
+	public static native void    onRotationQUAT  (float quatX, float quatY, float quatZ, float quatW);
+	public static native void    onStopRT        ();
+	public static native void    onClose         ();
 
 	/**
 	* The RaytracingCallback function is used to repaint the ray tracing image during the
@@ -66,7 +66,7 @@ public class GLES2Lib {
 	*/
 	public static boolean RaytracingCallback() {		
 		// calls the OpenGL rendering to display the RT image on a simple rectangle
-        boolean stopSignal = GLES2Lib.onPaint();
+        boolean stopSignal = GLES2Lib.onUpdateAndPaint();
 				
 		// Do the OpenGL back to front buffer swap
 		EGL10 mEgl = (EGL10) EGLContext.getEGL();

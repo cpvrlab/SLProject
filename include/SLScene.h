@@ -16,7 +16,9 @@
 #include <SLEventHandler.h>
 #include <SLLight.h>
 #include <SLNode.h>
+#include <SLSkeleton.h>
 #include <SLGLOculus.h>
+#include <SLAnimManager.h>
 #include <SLAverage.h>
 
 class SLSceneView;
@@ -56,11 +58,13 @@ class SLScene: public SLObject
             void            stopAnimations  (SLbool stop){_stopAnimations = stop;}
                            
             // Getters
+     inline SLAnimManager&  animManager     () { return _animManager; }
      inline SLSceneView*    sv              (SLuint index) {return _sceneViews[index];}
      inline SLNode*         root3D          () {return _root3D;}
             SLint           currentID       () {return _currentID;}
             SLfloat         timeSec         () {return (SLfloat)_timer.getElapsedTimeInSec();}
             SLfloat         timeMilliSec    () {return (SLfloat)_timer.getElapsedTimeInMilliSec();}
+            SLfloat         elapsedTimeSec  () {return _elapsedTimeMS * 0.001f;}
             SLButton*       menu2D          () {return _menu2D;}
             SLButton*       menuGL          () {return _menuGL;}
             SLGLTexture*    texCursor       () {return _texCursor;}
@@ -87,11 +91,11 @@ class SLScene: public SLObject
    virtual  void            onLoad          (SLSceneView* sv, SLCmd sceneName);
             void            init            ();
             void            unInit          ();
-            bool            updateIfAllViewsGotPainted();
+            bool            onUpdate        ();
+            SLbool          onCommandAllSV  (const SLCmd cmd);
             void            selectNode      (SLNode* nodeToSelect);
             void            selectNodeMesh  (SLNode* nodeToSelect,
                                              SLMesh* meshToSelect);
-            SLbool          onCommandAllSV  (const SLCmd cmd);
 
      static SLScene*        current;            //!< global static scene pointer
 
@@ -103,7 +107,8 @@ class SLScene: public SLObject
             SLVGLProgram    _programs;          //!< Vector of all shader program pointers
             SLVLight        _lights;            //!< Vector of all lights
             SLVEventHandler _eventHandlers;     //!< Vector of all event handler
-
+            SLAnimManager   _animManager;       //!< Animation manager instance
+            
             SLNode*         _root3D;            //!< Root node for 3D scene
             SLNode*         _selectedNode;      //!< Pointer to the selected node
             SLMesh*         _selectedMesh;      //!< Pointer to the selected mesh
@@ -131,7 +136,7 @@ class SLScene: public SLObject
             SLButton*       _btnHelp;           //!< Help button
             SLButton*       _btnCredits;        //!< Credits button
             SLGLTexture*    _texCursor;         //!< Texture for the virtual cursor
-
+            
             SLfloat         _elapsedTimeMS;     //!< Last frame time in ms
             SLfloat         _lastUpdateTimeMS;  //!< Last time after update in ms
             SLfloat         _fps;               //!< Averaged no. of frames per second
@@ -140,7 +145,7 @@ class SLScene: public SLObject
             SLAvgFloat      _cullTimesMS;       //!< Averaged time for culling in ms
             SLAvgFloat      _draw3DTimesMS;     //!< Averaged time for 3D drawing in ms
             SLAvgFloat      _draw2DTimesMS;     //!< Averaged time for 2D drawing in ms
-
+            
             SLbool          _stopAnimations;    //!< Global flag for stopping all animations
             
             SLGLOculus      _oculus;            //!< Oculus Rift interface

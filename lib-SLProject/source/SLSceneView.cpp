@@ -13,11 +13,13 @@
 #include <debug_new.h>        // memory leak detector
 #endif
 
+#include <slInterface.h>
 #include <SLLight.h>
 #include <SLCamera.h>
 #include <SLAABBox.h>
 #include <SLGLProgram.h>
 #include <SLAnimation.h>
+#include <SLAnimManager.h>
 #include <SLLightSphere.h>
 #include <SLLightRect.h>
 #include <SLRay.h>
@@ -34,6 +36,11 @@ It never changes throughout the life of a sceneview.
 */
 SLSceneView::SLSceneView() : SLObject()
 { 
+    _animMultiplier = 1.0f;
+    _animWeightTime = 1.0f;
+    _showAnimWeightEffects = false;
+    _animTime = 0.0f;
+    _runBackwards = false;
     SLScene* s = SLScene::current;
     assert(s && "No SLScene::current instance.");
    
@@ -45,7 +52,7 @@ SLSceneView::SLSceneView() : SLObject()
             return;
         }
     }
-
+   
     // No gaps, so add it and get the index back.
     s->_sceneViews.push_back(this);
     _index = (SLuint)s->_sceneViews.size() - 1;
@@ -309,6 +316,9 @@ void SLSceneView::onInitialize()
         // build axis aligned bounding box hierarchy after init
         clock_t t = clock();
         s->_root3D->updateAABBRec();
+
+        for (SLint i = 0; i < s->meshes().size(); ++i)
+            s->meshes()[i]->updateAccelStruct();
       
         SL_LOG("Time for AABBs : %5.3f sec.\n", 
                 (SLfloat)(clock()-t)/(SLfloat)CLOCKS_PER_SEC);
@@ -372,7 +382,7 @@ SLbool SLSceneView::onPaint()
     SLScene* s = SLScene::current;
     SLGLBuffer::totalDrawCalls = 0;
     SLbool camUpdated = false;
-   
+    
     if (_camera  && s->_root3D)
     {   // Render the 3D scenegraph by by raytracing, pathtracing or OpenGL
         switch (_renderType)
@@ -384,6 +394,7 @@ SLbool SLSceneView::onPaint()
 
     // Render the 2D GUI (menu etc.)
     draw2DGL();
+
 
     _stateGL->unbindAnythingAndFlush();
 
@@ -397,7 +408,8 @@ SLbool SLSceneView::onPaint()
     _totalDrawCalls = SLGLBuffer::totalDrawCalls;
     SLGLBuffer::totalDrawCalls   = 0;
 
-    _gotPainted = true;
+    // Set gotPainted only to true if RT is not busy
+    _gotPainted = _renderType==renderGL || raytracer()->state()!=rtBusy;
 
     // Return true if a repaint is needed
     return !_waitEvents || camUpdated;
@@ -470,10 +482,10 @@ SLbool SLSceneView::draw3DGL(SLfloat elapsedTimeMS)
     /////////////////////////
 
     SLfloat startMS = s->timeMilliSec();
-
+    
     // Update camera animation seperately to process input on camera object
     SLbool camUpdated = _camera->camUpdate(elapsedTimeMS);
-
+   
     //////////////////////
     // 2. Clear Buffers //
     //////////////////////
@@ -482,7 +494,6 @@ SLbool SLSceneView::draw3DGL(SLfloat elapsedTimeMS)
     if (_camera->projection() == stereoSideBySideD)
     {   s->oculus()->beginFrame();
         
-        // @todo change SLGLOculusFB to not require a resolution here
         _oculusFB.bindFramebuffer((SLint)(s->oculus()->resolutionScale() * (SLfloat)_scrW), 
                                   (SLint)(s->oculus()->resolutionScale() * (SLfloat)_scrH)); 
     }
@@ -518,8 +529,7 @@ SLbool SLSceneView::draw3DGL(SLfloat elapsedTimeMS)
     _camera->setFrustumPlanes(); 
     _blendNodes.clear();
     _opaqueNodes.clear();     
-    if (_doFrustumCulling) 
-        s->_root3D->cullRec(this);   
+    s->_root3D->cullRec(this);   
     _camera->numRendered(_stats.numLeafNodes);
    
     _cullTimeMS = s->timeMilliSec() - startMS;
@@ -542,11 +552,11 @@ SLbool SLSceneView::draw3DGL(SLfloat elapsedTimeMS)
     {   _camera->setProjection(this, rightEye);
         _camera->setView(this, rightEye);
         draw3DGLAll();
-      
-        // Enable all color channels again
-        _stateGL->colorMask(1, 1, 1, 1); 
     }
- 
+      
+    // Enable all color channels again
+    _stateGL->colorMask(1, 1, 1, 1); 
+
     _draw3DTimeMS = s->timeMilliSec()-startMS;
 
     postDraw();
@@ -567,8 +577,8 @@ void SLSceneView::draw3DGLAll()
     _stateGL->blend(false);
     _stateGL->depthMask(true);
 
-    draw3DGLLines(_opaqueNodes);
     draw3DGLNodes(_opaqueNodes);
+    draw3DGLLines(_opaqueNodes);
 
     // Render the helper lines of the blended shapes non-blended!
     draw3DGLLines(_blendNodes);
@@ -577,8 +587,7 @@ void SLSceneView::draw3DGLAll()
     _stateGL->depthMask(false);
 
     // Blended shapes must be sorted back to front
-    //std::sort(_blendNodes.begin(), _blendNodes.end(), CompareNodeViewDist);
-
+    std::sort(_blendNodes.begin(), _blendNodes.end(), CompareNodeViewDist);
     draw3DGLNodes(_blendNodes);
 
     // Blending must be turned off again for correct anyglyph stereo modes
@@ -622,10 +631,6 @@ void SLSceneView::draw3DGLLines(SLVNode &nodes)
             if (drawBit(SL_DB_AXIS) || nodes[i]->drawBit(SL_DB_AXIS))
             {  
                 nodes[i]->aabb()->drawAxisWS();
-
-                // Draw the animation curve
-                if (nodes[i]->animation())
-                    nodes[i]->animation()->drawWS();
             }
         }
     }
@@ -675,7 +680,7 @@ void SLSceneView::draw2DGL()
         _draw2DTimeMS = s->timeMilliSec() - startMS;
         return;
     }
-
+    
     SLfloat w2 = (SLfloat)_scrWdiv2;
     SLfloat h2 = (SLfloat)_scrHdiv2;
    
@@ -849,7 +854,7 @@ void SLSceneView::draw2DGLAll()
 
     // Draw scene info text if menuGL or menuRT is closed
     if (!_showLoading && 
-        _showInfo && s->_info && 
+        _showInfo && s->_info &&
         _camera->projection()<=monoOrthographic &&
         (s->_menu2D==s->_menuGL || 
          s->_menu2D==s->_menuRT ||
@@ -1191,6 +1196,13 @@ SLbool SLSceneView::onKeyPress(const SLKey key, const SLKey mod)
 {  
     SLScene* s = SLScene::current;
     
+    if (key == '1') { _runAnim = !_runAnim; return true; }
+    if (key == '2') { _animTime += 0.1f; return true; }
+    if (key == '3') { _runBackwards = !_runBackwards; return true; }
+    if (key == '4') { _showAnimWeightEffects = !_showAnimWeightEffects; _animWeightTime = 0.0f; return true; }
+    if (key == KeyNPAdd) { _animMultiplier += 0.1f; return true; }
+    if (key == KeyNPSubtract) { if(_animMultiplier > 0.1f) _animMultiplier += -0.1f; return true; }
+    
     if (key=='N') return onCommand(cmdNormalsToggle);
     if (key=='P') return onCommand(cmdWireMeshToggle);
     if (key=='C') return onCommand(cmdFaceCullToggle);
@@ -1252,11 +1264,7 @@ SLbool SLSceneView::onCommand(const SLCmd cmd)
     switch(cmd)
     {
         case cmdQuit:
-            // @todo not a clean exit here. we need system access to stop the loop
-            //        that isn't handled by us but by the window system. Would be solved
-            //        if we had SLApplication::stop which stops the loop handled by
-            //        SLApplication
-            exit(0);
+            slShouldClose(true);
         case cmdAboutToggle:
             if (s->_menu2D)
             {   if (s->_menu2D == s->_menuGL)
@@ -1288,23 +1296,31 @@ SLbool SLSceneView::onCommand(const SLCmd cmd)
         case cmdSceneFrustumCull1:
         case cmdSceneFrustumCull2:
         case cmdSceneTextureBlend:
+
         case cmdScenePerVertexBlinn:
         case cmdScenePerPixelBlinn:
         case cmdScenePerVertexWave:
         case cmdSceneWater:
         case cmdSceneBumpNormal:  
         case cmdSceneBumpParallax:
-        case cmdSceneEarth: 
+        case cmdSceneEarth:
+
         case cmdSceneMassAnimation:
+        case cmdSceneNodeAnimation:
+        case cmdSceneSkeletalAnimation:
+        case cmdSceneAstroboyArmyCPU:
+        case cmdSceneAstroboyArmyGPU:
+
         case cmdSceneRTSpheres:
         case cmdSceneRTMuttenzerBox:
         case cmdSceneRTSoftShadows:
-        case cmdSceneRTDoF:        s->onLoad(this, (SLCmd)cmd); return false;
+        case cmdSceneRTDoF:
+        case cmdSceneRTLens:        s->onLoad(this, (SLCmd)cmd); return false;
 
-        case cmdUseSceneViewCamera:  switchToSceneViewCamera(); return true;
-        case cmdStatsToggle:      _showStats = !_showStats; return true;
-        case cmdSceneInfoToggle:  _showInfo = !_showInfo; return true;
-        case cmdWaitEventsToggle: _waitEvents = !_waitEvents; return true;
+        case cmdUseSceneViewCamera: switchToSceneViewCamera(); return true;
+        case cmdStatsToggle:        _showStats = !_showStats; return true;
+        case cmdSceneInfoToggle:    _showInfo = !_showInfo; return true;
+        case cmdWaitEventsToggle:   _waitEvents = !_waitEvents; return true;
         case cmdMultiSampleToggle:
             _doMultiSampling = !_doMultiSampling;
             _raytracer.aaSamples(_doMultiSampling?3:1);
@@ -1547,7 +1563,6 @@ void SLSceneView::build2DMenus()
     mn3->addChild(new SLButton(this, "Frustum Culling 1", f, cmdSceneFrustumCull1, true, curS==cmdSceneFrustumCull1, mn2));
     mn3->addChild(new SLButton(this, "Frustum Culling 2", f, cmdSceneFrustumCull2, true, curS==cmdSceneFrustumCull2, mn2));
     mn3->addChild(new SLButton(this, "Texture Filtering", f, cmdSceneTextureFilter, true, curS==cmdSceneTextureFilter, mn2));
-    mn3->addChild(new SLButton(this, "Mass Animation", f, cmdSceneMassAnimation, true, curS==cmdSceneMassAnimation, mn2));
 
     mn3 = new SLButton(this, "Shader >", f);
     mn2->addChild(mn3);
@@ -1559,13 +1574,22 @@ void SLSceneView::build2DMenus()
     mn3->addChild(new SLButton(this, "Parallax Mapping", f, cmdSceneBumpParallax, true, curS==cmdSceneBumpParallax, mn2));
     mn3->addChild(new SLButton(this, "Glass Shader", f, cmdSceneRevolver, true, curS==cmdSceneRevolver, mn2));
     mn3->addChild(new SLButton(this, "Earth Shader", f, cmdSceneEarth, true, curS==cmdSceneEarth, mn2));
-   
+
+    mn3 = new SLButton(this, "Animation >", f);
+    mn2->addChild(mn3);
+    mn3->addChild(new SLButton(this, "Mass Animation", f, cmdSceneMassAnimation, true, curS==cmdSceneMassAnimation, mn2));
+    mn3->addChild(new SLButton(this, "Astroboy Army CPU", f, cmdSceneAstroboyArmyCPU, true, curS==cmdSceneAstroboyArmyCPU, mn2));
+    mn3->addChild(new SLButton(this, "Astroboy Army GPU", f, cmdSceneAstroboyArmyGPU, true, curS==cmdSceneAstroboyArmyGPU, mn2));
+    mn3->addChild(new SLButton(this, "Skeletal Animation", f, cmdSceneSkeletalAnimation, true, curS==cmdSceneSkeletalAnimation, mn2));
+    mn3->addChild(new SLButton(this, "Node Animation", f, cmdSceneNodeAnimation, true, curS==cmdSceneNodeAnimation, mn2));
+
     mn3 = new SLButton(this, "Ray tracing >", f);
     mn2->addChild(mn3);
     mn3->addChild(new SLButton(this, "Spheres", f, cmdSceneRTSpheres, true, curS==cmdSceneRTSpheres, mn2));
     mn3->addChild(new SLButton(this, "Muttenzer Box", f, cmdSceneRTMuttenzerBox, true, curS==cmdSceneRTMuttenzerBox, mn2));
     mn3->addChild(new SLButton(this, "Soft Shadows", f, cmdSceneRTSoftShadows, true, curS==cmdSceneRTSoftShadows, mn2));
     mn3->addChild(new SLButton(this, "Depth of Field", f, cmdSceneRTDoF, true, curS==cmdSceneRTDoF, mn2));
+    mn3->addChild(new SLButton(this, "Lens Test", f, cmdSceneRTLens, true, curS==cmdSceneRTLens, mn2));
 
     mn2 = new SLButton(this, "Camera >", f); mn1->addChild(mn2);
    
@@ -1973,6 +1997,17 @@ SLbool SLSceneView::draw3DRT()
     // if the raytracer not yet got started
     if (_raytracer.state()==rtReady)
     {
+        SLScene* s = SLScene::current;
+
+        // Update transforms and aabbs
+        s->root3D()->needUpdate();
+
+        // Do software skinning on all changed skeletons
+        for (SLuint i=0; i<s->meshes().size(); ++i) 
+        {   
+            s->meshes()[i]->updateAccelStruct();
+        }
+
         // Start raytracing
         if (_raytracer.distributed())
              _raytracer.renderDistrib(this);
@@ -2019,6 +2054,17 @@ SLbool SLSceneView::draw3DPT()
     // if the pathtracer not yet got started
     if (_pathtracer.state()==rtReady)
     {
+        SLScene* s = SLScene::current;
+
+        // Update transforms and aabbs
+        s->root3D()->needUpdate();
+
+        // Do software skinning on all changed skeletons
+        for (SLuint i=0; i<s->meshes().size(); ++i) 
+        {   
+            s->meshes()[i]->updateAccelStruct();
+        }
+
         // Start raytracing
         _pathtracer.render(this);
     }

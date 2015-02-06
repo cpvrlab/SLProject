@@ -86,9 +86,9 @@ JNIEXPORT void JNICALL Java_ch_fhnw_comgr_GLES2Lib_onInit(JNIEnv* env, jobject o
     delete cmdLineArgs;
 }
 
-JNIEXPORT bool JNICALL Java_ch_fhnw_comgr_GLES2Lib_onPaint(JNIEnv* env, jobject obj)
+JNIEXPORT bool JNICALL Java_ch_fhnw_comgr_GLES2Lib_onUpdateAndPaint(JNIEnv* env, jobject obj)
 {
-   return slPaint(svIndex);
+   return slUpdateAndPaint(svIndex);
 }
 
 JNIEXPORT void JNICALL Java_ch_fhnw_comgr_GLES2Lib_onResize(JNIEnv* env, jobject obj,  jint width, jint height)

@@ -11,7 +11,9 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <None Include="apk\AndroidManifest.xml" />
+    <None Include="apk\AndroidManifest.xml">
+      <SubType>Designer</SubType>
+    </None>
     <None Include="apk\build.xml">
       <SubType>Designer</SubType>
     </None>
@@ -30,9 +32,10 @@
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Label="Configuration" Condition="'$(Configuration)|$(Platform)'=='Debug|Android'">
-    <PlatformToolset>arm-linux-androideabi-4.6</PlatformToolset>
+    <PlatformToolset>arm-linux-androideabi-4.9</PlatformToolset>
     <AndroidArch>armv5te</AndroidArch>
     <AndroidStlType>gnustl_static</AndroidStlType>
+    <AndroidAPILevel>android-12</AndroidAPILevel>
   </PropertyGroup>
   <PropertyGroup Label="Configuration" Condition="'$(Configuration)|$(Platform)'=='Release|Android'">
     <PlatformToolset>arm-linux-androideabi-4.6</PlatformToolset>

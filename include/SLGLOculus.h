@@ -19,13 +19,9 @@
 #include <OVR.h>
 #endif
 
-//@todo hide away OVR.h to not expose all of ovr's classes to our project
-//@todo dont use the 'using namespace' below, by doing that we expose the OVR namespace to all of the files that include SLGLOculus.h
-//@todo make it possible to compile and use this class without including OVR.h (replace their createmesh function with our own)
-
-//using namespace OVR;
-
-struct DistortionVertex
+//-----------------------------------------------------------------------------
+//! Distorted vertex used to draw in the Occulus frame buffer.
+struct SLGLOcculusDistortionVertex
 {
     SLVec2f screenPosNDC;
     float   timeWarpFactor;
@@ -37,8 +33,6 @@ struct DistortionVertex
 
 //-----------------------------------------------------------------------------
 //! Wrapper around Oculus Rift
-/*!
-*/
 class SLGLOculus
 {
     public:
@@ -76,7 +70,7 @@ class SLGLOculus
             
             SLbool      isPositionTrackingEnabled() { return _positionTrackingEnabled; }
             SLbool      isLowPersistanceEnabled() { return _lowPersistanceEnabled; }
-            SLbool      isTimeWarpEnabled   () { return _timeWarpEnabled; } //@todo implement turning timewarp on and off
+            SLbool      isTimeWarpEnabled   () { return _timeWarpEnabled; } 
 
 
     private:

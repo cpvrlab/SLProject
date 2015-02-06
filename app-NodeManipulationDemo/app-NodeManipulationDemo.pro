@@ -1,5 +1,5 @@
 ##############################################################################
-#  File:      app-Demo-GLFW.pro
+#  File:      app-NodeManipulationDemo.pro
 #  Purpose:   QMake project definition file for demo application with GLFW
 #  Author:    Marcus Hudritsch
 #  Date:      February 2014
@@ -31,6 +31,7 @@ OBJECTS_DIR = ../intermediate/$$TARGET/$$CONFIGURATION/$$PLATFORM
 LIBS += -L../_lib/$$CONFIGURATION/$$PLATFORM -llib-SLProject
 LIBS += -L../_lib/$$CONFIGURATION/$$PLATFORM -llib-SLExternal
 LIBS += -L../_lib/$$CONFIGURATION/$$PLATFORM -llib-assimp
+
 macx|win32 {LIBS += -L../_lib/$$CONFIGURATION/$$PLATFORM -llib-ovr}
 
 win32 {POST_TARGETDEPS += ../_lib/$$CONFIGURATION/$$PLATFORM/lib-SLProject.lib}

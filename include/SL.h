@@ -17,6 +17,7 @@
 #include <sstream>
 #include <fstream>
 #include <vector>
+#include <queue>
 #include <typeinfo>
 #include <string>
 #include <algorithm>
@@ -250,16 +251,6 @@ typedef std::vector<SLstring> SLVstring;
 #else
 #define SL_LOG(...)  printf(__VA_ARGS__);
 #endif
-
-//-----------------------------------------------------------------------------
-// c-string compare class
-struct eqstr
-{
-    bool operator()(const char* s1, const char* s2) const
-    {
-        return strcmp(s1, s2) == 0;
-    }
-};
 
 //-----------------------------------------------------------------------------
 //! Class SL with static error message and exit functions.

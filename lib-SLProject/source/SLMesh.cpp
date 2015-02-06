@@ -22,6 +22,7 @@
 #include <SLUniformGrid.h>
 #include <SLLightSphere.h>
 #include <SLLightRect.h>
+#include <SLSkeleton.h>
 #include <SLGLProgram.h>
 
 //-----------------------------------------------------------------------------
@@ -33,11 +34,17 @@ in SLScene::unInit().
 SLMesh::SLMesh(SLstring name) : SLObject(name)
 {   
     _primitive = SL_TRIANGLES;
+    _finalP = &P;
+    _finalN = &N;
+    cpuSkinningP = 0;
+    cpuSkinningN = 0;
     P  = 0;
     N  = 0;
     C  = 0;
     T  = 0;
     Tc = 0;
+    Ji = 0;
+    Jw = 0;
     I16 = 0;
     I32 = 0;
     numV = 0;
@@ -45,9 +52,14 @@ SLMesh::SLMesh(SLstring name) : SLObject(name)
     minP.set( FLT_MAX,  FLT_MAX,  FLT_MAX);
     maxP.set(-FLT_MAX, -FLT_MAX, -FLT_MAX);
    
+    _skeleton = NULL;
+    _jointMatrices = 0;
+    _skinningMethod = SM_SoftwareSkinning;
+
     _stateGL = SLGLState::getInstance();  
     _isVolume = true; // is used for RT to decide inside/outside
     _accelStruct = 0; // no initial acceleration structure
+    _accelStructOutOfDate = true;
 
     // Add this mesh to the global resource vector for deallocation
     SLScene::current->meshes().push_back(this);
@@ -70,8 +82,14 @@ void SLMesh::deleteData()
     if (C)   delete[] C;    C=0;
     if (T)   delete[] T;    T=0;
     if (Tc)  delete[] Tc;   Tc=0;
+    if (Ji)  delete[] Ji;   Ji=0;
+    if (Jw)  delete[] Jw;   Jw=0;
     if (I16) delete[] I16;  I16=0;
     if (I32) delete[] I32;  I32=0;
+
+    if (_jointMatrices) delete[] _jointMatrices; _jointMatrices = 0;
+    if (cpuSkinningP)   delete[] cpuSkinningP; cpuSkinningP = 0;
+    if (cpuSkinningN)   delete[] cpuSkinningN; cpuSkinningN = 0;
 
     if (_accelStruct) 
     {   delete _accelStruct;      
@@ -84,6 +102,8 @@ void SLMesh::deleteData()
     _bufTc.dispose();
     _bufT.dispose(); 
     _bufI.dispose(); 
+    _bufJi.dispose();
+    _bufJw.dispose();
     _bufN2.dispose();
     _bufT2.dispose();
 }
@@ -102,21 +122,40 @@ void SLMesh::init(SLNode* node)
         // build tangents for bump mapping
         if (mat->needsTangents() && Tc && T==0)
             calcTangents();
+
+        // set the final position and normal pointers
+
     }
 }
 //-----------------------------------------------------------------------------
 /*! 
 SLMesh::draw does the OpenGL rendering of the mesh. The GL_TRIANGLES or 
-GL_LINES primitives are rendered with the vertex position array P, 
+GL_LINES primitives are rendered normally with the vertex position array P,
 the normal array N, the array Tc and the index array I16 or I32. 
 Optionally you can draw the normals and/or the uniform grid voxels.
+<p> The method performs the following steps:</p>
+<p>
+1) Apply the drawing bits<br>
+2) Apply the uniform variables to the shader<br>
+2a) Activate a shader program if it is not yet in use and apply all its material paramters.<br>
+2b) Pass the modelview and modelview-projection matrix to the shader.<br>
+2c) If needed build and pass the inverse modelview and the normal matrix.<br>
+2d) If the mesh has a skeleton and HW skinning is applied pass the joint matrices.<br>
+3) Build VBOs once<br>
+4) Bind and enable attribute pointers<br>
+5) Finally do the draw call<br>
+6) Disable attribute pointers<br>
+7) Draw optional normals & tangents<br>
+8) Draw optional acceleration structure<br>
+</p>
+Please view also the full process of rendering <a href="md_on_paint.html"><b>one frame</b></a>
 */
 void SLMesh::draw(SLSceneView* sv, SLNode* node)
 {  
     if (P)
     {     
         ////////////////////////
-        // 1: Check drawing bits
+        // 1) Apply Drawing Bits
         ////////////////////////
             
         // Return if hidden
@@ -145,33 +184,21 @@ void SLMesh::draw(SLSceneView* sv, SLNode* node)
             _stateGL->polygonOffset(true, 1.0f, 1.0f);
 
 
-        //////////////////////
-        // 2: Build VBO's once
-        //////////////////////
-
-        if (!_bufP.id()) _bufP.generate(P, numV, 3);
-        if (!_bufN.id()  && N)   _bufN.generate(N, numV, 3);
-        if (!_bufC.id()  && C)   _bufC.generate(C, numV, 4);
-        if (!_bufTc.id() && Tc)  _bufTc.generate(Tc, numV, 2);
-        if (!_bufT.id()  && T)   _bufT.generate(T, numV, 4);
-        if (!_bufI.id()  && I16) _bufI.generate(I16, numI, 1, SL_UNSIGNED_SHORT, SL_ELEMENT_ARRAY_BUFFER);
-        if (!_bufI.id()  && I32) _bufI.generate(I32, numI, 1, SL_UNSIGNED_INT,   SL_ELEMENT_ARRAY_BUFFER);    
        
-      
-        ///////////////////
-        // 3: Draw elements
-        ///////////////////
+        /////////////////////////////
+        // 2) Apply Uniform Variables
+        /////////////////////////////
 
-        // 3.a: Apply mesh material if exists & differs from current
+        // 2.a) Apply mesh material if exists & differs from current
         if (mat != SLMaterial::current || SLMaterial::current->program()==0)
             mat->activate(_stateGL, *node->drawBits());
             
-        // 3.b: Pass the matrices to the shader program
+        // 2.b) Pass the matrices to the shader program
         SLGLProgram* sp = SLMaterial::current->program();
         sp->uniformMatrix4fv("u_mvMatrix",    1, (SLfloat*)&_stateGL->modelViewMatrix);
         sp->uniformMatrix4fv("u_mvpMatrix",   1, (SLfloat*)_stateGL->mvpMatrix());
 
-        // 3.c: Build & pass inverse & normal matrix only if needed
+        // 2.c) Build & pass inverse & normal matrix only if needed
         SLint locIM = sp->getUniformLocation("u_invMvMatrix");
         SLint locNM = sp->getUniformLocation("u_nMatrix");
         if (locIM>=0 && locNM>=0) 
@@ -187,8 +214,55 @@ void SLMesh::draw(SLSceneView* sv, SLNode* node)
         {   _stateGL->buildNormalMatrix();
             sp->uniformMatrix3fv(locNM, 1, (SLfloat*)_stateGL->normalMatrix());
         }
-                              
-        // 3.c: Enable attribute pointers
+
+        // 2.d) Do GPU skinning for animated meshes
+        if (_skeleton && Ji && Jw && _skinningMethod == SM_HardwareSkinning)
+        {
+            if (!_jointMatrices)
+            _jointMatrices = new SLMat4f[_skeleton->numJoints()];
+
+            if (_skeleton->changed())
+            {
+                // update the joint matrix array
+                _skeleton->getJointWorldMatrices(_jointMatrices);
+                // remove the changed flag from the skeleton since our joint matrices are up to date again
+                // @note    the skeleton referenced here would be the skeletoninstance proposed in the documentation
+                //          of SLSkeleton. So the _jointMatrices array is the only thing that is concerned with the changed flag
+                //          however currently we don't have that and multiple meshes need to know if a skeleton changed this frame.
+                //          This is why we can't reset the skeleton changed flag at this point in time. If only one entity or mesh required
+                //          the information we wouldn't have a problem.
+                // notify all nodes that contain this mesh about the change
+                notifyParentNodesAABBUpdate();
+            }
+
+            // @todo    Secondly: It is a bad idea to keep the joint data in the mesh itself, this prevents us
+            //          from instantiating a single mesh with multiple animations. Needs to be addressed ASAP. (see also SLMesh class problems in SLMesh.h at the top)
+            //          In short, the solution would be an entity class which is an instance of a mesh (same mesh data) which can be animated. the original buffers
+            //          would be in the original mesh and the cpu skinned buffers in the entity. or if gpu skinned it would just be the jointmatrices array that's in the entity.
+            SLint locBM = sp->getUniformLocation("u_jointMatrices");
+            sp->uniformMatrix4fv(locBM, _skeleton->numJoints(), (SLfloat*)_jointMatrices, false);
+        }
+
+
+        /////////////////////
+        // 3) Build VBOs once
+        /////////////////////
+
+        if (!_bufP.id())         _bufP.generate(finalP(), numV, 3);
+        if (!_bufN.id()  && N)   _bufN.generate(finalN(), numV, 3);
+        if (!_bufC.id()  && C)   _bufC.generate(C, numV, 4);
+        if (!_bufTc.id() && Tc)  _bufTc.generate(Tc, numV, 2);
+        if (!_bufJi.id() && Ji)  _bufJi.generate(Ji, numV, 4);
+        if (!_bufJw.id() && Jw)  _bufJw.generate(Jw, numV, 4);
+        if (!_bufT.id()  && T)   _bufT.generate(T, numV, 4);
+        if (!_bufI.id()  && I16) _bufI.generate(I16, numI, 1, SL_UNSIGNED_SHORT, SL_ELEMENT_ARRAY_BUFFER);
+        if (!_bufI.id()  && I32) _bufI.generate(I32, numI, 1, SL_UNSIGNED_INT,   SL_ELEMENT_ARRAY_BUFFER);    
+
+
+        ////////////////////////////////////////
+        // 4) Bind and enable attribute pointers
+        ////////////////////////////////////////
+
         _bufP.bindAndEnableAttrib(sp->getAttribLocation("a_position"));
         if (_bufN.id()) 
             _bufN.bindAndEnableAttrib(sp->getAttribLocation("a_normal"));
@@ -198,20 +272,32 @@ void SLMesh::draw(SLSceneView* sv, SLNode* node)
             _bufTc.bindAndEnableAttrib(sp->getAttribLocation("a_texCoord"));
         if (_bufT.id())  
             _bufT.bindAndEnableAttrib(sp->getAttribLocation("a_tangent"));
+        if (_bufJi.id())
+            _bufJi.bindAndEnableAttrib(sp->getAttribLocation("a_jointIds"));
+        if (_bufJw.id())
+            _bufJw.bindAndEnableAttrib(sp->getAttribLocation("a_jointWeights"));
    
-        // 3.d: Finally draw elements
+
+        ///////////////////////////////
+        // 5): Finally do the draw call
+        ///////////////////////////////
+
         _bufI.bindAndDrawElementsAs(_primitive, numI, 0);
 
-        // 3.e: Disable attribute pointers
+        ////////////////////////////////
+        // 6) Disable attribute pointers
+        ////////////////////////////////
+
         _bufP.disableAttribArray();
         if (_bufN.id())  _bufN.disableAttribArray();
         if (_bufC.id())  _bufC.disableAttribArray();
         if (_bufTc.id()) _bufTc.disableAttribArray();
         if (_bufT.id())  _bufT.disableAttribArray();
-
+        if (_bufJi.id()) _bufJi.disableAttribArray();
+        if (_bufJw.id()) _bufJw.disableAttribArray();
       
         //////////////////////////////////////
-        // 4: Draw optional normals & tangents
+        // 7) Draw optional normals & tangents
         //////////////////////////////////////
 
         // All helper lines must be drawn without blending
@@ -220,50 +306,46 @@ void SLMesh::draw(SLSceneView* sv, SLNode* node)
 
         if (N && (sv->drawBit(SL_DB_NORMALS) || node->drawBit(SL_DB_NORMALS)))
         {  
-            // scale the normals to 5% of the surounding sphere
+            // scalefactor r 5% from scaled radius for normals & tangents
+            // build array between vertex and normal target point
             float r = node->aabb()->radiusOS() * 0.05f;
-            SLVec3f* V2;
-         
-            if (!_bufN2.id())
-            {  // scalefactor r from scaled radius for normals & tangents
-                // build array between vertex and normal target point
-                V2 = new SLVec3f[numV*2]; 
-                for (SLuint i=0; i < numV; ++i)
-                {   V2[i<<1] = P[i];
-                    V2[(i<<1)+1].set(P[i] + N[i]*r);
-                }
-            
-                // Create buffer object for normals
-                _bufN2.generate(V2, numV*2, 3);
-            
-                if (T)
-                {   if (!_bufT2.id())
-                    {   for (SLuint i=0; i < numV; ++i)
-                        {  V2[(i<<1)+1].set(P[i].x+T[i].x*r, 
-                                            P[i].y+T[i].y*r, 
-                                            P[i].z+T[i].z*r);
-                        }
-               
-                        // Create buffer object for tangents
-                        _bufT2.generate(V2, numV*2, 3);
-                    }
-                } 
-                delete[] V2;
-
+            SLVec3f* V2 = new SLVec3f[numV*2];
+            for (SLuint i=0; i < numV; ++i)
+            {   V2[i<<1] = finalP()[i];
+                V2[(i<<1)+1].set(finalP()[i] + finalN()[i]*r);
             }
+
+            // Create or update buffer object for normals
+            if (_bufN2.id())
+                 _bufN2.update(V2, numV*2, 0);
+            else _bufN2.generate(V2, numV*2, 3);
+
+            if (T)
+            {   for (SLuint i=0; i < numV; ++i)
+                {  V2[(i<<1)+1].set(finalP()[i].x+T[i].x*r,
+                                    finalP()[i].y+T[i].y*r,
+                                    finalP()[i].z+T[i].z*r);
+                }
+
+                // Create or update buffer object for tangents
+                if (_bufT2.id())
+                     _bufT2.update(V2, numV*2, 3);
+                else _bufT2.generate(V2, numV*2, 3);
+            }
+            delete[] V2;
+
             _bufN2.drawArrayAsConstantColorLines(SLCol3f::BLUE);
             if (T) _bufT2.drawArrayAsConstantColorLines(SLCol3f::RED);
             if (blended) _stateGL->blend(false);
         } 
         else
-        {  
-            // release buffer objects for normal & tangent rendering
+        {   // release buffer objects for normal & tangent rendering
             if (_bufN2.id()) _bufN2.dispose();
             if (_bufT2.id()) _bufT2.dispose();
         }
 
         //////////////////////////////////////////
-        // 5: Draw optional acceleration structure
+        // 8) Draw optional acceleration structure
         //////////////////////////////////////////
 
         if (_accelStruct) 
@@ -359,12 +441,12 @@ void SLMesh::calcMinMax()
 
     // calc min and max point of all vertices
     for (SLuint i=0; i<numV; ++i)
-    {   if (P[i].x < minP.x) minP.x = P[i].x;
-        if (P[i].x > maxP.x) maxP.x = P[i].x;
-        if (P[i].y < minP.y) minP.y = P[i].y;
-        if (P[i].y > maxP.y) maxP.y = P[i].y;
-        if (P[i].z < minP.z) minP.z = P[i].z;
-        if (P[i].z > maxP.z) maxP.z = P[i].z;
+    {   if (finalP()[i].x < minP.x) minP.x = finalP()[i].x;
+        if (finalP()[i].x > maxP.x) maxP.x = finalP()[i].x;
+        if (finalP()[i].y < minP.y) minP.y = finalP()[i].y;
+        if (finalP()[i].y > maxP.y) maxP.y = finalP()[i].y;
+        if (finalP()[i].z < minP.z) minP.z = finalP()[i].z;
+        if (finalP()[i].z > maxP.z) maxP.z = finalP()[i].z;
     } 
 }
 //-----------------------------------------------------------------------------
@@ -471,30 +553,40 @@ the min & max points in WS with the passed WM of the node.
 */
 void SLMesh::buildAABB(SLAABBox &aabb, SLMat4f wmNode)
 {   
-    // Calculate min & max in object space only once
-    if(minP==SLVec3f( FLT_MAX,  FLT_MAX,  FLT_MAX) &&
-       maxP==SLVec3f(-FLT_MAX, -FLT_MAX, -FLT_MAX))
-    {  calcMinMax();
-   
-        // Enlarge aabb for avoiding rounding errors 0.5%
-        SLVec3f distMinMax = maxP - minP;
-        SLfloat addon = distMinMax.length() * 0.005f;
-        minP -= addon;
-        maxP += addon;
-   
-        // Recreate acceleration structure for triangle meshes
-        delete _accelStruct;
-        _accelStruct = 0;
-        if (_primitive == SL_TRIANGLES)
-            _accelStruct = new SLUniformGrid(this);
-
-        // Build accelerations structure for more than 5 triangles
-        if (_accelStruct && numI > 5*3) 
-            _accelStruct->build(minP, maxP);
-    }
-   
+    // update accel struct and calculate min max
+    //updateAccelStruct();
+    if (_skeleton)
+    {
+        minP = _skeleton->minOS();
+        maxP = _skeleton->maxOS();
+    }     
+    else
+        calcMinMax();
     // Apply world matrix
     aabb.fromOStoWS(minP, maxP, wmNode);
+}
+//-----------------------------------------------------------------------------
+/*! SLMesh::updateAccelStruct rebuilds the acceleration structure if the dirty
+flag is set. This can happen for mesh animations.
+*/
+void SLMesh::updateAccelStruct()
+{
+    if (!_accelStructOutOfDate)
+        return;
+
+    calcMinMax();
+    SLVec3f distMinMax = maxP - minP;
+    SLfloat addon = distMinMax.length() * 0.005f;
+    minP -= addon;
+    maxP += addon;
+
+    if (_accelStruct==0 && _primitive == SL_TRIANGLES)
+        _accelStruct = new SLUniformGrid(this);
+
+    if (_accelStruct && numI > 15)
+    {   _accelStruct->build(minP, maxP);
+        _accelStructOutOfDate = false;
+    }
 }
 //-----------------------------------------------------------------------------
 //! SLMesh::calcNormals recalculates vertex normals for triangle meshes.
@@ -676,13 +768,13 @@ SLbool SLMesh::hitTriangleOS(SLRay* ray, SLNode* node, SLuint iT)
    
     // get the corner vertices
     if (I16)
-    {   A = P[I16[iT  ]];
-        B = P[I16[iT+1]];
-        C = P[I16[iT+2]];
+    {   A = finalP()[I16[iT  ]];
+        B = finalP()[I16[iT+1]];
+        C = finalP()[I16[iT+2]];
     } else
-    {   A = P[I32[iT  ]];
-        B = P[I32[iT+1]];
-        C = P[I32[iT+2]];
+    {   A = finalP()[I32[iT  ]];
+        B = finalP()[I32[iT+1]];
+        C = finalP()[I32[iT+2]];
     }
    
     // find vectors for two edges sharing the triangle vertex A
@@ -797,9 +889,9 @@ void SLMesh::preShade(SLRay* ray)
     ray->hitPoint.set(ray->origin + ray->length * ray->dir);
       
     // calculate the interpolated normal with vertex normals in object space
-    ray->hitNormal.set(N[iA] * (1-(ray->hitU+ray->hitV)) + 
-                       N[iB] * ray->hitU + 
-                       N[iC] * ray->hitV);
+    ray->hitNormal.set(finalN()[iA] * (1-(ray->hitU+ray->hitV)) +
+                       finalN()[iB] * ray->hitU +
+                       finalN()[iC] * ray->hitV);
                       
     // transform normal back to world space
     ray->hitNormal.set(ray->hitNode->updateAndGetWMN() * ray->hitNormal);
@@ -842,4 +934,170 @@ void SLMesh::preShade(SLRay* ray)
     }
 }
 
+//-----------------------------------------------------------------------------
+/*! Adds an joint weight to the specified vertex id (max 4 weights per vertex)
+returns true if added sucessfully, false if already full
+*/
+SLbool SLMesh::addWeight(SLint vertId, SLuint jointId, SLfloat weight)
+{
+    if (!Ji || !Jw)
+        return false;
+
+    assert(vertId < (SLint)numV && "An illegal index was passed in to SLMesh::addWeight");
+    
+    SLVec4f& jId = Ji[vertId];
+    SLVec4f& jWeight = Jw[vertId];
+
+    // "iterator" over our vectors
+    SLfloat* jIdIt = &jId.x;
+    SLfloat* jWeightIt = &jWeight.x;
+
+    for (SLint i = 0; i < 4; ++i)
+    {
+        if (*jWeightIt == 0.0f)
+        {
+            *jIdIt = (SLfloat)jointId;
+            *jWeightIt = weight;
+            break;
+        }
+
+        jIdIt++;
+        jWeightIt++;
+    }
+
+    return true;
+}
+
+//-----------------------------------------------------------------------------
+/*! Sets the current skinning method.
+@todo   This function is still kindof hackish, we manually change the material in the mesh. The skinning
+        shouldn't rely on a material however, the shader should know if it needs skinning variables and 
+        transformations and apply them to the current used shader.
+*/
+void SLMesh::skinningMethod(SLSkinningMethod method) 
+{ 
+    if (method == _skinningMethod)
+        return;
+
+    // return if this isn't a skinned mesh
+    if (!_skeleton || !Ji || !Jw)
+        return;
+
+    _skinningMethod = method;
+
+    if (_skinningMethod == SM_HardwareSkinning)
+    {
+        _finalP = &P;
+        _finalN = &N;
+
+        // if we are a textured mesh
+        if (Tc)
+        {   SLGLGenericProgram* skinningShaderTex = new SLGLGenericProgram("PerPixBlinnTexSkinned.vert",
+                                                                           "PerPixBlinnTex.frag");
+            mat->program(skinningShaderTex);
+        } else
+        {   SLGLGenericProgram* skinningShader = new SLGLGenericProgram("PerVrtBlinnSkinned.vert",
+                                                                        "PerVrtBlinn.frag");
+            mat->program(skinningShader);
+        }
+    }
+    else
+    {
+        mat->program(0);
+    }
+}
+
+//-----------------------------------------------------------------------------
+//! Transforms the vertex positions and normals with by joint weights
+/*! If the mesh is used for skinned skeleton animation this method transforms
+each vertex and normal by max. four joints of the skeleton. Each joint has
+a weight and an index. After the transform the VBO have to be updated.
+This skinning process can also be done (a lot faster) on the GPU.
+This software skinning is also needed for ray or path tracing.  
+*/
+void SLMesh::transformSkin()
+{
+    // create the secondary buffers for P and N once   
+    if (!cpuSkinningP)
+    {   cpuSkinningP = new SLVec3f[numV];
+        for (SLuint i = 0; i < numV; ++i)
+            cpuSkinningP[i] = P[i];
+    }
+    if (!cpuSkinningN && N) 
+    {   cpuSkinningN = new SLVec3f[numV];
+        for (SLuint i = 0; i < numV; ++i)
+            cpuSkinningN[i] = N[i];
+    }
+
+    // Create array for joint matrices once
+    if (!_jointMatrices)
+        _jointMatrices = new SLMat4f[_skeleton->numJoints()];
+
+    // update the joint matrix array
+    _skeleton->getJointWorldMatrices(_jointMatrices);
+
+    notifyParentNodesAABBUpdate();
+
+    // temporarily set finalP and finalN
+    _finalP = &cpuSkinningP;
+    _finalN = &cpuSkinningN;
+    
+    // flag acceleration structure to be rebuilt
+    _accelStructOutOfDate = true;
+        
+    // iterate over all vertices and write to new buffers
+    for (SLuint i = 0; i < numV; ++i)
+    {
+        cpuSkinningP[i] = SLVec3f::ZERO;
+        if (N) cpuSkinningN[i] = SLVec3f::ZERO;
+
+        // array form for easier iteration
+        SLfloat jointWeights[4] = {Jw[i].x, Jw[i].y, Jw[i].z, Jw[i].w};
+        SLint   jointIndices[4] = {(SLint)Ji[i].x,
+                                   (SLint)Ji[i].y,
+                                   (SLint)Ji[i].z,
+                                   (SLint)Ji[i].w};
+                    
+        // accumulate final normal and positions
+        for (SLint j = 0; j < 4; ++j)
+        {   if (jointWeights[j] > 0.0f)
+            {
+                const SLMat4f& jm = _jointMatrices[jointIndices[j]];
+                SLVec4f tempPos = jm * P[i];
+                cpuSkinningP[i].x += tempPos.x * jointWeights[j];
+                cpuSkinningP[i].y += tempPos.y * jointWeights[j];
+                cpuSkinningP[i].z += tempPos.z * jointWeights[j];
+
+                if (N) 
+                {   // Build the 3x3 submatrix in GLSL 110 (= mat3 jt3 = mat3(jt))
+                    // for the normal transform that is the normally the inverse transpose.
+                    // The inverse transpose can be ignored as long as we only have
+                    // rotation and uniform scaling in the 3x3 submatrix.
+                    SLMat3f jnm = jm.mat3();
+                    //jnm.invert();
+                    //jnm.transpose();
+                    cpuSkinningN[i] += jnm * N[i] * jointWeights[j];
+                }
+            }
+        }
+    }  
+
+    // update or create buffers
+    if (_bufP.id()) 
+         _bufP.update(finalP(), numV, 0);
+    else _bufP.generate(finalP(), numV, 3);
+    if (N)
+    {   if (_bufN.id())
+             _bufN.update(finalN(), numV, 0);
+        else _bufN.generate(finalN(), numV, 3);
+    }
+}
+
+//-----------------------------------------------------------------------------
+void SLMesh::notifyParentNodesAABBUpdate() const
+{
+    SLVNode nodes = SLScene::current->root3D()->findChildren(this);
+    for (SLint i = 0; i < nodes.size(); ++i)
+        nodes[i]->needAABBUpdate();
+}
 //-----------------------------------------------------------------------------

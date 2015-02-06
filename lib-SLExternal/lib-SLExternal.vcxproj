@@ -249,23 +249,18 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="glew\src\glew.c" />
-    <ClCompile Include="glfw3\src\clipboard.c" />
     <ClCompile Include="glfw3\src\context.c" />
-    <ClCompile Include="glfw3\src\gamma.c" />
     <ClCompile Include="glfw3\src\init.c" />
     <ClCompile Include="glfw3\src\input.c" />
-    <ClCompile Include="glfw3\src\joystick.c" />
     <ClCompile Include="glfw3\src\monitor.c" />
-    <ClCompile Include="glfw3\src\time.c" />
     <ClCompile Include="glfw3\src\wgl_context.c" />
-    <ClCompile Include="glfw3\src\win32_clipboard.c" />
-    <ClCompile Include="glfw3\src\win32_gamma.c" />
     <ClCompile Include="glfw3\src\win32_init.c" />
-    <ClCompile Include="glfw3\src\win32_joystick.c" />
     <ClCompile Include="glfw3\src\win32_monitor.c" />
     <ClCompile Include="glfw3\src\win32_time.c" />
+    <ClCompile Include="glfw3\src\win32_tls.c" />
     <ClCompile Include="glfw3\src\win32_window.c" />
     <ClCompile Include="glfw3\src\window.c" />
+    <ClCompile Include="glfw3\src\winmm_joystick.c" />
     <ClCompile Include="jpeg-8\jaricom.c" />
     <ClCompile Include="jpeg-8\jcapimin.c" />
     <ClCompile Include="jpeg-8\jcapistd.c" />
@@ -361,9 +356,12 @@
     <ClInclude Include="glew\include\GL\wglew.h" />
     <ClInclude Include="glfw3\include\GLFW\glfw3.h" />
     <ClInclude Include="glfw3\include\GLFW\glfw3native.h" />
+    <ClInclude Include="glfw3\src\glfw_config.h" />
     <ClInclude Include="glfw3\src\internal.h" />
-    <ClInclude Include="glfw3\src\wgl_platform.h" />
+    <ClInclude Include="glfw3\src\wgl_context.h" />
     <ClInclude Include="glfw3\src\win32_platform.h" />
+    <ClInclude Include="glfw3\src\win32_tls.h" />
+    <ClInclude Include="glfw3\src\winmm_joystick.h" />
     <ClInclude Include="nvwa\debug_new.h" />
     <ClInclude Include="randomc\random.h" />
     <ClInclude Include="randomc\randomc.h" />
@@ -390,6 +388,9 @@
     <None Include="randomc\RANDOMC.HTM">
       <DeploymentContent>true</DeploymentContent>
     </None>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="glew\build\glew.rc" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -210,9 +210,6 @@
     <ClCompile Include="png\pngwutil.c">
       <Filter>png</Filter>
     </ClCompile>
-    <ClCompile Include="glew\src\glew.c">
-      <Filter>glew</Filter>
-    </ClCompile>
     <ClCompile Include="randomc\mersenne.cpp">
       <Filter>randomc</Filter>
     </ClCompile>
@@ -236,57 +233,6 @@
     </ClCompile>
     <ClCompile Include="Shoemake\EulerAngles.cpp">
       <Filter>Shoemake</Filter>
-    </ClCompile>
-    <ClCompile Include="glfw3\src\wgl_context.c">
-      <Filter>glfw3</Filter>
-    </ClCompile>
-    <ClCompile Include="glfw3\src\win32_clipboard.c">
-      <Filter>glfw3</Filter>
-    </ClCompile>
-    <ClCompile Include="glfw3\src\win32_gamma.c">
-      <Filter>glfw3</Filter>
-    </ClCompile>
-    <ClCompile Include="glfw3\src\win32_init.c">
-      <Filter>glfw3</Filter>
-    </ClCompile>
-    <ClCompile Include="glfw3\src\win32_joystick.c">
-      <Filter>glfw3</Filter>
-    </ClCompile>
-    <ClCompile Include="glfw3\src\win32_monitor.c">
-      <Filter>glfw3</Filter>
-    </ClCompile>
-    <ClCompile Include="glfw3\src\win32_time.c">
-      <Filter>glfw3</Filter>
-    </ClCompile>
-    <ClCompile Include="glfw3\src\win32_window.c">
-      <Filter>glfw3</Filter>
-    </ClCompile>
-    <ClCompile Include="glfw3\src\window.c">
-      <Filter>glfw3</Filter>
-    </ClCompile>
-    <ClCompile Include="glfw3\src\clipboard.c">
-      <Filter>glfw3</Filter>
-    </ClCompile>
-    <ClCompile Include="glfw3\src\context.c">
-      <Filter>glfw3</Filter>
-    </ClCompile>
-    <ClCompile Include="glfw3\src\gamma.c">
-      <Filter>glfw3</Filter>
-    </ClCompile>
-    <ClCompile Include="glfw3\src\init.c">
-      <Filter>glfw3</Filter>
-    </ClCompile>
-    <ClCompile Include="glfw3\src\input.c">
-      <Filter>glfw3</Filter>
-    </ClCompile>
-    <ClCompile Include="glfw3\src\joystick.c">
-      <Filter>glfw3</Filter>
-    </ClCompile>
-    <ClCompile Include="glfw3\src\monitor.c">
-      <Filter>glfw3</Filter>
-    </ClCompile>
-    <ClCompile Include="glfw3\src\time.c">
-      <Filter>glfw3</Filter>
     </ClCompile>
     <ClCompile Include="Shoemake\Decompose.cpp">
       <Filter>Shoemake</Filter>
@@ -348,14 +294,47 @@
     <ClCompile Include="zlib\zutil.c">
       <Filter>zlib</Filter>
     </ClCompile>
+    <ClCompile Include="glew\src\glew.c">
+      <Filter>glew</Filter>
+    </ClCompile>
+    <ClCompile Include="glfw3\src\wgl_context.c">
+      <Filter>glfw3</Filter>
+    </ClCompile>
+    <ClCompile Include="glfw3\src\context.c">
+      <Filter>glfw3</Filter>
+    </ClCompile>
+    <ClCompile Include="glfw3\src\init.c">
+      <Filter>glfw3</Filter>
+    </ClCompile>
+    <ClCompile Include="glfw3\src\input.c">
+      <Filter>glfw3</Filter>
+    </ClCompile>
+    <ClCompile Include="glfw3\src\monitor.c">
+      <Filter>glfw3</Filter>
+    </ClCompile>
+    <ClCompile Include="glfw3\src\win32_init.c">
+      <Filter>glfw3</Filter>
+    </ClCompile>
+    <ClCompile Include="glfw3\src\win32_monitor.c">
+      <Filter>glfw3</Filter>
+    </ClCompile>
+    <ClCompile Include="glfw3\src\win32_time.c">
+      <Filter>glfw3</Filter>
+    </ClCompile>
+    <ClCompile Include="glfw3\src\win32_tls.c">
+      <Filter>glfw3</Filter>
+    </ClCompile>
+    <ClCompile Include="glfw3\src\win32_window.c">
+      <Filter>glfw3</Filter>
+    </ClCompile>
+    <ClCompile Include="glfw3\src\window.c">
+      <Filter>glfw3</Filter>
+    </ClCompile>
+    <ClCompile Include="glfw3\src\winmm_joystick.c">
+      <Filter>glfw3</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="glew\include\GL\glew.h">
-      <Filter>glew</Filter>
-    </ClInclude>
-    <ClInclude Include="glew\include\GL\wglew.h">
-      <Filter>glew</Filter>
-    </ClInclude>
     <ClInclude Include="randomc\random.h">
       <Filter>randomc</Filter>
     </ClInclude>
@@ -364,21 +343,6 @@
     </ClInclude>
     <ClInclude Include="Shoemake\EulerAngles.h">
       <Filter>Shoemake</Filter>
-    </ClInclude>
-    <ClInclude Include="glfw3\src\internal.h">
-      <Filter>glfw3</Filter>
-    </ClInclude>
-    <ClInclude Include="glfw3\src\wgl_platform.h">
-      <Filter>glfw3</Filter>
-    </ClInclude>
-    <ClInclude Include="glfw3\src\win32_platform.h">
-      <Filter>glfw3</Filter>
-    </ClInclude>
-    <ClInclude Include="glfw3\include\GLFW\glfw3.h">
-      <Filter>glfw3</Filter>
-    </ClInclude>
-    <ClInclude Include="glfw3\include\GLFW\glfw3native.h">
-      <Filter>glfw3</Filter>
     </ClInclude>
     <ClInclude Include="Shoemake\Decompose.h">
       <Filter>Shoemake</Filter>
@@ -434,10 +398,45 @@
     <ClInclude Include="zlib\zutil.h">
       <Filter>zlib</Filter>
     </ClInclude>
+    <ClInclude Include="glew\include\GL\glew.h">
+      <Filter>glew</Filter>
+    </ClInclude>
+    <ClInclude Include="glew\include\GL\wglew.h">
+      <Filter>glew</Filter>
+    </ClInclude>
+    <ClInclude Include="glfw3\include\GLFW\glfw3.h">
+      <Filter>glfw3</Filter>
+    </ClInclude>
+    <ClInclude Include="glfw3\include\GLFW\glfw3native.h">
+      <Filter>glfw3</Filter>
+    </ClInclude>
+    <ClInclude Include="glfw3\src\glfw_config.h">
+      <Filter>glfw3</Filter>
+    </ClInclude>
+    <ClInclude Include="glfw3\src\internal.h">
+      <Filter>glfw3</Filter>
+    </ClInclude>
+    <ClInclude Include="glfw3\src\wgl_context.h">
+      <Filter>glfw3</Filter>
+    </ClInclude>
+    <ClInclude Include="glfw3\src\win32_platform.h">
+      <Filter>glfw3</Filter>
+    </ClInclude>
+    <ClInclude Include="glfw3\src\win32_tls.h">
+      <Filter>glfw3</Filter>
+    </ClInclude>
+    <ClInclude Include="glfw3\src\winmm_joystick.h">
+      <Filter>glfw3</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="randomc\RANDOMC.HTM">
       <Filter>randomc</Filter>
     </None>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="glew\build\glew.rc">
+      <Filter>glew</Filter>
+    </ResourceCompile>
   </ItemGroup>
 </Project>
