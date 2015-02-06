@@ -13,7 +13,7 @@
 
 #include <stdafx.h>
 #include <Leap.h>
-#include <SLLeapFinger.h>
+#include "SLLeapFinger.h"
 
 
 class SLLeapHand

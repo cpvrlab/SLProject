@@ -13,10 +13,10 @@
 
 #include <stdafx.h>
 #include <Leap.h>
-#include <SLLeapFinger.h>
-#include <SLLeapHand.h>
-#include <SLLeapTool.h>
-#include <SLLeapGesture.h>
+#include "SLLeapFinger.h"
+#include "SLLeapHand.h"
+#include "SLLeapTool.h"
+#include "SLLeapGesture.h"
 
 #include <SLInputDevice.h>
 

@@ -9,7 +9,7 @@
 //#############################################################################
 
 #include  <stdafx.h>
-#include <SLLeapHand.h>
+#include "SLLeapHand.h"
 
 SLLeapHand::SLLeapHand()
 {

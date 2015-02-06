@@ -9,7 +9,7 @@
 //#############################################################################
 
 #include  <stdafx.h>
-#include <SLLeapController.h>
+#include "SLLeapController.h"
 
 #include <set>
 

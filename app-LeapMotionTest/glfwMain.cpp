@@ -18,7 +18,7 @@
 #include <SLSceneView.h>
 #include <SLEnums.h>
 
-#include <CustomSceneView.h>
+#include "CustomSceneView.h"
 //-----------------------------------------------------------------------------
 // GLobal application variables
 GLFWwindow* window;                 //!< The global glfw window handle

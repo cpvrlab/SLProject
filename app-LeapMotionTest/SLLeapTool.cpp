@@ -8,8 +8,8 @@
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
 
-#include  <stdafx.h>
-#include <SLLeapTool.h>
+#include <stdafx.h>
+#include "SLLeapTool.h"
 
 
 SLQuat4f SLLeapTool::toolRotation() const

@@ -1,12 +1,12 @@
 
 #include <SLSceneView.h>
 #include "Leap.h"
-#include <SLLeapController.h>
+#include "SLLeapController.h"
 #include <SLBox.h>
 #include <SLSphere.h>
 #include <SLCylinder.h>
 
-#include <SampleListeners.h>
+#include "SampleListeners.h"
 
 #pragma warning(disable:4996)
 

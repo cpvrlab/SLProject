@@ -31,12 +31,10 @@ OBJECTS_DIR = ../intermediate/$$TARGET/$$CONFIGURATION/$$PLATFORM
 LIBS += -L../_lib/$$CONFIGURATION/$$PLATFORM -llib-SLProject
 LIBS += -L../_lib/$$CONFIGURATION/$$PLATFORM -llib-SLExternal
 LIBS += -L../_lib/$$CONFIGURATION/$$PLATFORM -llib-assimp
-win32:LIBS += ws2_32.lib
-win32:LIBS += Setupapi.lib
-win32:LIBS += Shell32.lib
+
 win32:LIBS += ../lib-SLExternal/leapmotion/lib/$$PLATFORM/Leap.lib
-#LIBS += ../lib-SLExternal/leapmotion/lib/$$PLATFORM/libLeap.dylib
 macx:LIBS += ../_bin-$$CONFIGURATION-$$PLATFORM/libLeap.dylib
+
 macx|win32 {LIBS += -L../_lib/$$CONFIGURATION/$$PLATFORM -llib-ovr}
 
 win32 {POST_TARGETDEPS += ../_lib/$$CONFIGURATION/$$PLATFORM/lib-SLProject.lib}

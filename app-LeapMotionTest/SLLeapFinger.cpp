@@ -9,7 +9,7 @@
 //#############################################################################
 
 #include  <stdafx.h>
-#include <SLLeapFinger.h>
+#include "SLLeapFinger.h"
 
 SLLeapFinger::SLLeapFinger(Leap::Finger::Type type)
 {

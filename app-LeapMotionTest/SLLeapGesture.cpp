@@ -9,6 +9,6 @@
 //#############################################################################
 
 #include  <stdafx.h>
-#include <SLLeapGesture.h>
+#include "SLLeapGesture.h"
 
 // @todo ...
