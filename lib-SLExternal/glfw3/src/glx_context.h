@@ -1,5 +1,5 @@
 //========================================================================
-// GLFW 3.0 GLX - www.glfw.org
+// GLFW 3.1 GLX - www.glfw.org
 //------------------------------------------------------------------------
 // Copyright (c) 2002-2006 Marcus Geelnard
 // Copyright (c) 2006-2010 Camilla Berglund <elmindreda@elmindreda.org>
@@ -25,8 +25,8 @@
 //
 //========================================================================
 
-#ifndef _glx_platform_h_
-#define _glx_platform_h_
+#ifndef _glx_context_h_
+#define _glx_context_h_
 
 #define GLX_GLXEXT_LEGACY
 #include <GL/glx.h>
@@ -40,8 +40,6 @@
 #if defined(_GLFW_HAS_DLOPEN)
  #include <dlfcn.h>
 #endif
-
-#include <pthread.h>
 
 // We support four different ways for getting addresses for GL/GLX
 // extension functions: glXGetProcAddress, glXGetProcAddressARB,
@@ -59,53 +57,40 @@
  #error "No OpenGL entry point retrieval mechanism was enabled"
 #endif
 
-#define _GLFW_PLATFORM_FBCONFIG             GLXFBConfig     glx
-#define _GLFW_PLATFORM_CONTEXT_STATE        _GLFWcontextGLX glx
-#define _GLFW_PLATFORM_LIBRARY_OPENGL_STATE _GLFWlibraryGLX glx
+#define _GLFW_PLATFORM_FBCONFIG                 GLXFBConfig     glx
+#define _GLFW_PLATFORM_CONTEXT_STATE            _GLFWcontextGLX glx
+#define _GLFW_PLATFORM_LIBRARY_CONTEXT_STATE    _GLFWlibraryGLX glx
 
 #ifndef GLX_MESA_swap_control
 typedef int (*PFNGLXSWAPINTERVALMESAPROC)(int);
 #endif
 
 
-//========================================================================
-// GLFW platform specific types
-//========================================================================
-
-//------------------------------------------------------------------------
-// Platform-specific OpenGL context structure
-//------------------------------------------------------------------------
+// GLX-specific per-context data
+//
 typedef struct _GLFWcontextGLX
 {
-    GLXContext      context; // OpenGL rendering context
-    XVisualInfo*    visual;  // Visual for selected GLXFBConfig
+    // Rendering context
+    GLXContext      context;
+    // Visual of selected GLXFBConfig
+    XVisualInfo*    visual;
 
 } _GLFWcontextGLX;
 
 
-//------------------------------------------------------------------------
-// Platform-specific library global data for GLX
-//------------------------------------------------------------------------
+// GLX-specific global data
+//
 typedef struct _GLFWlibraryGLX
 {
-    // Server-side GLX version
     int             versionMajor, versionMinor;
     int             eventBase;
     int             errorBase;
-
-    // TLS key for per-thread current context/window
-    pthread_key_t   current;
 
     // GLX extensions
     PFNGLXSWAPINTERVALSGIPROC             SwapIntervalSGI;
     PFNGLXSWAPINTERVALEXTPROC             SwapIntervalEXT;
     PFNGLXSWAPINTERVALMESAPROC            SwapIntervalMESA;
-    PFNGLXGETFBCONFIGATTRIBSGIXPROC       GetFBConfigAttribSGIX;
-    PFNGLXCHOOSEFBCONFIGSGIXPROC          ChooseFBConfigSGIX;
-    PFNGLXCREATECONTEXTWITHCONFIGSGIXPROC CreateContextWithConfigSGIX;
-    PFNGLXGETVISUALFROMFBCONFIGSGIXPROC   GetVisualFromFBConfigSGIX;
     PFNGLXCREATECONTEXTATTRIBSARBPROC     CreateContextAttribsARB;
-    GLboolean       SGIX_fbconfig;
     GLboolean       SGI_swap_control;
     GLboolean       EXT_swap_control;
     GLboolean       MESA_swap_control;
@@ -115,11 +100,21 @@ typedef struct _GLFWlibraryGLX
     GLboolean       ARB_create_context_profile;
     GLboolean       ARB_create_context_robustness;
     GLboolean       EXT_create_context_es2_profile;
+    GLboolean       ARB_context_flush_control;
 
 #if defined(_GLFW_DLOPEN_LIBGL)
-    void*           libGL;  // dlopen handle for libGL.so
+    // dlopen handle for libGL.so (for glfwGetProcAddress)
+    void*           libGL;
 #endif
+
 } _GLFWlibraryGLX;
 
 
-#endif // _glx_platform_h_
+int _glfwInitContextAPI(void);
+void _glfwTerminateContextAPI(void);
+int _glfwCreateContext(_GLFWwindow* window,
+                       const _GLFWctxconfig* ctxconfig,
+                       const _GLFWfbconfig* fbconfig);
+void _glfwDestroyContext(_GLFWwindow* window);
+
+#endif // _glx_context_h_

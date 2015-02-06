@@ -1,7 +1,7 @@
 //========================================================================
-// GLFW 3.0 - www.glfw.org
+// GLFW 3.1 Linux - www.glfw.org
 //------------------------------------------------------------------------
-// Copyright (c) 2010 Camilla Berglund <elmindreda@elmindreda.org>
+// Copyright (c) 2014 Jonas Ådahl <jadahl@gmail.com>
 //
 // This software is provided 'as-is', without any express or implied
 // warranty. In no event will the authors be held liable for any damages
@@ -24,27 +24,40 @@
 //
 //========================================================================
 
-#include "internal.h"
+#ifndef _linux_joystick_h_
+#define _linux_joystick_h_
 
-#include <math.h>
-#include <string.h>
+#include <regex.h>
+
+#define _GLFW_PLATFORM_LIBRARY_JOYSTICK_STATE \
+    _GLFWjoystickLinux linux_js
 
 
-//////////////////////////////////////////////////////////////////////////
-//////                        GLFW public API                       //////
-//////////////////////////////////////////////////////////////////////////
-
-GLFWAPI void glfwSetClipboardString(GLFWwindow* handle, const char* string)
+// Linux-specific joystick API data
+//
+typedef struct _GLFWjoystickLinux
 {
-    _GLFWwindow* window = (_GLFWwindow*) handle;
-    _GLFW_REQUIRE_INIT();
-    _glfwPlatformSetClipboardString(window, string);
-}
+    struct
+    {
+        int             present;
+        int             fd;
+        float*          axes;
+        int             axisCount;
+        unsigned char*  buttons;
+        int             buttonCount;
+        char*           name;
+        char*           path;
+    } js[GLFW_JOYSTICK_LAST + 1];
 
-GLFWAPI const char* glfwGetClipboardString(GLFWwindow* handle)
-{
-    _GLFWwindow* window = (_GLFWwindow*) handle;
-    _GLFW_REQUIRE_INIT_OR_RETURN(NULL);
-    return _glfwPlatformGetClipboardString(window);
-}
+#if defined(__linux__)
+    int             inotify;
+    int             watch;
+    regex_t         regex;
+#endif /*__linux__*/
+} _GLFWjoystickLinux;
 
+
+int _glfwInitJoysticks(void);
+void _glfwTerminateJoysticks(void);
+
+#endif // _linux_joystick_h_
