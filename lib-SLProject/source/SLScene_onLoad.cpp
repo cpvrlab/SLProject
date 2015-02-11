@@ -298,7 +298,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
         cam1->clipFar(30);
         cam1->position(0,0,10);
         cam1->lookAt(0, 0, 0);
-        cam1->speedLimit(40);
+        cam1->maxSpeed(40);
         cam1->focalDist(10);
         cam1->eyeSeparation(cam1->focalDist()/30.0f);
         cam1->setInitialState();
@@ -368,6 +368,85 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
 
         _backColor.set(0.5f,0.5f,0.5f);
         //sv->camera(cam1);
+        _root3D = scene;
+    }
+    else
+    if (sceneName == cmdSceneVRSizeTest) //.....................................
+    {
+        name("Virtual Reality test scene");
+        info(sv, "Test scene for virtual reality size perception.");
+        
+        SLAssimpImporter importer;
+        SLNode* scene = new SLNode;
+        
+        // scene floor
+        SLMaterial* matFloor = new SLMaterial("floor", new SLGLTexture("tron_floor2.png"
+                                            ,SL_ANISOTROPY_MAX
+                                            ,GL_LINEAR),
+                                            NULL, NULL, NULL,
+                                            _programs[TextureOnly]);
+        SLNode* floor = new SLNode(
+                            new SLRectangle(SLVec2f(-1000, -1000), SLVec2f(1000,1000),
+                                            SLVec2f(-1000, -1000), SLVec2f(1000,1000),
+                                            1, 1, "rectF", matFloor), "rectFNode"); 
+        floor->rotate(-90, 1,0,0);
+        scene->addChild(floor);
+
+        // scene skybox
+        // TODO...
+
+        // table
+        SLNode* table = importer.load("DAE/Table/table3.dae");
+        table->translate(0, 0, -1);
+        scene->addChild(table);
+
+        SLCamera* cam1 = new SLCamera();
+        cam1->position(0, 1.8f, 0);
+        cam1->lookAt(0, 1.8f, -1.0f);
+        cam1->focalDist(22);
+        cam1->setInitialState();
+        cam1->camAnim(walkingYUp);
+        scene->addChild(cam1);
+
+        // big astroboy
+        // Start animation
+        SLNode* astroboyBig = importer.load("DAE/AstroBoy/AstroBoy.dae");
+        SLAnimPlayback* charAnim = importer.skeleton()->getAnimPlayback("unnamed_anim_0");
+        charAnim->playForward();
+        charAnim->playbackRate(0.8f);
+
+        astroboyBig->translate(-1.0f, 0.0f, -1.0f);
+
+        scene->addChild(astroboyBig);
+
+        // small astroboy on table
+        SLNode* astroboySmall = importer.load("DAE/AstroBoy/AstroBoy.dae");
+        charAnim = importer.skeleton()->getAnimPlayback("unnamed_anim_0");
+        charAnim->playForward();
+        charAnim->playbackRate(2.0f);
+
+        astroboySmall->translate(0.0f, 1.4f, -1.0f);
+        astroboySmall->scale(0.1f);
+        scene->addChild(astroboySmall);
+
+        sv->camera(cam1);
+        
+        SLLightSphere* light1 = new SLLightSphere(5, 20, 5, 0.5f, 1.0f, 1.0f, 2.0f);
+        light1->ambient(SLCol4f(0.1f, 0.1f, 0.1f));
+        light1->diffuse(SLCol4f(1.0f, 0.7f, 0.3f));
+        light1->specular(SLCol4f(0.5f, 0.3f, 0.1f));
+        light1->attenuation(1,0,0);
+
+        SLLightSphere* light2 = new SLLightSphere(0.0f, -2.0f, 0.0f, 0.2f, 1.0f, 1.0f, 0.0f);
+        light2->ambient(SLCol4f(1.0f, 0.0f, 0.0f));
+        light2->diffuse(SLCol4f(0.0f, 2.0f, 10.0f));
+        light2->specular(SLCol4f(0.0f, 0.0f, 0.0f));
+        light2->attenuation(1,1,0);
+        
+        _backColor.set(0.0f,0.0f,0.0f);
+        scene->addChild(light1);
+        scene->addChild(light2);
+
         _root3D = scene;
     }
     else

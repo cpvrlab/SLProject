@@ -142,7 +142,7 @@ void SLSceneView::initSceneViewCamera(const SLVec3f& dir, SLProjection proj)
     _sceneViewCamera.name("SceneViewCamera");
     _sceneViewCamera.clipNear(.1f);
     _sceneViewCamera.clipFar(2000.0f);
-    _sceneViewCamera.speedLimit(40);
+    _sceneViewCamera.maxSpeed(40);
     _sceneViewCamera.eyeSeparation(_sceneViewCamera.focalDist()/30.0f);
     _sceneViewCamera.setProjection(this, centerEye);
   
@@ -1403,8 +1403,8 @@ SLbool SLSceneView::onCommand(const SLCmd cmd)
             case cmdProjColorRB:       _camera->projection(stereoColorRB); break;
             case cmdProjColorYB:       _camera->projection(stereoColorYB); break;
       
-            case cmdCamSpeedLimitInc:  _camera->speedLimit(_camera->speedLimit()*1.2f); return true;
-            case cmdCamSpeedLimitDec:  _camera->speedLimit(_camera->speedLimit()*0.8f); return true;
+            case cmdCamSpeedLimitInc:  _camera->maxSpeed(_camera->maxSpeed()*1.2f); return true;
+            case cmdCamSpeedLimitDec:  _camera->maxSpeed(_camera->maxSpeed()*0.8f); return true;
             case cmdCamEyeSepInc:      _camera->onMouseWheel( 1, KeyCtrl); return true;
             case cmdCamEyeSepDec:      _camera->onMouseWheel(-1, KeyCtrl); return true;
             case cmdCamFocalDistInc:   _camera->onMouseWheel( 1, KeyShift); return true;
@@ -1782,7 +1782,7 @@ void SLSceneView::build2DInfoGL()
     sprintf(m+strlen(m), "--------------------------------------------\\n");
     sprintf(m+strlen(m), "Projection: %s\\n", cam->projectionStr().c_str());
     sprintf(m+strlen(m), "Animation: %s\\n", cam->animationStr().c_str());
-    sprintf(m+strlen(m), "Speed Limit: %4.1f/sec.\\n", cam->speedLimit());
+    sprintf(m+strlen(m), "Max speed: %4.1f/sec.\\n", cam->maxSpeed());
     if (camera()->projection() > monoOrthographic)
         sprintf(m+strlen(m), "Eye separation: %4.2f (%3.1f%% of f)\\n", cam->eyeSeparation(), eyeSepPC);
     sprintf(m+strlen(m), "fov: %4.2f\\n", cam->fov());

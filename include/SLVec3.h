@@ -108,7 +108,7 @@ class SLVec3
     SL_INLINE SLVec3   normalized  () const                {T L=length();
                                                             SLVec3 ret(*this);
                                                             if(L>0) { ret.x /= L; ret.y /= L; ret.z /= L; }
-                                                            return *this;}
+                                                            return ret;}
     SL_INLINE void     clampMinMax (const T min, 
                                     const T max)           {x = (x>max)?max : (x<min)?min : x;
                                                             y = (y>max)?max : (y<min)?min : y;

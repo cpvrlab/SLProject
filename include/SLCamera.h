@@ -87,7 +87,7 @@ class SLCamera: public SLNode
             void            clipNear        (const SLfloat cNear){_clipNear = cNear;}
             void            clipFar         (const SLfloat cFar) {_clipFar = cFar;}
             void            numRendered     (const SLuint numR)  {_numRendered = numR;}
-            void            speedLimit      (const SLfloat sl)   {_speedLimit = sl;}
+            void            maxSpeed        (const SLfloat ms)   {_maxSpeed = ms;}
             void            focalDist       (const SLfloat f)    {_focalDist = f;}
             void            lensDiameter    (const SLfloat d)    {_lensDiameter = d;}
             void            lensSamples     (SLint x, SLint y)   {_lensSamples.samples(x, y);}
@@ -113,7 +113,7 @@ class SLCamera: public SLNode
             SLfloat         focalDistScrW   ();
             SLfloat         focalDistScrH   ();
             SLRay*          lookAtRay       () {return &_lookAtRay;}
-            SLfloat         speedLimit      () {return _speedLimit;}
+            SLfloat         maxSpeed        () {return _maxSpeed;}
             SLbool          useDeviceRot    () {return _useDeviceRot;}
             SLstring        toString        ();
    
@@ -145,9 +145,15 @@ class SLCamera: public SLNode
             SLCamAnim       _camAnim;               //!< Type of camera animation
             SLVec2f         _oldTouchPos1;          //!< Old mouse/thouch position in pixels
             SLVec2f         _oldTouchPos2;          //!< Old 2nd finger touch position in pixels
-            SLVec3f         _maxSpeed;              //!< max. speed per axis
-            SLVec3f         _curSpeed;              //!< current speed per axis
-            SLfloat         _speedLimit;            //!< speed limit per sec. for all axis
+
+            SLVec3f         _moveDir;               //!< accumulated movement directions based on pressed buttons
+            SLfloat         _drag;                  //!< simple constant drag that affects velocity
+            SLfloat         _maxSpeed;              //!< maximum speed in m/s, with high drag values this speed might not be achievable at all
+            SLVec3f         _velocity;              //!< current velocity vector
+            SLVec3f         _acceleration;          //!< current acceleration vector
+            SLfloat         _brakeAccel;            //!< brake acceleration
+            SLfloat         _moveAccel;             //!< move acceleration
+            
             SLbool          _useDeviceRot;          //!< Flag if mobile device or oculus Rift rotation should be used 
                
             // ray tracing parameters

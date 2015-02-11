@@ -25,7 +25,15 @@ SLProjection SLCamera::currentProjection   = monoPerspective;
 SLfloat      SLCamera::currentFOV          = 45.0f;
 SLint        SLCamera::currentDevRotation  = 0;
 //-----------------------------------------------------------------------------
-SLCamera::SLCamera() : SLNode("Camera"), _maxSpeed(0, 0, 0), _curSpeed(0, 0, 0)
+SLCamera::SLCamera() 
+    : SLNode("Camera"), 
+      _maxSpeed(2.0f), 
+      _velocity(0.0f, 0.0f, 0.0f),
+      _drag(0.05f),
+      _brakeAccel(16.0f),
+      _moveAccel(16.0f),
+      _moveDir(0, 0, 0),
+      _acceleration(0, 0, 0)
 {  
     _fovInit      = 0;
     _clipNear     = 0.1f;
@@ -41,7 +49,6 @@ SLCamera::SLCamera() : SLNode("Camera"), _maxSpeed(0, 0, 0), _curSpeed(0, 0, 0)
     _focalDist = 5;
    
     _eyeSeparation = _focalDist / 30.0f;
-    _speedLimit = 2.0f;
 }
 //-----------------------------------------------------------------------------
 //! Destructor: Be sure to delete the OpenGL display list.
@@ -55,6 +62,60 @@ smoothly stops the motion by decreasing the speed every frame.
 */
 SLbool SLCamera::camUpdate(SLfloat elapsedTimeMS)
 {  
+    if (_velocity == SLVec3f::ZERO && _moveDir == SLVec3f::ZERO)
+        return false;
+
+    SLbool braking = false;
+    if (_moveDir != SLVec3f::ZERO)
+    {   
+        // x and z movement direction vector should be projected on the x,z plane while
+        // but still in local space
+        // the y movement direction should alway be in world space
+        SLVec3f f = forward();
+        f.y = 0;
+        f.normalize();
+
+        SLVec3f r = right();
+        r.y = 0;
+        r.normalize();
+
+        _acceleration = f * -_moveDir.z + r * _moveDir.x;
+        _acceleration.y = _moveDir.y;
+        _acceleration.normalize();
+        _acceleration *= _moveAccel;
+
+    } // accelerate in the opposite velocity to brake
+    else
+    {  
+        _acceleration = -_velocity.normalized() * _brakeAccel;
+        braking = true;
+    }
+    
+    // accelerate
+    SLfloat velMag = _velocity.length();
+    SLVec3f increment = _acceleration * elapsedTimeMS * 0.001f; // all units in m/s, convert MS to S
+    
+    // early out if we're braking and the velocity would fall < 0
+    if (braking && increment.lengthSqr() > _velocity.lengthSqr())
+    {
+        _velocity.set(SLVec3f::ZERO);
+        return false;
+    }
+
+    _velocity += increment - _drag * _velocity * elapsedTimeMS * 0.001f; // 5% drag
+    velMag = _velocity.length();
+
+    // don't go over max speed
+    if (velMag > _maxSpeed)
+        _velocity = _velocity.normalized() * _maxSpeed;
+
+    // final delta movement vector
+    SLVec3f delta = _velocity * elapsedTimeMS * 0.001f;
+    translate(delta, TS_World);
+    
+    SL_LOG("cs: %3.2f | %3.2f, %3.2f, %3.2f\n", _velocity.length(), _acceleration.x, _acceleration.y, _acceleration.z);
+
+    /*
     // ToDo: The recursive update traversal is not yet implemented
     if (_maxSpeed != SLVec3f::ZERO || _curSpeed != SLVec3f::ZERO)
     {  
@@ -69,6 +130,10 @@ SLbool SLCamera::camUpdate(SLfloat elapsedTimeMS)
         if (_maxSpeed.z>0 && _curSpeed.z<_maxSpeed.z) _curSpeed.z += ds; else
         if (_maxSpeed.z<0 && _curSpeed.z>_maxSpeed.z) _curSpeed.z -= ds;
       
+        if (_curSpeed.z == 0.0f) {
+            int i = 0;
+        }
+
         // Slow down
         if (_maxSpeed.z == 0)
         {   if (_curSpeed.z > 0) 
@@ -101,15 +166,23 @@ SLbool SLCamera::camUpdate(SLfloat elapsedTimeMS)
             }
         }
       
-        //SL_LOG("cs: %3.1f, max: %3.1f, ds: %3.1f\n", _curSpeed.z, _maxSpeed.z, ds);
-      
+        SL_LOG("cs: %3.1f, %3.1f, %3.1f\n", _curSpeed.x, _curSpeed.y, _curSpeed.z);
+        SLfloat temp = _curSpeed.length();
+
+        _curSpeed = updateAndGetWM().mat3() * _curSpeed;
+        _curSpeed.y = 0;
+        _curSpeed.normalize();
+        _curSpeed *= temp;
+
+        forward();
+
         SLVec3f delta(_curSpeed * elapsedTimeMS / 1000.0f);
 
-        //translate(delta, TS_Local);
+        translate(delta, TS_World);
       
         return true;
     }
-    return false;
+    return false;*/
 }
 
 //-----------------------------------------------------------------------------
@@ -661,7 +734,7 @@ SLbool SLCamera::onMouseUp(const SLMouseButton button,
                            const SLint x, const SLint y, const SLKey mod)
 {
     // Stop any motion
-    _maxSpeed.set(0.0f, 0.0f, 0.0f);
+    //_acceleration.set(0.0f, 0.0f, 0.0f);
    
     //SL_LOG("onMouseUp\n");
     if (button == ButtonLeft) //===============================================
@@ -723,7 +796,7 @@ SLbool SLCamera::onMouseWheel(const SLint delta, const SLKey mod)
     }
     else if (_camAnim==walkingYUp || _camAnim==walkingZUp) //...................
     {  
-        _speedLimit *= (1.0f + sign*0.1f);
+        _maxSpeed *= (1.0f + sign*0.1f);
     }
     return false;
 }
@@ -817,8 +890,8 @@ SLbool SLCamera::onTouch2Move(const SLint x1, const SLint y1,
         } 
         else if (_camAnim == walkingYUp || _camAnim == walkingZUp)
         {
-            _maxSpeed.x = delta.x * 100.0f,
-            _maxSpeed.z = delta.y * 100.0f;
+            //_moveDir.x = delta.x * 100.0f,
+            //_moveDir.z = delta.y * 100.0f;
         }
 
     } else // Two finger pinch
@@ -863,7 +936,7 @@ screen.
 SLbool SLCamera::onTouch2Up(const SLint x1, const SLint y1,
                             const SLint x2, const SLint y2)
 {
-    _maxSpeed.set(0.0f, 0.0f, 0.0f);
+    _velocity.set(0.0f, 0.0f, 0.0f);
     return true;
 }
 //-----------------------------------------------------------------------------
@@ -874,14 +947,21 @@ The key code constants are defined in SL.h
 SLbool SLCamera::onKeyPress(const SLKey key, const SLKey mod)  
 {  
     switch ((SLchar)key)
-    {   case 'W': _maxSpeed.z =-_speedLimit; return true;
-        case 'S': _maxSpeed.z = _speedLimit; return true;
-        case 'A': _maxSpeed.x =-_speedLimit; return true;
-        case 'D': _maxSpeed.x = _speedLimit; return true;
-        case 'Q': _maxSpeed.y =-_speedLimit; return true;
-        case 'E': _maxSpeed.y = _speedLimit; return true;
+    {   case 'W': _moveDir.z -= 1.0f; return true;
+        case 'S': _moveDir.z += 1.0f; return true;
+        case 'A': _moveDir.x -= 1.0f; return true;
+        case 'D': _moveDir.x += 1.0f; return true;
+        case 'Q': _moveDir.y += 1.0f; return true;
+        case 'E': _moveDir.y -= 1.0f; return true;
+        // @todo    I tried implementing 'sprint' on pressed down shift
+        //          but modifier keys don't fire a normal key press event...
+        //          fix that please. This is why speed control is on 1 and 2 for now
+        case '1': _maxSpeed = 10.0f; return true;
+        case '2': _maxSpeed = 20.0f; return true;
+
         case (SLchar)KeyDown: return onMouseWheel( 1, mod);
         case (SLchar)KeyUp:   return onMouseWheel(-1, mod);
+        
         default:  return false;
     }
 }
@@ -892,14 +972,15 @@ SLCamera::onKeyRelease gets called when a key is released
 SLbool SLCamera::onKeyRelease(const SLKey key, const SLKey mod)
 {  
     switch ((SLchar)key)
-    {   case 'W':
-        case 'S': _maxSpeed.z = 0.0f; return true;
-        case 'A':
-        case 'D': _maxSpeed.x = 0.0f; return true;
-        case 'Q':
-        case 'E': _maxSpeed.y = 0.0f; return true;
-        default:  return false;
+    {   case 'W': _moveDir.z += 1.0f; return true;
+        case 'S': _moveDir.z -= 1.0f; return true;
+        case 'A': _moveDir.x += 1.0f; return true;
+        case 'D': _moveDir.x -= 1.0f; return true;
+        case 'Q': _moveDir.y -= 1.0f; return true;
+        case 'E': _moveDir.y += 1.0f; return true;
     }
+
+    return false;
 }
 //-----------------------------------------------------------------------------
 //! SLCamera::setFrustumPlanes set the 6 plane from the view frustum.
