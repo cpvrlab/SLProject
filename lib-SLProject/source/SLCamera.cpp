@@ -33,7 +33,8 @@ SLCamera::SLCamera()
       _brakeAccel(16.0f),
       _moveAccel(16.0f),
       _moveDir(0, 0, 0),
-      _acceleration(0, 0, 0)
+      _acceleration(0, 0, 0),
+      _unitScaling(1.0f)
 {  
     _fovInit      = 0;
     _clipNear     = 0.1f;
@@ -65,6 +66,8 @@ SLbool SLCamera::camUpdate(SLfloat elapsedTimeMS)
     if (_velocity == SLVec3f::ZERO && _moveDir == SLVec3f::ZERO)
         return false;
 
+    SLfloat dtS = elapsedTimeMS * 0.001f;
+
     SLbool braking = false;
     if (_moveDir != SLVec3f::ZERO)
     {   
@@ -93,7 +96,7 @@ SLbool SLCamera::camUpdate(SLfloat elapsedTimeMS)
     
     // accelerate
     SLfloat velMag = _velocity.length();
-    SLVec3f increment = _acceleration * elapsedTimeMS * 0.001f; // all units in m/s, convert MS to S
+    SLVec3f increment = _acceleration * dtS; // all units in m/s, convert MS to S
     
     // early out if we're braking and the velocity would fall < 0
     if (braking && increment.lengthSqr() > _velocity.lengthSqr())
@@ -102,7 +105,7 @@ SLbool SLCamera::camUpdate(SLfloat elapsedTimeMS)
         return false;
     }
 
-    _velocity += increment - _drag * _velocity * elapsedTimeMS * 0.001f; // 5% drag
+    _velocity += increment - _drag * _velocity * dtS; 
     velMag = _velocity.length();
 
     // don't go over max speed
@@ -110,7 +113,11 @@ SLbool SLCamera::camUpdate(SLfloat elapsedTimeMS)
         _velocity = _velocity.normalized() * _maxSpeed;
 
     // final delta movement vector
-    SLVec3f delta = _velocity * elapsedTimeMS * 0.001f;
+    SLVec3f delta = _velocity * dtS;
+
+    // adjust for scaling (if the character is shrinked or enlarged)
+    delta *= _unitScaling;
+
     translate(delta, TS_World);
     
     SL_LOG("cs: %3.2f | %3.2f, %3.2f, %3.2f\n", _velocity.length(), _acceleration.x, _acceleration.y, _acceleration.z);
@@ -366,7 +373,7 @@ SLstring SLCamera::projectionToStr(SLProjection p)
 Returns the height of the screen at focal distance. In stereo rendering this
 shoud correspond to the height of the projection plane.
 */
-SLfloat SLCamera::focalDistScrH()
+SLfloat SLCamera::focalDistScrH() const
 {  
    return tan(_fov*SL_DEG2RAD/2.0f) * _focalDist * 2.0f;
 }
@@ -375,7 +382,7 @@ SLfloat SLCamera::focalDistScrH()
 Returns the width of the screen at focal distance. In stereo rendering this
 shoud correspond to the width of the projection plane.
 */
-SLfloat SLCamera::focalDistScrW()
+SLfloat SLCamera::focalDistScrW() const
 {  
     return focalDistScrH() * _aspect;
 }
@@ -550,7 +557,7 @@ void SLCamera::setView(SLSceneView* sv, const SLEye eye)
                 SLfloat rotX, rotY, rotZ;
                 rotation.toMat4().toEulerAnglesZYX(rotZ, rotY, rotX);
                 //SL_LOG("rotx : %3.1f, roty: %3.1f, rotz: %3.1f\n", rotX*SL_RAD2DEG, rotY*SL_RAD2DEG, rotZ*SL_RAD2DEG);
-                SLVec3f viewAdjust = s->oculus()->viewAdjust(eye);
+                SLVec3f viewAdjust = s->oculus()->viewAdjust(eye) * _unitScaling;
                 SLMat4f vmEye(SLMat4f(viewAdjust.x, viewAdjust.y, viewAdjust.z) * rotation.inverted().toMat4() * trackingPos * vm);
                 _stateGL->modelViewMatrix = vmEye;
                 _stateGL->viewMatrix = vmEye;
@@ -581,7 +588,7 @@ void SLCamera::setView(SLSceneView* sv, const SLEye eye)
 }
 //-----------------------------------------------------------------------------
 //! SLCamera::animationStr() returns the animation enum as string
-SLstring SLCamera::animationStr()
+SLstring SLCamera::animationStr() const
 {  
     switch (_camAnim)
     {   case turntableYUp: return "Turntable Y up";
@@ -1107,7 +1114,7 @@ SLbool SLCamera::isInFrustum(SLAABBox* aabb)
 }
 //-----------------------------------------------------------------------------
 //! SLCamera::to_string returns important camera parameter as a string
-SLstring SLCamera::toString()
+SLstring SLCamera::toString() const
 {
     SLMat4f vm = updateAndGetVM();
     std::ostringstream ss;

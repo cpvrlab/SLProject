@@ -919,7 +919,7 @@ void SLSceneView::draw2DGLAll()
     // Draw virtual mouse cursor if we're in hmd stereo mode
     if (_camera->projection() == stereoSideBySideD)
     {
-        if (_camera->camAnim()==turntableYUp || _camera->camAnim()==turntableZUp)
+        if (true /*_camera->camAnim()==turntableYUp || _camera->camAnim()==turntableZUp*/)
         {   
             SLfloat hCur = (SLfloat)s->texCursor()->height();
             _stateGL->multiSample(true);
@@ -1203,6 +1203,9 @@ SLbool SLSceneView::onKeyPress(const SLKey key, const SLKey mod)
     if (key == KeyNPAdd) { _animMultiplier += 0.1f; return true; }
     if (key == KeyNPSubtract) { if(_animMultiplier > 0.1f) _animMultiplier += -0.1f; return true; }
     
+    if (key == '5') { _camera->unitScaling(_camera->unitScaling()+0.1f); SL_LOG("New unit scaling: %f", _camera->unitScaling()); return true; }
+    if (key == '6') { _camera->unitScaling(_camera->unitScaling()-0.1f); SL_LOG("New unit scaling: %f", _camera->unitScaling()); return true; }
+
     if (key=='N') return onCommand(cmdNormalsToggle);
     if (key=='P') return onCommand(cmdWireMeshToggle);
     if (key=='C') return onCommand(cmdFaceCullToggle);

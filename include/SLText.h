@@ -41,6 +41,7 @@ class SLText: public SLNode
             void        statsRec    (SLNodeStats &stats);
             SLAABBox&   updateAABBRec();
             SLbool      hitRec      (SLRay* ray){return false;}
+    virtual void        drawMeshes  (SLSceneView* sv);
             
             void        preShade    (SLRay* ray){;}
             

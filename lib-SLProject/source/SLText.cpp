@@ -71,7 +71,7 @@ void SLText::drawRec(SLSceneView* sv)
     _bufT.disableAttribArray();
 
     // For debug purpose
-    //sp = SLScene::current->shaderProgs(ColorUniform);
+    //sp = SLScene::current->programs(ColorUniform);
     //sp->useProgram();
     //sp->uniformMatrix4fv("u_mvpMatrix",1,(SLfloat*)state->mvpMatrix());
     //sp->uniform4fv("u_color", 1, (float*)&SLCol4f::GREEN);
@@ -80,6 +80,10 @@ void SLText::drawRec(SLSceneView* sv)
     //_bufI.bindAndDrawElementsAs(SL_LINES, _text.length()*2*3);
     //_bufP.disableAttribArray();
     //_bufT.disableAttribArray();
+}
+void SLText::drawMeshes(SLSceneView* sv)
+{
+    drawRec(sv);
 }
 //-----------------------------------------------------------------------------
 /*! 

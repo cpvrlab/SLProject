@@ -30,6 +30,7 @@
 #include <SLCylinder.h>
 #include <SLSphere.h>
 #include <SLRectangle.h>
+#include <SLText.h>
 #include <SLGrid.h>
 #include <SLLens.h>
 
@@ -376,8 +377,10 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
         name("Virtual Reality test scene");
         info(sv, "Test scene for virtual reality size perception.");
         
+
         SLAssimpImporter importer;
         SLNode* scene = new SLNode;
+        scene->scale(1);
         
         // scene floor
         SLMaterial* matFloor = new SLMaterial("floor", new SLGLTexture("tron_floor2.png"
@@ -400,6 +403,39 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
         table->translate(0, 0, -1);
         scene->addChild(table);
 
+        // create crates of various sizes
+        SLNode* crate = importer.load("DAE/Crate/crate.dae");
+        SLMesh* crateMesh = importer.meshes()[3];
+        
+        
+        crate->rotate(20, 0, 1, 0);
+        crate->translate(2, 0, -1, TS_World);
+        scene->addChild(crate);
+        
+        crate = new SLNode;
+        crate->addMesh(crateMesh);
+        crate->rotate(20, 0, 1, 0);
+        crate->translate(3.1, 0, -1, TS_World);
+        scene->addChild(crate);
+        
+        crate = new SLNode(crateMesh);
+        crate->rotate(-10, 0, 1, 0);
+        crate->translate(2.5, 1, -1, TS_World);
+        scene->addChild(crate);
+
+        
+        crate = new SLNode(crateMesh);
+        crate->rotate(60, 0, 1, 0);
+        crate->translate(-4, 0, 1, TS_World);
+        crate->scale(2);
+        scene->addChild(crate);
+        
+        crate = new SLNode(crateMesh);
+        crate->rotate(30, 0, 1, 0);
+        crate->translate(-5, 0, -8, TS_World);
+        crate->scale(4);
+        scene->addChild(crate);
+
         SLCamera* cam1 = new SLCamera();
         cam1->position(0, 1.8f, 0);
         cam1->lookAt(0, 1.8f, -1.0f);
@@ -415,7 +451,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
         charAnim->playForward();
         charAnim->playbackRate(0.8f);
 
-        astroboyBig->translate(-1.0f, 0.0f, -1.0f);
+        astroboyBig->translate(-1.5f, 0.0f, -1.0f);
 
         scene->addChild(astroboyBig);
 
@@ -436,16 +472,92 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
         light1->diffuse(SLCol4f(1.0f, 0.7f, 0.3f));
         light1->specular(SLCol4f(0.5f, 0.3f, 0.1f));
         light1->attenuation(1,0,0);
-
-        SLLightSphere* light2 = new SLLightSphere(0.0f, -2.0f, 0.0f, 0.2f, 1.0f, 1.0f, 0.0f);
-        light2->ambient(SLCol4f(1.0f, 0.0f, 0.0f));
-        light2->diffuse(SLCol4f(0.0f, 2.0f, 10.0f));
+                
+        SLLightSphere* light2 = new SLLightSphere(-10.0f, -15.0, 10.0f, 0.2f, 1.0f, 1.0f, 0.0f);
+        light2->ambient(SLCol4f(0.0f, 0.0f, 0.0f));
+        light2->diffuse(SLCol4f(0.0f, 4.0f, 10.0f));
         light2->specular(SLCol4f(0.0f, 0.0f, 0.0f));
-        light2->attenuation(1,1,0);
+        light2->attenuation(1,0.5f,0);
+        
+        SLLightSphere* light3 = new SLLightSphere(-10.0f, -15.0, -10.0f, 0.2f, 1.0f, 1.0f, 0.0f);
+        light3->ambient(SLCol4f(0.0f, 0.0f, 0.0f));
+        light3->diffuse(SLCol4f(0.0f, 4.0f, 10.0f));
+        light3->specular(SLCol4f(0.0f, 0.0f, 0.0f));
+        light3->attenuation(1,0.5f,0);
+        
+        SLLightSphere* light4 = new SLLightSphere(10.0f, -15.0, -10.0f, 0.2f, 1.0f, 1.0f, 0.0f);
+        light4->ambient(SLCol4f(0.0f, 0.0f, 0.0f));
+        light4->diffuse(SLCol4f(0.0f, 4.0f, 10.0f));
+        light4->specular(SLCol4f(0.0f, 0.0f, 0.0f));
+        light4->attenuation(1,0.5f,0);
+        
+        SLLightSphere* light5 = new SLLightSphere(10.0f, -15.0, 10.0f, 0.2f, 1.0f, 1.0f, 0.0f);
+        light5->ambient(SLCol4f(0.0f, 0.0f, 0.0f));
+        light5->diffuse(SLCol4f(0.0f, 4.0f, 10.0f));
+        light5->specular(SLCol4f(0.0f, 0.0f, 0.0f));
+        light5->attenuation(1,0.5f,0);
+
+        SLAnimation* anim = SLAnimation::create("anim_light2_updown", 10.0f, true, EC_inOutSine, AL_pingPongLoop);
+        anim->createSimpleTranslationNodeTrack(light2, SLVec3f(0.0f, 1.0f, 0.0f));
+        anim->createSimpleTranslationNodeTrack(light3, SLVec3f(0.0f, 2.0f, 0.0f));
+        anim->createSimpleTranslationNodeTrack(light4, SLVec3f(0.0f, 1.0f, 0.0f));
+        anim->createSimpleTranslationNodeTrack(light5, SLVec3f(0.0f, 2.0f, 0.0f));
+
+
+
+        // 
+        SLMaterial* whiteMat = new SLMaterial("mat", SLCol4f::WHITE, SLCol4f::WHITE, 1.0f, 1.0, 0.0f, 0.0f);
+        whiteMat->emission(SLCol4f::WHITE);
+        SLRectangle* plane0 = new SLRectangle(SLVec2f(-0.01f, 0.0f), SLVec2f(0.01f, 1.0f), 1, 1, "sizeIndicator0", whiteMat);
+        SLRectangle* plane1 = new SLRectangle(SLVec2f(0.005f, 0.0f), SLVec2f(-0.005f, 1.0f), 1, 1, "sizeIndicator1", whiteMat);
+
+        struct indicatorData {
+            indicatorData(SLfloat px, SLfloat py, SLfloat pz, SLfloat r, SLfloat s, const SLstring& t)
+                : pos(px, py, pz), yRot(r), yScale(s), text(t)
+            { }
+
+            SLVec3f pos;
+            SLfloat yRot;
+            SLfloat yScale;
+            SLstring text;
+        };
+        indicatorData indicators[] = {
+            // pos                             y rot    y scale text
+            indicatorData(3.0f, 0.0f, -0.2f,    -20.0f,    1.0f,   "1m"),
+            indicatorData(0.7f, 0.0f, -0.8f,    0.0f,    1.4f,   "1.40m"),
+            indicatorData(0.05f, 1.4f, -1.0f,    0.0f,    0.18f,   "18cm"),
+            indicatorData(-1.2f, 0.0f, -1.0f,    0.0f,    1.8f,   "1.80m"),
+            indicatorData(-2.8f, 0.0f, 0.2f,    60.0f,    2.0f,   "2m"),
+            indicatorData(-2.0f, 0.0f, -7.0f,   20.0f,   4.0f,   "4m")
+        };        
+
+        for (SLint i = 0; i < 6; i++)
+        {
+            SLNode* sizeIndicator = new SLNode;
+            sizeIndicator->addMesh(plane0);
+            sizeIndicator->addMesh(plane1);
+            //sizeIndicator->scale();
+            SLVec3f pos = indicators[i].pos;
+            sizeIndicator->translate(pos, TS_World);
+            sizeIndicator->scale(1, indicators[i].yScale, 1);
+            sizeIndicator->rotate(indicators[i].yRot, 0, 1, 0, TS_World);
+        
+            SLText* sizeText1M = new SLText(indicators[i].text, SLTexFont::font22);
+            sizeText1M->translate(pos.x + 0.05f, pos.y + 0.5f * indicators[i].yScale, pos.z);
+            sizeText1M->rotate(indicators[i].yRot, 0, 1, 0, TS_World);
+            sizeText1M->scale(0.005f);
+
+
+            scene->addChild(sizeText1M);
+            scene->addChild(sizeIndicator);
+        }
         
         _backColor.set(0.0f,0.0f,0.0f);
         scene->addChild(light1);
         scene->addChild(light2);
+        scene->addChild(light3);
+        scene->addChild(light4);
+        scene->addChild(light5);
 
         _root3D = scene;
     }
