@@ -322,7 +322,8 @@ void SLSceneView::onInitialize()
       
         SL_LOG("Time for AABBs : %5.3f sec.\n", 
                 (SLfloat)(clock()-t)/(SLfloat)CLOCKS_PER_SEC);
-      
+
+        _stats.clear();
         s->root3D()->statsRec(_stats);
     }
 
@@ -483,7 +484,7 @@ SLbool SLSceneView::draw3DGL(SLfloat elapsedTimeMS)
 
     SLfloat startMS = s->timeMilliSec();
     
-    // Update camera animation seperately to process input on camera object
+    // Update camera animation seperately (smooth transition on key movement)
     SLbool camUpdated = _camera->camUpdate(elapsedTimeMS);
    
     //////////////////////
@@ -529,8 +530,7 @@ SLbool SLSceneView::draw3DGL(SLfloat elapsedTimeMS)
     _camera->setFrustumPlanes(); 
     _blendNodes.clear();
     _opaqueNodes.clear();     
-    s->_root3D->cullRec(this);   
-    _camera->numRendered(_stats.numLeafNodes);
+    s->_root3D->cullRec(this);
    
     _cullTimeMS = s->timeMilliSec() - startMS;
 
@@ -573,20 +573,18 @@ added the to the array _opaqueNodes.
 */
 void SLSceneView::draw3DGLAll()
 {  
-    // Render first the opaque shapes and their helper lines 
+    // Render first the opaque shapes and all helper lines (normals and AABBs)
     _stateGL->blend(false);
     _stateGL->depthMask(true);
 
     draw3DGLNodes(_opaqueNodes);
     draw3DGLLines(_opaqueNodes);
-
-    // Render the helper lines of the blended shapes non-blended!
     draw3DGLLines(_blendNodes);
 
     _stateGL->blend(true);
     _stateGL->depthMask(false);
 
-    // Blended shapes must be sorted back to front
+    // Blended nodes must be sorted back to front
     std::sort(_blendNodes.begin(), _blendNodes.end(), CompareNodeViewDist);
     draw3DGLNodes(_blendNodes);
 
@@ -1967,10 +1965,11 @@ SLstring SLSceneView::windowTitle()
                 _pathtracer.pcRendered(), 
                 _pathtracer.numThreads());
     } else
-    {   sprintf(title, "%s (fps: %4.1f, %u shapes rendered)", 
+    {   sprintf(title, "%s (fps: %4.1f, %u nodes of %u rendered)",
                         s->name().c_str(), 
                         s->_fps,
-                        _camera->numRendered());
+                        _camera->numRendered(),
+                        _stats.numNodes);
     }
     return SLstring(title);
 }

@@ -35,7 +35,7 @@ class SLAABBox
 {
     public:
                         SLAABBox  ();
-                        ~SLAABBox  (){;}
+                       ~SLAABBox  (){;}
 
             // Setters
             void        minWS       (SLVec3f minC)  {_minWS = minC;}

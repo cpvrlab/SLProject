@@ -122,9 +122,6 @@ void SLMesh::init(SLNode* node)
         // build tangents for bump mapping
         if (mat->needsTangents() && Tc && T==0)
             calcTangents();
-
-        // set the final position and normal pointers
-
     }
 }
 //-----------------------------------------------------------------------------
