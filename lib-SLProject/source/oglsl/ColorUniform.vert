@@ -1,5 +1,5 @@
 //#############################################################################
-//  File:      ConstUniform.vert
+//  File:      ColorUniform.vert
 //  Purpose:   GLSL vertex program for simple uniform color
 //  Date:      July 2014
 //  Copyright: 2002-2014 Marcus Hudritsch
