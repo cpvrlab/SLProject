@@ -120,9 +120,9 @@ SLbool SLCamera::camUpdate(SLfloat elapsedTimeMS)
 
     translate(delta, TS_World);
     
-    SL_LOG("cs: %3.2f | %3.2f, %3.2f, %3.2f\n", _velocity.length(), _acceleration.x, _acceleration.y, _acceleration.z);
+    //SL_LOG("cs: %3.2f | %3.2f, %3.2f, %3.2f\n", _velocity.length(), _acceleration.x, _acceleration.y, _acceleration.z);
 
-    /*
+    /* OLD CODE BELOW
     // ToDo: The recursive update traversal is not yet implemented
     if (_maxSpeed != SLVec3f::ZERO || _curSpeed != SLVec3f::ZERO)
     {  
