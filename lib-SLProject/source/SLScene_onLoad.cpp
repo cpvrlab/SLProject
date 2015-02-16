@@ -399,7 +399,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
         // TODO...
 
         // table
-        SLNode* table = importer.load("DAE/Table/table3.dae");
+        SLNode* table = importer.load("DAE/Table/table.dae");
         table->translate(0, 0, -1);
         scene->addChild(table);
 
@@ -437,8 +437,8 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
         scene->addChild(crate);
 
         SLCamera* cam1 = new SLCamera();
-        cam1->position(0, 1.8f, 0);
-        cam1->lookAt(0, 1.8f, -1.0f);
+        cam1->position(0, 1.67f, 0);    // eye height for 180cm high male
+        cam1->lookAt(0, 1.67f, -1.0f);
         cam1->focalDist(22);
         cam1->setInitialState();
         cam1->camAnim(walkingYUp);
@@ -460,8 +460,8 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
         charAnim = importer.skeleton()->getAnimPlayback("unnamed_anim_0");
         charAnim->playForward();
         charAnim->playbackRate(2.0f);
-
-        astroboySmall->translate(0.0f, 1.4f, -1.0f);
+        
+        astroboySmall->translate(0.0f, 1.1f, -1.0f);
         astroboySmall->scale(0.1f);
         scene->addChild(astroboySmall);
 
@@ -524,8 +524,8 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
         indicatorData indicators[] = {
             // pos                             y rot    y scale text
             indicatorData(3.0f, 0.0f, -0.2f,    -20.0f,    1.0f,   "1m"),
-            indicatorData(0.7f, 0.0f, -0.8f,    0.0f,    1.4f,   "1.40m"),
-            indicatorData(0.05f, 1.4f, -1.0f,    0.0f,    0.18f,   "18cm"),
+            indicatorData(0.7f, 0.0f, -0.8f,    0.0f,    1.1f,   "1.10m"),
+            indicatorData(0.05f, 1.1f, -1.0f,    0.0f,    0.18f,   "18cm"),
             indicatorData(-1.2f, 0.0f, -1.0f,    0.0f,    1.8f,   "1.80m"),
             indicatorData(-2.8f, 0.0f, 0.2f,    60.0f,    2.0f,   "2m"),
             indicatorData(-2.0f, 0.0f, -7.0f,   20.0f,   4.0f,   "4m")
