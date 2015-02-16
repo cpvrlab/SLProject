@@ -286,7 +286,6 @@ HEADERS += \
 SOURCES += \
     glfw3/src/mach_time.c \
     glfw3/src/posix_tls.c \
-    glfw3/src/nsgl_context.c \
     png/pngwutil.c \
     png/pngwtran.c \
     png/pngwrite.c \
@@ -325,4 +324,5 @@ OBJECTIVE_SOURCES += \
     glfw3/src/cocoa_monitor.m \
     glfw3/src/cocoa_window.m \
     glfw3/src/iokit_joystick.m \
+    glfw3/src/nsgl_context.m \
 }
