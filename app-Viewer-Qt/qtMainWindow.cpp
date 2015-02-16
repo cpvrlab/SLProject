@@ -394,17 +394,17 @@ void qtMainWindow::buildPropertyTree()
             ui->propertyTree->addTopLevelItem(level1);
 
             level2 = new qtPropertyTreeItem("Field of view:", "", allowEdit);
-            level2->setGetFloat(bind((float(SLCamera::*)(void))&SLCamera::fov, cam),
+            level2->setGetFloat(bind((float(SLCamera::*)(void) const)&SLCamera::fov, cam),
                                 bind((void(SLCamera::*)(float))&SLCamera::fov, cam, _1));
             level1->addChild(level2);
 
             level2 = new qtPropertyTreeItem("Near clip plane:", "", allowEdit);
-            level2->setGetFloat(bind((float(SLCamera::*)(void))&SLCamera::clipNear, cam),
+            level2->setGetFloat(bind((float(SLCamera::*)(void) const)&SLCamera::clipNear, cam),
                                 bind((void(SLCamera::*)(float))&SLCamera::clipNear, cam, _1));
             level1->addChild(level2);
 
             level2 = new qtPropertyTreeItem("Far clip plane:", "", allowEdit);
-            level2->setGetFloat(bind((float(SLCamera::*)(void))&SLCamera::clipFar, cam),
+            level2->setGetFloat(bind((float(SLCamera::*)(void) const)&SLCamera::clipFar, cam),
                                 bind((void(SLCamera::*)(float))&SLCamera::clipFar, cam, _1));
             level1->addChild(level2);
         }
