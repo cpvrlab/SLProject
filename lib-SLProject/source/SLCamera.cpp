@@ -1019,7 +1019,6 @@ SLbool SLCamera::isInFrustum(SLAABBox* aabb)
     _numRendered++;
 	
     // Calculate squared dist. from AABB's center to viewer for blend sorting.
-    // SLSceneView::drawBlendedShapes for more infos.
     SLVec3f viewToCenter(_wm.translation()-aabb->centerWS());
     aabb->sqrViewDist(viewToCenter.lengthSqr());    	   
     return true;

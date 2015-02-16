@@ -180,7 +180,6 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
     cout << "------------------------------------------------------------------" << endl;
     init();
 
-
     // Show once the empty loading screen without scene
     // @todo review this, we still pass in the active scene view with sv. Is it necessary?
     for (SLint i = 0; i < _sceneViews.size(); ++i)
@@ -191,57 +190,55 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
 
     if (sceneName == cmdSceneSmallTest) //......................................
     {
+        // Set scene name and info string
         name("Minimal Texture Example");
         info(sv, "Minimal texture mapping example with one light source.");
 
-        // Create textures
+        // Create textures and materials
         SLGLTexture* texC = new SLGLTexture("earth1024_C.jpg");
-
-        // Create materials
         SLMaterial* m1 = new SLMaterial("m1", texC);
 
-        // Create a camera at 0,0,20
+        // Create a camera node
         SLCamera* cam1 = new SLCamera();
-        cam1->name("cam1");
+        cam1->name("camera node");
         cam1->position(0,0,20);
         cam1->lookAt(0, 0, 0);
         cam1->setInitialState();
 
-        // Create a spherical light source at 0,0,5
+        // Create a light source node
         SLLightSphere* light1 = new SLLightSphere(0.3f);
         light1->position(0,0,5);
         light1->lookAt(0, 0, 0);
-        light1->name("light1");        
-        SLAnimation* light1Anim = SLAnimation::create("Light1_anim", 4.0f);
-        light1Anim->createEllipticNodeTrack(light1, 6, YAxis, 6, XAxis);
+        light1->name("light node");
 
-        // Create ground grid
-        SLMaterial* m2 = new SLMaterial(SLCol4f::WHITE);
-        SLGrid* grid = new SLGrid(SLVec3f(-5,0,-5), SLVec3f(5,0,5), 10, 10, "Grid", m2);
+        // Create meshes and nodes
+        SLMesh* rectMesh = new SLRectangle(SLVec2f(-5,-5), SLVec2f(5,5), 1,1, "rect mesh", m1);
+        SLNode* rectNode = new SLNode(rectMesh, "rect node");
 
         // Create a scene group and add all nodes
-        SLNode* scene = new SLNode("Scene");
-        scene->addChild(new SLNode(new SLRectangle(SLVec2f(-5,-5), SLVec2f(5,5),1,1,"Rect", m1), "Rect"));
+        SLNode* scene = new SLNode("scene node");
         scene->addChild(light1);
-        scene->addChild(new SLNode(grid, "grid"));
         scene->addChild(cam1);
+        scene->addChild(rectNode);
 
-        // Set background color, the active camera and the root scene node
+        // Set background colo and the root scene node
         _backColor.set(0.5f,0.5f,0.5f);
-        sv->camera(cam1);
         _root3D = scene;
+
+        // Set active camera
+        sv->camera(cam1);
     }
     else
     if (sceneName == cmdSceneFigure) //.........................................
     {
         name("Hierarchical Figure Scene");
-        info(sv, "Hierarchical scene structure.");
+        info(sv, "Hierarchical scenegraph with multiple subgroups.");
 
         // Create textures and materials
         SLMaterial* m1 = new SLMaterial("m1", SLCol4f::BLACK, SLCol4f::WHITE,128, 0.2f, 0.8f, 1.5f);
         SLMaterial* m2 = new SLMaterial("m2", SLCol4f::WHITE*0.3f, SLCol4f::WHITE,128, 0.5f, 0.0f, 1.0f);
 
-        SLMesh* floorMesh = new SLRectangle(SLVec2f(-5,-5), SLVec2f(5,5), 20, 20, "FloorMesh", m2);
+        SLMesh* floorMesh = new SLRectangle(SLVec2f(-5,-5), SLVec2f(5,5), 20, 20, "floor mesh", m2);
         SLNode* floorRect = new SLNode(floorMesh);
         floorRect->rotate(90, -1,0,0);
         floorRect->translate(0,0,-5.5f);
@@ -251,11 +248,6 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
         cam1->lookAt(0, 0, 0);
         cam1->focalDist(22);
         cam1->setInitialState();
-//        SLCamera* cam2 = new SLCamera;
-//        cam2->position(10, 0, 0);
-//        cam2->lookAt(0, 0, 0);
-//        cam2->focalDist(5);
-//        cam2->setInitialState();
 
         SLLightSphere* light1 = new SLLightSphere(5, 5, 5, 0.5f);
         light1->ambient (SLCol4f(0.2f,0.2f,0.2f));
@@ -265,10 +257,9 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
 
         SLNode* figure = BuildFigureGroup(m1);
 
-        SLNode* scene = new SLNode("Scene");
+        SLNode* scene = new SLNode("scene node");
         scene->addChild(light1);
         scene->addChild(cam1);
-        //scene->addChild(cam2);
         scene->addChild(floorRect);
         scene->addChild(figure);
      

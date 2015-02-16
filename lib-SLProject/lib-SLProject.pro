@@ -193,10 +193,14 @@ source/oglsl/PerPixBlinn.frag \
 source/oglsl/PerPixBlinn.vert \
 source/oglsl/PerPixBlinnTex.frag \
 source/oglsl/PerPixBlinnTex.vert \
+source/oglsl/PerPixBlinnSkinned.vert \
+source/oglsl/PerPixBlinnTexSkinned.vert \
 source/oglsl/PerVrtBlinn.frag \
 source/oglsl/PerVrtBlinn.vert \
 source/oglsl/PerVrtBlinnTex.frag \
 source/oglsl/PerVrtBlinnTex.vert \
+source/oglsl/PerVrtBlinnSkinned.vert \
+source/oglsl/PerVrtBlinnTexSkinned.vert \
 source/oglsl/Reflect.frag \
 source/oglsl/Reflect.vert \
 source/oglsl/RefractReflect.frag \
@@ -209,6 +213,10 @@ source/oglsl/Terrain_Loesung.frag \
 source/oglsl/Terrain_Loesung.vert \
 source/oglsl/TextureOnly.frag \
 source/oglsl/TextureOnly.vert \
+source/oglsl/StereoOculus.frag \
+source/oglsl/StereoOculusDistortionMesh.frag \
+source/oglsl/StereoOculus.vert \
+source/oglsl/StereoOculusDistortionMesh.vert \
 source/oglsl/Wave.frag \
 source/oglsl/Wave.vert \
 source/oglsl/WaveRefractReflect.vert \
@@ -220,9 +228,4 @@ Introduction.md \
 OneFrame.ml \
 onPaint.md \
 SLProject.md \
-source/oglsl/PerPixBlinnSkinned.vert \
-source/oglsl/PerPixBlinnTexSkinned.vert \
-source/oglsl/PerVrtBlinnSkinned.vert \
-source/oglsl/PerVrtBlinnTexSkinned.vert
-
 

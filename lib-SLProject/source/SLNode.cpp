@@ -19,6 +19,7 @@
 #include <SLRay.h>
 #include <SLCamera.h>
 #include <SLLightSphere.h>
+#include <SLLightRect.h>
 
 //-----------------------------------------------------------------------------
 /*! 
@@ -303,7 +304,8 @@ bool SLNode::deleteChild(SLstring name)
 /*!
 Searches for all nodes that contain the provided mesh
 */
-vector<SLNode*> SLNode::findChildren(const SLMesh* mesh, SLbool findRecursive)
+vector<SLNode*> SLNode::findChildren(const SLMesh* mesh,
+                                     SLbool findRecursive)
 {
     vector<SLNode*> list;
     findChildrenHelper(mesh, list, findRecursive);
@@ -314,7 +316,9 @@ vector<SLNode*> SLNode::findChildren(const SLMesh* mesh, SLbool findRecursive)
 /*!
 Helper function of findChildren for meshes
 */
-void SLNode::findChildrenHelper(const SLMesh* mesh, vector<SLNode*>& list, SLbool findRecursive)
+void SLNode::findChildrenHelper(const SLMesh* mesh,
+                                vector<SLNode*>& list,
+                                SLbool findRecursive)
 {
     for (SLint i = 0; i < _children.size(); ++i)
     {
@@ -339,7 +343,8 @@ void SLNode::cullRec(SLSceneView* sv)
     // Do frustum culling for all shapes except cameras & lights
     if (sv->doFrustumCulling() &&
         typeid(*this)!=typeid(SLCamera) &&
-        typeid(*this)!=typeid(SLLightSphere))
+        typeid(*this)!=typeid(SLLightSphere) &&
+        typeid(*this)!=typeid(SLLightRect))
         sv->camera()->isInFrustum(&_aabb);
     else _aabb.isVisible(true);
 
@@ -420,6 +425,7 @@ and calls recursively the same method for all children.
 void SLNode::statsRec(SLNodeStats &stats)  
 {  
     stats.numBytes += sizeof(SLNode);
+    stats.numNodes++;
 
     if (_children.size() == 0)
          stats.numLeafNodes++;

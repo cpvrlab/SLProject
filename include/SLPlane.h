@@ -29,7 +29,7 @@ class SLPlane
                                 const SLVec3f &v2, 
                                 const SLVec3f &v3);
                         SLPlane(){N.set(0,0,1); d=0.0f;}
-                        ~SLPlane(){;}
+                       ~SLPlane(){;}
                  
             SLVec3f     N; //!< plane normal
             SLfloat     d; //!< d = -(ax+by+cy) = -normal.dot(point)
