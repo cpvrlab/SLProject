@@ -7,6 +7,10 @@
 *.pdb
 *.obj
 *.md5
+*.pdf
+*.dll
+*.lib
+*.exe
 *.so
 obj/
 ipch/
