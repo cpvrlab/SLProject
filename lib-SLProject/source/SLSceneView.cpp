@@ -13,7 +13,7 @@
 #include <debug_new.h>        // memory leak detector
 #endif
 
-#include <slInterface.h>
+#include <SLInterface.h>
 #include <SLLight.h>
 #include <SLCamera.h>
 #include <SLAABBox.h>
