@@ -314,13 +314,13 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
 
         #if defined(SL_OS_IOS) || defined(SL_OS_ANDROID)
         SLAssimpImporter importer;
-        SLNode* mesh3DS = importer.load("jackolan.3DS");
-        SLNode* meshFBX = importer.load("Duck.fbx");
+        SLNode* mesh3DS = importer.load("jackolan.3ds");
+        SLNode* meshFBX = importer.load("duck.fbx");
         SLNode* meshDAE = importer.load("AstroBoy.dae");
       
         #else
         SLAssimpImporter importer;
-        SLNode* mesh3DS = importer.load("3DS/Halloween/Jackolan.3DS");
+        SLNode* mesh3DS = importer.load("3DS/Halloween/Jackolan.3ds");
         SLNode* meshFBX = importer.load("FBX/Duck/Duck.fbx");
         SLNode* meshDAE = importer.load("DAE/AstroBoy/AstroBoy.dae");
         #endif

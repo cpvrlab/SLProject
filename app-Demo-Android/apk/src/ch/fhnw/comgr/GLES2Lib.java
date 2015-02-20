@@ -56,6 +56,7 @@ public class GLES2Lib {
 	public static native void    onRotationQUAT  (float quatX, float quatY, float quatZ, float quatW);
 	public static native void    onStopRT        ();
 	public static native void    onClose         ();
+	public static native boolean shouldClose     ();
 
 	/**
 	* The RaytracingCallback function is used to repaint the ray tracing image during the

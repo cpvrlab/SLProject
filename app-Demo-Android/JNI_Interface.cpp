@@ -45,6 +45,7 @@ extern "C"
    JNIEXPORT bool JNICALL Java_ch_fhnw_comgr_GLES2Lib_onRotationPYR   (JNIEnv* env, jobject obj, jfloat pitchRAD, jfloat yawRAD, jfloat rollRAD);
    JNIEXPORT bool JNICALL Java_ch_fhnw_comgr_GLES2Lib_onRotationQUAT  (JNIEnv* env, jobject obj, jfloat quatX, jfloat quatY, jfloat quatZ, jfloat quatW);
    JNIEXPORT void JNICALL Java_ch_fhnw_comgr_GLES2Lib_onClose         (JNIEnv* env, jobject obj);
+   JNIEXPORT bool JNICALL Java_ch_fhnw_comgr_GLES2Lib_shouldClose     (JNIEnv* env, jobject obj);
 };
 
 //! Native ray tracing callback function that calls the Java class method GLES2Lib.RaytracingCallback
@@ -148,7 +149,14 @@ JNIEXPORT bool JNICALL Java_ch_fhnw_comgr_GLES2Lib_onRotationQUAT(JNIEnv* env, j
 
 JNIEXPORT void JNICALL Java_ch_fhnw_comgr_GLES2Lib_onClose(JNIEnv* env, jobject obj)
 {
+   SL_LOG("onClose\n ");
    slTerminate();
+   exit(0);
+}
+
+JNIEXPORT bool JNICALL Java_ch_fhnw_comgr_GLES2Lib_shouldClose(JNIEnv* env, jobject obj)
+{
+    return slShouldClose();
 }
 
 #endif // defined(SL_OS_ANDROID) && defined(SL_GUI_JAVA)

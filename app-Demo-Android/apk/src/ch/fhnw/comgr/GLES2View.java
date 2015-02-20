@@ -364,6 +364,8 @@ class GLES2View extends GLSurfaceView
 			if (GLES2Lib.onUpdateAndPaint())
 			{	GLES2Lib.view.requestRender();
 			}
+            if(GLES2Lib.shouldClose())
+                GLES2Lib.onClose();
 		}
 	}
 }
