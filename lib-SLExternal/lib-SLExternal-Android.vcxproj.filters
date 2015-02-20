@@ -1697,9 +1697,4 @@
       <Filter>assimp\code\importers\blend</Filter>
     </None>
   </ItemGroup>
-  <ItemGroup>
-    <ResourceCompile Include="glew\build\glew.rc">
-      <Filter>glew</Filter>
-    </ResourceCompile>
-  </ItemGroup>
 </Project>

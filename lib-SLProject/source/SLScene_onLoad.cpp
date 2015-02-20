@@ -328,7 +328,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
         // Start animation
         SLAnimPlayback* charAnim = importer.skeleton()->getAnimPlayback("unnamed_anim_0");
         charAnim->playForward();
-        charAnim->playbackRate(0.5f);
+        charAnim->playbackRate(0.8f);
 
         // Scale to so that the AstroBoy is about 2 (meters) high.
         if (mesh3DS) {mesh3DS->scale(0.1f);  mesh3DS->translate(-22.0f, 1.9f, 3.5f, TS_Local);}
@@ -1454,14 +1454,32 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
         info(sv, "Skeletal Animation Test Scene");
 
         SLAssimpImporter importer;
+        #if defined(SL_OS_IOS) || defined(SL_OS_ANDROID)
+        SLNode* character = importer.load("AstroBoy.dae");
+        #else
         SLNode* character = importer.load("DAE/AstroBoy/AstroBoy.dae");
+        #endif
         SLAnimPlayback* charAnim = importer.skeleton()->getAnimPlayback("unnamed_anim_0");
-
+        
+        #if defined(SL_OS_IOS) || defined(SL_OS_ANDROID)
+        SLNode* box1 = importer.load("skinnedcube2.dae");
+        #else
         SLNode* box1 = importer.load("DAE/SkinnedCube/skinnedcube2.dae");
+        #endif
         SLAnimPlayback* box1Anim = importer.skeleton()->getAnimPlayback("unnamed_anim_0");
+
+        #if defined(SL_OS_IOS) || defined(SL_OS_ANDROID)
+        SLNode* box2 = importer.load("skinnedcube4.dae");
+        #else
         SLNode* box2 = importer.load("DAE/SkinnedCube/skinnedcube4.dae");
+        #endif
         SLAnimPlayback* box2Anim = importer.skeleton()->getAnimPlayback("unnamed_anim_0");
+
+        #if defined(SL_OS_IOS) || defined(SL_OS_ANDROID)
+        SLNode* box3 = importer.load("skinnedcube5.dae");
+        #else
         SLNode* box3 = importer.load("DAE/SkinnedCube/skinnedcube5.dae");
+        #endif
         SLAnimPlayback* box3Anim = importer.skeleton()->getAnimPlayback("unnamed_anim_0");
 
         box1->translate(3, 0, 0);
@@ -1712,7 +1730,11 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
         rect->rotate(90, -1,0,0);
 
         SLAssimpImporter importer;
+        #if defined(SL_OS_IOS) || defined(SL_OS_ANDROID)
+        SLNode* center = importer.load("AstroBoy.dae");
+        #else
         SLNode* center = importer.load("DAE/AstroBoy/AstroBoy.dae");
+        #endif
         //center->scale(100);
         importer.skeleton()->getAnimPlayback("unnamed_anim_0")->playForward();
 

@@ -31,20 +31,20 @@ Java_{package name}_{JNI class name}_{function name}(JNIEnv* env,jobject obj,*);
 In the function implementations we simply forward the C++ framework.
 */
 extern "C"
-{  JNIEXPORT void JNICALL Java_ch_fhnw_comgr_GLES2Lib_onInit        (JNIEnv* env, jobject obj, jint width, jint height, jint dpi, jstring filePath);
-   JNIEXPORT bool JNICALL Java_ch_fhnw_comgr_GLES2Lib_onPaint       (JNIEnv* env, jobject obj);
-   JNIEXPORT void JNICALL Java_ch_fhnw_comgr_GLES2Lib_onResize      (JNIEnv* env, jobject obj, jint width, jint height);
-   JNIEXPORT void JNICALL Java_ch_fhnw_comgr_GLES2Lib_onMenuButton  (JNIEnv* env, jobject obj);
-   JNIEXPORT bool JNICALL Java_ch_fhnw_comgr_GLES2Lib_onMouseDown   (JNIEnv* env, jobject obj, jint button, jint x, jint y);
-   JNIEXPORT bool JNICALL Java_ch_fhnw_comgr_GLES2Lib_onMouseUp     (JNIEnv* env, jobject obj, jint button, jint x, jint y);
-   JNIEXPORT bool JNICALL Java_ch_fhnw_comgr_GLES2Lib_onMouseMove   (JNIEnv* env, jobject obj, jint x, jint y);
-   JNIEXPORT bool JNICALL Java_ch_fhnw_comgr_GLES2Lib_onTouch2Up    (JNIEnv* env, jobject obj, jint x1, jint y1, jint x2, jint y2);
-   JNIEXPORT bool JNICALL Java_ch_fhnw_comgr_GLES2Lib_onTouch2Down  (JNIEnv* env, jobject obj, jint x1, jint y1, jint x2, jint y2);
-   JNIEXPORT bool JNICALL Java_ch_fhnw_comgr_GLES2Lib_onTouch2Move  (JNIEnv* env, jobject obj, jint x1, jint y1, jint x2, jint y2);
-   JNIEXPORT bool JNICALL Java_ch_fhnw_comgr_GLES2Lib_onDoubleClick (JNIEnv* env, jobject obj, jint button, jint x, jint y);
-   JNIEXPORT bool JNICALL Java_ch_fhnw_comgr_GLES2Lib_onRotationPYR (JNIEnv* env, jobject obj, jfloat pitchRAD, jfloat yawRAD, jfloat rollRAD);
-   JNIEXPORT bool JNICALL Java_ch_fhnw_comgr_GLES2Lib_onRotationQUAT(JNIEnv* env, jobject obj, jfloat quatX, jfloat quatY, jfloat quatZ, jfloat quatW);
-   JNIEXPORT void JNICALL Java_ch_fhnw_comgr_GLES2Lib_onClose       (JNIEnv* env, jobject obj);
+{  JNIEXPORT void JNICALL Java_ch_fhnw_comgr_GLES2Lib_onInit          (JNIEnv* env, jobject obj, jint width, jint height, jint dpi, jstring filePath);
+   JNIEXPORT bool JNICALL Java_ch_fhnw_comgr_GLES2Lib_onUpdateAndPaint(JNIEnv* env, jobject obj);
+   JNIEXPORT void JNICALL Java_ch_fhnw_comgr_GLES2Lib_onResize        (JNIEnv* env, jobject obj, jint width, jint height);
+   JNIEXPORT void JNICALL Java_ch_fhnw_comgr_GLES2Lib_onMenuButton    (JNIEnv* env, jobject obj);
+   JNIEXPORT bool JNICALL Java_ch_fhnw_comgr_GLES2Lib_onMouseDown     (JNIEnv* env, jobject obj, jint button, jint x, jint y);
+   JNIEXPORT bool JNICALL Java_ch_fhnw_comgr_GLES2Lib_onMouseUp       (JNIEnv* env, jobject obj, jint button, jint x, jint y);
+   JNIEXPORT bool JNICALL Java_ch_fhnw_comgr_GLES2Lib_onMouseMove     (JNIEnv* env, jobject obj, jint x, jint y);
+   JNIEXPORT bool JNICALL Java_ch_fhnw_comgr_GLES2Lib_onTouch2Up      (JNIEnv* env, jobject obj, jint x1, jint y1, jint x2, jint y2);
+   JNIEXPORT bool JNICALL Java_ch_fhnw_comgr_GLES2Lib_onTouch2Down    (JNIEnv* env, jobject obj, jint x1, jint y1, jint x2, jint y2);
+   JNIEXPORT bool JNICALL Java_ch_fhnw_comgr_GLES2Lib_onTouch2Move    (JNIEnv* env, jobject obj, jint x1, jint y1, jint x2, jint y2);
+   JNIEXPORT bool JNICALL Java_ch_fhnw_comgr_GLES2Lib_onDoubleClick   (JNIEnv* env, jobject obj, jint button, jint x, jint y);
+   JNIEXPORT bool JNICALL Java_ch_fhnw_comgr_GLES2Lib_onRotationPYR   (JNIEnv* env, jobject obj, jfloat pitchRAD, jfloat yawRAD, jfloat rollRAD);
+   JNIEXPORT bool JNICALL Java_ch_fhnw_comgr_GLES2Lib_onRotationQUAT  (JNIEnv* env, jobject obj, jfloat quatX, jfloat quatY, jfloat quatZ, jfloat quatW);
+   JNIEXPORT void JNICALL Java_ch_fhnw_comgr_GLES2Lib_onClose         (JNIEnv* env, jobject obj);
 };
 
 //! Native ray tracing callback function that calls the Java class method GLES2Lib.RaytracingCallback
@@ -80,7 +80,7 @@ JNIEXPORT void JNICALL Java_ch_fhnw_comgr_GLES2Lib_onInit(JNIEnv* env, jobject o
     svIndex = slCreateSceneView((int)width, 
                                 (int)height, 
                                 (int)dpi,
-                                cmdSceneRevolver,
+                                cmdSceneMeshLoad,
                                 *cmdLineArgs,
                                 (void*)&Java_renderRaytracingCallback);
     delete cmdLineArgs;

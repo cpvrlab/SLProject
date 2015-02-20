@@ -71,6 +71,7 @@ SL_USE_DISCARD_STEREOMODES: The discard stereo modes can be used (SLCamera)
 #elif defined(ANDROID) || defined(ANDROID_NDK)
     #define SL_OS_ANDROID
     #define SL_GLES2
+    #define SL_CPP11
 #elif defined(_WIN32)
     #define SL_OS_WINDOWS
     #define SL_USE_DISCARD_STEREOMODES
@@ -124,6 +125,10 @@ SL_GUI_JAVA :Java on Android (with the VS-Android project)
 #elif defined(SL_OS_ANDROID)
     #include <sys/time.h>
     #include <android/log.h>
+    #include <functional>
+    #include <thread>
+    #include <chrono>
+    #include <random>
     #if defined(SL_GUI_QT)
         #include <QGLWidget>
     #elif defined(SL_GUI_JAVA)

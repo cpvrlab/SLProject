@@ -7,6 +7,7 @@ del apk\assets\shaders\Terrain*
 
 xcopy ..\_data\models\3DS\Halloween\* apk\assets\models /d/y
 xcopy ..\_data\models\DAE\AstroBoy\* apk\assets\models /d/y
+xcopy ..\_data\models\DAE\SkinnedCube\* apk\assets\models /d/y
 xcopy ..\_data\models\FBX\Duck\* apk\assets\models /d/y
 
 xcopy ..\_data\images\textures\CompileError.png apk\assets\textures /d/y

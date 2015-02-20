@@ -93,6 +93,7 @@
       <OptimizationLevel>O0</OptimizationLevel>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalUserIncludeDirectories>..\lib-SLExternal\jpeg-8</AdditionalUserIncludeDirectories>
+      <AdditionalOptions>-std=c++11 %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <ProjectReference>
       <LinkLibraryDependencies>
