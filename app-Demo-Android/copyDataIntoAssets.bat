@@ -49,3 +49,5 @@ xcopy ..\_data\images\textures\wood0_0512_C.jpg apk\assets\textures /d/y
 xcopy ..\_data\images\textures\wood2_0256_C.jpg apk\assets\textures /d/y
 xcopy ..\_data\images\textures\wood2_0512_C.jpg apk\assets\textures /d/y
 xcopy ..\_data\images\textures\cursor.tga apk\assets\textures /d/y
+xcopy ..\_data\images\textures\VisionExample.png apk\assets\textures /d/y
+xcopy ..\_data\images\textures\VisionTest.png apk\assets\textures /d/y
