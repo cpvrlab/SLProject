@@ -406,12 +406,12 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
         crate = new SLNode;
         crate->addMesh(crateMesh);
         crate->rotate(20, 0, 1, 0);
-        crate->translate(3.1, 0, -1, TS_World);
+        crate->translate(3.1f, 0, -1, TS_World);
         scene->addChild(crate);
         
         crate = new SLNode(crateMesh);
         crate->rotate(-10, 0, 1, 0);
-        crate->translate(2.5, 1, -1, TS_World);
+        crate->translate(2.5f, 1, -1, TS_World);
         scene->addChild(crate);
 
         
