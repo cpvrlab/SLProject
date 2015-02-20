@@ -26,6 +26,7 @@
 #include <SLTexFont.h>
 #include <SLButton.h>
 #include <SLBox.h>
+#include <SLImporter.h>
 
 //-----------------------------------------------------------------------------
 //! SLSceneView default constructor
@@ -1557,7 +1558,9 @@ void SLSceneView::build2DMenus()
     mn3 = new SLButton(this, "General >", f);
     mn2->addChild(mn3);
     mn3->addChild(new SLButton(this, "SmallTest", f, cmdSceneSmallTest, true, curS==cmdSceneSmallTest, mn2));
-    mn3->addChild(new SLButton(this, "Large Model", f, cmdSceneLargeModel, true, curS==cmdSceneLargeModel, mn2));
+    SLstring largeFile = SLImporter::defaultPath + "PLY/xyzrgb_dragon.ply";
+    if(SLFileSystem::fileExists(largeFile))
+        mn3->addChild(new SLButton(this, "Large Model", f, cmdSceneLargeModel, true, curS==cmdSceneLargeModel, mn2));
     mn3->addChild(new SLButton(this, "Figure", f, cmdSceneFigure, true, curS==cmdSceneFigure, mn2));
     mn3->addChild(new SLButton(this, "Mesh Loader", f, cmdSceneMeshLoad, true, curS==cmdSceneMeshLoad, mn2));
     mn3->addChild(new SLButton(this, "Texture Blending", f, cmdSceneTextureBlend, true, curS==cmdSceneTextureBlend, mn2));

@@ -359,7 +359,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
         scene->addChild(cam1);
 
         _backColor.set(0.5f,0.5f,0.5f);
-        //sv->camera(cam1);
+        sv->camera(cam1);
         _root3D = scene;
     }
     else

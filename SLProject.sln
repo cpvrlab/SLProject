@@ -29,6 +29,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "app-Demo-Qt", "app-Demo-Qt\
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "app-Demo-Android", "app-Demo-Android\app-Demo-Android.vcxproj", "{158CCAFB-7A8D-4555-91DF-99284FADABEB}"
 	ProjectSection(ProjectDependencies) = postProject
+		{04550C7E-5276-491F-8BEF-12216F80E73F} = {04550C7E-5276-491F-8BEF-12216F80E73F}
 		{54BE2CB2-A4F9-481D-9C74-FAAE4CD0764D} = {54BE2CB2-A4F9-481D-9C74-FAAE4CD0764D}
 		{CCC645D3-B20F-431C-824A-7895D6E405DF} = {CCC645D3-B20F-431C-824A-7895D6E405DF}
 	EndProjectSection
@@ -92,7 +93,7 @@ Global
 		{CCC645D3-B20F-431C-824A-7895D6E404DF}.Debug|x64.Build.0 = Debug|x64
 		{CCC645D3-B20F-431C-824A-7895D6E404DF}.Debug|x86.ActiveCfg = Debug|Win32
 		{CCC645D3-B20F-431C-824A-7895D6E404DF}.Debug|x86.Build.0 = Debug|Win32
-		{CCC645D3-B20F-431C-824A-7895D6E404DF}.Release|Android.ActiveCfg = Release|Win32
+		{CCC645D3-B20F-431C-824A-7895D6E404DF}.Release|Android.ActiveCfg = Release|x64
 		{CCC645D3-B20F-431C-824A-7895D6E404DF}.Release|Mixed Platforms.ActiveCfg = Release|Win32
 		{CCC645D3-B20F-431C-824A-7895D6E404DF}.Release|Mixed Platforms.Build.0 = Release|Win32
 		{CCC645D3-B20F-431C-824A-7895D6E404DF}.Release|Win32.ActiveCfg = Release|Win32
@@ -111,7 +112,8 @@ Global
 		{54BE2CB2-A4F9-481D-9C74-FAAE4CD0764D}.Debug|x64.Build.0 = Debug|x64
 		{54BE2CB2-A4F9-481D-9C74-FAAE4CD0764D}.Debug|x86.ActiveCfg = Debug|Win32
 		{54BE2CB2-A4F9-481D-9C74-FAAE4CD0764D}.Debug|x86.Build.0 = Debug|Win32
-		{54BE2CB2-A4F9-481D-9C74-FAAE4CD0764D}.Release|Android.ActiveCfg = Release|Win32
+		{54BE2CB2-A4F9-481D-9C74-FAAE4CD0764D}.Release|Android.ActiveCfg = Release|Android
+		{54BE2CB2-A4F9-481D-9C74-FAAE4CD0764D}.Release|Android.Build.0 = Release|Android
 		{54BE2CB2-A4F9-481D-9C74-FAAE4CD0764D}.Release|Mixed Platforms.ActiveCfg = Release|Win32
 		{54BE2CB2-A4F9-481D-9C74-FAAE4CD0764D}.Release|Mixed Platforms.Build.0 = Release|Win32
 		{54BE2CB2-A4F9-481D-9C74-FAAE4CD0764D}.Release|Win32.ActiveCfg = Release|Win32
@@ -219,7 +221,8 @@ Global
 		{CCC645D3-B20F-431C-824A-7895D6E405DF}.Debug|x64.Build.0 = Debug|x64
 		{CCC645D3-B20F-431C-824A-7895D6E405DF}.Debug|x86.ActiveCfg = Debug|Win32
 		{CCC645D3-B20F-431C-824A-7895D6E405DF}.Debug|x86.Build.0 = Debug|Win32
-		{CCC645D3-B20F-431C-824A-7895D6E405DF}.Release|Android.ActiveCfg = Release|Win32
+		{CCC645D3-B20F-431C-824A-7895D6E405DF}.Release|Android.ActiveCfg = Release|Android
+		{CCC645D3-B20F-431C-824A-7895D6E405DF}.Release|Android.Build.0 = Release|Android
 		{CCC645D3-B20F-431C-824A-7895D6E405DF}.Release|Mixed Platforms.ActiveCfg = Release|Win32
 		{CCC645D3-B20F-431C-824A-7895D6E405DF}.Release|Mixed Platforms.Build.0 = Release|Win32
 		{CCC645D3-B20F-431C-824A-7895D6E405DF}.Release|Win32.ActiveCfg = Release|Win32
@@ -237,7 +240,7 @@ Global
 		{280585A5-504D-416E-9D6D-7245EA78DB41}.Debug|x64.Build.0 = Debug|x64
 		{280585A5-504D-416E-9D6D-7245EA78DB41}.Debug|x86.ActiveCfg = Debug|x86
 		{280585A5-504D-416E-9D6D-7245EA78DB41}.Debug|x86.Build.0 = Debug|x86
-		{280585A5-504D-416E-9D6D-7245EA78DB41}.Release|Android.ActiveCfg = Release|x86
+		{280585A5-504D-416E-9D6D-7245EA78DB41}.Release|Android.ActiveCfg = Release|x64
 		{280585A5-504D-416E-9D6D-7245EA78DB41}.Release|Mixed Platforms.ActiveCfg = Release|x86
 		{280585A5-504D-416E-9D6D-7245EA78DB41}.Release|Mixed Platforms.Build.0 = Release|x86
 		{280585A5-504D-416E-9D6D-7245EA78DB41}.Release|Win32.ActiveCfg = Release|x86
@@ -255,7 +258,7 @@ Global
 		{0D63243A-A87C-48F6-8822-6DE3B67E2F2A}.Debug|x64.Build.0 = Debug|x64
 		{0D63243A-A87C-48F6-8822-6DE3B67E2F2A}.Debug|x86.ActiveCfg = Debug|Win32
 		{0D63243A-A87C-48F6-8822-6DE3B67E2F2A}.Debug|x86.Build.0 = Debug|Win32
-		{0D63243A-A87C-48F6-8822-6DE3B67E2F2A}.Release|Android.ActiveCfg = Release|Win32
+		{0D63243A-A87C-48F6-8822-6DE3B67E2F2A}.Release|Android.ActiveCfg = Release|x64
 		{0D63243A-A87C-48F6-8822-6DE3B67E2F2A}.Release|Mixed Platforms.ActiveCfg = Release|Win32
 		{0D63243A-A87C-48F6-8822-6DE3B67E2F2A}.Release|Mixed Platforms.Build.0 = Release|Win32
 		{0D63243A-A87C-48F6-8822-6DE3B67E2F2A}.Release|Win32.ActiveCfg = Release|Win32
@@ -273,7 +276,7 @@ Global
 		{E9A4D0F3-3B11-4912-A951-9F3307E3D66B}.Debug|x64.Build.0 = Debug|x64
 		{E9A4D0F3-3B11-4912-A951-9F3307E3D66B}.Debug|x86.ActiveCfg = Debug|x86
 		{E9A4D0F3-3B11-4912-A951-9F3307E3D66B}.Debug|x86.Build.0 = Debug|x86
-		{E9A4D0F3-3B11-4912-A951-9F3307E3D66B}.Release|Android.ActiveCfg = Release|x86
+		{E9A4D0F3-3B11-4912-A951-9F3307E3D66B}.Release|Android.ActiveCfg = Release|x64
 		{E9A4D0F3-3B11-4912-A951-9F3307E3D66B}.Release|Mixed Platforms.ActiveCfg = Release|x86
 		{E9A4D0F3-3B11-4912-A951-9F3307E3D66B}.Release|Mixed Platforms.Build.0 = Release|x86
 		{E9A4D0F3-3B11-4912-A951-9F3307E3D66B}.Release|Win32.ActiveCfg = Release|x86
@@ -291,7 +294,8 @@ Global
 		{04550C7E-5276-491F-8BEF-12216F80E73F}.Debug|x64.Build.0 = Debug|x64
 		{04550C7E-5276-491F-8BEF-12216F80E73F}.Debug|x86.ActiveCfg = Debug|Win32
 		{04550C7E-5276-491F-8BEF-12216F80E73F}.Debug|x86.Build.0 = Debug|Win32
-		{04550C7E-5276-491F-8BEF-12216F80E73F}.Release|Android.ActiveCfg = Release|Win32
+		{04550C7E-5276-491F-8BEF-12216F80E73F}.Release|Android.ActiveCfg = Release|Android
+		{04550C7E-5276-491F-8BEF-12216F80E73F}.Release|Android.Build.0 = Release|Android
 		{04550C7E-5276-491F-8BEF-12216F80E73F}.Release|Mixed Platforms.ActiveCfg = Release|Win32
 		{04550C7E-5276-491F-8BEF-12216F80E73F}.Release|Mixed Platforms.Build.0 = Release|Win32
 		{04550C7E-5276-491F-8BEF-12216F80E73F}.Release|Win32.ActiveCfg = Release|Win32
@@ -309,7 +313,7 @@ Global
 		{EA50E705-5113-49E5-B105-2512EDC8DDC6}.Debug|x64.Build.0 = Debug|x64
 		{EA50E705-5113-49E5-B105-2512EDC8DDC6}.Debug|x86.ActiveCfg = Debug|Win32
 		{EA50E705-5113-49E5-B105-2512EDC8DDC6}.Debug|x86.Build.0 = Debug|Win32
-		{EA50E705-5113-49E5-B105-2512EDC8DDC6}.Release|Android.ActiveCfg = Release|Win32
+		{EA50E705-5113-49E5-B105-2512EDC8DDC6}.Release|Android.ActiveCfg = Release|x64
 		{EA50E705-5113-49E5-B105-2512EDC8DDC6}.Release|Mixed Platforms.ActiveCfg = Release|Win32
 		{EA50E705-5113-49E5-B105-2512EDC8DDC6}.Release|Mixed Platforms.Build.0 = Release|Win32
 		{EA50E705-5113-49E5-B105-2512EDC8DDC6}.Release|Win32.ActiveCfg = Release|Win32
