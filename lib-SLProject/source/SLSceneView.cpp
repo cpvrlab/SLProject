@@ -1643,8 +1643,8 @@ void SLSceneView::build2DMenus()
 
     mn3 = new SLButton(this, "Use Device Rotation", f, cmdCamDeviceRotToggle, true, useDeviceRot, 0, false);
     mn2->addChild(mn3);
-   
-    mn2 = new SLButton(this, "Render Flags >", f);
+
+    mn2 = new SLButton(this, "Render States >", f);
     mn1->addChild(mn2);
     mn2->addChild(new SLButton(this, "Slowdown on Idle", f, cmdWaitEventsToggle, true, _waitEvents, 0, false));
     if (hasMultiSampling())
@@ -1652,6 +1652,9 @@ void SLSceneView::build2DMenus()
     mn2->addChild(new SLButton(this, "Do Frustum Culling", f, cmdFrustCullToggle, true, _doFrustumCulling, 0, false));
     mn2->addChild(new SLButton(this, "Do Depth Test", f, cmdDepthTestToggle, true, _doDepthTest, 0, false));
     mn2->addChild(new SLButton(this, "Animation off", f, cmdAnimationToggle, true, false, 0, false));
+
+    mn2 = new SLButton(this, "Render Flags >", f);
+    mn1->addChild(mn2);
     mn2->addChild(new SLButton(this, "Textures off", f, cmdTextureToggle, true, false, 0, false));
     mn2->addChild(new SLButton(this, "Back faces", f, cmdFaceCullToggle, true, false, 0, false));
     mn2->addChild(new SLButton(this, "AABB", f, cmdBBoxToggle, true, false, 0, false));

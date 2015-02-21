@@ -43,7 +43,7 @@ int main(int argc, char *argv[])
 //        wnd.darkPalette.setColor(QPalette::Highlight, QColor(42, 130, 218));
 //        wnd.darkPalette.setColor(QPalette::HighlightedText, Qt::black);
 //        wnd.setPalette(darkPalette);
-        
+
         wnd.show();
         return app.exec();
     #else
