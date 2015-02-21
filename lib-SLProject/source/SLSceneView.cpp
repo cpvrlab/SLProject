@@ -918,17 +918,14 @@ void SLSceneView::draw2DGLAll()
     // Draw virtual mouse cursor if we're in hmd stereo mode
     if (_camera->projection() == stereoSideBySideD)
     {
-        if (true /*_camera->camAnim()==turntableYUp || _camera->camAnim()==turntableZUp*/)
-        {   
-            SLfloat hCur = (SLfloat)s->texCursor()->height();
-            _stateGL->multiSample(true);
-            _stateGL->pushModelViewMatrix();  
-            _stateGL->modelViewMatrix.translate(-w2, -h2, 0);
-            _stateGL->modelViewMatrix.translate((SLfloat)_posCursor.x, 
-                                                (_scrH-_posCursor.y-hCur), 0);
-            s->texCursor()->drawSprite();
-            _stateGL->popModelViewMatrix();
-        }
+        SLfloat hCur = (SLfloat)s->texCursor()->height();
+        _stateGL->multiSample(true);
+        _stateGL->pushModelViewMatrix();  
+        _stateGL->modelViewMatrix.translate(-w2, -h2, 0);
+        _stateGL->modelViewMatrix.translate((SLfloat)_posCursor.x, 
+                                            (_scrH-_posCursor.y-hCur), 0);
+        s->texCursor()->drawSprite();
+        _stateGL->popModelViewMatrix();
     }
 
     _stateGL->popModelViewMatrix();        

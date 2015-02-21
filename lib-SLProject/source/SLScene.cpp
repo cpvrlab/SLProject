@@ -115,7 +115,7 @@ in real time rendering and ray tracing. The framework is developed \
 in C++ with OpenGL ES2 so that it can run also on mobile devices. \
 Ray tracing provides in addition highquality transparencies, reflections and soft shadows. \
 Click to close and use the menu to choose different scenes and view settings. \
-For more information please visit: http://code.google.com/p/slproject/";
+For more information please visit: https://github.com/cpvrlab/SLProject";
 
     _infoCredits_en =
 "Credits for external libraries: \\n\

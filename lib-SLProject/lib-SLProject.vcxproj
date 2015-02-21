@@ -357,7 +357,6 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Android'">
     <ClCompile>
-      <AdditionalOptions>/wd4996 %(AdditionalOptions)</AdditionalOptions>
       <Optimization>Full</Optimization>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <AdditionalIncludeDirectories>$(ProjectDir);..\include;..\lib-SLExternal;..\lib-SLExternal\jpeg-8;..\lib-SLExternal\png;..\lib-SLExternal\zlib;..\lib-SLExternal\glew\include;..\lib-SLExternal\glfw3\include;..\lib-SLExternal\randomc;..\lib-SLExternal\Shoemake;..\lib-SLExternal\oculus\LibOVR\Include\;..\lib-SLExternal\nvwa;..\lib-SLExternal\assimp\include;..\lib-SLExternal\assimp\code</AdditionalIncludeDirectories>
@@ -538,9 +537,6 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="Introduction.md" />
-    <None Include="onPaint.md" />
-    <None Include="SLProject.md" />
     <None Include="source\oglsl\ADS.frag" />
     <None Include="source\oglsl\ADS.vert" />
     <None Include="source\oglsl\ADSTex.frag" />

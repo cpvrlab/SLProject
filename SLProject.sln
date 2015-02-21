@@ -285,7 +285,8 @@ Global
 		{E9A4D0F3-3B11-4912-A951-9F3307E3D66B}.Release|x64.Build.0 = Release|x64
 		{E9A4D0F3-3B11-4912-A951-9F3307E3D66B}.Release|x86.ActiveCfg = Release|x86
 		{E9A4D0F3-3B11-4912-A951-9F3307E3D66B}.Release|x86.Build.0 = Release|x86
-		{04550C7E-5276-491F-8BEF-12216F80E73F}.Debug|Android.ActiveCfg = Debug|Win32
+		{04550C7E-5276-491F-8BEF-12216F80E73F}.Debug|Android.ActiveCfg = Debug|Android
+		{04550C7E-5276-491F-8BEF-12216F80E73F}.Debug|Android.Build.0 = Debug|Android
 		{04550C7E-5276-491F-8BEF-12216F80E73F}.Debug|Mixed Platforms.ActiveCfg = Debug|Win32
 		{04550C7E-5276-491F-8BEF-12216F80E73F}.Debug|Mixed Platforms.Build.0 = Debug|Win32
 		{04550C7E-5276-491F-8BEF-12216F80E73F}.Debug|Win32.ActiveCfg = Debug|Win32
