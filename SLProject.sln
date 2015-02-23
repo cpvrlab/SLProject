@@ -6,10 +6,6 @@ MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "lib-SLExternal", "lib-SLExternal\lib-SLExternal.vcxproj", "{CCC645D3-B20F-431C-824A-7895D6E404DF}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "lib-SLProject", "lib-SLProject\lib-SLProject.vcxproj", "{54BE2CB2-A4F9-481D-9C74-FAAE4CD0764D}"
-	ProjectSection(ProjectDependencies) = postProject
-		{EA50E705-5113-49E5-B105-2512EDC8DDC6} = {EA50E705-5113-49E5-B105-2512EDC8DDC6}
-		{04550C7E-5276-491F-8BEF-12216F80E73F} = {04550C7E-5276-491F-8BEF-12216F80E73F}
-	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "app-Demo-GLFW", "app-Demo-GLFW\app-Demo-GLFW.vcxproj", "{54BE2CB2-A4BB-481D-9C74-FE8E4CD0764D}"
 	ProjectSection(ProjectDependencies) = postProject
@@ -29,7 +25,6 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "app-Demo-Qt", "app-Demo-Qt\
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "app-Demo-Android", "app-Demo-Android\app-Demo-Android.vcxproj", "{158CCAFB-7A8D-4555-91DF-99284FADABEB}"
 	ProjectSection(ProjectDependencies) = postProject
-		{04550C7E-5276-491F-8BEF-12216F80E73F} = {04550C7E-5276-491F-8BEF-12216F80E73F}
 		{54BE2CB2-A4F9-481D-9C74-FAAE4CD0764D} = {54BE2CB2-A4F9-481D-9C74-FAAE4CD0764D}
 		{CCC645D3-B20F-431C-824A-7895D6E405DF} = {CCC645D3-B20F-431C-824A-7895D6E405DF}
 	EndProjectSection
@@ -285,8 +280,7 @@ Global
 		{E9A4D0F3-3B11-4912-A951-9F3307E3D66B}.Release|x64.Build.0 = Release|x64
 		{E9A4D0F3-3B11-4912-A951-9F3307E3D66B}.Release|x86.ActiveCfg = Release|x86
 		{E9A4D0F3-3B11-4912-A951-9F3307E3D66B}.Release|x86.Build.0 = Release|x86
-		{04550C7E-5276-491F-8BEF-12216F80E73F}.Debug|Android.ActiveCfg = Debug|Android
-		{04550C7E-5276-491F-8BEF-12216F80E73F}.Debug|Android.Build.0 = Debug|Android
+		{04550C7E-5276-491F-8BEF-12216F80E73F}.Debug|Android.ActiveCfg = Debug|Win32
 		{04550C7E-5276-491F-8BEF-12216F80E73F}.Debug|Mixed Platforms.ActiveCfg = Debug|Win32
 		{04550C7E-5276-491F-8BEF-12216F80E73F}.Debug|Mixed Platforms.Build.0 = Debug|Win32
 		{04550C7E-5276-491F-8BEF-12216F80E73F}.Debug|Win32.ActiveCfg = Debug|Win32

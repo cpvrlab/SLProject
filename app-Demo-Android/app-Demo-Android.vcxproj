@@ -103,7 +103,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Android'">
     <AntBuild>
-      <AntBuildPath>../_globals/GUI/Android/apk</AntBuildPath>
+      <AntBuildPath>apk</AntBuildPath>
     </AntBuild>
     <Link>
       <AdditionalOptions>-lGLESv2 %(AdditionalOptions)</AdditionalOptions>
