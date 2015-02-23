@@ -10,6 +10,8 @@
 	<string>app-Demo-iOS</string>
 	<key>IDESourceControlProjectOriginsDictionary</key>
 	<dict>
+		<key>0C8499CD2E4389E889926062AEB8F0428A4DD54E</key>
+		<string>https://github.com/cpvrlab/SLProject.git</string>
 		<key>BFE27AF18BEB7986CFFD745EAC54D8EF53005BC0</key>
 		<string>https://github.com/cpvrlab/SLProject.git</string>
 	</dict>
@@ -17,15 +19,17 @@
 	<string>app-Demo-iOS/app-Demo-iOS.xcodeproj</string>
 	<key>IDESourceControlProjectRelativeInstallPathDictionary</key>
 	<dict>
-		<key>BFE27AF18BEB7986CFFD745EAC54D8EF53005BC0</key>
+		<key>0C8499CD2E4389E889926062AEB8F0428A4DD54E</key>
 		<string>../../..</string>
+		<key>BFE27AF18BEB7986CFFD745EAC54D8EF53005BC0</key>
+		<string>../../../../git</string>
 	</dict>
 	<key>IDESourceControlProjectURL</key>
 	<string>https://github.com/cpvrlab/SLProject.git</string>
 	<key>IDESourceControlProjectVersion</key>
 	<integer>111</integer>
 	<key>IDESourceControlProjectWCCIdentifier</key>
-	<string>BFE27AF18BEB7986CFFD745EAC54D8EF53005BC0</string>
+	<string>0C8499CD2E4389E889926062AEB8F0428A4DD54E</string>
 	<key>IDESourceControlProjectWCConfigurations</key>
 	<array>
 		<dict>
@@ -35,6 +39,14 @@
 			<string>BFE27AF18BEB7986CFFD745EAC54D8EF53005BC0</string>
 			<key>IDESourceControlWCCName</key>
 			<string>git</string>
+		</dict>
+		<dict>
+			<key>IDESourceControlRepositoryExtensionIdentifierKey</key>
+			<string>public.vcs.git</string>
+			<key>IDESourceControlWCCIdentifierKey</key>
+			<string>0C8499CD2E4389E889926062AEB8F0428A4DD54E</string>
+			<key>IDESourceControlWCCName</key>
+			<string>SLProject</string>
 		</dict>
 	</array>
 </dict>

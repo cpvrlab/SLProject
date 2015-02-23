@@ -10,12 +10,12 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "../lib-SLProject/source/SLSceneView.cpp"
-            timestampString = "417600270.119114"
+            timestampString = "446410702.469107"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "960"
-            endingLineNumber = "960"
-            landmarkName = "SLSceneView::onMouseDown(const SLMouseButton button, SLint x, SLint y, const SLKey mod)"
+            startingLineNumber = "949"
+            endingLineNumber = "949"
+            landmarkName = "SLSceneView::draw2DGL()"
             landmarkType = "5">
          </BreakpointContent>
       </BreakpointProxy>

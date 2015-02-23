@@ -711,70 +711,59 @@ void SLSceneView::draw2DGL()
         draw2DGLAll();
         
         // temp visualization of the texture above
-        if (false)
-        {
-            glClear(GL_COLOR_BUFFER_BIT);
-            static SLGLGenericProgram tmpShader("StereoOculus.vert", "StereoOculus.frag");
+        /*
+        glClear(GL_COLOR_BUFFER_BIT);
+        static SLGLGenericProgram tmpShader("StereoOculus.vert", "StereoOculus.frag");
 
-            static GLuint screenQuad = 0;
-            if (!screenQuad) {
-                GLfloat quadVerts[] = {-1, -1,
-                                        1, -1,
-                                       -1,  1,
-                                        1,  1};
-
-                glGenBuffers(1, &screenQuad);
-                glBindBuffer(GL_ARRAY_BUFFER, screenQuad);
-                glBufferData(GL_ARRAY_BUFFER, sizeof(quadVerts), quadVerts, GL_STATIC_DRAW);
-                glBindBuffer(GL_ARRAY_BUFFER, 0);
-            }
-
-                                     
-            glDisable(GL_DEPTH_TEST);
-
-            glActiveTexture(GL_TEXTURE0);
-            glBindTexture(GL_TEXTURE_2D, _oculusFB.texID());
-
-            //bind the rift shader
-            tmpShader.beginUse();
-
-            glEnableVertexAttribArray(0);
-
+        static GLuint screenQuad = 0;
+        if (!screenQuad) 
+        {   GLfloat quadVerts[] = {-1, -1,
+                                    1, -1,
+                                   -1,  1,
+                                    1,  1};
+            glGenBuffers(1, &screenQuad);
             glBindBuffer(GL_ARRAY_BUFFER, screenQuad);
-            glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, 0);
-
-            glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
-
-            glDisableVertexAttribArray(0);
-
-            glEnable(GL_DEPTH_TEST);
+            glBufferData(GL_ARRAY_BUFFER, sizeof(quadVerts), quadVerts, GL_STATIC_DRAW);
+            glBindBuffer(GL_ARRAY_BUFFER, 0);
         }
+                                 
+        glDisable(GL_DEPTH_TEST);
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, _oculusFB.texID());
 
+        tmpShader.beginUse(); //bind the rift shader
+
+        glEnableVertexAttribArray(0);
+        glBindBuffer(GL_ARRAY_BUFFER, screenQuad);
+        glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, 0);
+        glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+        glDisableVertexAttribArray(0);
+        glEnable(GL_DEPTH_TEST);
+        */
     }
-
+    
     // below is the normal menu to test interaction with the default mouse
-    if(false)
-    {
-        _stateGL->projectionMatrix.ortho(-w2, w2,-h2, h2, 1.0f, -1.0f);
-        _stateGL->viewport(0, 0, _scrW, _scrH);
+    /*
+    _stateGL->projectionMatrix.ortho(-w2, w2,-h2, h2, 1.0f, -1.0f);
+    _stateGL->viewport(0, 0, _scrW, _scrH);
 
    
-        _stateGL->depthMask(false);         // Freeze depth buffer for blending
-        _stateGL->depthTest(false);         // Disable depth testing
-        _stateGL->blend(true);              // Enable blending
-        _stateGL->polygonLine(false);       // Only filled polygons
+    _stateGL->depthMask(false);         // Freeze depth buffer for blending
+    _stateGL->depthTest(false);         // Disable depth testing
+    _stateGL->blend(true);              // Enable blending
+    _stateGL->polygonLine(false);       // Only filled polygons
 
-        // Draw menu buttons tree
-        if (!_showLoading && _showMenu && s->_menu2D)
-        {  _stateGL->modelViewMatrix.identity();
-            _stateGL->modelViewMatrix.translate(-w2, -h2, 0);
-            s->_menu2D->drawRec(this);
-        }   
-        _stateGL->blend(false);       // turn off blending
-        _stateGL->depthMask(true);    // enable depth buffer writing
-        _stateGL->depthTest(true);    // enable depth testing
-        GET_GL_ERROR;                 // check if any OGL errors occured
-    }
+    // Draw menu buttons tree
+    if (!_showLoading && _showMenu && s->_menu2D)
+    {  _stateGL->modelViewMatrix.identity();
+        _stateGL->modelViewMatrix.translate(-w2, -h2, 0);
+        s->_menu2D->drawRec(this);
+    }   
+    _stateGL->blend(false);       // turn off blending
+    _stateGL->depthMask(true);    // enable depth buffer writing
+    _stateGL->depthTest(true);    // enable depth testing
+    GET_GL_ERROR;                 // check if any OGL errors occured
+    */
     
 
    _draw2DTimeMS = s->timeMilliSec() - startMS;
