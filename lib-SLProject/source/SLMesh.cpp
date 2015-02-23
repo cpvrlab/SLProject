@@ -158,12 +158,14 @@ void SLMesh::draw(SLSceneView* sv, SLNode* node)
         // Return if hidden
         if (sv->drawBit(SL_DB_HIDDEN) || node->drawBit(SL_DB_HIDDEN)) 
             return;
+
+        SLPrimitive primitiveType = _primitive;
               
         // Set polygon mode
         if (sv->drawBit(SL_DB_WIREMESH) || node->drawBit(SL_DB_WIREMESH))
         {
             #if defined(SL_GLES2)
-            //primitiveType = SL_LINE_LOOP;
+            primitiveType = SL_LINE_LOOP; // There is no polygon mode on ES2!
             #else
             _stateGL->polygonLine(true);
             #endif
@@ -279,7 +281,7 @@ void SLMesh::draw(SLSceneView* sv, SLNode* node)
         // 5): Finally do the draw call
         ///////////////////////////////
 
-        _bufI.bindAndDrawElementsAs(_primitive, numI, 0);
+        _bufI.bindAndDrawElementsAs(primitiveType, numI, 0);
 
         ////////////////////////////////
         // 6) Disable attribute pointers

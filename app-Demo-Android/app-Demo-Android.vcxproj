@@ -112,9 +112,10 @@
       <AdditionalLibraryDirectories>$(SolutionDir)_lib\$(Configuration)\$(Platform)\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <ClCompile>
-      <PreprocessorDefinitions>SL_GUI_JAVA;GL_FRAGMENT_PRECISION_HIGH;ASSIMP_BUILD_BOOST_WORKAROUND;ASSIMP_BUILD_NO_OWN_ZLIB;ASSIMP_BUILD_NO_OGRE_IMPORTER</PreprocessorDefinitions>
+      <PreprocessorDefinitions>SL_OS_ANDROID;SL_GUI_JAVA;GL_FRAGMENT_PRECISION_HIGH;ASSIMP_BUILD_BOOST_WORKAROUND;ASSIMP_BUILD_NO_OWN_ZLIB;ASSIMP_BUILD_NO_OGRE_IMPORTER</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)\include;..\include;..\lib-SLExternal;..\lib-SLExternal\jpeg-8;..\lib-SLExternal\png;..\lib-SLExternal\zlib;..\lib-SLExternal\glew\include;..\lib-SLExternal\glfw\include;..\lib-SLExternal\randomc;..\lib-SLExternal\oculus\LibOVR\Include\;..\lib-SLExternal\assimp\code\BoostWorkaround;..\lib-SLExternal\assimp\include;..\lib-SLExternal\assimp\code;..\_globals;..\_globals\SL;..\_globals\GL;..\_globals\math;..\_globals\MeshLoader;..\_globals\SpacePartitioning</AdditionalIncludeDirectories>
       <RuntimeTypeInfo>true</RuntimeTypeInfo>
+      <AdditionalOptions>-std=c++11 %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <PreBuildEvent>
       <Command>

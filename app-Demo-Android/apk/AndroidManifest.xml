@@ -20,23 +20,23 @@
 
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="ch.fhnw.comgr"
-    android:versionCode="14"
+    android:versionCode="12"
     android:versionName="1.1.000">
-   <application 
-            android:label="@string/GLES2_activity"
-            android:icon="@drawable/icon">
-       <activity android:name=".GLES2Activity"
-                 android:theme="@android:style/Theme.NoTitleBar.Fullscreen"
-            	   android:launchMode="singleTask"
-                 android:keepScreenOn = "true"
-                 android:screenOrientation="landscape"
-            	   android:configChanges="keyboardHidden">
-         <intent-filter>
+    <application
+             android:label="@string/GLES2_activity"
+             android:icon="@drawable/icon">
+        <activity android:name=".GLES2Activity"
+                  android:theme="@android:style/Theme.NoTitleBar.Fullscreen"
+                    android:launchMode="singleTask"
+                  android:keepScreenOn = "true"
+                  android:screenOrientation="landscape"
+                    android:configChanges="keyboardHidden">
+            <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
     </application>
     <uses-feature android:glEsVersion="0x00020000"/>
-    <uses-sdk android:minSdkVersion="10"/>
+    <uses-sdk android:minSdkVersion="12"/>
 </manifest>
