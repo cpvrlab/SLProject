@@ -147,9 +147,9 @@ The destructor is called in slTerminate.
 SLScene::~SLScene()
 {
     // Delete all remaining sceneviews
-    for (SLint i = 0; i < _sceneViews.size(); ++i)
-        if (_sceneViews[i]!=NULL)
-            delete _sceneViews[i];
+    for (auto sv : _sceneViews)
+        if (sv != nullptr)
+            delete sv;
 
     unInit();
    
@@ -160,19 +160,19 @@ SLScene::~SLScene()
     _lights.clear();
    
     // delete materials 
-    for (SLuint i=0; i<_materials.size(); ++i) delete _materials[i];
+    for (auto m : _materials) delete m;
         _materials.clear();
    
     // delete materials 
-    for (SLuint i=0; i<_meshes.size(); ++i) delete _meshes[i];
+    for (auto m : _meshes) delete m;
         _meshes.clear();
    
     // delete textures
-    for (SLuint i=0; i<_textures.size(); ++i) delete _textures[i];
+    for (auto t : _textures) delete t;
         _textures.clear();
    
     // delete shader programs
-    for (SLuint i=0; i<_programs.size(); ++i) delete _programs[i];
+    for (auto p : _programs) delete p;
         _programs.clear();
    
     // delete fonts   
@@ -222,9 +222,9 @@ void SLScene::unInit()
     _selectedNode = 0;
 
     // reset existing sceneviews
-    for (SLint i = 0; i < _sceneViews.size(); ++i)
-        if (_sceneViews[i]!=NULL)
-            _sceneViews[i]->camera(_sceneViews[i]->sceneViewCamera());
+    for (auto sv : _sceneViews)
+        if (sv != nullptr)
+            sv->camera(sv->sceneViewCamera());
 
     // delete entire scene graph
     delete _root3D;
@@ -234,21 +234,18 @@ void SLScene::unInit()
     _lights.clear();
 
     // delete textures
-    for (SLuint i=0; i<_textures.size(); ++i) 
-        delete _textures[i];
+    for (auto t : _textures) delete t;
     _textures.clear();
    
     // manually clear the default material (it will get deleted below)
-    SLMaterial::defaultMaterial(NULL);
+    SLMaterial::defaultMaterial(nullptr);
     
     // delete materials 
-    for (SLuint i=0; i<_materials.size(); ++i) 
-        delete _materials[i];
+    for (auto m : _materials) delete m;
     _materials.clear();
 
     // delete meshs 
-    for (SLuint i=0; i<_meshes.size(); ++i) 
-        delete _meshes[i];
+    for (auto m : _meshes) delete m;
     _meshes.clear();
    
     SLMaterial::current = 0;
@@ -278,14 +275,14 @@ in multiple views as demonstrated in the app-Viewer-Qt example.
 bool SLScene::onUpdate()
 {
     // Return if not all sceneview got repainted
-    for (int i = 0; i < _sceneViews.size(); ++i)
-        if (_sceneViews[i]!=NULL && !_sceneViews[i]->gotPainted())
+    for (auto sv : _sceneViews)
+        if (sv != nullptr && !sv->gotPainted())
             return false;
 
     // Reset all _gotPainted flags
-    for (int i = 0; i < _sceneViews.size(); ++i)
-        if (_sceneViews[i]!=NULL)
-            _sceneViews[i]->gotPainted(false);
+    for (auto sv : _sceneViews)
+        if (sv != nullptr)
+            sv->gotPainted(false);
 
     // Calculate the elapsed time for the animation
     _elapsedTimeMS = timeMilliSec() - _lastUpdateTimeMS;
@@ -297,14 +294,15 @@ bool SLScene::onUpdate()
     SLfloat sumDraw2DTimeMS = 0.0f;
     SLbool renderTypeIsRT = false;
     SLbool voxelsAreShown = false;
-    for (SLint i = 0; i < _sceneViews.size(); ++i)
-    {   if (_sceneViews[i]!=NULL)
-        {   sumCullTimeMS   += _sceneViews[i]->cullTimeMS();
-            sumDraw3DTimeMS += _sceneViews[i]->draw3DTimeMS();
-            sumDraw2DTimeMS += _sceneViews[i]->draw2DTimeMS();
-            if (!renderTypeIsRT && _sceneViews[i]->renderType()==renderRT)
+
+    for (auto sv : _sceneViews)
+    {   if (sv != nullptr)
+        {   sumCullTimeMS   += sv->cullTimeMS();
+            sumDraw3DTimeMS += sv->draw3DTimeMS();
+            sumDraw2DTimeMS += sv->draw2DTimeMS();
+            if (!renderTypeIsRT && sv->renderType()==renderRT)
                 renderTypeIsRT = true;
-            if (!voxelsAreShown && _sceneViews[i]->drawBit(SL_DB_VOXELS))
+            if (!voxelsAreShown && sv->drawBit(SL_DB_VOXELS))
                 voxelsAreShown = true;
         }
     }
@@ -331,8 +329,8 @@ bool SLScene::onUpdate()
     //          skeleton data update would then be done on mesh level which in turn updates all of its submeshes.
     //
     //          For now we need to reset the dirty flag manually at the start of each frame because of the above note.
-    for(SLint i = 0; i < _animManager.skeletons().size(); ++i)
-        _animManager.skeletons()[i]->changed(false);
+    for(auto skeleton : _animManager.skeletons())
+        skeleton->changed(false);
 
     // Process queued up system events and poll custom input devices
     SLbool animatedOrChanged = SLInputManager::instance().pollEvents();
@@ -342,19 +340,17 @@ bool SLScene::onUpdate()
     ////////////////////////////////////////////////////////////////////////////
     
     // Do software skinning on all changed skeletons
-    for (SLuint i=0; i<_meshes.size(); ++i) 
-    {   if (_meshes[i]->skeleton() && 
-            _meshes[i]->skeleton()->changed() && 
-            _meshes[i]->skinningMethod() == SM_SoftwareSkinning)
-        {   
-            _meshes[i]->transformSkin();
+    for (auto mesh : _meshes) 
+    {   if (mesh->skeleton() && 
+            mesh->skeleton()->changed() && 
+            mesh->skinningMethod() == SM_SoftwareSkinning)
+        {   mesh->transformSkin();
             animatedOrChanged = true;
-
         }
 
         // update any out of date acceleration structure for RT or if they're being rendered.
         if (renderTypeIsRT || voxelsAreShown)
-            _meshes[i]->updateAccelStruct();
+            mesh->updateAccelStruct();
     }
     
     // Update AABBs efficiently. The updateAABBRec call won't generate any overhead if nothing changed
@@ -390,7 +386,7 @@ SLScene::info returns the info text. If null it creates an empty one
 */
 SLText* SLScene::info(SLSceneView* sv)
 {
-    if (_info == 0) info(sv, "", SLCol4f::WHITE);
+    if (_info == nullptr) info(sv, "", SLCol4f::WHITE);
     return _info;
 }
 //-----------------------------------------------------------------------------
@@ -435,9 +431,9 @@ void SLScene::selectNodeMesh(SLNode* nodeToSelect, SLMesh* meshToSelect)
 SLbool SLScene::onCommandAllSV(const SLCmd cmd)
 {
     SLbool result = false;
-    for(SLint i=0; i<_sceneViews.size(); ++i)
-        if (_sceneViews[0]!=NULL)
-            result = _sceneViews[i]->onCommand(cmd) ? true : result;
+    for(auto sv : _sceneViews)
+        if (sv != nullptr)
+            result = sv->onCommand(cmd) ? true : result;
 
     return true;
 }

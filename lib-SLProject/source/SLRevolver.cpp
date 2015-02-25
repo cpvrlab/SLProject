@@ -63,18 +63,18 @@ void SLRevolver::buildMesh(SLMaterial* material)
    
     // calculate length of segments for texture coords
     SLfloat totalLenght = 0;
-    std::vector<SLfloat> segment;
-    segment.push_back(0);
+    std::vector<SLfloat> segments;
+    segments.push_back(0);
     for (SLuint r=0; r<_revPoints.size()-1; ++r)
     {   SLVec3f s = _revPoints[r+1] - _revPoints[r];
         SLfloat len = s.length();
         totalLenght += len;
-        segment.push_back(len);
+        segments.push_back(len);
     }
 
     // Normalize segment lenghts for texture coords
-    for (SLuint i=0; i< segment.size(); ++i)
-        segment[i] /= totalLenght;
+    for (auto segment : segments)
+        segment /= totalLenght;
    
     // Texture coordinate
     SLVec2f texCoord(0, 0);          // y is increased by segment[r]
@@ -89,7 +89,7 @@ void SLRevolver::buildMesh(SLMaterial* material)
     for (SLuint r=0; r<_revPoints.size(); ++r)
     {   m.identity();
         texCoord.x = 0;
-        texCoord.y += segment[r];
+        texCoord.y += segments[r];
         for (SLint s=0; s<=_slices; ++s)
         {  
             if (s==0 || s==_slices)
@@ -145,17 +145,17 @@ void SLRevolver::buildMesh(SLMaterial* material)
     SLuint i = 0;
     if (numV < 65536)
     {   I16 = new SLushort[numI];
-        for(SLuint f=0; f<faces.size(); ++f) 
-        {   I16[i++] = faces[f].x;
-            I16[i++] = faces[f].y;
-            I16[i++] = faces[f].z;
+        for(auto face : faces) 
+        {   I16[i++] = face.x;
+            I16[i++] = face.y;
+            I16[i++] = face.z;
         }
     } else
     {   I32 = new SLuint[numI];
-        for(SLuint f=0; f<faces.size(); ++f) 
-        {   I32[i++] = faces[f].x;
-            I32[i++] = faces[f].y;
-            I32[i++] = faces[f].z;
+        for(auto face : faces) 
+        {   I32[i++] = face.x;
+            I32[i++] = face.y;
+            I32[i++] = face.z;
         }
     }
 

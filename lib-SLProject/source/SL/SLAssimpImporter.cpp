@@ -34,9 +34,9 @@
 struct SLImportKeyframe
 {
     SLImportKeyframe()
-    : translation(NULL), 
-    rotation(NULL),
-    scaling(NULL)
+    : translation(nullptr), 
+    rotation(nullptr),
+    scaling(nullptr)
     { } 
 
     SLImportKeyframe(aiVectorKey* trans, aiQuatKey* rot, aiVectorKey* scl)
@@ -77,8 +77,8 @@ SLVec3f getTranslation(SLfloat time, const KeyframeMap& keyframes)
         result = transKey->mValue;
     else
     {
-        aiVectorKey* frontKey = NULL;
-        aiVectorKey* backKey = NULL;
+        aiVectorKey* frontKey = nullptr;
+        aiVectorKey* backKey = nullptr;
 
         // no translation value present, we must interpolate
         KeyframeMap::const_reverse_iterator revIt(it);
@@ -86,7 +86,7 @@ SLVec3f getTranslation(SLfloat time, const KeyframeMap& keyframes)
         // search to the right
         for (; it != keyframes.end(); it++)
         {
-            if (it->second.translation != NULL)
+            if (it->second.translation != nullptr)
             {
                 backKey = it->second.translation;
                 break;
@@ -96,7 +96,7 @@ SLVec3f getTranslation(SLfloat time, const KeyframeMap& keyframes)
         // search to the left
         for (; revIt != keyframes.rend(); revIt++)
         {
-            if (revIt->second.translation != NULL)
+            if (revIt->second.translation != nullptr)
             {
                 frontKey = revIt->second.translation;
                 break;
@@ -148,8 +148,8 @@ SLVec3f getScaling(SLfloat time, const KeyframeMap& keyframes)
         result = scaleKey->mValue;
     else
     {
-        aiVectorKey* frontKey = NULL;
-        aiVectorKey* backKey = NULL;
+        aiVectorKey* frontKey = nullptr;
+        aiVectorKey* backKey = nullptr;
 
         // no translation value present, we must interpolate
         KeyframeMap::const_reverse_iterator revIt(it);
@@ -157,7 +157,7 @@ SLVec3f getScaling(SLfloat time, const KeyframeMap& keyframes)
         // search to the right
         for (; it != keyframes.end(); it++)
         {
-            if (it->second.rotation != NULL)
+            if (it->second.rotation != nullptr)
             {
                 backKey = it->second.scaling;
                 break;
@@ -167,7 +167,7 @@ SLVec3f getScaling(SLfloat time, const KeyframeMap& keyframes)
         // search to the left
         for (; revIt != keyframes.rend(); revIt++)
         {
-            if (revIt->second.rotation != NULL)
+            if (revIt->second.rotation != nullptr)
             {
                 frontKey = revIt->second.scaling;
                 break;
@@ -219,8 +219,8 @@ SLQuat4f getRotation(SLfloat time, const KeyframeMap& keyframes)
         result = rotKey->mValue;
     else
     {
-        aiQuatKey* frontKey = NULL;
-        aiQuatKey* backKey = NULL;
+        aiQuatKey* frontKey = nullptr;
+        aiQuatKey* backKey = nullptr;
 
         // no translation value present, we must interpolate
         KeyframeMap::const_reverse_iterator revIt(it);
@@ -228,7 +228,7 @@ SLQuat4f getRotation(SLfloat time, const KeyframeMap& keyframes)
         // search to the right
         for (; it != keyframes.end(); it++)
         {
-            if (it->second.rotation != NULL)
+            if (it->second.rotation != nullptr)
             {
                 backKey = it->second.rotation;
                 break;
@@ -238,7 +238,7 @@ SLQuat4f getRotation(SLfloat time, const KeyframeMap& keyframes)
         // search to the left
         for (; revIt != keyframes.rend(); revIt++)
         {
-            if (revIt->second.rotation != NULL)
+            if (revIt->second.rotation != nullptr)
             {
                 frontKey = revIt->second.rotation;
                 break;
@@ -284,7 +284,7 @@ SLNode* SLAssimpImporter::load(SLstring file,        //!< File with path or on d
         if (!SLFileSystem::fileExists(file))
         {   SLstring msg = "SLAssimpImporter: File not found: " + file + "\n";
             SL_WARN_MSG(msg.c_str());
-            return NULL;
+            return nullptr;
         }
     }
 
@@ -295,14 +295,14 @@ SLNode* SLAssimpImporter::load(SLstring file,        //!< File with path or on d
     {   SLstring msg = "Failed to load file: " + 
                         file + "\n" + ai.GetErrorString();
         SL_WARN_MSG(msg.c_str());
-        return NULL;
+        return nullptr;
     }
 
     // initial scan of the scene
     performInitialScan(scene);
 
     // load skeleton
-    loadSkeleton(NULL, _skeletonRoot);
+    loadSkeleton(nullptr, _skeletonRoot);
 
     // load materials
     SLstring modelPath = SLUtils::getPath(file);
@@ -322,7 +322,7 @@ SLNode* SLAssimpImporter::load(SLstring file,        //!< File with path or on d
     }
 
     // load the scene nodes recursively
-    _sceneRoot = loadNodesRec(NULL, scene->mRootNode, meshMap, loadMeshesOnly);
+    _sceneRoot = loadNodesRec(nullptr, scene->mRootNode, meshMap, loadMeshesOnly);
 
     // load animations
     vector<SLAnimation*> animations;
@@ -340,8 +340,8 @@ void SLAssimpImporter::clear()
 {
     _nodeMap.clear();
     _jointOffsets.clear();
-    _skeletonRoot = NULL;
-    _skeleton = NULL;
+    _skeletonRoot = nullptr;
+    _skeleton = nullptr;
     _skinnedMeshes.clear();
 }
 //-----------------------------------------------------------------------------
@@ -351,7 +351,7 @@ aiNode* SLAssimpImporter::getNodeByName(const SLstring& name)
 	if(_nodeMap.find(name) != _nodeMap.end())
 		return _nodeMap[name];
 
-	return NULL;
+	return nullptr;
 }
 
 //-----------------------------------------------------------------------------
@@ -477,7 +477,7 @@ these are our final skeleton roots
 */
 void SLAssimpImporter::findSkeletonRoot()
 {
-    _skeletonRoot = NULL;
+    _skeletonRoot = nullptr;
     // early out if we don't have any joint bindings
     if (_jointOffsets.size() == 0) return;
     
@@ -487,27 +487,24 @@ void SLAssimpImporter::findSkeletonRoot()
 
     logMessage(LV_Detailed, "Building joint ancestor lists.\n");
 
-    SLJointOffsetMap::iterator it = _jointOffsets.begin();
+    auto it = _jointOffsets.begin();
     for (; it != _jointOffsets.end(); it++, index++)
     {
         aiNode* node = getNodeByName(it->first);
         SLVaiNode& list = ancestorList[index];
 
         while (node)
-        {
-            list.insert(list.begin(), node);
+        {   list.insert(list.begin(), node);
             node = node->mParent;
         }
 
         // log the gathered ancestor list if on diagnostic
         if (LV_Diagnostic)
-        {
-            logMessage(LV_Diagnostic, "   '%s' ancestor list: ", it->first.c_str());
+        {   logMessage(LV_Diagnostic, "   '%s' ancestor list: ", it->first.c_str());
             for (SLint i = 0; i < list.size(); i++)
                 logMessage(LV_Diagnostic, "'%s' ", list[i]->mName.C_Str());
             logMessage(LV_Diagnostic, "\n");
-        }
-        else
+        } else
             logMessage(LV_Detailed, "   '%s' lies at a depth of %d\n", it->first.c_str(), list.size());
 
         minDepth = min(minDepth, (SLint)list.size());
@@ -637,7 +634,7 @@ SLMaterial* SLAssimpImporter::loadMaterial(SLint index,
     for(SLint i = 0; i < textureCount; ++i) 
     {   if(material->GetTextureCount(textureTypes[i]) > 0) 
         {   aiString aipath;
-            material->GetTexture(textureTypes[i], 0, &aipath, NULL, NULL, NULL, NULL, NULL);
+            material->GetTexture(textureTypes[i], 0, &aipath, nullptr, nullptr, nullptr, nullptr, nullptr);
             SLTexType texType = textureTypes[i]==aiTextureType_DIFFUSE  ? ColorMap :
                                 textureTypes[i]==aiTextureType_NORMALS  ? NormalMap :
                                 textureTypes[i]==aiTextureType_SPECULAR ? GlossMap :
@@ -719,7 +716,7 @@ SLMesh* SLAssimpImporter::loadMesh(aiMesh *mesh)
 
     // We only load meshes that contain triangles
     if (numTriangles==0 || mesh->mNumVertices==0)
-        return NULL; 
+        return nullptr; 
 
     // create a new mesh. 
     // The mesh pointer is added automatically to the SLScene::meshes vector.
@@ -794,7 +791,7 @@ SLMesh* SLAssimpImporter::loadMesh(aiMesh *mesh)
             aiBone* joint = mesh->mBones[i];
             SLJoint* slJoint = _skeleton->getJoint(joint->mName.C_Str());
             
-            // @todo On OSX it happens from time to time that slJoint is NULL
+            // @todo On OSX it happens from time to time that slJoint is nullptr
             if (slJoint)
             {
                 SLuint jointId = slJoint->id();
@@ -828,8 +825,8 @@ SLMesh* SLAssimpImporter::loadMesh(aiMesh *mesh)
 SLAssimpImporter::loadNodesRec loads the scene graph node tree recursively.
 */
 SLNode* SLAssimpImporter::loadNodesRec(
-   SLNode *curNode,         //!< Pointer to the current node. Pass NULL for root node
-   aiNode *node,            //!< The according assimp node. Pass NULL for root node
+   SLNode *curNode,         //!< Pointer to the current node. Pass nullptr for root node
+   aiNode *node,            //!< The according assimp node. Pass nullptr for root node
    SLMeshMap& meshes,       //!< Reference to the meshes vector
    SLbool loadMeshesOnly)   //!< Only load nodes with meshes
 {
@@ -897,7 +894,7 @@ SLAnimation* SLAssimpImporter::loadAnimation(aiAnimation* anim)
                 
     // exit if we didn't load a skeleton but have animations for one
     if (_skinnedMeshes.size() > 0)
-        assert(_skeleton != NULL && "The skeleton wasn't impoted correctly."); 
+        assert(_skeleton != nullptr && "The skeleton wasn't impoted correctly."); 
     
     // create the animation
     SLAnimation* result;
@@ -919,7 +916,7 @@ SLAnimation* SLAssimpImporter::loadAnimation(aiAnimation* anim)
         SLstring nodeName = channel->mNodeName.C_Str();
         SLNode* affectedNode = _sceneRoot->find<SLNode>(nodeName);
         SLuint id = 0;
-        SLbool isJointNode = (affectedNode == NULL);
+        SLbool isJointNode = (affectedNode == nullptr);
 
         // @todo: this is currently a work around but it can happen that we receive normal node animationtracks and joint animationtracks
         //        we don't allow node animation tracks in a skeleton animation, so we should split an animation in two seperate 
@@ -933,8 +930,9 @@ SLAnimation* SLAssimpImporter::loadAnimation(aiAnimation* anim)
         {
             isSkeletonAnim = true;
             SLJoint* affectedJoint = _skeleton->getJoint(nodeName);
-            if (affectedJoint == NULL)
+            if (affectedJoint == nullptr)
                 break;
+
             id = affectedJoint->id();
             // @todo warn if we find an animation with some node channels and some joint channels
             //       this shouldn't happen!
@@ -991,7 +989,7 @@ SLAnimation* SLAssimpImporter::loadAnimation(aiAnimation* anim)
         for (SLuint i = 0; i < channel->mNumPositionKeys; i++)
         {
             SLfloat time = (SLfloat)channel->mPositionKeys[i].mTime; 
-            keyframes[time] = SLImportKeyframe(&channel->mPositionKeys[i], NULL, NULL);
+            keyframes[time] = SLImportKeyframe(&channel->mPositionKeys[i], nullptr, nullptr);
         }
         
         // add rotation keys
@@ -1000,11 +998,11 @@ SLAnimation* SLAssimpImporter::loadAnimation(aiAnimation* anim)
             SLfloat time = (SLfloat)channel->mRotationKeys[i].mTime;
 
             if (keyframes.find(time) == keyframes.end())
-                keyframes[time] = SLImportKeyframe(NULL, &channel->mRotationKeys[i], NULL);
+                keyframes[time] = SLImportKeyframe(nullptr, &channel->mRotationKeys[i], nullptr);
             else
             {
                 // @todo this shouldn't abort but just throw an exception
-                assert(keyframes[time].rotation == NULL && "There were two rotation keys assigned to the same timestamp.");
+                assert(keyframes[time].rotation == nullptr && "There were two rotation keys assigned to the same timestamp.");
                 keyframes[time].rotation = &channel->mRotationKeys[i];
             }
         }
@@ -1015,30 +1013,43 @@ SLAnimation* SLAssimpImporter::loadAnimation(aiAnimation* anim)
             SLfloat time = (SLfloat)channel->mScalingKeys[i].mTime; 
 
             if (keyframes.find(time) == keyframes.end())
-                keyframes[time] = SLImportKeyframe(NULL, NULL, &channel->mScalingKeys[i]);
+                keyframes[time] = SLImportKeyframe(nullptr, nullptr, &channel->mScalingKeys[i]);
             else
             {
                 // @todo this shouldn't abort but just throw an exception
-                assert(keyframes[time].scaling == NULL && "There were two scaling keys assigned to the same timestamp.");
+                assert(keyframes[time].scaling == nullptr && "There were two scaling keys assigned to the same timestamp.");
                 keyframes[time].scaling = &channel->mScalingKeys[i];
             }
         }
 
-        logMessage(LV_Normal, "   Found %d distinct keyframe timestamp(s).\n", keyframes.size());
+        logMessage(LV_Normal, "   Found %d distinct keyframe timestamp(s).\n", 
+                              keyframes.size());
 
-        KeyframeMap::iterator it = keyframes.begin();
-        for (; it != keyframes.end(); it++)
-        {
-            SLTransformKeyframe* kf = track->createNodeKeyframe(it->first);         
-            kf->translation(getTranslation(it->first, keyframes));
-            kf->rotation(getRotation(it->first, keyframes));
-            kf->scale(getScaling(it->first, keyframes));
+        for (auto it : keyframes)
+        {   SLTransformKeyframe* kf = track->createNodeKeyframe(it.first);         
+            kf->translation(getTranslation(it.first, keyframes));
+            kf->rotation(getRotation(it.first, keyframes));
+            kf->scale(getScaling(it.first, keyframes));
 
             // log
-            logMessage(LV_Detailed, "\n   Generating keyframe at time '%.2f'\n", it->first);
-            logMessage(LV_Detailed, "    Translation: (%.2f, %.2f, %.2f) %s\n", kf->translation().x, kf->translation().y, kf->translation().z, (it->second.translation != NULL) ? "imported" : "generated");
-            logMessage(LV_Detailed, "    Rotation: (%.2f, %.2f, %.2f, %.2f) %s\n", kf->rotation().x(), kf->rotation().y(), kf->rotation().z(), kf->rotation().w(), (it->second.rotation != NULL) ? "imported" : "generated");
-            logMessage(LV_Detailed, "    Scale: (%.2f, %.2f, %.2f) %s\n", kf->scale().x, kf->scale().y, kf->scale().z, (it->second.scaling != NULL) ? "imported" : "generated");
+            logMessage(LV_Detailed, "\n   Generating keyframe at time '%.2f'\n", 
+                       it.first);
+            logMessage(LV_Detailed, "    Translation: (%.2f, %.2f, %.2f) %s\n", 
+                       kf->translation().x, 
+                       kf->translation().y, 
+                       kf->translation().z, 
+                       (it.second.translation != nullptr) ? "imported" : "generated");
+            logMessage(LV_Detailed, "    Rotation: (%.2f, %.2f, %.2f, %.2f) %s\n", 
+                       kf->rotation().x(), 
+                       kf->rotation().y(), 
+                       kf->rotation().z(), 
+                       kf->rotation().w(), 
+                       (it.second.rotation != nullptr) ? "imported" : "generated");
+            logMessage(LV_Detailed, "    Scale: (%.2f, %.2f, %.2f) %s\n", 
+                       kf->scale().x, 
+                       kf->scale().y, 
+                       kf->scale().z, 
+                       (it.second.scaling != nullptr) ? "imported" : "generated");
         }
     }
     

@@ -275,15 +275,11 @@ void qtMainWindow::addNodeTreeItem(SLNode* node,
     if (parent) item = new qtNodeTreeItem(node, parent);
     else item = new qtNodeTreeItem(node, tree);
 
-    for (SLint i=0; i<node->meshes().size(); ++i)
-    {
-        qtNodeTreeItem* mesh = new qtNodeTreeItem(node->meshes()[i], item);
-    }
+    for (auto m : node->meshes())
+        qtNodeTreeItem* mesh = new qtNodeTreeItem(m, item);
 
-    for (SLint i=0; i<node->children().size(); ++i)
-    {
-        addNodeTreeItem(node->children()[i], tree, item);
-    }
+    for (auto child : node->children())
+        addNodeTreeItem(child, tree, item);
 }
 //-----------------------------------------------------------------------------
 void qtMainWindow::buildPropertyTree()
@@ -522,18 +518,17 @@ void qtMainWindow::buildPropertyTree()
                 level1->addChild(level2);
 
                 SLVGLShader& shaders = prog->shaders();
-                for (int i=0; i<shaders.size(); ++i)
-                {  SLGLShader* shader = shaders[i];
-                    if(shader->shaderType() ==VertexShader)
+                for (auto shader : shaders)
+                {   if(shader->shaderType() ==VertexShader)
                     {   level3 = new qtPropertyTreeItem("Vertex Shader:");
                         level3->setGetString(bind((const string&(SLGLShader::*)(void)const)&SLGLShader::name, shader),
-                                            bind((void(SLGLShader::*)(const string&))&SLGLShader::name, shader, _1));
+                                             bind((void(SLGLShader::*)(const string&))&SLGLShader::name, shader, _1));
                         level2->addChild(level3);
                     } else
                     if(shader->shaderType()==FragmentShader)
                     {   level3 = new qtPropertyTreeItem("Fragment Shader:");
                         level3->setGetString(bind((const string&(SLGLShader::*)(void)const)&SLGLShader::name, shader),
-                                            bind((void(SLGLShader::*)(const string&))&SLGLShader::name, shader, _1));
+                                             bind((void(SLGLShader::*)(const string&))&SLGLShader::name, shader, _1));
                         level2->addChild(level3);
                     }
                 }
@@ -543,11 +538,10 @@ void qtMainWindow::buildPropertyTree()
             {   level2 = new qtPropertyTreeItem("Textures:");
                 level1->addChild(level2);
 
-                for (int i=0; i<mat->textures().size(); ++i)
-                {   SLGLTexture* texture = mat->textures()[i];
-                    level3 = new qtPropertyTreeItem("Texture:");
+                for (auto texture : mat->textures())
+                {   level3 = new qtPropertyTreeItem("Texture:");
                     level3->setGetString(bind((const string&(SLGLTexture::*)(void)const)&SLGLTexture::name, texture),
-                                        bind((void(SLGLTexture::*)(const string&))&SLGLTexture::name, texture, _1));
+                                         bind((void(SLGLTexture::*)(const string&))&SLGLTexture::name, texture, _1));
                     level2->addChild(level3);
                 }
             }
@@ -574,26 +568,21 @@ void qtMainWindow::updateAnimationList()
     SLVSkeleton& skeletons = SLScene::current->animManager().skeletons();
     
     if (SLScene::current->animManager().animations().size() > 0)
-    {
-        ui->animAnimatedObjectSelect->addItem("Node Animations", 0);
+    {   ui->animAnimatedObjectSelect->addItem("Node Animations", 0);
         hasAnimations = true;
     }
 
     for (SLint i = 0; i < skeletons.size(); ++i)
-    {
-        SLint index = ui->animAnimatedObjectSelect->count();
+    {   SLint index = ui->animAnimatedObjectSelect->count();
         ui->animAnimatedObjectSelect->addItem("Skeleton " + QString::number(i), i+1);
         hasAnimations = true;
     }
 
     if (hasAnimations)
-    {
-        ui->animAnimatedObjectSelect->setCurrentIndex(1); // select first item        
+    {   ui->animAnimatedObjectSelect->setCurrentIndex(1); // select first item        
         ui->dockAnimation->show();
-    }
-    else
-    {
-        // hide the animation ui element completely since we don't need it
+    } else
+    {   // hide the animation ui element completely since we don't need it
         ui->dockAnimation->hide();
     }
 
@@ -705,9 +694,7 @@ void qtMainWindow::selectNodeOrMeshItem(SLNode* selectedNode, SLMesh* selectedMe
 //-----------------------------------------------------------------------------
 void qtMainWindow::updateAllGLWidgets()
 {
-    for (int i = 0; i < _allGLWidgets.size(); ++i)
-        _allGLWidgets[i]->update();
-
+    for (auto widget : _allGLWidgets) widget->update();
     updateAnimationTimeline();
 }
 //-----------------------------------------------------------------------------
@@ -1430,9 +1417,7 @@ void qtMainWindow::on_actionDelete_active_view_triggered()
         otherWidgets.push_back(otherSplitter->widget(i));
 
     // remove widgets from other splitter by setting the parent to 0
-    for (int i=0; i < otherWidgets.size(); ++i)
-    {   otherWidgets[i]->setParent(0);
-    }
+    for (auto ow : otherWidgets) ow->setParent(0);
    
     // must be 0 now.
     numOtherChildren = otherSplitter->count();
@@ -1445,9 +1430,8 @@ void qtMainWindow::on_actionDelete_active_view_triggered()
     int numParentChildren = parentSplitter->count();
 
     // Reattach other widgets to the parent
-    for (int i=0; i < otherWidgets.size(); ++i)
-    {   parentSplitter->addWidget(otherWidgets[i]);
-    }
+    for (auto ow : otherWidgets) 
+        parentSplitter->addWidget(ow);
 
     // Take over the otherSplitters layout direction
     parentSplitter->setOrientation(otherOrientation);

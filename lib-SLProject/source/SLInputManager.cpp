@@ -48,8 +48,8 @@ SLbool SLInputManager::pollEvents()
     SLbool consumedEvents = processQueuedEvents();
 
     // process custom input devices
-    for(SLint i = 0; i < _devices.size(); ++i)
-        consumedEvents |= _devices[i]->poll();
+    for(auto device : _devices)
+        consumedEvents |= device->poll();
 
     return consumedEvents;
 }

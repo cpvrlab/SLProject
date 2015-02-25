@@ -36,7 +36,7 @@ CPP11 multithreading.
 */
 #ifdef SL_CPP11
     auto random01 = bind(uniform_real_distribution<SLfloat>(0.0, 1.0),
-                        mt19937((SLuint)time(NULL)));
+                        mt19937((SLuint)time(nullptr)));
     SLfloat rnd01();
     SLfloat rnd01(){return random01();}
 #else
@@ -193,7 +193,7 @@ void SLRay::refract(SLRay* refracted)
       
     // Calculate index of refraction eta = Kn_Source/Kn_Destination
     if (isOutside)
-    {   if (originMat==0) // from air (outside) into a material
+    {   if (originMat==nullptr) // from air (outside) into a material
             eta = 1 / hitMat->kn();
         else // from another material into another one
             eta = originMat->kn() / hitMat->kn();

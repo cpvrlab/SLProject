@@ -29,8 +29,7 @@ SLAnimTrack::SLAnimTrack(SLAnimation* animation)
 */
 SLAnimTrack::~SLAnimTrack()
 {
-    for (SLint i = 0; i < _keyframes.size(); ++i)
-        delete _keyframes[i];
+    for (auto kf : _keyframes) delete kf;
 }
 
 //-----------------------------------------------------------------------------
@@ -52,7 +51,7 @@ SLKeyframe* SLAnimTrack::createKeyframe(SLfloat time)
 SLKeyframe* SLAnimTrack::keyframe(SLint index)
 {
     if (index < 0 || index >= numKeyframes())
-        return NULL;
+        return nullptr;
 
     return _keyframes[index];
 }
@@ -73,20 +72,21 @@ SLfloat SLAnimTrack::getKeyframesAtTime(SLfloat time,
 
     assert(animationLength > 0.0f && "Animation length is invalid.");
 
-    *k1 = *k2 = NULL;
+    *k1 = *k2 = nullptr;
         
     // no keyframes or only one keyframe in animation, early out
     if (numKf == 0)
         return 0.0f;
+
     if (numKf < 2)
-    {
-        *k1 = *k2 = _keyframes[0];
+    {   *k1 = *k2 = _keyframes[0];
         return 0.0f;
     }
 
     // wrap time
     if (time > animationLength)
         time = fmod(time, animationLength);
+
     // @todo is it really required of us to check if time is < 0.0f here? Or should this be done higher up?
     while (time < 0.0f)
         time += animationLength;
@@ -109,36 +109,30 @@ SLfloat SLAnimTrack::getKeyframesAtTime(SLfloat time,
         SLKeyframe* cur = _keyframes[i];
 
         if (cur->time() <= time)
-        {
-            *k1 = cur;
+        {   *k1 = cur;
             kfIndex = i;
         }
     }
 
     // time is than first kf
-    if (*k1 == NULL) {
-        *k1 = _keyframes.back();
+    if (*k1 == nullptr) 
+    {   *k1 = _keyframes.back();
         // as long as k1 is in the back
     }
 
     t1 = (*k1)->time();
 
     if (*k1 == _keyframes.back())
-    {
-        *k2 = _keyframes.front();
+    {   *k2 = _keyframes.front();
         t2 = animationLength + (*k2)->time();
-    }
-    else
-    {
-        *k2 = _keyframes[kfIndex+1];
+    } else
+    {   *k2 = _keyframes[kfIndex+1];
         t2 = (*k2)->time();
     }
 
     
     if (t1 == t2)
-    {
         return 0.0f;
-    }
 
     /// @todo   do we want to consider the edge case below or do we want imported animations to have
     ///         to have a keyframe at 0.0 time?
@@ -170,8 +164,8 @@ SLfloat SLAnimTrack::getKeyframesAtTime(SLfloat time,
 */
 SLNodeAnimTrack::SLNodeAnimTrack(SLAnimation* animation)
                      :SLAnimTrack(animation),
-                      _animatedNode(NULL),
-                      _interpolationCurve(NULL),
+                      _animatedNode(nullptr),
+                      _interpolationCurve(nullptr),
                       _translationInterpolation(AI_Linear),
                       _rebuildInterpolationCurve(true)
 { }
@@ -204,7 +198,7 @@ void SLNodeAnimTrack::calcInterpolatedKeyframe(SLfloat time,
 
     SLfloat t = getKeyframesAtTime(time, &k1, &k2);
     
-    if (k1 == NULL)
+    if (k1 == nullptr)
         return;
 
     SLTransformKeyframe* kfOut = static_cast<SLTransformKeyframe*>(keyframe);
@@ -217,8 +211,7 @@ void SLNodeAnimTrack::calcInterpolatedKeyframe(SLfloat time,
     if (_translationInterpolation == AI_Linear)
         translation = base + (kf2->translation() - base) * t; 
     else
-    {
-        if (_rebuildInterpolationCurve)
+    {   if (_rebuildInterpolationCurve)
             buildInterpolationCurve();
         translation = _interpolationCurve->evaluate(time);
     }
@@ -252,7 +245,7 @@ void SLNodeAnimTrack::applyToNode(SLNode* node,
                                        SLfloat weight,
                                        SLfloat scale)
 {
-    if (node == NULL)
+    if (node == nullptr)
         return;
 
     SLTransformKeyframe kf(0, time);

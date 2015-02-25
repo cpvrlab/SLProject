@@ -47,7 +47,7 @@ SLSceneView::SLSceneView() : SLObject()
    
     // Find first a zero pointer gap in
     for (SLint i=0; i<s->_sceneViews.size(); ++i)
-    {  if (s->_sceneViews[i]==0)
+    {  if (s->_sceneViews[i]==nullptr)
         {   s->_sceneViews[i] = this;
             _index = i;
             return;
@@ -256,7 +256,7 @@ void SLSceneView::initSceneViewCamera(const SLVec3f& dir, SLProjection proj)
     _sceneViewCamera.updateAABBRec();
 
 	// if no camera exists or in VR mode use the sceneViewCamera
-	if(_camera == 0 || _vrMode)
+	if(_camera == nullptr || _vrMode)
         _camera = &_sceneViewCamera;
 	
     _camera->needUpdate();
@@ -318,8 +318,8 @@ void SLSceneView::onInitialize()
         clock_t t = clock();
         s->_root3D->updateAABBRec();
 
-        for (SLint i = 0; i < s->meshes().size(); ++i)
-            s->meshes()[i]->updateAccelStruct();
+        for (auto mesh : s->meshes())
+            mesh->updateAccelStruct();
       
         SL_LOG("Time for AABBs : %5.3f sec.\n", 
                 (SLfloat)(clock()-t)/(SLfloat)CLOCKS_PER_SEC);
@@ -606,31 +606,29 @@ Yellow: AABB of selected node
 void SLSceneView::draw3DGLLines(SLVNode &nodes)
 {  
     // draw the opaque shapes directly w. their wm transform
-    for(SLuint i=0; i<nodes.size(); ++i)
+    for(auto node : nodes)
     {
-        if (nodes[i] != _camera)
+        if (node != _camera)
         {
             // Set the view transform
             _stateGL->modelViewMatrix.setMatrix(_stateGL->viewMatrix);
 
             // Draw first AABB of the shapes but not the camera
-            if ((drawBit(SL_DB_BBOX) || nodes[i]->drawBit(SL_DB_BBOX)) &&
-                !nodes[i]->drawBit(SL_DB_SELECTED))
+            if ((drawBit(SL_DB_BBOX) || node->drawBit(SL_DB_BBOX)) &&
+                !node->drawBit(SL_DB_SELECTED))
             {
-                if (nodes[i]->numMeshes() > 0)
-                     nodes[i]->aabb()->drawWS(SLCol3f(1,0,0));
-                else nodes[i]->aabb()->drawWS(SLCol3f(1,0,1));
+                if (node->numMeshes() > 0)
+                     node->aabb()->drawWS(SLCol3f(1,0,0));
+                else node->aabb()->drawWS(SLCol3f(1,0,1));
             }
 
             // Draw AABB for selected shapes
-            if (nodes[i]->drawBit(SL_DB_SELECTED))
-                nodes[i]->aabb()->drawWS(SLCol3f(1,1,0));
+            if (node->drawBit(SL_DB_SELECTED))
+                node->aabb()->drawWS(SLCol3f(1,1,0));
       
             // Draw axis & animation curves
-            if (drawBit(SL_DB_AXIS) || nodes[i]->drawBit(SL_DB_AXIS))
-            {  
-                nodes[i]->aabb()->drawAxisWS();
-            }
+            if (drawBit(SL_DB_AXIS) || node->drawBit(SL_DB_AXIS))
+                node->aabb()->drawAxisWS();
         }
     }
    
@@ -644,16 +642,16 @@ directly with their world coordinates after the view transform.
 void SLSceneView::draw3DGLNodes(SLVNode &nodes)
 {  
     // draw the shapes directly with their wm transform
-    for(SLuint i=0; i<nodes.size(); ++i)
+    for(auto node : nodes)
     {
         // Set the view transform
         _stateGL->modelViewMatrix.setMatrix(_stateGL->viewMatrix);
       
         // Apply world transform
-        _stateGL->modelViewMatrix.multiply(nodes[i]->updateAndGetWM().m());
+        _stateGL->modelViewMatrix.multiply(node->updateAndGetWM().m());
       
         // Finally the nodes meshes
-        nodes[i]->drawMeshes(this);
+        node->drawMeshes(this);
     }
    
     GET_GL_ERROR;  // Check if any OGL errors occured
@@ -846,7 +844,7 @@ void SLSceneView::draw2DGLAll()
         _camera->projection()<=monoOrthographic &&
         (s->_menu2D==s->_menuGL || 
          s->_menu2D==s->_menuRT ||
-         s->_menu2D==s->_menuPT) && SLButton::buttonParent==0)
+         s->_menu2D==s->_menuPT) && SLButton::buttonParent==nullptr)
     {
         _stateGL->pushModelViewMatrix();  
         _stateGL->modelViewMatrix.translate(-w2, -h2, depth);
@@ -859,7 +857,6 @@ void SLSceneView::draw2DGLAll()
     if (!_showLoading && _showMenu && s->_menu2D)
     {   _stateGL->pushModelViewMatrix();  
         _stateGL->modelViewMatrix.translate(-w2, -h2, 0);
-        
         s->_menu2D->drawRec(this);
         _stateGL->popModelViewMatrix();
     }   
@@ -889,7 +886,7 @@ void SLSceneView::draw2DGLAll()
     }
     #endif
 
-    // Draw turntable rotation crosshair
+    // Draw turntable rotation point
     if ((_mouseDownL || _mouseDownM) && _touchDowns==0)
     {   if (_camera->camAnim()==turntableYUp || _camera->camAnim()==turntableZUp)
         {   _stateGL->multiSample(true);
@@ -950,8 +947,8 @@ SLbool SLSceneView::onMouseDown(const SLMouseButton button,
    
     SLbool result = false;
     result = _camera->onMouseDown(button, x, y, mod);
-    for (SLuint i=0; i<s->_eventHandlers.size(); ++i)
-    {   if (s->_eventHandlers[i]->onMouseDown(button, x, y, mod))
+    for (auto eh : s->_eventHandlers)
+    {   if (eh->onMouseDown(button, x, y, mod))
             result = true;
     }  
     return result;
@@ -982,8 +979,8 @@ SLbool SLSceneView::onMouseUp(const SLMouseButton button,
     if (_camera && s->_root3D)
     {   SLbool result = false;
         result = _camera->onMouseUp(button, x, y, mod);
-        for (SLuint i=0; i<s->_eventHandlers.size(); ++i)
-        {  if (s->_eventHandlers[i]->onMouseUp(button, x, y, mod))
+        for (auto eh : s->_eventHandlers)
+        {   if (eh->onMouseUp(button, x, y, mod))
                 result = true;
         }  
         return result;
@@ -1024,8 +1021,8 @@ SLbool SLSceneView::onMouseMove(SLint x, SLint y)
       
         result = _camera->onMouseMove(btn, x, y, _mouseMod);
 
-        for (SLuint i=0; i<s->_eventHandlers.size(); ++i)
-        {   if (s->_eventHandlers[i]->onMouseMove(btn, x, y, _mouseMod))
+        for (auto eh : s->_eventHandlers)
+        {   if (eh->onMouseMove(btn, x, y, _mouseMod))
                 result = true;
         }
     }  
@@ -1060,8 +1057,8 @@ SLbool SLSceneView::onMouseWheel(const SLint delta, const SLKey mod)
 
     // update active camera
     result = _camera->onMouseWheel(delta, mod);
-    for (SLuint i=0; i<s->_eventHandlers.size(); ++i)
-    {   if (s->_eventHandlers[i]->onMouseWheel(delta, mod))
+    for (auto eh : s->_eventHandlers)
+    {   if (eh->onMouseWheel(delta, mod))
             result = true;
     }
     return result;
@@ -1103,8 +1100,8 @@ SLbool SLSceneView::onDoubleClick(const SLMouseButton button,
       
     } else
     {   result = _camera->onDoubleClick(button, x, y, mod);
-        for (SLuint i=0; i<s->_eventHandlers.size(); ++i)
-        {   if (s->_eventHandlers[i]->onDoubleClick(button, x, y, mod))
+        for (auto eh : s->_eventHandlers)
+        {   if (eh->onDoubleClick(button, x, y, mod))
                 result = true;
         }
     }
@@ -1124,8 +1121,8 @@ SLbool SLSceneView::onTouch2Down(SLint x1, SLint y1, SLint x2, SLint y2)
    
     SLbool result = false;
     result = _camera->onTouch2Down(x1, y1, x2, y2);
-    for (SLuint i=0; i<s->_eventHandlers.size(); ++i)
-    {   if (s->_eventHandlers[i]->onTouch2Down(x1, y1, x2, y2))
+    for (auto eh : s->_eventHandlers)
+    {   if (eh->onTouch2Down(x1, y1, x2, y2))
             result = true;
     }  
     return result;
@@ -1143,9 +1140,9 @@ SLbool SLSceneView::onTouch2Move(SLint x1, SLint y1, SLint x2, SLint y2)
    
     SLbool result = false;
     if (_touchDowns==2)
-    {  result = _camera->onTouch2Move(x1, y1, x2, y2);
-        for (SLuint i=0; i<s->_eventHandlers.size(); ++i)
-        {  if (s->_eventHandlers[i]->onTouch2Move(x1, y1, x2, y2))
+    {   result = _camera->onTouch2Move(x1, y1, x2, y2);
+        for (auto eh : s->_eventHandlers)
+        {  if (eh->onTouch2Move(x1, y1, x2, y2))
             result = true;
         }
     }   
@@ -1165,8 +1162,8 @@ SLbool SLSceneView::onTouch2Up(SLint x1, SLint y1, SLint x2, SLint y2)
     SLbool result = false;
    
     result = _camera->onTouch2Up(x1, y1, x2, y2);
-    for (SLuint i=0; i < s->_eventHandlers.size(); ++i)
-    {   if (s->_eventHandlers[i]->onTouch2Up(x1, y1, x2, y2))
+    for (auto eh : s->_eventHandlers)
+    {   if (eh->onTouch2Up(x1, y1, x2, y2))
             result = true;
     }  
     return result;
@@ -1214,8 +1211,8 @@ SLbool SLSceneView::onKeyPress(const SLKey key, const SLKey mod)
     SLbool result = false;
     if (key || mod)
     {   result = _camera->onKeyPress(key, mod);
-        for (SLuint i=0; i < s->_eventHandlers.size(); ++i)
-        {   if (s->_eventHandlers[i]->onKeyPress(key, mod))
+        for (auto eh : s->_eventHandlers)
+        {   if (eh->onKeyPress(key, mod))
             result = true;
         }
     }
@@ -1232,8 +1229,8 @@ SLbool SLSceneView::onKeyRelease(const SLKey key, const SLKey mod)
    
     if (key || mod)
     {   result = _camera->onKeyRelease(key, mod);
-        for (SLuint i=0; i<s->_eventHandlers.size(); ++i)
-        {  if (s->_eventHandlers[i]->onKeyRelease(key, mod))
+        for (auto eh : s->_eventHandlers)
+        {  if (eh->onKeyRelease(key, mod))
                 result = true;
         }
     }
@@ -1488,11 +1485,11 @@ if dpi or other screenspace related parameters changed.
 @todo the menu is still contained in the scene which partly breaks this behaviour
       for multiview applications.
 */
-void SLSceneView::rebuild2DMenus()
+void SLSceneView::rebuild2DMenus(SLbool showAboutFirst)
 {
     SLScene* s = SLScene::current;
     
-    s->_menu2D = NULL;
+    s->_menu2D = nullptr;
     delete s->_menuGL;      s->_menuGL     = 0;
     delete s->_menuRT;      s->_menuRT     = 0;
     delete s->_menuPT;      s->_menuPT     = 0;
@@ -1504,6 +1501,8 @@ void SLSceneView::rebuild2DMenus()
     delete s->_btnCredits;  s->_btnCredits = 0;
 
     build2DMenus();
+    if (!showAboutFirst)
+        s->_menu2D = s->_menuGL;
 }
 
 
@@ -1997,10 +1996,8 @@ SLbool SLSceneView::draw3DRT()
         s->root3D()->needUpdate();
 
         // Do software skinning on all changed skeletons
-        for (SLuint i=0; i<s->meshes().size(); ++i) 
-        {   
-            s->meshes()[i]->updateAccelStruct();
-        }
+        for (auto mesh : s->meshes())
+            mesh->updateAccelStruct();
 
         // Start raytracing
         if (_raytracer.distributed())
@@ -2054,10 +2051,8 @@ SLbool SLSceneView::draw3DPT()
         s->root3D()->needUpdate();
 
         // Do software skinning on all changed skeletons
-        for (SLuint i=0; i<s->meshes().size(); ++i) 
-        {   
-            s->meshes()[i]->updateAccelStruct();
-        }
+        for (auto mesh : s->meshes())
+            mesh->updateAccelStruct();
 
         // Start raytracing
         _pathtracer.render(this);

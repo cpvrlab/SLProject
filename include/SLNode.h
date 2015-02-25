@@ -320,7 +320,7 @@ T* SLNode::findChild(const SLstring& name, SLbool findRecursive)
         }
     }
 
-    return NULL;
+    return nullptr;
 }
 //-----------------------------------------------------------------------------
 

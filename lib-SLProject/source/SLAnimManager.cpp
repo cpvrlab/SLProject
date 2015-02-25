@@ -29,18 +29,13 @@ SLAnimManager::~SLAnimManager()
 //! Clears and deletes all node animations and skeletons
 void SLAnimManager::clear()
 {
-    SLMAnimation::iterator it;
-    for (it = _nodeAnimations.begin(); it != _nodeAnimations.end(); it++)
-        delete it->second;
+    for (auto it : _nodeAnimations) delete it.second;
     _nodeAnimations.clear();
     
-    SLMAnimPlayback::iterator it2;
-    for (it2 = _nodeAnimPlaybacks.begin(); it2 != _nodeAnimPlaybacks.end(); it2++)
-        delete it2->second;
+    for (auto it : _nodeAnimPlaybacks) delete it.second;
     _nodeAnimPlaybacks.clear();
 
-    for (SLint i = 0; i < _skeletons.size(); ++i)
-        delete _skeletons[i];
+    for (auto skeleton : _skeletons) delete skeleton;
     _skeletons.clear();
 }
 
@@ -54,8 +49,7 @@ SLAnimation* SLAnimManager::createNodeAnimation(SLfloat duration)
     ostringstream oss;
 
     do
-    {   
-        oss.clear();
+    {   oss.clear();
         oss << "NodeAnimation_" << index;
         index++;
     }
@@ -91,7 +85,7 @@ SLAnimPlayback* SLAnimManager::getNodeAnimPlayack(const SLstring& name)
         return _nodeAnimPlaybacks[name];
     }
 
-    return NULL;
+    return nullptr;
 }
 
 //-----------------------------------------------------------------------------
@@ -105,10 +99,9 @@ SLbool SLAnimManager::update(SLfloat elapsedTimeSec)
     // per animplayback. so the last playback that affects a node will have its animation applied.
     // we need to save the playback differently if we want to blend them.
 
-    SLMAnimPlayback::iterator it;
-    for (it = _nodeAnimPlaybacks.begin(); it != _nodeAnimPlaybacks.end(); it++)
+    for (auto it : _nodeAnimPlaybacks)
     {
-        SLAnimPlayback* playback = it->second;
+        SLAnimPlayback* playback = it.second;
         if (playback->enabled())
         {
             playback->parentAnimation()->resetNodes();
@@ -119,10 +112,9 @@ SLbool SLAnimManager::update(SLfloat elapsedTimeSec)
     }
     
     // update the skeletons seperately 
-    for (SLint i = 0; i < _skeletons.size(); ++i)
-    {
-        updated |= _skeletons[i]->updateAnimations(elapsedTimeSec);
-    }
+    for (auto skeleton : _skeletons)
+        updated |= skeleton->updateAnimations(elapsedTimeSec);
+    
     return updated;
 }
 

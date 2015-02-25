@@ -178,8 +178,7 @@ void SLMaterial::defaultMaterial(SLMaterial* mat)
         return;
 
     if (_defaultMaterial)
-    {
-        SLVMaterial& list = SLScene::current->materials();
+    {   SLVMaterial& list = SLScene::current->materials();
         list.erase(remove(list.begin(), list.end(), _defaultMaterial), list.end());
         delete _defaultMaterial;
     }

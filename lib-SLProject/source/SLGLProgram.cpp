@@ -46,14 +46,14 @@ SLGLProgram::~SLGLProgram()
 {  
     //SL_LOG("~SLGLProgram\n");
       
-    for (SLuint i=0; i<_shaders.size(); i++)
+    for (auto shader : _shaders)
     {   if (_isLinked)
-        {   glDetachShader(_objectGL, _shaders[i]->_objectGL);
+        {   glDetachShader(_objectGL, shader->_objectGL);
             GET_GL_ERROR;
         }
       
         // always delete shader objects before program object
-        delete _shaders[i]; 
+        delete shader; 
     }                      
 
     if (_objectGL>0)
@@ -62,8 +62,8 @@ SLGLProgram::~SLGLProgram()
     }
 
     // delete uniform variables
-    for (SLuint i=0; i < _uniforms1f.size(); ++i) delete _uniforms1f[i];
-    for (SLuint i=0; i < _uniforms1i.size(); ++i) delete _uniforms1i[i];
+    for (auto uf : _uniforms1f) delete uf;
+    for (auto ui : _uniforms1i) delete ui;
 }
 //-----------------------------------------------------------------------------
 //! SLGLProgram::addShader adds a shader to the shader list
@@ -85,9 +85,9 @@ void SLGLProgram::init()
    
     // if already linked, detach, recreate and compile shaders
     if (_isLinked)
-    {   for (SLuint i=0; i<_shaders.size(); i++)
+    {   for (auto shader : _shaders)
         {   if (_isLinked)
-            {   glDetachShader(_objectGL, _shaders[i]->_objectGL);
+            {   glDetachShader(_objectGL, shader->_objectGL);
                 GET_GL_ERROR;
             }
         }
@@ -96,8 +96,8 @@ void SLGLProgram::init()
    
     // compile all shader objects
     SLbool allSuccuessfullyCompiled = true;
-    for (SLuint i=0; i<_shaders.size(); i++)
-    {   if (!_shaders[i]->createAndCompile())
+    for (auto shader : _shaders)
+    {   if (!shader->createAndCompile())
         {   allSuccuessfullyCompiled = false;
             break;
         }
@@ -108,9 +108,9 @@ void SLGLProgram::init()
     if (!allSuccuessfullyCompiled)
     {        
         // delete all shaders and uniforms that where attached
-        for (SLuint i=0; i<_shaders.size();    i++) delete _shaders[i]; 
-        for (SLuint i=0; i<_uniforms1f.size(); ++i) delete _uniforms1f[i];
-        for (SLuint i=0; i<_uniforms1i.size(); ++i) delete _uniforms1i[i];
+        for (auto sh : _shaders)    delete sh; 
+        for (auto uf : _uniforms1f) delete uf;
+        for (auto ui : _uniforms1i) delete ui;
         _shaders.clear();
         _uniforms1f.clear();
         _uniforms1i.clear();
@@ -119,8 +119,8 @@ void SLGLProgram::init()
         addShader(new SLGLShader(defaultPath+"ErrorTex.frag", FragmentShader));
 
         allSuccuessfullyCompiled = true;
-        for (SLuint i=0; i<_shaders.size(); i++)
-        {   if (!_shaders[i]->createAndCompile())
+        for (auto shader : _shaders)
+        {   if (!shader->createAndCompile())
             {  allSuccuessfullyCompiled = false;
                 break;
             }
@@ -130,8 +130,8 @@ void SLGLProgram::init()
 
     // attach all shader objects
     if (allSuccuessfullyCompiled)
-    {   for (SLuint i=0; i<_shaders.size(); i++)
-        {   glAttachShader(_objectGL, _shaders[i]->_objectGL);
+    {   for (auto shader : _shaders)
+        {   glAttachShader(_objectGL, shader->_objectGL);
             GET_GL_ERROR;
         }
     } else SL_EXIT_MSG("No successufully compiled shaders attached!");
@@ -144,16 +144,16 @@ void SLGLProgram::init()
 
     if (linked)
     {   _isLinked = true;
-        for (SLuint i=0; i<_shaders.size(); i++) 
-            _name += "+"+_shaders[i]->name();
+        for (auto shader : _shaders) 
+            _name += "+" + shader->name();
         //SL_LOG("Linked: %s", _name.c_str());
     } else
     {   SLchar log[256];
         glGetProgramInfoLog(_objectGL, sizeof(log), 0, &log[0]);
         SL_LOG("*** LINKER ERROR ***\n");
         SL_LOG("Source files: \n");
-        for (SLuint i=0; i<_shaders.size(); i++) 
-            SL_LOG("%s\n", _shaders[i]->name().c_str());
+        for (auto shader : _shaders) 
+            SL_LOG("%s\n", shader->name().c_str());
         SL_LOG("%s\n", log);
         SL_EXIT_MSG("GLSL linker error");
     }
@@ -222,10 +222,8 @@ void SLGLProgram::beginUse(SLMaterial* mat)
         loc = uniform4fv("u_color", 1,  (SLfloat*)&_stateGL->matDiffuse);
 
         // 3: Pass the custom uniform1f variables of the list
-        for (SLuint i=0; i<_uniforms1f.size(); i++)
-            loc = uniform1f(_uniforms1f[i]->name(), _uniforms1f[i]->value());
-        for (SLuint i=0; i<_uniforms1i.size(); i++)
-            loc = uniform1i(_uniforms1i[i]->name(), _uniforms1i[i]->value());
+        for (auto uf : _uniforms1f) loc = uniform1f(uf->name(), uf->value());
+        for (auto ui : _uniforms1i) loc = uniform1i(ui->name(), ui->value());
       
         // 4: Send texture units as uniforms texture samplers
         if (mat)

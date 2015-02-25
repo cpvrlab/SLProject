@@ -17,7 +17,7 @@
 #include "SLGLState.h"
 
 //-----------------------------------------------------------------------------
-SLGLState* SLGLState::instance = NULL;
+SLGLState* SLGLState::instance = nullptr;
 //-----------------------------------------------------------------------------
 std::vector<string> errors;   // global vector for errors used in getGLError  
 //-----------------------------------------------------------------------------

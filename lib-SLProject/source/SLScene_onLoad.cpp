@@ -183,9 +183,9 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
 
     // Show once the empty loading screen without scene
     // @todo review this, we still pass in the active scene view with sv. Is it necessary?
-    for (SLint i = 0; i < _sceneViews.size(); ++i)
-        if (_sceneViews[i]!=NULL)
-            _sceneViews[i]->showLoading(true);
+    for (auto sv : _sceneViews)
+        if (sv != nullptr)
+            sv->showLoading(true);
 
     _currentID = sceneName;
 
@@ -377,7 +377,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
         SLMaterial* matFloor = new SLMaterial("floor", new SLGLTexture("tron_floor2.png"
                                             ,SL_ANISOTROPY_MAX
                                             ,GL_LINEAR),
-                                            NULL, NULL, NULL,
+                                            nullptr, nullptr, nullptr,
                                             _programs[TextureOnly]);
         SLNode* floor = new SLNode(
                             new SLRectangle(SLVec2f(-1000, -1000), SLVec2f(1000,1000),
@@ -1675,12 +1675,13 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
         for(SLint lvl = 0; lvl < levels; ++lvl)
         {   curParentsVector = parents;
             parents.clear();
+
             // for each parent in the previous level, add a completely new grid
-            for(SLint p=0; p < curParentsVector.size(); ++p)
+            for(auto parent : curParentsVector)
             {   for(SLint i = 0; i < nodesPerLvl; ++i)
                 {   SLNode* node = new SLNode("MassAnimNode");
                     node->addMesh(box);
-                    curParentsVector[p]->addChild(node);
+                    parent->addChild(node);
                     parents.push_back(node);
 
                     // position
@@ -1742,8 +1743,8 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
         // @note RT currently only works with software skinning
         if (sceneName == cmdSceneAstroboyArmyGPU)
         {   name("Astroboy army skinned on GPU");
-            for (SLint i = 0; i < importer.meshes().size(); ++i)
-               importer.meshes()[i]->skinningMethod(SM_HardwareSkinning);
+            for (auto m : importer.meshes())
+               m->skinningMethod(SM_HardwareSkinning);
         } else
             name("Astroboy army skinned on CPU");
 
@@ -1763,15 +1764,14 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
         #endif
         for (SLint iZ=-size; iZ<=size; ++iZ)
         {   for (SLint iX=-size; iX<=size; ++iX)
-            {
-                SLbool shift = iX%2 != 0;
+            {   SLbool shift = iX%2 != 0;
                 if (iX!=0 || iZ!=0)
                 {   SLNode* n = new SLNode;
                     float xt = float(iX) * 1.0f;
                     float zt = float(iZ) * 1.0f + ((shift) ? 0.5f : 0.0f);
                     n->translate(xt, 0, zt, TS_Local);
-                    for (SLint i = 0; i < importer.meshes().size(); ++i)
-                        n->addMesh(importer.meshes()[i]);
+                    for (auto m : importer.meshes())
+                        n->addMesh(m);
                     scene->addChild(n);
                 }
             }
@@ -2102,7 +2102,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
 
         // Lens with radius
         //SLNode* lensC = new SLNode(new SLLens(5.0, 4.0, 4.0f, 0.0f, 32, 32, "presbyopic", matLens));        // Weitsichtig
-        SLNode* lensD = new SLNode(new SLLens(-15.0, -15.0, 1.0f, 0.1f, 32, 32, "myopic", matLens));          // Kurzsichtig
+        SLNode* lensD = new SLNode(new SLLens(-15.0f, -15.0f, 1.0f, 0.1f, 32, 32, "myopic", matLens));          // Kurzsichtig
         //lensC->translate(-2, 1, 2, TS_Local);
         lensD->translate(0, 6, 0, TS_Local);
 
@@ -2122,10 +2122,10 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
     }
 
     // call onInitialize on all scene views
-    for (SLint i = 0; i < _sceneViews.size(); ++i)
-    {   if (_sceneViews[i] != NULL)
-        {   _sceneViews[i]->onInitialize();
-            _sceneViews[i]->showLoading(false);
+    for (auto sv : _sceneViews)
+    {   if (sv != nullptr)
+        {   sv->onInitialize();
+            sv->showLoading(false);
         }
     }
 

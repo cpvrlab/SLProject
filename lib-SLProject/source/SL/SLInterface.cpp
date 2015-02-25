@@ -46,7 +46,7 @@ void slCreateScene(SLstring shaderPath,
                    SLstring modelPath,
                    SLstring texturePath)
 {
-    assert(SLScene::current==0 && "SLScene is already created!");
+    assert(SLScene::current==nullptr && "SLScene is already created!");
    
     SLGLProgram::defaultPath = shaderPath;
     SLGLTexture::defaultPath    = texturePath;
@@ -91,7 +91,7 @@ int slCreateSceneView(int screenWidth,
 
     // Use our own sceneview creator callback or the the passed one.
     cbOnNewSceneView newSVCallback;
-    if (onNewSceneViewCallback==0)
+    if (onNewSceneViewCallback==nullptr)
          newSVCallback = &slNewSceneView;
     else newSVCallback = (cbOnNewSceneView)onNewSceneViewCallback;
 

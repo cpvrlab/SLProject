@@ -36,7 +36,7 @@ SLGLOculus::SLGLOculus() : _usingDebugHmd(false),
                            _isPositionTracked(false)
 {
     #ifdef SL_OVR
-    _hmd = NULL;
+    _hmd = nullptr;
     #endif
     init();
 }

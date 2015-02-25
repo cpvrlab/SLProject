@@ -131,7 +131,7 @@ class SLSceneView: public SLObject
             SLbool          isSceneViewCameraActive() {return _camera == &_sceneViewCamera;}
 
             // Misc.
-            void            rebuild2DMenus      ();
+            void            rebuild2DMenus      (SLbool showAboutFirst=false);
             void            build2DMenus        ();
             void            build2DInfoGL       ();
             void            build2DInfoRT       ();

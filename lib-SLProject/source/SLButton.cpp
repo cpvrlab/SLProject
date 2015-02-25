@@ -162,13 +162,9 @@ void SLButton::drawRec(SLSceneView* sv)
             state->popModelViewMatrix();
         }
     }
-       
-    // draw all childrens
-    //SLNode::drawRec(sv);
     
-    for (SLint i=0; i<_children.size(); ++i)
-        _children[i]->drawRec(sv);
-
+    for (auto child : _children)
+        child->drawRec(sv);
 
     _stateGL->popModelViewMatrix();
 }
@@ -315,13 +311,10 @@ SLbool SLButton::onMouseDown(const SLMouseButton button,
     }
    
     // check sub menus
-    if (_children.size()>0)
-    {   for (SLint i=0; i<_children.size(); ++i)
-        {   SLNode* btn = _children[i];
-            if (!btn->drawBits()->get(SL_DB_HIDDEN))
-            if (btn->onMouseDown(button, x, y, mod))
-                return true;
-        }
+    for (auto child : _children)
+    {   if (!child->drawBits()->get(SL_DB_HIDDEN))
+        if (child->onMouseDown(button, x, y, mod))
+            return true;
     }
    
     buttonDown = 0;
@@ -378,10 +371,9 @@ SLbool SLButton::onMouseUp(const SLMouseButton button,
                 // if another menu on the same or higher level is open hide it first
                 if (buttonParent && buttonParent!=this && buttonParent->depth()>=_depth)
                 {  
-                    while (buttonParent && buttonParent->depth()>=depth())
-                    {  
-                        for (SLint i=0; i<buttonParent->children().size(); ++i)
-                            buttonParent->children()[i]->drawBits()->set(SL_DB_HIDDEN, true);
+                    while (buttonParent && buttonParent->depth() >= depth())
+                    {   for (auto child : buttonParent->children())
+                            child->drawBits()->set(SL_DB_HIDDEN, true);
                         buttonParent->isDown(false);
                         buttonParent = (SLButton*)buttonParent->parent();
                     }
@@ -391,8 +383,8 @@ SLbool SLButton::onMouseUp(const SLMouseButton button,
                 btn = (SLButton*)_children[0];
                 if (btn && btn->drawBits()->get(SL_DB_HIDDEN))
                 {  
-                    for (SLint i=0; i<_children.size(); ++i)
-                        _children[i]->drawBits()->set(SL_DB_HIDDEN, false);
+                    for (auto child : _children)
+                        child->drawBits()->set(SL_DB_HIDDEN, false);
                     buttonParent = this;
                 } 
                 else // submenu is already open so close everything
@@ -403,8 +395,8 @@ SLbool SLButton::onMouseUp(const SLMouseButton button,
                     } else
                     {   if (buttonParent)
                         {  
-                            for (SLint i=0; i<buttonParent->children().size(); ++i)
-                            buttonParent->children()[i]->drawBits()->set(SL_DB_HIDDEN, true);
+                            for (auto child : buttonParent->children())
+                                child->drawBits()->set(SL_DB_HIDDEN, true);
                             buttonParent->isDown(false);
                             buttonParent = (SLButton*)(buttonParent->parent());
                         }
@@ -441,11 +433,9 @@ SLbool SLButton::onMouseUp(const SLMouseButton button,
     }
    
     // check sub menus
-    if (_children.size()>0)
-    {   for (SLint i=0; i<_children.size(); ++i)
-        {   if (_children[i]->onMouseUp(button, x, y, mod))
+    for (auto child : _children)
+    {   if (child->onMouseUp(button, x, y, mod))
             return true;
-        }
     }
    
     // check if mouse down was on this button and the up was on the scene
@@ -490,12 +480,8 @@ void SLButton::hideAndReleaseRec()
     _isDown = false;
    
     // hide/show sub menus
-    if (_children.size()>0)
-    {   for (SLint i=0; i<_children.size(); ++i)
-        {   SLButton* btn = (SLButton*)_children[i];
-            btn->hideAndReleaseRec();
-        }
-    }
+    for (auto child : _children)
+        ((SLButton*)child)->hideAndReleaseRec();
 }
 //-----------------------------------------------------------------------------
 /*!
@@ -504,8 +490,8 @@ unchecks all other checkable children buttons.
 */
 void SLButton::checkRadioRec()
 {  
-    for (SLint i=0; i<_children.size(); ++i)
-    {   SLButton* btn = (SLButton*)_children[i];
+    for (auto child : _children)
+    {   SLButton* btn = (SLButton*)child;
         btn->isChecked(btn->isCheckable() && btn==buttonDown);
         btn->checkRadioRec();
     }
@@ -525,16 +511,16 @@ SLVec2f SLButton::setSizeRec()
         SLfloat maxH = FLT_MIN;
       
         // Loop through children & get max text size
-        for (SLint i=0; i<_children.size(); ++i)
-        {   SLButton* btn = (SLButton*)_children[i];
+        for (auto child : _children)
+        {   SLButton* btn = (SLButton*)child;
             SLVec2f textSize = btn->setSizeRec();
             if (textSize.x > maxW) maxW = textSize.x;
             if (textSize.y > maxH) maxH = textSize.y;
         }
       
         // Loop through children & set all button to max. size
-        for (SLint i=0; i<_children.size(); ++i)
-        {   SLButton* btn = (SLButton*)_children[i];
+        for (auto child : _children)
+        {   SLButton* btn = (SLButton*)child;
             btn->btnW(maxW + 2*_sv->dpmm()*BTN_BORDER_W_MM);
             btn->btnH(maxH + _text->fontHeightPX()*BTN_TXT2BTN_H_FACTOR);
         }
@@ -560,8 +546,8 @@ void SLButton::setPosRec(SLfloat x, SLfloat y)
         curChildY = SL_max(curChildY, minMenuPos.y);
              
         // Loop through children & set their position
-        for (SLint i=0; i<_children.size(); ++i)
-        {   SLButton* btn = (SLButton*)_children[i];
+        for (auto child : _children)
+        {   SLButton* btn = (SLButton*)child;
             btn->setPosRec(_minX + _btnW + _sv->dpmm()*BTN_GAP_W_MM, curChildY);
             curChildY += btn->btnH() + _sv->dpmm()*BTN_GAP_H_MM;
         }

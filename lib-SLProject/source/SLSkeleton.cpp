@@ -31,14 +31,8 @@ SLSkeleton::SLSkeleton()
 SLSkeleton::~SLSkeleton()
 {
     delete _root;
-
-    SLMAnimation::iterator it1;
-    for (it1 = _animations.begin(); it1 != _animations.end(); it1++)
-        delete it1->second;
-    
-    SLMAnimPlayback::iterator it2;
-    for (it2 = _animPlaybacks.begin(); it2 != _animPlaybacks.end(); it2++)
-        delete it2->second;
+    for (auto it : _animations) delete it.second;
+    for (auto it : _animPlaybacks) delete it.second;
 }
 
 //-----------------------------------------------------------------------------
@@ -59,7 +53,7 @@ SLJoint* SLSkeleton::createJoint(const SLstring& name, SLuint id)
     SLJoint* result = new SLJoint(name, id, this);
     
     assert((id >= _joints.size() ||
-           (id < _joints.size() && _joints[id] == NULL)) &&
+           (id < _joints.size() && _joints[id] == nullptr)) &&
           "Trying to create a joint with an already existing id.");
 
     if (_joints.size() <= id)
@@ -83,7 +77,7 @@ SLAnimPlayback* SLSkeleton::getAnimPlayback(const SLstring& name)
         return _animPlaybacks[name];
     }
 
-    return NULL;
+    return nullptr;
 }
 
 //-----------------------------------------------------------------------------
@@ -100,7 +94,7 @@ SLJoint* SLSkeleton::getJoint(SLuint id)
 */
 SLJoint* SLSkeleton::getJoint(const SLstring& name)
 {
-    if (!_root) return NULL;
+    if (!_root) return nullptr;
     SLJoint* result = _root->find<SLJoint>(name);
     return result;
 }
@@ -143,8 +137,8 @@ SLAnimation* SLSkeleton::createAnimation(const SLstring& name, SLfloat duration)
 void SLSkeleton::reset()
 {
     // update all joints
-    for (SLint i = 0; i < _joints.size(); i++)
-        _joints[i]->resetToInitialState();
+    for (auto j : _joints)
+        j->resetToInitialState();
 }
 
 //-----------------------------------------------------------------------------
@@ -153,14 +147,12 @@ void SLSkeleton::reset()
 SLbool SLSkeleton::updateAnimations(SLfloat elapsedTimeSec)
 {
     SLbool animated = false;
-    SLMAnimPlayback::iterator it;
-    for (it = _animPlaybacks.begin(); it != _animPlaybacks.end(); it++)
-    {
-        SLAnimPlayback* state = it->second;
-        if (state->enabled())
-        {
-            state->advanceTime(elapsedTimeSec);
-            animated |= state->changed();
+
+    for (auto it : _animPlaybacks)
+    {   SLAnimPlayback* pb = it.second;
+        if (pb->enabled())
+        {   pb->advanceTime(elapsedTimeSec);
+            animated |= pb->changed();
         }
     }
 
@@ -171,13 +163,12 @@ SLbool SLSkeleton::updateAnimations(SLfloat elapsedTimeSec)
     // reset the skeleton and apply all enabled animations
     reset();
 
-    for (it = _animPlaybacks.begin(); it != _animPlaybacks.end(); it++)
+    for (auto it : _animPlaybacks)
     {
-        SLAnimPlayback* state = it->second;
-        if (state->enabled())
-        {
-            state->parentAnimation()->apply(this, state->localTime(), state->weight());
-            state->changed(false); // remove changed dirty flag from the state again
+        SLAnimPlayback* pb = it.second;
+        if (pb->enabled())
+        {   pb->parentAnimation()->apply(this, pb->localTime(), pb->weight());
+            pb->changed(false); // remove changed dirty flag from the pb again
         }
     }
     return true;
@@ -214,25 +205,24 @@ void SLSkeleton::updateMinMax()
 {    
     // recalculate the new min and max os based on bone radius
     SLbool firstSet = false;
-    for (SLint i = 0; i < _joints.size(); i++)
+    for (auto joint : _joints)
     {
-        SLfloat r = _joints[i]->radius();
+        SLfloat r = joint->radius();
+
         // ignore joints with a zero radius
         if (r == 0.0f)
             continue;
 
-        SLVec3f jointPos = _joints[i]->updateAndGetWM().translation();
+        SLVec3f jointPos = joint->updateAndGetWM().translation();
         SLVec3f curMin = jointPos - SLVec3f(r, r, r);
         SLVec3f curMax = jointPos + SLVec3f(r, r, r);
+        
         if (!firstSet)
-        {
-            _minOS = curMin;
+        {   _minOS = curMin;
             _maxOS = curMax;
             firstSet = true;
-        }
-        else
-        {
-            _minOS.x = min(_minOS.x, curMin.x);
+        } else
+        {   _minOS.x = min(_minOS.x, curMin.x);
             _minOS.y = min(_minOS.y, curMin.y);
             _minOS.z = min(_minOS.z, curMin.z);
 

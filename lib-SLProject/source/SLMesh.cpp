@@ -52,7 +52,7 @@ SLMesh::SLMesh(SLstring name) : SLObject(name)
     minP.set( FLT_MAX,  FLT_MAX,  FLT_MAX);
     maxP.set(-FLT_MAX, -FLT_MAX, -FLT_MAX);
    
-    _skeleton = NULL;
+    _skeleton = nullptr;
     _jointMatrices = 0;
     _skinningMethod = SM_SoftwareSkinning;
 
@@ -77,23 +77,23 @@ SLMesh::~SLMesh()
 //! SLMesh::deleteData deletes all mesh data and vbo's
 void SLMesh::deleteData()
 {
-    if (P)   delete[] P;    P=0;
-    if (N)   delete[] N;    N=0;
-    if (C)   delete[] C;    C=0;
-    if (T)   delete[] T;    T=0;
-    if (Tc)  delete[] Tc;   Tc=0;
-    if (Ji)  delete[] Ji;   Ji=0;
-    if (Jw)  delete[] Jw;   Jw=0;
-    if (I16) delete[] I16;  I16=0;
-    if (I32) delete[] I32;  I32=0;
+    if (P)   delete[] P;    P=nullptr;
+    if (N)   delete[] N;    N=nullptr;
+    if (C)   delete[] C;    C=nullptr;
+    if (T)   delete[] T;    T=nullptr;
+    if (Tc)  delete[] Tc;   Tc=nullptr;
+    if (Ji)  delete[] Ji;   Ji=nullptr;
+    if (Jw)  delete[] Jw;   Jw=nullptr;
+    if (I16) delete[] I16;  I16=nullptr;
+    if (I32) delete[] I32;  I32=nullptr;
 
-    if (_jointMatrices) delete[] _jointMatrices; _jointMatrices = 0;
-    if (cpuSkinningP)   delete[] cpuSkinningP; cpuSkinningP = 0;
-    if (cpuSkinningN)   delete[] cpuSkinningN; cpuSkinningN = 0;
+    if (_jointMatrices) delete[] _jointMatrices; _jointMatrices = nullptr;
+    if (cpuSkinningP)   delete[] cpuSkinningP; cpuSkinningP = nullptr;
+    if (cpuSkinningN)   delete[] cpuSkinningN; cpuSkinningN = nullptr;
 
     if (_accelStruct) 
     {   delete _accelStruct;      
-        _accelStruct = 0;
+        _accelStruct = nullptr;
     }
 
     _bufP.dispose(); 
@@ -120,7 +120,7 @@ void SLMesh::init(SLNode* node)
             node->aabb()->hasAlpha(true);
          
         // build tangents for bump mapping
-        if (mat->needsTangents() && Tc && T==0)
+        if (mat->needsTangents() && Tc && T==nullptr)
             calcTangents();
     }
 }
@@ -189,7 +189,7 @@ void SLMesh::draw(SLSceneView* sv, SLNode* node)
         /////////////////////////////
 
         // 2.a) Apply mesh material if exists & differs from current
-        if (mat != SLMaterial::current || SLMaterial::current->program()==0)
+        if (mat != SLMaterial::current || SLMaterial::current->program()==nullptr)
             mat->activate(_stateGL, *node->drawBits());
             
         // 2.b) Pass the matrices to the shader program
@@ -579,7 +579,7 @@ void SLMesh::updateAccelStruct()
     minP -= addon;
     maxP += addon;
 
-    if (_accelStruct==0 && _primitive == SL_TRIANGLES)
+    if (_accelStruct == nullptr && _primitive == SL_TRIANGLES)
         _accelStruct = new SLUniformGrid(this);
 
     if (_accelStruct && numI > 15)
@@ -1096,7 +1096,7 @@ void SLMesh::transformSkin()
 void SLMesh::notifyParentNodesAABBUpdate() const
 {
     SLVNode nodes = SLScene::current->root3D()->findChildren(this);
-    for (SLint i = 0; i < nodes.size(); ++i)
-        nodes[i]->needAABBUpdate();
+    for (auto node : nodes)
+        node->needAABBUpdate();
 }
 //-----------------------------------------------------------------------------

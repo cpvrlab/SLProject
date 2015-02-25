@@ -70,8 +70,7 @@ SLNode::~SLNode()
 {  
     //SL_LOG("~SLNode: %s\n", name().c_str());
 
-    for (int i=0; i<_children.size(); ++i)
-        delete _children[i];
+    for (auto child : _children) delete child;
     _children.clear();
 
     if (_animation) 
@@ -109,7 +108,7 @@ bool SLNode::insertMesh(SLMesh* insertM, SLMesh* afterM)
     assert(insertM && afterM);
     assert(insertM != afterM);
 
-    SLVMesh::iterator found = std::find(_meshes.begin(), _meshes.end(), afterM);
+    auto found = std::find(_meshes.begin(), _meshes.end(), afterM);
     if (found != _meshes.end())
     {   _meshes.insert(found, insertM);
         insertM->init(this);
@@ -167,8 +166,8 @@ SLNode::findMesh finds the specified mesh by name.
 SLMesh* SLNode::findMesh(SLstring name)
 {  
     assert(name!="");
-    for (SLint i=0; i<_meshes.size(); ++i)
-        if (_meshes[i]->name() == name) return _meshes[i];
+    for (auto mesh : _meshes)
+        if (mesh->name() == name) return mesh;
     return 0;
 }
 //-----------------------------------------------------------------------------
@@ -177,8 +176,8 @@ Returns true if the node contains the provided mesh
 */
 SLbool SLNode::containsMesh(const SLMesh* mesh)
 {
-    for (SLint i = 0; i < _meshes.size(); ++i)
-        if (_meshes[i] == mesh)
+    for (auto m : _meshes)
+        if (m == mesh)
             return true;
 
     return false;
@@ -208,8 +207,8 @@ stack drawing.
 */
 void SLNode::drawMeshes(SLSceneView* sv)
 {
-    for (SLint i=0; i<_meshes.size(); ++i)
-        _meshes[i]->draw(sv, this);
+    for (auto mesh : _meshes)
+        mesh->draw(sv, this);
 }
 //-----------------------------------------------------------------------------
 
@@ -241,7 +240,7 @@ bool SLNode::insertChild(SLNode* insertC, SLNode* afterC)
     assert(insertC && afterC);
     assert(insertC != afterC);
 
-    SLVNode::iterator found = std::find(_children.begin(), _children.end(), afterC);
+    auto found = std::find(_children.begin(), _children.end(), afterC);
     if (found != _children.end())
     {   _children.insert(found, insertC);
         insertC->parent(this);
@@ -266,8 +265,7 @@ Deletes the last child in the child vector.
 bool SLNode::deleteChild()
 {
     if (_children.size() > 0)
-    {  
-        delete _children[_children.size()-1];
+    {   delete _children[_children.size()-1];
         _children.pop_back();
         return true;
     }
@@ -320,14 +318,11 @@ void SLNode::findChildrenHelper(const SLMesh* mesh,
                                 vector<SLNode*>& list,
                                 SLbool findRecursive)
 {
-    for (SLint i = 0; i < _children.size(); ++i)
-    {
-        SLNode* node = _children[i];
-        if (node->containsMesh(mesh))
-            list.push_back(node);
-                    
+    for (auto child : _children)
+    {   if (child->containsMesh(mesh))
+            list.push_back(child);
         if (findRecursive)
-            _children[i]->findChildrenHelper(mesh, list, findRecursive);
+            child->findChildrenHelper(mesh, list, findRecursive);
     }
 }
 //-----------------------------------------------------------------------------
@@ -355,8 +350,8 @@ void SLNode::cullRec(SLSceneView* sv)
     // Cull the group nodes recursively
     if (_aabb.isVisible())
     {  
-        for (SLint i=0; i<_children.size(); ++i)
-            _children[i]->cullRec(sv);
+        for (auto child : _children)
+            child->cullRec(sv);
       
         // for leaf nodes add them to the blended or opaque vector
         if (_aabb.hasAlpha())
@@ -390,8 +385,8 @@ void SLNode::drawRec(SLSceneView* sv)
     drawMeshes(sv);
     ///////////////
    
-    for (SLint i=0; i<_children.size(); ++i)
-        _children[i]->drawRec(sv);
+    for (auto child : _children)
+        child->drawRec(sv);
 
     _stateGL->popModelViewMatrix();
 
@@ -435,11 +430,8 @@ void SLNode::statsRec(SLNodeStats &stats)
          stats.numLeafNodes++;
     else stats.numGroupNodes++;
      
-    for (SLint i=0; i<_meshes.size(); ++i)
-        _meshes[i]->addStats(stats);
-   
-    for (SLint i=0; i<_children.size(); ++i)
-        _children[i]->statsRec(stats);
+    for (auto mesh : _meshes) mesh->addStats(stats);
+    for (auto child : _children) child->statsRec(stats);
 }
 //-----------------------------------------------------------------------------
 /*!
@@ -477,9 +469,8 @@ bool SLNode::hitRec(SLRay* ray)
         ray->setDirOS(_wmI.mat3() * ray->dir);
 
         // test all meshes
-        for (SLint i=0; i<_meshes.size(); ++i)
-        {
-            if (_meshes[i]->hit(ray, this) && !wasHit) 
+        for (auto mesh : _meshes)
+        {   if (mesh->hit(ray, this) && !wasHit) 
                 wasHit = true;
             if (ray->isShaded()) 
                 return true;
@@ -487,9 +478,8 @@ bool SLNode::hitRec(SLRay* ray)
     }
 
     // Test children nodes
-    for (SLint i=0; i<_children.size(); ++i)
-    {
-        if (_children[i]->hitRec(ray) && !wasHit) 
+    for (auto child : _children)
+    {   if (child->hitRec(ray) && !wasHit) 
             wasHit = true;
         if (ray->isShaded()) 
             return true;
@@ -512,15 +502,11 @@ SLNode* SLNode::copyRec()
     copy->_aabb = _aabb;
 
     if (_animation) 
-        copy->_animation = new SLAnimation(*_animation);
-    else 
-        copy->_animation = 0;
+         copy->_animation = new SLAnimation(*_animation);
+    else copy->_animation = 0;
 
-    for (SLint i=0; i<_meshes.size(); ++i)
-        copy->addMesh(_meshes[i]);
-   
-    for (SLint i=0; i<_children.size(); ++i)
-        copy->addChild(_children[i]->copyRec());
+    for (auto mesh : _meshes) copy->addMesh(mesh);
+    for (auto child : _children) copy->addChild(child->copyRec());
    
     return copy;
 }
@@ -533,9 +519,8 @@ void SLNode::parent(SLNode* p)
     _parent = p;
 
     if(_parent)
-        _depth = _parent->depth() + 1;
-    else
-        _depth = 1;
+         _depth = _parent->depth() + 1;
+    else _depth = 1;
 }
 //-----------------------------------------------------------------------------
 /*!
@@ -553,8 +538,8 @@ void SLNode::needUpdate()
     _isWMUpToDate = false;
 
     // mark the WM of the children dirty since their parent just changed
-    for (SLint i=0; i<_children.size(); ++i)
-        _children[i]->needUpdate();
+    for (auto child : _children)
+        child->needUpdate();
 
     // flag AABB for an update
     needAABBUpdate();
@@ -577,8 +562,8 @@ void SLNode::needWMUpdate()
     _isWMUpToDate = false;
 
     // mark the WM of the children dirty since their parent just changed
-    for (SLint i=0; i<_children.size(); ++i)
-        _children[i]->needWMUpdate();
+    for (auto child : _children)
+        child->needWMUpdate();
 }
 //-----------------------------------------------------------------------------
 /*!
@@ -675,16 +660,16 @@ SLAABBox& SLNode::updateAABBRec()
     }
 
     // Build or update AABB of meshes & merge them to the nodes aabb in WS
-    for (SLint i=0; i<_meshes.size(); ++i)
+    for (auto mesh : _meshes)
     {   SLAABBox aabbMesh;
-        _meshes[i]->buildAABB(aabbMesh, updateAndGetWM());
+        mesh->buildAABB(aabbMesh, updateAndGetWM());
         _aabb.mergeWS(aabbMesh);
     }
     
     // Merge children in WS
-    for (SLint i=0; i<_children.size(); ++i)
-        if (typeid(*_children[i])!=typeid(SLCamera))
-            _aabb.mergeWS(_children[i]->updateAABBRec());
+    for (auto child : _children)
+        if (typeid(*child)!=typeid(SLCamera))
+            _aabb.mergeWS(child->updateAABBRec());
 
     // We need min & max also in OS for the uniform grid intersection in OS
     _aabb.fromWStoOS(_aabb.minWS(), _aabb.maxWS(), updateAndGetWMI());
@@ -707,19 +692,19 @@ void SLNode::dumpRec()
 
     // dump meshes of node
     if (_meshes.size() > 0)
-    {   for (SLint m = 0; m<_meshes.size(); ++m)
+    {   for (auto mesh : _meshes)
         {   for (SLint i = 0; i < _depth; ++i) cout << "   ";
-            cout << "- Mesh: " << _meshes[m]->name();
-            cout << ", " << _meshes[m]->numI*3 << " tri";
-            if (_meshes[m]->mat)
-            cout << ", Mat: " << _meshes[m]->mat->name();
+            cout << "- Mesh: " << mesh->name();
+            cout << ", " << mesh->numI*3 << " tri";
+            if (mesh->mat)
+            cout << ", Mat: " << mesh->mat->name();
             cout << endl;
         }
     }
 
     // dump children nodes
-    for (SLint i=0; i<_children.size(); ++i)
-        _children[i]->dumpRec();
+    for (auto child : _children)
+        child->dumpRec();
 }
 //-----------------------------------------------------------------------------
 /*!
@@ -729,8 +714,8 @@ See also SLDrawBits.
 void SLNode::setDrawBitsRec(SLuint bit, SLbool state)
 {
     _drawBits.set(bit, state);
-    for (SLint i=0; i<_children.size(); ++i)
-        _children[i]->setDrawBitsRec(bit, state);
+    for (auto child : _children)
+        child->setDrawBitsRec(bit, state);
 }
 //-----------------------------------------------------------------------------
 

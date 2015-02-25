@@ -138,20 +138,20 @@ class SLVec4
                                     SL_LOG("% 3.3f, % 3.3f, % 3.3f, % 3.3f\n",x, y, z, w);}
             
             //! Conversion to string
-            SLstring  toString(SLstring delimiter=", ")
-                        {  return SLUtils::toString(x) + delimiter +
-                                SLUtils::toString(y) + delimiter +
-                                SLUtils::toString(z) + delimiter +
-                                SLUtils::toString(w);
+            SLstring    toString(SLstring delimiter=", ")
+                        {   return SLUtils::toString(x) + delimiter +
+                                   SLUtils::toString(y) + delimiter +
+                                   SLUtils::toString(z) + delimiter +
+                                   SLUtils::toString(w);
                         }
             
             //! Conversion from string
-            void      fromString(SLstring fourFloatsWithDelimiter, SLchar delimiter=',')
-                        {  SLVstring comp;
-                            SLUtils::split(fourFloatsWithDelimiter, delimiter, comp);
+            void        fromString(SLstring fourFloatsWithDelimiter, SLchar delimiter=',')
+                        {   SLVstring components;
+                            SLUtils::split(fourFloatsWithDelimiter, delimiter, components);
                             float f[4] = {0.0, 0.0f, 0.0f, 1.0f};
-                            for (SLint i=0; i<comp.size(); ++i)
-                            f[i] = (SLfloat)atof(comp[i].c_str());
+                            for (SLint i=0; i<components.size(); ++i)
+                                f[i] = (SLfloat)atof(components[i].c_str());
                             x = f[0]; y = f[1]; z = f[2]; w = f[3];
                         }
 

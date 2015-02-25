@@ -165,7 +165,7 @@ void SLImage::loadJPG(SLstring filename)
     FILE* fp;			
 
     // open image file
-    if ((fp = fopen(filename.c_str(), "rb")) == NULL)
+    if ((fp = fopen(filename.c_str(), "rb")) == nullptr)
     {   SLstring msg = "SLGLTexture::loadJPEG: Failed to load image: " + filename;
         SL_EXIT_MSG(msg.c_str());
     }
@@ -284,7 +284,7 @@ void SLImage::loadPNG(SLstring filename)
     // initialize the setjmp for returning properly after a libpng error occured
     if (setjmp(png_jmpbuf(png_ptr)))
     {   fclose (fp);
-        png_destroy_read_struct (&png_ptr, &info_ptr, NULL);
+        png_destroy_read_struct (&png_ptr, &info_ptr, nullptr);
         if (pRow) free(pRow);
         delete[] _data;
         _data = 0;
@@ -375,8 +375,8 @@ void SLImage::loadPNG(SLstring filename)
         png_read_image(png_ptr, pRow);
 
         // finish decompression and release memory
-        png_read_end(png_ptr, NULL);
-        png_destroy_read_struct (&png_ptr, &info_ptr, NULL);
+        png_read_end(png_ptr, nullptr);
+        png_destroy_read_struct (&png_ptr, &info_ptr, nullptr);
 
         // we don't need row pointers anymore
         free(pRow);
@@ -392,7 +392,7 @@ void SLImage::loadBMP(SLstring filename)
     sBMP_INFOHEADER     BIH;         // Bitmap info header struct
 
     // Open file
-    if ((fp = fopen(filename.c_str(), "rb")) == NULL)
+    if ((fp = fopen(filename.c_str(), "rb")) == nullptr)
     {   fclose(fp);
         SLstring msg = "SLImage::loadBMP: Failed to open image: " + filename;
         SL_EXIT_MSG(msg.c_str());
@@ -484,7 +484,7 @@ void SLImage::loadTGA(SLstring filename)
     FILE* fp; // File pointer
 
     // Open file
-    if ((fp = fopen(filename.c_str(), "rb")) == NULL)
+    if ((fp = fopen(filename.c_str(), "rb")) == nullptr)
     {   SLstring msg = "SLImage::loadTGA: Failed to open image: " + filename;
         SL_EXIT_MSG(msg.c_str());
     }
@@ -756,7 +756,7 @@ void SLImage::savePNG(SLstring filename)
         SL_EXIT_MSG("SLGLTexture::savePNG: Error during end of write");
     }
 
-    png_write_end(png_ptr, NULL);
+    png_write_end(png_ptr, nullptr);
 
     free(row_ptrs);
     fclose(fp);

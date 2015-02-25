@@ -51,11 +51,10 @@ void SLAnimPlayback::advanceTime(SLfloat delta)
     {
         // wrap around on loop, else just stay on last frame
         switch (_loopingBehaviour)
-        {
-        case AL_once:          _linearLocalTime = _animation->lengthSec(); _enabled = false; break;
-        case AL_loop:          _linearLocalTime = 0.0f; break;
-        case AL_pingPong:      _linearLocalTime = _animation->lengthSec(); _playbackDir *= -1; break;
-        case AL_pingPongLoop:  _linearLocalTime = _animation->lengthSec(); _playbackDir *= -1; break;
+        {   case AL_once:          _linearLocalTime = _animation->lengthSec(); _enabled = false; break;
+            case AL_loop:          _linearLocalTime = 0.0f; break;
+            case AL_pingPong:      _linearLocalTime = _animation->lengthSec(); _playbackDir *= -1; break;
+            case AL_pingPongLoop:  _linearLocalTime = _animation->lengthSec(); _playbackDir *= -1; break;
         }
     }
     // fix negative inputs, playback rate could be negative
@@ -65,11 +64,10 @@ void SLAnimPlayback::advanceTime(SLfloat delta)
             _linearLocalTime += _animation->lengthSec();
 
         switch (_loopingBehaviour)
-        {
-        case AL_once:          _linearLocalTime = 0.0f; _enabled = false; break;
-        case AL_loop:          _linearLocalTime = _animation->lengthSec(); break;
-        case AL_pingPong:      _linearLocalTime = 0.0f; _enabled = false; break; // at the moment pingPong stops when reaching 0, if we start with a reverse direction this is illogical
-        case AL_pingPongLoop:  _linearLocalTime = 0.0f; _playbackDir *= -1; break;
+        {   case AL_once:          _linearLocalTime = 0.0f; _enabled = false; break;
+            case AL_loop:          _linearLocalTime = _animation->lengthSec(); break;
+            case AL_pingPong:      _linearLocalTime = 0.0f; _enabled = false; break; // at the moment pingPong stops when reaching 0, if we start with a reverse direction this is illogical
+            case AL_pingPongLoop:  _linearLocalTime = 0.0f; _playbackDir *= -1; break;
         }
     }     
 
@@ -224,35 +222,37 @@ SLfloat SLAnimPlayback::calcEasingTimeInv(SLfloat time) const
 
         case EC_inQuad:      y = sqrt(x); break;
         case EC_outQuad:     y = 1.0f - sqrt(1.0f - x); break;
-        case EC_inOutQuad:   y = (x < 0.5f) ? sqrt(x) / sqrt(2.0f) : 1.0f - sqrt(1.0f - x) / sqrt(2.0f); break;
-        case EC_outInQuad:   y = (x<0.5f) ? 0.5f - 0.25f * sqrt(4.0f - 8.0f * x) : 
-                                  0.5f + 0.25f * sqrt(8.0f * x - 4.0f); break;
+        case EC_inOutQuad:   y = (x < 0.5f) ? sqrt(x) / sqrt(2.0f) : 
+                                              1.0f - sqrt(1.0f - x) / sqrt(2.0f); break;
+        case EC_outInQuad:   y = (x < 0.5f) ? 0.5f - 0.25f * sqrt(4.0f - 8.0f * x) : 
+                                              0.5f + 0.25f * sqrt(8.0f * x - 4.0f); break;
             
         case EC_inCubic:     y = pow(x, 1.0f / 3.0f); break;
         case EC_outCubic:    y = 1.0f - pow(1.0f - x, 1.0f / 3.0f); break;
-        case EC_inOutCubic:  y = (x < 0.5f) ? pow(x, 1.0f / 3.0f) / pow(4.0f, 1.0f / 3.0f) : 
-                                              1.0f - pow(1.0f - x, 1.0f / 3.0f) / pow(4.0f, 1.0f/3.0f); break;
+        case EC_inOutCubic:  y = (x < 0.5f) ?  pow(x, 1.0f / 3.0f) / pow(4.0f, 1.0f / 3.0f) : 
+                                               1.0f - pow(1.0f - x, 1.0f / 3.0f) / pow(4.0f, 1.0f/3.0f); break;
         case EC_outInCubic:  y = (x < 0.5f) ? -pow((0.5f-x) / 4.0f, 1.0f / 3.0f) + 0.5f : 
                                                pow((x - 0.5f) / 4.0f, 1.0f / 3.0f) + 0.5f; break;
             
         case EC_inQuart:     y = pow(x, 1.0f / 4.0f); break;
         case EC_outQuart:    y = 1.0f - pow(1.0f - x, 1.0f / 4.0f); break;
-        case EC_inOutQuart:  y =  (x < 0.5f) ? pow(x, 1.0f / 4.0f) / pow(8.0f, 1.0f/4.0f) : 
+        case EC_inOutQuart:  y = (x < 0.5f) ?  pow(x, 1.0f / 4.0f) / pow(8.0f, 1.0f/4.0f) : 
                                                1.0f - pow(1.0f - x, 1.0f / 4.0f) / pow(8.0f, 1.0f / 4.0f); break;
         case EC_outInQuart:  y = (x < 0.5f) ? -pow(0.5f - x, 1.0f / 4.0f) / pow(8.0f, 1.0f / 4.0f) + 0.5f :
                                                pow(x - 0.5f, 1.0f / 4.0f) / pow(8.0f, 1.0f / 4.0f) + 0.5f; break;  
 
         case EC_inQuint:     y = pow(x, 1.0f/5.0f); break;
         case EC_outQuint:    y = 1.0f - pow(1.0f - x, 1.0f/5.0f); break;
-        case EC_inOutQuint:  y =  (x < 0.5f) ? pow(x, 1.0f / 5.0f) / pow(16.0f, 1.0f / 5.0f) :
+        case EC_inOutQuint:  y = (x < 0.5f) ?  pow(x, 1.0f / 5.0f) / pow(16.0f, 1.0f / 5.0f) :
                                                1.0f - pow(1.0f-x, 1.0f / 5.0f) / pow(16.0f, 1.0f / 5.0f); break;
         case EC_outInQuint:  y = (x < 0.5f) ? -pow(0.5f - x, 1.0f / 5.0f)/pow(16.0f, 1.0f / 5.0f) + 0.5f : 
-                                              pow(x - 0.5f, 1.0f / 5.0f) / pow(16.0f, 1.0f / 5.0f) + 0.5f; break;
+                                               pow(x - 0.5f, 1.0f / 5.0f) / pow(16.0f, 1.0f / 5.0f) + 0.5f; break;
 
         case EC_inSine:      y = -2.0f * asin(1.0f-x) / SL_PI + 1.0f; break;
-        case EC_outSine:     y = -2.0f * acos(x) / SL_PI + 1.0f;                   break;
-        case EC_inOutSine:   y = acos(1.0f - 2.0f * x) / SL_PI;    break;
-        case EC_outInSine:   y = (x < 0.5f) ? asin(2.0f * x) / SL_PI : asin(2.0f * (x - 1.0f)) / SL_PI + 1.0f; break;                                  
+        case EC_outSine:     y = -2.0f * acos(x) / SL_PI + 1.0f; break;
+        case EC_inOutSine:   y = acos(1.0f - 2.0f * x) / SL_PI; break;
+        case EC_outInSine:   y = (x < 0.5f) ? asin(2.0f * x         ) / SL_PI : 
+                                              asin(2.0f * (x - 1.0f)) / SL_PI + 1.0f; break;                                  
         default: y = x; 
     }
 
