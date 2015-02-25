@@ -858,7 +858,7 @@ SLNode* SLAssimpImporter::loadNodesRec(
         if (node->mChildren[i] == _skeletonRoot)
             continue;
 
-        // only load children nodes with meshes or children
+        // only add subtrees that contain a mesh in one of their nodes
         if (!loadMeshesOnly || aiNodeHasMesh(node->mChildren[i]))
         {   SLNode *child = new SLNode(node->mChildren[i]->mName.data);
             curNode->addChild(child);
@@ -1060,6 +1060,12 @@ SLAnimation* SLAssimpImporter::loadAnimation(aiAnimation* anim)
 SLAssimpImporter::aiNodeHasMesh returns true if the passed node or one of its
 children has a mesh. aiNode can contain only transform or joint nodes without
 any visuals.
+
+@todo   this function doesn't look well optimized. It's currently used if the option to
+        only load nodes containing meshes somewhere in their heirarchy is enabled.
+        This means we call it on ancestor nodes first. This also means that we will 
+        redundantly traverse the same exact nodes multiple times. This isn't a pressing
+        issue at the moment but should be tackled when this importer is being optimized
 */
 SLbool SLAssimpImporter::aiNodeHasMesh(aiNode* node)
 {
