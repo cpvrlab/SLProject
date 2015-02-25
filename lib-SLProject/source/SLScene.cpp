@@ -28,7 +28,7 @@
 /*! Global static scene pointer that can be used throughout the entire library
 to access the current scene and its sceneviews. 
 */
-SLScene* SLScene::current = 0;
+SLScene* SLScene::current = nullptr;
 //-----------------------------------------------------------------------------
 /*! The constructor of the scene does all one time initialization such as 
 loading the standard shader programs from which the pointers are stored in
@@ -62,20 +62,20 @@ SLScene::SLScene(SLstring name) : SLObject(name)
 {  
     current = this;
 
-    _root3D       = 0;
-    _menu2D       = 0;
-    _menuGL       = 0;
-    _menuRT       = 0;
-    _menuPT       = 0;
-    _info         = 0;
-    _infoGL       = 0;
-    _infoRT       = 0;
-    _infoLoading  = 0;
-    _btnHelp      = 0;
-    _btnAbout     = 0;
-    _btnCredits   = 0;
-    _selectedMesh = 0;
-    _selectedNode = 0;
+    _root3D       = nullptr;
+    _menu2D       = nullptr;
+    _menuGL       = nullptr;
+    _menuRT       = nullptr;
+    _menuPT       = nullptr;
+    _info         = nullptr;
+    _infoGL       = nullptr;
+    _infoRT       = nullptr;
+    _infoLoading  = nullptr;
+    _btnHelp      = nullptr;
+    _btnAbout     = nullptr;
+    _btnCredits   = nullptr;
+    _selectedMesh = nullptr;
+    _selectedNode = nullptr;
     _stopAnimations = false;
 
     _fps = 0;
@@ -179,17 +179,17 @@ SLScene::~SLScene()
     SLTexFont::deleteFonts();
    
     // delete menus & statistic texts
-    delete _menuGL;     _menuGL     = 0;
-    delete _menuRT;     _menuRT     = 0;
-    delete _menuPT;     _menuPT     = 0;
-    delete _info;       _info       = 0;
-    delete _infoGL;     _infoGL     = 0;
-    delete _infoRT;     _infoRT     = 0;
-    delete _btnAbout;   _btnAbout   = 0;
-    delete _btnHelp;    _btnHelp    = 0;
-    delete _btnCredits; _btnCredits = 0;
+    delete _menuGL;     _menuGL     = nullptr;
+    delete _menuRT;     _menuRT     = nullptr;
+    delete _menuPT;     _menuPT     = nullptr;
+    delete _info;       _info       = nullptr;
+    delete _infoGL;     _infoGL     = nullptr;
+    delete _infoRT;     _infoRT     = nullptr;
+    delete _btnAbout;   _btnAbout   = nullptr;
+    delete _btnHelp;    _btnHelp    = nullptr;
+    delete _btnCredits; _btnCredits = nullptr;
    
-    current = 0;
+    current = nullptr;
 
     SL_LOG("~SLScene\n");
     SL_LOG("------------------------------------------------------------------\n");
@@ -218,8 +218,8 @@ destructed at process end.
 */
 void SLScene::unInit()
 {  
-    _selectedMesh = 0;
-    _selectedNode = 0;
+    _selectedMesh = nullptr;
+    _selectedNode = nullptr;
 
     // reset existing sceneviews
     for (auto sv : _sceneViews)
@@ -228,7 +228,7 @@ void SLScene::unInit()
 
     // delete entire scene graph
     delete _root3D;
-    _root3D = 0;
+    _root3D = nullptr;
 
     // clear light pointers
     _lights.clear();
@@ -248,7 +248,7 @@ void SLScene::unInit()
     for (auto m : _meshes) delete m;
     _meshes.clear();
    
-    SLMaterial::current = 0;
+    SLMaterial::current = nullptr;
    
     // delete custom shader programs but not default shaders
     while (_programs.size() > _numProgsPreload)

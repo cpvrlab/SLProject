@@ -34,31 +34,31 @@ in SLScene::unInit().
 SLMesh::SLMesh(SLstring name) : SLObject(name)
 {   
     _primitive = SL_TRIANGLES;
+    cpuSkinningP = nullptr;
+    cpuSkinningN = nullptr;
+    P   = nullptr;
+    N   = nullptr;
+    C   = nullptr;
+    T   = nullptr;
+    Tc  = nullptr;
+    Ji  = nullptr;
+    Jw  = nullptr;
+    I16 = nullptr;
+    I32 = nullptr;
     _finalP = &P;
     _finalN = &N;
-    cpuSkinningP = 0;
-    cpuSkinningN = 0;
-    P  = 0;
-    N  = 0;
-    C  = 0;
-    T  = 0;
-    Tc = 0;
-    Ji = 0;
-    Jw = 0;
-    I16 = 0;
-    I32 = 0;
     numV = 0;
     numI = 0;
     minP.set( FLT_MAX,  FLT_MAX,  FLT_MAX);
     maxP.set(-FLT_MAX, -FLT_MAX, -FLT_MAX);
    
     _skeleton = nullptr;
-    _jointMatrices = 0;
+    _jointMatrices = nullptr;
     _skinningMethod = SM_SoftwareSkinning;
 
     _stateGL = SLGLState::getInstance();  
     _isVolume = true; // is used for RT to decide inside/outside
-    _accelStruct = 0; // no initial acceleration structure
+    _accelStruct = nullptr; // no initial acceleration structure
     _accelStructOutOfDate = true;
 
     // Add this mesh to the global resource vector for deallocation
