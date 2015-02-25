@@ -5,15 +5,21 @@
 Next Steps:
 
 Prio 1:
- mh: Im continuous RT haben gewisse AABB Aussetzer.
+- Integration Kinect2 für Märki
+- Save scene as Collada dae file
 
 Prio 2:
-- mw: Implement RenderQueue and RenderPriorityGroups. 
-- ??: Linux Port mit QtCreator testen und anpassen.
-- ??: Save scene as Collada dae file
+- mh: Skybox würde mit wenig Aufwand Attraktivität erhöhen
+- Billboards
+- PNG Texturen durch JPG Texturen ersetzen würde Laden auf Mobilgeräten beschleunigen
+- Tags in GLSL shader geparsed über regex ermöglicht höhere GLSL Standards
+- mh: Im continuous RT haben gewisse AABB Aussetzer
+- Implement RenderQueue and RenderPriorityGroups.
 - Edit & update transforms with decompose and compose transforms
 - Edit & update material parameters
 - Edit & update parameters of plantonic meshes
 - Edit Shaderprogs by choosing alternative progs from a dropdown list
 - Integrate RackNet into lib-SLExternal
 - Solve recursive OpenGL repaints during RT and loading screens
+- Path Tracer fixen.
+- 3DConnexion integrieren
