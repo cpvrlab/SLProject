@@ -73,8 +73,8 @@ void SLRevolver::buildMesh(SLMaterial* material)
     }
 
     // Normalize segment lenghts for texture coords
-    for (SLint i=0; i<segments.size(); ++i)
-        segments[i] /= totalLenght;
+    for (auto& segment : segments)
+        segment /= totalLenght;
    
     // Texture coordinate
     SLVec2f texCoord(0, 0);          // y is increased by segment[r]
