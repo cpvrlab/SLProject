@@ -282,7 +282,7 @@ mimicked with GL_LINE_LOOP drawing.
 void SLGLState::polygonLine(SLbool state)
 {  
     #ifndef SL_GLES2
-	{   if (state) 
+    {   if (state) 
             glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
         else 
             glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
