@@ -16,7 +16,7 @@ before_install:
 
 script:
 #  - cd lib-SLExternal
-  - qmake -set QMAKE_CXX g++-4.8 -set QMAKE_CC gcc-4.8
+  - qmake QMAKE_CXX=g++-4.8 QMAKE_CC=gcc-4.8
   - make
 #  - cd ..
 #  - cd lib-SLProject
