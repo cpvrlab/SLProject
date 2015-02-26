@@ -56,6 +56,7 @@ unix:!macx:!android {
     LIBS += -lXi        #libxi-dev
     LIBS += -lXinerama  #libxinerama-dev
     LIBS += -lXxf86vm   #libxf86vm
+    LIBS += -lXcursor
     LIBS += -ludev      #libudev-dev
     LIBS += -lpthread   #libpthread
     LIBS += -lpng
