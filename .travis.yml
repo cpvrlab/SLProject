@@ -2,8 +2,15 @@ language: cpp
 
 
 before_install:
- - sudo add-apt-repository --yes ppa:ubuntu-sdk-team/ppa
+ # newer gcc
+ - sudo add-apt-repository ppa:ubuntu-toolchain-r/test -y
+ # qt5
+ - sudo add-apt-repository ppa:ubuntu-sdk-team/ppa -y
  - sudo apt-get update -qq
+ # g++ 4.8 for std=c++11
+ - if [ "$CXX" = "g++" ]; then sudo apt-get install -qq g++-4.8; fi
+ - if [ "$CXX" = "g++" ]; then export CXX="g++-4.8" CC="gcc-4.8"; fi
+ # additional headerfiles
  - sudo apt-get install libXxf86vm-dev libXi-dev libudev-dev
  - sudo apt-get install qt5-default qttools5-dev-tools
 
