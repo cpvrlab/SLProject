@@ -175,16 +175,18 @@ SOURCES += \
 macx {
 HEADERS += \
     LibOVR/Src/Displays/OVR_OSX_Display.h \
-    LibOVR/Src/Net/OVR_Unix_Socket.h
-
+    LibOVR/Src/Net/OVR_Unix_Socket.h \
+    LibOVR/Src/Kernel/OVR_mach_exc_OSX.h \
 
 SOURCES += \
     LibOVR/Src/Displays/OVR_OSX_Display.cpp \
     LibOVR/Src/Net/OVR_Unix_Socket.cpp \
     LibOVR/Src/Kernel/OVR_ThreadsPthread.cpp \
+    LibOVR/Src/Kernel/OVR_mach_exc_OSX.c \
 
 OBJECTIVE_SOURCES += \
     LibOVR/Src/Util/Util_SystemInfo_OSX.mm \
+    LibOVR/Src/Util/Util_SystemGUI_OSX.mm \
 }
 
 win32 {
