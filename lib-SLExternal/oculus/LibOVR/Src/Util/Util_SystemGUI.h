@@ -1,10 +1,9 @@
 /************************************************************************************
 
-Filename    :   OVRKernel.h
-Content     :   This contains references to all OVR Kernel headers in Src folder.
-                Should be generated automatically based on PublicHeader tags.
-
-Copyright   :   Copyright 2014 Oculus VR, LLC. All Rights reserved.
+Filename    :   Util_SystemGUI.h
+Content     :   OS GUI access, usually for diagnostics.
+Created     :   October 20, 2014
+Copyright   :   Copyright 2014 Oculus VR, LLC All Rights reserved.
 
 Licensed under the Oculus VR Rift SDK License Version 3.2 (the "License"); 
 you may not use the Oculus VR Rift SDK except in compliance with the License, 
@@ -23,20 +22,18 @@ limitations under the License.
 
 *************************************************************************************/
 
-#ifndef OVR_h
-#define OVR_h
+#ifndef OVR_Util_GUI_h
+#define OVR_Util_GUI_h
 
-#include "../Src/Kernel/OVR_Types.h"
-#include "../Src/Kernel/OVR_Allocator.h"
-#include "../Src/Kernel/OVR_RefCount.h"
-#include "../Src/Kernel/OVR_Log.h"
-#include "../Src/Kernel/OVR_Math.h"
-#include "../Src/Kernel/OVR_System.h"
-#include "../Src/Kernel/OVR_Nullptr.h"
-#include "../Src/Kernel/OVR_String.h"
-#include "../Src/Kernel/OVR_Array.h"
-#include "../Src/Kernel/OVR_Timer.h"
-#include "../Src/Kernel/OVR_SysFile.h"
+
+namespace OVR { namespace Util {
+
+    // Displays a modal message box on the default GUI display (not on a VR device). 
+    // The message box interface (e.g. OK button) is not localized.
+    bool DisplayMessageBox(const char* pTitle, const char* pText);
+
+
+} } // namespace OVR::Util
+
 
 #endif
-
