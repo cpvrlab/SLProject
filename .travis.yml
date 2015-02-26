@@ -12,7 +12,7 @@ before_install:
  - if [ "$CXX" = "g++" ]; then export CXX="g++-4.8" CC="gcc-4.8"; fi
  # additional headerfiles
  - sudo apt-get install libXxf86vm-dev libXi-dev libudev-dev libXcursor-dev
- - sudo apt-get install qt5-default qttools5-dev-tools
+ - sudo apt-get install qtbase5-dev qt5-default qttools5-dev-tools
 
 script:
 #  - cd lib-SLExternal
