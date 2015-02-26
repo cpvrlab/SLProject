@@ -161,9 +161,18 @@ public class GLES2Activity extends Activity implements OnTouchListener, SensorEv
  			myView.queueEvent(new Runnable() {public void run() {GLES2Lib.onTouch2Down(x0, y0 ,x1, y1);}});
 		// it's two fingers at the same time
 		} else if (touchCount == 2) {
+            // get time to detect double taps
+			long touchNowMS = System.currentTimeMillis();
+			long touchDeltaMS = touchNowMS - lastTouchMS;
+			lastTouchMS = touchNowMS;
+
             final int x1 = (int)event.getX(1);
             final int y1 = (int)event.getY(1);
- 			myView.queueEvent(new Runnable() {public void run() {GLES2Lib.onTouch2Down(x0, y0 ,x1, y1);}});
+            
+			if (touchDeltaMS < 250)
+ 			    myView.queueEvent(new Runnable() {public void run() {GLES2Lib.onMenuButton();}});
+            else
+                myView.queueEvent(new Runnable() {public void run() {GLES2Lib.onTouch2Down(x0, y0 ,x1, y1);}});
 		}
 		pointersDown = touchCount;
 		myView.requestRender();
