@@ -5,13 +5,15 @@ before_install:
  # newer gcc
  - sudo add-apt-repository ppa:ubuntu-toolchain-r/test -y
  # qt5
- - sudo add-apt-repository ppa:ubuntu-sdk-team/ppa -y
+# - sudo add-apt-repository ppa:ubuntu-sdk-team/ppa -y
+ - sudo add-apt-repository "deb http://archive.ubuntu.com/ubuntu trusty universe"
+ - sudo add-apt-repository "deb http://archive.ubuntu.com/ubuntu trusty main"
  - sudo apt-get update -qq
  # g++ 4.8 for std=c++11
  - if [ "$CXX" = "g++" ]; then sudo apt-get install -qq g++-4.8; fi
  - if [ "$CXX" = "g++" ]; then export CXX="g++-4.8" CC="gcc-4.8"; fi
  # additional headerfiles
- - sudo apt-get install libXxf86vm-dev libXi-dev libudev-dev libXcursor-dev libqt5opengl5-dev
+ - sudo apt-get install libXxf86vm-dev libXi-dev libudev-dev libXcursor-dev libqt5opengl5-dev libqt5widgets5
  - sudo apt-get install qtbase5-dev qt5-default qttools5-dev-tools
 
 script:
