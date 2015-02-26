@@ -146,18 +146,23 @@ function.
 */
 void qtGLWidget::paintGL()
 {
-    makeCurrent();
+    if (slShouldClose())
+        QApplication::quit();
+    else
+    {
+        makeCurrent();
 
-    bool viewNeedsRepaint = slUpdateAndPaint(_svIndex);
+        bool viewNeedsRepaint = slUpdateAndPaint(_svIndex);
 
-    swapBuffers();
-   
-    // Build caption string with scene name and fps
-    this->setWindowTitle(slGetWindowTitle(_svIndex).c_str());
-   
-    // Simply call update for constant repaint. Never call paintGL directly
-    if (viewNeedsRepaint)
-        update();
+        swapBuffers();
+
+        // Build caption string with scene name and fps
+        this->setWindowTitle(slGetWindowTitle(_svIndex).c_str());
+
+        // Simply call update for constant repaint. Never call paintGL directly
+        if (viewNeedsRepaint)
+            update();
+    }
 }
 //-----------------------------------------------------------------------------
 /*!

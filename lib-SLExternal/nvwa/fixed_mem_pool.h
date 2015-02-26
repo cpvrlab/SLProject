@@ -2,7 +2,7 @@
 // vim:tabstop=4:shiftwidth=4:expandtab:
 
 /*
- * Copyright (C) 2004-2008 Wu Yongwei <adah at users dot sourceforge dot net>
+ * Copyright (C) 2005-2013 Wu Yongwei <adah at users dot sourceforge dot net>
  *
  * This software is provided 'as-is', without any express or implied
  * warranty.  In no event will the authors be held liable for any
@@ -27,66 +27,90 @@
  */
 
 /**
- * @file    fixed_mem_pool.h
+ * @file  fixed_mem_pool.h
  *
  * Definition of a fixed-size memory pool template for structs/classes.
  * This is a easy-to-use class template for pre-allocated memory pools.
  * The client side needs to do the following things:
- * - Use one of the macros #DECLARE_FIXED_MEM_POOL,
- *   #DECLARE_FIXED_MEM_POOL__NOTHROW, and
- *   #DECLARE_FIXED_MEM_POOL__THROW_NOCHECK at the end of the class
- *   (say, \c class \e _Cls) definitions
+ * - Use one of the macros
+ *   - #DECLARE_FIXED_MEM_POOL,
+ *   - #DECLARE_FIXED_MEM_POOL__NOTHROW, or
+ *   - #DECLARE_FIXED_MEM_POOL__THROW_NOCHECK
+ *   .
+ *   at the end of the class (say, \c class \e _Cls) definitions.
+ * - Optionally, specialize fixed_mem_pool::alignment to change the
+ *   alignment value for this specific type.
+ * - Optionally, specialize fixed_mem_pool::bad_alloc_handler to change
+ *   the behaviour when all memory blocks are allocated.
  * - Call fixed_mem_pool<_Cls>::initialize at the beginning of the
- *   program
- * - Optionally, specialize fixed_mem_pool<_Cls>::bad_alloc_handler to
- *   change the behaviour when all memory blocks are allocated
+ *   program.
  * - Optionally, call fixed_mem_pool<_Cls>::deinitialize at exit of the
- *   program to check for memory leaks
+ *   program to check for memory leaks.
  * - Optionally, call fixed_mem_pool<_Cls>::get_alloc_count to check
- *   memory usage when the program is running
+ *   memory usage when the program is running.
  *
- * @version 1.14, 2005/09/19
- * @author  Wu Yongwei
- *
+ * @date  2013-10-06
  */
 
-#ifndef _FIXED_MEM_POOL_H
-#define _FIXED_MEM_POOL_H
+#ifndef NVWA_FIXED_MEM_POOL_H
+#define NVWA_FIXED_MEM_POOL_H
 
-#include <new>
-#include <assert.h>
-#include <stdlib.h>
-#include "class_level_lock.h"
-#include "mem_pool_base.h"
+#include <new>                  // std::bad_alloc
+#include <assert.h>             // assert
+#include <stdlib.h>             // size_t/NULL
+#include "_nvwa.h"              // NVWA/NVWA_NAMESPACE_*
+#include "c++11.h"              // _NOEXCEPT
+#include "class_level_lock.h"   // nvwa::class_level_lock
+#include "mem_pool_base.h"      // nvwa::mem_pool_base
+#include "static_assert.h"      // STATIC_ASSERT
+
+NVWA_NAMESPACE_BEGIN
 
 /**
  * Defines the alignment of memory blocks.
  */
 #ifndef MEM_POOL_ALIGNMENT
-#define MEM_POOL_ALIGNMENT 4
+#define MEM_POOL_ALIGNMENT sizeof(void*)
 #endif
 
 /**
  * Class template to manipulate a fixed-size memory pool.  Please notice
  * that only allocate and deallocate are protected by a lock.
  *
- * @param _Tp   class to use the fixed_mem_pool
+ * @param _Tp  class to use the fixed_mem_pool
  */
 template <class _Tp>
 class fixed_mem_pool
 {
 public:
     typedef typename class_level_lock<fixed_mem_pool<_Tp> >::lock lock;
+    /**
+     * Specializable struct to define the alignment of an object in the
+     * fixed_mem_pool.
+     */
+    struct alignment
+    {
+        static const size_t value = MEM_POOL_ALIGNMENT;
+    };
+    /**
+     * Struct to calculate the block size based on the (specializable)
+     * alignment value.
+     */
+    struct block_size
+    {
+        static const size_t value =
+            (sizeof(_Tp) + fixed_mem_pool<_Tp>::alignment::value - 1)
+                       & ~(fixed_mem_pool<_Tp>::alignment::value - 1);
+    };
     static void*  allocate();
     static void   deallocate(void*);
-    static bool   initialize(size_t __size);
+    static bool   initialize(size_t size);
     static int    deinitialize();
     static int    get_alloc_count();
     static bool   is_initialized();
 protected:
     static bool   bad_alloc_handler();
 private:
-    static size_t _S_align(size_t __size);
     static void*  _S_mem_pool_ptr;
     static void*  _S_first_avail_ptr;
     static int    _S_alloc_cnt;
@@ -112,14 +136,14 @@ int   fixed_mem_pool<_Tp>::_S_alloc_cnt = 0;
 template <class _Tp>
 inline void* fixed_mem_pool<_Tp>::allocate()
 {
-    lock __guard;
+    lock guard;
     for (;;)
     {
-        if (void* __result = _S_first_avail_ptr)
+        if (void* result = _S_first_avail_ptr)
         {
             _S_first_avail_ptr = *(void**)_S_first_avail_ptr;
             ++_S_alloc_cnt;
-            return __result;
+            return result;
         }
         else
             if (!bad_alloc_handler())
@@ -130,44 +154,49 @@ inline void* fixed_mem_pool<_Tp>::allocate()
 /**
  * Deallocates a memory block and returns it to the memory pool.
  *
- * @param __block_ptr   pointer to the memory block to return
+ * @param block_ptr  pointer to the memory block to return
  */
 template <class _Tp>
-inline void fixed_mem_pool<_Tp>::deallocate(void* __block_ptr)
+inline void fixed_mem_pool<_Tp>::deallocate(void* block_ptr)
 {
-    if (__block_ptr == NULL)
+    if (block_ptr == NULL)
         return;
-    lock __guard;
+    lock guard;
     assert(_S_alloc_cnt != 0);
     --_S_alloc_cnt;
-    *(void**)__block_ptr = _S_first_avail_ptr;
-    _S_first_avail_ptr = __block_ptr;
+    *(void**)block_ptr = _S_first_avail_ptr;
+    _S_first_avail_ptr = block_ptr;
 }
 
 /**
  * Initializes the memory pool.
  *
- * @param __size number of memory blocks to put in the memory pool
- * @return       \c true if successful; \c false if memory insufficient
+ * @param size  number of memory blocks to put in the memory pool
+ * @return      \c true if successful; \c false if memory insufficient
  */
 template <class _Tp>
-bool fixed_mem_pool<_Tp>::initialize(size_t __size)
+bool fixed_mem_pool<_Tp>::initialize(size_t size)
 {
-    size_t __block_size = _S_align(sizeof(_Tp));
+    STATIC_ASSERT(alignment::value > 0 && alignment::value <= 8192,
+                  Bad_alignment);
+    STATIC_ASSERT((alignment::value & (alignment::value - 1)) == 0,
+                  Alignment_must_be_power_of_two);
+    STATIC_ASSERT(block_size::value >= sizeof(void*),
+                  Alignment_too_small);
     assert(!is_initialized());
-    assert(__size > 0 && __block_size >= sizeof(void*));
-    _S_mem_pool_ptr = mem_pool_base::alloc_sys(__size * __block_size);
+    assert(size > 0);
+    _S_mem_pool_ptr = mem_pool_base::alloc_sys(size * block_size::value);
     _S_first_avail_ptr = _S_mem_pool_ptr;
     if (_S_mem_pool_ptr == NULL)
         return false;
-    char* __block = (char*)_S_mem_pool_ptr;
-    while (--__size != 0)
+    char* block = (char*)_S_mem_pool_ptr;
+    while (--size != 0)
     {
-        char* __next = __block + __block_size;
-        *(void**)__block = __next;
-        __block = __next;
+        char* next = block + block_size::value;
+        *(void**)block = next;
+        block = next;
     }
-    *(void**)__block = NULL;
+    *(void**)block = NULL;
     return true;
 }
 
@@ -226,22 +255,10 @@ bool fixed_mem_pool<_Tp>::bad_alloc_handler()
     return false;
 }
 
-/**
- * Aligns the memory block size.
- *
- * @param __size    size to be aligned
- * @return          aligned value of \a __size
- */
-template <class _Tp>
-inline size_t fixed_mem_pool<_Tp>::_S_align(size_t __size)
-{
-    return (__size + MEM_POOL_ALIGNMENT - 1)
-           / MEM_POOL_ALIGNMENT * MEM_POOL_ALIGNMENT;
-}
+NVWA_NAMESPACE_END
 
 /**
- * Declares the normal (exceptionable) overload of <b>operator new</b>
- * and <b>operator delete</b>.
+ * Declares the normal (throwing) allocation and deallocation functions.
  *
  * @param _Cls  class to use the fixed_mem_pool
  * @see         DECLARE_FIXED_MEM_POOL__THROW_NOCHECK, which, too,
@@ -251,42 +268,41 @@ inline size_t fixed_mem_pool<_Tp>::_S_align(size_t __size)
  */
 #define DECLARE_FIXED_MEM_POOL(_Cls) \
 public: \
-    static void* operator new(size_t __size) \
+    static void* operator new(size_t size) \
     { \
-        assert(__size == sizeof(_Cls)); \
-        if (void* __ptr = fixed_mem_pool<_Cls>::allocate()) \
-            return __ptr; \
+        assert(size == sizeof(_Cls)); \
+        if (void* ptr = NVWA::fixed_mem_pool<_Cls>::allocate()) \
+            return ptr; \
         else \
             throw std::bad_alloc(); \
     } \
-    static void  operator delete(void* __ptr) \
+    static void  operator delete(void* ptr) \
     { \
-        if (__ptr != NULL) \
-            fixed_mem_pool<_Cls>::deallocate(__ptr); \
+        if (ptr != NULL) \
+            NVWA::fixed_mem_pool<_Cls>::deallocate(ptr); \
     }
 
 /**
- * Declares the non-exceptionable overload of <b>operator new</b> and
- * <b>operator delete</b>.
+ * Declares the nothrow allocation and deallocation functions.
  *
  * @param _Cls  class to use the fixed_mem_pool
  */
 #define DECLARE_FIXED_MEM_POOL__NOTHROW(_Cls) \
 public: \
-    static void* operator new(size_t __size) throw() \
+    static void* operator new(size_t size) _NOEXCEPT \
     { \
-        assert(__size == sizeof(_Cls)); \
-        return fixed_mem_pool<_Cls>::allocate(); \
+        assert(size == sizeof(_Cls)); \
+        return NVWA::fixed_mem_pool<_Cls>::allocate(); \
     } \
-    static void  operator delete(void* __ptr) \
+    static void  operator delete(void* ptr) \
     { \
-        if (__ptr != NULL) \
-            fixed_mem_pool<_Cls>::deallocate(__ptr); \
+        if (ptr != NULL) \
+            NVWA::fixed_mem_pool<_Cls>::deallocate(ptr); \
     }
 
 /**
- * Declares the exceptionable, non-checking overload of <b>operator
- * new</b> and <b>operator delete</b>.
+ * Declares the throwing, non-checking allocation and deallocation
+ * functions.
  *
  * N.B.  Using this macro \e requires users to explicitly specialize
  * fixed_mem_pool::bad_alloc_handler so that it shall never return
@@ -298,15 +314,15 @@ public: \
  */
 #define DECLARE_FIXED_MEM_POOL__THROW_NOCHECK(_Cls) \
 public: \
-    static void* operator new(size_t __size) \
+    static void* operator new(size_t size) \
     { \
-        assert(__size == sizeof(_Cls)); \
-        return fixed_mem_pool<_Cls>::allocate(); \
+        assert(size == sizeof(_Cls)); \
+        return NVWA::fixed_mem_pool<_Cls>::allocate(); \
     } \
-    static void  operator delete(void* __ptr) \
+    static void  operator delete(void* ptr) \
     { \
-        if (__ptr != NULL) \
-            fixed_mem_pool<_Cls>::deallocate(__ptr); \
+        if (ptr != NULL) \
+            NVWA::fixed_mem_pool<_Cls>::deallocate(ptr); \
     }
 
-#endif // _FIXED_MEM_POOL_H
+#endif // NVWA_FIXED_MEM_POOL_H

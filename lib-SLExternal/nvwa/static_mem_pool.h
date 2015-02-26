@@ -2,7 +2,7 @@
 // vim:tabstop=4:shiftwidth=4:expandtab:
 
 /*
- * Copyright (C) 2004-2008 Wu Yongwei <adah at users dot sourceforge dot net>
+ * Copyright (C) 2004-2013 Wu Yongwei <adah at users dot sourceforge dot net>
  *
  * This software is provided 'as-is', without any express or implied
  * warranty.  In no event will the authors be held liable for any
@@ -27,34 +27,26 @@
  */
 
 /**
- * @file    static_mem_pool.h
+ * @file  static_mem_pool.h
  *
  * Header file for the `static' memory pool.
  *
- * @version 1.20, 2007/10/20
- * @author  Wu Yongwei
- *
+ * @date  2013-10-06
  */
 
-#ifndef _STATIC_MEM_POOL_H
-#define _STATIC_MEM_POOL_H
+#ifndef NVWA_STATIC_MEM_POOL_H
+#define NVWA_STATIC_MEM_POOL_H
 
-#include <new>
-#include <stdexcept>
-#include <string>
-#include <vector>
-#include <assert.h>
-#include <stddef.h>
-#include "class_level_lock.h"
-#include "mem_pool_base.h"
-
-/* Defines Work-around for Microsoft Visual C++ 6.0 and Borland C++ 5.5.1 */
-# if (defined(_MSC_VER) && _MSC_VER < 1300) \
-        || (defined(__BORLANDC__) && __BORLANDC__ < 0x600)
-#   define __PRIVATE public
-# else
-#   define __PRIVATE private
-# endif
+#include <new>                  // std::bad_alloc
+#include <stdexcept>            // std::runtime_error
+#include <string>               // std::string
+#include <vector>               // std::vector
+#include <assert.h>             // assert
+#include <stddef.h>             // size_t/NULL
+#include "_nvwa.h"              // NVWA/NVWA_NAMESPACE_*
+#include "c++11.h"              // _NOEXCEPT
+#include "class_level_lock.h"   // nvwa::class_level_lock
+#include "mem_pool_base.h"      // nvwa::mem_pool_base
 
 /* Defines the macro for debugging output */
 # ifdef _STATIC_MEM_POOL_DEBUG
@@ -62,7 +54,7 @@
 #   define _STATIC_MEM_POOL_TRACE(_Lck, _Msg) \
         { \
             if (_Lck) { \
-                static_mem_pool_set::lock __guard; \
+                static_mem_pool_set::lock guard; \
                 std::cerr << "static_mem_pool: " << _Msg << std::endl; \
             } else { \
                 std::cerr << "static_mem_pool: " << _Msg << std::endl; \
@@ -72,6 +64,8 @@
 #   define _STATIC_MEM_POOL_TRACE(_Lck, _Msg) \
         ((void)0)
 # endif
+
+NVWA_NAMESPACE_BEGIN
 
 /**
  * Singleton class to maintain a set of existing instantiations of
@@ -83,12 +77,11 @@ public:
     typedef class_level_lock<static_mem_pool_set>::lock lock;
     static static_mem_pool_set& instance();
     void recycle();
-    void add(mem_pool_base* __memory_pool_p);
+    void add(mem_pool_base* memory_pool_p);
 
-__PRIVATE:
-    ~static_mem_pool_set();
 private:
     static_mem_pool_set();
+    ~static_mem_pool_set();
 
     typedef std::vector<mem_pool_base*> container_type;
     container_type _M_memory_pool_set;
@@ -103,7 +96,7 @@ private:
  * memory blocks of one specific size.
  *
  * @param _Sz   size of elements in the static_mem_pool
- * @param _Gid  group id of a static_mem_pool: if it is negative,
+ * @param _Gid  group ID of a static_mem_pool: if it is negative,
  *              simultaneous accesses to this static_mem_pool will be
  *              protected from each other; otherwise no protection is
  *              given
@@ -124,7 +117,7 @@ public:
      */
     static static_mem_pool& instance()
     {
-        lock __guard;
+        lock guard;
         if (!_S_instance_p)
         {
             _S_instance_p = _S_create_instance();
@@ -154,12 +147,12 @@ public:
     void* allocate()
     {
         {
-            lock __guard;
+            lock guard;
             if (_S_memory_block_p)
             {
-                void* __result = _S_memory_block_p;
+                void* result = _S_memory_block_p;
                 _S_memory_block_p = _S_memory_block_p->_M_next;
-                return __result;
+                return result;
             }
         }
         return _S_alloc_sys(_S_align(_Sz));
@@ -167,15 +160,15 @@ public:
     /**
      * Deallocates memory by putting the memory block into the pool.
      *
-     * @param __ptr pointer to memory to be deallocated
+     * @param ptr  pointer to memory to be deallocated
      */
-    void deallocate(void* __ptr)
+    void deallocate(void* ptr)
     {
-        assert(__ptr != NULL);
-        lock __guard;
-        _Block_list* __block = reinterpret_cast<_Block_list*>(__ptr);
-        __block->_M_next = _S_memory_block_p;
-        _S_memory_block_p = __block;
+        assert(ptr != NULL);
+        lock guard;
+        _Block_list* block = reinterpret_cast<_Block_list*>(ptr);
+        block->_M_next = _S_memory_block_p;
+        _S_memory_block_p = block;
     }
     virtual void recycle();
 
@@ -190,12 +183,12 @@ private:
 #   ifdef _DEBUG
         // Empty the pool to avoid false memory leakage alarms.  This is
         // generally not necessary for release binaries.
-        _Block_list* __block = _S_memory_block_p;
-        while (__block)
+        _Block_list* block = _S_memory_block_p;
+        while (block)
         {
-            _Block_list* __next = __block->_M_next;
-            dealloc_sys(__block);
-            __block = __next;
+            _Block_list* next = block->_M_next;
+            dealloc_sys(block);
+            block = next;
         }
         _S_memory_block_p = NULL;
 #   endif
@@ -204,11 +197,11 @@ private:
         _STATIC_MEM_POOL_TRACE(false, "static_mem_pool<" << _Sz << ','
                                       << _Gid << "> is destroyed");
     }
-    static size_t _S_align(size_t __size)
+    static size_t _S_align(size_t size)
     {
-        return __size >= sizeof(_Block_list) ? __size : sizeof(_Block_list);
+        return size >= sizeof(_Block_list) ? size : sizeof(_Block_list);
     }
-    static void* _S_alloc_sys(size_t __size);
+    static void* _S_alloc_sys(size_t size);
     static static_mem_pool* _S_create_instance();
 
     static bool _S_destroyed;
@@ -238,16 +231,16 @@ void static_mem_pool<_Sz, _Gid>::recycle()
     // Only here the global lock in static_mem_pool_set is obtained
     // before the pool-specific lock.  However, no race conditions are
     // found so far.
-    lock __guard;
-    _Block_list* __block = _S_memory_block_p;
-    while (__block)
+    lock guard;
+    _Block_list* block = _S_memory_block_p;
+    while (block)
     {
-        if (_Block_list* __temp = __block->_M_next)
+        if (_Block_list* temp = block->_M_next)
         {
-            _Block_list* __next = __temp->_M_next;
-            __block->_M_next = __next;
-            dealloc_sys(__temp);
-            __block = __next;
+            _Block_list* next = temp->_M_next;
+            block->_M_next = next;
+            dealloc_sys(temp);
+            block = next;
         }
         else
         {
@@ -259,16 +252,16 @@ void static_mem_pool<_Sz, _Gid>::recycle()
 }
 
 template <size_t _Sz, int _Gid>
-void* static_mem_pool<_Sz, _Gid>::_S_alloc_sys(size_t __size)
+void* static_mem_pool<_Sz, _Gid>::_S_alloc_sys(size_t size)
 {
-    static_mem_pool_set::lock __guard;
-    void* __result = mem_pool_base::alloc_sys(__size);
-    if (!__result)
+    static_mem_pool_set::lock guard;
+    void* result = mem_pool_base::alloc_sys(size);
+    if (!result)
     {
         static_mem_pool_set::instance().recycle();
-        __result = mem_pool_base::alloc_sys(__size);
+        result = mem_pool_base::alloc_sys(size);
     }
-    return __result;
+    return result;
 }
 
 template <size_t _Sz, int _Gid>
@@ -278,98 +271,128 @@ static_mem_pool<_Sz, _Gid>* static_mem_pool<_Sz, _Gid>::_S_create_instance()
         throw std::runtime_error("dead reference detected");
 
     static_mem_pool_set::instance();  // Force its creation
-    static_mem_pool* __inst_p = new static_mem_pool();
+    static_mem_pool* inst_p = new static_mem_pool();
     try
     {
-        static_mem_pool_set::instance().add(__inst_p);
+        static_mem_pool_set::instance().add(inst_p);
     }
     catch (...)
     {
         _STATIC_MEM_POOL_TRACE(true,
                 "Exception occurs in static_mem_pool_set::add");
         // The strange cast below is to work around a bug in GCC 2.95.3
-        delete static_cast<mem_pool_base*>(__inst_p);
+        delete static_cast<mem_pool_base*>(inst_p);
         throw;
     }
-    return __inst_p;
+    return inst_p;
 }
 
+NVWA_NAMESPACE_END
+
+/**
+ * Declares the normal (throwing) allocation and deallocation functions.
+ * This macro uses the default group.
+ *
+ * @param _Cls  class to use the static_mem_pool
+ * @see   DECLARE_STATIC_MEM_POOL__NOTHROW
+ * @see   DECLARE_STATIC_MEM_POOL_GROUPED
+ * @see   DECLARE_STATIC_MEM_POOL_GROUPED__NOTHROW
+ */
 #define DECLARE_STATIC_MEM_POOL(_Cls) \
 public: \
-    static void* operator new(size_t __size) \
+    static void* operator new(size_t size) \
     { \
-        assert(__size == sizeof(_Cls)); \
-        void* __ptr; \
-        __ptr = static_mem_pool<sizeof(_Cls)>:: \
+        assert(size == sizeof(_Cls)); \
+        void* ptr; \
+        ptr = NVWA::static_mem_pool<sizeof(_Cls)>:: \
                                instance_known().allocate(); \
-        if (__ptr == NULL) \
+        if (ptr == NULL) \
             throw std::bad_alloc(); \
-        return __ptr; \
+        return ptr; \
     } \
-    static void operator delete(void* __ptr) \
+    static void operator delete(void* ptr) \
     { \
-        if (__ptr) \
-            static_mem_pool<sizeof(_Cls)>:: \
-                           instance_known().deallocate(__ptr); \
+        if (ptr) \
+            NVWA::static_mem_pool<sizeof(_Cls)>:: \
+                           instance_known().deallocate(ptr); \
     }
 
+/**
+ * Declares the nothrow allocation and deallocation functions.  This macro
+ * uses the default group.
+ *
+ * @param _Cls  class to use the static_mem_pool
+ * @see   DECLARE_STATIC_MEM_POOL
+ * @see   DECLARE_STATIC_MEM_POOL_GROUPED
+ * @see   DECLARE_STATIC_MEM_POOL_GROUPED__NOTHROW
+ */
 #define DECLARE_STATIC_MEM_POOL__NOTHROW(_Cls) \
 public: \
-    static void* operator new(size_t __size) throw() \
+    static void* operator new(size_t size) _NOEXCEPT \
     { \
-        assert(__size == sizeof(_Cls)); \
-        return static_mem_pool<sizeof(_Cls)>:: \
+        assert(size == sizeof(_Cls)); \
+        return NVWA::static_mem_pool<sizeof(_Cls)>:: \
                               instance_known().allocate(); \
     } \
-    static void operator delete(void* __ptr) \
+    static void operator delete(void* ptr) \
     { \
-        if (__ptr) \
-            static_mem_pool<sizeof(_Cls)>:: \
-                           instance_known().deallocate(__ptr); \
+        if (ptr) \
+            NVWA::static_mem_pool<sizeof(_Cls)>:: \
+                           instance_known().deallocate(ptr); \
     }
 
+/**
+ * Declares the normal (throwing) allocation and deallocation functions.
+ * Users need to specify a group ID.
+ *
+ * @param _Cls  class to use the static_mem_pool
+ * @param _Gid  group ID (negative to protect multi-threaded access)
+ * @see   DECLARE_STATIC_MEM_POOL
+ * @see   DECLARE_STATIC_MEM_POOL__NOTHROW
+ * @see   DECLARE_STATIC_MEM_POOL_GROUPED__NOTHROW
+ */
 #define DECLARE_STATIC_MEM_POOL_GROUPED(_Cls, _Gid) \
 public: \
-    static void* operator new(size_t __size) \
+    static void* operator new(size_t size) \
     { \
-        assert(__size == sizeof(_Cls)); \
-        void* __ptr; \
-        __ptr = static_mem_pool<sizeof(_Cls), (_Gid)>:: \
+        assert(size == sizeof(_Cls)); \
+        void* ptr; \
+        ptr = NVWA::static_mem_pool<sizeof(_Cls), (_Gid)>:: \
                                instance_known().allocate(); \
-        if (__ptr == NULL) \
+        if (ptr == NULL) \
             throw std::bad_alloc(); \
-        return __ptr; \
+        return ptr; \
     } \
-    static void operator delete(void* __ptr) \
+    static void operator delete(void* ptr) \
     { \
-        if (__ptr) \
-            static_mem_pool<sizeof(_Cls), (_Gid)>:: \
-                           instance_known().deallocate(__ptr); \
+        if (ptr) \
+            NVWA::static_mem_pool<sizeof(_Cls), (_Gid)>:: \
+                           instance_known().deallocate(ptr); \
     }
 
+/**
+ * Declares the nothrow allocation and deallocation functions.  Users need
+ * to specify a group ID.
+ *
+ * @param _Cls  class to use the static_mem_pool
+ * @param _Gid  group ID (negative to protect multi-threaded access)
+ * @see   DECLARE_STATIC_MEM_POOL
+ * @see   DECLARE_STATIC_MEM_POOL__NOTHROW
+ * @see   DECLARE_STATIC_MEM_POOL_GROUPED
+ */
 #define DECLARE_STATIC_MEM_POOL_GROUPED__NOTHROW(_Cls, _Gid) \
 public: \
-    static void* operator new(size_t __size) throw() \
+    static void* operator new(size_t size) _NOEXCEPT \
     { \
-        assert(__size == sizeof(_Cls)); \
-        return static_mem_pool<sizeof(_Cls), (_Gid)>:: \
+        assert(size == sizeof(_Cls)); \
+        return NVWA::static_mem_pool<sizeof(_Cls), (_Gid)>:: \
                               instance_known().allocate(); \
     } \
-    static void operator delete(void* __ptr) \
+    static void operator delete(void* ptr) \
     { \
-        if (__ptr) \
-            static_mem_pool<sizeof(_Cls), (_Gid)>:: \
-                           instance_known().deallocate(__ptr); \
+        if (ptr) \
+            NVWA::static_mem_pool<sizeof(_Cls), (_Gid)>:: \
+                           instance_known().deallocate(ptr); \
     }
 
-// OBSOLETE: no longer needed
-#define PREPARE_STATIC_MEM_POOL(_Cls) \
-    std::cerr << "PREPARE_STATIC_MEM_POOL is obsolete!\n";
-
-// OBSOLETE: no longer needed
-#define PREPARE_STATIC_MEM_POOL_GROUPED(_Cls, _Gid) \
-    std::cerr << "PREPARE_STATIC_MEM_POOL_GROUPED is obsolete!\n";
-
-#undef __PRIVATE
-
-#endif // _STATIC_MEM_POOL_H
+#endif // NVWA_STATIC_MEM_POOL_H

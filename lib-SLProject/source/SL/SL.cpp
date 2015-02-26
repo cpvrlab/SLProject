@@ -25,7 +25,7 @@ void SL::exitMsg(const SLchar* msg, const SLint line, const SLchar* file)
    
     #ifdef SL_MEMLEAKDETECT       // set in SL.h for debug config only
     // turn off leak checks on forced exit
-    new_autocheck_flag = false;
+    nvwa::new_autocheck_flag = false;
     #endif
    
     exit(-1);

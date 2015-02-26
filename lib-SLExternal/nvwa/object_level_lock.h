@@ -2,7 +2,7 @@
 // vim:tabstop=4:shiftwidth=4:expandtab:
 
 /*
- * Copyright (C) 2004-2008 Wu Yongwei <adah at users dot sourceforge dot net>
+ * Copyright (C) 2004-2013 Wu Yongwei <adah at users dot sourceforge dot net>
  *
  * This software is provided 'as-is', without any express or implied
  * warranty.  In no event will the authors be held liable for any
@@ -27,22 +27,23 @@
  */
 
 /**
- * @file    object_level_lock.h
+ * @file  object_level_lock.h
  *
  * In essence Loki ObjectLevelLockable re-engineered to use a fast_mutex
  * class.  Check also Andrei Alexandrescu's article <a
  * href="http://www.awprofessional.com/articles/article.asp?p=25298">
  * "Multithreading and the C++ Type System"</a> for the ideas behind.
  *
- * @version 1.4, 2004/05/09
- * @author  Wu Yongwei
- *
+ * @date  2013-03-01
  */
 
-#ifndef _OBJECT_LEVEL_LOCK_H
-#define _OBJECT_LEVEL_LOCK_H
+#ifndef NVWA_OBJECT_LEVEL_LOCK_H
+#define NVWA_OBJECT_LEVEL_LOCK_H
 
-#include "fast_mutex.h"
+#include "fast_mutex.h"         // nvwa::fast_mutex/_NOTHREADS
+#include "_nvwa.h"              // NVWA_NAMESPACE_*
+
+NVWA_NAMESPACE_BEGIN
 
 # ifdef _NOTHREADS
     /**
@@ -63,9 +64,9 @@
             lock(const lock&);
             lock& operator=(const lock&);
         public:
-            explicit lock(const object_level_lock& __host)
+            explicit lock(const object_level_lock& host)
 #   ifndef NDEBUG
-                : _M_host(__host)
+                : _M_host(host)
 #   endif
             {}
 #   ifndef NDEBUG
@@ -84,8 +85,8 @@
     };
 # else
     /**
-     * Helper class for class-level locking.  This is the multi-threaded
-     * implementation.
+     * Helper class for object-level locking.  This is the
+     * multi-threaded implementation.
      */
     template <class _Host>
     class object_level_lock
@@ -93,6 +94,10 @@
         mutable fast_mutex _M_mtx;
 
     public:
+        // The C++ 1998 Standard required the use of `friend' here, but
+        // this requirement was considered a defect and subsequently
+        // changed.  It is still used here for compatibility with older
+        // compilers.
         class lock;
         friend class lock;
 
@@ -104,7 +109,7 @@
             lock(const lock&);
             lock& operator=(const lock&);
         public:
-            explicit lock(const object_level_lock& __host) : _M_host(__host)
+            explicit lock(const object_level_lock& host) : _M_host(host)
             {
                 _M_host._M_mtx.lock();
             }
@@ -128,4 +133,6 @@
     };
 # endif // _NOTHREADS
 
-#endif // _OBJECT_LEVEL_LOCK_H
+NVWA_NAMESPACE_END
+
+#endif // NVWA_OBJECT_LEVEL_LOCK_H

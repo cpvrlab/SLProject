@@ -65,7 +65,7 @@ SL_USE_DISCARD_STEREOMODES: The discard stereo modes can be used (SLCamera)
         #define SL_OS_MACOSX
         #define SL_OVR
         #if defined(_DEBUG)
-            //#define SL_MEMLEAKDETECT
+            //#define SL_MEMLEAKDETECT  // nvwa doesn't work under OSX/clang
         #endif
     #endif
 #elif defined(ANDROID) || defined(ANDROID_NDK)
@@ -88,7 +88,7 @@ SL_USE_DISCARD_STEREOMODES: The discard stereo modes can be used (SLCamera)
     #define SL_CPP11
     #define SL_USE_DISCARD_STEREOMODES
     #ifdef _DEBUG
-        //#define SL_MEMLEAKDETECT
+        //#define SL_MEMLEAKDETECT  // nvwa doesn't work under OSX/clang
     #endif
 #else
     #error "SL has not been ported to this OS"

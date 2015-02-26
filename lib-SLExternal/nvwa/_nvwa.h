@@ -2,7 +2,7 @@
 // vim:tabstop=4:shiftwidth=4:expandtab:
 
 /*
- * Copyright (C) 2004-2013 Wu Yongwei <adah at users dot sourceforge dot net>
+ * Copyright (C) 2013 Wu Yongwei <adah at users dot sourceforge dot net>
  *
  * This software is provided 'as-is', without any express or implied
  * warranty.  In no event will the authors be held liable for any
@@ -27,39 +27,28 @@
  */
 
 /**
- * @file  mem_pool_base.h
+ * @file  _nvwa.h
  *
- * Header file for the memory pool base.
+ * Common definitions for preprocessing.
  *
- * @date  2013-10-06
+ * @date  2013-04-22
  */
 
-#ifndef NVWA_MEM_POOL_BASE_H
-#define NVWA_MEM_POOL_BASE_H
+#ifndef NVWA_NVWA_H
+#define NVWA_NVWA_H
 
-#include <stddef.h>             // size_t
-#include "_nvwa.h"              // NVWA_NAMESPACE_*
+#ifndef NVWA_USE_NAMESPACE
+#define NVWA_USE_NAMESPACE 1
+#endif // NVWA_USE_NAMESPACE
 
-NVWA_NAMESPACE_BEGIN
+#if NVWA_USE_NAMESPACE
+#define NVWA_NAMESPACE_BEGIN namespace nvwa {
+#define NVWA_NAMESPACE_END }
+#define NVWA nvwa
+#else  // NVWA_USE_NAMESPACE
+#define NVWA_NAMESPACE_BEGIN
+#define NVWA_NAMESPACE_END
+#define NVWA
+#endif // NVWA_USE_NAMESPACE
 
-/**
- * Base class for memory pools.
- */
-class mem_pool_base
-{
-public:
-    virtual ~mem_pool_base();
-    virtual void recycle() = 0;
-    static void* alloc_sys(size_t size);
-    static void dealloc_sys(void* ptr);
-
-    /** Structure to store the next available memory block. */
-    struct _Block_list
-    {
-        _Block_list* _M_next;   ///< Pointer to the next memory block
-    };
-};
-
-NVWA_NAMESPACE_END
-
-#endif // NVWA_MEM_POOL_BASE_H
+#endif // NVWA_NVWA_H

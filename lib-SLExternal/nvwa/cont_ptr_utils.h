@@ -2,7 +2,7 @@
 // vim:tabstop=4:shiftwidth=4:expandtab:
 
 /*
- * Copyright (C) 2004-2008 Wu Yongwei <adah at users dot sourceforge dot net>
+ * Copyright (C) 2004-2013 Wu Yongwei <adah at users dot sourceforge dot net>
  *
  * This software is provided 'as-is', without any express or implied
  * warranty.  In no event will the authors be held liable for any
@@ -27,18 +27,20 @@
  */
 
 /**
- * @file    cont_ptr_utils.h
+ * @file  cont_ptr_utils.h
  *
  * Utility functors for containers of pointers (adapted from Scott
  * Meyers' <em>Effective STL</em>).
  *
- * @version 1.4, 2007/09/12
- * @author  Wu Yongwei
- *
+ * @date  2013-10-06
  */
 
-#ifndef _CONT_PTR_UTILS_H
-#define _CONT_PTR_UTILS_H
+#ifndef NVWA_CONT_PTR_UTILS_H
+#define NVWA_CONT_PTR_UTILS_H
+
+#include "_nvwa.h"              // NVWA_NAMESPACE_*
+
+NVWA_NAMESPACE_BEGIN
 
 /**
  * Functor to return objects pointed by a container of pointers.
@@ -55,9 +57,9 @@
 struct dereference
 {
     template <typename _Tp>
-    const _Tp& operator()(const _Tp* __ptr) const
+    const _Tp& operator()(const _Tp* ptr) const
     {
-        return *__ptr;
+        return *ptr;
     }
 };
 
@@ -77,9 +79,9 @@ struct dereference
 struct dereference_less
 {
     template <typename _Pointer>
-    bool operator()(_Pointer __ptr1, _Pointer __ptr2) const
+    bool operator()(const _Pointer& ptr1, const _Pointer& ptr2) const
     {
-        return *__ptr1 < *__ptr2;
+        return *ptr1 < *ptr2;
     }
 };
 
@@ -95,10 +97,10 @@ struct dereference_less
  */
 struct delete_object
 {
-    template <typename _Pointer>
-    void operator()(_Pointer __ptr) const
+    template <typename _Tp>
+    void operator()(_Tp* ptr) const
     {
-        delete __ptr;
+        delete ptr;
     }
 };
 
@@ -115,14 +117,14 @@ struct delete_object
 template <typename _OutputStrm, typename _StringType = const char*>
 struct output_object
 {
-    output_object(_OutputStrm& __outs, const _StringType& __sep)
-        : _M_outs(__outs), _M_sep(__sep)
+    output_object(_OutputStrm& outs, const _StringType& sep)
+        : _M_outs(outs), _M_sep(sep)
     {}
 
-    template <typename _Tp>
-    void operator()(const _Tp* __ptr) const
+    template <typename _Pointer>
+    void operator()(const _Pointer& ptr) const
     {
-        _M_outs << *__ptr << _M_sep;
+        _M_outs << *ptr << _M_sep;
     }
 
 private:
@@ -130,4 +132,6 @@ private:
     _StringType  _M_sep;
 };
 
-#endif // _CONT_PTR_UTILS_H
+NVWA_NAMESPACE_END
+
+#endif // NVWA_CONT_PTR_UTILS_H

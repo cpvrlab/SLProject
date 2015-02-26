@@ -2,7 +2,7 @@
 // vim:tabstop=4:shiftwidth=4:expandtab:
 
 /*
- * Copyright (C) 2004-2008 Wu Yongwei <adah at users dot sourceforge dot net>
+ * Copyright (C) 2004-2013 Wu Yongwei <adah at users dot sourceforge dot net>
  *
  * This software is provided 'as-is', without any express or implied
  * warranty.  In no event will the authors be held liable for any
@@ -27,18 +27,15 @@
  */
 
 /**
- * @file    pctimer.h
+ * @file  pctimer.h
  *
  * Function to get a high-resolution timer for Win32/Cygwin/Unix.
  *
- * @version 1.6, 2004/08/02
- * @author  Wu Yongwei
- *
+ * @date  2013-03-01
  */
 
-#ifndef _PCTIMER_H
-
-typedef double pctimer_t;
+#ifndef NVWA_PCTIMER_H
+#define NVWA_PCTIMER_H
 
 #if defined(_WIN32) || defined(__CYGWIN__)
 
@@ -49,39 +46,53 @@ typedef double pctimer_t;
 #ifndef WIN32_LEAN_AND_MEAN
 #define WIN32_LEAN_AND_MEAN
 #endif /* WIN32_LEAN_AND_MEAN */
-#include <windows.h>
+#include <windows.h>            // QueryPerformance*
 
 #ifdef _PCTIMER_NO_WIN32
 #undef _PCTIMER_NO_WIN32
 #undef _WIN32
 #endif /* _PCTIMER_NO_WIN32 */
 
+#include "_nvwa.h"              // NVWA_NAMESPACE_*
+
+NVWA_NAMESPACE_BEGIN
+
+typedef double pctimer_t;
+
 __inline pctimer_t pctimer(void)
 {
-    static LARGE_INTEGER __pcount, __pcfreq;
-    static int __initflag;
+    static LARGE_INTEGER pcount, pcfreq;
+    static int initflag;
 
-    if (!__initflag)
+    if (!initflag)
     {
-        QueryPerformanceFrequency(&__pcfreq);
-        __initflag++;
+        QueryPerformanceFrequency(&pcfreq);
+        initflag++;
     }
 
-    QueryPerformanceCounter(&__pcount);
-    return (double)__pcount.QuadPart / (double)__pcfreq.QuadPart;
+    QueryPerformanceCounter(&pcount);
+    return (double)pcount.QuadPart / (double)pcfreq.QuadPart;
 }
+
+NVWA_NAMESPACE_END
 
 #else /* Not Win32/Cygwin */
 
 #include <sys/time.h>
 
+NVWA_NAMESPACE_BEGIN
+
+typedef double pctimer_t;
+
 __inline pctimer_t pctimer(void)
 {
-    struct timeval __tv;
-    gettimeofday(&__tv, NULL);
-    return (double)__tv.tv_sec + (double)__tv.tv_usec / 1000000;
+    struct timeval tv;
+    gettimeofday(&tv, NULL);
+    return (double)tv.tv_sec + (double)tv.tv_usec / 1000000;
 }
+
+NVWA_NAMESPACE_END
 
 #endif /* Win32/Cygwin */
 
-#endif /* _PCTIMER_H */
+#endif /* NVWA_PCTIMER_H */

@@ -2,7 +2,7 @@
 // vim:tabstop=4:shiftwidth=4:expandtab:
 
 /*
- * Copyright (C) 2004-2008 Wu Yongwei <adah at users dot sourceforge dot net>
+ * Copyright (C) 2004-2013 Wu Yongwei <adah at users dot sourceforge dot net>
  *
  * This software is provided 'as-is', without any express or implied
  * warranty.  In no event will the authors be held liable for any
@@ -27,22 +27,23 @@
  */
 
 /**
- * @file    mem_pool_base.cpp
+ * @file  mem_pool_base.cpp
  *
  * Implementation for the memory pool base.
  *
- * @version 1.2, 2004/07/26
- * @author  Wu Yongwei
- *
+ * @date  2013-10-06
  */
 
 #if defined(_MEM_POOL_USE_MALLOC)
-#include <stdlib.h>
+#include <stdlib.h>             // malloc/free
 #else
-#include <new>
+#include <new>                  // std::bad_alloc
 #endif
 
-#include "mem_pool_base.h"
+#include "_nvwa.h"              // NVWA_NAMESPACE_*
+#include "mem_pool_base.h"      // nvwa::mem_pool_base
+
+NVWA_NAMESPACE_BEGIN
 
 /* Defines macros to abstract system memory routines */
 # ifdef _MEM_POOL_USE_MALLOC
@@ -53,16 +54,40 @@
 #   define _MEM_POOL_DEALLOCATE(_Ptr) ::operator delete(_Ptr)
 # endif
 
+/**
+ * @fn void mem_pool_base::recycle()
+ *
+ * Recycles unused memory from memory pools.  It is an interface and
+ * needs to be implemented in subclasses.
+ */
+
+/**
+ * Empty base destructor.
+ */
 mem_pool_base::~mem_pool_base()
 {
 }
 
-void* mem_pool_base::alloc_sys(size_t __size)
+/**
+ * Allocates memory from the run-time system.
+ *
+ * @param size  size of the memory to allocate in bytes
+ * @return      pointer to allocated memory block if successful; or
+ *              \c NULL if memory allocation fails
+ */
+void* mem_pool_base::alloc_sys(size_t size)
 {
-    return _MEM_POOL_ALLOCATE(__size);
+    return _MEM_POOL_ALLOCATE(size);
 }
 
-void mem_pool_base::dealloc_sys(void* __ptr)
+/**
+ * Frees memory and returns it to the run-time system.
+ *
+ * @param ptr  pointer to the memory block previously allocated
+ */
+void mem_pool_base::dealloc_sys(void* ptr)
 {
-    _MEM_POOL_DEALLOCATE(__ptr);
+    _MEM_POOL_DEALLOCATE(ptr);
 }
+
+NVWA_NAMESPACE_END
