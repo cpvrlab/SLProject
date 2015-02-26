@@ -268,6 +268,7 @@ HEADERS += \
     glfw3/src/iokit_joystick.h \
     glfw3/src/posix_tls.h \
     glfw3/src/nsgl_context.h \
+    #nvwa/debug_new.h \
     zlib/ioapi.h \
     zlib/unzip.h \
     zlib/zconf.in.h \
@@ -287,6 +288,7 @@ HEADERS += \
 SOURCES += \
     glfw3/src/mach_time.c \
     glfw3/src/posix_tls.c \
+    #nvwa/debug_new.cpp \
     png/pngwutil.c \
     png/pngwtran.c \
     png/pngwrite.c \

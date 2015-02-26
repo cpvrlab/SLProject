@@ -2,7 +2,7 @@
 // vim:tabstop=4:shiftwidth=4:expandtab:
 
 /*
- * Copyright (C) 2004-2008 Wu Yongwei <adah at users dot sourceforge dot net>
+ * Copyright (C) 2004-2013 Wu Yongwei <adah at users dot sourceforge dot net>
  *
  * This software is provided 'as-is', without any express or implied
  * warranty.  In no event will the authors be held liable for any
@@ -27,19 +27,24 @@
  */
 
 /**
- * @file    class_level_lock.h
+ * @file  class_level_lock.h
  *
  * In essence Loki ClassLevelLockable re-engineered to use a fast_mutex class.
  *
- * @version 1.13, 2007/12/30
- * @author  Wu Yongwei
- *
+ * @date  2013-03-04
  */
 
-#ifndef _CLASS_LEVEL_LOCK_H
-#define _CLASS_LEVEL_LOCK_H
+#ifndef NVWA_CLASS_LEVEL_LOCK_H
+#define NVWA_CLASS_LEVEL_LOCK_H
 
-#include "fast_mutex.h"
+#include "fast_mutex.h"         // nvwa::fast_mutex/_NOTHREADS
+#include "_nvwa.h"              // NVWA_NAMESPACE_*
+
+#ifndef HAVE_CLASS_TEMPLATE_PARTIAL_SPECIALIZATION
+#define HAVE_CLASS_TEMPLATE_PARTIAL_SPECIALIZATION 1
+#endif
+
+NVWA_NAMESPACE_BEGIN
 
 # ifdef _NOTHREADS
     /**
@@ -64,7 +69,7 @@
      * Helper class for class-level locking.  This is the multi-threaded
      * implementation.  The main departure from Loki ClassLevelLockable
      * is that there is an additional template parameter which can make
-     * the lock not lock at all even in multi-threaded environments.
+     * the lock not %lock at all even in multi-threaded environments.
      * See static_mem_pool.h for real usage.
      */
     template <class _Host, bool _RealLock = true>
@@ -73,6 +78,10 @@
         static fast_mutex _S_mtx;
 
     public:
+        // The C++ 1998 Standard required the use of `friend' here, but
+        // this requirement was considered a defect and subsequently
+        // changed.  It is still used here for compatibility with older
+        // compilers.
         class lock;
         friend class lock;
 
@@ -118,4 +127,6 @@
     fast_mutex class_level_lock<_Host, _RealLock>::_S_mtx;
 # endif // _NOTHREADS
 
-#endif // _CLASS_LEVEL_LOCK_H
+NVWA_NAMESPACE_END
+
+#endif // NVWA_CLASS_LEVEL_LOCK_H

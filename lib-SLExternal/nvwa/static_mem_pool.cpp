@@ -2,7 +2,7 @@
 // vim:tabstop=4:shiftwidth=4:expandtab:
 
 /*
- * Copyright (C) 2004-2008 Wu Yongwei <adah at users dot sourceforge dot net>
+ * Copyright (C) 2004-2013 Wu Yongwei <adah at users dot sourceforge dot net>
  *
  * This software is provided 'as-is', without any express or implied
  * warranty.  In no event will the authors be held liable for any
@@ -27,18 +27,19 @@
  */
 
 /**
- * @file    static_mem_pool.cpp
+ * @file  static_mem_pool.cpp
  *
  * Non-template and non-inline code for the `static' memory pool.
  *
- * @version 1.7, 2006/08/26
- * @author  Wu Yongwei
- *
+ * @date  2013-03-01
  */
 
-#include <algorithm>
-#include "cont_ptr_utils.h"
-#include "static_mem_pool.h"
+#include <algorithm>            // std::for_each
+#include "_nvwa.h"              // NVWA_NAMESPACE_*
+#include "cont_ptr_utils.h"     // nvwa::delete_object
+#include "static_mem_pool.h"    // nvwa::static_mem_pool_set
+
+NVWA_NAMESPACE_BEGIN
 
 static_mem_pool_set::static_mem_pool_set()
 {
@@ -54,13 +55,14 @@ static_mem_pool_set::~static_mem_pool_set()
 }
 
 /**
- * Creates the singleton instance of #static_mem_pool_set.
+ * Gets the singleton instance of nvwa#static_mem_pool_set.  The
+ * instance will be created on the first invocation.
  *
- * @return  reference to the instance of #static_mem_pool_set
+ * @return  reference to the instance of nvwa#static_mem_pool_set
  */
 static_mem_pool_set& static_mem_pool_set::instance()
 {
-    lock __guard;
+    lock guard;
     static static_mem_pool_set _S_instance;
     return _S_instance;
 }
@@ -68,27 +70,29 @@ static_mem_pool_set& static_mem_pool_set::instance()
 /**
  * Asks all static memory pools to recycle unused memory blocks back to
  * the system.  The caller should get the lock to prevent other
- * operations to #static_mem_pool_set during its execution.
+ * operations to nvwa#static_mem_pool_set during its execution.
  */
 void static_mem_pool_set::recycle()
 {
     _STATIC_MEM_POOL_TRACE(false, "Memory pools are being recycled");
-    container_type::iterator __end = _M_memory_pool_set.end();
+    container_type::iterator end = _M_memory_pool_set.end();
     for (container_type::iterator
-            __i  = _M_memory_pool_set.begin();
-            __i != __end; ++__i)
+            i  = _M_memory_pool_set.begin();
+            i != end; ++i)
     {
-        (*__i)->recycle();
+        (*i)->recycle();
     }
 }
 
 /**
- * Adds a new memory pool to #static_mem_pool_set.
+ * Adds a new memory pool to nvwa#static_mem_pool_set.
  *
- * @param __memory_pool_p   pointer to the memory pool to add
+ * @param memory_pool_p  pointer to the memory pool to add
  */
-void static_mem_pool_set::add(mem_pool_base* __memory_pool_p)
+void static_mem_pool_set::add(mem_pool_base* memory_pool_p)
 {
-    lock __guard;
-    _M_memory_pool_set.push_back(__memory_pool_p);
+    lock guard;
+    _M_memory_pool_set.push_back(memory_pool_p);
 }
+
+NVWA_NAMESPACE_END
