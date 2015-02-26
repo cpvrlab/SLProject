@@ -8,7 +8,8 @@ before_install:
  - sudo apt-get install qt5-default qttools5-dev-tools
 
 script:
-  - qmake SLProjectCommon.pro
+  - cd lib-SLExternal
+  - qmake
   - make
 
 os:
