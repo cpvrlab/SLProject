@@ -16,7 +16,10 @@ script:
   - cd lib-SLExternal
   - qmake QMAKE_CXX=g++-4.8 QMAKE_CC=gcc-4.8
   - make
-  - cd ..
+  - cd assimp
+  - qmake QMAKE_CXX=g++-4.8 QMAKE_CC=gcc-4.8
+  - make
+  - cd ../..
   - cd lib-SLProject
   - qmake QMAKE_CXX=g++-4.8 QMAKE_CC=gcc-4.8
   - make
