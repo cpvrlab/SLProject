@@ -181,7 +181,7 @@ static void onMouseButton(GLFWwindow* window, int button, int action, int mods)
 
             // handle double click 
             if (mouseDeltaTime < 0.3f)
-            {  
+            {
                 switch (button)
                 {   case GLFW_MOUSE_BUTTON_LEFT:
                         slDoubleClick(svIndex, ButtonLeft, x, y, modifiers);
@@ -211,7 +211,7 @@ static void onMouseButton(GLFWwindow* window, int button, int action, int mods)
         }
     }
     else
-    {  
+    {
         // simulate double touch from touch devices
         if (modifiers & KeyAlt) 
         {  
@@ -225,13 +225,13 @@ static void onMouseButton(GLFWwindow* window, int button, int action, int mods)
         else  // Do standard mouse down
         {  switch (button)
             {   case GLFW_MOUSE_BUTTON_LEFT:
-                    slMouseUp(svIndex, ButtonLeft, x, y, modifiers); 
+                    slMouseUp(svIndex, ButtonLeft, x, y, modifiers);
                     break;
                 case GLFW_MOUSE_BUTTON_RIGHT:
-                    slMouseUp(svIndex, ButtonRight, x, y, modifiers); 
+                    slMouseUp(svIndex, ButtonRight, x, y, modifiers);
                     break;
                 case GLFW_MOUSE_BUTTON_MIDDLE:
-                    slMouseUp(svIndex, ButtonMiddle, x, y, modifiers); 
+                    slMouseUp(svIndex, ButtonMiddle, x, y, modifiers);
                     break;
             }
         }
