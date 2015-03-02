@@ -46,6 +46,7 @@ void    slMouseDown         (int sceneViewIndex, SLMouseButton button, int x, in
 void    slMouseMove         (int sceneViewIndex, int x, int y);
 void    slMouseUp           (int sceneViewIndex, SLMouseButton button, int x, int y, SLKey modifier);
 void    slDoubleClick       (int sceneViewIndex, SLMouseButton button, int x, int y, SLKey modifier);
+void    slLongTouch         (int sceneViewIndex, int x, int y);
 void    slTouch2Down        (int sceneViewIndex, int x1, int y1, int x2, int y2);
 void    slTouch2Move        (int sceneViewIndex, int x1, int y1, int x2, int y2);
 void    slTouch2Up          (int sceneViewIndex, int x1, int y1, int x2, int y2);

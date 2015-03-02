@@ -84,13 +84,14 @@ SLbool SLInputManager::processQueuedEvents()
         if (sv)
         {   switch (e->type)
             {
-                case SLInputEvent::SLCommand:          { const SLCommandEvent* ce = (const SLCommandEvent*)e; eventConsumed |= sv->onCommand(ce->cmd); } break;
+                case SLInputEvent::Command:            { const SLCommandEvent* ce = (const SLCommandEvent*)e; eventConsumed |= sv->onCommand(ce->cmd); } break;
 
                 case SLInputEvent::MouseMove:          { const SLMouseEvent* me = (const SLMouseEvent*)e; eventConsumed |= sv->onMouseMove(me->x, me->y); } break;
                 case SLInputEvent::MouseDown:          { const SLMouseEvent* me = (const SLMouseEvent*)e; eventConsumed |= sv->onMouseDown(me->button, me->x, me->y, me->modifier); } break;
                 case SLInputEvent::MouseUp:            { const SLMouseEvent* me = (const SLMouseEvent*)e; eventConsumed |= sv->onMouseUp(me->button, me->x, me->y, me->modifier); } break;
                 case SLInputEvent::MouseDoubleClick:   { const SLMouseEvent* me = (const SLMouseEvent*)e; eventConsumed |= sv->onDoubleClick(me->button, me->x, me->y, me->modifier); } break;
                 case SLInputEvent::MouseWheel:         { const SLMouseEvent* me = (const SLMouseEvent*)e; eventConsumed |= sv->onMouseWheel(me->y, me->modifier); } break;
+                case SLInputEvent::LongTouch:          { const SLMouseEvent* me = (const SLMouseEvent*)e; eventConsumed |= sv->onLongTouch(me->x, me->y); } break;
 
                 case SLInputEvent::Touch2Move:         { const SLTouchEvent* te = (const SLTouchEvent*)e; eventConsumed |= sv->onTouch2Move(te->x1, te->y1, te->x2, te->y2); } break;
                 case SLInputEvent::Touch2Down:         { const SLTouchEvent* te = (const SLTouchEvent*)e; eventConsumed |= sv->onTouch2Down(te->x1, te->y1, te->x2, te->y2); } break;

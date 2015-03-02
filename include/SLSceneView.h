@@ -102,6 +102,7 @@ class SLSceneView: public SLObject
             SLbool          onDoubleClick   (const SLMouseButton button, 
                                              SLint x, SLint y,
                                              const SLKey mod);
+            SLbool          onLongTouch     (SLint x, SLint y);
     virtual SLbool          onKeyPress      (const SLKey key, const SLKey mod);
     virtual SLbool          onKeyRelease    (const SLKey key, const SLKey mod);
             void            onRotationPYR   (const SLfloat pitchRAD, 

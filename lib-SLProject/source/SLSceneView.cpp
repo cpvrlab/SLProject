@@ -1108,6 +1108,12 @@ SLbool SLSceneView::onDoubleClick(const SLMouseButton button,
     return result;
 } 
 //-----------------------------------------------------------------------------
+SLbool SLSceneView::onLongTouch(SLint x, SLint y)
+{
+    SL_LOG("onLongTouch(%d, %d)\n", x, y);
+    return true;
+}
+//-----------------------------------------------------------------------------
 /*! 
 SLSceneView::onTouch2Down gets called whenever two fingers touch a handheld
 screen.
@@ -1250,6 +1256,8 @@ SLbool SLSceneView::onCommand(const SLCmd cmd)
     {
         case cmdQuit:
             slShouldClose(true);
+        case cmdMenu:
+            return false;
         case cmdAboutToggle:
             if (s->_menu2D)
             {   if (s->_menu2D == s->_menuGL)
