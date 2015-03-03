@@ -14,13 +14,11 @@
 #endif
 
 #include <GLFW/glfw3.h>
+#include <thread>
+#include <future>
 #include <SLInterface.h>
 #include <SLSceneView.h>
 #include <SLEnums.h>
-
-
-#include <thread>
-#include <future>
 
 //-----------------------------------------------------------------------------
 // GLobal application variables
