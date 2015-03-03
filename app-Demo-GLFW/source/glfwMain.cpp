@@ -17,6 +17,11 @@
 #include <SLInterface.h>
 #include <SLSceneView.h>
 #include <SLEnums.h>
+
+
+#include <thread>
+#include <future>
+
 //-----------------------------------------------------------------------------
 // GLobal application variables
 GLFWwindow* window;                 //!< The global glfw window handle
@@ -25,6 +30,8 @@ SLint       scrWidth;               //!< Window width at start up
 SLint       scrHeight;              //!< Window height at start up
 SLfloat     scr2fbX;                //!< Factor from screen to framebuffer coords
 SLfloat     scr2fbY;                //!< Factor from screen to framebuffer coords
+SLint       startX;                 //!< start position x in pixels
+SLint       startY;                 //!< start position y in pixels
 SLint       mouseX;                 //!< Last mouse position x in pixels
 SLint       mouseY;                 //!< Last mouse position y in pixels
 SLVec2i     touch2;                 //!< Last finger touch 2 position in pixels
@@ -137,7 +144,16 @@ static void onResize(GLFWwindow* window, int width, int height)
     // We need to scale them to framebuffer coords.
     slResize(svIndex, (int)(width*scr2fbX), (int)(height*scr2fbY));
 }
-
+//-----------------------------------------------------------------------------
+/*!
+onLongTouch gets called from a 500ms timer after a mouse down event.
+*/
+void onLongTouch()
+{
+    // foreward the long touch only if the mouse or touch hasn't moved.
+    if (SL_abs(mouseX - startX) < 2 && SL_abs(mouseY - startY) < 2)
+        slLongTouch(svIndex, mouseX, mouseY);
+}
 //-----------------------------------------------------------------------------
 /*!
 Mouse button eventhandler forwards the events to the slMouseDown or slMouseUp.
@@ -147,6 +163,8 @@ static void onMouseButton(GLFWwindow* window, int button, int action, int mods)
 {
     SLint x = mouseX;
     SLint y = mouseY;
+    startX = x;
+    startY = y;
    
     // Translate modifiers
     modifiers=KeyNone;
@@ -196,6 +214,9 @@ static void onMouseButton(GLFWwindow* window, int button, int action, int mods)
             } 
             else // normal mouse clicks
             {
+                // Start timer for the long touch detection
+                thread([](){this_thread::sleep_for(chrono::milliseconds(500)); onLongTouch();}).detach();
+
                 switch (button)
                 {   case GLFW_MOUSE_BUTTON_LEFT:
                         slMouseDown(svIndex, ButtonLeft, x, y, modifiers);
@@ -211,7 +232,10 @@ static void onMouseButton(GLFWwindow* window, int button, int action, int mods)
         }
     }
     else
-    {
+    {   // flag end of mouse click for long touches
+        startX = -1;
+        startY = -1;
+
         // simulate double touch from touch devices
         if (modifiers & KeyAlt) 
         {  

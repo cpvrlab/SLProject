@@ -394,8 +394,12 @@ void qtGLWidget::keyReleaseEvent(QKeyEvent* e)
     slKeyRelease(_svIndex, key, modifiers);
 }
 //-----------------------------------------------------------------------------
+/*!
+longTouch gets called from a 500ms timer after a mousedown event.
+*/
 void qtGLWidget::longTouch()
 {
+    // foreward the long touch only if the mouse or touch hasn't moved.
     if (SL_abs(_touchLast.x - _touchStart.x) < 2 &&
         SL_abs(_touchLast.y - _touchStart.y) < 2)
         slLongTouch(_svIndex, _touchLast.x, _touchLast.y);

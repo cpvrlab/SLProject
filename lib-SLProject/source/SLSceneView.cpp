@@ -1108,6 +1108,9 @@ SLbool SLSceneView::onDoubleClick(const SLMouseButton button,
     return result;
 } 
 //-----------------------------------------------------------------------------
+/*! SLSceneView::onLongTouch gets called when the mouse or touch is down for
+more than 500ms and has not moved.
+*/
 SLbool SLSceneView::onLongTouch(SLint x, SLint y)
 {
     SL_LOG("onLongTouch(%d, %d)\n", x, y);
