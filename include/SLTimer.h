@@ -1,9 +1,8 @@
 //#############################################################################
 //  File:      SL/SLTimer.h
 //  Author:    Marcus Hudritsch
-//             Copied from: Song Ho Ahn (song.ahn@gmail.com), www.songho.ca
 //  Purpose:   High Resolution Timer that is able to measure the elapsed time 
-//             with 1 micro-second accuracy on Windows, Linux and Unix system
+//             with 1 micro-second accuracy with C++11 high_resolution_clock
 //  Date:      July 2014
 //  Codestyle: https://github.com/cpvrlab/SLProject/wiki/Coding-Style-Guidelines
 //  Copyright: Song Ho Ahn (song.ahn@gmail.com)
@@ -14,37 +13,34 @@
 
 #include <stdafx.h>
 
+using namespace std::chrono;
 //-----------------------------------------------------------------------------
-//! High Resolution Timer class
+typedef std::chrono::high_resolution_clock              SLClock;
+typedef std::chrono::high_resolution_clock::time_point  SLTimePoint;
+//-----------------------------------------------------------------------------
+//! High Resolution Timer class using C++11
 /*!
 High Resolution Timer that is able to measure the elapsed time with 1 
-micro-second accuracy on Windows, Linux and Unix system
+micro-second accuracy.
 */
 class SLTimer
 {
     public:
-                    SLTimer();
-                    ~SLTimer();
+                        SLTimer();
+                       ~SLTimer(){;}
 
-            void     start();                   
-            void     stop();
-            double   getElapsedTimeInSec();
-            double   getElapsedTimeInMilliSec();
-            double   getElapsedTimeInMicroSec();
+            void        start();                   
+            void        stop();
+            SLfloat     getElapsedTimeInSec();
+            SLfloat     getElapsedTimeInMilliSec();
+            SLint64     getElapsedTimeInMicroSec();
+
+    static  void        callAfterSleep(SLint milliSec, 
+                                       function<void(void)> callbackFunc);
        
     private:
-            double   startTimeInMicroSec;       // starting time in micro-second
-            double   endTimeInMicroSec;         // ending time in micro-second
-            int      stopped;                   // stop flag
-
-            #ifdef SL_OS_WINDOWS
-            LARGE_INTEGER frequency;            //!< ticks per second
-            LARGE_INTEGER startCount;           //!< ticks at start
-            LARGE_INTEGER endCount;             //!< ticks at end
-            #else
-            timeval startCount;
-            timeval endCount;
-            #endif
+            SLTimePoint _timePoint1; //!< high precision start time point   
+            SLTimePoint _timePoint2; //!< high precision end time point  
 };
 //---------------------------------------------------------------------------
 #endif

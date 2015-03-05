@@ -29,6 +29,9 @@
 #include <SLImporter.h>
 
 //-----------------------------------------------------------------------------
+// Milliseconds duration of a long touch event
+const SLint SLSceneView::LONGTOUCH_MS = 500;
+//-----------------------------------------------------------------------------
 //! SLSceneView default constructor
 /*! The default constructor adds the this pointer to the sceneView vector in 
 SLScene. If an inbetween element in the vector is zero (from previous sceneviews) 

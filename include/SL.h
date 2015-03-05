@@ -22,6 +22,11 @@
 #include <string>
 #include <algorithm>
 #include <map>
+#include <chrono>
+#include <thread>
+#include <atomic>
+#include <functional>
+#include <random>
 
 //-----------------------------------------------------------------------------
 // Include standard C libraries
@@ -204,13 +209,15 @@ typedef GLshort         SLshort;
 typedef GLushort        SLushort; 
 typedef GLint           SLint;
 typedef GLuint          SLuint;
+typedef int64_t         SLint64;
+typedef uint64_t        SLuint64;
 typedef GLsizei         SLsizei;
 typedef GLfloat         SLfloat;
 #ifdef SL_HAS_DOUBLE
-    typedef GLdouble        SLdouble;
-    typedef GLfloat         SLreal;
+typedef GLdouble        SLdouble;
+typedef GLfloat         SLreal;
 #else
-    typedef GLfloat         SLreal;
+typedef GLfloat         SLreal;
 #endif
 typedef bool            SLbool; 
 typedef GLenum          SLenum;
@@ -224,17 +231,6 @@ typedef std::vector<SLshort>  SLVshort;
 typedef std::vector<SLushort> SLVushort;
 typedef std::vector<SLfloat>  SLVfloat;
 typedef std::vector<SLstring> SLVstring;
-
-// OS specific defines & types
-#ifdef SL_COMP_MSVC
-    typedef __int64               SLint64;
-    typedef unsigned __int64      SLuint64;
-#define SL_INLINE inline
-#elif defined(SL_COMP_GNUC)
-    typedef long long int         SLint64;
-    typedef unsigned long long    SLuint64;
-    #define SL_INLINE inline
-#endif
 
 //-----------------------------------------------------------------------------
 // Bit manipulation makros for ones that forget it always

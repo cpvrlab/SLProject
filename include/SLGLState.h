@@ -87,8 +87,8 @@ class SLGLState
         void     normalMatrix(SLMat3f &nm) {_normalMatrix.setMatrix(nm);}
                 
         // getters
-        SL_INLINE const SLMat4f* invModelViewMatrix() {return &_invModelViewMatrix;}
-        SL_INLINE const SLMat3f* normalMatrix()       {return &_normalMatrix;}
+        inline const SLMat4f* invModelViewMatrix() {return &_invModelViewMatrix;}
+        inline const SLMat3f* normalMatrix()       {return &_normalMatrix;}
         const SLMat4f* mvpMatrix();               //!< builds and returns proj.mat. x mv mat.
         const SLCol4f* globalAmbient();           //!< returns global ambient color
       
@@ -129,8 +129,8 @@ class SLGLState
         SLbool   hasExtension(SLstring e){return _glExtensions.find(e)!=string::npos;}
       
         // stack operations
-        SL_INLINE void pushModelViewMatrix()   {_modelViewMatrixStack.push_back(modelViewMatrix);}
-        SL_INLINE void popModelViewMatrix()    {modelViewMatrix = _modelViewMatrixStack.pop_back();}
+        inline void pushModelViewMatrix()   {_modelViewMatrixStack.push_back(modelViewMatrix);}
+        inline void popModelViewMatrix()    {modelViewMatrix = _modelViewMatrixStack.pop_back();}
 
         //! Checks if an OpenGL error occured
         static void getGLError(char* file, int line, bool quit);

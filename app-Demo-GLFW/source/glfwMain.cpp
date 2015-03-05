@@ -213,7 +213,7 @@ static void onMouseButton(GLFWwindow* window, int button, int action, int mods)
             else // normal mouse clicks
             {
                 // Start timer for the long touch detection
-                thread([](){this_thread::sleep_for(chrono::milliseconds(500)); onLongTouch();}).detach();
+                SLTimer::callAfterSleep(SLSceneView::LONGTOUCH_MS, onLongTouch);
 
                 switch (button)
                 {   case GLFW_MOUSE_BUTTON_LEFT:

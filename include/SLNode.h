@@ -370,7 +370,7 @@ void SLNode::findChildrenHelper(const SLstring& name, vector<T*>& list,
 /*!
 SLNode::position returns current local position
 */
-SL_INLINE SLVec3f SLNode::position() const
+inline SLVec3f SLNode::position() const
 {
     return _om.translation();
 }
@@ -379,7 +379,7 @@ SL_INLINE SLVec3f SLNode::position() const
 /*!
 SLNode::forward returns local forward vector
 */
-SL_INLINE SLVec3f SLNode::forward() const
+inline SLVec3f SLNode::forward() const
 {
     return SLVec3f(-_om.m(8), -_om.m(9), -_om.m(10));
 }
@@ -387,7 +387,7 @@ SL_INLINE SLVec3f SLNode::forward() const
 /*!
 SLNode::right returns local right vector
 */
-SL_INLINE SLVec3f SLNode::right() const
+inline SLVec3f SLNode::right() const
 {
     return SLVec3f(_om.m(0), _om.m(1), _om.m(2));
 }
@@ -395,41 +395,41 @@ SL_INLINE SLVec3f SLNode::right() const
 /*!
 SLNode::up returns local up vector
 */
-SL_INLINE SLVec3f SLNode::up() const
+inline SLVec3f SLNode::up() const
 {
     return SLVec3f(_om.m(4), _om.m(5), _om.m(6));
 }
 //-----------------------------------------------------------------------------
-SL_INLINE void SLNode::position(SLfloat x, SLfloat y, SLfloat z, 
+inline void SLNode::position(SLfloat x, SLfloat y, SLfloat z, 
                                 SLTransformSpace relativeTo) 
 {
     position(SLVec3f(x, y, z), relativeTo);
 } 
 //-----------------------------------------------------------------------------
-SL_INLINE void SLNode::scale(SLfloat s)
+inline void SLNode::scale(SLfloat s)
 { 
     scale(SLVec3f(s, s, s));
 }
 
-SL_INLINE void SLNode::scale(SLfloat x, SLfloat y, SLfloat z)   
+inline void SLNode::scale(SLfloat x, SLfloat y, SLfloat z)   
 { 
     scale(SLVec3f(x, y, z)); 
 }
 //-----------------------------------------------------------------------------
-SL_INLINE void SLNode::translate(SLfloat x, SLfloat y, SLfloat z, 
+inline void SLNode::translate(SLfloat x, SLfloat y, SLfloat z, 
                                  SLTransformSpace relativeTo) 
 { 
     SLVec3f delta(x, y, z);
     translate(delta, relativeTo); 
 }
 //-----------------------------------------------------------------------------
-SL_INLINE void SLNode::rotate(SLfloat angleDeg, SLfloat x, SLfloat y, SLfloat z,
+inline void SLNode::rotate(SLfloat angleDeg, SLfloat x, SLfloat y, SLfloat z,
                               SLTransformSpace relativeTo) 
 { 
     rotate(angleDeg, SLVec3f(x, y, z), relativeTo); 
 }
 //-----------------------------------------------------------------------------
-SL_INLINE void SLNode::lookAt(SLfloat targetX, SLfloat targetY, SLfloat targetZ, 
+inline void SLNode::lookAt(SLfloat targetX, SLfloat targetY, SLfloat targetZ, 
                               SLfloat upX, SLfloat upY, SLfloat upZ,
                               SLTransformSpace relativeTo)
 { 

@@ -194,6 +194,8 @@ class SLSceneView: public SLObject
             SLfloat         draw3DTimeMS    () {return _draw3DTimeMS;}
             SLfloat         draw2DTimeMS    () {return _draw2DTimeMS;}
 
+    static const SLint      LONGTOUCH_MS;       //!< Milliseconds duration of a long touch event 
+
    protected:
             SLuint          _index;             //!< index of this pointer in SLScene::sceneView vector
             SLGLState*      _stateGL;           //!< Pointer to the global SLGLState instance

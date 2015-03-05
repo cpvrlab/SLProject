@@ -55,20 +55,20 @@ class SLVec4
     void     set         (const SLVec3<T>& v)    {x=v.x;  y=v.y;  z=v.z;  w=1;}
     void     set         (const SLVec4<T>& v)    {x=v.x;  y=v.y;  z=v.z;  w=v.w;}
 
-    SL_INLINE SLint    operator == (const SLVec4& v) const {return (x==v.x && y==v.y && z==v.z && w==v.w);}
-    SL_INLINE SLint    operator != (const SLVec4& v) const {return (x!=v.x || y!=v.y || z!=v.z || w!=v.w);}
-    SL_INLINE SLint    operator <= (const SLVec4& v) const {return (x<=v.x && y<=v.y && z<=v.z && w<=v.w);}
-    SL_INLINE SLint    operator >= (const SLVec4& v) const {return (x>=v.x && y>=v.y && z>=v.z && w>=v.w);}
+    inline SLint    operator == (const SLVec4& v) const {return (x==v.x && y==v.y && z==v.z && w==v.w);}
+    inline SLint    operator != (const SLVec4& v) const {return (x!=v.x || y!=v.y || z!=v.z || w!=v.w);}
+    inline SLint    operator <= (const SLVec4& v) const {return (x<=v.x && y<=v.y && z<=v.z && w<=v.w);}
+    inline SLint    operator >= (const SLVec4& v) const {return (x>=v.x && y>=v.y && z>=v.z && w>=v.w);}
    
    
     // Operators with temp. allocation
-    SL_INLINE SLVec4   operator +  (const SLVec4& v) const {return SLVec4(x+v.x, y+v.y, z+v.z, w+v.w);}
-    SL_INLINE SLVec4   operator -  (const SLVec4& v) const {return SLVec4(x-v.x, y-v.y, z-v.z, w-v.w);}
-    SL_INLINE SLVec4   operator -  (void) const            {return SLVec4(-x, -y, -z, -w);}
-    SL_INLINE T        operator *  (const SLVec4& v) const {return x*v.x+y*v.y+z*v.z+w*v.w;};
-    SL_INLINE SLVec4   operator *  (const T s) const       {return SLVec4(x*s, y*s, z*s);}
-    SL_INLINE SLVec4   operator /  (const T s) const       {return SLVec4(x/s, y/s, z/s, w/s);}
-    SL_INLINE SLVec4   operator &  (const SLVec4& v) const {return SLVec4(x*v.x, y*v.y, z*v.z, w*v.w);}
+    inline SLVec4   operator +  (const SLVec4& v) const {return SLVec4(x+v.x, y+v.y, z+v.z, w+v.w);}
+    inline SLVec4   operator -  (const SLVec4& v) const {return SLVec4(x-v.x, y-v.y, z-v.z, w-v.w);}
+    inline SLVec4   operator -  (void) const            {return SLVec4(-x, -y, -z, -w);}
+    inline T        operator *  (const SLVec4& v) const {return x*v.x+y*v.y+z*v.z+w*v.w;};
+    inline SLVec4   operator *  (const T s) const       {return SLVec4(x*s, y*s, z*s);}
+    inline SLVec4   operator /  (const T s) const       {return SLVec4(x/s, y/s, z/s, w/s);}
+    inline SLVec4   operator &  (const SLVec4& v) const {return SLVec4(x*v.x, y*v.y, z*v.z, w*v.w);}
     friend inline 
     SLVec4   operator *  (T s, const SLVec4& v)  {return SLVec4(v.x*s, v.y*s, v.z*s);}
    
@@ -90,43 +90,43 @@ class SLVec4
     SLVec4&  operator &= (const SLVec3<T>& v)    {x*=v.x; y*=v.y; z*=v.z; w*=1;   return *this;}
    
     // Operations without temp. allocation
-    SL_INLINE void     add         (const SLVec4& a,
+    inline void     add         (const SLVec4& a,
                                     const SLVec4& b)       {x=a.x+b.x; y=a.y+b.y, z=a.z+b.z; w=a.w+b.w;}
-    SL_INLINE void     sub         (const SLVec4& a,
+    inline void     sub         (const SLVec4& a,
                                     const SLVec4& b)       {x=a.x-b.x; y=a.y-b.y, z=a.z-b.z; w=a.w-b.w;}
-    SL_INLINE void     scale       (const T s)             {x*=s; y*=s; z*=s; w*=s;}
-    SL_INLINE T        dot         (const SLVec4& v)       {return x*v.x+y*v.y+z*v.z+w*v.w;};
-    SL_INLINE void     cross       (const SLVec4& a,
+    inline void     scale       (const T s)             {x*=s; y*=s; z*=s; w*=s;}
+    inline T        dot         (const SLVec4& v)       {return x*v.x+y*v.y+z*v.z+w*v.w;};
+    inline void     cross       (const SLVec4& a,
                                     const SLVec4& b)       {x = a.y*b.z - a.z*b.y; 
                                                             y = a.z*b.x - a.x*b.z; 
                                                             z = a.x*b.y - a.y*b.x;
                                                             w = 1;}
-    SL_INLINE T        length      () const                {return (T)sqrt(x*x+y*y+z*z+w*w);}
-    SL_INLINE T        lengthSqr   () const                {return (x*x+y*y+z*z+w*w);}
-    SL_INLINE SLVec4&  normalize   ()                      {T L = length(); 
+    inline T        length      () const                {return (T)sqrt(x*x+y*y+z*z+w*w);}
+    inline T        lengthSqr   () const                {return (x*x+y*y+z*z+w*w);}
+    inline SLVec4&  normalize   ()                      {T L = length(); 
                                                             if (L>0){x/=L; y/=L; z/=L; w/=L;} 
                                                             return *this;}
-    SL_INLINE void     wdiv        ()                      {x/=w; y/=w; z/=w; w=1;} 
-    SL_INLINE void     clampMinMax (const T min, 
+    inline void     wdiv        ()                      {x/=w; y/=w; z/=w; w=1;} 
+    inline void     clampMinMax (const T min, 
                                     const T max)           {x = (x>max)?max : (x<min)?min : x;
                                                             y = (y>max)?max : (y<min)?min : y;
                                                             z = (z>max)?max : (z<min)?min : z;
                                                             w = 1;}
-    SL_INLINE T        diff        (const SLVec4& v)       {return SL_abs(x-v.x) + 
+    inline T        diff        (const SLVec4& v)       {return SL_abs(x-v.x) + 
                                                                     SL_abs(y-v.y) + 
                                                                     SL_abs(z-v.z) + 
                                                                     SL_abs(w-v.w);}
-    SL_INLINE T        diffRGB     (const SLVec4& v)       {return SL_abs(x-v.x) + 
+    inline T        diffRGB     (const SLVec4& v)       {return SL_abs(x-v.x) + 
                                                                     SL_abs(y-v.y) + 
                                                                     SL_abs(z-v.z);}
-    SL_INLINE void     mix         (const SLVec4& a,
+    inline void     mix         (const SLVec4& a,
                                     const SLVec4& b,
                                     const T factor_b)      {T factor_a = 1-factor_b;
                                                             x = a.x*factor_a + b.x*factor_b;
                                                             y = a.y*factor_a + b.y*factor_b;
                                                             z = a.z*factor_a + b.z*factor_b; 
                                                             w = a.w*factor_a + b.w*factor_b;}  
-    SL_INLINE T        maxXYZ      ()                      {if (x>=y && x>=z)   return x;
+    inline T        maxXYZ      ()                      {if (x>=y && x>=z)   return x;
                                                             else if (y>=z)      return y;
                                                             else                return z;}
             //! Gamma correction

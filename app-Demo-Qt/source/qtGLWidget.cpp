@@ -183,12 +183,12 @@ void qtGLWidget::mousePressEvent(QMouseEvent *e)
     _touchStart.set(x, y);
 
     // Start single shot timer for long touches
-    QTimer::singleShot(500, this, SLOT(longTouch()));
+    QTimer::singleShot(SLSceneView::LONGTOUCH_MS, this, SLOT(longTouch()));
 
     if (modifiers & KeyAlt)
     {
         // init for first touch
-        if (_touch2.x<0)
+        if (_touch2.x < 0)
         {   int scrW2 = width()  * devicePixelRatio() / 2;
             int scrH2 = height() * devicePixelRatio() / 2;
             _touch2.set(scrW2 - (x - scrW2), scrH2 - (y - scrH2));
