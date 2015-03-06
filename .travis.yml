@@ -27,6 +27,7 @@ script:
  - cd app-Demo-GLFW
  - qmake QMAKE_CXX=g++-4.8 QMAKE_CC=gcc-4.8
  - make
+ - cd ..
  - cd app-Demo-Qt
  - qmake QMAKE_CXX=g++-4.8 QMAKE_CC=gcc-4.8
  - make
