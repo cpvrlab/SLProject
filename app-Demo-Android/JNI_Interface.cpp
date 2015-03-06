@@ -100,6 +100,7 @@ JNIEXPORT void JNICALL Java_ch_fhnw_comgr_GLES2Lib_onResize(JNIEnv* env, jobject
 JNIEXPORT void JNICALL Java_ch_fhnw_comgr_GLES2Lib_onMenuButton(JNIEnv* env, jobject obj)
 {  
    SL_LOG("onMenuButton");
+   slCommand(svIndex, cmdMenu);
 }
 
 JNIEXPORT bool JNICALL Java_ch_fhnw_comgr_GLES2Lib_onMouseDown (JNIEnv* env, jobject obj, jint button, jint x, jint y)

@@ -20,11 +20,8 @@ linux:CONFIG -= oculus
 
 REQUIRES += oculus
 
-QMAKE_CXXFLAGS += -std=c++11
-
 DEFINES += _UNICODE
 
-LIBS += Shell32.lib
 
 #define platform variable for folder name
 win32 {contains(QMAKE_TARGET.arch, x86_64) {PLATFORM = x64} else {PLATFORM = Win32}}
@@ -62,6 +59,8 @@ HEADERS += \
     LibOVR/Src/CAPI/GL/CAPI_GL_DistortionShaders.h \
     LibOVR/Src/CAPI/GL/CAPI_GL_HSWDisplay.h \
     LibOVR/Src/CAPI/GL/CAPI_GL_Util.h \
+    LibOVR/Src/CAPI/GL/CAPI_GLE.h \
+    LibOVR/Src/CAPI/GL/CAPI_GLE_GL.h \
     LibOVR/Src/CAPI/Textures/healthAndSafety.tga.h \
     LibOVR/Src/CAPI/CAPI_DistortionRenderer.h \
     LibOVR/Src/CAPI/CAPI_FrameTimeManager.h \
@@ -77,6 +76,7 @@ HEADERS += \
     LibOVR/Src/Kernel/OVR_Compiler.h \
     LibOVR/Src/Kernel/OVR_ContainerAllocator.h \
     LibOVR/Src/Kernel/OVR_CRC32.h \
+    LibOVR/Src/Kernel/OVR_DebugHelp.h \
     LibOVR/Src/Kernel/OVR_Delegates.h \
     LibOVR/Src/Kernel/OVR_Deque.h \
     LibOVR/Src/Kernel/OVR_File.h \
@@ -101,7 +101,6 @@ HEADERS += \
     LibOVR/Src/Kernel/OVR_Types.h \
     LibOVR/Src/Kernel/OVR_UTF8Util.h \
     LibOVR/Src/Net/OVR_BitStream.h \
-    LibOVR/Src/Net/OVR_MessageIDTypes.h \
     LibOVR/Src/Net/OVR_NetworkPlugin.h \
     LibOVR/Src/Net/OVR_NetworkTypes.h \
     LibOVR/Src/Net/OVR_PacketizedTCPSocket.h \
@@ -118,7 +117,8 @@ HEADERS += \
     LibOVR/Src/Util/Util_Interface.h \
     LibOVR/Src/Util/Util_LatencyTest2Reader.h \
     LibOVR/Src/Util/Util_LatencyTest2State.h \
-    LibOVR/Src/Util/Util_Render_Stereo.h
+    LibOVR/Src/Util/Util_Render_Stereo.h \
+    LibOVR/Src/Util/Util_SystemGUI.h
 
 SOURCES += \
     LibOVR/Src/OVR_CAPI.cpp \
@@ -130,6 +130,7 @@ SOURCES += \
     LibOVR/Src/CAPI/GL/CAPI_GL_DistortionRenderer.cpp \
     LibOVR/Src/CAPI/GL/CAPI_GL_HSWDisplay.cpp \
     LibOVR/Src/CAPI/GL/CAPI_GL_Util.cpp \
+    LibOVR/Src/CAPI/GL/CAPI_GLE.cpp \
     LibOVR/Src/CAPI/CAPI_DistortionRenderer.cpp \
     LibOVR/Src/CAPI/CAPI_FrameTimeManager.cpp \
     LibOVR/Src/CAPI/CAPI_HMDRenderState.cpp \
@@ -155,6 +156,7 @@ SOURCES += \
     LibOVR/Src/Kernel/OVR_ThreadCommandQueue.cpp \
     LibOVR/Src/Kernel/OVR_Timer.cpp \
     LibOVR/Src/Kernel/OVR_UTF8Util.cpp \
+    LibOVR/Src/Kernel/OVR_DebugHelp.cpp \
     LibOVR/Src/Net/OVR_BitStream.cpp \
     LibOVR/Src/Net/OVR_NetworkPlugin.cpp \
     LibOVR/Src/Net/OVR_PacketizedTCPSocket.cpp \
@@ -167,21 +169,24 @@ SOURCES += \
     LibOVR/Src/Util/Util_ImageWindow.cpp \
     LibOVR/Src/Util/Util_LatencyTest2Reader.cpp \
     LibOVR/Src/Util/Util_Render_Stereo.cpp \
-    LibOVR/Src/Util/Util_SystemInfo.cpp
+    LibOVR/Src/Util/Util_SystemInfo.cpp \
+    LibOVR/Src/Util/Util_SystemGUI.cpp
 
 macx {
 HEADERS += \
     LibOVR/Src/Displays/OVR_OSX_Display.h \
-    LibOVR/Src/Net/OVR_Unix_Socket.h
-
+    LibOVR/Src/Net/OVR_Unix_Socket.h \
+    LibOVR/Src/Kernel/OVR_mach_exc_OSX.h \
 
 SOURCES += \
     LibOVR/Src/Displays/OVR_OSX_Display.cpp \
     LibOVR/Src/Net/OVR_Unix_Socket.cpp \
     LibOVR/Src/Kernel/OVR_ThreadsPthread.cpp \
+    LibOVR/Src/Kernel/OVR_mach_exc_OSX.c \
 
 OBJECTIVE_SOURCES += \
     LibOVR/Src/Util/Util_SystemInfo_OSX.mm \
+    LibOVR/Src/Util/Util_SystemGUI_OSX.mm \
 }
 
 win32 {
@@ -215,8 +220,6 @@ HEADERS += \
     LibOVR/Src/CAPI/Shaders/SimpleTexturedQuad_ps_refl.h \
     LibOVR/Src/CAPI/Shaders/SimpleTexturedQuad_vs.h \
     LibOVR/Src/CAPI/Shaders/SimpleTexturedQuad_vs_refl.h \
-    LibOVR/Src/CAPI/GL/CAPI_GLE.h \
-    LibOVR/Src/CAPI/GL/CAPI_GLE_GL.h \
     LibOVR/Src/Displays/OVR_Win32_Display.h \
     LibOVR/Src/Displays/OVR_Win32_Dxgi_Display.h \
     LibOVR/Src/Displays/OVR_Win32_FocusReader.h \

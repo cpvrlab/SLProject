@@ -241,6 +241,18 @@ void slDoubleClick(int sceneViewIndex, SLMouseButton button,
     SLInputManager::instance().queueEvent(e);
 }
 //-----------------------------------------------------------------------------
+/*! Global event handler for long touches
+*/
+void slLongTouch(int sceneViewIndex, int xpos, int ypos) 
+{  
+    SLMouseEvent* e = new SLMouseEvent(SLInputEvent::LongTouch);
+    e->svIndex = sceneViewIndex;
+    e->x = xpos;
+    e->y = ypos;
+
+    SLInputManager::instance().queueEvent(e);
+}
+//-----------------------------------------------------------------------------
 /*! Global event handler for the two finger touch down events of touchscreen 
 devices.
 */
@@ -338,6 +350,7 @@ void slCharInput(int sceneViewIndex, unsigned int character)
 void slCommand(int sceneViewIndex, SLCmd command) 
 {  
     SLCommandEvent* e = new SLCommandEvent;
+    e->svIndex = sceneViewIndex;
     e->cmd = command;
     
     SLInputManager::instance().queueEvent(e);

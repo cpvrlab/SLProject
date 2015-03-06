@@ -17,6 +17,7 @@
 #include <qtGLWidget.h>
 #include <QApplication>
 #include <QMouseEvent>
+#include <QTimer>
 
 //-----------------------------------------------------------------------------
 qtGLWidget* myWidget = 0;
@@ -175,14 +176,19 @@ void qtGLWidget::mousePressEvent(QMouseEvent *e)
     if (e->modifiers() & Qt::CTRL)  modifiers = (SLKey)(modifiers|KeyCtrl);
     if (e->modifiers() & Qt::ALT)   modifiers = (SLKey)(modifiers|KeyAlt);
 
+
     // adapt for Mac retina displays
     int x = (int)((float)e->x() * devicePixelRatio());
     int y = (int)((float)e->y() * devicePixelRatio());
+    _touchStart.set(x, y);
+
+    // Start single shot timer for long touches
+    QTimer::singleShot(SLSceneView::LONGTOUCH_MS, this, SLOT(longTouch()));
 
     if (modifiers & KeyAlt)
     {
         // init for first touch
-        if (_touch2.x<0)
+        if (_touch2.x < 0)
         {   int scrW2 = width()  * devicePixelRatio() / 2;
             int scrH2 = height() * devicePixelRatio() / 2;
             _touch2.set(scrW2 - (x - scrW2), scrH2 - (y - scrH2));
@@ -221,6 +227,7 @@ void qtGLWidget::mouseReleaseEvent(QMouseEvent *e)
     // adapt for Mac retina displays
     int x = (int)((float)e->x() * devicePixelRatio());
     int y = (int)((float)e->y() * devicePixelRatio());
+    _touchStart.set(-1, -1); // flag for touch end
 
     if (e->button()==Qt::LeftButton)
     {  slMouseUp(_svIndex, ButtonLeft, x, y, modifiers);
@@ -271,6 +278,7 @@ void qtGLWidget::mouseMoveEvent(QMouseEvent *e)
     // adapt for Mac retina displays
     int x = (int)((float)e->x() * devicePixelRatio());
     int y = (int)((float)e->y() * devicePixelRatio());
+    _touchLast.set(x, y);
 
     // Simulate double finger touches
     if (modifiers & KeyAlt)
@@ -384,5 +392,16 @@ void qtGLWidget::keyReleaseEvent(QKeyEvent* e)
 
     if(key == KeyEsc) QCoreApplication::quit();
     slKeyRelease(_svIndex, key, modifiers);
+}
+//-----------------------------------------------------------------------------
+/*!
+longTouch gets called from a 500ms timer after a mousedown event.
+*/
+void qtGLWidget::longTouch()
+{
+    // foreward the long touch only if the mouse or touch hasn't moved.
+    if (SL_abs(_touchLast.x - _touchStart.x) < 2 &&
+        SL_abs(_touchLast.y - _touchStart.y) < 2)
+        slLongTouch(_svIndex, _touchLast.x, _touchLast.y);
 }
 //-----------------------------------------------------------------------------

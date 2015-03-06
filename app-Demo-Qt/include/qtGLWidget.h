@@ -13,8 +13,9 @@
 #ifndef QTGLWIDGET_H
 #define QTGLWIDGET_H
 
-#include <QGLWidget>
+#include <SL.h>
 #include <SLVec2.h>
+#include <QGLWidget>
 
 class SLSceneView;
 
@@ -27,6 +28,7 @@ tasks to the according methods of the interface in slInterface
 */
 class qtGLWidget : public QGLWidget
 {
+    Q_OBJECT
     public:                 //! Constructor for first GLWidget for the main window
                             qtGLWidget           (QGLFormat &format,
                                                   QWidget* parent,
@@ -53,11 +55,16 @@ class qtGLWidget : public QGLWidget
             SLSceneView*    sv                   () {return _sv;}
             int             svIndex              () {return _svIndex;}
 
+    private slots:
+            void            longTouch            ();
+
     private:
             SLSceneView*    _sv;           //!< pointer to the corresponding sceneview
             int             _svIndex;      //!< index of element in the SLScene::sceneviews vector
             SLstring        _appPath;      //!< application path
             SLVstring       _cmdLineArgs;  //!< command line arguments
+            SLVec2i         _touchStart;   //!< touch start position in pixels
+            SLVec2i         _touchLast;    //!< last touch position in pixels
             SLVec2i         _touch2;       //!< Last finger touch 2 position in pixels
             SLVec2i         _touchDelta;   //!< Delta between two fingers in x
 };

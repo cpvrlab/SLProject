@@ -42,21 +42,21 @@ class SLVec2
     void     set         (const SLVec2& v)       {x=v.x; y=v.y;}
 
     // Component wise compare
-    SL_INLINE SLint    operator == (const SLVec2& v) const {return (x==v.x && y==v.y);}
-    SL_INLINE SLint    operator != (const SLVec2& v) const {return (x!=v.x || y!=v.y);}
-    SL_INLINE SLint    operator <= (const SLVec2& v) const {return (x<=v.x && y<=v.y);}
-    SL_INLINE SLint    operator >= (const SLVec2& v) const {return (x>=v.x && y>=v.y);}
+    inline  SLint    operator == (const SLVec2& v) const {return (x==v.x && y==v.y);}
+    inline  SLint    operator != (const SLVec2& v) const {return (x!=v.x || y!=v.y);}
+    inline  SLint    operator <= (const SLVec2& v) const {return (x<=v.x && y<=v.y);}
+    inline  SLint    operator >= (const SLVec2& v) const {return (x>=v.x && y>=v.y);}
 
     // Operators with temp. allocation
-    SL_INLINE SLVec2   operator +  (const SLVec2& v) const {return SLVec2(x+v.x, y+v.y);}
-    SL_INLINE SLVec2   operator -  (const SLVec2& v) const {return SLVec2(x-v.x, y-v.y);}
-    SL_INLINE SLVec2   operator -  () const                {return SLVec2(-x, -y);}
-    SL_INLINE T        operator *  (const SLVec2& v) const {return x*v.x+y*v.y;};     //dot
-    SL_INLINE SLVec2   operator *  (const T s) const       {return SLVec2(x*s, y*s);}
-    SL_INLINE SLVec2   operator /  (const T s) const       {return SLVec2(x/s, y/s);}
-    SL_INLINE SLVec2   operator &  (const SLVec2& v) const {return SLVec2(x*v.x, y*v.y);}
-    friend SL_INLINE 
-                SLVec2   operator *  (T s, const SLVec2& v)  {return SLVec2(v.x*s, v.y*s);}
+    inline  SLVec2   operator +  (const SLVec2& v) const {return SLVec2(x+v.x, y+v.y);}
+    inline  SLVec2   operator -  (const SLVec2& v) const {return SLVec2(x-v.x, y-v.y);}
+    inline  SLVec2   operator -  () const                {return SLVec2(-x, -y);}
+    inline  T        operator *  (const SLVec2& v) const {return x*v.x+y*v.y;};     //dot
+    inline  SLVec2   operator *  (const T s) const       {return SLVec2(x*s, y*s);}
+    inline  SLVec2   operator /  (const T s) const       {return SLVec2(x/s, y/s);}
+    inline  SLVec2   operator &  (const SLVec2& v) const {return SLVec2(x*v.x, y*v.y);}
+    friend inline 
+            SLVec2   operator *  (T s, const SLVec2& v)  {return SLVec2(v.x*s, v.y*s);}
 
     // Assign operators
     SLVec2&  operator =  (const SLVec2& v)       {x=v.x; y=v.y;   return *this;}

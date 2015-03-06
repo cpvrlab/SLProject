@@ -85,7 +85,7 @@ void GetGraphicsCardList(Array< String > &gpus)
                 if(CFGetTypeID(modelarr) == CFDataGetTypeID())
                 {
                     NSData *data = (__bridge NSData*)(CFDataRef)modelarr;
-                    NSString *s = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
+                    NSString *s = [[[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding] autorelease];
                     gpus.PushBack([s UTF8String]);
                 }
             }
