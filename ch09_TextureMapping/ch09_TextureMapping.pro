@@ -36,5 +36,7 @@ HEADERS += \
     glUtils.h \
     ../include/SLImage.h
 
-
-
+macx: {
+    #run macdeployqt
+    QMAKE_POST_LINK += macdeployqt ../_bin-$$CONFIGURATION-$$PLATFORM/$$TARGET.app/
+}

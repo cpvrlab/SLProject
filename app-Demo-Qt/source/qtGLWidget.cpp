@@ -19,7 +19,7 @@
 #include <QMouseEvent>
 #include <QTimer>
 
-
+//for backwards compatibility with QT below 5.2
 #if (QT_VERSION < QT_VERSION_CHECK(5, 2, 0)) 
     #define GETDEVICEPIXELRATIO() 1.0 
 #else 

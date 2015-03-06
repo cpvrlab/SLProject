@@ -11,7 +11,7 @@
 TARGET = app-Viewer-Qt
 TEMPLATE = app
 
-macx {ICON = SLProject-Icon.icns}
+#macx {ICON = SLProject-Icon.icns}
 
 CONFIG += desktop
 CONFIG += app_bundle
