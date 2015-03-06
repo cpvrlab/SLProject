@@ -13,20 +13,23 @@ before_install:
  - sudo apt-get install -f qtbase5-dev qt5-default qttools5-dev-tools libqt5opengl5-dev
 
 script:
-  - cd lib-SLExternal
-  - qmake QMAKE_CXX=g++-4.8 QMAKE_CC=gcc-4.8
-  - make
-  - cd assimp
-  - qmake QMAKE_CXX=g++-4.8 QMAKE_CC=gcc-4.8
-  - make
-  - cd ../..
-  - cd lib-SLProject
-  - qmake QMAKE_CXX=g++-4.8 QMAKE_CC=gcc-4.8
-  - make
-  - cd ..
-  - cd app-Demo-GLFW
-  - qmake QMAKE_CXX=g++-4.8 QMAKE_CC=gcc-4.8
-  - make
+ - cd lib-SLExternal
+ - qmake QMAKE_CXX=g++-4.8 QMAKE_CC=gcc-4.8
+ - make
+ - cd assimp
+ - qmake QMAKE_CXX=g++-4.8 QMAKE_CC=gcc-4.8
+ - make
+ - cd ../..
+ - cd lib-SLProject
+ - qmake QMAKE_CXX=g++-4.8 QMAKE_CC=gcc-4.8
+ - make
+ - cd ..
+ - cd app-Demo-GLFW
+ - qmake QMAKE_CXX=g++-4.8 QMAKE_CC=gcc-4.8
+ - make
+ - cd app-Demo-Qt
+ - qmake QMAKE_CXX=g++-4.8 QMAKE_CC=gcc-4.8
+ - make
 
 os:
   - linux
