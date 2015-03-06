@@ -39,7 +39,6 @@ win32 {
 }
 macx {
     # mac only
-#    CONFIG -= app_bundle
     CONFIG += c++11
     LIBS += -framework Cocoa
     LIBS += -framework IOKit
