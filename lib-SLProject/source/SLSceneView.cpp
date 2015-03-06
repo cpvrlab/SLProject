@@ -29,6 +29,9 @@
 #include <SLImporter.h>
 
 //-----------------------------------------------------------------------------
+// Milliseconds duration of a long touch event
+const SLint SLSceneView::LONGTOUCH_MS = 500;
+//-----------------------------------------------------------------------------
 //! SLSceneView default constructor
 /*! The default constructor adds the this pointer to the sceneView vector in 
 SLScene. If an inbetween element in the vector is zero (from previous sceneviews) 
@@ -1108,6 +1111,15 @@ SLbool SLSceneView::onDoubleClick(const SLMouseButton button,
     return result;
 } 
 //-----------------------------------------------------------------------------
+/*! SLSceneView::onLongTouch gets called when the mouse or touch is down for
+more than 500ms and has not moved.
+*/
+SLbool SLSceneView::onLongTouch(SLint x, SLint y)
+{
+    SL_LOG("onLongTouch(%d, %d)\n", x, y);
+    return true;
+}
+//-----------------------------------------------------------------------------
 /*! 
 SLSceneView::onTouch2Down gets called whenever two fingers touch a handheld
 screen.
@@ -1250,6 +1262,8 @@ SLbool SLSceneView::onCommand(const SLCmd cmd)
     {
         case cmdQuit:
             slShouldClose(true);
+        case cmdMenu:
+            return false;
         case cmdAboutToggle:
             if (s->_menu2D)
             {   if (s->_menu2D == s->_menuGL)

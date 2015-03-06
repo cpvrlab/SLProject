@@ -14,48 +14,23 @@
 #include <debug_new.h>        // memory leak detector
 #endif
 
+using namespace std::placeholders;
+
 //-----------------------------------------------------------------------------
 SLTimer::SLTimer()
-{
-    #ifdef SL_OS_WINDOWS
-    QueryPerformanceFrequency(&frequency);
-    startCount.QuadPart = 0;
-    endCount.QuadPart = 0;
-    #else
-    startCount.tv_sec = startCount.tv_usec = 0;
-    endCount.tv_sec = endCount.tv_usec = 0;
-    #endif
-
-    stopped = 0;
-    startTimeInMicroSec = 0;
-    endTimeInMicroSec = 0;
-}
-//-----------------------------------------------------------------------------
-SLTimer::~SLTimer()
 {
 }
 //-----------------------------------------------------------------------------
 // SLTimer::start starts timer. startCount will be set at this point.
 void SLTimer::start()
 {
-    stopped = 0; // reset stop flag
-    #ifdef SL_OS_WINDOWS
-    QueryPerformanceCounter(&startCount);
-    #else
-    gettimeofday(&startCount, nullptr);
-    #endif
+    _timePoint1 = SLClock::now();
 }
 //-----------------------------------------------------------------------------
 //! SLTimer::stop stops the timer. endCount will be set at this point.
 void SLTimer::stop()
 {
-    stopped = 1; // set timer stopped flag
-
-    #ifdef SL_OS_WINDOWS
-    QueryPerformanceCounter(&endCount);
-    #else
-    gettimeofday(&endCount, nullptr);
-    #endif
+    _timePoint2 = SLClock::now();
 }
 //-----------------------------------------------------------------------------
 /*! 
@@ -63,35 +38,37 @@ SLTimer::getElapsedTimeInMicroSec computes elapsed time in micro-second
 resolution. Other getElapsedTime will call this first, then convert to 
 correspond resolution.
 */
-double SLTimer::getElapsedTimeInMicroSec()
+inline SLint64 SLTimer::getElapsedTimeInMicroSec()
 {
-    #ifdef SL_OS_WINDOWS
-    if(!stopped)
-        QueryPerformanceCounter(&endCount);
-
-    startTimeInMicroSec = startCount.QuadPart * (1000000.0 / frequency.QuadPart);
-    endTimeInMicroSec = endCount.QuadPart * (1000000.0 / frequency.QuadPart);
-    #else
-    if(!stopped)
-        gettimeofday(&endCount, nullptr);
-
-    startTimeInMicroSec = (startCount.tv_sec * 1000000.0) + startCount.tv_usec;
-    endTimeInMicroSec = (endCount.tv_sec * 1000000.0) + endCount.tv_usec;
-    #endif
-
-    return endTimeInMicroSec - startTimeInMicroSec;
+    return duration_cast<microseconds>(SLClock::now()-_timePoint1).count();
 }
 //-----------------------------------------------------------------------------
 //! SLTimer::getElapsedTimeInMilliSec divides elapsedTimeInMicroSec by 1000
-double SLTimer::getElapsedTimeInMilliSec()
+SLfloat SLTimer::getElapsedTimeInMilliSec()
 {
-    return this->getElapsedTimeInMicroSec() * 0.001;
+    return getElapsedTimeInMicroSec() * 0.001f;
 }
 //-----------------------------------------------------------------------------
 //! SLTimer::getElapsedTimeInSec divide elapsedTimeInMicroSec by 1000000
-double SLTimer::getElapsedTimeInSec()
+SLfloat SLTimer::getElapsedTimeInSec()
 {
-    return this->getElapsedTimeInMicroSec() * 0.000001;
+    return getElapsedTimeInMicroSec() * 0.000001f;
 }
 //-----------------------------------------------------------------------------
+//! Delayed call of the callback function after the passed milliseconds.
+void SLTimer::callAfterSleep(SLint milliSec, function<void(void)> callbackFunc)
+{
+    // Create a thread that immediatelly sleeps the milliseconds
+    thread t
+    (   [=]()
+        {   this_thread::sleep_for(chrono::milliseconds(milliSec)); 
+            callbackFunc();
+        }
+    );
+
+    // detach the thread so that it can exist after the block
+    t.detach();
+}
+//-----------------------------------------------------------------------------
+
 

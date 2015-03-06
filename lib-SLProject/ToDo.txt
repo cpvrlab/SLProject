@@ -5,10 +5,10 @@
 Next Steps:
 
 Prio 1:
-- Integration Kinect2 für Märki
 - Save scene as Collada dae file
 
 Prio 2:
+- LongTouch Menu Öffnung fertig machen
 - mh: Skybox würde mit wenig Aufwand Attraktivität erhöhen
 - Billboards
 - PNG Texturen durch JPG Texturen ersetzen würde Laden auf Mobilgeräten beschleunigen

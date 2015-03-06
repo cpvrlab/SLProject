@@ -82,7 +82,7 @@ void drawXZGrid(const SLMat4f& mat)
     state->pushModelViewMatrix();
     state->modelViewMatrix = mat;
 
-    grid.drawArrayAsConstantColorLines(SLCol3f::RED,   1.0f, indexX, numXVerts);
+    grid.drawArrayAsConstantColorLines(SLCol3f::RED,  1.0f, indexX, numXVerts);
     grid.drawArrayAsConstantColorLines(SLCol3f::BLUE, 1.0f, indexZ, numZVerts);
     grid.drawArrayAsConstantColorLines(SLCol3f(0.45f, 0.45f, 0.45f),  0.8f, indexGrid, numGridVerts);
     
@@ -96,25 +96,21 @@ void drawXZGrid(const SLMat4f& mat)
 void SLScene::onLoad(SLSceneView* sv, SLCmd cmd)
 {
     init();
-
     
-    _backColor.set(0.1f,0.1f,0.1f);
-    
-    SLLightSphere* light1 = new SLLightSphere(0.3f);
-    light1->position(2,1,3);
+    _backColor.set(0.3f,0.3f,0.3f);
 
+    SLMaterial* mat = new SLMaterial("floorMat", SLCol4f::WHITE, SLCol4f::WHITE);
 
-    SLMaterial* mat = new SLMaterial("floorMat", SLCol4f::GRAY, SLCol4f::GRAY);
-
-    SLNode* scene = new SLNode;
-    scene->addChild(light1);
-        
-    
     SLCamera* cam1 = new SLCamera;
     cam1->position(-4, 3, 3);
     cam1->lookAt(0, 0, 1);
     cam1->focalDist(6);
 
+    SLLightSphere* light1 = new SLLightSphere(0.3f);
+    light1->position(10,10,10);
+
+    SLNode* scene = new SLNode;
+    scene->addChild(light1);
     scene->addChild(cam1);
     
     _root3D = scene;
@@ -127,7 +123,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd cmd)
 
 void NewNodeSceneView::postSceneLoad()
 {
-    SLMaterial* boxMat = new SLMaterial("boxMat", SLCol4f(1, 1, 1), SLCol4f(1, 1, 1));
+    SLMaterial* boxMat      = new SLMaterial("boxMat", SLCol4f(1, 1, 1), SLCol4f(1, 1, 1));
     SLMaterial* boxChildMat = new SLMaterial("boxMat", SLCol4f(0.8f, 0.8f, 0.8f), SLCol4f(1, 1, 1));
 
     _moveBox = new SLNode("Parent");
@@ -140,7 +136,7 @@ void NewNodeSceneView::postSceneLoad()
     _moveBoxChild->position(0, 1, 0);
     _moveBoxChild->rotation(0, SLVec3f(0, 0, 0));
     _moveBoxChild->setInitialState();
-    _moveBoxChild->addMesh(new SLBox(-0.25f, -0.25f, -0.25f, 0.25f, 0.25f, 0.25f, "Box", boxChildMat));
+    _moveBoxChild->addMesh(new SLBox(-0.20f, -0.20f, -0.20f, 0.20f, 0.20f, 0.20f, "Box", boxChildMat));
     _moveBox->addChild(_moveBoxChild);
     
     SLAssimpImporter importer;
@@ -180,13 +176,11 @@ void NewNodeSceneView::preDraw()
     }
 }
 
-
 void NewNodeSceneView::postDraw()
 {
     drawXZGrid(_camera->updateAndGetVM() * _curOrigin);
     renderText();
 }
-
 
 void NewNodeSceneView::reset()
 {
@@ -194,7 +188,6 @@ void NewNodeSceneView::reset()
     _moveBox->resetToInitialState();
     _moveBoxChild->resetToInitialState();
 }
-
 
 void NewNodeSceneView::translateObject(SLVec3f val)
 {
@@ -233,7 +226,6 @@ void NewNodeSceneView::translatePivot(SLVec3f val)
 
     _pivotPos += val;
 }
-
 
 SLbool NewNodeSceneView::onContinuousKeyPress(SLKey key)
 {
@@ -342,10 +334,6 @@ SLbool NewNodeSceneView::onKeyPress(const SLKey key, const SLKey mod)
 
     return false;
 }
-
-
-
-
 
 SLbool NewNodeSceneView::onKeyRelease(const SLKey key, const SLKey mod)
 {

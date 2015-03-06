@@ -24,6 +24,14 @@
 #include <QHBoxLayout>
 #include "qtMainWindow.h"
 
+//for backwards compatibility with QT below 5.2
+#if (QT_VERSION < QT_VERSION_CHECK(5, 2, 0)) 
+    #define GETDEVICEPIXELRATIO() 1.0 
+#else 
+    #define GETDEVICEPIXELRATIO() devicePixelRatio() 
+#endif
+
+
 //-----------------------------------------------------------------------------
 qtMainWindow* qtGLWidget::mainWindow = 0;
 //-----------------------------------------------------------------------------
@@ -125,9 +133,9 @@ void qtGLWidget::initializeGL()
     }   
 
     // Create a sceneview for every new glWidget
-    _svIndex = slCreateSceneView(this->width() * devicePixelRatio(),
-                                 this->height() * devicePixelRatio(),
-                                 dpi * devicePixelRatio(),
+    _svIndex = slCreateSceneView(this->width() * GETDEVICEPIXELRATIO(),
+                                 this->height() * GETDEVICEPIXELRATIO(),
+                                 dpi * GETDEVICEPIXELRATIO(),
                                  (SLCmd)SL_STARTSCENE,
                                  _cmdLineArgs,
                                  (void*)&onUpdateWidget,
@@ -204,15 +212,15 @@ void qtGLWidget::mousePressEvent(QMouseEvent *e)
     if (e->modifiers() & Qt::ALT)   modifiers = (SLKey)(modifiers|KeyAlt);
 
     // adapt for Mac retina displays
-    int x = (int)((float)e->x() * devicePixelRatio());
-    int y = (int)((float)e->y() * devicePixelRatio());
+    int x = (int)((float)e->x() * GETDEVICEPIXELRATIO());
+    int y = (int)((float)e->y() * GETDEVICEPIXELRATIO());
 
     if (modifiers & KeyAlt)
     {
         // init for first touch
         if (_touch2.x<0)
-        {   int scrW2 = width()  * devicePixelRatio() / 2;
-            int scrH2 = height() * devicePixelRatio() / 2;
+        {   int scrW2 = width()  * GETDEVICEPIXELRATIO() / 2;
+            int scrH2 = height() * GETDEVICEPIXELRATIO() / 2;
             _touch2.set(scrW2 - (x - scrW2), scrH2 - (y - scrH2));
             _touchDelta.set(x - _touch2.x, y - _touch2.y);
         }
@@ -252,8 +260,8 @@ void qtGLWidget::mouseReleaseEvent(QMouseEvent *e)
     if (e->modifiers() & Qt::ALT)   modifiers = (SLKey)(modifiers|KeyAlt);
 
     // adapt for Mac retina displays
-    int x = (int)((float)e->x() * devicePixelRatio());
-    int y = (int)((float)e->y() * devicePixelRatio());
+    int x = (int)((float)e->x() * GETDEVICEPIXELRATIO());
+    int y = (int)((float)e->y() * GETDEVICEPIXELRATIO());
 
     if (e->button()==Qt::LeftButton)
     {  slMouseUp(_svIndex, ButtonLeft, x, y, modifiers);
@@ -283,8 +291,8 @@ void qtGLWidget::mouseDoubleClickEvent(QMouseEvent *e)
     if (e->modifiers() & Qt::ALT)   modifiers = (SLKey)(modifiers|KeyAlt);
 
     // adapt for Mac retina displays
-    int x = (int)((float)e->x() * devicePixelRatio());
-    int y = (int)((float)e->y() * devicePixelRatio());
+    int x = (int)((float)e->x() * GETDEVICEPIXELRATIO());
+    int y = (int)((float)e->y() * GETDEVICEPIXELRATIO());
 
     if (e->button()==Qt::LeftButton)
     {   slDoubleClick(_svIndex, ButtonLeft, x, y, modifiers);
@@ -313,8 +321,8 @@ void qtGLWidget::mouseMoveEvent(QMouseEvent *e)
     if (e->modifiers() & Qt::ALT)   modifiers = (SLKey)(modifiers|KeyAlt);
 
     // adapt for Mac retina displays
-    int x = (int)((float)e->x() * devicePixelRatio());
-    int y = (int)((float)e->y() * devicePixelRatio());
+    int x = (int)((float)e->x() * GETDEVICEPIXELRATIO());
+    int y = (int)((float)e->y() * GETDEVICEPIXELRATIO());
 
     // Simulate double finger touches
     if (modifiers & KeyAlt)
@@ -324,8 +332,8 @@ void qtGLWidget::mouseMoveEvent(QMouseEvent *e)
         {   slTouch2Move(_svIndex, x, y, x - _touchDelta.x, y - _touchDelta.y);
         }
         else // Do concentric double finger pinch
-        {   int scrW2 = width()  * devicePixelRatio() / 2;
-            int scrH2 = height() * devicePixelRatio() / 2;
+        {   int scrW2 = width()  * GETDEVICEPIXELRATIO() / 2;
+            int scrH2 = height() * GETDEVICEPIXELRATIO() / 2;
             _touch2.set(scrW2 - (x - scrW2), scrH2 - (y - scrH2));
             _touchDelta.set(x - _touch2.x, y - _touch2.y);
             slTouch2Move(_svIndex, x, y, _touch2.x, _touch2.y);

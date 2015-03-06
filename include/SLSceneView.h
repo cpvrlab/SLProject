@@ -102,6 +102,7 @@ class SLSceneView: public SLObject
             SLbool          onDoubleClick   (const SLMouseButton button, 
                                              SLint x, SLint y,
                                              const SLKey mod);
+            SLbool          onLongTouch     (SLint x, SLint y);
     virtual SLbool          onKeyPress      (const SLKey key, const SLKey mod);
     virtual SLbool          onKeyRelease    (const SLKey key, const SLKey mod);
             void            onRotationPYR   (const SLfloat pitchRAD, 
@@ -192,6 +193,8 @@ class SLSceneView: public SLObject
             SLfloat         cullTimeMS      () {return _cullTimeMS;}
             SLfloat         draw3DTimeMS    () {return _draw3DTimeMS;}
             SLfloat         draw2DTimeMS    () {return _draw2DTimeMS;}
+
+    static const SLint      LONGTOUCH_MS;       //!< Milliseconds duration of a long touch event 
 
    protected:
             SLuint          _index;             //!< index of this pointer in SLScene::sceneView vector

@@ -27,13 +27,13 @@ class SLInputEvent
 {
 public:
     enum Type
-    {
-        SLCommand,
+    {   Command,
         MouseMove,
         MouseDown,
         MouseUp,
         MouseDoubleClick,
         MouseWheel,
+        LongTouch,
         Touch2Move,
         Touch2Down,
         Touch2Up,
@@ -129,7 +129,7 @@ public:
     SLCmd cmd;
 
     SLCommandEvent()
-        : SLInputEvent(SLCommand)
+        : SLInputEvent(Command)
     { }
 };
 

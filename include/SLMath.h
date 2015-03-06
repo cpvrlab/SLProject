@@ -55,12 +55,12 @@ template<class T> inline T    SL_mix   (T mix,T a,T b){return (1-mix)*a + mix*b;
 template<class T> inline T    SL_lerp  (T x,T a,T b){return (a + x*(b-a));} 
 template<class T> inline void SL_swap  (T& a,T& b){T c=a; a=b; b=c;}
 //-----------------------------------------------------------------------------
-SL_INLINE SLbool SL_isPowerOf2(SLuint a)
+inline SLbool SL_isPowerOf2(SLuint a)
 {
     return a == 1 || (a & (a-1)) == 0;
 }
 //-----------------------------------------------------------------------------
-SL_INLINE SLfloat SL_random(SLfloat min, SLfloat max)
+inline SLfloat SL_random(SLfloat min, SLfloat max)
 {
     return ((SLfloat)rand()/(SLfloat)RAND_MAX) * (max-min) + min;
 }
