@@ -9,7 +9,7 @@
 #include "SLLightSphere.h"
 #include "SLText.h"
 #include "SLTexFont.h"
-#include "SLAssImpImporter.h"
+#include "SLAssimpImporter.h"
 
 #include "NewNodeSceneView.h"
 #include "NewNodeTRS.h"
