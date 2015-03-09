@@ -123,11 +123,17 @@ void qtGLWidget::initializeGL()
         }
         #endif
 
+        // Get parent directory of executable
+        QDir path = QDir(QCoreApplication::applicationDirPath());
+        if (!path.cdUp()) SL_EXIT_MSG("Parent directory does not exist.");
+        SLstring pathStr = path.absolutePath().toStdString();
+        cout << pathStr << endl;
+
         SL_LOG("GUI             : Qt5\n");
         SL_LOG("DPI             : %d\n", dpi);
-        SLstring shaders  = "../lib-SLProject/source/oglsl/";
-        SLstring models   = "../_data/models/";
-        SLstring textures = "../_data/images/textures/";
+        SLstring shaders  =  pathStr + "/_data/shaders/";
+        SLstring models   =  pathStr + "/_data/models/";
+        SLstring textures =  pathStr + "/_data/images/textures/";
       
         slCreateScene(shaders, models, textures);
     }   
