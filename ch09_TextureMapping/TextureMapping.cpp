@@ -525,12 +525,12 @@ void onKey(GLFWwindow* window, int GLFWKey, int scancode, int action, int mods)
    } else
    if (action == GLFW_RELEASE)
    {  switch (GLFWKey)
-      {  case GLFW_KEY_LEFT_SHIFT:     _modifiers = _modifiers|SHIFT; break;
-         case GLFW_KEY_RIGHT_SHIFT:    _modifiers = _modifiers|SHIFT; break;
-         case GLFW_KEY_LEFT_CONTROL:   _modifiers = _modifiers|CTRL; break; 
-         case GLFW_KEY_RIGHT_CONTROL:  _modifiers = _modifiers|CTRL; break; 
-         case GLFW_KEY_LEFT_ALT:       _modifiers = _modifiers|ALT; break;
-         case GLFW_KEY_RIGHT_ALT:      _modifiers = _modifiers|ALT; break;
+      {  case GLFW_KEY_LEFT_SHIFT:     _modifiers = _modifiers^SHIFT; break;
+         case GLFW_KEY_RIGHT_SHIFT:    _modifiers = _modifiers^SHIFT; break;
+         case GLFW_KEY_LEFT_CONTROL:   _modifiers = _modifiers^CTRL; break;
+         case GLFW_KEY_RIGHT_CONTROL:  _modifiers = _modifiers^CTRL; break;
+         case GLFW_KEY_LEFT_ALT:       _modifiers = _modifiers^ALT; break;
+         case GLFW_KEY_RIGHT_ALT:      _modifiers = _modifiers^ALT; break;
       }
    }
 }
