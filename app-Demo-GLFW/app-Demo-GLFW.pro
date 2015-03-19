@@ -15,6 +15,7 @@ CONFIG += console
 CONFIG -= qt
 CONFIG += glfw
 CONFIG += warn_off
+CONFIG -= app_bundle
 
 DEFINES += "SL_STARTSCENE=cmdSceneMeshLoad"
 

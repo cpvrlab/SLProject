@@ -10,6 +10,7 @@
 
 TEMPLATE = app
 TARGET = ch09_TextureMapping
+CONFIG -= app_bundle
 
 #define platform variable for folder name
 win32 {contains(QMAKE_TARGET.arch, x86_64) {PLATFORM = x64} else {PLATFORM = Win32}}

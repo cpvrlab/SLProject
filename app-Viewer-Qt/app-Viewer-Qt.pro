@@ -13,6 +13,7 @@ TEMPLATE = app
 
 CONFIG += desktop
 CONFIG += console
+CONFIG += app_bundle
 
 QT += core gui widgets opengl
 
@@ -190,11 +191,8 @@ macx: {
     QMAKE_BUNDLE_DATA += models_DAE_SkinnedCube
     QMAKE_BUNDLE_DATA += models_FBX_Duck
 
-    CONFIG += app_bundle
-
-    #macx {ICON = SLProject-Icon.icns}
+    macx {ICON = SLProject-Icon.icns}
 
     #run macdeployqt
-    #QMAKE_POST_LINK += macdeployqt ../_bin/$$CONFIGURATION/$$PLATFORM/ImagePlay.app/ -dmg
-
+    QMAKE_POST_LINK += macdeployqt ../_bin-$$CONFIGURATION-$$PLATFORM/app-Viewer-Qt.app/ -dmg
 }
