@@ -11,6 +11,7 @@
 TEMPLATE = app
 TARGET = VolumeRendering
 CONFIG += c++11 console
+CONFIG -= app_bundle
 
 #define platform variable for folder name
 win32 {contains(QMAKE_TARGET.arch, x86_64) {PLATFORM = x64} else {PLATFORM = Win32}}
@@ -35,13 +36,13 @@ SOURCES += ../lib-SLProject/source/SL/SL.cpp
 HEADERS += glUtils.h
 HEADERS += ../include/SLImage.h
 
-OTHER_FILES += ..\lib-SLProject\source\oglsl\RayCastVolumeRendering.vert
-OTHER_FILES += ..\lib-SLProject\source\oglsl\SiddonVolumeRendering_TF.frag
-OTHER_FILES += ..\lib-SLProject\source\oglsl\SiddonVolumeRendering_MIP.frag
-OTHER_FILES += ..\lib-SLProject\source\oglsl\SamplingVolumeRendering_TF.frag
-OTHER_FILES += ..\lib-SLProject\source\oglsl\SamplingVolumeRendering_MIP.frag
-OTHER_FILES += ..\lib-SLProject\source\oglsl\SliceVolumeRendering.vert
-OTHER_FILES += ..\lib-SLProject\source\oglsl\SliceVolumeRendering.fra>
+OTHER_FILES += ../lib-SLProject/source/oglsl/RayCastVolumeRendering.vert
+OTHER_FILES += ../lib-SLProject/source/oglsl/SiddonVolumeRendering_TF.frag
+OTHER_FILES += ../lib-SLProject/source/oglsl/SiddonVolumeRendering_MIP.frag
+OTHER_FILES += ../lib-SLProject/source/oglsl/SamplingVolumeRendering_TF.frag
+OTHER_FILES += ../lib-SLProject/source/oglsl/SamplingVolumeRendering_MIP.frag
+OTHER_FILES += ../lib-SLProject/source/oglsl/SliceVolumeRendering.vert
+OTHER_FILES += ../lib-SLProject/source/oglsl/SliceVolumeRendering.frag
 
 
 

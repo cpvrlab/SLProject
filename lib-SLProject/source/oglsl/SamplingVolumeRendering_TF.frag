@@ -10,7 +10,7 @@
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
 
-#version 130
+//#version 130
 
 #ifdef GL_FRAGMENT_PRECISION_HIGH
 precision mediump float;
@@ -20,6 +20,7 @@ varying     vec3       v_raySource;      //The source coordinate of the view ray
 
 uniform     vec3       u_voxelScale;     //Voxel scaling coefficients
 uniform     vec3       u_eyePosition;    //The position of the camera (model coordinates)
+uniform     vec3       u_textureSize;    //size of 3D texture
 
 uniform     sampler3D  u_volume;         //The volume texture
 uniform     sampler1D  u_TfLut;          //A LUT for the transform function
@@ -31,20 +32,22 @@ vec3 findRayDestination(vec3 raySource, vec3 rayDirection)
     // with any wall of the cube).
 
     //Avoid infinity in the division below (in case the direction is parallel to a plane)
-    vec3 d = rayDirection +  vec3(isinf(1.0f/rayDirection))*0.001f;
+    vec3 d = rayDirection; // +  vec3(isinf(1.0/rayDirection))*0.001;
 
     // Coefficient-wise resolve source + f*direction = X (with X = +-1)
     // -> f = (X-source)/direction
-    vec3 f1 = (vec3( 1.0f)-raySource)/d;
-    vec3 f2 = (vec3(-1.0f)-raySource)/d;
+    vec3 f1 = (vec3( 1.0)-raySource)/d;
+    vec3 f2 = (vec3(-1.0)-raySource)/d;
 
     //Mask out negative values
-    f1 *= step(0.0f,f1);
-    f2 *= step(0.0f,f2);
+    f1 *= step(0.0,f1);
+    f2 *= step(0.0,f2);
 
     //Assure that no zeros are picked (4 > sqrt(3*(2^2)), which is the longest possible distance in the cube)
-    f1 += vec3(isinf(1.0f/f1))*4;
-    f2 += vec3(isinf(1.0f/f2))*4;
+    //f1 += vec3(isinf(1.0/f1))*4;
+    f1 += vec3(step(0.0001,f1))*4.0;
+    //f2 += vec3(isinf(1.0/f2))*4;
+    f2 += vec3(step(0.0001,f2))*4.0;
 
     //Find the smallest factor
     f1 = min(f1,f2);
@@ -59,18 +62,17 @@ void main()
     vec3 direction = normalize(source - u_eyePosition);
     vec3 destination = findRayDestination(source,direction);
 
-    //'scale' is used to scale the texture in case of non-uniform voxel size
-    vec3 size = vec3(textureSize(u_volume, 0))*u_voxelScale;
+    vec3 size = u_textureSize*u_voxelScale;
     float maxLength = max(max(size.x, size.y), size.z);
 
     //'cuboidScaling' is used to scale the texture-space coordinates for non-cubic textures
     vec3 cuboidScaling = float(maxLength)/vec3(size);
     //Calculate the distance between samples
-    float step_dist = 1.0f/(sqrt(3.0f)*float(maxLength));
+    float step_dist = 1.0/(sqrt(3.0)*float(maxLength));
 
     //Project the source and destination coordinates from cube space into texture space
-    source      = 0.5f*cuboidScaling*source+vec3(.5f);
-    destination = 0.5f*cuboidScaling*destination+vec3(.5f);
+    source      = 0.5*cuboidScaling*source+vec3(.5);
+    destination = 0.5*cuboidScaling*destination+vec3(.5);
     direction   = destination-source;
 
     //Set direction to the length of a single step
@@ -90,14 +92,14 @@ void main()
         //Scale the color addend by it's alpha value
         voxel.rgb *= voxel.a;
 
-        gl_FragColor = (1.0f-gl_FragColor.a)*voxel + gl_FragColor;
+        gl_FragColor = (1.0-gl_FragColor.a)*voxel + gl_FragColor;
 
         //Jump out of the loop if the cumulated alpha is above a threshold
-        if (gl_FragColor.a > 0.99f)
+        if (gl_FragColor.a > 0.99)
             break;
 
         //Set the position to the next step
         position += direction;
     }
-    gl_FragColor.a = 1.0f;
+    gl_FragColor.a = 1.0;
 }

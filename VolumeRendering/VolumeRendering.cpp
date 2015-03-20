@@ -96,24 +96,24 @@ const GLuint ALT   = 0x00800000;    //!< constant for alt key modifier
 GLuint   _mipSamplingVertexShader = 0;
 GLuint   _mipSamplingFragmentShader = 0;
 GLuint   _mipSamplingProgram = 0;
-
 GLint    _mipSamplingPosition = 0;
 GLint    _mipSamplingMVP = 0;
 GLint    _mipSamplingEyePosition = 0;
 GLint    _mipSamplingVolume = 0;
 GLint    _mipSamplingVoxelScaling = 0;
+GLint    _mipSamplingTextureSize = 0;
 
 //Sampling w/ transfer function
 GLuint   _tfSamplingVertexShader = 0;
 GLuint   _tfSamplingFragmentShader = 0;
 GLuint   _tfSamplingProgram = 0;
-
 GLint    _tfSamplingPosition = 0;
 GLint    _tfSamplingMVP = 0;
 GLint    _tfSamplingEyePosition = 0;
 GLint    _tfSamplingVolume = 0;
 GLint    _tfSamplingTfLut = 0;
 GLint    _tfSamplingVoxelScaling = 0;
+GLint    _tfSamplingTextureSize = 0;
 
 
 // Voxel walking shaders and attributes/uniforms:
@@ -122,24 +122,24 @@ GLint    _tfSamplingVoxelScaling = 0;
 GLuint   _mipSiddonVertexShader = 0;
 GLuint   _mipSiddonFragmentShader = 0;
 GLuint   _mipSiddonProgram = 0;
-
 GLint    _mipSiddonPosition = 0;
 GLint    _mipSiddonMVP = 0;
 GLint    _mipSiddonEyePosition = 0;
 GLint    _mipSiddonVolume = 0;
 GLint    _mipSiddonVoxelScaling = 0;
+GLint    _mipSiddonTextureSize = 0;
 
 //Voxel walking w/ transfer function
 GLuint   _tfSiddonVertexShader = 0;
 GLuint   _tfSiddonFragmentShader = 0;
 GLuint   _tfSiddonProgram = 0;
-
 GLint    _tfSiddonPosition = 0;
 GLint    _tfSiddonMVP = 0;
 GLint    _tfSiddonEyePosition = 0;
 GLint    _tfSiddonVolume = 0;
 GLint    _tfSiddonTfLut = 0;
 GLint    _tfSiddonVoxelScaling = 0;
+GLint    _tfSiddonTextureSize = 0;
 
 //Slice shader and attributes/uniforms
 GLuint   _sliceVertexShader = 0;
@@ -152,6 +152,7 @@ GLint    _sliceVolumeRotation = 0;
 GLint    _sliceVolume = 0;
 GLint    _sliceTfLut = 0;
 GLint    _sliceVoxelScaling = 0;
+GLint    _sliceTextureSize = 0;
 
 //Texture handles
 GLuint    _volumeTexture = 0;  //!< OpenGL handle of the 3d volume texture
@@ -237,7 +238,8 @@ void compilePrograms()
                         { _mipSamplingMVP, "u_mvpMatrix" },
                         { _mipSamplingEyePosition, "u_eyePosition" },
 						{ _mipSamplingVolume, "u_volume" },
-						{ _mipSamplingVoxelScaling, "u_voxelScale" }
+                        { _mipSamplingVoxelScaling, "u_voxelScale" },
+                        { _mipSamplingTextureSize, "u_textureSize" }
                     });
 
     getVariables(_tfSamplingProgram, {
@@ -247,7 +249,8 @@ void compilePrograms()
                         { _tfSamplingEyePosition, "u_eyePosition" },
                         { _tfSamplingVolume, "u_volume" },
 						{ _tfSamplingTfLut, "u_TfLut" },
-						{ _tfSamplingVoxelScaling, "u_voxelScale" }
+                        { _tfSamplingVoxelScaling, "u_voxelScale" },
+                        { _tfSamplingTextureSize, "u_textureSize" }
                     });
 
     getVariables(_mipSiddonProgram, {
@@ -256,7 +259,8 @@ void compilePrograms()
                         { _mipSiddonMVP, "u_mvpMatrix" },
                         { _mipSiddonEyePosition, "u_eyePosition" },
 						{ _mipSiddonVolume, "u_volume" },
-						{ _mipSiddonVoxelScaling, "u_voxelScale" }
+                        { _mipSiddonVoxelScaling, "u_voxelScale" },
+                        { _mipSiddonTextureSize, "u_textureSize" }
                     });
 
     getVariables(_tfSiddonProgram, {
@@ -266,7 +270,8 @@ void compilePrograms()
                         { _tfSiddonEyePosition, "u_eyePosition" },
                         { _tfSiddonVolume, "u_volume" },
 						{ _tfSiddonTfLut, "u_TfLut" },
-						{ _tfSiddonVoxelScaling, "u_voxelScale" }
+                        { _tfSiddonVoxelScaling, "u_voxelScale" },
+                        { _tfSiddonTextureSize, "u_textureSize" }
 					});
 
 	getVariables(_sliceProgram, {
@@ -276,7 +281,8 @@ void compilePrograms()
 						{ _sliceVolumeRotation, "u_volumeRotationMatrix" },
 						{ _sliceVolume, "u_volume" },
 						{ _sliceTfLut, "u_TfLut" },
-						{ _sliceVoxelScaling, "u_voxelScale" }
+                        { _sliceVoxelScaling, "u_voxelScale" },
+                        { _sliceTextureSize, "u_textureSize" }
 					});
 }
 
@@ -467,6 +473,9 @@ void drawSamplingMIP()
 	glUniform3fv(_mipSamplingEyePosition, 1, (float*)&eye);
 	glUniform3fv(_mipSamplingVoxelScaling, 1, (float*)&_voxelScaling);
 
+    SLVec3f size(_volumeWidth, _volumeHeight, _volumeDepth);
+    glUniform3fv(_mipSamplingTextureSize, 1, (float*)&size);
+
 	glBindBuffer(GL_ARRAY_BUFFER, _cubeVboV);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _cubeVboI);
 
@@ -524,6 +533,9 @@ void drawSamplingTF()
 	glUniform3fv(_tfSamplingEyePosition, 1, (float*)&eye);
 	glUniform3fv(_tfSamplingVoxelScaling, 1, (float*)&_voxelScaling);
 
+    SLVec3f size(_volumeWidth, _volumeHeight, _volumeDepth);
+    glUniform3fv(_tfSamplingTextureSize, 1, (float*)&size);
+
 	glBindBuffer(GL_ARRAY_BUFFER, _cubeVboV);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _cubeVboI);
 
@@ -577,6 +589,9 @@ void drawSiddonMIP()
 	glUniformMatrix4fv(_mipSiddonMVP, 1, 0, (float*)&mvp);
 	glUniform3fv(_mipSiddonEyePosition, 1, (float*)&eye);
 	glUniform3fv(_mipSiddonVoxelScaling, 1, (float*)&_voxelScaling);
+
+    SLVec3f size(_volumeWidth, _volumeHeight, _volumeDepth);
+    glUniform3fv(_mipSiddonTextureSize, 1, (float*)&size);
 
 	glBindBuffer(GL_ARRAY_BUFFER, _cubeVboV);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _cubeVboI);
@@ -637,6 +652,9 @@ void drawSiddonTF()
 	glUniform3fv(_tfSiddonEyePosition, 1, (float*)&eye);
 	glUniform3fv(_tfSiddonVoxelScaling, 1, (float*)&_voxelScaling);
 
+    SLVec3f size(_volumeWidth, _volumeHeight, _volumeDepth);
+    glUniform3fv(_tfSiddonTextureSize, 1, (float*)&size);
+
 	glBindBuffer(GL_ARRAY_BUFFER, _cubeVboV);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _cubeVboI);
 
@@ -677,6 +695,9 @@ void drawSlicesMIP()
 	glUniformMatrix4fv(_sliceMVP, 1, 0, (float*)&mvp);
 	glUniformMatrix4fv(_sliceVolumeRotation, 1, 0, (float*)&_volumeRotationMatrix);
 	glUniform3fv(_sliceVoxelScaling, 1, (float*)&_voxelScaling);
+
+    SLVec3f size(_volumeWidth, _volumeHeight, _volumeDepth);
+    glUniform3fv(_sliceTextureSize, 1, (float*)&size);
 
 	glEnable(GL_TEXTURE_3D);
 	glActiveTexture(GL_TEXTURE0);
@@ -726,6 +747,9 @@ void drawSlicesTF()
 
 	glUniformMatrix4fv(_sliceMVP, 1, 0, (float*)&mvp);
 	glUniformMatrix4fv(_sliceVolumeRotation, 1, 0, (float*)&_volumeRotationMatrix);
+
+    SLVec3f size(_volumeWidth, _volumeHeight, _volumeDepth);
+    glUniform3fv(_sliceTextureSize, 1, (float*)&size);
 
 	glEnable(GL_TEXTURE_3D);
 	glActiveTexture(GL_TEXTURE0);
@@ -794,6 +818,7 @@ T clip(const T& n, const T& lower, const T& upper) {
 }
 
 typedef std::array<GLfloat, 4> Color;
+
 //Conversion according to http://www.rapidtables.com/convert/color/hsv-to-rgb.htm
 Color hsva2rgba(const Color &hsva)
 {
@@ -1248,7 +1273,11 @@ int main()
    glfwSetErrorCallback(onGLFWError);
 
    // Enable fullscreen anti aliasing with 4 samples
-   glfwWindowHint(GLFW_SAMPLES, 4);
+//   glfwWindowHint(GLFW_SAMPLES, 4);
+//   glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+//   glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 2);
+//   glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
+//   glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
    _scrWidth = 640;
    _scrHeight = 480;

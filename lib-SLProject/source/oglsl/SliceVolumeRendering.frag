@@ -12,7 +12,7 @@
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
 
-#version 130
+//#version 130
 
 #ifdef GL_FRAGMENT_PRECISION_HIGH
 precision mediump float;
@@ -31,9 +31,9 @@ void main()
     vec4 color = texture1D(u_TfLut, density);
 
     //Set the alpha value for pixels outside of the cube to zero
-    color.a *= step(0.0f,v_texCoord.x)*(1.0f-step(1.0f,v_texCoord.x))
-             * step(0.0f,v_texCoord.y)*(1.0f-step(1.0f,v_texCoord.y))
-             * step(0.0f,v_texCoord.z)*(1.0f-step(1.0f,v_texCoord.z));
+    color.a *= step(0.0,v_texCoord.x)*(1.0-step(1.0,v_texCoord.x))
+             * step(0.0,v_texCoord.y)*(1.0-step(1.0,v_texCoord.y))
+             * step(0.0,v_texCoord.z)*(1.0-step(1.0,v_texCoord.z));
 
     gl_FragColor = color;
 }
