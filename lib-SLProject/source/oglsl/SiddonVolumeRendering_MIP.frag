@@ -42,12 +42,12 @@ vec3 findRayDestination(vec3 raySource, vec3 rayDirection)
     //Mask out negative values
     f1 *= step(0.0,f1);
     f2 *= step(0.0,f2);
-
+	
     //Assure that no zeros are picked (4 > sqrt(3*(2^2)), which is the longest possible distance in the cube)
     //f1 += vec3(isinf(1.0/f1))*4;
-    f1 += vec3(step(0.0001,f1))*4.0;
+    f1 += (vec3(1.0f)-vec3(step(0.0001,f1)))*4.0;
     //f2 += vec3(isinf(1.0/f2))*4;
-    f2 += vec3(step(0.0001,f2))*4.0;
+    f2 += (vec3(1.0f)-vec3(step(0.0001,f2)))*4.0;
 
     //Find the smallest factor
     f1 = min(f1,f2);
