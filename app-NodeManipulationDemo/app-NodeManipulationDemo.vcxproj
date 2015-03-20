@@ -94,7 +94,7 @@
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;NOMINMAX;SL_GUI_GLFW;SL_STARTSCENE#cmdSceneRevolver;SL_RT1;GLEW_STATIC;UNICODE;_WINDOWS;_CRT_SECURE_NO_WARNINGS;_DEBUG;_CONSOLE;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)\include;..\include;..\lib-SLExternal;..\lib-SLExternal\jpeg-8;..\lib-SLExternal\png;..\lib-SLExternal\zlib;..\lib-SLExternal\glew\include;..\lib-SLExternal\glfw3\include;..\lib-SLExternal\randomc;..\lib-SLExternal\oculus\LibOVR\Include\;..\lib-SLExternal\nvwa;..\lib-SLExternal\assimp\include;..\lib-SLExternal\assimp\code;..\_globals;..\_globals\SL;..\_globals\GL;..\_globals\math;..\_globals\MeshLoader;..\_globals\SpacePartitioning;..\_globals\Oculus</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)\include;..\include;..\lib-SLExternal;..\lib-SLExternal\jpeg-8;..\lib-SLExternal\png;..\lib-SLExternal\zlib;..\lib-SLExternal\glew\include;..\lib-SLExternal\glfw3\include;..\lib-SLExternal\randomc;..\lib-SLExternal\oculus\LibOVR\Include\;..\lib-SLExternal\nvwa;..\lib-SLExternal\assimp\include;..\lib-SLExternal\assimp\code;..\lib-SLExternal\dirent;..\_globals;..\_globals\SL;..\_globals\GL;..\_globals\math;..\_globals\MeshLoader;..\_globals\SpacePartitioning;..\_globals\Oculus</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -111,7 +111,7 @@
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>NOMINMAX;SL_GUI_GLFW;SL_STARTSCENE#cmdSceneSmallTest;SL_RT1;GLEW_STATIC;UNICODE;_WINDOWS;_CRT_SECURE_NO_WARNINGS;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)\include;..\include;..\lib-SLExternal;..\lib-SLExternal\jpeg-8;..\lib-SLExternal\png;..\lib-SLExternal\zlib;..\lib-SLExternal\glew\include;..\lib-SLExternal\glfw3\include;..\lib-SLExternal\randomc;..\lib-SLExternal\oculus\LibOVR\Include\;..\lib-SLExternal\nvwa;..\lib-SLExternal\assimp\include;..\lib-SLExternal\assimp\code;..\_globals;..\_globals\SL;..\_globals\GL;..\_globals\math;..\_globals\MeshLoader;..\_globals\SpacePartitioning;..\_globals\Oculus</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)\include;..\include;..\lib-SLExternal;..\lib-SLExternal\jpeg-8;..\lib-SLExternal\png;..\lib-SLExternal\zlib;..\lib-SLExternal\glew\include;..\lib-SLExternal\glfw3\include;..\lib-SLExternal\randomc;..\lib-SLExternal\oculus\LibOVR\Include\;..\lib-SLExternal\nvwa;..\lib-SLExternal\assimp\include;..\lib-SLExternal\assimp\code;..\lib-SLExternal\dirent;..\_globals;..\_globals\SL;..\_globals\GL;..\_globals\math;..\_globals\MeshLoader;..\_globals\SpacePartitioning;..\_globals\Oculus</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -130,7 +130,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;NOMINMAX;SL_GUI_GLFW;SL_STARTSCENE#cmdSceneRevolver;SL_RT1;GLEW_STATIC;UNICODE;_WINDOWS;_CRT_SECURE_NO_WARNINGS;NDEBUG;_CONSOLE;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)\include;..\include;..\lib-SLExternal;..\lib-SLExternal\jpeg-8;..\lib-SLExternal\png;..\lib-SLExternal\zlib;..\lib-SLExternal\glew\include;..\lib-SLExternal\glfw3\include;..\lib-SLExternal\randomc;..\lib-SLExternal\oculus\LibOVR\Include\;..\lib-SLExternal\nvwa;..\lib-SLExternal\assimp\include;..\lib-SLExternal\assimp\code;..\_globals;..\_globals\SL;..\_globals\GL;..\_globals\math;..\_globals\MeshLoader;..\_globals\SpacePartitioning;..\_globals\Oculus</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)\include;..\include;..\lib-SLExternal;..\lib-SLExternal\jpeg-8;..\lib-SLExternal\png;..\lib-SLExternal\zlib;..\lib-SLExternal\glew\include;..\lib-SLExternal\glfw3\include;..\lib-SLExternal\randomc;..\lib-SLExternal\oculus\LibOVR\Include\;..\lib-SLExternal\nvwa;..\lib-SLExternal\assimp\include;..\lib-SLExternal\assimp\code;..\lib-SLExternal\dirent;..\_globals;..\_globals\SL;..\_globals\GL;..\_globals\math;..\_globals\MeshLoader;..\_globals\SpacePartitioning;..\_globals\Oculus</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -151,7 +151,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>NOMINMAX;SL_GUI_GLFW;SL_STARTSCENE#cmdSceneRevolver;SL_RT1;GLEW_STATIC;UNICODE;_WINDOWS;_CRT_SECURE_NO_WARNINGS;NDEBUG;_CONSOLE;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)\include;..\include;..\lib-SLExternal;..\lib-SLExternal\jpeg-8;..\lib-SLExternal\png;..\lib-SLExternal\zlib;..\lib-SLExternal\glew\include;..\lib-SLExternal\glfw3\include;..\lib-SLExternal\randomc;..\lib-SLExternal\oculus\LibOVR\Include\;..\lib-SLExternal\nvwa;..\lib-SLExternal\assimp\include;..\lib-SLExternal\assimp\code;..\_globals;..\_globals\SL;..\_globals\GL;..\_globals\math;..\_globals\MeshLoader;..\_globals\SpacePartitioning;..\_globals\Oculus</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)\include;..\include;..\lib-SLExternal;..\lib-SLExternal\jpeg-8;..\lib-SLExternal\png;..\lib-SLExternal\zlib;..\lib-SLExternal\glew\include;..\lib-SLExternal\glfw3\include;..\lib-SLExternal\randomc;..\lib-SLExternal\oculus\LibOVR\Include\;..\lib-SLExternal\nvwa;..\lib-SLExternal\assimp\include;..\lib-SLExternal\assimp\code;..\lib-SLExternal\dirent;..\_globals;..\_globals\SL;..\_globals\GL;..\_globals\math;..\_globals\MeshLoader;..\_globals\SpacePartitioning;..\_globals\Oculus</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>

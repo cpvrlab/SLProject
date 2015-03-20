@@ -9,6 +9,7 @@
 //#############################################################################
 
 #include <stdafx.h>
+#include <dirent.h>
 
 #ifndef SLUTILS_H
 #define SLUTILS_H
@@ -105,6 +106,27 @@ class SLUtils
             if (i != string::npos) 
             return toLower(filename.substr(i+1, filename.length() - i));
             return("");
+        }
+
+        //! SLUtils::getFileNamesinDir returns a vector of storted filesname within a directory
+        static SLVstring getFileNamesInDir(SLstring dirName)
+        {
+            SLVstring fileNames;
+            DIR* dir;
+            struct dirent *dirContent;
+            int i=0;
+            dir = opendir(dirName.c_str());
+
+            if (dir)
+            {   while ((dirContent = readdir(dir)) != NULL)
+                {   i++;
+                    SLstring name(dirContent->d_name);
+                    if(name != "." && name != "..")
+                        fileNames.push_back(name);
+                }
+                closedir(dir);
+            }
+            return fileNames;
         }
             
         //! SLUtils::trims a string at the end

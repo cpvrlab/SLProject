@@ -571,6 +571,9 @@
     <None Include="source\oglsl\PerPixBlinnTexSkinned.vert">
       <Filter>GLSL</Filter>
     </None>
+    <None Include="Introduction.md" />
+    <None Include="onPaint.md" />
+    <None Include="SLProject.md" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="ToDo.txt" />

@@ -248,6 +248,7 @@
     </Lib>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="dirent\dirent.c" />
     <ClCompile Include="glew\src\glew.c" />
     <ClCompile Include="glfw3\src\context.c" />
     <ClCompile Include="glfw3\src\init.c" />
@@ -352,6 +353,7 @@
     <ClCompile Include="zlib\zutil.c" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="dirent\dirent.h" />
     <ClInclude Include="glew\include\GL\glew.h" />
     <ClInclude Include="glew\include\GL\wglew.h" />
     <ClInclude Include="glfw3\include\GLFW\glfw3.h" />

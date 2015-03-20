@@ -48,10 +48,10 @@ void slCreateScene(SLstring shaderPath,
 {
     assert(SLScene::current==nullptr && "SLScene is already created!");
    
-    SLGLProgram::defaultPath = shaderPath;
-    SLGLTexture::defaultPath    = texturePath;
-    SLAssimpImporter::defaultPath       = modelPath;
-    SLGLState* stateGL          = SLGLState::getInstance();
+    SLGLProgram::defaultPath      = shaderPath;
+    SLGLTexture::defaultPath      = texturePath;
+    SLAssimpImporter::defaultPath = modelPath;
+    SLGLState* stateGL            = SLGLState::getInstance();
     
     SL_LOG("Path to Models  : %s\n", modelPath.c_str());
     SL_LOG("Path to Shaders : %s\n", shaderPath.c_str());

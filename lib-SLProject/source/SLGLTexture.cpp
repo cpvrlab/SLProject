@@ -234,7 +234,7 @@ void SLGLTexture::build(SLint texID)
         }
     } 
     else 
-    if (_target==GL_TEXTURE_CUBE_MAP)
+    if (_target == GL_TEXTURE_CUBE_MAP)
     {  
         for (SLint i=0; i<6; i++)
         {   glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X+i, 

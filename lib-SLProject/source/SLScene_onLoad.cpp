@@ -275,6 +275,11 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
         name("Mesh 3D Loader Test");
         info(sv, "3D file import test for: 3DS, DAE & FBX");
 
+        SLVstring texNames = SLUtils::getFileNamesInDir(SLGLTexture::defaultPath);
+        for (SLstring tn: texNames)
+            SL_LOG("%s\n", tn.c_str());
+
+
         SLMaterial* matBlu = new SLMaterial("Blue",  SLCol4f(0,0,0.2f),       SLCol4f(1,1,1), 100, 0.8f, 0);
         SLMaterial* matRed = new SLMaterial("Red",   SLCol4f(0.2f,0,0),       SLCol4f(1,1,1), 100, 0.8f, 0);
         SLMaterial* matGre = new SLMaterial("Green", SLCol4f(0,0.2f,0),       SLCol4f(1,1,1), 100, 0.8f, 0);
