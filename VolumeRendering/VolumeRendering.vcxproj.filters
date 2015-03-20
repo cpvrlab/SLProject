@@ -22,9 +22,12 @@
     <ClInclude Include="..\include\stdafx.h" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\lib-SLProject\source\oglsl\VolumeRenderingRayCast.frag" />
-    <None Include="..\lib-SLProject\source\oglsl\VolumeRenderingRayCast.vert" />
-    <None Include="..\lib-SLProject\source\oglsl\VolumeRendering.frag" />
-    <None Include="..\lib-SLProject\source\oglsl\VolumeRendering.vert" />
+    <None Include="..\lib-SLProject\source\oglsl\RayCastVolumeRendering.vert" />
+    <None Include="..\lib-SLProject\source\oglsl\SiddonVolumeRendering_TF.frag" />
+    <None Include="..\lib-SLProject\source\oglsl\SiddonVolumeRendering_MIP.frag" />
+    <None Include="..\lib-SLProject\source\oglsl\SamplingVolumeRendering_TF.frag" />
+    <None Include="..\lib-SLProject\source\oglsl\SamplingVolumeRendering_MIP.frag" />
+    <None Include="..\lib-SLProject\source\oglsl\SliceVolumeRendering.vert" />
+    <None Include="..\lib-SLProject\source\oglsl\SliceVolumeRendering.frag" />
   </ItemGroup>
 </Project>
