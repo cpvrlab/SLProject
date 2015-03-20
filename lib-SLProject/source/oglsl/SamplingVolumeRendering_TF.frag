@@ -82,6 +82,7 @@ void main()
     //Calculate the amount of steps to loop through
     int num_steps = int(floor(distance/(step_dist)));
     vec3 position = source;
+    gl_FragColor = vec4(0.0);
     for (int i = 0; i < num_steps; ++i) //Step along the view ray
     {
         //The voxel can be read directly from there assuming we're using GL_NEAREST as interpolation method
