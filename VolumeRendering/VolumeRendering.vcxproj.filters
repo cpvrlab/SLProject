@@ -1,0 +1,30 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="glUtils.cpp" />
+    <ClCompile Include="..\lib-SLProject\source\SL\SL.cpp" />
+    <ClCompile Include="..\lib-SLProject\source\SL\SLImage.cpp" />
+    <ClCompile Include="..\lib-SLProject\source\SL\stdafx.cpp" />
+    <ClCompile Include="VolumeRendering.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="SLProject">
+      <UniqueIdentifier>{91173a12-2db8-4773-a54b-4c7229c49556}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="glUtils.h" />
+    <ClInclude Include="..\include\SLMat3.h" />
+    <ClInclude Include="..\include\SLMat4.h" />
+    <ClInclude Include="..\include\SLVec3.h" />
+    <ClInclude Include="..\include\SL.h" />
+    <ClInclude Include="..\include\SLImage.h" />
+    <ClInclude Include="..\include\stdafx.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\lib-SLProject\source\oglsl\VolumeRenderingRayCast.frag" />
+    <None Include="..\lib-SLProject\source\oglsl\VolumeRenderingRayCast.vert" />
+    <None Include="..\lib-SLProject\source\oglsl\VolumeRendering.frag" />
+    <None Include="..\lib-SLProject\source\oglsl\VolumeRendering.vert" />
+  </ItemGroup>
+</Project>

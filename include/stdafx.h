@@ -15,6 +15,9 @@
 #ifndef STDAFX_H
 #define STDAFX_H
 
+#define _USE_MATH_DEFINES
+#define NOMINMAX
+
 //-----------------------------------------------------------------------------
 // Core headerfiles used by all files
 #include <SL.h>
