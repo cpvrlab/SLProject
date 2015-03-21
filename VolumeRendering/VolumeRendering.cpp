@@ -1,8 +1,8 @@
 //#############################################################################
-//  File:      TextureMapping.cpp
-//  Purpose:   Minimal core profile OpenGL application for ambient-diffuse-
-//             specular lighting shaders with Textures.
+//  File:      VolumeRendering.cpp
+//  Purpose:   Standalone volume rendering test application.
 //  Date:      February 2014
+//  Author:    Manuel Frischknecht
 //  Copyright: 2002-2014 Marcus Hudritsch
 //             This software is provide under the GNU General Public License
 //             Please visit: http://opensource.org/licenses/GPL-3.0
@@ -11,7 +11,6 @@
 #include "stdafx.h"
 
 #include "SL.h"        // Basic SL type definitions
-#include "SLMath.h"
 #include "glUtils.h"   // Basics for OpenGL shaders, buffers & textures
 #include "SLImage.h"   // Image class for image loading
 #include "SLVec3.h"    // 3D vector class
@@ -23,17 +22,7 @@
 #include <iomanip>
 #include <sstream>
 #include <iostream>
-#include <random>
-#include <regex>
 
-//-----------------------------------------------------------------------------
-//! Struct defintion for vertex attributes
-struct VertexPNT
-{
-   SLVec3f p;  // vertex position [x,y,z]
-   SLVec3f n;  // vertex normal [x,y,z]
-   SLVec2f t;  // vertex texture coord. [s,t]
-};
 //-----------------------------------------------------------------------------
 GLFWwindow* window;             //!< The global glfw window handle
 
@@ -93,69 +82,69 @@ const GLuint ALT   = 0x00800000;    //!< constant for alt key modifier
 // Sampling shaders and attributes/uniforms:
 
 //Sampling w/ maximum intensity projection
-GLuint   _mipSamplingVertexShader = 0;
-GLuint   _mipSamplingFragmentShader = 0;
+GLuint   _mipSamplingVertShader = 0;
+GLuint   _mipSamplingFragShader = 0;
 GLuint   _mipSamplingProgram = 0;
 
-GLint    _mipSamplingPosition = 0;
+GLint    _mipSamplingPos = 0;
 GLint    _mipSamplingMVP = 0;
-GLint    _mipSamplingEyePosition = 0;
+GLint    _mipSamplingEyePos  = 0;
 GLint    _mipSamplingVolume = 0;
-GLint    _mipSamplingVoxelScaling = 0;
+GLint    _mipSamplingVoxelScale  = 0;
 GLint    _mipSamplingTextureSize = 0;
 
 //Sampling w/ transfer function
-GLuint   _tfSamplingVertexShader = 0;
-GLuint   _tfSamplingFragmentShader = 0;
+GLuint   _tfSamplingVertShader = 0;
+GLuint   _tfSamplingFragShader = 0;
 GLuint   _tfSamplingProgram = 0;
 
-GLint    _tfSamplingPosition = 0;
+GLint    _tfSamplingPos = 0;
 GLint    _tfSamplingMVP = 0;
-GLint    _tfSamplingEyePosition = 0;
+GLint    _tfSamplingEyePos = 0;
 GLint    _tfSamplingVolume = 0;
 GLint    _tfSamplingTfLut = 0;
-GLint    _tfSamplingVoxelScaling = 0;
+GLint    _tfSamplingVoxelScale = 0;
 GLint    _tfSamplingTextureSize = 0;
 
 
 // Voxel walking shaders and attributes/uniforms:
 
-//Voxel walking w/ maximum intensity projection
-GLuint   _mipSiddonVertexShader = 0;
-GLuint   _mipSiddonFragmentShader = 0;
+//Voxel walking with maximum intensity projection
+GLuint   _mipSiddonVertShader = 0;
+GLuint   _mipSiddonFragShader  = 0;
 GLuint   _mipSiddonProgram = 0;
 
-GLint    _mipSiddonPosition = 0;
+GLint    _mipSiddonPos = 0;
 GLint    _mipSiddonMVP = 0;
-GLint    _mipSiddonEyePosition = 0;
+GLint    _mipSiddonEyePos = 0;
 GLint    _mipSiddonVolume = 0;
-GLint    _mipSiddonVoxelScaling = 0;
+GLint    _mipSiddonVoxelScale = 0;
 GLint    _mipSiddonTextureSize = 0;
 
-//Voxel walking w/ transfer function
-GLuint   _tfSiddonVertexShader = 0;
-GLuint   _tfSiddonFragmentShader = 0;
+//Voxel walking with transfer function
+GLuint   _tfSiddonVertShader = 0;
+GLuint   _tfSiddonFragShader  = 0;
 GLuint   _tfSiddonProgram = 0;
 
-GLint    _tfSiddonPosition = 0;
+GLint    _tfSiddonPos = 0;
 GLint    _tfSiddonMVP = 0;
-GLint    _tfSiddonEyePosition = 0;
+GLint    _tfSiddonEyePos = 0;
 GLint    _tfSiddonVolume = 0;
 GLint    _tfSiddonTfLut = 0;
-GLint    _tfSiddonVoxelScaling = 0;
+GLint    _tfSiddonVoxelScale = 0;
 GLint    _tfSiddonTextureSize = 0;
 
 //Slice shader and attributes/uniforms
-GLuint   _sliceVertexShader = 0;
-GLuint   _sliceFragmentShader = 0;
+GLuint   _sliceVertShader = 0;
+GLuint   _sliceFragShader  = 0;
 GLuint   _sliceProgram = 0;
 
-GLint    _slicePosition = 0;
+GLint    _slicePos = 0;
 GLint    _sliceMVP = 0;
-GLint    _sliceVolumeRotation = 0;
+GLint    _sliceVolumeRot = 0;
 GLint    _sliceVolume = 0;
 GLint    _sliceTfLut = 0;
-GLint    _sliceVoxelScaling = 0;
+GLint    _sliceVoxelScale = 0;
 GLint    _sliceTextureSize = 0;
 
 //Texture handles
@@ -169,190 +158,121 @@ int _volumeWidth = 0;
 int _volumeHeight = 0;
 int _volumeDepth = 0;
 
+// Triangle with 3 vertex indices
 struct Triangle
-{
+{   Triangle(GLuint i1=0, GLuint i2=0, GLuint i3=0)
+    {   indices[0] = i1;
+        indices[1] = i2;
+        indices[2] = i3;
+    }
     std::array<GLuint, 3> indices;
 };
 
-//struct Vertex
-//{
-//    std::array<GLfloat,3> position;
-//};
-
-SLVec3f* position;
-
-enum Dimensions
-{
-    DIM_X = 0,
-    DIM_Y = 1,
-    DIM_Z = 2,
-
-    RIGHT = (1 << DIM_X),
-    TOP   = (1 << DIM_Y),
-    FRONT = (1 << DIM_Z),
-
-    LEFT   = !RIGHT,
-    BOTTOM = !TOP,
-    BACK   = !FRONT
-};
-
-void compileProgram(GLuint &vertexShader, std::string vfile,
-                    GLuint &fragmentShader, std::string ffile,
-                    GLuint &program)
-{
-    vertexShader = glUtils::buildShader(vfile, GL_VERTEX_SHADER);
-    fragmentShader = glUtils::buildShader(ffile, GL_FRAGMENT_SHADER);
-    program = glUtils::buildProgram(vertexShader,fragmentShader);
-}
-
-void getVariables(GLint program,
-                  std::initializer_list<std::pair<GLint&,std::string>> attributes,
-                  std::initializer_list<std::pair<GLint&,std::string>> uniforms)
-{
-    for (auto &entry: attributes)
-        entry.first = glGetAttribLocation(program,entry.second.c_str());
-
-    for (auto &entry: uniforms)
-        entry.first = glGetUniformLocation(program,entry.second.c_str());
-}
-
 void compilePrograms()
 {
-    compileProgram(_mipSamplingVertexShader,   "../lib-SLProject/source/oglsl/VolumeRenderingRayCast.vert",
-                   _mipSamplingFragmentShader, "../lib-SLProject/source/oglsl/VolumeRenderingSampling_MIP.frag",
-                   _mipSamplingProgram);
+    SLstring glslDir = "../lib-SLProject/source/oglsl/";
+    _mipSamplingVertShader = glUtils::buildShader(glslDir + "VolumeRenderingRayCast.vert", GL_VERTEX_SHADER);
+    _mipSamplingFragShader = glUtils::buildShader(glslDir + "VolumeRenderingSampling_MIP.frag", GL_FRAGMENT_SHADER);
+    _mipSamplingProgram    = glUtils::buildProgram(_mipSamplingVertShader,_mipSamplingFragShader);
 
-    compileProgram(_tfSamplingVertexShader,    "../lib-SLProject/source/oglsl/VolumeRenderingRayCast.vert",
-                   _tfSamplingFragmentShader,  "../lib-SLProject/source/oglsl/VolumeRenderingSampling_TF.frag",
-                   _tfSamplingProgram);
+    _tfSamplingVertShader  = glUtils::buildShader(glslDir + "VolumeRenderingRayCast.vert", GL_VERTEX_SHADER);
+    _tfSamplingFragShader  = glUtils::buildShader(glslDir + "VolumeRenderingSampling_TF.frag", GL_FRAGMENT_SHADER);
+    _tfSamplingProgram     = glUtils::buildProgram(_tfSamplingVertShader,_tfSamplingFragShader);
 
-    compileProgram(_mipSiddonVertexShader,     "../lib-SLProject/source/oglsl/VolumeRenderingRayCast.vert",
-                   _mipSiddonFragmentShader,   "../lib-SLProject/source/oglsl/VolumeRenderingSiddon_MIP.frag",
-                   _mipSiddonProgram);
+    _mipSiddonVertShader   = glUtils::buildShader(glslDir + "VolumeRenderingRayCast.vert", GL_VERTEX_SHADER);
+    _mipSiddonFragShader   = glUtils::buildShader(glslDir + "VolumeRenderingSiddon_MIP.frag", GL_FRAGMENT_SHADER);
+    _mipSiddonProgram      = glUtils::buildProgram(_mipSiddonVertShader,_mipSiddonFragShader);
 
-    compileProgram(_tfSiddonVertexShader,      "../lib-SLProject/source/oglsl/VolumeRenderingRayCast.vert",
-                   _tfSiddonFragmentShader,    "../lib-SLProject/source/oglsl/VolumeRenderingSiddon_TF.frag",
-                   _tfSiddonProgram);
+    _tfSiddonVertShader    = glUtils::buildShader(glslDir + "VolumeRenderingRayCast.vert", GL_VERTEX_SHADER);
+    _tfSiddonFragShader    = glUtils::buildShader(glslDir + "VolumeRenderingSiddon_TF.frag", GL_FRAGMENT_SHADER);
+    _tfSiddonProgram       = glUtils::buildProgram(_tfSiddonVertShader,_tfSiddonFragShader);
 
-	compileProgram(_sliceVertexShader,         "../lib-SLProject/source/oglsl/VolumeRenderingSlicing.vert",
-                   _sliceFragmentShader,       "../lib-SLProject/source/oglsl/VolumeRenderingSlicing.frag",
-				   _sliceProgram);
+    _sliceVertShader       = glUtils::buildShader(glslDir + "VolumeRenderingSlicing.vert", GL_VERTEX_SHADER);
+    _sliceFragShader       = glUtils::buildShader(glslDir + "VolumeRenderingSlicing.frag", GL_FRAGMENT_SHADER);
+    _sliceProgram          = glUtils::buildProgram(_sliceVertShader,_sliceFragShader);
 
-    getVariables(_mipSamplingProgram, {
-                        { _mipSamplingPosition, "a_position" },
-                    }, {
-                        { _mipSamplingMVP, "u_mvpMatrix" },
-                        { _mipSamplingEyePosition, "u_eyePosition" },
-						{ _mipSamplingVolume, "u_volume" },
-                        { _mipSamplingVoxelScaling, "u_voxelScale" },
-                        { _mipSamplingTextureSize, "u_textureSize" }
-                    });
+    _mipSamplingPos        = glGetAttribLocation (_mipSamplingProgram, "a_position");
+    _mipSamplingMVP        = glGetUniformLocation(_mipSamplingProgram, "u_mvpMatrix");
+    _mipSamplingEyePos     = glGetUniformLocation(_mipSamplingProgram, "u_eyePosition");
+    _mipSamplingVolume     = glGetUniformLocation(_mipSamplingProgram, "u_volume");
+    _mipSamplingVoxelScale = glGetUniformLocation(_mipSamplingProgram, "u_voxelScale");
+    _mipSamplingTextureSize= glGetUniformLocation(_mipSamplingProgram, "u_textureSize");
 
-    getVariables(_tfSamplingProgram, {
-                        { _tfSamplingPosition, "a_position" },
-                    }, {
-                        { _tfSamplingMVP, "u_mvpMatrix" },
-                        { _tfSamplingEyePosition, "u_eyePosition" },
-                        { _tfSamplingVolume, "u_volume" },
-						{ _tfSamplingTfLut, "u_TfLut" },
-                        { _tfSamplingVoxelScaling, "u_voxelScale" },
-                        { _tfSamplingTextureSize, "u_textureSize" }
-                    });
+    _tfSamplingPos         = glGetAttribLocation (_tfSamplingProgram, "a_position");
+    _tfSamplingMVP         = glGetUniformLocation(_tfSamplingProgram, "u_mvpMatrix");
+    _tfSamplingEyePos      = glGetUniformLocation(_tfSamplingProgram, "u_eyePosition");
+    _tfSamplingVolume      = glGetUniformLocation(_tfSamplingProgram, "u_volume");
+    _tfSamplingTfLut       = glGetUniformLocation(_tfSamplingProgram, "u_TfLut");
+    _tfSamplingVoxelScale  = glGetUniformLocation(_tfSamplingProgram, "u_voxelScale");
+    _tfSamplingTextureSize = glGetUniformLocation(_tfSamplingProgram, "u_textureSize");
 
-    getVariables(_mipSiddonProgram, {
-                        { _mipSiddonPosition, "a_position" },
-                    }, {
-                        { _mipSiddonMVP, "u_mvpMatrix" },
-                        { _mipSiddonEyePosition, "u_eyePosition" },
-						{ _mipSiddonVolume, "u_volume" },
-                        { _mipSiddonVoxelScaling, "u_voxelScale" },
-                        { _mipSiddonTextureSize, "u_textureSize" }
-                    });
+    _mipSiddonPos          = glGetAttribLocation (_mipSiddonProgram, "a_position");
+    _mipSiddonMVP          = glGetUniformLocation(_mipSiddonProgram, "u_mvpMatrix");
+    _mipSiddonEyePos       = glGetUniformLocation(_mipSiddonProgram, "u_eyePosition");
+    _mipSiddonVolume       = glGetUniformLocation(_mipSiddonProgram, "u_volume");
+    _mipSiddonVoxelScale   = glGetUniformLocation(_mipSiddonProgram, "u_voxelScale");
+    _mipSiddonTextureSize  = glGetUniformLocation(_mipSiddonProgram, "u_textureSize");
 
-    getVariables(_tfSiddonProgram, {
-                        { _tfSiddonPosition, "a_position" },
-                    }, {
-                        { _tfSiddonMVP, "u_mvpMatrix" },
-                        { _tfSiddonEyePosition, "u_eyePosition" },
-                        { _tfSiddonVolume, "u_volume" },
-						{ _tfSiddonTfLut, "u_TfLut" },
-                        { _tfSiddonVoxelScaling, "u_voxelScale" },
-                        { _tfSiddonTextureSize, "u_textureSize" }
-					});
+    _tfSiddonPos           = glGetAttribLocation (_tfSiddonProgram, "a_position");
+    _tfSiddonMVP           = glGetUniformLocation(_tfSiddonProgram, "u_mvpMatrix");
+    _tfSiddonEyePos        = glGetUniformLocation(_tfSiddonProgram, "u_eyePosition");
+    _tfSiddonVolume        = glGetUniformLocation(_tfSiddonProgram, "u_volume");
+    _tfSiddonTfLut         = glGetUniformLocation(_tfSiddonProgram, "u_TfLut");
+    _tfSiddonVoxelScale    = glGetUniformLocation(_tfSiddonProgram, "u_voxelScale");
+    _tfSiddonTextureSize   = glGetUniformLocation(_tfSiddonProgram, "u_textureSize");
 
-	getVariables(_sliceProgram, {
-						{ _slicePosition, "a_position" },
-					}, {
-						{ _sliceMVP, "u_mvpMatrix" },
-						{ _sliceVolumeRotation, "u_volumeRotationMatrix" },
-						{ _sliceVolume, "u_volume" },
-						{ _sliceTfLut, "u_TfLut" },
-                        { _sliceVoxelScaling, "u_voxelScale" },
-                        { _sliceTextureSize, "u_textureSize" }
-					});
+    _slicePos              = glGetAttribLocation (_sliceProgram, "a_position");
+    _sliceMVP              = glGetUniformLocation(_sliceProgram, "u_mvpMatrix");
+    _sliceVolumeRot        = glGetUniformLocation(_sliceProgram, "u_volumeRotationMatrix");
+    _sliceVolume           = glGetUniformLocation(_sliceProgram, "u_volume");
+    _sliceTfLut            = glGetUniformLocation(_sliceProgram, "u_TfLut");
+    _sliceVoxelScale       = glGetUniformLocation(_sliceProgram, "u_voxelScale");
+    _sliceTextureSize      = glGetUniformLocation(_sliceProgram, "u_textureSize");
 }
 
 void deletePrograms()
 {
-    glDeleteShader(_mipSamplingVertexShader);
-    glDeleteShader(_mipSamplingFragmentShader);
+    glDeleteShader(_mipSamplingVertShader);
+    glDeleteShader(_mipSamplingFragShader );
     glDeleteProgram(_mipSamplingProgram);
 
-    glDeleteShader(_tfSamplingVertexShader);
-    glDeleteShader(_tfSamplingFragmentShader);
+    glDeleteShader(_tfSamplingVertShader);
+    glDeleteShader(_tfSamplingFragShader );
     glDeleteProgram(_tfSamplingProgram);
 
-    glDeleteShader(_mipSiddonVertexShader);
-    glDeleteShader(_mipSiddonFragmentShader);
+    glDeleteShader(_mipSiddonVertShader);
+    glDeleteShader(_mipSiddonFragShader);
     glDeleteProgram(_mipSiddonProgram);
 
-    glDeleteShader(_tfSiddonVertexShader);
-    glDeleteShader(_tfSiddonFragmentShader);
+    glDeleteShader(_tfSiddonVertShader);
+    glDeleteShader(_tfSiddonFragShader );
     glDeleteProgram(_tfSiddonProgram);
 }
 
-void buildQuads()
+void buildSliceQuads()
 {
-	struct Quad
-	{
-		Quad(int slice, int slices)
-		{
-			//The maximal length in the cube in any dimension is reached when
-			//the cube is seen at a 45° angle.
-			//Thus, the length of the enclosing bounding cube is sqrt(1^2 + 1^2 + 1^2) = sqrt(3)
-			//in any direction.
-			const float length_factor = sqrt(3.0f);
-
-			for (int i = 0; i < 4; ++i)
-			{
-                vertices[i] = SLVec3f((i & RIGHT ? 1.0f : -1.0f) * length_factor,
-                                      (i & TOP   ? 1.0f : -1.0f) * length_factor,
-                                      ((2.0f*slice) / slices - 1.0f) * length_factor);
-			}
-			triangles[0] = { 0, 1, 2 };
-			triangles[1] = { 1, 2, 3 };
-
-			for (auto &t : triangles)
-				for (auto &i : t.indices)
-					i += 4 * slice; //Adjust to the "global" vertex number
-		}
-
-        std::array<SLVec3f, 4> vertices;
-		std::array<Triangle, 2> triangles;
-	};
-
     std::vector<SLVec3f> vertices;
-	std::vector<Triangle> triangles;
+    std::vector<Triangle> triangles;
 
-	vertices.reserve(4 * _numQuads);
-	triangles.reserve(2 * _numQuads);
+    // The maximal length in the cube in any dimension is
+    // reached when the cube is seen at a 45° angle.
+    // Thus, the length of the enclosing bounding cube is
+    // sqrt(1^2 + 1^2 + 1^2) = sqrt(3) in any direction.
+    const float sqrt3 = sqrt(3.0f);
 
-	for (int i = 0; i < _numQuads; ++i)
-	{
-		Quad quad(i, _numQuads);
-		for (auto &v : quad.vertices) vertices.push_back(v);
-		for (auto &t : quad.triangles) triangles.push_back(t);
-	}
+    for (int i = 0; i < _numQuads; ++i)
+    {
+        // add 4 verices of a quad
+        SLfloat sliceZ = ((2.0f*i) / _numQuads - 1.0f) * sqrt3; // [-1 .. 1] * sqrt(3)
+        vertices.push_back(SLVec3f(-sqrt3, -sqrt3, sliceZ));
+        vertices.push_back(SLVec3f( sqrt3, -sqrt3, sliceZ));
+        vertices.push_back(SLVec3f(-sqrt3,  sqrt3, sliceZ));
+        vertices.push_back(SLVec3f( sqrt3,  sqrt3, sliceZ));
+
+        // add 2 triangle indexes
+        triangles.push_back(Triangle(i*4+0, i*4+1, i*4+2));
+        triangles.push_back(Triangle(i*4+1, i*4+2, i*4+3));
+    }
 
 	_quadVboV = glUtils::buildVBO(vertices.data(),
                                   vertices.size(),
@@ -379,21 +299,14 @@ void destroyQuads()
 
 void buildCube()
 {
-    auto createVertex = [](int i) {
-        return SLVec3f(i & RIGHT ? 1.0f : -1.0f,
-                       i & TOP   ? 1.0f : -1.0f,
-                       i & FRONT ? 1.0f : -1.0f);
-    };
-
-    std::array<SLVec3f, 8> vertices = {createVertex(0),
-                                       createVertex(1),
-                                       createVertex(2),
-                                       createVertex(3),
-                                       createVertex(4),
-                                       createVertex(5),
-                                       createVertex(6),
-                                       createVertex(7)
-                                      };
+    std::array<SLVec3f, 8> vertices = {SLVec3f(-1,-1,-1),
+                                       SLVec3f( 1,-1,-1),
+                                       SLVec3f(-1, 1,-1),
+                                       SLVec3f( 1, 1,-1),
+                                       SLVec3f(-1,-1, 1),
+                                       SLVec3f( 1,-1, 1),
+                                       SLVec3f(-1, 1, 1),
+                                       SLVec3f( 1, 1, 1)};
 
     _cubeVboV = glUtils::buildVBO(vertices.data(),
                                   vertices.size(),
@@ -404,31 +317,14 @@ void buildCube()
                                  );
 
     std::array<Triangle, 12> triangles =
-    {
-        //Back face
-		Triangle{ RIGHT + BOTTOM + BACK, LEFT + BOTTOM + BACK, LEFT  + TOP + BACK },
-		Triangle{ RIGHT + BOTTOM + BACK, LEFT + TOP    + BACK, RIGHT + TOP + BACK },
-
-        //Front face
-        Triangle{ LEFT + BOTTOM + FRONT,  RIGHT + BOTTOM + FRONT, LEFT + TOP + FRONT },
-        Triangle{ RIGHT + BOTTOM + FRONT, RIGHT + TOP + FRONT,    LEFT + TOP + FRONT },
-
-        //Left face
-		Triangle{ LEFT + BOTTOM + BACK,  LEFT + BOTTOM + FRONT, LEFT + TOP + BACK },
-		Triangle{ LEFT + BOTTOM + FRONT, LEFT + TOP    + FRONT, LEFT + TOP + BACK },
-
-        //Right face
-        Triangle{ RIGHT + BOTTOM + BACK,  RIGHT + TOP + BACK, RIGHT + BOTTOM + FRONT },
-        Triangle{ RIGHT + BOTTOM + FRONT, RIGHT + TOP + BACK, RIGHT + TOP + FRONT    },
-
-        //Bottom face
-        Triangle{ LEFT + BOTTOM + BACK, RIGHT + BOTTOM + BACK,  RIGHT + BOTTOM + FRONT },
-		Triangle{ LEFT + BOTTOM + BACK, RIGHT + BOTTOM + FRONT, LEFT  + BOTTOM + FRONT, },
-
-        //Top face
-		Triangle{ RIGHT + TOP + BACK, LEFT + TOP + BACK,  RIGHT + TOP + FRONT },
-        Triangle{ LEFT  + TOP + BACK, LEFT + TOP + FRONT, RIGHT + TOP + FRONT }
+    {   Triangle(1,0,2), Triangle(1,2,3),   //Back face
+        Triangle(4,5,6), Triangle(5,7,6),   //Front face
+        Triangle(0,4,2), Triangle(4,6,2),   //Left face
+        Triangle(1,3,5), Triangle(5,3,7),   //Right face
+        Triangle(0,1,5), Triangle(0,5,4),   //Bottom face
+        Triangle(3,2,7), Triangle(2,6,7)    //Top face
     };
+
 
     _cubeNumI = triangles.size()*3;
     _cubeVboI = glUtils::buildVBO(triangles.data(),
@@ -438,6 +334,7 @@ void buildCube()
                               GL_ELEMENT_ARRAY_BUFFER,
                               GL_STATIC_DRAW
                               );
+    GET_GL_ERROR;
 }
 
 void drawSamplingMIP()
@@ -469,8 +366,8 @@ void drawSamplingMIP()
 	glDisable(GL_TEXTURE_3D);
 		
     glUniformMatrix4fv(_mipSamplingMVP, 1, 0, (float*)&mvp);
-	glUniform3fv(_mipSamplingEyePosition, 1, (float*)&eye);
-	glUniform3fv(_mipSamplingVoxelScaling, 1, (float*)&_voxelScaling);
+    glUniform3fv(_mipSamplingEyePos , 1, (float*)&eye);
+    glUniform3fv(_mipSamplingVoxelScale , 1, (float*)&_voxelScaling);
 
     SLVec3f size(_volumeWidth, _volumeHeight, _volumeDepth);
     glUniform3fv(_mipSamplingTextureSize, 1, (float*)&size);
@@ -478,23 +375,21 @@ void drawSamplingMIP()
 	glBindBuffer(GL_ARRAY_BUFFER, _cubeVboV);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _cubeVboI);
 
-    glEnableVertexAttribArray(_mipSamplingPosition);
+    glEnableVertexAttribArray(_mipSamplingPos);
 
-    glVertexAttribPointer(_mipSamplingPosition,
+    glVertexAttribPointer(_mipSamplingPos,
                           3,
                           GL_FLOAT,
                           GL_FALSE,
                           sizeof(SLVec3f),
-                          (void*)position);
+                          0);
 
 	glDrawElements(GL_TRIANGLES, _cubeNumI, GL_UNSIGNED_INT, 0);
 
-    glDisableVertexAttribArray(_mipSamplingPosition);
+    glDisableVertexAttribArray(_mipSamplingPos);
 
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-
-	GET_GL_ERROR;
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 }
 
 void drawSamplingTF()
@@ -531,8 +426,8 @@ void drawSamplingTF()
 	glDisable(GL_TEXTURE_1D);
 
 	glUniformMatrix4fv(_tfSamplingMVP, 1, 0, (float*)&mvp);
-	glUniform3fv(_tfSamplingEyePosition, 1, (float*)&eye);
-	glUniform3fv(_tfSamplingVoxelScaling, 1, (float*)&_voxelScaling);
+    glUniform3fv(_tfSamplingEyePos, 1, (float*)&eye);
+    glUniform3fv(_tfSamplingVoxelScale, 1, (float*)&_voxelScaling);
 
     SLVec3f size(_volumeWidth, _volumeHeight, _volumeDepth);
     glUniform3fv(_tfSamplingTextureSize, 1, (float*)&size);
@@ -540,23 +435,21 @@ void drawSamplingTF()
 	glBindBuffer(GL_ARRAY_BUFFER, _cubeVboV);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _cubeVboI);
 
-	glEnableVertexAttribArray(_tfSamplingPosition);
+    glEnableVertexAttribArray(_tfSamplingPos);
 
-    glVertexAttribPointer(_tfSamplingPosition,
+    glVertexAttribPointer(_tfSamplingPos,
                           3,
                           GL_FLOAT,
                           GL_FALSE,
                           sizeof(SLVec3f),
-                          (void*)position);
+                          0);
 
 	glDrawElements(GL_TRIANGLES, _cubeNumI, GL_UNSIGNED_INT, 0);
 
-	glDisableVertexAttribArray(_tfSamplingPosition);
+    glDisableVertexAttribArray(_tfSamplingPos);
 
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-
-	GET_GL_ERROR;
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 }
 
 void drawSiddonMIP()
@@ -590,8 +483,8 @@ void drawSiddonMIP()
 	glDisable(GL_TEXTURE_3D);
 
 	glUniformMatrix4fv(_mipSiddonMVP, 1, 0, (float*)&mvp);
-	glUniform3fv(_mipSiddonEyePosition, 1, (float*)&eye);
-	glUniform3fv(_mipSiddonVoxelScaling, 1, (float*)&_voxelScaling);
+    glUniform3fv(_mipSiddonEyePos, 1, (float*)&eye);
+    glUniform3fv(_mipSiddonVoxelScale, 1, (float*)&_voxelScaling);
 
     SLVec3f size(_volumeWidth, _volumeHeight, _volumeDepth);
     glUniform3fv(_mipSiddonTextureSize, 1, (float*)&size);
@@ -599,23 +492,21 @@ void drawSiddonMIP()
 	glBindBuffer(GL_ARRAY_BUFFER, _cubeVboV);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _cubeVboI);
 
-	glEnableVertexAttribArray(_mipSiddonPosition);
+    glEnableVertexAttribArray(_mipSiddonPos);
 
-    glVertexAttribPointer(_mipSiddonPosition,
+    glVertexAttribPointer(_mipSiddonPos,
                           3,
                           GL_FLOAT,
                           GL_FALSE,
                           sizeof(SLVec3f),
-                          (void*)position);
+                          0);
 
 	glDrawElements(GL_TRIANGLES, _cubeNumI, GL_UNSIGNED_INT, 0);
 
-	glDisableVertexAttribArray(_mipSiddonPosition);
+    glDisableVertexAttribArray(_mipSiddonPos);
 
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-
-	GET_GL_ERROR;
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 }
 
 void drawSiddonTF()
@@ -652,8 +543,8 @@ void drawSiddonTF()
 	glDisable(GL_TEXTURE_1D);
 
 	glUniformMatrix4fv(_tfSiddonMVP, 1, 0, (float*)&mvp);
-	glUniform3fv(_tfSiddonEyePosition, 1, (float*)&eye);
-	glUniform3fv(_tfSiddonVoxelScaling, 1, (float*)&_voxelScaling);
+    glUniform3fv(_tfSiddonEyePos, 1, (float*)&eye);
+    glUniform3fv(_tfSiddonVoxelScale, 1, (float*)&_voxelScaling);
 
     SLVec3f size(_volumeWidth, _volumeHeight, _volumeDepth);
     glUniform3fv(_tfSiddonTextureSize, 1, (float*)&size);
@@ -661,21 +552,19 @@ void drawSiddonTF()
 	glBindBuffer(GL_ARRAY_BUFFER, _cubeVboV);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _cubeVboI);
 
-	glEnableVertexAttribArray(_tfSiddonPosition);
+    glEnableVertexAttribArray(_tfSiddonPos);
 
-	glVertexAttribPointer(_tfSiddonPosition,
+    glVertexAttribPointer(_tfSiddonPos,
                           3, GL_FLOAT, GL_FALSE,
                           sizeof(SLVec3f),
-                          (void*)position);
+                          0);
 
 	glDrawElements(GL_TRIANGLES, _cubeNumI, GL_UNSIGNED_INT, 0);
 
-	glDisableVertexAttribArray(_tfSiddonPosition);
+    glDisableVertexAttribArray(_tfSiddonPos);
 
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-
-	GET_GL_ERROR;
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 }
 
 void drawSlicesMIP()
@@ -696,8 +585,8 @@ void drawSlicesMIP()
 	glUseProgram(_sliceProgram);
 
 	glUniformMatrix4fv(_sliceMVP, 1, 0, (float*)&mvp);
-	glUniformMatrix4fv(_sliceVolumeRotation, 1, 0, (float*)&_volumeRotationMatrix);
-	glUniform3fv(_sliceVoxelScaling, 1, (float*)&_voxelScaling);
+    glUniformMatrix4fv(_sliceVolumeRot, 1, 0, (float*)&_volumeRotationMatrix);
+    glUniform3fv(_sliceVoxelScale, 1, (float*)&_voxelScaling);
 
     SLVec3f size(_volumeWidth, _volumeHeight, _volumeDepth);
     glUniform3fv(_sliceTextureSize, 1, (float*)&size);
@@ -717,14 +606,14 @@ void drawSlicesMIP()
 	glBindBuffer(GL_ARRAY_BUFFER, _quadVboV);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _quadVboI);
 
-	glEnableVertexAttribArray(_slicePosition);
-	glVertexAttribPointer(_slicePosition,
+    glEnableVertexAttribArray(_slicePos);
+    glVertexAttribPointer(_slicePos,
 		                  3, GL_FLOAT, GL_FALSE,
                           sizeof(SLVec3f),
-                          (void*)position);
+                          0);
 
 	glDrawElements(GL_TRIANGLES, _quadNumI, GL_UNSIGNED_INT, 0);
-	glDisableVertexAttribArray(_slicePosition);
+    glDisableVertexAttribArray(_slicePos);
 
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
@@ -749,7 +638,7 @@ void drawSlicesTF()
 	glUseProgram(_sliceProgram);
 
 	glUniformMatrix4fv(_sliceMVP, 1, 0, (float*)&mvp);
-	glUniformMatrix4fv(_sliceVolumeRotation, 1, 0, (float*)&_volumeRotationMatrix);
+    glUniformMatrix4fv(_sliceVolumeRot, 1, 0, (float*)&_volumeRotationMatrix);
 
     SLVec3f size(_volumeWidth, _volumeHeight, _volumeDepth);
     glUniform3fv(_sliceTextureSize, 1, (float*)&size);
@@ -769,14 +658,14 @@ void drawSlicesTF()
 	glBindBuffer(GL_ARRAY_BUFFER, _quadVboV);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _quadVboI);
 
-	glEnableVertexAttribArray(_slicePosition);
-	glVertexAttribPointer(_slicePosition,
+    glEnableVertexAttribArray(_slicePos);
+    glVertexAttribPointer(_slicePos,
                           3, GL_FLOAT, GL_FALSE,
                           sizeof(SLVec3f),
-                          (void*)position);
+                          0);
 
 	glDrawElements(GL_TRIANGLES, _quadNumI, GL_UNSIGNED_INT, 0);
-	glDisableVertexAttribArray(_slicePosition);
+    glDisableVertexAttribArray(_slicePos);
 
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
@@ -855,7 +744,6 @@ void buildMaxIntensityLut()
 	{
 		float f = float(i++) / _tfLutBuffer.size();
         color.set(f, f, f, f);
-        //for (auto &channel : color) channel = f;
 	}
 	applyLut();
 }
@@ -956,7 +844,7 @@ void onInit()
 {
     updateRenderMethodDescription();
 
-    buildQuads();
+    buildSliceQuads();
     GET_GL_ERROR;
 
     buildCube();
@@ -1029,7 +917,7 @@ bool onPaint()
         case SIDDON   + ALPHA_BLENDING_CUSTOM_TF_LUT:    drawSamplingTF();	break;
         case SLICING  + MAXIMUM_INTENSITY_PROJECTION:    drawSlicesMIP();	break;
         case SLICING  + ALPHA_BLENDING_TF_LUT:
-        case SLICING  + ALPHA_BLENDING_CUSTOM_TF_LUT:    drawSlicesTF();     break;
+        case SLICING  + ALPHA_BLENDING_CUSTOM_TF_LUT:    drawSlicesTF();    break;
     }
 
     // Check for errors from time to time
@@ -1137,7 +1025,7 @@ void onMouseWheel(GLFWwindow* window, double xscroll, double yscroll)
         _numQuads += int(SL_sign(yscroll)) * 10;
         _numQuads = std::max(std::min(_numQuads, maxNumSlices), minNumSlices);
         destroyQuads();
-        buildQuads();
+        buildSliceQuads();
         updateRenderMethodDescription();
     }
 }

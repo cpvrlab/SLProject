@@ -36,13 +36,10 @@ SOURCES += ../lib-SLProject/source/SL/SL.cpp
 HEADERS += glUtils.h
 HEADERS += ../include/SLImage.h
 
-OTHER_FILES += ../lib-SLProject/source/oglsl/RayCastVolumeRendering.vert
-OTHER_FILES += ../lib-SLProject/source/oglsl/SiddonVolumeRendering_TF.frag
-OTHER_FILES += ../lib-SLProject/source/oglsl/SiddonVolumeRendering_MIP.frag
-OTHER_FILES += ../lib-SLProject/source/oglsl/SamplingVolumeRendering_TF.frag
-OTHER_FILES += ../lib-SLProject/source/oglsl/SamplingVolumeRendering_MIP.frag
-OTHER_FILES += ../lib-SLProject/source/oglsl/SliceVolumeRendering.vert
-OTHER_FILES += ../lib-SLProject/source/oglsl/SliceVolumeRendering.frag
-
-
-
+OTHER_FILES += ../lib-SLProject/source/oglsl/VolumeRenderingRayCast.vert
+OTHER_FILES += ../lib-SLProject/source/oglsl/VolumeRenderingSiddon_TF.frag
+OTHER_FILES += ../lib-SLProject/source/oglsl/VolumeRenderingSiddon_MIP.frag
+OTHER_FILES += ../lib-SLProject/source/oglsl/VolumeRenderingSampling_TF.frag
+OTHER_FILES += ../lib-SLProject/source/oglsl/VolumeRenderingSampling_MIP.frag
+OTHER_FILES += ../lib-SLProject/source/oglsl/VolumeRenderingSlicing.vert
+OTHER_FILES += ../lib-SLProject/source/oglsl/VolumeRenderingSlicing.frag
