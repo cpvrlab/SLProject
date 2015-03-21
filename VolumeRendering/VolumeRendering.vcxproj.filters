@@ -8,11 +8,6 @@
     <ClCompile Include="VolumeRendering.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <Filter Include="SLProject">
-      <UniqueIdentifier>{91173a12-2db8-4773-a54b-4c7229c49556}</UniqueIdentifier>
-    </Filter>
-  </ItemGroup>
-  <ItemGroup>
     <ClInclude Include="glUtils.h" />
     <ClInclude Include="..\include\SLMat3.h" />
     <ClInclude Include="..\include\SLMat4.h" />
@@ -22,12 +17,31 @@
     <ClInclude Include="..\include\stdafx.h" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\lib-SLProject\source\oglsl\RayCastVolumeRendering.vert" />
-    <None Include="..\lib-SLProject\source\oglsl\SiddonVolumeRendering_TF.frag" />
-    <None Include="..\lib-SLProject\source\oglsl\SiddonVolumeRendering_MIP.frag" />
-    <None Include="..\lib-SLProject\source\oglsl\SamplingVolumeRendering_TF.frag" />
-    <None Include="..\lib-SLProject\source\oglsl\SamplingVolumeRendering_MIP.frag" />
-    <None Include="..\lib-SLProject\source\oglsl\SliceVolumeRendering.vert" />
-    <None Include="..\lib-SLProject\source\oglsl\SliceVolumeRendering.frag" />
+    <None Include="..\lib-SLProject\source\oglsl\VolumeRenderingRayCast.vert">
+      <Filter>GLSL</Filter>
+    </None>
+    <None Include="..\lib-SLProject\source\oglsl\VolumeRenderingSampling_MIP.frag">
+      <Filter>GLSL</Filter>
+    </None>
+    <None Include="..\lib-SLProject\source\oglsl\VolumeRenderingSampling_TF.frag">
+      <Filter>GLSL</Filter>
+    </None>
+    <None Include="..\lib-SLProject\source\oglsl\VolumeRenderingSiddon_MIP.frag">
+      <Filter>GLSL</Filter>
+    </None>
+    <None Include="..\lib-SLProject\source\oglsl\VolumeRenderingSiddon_TF.frag">
+      <Filter>GLSL</Filter>
+    </None>
+    <None Include="..\lib-SLProject\source\oglsl\VolumeRenderingSlicing.frag">
+      <Filter>GLSL</Filter>
+    </None>
+    <None Include="..\lib-SLProject\source\oglsl\VolumeRenderingSlicing.vert">
+      <Filter>GLSL</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="GLSL">
+      <UniqueIdentifier>{004edf2b-fd3f-4d7b-8a5d-4d798f9cd09b}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
 </Project>

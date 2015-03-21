@@ -1,5 +1,5 @@
 //#############################################################################
-//  File:      RayCastVolumeRendering.vert
+//  File:      VolumeRenderingRayCast.vert
 //  Purpose:   Base vertex shader that allows for raycast volume rendering through
 //             a proxy geometry (usually a cube). The position of each vertex is
 //             copied into a varying, that provides the entry position of the

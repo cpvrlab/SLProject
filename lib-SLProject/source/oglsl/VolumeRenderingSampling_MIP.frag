@@ -1,5 +1,5 @@
 //#############################################################################
-//  File:      SamplingVolumeRendering_MIP.frag
+//  File:      VolumeRenderingSampling_MIP.frag
 //  Purpose:   GLSL fragment shader performing volume rendering using a simple
 //             sampling method along the view ray. The resulting color is
 //             calculated using maximum intensity projection.

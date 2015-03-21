@@ -1,5 +1,5 @@
 //#############################################################################
-//  File:      SiddonVolumeRendering_MIP.frag
+//  File:      VolumeRenderingSiddon_MIP.frag
 //  Purpose:   GLSL fragment shader performing volume rendering using Siddon's
 //             algorithm. The resulting color is calculated using maximum
 //             intensity projection.

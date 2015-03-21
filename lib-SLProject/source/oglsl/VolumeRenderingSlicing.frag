@@ -1,5 +1,5 @@
 //#############################################################################
-//  File:      SliceVolumeRendering.vert
+//  File:      VolumeRenderingSlicing.frag
 //  Purpose:   Vertex shader for slice-based volume rendering. The slices are
 //             created as multiple quads aligned in a cubic shape.
 //             The samples (as computed by this shader) have to be combined

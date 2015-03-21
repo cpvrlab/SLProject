@@ -40,13 +40,13 @@
     <ClInclude Include="glUtils.h" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\lib-SLProject\source\oglsl\RayCastVolumeRendering.vert" />
-    <None Include="..\lib-SLProject\source\oglsl\SiddonVolumeRendering_TF.frag" />
-    <None Include="..\lib-SLProject\source\oglsl\SiddonVolumeRendering_MIP.frag" />
-    <None Include="..\lib-SLProject\source\oglsl\SamplingVolumeRendering_TF.frag" />
-    <None Include="..\lib-SLProject\source\oglsl\SamplingVolumeRendering_MIP.frag" />
-    <None Include="..\lib-SLProject\source\oglsl\SliceVolumeRendering.vert" />
-    <None Include="..\lib-SLProject\source\oglsl\SliceVolumeRendering.frag" />
+    <None Include="..\lib-SLProject\source\oglsl\VolumeRenderingRayCast.vert" />
+    <None Include="..\lib-SLProject\source\oglsl\VolumeRenderingSiddon_TF.frag" />
+    <None Include="..\lib-SLProject\source\oglsl\VolumeRenderingSiddon_MIP.frag" />
+    <None Include="..\lib-SLProject\source\oglsl\VolumeRenderingSampling_TF.frag" />
+    <None Include="..\lib-SLProject\source\oglsl\VolumeRenderingSampling_MIP.frag" />
+    <None Include="..\lib-SLProject\source\oglsl\VolumeRenderingSlicing.vert" />
+    <None Include="..\lib-SLProject\source\oglsl\VolumeRenderingSlicing.frag" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{AD06379D-1767-41AA-A877-33857D32D7A0}</ProjectGuid>

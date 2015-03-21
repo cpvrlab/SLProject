@@ -35,47 +35,47 @@ struct VertexPNT
    SLVec2f t;  // vertex texture coord. [s,t]
 };
 //-----------------------------------------------------------------------------
-GLFWwindow* window;                 //!< The global glfw window handle
+GLFWwindow* window;             //!< The global glfw window handle
 
 // GLobal application variables
-SLVec3f  _voxelScaling = { 1.0f, 1.0f, 1.0f };
-SLMat4f  _volumeRotationMatrix;     //!< 4x4 volume rotation matrix
-SLMat4f  _modelViewMatrix;          //!< 4x4 modelview matrix
-SLMat4f  _projectionMatrix;         //!< 4x4 projection matrix
+SLVec3f _voxelScaling = { 1.0f, 1.0f, 1.0f };
+SLMat4f _volumeRotationMatrix;  //!< 4x4 volume rotation matrix
+SLMat4f _modelViewMatrix;       //!< 4x4 modelview matrix
+SLMat4f _projectionMatrix;      //!< 4x4 projection matrix
 
-SLint     _scrWidth;                //!< Window width at start up
-SLint     _scrHeight;               //!< Window height at start up
-SLfloat   _scr2fbX;                 //!< Factor from screen to framebuffer coords
-SLfloat   _scr2fbY;                 //!< Factor from screen to framebuffer coords
+SLint   _scrWidth;              //!< Window width at start up
+SLint   _scrHeight;             //!< Window height at start up
+SLfloat _scr2fbX;               //!< Factor from screen to framebuffer coords
+SLfloat _scr2fbY;               //!< Factor from screen to framebuffer coords
 
 //Cube geometry
-GLuint    _cubeNumI = 0; //!< Number of vertex indices
-GLuint    _cubeVboV = 0; //!< Handle for the vertex VBO on the GPU
-GLuint    _cubeVboI = 0; //!< Handle for the vertex index VBO on the GPU
+GLuint  _cubeNumI = 0;          //!< Number of vertex indices
+GLuint  _cubeVboV = 0;          //!< Handle for the vertex VBO on the GPU
+GLuint  _cubeVboI = 0;          //!< Handle for the vertex index VBO on the GPU
 
 //Slices geometry
-int _numQuads = 350;   //!< Number of quads (slices) used
-GLuint _quadNumI = 0;  //!< Number of vertex indices
-GLuint _quadVboV = 0;  //!< Handle for the vertex VBO on the GPU
-GLuint _quadVboI = 0;  //!< Handle for the vertex index VBO on the GPU
+SLint   _numQuads = 350;        //!< Number of quads (slices) used
+GLuint  _quadNumI = 0;          //!< Number of vertex indices
+GLuint  _quadVboV = 0;          //!< Handle for the vertex VBO on the GPU
+GLuint  _quadVboI = 0;          //!< Handle for the vertex index VBO on the GPU
 
 enum RenderMethod
 {
 	SAMPLING = 1 << 0,
-	SIDDON = 1 << 1,
-	SLICING = 1 << 2
+	SIDDON   = 1 << 1,
+	SLICING  = 1 << 2
 };
 
 enum DisplayMethod
 {
 	MAXIMUM_INTENSITY_PROJECTION = 1 << 3,
-	ALPHA_BLENDING_TF_LUT = 1 << 4,
+	ALPHA_BLENDING_TF_LUT        = 1 << 4,
 	ALPHA_BLENDING_CUSTOM_TF_LUT = 1 << 5
 };
 
 DisplayMethod _displayMethod = MAXIMUM_INTENSITY_PROJECTION; //!< The display method in use
 RenderMethod  _renderMethod = SAMPLING;                      //!< The render method in use
-std::string   _renderMethodDescription = "";                 //!< A description of the current render and display methods
+SLstring      _renderMethodDescription = "";                 //!< A description of the current render and display methods
 
 
 float    _camZ;                     //!< z-distance of camera
@@ -218,24 +218,24 @@ void getVariables(GLint program,
 
 void compilePrograms()
 {
-    compileProgram(_mipSamplingVertexShader, "../lib-SLProject/source/oglsl/RayCastVolumeRendering.vert",
-                   _mipSamplingFragmentShader, "../lib-SLProject/source/oglsl/SamplingVolumeRendering_MIP.frag",
+    compileProgram(_mipSamplingVertexShader,   "../lib-SLProject/source/oglsl/VolumeRenderingRayCast.vert",
+                   _mipSamplingFragmentShader, "../lib-SLProject/source/oglsl/VolumeRenderingSampling_MIP.frag",
                    _mipSamplingProgram);
 
-    compileProgram(_tfSamplingVertexShader, "../lib-SLProject/source/oglsl/RayCastVolumeRendering.vert",
-                   _tfSamplingFragmentShader, "../lib-SLProject/source/oglsl/SamplingVolumeRendering_TF.frag",
+    compileProgram(_tfSamplingVertexShader,    "../lib-SLProject/source/oglsl/VolumeRenderingRayCast.vert",
+                   _tfSamplingFragmentShader,  "../lib-SLProject/source/oglsl/VolumeRenderingSampling_TF.frag",
                    _tfSamplingProgram);
 
-    compileProgram(_mipSiddonVertexShader, "../lib-SLProject/source/oglsl/RayCastVolumeRendering.vert",
-                   _mipSiddonFragmentShader, "../lib-SLProject/source/oglsl/SiddonVolumeRendering_MIP.frag",
+    compileProgram(_mipSiddonVertexShader,     "../lib-SLProject/source/oglsl/VolumeRenderingRayCast.vert",
+                   _mipSiddonFragmentShader,   "../lib-SLProject/source/oglsl/VolumeRenderingSiddon_MIP.frag",
                    _mipSiddonProgram);
 
-    compileProgram(_tfSiddonVertexShader, "../lib-SLProject/source/oglsl/RayCastVolumeRendering.vert",
-                   _tfSiddonFragmentShader, "../lib-SLProject/source/oglsl/SiddonVolumeRendering_TF.frag",
+    compileProgram(_tfSiddonVertexShader,      "../lib-SLProject/source/oglsl/VolumeRenderingRayCast.vert",
+                   _tfSiddonFragmentShader,    "../lib-SLProject/source/oglsl/VolumeRenderingSiddon_TF.frag",
                    _tfSiddonProgram);
 
-	compileProgram(_sliceVertexShader,   "../lib-SLProject/source/oglsl/SliceVolumeRendering.vert",
-                   _sliceFragmentShader, "../lib-SLProject/source/oglsl/SliceVolumeRendering.frag",
+	compileProgram(_sliceVertexShader,         "../lib-SLProject/source/oglsl/VolumeRenderingSlicing.vert",
+                   _sliceFragmentShader,       "../lib-SLProject/source/oglsl/VolumeRenderingSlicing.frag",
 				   _sliceProgram);
 
     getVariables(_mipSamplingProgram, {
