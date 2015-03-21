@@ -289,64 +289,6 @@ GLuint glUtils::build3DTexture(const std::vector<std::string> &files,
 	return textureHandle;
 }
 
-//see: http://www.cs.rit.edu/~ncs/color/t_convert.html
-void HSVtoRGB( array<GLfloat,3> &rgb, const array<GLfloat,3> &hsv )
-{
-    GLfloat &r = rgb[0];
-    GLfloat &g = rgb[1];
-    GLfloat &b = rgb[2];
-
-    GLfloat h = hsv[0];
-    GLfloat s = hsv[1];
-    GLfloat v = hsv[2];
-
-    int i;
-    float f, p, q, t;
-    if( s == 0 ) {
-        // achromatic (grey)
-        r = g = b = v;
-        return;
-    }
-    h /= 60;			// sector 0 to 5
-    i = floor( h );
-    f = h - i;			// factorial part of h
-    p = v * ( 1 - s );
-    q = v * ( 1 - s * f );
-    t = v * ( 1 - s * ( 1 - f ) );
-    switch( i ) {
-        case 0:
-            r = v;
-            g = t;
-            b = p;
-            break;
-        case 1:
-            r = q;
-            g = v;
-            b = p;
-            break;
-        case 2:
-            r = p;
-            g = v;
-            b = t;
-            break;
-        case 3:
-            r = p;
-            g = q;
-            b = v;
-            break;
-        case 4:
-            r = t;
-            g = p;
-            b = v;
-            break;
-        default:		// case 5:
-            r = v;
-            g = p;
-            b = q;
-            break;
-    }
-}
-
 //-----------------------------------------------------------------------------
 void glUtils::getGLError(char* file, 
                          int line, 

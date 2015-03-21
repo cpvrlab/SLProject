@@ -100,84 +100,84 @@ z-axis.
 */
 void buildSphere(float radius, int stacks, int slices)
 {  
-   assert(stacks > 3 && slices > 3);
+    assert(stacks > 3 && slices > 3);
 
-   // create vertex array
-   SLuint numV = (stacks+1) * (slices+1);
-   VertexPNT* v = new VertexPNT[numV];
+    // create vertex array
+    SLuint numV = (stacks+1) * (slices+1);
+    VertexPNT* v = new VertexPNT[numV];
 
-   float  theta, dtheta; // angles around x-axis
-   float  phi, dphi;     // angles around z-axis
-   int    i, j;          // loop counters
-   GLuint iv = 0;
+    float  theta, dtheta; // angles around x-axis
+    float  phi, dphi;     // angles around z-axis
+    int    i, j;          // loop counters
+    GLuint iv = 0;
+
+    // init start values
+    theta = 0.0f;
+    dtheta = PI / stacks;
+    dphi = 2.0f * PI / slices;
    
-   // init start values
-   theta = 0.0f;
-   dtheta = PI / stacks;
-   dphi = 2.0f * PI / slices;
-   
-   // Define vertex position & normals by looping through all stacks
-   for (i=0; i<=stacks; ++i)
-   {  
-      float sin_theta  = sin(theta);
-      float cos_theta  = cos(theta);
-      phi = 0.0f;
+    // Define vertex position & normals by looping through all stacks
+    for (i=0; i<=stacks; ++i)
+    {
+        float sin_theta  = sin(theta);
+        float cos_theta  = cos(theta);
+        phi = 0.0f;
 
-      // Loop through all slices
-      for (j = 0; j<=slices; ++j)
-      {  
-         if (j==slices) phi = 0.0f;
+        // Loop through all slices
+        for (j = 0; j<=slices; ++j)
+        {
+            if (j==slices) phi = 0.0f;
 
-         // define first the normal with length 1
-         v[iv].n.x = sin_theta * cos(phi);
-         v[iv].n.y = sin_theta * sin(phi);
-         v[iv].n.z = cos_theta;
+            // define first the normal with length 1
+            v[iv].n.x = sin_theta * cos(phi);
+            v[iv].n.y = sin_theta * sin(phi);
+            v[iv].n.z = cos_theta;
 
-         // set the vertex position w. the scaled normal
-         v[iv].p.x = radius * v[iv].n.x;
-         v[iv].p.y = radius * v[iv].n.y;
-         v[iv].p.z = radius * v[iv].n.z;
-         
-         // set the texture coords.
-         v[iv].t.x = 0; // ???
-         v[iv].t.y = 0; // ???
+            // set the vertex position w. the scaled normal
+            v[iv].p.x = radius * v[iv].n.x;
+            v[iv].p.y = radius * v[iv].n.y;
+            v[iv].p.z = radius * v[iv].n.z;
 
-         phi += dphi;
-         iv++;
-      }
-      theta += dtheta;
-   }
+            // set the texture coords.
+            v[iv].t.x = 0; // ???
+            v[iv].t.y = 0; // ???
 
-   // create Index array x
-   _numI = slices * stacks * 2 * 3;
-   GLuint* x = new GLuint[_numI];
-   GLuint ii = 0, iV1, iV2;
+            phi += dphi;
+            iv++;
+        }
+        theta += dtheta;
+    }
 
-   for (i=0; i<stacks; ++i)
-   {  
-      // index of 1st & 2nd vertex of stack
-      iV1 = i * (slices+1);
-      iV2 = iV1 + slices + 1;
+    // create Index array x
+    _numI = slices * stacks * 2 * 3;
+    GLuint* x = new GLuint[_numI];
+    GLuint ii = 0, iV1, iV2;
 
-      for (j = 0; j<slices; ++j)
-      {  // 1st triangle ccw         
-         x[ii++] = iV1+j;
-         x[ii++] = iV2+j;
-         x[ii++] = iV2+j+1;
-         // 2nd triangle ccw
-         x[ii++] = iV1+j;
-         x[ii++] = iV2+j+1;
-         x[ii++] = iV1+j+1;
-      }
-   }
+    for (i=0; i<stacks; ++i)
+    {
+        // index of 1st & 2nd vertex of stack
+        iV1 = i * (slices+1);
+        iV2 = iV1 + slices + 1;
 
-   // Create vertex buffer objects
-   _vboV = glUtils::buildVBO(v,  numV, 8, sizeof(GLfloat), GL_ARRAY_BUFFER, GL_STATIC_DRAW);
-   _vboI = glUtils::buildVBO(x, _numI, 1, sizeof(GLuint), GL_ELEMENT_ARRAY_BUFFER, GL_STATIC_DRAW);
+        for (j = 0; j<slices; ++j)
+        {   // 1st triangle ccw
+            x[ii++] = iV1+j;
+            x[ii++] = iV2+j;
+            x[ii++] = iV2+j+1;
+            // 2nd triangle ccw
+            x[ii++] = iV1+j;
+            x[ii++] = iV2+j+1;
+            x[ii++] = iV1+j+1;
+        }
+    }
 
-   // Delete arrays on heap
-   delete[] v;
-   delete[] x;
+    // Create vertex buffer objects
+    _vboV = glUtils::buildVBO(v,  numV, 8, sizeof(GLfloat), GL_ARRAY_BUFFER, GL_STATIC_DRAW);
+    _vboI = glUtils::buildVBO(x, _numI, 1, sizeof(GLuint), GL_ELEMENT_ARRAY_BUFFER, GL_STATIC_DRAW);
+
+    // Delete arrays on heap
+    delete[] v;
+    delete[] x;
 }
 //-----------------------------------------------------------------------------
 /*!
@@ -186,36 +186,37 @@ The square lies in the x-z-plane and is facing towards -y (downwards).
 */
 void buildSquare()
 {
-   // create vertex array for interleaved position, normal and texCoord
+    // create vertex array for interleaved position, normal and texCoord
     //           Position,  Normal  , texCrd,
-   float v[] = {-1, 0, -1,  0, -1, 0,  0,  0, // Vertex 0
+    float v[] = {-1, 0, -1,  0, -1, 0,  0,  0, // Vertex 0
                  1, 0, -1,  0, -1, 0,  1,  0, // Vertex 1
                  1, 0,  1,  0, -1, 0,  1,  1, // Vertex 2
                 -1, 0,  1,  0, -1, 0,  0,  1};// Vertex 3
-   _vboV = glUtils::buildVBO(v, 6, 8, sizeof(GLfloat), GL_ARRAY_BUFFER, GL_STATIC_DRAW);
+    _vboV = glUtils::buildVBO(v, 6, 8, sizeof(GLfloat), GL_ARRAY_BUFFER, GL_STATIC_DRAW);
 
-   // create index array for GL_TRIANGLES
-   _numI = 6;
-   GLuint i[] = {0, 1, 2,  0, 2, 3};
-   _vboI = glUtils::buildVBO(i, _numI, 1, sizeof(GLuint), GL_ELEMENT_ARRAY_BUFFER, GL_STATIC_DRAW);
+    // create index array for GL_TRIANGLES
+    _numI = 6;
+    GLuint i[] = {0, 1, 2,  0, 2, 3};
+    _vboI = glUtils::buildVBO(i, _numI, 1, sizeof(GLuint), GL_ELEMENT_ARRAY_BUFFER, GL_STATIC_DRAW);
 }
 //-----------------------------------------------------------------------------
 /*!
 calcFPS determines the frame per second measurement by averaging 60 frames.
 */
 float calcFPS(float deltaTime)
-{  const  SLint   FILTERSIZE = 60;
-   static SLfloat frameTimes[FILTERSIZE];
-   static SLuint  frameNo = 0;
+{
+    const  SLint   FILTERSIZE = 60;
+    static SLfloat frameTimes[FILTERSIZE];
+    static SLuint  frameNo = 0;
 
-   frameTimes[frameNo % FILTERSIZE] = deltaTime;
-   float sumTime = 0.0f;
-   for (SLuint i=0; i<FILTERSIZE; ++i) sumTime += frameTimes[i];
-   frameNo++;
-   float frameTimeSec = sumTime / (SLfloat)FILTERSIZE;
-   float fps = 1 / frameTimeSec;
+    frameTimes[frameNo % FILTERSIZE] = deltaTime;
+    float sumTime = 0.0f;
+    for (SLuint i=0; i<FILTERSIZE; ++i) sumTime += frameTimes[i];
+    frameNo++;
+    float frameTimeSec = sumTime / (SLfloat)FILTERSIZE;
+    float fps = 1 / frameTimeSec;
 
-   return fps;
+    return fps;
 }
 //-----------------------------------------------------------------------------
 /*!
@@ -224,71 +225,71 @@ should be called after a window with a valid OpenGL context is present.
 */
 void onInit()
 {  
-   // Define sphere
-   _resolution = 64;
-   
-   //buildSphere(1.0f, _resolution, _resolution);
-   buildSquare();
+    // Define sphere
+    _resolution = 64;
 
-   // Set light parameters
-   _globalAmbi.set(0.0f, 0.0f, 0.0f);
-   _lightPos.set( 0.0f, 0.0f, 100.0f);   
-   _lightDir.set( 0.0f, 0.0f,-1.0f);   
-   _lightAmbient.set( 0.1f, 0.1f, 0.1f);  
-   _lightDiffuse.set( 1.0f, 1.0f, 1.0f);
-   _lightSpecular.set( 1.0f, 1.0f, 1.0f);
-   _matAmbient.set( 1.0f, 1.0f, 1.0f);    
-   _matDiffuse.set( 1.0f, 1.0f, 1.0f);    
-   _matSpecular.set( 1.0f, 1.0f, 1.0f);    
-   _matEmissive.set( 0.0f, 0.0f, 0.0f);
-   _matShininess = 100.0f; 
-   
-   // backwards movement of the camera
-   _camZ = -3.0f;      
+    //buildSphere(1.0f, _resolution, _resolution);
+    buildSquare();
 
-   // Mouse rotation paramters
-   _rotX = 0;
-   _rotY = 0;
-   _deltaX = 0;
-   _deltaY = 0;
-   _mouseLeftDown = false;
+    // Set light parameters
+    _globalAmbi.set(0.0f, 0.0f, 0.0f);
+    _lightPos.set( 0.0f, 0.0f, 100.0f);
+    _lightDir.set( 0.0f, 0.0f,-1.0f);
+    _lightAmbient.set( 0.1f, 0.1f, 0.1f);
+    _lightDiffuse.set( 1.0f, 1.0f, 1.0f);
+    _lightSpecular.set( 1.0f, 1.0f, 1.0f);
+    _matAmbient.set( 1.0f, 1.0f, 1.0f);
+    _matDiffuse.set( 1.0f, 1.0f, 1.0f);
+    _matSpecular.set( 1.0f, 1.0f, 1.0f);
+    _matEmissive.set( 0.0f, 0.0f, 0.0f);
+    _matShininess = 100.0f;
 
-   // Load textures
-   _textureID = glUtils::buildTexture("../_data/images/textures/earth2048_C.jpg");
+    // backwards movement of the camera
+    _camZ = -3.0f;
 
-   // Load, compile & link shaders
-   _shaderVertID = glUtils::buildShader("../lib-SLProject/source/oglsl/ADSTex.vert", GL_VERTEX_SHADER);
-   _shaderFragID = glUtils::buildShader("../lib-SLProject/source/oglsl/ADSTex.frag", GL_FRAGMENT_SHADER);
-   _shaderProgID = glUtils::buildProgram(_shaderVertID, _shaderFragID);
+    // Mouse rotation paramters
+    _rotX = 0;
+    _rotY = 0;
+    _deltaX = 0;
+    _deltaY = 0;
+    _mouseLeftDown = false;
 
-   // Activate the shader programm
-   glUseProgram(_shaderProgID); 
+    // Load textures
+    _textureID = glUtils::buildTexture("../_data/images/textures/earth2048_C.jpg");
 
-   // Get the variable locations (identifiers) within the vertex & pixel shader programs
-   _pLoc            = glGetAttribLocation (_shaderProgID, "a_position");
-   _nLoc            = glGetAttribLocation (_shaderProgID, "a_normal");
-   _tLoc            = glGetAttribLocation (_shaderProgID, "a_texCoord");
-   _mvMatrixLoc     = glGetUniformLocation(_shaderProgID, "u_mvMatrix");
-   _mvpMatrixLoc    = glGetUniformLocation(_shaderProgID, "u_mvpMatrix");
-   _nMatrixLoc      = glGetUniformLocation(_shaderProgID, "u_nMatrix");
-   _globalAmbiLoc   = glGetUniformLocation(_shaderProgID, "u_globalAmbi");
-   _lightPosVSLoc   = glGetUniformLocation(_shaderProgID, "u_lightPosVS");
-   _lightDirVSLoc   = glGetUniformLocation(_shaderProgID, "u_lightDirVS");
-   _lightAmbientLoc = glGetUniformLocation(_shaderProgID, "u_lightAmbient");
-   _lightDiffuseLoc = glGetUniformLocation(_shaderProgID, "u_lightDiffuse");
-   _lightSpecularLoc= glGetUniformLocation(_shaderProgID, "u_lightSpecular");
-   _matAmbientLoc   = glGetUniformLocation(_shaderProgID, "u_matAmbient");
-   _matDiffuseLoc   = glGetUniformLocation(_shaderProgID, "u_matDiffuse");
-   _matSpecularLoc  = glGetUniformLocation(_shaderProgID, "u_matSpecular");
-   _matEmissiveLoc  = glGetUniformLocation(_shaderProgID, "u_matEmissive");
-   _matShininessLoc = glGetUniformLocation(_shaderProgID, "u_matShininess");
-   _texture0Loc     = glGetUniformLocation(_shaderProgID, "u_texture0");      
+    // Load, compile & link shaders
+    _shaderVertID = glUtils::buildShader("../lib-SLProject/source/oglsl/ADSTex.vert", GL_VERTEX_SHADER);
+    _shaderFragID = glUtils::buildShader("../lib-SLProject/source/oglsl/ADSTex.frag", GL_FRAGMENT_SHADER);
+    _shaderProgID = glUtils::buildProgram(_shaderVertID, _shaderFragID);
 
-   // Set some OpenGL states
-   glClearColor(0.0f, 0.0f, 0.0f, 1);  // Set the background color         
-   glEnable(GL_DEPTH_TEST);            // Enables depth test
-   glEnable(GL_CULL_FACE);             // Enables the culling of back faces
-   GET_GL_ERROR;                       // Check for OpenGL errors
+    // Activate the shader programm
+    glUseProgram(_shaderProgID);
+
+    // Get the variable locations (identifiers) within the vertex & pixel shader programs
+    _pLoc            = glGetAttribLocation (_shaderProgID, "a_position");
+    _nLoc            = glGetAttribLocation (_shaderProgID, "a_normal");
+    _tLoc            = glGetAttribLocation (_shaderProgID, "a_texCoord");
+    _mvMatrixLoc     = glGetUniformLocation(_shaderProgID, "u_mvMatrix");
+    _mvpMatrixLoc    = glGetUniformLocation(_shaderProgID, "u_mvpMatrix");
+    _nMatrixLoc      = glGetUniformLocation(_shaderProgID, "u_nMatrix");
+    _globalAmbiLoc   = glGetUniformLocation(_shaderProgID, "u_globalAmbi");
+    _lightPosVSLoc   = glGetUniformLocation(_shaderProgID, "u_lightPosVS");
+    _lightDirVSLoc   = glGetUniformLocation(_shaderProgID, "u_lightDirVS");
+    _lightAmbientLoc = glGetUniformLocation(_shaderProgID, "u_lightAmbient");
+    _lightDiffuseLoc = glGetUniformLocation(_shaderProgID, "u_lightDiffuse");
+    _lightSpecularLoc= glGetUniformLocation(_shaderProgID, "u_lightSpecular");
+    _matAmbientLoc   = glGetUniformLocation(_shaderProgID, "u_matAmbient");
+    _matDiffuseLoc   = glGetUniformLocation(_shaderProgID, "u_matDiffuse");
+    _matSpecularLoc  = glGetUniformLocation(_shaderProgID, "u_matSpecular");
+    _matEmissiveLoc  = glGetUniformLocation(_shaderProgID, "u_matEmissive");
+    _matShininessLoc = glGetUniformLocation(_shaderProgID, "u_matShininess");
+    _texture0Loc     = glGetUniformLocation(_shaderProgID, "u_texture0");
+
+    // Set some OpenGL states
+    glClearColor(0.0f, 0.0f, 0.0f, 1);  // Set the background color
+    glEnable(GL_DEPTH_TEST);            // Enables depth test
+    glEnable(GL_CULL_FACE);             // Enables the culling of back faces
+    GET_GL_ERROR;                       // Check for OpenGL errors
 }
 //-----------------------------------------------------------------------------
 /*!
@@ -297,14 +298,14 @@ deallocation of resources.
 */
 void onClose(GLFWwindow* window)
 {
-   // Delete shaders & programs on GPU
-   glDeleteShader(_shaderVertID);
-   glDeleteShader(_shaderFragID);
-   glDeleteProgram(_shaderProgID);
-   
-   // Delete arrays & buffers on GPU
-   glDeleteBuffers(1, &_vboV);
-   glDeleteBuffers(1, &_vboI);
+    // Delete shaders & programs on GPU
+    glDeleteShader(_shaderVertID);
+    glDeleteShader(_shaderFragID);
+    glDeleteProgram(_shaderProgID);
+
+    // Delete arrays & buffers on GPU
+    glDeleteBuffers(1, &_vboV);
+    glDeleteBuffers(1, &_vboI);
 }
 //-----------------------------------------------------------------------------
 /*!
@@ -313,111 +314,111 @@ profile).
 */
 bool onPaint()
 {  
-   // Clear the color & depth buffer
-   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    // Clear the color & depth buffer
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-   // Start with identity every frame
-   _modelViewMatrix.identity();
-   
-   // View transform: move the coordinate system away from the camera
-   _modelViewMatrix.translate(0, 0, _camZ);
+    // Start with identity every frame
+    _modelViewMatrix.identity();
 
-   // View transform: rotate the coordinate system increasingly by the mouse
-   _modelViewMatrix.rotate(_rotX + _deltaX, 1,0,0);
-   _modelViewMatrix.rotate(_rotY + _deltaY, 0,1,0);
+    // View transform: move the coordinate system away from the camera
+    _modelViewMatrix.translate(0, 0, _camZ);
 
-   // Transform light position & direction into view space
-   SLVec3f lightPosVS = _modelViewMatrix * _lightPos;
-   
-   // The light dir is not a position. We only take the rotation of the mv matrix.
-   SLMat3f viewRot    = _modelViewMatrix.mat3();
-   SLVec3f lightDirVS = viewRot * _lightDir;
+    // View transform: rotate the coordinate system increasingly by the mouse
+    _modelViewMatrix.rotate(_rotX + _deltaX, 1,0,0);
+    _modelViewMatrix.rotate(_rotY + _deltaY, 0,1,0);
 
-   // Rotate the model so that we see the square from the front side
-   // or the earth from the equator.
-   _modelViewMatrix.rotate(90, -1,0,0);
+    // Transform light position & direction into view space
+    SLVec3f lightPosVS = _modelViewMatrix * _lightPos;
 
-   // Build the combined modelview-projection matrix
-   SLMat4f mvp(_projectionMatrix);
-   mvp.multiply(_modelViewMatrix);
+    // The light dir is not a position. We only take the rotation of the mv matrix.
+    SLMat3f viewRot    = _modelViewMatrix.mat3();
+    SLVec3f lightDirVS = viewRot * _lightDir;
 
-   // Build normal matrix
-   SLMat3f nm(_modelViewMatrix.inverseTransposed());
+    // Rotate the model so that we see the square from the front side
+    // or the earth from the equator.
+    _modelViewMatrix.rotate(90, -1,0,0);
 
-   // Pass the matrix uniform variables
-   glUniformMatrix4fv(_mvMatrixLoc,  1, 0, (float*)&_modelViewMatrix);
-   glUniformMatrix3fv(_nMatrixLoc,   1, 0, (float*)&nm);
-   glUniformMatrix4fv(_mvpMatrixLoc, 1, 0, (float*)&mvp);
+    // Build the combined modelview-projection matrix
+    SLMat4f mvp(_projectionMatrix);
+    mvp.multiply(_modelViewMatrix);
 
-   // Pass lighting uniforms variables
-   glUniform4fv(_globalAmbiLoc,     1, (float*)&_globalAmbi);
-   glUniform3fv(_lightPosVSLoc,     1, (float*)&lightPosVS);
-   glUniform3fv(_lightDirVSLoc,     1, (float*)&lightDirVS);
-   glUniform4fv(_lightAmbientLoc,   1, (float*)&_lightAmbient);
-   glUniform4fv(_lightDiffuseLoc,   1, (float*)&_lightDiffuse);
-   glUniform4fv(_lightSpecularLoc,  1, (float*)&_lightSpecular);
-   glUniform4fv(_matAmbientLoc,     1, (float*)&_matAmbient); 
-   glUniform4fv(_matDiffuseLoc,     1, (float*)&_matDiffuse); 
-   glUniform4fv(_matSpecularLoc,    1, (float*)&_matSpecular); 
-   glUniform4fv(_matEmissiveLoc,    1, (float*)&_matEmissive);
-   glUniform1f (_matShininessLoc,   _matShininess);
-   glUniform1i (_texture0Loc,       0);
+    // Build normal matrix
+    SLMat3f nm(_modelViewMatrix.inverseTransposed());
+
+    // Pass the matrix uniform variables
+    glUniformMatrix4fv(_mvMatrixLoc,  1, 0, (float*)&_modelViewMatrix);
+    glUniformMatrix3fv(_nMatrixLoc,   1, 0, (float*)&nm);
+    glUniformMatrix4fv(_mvpMatrixLoc, 1, 0, (float*)&mvp);
+
+    // Pass lighting uniforms variables
+    glUniform4fv(_globalAmbiLoc,     1, (float*)&_globalAmbi);
+    glUniform3fv(_lightPosVSLoc,     1, (float*)&lightPosVS);
+    glUniform3fv(_lightDirVSLoc,     1, (float*)&lightDirVS);
+    glUniform4fv(_lightAmbientLoc,   1, (float*)&_lightAmbient);
+    glUniform4fv(_lightDiffuseLoc,   1, (float*)&_lightDiffuse);
+    glUniform4fv(_lightSpecularLoc,  1, (float*)&_lightSpecular);
+    glUniform4fv(_matAmbientLoc,     1, (float*)&_matAmbient);
+    glUniform4fv(_matDiffuseLoc,     1, (float*)&_matDiffuse);
+    glUniform4fv(_matSpecularLoc,    1, (float*)&_matSpecular);
+    glUniform4fv(_matEmissiveLoc,    1, (float*)&_matEmissive);
+    glUniform1f (_matShininessLoc,   _matShininess);
+    glUniform1i (_texture0Loc,       0);
      
-   //////////////////////
-   // Draw with 2 VBOs //
-   //////////////////////
+    //////////////////////
+    // Draw with 2 VBOs //
+    //////////////////////
 
-   // Enable all of the vertex attribute arrays
-   glEnableVertexAttribArray(_pLoc);
-   glEnableVertexAttribArray(_nLoc);
-   glEnableVertexAttribArray(_tLoc);
+    // Enable all of the vertex attribute arrays
+    glEnableVertexAttribArray(_pLoc);
+    glEnableVertexAttribArray(_nLoc);
+    glEnableVertexAttribArray(_tLoc);
 
-   // Activate VBOs
-   glBindBuffer(GL_ARRAY_BUFFER, _vboV);
-   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _vboI);
+    // Activate VBOs
+    glBindBuffer(GL_ARRAY_BUFFER, _vboV);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _vboI);
 
-   // Activate Texture
-   glBindTexture(GL_TEXTURE_2D, _textureID);
+    // Activate Texture
+    glBindTexture(GL_TEXTURE_2D, _textureID);
 
-   // For VBO only offset instead of data pointer
-   GLsizei stride  = sizeof(VertexPNT);
-   GLsizei offsetN = sizeof(SLVec3f);
-   GLsizei offsetT = sizeof(SLVec3f) + sizeof(SLVec3f);
-   glVertexAttribPointer(_pLoc, 3, GL_FLOAT, GL_FALSE, stride, 0);
-   glVertexAttribPointer(_nLoc, 3, GL_FLOAT, GL_FALSE, stride, (void*)offsetN);
-   glVertexAttribPointer(_tLoc, 2, GL_FLOAT, GL_FALSE, stride, (void*)offsetT);
+    // For VBO only offset instead of data pointer
+    GLsizei stride  = sizeof(VertexPNT);
+    GLsizei offsetN = sizeof(SLVec3f);
+    GLsizei offsetT = sizeof(SLVec3f) + sizeof(SLVec3f);
+    glVertexAttribPointer(_pLoc, 3, GL_FLOAT, GL_FALSE, stride, 0);
+    glVertexAttribPointer(_nLoc, 3, GL_FLOAT, GL_FALSE, stride, (void*)offsetN);
+    glVertexAttribPointer(_tLoc, 2, GL_FLOAT, GL_FALSE, stride, (void*)offsetT);
    
-   ////////////////////////////////////////////////////////
-   // Draw cube model triangles by indexes
-   glDrawElements(GL_TRIANGLES, _numI, GL_UNSIGNED_INT, 0);
-   ////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////
+    // Draw cube model triangles by indexes
+    glDrawElements(GL_TRIANGLES, _numI, GL_UNSIGNED_INT, 0);
+    ////////////////////////////////////////////////////////
 
-   // Deactivate buffers
-   glBindBuffer(GL_ARRAY_BUFFER, 0);
-   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+    // Deactivate buffers
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
-   // Disable the vertex arrays
-   glDisableVertexAttribArray(_pLoc);
-   glDisableVertexAttribArray(_nLoc);
-   glDisableVertexAttribArray(_tLoc);
-   
-   // Check for errors from time to time
-   GET_GL_ERROR;
+    // Disable the vertex arrays
+    glDisableVertexAttribArray(_pLoc);
+    glDisableVertexAttribArray(_nLoc);
+    glDisableVertexAttribArray(_tLoc);
 
-   // Fast copy the back buffer to the front buffer. This is OS dependent.
-   glfwSwapBuffers(window);
+    // Check for errors from time to time
+    GET_GL_ERROR;
 
-   // Calculate frames per second
-   char title[255];
-   static float lastTimeSec = 0;
-   float timeNowSec = (float)glfwGetTime();
-   float fps = calcFPS(timeNowSec-lastTimeSec);
-   sprintf(title, "Sphere, %d x %d, fps: %4.0f", _resolution, _resolution, fps);
-   glfwSetWindowTitle(window, title);
-   lastTimeSec = timeNowSec;
+    // Fast copy the back buffer to the front buffer. This is OS dependent.
+    glfwSwapBuffers(window);
 
-   // Return true to get an immediate refresh 
-   return true;
+    // Calculate frames per second
+    char title[255];
+    static float lastTimeSec = 0;
+    float timeNowSec = (float)glfwGetTime();
+    float fps = calcFPS(timeNowSec-lastTimeSec);
+    sprintf(title, "Sphere, %d x %d, fps: %4.0f", _resolution, _resolution, fps);
+    glfwSetWindowTitle(window, title);
+    lastTimeSec = timeNowSec;
+
+    // Return true to get an immediate refresh
+    return true;
 }
 //-----------------------------------------------------------------------------
 /*!
@@ -427,16 +428,16 @@ the size and ratio of the window.
 */
 void onResize(GLFWwindow* window, int width, int height)
 {  
-   double w = (double)width;
-   double h = (double)height;
-   
-   // define the projection matrix
-   _projectionMatrix.perspective(45, w/h, 0.01f, 10.0f);
-   
-   // define the viewport
-   glViewport(0, 0, width, height);
+    double w = (double)width;
+    double h = (double)height;
 
-   onPaint();
+    // define the projection matrix
+    _projectionMatrix.perspective(45, w/h, 0.01f, 10.0f);
+
+    // define the viewport
+    glViewport(0, 0, width, height);
+
+    onPaint();
 }
 //-----------------------------------------------------------------------------
 /*!
@@ -444,27 +445,27 @@ Mouse button down & release eventhandler starts and end mouse rotation
 */
 void onMouseButton(GLFWwindow* window, int button, int action, int mods)
 {
-   SLint x = _mouseX;
-   SLint y = _mouseY;
-      
-   _mouseLeftDown = (action==GLFW_PRESS);
-   if (_mouseLeftDown)
-   {  _startX = x;
-      _startY = y;
+    SLint x = _mouseX;
+    SLint y = _mouseY;
 
-      // Renders only the lines of a polygon during mouse moves
-      if (button==GLFW_MOUSE_BUTTON_RIGHT)
-         glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-   } else
-   {  _rotX += _deltaX;
-      _rotY += _deltaY;
-      _deltaX = 0;
-      _deltaY = 0;
+    _mouseLeftDown = (action==GLFW_PRESS);
+    if (_mouseLeftDown)
+    {   _startX = x;
+        _startY = y;
 
-      // Renders filled polygons
-      if (button==GLFW_MOUSE_BUTTON_RIGHT)
-         glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-   }
+        // Renders only the lines of a polygon during mouse moves
+        if (button==GLFW_MOUSE_BUTTON_RIGHT)
+            glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+    } else
+    {   _rotX += _deltaX;
+        _rotY += _deltaY;
+        _deltaX = 0;
+        _deltaY = 0;
+
+        // Renders filled polygons
+        if (button==GLFW_MOUSE_BUTTON_RIGHT)
+            glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+    }
 }
 //-----------------------------------------------------------------------------
 /*!
@@ -472,14 +473,14 @@ Mouse move eventhandler tracks the mouse delta since touch down (_deltaX/_deltaY
 */
 void onMouseMove(GLFWwindow* window, double x, double y)
 {     
-   _mouseX  = (int)x;
-   _mouseY  = (int)y;
-   
-   if (_mouseLeftDown)
-   {  _deltaY = (int)x - _startX;
-      _deltaX = (int)y - _startY;
-      onPaint();
-   }
+    _mouseX  = (int)x;
+    _mouseY  = (int)y;
+
+    if (_mouseLeftDown)
+    {   _deltaY = (int)x - _startX;
+        _deltaX = (int)y - _startY;
+        onPaint();
+    }
 }
 //-----------------------------------------------------------------------------
 /*!
@@ -487,11 +488,11 @@ Mouse wheel eventhandler that moves the camera foreward or backwards
 */
 void onMouseWheel(GLFWwindow* window, double xscroll, double yscroll)
 {  
-   if (_modifiers == NONE)
-   {
-      _camZ += (SLfloat)SL_sign(yscroll)*0.1f;
-      onPaint();
-   }
+    if (_modifiers == NONE)
+    {
+        _camZ += (SLfloat)SL_sign(yscroll)*0.1f;
+        onPaint();
+    }
 }
 //-----------------------------------------------------------------------------
 /*!
@@ -499,40 +500,40 @@ Key action eventhandler handles key down & release events
 */
 void onKey(GLFWwindow* window, int GLFWKey, int scancode, int action, int mods)
 {         
-   if (action==GLFW_PRESS)
-   {  
-      switch (GLFWKey)
-      {
-         case GLFW_KEY_ESCAPE:
-            onClose(window);
-            glfwSetWindowShouldClose(window, GL_TRUE);
-            break;
-         case GLFW_KEY_UP:
-            _resolution = _resolution<<1;
-            buildSphere(1.0f, _resolution, _resolution);
-            break;
-         case GLFW_KEY_DOWN:
-            if (_resolution > 4) _resolution = _resolution>>1;
-            buildSphere(1.0f, _resolution, _resolution);
-            break;
-         case GLFW_KEY_LEFT_SHIFT:     _modifiers = _modifiers|SHIFT; break;
-         case GLFW_KEY_RIGHT_SHIFT:    _modifiers = _modifiers|SHIFT; break;
-         case GLFW_KEY_LEFT_CONTROL:   _modifiers = _modifiers|CTRL; break; 
-         case GLFW_KEY_RIGHT_CONTROL:  _modifiers = _modifiers|CTRL; break; 
-         case GLFW_KEY_LEFT_ALT:       _modifiers = _modifiers|ALT; break;
-         case GLFW_KEY_RIGHT_ALT:      _modifiers = _modifiers|ALT; break;
-      }
-   } else
-   if (action == GLFW_RELEASE)
-   {  switch (GLFWKey)
-      {  case GLFW_KEY_LEFT_SHIFT:     _modifiers = _modifiers^SHIFT; break;
-         case GLFW_KEY_RIGHT_SHIFT:    _modifiers = _modifiers^SHIFT; break;
-         case GLFW_KEY_LEFT_CONTROL:   _modifiers = _modifiers^CTRL; break;
-         case GLFW_KEY_RIGHT_CONTROL:  _modifiers = _modifiers^CTRL; break;
-         case GLFW_KEY_LEFT_ALT:       _modifiers = _modifiers^ALT; break;
-         case GLFW_KEY_RIGHT_ALT:      _modifiers = _modifiers^ALT; break;
-      }
-   }
+    if (action==GLFW_PRESS)
+    {
+        switch (GLFWKey)
+        {
+            case GLFW_KEY_ESCAPE:
+                onClose(window);
+                glfwSetWindowShouldClose(window, GL_TRUE);
+                break;
+            case GLFW_KEY_UP:
+                _resolution = _resolution<<1;
+                buildSphere(1.0f, _resolution, _resolution);
+                break;
+            case GLFW_KEY_DOWN:
+                if (_resolution > 4) _resolution = _resolution>>1;
+                buildSphere(1.0f, _resolution, _resolution);
+                break;
+            case GLFW_KEY_LEFT_SHIFT:     _modifiers = _modifiers|SHIFT; break;
+            case GLFW_KEY_RIGHT_SHIFT:    _modifiers = _modifiers|SHIFT; break;
+            case GLFW_KEY_LEFT_CONTROL:   _modifiers = _modifiers|CTRL; break;
+            case GLFW_KEY_RIGHT_CONTROL:  _modifiers = _modifiers|CTRL; break;
+            case GLFW_KEY_LEFT_ALT:       _modifiers = _modifiers|ALT; break;
+            case GLFW_KEY_RIGHT_ALT:      _modifiers = _modifiers|ALT; break;
+        }
+    } else
+    if (action == GLFW_RELEASE)
+    {   switch (GLFWKey)
+        {   case GLFW_KEY_LEFT_SHIFT:     _modifiers = _modifiers^SHIFT; break;
+            case GLFW_KEY_RIGHT_SHIFT:    _modifiers = _modifiers^SHIFT; break;
+            case GLFW_KEY_LEFT_CONTROL:   _modifiers = _modifiers^CTRL; break;
+            case GLFW_KEY_RIGHT_CONTROL:  _modifiers = _modifiers^CTRL; break;
+            case GLFW_KEY_LEFT_ALT:       _modifiers = _modifiers^ALT; break;
+            case GLFW_KEY_RIGHT_ALT:      _modifiers = _modifiers^ALT; break;
+        }
+    }
 }
 //-----------------------------------------------------------------------------
 /*!
@@ -540,7 +541,7 @@ Error callback handler for GLFW.
 */
 void onGLFWError(int error, const char* description)
 {
-   fputs(description, stderr);
+    fputs(description, stderr);
 }
 //-----------------------------------------------------------------------------
 /*!
@@ -548,71 +549,71 @@ The C main procedure running the GLFW GUI application.
 */
 int main()
 {  
-   if (!glfwInit())
-   {  fprintf(stderr, "Failed to initialize GLFW\n");
-      exit(EXIT_FAILURE);
-   }
+    if (!glfwInit())
+    {   fprintf(stderr, "Failed to initialize GLFW\n");
+        exit(EXIT_FAILURE);
+    }
 
-   glfwSetErrorCallback(onGLFWError);
+    glfwSetErrorCallback(onGLFWError);
+
+    // Enable fullscreen anti aliasing with 4 samples
+    glfwWindowHint(GLFW_SAMPLES, 4);
+
+    _scrWidth = 640;
+    _scrHeight = 480;
+
+    window = glfwCreateWindow(_scrWidth, _scrHeight, "My Title", NULL, NULL);
+    if (!window)
+    {   glfwTerminate();
+        exit(EXIT_FAILURE);
+    }
    
-   // Enable fullscreen anti aliasing with 4 samples
-   glfwWindowHint(GLFW_SAMPLES, 4);
+    // Get the currenct GL context. After this you can call GL
+    glfwMakeContextCurrent(window);
 
-   _scrWidth = 640;
-   _scrHeight = 480;
+    // On some systems screen & framebuffer size are different
+    // All commands in GLFW are in screen coords but rendering in GL is
+    // in framebuffer coords
+    SLint fbWidth, fbHeight;
+    glfwGetFramebufferSize(window, &fbWidth, &fbHeight);
+    _scr2fbX = (float)fbWidth / (float)_scrWidth;
+    _scr2fbY = (float)fbHeight / (float)_scrHeight;
 
-   window = glfwCreateWindow(_scrWidth, _scrHeight, "My Title", NULL, NULL);
-   if (!window)
-   {  glfwTerminate();
-      exit(EXIT_FAILURE);
-   }
-   
-   // Get the currenct GL context. After this you can call GL   
-   glfwMakeContextCurrent(window);
+    // Include OpenGL via GLEW
+    GLenum err = glewInit();
+    if (GLEW_OK != err)
+    {   fprintf(stderr, "Error: %s\n", glewGetErrorString(err));
+        exit(EXIT_FAILURE);
+    }
 
-   // On some systems screen & framebuffer size are different
-   // All commands in GLFW are in screen coords but rendering in GL is
-   // in framebuffer coords
-   SLint fbWidth, fbHeight;
-   glfwGetFramebufferSize(window, &fbWidth, &fbHeight);
-   _scr2fbX = (float)fbWidth / (float)_scrWidth;
-   _scr2fbY = (float)fbHeight / (float)_scrHeight;
+    glfwSetWindowTitle(window, "SLProject Test Application");
 
-   // Include OpenGL via GLEW
-   GLenum err = glewInit();
-   if (GLEW_OK != err)
-   {  fprintf(stderr, "Error: %s\n", glewGetErrorString(err));
-      exit(EXIT_FAILURE);
-   }
+    // Set number of monitor refreshes between 2 buffer swaps
+    glfwSwapInterval(1);
 
-   glfwSetWindowTitle(window, "SLProject Test Application");
-   
-   // Set number of monitor refreshes between 2 buffer swaps
-   glfwSwapInterval(1);
+    onInit();
+    onResize(window, (SLint)(_scrWidth  * _scr2fbX),
+                        (SLint)(_scrHeight * _scr2fbY));
 
-   onInit();
-   onResize(window, (SLint)(_scrWidth  * _scr2fbX), 
-                    (SLint)(_scrHeight * _scr2fbY));
+    // Set GLFW callback functions
+    glfwSetKeyCallback(window, onKey);
+    glfwSetFramebufferSizeCallback(window, onResize);
+    glfwSetMouseButtonCallback(window, onMouseButton);
+    glfwSetCursorPosCallback(window, onMouseMove);
+    glfwSetScrollCallback(window, onMouseWheel);
+    glfwSetWindowCloseCallback(window, onClose);
 
-   // Set GLFW callback functions
-   glfwSetKeyCallback(window, onKey);
-   glfwSetFramebufferSizeCallback(window, onResize);
-   glfwSetMouseButtonCallback(window, onMouseButton);
-   glfwSetCursorPosCallback(window, onMouseMove);
-   glfwSetScrollCallback(window, onMouseWheel);
-   glfwSetWindowCloseCallback(window, onClose);
-
-   // Event loop
-   while (!glfwWindowShouldClose(window))
-   {
+    // Event loop
+    while (!glfwWindowShouldClose(window))
+    {
       // if no updated occured wait for the next event (power saving)
-      if (!onPaint()) 
+      if (!onPaint())
            glfwWaitEvents();
       else glfwPollEvents();
-   }
-   
-   glfwDestroyWindow(window);
-   glfwTerminate();
-   exit(0);
+    }
+
+    glfwDestroyWindow(window);
+    glfwTerminate();
+    exit(0);
 }
 //-----------------------------------------------------------------------------

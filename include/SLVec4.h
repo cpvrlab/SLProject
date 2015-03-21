@@ -33,27 +33,26 @@ class SLVec4
             struct {T comp[4];};
         };
 
-            SLVec4      (void)                  {}
-            SLVec4      (const T X, 
-                            const T Y, 
-                            const T Z=0, 
-                            const T W=1)           {x=X; y=Y; z=Z; 
-                                                    w=W;}
-            SLVec4      (const T v[4])          {x=v[0]; y=v[1]; z=v[2]; w=v[3];}
-            SLVec4      (const SLVec2<T>& v)    {x=v.x;  y=v.y;  z=0;    w=1;}
-            SLVec4      (const SLVec3<T>& v)    {x=v.x;  y=v.y;  z=v.z;  w=1;}
-            SLVec4      (const SLVec4<T>& v)    {x=v.x;  y=v.y;  z=v.z;  w=v.w;}
-            SLVec4      (const SLstring fourFloatsWithDelimiter) {fromString(fourFloatsWithDelimiter);}
+                    SLVec4      (void)                  {}
+                    SLVec4      (const T X,
+                                 const T Y,
+                                 const T Z=0,
+                                 const T W=1)           {x=X;    y=Y;    z=Z;    w=W;}
+                    SLVec4      (const T v[4])          {x=v[0]; y=v[1]; z=v[2]; w=v[3];}
+                    SLVec4      (const SLVec2<T>& v)    {x=v.x;  y=v.y;  z=0;    w=1;}
+                    SLVec4      (const SLVec3<T>& v)    {x=v.x;  y=v.y;  z=v.z;  w=1;}
+                    SLVec4      (const SLVec4<T>& v)    {x=v.x;  y=v.y;  z=v.z;  w=v.w;}
+                    SLVec4      (const SLstring fourFloatsWithDelimiter) {fromString(fourFloatsWithDelimiter);}
 
-    void     set         (const T X, 
-                            const T Y, 
-                            const T Z, 
-                            const T W=1)           {x=X;    y=Y;    z=Z;    w=W;}
-    void     set         (const T xyz)           {x=xyz;  y=xyz;  z=xyz;  w=1;}
-    void     set         (const T v[4])          {x=v[0]; y=v[1]; z=v[2]; w=v[3];}
-    void     set         (const SLVec2<T>& v)    {x=v.x;  y=v.y;  z=0;    w=1;}
-    void     set         (const SLVec3<T>& v)    {x=v.x;  y=v.y;  z=v.z;  w=1;}
-    void     set         (const SLVec4<T>& v)    {x=v.x;  y=v.y;  z=v.z;  w=v.w;}
+            void    set         (const T X,
+                                 const T Y,
+                                 const T Z,
+                                 const T W=1)           {x=X;    y=Y;    z=Z;    w=W;}
+            void    set         (const T xyz)           {x=xyz;  y=xyz;  z=xyz;  w=1;}
+            void    set         (const T v[4])          {x=v[0]; y=v[1]; z=v[2]; w=v[3];}
+            void    set         (const SLVec2<T>& v)    {x=v.x;  y=v.y;  z=0;    w=1;}
+            void    set         (const SLVec3<T>& v)    {x=v.x;  y=v.y;  z=v.z;  w=1;}
+            void    set         (const SLVec4<T>& v)    {x=v.x;  y=v.y;  z=v.z;  w=v.w;}
 
     inline SLint    operator == (const SLVec4& v) const {return (x==v.x && y==v.y && z==v.z && w==v.w);}
     inline SLint    operator != (const SLVec4& v) const {return (x!=v.x || y!=v.y || z!=v.z || w!=v.w);}
@@ -91,16 +90,16 @@ class SLVec4
    
     // Operations without temp. allocation
     inline void     add         (const SLVec4& a,
-                                    const SLVec4& b)       {x=a.x+b.x; y=a.y+b.y, z=a.z+b.z; w=a.w+b.w;}
+                                 const SLVec4& b)       {x=a.x+b.x; y=a.y+b.y, z=a.z+b.z; w=a.w+b.w;}
     inline void     sub         (const SLVec4& a,
-                                    const SLVec4& b)       {x=a.x-b.x; y=a.y-b.y, z=a.z-b.z; w=a.w-b.w;}
+                                 const SLVec4& b)       {x=a.x-b.x; y=a.y-b.y, z=a.z-b.z; w=a.w-b.w;}
     inline void     scale       (const T s)             {x*=s; y*=s; z*=s; w*=s;}
     inline T        dot         (const SLVec4& v)       {return x*v.x+y*v.y+z*v.z+w*v.w;};
     inline void     cross       (const SLVec4& a,
-                                    const SLVec4& b)       {x = a.y*b.z - a.z*b.y; 
-                                                            y = a.z*b.x - a.x*b.z; 
-                                                            z = a.x*b.y - a.y*b.x;
-                                                            w = 1;}
+                                 const SLVec4& b)       {x = a.y*b.z - a.z*b.y;
+                                                         y = a.z*b.x - a.x*b.z;
+                                                         z = a.x*b.y - a.y*b.x;
+                                                         w = 1;}
     inline T        length      () const                {return (T)sqrt(x*x+y*y+z*z+w*w);}
     inline T        lengthSqr   () const                {return (x*x+y*y+z*z+w*w);}
     inline SLVec4&  normalize   ()                      {T L = length(); 
@@ -108,10 +107,10 @@ class SLVec4
                                                             return *this;}
     inline void     wdiv        ()                      {x/=w; y/=w; z/=w; w=1;} 
     inline void     clampMinMax (const T min, 
-                                    const T max)           {x = (x>max)?max : (x<min)?min : x;
-                                                            y = (y>max)?max : (y<min)?min : y;
-                                                            z = (z>max)?max : (z<min)?min : z;
-                                                            w = 1;}
+                                 const T max)           {x = (x>max)?max : (x<min)?min : x;
+                                                         y = (y>max)?max : (y<min)?min : y;
+                                                         z = (z>max)?max : (z<min)?min : z;
+                                                         w = 1;}
     inline T        diff        (const SLVec4& v)       {return SL_abs(x-v.x) + 
                                                                     SL_abs(y-v.y) + 
                                                                     SL_abs(z-v.z) + 
@@ -120,40 +119,64 @@ class SLVec4
                                                                     SL_abs(y-v.y) + 
                                                                     SL_abs(z-v.z);}
     inline void     mix         (const SLVec4& a,
-                                    const SLVec4& b,
-                                    const T factor_b)      {T factor_a = 1-factor_b;
-                                                            x = a.x*factor_a + b.x*factor_b;
-                                                            y = a.y*factor_a + b.y*factor_b;
-                                                            z = a.z*factor_a + b.z*factor_b; 
-                                                            w = a.w*factor_a + b.w*factor_b;}  
+                                 const SLVec4& b,
+                                 const T factor_b)      {T factor_a = 1-factor_b;
+                                                         x = a.x*factor_a + b.x*factor_b;
+                                                         y = a.y*factor_a + b.y*factor_b;
+                                                         z = a.z*factor_a + b.z*factor_b;
+                                                         w = a.w*factor_a + b.w*factor_b;}
     inline T        maxXYZ      ()                      {if (x>=y && x>=z)   return x;
-                                                            else if (y>=z)      return y;
-                                                            else                return z;}
+                                                         else if (y>=z)      return y;
+                                                         else                return z;}
             //! Gamma correction
-            void      gamma       (T gammaVal)            {x= pow(x,1.0/gammaVal);
-                                                            y= pow(y,1.0/gammaVal);
-                                                            z= pow(z,1.0/gammaVal);}
+            void    gamma       (T gammaVal)            {x= pow(x,1.0/gammaVal);
+                                                         y= pow(y,1.0/gammaVal);
+                                                         z= pow(z,1.0/gammaVal);}
 
-            void      print       (const SLchar* str=0)   {if (str) SL_LOG("%s\n",str); 
-                                    SL_LOG("% 3.3f, % 3.3f, % 3.3f, % 3.3f\n",x, y, z, w);}
-            
+            void    print       (const SLchar* str=0)
+            {   if (str) SL_LOG("%s\n",str);
+                SL_LOG("% 3.3f, % 3.3f, % 3.3f, % 3.3f\n",x, y, z, w);
+            }
+
             //! Conversion to string
-            SLstring    toString(SLstring delimiter=", ")
-                        {   return SLUtils::toString(x) + delimiter +
-                                   SLUtils::toString(y) + delimiter +
-                                   SLUtils::toString(z) + delimiter +
-                                   SLUtils::toString(w);
-                        }
-            
+            SLstring toString   (SLstring delimiter=", ")
+             {   return SLUtils::toString(x) + delimiter +
+                        SLUtils::toString(y) + delimiter +
+                        SLUtils::toString(z) + delimiter +
+                        SLUtils::toString(w);
+             }
+
             //! Conversion from string
-            void        fromString(SLstring fourFloatsWithDelimiter, SLchar delimiter=',')
-                        {   SLVstring components;
-                            SLUtils::split(fourFloatsWithDelimiter, delimiter, components);
-                            float f[4] = {0.0, 0.0f, 0.0f, 1.0f};
-                            for (SLint i=0; i<components.size(); ++i)
-                                f[i] = (SLfloat)atof(components[i].c_str());
-                            x = f[0]; y = f[1]; z = f[2]; w = f[3];
-                        }
+            void    fromString  (SLstring fourFloatsWithDelimiter, SLchar delimiter=',')
+            {   SLVstring components;
+                SLUtils::split(fourFloatsWithDelimiter, delimiter, components);
+                float f[4] = {0.0, 0.0f, 0.0f, 1.0f};
+                for (SLint i=0; i<components.size(); ++i)
+                    f[i] = (SLfloat)atof(components[i].c_str());
+                x = f[0]; y = f[1]; z = f[2]; w = f[3];
+            }
+
+            //! HSVA to RGBA color conversion (http://www.rapidtables.com/convert/color/hsv-to-rgb.htm)
+            void    hsva2rgba   (const SLVec4 &hsva)
+            {
+                T h = fmod(fmod(hsva.x, SL_2PI) + SL_2PI, SL_2PI); // 0° <= H <= 360°
+                T s = SL_clamp(hsva.y, 0.0f, 1.0f);
+                T v = SL_clamp(hsva.z, 0.0f, 1.0f);
+                T a = SL_clamp(hsva.w, 0.0f, 1.0f);
+
+                T c = v * s;
+                T x = c * (1.0f - fabs(fmod(h*3.0f / M_PI, 2.0f) - 1.0f));
+                T m = v - c;
+
+                switch (SLint(floor(h*3.0f / SL_PI)))
+                {   case 0: return set(m + c, m + x, m    , a); // [  0°, 60°]
+                    case 1: return set(m + x, m + c, m    , a); // [ 60°,120°]
+                    case 2: return set(m    , m + c, m + x, a); // [120°,180°]
+                    case 3: return set(m    , m + x, m + c, a); // [180°,240°]
+                    case 4: return set(m + x, m    , m + c, a); // [240°,300°]
+                    case 5: return set(m + c, m    , m + x, a); // [300°,360°]
+                }
+            }
 
     static SLVec4 ZERO;
     static SLVec4 BLACK;

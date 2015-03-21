@@ -53,6 +53,7 @@ class glUtils
                                    GLint wrapS = GL_REPEAT, 
                                    GLint wrapT = GL_REPEAT);
 
+        // ! Builds an OpenGL 3D texture and returns the texture id
         static GLuint build3DTexture(const std::vector<std::string> &files, int &x_extend, int &y_extend, int &z_extend,
                                      GLint min_filter = GL_LINEAR,
                                      GLint mag_filter = GL_LINEAR,
