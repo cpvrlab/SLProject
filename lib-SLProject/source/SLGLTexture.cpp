@@ -313,7 +313,7 @@ void SLGLTexture::build(SLint texID)
                      _images[0]->format(),  //Internal format
                      _images[0]->width(),
                      _images[0]->height(),
-                     _images.size(),
+                     (SLsizei)_images.size(),
                      0,                     //Border
                      _images[0]->format(),  //Format
                      GL_UNSIGNED_BYTE,      //Data type
