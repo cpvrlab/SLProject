@@ -215,8 +215,7 @@ void SLGLProgram::beginUse(SLMaterial* mat)
         // 2b: Set stereo states
         loc = uniform1i ("u_projection", _stateGL->projection);
         loc = uniform1i ("u_stereoEye",  _stateGL->stereoEye);
-        loc = uniformMatrix3fv("u_stereoColorFilter", 1, 
-                                (SLfloat*)&_stateGL->stereoColorFilter);
+        loc = uniformMatrix3fv("u_stereoColorFilter", 1, (SLfloat*)&_stateGL->stereoColorFilter);
 
         // 2c: Pass diffuse color for uniform color shader
         loc = uniform4fv("u_color", 1,  (SLfloat*)&_stateGL->matDiffuse);

@@ -56,13 +56,18 @@ class SLGLTexture : public SLObject
                         //! Default contructor for fonts
                         SLGLTexture     ();
                      
-                        //! ctor 2D textures with internal image allocation
+                        //! ctor for 2D textures with internal image allocation
                         SLGLTexture     (SLstring   imageFilename,
                                          SLint      min_filte = GL_LINEAR_MIPMAP_LINEAR,
                                          SLint      mag_filte = GL_LINEAR,
                                          SLTexType  type = UnknownMap,
                                          SLint      wrapS = GL_REPEAT,
                                          SLint      wrapT = GL_REPEAT);
+
+                        //! ctor for 3D texture with internal image allocation
+                        SLGLTexture     (SLVstring  imageFilenames,
+                                         SLint      min_filte = GL_LINEAR,
+                                         SLint      mag_filte = GL_LINEAR);
                   
                         //! ctor for cube mapping with internal image allocation
                         SLGLTexture     (SLstring   imageFilenameXPos,
@@ -96,9 +101,9 @@ class SLGLTexture : public SLObject
             SLTexType   texType         (){return _texType;}
             SLfloat     bumpScale       (){return _bumpScale;}
             SLCol4f     getTexelf       (SLfloat s, SLfloat t);
-            SLbool      hasAlpha        (){return (_img[0].format()==GL_RGBA) || _texType==FontMap;}
-            SLint       width           (){return _img[0].width();}
-            SLint       height          (){return _img[0].height();}
+            SLbool      hasAlpha        (){return (_images[0]->format()==GL_RGBA) || _texType==FontMap;}
+            SLint       width           (){return _images[0]->width();}
+            SLint       height          (){return _images[0]->height();}
       
             // Misc     
             SLTexType   detectType      (SLstring filename);  
@@ -115,10 +120,10 @@ class SLGLTexture : public SLObject
 
     protected:
             // loading the image files
-            void        load            (SLint texNum, SLstring filename);
+            void        load            (SLstring filename);
                                
             SLGLState*  _stateGL;       //!< Pointer to global SLGLState instance
-            SLImage     _img[6];        //!< max 6 images for cube map
+            SLVImage    _images;        //!< vector of SLImage pointers
             SLuint      _texName;       //!< OpenGL texture "name" (= ID)
             SLTexType   _texType;       //!< [unknown, ColorMap, NormalMap, HeightMap, GlossMap]
             SLint       _min_filter;    //!< Minification filter

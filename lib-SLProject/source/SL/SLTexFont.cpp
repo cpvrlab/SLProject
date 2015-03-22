@@ -121,16 +121,13 @@ void SLTexFont::create(const SLuchar *bmp, SLint bmpW, SLint bmpH)
     SLint texWidth  = nextPowerOf2(lmax);
     SLint texHeight = nextPowerOf2(14*(h+MARGIN_Y));
    
-    //Allocate memory for image pixels using only the alpha channel      
-    #ifdef SL_GLES2
-    _img[0].allocate(texWidth, texHeight, GL_LUMINANCE);
-    #else
-    _img[0].allocate(texWidth, texHeight, GL_LUMINANCE);
-    #endif
+    //Allocate memory for image pixels using only the alpha channel
+    _images.clear();
+    _images.push_back(new SLImage(texWidth, texHeight, GL_LUMINANCE));
   
     //Fill up with 0
-    SLuchar* bits = _img[0].data();
-    memset(bits, 0, _img[0].width()*_img[0].height());
+    SLuchar* bits = _images[0]->data();
+    memset(bits, 0, _images[0]->width()*_images[0]->height());
    
     SLfloat du = 0.0f;
     SLfloat dv = 0.0f;

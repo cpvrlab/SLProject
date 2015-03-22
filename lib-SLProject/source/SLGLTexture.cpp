@@ -48,8 +48,8 @@ SLGLTexture::SLGLTexture(SLstring  filename,
     assert(filename!="");
     _stateGL = SLGLState::getInstance();
     _texType = type==UnknownMap ? detectType(filename) : type;
-     
-    load(0, filename);
+
+    load(filename);
    
     _min_filter   = min_filter;
     _mag_filter   = mag_filter;
@@ -60,6 +60,31 @@ SLGLTexture::SLGLTexture(SLstring  filename,
     _bumpScale    = 1.0f;
     _resizeToPow2 = true;
    
+    // Add pointer to the global resource vectors for deallocation
+    SLScene::current->textures().push_back(this);
+}
+//-----------------------------------------------------------------------------
+//! ctor for 3D texture
+SLGLTexture::SLGLTexture(SLVstring files,
+                         SLint     min_filter,
+                         SLint     mag_filter)
+{
+    assert(files.size() > 1);
+    _stateGL = SLGLState::getInstance();
+    _texType = ColorMap;
+
+    for (auto filename : files)
+        load(filename);
+
+    _min_filter   = min_filter;
+    _mag_filter   = mag_filter;
+    _wrap_s       = GL_REPEAT;
+    _wrap_t       = GL_REPEAT;
+    _target       = GL_TEXTURE_3D;
+    _texName      = 0;
+    _bumpScale    = 1.0f;
+    _resizeToPow2 = true;
+
     // Add pointer to the global resource vectors for deallocation
     SLScene::current->textures().push_back(this);
 }
@@ -78,12 +103,12 @@ SLGLTexture::SLGLTexture(SLstring  filenameXPos,
     _stateGL = SLGLState::getInstance();
     _texType = type==UnknownMap ? detectType(filenameXPos) : type;
    
-    assert(filenameXPos!=""); load(0, filenameXPos);
-    assert(filenameXNeg!=""); load(1, filenameXNeg);
-    assert(filenameYPos!=""); load(2, filenameYPos);
-    assert(filenameYNeg!=""); load(3, filenameYNeg);
-    assert(filenameZPos!=""); load(4, filenameZPos);
-    assert(filenameZNeg!=""); load(5, filenameZNeg);
+    assert(filenameXPos!=""); load(filenameXPos);
+    assert(filenameXNeg!=""); load(filenameXNeg);
+    assert(filenameYPos!=""); load(filenameYPos);
+    assert(filenameYNeg!=""); load(filenameYNeg);
+    assert(filenameZPos!=""); load(filenameZPos);
+    assert(filenameZNeg!=""); load(filenameZNeg);
              
     _min_filter  = min_filter;
     _mag_filter  = mag_filter;
@@ -106,7 +131,13 @@ SLGLTexture::~SLGLTexture()
 void SLGLTexture::clearData()
 {
     glDeleteTextures(1, &_texName);
-    for (SLint i=0; i<6; ++i) _img[i].clearData();
+
+    for (SLint i=0; i<_images.size(); ++i)
+    {   delete _images[i];
+        _images[i] = 0;
+    }
+    _images.clear();
+
     _texName = 0;
     _bufP.dispose();
     _bufT.dispose();
@@ -114,10 +145,8 @@ void SLGLTexture::clearData()
 }
 //-----------------------------------------------------------------------------
 //! Loads the texture, converts color depth & applys the mirriring
-void SLGLTexture::load(SLint texNum, SLstring filename)
-{  
-    assert(texNum>=0 && texNum<=6);
-   
+void SLGLTexture::load(SLstring filename)
+{
     // Load the file directly
     if (!SLFileSystem::fileExists(filename))
     {   filename = defaultPath + filename;
@@ -127,7 +156,7 @@ void SLGLTexture::load(SLint texNum, SLstring filename)
         }
     }
     
-    _img[texNum].load(filename);
+    _images.push_back(new SLImage(filename));
 }
 //-----------------------------------------------------------------------------
 /*! 
@@ -139,8 +168,6 @@ method which is called by object that uses the texture.
 void SLGLTexture::build(SLint texID)
 {  
     assert(texID>=0 && texID<32);
- 
-    SLint texMaxSize; 
   
     // delete texture name if it already exits
     if (_texName) 
@@ -149,30 +176,48 @@ void SLGLTexture::build(SLint texID)
     }
     
     // get max texture size
+    SLint texMaxSize=0;
+    SLint texMax3DSize=0;
     glGetIntegerv(GL_MAX_TEXTURE_SIZE, &texMaxSize);
+    glGetIntegerv(GL_MAX_3D_TEXTURE_SIZE, &texMax3DSize);
 
     // check if texture has to be resized
-    SLuint w2 = closestPowerOf2(_img[0].width());
-    SLuint h2 = closestPowerOf2(_img[0].height());
+    SLuint w2 = closestPowerOf2(_images[0]->width());
+    SLuint h2 = closestPowerOf2(_images[0]->height());
     if (w2==0) SL_EXIT_MSG("Image can not be rescaled: width=0");
     if (h2==0) SL_EXIT_MSG("Image can not be rescaled: height=0");
-    if (_resizeToPow2 && (w2!=_img[0].width() || h2!=_img[0].height())) 
-        _img[0].resize(w2, h2);
+    if (_resizeToPow2 && (w2!=_images[0]->width() || h2!=_images[0]->height()))
+        _images[0]->resize(w2, h2);
       
-    // check size
+    // check 2D size
     if (_target == GL_TEXTURE_2D)
-    {   if (_img[0].width()  > (SLuint)texMaxSize) 
+    {   if (_images[0]->width()  > (SLuint)texMaxSize)
             SL_EXIT_MSG("SLGLTexture::build: Texture width is too big.");
-        if (_img[0].height() > (SLuint)texMaxSize) 
+        if (_images[0]->height() > (SLuint)texMaxSize)
             SL_EXIT_MSG("SLGLTexture::build: Texture height is too big.");
+    }
+
+    // check 3D size
+    if (_target == GL_TEXTURE_3D)
+    {   for (auto img : _images)
+        {   if (img->width()  > (SLuint)texMaxSize)
+                SL_EXIT_MSG("SLGLTexture::build: 3D Texture width is too big.");
+            if (img->height() > (SLuint)texMaxSize)
+                SL_EXIT_MSG("SLGLTexture::build: 3D Texture height is too big.");
+            if (img->width()  != _images[0]->width() ||
+                img->height() != _images[0]->height())
+                SL_EXIT_MSG("SLGLTexture::build: Not all images of the 3D texture have the same size.");
+        }
     }
       
     // check cube mapping capability & max. cube map size
     if (_target==GL_TEXTURE_CUBE_MAP)
     {   SLint texMaxCubeSize;  
         glGetIntegerv(GL_MAX_CUBE_MAP_TEXTURE_SIZE, &texMaxCubeSize);
-        if (_img[0].width()  > (SLuint)texMaxCubeSize) 
+        if (_images[0]->width()  > (SLuint)texMaxCubeSize)
             SL_EXIT_MSG("SLGLTexture::build: Cube Texture width is too big.");
+        if (_images.size() != 6)
+            SL_EXIT_MSG("SLGLTexture::build: Not six images provided for cube map texture.");
     }
       
     // Generate texture names
@@ -181,7 +226,7 @@ void SLGLTexture::build(SLint texID)
     _stateGL->activeTexture(GL_TEXTURE0+texID);
 
     // create binding and apply texture properities
-    _stateGL->bindTexture(_target, _texName);
+    _stateGL->bindAndEnableTexture(_target, _texName);
    
     // check if anisotropic texture filter extension is available      
     if (maxAnisotropy < 0.0f)
@@ -197,7 +242,7 @@ void SLGLTexture::build(SLint texID)
    SLfloat anisotropy = 1.0f; // = off
    if (_min_filter > GL_LINEAR_MIPMAP_LINEAR)
    {    if (_min_filter == SL_ANISOTROPY_MAX)  
-            anisotropy = maxAnisotropy;
+             anisotropy = maxAnisotropy;
         else anisotropy = min((SLfloat)(_min_filter-GL_LINEAR_MIPMAP_LINEAR), 
                               maxAnisotropy);
         glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, anisotropy);
@@ -212,15 +257,16 @@ void SLGLTexture::build(SLint texID)
       
     // Build textures
     if (_target == GL_TEXTURE_2D)
-    {   glTexImage2D(GL_TEXTURE_2D, 
+    {
+        glTexImage2D(GL_TEXTURE_2D,
                      0, 
-                     _img[0].format(),
-                     _img[0].width(), 
-                     _img[0].height(), 
+                     _images[0]->format(),
+                     _images[0]->width(),
+                     _images[0]->height(),
                      0,
-                     _img[0].format(),
+                     _images[0]->format(),
                      GL_UNSIGNED_BYTE, 
-                     (GLvoid*)_img[0].data());
+                     (GLvoid*)_images[0]->data());
         if (_min_filter>=GL_NEAREST_MIPMAP_NEAREST)
         {   SLstring sVersion = _stateGL->glVersion();
             SLfloat  fVersion = (SLfloat)atof(sVersion.c_str());
@@ -233,23 +279,46 @@ void SLGLTexture::build(SLint texID)
                 build2DMipmaps(GL_TEXTURE_2D, 0);
         }
     } 
-    else 
-    if (_target == GL_TEXTURE_CUBE_MAP)
-    {  
+    else if (_target == GL_TEXTURE_CUBE_MAP)
+    {
         for (SLint i=0; i<6; i++)
         {   glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X+i, 
                          0, 
-                         _img[0].format(),
-                         _img[i].width(), 
-                         _img[i].height(), 
+                         _images[i]->format(),
+                         _images[i]->width(),
+                         _images[i]->height(),
                          0,
-                         _img[i].format(),
+                         _images[i]->format(),
                          GL_UNSIGNED_BYTE,
-                         (GLvoid*)_img[i].data());
+                         (GLvoid*)_images[i]->data());
             GET_GL_ERROR;  
         } 
         if (_min_filter>=GL_NEAREST_MIPMAP_NEAREST)
             glGenerateMipmap(GL_TEXTURE_2D);  
+    }
+    else if (_target == GL_TEXTURE_3D)
+    {
+        // temporary buffer for 3D image data
+        SLVuchar buffer(_images[0]->bytesPerImage() * _images.size());
+        SLuchar* imageData = &buffer[0];
+
+        // copy each image data into temp. buffer
+        for (SLImage* img : _images)
+        {   memcpy(imageData, img->data(), img->bytesPerImage());
+            imageData += img->bytesPerImage();
+        }
+
+        glTexImage3D(GL_TEXTURE_3D,
+                     0,                     //Mipmap level,
+                     _images[0]->format(),  //Internal format
+                     _images[0]->width(),
+                     _images[0]->height(),
+                     _images.size(),
+                     0,                     //Border
+                     _images[0]->format(),  //Format
+                     GL_UNSIGNED_BYTE,      //Data type
+                     &buffer[0]);
+
     }
 
     GET_GL_ERROR;
@@ -270,7 +339,7 @@ void SLGLTexture::bindActive(SLint texID)
    
     if (_texName)
     {   _stateGL->activeTexture(GL_TEXTURE0 + texID);
-        _stateGL->bindTexture(_target, _texName);
+        _stateGL->bindAndEnableTexture(_target, _texName);
     }
 }
 //-----------------------------------------------------------------------------
@@ -279,14 +348,14 @@ Fully updates the OpenGL internal texture data by the image data
 */
 void SLGLTexture::fullUpdate()
 {  
-    if (_img[0].data() && _target == GL_TEXTURE_2D)
+    if (_images[0]->data() && _target == GL_TEXTURE_2D)
     {   if (_min_filter==GL_NEAREST || _min_filter==GL_LINEAR)
         {   glTexSubImage2D(_target, 0, 0, 0,
-                            _img[0].width(), 
-                            _img[0].height(),
-                            _img[0].format(),
+                            _images[0]->width(),
+                            _images[0]->height(),
+                            _images[0]->format(),
                             GL_UNSIGNED_BYTE, 
-                            (GLvoid*)_img[0].data());
+                            (GLvoid*)_images[0]->data());
         } 
     }
 }
@@ -306,8 +375,8 @@ triangles with zero in the bottom left corner: <br>
 */
 void SLGLTexture::drawSprite(SLbool doUpdate)
 {
-    SLfloat w = (SLfloat)_img[0].width();
-    SLfloat h = (SLfloat)_img[0].height();
+    SLfloat w = (SLfloat)_images[0]->width();
+    SLfloat h = (SLfloat)_images[0]->height();
 
     // build buffer object once
     if (!_bufP.id() && !_bufT.id() && !_bufI.id())
@@ -368,9 +437,9 @@ SLCol4f SLGLTexture::getTexelf(SLfloat s, SLfloat t)
 
     // Bilinear interpolation
     if (_min_filter==GL_LINEAR || _mag_filter==GL_LINEAR)
-        return _img[0].getPixelf(s, t);
-    else return _img[0].getPixeli((SLint)(s*_img[0].width()),
-                                  (SLint)(t*_img[0].height()));
+         return _images[0]->getPixelf(s, t);
+    else return _images[0]->getPixeli((SLint)(s*_images[0]->width()),
+                                      (SLint)(t*_images[0]->height()));
 }
 //-----------------------------------------------------------------------------
 /*! 
@@ -380,8 +449,8 @@ mapping either from a heightmap or a normalmap
 SLVec2f SLGLTexture::dsdt(SLfloat s, SLfloat t)
 {
     SLVec2f dsdt(0,0);
-    SLfloat ds = 1.0f / _img[0].width();
-    SLfloat dt = 1.0f / _img[0].height(); 
+    SLfloat ds = 1.0f / _images[0]->width();
+    SLfloat dt = 1.0f / _images[0]->height();
    
     if (_texType==HeightMap)
     {   dsdt.x = (getTexelf(s+ds,t   ).x - getTexelf(s-ds,t   ).x) * -_bumpScale;
@@ -437,15 +506,15 @@ void SLGLTexture::build2DMipmaps(SLint target, SLuint index)
     SLint level = 0;   
     glTexImage2D(target, 
                  level, 
-                 _img[index].bytesPerPixel(),
-                 _img[index].width(), 
-                 _img[index].height(), 0,
-                 _img[index].format(),
+                 _images[index]->bytesPerPixel(),
+                 _images[index]->width(),
+                 _images[index]->height(), 0,
+                 _images[index]->format(),
                  GL_UNSIGNED_BYTE, 
-                 (GLvoid*)_img[index].data());
+                 (GLvoid*)_images[index]->data());
    
     // working copy of the base mipmap   
-    SLImage img2(_img[index]);  
+    SLImage img2(*_images[index]);
    
     // create half sized sublevel mipmaps
     while(img2.width() > 1 || img2.height() > 1 )

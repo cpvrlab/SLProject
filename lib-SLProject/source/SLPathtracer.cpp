@@ -60,7 +60,7 @@ SLbool SLPathtracer::render(SLSceneView* sv)
     prepareImage();
 
     // Set second image for render update to the same size
-    _img[1].allocate(_img[0].width(), _img[0].height(), GL_RGB);
+    _images[1]->allocate(_images[0]->width(), _images[0]->height(), GL_RGB);
 
     // Measure time 
     double t1 = SLScene::current->timeSec();
@@ -131,7 +131,7 @@ void SLPathtracer::renderSlices(const bool isMainThread, SLint currentSample)
     double t1 = 0;
     const SLfloat oneOverGamma = 1.0f / _gamma;
 
-    while (_next < _img[0].width())
+    while (_next < _images[0]->width())
     {
         const SLint minX = _next;
 
@@ -140,7 +140,7 @@ void SLPathtracer::renderSlices(const bool isMainThread, SLint currentSample)
 
         for (SLint x=minX; x<minX+4; ++x)
         {
-            for (SLuint y=0; y<_img[0].height(); ++y)
+            for (SLuint y=0; y<_images[0]->height(); ++y)
             {
                 SLCol4f color(SLCol4f::BLACK);
 
@@ -156,7 +156,7 @@ void SLPathtracer::renderSlices(const bool isMainThread, SLint currentSample)
                 SLCol4f oldColor;
                 if (currentSample > 1)
                 {
-                    oldColor = _img[1].getPixeli(x, y);
+                    oldColor = _images[0]->getPixeli(x, y);
 
                     // weight old color ( examp. 3/4, 4/5, 5/6 )
                     oldColor /= (SLfloat)currentSample;
@@ -172,7 +172,7 @@ void SLPathtracer::renderSlices(const bool isMainThread, SLint currentSample)
                 color.clampMinMax(0.0f, 1.0f);
 
                 // save image without gamma
-                _img[1].setPixeliRGB(x, y, color);
+                _images[1]->setPixeliRGB(x, y, color);
 
                 // gamma correction
                 color.x = pow((color.x), oneOverGamma);
@@ -180,7 +180,7 @@ void SLPathtracer::renderSlices(const bool isMainThread, SLint currentSample)
                 color.z = pow((color.z), oneOverGamma);
 
                 // image to render
-                _img[0].setPixeliRGB(x, y, color);
+                _images[0]->setPixeliRGB(x, y, color);
             }
 
             // update image after 500 ms
@@ -410,6 +410,6 @@ void SLPathtracer::saveImage()
 {   static SLint no = 0;
     SLchar filename[255];  
     sprintf(filename,"Pathtraced_%d_%d.png", _aaSamples, no++);
-    _img[0].savePNG(filename);
+    _images[0]->savePNG(filename);
 }
 //-----------------------------------------------------------------------------

@@ -15,7 +15,23 @@
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "949"
             endingLineNumber = "949"
-            landmarkName = "SLSceneView::draw2DGL()"
+            landmarkName = "SLSceneView::onMouseDown(const SLMouseButton button, SLint x, SLint y, const SLKey mod)"
+            landmarkType = "5">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "../include/SLUtils.h"
+            timestampString = "448649133.618741"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "123"
+            endingLineNumber = "123"
+            landmarkName = "getFileNamesInDir(SLstring dirName)"
             landmarkType = "5">
          </BreakpointContent>
       </BreakpointProxy>

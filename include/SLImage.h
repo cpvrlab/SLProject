@@ -83,7 +83,7 @@ SLGLTexture.
 */
 class SLImage : public SLObject
 {
-    public:        
+    public:
                             SLImage         () {_data=0; _width=0; _height=0;}
                             SLImage         (SLint width, SLint height, SLuint format);  
                             SLImage         (SLstring imageFilename); 
@@ -134,6 +134,8 @@ class SLImage : public SLObject
             SLint           _bytesPerLine;  //!< Number of bytes per line (stride)
             SLint           _bytesPerImage; //!< Number of bytes per image
             SLstring        _path;          //!< path on the filesystem
-};                          
+};
+//-----------------------------------------------------------------------------
+typedef std::vector<SLImage*> SLVImage;
 //-----------------------------------------------------------------------------
 #endif

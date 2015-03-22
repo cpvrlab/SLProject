@@ -3,6 +3,7 @@
 //  Purpose:   Standalone volume rendering test application.
 //  Date:      February 2014
 //  Author:    Manuel Frischknecht
+//  Codestyle: https://github.com/cpvrlab/SLProject/wiki/Coding-Style-Guidelines
 //  Copyright: 2002-2014 Marcus Hudritsch
 //             This software is provide under the GNU General Public License
 //             Please visit: http://opensource.org/licenses/GPL-3.0
@@ -1136,57 +1137,43 @@ int main()
     // in framebuffer coords
     SLint fbWidth, fbHeight;
     glfwGetFramebufferSize(window, &fbWidth, &fbHeight);
-    _scr2fbX = (float)fbWidth / (float)_scrWidth;
+    _scr2fbX = (float)fbWidth  / (float)_scrWidth;
     _scr2fbY = (float)fbHeight / (float)_scrHeight;
 
     // Include OpenGL via GLEW
     GLenum err = glewInit();
     if (GLEW_OK != err)
     {  fprintf(stderr, "Error: %s\n", glewGetErrorString(err));
-      exit(EXIT_FAILURE);
+        exit(EXIT_FAILURE);
     }
 
-    glfwSetWindowTitle(window, "SLProject Test Application");
+    glfwSetWindowTitle(window, "Volume Rendering Test Application");
 
     // Set number of monitor refreshes between 2 buffer swaps
     glfwSwapInterval(1);
 
-    {
-        _voxelScaling = { 1.0f, 1.0f, 1.0f };
-        const std::string path = "../_data/images/textures/3d/volumes/mri_head_front_to_back/";
-        const int numFiles = 207;
-        std::vector<std::string> files;
-        files.reserve(numFiles);
-        for (int i = 0; i < numFiles; ++i)
-        {
-            std::stringstream ss;
-            ss << path
-               << "i" << std::setw(4) << std::setfill('0') << i
-               << "_0000b.png";
+    // Load and build 3D texture from multiple images of the same size
+    _voxelScaling = { 1.0f, 1.0f, 1.0f };
+    SLstring  path = "../_data/images/textures/3d/volumes/mri_head_front_to_back/";
+    std::vector<std::string> files = glUtils::getFileNamesInDir(path);
+    _volumeTexture = glUtils::build3DTexture(files,
+                                             _volumeWidth,
+                                             _volumeHeight,
+                                             _volumeDepth,
+                                             GL_LINEAR,
+                                             GL_LINEAR,
+                                             GL_CLAMP_TO_BORDER,
+                                             GL_CLAMP_TO_BORDER,
+                                             GL_CLAMP_TO_BORDER);
+    glGenTextures(1, &_tfLutTexture);
+    glBindTexture(GL_TEXTURE_1D, _tfLutTexture);
+    glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glBindTexture(GL_TEXTURE_1D, 0);
 
-            files.emplace_back(ss.str());
-        }
+    buildMaxIntensityLut();
 
-        _volumeTexture = glUtils::build3DTexture(files,
-                                                 _volumeWidth,
-                                                 _volumeHeight,
-                                                 _volumeDepth,
-                                                 GL_LINEAR,
-                                                 GL_LINEAR,
-                                                 GL_CLAMP_TO_BORDER,
-                                                 GL_CLAMP_TO_BORDER,
-                                                 GL_CLAMP_TO_BORDER
-                                                 );
-
-        glGenTextures(1, &_tfLutTexture);
-        glBindTexture(GL_TEXTURE_1D, _tfLutTexture);
-        glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-        glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-        glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-        glBindTexture(GL_TEXTURE_1D, 0);
-
-        buildMaxIntensityLut();
-    }
     GET_GL_ERROR;
 
     onInit();

@@ -203,7 +203,7 @@ typedef GLchar          SLchar;  // char is signed [-128 ... 127]!
 typedef unsigned char   SLuchar;
 typedef signed long     SLlong;
 typedef unsigned long   SLulong;
-typedef GLbyte          SLbyte;
+typedef GLbyte          SLbyte;  // byte is signed [-128 ... 127]!
 typedef GLubyte         SLubyte;
 typedef GLshort         SLshort;
 typedef GLushort        SLushort; 
@@ -224,11 +224,17 @@ typedef GLenum          SLenum;
 typedef GLbitfield      SLbitfield;
 typedef GLfloat         SLfloat;
 
+// all std::vectors begin with SLV*
 typedef std::vector<SLbyte>   SLVbyte;
-typedef std::vector<SLint>    SLVint;
-typedef std::vector<SLuint>   SLVuint;
+typedef std::vector<SLubyte>  SLVubyte;
+typedef std::vector<SLchar>   SLVchar;
+typedef std::vector<SLuchar>  SLVuchar;
 typedef std::vector<SLshort>  SLVshort;
 typedef std::vector<SLushort> SLVushort;
+typedef std::vector<SLint>    SLVint;
+typedef std::vector<SLuint>   SLVuint;
+typedef std::vector<SLlong>   SLVlong;
+typedef std::vector<SLulong>  SLVulong;
 typedef std::vector<SLfloat>  SLVfloat;
 typedef std::vector<SLstring> SLVstring;
 

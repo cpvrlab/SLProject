@@ -18,6 +18,7 @@
 
 #include <algorithm>
 #include <numeric>
+#include <dirent.h>           // opendir
 
 std::vector<string> errors;   // global vector for errors used in getGLError    
 
@@ -352,3 +353,25 @@ void glUtils::getGLError(char* file,
     }
     #endif
 }
+//-----------------------------------------------------------------------------
+//! Returns a vector of storted filesnames with path within a directory
+SLVstring glUtils::getFileNamesInDir(SLstring dirName)
+{
+    SLVstring fileNames;
+    DIR* dir;
+    struct dirent *dirContent;
+    int i=0;
+    dir = opendir(dirName.c_str());
+
+    if (dir)
+    {   while ((dirContent = readdir(dir)) != NULL)
+        {   i++;
+            SLstring name(dirContent->d_name);
+            if(name != "." && name != "..")
+                fileNames.push_back(dirName+"/"+name);
+        }
+        closedir(dir);
+    }
+    return fileNames;
+}
+//-----------------------------------------------------------------------------

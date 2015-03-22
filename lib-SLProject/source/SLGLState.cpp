@@ -343,14 +343,24 @@ void SLGLState::useProgram(SLuint progID)
     }
 }
 //-----------------------------------------------------------------------------
-/*! SLGLState::bindTexture sets the current active texture name
+/*! SLGLState::bindAndEnableTexture sets the current active texture name
+and enables or disables 1D and 3D texturing. If textureID is zero all are
+disabled.
 */
-void SLGLState::bindTexture(GLenum target, SLuint textureID)
+void SLGLState::bindAndEnableTexture(GLenum target, SLuint textureID)
 {
     if (target != _textureTarget || textureID != _textureID)
     {   glBindTexture(target, textureID);
+
+        if (_textureTarget != GL_TEXTURE_2D && _textureTarget != -1 ||
+            textureID == 0)
+            glDisable(_textureTarget);
+
         _textureTarget = target;
         _textureID = textureID;
+
+        if (_textureTarget != GL_TEXTURE_2D && textureID != 0)
+            glEnable(_textureTarget);
     }
 }
 //-----------------------------------------------------------------------------
@@ -375,7 +385,7 @@ void SLGLState::unbindAnythingAndFlush()
     // reset the bound texture unit
     // This is needed since leaving one texture unit bound over multiple windows
     // sometimes (most of the time) causes bugs
-    bindTexture(_textureTarget, 0);
+    bindAndEnableTexture(_textureTarget, 0);
 
     //glBindBuffer(GL_ARRAY_BUFFER, 0);
     //glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);

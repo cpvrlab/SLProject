@@ -64,6 +64,9 @@ class glUtils
                                      );
         //! Checks if an OpenGL error occured
         static void getGLError(char* file, int line, bool quit);
+
+        //! Returns a vector of storted filesname within a directory
+        static SLVstring getFileNamesInDir(SLstring dirName);
 };
 //-----------------------------------------------------------------------------
 #endif

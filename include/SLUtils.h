@@ -108,7 +108,7 @@ class SLUtils
             return("");
         }
 
-        //! SLUtils::getFileNamesinDir returns a vector of storted filesname within a directory
+        //! SLUtils::getFileNamesinDir returns a vector of storted filesname with path within a directory
         static SLVstring getFileNamesInDir(SLstring dirName)
         {
             SLVstring fileNames;
@@ -122,7 +122,7 @@ class SLUtils
                 {   i++;
                     SLstring name(dirContent->d_name);
                     if(name != "." && name != "..")
-                        fileNames.push_back(name);
+                        fileNames.push_back(dirName+"/"+name);
                 }
                 closedir(dir);
             }

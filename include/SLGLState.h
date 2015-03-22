@@ -99,25 +99,25 @@ class SLGLState
         void     unbindAnythingAndFlush();        //!< finishes all GL commands
       
         // light transformations into view space
-        void     calcLightPosVS    (SLint nLights);
-        void     calcLightDirVS    (SLint nLights);
+        void     calcLightPosVS       (SLint nLights);
+        void     calcLightDirVS       (SLint nLights);
       
         // state setters
-        void     depthTest         (SLbool state);
-        void     depthMask         (SLbool state);      
-        void     cullFace          (SLbool state);
-        void     blend             (SLbool state);
-        void     multiSample       (SLbool state);
-        void     polygonLine       (SLbool state);
-        void     polygonOffset     (SLbool state, SLfloat factor=1.0f, SLfloat units=1.0f);
-        void     viewport          (SLint x, SLint y, SLsizei w, SLsizei h);
-        void     colorMask         (SLint r, SLint g, SLint b, SLint a);
-        void     useProgram        (SLuint progID);
-        void     bindTexture       (SLenum target, SLuint textureID);
-        void     activeTexture     (SLenum textureUnit);
-        void     clearColor        (SLCol4f c) {glClearColor(c.r,c.g,c.b,c.a);}
-        void     clearColorBuffer  ()    {glClear(GL_COLOR_BUFFER_BIT);}
-        void     clearDepthBuffer  ()    {glClear(GL_DEPTH_BUFFER_BIT);}
+        void     depthTest            (SLbool state);
+        void     depthMask            (SLbool state);
+        void     cullFace             (SLbool state);
+        void     blend                (SLbool state);
+        void     multiSample          (SLbool state);
+        void     polygonLine          (SLbool state);
+        void     polygonOffset        (SLbool state, SLfloat factor=1.0f, SLfloat units=1.0f);
+        void     viewport             (SLint x, SLint y, SLsizei w, SLsizei h);
+        void     colorMask            (SLint r, SLint g, SLint b, SLint a);
+        void     useProgram           (SLuint progID);
+        void     bindAndEnableTexture (SLenum target, SLuint textureID);
+        void     activeTexture        (SLenum textureUnit);
+        void     clearColor           (SLCol4f c) {glClearColor(c.r,c.g,c.b,c.a);}
+        void     clearColorBuffer     () {glClear(GL_COLOR_BUFFER_BIT);}
+        void     clearDepthBuffer     () {glClear(GL_DEPTH_BUFFER_BIT);}
         void     clearColorDepthBuffer() {glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);}
       
         // state getters

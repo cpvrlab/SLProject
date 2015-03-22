@@ -10,8 +10,6 @@
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
 
-//#version 130
-
 #ifdef GL_FRAGMENT_PRECISION_HIGH
 precision mediump float;
 #endif
