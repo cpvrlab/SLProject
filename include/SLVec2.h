@@ -27,19 +27,19 @@ class SLVec2
     public:
             union
             {  struct {T x, y;};
-            struct {T comp[2];};
+               struct {T comp[2];};
             };
 
             SLVec2      ()                      {}
             SLVec2      (const T X, 
-                            const T Y)             {x=X;y=Y;}
+                         const T Y)             {x=X;y=Y;}
             SLVec2      (const T v[2])          {x=v[0]; y=v[1];}
             SLVec2      (const SLVec2& v)       {x=v.x; y=v.y;}
 
-    void     set         (const T X,
-                            const T Y)             {x=X; y=Y;}
-    void     set         (const T v[2])          {x=v[0]; y=v[1];}
-    void     set         (const SLVec2& v)       {x=v.x; y=v.y;}
+    void     set        (const T X,
+                         const T Y)             {x=X; y=Y;}
+    void     set        (const T v[2])          {x=v[0]; y=v[1];}
+    void     set        (const SLVec2& v)       {x=v.x; y=v.y;}
 
     // Component wise compare
     inline  SLint    operator == (const SLVec2& v) const {return (x==v.x && y==v.y);}

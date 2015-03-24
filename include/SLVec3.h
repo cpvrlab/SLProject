@@ -47,7 +47,7 @@ class SLVec3
                                  const T Y,
                                  const T Z)             {x=X;    y=Y;    z=Z;}
             void    set         (const T X,
-                                   const T Y)             {x=X;    y=Y;    z=0;}
+                                 const T Y)             {x=X;    y=Y;    z=0;}
             void    set         (const T v[3])          {x=v[0]; y=v[1]; z=v[2];}
             void    set         (const SLVec2<T>& v)    {x=v.x;  y=v.y;  z=0;}
             void    set         (const SLVec3<T>& v)    {x=v.x;  y=v.y;  z=v.z;}

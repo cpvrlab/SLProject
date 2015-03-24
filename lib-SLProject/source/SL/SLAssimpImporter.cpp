@@ -289,8 +289,7 @@ SLNode* SLAssimpImporter::load(SLstring file,        //!< File with path or on d
     Assimp::Importer ai;
     const aiScene* scene = ai.ReadFile(file.c_str(), (SLuint)flags);
     if (!scene)
-    {   SLstring msg = "Failed to load file: " + 
-                        file + "\n" + ai.GetErrorString();
+    {   SLstring msg = "Failed to load file: " + file + "\n" + ai.GetErrorString() + "\n";
         SL_WARN_MSG(msg.c_str());
         return nullptr;
     }
