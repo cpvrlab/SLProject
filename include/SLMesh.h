@@ -193,7 +193,6 @@ virtual void            calcMinMax     ();
    
     protected:
         SLGLState*      _stateGL;   //!< Pointer to the global SLGLState instance
-
         SLPrimitive     _primitive; //!< Primitive type (default triangles)
 
         SLGLBuffer      _bufP;      //!< Buffer for vertex positions

@@ -1563,9 +1563,9 @@ void SLSceneView::build2DMenus()
     mn3->addChild(new SLButton(this, "Figure", f, cmdSceneFigure, true, curS==cmdSceneFigure, mn2));
     mn3->addChild(new SLButton(this, "Mesh Loader", f, cmdSceneMeshLoad, true, curS==cmdSceneMeshLoad, mn2));
     mn3->addChild(new SLButton(this, "Texture Blending", f, cmdSceneTextureBlend, true, curS==cmdSceneTextureBlend, mn2));
+    mn3->addChild(new SLButton(this, "Texture Filtering", f, cmdSceneTextureFilter, true, curS==cmdSceneTextureFilter, mn2));
     mn3->addChild(new SLButton(this, "Frustum Culling 1", f, cmdSceneFrustumCull1, true, curS==cmdSceneFrustumCull1, mn2));
     mn3->addChild(new SLButton(this, "Frustum Culling 2", f, cmdSceneFrustumCull2, true, curS==cmdSceneFrustumCull2, mn2));
-    mn3->addChild(new SLButton(this, "Texture Filtering", f, cmdSceneTextureFilter, true, curS==cmdSceneTextureFilter, mn2));
 
     mn3 = new SLButton(this, "Shader >", f);
     mn2->addChild(mn3);

@@ -494,9 +494,6 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
         anim->createSimpleTranslationNodeTrack(light4, SLVec3f(0.0f, 1.0f, 0.0f));
         anim->createSimpleTranslationNodeTrack(light5, SLVec3f(0.0f, 2.0f, 0.0f));
 
-
-
-        // 
         SLMaterial* whiteMat = new SLMaterial("mat", SLCol4f::WHITE, SLCol4f::WHITE, 1.0f, 1.0, 0.0f, 0.0f);
         whiteMat->emission(SLCol4f::WHITE);
         SLRectangle* plane0 = new SLRectangle(SLVec2f(-0.01f, 0.0f), SLVec2f(0.01f, 1.0f), 1, 1, "sizeIndicator0", whiteMat);
@@ -550,6 +547,148 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
         scene->addChild(light4);
         scene->addChild(light5);
 
+        _root3D = scene;
+    }
+    else
+    if (sceneName == cmdSceneRevolver) //.......................................
+    {
+        name("Revolving Mesh Test w. glass shader");
+        info(sv, "Examples of revolving mesh objects constructed by rotating a 2D curve. The glass shader reflects and refracts the environment map. Try ray tracing.");
+
+        // Testmap material
+        SLGLTexture* tex1 = new SLGLTexture("Testmap_0512_C.png");
+        SLMaterial* mat1 = new SLMaterial("mat1", tex1);
+
+        // floor material
+        SLGLTexture* tex2 = new SLGLTexture("wood0_0512_C.jpg");
+        SLMaterial* mat2 = new SLMaterial("mat2", tex2);
+        mat2->specular(SLCol4f::BLACK);
+
+        // Back wall material
+        SLGLTexture* tex3 = new SLGLTexture("bricks1_0512_C.jpg");
+        SLMaterial* mat3 = new SLMaterial("mat3", tex3);
+        mat3->specular(SLCol4f::BLACK);
+
+        // Left wall material
+        SLGLTexture* tex4 = new SLGLTexture("wood2_0512_C.jpg");
+        SLMaterial* mat4 = new SLMaterial("mat4", tex4);
+        mat4->specular(SLCol4f::BLACK);
+
+        // Glass material
+        SLGLTexture* tex5 = new SLGLTexture("wood2_0256_C.jpg", "wood2_0256_C.jpg"
+                                            ,"gray_0256_C.jpg", "wood0_0256_C.jpg"
+                                            ,"gray_0256_C.jpg", "bricks1_0256_C.jpg");
+        SLMaterial* mat5 = new SLMaterial("glass", SLCol4f::BLACK, SLCol4f::WHITE,
+                                        100, 0.2f, 0.8f, 1.5f);
+        mat5->textures().push_back(tex5);
+        SLGLProgram* sp1 = new SLGLGenericProgram("RefractReflect.vert",
+                                                        "RefractReflect.frag");
+        mat5->program(sp1);
+
+        // camera
+        SLCamera* cam1 = new SLCamera();
+        cam1->name("cam1");
+        cam1->position(0,0,17);
+        cam1->lookAt(0, 0, 0);
+        cam1->focalDist(17);
+        cam1->setInitialState();
+
+        // light
+        SLLightSphere* light1 = new SLLightSphere(0, 4, 0, 0.3f);
+        light1->diffuse(SLCol4f(1, 1, 1));
+        light1->ambient(SLCol4f(0.2f, 0.2f, 0.2f));
+        light1->specular(SLCol4f(1, 1, 1));
+        light1->attenuation(1,0,0);
+        SLAnimation* anim = SLAnimation::create("light1_anim", 4.0f);
+        anim->createEllipticNodeTrack(light1, 6.0f, ZAxis, 6.0f, XAxis);
+
+
+        // wine glass
+        SLVVec3f revP;
+        revP.push_back(SLVec3f(0.00f, 0.00f));
+        revP.push_back(SLVec3f(2.00f, 0.00f));
+        revP.push_back(SLVec3f(2.00f, 0.00f));
+        revP.push_back(SLVec3f(2.00f, 0.10f));
+        revP.push_back(SLVec3f(1.95f, 0.15f));
+
+        revP.push_back(SLVec3f(0.40f, 0.50f));
+        revP.push_back(SLVec3f(0.25f, 0.60f));
+        revP.push_back(SLVec3f(0.20f, 0.70f));
+        revP.push_back(SLVec3f(0.30f, 3.00f));
+
+        revP.push_back(SLVec3f(0.30f, 3.00f));
+        revP.push_back(SLVec3f(0.20f, 3.10f));
+        revP.push_back(SLVec3f(0.20f, 3.10f));
+
+        revP.push_back(SLVec3f(1.20f, 3.90f));
+        revP.push_back(SLVec3f(1.60f, 4.30f));
+        revP.push_back(SLVec3f(1.95f, 4.80f));
+        revP.push_back(SLVec3f(2.15f, 5.40f));
+        revP.push_back(SLVec3f(2.20f, 6.20f));
+        revP.push_back(SLVec3f(2.10f, 7.10f));
+        revP.push_back(SLVec3f(2.05f, 7.15f));
+
+        revP.push_back(SLVec3f(2.00f, 7.10f));
+        revP.push_back(SLVec3f(2.05f, 6.00f));
+        revP.push_back(SLVec3f(1.95f, 5.40f));
+        revP.push_back(SLVec3f(1.70f, 4.80f));
+        revP.push_back(SLVec3f(1.30f, 4.30f));
+        revP.push_back(SLVec3f(0.80f, 4.00f));
+        revP.push_back(SLVec3f(0.20f, 3.80f));
+        revP.push_back(SLVec3f(0.00f, 3.82f));
+        SLNode* glass = new SLNode(new SLRevolver(revP, SLVec3f(0,1,0), 36, true, true, "Revolver", mat5));
+        glass->translate(0.0f,-3.5f, 0.0f, TS_Local);
+
+        SLNode* sphere = new SLNode(new SLSphere(1,16,16, "mySphere", mat1));
+        sphere->translate(3,0,0, TS_Local);
+
+        SLNode* cylinder = new SLNode(new SLCylinder(1, 2, 3, 16, true, true, "myCylinder", mat1));
+        cylinder->translate(-3,0,-1, TS_Local);
+
+        SLNode* cone = new SLNode(new SLCone(1, 3, 3, 16, true, "myCone", mat1));
+        cone->rotate(90, -1,0,0);
+        cone->translate(0,0,2.5f, TS_Local);
+
+        // Cube dimensions
+        SLfloat pL = -9.0f, pR = 9.0f; // left/right
+        SLfloat pB = -3.5f, pT =14.5f; // bottom/top
+        SLfloat pN =  9.0f, pF =-9.0f; // near/far
+
+        //// bottom rectangle
+        SLNode* b = new SLNode(new SLRectangle(SLVec2f(pL,-pN), SLVec2f(pR,-pF), 10, 10, "PolygonFloor", mat2));
+        b->rotate(90, -1,0,0); b->translate(0,0,pB, TS_Local);
+
+        // top rectangle
+        SLNode* t = new SLNode(new SLRectangle(SLVec2f(pL,pF), SLVec2f(pR,pN), 10, 10, "top", mat2));
+        t->rotate(90, 1,0,0); t->translate(0,0,-pT, TS_Local);
+
+        // far rectangle
+        SLNode* f = new SLNode(new SLRectangle(SLVec2f(pL,pB), SLVec2f(pR,pT), 10, 10, "far", mat3));
+        f->translate(0,0,pF, TS_Local);
+
+        // left rectangle
+        SLNode* l = new SLNode(new SLRectangle(SLVec2f(-pN,pB), SLVec2f(-pF,pT), 10, 10, "left", mat4));
+        l->rotate(90, 0,1,0); l->translate(0,0,pL, TS_Local);
+
+        // right rectangle
+        SLNode* r = new SLNode(new SLRectangle(SLVec2f(pF,pB), SLVec2f(pN,pT), 10, 10, "right", mat4));
+        r->rotate(90, 0,-1,0); r->translate(0,0,-pR, TS_Local);
+
+        SLNode* scene = new SLNode;
+        scene->addChild(light1);
+        scene->addChild(glass);
+        scene->addChild(sphere);
+        scene->addChild(cylinder);
+        scene->addChild(cone);
+        scene->addChild(b);
+        scene->addChild(f);
+        scene->addChild(t);
+        scene->addChild(l);
+        scene->addChild(r);
+        scene->addChild(cam1);
+
+        _backColor.set(0.5f,0.5f,0.5f);
+        sv->camera(cam1);
         _root3D = scene;
     }
     else
@@ -682,144 +821,89 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
         _root3D = scene;
     }
     else
-    if (sceneName == cmdSceneRevolver) //.......................................
+    if (sceneName == cmdSceneTextureFilter) //..................................
     {
-        name("Revolving Mesh Test w. glass shader");
-        info(sv, "Examples of revolving mesh objects constructed by rotating a 2D curve. The glass shader reflects and refracts the environment map. Try ray tracing.");
+        name("Texturing: Filter Compare");
+        info(sv, "Texture filter comparison: Bottom: nearest neighbour, left: linear, top: linear mipmap, right: anisotropic");
 
-        // Testmap material
-        SLGLTexture* tex1 = new SLGLTexture("Testmap_0512_C.png");
-        SLMaterial* mat1 = new SLMaterial("mat1", tex1);
+        // Create 4 textures with different filter modes
+        SLGLTexture* texB = new SLGLTexture("brick0512_C.png"
+                                            ,GL_NEAREST
+                                            ,GL_NEAREST);
+        SLGLTexture* texL = new SLGLTexture("brick0512_C.png"
+                                            ,GL_LINEAR
+                                            ,GL_LINEAR);
+        SLGLTexture* texT = new SLGLTexture("brick0512_C.png"
+                                            ,GL_LINEAR_MIPMAP_LINEAR
+                                            ,GL_LINEAR);
+        SLGLTexture* texR = new SLGLTexture("brick0512_C.png"
+                                            ,SL_ANISOTROPY_MAX
+                                            ,GL_LINEAR);
 
-        // floor material
-        SLGLTexture* tex2 = new SLGLTexture("wood0_0512_C.jpg");
-        SLMaterial* mat2 = new SLMaterial("mat2", tex2);
-        mat2->specular(SLCol4f::BLACK);
+        // define materials with textureOnly shader, no light needed
+        SLMaterial* matB = new SLMaterial("matB", texB,0,0,0, _programs[TextureOnly]);
+        SLMaterial* matL = new SLMaterial("matL", texL,0,0,0, _programs[TextureOnly]);
+        SLMaterial* matT = new SLMaterial("matT", texT,0,0,0, _programs[TextureOnly]);
+        SLMaterial* matR = new SLMaterial("matR", texR,0,0,0, _programs[TextureOnly]);
 
-        // Back wall material
-        SLGLTexture* tex3 = new SLGLTexture("bricks1_0512_C.jpg");
-        SLMaterial* mat3 = new SLMaterial("mat3", tex3);
-        mat3->specular(SLCol4f::BLACK);
+        // build polygons for bottom, left, top & right side
+        SLVVec3f VB;
+        VB.push_back(SLVec3f(-0.5f,-0.5f, 1.0f));
+        VB.push_back(SLVec3f( 0.5f,-0.5f, 1.0f));
+        VB.push_back(SLVec3f( 0.5f,-0.5f,-2.0f));
+        VB.push_back(SLVec3f(-0.5f,-0.5f,-2.0f));
+        SLVVec2f T;
+        T.push_back(SLVec2f( 0.0f, 2.0f));
+        T.push_back(SLVec2f( 0.0f, 0.0f));
+        T.push_back(SLVec2f( 6.0f, 0.0f));
+        T.push_back(SLVec2f( 6.0f, 2.0f));
+        SLNode* polyB = new SLNode(new SLPolygon(VB, T, "PolygonB", matB));
 
-        // Left wall material
-        SLGLTexture* tex4 = new SLGLTexture("wood2_0512_C.jpg");
-        SLMaterial* mat4 = new SLMaterial("mat4", tex4);
-        mat4->specular(SLCol4f::BLACK);
+        SLVVec3f VL;
+        VL.push_back(SLVec3f(-0.5f, 0.5f, 1.0f));
+        VL.push_back(SLVec3f(-0.5f,-0.5f, 1.0f));
+        VL.push_back(SLVec3f(-0.5f,-0.5f,-2.0f));
+        VL.push_back(SLVec3f(-0.5f, 0.5f,-2.0f));
+        SLNode* polyL = new SLNode(new SLPolygon(VL, T, "PolygonL", matL));
 
-        // Glass material
-        SLGLTexture* tex5 = new SLGLTexture("wood2_0256_C.jpg", "wood2_0256_C.jpg"
-                                            ,"gray_0256_C.jpg", "wood0_0256_C.jpg"
-                                            ,"gray_0256_C.jpg", "bricks1_0256_C.jpg");
-        SLMaterial* mat5 = new SLMaterial("glass", SLCol4f::BLACK, SLCol4f::WHITE,
-                                        100, 0.2f, 0.8f, 1.5f);
-        mat5->textures().push_back(tex5);
-        SLGLProgram* sp1 = new SLGLGenericProgram("RefractReflect.vert",
-                                                        "RefractReflect.frag");
-        mat5->program(sp1);
+        SLVVec3f VT;
+        VT.push_back(SLVec3f( 0.5f, 0.5f, 1.0f));
+        VT.push_back(SLVec3f(-0.5f, 0.5f, 1.0f));
+        VT.push_back(SLVec3f(-0.5f, 0.5f,-2.0f));
+        VT.push_back(SLVec3f( 0.5f, 0.5f,-2.0f));
+        SLNode* polyT = new SLNode(new SLPolygon(VT, T, "PolygonT", matT));
 
-        // camera
-        SLCamera* cam1 = new SLCamera();
-        cam1->name("cam1");
-        cam1->position(0,0,17);
+        SLVVec3f VR;
+        VR.push_back(SLVec3f( 0.5f,-0.5f, 1.0f));
+        VR.push_back(SLVec3f( 0.5f, 0.5f, 1.0f));
+        VR.push_back(SLVec3f( 0.5f, 0.5f,-2.0f));
+        VR.push_back(SLVec3f( 0.5f,-0.5f,-2.0f));
+        SLNode* polyR = new SLNode(new SLPolygon(VR, T, "PolygonR", matR));
+
+        SLNode* sphere = new SLNode(new SLSphere(0.2f,16,16,"Sphere", matR));
+        sphere->rotate(90, 1,0,0);
+
+        SLMesh* pyramid = new SLMesh("Pyramid");
+        pyramid->P = new SLVec3f[5]{{-1,-1,1},{1,-1,1},{1,-1,-1},{-1,-1,-1},{0,1,0}};
+        pyramid->I16 = new SLushort[18]{0,3,1, 1,3,2, 4,0,1, 4,1,2, 4,2,3, 4,3,0};
+        SLNode* pyramidNode = new SLNode(pyramid, "Pyramid");
+
+        SLCamera* cam1 = new SLCamera;
+        cam1->position(0,0,2.2f);
         cam1->lookAt(0, 0, 0);
-        cam1->focalDist(17);
+        cam1->focalDist(2.2f);
         cam1->setInitialState();
 
-        // light
-        SLLightSphere* light1 = new SLLightSphere(0, 4, 0, 0.3f);
-        light1->diffuse(SLCol4f(1, 1, 1));
-        light1->ambient(SLCol4f(0.2f, 0.2f, 0.2f));
-        light1->specular(SLCol4f(1, 1, 1));
-        light1->attenuation(1,0,0);
-        SLAnimation* anim = SLAnimation::create("light1_anim", 4.0f);
-        anim->createEllipticNodeTrack(light1, 6.0f, ZAxis, 6.0f, XAxis);
-        
-
-        // wine glass
-        SLVVec3f revP;
-        revP.push_back(SLVec3f(0.00f, 0.00f));
-        revP.push_back(SLVec3f(2.00f, 0.00f));
-        revP.push_back(SLVec3f(2.00f, 0.00f));
-        revP.push_back(SLVec3f(2.00f, 0.10f));
-        revP.push_back(SLVec3f(1.95f, 0.15f));
-
-        revP.push_back(SLVec3f(0.40f, 0.50f));
-        revP.push_back(SLVec3f(0.25f, 0.60f));
-        revP.push_back(SLVec3f(0.20f, 0.70f));
-        revP.push_back(SLVec3f(0.30f, 3.00f));
-
-        revP.push_back(SLVec3f(0.30f, 3.00f));
-        revP.push_back(SLVec3f(0.20f, 3.10f));
-        revP.push_back(SLVec3f(0.20f, 3.10f));
-
-        revP.push_back(SLVec3f(1.20f, 3.90f));
-        revP.push_back(SLVec3f(1.60f, 4.30f));
-        revP.push_back(SLVec3f(1.95f, 4.80f));
-        revP.push_back(SLVec3f(2.15f, 5.40f));
-        revP.push_back(SLVec3f(2.20f, 6.20f));
-        revP.push_back(SLVec3f(2.10f, 7.10f));
-        revP.push_back(SLVec3f(2.05f, 7.15f));
-
-        revP.push_back(SLVec3f(2.00f, 7.10f));
-        revP.push_back(SLVec3f(2.05f, 6.00f));
-        revP.push_back(SLVec3f(1.95f, 5.40f));
-        revP.push_back(SLVec3f(1.70f, 4.80f));
-        revP.push_back(SLVec3f(1.30f, 4.30f));
-        revP.push_back(SLVec3f(0.80f, 4.00f));
-        revP.push_back(SLVec3f(0.20f, 3.80f));
-        revP.push_back(SLVec3f(0.00f, 3.82f));
-        SLNode* glass = new SLNode(new SLRevolver(revP, SLVec3f(0,1,0), 36, true, true, "Revolver", mat5));
-        glass->translate(0.0f,-3.5f, 0.0f, TS_Local);
-      
-        SLNode* sphere = new SLNode(new SLSphere(1,16,16, "mySphere", mat1));
-        sphere->translate(3,0,0, TS_Local);
-
-        SLNode* cylinder = new SLNode(new SLCylinder(1, 2, 3, 16, true, true, "myCylinder", mat1));
-        cylinder->translate(-3,0,-1, TS_Local);
-
-        SLNode* cone = new SLNode(new SLCone(1, 3, 3, 16, true, "myCone", mat1));
-        cone->rotate(90, -1,0,0);
-        cone->translate(0,0,2.5f, TS_Local);
-
-        // Cube dimensions
-        SLfloat pL = -9.0f, pR = 9.0f; // left/right
-        SLfloat pB = -3.5f, pT =14.5f; // bottom/top
-        SLfloat pN =  9.0f, pF =-9.0f; // near/far
-
-        //// bottom rectangle
-        SLNode* b = new SLNode(new SLRectangle(SLVec2f(pL,-pN), SLVec2f(pR,-pF), 10, 10, "PolygonFloor", mat2));
-        b->rotate(90, -1,0,0); b->translate(0,0,pB, TS_Local);
-
-        // top rectangle
-        SLNode* t = new SLNode(new SLRectangle(SLVec2f(pL,pF), SLVec2f(pR,pN), 10, 10, "top", mat2));
-        t->rotate(90, 1,0,0); t->translate(0,0,-pT, TS_Local);
-
-        // far rectangle
-        SLNode* f = new SLNode(new SLRectangle(SLVec2f(pL,pB), SLVec2f(pR,pT), 10, 10, "far", mat3));
-        f->translate(0,0,pF, TS_Local);
-
-        // left rectangle
-        SLNode* l = new SLNode(new SLRectangle(SLVec2f(-pN,pB), SLVec2f(-pF,pT), 10, 10, "left", mat4));
-        l->rotate(90, 0,1,0); l->translate(0,0,pL, TS_Local);
-
-        // right rectangle
-        SLNode* r = new SLNode(new SLRectangle(SLVec2f(pF,pB), SLVec2f(pN,pT), 10, 10, "right", mat4));
-        r->rotate(90, 0,-1,0); r->translate(0,0,-pR, TS_Local);
-
-        SLNode* scene = new SLNode;
-        scene->addChild(light1);
-        scene->addChild(glass);
+        SLNode* scene = new SLNode();
+        scene->addChild(polyB);
+        scene->addChild(polyL);
+        scene->addChild(polyT);
+        scene->addChild(polyR);
         scene->addChild(sphere);
-        scene->addChild(cylinder);
-        scene->addChild(cone);
-        scene->addChild(b);
-        scene->addChild(f);
-        scene->addChild(t);
-        scene->addChild(l);
-        scene->addChild(r);
         scene->addChild(cam1);
+        scene->addChild(pyramidNode);
 
-        _backColor.set(0.5f,0.5f,0.5f);
+        _backColor.set(SLCol4f(0.2f,0.2f,0.2f));
         sv->camera(cam1);
         _root3D = scene;
     }
@@ -938,87 +1022,6 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
 
         // Set backround color, active camera & the root pointer
         _backColor.set(SLCol4f(0.1f,0.4f,0.8f));
-        sv->camera(cam1);
-        _root3D = scene;
-    }
-    else
-    if (sceneName == cmdSceneTextureFilter) //..................................
-    {
-        name("Texturing: Filter Compare");
-        info(sv, "Texture filter comparison: Bottom: nearest neighbour, left: linear, top: linear mipmap, right: anisotropic");
-
-        // Create 4 textures with different filter modes
-        SLGLTexture* texB = new SLGLTexture("brick0512_C.png"
-                                            ,GL_NEAREST
-                                            ,GL_NEAREST);
-        SLGLTexture* texL = new SLGLTexture("brick0512_C.png"
-                                            ,GL_LINEAR
-                                            ,GL_LINEAR);
-        SLGLTexture* texT = new SLGLTexture("brick0512_C.png"
-                                            ,GL_LINEAR_MIPMAP_LINEAR
-                                            ,GL_LINEAR);
-        SLGLTexture* texR = new SLGLTexture("brick0512_C.png"
-                                            ,SL_ANISOTROPY_MAX
-                                            ,GL_LINEAR);
-
-        // define materials with textureOnly shader, no light needed
-        SLMaterial* matB = new SLMaterial("matB", texB,0,0,0, _programs[TextureOnly]);
-        SLMaterial* matL = new SLMaterial("matL", texL,0,0,0, _programs[TextureOnly]);
-        SLMaterial* matT = new SLMaterial("matT", texT,0,0,0, _programs[TextureOnly]);
-        SLMaterial* matR = new SLMaterial("matR", texR,0,0,0, _programs[TextureOnly]);
-
-        // build polygons for bottom, left, top & right side
-        SLVVec3f VB;
-        VB.push_back(SLVec3f(-0.5f,-0.5f, 1.0f));
-        VB.push_back(SLVec3f( 0.5f,-0.5f, 1.0f));
-        VB.push_back(SLVec3f( 0.5f,-0.5f,-2.0f));
-        VB.push_back(SLVec3f(-0.5f,-0.5f,-2.0f));
-        SLVVec2f T;
-        T.push_back(SLVec2f( 0.0f, 2.0f));
-        T.push_back(SLVec2f( 0.0f, 0.0f));
-        T.push_back(SLVec2f( 6.0f, 0.0f));
-        T.push_back(SLVec2f( 6.0f, 2.0f));
-        SLNode* polyB = new SLNode(new SLPolygon(VB, T, "PolygonB", matB));
-
-        SLVVec3f VL;
-        VL.push_back(SLVec3f(-0.5f, 0.5f, 1.0f));
-        VL.push_back(SLVec3f(-0.5f,-0.5f, 1.0f));
-        VL.push_back(SLVec3f(-0.5f,-0.5f,-2.0f));
-        VL.push_back(SLVec3f(-0.5f, 0.5f,-2.0f));
-        SLNode* polyL = new SLNode(new SLPolygon(VL, T, "PolygonL", matL));
-
-        SLVVec3f VT;
-        VT.push_back(SLVec3f( 0.5f, 0.5f, 1.0f));
-        VT.push_back(SLVec3f(-0.5f, 0.5f, 1.0f));
-        VT.push_back(SLVec3f(-0.5f, 0.5f,-2.0f));
-        VT.push_back(SLVec3f( 0.5f, 0.5f,-2.0f));
-        SLNode* polyT = new SLNode(new SLPolygon(VT, T, "PolygonT", matT));
-
-        SLVVec3f VR;
-        VR.push_back(SLVec3f( 0.5f,-0.5f, 1.0f));
-        VR.push_back(SLVec3f( 0.5f, 0.5f, 1.0f));
-        VR.push_back(SLVec3f( 0.5f, 0.5f,-2.0f));
-        VR.push_back(SLVec3f( 0.5f,-0.5f,-2.0f));
-        SLNode* polyR = new SLNode(new SLPolygon(VR, T, "PolygonR", matR));
-
-        SLNode* sphere = new SLNode(new SLSphere(0.2f,16,16,"Sphere", matR));
-        sphere->rotate(90, 1,0,0);
-
-        SLCamera* cam1 = new SLCamera;
-        cam1->position(0,0,2.2f);
-        cam1->lookAt(0, 0, 0);
-        cam1->focalDist(2.2f);
-        cam1->setInitialState();
-
-        SLNode* scene = new SLNode();
-        scene->addChild(polyB);
-        scene->addChild(polyL);
-        scene->addChild(polyT);
-        scene->addChild(polyR);
-        scene->addChild(sphere);
-        scene->addChild(cam1);
-
-        _backColor.set(SLCol4f(0.2f,0.2f,0.2f));
         sv->camera(cam1);
         _root3D = scene;
     }
