@@ -21,7 +21,7 @@ SLGLState* SLGLState::instance = nullptr;
 //-----------------------------------------------------------------------------
 std::vector<string> errors;   // global vector for errors used in getGLError  
 //-----------------------------------------------------------------------------
-/*! Public static creator and getter function. Garantees the the static 
+/*! Public static creator and getter function. Guarantees the the static 
 instance is created only once. The constructor is therefore private.
 */
 SLGLState* SLGLState::getInstance()     
@@ -40,20 +40,21 @@ void SLGLState::deleteInstance()
     instance = 0;
 }
 //-----------------------------------------------------------------------------
-/*! Private constructor should be called only once for a sigleton class.
+/*! Private constructor should be called only once for a singleton class.
 */
 SLGLState::SLGLState()
 { 
     initAll();
 }
 //-----------------------------------------------------------------------------
-/*! Intiallizes all states.
+/*! Initializes all states.
 */
 void SLGLState::initAll()
 {  
     viewMatrix.identity();
     modelViewMatrix.identity();
     projectionMatrix.identity();
+    textureMatrix.identity();
    
     numLightsUsed = 0;
    

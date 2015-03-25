@@ -1,6 +1,6 @@
 //#############################################################################
-//  File:      TextureOnly.vert
-//  Purpose:   GLSL vertex program for texture mapping only
+//  File:      TextureOnly3D.vert
+//  Purpose:   GLSL vertex program for 3D texture mapping only
 //  Author:    Marcus Hudritsch
 //  Date:      July 2014
 //  Copyright: 2002-2014 Marcus Hudritsch
@@ -9,16 +9,16 @@
 //#############################################################################
 
 attribute   vec4     a_position;    // Vertex position attribute
-attribute   vec3     a_texCoord;    // Vertex texture coord. attribute
 
 uniform     mat4     u_mvpMatrix;   // = projection * modelView
+uniform     mat4     u_tMatrix;     // texture transform matrix
 
-varying     vec2     v_texCoord;    // texture coordinate at vertex
+varying     vec4     v_texCoord3D;  // texture coordinate at vertex
 
 void main()
 {
-    // Set the texture coord. varying for interpolated tex. coords.
-    v_texCoord = a_texCoord.xy;
+    // Set the 3D texture coord. varying for interpolated tex. coords.
+    v_texCoord3D = u_tMatrix * a_position;
    
     // Set the transformes vertex position   
     gl_Position = u_mvpMatrix * a_position;

@@ -51,12 +51,12 @@ SLMaterial::SLMaterial(const SLchar* name,
 }
 //-----------------------------------------------------------------------------
 // Ctor for textures
-SLMaterial::SLMaterial(const SLchar*   name,
-                       SLGLTexture*    texture1,
-                       SLGLTexture*    texture2,
-                       SLGLTexture*    texture3,
-                       SLGLTexture*    texture4,
-                       SLGLProgram* shaderProg) : SLObject(name)
+SLMaterial::SLMaterial(const SLchar* name,
+                       SLGLTexture*  texture1,
+                       SLGLTexture*  texture2,
+                       SLGLTexture*  texture3,
+                       SLGLTexture*  texture4,
+                       SLGLProgram*  shaderProg) : SLObject(name)
 {
     _ambient.set(1,1,1);
     _diffuse.set(1,1,1);

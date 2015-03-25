@@ -574,6 +574,12 @@
     <None Include="Introduction.md" />
     <None Include="onPaint.md" />
     <None Include="SLProject.md" />
+    <None Include="source\oglsl\TextureOnly3D.frag">
+      <Filter>GLSL</Filter>
+    </None>
+    <None Include="source\oglsl\TextureOnly3D.vert">
+      <Filter>GLSL</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Text Include="ToDo.txt" />

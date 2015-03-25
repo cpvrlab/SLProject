@@ -131,7 +131,7 @@ class SLVec3
     inline  T       maxXYZ      ()                      {if (x>=y && x>=z) return x;
                                                          else if (y>=z)    return y;
                                                          else              return z;}
-    inline  T       maxXYZ      (SLint &axis)           {if (x>=y && x>=z) {axis=0; return x;}
+    inline  T       maxXYZ      (SLint &axis)           {if (x>=y && x>=z){axis=0; return x;}
                                                          else if (y>=z)   {axis=1; return y;}
                                                          else             {axis=2; return z;}}
     inline  SLint   maxAxis     ()                      {if (x>=y && x>=z) return 0;

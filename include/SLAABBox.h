@@ -51,11 +51,13 @@ class SLAABBox
             SLVec3f     minWS       () {return _minWS;}
             SLVec3f     maxWS       () {return _maxWS;}
             SLVec3f     centerWS    () {return _centerWS;}
-            SLfloat     radiusWS    () {return _radiusWS;}
+            SLfloat     radiusWS    () {return _radiusWS; }
+            SLVec3f     extentionWS () {return _maxWS-_centerWS;};
             SLVec3f     minOS       () {return _minOS;}
             SLVec3f     maxOS       () {return _maxOS;}
             SLVec3f     centerOS    () {return _centerOS;}
             SLfloat     radiusOS    () {return _radiusOS;}
+            SLVec3f     extentionOS () {return _maxOS-_centerOS;};
             SLbool      isVisible   () {return _isVisible;}
             SLbool      hasAlpha    () {return _hasTransp;}
             SLfloat     sqrViewDist () {return _sqrViewDist;}
@@ -85,7 +87,7 @@ class SLAABBox
             SLVec3f     _centerOS;  //!< Center of AABB in object space
             SLfloat     _radiusWS;  //!< Radius of sphere around AABB in WS
             SLfloat     _radiusOS;  //!< Radius of sphere around AABB in OS
-            SLfloat     _sqrViewDist; //!< Sqr. dist. from center to viewpoint
+            SLfloat     _sqrViewDist;//!< Sqr. dist. from center to viewpoint
             SLVec3f     _axis0WS;   //!< Worldspace axis center point
             SLVec3f     _axisXWS;   //!< Worldspace x-axis vector
             SLVec3f     _axisYWS;   //!< Worldspace y-axis vector

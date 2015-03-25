@@ -587,6 +587,8 @@
     <None Include="source\oglsl\StereoOculusDistortionMesh.vert" />
     <None Include="source\oglsl\TextureOnly.frag" />
     <None Include="source\oglsl\TextureOnly.vert" />
+    <None Include="source\oglsl\TextureOnly3D.frag" />
+    <None Include="source\oglsl\TextureOnly3D.vert" />
     <None Include="source\oglsl\Wave.frag" />
     <None Include="source\oglsl\Wave.vert" />
     <None Include="source\oglsl\WaveRefractReflect.vert" />

@@ -41,12 +41,13 @@ class SLGLState
                 void       initAll();              //! Init all states
       
         // matrices
-        SLMat4f  modelViewMatrix;     //!< matrix for OpenGL modelview transform
-        SLMat4f  projectionMatrix;    //!< matrix for OpenGL projection transform
-        SLMat4f  viewMatrix;          //!< matrix for the acitive cameras view transform
+        SLMat4f  modelViewMatrix;       //!< matrix for OpenGL modelview transform
+        SLMat4f  projectionMatrix;      //!< matrix for OpenGL projection transform
+        SLMat4f  viewMatrix;            //!< matrix for the active cameras view transform
+        SLMat4f  textureMatrix;         //!< matrix for the texture transform
       
         // lighting
-        SLint    numLightsUsed;                   //!< Num. of lights used
+        SLint    numLightsUsed;                   //!< NO. of lights used
         SLint    lightIsOn[SL_MAX_LIGHTS];        //!< Flag if light is on
         SLVec4f  lightPosWS[SL_MAX_LIGHTS];       //!< position of light in world space
         SLVec4f  lightPosVS[SL_MAX_LIGHTS];       //!< position of light in view space
@@ -58,8 +59,8 @@ class SLGLState
         SLfloat  lightSpotCutoff[SL_MAX_LIGHTS];  //!< spot cutoff angle 1-180 degrees
         SLfloat  lightSpotCosCut[SL_MAX_LIGHTS];  //!< cosine of spot cutoff angle
         SLfloat  lightSpotExp[SL_MAX_LIGHTS];     //!< spot exponent
-        SLVec3f  lightAtt[SL_MAX_LIGHTS];         //!< att. factor (const,linear,quadr.)
-        SLint    lightDoAtt[SL_MAX_LIGHTS];       //!< Flag if att. must be calc.
+        SLVec3f  lightAtt[SL_MAX_LIGHTS];         //!< att. factor (const,linear,quadratic)
+        SLint    lightDoAtt[SL_MAX_LIGHTS];       //!< Flag if att. must be calculated
         SLCol4f  globalAmbientLight;              //!< global ambient light intensity
 
         // material
@@ -88,7 +89,7 @@ class SLGLState
                 
         // getters
         inline const SLMat4f* invModelViewMatrix() {return &_invModelViewMatrix;}
-        inline const SLMat3f* normalMatrix()       {return &_normalMatrix;}
+        inline const SLMat3f* normalMatrix()       { return &_normalMatrix; }
         const SLMat4f* mvpMatrix();               //!< builds and returns proj.mat. x mv mat.
         const SLCol4f* globalAmbient();           //!< returns global ambient color
       
@@ -136,43 +137,43 @@ class SLGLState
         static void getGLError(char* file, int line, bool quit);
       
     private:
-                    SLGLState();             //!< private onetime constructor
-                   ~SLGLState();             //!< destruction in ~SLScene
+                    SLGLState();            //!< private onetime constructor
+                   ~SLGLState();            //!< destruction in ~SLScene
 
-        static SLGLState* instance;          //!< global singleton object
+        static SLGLState* instance;         //!< global singleton object
          
-        SLbool      _isInitialized;          //!< flag for first init
-        SLMat4f     _invModelViewMatrix;     //!< inverse modelview transform
-        SLMat3f     _normalMatrix;           //!< matrix for the normal transform
-        SLMat4f     _mvpMatrix;              //!< combined modelview-projection transform
-        SLSMat4f    _modelViewMatrixStack;   //!< stack for modelView matrices
-        SLVec4f     _lightPosVS;             //!< light pos. in view space
-        SLVec3f     _lightSpotDirVS;         //!< light spot direction in view space
-        SLCol4f     _globalAmbient;          //!< global ambient color
+        SLbool      _isInitialized;         //!< flag for first init
+        SLMat4f     _invModelViewMatrix;    //!< inverse modelview transform
+        SLMat3f     _normalMatrix;          //!< matrix for the normal transform
+        SLMat4f     _mvpMatrix;             //!< combined modelview-projection transform
+        SLSMat4f    _modelViewMatrixStack;  //!< stack for modelView matrices
+        SLVec4f     _lightPosVS;            //!< light pos. in view space
+        SLVec3f     _lightSpotDirVS;        //!< light spot direction in view space
+        SLCol4f     _globalAmbient;         //!< global ambient color
 
-        SLstring    _glVersion;              //!< OpenGL Version string
-        SLstring    _glVendor;               //!< OpenGL Vendor string
-        SLstring    _glRenderer;             //!< OpenGL Renderer string
-        SLstring    _glGLSLVersion;          //!< GLSL Version string
-        SLstring    _glExtensions;           //!< OpenGL extensions string
+        SLstring    _glVersion;             //!< OpenGL Version string
+        SLstring    _glVendor;              //!< OpenGL Vendor string
+        SLstring    _glRenderer;            //!< OpenGL Renderer string
+        SLstring    _glGLSLVersion;         //!< GLSL Version string
+        SLstring    _glExtensions;          //!< OpenGL extensions string
 
         // read/write states
-        SLbool      _blend;                  //!< blending default false;
-        SLbool      _depthTest;              //!< GL_DEPTH_TEST state
-        SLbool      _depthMask;              //!< glDepthMask state
-        SLbool      _polygonOffsetEnabled;   //!< GL_POLYGON_OFFSET_FILL state
-        SLfloat     _polygonOffsetFactor;    //!< GL_POLYGON_OFFSET_FILL factor
-        SLfloat     _polygonOffsetUnits;     //!< GL_POLYGON_OFFSET_FILL units
+        SLbool      _blend;                 //!< blending default false;
+        SLbool      _depthTest;             //!< GL_DEPTH_TEST state
+        SLbool      _depthMask;             //!< glDepthMask state
+        SLbool      _polygonOffsetEnabled;  //!< GL_POLYGON_OFFSET_FILL state
+        SLfloat     _polygonOffsetFactor;   //!< GL_POLYGON_OFFSET_FILL factor
+        SLfloat     _polygonOffsetUnits;    //!< GL_POLYGON_OFFSET_FILL units
 
         // states
-        SLuint      _programID;            //!< current shader program id
-        SLenum      _textureUnit;          //!< current texture unit
-        SLenum      _textureTarget;        //!< current texture target
-        SLuint      _textureID;            //!< current texture id
-        SLint       _colorMaskR;           //!< current color mask for R
-        SLint       _colorMaskG;           //!< current color mask for G
-        SLint       _colorMaskB;           //!< current color mask for B
-        SLint       _colorMaskA;           //!< current color mask for A
+        SLuint      _programID;             //!< current shader program id
+        SLenum      _textureUnit;           //!< current texture unit
+        SLenum      _textureTarget;         //!< current texture target
+        SLuint      _textureID;             //!< current texture id
+        SLint       _colorMaskR;            //!< current color mask for R
+        SLint       _colorMaskG;            //!< current color mask for G
+        SLint       _colorMaskB;            //!< current color mask for B
+        SLint       _colorMaskA;            //!< current color mask for A
 };
 //-----------------------------------------------------------------------------
 #endif

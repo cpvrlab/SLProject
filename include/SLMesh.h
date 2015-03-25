@@ -154,6 +154,7 @@ class SLMesh : public SLObject
             void            deleteData     ();
     virtual void            calcNormals    ();
             void            calcTangents   ();
+            void            calcTex3DMatrix(SLNode* node);
     virtual void            calcMinMax     ();
             void            calcCenterRad  (SLVec3f& center, SLfloat& radius);
             SLbool          hitTriangleOS  (SLRay* ray, SLNode* node, SLuint iT);
@@ -212,7 +213,7 @@ class SLMesh : public SLObject
             SLAccelStruct*  _accelStruct;           //!< KD-tree or uniform grid
             SLbool          _accelStructOutOfDate;  //!< flag id accel.struct needs update
 
-            SLSkinMethod _skinMethod;       //!< CPU or GPU skinning method
+            SLSkinMethod    _skinMethod;    //!< CPU or GPU skinning method
             SLSkeleton*     _skeleton;      //!< the skeleton this mesh is bound to
             SLMat4f*        _jointMatrices; //!< joint matrix stack for this mesh
             SLVec3f**       _finalP;        //!< pointer to final vertex position array

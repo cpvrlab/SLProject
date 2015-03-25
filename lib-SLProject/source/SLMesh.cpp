@@ -189,7 +189,7 @@ void SLMesh::draw(SLSceneView* sv, SLNode* node)
         // check if texture exists
         SLbool useTexture = Tc && !sv->drawBit(SL_DB_TEXOFF) && !node->drawBit(SL_DB_TEXOFF);
                                      
-        // enable polygonoffset if voxels are drawn to avoid stitching
+        // enable polygon offset if voxels are drawn to avoid stitching
         if (sv->drawBit(SL_DB_VOXELS) || node->drawBit(SL_DB_VOXELS))
             _stateGL->polygonOffset(true, 1.0f, 1.0f);
 
@@ -211,6 +211,7 @@ void SLMesh::draw(SLSceneView* sv, SLNode* node)
         // 2.c) Build & pass inverse & normal matrix only if needed
         SLint locIM = sp->getUniformLocation("u_invMvMatrix");
         SLint locNM = sp->getUniformLocation("u_nMatrix");
+        SLint locTM = sp->getUniformLocation("u_tMatrix");
         if (locIM>=0 && locNM>=0) 
         {   _stateGL->buildInverseAndNormalMatrix();
             sp->uniformMatrix4fv(locIM, 1, (SLfloat*)_stateGL->invModelViewMatrix());
@@ -224,6 +225,10 @@ void SLMesh::draw(SLSceneView* sv, SLNode* node)
         {   _stateGL->buildNormalMatrix();
             sp->uniformMatrix3fv(locNM, 1, (SLfloat*)_stateGL->normalMatrix());
         }
+        if (locTM>=0 && mat->has3DTexture())
+        {   calcTex3DMatrix(node);
+            sp->uniformMatrix3fv(locNM, 1, (SLfloat*)&_stateGL->textureMatrix);
+        }
 
         // 2.d) Do GPU skinning for animated meshes
         if (_skeleton && Ji && Jw && _skinMethod == SM_HardwareSkinning)
@@ -236,7 +241,7 @@ void SLMesh::draw(SLSceneView* sv, SLNode* node)
                 // update the joint matrix array
                 _skeleton->getJointWorldMatrices(_jointMatrices);
                 // remove the changed flag from the skeleton since our joint matrices are up to date again
-                // @note    the skeleton referenced here would be the skeletoninstance proposed in the documentation
+                // @note    the skeleton referenced here would be the skeleton instance proposed in the documentation
                 //          of SLSkeleton. So the _jointMatrices array is the only thing that is concerned with the changed flag
                 //          however currently we don't have that and multiple meshes need to know if a skeleton changed this frame.
                 //          This is why we can't reset the skeleton changed flag at this point in time. If only one entity or mesh required
@@ -642,7 +647,7 @@ void SLMesh::calcNormals()
             e2.sub(P[I16[i+1]],P[I16[i  ]]);    // e2 = B - A
       
             // Build normal with cross product but do NOT normalize it.
-            n.cross(e1,e2);                  // n = e1 x e2
+            n.cross(e1,e2);                     // n = e1 x e2
 
             // Add this normal to its vertices normals
             N[I16[i  ]] += n;
@@ -678,7 +683,7 @@ void SLMesh::calcNormals()
 //-----------------------------------------------------------------------------
 //! SLMesh::calcTangents computes the tangents per vertex for triangle meshes. 
 /*! SLMesh::calcTangents computes the tangent and bi-tangent per vertex used 
-for GLSL normal map bumb mapping. The code and mathematical derivation is in 
+for GLSL normal map bump mapping. The code and mathematical derivation is in 
 detail explained in: http://www.terathon.com/code/tangent.html
 */
 void SLMesh::calcTangents()
@@ -692,7 +697,7 @@ void SLMesh::calcTangents()
         if (_primitive != SL_TRIANGLES)
             return;
         
-        // allocat tangents
+        // allocate tangents
         T = new SLVec4f[numV];
       
         // allocate temp arrays for tangents
@@ -746,7 +751,7 @@ void SLMesh::calcTangents()
 
         for (SLuint i=0; i < numV; ++i)
         {
-            // Gram-Schmidt orthogonalize
+            // Gram-Schmidt orthogonalization
             T[i] = T1[i] - N[i] * N[i].dot(T1[i]);
             T[i].normalize();
            
@@ -758,6 +763,20 @@ void SLMesh::calcTangents()
        
         delete[] T1;
     }
+}
+//-----------------------------------------------------------------------------
+void SLMesh::calcTex3DMatrix(SLNode* node)
+{
+    SLVec3f ext = node->aabb()->extentionOS();
+    SLint dim;
+    SLfloat max = ext.maxXYZ(dim);
+
+    // scale factor
+    SLfloat s = 1.0f/max;
+    
+    // set the texture matrix
+    SLGLState* stateGL = SLGLState::getInstance();
+    stateGL->textureMatrix.scaling(s,s,s,false);
 }
 //-----------------------------------------------------------------------------
 /*!
@@ -926,7 +945,7 @@ void SLMesh::preShade(SLRay* ray)
         SLVec2f tc(Tc[iA] + ray->hitU*Tu + ray->hitV*Tv);
         ray->hitTexCol.set(textures[0]->getTexelf(tc.x,tc.y));
       
-        // bumpmapping
+        // bump mapping
         if (textures.size() > 1)
         {   if (T)
             {  
@@ -952,7 +971,7 @@ void SLMesh::preShade(SLRay* ray)
 
 //-----------------------------------------------------------------------------
 /*! Adds an joint weight to the specified vertex id (max 4 weights per vertex)
-returns true if added sucessfully, false if already full
+returns true if added successfully, false if already full
 */
 SLbool SLMesh::addWeight(SLint vertId, SLuint jointId, SLfloat weight)
 {
@@ -986,7 +1005,7 @@ SLbool SLMesh::addWeight(SLint vertId, SLuint jointId, SLfloat weight)
 
 //-----------------------------------------------------------------------------
 /*! Sets the current skinning method.
-@todo   This function is still kindof hackish, we manually change the material in the mesh. The skinning
+@todo   This function is still kind of hackish, we manually change the material in the mesh. The skinning
         shouldn't rely on a material however, the shader should know if it needs skinning variables and 
         transformations and apply them to the current used shader.
 */

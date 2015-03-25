@@ -883,7 +883,15 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
         //SLNode* sphere = new SLNode(new SLSphere(0.2f,16,16,"Sphere", matR));
         //sphere->rotate(90, 1,0,0);
 
+        // 3D Texture Mapping on a pyramid
+        SLVstring tex3DFiles;
+        for (SLint i=0; i<256; ++i) tex3DFiles.push_back("Wave_radial10_256C.jpg");
+        SLGLTexture* tex3D = new SLGLTexture(tex3DFiles);
+        SLGLProgram* spr3D = new SLGLGenericProgram("TextureOnly3D.vert", "TextureOnly3D.frag");
+        SLMaterial*  mat3D = new SLMaterial("mat3D", tex3D ,0,0,0, spr3D);
+
         SLMesh* pyramid = new SLMesh("Pyramid");
+        pyramid->mat = mat3D;
         pyramid->P = new SLVec3f[5]{{-1,-1,1},{1,-1,1},{1,-1,-1},{-1,-1,-1},{0,1,0}};
         pyramid->numV = 5;
         pyramid->I16 = new SLushort[18]{0,3,1, 1,3,2, 4,0,1, 4,1,2, 4,2,3, 4,3,0};
