@@ -45,6 +45,7 @@ SLMesh::SLMesh(SLstring name) : SLObject(name)
     Jw  = nullptr;
     I16 = nullptr;
     I32 = nullptr;
+    mat = nullptr;
     _finalP = &P;
     _finalN = &N;
     numV = 0;
@@ -54,7 +55,7 @@ SLMesh::SLMesh(SLstring name) : SLObject(name)
    
     _skeleton = nullptr;
     _jointMatrices = nullptr;
-    _skinningMethod = SM_SoftwareSkinning;
+    _skinMethod = SM_SoftwareSkinning;
 
     _stateGL = SLGLState::getInstance();  
     _isVolume = true; // is used for RT to decide inside/outside
@@ -111,8 +112,10 @@ void SLMesh::deleteData()
 //! SLMesh::shapeInit sets the transparency flag of the AABB
 void SLMesh::init(SLNode* node)
 {   
-    if (P && N)
+    if (P && numV && (I16 || I32) && numI)
     {  
+        if (!N) calcNormals();
+
         mat = (mat) ? mat : SLMaterial::defaultMaterial();
 
         // set transparent flag of the mesh
@@ -122,6 +125,14 @@ void SLMesh::init(SLNode* node)
         // build tangents for bump mapping
         if (mat->needsTangents() && Tc && T==nullptr)
             calcTangents();
+    }
+    else
+    {   SLstring msg;
+        if (!P) msg = "No vertex positions (P)\n";
+        if (!numV) msg += "No NO. if vertices (numV)\n";
+        if (!I16 && !I32) msg += "No vertex indexes (I16 or I32)\n";
+        if (!numI) msg += "No NO. io vertex indexes (numI)\n";
+        SL_EXIT_MSG((msg + "in mesh: " + _name).c_str());
     }
 }
 //-----------------------------------------------------------------------------
@@ -149,7 +160,7 @@ Please view also the full process of rendering <a href="md_on_paint.html"><b>one
 */
 void SLMesh::draw(SLSceneView* sv, SLNode* node)
 {  
-    if (P)
+    if (P && numV && (I16 || I32) && numI)
     {     
         ////////////////////////
         // 1) Apply Drawing Bits
@@ -215,7 +226,7 @@ void SLMesh::draw(SLSceneView* sv, SLNode* node)
         }
 
         // 2.d) Do GPU skinning for animated meshes
-        if (_skeleton && Ji && Jw && _skinningMethod == SM_HardwareSkinning)
+        if (_skeleton && Ji && Jw && _skinMethod == SM_HardwareSkinning)
         {
             if (!_jointMatrices)
             _jointMatrices = new SLMat4f[_skeleton->numJoints()];
@@ -371,8 +382,14 @@ void SLMesh::draw(SLSceneView* sv, SLNode* node)
         if (blended) _stateGL->blend(true);
             
         GET_GL_ERROR;
-    } else
-    {  SL_EXIT_MSG("SLMesh::shapeDraw: Array P is empty");
+    }
+    else
+    {   SLstring msg;
+        if (!P) msg = "No vertex positions (P)\n";
+        if (!numV) msg += "No NO. if vertices (numV)\n";
+        if (!I16 && !I32) msg += "No vertex indexes (I16 or I32)\n";
+        if (!numI) msg += "No NO. io vertex indexes (numI)\n";
+        SL_EXIT_MSG((msg + "in mesh: " + _name).c_str());
     }
 }
 //-----------------------------------------------------------------------------
@@ -973,18 +990,18 @@ SLbool SLMesh::addWeight(SLint vertId, SLuint jointId, SLfloat weight)
         shouldn't rely on a material however, the shader should know if it needs skinning variables and 
         transformations and apply them to the current used shader.
 */
-void SLMesh::skinningMethod(SLSkinningMethod method) 
+void SLMesh::skinMethod(SLSkinMethod method) 
 { 
-    if (method == _skinningMethod)
+    if (method == _skinMethod)
         return;
 
     // return if this isn't a skinned mesh
     if (!_skeleton || !Ji || !Jw)
         return;
 
-    _skinningMethod = method;
+    _skinMethod = method;
 
-    if (_skinningMethod == SM_HardwareSkinning)
+    if (_skinMethod == SM_HardwareSkinning)
     {
         _finalP = &P;
         _finalN = &N;

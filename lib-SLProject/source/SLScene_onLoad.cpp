@@ -880,13 +880,16 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
         VR.push_back(SLVec3f( 0.5f,-0.5f,-2.0f));
         SLNode* polyR = new SLNode(new SLPolygon(VR, T, "PolygonR", matR));
 
-        SLNode* sphere = new SLNode(new SLSphere(0.2f,16,16,"Sphere", matR));
-        sphere->rotate(90, 1,0,0);
+        //SLNode* sphere = new SLNode(new SLSphere(0.2f,16,16,"Sphere", matR));
+        //sphere->rotate(90, 1,0,0);
 
         SLMesh* pyramid = new SLMesh("Pyramid");
         pyramid->P = new SLVec3f[5]{{-1,-1,1},{1,-1,1},{1,-1,-1},{-1,-1,-1},{0,1,0}};
+        pyramid->numV = 5;
         pyramid->I16 = new SLushort[18]{0,3,1, 1,3,2, 4,0,1, 4,1,2, 4,2,3, 4,3,0};
+        pyramid->numI = 18;
         SLNode* pyramidNode = new SLNode(pyramid, "Pyramid");
+        pyramidNode->scale(0.2f);
 
         SLCamera* cam1 = new SLCamera;
         cam1->position(0,0,2.2f);
@@ -899,7 +902,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
         scene->addChild(polyL);
         scene->addChild(polyT);
         scene->addChild(polyR);
-        scene->addChild(sphere);
+        //scene->addChild(sphere);
         scene->addChild(cam1);
         scene->addChild(pyramidNode);
 
@@ -1747,7 +1750,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
         if (sceneName == cmdSceneAstroboyArmyGPU)
         {   name("Astroboy army skinned on GPU");
             for (auto m : importer.meshes())
-               m->skinningMethod(SM_HardwareSkinning);
+               m->skinMethod(SM_HardwareSkinning);
         } else
             name("Astroboy army skinned on CPU");
 

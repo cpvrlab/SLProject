@@ -140,85 +140,85 @@ a vertex shader. If the skinning is done on CPU two additional arrays
 class SLMesh : public SLObject
 {   
     public:                    
-                        SLMesh         (SLstring name = "Mesh");
-                       ~SLMesh         ();
+                            SLMesh         (SLstring name = "Mesh");
+                           ~SLMesh         ();
                
-virtual void            init           (SLNode* node);
-virtual void            draw           (SLSceneView* sv, SLNode* node);
-        void            addStats       (SLNodeStats &stats);
-virtual void            buildAABB      (SLAABBox &aabb, SLMat4f wmNode);
-        void            updateAccelStruct();
-        SLbool          hit            (SLRay* ray, SLNode* node);               
-virtual void            preShade       (SLRay* ray);
+    virtual void            init           (SLNode* node);
+    virtual void            draw           (SLSceneView* sv, SLNode* node);
+            void            addStats       (SLNodeStats &stats);
+    virtual void            buildAABB      (SLAABBox &aabb, SLMat4f wmNode);
+            void            updateAccelStruct();
+            SLbool          hit            (SLRay* ray, SLNode* node);               
+    virtual void            preShade       (SLRay* ray);
                
-        void            deleteData     ();
-virtual void            calcNormals    ();
-        void            calcTangents   ();
-virtual void            calcMinMax     ();
-        void            calcCenterRad  (SLVec3f& center, SLfloat& radius);
-        SLbool          hitTriangleOS  (SLRay* ray, SLNode* node, SLuint iT);
+            void            deleteData     ();
+    virtual void            calcNormals    ();
+            void            calcTangents   ();
+    virtual void            calcMinMax     ();
+            void            calcCenterRad  (SLVec3f& center, SLfloat& radius);
+            SLbool          hitTriangleOS  (SLRay* ray, SLNode* node, SLuint iT);
 
-        SLPrimitive     primitive      (){return _primitive;}
+            SLPrimitive     primitive      (){return _primitive;}
         
-        void            transformSkin();
-        void            skinningMethod(SLSkinningMethod method);
-        SLSkinningMethod skinningMethod() const { return _skinningMethod; }
-        void            skeleton(SLSkeleton* skel) { _skeleton = skel; }
-  const SLSkeleton*     skeleton() const { return _skeleton; }
-        SLbool          addWeight(SLint vertId, SLuint jointId, SLfloat weight);
+            void            transformSkin   ();
+            void            skinMethod      (SLSkinMethod method);
+            SLSkinMethod    skinMethod      () const { return _skinMethod; }
+            void            skeleton        (SLSkeleton* skel) { _skeleton = skel; }
+      const SLSkeleton*     skeleton        () const { return _skeleton; }
+            SLbool          addWeight       (SLint vertId, SLuint jointId, SLfloat weight);
         
-        // getter for position and normal data for rendering
-        SLVec3f*        finalP() {return *_finalP;}
-        SLVec3f*        finalN() {return *_finalN;}
+            // getter for position and normal data for rendering
+            SLVec3f*        finalP          () {return *_finalP;}
+            SLVec3f*        finalN          () {return *_finalN;}
 
-        // temporary software skinning buffers
-        SLVec3f*        cpuSkinningP; //!< buffer for the cpu skinning position data
-        SLVec3f*        cpuSkinningN; //!< buffer for the cpu skinning normal data
+            // temporary software skinning buffers
+            SLVec3f*        cpuSkinningP;   //!< buffer for the cpu skinning position data
+            SLVec3f*        cpuSkinningN;   //!< buffer for the cpu skinning normal data
 
-        SLVec3f*        P;          //!< Array of vertex positions
-        SLVec3f*        N;          //!< Array of vertex normals (opt.)
-        SLCol4f*        C;          //!< Array of vertex colors (opt.)
-        SLVec2f*        Tc;         //!< Array of vertex tex. coords. (opt.)
-        SLVec4f*        T;          //!< Array of vertex tangents (opt.)
-        SLVec4f*        Ji;         //!< Array of per vertex joint ids (opt.)
-        SLVec4f*        Jw;         //!< Array of per vertex joint weights (opt.)
-        SLushort*       I16;        //!< Array of vertex indexes 16 bit
-        SLuint*         I32;        //!< Array of vertex indexes 32 bit
+            SLVec3f*        P;              //!< Array of vertex positions
+            SLVec3f*        N;              //!< Array of vertex normals (opt.)
+            SLCol4f*        C;              //!< Array of vertex colors (opt.)
+            SLVec2f*        Tc;             //!< Array of vertex tex. coords. (opt.)
+            SLVec4f*        T;              //!< Array of vertex tangents (opt.)
+            SLVec4f*        Ji;             //!< Array of per vertex joint ids (opt.)
+            SLVec4f*        Jw;             //!< Array of per vertex joint weights (opt.)
+            SLushort*       I16;            //!< Array of vertex indexes 16 bit
+            SLuint*         I32;            //!< Array of vertex indexes 32 bit
 
-        SLuint          numV;       //!< Number of elements in P, N, C, T & Tc   
-        SLuint          numI;       //!< Number of elements in I16 or I32
-        SLMaterial*     mat;        //!< Pointer to the material
-        SLVec3f         minP;       //!< min. vertex in OS
-        SLVec3f         maxP;       //!< max. vertex in OS
+            SLuint          numV;           //!< Number of elements in P, N, C, T & Tc   
+            SLuint          numI;           //!< Number of elements in I16 or I32
+            SLMaterial*     mat;            //!< Pointer to the material
+            SLVec3f         minP;           //!< min. vertex in OS
+            SLVec3f         maxP;           //!< max. vertex in OS
    
     protected:
-        SLGLState*      _stateGL;   //!< Pointer to the global SLGLState instance
-        SLPrimitive     _primitive; //!< Primitive type (default triangles)
+            SLGLState*      _stateGL;       //!< Pointer to the global SLGLState instance
+            SLPrimitive     _primitive;     //!< Primitive type (default triangles)
 
-        SLGLBuffer      _bufP;      //!< Buffer for vertex positions
-        SLGLBuffer      _bufN;      //!< Buffer for vertex normals
-        SLGLBuffer      _bufC;      //!< Buffer for vertex colors
-        SLGLBuffer      _bufTc;     //!< Buffer for vertex texcoords
-        SLGLBuffer      _bufT;      //!< Buffer for vertex tangents
-        SLGLBuffer      _bufI;      //!< Buffer for vertex indexes
-        SLGLBuffer      _bufJi;     //!< Buffer for joint id
-        SLGLBuffer      _bufJw;     //!< Buffer for joint weight
+            SLGLBuffer      _bufP;          //!< Buffer for vertex positions
+            SLGLBuffer      _bufN;          //!< Buffer for vertex normals
+            SLGLBuffer      _bufC;          //!< Buffer for vertex colors
+            SLGLBuffer      _bufTc;         //!< Buffer for vertex texcoords
+            SLGLBuffer      _bufT;          //!< Buffer for vertex tangents
+            SLGLBuffer      _bufI;          //!< Buffer for vertex indexes
+            SLGLBuffer      _bufJi;         //!< Buffer for joint id
+            SLGLBuffer      _bufJw;         //!< Buffer for joint weight
                
-        SLGLBuffer      _bufN2;     //!< Buffer for normal line rendering
-        SLGLBuffer      _bufT2;     //!< Buffer for tangent line rendering
+            SLGLBuffer      _bufN2;         //!< Buffer for normal line rendering
+            SLGLBuffer      _bufT2;         //!< Buffer for tangent line rendering
                
-        SLbool          _isVolume;  //!< Flag for RT if mesh is a closed volume
+            SLbool          _isVolume;      //!< Flag for RT if mesh is a closed volume
                
-        SLAccelStruct*  _accelStruct;           //!< KD-tree or uniform grid
-        SLbool          _accelStructOutOfDate;  //!< flag id accel.struct needs update
+            SLAccelStruct*  _accelStruct;           //!< KD-tree or uniform grid
+            SLbool          _accelStructOutOfDate;  //!< flag id accel.struct needs update
 
-        SLSkinningMethod _skinningMethod;   //!< CPU or GPU skinning method
-        SLSkeleton*     _skeleton;          //!< the skeleton this mesh is bound to
-        SLMat4f*        _jointMatrices;     //!< joint matrix stack for this mesh
-        SLVec3f**       _finalP;            //!< pointer to final vertex position array
-        SLVec3f**       _finalN;            //!< pointer to final vertex normal array
+            SLSkinMethod _skinMethod;       //!< CPU or GPU skinning method
+            SLSkeleton*     _skeleton;      //!< the skeleton this mesh is bound to
+            SLMat4f*        _jointMatrices; //!< joint matrix stack for this mesh
+            SLVec3f**       _finalP;        //!< pointer to final vertex position array
+            SLVec3f**       _finalN;        //!< pointer to final vertex normal array
 
-        void            notifyParentNodesAABBUpdate() const;
+            void            notifyParentNodesAABBUpdate() const;
 };
 //-----------------------------------------------------------------------------
 typedef std::vector<SLMesh*>  SLVMesh;

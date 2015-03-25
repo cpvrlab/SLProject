@@ -275,7 +275,7 @@ enum SLTransformSpace
 };
 //-----------------------------------------------------------------------------
 //! Skinning methods
-enum SLSkinningMethod
+enum SLSkinMethod
 {
     SM_HardwareSkinning, //!< Do vertex skinning on the GPU
     SM_SoftwareSkinning  //!< Do vertex skinning on the CPU

@@ -343,7 +343,7 @@ bool SLScene::onUpdate()
     for (auto mesh : _meshes) 
     {   if (mesh->skeleton() && 
             mesh->skeleton()->changed() && 
-            mesh->skinningMethod() == SM_SoftwareSkinning)
+            mesh->skinMethod() == SM_SoftwareSkinning)
         {   mesh->transformSkin();
             animatedOrChanged = true;
         }
