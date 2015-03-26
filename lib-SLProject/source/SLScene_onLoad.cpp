@@ -825,7 +825,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
     {
         name("Texturing: Filter Compare");
         info(sv, "Texture filter comparison: Bottom: nearest neighbour, left: linear, top: linear mipmap, right: anisotropic");
-
+        /*
         // Create 4 textures with different filter modes
         SLGLTexture* texB = new SLGLTexture("brick0512_C.png"
                                             ,GL_NEAREST
@@ -880,8 +880,9 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
         VR.push_back(SLVec3f( 0.5f,-0.5f,-2.0f));
         SLNode* polyR = new SLNode(new SLPolygon(VR, T, "PolygonR", matR));
 
-        //SLNode* sphere = new SLNode(new SLSphere(0.2f,16,16,"Sphere", matR));
-        //sphere->rotate(90, 1,0,0);
+        SLNode* sphere = new SLNode(new SLSphere(0.2f,16,16,"Sphere", matR));
+        sphere->rotate(90, 1,0,0);
+        */
 
         // 3D Texture Mapping on a pyramid
         SLVstring tex3DFiles;
@@ -906,10 +907,10 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
         cam1->setInitialState();
 
         SLNode* scene = new SLNode();
-        scene->addChild(polyB);
-        scene->addChild(polyL);
-        scene->addChild(polyT);
-        scene->addChild(polyR);
+        //scene->addChild(polyB);
+        //scene->addChild(polyL);
+        //scene->addChild(polyT);
+        //scene->addChild(polyR);
         //scene->addChild(sphere);
         scene->addChild(cam1);
         scene->addChild(pyramidNode);
