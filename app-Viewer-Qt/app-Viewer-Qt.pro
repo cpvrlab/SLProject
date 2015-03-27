@@ -194,5 +194,5 @@ macx: {
     macx {ICON = SLProject-Icon.icns}
 
     #run macdeployqt
-    #QMAKE_POST_LINK += macdeployqt ../_bin-$$CONFIGURATION-$$PLATFORM/app-Viewer-Qt.app/ -dmg
+    QMAKE_POST_LINK += macdeployqt ../_bin-$$CONFIGURATION-$$PLATFORM/app-Viewer-Qt.app/
 }
