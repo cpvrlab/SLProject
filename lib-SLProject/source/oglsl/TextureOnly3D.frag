@@ -13,7 +13,7 @@ precision mediump float;
 #endif
 
 uniform sampler3D u_texture0;   // 3D Color map
-varying vec4      v_texCoord3D; // Interpol. texture coordinate
+varying vec4      v_texCoord3D; // Interpol. 3D texture coordinate
 
 void main()
 {     

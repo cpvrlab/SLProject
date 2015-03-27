@@ -823,9 +823,9 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
     else
     if (sceneName == cmdSceneTextureFilter) //..................................
     {
-        name("Texturing: Filter Compare");
-        info(sv, "Texture filter comparison: Bottom: nearest neighbour, left: linear, top: linear mipmap, right: anisotropic");
-        /*
+        name("Texturing: Filter Compare and 3D texture");
+        info(sv, "Texture filters: Bottom: nearest, left: linear, top: linear mipmap, right: anisotropic");
+        
         // Create 4 textures with different filter modes
         SLGLTexture* texB = new SLGLTexture("brick0512_C.png"
                                             ,GL_NEAREST
@@ -880,10 +880,6 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
         VR.push_back(SLVec3f( 0.5f,-0.5f,-2.0f));
         SLNode* polyR = new SLNode(new SLPolygon(VR, T, "PolygonR", matR));
 
-        SLNode* sphere = new SLNode(new SLSphere(0.2f,16,16,"Sphere", matR));
-        sphere->rotate(90, 1,0,0);
-        */
-
         // 3D Texture Mapping on a pyramid
         SLVstring tex3DFiles;
         for (SLint i=0; i<256; ++i) tex3DFiles.push_back("Wave_radial10_256C.jpg");
@@ -891,14 +887,19 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
         SLGLProgram* spr3D = new SLGLGenericProgram("TextureOnly3D.vert", "TextureOnly3D.frag");
         SLMaterial*  mat3D = new SLMaterial("mat3D", tex3D ,0,0,0, spr3D);
 
+        // Create 3D textured pyramid mesh and node
         SLMesh* pyramid = new SLMesh("Pyramid");
         pyramid->mat = mat3D;
-        pyramid->P = new SLVec3f[5]{{-1,-1,1},{1,-1,1},{1,-1,-1},{-1,-1,-1},{0,1,0}};
+        pyramid->P = new SLVec3f[5]{{-1,-1,1},{1,-1,1},{1,-1,-1},{-1,-1,-1},{0,2,0}};
         pyramid->numV = 5;
         pyramid->I16 = new SLushort[18]{0,3,1, 1,3,2, 4,0,1, 4,1,2, 4,2,3, 4,3,0};
         pyramid->numI = 18;
         SLNode* pyramidNode = new SLNode(pyramid, "Pyramid");
         pyramidNode->scale(0.2f);
+        pyramidNode->translate(0, 0, -3);
+
+        // Create 3D textured sphere mesh and node
+        SLNode* sphere = new SLNode(new SLSphere(0.2f, 16, 16, "Sphere", mat3D));
 
         SLCamera* cam1 = new SLCamera;
         cam1->position(0,0,2.2f);
@@ -907,11 +908,11 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
         cam1->setInitialState();
 
         SLNode* scene = new SLNode();
-        //scene->addChild(polyB);
-        //scene->addChild(polyL);
-        //scene->addChild(polyT);
-        //scene->addChild(polyR);
-        //scene->addChild(sphere);
+        scene->addChild(polyB);
+        scene->addChild(polyL);
+        scene->addChild(polyT);
+        scene->addChild(polyR);
+        scene->addChild(sphere);
         scene->addChild(cam1);
         scene->addChild(pyramidNode);
 

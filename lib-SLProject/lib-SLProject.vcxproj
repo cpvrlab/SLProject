@@ -545,6 +545,8 @@
     <None Include="source\oglsl\ADS.vert" />
     <None Include="source\oglsl\ADSTex.frag" />
     <None Include="source\oglsl\ADSTex.vert" />
+    <None Include="source\oglsl\ADSTex3D.frag" />
+    <None Include="source\oglsl\ADSTex3D.vert" />
     <None Include="source\oglsl\ADSTex_Loesung.frag" />
     <None Include="source\oglsl\ADSTex_Loesung.vert" />
     <None Include="source\oglsl\ADS_Loesung.vert" />

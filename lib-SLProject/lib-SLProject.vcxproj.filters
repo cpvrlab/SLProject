@@ -580,6 +580,12 @@
     <None Include="source\oglsl\TextureOnly3D.vert">
       <Filter>GLSL</Filter>
     </None>
+    <None Include="source\oglsl\ADSTex3D.frag">
+      <Filter>GLSL</Filter>
+    </None>
+    <None Include="source\oglsl\ADSTex3D.vert">
+      <Filter>GLSL</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Text Include="ToDo.txt" />

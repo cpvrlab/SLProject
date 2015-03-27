@@ -91,10 +91,6 @@ class SLGLTexture : public SLObject
             // Setters
             void        texType         (SLTexType bt)   {_texType = bt;}
             void        bumpScale       (SLfloat bs)     {_bumpScale = bs;}
-            void        scaleS          (SLfloat scaleS) {_tm.scaling(scaleS, _tm.m(5), _tm.m(10));}
-            void        scaleT          (SLfloat scaleT) {_tm.scaling(_tm.m(0), scaleT, _tm.m(10));}
-            void        translateS      (SLfloat transS) {_tm.translation(transS, _tm.m(13), _tm.m(14));}
-            void        translateT      (SLfloat transT) {_tm.translation(_tm.m(12), transT, _tm.m(14));}
       
             // Getters
             SLenum      target          (){return _target;}
@@ -104,6 +100,8 @@ class SLGLTexture : public SLObject
             SLbool      hasAlpha        (){return (_images[0]->format()==GL_RGBA) || _texType==FontMap;}
             SLint       width           (){return _images[0]->width();}
             SLint       height          (){return _images[0]->height();}
+            SLMat4f     tm              (){return _tm;}
+            SLbool      autoCalcTM3D    (){return _autoCalcTM3D;}
       
             // Misc     
             SLTexType   detectType      (SLstring filename);  
@@ -131,7 +129,8 @@ class SLGLTexture : public SLObject
             SLint       _wrap_s;        //!< Wrapping in s direction
             SLint       _wrap_t;        //!< Wrapping in t direction
             SLenum      _target;        //!< texture target
-            SLMat4f     _tm;            //!< texture matrix      
+            SLMat4f     _tm;            //!< texture matrix 
+            SLbool      _autoCalcTM3D;  //!< flag if texture matrix should be calculated from AABB for 3D mapping     
             SLfloat     _bumpScale;     //!< Bump mapping scale factor
             SLbool      _resizeToPow2;  //!< Flag if image should be resized to n^2
             SLGLBuffer  _bufP;          //!< Sprite buffer for vertex positions

@@ -1545,7 +1545,7 @@ void SLSceneView::build2DMenus()
     // Set font size depending on DPI
     SLTexFont* f = SLTexFont::getFont(1.7f, _dpi);
 
-    SLButton *mn1, *mn2, *mn3, *mn4, *mn5;    // submenu button pointer
+    SLButton *mn1, *mn2, *mn3, *mn4, *mn5;    // sub menu button pointer
     SLCmd curS = (SLCmd)s->_currentID;    // current scene number
    
     mn1 = new SLButton(this, ">", f, cmdMenu, false, false, 0, true, 0, 0, SLCol3f::COLBFH, 0.3f, centerCenter);
@@ -1563,7 +1563,7 @@ void SLSceneView::build2DMenus()
     mn3->addChild(new SLButton(this, "Figure", f, cmdSceneFigure, true, curS==cmdSceneFigure, mn2));
     mn3->addChild(new SLButton(this, "Mesh Loader", f, cmdSceneMeshLoad, true, curS==cmdSceneMeshLoad, mn2));
     mn3->addChild(new SLButton(this, "Texture Blending", f, cmdSceneTextureBlend, true, curS==cmdSceneTextureBlend, mn2));
-    mn3->addChild(new SLButton(this, "Texture Filtering", f, cmdSceneTextureFilter, true, curS==cmdSceneTextureFilter, mn2));
+    mn3->addChild(new SLButton(this, "Texture Filters and 3D texture", f, cmdSceneTextureFilter, true, curS==cmdSceneTextureFilter, mn2));
     mn3->addChild(new SLButton(this, "Frustum Culling 1", f, cmdSceneFrustumCull1, true, curS==cmdSceneFrustumCull1, mn2));
     mn3->addChild(new SLButton(this, "Frustum Culling 2", f, cmdSceneFrustumCull2, true, curS==cmdSceneFrustumCull2, mn2));
 
@@ -1647,7 +1647,7 @@ void SLSceneView::build2DMenus()
     mn1->addChild(mn2);
     mn2->addChild(new SLButton(this, "Slowdown on Idle", f, cmdWaitEventsToggle, true, _waitEvents, 0, false));
     if (hasMultiSampling())
-        mn2->addChild(new SLButton(this, "Do Multisampling", f, cmdMultiSampleToggle, true, _doMultiSampling, 0, false));
+        mn2->addChild(new SLButton(this, "Do Multi Sampling", f, cmdMultiSampleToggle, true, _doMultiSampling, 0, false));
     mn2->addChild(new SLButton(this, "Do Frustum Culling", f, cmdFrustCullToggle, true, _doFrustumCulling, 0, false));
     mn2->addChild(new SLButton(this, "Do Depth Test", f, cmdDepthTestToggle, true, _doDepthTest, 0, false));
     mn2->addChild(new SLButton(this, "Animation off", f, cmdAnimationToggle, true, false, 0, false));
@@ -1655,12 +1655,12 @@ void SLSceneView::build2DMenus()
     mn2 = new SLButton(this, "Render Flags >", f);
     mn1->addChild(mn2);
     mn2->addChild(new SLButton(this, "Textures off", f, cmdTextureToggle, true, false, 0, false));
-    mn2->addChild(new SLButton(this, "Back faces", f, cmdFaceCullToggle, true, false, 0, false));
+    mn2->addChild(new SLButton(this, "Back Faces", f, cmdFaceCullToggle, true, false, 0, false));
     mn2->addChild(new SLButton(this, "AABB", f, cmdBBoxToggle, true, false, 0, false));
     mn2->addChild(new SLButton(this, "Axis", f, cmdAxisToggle, true, false, 0, false));
     mn2->addChild(new SLButton(this, "Voxels", f, cmdVoxelsToggle, true, false, 0, false));
     mn2->addChild(new SLButton(this, "Normals", f, cmdNormalsToggle, true, false, 0, false));
-    mn2->addChild(new SLButton(this, "Wiremesh", f, cmdWireMeshToggle, true, false, 0, false));
+    mn2->addChild(new SLButton(this, "Wired mesh", f, cmdWireMeshToggle, true, false, 0, false));
    
     mn2 = new SLButton(this, "Infos >", f);
     mn1->addChild(mn2);

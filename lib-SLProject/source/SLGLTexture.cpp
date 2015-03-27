@@ -35,6 +35,7 @@ SLGLTexture::SLGLTexture()
     _target       = GL_TEXTURE_2D;
     _bumpScale    = 1.0f;
     _resizeToPow2 = true;
+    _autoCalcTM3D = false;
 }
 //-----------------------------------------------------------------------------
 //! ctor 2D textures with internal image allocation
@@ -59,6 +60,7 @@ SLGLTexture::SLGLTexture(SLstring  filename,
     _texName      = 0;
     _bumpScale    = 1.0f;
     _resizeToPow2 = true;
+    _autoCalcTM3D = false;
    
     // Add pointer to the global resource vectors for deallocation
     SLScene::current->textures().push_back(this);
@@ -84,6 +86,7 @@ SLGLTexture::SLGLTexture(SLVstring files,
     _texName      = 0;
     _bumpScale    = 1.0f;
     _resizeToPow2 = true;
+    _autoCalcTM3D = true;
 
     // Add pointer to the global resource vectors for deallocation
     SLScene::current->textures().push_back(this);
@@ -118,6 +121,7 @@ SLGLTexture::SLGLTexture(SLstring  filenameXPos,
     _texName     = 0;
     _bumpScale   = 1.0f;
     _resizeToPow2 = true;
+    _autoCalcTM3D = false;
 
     SLScene::current->textures().push_back(this);
 }
@@ -327,7 +331,7 @@ void SLGLTexture::build(SLint texID)
 /*!
 SLGLTexture::bindActive binds the active texture. This method must be called 
 by the object that uses the texture every time BEFORE the its rendering. 
-The texID is only used for multitexturing. Before the first time the texture
+The texID is only used for multi texturing. Before the first time the texture
 is passed to OpenGL.
 */
 void SLGLTexture::bindActive(SLint texID)

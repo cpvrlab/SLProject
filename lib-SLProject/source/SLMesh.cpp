@@ -208,10 +208,11 @@ void SLMesh::draw(SLSceneView* sv, SLNode* node)
         sp->uniformMatrix4fv("u_mvMatrix",    1, (SLfloat*)&_stateGL->modelViewMatrix);
         sp->uniformMatrix4fv("u_mvpMatrix",   1, (SLfloat*)_stateGL->mvpMatrix());
 
-        // 2.c) Build & pass inverse & normal matrix only if needed
+        // 2.c) Build & pass inverse, normal & texture matrix only if needed
         SLint locIM = sp->getUniformLocation("u_invMvMatrix");
         SLint locNM = sp->getUniformLocation("u_nMatrix");
         SLint locTM = sp->getUniformLocation("u_tMatrix");
+
         if (locIM>=0 && locNM>=0) 
         {   _stateGL->buildInverseAndNormalMatrix();
             sp->uniformMatrix4fv(locIM, 1, (SLfloat*)_stateGL->invModelViewMatrix());
@@ -225,9 +226,11 @@ void SLMesh::draw(SLSceneView* sv, SLNode* node)
         {   _stateGL->buildNormalMatrix();
             sp->uniformMatrix3fv(locNM, 1, (SLfloat*)_stateGL->normalMatrix());
         }
-        if (locTM>=0 && mat->has3DTexture())
-        {   calcTex3DMatrix(node);
-            sp->uniformMatrix3fv(locNM, 1, (SLfloat*)&_stateGL->textureMatrix);
+        if (locTM>=0)
+        {   if (mat->has3DTexture() && mat->textures()[0]->autoCalcTM3D())
+                 calcTex3DMatrix(node);
+            else _stateGL->textureMatrix = mat->textures()[0]->tm();
+            sp->uniformMatrix4fv(locTM, 1, (SLfloat*)&_stateGL->textureMatrix);
         }
 
         // 2.d) Do GPU skinning for animated meshes
@@ -321,7 +324,7 @@ void SLMesh::draw(SLSceneView* sv, SLNode* node)
 
         if (N && (sv->drawBit(SL_DB_NORMALS) || node->drawBit(SL_DB_NORMALS)))
         {  
-            // scalefactor r 5% from scaled radius for normals & tangents
+            // scale factor r 5% from scaled radius for normals & tangents
             // build array between vertex and normal target point
             float r = node->aabb()->radiusOS() * 0.05f;
             SLVec3f* V2 = new SLVec3f[numV*2];
@@ -765,18 +768,29 @@ void SLMesh::calcTangents()
     }
 }
 //-----------------------------------------------------------------------------
+/* Calculate the texture matrix for 3D texture mapping from the AABB so that
+the texture volume surrounds the AABB centrically.
+*/
 void SLMesh::calcTex3DMatrix(SLNode* node)
 {
-    SLVec3f ext = node->aabb()->extentionOS();
-    SLint dim;
-    SLfloat max = ext.maxXYZ(dim);
+    SLVec3f min = node->aabb()->minOS();
+    SLVec3f max = node->aabb()->maxOS();
+    SLVec3f ctr = node->aabb()->centerOS();
+    SLVec3f ext = max - ctr;
 
-    // scale factor
-    SLfloat s = 1.0f/max;
-    
-    // set the texture matrix
+    // determine the scale factor s from the max. AABB extension 
+    SLint dim;
+    SLfloat maxExt = ext.maxXYZ(dim);
+    SLfloat s = 1.0f/(2.0f * maxExt);
+
+    // scale and translate the texture matrix
     SLGLState* stateGL = SLGLState::getInstance();
-    stateGL->textureMatrix.scaling(s,s,s,false);
+    stateGL->textureMatrix.identity();
+    stateGL->textureMatrix.scale(s);
+    stateGL->textureMatrix.translate(-ctr);
+    stateGL->textureMatrix.translate(-ext.comp[dim],
+                                     -ext.comp[dim],
+                                     -ext.comp[dim]);
 }
 //-----------------------------------------------------------------------------
 /*!

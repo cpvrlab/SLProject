@@ -17,7 +17,8 @@ varying     vec4     v_texCoord3D;  // texture coordinate at vertex
 
 void main()
 {
-    // Set the 3D texture coord. varying for interpolated tex. coords.
+    // For 3D texturing we use the vertex position as texture coordinate
+    // transformed by the texture matrix
     v_texCoord3D = u_tMatrix * a_position;
    
     // Set the transformes vertex position   
