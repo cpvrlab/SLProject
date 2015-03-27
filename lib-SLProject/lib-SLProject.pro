@@ -228,4 +228,6 @@ Introduction.md \
 OneFrame.ml \
 onPaint.md \
 SLProject.md \
+    source/oglsl/TextureOnly3D.frag \
+    source/oglsl/TextureOnly3D.vert
 
