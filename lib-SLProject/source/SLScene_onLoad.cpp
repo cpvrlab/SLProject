@@ -880,6 +880,11 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
         VR.push_back(SLVec3f( 0.5f,-0.5f,-2.0f));
         SLNode* polyR = new SLNode(new SLPolygon(VR, T, "PolygonR", matR));
 
+        
+        #ifdef SL_GLES2
+        // Create 3D textured sphere mesh and node
+        SLNode* sphere = new SLNode(new SLSphere(0.2f, 16, 16, "Sphere", matL));
+        #else
         // 3D Texture Mapping on a pyramid
         SLVstring tex3DFiles;
         for (SLint i=0; i<256; ++i) tex3DFiles.push_back("Wave_radial10_256C.jpg");
@@ -900,6 +905,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
 
         // Create 3D textured sphere mesh and node
         SLNode* sphere = new SLNode(new SLSphere(0.2f, 16, 16, "Sphere", mat3D));
+        #endif
 
         SLCamera* cam1 = new SLCamera;
         cam1->position(0,0,2.2f);
@@ -914,8 +920,10 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
         scene->addChild(polyR);
         scene->addChild(sphere);
         scene->addChild(cam1);
+        #ifndef SL_GLES2
         scene->addChild(pyramidNode);
-
+        #endif
+        
         _backColor.set(SLCol4f(0.2f,0.2f,0.2f));
         sv->camera(cam1);
         _root3D = scene;

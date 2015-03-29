@@ -108,7 +108,11 @@ void SLGLShader::load(SLstring filename)
     buffer << shaderFile.rdbuf(); 
 
     // remove comments because some stupid ARM compiler can't handle GLSL comments
+    #ifdef SL_OS_MACIOS
+    _code = buffer.str();
+    #else
     _code = SLUtils::removeComments(buffer.str());
+    #endif
 }
 //-----------------------------------------------------------------------------
 //! SLGLShader::load loads a shader file from memory into memory 

@@ -82,7 +82,11 @@ SLGLTexture::SLGLTexture(SLVstring files,
     _mag_filter   = mag_filter;
     _wrap_s       = GL_REPEAT;
     _wrap_t       = GL_REPEAT;
+    #ifdef SL_GLES2
+    _target       = GL_TEXTURE_2D;
+    #else
     _target       = GL_TEXTURE_3D;
+    #endif
     _texName      = 0;
     _bumpScale    = 1.0f;
     _resizeToPow2 = true;
@@ -181,9 +185,7 @@ void SLGLTexture::build(SLint texID)
     
     // get max texture size
     SLint texMaxSize=0;
-    SLint texMax3DSize=0;
     glGetIntegerv(GL_MAX_TEXTURE_SIZE, &texMaxSize);
-    glGetIntegerv(GL_MAX_3D_TEXTURE_SIZE, &texMax3DSize);
 
     // check if texture has to be resized
     SLuint w2 = closestPowerOf2(_images[0]->width());
@@ -200,8 +202,11 @@ void SLGLTexture::build(SLint texID)
         if (_images[0]->height() > (SLuint)texMaxSize)
             SL_EXIT_MSG("SLGLTexture::build: Texture height is too big.");
     }
-
+    
+    #ifndef SL_GLES2
     // check 3D size
+    SLint texMax3DSize=0;
+    glGetIntegerv(GL_MAX_3D_TEXTURE_SIZE, &texMax3DSize);
     if (_target == GL_TEXTURE_3D)
     {   for (auto img : _images)
         {   if (img->width()  > (SLuint)texMaxSize)
@@ -213,6 +218,7 @@ void SLGLTexture::build(SLint texID)
                 SL_EXIT_MSG("SLGLTexture::build: Not all images of the 3D texture have the same size.");
         }
     }
+    #endif
       
     // check cube mapping capability & max. cube map size
     if (_target==GL_TEXTURE_CUBE_MAP)
@@ -300,6 +306,7 @@ void SLGLTexture::build(SLint texID)
         if (_min_filter>=GL_NEAREST_MIPMAP_NEAREST)
             glGenerateMipmap(GL_TEXTURE_2D);  
     }
+    #ifndef SL_GLES2
     else if (_target == GL_TEXTURE_3D)
     {
         // temporary buffer for 3D image data
@@ -324,6 +331,7 @@ void SLGLTexture::build(SLint texID)
                      &buffer[0]);
 
     }
+    #endif
 
     GET_GL_ERROR;
 }

@@ -22,7 +22,7 @@
 	<key>IDESourceControlProjectRelativeInstallPathDictionary</key>
 	<dict>
 		<key>070E7B8501E408752C1AA209FC2CF42BA7A1BDED</key>
-		<string>../../../_data/</string>
+		<string>../../../_data</string>
 		<key>0C8499CD2E4389E889926062AEB8F0428A4DD54E</key>
 		<string>../../..</string>
 		<key>BFE27AF18BEB7986CFFD745EAC54D8EF53005BC0</key>

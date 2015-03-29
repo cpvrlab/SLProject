@@ -2641,7 +2641,7 @@
 				419BCD5F14865C0800D576F1 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
+			defaultConfigurationName = Debug;
 		};
 		419BCD6014865C0800D576F1 /* Build configuration list for PBXNativeTarget "SLProject" */ = {
 			isa = XCConfigurationList;
@@ -2650,7 +2650,7 @@
 				419BCD6214865C0800D576F1 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
+			defaultConfigurationName = Debug;
 		};
 /* End XCConfigurationList section */
 	};

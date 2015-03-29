@@ -66,9 +66,12 @@ class SLMaterial : public SLObject
                                                         _textures[0]->hasAlpha()));}
             
             //! Returns true if a material has a 3D texture
+            #ifdef SL_GLES2
+            SLbool          has3DTexture   () {return false;}
+            #else
             SLbool          has3DTexture   () {return _textures.size() > 0 &&
                                                       _textures[0]->target()==GL_TEXTURE_3D;}
-
+            #endif
             //! Returns true if a material with textures tangents as additional attributes
             SLbool          needsTangents  () {return (_textures.size()>=2 &&
                                                        _textures[0]->target()==GL_TEXTURE_2D &&
