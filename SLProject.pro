@@ -7,10 +7,10 @@ SUBDIRS += lib-SLExternal/oculus
 SUBDIRS += lib-SLProject
 SUBDIRS += app-Demo-GLFW
 SUBDIRS += app-Demo-Qt
-SUBDIRS += app-Viewer-Qt
 SUBDIRS += app-NodeManipulationDemo
+SUBDIRS += app-Viewer-Qt
+SUBDIRS += app-VolumeRendering
 SUBDIRS += ch09_TextureMapping
-SUBDIRS += VolumeRendering
 
 lib-SLProject.depends = lib-SLExternal
 lib-SLProject.depends = lib-SLExternal/assimp
@@ -20,7 +20,7 @@ app-Demo-Qt.depends = lib-SLProject
 app-Viewer-Qt.depends = lib-SLProject
 app-LeapMotionTest.depends = lib-SLProject
 app-NodeManipulationDemo.depends = lib-SLProject
-VolumeRendering = lib-SLProject
+app-VolumeRendering = lib-SLProject
 
 CONFIG -= qml_debug
 

@@ -171,7 +171,7 @@ struct Triangle
 
 void compilePrograms()
 {
-    SLstring glslDir = "../lib-SLProject/source/oglsl/";
+    SLstring glslDir = "../app-VolumeRendering/";
     _mipSamplingVertShader = glUtils::buildShader(glslDir + "VolumeRenderingRayCast.vert", GL_VERTEX_SHADER);
     _mipSamplingFragShader = glUtils::buildShader(glslDir + "VolumeRenderingSampling_MIP.frag", GL_FRAGMENT_SHADER);
     _mipSamplingProgram    = glUtils::buildProgram(_mipSamplingVertShader,_mipSamplingFragShader);
