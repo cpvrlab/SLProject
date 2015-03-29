@@ -12,14 +12,14 @@
 //-----------------------------------------------------------------------------
 attribute   vec4       a_position;             // Vertex position attribute
 
-uniform     vec3       u_voxelScale;           //Voxel scaling coefficients
+uniform     vec3       u_voxelScale;           // Voxel scaling coefficients
 uniform     mat4       u_mvpMatrix;			   // = projection * modelView
-uniform     mat4       u_volumeRotationMatrix; //Rotation matrix for the volume itself
-uniform     vec3       u_textureSize;          //size of 3D texture
+uniform     mat4       u_volumeRotationMatrix; // Rotation matrix for the volume itself
+uniform     vec3       u_textureSize;          // size of 3D texture
 
-uniform     sampler3D  u_volume;		       //A 3d texture defining the volume
+uniform     sampler3D  u_volume;		       // A 3D texture defining the volume
 
-varying     vec4       v_texCoord;             //Texture coordinate at each vertex
+varying     vec4       v_texCoord;             // Texture coordinate at each vertex
 
 //-----------------------------------------------------------------------------
 

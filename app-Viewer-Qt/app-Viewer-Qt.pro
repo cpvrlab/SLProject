@@ -98,6 +98,7 @@ textures.files = \
   ../_data/images/textures/tree1_1024_C.png \
   ../_data/images/textures/VisionExample.png \
   ../_data/images/textures/VisionTest.png \
+  ../_data/images/textures/Wave_radial10_256C.jpg \
   ../_data/images/textures/wood0_0256_C.jpg \
   ../_data/images/textures/wood0_0512_C.jpg \
   ../_data/images/textures/wood2_0256_C.jpg \
@@ -146,6 +147,8 @@ shaders.files = \
   ../lib-SLProject/source/oglsl/StereoOculusDistortionMesh.vert \
   ../lib-SLProject/source/oglsl/TextureOnly.frag \
   ../lib-SLProject/source/oglsl/TextureOnly.vert \
+  ../lib-SLProject/source/oglsl/TextureOnly3D.frag \
+  ../lib-SLProject/source/oglsl/TextureOnly3D.vert \
   ../lib-SLProject/source/oglsl/Wave.frag \
   ../lib-SLProject/source/oglsl/Wave.vert \
   ../lib-SLProject/source/oglsl/WaveRefractReflect.vert \
