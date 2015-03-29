@@ -17,31 +17,31 @@
     <ClInclude Include="..\include\stdafx.h" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\lib-SLProject\source\oglsl\VolumeRenderingRayCast.vert">
-      <Filter>GLSL</Filter>
-    </None>
-    <None Include="..\lib-SLProject\source\oglsl\VolumeRenderingSampling_MIP.frag">
-      <Filter>GLSL</Filter>
-    </None>
-    <None Include="..\lib-SLProject\source\oglsl\VolumeRenderingSampling_TF.frag">
-      <Filter>GLSL</Filter>
-    </None>
-    <None Include="..\lib-SLProject\source\oglsl\VolumeRenderingSiddon_MIP.frag">
-      <Filter>GLSL</Filter>
-    </None>
-    <None Include="..\lib-SLProject\source\oglsl\VolumeRenderingSiddon_TF.frag">
-      <Filter>GLSL</Filter>
-    </None>
-    <None Include="..\lib-SLProject\source\oglsl\VolumeRenderingSlicing.frag">
-      <Filter>GLSL</Filter>
-    </None>
-    <None Include="..\lib-SLProject\source\oglsl\VolumeRenderingSlicing.vert">
-      <Filter>GLSL</Filter>
-    </None>
-  </ItemGroup>
-  <ItemGroup>
     <Filter Include="GLSL">
       <UniqueIdentifier>{004edf2b-fd3f-4d7b-8a5d-4d798f9cd09b}</UniqueIdentifier>
     </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="VolumeRenderingRayCast.vert">
+      <Filter>GLSL</Filter>
+    </None>
+    <None Include="VolumeRenderingSampling_MIP.frag">
+      <Filter>GLSL</Filter>
+    </None>
+    <None Include="VolumeRenderingSampling_TF.frag">
+      <Filter>GLSL</Filter>
+    </None>
+    <None Include="VolumeRenderingSiddon_MIP.frag">
+      <Filter>GLSL</Filter>
+    </None>
+    <None Include="VolumeRenderingSiddon_TF.frag">
+      <Filter>GLSL</Filter>
+    </None>
+    <None Include="VolumeRenderingSlicing.frag">
+      <Filter>GLSL</Filter>
+    </None>
+    <None Include="VolumeRenderingSlicing.vert">
+      <Filter>GLSL</Filter>
+    </None>
   </ItemGroup>
 </Project>

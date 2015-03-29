@@ -27,7 +27,7 @@ class glUtils
     public: 
 		static void printGLInfo();
 
-        //! Loads an GLSL-shader file and returs the code as a string
+        //! Loads an GLSL-shader file and returns the code as a string
         static string loadShader  (string filename);
 
         //! Builds an GLSL-Shader object and returns the shader id
@@ -62,10 +62,10 @@ class glUtils
                                      GLint wrapT = GL_CLAMP_TO_BORDER,
 									 const std::array<GLfloat, 4> &borderColor = { 0.0f, 0.0f, 0.0f, 0.0f }
                                      );
-        //! Checks if an OpenGL error occured
+        //! Checks if an OpenGL error occurred
         static void getGLError(char* file, int line, bool quit);
 
-        //! Returns a vector of storted filesname within a directory
+        //! Returns a vector of sorted file names within a directory
         static SLVstring getFileNamesInDir(SLstring dirName);
 };
 //-----------------------------------------------------------------------------

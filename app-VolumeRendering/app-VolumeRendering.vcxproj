@@ -40,19 +40,19 @@
     <ClInclude Include="glUtils.h" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\lib-SLProject\source\oglsl\VolumeRenderingRayCast.vert" />
-    <None Include="..\lib-SLProject\source\oglsl\VolumeRenderingSiddon_TF.frag" />
-    <None Include="..\lib-SLProject\source\oglsl\VolumeRenderingSiddon_MIP.frag" />
-    <None Include="..\lib-SLProject\source\oglsl\VolumeRenderingSampling_TF.frag" />
-    <None Include="..\lib-SLProject\source\oglsl\VolumeRenderingSampling_MIP.frag" />
-    <None Include="..\lib-SLProject\source\oglsl\VolumeRenderingSlicing.vert" />
-    <None Include="..\lib-SLProject\source\oglsl\VolumeRenderingSlicing.frag" />
+    <None Include="VolumeRenderingRayCast.vert" />
+    <None Include="VolumeRenderingSampling_MIP.frag" />
+    <None Include="VolumeRenderingSampling_TF.frag" />
+    <None Include="VolumeRenderingSiddon_MIP.frag" />
+    <None Include="VolumeRenderingSiddon_TF.frag" />
+    <None Include="VolumeRenderingSlicing.frag" />
+    <None Include="VolumeRenderingSlicing.vert" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{AD06379D-1767-41AA-A877-33857D32D7A0}</ProjectGuid>
     <RootNamespace>SceneLib</RootNamespace>
     <Keyword>Win32Proj</Keyword>
-    <ProjectName>VolumeRendering</ProjectName>
+    <ProjectName>app-VolumeRendering</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
@@ -117,7 +117,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)\include;..\include;..\lib-SLExternal;..\lib-SLExternal\jpeg-8;..\lib-SLExternal\png;..\lib-SLExternal\zlib;..\lib-SLExternal\glew\include;..\lib-SLExternal\glfw3\include;..\lib-SLExternal\randomc;..\lib-SLExternal\oculus\LibOVR\Include\;..\lib-SLExternal\nvwa;..\lib-SLExternal\assimp\include;..\lib-SLExternal\assimp\code</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)\include;..\include;..\lib-SLExternal;..\lib-SLExternal\jpeg-8;..\lib-SLExternal\png;..\lib-SLExternal\zlib;..\lib-SLExternal\glew\include;..\lib-SLExternal\glfw3\include;..\lib-SLExternal\randomc;..\lib-SLExternal\oculus\LibOVR\Include\;..\lib-SLExternal\nvwa;..\lib-SLExternal\assimp\include;..\lib-SLExternal\assimp\code;..\lib-SLExternal\dirent</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>SL_AABB;SL_MESH;SL_RT1;SL_RT2;SL_GLSL;GLEW_STATIC;_DEBUG;UNICODE;WIN32;_WINDOWS</PreprocessorDefinitions>
       <MinimalRebuild>false</MinimalRebuild>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
@@ -206,7 +206,7 @@
       <AdditionalOptions>/wd4996 %(AdditionalOptions)</AdditionalOptions>
       <Optimization>Full</Optimization>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)\include;..\include;..\lib-SLExternal;..\lib-SLExternal\jpeg-8;..\lib-SLExternal\png;..\lib-SLExternal\zlib;..\lib-SLExternal\glew\include;..\lib-SLExternal\glfw3\include;..\lib-SLExternal\randomc;..\lib-SLExternal\oculus\LibOVR\Include\;..\lib-SLExternal\nvwa;..\lib-SLExternal\assimp\include;..\lib-SLExternal\assimp\code</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)\include;..\include;..\lib-SLExternal;..\lib-SLExternal\jpeg-8;..\lib-SLExternal\png;..\lib-SLExternal\zlib;..\lib-SLExternal\glew\include;..\lib-SLExternal\glfw3\include;..\lib-SLExternal\randomc;..\lib-SLExternal\oculus\LibOVR\Include\;..\lib-SLExternal\nvwa;..\lib-SLExternal\assimp\include;..\lib-SLExternal\assimp\code;..\lib-SLExternal\dirent</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>SL_AABB;SL_MESH;SL_RT1;SL_RT2;SL_GLSL;GLEW_STATIC;_NODEBUG;UNICODE;WIN32;_WINDOWS</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <BufferSecurityCheck>true</BufferSecurityCheck>
@@ -244,7 +244,7 @@
       <AdditionalOptions>/wd4996 %(AdditionalOptions)</AdditionalOptions>
       <Optimization>Full</Optimization>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)\include;..\include;..\lib-SLExternal;..\lib-SLExternal\jpeg-8;..\lib-SLExternal\png;..\lib-SLExternal\zlib;..\lib-SLExternal\glew\include;..\lib-SLExternal\glfw3\include;..\lib-SLExternal\randomc;..\lib-SLExternal\oculus\LibOVR\Include\;..\lib-SLExternal\nvwa;..\lib-SLExternal\assimp\include;..\lib-SLExternal\assimp\code</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)\include;..\include;..\lib-SLExternal;..\lib-SLExternal\jpeg-8;..\lib-SLExternal\png;..\lib-SLExternal\zlib;..\lib-SLExternal\glew\include;..\lib-SLExternal\glfw3\include;..\lib-SLExternal\randomc;..\lib-SLExternal\oculus\LibOVR\Include\;..\lib-SLExternal\nvwa;..\lib-SLExternal\assimp\include;..\lib-SLExternal\assimp\code;..\lib-SLExternal\dirent</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>SL_AABB;SL_MESH;SL_RT1;SL_RT2;SL_GLSL;GLEW_STATIC;_NODEBUG;UNICODE;WIN32;_WINDOWS</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <BufferSecurityCheck>true</BufferSecurityCheck>

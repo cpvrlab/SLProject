@@ -370,7 +370,7 @@ void drawSamplingMIP()
     glUniform3fv(_mipSamplingEyePos , 1, (float*)&eye);
     glUniform3fv(_mipSamplingVoxelScale , 1, (float*)&_voxelScaling);
 
-    SLVec3f size(_volumeWidth, _volumeHeight, _volumeDepth);
+    SLVec3f size((float)_volumeWidth, (float)_volumeHeight, (float)_volumeDepth);
     glUniform3fv(_mipSamplingTextureSize, 1, (float*)&size);
 
 	glBindBuffer(GL_ARRAY_BUFFER, _cubeVboV);
@@ -430,7 +430,7 @@ void drawSamplingTF()
     glUniform3fv(_tfSamplingEyePos, 1, (float*)&eye);
     glUniform3fv(_tfSamplingVoxelScale, 1, (float*)&_voxelScaling);
 
-    SLVec3f size(_volumeWidth, _volumeHeight, _volumeDepth);
+    SLVec3f size((float)_volumeWidth, (float)_volumeHeight, (float)_volumeDepth);
     glUniform3fv(_tfSamplingTextureSize, 1, (float*)&size);
 
 	glBindBuffer(GL_ARRAY_BUFFER, _cubeVboV);
@@ -487,7 +487,7 @@ void drawSiddonMIP()
     glUniform3fv(_mipSiddonEyePos, 1, (float*)&eye);
     glUniform3fv(_mipSiddonVoxelScale, 1, (float*)&_voxelScaling);
 
-    SLVec3f size(_volumeWidth, _volumeHeight, _volumeDepth);
+    SLVec3f size((float)_volumeWidth, (float)_volumeHeight, (float)_volumeDepth);
     glUniform3fv(_mipSiddonTextureSize, 1, (float*)&size);
 
 	glBindBuffer(GL_ARRAY_BUFFER, _cubeVboV);
@@ -547,7 +547,7 @@ void drawSiddonTF()
     glUniform3fv(_tfSiddonEyePos, 1, (float*)&eye);
     glUniform3fv(_tfSiddonVoxelScale, 1, (float*)&_voxelScaling);
 
-    SLVec3f size(_volumeWidth, _volumeHeight, _volumeDepth);
+    SLVec3f size((float)_volumeWidth, (float)_volumeHeight, (float)_volumeDepth);
     glUniform3fv(_tfSiddonTextureSize, 1, (float*)&size);
 
 	glBindBuffer(GL_ARRAY_BUFFER, _cubeVboV);
@@ -589,7 +589,7 @@ void drawSlicesMIP()
     glUniformMatrix4fv(_sliceVolumeRot, 1, 0, (float*)&_volumeRotationMatrix);
     glUniform3fv(_sliceVoxelScale, 1, (float*)&_voxelScaling);
 
-    SLVec3f size(_volumeWidth, _volumeHeight, _volumeDepth);
+    SLVec3f size((float)_volumeWidth, (float)_volumeHeight, (float)_volumeDepth);
     glUniform3fv(_sliceTextureSize, 1, (float*)&size);
 
 	glEnable(GL_TEXTURE_3D);
@@ -641,7 +641,7 @@ void drawSlicesTF()
 	glUniformMatrix4fv(_sliceMVP, 1, 0, (float*)&mvp);
     glUniformMatrix4fv(_sliceVolumeRot, 1, 0, (float*)&_volumeRotationMatrix);
 
-    SLVec3f size(_volumeWidth, _volumeHeight, _volumeDepth);
+    SLVec3f size((float)_volumeWidth, (float)_volumeHeight, (float)_volumeDepth);
     glUniform3fv(_sliceTextureSize, 1, (float*)&size);
 
 	glEnable(GL_TEXTURE_3D);
@@ -785,10 +785,10 @@ void buildDefaultLut()
 template <typename T>
 inline T normal_pdf(T x, T m, T s)
 {
-	static const T inv_sqrt_2pi = 0.3989422804014327;
+	static const T inv_sqrt_2pi = (T)0.3989422804014327;
 	T a = (x - m) / s;
 
-	return inv_sqrt_2pi / s * std::exp(-T(0.5) * a * a);
+	return inv_sqrt_2pi / s * (T)std::exp(-T(0.5) * a * a);
 }
 
 void updateFocusLut()
@@ -1022,7 +1022,7 @@ void onMouseWheel(GLFWwindow* window, double xscroll, double yscroll)
     else if (_modifiers == CTRL)
     {
         int minNumSlices = 10;
-        int maxNumSlices = ceil(sqrt(3)*std::max(std::max(_volumeWidth, _volumeHeight), _volumeDepth));
+        int maxNumSlices = (int)ceil(sqrt(3)*std::max(std::max(_volumeWidth, _volumeHeight), _volumeDepth));
         _numQuads += int(SL_sign(yscroll)) * 10;
         _numQuads = std::max(std::min(_numQuads, maxNumSlices), minNumSlices);
         destroyQuads();
