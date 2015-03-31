@@ -3,7 +3,7 @@
 //  Author:    Marcus Hudritsch
 //  Date:      July 2014
 //  Codestyle: https://github.com/cpvrlab/SLProject/wiki/Coding-Style-Guidelines
-//  Copyright: 2002-2014 Marcus Hudritsch
+//  Copyright: Marcus Hudritsch
 //             This software is provide under the GNU General Public License
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
@@ -108,7 +108,7 @@ SLScene::SLScene(SLstring name) : SLObject(name)
     SLTexFont::generateFonts();
 
     _infoAbout_en =
-"Welcome to the SLProject demo app (v1.1.000). It is developed at the \
+"Welcome to the SLProject demo app (v1.1.100). It is developed at the \
 Computer Science Department of the Berne University of Applied Sciences. \
 The app shows what you can learn in one semester about 3D computer graphics \
 in real time rendering and ray tracing. The framework is developed \

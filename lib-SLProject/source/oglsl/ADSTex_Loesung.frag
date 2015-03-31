@@ -4,6 +4,7 @@
 //             texture mapping
 //  Author:    Marcus Hudritsch
 //  Date:      September 2012 (HS12)
+//  Copyright: Marcus Hudritsch
 //             THIS SOFTWARE IS PROVIDED FOR EDUCATIONAL PURPOSE ONLY AND
 //             WITHOUT ANY WARRANTIES WHETHER EXPRESSED OR IMPLIED.
 //#############################################################################

@@ -3,9 +3,9 @@
 //  Purpose:   Serves as Qt tree widget item representing a property of SLNode
 //  Author:    Marcus Hudritsch
 //  Date:      July 2014
-//  Copyright: Marcus Hudritsch, Kirchrain 18, 2572 Sutz
-//             THIS SOFTWARE IS PROVIDED FOR EDUCATIONAL PURPOSE ONLY AND
-//             WITHOUT ANY WARRANTIES WHETHER EXPRESSED OR IMPLIED
+//  Copyright: Marcus Hudritsch
+//             This software is provide under the GNU General Public License
+//             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
 
 #ifndef QTPROPERTYTREEITEM_H

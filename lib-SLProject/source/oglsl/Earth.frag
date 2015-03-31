@@ -3,6 +3,7 @@
 //  Purpose:   OGLSL parallax bump mapping
 //  Author:    Marcus Hudritsch
 //  Date:      18-SEP-09 (HS09)
+//  Copyright: Marcus Hudritsch
 //             THIS SOFTWARE IS PROVIDED FOR EDUCATIONAL PURPOSE ONLY AND
 //             WITHOUT ANY WARRANTIES WHETHER EXPRESSED OR IMPLIED.
 //#############################################################################

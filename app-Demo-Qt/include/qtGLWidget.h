@@ -1,13 +1,13 @@
 //#############################################################################
 //  File:      qtGLWidget.h
 //  Purpose:   Declaration of the QGLWidget derive window class.
-//             In general all the event hadlers will foreward the events to the 
+//             In general all the event handlers will forward the events to the 
 //             appropriate event handlers of the SLSceneView class
 //  Author:    Marcus Hudritsch
 //  Date:      July 2014
-//  Copyright: Marcus Hudritsch, Kirchrain 18, 2572 Sutz
-//             THIS SOFTWARE IS PROVIDED FOR EDUCATIONAL PURPOSE ONLY AND
-//             WITHOUT ANY WARRANTIES WHETHER EXPRESSED OR IMPLIED
+//  Copyright: Marcus Hudritsch
+//             This software is provide under the GNU General Public License
+//             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
 
 #ifndef QTGLWIDGET_H
@@ -23,7 +23,7 @@ class SLSceneView;
 //! Qt QGLWidget class (for OpenGL rendering) for OpenGL display
 /*!
 qtGLWidget provides the GUI functionality for OpenGL rendering and is
-therefore derived from QGLWidget. It forewards all rendering and interaction
+therefore derived from QGLWidget. It forwards all rendering and interaction
 tasks to the according methods of the interface in slInterface
 */
 class qtGLWidget : public QGLWidget
@@ -35,7 +35,7 @@ class qtGLWidget : public QGLWidget
                                                   SLstring appPath,
                                                   SLVstring cmdLineArgs);
 
-                            //! Contructor for subsequent GLWidgets
+                            //! Constructor for subsequent GLWidgets
                             qtGLWidget           (QWidget* parent,
                                                   QGLWidget* shareWidget);
 

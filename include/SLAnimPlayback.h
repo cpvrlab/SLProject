@@ -3,7 +3,7 @@
 //  Author:    Marc Wacker, Marcus Hudritsch
 //  Date:      Autumn 2014
 //  Codestyle: https://code.google.com/p/slproject/wiki/CodingStyleGuidelines
-//  Copyright: 2002-2014 Marcus Hudritsch
+//  Copyright: Marcus Hudritsch
 //             This software is provide under the GNU General Public License
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################

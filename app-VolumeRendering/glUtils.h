@@ -2,7 +2,7 @@
 //  File:      Globals/GL/glUtils.h
 //  Purpose:   General OpenGL utility functions for simple OpenGL demo apps
 //  Date:      July 2014
-//  Copyright: 2002-2014 Marcus Hudritsch
+//  Copyright: Marcus Hudritsch
 //             This software is provide under the GNU General Public License
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
