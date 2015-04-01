@@ -46,9 +46,12 @@ enum SLTexType
 //! Texture object for OpenGL texturing
 /*!      
 The SLGLTexture class implements an OpenGL texture object that can is used by the 
-SLMaterial class. The texture image is loaded using Qt's QImage class.
-If the texture object is used for cube mapping the instance can hold up to 
-6 textures and its image data. For normal textures only _img[0] is used.
+SLMaterial class. A texture can have 1-n SLImages in the vector _images.
+A simple 2D texture has just a single texture image (_images[0]). For cube maps
+you will need 6 images (_images[0-5]). For 3D textures you can have as much
+images of the same size than your GPU and/or CPU memory can hold.
+The images are not released after the OpenGL texture creation. They may be needed
+for ray tracing.
 */
 class SLGLTexture : public SLObject
 {

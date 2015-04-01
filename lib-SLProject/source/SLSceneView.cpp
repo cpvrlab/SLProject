@@ -530,7 +530,6 @@ SLbool SLSceneView::draw3DGL(SLfloat elapsedTimeMS)
     // 4. Frustum Culling //
     ////////////////////////
    
-    // Do frustum culling
     _camera->setFrustumPlanes(); 
     _blendNodes.clear();
     _opaqueNodes.clear();     
@@ -770,7 +769,6 @@ void SLSceneView::draw2DGL()
    _draw2DTimeMS = s->timeMilliSec() - startMS;
    return;
 }
-
 //-----------------------------------------------------------------------------
 /*!
 SLSceneView::draw2DGLAll draws GUI tree in ortho projection.
@@ -924,7 +922,6 @@ void SLSceneView::draw2DGLAll()
     _stateGL->depthTest(true);    // enable depth testing
     GET_GL_ERROR;                 // check if any OGL errors occured
 }
-
 //-----------------------------------------------------------------------------
 /*! 
 SLSceneView::onMouseDown gets called whenever a mouse button gets pressed and
@@ -1493,6 +1490,11 @@ void SLSceneView::onRotationQUAT(const SLfloat quatX,
 //-----------------------------------------------------------------------------
 
 
+
+
+
+
+//-----------------------------------------------------------------------------
 /*! 
 SLSceneView::rebuild2DMenus force a rebuild of all 2d elements, might be needed
 if dpi or other screenspace related parameters changed.
@@ -1518,8 +1520,6 @@ void SLSceneView::rebuild2DMenus(SLbool showAboutFirst)
     if (!showAboutFirst)
         s->_menu2D = s->_menuGL;
 }
-
-
 //-----------------------------------------------------------------------------
 /*! 
 SLSceneView::build2D builds the GUI menu button tree for the _menuGL and the 
@@ -1940,6 +1940,10 @@ void SLSceneView::build2DMsgBoxes()
 }
 //-----------------------------------------------------------------------------
 
+
+
+
+
 //-----------------------------------------------------------------------------
 /*!
 Returns the window title with name & FPS
@@ -1973,7 +1977,7 @@ SLstring SLSceneView::windowTitle()
     {   sprintf(title, "%s (fps: %4.1f, %u nodes of %u rendered)",
                         s->name().c_str(), 
                         s->_fps,
-                        _camera->numRendered(),
+                        _camera->numRendered() ? _camera->numRendered() : _stats.numNodes,
                         _stats.numNodes);
     }
     return SLstring(title);
