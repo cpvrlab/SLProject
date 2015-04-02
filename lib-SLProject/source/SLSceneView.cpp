@@ -34,7 +34,7 @@ const SLint SLSceneView::LONGTOUCH_MS = 500;
 //-----------------------------------------------------------------------------
 //! SLSceneView default constructor
 /*! The default constructor adds the this pointer to the sceneView vector in 
-SLScene. If an inbetween element in the vector is zero (from previous sceneviews) 
+SLScene. If an in between element in the vector is zero (from previous sceneviews) 
 it will be replaced. The sceneviews _index is the index in the sceneview vector.
 It never changes throughout the life of a sceneview. 
 */
@@ -364,7 +364,7 @@ void SLSceneView::onResize(const SLint width, const SLint height)
             s->oculus()->renderResolution(_scrW, _scrH);
         }
       
-        // Stop raytracing & pathtracgin on resize
+        // Stop raytracing & pathtracing on resize
         if (_renderType != renderGL)
         {   _renderType = renderGL;
             _raytracer.continuous(false);
@@ -407,7 +407,7 @@ SLbool SLSceneView::onPaint()
     if (_camera->projection() == stereoSideBySideD)
         s->oculus()->endFrame(_scrW, _scrH, _oculusFB.texID());
 
-    // Update statisitc of VBO's & drawcalls
+    // Update statistic of VBO's & drawcalls
     _totalBufferCount = SLGLBuffer::totalBufferCount;
     _totalBufferSize = SLGLBuffer::totalBufferSize;
     _totalDrawCalls = SLGLBuffer::totalDrawCalls;
@@ -471,7 +471,7 @@ the right eye.
 </li>
 <li>
 <b>Draw Oculus Framebuffer</b>:
-If the projection is the Oculus stereo projection the frambuffer image
+If the projection is the Oculus stereo projection the framebuffer image
 is drawn.
 </li>
 </ol>
@@ -564,7 +564,7 @@ SLbool SLSceneView::draw3DGL(SLfloat elapsedTimeMS)
 
     postDraw();
 
-    GET_GL_ERROR; // Check if any OGL errors occured
+    GET_GL_ERROR; // Check if any OGL errors occurred
     return camUpdated;
 }
 //----------------------------------------------------------------------------- 
@@ -591,7 +591,7 @@ void SLSceneView::draw3DGLAll()
     std::sort(_blendNodes.begin(), _blendNodes.end(), CompareNodeViewDist);
     draw3DGLNodes(_blendNodes);
 
-    // Blending must be turned off again for correct anyglyph stereo modes
+    // Blending must be turned off again for correct anaglyph stereo modes
     _stateGL->blend(false);
     _stateGL->depthMask(true);
 }
@@ -634,7 +634,7 @@ void SLSceneView::draw3DGLLines(SLVNode &nodes)
         }
     }
    
-    GET_GL_ERROR;        // Check if any OGL errors occured
+    GET_GL_ERROR;        // Check if any OGL errors occurred
 }
 //-----------------------------------------------------------------------------
 /*!
@@ -656,7 +656,7 @@ void SLSceneView::draw3DGLNodes(SLVNode &nodes)
         node->drawMeshes(this);
     }
    
-    GET_GL_ERROR;  // Check if any OGL errors occured
+    GET_GL_ERROR;  // Check if any OGL errors occurred
 }
 //-----------------------------------------------------------------------------
 /*!
@@ -684,7 +684,7 @@ void SLSceneView::draw2DGL()
     SLfloat h2 = (SLfloat)_scrHdiv2;
    
     // Set orthographic projection with 0,0,0 in the screen center
-    // for now we just have one special gui case for side by side HMD stero rendering
+    // for now we just have one special GUI case for side by side HMD stereo rendering
     if (_camera->projection() != stereoSideBySideD)
     {        
         // @todo this doesn't need to be done every frame, we can save the current ortho matrix and update on resize
@@ -920,12 +920,12 @@ void SLSceneView::draw2DGLAll()
     _stateGL->blend(false);       // turn off blending
     _stateGL->depthMask(true);    // enable depth buffer writing
     _stateGL->depthTest(true);    // enable depth testing
-    GET_GL_ERROR;                 // check if any OGL errors occured
+    GET_GL_ERROR;                 // check if any OGL errors occurred
 }
 //-----------------------------------------------------------------------------
 /*! 
 SLSceneView::onMouseDown gets called whenever a mouse button gets pressed and
-dispatches the event to the currently attached eventhandler object.
+dispatches the event to the currently attached event handler object.
 */
 SLbool SLSceneView::onMouseDown(const SLMouseButton button, 
                                 SLint x, SLint y, const SLKey mod)
@@ -1031,7 +1031,7 @@ SLbool SLSceneView::onMouseMove(SLint x, SLint y)
 //-----------------------------------------------------------------------------
 /*! 
 SLSceneView::onMouseWheel gets called whenever the mouse wheel is turned.
-The parameter wheelPos is an increesing or decreesing counter number.
+The parameter wheelPos is an increasing or decreeing counter number.
 */
 SLbool SLSceneView::onMouseWheelPos(const SLint wheelPos, const SLKey mod)
 {  
@@ -1043,11 +1043,11 @@ SLbool SLSceneView::onMouseWheelPos(const SLint wheelPos, const SLKey mod)
 //-----------------------------------------------------------------------------
 /*! 
 SLSceneView::onMouseWheel gets called whenever the mouse wheel is turned.
-The paramter delta is positive/negative depending on the wheel direction
+The parameter delta is positive/negative depending on the wheel direction
 */
 SLbool SLSceneView::onMouseWheel(const SLint delta, const SLKey mod)
 {
-    // Handle mousewheel in RT mode
+    // Handle mouse wheel in RT mode
     if (_renderType == renderRT && !_raytracer.continuous() && 
         _raytracer.state()==rtFinished)
         _raytracer.state(rtReady);
@@ -1066,7 +1066,7 @@ SLbool SLSceneView::onMouseWheel(const SLint delta, const SLKey mod)
 //-----------------------------------------------------------------------------
 /*! 
 SLSceneView::onDoubleClick gets called when a mouse double click or finger 
-double tab occures.
+double tab occurs.
 */
 SLbool SLSceneView::onDoubleClick(const SLMouseButton button, 
                                   SLint x, SLint y, const SLKey mod)
@@ -1113,7 +1113,7 @@ more than 500ms and has not moved.
 */
 SLbool SLSceneView::onLongTouch(SLint x, SLint y)
 {
-    SL_LOG("onLongTouch(%d, %d)\n", x, y);
+    //SL_LOG("onLongTouch(%d, %d)\n", x, y);
     return true;
 }
 //-----------------------------------------------------------------------------

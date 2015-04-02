@@ -404,7 +404,7 @@ void NewNodeSceneView::updateCurOrigin()
 
     _curOrigin;
 }
-
+//-----------------------------------------------------------------------------
 void NewNodeSceneView::updateInfoText()
 {
     if (_infoText) delete _infoText;
@@ -493,7 +493,7 @@ void NewNodeSceneView::updateInfoText()
     _infoText->translate(10.0f, -_infoText->size().y-5.0f, 0.0f, TS_Local);
 
 }
-
+//-----------------------------------------------------------------------------
 void NewNodeSceneView::renderText()
 {
     if (!_infoText)

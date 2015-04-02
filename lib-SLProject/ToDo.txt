@@ -6,12 +6,13 @@ Next Steps:
 
 Prio 1:
 - Save scene as Collada dae file
+- Directional light
 
 Prio 2:
 - LongTouch Menu Öffnung fertig machen
+- Creating bump map material if files contain normal map materials
 - mh: Skybox würde mit wenig Aufwand Attraktivität erhöhen
 - Billboards
-- PNG Texturen durch JPG Texturen ersetzen würde Laden auf Mobilgeräten beschleunigen
 - Tags in GLSL shader geparsed über regex ermöglicht höhere GLSL Standards
 - mh: Im continuous RT haben gewisse AABB Aussetzer
 - Implement RenderQueue and RenderPriorityGroups.
@@ -23,3 +24,4 @@ Prio 2:
 - Solve recursive OpenGL repaints during RT and loading screens
 - Path Tracer fixen.
 - 3DConnexion integrieren
+- Console Log window
