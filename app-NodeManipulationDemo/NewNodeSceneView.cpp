@@ -1,20 +1,24 @@
+//#############################################################################
+//  File:      NewNodeSceneView.cpp
+//  Purpose:   Node transform test application that demonstrates all transform
+//             possibilities of SLNode
+//  Author:    Marc Wacker
+//  Date:      July 2015
+//  Codestyle: https://github.com/cpvrlab/SLProject/wiki/Coding-Style-Guidelines
+//  Copyright: Marcus Hudritsch
+//             This software is provide under the GNU General Public License
+//             Please visit: http://opensource.org/licenses/GPL-3.0
+//#############################################################################
 
-
-#include <random>
-
-#include "SLRectangle.h"
-#include "SLBox.h"
-#include "SLSphere.h"
-#include "SLAnimation.h"
-#include "SLLightSphere.h"
-#include "SLText.h"
-#include "SLTexFont.h"
-#include "SLAssimpImporter.h"
+#include <SLBox.h>
+#include <SLLightSphere.h>
+#include <SLText.h>
+#include <SLTexFont.h>
+#include <SLAssimpImporter.h>
 
 #include "NewNodeSceneView.h"
-#include "NewNodeTRS.h"
 
-
+//-----------------------------------------------------------------------------
 void drawXZGrid(const SLMat4f& mat)
 {
     // for now we don't want to update the mesh implementation
@@ -88,21 +92,15 @@ void drawXZGrid(const SLMat4f& mat)
     
     state->popModelViewMatrix();
 }
-
-
-
-
-// builds a custom scene with a grid where every node is animated
+//-----------------------------------------------------------------------------
 void SLScene::onLoad(SLSceneView* sv, SLCmd cmd)
 {
     init();
     
     _backColor.set(0.3f,0.3f,0.3f);
 
-    SLMaterial* mat = new SLMaterial("floorMat", SLCol4f::WHITE, SLCol4f::WHITE);
-
     SLCamera* cam1 = new SLCamera;
-    cam1->position(-4, 3, 3);
+    cam1->position(2, 3, 6);
     cam1->lookAt(0, 0, 1);
     cam1->focalDist(6);
 
@@ -120,30 +118,32 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd cmd)
     sv->waitEvents(false);
     sv->onInitialize();
 }
-
+//-----------------------------------------------------------------------------
 void NewNodeSceneView::postSceneLoad()
 {
-    SLMaterial* boxMat      = new SLMaterial("boxMat", SLCol4f(1, 1, 1), SLCol4f(1, 1, 1));
-    SLMaterial* boxChildMat = new SLMaterial("boxMat", SLCol4f(0.8f, 0.8f, 0.8f), SLCol4f(1, 1, 1));
+    SLMaterial* mat = new SLMaterial("rMat");
 
+    // build parent box
     _moveBox = new SLNode("Parent");
     _moveBox->position(0, 0, 2);
     _moveBox->rotation(0, SLVec3f(0, 0, 0));
-    _moveBox->addMesh(new SLBox(-0.25f, -0.25f, -0.25f, 0.25f, 0.25f, 0.25f, "Box", boxMat));
+    _moveBox->addMesh(new SLBox(-0.3f, -0.3f, -0.3f, 0.3f, 0.3f, 0.3f, "Box", mat));
     _moveBox->setInitialState();
     
+    // build child box
     _moveBoxChild = new SLNode("Child");
     _moveBoxChild->position(0, 1, 0);
     _moveBoxChild->rotation(0, SLVec3f(0, 0, 0));
     _moveBoxChild->setInitialState();
-    _moveBoxChild->addMesh(new SLBox(-0.20f, -0.20f, -0.20f, 0.20f, 0.20f, 0.20f, "Box", boxChildMat));
+    _moveBoxChild->addMesh(new SLBox(-0.2f, -0.2f, -0.2f, 0.2f, 0.2f, 0.2f, "Box", mat));
     _moveBox->addChild(_moveBoxChild);
     
+    // load coordinate axis arros
     SLAssimpImporter importer;
-    _axesMesh = importer.load("FBX/Axes/axes_blender.fbx");
+    _axesNode = importer.load("FBX/Axes/axes_blender.fbx");
 
     SLScene::current->root3D()->addChild(_moveBox);
-    SLScene::current->root3D()->addChild(_axesMesh);
+    SLScene::current->root3D()->addChild(_axesNode);
 
     if (!_curObject)
     {   _curObject = _moveBox;
@@ -152,7 +152,7 @@ void NewNodeSceneView::postSceneLoad()
     updateInfoText();
     updateCurOrigin();
 }
-
+//-----------------------------------------------------------------------------
 void NewNodeSceneView::preDraw()
 {
     static SLfloat lastTime = SLScene::current->timeSec();
@@ -160,13 +160,13 @@ void NewNodeSceneView::preDraw()
     _deltaTime = currentTime - lastTime;
     lastTime = currentTime;
 
-    if (_buttonStates['W'])
+    if (_keyStates['W'])
         if (_deltaTime > 0.1f)
             cout << _deltaTime << endl;
 
     bool updated = false;
     for (int i = 0; i < 65536; ++i) 
-    {   if (_buttonStates[i])
+    {   if (_keyStates[i])
             updated = onContinuousKeyPress((SLKey)i);
     }
 
@@ -175,20 +175,20 @@ void NewNodeSceneView::preDraw()
         updateCurOrigin();
     }
 }
-
+//-----------------------------------------------------------------------------
 void NewNodeSceneView::postDraw()
 {
     drawXZGrid(_camera->updateAndGetVM() * _curOrigin);
     renderText();
 }
-
+//-----------------------------------------------------------------------------
 void NewNodeSceneView::reset()
 {
     _pivotPos.set(0, 0, 0);
     _moveBox->resetToInitialState();
     _moveBoxChild->resetToInitialState();
 }
-
+//-----------------------------------------------------------------------------
 void NewNodeSceneView::translateObject(SLVec3f val)
 {
     if (_continuousInput)
@@ -198,7 +198,7 @@ void NewNodeSceneView::translateObject(SLVec3f val)
 
     _curObject->translate(val, _curSpace);
 }
-
+//-----------------------------------------------------------------------------
 void NewNodeSceneView::rotateObject(SLVec3f val)
 {
     SLfloat angle = 22.5;
@@ -207,7 +207,7 @@ void NewNodeSceneView::rotateObject(SLVec3f val)
 
     _curObject->rotate(angle, val, _curSpace);
 }
-
+//-----------------------------------------------------------------------------
 void NewNodeSceneView::rotateObjectAroundPivot(SLVec3f val)
 {
     SLfloat angle = 22.5;
@@ -216,7 +216,7 @@ void NewNodeSceneView::rotateObjectAroundPivot(SLVec3f val)
 
     _curObject->rotateAround(_pivotPos, val, angle, _curSpace);
 }
-
+//-----------------------------------------------------------------------------
 void NewNodeSceneView::translatePivot(SLVec3f val)
 {
     if (_continuousInput)
@@ -226,107 +226,124 @@ void NewNodeSceneView::translatePivot(SLVec3f val)
 
     _pivotPos += val;
 }
-
+//-----------------------------------------------------------------------------
 SLbool NewNodeSceneView::onContinuousKeyPress(SLKey key)
 {
     if (!_continuousInput)
-        _buttonStates[key] = false;
+        _keyStates[key] = false;
 
     if (_curMode == TranslationMode) {
         switch (key)
         {
-        case 'W': translateObject(SLVec3f(0, 0, -1)); return true;
-        case 'S': translateObject(SLVec3f(0, 0,  1)); return true;
-        case 'A': translateObject(SLVec3f(-1, 0, 0)); return true;
-        case 'D': translateObject(SLVec3f(1, 0, 0)); return true;
-        case 'Q': translateObject(SLVec3f(0, 1, 0)); return true;
-        case 'E': translateObject(SLVec3f(0, -1, 0)); return true;
+            case 'W': translateObject(SLVec3f( 0, 0,-1)); return true;
+            case 'S': translateObject(SLVec3f( 0, 0, 1)); return true;
+            case 'A': translateObject(SLVec3f(-1, 0, 0)); return true;
+            case 'D': translateObject(SLVec3f( 1, 0, 0)); return true;
+            case 'Q': translateObject(SLVec3f( 0, 1, 0)); return true;
+            case 'E': translateObject(SLVec3f( 0,-1, 0)); return true;
         }
     }
     else if (_curMode == RotationMode) {
         switch (key)
         {
-        case 'W': rotateObject(SLVec3f(-1, 0, 0)); return true;
-        case 'S': rotateObject(SLVec3f(1, 0, 0)); return true;
-        case 'A': rotateObject(SLVec3f(0, 1, 0)); return true;
-        case 'D': rotateObject(SLVec3f(0, -1, 0)); return true;
-        case 'Q': rotateObject(SLVec3f(0, 0, 1)); return true;
-        case 'E': rotateObject(SLVec3f(0, 0, -1)); return true;
+            case 'W': rotateObject(SLVec3f(-1, 0, 0)); return true;
+            case 'S': rotateObject(SLVec3f( 1, 0, 0)); return true;
+            case 'A': rotateObject(SLVec3f( 0, 1, 0)); return true;
+            case 'D': rotateObject(SLVec3f( 0,-1, 0)); return true;
+            case 'Q': rotateObject(SLVec3f( 0, 0, 1)); return true;
+            case 'E': rotateObject(SLVec3f( 0, 0,-1)); return true;
         }
     }
-    else if (_curMode == RotationAroundMode) {
-        switch (key)
-        {
-        case 'W': rotateObjectAroundPivot(SLVec3f(-1, 0, 0)); return true;
-        case 'S': rotateObjectAroundPivot(SLVec3f(1, 0,  0)); return true;
-        case 'A': rotateObjectAroundPivot(SLVec3f(0, -1, 0)); return true;
-        case 'D': rotateObjectAroundPivot(SLVec3f(0, 1, 0)); return true;
-        case 'Q': rotateObjectAroundPivot(SLVec3f(0, 0, 1)); return true;
-        case 'E': rotateObjectAroundPivot(SLVec3f(0, 0, -1)); return true;
+    else if (_curMode == RotationAroundMode)
+    {
+        if (_modifiers & KeyShift)
+        {   switch (key)
+            {   case 'W': translatePivot(SLVec3f( 0, 0,-1)); return true;
+                case 'S': translatePivot(SLVec3f( 0, 0, 1)); return true;
+                case 'A': translatePivot(SLVec3f(-1, 0, 0)); return true;
+                case 'D': translatePivot(SLVec3f( 1, 0, 0)); return true;
+                case 'Q': translatePivot(SLVec3f( 0, 1, 0)); return true;
+                case 'E': translatePivot(SLVec3f( 0,-1, 0)); return true;
+            }
+        } else
+        {   switch (key)
+            {   case 'W': rotateObjectAroundPivot(SLVec3f(-1, 0, 0)); return true;
+                case 'S': rotateObjectAroundPivot(SLVec3f( 1, 0, 0)); return true;
+                case 'A': rotateObjectAroundPivot(SLVec3f( 0,-1, 0)); return true;
+                case 'D': rotateObjectAroundPivot(SLVec3f( 0, 1, 0)); return true;
+                case 'Q': rotateObjectAroundPivot(SLVec3f( 0, 0, 1)); return true;
+                case 'E': rotateObjectAroundPivot(SLVec3f( 0, 0,-1)); return true;
+            }
         }
     }
-
-    if (_curMode == RotationAroundMode || _curMode == LookAtMode)
+    else if (_curMode == LookAtMode)
     {
         switch (key)
-        {
-        //move pivot
-        case KeyNP8: translatePivot(SLVec3f(0, 0, -1)); return true;
-        case KeyNP4: translatePivot(SLVec3f(-1, 0, 0)); return true;
-        case KeyNP6: translatePivot(SLVec3f(1, 0, 0)); return true;
-        case KeyNP2: translatePivot(SLVec3f(0, 0, 1)); return true;
-        case KeyNP7: translatePivot(SLVec3f(0, 1, 0)); return true;
-        case KeyNP9: translatePivot(SLVec3f(0, -1, 0)); return true;
+        {   case 'W': translatePivot(SLVec3f( 0, 0,-1)); break;
+            case 'S': translatePivot(SLVec3f( 0, 0, 1)); break;
+            case 'A': translatePivot(SLVec3f(-1, 0, 0)); break;
+            case 'D': translatePivot(SLVec3f( 1, 0, 0)); break;
+            case 'Q': translatePivot(SLVec3f( 0, 1, 0)); break;
+            case 'E': translatePivot(SLVec3f( 0,-1, 0)); break;
         }
+
+        // if we look at a point in local space then the local space will change.
+        // we want to keep the old look at position in world space though so that
+        // the user can confirm that his object is in fact looking at the point it should.
+        if (_curSpace == TS_Local)
+        {   SLVec3f pivotWorldPos = _curObject->updateAndGetWM() * _pivotPos;
+            _curObject->lookAt(_pivotPos, SLVec3f::AXISY, _curSpace);
+            _pivotPos = _curObject->updateAndGetWMI() * pivotWorldPos;
+        }
+        else // else just look at the point
+            _curObject->lookAt(_pivotPos, SLVec3f::AXISY, _curSpace);
+
+        return true;
     }
     return false;
 }
-
-// some basic manipulation for now
+//-----------------------------------------------------------------------------
 SLbool NewNodeSceneView::onKeyPress(const SLKey key, const SLKey mod)
 {
-    _buttonStates[key] = true;
+    _keyStates[key] = true;
+    _modifiers = mod;
 
     switch (key)
     {
-    // general input
-    case '1': _curMode = TranslationMode; break;
-    case '2': _curMode = RotationMode; break;
-    case '3': _curMode = RotationAroundMode; break;
-    case '4': _curMode = LookAtMode; break;
+        // general input
+        case '1': _curMode = TranslationMode; break;
+        case '2': _curMode = RotationMode; break;
+        case '3': _curMode = RotationAroundMode; break;
+        case '4': _curMode = LookAtMode; break;
 
-    // select parent object
-    case KeyF1: 
-        _curObject = (_curObject == _moveBox) ? _moveBoxChild : _moveBox; 
-        SLScene::current->selectNodeMesh(_curObject, _curObject->meshes()[0]);
-        break;
-    case KeyF2: _continuousInput = ! _continuousInput; break;
-    case 'R': reset(); break;
-
-    case 'L': 
-        if (_curMode == LookAtMode) {
-            // if we look at a point in local space then the local space will change.
-            // we want to keep the old look at position in world space though so that 
-            // the user can confirm that his object is in fact looking at the point it should.
-            if (_curSpace == TS_Local)
-            {
-                SLVec3f pivotWorldPos = _curObject->updateAndGetWM() * _pivotPos;
-
-                _curObject->lookAt(_pivotPos, SLVec3f::AXISY, _curSpace);
-                
-                _pivotPos = _curObject->updateAndGetWMI() * pivotWorldPos;
-
+        // select parent object
+        case KeyF1:
+            _curObject = (_curObject == _moveBox) ? _moveBoxChild : _moveBox;
+            SLScene::current->selectNodeMesh(_curObject, _curObject->meshes()[0]);
+            break;
+        case KeyF2: _continuousInput = ! _continuousInput; break;
+        case 'R': reset(); break;
+        case 'L':
+            if (_curMode == LookAtMode) {
+                // if we look at a point in local space then the local space will change.
+                // we want to keep the old look at position in world space though so that
+                // the user can confirm that his object is in fact looking at the point it should.
+                if (_curSpace == TS_Local)
+                {
+                    SLVec3f pivotWorldPos = _curObject->updateAndGetWM() * _pivotPos;
+                    _curObject->lookAt(_pivotPos, SLVec3f::AXISY, _curSpace);
+                    _pivotPos = _curObject->updateAndGetWMI() * pivotWorldPos;
+                }
+                // else just look at the point
+                else
+                    _curObject->lookAt(_pivotPos, SLVec3f::AXISY, _curSpace);
             }
-            // else just look at the point
-            else
-                _curObject->lookAt(_pivotPos, SLVec3f::AXISY, _curSpace); 
-        }
-        break;
+            break;
 
-    case 'Y': _curSpace = TS_Local; break;
-    case 'X': _curSpace = TS_Parent; break;
-    case 'C': _curSpace = TS_World; break;
-
+        case 'Y':
+        case 'Z': _curSpace = TS_Local; break;
+        case 'X': _curSpace = TS_Parent; break;
+        case 'C': _curSpace = TS_World; break;
     }
 
     updateInfoText();
@@ -334,42 +351,42 @@ SLbool NewNodeSceneView::onKeyPress(const SLKey key, const SLKey mod)
 
     return false;
 }
-
+//-----------------------------------------------------------------------------
 SLbool NewNodeSceneView::onKeyRelease(const SLKey key, const SLKey mod)
 {
-    _buttonStates[key] = false;
+    _keyStates[key] = false;
+    _modifiers = mod;
 
     return false;
 }
-
-
+//-----------------------------------------------------------------------------
 void NewNodeSceneView::updateCurOrigin()
 {
     switch (_curSpace)
     {
     case TS_World:
         _curOrigin.identity();
-        _axesMesh->resetToInitialState();
+        _axesNode->resetToInitialState();
         break;
 
     case TS_Parent:
         _curOrigin.setMatrix(_curObject->parent()->updateAndGetWM());
-        _axesMesh->om(_curObject->parent()->updateAndGetWM());
+        _axesNode->om(_curObject->parent()->updateAndGetWM());
         break;
 
     case TS_Local:
         _curOrigin.setMatrix(_curObject->updateAndGetWM());
-        _axesMesh->om(_curObject->updateAndGetWM());
+        _axesNode->om(_curObject->updateAndGetWM());
         break;
     }
 
     // if in rotation mode, move the axis to the objects origin, but keep the orientation
     if (_curMode == TranslationMode || _curMode == RotationMode) {
-        _axesMesh->position(_curObject->updateAndGetWM().translation(), TS_World);
+        _axesNode->position(_curObject->updateAndGetWM().translation(), TS_World);
     }
     // look at nd rotate around mode both move the pivot relative to the current system
     if (_curMode == RotationAroundMode || _curMode == LookAtMode) {
-        _axesMesh->translate(_pivotPos.x, _pivotPos.y, _pivotPos.z, TS_Local);
+        _axesNode->translate(_pivotPos.x, _pivotPos.y, _pivotPos.z, TS_Local);
     }
 
     
@@ -389,84 +406,79 @@ void NewNodeSceneView::updateInfoText()
 
     SLstring keyBinds;
     keyBinds =  "Keybindings: \\n";
-    keyBinds += "  F1: toggle current object \\n";
-    keyBinds += "  F2: toggle continuous input \\n\\n";
-    keyBinds += "   1: translation mode \\n";
-    keyBinds += "   2: rotation mode \\n";
-    keyBinds += "   3: rotate around point mode \\n";
-    keyBinds += "   4: look at mode \\n\\n";
+    keyBinds += "F1: toggle current object \\n";
+    keyBinds += "F2: toggle continuous input \\n\\n";
+    keyBinds += "1: translation mode \\n";
+    keyBinds += "2: rotation mode \\n";
+    keyBinds += "3: rotate around point mode \\n";
+    keyBinds += "4: look at mode \\n\\n";
 
-    keyBinds += "   Y: Set relative space to Local (TS_Local) \\n";
-    keyBinds += "   X: Set relative space to Parent (TS_Parent) \\n";
-    keyBinds += "   C: Set relative space to World (TS_World) \\n\\n";
-
+    keyBinds += "Y: Set relative space to Local (TS_Local) \\n";
+    keyBinds += "X: Set relative space to Parent (TS_Parent) \\n";
+    keyBinds += "C: Set relative space to World (TS_World) \\n\\n";
     
     SLstring space;        
     switch (_curSpace)
-    {
-    case TS_Local: space = "local"; break;
-    case TS_Parent: space = "parent"; break;
-    case TS_World: space = "world"; break;
+    {   case TS_Local:  space = "local"; break;
+        case TS_Parent: space = "parent"; break;
+        case TS_World:  space = "world"; break;
     }
 
     SLstring mode;
     switch (_curMode)
     {
-    case TranslationMode: 
-        mode = "Translate"; 
-        keyBinds += "   W: forward in " + space + " space \\n";
-        keyBinds += "   S: backward in " + space + " space \\n";
-        keyBinds += "   A: left in " + space + " space \\n";
-        keyBinds += "   D: right in " + space + " space \\n";
-        keyBinds += "   Q: up in " + space + " space \\n";
-        keyBinds += "   E: down in " + space + " space \\n";
-        break;
-    case RotationMode: 
-        mode = "Rotate"; 
-        keyBinds += "   W: rotate around -X in " + space + " space \\n";
-        keyBinds += "   S: rotate around X in " + space + " space \\n";
-        keyBinds += "   A: rotate around Y in " + space + " space \\n";
-        keyBinds += "   D: rotate around -Y in " + space + " space \\n";
-        keyBinds += "   Q: rotate around Z in " + space + " space \\n";
-        keyBinds += "   E: rotate around -Z in " + space + " space \\n";
-        break;
-    case RotationAroundMode: 
-        mode = "RotateAround"; 
-        keyBinds += "   W: rotate around -X in " + space + " space \\n";
-        keyBinds += "   S: rotate around X in " + space + " space \\n";
-        keyBinds += "   A: rotate around -Y in " + space + " space \\n";
-        keyBinds += "   D: rotate around Y in " + space + " space \\n";
-        keyBinds += "   Q: rotate around Z in " + space + " space \\n";
-        keyBinds += "   E: rotate around -Z in " + space + " space \\n\\n";
-        
-        keyBinds += "   NumPad 8: pivot forward in " + space + " space \\n";
-        keyBinds += "   NumPad 4: pivot left in " + space + " space \\n";
-        keyBinds += "   NumPad 2: pivot backward in " + space + " space \\n";
-        keyBinds += "   NumPad 6: pivot right in " + space + " space \\n";
-        keyBinds += "   NumPad 7: pivot up in " + space + " space \\n";
-        keyBinds += "   NumPad 9: pivot down in " + space + " space \\n";
-        break;
-    case LookAtMode: 
-        mode = "LookAt"; 
-        keyBinds += "   L: look at current pivot position in " + space + " space \\n\\n";
+        case TranslationMode:
+            mode = "Translate";
+            keyBinds += "W: forward in " + space + " space \\n";
+            keyBinds += "S: backward in " + space + " space \\n";
+            keyBinds += "A: left in " + space + " space \\n";
+            keyBinds += "D: right in " + space + " space \\n";
+            keyBinds += "Q: up in " + space + " space \\n";
+            keyBinds += "E: down in " + space + " space \\n";
+            break;
+        case RotationMode:
+            mode = "Rotate";
+            keyBinds += "W: rotate around -X in " + space + " space \\n";
+            keyBinds += "S: rotate around X in " + space + " space \\n";
+            keyBinds += "A: rotate around Y in " + space + " space \\n";
+            keyBinds += "D: rotate around -Y in " + space + " space \\n";
+            keyBinds += "Q: rotate around Z in " + space + " space \\n";
+            keyBinds += "E: rotate around -Z in " + space + " space \\n";
+            break;
+        case RotationAroundMode:
+            mode = "RotateAround";
+            keyBinds += "W: rotate around -X in " + space + " space \\n";
+            keyBinds += "S: rotate around X in " + space + " space \\n";
+            keyBinds += "A: rotate around -Y in " + space + " space \\n";
+            keyBinds += "D: rotate around Y in " + space + " space \\n";
+            keyBinds += "Q: rotate around Z in " + space + " space \\n";
+            keyBinds += "E: rotate around -Z in " + space + " space \\n\\n";
 
-        keyBinds += "   NumPad 8: move lookAt point forward in " + space + " space \\n";
-        keyBinds += "   NumPad 4: move lookAt point left in " + space + " space \\n";
-        keyBinds += "   NumPad 2: move lookAt point backward in " + space + " space \\n";
-        keyBinds += "   NumPad 6: move lookAt point right in " + space + " space \\n";
-        keyBinds += "   NumPad 7: move lookAt point up in " + space + " space \\n";
-        keyBinds += "   NumPad 9: move lookAt point down in " + space + " space \\n";
-        
-        break;
+            keyBinds += "Shift-W: pivot forward in " + space + " space \\n";
+            keyBinds += "Shift-S: pivot left in " + space + " space \\n";
+            keyBinds += "Shift-A: pivot backward in " + space + " space \\n";
+            keyBinds += "Shift-D: pivot right in " + space + " space \\n";
+            keyBinds += "Shift-Q: pivot up in " + space + " space \\n";
+            keyBinds += "Shift-E: pivot down in " + space + " space \\n";
+            break;
+        case LookAtMode:
+            mode = "LookAt";
+            keyBinds += "W: move lookAt point forward in " + space + " space \\n";
+            keyBinds += "S: move lookAt point left in " + space + " space \\n";
+            keyBinds += "A: move lookAt point backward in " + space + " space \\n";
+            keyBinds += "D: move lookAt point right in " + space + " space \\n";
+            keyBinds += "Q: move lookAt point up in " + space + " space \\n";
+            keyBinds += "E: move lookAt point down in " + space + " space \\n";
+            break;
     }
 
+    keyBinds += "\\nR: Reset \\n";
     
-
     sprintf(m+strlen(m), "Current Object: %s\\n", _curObject->name().c_str());
     sprintf(m+strlen(m), "Mode: %s\\n", mode.c_str());
     sprintf(m+strlen(m), "Space: %s\\n", space.c_str());
     sprintf(m+strlen(m), "Pivot: (%2.2f, %2.2f, %2.2f)\\n", _pivotPos.x, _pivotPos.y, _pivotPos.z);
-    sprintf(m+strlen(m), "\\n%s", keyBinds.c_str());
+    sprintf(m+strlen(m), "\\n\\n%s", keyBinds.c_str());
     
     SLTexFont* f = SLTexFont::getFont(1.2f, _dpi);
     _infoText = new SLText(m, f, SLCol4f::WHITE, (SLfloat)_scrW, 1.0f);
@@ -505,3 +517,4 @@ void NewNodeSceneView::renderText()
     _stateGL->depthTest(true);    // enable depth testing
     GET_GL_ERROR;                 // check if any OGL errors occured
 }
+//-----------------------------------------------------------------------------

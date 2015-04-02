@@ -51,34 +51,40 @@ class SLMat4
 {
     public:
         // Constructors
-                    SLMat4      ();                        //!< Sets identity matrix
-                    SLMat4      (const SLMat4& A);         //!< Sets mat by other SLMat4
-                    SLMat4      (const T* M);              //!< Sets mat by array
+                    SLMat4      ();                     //!< Sets identity matrix
+                    SLMat4      (const SLMat4& A);      //!< Sets mat by other SLMat4
+                    SLMat4      (const T* M);           //!< Sets mat by array
                     SLMat4      (const T M0, const T M4, const T M8,  const T M12,
-                                const T M1, const T M5, const T M9,  const T M13,
-                                const T M2, const T M6, const T M10, const T M14,
-                                const T M3, const T M7, const T M11, const T M15);
+                                 const T M1, const T M5, const T M9,  const T M13,
+                                 const T M2, const T M6, const T M10, const T M14,
+                                 const T M3, const T M7, const T M11, const T M15);
                     SLMat4      (const T tx,               
-                                const T ty, 
-                                const T tz);              //!< Sets translate matrix           
+                                 const T ty,
+                                 const T tz);           //!< Sets translate matrix
                     SLMat4      (const T degAng,           
-                                const T axis_x, 
-                                const T axis_y, 
-                                const T axis_z);          //!< Sets rotation matrix
-                    SLMat4      (const T scale_xyz);       //!< Sets scaling matrix
+                                 const T axis_x,
+                                 const T axis_y,
+                                 const T axis_z);       //!< Sets rotation matrix
+                    SLMat4      (const T scale_xyz);    //!< Sets scaling matrix
                     SLMat4      (const SLVec3<T>& fromUnitVec,
-                                const SLVec3<T>& toUnitVec); //!< Sets rotation matrix
+                                 const SLVec3<T>& toUnitVec); //!< Sets rotation matrix
+                    SLMat4      (const SLVec3<T>& translation,
+                                 const SLMat3<T>& rotation,
+                                 const SLVec3<T>& scale); //!< Set matrix by translation, rotation & scale
          
         // Setters
-        void        setMatrix   (const SLMat4& A);
-        void        setMatrix   (const SLMat4* A);
-        void        setMatrix   (const T* M);
+        void        setMatrix   (const SLMat4& A);      //!< Set matrix by other matrix
+        void        setMatrix   (const SLMat4* A);      //!< Set matrix by other matrix pointer
+        void        setMatrix   (const T* M);           //!< Set matrix by float[16] array
         void        setMatrix   (T M0, T M4, T M8 , T M12, 
-                                T M1, T M5, T M9 , T M13,
-                                T M2, T M6, T M10, T M14,
-                                T M3, T M7, T M11, T M15);//!< Sets mat by components
+                                 T M1, T M5, T M9 , T M13,
+                                 T M2, T M6, T M10, T M14,
+                                 T M3, T M7, T M11, T M15); //!< Set matrix by components
+        void        setMatrix   (const SLVec3<T>& translation,
+                                 const SLMat3<T>& rotation,
+                                 const SLVec3<T>& scale);   //!< Set matrix by translation, rotation & scale
 
-            // Getters
+        // Getters
   const T*          m           () const        {return _m;}
         T           m           (int i) const   {assert(i>=0 && i<16); return _m[i];}
         SLMat3<T>   mat3        () const        {SLMat3<T> m3;
@@ -284,6 +290,14 @@ SLMat4<T>::SLMat4(const SLVec3<T>& fromUnitVec, const SLVec3<T>& toUnitVec)
     rotation(fromUnitVec, toUnitVec);
 }
 //-----------------------------------------------------------------------------
+template<class T>
+SLMat4<T>::SLMat4(const SLVec3<T>& translation,
+                  const SLMat3<T>& rotation,
+                  const SLVec3<T>& scale)
+{
+    setMatrix(translation, rotation, scale);
+}
+//-----------------------------------------------------------------------------
 // Setters
 //-----------------------------------------------------------------------------
 template<class T>
@@ -314,6 +328,17 @@ void SLMat4<T>::setMatrix(T M0, T M4, T M8 , T M12,
     _m[1]=M1; _m[5]=M5; _m[ 9]=M9;  _m[13]=M13;
     _m[2]=M2; _m[6]=M6; _m[10]=M10; _m[14]=M14;
     _m[3]=M3; _m[7]=M7; _m[11]=M11; _m[15]=M15;
+}
+//-----------------------------------------------------------------------------
+template<class T>
+void SLMat4<T>::setMatrix(const SLVec3<T>& translation,
+                          const SLMat3<T>& rotation,
+                          const SLVec3<T>& scale)
+{
+    setMatrix(scale.x * rotation[0], scale.y * rotation[3], scale.z * rotation[6], translation.x,
+              scale.x * rotation[1], scale.y * rotation[4], scale.z * rotation[7], translation.y,
+              scale.x * rotation[2], scale.y * rotation[5], scale.z * rotation[8], translation.z,
+              0                    , 0                    , 0                    , 1);
 }
 //-----------------------------------------------------------------------------
 // Operators

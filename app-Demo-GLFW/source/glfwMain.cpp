@@ -323,12 +323,12 @@ static void onKeyAction(GLFWwindow* window, int GLFWKey, int scancode, int actio
             case KeyAlt:   modifiers = (SLKey)(modifiers|KeyAlt);   return;
             case KeyShift: modifiers = (SLKey)(modifiers|KeyShift); return;
         }
-    } else 
+    } else
     if (action==GLFW_RELEASE)
     {   switch (key)
-        {   case KeyCtrl:  modifiers = (SLKey)(modifiers&~KeyCtrl);  return;
-            case KeyAlt:   modifiers = (SLKey)(modifiers&~KeyAlt);   return;
-            case KeyShift: modifiers = (SLKey)(modifiers&~KeyShift); return;
+        {   case KeyCtrl:  modifiers = (SLKey)(modifiers^KeyCtrl);  return;
+            case KeyAlt:   modifiers = (SLKey)(modifiers^KeyAlt);   return;
+            case KeyShift: modifiers = (SLKey)(modifiers^KeyShift); return;
         }
     }
    

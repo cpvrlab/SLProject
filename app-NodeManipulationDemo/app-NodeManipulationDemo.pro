@@ -39,13 +39,11 @@ win32 {POST_TARGETDEPS += ../_lib/$$CONFIGURATION/$$PLATFORM/lib-SLProject.lib}
 else  {POST_TARGETDEPS += ../_lib/$$CONFIGURATION/$$PLATFORM/liblib-SLProject.a}
 
 include(../SLProjectCommon.pro)
-
-INCLUDEPATH += \
-   NewNodeTRS.h \
-   NewNodeSceneView.h
    
 SOURCES += \
    glfwMain.cpp \
-   NewNodeTRS.cpp \
    NewNodeSceneView.cpp
 	   
+
+HEADERS += \
+    NewNodeSceneView.h
