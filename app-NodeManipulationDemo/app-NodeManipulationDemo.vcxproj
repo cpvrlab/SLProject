@@ -165,11 +165,9 @@
   <ItemGroup>
     <ClCompile Include="NewNodeSceneView.cpp" />
     <ClCompile Include="glfwMain.cpp" />
-    <ClCompile Include="NewNodeTRS.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="NewNodeSceneView.h" />
-    <ClInclude Include="NewNodeTRS.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

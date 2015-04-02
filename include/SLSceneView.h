@@ -49,12 +49,12 @@ typedef void(SL_STDCALL *cbOnShowSysCursor)(bool);
 The SLSceneView class has a pointer to an active camera that is used to 
 generate the 3D view into a window of the clients GUI system. 
 OpenGL ES2.0 is used the default renderer for framebuffer rendering.
-Alternatively the sceneview can be rendered with a software raytracing or
-pathtracing renderer. 
+Alternatively the sceneview can be rendered with a software ray tracing or
+path tracing renderer. 
 All mouse, touch, keyboard, resize and paint events of the GUI system are 
 handled in this class by the appropriate event handler methods.
 If the scene contains itself no camera node the sceneview provides its own
-camere object.
+camera object.
 */
 class SLSceneView: public SLObject
 {   friend class SLNode;
@@ -63,7 +63,7 @@ class SLSceneView: public SLObject
    
     public:           
                             SLSceneView     ();
-                           ~SLSceneView     ();
+    virtual                ~SLSceneView     ();
 
             void            init            (SLstring name,
                                              SLint screenWidth,

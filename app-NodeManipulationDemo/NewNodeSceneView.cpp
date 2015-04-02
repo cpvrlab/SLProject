@@ -10,6 +10,10 @@
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
 
+#ifdef SL_MEMLEAKDETECT       // set in SL.h for debug config only
+#include <debug_new.h>        // memory leak detector
+#endif
+
 #include <SLBox.h>
 #include <SLLightSphere.h>
 #include <SLText.h>
@@ -44,7 +48,6 @@ void drawXZGrid(const SLMat4f& mat)
         SLfloat gridMax = (SLfloat)gridHalf/(gridLineNum-1) * gridSize;
         SLfloat gridMin = -gridMax;
 
-        
         // x
         gridVert.push_back(SLVec3f(gridMin, 0, 0));
         gridVert.push_back(SLVec3f(gridMax, 0, 0));
@@ -119,6 +122,11 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd cmd)
     sv->onInitialize();
 }
 //-----------------------------------------------------------------------------
+NewNodeSceneView::~NewNodeSceneView()
+{
+    if(_infoText) delete _infoText; _infoText = 0;
+}
+//-----------------------------------------------------------------------------
 void NewNodeSceneView::postSceneLoad()
 {
     SLMaterial* mat = new SLMaterial("rMat");
@@ -138,7 +146,7 @@ void NewNodeSceneView::postSceneLoad()
     _moveBoxChild->addMesh(new SLBox(-0.2f, -0.2f, -0.2f, 0.2f, 0.2f, 0.2f, "Box", mat));
     _moveBox->addChild(_moveBoxChild);
     
-    // load coordinate axis arros
+    // load coordinate axis arrows
     SLAssimpImporter importer;
     _axesNode = importer.load("FBX/Axes/axes_blender.fbx");
 
@@ -401,11 +409,11 @@ void NewNodeSceneView::updateInfoText()
 {
     if (_infoText) delete _infoText;
 
-    SLchar m[2550];   // message charcter array
+    SLchar m[2550];   // message character array
     m[0]=0;           // set zero length
 
     SLstring keyBinds;
-    keyBinds =  "Keybindings: \\n";
+    keyBinds =  "Key bindings: \\n";
     keyBinds += "F1: toggle current object \\n";
     keyBinds += "F2: toggle continuous input \\n\\n";
     keyBinds += "1: translation mode \\n";

@@ -34,6 +34,8 @@ class NewNodeSceneView : public SLSceneView
                                                  _curObject(NULL),
                                                  _continuousInput(true),
                                                  _modifiers(KeyNone) { }
+                           ~NewNodeSceneView();
+
         // From SLSceneView overwritten
         void                preDraw();
         void                postDraw();

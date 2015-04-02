@@ -16,10 +16,10 @@
 #define STDAFX_H
 
 #define _USE_MATH_DEFINES
-#define NOMINMAX
+//#define NOMINMAX
 
 //-----------------------------------------------------------------------------
-// Core headerfiles used by all files
+// Core header files used by all files
 #include <SL.h>
 #include <SLObject.h>
 #include <SLMath.h>
