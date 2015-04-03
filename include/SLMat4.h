@@ -169,12 +169,12 @@ class SLMat4
    const SLVec3<T>   axisY       () const {return SLVec3<T>(_m[ 4], _m[ 5], _m[ 6]);}
    const SLVec3<T>   axisZ       () const {return SLVec3<T>(_m[ 8], _m[ 9], _m[10]);}
 
-         // Sets translation with or without overwriting the linear submatrix
+         // Sets the translation with or without overwriting the linear submatrix
          void        translation (const T tx, const T ty, const T tz, 
                                   const SLbool keepLinear=true);
          void        translation (const SLVec3<T>& t, 
                                   const SLbool keepLinear=true);
-         // Sets rotation with or without overwriting the translation     
+         // Sets the rotation with or without overwriting the translation
          void        rotation    (const T degAng,
                                   const SLVec3<T>& axis,
                                   const SLbool keepTranslation=true);
@@ -183,7 +183,7 @@ class SLMat4
                                   const SLbool keepTranslation=true);
          void        rotation    (const SLVec3<T>& fromUnitVec,
                                   const SLVec3<T>& toUnitVec);
-         // Sets scaling with or without overwriting the translation     
+         // Sets the scaling with or without overwriting the translation
          void        scaling     (const T sxyz, 
                                   const bool keepTrans=true);
          void        scaling     (const SLVec3<T>& sxyz, 

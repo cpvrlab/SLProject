@@ -634,7 +634,7 @@ SLbool SLCamera::onMouseMove(const SLMouseButton button,
     if (button == ButtonLeft) //================================================
     {   
         // new vars needed
-        SLVec3f position = this->position();
+        SLVec3f position = this->translation();
         SLVec3f forward =  this->forward();
         SLVec3f right =    this->right();
         SLVec3f up =       this->up();
@@ -726,11 +726,11 @@ SLbool SLCamera::onMouseMove(const SLMouseButton button,
          
             if (mod==KeyCtrl)
             {
-                translate(SLVec3f(-dMouse.x, 0, dMouse.y), TS_Local);
+                translate(SLVec3f(-dMouse.x, 0, dMouse.y), TS_Object);
 
             } else
             {
-                translate(SLVec3f(-dMouse.x, -dMouse.y, 0), TS_Local);
+                translate(SLVec3f(-dMouse.x, -dMouse.y, 0), TS_Object);
             }
             _oldTouchPos1.set((SLfloat)x,(SLfloat)y);
         }
@@ -787,7 +787,7 @@ SLbool SLCamera::onMouseWheel(const SLint delta, const SLKey mod)
                  lookAtDist = _lookAtRay.length;
             else lookAtDist = _focalDist;
                   
-            translate(SLVec3f(0, 0, -sign*lookAtDist*_dPos), TS_Local);
+            translate(SLVec3f(0, 0, -sign*lookAtDist*_dPos), TS_Object);
 
             _lookAtRay.length = FLT_MAX;
         }
@@ -895,7 +895,7 @@ SLbool SLCamera::onTouch2Move(const SLint x1, const SLint y1,
         if (_camAnim==turntableYUp || _camAnim==turntableZUp)
         {           
             // apply delta to x- and y-position
-            translate(SLVec3f(-delta.x, delta.y, 0), TS_Local);
+            translate(SLVec3f(-delta.x, delta.y, 0), TS_Object);
         } 
         else if (_camAnim == walkingYUp || _camAnim == walkingZUp)
         {
@@ -922,7 +922,7 @@ SLbool SLCamera::onTouch2Move(const SLint x1, const SLint y1,
             delta *= spaceH*2;
          
             // apply delta to the z-position
-            translate(SLVec3f(0, 0, delta), TS_Local);
+            translate(SLVec3f(0, 0, delta), TS_Object);
 
         } 
         else if (_camAnim == walkingYUp)

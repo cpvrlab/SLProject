@@ -721,15 +721,13 @@ void SLNode::setDrawBitsRec(SLuint bit, SLbool state)
 
 
 
-
 //-----------------------------------------------------------------------------
 /*!
 sets the position of this node to pos in 'relativeTo' space.
-
-@note using TS_Local for this function yields the same result as calling
-translate(pos, TS_Local)
+@note using TS_Object for this function yields the same result as calling
+translate(pos, TS_Object)
 */
-void SLNode::position(const SLVec3f& pos, SLTransformSpace relativeTo)
+void SLNode::translation(const SLVec3f& pos, SLTransformSpace relativeTo)
 {
     if (relativeTo == TS_World && _parent)
     {   // transform position to local space
@@ -745,7 +743,7 @@ void SLNode::position(const SLVec3f& pos, SLTransformSpace relativeTo)
 /*!
 sets the rotation of this node. The axis parameter
 will be transformed into 'relativeTo' space. So an passing in an axis
-of (0, 1, 0) with TS_Local will rotate the node around its own up axis.
+of (0, 1, 0) with TS_Object will rotate the node around its own up axis.
 */
 void SLNode::rotation(const SLQuat4f& rot, 
                       SLTransformSpace relativeTo)
@@ -775,7 +773,7 @@ void SLNode::rotation(const SLQuat4f& rot,
     }
     else
     {
-        // in TS_Local everything is relative to our current orientation
+        // in TS_Object everything is relative to our current orientation
         _om.rotation(0, 0, 0, 0);        
         _om *= rotation;
         needUpdate();
@@ -784,8 +782,8 @@ void SLNode::rotation(const SLQuat4f& rot,
 //-----------------------------------------------------------------------------
 /*!
 sets the rotation of this node. The axis parameter
-will be transformed into 'relativeTo' space. So an passing in an axis
-of (0, 1, 0) with TS_Local will rotate the node around its own up axis.
+will be transformed into 'relativeTo' space. So a passing in an axis
+of (0, 1, 0) with TS_Object will rotate the node around its own up axis.
 */
 void SLNode::rotation(SLfloat angleDeg, const SLVec3f& axis, 
                       SLTransformSpace relativeTo)
@@ -795,18 +793,15 @@ void SLNode::rotation(SLfloat angleDeg, const SLVec3f& axis,
 }
 //-----------------------------------------------------------------------------
 /*!
-scales this.
-
-@note this is not a setter but a scale modifier.
-@note this modifier doesn't allow for different transform spaces, so there 
+Sets the scaling of current object matrix
+@note this modifier doesn't allow for different transform spaces, so there
 isn't the possiblity for shearing an object currently.
-*/         
-void SLNode::scale(const SLVec3f& scale)
+*/
+void SLNode::scaling(const SLVec3f& scaling)
 {
-    _om.scale(scale);
+    _om.scaling(scaling);
     needUpdate();
 }
-
 //-----------------------------------------------------------------------------
 /*!
 Moves the node by the vector 'delta' relative to the space expressed by 'relativeTo'.
@@ -815,7 +810,7 @@ void SLNode::translate(const SLVec3f& delta, SLTransformSpace relativeTo)
 {
     switch (relativeTo)
     {
-        case TS_Local:
+        case TS_Object:
             _om.translate(delta);
             break;
 
@@ -824,7 +819,7 @@ void SLNode::translate(const SLVec3f& delta, SLTransformSpace relativeTo)
             {   SLVec3f localVec = _parent->updateAndGetWMI().mat3() * delta;
                 _om.translation(localVec + _om.translation());
             }
-            else 
+            else
                 _om.translation(delta + _om.translation());
             break;
 
@@ -839,13 +834,23 @@ void SLNode::translate(const SLVec3f& delta, SLTransformSpace relativeTo)
 /*!
 Rotates the node around its local origin relative to the space expressed by 'relativeTo'.
 */
+void SLNode::rotate(SLfloat angleDeg, const SLVec3f& axis,
+                    SLTransformSpace relativeTo)
+{
+    SLQuat4f rot(angleDeg, axis);
+    rotate(rot, relativeTo);
+}
+//-----------------------------------------------------------------------------
+/*!
+Rotates the node around its local origin relative to the space expressed by 'relativeTo'.
+*/
 void SLNode::rotate(const SLQuat4f& rot, SLTransformSpace relativeTo)
 {
     SLQuat4f norm = rot.normalized();
-    SLMat4f rotation = rot.toMat4(); 
-    
-    
-    if (relativeTo == TS_Local)
+    SLMat4f rotation = rot.toMat4();
+
+
+    if (relativeTo == TS_Object)
     {
         _om *= rotation;
     }
@@ -859,12 +864,12 @@ void SLNode::rotate(const SLQuat4f& rot, SLTransformSpace relativeTo)
         _om = _parent->_wm.inverse() * rot * updateAndGetWM();
     }
     else // relativeTo == TS_Parent || relativeTo == TS_World && !_parent
-    {            
+    {
         SLMat4f rot;
-        rot.translate(position());
+        rot.translate(translation());
         rot.multiply(rotation);
-        rot.translate(-position());
-                
+        rot.translate(-translation());
+
         _om.setMatrix(rot * _om);
     }
 
@@ -872,25 +877,15 @@ void SLNode::rotate(const SLQuat4f& rot, SLTransformSpace relativeTo)
 }
 //-----------------------------------------------------------------------------
 /*!
-Rotates the node around its local origin relative to the space expressed by 'relativeTo'.
-*/
-void SLNode::rotate(SLfloat angleDeg, const SLVec3f& axis, 
-                    SLTransformSpace relativeTo)
-{
-    SLQuat4f rot(angleDeg, axis);
-    rotate(rot, relativeTo);
-}
-//-----------------------------------------------------------------------------
-/*!
 Rotates the node around an arbitrary point. The 'axis' and 'point' parameter
-are relative to the space described by 'relativeTo'. 
+are relative to the space described by 'relativeTo'.
 */
-void SLNode::rotateAround(const SLVec3f& point, SLVec3f& axis, 
+void SLNode::rotateAround(const SLVec3f& point, SLVec3f& axis,
                           SLfloat angleDeg, SLTransformSpace relativeTo)
 {
     SLVec3f localPoint = point;
     SLVec3f localAxis = axis;
-    
+
     if (relativeTo == TS_World && _parent)
     {
         localPoint = _parent->updateAndGetWMI() * point;
@@ -902,11 +897,23 @@ void SLNode::rotateAround(const SLVec3f& point, SLVec3f& axis,
     rot.rotate(angleDeg, localAxis);
     rot.translate(-localPoint);
 
-    if (relativeTo == TS_Local)
+    if (relativeTo == TS_Object)
         _om.setMatrix(_om * rot);
     else
         _om.setMatrix(rot * _om);
 
+    needUpdate();
+}
+//-----------------------------------------------------------------------------
+/*!
+Adds a scale transform to the current object matrix
+@note this is not a setter but a scale modifier.
+@note this modifier doesn't allow for different transform spaces, so there
+isn't the possiblity for shearing an object currently.
+*/
+void SLNode::scale(const SLVec3f& scale)
+{
+    _om.scale(scale);
     needUpdate();
 }
 //-----------------------------------------------------------------------------
@@ -918,7 +925,7 @@ the 'target' parameter is to be interpreted in.
 void SLNode::lookAt(const SLVec3f& target, const SLVec3f& up, 
                     SLTransformSpace relativeTo)
 {
-    SLVec3f pos = position();
+    SLVec3f pos = translation();
     SLVec3f dir;
     SLVec3f localUp = up;
 
@@ -926,12 +933,12 @@ void SLNode::lookAt(const SLVec3f& target, const SLVec3f& up,
     {
         SLVec3f localTarget = _parent->updateAndGetWMI() * target;
         localUp = _parent->updateAndGetWMI().mat3() * up;
-        dir = localTarget - position();
+        dir = localTarget - translation();
     }
-    else if (relativeTo == TS_Local)
-        dir = _om * target - position();
+    else if (relativeTo == TS_Object)
+        dir = _om * target - translation();
     else
-        dir = target - position();
+        dir = target - translation();
 
     dir.normalize();
     
@@ -954,8 +961,6 @@ void SLNode::lookAt(const SLVec3f& target, const SLVec3f& up,
 
     needUpdate();
 }
-
-
 //-----------------------------------------------------------------------------
 /*! 
 Scales and translates the node so that its largest

@@ -378,7 +378,7 @@ void SLScene::info(SLSceneView* sv, SLstring infoText, SLCol4f color)
                        sv->scrW()-minX-5.0f,
                        1.2f);
 
-    _info->translate(minX, SLButton::minMenuPos.y, 0, TS_Local);
+    _info->translate(minX, SLButton::minMenuPos.y, 0, TS_Object);
 }
 //-----------------------------------------------------------------------------
 /*! 

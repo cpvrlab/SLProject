@@ -374,8 +374,8 @@ int main(int argc, char *argv[])
     glfwWindowHint(GLFW_SAMPLES, 4);
     //glfwWindowHint(GLFW_DECORATED, false); // start without any window frame
 
-    scrWidth = 640;
-    scrHeight = 480;
+    scrWidth = 400;
+    scrHeight = 320;
 
     window = glfwCreateWindow(scrWidth, scrHeight, "My Title", NULL, NULL);
     if (!window)

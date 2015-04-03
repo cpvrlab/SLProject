@@ -409,7 +409,7 @@ SLbool SLButton::onMouseUp(const SLMouseButton button,
             {   newMenuPos.set(-buttonParent->minX()+minMenuPos.x, 0);
                 if (newMenuPos != oldMenuPos) 
                 {  
-                    mnu2D->translate(newMenuPos.x - oldMenuPos.x, 0, 0, TS_Local);
+                    mnu2D->translate(newMenuPos.x - oldMenuPos.x, 0, 0, TS_Object);
                
                     // update AABB's
                     _stateGL->pushModelViewMatrix();
@@ -460,7 +460,7 @@ void SLButton::closeAll()
     // update world matrices & AABBs
     _stateGL->pushModelViewMatrix();
     _stateGL->modelViewMatrix.identity();
-    mnu2D->position(0, 0, 0);
+    mnu2D->translation(0, 0, 0);
     mnu2D->updateAABBRec();
 
     _stateGL->popModelViewMatrix();

@@ -161,7 +161,7 @@ void SLSceneView::initSceneViewCamera(const SLVec3f& dir, SLProjection proj)
         // we want to fit the scenes combined aabb in the view frustum
         SLAABBox* sceneBounds = s->root3D()->aabb();
 
-        _sceneViewCamera.position(sceneBounds->centerWS(), TS_World);
+        _sceneViewCamera.translation(sceneBounds->centerWS(), TS_World);
         _sceneViewCamera.lookAt(sceneBounds->centerWS() + dir, SLVec3f::AXISY, TS_Parent);
 
         SLfloat minX = sceneBounds->minWS().x;
@@ -252,7 +252,7 @@ void SLSceneView::initSceneViewCamera(const SLVec3f& dir, SLProjection proj)
 
         // set focal distance
         _sceneViewCamera.focalDist(dist);
-        _sceneViewCamera.translate(SLVec3f(0, 0, dist), TS_Local);
+        _sceneViewCamera.translate(SLVec3f(0, 0, dist), TS_Object);
     }
 
     _stateGL->modelViewMatrix.identity();
@@ -280,7 +280,7 @@ void SLSceneView::switchToSceneViewCamera()
         SLMat4f currentWM = _camera->updateAndGetWM();
         SLVec3f position = currentWM.translation();
         SLVec3f forward(-currentWM.m(8), -currentWM.m(9), -currentWM.m(10));
-        _sceneViewCamera.position(position);
+        _sceneViewCamera.translation(position);
         _sceneViewCamera.lookAt(position + forward);
     }
     
@@ -1810,7 +1810,7 @@ void SLSceneView::build2DInfoGL()
 
     SLTexFont* f = SLTexFont::getFont(1.2f, _dpi);
     SLText* t = new SLText(m, f, SLCol4f::WHITE, (SLfloat)_scrW, 1.0f);
-    t->translate(10.0f, -t->size().y-5.0f, 0.0f, TS_Local);
+    t->translate(10.0f, -t->size().y-5.0f, 0.0f, TS_Object);
     s->_infoGL = t;
 }
 //-----------------------------------------------------------------------------
@@ -1872,7 +1872,7 @@ void SLSceneView::build2DInfoRT()
    
     SLTexFont* f = SLTexFont::getFont(1.2f, _dpi);
     SLText* t = new SLText(m, f, SLCol4f::WHITE, (SLfloat)_scrW, 1.0f);
-    t->translate(10.0f, -t->size().y-5.0f, 0.0f, TS_Local);
+    t->translate(10.0f, -t->size().y-5.0f, 0.0f, TS_Object);
     s->_infoRT = t;
 }
 //-----------------------------------------------------------------------------
@@ -1886,8 +1886,8 @@ void SLSceneView::build2DInfoLoading()
     if (s->_infoLoading) return;
     SLTexFont* f = SLTexFont::getFont(3, _dpi);
     SLText* t = new SLText("Loading Scene . . .", f, SLCol4f::WHITE, (SLfloat)_scrW, 1.0f);
-    t->translate(10.0f, -t->size().y-5.0f, 0.0f, TS_Local);
-    t->translate(_scrW*0.5f - t->size().x*0.5f, -(_scrH*0.5f) + t->size().y, 0.0f, TS_Local);
+    t->translate(10.0f, -t->size().y-5.0f, 0.0f, TS_Object);
+    t->translate(_scrW*0.5f - t->size().x*0.5f, -(_scrH*0.5f) + t->size().y, 0.0f, TS_Object);
     s->_infoLoading = t;
 }
 //-----------------------------------------------------------------------------

@@ -46,12 +46,12 @@ SLNode* SphereGroup(SLint depth,                      // depth of recursion
 {  
     if (depth==0)
     {   SLNode* s = new SLNode(new SLSphere(0.5f*scale,resolution,resolution,"RedSphere", matRed)); 
-        s->translate(x,y,z, TS_Local);
+        s->translate(x,y,z, TS_Object);
         return s;
     } else
     {   depth--;
         SLNode* sGroup = new SLNode;
-        sGroup->translate(x,y,z, TS_Local);
+        sGroup->translate(x,y,z, TS_Object);
         SLint newRes = max(resolution-8,8);
         sGroup->addChild(new SLNode(new SLSphere(0.5f*scale,resolution,resolution,"RedSphere", matGlass)));
         sGroup->addChild(SphereGroup(depth, 0.643951f*scale, 0,               0.172546f*scale, scale/3, newRes, matRed, matRed));
@@ -77,69 +77,69 @@ SLNode* BuildFigureGroup(SLMaterial* mat, SLbool withAnimation)
     SLNode* feet = new SLNode("feet group (T13,R6)");
     feet->addMesh(new SLSphere(0.2f, 16, 16, "ankle", mat));
     SLNode* feetbox = new SLNode(new SLBox(-0.2f,-0.1f, 0.0f, 0.2f, 0.1f, 0.8f, "foot", mat), "feet (T14)");
-    feetbox->translate(0.0f,-0.25f,-0.15f, TS_Local);
+    feetbox->translate(0.0f,-0.25f,-0.15f, TS_Object);
     feet->addChild(feetbox);
-    feet->translate(0.0f,0.0f,1.6f, TS_Local);
+    feet->translate(0.0f,0.0f,1.6f, TS_Object);
     feet->rotate(-90.0f, 1.0f, 0.0f, 0.0f);
    
     // Assemble low leg
     SLNode* leglow = new SLNode("low leg group (T11, R5)");
     leglow->addMesh(new SLSphere(0.3f, 16, 16, "knee", mat));
     cyl = new SLNode(new SLCylinder(0.2f, 1.4f, 1, 16, false, false, "shin", mat), "shin (T12)");
-    cyl->translate(0.0f, 0.0f, 0.2f, TS_Local);            
+    cyl->translate(0.0f, 0.0f, 0.2f, TS_Object);            
     leglow->addChild(cyl);
     leglow->addChild(feet);
-    leglow->translate(0.0f, 0.0f, 1.27f, TS_Local);
+    leglow->translate(0.0f, 0.0f, 1.27f, TS_Object);
     leglow->rotate(0, 1.0f, 0.0f, 0.0f);
    
     // Assemble leg
     SLNode* leg = new SLNode("leg group ()");
     leg->addMesh(new SLSphere(0.4f, 16, 16, "hip joint", mat));
     cyl = new SLNode(new SLCylinder(0.3f, 1.0f, 1, 16, false, false, "thigh", mat), "thigh (T10)");
-    cyl->translate(0.0f, 0.0f, 0.27f, TS_Local);           
+    cyl->translate(0.0f, 0.0f, 0.27f, TS_Object);           
     leg->addChild(cyl);
     leg->addChild(leglow);
 
     // Assemble left & right leg
     SLNode* legLeft = new SLNode("left leg group (T8)");
-    legLeft->translate(-0.4f, 0.0f, 2.2f, TS_Local);
+    legLeft->translate(-0.4f, 0.0f, 2.2f, TS_Object);
     legLeft->addChild(leg);
     SLNode* legRight= new SLNode("right leg group (T9)");
-    legRight->translate(0.4f, 0.0f, 2.2f, TS_Local);       
+    legRight->translate(0.4f, 0.0f, 2.2f, TS_Object);       
     legRight->addChild(leg->copyRec());
 
     // Assemble low arm
     SLNode* armlow = new SLNode("low arm group (T6,R4)");
     armlow->addMesh(new SLSphere(0.2f, 16, 16, "ellbow", mat));
     cyl = new SLNode(new SLCylinder(0.15f, 1.0f, 1, 16, true, false, "low arm", mat), "T7");
-    cyl->translate(0.0f, 0.0f, 0.14f, TS_Local);           
+    cyl->translate(0.0f, 0.0f, 0.14f, TS_Object);           
     armlow->addChild(cyl);
-    armlow->translate(0.0f, 0.0f, 1.2f, TS_Local);
+    armlow->translate(0.0f, 0.0f, 1.2f, TS_Object);
     armlow->rotate(45, -1.0f, 0.0f, 0.0f);
 
     // Assemble arm
     SLNode* arm = new SLNode("arm group ()");
     arm->addMesh(new SLSphere(0.3f, 16, 16, "shoulder", mat));
     cyl = new SLNode(new SLCylinder(0.2f, 1.0f, 1, 16, false, false, "upper arm", mat), "upper arm (T5)");
-    cyl->translate(0.0f, 0.0f, 0.2f, TS_Local);            
+    cyl->translate(0.0f, 0.0f, 0.2f, TS_Object);            
     arm->addChild(cyl);
     arm->addChild(armlow);
 
     // Assemble left & right arm
     SLNode* armLeft = new SLNode("left arm group (T3,R2)");
-    armLeft->translate(-1.1f, 0.0f, 0.3f, TS_Local);       
+    armLeft->translate(-1.1f, 0.0f, 0.3f, TS_Object);       
     armLeft->rotate(10, -1,0,0);
     armLeft->addChild(arm);
     SLNode* armRight= new SLNode("right arm group (T4,R3)");
-    armRight->translate(1.1f, 0.0f, 0.3f, TS_Local);       
+    armRight->translate(1.1f, 0.0f, 0.3f, TS_Object);       
     armRight->rotate(-60, -1,0,0);
     armRight->addChild(arm->copyRec());
 
     // Assemble head & neck
     SLNode* head = new SLNode(new SLSphere(0.5f, 16, 16, "head", mat), "head (T1)");
-    head->translate(0.0f, 0.0f,-0.7f, TS_Local);
+    head->translate(0.0f, 0.0f,-0.7f, TS_Object);
     SLNode* neck = new SLNode(new SLCylinder(0.25f, 0.3f, 1, 16, false, false, "neck", mat), "neck (T2)");
-    neck->translate(0.0f, 0.0f,-0.3f, TS_Local);
+    neck->translate(0.0f, 0.0f,-0.3f, TS_Object);
       
     // Assemble figure Left
     SLNode* figure = new SLNode("figure group (R1)");
@@ -202,13 +202,13 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
         // Create a camera node
         SLCamera* cam1 = new SLCamera();
         cam1->name("camera node");
-        cam1->position(0,0,20);
+        cam1->translation(0,0,20);
         cam1->lookAt(0, 0, 0);
         cam1->setInitialState();
 
         // Create a light source node
         SLLightSphere* light1 = new SLLightSphere(0.3f);
-        light1->position(0,0,5);
+        light1->translation(0,0,5);
         light1->lookAt(0, 0, 0);
         light1->name("light node");
 
@@ -245,7 +245,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
         floorRect->translate(0,0,-5.5f);
 
         SLCamera* cam1 = new SLCamera();
-        cam1->position(0, 0, 22);
+        cam1->translation(0, 0, 22);
         cam1->lookAt(0, 0, 0);
         cam1->focalDist(22);
         cam1->setInitialState();
@@ -288,7 +288,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
         cam1->name("cam1");
         cam1->clipNear(.1f);
         cam1->clipFar(30);
-        cam1->position(0,0,10);
+        cam1->translation(0,0,10);
         cam1->lookAt(0, 0, 0);
         cam1->maxSpeed(40);
         cam1->focalDist(10);
@@ -331,19 +331,19 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
         charAnim->playbackRate(0.8f);
 
         // Scale to so that the AstroBoy is about 2 (meters) high.
-        if (mesh3DS) {mesh3DS->scale(0.1f);  mesh3DS->translate(-22.0f, 1.9f, 3.5f, TS_Local);}
-        if (meshDAE) {meshDAE->translate(0,-3,0, TS_Local); meshDAE->scale(2.7f);}
-        if (meshFBX) {meshFBX->scale(0.1f);  meshFBX->scale(0.1f); meshFBX->translate(200, 30, -30, TS_Local); meshFBX->rotate(-90,0,1,0);}
+        if (mesh3DS) {mesh3DS->scale(0.1f);  mesh3DS->translate(-22.0f, 1.9f, 3.5f, TS_Object);}
+        if (meshDAE) {meshDAE->translate(0,-3,0, TS_Object); meshDAE->scale(2.7f);}
+        if (meshFBX) {meshFBX->scale(0.1f);  meshFBX->scale(0.1f); meshFBX->translate(200, 30, -30, TS_Object); meshFBX->rotate(-90,0,1,0);}
         
         // define rectangles for the surrounding box
         SLfloat b=3; // edge size of rectangles
         SLNode *rb, *rl, *rr, *rf, *rt;
         SLuint res = 20;
-        rb = new SLNode(new SLRectangle(SLVec2f(-b,-b), SLVec2f(b,b), res, res, "rectB", matBlu), "rectBNode");                         rb->translate(0,0,-b, TS_Local);
-        rl = new SLNode(new SLRectangle(SLVec2f(-b,-b), SLVec2f(b,b), res, res, "rectL", matRed), "rectLNode"); rl->rotate( 90, 0,1,0); rl->translate(0,0,-b, TS_Local);
-        rr = new SLNode(new SLRectangle(SLVec2f(-b,-b), SLVec2f(b,b), res, res, "rectR", matGre), "rectRNode"); rr->rotate(-90, 0,1,0); rr->translate(0,0,-b, TS_Local);
-        rf = new SLNode(new SLRectangle(SLVec2f(-b,-b), SLVec2f(b,b), res, res, "rectF", matGra), "rectFNode"); rf->rotate(-90, 1,0,0); rf->translate(0,0,-b, TS_Local);
-        rt = new SLNode(new SLRectangle(SLVec2f(-b,-b), SLVec2f(b,b), res, res, "rectT", matGra), "rectTNode"); rt->rotate( 90, 1,0,0); rt->translate(0,0,-b, TS_Local);
+        rb = new SLNode(new SLRectangle(SLVec2f(-b,-b), SLVec2f(b,b), res, res, "rectB", matBlu), "rectBNode");                         rb->translate(0,0,-b, TS_Object);
+        rl = new SLNode(new SLRectangle(SLVec2f(-b,-b), SLVec2f(b,b), res, res, "rectL", matRed), "rectLNode"); rl->rotate( 90, 0,1,0); rl->translate(0,0,-b, TS_Object);
+        rr = new SLNode(new SLRectangle(SLVec2f(-b,-b), SLVec2f(b,b), res, res, "rectR", matGre), "rectRNode"); rr->rotate(-90, 0,1,0); rr->translate(0,0,-b, TS_Object);
+        rf = new SLNode(new SLRectangle(SLVec2f(-b,-b), SLVec2f(b,b), res, res, "rectF", matGra), "rectFNode"); rf->rotate(-90, 1,0,0); rf->translate(0,0,-b, TS_Object);
+        rt = new SLNode(new SLRectangle(SLVec2f(-b,-b), SLVec2f(b,b), res, res, "rectT", matGra), "rectTNode"); rt->rotate( 90, 1,0,0); rt->translate(0,0,-b, TS_Object);
 
         SLNode* scene = new SLNode("Scene");
         scene->addChild(light1);
@@ -428,7 +428,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
         scene->addChild(crate);
 
         SLCamera* cam1 = new SLCamera();
-        cam1->position(0, 1.67f, 0);    // eye height for 180cm high male
+        cam1->translation(0, 1.67f, 0);    // eye height for 180cm high male
         cam1->lookAt(0, 1.67f, -1.0f);
         cam1->focalDist(22);
         cam1->setInitialState();
@@ -588,7 +588,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
         // camera
         SLCamera* cam1 = new SLCamera();
         cam1->name("cam1");
-        cam1->position(0,0,17);
+        cam1->translation(0,0,17);
         cam1->lookAt(0, 0, 0);
         cam1->focalDist(17);
         cam1->setInitialState();
@@ -637,17 +637,17 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
         revP.push_back(SLVec3f(0.20f, 3.80f));
         revP.push_back(SLVec3f(0.00f, 3.82f));
         SLNode* glass = new SLNode(new SLRevolver(revP, SLVec3f(0,1,0), 36, true, true, "Revolver", mat5));
-        glass->translate(0.0f,-3.5f, 0.0f, TS_Local);
+        glass->translate(0.0f,-3.5f, 0.0f, TS_Object);
 
         SLNode* sphere = new SLNode(new SLSphere(1,16,16, "mySphere", mat1));
-        sphere->translate(3,0,0, TS_Local);
+        sphere->translate(3,0,0, TS_Object);
 
         SLNode* cylinder = new SLNode(new SLCylinder(1, 2, 3, 16, true, true, "myCylinder", mat1));
-        cylinder->translate(-3,0,-1, TS_Local);
+        cylinder->translate(-3,0,-1, TS_Object);
 
         SLNode* cone = new SLNode(new SLCone(1, 3, 3, 16, true, "myCone", mat1));
         cone->rotate(90, -1,0,0);
-        cone->translate(0,0,2.5f, TS_Local);
+        cone->translate(0,0,2.5f, TS_Object);
 
         // Cube dimensions
         SLfloat pL = -9.0f, pR = 9.0f; // left/right
@@ -656,23 +656,23 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
 
         //// bottom rectangle
         SLNode* b = new SLNode(new SLRectangle(SLVec2f(pL,-pN), SLVec2f(pR,-pF), 10, 10, "PolygonFloor", mat2));
-        b->rotate(90, -1,0,0); b->translate(0,0,pB, TS_Local);
+        b->rotate(90, -1,0,0); b->translate(0,0,pB, TS_Object);
 
         // top rectangle
         SLNode* t = new SLNode(new SLRectangle(SLVec2f(pL,pF), SLVec2f(pR,pN), 10, 10, "top", mat2));
-        t->rotate(90, 1,0,0); t->translate(0,0,-pT, TS_Local);
+        t->rotate(90, 1,0,0); t->translate(0,0,-pT, TS_Object);
 
         // far rectangle
         SLNode* f = new SLNode(new SLRectangle(SLVec2f(pL,pB), SLVec2f(pR,pT), 10, 10, "far", mat3));
-        f->translate(0,0,pF, TS_Local);
+        f->translate(0,0,pF, TS_Object);
 
         // left rectangle
         SLNode* l = new SLNode(new SLRectangle(SLVec2f(-pN,pB), SLVec2f(-pF,pT), 10, 10, "left", mat4));
-        l->rotate(90, 0,1,0); l->translate(0,0,pL, TS_Local);
+        l->rotate(90, 0,1,0); l->translate(0,0,pL, TS_Object);
 
         // right rectangle
         SLNode* r = new SLNode(new SLRectangle(SLVec2f(pF,pB), SLVec2f(pN,pT), 10, 10, "right", mat4));
-        r->rotate(90, 0,-1,0); r->translate(0,0,-pR, TS_Local);
+        r->rotate(90, 0,-1,0); r->translate(0,0,-pR, TS_Object);
 
         SLNode* scene = new SLNode;
         scene->addChild(light1);
@@ -699,7 +699,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
 
         SLCamera* cam1 = new SLCamera();
         cam1->name("cam1");
-        cam1->position(10,0,220);
+        cam1->translation(10,0,220);
         cam1->lookAt(10,0,0);
         cam1->clipNear(0.1f);
         cam1->clipFar(500.0f);
@@ -744,13 +744,13 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
 
         SLCamera* cam1 = new SLCamera();
         cam1->name("cam1");
-        cam1->position(0,3,25);
+        cam1->translation(0,3,25);
         cam1->lookAt(0,0,10);
         cam1->focalDist(25);
         cam1->setInitialState();
 
         SLLightSphere* light = new SLLightSphere(0.1f);
-        light->position(5,5,5);
+        light->translation(5,5,5);
         light->lookAt(0, 0, 0);
         light->attenuation(1,0,0);
 
@@ -806,7 +806,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
                 {   SLNode* t = tree->copyRec();
                     t->translate(float(iX)*2+SL_random(0.7f,1.4f),
                                 0,
-                                float(iZ)*2+SL_random(0.7f,1.4f), TS_Local);
+                                float(iZ)*2+SL_random(0.7f,1.4f), TS_Object);
                     t->rotate(SL_random(0, 90), 0,1,0);
                     t->scale(SL_random(0.5f,1.0f));
                     scene->addChild(t);
@@ -908,7 +908,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
         #endif
 
         SLCamera* cam1 = new SLCamera;
-        cam1->position(0,0,2.2f);
+        cam1->translation(0,0,2.2f);
         cam1->lookAt(0, 0, 0);
         cam1->focalDist(2.2f);
         cam1->setInitialState();
@@ -942,7 +942,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
         cam1->name("cam1");
         cam1->clipNear(0.1f);
         cam1->clipFar(100);
-        cam1->position(0,0,5);
+        cam1->translation(0,0,5);
         cam1->lookAt(0, 0, 0);
         cam1->focalDist(5);
         cam1->setInitialState();
@@ -970,7 +970,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
                 {   if (iX!=0 || iY!=0 || iZ !=0)
                     {
                         SLNode* s = sphere->copyRec();
-                        s->translate(float(iX), float(iY), float(iZ), TS_Local);
+                        s->translate(float(iX), float(iY), float(iZ), TS_Object);
                         scene->addChild(s);
                     }
                 }
@@ -1003,7 +1003,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
 
         // Define camera
         SLCamera* cam1 = new SLCamera;
-        cam1->position(0,100,180);
+        cam1->translation(0,100,180);
         cam1->lookAt(0, 0, 0);
         cam1->setInitialState();
 
@@ -1013,7 +1013,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
                                                   SLVec2f(   0,   0), 
                                                   SLVec2f(  50,  50), 50, 50, "Floor", m1));
         rect->rotate(90, -1,0,0);
-        rect->translate(0,0,-5.5f, TS_Local);
+        rect->translate(0,0,-5.5f, TS_Object);
 
         SLNode* figure = BuildFigureGroup(m2);
 
@@ -1035,7 +1035,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
         {   for (SLint iX=-size; iX<=size; ++iX)
             {   if (iX!=0 || iZ!=0)
                 {   SLNode* f = figure->copyRec();
-                    f->translate(float(iX)*5, float(iZ)*5, 0, TS_Local);
+                    f->translate(float(iX)*5, float(iZ)*5, 0, TS_Object);
                     scene->addChild(f);
                 }
             }
@@ -1057,7 +1057,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
         m1->shininess(500);
 
         SLCamera* cam1 = new SLCamera;
-        cam1->position(0,1,8);
+        cam1->translation(0,1,8);
         cam1->lookAt(0,1,0);
         cam1->focalDist(8);
         cam1->setInitialState();
@@ -1066,7 +1066,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
         SLLightRect* light0 = new SLLightRect(2.0f,1.0f);
         light0->ambient(SLCol4f(0,0,0));
         light0->diffuse(SLCol4f(1,1,1));
-        light0->position(0,3,0);
+        light0->translation(0,3,0);
         light0->lookAt(0,0,0, 0,0,-1);
         light0->attenuation(0,0,1);
 
@@ -1074,7 +1074,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
         light1->ambient(SLCol4f(0,0,0));
         light1->diffuse(SLCol4f(1,0,0));
         light1->specular(SLCol4f(1,0,0));
-        light1->position(0, 0, 2);
+        light1->translation(0, 0, 2);
         light1->lookAt(0, 0, 0);
         light1->attenuation(0,0,1);
 
@@ -1082,7 +1082,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
         light2->ambient(SLCol4f(0,0,0));
         light2->diffuse(SLCol4f(0,1,0));
         light2->specular(SLCol4f(0,1,0));
-        light2->position(1.5, 1.5, 1.5);
+        light2->translation(1.5, 1.5, 1.5);
         light2->lookAt(0, 0, 0);
         light2->spotCutoff(20);
         light2->attenuation(0,0,1);
@@ -1091,7 +1091,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
         light3->ambient(SLCol4f(0,0,0));
         light3->diffuse(SLCol4f(0,0,1));
         light3->specular(SLCol4f(0,0,1));
-        light3->position(-1.5, 1.5, 1.5);
+        light3->translation(-1.5, 1.5, 1.5);
         light3->lookAt(0, 0, 0);
         light3->spotCutoff(20);
         light3->attenuation(0,0,1);
@@ -1121,7 +1121,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
         m1->shininess(500);
 
         SLCamera* cam1 = new SLCamera;
-        cam1->position(0,1,8);
+        cam1->translation(0,1,8);
         cam1->lookAt(0,1,0);
         cam1->focalDist(8);
         cam1->setInitialState();
@@ -1130,7 +1130,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
         SLLightRect* light0 = new SLLightRect(2.0f,1.0f);
         light0->ambient(SLCol4f(0,0,0));
         light0->diffuse(SLCol4f(1,1,1));
-        light0->position(0,3,0);
+        light0->translation(0,3,0);
         light0->lookAt(0,0,0, 0,0,-1);
         light0->attenuation(0,0,1);
 
@@ -1138,7 +1138,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
         light1->ambient(SLCol4f(0,0,0));
         light1->diffuse(SLCol4f(1,0,0));
         light1->specular(SLCol4f(1,0,0));
-        light1->position(0, 0, 2);
+        light1->translation(0, 0, 2);
         light1->lookAt(0, 0, 0);
         light1->attenuation(0,0,1);
 
@@ -1146,7 +1146,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
         light2->ambient(SLCol4f(0,0,0));
         light2->diffuse(SLCol4f(0,1,0));
         light2->specular(SLCol4f(0,1,0));
-        light2->position(1.5, 1.5, 1.5);
+        light2->translation(1.5, 1.5, 1.5);
         light2->lookAt(0, 0, 0);
         light2->spotCutoff(20);
         light2->attenuation(0,0,1);
@@ -1155,7 +1155,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
         light3->ambient(SLCol4f(0,0,0));
         light3->diffuse(SLCol4f(0,0,1));
         light3->specular(SLCol4f(0,0,1));
-        light3->position(-1.5, 1.5, 1.5);
+        light3->translation(-1.5, 1.5, 1.5);
         light3->lookAt(0, 0, 0);
         light3->spotCutoff(20);
         light3->attenuation(0,0,1);
@@ -1182,7 +1182,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
         cout << "Use H-Key to increment (decrement w. shift) the wave height.\n\n";
 
         SLCamera* cam1 = new SLCamera;
-        cam1->position(0,3,8);
+        cam1->translation(0,3,8);
         cam1->lookAt(0, 0, 0);
         cam1->focalDist(8);
         cam1->setInitialState();
@@ -1210,7 +1210,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
         SLLightSphere* light0 = new SLLightSphere();
         light0->ambient(SLCol4f(0,0,0));
         light0->diffuse(SLCol4f(1,1,1));
-        light0->translate(0,4,-4, TS_Local);
+        light0->translate(0,4,-4, TS_Object);
         light0->attenuation(1,0,0);
 
         SLNode* scene = new SLNode;
@@ -1234,7 +1234,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
         _backColor.set(.5f,.5f,1);
 
         SLCamera* cam1 = new SLCamera;
-        cam1->position(0,3,8);
+        cam1->translation(0,3,8);
         cam1->lookAt(0, 0, 0);
         cam1->focalDist(8);
 
@@ -1280,16 +1280,16 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
                                                    SLVec2f(0,0), SLVec2f(10, 2.5f), 10, 10, "rectR", matTile));
         SLNode* rectB = new SLNode(new SLRectangle(SLVec2f(-SL_PI,-SL_PI  ), SLVec2f( SL_PI, SL_PI  ),
                                                    SLVec2f(0,0), SLVec2f(10, 10  ), 10, 10, "rectB", matTile));
-        rectF->translate(0,0,-SL_PI, TS_Local);
-        rectL->rotate( 90, 0,1,0); rectL->translate(0,0,-SL_PI, TS_Local);
-        rectN->rotate(180, 0,1,0); rectN->translate(0,0,-SL_PI, TS_Local);
-        rectR->rotate(270, 0,1,0); rectR->translate(0,0,-SL_PI, TS_Local);
-        rectB->rotate( 90,-1,0,0); rectB->translate(0,0,-SL_PI/6, TS_Local);
+        rectF->translate(0,0,-SL_PI, TS_Object);
+        rectL->rotate( 90, 0,1,0); rectL->translate(0,0,-SL_PI, TS_Object);
+        rectN->rotate(180, 0,1,0); rectN->translate(0,0,-SL_PI, TS_Object);
+        rectR->rotate(270, 0,1,0); rectR->translate(0,0,-SL_PI, TS_Object);
+        rectB->rotate( 90,-1,0,0); rectB->translate(0,0,-SL_PI/6, TS_Object);
 
         SLLightSphere* light0 = new SLLightSphere();
         light0->ambient(SLCol4f(0,0,0));
         light0->diffuse(SLCol4f(1,1,1));
-        light0->translate(0,4,-4, TS_Local);
+        light0->translate(0,4,-4, TS_Object);
         light0->attenuation(1,0,0);
 
         SLNode* scene = new SLNode;
@@ -1323,7 +1323,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
 
         SLCamera* cam1 = new SLCamera();
         cam1->name("cam1");
-        cam1->position(0,0,20);
+        cam1->translation(0,0,20);
         cam1->lookAt(0, 0, 0);
         cam1->focalDist(20);
 
@@ -1332,7 +1332,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
         light1->diffuse(SLCol4f(1, 1, 1));
         light1->specular(SLCol4f(1, 1, 1));
         light1->attenuation(1,0,0);
-        light1->position(0,0,5);
+        light1->translation(0,0,5);
         light1->lookAt(0, 0, 0);
         light1->spotCutoff(40);
 
@@ -1376,7 +1376,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
 
         SLCamera* cam1 = new SLCamera();
         cam1->name("cam1");
-        cam1->position(0,0,20);
+        cam1->translation(0,0,20);
         cam1->lookAt(0, 0, 0);
         cam1->focalDist(20);
 
@@ -1385,7 +1385,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
         light1->diffuse(SLCol4f(1, 1, 1));
         light1->specular(SLCol4f(1, 1, 1));
         light1->attenuation(1,0,0);
-        light1->position(0,0,5);
+        light1->translation(0,0,5);
         light1->lookAt(0, 0, 0);
         light1->spotCutoff(50);
 
@@ -1446,7 +1446,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
         matEarth->program(sp);
 
         SLCamera* cam1 = new SLCamera;
-        cam1->position(0,0,4);
+        cam1->translation(0,0,4);
         cam1->lookAt(0, 0, 0);
         cam1->focalDist(4);
 
@@ -1522,7 +1522,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
 
         // Define camera
         SLCamera* cam1 = new SLCamera();
-        cam1->position(0,2,10);
+        cam1->translation(0,2,10);
         cam1->lookAt(0, 2, 0);
         cam1->setInitialState();
 
@@ -1570,37 +1570,37 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
 
         // Bouncing balls
         SLNode* ball1 = new SLNode(new SLSphere(0.3f, 16, 16, "Ball1", m2));
-        ball1->translate(0,0,4, TS_Local);
+        ball1->translate(0,0,4, TS_Object);
         SLAnimation* ball1Anim = SLAnimation::create("Ball1_anim", 1.0f, true, EC_linear, AL_pingPongLoop);
         ball1Anim->createSimpleTranslationNodeTrack(ball1, SLVec3f(0.0f, -5.2f, 0.0f));
 
         SLNode* ball2 = new SLNode(new SLSphere(0.3f, 16, 16, "Ball2", m2));
-        ball2->translate(-1.5f,0,4, TS_Local);
+        ball2->translate(-1.5f,0,4, TS_Object);
         SLAnimation* ball2Anim = SLAnimation::create("Ball2_anim", 1.0f, true, EC_inQuad, AL_pingPongLoop);
         ball2Anim->createSimpleTranslationNodeTrack(ball2, SLVec3f(0.0f, -5.2f, 0.0f));
 
         SLNode* ball3 = new SLNode(new SLSphere(0.3f, 16, 16, "Ball3", m2));
-        ball3->translate(-2.5f,0,4, TS_Local);
+        ball3->translate(-2.5f,0,4, TS_Object);
         SLAnimation* ball3Anim = SLAnimation::create("Ball3_anim", 1.0f, true, EC_outQuad, AL_pingPongLoop);
         ball3Anim->createSimpleTranslationNodeTrack(ball3, SLVec3f(0.0f, -5.2f, 0.0f));
 
         SLNode* ball4 = new SLNode(new SLSphere(0.3f, 16, 16, "Ball4", m2));
-        ball4->translate( 1.5f,0,4, TS_Local);
+        ball4->translate( 1.5f,0,4, TS_Object);
         SLAnimation* ball4Anim = SLAnimation::create("Ball4_anim", 1.0f, true, EC_inOutQuad, AL_pingPongLoop);
         ball4Anim->createSimpleTranslationNodeTrack(ball4, SLVec3f(0.0f, -5.2f, 0.0f));
 
         SLNode* ball5 = new SLNode(new SLSphere(0.3f, 16, 16, "Ball5", m2));
-        ball5->translate( 2.5f,0,4, TS_Local);
+        ball5->translate( 2.5f,0,4, TS_Object);
         SLAnimation* ball5Anim = SLAnimation::create("Ball5_anim", 1.0f, true, EC_outInQuad, AL_pingPongLoop);
         ball5Anim->createSimpleTranslationNodeTrack(ball5, SLVec3f(0.0f, -5.2f, 0.0f));
 
         SLCamera* cam1 = new SLCamera();
-        cam1->position(0, 0, 22);
+        cam1->translation(0, 0, 22);
         cam1->lookAt(0, 0, 0);
         cam1->focalDist(22);
         cam1->setInitialState();
         SLCamera* cam2 = new SLCamera;
-        cam2->position(5, 0, 0);
+        cam2->translation(5, 0, 0);
         cam2->lookAt(0, 0, 0);
         cam2->focalDist(5);
         cam2->setInitialState();
@@ -1660,7 +1660,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
 
         SLLightSphere* light1 = new SLLightSphere(7,7,0, 0.1f, 5, 10);
         light1->attenuation(0,0,1);
-        light1->translate(-3, 5, 2, TS_Local);
+        light1->translate(-3, 5, 2, TS_Object);
 
         // build a basic scene to have a reference for the occuring rotations
         SLMaterial* genericMat = new SLMaterial("some material");
@@ -1713,7 +1713,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
                     SLfloat z = (SLfloat)((i > 0) ? i / gridSize - gridHalf : -gridHalf);
                     SLVec3f pos(x*nodeSpacing[lvl] *1.1f, 1.5f, z*nodeSpacing[lvl]*1.1f);
 
-                    node->translate(pos, TS_Local);
+                    node->translate(pos, TS_Object);
                     //node->scale(1.1f);
 
                     SLfloat duration = 1.0f + 5.0f * ((SLfloat)i/(SLfloat)nodesPerLvl);
@@ -1743,7 +1743,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
 
         // Define camera
         SLCamera* cam1 = new SLCamera;
-        cam1->position(0, 20, 20);
+        cam1->translation(0, 20, 20);
         cam1->lookAt(0, 0, 0);
         cam1->setInitialState();
 
@@ -1793,7 +1793,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
                 {   SLNode* n = new SLNode;
                     float xt = float(iX) * 1.0f;
                     float zt = float(iZ) * 1.0f + ((shift) ? 0.5f : 0.0f);
-                    n->translate(xt, 0, zt, TS_Local);
+                    n->translate(xt, 0, zt, TS_Object);
                     for (auto m : importer.meshes())
                         n->addMesh(m);
                     scene->addChild(n);
@@ -1849,10 +1849,10 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
         refr->program(sp2);
    
         SLNode* sphere1 = new SLNode(new SLSphere(0.5f, 32, 32, "Sphere1", refl));
-        sphere1->translate(-0.65f, -0.75f, -0.55f, TS_Local);
+        sphere1->translate(-0.65f, -0.75f, -0.55f, TS_Object);
 
         SLNode* sphere2 = new SLNode(new SLSphere(0.45f, 32, 32, "Sphere2", refr));
-        sphere2->translate( 0.73f, -0.8f, 0.10f, TS_Local);
+        sphere2->translate( 0.73f, -0.8f, 0.10f, TS_Object);
 
         SLNode* balls = new SLNode;
         balls->addChild(sphere1);
@@ -1861,7 +1861,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
         // Rectangular light 
         SLLightRect* lightRect = new SLLightRect(1, 0.65f);
         lightRect->rotate(90, -1.0f, 0.0f, 0.0f);
-        lightRect->translate(0.0f, -0.25f, 1.18f, TS_Local);
+        lightRect->translate(0.0f, -0.25f, 1.18f, TS_Object);
         lightRect->spotCutoff(90);
         lightRect->spotExponent(1.0);
         lightRect->diffuse(lightEmisRGB);
@@ -1872,7 +1872,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
 
         // create camera
         SLCamera* cam1 = new SLCamera();
-        cam1->position(0.0f, 0.40f, 6.35f);
+        cam1->translation(0.0f, 0.40f, 6.35f);
         cam1->lookAt(0.0f,-0.05f, 0.0f);
         cam1->fov(27);
         cam1->focalDist(6.35f);
@@ -1889,23 +1889,23 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
       
         // bottom plane
         SLNode* b = new SLNode(new SLRectangle(SLVec2f(pL,-pN), SLVec2f(pR,-pF), 6, 6, "bottom", cream)); 
-        b->rotate(90, -1,0,0); b->translate(0,0,pB,TS_Local); scene->addChild(b);
+        b->rotate(90, -1,0,0); b->translate(0,0,pB,TS_Object); scene->addChild(b);
    
         // top plane
         SLNode* t = new SLNode(new SLRectangle(SLVec2f(pL,pF), SLVec2f(pR,pN), 6, 6, "top", cream)); 
-        t->rotate(90, 1,0,0); t->translate(0,0,-pT,TS_Local); scene->addChild(t);
+        t->rotate(90, 1,0,0); t->translate(0,0,-pT,TS_Object); scene->addChild(t);
    
         // far plane
         SLNode* f = new SLNode(new SLRectangle(SLVec2f(pL,pB), SLVec2f(pR,pT), 6, 6, "far", cream)); 
-        f->translate(0,0,pF,TS_Local); scene->addChild(f);
+        f->translate(0,0,pF,TS_Object); scene->addChild(f);
    
         // left plane
         SLNode* l = new SLNode(new SLRectangle(SLVec2f(-pN,pB), SLVec2f(-pF,pT), 6, 6, "left", red)); 
-        l->rotate(90, 0,1,0); l->translate(0,0,pL,TS_Local); scene->addChild(l);
+        l->rotate(90, 0,1,0); l->translate(0,0,pL,TS_Object); scene->addChild(l);
    
         // right plane
         SLNode* r = new SLNode(new SLRectangle(SLVec2f(pF,pB), SLVec2f(pN,pT), 6, 6, "right", blue)); 
-        r->rotate(90, 0,-1,0); r->translate(0,0,-pR,TS_Local); scene->addChild(r);
+        r->rotate(90, 0,-1,0); r->translate(0,0,-pR,TS_Object); scene->addChild(r);
       
         scene->addChild(balls);
 
@@ -1931,13 +1931,13 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
                                                      100, 0.0f, 0.0f, 1.0f);
 
         SLCamera* cam1 = new SLCamera();
-        cam1->position(0, 0.1f, 2.5f);
+        cam1->translation(0, 0.1f, 2.5f);
         cam1->lookAt(0, 0, 0);
         cam1->focalDist(4);
 
         SLNode *rect = new SLNode(new SLRectangle(SLVec2f(-3,-3), SLVec2f(5,4), 20, 20, "Floor", matYel));
         rect->rotate(90, -1,0,0);
-        rect->translate(0, -1, -0.5f, TS_Local);
+        rect->translate(0, -1, -0.5f, TS_Object);
 
         SLLightSphere* light1 = new SLLightSphere(2, 2, 2, 0.1f);
         light1->ambient(SLCol4f(1, 1, 1));
@@ -1975,13 +1975,13 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
         SLMaterial* matYel = new SLMaterial("Floor", SLCol4f(0.8f, 0.6f, 0.2f), SLCol4f(0.8f, 0.8f, 0.8f), 100, 0.0f, 0.0f, 1.0f);
 
         SLCamera* cam1 = new SLCamera;
-        cam1->position(0, 0.1f, 6);
+        cam1->translation(0, 0.1f, 6);
         cam1->lookAt(0, 0, 0);
         cam1->focalDist(6);
 
         SLNode* rect = new SLNode(new SLRectangle(SLVec2f(-3,-3), SLVec2f(5,4), 32, 32, "Rect", matYel));
         rect->rotate(90, -1,0,0);
-        rect->translate(0, -1, -0.5f, TS_Local);
+        rect->translate(0, -1, -0.5f, TS_Object);
 
         SLLightSphere* light1 = new SLLightSphere(3, 3, 3, 0.3f);
         #ifndef SL_GLES2
@@ -1993,7 +1993,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
         light1->attenuation(0,0,1);
         //light1->lightAt(2,2,2, 0,0,0);
         //light1->spotCutoff(15);
-        light1->position(2, 2, 2);
+        light1->translation(2, 2, 2);
         light1->lookAt(0, 0, 0);
 
         SLLightSphere* light2 = new SLLightSphere(0, 1.5, -1.5, 0.3f);
@@ -2034,7 +2034,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
         #endif
 
         SLCamera* cam1 = new SLCamera;
-        cam1->position(0, 2, 7);
+        cam1->translation(0, 2, 7);
         cam1->lookAt(0, 0, 0);
         cam1->focalDist(7);
         cam1->lensDiameter(0.4f);
@@ -2043,20 +2043,20 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
 
         SLNode* rect = new SLNode(new SLRectangle(SLVec2f(-5,-5), SLVec2f(5,5), 20, 20, "Rect", mT));
         rect->rotate(90, -1,0,0);
-        rect->translate(0,0,-0.5f, TS_Local);
+        rect->translate(0,0,-0.5f, TS_Object);
 
         SLLightSphere* light1 = new SLLightSphere(2,2,0, 0.1f);
         light1->attenuation(0,0,1);
 
         SLNode* balls = new SLNode;
         SLNode* s;
-        s = new SLNode(new SLSphere(0.5f,32,32,"S1",mW)); s->translate( 2.0,0,-4,TS_Local);  balls->addChild(s);
-        s = new SLNode(new SLSphere(0.5f,32,32,"S2",mB)); s->translate( 1.5,0,-3,TS_Local);  balls->addChild(s);
-        s = new SLNode(new SLSphere(0.5f,32,32,"S3",mY)); s->translate( 1.0,0,-2,TS_Local);  balls->addChild(s);
-        s = new SLNode(new SLSphere(0.5f,32,32,"S4",mR)); s->translate( 0.5,0,-1,TS_Local);  balls->addChild(s);
-        s = new SLNode(new SLSphere(0.5f,32,32,"S5",mG)); s->translate( 0.0,0, 0,TS_Local);  balls->addChild(s);
-        s = new SLNode(new SLSphere(0.5f,32,32,"S6",mM)); s->translate(-0.5,0, 1,TS_Local);  balls->addChild(s);
-        s = new SLNode(new SLSphere(0.5f,32,32,"S7",mW)); s->translate(-1.0,0, 2,TS_Local);  balls->addChild(s);
+        s = new SLNode(new SLSphere(0.5f,32,32,"S1",mW)); s->translate( 2.0,0,-4,TS_Object);  balls->addChild(s);
+        s = new SLNode(new SLSphere(0.5f,32,32,"S2",mB)); s->translate( 1.5,0,-3,TS_Object);  balls->addChild(s);
+        s = new SLNode(new SLSphere(0.5f,32,32,"S3",mY)); s->translate( 1.0,0,-2,TS_Object);  balls->addChild(s);
+        s = new SLNode(new SLSphere(0.5f,32,32,"S4",mR)); s->translate( 0.5,0,-1,TS_Object);  balls->addChild(s);
+        s = new SLNode(new SLSphere(0.5f,32,32,"S5",mG)); s->translate( 0.0,0, 0,TS_Object);  balls->addChild(s);
+        s = new SLNode(new SLSphere(0.5f,32,32,"S6",mM)); s->translate(-0.5,0, 1,TS_Object);  balls->addChild(s);
+        s = new SLNode(new SLSphere(0.5f,32,32,"S7",mW)); s->translate(-1.0,0, 2,TS_Object);  balls->addChild(s);
 
         SLNode* scene  = new SLNode;
         scene->addChild(light1);
@@ -2094,7 +2094,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
 
         // Scene
         SLCamera* cam1 = new SLCamera;
-        cam1->position(0, 8, 0);
+        cam1->translation(0, 8, 0);
         cam1->lookAt(0, 0, 0);
         cam1->focalDist(6);
         cam1->lensDiameter(0.4f);
@@ -2107,7 +2107,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
 
         // Plane
         //SLNode* rect = new SLNode(new SLRectangle(SLVec2f(-20, -20), SLVec2f(20, 20), 50, 20, "Rect", mT));
-        //rect->translate(0, 0, 0, TS_Local);
+        //rect->translate(0, 0, 0, TS_Object);
         //rect->rotate(90, -1, 0, 0);
 
         SLLightSphere* light1 = new SLLightSphere(1, 6, 1, 0.1f);
@@ -2116,19 +2116,19 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
 
         SLNode* rect = new SLNode(new SLRectangle(SLVec2f(-5, -5), SLVec2f(5, 5), 20, 20, "Rect", mT));
         rect->rotate(90, -1, 0, 0);
-        rect->translate(0, 0, -0.0f, TS_Local);
+        rect->translate(0, 0, -0.0f, TS_Object);
 
         // Lens from eye prescription card   
         //SLNode* lensA = new SLNode(new SLLens(0.50f, -0.50f, 4.0f, 0.0f, 32, 32, "presbyopic", matLens));   // Weitsichtig
         //SLNode* lensB = new SLNode(new SLLens(-0.65f, -0.10f, 4.0f, 0.0f, 32, 32, "myopic", matLens));      // Kurzsichtig
-        //lensA->translate(-2, 1, -2, TS_Local);
-        //lensB->translate(2, 1, -2, TS_Local);
+        //lensA->translate(-2, 1, -2, TS_Object);
+        //lensB->translate(2, 1, -2, TS_Object);
 
         // Lens with radius
         //SLNode* lensC = new SLNode(new SLLens(5.0, 4.0, 4.0f, 0.0f, 32, 32, "presbyopic", matLens));        // Weitsichtig
         SLNode* lensD = new SLNode(new SLLens(-15.0f, -15.0f, 1.0f, 0.1f, 32, 32, "myopic", matLens));          // Kurzsichtig
-        //lensC->translate(-2, 1, 2, TS_Local);
-        lensD->translate(0, 6, 0, TS_Local);
+        //lensC->translate(-2, 1, 2, TS_Object);
+        lensD->translate(0, 6, 0, TS_Object);
 
         // Node
         SLNode* scene = new SLNode;

@@ -100,15 +100,15 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd cmd)
 {
     init();
     
-    _backColor.set(0.3f,0.3f,0.3f);
+    _backColor.set(0.8f,0.8f,0.8f);
 
     SLCamera* cam1 = new SLCamera;
-    cam1->position(2, 3, 6);
-    cam1->lookAt(0, 0, 1);
+    cam1->translation(2, 3, 5);
+    cam1->lookAt(-2, -1.0, 1);
     cam1->focalDist(6);
 
     SLLightSphere* light1 = new SLLightSphere(0.3f);
-    light1->position(10,10,10);
+    light1->translation(10,10,10);
 
     SLNode* scene = new SLNode;
     scene->addChild(light1);
@@ -122,6 +122,19 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd cmd)
     sv->onInitialize();
 }
 //-----------------------------------------------------------------------------
+NewNodeSceneView::NewNodeSceneView(): _infoText(NULL),
+                                     _curMode(TranslationMode),
+                                     _curSpace(TS_Parent),
+                                     _curObject(NULL),
+                                     _continuousInput(true),
+                                     _modifiers(KeyNone)
+{
+    for (bool& ks : _keyStates)
+        ks = false;
+
+    _pivotPos.set(0,0,0);
+}
+//-----------------------------------------------------------------------------
 NewNodeSceneView::~NewNodeSceneView()
 {
     if(_infoText) delete _infoText; _infoText = 0;
@@ -129,21 +142,22 @@ NewNodeSceneView::~NewNodeSceneView()
 //-----------------------------------------------------------------------------
 void NewNodeSceneView::postSceneLoad()
 {
-    SLMaterial* mat = new SLMaterial("rMat");
+    SLMaterial* rMat = new SLMaterial("rMat", SLCol4f(1.0f,0.7f,0.7f));
+    SLMaterial* gMat = new SLMaterial("gMat", SLCol4f(0.7f,1.0f,0.7f));
 
     // build parent box
     _moveBox = new SLNode("Parent");
-    _moveBox->position(0, 0, 2);
-    _moveBox->rotation(0, SLVec3f(0, 0, 0));
-    _moveBox->addMesh(new SLBox(-0.3f, -0.3f, -0.3f, 0.3f, 0.3f, 0.3f, "Box", mat));
+    _moveBox->translation(0, 0, 2);
+    _moveBox->rotation(22.5f, SLVec3f(0, -1, 0));
+    _moveBox->addMesh(new SLBox(-0.3f, -0.3f, -0.3f, 0.3f, 0.3f, 0.3f, "Box", rMat));
     _moveBox->setInitialState();
     
     // build child box
     _moveBoxChild = new SLNode("Child");
-    _moveBoxChild->position(0, 1, 0);
-    _moveBoxChild->rotation(0, SLVec3f(0, 0, 0));
+    _moveBoxChild->translation(0, 1, 0);
+    _moveBoxChild->rotation(22.5f, SLVec3f(0, -1, 0));
     _moveBoxChild->setInitialState();
-    _moveBoxChild->addMesh(new SLBox(-0.2f, -0.2f, -0.2f, 0.2f, 0.2f, 0.2f, "Box", mat));
+    _moveBoxChild->addMesh(new SLBox(-0.2f, -0.2f, -0.2f, 0.2f, 0.2f, 0.2f, "Box", gMat));
     _moveBox->addChild(_moveBoxChild);
     
     // load coordinate axis arrows
@@ -154,7 +168,7 @@ void NewNodeSceneView::postSceneLoad()
     SLScene::current->root3D()->addChild(_axesNode);
 
     if (!_curObject)
-    {   _curObject = _moveBox;
+    {   _curObject = _moveBoxChild;
         SLScene::current->selectNodeMesh(_curObject, _curObject->meshes()[0]);
     }
     updateInfoText();
@@ -298,7 +312,7 @@ SLbool NewNodeSceneView::onContinuousKeyPress(SLKey key)
         // if we look at a point in local space then the local space will change.
         // we want to keep the old look at position in world space though so that
         // the user can confirm that his object is in fact looking at the point it should.
-        if (_curSpace == TS_Local)
+        if (_curSpace == TS_Object)
         {   SLVec3f pivotWorldPos = _curObject->updateAndGetWM() * _pivotPos;
             _curObject->lookAt(_pivotPos, SLVec3f::AXISY, _curSpace);
             _pivotPos = _curObject->updateAndGetWMI() * pivotWorldPos;
@@ -331,25 +345,8 @@ SLbool NewNodeSceneView::onKeyPress(const SLKey key, const SLKey mod)
             break;
         case KeyF2: _continuousInput = ! _continuousInput; break;
         case 'R': reset(); break;
-        case 'L':
-            if (_curMode == LookAtMode) {
-                // if we look at a point in local space then the local space will change.
-                // we want to keep the old look at position in world space though so that
-                // the user can confirm that his object is in fact looking at the point it should.
-                if (_curSpace == TS_Local)
-                {
-                    SLVec3f pivotWorldPos = _curObject->updateAndGetWM() * _pivotPos;
-                    _curObject->lookAt(_pivotPos, SLVec3f::AXISY, _curSpace);
-                    _pivotPos = _curObject->updateAndGetWMI() * pivotWorldPos;
-                }
-                // else just look at the point
-                else
-                    _curObject->lookAt(_pivotPos, SLVec3f::AXISY, _curSpace);
-            }
-            break;
-
         case 'Y':
-        case 'Z': _curSpace = TS_Local; break;
+        case 'Z': _curSpace = TS_Object; break;
         case 'X': _curSpace = TS_Parent; break;
         case 'C': _curSpace = TS_World; break;
     }
@@ -382,7 +379,7 @@ void NewNodeSceneView::updateCurOrigin()
         _axesNode->om(_curObject->parent()->updateAndGetWM());
         break;
 
-    case TS_Local:
+    case TS_Object:
         _curOrigin.setMatrix(_curObject->updateAndGetWM());
         _axesNode->om(_curObject->updateAndGetWM());
         break;
@@ -390,11 +387,11 @@ void NewNodeSceneView::updateCurOrigin()
 
     // if in rotation mode, move the axis to the objects origin, but keep the orientation
     if (_curMode == TranslationMode || _curMode == RotationMode) {
-        _axesNode->position(_curObject->updateAndGetWM().translation(), TS_World);
+        _axesNode->translation(_curObject->updateAndGetWM().translation(), TS_World);
     }
     // look at nd rotate around mode both move the pivot relative to the current system
     if (_curMode == RotationAroundMode || _curMode == LookAtMode) {
-        _axesNode->translate(_pivotPos.x, _pivotPos.y, _pivotPos.z, TS_Local);
+        _axesNode->translate(_pivotPos.x, _pivotPos.y, _pivotPos.z, TS_Object);
     }
 
     
@@ -421,15 +418,15 @@ void NewNodeSceneView::updateInfoText()
     keyBinds += "3: rotate around point mode \\n";
     keyBinds += "4: look at mode \\n\\n";
 
-    keyBinds += "Y: Set relative space to Local (TS_Local) \\n";
-    keyBinds += "X: Set relative space to Parent (TS_Parent) \\n";
-    keyBinds += "C: Set relative space to World (TS_World) \\n\\n";
+    keyBinds += "Y: Set relative space to Object\\n";
+    keyBinds += "X: Set relative space to Parent\\n";
+    keyBinds += "C: Set relative space to World\\n\\n";
     
     SLstring space;        
     switch (_curSpace)
-    {   case TS_Local:  space = "local"; break;
-        case TS_Parent: space = "parent"; break;
-        case TS_World:  space = "world"; break;
+    {   case TS_Object:  space = "TS_Object"; break;
+        case TS_Parent: space = "TS_Parent"; break;
+        case TS_World:  space = "TS_World"; break;
     }
 
     SLstring mode;
@@ -489,8 +486,8 @@ void NewNodeSceneView::updateInfoText()
     sprintf(m+strlen(m), "\\n\\n%s", keyBinds.c_str());
     
     SLTexFont* f = SLTexFont::getFont(1.2f, _dpi);
-    _infoText = new SLText(m, f, SLCol4f::WHITE, (SLfloat)_scrW, 1.0f);
-    _infoText->translate(10.0f, -_infoText->size().y-5.0f, 0.0f, TS_Local);
+    _infoText = new SLText(m, f, SLCol4f::BLACK, (SLfloat)_scrW, 1.0f);
+    _infoText->translate(10.0f, -_infoText->size().y-5.0f, 0.0f, TS_Object);
 
 }
 //-----------------------------------------------------------------------------

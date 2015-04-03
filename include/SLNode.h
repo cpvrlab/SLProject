@@ -116,7 +116,7 @@ the transformation should be applied in. The available transform spaces
 are:
    - TS_World: Space relative to the global world coordinate system.
    - TS_Parent: Space relative to our parent's transformation.
-   - TS_Local: Space relative to our current node's origin.
+   - TS_Object: Space relative to our current node's origin.
 
 A node can implement one of the eventhandlers defined in the inherited 
 SLEventHandler interface.
@@ -181,48 +181,48 @@ class SLNode: public SLObject, public SLEventHandler
                                                  SLbool findRecursive = true);
             
             // local direction getter functions
-            SLVec3f         position            () const;
+            SLVec3f         translation         () const;
             SLVec3f         forward             () const;
             SLVec3f         right               () const;
             SLVec3f         up                  () const;
 
-            // transform methods
-            void            position            (const SLVec3f& pos, 
+            // transform setter methods
+            void            translation         (const SLVec3f& pos,
                                                  SLTransformSpace relativeTo = TS_Parent);
-            void            position            (SLfloat x, SLfloat y, SLfloat z, 
+            void            translation         (SLfloat x, SLfloat y, SLfloat z,
                                                  SLTransformSpace relativeTo = TS_Parent);
-            
             void            rotation            (const SLQuat4f& rot, 
                                                  SLTransformSpace relativeTo = TS_Parent);    
             void            rotation            (SLfloat angleDeg, const SLVec3f& axis,
                                                  SLTransformSpace relativeTo = TS_Parent);
+            void            scaling             (SLfloat s);
+            void            scaling             (SLfloat x, SLfloat y, SLfloat z);
+            void            scaling             (const SLVec3f& scaling);
+            void            lookAt              (SLfloat targetX, SLfloat targetY, SLfloat targetZ,
+                                                 SLfloat upX = 0, SLfloat upY = 1, SLfloat upZ = 0,
+                                                 SLTransformSpace relativeTo = TS_World);
+            void            lookAt              (const SLVec3f& target,
+                                                 const SLVec3f& up = SLVec3f::AXISY,
+                                                 SLTransformSpace relativeTo = TS_World);
+
+            // transform modifier methods
+            void            translate           (const SLVec3f& vec, 
+                                                 SLTransformSpace relativeTo = TS_Object);
+            void            translate           (SLfloat x, SLfloat y, SLfloat z, 
+                                                 SLTransformSpace relativeTo = TS_Object);
+            void            rotate              (const SLQuat4f& rot, 
+                                                 SLTransformSpace relativeTo = TS_Object);
+            void            rotate              (SLfloat angleDeg, const SLVec3f& axis, 
+                                                 SLTransformSpace relativeTo = TS_Object);
+            void            rotate              (SLfloat angleDeg, 
+                                                 SLfloat x, SLfloat y, SLfloat z,
+                                                 SLTransformSpace relativeTo = TS_Object);
+            void            rotateAround        (const SLVec3f& point,
+                                                 SLVec3f& axis, SLfloat angleDeg,
+                                                 SLTransformSpace relativeTo = TS_World);
             void            scale               (SLfloat s);
             void            scale               (SLfloat x, SLfloat y, SLfloat z);
             void            scale               (const SLVec3f& scale);
-
-            void            translate           (const SLVec3f& vec, 
-                                                 SLTransformSpace relativeTo = TS_Local);
-            void            translate           (SLfloat x, SLfloat y, SLfloat z, 
-                                                 SLTransformSpace relativeTo = TS_Local);
-            
-            void            rotate              (const SLQuat4f& rot, 
-                                                 SLTransformSpace relativeTo = TS_Local);  
-            void            rotate              (SLfloat angleDeg, const SLVec3f& axis, 
-                                                 SLTransformSpace relativeTo = TS_Local);  
-            void            rotate              (SLfloat angleDeg, 
-                                                 SLfloat x, SLfloat y, SLfloat z,
-                                                 SLTransformSpace relativeTo = TS_Local); 
-
-            void            rotateAround        (const SLVec3f& point, 
-                                                 SLVec3f& axis, SLfloat angleDeg,
-                                                 SLTransformSpace relativeTo = TS_World);
-
-            void            lookAt              (SLfloat targetX, SLfloat targetY, SLfloat targetZ, 
-                                                 SLfloat upX = 0, SLfloat upY = 1, SLfloat upZ = 0,
-                                                 SLTransformSpace relativeTo = TS_World);
-            void            lookAt              (const SLVec3f& target, 
-                                                 const SLVec3f& up = SLVec3f::AXISY,
-                                                 SLTransformSpace relativeTo = TS_World);
 
             // Misc.
             void            scaleToCenter       (SLfloat maxDim);
@@ -370,7 +370,7 @@ void SLNode::findChildrenHelper(const SLstring& name, vector<T*>& list,
 /*!
 SLNode::position returns current local position
 */
-inline SLVec3f SLNode::position() const
+inline SLVec3f SLNode::translation() const
 {
     return _om.translation();
 }
@@ -400,38 +400,47 @@ inline SLVec3f SLNode::up() const
     return SLVec3f(_om.m(4), _om.m(5), _om.m(6));
 }
 //-----------------------------------------------------------------------------
-inline void SLNode::position(SLfloat x, SLfloat y, SLfloat z, 
+inline void SLNode::translation(SLfloat x, SLfloat y, SLfloat z, 
                                 SLTransformSpace relativeTo) 
 {
-    position(SLVec3f(x, y, z), relativeTo);
-} 
-//-----------------------------------------------------------------------------
-inline void SLNode::scale(SLfloat s)
-{ 
-    scale(SLVec3f(s, s, s));
+    translation(SLVec3f(x, y, z), relativeTo);
 }
-
-inline void SLNode::scale(SLfloat x, SLfloat y, SLfloat z)   
-{ 
-    scale(SLVec3f(x, y, z)); 
+//-----------------------------------------------------------------------------
+inline void SLNode::scaling(SLfloat s)
+{
+    scaling(SLVec3f(s, s, s));
+}
+//-----------------------------------------------------------------------------
+inline void SLNode::scaling(SLfloat x, SLfloat y, SLfloat z)
+{
+    scaling(SLVec3f(x, y, z));
 }
 //-----------------------------------------------------------------------------
 inline void SLNode::translate(SLfloat x, SLfloat y, SLfloat z, 
-                                 SLTransformSpace relativeTo) 
+                              SLTransformSpace relativeTo)
 { 
-    SLVec3f delta(x, y, z);
-    translate(delta, relativeTo); 
+    translate(SLVec3f(x, y, z), relativeTo);
 }
 //-----------------------------------------------------------------------------
 inline void SLNode::rotate(SLfloat angleDeg, SLfloat x, SLfloat y, SLfloat z,
-                              SLTransformSpace relativeTo) 
+                           SLTransformSpace relativeTo)
 { 
     rotate(angleDeg, SLVec3f(x, y, z), relativeTo); 
 }
 //-----------------------------------------------------------------------------
+inline void SLNode::scale(SLfloat s)
+{
+    scale(SLVec3f(s, s, s));
+}
+//-----------------------------------------------------------------------------
+inline void SLNode::scale(SLfloat x, SLfloat y, SLfloat z)
+{
+    scale(SLVec3f(x, y, z));
+}
+//-----------------------------------------------------------------------------
 inline void SLNode::lookAt(SLfloat targetX, SLfloat targetY, SLfloat targetZ, 
-                              SLfloat upX, SLfloat upY, SLfloat upZ,
-                              SLTransformSpace relativeTo)
+                           SLfloat upX, SLfloat upY, SLfloat upZ,
+                           SLTransformSpace relativeTo)
 { 
     lookAt(SLVec3f(targetX, targetY, targetZ), SLVec3f(upX, upY, upZ), relativeTo); 
 }

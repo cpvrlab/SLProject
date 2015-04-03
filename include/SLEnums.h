@@ -271,7 +271,7 @@ enum SLTransformSpace
 {
     TS_World, 
     TS_Parent,  
-    TS_Local,    
+    TS_Object,
 };
 //-----------------------------------------------------------------------------
 //! Skinning methods

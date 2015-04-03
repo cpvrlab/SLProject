@@ -28,12 +28,7 @@ demonstrates all transform possibilities in SLNode
 class NewNodeSceneView : public SLSceneView
 {
     public:
-                            NewNodeSceneView() : _infoText(NULL),
-                                                 _curMode(TranslationMode),
-                                                 _curSpace(TS_Parent),
-                                                 _curObject(NULL),
-                                                 _continuousInput(true),
-                                                 _modifiers(KeyNone) { }
+                            NewNodeSceneView();
                            ~NewNodeSceneView();
 
         // From SLSceneView overwritten
