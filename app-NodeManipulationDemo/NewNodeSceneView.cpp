@@ -21,7 +21,10 @@
 #include <SLAssimpImporter.h>
 
 #include "NewNodeSceneView.h"
+#include <GLFW/glfw3.h>
 
+//-----------------------------------------------------------------------------
+extern GLFWwindow* window;
 //-----------------------------------------------------------------------------
 void drawXZGrid(const SLMat4f& mat)
 {
@@ -424,7 +427,7 @@ void NewNodeSceneView::updateInfoText()
     
     SLstring space;        
     switch (_curSpace)
-    {   case TS_Object:  space = "TS_Object"; break;
+    {   case TS_Object: space = "TS_Object"; break;
         case TS_Parent: space = "TS_Parent"; break;
         case TS_World:  space = "TS_World"; break;
     }
@@ -443,47 +446,45 @@ void NewNodeSceneView::updateInfoText()
             break;
         case RotationMode:
             mode = "Rotate";
-            keyBinds += "W: rotate around -X in " + space + " space \\n";
-            keyBinds += "S: rotate around X in " + space + " space \\n";
-            keyBinds += "A: rotate around Y in " + space + " space \\n";
-            keyBinds += "D: rotate around -Y in " + space + " space \\n";
-            keyBinds += "Q: rotate around Z in " + space + " space \\n";
-            keyBinds += "E: rotate around -Z in " + space + " space \\n";
+            keyBinds += "W: rotate around -X in " + space + "\\n";
+            keyBinds += "S: rotate around  X in " + space + "\\n";
+            keyBinds += "A: rotate around  Y in " + space + "\\n";
+            keyBinds += "D: rotate around -Y in " + space + "\\n";
+            keyBinds += "Q: rotate around  Z in " + space + "\\n";
+            keyBinds += "E: rotate around -Z in " + space + "\\n";
             break;
         case RotationAroundMode:
             mode = "RotateAround";
-            keyBinds += "W: rotate around -X in " + space + " space \\n";
-            keyBinds += "S: rotate around X in " + space + " space \\n";
-            keyBinds += "A: rotate around -Y in " + space + " space \\n";
-            keyBinds += "D: rotate around Y in " + space + " space \\n";
-            keyBinds += "Q: rotate around Z in " + space + " space \\n";
-            keyBinds += "E: rotate around -Z in " + space + " space \\n\\n";
+            keyBinds += "W: rotate around -X in " + space + "\\n";
+            keyBinds += "S: rotate around  X in " + space + "\\n";
+            keyBinds += "A: rotate around -Y in " + space + "\\n";
+            keyBinds += "D: rotate around  Y in " + space + "\\n";
+            keyBinds += "Q: rotate around  Z in " + space + "\\n";
+            keyBinds += "E: rotate around -Z in " + space + "\\n\\n";
 
-            keyBinds += "Shift-W: pivot forward in " + space + " space \\n";
-            keyBinds += "Shift-S: pivot left in " + space + " space \\n";
-            keyBinds += "Shift-A: pivot backward in " + space + " space \\n";
-            keyBinds += "Shift-D: pivot right in " + space + " space \\n";
-            keyBinds += "Shift-Q: pivot up in " + space + " space \\n";
-            keyBinds += "Shift-E: pivot down in " + space + " space \\n";
+            keyBinds += "Shift-W: pivot forward in "  + space + "\\n";
+            keyBinds += "Shift-S: pivot left in "     + space + "\\n";
+            keyBinds += "Shift-A: pivot backward in " + space + "\\n";
+            keyBinds += "Shift-D: pivot right in "    + space + "\\n";
+            keyBinds += "Shift-Q: pivot up in "       + space + "\\n";
+            keyBinds += "Shift-E: pivot down in "     + space + "\\n";
             break;
         case LookAtMode:
             mode = "LookAt";
-            keyBinds += "W: move lookAt point forward in " + space + " space \\n";
-            keyBinds += "S: move lookAt point left in " + space + " space \\n";
-            keyBinds += "A: move lookAt point backward in " + space + " space \\n";
-            keyBinds += "D: move lookAt point right in " + space + " space \\n";
-            keyBinds += "Q: move lookAt point up in " + space + " space \\n";
-            keyBinds += "E: move lookAt point down in " + space + " space \\n";
+            keyBinds += "W: move lookAt point forward in "  + space + "\\n";
+            keyBinds += "S: move lookAt point left in "     + space + "\\n";
+            keyBinds += "A: move lookAt point backward in " + space + "\\n";
+            keyBinds += "D: move lookAt point right in "    + space + "\\n";
+            keyBinds += "Q: move lookAt point up in "       + space + "\\n";
+            keyBinds += "E: move lookAt point down in "     + space + "\\n";
             break;
     }
 
     keyBinds += "\\nR: Reset \\n";
-    
-    sprintf(m+strlen(m), "Current Object: %s\\n", _curObject->name().c_str());
-    sprintf(m+strlen(m), "Mode: %s\\n", mode.c_str());
-    sprintf(m+strlen(m), "Space: %s\\n", space.c_str());
-    sprintf(m+strlen(m), "Pivot: (%2.2f, %2.2f, %2.2f)\\n", _pivotPos.x, _pivotPos.y, _pivotPos.z);
-    sprintf(m+strlen(m), "\\n\\n%s", keyBinds.c_str());
+    sprintf(m+strlen(m), "%s", keyBinds.c_str());
+
+    string title = _curObject->name() + " in " + mode + " mode in " + space;
+    glfwSetWindowTitle(window, title.c_str());
     
     SLTexFont* f = SLTexFont::getFont(1.2f, _dpi);
     _infoText = new SLText(m, f, SLCol4f::BLACK, (SLfloat)_scrW, 1.0f);
