@@ -58,18 +58,18 @@ class SLScene: public SLObject
             void            stopAnimations  (SLbool stop){_stopAnimations = stop;}
                            
             // Getters
-     inline SLAnimManager&  animManager     () { return _animManager; }
+     inline SLAnimManager&  animManager     () {return _animManager;}
      inline SLSceneView*    sv              (SLuint index) {return _sceneViews[index];}
      inline SLNode*         root3D          () {return _root3D;}
-            SLint           currentID       () {return _currentID;}
+            SLint           currentID       () const {return _currentID;}
             SLfloat         timeSec         () {return (SLfloat)_timer.getElapsedTimeInSec();}
             SLfloat         timeMilliSec    () {return (SLfloat)_timer.getElapsedTimeInMilliSec();}
             SLfloat         elapsedTimeSec  () {return _elapsedTimeMS * 0.001f;}
             SLButton*       menu2D          () {return _menu2D;}
             SLButton*       menuGL          () {return _menuGL;}
             SLGLTexture*    texCursor       () {return _texCursor;}
-            SLCol4f         globalAmbiLight () {return _globalAmbiLight;}
-            SLCol4f         backColor       () {return _backColor;}
+            SLCol4f         globalAmbiLight () const {return _globalAmbiLight;}
+            SLCol4f         backColor       () const {return _backColor;}
             SLCol4f*        backColorV      () {return &_backColor;}
             SLVLight&       lights          () {return _lights;}
             SLVEventHandler& eventHandlers  () {return _eventHandlers;}
@@ -79,12 +79,12 @@ class SLScene: public SLObject
             SLVGLProgram&   programs        () {return _programs;}
             SLGLProgram*    programs        (SLStdShaderProg i) {return _programs[i];}
             SLText*         info            (SLSceneView* sv);
-            SLstring        infoAbout_en    () {return _infoAbout_en;}
-            SLstring        infoCredits_en  () {return _infoCredits_en;}
-            SLstring        infoHelp_en     () {return _infoHelp_en;}
+            SLstring        infoAbout_en    () const {return _infoAbout_en;}
+            SLstring        infoCredits_en  () const {return _infoCredits_en;}
+            SLstring        infoHelp_en     () const {return _infoHelp_en;}
             SLNode*         selectedNode    () {return _selectedNode;}
             SLMesh*         selectedMesh    () {return _selectedMesh;}
-            SLbool          stopAnimations  () {return _stopAnimations;}
+            SLbool          stopAnimations  () const {return _stopAnimations;}
             SLGLOculus*     oculus          () {return &_oculus;}   
             
             // Misc.

@@ -340,7 +340,7 @@ void SLSceneView::onInitialize()
 SLSceneView::onResize is called by the window system before the first 
 rendering and whenever the window changes its size.
 */
-void SLSceneView::onResize(const SLint width, const SLint height)
+void SLSceneView::onResize(SLint width, SLint height)
 {  
     SLScene* s = SLScene::current;
 
@@ -927,8 +927,8 @@ void SLSceneView::draw2DGLAll()
 SLSceneView::onMouseDown gets called whenever a mouse button gets pressed and
 dispatches the event to the currently attached event handler object.
 */
-SLbool SLSceneView::onMouseDown(const SLMouseButton button, 
-                                SLint x, SLint y, const SLKey mod)
+SLbool SLSceneView::onMouseDown(SLMouseButton button, 
+                                SLint x, SLint y, SLKey mod)
 {
     SLScene* s = SLScene::current;
    
@@ -957,8 +957,8 @@ SLbool SLSceneView::onMouseDown(const SLMouseButton button,
 /*! 
 SLSceneView::onMouseUp gets called whenever a mouse button gets released.
 */
-SLbool SLSceneView::onMouseUp(const SLMouseButton button, 
-                              SLint x, SLint y, const SLKey mod)
+SLbool SLSceneView::onMouseUp(SLMouseButton button, 
+                              SLint x, SLint y, SLKey mod)
 {  
     SLScene* s = SLScene::current;
     _touchDowns = 0;
@@ -1033,7 +1033,7 @@ SLbool SLSceneView::onMouseMove(SLint x, SLint y)
 SLSceneView::onMouseWheel gets called whenever the mouse wheel is turned.
 The parameter wheelPos is an increasing or decreeing counter number.
 */
-SLbool SLSceneView::onMouseWheelPos(const SLint wheelPos, const SLKey mod)
+SLbool SLSceneView::onMouseWheelPos(SLint wheelPos, SLKey mod)
 {  
     static SLint lastMouseWheelPos = 0;
     SLint delta = wheelPos-lastMouseWheelPos;
@@ -1045,7 +1045,7 @@ SLbool SLSceneView::onMouseWheelPos(const SLint wheelPos, const SLKey mod)
 SLSceneView::onMouseWheel gets called whenever the mouse wheel is turned.
 The parameter delta is positive/negative depending on the wheel direction
 */
-SLbool SLSceneView::onMouseWheel(const SLint delta, const SLKey mod)
+SLbool SLSceneView::onMouseWheel(SLint delta, SLKey mod)
 {
     // Handle mouse wheel in RT mode
     if (_renderType == renderRT && !_raytracer.continuous() && 
@@ -1068,8 +1068,8 @@ SLbool SLSceneView::onMouseWheel(const SLint delta, const SLKey mod)
 SLSceneView::onDoubleClick gets called when a mouse double click or finger 
 double tab occurs.
 */
-SLbool SLSceneView::onDoubleClick(const SLMouseButton button, 
-                                  SLint x, SLint y, const SLKey mod)
+SLbool SLSceneView::onDoubleClick(SLMouseButton button, 
+                                  SLint x, SLint y, SLKey mod)
 {  
     SLScene* s = SLScene::current;
    
@@ -1183,7 +1183,7 @@ SLSceneView::onKeyPress gets get called whenever a key is pressed. Before
 passing the command to the eventhandlers the main key commands are handled by
 forwarding them to onCommand. 
 */
-SLbool SLSceneView::onKeyPress(const SLKey key, const SLKey mod)
+SLbool SLSceneView::onKeyPress(SLKey key, SLKey mod)
 {  
     SLScene* s = SLScene::current;
     
@@ -1231,7 +1231,7 @@ SLbool SLSceneView::onKeyPress(const SLKey key, const SLKey mod)
 /*! 
 SLSceneView::onKeyRelease get called whenever a key is released.
 */
-SLbool SLSceneView::onKeyRelease(const SLKey key, const SLKey mod)
+SLbool SLSceneView::onKeyRelease(SLKey key, SLKey mod)
 {  
     SLScene* s = SLScene::current;
     SLbool result = false;
@@ -1250,7 +1250,7 @@ SLbool SLSceneView::onKeyRelease(const SLKey key, const SLKey mod)
 SLSceneView::onCommand: Event handler for commands. Most key press or menu
 commands are collected and dispatched here.
 */
-SLbool SLSceneView::onCommand(const SLCmd cmd)
+SLbool SLSceneView::onCommand(SLCmd cmd)
 {
     SLScene* s = SLScene::current;
     SLNode* root3D = s->root3D();
@@ -1451,10 +1451,10 @@ device with Euler angles for pitch, yaw and roll.
 With the parameter zeroYawAfterSec sets the time in seconds after
 which the yaw angle is set to zero by subtracting the average yaw in this time.
 */
-void SLSceneView::onRotationPYR(const SLfloat pitchRAD, 
-                                const SLfloat yawRAD, 
-                                const SLfloat rollRAD,
-                                const SLfloat zeroYawAfterSec)
+void SLSceneView::onRotationPYR(SLfloat pitchRAD, 
+                                SLfloat yawRAD, 
+                                SLfloat rollRAD,
+                                SLfloat zeroYawAfterSec)
 {
     //SL_LOG("onRotation: pitch: %3.1f, yaw: %3.1f, roll: %3.1f\n", 
     //       pitchRAD * SL_RAD2DEG, 
@@ -1480,10 +1480,10 @@ void SLSceneView::onRotationPYR(const SLfloat pitchRAD,
 SLSceneView::onRotation: Event handler for rotation change of a mobile
 device with rotation quaternion.
 */
-void SLSceneView::onRotationQUAT(const SLfloat quatX, 
-                                 const SLfloat quatY, 
-                                 const SLfloat quatZ, 
-                                 const SLfloat quatW)
+void SLSceneView::onRotationQUAT(SLfloat quatX, 
+                                 SLfloat quatY, 
+                                 SLfloat quatZ, 
+                                 SLfloat quatW)
 {
     _deviceRotation.set(quatX, quatY, quatZ, quatW);
 }
@@ -1768,7 +1768,7 @@ void SLSceneView::build2DInfoGL()
     SLfloat draw2DTimePC = s->_draw2DTimesMS.average() / s->_frameTimesMS.average()*100.0f;
     SLfloat eyeSepPC = cam->eyeSeparation()/cam->focalDist()*100;
    
-    SLchar m[2550];   // message charcter array
+    SLchar m[2550];   // message character array
     m[0]=0;           // set zero length
     sprintf(m+strlen(m), "Scene: %s\\n", s->name().c_str());
     sprintf(m+strlen(m), "DPI: %d\\n", _dpi);
@@ -1781,10 +1781,10 @@ void SLSceneView::build2DInfoGL()
     sprintf(m+strlen(m), "Shapes in Frustum: %d\\n", cam->numRendered());
     sprintf(m+strlen(m), "NO. of drawcalls: %d\\n", _totalDrawCalls);
     sprintf(m+strlen(m), "--------------------------------------------\\n");
-    sprintf(m+strlen(m), "OpenGL: %s\\n", _stateGL->glVersion().c_str());
+    sprintf(m+strlen(m), "OpenGL: %s (%s)\\n", _stateGL->glVersionNO().c_str(), _stateGL->glVersion().c_str());
     sprintf(m+strlen(m), "Vendor: %s\\n", _stateGL->glVendor().c_str());
     sprintf(m+strlen(m), "Renderer: %s\\n", _stateGL->glRenderer().c_str());
-    sprintf(m+strlen(m), "GLSL: %s\\n", _stateGL->glGLSLVersion().c_str());
+    sprintf(m+strlen(m), "GLSL: %s, (%s)\\n", _stateGL->glSLVersionNO().c_str(), _stateGL->glSLVersion().c_str());
     sprintf(m+strlen(m), "--------------------------------------------\\n");
     sprintf(m+strlen(m), "Projection: %s\\n", cam->projectionStr().c_str());
     sprintf(m+strlen(m), "Animation: %s\\n", cam->animationStr().c_str());

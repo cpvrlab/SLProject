@@ -83,37 +83,32 @@ class SLSceneView: public SLObject
             // Main event handlers
             void            onInitialize    ();
             SLbool          onPaint         ();
-            void            onResize        (const SLint width, const SLint height);
-            SLbool          onMouseDown     (const SLMouseButton button, 
-                                             SLint x, SLint y,
-                                             const SLKey mod);  
-            SLbool          onMouseUp       (const SLMouseButton button, 
-                                             SLint x, SLint y,
-                                             const SLKey mod); 
+            void            onResize        (SLint width, SLint height);
+            SLbool          onMouseDown     (SLMouseButton button, 
+                                             SLint x, SLint y, SLKey mod);  
+            SLbool          onMouseUp       (SLMouseButton button, SLint x, SLint y,
+                                             SLKey mod); 
             SLbool          onMouseMove     (SLint x, SLint y);
-            SLbool          onMouseWheelPos (const SLint wheelPos, const SLKey mod);
-            SLbool          onMouseWheel    (const SLint delta, const SLKey mod); 
-            SLbool          onTouch2Down    (SLint x1, SLint y1,
-                                             SLint x2, SLint y2);
-            SLbool          onTouch2Move    (SLint x1, SLint y1,
-                                             SLint x2, SLint y2);
-            SLbool          onTouch2Up      (SLint x1, SLint y1,
-                                             SLint x2, SLint y2);
-            SLbool          onDoubleClick   (const SLMouseButton button, 
+            SLbool          onMouseWheelPos (SLint wheelPos, SLKey mod);
+            SLbool          onMouseWheel    (SLint delta, SLKey mod); 
+            SLbool          onTouch2Down    (SLint x1, SLint y1, SLint x2, SLint y2);
+            SLbool          onTouch2Move    (SLint x1, SLint y1, SLint x2, SLint y2);
+            SLbool          onTouch2Up      (SLint x1, SLint y1, SLint x2, SLint y2);
+            SLbool          onDoubleClick   (SLMouseButton button, 
                                              SLint x, SLint y,
-                                             const SLKey mod);
+                                             SLKey mod);
             SLbool          onLongTouch     (SLint x, SLint y);
-    virtual SLbool          onKeyPress      (const SLKey key, const SLKey mod);
-    virtual SLbool          onKeyRelease    (const SLKey key, const SLKey mod);
-            void            onRotationPYR   (const SLfloat pitchRAD, 
-                                             const SLfloat yawRAD, 
-                                             const SLfloat rollRAD,
-                                             const SLfloat zeroYawAfterSec);
-            void            onRotationQUAT  (const SLfloat quatX, 
-                                             const SLfloat quatY, 
-                                             const SLfloat quatZ, 
-                                             const SLfloat quatW);
-            SLbool          onCommand       (const SLCmd cmd);
+    virtual SLbool          onKeyPress      (SLKey key, SLKey mod);
+    virtual SLbool          onKeyRelease    (SLKey key, SLKey mod);
+            void            onRotationPYR   (SLfloat pitchRAD, 
+                                             SLfloat yawRAD, 
+                                             SLfloat rollRAD,
+                                             SLfloat zeroYawAfterSec);
+            void            onRotationQUAT  (SLfloat quatX, 
+                                             SLfloat quatY, 
+                                             SLfloat quatZ, 
+                                             SLfloat quatW);
+            SLbool          onCommand       (SLCmd cmd);
             
             // Drawing subroutines
             SLbool          draw3DGL        (SLfloat elapsedTimeSec);
@@ -151,48 +146,48 @@ class SLSceneView: public SLObject
    
             // Setters
             void            camera          (SLCamera* camera) {_camera = camera;}
-            void            scrW            (const SLint  scrW){_scrW = scrW;}
-            void            scrH            (const SLint  scrH){_scrH = scrH;} 
-            void            waitEvents      (const SLbool wait){_waitEvents = wait;}
-            void            dpi             (SLint newDPI) {_dpi = newDPI;}
+            void            scrW            (SLint  scrW){_scrW = scrW;}
+            void            scrH            (SLint  scrH){_scrH = scrH;} 
+            void            waitEvents      (SLbool wait){_waitEvents = wait;}
+            void            dpi             (SLint newDPI){_dpi = newDPI;}
             void            showLoading     (SLbool showLoading);
-            void            showMenu        (SLbool show) {_showMenu = show;
-                                                           SLScene::current->_menu2D = SLScene::current->_menuGL;}
+            void            showMenu        (SLbool show){_showMenu = show;
+                                                          SLScene::current->_menu2D = SLScene::current->_menuGL;}
             void            showInfo        (SLbool show) {_showInfo = show;}
             void            gotPainted      (SLbool val) {_gotPainted = val;}
 
             // Getters
-            SLuint          index           () {return _index;}
+            SLuint          index           () const {return _index;}
     inline  SLCamera*       camera          () {return _camera;}
     inline  SLCamera*       sceneViewCamera () {return &_sceneViewCamera;}
-    inline  SLint           scrW            () {return _scrW;}
-    inline  SLint           scrH            () {return _scrH;}
-    inline  SLint           scrWdiv2        () {return _scrWdiv2;}
-    inline  SLint           scrHdiv2        () {return _scrHdiv2;}
-    inline  SLfloat         scrWdivH        () {return _scrWdivH;}
-    inline  SLint           dpi             () {return _dpi;}
-    inline  SLfloat         dpmm            () {return (float)_dpi/25.4f;}
-    inline  SLQuat4f        deviceRotation  () {return _deviceRotation;}
-            SLbool          gotPainted      () {return _gotPainted;}
-            SLbool          doFrustumCulling() {return _doFrustumCulling;}
-            SLbool          doMultiSampling () {return _doMultiSampling;}
-            SLbool          hasMultiSampling() {return _hasMultiSampling;}
-            SLbool          doDepthTest     () {return _doDepthTest;}
-            SLbool          waitEvents      () {return _waitEvents;}
-            SLbool          showStats       () {return _showStats;}
-            SLbool          showInfo        () {return _showInfo;}
-            SLbool          showMenu        () {return _showMenu;}
+    inline  SLint           scrW            () const {return _scrW;}
+    inline  SLint           scrH            () const {return _scrH;}
+    inline  SLint           scrWdiv2        () const {return _scrWdiv2;}
+    inline  SLint           scrHdiv2        () const {return _scrHdiv2;}
+    inline  SLfloat         scrWdivH        () const {return _scrWdivH;}
+    inline  SLint           dpi             () const {return _dpi;}
+    inline  SLfloat         dpmm            () const {return (float)_dpi/25.4f;}
+    inline  SLQuat4f        deviceRotation  () const {return _deviceRotation;}
+            SLbool          gotPainted      () const {return _gotPainted;}
+            SLbool          doFrustumCulling() const {return _doFrustumCulling;}
+            SLbool          doMultiSampling () const {return _doMultiSampling;}
+            SLbool          hasMultiSampling() const {return _hasMultiSampling;}
+            SLbool          doDepthTest     () const {return _doDepthTest;}
+            SLbool          waitEvents      () const {return _waitEvents;}
+            SLbool          showStats       () const {return _showStats;}
+            SLbool          showInfo        () const {return _showInfo;}
+            SLbool          showMenu        () const {return _showMenu;}
             SLVNode*        blendNodes      () {return &_blendNodes;}
             SLVNode*        opaqueNodes     () {return &_opaqueNodes;}
             SLRaytracer*    raytracer       () {return &_raytracer;}
             SLPathtracer*   pathtracer      () {return &_pathtracer;}
-            SLRenderer      renderType      () {return _renderType;}
+            SLRenderer      renderType      () const {return _renderType;}
             SLGLOculusFB*   oculusFB        () {return &_oculusFB;}
             SLDrawBits*     drawBits        () {return &_drawBits;}
             SLbool          drawBit         (SLuint bit) {return _drawBits.get(bit);}
-            SLfloat         cullTimeMS      () {return _cullTimeMS;}
-            SLfloat         draw3DTimeMS    () {return _draw3DTimeMS;}
-            SLfloat         draw2DTimeMS    () {return _draw2DTimeMS;}
+            SLfloat         cullTimeMS      () const {return _cullTimeMS;}
+            SLfloat         draw3DTimeMS    () const {return _draw3DTimeMS;}
+            SLfloat         draw2DTimeMS    () const {return _draw2DTimeMS;}
 
     static const SLint      LONGTOUCH_MS;       //!< Milliseconds duration of a long touch event 
 

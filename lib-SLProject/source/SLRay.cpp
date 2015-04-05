@@ -134,7 +134,7 @@ SLRay::SLRay(SLfloat distToLight,
 SLRay::prints prints the rays origin (O), direction (D) and the length to the 
 intersection (L) 
 */
-void SLRay::print()
+void SLRay::print() const
 {
     SL_LOG("Ray: O(%.2f, %.2f, %.2f), D(%.2f, %.2f, %.2f), L: %.2f\n",
            origin.x,origin.y,origin.z, dir.x,dir.y,dir.z, length);

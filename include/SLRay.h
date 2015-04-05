@@ -57,7 +57,7 @@ class SLRay
             
         // Helper methods
     inline  void        setDir      (SLVec3f Dir)
-                                    {  dir = Dir; 
+                                    {   dir = Dir; 
                                         invDir.x=(SLfloat)(1/dir.x); 
                                         invDir.y=(SLfloat)(1/dir.y); 
                                         invDir.z=(SLfloat)(1/dir.z);
@@ -66,7 +66,7 @@ class SLRay
                                         sign[2]=(invDir.z<0);
                                     }    
     inline  void        setDirOS    (SLVec3f Dir)
-                                    {  dirOS = Dir;
+                                    {   dirOS = Dir;
                                         invDirOS.x=(SLfloat)(1/dirOS.x);
                                         invDirOS.y=(SLfloat)(1/dirOS.y);
                                         invDirOS.z=(SLfloat)(1/dirOS.z);
@@ -74,8 +74,8 @@ class SLRay
                                         signOS[1]=(invDirOS.y<0);
                                         signOS[2]=(invDirOS.z<0);
                                     }
-            SLbool      isShaded    () {return type==SHADOW && length<lightDist;}
-            void        print       ();
+            SLbool      isShaded    () const {return type==SHADOW && length<lightDist;}
+            void        print       () const;
             void        normalizeNormal();
             
             // Classic ray members
@@ -85,7 +85,7 @@ class SLRay
             SLVec3f     dirOS;         //!< Direction vector of ray in OS
             SLfloat     length;        //!< length from origin to an intersection
             SLint       depth;         //!< Recursion depth for ray tracing
-            SLfloat     contrib;       //!< Current contibution of ray to color
+            SLfloat     contrib;       //!< Current contribution of ray to color
             
             // Additional info for intersection 
             SLRayType   type;          //!< PRIMARY, REFLECTED, TRANSMITTED, SHADOW

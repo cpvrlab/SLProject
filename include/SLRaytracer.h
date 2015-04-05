@@ -78,15 +78,15 @@ class SLRaytracer: public SLGLTexture, public SLEventHandler
             void        aaSamples       (SLint samples)   {_aaSamples = samples; state(rtReady);}
             
             // Getters
-            SLRTState   state           () {return _state;}
-            SLint       maxDepth        () {return _maxDepth;}
-            SLbool      distributed     () {return _distributed;}
-            SLbool      continuous      () {return _continuous;}
-            SLint       aaSamples       () {return _aaSamples;}
-            SLint       numThreads      () {return _numThreads;}
-            SLint       pcRendered      () {return _pcRendered;}
-            SLfloat     aaThreshold     () {return _aaThreshold;}
-            SLfloat     renderSec       () {return _renderSec;}
+            SLRTState   state           () const {return _state;}
+            SLint       maxDepth        () const {return _maxDepth;}
+            SLbool      distributed     () const {return _distributed;}
+            SLbool      continuous      () const {return _continuous;}
+            SLint       aaSamples       () const {return _aaSamples;}
+            SLint       numThreads      () const {return _numThreads;}
+            SLint       pcRendered      () const {return _pcRendered;}
+            SLfloat     aaThreshold     () const {return _aaThreshold;}
+            SLfloat     renderSec       () const {return _renderSec;}
             
             // Render target image
             void        prepareImage    ();

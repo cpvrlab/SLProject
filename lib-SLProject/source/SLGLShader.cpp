@@ -65,19 +65,26 @@ SLbool SLGLShader::createAndCompile()
                 SL_EXIT_MSG("SLGLShader::load: Unknown shader type.");
         }
       
-        SLstring srcVersion = "";
-        SLstring scrDefines = "";
+        SLstring verGLSL = SLGLState::getInstance()->glSLVersionNO();
+        SLstring srcVersion = "#version " + verGLSL + "\n";
 
+        if (verGLSL > "120")
+        {   if (_type == VertexShader)
+            {   SLUtils::replaceString(_code, "attribute", "in");
+                SLUtils::replaceString(_code, "varying", "out");
+            }
+            if (_type == FragmentShader)
+            {   SLUtils::replaceString(_code, "varying", "in");
+            }
+        }
 
-        SLstring scrComplete = srcVersion + 
-                               scrDefines + 
-                               _code;
+        SLstring scrComplete = srcVersion + _code;
 
         const char* src = scrComplete.c_str();
         glShaderSource(_objectGL, 1, &src, 0);
         glCompileShader(_objectGL);
 
-        // Check comiler log
+        // Check compiler log
         SLint compileSuccess = 0;
         glGetShaderiv(_objectGL, GL_COMPILE_STATUS, &compileSuccess);
         if (compileSuccess == GL_FALSE) 

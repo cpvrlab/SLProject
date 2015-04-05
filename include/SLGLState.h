@@ -81,7 +81,7 @@ class SLGLState
         // stereo
         SLint    projection;                      //!< type of projection (see SLCamera)
         SLint    stereoEye;                       //!< -1=left, 0=center, 1=right
-        SLMat3f  stereoColorFilter;               //!< color filter matrix for anaglyphs
+        SLMat3f  stereoColorFilter;               //!< color filter matrix for anaglyph
 
         // setters
         void     invModelViewMatrix(SLMat4f &im) {_invModelViewMatrix.setMatrix(im);}
@@ -124,17 +124,22 @@ class SLGLState
         // state getters
         SLbool   blend()                 {return _blend;}
         SLstring glVersion()             {return _glVersion;}
+        SLstring glVersionNO()           {return _glVersionNO;}
         SLstring glVendor()              {return _glVendor;}
         SLstring glRenderer()            {return _glRenderer;}
-        SLstring glGLSLVersion()         {return _glGLSLVersion;}  
+        SLstring glSLVersion()           {return _glSLVersion;}
+        SLstring glSLVersionNO()         {return _glSLVersionNO;}
         SLbool   hasExtension(SLstring e){return _glExtensions.find(e)!=string::npos;}
       
         // stack operations
         inline void pushModelViewMatrix()   {_modelViewMatrixStack.push_back(modelViewMatrix);}
         inline void popModelViewMatrix()    {modelViewMatrix = _modelViewMatrixStack.pop_back();}
 
-        //! Checks if an OpenGL error occured
+        //! Checks if an OpenGL error occurred
         static void getGLError(char* file, int line, bool quit);
+
+        SLstring getGLVersionNO();
+        SLstring getSLVersionNO();
       
     private:
                     SLGLState();            //!< private onetime constructor
@@ -152,9 +157,11 @@ class SLGLState
         SLCol4f     _globalAmbient;         //!< global ambient color
 
         SLstring    _glVersion;             //!< OpenGL Version string
+        SLstring    _glVersionNO;           //!< OpenGL Version number string
         SLstring    _glVendor;              //!< OpenGL Vendor string
         SLstring    _glRenderer;            //!< OpenGL Renderer string
-        SLstring    _glGLSLVersion;         //!< GLSL Version string
+        SLstring    _glSLVersion;           //!< GLSL Version string
+        SLstring    _glSLVersionNO;         //!< GLSL Version number string
         SLstring    _glExtensions;          //!< OpenGL extensions string
 
         // read/write states

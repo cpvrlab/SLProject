@@ -90,9 +90,11 @@ void SLGLState::initAll()
     globalAmbientLight.set(0.2f,0.2f,0.2f,0.0f);
    
     _glVersion     = SLstring((char*)glGetString(GL_VERSION));
+    _glVersionNO   = getGLVersionNO();
     _glVendor      = SLstring((char*)glGetString(GL_VENDOR));
     _glRenderer    = SLstring((char*)glGetString(GL_RENDERER));
-    _glGLSLVersion = SLstring((char*)glGetString(GL_SHADING_LANGUAGE_VERSION));
+    _glSLVersion   = SLstring((char*)glGetString(GL_SHADING_LANGUAGE_VERSION));
+    _glSLVersionNO = getSLVersionNO();
     _glExtensions  = SLstring((char*)glGetString(GL_EXTENSIONS));
    
     //initialize states a unset
@@ -135,7 +137,7 @@ void SLGLState::onInitialize(SLCol4f clearColor)
     glDepthFunc(GL_LESS);
     glEnable(GL_DEPTH_TEST);
 
-    // set blend function for classis transparency
+    // set blend function for classic transparency
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); 
      
     // set background color
@@ -207,8 +209,8 @@ void SLGLState::calcLightDirVS(SLint nLights)
         lightDirVS[i].set(vRot.multVec(lightDirWS[i]));
 }
 //-----------------------------------------------------------------------------
-/*! Returns the global ambient color as the componentwise product of the global
-ambient light instensity and the materials ambient reflection. This is used to
+/*! Returns the global ambient color as the component wise product of the global
+ambient light intensity and the materials ambient reflection. This is used to
 give the scene a minimal ambient lighting.
 */
 const SLCol4f* SLGLState::globalAmbient()
@@ -218,7 +220,7 @@ const SLCol4f* SLGLState::globalAmbient()
 }
 //-----------------------------------------------------------------------------
 /*! SLGLState::depthTest enables or disables depth testing but only if the 
-state really changes. The depth test decides for each pixel in the depthbuffer 
+state really changes. The depth test decides for each pixel in the depth buffer 
 which polygon is the closest to the eye.
 */
 void SLGLState::depthTest(SLbool stateNew)
@@ -376,7 +378,7 @@ void SLGLState::activeTexture(SLenum textureUnit)
 }
 //-----------------------------------------------------------------------------
 /*! SLGLState::unbindAnythingAndFlush unbinds all shaderprograms and buffers in 
-use and calls glFinish. This shoud be the last call to GL before buffer
+use and calls glFinish. This should be the last call to GL before buffer
 swapping.
 */
 void SLGLState::unbindAnythingAndFlush()
@@ -456,5 +458,34 @@ void SLGLState::getGLError(char* file,
     }
     #endif
 }
-
+//-----------------------------------------------------------------------------
+// Returns the OpenGL version number as a string
+SLstring SLGLState::getGLVersionNO()
+{
+    SLstring versionStr = SLstring((char*)glGetString(GL_VERSION));
+    size_t dotPos = versionStr.find(".");
+    SLchar NO[4];
+    NO[0] = versionStr[dotPos - 1];
+    NO[1] = '.';
+    NO[2] = versionStr[dotPos + 1];
+    NO[3] = 0;
+    
+    if (versionStr.find("OpenGL ES")>-1)
+    {   SLstring strNO = "ES";
+        return strNO + NO;    
+    } else return SLstring(NO);
+}
+//-----------------------------------------------------------------------------
+// Returns the OpenGL Shading Language version number as a string
+SLstring SLGLState::getSLVersionNO()
+{
+    SLstring versionStr = SLstring((char*)glGetString(GL_SHADING_LANGUAGE_VERSION));
+    size_t dotPos = versionStr.find(".");
+    SLchar NO[4];
+    NO[0] = versionStr[dotPos - 1];
+    NO[1] = versionStr[dotPos + 1];
+    NO[2] = '0';
+    NO[3] = 0;
+    return SLstring(NO);
+}
 //-----------------------------------------------------------------------------

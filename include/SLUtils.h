@@ -149,6 +149,17 @@ class SLUtils
             }
         }
 
+        //! Replaces in the subject string the search string by the replace string
+        static void replaceString(SLstring& subject, 
+                                  const SLstring& search,
+                                  const SLstring& replace)
+        {   size_t pos = 0;
+            while ((pos = subject.find(search, pos)) != std::string::npos) 
+            {   subject.replace(pos, search.length(), replace);
+                pos += replace.length();
+            }
+        }
+
         //! SLUtils::removeComments for C/C++ comments removal from shader code
         static SLstring removeComments(SLstring src)
         {  
