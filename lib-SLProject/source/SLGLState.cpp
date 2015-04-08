@@ -459,7 +459,11 @@ void SLGLState::getGLError(char* file,
     #endif
 }
 //-----------------------------------------------------------------------------
-// Returns the OpenGL version number as a string
+/// Returns the OpenGL version number as a string
+/*! The string returned by glGetString can contain additional vendor 
+information such as the build number and the brand name. 
+For the OpenGL version string "4.5.0 NVIDIA 347.68" the function returns "4.5" 
+*/
 SLstring SLGLState::getGLVersionNO()
 {
     SLstring versionStr = SLstring((char*)glGetString(GL_VERSION));
@@ -476,7 +480,11 @@ SLstring SLGLState::getGLVersionNO()
     } else return SLstring(NO);
 }
 //-----------------------------------------------------------------------------
-// Returns the OpenGL Shading Language version number as a string
+//! Returns the OpenGL Shading Language version number as a string.
+/*! The string returned by glGetString can contain additional vendor 
+information such as the build number and the brand name. 
+For the shading language string "Nvidia GLSL 4.5" the function returns "450" 
+*/
 SLstring SLGLState::getSLVersionNO()
 {
     SLstring versionStr = SLstring((char*)glGetString(GL_SHADING_LANGUAGE_VERSION));
