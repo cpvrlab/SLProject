@@ -10,6 +10,9 @@
 //#############################################################################
 
 #include "stdafx.h"
+#ifdef SL_MEMLEAKDETECT       // set in SL.h for debug config only
+#include <debug_new.h>        // memory leak detector
+#endif
 
 #include "SL.h"        // Basic SL type definitions
 #include "glUtils.h"   // Basics for OpenGL shaders, buffers & textures
@@ -1015,16 +1018,16 @@ void onMouseWheel(GLFWwindow* window, double xscroll, double yscroll)
     else if (_modifiers == SHIFT)
     {   if (_displayMethod == ALPHA_BLENDING_CUSTOM_TF_LUT)
         {
-           _intensityFocus = std::min(std::max(_intensityFocus + (SLfloat)SL_sign(yscroll)*0.01f, 0.0f), 1.0f);
+           _intensityFocus = min(max(_intensityFocus + (SLfloat)SL_sign(yscroll)*0.01f, 0.0f), 1.0f);
            updateFocusLut();
         }
     }
     else if (_modifiers == CTRL)
     {
         int minNumSlices = 10;
-        int maxNumSlices = (int)ceil(sqrt(3)*std::max(std::max(_volumeWidth, _volumeHeight), _volumeDepth));
+        int maxNumSlices = (int)ceil(sqrt(3)*max(max(_volumeWidth, _volumeHeight), _volumeDepth));
         _numQuads += int(SL_sign(yscroll)) * 10;
-        _numQuads = std::max(std::min(_numQuads, maxNumSlices), minNumSlices);
+        _numQuads = max(min(_numQuads, maxNumSlices), minNumSlices);
         destroyQuads();
         buildSliceQuads();
         updateRenderMethodDescription();

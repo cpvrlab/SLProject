@@ -9,9 +9,6 @@
 //#############################################################################
 
 #include <stdafx.h>           // precompiled headers
-#ifdef SL_MEMLEAKDETECT       // set in SL.h for debug config only
-#include <debug_new.h>        // memory leak detector
-#endif
 
 #include "glUtils.h"
 #include <SLImage.h>          // for image loading
@@ -229,7 +226,7 @@ GLuint glUtils::build3DTexture(const std::vector<std::string> &files,
     assert(files.size() > 0);
 
     SLImage first(files.front());
-    if (std::min(std::min((SLuint)files.size(), first.height()), first.width()) > maxSize)
+    if (min(min((SLuint)files.size(), first.height()), first.width()) > maxSize)
     {
         std::cout << "glUtils: Texture is too big in at least one dimension."<< std::endl;
         exit(0);

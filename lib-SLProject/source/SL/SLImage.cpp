@@ -955,7 +955,7 @@ SLImage::Resize does a scaling with bilinear interpolation. The color of the
 destination pixel is calculated by the summed up color of the 4 underlying 
 source pixels multiplied by their fractional area.
 If a pointer to a new image (dstImg) is supplied the rescale is applied to the
-new image onyly.
+new image only.
 */
 void SLImage::resize(SLint width, SLint height, SLImage* dstImg, SLbool invert)
 {  
