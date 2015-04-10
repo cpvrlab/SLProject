@@ -1,5 +1,5 @@
 
-link_libraries(glfw "${OPENGL_glu_LIBRARY}")
+link_libraries(glfw)
 
 if (BUILD_SHARED_LIBS)
     add_definitions(-DGLFW_DLL)
@@ -28,7 +28,7 @@ add_executable(gamma gamma.c ${GETOPT})
 add_executable(glfwinfo glfwinfo.c ${GETOPT})
 add_executable(iconify iconify.c ${GETOPT})
 add_executable(joysticks joysticks.c)
-add_executable(modes modes.c ${GETOPT})
+add_executable(monitors monitors.c ${GETOPT})
 add_executable(peter peter.c)
 add_executable(reopen reopen.c)
 add_executable(cursor cursor.c)
@@ -62,7 +62,7 @@ target_link_libraries(threads "${CMAKE_THREAD_LIBS_INIT}" "${RT_LIBRARY}")
 
 set(WINDOWS_BINARIES accuracy empty sharing tearing threads title windows cursoranim)
 set(CONSOLE_BINARIES clipboard defaults events fsaa gamma glfwinfo
-                     iconify joysticks modes peter reopen cursor)
+                     iconify joysticks monitors peter reopen cursor)
 
 set_target_properties(${WINDOWS_BINARIES} ${CONSOLE_BINARIES} PROPERTIES
                       FOLDER "GLFW3/Tests")
@@ -76,6 +76,7 @@ endif()
 if (APPLE)
     set_target_properties(${WINDOWS_BINARIES} ${CONSOLE_BINARIES} PROPERTIES
                           MACOSX_BUNDLE_SHORT_VERSION_STRING ${GLFW_VERSION}
-                          MACOSX_BUNDLE_LONG_VERSION_STRING ${GLFW_VERSION_FULL})
+                          MACOSX_BUNDLE_LONG_VERSION_STRING ${GLFW_VERSION_FULL}
+                          MACOSX_BUNDLE_INFO_PLIST "${GLFW_SOURCE_DIR}/CMake/AppleInfo.plist")
 endif()
 
