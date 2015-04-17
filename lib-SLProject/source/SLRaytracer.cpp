@@ -12,10 +12,8 @@
 #include <debug_new.h>        // memory leak detector
 #endif
 
-#ifdef SL_CPP11
 using namespace std::placeholders;
 using namespace std::chrono;
-#endif
 
 #include <SLRay.h>
 #include <SLRaytracer.h>
@@ -139,7 +137,6 @@ SLbool SLRaytracer::renderDistrib(SLSceneView* sv)
     // Measure time 
     double t1 = SLScene::current->timeSec();
    
-    #ifdef SL_CPP11
     // Bind render functions to be called multithreaded
     auto sampleAAPixelsFunction = bind(&SLRaytracer::sampleAAPixels, this, _1);
     auto renderSlicesFunction   = _cam->lensSamples()->samples() == 1 ? 
@@ -186,19 +183,6 @@ SLbool SLRaytracer::renderDistrib(SLSceneView* sv)
         // Wait for the other threads to finish
         for(auto& thread : threads) thread.join();
     }
-    #else
-    // Single threaded
-    _next = 0;
-    if (_cam->lensSamples()->samples() == 1)
-         renderSlices(true);
-    else renderSlicesMS(true);
-   
-    if (!_continuous && _aaSamples > 1 && _cam->lensSamples()->samples() == 1)
-    {   getAAPixels();
-        _next = 0;
-        sampleAAPixels(true);
-    }
-    #endif
    
     _renderSec = (SLfloat)(SLScene::current->timeSec() - t1);
     _pcRendered = 100;

@@ -34,14 +34,10 @@ SLfloat SLRay::avgDepth = 0;
 used in SLRay, SLLightRect and SLPathtracer. So far they work perfectly with 
 CPP11 multithreading.
 */
-#ifdef SL_CPP11
-    auto random01 = bind(uniform_real_distribution<SLfloat>(0.0, 1.0),
-                        mt19937((SLuint)time(nullptr)));
-    SLfloat rnd01();
-    SLfloat rnd01(){return random01();}
-#else
-    SLfloat rnd01(){return (SLfloat)rand() / (SLfloat)RAND_MAX;}
-#endif
+auto random01 = bind(uniform_real_distribution<SLfloat>(0.0, 1.0),
+                    mt19937((SLuint)time(nullptr)));
+SLfloat rnd01();
+SLfloat rnd01(){return random01();}
 //-----------------------------------------------------------------------------
 /*! 
 SLRay::SLRay default constructor

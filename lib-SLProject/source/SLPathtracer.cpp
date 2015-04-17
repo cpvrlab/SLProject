@@ -13,10 +13,8 @@
 #include <nvwa/debug_new.h>   // memory leak detector
 #endif
 
-#ifdef SL_CPP11
 using namespace std::placeholders;
 using namespace std::chrono;
-#endif
 
 #include <SLPathtracer.h>
 #include <SLCamera.h>
@@ -65,7 +63,6 @@ SLbool SLPathtracer::render(SLSceneView* sv)
     // Measure time 
     double t1 = SLScene::current->timeSec();
 
-    #ifdef SL_CPP11
     auto renderSlicesFunction   = bind(&SLPathtracer::renderSlices, this, _1, _2);
 
     // Do multi threading only in release config
@@ -95,21 +92,6 @@ SLbool SLPathtracer::render(SLSceneView* sv)
             _pcRendered = (SLint)((SLfloat)currentSample/(SLfloat)_aaSamples*100.0f);
         }
     }
-    #else
-    // Single threaded
-    SL_LOG("\n\nRendering with %d samples", _aaSamples);
-    SL_LOG("\nCurrent Sample:       ");
-    for (int currentSample = 1; currentSample <= _aaSamples; currentSample++)
-    {
-        SL_LOG("\b\b\b\b\b\b%6d", currentSample);
-        _next = 0;              // init _next=0. _next should be atomic
-
-        // Do the same work in the main thread
-        renderSlices(true, currentSample);
-
-        _pcRendered = (SLint)((SLfloat)currentSample/(SLfloat)_aaSamples*100.0f);
-    }
-    #endif
 
     ////////////////////////////////////////////////////////////////////////////
     _renderSec = SLScene::current->timeSec() - (SLfloat)t1;
