@@ -782,13 +782,13 @@ void SLRaytracer::prepareImage()
     // Allocate image of the inherited texture class 
     if (_sv->scrW() != _images[0]->width() || _sv->scrH() != _images[0]->height())
     {  
-        // Delete the OpenGL Texture if it allready exists
+        // Delete the OpenGL Texture if it already exists
         if (_texName) 
         {   glDeleteTextures(1, &_texName);
             _texName = 0;
         }
 
-        // Dispose VBO is they allready exist
+        // Dispose VBO is they already exist
         _bufP.dispose();
         _bufT.dispose();
         _bufI.dispose();
@@ -823,7 +823,7 @@ void SLRaytracer::renderImage()
     // Write progress into info text
     if (_pcRendered < 100)
     {  SLchar str[255];  
-        sprintf(str,"%s Tracing: Threads: %d, Progess: %d%%", 
+        sprintf(str,"%s Tracing: Threads: %d, Progress: %d%%", 
                 _infoText.c_str(), _numThreads, _pcRendered);
         SLScene::current->info(_sv, str, _infoColor);
     } else SLScene::current->info(_sv, _infoText.c_str(), _infoColor);
