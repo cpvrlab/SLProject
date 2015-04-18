@@ -190,7 +190,6 @@ SLCol4f SLPathtracer::trace(SLRay* ray, SLbool em)
     // Participating Media init
     SLfloat  absorbtion = 1.0f;    // used to calculate absorbtion along the ray
     SLfloat  scaleBy = 1.0f;       // used to scale surface reflectance at the end of random walk
-    SLRay    scatterRay;
 
     s->root3D()->hitRec(ray);
 

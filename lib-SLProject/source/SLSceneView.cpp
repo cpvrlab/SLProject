@@ -1594,6 +1594,10 @@ void SLSceneView::build2DMenus()
     mn3->addChild(new SLButton(this, "Depth of Field", f, cmdSceneRTDoF, true, curS==cmdSceneRTDoF, mn2));
     mn3->addChild(new SLButton(this, "Lens Test", f, cmdSceneRTLens, true, curS==cmdSceneRTLens, mn2));
 
+    mn3 = new SLButton(this, "Path tracing >", f);
+    mn2->addChild(mn3);
+    mn3->addChild(new SLButton(this, "Muttenzer Box", f, cmdSceneRTMuttenzerBox, true, curS==cmdSceneRTMuttenzerBox, mn2));
+
     mn2 = new SLButton(this, "Camera >", f); mn1->addChild(mn2);
    
     mn2->addChild(new SLButton(this, "Reset", f, cmdCamReset));
