@@ -1834,15 +1834,12 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
         SLMaterial* blue  = new SLMaterial("blue",  blueRGB,  SLCol4f::BLACK, 0);
 
         // Material for mirror sphere
-        SLCol4f refrSpec1 (1.0f, 1.0f, 1.0f); // Tests only
-        SLMaterial* refl=new SLMaterial("refl", blackRGB, refrSpec1, 1000, 1.0f);
+        SLMaterial* refl=new SLMaterial("refl", blackRGB, SLCol4f::WHITE, 1000, 1.0f);
         refl->textures().push_back(tex1);
         refl->program(sp1);
 
         // Material for glass sphere
-        SLCol4f refrDiff (0.0f, 0.0f, 0.0f, 0.01f);
-        SLCol4f refrSpec (0.05f, 0.05f, 0.05f);
-        SLMaterial* refr=new SLMaterial("refr", blackRGB, blackRGB, 1000, 0.05f, 0.95f, 1.5f);
+        SLMaterial* refr=new SLMaterial("refr", blackRGB, blackRGB, 100, 0.05f, 0.95f, 1.5f);
         refr->translucency(1000);
         refr->transmission(SLCol4f::WHITE);
         refr->textures().push_back(tex1);

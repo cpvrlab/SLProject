@@ -242,7 +242,8 @@ SLCol4f SLPathtracer::trace(SLRay* ray, SLbool em)
         // material emission, material diffuse and recursive indirect illumination
         finalColor += (trace(&scatter, 0) & objectColor) * scaleBy;
     }
-    else if (ray->nodeReflectance())
+    else 
+    if (ray->nodeReflectance())
     {
         //scatter toward perfect specular direction
         SLRay reflected;
@@ -262,9 +263,9 @@ SLCol4f SLPathtracer::trace(SLRay* ray, SLbool em)
         // shininess contribution * recursive indirect illumination and matrial base color
         finalColor += ((mat->shininess() + 2.0f) / (mat->shininess() + 1.0f) * (trace(&reflected, 1) & objectColor)) * scaleBy;
     }
-
-   else if (ray->nodeTransparency())
-   {
+    else 
+    if (ray->nodeTransparency())
+    {
         //scatter toward perfect transmissive direction
         SLRay refracted;
         ray->refract(&refracted);

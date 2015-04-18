@@ -40,7 +40,7 @@ SLRaytracer::SLRaytracer()
     _aaThreshold = 0.3f; // = 10% color difference
     _aaSamples = 3;
    
-    // set texture properies
+    // set texture properties
     _min_filter   = GL_NEAREST;
     _mag_filter   = GL_NEAREST;
     _wrap_s       = GL_CLAMP_TO_EDGE;
@@ -744,7 +744,7 @@ void SLRaytracer::prepareImage()
     {   /* 
         In perspective projection the bottom-left vector (_BL) points
         from the eye to the center of the bottom-left pixel on a projection
-        plan in focal distance. See also the computergraphics script about
+        plan in focal distance. See also the computer graphics script about
         primary ray calculation.
         */
         // calculate half window width & height in world coords

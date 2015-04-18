@@ -181,7 +181,7 @@
     <ClCompile>
       <Optimization>Disabled</Optimization>
       <AdditionalIncludeDirectories>$(ProjectDir);..\include;..\lib-SLExternal;..\lib-SLExternal\jpeg-8;..\lib-SLExternal\png;..\lib-SLExternal\zlib;..\lib-SLExternal\glew\include;..\lib-SLExternal\glfw3\include;..\lib-SLExternal\randomc;..\lib-SLExternal\Shoemake;..\lib-SLExternal\oculus\LibOVR\Include\;..\lib-SLExternal\nvwa;..\lib-SLExternal\assimp\include;..\lib-SLExternal\assimp\code;..\lib-SLExternal\dirent</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>SL_GUI_GLFW;SL_STARTSCENE#cmdSceneMeshLoad;SL_RT1;GLEW_STATIC;_DEBUG;UNICODE;WIN32;_WINDOWS;_CRT_SECURE_NO_WARNING</PreprocessorDefinitions>
+      <PreprocessorDefinitions>SL_GUI_GLFW;SL_STARTSCENE#cmdSceneRTMuttenzerBox;SL_RT1;GLEW_STATIC;_DEBUG;UNICODE;WIN32;_WINDOWS;_CRT_SECURE_NO_WARNING</PreprocessorDefinitions>
       <TreatWChar_tAsBuiltInType>false</TreatWChar_tAsBuiltInType>
       <OpenMPSupport>false</OpenMPSupport>
       <PrecompiledHeader>Use</PrecompiledHeader>
@@ -438,6 +438,7 @@
     <ClInclude Include="..\include\SLMat4.h" />
     <ClInclude Include="..\include\SLMath.h" />
     <ClInclude Include="..\include\SLObject.h" />
+    <ClInclude Include="..\include\SLPathtracer.h" />
     <ClInclude Include="..\include\SLPlane.h" />
     <ClInclude Include="..\include\SLQuat4.h" />
     <ClInclude Include="..\include\SLSkeleton.h" />
@@ -464,7 +465,6 @@
     <ClInclude Include="..\include\SLText.h" />
     <ClInclude Include="..\include\SLNode.h" />
     <ClInclude Include="..\include\SLKeyframe.h" />
-    <ClInclude Include="..\include\SLPathtracer.h" />
     <ClInclude Include="..\include\SLAABBox.h" />
     <ClInclude Include="..\include\SLScene.h" />
     <ClInclude Include="..\include\SLSceneView.h" />
@@ -502,6 +502,7 @@
     <ClCompile Include="source\SLLens.cpp" />
     <ClCompile Include="source\SLLightRect.cpp" />
     <ClCompile Include="source\SLLightSphere.cpp" />
+    <ClCompile Include="source\SLPathtracer.cpp" />
     <ClCompile Include="source\SLPolygon.cpp" />
     <ClCompile Include="source\SLRectangle.cpp" />
     <ClCompile Include="source\SLSkeleton.cpp" />
@@ -509,7 +510,6 @@
     <ClCompile Include="source\SLRevolver.cpp" />
     <ClCompile Include="source\SLText.cpp" />
     <ClCompile Include="source\SLNode.cpp" />
-    <ClCompile Include="source\SLPathtracer.cpp" />
     <ClCompile Include="source\SLScene_onLoad.cpp" />
     <ClCompile Include="source\SLAABBox.cpp" />
     <ClCompile Include="source\SLScene.cpp" />

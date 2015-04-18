@@ -28,13 +28,13 @@ class SLLight;
 //-----------------------------------------------------------------------------
 /*
 There are only a very few callbacks from the SLProject library up to the GUI
-framework. All other function calls are donw downwards from the GUI framework
+framework. All other function calls are downwards from the GUI framework
 into the SLProject library.
 */
 //! Callback function typedef for custom SLSceneView derived creator function
 typedef int (*cbOnNewSceneView)();
 
-//! Callback function typedef for gui window update
+//! Callback function typedef for GUI window update
 typedef SLbool (SL_STDCALL *cbOnWndUpdate)(void);
 
 //! Callback function typedef for select node 

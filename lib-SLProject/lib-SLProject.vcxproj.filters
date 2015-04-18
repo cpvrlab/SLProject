@@ -72,9 +72,6 @@
     <ClInclude Include="..\include\SLNode.h">
       <Filter>Nodes</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\SLPathtracer.h">
-      <Filter>Raytracer</Filter>
-    </ClInclude>
     <ClInclude Include="..\include\SLRaytracer.h">
       <Filter>Raytracer</Filter>
     </ClInclude>
@@ -258,6 +255,9 @@
     <ClInclude Include="..\include\SLInputEvent.h">
       <Filter>Input</Filter>
     </ClInclude>
+    <ClInclude Include="..\include\SLPathtracer.h">
+      <Filter>Raytracer</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="source\SLAABBox.cpp">
@@ -286,9 +286,6 @@
     </ClCompile>
     <ClCompile Include="source\SLScene_onLoad.cpp">
       <Filter>Scene</Filter>
-    </ClCompile>
-    <ClCompile Include="source\SLPathtracer.cpp">
-      <Filter>Raytracer</Filter>
     </ClCompile>
     <ClCompile Include="source\SLNode.cpp">
       <Filter>Nodes</Filter>
@@ -421,6 +418,9 @@
     </ClCompile>
     <ClCompile Include="source\SLInputManager.cpp">
       <Filter>Input</Filter>
+    </ClCompile>
+    <ClCompile Include="source\SLPathtracer.cpp">
+      <Filter>Raytracer</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

@@ -106,7 +106,7 @@ SLbool SLLightRect::hitRec(SLRay* ray)
     if (ray->type==SHADOW) return false;
    
     // only allow intersection with primary rays (no lights in reflections)
-    if (ray->type!=PRIMARY) return false;
+    //if (ray->type!=PRIMARY) return false;
    
     // call the intersection routine of the node   
     return SLNode::hitRec(ray);
@@ -247,7 +247,7 @@ SLfloat SLLightRect::shadowTest(SLRay* ray, // ray of hit point
 //-----------------------------------------------------------------------------
 /*!
 SLLightRect::shadowTest returns 0.0 if the hit point is completely shaded and
-1.0 if it is 100% lighted. A return value inbetween is calculate by the ratio
+1.0 if it is 100% lighted. A return value in between is calculate by the ratio
 of the shadow rays not blocked to the total number of casted shadow rays.
 */
 
@@ -255,7 +255,7 @@ SLfloat SLLightRect::shadowTestMC(SLRay* ray, // ray of hit point
                                   const SLVec3f& L, // vector from hit point to light
                                   const SLfloat lightDist) // distance to light
 {
-    SLVec3f SP; // vector hitpoint to samplepoint in world coords
+    SLVec3f SP; // vector hit point to sample point in world coords
 
     SLfloat randX = rnd01();
     SLfloat randY = rnd01();
