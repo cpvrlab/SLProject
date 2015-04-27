@@ -1925,7 +1925,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
                                                     100, 0.5f, 0.0f, 1.0f);
         SLMaterial* matYel = new SLMaterial("Floor", SLCol4f(0.8f, 0.6f, 0.2f),
                                                      SLCol4f(0.8f, 0.8f, 0.8f),
-                                                     100, 0.0f, 0.0f, 1.0f);
+                                                     100, 0.5f, 0.0f, 1.0f);
 
         SLCamera* cam1 = new SLCamera();
         cam1->translation(0, 0.1f, 2.5f);
