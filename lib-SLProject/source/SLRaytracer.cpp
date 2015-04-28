@@ -148,7 +148,7 @@ SLbool SLRaytracer::renderDistrib(SLSceneView* sv)
     #ifdef _DEBUG
     _numThreads = 1;
     #else
-    _numThreads = thread::hardware_concurrency();
+    _numThreads = SL_max(thread::hardware_concurrency(),1U);
     #endif
 
     // Render image without antialiasing
