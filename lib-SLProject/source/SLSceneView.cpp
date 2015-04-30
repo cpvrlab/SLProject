@@ -2015,7 +2015,8 @@ SLbool SLSceneView::draw3DRT()
         SLScene* s = SLScene::current;
 
         // Update transforms and aabbs
-        s->root3D()->needUpdate();
+        // @Todo: causes multithreading bug in RT
+        //s->root3D()->needUpdate();
 
         // Do software skinning on all changed skeletons
         for (auto mesh : s->meshes())
