@@ -47,11 +47,11 @@ class SLAssimpImporter : public SLImporter
                                 SLuint flags =
                                  SLProcess_Triangulate
                                 |SLProcess_JoinIdenticalVertices
-                                |SLProcess_SplitLargeMeshes
                                 |SLProcess_RemoveRedundantMaterials
                                 |SLProcess_SortByPType
                                 |SLProcess_FindDegenerates
                                 |SLProcess_FindInvalidData
+                                |SLProcess_SplitLargeMeshes
                                 //|SLProcess_OptimizeMeshes
                                 //|SLProcess_OptimizeGraph
                                 //|SLProcess_CalcTangentSpace

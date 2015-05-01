@@ -722,6 +722,35 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
         _backColor.set(0.5f,0.5f,0.5f);
         sv->camera(cam1);
         _root3D = scene;
+        
+        /*
+        SLCamera* cam1 = new SLCamera();
+        cam1->name("cam1");
+        cam1->translation(0,0,100000);
+        cam1->lookAt(0,0,0);
+        cam1->clipNear(15);
+        cam1->clipFar(150000);
+        cam1->setInitialState();
+
+        SLLightSphere* light1 = new SLLightSphere(100000,100000,100000, 1);
+        light1->ambient(SLCol4f(1,1,1));
+        light1->diffuse(SLCol4f(1,1,1));
+        light1->specular(SLCol4f(1,1,1));
+        light1->attenuation(1,0,0);
+
+        SLAssimpImporter importer;
+        SLNode* largeModel = importer.load("PLY/mesh_zermatt.ply",true,0);
+        largeModel->scaleToCenter(100000.0f);
+
+        SLNode* scene = new SLNode("Scene");
+        scene->addChild(light1);
+        if (largeModel) scene->addChild(largeModel);
+        scene->addChild(cam1);
+
+        _backColor.set(0.5f,0.5f,0.5f);
+        sv->camera(cam1);
+        _root3D = scene;
+        */
     }
     else
     if (sceneName == cmdSceneTextureBlend) //...................................
@@ -1951,7 +1980,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
         SLNode* scene  = new SLNode;
         scene->addChild(light1);
         scene->addChild(light2);
-        scene->addChild(SphereGroup(1, 0,0,0, 1, 32, matGla, matRed));
+        scene->addChild(SphereGroup(4, 0,0,0, 1, 32, matGla, matRed));
         scene->addChild(rect);
         scene->addChild(cam1);
 

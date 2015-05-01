@@ -722,7 +722,10 @@ SLMesh* SLAssimpImporter::loadMesh(aiMesh *mesh)
     // create position & normal array
     m->numV = mesh->mNumVertices;
     m->P = new SLVec3f[m->numV];
-    m->N = new SLVec3f[m->numV];
+
+    // create normal array
+    if (mesh->HasNormals())
+        m->N = new SLVec3f[m->numV];
 
     // create texCoord array if needed
     if (mesh->HasTextureCoords(0))
@@ -767,7 +770,8 @@ SLMesh* SLAssimpImporter::loadMesh(aiMesh *mesh)
         }
     }
 
-    //m->calcNormals();
+    if (!m->N)
+        m->calcNormals();
 
     // load joints
     if (mesh->HasBones())
