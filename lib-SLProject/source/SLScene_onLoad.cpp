@@ -1951,7 +1951,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
         SLNode* scene  = new SLNode;
         scene->addChild(light1);
         scene->addChild(light2);
-        scene->addChild(SphereGroup(4, 0,0,0, 1, 32, matGla, matRed));
+        scene->addChild(SphereGroup(1, 0,0,0, 1, 32, matGla, matRed));
         scene->addChild(rect);
         scene->addChild(cam1);
 
