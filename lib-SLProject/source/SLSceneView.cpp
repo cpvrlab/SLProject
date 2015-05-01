@@ -1838,6 +1838,7 @@ void SLSceneView::build2DInfoRT()
     SLfloat voxelsEmpty  = vox ? voxEmpty / vox*100.0f : 0.0f;
     SLfloat numRTTria = (SLfloat)_stats.numTriangles;
     SLfloat avgTriPerVox = vox ? numRTTria / (vox-voxEmpty) : 0.0f;
+    SLfloat rpms = rt->renderSec() ? total/rt->renderSec()/1000.0f : 0.0f;
    
     SLchar m[2550];   // message charcter array
     m[0]=0;           // set zero length
@@ -1860,8 +1861,11 @@ void SLSceneView::build2DInfoRT()
     sprintf(m+strlen(m), "Shadow rays: %u, %3.1f%%\\n", SLRay::shadowRays, (SLfloat)SLRay::shadowRays/total*100.0f);
     sprintf(m+strlen(m), "AA rays: %u, %3.1f%%\\n", SLRay::subsampledRays, (SLfloat)SLRay::subsampledRays/total*100.0f);
     sprintf(m+strlen(m), "Total rays: %u, %3.1f%%\\n", total, 100.0f);
+    sprintf(m+strlen(m), "Rays per millisecond: %6.0f\\n", rpms, 100.0f);
+    #ifdef _DEBUG
     sprintf(m+strlen(m), "Intersection tests: %u\\n", SLRay::intersections);
     sprintf(m+strlen(m), "Intersections: %u, %3.1f%%\\n", SLRay::tests, SLRay::intersections/(SLfloat)SLRay::tests*100.0f);
+    #endif
     sprintf(m+strlen(m), "--------------------------------------------\\n");
     sprintf(m+strlen(m), "Group Nodes: %d\\n", _stats.numGroupNodes);
     sprintf(m+strlen(m), "Leaf Nodes: %d\\n", _stats.numLeafNodes);
