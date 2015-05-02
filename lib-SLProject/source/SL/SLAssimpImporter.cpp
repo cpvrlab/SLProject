@@ -268,9 +268,9 @@ SLQuat4f getRotation(SLfloat time, const KeyframeMap& keyframes)
 meshes and the nodes for the scene graph. Materials, textures and meshes are
 added to the according vectors of SLScene for later deallocation.
 */
-SLNode* SLAssimpImporter::load(SLstring file,        //!< File with path or on default path 
-                               SLbool loadMeshesOnly,//!< Only load nodes with meshes
-                               SLuint flags)         //!< Import flags (see assimp/postprocess.h)
+SLNode* SLAssimpImporter::load(SLstring file,           //!< File with path or on default path
+                               SLbool loadMeshesOnly,   //!< Only load nodes with meshes
+                               SLuint flags)            //!< Import flags (see assimp/postprocess.h)
 {
     // clear the intermediate data
     clear();

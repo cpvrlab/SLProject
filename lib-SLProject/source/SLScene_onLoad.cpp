@@ -696,7 +696,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
     {
         name("Large Model Test");
         info(sv, "Large Model with 7.2 mio. triangles.");
-
+        /*
         SLCamera* cam1 = new SLCamera();
         cam1->name("cam1");
         cam1->translation(10,0,220);
@@ -722,14 +722,14 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
         _backColor.set(0.5f,0.5f,0.5f);
         sv->camera(cam1);
         _root3D = scene;
-        
-        /*
+        */
+
         SLCamera* cam1 = new SLCamera();
         cam1->name("cam1");
         cam1->translation(0,0,100000);
         cam1->lookAt(0,0,0);
-        cam1->clipNear(15);
-        cam1->clipFar(150000);
+        cam1->clipNear(20);
+        cam1->clipFar(200000);
         cam1->setInitialState();
 
         SLLightSphere* light1 = new SLLightSphere(100000,100000,100000, 1);
@@ -739,7 +739,14 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
         light1->attenuation(1,0,0);
 
         SLAssimpImporter importer;
-        SLNode* largeModel = importer.load("PLY/mesh_zermatt.ply",true,0);
+        SLNode* largeModel = importer.load("PLY/mesh_zermatt.ply",
+                                            SLProcess_JoinIdenticalVertices
+                                            //|SLProcess_RemoveRedundantMaterials
+                                            //|SLProcess_SortByPType
+                                            //|SLProcess_FindDegenerates
+                                            //|SLProcess_FindInvalidData
+                                            //|SLProcess_SplitLargeMeshes
+                                           );
         largeModel->scaleToCenter(100000.0f);
 
         SLNode* scene = new SLNode("Scene");
@@ -750,7 +757,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
         _backColor.set(0.5f,0.5f,0.5f);
         sv->camera(cam1);
         _root3D = scene;
-        */
+
     }
     else
     if (sceneName == cmdSceneTextureBlend) //...................................
