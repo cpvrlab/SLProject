@@ -19,9 +19,6 @@
     <Filter Include="glfw3">
       <UniqueIdentifier>{4dc4bc41-90fb-4c30-a99d-37e74b431856}</UniqueIdentifier>
     </Filter>
-    <Filter Include="nvwa">
-      <UniqueIdentifier>{ef3f0867-b07d-47b6-b3ef-0ea6a082e5ce}</UniqueIdentifier>
-    </Filter>
     <Filter Include="zlib">
       <UniqueIdentifier>{e5359be2-90dd-4e68-8274-eee8570bc658}</UniqueIdentifier>
     </Filter>
@@ -240,9 +237,6 @@
     <ClCompile Include="Shoemake\Decompose.cpp">
       <Filter>Shoemake</Filter>
     </ClCompile>
-    <ClCompile Include="nvwa\debug_new.cpp">
-      <Filter>nvwa</Filter>
-    </ClCompile>
     <ClCompile Include="zlib\adler32.c">
       <Filter>zlib</Filter>
     </ClCompile>
@@ -355,9 +349,6 @@
     </ClInclude>
     <ClInclude Include="Shoemake\TypeDefs.h">
       <Filter>Shoemake</Filter>
-    </ClInclude>
-    <ClInclude Include="nvwa\debug_new.h">
-      <Filter>nvwa</Filter>
     </ClInclude>
     <ClInclude Include="zlib\crc32.h">
       <Filter>zlib</Filter>

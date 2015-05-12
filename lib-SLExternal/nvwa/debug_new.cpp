@@ -1,3 +1,5 @@
+#include <stdafx.h>           // precompiled headers
+#ifdef SL_MEMLEAKDETECT
 // -*- Mode: C++; tab-width: 4; c-basic-offset: 4; indent-tabs-mode: nil -*-
 // vim:tabstop=4:shiftwidth=4:expandtab:
 
@@ -994,3 +996,4 @@ void operator delete[](void* ptr, const std::nothrow_t&) _NOEXCEPT
 {
     operator delete[](ptr, (char*)_DEBUG_NEW_CALLER_ADDRESS, 0);
 }
+#endif

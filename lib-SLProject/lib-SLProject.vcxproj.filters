@@ -422,6 +422,9 @@
     <ClCompile Include="source\SLPathtracer.cpp">
       <Filter>Raytracer</Filter>
     </ClCompile>
+    <ClCompile Include="..\lib-SLExternal\nvwa\debug_new.cpp">
+      <Filter>SL</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="source\oglsl\ADS.frag">

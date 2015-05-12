@@ -308,7 +308,6 @@
     <ClCompile Include="jpeg-8\jquant1.c" />
     <ClCompile Include="jpeg-8\jquant2.c" />
     <ClCompile Include="jpeg-8\jutils.c" />
-    <ClCompile Include="nvwa\debug_new.cpp" />
     <ClCompile Include="png\png.c" />
     <ClCompile Include="png\pngerror.c" />
     <ClCompile Include="png\pngget.c" />
@@ -364,7 +363,6 @@
     <ClInclude Include="glfw3\src\win32_platform.h" />
     <ClInclude Include="glfw3\src\win32_tls.h" />
     <ClInclude Include="glfw3\src\winmm_joystick.h" />
-    <ClInclude Include="nvwa\debug_new.h" />
     <ClInclude Include="randomc\random.h" />
     <ClInclude Include="randomc\randomc.h" />
     <ClInclude Include="Shoemake\Decompose.h" />

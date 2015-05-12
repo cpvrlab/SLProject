@@ -723,7 +723,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
         sv->camera(cam1);
         _root3D = scene;
         */
-
+        
         SLCamera* cam1 = new SLCamera();
         cam1->name("cam1");
         cam1->translation(0,0,100000);
@@ -739,8 +739,8 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
         light1->attenuation(1,0,0);
 
         SLAssimpImporter importer;
-        SLNode* largeModel = importer.load("PLY/mesh_zermatt.ply",
-                                            SLProcess_JoinIdenticalVertices
+        SLNode* largeModel = importer.load("PLY/mesh_zermatt.ply"
+                                            ,SLProcess_JoinIdenticalVertices
                                             //|SLProcess_RemoveRedundantMaterials
                                             //|SLProcess_SortByPType
                                             //|SLProcess_FindDegenerates
@@ -757,7 +757,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
         _backColor.set(0.5f,0.5f,0.5f);
         sv->camera(cam1);
         _root3D = scene;
-
+        
     }
     else
     if (sceneName == cmdSceneTextureBlend) //...................................

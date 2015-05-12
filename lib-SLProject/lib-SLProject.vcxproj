@@ -476,6 +476,7 @@
     <ClInclude Include="..\include\SLMesh.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\lib-SLExternal\nvwa\debug_new.cpp" />
     <ClCompile Include="source\math\SLCurveBezier.cpp" />
     <ClCompile Include="source\math\SLPlane.cpp" />
     <ClCompile Include="source\SLAnimation.cpp" />
