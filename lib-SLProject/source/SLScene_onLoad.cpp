@@ -726,21 +726,21 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
         
         SLCamera* cam1 = new SLCamera();
         cam1->name("cam1");
-        cam1->translation(0,0,100000);
+        cam1->translation(0,0,600000);
         cam1->lookAt(0,0,0);
         cam1->clipNear(20);
-        cam1->clipFar(200000);
+        cam1->clipFar(1000000);
         cam1->setInitialState();
 
-        SLLightSphere* light1 = new SLLightSphere(100000,100000,100000, 1);
+        SLLightSphere* light1 = new SLLightSphere(600000,600000,600000, 1);
         light1->ambient(SLCol4f(1,1,1));
         light1->diffuse(SLCol4f(1,1,1));
         light1->specular(SLCol4f(1,1,1));
         light1->attenuation(1,0,0);
 
         SLAssimpImporter importer;
-        SLNode* largeModel = importer.load("PLY/mesh_zermatt.ply"
-                                            ,SLProcess_JoinIdenticalVertices
+        SLNode* largeModel = importer.load("PLY/switzerland.ply"
+                                            //,SLProcess_JoinIdenticalVertices
                                             //|SLProcess_RemoveRedundantMaterials
                                             //|SLProcess_SortByPType
                                             //|SLProcess_FindDegenerates

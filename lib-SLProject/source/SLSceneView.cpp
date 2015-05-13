@@ -1559,7 +1559,10 @@ void SLSceneView::build2DMenus()
     mn3->addChild(new SLButton(this, "SmallTest", f, cmdSceneSmallTest, true, curS==cmdSceneSmallTest, mn2));
     SLstring large1 = SLImporter::defaultPath + "PLY/xyzrgb_dragon.ply";
     SLstring large2 = SLImporter::defaultPath + "PLY/mesh_zermatt.ply";
-    if(SLFileSystem::fileExists(large1) || SLFileSystem::fileExists(large2))
+    SLstring large3 = SLImporter::defaultPath + "PLY/switzerland.ply";
+    if(SLFileSystem::fileExists(large1) || 
+       SLFileSystem::fileExists(large2) || 
+       SLFileSystem::fileExists(large3))
         mn3->addChild(new SLButton(this, "Large Model", f, cmdSceneLargeModel, true, curS==cmdSceneLargeModel, mn2));
     mn3->addChild(new SLButton(this, "Figure", f, cmdSceneFigure, true, curS==cmdSceneFigure, mn2));
     mn3->addChild(new SLButton(this, "Mesh Loader", f, cmdSceneMeshLoad, true, curS==cmdSceneMeshLoad, mn2));
