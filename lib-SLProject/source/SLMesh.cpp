@@ -584,8 +584,11 @@ void SLMesh::buildAABB(SLAABBox &aabb, SLMat4f wmNode)
         minP = _skeleton->minOS();
         maxP = _skeleton->maxOS();
     }     
-    else
-        calcMinMax();
+    else {
+        // for now we just update the acceleration struct for non skinned meshes
+        // Building the entire voxelization of a mesh every frame is not feasable
+        updateAccelStruct();
+    }
     // Apply world matrix
     aabb.fromOStoWS(minP, maxP, wmNode);
 }
