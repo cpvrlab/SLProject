@@ -80,8 +80,8 @@ SLbool SLRaytracer::renderClassic(SLSceneView* sv)
     double t1 = SLScene::current->timeSec();
     double tStart = t1;
 
-    for (SLuint x=0; x<_images[0]->width(); ++x)
-    {   for (SLuint y=0; y<_images[0]->height(); ++y)
+    for (SLuint y=0; y<_images[0]->height(); ++y)
+    {   for (SLuint x=0; x<_images[0]->width(); ++x)
         {
             SLRay primaryRay;
             setPrimaryRay((SLfloat)x, (SLfloat)y, &primaryRay);
@@ -99,7 +99,7 @@ SLbool SLRaytracer::renderClassic(SLSceneView* sv)
         // Update image after 500 ms
         double t2 = SLScene::current->timeSec();
         if (t2-t1 > 0.5)
-        {   _pcRendered = (SLint)((SLfloat)x/(SLfloat)_images[0]->width()*100);
+        {   _pcRendered = (SLint)((SLfloat)y/(SLfloat)_images[0]->height()*100);
             _sv->onWndUpdate();
             t1 = SLScene::current->timeSec();
         }
@@ -142,7 +142,6 @@ SLbool SLRaytracer::renderDistrib(SLSceneView* sv)
     auto renderSlicesFunction   = _cam->lensSamples()->samples() == 1 ? 
                                   bind(&SLRaytracer::renderSlices, this, _1) : 
                                   bind(&SLRaytracer::renderSlicesMS, this, _1);
-
 
     // Do multithreading only in release config
     #ifdef _DEBUG
@@ -197,7 +196,7 @@ SLbool SLRaytracer::renderDistrib(SLSceneView* sv)
 }
 //-----------------------------------------------------------------------------
 /*!
-Renders slices of 4 columns until the full width of the image is rendered. This
+Renders slices of 4 rows until the full width of the image is rendered. This
 method can be called as a function by multiple threads.
 The _next index is used and incremented by every thread. So it should be locked
 or an atomic index. I prefer not protecting it because it's faster. If the
@@ -209,16 +208,16 @@ void SLRaytracer::renderSlices(const bool isMainThread)
     // Time points
     double t1 = 0;
 
-    while (_next < _images[0]->width())
+    while (_next < _images[0]->height())
     {
-        const SLint minX = _next;
+        const SLint minY = _next;
 
-        // The next line should be theoretically atomic
+        // The next line should be atomic
         _next += 4;
 
-        for (SLint x=minX; x<minX+4; ++x)
+        for (SLint y=minY; y<minY+4; ++y)
         {
-            for (SLuint y=0; y<_images[0]->height(); ++y)
+            for (SLuint x=0; x<_images[0]->width(); ++x)
             {
                 SLRay primaryRay;
                 setPrimaryRay((SLfloat)x, (SLfloat)y, &primaryRay);
@@ -238,7 +237,7 @@ void SLRaytracer::renderSlices(const bool isMainThread)
             // Update image after 500 ms
             if (isMainThread && !_continuous)
             {   if (SLScene::current->timeSec() - t1 > 0.5)
-                {   _pcRendered = (SLint)((SLfloat)x/(SLfloat)_images[0]->width()*100);
+                {   _pcRendered = (SLint)((SLfloat)y/(SLfloat)_images[0]->height()*100);
                     if (_aaSamples > 0) _pcRendered /= 2;
                     _sv->onWndUpdate();
                     t1 = SLScene::current->timeSec();
@@ -249,7 +248,7 @@ void SLRaytracer::renderSlices(const bool isMainThread)
 }
 //-----------------------------------------------------------------------------
 /*!
-Renders slices of 4 columns multisampled until the full width of the image is 
+Renders slices of 4 rows multisampled until the full width of the image is
 rendered. Every pixel is multisampled for depth of field lens sampling. This
 method can be called as a function by multiple threads.
 The _next index is used and incremented by every thread. So it should be locked
@@ -268,12 +267,14 @@ void SLRaytracer::renderSlicesMS(const bool isMainThread)
 
     while (_next < _images[0]->width())
     {
-        const SLint minX = _next;
+        const SLint minY = _next;
+
+        // The next line should be atomic
         _next += 4;
 
-        for (SLint x=minX; x<minX+4; ++x)
+        for (SLint y=minY; y<minY+4; ++y)
         {
-            for (SLuint y=0; y<_images[0]->height(); ++y)
+            for (SLuint x=0; x<_images[0]->width(); ++x)
             {
                 // focal point is single shot primary dir
                 SLVec3f primaryDir(_BL + _pxSize*((SLfloat)x*_LR + (SLfloat)y*_LU));

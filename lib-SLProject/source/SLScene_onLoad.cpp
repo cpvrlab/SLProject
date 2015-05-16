@@ -308,7 +308,8 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
         light2->ambient(SLCol4f(0.1f, 0.1f, 0.1f));
         light2->diffuse(SLCol4f(1.0f, 1.0f, 1.0f));
         light2->specular(SLCol4f(1.0f, 1.0f, 1.0f));
-        light2->attenuation(1,0,0);     
+        light2->attenuation(1,0,0);
+        //light2->samples(8,8); // soft shadows for RT
         anim = SLAnimation::create("anim_light2_updown", 2.0f, true, EC_inOutQuint, AL_pingPongLoop);
         anim->createSimpleTranslationNodeTrack(light2, SLVec3f(0.0f, 5.0f, 0.0f));
 

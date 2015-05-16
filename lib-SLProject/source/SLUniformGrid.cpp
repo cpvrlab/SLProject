@@ -160,7 +160,7 @@ void SLUniformGrid::build(SLVec3f minV, SLVec3f maxV)
                     //trianlgesAABB-AABB overlap test is faster but not as precise
                     //if (triBoxBoxOverlap(curVoxelCenter, boxHalfExt, vert)) 
                     {  
-                        {  if (_vox[curVoxel] == 0) 
+                        {   if (_vox[curVoxel] == 0)
                             {   voxCntNotEmpty++;
                                 _vox[curVoxel] = new SLV32ushort;
                             }

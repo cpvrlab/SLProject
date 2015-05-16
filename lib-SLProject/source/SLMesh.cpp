@@ -602,6 +602,8 @@ void SLMesh::updateAccelStruct()
         return;
 
     calcMinMax();
+
+    // Add half a percent in each direction to avoid zero size dimensions
     SLVec3f distMinMax = maxP - minP;
     SLfloat addon = distMinMax.length() * 0.005f;
     minP -= addon;

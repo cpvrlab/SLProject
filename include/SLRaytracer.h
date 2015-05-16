@@ -110,7 +110,7 @@ class SLRaytracer: public SLGLTexture, public SLEventHandler
             SLVec3f     _EYE;           //!< Camera position
             SLVec3f     _LA, _LU, _LR;  //!< Camera lookat, lookup, lookright
             SLVec3f     _BL;            //!< Bottom left vector
-            SLuint      _next;          //!< next index to render RT
+            atomic<int> _next;          //!< next index to render RT
             SLVPixel    _aaPixels;      //!< Vector for antialiasing pixels
 
             // variables for distributed ray tracing
