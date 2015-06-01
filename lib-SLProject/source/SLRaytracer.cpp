@@ -208,7 +208,7 @@ void SLRaytracer::renderSlices(const bool isMainThread)
     // Time points
     double t1 = 0;
 
-    while (_next < _images[0]->height())
+    while (_next < (SLint)_images[0]->height())
     {
         const SLint minY = _next;
 
@@ -265,7 +265,7 @@ void SLRaytracer::renderSlicesMS(const bool isMainThread)
     SLVec3f lensRadiusX = _LR*(_cam->lensDiameter()*0.5f);
     SLVec3f lensRadiusY = _LU*(_cam->lensDiameter()*0.5f);
 
-    while (_next < _images[0]->width())
+    while (_next < (SLint)_images[0]->width())
     {
         const SLint minY = _next;
 

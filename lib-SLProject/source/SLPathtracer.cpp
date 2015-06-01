@@ -113,7 +113,7 @@ void SLPathtracer::renderSlices(const bool isMainThread, SLint currentSample)
     double t1 = 0;
     const SLfloat oneOverGamma = 1.0f / _gamma;
 
-    while (_next < _images[0]->width())
+    while (_next < (SLint)_images[0]->width())
     {
         const SLint minX = _next;
 
