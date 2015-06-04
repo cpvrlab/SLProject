@@ -74,9 +74,12 @@ class SLRay
                                         signOS[1]=(invDirOS.y<0);
                                         signOS[2]=(invDirOS.z<0);
                                     }
-            SLbool      isShaded    () const {return type==SHADOW && length<lightDist;}
-            void        print       () const;
-            void        normalizeNormal();
+            SLbool      isShaded        () const {return type==SHADOW && length<lightDist;}
+            void        print           () const;
+    inline  void        normalizeNormal ();
+    inline  SLbool      hitMatIsReflective  () const;
+    inline  SLbool      hitMatIsTransparent () const;
+    inline  SLbool      hitMatIsDiffuse     () const;
             
             // Classic ray members
             SLVec3f     origin;        //!< Vector to the origin of ray in WS
@@ -96,14 +99,12 @@ class SLRay
             SLNode*     originNode;    //!< Points to the node at ray origin
             SLMesh*     originMesh;    //!< Points to the mesh at ray origin
             SLint       originTria;    //!< Points to the triangle at ray origin
-            SLMaterial* originMat;     //!< Points to appearance at ray origin
 
             // Members set after at intersection
             SLfloat     hitU, hitV;    //!< barycentric coords in hit triangle
             SLNode*     hitNode;       //!< Points to the intersected node
             SLMesh*     hitMesh;       //!< Points to the intersected mesh
             SLint       hitTriangle;   //!< Points to the intersected triangle
-            SLMaterial* hitMat;        //!< Points to material of intersected node
             
             // Members set before shading
             SLVec3f     hitPoint;      //!< Point of intersection
@@ -132,16 +133,6 @@ class SLRay
      static SLfloat     avgDepth;         //!< average depth reached
      static SLuint      subsampledRays;   //!< NO. of of subsampled rays
      static SLuint      subsampledPixels; //!< NO. of of subsampled pixels
-
-            SLbool      nodeReflectance   () {return ((hitMat->specular().r >0.0f)||
-                                                      (hitMat->specular().g >0.0f)||  
-                                                      (hitMat->specular().b >0.0f));}
-            SLbool      nodeTransparency  () {return ((hitMat->transmission().r >0.0f)||
-                                                      (hitMat->transmission().g >0.0f)||  
-                                                      (hitMat->transmission().b >0.0f));}
-            SLbool      nodeDiffuse       () {return ((hitMat->diffuse().r >0.0f)||
-                                                      (hitMat->diffuse().g >0.0f)||  
-                                                      (hitMat->diffuse().b >0.0f));}
 };
 //-----------------------------------------------------------------------------
 #endif

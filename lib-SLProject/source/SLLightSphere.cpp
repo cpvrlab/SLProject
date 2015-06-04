@@ -152,10 +152,10 @@ SLfloat SLLightSphere::shadowTest(SLRay* ray,         // ray of hit point
         if (shadowRay.length < lightDist)
         {  
             // Handle shadow value of transparent materials
-            if (shadowRay.hitMat->hasAlpha())
+            if (shadowRay.hitMesh->mat->hasAlpha())
             {  shadowRay.hitMesh->preShade(&shadowRay);
             SLfloat shadowTransp = SL_abs(shadowRay.dir.dot(shadowRay.hitNormal));
-            return shadowTransp * shadowRay.hitMat->kt();
+            return shadowTransp * shadowRay.hitMesh->mat->kt();
             }
             else return 0.0f;
         } 
@@ -236,11 +236,11 @@ SLfloat SLLightSphere::shadowTestMC(SLRay* ray,         // ray of hit point
         if (shadowRay.length < lightDist)
         {
             // Handle shadow value of transparent materials
-            if (shadowRay.hitMat->hasAlpha())
+            if (shadowRay.hitMesh->mat->hasAlpha())
             {
             shadowRay.hitMesh->preShade(&shadowRay);
             SLfloat shadowTransp = SL_abs(shadowRay.dir.dot(shadowRay.hitNormal));
-            return shadowTransp * shadowRay.hitMat->kt();
+            return shadowTransp * shadowRay.hitMesh->mat->kt();
             }
             else return 0.0f;
         }

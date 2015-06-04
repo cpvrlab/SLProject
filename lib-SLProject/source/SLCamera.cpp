@@ -1081,10 +1081,8 @@ void SLCamera::eyeToPixelRay(SLfloat x, SLfloat y, SLRay* ray)
     ray->x = x;
     ray->y = y;  
     ray->hitTriangle = -1;
-    ray->hitMat = 0;
     ray->hitNormal.set(SLVec3f::ZERO);
     ray->hitPoint.set(SLVec3f::ZERO); 
-    ray->originMat = 0;
     ray->originTria = 0;
 }
 //-----------------------------------------------------------------------------

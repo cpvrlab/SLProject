@@ -113,7 +113,7 @@ void SLPathtracer::renderSlices(const bool isMainThread, SLint currentSample)
     double t1 = 0;
     const SLfloat oneOverGamma = 1.0f / _gamma;
 
-    while (_next < _images[0]->width())
+    while (_next < (SLint)_images[0]->width())
     {
         const SLint minX = _next;
 
@@ -198,16 +198,16 @@ SLCol4f SLPathtracer::trace(SLRay* ray, SLbool em)
         return SLCol4f::BLACK;
 
     // hit material
-    SLMaterial* mat = ray->hitMat;
+    SLMaterial* mat = ray->hitMesh->mat;
     ray->hitMesh->preShade(ray);
 
     SLCol4f objectEmission = mat->emission();
     SLCol4f objectColor    = SLCol4f::BLACK;
 
     // get base color of object
-    if (ray->nodeDiffuse())            objectColor = mat->diffuse();
-    else if (ray->nodeReflectance())   objectColor = mat->specular();
-    else if (ray->nodeTransparency())  objectColor = mat->transmission();
+    if (ray->hitMatIsDiffuse())            objectColor = mat->diffuse();
+    else if (ray->hitMatIsReflective())   objectColor = mat->specular();
+    else if (ray->hitMatIsTransparent())  objectColor = mat->transmission();
 
     SLfloat maxEmission = objectEmission.r > objectEmission.g && 
                           objectEmission.r > objectEmission.b ? objectEmission.r : 
@@ -225,7 +225,7 @@ SLCol4f SLPathtracer::trace(SLRay* ray, SLbool em)
     objectColor = objectColor * absorbtion;
 
     // diffuse reflection
-    if (ray->nodeDiffuse())
+    if (ray->hitMatIsDiffuse())
     {
         // Add component wise the texture color
         if (mat->textures().size()) 
@@ -242,7 +242,7 @@ SLCol4f SLPathtracer::trace(SLRay* ray, SLbool em)
         finalColor += (trace(&scatter, 0) & objectColor) * scaleBy;
     }
     else 
-    if (ray->nodeReflectance())
+    if (ray->hitMatIsReflective())
     {
         //scatter toward perfect specular direction
         SLRay reflected;
@@ -263,7 +263,7 @@ SLCol4f SLPathtracer::trace(SLRay* ray, SLbool em)
         finalColor += ((mat->shininess() + 2.0f) / (mat->shininess() + 1.0f) * (trace(&reflected, 1) & objectColor)) * scaleBy;
     }
     else 
-    if (ray->nodeTransparency())
+    if (ray->hitMatIsTransparent())
     {
         //scatter toward perfect transmissive direction
         SLRay refracted;

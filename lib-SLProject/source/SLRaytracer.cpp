@@ -208,7 +208,7 @@ void SLRaytracer::renderSlices(const bool isMainThread)
     // Time points
     double t1 = 0;
 
-    while (_next < _images[0]->height())
+    while (_next < (SLint)_images[0]->height())
     {
         const SLint minY = _next;
 
@@ -265,7 +265,7 @@ void SLRaytracer::renderSlicesMS(const bool isMainThread)
     SLVec3f lensRadiusX = _LR*(_cam->lensDiameter()*0.5f);
     SLVec3f lensRadiusY = _LU*(_cam->lensDiameter()*0.5f);
 
-    while (_next < _images[0]->width())
+    while (_next < (SLint)_images[0]->width())
     {
         const SLint minY = _next;
 
@@ -341,15 +341,15 @@ SLCol4f SLRaytracer::traceClassic(SLRay* ray)
 
         if (ray->depth < SLRay::maxDepth && ray->contrib > SLRay::minContrib)
         {
-            if (ray->hitMat->kt())
+            if (ray->hitMesh->mat->kt())
             {   SLRay refracted;
                 ray->refract(&refracted);
-                color += ray->hitMat->kt() * traceClassic(&refracted);
+                color += ray->hitMesh->mat->kt() * traceClassic(&refracted);
             }
-            if (ray->hitMat->kr())
+            if (ray->hitMesh->mat->kr())
             {   SLRay reflected;
                 ray->reflect(&reflected);
-                color += ray->hitMat->kr() * traceClassic(&reflected);
+                color += ray->hitMesh->mat->kr() * traceClassic(&reflected);
             }
         }
     }
@@ -397,7 +397,7 @@ SLCol4f SLRaytracer::traceDistrib(SLRay* ray)
       
         if (ray->depth < SLRay::maxDepth && ray->contrib > SLRay::minContrib)
         {  
-            if (ray->hitMat->kt())
+            if (ray->hitMesh->mat->kt())
             {   SLRay refracted, reflected;
                 ray->refract(&refracted);
                 ray->reflect(&reflected);
@@ -405,15 +405,15 @@ SLCol4f SLRaytracer::traceDistrib(SLRay* ray)
                 SLCol4f reflCol = traceDistrib(&reflected);
             
                 // Mix refr. & refl. color w. Schlick's Fresnel aproximation
-                SLfloat F0 = ray->hitMat->kr();
+                SLfloat F0 = ray->hitMesh->mat->kr();
                 SLfloat theta = -(ray->dir * ray->hitNormal);
                 SLfloat F_theta = F0 + (1-F0) * pow(1-theta, 5);
                 color += refrCol*(1-F_theta) + reflCol*F_theta;
             } else
-            {   if (ray->hitMat->kr())
+            {   if (ray->hitMesh->mat->kr())
                 {   SLRay reflected;
                     ray->reflect(&reflected);
-                    color += ray->hitMat->kr() * traceDistrib(&reflected);
+                    color += ray->hitMesh->mat->kr() * traceDistrib(&reflected);
                 }
             }
         }
@@ -439,7 +439,7 @@ SLCol4f SLRaytracer::shade(SLRay* ray)
 {  
     SLScene*    s = SLScene::current;
     SLCol4f     localColor = SLCol4f::BLACK;
-    SLMaterial* mat = ray->hitMat;
+    SLMaterial* mat = ray->hitMesh->mat;
     SLVGLTexture& texture = mat->textures();
     SLVec3f     L,N,H;
     SLfloat     lightDist, LdN, NdH, df, sf, spotEffect, att, lighted = 0.0f;

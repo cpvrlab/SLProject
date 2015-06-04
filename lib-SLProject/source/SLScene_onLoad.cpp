@@ -37,23 +37,24 @@
 SLNode* SphereGroup(SLint, SLfloat, SLfloat, SLfloat, SLfloat, SLint, SLMaterial*, SLMaterial*);
 //-----------------------------------------------------------------------------
 //! Creates a recursive sphere group used for the ray tracing scenes
-SLNode* SphereGroup(SLint depth,                      // depth of recursion 
-                    SLfloat x, SLfloat y, SLfloat z,  // position of group
-                    SLfloat scale,                    // scale factor
-                    SLint  resolution,       // resolution of spheres
-                    SLMaterial* matGlass,    // material for center sphere
-                    SLMaterial* matRed)      // material for orbiting spheres
+SLNode* SphereGroup(SLint depth,                    // depth of recursion 
+                    SLfloat x, SLfloat y, SLfloat z,// position of group
+                    SLfloat scale,                  // scale factor
+                    SLint  resolution,              // resolution of spheres
+                    SLMaterial* matGlass,           // material for center sphere
+                    SLMaterial* matRed)             // material for orbiting spheres
 {  
+    SLstring name = matGlass->kt() > 0 ? "GlassSphere" : "RedSphere";
     if (depth==0)
-    {   SLNode* s = new SLNode(new SLSphere(0.5f*scale,resolution,resolution,"RedSphere", matRed)); 
+    {   SLNode* s = new SLNode(new SLSphere(0.5f*scale,resolution,resolution, name, matRed)); 
         s->translate(x,y,z, TS_Object);
         return s;
     } else
     {   depth--;
-        SLNode* sGroup = new SLNode;
+        SLNode* sGroup = new SLNode("SphereGroup");
         sGroup->translate(x,y,z, TS_Object);
         SLint newRes = max(resolution-8,8);
-        sGroup->addChild(new SLNode(new SLSphere(0.5f*scale,resolution,resolution,"RedSphere", matGlass)));
+        sGroup->addChild(new SLNode(new SLSphere(0.5f*scale,resolution,resolution, name, matGlass)));
         sGroup->addChild(SphereGroup(depth, 0.643951f*scale, 0,               0.172546f*scale, scale/3, newRes, matRed, matRed));
         sGroup->addChild(SphereGroup(depth, 0.172546f*scale, 0,               0.643951f*scale, scale/3, newRes, matRed, matRed));
         sGroup->addChild(SphereGroup(depth,-0.471405f*scale, 0,               0.471405f*scale, scale/3, newRes, matRed, matRed));
@@ -1988,7 +1989,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
         SLNode* scene  = new SLNode;
         scene->addChild(light1);
         scene->addChild(light2);
-        scene->addChild(SphereGroup(4, 0,0,0, 1, 32, matGla, matRed));
+        scene->addChild(SphereGroup(2, 0,0,0, 1, 32, matGla, matRed));
         scene->addChild(rect);
         scene->addChild(cam1);
 
