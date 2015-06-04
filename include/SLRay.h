@@ -12,10 +12,10 @@
 
 #include <stdafx.h>
 #include <SLMaterial.h>
+#include <SLMesh.h>
 
 struct SLFace16;
 class  SLNode;
-class  SLMesh;
 
 //-----------------------------------------------------------------------------
 //! SLRayType enumeration for specifying ray type in ray tracing
@@ -134,6 +134,56 @@ class SLRay
      static SLuint      subsampledRays;   //!< NO. of of subsampled rays
      static SLuint      subsampledPixels; //!< NO. of of subsampled pixels
 };
+
+// inline functions
+
+//-----------------------------------------------------------------------------
+/*!
+SLRay::normalizeNormal does a careful normalization of the normal only when the
+squared length is > 1.0+FLT_EPSILON or < 1.0-FLT_EPSILON.
+*/ 
+inline void SLRay::normalizeNormal()
+{
+    SLfloat nLenSqr = hitNormal.lengthSqr();
+    if (nLenSqr > 1.0f+FLT_EPSILON || nLenSqr < 1.0f-FLT_EPSILON)
+    {   SLfloat len = sqrt(nLenSqr);
+        hitNormal /= len;
+    }
+}
+
+//-----------------------------------------------------------------------------
+//! Returns true if the hit material specular color is not black
+inline SLbool SLRay::hitMatIsReflective() const
+{   
+    if (!hitMesh) return false;
+    SLMaterial* mat = hitMesh->mat;
+    return ((mat->specular().r > 0.0f)||
+            (mat->specular().g > 0.0f)||  
+            (mat->specular().b > 0.0f));
+}
+//-----------------------------------------------------------------------------
+//! Returns true if the hit material transmission color is not black
+inline SLbool SLRay::hitMatIsTransparent() const 
+{   
+    if (!hitMesh) return false;
+    SLMaterial* mat = hitMesh->mat;
+    return ((mat->transmission().r > 0.0f)||
+            (mat->transmission().g > 0.0f)||  
+            (mat->transmission().b > 0.0f));
+}
+//-----------------------------------------------------------------------------
+//! Returns true if the hit material diffuse color is not black
+inline SLbool SLRay::hitMatIsDiffuse() const
+{   
+    if (!hitMesh) return false;
+    SLMaterial* mat = hitMesh->mat;
+    return ((mat->diffuse().r > 0.0f)||
+            (mat->diffuse().g > 0.0f)||  
+            (mat->diffuse().b > 0.0f));
+}
+//-----------------------------------------------------------------------------
+
+
 //-----------------------------------------------------------------------------
 #endif
 
