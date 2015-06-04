@@ -54,29 +54,13 @@ class SLRay
             void        refractMC   (SLRay* refracted, SLMat3f rotMat);
             void        diffuseMC   (SLRay* scattered);
             void        volumeRay   (SLRay* volumeRay);
+            void        print       () const;
             
-        // Helper methods
-    inline  void        setDir      (SLVec3f Dir)
-                                    {   dir = Dir; 
-                                        invDir.x=(SLfloat)(1/dir.x); 
-                                        invDir.y=(SLfloat)(1/dir.y); 
-                                        invDir.z=(SLfloat)(1/dir.z);
-                                        sign[0]=(invDir.x<0);
-                                        sign[1]=(invDir.y<0);
-                                        sign[2]=(invDir.z<0);
-                                    }    
-    inline  void        setDirOS    (SLVec3f Dir)
-                                    {   dirOS = Dir;
-                                        invDirOS.x=(SLfloat)(1/dirOS.x);
-                                        invDirOS.y=(SLfloat)(1/dirOS.y);
-                                        invDirOS.z=(SLfloat)(1/dirOS.z);
-                                        signOS[0]=(invDirOS.x<0);
-                                        signOS[1]=(invDirOS.y<0);
-                                        signOS[2]=(invDirOS.z<0);
-                                    }
-            SLbool      isShaded        () const {return type==SHADOW && length<lightDist;}
-            void        print           () const;
-    inline  void        normalizeNormal ();
+    // Helper methods    
+    inline  void        setDir              (SLVec3f Dir);
+    inline  void        setDirOS            (SLVec3f Dir);
+    inline  void        normalizeNormal     ();
+    inline  SLbool      isShaded            () const;
     inline  SLbool      hitMatIsReflective  () const;
     inline  SLbool      hitMatIsTransparent () const;
     inline  SLbool      hitMatIsDiffuse     () const;
@@ -98,7 +82,7 @@ class SLRay
             SLbool      isInsideVolume;//!< Flag if ray is in Volume
             SLNode*     originNode;    //!< Points to the node at ray origin
             SLMesh*     originMesh;    //!< Points to the mesh at ray origin
-            SLint       originTria;    //!< Points to the triangle at ray origin
+            SLint       originTriangle;//!< Points to the triangle at ray origin
 
             // Members set after at intersection
             SLfloat     hitU, hitV;    //!< barycentric coords in hit triangle
@@ -135,8 +119,30 @@ class SLRay
      static SLuint      subsampledPixels; //!< NO. of of subsampled pixels
 };
 
+//-----------------------------------------------------------------------------
 // inline functions
-
+//-----------------------------------------------------------------------------
+//! Setter for the rays direction in world space also setting the inverse direction
+inline void SLRay::setDir(SLVec3f Dir)
+{   dir = Dir; 
+    invDir.x=(SLfloat)(1/dir.x); 
+    invDir.y=(SLfloat)(1/dir.y); 
+    invDir.z=(SLfloat)(1/dir.z);
+    sign[0]=(invDir.x<0);
+    sign[1]=(invDir.y<0);
+    sign[2]=(invDir.z<0);
+}
+//-----------------------------------------------------------------------------
+//! Setter for the rays direction in object space also setting the inverse direction
+inline void SLRay::setDirOS(SLVec3f Dir)
+{   dirOS = Dir;
+    invDirOS.x=(SLfloat)(1/dirOS.x);
+    invDirOS.y=(SLfloat)(1/dirOS.y);
+    invDirOS.z=(SLfloat)(1/dirOS.z);
+    signOS[0]=(invDirOS.x<0);
+    signOS[1]=(invDirOS.y<0);
+    signOS[2]=(invDirOS.z<0);
+}
 //-----------------------------------------------------------------------------
 /*!
 SLRay::normalizeNormal does a careful normalization of the normal only when the
@@ -150,7 +156,12 @@ inline void SLRay::normalizeNormal()
         hitNormal /= len;
     }
 }
-
+//-----------------------------------------------------------------------------
+//! Returns true if a shadow ray hits an object on the ray to the light
+inline SLbool SLRay::isShaded() const 
+{
+    return type==SHADOW && length<lightDist;
+}
 //-----------------------------------------------------------------------------
 //! Returns true if the hit material specular color is not black
 inline SLbool SLRay::hitMatIsReflective() const
@@ -181,9 +192,6 @@ inline SLbool SLRay::hitMatIsDiffuse() const
             (mat->diffuse().g > 0.0f)||  
             (mat->diffuse().b > 0.0f));
 }
-//-----------------------------------------------------------------------------
-
-
 //-----------------------------------------------------------------------------
 #endif
 

@@ -1957,10 +1957,10 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
         // define materials
         SLMaterial* matGla = new SLMaterial("Glass", SLCol4f(0.0f, 0.0f, 0.0f),
                                                      SLCol4f(0.5f, 0.5f, 0.5f),
-                                                    100, 0.4f, 0.6f, 1.5f);
+                                                     100, 0.4f, 0.6f, 1.5f);
         SLMaterial* matRed = new SLMaterial("Red",   SLCol4f(0.5f, 0.0f, 0.0f),
                                                      SLCol4f(0.5f, 0.5f, 0.5f),
-                                                    100, 0.5f, 0.0f, 1.0f);
+                                                     100, 0.5f, 0.0f, 1.0f);
         SLMaterial* matYel = new SLMaterial("Floor", SLCol4f(0.8f, 0.6f, 0.2f),
                                                      SLCol4f(0.8f, 0.8f, 0.8f),
                                                      100, 0.5f, 0.0f, 1.0f);
@@ -1989,7 +1989,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
         SLNode* scene  = new SLNode;
         scene->addChild(light1);
         scene->addChild(light2);
-        scene->addChild(SphereGroup(2, 0,0,0, 1, 32, matGla, matRed));
+        scene->addChild(SphereGroup(4, 0,0,0, 1, 32, matGla, matRed));
         scene->addChild(rect);
         scene->addChild(cam1);
 

@@ -817,7 +817,7 @@ SLbool SLMesh::hitTriangleOS(SLRay* ray, SLNode* node, SLuint iT)
         return false;
 
     // prevent self-intersection of triangle
-    if(ray->originMesh == this && ray->originTria == iT) 
+    if(ray->originMesh == this && ray->originTriangle == iT) 
         return false;
       
     SLVec3f A, B, C;     // corners

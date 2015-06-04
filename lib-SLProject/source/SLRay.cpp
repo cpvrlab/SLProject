@@ -45,25 +45,25 @@ SLRay::SLRay default constructor
 */
 SLRay::SLRay()
 {  
-    origin      = SLVec3f::ZERO;
+    origin          = SLVec3f::ZERO;
     setDir(SLVec3f::ZERO);
-    type        = PRIMARY;
-    length      = FLT_MAX;
-    depth       = 1;
-    hitTriangle = -1;
-    hitPoint    = SLVec3f::ZERO;
-    hitNormal   = SLVec3f::ZERO;
-    hitTexCol   = SLCol4f::BLACK;
-    hitNode     = 0;
-    hitMesh     = 0;
-    originNode  = 0;
-    originMesh  = 0;
-    originTria  = -1;
-    x           = -1;
-    y           = -1;
-    contrib     = 1.0f;
-    isOutside   = true;
-    isInsideVolume = false;
+    type            = PRIMARY;
+    length          = FLT_MAX;
+    depth           = 1;
+    hitTriangle     = -1;
+    hitPoint        = SLVec3f::ZERO;
+    hitNormal       = SLVec3f::ZERO;
+    hitTexCol       = SLCol4f::BLACK;
+    hitNode         = 0;
+    hitMesh         = 0;
+    originNode      = 0;
+    originMesh      = 0;
+    originTriangle  = -1;
+    x               = -1;
+    y               = -1;
+    contrib         = 1.0f;
+    isOutside       = true;
+    isInsideVolume  = false;
 }
 //-----------------------------------------------------------------------------
 /*! 
@@ -71,25 +71,25 @@ SLRay::SLRay constructor for primary rays
 */
 SLRay::SLRay(SLVec3f Origin, SLVec3f Dir, SLfloat X, SLfloat Y)  
 {  
-    origin      = Origin;
+    origin          = Origin;
     setDir(Dir);
-    type        = PRIMARY;
-    length      = FLT_MAX;
-    depth       = 1;
-    hitTriangle = -1;
-    hitPoint    = SLVec3f::ZERO;
-    hitNormal   = SLVec3f::ZERO;
-    hitTexCol   = SLCol4f::BLACK;
-    hitNode     = 0;
-    hitMesh     = 0;
-    originNode  = 0;
-    originMesh  = 0;
-    originTria  = -1;
-    x           = (SLfloat)X;
-    y           = (SLfloat)Y;
-    contrib     = 1.0f;
-    isOutside   = true;
-    isInsideVolume = false;
+    type            = PRIMARY;
+    length          = FLT_MAX;
+    depth           = 1;
+    hitTriangle     = -1;
+    hitPoint        = SLVec3f::ZERO;
+    hitNormal       = SLVec3f::ZERO;
+    hitTexCol       = SLCol4f::BLACK;
+    hitNode         = 0;
+    hitMesh         = 0;
+    originNode      = 0;
+    originMesh      = 0;
+    originTriangle  = -1;
+    x               = (SLfloat)X;
+    y               = (SLfloat)Y;
+    contrib         = 1.0f;
+    isOutside       = true;
+    isInsideVolume  = false;
 }
 //-----------------------------------------------------------------------------
 /*! 
@@ -99,25 +99,25 @@ SLRay::SLRay(SLfloat distToLight,
              SLVec3f dirToLight,
              SLRay*  rayFromHitPoint)  
 {   
-    origin      = rayFromHitPoint->hitPoint;
+    origin          = rayFromHitPoint->hitPoint;
     setDir(dirToLight);
-    type        = SHADOW;
-    length      = distToLight;
-    lightDist   = distToLight;
-    depth       = rayFromHitPoint->depth;
-    hitPoint    = SLVec3f::ZERO;
-    hitNormal   = SLVec3f::ZERO;
-    hitTexCol   = SLCol4f::BLACK;
-    hitTriangle = -1;
-    hitNode     = 0;
-    hitMesh     = 0;
-    originNode  = rayFromHitPoint->hitNode;
-    originMesh  = rayFromHitPoint->hitMesh;
-    originTria  = rayFromHitPoint->hitTriangle;
-    x           = rayFromHitPoint->x;
-    y           = rayFromHitPoint->y;
-    contrib     = 0.0f;
-    isOutside   = rayFromHitPoint->isOutside;
+    type            = SHADOW;
+    length          = distToLight;
+    lightDist       = distToLight;
+    depth           = rayFromHitPoint->depth;
+    hitPoint        = SLVec3f::ZERO;
+    hitNormal       = SLVec3f::ZERO;
+    hitTexCol       = SLCol4f::BLACK;
+    hitTriangle     = -1;
+    hitNode         = 0;
+    hitMesh         = 0;
+    originNode      = rayFromHitPoint->hitNode;
+    originMesh      = rayFromHitPoint->hitMesh;
+    originTriangle  = rayFromHitPoint->hitTriangle;
+    x               = rayFromHitPoint->x;
+    y               = rayFromHitPoint->y;
+    contrib         = 0.0f;
+    isOutside       = rayFromHitPoint->isOutside;
     shadowRays++;
 }
 //-----------------------------------------------------------------------------
@@ -148,7 +148,7 @@ void SLRay::reflect(SLRay* reflected)
     reflected->contrib = contrib * hitMesh->mat->kr();
     reflected->originNode = hitNode;
     reflected->originMesh = hitMesh;
-    reflected->originTria = hitTriangle;
+    reflected->originTriangle = hitTriangle;
     reflected->type = REFLECTED;
     reflected->isOutside = isOutside;
     reflected->x = x;
@@ -212,7 +212,7 @@ void SLRay::refract(SLRay* refracted)
     refracted->length = FLT_MAX;
     refracted->originNode = hitNode;
     refracted->originMesh = hitMesh;
-    refracted->originTria = hitTriangle;
+    refracted->originTriangle = hitTriangle;
     refracted->depth = depth + 1;
     refracted->x = x;
     refracted->y = y;
