@@ -130,19 +130,7 @@ void SLRay::print() const
     SL_LOG("Ray: O(%.2f, %.2f, %.2f), D(%.2f, %.2f, %.2f), L: %.2f\n",
            origin.x,origin.y,origin.z, dir.x,dir.y,dir.z, length);
 }
-//-----------------------------------------------------------------------------
-/*!
-SLRay::normalizeNormal does a careful normalization of the normal only when the
-squared length is > 1.0+FLT_EPSILON or < 1.0-FLT_EPSILON.
-*/ 
-inline void SLRay::normalizeNormal()
-{
-    SLfloat nLenSqr = hitNormal.lengthSqr();
-    if (nLenSqr > 1.0f+FLT_EPSILON || nLenSqr < 1.0f-FLT_EPSILON)
-    {   SLfloat len = sqrt(nLenSqr);
-        hitNormal /= len;
-    }
-}
+
 //-----------------------------------------------------------------------------
 /*!
 SLRay::reflect calculates a secondary ray reflected at the normal, starting at 
@@ -348,34 +336,3 @@ void SLRay::diffuseMC(SLRay* scattered)
 
     scattered->setDir(rotMat*randVec);
 }
-//-----------------------------------------------------------------------------
-//! Returns true if the hit material specular color is not black
-inline SLbool SLRay::hitMatIsReflective() const
-{   
-    if (!hitMesh) return false;
-    SLMaterial* mat = hitMesh->mat;
-    return ((mat->specular().r > 0.0f)||
-            (mat->specular().g > 0.0f)||  
-            (mat->specular().b > 0.0f));
-}
-//-----------------------------------------------------------------------------
-//! Returns true if the hit material transmission color is not black
-inline SLbool SLRay::hitMatIsTransparent() const 
-{   
-    if (!hitMesh) return false;
-    SLMaterial* mat = hitMesh->mat;
-    return ((mat->transmission().r > 0.0f)||
-            (mat->transmission().g > 0.0f)||  
-            (mat->transmission().b > 0.0f));
-}
-//-----------------------------------------------------------------------------
-//! Returns true if the hit material diffuse color is not black
-inline SLbool SLRay::hitMatIsDiffuse() const
-{   
-    if (!hitMesh) return false;
-    SLMaterial* mat = hitMesh->mat;
-    return ((mat->diffuse().r > 0.0f)||
-            (mat->diffuse().g > 0.0f)||  
-            (mat->diffuse().b > 0.0f));
-}
-//-----------------------------------------------------------------------------
