@@ -805,6 +805,10 @@ tools 2, 1997).
 */
 SLbool SLMesh::hitTriangleOS(SLRay* ray, SLNode* node, SLuint iT)
 {
+    assert(ray  && "ray pointer is null");
+    assert(node && "node pointer is null");
+    assert(mat  && "material pointer is null");
+
     #if _DEBUG
     ++SLRay::tests;
     #endif
@@ -909,7 +913,6 @@ SLbool SLMesh::hitTriangleOS(SLRay* ray, SLNode* node, SLuint iT)
     ray->hitTriangle = iT;
     ray->hitNode = node;
     ray->hitMesh = this;
-    ray->hitMat = (mat) ? mat : SLMaterial::defaultMaterial();
 
     #if _DEBUG
     ++SLRay::intersections;
@@ -957,7 +960,7 @@ void SLMesh::preShade(SLRay* ray)
     ray->hitNormal.normalize();
    
     // calculate interpolated texture coordinates
-    SLVGLTexture& textures = ray->hitMat->textures();
+    SLVGLTexture& textures = ray->hitMesh->mat->textures();
     if (textures.size() > 0)
     {   SLVec2f Tu(Tc[iB] - Tc[iA]);
         SLVec2f Tv(Tc[iC] - Tc[iA]);

@@ -13,6 +13,7 @@
 #endif
 
 #include <SLRay.h>
+#include <SLMesh.h>
 
 // init static variables
 SLint   SLRay::maxDepth = 0;
@@ -55,11 +56,9 @@ SLRay::SLRay()
     hitTexCol   = SLCol4f::BLACK;
     hitNode     = 0;
     hitMesh     = 0;
-    hitMat      = 0;
     originNode  = 0;
     originMesh  = 0;
     originTria  = -1;
-    originMat   = 0;
     x           = -1;
     y           = -1;
     contrib     = 1.0f;
@@ -83,11 +82,9 @@ SLRay::SLRay(SLVec3f Origin, SLVec3f Dir, SLfloat X, SLfloat Y)
     hitTexCol   = SLCol4f::BLACK;
     hitNode     = 0;
     hitMesh     = 0;
-    hitMat      = 0;
     originNode  = 0;
     originMesh  = 0;
     originTria  = -1;
-    originMat   = 0;
     x           = (SLfloat)X;
     y           = (SLfloat)Y;
     contrib     = 1.0f;
@@ -114,11 +111,9 @@ SLRay::SLRay(SLfloat distToLight,
     hitTriangle = -1;
     hitNode     = 0;
     hitMesh     = 0;
-    hitMat      = 0;
     originNode  = rayFromHitPoint->hitNode;
     originMesh  = rayFromHitPoint->hitMesh;
     originTria  = rayFromHitPoint->hitTriangle;
-    originMat   = rayFromHitPoint->hitMat;
     x           = rayFromHitPoint->x;
     y           = rayFromHitPoint->y;
     contrib     = 0.0f;
@@ -139,8 +134,8 @@ void SLRay::print() const
 /*!
 SLRay::normalizeNormal does a careful normalization of the normal only when the
 squared length is > 1.0+FLT_EPSILON or < 1.0-FLT_EPSILON.
-*/
-void SLRay::normalizeNormal()
+*/ 
+inline void SLRay::normalizeNormal()
 {
     SLfloat nLenSqr = hitNormal.lengthSqr();
     if (nLenSqr > 1.0f+FLT_EPSILON || nLenSqr < 1.0f-FLT_EPSILON)
@@ -162,8 +157,7 @@ void SLRay::reflect(SLRay* reflected)
     reflected->origin.set(hitPoint);
     reflected->depth = depth + 1;
     reflected->length = FLT_MAX;
-    reflected->contrib = contrib * hitMat->kr();
-    reflected->originMat = hitMat;
+    reflected->contrib = contrib * hitMesh->mat->kr();
     reflected->originNode = hitNode;
     reflected->originMesh = hitMesh;
     reflected->originTria = hitTriangle;
@@ -184,18 +178,23 @@ Index of refraction eta = Kn_Source/Kn_Destination (Kn_Air = 1.0)
 */
 void SLRay::refract(SLRay* refracted)
 {  
+    assert(hitMesh && "hitMesh is null");
+
     SLVec3f T;   // refracted direction
     SLfloat eta; // refraction coefficient
+
+    SLMaterial* originMat = originMesh ? originMesh->mat : nullptr;
+    SLMaterial* hitMat = hitMesh ? hitMesh->mat : nullptr;
       
     // Calculate index of refraction eta = Kn_Source/Kn_Destination
     if (isOutside)
     {   if (originMat==nullptr) // from air (outside) into a material
-            eta = 1 / hitMat->kn();
-        else // from another material into another one
+            eta = 1.0f / hitMat->kn();
+        else // from another material into another one (should be also 1.0 / hitMat->kn)
             eta = originMat->kn() / hitMat->kn();
     } else
     {   if (originMat==hitMat) // from the inside a material into air
-            eta = hitMat->kn(); // hitMat / 1
+            eta = hitMat->kn(); // = hitMat / 1.0
         else // from inside a material into another material
             eta = originMat->kn() / hitMat->kn();
     }
@@ -216,13 +215,12 @@ void SLRay::refract(SLRay* refracted)
     {   T = 2.0f * (-dir*hitNormal) * hitNormal + dir;
         refracted->contrib = 1.0f;
         refracted->type = REFLECTED;
-        refracted->isOutside = isOutside;
+        refracted->isOutside = isOutside;   // it remains inside
         ++tirRays;
     }
    
     refracted->setDir(T);
     refracted->origin.set(hitPoint);
-    refracted->originMat = hitMat;
     refracted->length = FLT_MAX;
     refracted->originNode = hitNode;
     refracted->originMesh = hitMesh;
@@ -246,7 +244,7 @@ bool SLRay::reflectMC(SLRay* reflected,SLMat3f rotMat)
 {
     SLfloat eta1, eta2;
     SLVec3f randVec;
-    SLfloat shininess = hitMat->shininess();
+    SLfloat shininess = hitMesh->mat->shininess();
 
     //scatter within specular lobe
     eta1 = rnd01();
@@ -288,7 +286,7 @@ void SLRay::refractMC(SLRay* refracted,SLMat3f rotMat)
 {
     SLfloat eta1, eta2;
     SLVec3f randVec;
-    SLfloat translucency = hitMat->translucency();
+    SLfloat translucency = hitMesh->mat->translucency();
 
     //scatter within transmissive lobe
     eta1 = rnd01();
@@ -329,7 +327,6 @@ void SLRay::diffuseMC(SLRay* scattered)
     depthReached = scattered->depth;
    
     // for reflectance the start material stays the same
-    scattered->originMat = hitMat;
     scattered->originNode = hitNode;
     scattered->originMesh = hitMesh;
     scattered->type = REFLECTED;
@@ -350,5 +347,35 @@ void SLRay::diffuseMC(SLRay* scattered)
                 sqrt(eta1));
 
     scattered->setDir(rotMat*randVec);
+}
+//-----------------------------------------------------------------------------
+//! Returns true if the hit material specular color is not black
+inline SLbool SLRay::hitMatIsReflective() const
+{   
+    if (!hitMesh) return false;
+    SLMaterial* mat = hitMesh->mat;
+    return ((mat->specular().r > 0.0f)||
+            (mat->specular().g > 0.0f)||  
+            (mat->specular().b > 0.0f));
+}
+//-----------------------------------------------------------------------------
+//! Returns true if the hit material transmission color is not black
+inline SLbool SLRay::hitMatIsTransparent() const 
+{   
+    if (!hitMesh) return false;
+    SLMaterial* mat = hitMesh->mat;
+    return ((mat->transmission().r > 0.0f)||
+            (mat->transmission().g > 0.0f)||  
+            (mat->transmission().b > 0.0f));
+}
+//-----------------------------------------------------------------------------
+//! Returns true if the hit material diffuse color is not black
+inline SLbool SLRay::hitMatIsDiffuse() const
+{   
+    if (!hitMesh) return false;
+    SLMaterial* mat = hitMesh->mat;
+    return ((mat->diffuse().r > 0.0f)||
+            (mat->diffuse().g > 0.0f)||  
+            (mat->diffuse().b > 0.0f));
 }
 //-----------------------------------------------------------------------------
