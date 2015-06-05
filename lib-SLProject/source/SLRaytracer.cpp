@@ -692,8 +692,10 @@ void SLRaytracer::printStats(SLfloat sec)
             (SLfloat)primarys/total*100.0f);
     SL_LOG("\nReflected rays    : %10u, %4.1f%% of total", SLRay::reflectedRays,   
             (SLfloat)SLRay::reflectedRays/total*100.0f);
-    SL_LOG("\nTransmitted rays  : %10u, %4.1f%% of total", SLRay::refractedRays, 
+    SL_LOG("\nRefracted rays    : %10u, %4.1f%% of total", SLRay::refractedRays, 
             (SLfloat)SLRay::refractedRays/total*100.0f);
+    SL_LOG("\nIgnored rays      : %10u, %4.1f%% of total", SLRay::ignoredRays, 
+            (SLfloat)SLRay::ignoredRays/total*100.0f);
     SL_LOG("\nTIR rays          : %10u, %4.1f%% of total", SLRay::tirRays,         
             (SLfloat)SLRay::tirRays/total*100.0f);
     SL_LOG("\nShadow rays       : %10u, %4.1f%% of total", SLRay::shadowRays,      

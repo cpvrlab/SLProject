@@ -19,7 +19,7 @@ class  SLNode;
 
 //-----------------------------------------------------------------------------
 //! SLRayType enumeration for specifying ray type in ray tracing
-enum SLRayType {PRIMARY=0, REFLECTED=1, TRANSMITTED=2, SHADOW=3};
+enum SLRayType {PRIMARY=0, REFLECTED=1, REFRACTED=2, SHADOW=3};
 
 //! Ray tracing constant for max. allowed recursion depth
 #define SL_MAXTRACE    15
@@ -29,7 +29,7 @@ enum SLRayType {PRIMARY=0, REFLECTED=1, TRANSMITTED=2, SHADOW=3};
 Ray class for Ray Tracing. It not only holds informations about the ray itself
 but also about the node hit by the ray. With that information the method 
 reflect calculates a reflected ray and the method transmit calculates a 
-transmitted ray.
+REFRACTED ray.
 */
 class SLRay
 {  
@@ -75,7 +75,7 @@ class SLRay
             SLfloat     contrib;       //!< Current contribution of ray to color
             
             // Additional info for intersection 
-            SLRayType   type;          //!< PRIMARY, REFLECTED, TRANSMITTED, SHADOW
+            SLRayType   type;          //!< PRIMARY, REFLECTED, REFRACTED, SHADOW
             SLfloat     lightDist;     //!< Distance to light for shadow rays
             SLfloat     x, y;          //!< Pixel position for primary rays
             SLbool      isOutside;     //!< Flag if ray is inside of a material
@@ -83,6 +83,7 @@ class SLRay
             SLNode*     originNode;    //!< Points to the node at ray origin
             SLMesh*     originMesh;    //!< Points to the mesh at ray origin
             SLint       originTriangle;//!< Points to the triangle at ray origin
+            SLMesh*     ignoreMesh;
 
             // Members set after at intersection
             SLfloat     hitU, hitV;    //!< barycentric coords in hit triangle
@@ -104,19 +105,20 @@ class SLRay
             SLfloat     tmax;          //!< max. dist. of last AABB intersection
 
      // static variables for statistics
-     static SLint       maxDepth;         //!< Max. recursion depth
-     static SLfloat     minContrib;       //!< Min. contibution to color (1/256)
-     static SLuint      reflectedRays;    //!< NO. of reflected rays
-     static SLuint      refractedRays;    //!< NO. of transmitted rays
-     static SLuint      shadowRays;       //!< NO. of shadow rays
-     static SLuint      tirRays;          //!< NO. of TIR refraction rays
-     static SLuint      tests;            //!< NO. of intersection tests
-     static SLuint      intersections;    //!< NO. of intersection
-     static SLint       depthReached;     //!< depth reached for a primary ray
-     static SLint       maxDepthReached;  //!< max. depth reached for all rays
-     static SLfloat     avgDepth;         //!< average depth reached
-     static SLuint      subsampledRays;   //!< NO. of of subsampled rays
-     static SLuint      subsampledPixels; //!< NO. of of subsampled pixels
+     static SLint       maxDepth;           //!< Max. recursion depth
+     static SLfloat     minContrib;         //!< Min. contibution to color (1/256)
+     static SLuint      reflectedRays;      //!< NO. of reflected rays
+     static SLuint      refractedRays;      //!< NO. of refracted rays
+     static SLuint      ignoredRays;        //!< NO. of ignore refraction rays
+     static SLuint      shadowRays;         //!< NO. of shadow rays
+     static SLuint      tirRays;            //!< NO. of TIR refraction rays
+     static SLuint      tests;              //!< NO. of intersection tests
+     static SLuint      intersections;      //!< NO. of intersection
+     static SLint       depthReached;       //!< depth reached for a primary ray
+     static SLint       maxDepthReached;    //!< max. depth reached for all rays
+     static SLfloat     avgDepth;           //!< average depth reached
+     static SLuint      subsampledRays;     //!< NO. of of subsampled rays
+     static SLuint      subsampledPixels;   //!< NO. of of subsampled pixels
 };
 
 //-----------------------------------------------------------------------------

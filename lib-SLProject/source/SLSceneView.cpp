@@ -1861,6 +1861,7 @@ void SLSceneView::build2DInfoRT()
     sprintf(m+strlen(m), "Primary rays: %u, %3.1f%%\\n", primaries, (SLfloat)primaries/total*100.0f);
     sprintf(m+strlen(m), "Reflected rays: %u, %3.1f%%\\n", SLRay::reflectedRays, (SLfloat)SLRay::reflectedRays/total*100.0f);
     sprintf(m+strlen(m), "Refracted rays: %u, %3.1f%%\\n", SLRay::refractedRays, (SLfloat)SLRay::refractedRays/total*100.0f);
+    sprintf(m+strlen(m), "Ignored rays: %u, %3.1f%%\\n", SLRay::ignoredRays, (SLfloat)SLRay::ignoredRays/total*100.0f);
     sprintf(m+strlen(m), "TIR rays: %u, %3.1f%%\\n", SLRay::tirRays, (SLfloat)SLRay::tirRays/total*100.0f);
     sprintf(m+strlen(m), "Shadow rays: %u, %3.1f%%\\n", SLRay::shadowRays, (SLfloat)SLRay::shadowRays/total*100.0f);
     sprintf(m+strlen(m), "AA rays: %u, %3.1f%%\\n", SLRay::subsampledRays, (SLfloat)SLRay::subsampledRays/total*100.0f);

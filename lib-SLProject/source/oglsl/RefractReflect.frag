@@ -13,14 +13,14 @@ precision mediump float;
 #endif
 
 //-----------------------------------------------------------------------------
-uniform vec4   u_matDiffuse;        // diffuse color reflection coefficient (kd)
+uniform vec4        u_matDiffuse;   // diffuse color reflection coefficient (kd)
 
-uniform samplerCube  u_texture0;    // Cubic environment texture map
+uniform samplerCube u_texture0;     // Cubic environment texture map
 
-varying vec3   v_R_OS;              // Reflected ray in object space
-varying vec3   v_T_OS;              // Refracted ray in object space
-varying float  v_F_Theta;           // Fresnel reflection coefficient
-varying vec4   v_specColor;         // Specular color at vertex
+varying vec3        v_R_OS;         // Reflected ray in object space
+varying vec3        v_T_OS;         // Refracted ray in object space
+varying float       v_F_Theta;      // Fresnel reflection coefficient
+varying vec4        v_specColor;    // Specular color at vertex
 
 //-----------------------------------------------------------------------------
 void main()
@@ -31,7 +31,10 @@ void main()
    
     // Mix the final color with the fast frenel factor
     gl_FragColor = mix(refrCol, reflCol, v_F_Theta);
-
+    
+    // Add diffuse color as transmission
+    gl_FragColor.rgb += u_matDiffuse.rgb;
+    
     // Add specular highlight
     gl_FragColor.rgb += v_specColor.rgb;
    
