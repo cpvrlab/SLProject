@@ -240,7 +240,8 @@ class SLNode: public SLObject, public SLEventHandler
             // Getters (see member)
             SLNode*         parent              () {return _parent;}
             SLint           depth               () const {return _depth;}
-      const SLMat4f&        om                  () {return _om;}
+      const SLMat4f&        om() { return _om; }
+      const SLMat4f&        initialOM()         {return _initialOM; }
       const SLMat4f&        updateAndGetWM      () const;
       const SLMat4f&        updateAndGetWMI     () const;
       const SLMat3f&        updateAndGetWMN     () const;

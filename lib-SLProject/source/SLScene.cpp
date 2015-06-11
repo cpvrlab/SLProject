@@ -270,7 +270,7 @@ void SLScene::unInit()
 /*! Updates all animations in the scene after all views got painted and
 calculates the elapsed time for one frame in all views. A scene can be displayed
 in multiple views as demonstrated in the app-Viewer-Qt example.
-\return true if realy something got updated
+\return true if really something got updated
 */
 bool SLScene::onUpdate()
 {
@@ -319,7 +319,7 @@ bool SLScene::onUpdate()
     SLfloat startUpdateMS = timeMilliSec();
 
     // reset the dirty flag on all skeletons
-    // @todo    put this functionality in the anim manager
+    // @todo    put this functionality in the animation manager
     // @note    This would not be necessary if we had a 1 to 1 relationship of meshes to skeletons
     //          then  the mesh could just mark the skeleton as clean after retrieving the new data.
     //          Currently however we could have multiple meshes that reference the same skeleton.
@@ -335,9 +335,9 @@ bool SLScene::onUpdate()
     // Process queued up system events and poll custom input devices
     SLbool animatedOrChanged = SLInputManager::instance().pollEvents();
 
-    ////////////////////////////////////////////////////////////////////////////
+    ///////////////////////////////////////////////////////////////////////////////
     animatedOrChanged |= !_stopAnimations && _animManager.update(elapsedTimeSec());
-    ////////////////////////////////////////////////////////////////////////////
+    ///////////////////////////////////////////////////////////////////////////////
     
     // Do software skinning on all changed skeletons
     for (auto mesh : _meshes) 

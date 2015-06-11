@@ -63,7 +63,8 @@ SLAnimation* SLAnimManager::createNodeAnimation(SLfloat duration)
     @param  name        the animation name
     @param  duration    length of the animation
 */
-SLAnimation* SLAnimManager::createNodeAnimation(const SLstring& name, SLfloat duration)
+SLAnimation* SLAnimManager::createNodeAnimation(const SLstring& name, 
+                                                SLfloat duration)
 {
     assert(_nodeAnimations.find(name) == _nodeAnimations.end() &&
            "node animation with same name already exists!");
@@ -78,7 +79,6 @@ SLAnimPlayback* SLAnimManager::getNodeAnimPlayack(const SLstring& name)
 {
     if (_nodeAnimPlaybacks.find(name) != _nodeAnimPlaybacks.end())
         return _nodeAnimPlaybacks[name];
-
     else if (_nodeAnimations.find(name) != _nodeAnimations.end())
     {
         _nodeAnimPlaybacks[name] = new SLAnimPlayback(_nodeAnimations[name]);
@@ -95,9 +95,10 @@ SLbool SLAnimManager::update(SLfloat elapsedTimeSec)
     SLbool updated = false;
 
     // advance time for node animations and apply them
-    // @todo currently we can't blend between normal node animations because we reset them
-    // per animplayback. so the last playback that affects a node will have its animation applied.
-    // we need to save the playback differently if we want to blend them.
+    // @todo currently we can't blend between normal node animations because we 
+    // reset them per animation playback. so the last playback that affects a 
+    // node will have its animation applied. 
+    // We need to save the playback differently if we want to blend them.
 
     for (auto it : _nodeAnimPlaybacks)
     {
@@ -106,16 +107,31 @@ SLbool SLAnimManager::update(SLfloat elapsedTimeSec)
         {
             playback->parentAnimation()->resetNodes();
             playback->advanceTime(elapsedTimeSec);
-            playback->parentAnimation()->apply(playback->localTime(), playback->weight());
+            playback->parentAnimation()->apply(playback->localTime(), 
+                                               playback->weight());
             updated = true;
         }
     }
     
-    // update the skeletons seperately 
+    // update the skeletons separately 
     for (auto skeleton : _skeletons)
         updated |= skeleton->updateAnimations(elapsedTimeSec);
     
     return updated;
+}
+
+//-----------------------------------------------------------------------------
+//! Draws the animation visualizations.
+void SLAnimManager::drawVisuals(SLSceneView* sv)
+{
+    for (auto it : _nodeAnimPlaybacks)
+    {   SLAnimPlayback* playback = it.second;
+        playback->parentAnimation()->drawNodeVisuals(sv);
+    }
+
+    // update the skeletons separately 
+    for (auto skeleton : _skeletons)
+        skeleton->drawVisuals(sv);
 }
 
 //-----------------------------------------------------------------------------

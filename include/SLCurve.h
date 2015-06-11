@@ -31,7 +31,7 @@ class SLCurve
 
         virtual void    dispose  () = 0;
         virtual SLVec3f evaluate (const SLfloat t) = 0;
-        virtual void    draw     (SLMat4f &wm) = 0;
+        virtual void    draw     (const SLMat4f &wm) = 0;
 
     protected:
         SLVec3f*        _points;       //!< Sample points of curve

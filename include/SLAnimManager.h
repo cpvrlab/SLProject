@@ -46,6 +46,7 @@ public:
     SLVSkeleton&    skeletons           () { return _skeletons; }
 
     SLbool          update              (SLfloat elapsedTimeSec);
+    void            drawVisuals         (SLSceneView* sv);
     void            clear               ();
 
 private:

@@ -15,6 +15,7 @@
 #include <SLSkeleton.h>
 #include <SLScene.h>
 #include <SLAnimPlayback.h>
+#include <SLSceneView.h>
 
 //-----------------------------------------------------------------------------
 /*! Constructor
@@ -116,7 +117,7 @@ void SLSkeleton::getJointWorldMatrices(SLMat4f* jointWM)
 void SLSkeleton::root(SLJoint* joint)
 {
     if (_root)
-    _root = joint;
+        _root = joint;
 }
 
 //-----------------------------------------------------------------------------
@@ -174,7 +175,20 @@ SLbool SLSkeleton::updateAnimations(SLfloat elapsedTimeSec)
     return true;
 }
 
+//-----------------------------------------------------------------------------
+void SLSkeleton::drawVisuals(SLSceneView* sv)
+{
+    if (sv->drawBit(SL_DB_AXIS))
+    {   
+        SLGLState* stateGL = SLGLState::getInstance();
+        stateGL->modelViewMatrix.setMatrix(stateGL->viewMatrix);
 
+        for (auto joint : _joints)
+        {
+            joint->aabb()->drawAxisWS();
+        }
+    }
+}
 //-----------------------------------------------------------------------------
 /*! getter for current the current min object space vertex.
 */

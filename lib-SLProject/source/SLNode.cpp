@@ -569,7 +569,7 @@ void SLNode::needWMUpdate()
 /*!
 Flags this node's AABB for an update. If a node 
 changed we need to update it's world space AABB. This needs to also be propagated
-up the parent chain since the AABB of a node incorperates the AABB's of child
+up the parent chain since the AABB of a node incorporates the AABB's of child
 nodes.
 */
 void SLNode::needAABBUpdate()

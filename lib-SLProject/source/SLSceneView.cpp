@@ -419,23 +419,6 @@ SLbool SLSceneView::onPaint()
     // Return true if a repaint is needed
     return !_waitEvents || camUpdated;
 }
-
-
-
-
-//-----------------------------------------------------------------------------
-//! CompareNodeViewDist C-function declaration to avoid XCode warning
-SLbool CompareNodeViewDist(SLNode* a, SLNode* b); 
-//-----------------------------------------------------------------------------
-/*! 
-CompareNodeViewDist C-function serves as the sort comparison function for the 
-blend sorting.
-*/
-SLbool CompareNodeViewDist(SLNode* a, SLNode* b)
-{   if (!a) return false;
-    if (!b) return true;
-    return a->aabb()->sqrViewDist() > b->aabb()->sqrViewDist();
-}
 //-----------------------------------------------------------------------------
 //! Draws the 3D scene with OpenGL
 /*! This is main routine for updating and drawing the 3D scene for one frame. 
@@ -579,16 +562,21 @@ void SLSceneView::draw3DGLAll()
     // Render first the opaque shapes and all helper lines (normals and AABBs)
     _stateGL->blend(false);
     _stateGL->depthMask(true);
-
     draw3DGLNodes(_opaqueNodes);
     draw3DGLLines(_opaqueNodes);
     draw3DGLLines(_blendNodes);
+    draw3DGLAnimVisuals();
 
+    // Render afterwards the transparent nodes with blending enabled
     _stateGL->blend(true);
     _stateGL->depthMask(false);
 
-    // Blended nodes must be sorted back to front
-    std::sort(_blendNodes.begin(), _blendNodes.end(), CompareNodeViewDist);
+    // Blended nodes must be sorted back to front using a lambda function
+    std::sort(_blendNodes.begin(), _blendNodes.end(), [](SLNode* a, SLNode* b)
+    {   if (!a) return false;
+        if (!b) return true;
+        return a->aabb()->sqrViewDist() > b->aabb()->sqrViewDist();
+    });
     draw3DGLNodes(_blendNodes);
 
     // Blending must be turned off again for correct anaglyph stereo modes
@@ -657,6 +645,12 @@ void SLSceneView::draw3DGLNodes(SLVNode &nodes)
     }
    
     GET_GL_ERROR;  // Check if any OGL errors occurred
+}
+//-----------------------------------------------------------------------------
+void SLSceneView::draw3DGLAnimVisuals()
+{
+    SLScene* s = SLScene::current;
+    s->animManager().drawVisuals(this);
 }
 //-----------------------------------------------------------------------------
 /*!
@@ -922,6 +916,16 @@ void SLSceneView::draw2DGLAll()
     _stateGL->depthTest(true);    // enable depth testing
     GET_GL_ERROR;                 // check if any OGL errors occurred
 }
+//-----------------------------------------------------------------------------
+
+
+
+
+
+
+
+
+
 //-----------------------------------------------------------------------------
 /*! 
 SLSceneView::onMouseDown gets called whenever a mouse button gets pressed and
@@ -1987,11 +1991,13 @@ SLstring SLSceneView::windowTitle()
                 _pathtracer.pcRendered(), 
                 _pathtracer.numThreads());
     } else
-    {   sprintf(title, "%s (fps: %4.1f, %u nodes of %u rendered)",
-                        s->name().c_str(), 
-                        s->_fps,
-                        _camera->numRendered() ? _camera->numRendered() : _stats.numNodes,
-                        _stats.numNodes);
+    {   SLuint nr = _camera->numRendered() ? _camera->numRendered() : _stats.numNodes;
+        if (s->_fps > 5)
+            sprintf(title, "%s (fps: %4.0f, %u nodes of %u rendered)",
+                    s->name().c_str(), s->_fps, nr, _stats.numNodes);
+        else
+            sprintf(title, "%s (fps: %4.1f, %u nodes of %u rendered)",
+                    s->name().c_str(), s->_fps, nr, _stats.numNodes);
     }
     return SLstring(title);
 }
