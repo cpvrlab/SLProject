@@ -129,9 +129,7 @@ void SLAnimManager::drawVisuals(SLSceneView* sv)
         playback->parentAnimation()->drawNodeVisuals(sv);
     }
 
-    // update the skeletons separately 
-    for (auto skeleton : _skeletons)
-        skeleton->drawVisuals(sv);
+    // skeletons are drawn from within SLSceneView per node
 }
 
 //-----------------------------------------------------------------------------

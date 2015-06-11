@@ -71,22 +71,22 @@ public:
 
             // Getters
     SLAnimPlayback*     getAnimPlayback (const SLstring& name);
-    SLMAnimation        animations      () { return _animations; }
-            SLint       numAnimations   () const { return (SLint)_animations.size(); }
+    SLMAnimation        animations      () {return _animations;}
+            SLint       numAnimations   () const { return (SLint)_animations.size();}
             SLJoint*    getJoint        (SLuint id);
             SLJoint*    getJoint        (const SLstring& name);
-            SLint       numJoints       () const { return (SLint)_joints.size(); }
-            SLJoint*    root            () { return _root; }
-            SLbool      changed         () const { return _changed; }
+            SLint       numJoints       () const {return (SLint)_joints.size();}
+    const   SLVJoint&   joints          () const {return _joints;}
+            SLJoint*    root            () {return _root;}
+            SLbool      changed         () const {return _changed;}
     const   SLVec3f&    minOS           ();
     const   SLVec3f&    maxOS           ();
 
             // Setters
             void        root            (SLJoint* joint);
-            void        changed         (SLbool changed) { _changed = changed; _minMaxOutOfDate = true; }
+            void        changed         (SLbool changed) {_changed = changed; _minMaxOutOfDate = true;}
 
             SLbool      updateAnimations(SLfloat elapsedTimeSec);
-            void        drawVisuals     (SLSceneView* sv);
     
 protected:
     void                updateMinMax();

@@ -995,3 +995,15 @@ void SLNode::resetToInitialState()
     _om = _initialOM;
     needUpdate();
 }
+
+//-----------------------------------------------------------------------------
+//! Returns the first skeleton found in the meshes
+const SLSkeleton* SLNode::skeleton()
+{
+    for (auto mesh : _meshes)
+        if (mesh->skeleton())
+            return mesh->skeleton();
+    return nullptr;
+}
+
+//-----------------------------------------------------------------------------

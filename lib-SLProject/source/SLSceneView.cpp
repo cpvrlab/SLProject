@@ -616,9 +616,23 @@ void SLSceneView::draw3DGLLines(SLVNode &nodes)
             if (node->drawBit(SL_DB_SELECTED))
                 node->aabb()->drawWS(SLCol3f(1,1,0));
       
-            // Draw axis & animation curves
+            // Draw axis & skeletons
             if (drawBit(SL_DB_AXIS) || node->drawBit(SL_DB_AXIS))
+            {   
                 node->aabb()->drawAxisWS();
+
+                // Draw axis of the skeleton joints
+                const SLSkeleton* skeleton = node->skeleton();
+                if (skeleton)
+                {   for (auto joint : skeleton->joints())
+                    {   SLMat4f wm = node->updateAndGetWM();
+                        wm *= joint->updateAndGetWM();
+                        wm.scale(0.1f);
+                        joint->aabb()->updateAxisWS(wm);
+                        joint->aabb()->drawAxisWS();
+                    }
+                }
+            }   
         }
     }
    

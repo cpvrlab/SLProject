@@ -136,7 +136,6 @@ void SLAABBox::fromWStoOS(const SLVec3f &minWS,
 //! Updates the axis of the owning node
 void SLAABBox::updateAxisWS(const SLMat4f &wm)
 {  
-
     //set coordinate axis in world space
     _axis0WS = wm.multVec(SLVec3f::ZERO);
     _axisXWS = wm.multVec(SLVec3f::AXISX);
@@ -145,8 +144,6 @@ void SLAABBox::updateAxisWS(const SLMat4f &wm)
 
     // Delete OpenGL vertex buffer
     if (_bufP.id()) _bufP.dispose();
-   
-    setCenterAndRadius();
 }
 //-----------------------------------------------------------------------------
 //! Calculates center & radius of the bounding sphere around the AABB
