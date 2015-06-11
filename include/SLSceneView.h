@@ -115,7 +115,7 @@ class SLSceneView: public SLObject
             void            draw3DGLAll         ();
             void            draw3DGLLines       (SLVNode &nodes);
             void            draw3DGLNodes       (SLVNode &nodes);
-            void            draw3DGLAnimVisuals ();
+            void            draw3DGLLinesOverlay(SLVNode &nodes);
             void            draw2DGL            ();
             void            draw2DGLAll         ();
             SLbool          draw3DRT            ();

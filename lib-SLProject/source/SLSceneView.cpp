@@ -565,23 +565,24 @@ void SLSceneView::draw3DGLAll()
     draw3DGLNodes(_opaqueNodes);
     draw3DGLLines(_opaqueNodes);
     draw3DGLLines(_blendNodes);
-    draw3DGLAnimVisuals();
 
     // Render afterwards the transparent nodes with blending enabled
     _stateGL->blend(true);
     _stateGL->depthMask(false);
 
     // Blended nodes must be sorted back to front using a lambda function
-    std::sort(_blendNodes.begin(), _blendNodes.end(), [](SLNode* a, SLNode* b)
-    {   if (!a) return false;
-        if (!b) return true;
-        return a->aabb()->sqrViewDist() > b->aabb()->sqrViewDist();
-    });
+    std::sort(_blendNodes.begin(), _blendNodes.end(),
+              [](SLNode* a, SLNode* b)
+              {   if (!a) return false;
+                  if (!b) return true;
+                  return a->aabb()->sqrViewDist() > b->aabb()->sqrViewDist();
+              });
     draw3DGLNodes(_blendNodes);
 
-    // Blending must be turned off again for correct anaglyph stereo modes
-    _stateGL->blend(false);
-    _stateGL->depthMask(true);
+    draw3DGLLinesOverlay(_opaqueNodes);
+    draw3DGLLinesOverlay(_blendNodes);
+
+    SLScene::current->animManager().drawVisuals(this);
 }
 //-----------------------------------------------------------------------------
 /*!
@@ -615,24 +616,6 @@ void SLSceneView::draw3DGLLines(SLVNode &nodes)
             // Draw AABB for selected shapes
             if (node->drawBit(SL_DB_SELECTED))
                 node->aabb()->drawWS(SLCol3f(1,1,0));
-      
-            // Draw axis & skeletons
-            if (drawBit(SL_DB_AXIS) || node->drawBit(SL_DB_AXIS))
-            {   
-                node->aabb()->drawAxisWS();
-
-                // Draw axis of the skeleton joints
-                const SLSkeleton* skeleton = node->skeleton();
-                if (skeleton)
-                {   for (auto joint : skeleton->joints())
-                    {   SLMat4f wm = node->updateAndGetWM();
-                        wm *= joint->updateAndGetWM();
-                        wm.scale(0.1f);
-                        joint->aabb()->updateAxisWS(wm);
-                        joint->aabb()->drawAxisWS();
-                    }
-                }
-            }   
         }
     }
    
@@ -661,10 +644,43 @@ void SLSceneView::draw3DGLNodes(SLVNode &nodes)
     GET_GL_ERROR;  // Check if any OGL errors occurred
 }
 //-----------------------------------------------------------------------------
-void SLSceneView::draw3DGLAnimVisuals()
+void SLSceneView::draw3DGLLinesOverlay(SLVNode &nodes)
 {
-    SLScene* s = SLScene::current;
-    s->animManager().drawVisuals(this);
+
+    _stateGL->blend(false);
+    _stateGL->depthMask(true);         // Freeze depth buffer for blending
+    _stateGL->depthTest(false);        // Disable depth testing for overlay
+
+    // draw the opaque shapes directly w. their wm transform
+    for(auto node : nodes)
+    {
+        if (node != _camera)
+        {
+            // Set the view transform
+            _stateGL->modelViewMatrix.setMatrix(_stateGL->viewMatrix);
+
+            // Draw axis & skeletons
+            if (drawBit(SL_DB_AXIS) || node->drawBit(SL_DB_AXIS))
+            {
+                node->aabb()->drawAxisWS();
+
+                // Draw axis of the skeleton joints
+                const SLSkeleton* skeleton = node->skeleton();
+                if (skeleton)
+                {   for (auto joint : skeleton->joints())
+                    {   SLMat4f wm = node->updateAndGetWM();
+                        wm *= joint->updateAndGetWM();
+                        wm.scale(0.02f);
+                        joint->aabb()->updateAxisWS(wm);
+                        joint->aabb()->drawAxisWS();
+                    }
+                }
+            }
+        }
+    }
+
+    GET_GL_ERROR;        // Check if any OGL errors occurred
+
 }
 //-----------------------------------------------------------------------------
 /*!
