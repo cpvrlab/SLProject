@@ -113,8 +113,10 @@ class SLSceneView: public SLObject
             // Drawing subroutines
             SLbool          draw3DGL            (SLfloat elapsedTimeSec);
             void            draw3DGLAll         ();
+            void            draw3DGLNodes       (SLVNode &nodes,
+                                                 SLbool alphaBlended,
+                                                 SLbool depthSorted);
             void            draw3DGLLines       (SLVNode &nodes);
-            void            draw3DGLNodes       (SLVNode &nodes);
             void            draw3DGLLinesOverlay(SLVNode &nodes);
             void            draw2DGL            ();
             void            draw2DGLAll         ();

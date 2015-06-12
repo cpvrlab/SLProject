@@ -94,8 +94,9 @@ enum SLCmd
     cmdFrustCullToggle,  // Toggles frustum culling
     cmdWaitEventsToggle, // Toggles the wait event flag
 
+    cmdSkeletonToggle,   // Toggles skeleton drawing bit
     cmdBBoxToggle,       // Toggles bounding box drawing bit
-    cmdAxisToggle,       // Toggles bounding box drawing bit
+    cmdAxisToggle,       // Toggles axis drawing bit
     cmdFaceCullToggle,   // Toggles face culling
     cmdWireMeshToggle,   // Toggles wireframe drawing bit
     cmdNormalsToggle,    // Toggles normale drawing bit

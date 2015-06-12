@@ -146,6 +146,22 @@ void SLAABBox::updateAxisWS(const SLMat4f &wm)
     if (_bufP.id()) _bufP.dispose();
 }
 //-----------------------------------------------------------------------------
+//! Updates joints axis and the bones start and end point of the owning node
+void SLAABBox::updateBoneWS(const SLMat4f &wm, const SLMat4f &offset)
+{
+    //set coordinate axis in world space
+    _axis0WS = wm.multVec(SLVec3f::ZERO);
+    _axisXWS = wm.multVec(SLVec3f::AXISX);
+    _axisYWS = wm.multVec(SLVec3f::AXISY);
+    _axisZWS = wm.multVec(SLVec3f::AXISZ);
+
+    _boneStarWS = offset.multVec(_axis0WS);
+
+
+    // Delete OpenGL vertex buffer
+    if (_bufP.id()) _bufP.dispose();
+}
+//-----------------------------------------------------------------------------
 //! Calculates center & radius of the bounding sphere around the AABB
 void SLAABBox::setCenterAndRadius()
 {  

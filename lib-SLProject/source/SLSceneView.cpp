@@ -559,36 +559,68 @@ added the to the array _opaqueNodes.
 */
 void SLSceneView::draw3DGLAll()
 {  
-    // Render first the opaque shapes and all helper lines (normals and AABBs)
-    _stateGL->blend(false);
-    _stateGL->depthMask(true);
-    draw3DGLNodes(_opaqueNodes);
+    // 1) Draw first the opaque shapes and all helper lines (normals and AABBs)
+    draw3DGLNodes(_opaqueNodes, false, false);
     draw3DGLLines(_opaqueNodes);
     draw3DGLLines(_blendNodes);
 
-    // Render afterwards the transparent nodes with blending enabled
-    _stateGL->blend(true);
-    _stateGL->depthMask(false);
+    // 2) Draw blended nodes sorted back to front
+    draw3DGLNodes(_blendNodes, true, true);
 
-    // Blended nodes must be sorted back to front using a lambda function
-    std::sort(_blendNodes.begin(), _blendNodes.end(),
-              [](SLNode* a, SLNode* b)
-              {   if (!a) return false;
-                  if (!b) return true;
-                  return a->aabb()->sqrViewDist() > b->aabb()->sqrViewDist();
-              });
-    draw3DGLNodes(_blendNodes);
-
+    // 3) Draw helper
     draw3DGLLinesOverlay(_opaqueNodes);
     draw3DGLLinesOverlay(_blendNodes);
 
+    // 4) Draw visualization lines of animation curves
     SLScene::current->animManager().drawVisuals(this);
+
+    // 5) Turn blending off again for correct anaglyph stereo modes
+    _stateGL->blend(false);
+    _stateGL->depthMask(true);
+    _stateGL->depthTest(true);
 }
 //-----------------------------------------------------------------------------
 /*!
-SLSceneView::draw3DGLLines draws the AABB, the axis and the animation
-curves from the passed node vector directly with their world coordinates after 
-the view transform. The lines must be drawn without blending.
+SLSceneView::draw3DGLNodes draws the nodes meshes from the passed node vector
+directly with their world transform after the view transform.
+*/
+void SLSceneView::draw3DGLNodes(SLVNode &nodes,
+                                SLbool alphaBlended,
+                                SLbool depthSorted)
+{
+    _stateGL->blend(alphaBlended);
+    _stateGL->depthMask(!alphaBlended);
+
+    // Depth sort with lambda function by their view distance
+    if (depthSorted)
+    {   std::sort(nodes.begin(), nodes.end(),
+                  [](SLNode* a, SLNode* b)
+                  {   if (!a) return false;
+                      if (!b) return true;
+                      return a->aabb()->sqrViewDist() > b->aabb()->sqrViewDist();
+                  });
+    }
+
+    // draw the shapes directly with their wm transform
+    for(auto node : nodes)
+    {
+        // Set the view transform
+        _stateGL->modelViewMatrix.setMatrix(_stateGL->viewMatrix);
+
+        // Apply world transform
+        _stateGL->modelViewMatrix.multiply(node->updateAndGetWM().m());
+
+        // Finally the nodes meshes
+        node->drawMeshes(this);
+    }
+
+    GET_GL_ERROR;  // Check if any OGL errors occurred
+}
+//-----------------------------------------------------------------------------
+/*!
+SLSceneView::draw3DGLLines draws the AABB from the passed node vector directly
+with their world coordinates after the view transform. The lines must be drawn
+without blending.
 Colors:
 Red   : AABB of nodes with meshes
 Pink  : AABB of nodes without meshes (only child nodes)
@@ -596,14 +628,17 @@ Yellow: AABB of selected node
 */
 void SLSceneView::draw3DGLLines(SLVNode &nodes)
 {  
+    _stateGL->blend(false);
+    _stateGL->depthMask(true);
+
+    // Set the view transform
+    _stateGL->modelViewMatrix.setMatrix(_stateGL->viewMatrix);
+
     // draw the opaque shapes directly w. their wm transform
     for(auto node : nodes)
     {
         if (node != _camera)
         {
-            // Set the view transform
-            _stateGL->modelViewMatrix.setMatrix(_stateGL->viewMatrix);
-
             // Draw first AABB of the shapes but not the camera
             if ((drawBit(SL_DB_BBOX) || node->drawBit(SL_DB_BBOX)) &&
                 !node->drawBit(SL_DB_SELECTED))
@@ -623,56 +658,43 @@ void SLSceneView::draw3DGLLines(SLVNode &nodes)
 }
 //-----------------------------------------------------------------------------
 /*!
-SLSceneView::draw3DGLNodes draws the nodes meshes from the passed node vector
-directly with their world coordinates after the view transform.
+SLSceneView::draw3DGLLinesOverlay draws the nodes axis and skeleton joints
+as overlayed
 */
-void SLSceneView::draw3DGLNodes(SLVNode &nodes)
-{  
-    // draw the shapes directly with their wm transform
-    for(auto node : nodes)
-    {
-        // Set the view transform
-        _stateGL->modelViewMatrix.setMatrix(_stateGL->viewMatrix);
-      
-        // Apply world transform
-        _stateGL->modelViewMatrix.multiply(node->updateAndGetWM().m());
-      
-        // Finally the nodes meshes
-        node->drawMeshes(this);
-    }
-   
-    GET_GL_ERROR;  // Check if any OGL errors occurred
-}
-//-----------------------------------------------------------------------------
 void SLSceneView::draw3DGLLinesOverlay(SLVNode &nodes)
 {
-
-    _stateGL->blend(false);
-    _stateGL->depthMask(true);         // Freeze depth buffer for blending
-    _stateGL->depthTest(false);        // Disable depth testing for overlay
 
     // draw the opaque shapes directly w. their wm transform
     for(auto node : nodes)
     {
         if (node != _camera)
         {
-            // Set the view transform
-            _stateGL->modelViewMatrix.setMatrix(_stateGL->viewMatrix);
-
-            // Draw axis & skeletons
-            if (drawBit(SL_DB_AXIS) || node->drawBit(SL_DB_AXIS))
+            if (drawBit(SL_DB_AXIS) || node->drawBit(SL_DB_AXIS) ||
+                drawBit(SL_DB_SKELETON) || node->drawBit(SL_DB_SKELETON))
             {
-                node->aabb()->drawAxisWS();
+                // Set the view transform
+                _stateGL->modelViewMatrix.setMatrix(_stateGL->viewMatrix);
+                _stateGL->blend(false);      // Turn off blending for overlay
+                _stateGL->depthMask(true);   // Freeze depth buffer for blending
+                _stateGL->depthTest(false);  // Turn of depth test for overlay
 
-                // Draw axis of the skeleton joints
-                const SLSkeleton* skeleton = node->skeleton();
-                if (skeleton)
-                {   for (auto joint : skeleton->joints())
-                    {   SLMat4f wm = node->updateAndGetWM();
-                        wm *= joint->updateAndGetWM();
-                        wm.scale(0.02f);
-                        joint->aabb()->updateAxisWS(wm);
-                        joint->aabb()->drawAxisWS();
+                // Draw axis
+                if (drawBit(SL_DB_AXIS) || node->drawBit(SL_DB_AXIS))
+                    node->aabb()->drawAxisWS();
+
+                // Draw skeleton
+                if (drawBit(SL_DB_SKELETON) || node->drawBit(SL_DB_SKELETON))
+                {
+                    // Draw axis of the skeleton joints
+                    const SLSkeleton* skeleton = node->skeleton();
+                    if (skeleton)
+                    {   for (auto joint : skeleton->joints())
+                        {   SLMat4f wm = node->updateAndGetWM();
+                            wm *= joint->updateAndGetWM();
+                            wm.scale(0.03f);
+                            joint->aabb()->updateBoneWS(wm, joint->offsetMat());
+                            joint->aabb()->drawAxisWS();
+                        }
                     }
                 }
             }
@@ -680,7 +702,6 @@ void SLSceneView::draw3DGLLinesOverlay(SLVNode &nodes)
     }
 
     GET_GL_ERROR;        // Check if any OGL errors occurred
-
 }
 //-----------------------------------------------------------------------------
 /*!
@@ -1362,6 +1383,7 @@ SLbool SLSceneView::onCommand(SLCmd cmd)
         case cmdWireMeshToggle:  _drawBits.toggle(SL_DB_WIREMESH); return true;
         case cmdBBoxToggle:      _drawBits.toggle(SL_DB_BBOX);     return true;
         case cmdAxisToggle:      _drawBits.toggle(SL_DB_AXIS);     return true;
+        case cmdSkeletonToggle:  _drawBits.toggle(SL_DB_SKELETON); return true;
         case cmdVoxelsToggle:    _drawBits.toggle(SL_DB_VOXELS);   return true;
         case cmdFaceCullToggle:  _drawBits.toggle(SL_DB_CULLOFF);  return true;
         case cmdTextureToggle:   _drawBits.toggle(SL_DB_TEXOFF);   return true;
@@ -1698,6 +1720,7 @@ void SLSceneView::build2DMenus()
     mn1->addChild(mn2);
     mn2->addChild(new SLButton(this, "Textures off", f, cmdTextureToggle, true, false, 0, false));
     mn2->addChild(new SLButton(this, "Back Faces", f, cmdFaceCullToggle, true, false, 0, false));
+    mn2->addChild(new SLButton(this, "Skeleton", f, cmdSkeletonToggle, true, false, 0, false));
     mn2->addChild(new SLButton(this, "AABB", f, cmdBBoxToggle, true, false, 0, false));
     mn2->addChild(new SLButton(this, "Axis", f, cmdAxisToggle, true, false, 0, false));
     mn2->addChild(new SLButton(this, "Voxels", f, cmdVoxelsToggle, true, false, 0, false));
