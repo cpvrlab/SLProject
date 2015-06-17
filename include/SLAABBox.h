@@ -68,11 +68,13 @@ class SLAABBox
                                         const SLVec3f &maxWS,
                                         const SLMat4f &wmI);
             void        updateAxisWS   (const SLMat4f &wm);
-            void        updateBoneWS   (const SLMat4f &wm,
-                                        const SLMat4f &offset);
+            void        updateBoneWS   (const SLMat4f &parentWM,
+                                        const SLMat4f &nodeWM,
+                                        const SLMat4f &offsetMatrix);
             void        mergeWS        (SLAABBox &bb);
             void        drawWS         (const SLCol3f color);
             void        drawAxisWS     ();
+            void        drawBoneWS     ();
             void        setCenterAndRadius();
             void        generateVBO    ();
             SLbool      isHitInOS      (SLRay* ray);
@@ -92,8 +94,8 @@ class SLAABBox
             SLVec3f     _axisXWS;       //!< World space x-axis vector
             SLVec3f     _axisYWS;       //!< World space y-axis vector
             SLVec3f     _axisZWS;       //!< World space z-axis vector
-            SLVec3f     _boneStarWS;    //!< World space vector to the bones start point
-            SLVec3f     _boneEndWS;     //!< World space vector to the bones end point
+            SLVec3f     _boneStartWS;   //!< World space vector to the bones start point
+            SLVec3f     _parent0WS;     //!< World space vector to the parent position
             SLbool      _isVisible;     //!< Flag if AABB is in the view frustum
             SLbool      _hasTransp;     //!< Flag if AABB has transparent shapes
             SLGLBuffer  _bufP;          //!< Buffer object for vertex positions

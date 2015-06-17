@@ -147,16 +147,18 @@ void SLAABBox::updateAxisWS(const SLMat4f &wm)
 }
 //-----------------------------------------------------------------------------
 //! Updates joints axis and the bones start and end point of the owning node
-void SLAABBox::updateBoneWS(const SLMat4f &wm, const SLMat4f &offset)
+void SLAABBox::updateBoneWS(const SLMat4f &parentWM,
+                            const SLMat4f &nodeWM,
+                            const SLMat4f &offsetMatrix)
 {
     //set coordinate axis in world space
-    _axis0WS = wm.multVec(SLVec3f::ZERO);
-    _axisXWS = wm.multVec(SLVec3f::AXISX);
-    _axisYWS = wm.multVec(SLVec3f::AXISY);
-    _axisZWS = wm.multVec(SLVec3f::AXISZ);
+    _axis0WS = nodeWM.multVec(SLVec3f::ZERO);
+    _axisXWS = nodeWM.multVec(SLVec3f::AXISX);
+    _axisYWS = nodeWM.multVec(SLVec3f::AXISY);
+    _axisZWS = nodeWM.multVec(SLVec3f::AXISZ);
 
-    _boneStarWS = offset.multVec(_axis0WS);
-
+    _boneStartWS = offsetMatrix.multVec(_axis0WS);
+    _parent0WS = parentWM.multVec(SLVec3f::ZERO);
 
     // Delete OpenGL vertex buffer
     if (_bufP.id()) _bufP.dispose();
@@ -181,7 +183,8 @@ void SLAABBox::setCenterAndRadius()
 //! Generates the vertex buffer for the line visualization
 void SLAABBox::generateVBO()
 {
-    SLVec3f P[30];  // vertex positions (24 for aabb, 6 for axis)
+    SLVec3f P[33];  // vertex positions (24 for aabb, 6 for axis, 3 for joint)
+
     P[ 0].set(_minWS.x, _minWS.y, _minWS.z); // lower rect
     P[ 1].set(_maxWS.x, _minWS.y, _minWS.z);
     P[ 2].set(_maxWS.x, _minWS.y, _minWS.z);
@@ -190,6 +193,7 @@ void SLAABBox::generateVBO()
     P[ 5].set(_minWS.x, _minWS.y, _maxWS.z);
     P[ 6].set(_minWS.x, _minWS.y, _maxWS.z);
     P[ 7].set(_minWS.x, _minWS.y, _minWS.z);
+
     P[ 8].set(_minWS.x, _maxWS.y, _minWS.z); // upper rect
     P[ 9].set(_maxWS.x, _maxWS.y, _minWS.z);
     P[10].set(_maxWS.x, _maxWS.y, _minWS.z);
@@ -197,6 +201,7 @@ void SLAABBox::generateVBO()
     P[12].set(_maxWS.x, _maxWS.y, _maxWS.z);
     P[13].set(_minWS.x, _maxWS.y, _maxWS.z);
     P[14].set(_minWS.x, _maxWS.y, _maxWS.z);
+
     P[15].set(_minWS.x, _maxWS.y, _minWS.z); // vertical lines
     P[16].set(_minWS.x, _minWS.y, _minWS.z);
     P[17].set(_minWS.x, _maxWS.y, _minWS.z);
@@ -206,13 +211,19 @@ void SLAABBox::generateVBO()
     P[21].set(_maxWS.x, _maxWS.y, _maxWS.z);
     P[22].set(_minWS.x, _minWS.y, _maxWS.z);
     P[23].set(_minWS.x, _maxWS.y, _maxWS.z);
+
     P[24].set(_axis0WS.x, _axis0WS.y, _axis0WS.z); // x-axis
     P[25].set(_axisXWS.x, _axisXWS.y, _axisXWS.z);
     P[26].set(_axis0WS.x, _axis0WS.y, _axis0WS.z); // y-axis
     P[27].set(_axisYWS.x, _axisYWS.y, _axisYWS.z);
     P[28].set(_axis0WS.x, _axis0WS.y, _axis0WS.z); // z-axis
     P[29].set(_axisZWS.x, _axisZWS.y, _axisZWS.z);
-    _bufP.generate(P, 30, 3);
+
+    P[30].set(_parent0WS.x, _parent0WS.y, _parent0WS.z);
+    P[31].set(_axis0WS.x, _axis0WS.y, _axis0WS.z);
+    P[32].set(_boneStartWS.x, _boneStartWS.y, _boneStartWS.z);
+
+    _bufP.generate(P, 33, 3);
 }
 //-----------------------------------------------------------------------------
 //! Draws the AABB in world space with lines in a color
@@ -235,6 +246,20 @@ void SLAABBox::drawAxisWS()
     _bufP.drawArrayAsConstantColorLines(SLCol3f::RED,   2.0f, 24, 2);
     _bufP.drawArrayAsConstantColorLines(SLCol3f::GREEN, 2.0f, 26, 2);
     _bufP.drawArrayAsConstantColorLines(SLCol3f::BLUE,  2.0f, 28, 2);
+}
+//-----------------------------------------------------------------------------
+//! Draws the bone in world space with lines in a color
+void SLAABBox::drawBoneWS()
+{
+    // Create buffer object once
+    if (!_bufP.id()) generateVBO();
+    if (!_bufP.id()) return;
+
+    _bufP.drawArrayAsConstantColorLines(SLCol3f::RED,     2.0f, 24, 2);
+    _bufP.drawArrayAsConstantColorLines(SLCol3f::GREEN,   2.0f, 26, 2);
+    _bufP.drawArrayAsConstantColorLines(SLCol3f::BLUE,    2.0f, 28, 2);
+    _bufP.drawArrayAsConstantColorLines(SLCol3f::YELLOW,  1.0f, 30, 2);
+    _bufP.drawArrayAsConstantColorLines(SLCol3f::MAGENTA, 1.0f, 31, 2);
 }
 //-----------------------------------------------------------------------------
 //! SLAABBox::isHitInWS: Ray - AABB Intersection Test in object space
