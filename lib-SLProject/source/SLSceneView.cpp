@@ -692,7 +692,9 @@ void SLSceneView::draw3DGLLinesOverlay(SLVNode &nodes)
                         {   SLMat4f wm = node->updateAndGetWM();
                             wm *= joint->updateAndGetWM();
                             wm.scale(0.03f);
-                            SLMat4f parentWM = joint->parent()->updateAndGetWM();
+                            SLMat4f parentWM;
+                            if (joint->parent())
+                                parentWM = joint->parent()->updateAndGetWM();
                             joint->aabb()->updateBoneWS(parentWM, wm, joint->offsetMat());
                             joint->aabb()->drawBoneWS();
                         }
