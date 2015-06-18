@@ -176,10 +176,13 @@ void SLAABBox::updateBoneWS(const SLMat4f &parentWM,
     _axisXWS = nodeWM.multVec(SLVec3f::AXISX * axisScaleFactor);
     _axisYWS = nodeWM.multVec(SLVec3f::AXISY * axisScaleFactor);
     _axisZWS = nodeWM.multVec(SLVec3f::AXISZ * axisScaleFactor);
-
-
-    // offset ???
-    _boneStartWS = offsetMatrix.multVec(_axis0WS);
+    
+    // see if the parent to child direction is parallel with the parents actual direction
+    SLVec3f parentDirection = _axis0WS - _parent0WS;
+    parentDirection.normalize();
+    SLVec3f parentY = parentWM.axisY();
+    parentY.normalize();
+    _boneIsOffset = parentDirection.dot(parentY) < (1.0f - FLT_EPSILON);
 
     // Delete OpenGL vertex buffer
     if (_bufP.id()) _bufP.dispose();
@@ -204,7 +207,7 @@ void SLAABBox::setCenterAndRadius()
 //! Generates the vertex buffer for the line visualization
 void SLAABBox::generateVBO()
 {
-    SLVec3f P[34];  // vertex positions (24 for aabb, 6 for axis, 3 for joint)
+    SLVec3f P[32];  // vertex positions (24 for aabb, 6 for axis, 3 for joint)
 
     P[ 0].set(_minWS.x, _minWS.y, _minWS.z); // lower rect
     P[ 1].set(_maxWS.x, _minWS.y, _minWS.z);
@@ -243,10 +246,8 @@ void SLAABBox::generateVBO()
     // Bone points
     P[30].set(_parent0WS.x, _parent0WS.y, _parent0WS.z);
     P[31].set(_axis0WS.x, _axis0WS.y, _axis0WS.z);
-    P[32].set(_axis0WS.x, _axis0WS.y, _axis0WS.z);          
-    P[33].set(_boneStartWS.x, _boneStartWS.y, _boneStartWS.z);
 
-    _bufP.generate(P, 34, 3);
+    _bufP.generate(P, 32, 3);
 }
 //-----------------------------------------------------------------------------
 //! Draws the AABB in world space with lines in a color
@@ -281,8 +282,13 @@ void SLAABBox::drawBoneWS()
     _bufP.drawArrayAsConstantColorLines(SLCol3f::RED,     2.0f, 24, 2);
     _bufP.drawArrayAsConstantColorLines(SLCol3f::GREEN,   2.0f, 26, 2);
     _bufP.drawArrayAsConstantColorLines(SLCol3f::BLUE,    2.0f, 28, 2);
-    _bufP.drawArrayAsConstantColorLines(SLCol3f::YELLOW,  1.0f, 30, 2);
-    //_bufP.drawArrayAsConstantColorLines(SLCol3f::MAGENTA, 1.0f, 32, 2);
+
+
+    // draw either an offset line or a bone line as the parent
+    if (!_boneIsOffset)
+        _bufP.drawArrayAsConstantColorLines(SLCol3f::YELLOW,  1.0f, 30, 2);
+    else
+        _bufP.drawArrayAsConstantColorLines(SLCol3f::MAGENTA, 1.0f, 30, 2);
 }
 //-----------------------------------------------------------------------------
 //! SLAABBox::isHitInWS: Ray - AABB Intersection Test in object space
