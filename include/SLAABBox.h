@@ -69,6 +69,7 @@ class SLAABBox
                                         const SLMat4f &wmI);
             void        updateAxisWS   (const SLMat4f &wm);
             void        updateBoneWS   (const SLMat4f &parentWM,
+                                        const SLbool isRoot,
                                         const SLMat4f &nodeWM,
                                         const SLMat4f &offsetMatrix);
             void        mergeWS        (SLAABBox &bb);

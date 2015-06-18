@@ -689,13 +689,23 @@ void SLSceneView::draw3DGLLinesOverlay(SLVNode &nodes)
                     const SLSkeleton* skeleton = node->skeleton();
                     if (skeleton)
                     {   for (auto joint : skeleton->joints())
-                        {   SLMat4f wm = node->updateAndGetWM();
+                        {   
+                            // Get the node wm & apply the joints wm
+                            SLMat4f wm = node->updateAndGetWM();
                             wm *= joint->updateAndGetWM();
-                            wm.scale(0.03f);
+                            //wm.scale(0.03f);
+
+                            // Get parent node wm & apply the parent joint wm
                             SLMat4f parentWM;
                             if (joint->parent())
-                                parentWM = joint->parent()->updateAndGetWM();
-                            joint->aabb()->updateBoneWS(parentWM, wm, joint->offsetMat());
+                            {   parentWM = node->parent()->updateAndGetWM();
+                                parentWM *= joint->parent()->updateAndGetWM();
+                                joint->aabb()->updateBoneWS(parentWM, false, wm, joint->offsetMat());
+                            } 
+                            else 
+                                joint->aabb()->updateBoneWS(parentWM, true, wm, joint->offsetMat());
+
+                            
                             joint->aabb()->drawBoneWS();
                         }
                     }

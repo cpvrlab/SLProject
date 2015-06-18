@@ -148,17 +148,38 @@ void SLAABBox::updateAxisWS(const SLMat4f &wm)
 //-----------------------------------------------------------------------------
 //! Updates joints axis and the bones start and end point of the owning node
 void SLAABBox::updateBoneWS(const SLMat4f &parentWM,
+                            const SLbool isRoot,
                             const SLMat4f &nodeWM,
                             const SLMat4f &offsetMatrix)
 {
-    //set coordinate axis in world space
+    // set coordinate axis centre point
     _axis0WS = nodeWM.multVec(SLVec3f::ZERO);
-    _axisXWS = nodeWM.multVec(SLVec3f::AXISX);
-    _axisYWS = nodeWM.multVec(SLVec3f::AXISY);
-    _axisZWS = nodeWM.multVec(SLVec3f::AXISZ);
 
+    // set scale factor for coordinate axis
+    SLfloat axisScaleFactor = 0.03f;
+
+    if (!isRoot)
+    { 
+        // Build the parent pos in WM
+        _parent0WS = parentWM.multVec(SLVec3f::ZERO);
+
+        // Set the axis scale factor depending on the length of the parent bone
+        SLVec3f parentToMe = _axis0WS - _parent0WS;
+        axisScaleFactor = SL_max(parentToMe.length()/10.0f, axisScaleFactor);
+    } else
+    {   
+        // for the root node don't draw a parent bone
+        _parent0WS = _axis0WS;
+    }
+
+    // set coordinate axis end points
+    _axisXWS = nodeWM.multVec(SLVec3f::AXISX * axisScaleFactor);
+    _axisYWS = nodeWM.multVec(SLVec3f::AXISY * axisScaleFactor);
+    _axisZWS = nodeWM.multVec(SLVec3f::AXISZ * axisScaleFactor);
+
+
+    // offset ???
     _boneStartWS = offsetMatrix.multVec(_axis0WS);
-    _parent0WS = parentWM.multVec(SLVec3f::ZERO);
 
     // Delete OpenGL vertex buffer
     if (_bufP.id()) _bufP.dispose();
@@ -183,7 +204,7 @@ void SLAABBox::setCenterAndRadius()
 //! Generates the vertex buffer for the line visualization
 void SLAABBox::generateVBO()
 {
-    SLVec3f P[33];  // vertex positions (24 for aabb, 6 for axis, 3 for joint)
+    SLVec3f P[34];  // vertex positions (24 for aabb, 6 for axis, 3 for joint)
 
     P[ 0].set(_minWS.x, _minWS.y, _minWS.z); // lower rect
     P[ 1].set(_maxWS.x, _minWS.y, _minWS.z);
@@ -219,11 +240,13 @@ void SLAABBox::generateVBO()
     P[28].set(_axis0WS.x, _axis0WS.y, _axis0WS.z); // z-axis
     P[29].set(_axisZWS.x, _axisZWS.y, _axisZWS.z);
 
+    // Bone points
     P[30].set(_parent0WS.x, _parent0WS.y, _parent0WS.z);
     P[31].set(_axis0WS.x, _axis0WS.y, _axis0WS.z);
-    P[32].set(_boneStartWS.x, _boneStartWS.y, _boneStartWS.z);
+    P[32].set(_axis0WS.x, _axis0WS.y, _axis0WS.z);          
+    P[33].set(_boneStartWS.x, _boneStartWS.y, _boneStartWS.z);
 
-    _bufP.generate(P, 33, 3);
+    _bufP.generate(P, 34, 3);
 }
 //-----------------------------------------------------------------------------
 //! Draws the AABB in world space with lines in a color
@@ -259,7 +282,7 @@ void SLAABBox::drawBoneWS()
     _bufP.drawArrayAsConstantColorLines(SLCol3f::GREEN,   2.0f, 26, 2);
     _bufP.drawArrayAsConstantColorLines(SLCol3f::BLUE,    2.0f, 28, 2);
     _bufP.drawArrayAsConstantColorLines(SLCol3f::YELLOW,  1.0f, 30, 2);
-    _bufP.drawArrayAsConstantColorLines(SLCol3f::MAGENTA, 1.0f, 31, 2);
+    //_bufP.drawArrayAsConstantColorLines(SLCol3f::MAGENTA, 1.0f, 32, 2);
 }
 //-----------------------------------------------------------------------------
 //! SLAABBox::isHitInWS: Ray - AABB Intersection Test in object space
