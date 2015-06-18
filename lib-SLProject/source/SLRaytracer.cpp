@@ -49,7 +49,7 @@ SLRaytracer::SLRaytracer()
    
     _numThreads = 1;
     _continuous = false;
-    _distributed = true;
+    _distributed = false;
 }
 //-----------------------------------------------------------------------------
 SLRaytracer::~SLRaytracer()
@@ -80,8 +80,8 @@ SLbool SLRaytracer::renderClassic(SLSceneView* sv)
     double t1 = SLScene::current->timeSec();
     double tStart = t1;
 
-    for (SLuint y=0; y<_images[0]->height(); ++y)
-    {   for (SLuint x=0; x<_images[0]->width(); ++x)
+    for (SLuint y=_images[0]->height()/2; y<_images[0]->height(); ++y)
+    {   for (SLuint x=_images[0]->width()/2; x<_images[0]->width(); ++x)
         {
             SLRay primaryRay;
             setPrimaryRay((SLfloat)x, (SLfloat)y, &primaryRay);
@@ -118,7 +118,7 @@ SLbool SLRaytracer::renderClassic(SLSceneView* sv)
 }
 //-----------------------------------------------------------------------------
 /*!
-This is the main rendering method for paralllel and distributed ray tracing.
+This is the main rendering method for parallel and distributed ray tracing.
 */
 SLbool SLRaytracer::renderDistrib(SLSceneView* sv)
 {
@@ -200,7 +200,7 @@ Renders slices of 4 rows until the full width of the image is rendered. This
 method can be called as a function by multiple threads.
 The _next index is used and incremented by every thread. So it should be locked
 or an atomic index. I prefer not protecting it because it's faster. If the
-increment is not done proberly some pixels may get raytraced twice. Only the
+increment is not done properly some pixels may get ray traced twice. Only the
 main thread is allowed to call a repaint of the image.
 */
 void SLRaytracer::renderSlices(const bool isMainThread)
@@ -253,7 +253,7 @@ rendered. Every pixel is multisampled for depth of field lens sampling. This
 method can be called as a function by multiple threads.
 The _next index is used and incremented by every thread. So it should be locked
 or an atomic index. I prefer not protecting it because it's faster. If the
-increment is not done proberly some pixels may get raytraced twice. Only the
+increment is not done properly some pixels may get ray traced twice. Only the
 main thread is allowed to call a repaint of the image.
 */
 void SLRaytracer::renderSlicesMS(const bool isMainThread)
