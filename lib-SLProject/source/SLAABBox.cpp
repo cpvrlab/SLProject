@@ -146,11 +146,18 @@ void SLAABBox::updateAxisWS(const SLMat4f &wm)
     if (_bufP.id()) _bufP.dispose();
 }
 //-----------------------------------------------------------------------------
-//! Updates joints axis and the bones start and end point of the owning node
+//! Updates joints axis and the bone line from the parent to us
+/*! If the node has a skeleton assigned the method updates the axis and bone
+visualization lines of the joint. Note that joints bone line is drawn by its
+children. So the bone line in here is the bone from the parent to us.
+If this parent bone direction is not along the parents Y axis we interpret the
+connection not as a bone but as an offset displacement. Bones will be drawn in
+SLAABBox::drawBoneWS in yellow and displacements in magenta.
+If the joint has no parent (the root) no line is drawn.
+*/
 void SLAABBox::updateBoneWS(const SLMat4f &parentWM,
                             const SLbool isRoot,
-                            const SLMat4f &nodeWM,
-                            const SLMat4f &offsetMatrix)
+                            const SLMat4f &nodeWM)
 {
     // set coordinate axis centre point
     _axis0WS = nodeWM.multVec(SLVec3f::ZERO);
@@ -160,29 +167,29 @@ void SLAABBox::updateBoneWS(const SLMat4f &parentWM,
 
     if (!isRoot)
     { 
-        // Build the parent pos in WM
+        // build the parent pos in WM
         _parent0WS = parentWM.multVec(SLVec3f::ZERO);
 
-        // Set the axis scale factor depending on the length of the parent bone
+        // set the axis scale factor depending on the length of the parent bone
         SLVec3f parentToMe = _axis0WS - _parent0WS;
-        axisScaleFactor = SL_max(parentToMe.length()/10.0f, axisScaleFactor);
+        axisScaleFactor = SL_max(parentToMe.length() / 10.0f, axisScaleFactor);
+
+        // check if the parent to me direction is parallel to the parents actual y-axis
+        parentToMe.normalize();
+        SLVec3f parentY = parentWM.axisY();
+        parentY.normalize();
+        _boneIsOffset = parentToMe.dot(parentY) < (1.0f - FLT_EPSILON);
     } else
     {   
         // for the root node don't draw a parent bone
         _parent0WS = _axis0WS;
+        _boneIsOffset = false;
     }
 
     // set coordinate axis end points
     _axisXWS = nodeWM.multVec(SLVec3f::AXISX * axisScaleFactor);
     _axisYWS = nodeWM.multVec(SLVec3f::AXISY * axisScaleFactor);
     _axisZWS = nodeWM.multVec(SLVec3f::AXISZ * axisScaleFactor);
-    
-    // see if the parent to child direction is parallel with the parents actual direction
-    SLVec3f parentDirection = _axis0WS - _parent0WS;
-    parentDirection.normalize();
-    SLVec3f parentY = parentWM.axisY();
-    parentY.normalize();
-    _boneIsOffset = parentDirection.dot(parentY) < (1.0f - FLT_EPSILON);
 
     // Delete OpenGL vertex buffer
     if (_bufP.id()) _bufP.dispose();
@@ -272,7 +279,11 @@ void SLAABBox::drawAxisWS()
     _bufP.drawArrayAsConstantColorLines(SLCol3f::BLUE,  2.0f, 28, 2);
 }
 //-----------------------------------------------------------------------------
-//! Draws the bone in world space with lines in a color
+//! Draws the joint axis and the parent bone in world space
+/*! The joints x-axis is drawn in red, the y-axis in green and the z-axis in 
+blue. If the parent displacement is a bone it is drawn in yellow, if it is a
+an offset displacement in magenta. See also SLAABBox::updateBoneWS.
+*/
 void SLAABBox::drawBoneWS()
 {
     // Create buffer object once
@@ -286,9 +297,8 @@ void SLAABBox::drawBoneWS()
 
     // draw either an offset line or a bone line as the parent
     if (!_boneIsOffset)
-        _bufP.drawArrayAsConstantColorLines(SLCol3f::YELLOW,  1.0f, 30, 2);
-    else
-        _bufP.drawArrayAsConstantColorLines(SLCol3f::MAGENTA, 1.0f, 30, 2);
+         _bufP.drawArrayAsConstantColorLines(SLCol3f::YELLOW,  1.0f, 30, 2);
+    else _bufP.drawArrayAsConstantColorLines(SLCol3f::MAGENTA, 1.0f, 30, 2);
 }
 //-----------------------------------------------------------------------------
 //! SLAABBox::isHitInWS: Ray - AABB Intersection Test in object space

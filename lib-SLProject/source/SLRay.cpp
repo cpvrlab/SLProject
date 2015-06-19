@@ -143,6 +143,11 @@ R = 2(-I·N) N + I
 */
 void SLRay::reflect(SLRay* reflected)
 {
+    #ifdef DEBUG_RAY
+    for (SLint i = 0; i < depth; ++i) cout << " ";
+    cout << "Reflect: " << hitMesh->name() << endl;
+    #endif
+
     SLVec3f R(dir - 2.0f*(dir*hitNormal)*hitNormal);
 
     reflected->setDir(R);
@@ -177,39 +182,47 @@ void SLRay::refract(SLRay* refracted)
 
     SLMaterial* originMat = originMesh ? originMesh->mat : nullptr;
     SLMaterial* hitMat = hitMesh ? hitMesh->mat : nullptr;
-    
-    /*
-    // Calculate index of refraction eta = Kn_Source/Kn_Destination
-    if (isOutside)
-    {   if (originMat==nullptr) // from air (outside) into a material
-            eta = 1.0f / hitMat->kn();
-        else // from another material into another one (should be also 1.0 / hitMat->kn)
-            eta = originMat->kn() / hitMat->kn();
-    } else
-    {   if (originMat==hitMat) // from the inside a material into air
-            eta = hitMat->kn(); // = hitMat / 1.0
-        else // from inside a material into another material
-            eta = originMat->kn() / hitMat->kn();
-    }
-    */
+
+    #ifdef DEBUG_RAY
+    for (SLint i=0; i<depth; ++i) cout << " ";
+    cout << "Refract: ";
+    #endif
 
     // Calculate index of refraction eta = Kn_Source/Kn_Destination
     // Case 1: From air into a material
     if (isOutside)
+    {
+        #ifdef DEBUG_RAY
+        cout << "case 1:" << hitMesh->name() << endl;
+        #endif
         eta = 1.0f / hitMat->kn();
+    }
     else
     {   // Case 2: From inside a material back into air (outside)
         if (hitMesh==originMesh) 
+        {
+            #ifdef DEBUG_RAY
+            cout << "case 2:" << hitMesh->name() << endl;
+            #endif
             eta = hitMat->kn(); // = hitMat / 1.0
+        }
         else 
         {   
             // Case 3a: From inside a material into another material 
             if (hitMesh!=ignoreMesh)
-            {   
+            {
+                #ifdef DEBUG_RAY
+                cout << "case 3a:" << hitMesh->name() << endl;
+                #endif
                 eta = originMat->kn() / hitMat->kn();
+                refracted->ignoreMesh = originMesh;
             }
             else // Case 3b: Ignored refraction case is treated specially
-            {   
+            {
+                #ifdef DEBUG_RAY
+                cout << "case 3b::" << hitMesh->name() << endl;
+                #endif
+                
                 // The new ray is not refracted an has the same direction
                 refracted->setDir(dir);             // no direction change
                 refracted->origin.set(hitPoint);    // new origin point
@@ -218,10 +231,10 @@ void SLRay::refract(SLRay* refracted)
                 refracted->isOutside = isOutside;   // remain inside
                 refracted->length = FLT_MAX;
                 refracted->originNode = originNode; // origin remains
-                refracted->originMesh = originMesh; // mesh remains for next 3a case
-                refracted->originTriangle = originTriangle;
+                refracted->originMesh = hitMesh; // mesh remains for next 3a case
+                refracted->originTriangle = hitTriangle;
                 refracted->ignoreMesh = nullptr;
-                refracted->depth = depth;
+                refracted->depth = depth + 1;
                 refracted->x = x;
                 refracted->y = y;
                 ++ignoredRays;
@@ -240,7 +253,7 @@ void SLRay::refract(SLRay* refracted)
         refracted->contrib = contrib * hitMat->kt();
         refracted->type = REFRACTED;
         // Set isOutside to false if the originMesh is the hitMesh
-        refracted->isOutside = (hitMesh==originMesh) ? !isOutside : isOutside;
+        refracted->isOutside = (hitMesh==originMesh || originMesh==nullptr) ? !isOutside : isOutside;
         ++refractedRays;
     } 
     else // total internal refraction results in a internal reflected ray

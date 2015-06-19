@@ -80,11 +80,20 @@ SLbool SLRaytracer::renderClassic(SLSceneView* sv)
     double t1 = SLScene::current->timeSec();
     double tStart = t1;
 
+    #ifdef DEBUG_RAY
     for (SLuint y=_images[0]->height()/2; y<_images[0]->height(); ++y)
     {   for (SLuint x=_images[0]->width()/2; x<_images[0]->width(); ++x)
+    #else
+    for (SLuint y = 0; y < _images[0]->height(); ++y)
+    {   for (SLuint x = 0; x < _images[0]->width(); ++x)
+    #endif
         {
             SLRay primaryRay;
             setPrimaryRay((SLfloat)x, (SLfloat)y, &primaryRay);
+
+            #ifdef DEBUG_RAY
+            cout << "\nRay(" << x <<"," << y << "):" << endl;
+            #endif
 
             //////////////////////////////////////////
             SLCol4f color = traceClassic(&primaryRay);
@@ -287,7 +296,7 @@ void SLRaytracer::renderSlicesMS(const bool isMainThread)
                     {   
                         SLVec2f discPos(_cam->lensSamples()->point(iR,iPhi));
                   
-                        // calculate lensposition out of disc position
+                        // calculate lens position out of disc position
                         SLVec3f lensPos(_EYE + discPos.x*lensRadiusX + discPos.y*lensRadiusY);
                         SLVec3f lensToFP(FP-lensPos);
                         lensToFP.normalize();
@@ -338,7 +347,7 @@ SLCol4f SLRaytracer::traceClassic(SLRay* ray)
     if (ray->length < FLT_MAX)
     {
         color = shade(ray);
-
+        
         if (ray->depth < SLRay::maxDepth && ray->contrib > SLRay::minContrib)
         {
             if (ray->hitMesh->mat->kt())

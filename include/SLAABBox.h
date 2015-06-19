@@ -70,8 +70,7 @@ class SLAABBox
             void        updateAxisWS   (const SLMat4f &wm);
             void        updateBoneWS   (const SLMat4f &parentWM,
                                         const SLbool isRoot,
-                                        const SLMat4f &nodeWM,
-                                        const SLMat4f &offsetMatrix);
+                                        const SLMat4f &nodeWM);
             void        mergeWS        (SLAABBox &bb);
             void        drawWS         (const SLCol3f color);
             void        drawAxisWS     ();
@@ -90,12 +89,12 @@ class SLAABBox
             SLVec3f     _centerOS;      //!< Center of AABB in object space
             SLfloat     _radiusWS;      //!< Radius of sphere around AABB in WS
             SLfloat     _radiusOS;      //!< Radius of sphere around AABB in OS
-            SLfloat     _sqrViewDist;   //!< Sqr. dist. from center to viewpoint
+            SLfloat     _sqrViewDist;   //!< Squared dist. from center to viewpoint
             SLVec3f     _axis0WS;       //!< World space axis center point
             SLVec3f     _axisXWS;       //!< World space x-axis vector
             SLVec3f     _axisYWS;       //!< World space y-axis vector
             SLVec3f     _axisZWS;       //!< World space z-axis vector
-            SLbool      _boneIsOffset;  //!< Flag whether the connection from parent to us is a bone or just an offset
+            SLbool      _boneIsOffset;  //!< Flag if the connection parent to us is a bone or an offset
             SLVec3f     _parent0WS;     //!< World space vector to the parent position
             SLbool      _isVisible;     //!< Flag if AABB is in the view frustum
             SLbool      _hasTransp;     //!< Flag if AABB has transparent shapes

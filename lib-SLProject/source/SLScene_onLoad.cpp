@@ -196,7 +196,6 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
         name("Minimal Texture Example");
         info(sv, "Minimal texture mapping example with one light source.");
 
-        /*
         // Create textures and materials
         SLGLTexture* texC = new SLGLTexture("earth1024_C.jpg");
         SLMaterial* m1 = new SLMaterial("m1", texC);
@@ -223,36 +222,6 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
         scene->addChild(light1);
         scene->addChild(cam1);
         scene->addChild(rectNode);
-        */
-
-            // Create a camera node
-            SLCamera* cam1 = new SLCamera();
-        cam1->name("camera node");
-        cam1->translation(0, 0, 5);
-        cam1->lookAt(0, 0, 0);
-        cam1->setInitialState();
-
-        // Create a light source node
-        SLLightSphere* light1 = new SLLightSphere(0.3f);
-        light1->translation(5, 5, 5);
-        light1->lookAt(0, 0, 0);
-        light1->name("light node");
-
-        // Material for glass sphere
-        SLMaterial* matBox1 = new SLMaterial("matBox1", SLCol4f(0.0f, 0.0f, 0.0f), SLCol4f(0.5f, 0.5f, 0.5f), 100, 0.1f, 0.9f, 1.5f);
-        SLMesh* boxMesh1 = new SLBox(-0.8f, -1,-0.02f, 1.2f, 1, 1, "boxMesh1", matBox1);
-        SLNode* boxNode1 = new SLNode(boxMesh1, "BoxNode1");
-        
-        SLMaterial* matBox2 = new SLMaterial("matBox2", SLCol4f(0.0f, 0.0f, 0.0f), SLCol4f(0.5f, 0.5f, 0.5f), 100, 0.1f, 0.9f, 1.3f);
-        SLMesh* boxMesh2 = new SLBox(-1.2f, -1, 0.02f, 0.8f, 1,-1, "BoxMesh2", matBox2);
-        SLNode* boxNode2 = new SLNode(boxMesh2, "BoxNode2");
-
-        // Create a scene group and add all nodes
-        SLNode* scene = new SLNode("scene node");
-        scene->addChild(light1);
-        scene->addChild(cam1);
-        scene->addChild(boxNode1);
-        scene->addChild(boxNode2);
 
         // Set background color and the root scene node
         _backColor.set(0.5f,0.5f,0.5f);
@@ -296,7 +265,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
         scene->addChild(floorRect);
         scene->addChild(figure);
      
-        // Set backround color, active camera & the root pointer
+        // Set background color, active camera & the root pointer
         _backColor.set(SLCol4f(0.1f,0.4f,0.8f));
         sv->camera(cam1);
         _root3D = scene;
@@ -588,7 +557,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
         name("Revolving Mesh Test w. glass shader");
         info(sv, "Examples of revolving mesh objects constructed by rotating a 2D curve. The glass shader reflects and refracts the environment map. Try ray tracing.");
 
-        // Testmap material
+        // Test map material
         SLGLTexture* tex1 = new SLGLTexture("Testmap_0512_C.png");
         SLMaterial* mat1 = new SLMaterial("mat1", tex1);
 
@@ -627,8 +596,8 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
         // camera
         SLCamera* cam1 = new SLCamera();
         cam1->name("cam1");
-        cam1->translation(0,0,17);
-        cam1->lookAt(0, 0, 0);
+        cam1->translation(0,1,17);
+        cam1->lookAt(0,2,0);
         cam1->focalDist(17);
         cam1->setInitialState();
 
@@ -2229,6 +2198,49 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
         _backColor.set(SLCol4f(0.1f, 0.4f, 0.8f));
         sv->camera(cam1);
         _root3D = scene;
+    }
+    else
+    if (sceneName == cmdSceneRTTest) //.........................................
+    {
+        // Set scene name and info string
+        name("RT Test Scene");
+        info(sv, "RT Test Scene");
+
+        // Create a camera node
+        SLCamera* cam1 = new SLCamera();
+        cam1->name("camera node");
+        cam1->translation(0, 0, 5);
+        cam1->lookAt(0, 0, 0);
+        cam1->setInitialState();
+
+        // Create a light source node
+        SLLightSphere* light1 = new SLLightSphere(0.3f);
+        light1->translation(5, 5, 5);
+        light1->lookAt(0, 0, 0);
+        light1->name("light node");
+
+        // Material for glass sphere
+        SLMaterial* matBox1 = new SLMaterial("matBox1", SLCol4f(0.0f, 0.0f, 0.0f), SLCol4f(0.5f, 0.5f, 0.5f), 100, 0.0f, 0.9f, 1.5f);
+        SLMesh* boxMesh1 = new SLBox(-0.8f, -1,-0.02f, 1.2f, 1, 1, "boxMesh1", matBox1);
+        SLNode* boxNode1 = new SLNode(boxMesh1, "BoxNode1");
+        
+        SLMaterial* matBox2 = new SLMaterial("matBox2", SLCol4f(0.0f, 0.0f, 0.0f), SLCol4f(0.5f, 0.5f, 0.5f), 100, 0.0f, 0.9f, 1.3f);
+        SLMesh* boxMesh2 = new SLBox(-1.2f, -1, -1, 0.8f, 1, 0.02f, "BoxMesh2", matBox2);
+        SLNode* boxNode2 = new SLNode(boxMesh2, "BoxNode2");
+
+        // Create a scene group and add all nodes
+        SLNode* scene = new SLNode("scene node");
+        scene->addChild(light1);
+        scene->addChild(cam1);
+        scene->addChild(boxNode1);
+        scene->addChild(boxNode2);
+
+        // Set background color and the root scene node
+        _backColor.set(0.5f,0.5f,0.5f);
+        _root3D = scene;
+
+        // Set active camera
+        sv->camera(cam1);
     }
 
     // call onInitialize on all scene views

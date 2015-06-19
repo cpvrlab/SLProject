@@ -685,7 +685,7 @@ void SLSceneView::draw3DGLLinesOverlay(SLVNode &nodes)
                 // Draw skeleton
                 if (drawBit(SL_DB_SKELETON) || node->drawBit(SL_DB_SKELETON))
                 {
-                    // Draw axis of the skeleton joints
+                    // Draw axis of the skeleton joints and its parent bones
                     const SLSkeleton* skeleton = node->skeleton();
                     if (skeleton)
                     {   for (auto joint : skeleton->joints())
@@ -693,19 +693,17 @@ void SLSceneView::draw3DGLLinesOverlay(SLVNode &nodes)
                             // Get the node wm & apply the joints wm
                             SLMat4f wm = node->updateAndGetWM();
                             wm *= joint->updateAndGetWM();
-                            //wm.scale(0.03f);
 
                             // Get parent node wm & apply the parent joint wm
                             SLMat4f parentWM;
                             if (joint->parent())
                             {   parentWM = node->parent()->updateAndGetWM();
                                 parentWM *= joint->parent()->updateAndGetWM();
-                                joint->aabb()->updateBoneWS(parentWM, false, wm, joint->offsetMat());
+                                joint->aabb()->updateBoneWS(parentWM, false, wm);
                             } 
                             else 
-                                joint->aabb()->updateBoneWS(parentWM, true, wm, joint->offsetMat());
+                                joint->aabb()->updateBoneWS(parentWM, true, wm);
 
-                            
                             joint->aabb()->drawBoneWS();
                         }
                     }
@@ -1315,206 +1313,6 @@ SLbool SLSceneView::onKeyRelease(SLKey key, SLKey mod)
 }
 //-----------------------------------------------------------------------------
 /*!
-SLSceneView::onCommand: Event handler for commands. Most key press or menu
-commands are collected and dispatched here.
-*/
-SLbool SLSceneView::onCommand(SLCmd cmd)
-{
-    SLScene* s = SLScene::current;
-    SLNode* root3D = s->root3D();
-
-    switch(cmd)
-    {
-        case cmdQuit:
-            slShouldClose(true);
-        case cmdMenu:
-            return false;
-        case cmdAboutToggle:
-            if (s->_menu2D)
-            {   if (s->_menu2D == s->_menuGL)
-                     s->_menu2D = s->_btnAbout;
-                else s->_menu2D = s->_menuGL;
-                return true;
-            } else return false;
-        case cmdHelpToggle:
-            if (s->_menu2D)
-            {   if (s->_menu2D == s->_menuGL)
-                    s->_menu2D = s->_btnHelp;
-                else s->_menu2D = s->_menuGL;
-                return true;
-            } else return false;
-        case cmdCreditsToggle:
-            if (s->_menu2D)
-            {   if (s->_menu2D == s->_menuGL)
-                    s->_menu2D = s->_btnCredits;
-            else s->_menu2D = s->_menuGL;
-            return true;
-            } else return false;
-
-        case cmdSceneSmallTest:
-        case cmdSceneFigure:
-        case cmdSceneLargeModel:
-        case cmdSceneMeshLoad:
-        case cmdSceneRevolver:
-        case cmdSceneTextureFilter:
-        case cmdSceneFrustumCull1:
-        case cmdSceneFrustumCull2:
-        case cmdSceneTextureBlend:
-
-        case cmdScenePerVertexBlinn:
-        case cmdScenePerPixelBlinn:
-        case cmdScenePerVertexWave:
-        case cmdSceneWater:
-        case cmdSceneBumpNormal:  
-        case cmdSceneBumpParallax:
-        case cmdSceneEarth:
-
-        case cmdSceneMassAnimation:
-        case cmdSceneNodeAnimation:
-        case cmdSceneSkeletalAnimation:
-        case cmdSceneAstroboyArmyCPU:
-        case cmdSceneAstroboyArmyGPU:
-
-        case cmdSceneRTSpheres:
-        case cmdSceneRTMuttenzerBox:
-        case cmdSceneRTSoftShadows:
-        case cmdSceneRTDoF:
-        case cmdSceneRTLens:        s->onLoad(this, (SLCmd)cmd); return false;
-
-        case cmdUseSceneViewCamera: switchToSceneViewCamera(); return true;
-        case cmdStatsToggle:        _showStats = !_showStats; return true;
-        case cmdSceneInfoToggle:    _showInfo = !_showInfo; return true;
-        case cmdWaitEventsToggle:   _waitEvents = !_waitEvents; return true;
-        case cmdMultiSampleToggle:
-            _doMultiSampling = !_doMultiSampling;
-            _raytracer.aaSamples(_doMultiSampling?3:1);
-            return true;
-        case cmdFrustCullToggle:  _doFrustumCulling = !_doFrustumCulling; return true;
-        case cmdDepthTestToggle:  _doDepthTest = !_doDepthTest; return true;
-
-        case cmdNormalsToggle:   _drawBits.toggle(SL_DB_NORMALS);  return true;
-        case cmdWireMeshToggle:  _drawBits.toggle(SL_DB_WIREMESH); return true;
-        case cmdBBoxToggle:      _drawBits.toggle(SL_DB_BBOX);     return true;
-        case cmdAxisToggle:      _drawBits.toggle(SL_DB_AXIS);     return true;
-        case cmdSkeletonToggle:  _drawBits.toggle(SL_DB_SKELETON); return true;
-        case cmdVoxelsToggle:    _drawBits.toggle(SL_DB_VOXELS);   return true;
-        case cmdFaceCullToggle:  _drawBits.toggle(SL_DB_CULLOFF);  return true;
-        case cmdTextureToggle:   _drawBits.toggle(SL_DB_TEXOFF);   return true;
-
-        case cmdAnimationToggle: s->_stopAnimations = !s->_stopAnimations; return true;
-      
-        case cmdRenderOpenGL:
-            _renderType = renderGL;
-            s->menu2D(s->_menuGL);
-            return true;
-        case cmdRTContinuously:   
-            _raytracer.continuous(!_raytracer.continuous());
-            return true;
-        case cmdRTDistributed:   
-            _raytracer.distributed(!_raytracer.distributed());
-            startRaytracing(5);
-            return true;
-        case cmdRT1: startRaytracing(1); return true;
-        case cmdRT2: startRaytracing(2); return true;
-        case cmdRT3: startRaytracing(3); return true;
-        case cmdRT4: startRaytracing(4); return true;
-        case cmdRT5: startRaytracing(5); return true;
-        case cmdRT6: startRaytracing(6); return true;
-        case cmdRT7: startRaytracing(7); return true;
-        case cmdRT8: startRaytracing(8); return true;
-        case cmdRT9: startRaytracing(9); return true;
-        case cmdRT0: startRaytracing(0); return true;
-        case cmdRTSaveImage: _raytracer.saveImage(); return true;
-
-        case cmdPT1: startPathtracing(5, 1); return true;
-        case cmdPT10: startPathtracing(5, 10); return true;
-        case cmdPT50: startPathtracing(5, 50); return true;
-        case cmdPT100: startPathtracing(5, 100); return true;
-        case cmdPT500: startPathtracing(5, 500); return true;
-        case cmdPT1000: startPathtracing(5, 1000); return true;
-        case cmdPT5000: startPathtracing(5, 5000); return true;
-        case cmdPT10000: startPathtracing(5, 100000); return true;
-        case cmdPTSaveImage: _pathtracer.saveImage(); return true;
-
-        default: break;
-   }
-
-    if (_camera)
-    {           
-        SLProjection prevProjection = _camera->projection();
-        SLbool perspectiveChanged = prevProjection != (SLProjection)(cmd-cmdProjPersp);
-
-        switch(cmd)
-        {   case cmdProjPersp:
-                _camera->projection(monoPerspective);
-                if (_renderType == renderRT && !_raytracer.continuous() && 
-                    _raytracer.state()==rtFinished)
-                    _raytracer.state(rtReady);
-                break;
-            case cmdProjOrtho:
-                _camera->projection(monoOrthographic);
-                if (_renderType == renderRT && !_raytracer.continuous() && 
-                    _raytracer.state()==rtFinished)
-                    _raytracer.state(rtReady);
-                break;
-            case cmdProjSideBySide:    _camera->projection(stereoSideBySide); break;
-            case cmdProjSideBySideP:   _camera->projection(stereoSideBySideP); break;
-            case cmdProjSideBySideD:   _camera->projection(stereoSideBySideD); break;
-            case cmdProjLineByLine:    _camera->projection(stereoLineByLine); break;
-            case cmdProjColumnByColumn:_camera->projection(stereoColumnByColumn); break;
-            case cmdProjPixelByPixel:  _camera->projection(stereoPixelByPixel); break;
-            case cmdProjColorRC:       _camera->projection(stereoColorRC); break;
-            case cmdProjColorRG:       _camera->projection(stereoColorRG); break;
-            case cmdProjColorRB:       _camera->projection(stereoColorRB); break;
-            case cmdProjColorYB:       _camera->projection(stereoColorYB); break;
-      
-            case cmdCamSpeedLimitInc:  _camera->maxSpeed(_camera->maxSpeed()*1.2f); return true;
-            case cmdCamSpeedLimitDec:  _camera->maxSpeed(_camera->maxSpeed()*0.8f); return true;
-            case cmdCamEyeSepInc:      _camera->onMouseWheel( 1, KeyCtrl); return true;
-            case cmdCamEyeSepDec:      _camera->onMouseWheel(-1, KeyCtrl); return true;
-            case cmdCamFocalDistInc:   _camera->onMouseWheel( 1, KeyShift); return true;
-            case cmdCamFocalDistDec:   _camera->onMouseWheel(-1, KeyShift); return true;
-            case cmdCamFOVInc:         _camera->onMouseWheel( 1, KeyAlt); return true;
-            case cmdCamFOVDec:         _camera->onMouseWheel(-1, KeyAlt); return true;
-            case cmdCamAnimTurnYUp:    _camera->camAnim(turntableYUp); return true;
-            case cmdCamAnimTurnZUp:    _camera->camAnim(turntableZUp); return true;
-            case cmdCamAnimWalkYUp:    _camera->camAnim(walkingYUp); return true;
-            case cmdCamAnimWalkZUp:    _camera->camAnim(walkingZUp); return true;
-            case cmdCamDeviceRotOn:    _camera->useDeviceRot(true); return true;
-            case cmdCamDeviceRotOff:   _camera->useDeviceRot(false); return true;
-            case cmdCamDeviceRotToggle:_camera->useDeviceRot(!_camera->useDeviceRot()); return true;
-            case cmdCamReset:          _camera->resetToInitialState(); return true;
-            default: break;
-        }
-                
-        // special case code ???
-        if (perspectiveChanged)
-        {
-            if (cmd == cmdProjSideBySideD) 
-            {
-                _vrMode = true;
-                dpi(dpi()*2);
-                SLButton::minMenuPos.set(_scrW*0.25f+100.0f, _scrH*0.5f-150.0f);
-                rebuild2DMenus();
-                if (onShowSysCursor)
-                    onShowSysCursor(false);
-            }
-            else if (prevProjection == stereoSideBySideD)
-            {
-                _vrMode = false;
-                dpi((SLint)((SLfloat)dpi()*0.5f));
-                SLButton::minMenuPos.set(10.0f, 10.0f);
-                rebuild2DMenus();
-                if (onShowSysCursor)
-                    onShowSysCursor(true);
-            }
-        }
-    }
-
-    return false;
-}
-//-----------------------------------------------------------------------------
-/*!
 SLSceneView::onRotation: Event handler for rotation change of a mobile
 device with Euler angles for pitch, yaw and roll. 
 With the parameter zeroYawAfterSec sets the time in seconds after
@@ -1555,6 +1353,215 @@ void SLSceneView::onRotationQUAT(SLfloat quatX,
                                  SLfloat quatW)
 {
     _deviceRotation.set(quatX, quatY, quatZ, quatW);
+}
+
+//-----------------------------------------------------------------------------
+/*!
+SLSceneView::onCommand: Event handler for commands. Most key press or menu
+commands are collected and dispatched here.
+*/
+SLbool SLSceneView::onCommand(SLCmd cmd)
+{
+    SLScene* s = SLScene::current;
+    SLNode* root3D = s->root3D();
+
+    switch (cmd)
+    {
+    case cmdQuit:
+        slShouldClose(true);
+    case cmdMenu:
+        return false;
+    case cmdAboutToggle:
+        if (s->_menu2D)
+        {
+            if (s->_menu2D == s->_menuGL)
+                s->_menu2D = s->_btnAbout;
+            else s->_menu2D = s->_menuGL;
+            return true;
+        }
+        else return false;
+    case cmdHelpToggle:
+        if (s->_menu2D)
+        {
+            if (s->_menu2D == s->_menuGL)
+                s->_menu2D = s->_btnHelp;
+            else s->_menu2D = s->_menuGL;
+            return true;
+        }
+        else return false;
+    case cmdCreditsToggle:
+        if (s->_menu2D)
+        {
+            if (s->_menu2D == s->_menuGL)
+                s->_menu2D = s->_btnCredits;
+            else s->_menu2D = s->_menuGL;
+            return true;
+        }
+        else return false;
+
+    case cmdSceneSmallTest:
+    case cmdSceneFigure:
+    case cmdSceneLargeModel:
+    case cmdSceneMeshLoad:
+    case cmdSceneRevolver:
+    case cmdSceneTextureFilter:
+    case cmdSceneFrustumCull1:
+    case cmdSceneFrustumCull2:
+    case cmdSceneTextureBlend:
+
+    case cmdScenePerVertexBlinn:
+    case cmdScenePerPixelBlinn:
+    case cmdScenePerVertexWave:
+    case cmdSceneWater:
+    case cmdSceneBumpNormal:
+    case cmdSceneBumpParallax:
+    case cmdSceneEarth:
+
+    case cmdSceneMassAnimation:
+    case cmdSceneNodeAnimation:
+    case cmdSceneSkeletalAnimation:
+    case cmdSceneAstroboyArmyCPU:
+    case cmdSceneAstroboyArmyGPU:
+
+    case cmdSceneRTSpheres:
+    case cmdSceneRTMuttenzerBox:
+    case cmdSceneRTSoftShadows:
+    case cmdSceneRTDoF:
+    case cmdSceneRTTest:
+    case cmdSceneRTLens:        s->onLoad(this, (SLCmd)cmd); return false;
+
+    case cmdUseSceneViewCamera: switchToSceneViewCamera(); return true;
+    case cmdStatsToggle:        _showStats = !_showStats; return true;
+    case cmdSceneInfoToggle:    _showInfo = !_showInfo; return true;
+    case cmdWaitEventsToggle:   _waitEvents = !_waitEvents; return true;
+    case cmdMultiSampleToggle:
+        _doMultiSampling = !_doMultiSampling;
+        _raytracer.aaSamples(_doMultiSampling ? 3 : 1);
+        return true;
+    case cmdFrustCullToggle:    _doFrustumCulling = !_doFrustumCulling; return true;
+    case cmdDepthTestToggle:    _doDepthTest = !_doDepthTest; return true;
+
+    case cmdNormalsToggle:      _drawBits.toggle(SL_DB_NORMALS);  return true;
+    case cmdWireMeshToggle:     _drawBits.toggle(SL_DB_WIREMESH); return true;
+    case cmdBBoxToggle:         _drawBits.toggle(SL_DB_BBOX);     return true;
+    case cmdAxisToggle:         _drawBits.toggle(SL_DB_AXIS);     return true;
+    case cmdSkeletonToggle:     _drawBits.toggle(SL_DB_SKELETON); return true;
+    case cmdVoxelsToggle:       _drawBits.toggle(SL_DB_VOXELS);   return true;
+    case cmdFaceCullToggle:     _drawBits.toggle(SL_DB_CULLOFF);  return true;
+    case cmdTextureToggle:      _drawBits.toggle(SL_DB_TEXOFF);   return true;
+
+    case cmdAnimationToggle: s->_stopAnimations = !s->_stopAnimations; return true;
+
+    case cmdRenderOpenGL:
+        _renderType = renderGL;
+        s->menu2D(s->_menuGL);
+        return true;
+    case cmdRTContinuously:
+        _raytracer.continuous(!_raytracer.continuous());
+        return true;
+    case cmdRTDistributed:
+        _raytracer.distributed(!_raytracer.distributed());
+        startRaytracing(5);
+        return true;
+    case cmdRT1: startRaytracing(1); return true;
+    case cmdRT2: startRaytracing(2); return true;
+    case cmdRT3: startRaytracing(3); return true;
+    case cmdRT4: startRaytracing(4); return true;
+    case cmdRT5: startRaytracing(5); return true;
+    case cmdRT6: startRaytracing(6); return true;
+    case cmdRT7: startRaytracing(7); return true;
+    case cmdRT8: startRaytracing(8); return true;
+    case cmdRT9: startRaytracing(9); return true;
+    case cmdRT0: startRaytracing(0); return true;
+    case cmdRTSaveImage: _raytracer.saveImage(); return true;
+
+    case cmdPT1: startPathtracing(5, 1); return true;
+    case cmdPT10: startPathtracing(5, 10); return true;
+    case cmdPT50: startPathtracing(5, 50); return true;
+    case cmdPT100: startPathtracing(5, 100); return true;
+    case cmdPT500: startPathtracing(5, 500); return true;
+    case cmdPT1000: startPathtracing(5, 1000); return true;
+    case cmdPT5000: startPathtracing(5, 5000); return true;
+    case cmdPT10000: startPathtracing(5, 100000); return true;
+    case cmdPTSaveImage: _pathtracer.saveImage(); return true;
+
+    default: break;
+    }
+
+    if (_camera)
+    {
+        SLProjection prevProjection = _camera->projection();
+        SLbool perspectiveChanged = prevProjection != (SLProjection)(cmd - cmdProjPersp);
+
+        switch (cmd)
+        {
+        case cmdProjPersp:
+            _camera->projection(monoPerspective);
+            if (_renderType == renderRT && !_raytracer.continuous() &&
+                _raytracer.state() == rtFinished)
+                _raytracer.state(rtReady);
+            break;
+        case cmdProjOrtho:
+            _camera->projection(monoOrthographic);
+            if (_renderType == renderRT && !_raytracer.continuous() &&
+                _raytracer.state() == rtFinished)
+                _raytracer.state(rtReady);
+            break;
+        case cmdProjSideBySide:    _camera->projection(stereoSideBySide); break;
+        case cmdProjSideBySideP:   _camera->projection(stereoSideBySideP); break;
+        case cmdProjSideBySideD:   _camera->projection(stereoSideBySideD); break;
+        case cmdProjLineByLine:    _camera->projection(stereoLineByLine); break;
+        case cmdProjColumnByColumn:_camera->projection(stereoColumnByColumn); break;
+        case cmdProjPixelByPixel:  _camera->projection(stereoPixelByPixel); break;
+        case cmdProjColorRC:       _camera->projection(stereoColorRC); break;
+        case cmdProjColorRG:       _camera->projection(stereoColorRG); break;
+        case cmdProjColorRB:       _camera->projection(stereoColorRB); break;
+        case cmdProjColorYB:       _camera->projection(stereoColorYB); break;
+
+        case cmdCamSpeedLimitInc:  _camera->maxSpeed(_camera->maxSpeed()*1.2f); return true;
+        case cmdCamSpeedLimitDec:  _camera->maxSpeed(_camera->maxSpeed()*0.8f); return true;
+        case cmdCamEyeSepInc:      _camera->onMouseWheel(1, KeyCtrl); return true;
+        case cmdCamEyeSepDec:      _camera->onMouseWheel(-1, KeyCtrl); return true;
+        case cmdCamFocalDistInc:   _camera->onMouseWheel(1, KeyShift); return true;
+        case cmdCamFocalDistDec:   _camera->onMouseWheel(-1, KeyShift); return true;
+        case cmdCamFOVInc:         _camera->onMouseWheel(1, KeyAlt); return true;
+        case cmdCamFOVDec:         _camera->onMouseWheel(-1, KeyAlt); return true;
+        case cmdCamAnimTurnYUp:    _camera->camAnim(turntableYUp); return true;
+        case cmdCamAnimTurnZUp:    _camera->camAnim(turntableZUp); return true;
+        case cmdCamAnimWalkYUp:    _camera->camAnim(walkingYUp); return true;
+        case cmdCamAnimWalkZUp:    _camera->camAnim(walkingZUp); return true;
+        case cmdCamDeviceRotOn:    _camera->useDeviceRot(true); return true;
+        case cmdCamDeviceRotOff:   _camera->useDeviceRot(false); return true;
+        case cmdCamDeviceRotToggle:_camera->useDeviceRot(!_camera->useDeviceRot()); return true;
+        case cmdCamReset:          _camera->resetToInitialState(); return true;
+        default: break;
+        }
+
+        // special case code ???
+        if (perspectiveChanged)
+        {
+            if (cmd == cmdProjSideBySideD)
+            {
+                _vrMode = true;
+                dpi(dpi() * 2);
+                SLButton::minMenuPos.set(_scrW*0.25f + 100.0f, _scrH*0.5f - 150.0f);
+                rebuild2DMenus();
+                if (onShowSysCursor)
+                    onShowSysCursor(false);
+            }
+            else if (prevProjection == stereoSideBySideD)
+            {
+                _vrMode = false;
+                dpi((SLint)((SLfloat)dpi()*0.5f));
+                SLButton::minMenuPos.set(10.0f, 10.0f);
+                rebuild2DMenus();
+                if (onShowSysCursor)
+                    onShowSysCursor(true);
+            }
+        }
+    }
+
+    return false;
 }
 //-----------------------------------------------------------------------------
 
@@ -1665,7 +1672,8 @@ void SLSceneView::build2DMenus()
     mn3->addChild(new SLButton(this, "Muttenzer Box", f, cmdSceneRTMuttenzerBox, true, curS==cmdSceneRTMuttenzerBox, mn2));
     mn3->addChild(new SLButton(this, "Soft Shadows", f, cmdSceneRTSoftShadows, true, curS==cmdSceneRTSoftShadows, mn2));
     mn3->addChild(new SLButton(this, "Depth of Field", f, cmdSceneRTDoF, true, curS==cmdSceneRTDoF, mn2));
-    mn3->addChild(new SLButton(this, "Lens Test", f, cmdSceneRTLens, true, curS==cmdSceneRTLens, mn2));
+    mn3->addChild(new SLButton(this, "Lens Test", f, cmdSceneRTLens, true, curS == cmdSceneRTLens, mn2));
+    mn3->addChild(new SLButton(this, "RT Test", f, cmdSceneRTTest, true, curS == cmdSceneRTTest, mn2));
 
     mn3 = new SLButton(this, "Path tracing >", f);
     mn2->addChild(mn3);

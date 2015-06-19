@@ -953,8 +953,9 @@ void SLMesh::preShade(SLRay* ray)
     // transform normal back to world space
     ray->hitNormal.set(ray->hitNode->updateAndGetWMN() * ray->hitNormal);
                  
-    // invert normal if the ray is inside a mesh
-    if (!ray->isOutside) ray->hitNormal *= -1;
+    // invert normal if the ray is inside a the same mesh
+    if (!ray->isOutside && ray->hitMesh==ray->originMesh) 
+        ray->hitNormal *= -1;
    
     // for shading the normal is expected to be unit length
     ray->hitNormal.normalize();
