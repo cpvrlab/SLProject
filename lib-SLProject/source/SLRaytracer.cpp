@@ -49,7 +49,12 @@ SLRaytracer::SLRaytracer()
    
     _numThreads = 1;
     _continuous = false;
+
+    #if defined(_DEBUG) && defined(DEBUG_RAY)
     _distributed = false;
+    #else
+    _distributed = true;
+    #endif
 }
 //-----------------------------------------------------------------------------
 SLRaytracer::~SLRaytracer()
@@ -91,7 +96,7 @@ SLbool SLRaytracer::renderClassic(SLSceneView* sv)
             SLRay primaryRay;
             setPrimaryRay((SLfloat)x, (SLfloat)y, &primaryRay);
 
-            #ifdef DEBUG_RAY
+            #if defined(_DEBUG) && defined(DEBUG_RAY)
             cout << "\nRay(" << x <<"," << y << "):" << endl;
             #endif
 

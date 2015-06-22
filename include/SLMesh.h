@@ -127,7 +127,7 @@ are the vertices of the hard edges in the front of the sphere doubled.
 \n
 For all arrays a corresponding vertex buffer object (VBO) is created on the
 graphic card. All arrays remain in the main memory for ray tracing.
-A mesh uses only one material referenced by the SLMesh::_mat pointer.
+A mesh uses normally only one material referenced by the SLMesh::mat pointer.
 \n
 \n
 If a mesh is associated with a skeleton all its vertices and normals are
@@ -188,7 +188,8 @@ class SLMesh : public SLObject
 
             SLuint          numV;           //!< Number of elements in P, N, C, T & Tc   
             SLuint          numI;           //!< Number of elements in I16 or I32
-            SLMaterial*     mat;            //!< Pointer to the material
+            SLMaterial*     mat;            //!< Pointer to the inside material
+            SLMaterial*     matOut;         //!< Pointer to the outside material
             SLVec3f         minP;           //!< min. vertex in OS
             SLVec3f         maxP;           //!< max. vertex in OS
    

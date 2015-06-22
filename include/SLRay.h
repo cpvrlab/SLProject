@@ -66,43 +66,42 @@ class SLRay
     inline  SLbool      hitMatIsDiffuse     () const;
             
             // Classic ray members
-            SLVec3f     origin;        //!< Vector to the origin of ray in WS
-            SLVec3f     dir;           //!< Direction vector of ray in WS
-            SLVec3f     originOS;      //!< Vector to the origin of ray in OS
-            SLVec3f     dirOS;         //!< Direction vector of ray in OS
-            SLfloat     length;        //!< length from origin to an intersection
-            SLint       depth;         //!< Recursion depth for ray tracing
-            SLfloat     contrib;       //!< Current contribution of ray to color
+            SLVec3f     origin;         //!< Vector to the origin of ray in WS
+            SLVec3f     dir;            //!< Direction vector of ray in WS
+            SLVec3f     originOS;       //!< Vector to the origin of ray in OS
+            SLVec3f     dirOS;          //!< Direction vector of ray in OS
+            SLfloat     length;         //!< length from origin to an intersection
+            SLint       depth;          //!< Recursion depth for ray tracing
+            SLfloat     contrib;        //!< Current contribution of ray to color
             
             // Additional info for intersection 
-            SLRayType   type;          //!< PRIMARY, REFLECTED, REFRACTED, SHADOW
-            SLfloat     lightDist;     //!< Distance to light for shadow rays
-            SLfloat     x, y;          //!< Pixel position for primary rays
-            SLbool      isOutside;     //!< Flag if ray is inside of a material
-            SLbool      isInsideVolume;//!< Flag if ray is in Volume
-            SLNode*     originNode;    //!< Points to the node at ray origin
-            SLMesh*     originMesh;    //!< Points to the mesh at ray origin
-            SLint       originTriangle;//!< Points to the triangle at ray origin
-            SLMesh*     ignoreMesh;
+            SLRayType   type;           //!< PRIMARY, REFLECTED, REFRACTED, SHADOW
+            SLfloat     lightDist;      //!< Distance to light for shadow rays
+            SLfloat     x, y;           //!< Pixel position for primary rays
+            SLbool      isOutside;      //!< Flag if ray is inside of a material
+            SLbool      isInsideVolume; //!< Flag if ray is in Volume
+            SLNode*     srcNode;        //!< Points to the node at ray origin
+            SLMesh*     srcMesh;        //!< Points to the mesh at ray origin
+            SLint       srcTriangle;    //!< Points to the triangle at ray origin
 
             // Members set after at intersection
-            SLfloat     hitU, hitV;    //!< barycentric coords in hit triangle
-            SLNode*     hitNode;       //!< Points to the intersected node
-            SLMesh*     hitMesh;       //!< Points to the intersected mesh
-            SLint       hitTriangle;   //!< Points to the intersected triangle
+            SLfloat     hitU, hitV;     //!< barycentric coords in hit triangle
+            SLNode*     hitNode;        //!< Points to the intersected node
+            SLMesh*     hitMesh;        //!< Points to the intersected mesh
+            SLint       hitTriangle;    //!< Points to the intersected triangle
             
             // Members set before shading
-            SLVec3f     hitPoint;      //!< Point of intersection
-            SLVec3f     hitNormal;     //!< Surface normal at intersection point
-            SLCol4f     hitTexCol;     //!< Texture color at intersection point
+            SLVec3f     hitPoint;       //!< Point of intersection
+            SLVec3f     hitNormal;      //!< Surface normal at intersection point
+            SLCol4f     hitTexCol;      //!< Texture color at intersection point
             
             // Helpers for fast AABB intersection
-            SLVec3f     invDir;        //!< Inverse ray dir for fast AABB hit in WS
-            SLVec3f     invDirOS;      //!< Inverse ray dir for fast AABB hit in OS
-            SLint       sign[3];       //!< Sign of invDir for fast AABB hit in WS
-            SLint       signOS[3];     //!< Sign of invDir for fast AABB hit in OS
-            SLfloat     tmin;          //!< min. dist. of last AABB intersection
-            SLfloat     tmax;          //!< max. dist. of last AABB intersection
+            SLVec3f     invDir;         //!< Inverse ray dir for fast AABB hit in WS
+            SLVec3f     invDirOS;       //!< Inverse ray dir for fast AABB hit in OS
+            SLint       sign[3];        //!< Sign of invDir for fast AABB hit in WS
+            SLint       signOS[3];      //!< Sign of invDir for fast AABB hit in OS
+            SLfloat     tmin;           //!< min. dist. of last AABB intersection
+            SLfloat     tmax;           //!< max. dist. of last AABB intersection
 
      // static variables for statistics
      static SLint       maxDepth;           //!< Max. recursion depth

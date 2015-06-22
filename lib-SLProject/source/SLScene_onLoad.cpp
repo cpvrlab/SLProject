@@ -581,7 +581,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
                                             ,"gray_0256_C.jpg", "wood0_0256_C.jpg"
                                             ,"gray_0256_C.jpg", "bricks1_0256_C.jpg");
         SLMaterial* mat5 = new SLMaterial("glass", SLCol4f::BLACK, SLCol4f::WHITE,
-                                          100, 0.2f, 0.8f, 1.5f);
+                                          100, 0.0f, 0.8f, 1.5f);
         mat5->textures().push_back(tex5);
         SLGLProgram* sp1 = new SLGLGenericProgram("RefractReflect.vert",
                                                   "RefractReflect.frag");
@@ -589,7 +589,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
 
         // Wine material
         SLMaterial* mat6 = new SLMaterial("wine", SLCol4f(0.5f,0.0f,0.2f), SLCol4f::BLACK,
-                                          100, 0.2f, 0.7f, 1.5f);
+                                          100, 0.0f, 0.7f, 1.5f);
         mat6->textures().push_back(tex5);
         mat6->program(sp1);
 

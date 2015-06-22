@@ -449,7 +449,7 @@ bool SLNode::hitRec(SLRay* ray)
         return false;
 
     // Do not test origin node for shadow rays 
-    if (this==ray->originNode && ray->type==SHADOW) 
+    if (this==ray->srcNode && ray->type==SHADOW) 
         return false;
    
     // Check first AABB for intersection

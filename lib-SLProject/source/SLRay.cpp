@@ -57,10 +57,9 @@ SLRay::SLRay()
     hitTexCol       = SLCol4f::BLACK;
     hitNode         = nullptr;
     hitMesh         = nullptr;
-    originNode      = nullptr;
-    originMesh      = nullptr;
-    originTriangle  = -1;
-    ignoreMesh      = nullptr;
+    srcNode      = nullptr;
+    srcMesh      = nullptr;
+    srcTriangle  = -1;
     x               = -1;
     y               = -1;
     contrib         = 1.0f;
@@ -84,10 +83,9 @@ SLRay::SLRay(SLVec3f Origin, SLVec3f Dir, SLfloat X, SLfloat Y)
     hitTexCol       = SLCol4f::BLACK;
     hitNode         = nullptr;
     hitMesh         = nullptr;
-    originNode      = nullptr;
-    originMesh      = nullptr;
-    originTriangle  = -1;
-    ignoreMesh      = nullptr;
+    srcNode      = nullptr;
+    srcMesh      = nullptr;
+    srcTriangle  = -1;
     x               = (SLfloat)X;
     y               = (SLfloat)Y;
     contrib         = 1.0f;
@@ -114,10 +112,9 @@ SLRay::SLRay(SLfloat distToLight,
     hitTriangle     = -1;
     hitNode         = nullptr;
     hitMesh         = nullptr;
-    originNode      = rayFromHitPoint->hitNode;
-    originMesh      = rayFromHitPoint->hitMesh;
-    originTriangle  = rayFromHitPoint->hitTriangle;
-    ignoreMesh      = nullptr;
+    srcNode      = rayFromHitPoint->hitNode;
+    srcMesh      = rayFromHitPoint->hitMesh;
+    srcTriangle  = rayFromHitPoint->hitTriangle;
     x               = rayFromHitPoint->x;
     y               = rayFromHitPoint->y;
     contrib         = 0.0f;
@@ -155,9 +152,9 @@ void SLRay::reflect(SLRay* reflected)
     reflected->depth = depth + 1;
     reflected->length = FLT_MAX;
     reflected->contrib = contrib * hitMesh->mat->kr();
-    reflected->originNode = hitNode;
-    reflected->originMesh = hitMesh;
-    reflected->originTriangle = hitTriangle;
+    reflected->srcNode = hitNode;
+    reflected->srcMesh = hitMesh;
+    reflected->srcTriangle = hitTriangle;
     reflected->type = REFLECTED;
     reflected->isOutside = isOutside;
     reflected->x = x;
@@ -172,6 +169,8 @@ intersection point. All vectors must be normalized vectors, so the refracted
 vector T will be a unit vector too. If total internal refraction occurs a 
 reflected ray is calculated instead.
 Index of refraction eta = Kn_Source/Kn_Destination (Kn_Air = 1.0)
+We are using a formula by Xavier Bec that is a little faster:
+http://www.realtimerendering.com/resources/RTNews/html/rtnv10n1.html#art3
 */
 void SLRay::refract(SLRay* refracted)
 {  
@@ -179,11 +178,13 @@ void SLRay::refract(SLRay* refracted)
 
     SLVec3f T;   // refracted direction
     SLfloat eta; // refraction coefficient
+    SLfloat c1 = hitNormal.dot(-dir);
 
-    SLMaterial* originMat = originMesh ? originMesh->mat : nullptr;
+    SLMaterial* srcMat = srcMesh ? srcMesh->mat : nullptr;
     SLMaterial* hitMat = hitMesh ? hitMesh->mat : nullptr;
+    SLMaterial* hitMatOut = hitMesh ? hitMesh->matOut : nullptr;
 
-    #ifdef DEBUG_RAY
+    #if defined(_DEBUG) && defined(DEBUG_RAY)
     for (SLint i=0; i<depth; ++i) cout << " ";
     cout << "Refract: ";
     #endif
@@ -192,59 +193,33 @@ void SLRay::refract(SLRay* refracted)
     // Case 1: From air into a material
     if (isOutside)
     {
-        #ifdef DEBUG_RAY
+        #if defined(_DEBUG) && defined(DEBUG_RAY)
         cout << "case 1:" << hitMesh->name() << endl;
         #endif
         eta = 1.0f / hitMat->kn();
     }
     else
     {   // Case 2: From inside a material back into air (outside)
-        if (hitMesh==originMesh) 
+        if (hitMesh==srcMesh) 
         {
-            #ifdef DEBUG_RAY
+            #if defined(_DEBUG) && defined(DEBUG_RAY)
             cout << "case 2:" << hitMesh->name() << endl;
             #endif
             eta = hitMat->kn(); // = hitMat / 1.0
         }
         else 
-        {   
-            // Case 3a: From inside a material into another material 
-            if (hitMesh!=ignoreMesh)
-            {
-                #ifdef DEBUG_RAY
-                cout << "case 3a:" << hitMesh->name() << endl;
-                #endif
-                eta = originMat->kn() / hitMat->kn();
-                refracted->ignoreMesh = originMesh;
-            }
-            else // Case 3b: Ignored refraction case is treated specially
-            {
-                #ifdef DEBUG_RAY
-                cout << "case 3b::" << hitMesh->name() << endl;
-                #endif
-                
-                // The new ray is not refracted an has the same direction
-                refracted->setDir(dir);             // no direction change
-                refracted->origin.set(hitPoint);    // new origin point
-                refracted->contrib = contrib;       // no contribution change
-                refracted->type = REFRACTED;        // remain refracted
-                refracted->isOutside = isOutside;   // remain inside
-                refracted->length = FLT_MAX;
-                refracted->originNode = originNode; // origin remains
-                refracted->originMesh = hitMesh; // mesh remains for next 3a case
-                refracted->originTriangle = hitTriangle;
-                refracted->ignoreMesh = nullptr;
-                refracted->depth = depth + 1;
-                refracted->x = x;
-                refracted->y = y;
-                ++ignoredRays;
-                return;
-            }    
+        {   // We hit another material
+            if (!hitMatOut)
+                SL_EXIT_MSG("SLRay::refract: Mesh hit without outside material before leaving another mesh.");
+
+            // Case 3a: We hit another material from the front
+            if (c1 > 0.0f)
+                eta = hitMatOut->kn() / hitMat->kn();
+            else // Case 3b: We hit another material from behind
+                eta = hitMat->kn() / hitMatOut->kn();
         }
     }
 
-    // Bec's formula is a little faster (from Ray Tracing News) 
-    SLfloat c1 = hitNormal * -dir;
     SLfloat w  = eta * c1;
     SLfloat c2 = 1.0f + (w - eta) * (w + eta);
 
@@ -252,8 +227,8 @@ void SLRay::refract(SLRay* refracted)
     {   T = eta * dir + (w - sqrt(c2)) * hitNormal;
         refracted->contrib = contrib * hitMat->kt();
         refracted->type = REFRACTED;
-        // Set isOutside to false if the originMesh is the hitMesh
-        refracted->isOutside = (hitMesh==originMesh || originMesh==nullptr) ? !isOutside : isOutside;
+        // Set isOutside to false if the srcMesh is the hitMesh
+        refracted->isOutside = (hitMesh==srcMesh || srcMesh==nullptr) ? !isOutside : isOutside;
         ++refractedRays;
     } 
     else // total internal refraction results in a internal reflected ray
@@ -267,9 +242,9 @@ void SLRay::refract(SLRay* refracted)
     refracted->setDir(T);
     refracted->origin.set(hitPoint);
     refracted->length = FLT_MAX;
-    refracted->originNode = hitNode;
-    refracted->originMesh = hitMesh;
-    refracted->originTriangle = hitTriangle;
+    refracted->srcNode = hitNode;
+    refracted->srcMesh = hitMesh;
+    refracted->srcTriangle = hitTriangle;
     refracted->depth = depth + 1;
     refracted->x = x;
     refracted->y = y;
@@ -372,8 +347,8 @@ void SLRay::diffuseMC(SLRay* scattered)
     depthReached = scattered->depth;
    
     // for reflectance the start material stays the same
-    scattered->originNode = hitNode;
-    scattered->originMesh = hitMesh;
+    scattered->srcNode = hitNode;
+    scattered->srcMesh = hitMesh;
     scattered->type = REFLECTED;
 
     //calculate rotation matrix

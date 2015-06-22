@@ -1083,7 +1083,7 @@ void SLCamera::eyeToPixelRay(SLfloat x, SLfloat y, SLRay* ray)
     ray->hitTriangle = -1;
     ray->hitNormal.set(SLVec3f::ZERO);
     ray->hitPoint.set(SLVec3f::ZERO); 
-    ray->originTriangle = 0;
+    ray->srcTriangle = 0;
 }
 //-----------------------------------------------------------------------------
 //! SLCamera::isInFrustum does a simple and fast frustum culling test for AABBs

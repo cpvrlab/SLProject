@@ -46,6 +46,7 @@ SLMesh::SLMesh(SLstring name) : SLObject(name)
     I16 = nullptr;
     I32 = nullptr;
     mat = nullptr;
+    matOut = nullptr;
     _finalP = &P;
     _finalN = &N;
     numV = 0;
@@ -411,7 +412,7 @@ SLbool SLMesh::hit(SLRay* ray, SLNode* node)
         return false;
     
     // Avoid intersection of another mesh before the ray left this one
-    //if (!ray->isOutside && ray->originNode != node) 
+    //if (!ray->isOutside && ray->srcNode != node) 
     //  return false;
      
     if (_accelStruct)
@@ -817,7 +818,7 @@ SLbool SLMesh::hitTriangleOS(SLRay* ray, SLNode* node, SLuint iT)
         return false;
 
     // prevent self-intersection of triangle
-    if(ray->originMesh == this && ray->originTriangle == iT) 
+    if(ray->srcMesh == this && ray->srcTriangle == iT) 
         return false;
       
     SLVec3f A, B, C;     // corners
@@ -849,7 +850,8 @@ SLbool SLMesh::hitTriangleOS(SLRay* ray, SLNode* node, SLuint iT)
    
     // if ray is outside do test with face culling
     if (ray->isOutside && _isVolume)
-    {   // check only front side triangles           
+    {   // check only front side triangles      
+        // exit if ray is from behind or parallel     
         if (det < FLT_EPSILON) return false;
 
         // calculate distance from A to ray origin
@@ -881,6 +883,7 @@ SLbool SLMesh::hitTriangleOS(SLRay* ray, SLNode* node, SLuint iT)
     }
     else 
     {   // check front & backside triangles
+        // exit if ray is parallel
         if (det < FLT_EPSILON && det > -FLT_EPSILON) return false;
       
         inv_det = 1.0f / det;
@@ -954,7 +957,7 @@ void SLMesh::preShade(SLRay* ray)
     ray->hitNormal.set(ray->hitNode->updateAndGetWMN() * ray->hitNormal);
                  
     // invert normal if the ray is inside a the same mesh
-    if (!ray->isOutside && ray->hitMesh==ray->originMesh) 
+    if (ray->isOutside && ray->hitMesh==ray->srcMesh)
         ray->hitNormal *= -1;
    
     // for shading the normal is expected to be unit length
