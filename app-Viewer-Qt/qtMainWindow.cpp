@@ -364,6 +364,11 @@ void qtMainWindow::buildPropertyTree()
                            bind(&SLNode::setDrawBitsRec, node, SL_DB_AXIS, _1));
         level1->addChild(level2);
 
+        level2 = new qtPropertyTreeItem("Show Skeleton:", "", true);
+        level2->setGetBool(bind((bool(SLNode::*)(uint))&SLNode::drawBit, node, SL_DB_SKELETON),
+                           bind(&SLNode::setDrawBitsRec, node, SL_DB_SKELETON, _1));
+        level1->addChild(level2);
+
         level2 = new qtPropertyTreeItem("Show Voxels:", "", true);
         level2->setGetBool(bind((bool(SLNode::*)(uint))&SLNode::drawBit, node, SL_DB_VOXELS),
                            bind(&SLNode::setDrawBitsRec, node, SL_DB_VOXELS, _1));

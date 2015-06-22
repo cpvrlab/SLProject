@@ -38,7 +38,7 @@
      <x>0</x>
      <y>0</y>
      <width>906</width>
-     <height>31</height>
+     <height>22</height>
     </rect>
    </property>
    <property name="defaultUp">
@@ -421,6 +421,7 @@
    <addaction name="actionShow_Bounding_Boxes"/>
    <addaction name="actionShow_Voxels"/>
    <addaction name="actionShow_Axis"/>
+   <addaction name="actionShow_Skeleton"/>
    <addaction name="actionShow_Backfaces"/>
    <addaction name="actionTextures_off"/>
    <addaction name="separator"/>
@@ -2395,6 +2396,10 @@ QSlider::handle:horizontal:disabled {
   <action name="actionShow_Skeleton">
    <property name="checkable">
     <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="resources.qrc">
+     <normaloff>:/images/showSkeleton.png</normaloff>:/images/showSkeleton.png</iconset>
    </property>
    <property name="text">
     <string>Show Skeleton</string>
