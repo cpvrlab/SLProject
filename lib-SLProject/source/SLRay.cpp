@@ -83,9 +83,9 @@ SLRay::SLRay(SLVec3f Origin, SLVec3f Dir, SLfloat X, SLfloat Y)
     hitTexCol       = SLCol4f::BLACK;
     hitNode         = nullptr;
     hitMesh         = nullptr;
-    srcNode      = nullptr;
-    srcMesh      = nullptr;
-    srcTriangle  = -1;
+    srcNode         = nullptr;
+    srcMesh         = nullptr;
+    srcTriangle     = -1;
     x               = (SLfloat)X;
     y               = (SLfloat)Y;
     contrib         = 1.0f;
@@ -112,9 +112,9 @@ SLRay::SLRay(SLfloat distToLight,
     hitTriangle     = -1;
     hitNode         = nullptr;
     hitMesh         = nullptr;
-    srcNode      = rayFromHitPoint->hitNode;
-    srcMesh      = rayFromHitPoint->hitMesh;
-    srcTriangle  = rayFromHitPoint->hitTriangle;
+    srcNode         = rayFromHitPoint->hitNode;
+    srcMesh         = rayFromHitPoint->hitMesh;
+    srcTriangle     = rayFromHitPoint->hitTriangle;
     x               = rayFromHitPoint->x;
     y               = rayFromHitPoint->y;
     contrib         = 0.0f;
@@ -186,7 +186,7 @@ void SLRay::refract(SLRay* refracted)
     SLMaterial* hitMat = hitMesh ? hitMesh->mat : nullptr;
     SLMaterial* hitMatOut = hitMesh ? hitMesh->matOut : nullptr;
 
-    #if defined(_DEBUG) && defined(DEBUG_RAY)
+    #ifdef DEBUG_RAY
     for (SLint i=0; i<depth; ++i) cout << " ";
     cout << "Refract: ";
     #endif
@@ -194,38 +194,37 @@ void SLRay::refract(SLRay* refracted)
     // Calculate index of refraction eta = Kn_Source/Kn_Destination
     // Case 1: From air into a material
     if (isOutside)
-    {   cout << "case 1:";
-        eta = 1.0f / hitMat->kn();
+    {   eta = 1.0f / hitMat->kn();
     }
     else
-    {   // Case 2: From inside a material back into air (outside)
+    {   // Case 2: From inside a material 
         if (hitMesh==srcMesh) 
-        {   cout << "case 2:";
-            if (hitMatOut)
-                 eta = hitMat->kn() / hitMatOut->kn();
-            else eta = hitMat->kn(); // = hitMat / 1.0
+        {   if (hitMatOut) // Case 2a: into another material
+                eta = hitMat->kn() / hitMatOut->kn();
+            else // Case 2b: into air
+                eta = hitMat->kn(); // = hitMat / 1.0
         }
         else 
         {   // Case 3: We hit inside another material from the front
             if (hitFrontSide)
-            {   cout << "case 3:";
-                if (hitMatOut)
+            {   if (hitMatOut)
                     eta = hitMatOut->kn() / hitMat->kn();
                 else
-                {   SL_WARN_MSG("SLRay::refract: Mesh hit without outside material before leaving another mesh.");
+                {   // Mesh hit without outside material before leaving another mesh.
+                    // This should not happen, but can due to float inaccuracies
                     eta = srcMat->kn() / hitMat->kn();
                 }
             }
             else // Case 4: We hit inside another material from behind
-            {   cout << "case 4:";
-                if (hitMatOut)
-                     eta = hitMat->kn() / hitMatOut->kn();
-                else eta = hitMat->kn(); // = hitMat / 1.0
+            {   if (hitMatOut) // Case 4a: into another material
+                    eta = hitMat->kn() / hitMatOut->kn();
+                else // Case 4b: into air
+                    eta = hitMat->kn(); // = hitMat / 1.0
             }
         }
     }
 
-    // Invert the hit normal if ray hit backside
+    // Invert the hit normal if ray hit backside for correct refraction
     if (!hitFrontSide)
     {   c1 *= -1.0f;
         hitNormal *= -1.0f;
@@ -263,8 +262,7 @@ void SLRay::refract(SLRay* refracted)
         ++tirRays;
     }
 
-    cout << hitMesh->name() << (refracted->isOutside ? "out:" : "in :") << endl;
-   
+
     refracted->setDir(T);
     refracted->origin.set(hitPoint);
     refracted->length = FLT_MAX;
@@ -275,6 +273,15 @@ void SLRay::refract(SLRay* refracted)
     refracted->x = x;
     refracted->y = y;
     depthReached = refracted->depth;
+
+    #ifdef DEBUG_RAY
+    cout << hitMesh->name(); 
+    if(isOutside) cout << ",out"; else cout << ",in";
+    if(refracted->isOutside) cout << ">out"; else cout << ">in";
+    cout << ", dir: " << refracted->dir.toString();
+    cout << ", contrib: " << SLUtils::toString(refracted->contrib,2);
+    cout << endl;
+    #endif
 }
 //-----------------------------------------------------------------------------
 /*!

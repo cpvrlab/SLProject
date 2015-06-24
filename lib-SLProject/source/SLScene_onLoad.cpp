@@ -581,15 +581,13 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
         SLGLTexture* tex5 = new SLGLTexture("wood2_0256_C.jpg", "wood2_0256_C.jpg"
                                             ,"gray_0256_C.jpg", "wood0_0256_C.jpg"
                                             ,"gray_0256_C.jpg", "bricks1_0256_C.jpg");
-        SLMaterial* mat5 = new SLMaterial("glass", SLCol4f::BLACK, SLCol4f::WHITE,
-                                          100, 0.0f, 0.8f, 1.5f);
+        SLMaterial* mat5 = new SLMaterial("glass", SLCol4f::BLACK, SLCol4f::WHITE, 100, 0.1f, 0.9f, 1.5f);
         mat5->textures().push_back(tex5);
-        SLGLProgram* sp1 = new SLGLGenericProgram("RefractReflect.vert",
-                                                  "RefractReflect.frag");
+        SLGLProgram* sp1 = new SLGLGenericProgram("RefractReflect.vert", "RefractReflect.frag");
         mat5->program(sp1);
 
         // Wine material
-        SLMaterial* mat6 = new SLMaterial("wine", SLCol4f(0.5f,0.0f,0.2f), SLCol4f::BLACK, 100, 0.0f, 0.7f, 1.5f);
+        SLMaterial* mat6 = new SLMaterial("wine", SLCol4f(0.5f,0.0f,0.2f), SLCol4f::BLACK, 100, 0.1f, 0.6f, 1.3f);
         mat6->textures().push_back(tex5);
         mat6->program(sp1);
 
@@ -633,7 +631,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
         revG.push_back(SLVec3f(2.05f, 7.15f));
         revG.push_back(SLVec3f(2.00f, 7.10f)); // inner cup
         revG.push_back(SLVec3f(2.05f, 6.00f));
-        SLNode* glass = new SLNode(new SLRevolver(revG, SLVec3f(0,1,0), 36, true, false, "GlassRevolver", mat5));
+        SLNode* glass = new SLNode(new SLRevolver(revG, SLVec3f(0,1,0), 36, true, false, "GlassRev", mat5));
         glass->translate(0.0f,-3.5f, 0.0f, TS_Object);
 
         // wine 2D polyline definition for revolution
@@ -645,13 +643,13 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
         revW.push_back(SLVec3f(1.70f, 4.80f));
         revW.push_back(SLVec3f(1.95f, 5.40f));
         revW.push_back(SLVec3f(2.05f, 6.00f));
-        SLMesh* wineMesh = new SLRevolver(revW, SLVec3f(0,1,0), 36, true, false, "WineRevolver", mat6);
+        SLMesh* wineMesh = new SLRevolver(revW, SLVec3f(0,1,0), 36, true, false, "WineRev", mat6);
         wineMesh->matOut = mat5;
         SLNode* wine = new SLNode(wineMesh);
         wine->translate(0.0f,-3.5f, 0.0f, TS_Object);
 
         // wine fluid top
-        SLNode* wineTop = new SLNode(new SLDisk(2.05f, -SLVec3f::AXISY, 36, false, "WineTop", mat6));
+        SLNode* wineTop = new SLNode(new SLDisk(2.05f, -SLVec3f::AXISY, 36, false, "WineRevTop", mat6));
         wineTop->translate(0.0f, 2.5f, 0.0f, TS_Object);
 
         // Other revolver objects

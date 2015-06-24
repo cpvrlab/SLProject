@@ -181,7 +181,7 @@
     <ClCompile>
       <Optimization>Disabled</Optimization>
       <AdditionalIncludeDirectories>$(ProjectDir);..\include;..\lib-SLExternal;..\lib-SLExternal\jpeg-8;..\lib-SLExternal\png;..\lib-SLExternal\zlib;..\lib-SLExternal\glew\include;..\lib-SLExternal\glfw3\include;..\lib-SLExternal\randomc;..\lib-SLExternal\Shoemake;..\lib-SLExternal\oculus\LibOVR\Include\;..\lib-SLExternal\nvwa;..\lib-SLExternal\assimp\include;..\lib-SLExternal\assimp\code;..\lib-SLExternal\dirent</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>DEBUG_RAY;SL_GUI_GLFW;SL_STARTSCENE#cmdSceneRTMuttenzerBox;SL_RT1;GLEW_STATIC;_DEBUG;UNICODE;WIN32;_WINDOWS;_CRT_SECURE_NO_WARNING</PreprocessorDefinitions>
+      <PreprocessorDefinitions>SL_GUI_GLFW;SL_STARTSCENE#cmdSceneRTMuttenzerBox;SL_RT1;GLEW_STATIC;_DEBUG;UNICODE;WIN32;_WINDOWS;_CRT_SECURE_NO_WARNING</PreprocessorDefinitions>
       <TreatWChar_tAsBuiltInType>false</TreatWChar_tAsBuiltInType>
       <OpenMPSupport>false</OpenMPSupport>
       <PrecompiledHeader>Use</PrecompiledHeader>

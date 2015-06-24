@@ -58,8 +58,7 @@ class SLRaytracer: public SLGLTexture, public SLEventHandler
             SLbool      renderDistrib   (SLSceneView* sv);
             void        renderSlices    (const bool isMainThread);
             void        renderSlicesMS  (const bool isMainThread);
-            SLCol4f     traceClassic    (SLRay* ray);
-            SLCol4f     traceDistrib    (SLRay* ray);
+            SLCol4f     trace           (SLRay* ray);
             SLCol4f     shade           (SLRay* ray);
             void        sampleAAPixels  (const bool isMainThread);
             

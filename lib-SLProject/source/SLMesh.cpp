@@ -851,6 +851,7 @@ SLbool SLMesh::hitTriangleOS(SLRay* ray, SLNode* node, SLuint iT)
     // if ray is outside do test with face culling
     if (ray->isOutside && _isVolume)
     {   // check only front side triangles      
+        
         // exit if ray is from behind or parallel     
         if (det < FLT_EPSILON) return false;
 
