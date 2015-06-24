@@ -28,6 +28,7 @@
 #include <SLBox.h>
 #include <SLCone.h>
 #include <SLCylinder.h>
+#include <SLDisk.h>
 #include <SLSphere.h>
 #include <SLRectangle.h>
 #include <SLText.h>
@@ -588,8 +589,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
         mat5->program(sp1);
 
         // Wine material
-        SLMaterial* mat6 = new SLMaterial("wine", SLCol4f(0.5f,0.0f,0.2f), SLCol4f::BLACK,
-                                          100, 0.0f, 0.7f, 1.5f);
+        SLMaterial* mat6 = new SLMaterial("wine", SLCol4f(0.5f,0.0f,0.2f), SLCol4f::BLACK, 100, 0.0f, 0.7f, 1.5f);
         mat6->textures().push_back(tex5);
         mat6->program(sp1);
 
@@ -610,70 +610,63 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
         SLAnimation* anim = SLAnimation::create("light1_anim", 4.0f);
         anim->createEllipticNodeTrack(light1, 6.0f, ZAxis, 6.0f, XAxis);
 
-
-        // wine glass 2D polygon definition for revolution
+        // glass 2D polygon definition for revolution
         SLVVec3f revG;
-        revG.push_back(SLVec3f(0.00f, 0.00f));
+        revG.push_back(SLVec3f(0.00f, 0.00f)); // foot
         revG.push_back(SLVec3f(2.00f, 0.00f));
         revG.push_back(SLVec3f(2.00f, 0.00f));
         revG.push_back(SLVec3f(2.00f, 0.10f));
         revG.push_back(SLVec3f(1.95f, 0.15f));
-
-        revG.push_back(SLVec3f(0.40f, 0.50f));
+        revG.push_back(SLVec3f(0.40f, 0.50f)); // stand
         revG.push_back(SLVec3f(0.25f, 0.60f));
         revG.push_back(SLVec3f(0.20f, 0.70f));
         revG.push_back(SLVec3f(0.30f, 3.00f));
-
-        revG.push_back(SLVec3f(0.30f, 3.00f));
+        revG.push_back(SLVec3f(0.30f, 3.00f)); // kerbe
         revG.push_back(SLVec3f(0.20f, 3.10f));
         revG.push_back(SLVec3f(0.20f, 3.10f));
-
-        revG.push_back(SLVec3f(1.20f, 3.90f));
+        revG.push_back(SLVec3f(1.20f, 3.90f)); // outer cup
         revG.push_back(SLVec3f(1.60f, 4.30f));
         revG.push_back(SLVec3f(1.95f, 4.80f));
         revG.push_back(SLVec3f(2.15f, 5.40f));
         revG.push_back(SLVec3f(2.20f, 6.20f));
         revG.push_back(SLVec3f(2.10f, 7.10f));
         revG.push_back(SLVec3f(2.05f, 7.15f));
-
-        revG.push_back(SLVec3f(2.00f, 7.10f));
+        revG.push_back(SLVec3f(2.00f, 7.10f)); // inner cup
         revG.push_back(SLVec3f(2.05f, 6.00f));
-        revG.push_back(SLVec3f(1.95f, 5.40f));
-        revG.push_back(SLVec3f(1.70f, 4.80f));
-        revG.push_back(SLVec3f(1.30f, 4.30f));
-        revG.push_back(SLVec3f(0.80f, 4.00f));
-        revG.push_back(SLVec3f(0.20f, 3.80f));
-        revG.push_back(SLVec3f(0.00f, 3.82f));
-        SLNode* glass = new SLNode(new SLRevolver(revG, SLVec3f(0,1,0), 36, true, true, "GlassRevolver", mat5));
+        SLNode* glass = new SLNode(new SLRevolver(revG, SLVec3f(0,1,0), 36, true, false, "GlassRevolver", mat5));
         glass->translate(0.0f,-3.5f, 0.0f, TS_Object);
 
-        // wine fluid 2D polygon definition for revolution
+        // wine 2D polyline definition for revolution
         SLVVec3f revW;
-        revW.push_back(SLVec3f(0.00f, 3.80f));
-        revW.push_back(SLVec3f(0.22f, 3.80f));
-        revW.push_back(SLVec3f(0.82f, 4.00f));
-        revW.push_back(SLVec3f(1.32f, 4.30f));
-        revW.push_back(SLVec3f(1.72f, 4.80f));
-        revW.push_back(SLVec3f(1.98f, 5.40f));
-        revW.push_back(SLVec3f(2.07f, 6.00f));
-        revW.push_back(SLVec3f(0.00f, 6.00f));
-        SLNode* wine = new SLNode(new SLRevolver(revW, SLVec3f(0,1,0), 36, true, true, "WineRevolver", mat6));
+        revW.push_back(SLVec3f(0.00f, 3.82f));
+        revW.push_back(SLVec3f(0.20f, 3.80f));
+        revW.push_back(SLVec3f(0.80f, 4.00f));
+        revW.push_back(SLVec3f(1.30f, 4.30f));
+        revW.push_back(SLVec3f(1.70f, 4.80f));
+        revW.push_back(SLVec3f(1.95f, 5.40f));
+        revW.push_back(SLVec3f(2.05f, 6.00f));
+        SLMesh* wineMesh = new SLRevolver(revW, SLVec3f(0,1,0), 36, true, false, "WineRevolver", mat6);
+        wineMesh->matOut = mat5;
+        SLNode* wine = new SLNode(wineMesh);
         wine->translate(0.0f,-3.5f, 0.0f, TS_Object);
 
+        // wine fluid top
+        SLNode* wineTop = new SLNode(new SLDisk(2.05f, -SLVec3f::AXISY, 36, false, "WineTop", mat6));
+        wineTop->translate(0.0f, 2.5f, 0.0f, TS_Object);
+
+        // Other revolver objects
         SLNode* sphere = new SLNode(new SLSphere(1,16,16, "mySphere", mat1));
         sphere->translate(3,0,0, TS_Object);
-
         SLNode* cylinder = new SLNode(new SLCylinder(1, 2, 3, 16, true, true, "myCylinder", mat1));
         cylinder->translate(-3,0,-1, TS_Object);
-
         SLNode* cone = new SLNode(new SLCone(1, 3, 3, 16, true, "myCone", mat1));
         cone->rotate(90, -1,0,0);
         cone->translate(0,0,2.7f, TS_Object);
 
         // Cube dimensions
-        SLfloat pL = -9.0f, pR = 9.0f; // left/right
-        SLfloat pB = -3.5f, pT =14.5f; // bottom/top
-        SLfloat pN =  9.0f, pF =-9.0f; // near/far
+        SLfloat pL = -9.0f, pR =  9.0f; // left/right
+        SLfloat pB = -3.5f, pT = 14.5f; // bottom/top
+        SLfloat pN =  9.0f, pF = -9.0f; // near/far
 
         //// bottom rectangle
         SLNode* b = new SLNode(new SLRectangle(SLVec2f(pL,-pN), SLVec2f(pR,-pF), 10, 10, "PolygonFloor", mat2));
@@ -699,6 +692,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
         scene->addChild(light1);
         scene->addChild(glass);
         scene->addChild(wine);
+        scene->addChild(wineTop);
         scene->addChild(sphere);
         scene->addChild(cylinder);
         scene->addChild(cone);
@@ -2221,11 +2215,11 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
 
         // Material for glass sphere
         SLMaterial* matBox1 = new SLMaterial("matBox1", SLCol4f(0.0f, 0.0f, 0.0f), SLCol4f(0.5f, 0.5f, 0.5f), 100, 0.0f, 0.9f, 1.5f);
-        SLMesh* boxMesh1 = new SLBox(-0.8f, -1,-0.02f, 1.2f, 1, 1, "boxMesh1", matBox1);
+        SLMesh* boxMesh1 = new SLBox(-0.8f, -1, 0.02f, 1.2f, 1, 1, "boxMesh1", matBox1);
         SLNode* boxNode1 = new SLNode(boxMesh1, "BoxNode1");
         
         SLMaterial* matBox2 = new SLMaterial("matBox2", SLCol4f(0.0f, 0.0f, 0.0f), SLCol4f(0.5f, 0.5f, 0.5f), 100, 0.0f, 0.9f, 1.3f);
-        SLMesh* boxMesh2 = new SLBox(-1.2f, -1, -1, 0.8f, 1, 0.02f, "BoxMesh2", matBox2);
+        SLMesh* boxMesh2 = new SLBox(-1.2f, -1, -1, 0.8f, 1,-0.02f, "BoxMesh2", matBox2);
         SLNode* boxNode2 = new SLNode(boxMesh2, "BoxNode2");
 
         // Create a scene group and add all nodes

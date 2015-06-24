@@ -261,6 +261,9 @@
     <ClInclude Include="..\include\SLTriangle.h">
       <Filter>Nodes\Meshes</Filter>
     </ClInclude>
+    <ClInclude Include="..\include\SLDisk.h">
+      <Filter>Nodes\Meshes</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="source\SLAABBox.cpp">
@@ -429,6 +432,9 @@
       <Filter>SL</Filter>
     </ClCompile>
     <ClCompile Include="source\SLTriangle.cpp">
+      <Filter>Nodes\Meshes</Filter>
+    </ClCompile>
+    <ClCompile Include="source\SLDisk.cpp">
       <Filter>Nodes\Meshes</Filter>
     </ClCompile>
   </ItemGroup>

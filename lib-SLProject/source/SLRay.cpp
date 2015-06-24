@@ -178,7 +178,9 @@ void SLRay::refract(SLRay* refracted)
 
     SLVec3f T;   // refracted direction
     SLfloat eta; // refraction coefficient
+
     SLfloat c1 = hitNormal.dot(-dir);
+    SLbool  hitFrontSide = c1 > 0.0f;
 
     SLMaterial* srcMat = srcMesh ? srcMesh->mat : nullptr;
     SLMaterial* hitMat = hitMesh ? hitMesh->mat : nullptr;
@@ -192,32 +194,41 @@ void SLRay::refract(SLRay* refracted)
     // Calculate index of refraction eta = Kn_Source/Kn_Destination
     // Case 1: From air into a material
     if (isOutside)
-    {
-        #if defined(_DEBUG) && defined(DEBUG_RAY)
-        cout << "case 1:" << hitMesh->name() << endl;
-        #endif
+    {   cout << "case 1:";
         eta = 1.0f / hitMat->kn();
     }
     else
     {   // Case 2: From inside a material back into air (outside)
         if (hitMesh==srcMesh) 
-        {
-            #if defined(_DEBUG) && defined(DEBUG_RAY)
-            cout << "case 2:" << hitMesh->name() << endl;
-            #endif
-            eta = hitMat->kn(); // = hitMat / 1.0
+        {   cout << "case 2:";
+            if (hitMatOut)
+                 eta = hitMat->kn() / hitMatOut->kn();
+            else eta = hitMat->kn(); // = hitMat / 1.0
         }
         else 
-        {   // We hit another material
-            if (!hitMatOut)
-                SL_EXIT_MSG("SLRay::refract: Mesh hit without outside material before leaving another mesh.");
-
-            // Case 3a: We hit another material from the front
-            if (c1 > 0.0f)
-                eta = hitMatOut->kn() / hitMat->kn();
-            else // Case 3b: We hit another material from behind
-                eta = hitMat->kn() / hitMatOut->kn();
+        {   // Case 3: We hit inside another material from the front
+            if (hitFrontSide)
+            {   cout << "case 3:";
+                if (hitMatOut)
+                    eta = hitMatOut->kn() / hitMat->kn();
+                else
+                {   SL_WARN_MSG("SLRay::refract: Mesh hit without outside material before leaving another mesh.");
+                    eta = srcMat->kn() / hitMat->kn();
+                }
+            }
+            else // Case 4: We hit inside another material from behind
+            {   cout << "case 4:";
+                if (hitMatOut)
+                     eta = hitMat->kn() / hitMatOut->kn();
+                else eta = hitMat->kn(); // = hitMat / 1.0
+            }
         }
+    }
+
+    // Invert the hit normal if ray hit backside
+    if (!hitFrontSide)
+    {   c1 *= -1.0f;
+        hitNormal *= -1.0f;
     }
 
     SLfloat w  = eta * c1;
@@ -227,8 +238,21 @@ void SLRay::refract(SLRay* refracted)
     {   T = eta * dir + (w - sqrt(c2)) * hitNormal;
         refracted->contrib = contrib * hitMat->kt();
         refracted->type = REFRACTED;
-        // Set isOutside to false if the srcMesh is the hitMesh
-        refracted->isOutside = (hitMesh==srcMesh || srcMesh==nullptr) ? !isOutside : isOutside;
+
+        if (isOutside)
+            refracted->isOutside = false;
+        else // inside
+        {   if (srcMesh==hitMesh)
+            {   if (hitMatOut)
+                     refracted->isOutside = false;
+                else refracted->isOutside = true;
+            } else
+            {   if (hitFrontSide) 
+                     refracted->isOutside = false;  // hit from front
+                else refracted->isOutside = true;   // hit from back
+            }    
+        }
+
         ++refractedRays;
     } 
     else // total internal refraction results in a internal reflected ray
@@ -238,6 +262,8 @@ void SLRay::refract(SLRay* refracted)
         refracted->isOutside = isOutside;   // remain inside
         ++tirRays;
     }
+
+    cout << hitMesh->name() << (refracted->isOutside ? "out:" : "in :") << endl;
    
     refracted->setDir(T);
     refracted->origin.set(hitPoint);

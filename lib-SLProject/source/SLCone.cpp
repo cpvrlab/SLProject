@@ -17,7 +17,7 @@
 
 //-----------------------------------------------------------------------------
 /*!
-SLRevolver::SLRevolver ctor for conic revolution object around the z-axis
+SLCone::SLCone ctor for conic revolution object around the z-axis
 */
 SLCone::SLCone(SLfloat  coneRadius,
                SLfloat  coneHeight,
