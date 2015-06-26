@@ -473,6 +473,7 @@ SLbool SLSceneView::draw3DGL(SLfloat elapsedTimeMS)
     
     // Update camera animation seperately (smooth transition on key movement)
     SLbool camUpdated = _camera->camUpdate(elapsedTimeMS);
+
    
     //////////////////////
     // 2. Clear Buffers //
