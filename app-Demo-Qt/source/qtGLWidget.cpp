@@ -219,6 +219,8 @@ void qtGLWidget::mousePressEvent(QMouseEvent *e)
         {  slMouseDown(_svIndex, ButtonMiddle, x, y, modifiers);
         }
     }
+    
+    updateGL();
 }
 //-----------------------------------------------------------------------------
 /*!
@@ -245,6 +247,8 @@ void qtGLWidget::mouseReleaseEvent(QMouseEvent *e)
     if (e->button()==Qt::MidButton)
     {  slMouseUp(_svIndex, ButtonMiddle, x, y, modifiers);
     }
+    
+    updateGL();
 }
 //-----------------------------------------------------------------------------
 /*!
@@ -270,6 +274,8 @@ void qtGLWidget::mouseDoubleClickEvent(QMouseEvent *e)
     if (e->button()==Qt::MidButton) 
     {  slDoubleClick(_svIndex, ButtonMiddle, x, y, modifiers);
     }
+    
+    updateGL();
 }
 //-----------------------------------------------------------------------------
 /*!
@@ -318,6 +324,8 @@ void qtGLWidget::wheelEvent(QWheelEvent *e)
     if (e->modifiers() & Qt::CTRL)  modifiers = (SLKey)(modifiers|KeyCtrl);
     if (e->modifiers() & Qt::ALT)   modifiers = (SLKey)(modifiers|KeyAlt);
     slMouseWheel(_svIndex, e->delta(), modifiers);
+    
+    updateGL();
 } 
 //-----------------------------------------------------------------------------
 /*!
@@ -358,6 +366,8 @@ void qtGLWidget::keyPressEvent(QKeyEvent* e)
     }
    
     slKeyPress(_svIndex, key, modifiers);
+
+    updateGL();
 }
 //-----------------------------------------------------------------------------
 /*!
@@ -399,6 +409,8 @@ void qtGLWidget::keyReleaseEvent(QKeyEvent* e)
 
     if(key == KeyEsc) QCoreApplication::quit();
     slKeyRelease(_svIndex, key, modifiers);
+
+    updateGL();
 }
 //-----------------------------------------------------------------------------
 /*!
@@ -408,7 +420,10 @@ void qtGLWidget::longTouch()
 {
     // foreward the long touch only if the mouse or touch hasn't moved.
     if (SL_abs(_touchLast.x - _touchStart.x) < 2 &&
-        SL_abs(_touchLast.y - _touchStart.y) < 2)
+        SL_abs(_touchLast.y - _touchStart.y) < 2) 
+    {
         slLongTouch(_svIndex, _touchLast.x, _touchLast.y);
+        updateGL();
+    }
 }
 //-----------------------------------------------------------------------------
