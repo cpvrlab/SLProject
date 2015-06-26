@@ -285,19 +285,10 @@ bool SLScene::onUpdate()
             sv->gotPainted(false);
 
     // Calculate the elapsed time for the animation
+    // todo: If slowdown on idle is enabled the delta time will be wrong!
     _elapsedTimeMS = timeMilliSec() - _lastUpdateTimeMS;
     _lastUpdateTimeMS = timeMilliSec();
-    
-    // Reset the delta time if we were in a pause before this frame.
-    // The problem is, we don't know if we were in a pause before this frame
-    // The pause might also only be a fraction of a second long between mouse
-    // move events. So we just check for a threshold for now, but this neans
-    // that the simulation timing needs some work. Also if an update takes 39.9 ms
-    // we can still see some janky movement.
-    if (_elapsedTimeMS > 40.0f) { 
-        _elapsedTimeMS = 0.0f;
-    }
-    
+        
     // Sum up times of all scene views
     SLfloat sumCullTimeMS   = 0.0f;
     SLfloat sumDraw3DTimeMS = 0.0f;
