@@ -292,7 +292,9 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
         cam1->clipFar(30);
         cam1->translation(0,0,10);
         cam1->lookAt(0, 0, 0);
-        cam1->maxSpeed(40);
+        cam1->maxSpeed(20);
+        cam1->moveAccel(160);
+        cam1->brakeAccel(160);
         cam1->focalDist(10);
         cam1->eyeSeparation(cam1->focalDist()/30.0f);
         cam1->setInitialState();

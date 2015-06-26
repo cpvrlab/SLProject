@@ -90,6 +90,9 @@ class SLCamera: public SLNode
             void            clipFar         (const SLfloat cFar) {_clipFar = cFar;}
             void            numRendered     (const SLuint numR)  {_numRendered = numR;}
             void            maxSpeed        (const SLfloat ms)   {_maxSpeed = ms;}
+            void            moveAccel       (const SLfloat accel){_moveAccel = accel;}
+            void            brakeAccel      (const SLfloat accel){_brakeAccel = accel;}
+            void            drag            (const SLfloat drag) {_drag = drag;}
             void            focalDist       (const SLfloat f)    {_focalDist = f;}
             void            lensDiameter    (const SLfloat d)    {_lensDiameter = d;}
             void            lensSamples     (SLint x, SLint y)   {_lensSamples.samples(x, y);}
@@ -118,6 +121,9 @@ class SLCamera: public SLNode
             SLfloat         focalDistScrH   () const;
             SLRay*          lookAtRay       () {return &_lookAtRay;}
             SLfloat         maxSpeed        () const {return _maxSpeed;}
+            SLfloat         moveAccel       () const {return _moveAccel;}
+            SLfloat         brakeAccel      () const {return _brakeAccel;}
+            SLfloat         drag            () const {return _drag;}
             SLbool          useDeviceRot    () const {return _useDeviceRot;}
             SLstring        toString        () const;
    
