@@ -152,6 +152,7 @@ class SLCamera: public SLNode
             SLGLBuffer      _bufP;                  //!< Buffer object for visualization
                
             // animation parameters
+            SLbool          _movedLastFrame;         //! did the camera update in the last frame?
             SLCamAnim       _camAnim;               //!< Type of camera animation
             SLVec2f         _oldTouchPos1;          //!< Old mouse/thouch position in pixels
             SLVec2f         _oldTouchPos2;          //!< Old 2nd finger touch position in pixels
