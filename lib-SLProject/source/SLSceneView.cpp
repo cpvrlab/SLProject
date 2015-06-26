@@ -1945,7 +1945,7 @@ void SLSceneView::build2DInfoRT()
     sprintf(m+strlen(m), "Shadow rays: %u, %3.1f%%\\n", SLRay::shadowRays, (SLfloat)SLRay::shadowRays/total*100.0f);
     sprintf(m+strlen(m), "AA rays: %u, %3.1f%%\\n", SLRay::subsampledRays, (SLfloat)SLRay::subsampledRays/total*100.0f);
     sprintf(m+strlen(m), "Total rays: %u, %3.1f%%\\n", total, 100.0f);
-    sprintf(m+strlen(m), "Rays per millisecond: %6.0f\\n", rpms, 100.0f);
+    sprintf(m+strlen(m), "Rays per millisecond: %6.0f\\n", rpms);
     #ifdef _DEBUG
     sprintf(m+strlen(m), "Intersection tests: %u\\n", SLRay::intersections);
     sprintf(m+strlen(m), "Intersections: %u, %3.1f%%\\n", SLRay::tests, SLRay::intersections/(SLfloat)SLRay::tests*100.0f);
