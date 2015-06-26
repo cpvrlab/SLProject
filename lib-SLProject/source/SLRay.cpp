@@ -57,9 +57,9 @@ SLRay::SLRay()
     hitTexCol       = SLCol4f::BLACK;
     hitNode         = nullptr;
     hitMesh         = nullptr;
-    srcNode      = nullptr;
-    srcMesh      = nullptr;
-    srcTriangle  = -1;
+    srcNode         = nullptr;
+    srcMesh         = nullptr;
+    srcTriangle     = -1;
     x               = -1;
     y               = -1;
     contrib         = 1.0f;
@@ -192,12 +192,12 @@ void SLRay::refract(SLRay* refracted)
     #endif
 
     // Calculate index of refraction eta = Kn_Source/Kn_Destination
-    // Case 1: From air into a material
+    // Case 1: From air into a mesh
     if (isOutside)
     {   eta = 1.0f / hitMat->kn();
     }
     else
-    {   // Case 2: From inside a material 
+    {   // Case 2: From inside the same mesh
         if (hitMesh==srcMesh) 
         {   if (hitMatOut) // Case 2a: into another material
                 eta = hitMat->kn() / hitMatOut->kn();

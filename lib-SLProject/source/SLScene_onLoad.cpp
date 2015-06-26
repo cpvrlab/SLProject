@@ -581,13 +581,13 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
         SLGLTexture* tex5 = new SLGLTexture("wood2_0256_C.jpg", "wood2_0256_C.jpg"
                                             ,"gray_0256_C.jpg", "wood0_0256_C.jpg"
                                             ,"gray_0256_C.jpg", "bricks1_0256_C.jpg");
-        SLMaterial* mat5 = new SLMaterial("glass", SLCol4f::BLACK, SLCol4f::WHITE, 100, 0.1f, 0.9f, 1.5f);
+        SLMaterial* mat5 = new SLMaterial("glass", SLCol4f::BLACK, SLCol4f::WHITE, 255, 0.1f, 0.9f, 1.5f);
         mat5->textures().push_back(tex5);
         SLGLProgram* sp1 = new SLGLGenericProgram("RefractReflect.vert", "RefractReflect.frag");
         mat5->program(sp1);
 
         // Wine material
-        SLMaterial* mat6 = new SLMaterial("wine", SLCol4f(0.5f,0.0f,0.2f), SLCol4f::BLACK, 100, 0.1f, 0.6f, 1.3f);
+        SLMaterial* mat6 = new SLMaterial("wine", SLCol4f(0.4f,0.0f,0.2f), SLCol4f::BLACK, 255, 0.2f, 0.7f, 1.3f);
         mat6->textures().push_back(tex5);
         mat6->program(sp1);
 
@@ -595,7 +595,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
         SLCamera* cam1 = new SLCamera();
         cam1->name("cam1");
         cam1->translation(0,1,17);
-        cam1->lookAt(0,2,0);
+        cam1->lookAt(0,1,0);
         cam1->focalDist(17);
         cam1->setInitialState();
 
@@ -634,7 +634,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
         SLNode* glass = new SLNode(new SLRevolver(revG, SLVec3f(0,1,0), 36, true, false, "GlassRev", mat5));
         glass->translate(0.0f,-3.5f, 0.0f, TS_Object);
 
-        // wine 2D polyline definition for revolution
+        // wine 2D polyline definition for revolution with twosided material
         SLVVec3f revW;
         revW.push_back(SLVec3f(0.00f, 3.82f));
         revW.push_back(SLVec3f(0.20f, 3.80f));
@@ -653,13 +653,15 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
         wineTop->translate(0.0f, 2.5f, 0.0f, TS_Object);
 
         // Other revolver objects
-        SLNode* sphere = new SLNode(new SLSphere(1,16,16, "mySphere", mat1));
+        SLNode* sphere = new SLNode(new SLSphere(1,16,16, "sphere", mat1));
         sphere->translate(3,0,0, TS_Object);
-        SLNode* cylinder = new SLNode(new SLCylinder(1, 2, 3, 16, true, true, "myCylinder", mat1));
-        cylinder->translate(-3,0,-1, TS_Object);
-        SLNode* cone = new SLNode(new SLCone(1, 3, 3, 16, true, "myCone", mat1));
+        SLNode* cylinder = new SLNode(new SLCylinder(0.1f, 7, 3, 16, true, true, "cylinder", mat1));
+        cylinder->translate(0,0.5f,0);
+        cylinder->rotate(90,-1,0,0);
+        cylinder->rotate(30, 0,1,0);
+        SLNode* cone = new SLNode(new SLCone(1, 3, 3, 16, true, "cone", mat1));
+        cone->translate(-3,-1,0, TS_Object);
         cone->rotate(90, -1,0,0);
-        cone->translate(0,0,2.7f, TS_Object);
 
         // Cube dimensions
         SLfloat pL = -9.0f, pR =  9.0f; // left/right

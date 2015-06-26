@@ -118,6 +118,7 @@ HEADERS += \
 ../include/SLVector.h \
 ../include/stdafx.h \
 ../include/TriangleBoxIntersect.h \
+    ../include/SLDisk.h
 
 SOURCES += \
 source/math/SLCurveBezier.cpp \
@@ -173,6 +174,7 @@ source/SLSkeleton.cpp \
 source/SLSphere.cpp \
 source/SLText.cpp \
 source/SLUniformGrid.cpp \
+    source/SLDisk.cpp
 
 OTHER_FILES += \
 source/oglsl/BumpNormal.frag \

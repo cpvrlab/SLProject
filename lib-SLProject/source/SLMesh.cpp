@@ -410,10 +410,6 @@ SLbool SLMesh::hit(SLRay* ray, SLNode* node)
 {  
     if (_primitive != SL_TRIANGLES)
         return false;
-    
-    // Avoid intersection of another mesh before the ray left this one
-    //if (!ray->isOutside && ray->srcNode != node) 
-    //  return false;
      
     if (_accelStruct)
         return _accelStruct->intersect(ray, node);
