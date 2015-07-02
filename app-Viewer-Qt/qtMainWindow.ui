@@ -307,6 +307,9 @@
      <height>138</height>
     </size>
    </property>
+   <property name="mouseTracking">
+    <bool>false</bool>
+   </property>
    <property name="floating">
     <bool>false</bool>
    </property>
@@ -440,6 +443,9 @@
      <height>138</height>
     </size>
    </property>
+   <property name="mouseTracking">
+    <bool>false</bool>
+   </property>
    <property name="windowTitle">
     <string>Properties</string>
    </property>
@@ -533,6 +539,9 @@
      <width>643</width>
      <height>126</height>
     </size>
+   </property>
+   <property name="mouseTracking">
+    <bool>false</bool>
    </property>
    <property name="floating">
     <bool>false</bool>

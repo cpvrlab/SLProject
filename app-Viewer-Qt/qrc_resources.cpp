@@ -1,7 +1,7 @@
 /****************************************************************************
 ** Resource object code
 **
-** Created by: The Resource Compiler for Qt version 5.4.1
+** Created by: The Resource Compiler for Qt version 5.5.0
 **
 ** WARNING! All changes made in this file will be lost!
 *****************************************************************************/
