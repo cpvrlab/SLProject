@@ -946,15 +946,12 @@ void SLMesh::preShade(SLRay* ray)
     ray->hitPoint.set(ray->origin + ray->length * ray->dir);
       
     // calculate the interpolated normal with vertex normals in object space
-    ray->hitNormal.set(finalN()[iA] * (1-(ray->hitU+ray->hitV)) +
+    ray->hitNormal.set(finalN()[iA] * (1-(ray->hitU + ray->hitV)) +
                        finalN()[iB] * ray->hitU +
                        finalN()[iC] * ray->hitV);
                       
     // transform normal back to world space
     ray->hitNormal.set(ray->hitNode->updateAndGetWMN() * ray->hitNormal);
-                 
-    // invert normal if the ray is inside a the same mesh
-    //if (!ray->isOutside && ray->hitMesh==ray->srcMesh) ray->hitNormal *= -1;
    
     // for shading the normal is expected to be unit length
     ray->hitNormal.normalize();
