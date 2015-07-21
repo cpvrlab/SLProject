@@ -92,7 +92,6 @@ INCLUDEPATH += \
     zlib \
 
 HEADERS += \
-    dirent/dirent.h \
     glew/include/GL/glew.h \
     glfw3/include/GLFW/glfw3.h \
     glfw3/include/GLFW/glfw3native.h \
@@ -114,7 +113,6 @@ HEADERS += \
     Shoemake/TypeDefs.h \
 
 SOURCES += \
-    dirent/dirent.c \
     glew/src/glew.c \
     glfw3/src/context.c \
     glfw3/src/init.c \
@@ -179,6 +177,7 @@ SOURCES += \
 win32 { #Windows only -------------------------------------
 
 HEADERS += \
+    dirent/dirent.h \
     glfw3/src/win32_platform.h \
     glfw3/src/win32_tls.h \
     glfw3/src/winmm_joystick.h \
@@ -201,6 +200,7 @@ HEADERS += \
     zlib/crc32.h \
 
 SOURCES += \
+    dirent/dirent.c \
     glfw3/src/win32_init.c \
     glfw3/src/win32_monitor.c \
     glfw3/src/win32_time.c \
