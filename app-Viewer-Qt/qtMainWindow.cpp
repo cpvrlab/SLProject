@@ -1159,13 +1159,10 @@ void qtMainWindow::on_actionShow_Axis_triggered()
 {
     applyCommandOnSV(cmdAxisToggle);
 }
-<<<<<<< HEAD
-=======
 void qtMainWindow::on_actionShow_Skeleton_triggered()
 {
     applyCommandOnSV(cmdSkeletonToggle);
 }
->>>>>>> feature-RT-Improvements
 void qtMainWindow::on_actionShow_Backfaces_triggered()
 {
     applyCommandOnSV(cmdFaceCullToggle);
