@@ -136,7 +136,6 @@ void SLAABBox::fromWStoOS(const SLVec3f &minWS,
 //! Updates the axis of the owning node
 void SLAABBox::updateAxisWS(const SLMat4f &wm)
 {  
-
     //set coordinate axis in world space
     _axis0WS = wm.multVec(SLVec3f::ZERO);
     _axisXWS = wm.multVec(SLVec3f::AXISX);
@@ -145,8 +144,55 @@ void SLAABBox::updateAxisWS(const SLMat4f &wm)
 
     // Delete OpenGL vertex buffer
     if (_bufP.id()) _bufP.dispose();
-   
-    setCenterAndRadius();
+}
+//-----------------------------------------------------------------------------
+//! Updates joints axis and the bone line from the parent to us
+/*! If the node has a skeleton assigned the method updates the axis and bone
+visualization lines of the joint. Note that joints bone line is drawn by its
+children. So the bone line in here is the bone from the parent to us.
+If this parent bone direction is not along the parents Y axis we interpret the
+connection not as a bone but as an offset displacement. Bones will be drawn in
+SLAABBox::drawBoneWS in yellow and displacements in magenta.
+If the joint has no parent (the root) no line is drawn.
+*/
+void SLAABBox::updateBoneWS(const SLMat4f &parentWM,
+                            const SLbool isRoot,
+                            const SLMat4f &nodeWM)
+{
+    // set coordinate axis centre point
+    _axis0WS = nodeWM.multVec(SLVec3f::ZERO);
+
+    // set scale factor for coordinate axis
+    SLfloat axisScaleFactor = 0.03f;
+
+    if (!isRoot)
+    { 
+        // build the parent pos in WM
+        _parent0WS = parentWM.multVec(SLVec3f::ZERO);
+
+        // set the axis scale factor depending on the length of the parent bone
+        SLVec3f parentToMe = _axis0WS - _parent0WS;
+        axisScaleFactor = SL_max(parentToMe.length() / 10.0f, axisScaleFactor);
+
+        // check if the parent to me direction is parallel to the parents actual y-axis
+        parentToMe.normalize();
+        SLVec3f parentY = parentWM.axisY();
+        parentY.normalize();
+        _boneIsOffset = parentToMe.dot(parentY) < (1.0f - FLT_EPSILON);
+    } else
+    {   
+        // for the root node don't draw a parent bone
+        _parent0WS = _axis0WS;
+        _boneIsOffset = false;
+    }
+
+    // set coordinate axis end points
+    _axisXWS = nodeWM.multVec(SLVec3f::AXISX * axisScaleFactor);
+    _axisYWS = nodeWM.multVec(SLVec3f::AXISY * axisScaleFactor);
+    _axisZWS = nodeWM.multVec(SLVec3f::AXISZ * axisScaleFactor);
+
+    // Delete OpenGL vertex buffer
+    if (_bufP.id()) _bufP.dispose();
 }
 //-----------------------------------------------------------------------------
 //! Calculates center & radius of the bounding sphere around the AABB
@@ -168,7 +214,8 @@ void SLAABBox::setCenterAndRadius()
 //! Generates the vertex buffer for the line visualization
 void SLAABBox::generateVBO()
 {
-    SLVec3f P[30];  // vertex positions (24 for aabb, 6 for axis)
+    SLVec3f P[32];  // vertex positions (24 for aabb, 6 for axis, 3 for joint)
+
     P[ 0].set(_minWS.x, _minWS.y, _minWS.z); // lower rect
     P[ 1].set(_maxWS.x, _minWS.y, _minWS.z);
     P[ 2].set(_maxWS.x, _minWS.y, _minWS.z);
@@ -177,6 +224,7 @@ void SLAABBox::generateVBO()
     P[ 5].set(_minWS.x, _minWS.y, _maxWS.z);
     P[ 6].set(_minWS.x, _minWS.y, _maxWS.z);
     P[ 7].set(_minWS.x, _minWS.y, _minWS.z);
+
     P[ 8].set(_minWS.x, _maxWS.y, _minWS.z); // upper rect
     P[ 9].set(_maxWS.x, _maxWS.y, _minWS.z);
     P[10].set(_maxWS.x, _maxWS.y, _minWS.z);
@@ -184,6 +232,7 @@ void SLAABBox::generateVBO()
     P[12].set(_maxWS.x, _maxWS.y, _maxWS.z);
     P[13].set(_minWS.x, _maxWS.y, _maxWS.z);
     P[14].set(_minWS.x, _maxWS.y, _maxWS.z);
+
     P[15].set(_minWS.x, _maxWS.y, _minWS.z); // vertical lines
     P[16].set(_minWS.x, _minWS.y, _minWS.z);
     P[17].set(_minWS.x, _maxWS.y, _minWS.z);
@@ -193,13 +242,19 @@ void SLAABBox::generateVBO()
     P[21].set(_maxWS.x, _maxWS.y, _maxWS.z);
     P[22].set(_minWS.x, _minWS.y, _maxWS.z);
     P[23].set(_minWS.x, _maxWS.y, _maxWS.z);
+
     P[24].set(_axis0WS.x, _axis0WS.y, _axis0WS.z); // x-axis
     P[25].set(_axisXWS.x, _axisXWS.y, _axisXWS.z);
     P[26].set(_axis0WS.x, _axis0WS.y, _axis0WS.z); // y-axis
     P[27].set(_axisYWS.x, _axisYWS.y, _axisYWS.z);
     P[28].set(_axis0WS.x, _axis0WS.y, _axis0WS.z); // z-axis
     P[29].set(_axisZWS.x, _axisZWS.y, _axisZWS.z);
-    _bufP.generate(P, 30, 3);
+
+    // Bone points
+    P[30].set(_parent0WS.x, _parent0WS.y, _parent0WS.z);
+    P[31].set(_axis0WS.x, _axis0WS.y, _axis0WS.z);
+
+    _bufP.generate(P, 32, 3);
 }
 //-----------------------------------------------------------------------------
 //! Draws the AABB in world space with lines in a color
@@ -222,6 +277,28 @@ void SLAABBox::drawAxisWS()
     _bufP.drawArrayAsConstantColorLines(SLCol3f::RED,   2.0f, 24, 2);
     _bufP.drawArrayAsConstantColorLines(SLCol3f::GREEN, 2.0f, 26, 2);
     _bufP.drawArrayAsConstantColorLines(SLCol3f::BLUE,  2.0f, 28, 2);
+}
+//-----------------------------------------------------------------------------
+//! Draws the joint axis and the parent bone in world space
+/*! The joints x-axis is drawn in red, the y-axis in green and the z-axis in 
+blue. If the parent displacement is a bone it is drawn in yellow, if it is a
+an offset displacement in magenta. See also SLAABBox::updateBoneWS.
+*/
+void SLAABBox::drawBoneWS()
+{
+    // Create buffer object once
+    if (!_bufP.id()) generateVBO();
+    if (!_bufP.id()) return;
+
+    _bufP.drawArrayAsConstantColorLines(SLCol3f::RED,     2.0f, 24, 2);
+    _bufP.drawArrayAsConstantColorLines(SLCol3f::GREEN,   2.0f, 26, 2);
+    _bufP.drawArrayAsConstantColorLines(SLCol3f::BLUE,    2.0f, 28, 2);
+
+
+    // draw either an offset line or a bone line as the parent
+    if (!_boneIsOffset)
+         _bufP.drawArrayAsConstantColorLines(SLCol3f::YELLOW,  1.0f, 30, 2);
+    else _bufP.drawArrayAsConstantColorLines(SLCol3f::MAGENTA, 1.0f, 30, 2);
 }
 //-----------------------------------------------------------------------------
 //! SLAABBox::isHitInWS: Ray - AABB Intersection Test in object space

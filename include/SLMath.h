@@ -65,4 +65,11 @@ inline SLfloat SL_random(SLfloat min, SLfloat max)
     return ((SLfloat)rand()/(SLfloat)RAND_MAX) * (max-min) + min;
 }
 //-----------------------------------------------------------------------------
+inline SLint SL_pow(int x, int p) 
+{
+  if (p == 0) return 1;
+  if (p == 1) return x;
+  return x * SL_pow(x, p-1);
+}
+//-----------------------------------------------------------------------------
 #endif

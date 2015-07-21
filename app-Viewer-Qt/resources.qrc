@@ -32,5 +32,6 @@
         <file>images/animPlayBackwards.png</file>
         <file>images/animPrevKF.png</file>
         <file>images/animStop.png</file>
+        <file>images/showSkeleton.png</file>
     </qresource>
 </RCC>

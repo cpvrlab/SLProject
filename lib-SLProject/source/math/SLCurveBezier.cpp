@@ -15,6 +15,7 @@
 
 #include <SLCurveBezier.h>
 #include <SLScene.h>
+#include <SLGLState.h>
 
 //-------------------------------------------------------------------------------
 SLCurveBezier::SLCurveBezier(const SLVec3f*  points,
@@ -40,7 +41,7 @@ SLCurveBezier::~SLCurveBezier()
 /*! 
 Init curve with curve points and times (pointsAndTimes.w = time). If no control
 points are passed they will be calculated automatically
-@param points Array of points on the Beziér curve
+@param points Array of points on the Bézier curve
 @param times Array times for the according Bézier point
 @param numPointsAndTimes NO. of points in the arrays
 @param controlPoints Array of control points with size = 2*(numPointsAndTimes-1)
@@ -60,7 +61,7 @@ void SLCurveBezier::init(const SLVec3f*  points,
     _times     = new SLfloat[_count];
     _controls  = new SLVec3f[2*(_count-1)];
 
-    // copy interpolant data
+    // copy interpolated data
     unsigned int i;
     for (i = 0; i < _count; ++i)
     {   _points[i] = points[i];
@@ -107,7 +108,7 @@ void SLCurveBezier::init(const SLVec3f*  points,
 SLCurveBezier::draw does the OpenGL rendering of the Bezier curve in world 
 space.
 */
-void SLCurveBezier::draw(SLMat4f &wm)
+void SLCurveBezier::draw(const SLMat4f &wm)
 {  
     SLint numControlPoints = 2*(_count-1);
 
@@ -119,7 +120,7 @@ void SLCurveBezier::draw(SLMat4f &wm)
         for (SLuint i = 0; i < _count-1; ++i)
         {  subdivideRender(renderPoints, wm, 0.00001f, 
                             _points[i], _controls[2*i], 
-                            _controls[2*i+1], _points[i+1]);
+                           _controls[2*i+1], _points[i+1]);
         }
    
         // add last point to the curve vector
@@ -145,6 +146,10 @@ void SLCurveBezier::draw(SLMat4f &wm)
     }
    
     if (!_bufP.id()) return;
+
+    // Set the view transform
+    SLGLState* stateGL = SLGLState::getInstance();
+    stateGL->modelViewMatrix.setMatrix(stateGL->viewMatrix);
 
     SLint numTangentPoints = numControlPoints * 2;
     SLint numCurvePoints = _bufP.numElements() -
@@ -439,12 +444,12 @@ SLCurveBezier::subdivideRender adds points along the curve to the point vector
 renderPoints by recursively subdividing the curve with the Casteljau scheme.
 */
 void SLCurveBezier::subdivideRender(SLVVec3f &renderPoints,
-                                    SLMat4f &wm,
+                                    const SLMat4f &wm,
                                     SLfloat epsilon,
-                                    SLVec3f& P0, SLVec3f& P1, 
-                                    SLVec3f& P2, SLVec3f& P3)
+                                    const SLVec3f& P0, const SLVec3f& P1, 
+                                    const SLVec3f& P2, const SLVec3f& P3)
 {
-    // add first point transformed by wm if not allready in the list
+    // add first point transformed by wm if not already in the list
     if (renderPoints.size()==0)
         renderPoints.push_back(wm.multVec(P0));
     else if (P0 != renderPoints[renderPoints.size()-1])

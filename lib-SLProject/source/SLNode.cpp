@@ -449,7 +449,7 @@ bool SLNode::hitRec(SLRay* ray)
         return false;
 
     // Do not test origin node for shadow rays 
-    if (this==ray->originNode && ray->type==SHADOW) 
+    if (this==ray->srcNode && ray->type==SHADOW) 
         return false;
    
     // Check first AABB for intersection
@@ -569,7 +569,7 @@ void SLNode::needWMUpdate()
 /*!
 Flags this node's AABB for an update. If a node 
 changed we need to update it's world space AABB. This needs to also be propagated
-up the parent chain since the AABB of a node incorperates the AABB's of child
+up the parent chain since the AABB of a node incorporates the AABB's of child
 nodes.
 */
 void SLNode::needAABBUpdate()
@@ -995,3 +995,15 @@ void SLNode::resetToInitialState()
     _om = _initialOM;
     needUpdate();
 }
+
+//-----------------------------------------------------------------------------
+//! Returns the first skeleton found in the meshes
+const SLSkeleton* SLNode::skeleton()
+{
+    for (auto mesh : _meshes)
+        if (mesh->skeleton())
+            return mesh->skeleton();
+    return nullptr;
+}
+
+//-----------------------------------------------------------------------------

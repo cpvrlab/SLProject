@@ -18,6 +18,7 @@
 class SLNode;
 class SLAnimation;
 class SLCurve;
+class SLSceneView;
 
 //-----------------------------------------------------------------------------
 //! Abstract base class for SLAnimationTracks providing time and keyframe functions
@@ -41,7 +42,8 @@ public:
                                                  SLKeyframe* keyframe) const = 0; // we need a way to get an output value for a time we put in
     virtual void        apply                   (SLfloat time,
                                                  SLfloat weight = 1.0f,
-                                                 SLfloat scale = 1.0f) = 0; // applies the animation clip to its target
+                                                 SLfloat scale = 1.0f) = 0;
+    virtual void        drawVisuals             (SLSceneView* sv) = 0;
             SLint       numKeyframes            () const { return (SLint)_keyframes.size(); }
             SLKeyframe* keyframe                (SLint index);
 protected:
@@ -56,7 +58,7 @@ protected:
 //! Specialized animation track for node animations
 /*! 
     Allows for translation, scale and rotation parameters to be animated.
-    Also allows for either linear or bezier interpolation of the position
+    Also allows for either linear or Bézier interpolation of the position
     parameter in the track.
 */
 class SLNodeAnimTrack : public SLAnimTrack
@@ -73,6 +75,7 @@ public:
     virtual void        calcInterpolatedKeyframe(SLfloat time, SLKeyframe* keyframe) const;
     virtual void        apply                   (SLfloat time, SLfloat weight = 1.0f, SLfloat scale = 1.0f);
     virtual void        applyToNode             (SLNode* node, SLfloat time, SLfloat weight = 1.0f, SLfloat scale = 1.0f);
+    virtual void        drawVisuals             (SLSceneView* sv);
     
             void        interpolationCurve      (SLCurve* curve);
             void        translationInterpolation(SLAnimInterpolation interp) { _translationInterpolation = interp; }
@@ -83,8 +86,8 @@ protected:
 
     SLNode*             _animatedNode;              //!< the target node for this track_nodeID
     mutable SLCurve*    _interpolationCurve;        //!< the translation interpolation curve
-    SLAnimInterpolation _translationInterpolation;  //!< interpolation mode for translations (bezier or linear)
-    SLbool              _rebuildInterpolationCurve; //!< dirty flag of the bezier curve
+    SLAnimInterpolation _translationInterpolation;  //!< interpolation mode for translations (Bézier or linear)
+    SLbool              _rebuildInterpolationCurve; //!< dirty flag of the Bézier curve
 };
 //-----------------------------------------------------------------------------
 typedef map<SLuint, SLNodeAnimTrack*> SLMNodeAnimTrack;

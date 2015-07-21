@@ -52,6 +52,7 @@ public:
                                          SLfloat weight = 1.0f,
                                          SLfloat scale = 1.0f);
             void        resetNodes      ();
+            void        drawNodeVisuals (SLSceneView* sv);
 
     // static creator 
     static SLAnimation* create          (const SLstring& name,
@@ -62,9 +63,12 @@ public:
     // track creators
     SLNodeAnimTrack*    createNodeAnimationTrack        ();
     SLNodeAnimTrack*    createNodeAnimationTrack        (SLuint handle);
-    SLNodeAnimTrack*    createSimpleTranslationNodeTrack(SLNode* target, const SLVec3f& endPos);
-    SLNodeAnimTrack*    createSimpleRotationNodeTrack   (SLNode* target, SLfloat angleDeg, const SLVec3f& axis);
-    SLNodeAnimTrack*    createSimpleScalingNodeTrack    (SLNode* target, const SLVec3f& endScale);
+    SLNodeAnimTrack*    createSimpleTranslationNodeTrack(SLNode* target, 
+                                                         const SLVec3f& endPos);
+    SLNodeAnimTrack*    createSimpleRotationNodeTrack   (SLNode* target, SLfloat angleDeg, 
+                                                         const SLVec3f& axis);
+    SLNodeAnimTrack*    createSimpleScalingNodeTrack    (SLNode* target, 
+                                                         const SLVec3f& endScale);
     SLNodeAnimTrack*    createEllipticNodeTrack         (SLNode* target,
                                                          SLfloat radiusA, SLAxis axisA,
                                                          SLfloat radiusB, SLAxis axisB);
@@ -78,7 +82,7 @@ public:
 
 protected:
     SLstring            _name;              //!< name of the animation
-    SLfloat             _lengthSec;            //!< duration of the animation in seconds
+    SLfloat             _lengthSec;         //!< duration of the animation in seconds
     SLMNodeAnimTrack    _nodeAnimTracks;    //!< map of all the node tracks in this animation
 };
 //-----------------------------------------------------------------------------

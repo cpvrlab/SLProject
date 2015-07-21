@@ -13,6 +13,7 @@
 		411BA72D18C072BC00F10475 /* Default~iphone.png in Resources */ = {isa = PBXBuildFile; fileRef = 411BA72C18C072BC00F10475 /* Default~iphone.png */; };
 		411BA72F18C075E500F10475 /* Default~ipad.png in Resources */ = {isa = PBXBuildFile; fileRef = 411BA72E18C075E500F10475 /* Default~ipad.png */; };
 		411BA73118C0773B00F10475 /* Default-Portrait@2~ipad.png in Resources */ = {isa = PBXBuildFile; fileRef = 411BA73018C0773B00F10475 /* Default-Portrait@2~ipad.png */; };
+		411E93181B3D92DC007B0C6F /* SLDisk.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 411E93171B3D92DC007B0C6F /* SLDisk.cpp */; };
 		4124EC111959C137003AA059 /* shapes.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4124EC051959C137003AA059 /* shapes.cc */; };
 		4124EC121959C137003AA059 /* advancing_front.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4124EC091959C137003AA059 /* advancing_front.cc */; };
 		4124EC131959C137003AA059 /* cdt.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4124EC0B1959C137003AA059 /* cdt.cc */; };
@@ -407,6 +408,8 @@
 		411BA72C18C072BC00F10475 /* Default~iphone.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "Default~iphone.png"; path = "images/Default~iphone.png"; sourceTree = SOURCE_ROOT; };
 		411BA72E18C075E500F10475 /* Default~ipad.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "Default~ipad.png"; path = "images/Default~ipad.png"; sourceTree = SOURCE_ROOT; };
 		411BA73018C0773B00F10475 /* Default-Portrait@2~ipad.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "Default-Portrait@2~ipad.png"; path = "images/Default-Portrait@2~ipad.png"; sourceTree = SOURCE_ROOT; };
+		411E93171B3D92DC007B0C6F /* SLDisk.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SLDisk.cpp; path = "../../lib-SLProject/source/SLDisk.cpp"; sourceTree = "<group>"; };
+		411E931A1B3D92EB007B0C6F /* SLDisk.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SLDisk.h; path = ../../include/SLDisk.h; sourceTree = "<group>"; };
 		4124EC051959C137003AA059 /* shapes.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = shapes.cc; path = "../lib-SLExternal/assimp/contrib/poly2tri/poly2tri/common/shapes.cc"; sourceTree = SOURCE_ROOT; };
 		4124EC061959C137003AA059 /* shapes.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = shapes.h; path = "../lib-SLExternal/assimp/contrib/poly2tri/poly2tri/common/shapes.h"; sourceTree = SOURCE_ROOT; };
 		4124EC071959C137003AA059 /* utils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = utils.h; path = "../lib-SLExternal/assimp/contrib/poly2tri/poly2tri/common/utils.h"; sourceTree = SOURCE_ROOT; };
@@ -1328,6 +1331,8 @@
 		418E0C5814892A3D00C6274F /* Meshes */ = {
 			isa = PBXGroup;
 			children = (
+				411E931A1B3D92EB007B0C6F /* SLDisk.h */,
+				411E93171B3D92DC007B0C6F /* SLDisk.cpp */,
 				DE38C74719EFCB420069B8BB /* SLGrid.cpp */,
 				DE38C74619EFCA5B0069B8BB /* SLGrid.h */,
 				418E0C31148929C800C6274F /* SLMesh.cpp */,
@@ -1949,7 +1954,7 @@
 		419BCD2E14865C0800D576F1 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastUpgradeCheck = 0600;
+				LastUpgradeCheck = 0630;
 			};
 			buildConfigurationList = 419BCD3114865C0800D576F1 /* Build configuration list for PBXProject "app-Demo-iOS" */;
 			compatibilityVersion = "Xcode 3.2";
@@ -2170,6 +2175,7 @@
 				418E0C8814892B6600C6274F /* png.c in Sources */,
 				419808681959BA670048085E /* BlenderBMesh.cpp in Sources */,
 				419808B51959BA670048085E /* XFileParser.cpp in Sources */,
+				411E93181B3D92DC007B0C6F /* SLDisk.cpp in Sources */,
 				419808791959BA670048085E /* FBXImporter.cpp in Sources */,
 				419808CC1959BA670048085E /* FBXNodeAttribute.cpp in Sources */,
 				418E0C8914892B6600C6274F /* pngerror.c in Sources */,
@@ -2431,6 +2437,7 @@
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					SL_RT1,
@@ -2514,6 +2521,7 @@
 				ENABLE_OPENMP_SUPPORT = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_NO_COMMON_BLOCKS = YES;
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					SL_RT1,
 					TARGET_OS_IOS,

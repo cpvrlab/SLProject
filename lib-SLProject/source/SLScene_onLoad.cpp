@@ -28,6 +28,7 @@
 #include <SLBox.h>
 #include <SLCone.h>
 #include <SLCylinder.h>
+#include <SLDisk.h>
 #include <SLSphere.h>
 #include <SLRectangle.h>
 #include <SLText.h>
@@ -223,7 +224,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
         scene->addChild(cam1);
         scene->addChild(rectNode);
 
-        // Set background colo and the root scene node
+        // Set background color and the root scene node
         _backColor.set(0.5f,0.5f,0.5f);
         _root3D = scene;
 
@@ -265,7 +266,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
         scene->addChild(floorRect);
         scene->addChild(figure);
      
-        // Set backround color, active camera & the root pointer
+        // Set background color, active camera & the root pointer
         _backColor.set(SLCol4f(0.1f,0.4f,0.8f));
         sv->camera(cam1);
         _root3D = scene;
@@ -291,7 +292,9 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
         cam1->clipFar(30);
         cam1->translation(0,0,10);
         cam1->lookAt(0, 0, 0);
-        cam1->maxSpeed(40);
+        cam1->maxSpeed(20);
+        cam1->moveAccel(160);
+        cam1->brakeAccel(160);
         cam1->focalDist(10);
         cam1->eyeSeparation(cam1->focalDist()/30.0f);
         cam1->setInitialState();
@@ -557,7 +560,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
         name("Revolving Mesh Test w. glass shader");
         info(sv, "Examples of revolving mesh objects constructed by rotating a 2D curve. The glass shader reflects and refracts the environment map. Try ray tracing.");
 
-        // Testmap material
+        // Test map material
         SLGLTexture* tex1 = new SLGLTexture("Testmap_0512_C.png");
         SLMaterial* mat1 = new SLMaterial("mat1", tex1);
 
@@ -580,18 +583,21 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
         SLGLTexture* tex5 = new SLGLTexture("wood2_0256_C.jpg", "wood2_0256_C.jpg"
                                             ,"gray_0256_C.jpg", "wood0_0256_C.jpg"
                                             ,"gray_0256_C.jpg", "bricks1_0256_C.jpg");
-        SLMaterial* mat5 = new SLMaterial("glass", SLCol4f::BLACK, SLCol4f::WHITE,
-                                        100, 0.2f, 0.8f, 1.5f);
+        SLMaterial* mat5 = new SLMaterial("glass", SLCol4f::BLACK, SLCol4f::WHITE, 255, 0.1f, 0.9f, 1.5f);
         mat5->textures().push_back(tex5);
-        SLGLProgram* sp1 = new SLGLGenericProgram("RefractReflect.vert",
-                                                        "RefractReflect.frag");
+        SLGLProgram* sp1 = new SLGLGenericProgram("RefractReflect.vert", "RefractReflect.frag");
         mat5->program(sp1);
+
+        // Wine material
+        SLMaterial* mat6 = new SLMaterial("wine", SLCol4f(0.4f,0.0f,0.2f), SLCol4f::BLACK, 255, 0.2f, 0.7f, 1.3f);
+        mat6->textures().push_back(tex5);
+        mat6->program(sp1);
 
         // camera
         SLCamera* cam1 = new SLCamera();
         cam1->name("cam1");
-        cam1->translation(0,0,17);
-        cam1->lookAt(0, 0, 0);
+        cam1->translation(0,1,17);
+        cam1->lookAt(0,1,0);
         cam1->focalDist(17);
         cam1->setInitialState();
 
@@ -604,57 +610,65 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
         SLAnimation* anim = SLAnimation::create("light1_anim", 4.0f);
         anim->createEllipticNodeTrack(light1, 6.0f, ZAxis, 6.0f, XAxis);
 
-
-        // wine glass
-        SLVVec3f revP;
-        revP.push_back(SLVec3f(0.00f, 0.00f));
-        revP.push_back(SLVec3f(2.00f, 0.00f));
-        revP.push_back(SLVec3f(2.00f, 0.00f));
-        revP.push_back(SLVec3f(2.00f, 0.10f));
-        revP.push_back(SLVec3f(1.95f, 0.15f));
-
-        revP.push_back(SLVec3f(0.40f, 0.50f));
-        revP.push_back(SLVec3f(0.25f, 0.60f));
-        revP.push_back(SLVec3f(0.20f, 0.70f));
-        revP.push_back(SLVec3f(0.30f, 3.00f));
-
-        revP.push_back(SLVec3f(0.30f, 3.00f));
-        revP.push_back(SLVec3f(0.20f, 3.10f));
-        revP.push_back(SLVec3f(0.20f, 3.10f));
-
-        revP.push_back(SLVec3f(1.20f, 3.90f));
-        revP.push_back(SLVec3f(1.60f, 4.30f));
-        revP.push_back(SLVec3f(1.95f, 4.80f));
-        revP.push_back(SLVec3f(2.15f, 5.40f));
-        revP.push_back(SLVec3f(2.20f, 6.20f));
-        revP.push_back(SLVec3f(2.10f, 7.10f));
-        revP.push_back(SLVec3f(2.05f, 7.15f));
-
-        revP.push_back(SLVec3f(2.00f, 7.10f));
-        revP.push_back(SLVec3f(2.05f, 6.00f));
-        revP.push_back(SLVec3f(1.95f, 5.40f));
-        revP.push_back(SLVec3f(1.70f, 4.80f));
-        revP.push_back(SLVec3f(1.30f, 4.30f));
-        revP.push_back(SLVec3f(0.80f, 4.00f));
-        revP.push_back(SLVec3f(0.20f, 3.80f));
-        revP.push_back(SLVec3f(0.00f, 3.82f));
-        SLNode* glass = new SLNode(new SLRevolver(revP, SLVec3f(0,1,0), 36, true, true, "Revolver", mat5));
+        // glass 2D polygon definition for revolution
+        SLVVec3f revG;
+        revG.push_back(SLVec3f(0.00f, 0.00f)); // foot
+        revG.push_back(SLVec3f(2.00f, 0.00f));
+        revG.push_back(SLVec3f(2.00f, 0.00f));
+        revG.push_back(SLVec3f(2.00f, 0.10f));
+        revG.push_back(SLVec3f(1.95f, 0.15f));
+        revG.push_back(SLVec3f(0.40f, 0.50f)); // stand
+        revG.push_back(SLVec3f(0.25f, 0.60f));
+        revG.push_back(SLVec3f(0.20f, 0.70f));
+        revG.push_back(SLVec3f(0.30f, 3.00f));
+        revG.push_back(SLVec3f(0.30f, 3.00f)); // kerbe
+        revG.push_back(SLVec3f(0.20f, 3.10f));
+        revG.push_back(SLVec3f(0.20f, 3.10f));
+        revG.push_back(SLVec3f(1.20f, 3.90f)); // outer cup
+        revG.push_back(SLVec3f(1.60f, 4.30f));
+        revG.push_back(SLVec3f(1.95f, 4.80f));
+        revG.push_back(SLVec3f(2.15f, 5.40f));
+        revG.push_back(SLVec3f(2.20f, 6.20f));
+        revG.push_back(SLVec3f(2.10f, 7.10f));
+        revG.push_back(SLVec3f(2.05f, 7.15f));
+        revG.push_back(SLVec3f(2.00f, 7.10f)); // inner cup
+        revG.push_back(SLVec3f(2.05f, 6.00f));
+        SLNode* glass = new SLNode(new SLRevolver(revG, SLVec3f(0,1,0), 36, true, false, "GlassRev", mat5));
         glass->translate(0.0f,-3.5f, 0.0f, TS_Object);
 
-        SLNode* sphere = new SLNode(new SLSphere(1,16,16, "mySphere", mat1));
+        // wine 2D polyline definition for revolution with twosided material
+        SLVVec3f revW;
+        revW.push_back(SLVec3f(0.00f, 3.82f));
+        revW.push_back(SLVec3f(0.20f, 3.80f));
+        revW.push_back(SLVec3f(0.80f, 4.00f));
+        revW.push_back(SLVec3f(1.30f, 4.30f));
+        revW.push_back(SLVec3f(1.70f, 4.80f));
+        revW.push_back(SLVec3f(1.95f, 5.40f));
+        revW.push_back(SLVec3f(2.05f, 6.00f));
+        SLMesh* wineMesh = new SLRevolver(revW, SLVec3f(0,1,0), 36, true, false, "WineRev", mat6);
+        wineMesh->matOut = mat5;
+        SLNode* wine = new SLNode(wineMesh);
+        wine->translate(0.0f,-3.5f, 0.0f, TS_Object);
+
+        // wine fluid top
+        SLNode* wineTop = new SLNode(new SLDisk(2.05f, -SLVec3f::AXISY, 36, false, "WineRevTop", mat6));
+        wineTop->translate(0.0f, 2.5f, 0.0f, TS_Object);
+
+        // Other revolver objects
+        SLNode* sphere = new SLNode(new SLSphere(1,16,16, "sphere", mat1));
         sphere->translate(3,0,0, TS_Object);
-
-        SLNode* cylinder = new SLNode(new SLCylinder(1, 2, 3, 16, true, true, "myCylinder", mat1));
-        cylinder->translate(-3,0,-1, TS_Object);
-
-        SLNode* cone = new SLNode(new SLCone(1, 3, 3, 16, true, "myCone", mat1));
+        SLNode* cylinder = new SLNode(new SLCylinder(0.1f, 7, 3, 16, true, true, "cylinder", mat1));
+        cylinder->translate(0,0.5f,0);
+        cylinder->rotate(90,-1,0,0);
+        cylinder->rotate(30, 0,1,0);
+        SLNode* cone = new SLNode(new SLCone(1, 3, 3, 16, true, "cone", mat1));
+        cone->translate(-3,-1,0, TS_Object);
         cone->rotate(90, -1,0,0);
-        cone->translate(0,0,2.5f, TS_Object);
 
         // Cube dimensions
-        SLfloat pL = -9.0f, pR = 9.0f; // left/right
-        SLfloat pB = -3.5f, pT =14.5f; // bottom/top
-        SLfloat pN =  9.0f, pF =-9.0f; // near/far
+        SLfloat pL = -9.0f, pR =  9.0f; // left/right
+        SLfloat pB = -3.5f, pT = 14.5f; // bottom/top
+        SLfloat pN =  9.0f, pF = -9.0f; // near/far
 
         //// bottom rectangle
         SLNode* b = new SLNode(new SLRectangle(SLVec2f(pL,-pN), SLVec2f(pR,-pF), 10, 10, "PolygonFloor", mat2));
@@ -679,6 +693,8 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
         SLNode* scene = new SLNode;
         scene->addChild(light1);
         scene->addChild(glass);
+        scene->addChild(wine);
+        scene->addChild(wineTop);
         scene->addChild(sphere);
         scene->addChild(cylinder);
         scene->addChild(cone);
@@ -2178,6 +2194,49 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
         _backColor.set(SLCol4f(0.1f, 0.4f, 0.8f));
         sv->camera(cam1);
         _root3D = scene;
+    }
+    else
+    if (sceneName == cmdSceneRTTest) //.........................................
+    {
+        // Set scene name and info string
+        name("RT Test Scene");
+        info(sv, "RT Test Scene");
+
+        // Create a camera node
+        SLCamera* cam1 = new SLCamera();
+        cam1->name("camera node");
+        cam1->translation(0, 0, 5);
+        cam1->lookAt(0, 0, 0);
+        cam1->setInitialState();
+
+        // Create a light source node
+        SLLightSphere* light1 = new SLLightSphere(0.3f);
+        light1->translation(5, 5, 5);
+        light1->lookAt(0, 0, 0);
+        light1->name("light node");
+
+        // Material for glass sphere
+        SLMaterial* matBox1 = new SLMaterial("matBox1", SLCol4f(0.0f, 0.0f, 0.0f), SLCol4f(0.5f, 0.5f, 0.5f), 100, 0.0f, 0.9f, 1.5f);
+        SLMesh* boxMesh1 = new SLBox(-0.8f, -1, 0.02f, 1.2f, 1, 1, "boxMesh1", matBox1);
+        SLNode* boxNode1 = new SLNode(boxMesh1, "BoxNode1");
+        
+        SLMaterial* matBox2 = new SLMaterial("matBox2", SLCol4f(0.0f, 0.0f, 0.0f), SLCol4f(0.5f, 0.5f, 0.5f), 100, 0.0f, 0.9f, 1.3f);
+        SLMesh* boxMesh2 = new SLBox(-1.2f, -1, -1, 0.8f, 1,-0.02f, "BoxMesh2", matBox2);
+        SLNode* boxNode2 = new SLNode(boxMesh2, "BoxNode2");
+
+        // Create a scene group and add all nodes
+        SLNode* scene = new SLNode("scene node");
+        scene->addChild(light1);
+        scene->addChild(cam1);
+        scene->addChild(boxNode1);
+        scene->addChild(boxNode2);
+
+        // Set background color and the root scene node
+        _backColor.set(0.5f,0.5f,0.5f);
+        _root3D = scene;
+
+        // Set active camera
+        sv->camera(cam1);
     }
 
     // call onInitialize on all scene views

@@ -80,15 +80,19 @@ SLbool SLRaytracer::renderClassic(SLSceneView* sv)
     double t1 = SLScene::current->timeSec();
     double tStart = t1;
 
-    for (SLuint y=0; y<_images[0]->height(); ++y)
-    {   for (SLuint x=0; x<_images[0]->width(); ++x)
+    for (SLuint y = 0; y < _images[0]->height(); ++y)
+    {   for (SLuint x = 0; x < _images[0]->width(); ++x)
         {
             SLRay primaryRay;
             setPrimaryRay((SLfloat)x, (SLfloat)y, &primaryRay);
 
-            //////////////////////////////////////////
-            SLCol4f color = traceClassic(&primaryRay);
-            //////////////////////////////////////////
+            #ifdef DEBUG_RAY
+            cout << "\nRay(" << x <<"," << y << "):" << endl;
+            #endif
+
+            ///////////////////////////////////
+            SLCol4f color = trace(&primaryRay);
+            ///////////////////////////////////
 
             _images[0]->setPixeliRGB(x, y, color);
 
@@ -118,7 +122,7 @@ SLbool SLRaytracer::renderClassic(SLSceneView* sv)
 }
 //-----------------------------------------------------------------------------
 /*!
-This is the main rendering method for paralllel and distributed ray tracing.
+This is the main rendering method for parallel and distributed ray tracing.
 */
 SLbool SLRaytracer::renderDistrib(SLSceneView* sv)
 {
@@ -200,7 +204,7 @@ Renders slices of 4 rows until the full width of the image is rendered. This
 method can be called as a function by multiple threads.
 The _next index is used and incremented by every thread. So it should be locked
 or an atomic index. I prefer not protecting it because it's faster. If the
-increment is not done proberly some pixels may get raytraced twice. Only the
+increment is not done properly some pixels may get ray traced twice. Only the
 main thread is allowed to call a repaint of the image.
 */
 void SLRaytracer::renderSlices(const bool isMainThread)
@@ -222,9 +226,9 @@ void SLRaytracer::renderSlices(const bool isMainThread)
                 SLRay primaryRay;
                 setPrimaryRay((SLfloat)x, (SLfloat)y, &primaryRay);
 
-                //////////////////////////////////////////
-                SLCol4f color = traceDistrib(&primaryRay);
-                //////////////////////////////////////////
+                ///////////////////////////////////
+                SLCol4f color = trace(&primaryRay);
+                ///////////////////////////////////
 
                 _images[0]->setPixeliRGB(x, y, color);
 
@@ -253,7 +257,7 @@ rendered. Every pixel is multisampled for depth of field lens sampling. This
 method can be called as a function by multiple threads.
 The _next index is used and incremented by every thread. So it should be locked
 or an atomic index. I prefer not protecting it because it's faster. If the
-increment is not done proberly some pixels may get raytraced twice. Only the
+increment is not done properly some pixels may get ray traced twice. Only the
 main thread is allowed to call a repaint of the image.
 */
 void SLRaytracer::renderSlicesMS(const bool isMainThread)
@@ -287,15 +291,15 @@ void SLRaytracer::renderSlicesMS(const bool isMainThread)
                     {   
                         SLVec2f discPos(_cam->lensSamples()->point(iR,iPhi));
                   
-                        // calculate lensposition out of disc position
+                        // calculate lens position out of disc position
                         SLVec3f lensPos(_EYE + discPos.x*lensRadiusX + discPos.y*lensRadiusY);
                         SLVec3f lensToFP(FP-lensPos);
                         lensToFP.normalize();
                         SLRay primaryRay(lensPos, lensToFP, (SLfloat)x, (SLfloat)y);
                   
-                        ///////////////////////////////////
-                        color += traceDistrib(&primaryRay);
-                        ///////////////////////////////////
+                        ////////////////////////////
+                        color += trace(&primaryRay);
+                        ////////////////////////////
                   
                         SLRay::avgDepth += SLRay::depthReached;
                         SLRay::maxDepthReached = SL_max(SLRay::depthReached, SLRay::maxDepthReached);   
@@ -328,7 +332,7 @@ if the material is reflective and/or transparent new rays are created and
 passed to this trace method again. If no object got intersected the
 background color is return.
 */
-SLCol4f SLRaytracer::traceClassic(SLRay* ray)
+SLCol4f SLRaytracer::trace(SLRay* ray)
 {
     SLScene* s = SLScene::current;
     SLCol4f color(s->backColor());
@@ -338,21 +342,46 @@ SLCol4f SLRaytracer::traceClassic(SLRay* ray)
     if (ray->length < FLT_MAX)
     {
         color = shade(ray);
-
+        
         if (ray->depth < SLRay::maxDepth && ray->contrib > SLRay::minContrib)
-        {
+        {   
             if (ray->hitMesh->mat->kt())
             {   SLRay refracted;
                 ray->refract(&refracted);
-                color += ray->hitMesh->mat->kt() * traceClassic(&refracted);
+                color += ray->hitMesh->mat->kt() * trace(&refracted);
             }
             if (ray->hitMesh->mat->kr())
             {   SLRay reflected;
                 ray->reflect(&reflected);
-                color += ray->hitMesh->mat->kr() * traceClassic(&reflected);
+                color += ray->hitMesh->mat->kr() * trace(&reflected);
             }
+
+            /*
+            if (ray->hitMesh->mat->kt())
+            {   SLRay refracted, reflected;
+                ray->refract(&refracted);
+                ray->reflect(&reflected);
+                SLCol4f refrCol = trace(&refracted);
+                SLCol4f reflCol = trace(&reflected);
+            
+                // Mix refr. & refl. color w. Schlick's Fresnel aproximation
+                SLfloat F0 = ray->hitMesh->mat->kr();
+                SLfloat theta = -(ray->dir * ray->hitNormal);
+                SLfloat F_theta = F0 + (1-F0) * pow(1-theta, 5);
+                color += refrCol*(1-F_theta) + reflCol*F_theta;
+            } else
+            {   if (ray->hitMesh->mat->kr())
+                {   SLRay reflected;
+                    ray->reflect(&reflected);
+                    color += ray->hitMesh->mat->kr() * trace(&reflected);
+                }
+            }
+            */
         }
     }
+   
+    if (_stateGL->fogIsOn) 
+        color = fogBlend(ray->length,color);
 
     color.clampMinMax(0,1);
     return color;
@@ -374,56 +403,6 @@ void SLRaytracer::setPrimaryRay(SLfloat x, SLfloat y, SLRay* primaryRay)
         primaryRay->setDir(primaryDir);
         primaryRay->origin = _EYE;
     }
-}
-//-----------------------------------------------------------------------------
-/*!
-This method is the recursive ray tracing method that checks the scene
-for intersection. If the ray hits an object the local color is calculated and 
-if the material is reflective and/or transparent new rays are created and 
-passed to this trace method again. If no object got intersected the 
-background color is return. The distributed extension includes the Fresnel
-appoximation.
-*/
-SLCol4f SLRaytracer::traceDistrib(SLRay* ray)
-{  
-    SLScene* s = SLScene::current;
-    SLCol4f color(s->backColor());
-   
-    s->root3D()->hitRec(ray);
-   
-    if (ray->length < FLT_MAX)
-    {  
-        color = shade(ray);
-      
-        if (ray->depth < SLRay::maxDepth && ray->contrib > SLRay::minContrib)
-        {  
-            if (ray->hitMesh->mat->kt())
-            {   SLRay refracted, reflected;
-                ray->refract(&refracted);
-                ray->reflect(&reflected);
-                SLCol4f refrCol = traceDistrib(&refracted);
-                SLCol4f reflCol = traceDistrib(&reflected);
-            
-                // Mix refr. & refl. color w. Schlick's Fresnel aproximation
-                SLfloat F0 = ray->hitMesh->mat->kr();
-                SLfloat theta = -(ray->dir * ray->hitNormal);
-                SLfloat F_theta = F0 + (1-F0) * pow(1-theta, 5);
-                color += refrCol*(1-F_theta) + reflCol*F_theta;
-            } else
-            {   if (ray->hitMesh->mat->kr())
-                {   SLRay reflected;
-                    ray->reflect(&reflected);
-                    color += ray->hitMesh->mat->kr() * traceDistrib(&reflected);
-                }
-            }
-        }
-    }
-   
-    if (_stateGL->fogIsOn) 
-        color = fogBlend(ray->length,color);
-   
-    color.clampMinMax(0,1);
-    return color;
 }
 //-----------------------------------------------------------------------------
 /*!
@@ -601,11 +580,9 @@ void SLRaytracer::sampleAAPixels(const bool isMainThread)
                 {   if (i==centerIndex && j==centerIndex) 
                         color += centerColor; // don't shoot for center position
                     else 
-                    {   
-                        SLRay primaryRay;
+                    {   SLRay primaryRay;
                         setPrimaryRay(xpos+i*f, ypos+i*f, &primaryRay);
-
-                        color += traceDistrib(&primaryRay);
+                        color += trace(&primaryRay);
                     }
                 }
                 ypos += f;
@@ -692,8 +669,10 @@ void SLRaytracer::printStats(SLfloat sec)
             (SLfloat)primarys/total*100.0f);
     SL_LOG("\nReflected rays    : %10u, %4.1f%% of total", SLRay::reflectedRays,   
             (SLfloat)SLRay::reflectedRays/total*100.0f);
-    SL_LOG("\nTransmitted rays  : %10u, %4.1f%% of total", SLRay::refractedRays, 
+    SL_LOG("\nRefracted rays    : %10u, %4.1f%% of total", SLRay::refractedRays, 
             (SLfloat)SLRay::refractedRays/total*100.0f);
+    SL_LOG("\nIgnored rays      : %10u, %4.1f%% of total", SLRay::ignoredRays, 
+            (SLfloat)SLRay::ignoredRays/total*100.0f);
     SL_LOG("\nTIR rays          : %10u, %4.1f%% of total", SLRay::tirRays,         
             (SLfloat)SLRay::tirRays/total*100.0f);
     SL_LOG("\nShadow rays       : %10u, %4.1f%% of total", SLRay::shadowRays,      

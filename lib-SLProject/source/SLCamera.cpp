@@ -34,7 +34,8 @@ SLCamera::SLCamera()
       _moveAccel(16.0f),
       _moveDir(0, 0, 0),
       _acceleration(0, 0, 0),
-      _unitScaling(1.0f)
+      _unitScaling(1.0f),
+      _movedLastFrame(false)
 {  
     _fovInit      = 0;
     _clipNear     = 0.1f;
@@ -63,8 +64,14 @@ smoothly stops the motion by decreasing the speed every frame.
 */
 SLbool SLCamera::camUpdate(SLfloat elapsedTimeMS)
 {  
-    if (_velocity == SLVec3f::ZERO && _moveDir == SLVec3f::ZERO)
+    if (_velocity == SLVec3f::ZERO && _moveDir == SLVec3f::ZERO) {
         return false;
+    }
+    
+    if (!_movedLastFrame) {
+        _movedLastFrame = true;
+        return true;
+    }
 
     SLfloat dtS = elapsedTimeMS * 0.001f;
 
@@ -102,6 +109,7 @@ SLbool SLCamera::camUpdate(SLfloat elapsedTimeMS)
     if (braking && increment.lengthSqr() > _velocity.lengthSqr())
     {
         _velocity.set(SLVec3f::ZERO);
+        _movedLastFrame = false;
         return false;
     }
 
@@ -120,6 +128,7 @@ SLbool SLCamera::camUpdate(SLfloat elapsedTimeMS)
 
     translate(delta, TS_World);
     
+    _movedLastFrame = true;
     return true;
     
     //SL_LOG("cs: %3.2f | %3.2f, %3.2f, %3.2f\n", _velocity.length(), _acceleration.x, _acceleration.y, _acceleration.z);
@@ -1083,7 +1092,7 @@ void SLCamera::eyeToPixelRay(SLfloat x, SLfloat y, SLRay* ray)
     ray->hitTriangle = -1;
     ray->hitNormal.set(SLVec3f::ZERO);
     ray->hitPoint.set(SLVec3f::ZERO); 
-    ray->originTriangle = 0;
+    ray->srcTriangle = 0;
 }
 //-----------------------------------------------------------------------------
 //! SLCamera::isInFrustum does a simple and fast frustum culling test for AABBs

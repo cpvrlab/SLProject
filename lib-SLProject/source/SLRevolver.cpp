@@ -63,7 +63,7 @@ void SLRevolver::buildMesh(SLMaterial* material)
    
     // calculate length of segments for texture coords
     SLfloat totalLenght = 0;
-    std::vector<SLfloat> segments;
+    SLVfloat segments;
     segments.push_back(0);
     for (SLuint r=0; r<_revPoints.size()-1; ++r)
     {   SLVec3f s = _revPoints[r+1] - _revPoints[r];
@@ -106,7 +106,7 @@ void SLRevolver::buildMesh(SLMaterial* material)
     //    Faces    //
     /////////////////
 
-    std::vector<SLVec3ui> faces;
+    vector<SLVec3ui> faces;
    
     // set faces (triangles) for all revolution segments
     SLVec3ui f;

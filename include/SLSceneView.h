@@ -111,17 +111,20 @@ class SLSceneView: public SLObject
             SLbool          onCommand       (SLCmd cmd);
             
             // Drawing subroutines
-            SLbool          draw3DGL        (SLfloat elapsedTimeSec);
-            void            draw3DGLAll     ();
-            void            draw3DGLLines   (SLVNode &nodes);
-            void            draw3DGLNodes   (SLVNode &nodes);
-            void            draw2DGL        ();
-            void            draw2DGLAll     ();
-            SLbool          draw3DRT        ();
-            SLbool          draw3DPT        ();
+            SLbool          draw3DGL            (SLfloat elapsedTimeSec);
+            void            draw3DGLAll         ();
+            void            draw3DGLNodes       (SLVNode &nodes,
+                                                 SLbool alphaBlended,
+                                                 SLbool depthSorted);
+            void            draw3DGLLines       (SLVNode &nodes);
+            void            draw3DGLLinesOverlay(SLVNode &nodes);
+            void            draw2DGL            ();
+            void            draw2DGLAll         ();
+            SLbool          draw3DRT            ();
+            SLbool          draw3DPT            ();
             
             // SceneView camera
-            void            initSceneViewCamera(const SLVec3f& dir = -SLVec3f::AXISZ, 
+            void            initSceneViewCamera (const SLVec3f& dir = -SLVec3f::AXISZ, 
                                                 SLProjection proj = monoPerspective);
             void            switchToSceneViewCamera();
             SLbool          isSceneViewCameraActive() {return _camera == &_sceneViewCamera;}

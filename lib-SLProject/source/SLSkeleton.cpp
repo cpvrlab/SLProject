@@ -15,6 +15,7 @@
 #include <SLSkeleton.h>
 #include <SLScene.h>
 #include <SLAnimPlayback.h>
+#include <SLSceneView.h>
 
 //-----------------------------------------------------------------------------
 /*! Constructor
@@ -116,7 +117,7 @@ void SLSkeleton::getJointWorldMatrices(SLMat4f* jointWM)
 void SLSkeleton::root(SLJoint* joint)
 {
     if (_root)
-    _root = joint;
+        _root = joint;
 }
 
 //-----------------------------------------------------------------------------
@@ -173,8 +174,6 @@ SLbool SLSkeleton::updateAnimations(SLfloat elapsedTimeSec)
     }
     return true;
 }
-
-
 //-----------------------------------------------------------------------------
 /*! getter for current the current min object space vertex.
 */

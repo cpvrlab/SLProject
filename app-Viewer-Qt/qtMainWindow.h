@@ -131,6 +131,7 @@ class qtMainWindow : public QMainWindow
         void on_actionShow_Wired_Mesh_triggered();
         void on_actionShow_Bounding_Boxes_triggered();
         void on_actionShow_Axis_triggered();
+        void on_actionShow_Skeleton_triggered();
         void on_actionShow_Backfaces_triggered();
         void on_actionShow_Voxels_triggered();
         void on_actionTextures_off_triggered();

@@ -52,12 +52,10 @@ class SLAABBox
             SLVec3f     maxWS       () {return _maxWS;}
             SLVec3f     centerWS    () {return _centerWS;}
             SLfloat     radiusWS    () {return _radiusWS; }
-            SLVec3f     extentionWS () {return _maxWS-_centerWS;};
             SLVec3f     minOS       () {return _minOS;}
             SLVec3f     maxOS       () {return _maxOS;}
             SLVec3f     centerOS    () {return _centerOS;}
             SLfloat     radiusOS    () {return _radiusOS;}
-            SLVec3f     extentionOS () {return _maxOS-_centerOS;};
             SLbool      isVisible   () {return _isVisible;}
             SLbool      hasAlpha    () {return _hasTransp;}
             SLfloat     sqrViewDist () {return _sqrViewDist;}
@@ -70,31 +68,37 @@ class SLAABBox
                                         const SLVec3f &maxWS,
                                         const SLMat4f &wmI);
             void        updateAxisWS   (const SLMat4f &wm);
+            void        updateBoneWS   (const SLMat4f &parentWM,
+                                        const SLbool isRoot,
+                                        const SLMat4f &nodeWM);
             void        mergeWS        (SLAABBox &bb);
             void        drawWS         (const SLCol3f color);
             void        drawAxisWS     ();
+            void        drawBoneWS     ();
             void        setCenterAndRadius();
             void        generateVBO    ();
             SLbool      isHitInOS      (SLRay* ray);
             SLbool      isHitInWS      (SLRay* ray);
                
     private:
-            SLVec3f     _minWS;     //!< Min. corner in world space
-            SLVec3f     _minOS;     //!< Min. corner in object space
-            SLVec3f     _maxWS;     //!< Max. corner in world space
-            SLVec3f     _maxOS;     //!< Max. corner in object space
-            SLVec3f     _centerWS;  //!< Center of AABB in world space
-            SLVec3f     _centerOS;  //!< Center of AABB in object space
-            SLfloat     _radiusWS;  //!< Radius of sphere around AABB in WS
-            SLfloat     _radiusOS;  //!< Radius of sphere around AABB in OS
-            SLfloat     _sqrViewDist;//!< Sqr. dist. from center to viewpoint
-            SLVec3f     _axis0WS;   //!< Worldspace axis center point
-            SLVec3f     _axisXWS;   //!< Worldspace x-axis vector
-            SLVec3f     _axisYWS;   //!< Worldspace y-axis vector
-            SLVec3f     _axisZWS;   //!< Worldspace z-axis vector
-            SLbool      _isVisible; //!< Flag if AABB is in the view frustum
-            SLbool      _hasTransp; //!< Flag if AABB has transparent shapes
-            SLGLBuffer  _bufP;      //!< Buffer object for vertex positions
+            SLVec3f     _minWS;         //!< Min. corner in world space
+            SLVec3f     _minOS;         //!< Min. corner in object space
+            SLVec3f     _maxWS;         //!< Max. corner in world space
+            SLVec3f     _maxOS;         //!< Max. corner in object space
+            SLVec3f     _centerWS;      //!< Center of AABB in world space
+            SLVec3f     _centerOS;      //!< Center of AABB in object space
+            SLfloat     _radiusWS;      //!< Radius of sphere around AABB in WS
+            SLfloat     _radiusOS;      //!< Radius of sphere around AABB in OS
+            SLfloat     _sqrViewDist;   //!< Squared dist. from center to viewpoint
+            SLVec3f     _axis0WS;       //!< World space axis center point
+            SLVec3f     _axisXWS;       //!< World space x-axis vector
+            SLVec3f     _axisYWS;       //!< World space y-axis vector
+            SLVec3f     _axisZWS;       //!< World space z-axis vector
+            SLbool      _boneIsOffset;  //!< Flag if the connection parent to us is a bone or an offset
+            SLVec3f     _parent0WS;     //!< World space vector to the parent position
+            SLbool      _isVisible;     //!< Flag if AABB is in the view frustum
+            SLbool      _hasTransp;     //!< Flag if AABB has transparent shapes
+            SLGLBuffer  _bufP;          //!< Buffer object for vertex positions
 };
 //-----------------------------------------------------------------------------
 

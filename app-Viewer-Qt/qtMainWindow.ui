@@ -196,6 +196,7 @@
     <addaction name="actionShow_Wired_Mesh"/>
     <addaction name="actionShow_Bounding_Boxes"/>
     <addaction name="actionShow_Axis"/>
+    <addaction name="actionShow_Skeleton"/>
     <addaction name="actionShow_Backfaces"/>
     <addaction name="actionShow_Voxels"/>
     <addaction name="actionTextures_off"/>
@@ -305,6 +306,9 @@
      <width>160</width>
      <height>138</height>
     </size>
+   </property>
+   <property name="mouseTracking">
+    <bool>false</bool>
    </property>
    <property name="floating">
     <bool>false</bool>
@@ -420,6 +424,7 @@
    <addaction name="actionShow_Bounding_Boxes"/>
    <addaction name="actionShow_Voxels"/>
    <addaction name="actionShow_Axis"/>
+   <addaction name="actionShow_Skeleton"/>
    <addaction name="actionShow_Backfaces"/>
    <addaction name="actionTextures_off"/>
    <addaction name="separator"/>
@@ -437,6 +442,9 @@
      <width>160</width>
      <height>138</height>
     </size>
+   </property>
+   <property name="mouseTracking">
+    <bool>false</bool>
    </property>
    <property name="windowTitle">
     <string>Properties</string>
@@ -531,6 +539,9 @@
      <width>643</width>
      <height>126</height>
     </size>
+   </property>
+   <property name="mouseTracking">
+    <bool>false</bool>
    </property>
    <property name="floating">
     <bool>false</bool>
@@ -2389,6 +2400,21 @@ QSlider::handle:horizontal:disabled {
    </property>
    <property name="statusTip">
     <string>Loads a scene with multiple node animations active.</string>
+   </property>
+  </action>
+  <action name="actionShow_Skeleton">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="resources.qrc">
+     <normaloff>:/images/showSkeleton.png</normaloff>:/images/showSkeleton.png</iconset>
+   </property>
+   <property name="text">
+    <string>Show Skeleton</string>
+   </property>
+   <property name="statusTip">
+    <string>Shows the skeleton joint axis in RGB, their parent bone in yellow and the parent offset in pink.</string>
    </property>
   </action>
  </widget>

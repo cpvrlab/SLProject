@@ -229,7 +229,7 @@ class SLNode: public SLObject, public SLEventHandler
             void            setInitialState     ();
             void            resetToInitialState ();
 
-            // Setters (see members)
+            // Setters (see also members)
             void            parent              (SLNode* p);
             void            om                  (const SLMat4f& mat) {_om = mat; needUpdate();}
             void            animation           (SLAnimation* a)  {_animation = a;}
@@ -237,10 +237,11 @@ class SLNode: public SLObject, public SLEventHandler
             void            needWMUpdate        ();
             void            needAABBUpdate      ();
                
-            // Getters (see member)
+            // Getters (see also member)
             SLNode*         parent              () {return _parent;}
             SLint           depth               () const {return _depth;}
       const SLMat4f&        om                  () {return _om;}
+      const SLMat4f&        initialOM           () {return _initialOM;}
       const SLMat4f&        updateAndGetWM      () const;
       const SLMat4f&        updateAndGetWMI     () const;
       const SLMat3f&        updateAndGetWMN     () const;
@@ -250,6 +251,7 @@ class SLNode: public SLObject, public SLEventHandler
             SLAnimation*    animation           () {return _animation;}
             SLVMesh&        meshes              () {return _meshes;}
             SLVNode&        children            () {return _children;}
+      const SLSkeleton*     skeleton            ();
 
     private:
             void            updateWM            () const;   

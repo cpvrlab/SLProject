@@ -16,6 +16,7 @@
 #include <SLAnimation.h>
 #include <SLNode.h>
 #include <SLCurveBezier.h>
+#include <SLSceneView.h>
 
 //-----------------------------------------------------------------------------
 /*! Constructor
@@ -191,7 +192,7 @@ SLTransformKeyframe* SLNodeAnimTrack::createNodeKeyframe(SLfloat time)
 /*! Calculates a new keyframe based on the input time and interpolation functions.
 */
 void SLNodeAnimTrack::calcInterpolatedKeyframe(SLfloat time,
-                                                    SLKeyframe* keyframe) const
+                                               SLKeyframe* keyframe) const
 {
     SLKeyframe* k1;
     SLKeyframe* k2;
@@ -241,9 +242,9 @@ void SLNodeAnimTrack::apply(SLfloat time, SLfloat weight, SLfloat scale)
 /*! Applies the animation to the input node with the input timestamp and weight.
 */
 void SLNodeAnimTrack::applyToNode(SLNode* node,
-                                       SLfloat time,
-                                       SLfloat weight,
-                                       SLfloat scale)
+                                  SLfloat time,
+                                  SLfloat weight,
+                                  SLfloat scale)
 {
     if (node == nullptr)
         return;
@@ -254,18 +255,32 @@ void SLNodeAnimTrack::applyToNode(SLNode* node,
     SLVec3f translation = kf.translation() * weight * scale;
     node->translate(translation, TS_Parent);
 
-    // @todo update the slerp and lerp impelemtation for quaternions
+    // @todo update the slerp and lerp implementation for quaternions
     //       there is currently no early out for 1.0 and 0.0 inputs
     //       also provide a non OO version.
     SLQuat4f rotation = SLQuat4f().slerp(kf.rotation(), weight);
     node->rotate(rotation, TS_Parent);
 
-    SLVec3f scl = kf.scale();// @todo find a good way to combine scale animations, we can't just scale them by a weight factor...
+    // @todo find a good way to combine scale animations, 
+    // we can't just scale them by a weight factor...
+    SLVec3f scl = kf.scale();
     node->scale(scl);
 }
-
 //-----------------------------------------------------------------------------
-/*! Rebuilds the translation interpolation bezier curve.
+//! Draws all visualizations of node animations
+void SLNodeAnimTrack::drawVisuals(SLSceneView* sv)
+{
+    if (_animatedNode && _interpolationCurve &&
+        sv->drawBit(SL_DB_AXIS) || _animatedNode->drawBit(SL_DB_AXIS))
+    {   
+        // Move the animation curve to the initial WM position of the node
+        SLMat4f parentWM = _animatedNode->parent()->updateAndGetWM();
+        SLMat4f initialOM = _animatedNode->initialOM();
+        _interpolationCurve->draw(parentWM * initialOM);
+    }
+}
+//-----------------------------------------------------------------------------
+/*! Rebuilds the translation interpolation Bézier curve.
 */
 void SLNodeAnimTrack::buildInterpolationCurve() const
 {
@@ -273,7 +288,7 @@ void SLNodeAnimTrack::buildInterpolationCurve() const
     {
         if (_interpolationCurve) delete _interpolationCurve;
 
-        // Build curve data w. cummulated times
+        // Build curve data w. cumulated times
         SLVec3f* points = new SLVec3f[numKeyframes()];
         SLfloat* times  = new SLfloat[numKeyframes()];
         SLfloat  curTime = 0;
@@ -298,7 +313,7 @@ SLKeyframe* SLNodeAnimTrack::createKeyframeImpl(SLfloat time)
 }
     
 //-----------------------------------------------------------------------------
-/*! setter for the interpoilation curve
+/*! setter for the interpolation curve
 */
 void SLNodeAnimTrack::interpolationCurve(SLCurve* curve)
 {

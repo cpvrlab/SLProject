@@ -15,7 +15,7 @@
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "949"
             endingLineNumber = "949"
-            landmarkName = "SLSceneView::onMouseDown(const SLMouseButton button, SLint x, SLint y, const SLKey mod)"
+            landmarkName = "SLSceneView::draw2DGLAll()"
             landmarkType = "5">
          </BreakpointContent>
       </BreakpointProxy>

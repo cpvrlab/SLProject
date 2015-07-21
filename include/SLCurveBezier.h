@@ -33,10 +33,10 @@ class SLCurveBezier : public SLCurve
 
         void        dispose           ();
         void        init              (const SLVec3f*  points,
-                                        const SLfloat*  times,
-                                        const SLint     numPointsAndTimes,
-                                        const SLVec3f*  controlPoints);
-        void        draw              (SLMat4f &wm);
+                                       const SLfloat*  times,
+                                       const SLint     numPointsAndTimes,
+                                       const SLVec3f*  controlPoints);
+        void        draw              (const SLMat4f &wm);
         SLVec3f     evaluate          (const SLfloat t);
         SLVec3f     velocity          (SLfloat t);
         SLVec3f     acceleration      (SLfloat t);
@@ -46,10 +46,10 @@ class SLCurveBezier : public SLCurve
         SLfloat     subdivideLength   (const SLVec3f& P0, const SLVec3f& P1, 
                                         const SLVec3f& P2, const SLVec3f& P3);
         void        subdivideRender   (SLVVec3f &points,
-                                        SLMat4f &wm,
-                                        SLfloat epsilon,
-                                        SLVec3f& P0, SLVec3f& P1, 
-                                        SLVec3f& P2, SLVec3f& P3);
+                                       const SLMat4f &wm,
+                                       SLfloat epsilon,
+                                       const SLVec3f& P0, const SLVec3f& P1, 
+                                       const SLVec3f& P2, const SLVec3f& P3);
         SLfloat     arcLength         (SLfloat t1, SLfloat t2);
         SLfloat     findParamByDist   (SLfloat t1, SLfloat s);
 

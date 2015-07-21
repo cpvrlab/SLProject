@@ -17,7 +17,7 @@
 #include <SLAnimPlayback.h>
 
 class SLAnimManager;
-
+class SLSceneView;
 
 //-----------------------------------------------------------------------------
 //! SLSkeleton keeps track of a skeletons joints and animations
@@ -44,7 +44,7 @@ have tracks corresponding to the individual SLJoints in the skeleton.
         that use the same SLAnimations but with different states.
 
         This leaves the problem of SLMesh that is not able to be instantiated
-        without copying the data into a completely seperate SLMesh. But the
+        without copying the data into a completely separate SLMesh. But the
         solution for SLMesh would take the same approach by creating a
         mesh instance class that is able to use SLSkeletonInstance.
 
@@ -60,8 +60,6 @@ public:
                         SLSkeleton();
                        ~SLSkeleton();
 
-            void        update();
-
             SLJoint*    createJoint     (SLuint id);
             SLJoint*    createJoint     (const SLstring& name, SLuint id);
         SLAnimation*    createAnimation (const SLstring& name, SLfloat duration);
@@ -73,21 +71,22 @@ public:
 
             // Getters
     SLAnimPlayback*     getAnimPlayback (const SLstring& name);
-    SLMAnimation        animations      () { return _animations; }
-            SLint       numAnimations   () const { return (SLint)_animations.size(); }
+    SLMAnimation        animations      () {return _animations;}
+            SLint       numAnimations   () const { return (SLint)_animations.size();}
             SLJoint*    getJoint        (SLuint id);
             SLJoint*    getJoint        (const SLstring& name);
-            SLint       numJoints       () const { return (SLint)_joints.size(); }
-            SLJoint*    root            () { return _root; }
-            SLbool      changed         () const { return _changed; }
-    const   SLVec3f&    minOS();
-    const   SLVec3f&    maxOS();
+            SLint       numJoints       () const {return (SLint)_joints.size();}
+    const   SLVJoint&   joints          () const {return _joints;}
+            SLJoint*    root            () {return _root;}
+            SLbool      changed         () const {return _changed;}
+    const   SLVec3f&    minOS           ();
+    const   SLVec3f&    maxOS           ();
 
             // Setters
             void        root            (SLJoint* joint);
-            void        changed         (SLbool changed) { _changed = changed; _minMaxOutOfDate = true; }
+            void        changed         (SLbool changed) {_changed = changed; _minMaxOutOfDate = true;}
 
-    SLbool              updateAnimations(SLfloat elapsedTimeSec);
+            SLbool      updateAnimations(SLfloat elapsedTimeSec);
     
 protected:
     void                updateMinMax();
