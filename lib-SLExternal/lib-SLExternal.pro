@@ -80,6 +80,8 @@ android {
 
 
 INCLUDEPATH += \
+    ../include \
+    dirent \
     glew/include \
     glfw3/include \
     glfw3/src \
@@ -90,6 +92,7 @@ INCLUDEPATH += \
     zlib \
 
 HEADERS += \
+    dirent/dirent.h \
     glew/include/GL/glew.h \
     glfw3/include/GLFW/glfw3.h \
     glfw3/include/GLFW/glfw3native.h \
@@ -111,6 +114,7 @@ HEADERS += \
     Shoemake/TypeDefs.h \
 
 SOURCES += \
+    dirent/dirent.c \
     glew/src/glew.c \
     glfw3/src/context.c \
     glfw3/src/init.c \
