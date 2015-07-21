@@ -31,6 +31,9 @@ win32 {
     LIBS += -lgdi32
     LIBS += -luser32
     LIBS += -lkernel32
+    LIBS += -lshell32
+    LIBS += -lsetupapi
+    LIBS += -lws2_32
     DEFINES += GLEW_STATIC
     DEFINES += _GLFW_NO_DLOAD_GDI32
     DEFINES += _GLFW_NO_DLOAD_WINMM
@@ -75,6 +78,7 @@ android {
 INCLUDEPATH += \
     ../include\
     ../lib-SLExternal\
+    ../lib-SLExternal/dirent \
     ../lib-SLExternal/assimp/include \
     ../lib-SLExternal/assimp/code \
     ../lib-SLExternal/glew/include \
