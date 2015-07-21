@@ -25,7 +25,7 @@ CONFIG(debug, debug|release) {CONFIGURATION = Debug} else {CONFIGURATION = Relea
 DESTDIR = ../_bin-$$CONFIGURATION-$$PLATFORM
 OBJECTS_DIR = ../intermediate/$$TARGET/$$CONFIGURATION/$$PLATFORM
 LIBS += -L../_lib/$$CONFIGURATION/$$PLATFORM -llib-SLExternal
-L
+
 include(../SLProjectCommon.pro)
 
 SOURCES += VolumeRendering.cpp
