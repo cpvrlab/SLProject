@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2013
-VisualStudioVersion = 12.0.31101.0
+VisualStudioVersion = 12.0.21005.1
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "lib-SLExternal", "lib-SLExternal\lib-SLExternal.vcxproj", "{CCC645D3-B20F-431C-824A-7895D6E404DF}"
 EndProject
@@ -66,6 +66,8 @@ EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "lib-ovr", "lib-SLExternal\oculus\LibOVR\Projects\Win32\VS2013\LibOVR.vcxproj", "{EA50E705-5113-49E5-B105-2512EDC8DDC6}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "app-VolumeRendering", "app-VolumeRendering\app-VolumeRendering.vcxproj", "{AD06379D-1767-41AA-A877-33857D32D7A0}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "app-CVVideoTest", "app-CVVideoTest\app-CVVideoTest.vcxproj", "{BDB31E2A-D1C7-4064-AA3A-C2427358E938}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -217,13 +219,21 @@ Global
 		{AD06379D-1767-41AA-A877-33857D32D7A0}.Release|x64.Build.0 = Release|x64
 		{AD06379D-1767-41AA-A877-33857D32D7A0}.Release|x86.ActiveCfg = Release|Win32
 		{AD06379D-1767-41AA-A877-33857D32D7A0}.Release|x86.Build.0 = Release|Win32
+		{BDB31E2A-D1C7-4064-AA3A-C2427358E938}.Debug|Android.ActiveCfg = Debug|x64
+		{BDB31E2A-D1C7-4064-AA3A-C2427358E938}.Debug|x64.ActiveCfg = Debug|x64
+		{BDB31E2A-D1C7-4064-AA3A-C2427358E938}.Debug|x64.Build.0 = Debug|x64
+		{BDB31E2A-D1C7-4064-AA3A-C2427358E938}.Debug|x86.ActiveCfg = Debug|x64
+		{BDB31E2A-D1C7-4064-AA3A-C2427358E938}.Release|Android.ActiveCfg = Release|x64
+		{BDB31E2A-D1C7-4064-AA3A-C2427358E938}.Release|x64.ActiveCfg = Release|x64
+		{BDB31E2A-D1C7-4064-AA3A-C2427358E938}.Release|x64.Build.0 = Release|x64
+		{BDB31E2A-D1C7-4064-AA3A-C2427358E938}.Release|x86.ActiveCfg = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
-		{CCC645D3-B20F-431C-824A-7895D6E404DF} = {F2AA3EF1-910F-49BE-A875-4BBE6C6723B5}
 		{CCC645D3-B20F-431C-824A-7895D6E405DF} = {F2AA3EF1-910F-49BE-A875-4BBE6C6723B5}
+		{CCC645D3-B20F-431C-824A-7895D6E404DF} = {F2AA3EF1-910F-49BE-A875-4BBE6C6723B5}
 		{04550C7E-5276-491F-8BEF-12216F80E73F} = {F2AA3EF1-910F-49BE-A875-4BBE6C6723B5}
 		{EA50E705-5113-49E5-B105-2512EDC8DDC6} = {F2AA3EF1-910F-49BE-A875-4BBE6C6723B5}
 	EndGlobalSection
