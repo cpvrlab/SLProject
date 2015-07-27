@@ -264,6 +264,9 @@
     <ClInclude Include="..\include\SLDisk.h">
       <Filter>Nodes\Meshes</Filter>
     </ClInclude>
+    <ClInclude Include="..\include\SLCompactGrid.h">
+      <Filter>Nodes\AABB &amp; Animation</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="source\SLAABBox.cpp">
@@ -436,6 +439,9 @@
     </ClCompile>
     <ClCompile Include="source\SLDisk.cpp">
       <Filter>Nodes\Meshes</Filter>
+    </ClCompile>
+    <ClCompile Include="source\SLCompactGrid.cpp">
+      <Filter>Nodes\AABB &amp; Animation</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

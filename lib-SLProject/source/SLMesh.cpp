@@ -20,6 +20,7 @@
 #include <SLSceneView.h>
 #include <SLCamera.h>
 #include <SLUniformGrid.h>
+#include <SLCompactGrid.h>
 #include <SLLightSphere.h>
 #include <SLLightRect.h>
 #include <SLSkeleton.h>
@@ -607,7 +608,8 @@ void SLMesh::updateAccelStruct()
     maxP += addon;
 
     if (_accelStruct == nullptr && _primitive == SL_TRIANGLES)
-        _accelStruct = new SLUniformGrid(this);
+        //_accelStruct = new SLUniformGrid(this);
+        _accelStruct = new SLCompactGrid(this);
 
     if (_accelStruct && numI > 15)
     {   _accelStruct->build(minP, maxP);
