@@ -608,7 +608,6 @@ void SLMesh::updateAccelStruct()
     maxP += addon;
 
     if (_accelStruct == nullptr && _primitive == SL_TRIANGLES)
-        //_accelStruct = new SLUniformGrid(this);
         _accelStruct = new SLCompactGrid(this);
 
     if (_accelStruct && numI > 15)

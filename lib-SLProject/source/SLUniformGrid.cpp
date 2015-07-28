@@ -49,7 +49,7 @@ void SLUniformGrid::deleteAll()
         delete[] _voxel;
     }
 
-    _voxel           = 0;
+    _voxel         = 0;
     _voxelCnt      = 0;
     _voxelCntEmpty = 0;
     _voxelMaxTria  = 0;
@@ -72,18 +72,17 @@ void SLUniformGrid::build(SLVec3f minV, SLVec3f maxV)
     SLVec3f size = _maxV - _minV;
    
     // Woo's method
-    SLfloat voxDensity = 20.0f;
-    SLuint  numT = _m->numI / 3; // NO. of triangles
-    SLfloat nr = (SLfloat)pow(voxDensity*numT,1.0f/3.0f);
+    const SLfloat DENSITY = 20.0f;
+    SLuint  numTriangles = _m->numI / 3; // NO. of triangles
+    SLfloat f = (SLfloat)pow(DENSITY*numTriangles,1.0f/3.0f);
     SLfloat maxS = SL_max(size.x, size.y, size.z);
-    _size.x = max(1, (SLint)(nr*size.x/maxS));
-    _size.y = max(1, (SLint)(nr*size.y/maxS));
-    _size.z = max(1, (SLint)(nr*size.z/maxS));
-   
+    _size.x = max(1, (SLint)(f*size.x/maxS));
+    _size.y = max(1, (SLint)(f*size.y/maxS));
+    _size.z = max(1, (SLint)(f*size.z/maxS));
     _voxelCnt = _size.x * _size.y * _size.z;
-    _voxelExt.x = size.x / _size.x;
-    _voxelExt.y = size.y / _size.y;
-    _voxelExt.z = size.z / _size.z;
+    _voxelSize.x = size.x / _size.x;
+    _voxelSize.y = size.y / _size.y;
+    _voxelSize.z = size.z / _size.z;
    
     // Allocate array of pointer to SLV32ushort
     _voxel = new SLV32ushort*[_voxelCnt];
@@ -91,13 +90,13 @@ void SLUniformGrid::build(SLVec3f minV, SLVec3f maxV)
 
     SLint    x, y, z;
     SLuint   i, voxelID = 0;
-    SLfloat  boxHalfExt[3] = {_voxelExt.x*0.5f, _voxelExt.y*0.5f, _voxelExt.z*0.5f};
+    SLfloat  boxHalfExt[3] = {_voxelSize.x*0.5f, _voxelSize.y*0.5f, _voxelSize.z*0.5f};
     SLfloat  curVoxelCenter[3];
     SLfloat  vert[3][3];
     SLuint   voxCntNotEmpty = 0;
     
     // Loop through all triangles and assign them to the voxels
-    for(SLuint t = 0; t < numT; ++t)
+    for(SLuint t = 0; t < numTriangles; ++t)
     {  
         // Copy triangle vertices into SLfloat array[3][3]
         SLuint i = t * 3;
@@ -131,26 +130,26 @@ void SLUniformGrid::build(SLVec3f minV, SLVec3f maxV)
                                SL_max(vert[0][2], vert[1][2], vert[2][2]));
       
         // min voxel index of triangle
-        SLint minx = (SLint)((minT.x-_minV.x) / _voxelExt.x);
-        SLint miny = (SLint)((minT.y-_minV.y) / _voxelExt.y);
-        SLint minz = (SLint)((minT.z-_minV.z) / _voxelExt.z);
+        SLint minx = (SLint)((minT.x-_minV.x) / _voxelSize.x);
+        SLint miny = (SLint)((minT.y-_minV.y) / _voxelSize.y);
+        SLint minz = (SLint)((minT.z-_minV.z) / _voxelSize.z);
         // max voxel index of triangle
-        SLint maxx = (SLint)((maxT.x-_minV.x) / _voxelExt.x);
-        SLint maxy = (SLint)((maxT.y-_minV.y) / _voxelExt.y);
-        SLint maxz = (SLint)((maxT.z-_minV.z) / _voxelExt.z);
+        SLint maxx = (SLint)((maxT.x-_minV.x) / _voxelSize.x);
+        SLint maxy = (SLint)((maxT.y-_minV.y) / _voxelSize.y);
+        SLint maxz = (SLint)((maxT.z-_minV.z) / _voxelSize.z);
         if (maxx >= _size.x) maxx=_size.x-1;
         if (maxy >= _size.y) maxy=_size.y-1;
         if (maxz >= _size.z) maxz=_size.z-1;
                                                    
         // Loop through voxels
-        curVoxelCenter[2]  = _minV.z + minz*_voxelExt.z + boxHalfExt[2];
-        for (z=minz; z<=maxz; ++z, curVoxelCenter[2] += _voxelExt.z) 
+        curVoxelCenter[2]  = _minV.z + minz*_voxelSize.z + boxHalfExt[2];
+        for (z=minz; z<=maxz; ++z, curVoxelCenter[2] += _voxelSize.z) 
         {  
-            curVoxelCenter[1]  = _minV.y + miny*_voxelExt.y + boxHalfExt[1];
-            for (y=miny; y<=maxy; ++y, curVoxelCenter[1] += _voxelExt.y) 
+            curVoxelCenter[1]  = _minV.y + miny*_voxelSize.y + boxHalfExt[1];
+            for (y=miny; y<=maxy; ++y, curVoxelCenter[1] += _voxelSize.y) 
             {  
-                curVoxelCenter[0]  = _minV.x + minx*_voxelExt.x + boxHalfExt[0];
-                for (x=minx; x<=maxx; ++x, curVoxelCenter[0] += _voxelExt.x) 
+                curVoxelCenter[0]  = _minV.x + minx*_voxelSize.x + boxHalfExt[0];
+                for (x=minx; x<=maxx; ++x, curVoxelCenter[0] += _voxelSize.x) 
                 {  
                     voxelID = x + y*_size.x + z*_size.x*_size.y;
                
@@ -232,40 +231,40 @@ void SLUniformGrid::draw(SLSceneView* sv)
                                  
             // Loop through voxels
             v.z  = _minV.z;
-            for (z=0; z<_size.z; ++z, v.z += _voxelExt.z) 
+            for (z=0; z<_size.z; ++z, v.z += _voxelSize.z) 
             {   v.y  = _minV.y;
-                for (y=0; y<_size.y; ++y, v.y += _voxelExt.y) 
+                for (y=0; y<_size.y; ++y, v.y += _voxelSize.y) 
                 {   v.x = _minV.x;
-                    for (x=0; x<_size.x; ++x, v.x += _voxelExt.x) 
+                    for (x=0; x<_size.x; ++x, v.x += _voxelSize.x) 
                     {  
                         if (_voxel[curVoxel] && _voxel[curVoxel]->size() > 0)
                         {  
                             P[i++].set(v.x,          v.y,          v.z         ); 
-                            P[i++].set(v.x+_voxelExt.x, v.y,          v.z         );
-                            P[i++].set(v.x+_voxelExt.x, v.y,          v.z         );
-                            P[i++].set(v.x+_voxelExt.x, v.y,          v.z+_voxelExt.z);
-                            P[i++].set(v.x+_voxelExt.x, v.y,          v.z+_voxelExt.z);
-                            P[i++].set(v.x,          v.y,          v.z+_voxelExt.z);
-                            P[i++].set(v.x,          v.y,          v.z+_voxelExt.z);
+                            P[i++].set(v.x+_voxelSize.x, v.y,          v.z         );
+                            P[i++].set(v.x+_voxelSize.x, v.y,          v.z         );
+                            P[i++].set(v.x+_voxelSize.x, v.y,          v.z+_voxelSize.z);
+                            P[i++].set(v.x+_voxelSize.x, v.y,          v.z+_voxelSize.z);
+                            P[i++].set(v.x,          v.y,          v.z+_voxelSize.z);
+                            P[i++].set(v.x,          v.y,          v.z+_voxelSize.z);
                             P[i++].set(v.x,          v.y,          v.z         );
                      
-                            P[i++].set(v.x,          v.y+_voxelExt.y, v.z         ); 
-                            P[i++].set(v.x+_voxelExt.x, v.y+_voxelExt.y, v.z         );
-                            P[i++].set(v.x+_voxelExt.x, v.y+_voxelExt.y, v.z         );
-                            P[i++].set(v.x+_voxelExt.x, v.y+_voxelExt.y, v.z+_voxelExt.z);
-                            P[i++].set(v.x+_voxelExt.x, v.y+_voxelExt.y, v.z+_voxelExt.z);
-                            P[i++].set(v.x,          v.y+_voxelExt.y, v.z+_voxelExt.z);
-                            P[i++].set(v.x,          v.y+_voxelExt.y, v.z+_voxelExt.z);
-                            P[i++].set(v.x,          v.y+_voxelExt.y, v.z         ); 
+                            P[i++].set(v.x,          v.y+_voxelSize.y, v.z         ); 
+                            P[i++].set(v.x+_voxelSize.x, v.y+_voxelSize.y, v.z         );
+                            P[i++].set(v.x+_voxelSize.x, v.y+_voxelSize.y, v.z         );
+                            P[i++].set(v.x+_voxelSize.x, v.y+_voxelSize.y, v.z+_voxelSize.z);
+                            P[i++].set(v.x+_voxelSize.x, v.y+_voxelSize.y, v.z+_voxelSize.z);
+                            P[i++].set(v.x,          v.y+_voxelSize.y, v.z+_voxelSize.z);
+                            P[i++].set(v.x,          v.y+_voxelSize.y, v.z+_voxelSize.z);
+                            P[i++].set(v.x,          v.y+_voxelSize.y, v.z         ); 
                      
                             P[i++].set(v.x,          v.y,          v.z         ); 
-                            P[i++].set(v.x,          v.y+_voxelExt.y, v.z         ); 
-                            P[i++].set(v.x+_voxelExt.x, v.y         , v.z         );
-                            P[i++].set(v.x+_voxelExt.x, v.y+_voxelExt.y, v.z         );
-                            P[i++].set(v.x+_voxelExt.x, v.y         , v.z+_voxelExt.z);
-                            P[i++].set(v.x+_voxelExt.x, v.y+_voxelExt.y, v.z+_voxelExt.z);
-                            P[i++].set(v.x         , v.y         , v.z+_voxelExt.z);
-                            P[i++].set(v.x         , v.y+_voxelExt.y, v.z+_voxelExt.z);
+                            P[i++].set(v.x,          v.y+_voxelSize.y, v.z         ); 
+                            P[i++].set(v.x+_voxelSize.x, v.y         , v.z         );
+                            P[i++].set(v.x+_voxelSize.x, v.y+_voxelSize.y, v.z         );
+                            P[i++].set(v.x+_voxelSize.x, v.y         , v.z+_voxelSize.z);
+                            P[i++].set(v.x+_voxelSize.x, v.y+_voxelSize.y, v.z+_voxelSize.z);
+                            P[i++].set(v.x         , v.y         , v.z+_voxelSize.z);
+                            P[i++].set(v.x         , v.y+_voxelSize.y, v.z+_voxelSize.z);
                         }
                         curVoxel++;
                     }
@@ -325,9 +324,9 @@ SLbool SLUniformGrid::intersect(SLRay* ray, SLNode* node)
          
             //Determine start voxel of the grid
             startPoint -= _minV;
-            SLint x = (SLint)(startPoint.x / _voxelExt.x); // voxel index in x-dir
-            SLint y = (SLint)(startPoint.y / _voxelExt.y); // voxel index in y-dir
-            SLint z = (SLint)(startPoint.z / _voxelExt.z); // voxel index in z-dir
+            SLint x = (SLint)(startPoint.x / _voxelSize.x); // voxel index in x-dir
+            SLint y = (SLint)(startPoint.y / _voxelSize.y); // voxel index in y-dir
+            SLint z = (SLint)(startPoint.z / _voxelSize.z); // voxel index in z-dir
          
             // Check bounds of voxel indexes
             if (x >= _size.x) x=_size.x-1; if (x < 0) x=0;
@@ -343,12 +342,12 @@ SLbool SLUniformGrid::intersect(SLRay* ray, SLNode* node)
             SLint stepZ = (D.z > 0) ? 1 : (D.z < 0) ? -1 : 0;
 
             // Calculate the min. & max point of the start voxel
-            SLVec3f minVox(_minV.x + x*_voxelExt.x,
-                           _minV.y + y*_voxelExt.y,
-                           _minV.z + z*_voxelExt.z);
-            SLVec3f maxVox(minVox.x + _voxelExt.x,
-                           minVox.y + _voxelExt.y,
-                           minVox.z + _voxelExt.z);
+            SLVec3f minVox(_minV.x + x*_voxelSize.x,
+                           _minV.y + y*_voxelSize.y,
+                           _minV.z + z*_voxelSize.z);
+            SLVec3f maxVox(minVox.x + _voxelSize.x,
+                           minVox.y + _voxelSize.y,
+                           minVox.z + _voxelSize.z);
                         
             // Calculate max. dist along the ray for each component in tMaxX,Y,Z
             SLfloat tMaxX=FLT_MAX, tMaxY=FLT_MAX, tMaxZ=FLT_MAX;
@@ -368,9 +367,9 @@ SLbool SLUniformGrid::intersect(SLRay* ray, SLNode* node)
             SLint incIDZ = stepZ*_size.x*_size.y;
          
             // Calculate tDeltaX,Y & Z (=dist. along the ray in a voxel)
-            SLfloat tDeltaX = (_voxelExt.x * invD.x) * stepX;
-            SLfloat tDeltaY = (_voxelExt.y * invD.y) * stepY;
-            SLfloat tDeltaZ = (_voxelExt.z * invD.z) * stepZ;
+            SLfloat tDeltaX = (_voxelSize.x * invD.x) * stepX;
+            SLfloat tDeltaY = (_voxelSize.y * invD.y) * stepY;
+            SLfloat tDeltaZ = (_voxelSize.z * invD.z) * stepZ;
          
             // Now traverse the voxels
             while (!wasHit)

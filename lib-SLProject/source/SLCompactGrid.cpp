@@ -20,7 +20,6 @@ SLCompactGrid::SLCompactGrid(SLMesh* m) : SLAccelStruct(m)
     _voxelCnt = 0;
     _voxelCntEmpty = 0; 
     _voxelMaxTria = 0;
-    _voxelWidth = 0;
 }
 //-----------------------------------------------------------------------------
 //! Returns the indices of the voxel around a given point
@@ -28,9 +27,9 @@ SLVec3i SLCompactGrid::containingVoxel(const SLVec3f &p) const
 {
     SLVec3i pos;
     SLVec3f delta = p - _minV;
-    pos.x = (SLint)(delta.x / _voxelWidth);
-    pos.y = (SLint)(delta.y / _voxelWidth);
-    pos.z = (SLint)(delta.z / _voxelWidth);
+    pos.x = (SLint)(delta.x / _voxelSize.x);
+    pos.y = (SLint)(delta.y / _voxelSize.y);
+    pos.z = (SLint)(delta.z / _voxelSize.z);
 
     // Check bounds of voxel indexes
     if (pos.x >= _size.x) pos.x = _size.x - 1; if (pos.x < 0) pos.x = 0;
@@ -43,13 +42,13 @@ SLVec3i SLCompactGrid::containingVoxel(const SLVec3f &p) const
 //! Returns the voxel center point for a given voxel by index
 SLVec3f SLCompactGrid::voxelCenter(const SLVec3i &pos) const
 {
-    return _minV + SLVec3f((pos.x + .5f)*_voxelWidth,
-                           (pos.y + .5f)*_voxelWidth,
-                           (pos.z + .5f)*_voxelWidth);
+    return _minV + SLVec3f((pos.x + .5f)*_voxelSize.x,
+                           (pos.y + .5f)*_voxelSize.y,
+                           (pos.z + .5f)*_voxelSize.z);
 }
 //-----------------------------------------------------------------------------
 //! Returns the min. and max. voxel of a triangle
-void SLCompactGrid::setMinMaxVoxel(const Triangle &triangle,
+void SLCompactGrid::getMinMaxVoxel(const Triangle &triangle,
                                   SLVec3i &minCell,
                                   SLVec3i &maxCell)
 {
@@ -60,6 +59,26 @@ void SLCompactGrid::setMinMaxVoxel(const Triangle &triangle,
         maxCell.setMax(containingVoxel(vertex));
     }
 }
+
+//-----------------------------------------------------------------------------
+//! Deletes the entire uniform grid data
+void SLCompactGrid::deleteAll()
+{
+    _voxelCnt      = 0;
+    _voxelCntEmpty = 0;
+    _voxelMaxTria  = 0;
+    _voxelAvgTria  = 0;
+    
+    _voxelOffsets.clear();
+    _triangleIndexes.clear();
+    
+    disposeBuffers();
+}
+//-----------------------------------------------------------------------------
+void SLCompactGrid::triangleVoxelTest()
+{
+
+}
 //-----------------------------------------------------------------------------
 /*!
 SLCompactGrid::build implements the data structure proposed by Lagae & Dutré in 
@@ -67,51 +86,50 @@ their paper "Compact, Fast and Robust Grids for Ray Tracing".
 */
 void SLCompactGrid::build (SLVec3f minV, SLVec3f maxV)
 {
-    static const float DENSITY = 8;
-    SLint numTriangles = _m->numI / 3;
+    deleteAll();
 
     _minV = minV;
     _maxV = maxV;
+    _numTriangles = _m->numI / 3;
 
     // Calculate grid size
-    SLVec3f diagonal = _maxV - _minV;
-    SLfloat volume = diagonal.x * diagonal.y * diagonal.z;
-    float f = cbrtf(DENSITY*numTriangles / volume);
-    _voxelWidth = SL_min(SL_min(diagonal.x / ceil(diagonal.x*f),
-                                diagonal.y / ceil(diagonal.y*f)),
-                                diagonal.z / ceil(diagonal.z*f));
-    _size.x = (SLint)ceil(diagonal.x / _voxelWidth);
-    _size.y = (SLint)ceil(diagonal.y / _voxelWidth);
-    _size.z = (SLint)ceil(diagonal.z / _voxelWidth);
-
-    SLVec3f voxHalfSize(_voxelWidth / 2, _voxelWidth / 2, _voxelWidth / 2);
-
+    const SLfloat DENSITY = 8;
+    SLVec3f size = _maxV - _minV;
+    SLfloat volume = size.x * size.y * size.z;
+    float f = cbrtf(DENSITY*_numTriangles / volume);
+    _voxelSize.x = size.x / ceil(size.x*f);
+    _voxelSize.y = size.y / ceil(size.y*f);
+    _voxelSize.z = size.z / ceil(size.z*f);
+    _voxelSizeHalf = _voxelSize * 0.5f;
+    _size.x = (SLint)ceil(size.x / _voxelSize.x);
+    _size.y = (SLint)ceil(size.y / _voxelSize.y);
+    _size.z = (SLint)ceil(size.z / _voxelSize.z);
     _voxelCnt = _size.x * _size.y * _size.z;
     _voxelOffsets.assign(_voxelCnt + 1, 0);
 
-
-    for (int i = 0; i < numTriangles; ++i)
+    for (int i = 0; i < _numTriangles; ++i)
     {
         auto index  = [&](int j) { return _m->I16 ? _m->I16[i * 3 + j] : _m->I32[i * 3 + j]; };
         auto vertex = [&](int j) { return _m->finalP()[index(j)]; };
         Triangle triangle = { vertex(0), vertex(1), vertex(2) };
         SLVec3i min, max, pos;
-        setMinMaxVoxel(triangle, min, max);
+        getMinMaxVoxel(triangle, min, max);
 
-        for (pos.x = min.x; pos.x <= max.x; ++pos.x)
+        for (pos.z = min.z; pos.z <= max.z; ++pos.z)
         {   for (pos.y = min.y; pos.y <= max.y; ++pos.y)
-            {   for (pos.z = min.z; pos.z <= max.z; ++pos.z)
+            {   for (pos.x = min.x; pos.x <= max.x; ++pos.x)
                 {   
-                    SLuint voxIndex = indexAtPos(pos);
+                    SLuint  voxIndex  = indexAtPos(pos);
                     SLVec3f voxCenter = voxelCenter(pos);
                     if (triBoxOverlap(*((float(*)[3])&voxCenter),
-                                      *((float(*)[3])&voxHalfSize),
+                                      *((float(*)[3])&_voxelSizeHalf),
                                       *((float(*)[3][3])&triangle)))
                         ++_voxelOffsets[voxIndex];
                 }
             }
         }
     }
+    
 
     //The last counter doesn't count and is always empty.
     _voxelMaxTria = _voxelOffsets[0];
@@ -126,22 +144,22 @@ void SLCompactGrid::build (SLVec3f minV, SLVec3f maxV)
 
 
     // Reverse iterate over triangles
-    for (int i = numTriangles - 1; i >= 0; --i)
+    for (int i = 0; i < _numTriangles; ++i)
     {
         auto index  = [&](int j) {return _m->I16 ? _m->I16[i * 3 + j] : _m->I32[i * 3 + j];};
         auto vertex = [&](int j) {return _m->finalP()[index(j)];};
         Triangle triangle = { vertex(0), vertex(1), vertex(2) };
         SLVec3i min, max, pos;
-        setMinMaxVoxel(triangle, min, max);
+        getMinMaxVoxel(triangle, min, max);
 
-        for (pos.x = min.x; pos.x <= max.x; ++pos.x)
+        for (pos.z = min.z; pos.z <= max.z; ++pos.z)
         {   for (pos.y = min.y; pos.y <= max.y; ++pos.y)
-            {   for (pos.z = min.z; pos.z <= max.z; ++pos.z)
+            {   for (pos.x = min.x; pos.x <= max.x; ++pos.x)
                 {   
-                    SLuint voxIndex = indexAtPos(pos);
+                    SLuint  voxIndex = indexAtPos(pos);
                     SLVec3f voxCenter = voxelCenter(pos);
                     if (triBoxOverlap(*((float(*)[3])&voxCenter),
-                                      *((float(*)[3])&voxHalfSize),
+                                      *((float(*)[3])&_voxelSizeHalf),
                                       *((float(*)[3][3])&triangle)))
                     {   SLint location = --_voxelOffsets[voxIndex];
                         _triangleIndexes[location] = i;
@@ -155,10 +173,11 @@ void SLCompactGrid::build (SLVec3f minV, SLVec3f maxV)
     _triangleIndexes.shrink_to_fit();
 }
 //-----------------------------------------------------------------------------
+//! Updates the statistics in the parent node 
 void SLCompactGrid::updateStats (SLNodeStats &stats)
 {
-    stats.numVoxels += _voxelCnt;
-    stats.numVoxEmpty += _voxelCntEmpty;
+    stats.numVoxels     += _voxelCnt;
+    stats.numVoxEmpty   += _voxelCntEmpty;
 
     stats.numBytesAccel += sizeof(SLCompactGrid);
     stats.numBytesAccel += SL_sizeOfVector(_voxelOffsets);
@@ -181,51 +200,47 @@ void SLCompactGrid::draw (SLSceneView* sv)
             SLVec3f  v;
             SLuint   numP = 12 * 2 * _voxelCnt;
             SLVec3f* P = new SLVec3f[numP];
-            SLVec3f diagonal = _maxV - _minV;
-            SLfloat voxExtX = diagonal.x / _size.x;
-            SLfloat voxExtY = diagonal.y / _size.y;
-            SLfloat voxExtZ = diagonal.z / _size.z;
 
             // Loop through voxels
             v.z = _minV.z;
-            for (z = 0; z < _size.z; ++z, v.z += voxExtZ)
+            for (z = 0; z < _size.z; ++z, v.z += _voxelSize.z)
             {
                 v.y = _minV.y;
-                for (y = 0; y < _size.y; ++y, v.y += voxExtY)
+                for (y = 0; y < _size.y; ++y, v.y += _voxelSize.y)
                 {
                     v.x = _minV.x;
-                    for (x = 0; x<_size.x; ++x, v.x += voxExtX)
+                    for (x = 0; x<_size.x; ++x, v.x += _voxelSize.x)
                     {
                         SLuint voxelID = indexAtPos(SLVec3i(x,y,z));
                         
                         if (_voxelOffsets[voxelID] < _voxelOffsets[voxelID + 1])
                         {
-                            P[i++].set(v.x, v.y, v.z);
-                            P[i++].set(v.x + voxExtX, v.y, v.z);
-                            P[i++].set(v.x + voxExtX, v.y, v.z);
-                            P[i++].set(v.x + voxExtX, v.y, v.z + voxExtZ);
-                            P[i++].set(v.x + voxExtX, v.y, v.z + voxExtZ);
-                            P[i++].set(v.x, v.y, v.z + voxExtZ);
-                            P[i++].set(v.x, v.y, v.z + voxExtZ);
-                            P[i++].set(v.x, v.y, v.z);
+                            P[i++].set(v.x               , v.y               , v.z);
+                            P[i++].set(v.x + _voxelSize.x, v.y               , v.z);
+                            P[i++].set(v.x + _voxelSize.x, v.y               , v.z);
+                            P[i++].set(v.x + _voxelSize.x, v.y               , v.z + _voxelSize.z);
+                            P[i++].set(v.x + _voxelSize.x, v.y               , v.z + _voxelSize.z);
+                            P[i++].set(v.x               , v.y               , v.z + _voxelSize.z);
+                            P[i++].set(v.x               , v.y               , v.z + _voxelSize.z);
+                            P[i++].set(v.x               , v.y               , v.z);
 
-                            P[i++].set(v.x, v.y + voxExtY, v.z);
-                            P[i++].set(v.x + voxExtX, v.y + voxExtY, v.z);
-                            P[i++].set(v.x + voxExtX, v.y + voxExtY, v.z);
-                            P[i++].set(v.x + voxExtX, v.y + voxExtY, v.z + voxExtZ);
-                            P[i++].set(v.x + voxExtX, v.y + voxExtY, v.z + voxExtZ);
-                            P[i++].set(v.x, v.y + voxExtY, v.z + voxExtZ);
-                            P[i++].set(v.x, v.y + voxExtY, v.z + voxExtZ);
-                            P[i++].set(v.x, v.y + voxExtY, v.z);
+                            P[i++].set(v.x               , v.y + _voxelSize.y, v.z);
+                            P[i++].set(v.x + _voxelSize.x, v.y + _voxelSize.y, v.z);
+                            P[i++].set(v.x + _voxelSize.x, v.y + _voxelSize.y, v.z);
+                            P[i++].set(v.x + _voxelSize.x, v.y + _voxelSize.y, v.z + _voxelSize.z);
+                            P[i++].set(v.x + _voxelSize.x, v.y + _voxelSize.y, v.z + _voxelSize.z);
+                            P[i++].set(v.x               , v.y + _voxelSize.y, v.z + _voxelSize.z);
+                            P[i++].set(v.x               , v.y + _voxelSize.y, v.z + _voxelSize.z);
+                            P[i++].set(v.x               , v.y + _voxelSize.y, v.z);
 
-                            P[i++].set(v.x, v.y, v.z);
-                            P[i++].set(v.x, v.y + voxExtY, v.z);
-                            P[i++].set(v.x + voxExtX, v.y, v.z);
-                            P[i++].set(v.x + voxExtX, v.y + voxExtY, v.z);
-                            P[i++].set(v.x + voxExtX, v.y, v.z + voxExtZ);
-                            P[i++].set(v.x + voxExtX, v.y + voxExtY, v.z + voxExtZ);
-                            P[i++].set(v.x, v.y, v.z + voxExtZ);
-                            P[i++].set(v.x, v.y + voxExtY, v.z + voxExtZ);
+                            P[i++].set(v.x               , v.y               , v.z);
+                            P[i++].set(v.x               , v.y + _voxelSize.y, v.z);
+                            P[i++].set(v.x + _voxelSize.x, v.y               , v.z);
+                            P[i++].set(v.x + _voxelSize.x, v.y + _voxelSize.y, v.z);
+                            P[i++].set(v.x + _voxelSize.x, v.y               , v.z + _voxelSize.z);
+                            P[i++].set(v.x + _voxelSize.x, v.y + _voxelSize.y, v.z + _voxelSize.z);
+                            P[i++].set(v.x               , v.y               , v.z + _voxelSize.z);
+                            P[i++].set(v.x               , v.y + _voxelSize.y, v.z + _voxelSize.z);
                         }
                         curVoxel++;
                     }
@@ -264,7 +279,7 @@ SLbool SLCompactGrid::intersect (SLRay* ray, SLNode* node)
             SLVec3i startVox = containingVoxel(startPoint);
 
 			// Calculate the voxel ID into our 1D-voxel array
-			SLuint voxID = startVox.x + startVox.y*_size.x + startVox.z*_size.x*_size.y;
+			SLuint voxID = indexAtPos(startVox);
 
 			// Calculate steps: -1 or 1 on each axis
 			SLint stepX = (D.x > 0) ? 1 : (D.x < 0) ? -1 : 0;
@@ -272,12 +287,10 @@ SLbool SLCompactGrid::intersect (SLRay* ray, SLNode* node)
 			SLint stepZ = (D.z > 0) ? 1 : (D.z < 0) ? -1 : 0;
 
 			// Calculate the min. & max point of the start voxel
-			SLVec3f minVox(_minV.x + startVox.x*_voxelWidth,
-						   _minV.y + startVox.y*_voxelWidth,
-						   _minV.z + startVox.z*_voxelWidth);
-			SLVec3f maxVox(minVox.x + _voxelWidth,
-				           minVox.y + _voxelWidth,
-				           minVox.z + _voxelWidth);
+			SLVec3f minVox(_minV.x + startVox.x*_voxelSize.x,
+						   _minV.y + startVox.y*_voxelSize.y,
+						   _minV.z + startVox.z*_voxelSize.z);
+			SLVec3f maxVox(minVox + _voxelSize);
 
 			// Calculate max. dist along the ray for each component in tMaxX,Y,Z
 			SLfloat tMaxX = FLT_MAX, tMaxY = FLT_MAX, tMaxZ = FLT_MAX;
@@ -297,9 +310,9 @@ SLbool SLCompactGrid::intersect (SLRay* ray, SLNode* node)
 			SLint incIDZ = stepZ*_size.x*_size.y;
 
 			// Calculate tDeltaX,Y & Z (=dist. along the ray in a voxel)
-            SLfloat tDeltaX = (_voxelWidth * invD.x) * stepX;
-            SLfloat tDeltaY = (_voxelWidth * invD.y) * stepY;
-            SLfloat tDeltaZ = (_voxelWidth * invD.z) * stepZ;
+            SLfloat tDeltaX = (_voxelSize.x * invD.x) * stepX;
+            SLfloat tDeltaY = (_voxelSize.y * invD.y) * stepY;
+            SLfloat tDeltaZ = (_voxelSize.z * invD.z) * stepZ;
 
 			// Now traverse the voxels
 			while (!wasHit)

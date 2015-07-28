@@ -14,6 +14,7 @@
 #endif
 
 //-----------------------------------------------------------------------------
+//! SL::Exit terminates the application with a message. No leak cheching.
 void SL::exitMsg(const SLchar* msg, const SLint line, const SLchar* file)
 {  
     #if defined(SL_OS_ANDROID)
@@ -31,6 +32,7 @@ void SL::exitMsg(const SLchar* msg, const SLint line, const SLchar* file)
     exit(-1);
 }
 //-----------------------------------------------------------------------------
+//! SL::Warn message output
 void SL::warnMsg(const SLchar* msg, const SLint line, const SLchar* file)
 {  
     #if defined(SL_OS_ANDROID)
@@ -38,6 +40,18 @@ void SL::warnMsg(const SLchar* msg, const SLint line, const SLchar* file)
                         "Warning: %s at line %d in %s\n", msg, line, file);
     #else
     fprintf(stderr, "Warning %s at line %d in %s\n", msg, line, file);
+    #endif
+}
+//-----------------------------------------------------------------------------
+/*! SL::maxThreads returns in release config the max. NO. of threads and in 
+debug config 1. Try to avoid multithreading in the debug configuration. 
+*/
+SLuint SL::maxThreads()
+{  
+    #ifdef _DEBUG
+    return 1;
+    #else
+    return SL_max(thread::hardware_concurrency(), 1U);
     #endif
 }
 //-----------------------------------------------------------------------------

@@ -47,7 +47,6 @@ SLRaytracer::SLRaytracer()
     _wrap_t       = GL_CLAMP_TO_EDGE;
     _resizeToPow2 = false;
    
-    _numThreads = 1;
     _continuous = false;
     _distributed = true;
 }
@@ -67,7 +66,6 @@ SLbool SLRaytracer::renderClassic(SLSceneView* sv)
     _sv = sv;
     _state = rtBusy;                    // From here we state the RT as busy
     _stateGL = SLGLState::getInstance();// OpenGL state shortcut
-    _numThreads = 1;                    // No. of threads
     _pcRendered = 0;                    // % rendered
     _renderSec = 0.0f;                  // reset time
     _infoText  = SLScene::current->info(_sv)->text();  // keep original info string
@@ -129,7 +127,6 @@ SLbool SLRaytracer::renderDistrib(SLSceneView* sv)
     _sv = sv;
     _state = rtBusy;                    // From here we state the RT as busy
     _stateGL = SLGLState::getInstance();// OpenGL state shortcut
-    _numThreads = 1;                    // No. of threads
     _pcRendered = 0;                    // % rendered
     _renderSec = 0.0f;                  // reset time
     _infoText  = SLScene::current->info(_sv)->text();  // keep original info string
@@ -148,26 +145,20 @@ SLbool SLRaytracer::renderDistrib(SLSceneView* sv)
                                   bind(&SLRaytracer::renderSlicesMS, this, _1);
 
     // Do multithreading only in release config
-    #ifdef _DEBUG
-    _numThreads = 1;
-    #else
-    _numThreads = SL_max(thread::hardware_concurrency(),1U);
-    #endif
-
     // Render image without antialiasing
-    {   vector<thread> threads; // vector for additional threads  
-        _next = 0;              // init _next=0. _next should be atomic
+    vector<thread> threads; // vector for additional threads  
+    _next = 0;              // init _next=0. _next should be atomic
 
-        // Start additional threads on the renderSlices function
-        for (int t=0; t<_numThreads-1; t++)
-            threads.push_back(thread(renderSlicesFunction, false));
+    // Start additional threads on the renderSlices function
+    for (SLuint t=0; t< SL::maxThreads()-1; t++)
+        threads.push_back(thread(renderSlicesFunction, false));
 
-        // Do the same work in the main thread
-        renderSlicesFunction(true);
+    // Do the same work in the main thread
+    renderSlicesFunction(true);
 
-        // Wait for the other threads to finish
-        for(auto& thread : threads) thread.join();
-    }
+    // Wait for the other threads to finish
+    for(auto& thread : threads) thread.join();
+    
 
     // Do anti-aliasing w. contrast compare in a 2nd. pass
     if (!_continuous && _aaSamples > 1 && _cam->lensSamples()->samples() == 1)
@@ -177,7 +168,7 @@ SLbool SLRaytracer::renderDistrib(SLSceneView* sv)
         _next = 0;              // init _next=0. _next should be atomic
 
         // Start additional threads on the sampleAAPixelFunction function
-        for (int t=0; t<_numThreads-1; t++)
+        for (SLuint t=0; t < SL::maxThreads()-1; t++)
             threads.push_back(thread(sampleAAPixelsFunction, false));
 
         // Do the same work in the main thread
@@ -648,7 +639,7 @@ void SLRaytracer::printStats(SLfloat sec)
 {
     SL_LOG("\nRender time  : %10.2f sec.", sec);
     SL_LOG("\nImage size   : %10d x %d",_images[0]->width(), _images[0]->height());
-    SL_LOG("\nNum. Threads : %10d", _numThreads);
+    SL_LOG("\nNum. Threads : %10d", SL::maxThreads());
     SL_LOG("\nAllowed depth: %10d", SLRay::maxDepth);
 
     #if _DEBUG
@@ -788,7 +779,7 @@ void SLRaytracer::renderImage()
     if (_pcRendered < 100)
     {  SLchar str[255];  
         sprintf(str,"%s Tracing: Threads: %d, Progress: %d%%", 
-                _infoText.c_str(), _numThreads, _pcRendered);
+                _infoText.c_str(), SL::maxThreads(), _pcRendered);
         SLScene::current->info(_sv, str, _infoColor);
     } else SLScene::current->info(_sv, _infoText.c_str(), _infoColor);
 

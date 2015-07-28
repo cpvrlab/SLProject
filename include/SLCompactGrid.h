@@ -31,27 +31,31 @@ class SLCompactGrid : public SLAccelStruct
     public:
     using Triangle = std::array<SLVec3f,3>;
 
-                            SLCompactGrid   (SLMesh* m);
-                           ~SLCompactGrid   (){;}
+                            SLCompactGrid       (SLMesh* m);
+                           ~SLCompactGrid       (){;}
 
-                void        build           (SLVec3f minV, SLVec3f maxV);
-                void        updateStats     (SLNodeStats &stats);
-                void        draw            (SLSceneView* sv);
-                SLbool      intersect       (SLRay* ray, SLNode* node);
+                void        build               (SLVec3f minV, SLVec3f maxV);
+                void        updateStats         (SLNodeStats &stats);
+                void        draw                (SLSceneView* sv);
+                SLbool      intersect           (SLRay* ray, SLNode* node);
+                
+                void        deleteAll           ();
+                void        disposeBuffers      (){if (_bufP.id()) _bufP.dispose();}
 
-				void        deleteAll       (){}
-                void        disposeBuffers  (){}
-
-                SLuint      indexAtPos      (const SLVec3i &p) const 
-                                            {return p.x + p.y*_size.x + p.z*_size.x * _size.y;}
-                SLVec3f     voxelCenter     (const SLVec3i &pos) const;
-                SLVec3i     containingVoxel (const SLVec3f &p) const;
-                void        setMinMaxVoxel  (const Triangle &triangle, 
-                                             SLVec3i &minCell, 
-                                             SLVec3i &maxCell);
+                SLuint      indexAtPos          (const SLVec3i &p) const 
+                                                {return p.x + p.y * _size.x + 
+                                                        p.z*_size.x * _size.y;}
+                SLVec3f     voxelCenter         (const SLVec3i &pos) const;
+                SLVec3i     containingVoxel     (const SLVec3f &p) const;
+                void        getMinMaxVoxel      (const Triangle &triangle, 
+                                                 SLVec3i &minCell, 
+                                                 SLVec3i &maxCell);
+                void        triangleVoxelTest   ();
     private:
                 SLVec3i     _size;              //!< num. of voxel in grid dir.
-                SLfloat     _voxelWidth;        //!< voxel width
+                SLuint      _numTriangles;      //!< NO. of triangles in the mesh
+                SLVec3f     _voxelSize;         //!< size of a voxel
+                SLVec3f     _voxelSizeHalf;     //!< half size of a voxel
                 SLVuint     _voxelOffsets;      //!< Offset array (C in the paper)
                 SLVuint     _triangleIndexes;   //!< Triangle index array (L in the paper)
                 SLGLBuffer  _bufP;              //!< Buffer object for vertex positions

@@ -49,7 +49,6 @@ SLbool SLPathtracer::render(SLSceneView* sv)
     _sv = sv;
     _state = rtBusy;                    // From here we state the PT as busy
     _stateGL = SLGLState::getInstance();// OpenGL state shortcut
-    _numThreads = 1;
     _renderSec = 0.0f;                  // reset time
     _pcRendered = 0;                    // % rendered
     _infoText  = SLScene::current->info(_sv)->text();  // keep original info string
@@ -66,32 +65,27 @@ SLbool SLPathtracer::render(SLSceneView* sv)
     auto renderSlicesFunction   = bind(&SLPathtracer::renderSlices, this, _1, _2);
 
     // Do multi threading only in release config
-    #ifdef _DEBUG
-    _numThreads = 1;
-    #else
-    _numThreads = thread::hardware_concurrency();
-    #endif
+    
+    SL_LOG("\n\nRendering with %d samples", _aaSamples);
+    SL_LOG("\nCurrent Sample:       ");
+    for (int currentSample = 1; currentSample <= _aaSamples; currentSample++)
     {
-        SL_LOG("\n\nRendering with %d samples", _aaSamples);
-        SL_LOG("\nCurrent Sample:       ");
-        for (int currentSample = 1; currentSample <= _aaSamples; currentSample++)
-        {
-            SL_LOG("\b\b\b\b\b\b%6d", currentSample);
-            vector<thread> threads; // vector for additional threads  
-            _next = 0;              // init _next=0. _next should be atomic
+        SL_LOG("\b\b\b\b\b\b%6d", currentSample);
+        vector<thread> threads; // vector for additional threads  
+        _next = 0;              // init _next=0. _next should be atomic
 
-            // Start additional threads on the renderSlices function
-            for (int t = 0; t < _numThreads - 1; t++)
-                threads.push_back(thread(renderSlicesFunction, false, currentSample));
+        // Start additional threads on the renderSlices function
+        for (SLuint t = 0; t < SL::maxThreads() - 1; t++)
+            threads.push_back(thread(renderSlicesFunction, false, currentSample));
 
-            // Do the same work in the main thread
-            renderSlicesFunction(true, currentSample);
+        // Do the same work in the main thread
+        renderSlicesFunction(true, currentSample);
 
-            for (auto& thread : threads) thread.join();
+        for (auto& thread : threads) thread.join();
 
-            _pcRendered = (SLint)((SLfloat)currentSample/(SLfloat)_aaSamples*100.0f);
-        }
+        _pcRendered = (SLint)((SLfloat)currentSample/(SLfloat)_aaSamples*100.0f);
     }
+    
 
     ////////////////////////////////////////////////////////////////////////////
     _renderSec = SLScene::current->timeSec() - (SLfloat)t1;

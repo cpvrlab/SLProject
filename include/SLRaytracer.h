@@ -82,7 +82,7 @@ class SLRaytracer: public SLGLTexture, public SLEventHandler
             SLbool      distributed     () const {return _distributed;}
             SLbool      continuous      () const {return _continuous;}
             SLint       aaSamples       () const {return _aaSamples;}
-            SLint       numThreads      () const {return _numThreads;}
+            SLint       numThreads      () const {return SL::maxThreads();}
             SLint       pcRendered      () const {return _pcRendered;}
             SLfloat     aaThreshold     () const {return _aaThreshold;}
             SLfloat     renderSec       () const {return _renderSec;}
@@ -115,7 +115,6 @@ class SLRaytracer: public SLGLTexture, public SLEventHandler
             // variables for distributed ray tracing
             SLfloat     _aaThreshold;   //!< threshold for anti aliasing
             SLint       _aaSamples;     //!< SQRT of uneven num. of AA samples
-            SLint       _numThreads;    //!< Num. of threads used for RT
 };
 //-----------------------------------------------------------------------------
 #endif

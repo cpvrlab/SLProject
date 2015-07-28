@@ -33,14 +33,13 @@ class SLUniformGrid : public SLAccelStruct
                 void            draw            (SLSceneView* sv);
                 SLbool          intersect       (SLRay* ray, SLNode* node);
                
-                // Delete the vertex buffer object if not rendered anymore
                 void            deleteAll       ();
                 void            disposeBuffers  (){if (_bufP.id()) _bufP.dispose();}
                    
     private:
                 SLV32ushort**   _voxel;         //!< 1D voxel array for triangle indexes
                 SLVec3i         _size;          //!< Grid size in x,y,z direction
-                SLVec3f         _voxelExt;      //!< Voxel size
+                SLVec3f         _voxelSize;     //!< Voxel size
                 SLGLBuffer      _bufP;          //!< Buffer object for vertex positions
 };
 //-----------------------------------------------------------------------------

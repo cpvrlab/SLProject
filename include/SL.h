@@ -259,15 +259,17 @@ template<class T> inline SLint SL_sizeOfVector(const T &vector)
 #define SL_LOG(...)  printf(__VA_ARGS__);
 #endif
 //-----------------------------------------------------------------------------
-//! Class SL with static error message and exit functions.
+//! Class SL with some static functions.
 class SL
 {
     public:
-    //! SL::Exit terminates the application with a message. No leak cheching.
-    static void exitMsg(const SLchar* msg, const SLint line, const SLchar* file);
-   
-    //! SL::Warn message output
-    static void warnMsg(const SLchar* msg, const SLint line, const SLchar* file);
+    static void     exitMsg     (const SLchar* msg, 
+                                 const SLint line, 
+                                 const SLchar* file);
+    static void     warnMsg     (const SLchar* msg, 
+                                 const SLint line, 
+                                 const SLchar* file);
+    static SLuint   maxThreads  ();
 };
 //-----------------------------------------------------------------------------
 #endif
