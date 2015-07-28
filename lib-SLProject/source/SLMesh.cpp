@@ -19,7 +19,6 @@
 #include <SLRaytracer.h>
 #include <SLSceneView.h>
 #include <SLCamera.h>
-#include <SLUniformGrid.h>
 #include <SLCompactGrid.h>
 #include <SLLightSphere.h>
 #include <SLLightRect.h>

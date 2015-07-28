@@ -202,7 +202,6 @@
 		41901CF81959C58D006795A8 /* FBX in Resources */ = {isa = PBXBuildFile; fileRef = 41901CF71959C58D006795A8 /* FBX */; };
 		41901CFA1959C5AC006795A8 /* DAE in Resources */ = {isa = PBXBuildFile; fileRef = 41901CF91959C5AC006795A8 /* DAE */; };
 		41901CFC1959C5BB006795A8 /* 3DS in Resources */ = {isa = PBXBuildFile; fileRef = 41901CFB1959C5BB006795A8 /* 3DS */; };
-		41959F0E19F7C0BB00EA4E5B /* SLUniformGrid.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 41959F0D19F7C0BB00EA4E5B /* SLUniformGrid.cpp */; };
 		4197E73814C85BE300AE1D23 /* Default-Portrait~ipad.png in Resources */ = {isa = PBXBuildFile; fileRef = 4197E73714C85BE300AE1D23 /* Default-Portrait~ipad.png */; };
 		4197E73A14C85C6C00AE1D23 /* Default-Landscape~ipad.png in Resources */ = {isa = PBXBuildFile; fileRef = 4197E73914C85C6C00AE1D23 /* Default-Landscape~ipad.png */; };
 		419808601959BA670048085E /* ACLoader.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 419807131959BA660048085E /* ACLoader.cpp */; };
@@ -375,6 +374,7 @@
 		41C99E7A18D4316A0045FD2D /* Icon_144.png in Resources */ = {isa = PBXBuildFile; fileRef = 41C99E7718D4316A0045FD2D /* Icon_144.png */; };
 		41C99E7C18D431B50045FD2D /* Icon_72.png in Resources */ = {isa = PBXBuildFile; fileRef = 41C99E7B18D431B50045FD2D /* Icon_72.png */; };
 		41E46000176C8F6800AB4653 /* SLTimer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 41E45FFE176C8F6800AB4653 /* SLTimer.cpp */; };
+		41EDCB591B67B47B00DDC945 /* SLCompactGrid.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 41EDCB571B67B47B00DDC945 /* SLCompactGrid.cpp */; };
 		41EF9CC9186DD717007317DD /* StereoOculus.frag in Resources */ = {isa = PBXBuildFile; fileRef = 41EF9CC5186DD69C007317DD /* StereoOculus.frag */; };
 		41EF9CCA186DD717007317DD /* StereoOculus.vert in Resources */ = {isa = PBXBuildFile; fileRef = 41EF9CC6186DD69C007317DD /* StereoOculus.vert */; };
 		41FC8AA61959BF9F004A9E57 /* clipper.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 41FC8AA41959BF9F004A9E57 /* clipper.cpp */; };
@@ -408,8 +408,8 @@
 		411BA72C18C072BC00F10475 /* Default~iphone.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "Default~iphone.png"; path = "images/Default~iphone.png"; sourceTree = SOURCE_ROOT; };
 		411BA72E18C075E500F10475 /* Default~ipad.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "Default~ipad.png"; path = "images/Default~ipad.png"; sourceTree = SOURCE_ROOT; };
 		411BA73018C0773B00F10475 /* Default-Portrait@2~ipad.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "Default-Portrait@2~ipad.png"; path = "images/Default-Portrait@2~ipad.png"; sourceTree = SOURCE_ROOT; };
-		411E93171B3D92DC007B0C6F /* SLDisk.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SLDisk.cpp; path = "../../lib-SLProject/source/SLDisk.cpp"; sourceTree = "<group>"; };
-		411E931A1B3D92EB007B0C6F /* SLDisk.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SLDisk.h; path = ../../include/SLDisk.h; sourceTree = "<group>"; };
+		411E93171B3D92DC007B0C6F /* SLDisk.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SLDisk.cpp; path = "../lib-SLProject/source/SLDisk.cpp"; sourceTree = SOURCE_ROOT; };
+		411E931A1B3D92EB007B0C6F /* SLDisk.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SLDisk.h; path = ../include/SLDisk.h; sourceTree = SOURCE_ROOT; };
 		4124EC051959C137003AA059 /* shapes.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = shapes.cc; path = "../lib-SLExternal/assimp/contrib/poly2tri/poly2tri/common/shapes.cc"; sourceTree = SOURCE_ROOT; };
 		4124EC061959C137003AA059 /* shapes.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = shapes.h; path = "../lib-SLExternal/assimp/contrib/poly2tri/poly2tri/common/shapes.h"; sourceTree = SOURCE_ROOT; };
 		4124EC071959C137003AA059 /* utils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = utils.h; path = "../lib-SLExternal/assimp/contrib/poly2tri/poly2tri/common/utils.h"; sourceTree = SOURCE_ROOT; };
@@ -530,7 +530,6 @@
 		41627EA015CA8CE70023B936 /* stdafx.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = stdafx.cpp; path = "../lib-SLProject/source/SL/stdafx.cpp"; sourceTree = SOURCE_ROOT; };
 		41627EA115CA8CE70023B936 /* stdafx.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = stdafx.h; path = ../include/stdafx.h; sourceTree = SOURCE_ROOT; };
 		41627EA915CA8D6D0023B936 /* SLAccelStruct.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SLAccelStruct.h; path = ../include/SLAccelStruct.h; sourceTree = SOURCE_ROOT; };
-		41627EAB15CA8D6D0023B936 /* SLUniformGrid.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SLUniformGrid.h; path = ../include/SLUniformGrid.h; sourceTree = SOURCE_ROOT; };
 		41654BCF14866F6B0003DF5E /* SLMat3.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SLMat3.h; path = ../include/SLMat3.h; sourceTree = SOURCE_ROOT; };
 		41654BD014866F6B0003DF5E /* SLMat4.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SLMat4.h; path = ../include/SLMat4.h; sourceTree = SOURCE_ROOT; };
 		41654BD114866F6B0003DF5E /* SLMath.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SLMath.h; path = ../include/SLMath.h; sourceTree = SOURCE_ROOT; };
@@ -672,7 +671,6 @@
 		41901CF71959C58D006795A8 /* FBX */ = {isa = PBXFileReference; lastKnownFileType = folder; name = FBX; path = ../_data/models/FBX; sourceTree = "<group>"; };
 		41901CF91959C5AC006795A8 /* DAE */ = {isa = PBXFileReference; lastKnownFileType = folder; name = DAE; path = ../_data/models/DAE; sourceTree = "<group>"; };
 		41901CFB1959C5BB006795A8 /* 3DS */ = {isa = PBXFileReference; lastKnownFileType = folder; name = 3DS; path = ../_data/models/3DS; sourceTree = "<group>"; };
-		41959F0D19F7C0BB00EA4E5B /* SLUniformGrid.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SLUniformGrid.cpp; path = "../lib-SLProject/source/SLUniformGrid.cpp"; sourceTree = SOURCE_ROOT; };
 		4197E73714C85BE300AE1D23 /* Default-Portrait~ipad.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "Default-Portrait~ipad.png"; path = "images/Default-Portrait~ipad.png"; sourceTree = SOURCE_ROOT; };
 		4197E73914C85C6C00AE1D23 /* Default-Landscape~ipad.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "Default-Landscape~ipad.png"; path = "images/Default-Landscape~ipad.png"; sourceTree = SOURCE_ROOT; };
 		4198070B1959B63C0048085E /* SLScene.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SLScene.h; path = ../include/SLScene.h; sourceTree = SOURCE_ROOT; };
@@ -1033,6 +1031,7 @@
 		41C99E7B18D431B50045FD2D /* Icon_72.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = Icon_72.png; path = images/Icon_72.png; sourceTree = SOURCE_ROOT; };
 		41E45FFE176C8F6800AB4653 /* SLTimer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SLTimer.cpp; path = "../lib-SLProject/source/SL/SLTimer.cpp"; sourceTree = SOURCE_ROOT; };
 		41E45FFF176C8F6800AB4653 /* SLTimer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SLTimer.h; path = ../include/SLTimer.h; sourceTree = SOURCE_ROOT; };
+		41EDCB571B67B47B00DDC945 /* SLCompactGrid.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SLCompactGrid.cpp; path = "../lib-SLProject/source/SLCompactGrid.cpp"; sourceTree = SOURCE_ROOT; };
 		41EF9CC5186DD69C007317DD /* StereoOculus.frag */ = {isa = PBXFileReference; explicitFileType = sourcecode.glsl; fileEncoding = 4; name = StereoOculus.frag; path = "../lib-SLProject/source/oglsl/StereoOculus.frag"; sourceTree = "<group>"; };
 		41EF9CC6186DD69C007317DD /* StereoOculus.vert */ = {isa = PBXFileReference; explicitFileType = sourcecode.glsl; fileEncoding = 4; name = StereoOculus.vert; path = "../lib-SLProject/source/oglsl/StereoOculus.vert"; sourceTree = "<group>"; };
 		41FC8AA41959BF9F004A9E57 /* clipper.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = clipper.cpp; path = "../lib-SLExternal/assimp/contrib/clipper/clipper.cpp"; sourceTree = SOURCE_ROOT; };
@@ -1363,14 +1362,13 @@
 		418E0C5914892A7A00C6274F /* Accelerator & Animation */ = {
 			isa = PBXGroup;
 			children = (
-				41627EAB15CA8D6D0023B936 /* SLUniformGrid.h */,
+				41EDCB571B67B47B00DDC945 /* SLCompactGrid.cpp */,
 				41627EA915CA8D6D0023B936 /* SLAccelStruct.h */,
-				41959F0D19F7C0BB00EA4E5B /* SLUniformGrid.cpp */,
 				414DC77C1501076F00B959B9 /* SLAABBox.cpp */,
 				418E0C5A14892AC000C6274F /* SLAABBox.h */,
 			);
 			name = "Accelerator & Animation";
-			sourceTree = "<group>";
+			sourceTree = SOURCE_ROOT;
 		};
 		418E0C7514892B4500C6274F /* png */ = {
 			isa = PBXGroup;
@@ -2226,13 +2224,13 @@
 				419808A91959BA670048085E /* SGSpatialSort.cpp in Sources */,
 				4124EC131959C137003AA059 /* cdt.cc in Sources */,
 				414ABC36148A63370061231A /* jcapimin.c in Sources */,
-				41959F0E19F7C0BB00EA4E5B /* SLUniformGrid.cpp in Sources */,
 				414ABC37148A63370061231A /* jcapistd.c in Sources */,
 				41A355021A7E63E100791841 /* SLAnimPlayback.cpp in Sources */,
 				414ABC38148A63370061231A /* jcarith.c in Sources */,
 				419808891959BA670048085E /* ImproveCacheLocality.cpp in Sources */,
 				419808E81959BA670048085E /* RawLoader.cpp in Sources */,
 				419808A31959BA670048085E /* ProcessHelper.cpp in Sources */,
+				41EDCB591B67B47B00DDC945 /* SLCompactGrid.cpp in Sources */,
 				414ABC39148A63370061231A /* jccoefct.c in Sources */,
 				4198088A1959BA670048085E /* IRRLoader.cpp in Sources */,
 				419808811959BA670048085E /* GenFaceNormalsProcess.cpp in Sources */,

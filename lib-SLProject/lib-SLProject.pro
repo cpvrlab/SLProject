@@ -56,9 +56,11 @@ HEADERS += \
 ../include/SLButton.h \
 ../include/SLCamera.h \
 ../include/SLCone.h \
+../include/SLCompactGrid.h \
 ../include/SLCurve.h \
 ../include/SLCurveBezier.h \
 ../include/SLCylinder.h \
+../include/SLDisk.h \
 ../include/SLDrawBits.h \
 ../include/SLEnums.h \
 ../include/SLEventHandler.h \
@@ -110,7 +112,6 @@ HEADERS += \
 ../include/SLTexFont.h \
 ../include/SLText.h \
 ../include/SLTimer.h \
-../include/SLUniformGrid.h \
 ../include/SLUtils.h \
 ../include/SLVec2.h \
 ../include/SLVec3.h \
@@ -118,7 +119,6 @@ HEADERS += \
 ../include/SLVector.h \
 ../include/stdafx.h \
 ../include/TriangleBoxIntersect.h \
-    ../include/SLDisk.h
 
 SOURCES += \
 source/math/SLCurveBezier.cpp \
@@ -140,7 +140,9 @@ source/SLBox.cpp \
 source/SLButton.cpp \
 source/SLCamera.cpp \
 source/SLCone.cpp \
+source/SLCompactGrid.cpp \
 source/SLCylinder.cpp \
+source/SLDisk.cpp \
 source/SLGLBuffer.cpp \
 source/SLGLOculus.cpp \
 source/SLGLOculusFB.cpp \
@@ -172,9 +174,7 @@ source/SLSceneView.cpp \
 source/SLScene_onLoad.cpp \
 source/SLSkeleton.cpp \
 source/SLSphere.cpp \
-source/SLText.cpp \
-source/SLUniformGrid.cpp \
-    source/SLDisk.cpp
+source/SLText.cpp
 
 OTHER_FILES += \
 source/oglsl/BumpNormal.frag \
