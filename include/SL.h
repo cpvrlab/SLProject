@@ -232,9 +232,14 @@ typedef std::vector<SLlong>   SLVlong;
 typedef std::vector<SLulong>  SLVulong;
 typedef std::vector<SLfloat>  SLVfloat;
 typedef std::vector<SLstring> SLVstring;
-
 //-----------------------------------------------------------------------------
-// Bit manipulation makros for ones that forget it always
+// Shortcut for size of a vector
+template<class T> inline SLint SL_sizeOfVector(const T &vector)
+{
+    return (SLint)(vector.capacity()*sizeof(typename T::value_type));
+}
+//-----------------------------------------------------------------------------
+// Bit manipulation macros for ones that forget it always
 #define SL_GETBIT(VAR, BITVAL) VAR&BITVAL
 #define SL_SETBIT(VAR, BITVAL) VAR|=BITVAL
 #define SL_DELBIT(VAR, BITVAL) VAR&=~BITVAL
@@ -245,7 +250,7 @@ typedef std::vector<SLstring> SLVstring;
 #define UNUSED_PARAMETER(r)  ((void)(x))
 
 //-----------------------------------------------------------------------------
-// Some debuging and error handling functions and macros 
+// Some debugging and error handling functions and macros 
 #define SL_EXIT_MSG(M)  SL::exitMsg((M), __LINE__, __FILE__)
 #define SL_WARN_MSG(M)  SL::warnMsg((M), __LINE__, __FILE__)
 #if defined(SL_OS_ANDROID)
@@ -253,7 +258,6 @@ typedef std::vector<SLstring> SLVstring;
 #else
 #define SL_LOG(...)  printf(__VA_ARGS__);
 #endif
-
 //-----------------------------------------------------------------------------
 //! Class SL with static error message and exit functions.
 class SL

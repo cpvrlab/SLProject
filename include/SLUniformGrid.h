@@ -26,27 +26,22 @@ class SLUniformGrid : public SLAccelStruct
 {
     public:
                                 SLUniformGrid (SLMesh* m);
-                                ~SLUniformGrid ();
+                               ~SLUniformGrid ();
 
-                void           build          (SLVec3f minV, SLVec3f maxV);
-                void           updateStats    (SLNodeStats &stats);
-                void           draw           (SLSceneView* sv);
-                SLbool         intersect      (SLRay* ray, SLNode* node);
+                void            build           (SLVec3f minV, SLVec3f maxV);
+                void            updateStats     (SLNodeStats &stats);
+                void            draw            (SLSceneView* sv);
+                SLbool          intersect       (SLRay* ray, SLNode* node);
                
                 // Delete the vertex buffer object if not rendered anymore
-                void           deleteAll      ();
-                void           disposeBuffers (){if (_bufP.id()) _bufP.dispose();}
+                void            deleteAll       ();
+                void            disposeBuffers  (){if (_bufP.id()) _bufP.dispose();}
                    
     private:
-                SLV32ushort**  _vox;          //!< 1D voxel array for tria. indexes
-                SLint          _voxResX;      //!< Voxel resolution in x-dir.
-                SLint          _voxResY;      //!< Voxel resolution in y-dir.
-                SLint          _voxResZ;      //!< Voxel resolution in z-dir.
-                SLint          _voxResXY;     //!< = _voxResX * _voxResY
-                SLfloat        _voxExtX;      //!< Voxel extent in x-dir
-                SLfloat        _voxExtY;      //!< Voxel extent in y-dir
-                SLfloat        _voxExtZ;      //!< Voxel extent in z-dir
-                SLGLBuffer     _bufP;         //!< Buffer object for vertex positions
+                SLV32ushort**   _voxel;         //!< 1D voxel array for triangle indexes
+                SLVec3i         _size;          //!< Grid size in x,y,z direction
+                SLVec3f         _voxelExt;      //!< Voxel size
+                SLGLBuffer      _bufP;          //!< Buffer object for vertex positions
 };
 //-----------------------------------------------------------------------------
 #endif //SLUNIFORMGRID_H

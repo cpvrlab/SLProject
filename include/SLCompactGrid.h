@@ -21,30 +21,16 @@
 #include <SLAccelStruct.h>
 
 //-----------------------------------------------------------------------------
+//! Class for compact uniform grid acceleration structure
+/*! This class implements the data structure proposed by Lagae & Dutre in their
+paper "Compact, Fast and Robust Grids for Ray Tracing". It reduces the memory
+footprint to a quarter of a regular uniform grid implemented in SLUniformGrid.
+*/
 class SLCompactGrid : public SLAccelStruct
 {
     public:
     using Triangle = std::array<SLVec3f,3>;
 
-    /*
-    template<class T>
-    struct Counter
-    {
-		Counter() = default;
-        inline Counter(T i): count(i) {}
-        inline Counter(const Counter &c):
-            count(c.count.load())
-        {}
-
-        inline Counter &operator=(const Counter &c)
-        {
-            count = c.count.load();
-            return *this;
-        }
-
-        std::atomic<T> count;
-    };
-    */
                             SLCompactGrid   (SLMesh* m);
                            ~SLCompactGrid   (){;}
 
@@ -54,25 +40,21 @@ class SLCompactGrid : public SLAccelStruct
                 SLbool      intersect       (SLRay* ray, SLNode* node);
 
 				void        deleteAll       (){}
-                void        disposeBuffers(){}
+                void        disposeBuffers  (){}
 
-                SLint       indexAtPos      (const SLVec3i &p) const 
-                                            { return p.x + p.y * _size.x + p.z * _size.x * _size.y; }
-                SLVec3i     containingCell  (const SLVec3f &p) const;
-                void        setMinMaxCell   (const Triangle &triangle, 
+                SLuint      indexAtPos      (const SLVec3i &p) const 
+                                            {return p.x + p.y*_size.x + p.z*_size.x * _size.y;}
+                SLVec3f     voxelCenter     (const SLVec3i &pos) const;
+                SLVec3i     containingVoxel (const SLVec3f &p) const;
+                void        setMinMaxVoxel  (const Triangle &triangle, 
                                              SLVec3i &minCell, 
                                              SLVec3i &maxCell);
-
     private:
-
-                std::vector<SLuint> _cellOffsets;
-                SLVuint _triangleIndices;
-
-                SLVec3i _size;                  //!< num. of cells of grid
-                SLfloat _cellWidth;             //!< cell width
-                SLuint _numVoxels;
-                SLuint _emptyVoxels;
-                SLuint _maxTrianglesPerVoxel;
+                SLVec3i     _size;              //!< num. of voxel in grid dir.
+                SLfloat     _voxelWidth;        //!< voxel width
+                SLVuint     _voxelOffsets;      //!< Offset array (C in the paper)
+                SLVuint     _triangleIndexes;   //!< Triangle index array (L in the paper)
+                SLGLBuffer  _bufP;              //!< Buffer object for vertex positions
 };
 //-----------------------------------------------------------------------------
 #endif //SL_COMPACTGRID
