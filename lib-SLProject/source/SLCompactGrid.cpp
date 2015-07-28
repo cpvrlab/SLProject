@@ -75,9 +75,35 @@ void SLCompactGrid::deleteAll()
     disposeBuffers();
 }
 //-----------------------------------------------------------------------------
-void SLCompactGrid::triangleVoxelTest()
+//!Loops over triangles gets their voxels and calls the callback function
+void SLCompactGrid::ifTriangleInVoxelDo(triVoxCallback callback)
 {
+    assert(callback && "No callback function passed");
 
+    for (SLuint i = 0; i < _numTriangles; ++i)
+    {
+        auto index  = [&](int j) { return _m->I16 ? _m->I16[i*3+j] : _m->I32[i*3+j]; };
+        auto vertex = [&](int j) { return _m->finalP()[index(j)]; };
+        Triangle triangle = { vertex(0), vertex(1), vertex(2) };
+        SLVec3i min, max, pos;
+        getMinMaxVoxel(triangle, min, max);
+
+        for (pos.z = min.z; pos.z <= max.z; ++pos.z)
+        {   for (pos.y = min.y; pos.y <= max.y; ++pos.y)
+            {   for (pos.x = min.x; pos.x <= max.x; ++pos.x)
+                {   
+                    SLuint  voxIndex  = indexAtPos(pos);
+                    SLVec3f voxCenter = voxelCenter(pos);
+                    if (triBoxOverlap(*((float(*)[3])&voxCenter),
+                                      *((float(*)[3])&_voxelSizeHalf),
+                                      *((float(*)[3][3])&triangle)))
+                    {
+                        callback(i, voxIndex);
+                    }
+                }
+            }
+        }
+    }
 }
 //-----------------------------------------------------------------------------
 /*!
@@ -107,29 +133,9 @@ void SLCompactGrid::build (SLVec3f minV, SLVec3f maxV)
     _voxelCnt = _size.x * _size.y * _size.z;
     _voxelOffsets.assign(_voxelCnt + 1, 0);
 
-    for (int i = 0; i < _numTriangles; ++i)
-    {
-        auto index  = [&](int j) { return _m->I16 ? _m->I16[i * 3 + j] : _m->I32[i * 3 + j]; };
-        auto vertex = [&](int j) { return _m->finalP()[index(j)]; };
-        Triangle triangle = { vertex(0), vertex(1), vertex(2) };
-        SLVec3i min, max, pos;
-        getMinMaxVoxel(triangle, min, max);
-
-        for (pos.z = min.z; pos.z <= max.z; ++pos.z)
-        {   for (pos.y = min.y; pos.y <= max.y; ++pos.y)
-            {   for (pos.x = min.x; pos.x <= max.x; ++pos.x)
-                {   
-                    SLuint  voxIndex  = indexAtPos(pos);
-                    SLVec3f voxCenter = voxelCenter(pos);
-                    if (triBoxOverlap(*((float(*)[3])&voxCenter),
-                                      *((float(*)[3])&_voxelSizeHalf),
-                                      *((float(*)[3][3])&triangle)))
-                        ++_voxelOffsets[voxIndex];
-                }
-            }
-        }
-    }
-    
+    ifTriangleInVoxelDo([&](const SLuint &i, const SLuint &voxIndex) 
+                        {   ++_voxelOffsets[voxIndex];
+                        });   
 
     //The last counter doesn't count and is always empty.
     _voxelMaxTria = _voxelOffsets[0];
@@ -142,32 +148,10 @@ void SLCompactGrid::build (SLVec3f minV, SLVec3f maxV)
 
     _triangleIndexes.resize(_voxelOffsets.back());
 
-
-    // Reverse iterate over triangles
-    for (int i = 0; i < _numTriangles; ++i)
-    {
-        auto index  = [&](int j) {return _m->I16 ? _m->I16[i * 3 + j] : _m->I32[i * 3 + j];};
-        auto vertex = [&](int j) {return _m->finalP()[index(j)];};
-        Triangle triangle = { vertex(0), vertex(1), vertex(2) };
-        SLVec3i min, max, pos;
-        getMinMaxVoxel(triangle, min, max);
-
-        for (pos.z = min.z; pos.z <= max.z; ++pos.z)
-        {   for (pos.y = min.y; pos.y <= max.y; ++pos.y)
-            {   for (pos.x = min.x; pos.x <= max.x; ++pos.x)
-                {   
-                    SLuint  voxIndex = indexAtPos(pos);
-                    SLVec3f voxCenter = voxelCenter(pos);
-                    if (triBoxOverlap(*((float(*)[3])&voxCenter),
-                                      *((float(*)[3])&_voxelSizeHalf),
-                                      *((float(*)[3][3])&triangle)))
-                    {   SLint location = --_voxelOffsets[voxIndex];
-                        _triangleIndexes[location] = i;
-                    }
-                }
-            }
-        }
-    }
+    ifTriangleInVoxelDo([&](const SLuint &i, const SLuint &voxIndex) 
+                        {   SLint location = --_voxelOffsets[voxIndex];
+                            _triangleIndexes[location] = i;
+                        });
 
     _voxelOffsets.shrink_to_fit();
     _triangleIndexes.shrink_to_fit();

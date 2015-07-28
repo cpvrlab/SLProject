@@ -19,7 +19,8 @@
 
 #include <SLVec3.h>
 #include <SLAccelStruct.h>
-
+//-----------------------------------------------------------------------------
+typedef std::function<void(const SLuint, const SLuint)> triVoxCallback;
 //-----------------------------------------------------------------------------
 //! Class for compact uniform grid acceleration structure
 /*! This class implements the data structure proposed by Lagae & Dutre in their
@@ -50,7 +51,7 @@ class SLCompactGrid : public SLAccelStruct
                 void        getMinMaxVoxel      (const Triangle &triangle, 
                                                  SLVec3i &minCell, 
                                                  SLVec3i &maxCell);
-                void        triangleVoxelTest   ();
+                void        ifTriangleInVoxelDo (triVoxCallback cb);
     private:
                 SLVec3i     _size;              //!< num. of voxel in grid dir.
                 SLuint      _numTriangles;      //!< NO. of triangles in the mesh
