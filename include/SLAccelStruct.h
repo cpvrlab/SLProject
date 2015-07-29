@@ -15,9 +15,10 @@
 
 //-----------------------------------------------------------------------------
 //! SLAccelStruct is an abstract base class for acceleration structures
-/*! The SLAccelStruct class serves as common class for the SLUniformGrid and 
-the SLKDTree class. All derived acceleration structures must be able to build,
-draw, intersect with a ray and update statistics. All structures work on meshes. 
+/*! The SLAccelStruct class serves as common class for the SLUniformGrid,
+SLCompactGrid and the SLKDTree class. All derived acceleration structures must
+be able to build, draw, intersect with a ray and update statistics.
+All structures work on meshes.
 */
 class SLAccelStruct
 {
