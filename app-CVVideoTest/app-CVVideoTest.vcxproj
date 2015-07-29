@@ -161,9 +161,6 @@
     </ProjectReference>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\..\..\..\..\Lib\opencv\sources\samples\cpp\videoCapturing.cpp" />
-  </ItemGroup>
-  <ItemGroup>
     <ProjectReference Include="C:/Lib/opencv/buildStatic/ZERO_CHECK.vcxproj">
       <Project>AFEF7045-9879-4EA7-8783-9FEDCF9CBFE4</Project>
     </ProjectReference>
@@ -215,6 +212,9 @@
     <ProjectReference Include="C:/Lib/opencv/buildStatic/modules/videostab/opencv_videostab.vcxproj">
       <Project>3644BD2C-69B0-44AF-B061-AA9D0AF1AB46</Project>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="videoCapturing.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
