@@ -125,11 +125,12 @@
       <Optimization>MaxSpeed</Optimization>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <ProcessorNumber>8</ProcessorNumber>
-      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <RuntimeTypeInfo>true</RuntimeTypeInfo>
       <WarningLevel>Level4</WarningLevel>
       <PreprocessorDefinitions>WIN32;_WINDOWS;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;_SCL_SECURE_NO_WARNINGS;NDEBUG;_VARIADIC_MAX=10;CMAKE_INTDIR="Release";%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ObjectFileName>$(IntDir)</ObjectFileName>
+      <SuppressStartupBanner>false</SuppressStartupBanner>
     </ClCompile>
     <ResourceCompile>
       <PreprocessorDefinitions>WIN32;_WINDOWS;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;_SCL_SECURE_NO_WARNINGS;NDEBUG;_VARIADIC_MAX=10;CMAKE_INTDIR=\"Release\";%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -145,7 +146,7 @@
     </Midl>
     <Link>
       <AdditionalOptions> /machine:x64 /debug %(AdditionalOptions)</AdditionalOptions>
-      <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winspool.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;comdlg32.lib;advapi32.lib;glu32.lib;opengl32.lib;$(OPENCVDIR)\sources\3rdparty\ippicv\unpack\ippicv_win\lib\intel64\ippicvmt.lib;$(OPENCVBUILDDIR)\lib\Release\opencv_stitching300.lib;$(OPENCVBUILDDIR)\lib\Release\opencv_videostab300.lib;$(OPENCVBUILDDIR)\lib\Release\opencv_shape300.lib;$(OPENCVBUILDDIR)\lib\Release\opencv_objdetect300.lib;$(OPENCVBUILDDIR)\lib\Release\opencv_photo300.lib;$(OPENCVBUILDDIR)\lib\Release\opencv_calib3d300.lib;$(OPENCVBUILDDIR)\lib\Release\opencv_features2d300.lib;$(OPENCVBUILDDIR)\lib\Release\opencv_flann300.lib;$(OPENCVBUILDDIR)\lib\Release\opencv_highgui300.lib;$(OPENCVBUILDDIR)\lib\Release\opencv_videoio300.lib;$(OPENCVBUILDDIR)\lib\Release\opencv_imgcodecs300.lib;$(OPENCVBUILDDIR)\lib\Release\opencv_ml300.lib;$(OPENCVBUILDDIR)\lib\Release\opencv_video300.lib;$(OPENCVBUILDDIR)\lib\Release\opencv_imgproc300.lib;$(OPENCVBUILDDIR)\lib\Release\opencv_core300.lib;$(OPENCVBUILDDIR)\lib\Release\opencv_hal300.lib</AdditionalDependencies>
+      <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winspool.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;comdlg32.lib;advapi32.lib;glu32.lib;opengl32.lib;Vfw32.lib;$(OPENCVDIR)\sources\3rdparty\ippicv\unpack\ippicv_win\lib\intel64\ippicvmt.lib;$(OPENCVBUILDDIR)\lib\Release\opencv_stitching300.lib;$(OPENCVBUILDDIR)\lib\Release\opencv_videostab300.lib;$(OPENCVBUILDDIR)\lib\Release\opencv_shape300.lib;$(OPENCVBUILDDIR)\lib\Release\opencv_objdetect300.lib;$(OPENCVBUILDDIR)\lib\Release\opencv_photo300.lib;$(OPENCVBUILDDIR)\lib\Release\opencv_calib3d300.lib;$(OPENCVBUILDDIR)\lib\Release\opencv_features2d300.lib;$(OPENCVBUILDDIR)\lib\Release\opencv_flann300.lib;$(OPENCVBUILDDIR)\lib\Release\opencv_highgui300.lib;$(OPENCVBUILDDIR)\lib\Release\opencv_videoio300.lib;$(OPENCVBUILDDIR)\lib\Release\opencv_imgcodecs300.lib;$(OPENCVBUILDDIR)\lib\Release\opencv_ml300.lib;$(OPENCVBUILDDIR)\lib\Release\opencv_video300.lib;$(OPENCVBUILDDIR)\lib\Release\opencv_imgproc300.lib;$(OPENCVBUILDDIR)\lib\Release\opencv_core300.lib;$(OPENCVBUILDDIR)\lib\Release\opencv_hal300.lib;$(OPENCVBUILDDIR)\3rdparty\lib\Release\IlmImf.lib;$(OPENCVBUILDDIR)\3rdparty\lib\Release\libjasper.lib;$(OPENCVBUILDDIR)\3rdparty\lib\Release\libjpeg.lib;$(OPENCVBUILDDIR)\3rdparty\lib\Release\libpng.lib;$(OPENCVBUILDDIR)\3rdparty\lib\Release\libtiff.lib;$(OPENCVBUILDDIR)\3rdparty\lib\Release\libwebp.lib;$(OPENCVBUILDDIR)\3rdparty\lib\Release\zlib.lib</AdditionalDependencies>
       <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <GenerateDebugInformation>false</GenerateDebugInformation>
       <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
@@ -155,6 +156,7 @@
       <SubSystem>Console</SubSystem>
       <Version>
       </Version>
+      <SuppressStartupBanner>false</SuppressStartupBanner>
     </Link>
     <ProjectReference>
       <LinkLibraryDependencies>false</LinkLibraryDependencies>
