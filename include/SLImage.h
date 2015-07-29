@@ -13,12 +13,15 @@
 
 #include <stdafx.h>
 
+#ifdef SL_USE_OPENCV
+#include <opencv2/opencv.hpp>
+#endif
+
 //-----------------------------------------------------------------------------
 //! Win32 BITMAPFILEHEADER struct for BMP loading
 #pragma pack(push,2)
 typedef struct tagBMP_FILEHEADER     
-{
-    SLushort bfType;
+{   SLushort bfType;
     SLuint   bfSize;
     SLushort bfReserved1;
     SLushort bfReserved2;
@@ -28,8 +31,7 @@ typedef struct tagBMP_FILEHEADER
 //-----------------------------------------------------------------------------
 //! Win32 BITMAPINFOHEADER struct for BMP loading
 typedef struct tagBMP_INFOHEADER
-{
-    SLuint   biSize;
+{   SLuint   biSize;
     SLint    biWidth;
     SLint    biHeight;
     SLushort biPlanes;
@@ -44,8 +46,7 @@ typedef struct tagBMP_INFOHEADER
 //-----------------------------------------------------------------------------
 //! Win32 RGBQUAD struct for BMP loading
 typedef struct tagBMP_RGBQUAD 
-{
-    SLuchar rgbBlue;
+{   SLuchar rgbBlue;
     SLuchar rgbGreen;
     SLuchar rgbRed;
     SLuchar rgbReserved;
@@ -53,8 +54,7 @@ typedef struct tagBMP_RGBQUAD
 //-----------------------------------------------------------------------------
 //! Win32 BITMAPINFO struct for BMP loading
 typedef struct tagBMP_INFO
-{
-    sBMP_INFOHEADER bmiHeader;
+{   sBMP_INFOHEADER bmiHeader;
     sRGBQUAD        bmiColors[1];
 } sBMP_INFO;
 //-----------------------------------------------------------------------------
@@ -65,8 +65,7 @@ typedef struct
 //-----------------------------------------------------------------------------
 //! TGA file header struct
 typedef struct
-{
-    GLubyte header[6];     // First 6 useful bytes from the header
+{GLubyte header[6];     // First 6 useful bytes from the header
     GLuint  bytesPerPixel; // Holds number of bytes per pixel
     GLuint  imageSize;     // Used to store the size when setting Aside RAM
     GLuint  temp;          // Temporary variable
@@ -79,21 +78,21 @@ typedef struct
 //! Small image class for loading JPG, PNG, BMP, TGA and saving PNG files 
 /*! Minimal class for loading JPG, PNG, BMP, TGA and saving PNG files. In addition
 you can fill, resize, flip and convolve an image. The class is used in 
-SLGLTexture.
+SLGLTexture. SLImage interpretes an image bottom left as OpenGL.
 */
 class SLImage : public SLObject
 {
     public:
                             SLImage         () {_data=0; _width=0; _height=0;}
                             SLImage         (SLint width, SLint height, SLuint format);  
-                            SLImage         (SLstring imageFilename); 
+                            SLImage         (const SLstring imageFilename); 
                             SLImage         (SLImage &srcImage);
                            ~SLImage         ();
             // Misc                         
             void            clearData       ();
             void            allocate        (SLint width, SLint height, SLint format);
-            void            load            (SLstring filename); 
-            void            savePNG         (SLstring filename);
+            void            load            (const SLstring filename); 
+            void            savePNG         (const SLstring filename);
             SLCol4f         getPixeli       (SLint x, SLint y);
             SLCol4f         getPixelf       (SLfloat x, SLfloat y);
             void            setPixeli       (SLint x, SLint y, SLCol4f color);
@@ -106,8 +105,14 @@ class SLImage : public SLObject
             void            convolve3x3     (SLfloat* kernel);
             void            fill            (SLubyte r=0, 
                                              SLubyte g=0, 
+               
                                              SLubyte b=0, 
                                              SLubyte a=0);
+            #ifdef SL_USE_OPENCV
+                            SLImage         (cv::Mat const& src);
+            void            setFromCVMat    (cv::Mat const& src);
+            #endif
+
             // Getters                      
             SLubyte*        data            () {return _data;}
             SLuint          width           () {return _width;}

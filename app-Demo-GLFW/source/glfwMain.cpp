@@ -20,6 +20,11 @@
 #include <SLSceneView.h>
 #include <SLEnums.h>
 
+#ifdef SL_USE_OPENCV
+#include <opencv2/opencv.hpp>
+#include <opencv_libs.h>
+#endif
+
 //-----------------------------------------------------------------------------
 // GLobal application variables
 GLFWwindow* window;                 //!< The global glfw window handle

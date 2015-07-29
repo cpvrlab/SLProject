@@ -180,7 +180,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>$(ProjectDir);..\include;..\lib-SLExternal;..\lib-SLExternal\jpeg-8;..\lib-SLExternal\png;..\lib-SLExternal\zlib;..\lib-SLExternal\glew\include;..\lib-SLExternal\glfw3\include;..\lib-SLExternal\randomc;..\lib-SLExternal\Shoemake;..\lib-SLExternal\oculus\LibOVR\Include\;..\lib-SLExternal\nvwa;..\lib-SLExternal\assimp\include;..\lib-SLExternal\assimp\code;..\lib-SLExternal\dirent</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir);..\include;..\lib-SLExternal;..\lib-SLExternal\jpeg-8;..\lib-SLExternal\png;..\lib-SLExternal\zlib;..\lib-SLExternal\glew\include;..\lib-SLExternal\glfw3\include;..\lib-SLExternal\randomc;..\lib-SLExternal\Shoemake;..\lib-SLExternal\oculus\LibOVR\Include\;..\lib-SLExternal\nvwa;..\lib-SLExternal\assimp\include;..\lib-SLExternal\assimp\code;..\lib-SLExternal\dirent;$(OPENCVDIR)\sources\modules\core\include;$(OPENCVDIR)\sources\modules\hal\include;$(OPENCVDIR)\sources\modules\calib3d\include;$(OPENCVDIR)\sources\modules\features2d\include;$(OPENCVDIR)\sources\modules\highgui\include;$(OPENCVDIR)\sources\modules\videoio\include;$(OPENCVDIR)\sources\modules\imgproc\include;$(OPENCVDIR)\sources\modules\imgcodecs\include;$(OPENCVDIR)\sources\modules\photo\include;$(OPENCVDIR)\sources\modules\ml\include;$(OPENCVDIR)\sources\modules\flann\include;$(OPENCVDIR)\sources\modules\objdetect\include;$(OPENCVDIR)\sources\modules\shape\include;$(OPENCVDIR)\sources\modules\video\include;$(OPENCVDIR)\sources\modules\videostab\include;$(OPENCVDIR)\sources\modules\stitching\include;$(OPENCVDIR)\sources\include;$(OPENCVDIR)\sources\3rdparty\ippicv\unpack\ippicv_win\include;$(OPENCVBUILDDIR)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>SL_GUI_GLFW;SL_STARTSCENE#cmdSceneRTMuttenzerBox;SL_RT1;GLEW_STATIC;_DEBUG;UNICODE;WIN32;_WINDOWS;_CRT_SECURE_NO_WARNING</PreprocessorDefinitions>
       <TreatWChar_tAsBuiltInType>false</TreatWChar_tAsBuiltInType>
       <OpenMPSupport>false</OpenMPSupport>
@@ -316,7 +316,7 @@
       <AdditionalOptions>/wd4996 %(AdditionalOptions)</AdditionalOptions>
       <Optimization>Full</Optimization>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <AdditionalIncludeDirectories>$(ProjectDir);..\include;..\lib-SLExternal;..\lib-SLExternal\jpeg-8;..\lib-SLExternal\png;..\lib-SLExternal\zlib;..\lib-SLExternal\glew\include;..\lib-SLExternal\glfw3\include;..\lib-SLExternal\randomc;..\lib-SLExternal\Shoemake;..\lib-SLExternal\oculus\LibOVR\Include\;..\lib-SLExternal\nvwa;..\lib-SLExternal\assimp\include;..\lib-SLExternal\assimp\code;..\lib-SLExternal\dirent</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir);..\include;..\lib-SLExternal;..\lib-SLExternal\jpeg-8;..\lib-SLExternal\png;..\lib-SLExternal\zlib;..\lib-SLExternal\glew\include;..\lib-SLExternal\glfw3\include;..\lib-SLExternal\randomc;..\lib-SLExternal\Shoemake;..\lib-SLExternal\oculus\LibOVR\Include\;..\lib-SLExternal\nvwa;..\lib-SLExternal\assimp\include;..\lib-SLExternal\assimp\code;..\lib-SLExternal\dirent;$(OPENCVDIR)\sources\modules\core\include;$(OPENCVDIR)\sources\modules\hal\include;$(OPENCVDIR)\sources\modules\calib3d\include;$(OPENCVDIR)\sources\modules\features2d\include;$(OPENCVDIR)\sources\modules\highgui\include;$(OPENCVDIR)\sources\modules\videoio\include;$(OPENCVDIR)\sources\modules\imgproc\include;$(OPENCVDIR)\sources\modules\imgcodecs\include;$(OPENCVDIR)\sources\modules\photo\include;$(OPENCVDIR)\sources\modules\ml\include;$(OPENCVDIR)\sources\modules\flann\include;$(OPENCVDIR)\sources\modules\objdetect\include;$(OPENCVDIR)\sources\modules\shape\include;$(OPENCVDIR)\sources\modules\video\include;$(OPENCVDIR)\sources\modules\videostab\include;$(OPENCVDIR)\sources\modules\stitching\include;$(OPENCVDIR)\sources\include;$(OPENCVDIR)\sources\3rdparty\ippicv\unpack\ippicv_win\include;$(OPENCVBUILDDIR)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>SL_GUI_GLFW;SL_STARTSCENE#cmdSceneRevolver;SL_RT1;GLEW_STATIC;UNICODE;WIN32;_WINDOWS</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <BufferSecurityCheck>true</BufferSecurityCheck>
@@ -401,6 +401,7 @@
     </Lib>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="..\include\opencv_libs.h" />
     <ClInclude Include="..\include\SL.h" />
     <ClInclude Include="..\include\SLAccelStruct.h" />
     <ClInclude Include="..\include\SLAnimation.h" />
@@ -447,7 +448,6 @@
     <ClInclude Include="..\include\SLTexFont.h" />
     <ClInclude Include="..\include\SLTimer.h" />
     <ClInclude Include="..\include\SLTriangle.h" />
-    <ClInclude Include="..\include\SLUniformGrid.h" />
     <ClInclude Include="..\include\SLUtils.h" />
     <ClInclude Include="..\include\SLVec2.h" />
     <ClInclude Include="..\include\SLVec3.h" />
@@ -527,7 +527,6 @@
     <ClCompile Include="source\SLMaterial.cpp" />
     <ClCompile Include="source\SLMesh.cpp" />
     <ClCompile Include="source\SLTriangle.cpp" />
-    <ClCompile Include="source\SLUniformGrid.cpp" />
     <ClCompile Include="source\SL\SL.cpp" />
     <ClCompile Include="source\SL\SLAssimpImporter.cpp" />
     <ClCompile Include="source\SL\SLFileSystem.cpp" />

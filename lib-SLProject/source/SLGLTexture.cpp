@@ -16,11 +16,20 @@
 #include <SLGLTexture.h>
 #include <SLScene.h>
 
+#ifdef SL_USE_OPENCV
+#include <opencv2/opencv.hpp>
+#endif
+
 //-----------------------------------------------------------------------------
 //! Default path for texture files used when only filename is passed in load.
 SLstring SLGLTexture::defaultPath = "../_data/images/textures/";
 //! maxAnisotropy=-1 show that GL_EXT_texture_filter_anisotropic is not checked
 SLfloat SLGLTexture::maxAnisotropy = -1.0f;
+//-----------------------------------------------------------------------------
+#ifdef SL_USE_OPENCV
+//! OpenCV capture device pointer
+cv::VideoCapture* SLGLTexture::captureDevice = nullptr;
+#endif
 //-----------------------------------------------------------------------------
 //! default ctor for fonts
 SLGLTexture::SLGLTexture()
@@ -34,8 +43,9 @@ SLGLTexture::SLGLTexture()
     _wrap_t       = GL_REPEAT;
     _target       = GL_TEXTURE_2D;
     _bumpScale    = 1.0f;
-    _resizeToPow2 = true;
+    _resizeToPow2 = false;
     _autoCalcTM3D = false;
+    _doCameraGrab = false;
 }
 //-----------------------------------------------------------------------------
 //! ctor 2D textures with internal image allocation
@@ -59,8 +69,9 @@ SLGLTexture::SLGLTexture(SLstring  filename,
     _target       = GL_TEXTURE_2D;
     _texName      = 0;
     _bumpScale    = 1.0f;
-    _resizeToPow2 = true;
+    _resizeToPow2 = false;
     _autoCalcTM3D = false;
+    _doCameraGrab = false;
    
     // Add pointer to the global resource vectors for deallocation
     SLScene::current->textures().push_back(this);
@@ -89,8 +100,9 @@ SLGLTexture::SLGLTexture(SLVstring files,
     #endif
     _texName      = 0;
     _bumpScale    = 1.0f;
-    _resizeToPow2 = true;
+    _resizeToPow2 = false;
     _autoCalcTM3D = true;
+    _doCameraGrab = false;
 
     // Add pointer to the global resource vectors for deallocation
     SLScene::current->textures().push_back(this);
@@ -124,8 +136,9 @@ SLGLTexture::SLGLTexture(SLstring  filenameXPos,
     _target      = GL_TEXTURE_CUBE_MAP;
     _texName     = 0;
     _bumpScale   = 1.0f;
-    _resizeToPow2 = true;
+    _resizeToPow2 = false;
     _autoCalcTM3D = false;
+    _doCameraGrab = false;
 
     SLScene::current->textures().push_back(this);
 }
@@ -150,6 +163,13 @@ void SLGLTexture::clearData()
     _bufP.dispose();
     _bufT.dispose();
     _bufI.dispose();
+
+    #ifdef SL_USE_OPENCV
+    if (captureDevice) 
+    {   delete captureDevice;
+        captureDevice = nullptr;
+    }
+    #endif
 }
 //-----------------------------------------------------------------------------
 //! Loads the texture, converts color depth & applys the mirriring
@@ -176,6 +196,9 @@ method which is called by object that uses the texture.
 void SLGLTexture::build(SLint texID)
 {  
     assert(texID>=0 && texID<32);
+    
+    if (_images.size()==0) 
+        SL_EXIT_MSG("No images loaded in SLGLTexture::build");
   
     // delete texture name if it already exits
     if (_texName) 
@@ -185,7 +208,7 @@ void SLGLTexture::build(SLint texID)
     
     // get max texture size
     SLint texMaxSize=0;
-    glGetIntegerv(GL_MAX_TEXTURE_SIZE, &texMaxSize);
+    glGetIntegerv(GL_MAX_TEXTURE_SIZE, &texMaxSize);        
 
     // check if texture has to be resized
     SLuint w2 = closestPowerOf2(_images[0]->width());
@@ -345,14 +368,24 @@ is passed to OpenGL.
 void SLGLTexture::bindActive(SLint texID)
 {
     assert(texID>=0 && texID<32);
+    
+    if (_doCameraGrab)
+    {
+        if (!grabFromCamera(0))
+            SL_WARN_MSG("Image grab failed in SLGLTexture::build");
+    }
    
     // if texture not exists build it
     if (!_texName) build(texID);
    
     if (_texName)
-    {   _stateGL->activeTexture(GL_TEXTURE0 + texID);
+    {   
+        _stateGL->activeTexture(GL_TEXTURE0 + texID);
         _stateGL->bindAndEnableTexture(_target, _texName);
+        if (_doCameraGrab) fullUpdate();
     }
+
+    GET_GL_ERROR;
 }
 //-----------------------------------------------------------------------------
 /*!
@@ -360,7 +393,7 @@ Fully updates the OpenGL internal texture data by the image data
 */
 void SLGLTexture::fullUpdate()
 {  
-    if (_images[0]->data() && _target == GL_TEXTURE_2D)
+    if (_images.size() && _images[0]->data() && _target == GL_TEXTURE_2D)
     {   if (_min_filter==GL_NEAREST || _min_filter==GL_LINEAR)
         {   glTexSubImage2D(_target, 0, 0, 0,
                             _images[0]->width(),
@@ -370,6 +403,8 @@ void SLGLTexture::fullUpdate()
                             (GLvoid*)_images[0]->data());
         } 
     }
+
+    GET_GL_ERROR;
 }
 //-----------------------------------------------------------------------------
 //! Draws the texture as 2D sprite with OpenGL buffers
@@ -436,6 +471,33 @@ void SLGLTexture::drawSprite(SLbool doUpdate)
     _bufT.disableAttribArray();
 }
 //-----------------------------------------------------------------------------
+SLbool SLGLTexture::grabFromCamera(SLint videoDeviceNO)
+{
+    #ifdef SL_USE_OPENCV
+    if (!captureDevice)
+    {
+        captureDevice = new cv::VideoCapture(videoDeviceNO);
+        if(!captureDevice->isOpened())
+            return false;
+    }
+
+    if(captureDevice->isOpened())
+    {
+        cv::Mat frame;
+        if (!captureDevice->read(frame)) 
+            return false;
+
+        if (_images.size()==0)
+            _images.push_back(new SLImage());
+
+        _images[0]->setFromCVMat(frame);
+        return true;
+    }
+
+    #endif
+    return false;
+}
+//-----------------------------------------------------------------------------
 /*!
 getTexelf returns a pixel color with its s & t texture coordinates.
 If the OpenGL filtering is set to GL_LINEAR a bilinear interpolated color out
@@ -500,7 +562,6 @@ SLuint SLGLTexture::closestPowerOf2(SLuint num)
     if (num-prevPow2 < nextPow2-num)
         return prevPow2; else return nextPow2;
 }
-
 //-----------------------------------------------------------------------------
 //! Returns the next power of 2 to a passed number.
 SLuint SLGLTexture::nextPowerOf2(SLuint num)

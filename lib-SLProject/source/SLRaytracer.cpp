@@ -764,6 +764,9 @@ void SLRaytracer::renderImage()
     SLfloat h = (SLfloat)_sv->scrH();
     if (w != _images[0]->width()) return;
     if (h != _images[0]->height()) return;
+
+    // Refresh all textures that grab from opencv camera
+    
       
     // Set orthographic projection with the size of the window
     _stateGL->projectionMatrix.ortho(0.0f, w, 0.0f, h, -1.0f, 0.0f);

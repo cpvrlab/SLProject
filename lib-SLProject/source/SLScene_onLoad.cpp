@@ -561,7 +561,11 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
         info(sv, "Examples of revolving mesh objects constructed by rotating a 2D curve. The glass shader reflects and refracts the environment map. Try ray tracing.");
 
         // Test map material
+        #ifdef SL_USE_OPENCV
+        SLGLTexture* tex1 = new SLGLTexture(); tex1->doCameraGrab(true);
+        #else
         SLGLTexture* tex1 = new SLGLTexture("Testmap_0512_C.png");
+        #endif
         SLMaterial* mat1 = new SLMaterial("mat1", tex1);
 
         // floor material
@@ -570,7 +574,11 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
         mat2->specular(SLCol4f::BLACK);
 
         // Back wall material
+        #ifdef SL_USE_OPENCV
+        SLGLTexture* tex3 = new SLGLTexture(); tex3->doCameraGrab(true);
+        #else
         SLGLTexture* tex3 = new SLGLTexture("bricks1_0512_C.jpg");
+        #endif
         SLMaterial* mat3 = new SLMaterial("mat3", tex3);
         mat3->specular(SLCol4f::BLACK);
 

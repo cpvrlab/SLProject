@@ -161,7 +161,7 @@
     </ProjectReference>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="C:\Lib\opencv\sources\samples\cpp\camshiftdemo.cpp" />
+    <ClCompile Include="..\..\..\..\..\..\Lib\opencv\sources\samples\cpp\videoCapturing.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="C:/Lib/opencv/buildStatic/ZERO_CHECK.vcxproj">

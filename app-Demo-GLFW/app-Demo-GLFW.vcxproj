@@ -138,7 +138,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)\include;..\include;..\lib-SLExternal;..\lib-SLExternal\jpeg-8;..\lib-SLExternal\png;..\lib-SLExternal\zlib;..\lib-SLExternal\glew\include;..\lib-SLExternal\glfw3\include;..\lib-SLExternal\randomc;..\lib-SLExternal\oculus\LibOVR\Include\;..\lib-SLExternal\nvwa;..\lib-SLExternal\assimp\include;..\lib-SLExternal\assimp\code;..\lib-SLExternal\dirent</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir);..\include;..\lib-SLExternal;..\lib-SLExternal\jpeg-8;..\lib-SLExternal\png;..\lib-SLExternal\zlib;..\lib-SLExternal\glew\include;..\lib-SLExternal\glfw3\include;..\lib-SLExternal\randomc;..\lib-SLExternal\Shoemake;..\lib-SLExternal\oculus\LibOVR\Include\;..\lib-SLExternal\nvwa;..\lib-SLExternal\assimp\include;..\lib-SLExternal\assimp\code;..\lib-SLExternal\dirent;$(OPENCVDIR)\sources\modules\core\include;$(OPENCVDIR)\sources\modules\hal\include;$(OPENCVDIR)\sources\modules\calib3d\include;$(OPENCVDIR)\sources\modules\features2d\include;$(OPENCVDIR)\sources\modules\highgui\include;$(OPENCVDIR)\sources\modules\videoio\include;$(OPENCVDIR)\sources\modules\imgproc\include;$(OPENCVDIR)\sources\modules\imgcodecs\include;$(OPENCVDIR)\sources\modules\photo\include;$(OPENCVDIR)\sources\modules\ml\include;$(OPENCVDIR)\sources\modules\flann\include;$(OPENCVDIR)\sources\modules\objdetect\include;$(OPENCVDIR)\sources\modules\shape\include;$(OPENCVDIR)\sources\modules\video\include;$(OPENCVDIR)\sources\modules\videostab\include;$(OPENCVDIR)\sources\modules\stitching\include;$(OPENCVDIR)\sources\include;$(OPENCVDIR)\sources\3rdparty\ippicv\unpack\ippicv_win\include;$(OPENCVBUILDDIR)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>SL_GUI_GLFW;SL_STARTSCENE#cmdSceneRevolver;SL_RT1;GLEW_STATIC;_DEBUG;UNICODE;WIN32;_WINDOWS</PreprocessorDefinitions>
       <TreatWChar_tAsBuiltInType>false</TreatWChar_tAsBuiltInType>
       <OpenMPSupport>false</OpenMPSupport>
@@ -157,7 +157,7 @@
     <Link>
       <AdditionalDependencies>ws2_32.lib;opengl32.lib;lib-ovr.lib;lib-SLExternal.lib;lib-SLProject.lib;lib-Assimp.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
-      <AdditionalLibraryDirectories>$(SolutionDir)_lib\$(Configuration)\$(Platform)\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(SolutionDir)_lib\$(Configuration)\$(Platform)\;$(OPENCVDIR)\sources\3rdparty\ippicv\unpack\ippicv_win\lib\intel64\;$(OPENCVBUILDDIR)\lib\Debug\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Console</SubSystem>
       <LargeAddressAware>true</LargeAddressAware>
@@ -221,7 +221,7 @@
       <AdditionalOptions>/wd4996 %(AdditionalOptions)</AdditionalOptions>
       <Optimization>Full</Optimization>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)\include;..\include;..\lib-SLExternal;..\lib-SLExternal\jpeg-8;..\lib-SLExternal\png;..\lib-SLExternal\zlib;..\lib-SLExternal\glew\include;..\lib-SLExternal\glfw3\include;..\lib-SLExternal\randomc;..\lib-SLExternal\oculus\LibOVR\Include\;..\lib-SLExternal\nvwa;..\lib-SLExternal\assimp\include;..\lib-SLExternal\assimp\code;..\lib-SLExternal\dirent</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir);..\include;..\lib-SLExternal;..\lib-SLExternal\jpeg-8;..\lib-SLExternal\png;..\lib-SLExternal\zlib;..\lib-SLExternal\glew\include;..\lib-SLExternal\glfw3\include;..\lib-SLExternal\randomc;..\lib-SLExternal\Shoemake;..\lib-SLExternal\oculus\LibOVR\Include\;..\lib-SLExternal\nvwa;..\lib-SLExternal\assimp\include;..\lib-SLExternal\assimp\code;..\lib-SLExternal\dirent;$(OPENCVDIR)\sources\modules\core\include;$(OPENCVDIR)\sources\modules\hal\include;$(OPENCVDIR)\sources\modules\calib3d\include;$(OPENCVDIR)\sources\modules\features2d\include;$(OPENCVDIR)\sources\modules\highgui\include;$(OPENCVDIR)\sources\modules\videoio\include;$(OPENCVDIR)\sources\modules\imgproc\include;$(OPENCVDIR)\sources\modules\imgcodecs\include;$(OPENCVDIR)\sources\modules\photo\include;$(OPENCVDIR)\sources\modules\ml\include;$(OPENCVDIR)\sources\modules\flann\include;$(OPENCVDIR)\sources\modules\objdetect\include;$(OPENCVDIR)\sources\modules\shape\include;$(OPENCVDIR)\sources\modules\video\include;$(OPENCVDIR)\sources\modules\videostab\include;$(OPENCVDIR)\sources\modules\stitching\include;$(OPENCVDIR)\sources\include;$(OPENCVDIR)\sources\3rdparty\ippicv\unpack\ippicv_win\include;$(OPENCVBUILDDIR)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>SL_GUI_GLFW;SL_STARTSCENE#cmdSceneMeshLoad;SL_RT1;GLEW_STATIC;UNICODE;WIN32;_WINDOWS</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <BufferSecurityCheck>true</BufferSecurityCheck>
@@ -239,7 +239,7 @@
     <Link>
       <AdditionalDependencies>ws2_32.lib;opengl32.lib;lib-ovr.lib;lib-SLExternal.lib;lib-SLProject.lib;lib-Assimp.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
-      <AdditionalLibraryDirectories>$(SolutionDir)_lib\$(Configuration)\$(Platform)\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(SolutionDir)_lib\$(Configuration)\$(Platform)\;$(OPENCVDIR)\sources\3rdparty\ippicv\unpack\ippicv_win\lib\intel64\;$(OPENCVBUILDDIR)\lib\Release\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <GenerateDebugInformation>false</GenerateDebugInformation>
       <SubSystem>Console</SubSystem>
       <OptimizeReferences>true</OptimizeReferences>

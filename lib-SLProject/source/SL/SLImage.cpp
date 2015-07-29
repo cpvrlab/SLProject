@@ -17,6 +17,10 @@
 #include <jpeglib.h>          // JPEG lib
 #include <png.h>              // libpng
 
+#ifdef SL_USE_OPENCV
+#include <opencv2/opencv.hpp>
+#endif
+
 //-----------------------------------------------------------------------------
 //! Constructor for empty image of a certain format and size
 SLImage::SLImage(SLint width, SLint height, SLuint format) : SLObject()
@@ -28,7 +32,7 @@ SLImage::SLImage(SLint width, SLint height, SLuint format) : SLObject()
 }
 //-----------------------------------------------------------------------------
 //! Contructor for image from file
-SLImage::SLImage(SLstring  filename) : SLObject(filename)
+SLImage::SLImage(const SLstring  filename) : SLObject(filename)
 {
     assert(filename!="");
     _data = 0;
@@ -114,7 +118,6 @@ void SLImage::allocate(SLint width, SLint height, SLint format)
     _height = height;
     _format = format;
     SLint bitsPerPixel = _bytesPerPixel * 8;
-    //_bytesPerLine  = _bytesPerPixel * _width;
     _bytesPerLine  = ((width * bitsPerPixel + 31) / 32) * 4;
     _bytesPerImage = _bytesPerLine * _height;
    
@@ -126,7 +129,7 @@ void SLImage::allocate(SLint width, SLint height, SLint format)
 }
 //-----------------------------------------------------------------------------
 //! Loads the image with the appropriate image loader
-void SLImage::load(SLstring filename)
+void SLImage::load(const SLstring filename)
 {    
     SLstring ext = SLUtils::getFileExt(filename);
     _name = SLUtils::getFileNameWOExt(filename);
@@ -1124,8 +1127,8 @@ void SLImage::convolve3x3(SLfloat* k)
    
     // concolve the image except the border
     SLint offC[9] = {-bpp+bpl, +bpl, bpp+bpl,
-                    -bpp    , 0   , bpp    ,
-                    -bpp-bpl, -bpl, bpp-bpl};
+                     -bpp    , 0   , bpp    ,
+                     -bpp-bpl, -bpl, bpp-bpl};
     SLubyte* srcLine = _data   + _bytesPerLine + _bytesPerPixel;
     SLubyte* dstLine = dstData + _bytesPerLine + _bytesPerPixel;
     SLubyte* src, *dst;
@@ -1241,7 +1244,8 @@ void SLImage::convolve3x3(SLfloat* k)
 }
 //-----------------------------------------------------------------------------
 //! Fills the image with a certain color
-void SLImage::fill(SLubyte r, SLubyte g, SLubyte b, SLubyte a)
+void SLImage::fill(
+SLubyte r, SLubyte g, SLubyte b, SLubyte a)
 {  
     SLubyte* srcLine = _data;
     SLubyte* src;
@@ -1260,3 +1264,33 @@ void SLImage::fill(SLubyte r, SLubyte g, SLubyte b, SLubyte a)
     }
 }
 //-----------------------------------------------------------------------------
+#ifdef SL_USE_OPENCV
+void SLImage::setFromCVMat(cv::Mat const& src)
+{   
+    // Set the according opengl format
+    SLint format;
+    switch(src.type())
+    {   case CV_8UC1: format = GL_LUMINANCE; break;
+        case CV_8UC2: format = GL_RG; break;
+        case CV_8UC3: format = GL_RGB; break;
+        case CV_8UC4: format = GL_RGBA; break;
+        default: 
+            SL_EXIT_MSG("OpenCV image format not supported");
+            return;
+    }
+    
+    cv::cvtColor(src, src,CV_BGR2RGB);
+
+    allocate(src.cols, src.rows, format);
+
+    // copy lines and flip vertically because OpenCV is top-left
+    SLubyte* pSrc = src.data;
+    SLubyte* pDst = _data + _bytesPerImage - _bytesPerLine;
+    for (SLint h=0; h<_height; ++h)
+    {   memcpy(pDst, pSrc, _bytesPerLine);   
+        pSrc += _bytesPerLine;
+        pDst -= _bytesPerLine;
+    }
+}
+//-----------------------------------------------------------------------------
+#endif

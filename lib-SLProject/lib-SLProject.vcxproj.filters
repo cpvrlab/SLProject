@@ -132,9 +132,6 @@
     <ClInclude Include="..\include\SLAccelStruct.h">
       <Filter>Nodes\AABB &amp; Animation</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\SLUniformGrid.h">
-      <Filter>Nodes\AABB &amp; Animation</Filter>
-    </ClInclude>
     <ClInclude Include="..\include\SL.h">
       <Filter>SL</Filter>
     </ClInclude>
@@ -267,6 +264,9 @@
     <ClInclude Include="..\include\SLCompactGrid.h">
       <Filter>Nodes\AABB &amp; Animation</Filter>
     </ClInclude>
+    <ClInclude Include="..\include\opencv_libs.h">
+      <Filter>SL</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="source\SLAABBox.cpp">
@@ -358,9 +358,6 @@
     </ClCompile>
     <ClCompile Include="source\SLGLTexture.cpp">
       <Filter>GL</Filter>
-    </ClCompile>
-    <ClCompile Include="source\SLUniformGrid.cpp">
-      <Filter>Nodes\AABB &amp; Animation</Filter>
     </ClCompile>
     <ClCompile Include="source\SL\SL.cpp">
       <Filter>SL</Filter>
