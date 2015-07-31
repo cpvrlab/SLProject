@@ -16,20 +16,11 @@
 #include <SLGLTexture.h>
 #include <SLScene.h>
 
-#ifdef SL_USE_OPENCV
-#include <opencv2/opencv.hpp>
-#endif
-
 //-----------------------------------------------------------------------------
 //! Default path for texture files used when only filename is passed in load.
 SLstring SLGLTexture::defaultPath = "../_data/images/textures/";
 //! maxAnisotropy=-1 show that GL_EXT_texture_filter_anisotropic is not checked
 SLfloat SLGLTexture::maxAnisotropy = -1.0f;
-//-----------------------------------------------------------------------------
-#ifdef SL_USE_OPENCV
-//! OpenCV capture device pointer
-cv::VideoCapture* SLGLTexture::captureDevice = nullptr;
-#endif
 //-----------------------------------------------------------------------------
 //! default ctor for fonts
 SLGLTexture::SLGLTexture()
@@ -45,7 +36,6 @@ SLGLTexture::SLGLTexture()
     _bumpScale    = 1.0f;
     _resizeToPow2 = false;
     _autoCalcTM3D = false;
-    _doCameraGrab = false;
 }
 //-----------------------------------------------------------------------------
 //! ctor 2D textures with internal image allocation
@@ -71,7 +61,6 @@ SLGLTexture::SLGLTexture(SLstring  filename,
     _bumpScale    = 1.0f;
     _resizeToPow2 = false;
     _autoCalcTM3D = false;
-    _doCameraGrab = false;
    
     // Add pointer to the global resource vectors for deallocation
     SLScene::current->textures().push_back(this);
@@ -102,7 +91,6 @@ SLGLTexture::SLGLTexture(SLVstring files,
     _bumpScale    = 1.0f;
     _resizeToPow2 = false;
     _autoCalcTM3D = true;
-    _doCameraGrab = false;
 
     // Add pointer to the global resource vectors for deallocation
     SLScene::current->textures().push_back(this);
@@ -138,7 +126,6 @@ SLGLTexture::SLGLTexture(SLstring  filenameXPos,
     _bumpScale   = 1.0f;
     _resizeToPow2 = false;
     _autoCalcTM3D = false;
-    _doCameraGrab = false;
 
     SLScene::current->textures().push_back(this);
 }
@@ -163,13 +150,6 @@ void SLGLTexture::clearData()
     _bufP.dispose();
     _bufT.dispose();
     _bufI.dispose();
-
-    #ifdef SL_USE_OPENCV
-    if (captureDevice) 
-    {   delete captureDevice;
-        captureDevice = nullptr;
-    }
-    #endif
 }
 //-----------------------------------------------------------------------------
 //! Loads the texture, converts color depth & applys the mirriring
@@ -187,6 +167,40 @@ void SLGLTexture::load(SLstring filename)
     _images.push_back(new SLImage(filename));
 }
 //-----------------------------------------------------------------------------
+//! Copies the image data from a video camera into the current video image
+void SLGLTexture::copyVideoImage(SLint width, 
+                                 SLint height, 
+                                 SLint glFormat, 
+                                 SLuchar* data, 
+                                 SLbool isTopLeft)
+{
+    if (!_images.size())
+        _images.push_back(new SLImage());
+
+    _images[0]->allocate(width, height, glFormat);
+
+    if (isTopLeft)
+    {
+        // copy lines and flip vertically
+        SLint bpl = _images[0]->bytesPerLine();
+        SLubyte* pSrc = data;
+        SLubyte* pDst = _images[0]->data() + _images[0]->bytesPerImage() - bpl;
+        for (SLint h=0; h<_images[0]->height(); ++h)
+        {   memcpy(pDst, pSrc, bpl);   
+            pSrc += bpl;
+            pDst -= bpl;
+        }
+    } else
+    {   // copy full image
+        memcpy(_images[0]->data(), data, _images[0]->bytesPerImage());
+        if (!_images[0]->data()) 
+        {   cout << "SLGLTexture::copyVideoImage: memcpy failed!" << endl;
+            exit(1);
+        }
+    }
+
+}
+
 /*! 
 Builds an OpenGL texture object with the according OpenGL commands.
 This texture creation must be done only once when a valid OpenGL rendering
@@ -368,21 +382,16 @@ is passed to OpenGL.
 void SLGLTexture::bindActive(SLint texID)
 {
     assert(texID>=0 && texID<32);
-    
-    if (_doCameraGrab)
-    {
-        if (!grabFromCamera(0))
-            SL_WARN_MSG("Image grab failed in SLGLTexture::build");
-    }
    
     // if texture not exists build it
     if (!_texName) build(texID);
    
     if (_texName)
-    {   
-        _stateGL->activeTexture(GL_TEXTURE0 + texID);
+    {   _stateGL->activeTexture(GL_TEXTURE0 + texID);
         _stateGL->bindAndEnableTexture(_target, _texName);
-        if (_doCameraGrab) fullUpdate();
+        SLScene* s = SLScene::current;
+        if (this == s->videoTexture() && s->needsVideoImage()) 
+            fullUpdate();
     }
 
     GET_GL_ERROR;
@@ -469,33 +478,6 @@ void SLGLTexture::drawSprite(SLbool doUpdate)
  
     _bufP.disableAttribArray();
     _bufT.disableAttribArray();
-}
-//-----------------------------------------------------------------------------
-SLbool SLGLTexture::grabFromCamera(SLint videoDeviceNO)
-{
-    #ifdef SL_USE_OPENCV
-    if (!captureDevice)
-    {
-        captureDevice = new cv::VideoCapture(videoDeviceNO);
-        if(!captureDevice->isOpened())
-            return false;
-    }
-
-    if(captureDevice->isOpened())
-    {
-        cv::Mat frame;
-        if (!captureDevice->read(frame)) 
-            return false;
-
-        if (_images.size()==0)
-            _images.push_back(new SLImage());
-
-        _images[0]->setFromCVMat(frame);
-        return true;
-    }
-
-    #endif
-    return false;
 }
 //-----------------------------------------------------------------------------
 /*!

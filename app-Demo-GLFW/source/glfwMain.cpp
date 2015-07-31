@@ -20,10 +20,9 @@
 #include <SLSceneView.h>
 #include <SLEnums.h>
 
-#ifdef SL_USE_OPENCV
-#include <opencv2/opencv.hpp>
-#include <opencv_libs.h>
-#endif
+#define SL_USE_OPENCV
+
+
 
 //-----------------------------------------------------------------------------
 // GLobal application variables
@@ -42,10 +41,52 @@ SLVec2i     touchDelta;             //!< Delta between two fingers in x
 SLint       lastWidth;              //!< Last window width in pixels
 SLint       lastHeight;             //!< Last window height in pixels
 SLint       lastMouseWheelPos;      //!< Last mouse wheel position
-SLfloat     lastMouseDownTime = 0.0f;//!< Last mouse press time
+SLfloat     lastMouseDownTime=0.0f; //!< Last mouse press time
 SLKey       modifiers=KeyNone;      //!< last modifier keys
 SLbool      fullscreen = false;     //!< flag if window is in fullscreen mode
 
+#ifdef SL_USE_OPENCV
+#include <opencv2/opencv.hpp>
+#include <opencv_libs.h>
+cv::VideoCapture* captureDevice=0;  //!< OpenCV video capture device
+#endif
+
+//-----------------------------------------------------------------------------
+SLbool grabImageFromCamera()
+{
+    #ifdef SL_USE_OPENCV
+    if (!captureDevice)
+    {
+        captureDevice = new cv::VideoCapture(0);
+        if(!captureDevice->isOpened())
+            return false;
+    }
+
+    if(captureDevice->isOpened())
+    {
+        cv::Mat frame;
+        if (!captureDevice->read(frame)) 
+            return false;
+
+        // Set the according opengl format
+        SLint glFormat;
+        switch(frame.type())
+        {   case CV_8UC1: glFormat = GL_LUMINANCE; break;
+            case CV_8UC2: glFormat = GL_RG; break;
+            case CV_8UC3: glFormat = GL_RGB; break;
+            case CV_8UC4: glFormat = GL_RGBA; break;
+            default: 
+                SL_EXIT_MSG("OpenCV image format not supported");
+                return true;
+        }
+
+        slCopyVideoImage(frame.cols, frame.rows, glFormat, frame.data, true);
+        return true;
+    }
+
+    #endif
+    return false;
+}
 //-----------------------------------------------------------------------------
 /*! 
 onClose event handler for deallocation of the scene & sceneview. onClose is
@@ -61,7 +102,13 @@ onPaint: Paint event handler that passes the event to the slPaint function.
 */
 SLbool onPaint()
 {
+    // If live video image is requested grab it and copy it
+    if (slNeedsVideoImage())
+        grabImageFromCamera();
+
+    //////////////////////////////////////////////////
     bool viewNeedsRepaint = slUpdateAndPaint(svIndex);
+    //////////////////////////////////////////////////
    
     // Fast copy the back buffer to the front buffer. This is OS dependent.
     glfwSwapBuffers(window);
@@ -506,6 +553,7 @@ int main(int argc, char *argv[])
     glfwDestroyWindow(window);
     glfwTerminate();
     delete cmdLineArgs;
+    delete captureDevice;
     exit(0);
 }
 //-----------------------------------------------------------------------------

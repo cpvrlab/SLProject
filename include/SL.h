@@ -78,7 +78,6 @@ SL_USE_DISCARD_STEREOMODES: The discard stereo modes can be used (SLCamera)
     #define SL_OS_WINDOWS
     #define SL_USE_DISCARD_STEREOMODES
     #define SL_OVR
-    //#define SL_USE_OPENCV
     #ifdef _DEBUG
         //#define SL_MEMLEAKDETECT
         //#define _NO_DEBUG_HEAP 1

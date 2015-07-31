@@ -58,5 +58,7 @@ void    slCommand           (int sceneViewIndex, SLCmd command);
 void    slRotationPYR       (int sceneViewIndex, float pitchRAD, float yawRAD, float rollRAD);
 void    slRotationQUAT      (int sceneViewIndex, float angleRAD, float axisX, float axisY, float axisZ);
 string  slGetWindowTitle    (int sceneViewIndex);
+void    slCopyVideoImage    (int width, int height, int glFormat, SLuchar* data, bool isTopLeft);
+bool    slNeedsVideoImage   ();
 //-----------------------------------------------------------------------------
 #endif // SLINTERFACE_H

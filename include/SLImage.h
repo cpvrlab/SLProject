@@ -13,10 +13,6 @@
 
 #include <stdafx.h>
 
-#ifdef SL_USE_OPENCV
-#include <opencv2/opencv.hpp>
-#endif
-
 //-----------------------------------------------------------------------------
 //! Win32 BITMAPFILEHEADER struct for BMP loading
 #pragma pack(push,2)
@@ -108,11 +104,6 @@ class SLImage : public SLObject
                
                                              SLubyte b=0, 
                                              SLubyte a=0);
-            #ifdef SL_USE_OPENCV
-                            SLImage         (cv::Mat const& src);
-            void            setFromCVMat    (cv::Mat const& src);
-            #endif
-
             // Getters                      
             SLubyte*        data            () {return _data;}
             SLuint          width           () {return _width;}

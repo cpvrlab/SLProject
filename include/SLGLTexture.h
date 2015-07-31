@@ -15,10 +15,6 @@
 #include <SLImage.h>
 #include <SLGLBuffer.h>
 
-#ifdef SL_USE_OPENCV
-#include <opencv2/opencv.hpp>
-#endif
-
 //-----------------------------------------------------------------------------
 // Special constants for anisotropic filtering
 #define SL_ANISOTROPY_MAX (GL_LINEAR_MIPMAP_LINEAR + 1)
@@ -94,41 +90,39 @@ class SLGLTexture : public SLObject
             void        bindActive      (SLint texID=0);
             void        fullUpdate      ();
             void        drawSprite      (SLbool doUpdate = false);
-            SLbool      grabFromCamera  (SLint videoDeviceNO=0);
       
             // Setters
             void        texType         (SLTexType bt)  {_texType = bt;}
             void        bumpScale       (SLfloat bs)    {_bumpScale = bs;}
-            void        doCameraGrab    (SLbool dcg)    {_doCameraGrab = dcg;}
       
             // Getters
             SLenum      target          (){return _target;}
             SLTexType   texType         (){return _texType;}
             SLfloat     bumpScale       (){return _bumpScale;}
             SLCol4f     getTexelf       (SLfloat s, SLfloat t);
-            SLbool      hasAlpha        (){return (_images.size() && _images[0]->format()==GL_RGBA) || _texType==FontMap;}
+            SLbool      hasAlpha        (){return (_images.size() && 
+                                                   _images[0]->format()==GL_RGBA) || 
+                                                   _texType==FontMap;}
             SLint       width           (){return _images[0]->width();}
             SLint       height          (){return _images[0]->height();}
             SLMat4f     tm              (){return _tm;}
             SLbool      autoCalcTM3D    (){return _autoCalcTM3D;}
-            SLbool      doCameraGrab    (){return _doCameraGrab;}
       
             // Misc     
             SLTexType   detectType      (SLstring filename);  
             SLuint      closestPowerOf2 (SLuint num); 
             SLuint      nextPowerOf2    (SLuint num);
             void        build2DMipmaps  (SLint target, SLuint index);
-
-        // Bumpmap methods
+            void        copyVideoImage  (SLint width, SLint height, 
+                                         SLint glFormat, 
+                                         SLuchar* data, 
+                                         SLbool isTopLeft);
+            // Bumpmap methods
             SLVec2f     dsdt            (SLfloat s, SLfloat t); //! Returns the derivation as [s,t]
   
-        // Statics
+    // Statics
     static  SLstring    defaultPath;    //!< Default path for textures
     static  SLfloat     maxAnisotropy;  //!< max. anisotropy available
-
-    #ifdef SL_USE_OPENCV
-    static  cv::VideoCapture* captureDevice;
-    #endif
 
     protected:
             // loading the image files
@@ -147,7 +141,6 @@ class SLGLTexture : public SLObject
             SLbool      _autoCalcTM3D;  //!< flag if texture matrix should be calculated from AABB for 3D mapping     
             SLfloat     _bumpScale;     //!< Bump mapping scale factor
             SLbool      _resizeToPow2;  //!< Flag if image should be resized to n^2
-            SLbool      _doCameraGrab;  //!< Flag if image should be grabbed from opencv camera
             SLGLBuffer  _bufP;          //!< Sprite buffer for vertex positions
             SLGLBuffer  _bufT;          //!< Sprite buffer for vertex texcoords
             SLGLBuffer  _bufI;          //!< Sprite buffer for vertex indexes

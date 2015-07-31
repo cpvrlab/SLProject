@@ -440,3 +440,13 @@ SLbool SLScene::onCommandAllSV(const SLCmd cmd)
     return true;
 }
 //-----------------------------------------------------------------------------
+//! Copies the image data from a video camera into image[0] of the video texture
+void SLScene::copyVideoImage(SLint width, 
+                             SLint height, 
+                             SLint glFormat, 
+                             SLuchar* data, 
+                             SLbool isTopLeft)
+{
+    _videoTexture.copyVideoImage(width, height, glFormat, data, isTopLeft);
+}
+//-----------------------------------------------------------------------------

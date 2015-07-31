@@ -397,3 +397,17 @@ string slGetWindowTitle(int sceneViewIndex)
     return sv->windowTitle();
 }
 //-----------------------------------------------------------------------------
+/*! Global function to copy a new camera image to the SLScene camera image
+*/
+void slCopyVideoImage(int width, int height, int glFormat, SLuchar* data, bool isTopLeft)
+{
+    SLScene::current->copyVideoImage(width, height, glFormat, data, isTopLeft);
+}
+//-----------------------------------------------------------------------------
+/*! Global function returns true if SL wants a live video images
+*/
+bool slNeedsVideoImage()
+{
+    return SLScene::current->needsVideoImage();
+}
+//-----------------------------------------------------------------------------

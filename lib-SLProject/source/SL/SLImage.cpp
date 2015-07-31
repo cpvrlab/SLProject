@@ -17,10 +17,6 @@
 #include <jpeglib.h>          // JPEG lib
 #include <png.h>              // libpng
 
-#ifdef SL_USE_OPENCV
-#include <opencv2/opencv.hpp>
-#endif
-
 //-----------------------------------------------------------------------------
 //! Constructor for empty image of a certain format and size
 SLImage::SLImage(SLint width, SLint height, SLuint format) : SLObject()
@@ -1264,33 +1260,3 @@ SLubyte r, SLubyte g, SLubyte b, SLubyte a)
     }
 }
 //-----------------------------------------------------------------------------
-#ifdef SL_USE_OPENCV
-void SLImage::setFromCVMat(cv::Mat const& src)
-{   
-    // Set the according opengl format
-    SLint format;
-    switch(src.type())
-    {   case CV_8UC1: format = GL_LUMINANCE; break;
-        case CV_8UC2: format = GL_RG; break;
-        case CV_8UC3: format = GL_RGB; break;
-        case CV_8UC4: format = GL_RGBA; break;
-        default: 
-            SL_EXIT_MSG("OpenCV image format not supported");
-            return;
-    }
-    
-    cv::cvtColor(src, src,CV_BGR2RGB);
-
-    allocate(src.cols, src.rows, format);
-
-    // copy lines and flip vertically because OpenCV is top-left
-    SLubyte* pSrc = src.data;
-    SLubyte* pDst = _data + _bytesPerImage - _bytesPerLine;
-    for (SLint h=0; h<_height; ++h)
-    {   memcpy(pDst, pSrc, _bytesPerLine);   
-        pSrc += _bytesPerLine;
-        pDst -= _bytesPerLine;
-    }
-}
-//-----------------------------------------------------------------------------
-#endif

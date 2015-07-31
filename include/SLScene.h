@@ -86,6 +86,8 @@ class SLScene: public SLObject
             SLMesh*         selectedMesh    () {return _selectedMesh;}
             SLbool          stopAnimations  () const {return _stopAnimations;}
             SLGLOculus*     oculus          () {return &_oculus;}   
+            SLbool          needsVideoImage () {return _needsVideoImage;}
+            SLGLTexture*    videoTexture    () {return &_videoTexture;}
             
             // Misc.
    virtual  void            onLoad          (SLSceneView* sv, SLCmd sceneName);
@@ -96,6 +98,10 @@ class SLScene: public SLObject
             void            selectNode      (SLNode* nodeToSelect);
             void            selectNodeMesh  (SLNode* nodeToSelect,
                                              SLMesh* meshToSelect);
+            void            copyVideoImage  (int width, int height, 
+                                             int glFormat, 
+                                             SLuchar* data, 
+                                             bool isTopLeft);
 
      static SLScene*        current;            //!< global static scene pointer
 
@@ -149,6 +155,9 @@ class SLScene: public SLObject
             SLbool          _stopAnimations;    //!< Global flag for stopping all animations
             
             SLGLOculus      _oculus;            //!< Oculus Rift interface
+
+            SLbool          _needsVideoImage;   //!< Flage for updating the video image
+            SLGLTexture     _videoTexture;      //!< Texture for live video image
 };
 //-----------------------------------------------------------------------------
 #endif
