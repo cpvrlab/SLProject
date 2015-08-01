@@ -104,16 +104,17 @@ SLScene::SLScene(SLstring name) : SLObject(name)
     p = new SLGLGenericProgram("StereoOculusDistortionMesh.vert","StereoOculusDistortionMesh.frag");
     _numProgsPreload = (SLint)_programs.size();
    
-    // Generate std. fonts   
+    // font and video texture are not added to the _textures vector
     SLTexFont::generateFonts();
+    _videoTexture.setVideoImage("LiveVideoError.png");
 
     _infoAbout_en =
 "Welcome to the SLProject demo app (v1.2.000). It is developed at the \
-Computer Science Department of the Berne University of Applied Sciences. \
+Computer Science Department of the Bern University of Applied Sciences. \
 The app shows what you can learn in one semester about 3D computer graphics \
 in real time rendering and ray tracing. The framework is developed \
 in C++ with OpenGL ES2 so that it can run also on mobile devices. \
-Ray tracing provides in addition highquality transparencies, reflections and soft shadows. \
+Ray tracing provides in addition high quality transparencies, reflections and soft shadows. \
 Click to close and use the menu to choose different scenes and view settings. \
 For more information please visit: https://github.com/cpvrlab/SLProject";
 
@@ -209,6 +210,9 @@ void SLScene::init()
 
     // load virtual cursor texture
     _texCursor = new SLGLTexture("cursor.tga");
+
+    // load dummy live video texture
+    _needsVideoImage = false;
 }
 //-----------------------------------------------------------------------------
 /*! The scene uninitializing clears the scenegraph (_root3D) and all global
@@ -244,7 +248,7 @@ void SLScene::unInit()
     for (auto m : _materials) delete m;
     _materials.clear();
 
-    // delete meshs 
+    // delete meshes 
     for (auto m : _meshes) delete m;
     _meshes.clear();
    

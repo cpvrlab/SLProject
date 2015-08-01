@@ -34,7 +34,7 @@ The SLScene class holds everything that is common for all scene views such as
 the root pointer (_root3D) to the scene, the background color, an array of
 lights as well as the global resources (_meshes (SLMesh), _materials (SLMaterial), 
 _textures (SLGLTexture) and _shaderProgs (SLGLProgram)).
-All these resources and the scene with all nodes to whitch _root3D pointer points
+All these resources and the scene with all nodes to witch _root3D pointer points
 get deleted in the method unInit. A scene could have multiple scene views. 
 A pointer of each is stored in the vector _sceneViews. 
 The onLoad method can build a of several built in test and demo scenes.
@@ -96,8 +96,7 @@ class SLScene: public SLObject
             bool            onUpdate        ();
             SLbool          onCommandAllSV  (const SLCmd cmd);
             void            selectNode      (SLNode* nodeToSelect);
-            void            selectNodeMesh  (SLNode* nodeToSelect,
-                                             SLMesh* meshToSelect);
+            void            selectNodeMesh  (SLNode* nodeToSelect, SLMesh* meshToSelect);
             void            copyVideoImage  (int width, int height, 
                                              int glFormat, 
                                              SLuchar* data, 
@@ -123,7 +122,7 @@ class SLScene: public SLObject
             SLCol4f         _backColor;         //!< Background color
             SLCol4f         _globalAmbiLight;   //!< global ambient light intensity
             SLint           _currentID;         //!< Identifier of current scene
-            SLbool          _rootInitialized;   //!< Flag if scene is intialized
+            SLbool          _rootInitialized;   //!< Flag if scene is initialized
             SLint           _numProgsPreload;   //!< No. of preloaded shaderProgs
             
             SLText*         _info;              //!< Text node for scene info
@@ -156,7 +155,7 @@ class SLScene: public SLObject
             
             SLGLOculus      _oculus;            //!< Oculus Rift interface
 
-            SLbool          _needsVideoImage;   //!< Flage for updating the video image
+            SLbool          _needsVideoImage;   //!< Flag for updating the video image
             SLGLTexture     _videoTexture;      //!< Texture for live video image
 };
 //-----------------------------------------------------------------------------

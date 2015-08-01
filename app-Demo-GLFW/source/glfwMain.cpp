@@ -20,9 +20,6 @@
 #include <SLSceneView.h>
 #include <SLEnums.h>
 
-#define SL_USE_OPENCV
-
-
 
 //-----------------------------------------------------------------------------
 // GLobal application variables
@@ -45,30 +42,30 @@ SLfloat     lastMouseDownTime=0.0f; //!< Last mouse press time
 SLKey       modifiers=KeyNone;      //!< last modifier keys
 SLbool      fullscreen = false;     //!< flag if window is in fullscreen mode
 
-#ifdef SL_USE_OPENCV
+//#define HAS_OPENCV
+#ifdef HAS_OPENCV
 #include <opencv2/opencv.hpp>
 #include <opencv_libs.h>
 cv::VideoCapture* captureDevice=0;  //!< OpenCV video capture device
 #endif
 
 //-----------------------------------------------------------------------------
-SLbool grabImageFromCamera()
+void grabImageFromCamera()
 {
-    #ifdef SL_USE_OPENCV
+    #ifdef HAS_OPENCV
     if (!captureDevice)
-    {
-        captureDevice = new cv::VideoCapture(0);
+    {   captureDevice = new cv::VideoCapture(0);
         if(!captureDevice->isOpened())
-            return false;
+            return;
+        SL_LOG("Capture devices created.")
     }
 
     if(captureDevice->isOpened())
-    {
-        cv::Mat frame;
+    {   cv::Mat frame;
         if (!captureDevice->read(frame)) 
-            return false;
+            return;
 
-        // Set the according opengl format
+        // Set the according OpenGL format
         SLint glFormat;
         switch(frame.type())
         {   case CV_8UC1: glFormat = GL_LUMINANCE; break;
@@ -77,15 +74,14 @@ SLbool grabImageFromCamera()
             case CV_8UC4: glFormat = GL_RGBA; break;
             default: 
                 SL_EXIT_MSG("OpenCV image format not supported");
-                return true;
+                return;
         }
 
-        slCopyVideoImage(frame.cols, frame.rows, glFormat, frame.data, true);
-        return true;
-    }
+        cvtColor(frame, frame,CV_BGR2RGB);
 
+        slCopyVideoImage(frame.cols, frame.rows, glFormat, frame.data, true);
+    }
     #endif
-    return false;
 }
 //-----------------------------------------------------------------------------
 /*! 
@@ -479,7 +475,7 @@ int main(int argc, char *argv[])
         exit(EXIT_FAILURE);
     }
    
-    // Get the currenct GL context. After this you can call GL   
+    // Get the current GL context. After this you can call GL   
     glfwMakeContextCurrent(window);
 
     // On some systems screen & framebuffer size are different
@@ -552,8 +548,13 @@ int main(int argc, char *argv[])
     slTerminate();
     glfwDestroyWindow(window);
     glfwTerminate();
+
     delete cmdLineArgs;
+
+    #ifdef HAS_OPENCV
     delete captureDevice;
+    #endif
+
     exit(0);
 }
 //-----------------------------------------------------------------------------

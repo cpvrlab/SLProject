@@ -113,6 +113,7 @@ class SLGLTexture : public SLObject
             SLuint      closestPowerOf2 (SLuint num); 
             SLuint      nextPowerOf2    (SLuint num);
             void        build2DMipmaps  (SLint target, SLuint index);
+            void        setVideoImage   (SLstring videoImageFile);
             void        copyVideoImage  (SLint width, SLint height, 
                                          SLint glFormat, 
                                          SLuchar* data, 

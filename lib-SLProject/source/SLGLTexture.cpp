@@ -152,7 +152,7 @@ void SLGLTexture::clearData()
     _bufI.dispose();
 }
 //-----------------------------------------------------------------------------
-//! Loads the texture, converts color depth & applys the mirriring
+//! Loads the texture, converts color depth & applies the mirroring
 void SLGLTexture::load(SLstring filename)
 {
     // Load the file directly
@@ -167,6 +167,13 @@ void SLGLTexture::load(SLstring filename)
     _images.push_back(new SLImage(filename));
 }
 //-----------------------------------------------------------------------------
+void SLGLTexture::setVideoImage(SLstring videoImageFile)
+{
+     load(videoImageFile);
+    _min_filter = GL_LINEAR;
+    _mag_filter = GL_LINEAR;
+}
+//-----------------------------------------------------------------------------
 //! Copies the image data from a video camera into the current video image
 void SLGLTexture::copyVideoImage(SLint width, 
                                  SLint height, 
@@ -174,8 +181,7 @@ void SLGLTexture::copyVideoImage(SLint width,
                                  SLuchar* data, 
                                  SLbool isTopLeft)
 {
-    if (!_images.size())
-        _images.push_back(new SLImage());
+    assert(_images.size());
 
     _images[0]->allocate(width, height, glFormat);
 
@@ -185,7 +191,7 @@ void SLGLTexture::copyVideoImage(SLint width,
         SLint bpl = _images[0]->bytesPerLine();
         SLubyte* pSrc = data;
         SLubyte* pDst = _images[0]->data() + _images[0]->bytesPerImage() - bpl;
-        for (SLint h=0; h<_images[0]->height(); ++h)
+        for (SLuint h=0; h<_images[0]->height(); ++h)
         {   memcpy(pDst, pSrc, bpl);   
             pSrc += bpl;
             pDst -= bpl;
@@ -198,9 +204,8 @@ void SLGLTexture::copyVideoImage(SLint width,
             exit(1);
         }
     }
-
 }
-
+//-----------------------------------------------------------------------------
 /*! 
 Builds an OpenGL texture object with the according OpenGL commands.
 This texture creation must be done only once when a valid OpenGL rendering
@@ -272,7 +277,7 @@ void SLGLTexture::build(SLint texID)
       
     _stateGL->activeTexture(GL_TEXTURE0+texID);
 
-    // create binding and apply texture properities
+    // create binding and apply texture properties
     _stateGL->bindAndEnableTexture(_target, _texName);
    
     // check if anisotropic texture filter extension is available      
@@ -391,7 +396,8 @@ void SLGLTexture::bindActive(SLint texID)
         _stateGL->bindAndEnableTexture(_target, _texName);
         SLScene* s = SLScene::current;
         if (this == s->videoTexture() && s->needsVideoImage()) 
-            fullUpdate();
+        {   fullUpdate();
+        }   
     }
 
     GET_GL_ERROR;
@@ -412,7 +418,6 @@ void SLGLTexture::fullUpdate()
                             (GLvoid*)_images[0]->data());
         } 
     }
-
     GET_GL_ERROR;
 }
 //-----------------------------------------------------------------------------
@@ -483,7 +488,7 @@ void SLGLTexture::drawSprite(SLbool doUpdate)
 /*!
 getTexelf returns a pixel color with its s & t texture coordinates.
 If the OpenGL filtering is set to GL_LINEAR a bilinear interpolated color out
-of four neighbouring pixels is return. Otherwise the nearest pixel is returned.
+of four neighboring pixels is return. Otherwise the nearest pixel is returned.
 */
 SLCol4f SLGLTexture::getTexelf(SLfloat s, SLfloat t)
 {     
@@ -500,7 +505,7 @@ SLCol4f SLGLTexture::getTexelf(SLfloat s, SLfloat t)
 //-----------------------------------------------------------------------------
 /*! 
 dsdt calculates the partial derivation (gray value slope) at s,t for bump
-mapping either from a heightmap or a normalmap
+mapping either from a height map or a normal map
 */
 SLVec2f SLGLTexture::dsdt(SLfloat s, SLfloat t)
 {
@@ -571,7 +576,7 @@ void SLGLTexture::build2DMipmaps(SLint target, SLuint index)
     // working copy of the base mipmap   
     SLImage img2(*_images[index]);
    
-    // create half sized sublevel mipmaps
+    // create half sized sub level mipmaps
     while(img2.width() > 1 || img2.height() > 1 )
     {   level++;
         img2.resize(max(img2.width() >>1,(SLuint)1),

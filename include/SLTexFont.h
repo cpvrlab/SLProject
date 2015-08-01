@@ -42,24 +42,24 @@ file SLTexFont.cpp.
 class SLTexFont : public SLGLTexture
 {  
 public:
-                    SLTexFont        (const SLuchar *bmp, 
-                                      SLint bmpW, SLint bmpH);
-                  ~SLTexFont         (){;}
+                    SLTexFont       (const SLuchar *bmp, 
+                                     SLint bmpW, SLint bmpH);
+                   ~SLTexFont       (){;}
                     
-    void           create            (const SLuchar *bmp, 
+    void            create          (const SLuchar *bmp, 
                                       SLint bmpW, SLint bmpH);
                                         
-    SLVec2f        calcTextSize      (SLstring text, 
-                                      SLfloat maxWidth = 0.0f, 
-                                      SLfloat lineHeightFactor = 1.5f);
-    SLVstring      wrapTextToLines   (SLstring text,
-                                      SLfloat  maxW);
-    void           buildTextBuffers  (SLGLBuffer* bufP,
-                                      SLGLBuffer* bufT,
-                                      SLGLBuffer* bufI,
-                                      SLstring text, 
-                                      SLfloat maxWidth = 0.0f,
-                                      SLfloat lineHeight = 1.5f);
+    SLVec2f         calcTextSize    (SLstring text, 
+                                     SLfloat maxWidth = 0.0f, 
+                                     SLfloat lineHeightFactor = 1.5f);
+    SLVstring       wrapTextToLines (SLstring text,
+                                     SLfloat  maxW);
+    void            buildTextBuffers(SLGLBuffer* bufP,
+                                     SLGLBuffer* bufT,
+                                     SLGLBuffer* bufI,
+                                     SLstring text, 
+                                     SLfloat maxWidth = 0.0f,
+                                     SLfloat lineHeight = 1.5f);
                                           
     //! Single Character info struct w. min. and max. texcoords.
     typedef struct

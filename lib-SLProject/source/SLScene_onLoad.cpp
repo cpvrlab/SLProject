@@ -174,7 +174,7 @@ SLNode* BuildFigureGroup(SLMaterial* mat, SLbool withAnimation)
 //-----------------------------------------------------------------------------
 //! SLScene::onLoad(int sceneName) builds a scene from source code.
 /*! SLScene::onLoad builds a scene from source code.
-The paramter sceneName is the scene to choose and corresponds to enumeration 
+The parameter sceneName is the scene to choose and corresponds to enumeration 
 SLCommand value for the different scenes. The first scene is cmdSceneFigure.
 */
 void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
@@ -562,15 +562,14 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
 
         // Test map material
         SLGLTexture* tex1 = new SLGLTexture("Testmap_0512_C.png");
-        SLMaterial* mat1 = new SLMaterial("mat1", &_videoTexture);
-        _needsVideoImage = true;
+        SLMaterial* mat1 = new SLMaterial("mat1", tex1);
 
         // floor material
         SLGLTexture* tex2 = new SLGLTexture("wood0_0512_C.jpg");
         SLMaterial* mat2 = new SLMaterial("mat2", tex2);
         mat2->specular(SLCol4f::BLACK);
 
-        // Back wall material
+        // Back wall material with live video texture
         SLMaterial* mat3 = new SLMaterial("mat3", &_videoTexture);
         _needsVideoImage = true;
         mat3->specular(SLCol4f::BLACK);
