@@ -42,14 +42,17 @@ SLfloat     lastMouseDownTime=0.0f; //!< Last mouse press time
 SLKey       modifiers=KeyNone;      //!< last modifier keys
 SLbool      fullscreen = false;     //!< flag if window is in fullscreen mode
 
+
 //#define HAS_OPENCV
 #ifdef HAS_OPENCV
 #include <opencv2/opencv.hpp>
 #include <opencv_libs.h>
 cv::VideoCapture* captureDevice=0;  //!< OpenCV video capture device
+#define HAS_LIVEVIDEO
 #endif
 
 //-----------------------------------------------------------------------------
+// Grabs an image from the live video stream with the OpenCV library.
 void grabImageFromCamera()
 {
     #ifdef HAS_OPENCV

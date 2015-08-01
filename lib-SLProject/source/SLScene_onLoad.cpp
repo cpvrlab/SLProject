@@ -569,9 +569,14 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
         SLMaterial* mat2 = new SLMaterial("mat2", tex2);
         mat2->specular(SLCol4f::BLACK);
 
+        #ifdef HAS_LIVEVIDEO
         // Back wall material with live video texture
         SLMaterial* mat3 = new SLMaterial("mat3", &_videoTexture);
         _needsVideoImage = true;
+        #else
+        SLGLTexture* tex3 = new SLGLTexture("bricks1_0512_C.jpg");
+        SLMaterial* mat3 = new SLMaterial("mat3", tex3);
+        #endif
         mat3->specular(SLCol4f::BLACK);
 
         // Left wall material
