@@ -118,7 +118,7 @@ HEADERS += \
 ../include/SLVec4.h \
 ../include/SLVector.h \
 ../include/stdafx.h \
-../include/TriangleBoxIntersect.h \
+../include/TriangleBoxIntersect.h
 
 SOURCES += \
 source/math/SLCurveBezier.cpp \

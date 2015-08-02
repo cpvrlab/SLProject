@@ -25,7 +25,7 @@ typedef std::function<void(const SLuint, const SLuint)> triVoxCallback;
 //! Class for compact uniform grid acceleration structure
 /*! This class implements the data structure proposed by Lagae & Dutre in their
 paper "Compact, Fast and Robust Grids for Ray Tracing". It reduces the memory
-footprint to a quarter of a regular uniform grid implemented in SLUniformGrid.
+footprint to 20% of a regular uniform grid implemented in SLUniformGrid.
 */
 class SLCompactGrid : public SLAccelStruct
 {
@@ -58,7 +58,8 @@ class SLCompactGrid : public SLAccelStruct
                 SLVec3f     _voxelSize;         //!< size of a voxel
                 SLVec3f     _voxelSizeHalf;     //!< half size of a voxel
                 SLVuint     _voxelOffsets;      //!< Offset array (C in the paper)
-                SLVuint     _triangleIndexes;   //!< Triangle index array (L in the paper)
+                SLVushort   _triangleIndexes16; //!< 16 bit triangle index array (L in the paper)
+                SLVuint     _triangleIndexes32; //!< 32 bit triangle index array (L in the paper)
                 SLGLBuffer  _bufP;              //!< Buffer object for vertex positions
 };
 //-----------------------------------------------------------------------------

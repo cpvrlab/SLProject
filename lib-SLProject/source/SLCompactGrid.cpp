@@ -70,7 +70,8 @@ void SLCompactGrid::deleteAll()
     _voxelAvgTria  = 0;
     
     _voxelOffsets.clear();
-    _triangleIndexes.clear();
+    _triangleIndexes16.clear();
+    _triangleIndexes32.clear();
     
     disposeBuffers();
 }
@@ -146,15 +147,23 @@ void SLCompactGrid::build (SLVec3f minV, SLVec3f maxV)
         _voxelOffsets[i] += _voxelOffsets[i - 1];
     }
 
-    _triangleIndexes.resize(_voxelOffsets.back());
-
-    ifTriangleInVoxelDo([&](const SLuint &i, const SLuint &voxIndex) 
-                        {   SLint location = --_voxelOffsets[voxIndex];
-                            _triangleIndexes[location] = i;
-                        });
+    if (_m->I16)
+    {   _triangleIndexes16.resize(_voxelOffsets.back());
+        ifTriangleInVoxelDo([&](const SLuint &i, const SLuint &voxIndex)
+                            {   SLint location = --_voxelOffsets[voxIndex];
+                                _triangleIndexes16[location] = i;
+                            });
+        _triangleIndexes16.shrink_to_fit();
+    } else
+    {   _triangleIndexes32.resize(_voxelOffsets.back());
+        ifTriangleInVoxelDo([&](const SLuint &i, const SLuint &voxIndex)
+                            {   SLint location = --_voxelOffsets[voxIndex];
+                                _triangleIndexes32[location] = i;
+                            });
+        _triangleIndexes32.shrink_to_fit();
+    }
 
     _voxelOffsets.shrink_to_fit();
-    _triangleIndexes.shrink_to_fit();
 }
 //-----------------------------------------------------------------------------
 //! Updates the statistics in the parent node 
@@ -165,7 +174,8 @@ void SLCompactGrid::updateStats (SLNodeStats &stats)
 
     stats.numBytesAccel += sizeof(SLCompactGrid);
     stats.numBytesAccel += SL_sizeOfVector(_voxelOffsets);
-    stats.numBytesAccel += SL_sizeOfVector(_triangleIndexes);
+    stats.numBytesAccel += _m->I16 ? SL_sizeOfVector(_triangleIndexes16):
+                                     SL_sizeOfVector(_triangleIndexes32);
 
     stats.numVoxMaxTria = SL_max(_voxelMaxTria, stats.numVoxMaxTria);
 }
@@ -301,12 +311,21 @@ SLbool SLCompactGrid::intersect (SLRay* ray, SLNode* node)
 			// Now traverse the voxels
 			while (!wasHit)
 			{
-                for (SLuint i = _voxelOffsets[voxID]; i < _voxelOffsets[voxID + 1]; ++i)
-				{   if (_m->hitTriangleOS(ray, node, _triangleIndexes[i] * 3))
-					{   if (ray->length <= tMax && !wasHit)
-							wasHit = true;
-					}
-				}
+                if (_m->I16)
+                {   for (SLuint i = _voxelOffsets[voxID]; i < _voxelOffsets[voxID + 1]; ++i)
+                    {   if (_m->hitTriangleOS(ray, node, _triangleIndexes16[i] * 3))
+                        {   if (ray->length <= tMax && !wasHit)
+                                wasHit = true;
+                        }
+                    }
+                } else
+                {   for (SLuint i = _voxelOffsets[voxID]; i < _voxelOffsets[voxID + 1]; ++i)
+                    {   if (_m->hitTriangleOS(ray, node, _triangleIndexes32[i] * 3))
+                        {   if (ray->length <= tMax && !wasHit)
+                                wasHit = true;
+                        }
+                    }
+                }
 
 				//step Voxel
 				if (tMaxX < tMaxY)
