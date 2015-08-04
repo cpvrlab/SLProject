@@ -301,7 +301,7 @@ void SLSceneView::onInitialize()
     
     SLScene* s = SLScene::current;
     _stateGL = SLGLState::getInstance();
-    _stateGL->onInitialize(s->backColor());
+    _stateGL->onInitialize(s->background().colors()[0]);
     
     _blendNodes.clear();
     _opaqueNodes.clear();
@@ -488,8 +488,12 @@ SLbool SLSceneView::draw3DGL(SLfloat elapsedTimeMS)
     }
 
     // Clear buffers
-    _stateGL->clearColor(s->backColor());
+    _stateGL->clearColor(s->background().colors()[0]);
     _stateGL->clearColorDepthBuffer();
+
+    // render gradient or textured background
+    if (!s->background().isUniform())
+        s->background().render(_scrW, _scrH);
 
     // Change state (only when changed)
     _stateGL->multiSample(_doMultiSampling);

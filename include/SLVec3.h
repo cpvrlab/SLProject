@@ -163,6 +163,7 @@ class SLVec3
             void    gamma(T gammaVal)                   {x= pow(x,1.0/gammaVal);
                                                          y= pow(y,1.0/gammaVal);
                                                          z= pow(z,1.0/gammaVal);}
+
             //! Prints the vector to std out
             void    print       (const SLchar* str=0)   {if (str) SL_LOG("%s",str);
                                                          SL_LOG("% 3.6f, % 3.6f, % 3.6f\n",x, y, z);}

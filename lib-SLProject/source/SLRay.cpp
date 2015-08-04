@@ -70,7 +70,7 @@ SLRay::SLRay()
 /*! 
 SLRay::SLRay constructor for primary rays
 */
-SLRay::SLRay(SLVec3f Origin, SLVec3f Dir, SLfloat X, SLfloat Y)  
+SLRay::SLRay(SLVec3f Origin, SLVec3f Dir, SLfloat X, SLfloat Y, SLCol4f backColor)
 {  
     origin          = Origin;
     setDir(Dir);
@@ -91,6 +91,7 @@ SLRay::SLRay(SLVec3f Origin, SLVec3f Dir, SLfloat X, SLfloat Y)
     contrib         = 1.0f;
     isOutside       = true;
     isInsideVolume  = false;
+    backgroundColor = backColor;
 }
 //-----------------------------------------------------------------------------
 /*! 
@@ -117,6 +118,7 @@ SLRay::SLRay(SLfloat distToLight,
     srcTriangle     = rayFromHitPoint->hitTriangle;
     x               = rayFromHitPoint->x;
     y               = rayFromHitPoint->y;
+    backgroundColor = rayFromHitPoint->backgroundColor;
     contrib         = 0.0f;
     isOutside       = rayFromHitPoint->isOutside;
     shadowRays++;
@@ -159,6 +161,7 @@ void SLRay::reflect(SLRay* reflected)
     reflected->isOutside = isOutside;
     reflected->x = x;
     reflected->y = y;
+    reflected->backgroundColor = backgroundColor;
     depthReached = reflected->depth;
     ++reflectedRays;
 }
@@ -272,6 +275,7 @@ void SLRay::refract(SLRay* refracted)
     refracted->depth = depth + 1;
     refracted->x = x;
     refracted->y = y;
+    refracted->backgroundColor = backgroundColor;
     depthReached = refracted->depth;
 
     #ifdef DEBUG_RAY
@@ -311,7 +315,7 @@ bool SLRay::reflectMC(SLRay* reflected,SLMat3f rotMat)
 
     //ray needs to be reset if already hit a scene node
     if(reflected->hitNode)
-    {  reflected->length = FLT_MAX;
+    {   reflected->length = FLT_MAX;
         reflected->hitNode = 0;
         reflected->hitMesh = 0;
         reflected->hitPoint = SLVec3f::ZERO;

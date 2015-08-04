@@ -41,7 +41,8 @@ class SLRay
                         SLRay       (SLVec3f Origin,
                                      SLVec3f Dir,
                                      SLfloat X,
-                                     SLfloat Y);
+                                     SLfloat Y,
+                                     SLCol4f backColor);
                         
                         //! ctor for shadow rays
                         SLRay       (SLfloat distToLight,
@@ -83,6 +84,7 @@ class SLRay
             SLNode*     srcNode;        //!< Points to the node at ray origin
             SLMesh*     srcMesh;        //!< Points to the mesh at ray origin
             SLint       srcTriangle;    //!< Points to the triangle at ray origin
+            SLCol4f     backgroundColor;//!< Background color at pixel x,y
 
             // Members set after at intersection
             SLfloat     hitU, hitV;     //!< barycentric coords in hit triangle

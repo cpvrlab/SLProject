@@ -63,7 +63,7 @@ class SLRaytracer: public SLGLTexture, public SLEventHandler
             void        sampleAAPixels  (const bool isMainThread);
             
             // additional ray tracer functions
-            void        setPrimaryRay   (SLfloat x, SLfloat y, SLRay* primaryRay); 
+            void        setPrimaryRay   (SLfloat x, SLfloat y, SLRay* primaryRay);
             void        getAAPixels     ();
             SLCol4f     fogBlend        (SLfloat z, SLCol4f color);
             void        printStats      (SLfloat sec);

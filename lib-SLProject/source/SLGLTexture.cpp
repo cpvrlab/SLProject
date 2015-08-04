@@ -461,14 +461,13 @@ void SLGLTexture::drawSprite(SLbool doUpdate)
         _bufT.generate(T, 4, 2);
         _bufI.generate(I, 4, 1, SL_UNSIGNED_SHORT, SL_ELEMENT_ARRAY_BUFFER);
     }
-   
-    SLGLProgram* sp = SLScene::current->programs(TextureOnly);
-   
+
     bindActive(0);              // Enable & build texture
     if (doUpdate) fullUpdate(); // Update the OpenGL texture on each draw
    
     // Draw the character triangles
     SLMat4f mvp(_stateGL->projectionMatrix * _stateGL->modelViewMatrix);
+    SLGLProgram* sp = SLScene::current->programs(TextureOnly);
     sp->useProgram();
     sp->uniformMatrix4fv("u_mvpMatrix", 1, (SLfloat*)&mvp);
     sp->uniform1i("u_texture0", 0);

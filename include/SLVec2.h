@@ -51,7 +51,7 @@ class SLVec2
     inline  SLVec2   operator +  (const SLVec2& v) const {return SLVec2(x+v.x, y+v.y);}
     inline  SLVec2   operator -  (const SLVec2& v) const {return SLVec2(x-v.x, y-v.y);}
     inline  SLVec2   operator -  () const                {return SLVec2(-x, -y);}
-    inline  T        operator *  (const SLVec2& v) const {return x*v.x+y*v.y;};     //dot
+    inline  T        operator *  (const SLVec2& v) const {return x*v.x+y*v.y;}      //dot
     inline  SLVec2   operator *  (const T s) const       {return SLVec2(x*s, y*s);}
     inline  SLVec2   operator /  (const T s) const       {return SLVec2(x/s, y/s);}
     inline  SLVec2   operator &  (const SLVec2& v) const {return SLVec2(x*v.x, y*v.y);}
@@ -76,7 +76,7 @@ class SLVec2
     void     sub         (const SLVec2& a,
                             const SLVec2& b)     {x=a.x-b.x; y=a.y-b.y;}
     void     scale       (const T s)             {x*=s; y*=s;}
-    T        dot         (const SLVec2& v)       {return x*v.x+y*v.y;};
+    T        dot         (const SLVec2& v)       {return x*v.x+y*v.y;}
     T        length      () const                {return ((T)sqrt(x*x+y*y));}
     T        lengthSqr   () const                {return (x*x+y*y); }
     SLVec2&  normalize   ()                      {T L=length(); 
@@ -93,7 +93,20 @@ class SLVec2
     //! Calculates the vector from polar coords r & phi in radians (-pi < phi < pi)
     void     fromPolar   (T r, T phiRAD)         {x = r * cos(phiRAD);
                                                   y = r * sin(phiRAD);}
-   
+
+    //! Calculate the barycentric coordinate uv of the point within a triangle ABC
+    SLVec2 barycentricCoords(SLVec2 A, SLVec2 B, SLVec2 C)
+    {
+        // Formula from: https://en.wikipedia.org/wiki/Barycentric_coordinate_system
+        T xAC = A.x-C.x, xC = x-C.x, xCB = C.x-B.x;
+        T yAC = A.y-C.y, yBC = B.y-C.y, yC = y-C.y, yCA = C.y-A.y;
+
+        T u = (yBC*xC + xCB*yC) / (yBC*xAC + xCB*yAC);
+        T v = (yCA*xC + xAC*yC) / (yBC*xAC + xCB*yAC);
+
+        return SLVec2(u,v);
+    }
+
     //! Calculate the absolute to the vector v
     T        diff        (const SLVec2& v)       {return SL_abs(x-v.x) + 
                                                         SL_abs(y-v.y);}  

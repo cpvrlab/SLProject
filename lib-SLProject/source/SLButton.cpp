@@ -17,10 +17,10 @@
 #include <SLCamera.h>
 
 //-----------------------------------------------------------------------------
-const SLfloat BTN_TXT2BTN_H_FACTOR = 1.0f;   // Button height factor from text hight
-const SLfloat BTN_BORDER_W_MM = 3.0f;        // Horizontal border in mm
-const SLfloat BTN_GAP_W_MM = 0.7f;           // Horizontal gap in mm
-const SLfloat BTN_GAP_H_MM = 0.7f;           // vertical gap in mm   
+const SLfloat BTN_TXT2BTN_H_FACTOR = 1.0f;  // Button height factor from text hight
+const SLfloat BTN_BORDER_W_MM = 3.0f;       // Horizontal border in mm
+const SLfloat BTN_GAP_W_MM = 0.7f;          // Horizontal gap in mm
+const SLfloat BTN_GAP_H_MM = 0.7f;          // vertical gap in mm
 //-----------------------------------------------------------------------------
 SLButton* SLButton::buttonDown = 0;
 SLButton* SLButton::buttonParent = 0;

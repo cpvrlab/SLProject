@@ -12,6 +12,7 @@
 #define SLSCENE_H
 
 #include <stdafx.h>
+#include <SLBackground.h>
 #include <SLMaterial.h>
 #include <SLEventHandler.h>
 #include <SLLight.h>
@@ -51,7 +52,6 @@ class SLScene: public SLObject
             // Setters
             void            root3D          (SLNode* root3D){_root3D = root3D;}
             void            menu2D          (SLButton* menu2D){_menu2D = menu2D;}
-            void            backColor       (SLCol4f backColor){_backColor=backColor;}
             void            globalAmbiLight (SLCol4f gloAmbi){_globalAmbiLight=gloAmbi;}
             void            info            (SLSceneView* sv, SLstring infoText, 
                                              SLCol4f color=SLCol4f::WHITE);
@@ -62,6 +62,7 @@ class SLScene: public SLObject
      inline SLSceneView*    sv              (SLuint index) {return _sceneViews[index];}
      inline SLNode*         root3D          () {return _root3D;}
             SLint           currentID       () const {return _currentID;}
+            SLBackground&   background      () {return _background;}
             SLfloat         timeSec         () {return (SLfloat)_timer.getElapsedTimeInSec();}
             SLfloat         timeMilliSec    () {return (SLfloat)_timer.getElapsedTimeInMilliSec();}
             SLfloat         elapsedTimeSec  () {return _elapsedTimeMS * 0.001f;}
@@ -69,8 +70,6 @@ class SLScene: public SLObject
             SLButton*       menuGL          () {return _menuGL;}
             SLGLTexture*    texCursor       () {return _texCursor;}
             SLCol4f         globalAmbiLight () const {return _globalAmbiLight;}
-            SLCol4f         backColor       () const {return _backColor;}
-            SLCol4f*        backColorV      () {return &_backColor;}
             SLVLight&       lights          () {return _lights;}
             SLVEventHandler& eventHandlers  () {return _eventHandlers;}
             SLVMaterial&    materials       () {return _materials;}
@@ -119,7 +118,7 @@ class SLScene: public SLObject
             SLMesh*         _selectedMesh;      //!< Pointer to the selected mesh
 
             SLTimer         _timer;             //!< high precision timer
-            SLCol4f         _backColor;         //!< Background color
+            SLBackground    _background;        //!< Background colors or texture
             SLCol4f         _globalAmbiLight;   //!< global ambient light intensity
             SLint           _currentID;         //!< Identifier of current scene
             SLbool          _rootInitialized;   //!< Flag if scene is initialized

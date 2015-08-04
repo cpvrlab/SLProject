@@ -225,7 +225,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
         scene->addChild(rectNode);
 
         // Set background color and the root scene node
-        _backColor.set(0.5f,0.5f,0.5f);
+        _background.colors(SLCol4f(0.6f,0.6f,0.6f), SLCol4f(0.3f,0.3f,0.3f));
         _root3D = scene;
 
         // Set active camera
@@ -267,7 +267,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
         scene->addChild(figure);
      
         // Set background color, active camera & the root pointer
-        _backColor.set(SLCol4f(0.1f,0.4f,0.8f));
+        _background.colors(SLCol4f(0.1f,0.4f,0.8f));
         sv->camera(cam1);
         _root3D = scene;
     }
@@ -281,21 +281,17 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
         SLMaterial* matRed = new SLMaterial("Red",   SLCol4f(0.2f,0,0),       SLCol4f(1,1,1), 100, 0.8f, 0);
         SLMaterial* matGre = new SLMaterial("Green", SLCol4f(0,0.2f,0),       SLCol4f(1,1,1), 100, 0.8f, 0);
         SLMaterial* matGra = new SLMaterial("Gray",  SLCol4f(0.3f,0.3f,0.3f), SLCol4f(1,1,1), 100, 0,    0);
-        //matBlu->shaderProg(_shaderProgs[PerPixBlinn]);
-        //matRed->shaderProg(_shaderProgs[PerPixBlinn]);
-        //matGre->shaderProg(_shaderProgs[PerPixBlinn]);
-        //matGra->shaderProg(_shaderProgs[PerPixBlinn]);
 
         SLCamera* cam1 = new SLCamera();
         cam1->name("cam1");
         cam1->clipNear(.1f);
         cam1->clipFar(30);
-        cam1->translation(0,0,10);
+        cam1->translation(0,0,12);
         cam1->lookAt(0, 0, 0);
         cam1->maxSpeed(20);
         cam1->moveAccel(160);
         cam1->brakeAccel(160);
-        cam1->focalDist(10);
+        cam1->focalDist(12);
         cam1->eyeSeparation(cam1->focalDist()/30.0f);
         cam1->setInitialState();
 
@@ -363,7 +359,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
         if (meshDAE) scene->addChild(meshDAE);
         scene->addChild(cam1);
 
-        _backColor.set(0.5f,0.5f,0.5f);
+        _background.colors(SLCol4f(0.6f,0.6f,0.6f), SLCol4f(0.3f,0.3f,0.3f));
         sv->camera(cam1);
         _root3D = scene;
     }
@@ -545,7 +541,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
             scene->addChild(sizeIndicator);
         }
         
-        _backColor.set(0.0f,0.0f,0.0f);
+        _background.colors(SLCol4f(0.0f,0.0f,0.0f));
         scene->addChild(light1);
         scene->addChild(light2);
         scene->addChild(light3);
@@ -710,7 +706,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
         scene->addChild(r);
         scene->addChild(cam1);
 
-        _backColor.set(0.5f,0.5f,0.5f);
+        _background.colors(SLCol4f(0.5f,0.5f,0.5f));
         sv->camera(cam1);
         _root3D = scene;
     }
@@ -777,7 +773,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
         if (largeModel) scene->addChild(largeModel);
         scene->addChild(cam1);
 
-        _backColor.set(0.5f,0.5f,0.5f);
+        _background.colors(SLCol4f(0.5f,0.5f,0.5f));
         sv->camera(cam1);
         _root3D = scene;
         
@@ -875,7 +871,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
 
         scene->addChild(cam1);
 
-        _backColor.set(0.6f,0.6f,1);
+        _background.colors(SLCol4f(0.6f,0.6f,1));
         sv->camera(cam1);
         _root3D = scene;
     }
@@ -983,7 +979,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
         scene->addChild(pyramidNode);
         #endif
         
-        _backColor.set(SLCol4f(0.2f,0.2f,0.2f));
+        _background.colors(SLCol4f(0.2f,0.2f,0.2f));
         sv->camera(cam1);
         _root3D = scene;
     }
@@ -1039,7 +1035,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
         SLint num = size + size + 1;
         SL_LOG("Triangles in scene: %d\n", resolution*resolution*2*num*num*num);
 
-        _backColor.set(0.1f,0.1f,0.1f);
+        _background.colors(SLCol4f(0.1f,0.1f,0.1f));
         sv->camera(cam1);
         _root3D = scene;
     }
@@ -1101,7 +1097,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
         }
 
         // Set backround color, active camera & the root pointer
-        _backColor.set(SLCol4f(0.1f,0.4f,0.8f));
+        _background.colors(SLCol4f(0.1f,0.4f,0.8f));
         sv->camera(cam1);
         _root3D = scene;
     }
@@ -1165,7 +1161,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
         scene->addChild(new SLNode(new SLSphere(1.0f, 20, 20, "Sphere", m1)));
         scene->addChild(new SLNode(new SLBox(1,-1,-1, 2,1,1, "Box", m1)));
 
-        _backColor.set(SLCol4f(0.1f,0.1f,0.1f));
+        _background.colors(SLCol4f(0.1f,0.1f,0.1f));
         sv->camera(cam1);
         _root3D = scene;
     }
@@ -1229,7 +1225,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
         scene->addChild(new SLNode(new SLSphere(1.0f, 20, 20, "Sphere", m1)));
         scene->addChild(new SLNode(new SLBox(1,-1,-1, 2,1,1, "Box", m1)));
 
-        _backColor.set(SLCol4f(0.1f,0.1f,0.1f));
+        _background.colors(SLCol4f(0.1f,0.1f,0.1f));
         sv->camera(cam1);
         _root3D = scene;
     }
@@ -1278,7 +1274,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
         scene->addChild(new SLNode(new SLSphere(1, 32, 32, "Red Sphere", matRed)));
         scene->addChild(cam1);
 
-        _backColor.set(SLCol4f(0.1f,0.4f,0.8f));
+        _background.colors(SLCol4f(0.1f,0.4f,0.8f));
         sv->camera(cam1);
         _root3D = scene;
         sv->waitEvents(false);
@@ -1289,8 +1285,6 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
         name("Water Shader");
         info(sv, "Water Shader with reflection & refraction mapping.");
         cout << "Use H-Key to increment (decrement w. shift) the wave height.\n\n";
-
-        _backColor.set(.5f,.5f,1);
 
         SLCamera* cam1 = new SLCamera;
         cam1->translation(0,3,8);
@@ -1362,7 +1356,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
         scene->addChild(new SLNode(new SLSphere(1, 32, 32, "Red Sphere", matRed)));
         scene->addChild(cam1);
 
-        _backColor.set(SLCol4f(0.1f,0.4f,0.8f));
+        _background.colors(SLCol4f(0.1f,0.4f,0.8f));
         sv->camera(cam1);
         _root3D = scene;
         sv->waitEvents(false);
@@ -1403,7 +1397,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
         scene->addChild(new SLNode(new SLRectangle(SLVec2f(-5,-5),SLVec2f(5,5),1,1,"Rect", m1)));
         scene->addChild(cam1);
 
-        _backColor.set(0.5f,0.5f,0.5f);
+        _background.colors(SLCol4f(0.5f,0.5f,0.5f));
         sv->camera(cam1);
         _root3D = scene;
     }
@@ -1456,7 +1450,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
         scene->addChild(new SLNode(new SLRectangle(SLVec2f(-5,-5),SLVec2f(5,5),1,1,"Rect", m1)));
         scene->addChild(cam1);
 
-        _backColor.set(0.5f,0.5f,0.5f);
+        _background.colors(SLCol4f(0.5f,0.5f,0.5f));
         sv->camera(cam1);
         _root3D = scene;
     }
@@ -1526,7 +1520,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
         scene->addChild(earth);
         scene->addChild(cam1);
 
-        _backColor.set(SLCol4f(0,0,0));
+        _background.colors(SLCol4f(0,0,0));
         sv->camera(cam1);
         _root3D = scene;
     }
@@ -1607,7 +1601,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
         scene->addChild(new SLNode(grid, "grid"));
 
         // Set backround color, active camera & the root pointer
-        _backColor.set(SLCol4f(0.1f,0.4f,0.8f));
+        _background.colors(SLCol4f(0.1f,0.4f,0.8f));
         sv->camera(cam1);
         _root3D = scene;
     }
@@ -1705,7 +1699,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
         scene->addChild(figure);
 
         // Set backround color, active camera & the root pointer
-        _backColor.set(SLCol4f(0.1f,0.4f,0.8f));
+        _background.colors(SLCol4f(0.1f,0.4f,0.8f));
         sv->camera(cam1);
         _root3D = scene;
     }
@@ -1861,7 +1855,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
         }
 
         // Set backround color, active camera & the root pointer
-        _backColor.set(SLCol4f(0.1f,0.4f,0.8f));
+        _background.colors(SLCol4f(0.1f,0.4f,0.8f));
         sv->camera(cam1);
         _root3D = scene;
     }
@@ -1965,7 +1959,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
       
         scene->addChild(balls);
 
-        _backColor.set(SLCol4f(0.0f,0.0f,0.0f));
+        _background.colors(SLCol4f(0.0f,0.0f,0.0f));
         sv->camera(cam1);
         _root3D = scene;
     }
@@ -2014,7 +2008,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
         scene->addChild(rect);
         scene->addChild(cam1);
 
-        _backColor.set(SLCol4f(0.1f,0.4f,0.8f));
+        _background.colors(SLCol4f(0.1f,0.4f,0.8f));
         _root3D = scene;
         sv->camera(cam1);
     }
@@ -2063,7 +2057,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
         scene->addChild(rect);
         scene->addChild(cam1);
 
-        _backColor.set(SLCol4f(0.1f,0.4f,0.8f));
+        _background.colors(SLCol4f(0.1f,0.4f,0.8f));
         sv->camera(cam1);
         _root3D = scene;
     }
@@ -2120,7 +2114,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
         scene->addChild(rect);
         scene->addChild(cam1);
 
-        _backColor.set(SLCol4f(0.1f,0.4f,0.8f));
+        _background.colors(SLCol4f(0.1f,0.4f,0.8f));
         sv->camera(cam1);
         _root3D = scene;
     }
@@ -2196,7 +2190,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
         scene->addChild(light1);
         scene->addChild(cam1);
 
-        _backColor.set(SLCol4f(0.1f, 0.4f, 0.8f));
+        _background.colors(SLCol4f(0.1f, 0.4f, 0.8f));
         sv->camera(cam1);
         _root3D = scene;
     }
@@ -2237,7 +2231,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
         scene->addChild(boxNode2);
 
         // Set background color and the root scene node
-        _backColor.set(0.5f,0.5f,0.5f);
+        _background.colors(SLCol4f(0.5f,0.5f,0.5f));
         _root3D = scene;
 
         // Set active camera

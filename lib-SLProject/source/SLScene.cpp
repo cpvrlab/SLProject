@@ -202,7 +202,7 @@ void SLScene::init()
 {     
     unInit();
    
-    _backColor.set(0.1f,0.4f,0.8f,1.0f);
+    _background.colors(SLCol4f(0.1f,0.4f,0.8f,1.0f));
     _globalAmbiLight.set(0.2f,0.2f,0.2f,0.0f);
     _selectedNode = 0;
 

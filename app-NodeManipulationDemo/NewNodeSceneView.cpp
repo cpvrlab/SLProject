@@ -103,7 +103,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd cmd)
 {
     init();
     
-    _backColor.set(0.8f,0.8f,0.8f);
+    _background.colors(SLCol4f(0.8f,0.8f,0.8f));
 
     SLCamera* cam1 = new SLCamera;
     cam1->translation(2, 3, 5);

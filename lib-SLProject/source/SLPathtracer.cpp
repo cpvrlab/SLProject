@@ -199,7 +199,7 @@ SLCol4f SLPathtracer::trace(SLRay* ray, SLbool em)
     SLCol4f objectColor    = SLCol4f::BLACK;
 
     // get base color of object
-    if (ray->hitMatIsDiffuse())            objectColor = mat->diffuse();
+    if (ray->hitMatIsDiffuse())           objectColor = mat->diffuse();
     else if (ray->hitMatIsReflective())   objectColor = mat->specular();
     else if (ray->hitMatIsTransparent())  objectColor = mat->transmission();
 
