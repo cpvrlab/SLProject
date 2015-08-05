@@ -410,6 +410,7 @@
     <ClInclude Include="..\include\SLAnimTrack.h" />
     <ClInclude Include="..\include\SLAssimpImporter.h" />
     <ClInclude Include="..\include\SLAverage.h" />
+    <ClInclude Include="..\include\SLBackground.h" />
     <ClInclude Include="..\include\SLCompactGrid.h" />
     <ClInclude Include="..\include\SLDisk.h" />
     <ClInclude Include="..\include\SLInputDevice.h" />
@@ -486,6 +487,7 @@
     <ClCompile Include="source\SLAnimManager.cpp" />
     <ClCompile Include="source\SLAnimPlayback.cpp" />
     <ClCompile Include="source\SLAnimTrack.cpp" />
+    <ClCompile Include="source\SLBackground.cpp" />
     <ClCompile Include="source\SLCompactGrid.cpp" />
     <ClCompile Include="source\SLDisk.cpp" />
     <ClCompile Include="source\SLInputDevice.cpp" />

@@ -267,6 +267,9 @@
     <ClInclude Include="..\include\opencv_libs.h">
       <Filter>SL</Filter>
     </ClInclude>
+    <ClInclude Include="..\include\SLBackground.h">
+      <Filter>Scene</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="source\SLAABBox.cpp">
@@ -439,6 +442,9 @@
     </ClCompile>
     <ClCompile Include="source\SLCompactGrid.cpp">
       <Filter>Nodes\AABB &amp; Animation</Filter>
+    </ClCompile>
+    <ClCompile Include="source\SLBackground.cpp">
+      <Filter>Scene</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

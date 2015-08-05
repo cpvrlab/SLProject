@@ -113,7 +113,7 @@ We render the quad as a triangle strip: <br>
 void SLBackground::render(SLint widthPX, SLint heightPX)
 {
     SLGLState* stateGL = SLGLState::getInstance();
-    stateGL->projectionMatrix.ortho(0.0f, widthPX, 0.0f, heightPX, 0.0f, 1.0f);
+    stateGL->projectionMatrix.ortho(0.0f, (SLfloat)widthPX, 0.0f, (SLfloat)heightPX, 0.0f, 1.0f);
     stateGL->modelViewMatrix.identity();
     stateGL->depthTest(false);
     stateGL->multiSample(false);
@@ -241,8 +241,8 @@ SLCol4f SLBackground::colorAtPos(SLfloat x, SLfloat y)
     // First check with barycentric coords if p is in the upper left triangle
     SLVec2f p(x,y);
     SLVec3f bc = p.barycentricCoords(SLVec2f(0,0),
-                                     SLVec2f(_resX,_resY),
-                                     SLVec2f(0,_resY));
+                                     SLVec2f((SLfloat)_resX,(SLfloat)_resY),
+                                     SLVec2f(0,(SLfloat)_resY));
     SLfloat u = bc.x;
     SLfloat v = bc.y;
     SLfloat w = 1 - bc.x - bc.y;

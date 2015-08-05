@@ -286,7 +286,7 @@ void SLRaytracer::renderSlicesMS(const bool isMainThread)
                         SLVec3f lensPos(_EYE + discPos.x*lensRadiusX + discPos.y*lensRadiusY);
                         SLVec3f lensToFP(FP-lensPos);
                         lensToFP.normalize();
-                        SLCol4f backColor = SLScene::current->background().colorAtPos(x,y);
+                        SLCol4f backColor = SLScene::current->background().colorAtPos((SLfloat)x,(SLfloat)y);
                         SLRay primaryRay(lensPos, lensToFP, (SLfloat)x, (SLfloat)y, backColor);
                   
                         ////////////////////////////
