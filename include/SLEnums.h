@@ -62,6 +62,7 @@ enum SLCmd
     cmdSceneMeshLoad,
     cmdSceneVRSizeTest,
     cmdSceneLargeModel,
+    cmdSceneChristoffel,
     cmdSceneRevolver,
     cmdSceneTextureFilter,
     cmdSceneTextureBlend,

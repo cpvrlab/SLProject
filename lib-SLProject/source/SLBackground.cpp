@@ -49,8 +49,8 @@ void SLBackground::colors(SLCol4f uniformColor)
     _colors[2].set(uniformColor);
     _colors[3].set(uniformColor);
     _isUniform = true;
-    _resX = -1; // flag for recreation of the GL buffers
-    _resY = -1;
+    _texture = nullptr;
+    _bufC.dispose();
 }
 //-----------------------------------------------------------------------------
 //! Sets a gradient top-down background color
@@ -61,6 +61,7 @@ void SLBackground::colors(SLCol4f topColor, SLCol4f bottomColor)
     _colors[2].set(topColor);
     _colors[3].set(bottomColor);
     _isUniform = false;
+    _texture = nullptr;
     _bufC.dispose();
 }
 //-----------------------------------------------------------------------------
@@ -73,6 +74,7 @@ void SLBackground::colors(SLCol4f topLeftColor,  SLCol4f bottomLeftColor,
     _colors[2].set(topRightColor);
     _colors[3].set(bottomRightColor);
     _isUniform = false;
+    _texture = nullptr;
     _bufC.dispose();
 }
 //-----------------------------------------------------------------------------

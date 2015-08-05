@@ -1408,6 +1408,7 @@ SLbool SLSceneView::onCommand(SLCmd cmd)
     case cmdSceneFigure:
     case cmdSceneLargeModel:
     case cmdSceneMeshLoad:
+    case cmdSceneChristoffel:
     case cmdSceneRevolver:
     case cmdSceneTextureFilter:
     case cmdSceneFrustumCull1:
@@ -1646,7 +1647,8 @@ void SLSceneView::build2DMenus()
        SLFileSystem::fileExists(large3))
         mn3->addChild(new SLButton(this, "Large Model", f, cmdSceneLargeModel, true, curS==cmdSceneLargeModel, mn2));
     mn3->addChild(new SLButton(this, "Figure", f, cmdSceneFigure, true, curS==cmdSceneFigure, mn2));
-    mn3->addChild(new SLButton(this, "Mesh Loader", f, cmdSceneMeshLoad, true, curS==cmdSceneMeshLoad, mn2));
+    mn3->addChild(new SLButton(this, "Mesh Loader", f, cmdSceneMeshLoad, true, curS == cmdSceneMeshLoad, mn2));
+    mn3->addChild(new SLButton(this, "Christoffel Tower", f, cmdSceneChristoffel, true, curS == cmdSceneChristoffel, mn2));
     mn3->addChild(new SLButton(this, "Texture Blending", f, cmdSceneTextureBlend, true, curS==cmdSceneTextureBlend, mn2));
     mn3->addChild(new SLButton(this, "Texture Filters and 3D texture", f, cmdSceneTextureFilter, true, curS==cmdSceneTextureFilter, mn2));
     mn3->addChild(new SLButton(this, "Frustum Culling 1", f, cmdSceneFrustumCull1, true, curS==cmdSceneFrustumCull1, mn2));

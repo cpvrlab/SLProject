@@ -42,7 +42,7 @@
 
 
 /////////////////////////////////////////////////////////
-// Preprocessor constant defintions used in the SLProject
+// Preprocessor constant definitions used in the SLProject
 /////////////////////////////////////////////////////////
 
 //-----------------------------------------------------------------------------
@@ -50,12 +50,12 @@
 SL_OS_MACOSX   :Apple Mac OSX
 SL_OS_MACIOS   :Apple iOS
 SL_OS_WINDOWS  :Microsoft desktop Windows XP, 7, 8, ...
-SL_OS_ANDROID  :Google Android
-SL_OS_LINUX    :Linux destop OS
+SL_OS_ANDROID  :Goggle Android
+SL_OS_LINUX    :Linux desktop OS
 
 With the OS definition the following constants are defined:
 SL_GLES2: Supports only OpenGL ES2
-SL_MEMLEAKDETECT: The memoryleak detector NVWA is used
+SL_MEMLEAKDETECT: The memory leak detector NVWA is used
 SL_OVR: Support for Oculus Rift SDK
 SL_USE_DISCARD_STEREOMODES: The discard stereo modes can be used (SLCamera)
 */

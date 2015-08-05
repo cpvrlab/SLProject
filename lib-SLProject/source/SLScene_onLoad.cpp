@@ -225,7 +225,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
         scene->addChild(rectNode);
 
         // Set background color and the root scene node
-        _background.colors(SLCol4f(0.6f,0.6f,0.6f), SLCol4f(0.3f,0.3f,0.3f));
+        _background.colors(SLCol4f(0.7f,0.7f,0.7f), SLCol4f(0.2f,0.2f,0.2f));
         _root3D = scene;
 
         // Set active camera
@@ -387,7 +387,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
         floor->rotate(-90, 1,0,0);
         scene->addChild(floor);
 
-        // scene skybox
+        // scene sky box
         // TODO...
 
         // table
@@ -565,14 +565,9 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
         SLMaterial* mat2 = new SLMaterial("mat2", tex2);
         mat2->specular(SLCol4f::BLACK);
 
-        #ifdef HAS_LIVEVIDEO
         // Back wall material with live video texture
         SLMaterial* mat3 = new SLMaterial("mat3", &_videoTexture);
         _needsVideoImage = true;
-        #else
-        SLGLTexture* tex3 = new SLGLTexture("bricks1_0512_C.jpg");
-        SLMaterial* mat3 = new SLMaterial("mat3", tex3);
-        #endif
         mat3->specular(SLCol4f::BLACK);
 
         // Left wall material
@@ -622,7 +617,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
         revG.push_back(SLVec3f(0.25f, 0.60f));
         revG.push_back(SLVec3f(0.20f, 0.70f));
         revG.push_back(SLVec3f(0.30f, 3.00f));
-        revG.push_back(SLVec3f(0.30f, 3.00f)); // kerbe
+        revG.push_back(SLVec3f(0.30f, 3.00f)); // crack
         revG.push_back(SLVec3f(0.20f, 3.10f));
         revG.push_back(SLVec3f(0.20f, 3.10f));
         revG.push_back(SLVec3f(1.20f, 3.90f)); // outer cup
@@ -637,7 +632,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
         SLNode* glass = new SLNode(new SLRevolver(revG, SLVec3f(0,1,0), 36, true, false, "GlassRev", mat5));
         glass->translate(0.0f,-3.5f, 0.0f, TS_Object);
 
-        // wine 2D polyline definition for revolution with twosided material
+        // wine 2D polyline definition for revolution with two sided material
         SLVVec3f revW;
         revW.push_back(SLVec3f(0.00f, 3.82f));
         revW.push_back(SLVec3f(0.20f, 3.80f));
@@ -706,7 +701,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
         scene->addChild(r);
         scene->addChild(cam1);
 
-        _background.colors(SLCol4f(0.5f,0.5f,0.5f));
+        _background.colors(SLCol4f(0.7f, 0.7f, 0.7f), SLCol4f(0.2f, 0.2f, 0.2f));
         sv->camera(cam1);
         _root3D = scene;
     }
@@ -777,6 +772,42 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
         sv->camera(cam1);
         _root3D = scene;
         
+    }
+    else
+    if (sceneName == cmdSceneChristoffel) //...................................
+    {
+        name("Christoffel Tower");
+        info(sv, "Augmented Reality Christoffel Tower");
+        
+        SLCamera* cam1 = new SLCamera();
+        cam1->name("cam1");
+        cam1->translation(0,2,60);
+        cam1->lookAt(15,15,0);
+        cam1->clipNear(0.1f);
+        cam1->clipFar(500.0f);
+        cam1->setInitialState();
+        cam1->camAnim(walkingYUp);
+
+        SLLightSphere* light1 = new SLLightSphere(120,120,120, 1);
+        light1->ambient(SLCol4f(1,1,1));
+        light1->diffuse(SLCol4f(1,1,1));
+        light1->specular(SLCol4f(1,1,1));
+        light1->attenuation(1,0,0);
+
+        SLAssimpImporter importer;
+        SLNode* tower = importer.load("OBJ/Christoffelturm/christoffelturm.obj");
+        tower->rotate(90, -1,0,0);
+
+        SLNode* scene = new SLNode("Scene");
+        scene->addChild(light1);
+        if (tower) scene->addChild(tower);
+        scene->addChild(cam1);
+
+        _background.texture(&_videoTexture, true);
+        _needsVideoImage = true;
+
+        sv->camera(cam1);
+        _root3D = scene;
     }
     else
     if (sceneName == cmdSceneTextureBlend) //...................................

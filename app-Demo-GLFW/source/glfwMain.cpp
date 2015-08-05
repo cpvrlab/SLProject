@@ -48,7 +48,6 @@ SLbool      fullscreen = false;     //!< flag if window is in fullscreen mode
 #include <opencv2/opencv.hpp>
 #include <opencv_libs.h>
 cv::VideoCapture* captureDevice=0;  //!< OpenCV video capture device
-#define HAS_LIVEVIDEO
 #endif
 
 //-----------------------------------------------------------------------------
