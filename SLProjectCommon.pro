@@ -12,7 +12,7 @@ CONFIG += warn_off
 CONFIG -= qml_debug
 
 CONFIG(qt) {
-   QT += core gui widgets opengl
+   QT += core gui widgets opengl multimedia
    DEFINES += SL_GUI_QT
 }
 

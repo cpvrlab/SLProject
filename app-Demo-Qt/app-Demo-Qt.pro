@@ -44,8 +44,10 @@ INCLUDEPATH += \
     include
 
 HEADERS += \
-   include/qtGLWidget.h
+   include/qtGLWidget.h \
+    include/qtFrameGrabber.h
 
 SOURCES += \
    source/qtGLWidget.cpp \
-   source/qtMain.cpp
+   source/qtMain.cpp \
+    source/qtFrameGrabber.cpp
