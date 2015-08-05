@@ -10,7 +10,7 @@ before_install:
  - if [ "$CXX" = "g++" ]; then sudo apt-get install -qq g++-4.8; fi
  # additional headerfiles
  - sudo apt-get install libXxf86vm-dev libXi-dev libudev-dev libXcursor-dev
- - sudo apt-get install -f qtbase5-dev qt5-default qttools5-dev-tools libqt5opengl5-dev libqt5multimedia5
+ - sudo apt-get install -f qtbase5-dev qt5-default qttools5-dev-tools libqt5opengl5-dev qtmultimedia5-dev libqt5multimediawidgets5 libqt5multimedia5-plugins libqt5multimedia5 
 
 script:
  - qmake -r QMAKE_CXX=g++-4.8 QMAKE_CC=gcc-4.8
