@@ -2,19 +2,29 @@
 #include <QCameraInfo>
 #include <SLInterface.h>
 
+Q_DECLARE_METATYPE(QCameraInfo)
+
 //-----------------------------------------------------------------------------
 qtFrameGrabber::qtFrameGrabber(QObject *parent) : QAbstractVideoSurface(parent)
 {
     lastFrameIsConsumed = true;
-    _isAvailable = true;
+    _isAvailable = false;
     _camera = 0;
 
     try
-    {
-        _isAvailable = QCameraInfo::availableCameras().count() > 0;
+    {   
+        QCameraInfo defaultCam = QCameraInfo::defaultCamera();
+        _isAvailable = !defaultCam.isNull(); //QCameraInfo::availableCameras().count() > 0;
         if (_isAvailable)
         {   
             _camera = new QCamera(QCameraInfo::defaultCamera());
+
+            connect(_camera, SIGNAL(stateChanged(QCamera::State)), 
+                    this, SLOT(updateCameraState(QCamera::State)));
+            connect(_camera, SIGNAL(error(QCamera::Error)), 
+                    this, SLOT(displayCameraError()));
+            connect(_camera, SIGNAL(lockStatusChanged(QCamera::LockStatus, QCamera::LockChangeReason)),
+                    this, SLOT(updateLockStatus(QCamera::LockStatus, QCamera::LockChangeReason)));
             _camera->setViewfinder(this);
         }
     }
@@ -22,7 +32,6 @@ qtFrameGrabber::qtFrameGrabber(QObject *parent) : QAbstractVideoSurface(parent)
     {   cout << "qtFrameGrabber: Camera creation failed." << endl;
         _camera = 0;
     }
-
 }
 //-----------------------------------------------------------------------------
 qtFrameGrabber::~qtFrameGrabber()
@@ -87,23 +96,18 @@ void qtFrameGrabber::start()
 void qtFrameGrabber::stop()
 {
     if (!_camera) return;
-QCamera::State currentState = _camera->state();
+    QCamera::State currentState = _camera->state();
     if (currentState == QCamera::ActiveState)
         _camera->stop();
 }
 //-----------------------------------------------------------------------------
 bool qtFrameGrabber::present(const QVideoFrame &frame)
 {
-    if (_camera && slNeedsVideoImage() && frame.isValid() && lastFrameIsConsumed)
+    bool frameIsValid = frame.isValid();
+    if (_camera && slNeedsVideoImage() && frameIsValid && lastFrameIsConsumed)
     {
         QVideoFrame cloneFrame(frame);
         cloneFrame.map(QAbstractVideoBuffer::ReadOnly);
-
-//        _lastFrame = QImage(cloneFrame.bits(),
-//                            cloneFrame.width(),
-//                            cloneFrame.height(),
-//                            QVideoFrame::imageFormatFromPixelFormat(cloneFrame.pixelFormat()));
-//        emit frameAvailable(image);
 
         // Set the according OpenGL format
         SLint glFormat;
@@ -114,12 +118,16 @@ bool qtFrameGrabber::present(const QVideoFrame &frame)
             case QVideoFrame::Format_ARGB32: glFormat = GL_RGBA; break;
             case QVideoFrame::Format_BGRA32: glFormat = GL_BGRA; break;
             default:
-                SL_EXIT_MSG("qtCameraFrameGrabber::present: Qt image format not supported");
+                SL_EXIT_MSG("qtFrameGrabber::present: Qt image format not supported");
                 cloneFrame.unmap();
                 return false;
         }
 
-        slCopyVideoImage(cloneFrame.width(), cloneFrame.height(), glFormat, cloneFrame.bits(), true);
+        slCopyVideoImage(cloneFrame.width(), 
+                         cloneFrame.height(), 
+                         glFormat, 
+                         cloneFrame.bits(), 
+                         true);
 
         cloneFrame.unmap();
 
@@ -127,5 +135,38 @@ bool qtFrameGrabber::present(const QVideoFrame &frame)
         return true;
     }
     return false;
+}
+//-----------------------------------------------------------------------------
+void qtFrameGrabber::updateCameraState(QCamera::State state)
+{
+    switch (state) 
+    {
+        case QCamera::ActiveState:   
+            cout << "QCamera::ActiveState" << endl; break;
+        case QCamera::UnloadedState:
+            cout << "QCamera::UnloadedState" << endl; break;
+        case QCamera::LoadedState:
+            cout << "QCamera::LoadedState" << endl; break;
+    }
+}
+//-----------------------------------------------------------------------------
+void qtFrameGrabber::displayCameraError()
+{
+    cout << _camera->errorString().toStdString() << endl;
+}
+//-----------------------------------------------------------------------------
+void qtFrameGrabber::updateLockStatus(QCamera::LockStatus status, QCamera::LockChangeReason reason)
+{
+    switch (status) 
+    {
+    case QCamera::Searching:
+        cout << "QCamera::Searching" << endl;
+        break;
+    case QCamera::Locked:
+        cout << "QCamera::Locked" << endl;
+        break;
+    case QCamera::Unlocked:
+        cout << "QCamera::Unlocked" << endl;
+    }
 }
 //-----------------------------------------------------------------------------

@@ -10,9 +10,9 @@
 //-----------------------------------------------------------------------------
 class qtFrameGrabber : public QAbstractVideoSurface
 {
-Q_OBJECT
-public:
-    explicit        qtFrameGrabber(QObject *parent = 0);
+    Q_OBJECT
+    public:
+        explicit    qtFrameGrabber(QObject *parent = 0);
                    ~qtFrameGrabber();
 
         QList<QVideoFrame::PixelFormat> 
@@ -25,7 +25,11 @@ public:
 
         std::atomic<bool> lastFrameIsConsumed;
         bool        isAvailable() {return _isAvailable;}
-
+    
+    private slots:
+        void        updateCameraState(QCamera::State);
+        void        displayCameraError();
+        void        updateLockStatus(QCamera::LockStatus, QCamera::LockChangeReason);
 private:
         QCamera*    _camera;
         bool        _isAvailable;
