@@ -264,9 +264,6 @@
     <ClInclude Include="..\include\SLCompactGrid.h">
       <Filter>Nodes\AABB &amp; Animation</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\opencv_libs.h">
-      <Filter>SL</Filter>
-    </ClInclude>
     <ClInclude Include="..\include\SLBackground.h">
       <Filter>Scene</Filter>
     </ClInclude>

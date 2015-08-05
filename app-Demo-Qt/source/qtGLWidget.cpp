@@ -158,8 +158,8 @@ void qtGLWidget::paintGL()
         QApplication::quit();
     else
     {
-        if (slNeedsVideoImage())
-            _frameGrabber.start();
+        if (_frameGrabber.isAvailable() && slNeedsVideoImage())
+             _frameGrabber.start();
         else _frameGrabber.stop();
 
         makeCurrent();

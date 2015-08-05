@@ -1,37 +1,35 @@
-#ifndef QTCAMERAFRAMEGRABBER_H
-#define QTCAMERAFRAMEGRABBER_H
+#ifndef QTFRAMEGRABBER_H
+#define QTFRAMEGRABBER_H
 
-// Qt includes
 #include <QtMultiMedia/QAbstractVideoSurface>
 #include <QCamera>
-#include <QImage>
 #include <QList>
+
+#include <atomic>
 
 //-----------------------------------------------------------------------------
 class qtFrameGrabber : public QAbstractVideoSurface
 {
 Q_OBJECT
 public:
-    explicit qtFrameGrabber(QObject *parent = 0);
+    explicit        qtFrameGrabber(QObject *parent = 0);
+                   ~qtFrameGrabber();
 
-    QList<QVideoFrame::PixelFormat> supportedPixelFormats(QAbstractVideoBuffer::HandleType handleType) const;
+        QList<QVideoFrame::PixelFormat> 
+                    supportedPixelFormats(QAbstractVideoBuffer::HandleType handleType) const;
 
-    bool    present(const QVideoFrame &frame);
+        bool        present(const QVideoFrame &frame);
 
-    void    stop();
-    void    start();
+        void        stop();
+        void        start();
 
-    std::atomic<bool> lastFrameIsConsumed;
-
-signals:
-    void frameAvailable(QImage frame);
-
-public slots:
+        std::atomic<bool> lastFrameIsConsumed;
+        bool        isAvailable() {return _isAvailable;}
 
 private:
-        QCamera     _camera;
-        QImage      _lastFrame;
+        QCamera*    _camera;
+        bool        _isAvailable;
 };
 //-----------------------------------------------------------------------------
-#endif // QTCAMERAFRAMEGRABBER_H
+#endif // QTFRAMEGRABBER_H
 

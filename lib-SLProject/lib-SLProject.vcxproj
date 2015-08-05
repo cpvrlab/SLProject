@@ -401,7 +401,6 @@
     </Lib>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="..\include\opencv_libs.h" />
     <ClInclude Include="..\include\SL.h" />
     <ClInclude Include="..\include\SLAccelStruct.h" />
     <ClInclude Include="..\include\SLAnimation.h" />
