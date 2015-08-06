@@ -204,6 +204,7 @@ void SLGLTexture::copyVideoImage(SLint width,
             exit(1);
         }
     }
+    SL_LOG("c");
 }
 //-----------------------------------------------------------------------------
 /*! 
@@ -416,6 +417,7 @@ void SLGLTexture::fullUpdate()
                             _images[0]->format(),
                             GL_UNSIGNED_BYTE, 
                             (GLvoid*)_images[0]->data());
+            SL_LOG("u");
         } 
     }
     GET_GL_ERROR;
