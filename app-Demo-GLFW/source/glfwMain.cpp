@@ -43,7 +43,6 @@ SLKey       modifiers=KeyNone;      //!< last modifier keys
 SLbool      fullscreen = false;     //!< flag if window is in fullscreen mode
 
 
-//#define HAS_OPENCV
 #ifdef HAS_OPENCV
 #include <opencv2/opencv.hpp>
 #include <opencv_libs.h>
