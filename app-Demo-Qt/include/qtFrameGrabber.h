@@ -3,8 +3,7 @@
 
 #include <QtMultiMedia/QAbstractVideoSurface>
 #include <QCamera>
-#include <QList>
-
+#include <QImage>
 #include <atomic>
 
 //-----------------------------------------------------------------------------
@@ -23,8 +22,9 @@ class qtFrameGrabber : public QAbstractVideoSurface
         void        stop();
         void        start();
 
-        std::atomic<bool> lastFrameIsConsumed;
+        std::atomic<bool> readyToCopy;
         bool        isAvailable() {return _isAvailable;}
+        void        copyToSLIfReady();
     
     private slots:
         void        updateCameraState(QCamera::State);
@@ -32,7 +32,9 @@ class qtFrameGrabber : public QAbstractVideoSurface
         void        updateLockStatus(QCamera::LockStatus, QCamera::LockChangeReason);
 private:
         QCamera*    _camera;
+        QImage*     _lastImage;
         bool        _isAvailable;
+        int         _glFormat;
 };
 //-----------------------------------------------------------------------------
 #endif // QTFRAMEGRABBER_H

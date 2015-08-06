@@ -70,7 +70,6 @@ void grabImageFromCamera()
         SLint glFormat;
         switch(frame.type())
         {   case CV_8UC1: glFormat = GL_LUMINANCE; break;
-            case CV_8UC2: glFormat = GL_RG; break;
             case CV_8UC3: glFormat = GL_RGB; break;
             case CV_8UC4: glFormat = GL_RGBA; break;
             default: 

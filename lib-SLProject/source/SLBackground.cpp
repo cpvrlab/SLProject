@@ -153,8 +153,6 @@ void SLBackground::render(SLint widthPX, SLint heightPX)
         }
 
         _texture->bindActive(0);    // Enable & build texture
-        if (_updateTex)
-            _texture->fullUpdate(); // Update the OpenGL texture on each draw
 
         // Setup texture only shader
         SLMat4f mvp(stateGL->projectionMatrix * stateGL->modelViewMatrix);

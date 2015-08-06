@@ -107,6 +107,7 @@ class SLGLTexture : public SLObject
             SLint       height          (){return _images[0]->height();}
             SLMat4f     tm              (){return _tm;}
             SLbool      autoCalcTM3D    (){return _autoCalcTM3D;}
+            SLbool      needsUpdate     (){return _needsUpdate;}
       
             // Misc     
             SLTexType   detectType      (SLstring filename);  
@@ -129,22 +130,23 @@ class SLGLTexture : public SLObject
             // loading the image files
             void        load            (SLstring filename);
                                
-            SLGLState*  _stateGL;       //!< Pointer to global SLGLState instance
-            SLVImage    _images;        //!< vector of SLImage pointers
-            SLuint      _texName;       //!< OpenGL texture "name" (= ID)
-            SLTexType   _texType;       //!< [unknown, ColorMap, NormalMap, HeightMap, GlossMap]
-            SLint       _min_filter;    //!< Minification filter
-            SLint       _mag_filter;    //!< Magnification filter
-            SLint       _wrap_s;        //!< Wrapping in s direction
-            SLint       _wrap_t;        //!< Wrapping in t direction
-            SLenum      _target;        //!< texture target
-            SLMat4f     _tm;            //!< texture matrix 
-            SLbool      _autoCalcTM3D;  //!< flag if texture matrix should be calculated from AABB for 3D mapping     
-            SLfloat     _bumpScale;     //!< Bump mapping scale factor
-            SLbool      _resizeToPow2;  //!< Flag if image should be resized to n^2
-            SLGLBuffer  _bufP;          //!< Sprite buffer for vertex positions
-            SLGLBuffer  _bufT;          //!< Sprite buffer for vertex texcoords
-            SLGLBuffer  _bufI;          //!< Sprite buffer for vertex indexes
+            SLGLState*      _stateGL;       //!< Pointer to global SLGLState instance
+            SLVImage        _images;        //!< vector of SLImage pointers
+            SLuint          _texName;       //!< OpenGL texture "name" (= ID)
+            SLTexType       _texType;       //!< [unknown, ColorMap, NormalMap, HeightMap, GlossMap]
+            SLint           _min_filter;    //!< Minification filter
+            SLint           _mag_filter;    //!< Magnification filter
+            SLint           _wrap_s;        //!< Wrapping in s direction
+            SLint           _wrap_t;        //!< Wrapping in t direction
+            SLenum          _target;        //!< texture target
+            SLMat4f         _tm;            //!< texture matrix
+            SLbool          _autoCalcTM3D;  //!< flag if texture matrix should be calculated from AABB for 3D mapping
+            SLfloat         _bumpScale;     //!< Bump mapping scale factor
+            SLbool          _resizeToPow2;  //!< Flag if image should be resized to n^2
+            SLGLBuffer      _bufP;          //!< Sprite buffer for vertex positions
+            SLGLBuffer      _bufT;          //!< Sprite buffer for vertex texcoords
+            SLGLBuffer      _bufI;          //!< Sprite buffer for vertex indexes
+            atomic<bool>    _needsUpdate;   //!< Flag if image needs an update
 };
 //-----------------------------------------------------------------------------
 //! STL vector of SLGLTexture pointers

@@ -16,7 +16,6 @@
 #include <SL.h>
 #include <SLVec2.h>
 #include <QGLWidget>
-#include "qtFrameGrabber.h"
 
 class SLSceneView;
 
@@ -68,7 +67,6 @@ class qtGLWidget : public QGLWidget
             SLVec2i         _touchLast;    //!< last touch position in pixels
             SLVec2i         _touch2;       //!< Last finger touch 2 position in pixels
             SLVec2i         _touchDelta;   //!< Delta between two fingers in x
-            qtFrameGrabber  _frameGrabber; //!< Qt Camera frame grabber
 };
 //-----------------------------------------------------------------------------
 #endif //QTGLWIDGET_H

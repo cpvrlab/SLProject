@@ -158,9 +158,9 @@ void qtGLWidget::paintGL()
         QApplication::quit();
     else
     {
-        if (_frameGrabber.isAvailable() && slNeedsVideoImage())
-             _frameGrabber.start();
-        else _frameGrabber.stop();
+        //if (_frameGrabber.isAvailable() && slNeedsVideoImage())
+        //     _frameGrabber.copyToSLIfReady();
+        //else _frameGrabber.stop();
 
         makeCurrent();
 
@@ -174,9 +174,6 @@ void qtGLWidget::paintGL()
         // Simply call update for constant repaint. Never call paintGL directly
         if (viewNeedsRepaint)
             update();
-
-        if (slNeedsVideoImage())
-            _frameGrabber.lastFrameIsConsumed = true;
     }
 }
 //-----------------------------------------------------------------------------

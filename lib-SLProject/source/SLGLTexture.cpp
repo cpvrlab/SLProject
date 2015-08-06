@@ -61,6 +61,7 @@ SLGLTexture::SLGLTexture(SLstring  filename,
     _bumpScale    = 1.0f;
     _resizeToPow2 = false;
     _autoCalcTM3D = false;
+    _needsUpdate  = false;
    
     // Add pointer to the global resource vectors for deallocation
     SLScene::current->textures().push_back(this);
@@ -91,6 +92,7 @@ SLGLTexture::SLGLTexture(SLVstring files,
     _bumpScale    = 1.0f;
     _resizeToPow2 = false;
     _autoCalcTM3D = true;
+    _needsUpdate  = false;
 
     // Add pointer to the global resource vectors for deallocation
     SLScene::current->textures().push_back(this);
@@ -126,6 +128,7 @@ SLGLTexture::SLGLTexture(SLstring  filenameXPos,
     _bumpScale   = 1.0f;
     _resizeToPow2 = false;
     _autoCalcTM3D = false;
+    _needsUpdate  = false;
 
     SLScene::current->textures().push_back(this);
 }
@@ -172,6 +175,7 @@ void SLGLTexture::setVideoImage(SLstring videoImageFile)
      load(videoImageFile);
     _min_filter = GL_LINEAR;
     _mag_filter = GL_LINEAR;
+    _needsUpdate = false;
 }
 //-----------------------------------------------------------------------------
 //! Copies the image data from a video camera into the current video image
@@ -184,8 +188,9 @@ void SLGLTexture::copyVideoImage(SLint width,
     assert(_images.size());
 
     _images[0]->allocate(width, height, glFormat);
+    _images[0]->name("Video Image");
 
-    if (isTopLeft)
+    if (false)
     {
         // copy lines and flip vertically
         SLint bpl = _images[0]->bytesPerLine();
@@ -204,7 +209,9 @@ void SLGLTexture::copyVideoImage(SLint width,
             exit(1);
         }
     }
-    SL_LOG("c");
+
+    _needsUpdate = true;
+    cout << "c" << endl;
 }
 //-----------------------------------------------------------------------------
 /*! 
@@ -396,7 +403,7 @@ void SLGLTexture::bindActive(SLint texID)
     {   _stateGL->activeTexture(GL_TEXTURE0 + texID);
         _stateGL->bindAndEnableTexture(_target, _texName);
         SLScene* s = SLScene::current;
-        if (this == s->videoTexture() && s->needsVideoImage()) 
+        if (this == s->videoTexture() && s->needsVideoImage() && _needsUpdate)
         {   fullUpdate();
         }   
     }
@@ -409,7 +416,7 @@ Fully updates the OpenGL internal texture data by the image data
 */
 void SLGLTexture::fullUpdate()
 {  
-    if (_images.size() && _images[0]->data() && _target == GL_TEXTURE_2D)
+    if (_texName && _images.size() && _images[0]->data() && _target == GL_TEXTURE_2D)
     {   if (_min_filter==GL_NEAREST || _min_filter==GL_LINEAR)
         {   glTexSubImage2D(_target, 0, 0, 0,
                             _images[0]->width(),
@@ -417,7 +424,8 @@ void SLGLTexture::fullUpdate()
                             _images[0]->format(),
                             GL_UNSIGNED_BYTE, 
                             (GLvoid*)_images[0]->data());
-            SL_LOG("u");
+            cout << "u" << endl;
+            _needsUpdate = false;
         } 
     }
     GET_GL_ERROR;

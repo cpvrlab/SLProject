@@ -1,5 +1,6 @@
 #include "qtFrameGrabber.h"
 #include <QCameraInfo>
+#include <QApplication>
 #include <SLInterface.h>
 
 Q_DECLARE_METATYPE(QCameraInfo)
@@ -7,9 +8,10 @@ Q_DECLARE_METATYPE(QCameraInfo)
 //-----------------------------------------------------------------------------
 qtFrameGrabber::qtFrameGrabber(QObject *parent) : QAbstractVideoSurface(parent)
 {
-    lastFrameIsConsumed = true;
+    readyToCopy = false;
     _isAvailable = false;
     _camera = 0;
+    _lastImage = 0;
 
     try
     {   
@@ -85,7 +87,9 @@ void qtFrameGrabber::start()
     {
         QCamera::State currentState = _camera->state();
         if (currentState != QCamera::ActiveState)
-            _camera->start();
+        {   _camera->start();
+            QApplication::processEvents();
+        }
     } 
     catch(exception ex)
     {
@@ -98,43 +102,61 @@ void qtFrameGrabber::stop()
     if (!_camera) return;
     QCamera::State currentState = _camera->state();
     if (currentState == QCamera::ActiveState)
-        _camera->stop();
+    {   _camera->stop();
+        QApplication::processEvents();
+    }
 }
 //-----------------------------------------------------------------------------
 bool qtFrameGrabber::present(const QVideoFrame &frame)
 {
     bool frameIsValid = frame.isValid();
-    if (_camera && slNeedsVideoImage() && frameIsValid && lastFrameIsConsumed)
+    if (_camera && slNeedsVideoImage() && frameIsValid && !readyToCopy)
     {
         QVideoFrame cloneFrame(frame);
         cloneFrame.map(QAbstractVideoBuffer::ReadOnly);
 
+        delete _lastImage;
+
+        _lastImage = new QImage (cloneFrame.bits(),
+                                 cloneFrame.width(),
+                                 cloneFrame.height(),
+                                 QVideoFrame::imageFormatFromPixelFormat(cloneFrame.pixelFormat()));
+
         // Set the according OpenGL format
-        SLint glFormat;
         switch(cloneFrame.pixelFormat())
-        {   case QVideoFrame::Format_Y8:     glFormat = GL_LUMINANCE; break;
-            case QVideoFrame::Format_BGR24:  glFormat = GL_BGR; break;
-            case QVideoFrame::Format_RGB24:  glFormat = GL_RGB; break;
-            case QVideoFrame::Format_ARGB32: glFormat = GL_RGBA; break;
-            case QVideoFrame::Format_BGRA32: glFormat = GL_BGRA; break;
+        {   case QVideoFrame::Format_Y8:     _glFormat = GL_LUMINANCE; break;
+            case QVideoFrame::Format_BGR24:  _glFormat = GL_RGB; break;
+            case QVideoFrame::Format_RGB24:  _glFormat = GL_RGB; break;
+            case QVideoFrame::Format_ARGB32: _glFormat = GL_RGBA; break;
+            case QVideoFrame::Format_BGRA32: _glFormat = GL_RGBA; break;
             default:
                 SL_EXIT_MSG("qtFrameGrabber::present: Qt image format not supported");
                 cloneFrame.unmap();
                 return false;
         }
 
-        slCopyVideoImage(cloneFrame.width(), 
-                         cloneFrame.height(), 
-                         glFormat, 
-                         cloneFrame.bits(), 
-                         true);
+        SLuchar* p = cloneFrame.bits();
 
         cloneFrame.unmap();
 
-        lastFrameIsConsumed = false;
+        readyToCopy = true;
         return true;
     }
     return false;
+}
+//-----------------------------------------------------------------------------
+void qtFrameGrabber::copyToSLIfReady()
+{
+    start();
+    if (readyToCopy)
+    {
+        slCopyVideoImage(_lastImage->width(),
+                         _lastImage->height(),
+                         _glFormat,
+                         _lastImage->bits(),
+                         true);
+        readyToCopy = false;
+    }
 }
 //-----------------------------------------------------------------------------
 void qtFrameGrabber::updateCameraState(QCamera::State state)

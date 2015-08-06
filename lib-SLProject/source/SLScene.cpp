@@ -106,6 +106,8 @@ SLScene::SLScene(SLstring name) : SLObject(name)
    
     // font and video texture are not added to the _textures vector
     SLTexFont::generateFonts();
+
+    // load default video image that is displayed when no live video is available
     _videoTexture.setVideoImage("LiveVideoError.png");
 
     _infoAbout_en =
