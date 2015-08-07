@@ -24,7 +24,7 @@ class SLUtils
         static SLstring toString(float f, int roundedDecimals = 1)
         {   
             SLint magnitude = SL_pow(10, roundedDecimals);
-            SLfloat rf = (SLfloat)(std::round(f * magnitude) / magnitude);
+            SLfloat rf = (SLfloat)(round(f * magnitude) / magnitude);
 
             char cstr[32];
             sprintf(cstr, "%f", rf);
@@ -39,7 +39,7 @@ class SLUtils
         static SLstring toString(double d, int roundedDecimals = 1)
         {   
             SLint magnitude = SL_pow(10, roundedDecimals);
-            SLfloat rd = (SLfloat)(std::round(d * magnitude) / magnitude);
+            SLfloat rd = (SLfloat)(round(d * magnitude) / magnitude);
 
             char cstr[32];
             sprintf(cstr, "%f", rd);

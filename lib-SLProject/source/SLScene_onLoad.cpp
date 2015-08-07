@@ -795,7 +795,11 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
         light1->attenuation(1,0,0);
 
         SLAssimpImporter importer;
+        #if defined(SL_OS_IOS) || defined(SL_OS_ANDROID)
+        SLNode* tower = importer.load("christoffelturm.obj");
+        #else
         SLNode* tower = importer.load("OBJ/Christoffelturm/christoffelturm.obj");
+        #endif
         tower->rotate(90, -1,0,0);
 
         SLNode* scene = new SLNode("Scene");

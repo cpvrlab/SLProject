@@ -9,6 +9,7 @@ xcopy ..\_data\models\3DS\Halloween\* apk\assets\models /d/y
 xcopy ..\_data\models\DAE\AstroBoy\* apk\assets\models /d/y
 xcopy ..\_data\models\DAE\SkinnedCube\* apk\assets\models /d/y
 xcopy ..\_data\models\FBX\Duck\* apk\assets\models /d/y
+xcopy ..\_data\models\OBJ\Christoffelturm\* apk\assets\models /d/y
 
 xcopy ..\_data\images\textures\CompileError.png apk\assets\textures /d/y
 xcopy ..\_data\images\textures\brick0512_C.png apk\assets\textures /d/y
@@ -51,3 +52,4 @@ xcopy ..\_data\images\textures\wood2_0512_C.jpg apk\assets\textures /d/y
 xcopy ..\_data\images\textures\cursor.tga apk\assets\textures /d/y
 xcopy ..\_data\images\textures\VisionExample.png apk\assets\textures /d/y
 xcopy ..\_data\images\textures\VisionTest.png apk\assets\textures /d/y
+xcopy ..\_data\images\textures\LiveVideoError.png apk\assets\textures /d/y
