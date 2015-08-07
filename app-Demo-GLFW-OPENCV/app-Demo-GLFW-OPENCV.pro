@@ -43,31 +43,34 @@ message(Configuration: $$CONFIGURATION)
 message(Plattform: $$PLATFORM)
 
 #OpenCV
-exists($(OPENCV_DIR)/lib/opencv_*.lib) {
-    message("OpenCV: Yes")
-    DEFINES += HAS_OPENCV
-    win32 {
-        # windows only
+
+win32 {
+    # windows only
+    exists($(OPENCV_DIR)/lib/opencv_*.lib) {
+        message("OpenCV: Yes")
+        DEFINES += HAS_OPENCV
         INCLUDEPATH += c:\Lib\opencv\build\install\include
         LIBS += $(OPENCV_DIR)\lib\opencv_core300d.lib
         LIBS += $(OPENCV_DIR)\lib\opencv_imgproc300d.lib
         LIBS += $(OPENCV_DIR)\lib\opencv_video300d.lib
         LIBS += $(OPENCV_DIR)\lib\opencv_videoio300d.lib
-    }
-    macx {
-        # mac only
+    } else {message("OpenCV: No")}
+}
+macx {
+    # mac only
+    exists(usr/local/lib/libopencv_*.dylib) {
+        message("OpenCV: Yes")
+        DEFINES += HAS_OPENCV
         INCLUDEPATH += /usr/local/include/
         LIBS += -L/usr/local/lib -lopencv_core
         LIBS += -L/usr/local/lib -lopencv_imgproc
         LIBS += -L/usr/local/lib -lopencv_video
         LIBS += -L/usr/local/lib -lopencv_videoio
-    }
-    unix:!macx:!android {
-        # linux only: Install opencv with the following command:
-        # sudo apt-get install libopencv-core-dev libopencv-imgproc-dev libopencv-video-dev libopencv-videoio-dev
-
-    }
-} else {
+    } else {message("OpenCV: No")}
+}
+unix:!macx:!android {
+    # linux only: Install opencv with the following command:
+    # sudo apt-get install libopencv-core-dev libopencv-imgproc-dev libopencv-video-dev libopencv-videoio-dev
     message("OpenCV: No")
 }
 
