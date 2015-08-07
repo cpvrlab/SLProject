@@ -1,6 +1,7 @@
 //#############################################################################
-//  File:      glfwMain.cpp
+//  File:      glfwMain-OPENCV.cpp
 //  Purpose:   Implementation of the GUI with the GLFW3 (http://www.glfw.org/)
+//             and OPENCV for live video camera feed into SL
 //  Author:    Marcus Hudritsch
 //  Date:      July 2014
 //  Copyright: Marcus Hudritsch
@@ -19,6 +20,20 @@
 #include <SLInterface.h>
 #include <SLSceneView.h>
 #include <SLEnums.h>
+
+//-----------------------------------------------------------------------------
+#ifdef HAS_OPENCV
+/*
+This project used the image processing library OpenCV: http://opencv.org/
+Please build and/or install is as described in the OpenCV documentation.
+The project definition uses the environment variable OPENCV_DIR for:
+OpenCV include directory: $(OPENCV_DIR)\..\..\include
+OpenCV library directory: $(OPENCV_DIR)\lib
+OpenCV dynamic library binary directory in $PATH: $(OPENCV_DIR)\bin
+*/
+#include <opencv2/opencv.hpp>
+cv::VideoCapture* captureDevice = 0;  //!< OpenCV video capture device
+#endif
 
 
 //-----------------------------------------------------------------------------
@@ -43,6 +58,46 @@ SLKey       modifiers=KeyNone;      //!< last modifier keys
 SLbool      fullscreen = false;     //!< flag if window is in fullscreen mode
 
 //-----------------------------------------------------------------------------
+// Grabs an image from the live video stream with the OpenCV library.
+void grabImageFromCamera()
+{
+    #ifdef HAS_OPENCV
+    try
+    {
+        if (!captureDevice)
+        {   captureDevice = new cv::VideoCapture(0);
+            if(!captureDevice->isOpened())
+                return;
+            SL_LOG("Capture devices created.\n")
+        }
+
+        if(captureDevice && captureDevice->isOpened())
+        {   cv::Mat frame;
+            if (!captureDevice->read(frame)) 
+                return;
+
+            // Set the according OpenGL format
+            SLint glFormat;
+            switch(frame.type())
+            {   case CV_8UC1: glFormat = GL_LUMINANCE; break;
+                case CV_8UC3: glFormat = GL_RGB; break;
+                case CV_8UC4: glFormat = GL_RGBA; break;
+                default: 
+                    SL_EXIT_MSG("OpenCV image format not supported");
+                    return;
+            }
+
+            cvtColor(frame, frame,CV_BGR2RGB);
+            slCopyVideoImage(frame.cols, frame.rows, glFormat, frame.data, true);
+        }
+    }
+    catch (exception e)
+    {
+        SL_LOG("Exception during OpenCV video capture creation\n")
+    }
+    #endif
+}
+//-----------------------------------------------------------------------------
 /*! 
 onClose event handler for deallocation of the scene & sceneview. onClose is
 called glfwPollEvents, glfwWaitEvents or glfwSwapBuffers.
@@ -57,6 +112,10 @@ onPaint: Paint event handler that passes the event to the slPaint function.
 */
 SLbool onPaint()
 {
+    // If live video image is requested grab it and copy it
+    if (slNeedsVideoImage())
+        grabImageFromCamera();
+
     //////////////////////////////////////////////////
     bool viewNeedsRepaint = slUpdateAndPaint(svIndex);
     //////////////////////////////////////////////////

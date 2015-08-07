@@ -21,7 +21,7 @@ using namespace std;
 class glUtils
 {
     public: 
-        //! Loads an GLSL-shader file and returs the code as a string
+        //! Loads an GLSL-shader file and returns the code as a string
         static string loadShader  (string filename);
 
         //! Builds an GLSL-Shader object and returns the shader id
@@ -47,7 +47,7 @@ class glUtils
                                    GLint wrapS = GL_REPEAT, 
                                    GLint wrapT = GL_REPEAT);
 
-        //! Checks if an OpenGL error occured
+        //! Checks if an OpenGL error occurred
         static void getGLError(char* file, int line, bool quit);
 };
 //-----------------------------------------------------------------------------

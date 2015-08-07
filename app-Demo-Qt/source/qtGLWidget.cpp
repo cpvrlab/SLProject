@@ -92,10 +92,16 @@ void qtGLWidget::initializeGL()
 
     // Set dots per inch correctly also on Mac retina displays
     SLint dpi = 142 * (int)GETDEVICEPIXELRATIO();
+    cout << "------------------------------------------------------------------" << endl;
+    cout << "GUI             : Qt (Version: " << QT_VERSION_STR << ")" << endl;
+    #ifdef HAS_OPENCV
+    cout << "OPENCV Library  : Yes (Version: " << CV_MAJOR_VERSION << "." << CV_MINOR_VERSION << "." << CV_VERSION_REVISION << ")" << endl;
+    #else
+    cout << "OPENCV Library  : No" << endl;
+    #endif
+    cout << "DPI             : %d" << dpi << endl;
 
     // Set global shader-, model- & texture path
-    SL_LOG("GUI             : Qt5\n");
-    SL_LOG("DPI             : %d\n", dpi);
     SLstring shaders  = "../lib-SLProject/source/oglsl/";
     SLstring models   = "../_data/models/";
     SLstring textures = "../_data/images/textures/";

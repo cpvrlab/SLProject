@@ -190,7 +190,7 @@ void SLGLTexture::copyVideoImage(SLint width,
     _images[0]->allocate(width, height, glFormat);
     _images[0]->name("Video Image");
 
-    if (false)
+    if (isTopLeft)
     {
         // copy lines and flip vertically
         SLint bpl = _images[0]->bytesPerLine();
@@ -211,7 +211,6 @@ void SLGLTexture::copyVideoImage(SLint width,
     }
 
     _needsUpdate = true;
-    cout << "c" << endl;
 }
 //-----------------------------------------------------------------------------
 /*! 
@@ -424,7 +423,6 @@ void SLGLTexture::fullUpdate()
                             _images[0]->format(),
                             GL_UNSIGNED_BYTE, 
                             (GLvoid*)_images[0]->data());
-            cout << "u" << endl;
             _needsUpdate = false;
         } 
     }

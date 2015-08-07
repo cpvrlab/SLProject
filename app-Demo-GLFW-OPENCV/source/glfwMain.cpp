@@ -42,6 +42,46 @@ SLfloat     lastMouseDownTime=0.0f; //!< Last mouse press time
 SLKey       modifiers=KeyNone;      //!< last modifier keys
 SLbool      fullscreen = false;     //!< flag if window is in fullscreen mode
 
+
+#ifdef HAS_OPENCV
+#include <opencv2/opencv.hpp>
+cv::VideoCapture* captureDevice=0;  //!< OpenCV video capture device
+#endif
+
+//-----------------------------------------------------------------------------
+// Grabs an image from the live video stream with the OpenCV library.
+void grabImageFromCamera()
+{
+    #ifdef HAS_OPENCV
+    if (!captureDevice)
+    {   captureDevice = new cv::VideoCapture(0);
+        if(!captureDevice->isOpened())
+            return;
+        SL_LOG("Capture devices created.")
+    }
+
+    if(captureDevice->isOpened())
+    {   cv::Mat frame;
+        if (!captureDevice->read(frame)) 
+            return;
+
+        // Set the according OpenGL format
+        SLint glFormat;
+        switch(frame.type())
+        {   case CV_8UC1: glFormat = GL_LUMINANCE; break;
+            case CV_8UC3: glFormat = GL_RGB; break;
+            case CV_8UC4: glFormat = GL_RGBA; break;
+            default: 
+                SL_EXIT_MSG("OpenCV image format not supported");
+                return;
+        }
+
+        cvtColor(frame, frame,CV_BGR2RGB);
+
+        slCopyVideoImage(frame.cols, frame.rows, glFormat, frame.data, true);
+    }
+    #endif
+}
 //-----------------------------------------------------------------------------
 /*! 
 onClose event handler for deallocation of the scene & sceneview. onClose is
@@ -57,6 +97,10 @@ onPaint: Paint event handler that passes the event to the slPaint function.
 */
 SLbool onPaint()
 {
+    // If live video image is requested grab it and copy it
+    if (slNeedsVideoImage())
+        grabImageFromCamera();
+
     //////////////////////////////////////////////////
     bool viewNeedsRepaint = slUpdateAndPaint(svIndex);
     //////////////////////////////////////////////////
@@ -464,14 +508,8 @@ int main(int argc, char *argv[])
 
     // Set your own physical screen dpi
     int dpi = (int)(142 * scr2fbX);
-    cout << "------------------------------------------------------------------" << endl;
-    cout << "GUI             : GLFW (Version: " << GLFW_VERSION_MAJOR << "." << GLFW_VERSION_MINOR << ")" << endl;
-    #ifdef HAS_OPENCV
-    cout << "OPENCV Library  : Yes (Version: " << CV_MAJOR_VERSION << "." << CV_MINOR_VERSION << "." << CV_VERSION_REVISION << ")" << endl;
-    #else
-    cout << "OPENCV Library  : No" << endl;
-    #endif
-    cout << "DPI             : %d" << dpi << endl;
+    cout << "GUI Library     : GLFW" << endl;
+    cout << "DPI Resolution  : " << dpi << endl;
 
     slCreateScene("../lib-SLProject/source/oglsl/",
                   "../_data/models/",
