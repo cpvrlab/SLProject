@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		411B11D31B74B62900CDF1FC /* OBJ in Resources */ = {isa = PBXBuildFile; fileRef = 411B11D21B74B62900CDF1FC /* OBJ */; };
 		411BA72718C0702600F10475 /* Icon_120.png in Resources */ = {isa = PBXBuildFile; fileRef = 411BA72618C0702600F10475 /* Icon_120.png */; };
 		411BA72918C0716700F10475 /* Icon_76.png in Resources */ = {isa = PBXBuildFile; fileRef = 411BA72818C0716700F10475 /* Icon_76.png */; };
 		411BA72B18C071CA00F10475 /* Icon_152.png in Resources */ = {isa = PBXBuildFile; fileRef = 411BA72A18C071CA00F10475 /* Icon_152.png */; };
@@ -354,6 +355,8 @@
 		419BCD4014865C0800D576F1 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 419BCD3F14865C0800D576F1 /* CoreGraphics.framework */; };
 		419BCD4214865C0800D576F1 /* GLKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 419BCD4114865C0800D576F1 /* GLKit.framework */; };
 		419BCD4414865C0800D576F1 /* OpenGLES.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 419BCD4314865C0800D576F1 /* OpenGLES.framework */; };
+		419E11A81B74AF0000203E70 /* SLBackground.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 419E11A71B74AF0000203E70 /* SLBackground.cpp */; };
+		419E11AA1B74B02000203E70 /* LiveVideoError.png in Resources */ = {isa = PBXBuildFile; fileRef = 419E11A91B74B02000203E70 /* LiveVideoError.png */; };
 		419F43431959C072009D9E2E /* ioapi.c in Sources */ = {isa = PBXBuildFile; fileRef = 419F433F1959C072009D9E2E /* ioapi.c */; };
 		419F43441959C072009D9E2E /* unzip.c in Sources */ = {isa = PBXBuildFile; fileRef = 419F43411959C072009D9E2E /* unzip.c */; };
 		419F43471959C083009D9E2E /* ConvertUTF.c in Sources */ = {isa = PBXBuildFile; fileRef = 419F43451959C083009D9E2E /* ConvertUTF.c */; };
@@ -402,6 +405,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		411B11D21B74B62900CDF1FC /* OBJ */ = {isa = PBXFileReference; lastKnownFileType = folder; name = OBJ; path = ../_data/models/OBJ; sourceTree = "<group>"; };
 		411BA72618C0702600F10475 /* Icon_120.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = Icon_120.png; path = images/Icon_120.png; sourceTree = SOURCE_ROOT; };
 		411BA72818C0716700F10475 /* Icon_76.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = Icon_76.png; path = images/Icon_76.png; sourceTree = SOURCE_ROOT; };
 		411BA72A18C071CA00F10475 /* Icon_152.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = Icon_152.png; path = images/Icon_152.png; sourceTree = SOURCE_ROOT; };
@@ -996,6 +1000,9 @@
 		419BCD3F14865C0800D576F1 /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
 		419BCD4114865C0800D576F1 /* GLKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = GLKit.framework; path = System/Library/Frameworks/GLKit.framework; sourceTree = SDKROOT; };
 		419BCD4314865C0800D576F1 /* OpenGLES.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGLES.framework; path = System/Library/Frameworks/OpenGLES.framework; sourceTree = SDKROOT; };
+		419E11A51B74AED200203E70 /* SLBackground.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SLBackground.h; path = ../include/SLBackground.h; sourceTree = SOURCE_ROOT; };
+		419E11A71B74AF0000203E70 /* SLBackground.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SLBackground.cpp; path = "../lib-SLProject/source/SLBackground.cpp"; sourceTree = SOURCE_ROOT; };
+		419E11A91B74B02000203E70 /* LiveVideoError.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = LiveVideoError.png; path = ../_data/images/textures/LiveVideoError.png; sourceTree = "<group>"; };
 		419F433E1959C072009D9E2E /* crypt.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = crypt.h; path = "../lib-SLExternal/assimp/contrib/unzip/crypt.h"; sourceTree = SOURCE_ROOT; };
 		419F433F1959C072009D9E2E /* ioapi.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = ioapi.c; path = "../lib-SLExternal/assimp/contrib/unzip/ioapi.c"; sourceTree = SOURCE_ROOT; };
 		419F43401959C072009D9E2E /* ioapi.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ioapi.h; path = "../lib-SLExternal/assimp/contrib/unzip/ioapi.h"; sourceTree = SOURCE_ROOT; };
@@ -1125,6 +1132,8 @@
 		41627E8D15CA8CA90023B936 /* SL */ = {
 			isa = PBXGroup;
 			children = (
+				419E11A51B74AED200203E70 /* SLBackground.h */,
+				419E11A71B74AF0000203E70 /* SLBackground.cpp */,
 				41A355081A7E676800791841 /* SLInputDevice.cpp */,
 				41A355091A7E676800791841 /* SLInputManager.cpp */,
 				41A354E91A7E634F00791841 /* SLImporter.cpp */,
@@ -1231,6 +1240,7 @@
 		417E0E44148A6EBC0015B5B0 /* Models */ = {
 			isa = PBXGroup;
 			children = (
+				411B11D21B74B62900CDF1FC /* OBJ */,
 				41901CFB1959C5BB006795A8 /* 3DS */,
 				41901CF91959C5AC006795A8 /* DAE */,
 				41901CF71959C58D006795A8 /* FBX */,
@@ -1241,6 +1251,7 @@
 		417E0E99148A6F910015B5B0 /* Textures */ = {
 			isa = PBXGroup;
 			children = (
+				419E11A91B74B02000203E70 /* LiveVideoError.png */,
 				DE38C71F19EFBD440069B8BB /* cursor.tga */,
 				41486AB715165E2A00102F27 /* CompileError.png */,
 				417E0ED8148A71220015B5B0 /* Pool-X0512_C.png */,
@@ -2009,6 +2020,7 @@
 				417E0E85148A6F4B0015B5B0 /* FontTex.vert in Resources */,
 				417E0E86148A6F4B0015B5B0 /* PerPixBlinn.frag in Resources */,
 				417E0E87148A6F4B0015B5B0 /* PerPixBlinn.vert in Resources */,
+				419E11AA1B74B02000203E70 /* LiveVideoError.png in Resources */,
 				411BA72918C0716700F10475 /* Icon_76.png in Resources */,
 				417E0E88148A6F4B0015B5B0 /* PerPixBlinnTex.frag in Resources */,
 				417E0E89148A6F4B0015B5B0 /* PerPixBlinnTex.vert in Resources */,
@@ -2065,6 +2077,7 @@
 				417E0ED1148A70DE0015B5B0 /* Testmap_0512_C.png in Resources */,
 				417E0ED2148A70DE0015B5B0 /* tile1_0256_C.jpg in Resources */,
 				417E0ED3148A70DE0015B5B0 /* tree1_1024_C.png in Resources */,
+				411B11D31B74B62900CDF1FC /* OBJ in Resources */,
 				417E0ED4148A70DE0015B5B0 /* wood0_0256_C.jpg in Resources */,
 				417E0ED5148A70DE0015B5B0 /* wood0_0512_C.jpg in Resources */,
 				419808691959BA670048085E /* BlenderDNA.inl in Resources */,
@@ -2185,6 +2198,7 @@
 				419808951959BA670048085E /* ObjExporter.cpp in Sources */,
 				418E0C8A14892B6600C6274F /* pngget.c in Sources */,
 				419808C21959BA670048085E /* BlenderScene.cpp in Sources */,
+				419E11A81B74AF0000203E70 /* SLBackground.cpp in Sources */,
 				419808EC1959BA670048085E /* SplitLargeMeshes.cpp in Sources */,
 				418E0C8B14892B6600C6274F /* pngmem.c in Sources */,
 				418E0C8C14892B6600C6274F /* pngpread.c in Sources */,

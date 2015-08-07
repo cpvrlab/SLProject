@@ -806,6 +806,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
         _background.texture(&_videoTexture, true);
         _needsVideoImage = true;
 
+        sv->waitEvents(false); // for constant video feed
         sv->camera(cam1);
         _root3D = scene;
     }

@@ -71,34 +71,42 @@ float GetSeconds()
 //-----------------------------------------------------------------------------
 - (void)viewDidLoad
 {
-   [super viewDidLoad];
+    [super viewDidLoad];
    
-   self.context = [[[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES2] autorelease];
+    self.context = [[[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES2] autorelease];
    
-   if (!self.context) NSLog(@"Failed to create ES context");
+    if (!self.context) NSLog(@"Failed to create ES context");
    
-   myView = (GLKView *)self.view;
-   myView.context = self.context;
-   myView.drawableDepthFormat = GLKViewDrawableDepthFormat24;
+    myView = (GLKView *)self.view;
+    myView.context = self.context;
+    myView.drawableDepthFormat = GLKViewDrawableDepthFormat24;
    
-   if([UIDevice currentDevice].multitaskingSupported)
-   myView.drawableMultisample = GLKViewDrawableMultisample4X;
+    if([UIDevice currentDevice].multitaskingSupported)
+       myView.drawableMultisample = GLKViewDrawableMultisample4X;
    
-   self.preferredFramesPerSecond = 30;
-   self.view.multipleTouchEnabled = true;
-   m_touchDowns = 0;
+    self.preferredFramesPerSecond = 30;
+    self.view.multipleTouchEnabled = true;
+    m_touchDowns = 0;
    
-   //[self setupGL];
-   [EAGLContext setCurrentContext:self.context];
+    //[self setupGL];
+    [EAGLContext setCurrentContext:self.context];
    
-   // Get the main bundle path and pass it the SLTexture and SLShaderProg
-   // This will be the default storage location for textures and shaders
-   NSString* bundlePath =[[NSBundle mainBundle] resourcePath];
-   string pathUTF8 = [bundlePath UTF8String];
-   pathUTF8 += "/";
-   SLVstring cmdLineArgs;
+    // Get the main bundle path and pass it the SLTexture and SLShaderProg
+    // This will be the default storage location for textures and shaders
+    NSString* bundlePath =[[NSBundle mainBundle] resourcePath];
+    string pathUTF8 = [bundlePath UTF8String];
+    pathUTF8 += "/";
+    SLVstring cmdLineArgs;
    
-   screenScale = [UIScreen mainScreen].scale;
+    // determine device pixel ratio and dots per inch
+    screenScale = [UIScreen mainScreen].scale;
+    float dpi;
+    if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad)
+        dpi = 132 * screenScale;
+    else if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPhone)
+        dpi = 163 * screenScale;
+    else
+        dpi = 160 * screenScale;
    
    slCreateScene(pathUTF8,
                  pathUTF8,
@@ -106,7 +114,7 @@ float GetSeconds()
    
    svIndex = slCreateSceneView(self.view.bounds.size.width * screenScale,
                                self.view.bounds.size.height * screenScale,
-                               140,
+                               dpi*0.8,
                                cmdSceneRevolver,
                                cmdLineArgs,
                                (void*)&onPaintRTGL,

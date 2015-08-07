@@ -423,7 +423,7 @@ int main(int argc, char *argv[])
     #else
     cout << "OPENCV Library  : No" << endl;
     #endif
-    cout << "DPI             : %d" << dpi << endl;
+    cout << "DPI             : " << dpi << endl;
 
     slCreateScene("../lib-SLProject/source/oglsl/",
                   "../_data/models/",

@@ -146,7 +146,7 @@ void qtGLWidget::initializeGL()
         #else
         cout << "OPENCV Library  : No" << endl;
         #endif
-        cout << "DPI             : %d" << dpi << endl;
+        cout << "DPI             : " << dpi << endl;
       
         slCreateScene(shaders, models, textures);
     }   

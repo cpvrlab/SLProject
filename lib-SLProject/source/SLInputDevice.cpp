@@ -46,3 +46,4 @@ void SLInputDevice::disable()
     SLVInputDevice& dl = SLInputManager::instance()._devices;
     dl.erase(remove(dl.begin(), dl.end(), this), dl.end());
 }
+//-----------------------------------------------------------------------------

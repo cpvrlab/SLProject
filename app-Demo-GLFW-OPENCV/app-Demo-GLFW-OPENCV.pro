@@ -9,7 +9,7 @@
 ##############################################################################
 
 TEMPLATE = app
-TARGET = app-Demo-GLFW
+TARGET = app-Demo-GLFW-OPENCV
 
 CONFIG += console
 CONFIG -= qt
@@ -17,7 +17,7 @@ CONFIG += glfw
 CONFIG += warn_off
 CONFIG -= app_bundle
 
-DEFINES += "SL_STARTSCENE=cmdSceneMeshLoad"
+DEFINES += "SL_STARTSCENE=cmdSceneRevolver"
 
 #define platform variable for folder name
 win32 {contains(QMAKE_TARGET.arch, x86_64) {PLATFORM = x64} else {PLATFORM = Win32}}
@@ -40,9 +40,9 @@ win32 {POST_TARGETDEPS += ../_lib/$$CONFIGURATION/$$PLATFORM/lib-SLProject.lib}
 else  {POST_TARGETDEPS += ../_lib/$$CONFIGURATION/$$PLATFORM/liblib-SLProject.a}
 
 #OpenCV
+DEFINES += HAS_OPENCV
 win32 {
     # windows only
-    DEFINES += HAS_OPENCV
     INCLUDEPATH += c:\Lib\opencv\build\install\include
     LIBS += $(OPENCV_DIR)\lib\opencv_core300d.lib
     LIBS += $(OPENCV_DIR)\lib\opencv_imgproc300d.lib
@@ -51,6 +51,11 @@ win32 {
 }
 macx {
     # mac only
+    INCLUDEPATH += /usr/local/include/
+    LIBS += -L/usr/local/lib -lopencv_core
+    LIBS += -L/usr/local/lib -lopencv_imgproc
+    LIBS += -L/usr/local/lib -lopencv_video
+    LIBS += -L/usr/local/lib -lopencv_videoio
 }
 unix:!macx:!android {
     # linux only

@@ -99,7 +99,7 @@ void qtGLWidget::initializeGL()
     #else
     cout << "OPENCV Library  : No" << endl;
     #endif
-    cout << "DPI             : %d" << dpi << endl;
+    cout << "DPI             : " << dpi << endl;
 
     // Set global shader-, model- & texture path
     SLstring shaders  = "../lib-SLProject/source/oglsl/";
