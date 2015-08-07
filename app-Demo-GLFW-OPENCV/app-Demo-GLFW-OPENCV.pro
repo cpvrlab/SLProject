@@ -26,7 +26,6 @@ unix:!macx:!android {PLATFORM = linux}
 android {PLATFORM = android}
 #define configuration variable for folder name
 CONFIG(debug, debug|release) {CONFIGURATION = Debug} else {CONFIGURATION = Release}
-message($$CONFIGURATION/$$PLATFORM)
 
 DESTDIR = ../_bin-$$CONFIGURATION-$$PLATFORM
 OBJECTS_DIR = ../intermediate/$$TARGET/$$CONFIGURATION/$$PLATFORM
@@ -39,26 +38,37 @@ macx|win32 {LIBS += -L../_lib/$$CONFIGURATION/$$PLATFORM -llib-ovr}
 win32 {POST_TARGETDEPS += ../_lib/$$CONFIGURATION/$$PLATFORM/lib-SLProject.lib}
 else  {POST_TARGETDEPS += ../_lib/$$CONFIGURATION/$$PLATFORM/liblib-SLProject.a}
 
+
+message(Configuration: $$CONFIGURATION)
+message(Plattform: $$PLATFORM)
+
 #OpenCV
-DEFINES += HAS_OPENCV
-win32 {
-    # windows only
-    INCLUDEPATH += c:\Lib\opencv\build\install\include
-    LIBS += $(OPENCV_DIR)\lib\opencv_core300d.lib
-    LIBS += $(OPENCV_DIR)\lib\opencv_imgproc300d.lib
-    LIBS += $(OPENCV_DIR)\lib\opencv_video300d.lib
-    LIBS += $(OPENCV_DIR)\lib\opencv_videoio300d.lib
-}
-macx {
-    # mac only
-    INCLUDEPATH += /usr/local/include/
-    LIBS += -L/usr/local/lib -lopencv_core
-    LIBS += -L/usr/local/lib -lopencv_imgproc
-    LIBS += -L/usr/local/lib -lopencv_video
-    LIBS += -L/usr/local/lib -lopencv_videoio
-}
-unix:!macx:!android {
-    # linux only
+exists($(OPENCV_DIR)/lib/opencv_*.lib) {
+    message("OpenCV: Yes")
+    DEFINES += HAS_OPENCV
+    win32 {
+        # windows only
+        INCLUDEPATH += c:\Lib\opencv\build\install\include
+        LIBS += $(OPENCV_DIR)\lib\opencv_core300d.lib
+        LIBS += $(OPENCV_DIR)\lib\opencv_imgproc300d.lib
+        LIBS += $(OPENCV_DIR)\lib\opencv_video300d.lib
+        LIBS += $(OPENCV_DIR)\lib\opencv_videoio300d.lib
+    }
+    macx {
+        # mac only
+        INCLUDEPATH += /usr/local/include/
+        LIBS += -L/usr/local/lib -lopencv_core
+        LIBS += -L/usr/local/lib -lopencv_imgproc
+        LIBS += -L/usr/local/lib -lopencv_video
+        LIBS += -L/usr/local/lib -lopencv_videoio
+    }
+    unix:!macx:!android {
+        # linux only: Install opencv with the following command:
+        # sudo apt-get install libopencv-core-dev libopencv-imgproc-dev libopencv-video-dev libopencv-videoio-dev
+
+    }
+} else {
+    message("OpenCV: No")
 }
 
 include(../SLProjectCommon.pro)
