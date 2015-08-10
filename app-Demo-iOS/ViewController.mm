@@ -40,21 +40,25 @@ SLbool onPaintRTGL()
  */
 float GetSeconds()
 {
-   static mach_timebase_info_data_t info;
-   mach_timebase_info(&info);
-   uint64_t now = mach_absolute_time();
-   now *= info.numer;
-   now /= info.denom;
-   double sec = (double)now / 1000000000.0;
-   return (float)sec;
+    static mach_timebase_info_data_t info;
+    mach_timebase_info(&info);
+    uint64_t now = mach_absolute_time();
+    now *= info.numer;
+    now /= info.denom;
+    double sec = (double)now / 1000000000.0;
+    return (float)sec;
 }
 //-----------------------------------------------------------------------------
 @interface ViewController ()
 {
-   SLfloat  m_lastFrameTimeSec;  //!< Timestamp for passing highres time
-   SLfloat  m_lastTouchTimeSec;  //!< Frame time of the last touch event
-   SLfloat  m_lastTouchDownSec;  //!< Time of last touch down
-   SLint    m_touchDowns;        //!< No. of finger touchdowns
+    SLfloat  m_lastFrameTimeSec;  //!< Timestamp for passing highres time
+    SLfloat  m_lastTouchTimeSec;  //!< Frame time of the last touch event
+    SLfloat  m_lastTouchDownSec;  //!< Time of last touch down
+    SLint    m_touchDowns;        //!< No. of finger touchdowns
+    
+    // Video stuff
+    AVCaptureSession*  m_avSession;         //!< Audio video session
+    NSString*          m_avSessionPreset;   //!< Session name
 }
 @property (strong, nonatomic) EAGLContext *context;
 @end
@@ -115,12 +119,16 @@ float GetSeconds()
    svIndex = slCreateSceneView(self.view.bounds.size.width * screenScale,
                                self.view.bounds.size.height * screenScale,
                                dpi*0.8,
-                               cmdSceneRevolver,
+                               cmdSceneSmallTest,
                                cmdLineArgs,
                                (void*)&onPaintRTGL,
                                0,
                                0,
                                0);
+    
+    
+    
+    //[self setupAVCapture];
 }
 //-----------------------------------------------------------------------------
 - (void)viewDidUnload
@@ -280,6 +288,69 @@ float GetSeconds()
    //printf("End   tD: %d, touches count: %d\n", m_touchDowns, [touches count]);
    
    m_lastTouchTimeSec = m_lastFrameTimeSec;
+}
+//-----------------------------------------------------------------------------
+- (void)captureOutput:(AVCaptureOutput *)captureOutput
+didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
+       fromConnection:(AVCaptureConnection *)connection
+{
+    CVReturn err;
+    CVImageBufferRef pixelBuffer = CMSampleBufferGetImageBuffer(sampleBuffer);
+    size_t width  = CVPixelBufferGetWidth(pixelBuffer);
+    size_t height = CVPixelBufferGetHeight(pixelBuffer);
+}
+//-----------------------------------------------------------------------------
+- (void)setupAVCapture
+{
+    /*
+    //-- Create CVOpenGLESTextureCacheRef for optimal CVImageBufferRef to GLES texture conversion.
+    #if COREVIDEO_USE_EAGLCONTEXT_CLASS_IN_API
+    CVReturn err = CVOpenGLESTextureCacheCreate(kCFAllocatorDefault, NULL, _context, NULL, &_videoTextureCache);
+    #else
+    CVReturn err = CVOpenGLESTextureCacheCreate(kCFAllocatorDefault, NULL, (__bridge void *)_context, NULL, &_videoTextureCache);
+    #endif
+    if (err)
+    {
+        NSLog(@"Error at CVOpenGLESTextureCacheCreate %d", err);
+        return;
+    }
+    */
+    
+    //-- Setup Capture Session.
+    m_avSession = [[AVCaptureSession alloc] init];
+    [m_avSession beginConfiguration];
+    
+    //-- Set preset session size.
+    [m_avSession setSessionPreset:m_avSessionPreset];
+    
+    //-- Creata a video device and input from that Device.  Add the input to the capture session.
+    AVCaptureDevice * videoDevice = [AVCaptureDevice defaultDeviceWithMediaType:AVMediaTypeVideo];
+    if(videoDevice == nil)
+        assert(0);
+    
+    //-- Add the device to the session.
+    NSError *error;
+    AVCaptureDeviceInput *input = [AVCaptureDeviceInput deviceInputWithDevice:videoDevice error:&error];
+    if(error)
+        assert(0);
+    
+    [m_avSession addInput:input];
+    
+    //-- Create the output for the capture session.
+    AVCaptureVideoDataOutput * dataOutput = [[AVCaptureVideoDataOutput alloc] init];
+    [dataOutput setAlwaysDiscardsLateVideoFrames:YES]; // Probably want to set this to NO when recording
+    
+    //-- Set to YUV420.
+    [dataOutput setVideoSettings:[NSDictionary dictionaryWithObject:[NSNumber numberWithInt:kCVPixelFormatType_420YpCbCr8BiPlanarFullRange]
+                                                             forKey:(id)kCVPixelBufferPixelFormatTypeKey]]; // Necessary for manual preview
+    
+    // Set dispatch to be on the main thread so OpenGL can do things with the data
+    [dataOutput setSampleBufferDelegate:self queue:dispatch_get_main_queue()];
+    
+    [m_avSession addOutput:dataOutput];
+    [m_avSession commitConfiguration];
+    
+    [m_avSession startRunning];
 }
 //-----------------------------------------------------------------------------
 @end
