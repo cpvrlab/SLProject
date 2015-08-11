@@ -57,8 +57,10 @@ float GetSeconds()
     SLint    m_touchDowns;        //!< No. of finger touchdowns
     
     // Video stuff
-    AVCaptureSession*  m_avSession;         //!< Audio video session
-    NSString*          m_avSessionPreset;   //!< Session name
+    AVCaptureSession*           m_avSession;            //!< Audio video session
+    NSString*                   m_avSessionPreset;      //!< Session name
+    CVOpenGLESTextureRef        m_texture;
+    CVOpenGLESTextureCacheRef   m_videoTextureCache;
 }
 @property (strong, nonatomic) EAGLContext *context;
 @end
@@ -126,9 +128,17 @@ float GetSeconds()
                                0,
                                0);
     
+    if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad)
+    {
+        // Choosing bigger preset for bigger screen.
+        m_avSessionPreset = AVCaptureSessionPreset1280x720;
+    }
+    else
+    {
+        m_avSessionPreset = AVCaptureSessionPreset640x480;
+    }
     
-    
-    //[self setupAVCapture];
+    [self setupAVCapture];
 }
 //-----------------------------------------------------------------------------
 - (void)viewDidUnload
@@ -296,25 +306,66 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
 {
     CVReturn err;
     CVImageBufferRef pixelBuffer = CMSampleBufferGetImageBuffer(sampleBuffer);
-    size_t width  = CVPixelBufferGetWidth(pixelBuffer);
-    size_t height = CVPixelBufferGetHeight(pixelBuffer);
+    CVPixelBufferLockBaseAddress(pixelBuffer,0);
+    int width = (int) CVPixelBufferGetWidth(pixelBuffer);
+    int height = (int) CVPixelBufferGetHeight(pixelBuffer);
+    unsigned char* data = (unsigned char*)CVPixelBufferGetBaseAddress(pixelBuffer);
+    
+    if (!m_videoTextureCache)
+    {
+        NSLog(@"No video texture cache");
+        return;
+    }
+    
+    if(!data)
+    {
+        NSLog(@"No pixel buffer data");
+        return;
+    }
+    slCopyVideoImage(width, height, GL_RGBA, data, false);
+    
+    
+    // CVOpenGLESTextureCacheCreateTextureFromImage will create GLES texture
+    // optimally from CVImageBufferRef.
+    
+    [self cleanUpTexture];
+    
+    glActiveTexture(GL_TEXTURE0);
+    err = CVOpenGLESTextureCacheCreateTextureFromImage(kCFAllocatorDefault,
+                                                       m_videoTextureCache,
+                                                       pixelBuffer,
+                                                       NULL,
+                                                       GL_TEXTURE_2D,
+                                                       GL_RED_EXT,
+                                                       (GLsizei) width,
+                                                       (GLsizei) height,
+                                                       GL_RED_EXT,
+                                                       GL_UNSIGNED_BYTE,
+                                                       0,
+                                                       &m_texture);
+    if (err)
+    {
+        NSLog(@"Error at CVOpenGLESTextureCacheCreateTextureFromImage %d", err);
+    }
+    
+    glBindTexture(CVOpenGLESTextureGetTarget(m_texture), CVOpenGLESTextureGetName(m_texture));
+    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 }
 //-----------------------------------------------------------------------------
 - (void)setupAVCapture
 {
-    /*
     //-- Create CVOpenGLESTextureCacheRef for optimal CVImageBufferRef to GLES texture conversion.
     #if COREVIDEO_USE_EAGLCONTEXT_CLASS_IN_API
-    CVReturn err = CVOpenGLESTextureCacheCreate(kCFAllocatorDefault, NULL, _context, NULL, &_videoTextureCache);
+    CVReturn err = CVOpenGLESTextureCacheCreate(kCFAllocatorDefault, NULL, _context, NULL, &m_videoTextureCache);
     #else
-    CVReturn err = CVOpenGLESTextureCacheCreate(kCFAllocatorDefault, NULL, (__bridge void *)_context, NULL, &_videoTextureCache);
+    CVReturn err = CVOpenGLESTextureCacheCreate(kCFAllocatorDefault, NULL, (__bridge void *)_context, NULL, &m_videoTextureCache);
     #endif
     if (err)
     {
         NSLog(@"Error at CVOpenGLESTextureCacheCreate %d", err);
         return;
     }
-    */
     
     //-- Setup Capture Session.
     m_avSession = [[AVCaptureSession alloc] init];
@@ -340,8 +391,8 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
     AVCaptureVideoDataOutput * dataOutput = [[AVCaptureVideoDataOutput alloc] init];
     [dataOutput setAlwaysDiscardsLateVideoFrames:YES]; // Probably want to set this to NO when recording
     
-    //-- Set to YUV420.
-    [dataOutput setVideoSettings:[NSDictionary dictionaryWithObject:[NSNumber numberWithInt:kCVPixelFormatType_420YpCbCr8BiPlanarFullRange]
+    //-- Set to BGRA.
+    [dataOutput setVideoSettings:[NSDictionary dictionaryWithObject:[NSNumber numberWithInt:kCVPixelFormatType_32BGRA]
                                                              forKey:(id)kCVPixelBufferPixelFormatTypeKey]]; // Necessary for manual preview
     
     // Set dispatch to be on the main thread so OpenGL can do things with the data
@@ -351,6 +402,18 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
     [m_avSession commitConfiguration];
     
     [m_avSession startRunning];
+}
+
+- (void)cleanUpTexture
+{
+    if (m_texture)
+    {
+        CFRelease(m_texture);
+        m_texture = NULL;
+    }
+    
+    // Periodic texture cache flush every frame
+    CVOpenGLESTextureCacheFlush(m_videoTextureCache, 0);
 }
 //-----------------------------------------------------------------------------
 @end
