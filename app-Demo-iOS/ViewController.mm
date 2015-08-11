@@ -120,7 +120,7 @@ float GetSeconds()
    
    svIndex = slCreateSceneView(self.view.bounds.size.width * screenScale,
                                self.view.bounds.size.height * screenScale,
-                               dpi*0.8,
+                               dpi,
                                cmdSceneSmallTest,
                                cmdLineArgs,
                                (void*)&onPaintRTGL,
@@ -128,45 +128,35 @@ float GetSeconds()
                                0,
                                0);
     
-    if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad)
-    {
-        // Choosing bigger preset for bigger screen.
-        m_avSessionPreset = AVCaptureSessionPreset1280x720;
-    }
-    else
-    {
-        m_avSessionPreset = AVCaptureSessionPreset640x480;
-    }
-    
     [self setupAVCapture];
 }
 //-----------------------------------------------------------------------------
 - (void)viewDidUnload
 {
-   [super viewDidUnload];
+    [super viewDidUnload];
    
-   slTerminate();
+    slTerminate();
    
-   if ([EAGLContext currentContext] == self.context) {
-      [EAGLContext setCurrentContext:nil];
-   }
-   self.context = nil;
+    if ([EAGLContext currentContext] == self.context)
+    {   [EAGLContext setCurrentContext:nil];
+    }
+    self.context = nil;
 }
 //-----------------------------------------------------------------------------
 - (void)didReceiveMemoryWarning
 {
-   [super didReceiveMemoryWarning];
-   // Release any cached data, images, etc. that aren't in use.
+    [super didReceiveMemoryWarning];
+    // Release any cached data, images, etc. that aren't in use.
 }
 //-----------------------------------------------------------------------------
 - (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation
 {
-   // Return YES for supported orientations
-   if ([[UIDevice currentDevice] userInterfaceIdiom] == UIUserInterfaceIdiomPhone) {
-      return (interfaceOrientation != UIInterfaceOrientationPortraitUpsideDown);
-   } else {
-      return YES;
-   }
+    // Return YES for supported orientations
+    if ([[UIDevice currentDevice] userInterfaceIdiom] == UIUserInterfaceIdiomPhone) {
+        return (interfaceOrientation != UIInterfaceOrientationPortraitUpsideDown);
+    } else {
+        return YES;
+    }
 }
 //-----------------------------------------------------------------------------
 - (void)update
@@ -230,127 +220,129 @@ float GetSeconds()
 // touchesMoved receives the finger move events
 - (void)touchesMoved:(NSSet *)touches withEvent:(UIEvent *)event
 {
-   NSArray* myTouches = [touches allObjects];
-   UITouch* touch1 = [myTouches objectAtIndex:0];
-   CGPoint pos1 = [touch1 locationInView:touch1.view];
-   pos1.x *= screenScale;
-   pos1.y *= screenScale;
+    NSArray* myTouches = [touches allObjects];
+    UITouch* touch1 = [myTouches objectAtIndex:0];
+    CGPoint pos1 = [touch1 locationInView:touch1.view];
+    pos1.x *= screenScale;
+    pos1.y *= screenScale;
    
-   if (m_touchDowns == 1 && [touches count] == 1)
-   {  slMouseMove(svIndex, pos1.x, pos1.y);
-   } else
-   if (m_touchDowns == 2 && [touches count] == 2)
-   {  UITouch* touch2 = [myTouches objectAtIndex:1];
-      CGPoint pos2 = [touch2 locationInView:touch2.view];
-      pos2.x *= screenScale;
-      pos2.y *= screenScale;
-      slTouch2Move(svIndex, pos1.x, pos1.y, pos2.x, pos2.y);
-   }
+    if (m_touchDowns == 1 && [touches count] == 1)
+    {   slMouseMove(svIndex, pos1.x, pos1.y);
+    } else
+    if (m_touchDowns == 2 && [touches count] == 2)
+    {   UITouch* touch2 = [myTouches objectAtIndex:1];
+        CGPoint pos2 = [touch2 locationInView:touch2.view];
+        pos2.x *= screenScale;
+        pos2.y *= screenScale;
+        slTouch2Move(svIndex, pos1.x, pos1.y, pos2.x, pos2.y);
+    }
    
-   m_lastTouchTimeSec = m_lastFrameTimeSec;
+    m_lastTouchTimeSec = m_lastFrameTimeSec;
 }
 //-----------------------------------------------------------------------------
 // touchesEnded receives the finger thouch release events
 - (void)touchesEnded:(NSSet *)touches withEvent:(UIEvent *)event
 {
-   NSArray* myTouches = [touches allObjects];
-   UITouch* touch1 = [myTouches objectAtIndex:0];
-   CGPoint pos1 = [touch1 locationInView:touch1.view];
-   pos1.x *= screenScale;
-   pos1.y *= screenScale;
+    NSArray* myTouches = [touches allObjects];
+    UITouch* touch1 = [myTouches objectAtIndex:0];
+    CGPoint pos1 = [touch1 locationInView:touch1.view];
+    pos1.x *= screenScale;
+    pos1.y *= screenScale;
    
-   if (m_touchDowns == 1 || [touches count] == 1)
-   {  slMouseUp(svIndex, ButtonLeft, pos1.x, pos1.y, KeyNone);
-   } else
-   if (m_touchDowns == 2 && [touches count] >= 2)
-   {  UITouch* touch2 = [myTouches objectAtIndex:1];
-      CGPoint pos2 = [touch2 locationInView:touch2.view];
-      pos2.x *= screenScale;
-      pos2.y *= screenScale;
-      slTouch2Up(svIndex, pos1.x, pos1.y, pos2.x, pos2.y);
-   }
-   m_touchDowns -= (int)[touches count];
-   if (m_touchDowns < 0) m_touchDowns = 0;
+    if (m_touchDowns == 1 || [touches count] == 1)
+    {   slMouseUp(svIndex, ButtonLeft, pos1.x, pos1.y, KeyNone);
+    } else
+    if (m_touchDowns == 2 && [touches count] >= 2)
+    {   UITouch* touch2 = [myTouches objectAtIndex:1];
+        CGPoint pos2 = [touch2 locationInView:touch2.view];
+        pos2.x *= screenScale;
+        pos2.y *= screenScale;
+        slTouch2Up(svIndex, pos1.x, pos1.y, pos2.x, pos2.y);
+    }
+    m_touchDowns -= (int)[touches count];
+    if (m_touchDowns < 0) m_touchDowns = 0;
    
-   //printf("End   tD: %d, touches count: %d\n", m_touchDowns, [touches count]);
+    //printf("End   tD: %d, touches count: %d\n", m_touchDowns, [touches count]);
    
-   m_lastTouchTimeSec = m_lastFrameTimeSec;
+    m_lastTouchTimeSec = m_lastFrameTimeSec;
 }
 //-----------------------------------------------------------------------------
 // touchesCancle receives the cancle event on an iPhone call
 - (void)touchesCancle:(NSSet *)touches withEvent:(UIEvent *)event
 {
-   NSArray* myTouches = [touches allObjects];
-   UITouch* touch1 = [myTouches objectAtIndex:0];
-   CGPoint pos1 = [touch1 locationInView:touch1.view];
+    NSArray* myTouches = [touches allObjects];
+    UITouch* touch1 = [myTouches objectAtIndex:0];
+    CGPoint pos1 = [touch1 locationInView:touch1.view];
    
-   if (m_touchDowns == 1 || [touches count] == 1)
-   {  slMouseUp(svIndex, ButtonLeft, pos1.x, pos1.y, KeyNone);
-   } else
-   if (m_touchDowns == 2 && [touches count] >= 2)
-   {  UITouch* touch2 = [myTouches objectAtIndex:1];
-      CGPoint pos2 = [touch2 locationInView:touch2.view];
-      slTouch2Up(svIndex, pos1.x, pos1.y, pos2.x, pos2.y);
-   }
-   m_touchDowns -= (int)[touches count];
-   if (m_touchDowns < 0) m_touchDowns = 0;
+    if (m_touchDowns == 1 || [touches count] == 1)
+    {   slMouseUp(svIndex, ButtonLeft, pos1.x, pos1.y, KeyNone);
+    } else
+    if (m_touchDowns == 2 && [touches count] >= 2)
+    {   UITouch* touch2 = [myTouches objectAtIndex:1];
+        CGPoint pos2 = [touch2 locationInView:touch2.view];
+        slTouch2Up(svIndex, pos1.x, pos1.y, pos2.x, pos2.y);
+    }
+    m_touchDowns -= (int)[touches count];
+    if (m_touchDowns < 0) m_touchDowns = 0;
    
-   //printf("End   tD: %d, touches count: %d\n", m_touchDowns, [touches count]);
+    //printf("End   tD: %d, touches count: %d\n", m_touchDowns, [touches count]);
    
-   m_lastTouchTimeSec = m_lastFrameTimeSec;
+    m_lastTouchTimeSec = m_lastFrameTimeSec;
 }
 //-----------------------------------------------------------------------------
 - (void)captureOutput:(AVCaptureOutput *)captureOutput
 didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
        fromConnection:(AVCaptureConnection *)connection
 {
-    CVReturn err;
-    CVImageBufferRef pixelBuffer = CMSampleBufferGetImageBuffer(sampleBuffer);
-    CVPixelBufferLockBaseAddress(pixelBuffer,0);
-    int width = (int) CVPixelBufferGetWidth(pixelBuffer);
-    int height = (int) CVPixelBufferGetHeight(pixelBuffer);
-    unsigned char* data = (unsigned char*)CVPixelBufferGetBaseAddress(pixelBuffer);
-    
-    if (!m_videoTextureCache)
+    if (slNeedsVideoImage())
     {
-        NSLog(@"No video texture cache");
-        return;
+        CVReturn err;
+        CVImageBufferRef pixelBuffer = CMSampleBufferGetImageBuffer(sampleBuffer);
+        CVPixelBufferLockBaseAddress(pixelBuffer,0);
+        int width = (int) CVPixelBufferGetWidth(pixelBuffer);
+        int height = (int) CVPixelBufferGetHeight(pixelBuffer);
+        unsigned char* data = (unsigned char*)CVPixelBufferGetBaseAddress(pixelBuffer);
+        
+        if(!data)
+        {   NSLog(@"No pixel buffer data");
+            return;
+        }
+        
+        slCopyVideoImage(width, height, GL_RGBA, data, false);
+        
+        /*
+        if (!m_videoTextureCache)
+        {   NSLog(@"No video texture cache");
+            return;
+        }
+        // CVOpenGLESTextureCacheCreateTextureFromImage will create GLES texture
+        // optimally from CVImageBufferRef.
+        
+        [self cleanUpTexture];
+        
+        glActiveTexture(GL_TEXTURE0);
+        err = CVOpenGLESTextureCacheCreateTextureFromImage(kCFAllocatorDefault,
+                                                           m_videoTextureCache,
+                                                           pixelBuffer,
+                                                           NULL,
+                                                           GL_TEXTURE_2D,
+                                                           GL_RED_EXT,
+                                                           (GLsizei) width,
+                                                           (GLsizei) height,
+                                                           GL_RED_EXT,
+                                                           GL_UNSIGNED_BYTE,
+                                                           0,
+                                                           &m_texture);
+        if (err)
+        {
+            NSLog(@"Error at CVOpenGLESTextureCacheCreateTextureFromImage %d", err);
+        }
+        
+        glBindTexture(CVOpenGLESTextureGetTarget(m_texture), CVOpenGLESTextureGetName(m_texture));
+        glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+        glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+        */
     }
-    
-    if(!data)
-    {
-        NSLog(@"No pixel buffer data");
-        return;
-    }
-    slCopyVideoImage(width, height, GL_RGBA, data, false);
-    
-    
-    // CVOpenGLESTextureCacheCreateTextureFromImage will create GLES texture
-    // optimally from CVImageBufferRef.
-    
-    [self cleanUpTexture];
-    
-    glActiveTexture(GL_TEXTURE0);
-    err = CVOpenGLESTextureCacheCreateTextureFromImage(kCFAllocatorDefault,
-                                                       m_videoTextureCache,
-                                                       pixelBuffer,
-                                                       NULL,
-                                                       GL_TEXTURE_2D,
-                                                       GL_RED_EXT,
-                                                       (GLsizei) width,
-                                                       (GLsizei) height,
-                                                       GL_RED_EXT,
-                                                       GL_UNSIGNED_BYTE,
-                                                       0,
-                                                       &m_texture);
-    if (err)
-    {
-        NSLog(@"Error at CVOpenGLESTextureCacheCreateTextureFromImage %d", err);
-    }
-    
-    glBindTexture(CVOpenGLESTextureGetTarget(m_texture), CVOpenGLESTextureGetName(m_texture));
-    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 }
 //-----------------------------------------------------------------------------
 - (void)setupAVCapture
@@ -365,6 +357,13 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
     {
         NSLog(@"Error at CVOpenGLESTextureCacheCreate %d", err);
         return;
+    }
+    
+    if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad)
+    {   // Choosing bigger preset for bigger screen.
+        m_avSessionPreset = AVCaptureSessionPreset1280x720;
+    } else
+    {   m_avSessionPreset = AVCaptureSessionPreset640x480;
     }
     
     //-- Setup Capture Session.
@@ -406,6 +405,7 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
 
 - (void)cleanUpTexture
 {
+    /*
     if (m_texture)
     {
         CFRelease(m_texture);
@@ -414,6 +414,7 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
     
     // Periodic texture cache flush every frame
     CVOpenGLESTextureCacheFlush(m_videoTextureCache, 0);
+    */
 }
 //-----------------------------------------------------------------------------
 @end
