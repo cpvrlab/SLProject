@@ -6,7 +6,6 @@ SUBDIRS += lib-SLExternal/assimp
 SUBDIRS += lib-SLExternal/oculus
 SUBDIRS += lib-SLProject
 SUBDIRS += app-Demo-GLFW
-SUBDIRS += app-Demo-GLFW-OPENCV
 SUBDIRS += app-Demo-Qt
 SUBDIRS += app-NodeManipulationDemo
 SUBDIRS += app-Viewer-Qt

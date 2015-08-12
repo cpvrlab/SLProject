@@ -24,14 +24,27 @@
 #include <QHBoxLayout>
 #include "qtMainWindow.h"
 
+//-----------------------------------------------------------------------------
 //for backwards compatibility with QT below 5.2
 #if (QT_VERSION < QT_VERSION_CHECK(5, 2, 0)) 
     #define GETDEVICEPIXELRATIO() 1.0 
 #else 
     #define GETDEVICEPIXELRATIO() devicePixelRatio() 
 #endif
-
-
+//-----------------------------------------------------------------------------
+#ifdef HAS_OPENCV
+/*
+This project used the image processing library OpenCV: http://opencv.org/
+Please build and/or install is as described in the OpenCV documentation.
+The project definition uses under Windows the environment variable OPENCV_DIR
+for:
+OpenCV include directory: $(OPENCV_DIR)\..\..\include
+OpenCV library directory: $(OPENCV_DIR)\lib
+OpenCV dynamic library binary directory in $PATH: $(OPENCV_DIR)\bin
+*/
+#include <opencv2/opencv.hpp>
+cv::VideoCapture* captureDevice = 0;  //!< OpenCV video capture device
+#endif
 //-----------------------------------------------------------------------------
 qtMainWindow* qtGLWidget::mainWindow = 0;
 //-----------------------------------------------------------------------------

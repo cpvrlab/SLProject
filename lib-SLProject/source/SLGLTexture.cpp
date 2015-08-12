@@ -195,7 +195,7 @@ void SLGLTexture::copyVideoImage(SLint width,
         _images[0]->allocate(width, height, glFormat);
         _images[0]->name("Video Image");
         build();
-        cout << "rebuild" << endl;
+        //cout << "rebuild" << endl;
     }
 
     if (isTopLeft)
@@ -218,7 +218,7 @@ void SLGLTexture::copyVideoImage(SLint width,
         }
     }
     
-    cout << "c";
+    //cout << "c";
     _needsUpdate = true;
 }
 //-----------------------------------------------------------------------------
@@ -433,7 +433,7 @@ void SLGLTexture::fullUpdate()
                             GL_UNSIGNED_BYTE, 
                             (GLvoid*)_images[0]->data());
             _needsUpdate = false;
-            cout << "u";
+            //cout << "u";
         } 
     }
     GET_GL_ERROR;
