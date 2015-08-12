@@ -58,7 +58,7 @@ win32 {
 }
 macx {
     # mac only
-    exists(usr/local/lib/libopencv_*.dylib) {
+    exists(/usr/local/lib/libopencv_*.dylib) {
         message("OpenCV: Yes")
         DEFINES += HAS_OPENCV
         INCLUDEPATH += /usr/local/include/
