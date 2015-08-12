@@ -71,7 +71,21 @@ macx {
 unix:!macx:!android {
     # linux only: Install opencv with the following command:
     # sudo apt-get install libopencv-core-dev libopencv-imgproc-dev libopencv-video-dev libopencv-videoio-dev
-    message("OpenCV: No")
+
+    OPENCV_LIB_DIRS += /usr/lib #default
+    OPENCV_LIB_DIRS += /usr/lib/x86_64-linux-gnu #ubuntu
+
+    for(dir,OPENCV_LIB_DIRS) {
+        exists($$dir/libopencv_*.so) {
+            CONFIG += opencv
+            DEFINES += HAS_OPENCV
+            INCLUDEPATH += /usr/include/
+            LIBS += -L$$dir -lopencv_core -lopencv_imgproc -lopencv_imgproc -lopencv_video -lopencv_videoio
+        }
+    }
+
+    opencv:message("OpenCV: Yes")
+    else:message("OpenCV: No")
 }
 
 include(../SLProjectCommon.pro)
