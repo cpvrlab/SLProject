@@ -1,7 +1,6 @@
 //#############################################################################
-//  File:      glfwMain-OPENCV.cpp
+//  File:      glfwMain.cpp
 //  Purpose:   Implementation of the GUI with the GLFW3 (http://www.glfw.org/)
-//             and OPENCV for live video camera feed into SL
 //  Author:    Marcus Hudritsch
 //  Date:      July 2014
 //  Copyright: Marcus Hudritsch

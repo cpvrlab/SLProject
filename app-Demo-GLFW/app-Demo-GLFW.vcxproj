@@ -19,17 +19,17 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="source\glfwMain-OPENCV.cpp">
+    <ClCompile Include="source\glfwMain.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
     </ClCompile>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{54BE2CB2-A4BB-481D-9C74-FF8E4CD0764D}</ProjectGuid>
-    <RootNamespace>app-Demo-GLFW-OPENCV</RootNamespace>
+    <ProjectGuid>{54BE2CB2-A4BB-481D-9C74-AF8E4CD0764D}</ProjectGuid>
+    <RootNamespace>app-Demo-GLFW</RootNamespace>
     <Keyword>Win32Proj</Keyword>
-    <ProjectName>app-Demo-GLFW-OPENCV</ProjectName>
+    <ProjectName>app-Demo-GLFW</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
@@ -139,7 +139,7 @@
     <ClCompile>
       <Optimization>Disabled</Optimization>
       <AdditionalIncludeDirectories>$(ProjectDir);..\include;..\lib-SLExternal;..\lib-SLExternal\jpeg-8;..\lib-SLExternal\png;..\lib-SLExternal\zlib;..\lib-SLExternal\glew\include;..\lib-SLExternal\glfw3\include;..\lib-SLExternal\randomc;..\lib-SLExternal\Shoemake;..\lib-SLExternal\oculus\LibOVR\Include\;..\lib-SLExternal\nvwa;..\lib-SLExternal\assimp\include;..\lib-SLExternal\assimp\code;..\lib-SLExternal\dirent;$(OPENCV_DIR)\..\..\include</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>HAS_OPENCV;SL_GUI_GLFW;SL_STARTSCENE#cmdSceneRevolver;GLEW_STATIC;_DEBUG;UNICODE;_WINDOWS</PreprocessorDefinitions>
+      <PreprocessorDefinitions>SL_GUI_GLFW;SL_STARTSCENE#cmdSceneRevolver;GLEW_STATIC;_DEBUG;UNICODE;_WINDOWS</PreprocessorDefinitions>
       <TreatWChar_tAsBuiltInType>false</TreatWChar_tAsBuiltInType>
       <OpenMPSupport>false</OpenMPSupport>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
@@ -155,9 +155,9 @@
       <MinimalRebuild>true</MinimalRebuild>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>ws2_32.lib;opengl32.lib;lib-ovr.lib;lib-SLExternal.lib;lib-SLProject.lib;lib-Assimp.lib;opencv_core300d.lib;opencv_imgproc300d.lib;opencv_video300d.lib;opencv_videoio300d.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>ws2_32.lib;opengl32.lib;lib-ovr.lib;lib-SLExternal.lib;lib-SLProject.lib;lib-Assimp.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
-      <AdditionalLibraryDirectories>$(SolutionDir)_lib\$(Configuration)\$(Platform)\;$(OPENCV_DIR)\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(SolutionDir)_lib\$(Configuration)\$(Platform)\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Console</SubSystem>
       <LargeAddressAware>true</LargeAddressAware>
@@ -222,7 +222,7 @@
       <Optimization>Full</Optimization>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <AdditionalIncludeDirectories>$(ProjectDir);..\include;..\lib-SLExternal;..\lib-SLExternal\jpeg-8;..\lib-SLExternal\png;..\lib-SLExternal\zlib;..\lib-SLExternal\glew\include;..\lib-SLExternal\glfw3\include;..\lib-SLExternal\randomc;..\lib-SLExternal\Shoemake;..\lib-SLExternal\oculus\LibOVR\Include\;..\lib-SLExternal\nvwa;..\lib-SLExternal\assimp\include;..\lib-SLExternal\assimp\code;..\lib-SLExternal\dirent;$(OPENCV_DIR)\..\..\include</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>HAS_OPENCV;SL_GUI_GLFW;SL_STARTSCENE#cmdSceneRevolver;GLEW_STATIC;UNICODE;_WINDOWS</PreprocessorDefinitions>
+      <PreprocessorDefinitions>SL_GUI_GLFW;SL_STARTSCENE#cmdSceneRevolver;GLEW_STATIC;UNICODE;_WINDOWS</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <BufferSecurityCheck>true</BufferSecurityCheck>
       <FunctionLevelLinking>true</FunctionLevelLinking>
@@ -237,9 +237,9 @@
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>ws2_32.lib;opengl32.lib;lib-ovr.lib;lib-SLExternal.lib;lib-SLProject.lib;lib-Assimp.lib;opencv_core300.lib;opencv_imgproc300.lib;opencv_video300.lib;opencv_videoio300.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>ws2_32.lib;opengl32.lib;lib-ovr.lib;lib-SLExternal.lib;lib-SLProject.lib;lib-Assimp.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
-      <AdditionalLibraryDirectories>$(SolutionDir)_lib\$(Configuration)\$(Platform)\;$(OPENCV_DIR)\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(SolutionDir)_lib\$(Configuration)\$(Platform)\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <GenerateDebugInformation>false</GenerateDebugInformation>
       <SubSystem>Console</SubSystem>
       <OptimizeReferences>true</OptimizeReferences>
