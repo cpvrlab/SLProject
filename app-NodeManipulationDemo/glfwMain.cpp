@@ -20,6 +20,10 @@
 
 #include "NewNodeSceneView.h"
 
+#ifdef HAS_OPENCV
+#include <opencv2/opencv.hpp>
+#endif
+
 //-----------------------------------------------------------------------------
 // GLobal application variables
 GLFWwindow* window;                 //!< The global GLFW window handle.

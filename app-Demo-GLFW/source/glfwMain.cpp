@@ -22,19 +22,61 @@
 
 //-----------------------------------------------------------------------------
 #ifdef HAS_OPENCV
-/*
-This project used the image processing library OpenCV: http://opencv.org/
-Please build and/or install is as described in the OpenCV documentation.
-The project definition uses under Windows the environment variable OPENCV_DIR
-for:
-OpenCV include directory: $(OPENCV_DIR)\..\..\include
-OpenCV library directory: $(OPENCV_DIR)\lib
-OpenCV dynamic library binary directory in $PATH: $(OPENCV_DIR)\bin
+/*!
+If you have installed the image processing library OpenCV (http://opencv.org)
+the SLProject can use the live camera image in textures of 3D objects or the
+background texture image. The interface function slNeedsVideoImage() returns
+true if a scene uses the live video image. An application can copy the
+image data with the interface function slCopyVideoImage(). This done once
+before slUpdateAndPaint() is called in onPaint. <br>
+The preprocessor define HAS_OPENCV is set in the SLProjectCommon.pro file or
+in the VisualStudio vcxproj project settings under project Properties > C++ >
+Preprocessor.
 */
 #include <opencv2/opencv.hpp>
 cv::VideoCapture* captureDevice = 0;  //!< OpenCV video capture device
 #endif
 
+//-----------------------------------------------------------------------------
+//! Grabs an image from the live video stream with the OpenCV library.
+void grabImageFromCameraWithOpenCV()
+{
+    #ifdef HAS_OPENCV
+    try
+    {
+        if (!captureDevice)
+        {   captureDevice = new cv::VideoCapture(0);
+            if(!captureDevice->isOpened())
+                return;
+            SL_LOG("Capture devices created.\n")
+        }
+
+        if(captureDevice && captureDevice->isOpened())
+        {   cv::Mat frame;
+            if (!captureDevice->read(frame))
+                return;
+
+            // Set the according OpenGL format
+            SLint glFormat;
+            switch(frame.type())
+            {   case CV_8UC1: glFormat = GL_LUMINANCE; break;
+                case CV_8UC3: glFormat = GL_RGB; break;
+                case CV_8UC4: glFormat = GL_RGBA; break;
+                default:
+                    SL_EXIT_MSG("OpenCV image format not supported");
+                    return;
+            }
+
+            cvtColor(frame, frame,CV_BGR2RGB);
+            slCopyVideoImage(frame.cols, frame.rows, glFormat, frame.data, true);
+        }
+    }
+    catch (exception e)
+    {
+        SL_LOG("Exception during OpenCV video capture creation\n")
+    }
+    #endif
+}
 
 //-----------------------------------------------------------------------------
 // GLobal application variables
@@ -57,46 +99,7 @@ SLfloat     lastMouseDownTime=0.0f; //!< Last mouse press time
 SLKey       modifiers=KeyNone;      //!< last modifier keys
 SLbool      fullscreen = false;     //!< flag if window is in fullscreen mode
 
-//-----------------------------------------------------------------------------
-// Grabs an image from the live video stream with the OpenCV library.
-void grabImageFromCamera()
-{
-    #ifdef HAS_OPENCV
-    try
-    {
-        if (!captureDevice)
-        {   captureDevice = new cv::VideoCapture(0);
-            if(!captureDevice->isOpened())
-                return;
-            SL_LOG("Capture devices created.\n")
-        }
 
-        if(captureDevice && captureDevice->isOpened())
-        {   cv::Mat frame;
-            if (!captureDevice->read(frame)) 
-                return;
-
-            // Set the according OpenGL format
-            SLint glFormat;
-            switch(frame.type())
-            {   case CV_8UC1: glFormat = GL_LUMINANCE; break;
-                case CV_8UC3: glFormat = GL_RGB; break;
-                case CV_8UC4: glFormat = GL_RGBA; break;
-                default: 
-                    SL_EXIT_MSG("OpenCV image format not supported");
-                    return;
-            }
-
-            cvtColor(frame, frame,CV_BGR2RGB);
-            slCopyVideoImage(frame.cols, frame.rows, glFormat, frame.data, true);
-        }
-    }
-    catch (exception e)
-    {
-        SL_LOG("Exception during OpenCV video capture creation\n")
-    }
-    #endif
-}
 //-----------------------------------------------------------------------------
 /*! 
 onClose event handler for deallocation of the scene & sceneview. onClose is
@@ -114,7 +117,7 @@ SLbool onPaint()
 {
     // If live video image is requested grab it and copy it
     if (slNeedsVideoImage())
-        grabImageFromCamera();
+        grabImageFromCameraWithOpenCV();
 
     //////////////////////////////////////////////////
     bool viewNeedsRepaint = slUpdateAndPaint(svIndex);
