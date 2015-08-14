@@ -102,9 +102,9 @@ void SLImage::allocate(SLint width, SLint height, SLint format)
         case GL_LUMINANCE:   _bytesPerPixel = 1; break;
         case GL_RG:          _bytesPerPixel = 2; break;
         case GL_BGR:         _bytesPerPixel = 3; break;
-        case GL_BGRA:        _bytesPerPixel = 4; break;
         #endif
         case GL_RGB:         _bytesPerPixel = 3; break;
+        case GL_BGRA:        _bytesPerPixel = 4; break;
         case GL_RGBA:        _bytesPerPixel = 4; break;
         default: 
             SL_EXIT_MSG("SLImage::Allocate: Allocation failed");
@@ -778,6 +778,10 @@ SLCol4f SLImage::getPixeli(SLint x, SLint y)
         case GL_RGBA:
             addr = _bytesPerLine*y + 4*x; 
             color.set(_data[addr], _data[addr+1], _data[addr+2], _data[addr+3]);
+            break;
+        case GL_BGRA:
+            addr = _bytesPerLine*y + 4*x;
+            color.set(_data[addr+2], _data[addr+1], _data[addr], _data[addr+3]);
             break;
         #ifdef SL_GLES2
         case GL_LUMINANCE:

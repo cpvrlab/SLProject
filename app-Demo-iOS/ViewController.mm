@@ -161,7 +161,8 @@ float GetSeconds()
 //-----------------------------------------------------------------------------
 - (void)update
 {
-   slResize(svIndex, self.view.bounds.size.width * screenScale, self.view.bounds.size.height * screenScale);
+   slResize(svIndex, self.view.bounds.size.width  * screenScale,
+                     self.view.bounds.size.height * screenScale);
 }
 //-----------------------------------------------------------------------------
 - (void)glkView:(GLKView *)view drawInRect:(CGRect)rect
@@ -308,7 +309,7 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
             return;
         }
         
-        slCopyVideoImage(width, height, GL_RGBA, data, true);
+        slCopyVideoImage(width, height, GL_BGRA, data, true);
         
         /*
         if (!m_videoTextureCache)

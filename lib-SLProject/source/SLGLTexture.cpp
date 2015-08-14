@@ -195,7 +195,7 @@ void SLGLTexture::copyVideoImage(SLint width,
         _images[0]->allocate(width, height, glFormat);
         _images[0]->name("Video Image");
         build();
-        //cout << "rebuild" << endl;
+        cout << "Video Texture Rebuild";
     }
 
     if (isTopLeft)
@@ -246,13 +246,15 @@ void SLGLTexture::build(SLint texID)
     glGetIntegerv(GL_MAX_TEXTURE_SIZE, &texMaxSize);        
 
     // check if texture has to be resized
-    SLuint w2 = closestPowerOf2(_images[0]->width());
-    SLuint h2 = closestPowerOf2(_images[0]->height());
-    if (w2==0) SL_EXIT_MSG("Image can not be rescaled: width=0");
-    if (h2==0) SL_EXIT_MSG("Image can not be rescaled: height=0");
-    if (_resizeToPow2 && (w2!=_images[0]->width() || h2!=_images[0]->height()))
-        _images[0]->resize(w2, h2);
-      
+    if (_resizeToPow2)
+    {   SLuint w2 = closestPowerOf2(_images[0]->width());
+        SLuint h2 = closestPowerOf2(_images[0]->height());
+        if (w2==0) SL_EXIT_MSG("Image can not be rescaled: width=0");
+        if (h2==0) SL_EXIT_MSG("Image can not be rescaled: height=0");
+        if (w2!=_images[0]->width() || h2!=_images[0]->height())
+            _images[0]->resize(w2, h2);
+    }
+    
     // check 2D size
     if (_target == GL_TEXTURE_2D)
     {   if (_images[0]->width()  > (SLuint)texMaxSize)
@@ -326,6 +328,7 @@ void SLGLTexture::build(SLint texID)
     // Build textures
     if (_target == GL_TEXTURE_2D)
     {
+        //////////////////////////////////////////
         glTexImage2D(GL_TEXTURE_2D,
                      0, 
                      _images[0]->format(),
@@ -335,6 +338,8 @@ void SLGLTexture::build(SLint texID)
                      _images[0]->format(),
                      GL_UNSIGNED_BYTE, 
                      (GLvoid*)_images[0]->data());
+        //////////////////////////////////////////
+        
         if (_min_filter>=GL_NEAREST_MIPMAP_NEAREST)
         {   SLstring sVersion = _stateGL->glVersion();
             SLfloat  fVersion = (SLfloat)atof(sVersion.c_str());
@@ -350,7 +355,9 @@ void SLGLTexture::build(SLint texID)
     else if (_target == GL_TEXTURE_CUBE_MAP)
     {
         for (SLint i=0; i<6; i++)
-        {   glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X+i, 
+        {
+            //////////////////////////////////////////////
+            glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X+i,
                          0, 
                          _images[i]->format(),
                          _images[i]->width(),
@@ -359,6 +366,8 @@ void SLGLTexture::build(SLint texID)
                          _images[i]->format(),
                          GL_UNSIGNED_BYTE,
                          (GLvoid*)_images[i]->data());
+            //////////////////////////////////////////////
+            
             GET_GL_ERROR;  
         } 
         if (_min_filter>=GL_NEAREST_MIPMAP_NEAREST)
@@ -376,7 +385,8 @@ void SLGLTexture::build(SLint texID)
         {   memcpy(imageData, img->data(), img->bytesPerImage());
             imageData += img->bytesPerImage();
         }
-
+        
+        /////////////////////////////////////////////////////
         glTexImage3D(GL_TEXTURE_3D,
                      0,                     //Mipmap level,
                      _images[0]->format(),  //Internal format
@@ -387,10 +397,9 @@ void SLGLTexture::build(SLint texID)
                      _images[0]->format(),  //Format
                      GL_UNSIGNED_BYTE,      //Data type
                      &buffer[0]);
-
+        /////////////////////////////////////////////////////
     }
     #endif
-    cout << "Build";
 
     GET_GL_ERROR;
 }
@@ -412,8 +421,11 @@ void SLGLTexture::bindActive(SLint texID)
     {   _stateGL->activeTexture(GL_TEXTURE0 + texID);
         _stateGL->bindAndEnableTexture(_target, _texName);
         SLScene* s = SLScene::current;
-        if (this == s->videoTexture() && s->needsVideoImage() && _needsUpdate)
+        if (this == s->videoTexture() &&
+            s->needsVideoImage() &&
+            _needsUpdate)
         {   fullUpdate();
+            _needsUpdate = false;
         }   
     }
 
@@ -429,13 +441,16 @@ void SLGLTexture::fullUpdate()
         _images[0]->data() &&
         _target == GL_TEXTURE_2D)
     {   if (_min_filter==GL_NEAREST || _min_filter==GL_LINEAR)
-        {   glTexSubImage2D(_target, 0, 0, 0,
+        {
+            /////////////////////////////////////////////
+            glTexSubImage2D(_target, 0, 0, 0,
                             _images[0]->width(),
                             _images[0]->height(),
                             _images[0]->format(),
                             GL_UNSIGNED_BYTE, 
                             (GLvoid*)_images[0]->data());
-            _needsUpdate = false;
+            /////////////////////////////////////////////
+            
             cout << "u";
         } 
     }

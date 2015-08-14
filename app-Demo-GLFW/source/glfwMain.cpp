@@ -61,7 +61,7 @@ void grabImageFromCameraWithOpenCV()
             switch(frame.type())
             {   case CV_8UC1: glFormat = GL_LUMINANCE; break;
                 case CV_8UC3: glFormat = GL_RGB; break;
-                case CV_8UC4: glFormat = GL_RGBA; break;
+                case CV_8UC4: glFormat = GL_BGRA; break;
                 default:
                     SL_EXIT_MSG("OpenCV image format not supported");
                     return;
