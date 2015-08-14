@@ -355,8 +355,8 @@ void SLGLState::bindAndEnableTexture(GLenum target, SLuint textureID)
     if (target != _textureTarget || textureID != _textureID)
     {   glBindTexture(target, textureID);
 
-        if (_textureTarget != GL_TEXTURE_2D && _textureTarget != -1 ||
-            textureID == 0)
+        if (_textureTarget != GL_TEXTURE_2D &&
+            (_textureTarget != -1 || textureID == 0))
             glDisable(_textureTarget);
 
         _textureTarget = target;

@@ -308,7 +308,7 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
             return;
         }
         
-        slCopyVideoImage(width, height, GL_RGBA, data, false);
+        slCopyVideoImage(width, height, GL_RGBA, data, true);
         
         /*
         if (!m_videoTextureCache)

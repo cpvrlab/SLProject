@@ -218,7 +218,7 @@ void SLGLTexture::copyVideoImage(SLint width,
         }
     }
     
-    //cout << "c";
+    cout << "c";
     _needsUpdate = true;
 }
 //-----------------------------------------------------------------------------
@@ -390,6 +390,7 @@ void SLGLTexture::build(SLint texID)
 
     }
     #endif
+    cout << "Build";
 
     GET_GL_ERROR;
 }
@@ -424,7 +425,9 @@ Fully updates the OpenGL internal texture data by the image data
 */
 void SLGLTexture::fullUpdate()
 {  
-    if (_texName && _images.size() && _images[0]->data() && _target == GL_TEXTURE_2D)
+    if (_texName && _images.size() &&
+        _images[0]->data() &&
+        _target == GL_TEXTURE_2D)
     {   if (_min_filter==GL_NEAREST || _min_filter==GL_LINEAR)
         {   glTexSubImage2D(_target, 0, 0, 0,
                             _images[0]->width(),
@@ -433,7 +436,7 @@ void SLGLTexture::fullUpdate()
                             GL_UNSIGNED_BYTE, 
                             (GLvoid*)_images[0]->data());
             _needsUpdate = false;
-            //cout << "u";
+            cout << "u";
         } 
     }
     GET_GL_ERROR;

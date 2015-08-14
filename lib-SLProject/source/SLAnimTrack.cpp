@@ -271,7 +271,7 @@ void SLNodeAnimTrack::applyToNode(SLNode* node,
 void SLNodeAnimTrack::drawVisuals(SLSceneView* sv)
 {
     if (_animatedNode && _interpolationCurve &&
-        sv->drawBit(SL_DB_AXIS) || _animatedNode->drawBit(SL_DB_AXIS))
+        (sv->drawBit(SL_DB_AXIS) || _animatedNode->drawBit(SL_DB_AXIS)))
     {   
         // Move the animation curve to the initial WM position of the node
         SLMat4f parentWM = _animatedNode->parent()->updateAndGetWM();
