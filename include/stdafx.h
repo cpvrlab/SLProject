@@ -21,6 +21,7 @@
 //-----------------------------------------------------------------------------
 // Core header files used by all files
 #include <SL.h>
+#include <SLEnums.h>
 #include <SLObject.h>
 #include <SLMath.h>
 #include <SLVector.h>

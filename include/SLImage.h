@@ -74,20 +74,30 @@ typedef struct
 //! Small image class for loading JPG, PNG, BMP, TGA and saving PNG files 
 /*! Minimal class for loading JPG, PNG, BMP, TGA and saving PNG files. In addition
 you can fill, resize, flip and convolve an image. The class is used in 
-SLGLTexture. SLImage interpretes an image bottom left as OpenGL.
+SLGLTexture. SLImage interpretes an image starting at bottom left as OpenGL.
 */
 class SLImage : public SLObject
 {
     public:
                             SLImage         () {_data=0; _width=0; _height=0;}
-                            SLImage         (SLint width, SLint height, SLuint format);  
+                            SLImage         (SLint width,
+                                             SLint height,
+                                             SLPixelFormat format);
                             SLImage         (const SLstring imageFilename); 
                             SLImage         (SLImage &srcImage);
                            ~SLImage         ();
             // Misc                         
             void            clearData       ();
-            void            allocate        (SLint width, SLint height, SLint format);
-            void            load            (const SLstring filename); 
+            SLbool          allocate        (SLint width,
+                                             SLint height,
+                                             SLPixelFormat format);
+            void            load            (const SLstring filename);
+            SLbool          load            (SLint width,
+                                             SLint height,
+                                             SLPixelFormat srcFormat,
+                                             SLPixelFormat dstFormat,
+                                             SLuchar* data,
+                                             SLbool isTopLeft);
             void            savePNG         (const SLstring filename);
             SLCol4f         getPixeli       (SLint x, SLint y);
             SLCol4f         getPixelf       (SLfloat x, SLfloat y);
@@ -95,13 +105,14 @@ class SLImage : public SLObject
             void            setPixeliRGB    (SLint x, SLint y, SLCol3f color);
             void            setPixeliRGB    (SLint x, SLint y, SLCol4f color);
             void            setPixeliRGBA   (SLint x, SLint y, SLCol4f color);
-            void            resize          (SLint width, SLint height, 
-                                             SLImage* dstImg=0, SLbool invert=false);
+            void            resize          (SLint width,
+                                             SLint height,
+                                             SLImage* dstImg=0,
+                                             SLbool invert=false);
             void            flipY           ();
             void            convolve3x3     (SLfloat* kernel);
             void            fill            (SLubyte r=0, 
-                                             SLubyte g=0, 
-               
+                                             SLubyte g=0,
                                              SLubyte b=0, 
                                              SLubyte a=0);
             // Getters                      
@@ -111,10 +122,13 @@ class SLImage : public SLObject
             SLuint          bytesPerPixel   () {return _bytesPerPixel;}
             SLuint          bytesPerLine    () {return _bytesPerLine;}
             SLuint          bytesPerImage   () {return _bytesPerImage;}
-            SLuint          format          () {return _format;}
+            SLPixelFormat   format          () {return _format;}
+            SLstring        formatString    ();
             SLstring        path            () {return _path;}
                                             
-    private:                                
+    private:
+            SLint           bytesPerPixel   (SLPixelFormat pixelFormat);
+            SLint           bytesPerLine    (SLint width, SLPixelFormat pixelFormat);
             void            loadJPG         (SLstring filename);
             void            loadPNG         (SLstring filename);
             void            loadBMP         (SLstring filename);
@@ -125,7 +139,7 @@ class SLImage : public SLObject
             SLubyte*        _data;          //!< pointer to the image memory
             SLint           _width;         //!< width of the texture image in pixel
             SLint           _height;        //!< height of the texture image
-            SLint           _format;        //!< Component format
+            SLPixelFormat   _format;        //!< OpenGL pixel format
             SLint           _bytesPerPixel; //!< Number of bytes per pixel
             SLint           _bytesPerLine;  //!< Number of bytes per line (stride)
             SLint           _bytesPerImage; //!< Number of bytes per image

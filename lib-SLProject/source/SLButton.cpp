@@ -83,8 +83,6 @@ SLButton::shapeDraw draws everything of the button
 */
 void SLButton::drawRec(SLSceneView* sv)
 { 
-    bool rootButton = (_name == ">");
-    bool loadSceneButton = (_name == "Load Scene >");
     if (_drawBits.get(SL_DB_HIDDEN)) return;
     
     _stateGL->pushModelViewMatrix();

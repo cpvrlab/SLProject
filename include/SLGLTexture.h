@@ -100,9 +100,10 @@ class SLGLTexture : public SLObject
             SLTexType   texType         (){return _texType;}
             SLfloat     bumpScale       (){return _bumpScale;}
             SLCol4f     getTexelf       (SLfloat s, SLfloat t);
-            SLbool      hasAlpha        (){return (_images.size() && 
-                                                   _images[0]->format()==GL_RGBA) || 
-                                                   _texType==FontMap;}
+            SLbool      hasAlpha        (){return (_images.size() &&
+                                                   ((_images[0]->format()==SL_RGBA  ||
+                                                    _images[0]->format()==SL_BGRA) ||
+                                                   _texType==FontMap));}
             SLint       width           (){return _images[0]->width();}
             SLint       height          (){return _images[0]->height();}
             SLMat4f     tm              (){return _tm;}
@@ -115,8 +116,8 @@ class SLGLTexture : public SLObject
             SLuint      nextPowerOf2    (SLuint num);
             void        build2DMipmaps  (SLint target, SLuint index);
             void        setVideoImage   (SLstring videoImageFile);
-            void        copyVideoImage  (SLint width, SLint height, 
-                                         SLint glFormat, 
+            SLbool      copyVideoImage  (SLint width, SLint height,
+                                         SLPixelFormat glFormat, 
                                          SLuchar* data, 
                                          SLbool isTopLeft);
             // Bumpmap methods

@@ -57,18 +57,18 @@ void grabImageFromCameraWithOpenCV()
                 return;
 
             // Set the according OpenGL format
-            SLint glFormat;
+            SLPixelFormat format;
             switch(frame.type())
-            {   case CV_8UC1: glFormat = GL_LUMINANCE; break;
-                case CV_8UC3: glFormat = GL_RGB; break;
-                case CV_8UC4: glFormat = GL_BGRA; break;
+            {   case CV_8UC1: format = SL_LUMINANCE; break;
+                case CV_8UC3: format = SL_RGB; break;
+                case CV_8UC4: format = SL_RGBA; break;
                 default:
                     SL_EXIT_MSG("OpenCV image format not supported");
                     return;
             }
 
             cvtColor(frame, frame,CV_BGR2RGB);
-            slCopyVideoImage(frame.cols, frame.rows, glFormat, frame.data, true);
+            slCopyVideoImage(frame.cols, frame.rows, format, frame.data, true);
         }
     }
     catch (exception e)

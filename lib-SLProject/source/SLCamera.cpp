@@ -846,8 +846,6 @@ screen.
 SLbool SLCamera::onTouch2Move(const SLint x1, const SLint y1,
                               const SLint x2, const SLint y2)
 {
-    SLScene* s = SLScene::current;
-
     SLVec2f now1((SLfloat)x1, (SLfloat)y1);
     SLVec2f now2((SLfloat)x2, (SLfloat)y2);
     SLVec2f delta1(now1-_oldTouchPos1);

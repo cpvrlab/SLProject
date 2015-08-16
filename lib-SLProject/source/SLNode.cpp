@@ -371,9 +371,7 @@ matrix (SLNode::_wm) is used for transform. See also SLNode::drawMeshes.
 The drawRec method is <b>still used</b> for the rendering of the 2D menu!
 */
 void SLNode::drawRec(SLSceneView* sv)
-{    
-    bool rootButton = (_name == ">");
-    bool loadSceneButton = (_name == "Load Scene >");
+{   
     // Do frustum culling for all shapes except cameras & lights
     if (sv->doFrustumCulling() && !_aabb.isVisible()) return; 
    

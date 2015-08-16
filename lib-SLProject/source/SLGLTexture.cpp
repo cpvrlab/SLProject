@@ -179,47 +179,31 @@ void SLGLTexture::setVideoImage(SLstring videoImageFile)
 }
 //-----------------------------------------------------------------------------
 //! Copies the image data from a video camera into the current video image
-void SLGLTexture::copyVideoImage(SLint width, 
-                                 SLint height, 
-                                 SLint glFormat, 
-                                 SLuchar* data, 
-                                 SLbool isTopLeft)
+SLbool SLGLTexture::copyVideoImage(SLint width,
+                                   SLint height,
+                                   SLPixelFormat srcFormat,
+                                   SLuchar* data,
+                                   SLbool isTopLeft)
 {
-    assert(_images.size());
-
-    // Rebuild if size changes
-    if (width  != _images[0]->width() ||
-        height != _images[0]->height() ||
-        glFormat != _images[0]->format())
-    {
-        _images[0]->allocate(width, height, glFormat);
-        _images[0]->name("Video Image");
-        build();
-        cout << "Video Texture Rebuild";
-    }
-
-    if (isTopLeft)
-    {
-        // copy lines and flip vertically
-        SLint bpl = _images[0]->bytesPerLine();
-        SLubyte* pSrc = data;
-        SLubyte* pDst = _images[0]->data() + _images[0]->bytesPerImage() - bpl;
-        for (SLuint h=0; h<_images[0]->height(); ++h)
-        {   memcpy(pDst, pSrc, bpl);   
-            pSrc += bpl;
-            pDst -= bpl;
-        }
-    } else
-    {   // copy full image
-        memcpy(_images[0]->data(), data, _images[0]->bytesPerImage());
-        if (!_images[0]->data()) 
-        {   cout << "SLGLTexture::copyVideoImage: memcpy failed!" << endl;
-            exit(1);
-        }
-    }
+    SLPixelFormat dstFormat = _stateGL->pixelFormatIsSupported(srcFormat) ?
+                                    srcFormat : SL_RGB;
+                           
+    bool needsRebuild = _images[0]->load(width,
+                                         height,
+                                         srcFormat,
+                                         dstFormat,
+                                         data,
+                                         isTopLeft);
     
-    cout << "c";
+    // OpenGL ES 2 only can resize non-power-of-two texture with clamp to edge
+    _wrap_s = GL_CLAMP_TO_EDGE;
+    _wrap_t = GL_CLAMP_TO_EDGE;
+    
+    if (needsRebuild)
+        build();
+    
     _needsUpdate = true;
+    return needsRebuild;
 }
 //-----------------------------------------------------------------------------
 /*! 
@@ -341,12 +325,7 @@ void SLGLTexture::build(SLint texID)
         //////////////////////////////////////////
         
         if (_min_filter>=GL_NEAREST_MIPMAP_NEAREST)
-        {   SLstring sVersion = _stateGL->glVersion();
-            SLfloat  fVersion = (SLfloat)atof(sVersion.c_str());
-            SLbool   foundGLES2 = (sVersion.find("OpenGL ES 2")!=string::npos);
-            SLbool   foundGLES3 = (sVersion.find("OpenGL ES 3")!=string::npos);
-  
-            if (foundGLES2 || foundGLES3 || fVersion >= 3.0)
+        {   if (_stateGL->glIsES2() || _stateGL->glIsES3() || _stateGL->glVersionNOf() >= 3.0)
                 glGenerateMipmap(GL_TEXTURE_2D);
             else
                 build2DMipmaps(GL_TEXTURE_2D, 0);
@@ -441,7 +420,7 @@ void SLGLTexture::fullUpdate()
         _images[0]->data() &&
         _target == GL_TEXTURE_2D)
     {   if (_min_filter==GL_NEAREST || _min_filter==GL_LINEAR)
-        {
+        {   
             /////////////////////////////////////////////
             glTexSubImage2D(_target, 0, 0, 0,
                             _images[0]->width(),
@@ -450,8 +429,6 @@ void SLGLTexture::fullUpdate()
                             GL_UNSIGNED_BYTE, 
                             (GLvoid*)_images[0]->data());
             /////////////////////////////////////////////
-            
-            cout << "u";
         } 
     }
     GET_GL_ERROR;

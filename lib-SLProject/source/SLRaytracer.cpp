@@ -734,7 +734,7 @@ void SLRaytracer::prepareImage()
 
     // Create the image for the first time
     if (_images.size()==0)
-        _images.push_back(new SLImage(_sv->scrW(), _sv->scrH(), GL_RGB));
+        _images.push_back(new SLImage(_sv->scrW(), _sv->scrH(), SL_RGB));
 
     // Allocate image of the inherited texture class 
     if (_sv->scrW() != _images[0]->width() || _sv->scrH() != _images[0]->height())
@@ -750,7 +750,7 @@ void SLRaytracer::prepareImage()
         _bufT.dispose();
         _bufI.dispose();
 
-        _images[0]->allocate(_sv->scrW(), _sv->scrH(), GL_RGB);
+        _images[0]->allocate(_sv->scrW(), _sv->scrH(), SL_RGB);
     }
    
     // Fill image black for single RT

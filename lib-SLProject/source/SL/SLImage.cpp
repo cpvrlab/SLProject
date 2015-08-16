@@ -19,7 +19,7 @@
 
 //-----------------------------------------------------------------------------
 //! Constructor for empty image of a certain format and size
-SLImage::SLImage(SLint width, SLint height, SLuint format) : SLObject()
+SLImage::SLImage(SLint width, SLint height, SLPixelFormat format) : SLObject()
 {
     _data = 0;
     _width = 0;
@@ -83,38 +83,21 @@ void SLImage::clearData()
 }
 //-----------------------------------------------------------------------------
 //! Memory allocation function
-void SLImage::allocate(SLint width, SLint height, SLint format)
+/*! It returns true if width or height or the pixelformat has changed
+*/
+SLbool SLImage::allocate(SLint width, SLint height, SLPixelFormat pixelFormatGL)
 {
     assert(width>0 && height>0);
 
     // return if essentials are identical
-    if (_data && _width==width && _height==height && _format==format) return;
-   
-    // determine bytes per pixel    
-    switch (format)
-    {  
-        #ifdef SL_GLES2
-        case GL_LUMINANCE:      _bytesPerPixel = 1; break;
-        case GL_LUMINANCE_ALPHA:_bytesPerPixel = 2; break;
-        #else
-        case GL_RED:         
-        case GL_ALPHA:
-        case GL_LUMINANCE:   _bytesPerPixel = 1; break;
-        case GL_RG:          _bytesPerPixel = 2; break;
-        case GL_BGR:         _bytesPerPixel = 3; break;
-        #endif
-        case GL_RGB:         _bytesPerPixel = 3; break;
-        case GL_BGRA:        _bytesPerPixel = 4; break;
-        case GL_RGBA:        _bytesPerPixel = 4; break;
-        default: 
-            SL_EXIT_MSG("SLImage::Allocate: Allocation failed");
-    }
+    if (_data && _width==width && _height==height && _format==pixelFormatGL)
+        return false;
    
     _width  = width;
     _height = height;
-    _format = format;
-    SLint bitsPerPixel = _bytesPerPixel * 8;
-    _bytesPerLine  = ((width * bitsPerPixel + 31) / 32) * 4;
+    _format = pixelFormatGL;
+    _bytesPerPixel = bytesPerPixel(pixelFormatGL);
+    _bytesPerLine  = bytesPerLine(width, pixelFormatGL);
     _bytesPerImage = _bytesPerLine * _height;
    
     delete[] _data;
@@ -122,6 +105,193 @@ void SLImage::allocate(SLint width, SLint height, SLint format)
 
     if (!_data)
         SL_EXIT_MSG("SLImage::Allocate: Allocation failed");
+    return true;
+}
+//-----------------------------------------------------------------------------
+//! Returns the NO. of bytes per pixel for the passed pixel format
+SLint SLImage::bytesPerPixel(SLPixelFormat format)
+{
+    switch (format)
+    {
+        case SL_RED:
+        case SL_RED_INTEGER:
+        case SL_GREEN:
+        case SL_ALPHA:
+        case SL_BLUE:
+        case SL_LUMINANCE:
+        case SL_INTENSITY: return 1;
+        case SL_RG:
+        case SL_RG_INTEGER:
+        case SL_LUMINANCE_ALPHA: return 2;
+        case SL_RGB:
+        case SL_BGR:
+        case SL_RGB_INTEGER:
+        case SL_BGR_INTEGER: return 3;
+        case SL_RGBA:
+        case SL_BGRA:
+        case SL_RGBA_INTEGER:
+        case SL_BGRA_INTEGER: return 4;
+        default:
+            SL_EXIT_MSG("SLImage::bytesPerPixel: unknown pixel format");
+    }
+    return 0;
+}
+//-----------------------------------------------------------------------------
+//! Returns the NO. of bytes per image line for the passed pixel format
+SLint SLImage::bytesPerLine(SLint width, SLPixelFormat format)
+{
+    SLint bpp = bytesPerPixel(format);
+    SLint bitsPerPixel = bpp * 8;
+    SLint bpl = ((width * bitsPerPixel + 31) / 32) * 4;
+    return bpl;
+}
+//-----------------------------------------------------------------------------
+//! loads an image from a memory
+/*! It returns true if the width, height or destination format has changed so
+that the depending texture can be rebuild in OpenGL. If the source and
+destination pixel format does not match a conversion for certain formats is
+done.
+*/
+SLbool SLImage::load(SLint width,
+                     SLint height,
+                     SLPixelFormat srcPixelFormatGL,
+                     SLPixelFormat dstPixelFormatGL,
+                     SLuchar* data,
+                     SLbool isTopLeft)
+{
+    
+    SLbool needsTextureRebuild = allocate(width, height, dstPixelFormatGL);
+    
+    SLint    dstBPL   = _bytesPerLine;
+    SLint    dstBPP   = _bytesPerPixel;
+    SLint    srcBPP   = bytesPerPixel(srcPixelFormatGL);
+    SLint    srcBPL   = bytesPerLine(width, srcPixelFormatGL);
+    
+    if (isTopLeft)
+    {
+        // copy lines and flip vertically
+        SLubyte* dstStart = _data + _bytesPerImage - dstBPL;
+        SLubyte* srcStart = data;
+        
+        if (srcPixelFormatGL==dstPixelFormatGL)
+        {
+            for (SLuint h=0; h<_height; ++h, srcStart += srcBPL, dstStart -= dstBPL)
+            {   memcpy(dstStart, srcStart, dstBPL);
+            }
+        }
+        else
+        {
+            if (srcPixelFormatGL==SL_BGRA)
+            {
+                if (dstPixelFormatGL==SL_RGB)
+                {
+                    for (SLuint h=0; h<_height; ++h, srcStart += srcBPL, dstStart -= dstBPL)
+                    {   SLubyte* src = srcStart;
+                        SLubyte* dst = dstStart;
+                        for(SLint w=0; w<_width-1; ++w, dst += dstBPP, src += srcBPP)
+                        {   dst[0]=src[2];
+                            dst[1]=src[1];
+                            dst[2]=src[0];
+                        }
+                    }
+                }
+                else
+                if (dstPixelFormatGL==SL_RGBA)
+                {
+                    for (SLuint h=0; h<_height; ++h, srcStart += srcBPL, dstStart -= dstBPL)
+                    {   SLubyte* src = srcStart;
+                        SLubyte* dst = dstStart;
+                        for(SLint w=0; w<_width-1; ++w, dst += dstBPP, src += srcBPP)
+                        {   dst[0]=src[2];
+                            dst[1]=src[1];
+                            dst[2]=src[0];
+                            dst[3]=src[3];
+                        }
+                    }
+                    
+                }
+            }  else
+            if (srcPixelFormatGL==SL_BGR || srcPixelFormatGL==SL_RGB)
+            {
+                if (dstPixelFormatGL==SL_RGB || dstPixelFormatGL==SL_BGR)
+                {
+                    for (SLuint h=0; h<_height; ++h, srcStart += srcBPL, dstStart -= dstBPL)
+                    {   SLubyte* src = srcStart;
+                        SLubyte* dst = dstStart;
+                        for(SLint w=0; w<_width-1; ++w, dst += dstBPP, src += srcBPP)
+                        {   dst[0]=src[2];
+                            dst[1]=src[1];
+                            dst[2]=src[0];
+                        }
+                    }
+                }
+            } else
+            {   cout << "SLImage::load from memory: Pixel format conversion not allowed" << endl;
+                exit(1);
+            }
+        }
+    }
+    else // bottom left (no flipping)
+    {
+        if (srcPixelFormatGL==dstPixelFormatGL)
+        {
+            memcpy(_data, data, _bytesPerImage);
+        }
+        else
+        {
+            SLubyte* dstStart = _data;
+            SLubyte* srcStart = data;
+            
+            if (srcPixelFormatGL==SL_BGRA)
+            {
+                if (dstPixelFormatGL==SL_RGB)
+                {
+                    for(SLint h=0; h<_height-1; ++h, srcStart+=srcBPL, dstStart+=dstBPL)
+                    {   SLubyte* src = srcStart;
+                        SLubyte* dst = dstStart;
+                        for(SLint w=0; w<_width-1; ++w, dst += dstBPP, src += srcBPP)
+                        {   dst[0]=src[2];
+                            dst[1]=src[1];
+                            dst[2]=src[0];
+                        }
+                    }
+                } else
+                if (dstPixelFormatGL==SL_RGBA)
+                {
+                    for(SLint h=0; h<_height-1; ++h, srcStart+=srcBPL, dstStart+=dstBPL)
+                    {   SLubyte* src = srcStart;
+                        SLubyte* dst = dstStart;
+                        for(SLint w=0; w<_width-1; ++w, dst += dstBPP, src += srcBPP)
+                        {   dst[0]=src[2];
+                            dst[1]=src[1];
+                            dst[2]=src[0];
+                            dst[3]=src[3];
+                        }
+                    }
+                }
+            } else
+            if (srcPixelFormatGL==SL_BGR || srcPixelFormatGL==SL_RGB)
+            {
+                if (dstPixelFormatGL==SL_RGB || dstPixelFormatGL==SL_BGR)
+                {
+                    for(SLint h=0; h<_height-1; ++h, srcStart+=srcBPL, dstStart+=dstBPL)
+                    {   SLubyte* src = srcStart;
+                        SLubyte* dst = dstStart;
+                        for(SLint w=0; w<_width-1; ++w, dst += dstBPP, src += srcBPP)
+                        {   dst[0]=src[2];
+                            dst[1]=src[1];
+                            dst[2]=src[0];
+                        }
+                    }
+                }
+            } else
+            {   cout << "SLImage::load from memory: Pixel format conversion not allowed" << endl;
+                exit(1);
+            }
+        }
+    }
+    
+    return needsTextureRebuild;
 }
 //-----------------------------------------------------------------------------
 //! Loads the image with the appropriate image loader
@@ -138,6 +308,33 @@ void SLImage::load(const SLstring filename)
    
     SLstring msg = "SLImage.load: Unsupported image file type: " + ext;
     SL_EXIT_MSG(msg.c_str());
+}
+//-----------------------------------------------------------------------------
+//! Returns the pixel format as string
+SLstring SLImage::formatString()
+{
+    switch (_format)
+    {
+        case SL_RGB: return SLstring("SL_RGB");
+        case SL_RGBA: return SLstring("SL_RGBA");
+        case SL_BGRA: return SLstring("SL_BGRA");
+        case SL_RED: return SLstring("SL_RED");
+        case SL_RED_INTEGER: return SLstring("SL_RED_INTEGER");
+        case SL_GREEN: return SLstring("SL_GREEN");
+        case SL_ALPHA: return SLstring("SL_BLUE");
+        case SL_BLUE: return SLstring("SL_BLUE");
+        case SL_LUMINANCE: return SLstring("SL_LUMINANCE");
+        case SL_INTENSITY: return SLstring("SL_INTENSITY");
+        case SL_RG: return SLstring("SL_RG");
+        case SL_RG_INTEGER: return SLstring("SL_RG_INTEGER");
+        case SL_LUMINANCE_ALPHA: return SLstring("SL_LUMINANCE_ALPHA");
+        case SL_BGR: return SLstring("SL_BGR");
+        case SL_RGB_INTEGER: return SLstring("SL_RGB_INTEGER");
+        case SL_BGR_INTEGER: return SLstring("SL_BGR_INTEGER");
+        case SL_RGBA_INTEGER: return SLstring("SL_RGBA_INTEGER");
+        case SL_BGRA_INTEGER: return SLstring("SL_BGRA_INTEGER");
+        default: return SLstring("Unknow pixel format");
+    }
 }
 //-----------------------------------------------------------------------------
 //! Error manager used by the JPEG loader
@@ -211,14 +408,14 @@ void SLImage::loadJPG(SLstring filename)
     switch (cinfo.out_color_space)
     {   case JCS_GRAYSCALE:  
             #ifdef SL_GLES2
-            _format = GL_LUMINANCE; 
+            _format = SL_LUMINANCE;
             #else
-            _format = GL_RED; 
+            _format = SL_RED;
             #endif
             _bytesPerPixel = 1;
             break;
         case JCS_RGB:        
-            _format = GL_RGB;
+            _format = SL_RGB;
             _bytesPerPixel = 3;
             break; 
         case JCS_UNKNOWN: 
@@ -330,33 +527,30 @@ void SLImage::loadPNG(SLstring filename)
     switch (color_type)
     {   case PNG_COLOR_TYPE_GRAY: 
             #ifdef SL_GLES2
-            _format = GL_LUMINANCE;
+            _format = SL_LUMINANCE;
             #else
-            _format = GL_RED;
-            #endif 
-            _bytesPerPixel=1; 
+            _format = SL_RED;
+            #endif
             break;
         case PNG_COLOR_TYPE_GRAY_ALPHA:
             #ifdef SL_GLES2
-            _format = GL_LUMINANCE_ALPHA;
+            _format = SL_LUMINANCE_ALPHA;
             #else 
-            _format = GL_RG;
+            _format = SL_RG;
             #endif
-            _bytesPerPixel=2; 
             break;
         case PNG_COLOR_TYPE_RGB: 
-            _format = GL_RGB; 
-            _bytesPerPixel=3; 
+            _format = SL_RGB;
             break;
         case PNG_COLOR_TYPE_RGB_ALPHA: 
-            _format = GL_RGBA; 
-            _bytesPerPixel=4; 
+            _format = SL_RGBA;
             break;
         default: 
             SL_EXIT_MSG("Wrong PNG color type!"); break;
     }
    
-    _bytesPerLine  = _bytesPerPixel * _width;
+    _bytesPerPixel = bytesPerPixel(_format);
+    _bytesPerLine  = bytesPerLine(_width, _format);
     _bytesPerImage = _bytesPerLine * _height;
 
     // we can now allocate memory for storing pixel data 
@@ -445,7 +639,7 @@ void SLImage::loadBMP(SLstring filename)
         SL_EXIT_MSG("SLImage::loadBMP: Not enough data in file!");
 
     // Allocate for the image data block for RGB data
-    _format = GL_RGB;
+    _format = SL_RGB;
     _width  = BIH.biWidth;
     _height = BIH.biHeight;
     _bytesPerPixel = 3; 
@@ -524,10 +718,10 @@ void SLImage::loadTGA(SLstring filename)
     }
 
     if (bitsPerPixel == 24)
-        _format = GL_RGB;
+        _format = SL_RGB;
     else
     if (bitsPerPixel == 32)
-        _format = GL_RGBA;
+        _format = SL_RGBA;
     else
     {   fclose(fp);
         SL_EXIT_MSG("SLImage::loadTGA: Only 24 and 32 bit bit per pixel supported!");
@@ -579,7 +773,7 @@ void SLImage::loadTGAcompr(SLstring filename, FILE* fp, sTGA& tga)
     SLuint pixelcount   = tga.Height * tga.Width;   // Nuber of pixels in the image
     SLuint currentpixel = 0;                        // Current pixel being read
     SLuint currentbyte  = 0;                        // Current byte 
-    SLubyte * colorbuffer = (GLubyte *)malloc(tga.bytesPerPixel); // Storage for 1 pixel
+    SLubyte* colorbuffer = (GLubyte *)malloc(tga.bytesPerPixel); // Storage for 1 pixel
 
     do
     {
@@ -587,7 +781,7 @@ void SLImage::loadTGAcompr(SLstring filename, FILE* fp, sTGA& tga)
 
         if(fread(&chunkheader, sizeof(GLubyte), 1, fp) == 0)      // Read in the 1 byte header
         {  fclose(fp);
-            delete[]_data;
+            delete[] _data;
             SL_EXIT_MSG("SLImage::loadTGAcompr: Could not read RLE header.");
         }
 
@@ -606,7 +800,7 @@ void SLImage::loadTGAcompr(SLstring filename, FILE* fp, sTGA& tga)
                 }
             
                 // Write to memory. Flip R and B vcolor values around in the process 
-                _data[currentbyte		] = colorbuffer[2];
+                _data[currentbyte    ] = colorbuffer[2];
                 _data[currentbyte + 1] = colorbuffer[1];
                 _data[currentbyte + 2] = colorbuffer[0];
 
@@ -658,6 +852,8 @@ void SLImage::loadTGAcompr(SLstring filename, FILE* fp, sTGA& tga)
         }
     }
     while(currentpixel < pixelcount);
+    
+    free(colorbuffer);
 }
 //-----------------------------------------------------------------------------
 //! Save as PNG using libPNG. See http://www.libpng.org/pub/png/libpng.html
@@ -715,15 +911,15 @@ void SLImage::savePNG(SLstring filename)
     switch (_format)
     {  
         #ifdef SL_GLES2
-        case GL_LUMINANCE:      color_type = PNG_COLOR_TYPE_GRAY;       break;
-        case GL_LUMINANCE_ALPHA:color_type = PNG_COLOR_TYPE_GRAY_ALPHA; break;
+        case SL_LUMINANCE:      color_type = PNG_COLOR_TYPE_GRAY;       break;
+        case SL_LUMINANCE_ALPHA:color_type = PNG_COLOR_TYPE_GRAY_ALPHA; break;
         #else
-        case GL_RED:   color_type = PNG_COLOR_TYPE_GRAY;       break;
-        case GL_RG:    color_type = PNG_COLOR_TYPE_GRAY_ALPHA; break;
+        case SL_RED:   color_type = PNG_COLOR_TYPE_GRAY;       break;
+        case SL_RG:    color_type = PNG_COLOR_TYPE_GRAY_ALPHA; break;
         #endif
-        case GL_RGB:   color_type = PNG_COLOR_TYPE_RGB;        break;
-        case GL_RGBA:  color_type = PNG_COLOR_TYPE_RGB_ALPHA;  break;
-        default: SL_EXIT_MSG("Wrong GL color format.");
+        case SL_RGB:   color_type = PNG_COLOR_TYPE_RGB;        break;
+        case SL_RGBA:  color_type = PNG_COLOR_TYPE_RGB_ALPHA;  break;
+        default: SL_EXIT_MSG("Wrong pixel format.");
     }
    
     png_set_IHDR(png_ptr, 
@@ -771,30 +967,30 @@ SLCol4f SLImage::getPixeli(SLint x, SLint y)
     y %= _height;
 
     switch (_format)
-    {   case GL_RGB:
+    {   case SL_RGB:
             addr = _bytesPerLine*y + 3*x;
             color.set(_data[addr], _data[addr+1], _data[addr+2], 255.0f);
             break; 
-        case GL_RGBA:
+        case SL_RGBA:
             addr = _bytesPerLine*y + 4*x; 
             color.set(_data[addr], _data[addr+1], _data[addr+2], _data[addr+3]);
             break;
-        case GL_BGRA:
+        case SL_BGRA:
             addr = _bytesPerLine*y + 4*x;
             color.set(_data[addr+2], _data[addr+1], _data[addr], _data[addr+3]);
             break;
         #ifdef SL_GLES2
-        case GL_LUMINANCE:
+        case SL_LUMINANCE:
         #else
-        case GL_RED:
+        case SL_RED:
         #endif
             addr = _bytesPerLine*y + x;
             color.set(_data[addr], _data[addr], _data[addr], 255.0f);
             break;
         #ifdef SL_GLES2
-        case GL_LUMINANCE_ALPHA:
+        case SL_LUMINANCE_ALPHA:
         #else
-        case GL_RG:
+        case SL_RG:
         #endif
             addr = _bytesPerLine*y + 2*x; 
             color.set(_data[addr], _data[addr], _data[addr], _data[addr+1]);
@@ -867,23 +1063,36 @@ void SLImage::setPixeli(SLint x, SLint y, SLCol4f color)
     SLint R, G, B;
 
     switch (_format)
-    {   case GL_RGB:
+    {   case SL_RGB:
             addr = _data + _bytesPerLine*y + 3*x;
             *(addr++) = (SLubyte)(color.r * 255.0f);
             *(addr++) = (SLubyte)(color.g * 255.0f);
             *(addr  ) = (SLubyte)(color.b * 255.0f);
-            break; 
-        case GL_RGBA:
+            break;
+        case SL_BGR:
+            addr = _data + _bytesPerLine*y + 3*x;
+            *(addr++) = (SLubyte)(color.b * 255.0f);
+            *(addr++) = (SLubyte)(color.g * 255.0f);
+            *(addr  ) = (SLubyte)(color.r * 255.0f);
+            break;
+        case SL_RGBA:
             addr = _data + _bytesPerLine*y + 4*x; 
             *(addr++) = (SLubyte)(color.r * 255.0f);
             *(addr++) = (SLubyte)(color.g * 255.0f);
             *(addr++) = (SLubyte)(color.b * 255.0f);
             *(addr  ) = (SLubyte)(color.a * 255.0f);
             break;
+        case SL_BGRA:
+            addr = _data + _bytesPerLine*y + 4*x; 
+            *(addr++) = (SLubyte)(color.b * 255.0f);
+            *(addr++) = (SLubyte)(color.g * 255.0f);
+            *(addr++) = (SLubyte)(color.r * 255.0f);
+            *(addr  ) = (SLubyte)(color.a * 255.0f);
+            break;
         #ifdef SL_GLES2
-        case GL_LUMINANCE:
+        case SL_LUMINANCE:
         #else
-        case GL_RED:
+        case SL_RED:
         #endif
             addr = _data + _bytesPerLine*y + x;
             R = (SLint)(color.r * 255.0f);
@@ -892,9 +1101,9 @@ void SLImage::setPixeli(SLint x, SLint y, SLCol4f color)
             *(addr) = (SLubyte)((( 66*R + 129*G +  25*B + 128)>>8) + 16);
             break;
         #ifdef SL_GLES2
-        case GL_LUMINANCE_ALPHA:
+        case SL_LUMINANCE_ALPHA:
         #else
-        case GL_RG:
+        case SL_RG:
         #endif
             addr = _data + _bytesPerLine*y + 2*x; 
             R = (SLint)(color.r * 255.0f);

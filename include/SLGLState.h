@@ -33,8 +33,7 @@ redundant state changes.
 */
 class SLGLState
 {
-    public:
-      
+    public:      
         static  SLGLState* getInstance();          //!< global creator & getter
         static  void       deleteInstance();       //!< global destruction
                 void       onInitialize(SLCol4f clearColor); //!< On init GL
@@ -98,6 +97,7 @@ class SLGLState
         void     buildNormalMatrix();             //!< build the normal matrix from MV
         void     buildInverseAndNormalMatrix();   //!< build inverse & normal mat. from MV
         void     unbindAnythingAndFlush();        //!< finishes all GL commands
+        SLbool   pixelFormatIsSupported(SLint pixelFormat);
       
         // light transformations into view space
         void     calcLightPosVS       (SLint nLights);
@@ -116,7 +116,7 @@ class SLGLState
         void     useProgram           (SLuint progID);
         void     bindAndEnableTexture (SLenum target, SLuint textureID);
         void     activeTexture        (SLenum textureUnit);
-        void     clearColor           (SLCol4f c) {glClearColor(c.r,c.g,c.b,c.a);}
+        void     clearColor           (SLCol4f c);
         void     clearColorBuffer     () {glClear(GL_COLOR_BUFFER_BIT);}
         void     clearDepthBuffer     () {glClear(GL_DEPTH_BUFFER_BIT);}
         void     clearColorDepthBuffer() {glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);}
@@ -125,10 +125,13 @@ class SLGLState
         SLbool   blend()                 {return _blend;}
         SLstring glVersion()             {return _glVersion;}
         SLstring glVersionNO()           {return _glVersionNO;}
+        SLfloat  glVersionNOf()          {return _glVersionNOf;}
         SLstring glVendor()              {return _glVendor;}
         SLstring glRenderer()            {return _glRenderer;}
         SLstring glSLVersion()           {return _glSLVersion;}
         SLstring glSLVersionNO()         {return _glSLVersionNO;}
+        SLbool   glIsES2()               {return _glIsES2;}
+        SLbool   glIsES3()               {return _glIsES3;}
         SLbool   hasExtension(SLstring e){return _glExtensions.find(e)!=string::npos;}
       
         // stack operations
@@ -158,19 +161,27 @@ class SLGLState
 
         SLstring    _glVersion;             //!< OpenGL Version string
         SLstring    _glVersionNO;           //!< OpenGL Version number string
+        SLfloat     _glVersionNOf;          //!< OpenGL Version number as float
         SLstring    _glVendor;              //!< OpenGL Vendor string
         SLstring    _glRenderer;            //!< OpenGL Renderer string
         SLstring    _glSLVersion;           //!< GLSL Version string
         SLstring    _glSLVersionNO;         //!< GLSL Version number string
         SLstring    _glExtensions;          //!< OpenGL extensions string
+        SLbool      _glIsES2;               //!< Flag if OpenGL ES2
+        SLbool      _glIsES3;               //!< Flag if OpenGL ES3
 
         // read/write states
         SLbool      _blend;                 //!< blending default false;
         SLbool      _depthTest;             //!< GL_DEPTH_TEST state
         SLbool      _depthMask;             //!< glDepthMask state
+        SLbool      _cullFace;              //!< Face culling state
+        SLbool      _multisample;           //!< Multisampling state
+        SLbool      _polygonLine;           //!< Line polygonstate
         SLbool      _polygonOffsetEnabled;  //!< GL_POLYGON_OFFSET_FILL state
         SLfloat     _polygonOffsetFactor;   //!< GL_POLYGON_OFFSET_FILL factor
         SLfloat     _polygonOffsetUnits;    //!< GL_POLYGON_OFFSET_FILL units
+        SLVec4i     _viewport;              //!< viewport size (x,y,w,h)
+        SLCol4f     _clearColor;            //!< clear color
 
         // states
         SLuint      _programID;             //!< current shader program id

@@ -20,7 +20,7 @@
 	<key>IDESourceControlProjectRelativeInstallPathDictionary</key>
 	<dict>
 		<key>070E7B8501E408752C1AA209FC2CF42BA7A1BDED</key>
-		<string>../../.._data/</string>
+		<string>../../.._data</string>
 		<key>0C8499CD2E4389E889926062AEB8F0428A4DD54E</key>
 		<string>../../..</string>
 	</dict>
@@ -36,17 +36,17 @@
 			<key>IDESourceControlRepositoryExtensionIdentifierKey</key>
 			<string>public.vcs.git</string>
 			<key>IDESourceControlWCCIdentifierKey</key>
-			<string>070E7B8501E408752C1AA209FC2CF42BA7A1BDED</string>
+			<string>0C8499CD2E4389E889926062AEB8F0428A4DD54E</string>
 			<key>IDESourceControlWCCName</key>
-			<string>_data</string>
+			<string>SLProject</string>
 		</dict>
 		<dict>
 			<key>IDESourceControlRepositoryExtensionIdentifierKey</key>
 			<string>public.vcs.git</string>
 			<key>IDESourceControlWCCIdentifierKey</key>
-			<string>0C8499CD2E4389E889926062AEB8F0428A4DD54E</string>
+			<string>070E7B8501E408752C1AA209FC2CF42BA7A1BDED</string>
 			<key>IDESourceControlWCCName</key>
-			<string>SLProject</string>
+			<string>SLProject_data</string>
 		</dict>
 	</array>
 </dict>

@@ -89,22 +89,29 @@ void SLGLState::initAll()
    
     globalAmbientLight.set(0.2f,0.2f,0.2f,0.0f);
    
-    _glVersion     = SLstring((char*)glGetString(GL_VERSION));
-    _glVersionNO   = getGLVersionNO();
-    _glVendor      = SLstring((char*)glGetString(GL_VENDOR));
-    _glRenderer    = SLstring((char*)glGetString(GL_RENDERER));
-    _glSLVersion   = SLstring((char*)glGetString(GL_SHADING_LANGUAGE_VERSION));
-    _glSLVersionNO = getSLVersionNO();
-    _glExtensions  = SLstring((char*)glGetString(GL_EXTENSIONS));
+    _glVersion      = SLstring((char*)glGetString(GL_VERSION));
+    _glVersionNO    = getGLVersionNO();
+    _glVersionNOf   = (SLfloat)atof(_glVersionNO.c_str());
+    _glVendor       = SLstring((char*)glGetString(GL_VENDOR));
+    _glRenderer     = SLstring((char*)glGetString(GL_RENDERER));
+    _glSLVersion    = SLstring((char*)glGetString(GL_SHADING_LANGUAGE_VERSION));
+    _glSLVersionNO  = getSLVersionNO();
+    _glExtensions   = SLstring((char*)glGetString(GL_EXTENSIONS));
+    _glIsES2        = (_glVersion.find("OpenGL ES 2")!=string::npos);
+    _glIsES3        = (_glVersion.find("OpenGL ES 3")!=string::npos);
    
     //initialize states a unset
     _blend = false;
-
+    _cullFace = false;
     _depthTest = false;
     _depthMask = false;
+    _multisample = false;
+    _polygonLine = false;
     _polygonOffsetEnabled = false;
     _polygonOffsetFactor = -1.0f;
     _polygonOffsetUnits = -1.0f;
+    _viewport.set(-1,-1,-1,-1);
+    _clearColor.set(-1,-1,-1,-1);
 
     // Reset all cached states to an invalid state
     _programID = 0;
@@ -219,6 +226,14 @@ const SLCol4f* SLGLState::globalAmbient()
     return &_globalAmbient;
 }
 //-----------------------------------------------------------------------------
+void SLGLState::clearColor(SLCol4f newColor)
+{
+    if (_clearColor != newColor)
+    {   glClearColor(newColor.r, newColor.g, newColor.b, newColor.a);
+        _clearColor = newColor;
+    }
+}
+//-----------------------------------------------------------------------------
 /*! SLGLState::depthTest enables or disables depth testing but only if the 
 state really changes. The depth test decides for each pixel in the depth buffer 
 which polygon is the closest to the eye.
@@ -249,8 +264,11 @@ really changes. If face culling is turned on no backfaces are processed.
 */
 void SLGLState::cullFace(SLbool stateNew)
 {
-    if (stateNew) glEnable(GL_CULL_FACE);
-    else glDisable(GL_CULL_FACE);
+    if (_cullFace != stateNew)
+    {   if (stateNew) glEnable(GL_CULL_FACE);
+        else glDisable(GL_CULL_FACE);
+        _cullFace = stateNew;
+    }
 }
 //-----------------------------------------------------------------------------
 /*! SLGLState::blend enables or disables alpha blending but only if the state 
@@ -269,11 +287,13 @@ void SLGLState::blend(SLbool stateNew)
 state really changes. Multisampling turns on fullscreen anti aliasing on the GPU
 witch produces smooth polygon edges, lines and points.
 */
-void SLGLState::multiSample(SLbool state)
+void SLGLState::multiSample(SLbool stateNew)
 {  
     #ifndef SL_GLES2
-    {   if (state) glEnable(GL_MULTISAMPLE);
+    if (_multisample != stateNew)
+    {   if (stateNew) glEnable(GL_MULTISAMPLE);
         else glDisable(GL_MULTISAMPLE);
+        _multisample = stateNew;
     }
     #endif
 }
@@ -282,13 +302,14 @@ void SLGLState::multiSample(SLbool state)
 state really changes. OpenGL ES doesn't support glPolygonMode. It has to be 
 mimicked with GL_LINE_LOOP drawing.
 */
-void SLGLState::polygonLine(SLbool state)
+void SLGLState::polygonLine(SLbool stateNew)
 {  
     #ifndef SL_GLES2
-    {   if (state) 
-            glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-        else 
-            glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+    if (_polygonLine != stateNew)
+    {   if (stateNew)
+             glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+        else glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+        _polygonLine = stateNew;
     }
     #endif
 }
@@ -319,7 +340,14 @@ void SLGLState::polygonOffset(SLbool stateNew, SLfloat factor, SLfloat units)
 */
 void SLGLState::viewport(SLint x, SLint y, SLsizei width, SLsizei height)
 {
-    glViewport(x, y, width, height);
+
+    if (_viewport.x!=x ||
+        _viewport.y!=y ||
+        _viewport.z!=width ||
+        _viewport.w!=height)
+    {   glViewport(x, y, width, height);
+        _viewport.set(x, y, width, height);
+    }
 }
 //-----------------------------------------------------------------------------
 /*! SLGLState::colorMask sets the OpenGL colorMask for framebuffer masking 
@@ -392,8 +420,10 @@ void SLGLState::unbindAnythingAndFlush()
 
     //glBindBuffer(GL_ARRAY_BUFFER, 0);
     //glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+    
+    // The iOS OpenGL ES Analyser suggests not to use flush or finish
     //glFlush();
-    glFinish();
+    //glFinish();
 }
 //-----------------------------------------------------------------------------
 void SLGLState::getGLError(char* file, 
@@ -474,7 +504,7 @@ SLstring SLGLState::getGLVersionNO()
     NO[2] = versionStr[dotPos + 1];
     NO[3] = 0;
     
-    if (versionStr.find("OpenGL ES")>-1)
+    if (versionStr.find("OpenGL ES") > -1)
     {   SLstring strNO = "ES";
         return strNO + NO;    
     } else return SLstring(NO);
@@ -495,5 +525,53 @@ SLstring SLGLState::getSLVersionNO()
     NO[2] = '0';
     NO[3] = 0;
     return SLstring(NO);
+}
+//-----------------------------------------------------------------------------
+//! Returns true if the according GL pixelformat is valid in the GL context
+SLbool SLGLState::pixelFormatIsSupported(SLint pixelFormat)
+{   /*
+    #define SL_ALPHA 0x1906             // ES2 ES3 GL2
+    #define SL_LUMINANCE 0x1909         // ES2 ES3 GL2
+    #define SL_LUMINANCE_ALPHA 0x190A   // ES2 ES3 GL2
+    #define SL_INTENSITY 0x8049         //         GL2
+    #define SL_GREEN 0x1904             //         GL2
+    #define SL_BLUE 0x1905              //         GL2
+
+    #define SL_RED  0x1903              //     ES3 GL2 GL3 GL4
+    #define SL_RG   0x8227              //     ES3     GL3 GL4
+    #define SL_RGB  0x1907              // ES2 ES3 GL2 GL3 GL4
+    #define SL_RGBA 0x1908              // ES2 ES3 GL2 GL3 GL4
+    #define SL_BGR  0x80E0              //         GL2 GL3 GL4
+    #define SL_BGRA 0x80E1              //         GL2 GL3 GL4
+
+    #define SL_RG_INTEGER 0x8228        //     ES3         GL4
+    #define SL_RED_INTEGER 0x8D94       //     ES3         GL4
+    #define SL_RGB_INTEGER 0x8D98       //     ES3         GL4
+    #define SL_RGBA_INTEGER 0x8D99      //     ES3         GL4
+    #define SL_BGR_INTEGER 0x8D9A       //                 GL4
+    #define SL_BGRA_INTEGER 0x8D9B      //                 GL4
+    */
+    switch(pixelFormat)
+    {
+        case SL_RGB:
+        case SL_RGBA: return true;
+        case SL_RED: return (!_glIsES2);
+        case SL_BGR:
+        case SL_BGRA: return (!_glIsES2 && !_glIsES3);
+        case SL_LUMINANCE:
+        case SL_LUMINANCE_ALPHA:
+        case SL_ALPHA: return (_glIsES2 || _glIsES3 || (((SLint)_glVersionNOf) == 2));
+        case SL_INTENSITY:
+        case SL_GREEN:
+        case SL_BLUE: return (!_glIsES2 && !_glIsES3 && (((SLint)_glVersionNOf) == 2));
+        case SL_RG: return (!_glIsES2 && _glVersionNOf >= 3);
+        case SL_RG_INTEGER:
+        case SL_RED_INTEGER:
+        case SL_RGB_INTEGER:
+        case SL_RGBA_INTEGER: return (!_glIsES2 && _glVersionNOf >= 4);
+        case SL_BGR_INTEGER:
+        case SL_BGRA_INTEGER: return (_glVersionNOf >= 4);
+        default: return false;
+    }
 }
 //-----------------------------------------------------------------------------

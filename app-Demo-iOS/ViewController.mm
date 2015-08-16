@@ -10,6 +10,7 @@
 
 // The only C-interface to include for the SceneLibrary
 #include <SLInterface.h>
+#include <SLImage.h>
 #include <mach/mach_time.h>
 
 //-----------------------------------------------------------------------------
@@ -59,8 +60,9 @@ float GetSeconds()
     // Video stuff
     AVCaptureSession*           m_avSession;            //!< Audio video session
     NSString*                   m_avSessionPreset;      //!< Session name
-    CVOpenGLESTextureRef        m_texture;
-    CVOpenGLESTextureCacheRef   m_videoTextureCache;
+    //CVOpenGLESTextureRef        m_texture;
+    //CVOpenGLESTextureCacheRef   m_videoTextureCache;
+    bool                        m_lastVideoImageIsConsumed;
 }
 @property (strong, nonatomic) EAGLContext *context;
 @end
@@ -114,19 +116,19 @@ float GetSeconds()
     else
         dpi = 160 * screenScale;
    
-   slCreateScene(pathUTF8,
-                 pathUTF8,
-                 pathUTF8);
+    slCreateScene(pathUTF8,
+                  pathUTF8,
+                  pathUTF8);
    
-   svIndex = slCreateSceneView(self.view.bounds.size.width * screenScale,
-                               self.view.bounds.size.height * screenScale,
-                               dpi,
-                               cmdSceneSmallTest,
-                               cmdLineArgs,
-                               (void*)&onPaintRTGL,
-                               0,
-                               0,
-                               0);
+    svIndex = slCreateSceneView(self.view.bounds.size.width * screenScale,
+                                self.view.bounds.size.height * screenScale,
+                                dpi,
+                                cmdSceneSmallTest,
+                                cmdLineArgs,
+                                (void*)&onPaintRTGL,
+                                0,
+                                0,
+                                0);
     
     [self setupAVCapture];
 }
@@ -167,7 +169,8 @@ float GetSeconds()
 //-----------------------------------------------------------------------------
 - (void)glkView:(GLKView *)view drawInRect:(CGRect)rect
 {
-   slUpdateAndPaint(svIndex);
+    slUpdateAndPaint(svIndex);
+    m_lastVideoImageIsConsumed = true;
 }
 //-----------------------------------------------------------------------------
 // touchesBegan receives the finger thouch down events
@@ -291,16 +294,17 @@ float GetSeconds()
     m_lastTouchTimeSec = m_lastFrameTimeSec;
 }
 //-----------------------------------------------------------------------------
+// Event handler for a new live camera image
 - (void)captureOutput:(AVCaptureOutput *)captureOutput
 didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
        fromConnection:(AVCaptureConnection *)connection
 {
-    if (slNeedsVideoImage())
+    if (slNeedsVideoImage() && m_lastVideoImageIsConsumed)
     {
         CVReturn err;
         CVImageBufferRef pixelBuffer = CMSampleBufferGetImageBuffer(sampleBuffer);
         CVPixelBufferLockBaseAddress(pixelBuffer,0);
-        int width = (int) CVPixelBufferGetWidth(pixelBuffer);
+        int width  = (int) CVPixelBufferGetWidth(pixelBuffer);
         int height = (int) CVPixelBufferGetHeight(pixelBuffer);
         unsigned char* data = (unsigned char*)CVPixelBufferGetBaseAddress(pixelBuffer);
         
@@ -309,7 +313,9 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
             return;
         }
         
-        slCopyVideoImage(width, height, GL_BGRA, data, true);
+        slCopyVideoImage(width, height, SL_BGRA, data, true);
+        
+        m_lastVideoImageIsConsumed = false;
         
         /*
         if (!m_videoTextureCache)
@@ -349,16 +355,17 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
 - (void)setupAVCapture
 {
     //-- Create CVOpenGLESTextureCacheRef for optimal CVImageBufferRef to GLES texture conversion.
+    /*
     #if COREVIDEO_USE_EAGLCONTEXT_CLASS_IN_API
     CVReturn err = CVOpenGLESTextureCacheCreate(kCFAllocatorDefault, NULL, _context, NULL, &m_videoTextureCache);
     #else
     CVReturn err = CVOpenGLESTextureCacheCreate(kCFAllocatorDefault, NULL, (__bridge void *)_context, NULL, &m_videoTextureCache);
     #endif
     if (err)
-    {
-        NSLog(@"Error at CVOpenGLESTextureCacheCreate %d", err);
+    {   NSLog(@"Error at CVOpenGLESTextureCacheCreate %d", err);
         return;
     }
+    */
     
     if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad)
     {   // Choosing bigger preset for bigger screen.
@@ -402,6 +409,7 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
     [m_avSession commitConfiguration];
     
     [m_avSession startRunning];
+    m_lastVideoImageIsConsumed = true;
 }
 
 - (void)cleanUpTexture

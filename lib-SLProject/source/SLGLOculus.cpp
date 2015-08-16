@@ -58,7 +58,8 @@ void SLGLOculus::dispose()
         ovrHmd_Destroy(_hmd);
 
     ovr_Shutdown();
-
+    #else
+    
     #endif
 }
 
@@ -76,8 +77,7 @@ void SLGLOculus::init()
     
 
     if (!_hmd)
-    {
-        // create a debug device if we didn't find a physical one
+    {   // create a debug device if we didn't find a physical one
         _hmd = ovrHmd_CreateDebug(ovrHmd_DK2);
         _usingDebugHmd = true;
         assert(_hmd);
@@ -189,7 +189,7 @@ void SLGLOculus::init()
         _projection[i].translate(-_viewAdjust[i]);
     }
     
-    createSLDistortionMesh(leftEye, _distortionMeshVB[0], _distortionMeshIB[0]);
+    createSLDistortionMesh(leftEye,  _distortionMeshVB[0], _distortionMeshIB[0]);
     createSLDistortionMesh(rightEye, _distortionMeshVB[1], _distortionMeshIB[1]);
 
 #endif
@@ -280,7 +280,7 @@ void SLGLOculus::renderDistortion(SLint width, SLint height, SLuint tex)
     }
 
     sp->endUse();
-
+    
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_CULL_FACE);
 }

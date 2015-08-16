@@ -400,11 +400,10 @@ SLbool SLSceneView::onPaint()
     // Render the 2D GUI (menu etc.)
     draw2DGL();
 
-
     _stateGL->unbindAnythingAndFlush();
 
     // Finish Oculus framebuffer
-    if (_camera->projection() == stereoSideBySideD)
+    if (_camera && _camera->projection() == stereoSideBySideD)
         s->oculus()->endFrame(_scrW, _scrH, _oculusFB.texID());
 
     // Update statistic of VBO's & drawcalls
@@ -746,7 +745,7 @@ void SLSceneView::draw2DGL()
    
     // Set orthographic projection with 0,0,0 in the screen center
     // for now we just have one special GUI case for side by side HMD stereo rendering
-    if (_camera->projection() != stereoSideBySideD)
+    if (_camera && _camera->projection() != stereoSideBySideD)
     {        
         // @todo this doesn't need to be done every frame, we can save the current ortho matrix and update on resize
         _stateGL->projectionMatrix.ortho(-w2, w2,-h2, h2, 1.0f, -1.0f);
@@ -1368,7 +1367,6 @@ commands are collected and dispatched here.
 SLbool SLSceneView::onCommand(SLCmd cmd)
 {
     SLScene* s = SLScene::current;
-    SLNode* root3D = s->root3D();
 
     switch (cmd)
     {
@@ -2196,7 +2194,14 @@ SLbool SLSceneView::draw3DPT()
 void SLSceneView::showLoading(SLbool showLoading) 
 {
     if (showLoading)
-    {   _stateGL->clearColor(SLCol4f::GRAY);
+    {
+        if (!_stateGL)
+        {   // This can happen if show loading is called befor a new scene is set
+            SLScene* s = SLScene::current;
+            _stateGL = SLGLState::getInstance();
+            _stateGL->onInitialize(s->background().colors()[0]);
+        }
+        _stateGL->clearColor(SLCol4f::GRAY);
         _stateGL->clearColorDepthBuffer();
     }
     _showLoading = showLoading;

@@ -10,11 +10,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "../lib-SLProject/source/SLSceneView.cpp"
-            timestampString = "446410702.469107"
+            timestampString = "461433835.934542"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "949"
-            endingLineNumber = "949"
+            startingLineNumber = "948"
+            endingLineNumber = "948"
             landmarkName = "SLSceneView::draw2DGLAll()"
             landmarkType = "5">
          </BreakpointContent>
@@ -38,17 +38,63 @@
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
-            shouldBeEnabled = "Yes"
+            shouldBeEnabled = "No"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
-            filePath = "ViewController.mm"
-            timestampString = "460989723.201086"
+            filePath = "../lib-SLProject/source/SL/SLImage.cpp"
+            timestampString = "461427105.090501"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "290"
-            endingLineNumber = "290"
-            landmarkName = "-touchesCancle:withEvent:"
+            startingLineNumber = "340"
+            endingLineNumber = "340">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "../lib-SLProject/source/SL/SLImage.cpp"
+            timestampString = "461427105.090501"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "170"
+            endingLineNumber = "170"
+            landmarkName = "SLImage::load(SLint width, SLint height, SLPixelFormat srcPixelFormatGL, SLPixelFormat dstPixelFormatGL, SLuchar* data, SLbool isTopLeft)"
             landmarkType = "5">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "../include/SLGLOVRWorkaround.h"
+            timestampString = "461427105.090501"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "752"
+            endingLineNumber = "752"
+            landmarkName = "TransformTanFovSpaceToRendertargetNDC( ScaleAndOffset2D const &amp;eyeToSourceNDC, SLVec2f const &amp;tanEyeAngle )"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "../include/SLGLOVRWorkaround.h"
+            timestampString = "461427105.090501"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "751"
+            endingLineNumber = "751"
+            landmarkName = "TransformTanFovSpaceToRendertargetNDC( ScaleAndOffset2D const &amp;eyeToSourceNDC, SLVec2f const &amp;tanEyeAngle )"
+            landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
    </Breakpoints>

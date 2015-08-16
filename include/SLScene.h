@@ -97,7 +97,7 @@ class SLScene: public SLObject
             void            selectNode      (SLNode* nodeToSelect);
             void            selectNodeMesh  (SLNode* nodeToSelect, SLMesh* meshToSelect);
             void            copyVideoImage  (int width, int height, 
-                                             int glFormat, 
+                                             SLPixelFormat srcPixelFormat,
                                              SLuchar* data, 
                                              bool isTopLeft);
 

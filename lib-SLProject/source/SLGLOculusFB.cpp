@@ -54,9 +54,7 @@ void SLGLOculusFB::bindFramebuffer(SLint scrWidth,
                                    SLint scrHeight)
 {
     if (!_fbID) 
-        updateSize(scrWidth, 
-                   scrHeight);
-
+        updateSize(scrWidth, scrHeight);
     if ( _fbID) 
         glBindFramebuffer(GL_FRAMEBUFFER, _fbID);
 }
@@ -73,7 +71,7 @@ void SLGLOculusFB::generateFBO()
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, _width, _height, 0, GL_RGBA, 
+    glTexImage2D(GL_TEXTURE_2D, 0, SL_RGBA, _width, _height, 0, SL_RGBA,
                  GL_UNSIGNED_BYTE, nullptr);
     glBindTexture(GL_TEXTURE_2D, 0);
 
@@ -122,7 +120,7 @@ void SLGLOculusFB::updateSize(SLint scrWidth,
     else
     {  // Resize the intermediate render targets
         glBindTexture(GL_TEXTURE_2D, _texID);
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, _width, _height, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
+        glTexImage2D(GL_TEXTURE_2D, 0, SL_RGBA, _width, _height, 0, SL_RGBA, GL_UNSIGNED_BYTE, nullptr);
         glBindTexture(GL_TEXTURE_2D, 0);
 
         // Resize the depth render buffer

@@ -57,7 +57,7 @@ SLbool SLPathtracer::render(SLSceneView* sv)
     prepareImage();
 
     // Set second image for render update to the same size
-    _images.push_back(new SLImage(_sv->scrW(), _sv->scrH(), GL_RGB));
+    _images.push_back(new SLImage(_sv->scrW(), _sv->scrH(), SL_RGB));
 
     // Measure time 
     double t1 = SLScene::current->timeSec();
@@ -103,7 +103,6 @@ Renders a slice of 4px width.
 void SLPathtracer::renderSlices(const bool isMainThread, SLint currentSample)
 {
     // Time points
-    SLScene* s = SLScene::current;
     double t1 = 0;
     const SLfloat oneOverGamma = 1.0f / _gamma;
 

@@ -663,10 +663,13 @@ struct DistortionMeshVertexData
 {
     // [-1,+1],[-1,+1] over the entire framebuffer.
     SLVec2f    ScreenPosNDC;
+    
     // [0.0-1.0] interpolation value for timewarping - see documentation for details.
-    float       TimewarpLerp;
+    float      TimewarpLerp;
+    
     // [0.0-1.0] fade-to-black at the edges to reduce peripheral vision noise.
-    float       Shade;        
+    float      Shade;
+    
     // The red, green, and blue vectors in tan(angle) space.
     // Scale and offset by the values in StereoEyeParams.EyeToSourceUV.Scale
     // and StereoParams.EyeToSourceUV.Offset to get to real texture UV coords.
@@ -834,30 +837,29 @@ SLMat4f CreateProjection( bool rightHanded, ovrFovPort tanHalfFov,
 }
 
 //-------------------------------------------------------------------------------------
-void createSLDistortionMesh( DistortionMeshVertexData **ppVertices, uint16_t **ppTriangleListIndices,
-                           int *pNumVertices, int *pNumTriangles,
-                           bool rightEye,
-                           const HmdRenderInfo &hmdRenderInfo, 
-                           const DistortionRenderDesc &distortion, const ScaleAndOffset2D &eyeToSourceNDC )
-{    
-
-    
-static const int DMA_GridSizeLog2   = 6;
-static const int DMA_GridSize       = 1<<DMA_GridSizeLog2;
-static const int DMA_NumVertsPerEye = (DMA_GridSize+1)*(DMA_GridSize+1);
-static const int DMA_NumTrisPerEye  = (DMA_GridSize)*(DMA_GridSize)*2;
+void createSLDistortionMesh(DistortionMeshVertexData **ppVertices,
+                            uint16_t **ppTriangleListIndices,
+                            int *pNumVertices,
+                            int *pNumTriangles,
+                            bool rightEye,
+                            const HmdRenderInfo &hmdRenderInfo,
+                            const DistortionRenderDesc &distortion,
+                            const ScaleAndOffset2D &eyeToSourceNDC )
+{
+    static const int DMA_GridSizeLog2   = 6;
+    static const int DMA_GridSize       = 1<<DMA_GridSizeLog2;
+    static const int DMA_NumVertsPerEye = (DMA_GridSize+1)*(DMA_GridSize+1);
+    static const int DMA_NumTrisPerEye  = (DMA_GridSize)*(DMA_GridSize)*2;
 
     // When does the fade-to-black edge start? Chosen heuristically.
     const float fadeOutBorderFraction = 0.075f;
 
     // Populate vertex buffer info
     float xOffset = 0.0f;
-    float uOffset = 0.0f;
 
     if (rightEye)
     {
         xOffset = 1.0f;
-        uOffset = 0.5f;
     }
     *pNumVertices  = DMA_NumVertsPerEye;
     *pNumTriangles = DMA_NumTrisPerEye;
@@ -1158,7 +1160,7 @@ void createSLDistortionMesh(SLEye eye, SLGLBuffer& vb, SLGLBuffer& ib)
     #else
     bool rightEye = (eye == SLEye::rightEye);
     #endif
-    ScaleAndOffset2D      eyeToSourceNDC = CreateNDCScaleAndOffsetFromFov(fov);
+    ScaleAndOffset2D eyeToSourceNDC = CreateNDCScaleAndOffsetFromFov(fov);
     eyeToSourceNDC.Scale.x = 0.929788947f;
     eyeToSourceNDC.Scale.y = 0.752283394f;
     eyeToSourceNDC.Offset.x = -0.0156717598f;
@@ -1182,7 +1184,7 @@ void createSLDistortionMesh(SLEye eye, SLGLBuffer& vb, SLGLBuffer& ib)
     vector<SLuint> tempIndex;
 
     SLGLOcculusDistortionVertex* v = pVBVerts;
-    ovrDistortionVertex * ov = vertexData;
+    ovrDistortionVertex* ov = vertexData;
     for ( unsigned vertNum = 0; vertNum < vertexCount; vertNum++ )
     {
         v->screenPosNDC.x = ov->ScreenPosNDC.x;
@@ -1214,9 +1216,10 @@ void createSLDistortionMesh(SLEye eye, SLGLBuffer& vb, SLGLBuffer& ib)
     ib.generate(&tempIndex[0], indexCount, 1,
                 SL_UNSIGNED_INT, SL_ELEMENT_ARRAY_BUFFER, SL_STATIC_DRAW);
 
-
+    // dispose temp. arrays
     delete[] pVBVerts;
-     
+    delete[] vertexData;
+    delete[] indexData;
 }
 
 //-------------------------------------------------------------------------------------

@@ -47,6 +47,33 @@ enum SLAxis
 };
 
 //-----------------------------------------------------------------------------
+//! Pixel format according to OpenGL pixel format defines
+enum SLPixelFormat
+{
+    SL_ALPHA = 0x1906,             // ES2 ES3 GL2
+    SL_LUMINANCE = 0x1909,         // ES2 ES3 GL2
+    SL_LUMINANCE_ALPHA = 0x190A,   // ES2 ES3 GL2
+    SL_INTENSITY = 0x8049,         //         GL2
+    SL_GREEN = 0x1904,             //         GL2
+    SL_BLUE = 0x1905,              //         GL2
+    SL_DEPTH_COMPONENT = 0x1902,   //     ES3 GL2     GL4
+
+    SL_RED  = 0x1903,              //     ES3 GL2 GL3 GL4
+    SL_RG   = 0x8227,              //     ES3     GL3 GL4
+    SL_RGB  = 0x1907,              // ES2 ES3 GL2 GL3 GL4
+    SL_RGBA = 0x1908,              // ES2 ES3 GL2 GL3 GL4
+    SL_BGR  = 0x80E0,              //         GL2 GL3 GL4
+    SL_BGRA = 0x80E1,              //         GL2 GL3 GL4
+
+    SL_RG_INTEGER = 0x8228,        //     ES3         GL4
+    SL_RED_INTEGER = 0x8D94,       //     ES3         GL4
+    SL_RGB_INTEGER = 0x8D98,       //     ES3         GL4
+    SL_RGBA_INTEGER = 0x8D99,      //     ES3         GL4
+    SL_BGR_INTEGER = 0x8D9A,       //                 GL4
+    SL_BGRA_INTEGER = 0x8D9B       //                 GL4
+};
+
+//-----------------------------------------------------------------------------
 //! SLCmd enumerates all possible menu and keyboard commands
 enum SLCmd
 {

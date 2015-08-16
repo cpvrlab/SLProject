@@ -123,7 +123,8 @@ void SLTexFont::create(const SLuchar *bmp, SLint bmpW, SLint bmpH)
    
     //Allocate memory for image pixels using only the alpha channel
     _images.clear();
-    _images.push_back(new SLImage(texWidth, texHeight, GL_LUMINANCE));
+    SLPixelFormat format = _stateGL->pixelFormatIsSupported(SL_LUMINANCE) ? SL_LUMINANCE : SL_RED;
+    _images.push_back(new SLImage(texWidth, texHeight, format));
   
     //Fill up with 0
     SLuchar* bits = _images[0]->data();

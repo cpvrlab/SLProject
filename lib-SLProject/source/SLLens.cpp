@@ -130,12 +130,10 @@ void SLLens::init(SLfloat diopterBot,
 
     // Gullstrand-Formel
     // D = D1 + D2 - delta * D1 * D2
-    SLfloat diopter = diopterBot + diopterTop;
 
     // calc radius
     SLfloat nOut = 1.00;         // kn material outside lens
     SLfloat nLens = mat->kn();   // kn material of the lens
-    SLfloat delta = _thickness / nLens; // d/n
 
     // calc radius
     _radiusBot = (SLfloat) ((nLens - nOut) / diopterBot) * _diameter;
@@ -162,9 +160,7 @@ void SLLens::generateLens(SLfloat radiusBot, SLfloat radiusTop, SLMaterial* mat)
     _revAxis.set(0, 1, 0);
 
     if (_diameter > 0)
-    {
-        SLfloat x = generateLensBot(radiusBot);
-        x = generateLensTop(radiusTop);
+    {   SLfloat x = generateLensTop(radiusTop);
         if (x == 0)
             buildMesh(mat);
         else
@@ -196,9 +192,7 @@ SLfloat SLLens::generateLensBot(SLfloat radius)
         alphaAsin = (alphaAsin > 1) ? 1 : alphaAsin;  // correct rounding errors
         alphaAsin = (alphaAsin < -1) ? -1 : alphaAsin;// correct rounding errors
         SLfloat alphaRAD = 2.0f * (SLfloat)asin(alphaAsin);
-        SLfloat alphaDEG = alphaRAD * SL_RAD2DEG;
         SLfloat dAlphaRAD = (alphaRAD * 0.5f) / halfStacks;
-        SLfloat dAlphaDEG = dAlphaRAD * SL_RAD2DEG;
 
         SLfloat yStart1 = -sagitta;
         SLfloat currentAlphaRAD = -SL_HALFPI;
@@ -295,7 +289,6 @@ SLfloat SLLens::generateLensTop(SLfloat radius)
         betaAsin = (betaAsin > 1) ? 1 : betaAsin;  // correct rounding errors
         betaAsin = (betaAsin < -1) ? -1 : betaAsin;// correct rounding errors
         SLfloat betaRAD = 2.0f * (SLfloat)asin( betaAsin );
-        SLfloat betaDEG = betaRAD * SL_RAD2DEG;
         SLfloat currentBetaRAD = SL_HALFPI - (betaRAD * 0.5f);
 
         // settings for negative radius
@@ -309,7 +302,6 @@ SLfloat SLLens::generateLensTop(SLfloat radius)
 
         SLfloat currentBetaDEG = currentBetaRAD * SL_RAD2DEG;
         SLfloat dBetaRAD = (betaRAD  * 0.5f) / halfStacks;
-        SLfloat dBetaDEG = dBetaRAD * SL_RAD2DEG;
 
         // set start point
         y = yStart2;
