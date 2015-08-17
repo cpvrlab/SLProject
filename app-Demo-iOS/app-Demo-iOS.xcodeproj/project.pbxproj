@@ -20,13 +20,6 @@
 		4124EC131959C137003AA059 /* cdt.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4124EC0B1959C137003AA059 /* cdt.cc */; };
 		4124EC141959C137003AA059 /* sweep_context.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4124EC0D1959C137003AA059 /* sweep_context.cc */; };
 		4124EC151959C137003AA059 /* sweep.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4124EC0F1959C137003AA059 /* sweep.cc */; };
-		4124F2AC16D4FDB5004379A0 /* mersenne.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4124F2A316D4FDB5004379A0 /* mersenne.cpp */; };
-		4124F2AD16D4FDB5004379A0 /* mother.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4124F2A416D4FDB5004379A0 /* mother.cpp */; };
-		4124F2AE16D4FDB5004379A0 /* rancombi.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4124F2A516D4FDB5004379A0 /* rancombi.cpp */; };
-		4124F2AF16D4FDB5004379A0 /* random.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4124F2A616D4FDB5004379A0 /* random.cpp */; };
-		4124F2B016D4FDB5004379A0 /* ranrotb.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4124F2A916D4FDB5004379A0 /* ranrotb.cpp */; };
-		4124F2B116D4FDB5004379A0 /* ranrotw.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4124F2AA16D4FDB5004379A0 /* ranrotw.cpp */; };
-		4124F2B216D4FDB5004379A0 /* sobol.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4124F2AB16D4FDB5004379A0 /* sobol.cpp */; };
 		413B3631156CF93100B8284A /* SLCurveBezier.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 413B362D156CF93100B8284A /* SLCurveBezier.cpp */; };
 		413B3635156CF97900B8284A /* SLAnimation.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 413B3634156CF97900B8284A /* SLAnimation.cpp */; };
 		4142E1FD1519A1B300EECCCE /* ErrorTex.frag in Resources */ = {isa = PBXBuildFile; fileRef = 4142E1F81519A18000EECCCE /* ErrorTex.frag */; };
@@ -429,15 +422,6 @@
 		4124EC0E1959C137003AA059 /* sweep_context.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = sweep_context.h; path = "../lib-SLExternal/assimp/contrib/poly2tri/poly2tri/sweep/sweep_context.h"; sourceTree = SOURCE_ROOT; };
 		4124EC0F1959C137003AA059 /* sweep.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = sweep.cc; path = "../lib-SLExternal/assimp/contrib/poly2tri/poly2tri/sweep/sweep.cc"; sourceTree = SOURCE_ROOT; };
 		4124EC101959C137003AA059 /* sweep.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = sweep.h; path = "../lib-SLExternal/assimp/contrib/poly2tri/poly2tri/sweep/sweep.h"; sourceTree = SOURCE_ROOT; };
-		4124F2A316D4FDB5004379A0 /* mersenne.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = mersenne.cpp; path = "../lib-SLExternal/randomc/mersenne.cpp"; sourceTree = SOURCE_ROOT; };
-		4124F2A416D4FDB5004379A0 /* mother.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = mother.cpp; path = "../lib-SLExternal/randomc/mother.cpp"; sourceTree = SOURCE_ROOT; };
-		4124F2A516D4FDB5004379A0 /* rancombi.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = rancombi.cpp; path = "../lib-SLExternal/randomc/rancombi.cpp"; sourceTree = SOURCE_ROOT; };
-		4124F2A616D4FDB5004379A0 /* random.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = random.cpp; path = "../lib-SLExternal/randomc/random.cpp"; sourceTree = SOURCE_ROOT; };
-		4124F2A716D4FDB5004379A0 /* random.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = random.h; path = "../lib-SLExternal/randomc/random.h"; sourceTree = SOURCE_ROOT; };
-		4124F2A816D4FDB5004379A0 /* randomc.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = randomc.h; path = "../lib-SLExternal/randomc/randomc.h"; sourceTree = SOURCE_ROOT; };
-		4124F2A916D4FDB5004379A0 /* ranrotb.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ranrotb.cpp; path = "../lib-SLExternal/randomc/ranrotb.cpp"; sourceTree = SOURCE_ROOT; };
-		4124F2AA16D4FDB5004379A0 /* ranrotw.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ranrotw.cpp; path = "../lib-SLExternal/randomc/ranrotw.cpp"; sourceTree = SOURCE_ROOT; };
-		4124F2AB16D4FDB5004379A0 /* sobol.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = sobol.cpp; path = "../lib-SLExternal/randomc/sobol.cpp"; sourceTree = SOURCE_ROOT; };
 		413B362C156CF93100B8284A /* SLCurve.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SLCurve.h; path = ../include/SLCurve.h; sourceTree = SOURCE_ROOT; };
 		413B362D156CF93100B8284A /* SLCurveBezier.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SLCurveBezier.cpp; path = "../lib-SLProject/source/math/SLCurveBezier.cpp"; sourceTree = SOURCE_ROOT; };
 		413B362E156CF93100B8284A /* SLCurveBezier.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SLCurveBezier.h; path = ../include/SLCurveBezier.h; sourceTree = SOURCE_ROOT; };
@@ -1094,27 +1078,10 @@
 			isa = PBXGroup;
 			children = (
 				419807101959B9910048085E /* assimp */,
-				4124F2A216D4FD75004379A0 /* randomc */,
 				418E0C7514892B4500C6274F /* png */,
 				418E0C9714892BA900C6274F /* jpeg */,
 			);
 			name = "lib-SLExternal";
-			sourceTree = "<group>";
-		};
-		4124F2A216D4FD75004379A0 /* randomc */ = {
-			isa = PBXGroup;
-			children = (
-				4124F2A316D4FDB5004379A0 /* mersenne.cpp */,
-				4124F2A416D4FDB5004379A0 /* mother.cpp */,
-				4124F2A516D4FDB5004379A0 /* rancombi.cpp */,
-				4124F2A616D4FDB5004379A0 /* random.cpp */,
-				4124F2A716D4FDB5004379A0 /* random.h */,
-				4124F2A816D4FDB5004379A0 /* randomc.h */,
-				4124F2A916D4FDB5004379A0 /* ranrotb.cpp */,
-				4124F2AA16D4FDB5004379A0 /* ranrotw.cpp */,
-				4124F2AB16D4FDB5004379A0 /* sobol.cpp */,
-			);
-			name = randomc;
 			sourceTree = "<group>";
 		};
 		414ABBEC148A629B0061231A /* GL */ = {
@@ -2390,16 +2357,9 @@
 				41A355041A7E63E100791841 /* SLJoint.cpp in Sources */,
 				419808801959BA670048085E /* FixNormalsStep.cpp in Sources */,
 				41627EA815CA8CE70023B936 /* stdafx.cpp in Sources */,
-				4124F2AC16D4FDB5004379A0 /* mersenne.cpp in Sources */,
 				419808D01959BA670048085E /* GenVertexNormalsProcess.cpp in Sources */,
-				4124F2AD16D4FDB5004379A0 /* mother.cpp in Sources */,
 				419808DF1959BA670048085E /* MS3DLoader.cpp in Sources */,
 				419808741959BA670048085E /* FBXAnimation.cpp in Sources */,
-				4124F2AE16D4FDB5004379A0 /* rancombi.cpp in Sources */,
-				4124F2AF16D4FDB5004379A0 /* random.cpp in Sources */,
-				4124F2B016D4FDB5004379A0 /* ranrotb.cpp in Sources */,
-				4124F2B116D4FDB5004379A0 /* ranrotw.cpp in Sources */,
-				4124F2B216D4FDB5004379A0 /* sobol.cpp in Sources */,
 				41E46000176C8F6800AB4653 /* SLTimer.cpp in Sources */,
 				41A355011A7E63E100791841 /* SLAnimManager.cpp in Sources */,
 				419808AD1959BA670048085E /* STEPFileEncoding.cpp in Sources */,
@@ -2464,7 +2424,6 @@
 				GCC_NO_COMMON_BLOCKS = YES;
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PREPROCESSOR_DEFINITIONS = (
-					SL_RT1,
 					TARGET_OS_IOS,
 					DEBUG,
 					_DEBUG,
@@ -2512,7 +2471,7 @@
 				GCC_WARN_UNUSED_VARIABLE = NO;
 				HEADER_SEARCH_PATHS = (
 					"../include/**",
-					"lib-SLExternal/**",
+					"lib-SLExternal",
 				);
 				INFOPLIST_FILE = "SceneLib-Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 5.0;
@@ -2547,7 +2506,6 @@
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_NO_COMMON_BLOCKS = YES;
 				GCC_PREPROCESSOR_DEFINITIONS = (
-					SL_RT1,
 					TARGET_OS_IOS,
 					ASSIMP_BUILD_NO_MD3_IMPORTER,
 					ASSIMP_BUILD_NO_MDL_IMPORTER,
@@ -2592,7 +2550,7 @@
 				GCC_WARN_UNUSED_VARIABLE = NO;
 				HEADER_SEARCH_PATHS = (
 					"../include/**",
-					"lib-SLExternal/**",
+					"lib-SLExternal",
 				);
 				INFOPLIST_FILE = "SceneLib-Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 5.0;

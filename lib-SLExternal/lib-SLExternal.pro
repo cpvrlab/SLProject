@@ -81,7 +81,6 @@ android {
 
 INCLUDEPATH += \
     ../include \
-    dirent \
     glew/include \
     glfw3/include \
     glfw3/src \
@@ -174,10 +173,11 @@ SOURCES += \
     Shoemake/EulerAngles.cpp \
     Shoemake/Decompose.cpp \
 
-win32 { #Windows only -------------------------------------
+win32 {
+#Windows only -------------------------------------
+INCLUDEPATH += dirent
 
 HEADERS += \
-    dirent/dirent.h \
     glfw3/src/win32_platform.h \
     glfw3/src/win32_tls.h \
     glfw3/src/winmm_joystick.h \
@@ -198,9 +198,9 @@ HEADERS += \
     zlib/deflate.h \
     zlib/crypt.h \
     zlib/crc32.h \
+    dirent/dirent.h \
 
 SOURCES += \
-    dirent/dirent.c \
     glfw3/src/win32_init.c \
     glfw3/src/win32_monitor.c \
     glfw3/src/win32_time.c \
@@ -241,8 +241,11 @@ SOURCES += \
     png/pngget.c \
     png/pngerror.c \
     png/png.c \
+    dirent/dirent.c \
 }
-unix:!macx:!android { #Linux only -------------------------
+unix:!macx:!android {
+#Linux only -------------------------
+
 INCLUDEPATH += \
     glfw3/include \
     glfw3/src
@@ -266,13 +269,13 @@ SOURCES += \
     glfw3/src/posix_tls.c \
     glfw3/src/glx_context.c \
 }
-macx { #Mac OSX only --------------------------------------
+macx {
+#Mac OSX only --------------------------------------
 HEADERS += \
     glfw3/src/cocoa_platform.h \
     glfw3/src/iokit_joystick.h \
     glfw3/src/posix_tls.h \
     glfw3/src/nsgl_context.h \
-    #nvwa/debug_new.h \
     zlib/ioapi.h \
     zlib/unzip.h \
     zlib/zconf.in.h \
@@ -288,11 +291,11 @@ HEADERS += \
     zlib/deflate.h \
     zlib/crypt.h \
     zlib/crc32.h \
+    #nvwa/debug_new.h \
 
 SOURCES += \
     glfw3/src/mach_time.c \
     glfw3/src/posix_tls.c \
-    #nvwa/debug_new.cpp \
     png/pngwutil.c \
     png/pngwtran.c \
     png/pngwrite.c \
@@ -325,6 +328,7 @@ SOURCES += \
     zlib/adler32.c \
     zlib/ioapi.c \
     zlib/unzip.c \
+    #nvwa/debug_new.cpp \
 
 OBJECTIVE_SOURCES += \
     glfw3/src/cocoa_init.m \

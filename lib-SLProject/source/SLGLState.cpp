@@ -542,7 +542,7 @@ SLbool SLGLState::pixelFormatIsSupported(SLint pixelFormat)
     #define SL_RGB  0x1907              // ES2 ES3 GL2 GL3 GL4
     #define SL_RGBA 0x1908              // ES2 ES3 GL2 GL3 GL4
     #define SL_BGR  0x80E0              //         GL2 GL3 GL4
-    #define SL_BGRA 0x80E1              //         GL2 GL3 GL4
+    #define SL_BGRA 0x80E1              //         GL2 GL3 GL4 (iOS defines it but it doesn't work)
 
     #define SL_RG_INTEGER 0x8228        //     ES3         GL4
     #define SL_RED_INTEGER 0x8D94       //     ES3         GL4

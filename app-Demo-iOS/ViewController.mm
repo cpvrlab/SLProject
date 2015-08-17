@@ -92,7 +92,7 @@ float GetSeconds()
     if([UIDevice currentDevice].multitaskingSupported)
        myView.drawableMultisample = GLKViewDrawableMultisample4X;
    
-    self.preferredFramesPerSecond = 30;
+    self.preferredFramesPerSecond = 60;
     self.view.multipleTouchEnabled = true;
     m_touchDowns = 0;
    
@@ -130,7 +130,7 @@ float GetSeconds()
                                 0,
                                 0);
     
-    [self setupAVCapture];
+    [self setupVideoCapture];
 }
 //-----------------------------------------------------------------------------
 - (void)viewDidUnload
@@ -154,11 +154,9 @@ float GetSeconds()
 - (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation
 {
     // Return YES for supported orientations
-    if ([[UIDevice currentDevice] userInterfaceIdiom] == UIUserInterfaceIdiomPhone) {
-        return (interfaceOrientation != UIInterfaceOrientationPortraitUpsideDown);
-    } else {
-        return YES;
-    }
+    if ([[UIDevice currentDevice] userInterfaceIdiom] == UIUserInterfaceIdiomPhone)
+         return (interfaceOrientation != UIInterfaceOrientationPortraitUpsideDown);
+    else return YES;
 }
 //-----------------------------------------------------------------------------
 - (void)update
@@ -294,7 +292,7 @@ float GetSeconds()
     m_lastTouchTimeSec = m_lastFrameTimeSec;
 }
 //-----------------------------------------------------------------------------
-// Event handler for a new live camera image
+// Event handler for a new camera image (taken from the GLCameraRipple example)
 - (void)captureOutput:(AVCaptureOutput *)captureOutput
 didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
        fromConnection:(AVCaptureConnection *)connection
@@ -316,63 +314,15 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
         slCopyVideoImage(width, height, SL_BGRA, data, true);
         
         m_lastVideoImageIsConsumed = false;
-        
-        /*
-        if (!m_videoTextureCache)
-        {   NSLog(@"No video texture cache");
-            return;
-        }
-        // CVOpenGLESTextureCacheCreateTextureFromImage will create GLES texture
-        // optimally from CVImageBufferRef.
-        
-        [self cleanUpTexture];
-        
-        glActiveTexture(GL_TEXTURE0);
-        err = CVOpenGLESTextureCacheCreateTextureFromImage(kCFAllocatorDefault,
-                                                           m_videoTextureCache,
-                                                           pixelBuffer,
-                                                           NULL,
-                                                           GL_TEXTURE_2D,
-                                                           GL_RED_EXT,
-                                                           (GLsizei) width,
-                                                           (GLsizei) height,
-                                                           GL_RED_EXT,
-                                                           GL_UNSIGNED_BYTE,
-                                                           0,
-                                                           &m_texture);
-        if (err)
-        {
-            NSLog(@"Error at CVOpenGLESTextureCacheCreateTextureFromImage %d", err);
-        }
-        
-        glBindTexture(CVOpenGLESTextureGetTarget(m_texture), CVOpenGLESTextureGetName(m_texture));
-        glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-        glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-        */
     }
 }
 //-----------------------------------------------------------------------------
-- (void)setupAVCapture
+//! Prepares the video capture (taken from the GLCameraRipple example)
+- (void)setupVideoCapture
 {
-    //-- Create CVOpenGLESTextureCacheRef for optimal CVImageBufferRef to GLES texture conversion.
-    /*
-    #if COREVIDEO_USE_EAGLCONTEXT_CLASS_IN_API
-    CVReturn err = CVOpenGLESTextureCacheCreate(kCFAllocatorDefault, NULL, _context, NULL, &m_videoTextureCache);
-    #else
-    CVReturn err = CVOpenGLESTextureCacheCreate(kCFAllocatorDefault, NULL, (__bridge void *)_context, NULL, &m_videoTextureCache);
-    #endif
-    if (err)
-    {   NSLog(@"Error at CVOpenGLESTextureCacheCreate %d", err);
-        return;
-    }
-    */
-    
     if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad)
-    {   // Choosing bigger preset for bigger screen.
-        m_avSessionPreset = AVCaptureSessionPreset1280x720;
-    } else
-    {   m_avSessionPreset = AVCaptureSessionPreset640x480;
-    }
+         m_avSessionPreset = AVCaptureSessionPreset1280x720;
+    else m_avSessionPreset = AVCaptureSessionPreset640x480;
     
     //-- Setup Capture Session.
     m_avSession = [[AVCaptureSession alloc] init];
@@ -399,6 +349,7 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
     [dataOutput setAlwaysDiscardsLateVideoFrames:YES]; // Probably want to set this to NO when recording
     
     //-- Set to BGRA.
+    // Corevideo only supports 420y, 420f and BGRA
     [dataOutput setVideoSettings:[NSDictionary dictionaryWithObject:[NSNumber numberWithInt:kCVPixelFormatType_32BGRA]
                                                              forKey:(id)kCVPixelBufferPixelFormatTypeKey]]; // Necessary for manual preview
     
@@ -410,20 +361,6 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
     
     [m_avSession startRunning];
     m_lastVideoImageIsConsumed = true;
-}
-
-- (void)cleanUpTexture
-{
-    /*
-    if (m_texture)
-    {
-        CFRelease(m_texture);
-        m_texture = NULL;
-    }
-    
-    // Periodic texture cache flush every frame
-    CVOpenGLESTextureCacheFlush(m_videoTextureCache, 0);
-    */
 }
 //-----------------------------------------------------------------------------
 @end

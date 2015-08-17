@@ -79,7 +79,6 @@ android {
 INCLUDEPATH += \
     ../include\
     ../lib-SLExternal\
-    ../lib-SLExternal/dirent \
     ../lib-SLExternal/assimp/include \
     ../lib-SLExternal/assimp/code \
     ../lib-SLExternal/glew/include \
