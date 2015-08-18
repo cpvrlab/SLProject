@@ -7,6 +7,7 @@
 //
 
 #import "ViewController.h"
+#import <CoreMotion/CoreMotion.h>
 
 // The only C-interface to include for the SceneLibrary
 #include <SLInterface.h>
@@ -56,17 +57,16 @@ float GetSeconds()
     SLfloat  m_lastTouchTimeSec;  //!< Frame time of the last touch event
     SLfloat  m_lastTouchDownSec;  //!< Time of last touch down
     SLint    m_touchDowns;        //!< No. of finger touchdowns
-    
+
     // Video stuff
-    AVCaptureSession*           m_avSession;            //!< Audio video session
-    NSString*                   m_avSessionPreset;      //!< Session name
-    //CVOpenGLESTextureRef        m_texture;
-    //CVOpenGLESTextureCacheRef   m_videoTextureCache;
-    bool                        m_lastVideoImageIsConsumed;
+    AVCaptureSession*   m_avSession;            //!< Audio video session
+    NSString*           m_avSessionPreset;      //!< Session name
+    bool                m_lastVideoImageIsConsumed;
 }
 @property (strong, nonatomic) EAGLContext *context;
+@property (strong, nonatomic) CMMotionManager *motionManager;
 @end
-
+//-----------------------------------------------------------------------------
 @implementation ViewController
 
 @synthesize context = _context;
@@ -82,9 +82,7 @@ float GetSeconds()
     [super viewDidLoad];
    
     self.context = [[[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES2] autorelease];
-   
     if (!self.context) NSLog(@"Failed to create ES context");
-   
     myView = (GLKView *)self.view;
     myView.context = self.context;
     myView.drawableDepthFormat = GLKViewDrawableDepthFormat24;
@@ -105,7 +103,43 @@ float GetSeconds()
     string pathUTF8 = [bundlePath UTF8String];
     pathUTF8 += "/";
     SLVstring cmdLineArgs;
-   
+    
+    /*
+    // Init motion manager
+    self.motionManager = [[CMMotionManager alloc] init];
+    
+    // Attach Accelerometer
+    if ([self.motionManager isAccelerometerAvailable] == YES)
+    {    self.motionManager.accelerometerUpdateInterval = 1.0/60.0;
+        [self.motionManager startAccelerometerUpdatesToQueue:[NSOperationQueue currentQueue]
+                                withHandler:^(CMAccelerometerData *accelerometerData, NSError *error)
+                                {   [self outputAccelertionData:accelerometerData.acceleration];
+                                    if(error){NSLog(@"%@", error);}
+                                }
+        ];
+    }
+    // Attach Gyro
+    if ([self.motionManager isGyroAvailable] == YES)
+    {    self.motionManager.gyroUpdateInterval = 1.0/60.0;
+        [self.motionManager startGyroUpdatesToQueue:[NSOperationQueue currentQueue]
+                                withHandler:^(CMGyroData *gyroData, NSError *error)
+                                {   [self outputGyroData:gyroData.rotationRate];
+                                    if(error){NSLog(@"%@", error);}
+                                }
+        ];
+    }
+    // Attach DeviceMotion
+    if ([self.motionManager isDeviceMotionAvailable] == YES)
+    {    self.motionManager.deviceMotionUpdateInterval = 1.0/60.0;
+        [self.motionManager startDeviceMotionUpdatesToQueue:[NSOperationQueue currentQueue]
+                                withHandler:^(CMDeviceMotion *deviceMotion, NSError *error)
+                                {   [self outputMotionData:deviceMotion.attitude];
+                                    if(error){NSLog(@"%@", error);}
+                                }
+        ];
+    }
+    */
+    
     // determine device pixel ratio and dots per inch
     screenScale = [UIScreen mainScreen].scale;
     float dpi;
@@ -131,6 +165,24 @@ float GetSeconds()
                                 0);
     
     [self setupVideoCapture];
+}
+//-----------------------------------------------------------------------------
+-(void)outputAccelertionData:(CMAcceleration)acceleration
+{
+    //SLVec3f acc(acceleration.x,acceleration.y,acceleration.z);
+    //acc.print("Acc:");
+}
+//-----------------------------------------------------------------------------
+-(void)outputGyroData:(CMRotationRate)rotation
+{
+    //SLVec3f rot(rotation.x,rotation.y,rotation.z);
+    //rot.print("Rot:");
+}
+//-----------------------------------------------------------------------------
+-(void)outputMotionData:(CMAttitude*)attitude
+{
+    //SLVec3f att(attitude.roll,attitude.pitch,attitude.yaw);
+    //att.print("att:");
 }
 //-----------------------------------------------------------------------------
 - (void)viewDidUnload

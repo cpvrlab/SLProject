@@ -166,7 +166,7 @@ class SLVec3
 
             //! Prints the vector to std out
             void    print       (const SLchar* str=0)   {if (str) SL_LOG("%s",str);
-                                                         SL_LOG("% 3.6f, % 3.6f, % 3.6f\n",x, y, z);}
+                                                         SL_LOG("% 3.2f, % 3.2f, % 3.2f\n",x, y, z);}
 
             //! Conversion to string
             SLstring toString   (SLstring delimiter = ", ")

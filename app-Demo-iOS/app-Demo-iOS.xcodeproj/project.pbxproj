@@ -353,6 +353,7 @@
 		419F43431959C072009D9E2E /* ioapi.c in Sources */ = {isa = PBXBuildFile; fileRef = 419F433F1959C072009D9E2E /* ioapi.c */; };
 		419F43441959C072009D9E2E /* unzip.c in Sources */ = {isa = PBXBuildFile; fileRef = 419F43411959C072009D9E2E /* unzip.c */; };
 		419F43471959C083009D9E2E /* ConvertUTF.c in Sources */ = {isa = PBXBuildFile; fileRef = 419F43451959C083009D9E2E /* ConvertUTF.c */; };
+		41A16C3C1B836835001EA07E /* CoreMotion.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 41A16C3B1B836835001EA07E /* CoreMotion.framework */; };
 		41A354E81A7E628300791841 /* SLGLProgram.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 41A354E71A7E628300791841 /* SLGLProgram.cpp */; };
 		41A354EB1A7E634F00791841 /* SLImporter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 41A354E91A7E634F00791841 /* SLImporter.cpp */; };
 		41A354EC1A7E634F00791841 /* SLAssimpImporter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 41A354EA1A7E634F00791841 /* SLAssimpImporter.cpp */; };
@@ -1004,6 +1005,7 @@
 		41A032CF19F7C3BF00F9DB43 /* SLGLShader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SLGLShader.h; path = ../include/SLGLShader.h; sourceTree = SOURCE_ROOT; };
 		41A032D319F7C3BF00F9DB43 /* SLGLState.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SLGLState.h; path = ../include/SLGLState.h; sourceTree = SOURCE_ROOT; };
 		41A032D419F7C3BF00F9DB43 /* SLGLTexture.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SLGLTexture.h; path = ../include/SLGLTexture.h; sourceTree = SOURCE_ROOT; };
+		41A16C3B1B836835001EA07E /* CoreMotion.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreMotion.framework; path = System/Library/Frameworks/CoreMotion.framework; sourceTree = SDKROOT; };
 		41A354E71A7E628300791841 /* SLGLProgram.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = SLGLProgram.cpp; path = "../lib-SLProject/source/SLGLProgram.cpp"; sourceTree = SOURCE_ROOT; };
 		41A354E91A7E634F00791841 /* SLImporter.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SLImporter.cpp; path = "../lib-SLProject/source/SL/SLImporter.cpp"; sourceTree = SOURCE_ROOT; };
 		41A354EA1A7E634F00791841 /* SLAssimpImporter.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SLAssimpImporter.cpp; path = "../lib-SLProject/source/SL/SLAssimpImporter.cpp"; sourceTree = SOURCE_ROOT; };
@@ -1059,6 +1061,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				41A16C3C1B836835001EA07E /* CoreMotion.framework in Frameworks */,
 				41BEFC0C1B78F866009EF31F /* CoreVideo.framework in Frameworks */,
 				41BEFC0A1B78F85A009EF31F /* CoreMedia.framework in Frameworks */,
 				41BEFC071B78F84F009EF31F /* AVFoundation.framework in Frameworks */,
@@ -1846,6 +1849,7 @@
 				419BCD3F14865C0800D576F1 /* CoreGraphics.framework */,
 				419BCD4114865C0800D576F1 /* GLKit.framework */,
 				419BCD4314865C0800D576F1 /* OpenGLES.framework */,
+				41A16C3B1B836835001EA07E /* CoreMotion.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
