@@ -14,6 +14,8 @@
 		<string>https://github.com/cpvrlab/SLProject_data.git</string>
 		<key>0C8499CD2E4389E889926062AEB8F0428A4DD54E</key>
 		<string>https://github.com/cpvrlab/SLProject.git</string>
+		<key>6A3C60BD753FF2AB3279472E2FDAD694AC3E5442</key>
+		<string>https://github.com/cpvrlab/SLProject_prebuilt.git</string>
 	</dict>
 	<key>IDESourceControlProjectPath</key>
 	<string>app-Demo-iOS/app-Demo-iOS.xcodeproj</string>
@@ -23,6 +25,8 @@
 		<string>../../.._data</string>
 		<key>0C8499CD2E4389E889926062AEB8F0428A4DD54E</key>
 		<string>../../..</string>
+		<key>6A3C60BD753FF2AB3279472E2FDAD694AC3E5442</key>
+		<string>../../../_lib/prebuilt/</string>
 	</dict>
 	<key>IDESourceControlProjectURL</key>
 	<string>https://github.com/cpvrlab/SLProject.git</string>
@@ -32,6 +36,14 @@
 	<string>0C8499CD2E4389E889926062AEB8F0428A4DD54E</string>
 	<key>IDESourceControlProjectWCConfigurations</key>
 	<array>
+		<dict>
+			<key>IDESourceControlRepositoryExtensionIdentifierKey</key>
+			<string>public.vcs.git</string>
+			<key>IDESourceControlWCCIdentifierKey</key>
+			<string>6A3C60BD753FF2AB3279472E2FDAD694AC3E5442</string>
+			<key>IDESourceControlWCCName</key>
+			<string>prebuilt</string>
+		</dict>
 		<dict>
 			<key>IDESourceControlRepositoryExtensionIdentifierKey</key>
 			<string>public.vcs.git</string>

@@ -96,13 +96,6 @@ float GetSeconds()
    
     //[self setupGL];
     [EAGLContext setCurrentContext:self.context];
-   
-    // Get the main bundle path and pass it the SLTexture and SLShaderProg
-    // This will be the default storage location for textures and shaders
-    NSString* bundlePath =[[NSBundle mainBundle] resourcePath];
-    string pathUTF8 = [bundlePath UTF8String];
-    pathUTF8 += "/";
-    SLVstring cmdLineArgs;
     
     /*
     // Init motion manager
@@ -150,9 +143,17 @@ float GetSeconds()
     else
         dpi = 160 * screenScale;
    
-    slCreateScene(pathUTF8,
-                  pathUTF8,
-                  pathUTF8);
+   
+    // Get the main bundle path and pass it the SLTexture and SLShaderProg
+    // This will be the default storage location for textures and shaders
+    NSString* bundlePath =[[NSBundle mainBundle] resourcePath];
+    string exeDir = [bundlePath UTF8String];
+    exeDir += "/";
+    SLVstring cmdLineArgs;
+    
+    slCreateScene(exeDir,
+                  exeDir,
+                  exeDir);
    
     svIndex = slCreateSceneView(self.view.bounds.size.width * screenScale,
                                 self.view.bounds.size.height * screenScale,
