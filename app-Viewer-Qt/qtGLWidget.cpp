@@ -32,20 +32,6 @@
     #define GETDEVICEPIXELRATIO() devicePixelRatio() 
 #endif
 //-----------------------------------------------------------------------------
-#ifdef HAS_OPENCV
-/*
-This project used the image processing library OpenCV: http://opencv.org/
-Please build and/or install is as described in the OpenCV documentation.
-The project definition uses under Windows the environment variable OPENCV_DIR
-for:
-OpenCV include directory: $(OPENCV_DIR)\..\..\include
-OpenCV library directory: $(OPENCV_DIR)\lib
-OpenCV dynamic library binary directory in $PATH: $(OPENCV_DIR)\bin
-*/
-#include <opencv2/opencv.hpp>
-cv::VideoCapture* captureDevice = 0;  //!< OpenCV video capture device
-#endif
-//-----------------------------------------------------------------------------
 qtMainWindow* qtGLWidget::mainWindow = 0;
 //-----------------------------------------------------------------------------
 /*!
@@ -74,7 +60,7 @@ qtGLWidget::qtGLWidget(QGLFormat &format,
                        SLVstring cmdLineArgs) : QGLWidget(format, parent)
 {
     setFocusPolicy(Qt::ClickFocus); // to receive keyboard focus on mouse click
-    setAutoBufferSwap(false);       // for correct framerate (see paintGL)
+    setAutoBufferSwap(false);       // for correct frame rate (see paintGL)
     setMouseTracking(false);        // fires only if mouse button is pressed;
     _appPath = appPath;
     _cmdLineArgs = cmdLineArgs;
@@ -92,7 +78,7 @@ qtGLWidget::qtGLWidget(QWidget* parent,
                        QGLWidget* shareWidget) : QGLWidget(parent, shareWidget)
 {
     setFocusPolicy(Qt::ClickFocus);  // to receive keyboard focus on mouse click
-    setAutoBufferSwap(false);        // for correct framerate (see paintGL)
+    setAutoBufferSwap(false);        // for correct frame rate (see paintGL)
     setMouseTracking(false);         // fires only if mouse button is pressed;
     _sv = 0;
     _touch2.set(-1,-1);

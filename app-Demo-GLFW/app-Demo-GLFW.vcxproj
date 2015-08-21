@@ -21,13 +21,11 @@
   <ItemGroup>
     <ClCompile Include="source\glfwMain.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
     </ClCompile>
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{54BE2CB2-A4BB-481D-9C74-AF8E4CD0764D}</ProjectGuid>
-    <RootNamespace>app-Demo-GLFW</RootNamespace>
+    <RootNamespace>app-Demo-GLFW-OPENCV</RootNamespace>
     <Keyword>Win32Proj</Keyword>
     <ProjectName>app-Demo-GLFW</ProjectName>
   </PropertyGroup>
@@ -138,8 +136,8 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>$(ProjectDir);..\include;..\lib-SLExternal;..\lib-SLExternal\jpeg-8;..\lib-SLExternal\png;..\lib-SLExternal\zlib;..\lib-SLExternal\glew\include;..\lib-SLExternal\glfw3\include;..\lib-SLExternal\randomc;..\lib-SLExternal\Shoemake;..\lib-SLExternal\oculus\LibOVR\Include\;..\lib-SLExternal\nvwa;..\lib-SLExternal\assimp\include;..\lib-SLExternal\assimp\code;..\lib-SLExternal\dirent;$(OPENCV_DIR)\..\..\include</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>SL_GUI_GLFW;SL_STARTSCENE#cmdSceneRevolver;GLEW_STATIC;_DEBUG;UNICODE;_WINDOWS</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(ProjectDir);..\include;..\lib-SLExternal;..\lib-SLExternal\jpeg-8;..\lib-SLExternal\png;..\lib-SLExternal\zlib;..\lib-SLExternal\glew\include;..\lib-SLExternal\glfw3\include;..\lib-SLExternal\randomc;..\lib-SLExternal\Shoemake;..\lib-SLExternal\oculus\LibOVR\Include\;..\lib-SLExternal\nvwa;..\lib-SLExternal\assimp\include;..\lib-SLExternal\assimp\code;..\lib-SLExternal\dirent;..\lib-SLExternal\opencv\include</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>HAS_OPENCV;SL_GUI_GLFW;SL_STARTSCENE#cmdSceneRevolver;GLEW_STATIC;_DEBUG;UNICODE;_WINDOWS</PreprocessorDefinitions>
       <TreatWChar_tAsBuiltInType>false</TreatWChar_tAsBuiltInType>
       <OpenMPSupport>false</OpenMPSupport>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
@@ -155,9 +153,9 @@
       <MinimalRebuild>true</MinimalRebuild>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>ws2_32.lib;opengl32.lib;lib-ovr.lib;lib-SLExternal.lib;lib-SLProject.lib;lib-Assimp.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>ws2_32.lib;opengl32.lib;lib-ovr.lib;lib-SLExternal.lib;lib-SLProject.lib;lib-Assimp.lib;opencv_core300.lib;opencv_imgproc300.lib;opencv_video300.lib;opencv_videoio300.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
-      <AdditionalLibraryDirectories>$(SolutionDir)_lib\$(Configuration)\$(Platform)\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(SolutionDir)_lib\$(Configuration)\$(Platform)\;$(SolutionDir)_lib\prebuilt\OpenCV\x64\vc12\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Console</SubSystem>
       <LargeAddressAware>true</LargeAddressAware>
@@ -169,8 +167,11 @@
       <ResourceOutputFileName>$(IntDir)$(TargetFileName).manifest.res</ResourceOutputFileName>
     </ManifestResourceCompile>
     <PostBuildEvent>
-      <Command>
-      </Command>
+      <Command>xcopy $(SolutionDir)\_lib\prebuilt\OpenCV\x64\vc12\bin\OpenCV_core300.dll $(SolutionDir)\_bin-$(Configuration)-$(Platform) /s /d
+xcopy $(SolutionDir)\_lib\prebuilt\OpenCV\x64\vc12\bin\OpenCV_video300.dll $(SolutionDir)\_bin-$(Configuration)-$(Platform) /s /d
+xcopy $(SolutionDir)\_lib\prebuilt\OpenCV\x64\vc12\bin\OpenCV_videoio300.dll $(SolutionDir)\_bin-$(Configuration)-$(Platform) /s /d
+xcopy $(SolutionDir)\_lib\prebuilt\OpenCV\x64\vc12\bin\OpenCV_imgproc300.dll $(SolutionDir)\_bin-$(Configuration)-$(Platform) /s /d
+xcopy $(SolutionDir)\_lib\prebuilt\OpenCV\x64\vc12\bin\OpenCV_imgcodecs300.dll $(SolutionDir)\_bin-$(Configuration)-$(Platform) /s /d</Command>
     </PostBuildEvent>
     <Bscmake>
       <PreserveSbr>true</PreserveSbr>
@@ -221,13 +222,13 @@
       <AdditionalOptions>/wd4996 %(AdditionalOptions)</AdditionalOptions>
       <Optimization>Full</Optimization>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <AdditionalIncludeDirectories>$(ProjectDir);..\include;..\lib-SLExternal;..\lib-SLExternal\jpeg-8;..\lib-SLExternal\png;..\lib-SLExternal\zlib;..\lib-SLExternal\glew\include;..\lib-SLExternal\glfw3\include;..\lib-SLExternal\randomc;..\lib-SLExternal\Shoemake;..\lib-SLExternal\oculus\LibOVR\Include\;..\lib-SLExternal\nvwa;..\lib-SLExternal\assimp\include;..\lib-SLExternal\assimp\code;..\lib-SLExternal\dirent;$(OPENCV_DIR)\..\..\include</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>SL_GUI_GLFW;SL_STARTSCENE#cmdSceneRevolver;GLEW_STATIC;UNICODE;_WINDOWS</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(ProjectDir);..\include;..\lib-SLExternal;..\lib-SLExternal\jpeg-8;..\lib-SLExternal\png;..\lib-SLExternal\zlib;..\lib-SLExternal\glew\include;..\lib-SLExternal\glfw3\include;..\lib-SLExternal\randomc;..\lib-SLExternal\Shoemake;..\lib-SLExternal\oculus\LibOVR\Include\;..\lib-SLExternal\nvwa;..\lib-SLExternal\assimp\include;..\lib-SLExternal\assimp\code;..\lib-SLExternal\dirent;..\lib-SLExternal\opencv\include</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>HAS_OPENCV;SL_GUI_GLFW;SL_STARTSCENE#cmdSceneRevolver;GLEW_STATIC;UNICODE;_WINDOWS</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <BufferSecurityCheck>true</BufferSecurityCheck>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <OpenMPSupport>true</OpenMPSupport>
-      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <PrecompiledHeaderOutputFile>$(IntDir)$(TargetName).pch</PrecompiledHeaderOutputFile>
       <ProgramDataBaseFileName>$(TargetName).pdb</ProgramDataBaseFileName>
       <WarningLevel>TurnOffAllWarnings</WarningLevel>
@@ -237,9 +238,9 @@
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>ws2_32.lib;opengl32.lib;lib-ovr.lib;lib-SLExternal.lib;lib-SLProject.lib;lib-Assimp.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>ws2_32.lib;opengl32.lib;lib-ovr.lib;lib-SLExternal.lib;lib-SLProject.lib;lib-Assimp.lib;opencv_core300.lib;opencv_imgproc300.lib;opencv_video300.lib;opencv_videoio300.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
-      <AdditionalLibraryDirectories>$(SolutionDir)_lib\$(Configuration)\$(Platform)\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(SolutionDir)_lib\$(Configuration)\$(Platform)\;$(SolutionDir)_lib\prebuilt\OpenCV\x64\vc12\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <GenerateDebugInformation>false</GenerateDebugInformation>
       <SubSystem>Console</SubSystem>
       <OptimizeReferences>true</OptimizeReferences>
@@ -251,8 +252,11 @@
       <LargeAddressAware>true</LargeAddressAware>
     </Link>
     <PostBuildEvent>
-      <Command>
-      </Command>
+      <Command>xcopy $(SolutionDir)\_lib\prebuilt\OpenCV\x64\vc12\bin\OpenCV_core300.dll $(SolutionDir)\_bin-$(Configuration)-$(Platform) /s /d
+xcopy $(SolutionDir)\_lib\prebuilt\OpenCV\x64\vc12\bin\OpenCV_video300.dll $(SolutionDir)\_bin-$(Configuration)-$(Platform) /s /d
+xcopy $(SolutionDir)\_lib\prebuilt\OpenCV\x64\vc12\bin\OpenCV_videoio300.dll $(SolutionDir)\_bin-$(Configuration)-$(Platform) /s /d
+xcopy $(SolutionDir)\_lib\prebuilt\OpenCV\x64\vc12\bin\OpenCV_imgproc300.dll $(SolutionDir)\_bin-$(Configuration)-$(Platform) /s /d
+xcopy $(SolutionDir)\_lib\prebuilt\OpenCV\x64\vc12\bin\OpenCV_imgcodecs300.dll $(SolutionDir)\_bin-$(Configuration)-$(Platform) /s /d</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

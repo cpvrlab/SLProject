@@ -575,7 +575,10 @@ int main(int argc, char *argv[])
     glfwTerminate();
 
     #ifdef HAS_OPENCV
-    delete captureDevice;
+    if (captureDevice && captureDevice->isOpened())
+    {   captureDevice->release();
+        //delete captureDevice;
+    }
     #endif
 
     exit(0);

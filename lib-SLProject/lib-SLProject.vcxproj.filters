@@ -445,166 +445,187 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="source\oglsl\ADS.frag">
-      <Filter>GLSL</Filter>
-    </None>
-    <None Include="source\oglsl\ADS.vert">
-      <Filter>GLSL</Filter>
-    </None>
-    <None Include="source\oglsl\ADS_Loesung.vert">
-      <Filter>GLSL</Filter>
-    </None>
-    <None Include="source\oglsl\ADSTex.frag">
-      <Filter>GLSL</Filter>
-    </None>
-    <None Include="source\oglsl\ADSTex.vert">
-      <Filter>GLSL</Filter>
-    </None>
-    <None Include="source\oglsl\ADSTex_Loesung.frag">
-      <Filter>GLSL</Filter>
-    </None>
-    <None Include="source\oglsl\ADSTex_Loesung.vert">
-      <Filter>GLSL</Filter>
-    </None>
-    <None Include="source\oglsl\BumpNormal.frag">
-      <Filter>GLSL</Filter>
-    </None>
-    <None Include="source\oglsl\BumpNormal.vert">
-      <Filter>GLSL</Filter>
-    </None>
-    <None Include="source\oglsl\BumpNormalEarth.frag">
-      <Filter>GLSL</Filter>
-    </None>
-    <None Include="source\oglsl\BumpNormalParallax.frag">
-      <Filter>GLSL</Filter>
-    </None>
-    <None Include="source\oglsl\Color.frag">
-      <Filter>GLSL</Filter>
-    </None>
-    <None Include="source\oglsl\ColorAttribute.vert">
-      <Filter>GLSL</Filter>
-    </None>
-    <None Include="source\oglsl\ColorUniform.vert">
-      <Filter>GLSL</Filter>
-    </None>
-    <None Include="source\oglsl\Diffuse.frag">
-      <Filter>GLSL</Filter>
-    </None>
-    <None Include="source\oglsl\Diffuse.vert">
-      <Filter>GLSL</Filter>
-    </None>
-    <None Include="source\oglsl\Earth.frag">
-      <Filter>GLSL</Filter>
-    </None>
-    <None Include="source\oglsl\ErrorTex.frag">
-      <Filter>GLSL</Filter>
-    </None>
-    <None Include="source\oglsl\ErrorTex.vert">
-      <Filter>GLSL</Filter>
-    </None>
-    <None Include="source\oglsl\FontTex.frag">
-      <Filter>GLSL</Filter>
-    </None>
-    <None Include="source\oglsl\FontTex.vert">
-      <Filter>GLSL</Filter>
-    </None>
-    <None Include="source\oglsl\PerPixBlinn.frag">
-      <Filter>GLSL</Filter>
-    </None>
-    <None Include="source\oglsl\PerPixBlinn.vert">
-      <Filter>GLSL</Filter>
-    </None>
-    <None Include="source\oglsl\PerPixBlinnTex.frag">
-      <Filter>GLSL</Filter>
-    </None>
-    <None Include="source\oglsl\PerPixBlinnTex.vert">
-      <Filter>GLSL</Filter>
-    </None>
-    <None Include="source\oglsl\PerVrtBlinn.frag">
-      <Filter>GLSL</Filter>
-    </None>
-    <None Include="source\oglsl\PerVrtBlinn.vert">
-      <Filter>GLSL</Filter>
-    </None>
-    <None Include="source\oglsl\PerVrtBlinnTex.frag">
-      <Filter>GLSL</Filter>
-    </None>
-    <None Include="source\oglsl\PerVrtBlinnTex.vert">
-      <Filter>GLSL</Filter>
-    </None>
-    <None Include="source\oglsl\Reflect.frag">
-      <Filter>GLSL</Filter>
-    </None>
-    <None Include="source\oglsl\Reflect.vert">
-      <Filter>GLSL</Filter>
-    </None>
-    <None Include="source\oglsl\RefractReflect.frag">
-      <Filter>GLSL</Filter>
-    </None>
-    <None Include="source\oglsl\RefractReflect.vert">
-      <Filter>GLSL</Filter>
-    </None>
-    <None Include="source\oglsl\RefractReflectDisp.frag">
-      <Filter>GLSL</Filter>
-    </None>
-    <None Include="source\oglsl\RefractReflectDisp.vert">
-      <Filter>GLSL</Filter>
-    </None>
-    <None Include="source\oglsl\SceneOculus.frag">
-      <Filter>GLSL</Filter>
-    </None>
-    <None Include="source\oglsl\SceneOculus.vert">
-      <Filter>GLSL</Filter>
-    </None>
-    <None Include="source\oglsl\StereoOculus.frag">
-      <Filter>GLSL</Filter>
-    </None>
-    <None Include="source\oglsl\StereoOculus.vert">
-      <Filter>GLSL</Filter>
-    </None>
-    <None Include="source\oglsl\StereoOculusDistortionMesh.frag">
-      <Filter>GLSL</Filter>
-    </None>
-    <None Include="source\oglsl\StereoOculusDistortionMesh.vert">
-      <Filter>GLSL</Filter>
-    </None>
-    <None Include="source\oglsl\TextureOnly.frag">
-      <Filter>GLSL</Filter>
-    </None>
-    <None Include="source\oglsl\TextureOnly.vert">
-      <Filter>GLSL</Filter>
-    </None>
-    <None Include="source\oglsl\Wave.frag">
-      <Filter>GLSL</Filter>
-    </None>
-    <None Include="source\oglsl\Wave.vert">
-      <Filter>GLSL</Filter>
-    </None>
-    <None Include="source\oglsl\WaveRefractReflect.vert">
-      <Filter>GLSL</Filter>
-    </None>
-    <None Include="source\oglsl\PerVrtBlinnTexSkinned.vert">
-      <Filter>GLSL</Filter>
-    </None>
-    <None Include="source\oglsl\PerVrtBlinnSkinned.vert">
-      <Filter>GLSL</Filter>
-    </None>
-    <None Include="source\oglsl\PerPixBlinnTexSkinned.vert">
-      <Filter>GLSL</Filter>
-    </None>
     <None Include="Introduction.md" />
     <None Include="onPaint.md" />
     <None Include="SLProject.md" />
-    <None Include="source\oglsl\TextureOnly3D.frag">
+    <None Include="..\_data\shaders\ADS.frag">
       <Filter>GLSL</Filter>
     </None>
-    <None Include="source\oglsl\TextureOnly3D.vert">
+    <None Include="..\_data\shaders\ADS.vert">
       <Filter>GLSL</Filter>
     </None>
-    <None Include="source\oglsl\ADSTex3D.frag">
+    <None Include="..\_data\shaders\ADS_Loesung.vert">
       <Filter>GLSL</Filter>
     </None>
-    <None Include="source\oglsl\ADSTex3D.vert">
+    <None Include="..\_data\shaders\ADSTex.frag">
+      <Filter>GLSL</Filter>
+    </None>
+    <None Include="..\_data\shaders\ADSTex.vert">
+      <Filter>GLSL</Filter>
+    </None>
+    <None Include="..\_data\shaders\ADSTex_Loesung.frag">
+      <Filter>GLSL</Filter>
+    </None>
+    <None Include="..\_data\shaders\ADSTex_Loesung.vert">
+      <Filter>GLSL</Filter>
+    </None>
+    <None Include="..\_data\shaders\ADSTex3D.frag">
+      <Filter>GLSL</Filter>
+    </None>
+    <None Include="..\_data\shaders\ADSTex3D.vert">
+      <Filter>GLSL</Filter>
+    </None>
+    <None Include="..\_data\shaders\BumpNormal.frag">
+      <Filter>GLSL</Filter>
+    </None>
+    <None Include="..\_data\shaders\BumpNormal.vert">
+      <Filter>GLSL</Filter>
+    </None>
+    <None Include="..\_data\shaders\BumpNormalEarth.frag">
+      <Filter>GLSL</Filter>
+    </None>
+    <None Include="..\_data\shaders\BumpNormalParallax.frag">
+      <Filter>GLSL</Filter>
+    </None>
+    <None Include="..\_data\shaders\Color.frag">
+      <Filter>GLSL</Filter>
+    </None>
+    <None Include="..\_data\shaders\ColorAttribute.vert">
+      <Filter>GLSL</Filter>
+    </None>
+    <None Include="..\_data\shaders\ColorUniform.vert">
+      <Filter>GLSL</Filter>
+    </None>
+    <None Include="..\_data\shaders\Diffuse.frag">
+      <Filter>GLSL</Filter>
+    </None>
+    <None Include="..\_data\shaders\Diffuse.vert">
+      <Filter>GLSL</Filter>
+    </None>
+    <None Include="..\_data\shaders\Earth.frag">
+      <Filter>GLSL</Filter>
+    </None>
+    <None Include="..\_data\shaders\ErrorTex.frag">
+      <Filter>GLSL</Filter>
+    </None>
+    <None Include="..\_data\shaders\ErrorTex.vert">
+      <Filter>GLSL</Filter>
+    </None>
+    <None Include="..\_data\shaders\FontTex.frag">
+      <Filter>GLSL</Filter>
+    </None>
+    <None Include="..\_data\shaders\FontTex.vert">
+      <Filter>GLSL</Filter>
+    </None>
+    <None Include="..\_data\shaders\PerPixBlinn.frag">
+      <Filter>GLSL</Filter>
+    </None>
+    <None Include="..\_data\shaders\PerPixBlinn.vert">
+      <Filter>GLSL</Filter>
+    </None>
+    <None Include="..\_data\shaders\PerPixBlinnSkinned.vert">
+      <Filter>GLSL</Filter>
+    </None>
+    <None Include="..\_data\shaders\PerPixBlinnTex.frag">
+      <Filter>GLSL</Filter>
+    </None>
+    <None Include="..\_data\shaders\PerPixBlinnTex.vert">
+      <Filter>GLSL</Filter>
+    </None>
+    <None Include="..\_data\shaders\PerPixBlinnTexSkinned.vert">
+      <Filter>GLSL</Filter>
+    </None>
+    <None Include="..\_data\shaders\PerVrtBlinn.frag">
+      <Filter>GLSL</Filter>
+    </None>
+    <None Include="..\_data\shaders\PerVrtBlinn.vert">
+      <Filter>GLSL</Filter>
+    </None>
+    <None Include="..\_data\shaders\PerVrtBlinnSkinned.vert">
+      <Filter>GLSL</Filter>
+    </None>
+    <None Include="..\_data\shaders\PerVrtBlinnTex.frag">
+      <Filter>GLSL</Filter>
+    </None>
+    <None Include="..\_data\shaders\PerVrtBlinnTex.vert">
+      <Filter>GLSL</Filter>
+    </None>
+    <None Include="..\_data\shaders\PerVrtBlinnTexSkinned.vert">
+      <Filter>GLSL</Filter>
+    </None>
+    <None Include="..\_data\shaders\Reflect.frag">
+      <Filter>GLSL</Filter>
+    </None>
+    <None Include="..\_data\shaders\Reflect.vert">
+      <Filter>GLSL</Filter>
+    </None>
+    <None Include="..\_data\shaders\RefractReflect.frag">
+      <Filter>GLSL</Filter>
+    </None>
+    <None Include="..\_data\shaders\RefractReflect.vert">
+      <Filter>GLSL</Filter>
+    </None>
+    <None Include="..\_data\shaders\RefractReflectDisp.frag">
+      <Filter>GLSL</Filter>
+    </None>
+    <None Include="..\_data\shaders\RefractReflectDisp.vert">
+      <Filter>GLSL</Filter>
+    </None>
+    <None Include="..\_data\shaders\SceneOculus.frag">
+      <Filter>GLSL</Filter>
+    </None>
+    <None Include="..\_data\shaders\SceneOculus.vert">
+      <Filter>GLSL</Filter>
+    </None>
+    <None Include="..\_data\shaders\ShadowMapping.frag">
+      <Filter>GLSL</Filter>
+    </None>
+    <None Include="..\_data\shaders\ShadowMapping.vert">
+      <Filter>GLSL</Filter>
+    </None>
+    <None Include="..\_data\shaders\StereoOculus.frag">
+      <Filter>GLSL</Filter>
+    </None>
+    <None Include="..\_data\shaders\StereoOculus.vert">
+      <Filter>GLSL</Filter>
+    </None>
+    <None Include="..\_data\shaders\StereoOculusDistortionMesh.frag">
+      <Filter>GLSL</Filter>
+    </None>
+    <None Include="..\_data\shaders\StereoOculusDistortionMesh.vert">
+      <Filter>GLSL</Filter>
+    </None>
+    <None Include="..\_data\shaders\Terrain.frag">
+      <Filter>GLSL</Filter>
+    </None>
+    <None Include="..\_data\shaders\Terrain.vert">
+      <Filter>GLSL</Filter>
+    </None>
+    <None Include="..\_data\shaders\Terrain_Loesung.frag">
+      <Filter>GLSL</Filter>
+    </None>
+    <None Include="..\_data\shaders\Terrain_Loesung.vert">
+      <Filter>GLSL</Filter>
+    </None>
+    <None Include="..\_data\shaders\TextureOnly.frag">
+      <Filter>GLSL</Filter>
+    </None>
+    <None Include="..\_data\shaders\TextureOnly.vert">
+      <Filter>GLSL</Filter>
+    </None>
+    <None Include="..\_data\shaders\TextureOnly3D.frag">
+      <Filter>GLSL</Filter>
+    </None>
+    <None Include="..\_data\shaders\TextureOnly3D.vert">
+      <Filter>GLSL</Filter>
+    </None>
+    <None Include="..\_data\shaders\Wave.frag">
+      <Filter>GLSL</Filter>
+    </None>
+    <None Include="..\_data\shaders\Wave.vert">
+      <Filter>GLSL</Filter>
+    </None>
+    <None Include="..\_data\shaders\WaveRefractReflect.vert">
       <Filter>GLSL</Filter>
     </None>
   </ItemGroup>

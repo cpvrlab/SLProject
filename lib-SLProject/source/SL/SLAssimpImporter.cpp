@@ -1077,11 +1077,11 @@ SLbool SLAssimpImporter::aiNodeHasMesh(aiNode* node)
 //-----------------------------------------------------------------------------
 /*! 
 SLAssimpImporter::checkFilePath tries to build the full absolut texture file path. 
-Some file formats have absolut path stored, some have relative paths.
+Some file formats have absolute path stored, some have relative paths.
 1st attempt: modelPath + aiTexFile
 2nd attempt: aiTexFile
 3rd attempt: modelPath + getFileName(aiTexFile)
-If a model contains absolut path it is best to put all texture files beside the
+If a model contains absolute path it is best to put all texture files beside the
 model file in the same folder.
 */
 SLstring SLAssimpImporter::checkFilePath(SLstring modelPath, SLstring aiTexFile)

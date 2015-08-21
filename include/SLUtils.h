@@ -67,15 +67,17 @@ class SLUtils
         //! SLUtils::getPath returns the path w. '\\' of path-filename string
         static SLstring getPath(const SLstring& pathFilename) 
         {
-            size_t i;
-            i = pathFilename.rfind('\\', pathFilename.length( ));
-            if (i != string::npos) 
-            {  return(pathFilename.substr(0, i+1));
+            size_t i1, i2;
+            i1 = pathFilename.rfind('\\', pathFilename.length());
+            i2 = pathFilename.rfind('/', pathFilename.length());
+            if ((i1 != string::npos && i2 == string::npos) ||
+                (i1 != string::npos && i1 > i2)) 
+            {  return(pathFilename.substr(0, i1+1));
             }
          
-            i = pathFilename.rfind('/', pathFilename.length( ));
-            if (i != string::npos) 
-            {  return(pathFilename.substr(0, i+1));
+            if ((i2 != string::npos && i1 == string::npos) ||
+                (i2 != string::npos && i2 > i1))
+            {  return(pathFilename.substr(0, i2+1));
             }
             return pathFilename;
         }

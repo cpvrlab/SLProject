@@ -175,7 +175,7 @@ SLbool SLImage::load(SLint width,
         
         if (srcPixelFormatGL==dstPixelFormatGL)
         {
-            for (SLuint h=0; h<_height; ++h, srcStart += srcBPL, dstStart -= dstBPL)
+            for (SLint h=0; h<_height; ++h, srcStart += srcBPL, dstStart -= dstBPL)
             {   memcpy(dstStart, srcStart, dstBPL);
             }
         }
@@ -185,7 +185,7 @@ SLbool SLImage::load(SLint width,
             {
                 if (dstPixelFormatGL==SL_RGB)
                 {
-                    for (SLuint h=0; h<_height; ++h, srcStart += srcBPL, dstStart -= dstBPL)
+                    for (SLint h=0; h<_height; ++h, srcStart += srcBPL, dstStart -= dstBPL)
                     {   SLubyte* src = srcStart;
                         SLubyte* dst = dstStart;
                         for(SLint w=0; w<_width-1; ++w, dst += dstBPP, src += srcBPP)
@@ -198,7 +198,7 @@ SLbool SLImage::load(SLint width,
                 else
                 if (dstPixelFormatGL==SL_RGBA)
                 {
-                    for (SLuint h=0; h<_height; ++h, srcStart += srcBPL, dstStart -= dstBPL)
+                    for (SLint h=0; h<_height; ++h, srcStart += srcBPL, dstStart -= dstBPL)
                     {   SLubyte* src = srcStart;
                         SLubyte* dst = dstStart;
                         for(SLint w=0; w<_width-1; ++w, dst += dstBPP, src += srcBPP)
@@ -215,7 +215,7 @@ SLbool SLImage::load(SLint width,
             {
                 if (dstPixelFormatGL==SL_RGB || dstPixelFormatGL==SL_BGR)
                 {
-                    for (SLuint h=0; h<_height; ++h, srcStart += srcBPL, dstStart -= dstBPL)
+                    for (SLint h=0; h<_height; ++h, srcStart += srcBPL, dstStart -= dstBPL)
                     {   SLubyte* src = srcStart;
                         SLubyte* dst = dstStart;
                         for(SLint w=0; w<_width-1; ++w, dst += dstBPP, src += srcBPP)
