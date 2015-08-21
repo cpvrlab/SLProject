@@ -105,10 +105,11 @@ void qtGLWidget::initializeGL()
     #endif
     cout << "DPI             : " << dpi << endl;
 
-    // Set global shader-, model- & texture path
-    SLstring shaders  = "../lib-SLProject/source/oglsl/";
-    SLstring models   = "../_data/models/";
-    SLstring textures = "../_data/images/textures/";
+    // Set the paths for shaders, models & textures
+    SLstring exeDir   = SLUtils::getPath(_cmdLineArgs[0]);
+    SLstring shaders  = exeDir + "../_data/shaders/";
+    SLstring models   = exeDir + "../_data/models/";
+    SLstring textures = exeDir + "../_data/images/textures/";
 
     // Create Scene only once
     if (SLScene::current == 0)
@@ -168,10 +169,6 @@ void qtGLWidget::paintGL()
         QApplication::quit();
     else
     {
-        //if (_frameGrabber.isAvailable() && slNeedsVideoImage())
-        //     _frameGrabber.copyToSLIfReady();
-        //else _frameGrabber.stop();
-
         makeCurrent();
 
         bool viewNeedsRepaint = slUpdateAndPaint(_svIndex);

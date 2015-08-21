@@ -452,11 +452,11 @@ void onShowCursor(bool val)
 The C main procedure running the GLFW GUI application.
 */
 int main(int argc, char *argv[])
-{  
+{
     // set command line arguments
-    SLVstring* cmdLineArgs = new SLVstring();
-    for(int i = 1; i < argc; i++)
-	    cmdLineArgs->push_back(argv[i]);
+    SLVstring cmdLineArgs;
+    for(int i = 0; i < argc; i++)
+        cmdLineArgs.push_back(SLstring(argv[i]));
 
     if (!glfwInit())
     {   fprintf(stderr, "Failed to initialize GLFW\n");
@@ -535,16 +535,18 @@ int main(int argc, char *argv[])
     #endif
     cout << "DPI             : " << dpi << endl;
 
-    slCreateScene("../lib-SLProject/source/oglsl/",
-                  "../_data/models/",
-                  "../_data/images/textures/");
+    // get executable path
+    SLstring exeDir = SLUtils::getPath(cmdLineArgs[0]);
 
+    slCreateScene(exeDir + "../_data/shaders/",
+                  exeDir + "../_data/models/",
+                  exeDir + "../_data/images/textures/");
 
     svIndex = slCreateSceneView((int)(scrWidth  * scr2fbX),
                                 (int)(scrHeight * scr2fbY),
                                 dpi, 
                                 (SLCmd)SL_STARTSCENE,
-                                *cmdLineArgs,
+                                cmdLineArgs,
                                 (void*)&onPaint, 
                                 0,
                                 0,
@@ -571,8 +573,6 @@ int main(int argc, char *argv[])
     slTerminate();
     glfwDestroyWindow(window);
     glfwTerminate();
-
-    delete cmdLineArgs;
 
     #ifdef HAS_OPENCV
     delete captureDevice;

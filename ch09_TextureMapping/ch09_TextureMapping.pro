@@ -10,6 +10,10 @@
 
 TEMPLATE = app
 TARGET = ch09_TextureMapping
+
+CONFIG += warn_off
+CONFIG -= qml_debug
+CONFIG -= qt
 CONFIG -= app_bundle
 
 #define platform variable for folder name
@@ -25,7 +29,57 @@ DESTDIR = ../_bin-$$CONFIGURATION-$$PLATFORM
 OBJECTS_DIR = ../intermediate/$$TARGET/$$CONFIGURATION/$$PLATFORM
 LIBS += -L../_lib/$$CONFIGURATION/$$PLATFORM -llib-SLExternal
 
-include(../SLProjectCommon.pro)
+win32 {
+    # windows only
+    LIBS += -lOpenGL32
+    LIBS += -lwinmm
+    LIBS += -lgdi32
+    LIBS += -luser32
+    LIBS += -lkernel32
+    LIBS += -lshell32
+    LIBS += -lsetupapi
+    LIBS += -lws2_32
+    DEFINES += GLEW_STATIC
+    DEFINES += _GLFW_NO_DLOAD_GDI32
+    DEFINES += _GLFW_NO_DLOAD_WINMM
+    DEFINES -= UNICODE
+    INCLUDEPATH += ../lib-SLExternal/png
+}
+macx {
+    # mac only
+    CONFIG += c++11
+    LIBS += -framework Cocoa
+    LIBS += -framework IOKit
+    LIBS += -framework OpenGL
+    LIBS += -framework QuartzCore
+    LIBS += -stdlib=libc++
+    INCLUDEPATH += ../lib-SLExternal/png
+}
+unix:!macx:!android {
+    # linux only
+    LIBS += -lGL
+    LIBS += -lX11
+    LIBS += -lXrandr    #livrandr-dev
+    LIBS += -lXi        #libxi-dev
+    LIBS += -lXinerama  #libxinerama-dev
+    LIBS += -lXxf86vm   #libxf86vm
+    LIBS += -lXcursor
+    LIBS += -ludev      #libudev-dev
+    LIBS += -lpthread   #libpthread
+    LIBS += -lpng
+    LIBS += -lz
+    QMAKE_CXXFLAGS += -std=c++11
+    QMAKE_CXXFLAGS += -Wunused-parameter
+    QMAKE_CXXFLAGS += -Wno-unused-parameter
+}
+
+INCLUDEPATH += \
+    ../include\
+    ../lib-SLExternal \
+    ../lib-SLExternal/glew/include \
+    ../lib-SLExternal/glfw3/include \
+    ../lib-SLExternal/zlib \
+    ../lib-SLExternal/jpeg-8 \
 
 SOURCES += \
     TextureMapping.cpp \
@@ -37,7 +91,4 @@ HEADERS += \
     glUtils.h \
     ../include/SLImage.h
 
-macx: {
-    #run macdeployqt
-    QMAKE_POST_LINK += macdeployqt ../_bin-$$CONFIGURATION-$$PLATFORM/$$TARGET.app/
-}
+

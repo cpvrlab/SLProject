@@ -19,7 +19,7 @@ int main(int argc, char *argv[])
     #ifndef QT_NO_OPENGL
         // set command line arguments
         SLVstring cmdLineArgs;
-        for(int i = 1; i < argc; i++)
+        for(int i = 0; i < argc; i++)
             cmdLineArgs.push_back(argv[i]);
 
         QApplication app(argc, argv);

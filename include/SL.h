@@ -40,7 +40,6 @@
 #include <math.h>                // for math functions
 #include <string.h>              // for string functions
 
-
 /////////////////////////////////////////////////////////
 // Preprocessor constant definitions used in the SLProject
 /////////////////////////////////////////////////////////
@@ -71,13 +70,19 @@ SL_USE_DISCARD_STEREOMODES: The discard stereo modes can be used (SLCamera)
             //#define SL_MEMLEAKDETECT  // nvwa doesn't work under OSX/clang
         #endif
     #endif
+    #include <unistd.h> //getcwd
+    #define SL_GETCWD getcwd
 #elif defined(ANDROID) || defined(ANDROID_NDK)
     #define SL_OS_ANDROID
     #define SL_GLES2
+    #include <unistd.h> //getcwd
+    #define SL_GETCWD getcwd
 #elif defined(_WIN32)
     #define SL_OS_WINDOWS
     #define SL_USE_DISCARD_STEREOMODES
     #define SL_OVR
+    #include <direct.h> //_getcwd
+    #define SL_GETCWD _getcwd
     #ifdef _DEBUG
         //#define SL_MEMLEAKDETECT
         //#define _NO_DEBUG_HEAP 1
@@ -90,6 +95,8 @@ SL_USE_DISCARD_STEREOMODES: The discard stereo modes can be used (SLCamera)
     #ifdef _DEBUG
         //#define SL_MEMLEAKDETECT  // nvwa doesn't work under OSX/clang
     #endif
+    #include <unistd.h> //getcwd
+    #define SL_GETCWD getcwd
 #else
     #error "SL has not been ported to this OS"
 #endif
@@ -270,6 +277,7 @@ class SL
                                  const SLint line, 
                                  const SLchar* file);
     static SLuint   maxThreads  ();
+    static SLstring getCWD      ();
 };
 //-----------------------------------------------------------------------------
 #endif

@@ -55,3 +55,13 @@ SLuint SL::maxThreads()
     #endif
 }
 //-----------------------------------------------------------------------------
+//! Returns the current working directory
+SLstring SL::getCWD()
+{
+    SLchar cCurrentPath[FILENAME_MAX];
+
+    if (!SL_GETCWD(cCurrentPath, sizeof(cCurrentPath)))
+         return SLstring("");
+    else return SLstring(cCurrentPath);
+}
+//-----------------------------------------------------------------------------

@@ -59,21 +59,11 @@ int main(int argc, char *argv[])
 {  
     // set command line arguments
     SLVstring cmdLineArgs;
-    for(int i = 1; i < argc; i++)
+    for(int i = 0; i < argc; i++)
         cmdLineArgs.push_back(argv[i]);
 
     // main Qt application instance
     QApplication app(argc, argv);
-
-    #if defined(SL_OS_ANDROID)
-    //We first need the copy the files from the zipped asset to
-    //the application files folder where we can read with fread.
-    QDir files("/data/data/ch.fhwn.comgr/files");
-    files.mkpath("/data/data/ch.fhwn.comgr/files/shaders");
-    files.mkpath("/data/data/ch.fhwn.comgr/files/models");
-    files.mkpath("/data/data/ch.fhwn.comgr/files/textures");
-    copyPath("assets:" , "/data/data/ch.fhwn.comgr/files");
-    #endif
 
     #ifndef QT_NO_OPENGL
         // on Mac OSX the sample buffers must be turned on for antialiasing
