@@ -28,19 +28,12 @@ win32 {contains(QMAKE_TARGET.arch, x86_64) {PLATFORM = x64} else {PLATFORM = Win
 macx {PLATFORM = macx}
 unix:!macx:!android {PLATFORM = linux}
 android {PLATFORM = android}
+
 #define configuration variable for folder name
 CONFIG(debug, debug|release) {CONFIGURATION = Debug} else {CONFIGURATION = Release}
 
-DESTDIR = ../_bin-$$CONFIGURATION-$$PLATFORM
-OBJECTS_DIR = ../intermediate/$$TARGET/$$CONFIGURATION/$$PLATFORM
-LIBS += -L../_lib/$$CONFIGURATION/$$PLATFORM -llib-SLProject
-LIBS += -L../_lib/$$CONFIGURATION/$$PLATFORM -llib-SLExternal
-LIBS += -L../_lib/$$CONFIGURATION/$$PLATFORM -llib-assimp
-
-macx|win32 {LIBS += -L../_lib/$$CONFIGURATION/$$PLATFORM -llib-ovr}
-
-win32 {POST_TARGETDEPS += ../_lib/$$CONFIGURATION/$$PLATFORM/lib-SLProject.lib}
-else  {POST_TARGETDEPS += ../_lib/$$CONFIGURATION/$$PLATFORM/liblib-SLProject.a}
+DESTDIR     = $$PWD/_bin-$$CONFIGURATION-$$PLATFORM
+OBJECTS_DIR = $$PWD/intermediate/$$TARGET/$$CONFIGURATION/$$PLATFORM
 
 win32 {
     # windows only
@@ -91,6 +84,7 @@ INCLUDEPATH += \
     ../lib-SLExternal\
     ../lib-SLExternal/assimp/include \
     ../lib-SLExternal/assimp/code \
+    ../lib-SLExternal/dirent \
     ../lib-SLExternal/glew/include \
     ../lib-SLExternal/glfw3/include \
     ../lib-SLExternal/zlib\
@@ -230,48 +224,56 @@ models_OBJ_Christoffelturm.files = \
   ../_data/models/OBJ/Christoffelturm/texture2.jpg \
   ../_data/models/OBJ/Christoffelturm/shadow.png \
 
-# OpenCV
-HASOPENCV = No
-win32 {
-    # windows only
-    exists($(OPENCV_DIR)/lib/opencv_*.lib) {
-        DEFINES += HAS_OPENCV
-        INCLUDEPATH += c:\Lib\opencv\build\install\include
-        LIBS += $(OPENCV_DIR)\lib\opencv_core300d.lib
-        LIBS += $(OPENCV_DIR)\lib\opencv_imgproc300d.lib
-        LIBS += $(OPENCV_DIR)\lib\opencv_video300d.lib
-        LIBS += $(OPENCV_DIR)\lib\opencv_videoio300d.lib
-        HASOPENCV = Yes
+
+# Copies the given files to the destination directory
+defineTest(copyToDestdir) {
+    files = $$1
+    for(FILE, files) {
+        DDIR = $$DESTDIR
+        win32:FILE ~= s,/,\\,g # Replace slashes in paths with backslashes for Windows
+        win32:DDIR ~= s,/,\\,g
+        QMAKE_POST_LINK += $$QMAKE_COPY $$quote($$FILE) $$quote($$DDIR) $$escape_expand(\\n\\t)
     }
+    export(QMAKE_POST_LINK)
+}
+
+# OpenCV
+win32 {
+    INCLUDEPATH += ..\lib-SLExternal\opencv\include
+    LIBS += $$PWD\_lib\prebuilt\OpenCV\x64\vc12\lib\opencv_core300.lib
+    LIBS += $$PWD\_lib\prebuilt\OpenCV\x64\vc12\lib\opencv_imgproc300.lib
+    LIBS += $$PWD\_lib\prebuilt\OpenCV\x64\vc12\lib\opencv_video300.lib
+    LIBS += $$PWD\_lib\prebuilt\OpenCV\x64\vc12\lib\opencv_videoio300.lib
+
+    copyToDestdir($$PWD\_lib\prebuilt\OpenCV\x64\vc12\bin\opencv_core300.dll)
+    copyToDestdir($$PWD\_lib\prebuilt\OpenCV\x64\vc12\bin\opencv_imgproc300.dll)
+    copyToDestdir($$PWD\_lib\prebuilt\OpenCV\x64\vc12\bin\opencv_imgcodecs300.dll)
+    copyToDestdir($$PWD\_lib\prebuilt\OpenCV\x64\vc12\bin\opencv_video300.dll)
+    copyToDestdir($$PWD\_lib\prebuilt\OpenCV\x64\vc12\bin\opencv_videoio300.dll)
 }
 macx {
-    # mac only
-    exists(_lib/prebuilt/OpenCV/macx/libopencv_*.dylib) {
-        DEFINES += HAS_OPENCV
-        INCLUDEPATH += ../lib-SLExternal/opencv/include
-        LIBS += -L../_lib/prebuilt/OpenCV/macx -lopencv_core
-        LIBS += -L../_lib/prebuilt/OpenCV/macx -lopencv_imgproc
-        LIBS += -L../_lib/prebuilt/OpenCV/macx -lopencv_video
-        LIBS += -L../_lib/prebuilt/OpenCV/macx -lopencv_videoio
-        HASOPENCV = Yes
+    INCLUDEPATH += ../lib-SLExternal/opencv/include
+    LIBS += -L../_lib/prebuilt/OpenCV/macx -lopencv_core
+    LIBS += -L../_lib/prebuilt/OpenCV/macx -lopencv_imgproc
+    LIBS += -L../_lib/prebuilt/OpenCV/macx -lopencv_video
+    LIBS += -L../_lib/prebuilt/OpenCV/macx -lopencv_videoio
 
-        cvlibs.files += \
-            ../_lib/prebuilt/OpenCV/macx/libopencv_core.3.0.0.dylib \
-            ../_lib/prebuilt/OpenCV/macx/libopencv_core.3.0.dylib \
-            ../_lib/prebuilt/OpenCV/macx/libopencv_core.dylib \
-            ../_lib/prebuilt/OpenCV/macx/libopencv_imgproc.3.0.0.dylib \
-            ../_lib/prebuilt/OpenCV/macx/libopencv_imgproc.3.0.dylib \
-            ../_lib/prebuilt/OpenCV/macx/libopencv_imgproc.dylib \
-            ../_lib/prebuilt/OpenCV/macx/libopencv_video.3.0.0.dylib \
-            ../_lib/prebuilt/OpenCV/macx/libopencv_video.3.0.dylib \
-            ../_lib/prebuilt/OpenCV/macx/libopencv_video.dylib \
-            ../_lib/prebuilt/OpenCV/macx/libopencv_videoio.3.0.0.dylib \
-            ../_lib/prebuilt/OpenCV/macx/libopencv_videoio.3.0.dylib \
-            ../_lib/prebuilt/OpenCV/macx/libopencv_videoio.dylib \
-            ../_lib/prebuilt/OpenCV/macx/libopencv_imgcodecs.3.0.0.dylib \
-            ../_lib/prebuilt/OpenCV/macx/libopencv_imgcodecs.3.0.dylib \
-            ../_lib/prebuilt/OpenCV/macx/libopencv_imgcodecs.dylib
-    }
+    cvlibs.files += \
+        ../_lib/prebuilt/OpenCV/macx/libopencv_core.3.0.0.dylib \
+        ../_lib/prebuilt/OpenCV/macx/libopencv_core.3.0.dylib \
+        ../_lib/prebuilt/OpenCV/macx/libopencv_core.dylib \
+        ../_lib/prebuilt/OpenCV/macx/libopencv_imgproc.3.0.0.dylib \
+        ../_lib/prebuilt/OpenCV/macx/libopencv_imgproc.3.0.dylib \
+        ../_lib/prebuilt/OpenCV/macx/libopencv_imgproc.dylib \
+        ../_lib/prebuilt/OpenCV/macx/libopencv_video.3.0.0.dylib \
+        ../_lib/prebuilt/OpenCV/macx/libopencv_video.3.0.dylib \
+        ../_lib/prebuilt/OpenCV/macx/libopencv_video.dylib \
+        ../_lib/prebuilt/OpenCV/macx/libopencv_videoio.3.0.0.dylib \
+        ../_lib/prebuilt/OpenCV/macx/libopencv_videoio.3.0.dylib \
+        ../_lib/prebuilt/OpenCV/macx/libopencv_videoio.dylib \
+        ../_lib/prebuilt/OpenCV/macx/libopencv_imgcodecs.3.0.0.dylib \
+        ../_lib/prebuilt/OpenCV/macx/libopencv_imgcodecs.3.0.dylib \
+        ../_lib/prebuilt/OpenCV/macx/libopencv_imgcodecs.dylib
 }
 unix:!macx:!android {
     # linux only: Install opencv with the following command:
@@ -289,20 +291,6 @@ unix:!macx:!android {
             HASOPENCV = Yes
         }
     }
-}
-
-# Copies the given files to the destination directory
-defineTest(copyToDestdir) {
-    files = $$1
-    for(FILE, files) {
-        DDIR = $$DESTDIR
-
-        # Replace slashes in paths with backslashes for Windows
-        win32:FILE ~= s,/,\\,g
-        win32:DDIR ~= s,/,\\,g
-        QMAKE_POST_LINK += $$QMAKE_COPY $$quote($$FILE) $$quote($$DDIR) $$escape_expand(\\n\\t)
-    }
-    export(QMAKE_POST_LINK)
 }
 
 # Deployment
@@ -337,4 +325,3 @@ message(-----------------------------------------)
 message(Target: $$TARGET)
 message(Config: $$CONFIGURATION)
 message(Platform: $$PLATFORM)
-message(Has OpenCV: $$HASOPENCV)

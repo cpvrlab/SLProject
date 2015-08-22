@@ -144,7 +144,7 @@ public class TextureMapping_Net : GameWindow
       // backwards movement of the camera
       _camZ = -3.0f;      
 
-      // Mouse rotation paramters
+      // Mouse rotation parameters
       _rotX = 0;
       _rotY = 0;
       _deltaX = 0;
@@ -159,11 +159,11 @@ public class TextureMapping_Net : GameWindow
                                         TextureWrapMode.Repeat);
 
       // Load, compile & link shaders
-      _shaderVertID = glUtils.BuildShader("../lib-SLProject/source/oglsl/ADSTex.vert", ShaderType.VertexShader);
-      _shaderFragID = glUtils.BuildShader("../lib-SLProject/source/oglsl/ADSTex.frag", ShaderType.FragmentShader);
+      _shaderVertID = glUtils.BuildShader("../_data/shaders/ADSTex.vert", ShaderType.VertexShader);
+      _shaderFragID = glUtils.BuildShader("../_data/shaders/ADSTex.frag", ShaderType.FragmentShader);
       _shaderProgID = glUtils.BuildProgram(_shaderVertID, _shaderFragID);
 
-      // Activate the shader programm
+      // Activate the shader program
       gl.UseProgram(_shaderProgID); 
 
       // Get the variable locations (identifiers) within the program

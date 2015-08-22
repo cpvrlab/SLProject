@@ -1,6 +1,6 @@
 //#############################################################################
 //  File:      SL/SLInterface.h
-//  Purpose:   Delcaration of the main Scene Library C-Interface.
+//  Purpose:   Declaration of the main Scene Library C-Interface.
 //  Author:    Marcus Hudritsch
 //  Date:      July 2014
 //  Codestyle: https://github.com/cpvrlab/SLProject/wiki/Coding-Style-Guidelines
@@ -17,8 +17,8 @@
 
 //! \file SLInterface.h SLProject C-functions interface declaration.
 /*! \file SLInterface.h
-The SLInterface.h has all delcarations of the SLProject C-Interface.
-Only these functions should called by the OS-dependend GUI applications.
+The SLInterface.h has all declarations of the SLProject C-Interface.
+Only these functions should called by the OS-dependent GUI applications.
 These functions can be called from any C, C++ or ObjectiveC GUI framework or
 by a native API such as Java Native Interface (JNI).
 See the implementation for more information.
@@ -58,6 +58,7 @@ void    slCommand           (int sceneViewIndex, SLCmd command);
 void    slRotationPYR       (int sceneViewIndex, float pitchRAD, float yawRAD, float rollRAD);
 void    slRotationQUAT      (int sceneViewIndex, float angleRAD, float axisX, float axisY, float axisZ);
 string  slGetWindowTitle    (int sceneViewIndex);
+void    slGrabCopyVideoImage();
 void    slCopyVideoImage    (int width, int height, SLPixelFormat glFormat, SLuchar* data, bool isTopLeft);
 bool    slNeedsVideoImage   ();
 //-----------------------------------------------------------------------------

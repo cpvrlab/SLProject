@@ -17,39 +17,6 @@
 #include <QFile>
 #include <QString>
 
-
-//-----------------------------------------------------------------------------
-void copyPath(QString src, QString dst)
-{
-    QDir dir(src);
-    SL_LOG("1");
-    if (!dir.exists())
-    {  SL_LOG("src: %s", src.toStdString().c_str());
-        return;
-    }
-
-    foreach (QString d, dir.entryList(QDir::Dirs | QDir::NoDotAndDotDot))
-    {   QString dst_path = dst + QDir::separator() + d;
-        SL_LOG("Try mkpath: %s", dst_path.toStdString().c_str());
-        if (dir.mkpath(dst_path))
-            SL_LOG("Folder created.");
-        copyPath(src+ QDir::separator() + d, dst_path);
-    }
-
-    SL_LOG("2");
-    foreach (QString f, dir.entryList(QDir::Files))
-    {   QString srcFile = src + QDir::separator() + f;
-        QString dstFile = dst + QDir::separator() + f;
-        SL_LOG("Try: QFile::copy:");
-        SL_LOG(srcFile.toStdString().c_str());
-        SL_LOG(dstFile.toStdString().c_str());
-
-        bool copied = QFile::copy(srcFile, dstFile);
-        if (copied)
-            SL_LOG("Success");
-    }
-    SL_LOG("3");
-}
 //-----------------------------------------------------------------------------
 /*!
 The main procedure holding the Qt application instance as well as the main

@@ -13,8 +13,10 @@
 #include <SLScene.h>
 #include <SLSceneView.h>
 #include <SLNode.h>
+#include <opencv2/opencv.hpp>
 
-#include <qtGLWidget.h>
+#include "qtGLWidget.h"
+#include "qtMainWindow.h"
 #include <QMainWindow>
 #include <QMouseEvent>
 #include <QApplication>
@@ -22,7 +24,6 @@
 #include <QSplitter>
 #include <QPalette>
 #include <QHBoxLayout>
-#include "qtMainWindow.h"
 
 //-----------------------------------------------------------------------------
 //for backwards compatibility with QT below 5.2
@@ -130,11 +131,6 @@ void qtGLWidget::initializeGL()
 
         cout << "------------------------------------------------------------------" << endl;
         cout << "GUI             : Qt (Version: " << QT_VERSION_STR << ")" << endl;
-        #ifdef HAS_OPENCV
-        cout << "OPENCV Library  : Yes (Version: " << CV_MAJOR_VERSION << "." << CV_MINOR_VERSION << "." << CV_VERSION_REVISION << ")" << endl;
-        #else
-        cout << "OPENCV Library  : No" << endl;
-        #endif
         cout << "DPI             : " << dpi << endl;
       
         slCreateScene(shaders, models, textures);
@@ -170,7 +166,7 @@ called once before the paintGL event.
 */
 void qtGLWidget::resizeGL(int width,int height)
 {
-    // Note: parameters witdh & height are physical pixels and are doubled
+    // Note: parameters width & height are physical pixels and are doubled
     // on retina displays.
     slResize(_svIndex, width, height);
 }
@@ -185,9 +181,19 @@ void qtGLWidget::paintGL()
         QApplication::quit();
     else
     {
-        bool viewNeedsRepaint = slUpdateAndPaint(_svIndex);
+        // If live video image is requested grab it and copy it
+        if (slNeedsVideoImage())
+            slGrabCopyVideoImage();
 
-        swapBuffers();
+        // makes the OpenGL context the current for this widget
+        makeCurrent();  
+
+        ///////////////////////////////////////////////////
+        bool viewNeedsRepaint = slUpdateAndPaint(_svIndex);
+        ///////////////////////////////////////////////////
+
+        // swaps the back buffer to the front buffer
+        swapBuffers();  
 
         // Build caption string with scene name and fps
         mainWindow->setWindowTitle(slGetWindowTitle(_svIndex).c_str());

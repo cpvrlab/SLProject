@@ -18,6 +18,7 @@
 #include <QApplication>
 #include <QMouseEvent>
 #include <QTimer>
+#include <opencv2/opencv.hpp>
 
 //-----------------------------------------------------------------------------
 //for backwards compatibility with QT below 5.2
@@ -25,10 +26,6 @@
     #define GETDEVICEPIXELRATIO() 1.0 
 #else 
     #define GETDEVICEPIXELRATIO() devicePixelRatio() 
-#endif
-//-----------------------------------------------------------------------------
-#ifdef HAS_OPENCV
-#include <opencv2/opencv.hpp>
 #endif
 //-----------------------------------------------------------------------------
 qtGLWidget* myWidget = 0;
@@ -98,11 +95,6 @@ void qtGLWidget::initializeGL()
     SLint dpi = 142 * (int)GETDEVICEPIXELRATIO();
     cout << "------------------------------------------------------------------" << endl;
     cout << "GUI             : Qt (Version: " << QT_VERSION_STR << ")" << endl;
-    #ifdef HAS_OPENCV
-    cout << "OPENCV Library  : Yes (Version: " << CV_MAJOR_VERSION << "." << CV_MINOR_VERSION << "." << CV_VERSION_REVISION << ")" << endl;
-    #else
-    cout << "OPENCV Library  : No" << endl;
-    #endif
     cout << "DPI             : " << dpi << endl;
 
     // Set the paths for shaders, models & textures
@@ -169,11 +161,19 @@ void qtGLWidget::paintGL()
         QApplication::quit();
     else
     {
-        makeCurrent();
+        // If live video image is requested grab it and copy it
+        if (slNeedsVideoImage())
+            slGrabCopyVideoImage();
 
+        // makes the OpenGL context the current for this widget
+        makeCurrent();  
+
+        ///////////////////////////////////////////////////
         bool viewNeedsRepaint = slUpdateAndPaint(_svIndex);
+        ///////////////////////////////////////////////////
 
-        swapBuffers();
+        // swaps the back buffer to the front buffer
+        swapBuffers();  
 
         // Build caption string with scene name and fps
         this->setWindowTitle(slGetWindowTitle(_svIndex).c_str());
@@ -425,11 +425,11 @@ void qtGLWidget::keyReleaseEvent(QKeyEvent* e)
 }
 //-----------------------------------------------------------------------------
 /*!
-longTouch gets called from a 500ms timer after a mousedown event.
+longTouch gets called from a 500ms timer after a mouse down event.
 */
 void qtGLWidget::longTouch()
 {
-    // foreward the long touch only if the mouse or touch hasn't moved.
+    // forward the long touch only if the mouse or touch hasn't moved.
     if (SL_abs(_touchLast.x - _touchStart.x) < 2 &&
         SL_abs(_touchLast.y - _touchStart.y) < 2) 
     {

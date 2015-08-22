@@ -17,12 +17,9 @@
 #include <SLInterface.h>
 #include <SLSceneView.h>
 #include <SLEnums.h>
+#include <opencv2/opencv.hpp>
 
 #include "NewNodeSceneView.h"
-
-#ifdef HAS_OPENCV
-#include <opencv2/opencv.hpp>
-#endif
 
 //-----------------------------------------------------------------------------
 // GLobal application variables
@@ -421,12 +418,8 @@ int main(int argc, char *argv[])
     // Set your own physical screen dpi
     int dpi = (int)(142 * scr2fbX);
     cout << "------------------------------------------------------------------" << endl;
-    cout << "GUI             : GLFW (Version: " << GLFW_VERSION_MAJOR << "." << GLFW_VERSION_MINOR << ")" << endl;
-    #ifdef HAS_OPENCV
-    cout << "OPENCV Library  : Yes (Version: " << CV_MAJOR_VERSION << "." << CV_MINOR_VERSION << "." << CV_VERSION_REVISION << ")" << endl;
-    #else
-    cout << "OPENCV Library  : No" << endl;
-    #endif
+    cout << "GUI             : GLFW (Version: " << GLFW_VERSION_MAJOR << "." << 
+                                                   GLFW_VERSION_MINOR << ")" << endl;
     cout << "DPI             : " << dpi << endl;
 
     // get executable path

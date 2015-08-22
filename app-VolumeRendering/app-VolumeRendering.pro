@@ -15,6 +15,7 @@ CONFIG += warn_off
 CONFIG -= qml_debug
 CONFIG -= qt
 CONFIG -= app_bundle
+CONFIG += glfw
 
 #define platform variable for folder name
 win32 {contains(QMAKE_TARGET.arch, x86_64) {PLATFORM = x64} else {PLATFORM = Win32}}
@@ -76,6 +77,7 @@ unix:!macx:!android {
 INCLUDEPATH += \
     ../include\
     ../lib-SLExternal \
+    ../lib-SLExternal/dirent \
     ../lib-SLExternal/glew/include \
     ../lib-SLExternal/glfw3/include \
     ../lib-SLExternal/zlib \

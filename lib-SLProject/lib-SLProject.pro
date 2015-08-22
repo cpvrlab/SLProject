@@ -17,16 +17,7 @@ CONFIG += warn_off
 
 DEFINES += "SL_STARTSCENE=cmdSceneMeshLoad"
 
-#define platform variable for folder name
-win32 {contains(QMAKE_TARGET.arch, x86_64) {PLATFORM = x64} else {PLATFORM = Win32}}
-macx {PLATFORM = macx}
-unix:!macx:!android {PLATFORM = linux}
-android {PLATFORM = android}
-#define configuration variable for folder name
-CONFIG(debug, debug|release) {CONFIGURATION = Debug} else {CONFIGURATION = Release}
-
-DESTDIR = ../_lib/$$CONFIGURATION/$$PLATFORM
-OBJECTS_DIR = ../intermediate/$$TARGET/$$CONFIGURATION/$$PLATFORM
+include(../SLProjectCommon.pro)
 
 win32 {
   POST_TARGETDEPS += ../_lib/$$CONFIGURATION/$$PLATFORM/lib-SLExternal.lib
@@ -36,7 +27,6 @@ win32 {
   POST_TARGETDEPS += ../_lib/$$CONFIGURATION/$$PLATFORM/liblib-assimp.a
 }
 
-include(../SLProjectCommon.pro)
 
 INCLUDEPATH += \
     include

@@ -19,64 +19,7 @@
 #include <SLInterface.h>
 #include <SLSceneView.h>
 #include <SLEnums.h>
-
-//-----------------------------------------------------------------------------
-#ifdef HAS_OPENCV
-/*!
-If you have installed the image processing library OpenCV (http://opencv.org)
-the SLProject can use the live camera image in textures of 3D objects or the
-background texture image. The interface function slNeedsVideoImage() returns
-true if a scene uses the live video image. An application can copy the
-image data with the interface function slCopyVideoImage(). This done once
-before slUpdateAndPaint() is called in onPaint. <br>
-The preprocessor define HAS_OPENCV is set in the SLProjectCommon.pro file or
-in the VisualStudio vcxproj project settings under project Properties > C++ >
-Preprocessor.
-*/
 #include <opencv2/opencv.hpp>
-cv::VideoCapture* captureDevice = 0;  //!< OpenCV video capture device
-#endif
-
-//-----------------------------------------------------------------------------
-//! Grabs an image from the live video stream with the OpenCV library.
-void grabImageFromCameraWithOpenCV()
-{
-    #ifdef HAS_OPENCV
-    try
-    {
-        if (!captureDevice)
-        {   captureDevice = new cv::VideoCapture(0);
-            if(!captureDevice->isOpened())
-                return;
-            SL_LOG("Capture devices created.\n")
-        }
-
-        if(captureDevice && captureDevice->isOpened())
-        {   cv::Mat frame;
-            if (!captureDevice->read(frame))
-                return;
-
-            // Set the according OpenGL format
-            SLPixelFormat format;
-            switch(frame.type())
-            {   case CV_8UC1: format = SL_LUMINANCE; break;
-                case CV_8UC3: format = SL_RGB; break;
-                case CV_8UC4: format = SL_RGBA; break;
-                default:
-                    SL_EXIT_MSG("OpenCV image format not supported");
-                    return;
-            }
-
-            cvtColor(frame, frame,CV_BGR2RGB);
-            slCopyVideoImage(frame.cols, frame.rows, format, frame.data, true);
-        }
-    }
-    catch (exception e)
-    {
-        SL_LOG("Exception during OpenCV video capture creation\n")
-    }
-    #endif
-}
 
 //-----------------------------------------------------------------------------
 // GLobal application variables
@@ -99,7 +42,6 @@ SLfloat     lastMouseDownTime=0.0f; //!< Last mouse press time
 SLKey       modifiers=KeyNone;      //!< last modifier keys
 SLbool      fullscreen = false;     //!< flag if window is in fullscreen mode
 
-
 //-----------------------------------------------------------------------------
 /*! 
 onClose event handler for deallocation of the scene & sceneview. onClose is
@@ -117,7 +59,7 @@ SLbool onPaint()
 {
     // If live video image is requested grab it and copy it
     if (slNeedsVideoImage())
-        grabImageFromCameraWithOpenCV();
+        slGrabCopyVideoImage();
 
     //////////////////////////////////////////////////
     bool viewNeedsRepaint = slUpdateAndPaint(svIndex);
@@ -527,12 +469,8 @@ int main(int argc, char *argv[])
     // Set your own physical screen dpi
     int dpi = (int)(142 * scr2fbX);
     cout << "------------------------------------------------------------------" << endl;
-    cout << "GUI             : GLFW (Version: " << GLFW_VERSION_MAJOR << "." << GLFW_VERSION_MINOR << ")" << endl;
-    #ifdef HAS_OPENCV
-    cout << "OPENCV Library  : Yes (Version: " << CV_MAJOR_VERSION << "." << CV_MINOR_VERSION << "." << CV_VERSION_REVISION << ")" << endl;
-    #else
-    cout << "OPENCV Library  : No" << endl;
-    #endif
+    cout << "GUI             : GLFW (Version: " << GLFW_VERSION_MAJOR << "." << 
+                                                   GLFW_VERSION_MINOR << ")" << endl;
     cout << "DPI             : " << dpi << endl;
 
     // get executable path
@@ -573,14 +511,6 @@ int main(int argc, char *argv[])
     slTerminate();
     glfwDestroyWindow(window);
     glfwTerminate();
-
-    #ifdef HAS_OPENCV
-    if (captureDevice && captureDevice->isOpened())
-    {   captureDevice->release();
-        //delete captureDevice;
-    }
-    #endif
-
     exit(0);
 }
 //-----------------------------------------------------------------------------

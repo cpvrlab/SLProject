@@ -14,21 +14,23 @@
 #include <SLScene.h>
 #include <SLSceneView.h>
 #include <SLAssimpImporter.h>
-
 #include <SLInputManager.h>
+#include <opencv2/opencv.hpp>
 
 //! \file SLInterface.cpp SLProject C-functions interface implementation.
 /*! \file SLInterface.cpp
 The SLInterface.cpp has all implementations of the SLProject C-Interface.
-Only these functions should called by the OS-dependend GUI applications.
+Only these functions should called by the OS-dependent GUI applications.
 These functions can be called from any C, C++ or ObjectiveC GUI framework or
 by a native API such as Java Native Interface (JNI).
 */
 
 //-----------------------------------------------------------------------------
- //! global flag that determines if the application should be closed
+//! global flag that determines if the application should be closed
 bool gShouldClose = false; 
-
+//!----------------------------------------------------------------------------
+//!< global pointer to an OpenCV video capture device 
+cv::VideoCapture* gCaptureDevice = 0;
 //-----------------------------------------------------------------------------
 /*! Global creation function for a SLScene instance. This function should be
 called only once per application. The SLScene constructor call is delayed until
@@ -56,6 +58,9 @@ void slCreateScene(SLstring shaderPath,
     SL_LOG("Path to Models  : %s\n", modelPath.c_str());
     SL_LOG("Path to Shaders : %s\n", shaderPath.c_str());
     SL_LOG("Path to Textures: %s\n", texturePath.c_str());
+    SL_LOG("OpenCV Version  : %d.%d.%d\n", CV_MAJOR_VERSION, 
+                                           CV_MINOR_VERSION, 
+                                           CV_VERSION_REVISION);
     SL_LOG("OpenGL Version  : %s\n", stateGL->glVersion().c_str());
     SL_LOG("Vendor          : %s\n", stateGL->glVendor().c_str());
     SL_LOG("Renderer        : %s\n", stateGL->glRenderer().c_str());
@@ -155,6 +160,13 @@ void slTerminate()
     // Deletes all remaining sceneviews the current scene instance  
     delete SLScene::current;
     SLScene::current = 0;
+
+    // Release OpenCV capture device
+    if (gCaptureDevice && gCaptureDevice->isOpened())
+    {   gCaptureDevice->release(); // calls the destructor
+        gCaptureDevice = 0;
+        SL_LOG("OpenCV video capture realeased.\n");
+    }
 }
 //-----------------------------------------------------------------------------
 /*! Global rendering function that first updates the scene due to user or
@@ -397,7 +409,9 @@ string slGetWindowTitle(int sceneViewIndex)
     return sv->windowTitle();
 }
 //-----------------------------------------------------------------------------
-/*! Global function to copy a new camera image to the SLScene camera image
+/*! Global function to copy a new camera image to the SLScene::_videoTexture.
+An application can grab the live video image with OpenCV via slGrabCopyVideoImage
+or with another OS dependent framework.
 */
 void slCopyVideoImage(int width, int height,
                       SLPixelFormat format,
@@ -411,5 +425,43 @@ void slCopyVideoImage(int width, int height,
 bool slNeedsVideoImage()
 {
     return SLScene::current->needsVideoImage();
+}
+//-----------------------------------------------------------------------------
+/*! Grabs an image from the live video stream with the OpenCV library.
+After grabbing the image is copied to the SLScenes::_videoTexture 
+Not all application will use OpenCV for capturing live video.
+*/
+void slGrabCopyVideoImage()
+{
+    try
+    {   if (!gCaptureDevice)
+        {   gCaptureDevice = new cv::VideoCapture(0);
+            if (!gCaptureDevice->isOpened())
+                return;
+            SL_LOG("Capture devices created.\n")
+        }
+
+        if (gCaptureDevice && gCaptureDevice->isOpened())
+        {   cv::Mat frame;
+            if (!gCaptureDevice->read(frame))
+                return;
+
+            // Set the according OpenGL format
+            SLPixelFormat format;
+            switch (frame.type())
+            {   case CV_8UC1: format = SL_LUMINANCE; break;
+                case CV_8UC3: format = SL_RGB; break;
+                case CV_8UC4: format = SL_RGBA; break;
+                default: SL_EXIT_MSG("OpenCV image format not supported");
+            }
+
+            // OpenGL ES doesn't support BGR or BGRA
+            cvtColor(frame, frame, CV_BGR2RGB);
+            slCopyVideoImage(frame.cols, frame.rows, format, frame.data, true);
+        }
+    }
+    catch (exception e)
+    {   SL_LOG("Exception during OpenCV video capture creation\n")
+    }
 }
 //-----------------------------------------------------------------------------

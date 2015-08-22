@@ -248,7 +248,7 @@ void onInit()
     // backwards movement of the camera
     _camZ = -3.0f;
 
-    // Mouse rotation paramters
+    // Mouse rotation parameters
     _rotX = 0;
     _rotY = 0;
     _deltaX = 0;
@@ -259,11 +259,11 @@ void onInit()
     _textureID = glUtils::buildTexture("../_data/images/textures/earth2048_C.jpg");
 
     // Load, compile & link shaders
-    _shaderVertID = glUtils::buildShader("../lib-SLProject/source/oglsl/ADSTex.vert", GL_VERTEX_SHADER);
-    _shaderFragID = glUtils::buildShader("../lib-SLProject/source/oglsl/ADSTex.frag", GL_FRAGMENT_SHADER);
+    _shaderVertID = glUtils::buildShader("../_data/shaders/ADSTex.vert", GL_VERTEX_SHADER);
+    _shaderFragID = glUtils::buildShader("../_data/shaders/ADSTex.frag", GL_FRAGMENT_SHADER);
     _shaderProgID = glUtils::buildProgram(_shaderVertID, _shaderFragID);
 
-    // Activate the shader programm
+    // Activate the shader program
     glUseProgram(_shaderProgID);
 
     // Get the variable locations (identifiers) within the vertex & pixel shader programs
