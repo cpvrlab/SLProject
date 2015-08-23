@@ -1,5 +1,5 @@
 ##############################################################################
-#  File:      ch09_TextureMapping.pro
+#  File:      app-VolumeRendering.pro
 #  Purpose:   QMake project definition file for the Hello Cube demo w. OpenGL
 #  Author:    Marcus Hudritsch
 #  Date:      September 2012 (HS12)

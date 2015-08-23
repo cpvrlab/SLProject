@@ -17,7 +17,16 @@ CONFIG += warn_off
 
 DEFINES += "SL_STARTSCENE=cmdSceneMeshLoad"
 
-include(../SLProjectCommon.pro)
+#define platform variable for folder name
+win32 {contains(QMAKE_TARGET.arch, x86_64) {PLATFORM = x64} else {PLATFORM = Win32}}
+macx {PLATFORM = macx}
+unix:!macx:!android {PLATFORM = linux}
+android {PLATFORM = android}
+#define configuration variable for folder name
+CONFIG(debug, debug|release) {CONFIGURATION = Debug} else {CONFIGURATION = Release}
+
+DESTDIR     = ../_lib/$$CONFIGURATION/$$PLATFORM
+OBJECTS_DIR = ../intermediate/$$TARGET/$$CONFIGURATION/$$PLATFORM
 
 win32 {
   POST_TARGETDEPS += ../_lib/$$CONFIGURATION/$$PLATFORM/lib-SLExternal.lib
@@ -27,9 +36,7 @@ win32 {
   POST_TARGETDEPS += ../_lib/$$CONFIGURATION/$$PLATFORM/liblib-assimp.a
 }
 
-
-INCLUDEPATH += \
-    include
+include(../SLProjectCommon.pro)
 
 HEADERS += \
 ../include/EulerAngles.h \
@@ -169,51 +176,53 @@ source/SLSphere.cpp \
 source/SLText.cpp
 
 OTHER_FILES += \
-source/oglsl/BumpNormal.frag \
-source/oglsl/BumpNormal.vert \
-source/oglsl/BumpNormalEarth.frag \
-source/oglsl/BumpNormalParallax.frag \
-source/oglsl/Color.frag \
-source/oglsl/ColorAttribute.vert \
-source/oglsl/ColorUniform.vert \
-source/oglsl/Diffuse.frag \
-source/oglsl/Diffuse.vert \
-source/oglsl/Earth.frag \
-source/oglsl/ErrorTex.frag \
-source/oglsl/ErrorTex.vert \
-source/oglsl/FontTex.frag \
-source/oglsl/FontTex.vert \
-source/oglsl/PerPixBlinn.frag \
-source/oglsl/PerPixBlinn.vert \
-source/oglsl/PerPixBlinnTex.frag \
-source/oglsl/PerPixBlinnTex.vert \
-source/oglsl/PerPixBlinnSkinned.vert \
-source/oglsl/PerPixBlinnTexSkinned.vert \
-source/oglsl/PerVrtBlinn.frag \
-source/oglsl/PerVrtBlinn.vert \
-source/oglsl/PerVrtBlinnTex.frag \
-source/oglsl/PerVrtBlinnTex.vert \
-source/oglsl/PerVrtBlinnSkinned.vert \
-source/oglsl/PerVrtBlinnTexSkinned.vert \
-source/oglsl/Reflect.frag \
-source/oglsl/Reflect.vert \
-source/oglsl/RefractReflect.frag \
-source/oglsl/RefractReflect.vert \
-source/oglsl/RefractReflectDisp.frag \
-source/oglsl/RefractReflectDisp.vert \
-source/oglsl/Terrain.frag \
-source/oglsl/Terrain.vert \
-source/oglsl/Terrain_Loesung.frag \
-source/oglsl/Terrain_Loesung.vert \
-source/oglsl/TextureOnly.frag \
-source/oglsl/TextureOnly.vert \
-source/oglsl/StereoOculus.frag \
-source/oglsl/StereoOculusDistortionMesh.frag \
-source/oglsl/StereoOculus.vert \
-source/oglsl/StereoOculusDistortionMesh.vert \
-source/oglsl/Wave.frag \
-source/oglsl/Wave.vert \
-source/oglsl/WaveRefractReflect.vert \
+../_data/shaders/BumpNormal.frag \
+../_data/shaders/BumpNormal.vert \
+../_data/shaders/BumpNormalEarth.frag \
+../_data/shaders/BumpNormalParallax.frag \
+../_data/shaders/Color.frag \
+../_data/shaders/ColorAttribute.vert \
+../_data/shaders/ColorUniform.vert \
+../_data/shaders/Diffuse.frag \
+../_data/shaders/Diffuse.vert \
+../_data/shaders/Earth.frag \
+../_data/shaders/ErrorTex.frag \
+../_data/shaders/ErrorTex.vert \
+../_data/shaders/FontTex.frag \
+../_data/shaders/FontTex.vert \
+../_data/shaders/PerPixBlinn.frag \
+../_data/shaders/PerPixBlinn.vert \
+../_data/shaders/PerPixBlinnTex.frag \
+../_data/shaders/PerPixBlinnTex.vert \
+../_data/shaders/PerPixBlinnSkinned.vert \
+../_data/shaders/PerPixBlinnTexSkinned.vert \
+../_data/shaders/PerVrtBlinn.frag \
+../_data/shaders/PerVrtBlinn.vert \
+../_data/shaders/PerVrtBlinnTex.frag \
+../_data/shaders/PerVrtBlinnTex.vert \
+../_data/shaders/PerVrtBlinnSkinned.vert \
+../_data/shaders/PerVrtBlinnTexSkinned.vert \
+../_data/shaders/Reflect.frag \
+../_data/shaders/Reflect.vert \
+../_data/shaders/RefractReflect.frag \
+../_data/shaders/RefractReflect.vert \
+../_data/shaders/RefractReflectDisp.frag \
+../_data/shaders/RefractReflectDisp.vert \
+../_data/shaders/Terrain.frag \
+../_data/shaders/Terrain.vert \
+../_data/shaders/Terrain_Loesung.frag \
+../_data/shaders/Terrain_Loesung.vert \
+../_data/shaders/TextureOnly.frag \
+../_data/shaders/TextureOnly.vert \
+../_data/shaders/StereoOculus.frag \
+../_data/shaders/StereoOculusDistortionMesh.frag \
+../_data/shaders/StereoOculus.vert \
+../_data/shaders/StereoOculusDistortionMesh.vert \
+../_data/shaders/Wave.frag \
+../_data/shaders/Wave.vert \
+../_data/shaders/WaveRefractReflect.vert \
+../_data/shaders/TextureOnly3D.frag \
+../_data/shaders/TextureOnly3D.vert
 ToDo.txt \
 
 DISTFILES += \
@@ -222,6 +231,4 @@ Introduction.md \
 OneFrame.ml \
 onPaint.md \
 SLProject.md \
-    source/oglsl/TextureOnly3D.frag \
-    source/oglsl/TextureOnly3D.vert
 

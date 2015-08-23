@@ -16,13 +16,13 @@ CONFIG += app_bundle
 CONFIG += qt
 CONFIG -= glfw
 
-QT += core gui widgets opengl
-
 DEFINES += SL_GUI_QT
 DEFINES += "SL_STARTSCENE=cmdSceneMeshLoad"
 
-
 include(../SLProjectCommon.pro)
+
+DESTDIR     = ../_bin-$$CONFIGURATION-$$PLATFORM
+OBJECTS_DIR = ../intermediate/$$TARGET/$$CONFIGURATION/$$PLATFORM
 
 LIBS += -L$$PWD/../_lib/$$CONFIGURATION/$$PLATFORM -llib-SLProject
 LIBS += -L$$PWD/../_lib/$$CONFIGURATION/$$PLATFORM -llib-SLExternal
@@ -50,4 +50,6 @@ FORMS += \
 
 RESOURCES += \
     resources.qrc
+
+include(../SLProjectDeploy.pro)
 

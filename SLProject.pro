@@ -16,7 +16,6 @@ lib-SLProject.depends = lib-SLExternal
 lib-SLProject.depends = lib-SLExternal/assimp
 lib-SLProject.depends = lib-SLExternal/oculus
 app-Demo-GLFW.depends = lib-SLProject
-app-Demo-GLFW-OPENCV.depends = lib-SLProject
 app-Demo-Qt.depends = lib-SLProject
 app-Viewer-Qt.depends = lib-SLProject
 app-LeapMotionTest.depends = lib-SLProject
