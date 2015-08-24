@@ -57,6 +57,8 @@ public class GLES2Lib {
 	public static native void    onStopRT        ();
 	public static native void    onClose         ();
 	public static native boolean shouldClose     ();
+	public static native boolean usesRotation	 ();
+	public static native boolean usesVideoImage  ();
 
 	/**
 	* The RaytracingCallback function is used to repaint the ray tracing image during the

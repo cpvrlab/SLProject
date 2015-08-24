@@ -67,7 +67,7 @@ void slCreateScene(SLstring shaderPath,
                                            CV_MINOR_VERSION, 
                                            CV_VERSION_REVISION);
     #else
-    SL_LOG("OpenCV Version  : Not installed");
+    SL_LOG("OpenCV Version  : Not installed\n");
     #endif
     SL_LOG("OpenGL Version  : %s\n", stateGL->glVersion().c_str());
     SL_LOG("Vendor          : %s\n", stateGL->glVendor().c_str());

@@ -57,7 +57,7 @@ onPaint: Paint event handler that passes the event to the slPaint function.
 SLbool onPaint()
 {
     // If live video image is requested grab it and copy it
-    if (slNeedsVideoImage())
+    if (slUsesVideoImage())
         slGrabCopyVideoImage();
 
     //////////////////////////////////////////////////

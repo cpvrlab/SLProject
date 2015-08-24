@@ -25,7 +25,7 @@
 JNIEnv* environment;    //! Pointer to JAVA environment used in ray tracing callback
 SLint   svIndex;        //!< SceneView index
 //-----------------------------------------------------------------------------
-/*! Java Native Interface (JNI) function deklarations. These functions are 
+/*! Java Native Interface (JNI) function declarations. These functions are 
 called by the Java interface class GLES2Lib. The function name follows the pattern
 Java_{package name}_{JNI class name}_{function name}(JNIEnv* env,jobject obj,*);
 In the function implementations we simply forward the C++ framework.
@@ -46,6 +46,8 @@ extern "C"
    JNIEXPORT bool JNICALL Java_ch_fhnw_comgr_GLES2Lib_onRotationQUAT  (JNIEnv* env, jobject obj, jfloat quatX, jfloat quatY, jfloat quatZ, jfloat quatW);
    JNIEXPORT void JNICALL Java_ch_fhnw_comgr_GLES2Lib_onClose         (JNIEnv* env, jobject obj);
    JNIEXPORT bool JNICALL Java_ch_fhnw_comgr_GLES2Lib_shouldClose     (JNIEnv* env, jobject obj);
+   JNIEXPORT bool JNICALL Java_ch_fhnw_comgr_GLES2Lib_usesRotation    (JNIEnv* env, jobject obj);
+   JNIEXPORT bool JNICALL Java_ch_fhnw_comgr_GLES2Lib_usesVideoImage  (JNIEnv* env, jobject obj);
 };
 
 //! Native ray tracing callback function that calls the Java class method GLES2Lib.RaytracingCallback
@@ -86,78 +88,88 @@ JNIEXPORT void JNICALL Java_ch_fhnw_comgr_GLES2Lib_onInit(JNIEnv* env, jobject o
                                 (void*)&Java_renderRaytracingCallback);
     delete cmdLineArgs;
 }
-
+//-----------------------------------------------------------------------------
 JNIEXPORT bool JNICALL Java_ch_fhnw_comgr_GLES2Lib_onUpdateAndPaint(JNIEnv* env, jobject obj)
 {
    return slUpdateAndPaint(svIndex);
 }
-
+//-----------------------------------------------------------------------------
 JNIEXPORT void JNICALL Java_ch_fhnw_comgr_GLES2Lib_onResize(JNIEnv* env, jobject obj,  jint width, jint height)
 {
     slResize(svIndex, width, height);
 }
-
+//-----------------------------------------------------------------------------
 JNIEXPORT void JNICALL Java_ch_fhnw_comgr_GLES2Lib_onMenuButton(JNIEnv* env, jobject obj)
 {  
    SL_LOG("onMenuButton");
    slCommand(svIndex, cmdMenu);
 }
-
+//-----------------------------------------------------------------------------
 JNIEXPORT bool JNICALL Java_ch_fhnw_comgr_GLES2Lib_onMouseDown (JNIEnv* env, jobject obj, jint button, jint x, jint y)
 {
    slMouseDown(svIndex, ButtonLeft, x, y, KeyNone);
 }
-
+//-----------------------------------------------------------------------------
 JNIEXPORT bool JNICALL Java_ch_fhnw_comgr_GLES2Lib_onMouseUp(JNIEnv* env, jobject obj, jint button, jint x, jint y)
 {
    slMouseUp(svIndex, ButtonLeft, x, y, KeyNone);
 }
-
+//-----------------------------------------------------------------------------
 JNIEXPORT bool JNICALL Java_ch_fhnw_comgr_GLES2Lib_onMouseMove(JNIEnv* env, jobject obj, jint x, jint y)
 {
    slMouseMove(svIndex, x, y);
 }
-
+//-----------------------------------------------------------------------------
 JNIEXPORT bool JNICALL Java_ch_fhnw_comgr_GLES2Lib_onTouch2Down(JNIEnv* env, jobject obj, jint x1, jint y1, jint x2, jint y2)
 {
    slTouch2Down(svIndex, x1, y1, x2, y2);
 }
-
+//-----------------------------------------------------------------------------
 JNIEXPORT bool JNICALL Java_ch_fhnw_comgr_GLES2Lib_onTouch2Up(JNIEnv* env, jobject obj, jint x1, jint y1, jint x2, jint y2)
 {
    slTouch2Up(svIndex, x1, y1, x2, y2);
 }
-
+//-----------------------------------------------------------------------------
 JNIEXPORT bool JNICALL Java_ch_fhnw_comgr_GLES2Lib_onTouch2Move(JNIEnv* env, jobject obj, jint x1, jint y1, jint x2, jint y2)
 {
    slTouch2Move(svIndex, x1, y1, x2, y2);
 }
-
+//-----------------------------------------------------------------------------
 JNIEXPORT bool JNICALL Java_ch_fhnw_comgr_GLES2Lib_onDoubleClick(JNIEnv* env, jobject obj, jint button, jint x, jint y)
 {
    slDoubleClick(svIndex, ButtonLeft, x, y, KeyNone);
 }
-
+//-----------------------------------------------------------------------------
 JNIEXPORT bool JNICALL Java_ch_fhnw_comgr_GLES2Lib_onRotationPYR(JNIEnv* env, jobject obj, jfloat pitchRAD, jfloat yawRAD, jfloat rollRAD)
 {
    slRotationPYR(svIndex, pitchRAD, yawRAD, rollRAD);
 }
-
+//-----------------------------------------------------------------------------
 JNIEXPORT bool JNICALL Java_ch_fhnw_comgr_GLES2Lib_onRotationQUAT(JNIEnv* env, jobject obj, jfloat quatX, jfloat quatY, jfloat quatZ, jfloat quatW)
 {
    slRotationQUAT(svIndex, quatX, quatY, quatZ, quatW);
 }
-
+//-----------------------------------------------------------------------------
 JNIEXPORT void JNICALL Java_ch_fhnw_comgr_GLES2Lib_onClose(JNIEnv* env, jobject obj)
 {
    SL_LOG("onClose\n ");
    slTerminate();
    exit(0);
 }
-
+//-----------------------------------------------------------------------------
 JNIEXPORT bool JNICALL Java_ch_fhnw_comgr_GLES2Lib_shouldClose(JNIEnv* env, jobject obj)
 {
     return slShouldClose();
 }
-
+//-----------------------------------------------------------------------------
+JNIEXPORT bool JNICALL Java_ch_fhnw_comgr_GLES2Lib_usesRotation(JNIEnv* env, jobject obj)
+{
+    return slUsesRotation(svIndex);
+}
+//-----------------------------------------------------------------------------
+JNIEXPORT bool JNICALL Java_ch_fhnw_comgr_GLES2Lib_usesVideoImage(JNIEnv* env, jobject obj)
+{
+    return slUsesVideoImage();
+}
+//-----------------------------------------------------------------------------
 #endif // defined(SL_OS_ANDROID) && defined(SL_GUI_JAVA)

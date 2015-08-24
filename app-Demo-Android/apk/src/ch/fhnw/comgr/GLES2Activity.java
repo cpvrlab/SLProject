@@ -265,7 +265,7 @@ public class GLES2Activity extends Activity implements OnTouchListener, SensorEv
 
     public void onSensorChanged(SensorEvent event)
 	{
-		if (event.sensor.getType() == Sensor.TYPE_ROTATION_VECTOR)
+		if (event.sensor.getType() == Sensor.TYPE_ROTATION_VECTOR && GLES2Lib.usesRotation())
 		{
 			// The ROTATION_VECTOR sensor is a virtual fusion sensor
 			// The quality strongly depends on the underlying algorithm and on
