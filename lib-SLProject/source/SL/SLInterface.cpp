@@ -15,7 +15,9 @@
 #include <SLSceneView.h>
 #include <SLAssimpImporter.h>
 #include <SLInputManager.h>
+#ifdef SL_HAS_OPENCV
 #include <opencv2/opencv.hpp>
+#endif
 
 //! \file SLInterface.cpp SLProject C-functions interface implementation.
 /*! \file SLInterface.cpp
@@ -29,8 +31,10 @@ by a native API such as Java Native Interface (JNI).
 //! global flag that determines if the application should be closed
 bool gShouldClose = false; 
 //!----------------------------------------------------------------------------
-//!< global pointer to an OpenCV video capture device 
+//!< global pointer to an OpenCV video capture device
+#ifdef SL_HAS_OPENCV
 cv::VideoCapture* gCaptureDevice = 0;
+#endif
 //-----------------------------------------------------------------------------
 /*! Global creation function for a SLScene instance. This function should be
 called only once per application. The SLScene constructor call is delayed until
@@ -57,10 +61,14 @@ void slCreateScene(SLstring shaderPath,
     
     SL_LOG("Path to Models  : %s\n", modelPath.c_str());
     SL_LOG("Path to Shaders : %s\n", shaderPath.c_str());
-    SL_LOG("Path to Textures: %s\n", texturePath.c_str());
+    SL_LOG("Path to Textures: %s\n", texturePath.c_str());   
+    #ifdef SL_HAS_OPENCV
     SL_LOG("OpenCV Version  : %d.%d.%d\n", CV_MAJOR_VERSION, 
                                            CV_MINOR_VERSION, 
                                            CV_VERSION_REVISION);
+    #else
+    SL_LOG("OpenCV Version  : Not installed");
+    #endif
     SL_LOG("OpenGL Version  : %s\n", stateGL->glVersion().c_str());
     SL_LOG("Vendor          : %s\n", stateGL->glVendor().c_str());
     SL_LOG("Renderer        : %s\n", stateGL->glRenderer().c_str());
@@ -161,12 +169,14 @@ void slTerminate()
     delete SLScene::current;
     SLScene::current = 0;
 
+    #ifdef SL_HAS_OPENCV
     // Release OpenCV capture device
     if (gCaptureDevice && gCaptureDevice->isOpened())
     {   gCaptureDevice->release(); // calls the destructor
         gCaptureDevice = 0;
         SL_LOG("OpenCV video capture realeased.\n");
     }
+    #endif
 }
 //-----------------------------------------------------------------------------
 /*! Global rendering function that first updates the scene due to user or
@@ -433,6 +443,7 @@ Not all application will use OpenCV for capturing live video.
 */
 void slGrabCopyVideoImage()
 {
+    #ifdef SL_HAS_OPENCV
     try
     {   if (!gCaptureDevice)
         {   gCaptureDevice = new cv::VideoCapture(0);
@@ -463,5 +474,6 @@ void slGrabCopyVideoImage()
     catch (exception e)
     {   SL_LOG("Exception during OpenCV video capture creation\n")
     }
+    #endif
 }
 //-----------------------------------------------------------------------------

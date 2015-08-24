@@ -179,6 +179,17 @@ void SLGLTexture::setVideoImage(SLstring videoImageFile)
 }
 //-----------------------------------------------------------------------------
 //! Copies the image data from a video camera into the current video image
+/*!
+\brief SLGLTexture::copyVideoImage
+\param width Width in pixels of the image
+\param height Height in pixels of the image
+\param srcFormat Pixel format according to the OpenGL pixelformats
+\param data Pointer to the first byte of the first pixel
+\param isTopLeft Flag if the data pointer points to the top left pixel
+\return Returns true if the texture was rebuilt
+It is important that passed pixel format is either RGB or RGBA. Otherwise
+an expensive conversion must be done.
+*/
 SLbool SLGLTexture::copyVideoImage(SLint width,
                                    SLint height,
                                    SLPixelFormat srcFormat,

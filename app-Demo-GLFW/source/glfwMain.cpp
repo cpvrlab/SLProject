@@ -19,7 +19,6 @@
 #include <SLInterface.h>
 #include <SLSceneView.h>
 #include <SLEnums.h>
-#include <opencv2/opencv.hpp>
 
 //-----------------------------------------------------------------------------
 // GLobal application variables

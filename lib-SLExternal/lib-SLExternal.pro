@@ -32,18 +32,18 @@ OBJECTS_DIR = ../intermediate/$$TARGET/$$CONFIGURATION/$$PLATFORM
 DEFINES += GLEW_NO_GLU
 
 win32 {
-   # windows only
-   LIBS += -lOpenGL32
-   LIBS += -lwinmm
-   LIBS += -lgdi32
-   LIBS += -luser32
-   LIBS += -lkernel32
-   DEFINES += GLEW_STATIC
-   DEFINES += _GLFW_WIN32
-   DEFINES += _GLFW_USE_OPENGL
-   DEFINES += _GLFW_WGL
-   DEFINES += UNICODE
-   DEFINES += _UNICODE
+    # windows only
+    LIBS += -lOpenGL32
+    LIBS += -lwinmm
+    LIBS += -lgdi32
+    LIBS += -luser32
+    LIBS += -lkernel32
+    DEFINES += GLEW_STATIC
+    DEFINES += _GLFW_WIN32
+    DEFINES += _GLFW_USE_OPENGL
+    DEFINES += _GLFW_WGL
+    DEFINES += UNICODE
+    DEFINES += _UNICODE
 }
 macx {
     # mac only
@@ -173,6 +173,72 @@ SOURCES += \
     Shoemake/EulerAngles.cpp \
     Shoemake/Decompose.cpp \
 
+macx {
+#Mac OSX only --------------------------------------
+HEADERS += \
+    glfw3/src/cocoa_platform.h \
+    glfw3/src/iokit_joystick.h \
+    glfw3/src/posix_tls.h \
+    glfw3/src/nsgl_context.h \
+    zlib/ioapi.h \
+    zlib/unzip.h \
+    zlib/zconf.in.h \
+    zlib/zutil.h \
+    zlib/zlib.h \
+    zlib/zconf.h \
+    zlib/trees.h \
+    zlib/inftrees.h \
+    zlib/inflate.h \
+    zlib/inffixed.h \
+    zlib/inffast.h \
+    zlib/gzguts.h \
+    zlib/deflate.h \
+    zlib/crypt.h \
+    zlib/crc32.h \
+
+SOURCES += \
+    glfw3/src/mach_time.c \
+    glfw3/src/posix_tls.c \
+    png/pngwutil.c \
+    png/pngwtran.c \
+    png/pngwrite.c \
+    png/pngwio.c \
+    png/pngtrans.c \
+    png/pngset.c \
+    png/pngrutil.c \
+    png/pngrtran.c \
+    png/pngrio.c \
+    png/pngread.c \
+    png/pngpread.c \
+    png/pngmem.c \
+    png/pngget.c \
+    png/pngerror.c \
+    png/png.c \
+    zlib/zutil.c \
+    zlib/uncompr.c \
+    zlib/trees.c \
+    zlib/inftrees.c \
+    zlib/inflate.c \
+    zlib/inffast.c \
+    zlib/infback.c \
+    zlib/gzwrite.c \
+    zlib/gzread.c \
+    zlib/gzlib.c \
+    zlib/gzclose.c \
+    zlib/deflate.c \
+    zlib/crc32.c \
+    zlib/compress.c \
+    zlib/adler32.c \
+    zlib/ioapi.c \
+    zlib/unzip.c \
+
+OBJECTIVE_SOURCES += \
+    glfw3/src/cocoa_init.m \
+    glfw3/src/cocoa_monitor.m \
+    glfw3/src/cocoa_window.m \
+    glfw3/src/iokit_joystick.m \
+    glfw3/src/nsgl_context.m \
+}
 win32 {
 #Windows only -------------------------------------
 INCLUDEPATH += dirent
@@ -241,11 +307,10 @@ SOURCES += \
     png/pngget.c \
     png/pngerror.c \
     png/png.c \
-    dirent/dirent.c \
+    dirent/dirent.h \
 }
 unix:!macx:!android {
 #Linux only -------------------------
-
 INCLUDEPATH += \
     glfw3/include \
     glfw3/src
@@ -269,71 +334,4 @@ SOURCES += \
     glfw3/src/posix_tls.c \
     glfw3/src/glx_context.c \
 }
-macx {
-#Mac OSX only --------------------------------------
-HEADERS += \
-    glfw3/src/cocoa_platform.h \
-    glfw3/src/iokit_joystick.h \
-    glfw3/src/posix_tls.h \
-    glfw3/src/nsgl_context.h \
-    zlib/ioapi.h \
-    zlib/unzip.h \
-    zlib/zconf.in.h \
-    zlib/zutil.h \
-    zlib/zlib.h \
-    zlib/zconf.h \
-    zlib/trees.h \
-    zlib/inftrees.h \
-    zlib/inflate.h \
-    zlib/inffixed.h \
-    zlib/inffast.h \
-    zlib/gzguts.h \
-    zlib/deflate.h \
-    zlib/crypt.h \
-    zlib/crc32.h \
-    #nvwa/debug_new.h \
 
-SOURCES += \
-    glfw3/src/mach_time.c \
-    glfw3/src/posix_tls.c \
-    png/pngwutil.c \
-    png/pngwtran.c \
-    png/pngwrite.c \
-    png/pngwio.c \
-    png/pngtrans.c \
-    png/pngset.c \
-    png/pngrutil.c \
-    png/pngrtran.c \
-    png/pngrio.c \
-    png/pngread.c \
-    png/pngpread.c \
-    png/pngmem.c \
-    png/pngget.c \
-    png/pngerror.c \
-    png/png.c \
-    zlib/zutil.c \
-    zlib/uncompr.c \
-    zlib/trees.c \
-    zlib/inftrees.c \
-    zlib/inflate.c \
-    zlib/inffast.c \
-    zlib/infback.c \
-    zlib/gzwrite.c \
-    zlib/gzread.c \
-    zlib/gzlib.c \
-    zlib/gzclose.c \
-    zlib/deflate.c \
-    zlib/crc32.c \
-    zlib/compress.c \
-    zlib/adler32.c \
-    zlib/ioapi.c \
-    zlib/unzip.c \
-    #nvwa/debug_new.cpp \
-
-OBJECTIVE_SOURCES += \
-    glfw3/src/cocoa_init.m \
-    glfw3/src/cocoa_monitor.m \
-    glfw3/src/cocoa_window.m \
-    glfw3/src/iokit_joystick.m \
-    glfw3/src/nsgl_context.m \
-}

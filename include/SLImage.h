@@ -12,6 +12,9 @@
 #define SLIMAGE_H
 
 #include <stdafx.h>
+#ifdef SL_HAS_OPENCV
+#include <opencv2/opencv.hpp>
+#endif
 
 //-----------------------------------------------------------------------------
 //! Win32 BITMAPFILEHEADER struct for BMP loading
@@ -61,7 +64,7 @@ typedef struct
 //-----------------------------------------------------------------------------
 //! TGA file header struct
 typedef struct
-{GLubyte header[6];     // First 6 useful bytes from the header
+{   GLubyte header[6];     // First 6 useful bytes from the header
     GLuint  bytesPerPixel; // Holds number of bytes per pixel
     GLuint  imageSize;     // Used to store the size when setting Aside RAM
     GLuint  temp;          // Temporary variable
