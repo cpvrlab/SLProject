@@ -1328,10 +1328,10 @@ void SLSceneView::onRotationPYR(SLfloat pitchRAD,
                                 SLfloat rollRAD,
                                 SLfloat zeroYawAfterSec)
 {
-    //SL_LOG("onRotation: pitch: %3.1f, yaw: %3.1f, roll: %3.1f\n", 
-    //       pitchRAD * SL_RAD2DEG, 
-    //       yawRAD   * SL_RAD2DEG, 
-    //       rollRAD  * SL_RAD2DEG);
+    SL_LOG("onRotation: pitch: %3.1f, yaw: %3.1f, roll: %3.1f\n",
+           pitchRAD * SL_RAD2DEG,
+           yawRAD   * SL_RAD2DEG,
+           rollRAD  * SL_RAD2DEG);
 
     // Set the yaw to zero by subtracting the averaged yaw after the passed NO. of sec.
     // Array of 60 yaw values for averaging
@@ -1346,6 +1346,7 @@ void SLSceneView::onRotationPYR(SLfloat pitchRAD,
     } else
     {  _deviceRotation.fromEulerAngles(pitchRAD,yawRAD-initialYaw.average(),rollRAD);
     }
+    _camera->rotation(_deviceRotation);
 }
 //-----------------------------------------------------------------------------
 /*!

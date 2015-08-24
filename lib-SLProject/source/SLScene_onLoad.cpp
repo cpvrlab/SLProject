@@ -811,6 +811,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
         _usesVideoImage = true;
 
         sv->waitEvents(false); // for constant video feed
+        //sv->usesRotation(true);
         sv->camera(cam1);
         _root3D = scene;
     }

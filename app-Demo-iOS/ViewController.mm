@@ -334,10 +334,12 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
 //-----------------------------------------------------------------------------
 -(void)onMotionData:(CMAttitude*)attitude
 {
-    //SLVec3f att(attitude.roll,attitude.pitch,attitude.yaw);
-    //att.print("att:");
     if (slUsesRotation(svIndex))
-        slRotationPYR(svIndex, attitude.pitch, attitude.yaw, attitude.roll);
+    {
+        //SLVec3f att(attitude.roll,attitude.pitch,attitude.yaw);
+        //att.print("att:");
+        slRotationPYR(svIndex, attitude.roll, attitude.yaw, attitude.pitch);
+    }
 }
 //-----------------------------------------------------------------------------
 //! Prepares the video capture (taken from the GLCameraRipple example)

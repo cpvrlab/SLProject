@@ -152,6 +152,7 @@ class SLSceneView: public SLObject
             void            scrW            (SLint  scrW){_scrW = scrW;}
             void            scrH            (SLint  scrH){_scrH = scrH;} 
             void            waitEvents      (SLbool wait){_waitEvents = wait;}
+            void            usesRotation    (SLbool use){_usesRotation = use;}
             void            dpi             (SLint newDPI){_dpi = newDPI;}
             void            showLoading     (SLbool showLoading);
             void            showMenu        (SLbool show){_showMenu = show;
