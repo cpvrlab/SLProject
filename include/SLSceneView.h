@@ -176,6 +176,7 @@ class SLSceneView: public SLObject
             SLbool          doMultiSampling () const {return _doMultiSampling;}
             SLbool          hasMultiSampling() const {return _hasMultiSampling;}
             SLbool          doDepthTest     () const {return _doDepthTest;}
+            SLbool          usesRotation    () const {return _usesRotation;}
             SLbool          waitEvents      () const {return _waitEvents;}
             SLbool          showStats       () const {return _showStats;}
             SLbool          showInfo        () const {return _showInfo;}
@@ -209,6 +210,7 @@ class SLSceneView: public SLObject
             SLbool          _hasMultiSampling;  //!< Flag if multisampling is possible
             SLbool          _doFrustumCulling;  //!< Flag if view frustum culling is on
             SLbool          _waitEvents;        //!< Flag for Event waiting
+            SLbool          _usesRotation;      //!< Flag if device rotation is used
             SLDrawBits      _drawBits;          //!< Sceneview level drawing flags
 
             SLbool          _showMenu;          //!< Flag if menu should be displayed

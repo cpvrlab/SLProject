@@ -567,7 +567,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
 
         // Back wall material with live video texture
         SLMaterial* mat3 = new SLMaterial("mat3", &_videoTexture);
-        _needsVideoImage = true;
+        _usesVideoImage = true;
         mat3->specular(SLCol4f::BLACK);
 
         // Left wall material
@@ -808,7 +808,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
         scene->addChild(cam1);
 
         _background.texture(&_videoTexture, true);
-        _needsVideoImage = true;
+        _usesVideoImage = true;
 
         sv->waitEvents(false); // for constant video feed
         sv->camera(cam1);

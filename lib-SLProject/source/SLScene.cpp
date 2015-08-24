@@ -214,7 +214,7 @@ void SLScene::init()
     _texCursor = new SLGLTexture("cursor.tga");
 
     // load dummy live video texture
-    _needsVideoImage = false;
+    _usesVideoImage = false;
 }
 //-----------------------------------------------------------------------------
 /*! The scene uninitializing clears the scenegraph (_root3D) and all global

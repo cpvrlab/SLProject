@@ -55,11 +55,12 @@ void    slKeyPress          (int sceneViewIndex, SLKey key, SLKey modifier);
 void    slKeyRelease        (int sceneViewIndex, SLKey key, SLKey modifier);
 void    slCharInput         (int sceneViewIndex, unsigned int character);
 void    slCommand           (int sceneViewIndex, SLCmd command);
+bool    slUsesRotation      (int sceneViewIndex);
 void    slRotationPYR       (int sceneViewIndex, float pitchRAD, float yawRAD, float rollRAD);
 void    slRotationQUAT      (int sceneViewIndex, float angleRAD, float axisX, float axisY, float axisZ);
 string  slGetWindowTitle    (int sceneViewIndex);
+bool    slUsesVideoImage    ();
 void    slGrabCopyVideoImage();
 void    slCopyVideoImage    (int width, int height, SLPixelFormat glFormat, SLuchar* data, bool isTopLeft);
-bool    slNeedsVideoImage   ();
 //-----------------------------------------------------------------------------
 #endif // SLINTERFACE_H

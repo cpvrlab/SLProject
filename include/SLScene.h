@@ -85,7 +85,7 @@ class SLScene: public SLObject
             SLMesh*         selectedMesh    () {return _selectedMesh;}
             SLbool          stopAnimations  () const {return _stopAnimations;}
             SLGLOculus*     oculus          () {return &_oculus;}   
-            SLbool          needsVideoImage () {return _needsVideoImage;}
+            SLbool          usesVideoImage  () {return _usesVideoImage;}
             SLGLTexture*    videoTexture    () {return &_videoTexture;}
             
             // Misc.
@@ -154,7 +154,7 @@ class SLScene: public SLObject
             
             SLGLOculus      _oculus;            //!< Oculus Rift interface
 
-            SLbool          _needsVideoImage;   //!< Flag for updating the video image
+            SLbool          _usesVideoImage;    //!< Flag for updating the video image
             SLGLTexture     _videoTexture;      //!< Texture for live video image
 };
 //-----------------------------------------------------------------------------

@@ -26,7 +26,7 @@
 		<key>0C8499CD2E4389E889926062AEB8F0428A4DD54E</key>
 		<string>../../..</string>
 		<key>6A3C60BD753FF2AB3279472E2FDAD694AC3E5442</key>
-		<string>../../../_lib/prebuilt/</string>
+		<string>../../../_lib/prebuilt</string>
 	</dict>
 	<key>IDESourceControlProjectURL</key>
 	<string>https://github.com/cpvrlab/SLProject.git</string>

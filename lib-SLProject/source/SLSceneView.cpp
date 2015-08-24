@@ -118,6 +118,7 @@ void SLSceneView::init(SLstring name,
     _hasMultiSampling = false;  // Multisampling is check in onInitialize
     _doFrustumCulling = true;   // true=enables view frustum culling
     _waitEvents = true;
+    _usesRotation = false;
     _drawBits.allOff();
        
     _stats.clear();

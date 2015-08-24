@@ -97,41 +97,8 @@ float GetSeconds()
     //[self setupGL];
     [EAGLContext setCurrentContext:self.context];
     
-    /*
     // Init motion manager
     self.motionManager = [[CMMotionManager alloc] init];
-    
-    // Attach Accelerometer
-    if ([self.motionManager isAccelerometerAvailable] == YES)
-    {    self.motionManager.accelerometerUpdateInterval = 1.0/60.0;
-        [self.motionManager startAccelerometerUpdatesToQueue:[NSOperationQueue currentQueue]
-                                withHandler:^(CMAccelerometerData *accelerometerData, NSError *error)
-                                {   [self outputAccelertionData:accelerometerData.acceleration];
-                                    if(error){NSLog(@"%@", error);}
-                                }
-        ];
-    }
-    // Attach Gyro
-    if ([self.motionManager isGyroAvailable] == YES)
-    {    self.motionManager.gyroUpdateInterval = 1.0/60.0;
-        [self.motionManager startGyroUpdatesToQueue:[NSOperationQueue currentQueue]
-                                withHandler:^(CMGyroData *gyroData, NSError *error)
-                                {   [self outputGyroData:gyroData.rotationRate];
-                                    if(error){NSLog(@"%@", error);}
-                                }
-        ];
-    }
-    // Attach DeviceMotion
-    if ([self.motionManager isDeviceMotionAvailable] == YES)
-    {    self.motionManager.deviceMotionUpdateInterval = 1.0/60.0;
-        [self.motionManager startDeviceMotionUpdatesToQueue:[NSOperationQueue currentQueue]
-                                withHandler:^(CMDeviceMotion *deviceMotion, NSError *error)
-                                {   [self outputMotionData:deviceMotion.attitude];
-                                    if(error){NSLog(@"%@", error);}
-                                }
-        ];
-    }
-    */
     
     // determine device pixel ratio and dots per inch
     screenScale = [UIScreen mainScreen].scale;
@@ -165,25 +132,8 @@ float GetSeconds()
                                 0,
                                 0);
     
+    [self setMotionInterval:1.0/60.0];
     [self setupVideoCapture];
-}
-//-----------------------------------------------------------------------------
--(void)outputAccelertionData:(CMAcceleration)acceleration
-{
-    //SLVec3f acc(acceleration.x,acceleration.y,acceleration.z);
-    //acc.print("Acc:");
-}
-//-----------------------------------------------------------------------------
--(void)outputGyroData:(CMRotationRate)rotation
-{
-    //SLVec3f rot(rotation.x,rotation.y,rotation.z);
-    //rot.print("Rot:");
-}
-//-----------------------------------------------------------------------------
--(void)outputMotionData:(CMAttitude*)attitude
-{
-    //SLVec3f att(attitude.roll,attitude.pitch,attitude.yaw);
-    //att.print("att:");
 }
 //-----------------------------------------------------------------------------
 - (void)viewDidUnload
@@ -350,7 +300,7 @@ float GetSeconds()
 didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
        fromConnection:(AVCaptureConnection *)connection
 {
-    if (slNeedsVideoImage() && m_lastVideoImageIsConsumed)
+    if (slUsesVideoImage() && m_lastVideoImageIsConsumed)
     {
         CVReturn err;
         CVImageBufferRef pixelBuffer = CMSampleBufferGetImageBuffer(sampleBuffer);
@@ -368,6 +318,26 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
         
         m_lastVideoImageIsConsumed = false;
     }
+}
+//-----------------------------------------------------------------------------
+-(void)onAccelerationData:(CMAcceleration)acceleration
+{
+    //SLVec3f acc(acceleration.x,acceleration.y,acceleration.z);
+    //acc.print("Acc:");
+}
+//-----------------------------------------------------------------------------
+-(void)onGyroData:(CMRotationRate)rotation
+{
+    //SLVec3f rot(rotation.x,rotation.y,rotation.z);
+    //rot.print("Rot:");
+}
+//-----------------------------------------------------------------------------
+-(void)onMotionData:(CMAttitude*)attitude
+{
+    //SLVec3f att(attitude.roll,attitude.pitch,attitude.yaw);
+    //att.print("att:");
+    if (slUsesRotation(svIndex))
+        slRotationPYR(svIndex, attitude.pitch, attitude.yaw, attitude.roll);
 }
 //-----------------------------------------------------------------------------
 //! Prepares the video capture (taken from the GLCameraRipple example)
@@ -414,6 +384,57 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
     
     [m_avSession startRunning];
     m_lastVideoImageIsConsumed = true;
+}
+//-----------------------------------------------------------------------------
+//! Starts the acceleronometer update if the interval time > 0 else it stops
+- (void) setAccelerometerInterval:(double)intervalTimeSEC
+{
+    if ([self.motionManager isAccelerometerAvailable] == YES)
+    {
+        if ([self.motionManager isAccelerometerActive] == NO && intervalTimeSEC > 0)
+        {    self.motionManager.accelerometerUpdateInterval = intervalTimeSEC;
+            [self.motionManager startAccelerometerUpdatesToQueue:[NSOperationQueue currentQueue]
+                                    withHandler:^(CMAccelerometerData *accelerometerData, NSError *error)
+                                    {   [self onAccelerationData:accelerometerData.acceleration];
+                                        if(error){NSLog(@"%@", error);}
+                                    }
+            ];
+        } else [self.motionManager stopAccelerometerUpdates];
+    }
+}
+//-----------------------------------------------------------------------------
+//! Starts the gyroscope update if the interval time > 0 else it stops
+- (void) setGyroInterval:(double)intervalTimeSEC
+{
+    if ([self.motionManager isGyroAvailable] == YES)
+    {   
+        if ([self.motionManager isGyroActive] == NO && intervalTimeSEC > 0)
+        {    self.motionManager.gyroUpdateInterval = intervalTimeSEC;
+            [self.motionManager startGyroUpdatesToQueue:[NSOperationQueue currentQueue]
+                                    withHandler:^(CMGyroData *gyroData, NSError *error)
+                                    {   [self onGyroData:gyroData.rotationRate];
+                                        if(error){NSLog(@"%@", error);}
+                                    }
+            ];
+        } else [self.motionManager stopGyroUpdates];
+    }
+}
+//-----------------------------------------------------------------------------
+//! Starts the motion data update if the interval time > 0 else it stops
+- (void) setMotionInterval:(double)intervalTimeSEC
+{
+    if ([self.motionManager isDeviceMotionAvailable] == YES)
+    {
+        if ([self.motionManager isAccelerometerActive] == NO && intervalTimeSEC > 0)
+        {    self.motionManager.deviceMotionUpdateInterval = intervalTimeSEC;
+            [self.motionManager startDeviceMotionUpdatesToQueue:[NSOperationQueue currentQueue]
+                                    withHandler:^(CMDeviceMotion *deviceMotion, NSError *error)
+                                    {   [self onMotionData:deviceMotion.attitude];
+                                        if(error){NSLog(@"%@", error);}
+                                    }
+            ];
+        } else [self.motionManager stopDeviceMotionUpdates];
+    }
 }
 //-----------------------------------------------------------------------------
 @end

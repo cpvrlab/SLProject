@@ -378,6 +378,12 @@ void slCommand(int sceneViewIndex, SLCmd command)
     SLInputManager::instance().queueEvent(e);
 }
 //-----------------------------------------------------------------------------
+bool slUsesRotation(int sceneViewIndex)
+{
+    SLSceneView* sv = SLScene::current->sv(sceneViewIndex);
+    return sv->usesRotation();
+}
+//-----------------------------------------------------------------------------
 /*! Global event handler for device rotation change with Euler angles pitch
 yaw and roll. With the parameter zeroYawAfterSec sets the time in seconds after
 which the yaw angle is set to zero by subtracting the average yaw in this time.
@@ -432,9 +438,9 @@ void slCopyVideoImage(int width, int height,
 //-----------------------------------------------------------------------------
 /*! Global function returns true if SL wants a live video images
 */
-bool slNeedsVideoImage()
+bool slUsesVideoImage()
 {
-    return SLScene::current->needsVideoImage();
+    return SLScene::current->usesVideoImage();
 }
 //-----------------------------------------------------------------------------
 /*! Grabs an image from the live video stream with the OpenCV library.
