@@ -50,7 +50,8 @@ win32 {
     DEFINES += _GLFW_NO_DLOAD_WINMM
     DEFINES -= UNICODE
     DEFINES += SL_HAS_OPENCV
-    INCLUDEPATH += ../lib-SLExternal/png
+    INCLUDEPATH += ../lib-SLExternal/png \
+                   ../lib-SLExternal/dirent \
 }
 macx {
     # mac only
