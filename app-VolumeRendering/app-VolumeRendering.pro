@@ -77,7 +77,6 @@ unix:!macx:!android {
 INCLUDEPATH += \
     ../include\
     ../lib-SLExternal \
-    ../lib-SLExternal/dirent \
     ../lib-SLExternal/glew/include \
     ../lib-SLExternal/glfw3/include \
     ../lib-SLExternal/zlib \

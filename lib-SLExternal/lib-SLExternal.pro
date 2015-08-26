@@ -238,6 +238,7 @@ OBJECTIVE_SOURCES += \
     glfw3/src/cocoa_window.m \
     glfw3/src/iokit_joystick.m \
     glfw3/src/nsgl_context.m \
+
 }
 win32 {
 #Windows only -------------------------------------
@@ -307,7 +308,8 @@ SOURCES += \
     png/pngget.c \
     png/pngerror.c \
     png/png.c \
-    dirent/dirent.h \
+    dirent/dirent.c \
+
 }
 unix:!macx:!android {
 #Linux only -------------------------
@@ -333,5 +335,7 @@ SOURCES += \
     glfw3/src/posix_time.c \
     glfw3/src/posix_tls.c \
     glfw3/src/glx_context.c \
+
 }
+
 

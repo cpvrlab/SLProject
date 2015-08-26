@@ -105,7 +105,6 @@ INCLUDEPATH += \
     ../lib-SLExternal\
     ../lib-SLExternal/assimp/include \
     ../lib-SLExternal/assimp/code \
-    ../lib-SLExternal/dirent \
     ../lib-SLExternal/glew/include \
     ../lib-SLExternal/glfw3/include \
     ../lib-SLExternal/zlib\

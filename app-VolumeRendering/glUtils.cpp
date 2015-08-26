@@ -363,6 +363,8 @@ SLVstring glUtils::getFileNamesInDir(SLstring dirName)
     if (dir)
     {   while ((dirContent = readdir(dir)) != NULL)
         {   i++;
+            cout << sizeof(dirent) << endl;
+            printf("%s",dirContent->d_name);
             SLstring name(dirContent->d_name);
             if(name != "." && name != "..")
                 fileNames.push_back(dirName+"/"+name);
