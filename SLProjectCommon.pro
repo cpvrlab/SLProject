@@ -89,15 +89,22 @@ unix:!macx:!android {
     # sudo apt-get install libopencv-core-dev libopencv-imgproc-dev libopencv-video-dev libopencv-videoio-dev
     OPENCV_LIB_DIRS += /usr/lib #default
     OPENCV_LIB_DIRS += /usr/lib/x86_64-linux-gnu #ubuntu
-
     for(dir,OPENCV_LIB_DIRS) {
-        exists($$dir/libopencv_*.so) {
+        !opencv { #If opencv was already found, skip this loop
             CONFIG += opencv
-            DEFINES += SL_HAS_OPENCV
-            INCLUDEPATH += /usr/include/
-            LIBS += -L$$dir -lopencv_core -lopencv_imgproc -lopencv_imgproc -lopencv_video -lopencv_videoio
+            OPENCV_LIBS =  opencv_core opencv_imgproc opencv_imgproc opencv_video opencv_videoio
+            #Scan for opencv libs, if one is missing, remove the opencv flag.
+            for(lib,OPENCV_LIBS):!exists($$dir/lib$${lib}.so*):CONFIG -= opencv
+            opencv {
+                DEFINES += SL_HAS_OPENCV
+                INCLUDEPATH += /usr/include/
+                LIBS += -L$$dir
+                for(lib,OPENCV_LIBS) LIBS += -l$$lib
+            }
+            unset(OPENCV_LIBS)
         }
     }
+    !opencv:warning(OpenCV is either not installed or not up to date (install OpenCV 3.0))
 }
 
 INCLUDEPATH += \
