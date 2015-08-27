@@ -475,6 +475,8 @@ void slGrabCopyVideoImage()
             // OpenGL ES doesn't support BGR or BGRA
             cvtColor(frame, frame, CV_BGR2RGB);
             slCopyVideoImage(frame.cols, frame.rows, format, frame.data, true);
+        } else
+        {   SL_LOG("OpenCV: Unable to create capture device.\n")
         }
     }
     catch (exception e)
