@@ -1,7 +1,7 @@
 
 
-xcopy ..\lib-SLProject\source\oglsl\*.frag apk\assets\shaders /d/y
-xcopy ..\lib-SLProject\source\oglsl\*.vert apk\assets\shaders /d/y
+xcopy ..\_data\shaders\*.frag apk\assets\shaders /d/y
+xcopy ..\_data\shaders\*.vert apk\assets\shaders /d/y
 del apk\assets\shaders\ADS*
 del apk\assets\shaders\Terrain*
 

@@ -79,7 +79,7 @@ public class GLES2Activity extends Activity implements OnTouchListener, SensorEv
 	{
 		Log.i("SLProject", "GLES2Activity.onPause");
 		super.onPause();	
-		myView.onPause();	
+		myView.onPause();			
 		myView.queueEvent(new Runnable() {public void run() {GLES2Lib.onClose();}});
 		finish();
 		

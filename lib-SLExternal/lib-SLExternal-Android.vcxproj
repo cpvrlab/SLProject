@@ -50,7 +50,7 @@
     <CharacterSet>Unicode</CharacterSet>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <PlatformToolset>arm-linux-androideabi-4.9</PlatformToolset>
-    <AndroidAPILevel>android-12</AndroidAPILevel>
+    <AndroidAPILevel>android-15</AndroidAPILevel>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
@@ -67,7 +67,7 @@
     <CharacterSet>Unicode</CharacterSet>
     <PlatformToolset>arm-linux-androideabi-4.9</PlatformToolset>
     <AndroidStlType>gnustl_static</AndroidStlType>
-    <AndroidAPILevel>android-12</AndroidAPILevel>
+    <AndroidAPILevel>android-15</AndroidAPILevel>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">

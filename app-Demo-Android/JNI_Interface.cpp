@@ -1,7 +1,7 @@
 //#############################################################################
 //  File:      JNI_Interface.cpp
-//  Purpose:   Delcaration of the main Scene Library C-Interface. Only these 
-//             functions should called by the OS-dependend GUI applications. 
+//  Purpose:   Declaration of the main Scene Library C-Interface. Only these 
+//             functions should called by the OS-dependent GUI applications. 
 //             These functions can be called from any C, C++ or ObjectiveC GUI 
 //             framework or by a native API such as Java Native Interface 
 //             (JNI). See the implementation for more information.

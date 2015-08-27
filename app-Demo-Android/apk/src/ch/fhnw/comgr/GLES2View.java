@@ -39,6 +39,18 @@ import android.util.Log;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
 
+// for the camera interface
+/*
+import java.util.List;
+import java.io.IOException;
+import android.graphics.ImageFormat;
+import android.graphics.SurfaceTexture;
+import android.hardware.Camera;
+import android.hardware.Camera.PreviewCallback;
+import android.view.SurfaceHolder;
+import android.os.Build;
+*/
+
 import javax.microedition.khronos.egl.EGL10;
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.egl.EGLContext;
@@ -56,7 +68,7 @@ import java.lang.Thread;
  *   See ContextFactory class definition below.
  *
  * - The class must use a custom EGLConfigChooser to be able to select
- *   an EGLConfig that supports 2.0. This is done by providing a config
+ *   an EGLConfig that supports 2.0. This is done by providing a configuration
  *   specification to eglChooseConfig() that has the attribute
  *   EGL10.ELG_RENDERABLE_TYPE containing the EGL_OPENGL_ES2_BIT flag
  *   set. See ConfigChooser class definition below.
@@ -65,10 +77,20 @@ import java.lang.Thread;
  *   that matches it exactly (with regards to red/green/blue/alpha channels
  *   bit depths). Failure to do so would result in an EGL_BAD_MATCH error.
  */
-class GLES2View extends GLSurfaceView 
+class GLES2View extends GLSurfaceView //implements SurfaceHolder.Callback
 {
 	private static String TAG = "SLProject";
 	private static final boolean DEBUG = false;
+	
+	/*
+	private Camera              _camera;
+    private int                 _frameWidth;
+    private int                 _frameHeight;
+    private byte[]              _frame;
+    private boolean             _threadRun;
+    private byte[]              _buffer;
+    private boolean 			_cameraIsInitialized = false;
+	*/
 
     public GLES2View(Context context) 
 	{
@@ -114,7 +136,7 @@ class GLES2View extends GLSurfaceView
 		// From Android r15
 		//setPreserveEGLContextOnPause(true);
 		
-		// Render only when needed. Without this it would render continously with lots of power consumption
+		// Render only when needed. Without this it would render continuously with lots of power consumption
 		setRenderMode(RENDERMODE_WHEN_DIRTY);
     }
 
@@ -126,7 +148,7 @@ class GLES2View extends GLSurfaceView
             Log.w(TAG, "creating OpenGL ES 2.0 context");
             checkEglError("Before eglCreateContext", egl);
             int[] attrib_list = {EGL_CONTEXT_CLIENT_VERSION, 2, EGL10.EGL_NONE };
-			Log.i("SLProject", "ContextFactory.createContext");
+			Log.i(TAG, "ContextFactory.createContext");
             EGLContext context = egl.eglCreateContext(display, eglConfig, EGL10.EGL_NO_CONTEXT, attrib_list);
             checkEglError("After eglCreateContext", egl);
             return context;
@@ -135,7 +157,7 @@ class GLES2View extends GLSurfaceView
         public void destroyContext(EGL10 egl, EGLDisplay display, EGLContext context) 
 		{
             egl.eglDestroyContext(display, context);
-			Log.i("SLProject", "ContextFactory.destroyContext");
+			Log.i(TAG, "ContextFactory.destroyContext");
         }
     }
 
@@ -346,17 +368,22 @@ class GLES2View extends GLSurfaceView
 	{
 		public void onSurfaceCreated(GL10 gl, EGLConfig config) 
 		{
-			Log.i("SLProject", "Renderer.onSurfaceCreated");
+			Log.i(TAG, "Renderer.onSurfaceCreated");
 			int w = GLES2Lib.view.getWidth();
 			int h = GLES2Lib.view.getHeight();
 			GLES2Lib.onInit(w, h, GLES2Lib.dpi, GLES2Lib.App.getApplicationContext().getFilesDir().getAbsolutePath());
+			
+			//GLES2Lib.view.openCamera();
+			//GLES2Lib.view.setupCamera(w, h);
 		}
 
 		public void onSurfaceChanged(GL10 gl, int width, int height) 
 		{
-			Log.i("SLProject", "Renderer.onSurfaceChanged");
+			Log.i(TAG, "Renderer.onSurfaceChanged");
 			GLES2Lib.onResize(width, height);
 			GLES2Lib.view.requestRender();
+			
+			//GLES2Lib.view.setupCamera(width, height);
 		}
 		
 		public void onDrawFrame(GL10 gl) 
@@ -368,4 +395,109 @@ class GLES2View extends GLSurfaceView
                 GLES2Lib.onClose();
 		}
 	}
+
+	
+	
+	
+	
+	/*
+	//-------------------------------------------------------------------------
+    public boolean openCamera() {
+        Log.i(TAG, "openCamera");
+        releaseCamera();
+        _camera = Camera.open();
+        if(_camera == null) {
+            Log.e(TAG, "Can't open camera!");
+            return false;
+        }
+
+        _camera.setPreviewCallbackWithBuffer(new PreviewCallback() {
+            public void onPreviewFrame(byte[] data, Camera camera) {
+                // Whenever a camera preview frame is ready, just copy it straight to our _frame,
+                // and don't worry about blocking the main UI thread until it is safe.
+                System.arraycopy(data, 0, _frame, 0, data.length);
+                camera.addCallbackBuffer(_buffer);
+                
+                // Signal that a camera frame is ready, without blocking the main thread.
+                _cameraIsInitialized = true;
+				 Log.i(TAG, "-----.");
+            }
+        });
+        return true;
+    }
+    
+    public void releaseCamera() {
+        Log.i(TAG, "releaseCamera");
+        _threadRun = false;
+        synchronized (this) {
+            if (_camera != null) {
+                _camera.stopPreview();
+                _camera.setPreviewCallback(null);
+                _camera.release();
+                _camera = null;
+                
+                // If this app was paused and restarted, it should wait for camera initialization again.
+                _cameraIsInitialized = false;
+            }
+        }
+        //onPreviewStopped();
+    }
+	
+	public void setupCamera(int width, int height) {
+        Log.i(TAG, "setupCamera(" + width + "x" + height + ")");
+        synchronized (this) {
+            if (_camera != null) {
+                Camera.Parameters params = _camera.getParameters();
+                List<Camera.Size> sizes = params.getSupportedPreviewSizes();
+                _frameWidth = width;
+                _frameHeight = height;
+
+                // selecting optimal camera preview size that is most similar to the screen height.
+                {
+                    int  minDiff = Integer.MAX_VALUE;
+                    for (Camera.Size size : sizes) {
+                        Log.i(TAG, "Found Camera Resolution " + size.width + "x" + size.height);
+                        if (Math.abs(size.height - height) < minDiff) {
+                            _frameWidth = size.width;
+                            _frameHeight = size.height;
+                            minDiff = Math.abs(size.height - height);
+                        }
+                    }
+                }
+
+                params.setPreviewSize(_frameWidth, _frameHeight);
+                
+                List<String> FocusModes = params.getSupportedFocusModes();
+                if (FocusModes.contains(Camera.Parameters.FOCUS_MODE_CONTINUOUS_VIDEO))
+                {
+                    params.setFocusMode(Camera.Parameters.FOCUS_MODE_CONTINUOUS_VIDEO);
+                }            
+                
+                _camera.setParameters(params);
+                
+                // Now allocate the buffer
+                params = _camera.getParameters();
+                Log.i(TAG, "Chosen Camera Preview Size: " + params.getPreviewSize().width + "x" + params.getPreviewSize().height);
+                int size = params.getPreviewSize().width * params.getPreviewSize().height;
+                size = size * ImageFormat.getBitsPerPixel(params.getPreviewFormat()) / 8;
+                _buffer = new byte[size];
+                // The buffer where the current frame will be copied
+                _frame = new byte [size];
+                _camera.addCallbackBuffer(_buffer);
+
+                try {
+                    _camera.setPreviewTexture( new SurfaceTexture(10) );
+                } catch (IOException e) {
+                    Log.e(TAG, "_camera.setPreviewDisplay/setPreviewTexture fails: " + e);
+                }
+
+                // Notify that the preview is about to be started and deliver preview size
+                //onPreviewStarted(params.getPreviewSize().width, params.getPreviewSize().height);
+
+                // Now we can start a preview
+                _camera.startPreview();
+            }
+        }
+    }
+	*/
 }
