@@ -20,6 +20,7 @@ CONFIG += warn_off
 
 DEFINES += "SL_STARTSCENE=cmdSceneRevolver"
 
+include(../SLProjectCommon.pro)
 
 DESTDIR     = ../_bin-$$CONFIGURATION-$$PLATFORM
 OBJECTS_DIR = ../intermediate/$$TARGET/$$CONFIGURATION/$$PLATFORM
@@ -35,5 +36,5 @@ else  {POST_TARGETDEPS += $$PWD/../_lib/$$CONFIGURATION/$$PLATFORM/liblib-SLProj
 SOURCES += \
     source/glfwMain.cpp
 
-include(../SLProjectCommon.pro)
+include(../SLProjectCommonLibraries.pro)
 include(../SLProjectDeploy.pro)
