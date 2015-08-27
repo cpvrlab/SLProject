@@ -38,4 +38,5 @@ SOURCES += \
    source/qtGLWidget.cpp \
    source/qtMain.cpp
 
+include(../SLProjectCommonLibraries.pro)
 include(../SLProjectDeploy.pro)

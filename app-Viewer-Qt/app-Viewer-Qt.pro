@@ -51,5 +51,6 @@ FORMS += \
 RESOURCES += \
     resources.qrc
 
+include(../SLProjectCommonLibraries.pro)
 include(../SLProjectDeploy.pro)
 
