@@ -455,7 +455,7 @@ void slGrabCopyVideoImage()
         {   gCaptureDevice = new cv::VideoCapture(0);
             if (!gCaptureDevice->isOpened())
                 return;
-            SL_LOG("Capture devices created.\n")
+            SL_LOG("Capture devices created.\n");
         }
 
         if (gCaptureDevice && gCaptureDevice->isOpened())
@@ -476,11 +476,11 @@ void slGrabCopyVideoImage()
             cvtColor(frame, frame, CV_BGR2RGB);
             slCopyVideoImage(frame.cols, frame.rows, format, frame.data, true);
         } else
-        {   SL_LOG("OpenCV: Unable to create capture device.\n")
+        {   SL_LOG("OpenCV: Unable to create capture device.\n");
         }
     }
     catch (exception e)
-    {   SL_LOG("Exception during OpenCV video capture creation\n")
+    {   SL_LOG("Exception during OpenCV video capture creation\n");
     }
     #endif
 }

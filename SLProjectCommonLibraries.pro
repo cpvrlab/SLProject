@@ -34,6 +34,7 @@ win32 {
 macx {
     # mac only
     CONFIG += c++11
+   #LIBS += -framework Foundation
     LIBS += -framework Cocoa
     LIBS += -framework IOKit
     LIBS += -framework OpenGL

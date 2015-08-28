@@ -314,7 +314,7 @@ SLNode* SLAssimpImporter::load(SLstring file,           //!< File with path or o
         {   mesh->mat = materials[scene->mMeshes[i]->mMaterialIndex];
             _meshes.push_back(mesh);
             meshMap[i] = mesh;
-        }
+        } else SL_LOG("SLAsssimpImporter::load failed: %s\nin path: %s\n", file.c_str(), modelPath.c_str());
     }
 
     // load the scene nodes recursively
@@ -814,7 +814,9 @@ SLMesh* SLAssimpImporter::loadMesh(aiMesh *mesh)
                 }
             }
             else
-                SL_LOG("Failed to load joint of skeleton in SLAssimpImporter::loadMesh");
+            {   SL_LOG("Failed to load joint of skeleton in SLAssimpImporter::loadMesh: %s\n", joint->mName.C_Str());
+                return nullptr;
+            }
         }
 
     }

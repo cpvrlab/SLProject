@@ -14,6 +14,27 @@
 #endif
 
 //-----------------------------------------------------------------------------
+//! SL::log
+void SL::log(const char* format, ...)
+{
+    char log[1024];
+    va_list argptr;
+    va_start(argptr, format);
+    vsprintf(log, format, argptr);
+    va_end(argptr);
+
+    cerr << log;
+
+    /*
+    // In case we don't have a console
+    static ofstream logFile;
+    if (!logFile.is_open())
+        logFile.open ("Users/Shared/SLProjectLog.txt");
+
+    logFile << log;
+    */
+}
+//-----------------------------------------------------------------------------
 //! SL::Exit terminates the application with a message. No leak cheching.
 void SL::exitMsg(const SLchar* msg, const SLint line, const SLchar* file)
 {  
@@ -21,7 +42,7 @@ void SL::exitMsg(const SLchar* msg, const SLint line, const SLchar* file)
     __android_log_print(ANDROID_LOG_INFO, "SLProject", 
                         "Exit %s at line %d in %s\n", msg, line, file);
     #else
-    fprintf(stderr, "Exit %s at line %d in %s\n", msg, line, file);
+    SL::log("Exit %s at line %d in %s\n", msg, line, file);
     #endif
    
     #ifdef SL_MEMLEAKDETECT       // set in SL.h for debug config only
@@ -39,7 +60,7 @@ void SL::warnMsg(const SLchar* msg, const SLint line, const SLchar* file)
     __android_log_print(ANDROID_LOG_INFO, "SLProject", 
                         "Warning: %s at line %d in %s\n", msg, line, file);
     #else
-    fprintf(stderr, "Warning %s at line %d in %s\n", msg, line, file);
+    SL::log("Warning %s at line %d in %s\n", msg, line, file);
     #endif
 }
 //-----------------------------------------------------------------------------

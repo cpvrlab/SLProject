@@ -226,6 +226,8 @@ OTHER_FILES += \
 ../_data/shaders/TextureOnly3D.vert
 ToDo.txt \
 
+OBJECTIVE_SOURCES += \
+
 DISTFILES += \
 Doxyfile \
 Introduction.md \

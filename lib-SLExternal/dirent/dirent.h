@@ -1,5 +1,4 @@
 
-#ifdef _WIN32
 #ifndef DIRENT_INCLUDED
 #define DIRENT_INCLUDED
 
@@ -47,6 +46,5 @@ void          rewinddir(DIR *);
 
 #ifdef __cplusplus
 }
-#endif
 #endif
 #endif

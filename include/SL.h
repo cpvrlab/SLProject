@@ -258,18 +258,15 @@ template<class T> inline SLint SL_sizeOfVector(const T &vector)
 
 //-----------------------------------------------------------------------------
 // Some debugging and error handling functions and macros 
+#define SL_LOG(...)     SL::log(__VA_ARGS__)
 #define SL_EXIT_MSG(M)  SL::exitMsg((M), __LINE__, __FILE__)
 #define SL_WARN_MSG(M)  SL::warnMsg((M), __LINE__, __FILE__)
-#if defined(SL_OS_ANDROID)
-#define SL_LOG(...)  __android_log_print(ANDROID_LOG_INFO, "SLProject", __VA_ARGS__) 
-#else
-#define SL_LOG(...)  printf(__VA_ARGS__);
-#endif
 //-----------------------------------------------------------------------------
 //! Class SL with some global static functions.
 class SL
 {
     public:
+    static void     log         (const char* format, ...);
     static void     exitMsg     (const SLchar* msg, 
                                  const SLint line, 
                                  const SLchar* file);
