@@ -26,4 +26,6 @@ CONFIG -= qml_debug
 
 cache()
 
-OTHER_FILES = SLProjectCommon.pro
+OTHER_FILES += SLProjectCommon.pro \
+               SLProjectCommonLibraries.pro \
+

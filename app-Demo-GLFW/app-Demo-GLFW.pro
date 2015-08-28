@@ -36,7 +36,5 @@ else  {POST_TARGETDEPS += $$PWD/../_lib/$$CONFIGURATION/$$PLATFORM/liblib-SLProj
 SOURCES += \
     source/glfwMain.cpp
 
+include(../SLProjectCommonLibraries.pro)
 include(../SLProjectDeploy.pro)
-
-
-	   

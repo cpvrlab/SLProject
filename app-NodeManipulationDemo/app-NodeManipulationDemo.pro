@@ -39,4 +39,5 @@ SOURCES += \
 HEADERS += \
     NewNodeSceneView.h
 
+include(../SLProjectCommonLibraries.pro)
 include(../SLProjectDeploy.pro)
