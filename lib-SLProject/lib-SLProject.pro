@@ -37,6 +37,7 @@ win32 {
 }
 
 include(../SLProjectCommon.pro)
+include(../SLProjectCommonLibraries.pro)
 
 HEADERS += \
 ../include/EulerAngles.h \

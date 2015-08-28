@@ -1,9 +1,9 @@
 ##############################################################################
-#  File:      SLProjectCommon.pro
+#  File:      SLProjectCommonLibraries.pro
 #  Purpose:   QMake project definition for common SLProject projects
-#  Author:    Marcus Hudritsch
-#  Date:      February 2014
-#  Copyright: Marcus Hudritsch, Switzerland
+#  Author:    Marcus Hudritsch, Manuel Frischknecht
+#  Date:      August 2015
+#  Copyright: Marcus Hudritsch, Manuel Frischknecht, Switzerland
 #             THIS SOFTWARE IS PROVIDED FOR EDUCATIONAL PURPOSE ONLY AND
 #             WITHOUT ANY WARRANTIES WHETHER EXPRESSED OR IMPLIED.
 ##############################################################################
