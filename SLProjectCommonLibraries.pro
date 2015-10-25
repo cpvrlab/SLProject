@@ -23,6 +23,7 @@ win32 {
     LIBS += $$PWD\_lib\prebuilt\OpenCV\x64\vc12\lib\opencv_video300.lib
     LIBS += $$PWD\_lib\prebuilt\OpenCV\x64\vc12\lib\opencv_videoio300.lib
     DEFINES += GLEW_STATIC
+    DEFINES += GLEW_NO_GLU
     DEFINES += _GLFW_NO_DLOAD_GDI32
     DEFINES += _GLFW_NO_DLOAD_WINMM
     DEFINES -= UNICODE
@@ -34,6 +35,7 @@ win32 {
 macx {
     # mac only
     CONFIG += c++11
+    DEFINES += GLEW_NO_GLU
    #LIBS += -framework Foundation
     LIBS += -framework Cocoa
     LIBS += -framework IOKit
@@ -45,6 +47,7 @@ macx {
     LIBS += -L../_lib/prebuilt/OpenCV/macx -lopencv_video
     LIBS += -L../_lib/prebuilt/OpenCV/macx -lopencv_videoio
     INCLUDEPATH += ../lib-SLExternal/png
+    INCLUDEPATH += /usr/include
     DEFINES += SL_HAS_OPENCV
 }
 unix:!macx:!android {

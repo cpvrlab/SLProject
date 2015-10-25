@@ -1984,7 +1984,7 @@
 		419BCD2E14865C0800D576F1 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastUpgradeCheck = 0630;
+				LastUpgradeCheck = 0710;
 			};
 			buildConfigurationList = 419BCD3114865C0800D576F1 /* Build configuration list for PBXProject "app-Demo-iOS" */;
 			compatibilityVersion = "Xcode 3.2";
@@ -2472,6 +2472,7 @@
 				CPP11 = "";
 				CPP11Lib = "";
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_NO_COMMON_BLOCKS = YES;
@@ -2644,6 +2645,7 @@
 				INFOPLIST_FILE = "SceneLib-Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 5.0;
 				IPHONE_OPTIMIZE_OPTIONS = "-skip-PNGs";
+				PRODUCT_BUNDLE_IDENTIFIER = ch.bfh.ti.slproject;
 				PRODUCT_NAME = SLProject;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				WRAPPER_EXTENSION = app;
@@ -2676,6 +2678,7 @@
 				INFOPLIST_FILE = "SceneLib-Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 5.0;
 				IPHONE_OPTIMIZE_OPTIONS = "-skip-PNGs";
+				PRODUCT_BUNDLE_IDENTIFIER = ch.bfh.ti.slproject;
 				PRODUCT_NAME = SLProject;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				WRAPPER_EXTENSION = app;

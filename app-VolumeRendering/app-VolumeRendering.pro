@@ -49,11 +49,13 @@ win32 {
 macx {
     # mac only
     CONFIG += c++11
+    DEFINES += GLEW_NO_GLU
     LIBS += -framework Cocoa
     LIBS += -framework IOKit
     LIBS += -framework OpenGL
     LIBS += -framework QuartzCore
     LIBS += -stdlib=libc++
+    INCLUDEPATH += /usr/include
     INCLUDEPATH += ../lib-SLExternal/png
 }
 unix:!macx:!android {

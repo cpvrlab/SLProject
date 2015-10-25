@@ -22,7 +22,6 @@ REQUIRES += oculus
 
 DEFINES += _UNICODE
 
-
 #define platform variable for folder name
 win32 {contains(QMAKE_TARGET.arch, x86_64) {PLATFORM = x64} else {PLATFORM = Win32}}
 macx {PLATFORM = macx}
@@ -173,6 +172,15 @@ SOURCES += \
     LibOVR/Src/Util/Util_SystemGUI.cpp
 
 macx {
+LIBS += -framework Cocoa
+LIBS += -framework IOKit
+LIBS += -framework OpenGL
+LIBS += -framework QuartzCore
+CONFIG += c++11
+QMAKE_CXXFLAGS += -stdlib=libc++
+QMAKE_CXXFLAGS += -std=c++11
+INCLUDEPATH += /usr/include
+
 HEADERS += \
     LibOVR/Src/Displays/OVR_OSX_Display.h \
     LibOVR/Src/Net/OVR_Unix_Socket.h \

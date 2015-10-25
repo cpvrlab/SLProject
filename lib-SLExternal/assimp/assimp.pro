@@ -81,6 +81,7 @@ macx {
     LIBS += -framework OpenGL
     LIBS += -framework QuartzCore
     LIBS += -stdlib=libc++
+    INCLUDEPATH += /usr/include
 }
 unix:!macx:!android {
     # linux only

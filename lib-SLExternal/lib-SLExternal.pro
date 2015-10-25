@@ -52,14 +52,14 @@ macx {
     DEFINES += _GLFW_NSGL
     DEFINES += _GLFW_USE_OPENGL
 
+    LIBS += -framework OpenGL
+    LIBS += -framework Cocoa
+    LIBS += -framework IOKit
+    LIBS += -framework QuartzCore
+
     CONFIG -= app_bundle
     CONFIG += C/ObjC
     QMAKE_CXXFLAGS += -Wno-unused-parameter
-
-    LIBS += -framework Cocoa
-    LIBS += -framework IOKit
-    LIBS += -framework OpenGL
-    LIBS += -framework QuartzCore
 }
 unix:!macx:!android {
     # linux only

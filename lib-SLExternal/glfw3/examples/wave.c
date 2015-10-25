@@ -8,16 +8,18 @@
  * 2010-10-24: Formatting and cleanup - Camilla Berglund
  *****************************************************************************/
 
+#if defined(_MSC_VER)
+ // Make MS math.h define M_PI
+ #define _USE_MATH_DEFINES
+#endif
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
 
-#define GLFW_INCLUDE_GLU
 #include <GLFW/glfw3.h>
 
-#ifndef M_PI
- #define M_PI 3.1415926535897932384626433832795
-#endif
+#include <linmath.h>
 
 // Maximum delta T to allow for differential calculations
 #define MAX_DELTA_T 0.01
@@ -362,6 +364,7 @@ void scroll_callback(GLFWwindow* window, double x, double y)
 void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 {
     float ratio = 1.f;
+    mat4x4 projection;
 
     if (height > 0)
         ratio = (float) width / (float) height;
@@ -371,8 +374,11 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 
     // Change to the projection matrix and set our viewing volume
     glMatrixMode(GL_PROJECTION);
-    glLoadIdentity();
-    gluPerspective(60.0, ratio, 1.0, 1024.0);
+    mat4x4_perspective(projection,
+                       60.f * (float) M_PI / 180.f,
+                       ratio,
+                       1.f, 1024.f);
+    glLoadMatrixf((const GLfloat*) projection);
 }
 
 

@@ -3,7 +3,6 @@ requires(qtHaveModule(opengl))
 TEMPLATE = subdirs
 SUBDIRS += lib-SLExternal
 SUBDIRS += lib-SLExternal/assimp
-SUBDIRS += lib-SLExternal/oculus
 SUBDIRS += lib-SLProject
 SUBDIRS += app-Demo-GLFW
 SUBDIRS += app-Demo-Qt
@@ -14,7 +13,6 @@ SUBDIRS += ch09_TextureMapping
 
 lib-SLProject.depends = lib-SLExternal
 lib-SLProject.depends = lib-SLExternal/assimp
-lib-SLProject.depends = lib-SLExternal/oculus
 app-Demo-GLFW.depends = lib-SLProject
 app-Demo-Qt.depends = lib-SLProject
 app-Viewer-Qt.depends = lib-SLProject
