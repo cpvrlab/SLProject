@@ -34,6 +34,7 @@ win32 {
 }
 macx {
     # mac only
+    QMAKE_MAC_SDK = macosx10.11
     CONFIG += c++11
     DEFINES += GLEW_NO_GLU
    #LIBS += -framework Foundation
