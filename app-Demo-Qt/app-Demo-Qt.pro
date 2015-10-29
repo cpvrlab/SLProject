@@ -16,6 +16,7 @@ CONFIG += qt
 CONFIG -= glfw
 CONFIG += app_bundle
 
+DEFINES += SL_GUI_QT
 DEFINES += "SL_STARTSCENE=cmdSceneMeshLoad"
 
 include(../SLProjectCommon.pro)
@@ -26,7 +27,7 @@ OBJECTS_DIR = ../intermediate/$$TARGET/$$CONFIGURATION/$$PLATFORM
 LIBS += -L$$PWD/../_lib/$$CONFIGURATION/$$PLATFORM -llib-SLProject
 LIBS += -L$$PWD/../_lib/$$CONFIGURATION/$$PLATFORM -llib-SLExternal
 LIBS += -L$$PWD/../_lib/$$CONFIGURATION/$$PLATFORM -llib-assimp
-macx|win32 {LIBS += -L../_lib/$$CONFIGURATION/$$PLATFORM -llib-ovr}
+win32 {LIBS += -L../_lib/$$CONFIGURATION/$$PLATFORM -llib-ovr}
 
 win32 {POST_TARGETDEPS += $$PWD/../_lib/$$CONFIGURATION/$$PLATFORM/lib-SLProject.lib}
 else  {POST_TARGETDEPS += $$PWD/../_lib/$$CONFIGURATION/$$PLATFORM/liblib-SLProject.a}

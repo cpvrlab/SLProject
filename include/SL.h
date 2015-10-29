@@ -1,7 +1,7 @@
 //#############################################################################
 //  File:      SL/SL.h
 //  Author:    Marcus Hudritsch
-//  Date:      July 2014
+//  Date:      October 2015
 //  Codestyle: https://github.com/cpvrlab/SLProject/wiki/Coding-Style-Guidelines
 //  Copyright: Marcus Hudritsch
 //             This software is provide under the GNU General Public License
@@ -60,12 +60,12 @@ SL_USE_DISCARD_STEREOMODES: The discard stereo modes can be used (SLCamera)
 */
 
 #ifdef __APPLE__
-    #ifdef TARGET_OS_IOS
+    #ifdef BLABLA //TARGET_CPU_ARM // Bug since OSX 10.11
         #define SL_OS_MACIOS
         #define SL_GLES2
     #else
         #define SL_OS_MACOSX
-        #define SL_OVR
+        //#define SL_OVR // No OSX support anymore from Oculus!
         #if defined(_DEBUG)
             //#define SL_MEMLEAKDETECT  // nvwa doesn't work under OSX/clang
         #endif
