@@ -60,7 +60,8 @@ SL_USE_DISCARD_STEREOMODES: The discard stereo modes can be used (SLCamera)
 */
 
 #ifdef __APPLE__
-    #ifdef BLABLA //TARGET_CPU_ARM // Bug since OSX 10.11
+    #include <TargetConditionals.h>
+    #if TARGET_OS_IOS
         #define SL_OS_MACIOS
         #define SL_GLES2
     #else
@@ -115,8 +116,8 @@ SL_GUI_JAVA :Java on Android (with the VS-Android project)
 //-----------------------------------------------------------------------------
 #if defined(SL_OS_MACIOS)
     #include <sys/time.h>
-    #import <OpenGLES/ES2/gl.h>
-    #import <OpenGLES/ES2/glext.h>
+    #include <OpenGLES/ES2/gl.h>
+    #include <OpenGLES/ES2/glext.h>
     #include <zlib.h>
     #include <functional>
     #include <thread>
