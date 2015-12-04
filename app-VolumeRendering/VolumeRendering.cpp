@@ -338,7 +338,7 @@ void buildCube()
                               GL_ELEMENT_ARRAY_BUFFER,
                               GL_STATIC_DRAW
                               );
-    GET_GL_ERROR;
+    GET_GL_UTILS_ERROR;
 }
 
 void drawSamplingMIP()
@@ -720,7 +720,7 @@ void applyLut()
 
 	// apply texture wrapping modes
 	glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-	GET_GL_ERROR;
+	GET_GL_UTILS_ERROR;
 
 	glTexImage1D(GL_TEXTURE_1D, //Copy the new buffer to the GPU
                  0, //Mipmap level,
@@ -731,10 +731,10 @@ void applyLut()
                  GL_FLOAT, //Data type
                  &_tfLutBuffer[0]
                 );
-	GET_GL_ERROR;
+	GET_GL_UTILS_ERROR;
 
 	glBindTexture(GL_TEXTURE_1D, 0);
-	GET_GL_ERROR;
+	GET_GL_UTILS_ERROR;
 }
 
 void buildMaxIntensityLut()
@@ -849,10 +849,10 @@ void onInit()
     updateRenderMethodDescription();
 
     buildSliceQuads();
-    GET_GL_ERROR;
+    GET_GL_UTILS_ERROR;
 
     buildCube();
-    GET_GL_ERROR;
+    GET_GL_UTILS_ERROR;
 
     // backwards movement of the camera
     _camZ = -3.0f;
@@ -866,13 +866,13 @@ void onInit()
 
     // Load, compile & link shaders
     compilePrograms();
-    GET_GL_ERROR;
+    GET_GL_UTILS_ERROR;
 
     // Set some OpenGL states
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);  // Set the background color
     glEnable(GL_DEPTH_TEST);            // Enables depth test
     glEnable(GL_CULL_FACE);             // Enables the culling of back faces
-    GET_GL_ERROR;                       // Check for OpenGL errors
+    GET_GL_UTILS_ERROR;                       // Check for OpenGL errors
 }
 //-----------------------------------------------------------------------------
 /*!
@@ -925,7 +925,7 @@ bool onPaint()
     }
 
     // Check for errors from time to time
-    GET_GL_ERROR;
+    GET_GL_UTILS_ERROR;
 
     // Fast copy the back buffer to the front buffer. This is OS dependent.
     glfwSwapBuffers(window);
@@ -1177,7 +1177,7 @@ int main()
 
     buildMaxIntensityLut();
 
-    GET_GL_ERROR;
+    GET_GL_UTILS_ERROR;
 
     onInit();
     onResize(window, (SLint)(_scrWidth  * _scr2fbX),

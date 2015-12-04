@@ -282,7 +282,7 @@ GLuint glUtils::build3DTexture(const std::vector<std::string> &files,
                 );
 
     glBindTexture(GL_TEXTURE_3D, 0);
-    GET_GL_ERROR;
+    GET_GL_UTILS_ERROR;
 
 	return textureHandle;
 }

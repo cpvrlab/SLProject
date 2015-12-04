@@ -18,6 +18,7 @@
 //-----------------------------------------------------------------------------
 static const SLint SL_MAX_LIGHTS = 8;   //!< max. number of used lights
 //-----------------------------------------------------------------------------
+
 #define GET_GL_ERROR SLGLState::getGLError((SLchar*)__FILE__, __LINE__, false)
 //-----------------------------------------------------------------------------
 //! Singleton class holding all OpenGL states

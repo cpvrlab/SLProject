@@ -476,7 +476,12 @@ void slGrabCopyVideoImage()
             cvtColor(frame, frame, CV_BGR2RGB);
             slCopyVideoImage(frame.cols, frame.rows, format, frame.data, true);
         } else
-        {   SL_LOG("OpenCV: Unable to create capture device.\n");
+        {   
+			static bool logOnce = true;
+			if (logOnce)
+			{	SL_LOG("OpenCV: Unable to create capture device.\n");
+				logOnce = false;
+			}
         }
     }
     catch (exception e)
