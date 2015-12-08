@@ -60,6 +60,7 @@ macx {
 }
 unix:!macx:!android {
     # linux only
+    LIBS += -ldl
     LIBS += -lGL
     LIBS += -lX11
     LIBS += -lXrandr    #livrandr-dev

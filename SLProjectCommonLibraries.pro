@@ -74,6 +74,7 @@ unix:!macx:!android {
     !opencv:warning(OpenCV is either not installed or not up to date (install OpenCV 3.0))
 
     # linux only
+    LIBS += -ldl
     LIBS += -lGL
     LIBS += -lX11
     LIBS += -lXrandr    #livrandr-dev

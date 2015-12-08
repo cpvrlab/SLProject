@@ -72,6 +72,8 @@ unix:!macx:!android {
     LIBS += -lX11
     LIBS += -lXxf86vm
     LIBS += -lXcursor
+    QMAKE_CXXFLAGS += -ldl
+    QMAKE_CXXFLAGS += -lpthread
     QMAKE_CXXFLAGS += -Wunused-parameter
 }
 android {
