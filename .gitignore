@@ -25,3 +25,9 @@ GenerateHTMLDoc.log
 *.autosave
 *.Release
 *.Debug
+.metadata
+.recommenders
+*.class
+*.classpath
+*.project
+.settings
