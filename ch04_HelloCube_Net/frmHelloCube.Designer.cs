@@ -27,24 +27,23 @@ partial class frmHelloCube
    /// </summary>
    private void InitializeComponent()
    {
-         this.SuspendLayout();
-         // 
-         // frmHelloCube
-         // 
-         this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
-         this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-         this.ClientSize = new System.Drawing.Size(489, 339);
-         this.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
-         this.Name = "frmHelloCube";
-         this.Text = "Hello Cube in C#";
-         this.Load += new System.EventHandler(this.frmHelloCube_Load);
-         this.Paint += new System.Windows.Forms.PaintEventHandler(this.frmHelloCube_Paint);
-         this.MouseDown += new System.Windows.Forms.MouseEventHandler(this.frmHelloCube_MouseDown);
-         this.MouseMove += new System.Windows.Forms.MouseEventHandler(this.frmHelloCube_MouseMove);
-         this.MouseUp += new System.Windows.Forms.MouseEventHandler(this.frmHelloCube_MouseUp);
-         this.MouseWheel += new System.Windows.Forms.MouseEventHandler(this.frmHelloCube_MouseWheel);
-         this.Resize += new System.EventHandler(this.frmHelloCube_Resize);
-         this.ResumeLayout(false);
+            this.SuspendLayout();
+            // 
+            // frmHelloCube
+            // 
+            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
+            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.ClientSize = new System.Drawing.Size(384, 262);
+            this.Name = "frmHelloCube";
+            this.Text = "Hello Cube in C#";
+            this.Load += new System.EventHandler(this.frmHelloCube_Load);
+            this.Paint += new System.Windows.Forms.PaintEventHandler(this.frmHelloCube_Paint);
+            this.MouseDown += new System.Windows.Forms.MouseEventHandler(this.frmHelloCube_MouseDown);
+            this.MouseMove += new System.Windows.Forms.MouseEventHandler(this.frmHelloCube_MouseMove);
+            this.MouseUp += new System.Windows.Forms.MouseEventHandler(this.frmHelloCube_MouseUp);
+            this.MouseWheel += new System.Windows.Forms.MouseEventHandler(this.frmHelloCube_MouseWheel);
+            this.Resize += new System.EventHandler(this.frmHelloCube_Resize);
+            this.ResumeLayout(false);
 
    }
 

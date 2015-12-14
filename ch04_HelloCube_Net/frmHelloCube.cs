@@ -15,7 +15,7 @@ public partial class frmHelloCube : Form
    #endregion
 
    /// <summary>
-   /// We intialize the matrices the the vertices foth the wireframe cube
+   /// We initialize the matrices and the vertices for the wire frame cube
    /// </summary>
    public frmHelloCube()
    {
@@ -25,7 +25,7 @@ public partial class frmHelloCube : Form
       m_viewportMatrix   = new SLMat4f();
 
       // define the 8 vertices of a cube
-      m_v = new SLVec3f[8];
+      m_v    = new SLVec3f[8];
       m_v[0] = new SLVec3f(-0.5f,-0.5f, 0.5f); // front lower left
       m_v[1] = new SLVec3f( 0.5f,-0.5f, 0.5f); // front lower right
       m_v[2] = new SLVec3f( 0.5f, 0.5f, 0.5f); // front upper right
@@ -35,7 +35,7 @@ public partial class frmHelloCube : Form
       m_v[6] = new SLVec3f( 0.5f, 0.5f,-0.5f); // back upper left
       m_v[7] = new SLVec3f(-0.5f, 0.5f,-0.5f); // back upper right
 
-      m_camZ = -4;      // backwards movment of the camera
+      m_camZ = -4;      // backwards movement of the camera
       m_rotAngle = 0;   // initial rotation angle
 
       // Without double buffering it would flicker
@@ -81,7 +81,7 @@ public partial class frmHelloCube : Form
       // start with identity every frame
       m_modelViewMatrix.Identity();
    
-      // view transform: move the coordiante system away from the camera
+      // view transform: move the coordinate system away from the camera
       m_modelViewMatrix.Translate(0, 0, m_camZ);
    
       // model transform: rotate the coordinate system increasingly
