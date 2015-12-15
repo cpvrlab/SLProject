@@ -6,7 +6,8 @@ using System.Windows.Forms;
 public partial class frmHelloCube : Form
 {
    #region Members
-   private SLMat4f   m_modelViewMatrix;   // combined model & view matrix
+   private SLMat4f   m_modelMatrix;       // model matrix
+   private SLMat4f   m_viewMatrix;        // view matrix
    private SLMat4f   m_projectionMatrix;  // projection matrix
    private SLMat4f   m_viewportMatrix;    // viewport matrix
    private SLVec3f[] m_v;                 // array for vertices for the cube
@@ -20,7 +21,8 @@ public partial class frmHelloCube : Form
    public frmHelloCube()
    {
       // Create matrices
-      m_modelViewMatrix  = new SLMat4f();
+      m_modelMatrix      = new SLMat4f();
+      m_viewMatrix       = new SLMat4f();
       m_projectionMatrix = new SLMat4f();
       m_viewportMatrix   = new SLMat4f();
 
@@ -79,21 +81,23 @@ public partial class frmHelloCube : Form
    private void frmHelloCube_Paint(object sender, PaintEventArgs e)
    {   
       // start with identity every frame
-      m_modelViewMatrix.Identity();
+      m_viewMatrix.Identity();
    
       // view transform: move the coordinate system away from the camera
-      m_modelViewMatrix.Translate(0, 0, m_camZ);
+      m_viewMatrix.Translate(0, 0, m_camZ);
    
       // model transform: rotate the coordinate system increasingly
-      //m_modelViewMatrix.Translate(1, 0, 0);
-      m_modelViewMatrix.Rotate(m_rotAngle+=0.05f, 0,1,0);
-      m_modelViewMatrix.Scale(2, 2, 2);
+      m_modelMatrix.Identity();
+      //m_modelMatrix.Translate(1, 0, 0);
+      m_modelMatrix.Rotate(m_rotAngle+=0.05f, 0,1,0);
+      m_modelMatrix.Scale(2, 2, 2);
       
       // build combined matrix out of viewport, projection & modelview matrix
       SLMat4f m = new SLMat4f();
       m.Multiply(m_viewportMatrix);
       m.Multiply(m_projectionMatrix);
-      m.Multiply(m_modelViewMatrix);
+      m.Multiply(m_viewMatrix);
+      m.Multiply(m_modelMatrix);
 
       // transform all vertices into screen space (x & y in pixels and z as the depth) 
       SLVec3f[] v2 = new SLVec3f[8];
