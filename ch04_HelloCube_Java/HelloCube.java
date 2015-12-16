@@ -22,19 +22,21 @@ public class HelloCube extends JPanel implements ComponentListener,
 									             MouseWheelListener
 {
 	// Private members
-	private SLMat4f   m_modelViewMatrix;   // combined model & view matrix
-	private SLMat4f   m_projectionMatrix;  // projection matrix
-	private SLMat4f   m_viewportMatrix;    // viewport matrix
-	private SLVec3f[] m_v;                 // array for vertices for the cube
-	private float     m_camZ;              // z-distance of camera
-	private float     m_rotAngle;          // angle of cube rotation
+	private SLMat4f   m_viewMatrix;   	    // view matrix
+	private SLMat4f   m_modelMatrix;   		// model matrix
+	private SLMat4f   m_projectionMatrix;  	// projection matrix
+	private SLMat4f   m_viewportMatrix;    	// viewport matrix
+	private SLVec3f[] m_v;                 	// array for vertices for the cube
+	private float     m_camZ;              	// z-distance of camera
+	private float     m_rotAngle;          	// angle of cube rotation
 	   
 
 	//We initialize the matrices and the vertices for the wire frame cube
     public HelloCube()
     {
         // Create matrices
-        m_modelViewMatrix  = new SLMat4f();
+        m_viewMatrix       = new SLMat4f();
+        m_modelMatrix      = new SLMat4f();
         m_projectionMatrix = new SLMat4f();
         m_viewportMatrix   = new SLMat4f();
 
@@ -80,23 +82,22 @@ public class HelloCube extends JPanel implements ComponentListener,
         rh.put(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
         ((Graphics2D)g).setRenderingHints(rh);
         
-        // start with identity every frame
-        m_modelViewMatrix.identity();
      
         // view transform: move the coordinate system away from the camera
-        m_modelViewMatrix.translate(0, 0, m_camZ);
+        m_viewMatrix.identity();
+        m_viewMatrix.translate(0, 0, m_camZ);
      
         // model transform: rotate the coordinate system increasingly
-        //m_modelViewMatrix.Translate(1, 0, 0);
-        m_modelViewMatrix.rotate(m_rotAngle+=0.05f, 0,1,0);
-        m_modelViewMatrix.scale(2, 2, 2);
+        m_modelMatrix.identity();
+        m_modelMatrix.rotate(m_rotAngle+=0.05f, 0,1,0);
         
-        // build combined matrix out of viewport, projection & modelview matrix
+        // build combined matrix out of viewport, projection, view & model matrix
         SLMat4f m = new SLMat4f();
         m.multiply(m_viewportMatrix);
         m.multiply(m_projectionMatrix);
-        m.multiply(m_modelViewMatrix);
-
+        m.multiply(m_viewMatrix);
+        m.multiply(m_modelMatrix);
+        
         // transform all vertices into screen space (x & y in pixels and z as the depth) 
         SLVec3f[] v2 = new SLVec3f[8];
         for (int i=0; i < m_v.length; ++i)
