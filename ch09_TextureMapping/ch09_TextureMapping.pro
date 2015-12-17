@@ -95,4 +95,8 @@ HEADERS += \
     glUtils.h \
     ../include/SLImage.h
 
+OTHER_FILES += \
+../_data/shaders/ADSTex.frag \
+../_data/shaders/ADSTex.vert \
+
 

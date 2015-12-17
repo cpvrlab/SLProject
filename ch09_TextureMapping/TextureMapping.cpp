@@ -30,7 +30,8 @@ struct VertexPNT
 GLFWwindow* window;                 //!< The global glfw window handle   
 
 // GLobal application variables
-SLMat4f  _modelViewMatrix;          //!< 4x4 modelview matrix
+SLMat4f  _modelMatrix;              //!< 4x4 view matrix
+SLMat4f  _viewMatrix;               //!< 4x4 model matrix
 SLMat4f  _projectionMatrix;         //!< 4x4 projection matrix
 
 GLuint    _numI = 0;                //!< NO. of vertex indexes for triangles
@@ -188,11 +189,11 @@ The square lies in the x-z-plane and is facing towards -y (downwards).
 void buildSquare()
 {
     // create vertex array for interleaved position, normal and texCoord
-    //           Position,  Normal  , texCrd,
+    //           Position,   Normal  , texCrd,
     float v[] = {-1, 0, -1,  0, -1, 0,  0,  0, // Vertex 0
-                 1, 0, -1,  0, -1, 0,  1,  0, // Vertex 1
-                 1, 0,  1,  0, -1, 0,  1,  1, // Vertex 2
-                -1, 0,  1,  0, -1, 0,  0,  1};// Vertex 3
+                  1, 0, -1,  0, -1, 0,  1,  0, // Vertex 1
+                  1, 0,  1,  0, -1, 0,  1,  1, // Vertex 2
+                 -1, 0,  1,  0, -1, 0,  0,  1};// Vertex 3
     _vboV = glUtils::buildVBO(v, 6, 8, sizeof(GLfloat), GL_ARRAY_BUFFER, GL_STATIC_DRAW);
 
     // create index array for GL_TRIANGLES
@@ -318,36 +319,36 @@ bool onPaint()
     // Clear the color & depth buffer
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    // Start with identity every frame
-    _modelViewMatrix.identity();
-
     // View transform: move the coordinate system away from the camera
-    _modelViewMatrix.translate(0, 0, _camZ);
+    _viewMatrix.identity();
+    _viewMatrix.translate(0, 0, _camZ);
 
     // View transform: rotate the coordinate system increasingly by the mouse
-    _modelViewMatrix.rotate(_rotX + _deltaX, 1,0,0);
-    _modelViewMatrix.rotate(_rotY + _deltaY, 0,1,0);
+    _viewMatrix.rotate(_rotX + _deltaX, 1,0,0);
+    _viewMatrix.rotate(_rotY + _deltaY, 0,1,0);
 
     // Transform light position & direction into view space
-    SLVec3f lightPosVS = _modelViewMatrix * _lightPos;
+    SLVec3f lightPosVS = _viewMatrix * _lightPos;
 
     // The light dir is not a position. We only take the rotation of the mv matrix.
-    SLMat3f viewRot    = _modelViewMatrix.mat3();
+    SLMat3f viewRot    = _viewMatrix.mat3();
     SLVec3f lightDirVS = viewRot * _lightDir;
 
     // Rotate the model so that we see the square from the front side
     // or the earth from the equator.
-    _modelViewMatrix.rotate(90, -1,0,0);
+    _modelMatrix.identity();
+    _modelMatrix.rotate(90, -1,0,0);
 
-    // Build the combined modelview-projection matrix
+    // Build the combined model-view and model-view-projection matrix
     SLMat4f mvp(_projectionMatrix);
-    mvp.multiply(_modelViewMatrix);
+    SLMat4f mv(_viewMatrix * _modelMatrix);
+    mvp.multiply(mv);
 
     // Build normal matrix
-    SLMat3f nm(_modelViewMatrix.inverseTransposed());
+    SLMat3f nm(mv.inverseTransposed());
 
     // Pass the matrix uniform variables
-    glUniformMatrix4fv(_mvMatrixLoc,  1, 0, (float*)&_modelViewMatrix);
+    glUniformMatrix4fv(_mvMatrixLoc,  1, 0, (float*)&mv);
     glUniformMatrix3fv(_nMatrixLoc,   1, 0, (float*)&nm);
     glUniformMatrix4fv(_mvpMatrixLoc, 1, 0, (float*)&mvp);
 
