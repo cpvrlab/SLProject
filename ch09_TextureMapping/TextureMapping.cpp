@@ -27,7 +27,11 @@ struct VertexPNT
    SLVec2f t;  // vertex texture coord. [s,t]
 };
 //-----------------------------------------------------------------------------
-GLFWwindow* window;                 //!< The global glfw window handle   
+GLFWwindow* window;                 //!< The global glfw window handle
+SLint     _scrWidth;                //!< Window width at start up
+SLint     _scrHeight;               //!< Window height at start up
+SLfloat   _scr2fbX;                 //!< Factor from screen to framebuffer coords
+SLfloat   _scr2fbY;                 //!< Factor from screen to framebuffer coords
 
 // GLobal application variables
 SLMat4f  _modelMatrix;              //!< 4x4 view matrix
@@ -38,14 +42,10 @@ GLuint    _numI = 0;                //!< NO. of vertex indexes for triangles
 GLuint    _vboV = 0;                //!< ID of the VBO for vertex array
 GLuint    _vboI = 0;                //!< ID of the VBO for vertex index array
 GLint     _resolution;              //!< resolution of sphere stack & slicesscr
-SLint     _scrWidth;                //!< Window width at start up
-SLint     _scrHeight;               //!< Window height at start up
-SLfloat   _scr2fbX;                 //!< Factor from screen to framebuffer coords
-SLfloat   _scr2fbY;                 //!< Factor from screen to framebuffer coords
 
 float    _camZ;                     //!< z-distance of camera
 float    _rotX, _rotY;              //!< rotation angles around x & y axis
-int      _deltaX, _deltaY;                  //!< delta mouse motion
+int      _deltaX, _deltaY;          //!< delta mouse motion
 int      _startX, _startY;          //!< x,y mouse start positions
 int      _mouseX, _mouseY;          //!< current mouse position
 bool     _mouseLeftDown;            //!< Flag if mouse is down

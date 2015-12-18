@@ -9,6 +9,7 @@ SUBDIRS += app-Demo-Qt
 SUBDIRS += app-NodeManipulationDemo
 SUBDIRS += app-Viewer-Qt
 SUBDIRS += app-VolumeRendering
+SUBDIRS += ch06_DiffuseCube
 SUBDIRS += ch09_TextureMapping
 
 lib-SLProject.depends = lib-SLExternal
