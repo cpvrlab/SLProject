@@ -19,7 +19,9 @@ app-Demo-Qt.depends = lib-SLProject
 app-Viewer-Qt.depends = lib-SLProject
 app-LeapMotionTest.depends = lib-SLProject
 app-NodeManipulationDemo.depends = lib-SLProject
-app-VolumeRendering = lib-SLProject
+app-VolumeRendering.depends = lib-SLProject
+ch06_DiffuseCube.depends = lib-SLExternal
+ch09_TextureMapping.depends = lib-SLExternal
 
 CONFIG -= qml_debug
 
