@@ -190,10 +190,11 @@ void buildSquare()
 {
     // create vertex array for interleaved position, normal and texCoord
     //           Position,   Normal  , texCrd,
-    float v[] = {-1, 0, -1,  0, -1, 0,  0,  0, // Vertex 0
-                  1, 0, -1,  0, -1, 0,  1,  0, // Vertex 1
-                  1, 0,  1,  0, -1, 0,  1,  1, // Vertex 2
-                 -1, 0,  1,  0, -1, 0,  0,  1};// Vertex 3
+    float v[] = {-1, 0, -1,  0, -1, 0,  0,  0,  // Vertex 0
+                  1, 0, -1,  0, -1, 0,  1,  0,  // Vertex 1
+                  1, 0,  1,  0, -1, 0,  1,  1,  // Vertex 2
+                 -1, 0,  1,  0, -1, 0,  0,  1}; // Vertex 3
+
     _vboV = glUtils::buildVBO(v, 6, 8, sizeof(GLfloat), GL_ARRAY_BUFFER, GL_STATIC_DRAW);
 
     // create index array for GL_TRIANGLES

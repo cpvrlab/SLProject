@@ -44,15 +44,10 @@ SLMat4f  _viewMatrix;               //!< 4x4 view matrix
 SLMat4f  _modelMatrix;              //!< 4x4 model matrix
 SLMat4f  _projectionMatrix;         //!< 4x4 projection matrix
 
-VertexPN _v[24];                    //!< Array of vertices
-SLVec3f  _p[24];                    //!< Array for vertex positions
-SLVec3f  _n[24];                    //!< Array for vertex normals
-GLubyte  _i[36] = {0,1,2, 0,2,3,    //!< 36 indexes for 2 triangles per cube side
-                   4,5,6, 4,6,7,
-                   8,9,10, 8,10,11,
-                   12,13,14, 12,14,15,
-                   16,17,18, 16,18,19,
-                   20,21,22, 20,22,23};
+VertexPN* _v=0;                     //!< Array of vertices
+SLVec3f*  _p=0;                     //!< Array for vertex positions
+SLVec3f*  _n=0;                     //!< Array for vertex normals
+GLubyte*  _i=0;                     //!< 36 indexes for 2 triangles per cube side
 
 GLuint   _vboV = 0;                 //!< ID of the VBO for vertex array
 GLuint   _vboI = 0;                 //!< ID of the VBO for vertex index array
@@ -84,42 +79,62 @@ GLint    _lightDiffuseLoc; //!< uniform location for diffuse light intensity
 GLint    _matDiffuseLoc;   //!< uniform location for diffuse light refelction
 
 //-----------------------------------------------------------------------------
+void buildBox()
+{
+    // create arrays
+    _p = new SLVec3f[24];
+    _n = new SLVec3f[24];
+    _v = new VertexPN[24];
+    _i = new GLubyte[36];
+
+    // Define the vertex pos. and normals as a structure of arrays (_p & _n)
+    // Define the vertex pos. and normals as an array of structure (_v)
+    _p[ 0].set(1, 1, 1); _n[ 0].set( 1, 0, 0); _v[ 0].set(1, 1, 1,  1, 0, 0);
+    _p[ 1].set(1, 0, 1); _n[ 1].set( 1, 0, 0); _v[ 1].set(1, 0, 1,  1, 0, 0);
+    _p[ 2].set(1, 0, 0); _n[ 2].set( 1, 0, 0); _v[ 2].set(1, 0, 0,  1, 0, 0);
+    _p[ 3].set(1, 1, 0); _n[ 3].set( 1, 0, 0); _v[ 3].set(1, 1, 0,  1, 0, 0);
+    _p[ 4].set(1, 1, 0); _n[ 4].set( 0, 0,-1); _v[ 4].set(1, 1, 0,  0, 0,-1);
+    _p[ 5].set(1, 0, 0); _n[ 5].set( 0, 0,-1); _v[ 5].set(1, 0, 0,  0, 0,-1);
+    _p[ 6].set(0, 0, 0); _n[ 6].set( 0, 0,-1); _v[ 6].set(0, 0, 0,  0, 0,-1);
+    _p[ 7].set(0, 1, 0); _n[ 7].set( 0, 0,-1); _v[ 7].set(0, 1, 0,  0, 0,-1);
+    _p[ 8].set(0, 0, 1); _n[ 8].set(-1, 0, 0); _v[ 8].set(0, 0, 1, -1, 0, 0);
+    _p[ 9].set(0, 1, 1); _n[ 9].set(-1, 0, 0); _v[ 9].set(0, 1, 1, -1, 0, 0);
+    _p[10].set(0, 1, 0); _n[10].set(-1, 0, 0); _v[10].set(0, 1, 0, -1, 0, 0);
+    _p[11].set(0, 0, 0); _n[11].set(-1, 0, 0); _v[11].set(0, 0, 0, -1, 0, 0);
+    _p[12].set(1, 1, 1); _n[12].set( 0, 0, 1); _v[12].set(1, 1, 1,  0, 0, 1);
+    _p[13].set(0, 1, 1); _n[13].set( 0, 0, 1); _v[13].set(0, 1, 1,  0, 0, 1);
+    _p[14].set(0, 0, 1); _n[14].set( 0, 0, 1); _v[14].set(0, 0, 1,  0, 0, 1);
+    _p[15].set(1, 0, 1); _n[15].set( 0, 0, 1); _v[15].set(1, 0, 1,  0, 0, 1);
+    _p[16].set(1, 1, 1); _n[16].set( 0, 1, 0); _v[16].set(1, 1, 1,  0, 1, 0);
+    _p[17].set(1, 1, 0); _n[17].set( 0, 1, 0); _v[17].set(1, 1, 0,  0, 1, 0);
+    _p[18].set(0, 1, 0); _n[18].set( 0, 1, 0); _v[18].set(0, 1, 0,  0, 1, 0);
+    _p[19].set(0, 1, 1); _n[19].set( 0, 1, 0); _v[19].set(0, 1, 1,  0, 1, 0);
+    _p[20].set(0, 0, 0); _n[20].set( 0,-1, 0); _v[20].set(0, 0, 0,  0,-1, 0);
+    _p[21].set(1, 0, 0); _n[21].set( 0,-1, 0); _v[21].set(1, 0, 0,  0,-1, 0);
+    _p[22].set(1, 0, 1); _n[22].set( 0,-1, 0); _v[22].set(1, 0, 1,  0,-1, 0);
+    _p[23].set(0, 0, 1); _n[23].set( 0,-1, 0); _v[23].set(0, 0, 1,  0,-1, 0);
+
+    // Define the triangle indexes of the cubes vertices
+    int n = 0;
+    _i[n++] =  0; _i[n++] =  1; _i[n++] =  2;  _i[n++] =  0; _i[n++] =  2; _i[n++] =  3;
+    _i[n++] =  4; _i[n++] =  5; _i[n++] =  6;  _i[n++] =  4; _i[n++] =  6; _i[n++] =  7;
+    _i[n++] =  8; _i[n++] =  9; _i[n++] = 10;  _i[n++] =  8; _i[n++] = 10; _i[n++] = 11;
+    _i[n++] = 12; _i[n++] = 13; _i[n++] = 14;  _i[n++] = 12; _i[n++] = 14; _i[n++] = 15;
+    _i[n++] = 16; _i[n++] = 17; _i[n++] = 18;  _i[n++] = 16; _i[n++] = 18; _i[n++] = 19;
+    _i[n++] = 20; _i[n++] = 21; _i[n++] = 22;  _i[n++] = 20; _i[n++] = 22; _i[n++] = 23;
+
+    // Create vertex buffer objects
+    _vboV = glUtils::buildVBO(_v, 24, 6, sizeof(GLfloat), GL_ARRAY_BUFFER, GL_STATIC_DRAW);
+    _vboI = glUtils::buildVBO(_i, 36, 1, sizeof(GLubyte), GL_ELEMENT_ARRAY_BUFFER, GL_STATIC_DRAW);
+}
+//-----------------------------------------------------------------------------
 /*!
 onInit initializes the global variables and builds the shader program. It
 should be called after a window with a valid OpenGL context is present.
 */
 void onInit()
 {
-   // Define the vertex pos. and normals as a structure of arrays (_p & _n)
-   // Define the vertex pos. and normals as an array of structure (_v)
-   _p[ 0].set(1, 1, 1); _n[ 0].set( 1, 0, 0); _v[ 0].set(1, 1, 1,  1, 0, 0);
-   _p[ 1].set(1, 0, 1); _n[ 1].set( 1, 0, 0); _v[ 1].set(1, 0, 1,  1, 0, 0);
-   _p[ 2].set(1, 0, 0); _n[ 2].set( 1, 0, 0); _v[ 2].set(1, 0, 0,  1, 0, 0);
-   _p[ 3].set(1, 1, 0); _n[ 3].set( 1, 0, 0); _v[ 3].set(1, 1, 0,  1, 0, 0);
-   _p[ 4].set(1, 1, 0); _n[ 4].set( 0, 0,-1); _v[ 4].set(1, 1, 0,  0, 0,-1);
-   _p[ 5].set(1, 0, 0); _n[ 5].set( 0, 0,-1); _v[ 5].set(1, 0, 0,  0, 0,-1);
-   _p[ 6].set(0, 0, 0); _n[ 6].set( 0, 0,-1); _v[ 6].set(0, 0, 0,  0, 0,-1);
-   _p[ 7].set(0, 1, 0); _n[ 7].set( 0, 0,-1); _v[ 7].set(0, 1, 0,  0, 0,-1);
-   _p[ 8].set(0, 0, 1); _n[ 8].set(-1, 0, 0); _v[ 8].set(0, 0, 1, -1, 0, 0);
-   _p[ 9].set(0, 1, 1); _n[ 9].set(-1, 0, 0); _v[ 9].set(0, 1, 1, -1, 0, 0);
-   _p[10].set(0, 1, 0); _n[10].set(-1, 0, 0); _v[10].set(0, 1, 0, -1, 0, 0);
-   _p[11].set(0, 0, 0); _n[11].set(-1, 0, 0); _v[11].set(0, 0, 0, -1, 0, 0);
-   _p[12].set(1, 1, 1); _n[12].set( 0, 0, 1); _v[12].set(1, 1, 1,  0, 0, 1);
-   _p[13].set(0, 1, 1); _n[13].set( 0, 0, 1); _v[13].set(0, 1, 1,  0, 0, 1);
-   _p[14].set(0, 0, 1); _n[14].set( 0, 0, 1); _v[14].set(0, 0, 1,  0, 0, 1);
-   _p[15].set(1, 0, 1); _n[15].set( 0, 0, 1); _v[15].set(1, 0, 1,  0, 0, 1);
-   _p[16].set(1, 1, 1); _n[16].set( 0, 1, 0); _v[16].set(1, 1, 1,  0, 1, 0);
-   _p[17].set(1, 1, 0); _n[17].set( 0, 1, 0); _v[17].set(1, 1, 0,  0, 1, 0);
-   _p[18].set(0, 1, 0); _n[18].set( 0, 1, 0); _v[18].set(0, 1, 0,  0, 1, 0);
-   _p[19].set(0, 1, 1); _n[19].set( 0, 1, 0); _v[19].set(0, 1, 1,  0, 1, 0);
-   _p[20].set(0, 0, 0); _n[20].set( 0,-1, 0); _v[20].set(0, 0, 0,  0,-1, 0);
-   _p[21].set(1, 0, 0); _n[21].set( 0,-1, 0); _v[21].set(1, 0, 0,  0,-1, 0);
-   _p[22].set(1, 0, 1); _n[22].set( 0,-1, 0); _v[22].set(1, 0, 1,  0,-1, 0);
-   _p[23].set(0, 0, 1); _n[23].set( 0,-1, 0); _v[23].set(0, 0, 1,  0,-1, 0);
-
-   // Create vertex buffer objects
-   _vboV = glUtils::buildVBO(_v, 24, 6, sizeof(GLfloat), GL_ARRAY_BUFFER, GL_STATIC_DRAW);
-   _vboI = glUtils::buildVBO(_i, 36, 1, sizeof(GLubyte), GL_ELEMENT_ARRAY_BUFFER, GL_STATIC_DRAW);
+   buildBox();
 
    // backwards movement of the camera
    _camZ = -4;
@@ -213,11 +228,11 @@ bool onPaint()
    glEnableVertexAttribArray(_nLoc);
 
    // Set the vertex attribute pointers to our vertex arrays
-   glVertexAttribPointer(_pLoc, 3, GL_FLOAT, GL_FALSE, 0, &_p);
-   glVertexAttribPointer(_nLoc, 3, GL_FLOAT, GL_FALSE, 0, &_n);
+   glVertexAttribPointer(_pLoc, 3, GL_FLOAT, GL_FALSE, 0, _p);
+   glVertexAttribPointer(_nLoc, 3, GL_FLOAT, GL_FALSE, 0, _n);
 
    // Draw cube with triangles by indexes
-   glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_BYTE, &_i);
+   glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_BYTE, _i);
 
    ///////////////////////////////////
    // Draw green cube with 2 arrays //
@@ -237,7 +252,7 @@ bool onPaint()
    glVertexAttribPointer(_nLoc, 3, GL_FLOAT, GL_FALSE, stride, &_v[0].n.x);
 
    // Draw cube with triangles by indexes
-   glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_BYTE, &_i);
+   glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_BYTE, _i);
 
    ////////////////////////////////
    // Draw blue cube with 2 VBOs //
