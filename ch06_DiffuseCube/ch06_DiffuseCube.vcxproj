@@ -40,11 +40,11 @@
     <ClInclude Include="glUtils.h" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\lib-SLProject\source\oglsl\ADSTex.frag" />
-    <None Include="..\lib-SLProject\source\oglsl\ADSTex.vert" />
+    <None Include="..\_data\shaders\Diffuse.frag" />
+    <None Include="..\_data\shaders\Diffuse.vert" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{0D63243A-A87C-48F6-8822-6DE3B67E2F2A}</ProjectGuid>
+    <ProjectGuid>{0146E7DF-20B2-413B-AB05-7DC2D8F0C5E9}</ProjectGuid>
     <RootNamespace>SceneLib</RootNamespace>
     <Keyword>Win32Proj</Keyword>
     <ProjectName>ch06_DiffuseCube</ProjectName>

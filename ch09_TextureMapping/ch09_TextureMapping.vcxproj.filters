@@ -22,7 +22,7 @@
     <ClInclude Include="..\include\stdafx.h" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\lib-SLProject\source\oglsl\ADSTex.frag" />
-    <None Include="..\lib-SLProject\source\oglsl\ADSTex.vert" />
+    <None Include="..\_data\shaders\ADSTex.frag" />
+    <None Include="..\_data\shaders\ADSTex.vert" />
   </ItemGroup>
 </Project>
