@@ -86,10 +86,10 @@ INCLUDEPATH += \
     ../lib-SLExternal/jpeg-8 \
 
 SOURCES += \
-    DiffuseCube.cpp \
     glUtils.cpp \
     ../lib-SLProject/source/SL/SL.cpp \
-    ../lib-SLProject/source/SL/SLImage.cpp
+    ../lib-SLProject/source/SL/SLImage.cpp \
+    DiffuseCube.cpp
 
 HEADERS += \
     glUtils.h \

@@ -1,9 +1,9 @@
 //#############################################################################
-//  File:      DiffuseCube.cpp
-//  Purpose:   Core profile OpenGL application with diffuse lighted cube with
+//  File:      DiffuseSphere.cpp
+//  Purpose:   Core profile OpenGL application with diffuse lighted sphere with
 //             GLFW as the OS GUI interface (http://www.glfw.org/).
 //  Author:    Marcus Hudritsch
-//  Date:      September 2012 (HS12)
+//  Date:      December 2015 (HS15)
 //  Copyright: Marcus Hudritsch, Switzerland
 //             THIS SOFTWARE IS PROVIDED FOR EDUCATIONAL PURPOSE ONLY AND
 //             WITHOUT ANY WARRANTIES WHETHER EXPRESSED OR IMPLIED.
@@ -21,10 +21,10 @@
 //-----------------------------------------------------------------------------
 //! Struct defintion for vertex attributes
 struct VertexPN
-{
+{  
    SLVec3f p;  // vertex position [x,y,z]
    SLVec3f n;  // vertex normal [x,y,z]
-
+   
    // Setter method
    void set(float posX, float posY, float posZ,
             float normalX, float normalY, float normalZ)
@@ -44,12 +44,14 @@ SLMat4f  _viewMatrix;               //!< 4x4 view matrix
 SLMat4f  _modelMatrix;              //!< 4x4 model matrix
 SLMat4f  _projectionMatrix;         //!< 4x4 projection matrix
 
-VertexPN* _v=0;                     //!< Array of vertices
-SLVec3f*  _p=0;                     //!< Array for vertex positions
-SLVec3f*  _n=0;                     //!< Array for vertex normals
-GLubyte*  _i=0;                     //!< 36 indexes for 2 triangles per cube side
-GLuint   _vboV = 0;                 //!< ID of the VBO for vertex array
-GLuint   _vboI = 0;                 //!< ID of the VBO for vertex index array
+VertexPN* _v    = 0;                //!< Array of vertices
+GLuint    _numV = 0;                //!< NO. of vertices
+GLuint*   _i    = 0;                //!< Vertex indexes for triangles
+GLuint    _numI = 0;                //!< NO. of vertex indexes for triangles
+GLuint    _vboV = 0;                //!< ID of the VBO for vertex array
+GLuint    _vboI = 0;                //!< ID of the VBO for vertex index array
+GLint     _resolution;              //!< resolution of sphere stack & slices
+GLint     _primitiveType;           //!< Type of GL primitive to render
 
 float    _camZ;                     //!< z-distance of camera
 float    _rotX, _rotY;              //!< rotation angles around x & y axis
@@ -77,54 +79,49 @@ GLint    _lightDirVSLoc;   //!< uniform location for light direction in VS
 GLint    _lightDiffuseLoc; //!< uniform location for diffuse light intensity
 GLint    _matDiffuseLoc;   //!< uniform location for diffuse light refelction
 
+static const SLfloat PI = 3.14159265358979f;
+
 //-----------------------------------------------------------------------------
-void buildBox()
-{
-    // create arrays
-    _p = new SLVec3f[24];
-    _n = new SLVec3f[24];
-    _v = new VertexPN[24];
-    _i = new GLubyte[36];
+/*!
+buildSphere creates the vertex attributes for a sphere and creates the VBO
+at the end. The sphere is built in stacks & slices and the primitive type can
+be GL_TRIANGLES or GL_TRIANGLE_STRIP.
+*/
+void buildSphere(float radius, int stacks, int slices, GLuint primitveType)
+{  
+   assert(stacks > 3 && slices > 3);
+   assert(primitveType==GL_TRIANGLES || primitveType==GL_TRIANGLE_STRIP);
 
-    // Define the vertex pos. and normals as a structure of arrays (_p & _n)
-    // Define the vertex pos. and normals as an array of structure (_v)
-    _p[ 0].set(1, 1, 1); _n[ 0].set( 1, 0, 0); _v[ 0].set(1, 1, 1,  1, 0, 0);
-    _p[ 1].set(1, 0, 1); _n[ 1].set( 1, 0, 0); _v[ 1].set(1, 0, 1,  1, 0, 0);
-    _p[ 2].set(1, 0, 0); _n[ 2].set( 1, 0, 0); _v[ 2].set(1, 0, 0,  1, 0, 0);
-    _p[ 3].set(1, 1, 0); _n[ 3].set( 1, 0, 0); _v[ 3].set(1, 1, 0,  1, 0, 0);
-    _p[ 4].set(1, 1, 0); _n[ 4].set( 0, 0,-1); _v[ 4].set(1, 1, 0,  0, 0,-1);
-    _p[ 5].set(1, 0, 0); _n[ 5].set( 0, 0,-1); _v[ 5].set(1, 0, 0,  0, 0,-1);
-    _p[ 6].set(0, 0, 0); _n[ 6].set( 0, 0,-1); _v[ 6].set(0, 0, 0,  0, 0,-1);
-    _p[ 7].set(0, 1, 0); _n[ 7].set( 0, 0,-1); _v[ 7].set(0, 1, 0,  0, 0,-1);
-    _p[ 8].set(0, 0, 1); _n[ 8].set(-1, 0, 0); _v[ 8].set(0, 0, 1, -1, 0, 0);
-    _p[ 9].set(0, 1, 1); _n[ 9].set(-1, 0, 0); _v[ 9].set(0, 1, 1, -1, 0, 0);
-    _p[10].set(0, 1, 0); _n[10].set(-1, 0, 0); _v[10].set(0, 1, 0, -1, 0, 0);
-    _p[11].set(0, 0, 0); _n[11].set(-1, 0, 0); _v[11].set(0, 0, 0, -1, 0, 0);
-    _p[12].set(1, 1, 1); _n[12].set( 0, 0, 1); _v[12].set(1, 1, 1,  0, 0, 1);
-    _p[13].set(0, 1, 1); _n[13].set( 0, 0, 1); _v[13].set(0, 1, 1,  0, 0, 1);
-    _p[14].set(0, 0, 1); _n[14].set( 0, 0, 1); _v[14].set(0, 0, 1,  0, 0, 1);
-    _p[15].set(1, 0, 1); _n[15].set( 0, 0, 1); _v[15].set(1, 0, 1,  0, 0, 1);
-    _p[16].set(1, 1, 1); _n[16].set( 0, 1, 0); _v[16].set(1, 1, 1,  0, 1, 0);
-    _p[17].set(1, 1, 0); _n[17].set( 0, 1, 0); _v[17].set(1, 1, 0,  0, 1, 0);
-    _p[18].set(0, 1, 0); _n[18].set( 0, 1, 0); _v[18].set(0, 1, 0,  0, 1, 0);
-    _p[19].set(0, 1, 1); _n[19].set( 0, 1, 0); _v[19].set(0, 1, 1,  0, 1, 0);
-    _p[20].set(0, 0, 0); _n[20].set( 0,-1, 0); _v[20].set(0, 0, 0,  0,-1, 0);
-    _p[21].set(1, 0, 0); _n[21].set( 0,-1, 0); _v[21].set(1, 0, 0,  0,-1, 0);
-    _p[22].set(1, 0, 1); _n[22].set( 0,-1, 0); _v[22].set(1, 0, 1,  0,-1, 0);
-    _p[23].set(0, 0, 1); _n[23].set( 0,-1, 0); _v[23].set(0, 0, 1,  0,-1, 0);
+   //Spherical to cartesian coordinates
+   //dtheta = PI  / stacks;
+   //dphi = 2 * PI / slices;
+   //x = r*sin(theta)*cos(phi);
+   //y = r*sin(theta)*sin(phi);
+   //z = r*cos(theta);
+   //???
 
-    // Define the triangle indexes of the cubes vertices
-    int n = 0;
-    _i[n++] =  0; _i[n++] =  1; _i[n++] =  2;  _i[n++] =  0; _i[n++] =  2; _i[n++] =  3;
-    _i[n++] =  4; _i[n++] =  5; _i[n++] =  6;  _i[n++] =  4; _i[n++] =  6; _i[n++] =  7;
-    _i[n++] =  8; _i[n++] =  9; _i[n++] = 10;  _i[n++] =  8; _i[n++] = 10; _i[n++] = 11;
-    _i[n++] = 12; _i[n++] = 13; _i[n++] = 14;  _i[n++] = 12; _i[n++] = 14; _i[n++] = 15;
-    _i[n++] = 16; _i[n++] = 17; _i[n++] = 18;  _i[n++] = 16; _i[n++] = 18; _i[n++] = 19;
-    _i[n++] = 20; _i[n++] = 21; _i[n++] = 22;  _i[n++] = 20; _i[n++] = 22; _i[n++] = 23;
+   // Create vertex buffer objects
+   if (!_v || !_i) return;
+   _vboV = glUtils::buildVBO(_v, _numV, 6, sizeof(GLfloat), GL_ARRAY_BUFFER, GL_STATIC_DRAW);
+   _vboI = glUtils::buildVBO(_i, _numI, 1, sizeof(GLuint), GL_ELEMENT_ARRAY_BUFFER, GL_STATIC_DRAW);
+}
+//-----------------------------------------------------------------------------
+/*!
+calcFPS determines the frame per second measurement by averaging 60 frames.
+*/
+float calcFPS(float deltaTime)
+{  const  SLint   FILTERSIZE = 60;
+   static SLfloat frameTimes[FILTERSIZE];
+   static SLuint  frameNo = 0;
 
-    // Create vertex buffer objects
-    _vboV = glUtils::buildVBO(_v, 24, 6, sizeof(GLfloat), GL_ARRAY_BUFFER, GL_STATIC_DRAW);
-    _vboI = glUtils::buildVBO(_i, 36, 1, sizeof(GLubyte), GL_ELEMENT_ARRAY_BUFFER, GL_STATIC_DRAW);
+   frameTimes[frameNo % FILTERSIZE] = deltaTime;
+   float sumTime = 0.0f;
+   for (SLuint i=0; i<FILTERSIZE; ++i) sumTime += frameTimes[i];
+   frameNo++;
+   float frameTimeSec = sumTime / (SLfloat)FILTERSIZE;
+   float fps = 1 / frameTimeSec;
+
+   return fps;
 }
 //-----------------------------------------------------------------------------
 /*!
@@ -133,8 +130,11 @@ should be called after a window with a valid OpenGL context is present.
 */
 void onInit()
 {
-   buildBox();
+   _resolution = 16;
+   _primitiveType = GL_TRIANGLE_STRIP;
 
+   buildSphere(1.0f, _resolution, _resolution, _primitiveType);
+   
    // backwards movement of the camera
    _camZ = -4;
 
@@ -175,8 +175,10 @@ void onClose(GLFWwindow* window)
    glDeleteShader(_shaderVertID);
    glDeleteShader(_shaderFragID);
    glDeleteProgram(_shaderProgID);
-
+   
    // Delete arrays & buffers on GPU
+   delete[] _v;
+   delete[] _i;
    glDeleteBuffers(1, &_vboV);
    glDeleteBuffers(1, &_vboI);
 }
@@ -185,97 +187,56 @@ void onClose(GLFWwindow* window)
 onPaint does all the rendering for one frame from scratch with OpenGL.
 */
 bool onPaint()
-{
-   // Clear the color & depth buffer
-   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+{  
+    // Clear the color & depth buffer
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-   // View transform: move the coordiante system away from the camera
-   _viewMatrix.identity();
-   _viewMatrix.translate(0, 0, _camZ);
+    // View transform: move the coordiante system away from the camera
+    _viewMatrix.identity();
+    _viewMatrix.translate(0, 0, _camZ);
 
-   // Model transform: rotate the coordinate system increasingly
-   _viewMatrix.rotate(_rotX + _deltaX, 1,0,0);
-   _viewMatrix.rotate(_rotY + _deltaY, 0,1,0);
+    // Model transform: rotate the coordinate system increasingly
+    _viewMatrix.rotate(_rotX + _deltaX, 1,0,0);
+    _viewMatrix.rotate(_rotY + _deltaY, 0,1,0);
 
-   // Model transform: move the cube so that it rotates around its center
-   _modelMatrix.identity();
-   _modelMatrix.translate(-2.0f, -0.5f, -0.5f);
+    // Model transform: move the cube so that it rotates around its center
+    _modelMatrix.identity();
+    //_modelMatrix.translate(-2.0f, -0.5f, -0.5f);
 
-   // Build the combined modelview-projection matrix
-   SLMat4f mvp(_projectionMatrix);
-   SLMat4f mv(_viewMatrix);
-   mv.multiply(_modelMatrix);
-   mvp.multiply(mv);
+    // Build the combined modelview-projection matrix
+    SLMat4f mvp(_projectionMatrix);
+    SLMat4f mv(_viewMatrix);
+    mv.multiply(_modelMatrix);
+    mvp.multiply(mv);
 
-   // Build normal matrix
-   SLMat3f nm(mv.inverseTransposed());
+    // Build normal matrix
+    SLMat3f nm(mv.inverseTransposed());
 
-   // Pass the uniform variables to the shader
-   glUniformMatrix4fv(_mvpLoc, 1, 0, (float*)&mvp);
-   glUniformMatrix3fv(_nmLoc,   1, 0, (float*)&nm);
-   glUniform3f(_lightDirVSLoc, 0.5f, 1.0f, 1.0f);          // light direction in view space
-   glUniform4f(_lightDiffuseLoc, 1.0f, 1.0f,  1.0f, 1.0f);  // diffuse light intensity (RGBA)
-   glUniform4f(_matDiffuseLoc, 1.0f, 0.0f, 0.0f, 1.0f);     // diffuse material reflection (RGBA)
+    // Pass the uniform variables to the shader
+    glUniformMatrix4fv(_mvpLoc, 1, 0, (float*)&mvp);
+    glUniformMatrix3fv(_nmLoc,   1, 0, (float*)&nm);
+    glUniform3f(_lightDirVSLoc, 0.5f, 1.0f, 1.0f);           // light direction in view space
+    glUniform4f(_lightDiffuseLoc, 1.0f, 1.0f,  1.0f, 1.0f);  // diffuse light intensity (RGBA)
+    glUniform4f(_matDiffuseLoc, 1.0f, 0.0f, 0.0f, 1.0f);     // diffuse material reflection (RGBA)
+     
+   /////////////////////////////
+   // Draw sphere with 2 VBOs //
+   /////////////////////////////
 
-
-   /////////////////////////////////
-   // Draw red cube with 3 arrays //
-   /////////////////////////////////
-
-   // Enable the attributes as arrays (not constant)
    glEnableVertexAttribArray(_pLoc);
    glEnableVertexAttribArray(_nLoc);
-
-   // Set the vertex attribute pointers to our vertex arrays
-   glVertexAttribPointer(_pLoc, 3, GL_FLOAT, GL_FALSE, 0, _p);
-   glVertexAttribPointer(_nLoc, 3, GL_FLOAT, GL_FALSE, 0, _n);
-
-   // Draw cube with triangles by indexes
-   glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_BYTE, _i);
-
-   ///////////////////////////////////
-   // Draw green cube with 2 arrays //
-   ///////////////////////////////////
-
-   // Transform 2 units to the left & rebuild mvp
-   _modelMatrix.translate(1.5f, 0.0f, 0.0f);
-   mvp.setMatrix(_projectionMatrix * _viewMatrix * _modelMatrix);
-
-   // Pass updated mvp and set the red color
-   glUniformMatrix4fv(_mvpLoc, 1, 0, (float*)&mvp);
-   glUniform4f(_matDiffuseLoc, 0.0f, 1.0f, 0.0f, 1.0f);
-
-   // Set the vertex attribute pointers to the array of structs
-   GLsizei stride = sizeof(VertexPN);
-   glVertexAttribPointer(_pLoc, 3, GL_FLOAT, GL_FALSE, stride, &_v[0].p.x);
-   glVertexAttribPointer(_nLoc, 3, GL_FLOAT, GL_FALSE, stride, &_v[0].n.x);
-
-   // Draw cube with triangles by indexes
-   glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_BYTE, _i);
-
-   ////////////////////////////////
-   // Draw blue cube with 2 VBOs //
-   ////////////////////////////////
-
-   // Transform 2 units to the left & rebuild mvp
-   _modelMatrix.translate(1.5f, 0.0f, 0.0f);
-   mvp.setMatrix(_projectionMatrix * _viewMatrix * _modelMatrix);
-
-   // Pass updated mvp and set the blue color
-   glUniformMatrix4fv(_mvpLoc, 1, 0, (float*)&mvp);
-   glUniform4f(_matDiffuseLoc, 0.0f, 0.0f, 1.0f, 1.0f);
 
    // Acitvate VBOs
    glBindBuffer(GL_ARRAY_BUFFER, _vboV);
    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _vboI);
 
    // For VBO only offset instead of data pointer
-   GLsizei offsetN = sizeof(SLVec3f);
+   GLsizei stride = sizeof(VertexPN);
    glVertexAttribPointer(_pLoc, 3, GL_FLOAT, GL_FALSE, stride, 0);
-   glVertexAttribPointer(_nLoc, 3, GL_FLOAT, GL_FALSE, stride, (void*)offsetN);
-
+   glVertexAttribPointer(_nLoc, 3, GL_FLOAT, GL_FALSE, stride, (void*)12);
+   
    // Draw cube with triangles by indexes
-   glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_BYTE, 0);
+   glDrawElements(_primitiveType, _numI, GL_UNSIGNED_INT, 0);
 
    // Deactivate buffers
    glBindBuffer(GL_ARRAY_BUFFER, 0);
@@ -288,7 +249,17 @@ bool onPaint()
    // Fast copy the back buffer to the front buffer. This is OS dependent.
    glfwSwapBuffers(window);
 
-   // Return true to get an immediate refresh
+   // Calculate frames per second
+   char title[255];
+   static float lastTimeSec = 0;
+   float timeNowSec = (float)glfwGetTime();
+   float fps = calcFPS(timeNowSec-lastTimeSec);
+   string  prim = _primitiveType==GL_TRIANGLES ? "GL_TRIANGLES" : "GL_TRIANGLE_STRIPS";
+   sprintf(title, "Sphere, %d x %d, fps: %4.0f, %s", _resolution, _resolution, fps, prim.c_str());
+   glfwSetWindowTitle(window, title);
+   lastTimeSec = timeNowSec;
+
+   // Return true to get an immediate refresh 
    return true;
 }
 //-----------------------------------------------------------------------------
@@ -298,17 +269,17 @@ should called once before the onPaint event. Do everything that is dependent on
 the size and ratio of the window.
 */
 void onResize(GLFWwindow* window, int width, int height)
-{
-   double w = (double)width;
-   double h = (double)height;
+{  
+    double w = (double)width;
+    double h = (double)height;
 
-   // define the projection matrix
-   _projectionMatrix.perspective(50, w/h, 0.01f, 10.0f);
+    // define the projection matrix
+    _projectionMatrix.perspective(50, w/h, 0.01f, 10.0f);
 
-   // define the viewport
-   glViewport(0, 0, width, height);
+    // define the viewport
+    glViewport(0, 0, width, height);
 
-   onPaint();
+    onPaint();
 }
 //-----------------------------------------------------------------------------
 /*!
@@ -370,34 +341,39 @@ void onMouseWheel(GLFWwindow* window, double xscroll, double yscroll)
 Key action eventhandler handles key down & release events
 */
 void onKey(GLFWwindow* window, int GLFWKey, int scancode, int action, int mods)
-{
-    if (action==GLFW_PRESS)
-    {
-        switch (GLFWKey)
-        {
-            case GLFW_KEY_ESCAPE:
-                onClose(window);
-                glfwSetWindowShouldClose(window, GL_TRUE);
-                break;
-            case GLFW_KEY_LEFT_SHIFT:     _modifiers = _modifiers|SHIFT; break;
-            case GLFW_KEY_RIGHT_SHIFT:    _modifiers = _modifiers|SHIFT; break;
-            case GLFW_KEY_LEFT_CONTROL:   _modifiers = _modifiers|CTRL; break;
-            case GLFW_KEY_RIGHT_CONTROL:  _modifiers = _modifiers|CTRL; break;
-            case GLFW_KEY_LEFT_ALT:       _modifiers = _modifiers|ALT; break;
-            case GLFW_KEY_RIGHT_ALT:      _modifiers = _modifiers|ALT; break;
-        }
-    } else
-    if (action == GLFW_RELEASE)
-    {   switch (GLFWKey)
-        {   case GLFW_KEY_LEFT_SHIFT:     _modifiers = _modifiers^SHIFT; break;
-            case GLFW_KEY_RIGHT_SHIFT:    _modifiers = _modifiers^SHIFT; break;
-            case GLFW_KEY_LEFT_CONTROL:   _modifiers = _modifiers^CTRL; break;
-            case GLFW_KEY_RIGHT_CONTROL:  _modifiers = _modifiers^CTRL; break;
-            case GLFW_KEY_LEFT_ALT:       _modifiers = _modifiers^ALT; break;
-            case GLFW_KEY_RIGHT_ALT:      _modifiers = _modifiers^ALT; break;
-        }
-    }
+{         
+   if (action==GLFW_PRESS)
+   {  
+      switch (GLFWKey)
+      {
+         case GLFW_KEY_ESCAPE:
+            onClose(window);
+            glfwSetWindowShouldClose(window, GL_TRUE);
+            break;
+         case GLFW_KEY_RIGHT:
+            _resolution = _resolution<<1;
+            _primitiveType = GL_TRIANGLE_STRIP;
+            buildSphere(1.0f, _resolution, _resolution, _primitiveType);
+            break;
+         case GLFW_KEY_LEFT:
+            _primitiveType = GL_TRIANGLE_STRIP;
+            if (_resolution > 4) _resolution = _resolution>>1;
+            buildSphere(1.0f, _resolution, _resolution, _primitiveType);
+            break;
+         case GLFW_KEY_UP:
+            _resolution = _resolution<<1;
+            _primitiveType = GL_TRIANGLES;
+            buildSphere(1.0f, _resolution, _resolution, _primitiveType);
+            break;
+         case GLFW_KEY_DOWN:
+            _primitiveType = GL_TRIANGLES;
+            if (_resolution > 4) _resolution = _resolution>>1;
+            buildSphere(1.0f, _resolution, _resolution, _primitiveType);
+            break;
+      }
+   }
 }
+
 //-----------------------------------------------------------------------------
 /*!
 Error callback handler for GLFW.
@@ -450,7 +426,7 @@ int main()
         exit(EXIT_FAILURE);
     }
 
-    glfwSetWindowTitle(window, "Diffuse Cubes");
+    glfwSetWindowTitle(window, "Diffuse Spheres");
 
     // Set number of monitor refreshes between 2 buffer swaps
     glfwSwapInterval(1);
