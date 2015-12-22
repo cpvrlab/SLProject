@@ -187,7 +187,7 @@ class SLVec3
                 x = f[0]; y = f[1]; z = f[2];
             }
 
-            //! HSV to RGB color conversion (http://www.rapidtables.com/convert/color/hsv-to-rgb.htm)
+            //! HSV (0-1) to RGB (0-1) color conversion (http://www.rapidtables.com/convert/color/hsv-to-rgb.htm)
             void hsv2rgb (const SLVec3 &hsv)
             {
                 T h = fmod(fmod(hsv.x, SL_2PI) + SL_2PI, SL_2PI); // 0° <= H <= 360°
@@ -209,8 +209,12 @@ class SLVec3
                 }
             }
 
-            //! Earth Centered Earth Fixed to Latitude Longitude Altitude using the WGS84 model
-            /*! See for more details: https://microem.ru/files/2012/08/GPS.G1-X-00006.pdf */
+            //! Earth Centered Earth Fixed (ecef) to Latitude Longitude Altitude (lla) using the WGS84 model
+            /*!
+            Longitude and latitude are in decimal degrees and altitude in meters.
+            The cartesian ecef coordinates are in meters.
+            See for more details: https://microem.ru/files/2012/08/GPS.G1-X-00006.pdf
+            */
             void ecef2lla(const SLVec3 &ecef)
             {
                 double a    = SL_EARTH_RADIUS_A;
@@ -226,23 +230,27 @@ class SLVec3
                 double N   = a/(sqrt(1-esq*pow(sin(lat),2)));
                 double alt = p/cos(lat) - N;
 
-                x = lat;
-                y = fmod(lon,SL_2PI); // floating point modulo
-                z = alt;
+                x = lat * SL_RAD2DEG;
+                y = fmod(lon,SL_2PI) * SL_RAD2DEG;
+                z = alt * SL_RAD2DEG;
             }
 
-            //! Latitude Longitude Altitude to Earth Centered Earth Fixed using the WGS84 model
-            /*! See for more details: https://microem.ru/files/2012/08/GPS.G1-X-00006.pdf */
-            void lla2ecef(const SLVec3 &lla)
+            //! Latitude Longitude Altitude (lla) to Earth Centered Earth Fixed (ecef) using the WGS84 model
+            /*!
+            Longitude and latitude are in decimal degrees and altitude in meters.
+            The cartesian ecef coordinates are in meters.
+            See for more details: https://microem.ru/files/2012/08/GPS.G1-X-00006.pdf
+            */
+            void lla2ecef(const SLVec3 &LongDegLatDegAltM)
             {
-                double lat = lla.x;
-                double lon = lla.y;
-                double alt = lla.z;
+                double lat = LongDegLatDegAltM.x * SL_DEG2RAD;
+                double lon = LongDegLatDegAltM.y * SL_DEG2RAD;
+                double alt = LongDegLatDegAltM.z;
                 double a   = SL_EARTH_RADIUS_A;
                 double esq = SL_EARTH_ECCENTRICTIY_SQR;
                 double cosLat = cos(lat);
 
-                double N = a / sqrt(1 - esq * pow(sin(lat),2) );
+                double N = a / sqrt(1 - esq * pow(sin(lat),2));
 
                 x = (N+alt) * cosLat * cos(lon);
                 y = (N+alt) * cosLat * sin(lon);
@@ -291,10 +299,8 @@ typedef SLVec3<SLshort>       SLVec3s;
 typedef std::vector<SLVec3f>  SLVVec3f;
 typedef std::vector<SLCol3f>  SLVCol3f;
 
-#ifdef SL_HAS_DOUBLE
-typedef SLVec3<SLdouble>      SLVec3d;
+typedef SLVec3<double>        SLVec3d;
 typedef std::vector<SLVec3d>  SLVVec3d;
-#endif
 //-----------------------------------------------------------------------------
 #endif
 
