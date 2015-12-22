@@ -164,6 +164,8 @@ class SLVec3
                                                          y= pow(y,1.0/gammaVal);
                                                          z= pow(z,1.0/gammaVal);}
 
+
+
             //! Prints the vector to std out
             void    print       (const SLchar* str=0)   {if (str) SL_LOG("%s",str);
                                                          SL_LOG("% 3.2f, % 3.2f, % 3.2f\n",x, y, z);}
@@ -176,7 +178,7 @@ class SLVec3
             }
 
             //! Conversion from string
-            void    fromString  (SLstring threeFloatsWithDelimiter, SLchar delimiter = ',')
+            void fromString (SLstring threeFloatsWithDelimiter, SLchar delimiter = ',')
             {   SLVstring components;
                 SLUtils::split(threeFloatsWithDelimiter, delimiter, components);
                 float f[3] = {0.0, 0.0f, 0.0f};
@@ -186,7 +188,7 @@ class SLVec3
             }
 
             //! HSV to RGB color conversion (http://www.rapidtables.com/convert/color/hsv-to-rgb.htm)
-            void    hsv2rgb     (const SLVec3 &hsv)
+            void hsv2rgb (const SLVec3 &hsv)
             {
                 T h = fmod(fmod(hsv.x, SL_2PI) + SL_2PI, SL_2PI); // 0° <= H <= 360°
                 T s = SL_clamp(hsv.y, 0.0f, 1.0f);
@@ -205,6 +207,46 @@ class SLVec3
                     case 4: return set(m + x, m    , m + c); // [240°,300°]
                     case 5: return set(m + c, m    , m + x); // [300°,360°]
                 }
+            }
+
+            //! Earth Centered Earth Fixed to Latitude Longitude Altitude using the WGS84 model
+            /*! See for more details: https://microem.ru/files/2012/08/GPS.G1-X-00006.pdf */
+            void ecef2lla(const SLVec3 &ecef)
+            {
+                double a    = SL_EARTH_RADIUS_A;
+                double b    = SL_EARTH_RADIUS_B;
+                double esq  = SL_EARTH_ECCENTRICTIY_SQR;
+                double epsq = SL_EARTH_ECCENTRICTIY2_SQR;
+
+                double p   = sqrt(ecef.x * ecef.x + ecef.y*ecef.y);
+                double th  = atan2(a*ecef.z, b*p);
+
+                double lon = atan2(ecef.y, ecef.x);
+                double lat = atan2((ecef.z + epsq*b*pow(sin(th),3.0)), (p - esq*a*pow(cos(th),3.0)) );
+                double N   = a/(sqrt(1-esq*pow(sin(lat),2)));
+                double alt = p/cos(lat) - N;
+
+                x = lat;
+                y = fmod(lon,SL_2PI); // floating point modulo
+                z = alt;
+            }
+
+            //! Latitude Longitude Altitude to Earth Centered Earth Fixed using the WGS84 model
+            /*! See for more details: https://microem.ru/files/2012/08/GPS.G1-X-00006.pdf */
+            void lla2ecef(const SLVec3 &lla)
+            {
+                double lat = lla.x;
+                double lon = lla.y;
+                double alt = lla.z;
+                double a   = SL_EARTH_RADIUS_A;
+                double esq = SL_EARTH_ECCENTRICTIY_SQR;
+                double cosLat = cos(lat);
+
+                double N = a / sqrt(1 - esq * pow(sin(lat),2) );
+
+                x = (N+alt) * cosLat * cos(lon);
+                y = (N+alt) * cosLat * sin(lon);
+                z = ((1-esq) * N + alt) * sin(lat);
             }
 
     static SLVec3 ZERO;
