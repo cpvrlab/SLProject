@@ -114,7 +114,6 @@ We render the quad as a triangle strip: <br>
 */
 void SLBackground::render(SLint widthPX, SLint heightPX)
 {
-    return;
     SLGLState* stateGL = SLGLState::getInstance();
     stateGL->projectionMatrix.ortho(0.0f, (SLfloat)widthPX, 0.0f, (SLfloat)heightPX, 0.0f, 1.0f);
     stateGL->modelViewMatrix.identity();

@@ -260,13 +260,12 @@ void SLGLTexture::build(SLint texID)
     
     #ifndef SL_GLES2
     // check 3D size
-    SLint texMax3DSize=0;
-    glGetIntegerv(GL_MAX_3D_TEXTURE_SIZE, &texMax3DSize);
     if (_target == GL_TEXTURE_3D)
-    {   for (auto img : _images)
-        {   if (img->width()  > (SLuint)texMaxSize)
+    {   SLint texMax3DSize=0;
+      glGetIntegerv(GL_MAX_3D_TEXTURE_SIZE, &texMax3DSize);for (auto img : _images)
+        {   if (img->width()  > (SLuint)texMax3DSize)
                 SL_EXIT_MSG("SLGLTexture::build: 3D Texture width is too big.");
-            if (img->height() > (SLuint)texMaxSize)
+            if (img->height() > (SLuint)texMax3DSize)
                 SL_EXIT_MSG("SLGLTexture::build: 3D Texture height is too big.");
             if (img->width()  != _images[0]->width() ||
                 img->height() != _images[0]->height())
@@ -338,8 +337,7 @@ void SLGLTexture::build(SLint texID)
         if (_min_filter>=GL_NEAREST_MIPMAP_NEAREST)
         {   if (_stateGL->glIsES2() || 
                 _stateGL->glIsES3() || 
-                _stateGL->glVersionNOf() >= 3.0 &&
-                _stateGL->glVersion().find("Mesa")==string::npos)
+                _stateGL->glVersionNOf() >= 3.0)
                 glGenerateMipmap(GL_TEXTURE_2D);
             else
                 build2DMipmaps(GL_TEXTURE_2D, 0);

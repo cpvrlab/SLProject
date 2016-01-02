@@ -605,9 +605,6 @@
     <None Include="..\_data\shaders\Wave.frag" />
     <None Include="..\_data\shaders\Wave.vert" />
     <None Include="..\_data\shaders\WaveRefractReflect.vert" />
-    <None Include="Introduction.md" />
-    <None Include="onPaint.md" />
-    <None Include="SLProject.md" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="ToDo.txt" />

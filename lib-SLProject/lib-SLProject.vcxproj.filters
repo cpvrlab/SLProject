@@ -445,9 +445,6 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="Introduction.md" />
-    <None Include="onPaint.md" />
-    <None Include="SLProject.md" />
     <None Include="..\_data\shaders\ADS.frag">
       <Filter>GLSL</Filter>
     </None>

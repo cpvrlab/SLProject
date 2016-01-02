@@ -85,6 +85,14 @@ SLbool SLGLShader::createAndCompile()
             if (_type == FragmentShader)
             {   SLUtils::replaceString(_code, "varying", "in     ");
             }
+        }        
+        
+        // Replace deprecated texture functions
+        if (verGLSL > "140")
+        {   if (_type == FragmentShader)
+            {   SLUtils::replaceString(_code, "texture3D", "texture");
+                SLUtils::replaceString(_code, "textureCube", "texture");
+            }
         }
 
         // Replace "gl_FragColor" that was depricated in GLSL 330 by a custom out variable

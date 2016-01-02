@@ -565,9 +565,9 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
         SLMaterial* mat2 = new SLMaterial("mat2", tex2);
         mat2->specular(SLCol4f::BLACK);
 
-        // Back wall material with live video texture
-        SLMaterial* mat3 = new SLMaterial("mat3", &_videoTexture);
-        _usesVideoImage = true;
+        // Back wall material
+        SLGLTexture* tex3 = new SLGLTexture("bricks1_0256_C.jpg");
+        SLMaterial* mat3 = new SLMaterial("mat3", tex3);
         mat3->specular(SLCol4f::BLACK);
 
         // Left wall material
@@ -816,7 +816,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
         _root3D = scene;
     }
     else
-    if (sceneName == cmdSceneTextureBlend) //...................................
+    if (sceneName == cmdSceneTextureBlend) //..................................
     {
         name("Blending: Texture Transparency with sorting");
         info(sv, "Texture map blending with depth sorting. Trees in view frustum are rendered back to front.");
@@ -913,7 +913,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
         _root3D = scene;
     }
     else
-    if (sceneName == cmdSceneTextureFilter) //..................................
+    if (sceneName == cmdSceneTextureFilter) //.................................
     {
         name("Texturing: Filter Compare and 3D texture");
         info(sv, "Texture filters: Bottom: nearest, left: linear, top: linear mipmap, right: anisotropic");
@@ -1021,6 +1021,46 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
         _root3D = scene;
     }
     else
+    if (sceneName == cmdSceneTextureVideo) //..................................
+    {
+        // Set scene name and info string
+        name("Live Video Texture Example");
+        info(sv, "Minimal texture mapping example with live video source.");
+
+        // Back wall material with live video texture
+        SLMaterial* m1 = new SLMaterial("mat3", &_videoTexture);
+        _usesVideoImage = true;
+
+        // Create a camera node
+        SLCamera* cam1 = new SLCamera();
+        cam1->name("camera node");
+        cam1->translation(0,0,20);
+        cam1->lookAt(0, 0, 0);
+        cam1->setInitialState();
+
+        // Create a light source node
+        SLLightSphere* light1 = new SLLightSphere(0.3f);
+        light1->translation(0,0,5);
+        light1->lookAt(0, 0, 0);
+        light1->name("light node");
+
+        // Create meshes and nodes
+        SLMesh* rectMesh = new SLRectangle(SLVec2f(-5,-5), SLVec2f(5,5), 1,1, "rect mesh", m1);
+        SLNode* rectNode = new SLNode(rectMesh, "rect node");
+
+        // Create a scene group and add all nodes
+        SLNode* scene = new SLNode("scene node");
+        scene->addChild(light1);
+        scene->addChild(cam1);
+        scene->addChild(rectNode);
+
+        // Set background color and the root scene node
+        _background.colors(SLCol4f(0.7f,0.7f,0.7f), SLCol4f(0.2f,0.2f,0.2f));
+        _root3D = scene;
+
+        // Set active camera
+        sv->camera(cam1);
+    }
     if (sceneName == cmdSceneFrustumCull1) //...................................
     {  
         name("Frustum Culling Test 1");
@@ -1719,7 +1759,6 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
         track->createNodeKeyframe(2.0f)->translation(SLVec3f(16, 0, 0));
         track->translationInterpolation(AI_Bezier);
 
-
         SLNode* figure = BuildFigureGroup(m2, true);
 
         SLNode* scene = new SLNode("Scene");
@@ -2041,7 +2080,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
         SLNode* scene  = new SLNode;
         scene->addChild(light1);
         scene->addChild(light2);
-        scene->addChild(SphereGroup(4, 0,0,0, 1, 32, matGla, matRed));
+        scene->addChild(SphereGroup(2, 0,0,0, 1, 32, matGla, matRed));
         scene->addChild(rect);
         scene->addChild(cam1);
 

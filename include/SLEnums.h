@@ -93,6 +93,7 @@ enum SLCmd
     cmdSceneRevolver,
     cmdSceneTextureFilter,
     cmdSceneTextureBlend,
+    cmdSceneTextureVideo,
     cmdSceneFrustumCull1,
     cmdSceneFrustumCull2,
 
