@@ -596,7 +596,8 @@ void SLGLTexture::build2DMipmaps(SLint target, SLuint index)
                  _images[index]->format(),
                  GL_UNSIGNED_BYTE, 
                  (GLvoid*)_images[index]->data());
-   
+    GET_GL_ERROR;
+    
     // working copy of the base mipmap   
     SLImage img2(*_images[index]);
    
