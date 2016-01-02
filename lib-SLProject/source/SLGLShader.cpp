@@ -65,10 +65,18 @@ SLbool SLGLShader::createAndCompile()
                 SL_EXIT_MSG("SLGLShader::load: Unknown shader type.");
         }
       
+        /*
+        All shaders are written with the initial GLSL version and are
+        therefore backwards compatible with the compatibility profile
+        from OpenGL 2.1 and OpenGL ES 2 that runs on most mobile devices.
+        To be upwards compatible we have to do some modification depending on
+        the GLSL version.
+        */
+
         SLstring verGLSL = SLGLState::getInstance()->glSLVersionNO();
         SLstring srcVersion = "#version " + verGLSL + "\n";
 
-        // All shaders have initially no version number 
+        // Replace "attribute" and "varying" that came in GLSL 310
         if (verGLSL > "120")
         {   if (_type == VertexShader)
             {   SLUtils::replaceString(_code, "attribute", "in       ");
@@ -78,6 +86,15 @@ SLbool SLGLShader::createAndCompile()
             {   SLUtils::replaceString(_code, "varying", "in     ");
             }
         }
+
+        // Replace "gl_FragColor" that was depricated in GLSL 330 by a custom out variable
+        if (verGLSL > "310")
+        {
+            if (_type == FragmentShader)
+            {   SLUtils::replaceString(_code, "gl_FragColor", "fragColor");
+                SLUtils::replaceString(_code, "void main", "out vec4 fragColor; \n\nvoid main");
+            }
+        }
         
         SLstring scrComplete = srcVersion + _code;
         
@@ -85,7 +102,8 @@ SLbool SLGLShader::createAndCompile()
         #ifdef _DEBUG
         ofstream fs(name()+".Debug"); 
         if(fs)
-        {   fs << scrComplete;
+        {
+            fs << scrComplete;
             fs.close();
         }
         #endif

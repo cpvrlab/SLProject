@@ -115,8 +115,7 @@ and activates the attached shader
 void SLMaterial::activate(SLGLState* state, SLDrawBits drawBits)
 {      
     SLScene* s = SLScene::current;
-    
-    GET_GL_ERROR;
+
     // Deactivate shader program of the current active material
     if (current && current->program())
         current->program()->endShader();
@@ -152,8 +151,7 @@ void SLMaterial::activate(SLGLState* state, SLDrawBits drawBits)
     {  for (SLuint i=0; i<_textures.size(); ++i)
             _textures[i]->bindActive(i);
     }
-    
-    GET_GL_ERROR;
+
     // Activate the shader program now
     program()->beginUse(this);
 }

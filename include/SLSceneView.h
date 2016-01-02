@@ -174,6 +174,7 @@ class SLSceneView: public SLObject
     inline  SLQuat4f        deviceRotation  () const {return _deviceRotation;}
             SLbool          gotPainted      () const {return _gotPainted;}
             SLbool          doFrustumCulling() const {return _doFrustumCulling;}
+            SLbool          hasMultiSampling() const {return _stateGL->hasMultiSampling();}
             SLbool          doMultiSampling () const {return _doMultiSampling;}
             SLbool          doDepthTest     () const {return _doDepthTest;}
             SLbool          usesRotation    () const {return _usesRotation;}
