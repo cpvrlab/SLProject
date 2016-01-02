@@ -175,7 +175,6 @@ class SLSceneView: public SLObject
             SLbool          gotPainted      () const {return _gotPainted;}
             SLbool          doFrustumCulling() const {return _doFrustumCulling;}
             SLbool          doMultiSampling () const {return _doMultiSampling;}
-            SLbool          hasMultiSampling() const {return _hasMultiSampling;}
             SLbool          doDepthTest     () const {return _doDepthTest;}
             SLbool          usesRotation    () const {return _usesRotation;}
             SLbool          waitEvents      () const {return _waitEvents;}
@@ -208,7 +207,6 @@ class SLSceneView: public SLObject
             
             SLbool          _doDepthTest;       //!< Flag if depth test is turned on
             SLbool          _doMultiSampling;   //!< Flag if multisampling is on
-            SLbool          _hasMultiSampling;  //!< Flag if multisampling is possible
             SLbool          _doFrustumCulling;  //!< Flag if view frustum culling is on
             SLbool          _waitEvents;        //!< Flag for Event waiting
             SLbool          _usesRotation;      //!< Flag if device rotation is used

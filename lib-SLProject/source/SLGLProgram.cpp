@@ -189,7 +189,7 @@ void SLGLProgram::beginUse(SLMaterial* mat)
         _stateGL->globalAmbientLight = SLScene::current->globalAmbiLight();
         SLint loc = uniform4fv("u_globalAmbient",  1,  (SLfloat*) _stateGL->globalAmbient());
         loc = uniform1i("u_numLightsUsed", _stateGL->numLightsUsed);
-
+        
         if (_stateGL->numLightsUsed > 0)
         {   SLint nL = SL_MAX_LIGHTS;
             _stateGL->calcLightPosVS(_stateGL->numLightsUsed);
@@ -211,19 +211,19 @@ void SLGLProgram::beginUse(SLMaterial* mat)
             loc = uniform4fv("u_matEmissive",    1,  (SLfloat*)&_stateGL->matEmissive);
             loc = uniform1f ("u_matShininess",                  _stateGL->matShininess);
         }
-      
+        
         // 2b: Set stereo states
         loc = uniform1i ("u_projection", _stateGL->projection);
         loc = uniform1i ("u_stereoEye",  _stateGL->stereoEye);
         loc = uniformMatrix3fv("u_stereoColorFilter", 1, (SLfloat*)&_stateGL->stereoColorFilter);
-
+        
         // 2c: Pass diffuse color for uniform color shader
         loc = uniform4fv("u_color", 1,  (SLfloat*)&_stateGL->matDiffuse);
-
+        
         // 3: Pass the custom uniform1f variables of the list
         for (auto uf : _uniforms1f) loc = uniform1f(uf->name(), uf->value());
         for (auto ui : _uniforms1i) loc = uniform1i(ui->name(), ui->value());
-      
+        
         // 4: Send texture units as uniforms texture samplers
         if (mat)
         {   for (SLint i=0; i<(SLint)mat->textures().size(); ++i)
@@ -239,8 +239,10 @@ void SLGLProgram::beginUse(SLMaterial* mat)
 //! SLGLProgram::endUse stops the shaderprogram
 void SLGLProgram::endUse()
 {
+    // In core profile you must have an active program
+    if (_stateGL->glVersionNOf() > 3.0f) return;
+
     _stateGL->useProgram(0);
-    GET_GL_ERROR;
 }
 //----------------------------------------------------------------------------- 
 //! SLGLProgram::addUniform1f add a uniform variable to the list

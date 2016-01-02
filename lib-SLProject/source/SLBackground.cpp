@@ -114,6 +114,7 @@ We render the quad as a triangle strip: <br>
 */
 void SLBackground::render(SLint widthPX, SLint heightPX)
 {
+    return;
     SLGLState* stateGL = SLGLState::getInstance();
     stateGL->projectionMatrix.ortho(0.0f, (SLfloat)widthPX, 0.0f, (SLfloat)heightPX, 0.0f, 1.0f);
     stateGL->modelViewMatrix.identity();
@@ -127,15 +128,15 @@ void SLBackground::render(SLint widthPX, SLint heightPX)
         _resY = heightPX;
 
         // Vertex X & Y of corners
-        SLfloat P[8] = {0.0f, (SLfloat)_resY,
-                        0.0f, 0.0f,
-                        (SLfloat)_resX, (SLfloat)_resY,
-                        (SLfloat)_resX, 0.0f};
+        SLfloat P[16] = {0.0f, (SLfloat)_resY, 0.0f, 1.0f,
+                        0.0f, 0.0f, 0.0f, 1.0f,
+                        (SLfloat)_resX, (SLfloat)_resY, 0.0f, 1.0f,
+                        (SLfloat)_resX, 0.0f, 0.0f, 1.0f};
 
         // Indexes for a triangle strip
         SLushort I[4] = {0,1,2,3};
 
-        _bufP.generate(P, 4, 2);
+        _bufP.generate(P, 4, 4);
         _bufI.generate(I, 4, 1, SL_UNSIGNED_SHORT, SL_ELEMENT_ARRAY_BUFFER);
     }
 

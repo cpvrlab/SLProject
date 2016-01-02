@@ -200,7 +200,7 @@ of all meshes with a transparent material.
 <b>Recursive drawing</b>: By calling SLNode::drawRec all meshes are drawn with
 SLNode::drawMeshes with only the object matrix applied before drawing. After
 the meshes the drawRec method is called on each children node. By pushing 
-the OpenGL modelviewmatrix before on a stack this method is also refered as
+the OpenGL modelview matrix before on a stack this method is also referred as
 stack drawing.
 </li>
 </ul>
@@ -585,7 +585,7 @@ void SLNode::needAABBUpdate()
 }
 //-----------------------------------------------------------------------------
 /*!
-A helper function that updates the current _wm to reflectthe local matrix. 
+A helper function that updates the current _wm to reflect the local matrix. 
 recursively calls the updateAndGetWM of the node's parent.
 
 @note

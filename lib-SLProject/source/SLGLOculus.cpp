@@ -75,12 +75,19 @@ void SLGLOculus::init()
     _hmd = ovrHmd_Create(0);
     //SL_LOG("%s", ovrHmd_GetLastError(_hmd));
     
+    #ifdef _DEBUG
+    GET_GL_ERROR;
+    #endif
 
     if (!_hmd)
     {   // create a debug device if we didn't find a physical one
         _hmd = ovrHmd_CreateDebug(ovrHmd_DK2);
         _usingDebugHmd = true;
         assert(_hmd);
+        
+        #ifdef _DEBUG
+        GET_GL_ERROR;
+        #endif
     }
     
     // get hmd resolution
@@ -90,6 +97,10 @@ void SLGLOculus::init()
     // set output resolution to the above set hmd resolution for now
     // this can be changed later however if we want to output to a smaller screen
     renderResolution(_resolution.x, _resolution.y);
+    
+    #ifdef _DEBUG
+    GET_GL_ERROR;
+    #endif
 
     // are we running in extended desktop mode or are we using the oculus driver
     SLbool useAppWindowFrame = (_hmd->HmdCaps & ovrHmdCap_ExtendDesktop) ? false : true;
@@ -105,6 +116,9 @@ void SLGLOculus::init()
     _viewports[1].Pos = OVR::Vector2i((_rtSize.x + 1) / 2, 0);
     _viewports[1].Size = _viewports[0].Size;
 
+    #ifdef _DEBUG
+    GET_GL_ERROR;
+    #endif
 
     //Generate distortion mesh for each eye
     SLuint distortionCaps = ovrDistortionCap_Chromatic | ovrDistortionCap_TimeWarp 
@@ -113,7 +127,10 @@ void SLGLOculus::init()
     // TODO: careful here, the actual size of the framebuffer might differ due to hardware limitations
     ovrFovPort viewports[2] = { _hmd->DefaultEyeFov[0], _hmd->DefaultEyeFov[1] };
     OVR::Sizei rtSize(_rtSize.x, _rtSize.y);
-
+    
+    #ifdef _DEBUG
+    GET_GL_ERROR;
+    #endif
 
 
     for ( int eyeNum = 0; eyeNum < 2; eyeNum++ )
@@ -184,7 +201,7 @@ void SLGLOculus::init()
         _orientation[i].set(0, 0, 0, 1);
         _viewAdjust[i].set((i*2-1)*0.03f, 0, 0); //[-0.03, 0.03]m
     
-        // not 100% correct projctions but it just has to look somewhat right
+        // not 100% correct projections but it just has to look somewhat right
         _projection[i].perspective(125.0f, 0.88f, 0.1f, 1000.0f);
         _projection[i].translate(-_viewAdjust[i]);
     }

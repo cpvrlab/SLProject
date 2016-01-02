@@ -56,9 +56,13 @@ void SLGLBuffer::dispose()
         //cout << "disposed: " << _id << ", used:" << totalBufferCount << endl;
         _id = 0;
     }
+    
+    #ifdef _GLDEBUG
+    GET_GL_ERROR;
+    #endif
 } 
 //-----------------------------------------------------------------------------
-/*! Vertex Buffer generation. The vertex buffe object on the graphic card is
+/*! Vertex Buffer generation. The vertex buffer object on the graphic card is
 generate and identified by _id<0. The data is copied to the buffer with 
 glBufferData and could be deleted afterwards in the clients memory. 
 The buffer type can be FLOAT for vertex attributes (position, normals, tangents
@@ -96,24 +100,24 @@ void SLGLBuffer::generate(void* dataPointer,
     // binds (activates) the buffer that is used next
     glBindBuffer(_targetTypeGL, _id);
    
-    // determine the buffersize in bytes
+    // determine the buffer size in bytes
     SLuint bufSize = _numElements*_elementSize*_typeSize;
    
     // pass the data to the buffer object on the GPU
     glBufferData(_targetTypeGL, bufSize, dataPointer, _usageTypeGL);
-
-    #ifdef _DEBUG
-    GET_GL_ERROR;
-    #endif
    
     // update stats
     totalBufferSize += bufSize;
     totalBufferCount++;
     //SL_LOG("VBO created: %d", _id);
     //cout << "created: " << _id << ", used:" << totalBufferCount << endl;
+    
+    #ifdef _GLDEBUG
+    GET_GL_ERROR;
+    #endif
 }
 //-----------------------------------------------------------------------------      
-/*! Updates a buffer object by copying new data or subdata to the buffer
+/*! Updates a buffer object by copying new data or sub-data to the buffer
 */
 void SLGLBuffer::update(const void* dataPointer, 
                         SLuint numElements, 
@@ -125,12 +129,16 @@ void SLGLBuffer::update(const void* dataPointer,
     assert(numElements <= _numElements);
     assert(offsetElements < numElements);
 
-    // copy subdata into existing buffer object
+    // copy sub-data into existing buffer object
     glBindBuffer(_targetTypeGL, _id);
     glBufferSubData(_targetTypeGL,
                     offsetElements*_elementSize*_typeSize,
                     _numElements*_elementSize*_typeSize,
                     dataPointer);
+    
+    #ifdef _GLDEBUG
+    GET_GL_ERROR;
+    #endif
 }        
 //-----------------------------------------------------------------------------      
 /*! Binds the buffer and enables the GLSL attribute by index. If the attribute
@@ -162,6 +170,10 @@ void SLGLBuffer::bindAndEnableAttrib(SLint attribIndex,
       
         _attribIndex = attribIndex;
     }
+    
+    #ifdef _GLDEBUG
+    GET_GL_ERROR;
+    #endif
 }
 //-----------------------------------------------------------------------------      
 /*! Binds the index buffer and draws the elements with a primitive type
@@ -187,6 +199,10 @@ void SLGLBuffer::bindAndDrawElementsAs(SLPrimitive primitiveType,
     ////////////////////////////////////////
 
     totalDrawCalls++;
+    
+    #ifdef _GLDEBUG
+    GET_GL_ERROR;
+    #endif
 }
 //-----------------------------------------------------------------------------      
 /*! Draws the vertex array buffer with a primitive type
@@ -208,6 +224,10 @@ void SLGLBuffer::drawArrayAs(SLPrimitive primitiveType,
     //////////////////////////////
 
     totalDrawCalls++;
+    
+    #ifdef _GLDEBUG
+    GET_GL_ERROR;
+    #endif
 }
 //-----------------------------------------------------------------------------      
 /*! Disable attribute arrays. Not doing this step after drawing can lead to
@@ -219,6 +239,10 @@ void SLGLBuffer::disableAttribArray()
 
     if (_attribIndex >= 0)
         glDisableVertexAttribArray(_attribIndex);
+    
+    #ifdef _GLDEBUG
+    GET_GL_ERROR;
+    #endif
 }
 //-----------------------------------------------------------------------------
 /*! Draws a vertex array buffer as line primitive with constant color
@@ -267,9 +291,13 @@ void SLGLBuffer::drawArrayAsConstantColorLines(SLCol3f color,
     if (lineWidth!=1.0f)
         glLineWidth(1.0f);
     #endif
+    
+    #ifdef _GLDEBUG
+    GET_GL_ERROR;
+    #endif
 }
 //-----------------------------------------------------------------------------
-/*! Draws a vertex array buffer as linestrip primitive with constant color
+/*! Draws a vertex array buffer as line strip primitive with constant color
 */
 void SLGLBuffer::drawArrayAsConstantColorLineStrip(SLCol3f color,
                                                    SLfloat lineWidth,
@@ -309,6 +337,10 @@ void SLGLBuffer::drawArrayAsConstantColorLineStrip(SLCol3f color,
     #ifndef SL_GLES2
     if (lineWidth!=1.0f)
         glLineWidth(1.0f);
+    #endif
+    
+    #ifdef _GLDEBUG
+    GET_GL_ERROR;
     #endif
 }
 //--------------------------------------------------------------------------
@@ -358,6 +390,10 @@ void SLGLBuffer::drawArrayAsConstantColor(SLPrimitive primitiveType,
         else 
             glLineWidth(1.0f);
     #endif
+    
+    #ifdef _GLDEBUG
+    GET_GL_ERROR;
+    #endif
 }
 //-----------------------------------------------------------------------------
 /*! Draws a vertex array buffer as line primitive with constant color attribute
@@ -401,6 +437,10 @@ void SLGLBuffer::drawArrayAsConstantColorPoints(SLCol4f color,
     #ifndef SL_GLES2
     if (pointSize!=1.0f)
         glPointSize(1.0f);
+    #endif
+    
+    #ifdef _GLDEBUG
+    GET_GL_ERROR;
     #endif
 }
 //-----------------------------------------------------------------------------

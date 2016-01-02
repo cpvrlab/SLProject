@@ -146,7 +146,7 @@ Optionally you can draw the normals and/or the uniform grid voxels.
 <p>
 1) Apply the drawing bits<br>
 2) Apply the uniform variables to the shader<br>
-2a) Activate a shader program if it is not yet in use and apply all its material paramters.<br>
+2a) Activate a shader program if it is not yet in use and apply all its material parameters.<br>
 2b) Pass the modelview and modelview-projection matrix to the shader.<br>
 2c) If needed build and pass the inverse modelview and the normal matrix.<br>
 2d) If the mesh has a skeleton and HW skinning is applied pass the joint matrices.<br>
@@ -193,7 +193,6 @@ void SLMesh::draw(SLSceneView* sv, SLNode* node)
         // enable polygon offset if voxels are drawn to avoid stitching
         if (sv->drawBit(SL_DB_VOXELS) || node->drawBit(SL_DB_VOXELS))
             _stateGL->polygonOffset(true, 1.0f, 1.0f);
-
 
        
         /////////////////////////////
@@ -262,7 +261,6 @@ void SLMesh::draw(SLSceneView* sv, SLNode* node)
             sp->uniformMatrix4fv(locBM, _skeleton->numJoints(), (SLfloat*)_jointMatrices, false);
         }
 
-
         /////////////////////
         // 3) Build VBOs once
         /////////////////////
@@ -303,6 +301,7 @@ void SLMesh::draw(SLSceneView* sv, SLNode* node)
 
         _bufI.bindAndDrawElementsAs(primitiveType, numI, 0);
 
+
         ////////////////////////////////
         // 6) Disable attribute pointers
         ////////////////////////////////
@@ -315,6 +314,7 @@ void SLMesh::draw(SLSceneView* sv, SLNode* node)
         if (_bufJi.id()) _bufJi.disableAttribArray();
         if (_bufJw.id()) _bufJw.disableAttribArray();
       
+
         //////////////////////////////////////
         // 7) Draw optional normals & tangents
         //////////////////////////////////////
@@ -322,7 +322,7 @@ void SLMesh::draw(SLSceneView* sv, SLNode* node)
         // All helper lines must be drawn without blending
         SLbool blended = _stateGL->blend();
         if (blended) _stateGL->blend(false);
-
+        
         if (N && (sv->drawBit(SL_DB_NORMALS) || node->drawBit(SL_DB_NORMALS)))
         {  
             // scale factor r 5% from scaled radius for normals & tangents
@@ -362,7 +362,7 @@ void SLMesh::draw(SLSceneView* sv, SLNode* node)
             if (_bufN2.id()) _bufN2.dispose();
             if (_bufT2.id()) _bufT2.dispose();
         }
-
+        
         //////////////////////////////////////////
         // 8) Draw optional acceleration structure
         //////////////////////////////////////////
@@ -389,8 +389,6 @@ void SLMesh::draw(SLSceneView* sv, SLNode* node)
         } 
 
         if (blended) _stateGL->blend(true);
-            
-        GET_GL_ERROR;
     }
     else
     {   SLstring msg;

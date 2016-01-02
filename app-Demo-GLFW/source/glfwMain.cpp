@@ -412,7 +412,7 @@ int main(int argc, char *argv[])
     //Using higher OpenGL Version than 2.1 is not possible
     //because we use no version in the GLSL shader files.
     //glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-    //glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 2);
+    //glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     //glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
     //glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 
@@ -422,6 +422,7 @@ int main(int argc, char *argv[])
     touchDelta.set(-1,-1);
 
     window = glfwCreateWindow(scrWidth, scrHeight, "My Title", NULL, NULL);
+
     //get real window size
     glfwGetWindowSize(window, &scrWidth, &scrHeight);
 
@@ -460,10 +461,12 @@ int main(int argc, char *argv[])
 
     glfwSetWindowTitle(window, "SLProject Test Application");
     glfwSetWindowPos(window, 10, 30);
-
    
     // Set number of monitor refreshes between 2 buffer swaps
     glfwSwapInterval(1);
+
+    // Get GL errors that occurred before our framework is involved
+    GET_GL_ERROR;
 
     // Set your own physical screen dpi
     int dpi = (int)(142 * scr2fbX);

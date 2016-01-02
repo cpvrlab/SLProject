@@ -382,7 +382,7 @@ SLstring SLCamera::projectionToStr(SLProjection p)
 //-----------------------------------------------------------------------------
 /*! 
 Returns the height of the screen at focal distance. In stereo rendering this
-shoud correspond to the height of the projection plane.
+should correspond to the height of the projection plane.
 */
 SLfloat SLCamera::focalDistScrH() const
 {  
@@ -391,7 +391,7 @@ SLfloat SLCamera::focalDistScrH() const
 //-----------------------------------------------------------------------------
 /*! 
 Returns the width of the screen at focal distance. In stereo rendering this
-shoud correspond to the width of the projection plane.
+should correspond to the width of the projection plane.
 */
 SLfloat SLCamera::focalDistScrW() const
 {  
@@ -402,7 +402,7 @@ SLfloat SLCamera::focalDistScrW() const
 Sets the projection transformation matrix, the viewport transformation and the
 drawing buffer. In case of a stereographic projection it additionally sets the
 stereo splitting parameters such as the color masks and the color filter matrix
-for stereo color anaglyphs. 
+for stereo color anaglyph. 
 */
 void SLCamera::setProjection(SLSceneView* sv, const SLEye eye)
 {  
@@ -416,7 +416,7 @@ void SLCamera::setProjection(SLSceneView* sv, const SLEye eye)
     _stateGL->projection = _projection;
    
     SLVec3f pos(vm.translation());
-    SLfloat top, bottom, left, right, d;   // frustum paramters
+    SLfloat top, bottom, left, right, d;   // frustum parameters
     _scrW = sv->scrW();
     _scrH = sv->scrH();
     _aspect = sv->scrWdivH();
@@ -433,7 +433,7 @@ void SLCamera::setProjection(SLSceneView* sv, const SLEye eye)
             left   = -sv->scrWdivH()*top;
             right  = -left;
 
-            // The ortographic projection should have its near clip plane behind the camera
+            // The orthographic projection should have its near clip plane behind the camera
             // rather than slightly in front of it. Else we will see cross sections of scenes if
             // we zoom in close
             _stateGL->projectionMatrix.ortho(left,right,bottom,top, -_clipNear, _clipFar);
@@ -445,7 +445,7 @@ void SLCamera::setProjection(SLSceneView* sv, const SLEye eye)
             break;
         // all other stereo projections
         default: 
-            // assymetric frustum shift d (see chapter stereo projection)
+            // asymmetric frustum shift d (see chapter stereo projection)
             d = (SLfloat)eye * 0.5f * _eyeSeparation * _clipNear / _focalDist;
             top    = tan(SL_DEG2RAD*_fov/2) * _clipNear;
             bottom = -top;
@@ -453,7 +453,7 @@ void SLCamera::setProjection(SLSceneView* sv, const SLEye eye)
             right  =  sv->scrWdivH()*top - d;
             _stateGL->projectionMatrix.frustum(left,right,bottom,top,_clipNear,_clipFar);
     }
-   
+
     //////////////////
     // Set Viewport //
     //////////////////
@@ -484,7 +484,6 @@ void SLCamera::setProjection(SLSceneView* sv, const SLEye eye)
         else _stateGL->viewport(w2, h4, w2, h2);
     } else  
         _stateGL->viewport(0, 0, w, h);
-   
 
     ///////////////////
     // Clear Buffers //

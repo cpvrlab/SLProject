@@ -115,7 +115,6 @@ void SLSceneView::init(SLstring name,
 
     _doDepthTest = true;
     _doMultiSampling = true;    // true=OpenGL multisampling is turned on
-    _hasMultiSampling = false;  // Multisampling is check in onInitialize
     _doFrustumCulling = true;   // true=enables view frustum culling
     _waitEvents = true;
     _usesRotation = false;
@@ -309,11 +308,6 @@ void SLSceneView::onInitialize()
 
     _raytracer.clearData();
     _renderType = renderGL;
-
-    // Check for multisample capability
-    SLint samples;
-    glGetIntegerv(GL_SAMPLES, &samples);
-    _hasMultiSampling = (samples > 0);
 
     // init 3D scene with initial depth 1
     if (s->root3D() && s->root3D()->aabb()->radiusOS()==0)
@@ -1738,7 +1732,7 @@ void SLSceneView::build2DMenus()
     mn2 = new SLButton(this, "Render States >", f);
     mn1->addChild(mn2);
     mn2->addChild(new SLButton(this, "Slowdown on Idle", f, cmdWaitEventsToggle, true, _waitEvents, 0, false));
-    if (hasMultiSampling())
+    if (_stateGL->hasMultiSampling())
         mn2->addChild(new SLButton(this, "Do Multi Sampling", f, cmdMultiSampleToggle, true, _doMultiSampling, 0, false));
     mn2->addChild(new SLButton(this, "Do Frustum Culling", f, cmdFrustCullToggle, true, _doFrustumCulling, 0, false));
     mn2->addChild(new SLButton(this, "Do Depth Test", f, cmdDepthTestToggle, true, _doDepthTest, 0, false));

@@ -62,20 +62,20 @@ SLScene::SLScene(SLstring name) : SLObject(name)
 {  
     current = this;
 
-    _root3D       = nullptr;
-    _menu2D       = nullptr;
-    _menuGL       = nullptr;
-    _menuRT       = nullptr;
-    _menuPT       = nullptr;
-    _info         = nullptr;
-    _infoGL       = nullptr;
-    _infoRT       = nullptr;
-    _infoLoading  = nullptr;
-    _btnHelp      = nullptr;
-    _btnAbout     = nullptr;
-    _btnCredits   = nullptr;
-    _selectedMesh = nullptr;
-    _selectedNode = nullptr;
+    _root3D         = nullptr;
+    _menu2D         = nullptr;
+    _menuGL         = nullptr;
+    _menuRT         = nullptr;
+    _menuPT         = nullptr;
+    _info           = nullptr;
+    _infoGL         = nullptr;
+    _infoRT         = nullptr;
+    _infoLoading    = nullptr;
+    _btnHelp        = nullptr;
+    _btnAbout       = nullptr;
+    _btnCredits     = nullptr;
+    _selectedMesh   = nullptr;
+    _selectedNode   = nullptr;
     _stopAnimations = false;
 
     _fps = 0;

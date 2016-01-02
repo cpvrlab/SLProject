@@ -336,7 +336,10 @@ void SLGLTexture::build(SLint texID)
         //////////////////////////////////////////
         
         if (_min_filter>=GL_NEAREST_MIPMAP_NEAREST)
-        {   if (_stateGL->glIsES2() || _stateGL->glIsES3() || _stateGL->glVersionNOf() >= 3.0)
+        {   if (_stateGL->glIsES2() || 
+                _stateGL->glIsES3() || 
+                _stateGL->glVersionNOf() >= 3.0 &&
+                _stateGL->glVersion().find("Mesa")==string::npos)
                 glGenerateMipmap(GL_TEXTURE_2D);
             else
                 build2DMipmaps(GL_TEXTURE_2D, 0);

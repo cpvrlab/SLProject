@@ -90,14 +90,15 @@ class SLGLState
         // getters
         inline const SLMat4f* invModelViewMatrix() {return &_invModelViewMatrix;}
         inline const SLMat3f* normalMatrix()       { return &_normalMatrix; }
-        const SLMat4f* mvpMatrix();               //!< builds and returns proj.mat. x mv mat.
-        const SLCol4f* globalAmbient();           //!< returns global ambient color
+               const SLMat4f* mvpMatrix();         //!< builds and returns proj.mat. x mv mat.
+               const SLCol4f* globalAmbient();     //!< returns global ambient color
+        inline       bool     hasMultiSampling()   {return _multiSampleSamples > 0;}
       
         // misc.
-        void     buildInverseMatrix();            //!< build inverse matrix from MV
-        void     buildNormalMatrix();             //!< build the normal matrix from MV
-        void     buildInverseAndNormalMatrix();   //!< build inverse & normal mat. from MV
-        void     unbindAnythingAndFlush();        //!< finishes all GL commands
+        void     buildInverseMatrix();          //!< build inverse matrix from MV
+        void     buildNormalMatrix();           //!< build the normal matrix from MV
+        void     buildInverseAndNormalMatrix(); //!< build inverse & normal mat. from MV
+        void     unbindAnythingAndFlush();      //!< finishes all GL commands
         SLbool   pixelFormatIsSupported(SLint pixelFormat);
       
         // light transformations into view space
@@ -177,7 +178,8 @@ class SLGLState
         SLbool      _depthMask;             //!< glDepthMask state
         SLbool      _cullFace;              //!< Face culling state
         SLbool      _multisample;           //!< Multisampling state
-        SLbool      _polygonLine;           //!< Line polygonstate
+        SLint       _multiSampleSamples;    //!< NO. of multisampling samples
+        SLbool      _polygonLine;           //!< Line polygon state
         SLbool      _polygonOffsetEnabled;  //!< GL_POLYGON_OFFSET_FILL state
         SLfloat     _polygonOffsetFactor;   //!< GL_POLYGON_OFFSET_FILL factor
         SLfloat     _polygonOffsetUnits;    //!< GL_POLYGON_OFFSET_FILL units

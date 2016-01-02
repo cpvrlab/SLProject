@@ -65,21 +65,30 @@ SLbool SLGLShader::createAndCompile()
                 SL_EXIT_MSG("SLGLShader::load: Unknown shader type.");
         }
       
-        //SLstring verGLSL = SLGLState::getInstance()->glSLVersionNO();
-        //SLstring srcVersion = "#version " + verGLSL + "\n";
+        SLstring verGLSL = SLGLState::getInstance()->glSLVersionNO();
+        SLstring srcVersion = "#version " + verGLSL + "\n";
 
-        //if (verGLSL > "120")
-        //{   if (_type == VertexShader)
-        //    {   SLUtils::replaceString(_code, "attribute", "in");
-        //        SLUtils::replaceString(_code, "varying", "out");
-        //    }
-        //    if (_type == FragmentShader)
-        //    {   SLUtils::replaceString(_code, "varying", "in");
-        //    }
-        //}
-        //SLstring scrComplete = srcVersion + _code;
-
-        SLstring scrComplete = _code;
+        // All shaders have initially no version number 
+        if (verGLSL > "120")
+        {   if (_type == VertexShader)
+            {   SLUtils::replaceString(_code, "attribute", "in       ");
+                SLUtils::replaceString(_code, "varying", "out    ");
+            }
+            if (_type == FragmentShader)
+            {   SLUtils::replaceString(_code, "varying", "in     ");
+            }
+        }
+        
+        SLstring scrComplete = srcVersion + _code;
+        
+        // write out the parsed shader code as text files
+        #ifdef _DEBUG
+        ofstream fs(name()+".Debug"); 
+        if(fs)
+        {   fs << scrComplete;
+            fs.close();
+        }
+        #endif
 
         const char* src = scrComplete.c_str();
         glShaderSource(_objectGL, 1, &src, 0);

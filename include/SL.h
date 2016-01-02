@@ -85,6 +85,7 @@ SL_USE_DISCARD_STEREOMODES: The discard stereo modes can be used (SLCamera)
     #include <direct.h> //_getcwd
     #define SL_GETCWD _getcwd
     #ifdef _DEBUG
+        #define _GLDEBUG
         //#define SL_MEMLEAKDETECT
         //#define _NO_DEBUG_HEAP 1
     #endif
