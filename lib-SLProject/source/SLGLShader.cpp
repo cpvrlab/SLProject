@@ -1,8 +1,6 @@
 //#############################################################################
-//  File:      SLGLShader.h
-//  Author:    Marcus Hudritsch 
-//             Mainly based on Martin Christens GLSL Tutorial
-//             See http://www.clockworkcoders.com
+//  File:      SLGLShader.cpp
+//  Author:    Marcus Hudritsch
 //  Date:      July 2014
 //  Codestyle: https://github.com/cpvrlab/SLProject/wiki/Coding-Style-Guidelines
 //  Copyright: Marcus Hudritsch
@@ -95,8 +93,8 @@ SLbool SLGLShader::createAndCompile()
             }
         }
 
-        // Replace "gl_FragColor" that was depricated in GLSL 330 by a custom out variable
-        if (verGLSL > "310")
+        // Replace "gl_FragColor" that was deprecated in GLSL 140 (OpenGL 3.1) by a custom out variable
+        if (verGLSL > "130")
         {
             if (_type == FragmentShader)
             {   SLUtils::replaceString(_code, "gl_FragColor", "fragColor");
