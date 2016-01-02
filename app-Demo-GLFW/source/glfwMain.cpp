@@ -469,7 +469,8 @@ int main(int argc, char *argv[])
     int dpi = (int)(142 * scr2fbX);
     cout << "------------------------------------------------------------------" << endl;
     cout << "GUI             : GLFW (Version: " << GLFW_VERSION_MAJOR << "." << 
-                                                   GLFW_VERSION_MINOR << ")" << endl;
+                                                   GLFW_VERSION_MINOR << "." << 
+                                                   GLFW_VERSION_REVISION << ")" << endl;
     cout << "DPI             : " << dpi << endl;
 
     // get executable path
