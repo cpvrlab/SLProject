@@ -86,7 +86,7 @@ class SLGLBuffer
                      SLBufferTarget target = SL_ARRAY_BUFFER,
                      SLBufferUsage  usage  = SL_STATIC_DRAW);
       
-        //! Updates a buffer object by copying new data or subdata to the buffer
+        //! Updates a buffer object by copying new data or sub-data to the buffer
         void update(const void* dataPointer, 
                     SLuint numElements, 
                     SLuint offsetElements = 0);
@@ -108,10 +108,10 @@ class SLGLBuffer
 
         //!  Draws a vertex array with constant color attribute
         void drawArrayAsConstantColor(SLPrimitive primitiveType,
-                                     SLCol4f color,
-                                     SLfloat lineOrPointWidth = 1.0f,
-                                     SLuint  indexFirstVertex = 0,
-                                     SLuint  numVertices = 0);
+                                      SLCol4f color,
+                                      SLfloat lineOrPointWidth = 1.0f,
+                                      SLuint  indexFirstVertex = 0,
+                                      SLuint  numVertices = 0);
 
         //! Draws a vertex array as lines with constant color attribute
         void drawArrayAsConstantColorLines(SLCol3f color,

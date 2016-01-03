@@ -219,8 +219,8 @@ void SLGLBuffer::drawArrayAs(SLPrimitive primitiveType,
    
     //////////////////////////////
     glDrawArrays(primitiveType, 
-                indexFirstVertex, 
-                elementsToDraw);
+                 indexFirstVertex, 
+                 elementsToDraw);
     //////////////////////////////
 
     totalDrawCalls++;

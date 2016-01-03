@@ -64,7 +64,7 @@ SLbool SLGLShader::createAndCompile()
         }
       
         /*
-        All shaders are written with the initial GLSL version and are
+        All shaders are written with the initial GLSL version 110 and are
         therefore backwards compatible with the compatibility profile
         from OpenGL 2.1 and OpenGL ES 2 that runs on most mobile devices.
         To be upwards compatible we have to do some modification depending on
@@ -83,14 +83,6 @@ SLbool SLGLShader::createAndCompile()
             if (_type == FragmentShader)
             {   SLUtils::replaceString(_code, "varying", "in     ");
             }
-        }        
-        
-        // Replace deprecated texture functions
-        if (verGLSL > "140")
-        {   if (_type == FragmentShader)
-            {   SLUtils::replaceString(_code, "texture3D", "texture");
-                SLUtils::replaceString(_code, "textureCube", "texture");
-            }
         }
 
         // Replace "gl_FragColor" that was deprecated in GLSL 140 (OpenGL 3.1) by a custom out variable
@@ -100,12 +92,20 @@ SLbool SLGLShader::createAndCompile()
             {   SLUtils::replaceString(_code, "gl_FragColor", "fragColor");
                 SLUtils::replaceString(_code, "void main", "out vec4 fragColor; \n\nvoid main");
             }
+        }     
+        
+        // Replace deprecated texture functions
+        if (verGLSL > "140")
+        {   if (_type == FragmentShader)
+            {   SLUtils::replaceString(_code, "texture3D", "texture");
+                SLUtils::replaceString(_code, "textureCube", "texture");
+            }
         }
         
         SLstring scrComplete = srcVersion + _code;
         
         // write out the parsed shader code as text files
-        #ifdef _DEBUG
+        #ifdef _GLDEBUG
         ofstream fs(name()+".Debug"); 
         if(fs)
         {

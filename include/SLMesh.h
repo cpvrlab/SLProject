@@ -32,19 +32,19 @@ class SLSkeleton;
 
 /* Problems with the current SLMesh class:
 
-    1. A single SLBuffer object per data in the mesh.
+    1.  A single SLBuffer object per data in the mesh.
         Position, normals, texture coordinates etc. all have their own SLBuffer instance in the mesh.
         It is tedious to handle them and to upload the correct data.
 
         Cue: Vertex Semantic
 
-    2. Too tightly coupled with SLMaterial.
+    2.  Too tightly coupled with SLMaterial.
         e.x.:   SLMesh might need a different combination of vertex and fragment programs
                 depending on its own data. If it is an animated mesh it needs a vertex program
                 that supports GPU skinning. Then we also can choose between per vertex and per
                 fragment lighting.
 
-                For the old model it was somewhat okay to specify per vertex/fragment lighting in 
+                For the old model it was somewhat ok to specify per vertex/fragment lighting in 
                 the material, but specifying a skinning shader in the material doesn't seem right.
 */
 
@@ -65,7 +65,7 @@ The vertex attributes are stored in arrays with equal number (numV) of elements:
 \n
 \n
 The normals of a vertex are automatically calculated in the method calcNormals()
-by averageing the face normals of the adjacent triangles. A vertex has allways
+by averaging the face normals of the adjacent triangles. A vertex has always
 only <b>one</b> normal and is used for the lighting calculation in the shader
 programs. With such averaged normals you can created a interpolated shading on
 smooth surfaces such as a sphere.
@@ -80,10 +80,10 @@ smooth but also 4 sharp edges. The smooth red normal as the top vertex got
 averaged because its position is only once in the array P. On the other hand
 are the vertices of the hard edges in the front of the sphere doubled.
 \n
-\image html sharpAndSmoothEdges.png
+\image HTML sharpAndSmoothEdges.png
 \n
 \n The following the example creates the box with 24 vertices:
-\n The vertex positios and normals in P and N:
+\n The vertex positions and normals in P and N:
 \n numV = 24
 \n P[0] = [1,1,1]   N[0] = [1,0,0]
 \n P[1] = [1,0,1]   N[1] = [1,0,0]
@@ -123,7 +123,7 @@ are the vertices of the hard edges in the front of the sphere doubled.
 \n          16,17,18, 16,18,19,
 \n          20,21,22, 20,22,23}
 \n
-\image html boxVertices.png
+\image HTML boxVertices.png
 \n
 For all arrays a corresponding vertex buffer object (VBO) is created on the
 graphic card. All arrays remain in the main memory for ray tracing.
@@ -173,8 +173,8 @@ class SLMesh : public SLObject
             SLVec3f*        finalN          () {return *_finalN;}
 
             // temporary software skinning buffers
-            SLVec3f*        cpuSkinningP;   //!< buffer for the cpu skinning position data
-            SLVec3f*        cpuSkinningN;   //!< buffer for the cpu skinning normal data
+            SLVec3f*        cpuSkinningP;   //!< buffer for the CPU skinning position data
+            SLVec3f*        cpuSkinningN;   //!< buffer for the CPU skinning normal data
 
             SLVec3f*        P;              //!< Array of vertex positions
             SLVec3f*        N;              //!< Array of vertex normals (opt.)
