@@ -14,6 +14,7 @@
 #include <stdafx.h>
 #include <SLAABBox.h>
 #include <SLGLBuffer.h>
+#include <SLGLVertexArray.h>
 #include <SLEnums.h>
 
 class SLSceneView;
@@ -197,17 +198,9 @@ class SLMesh : public SLObject
             SLGLState*      _stateGL;       //!< Pointer to the global SLGLState instance
             SLPrimitive     _primitive;     //!< Primitive type (default triangles)
 
-            SLGLBuffer      _bufP;          //!< Buffer for vertex positions
-            SLGLBuffer      _bufN;          //!< Buffer for vertex normals
-            SLGLBuffer      _bufC;          //!< Buffer for vertex colors
-            SLGLBuffer      _bufTc;         //!< Buffer for vertex texcoords
-            SLGLBuffer      _bufT;          //!< Buffer for vertex tangents
-            SLGLBuffer      _bufI;          //!< Buffer for vertex indexes
-            SLGLBuffer      _bufJi;         //!< Buffer for joint id
-            SLGLBuffer      _bufJw;         //!< Buffer for joint weight
-               
-            SLGLBuffer      _bufN2;         //!< Buffer for normal line rendering
-            SLGLBuffer      _bufT2;         //!< Buffer for tangent line rendering
+            SLGLVertexArray _vao;           //!< OpenGL Vertex Array Object for drawing
+            SLGLVertexArray _vaoN;          //!< OpenGL VAO for optional normal drawing
+            SLGLVertexArray _vaoT;          //!< OpenGL VAO for optional tangent drawing
                
             SLbool          _isVolume;      //!< Flag for RT if mesh is a closed volume
                

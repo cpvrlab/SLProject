@@ -292,6 +292,25 @@ function force a pipeline flush.
 //      loc = it->second;
 //   return loc;
 //}
+//-----------------------------------------------------------------------------
+SLint SLGLProgram::getUniformLocation(const SLchar *name)
+{   
+    SLint loc = glGetUniformLocation(_objectGL, name);
+    #ifdef _GLDEBUG
+    GET_GL_ERROR;
+    #endif
+    return loc;
+}
+
+//-----------------------------------------------------------------------------
+SLint SLGLProgram::getAttribLocation(const SLchar *name)
+{   
+    SLint loc = glGetAttribLocation(_objectGL, name);
+    #ifdef _GLDEBUG
+    GET_GL_ERROR;
+    #endif
+    return loc;
+}
 
 //-----------------------------------------------------------------------------
 //! Passes the float value v0 to the uniform variable "name"

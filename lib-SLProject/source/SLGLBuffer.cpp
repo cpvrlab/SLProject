@@ -428,8 +428,8 @@ void SLGLBuffer::drawArrayAsConstantColorPoints(SLCol4f color,
     bindAndEnableAttrib(sp->getAttribLocation("a_position"));
    
     glDrawArrays(GL_POINTS,
-                indexFirstVertex, 
-                numVertices ? numVertices : _numElements);
+                 indexFirstVertex, 
+                 numVertices ? numVertices : _numElements);
     totalDrawCalls++;
                 
     disableAttribArray();

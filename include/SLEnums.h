@@ -84,7 +84,7 @@ enum SLCmd
     cmdSceneInfoToggle,
     cmdQuit,
    
-    cmdSceneSmallTest,   // Loads the different scenes
+    cmdSceneMinimal,   // Loads the different scenes
     cmdSceneFigure,   
     cmdSceneMeshLoad,
     cmdSceneVRSizeTest,

@@ -357,9 +357,7 @@ void SLGLTexture::build(SLint texID)
                          _images[i]->format(),
                          GL_UNSIGNED_BYTE,
                          (GLvoid*)_images[i]->data());
-            //////////////////////////////////////////////
-            
-            GET_GL_ERROR;  
+            //////////////////////////////////////////////  
         } 
         if (_min_filter>=GL_NEAREST_MIPMAP_NEAREST)
             glGenerateMipmap(GL_TEXTURE_2D);  

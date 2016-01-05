@@ -68,11 +68,11 @@ class SLGLProgram : public SLObject
             SLVGLShader&  shaders         (){return _shaders;}
 
       
-        //Variable location getters
-    inline  SLint       getUniformLocation(const SLchar *name){return glGetUniformLocation(_objectGL, name);}
-    inline  SLint       getAttribLocation(const SLchar *name){return glGetAttribLocation(_objectGL, name);}
+            //Variable location getters
+            SLint       getUniformLocation(const SLchar *name);
+            SLint       getAttribLocation (const SLchar *name);
 
-            //Send unform variables to program
+            //Send uniform variables to program
             SLint       uniform1f       (const SLchar* name, SLfloat v0);
             SLint       uniform2f       (const SLchar* name, SLfloat v0, 
                                          SLfloat v1); 

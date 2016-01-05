@@ -1398,7 +1398,7 @@ SLbool SLSceneView::onCommand(SLCmd cmd)
         }
         else return false;
 
-    case cmdSceneSmallTest:
+    case cmdSceneMinimal:
     case cmdSceneFigure:
     case cmdSceneLargeModel:
     case cmdSceneMeshLoad:
@@ -1633,7 +1633,7 @@ void SLSceneView::build2DMenus()
    
     mn3 = new SLButton(this, "General >", f);
     mn2->addChild(mn3);
-    mn3->addChild(new SLButton(this, "SmallTest", f, cmdSceneSmallTest, true, curS==cmdSceneSmallTest, mn2));
+    mn3->addChild(new SLButton(this, "SmallTest", f, cmdSceneMinimal, true, curS==cmdSceneMinimal, mn2));
     SLstring large1 = SLImporter::defaultPath + "PLY/xyzrgb_dragon.ply";
     SLstring large2 = SLImporter::defaultPath + "PLY/mesh_zermatt.ply";
     SLstring large3 = SLImporter::defaultPath + "PLY/switzerland.ply";

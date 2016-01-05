@@ -191,7 +191,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
 
     _currentID = sceneName;
 
-    if (sceneName == cmdSceneSmallTest) //......................................
+    if (sceneName == cmdSceneMinimal) //.......................................
     {
         // Set scene name and info string
         name("Minimal Texture Example");
