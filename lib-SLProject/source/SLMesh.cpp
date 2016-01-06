@@ -298,7 +298,7 @@ void SLMesh::draw(SLSceneView* sv, SLNode* node)
             }
 
             // Create or update VAO for normals
-            _vaoN.generatePosAttrib(numV*2, 3, V2);
+            _vaoN.generateLineVertices(numV*2, 3, V2);
 
             if (T)
             {   for (SLuint i=0; i < numV; ++i)
@@ -308,7 +308,7 @@ void SLMesh::draw(SLSceneView* sv, SLNode* node)
                 }
 
                 // Create or update VAO for tangents
-                _vaoT.generatePosAttrib(numV*2, 3, V2);
+                _vaoT.generateLineVertices(numV*2, 3, V2);
             }
             delete[] V2;
 

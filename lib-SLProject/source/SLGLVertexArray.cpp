@@ -323,29 +323,31 @@ void SLGLVertexArray::drawArrayAs(SLPrimitive primitiveType,
     #endif
 }
 //-----------------------------------------------------------------------------
-void SLGLVertexArray::generatePosAttrib(SLuint numVertices,
-                                        SLint elementSize,
-                                        void* dataPointer)
+void SLGLVertexArray::generateLineVertices(SLuint numVertices,
+                                           SLint elementSize,
+                                           void* dataPointer)
 {
     assert(dataPointer);
     assert(elementSize);
     assert(numVertices);
-
-    // Get attribute index and check element size
-    SLint index = attribIndex(SL_POSITION);
+    
+    SLGLProgram* sp = SLScene::current->programs(ColorUniform);
+    SLGLState* state = SLGLState::getInstance();
+    sp->useProgram();
+    SLint location = sp->getAttribLocation("a_position");
+    
+    if (location == -1)
+        SL_EXIT_MSG("The position attribute has no variable location.");
     
     // Add attribute if it doesn't exist
-    if (index == -1)
-    {   addAttrib(SL_POSITION, 
-                  elementSize, 
-                  SLScene::current->programs(ColorUniform)->getAttribLocation("a_position"),
-                  dataPointer);
+    if (attribIndex(SL_POSITION) == -1)
+    {   addAttrib(SL_POSITION, elementSize, location, dataPointer);
         generate(numVertices);
     } else
         updateAttrib(SL_POSITION, elementSize, dataPointer);
 }
 //-----------------------------------------------------------------------------
-/*! Draws a vertex array buffer as line primitive with constant color
+/*! Draws the vertex position as line primitive with constant color
 */
 void SLGLVertexArray::drawColorLines(SLCol3f color,
                                      SLfloat lineWidth,
@@ -361,16 +363,15 @@ void SLGLVertexArray::drawColorLines(SLCol3f color,
     sp->useProgram();
     sp->uniformMatrix4fv("u_mvpMatrix", 1, (SLfloat*)state->mvpMatrix());
    
-    // Set uniform color           
-    SLint indexC = sp->getUniformLocation("u_color");
-    glUniform4fv(indexC, 1, (SLfloat*)&color);
+    // Set uniform color
+    glUniform4fv(sp->getUniformLocation("u_color"), 1, (SLfloat*)&color);
    
     #ifndef SL_GLES2
     if (lineWidth!=1.0f)
         glLineWidth(lineWidth);
     #endif
                 
-    drawArrayAs(SL_LINES);
+    drawArrayAs(SL_LINES, indexFirstVertex, numVertices);
    
     #ifndef SL_GLES2
     if (lineWidth!=1.0f)
@@ -403,7 +404,6 @@ void SLGLVertexArray::drawColorPoints(SLCol4f color,
     glUniform4fv(indexC, 1, (SLfloat*)&color);
    
     glBindBuffer(GL_ARRAY_BUFFER, _idVBOAttribs);
-
 
     SLint posLoc = sp->getAttribLocation("a_position");
 

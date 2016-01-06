@@ -12,7 +12,7 @@
 #define SLAABBox_H
 
 #include <stdafx.h>
-#include <SLGLBuffer.h>
+#include <SLGLVertexArray.h>
 
 class SLRay;
 class SLScene;
@@ -23,7 +23,7 @@ class SLScene;
 The SLAABBox class defines an axis aligned bounding box with a minimal and 
 maximal point. Each node (SLNode) will have an AABB the will be calculated
 in buildAABB. A mesh (SLMesh) will implement buildAABB and calculate the
-minimal and maximal coordiantes in object space (stored in _minOS and _maxOS).
+minimal and maximal coordinates in object space (stored in _minOS and _maxOS).
 For a fast ray-AABB intersection in world space we transform _minOS and _maxOS
 into world space (with the shapes world matrix) and store it in _minWS and
 _maxWS.
@@ -76,29 +76,29 @@ class SLAABBox
             void        drawAxisWS     ();
             void        drawBoneWS     ();
             void        setCenterAndRadius();
-            void        generateVBO    ();
+            void        generateVAO    ();
             SLbool      isHitInOS      (SLRay* ray);
             SLbool      isHitInWS      (SLRay* ray);
                
     private:
-            SLVec3f     _minWS;         //!< Min. corner in world space
-            SLVec3f     _minOS;         //!< Min. corner in object space
-            SLVec3f     _maxWS;         //!< Max. corner in world space
-            SLVec3f     _maxOS;         //!< Max. corner in object space
-            SLVec3f     _centerWS;      //!< Center of AABB in world space
-            SLVec3f     _centerOS;      //!< Center of AABB in object space
-            SLfloat     _radiusWS;      //!< Radius of sphere around AABB in WS
-            SLfloat     _radiusOS;      //!< Radius of sphere around AABB in OS
-            SLfloat     _sqrViewDist;   //!< Squared dist. from center to viewpoint
-            SLVec3f     _axis0WS;       //!< World space axis center point
-            SLVec3f     _axisXWS;       //!< World space x-axis vector
-            SLVec3f     _axisYWS;       //!< World space y-axis vector
-            SLVec3f     _axisZWS;       //!< World space z-axis vector
-            SLbool      _boneIsOffset;  //!< Flag if the connection parent to us is a bone or an offset
-            SLVec3f     _parent0WS;     //!< World space vector to the parent position
-            SLbool      _isVisible;     //!< Flag if AABB is in the view frustum
-            SLbool      _hasTransp;     //!< Flag if AABB has transparent shapes
-            SLGLBuffer  _bufP;          //!< Buffer object for vertex positions
+            SLVec3f         _minWS;         //!< Min. corner in world space
+            SLVec3f         _minOS;         //!< Min. corner in object space
+            SLVec3f         _maxWS;         //!< Max. corner in world space
+            SLVec3f         _maxOS;         //!< Max. corner in object space
+            SLVec3f         _centerWS;      //!< Center of AABB in world space
+            SLVec3f         _centerOS;      //!< Center of AABB in object space
+            SLfloat         _radiusWS;      //!< Radius of sphere around AABB in WS
+            SLfloat         _radiusOS;      //!< Radius of sphere around AABB in OS
+            SLfloat         _sqrViewDist;   //!< Squared dist. from center to viewpoint
+            SLVec3f         _axis0WS;       //!< World space axis center point
+            SLVec3f         _axisXWS;       //!< World space x-axis vector
+            SLVec3f         _axisYWS;       //!< World space y-axis vector
+            SLVec3f         _axisZWS;       //!< World space z-axis vector
+            SLbool          _boneIsOffset;  //!< Flag if the connection parent to us is a bone or an offset
+            SLVec3f         _parent0WS;     //!< World space vector to the parent position
+            SLbool          _isVisible;     //!< Flag if AABB is in the view frustum
+            SLbool          _hasTransp;     //!< Flag if AABB has transparent shapes
+            SLGLVertexArray _vao;           //!< Vertex array object for rendering
 };
 //-----------------------------------------------------------------------------
 

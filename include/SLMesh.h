@@ -13,7 +13,6 @@
 
 #include <stdafx.h>
 #include <SLAABBox.h>
-#include <SLGLBuffer.h>
 #include <SLGLVertexArray.h>
 #include <SLEnums.h>
 

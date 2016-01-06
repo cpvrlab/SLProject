@@ -108,9 +108,6 @@
     <ClInclude Include="..\include\SLGrid.h">
       <Filter>Nodes\Meshes</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\SLGLBuffer.h">
-      <Filter>GL</Filter>
-    </ClInclude>
     <ClInclude Include="..\include\SLGLOculus.h">
       <Filter>GL</Filter>
     </ClInclude>
@@ -270,6 +267,9 @@
     <ClInclude Include="..\include\SLGLVertexArray.h">
       <Filter>GL</Filter>
     </ClInclude>
+    <ClInclude Include="..\include\SLGLBuffer.h">
+      <Filter>GL</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="source\SLAABBox.cpp">
@@ -343,9 +343,6 @@
     </ClCompile>
     <ClCompile Include="source\SLGrid.cpp">
       <Filter>Nodes\Meshes</Filter>
-    </ClCompile>
-    <ClCompile Include="source\SLGLBuffer.cpp">
-      <Filter>GL</Filter>
     </ClCompile>
     <ClCompile Include="source\SLGLOculus.cpp">
       <Filter>GL</Filter>
@@ -447,6 +444,9 @@
       <Filter>Scene</Filter>
     </ClCompile>
     <ClCompile Include="source\SLGLVertexArray.cpp">
+      <Filter>GL</Filter>
+    </ClCompile>
+    <ClCompile Include="source\SLGLBuffer.cpp">
       <Filter>GL</Filter>
     </ClCompile>
   </ItemGroup>

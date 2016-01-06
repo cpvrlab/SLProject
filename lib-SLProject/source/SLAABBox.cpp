@@ -87,8 +87,8 @@ void SLAABBox::fromOStoWS(const SLVec3f &minOS,
     _axisYWS = wm.multVec(SLVec3f::AXISY);
     _axisZWS = wm.multVec(SLVec3f::AXISZ);
 
-    // Delete OpenGL vertex buffer
-    if (_bufP.id()) _bufP.dispose();
+    // Delete OpenGL vertex array
+    if (_vao.id()) _vao.clearAttribs();
    
     setCenterAndRadius();
 }
@@ -127,8 +127,8 @@ void SLAABBox::fromWStoOS(const SLVec3f &minWS,
         _maxOS.setMax(vCorner[i]);
     }
    
-    // Delete OpenGL vertex buffer
-    if (_bufP.id()) _bufP.dispose();
+    // Delete OpenGL vertex array
+    if (_vao.id()) _vao.clearAttribs();
    
     setCenterAndRadius();
 }
@@ -141,9 +141,9 @@ void SLAABBox::updateAxisWS(const SLMat4f &wm)
     _axisXWS = wm.multVec(SLVec3f::AXISX);
     _axisYWS = wm.multVec(SLVec3f::AXISY);
     _axisZWS = wm.multVec(SLVec3f::AXISZ);
-
-    // Delete OpenGL vertex buffer
-    if (_bufP.id()) _bufP.dispose();
+    
+    // Delete OpenGL vertex array
+    if (_vao.id()) _vao.clearAttribs();
 }
 //-----------------------------------------------------------------------------
 //! Updates joints axis and the bone line from the parent to us
@@ -190,9 +190,9 @@ void SLAABBox::updateBoneWS(const SLMat4f &parentWM,
     _axisXWS = nodeWM.multVec(SLVec3f::AXISX * axisScaleFactor);
     _axisYWS = nodeWM.multVec(SLVec3f::AXISY * axisScaleFactor);
     _axisZWS = nodeWM.multVec(SLVec3f::AXISZ * axisScaleFactor);
-
-    // Delete OpenGL vertex buffer
-    if (_bufP.id()) _bufP.dispose();
+    
+    // Delete OpenGL vertex array
+    if (_vao.id()) _vao.clearAttribs();
 }
 //-----------------------------------------------------------------------------
 //! Calculates center & radius of the bounding sphere around the AABB
@@ -212,7 +212,7 @@ void SLAABBox::setCenterAndRadius()
 }
 //-----------------------------------------------------------------------------
 //! Generates the vertex buffer for the line visualization
-void SLAABBox::generateVBO()
+void SLAABBox::generateVAO()
 {
     SLVec3f P[32];  // vertex positions (24 for aabb, 6 for axis, 3 for joint)
 
@@ -254,29 +254,23 @@ void SLAABBox::generateVBO()
     P[30].set(_parent0WS.x, _parent0WS.y, _parent0WS.z);
     P[31].set(_axis0WS.x, _axis0WS.y, _axis0WS.z);
 
-    _bufP.generate(P, 32, 3);
+    _vao.generateLineVertices(32, 3, P);
 }
 //-----------------------------------------------------------------------------
 //! Draws the AABB in world space with lines in a color
 void SLAABBox::drawWS(const SLCol3f color)
-{  
-    // Create buffer object once
-    if (!_bufP.id()) generateVBO();
-    if (!_bufP.id()) return;
-   
-    _bufP.drawArrayAsConstantColorLines(color, 1.0f, 0, 24);
+{
+    if (!_vao.id()) generateVAO();
+    _vao.drawColorLines(color, 1.0f, 0, 24);
 }
 //-----------------------------------------------------------------------------
 //! Draws the axis in world space with lines in a color
 void SLAABBox::drawAxisWS()
 {
-    // Create buffer object once
-    if (!_bufP.id()) generateVBO();
-    if (!_bufP.id()) return;
-   
-    _bufP.drawArrayAsConstantColorLines(SLCol3f::RED,   2.0f, 24, 2);
-    _bufP.drawArrayAsConstantColorLines(SLCol3f::GREEN, 2.0f, 26, 2);
-    _bufP.drawArrayAsConstantColorLines(SLCol3f::BLUE,  2.0f, 28, 2);
+    if (!_vao.id()) generateVAO();
+    _vao.drawColorLines(SLCol3f::RED,   2.0f, 24, 2);
+    _vao.drawColorLines(SLCol3f::GREEN, 2.0f, 26, 2);
+    _vao.drawColorLines(SLCol3f::BLUE,  2.0f, 28, 2);
 }
 //-----------------------------------------------------------------------------
 //! Draws the joint axis and the parent bone in world space
@@ -286,19 +280,15 @@ an offset displacement in magenta. See also SLAABBox::updateBoneWS.
 */
 void SLAABBox::drawBoneWS()
 {
-    // Create buffer object once
-    if (!_bufP.id()) generateVBO();
-    if (!_bufP.id()) return;
-
-    _bufP.drawArrayAsConstantColorLines(SLCol3f::RED,     2.0f, 24, 2);
-    _bufP.drawArrayAsConstantColorLines(SLCol3f::GREEN,   2.0f, 26, 2);
-    _bufP.drawArrayAsConstantColorLines(SLCol3f::BLUE,    2.0f, 28, 2);
-
+    if (!_vao.id()) generateVAO();
+    _vao.drawColorLines(SLCol3f::RED,     2.0f, 24, 2);
+    _vao.drawColorLines(SLCol3f::GREEN,   2.0f, 26, 2);
+    _vao.drawColorLines(SLCol3f::BLUE,    2.0f, 28, 2);
 
     // draw either an offset line or a bone line as the parent
     if (!_boneIsOffset)
-         _bufP.drawArrayAsConstantColorLines(SLCol3f::YELLOW,  1.0f, 30, 2);
-    else _bufP.drawArrayAsConstantColorLines(SLCol3f::MAGENTA, 1.0f, 30, 2);
+         _vao.drawColorLines(SLCol3f::YELLOW,  1.0f, 30, 2);
+    else _vao.drawColorLines(SLCol3f::MAGENTA, 1.0f, 30, 2);
 }
 //-----------------------------------------------------------------------------
 //! SLAABBox::isHitInWS: Ray - AABB Intersection Test in object space

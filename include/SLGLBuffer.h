@@ -13,47 +13,8 @@
 #define SLGLBUFFER_H
 
 #include <stdafx.h>
+#include <SLGLVertexArray.h>
 
-//-----------------------------------------------------------------------------
-//! Enumeration for buffer data types
-typedef enum
-{
-    SL_FLOAT          = GL_FLOAT,          // vertex attributes (position, normals)
-    SL_UNSIGNED_BYTE  = GL_UNSIGNED_BYTE,  // vertex index type (0-2^8)
-    SL_UNSIGNED_SHORT = GL_UNSIGNED_SHORT, // vertex index type (0-2^16)
-    SL_UNSIGNED_INT   = GL_UNSIGNED_INT    // vertex index type (0-2^32)
-} SLBufferType;
-//-----------------------------------------------------------------------------
-//! Enumeration for buffer target types
-typedef enum
-{
-    SL_ARRAY_BUFFER         = GL_ARRAY_BUFFER,         // vertex attributes arrays
-    SL_ELEMENT_ARRAY_BUFFER = GL_ELEMENT_ARRAY_BUFFER  // vertex index arrays
-} SLBufferTarget;
-//-----------------------------------------------------------------------------
-/*! Enumeration for buffer usage types also supported by OpenGL ES
-STATIC:  Buffer contents will be modified once and used many times.
-STREAM:  Buffer contents will be modified once and used at most a few times.
-DYNAMIC: Buffer contents will be modified repeatedly and used many times.
-*/
-typedef enum
-{
-    SL_STATIC_DRAW  = GL_STATIC_DRAW,
-    SL_STREAM_DRAW  = GL_STREAM_DRAW,
-    SL_DYNAMIC_DRAW = GL_DYNAMIC_DRAW,
-} SLBufferUsage;
-//-----------------------------------------------------------------------------
-// Enumeration for OpenGL primitive types also available on OpenGL ES
-typedef enum
-{
-    SL_POINTS         = GL_POINTS,
-    SL_LINES          = GL_LINES,
-    SL_LINE_LOOP      = GL_LINE_LOOP,
-    SL_LINE_STRIP     = GL_LINE_STRIP,
-    SL_TRIANGLES      = GL_TRIANGLES,
-    SL_TRIANGLE_STRIP = GL_TRIANGLE_STRIP,
-    SL_TRIANGLE_FAN   = GL_TRIANGLE_FAN
-} SLPrimitive;
 //-----------------------------------------------------------------------------
 //! Encapsulation of an OpenGL buffer object
 /*! 

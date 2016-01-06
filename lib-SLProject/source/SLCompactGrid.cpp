@@ -187,7 +187,7 @@ void SLCompactGrid::draw (SLSceneView* sv)
     {
         SLuint   i = 0;  // number of lines to draw
 
-        if (!_bufP.id())
+        if (!_vao.id())
         {
             SLint    x, y, z;
             SLuint   curVoxel = 0;
@@ -241,11 +241,11 @@ void SLCompactGrid::draw (SLSceneView* sv)
                 }
             }
 
-            _bufP.generate(P, i, 3);
+            _vao.generateLineVertices(numP, 3, P);
             delete[] P;
         }
 
-        _bufP.drawArrayAsConstantColorLines(SLCol3f::CYAN);
+        _vao.drawColorLines(SLCol3f::CYAN);
     }
 }
 //-----------------------------------------------------------------------------

@@ -412,6 +412,7 @@
     <ClInclude Include="..\include\SLBackground.h" />
     <ClInclude Include="..\include\SLCompactGrid.h" />
     <ClInclude Include="..\include\SLDisk.h" />
+    <ClInclude Include="..\include\SLGLBuffer.h" />
     <ClInclude Include="..\include\SLGLVertexArray.h" />
     <ClInclude Include="..\include\SLInputDevice.h" />
     <ClInclude Include="..\include\SLInputEvent.h" />
@@ -423,7 +424,6 @@
     <ClInclude Include="..\include\SLEnums.h" />
     <ClInclude Include="..\include\SLEventHandler.h" />
     <ClInclude Include="..\include\SLFileSystem.h" />
-    <ClInclude Include="..\include\SLGLBuffer.h" />
     <ClInclude Include="..\include\SLGLGenericProgram.h" />
     <ClInclude Include="..\include\SLGLOculus.h" />
     <ClInclude Include="..\include\SLGLOculusFB.h" />
@@ -490,6 +490,7 @@
     <ClCompile Include="source\SLBackground.cpp" />
     <ClCompile Include="source\SLCompactGrid.cpp" />
     <ClCompile Include="source\SLDisk.cpp" />
+    <ClCompile Include="source\SLGLBuffer.cpp" />
     <ClCompile Include="source\SLGLVertexArray.cpp" />
     <ClCompile Include="source\SLInputDevice.cpp" />
     <ClCompile Include="source\SLInputManager.cpp" />
@@ -499,7 +500,6 @@
     <ClCompile Include="source\SLCamera.cpp" />
     <ClCompile Include="source\SLCone.cpp" />
     <ClCompile Include="source\SLCylinder.cpp" />
-    <ClCompile Include="source\SLGLBuffer.cpp" />
     <ClCompile Include="source\SLGLOculus.cpp" />
     <ClCompile Include="source\SLGLOculusFB.cpp" />
     <ClCompile Include="source\SLGLProgram.cpp" />
