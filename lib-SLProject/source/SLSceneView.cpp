@@ -380,7 +380,7 @@ the 2D or 3D graph was updated or waitEvents is false.
 SLbool SLSceneView::onPaint()
 {  
     SLScene* s = SLScene::current;
-    SLGLBuffer::totalDrawCalls = 0;
+    SLGLVertexArray::totalDrawCalls = 0;
     SLbool camUpdated = false;
     
     if (_camera  && s->_root3D)
@@ -402,10 +402,10 @@ SLbool SLSceneView::onPaint()
         s->oculus()->endFrame(_scrW, _scrH, _oculusFB.texID());
 
     // Update statistic of VBO's & drawcalls
-    _totalBufferCount = SLGLBuffer::totalBufferCount;
-    _totalBufferSize = SLGLBuffer::totalBufferSize;
-    _totalDrawCalls = SLGLBuffer::totalDrawCalls;
-    SLGLBuffer::totalDrawCalls   = 0;
+    _totalBufferCount = SLGLVertexArray::totalBufferCount;
+    _totalBufferSize = SLGLVertexArray::totalBufferSize;
+    _totalDrawCalls = SLGLVertexArray::totalDrawCalls;
+    SLGLVertexArray::totalDrawCalls   = 0;
 
     // Set gotPainted only to true if RT is not busy
     _gotPainted = _renderType==renderGL || raytracer()->state()!=rtBusy;
@@ -933,11 +933,11 @@ void SLSceneView::draw2DGLAll()
             touch[i].z = 0.0f;
         }
       
-        _bufTouch.generate(touch, _touchDowns, 3);
+        _vaoTouch.generateLineVertices(_touchDowns, 3, touch);
         delete [] touch;
       
         SLCol4f yelloAlpha(1.0f, 1.0f, 0.0f, 0.5f);
-        _bufTouch.drawArrayAsConstantColorPoints(yelloAlpha, 21);
+        _vaoTouch.drawColorPoints(yelloAlpha, 21);
         _stateGL->popModelViewMatrix();
     }
     #endif
@@ -950,14 +950,14 @@ void SLSceneView::draw2DGLAll()
             _stateGL->modelViewMatrix.translate(0, 0, depth);
             SLVec3f cross;
             cross.set(0,0,0);
-            _bufTouch.generate(&cross, 1, 3);
+            _vaoTouch.generateLineVertices(3, 1, &cross);
             SLCol4f yelloAlpha(1.0f, 1.0f, 0.0f, 0.5f);
-            _bufTouch.drawArrayAsConstantColorPoints(yelloAlpha, (SLfloat)_dpi/12.0f);
+            _vaoTouch.drawColorPoints(yelloAlpha, (SLfloat)_dpi/12.0f);
             _stateGL->popModelViewMatrix();
         }
     }
 
-    // Draw virtual mouse cursor if we're in hmd stereo mode
+    // Draw virtual mouse cursor if we're in HMD stereo mode
     if (_camera->projection() == stereoSideBySideD)
     {
         SLfloat hCur = (SLfloat)s->texCursor()->height();

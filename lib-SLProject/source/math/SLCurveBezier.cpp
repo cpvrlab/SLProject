@@ -113,7 +113,7 @@ void SLCurveBezier::draw(const SLMat4f &wm)
     SLint numControlPoints = 2*(_count-1);
 
     // Create buffer object
-    if (!_bufP.id())
+    if (!_vao.id())
     {  
         // Build renderPoints by recursively subdividing the curve
         SLVVec3f renderPoints;
@@ -142,36 +142,37 @@ void SLCurveBezier::draw(const SLMat4f &wm)
         }
       
         // Generate finally the OpenGL rendering buffer
-        _bufP.generate(&renderPoints[0], (SLint)renderPoints.size(), 3);
+        //_bufP.generate(&renderPoints[0], (SLint)renderPoints.size(), 3);
+        _vao.generateLineVertices((SLint)renderPoints.size(), 3, &renderPoints[0]);
     }
    
-    if (!_bufP.id()) return;
+    if (!_vao.id()) return;
 
     // Set the view transform
     SLGLState* stateGL = SLGLState::getInstance();
     stateGL->modelViewMatrix.setMatrix(stateGL->viewMatrix);
 
     SLint numTangentPoints = numControlPoints * 2;
-    SLint numCurvePoints = _bufP.numElements() -
+    SLint numCurvePoints = _vao.numVertices() -
                            _count - numControlPoints - numTangentPoints;
    
     // Draw curve as a line strip through interpolated points
-    _bufP.drawArrayAsConstantColorLineStrip(SLCol3f::RED, 1, 0, numCurvePoints);
+    _vao.drawColorLineStrip(SLCol3f::RED, 1, 0, numCurvePoints);
    
     // ES2 has often problems with rendering points
     #ifndef SL_GLES2
     // Draw curve as a line strip through interpolated points
-    _bufP.drawArrayAsConstantColorPoints(SLCol3f::RED, 3, 0, numCurvePoints);
+    _vao.drawColorPoints(SLCol3f::RED, 3, 0, numCurvePoints);
 
     // Draw input points
-    _bufP.drawArrayAsConstantColorPoints(SLCol3f::BLUE, 6, numCurvePoints, _count);
+    _vao.drawColorPoints(SLCol3f::BLUE, 6, numCurvePoints, _count);
 
     // Draw control points
-    _bufP.drawArrayAsConstantColorPoints(SLCol3f::YELLOW, 6,
+    _vao.drawColorPoints(SLCol3f::YELLOW, 6,
         numCurvePoints + _count, numControlPoints);
 
     // Draw tangent points as lines
-    _bufP.drawArrayAsConstantColorLines(SLCol3f::YELLOW, 1,
+    _vao.drawColorLines(SLCol3f::YELLOW, 1,
         numCurvePoints + _count + numControlPoints, numTangentPoints);
     #endif
 }

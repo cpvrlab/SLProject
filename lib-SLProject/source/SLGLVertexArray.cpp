@@ -34,18 +34,19 @@ SLGLVertexArray::SLGLVertexArray()
     _numIndices = 0;
     _numVertices = 0;
     _vboSize = 0;
+    _outputInterleaved = false;
 }
 //-----------------------------------------------------------------------------
 /*! Destructor calling dispose
 */
 SLGLVertexArray::~SLGLVertexArray() 
 {
-    dispose();
+    glDelete();
 }
 //-----------------------------------------------------------------------------
 /*! Deletes all data
 */
-void SLGLVertexArray::dispose()
+void SLGLVertexArray::glDelete()
 {  
     if (_glHasVAO && _idVAO) 
     {   glDeleteVertexArrays(1, &_idVAO);
@@ -63,27 +64,23 @@ void SLGLVertexArray::dispose()
         totalBufferCount--;
         totalBufferSize -= _numIndices * _indexTypeSize;
     }
-    
-    #ifdef _GLDEBUG
-    GET_GL_ERROR;
-    #endif
 }
 //-----------------------------------------------------------------------------
-void SLGLVertexArray::addAttrib(SLVertexAttribType aType, 
+void SLGLVertexArray::setAttrib(SLVertexAttribType type, 
                                 SLint elementSize,
                                 SLint location, 
                                 void* dataPointer)
 {   assert(dataPointer);
     assert(elementSize);
 
-    if (aType == SL_POSITION && location == -1)
+    if (type == SL_POSITION && location == -1)
         SL_EXIT_MSG("The position attribute has no variable location.");
 
-    if (attribIndex(aType) >= 0)
+    if (attribIndex(type) >= 0)
         SL_EXIT_MSG("Attribute type already exists.");
 
     SLVertexAttrib va;
-    va.type = aType;
+    va.type = type;
     va.elementSize = elementSize;
     va.dataPointer = dataPointer;
     va.location = location;
@@ -91,7 +88,7 @@ void SLGLVertexArray::addAttrib(SLVertexAttribType aType,
     _attribs.push_back(va);
 }
 //-----------------------------------------------------------------------------
-void SLGLVertexArray::addIndices(SLuint numIndices,
+void SLGLVertexArray::setIndices(SLuint numIndices,
                                  SLBufferType indexDataType,
                                  void* dataPointer)
 {   assert(numIndices);
@@ -115,14 +112,16 @@ void SLGLVertexArray::addIndices(SLuint numIndices,
     }
 }
 //-----------------------------------------------------------------------------
-void SLGLVertexArray::updateAttrib(SLVertexAttribType aType, 
+void SLGLVertexArray::updateAttrib(SLVertexAttribType type, 
                                    SLint elementSize,
                                    void* dataPointer)
-{   assert(dataPointer);
-    assert(elementSize > 1 && elementSize < 5);
+{   
+    assert(dataPointer && "No data pointer passed");
+    assert(elementSize > 0 && elementSize < 5 && "Element size invalid");
+    assert(!_outputInterleaved && "Interleaved buffers can't be updated.");
     
     // Get attribute index and check element size
-    SLint index = attribIndex(aType);
+    SLint index = attribIndex(type);
     if (index == -1)
         SL_EXIT_MSG("Attribute type does not exist in VAO.");
     if (_attribs[index].elementSize != elementSize)
@@ -134,7 +133,7 @@ void SLGLVertexArray::updateAttrib(SLVertexAttribType aType,
     // copy sub-data into existing buffer object
     glBindBuffer(GL_ARRAY_BUFFER, _idVBOAttribs);
     glBufferSubData(GL_ARRAY_BUFFER,
-                    _attribs[index].bufferOffsetBytes,
+                    _attribs[index].offsetBytes,
                     _attribs[index].bufferSizeBytes,
                     dataPointer);
     
@@ -149,14 +148,16 @@ void SLGLVertexArray::updateAttrib(SLVertexAttribType aType,
 /*!
 */
 void SLGLVertexArray::generate(SLuint numVertices, 
-                               SLBufferUsage usage)
+                               SLBufferUsage usage,
+                               SLbool outputinterleaved)
 {   assert(numVertices);
 
     // if buffers exist delete them first
-    dispose();
+    glDelete();
 
     _numVertices = numVertices;
     _usage = usage;
+    _outputInterleaved = outputinterleaved;
 
     // Generate and bind VAO
     if (_glHasVAO)
@@ -166,42 +167,146 @@ void SLGLVertexArray::generate(SLuint numVertices,
     glGenBuffers(1, &_idVBOAttribs);
     glBindBuffer(GL_ARRAY_BUFFER, _idVBOAttribs);
 
-    // calculate total vbo size and attribute offset
-    _vboSize = 0;
-    for (SLint i=0; i<_attribs.size(); ++i) 
-    {   _attribs[i].bufferOffsetBytes = _vboSize;
-        _attribs[i].bufferSizeBytes = _attribs[i].elementSize * sizeof(SLfloat) * _numVertices;
-        _vboSize += _attribs[i].bufferSizeBytes;
-    }
-
-    // allocate the vbo buffer on the GPU
-    glBufferData(GL_ARRAY_BUFFER, _vboSize, NULL, _usage);
-    totalBufferCount++;
-    totalBufferSize += _vboSize;
-
-    for (auto a : _attribs)
-    {   if (a.location > -1)
-        {
-            // Copies the attributes data at the right offset into the vbo
-            glBufferSubData(GL_ARRAY_BUFFER,
-                            a.bufferOffsetBytes,
-                            a.bufferSizeBytes,
-                            a.dataPointer);
-        
-            // Sets the vertex attribute data pointer to its corresponding GLSL variable
-            glVertexAttribPointer(a.location, 
-                                  a.elementSize, 
-                                  GL_FLOAT,
-                                  GL_FALSE, 
-                                  0,
-                                  (void*)a.bufferOffsetBytes);
-        
-            // Tell the attribute to be an array attribute instead of a state variable
-            glEnableVertexAttribArray(a.location);
+    // Check first if all attribute data pointer point to the same interleaved data
+    SLbool inputIsInterleaved = false;
+    if (_attribs.size() > 1)
+    {   inputIsInterleaved = true;
+        for (auto a : _attribs)
+        {   if (a.dataPointer != _attribs[0].dataPointer)
+            {   inputIsInterleaved = false;
+                break;
+            }
         }
     }
 
-    // create vbo for indices and copy its data to the GPU
+    ///////////////////////////////////////////////////////
+    // Calculate total VBO size & attribute stride & offset
+    ///////////////////////////////////////////////////////
+
+    _vboSize = 0;
+    _strideBytes = 0;
+
+    if (inputIsInterleaved)
+    {   _outputInterleaved = true;
+        for (SLint i=0; i<_attribs.size(); ++i) 
+        {   SLuint elementSizeBytes = _attribs[i].elementSize * sizeof(SLfloat);
+            _attribs[i].offsetBytes = _strideBytes;
+            _attribs[i].bufferSizeBytes = elementSizeBytes * _numVertices;
+            _vboSize += _attribs[i].bufferSizeBytes;
+            _strideBytes += elementSizeBytes;
+        }  
+    }
+    else // input is in separate attribute data blocks
+    {
+        for (SLint i=0; i<_attribs.size(); ++i) 
+        {   SLuint elementSizeBytes = _attribs[i].elementSize * sizeof(SLfloat);
+            if (_outputInterleaved)
+                 _attribs[i].offsetBytes = _strideBytes;
+            else _attribs[i].offsetBytes = _vboSize;
+            _attribs[i].bufferSizeBytes = elementSizeBytes * _numVertices;
+            _vboSize += _attribs[i].bufferSizeBytes;
+            if (_outputInterleaved) _strideBytes += elementSizeBytes;
+        }
+    }
+
+    //////////////////////////////
+    // Generate VBO for Attributes
+    //////////////////////////////
+
+    if (inputIsInterleaved)
+    {
+        for (auto a : _attribs)
+        {   
+            if (a.location > -1)
+            {   // Sets the vertex attribute data pointer to its corresponding GLSL variable
+                glVertexAttribPointer(a.location, 
+                                      a.elementSize, 
+                                      GL_FLOAT,
+                                      GL_FALSE, 
+                                      _strideBytes,
+                                      (void*)a.offsetBytes);
+        
+                // Tell the attribute to be an array attribute instead of a state variable
+                glEnableVertexAttribArray(a.location);
+            }
+        }
+
+        // generate the interleaved vbo buffer on the GPU
+        glBufferData(GL_ARRAY_BUFFER, _vboSize, _attribs[0].dataPointer, _usage);
+    }
+    else  // input is in separate attribute data block
+    {    
+        if (_outputInterleaved) // Copy attribute data interleaved
+        {
+            SLuchar* data = new SLuchar[_vboSize];
+
+            for (auto a : _attribs)
+            {   
+                SLuint elementSizeBytes = a.elementSize * sizeof(SLfloat);
+
+                // Copy attributes interleaved
+                for (SLuint v = 0; v < _numVertices; ++v)
+                {   SLuint iDst = v * _strideBytes + a.offsetBytes;
+                    SLuint iSrc = v * elementSizeBytes;
+                    for (SLuint b = 0; b < elementSizeBytes; ++b)
+                        data[iDst+b] = ((SLuchar*)a.dataPointer)[iSrc+b];
+                }
+
+                if (a.location > -1)
+                {   // Sets the vertex attribute data pointer to its corresponding GLSL variable
+                    glVertexAttribPointer(a.location, 
+                                          a.elementSize, 
+                                          GL_FLOAT,
+                                          GL_FALSE, 
+                                          _strideBytes,
+                                          (void*)a.offsetBytes);
+        
+                    // Tell the attribute to be an array attribute instead of a state variable
+                    glEnableVertexAttribArray(a.location);
+
+                }
+            }
+
+            // generate the interleaved vbo buffer on the GPU
+            glBufferData(GL_ARRAY_BUFFER, _vboSize, data, _usage);
+            delete[] data;
+        } 
+        else // copy attributes buffers sequentially
+        {   
+            // allocate the vbo buffer on the GPU
+            glBufferData(GL_ARRAY_BUFFER, _vboSize, NULL, _usage);
+        
+            for (auto a : _attribs)
+            {   if (a.location > -1)
+                {
+                    // Copies the attributes data at the right offset into the vbo
+                    glBufferSubData(GL_ARRAY_BUFFER,
+                                    a.offsetBytes,
+                                    a.bufferSizeBytes,
+                                    a.dataPointer);
+        
+                    // Sets the vertex attribute data pointer to its corresponding GLSL variable
+                    glVertexAttribPointer(a.location, 
+                                          a.elementSize, 
+                                          GL_FLOAT,
+                                          GL_FALSE, 
+                                          0,
+                                          (void*)a.offsetBytes);
+        
+                    // Tell the attribute to be an array attribute instead of a state variable
+                    glEnableVertexAttribArray(a.location);
+                }
+            }
+        }
+    }
+
+    totalBufferCount++;
+    totalBufferSize += _vboSize;
+
+    /////////////////////////
+    // Create VBO for Indices
+    /////////////////////////
+
     if (_numIndices)
     {   glGenBuffers(1, &_idVBOIndices);
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _idVBOIndices);
@@ -221,8 +326,9 @@ void SLGLVertexArray::generate(SLuint numVertices,
 void SLGLVertexArray::drawElementsAs(SLPrimitive primitiveType,
                                      SLuint numIndexes,
                                      SLuint indexOffset)
-{   assert(_idVBOAttribs);
-    assert(_numIndices && _idVBOIndices);
+{   
+    assert(_idVBOAttribs && "No VBO generated for VAO.");
+    assert(_numIndices && _idVBOIndices && "No index VBO generated for VAO");
 
     if (_glHasVAO)
         glBindVertexArray(_idVAO);
@@ -236,8 +342,8 @@ void SLGLVertexArray::drawElementsAs(SLPrimitive primitiveType,
                                       a.elementSize,
                                       GL_FLOAT, 
                                       GL_FALSE, 
-                                      0, 
-                                      (void*)a.bufferOffsetBytes);
+                                      _strideBytes, 
+                                      (void*)a.offsetBytes);
 
                 // Tell the attribute to be an array attribute instead of a state variable
                 glEnableVertexAttribArray(a.location);
@@ -254,11 +360,10 @@ void SLGLVertexArray::drawElementsAs(SLPrimitive primitiveType,
 
     ////////////////////////////////////////////////////
     glDrawElements(primitiveType, 
-                    numIndexes, 
-                    _indexDataType, 
-                    (void*)(indexOffset*_indexTypeSize));
+                   numIndexes, 
+                   _indexDataType, 
+                   (void*)(indexOffset*_indexTypeSize));
     ////////////////////////////////////////////////////
-    
     
     totalDrawCalls++;
 
@@ -292,8 +397,8 @@ void SLGLVertexArray::drawArrayAs(SLPrimitive primitiveType,
                                       a.elementSize,
                                       GL_FLOAT, 
                                       GL_FALSE, 
-                                      0, 
-                                      (void*)a.bufferOffsetBytes);
+                                      _strideBytes, 
+                                      (void*)a.offsetBytes);
 
                 // Tell the attribute to be an array attribute instead of a state variable
                 glEnableVertexAttribArray(a.location);
@@ -332,7 +437,6 @@ void SLGLVertexArray::generateLineVertices(SLuint numVertices,
     assert(numVertices);
     
     SLGLProgram* sp = SLScene::current->programs(ColorUniform);
-    SLGLState* state = SLGLState::getInstance();
     sp->useProgram();
     SLint location = sp->getAttribLocation("a_position");
     
@@ -341,8 +445,8 @@ void SLGLVertexArray::generateLineVertices(SLuint numVertices,
     
     // Add attribute if it doesn't exist
     if (attribIndex(SL_POSITION) == -1)
-    {   addAttrib(SL_POSITION, elementSize, location, dataPointer);
-        generate(numVertices);
+    {   setAttrib(SL_POSITION, elementSize, location, dataPointer);
+        generate(numVertices, SL_STATIC_DRAW, false);
     } else
         updateAttrib(SL_POSITION, elementSize, dataPointer);
 }
@@ -383,7 +487,44 @@ void SLGLVertexArray::drawColorLines(SLCol3f color,
     #endif
 }
 //-----------------------------------------------------------------------------
-/*! Draws a vertex array buffer as line primitive with constant color attribute
+/*! Draws a vertex array buffer as line strip primitive with constant color
+*/
+void SLGLVertexArray::drawColorLineStrip(SLCol3f color,
+                                         SLfloat lineWidth,
+                                         SLuint  indexFirstVertex,
+                                         SLuint  numVertices)
+{   assert(_idVBOAttribs);
+    assert(numVertices <= _numVertices);
+   
+    // Prepare shader
+    SLMaterial::current = 0;
+    SLGLProgram* sp = SLScene::current->programs(ColorUniform);
+    SLGLState* state = SLGLState::getInstance();
+    sp->useProgram();
+    sp->uniformMatrix4fv("u_mvpMatrix", 1, (SLfloat*)state->mvpMatrix());
+   
+    // Set uniform color           
+    SLint indexC = sp->getUniformLocation("u_color");
+    glUniform4fv(indexC, 1, (SLfloat*)&color);
+   
+    #ifndef SL_GLES2
+    if (lineWidth!=1.0f)
+        glLineWidth(lineWidth);
+    #endif
+   
+    drawArrayAs(SL_LINE_STRIP, indexFirstVertex, numVertices);
+   
+    #ifndef SL_GLES2
+    if (lineWidth!=1.0f)
+        glLineWidth(1.0f);
+    #endif
+    
+    #ifdef _GLDEBUG
+    GET_GL_ERROR;
+    #endif
+}
+//-----------------------------------------------------------------------------
+/*! Draws the vertex position attribute as color points
 */
 void SLGLVertexArray::drawColorPoints(SLCol4f color,
                                       SLfloat pointSize,
@@ -418,8 +559,8 @@ void SLGLVertexArray::drawColorPoints(SLCol4f color,
                                   a.elementSize,
                                   GL_FLOAT, 
                                   GL_FALSE, 
-                                  0, 
-                                  (void*)a.bufferOffsetBytes);
+                                  _strideBytes, 
+                                  (void*)a.offsetBytes);
 
             // Tell the attribute to be an array attribute instead of a state variable
             glEnableVertexAttribArray(posLoc);
@@ -455,10 +596,10 @@ void SLGLVertexArray::drawColorPoints(SLCol4f color,
     #endif
 }
 //-----------------------------------------------------------------------------
-SLint SLGLVertexArray::attribIndex(SLVertexAttribType aType)
+SLint SLGLVertexArray::attribIndex(SLVertexAttribType type)
 {    
     for (SLint i=0; i<_attribs.size(); ++i)
-        if (_attribs[i].type == aType)
+        if (_attribs[i].type == type)
             return i;
     return -1;
 }

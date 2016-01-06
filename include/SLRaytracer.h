@@ -12,7 +12,6 @@
 
 #include <stdafx.h>
 #include <SLGLTexture.h>
-#include <SLGLBuffer.h>
 #include <SLEventHandler.h>
 
 class SLScene;
@@ -24,8 +23,7 @@ class SLCamera;
 //-----------------------------------------------------------------------------
 //! Ray tracing state
 typedef enum
-{
-    rtReady,       // RT is ready to start
+{   rtReady,       // RT is ready to start
     rtBusy,        // RT is running
     rtFinished,    // RT is finished
     rtMoveGL       // RT is finished and GL camera is moving
@@ -33,8 +31,7 @@ typedef enum
 //-----------------------------------------------------------------------------
 //! Pixel index struct used in anti aliasing in ray tracing
 struct SLRTAAPixel
-{
-    SLRTAAPixel(SLushort X=0, SLushort Y=0) {x=X;y=Y;}
+{   SLRTAAPixel(SLushort X=0, SLushort Y=0) {x=X;y=Y;}
     SLushort x;      //!< Unsigned short x-pixel index
     SLushort y;      //!< Unsigned short x-pixel index
 };

@@ -230,10 +230,10 @@ class SLSceneView: public SLObject
             SLbool          _mouseDownR;        //!< Flag if right mouse button is pressed
             SLbool          _mouseDownM;        //!< Flag if middle mouse button is pressed
             SLKey           _mouseMod;          //!< mouse modifier key on key down
-            SLint           _touchDowns;        //!< finger touche down count
+            SLint           _touchDowns;        //!< finger touch down count
             SLVec2i         _touch[3];          //!< up to 3 finger touch coordinates
-            SLGLBuffer      _bufTouch;          //!< Buffer for touch pos. rendering
-            SLGLBuffer      _bufCursor;         //!< Virtual cursor for stereo rendering
+            SLGLVertexArray _vaoTouch;          //!< Buffer for touch pos. rendering
+            SLGLVertexArray _vaoCursor;         //!< Virtual cursor for stereo rendering
             
             SLVec2i         _posCursor;         //!< Cursor position as reported by the os
             SLint           _scrW;              //!< Screen width in pixels

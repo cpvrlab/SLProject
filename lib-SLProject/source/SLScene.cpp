@@ -110,6 +110,8 @@ SLScene::SLScene(SLstring name) : SLObject(name)
     // load default video image that is displayed when no live video is available
     _videoTexture.setVideoImage("LiveVideoError.png");
 
+    _oculus.init();
+
     _infoAbout_en =
 "Welcome to the SLProject demo app (v1.2.000). It is developed at the \
 Computer Science Department of the Bern University of Applied Sciences. \

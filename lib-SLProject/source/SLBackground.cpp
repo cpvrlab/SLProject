@@ -138,16 +138,16 @@ void SLBackground::render(SLint widthPX, SLint heightPX)
         // Float array with vertex X & Y of corners
         SLfloat P[8] = {0.0f, (SLfloat)_resY, 0.0f, 0.0f,
                         (SLfloat)_resX, (SLfloat)_resY, (SLfloat)_resX, 0.0f}; 
-        _vao.addAttrib(SL_POSITION, 2, sp->getAttribLocation("a_position"), P);
+        _vao.setAttrib(SL_POSITION, 2, sp->getAttribLocation("a_position"), P);
         
         // Indexes for a triangle strip
         SLushort I[4] = {0,1,2,3};
-        _vao.addIndices(4, SL_UNSIGNED_SHORT, I);
+        _vao.setIndices(4, SL_UNSIGNED_SHORT, I);
 
         if(_texture)
         {   // Float array of texture coordinates
             SLfloat T[8] = {0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f, 0.0f};
-            _vao.addAttrib(SL_TEXCOORD, 2, sp->getAttribLocation("a_texCoord"), T);
+            _vao.setAttrib(SL_TEXCOORD, 2, sp->getAttribLocation("a_texCoord"), T);
             _vao.generate(4);
         } else
         {   // Float array of colors of corners
@@ -155,7 +155,7 @@ void SLBackground::render(SLint widthPX, SLint heightPX)
                              _colors[1].r, _colors[1].g, _colors[1].b,
                              _colors[2].r, _colors[2].g, _colors[2].b,
                              _colors[3].r, _colors[3].g, _colors[3].b};            
-            _vao.addAttrib(SL_COLOR, 3, sp->getAttribLocation("a_color"), C);
+            _vao.setAttrib(SL_COLOR, 3, sp->getAttribLocation("a_color"), C);
             _vao.generate(4);
         }
     }

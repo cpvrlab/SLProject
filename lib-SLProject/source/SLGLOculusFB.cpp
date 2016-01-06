@@ -147,23 +147,23 @@ void SLGLOculusFB::drawFramebuffer()
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
     glClear(GL_COLOR_BUFFER_BIT);
     glDisable(GL_DEPTH_TEST);
+
+    //bind the rift shader
+    SLGLProgram* sp = SLScene::current->programs(StereoOculus);
+    sp->useProgram();
+    SLint location = sp->getAttribLocation("a_position");
    
     // Create VBO for screen quad once
-    if (!_vbo.id())
-    {   SLfloat quadVerts[] = {-1,-1,  1,-1,  -1,1,  1,1};
-        _vbo.generate(quadVerts, 4, 2); 
+    if (!_vao.id())
+    {   SLfloat P[] = {-1,-1,  1,-1,  -1,1,  1,1};
+        _vao.setAttrib(SL_POSITION, 2, location, P);
+        _vao.generate(4); 
     }
 
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, _texID);
 
-    //bind the rift shader
-    SLGLProgram* sp = SLScene::current->programs(StereoOculus);
-    sp->useProgram();
-
-    _vbo.bindAndEnableAttrib(0);
-    _vbo.drawArrayAs(SL_TRIANGLE_STRIP);
-    _vbo.disableAttribArray();
+    _vao.drawArrayAs(SL_TRIANGLE_STRIP);
 
     glEnable(GL_DEPTH_TEST);
 }

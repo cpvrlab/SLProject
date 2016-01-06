@@ -13,7 +13,7 @@
 
 #include <SLCurve.h>
 #include <SLMat4.h>
-#include <SLGLBuffer.h>
+#include <SLGLVertexArray.h>
 
 //-----------------------------------------------------------------------------
 //!The SLCurveBezier class implements a Bezier curve interpolation
@@ -25,41 +25,41 @@ James M. Van Verth and Lars M. Bishop.
 class SLCurveBezier : public SLCurve
 {
     public:
-                    SLCurveBezier     (const SLVec3f*  points,
-                                        const SLfloat*  times,
-                                        const SLint     numPointsAndTimes,
-                                        const SLVec3f*  controlPoints=0);
-                    ~SLCurveBezier     ();
+                    SLCurveBezier   (const SLVec3f*  points,
+                                      const SLfloat*  times,
+                                      const SLint     numPointsAndTimes,
+                                      const SLVec3f*  controlPoints=0);
+                    ~SLCurveBezier  ();
 
-        void        dispose           ();
-        void        init              (const SLVec3f*  points,
-                                       const SLfloat*  times,
-                                       const SLint     numPointsAndTimes,
-                                       const SLVec3f*  controlPoints);
-        void        draw              (const SLMat4f &wm);
-        SLVec3f     evaluate          (const SLfloat t);
-        SLVec3f     velocity          (SLfloat t);
-        SLVec3f     acceleration      (SLfloat t);
+        void        dispose         ();
+        void        init            (const SLVec3f*  points,
+                                     const SLfloat*  times,
+                                     const SLint     numPointsAndTimes,
+                                     const SLVec3f*  controlPoints);
+        void        draw            (const SLMat4f &wm);
+        SLVec3f     evaluate        (const SLfloat t);
+        SLVec3f     velocity        (SLfloat t);
+        SLVec3f     acceleration    (SLfloat t);
 
-        SLfloat     segmentArcLength  (SLuint i, 
-                                        SLfloat u1, SLfloat u2);
-        SLfloat     subdivideLength   (const SLVec3f& P0, const SLVec3f& P1, 
-                                        const SLVec3f& P2, const SLVec3f& P3);
-        void        subdivideRender   (SLVVec3f &points,
-                                       const SLMat4f &wm,
-                                       SLfloat epsilon,
-                                       const SLVec3f& P0, const SLVec3f& P1, 
-                                       const SLVec3f& P2, const SLVec3f& P3);
-        SLfloat     arcLength         (SLfloat t1, SLfloat t2);
-        SLfloat     findParamByDist   (SLfloat t1, SLfloat s);
+        SLfloat     segmentArcLength(SLuint i, 
+                                      SLfloat u1, SLfloat u2);
+        SLfloat     subdivideLength (const SLVec3f& P0, const SLVec3f& P1, 
+                                      const SLVec3f& P2, const SLVec3f& P3);
+        void        subdivideRender (SLVVec3f &points,
+                                     const SLMat4f &wm,
+                                     SLfloat epsilon,
+                                     const SLVec3f& P0, const SLVec3f& P1, 
+                                     const SLVec3f& P2, const SLVec3f& P3);
+        SLfloat     arcLength       (SLfloat t1, SLfloat t2);
+        SLfloat     findParamByDist (SLfloat t1, SLfloat s);
 
         // Getters
-        SLint       numControlPoints  (){return 2*(_count-1);}
-        SLVec3f*    controls          (){return _controls;}
+        SLint       numControlPoints(){return 2*(_count-1);}
+        SLVec3f*    controls        (){return _controls;}
 
     protected:
-        SLVec3f*    _controls;        //!< Control points of Bézier curve
-        SLGLBuffer  _bufP;            //!< Buffer for vertex positions
+        SLVec3f*        _controls;  //!< Control points of Bézier curve
+        SLGLVertexArray _vao;       //!< Vertex array object for rendering
 };
 //-----------------------------------------------------------------------------
 #endif

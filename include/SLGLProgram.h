@@ -135,8 +135,6 @@ class SLGLProgram : public SLObject
         SLVGLShader   _shaders;         //!< Vector of all shader objects
         SLVUniform1f  _uniforms1f;      //!< Vector of uniform1f variables
         SLVUniform1i  _uniforms1i;      //!< Vector of uniform1i variables
-        //SLLocMap    _uniformLocHash;  //!< Hashmap for all uniform locations
-        //SLLocMap    _attribLocHash;   //!< Hashmap for all attribute locations
 };
 //-----------------------------------------------------------------------------
 //! STL vector of SLGLProgram pointers

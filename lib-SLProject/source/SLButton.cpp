@@ -30,8 +30,8 @@ SLVec2f   SLButton::oldMenuPos = SLVec2f(0,0);
 //-----------------------------------------------------------------------------
 /*! SLButton Constructor: 
 If command is cmdMenu the button is supposed to have sub menu buttons.
-If isCheckable is true the button gets a checkbox
-If isChecked is true the checkbox gets a little cross
+If isCheckable is true the button gets a check box
+If isChecked is true the check box gets a little cross
 If radioParent is a parent button all of it checkable children act as radio buttons.
 If closeOnClick is true the entire menu gets closed after command execution.
 */
@@ -89,8 +89,8 @@ void SLButton::drawRec(SLSceneView* sv)
     _stateGL->modelViewMatrix.multiply(_om.m());
     _stateGL->buildInverseAndNormalMatrix();
 
-    // Create the buffer objects the first time
-    if (!_bufP.id() && !_bufC.id() && !_bufI.id())
+    // Create the vertex array objects the first time
+    if (!_vao.id())
         buildBuffers();
    
     // draw root menu always, raw sliding menus below parent and
@@ -103,39 +103,23 @@ void SLButton::drawRec(SLSceneView* sv)
         SLGLState* state = SLGLState::getInstance();
         sp->useProgram();
         sp->uniformMatrix4fv("u_mvpMatrix", 1, (SLfloat*)state->mvpMatrix());
-        SLint indexP = sp->getAttribLocation("a_position");
-        SLint indexC = sp->getAttribLocation("a_color");
 
         // draw antialiased 
         state->multiSample(true);
    
         // Draw button rectangle
-        SLint colorIndex = _isDown ? buttonDown==this ? 24 : 0 : 4;
-        _bufP.bindAndEnableAttrib(indexP);
-        _bufC.bindAndEnableAttrib(indexC, colorIndex * sizeof(SLCol4f));
-        _bufI.bindAndDrawElementsAs(SL_TRIANGLES, 6);
+        _vao.drawArrayAs(SL_TRIANGLE_STRIP, _isDown ? buttonDown==this ? 8:4:0, 4);
    
         // Draw border line
-        colorIndex = _isDown ? 8 : 12;
-        _bufC.bindAndEnableAttrib(indexC, colorIndex * sizeof(SLCol4f));
-        _bufI.bindAndDrawElementsAs(SL_LINE_LOOP, 4, 6*sizeof(SLushort));
+        _vao.drawArrayAs(SL_LINE_LOOP, _isDown ? 12 : 16, 4);
    
-        // Draw checkbox
-        if (_isCheckable)
-        {   _bufP.bindAndEnableAttrib(indexP,  8 * sizeof(SLVec3f));
-            _bufC.bindAndEnableAttrib(indexC, 20 * sizeof(SLCol4f));
-            _bufI.bindAndDrawElementsAs(SL_LINE_LOOP, 4, 14*sizeof(SLushort));
-        }
+        // Draw check box
+        if (_isCheckable) 
+            _vao.drawArrayAs(SL_LINE_LOOP, 20, 4);
    
-        // Draw checkmark
+        // Draw check mark
         if (_isChecked)
-        {   _bufP.bindAndEnableAttrib(indexP,  4 * sizeof(SLVec3f));
-            _bufC.bindAndEnableAttrib(indexC, 16 * sizeof(SLCol4f));
-            _bufI.bindAndDrawElementsAs(SL_TRIANGLE_FAN, 4, 10*sizeof(SLushort));
-        }
-
-        _bufP.disableAttribArray();
-        _bufC.disableAttribArray();    
+            _vao.drawArrayAs(SL_LINES, 24, 4);  
       
         // Set start position at bottom left corner of the text
         SLfloat x = (SLfloat)_minX; 
@@ -168,105 +152,99 @@ void SLButton::drawRec(SLSceneView* sv)
 }
 //-----------------------------------------------------------------------------
 /*! 
-SLButton::buildBuffers creates VBOs for position, texture and color
+SLButton::buildBuffers creates the VAO for rendering
 */
 void SLButton::buildBuffers()
 {
-    SLint numP = 4+4+4;  // 4 vertices for btn, 4 for checkmark, 4 for check rect
-    SLint numC = 7*4;    // 4+4 colors for btn & border each down & up + 4 for checkmark
-    SLint numI = 6+4+4+4;// 6 indexes for btn, 4 for border, 4 for checkmark, 4 for checkbox
-      
-    SLVec3f*  P  = new SLVec3f[numP];   // vertex positions
-    SLCol4f*  C  = new SLCol4f[numC];   // colors
-    SLushort* I  = new SLushort[numI];  // triangle index
-    SLfloat 	 x = _minX;
-    SLfloat 	 y = _minY;
-    SLfloat 	 w = _btnW;
-    SLfloat 	 h = _btnH;
-    SLfloat 	 mx = x + 2*_sv->dpmm()*BTN_GAP_W_MM; // center x of check mark
-    SLfloat 	 my = y + h*0.5f; // center y of check mark
+    SLVVec2f  P;   // vertex positions
+    SLVCol4f  C;   // colors
+    SLfloat   x = _minX;
+    SLfloat   y = _minY;
+    SLfloat   w = _btnW;
+    SLfloat   h = _btnH;
+    SLfloat   mx = x + 2*_sv->dpmm()*BTN_GAP_W_MM; // center x of check mark
+    SLfloat   my = y + h*0.5f; // center y of check mark
     SLfloat   diff1 = 0.3f;    // button color difference upper to lower border
     SLfloat   diff2 = 0.6f;    // border color difference upper to lower border  
+    SLint     nP = 0;
+    SLint     nC = 0;
     
-    // vertices
-    P[0].set(x,   y  );        // button bottom left corner
-    P[1].set(x+w, y  );        // button bottem right corner
-    P[2].set(x+w, y+h);        // button top right corner
-    P[3].set(x,   y+h);        // button top left corner
-      
-    P[4].set(mx-4, my+4);      // 1st point of checkmark
-    P[5].set(mx+4, my-4);      // 2nd point of checkmark
-    P[6].set(mx-4, my-4);      // 3rd point of checkmark
-    P[7].set(mx+4, my+4);      // 4th point of checkmark
-      
-    P[8].set(mx-5, my-5);      // 1st point of checkbox rect
-    P[9].set(mx+5, my-5);      // 2nd point of checkbox rect
-    P[10].set(mx+5, my+5);     // 3rd point of checkbox rect
-    P[11].set(mx-5, my+5);     // 4th point of checkbox rect
-      
-    // down checked button colors
-    C[0].set(_btnCol.r+diff1, _btnCol.g+diff1, _btnCol.b+diff1, _btnAlpha);
-    C[1].set(_btnCol.r+diff1, _btnCol.g+diff1, _btnCol.b+diff1, _btnAlpha); 
-    C[2].set(_btnCol.r+diff1, _btnCol.g+diff1, _btnCol.b+diff1, _btnAlpha);
-    C[3].set(_btnCol.r+diff1, _btnCol.g+diff1, _btnCol.b+diff1, _btnAlpha);
-      
-    // up button colors
-    C[4].set(_btnCol.r-diff1, _btnCol.g-diff1, _btnCol.b-diff1, _btnAlpha);
-    C[5].set(_btnCol.r-diff1, _btnCol.g-diff1, _btnCol.b-diff1, _btnAlpha); 
-    C[6].set(_btnCol.r+diff1, _btnCol.g+diff1, _btnCol.b+diff1, _btnAlpha);
-    C[7].set(_btnCol.r+diff1, _btnCol.g+diff1, _btnCol.b+diff1, _btnAlpha);
-      
-    // down border colors
-    C[8 ].set(_btnCol.r+diff2, _btnCol.g+diff2, _btnCol.b+diff2, 1.0f);
-    C[9 ].set(_btnCol.r+diff2, _btnCol.g+diff2, _btnCol.b+diff2, 1.0f); 
-    C[10].set(_btnCol.r-diff2, _btnCol.g-diff2, _btnCol.b-diff2, 1.0f);
-    C[11].set(_btnCol.r-diff2, _btnCol.g-diff2, _btnCol.b-diff2, 1.0f);
-      
-    // up border colors
-    C[12].set(_btnCol.r-diff2, _btnCol.g-diff2, _btnCol.b-diff2, 1.0f);
-    C[13].set(_btnCol.r-diff2, _btnCol.g-diff2, _btnCol.b-diff2, 1.0f); 
-    C[14].set(_btnCol.r+diff2, _btnCol.g+diff2, _btnCol.b+diff2, 1.0f);
-    C[15].set(_btnCol.r+diff2, _btnCol.g+diff2, _btnCol.b+diff2, 1.0f);
-      
-    // Color of check mark
-    C[16].set(1,1,1,0.8f);
-    C[17].set(1,1,1,0.8f);
-    C[18].set(1,1,1,0.8f);
-    C[19].set(1,1,1,0.8f);
-      
-    // Color of check box
-    C[20].set(_btnCol.r-diff2, _btnCol.g-diff2, _btnCol.b-diff2, 1.0f);
-    C[21].set(_btnCol.r-diff2, _btnCol.g-diff2, _btnCol.b-diff2, 1.0f);
-    C[22].set(_btnCol.r-diff2, _btnCol.g-diff2, _btnCol.b-diff2, 1.0f);
-    C[23].set(_btnCol.r-diff2, _btnCol.g-diff2, _btnCol.b-diff2, 1.0f);
+    // up button 
+    P.push_back(SLVec2f(x,   y+h));      // button top left corner
+    P.push_back(SLVec2f(x,   y  ));      // button bottom left corner
+    P.push_back(SLVec2f(x+w, y+h));      // button top right corner
+    P.push_back(SLVec2f(x+w, y  ));      // button bottom right corner
+    C.push_back(SLCol4f(_btnCol.r+diff1, _btnCol.g+diff1, _btnCol.b+diff1, _btnAlpha));
+    C.push_back(SLCol4f(_btnCol.r-diff1, _btnCol.g-diff1, _btnCol.b-diff1, _btnAlpha));
+    C.push_back(SLCol4f(_btnCol.r+diff1, _btnCol.g+diff1, _btnCol.b+diff1, _btnAlpha));
+    C.push_back(SLCol4f(_btnCol.r-diff1, _btnCol.g-diff1, _btnCol.b-diff1, _btnAlpha)); 
 
-    // pressed button colors
-    C[24].set(_btnCol.r+diff1, _btnCol.g+diff1, _btnCol.b+diff1, _btnAlpha);
-    C[25].set(_btnCol.r+diff1, _btnCol.g+diff1, _btnCol.b+diff1, _btnAlpha); 
-    C[26].set(_btnCol.r-diff1, _btnCol.g-diff1, _btnCol.b-diff1, _btnAlpha);
-    C[27].set(_btnCol.r-diff1, _btnCol.g-diff1, _btnCol.b-diff1, _btnAlpha);
+    // down button
+    P.push_back(SLVec2f(x,   y+h));      // button top left corner
+    P.push_back(SLVec2f(x,   y  ));      // button bottom left corner
+    P.push_back(SLVec2f(x+w, y+h));      // button top right corner
+    P.push_back(SLVec2f(x+w, y  ));      // button bottom right corner
+    C.push_back(SLCol4f(_btnCol.r+diff1, _btnCol.g+diff1, _btnCol.b+diff1, _btnAlpha));
+    C.push_back(SLCol4f(_btnCol.r+diff1, _btnCol.g+diff1, _btnCol.b+diff1, _btnAlpha)); 
+    C.push_back(SLCol4f(_btnCol.r+diff1, _btnCol.g+diff1, _btnCol.b+diff1, _btnAlpha));
+    C.push_back(SLCol4f(_btnCol.r+diff1, _btnCol.g+diff1, _btnCol.b+diff1, _btnAlpha));
+    
+    // pressed button
+    P.push_back(SLVec2f(x,   y+h));      // button top left corner
+    P.push_back(SLVec2f(x,   y  ));      // button bottom left corner
+    P.push_back(SLVec2f(x+w, y+h));      // button top right corner
+    P.push_back(SLVec2f(x+w, y  ));      // button bottom right corner
+    C.push_back(SLCol4f(_btnCol.r-diff1, _btnCol.g-diff1, _btnCol.b-diff1, _btnAlpha));
+    C.push_back(SLCol4f(_btnCol.r+diff1, _btnCol.g+diff1, _btnCol.b+diff1, _btnAlpha));
+    C.push_back(SLCol4f(_btnCol.r-diff1, _btnCol.g-diff1, _btnCol.b-diff1, _btnAlpha));
+    C.push_back(SLCol4f(_btnCol.r+diff1, _btnCol.g+diff1, _btnCol.b+diff1, _btnAlpha)); 
+
+    // down border
+    P.push_back(SLVec2f(x,   y  ));      // button bottom left corner
+    P.push_back(SLVec2f(x+w, y  ));      // button bottom right corner
+    P.push_back(SLVec2f(x+w, y+h));      // button top right corner
+    P.push_back(SLVec2f(x,   y+h));      // button top left corner
+    C.push_back(SLCol4f(_btnCol.r+diff2, _btnCol.g+diff2, _btnCol.b+diff2, 1.0f));
+    C.push_back(SLCol4f(_btnCol.r+diff2, _btnCol.g+diff2, _btnCol.b+diff2, 1.0f)); 
+    C.push_back(SLCol4f(_btnCol.r-diff2, _btnCol.g-diff2, _btnCol.b-diff2, 1.0f));
+    C.push_back(SLCol4f(_btnCol.r-diff2, _btnCol.g-diff2, _btnCol.b-diff2, 1.0f));
       
-    // indexes for 2 button triangles
-    I[0]=0; I[1]=1; I[2]=3;  I[3]=1; I[4]=2; I[5]=3;
+    // up border
+    P.push_back(SLVec2f(x,   y  ));      // button bottom left corner
+    P.push_back(SLVec2f(x+w, y  ));      // button bottom right corner
+    P.push_back(SLVec2f(x+w, y+h));      // button top right corner
+    P.push_back(SLVec2f(x,   y+h));      // button top left corner
+    C.push_back(SLCol4f(_btnCol.r-diff2, _btnCol.g-diff2, _btnCol.b-diff2, 1.0f));
+    C.push_back(SLCol4f(_btnCol.r-diff2, _btnCol.g-diff2, _btnCol.b-diff2, 1.0f)); 
+    C.push_back(SLCol4f(_btnCol.r+diff2, _btnCol.g+diff2, _btnCol.b+diff2, 1.0f));
+    C.push_back(SLCol4f(_btnCol.r+diff2, _btnCol.g+diff2, _btnCol.b+diff2, 1.0f));
       
-    // indexes for 2 button border line loop
-    I[6]=0; I[7]=1; I[8]=2; I[9]=3;
-      
-    // indexes for checkmark
-    I[10]=0; I[11]=2; I[12]=1; I[13]=3;
-      
-    // indexes for checkbox lines
-    I[14]=0; I[15]=1; I[16]=2; I[17]=3;
+    // White check box
+    P.push_back(SLVec2f(mx-5, my-5));    // 1st point of check box rect
+    P.push_back(SLVec2f(mx+5, my-5));    // 2nd point of check box rect
+    P.push_back(SLVec2f(mx+5, my+5));    // 3rd point of check box rect
+    P.push_back(SLVec2f(mx-5, my+5));    // 4th point of check box rect
+    C.push_back(SLCol4f(_btnCol.r-diff2, _btnCol.g-diff2, _btnCol.b-diff2, 1.0f));
+    C.push_back(SLCol4f(_btnCol.r-diff2, _btnCol.g-diff2, _btnCol.b-diff2, 1.0f));
+    C.push_back(SLCol4f(_btnCol.r-diff2, _btnCol.g-diff2, _btnCol.b-diff2, 1.0f));
+    C.push_back(SLCol4f(_btnCol.r-diff2, _btnCol.g-diff2, _btnCol.b-diff2, 1.0f));
+
+    // White check mark
+    P.push_back(SLVec2f(mx-4, my+4));    // 1st point of check mark
+    P.push_back(SLVec2f(mx+4, my-4));    // 2nd point of check mark
+    P.push_back(SLVec2f(mx-4, my-4));    // 3rd point of check mark
+    P.push_back(SLVec2f(mx+4, my+4));    // 4th point of check mark
+    C.push_back(SLCol4f(1,1,1,0.8f));
+    C.push_back(SLCol4f(1,1,1,0.8f));
+    C.push_back(SLCol4f(1,1,1,0.8f));
+    C.push_back(SLCol4f(1,1,1,0.8f));
       
     // create buffers on GPU
-    _bufP.generate(P, numP, 3);
-    _bufC.generate(C, numC, 4);
-    _bufI.generate(I, numI, 1, SL_UNSIGNED_SHORT, SL_ELEMENT_ARRAY_BUFFER);
-      
-    // delete data on CPU     
-    delete[] P;
-    delete[] C;
-    delete[] I;
+    SLGLProgram* sp = SLScene::current->programs(ColorAttribute);
+    sp->useProgram();
+    _vao.setAttrib(SL_POSITION, sp->getAttribLocation("a_position"), P);
+    _vao.setAttrib(SL_COLOR, sp->getAttribLocation("a_color"), C);
+    _vao.generate((SLuint)P.size());
 }
 //-----------------------------------------------------------------------------
 /*! 
@@ -322,7 +300,7 @@ SLbool SLButton::onMouseDown(const SLMouseButton button,
 /*!
 SLButton::onMouseUp handles events and returns true if refresh is needed. This
 method holds the main functionality for the buttons command execution as well
-as the hiding and showing of the sub menues.
+as the hiding and showing of the sub menus.
 */
 SLbool SLButton::onMouseUp(const SLMouseButton button, 
                            const SLint x, const SLint y, const SLKey mod)

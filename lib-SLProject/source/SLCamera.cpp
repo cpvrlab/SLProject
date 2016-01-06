@@ -251,7 +251,7 @@ void SLCamera::drawMeshes(SLSceneView* sv)
             P[i++].set(l,b,_clipNear); P[i++].set(l,t,_clipNear);
             P[i++].set(l,t,_clipNear); P[i++].set(r,t,_clipNear);
 
-            _bufP.generate(P, i, 3);
+            _vao.generateLineVertices(i, 3, P);
         }
         else
         {
@@ -295,11 +295,11 @@ void SLCamera::drawMeshes(SLSceneView* sv)
             P[i++].set(rN,-tN,-_clipNear); P[i++].set(lN,-tN,-_clipNear);
             P[i++].set(lN,-tN,-_clipNear); P[i++].set(lN, tN,-_clipNear);
             P[i++].set(lN, tN,-_clipNear); P[i++].set(rN, tN,-_clipNear);
-
-            _bufP.generate(P, i, 3);
+            
+            _vao.generateLineVertices(i, 3, P);
         }
       
-        _bufP.drawArrayAsConstantColorLines(SLCol3f::WHITE*0.7f);
+        _vao.drawColorLines(SLCol3f::WHITE*0.7f);
     }
 }
 //-----------------------------------------------------------------------------

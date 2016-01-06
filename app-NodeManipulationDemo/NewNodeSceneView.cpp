@@ -30,15 +30,15 @@ void drawXZGrid(const SLMat4f& mat)
 {
     // for now we don't want to update the mesh implementation
     // or the buffer implementation, so we don't have vertex color support
-
-    static bool         initialized = false;
-    static SLGLBuffer   grid;
-    static SLint        indexX;
-    static SLint        indexZ;
-    static SLint        indexGrid;
-    static SLint        numXVerts;
-    static SLint        numZVerts;
-    static SLint        numGridVerts;
+    
+    static SLGLVertexArray grid;
+    static bool  initialized = false;
+    static SLint indexX;
+    static SLint indexZ;
+    static SLint indexGrid;
+    static SLint numXVerts;
+    static SLint numZVerts;
+    static SLint numGridVerts;
 
     if (!initialized)
     {
@@ -82,8 +82,7 @@ void drawXZGrid(const SLMat4f& mat)
                 gridVert.push_back(SLVec3f(offset, 0, gridMax));
             }
         }
-        grid.generate(&gridVert[0], gridVert.size(), 3);
-
+        grid.generateLineVertices(gridVert.size(), 3, &gridVert[0]);
         initialized = true;
     }
 
@@ -92,9 +91,9 @@ void drawXZGrid(const SLMat4f& mat)
     state->pushModelViewMatrix();
     state->modelViewMatrix = mat;
 
-    grid.drawArrayAsConstantColorLines(SLCol3f::RED,  1.0f, indexX, numXVerts);
-    grid.drawArrayAsConstantColorLines(SLCol3f::BLUE, 1.0f, indexZ, numZVerts);
-    grid.drawArrayAsConstantColorLines(SLCol3f(0.45f, 0.45f, 0.45f),  0.8f, indexGrid, numGridVerts);
+    grid.drawColorLines(SLCol3f::RED,  1.0f, indexX, numXVerts);
+    grid.drawColorLines(SLCol3f::BLUE, 1.0f, indexZ, numZVerts);
+    grid.drawColorLines(SLCol3f(0.45f, 0.45f, 0.45f),  0.8f, indexGrid, numGridVerts);
     
     state->popModelViewMatrix();
 }

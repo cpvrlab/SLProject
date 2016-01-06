@@ -140,26 +140,26 @@ a vertex shader. If the skinning is done on CPU two additional arrays
 class SLMesh : public SLObject
 {   
     public:                    
-                            SLMesh         (SLstring name = "Mesh");
-                           ~SLMesh         ();
+                            SLMesh          (SLstring name = "Mesh");
+                           ~SLMesh          ();
                
-    virtual void            init           (SLNode* node);
-    virtual void            draw           (SLSceneView* sv, SLNode* node);
-            void            addStats       (SLNodeStats &stats);
-    virtual void            buildAABB      (SLAABBox &aabb, SLMat4f wmNode);
+    virtual void            init            (SLNode* node);
+    virtual void            draw            (SLSceneView* sv, SLNode* node);
+            void            addStats        (SLNodeStats &stats);
+    virtual void            buildAABB       (SLAABBox &aabb, SLMat4f wmNode);
             void            updateAccelStruct();
-            SLbool          hit            (SLRay* ray, SLNode* node);               
-    virtual void            preShade       (SLRay* ray);
+            SLbool          hit             (SLRay* ray, SLNode* node);               
+    virtual void            preShade        (SLRay* ray);
                
-            void            deleteData     ();
-    virtual void            calcNormals    ();
-            void            calcTangents   ();
-            void            calcTex3DMatrix(SLNode* node);
-    virtual void            calcMinMax     ();
-            void            calcCenterRad  (SLVec3f& center, SLfloat& radius);
-            SLbool          hitTriangleOS  (SLRay* ray, SLNode* node, SLuint iT);
+            void            deleteData      ();
+    virtual void            calcNormals     ();
+            void            calcTangents    ();
+            void            calcTex3DMatrix (SLNode* node);
+    virtual void            calcMinMax      ();
+            void            calcCenterRad   (SLVec3f& center, SLfloat& radius);
+            SLbool          hitTriangleOS   (SLRay* ray, SLNode* node, SLuint iT);
 
-            SLPrimitive     primitive      (){return _primitive;}
+            SLPrimitive     primitive       (){return _primitive;}
         
             void            transformSkin   ();
             void            skinMethod      (SLSkinMethod method);

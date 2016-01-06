@@ -267,9 +267,6 @@
     <ClInclude Include="..\include\SLGLVertexArray.h">
       <Filter>GL</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\SLGLBuffer.h">
-      <Filter>GL</Filter>
-    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="source\SLAABBox.cpp">
@@ -444,9 +441,6 @@
       <Filter>Scene</Filter>
     </ClCompile>
     <ClCompile Include="source\SLGLVertexArray.cpp">
-      <Filter>GL</Filter>
-    </ClCompile>
-    <ClCompile Include="source\SLGLBuffer.cpp">
       <Filter>GL</Filter>
     </ClCompile>
   </ItemGroup>

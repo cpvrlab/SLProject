@@ -98,9 +98,9 @@ void SLMesh::deleteData()
         _accelStruct = nullptr;
     }
 
-    _vao.dispose();
-    _vaoN.dispose();
-    _vaoT.dispose();
+    _vao.glDelete();
+    _vaoN.glDelete();
+    _vaoT.glDelete();
 }
 //-----------------------------------------------------------------------------
 //! SLMesh::shapeInit sets the transparency flag of the AABB
@@ -259,16 +259,16 @@ void SLMesh::draw(SLSceneView* sv, SLNode* node)
         ///////////////////////////////////////
 
         if (!_vao.id())
-        {            _vao.addAttrib(SL_POSITION,    3, sp->getAttribLocation("a_position"),     finalP());
-            if (N)   _vao.addAttrib(SL_NORMAL,      3, sp->getAttribLocation("a_normal"),       finalN());
-            if (Tc)  _vao.addAttrib(SL_TEXCOORD,    2, sp->getAttribLocation("a_texCoord"),     Tc);
-            if (C)   _vao.addAttrib(SL_COLOR,       4, sp->getAttribLocation("a_color"),        C);
-            if (T)   _vao.addAttrib(SL_TANGENT,     4, sp->getAttribLocation("a_tangent"),      T);
-            if (Ji)  _vao.addAttrib(SL_JOINTINDEX,  4, sp->getAttribLocation("a_jointIndex"),   Ji);
-            if (Jw)  _vao.addAttrib(SL_JOINTWEIGHT, 4, sp->getAttribLocation("a_jointWeights"), Jw);
-            if (I16) _vao.addIndices(numI, SL_UNSIGNED_SHORT, I16);
-            if (I32) _vao.addIndices(numI, SL_UNSIGNED_INT, I32);
-            _vao.generate(numV, (Ji && Jw) ? SL_STREAM_DRAW : SL_STATIC_DRAW); 
+        {            _vao.setAttrib(SL_POSITION,    3, sp->getAttribLocation("a_position"),     finalP());
+            if (N)   _vao.setAttrib(SL_NORMAL,      3, sp->getAttribLocation("a_normal"),       finalN());
+            if (Tc)  _vao.setAttrib(SL_TEXCOORD,    2, sp->getAttribLocation("a_texCoord"),     Tc);
+            if (C)   _vao.setAttrib(SL_COLOR,       4, sp->getAttribLocation("a_color"),        C);
+            if (T)   _vao.setAttrib(SL_TANGENT,     4, sp->getAttribLocation("a_tangent"),      T);
+            if (Ji)  _vao.setAttrib(SL_JOINTINDEX,  4, sp->getAttribLocation("a_jointIndex"),   Ji);
+            if (Jw)  _vao.setAttrib(SL_JOINTWEIGHT, 4, sp->getAttribLocation("a_jointWeights"), Jw);
+            if (I16) _vao.setIndices(numI, SL_UNSIGNED_SHORT, I16);
+            if (I32) _vao.setIndices(numI, SL_UNSIGNED_INT, I32);
+            _vao.generate(numV, (Ji&&Jw) ? SL_STREAM_DRAW : SL_STATIC_DRAW, !(Ji&&Jw)); 
         }
 
         ///////////////////////////////
@@ -318,8 +318,8 @@ void SLMesh::draw(SLSceneView* sv, SLNode* node)
         } 
         else
         {   // release buffer objects for normal & tangent rendering
-            if (_vaoN.id()) _vaoN.dispose();
-            if (_vaoT.id()) _vaoT.dispose();
+            if (_vaoN.id()) _vaoN.glDelete();
+            if (_vaoT.id()) _vaoT.glDelete();
         }
         
         //////////////////////////////////////////

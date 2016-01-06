@@ -14,7 +14,7 @@
 #include <stdafx.h>
 #include <SLNode.h>
 #include <SLAABBox.h>
-#include <SLGLBuffer.h>
+#include <SLGLVertexArray.h>
 #include <SLTexFont.h>
 
 class SLSceneView;
@@ -55,15 +55,12 @@ class SLText: public SLNode
             SLint       length      (){return (SLint)_text.length();}
             
    protected:    
-            SLstring    _text;      //!< Text of the button
-            SLTexFont*  _font;      //!< Font pointer of the preloaded font
-            SLCol4f     _color;     //!< RGBA-Color of the text
-            SLfloat     _maxW;      //!< Max. width in pix. for wrapped text
-            SLfloat     _lineH;     //!< Line height factor for wrapped text
-
-            SLGLBuffer  _bufP;      //!< Buffer for text vertex positions
-            SLGLBuffer  _bufT;      //!< Buffer for text vertex texCoords
-            SLGLBuffer  _bufI;      //!< Buffer for text vertex indexes
+            SLstring        _text;  //!< Text of the button
+            SLTexFont*      _font;  //!< Font pointer of the preloaded font
+            SLCol4f         _color; //!< RGBA-Color of the text
+            SLfloat         _maxW;  //!< Max. width in pix. for wrapped text
+            SLfloat         _lineH; //!< Line height factor for wrapped text
+            SLGLVertexArray _vao;   //!< Vertex array for rendering
                         
 };
 //-----------------------------------------------------------------------------

@@ -257,42 +257,6 @@ void SLGLProgram::addUniform1i(SLGLUniform1i *u)
     _uniforms1i.push_back(u);
 }
 //-----------------------------------------------------------------------------
-/*! SLGLProgram::getUniformLocation return the location id of a uniform
-variable. For not querying this with OpenGLs glGetUniformLocation we put all
-uniform locations into a hash map. glGet* function should be called only once
-during shader initialization and not during frame rendering because glGet*
-function force a pipeline flush.
-*/
-//SLint SLGLProgram::getUniformLocation(const SLchar *name)
-//{  SLint loc;
-//   SLLocMap::iterator it = _uniformLocHash.find(name);
-//   if(it == _uniformLocHash.end())
-//   {  // If not found query it from GL and add it to the hash map
-//      loc = glGetUniformLocation(_programObjectGL, name);
-//      _uniformLocHash[name] = loc;
-//   } else
-//      loc = it->second;
-//   return loc;
-//}
-//-----------------------------------------------------------------------------
-/*! SLGLProgram::getAttribLocation return the location id of a attribute
-variable. For not querying this with OpenGLs glGetAttribLocation we put all
-attribute locations into a hash map. glGet* function should be called only once
-during shader initialization and not during frame rendering because glGet*
-function force a pipeline flush.
-*/
-//SLint SLGLProgram::getAttribLocation(const SLchar *name)
-//{  SLint loc;
-//   SLLocMap::iterator it = _attribLocHash.find(name);
-//   if(it == _attribLocHash.end())
-//   {  // If not found query it from GL and add it to the hash map
-//      loc = glGetAttribLocation(_programObjectGL, name);
-//      _attribLocHash[name] = loc;
-//   } else
-//      loc = it->second;
-//   return loc;
-//}
-//-----------------------------------------------------------------------------
 SLint SLGLProgram::getUniformLocation(const SLchar *name)
 {   
     SLint loc = glGetUniformLocation(_objectGL, name);

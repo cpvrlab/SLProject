@@ -15,7 +15,6 @@
 #include <SLEnums.h>
 #include <SLNode.h>
 #include <SLGLState.h>
-#include <SLGLBuffer.h>
 #include <SLSamples2D.h>
 #include <SLRay.h>
 
@@ -26,13 +25,13 @@ class SLSceneView;
 /*! An instance of this SLNode derived class serves as an active camera with
 all its view and projection parameters or if inactive as a visible scene graph
 node with camera body and its view frustum. The position and orientation
-of the active camera is set in the setView method by loading the viewmatrix _vm
+of the active camera is set in the setView method by loading the view matrix _vm
 into the OpenGL modelview matrix. The view matrix _vm is simply the inverse of
 the shapes world matrix _wm. Every SLSceneView instance has a pointer _camera
 to its active camera.
 Because the SLNode class is inherited from the abstract SLEventHandler class a
 camera can handle mouse & keyboard event. All camera animations are handled in
-these eventhandlers.
+these event handlers.
 */ 
 class SLCamera: public SLNode
 {  
@@ -147,14 +146,14 @@ class SLCamera: public SLNode
             SLfloat         _clipFar;               //!< Dist. to the far clipping plane
             SLPlane         _plane[6];              //!< 6 frustum planes (t, b, l, r, n, f)
             SLuint          _numRendered;           //!< num. of shapes in frustum
-            enum {T=0,B,L,R,N,F};                   // enumeration for frustum planes
-               
-            SLGLBuffer      _bufP;                  //!< Buffer object for visualization
+            enum {T=0,B,L,R,N,F};                   //!< enumeration for frustum planes
+
+            SLGLVertexArray _vao;                   //!< OpenGL Vertex array for rendering
                
             // animation parameters
             SLbool          _movedLastFrame;         //! did the camera update in the last frame?
             SLCamAnim       _camAnim;               //!< Type of camera animation
-            SLVec2f         _oldTouchPos1;          //!< Old mouse/thouch position in pixels
+            SLVec2f         _oldTouchPos1;          //!< Old mouse/touch position in pixels
             SLVec2f         _oldTouchPos2;          //!< Old 2nd finger touch position in pixels
 
             SLVec3f         _moveDir;               //!< accumulated movement directions based on pressed buttons
@@ -171,11 +170,11 @@ class SLCamera: public SLNode
             SLRay           _lookAtRay;             //!< Ray through the center of screen
             SLfloat         _focalDist;             //!< distance of focal plane from lens
             SLfloat         _lensDiameter;          //!< Lens diameter
-            SLSamples2D     _lensSamples;           //!< samplepoints for lens sampling (dof)
+            SLSamples2D     _lensSamples;           //!< sample points for lens sampling (DOF)
 
             // Stereo rendering
             SLfloat         _eyeSeparation;         //!< eye separation for stereo mode
-            SLfloat         _unitScaling;           //!< indicate what the current unit scaling is to ajust movement and stereo rendering correctly
+            SLfloat         _unitScaling;           //!< indicate what the current unit scaling is to adjust movement and stereo rendering correctly
 };
 //-----------------------------------------------------------------------------
 #endif

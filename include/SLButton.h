@@ -16,7 +16,7 @@
 #include <SLTexFont.h>
 #include <SLText.h>
 #include <SLSceneView.h>
-#include <SLGLBuffer.h>
+#include <SLGLVertexArray.h>
 
 //-----------------------------------------------------------------------------
 //! Defines a 2D-GUI button with optional submenus as children of the group.
@@ -33,20 +33,20 @@ onMouseDown and onMouseUp.
 */  
 class SLButton: public SLNode
 {  public:                 
-                        SLButton(SLSceneView* sv,
-                                SLstring     text,
-                                SLTexFont*   txtFont,
-                                SLCmd        cmd = cmdMenu,
-                                SLbool       isCheckable = false,
-                                SLbool       isChecked = false,
-                                SLButton*    radioParent = 0,
-                                SLbool       closeOnClick = true,
-                                SLfloat      btnWidth = 0.0f, 
-                                SLfloat      btnHeight = 0.0f, 
-                                SLCol3f      btnColor = SLCol3f::COLBFH,
-                                SLfloat      btnAlpha = 0.8f,
-                                SLTextAlign  txtAlign = centerLeft,
-                                SLCol4f      txtColor = SLCol4f::WHITE);
+                        SLButton    (SLSceneView* sv,
+                                     SLstring     text,
+                                     SLTexFont*   txtFont,
+                                     SLCmd        cmd = cmdMenu,
+                                     SLbool       isCheckable = false,
+                                     SLbool       isChecked = false,
+                                     SLButton*    radioParent = 0,
+                                     SLbool       closeOnClick = true,
+                                     SLfloat      btnWidth = 0.0f, 
+                                     SLfloat      btnHeight = 0.0f, 
+                                     SLCol3f      btnColor = SLCol3f::COLBFH,
+                                     SLfloat      btnAlpha = 0.8f,
+                                     SLTextAlign  txtAlign = centerLeft,
+                                     SLCol4f      txtColor = SLCol4f::WHITE);
 
                        ~SLButton    ();
                         
@@ -100,11 +100,11 @@ class SLButton: public SLNode
 
    private:
             SLSceneView* _sv;          //!< SV on which the button appears   
-            SLCmd       _command;      //!< Cmd id that is issued on click
+            SLCmd       _command;      //!< CMD id that is issued on click
             SLbool      _isCheckable;  //!< Flag if button is checkable
             SLbool      _isChecked;    //!< Flag if button has a check cross
             SLButton*   _radioParent;  //!< parent button group for radio buttons
-            SLbool      _closeOnClick; //!< Flag if all menues are closed on click
+            SLbool      _closeOnClick; //!< Flag if all menus are closed on click
                
             SLfloat     _minX;         //!< X-coord. from bottom left corner
             SLfloat     _minY;         //!< Y-coord. from bottom left corner
@@ -120,9 +120,7 @@ class SLButton: public SLNode
             SLVec2f     _textSize;     //!< Width and height of text string
             SLint       _updateSteps;  //!< NO. of update steps for transition
                
-            SLGLBuffer  _bufP;         //!< Buffer for vertex positions
-            SLGLBuffer  _bufC;         //!< Buffer for vertex colors
-            SLGLBuffer  _bufI;         //!< Buffer for vertex indexes
+            SLGLVertexArray _vao;      //!< Vertex array object for drawing
 };
 //-----------------------------------------------------------------------------
 #endif
