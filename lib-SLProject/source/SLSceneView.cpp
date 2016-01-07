@@ -1408,7 +1408,6 @@ SLbool SLSceneView::onCommand(SLCmd cmd)
     case cmdSceneTextureFilter:
     case cmdSceneTextureVideo:
     case cmdSceneFrustumCull1:
-    case cmdSceneFrustumCull2:
 
     case cmdScenePerVertexBlinn:
     case cmdScenePerPixelBlinn:
@@ -1648,7 +1647,6 @@ void SLSceneView::build2DMenus()
     mn3->addChild(new SLButton(this, "Texture Filters and 3D texture", f, cmdSceneTextureFilter, true, curS==cmdSceneTextureFilter, mn2));
     mn3->addChild(new SLButton(this, "Texture from live video", f, cmdSceneTextureVideo, true, curS==cmdSceneTextureVideo, mn2));
     mn3->addChild(new SLButton(this, "Frustum Culling 1", f, cmdSceneFrustumCull1, true, curS==cmdSceneFrustumCull1, mn2));
-    mn3->addChild(new SLButton(this, "Frustum Culling 2", f, cmdSceneFrustumCull2, true, curS==cmdSceneFrustumCull2, mn2));
 
     mn3 = new SLButton(this, "Shader >", f);
     mn2->addChild(mn3);

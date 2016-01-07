@@ -95,7 +95,6 @@ enum SLCmd
     cmdSceneTextureBlend,
     cmdSceneTextureVideo,
     cmdSceneFrustumCull1,
-    cmdSceneFrustumCull2,
 
     cmdScenePerVertexBlinn,
     cmdScenePerPixelBlinn,

@@ -1061,6 +1061,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
         // Set active camera
         sv->camera(cam1);
     }
+    else
     if (sceneName == cmdSceneFrustumCull1) //...................................
     {  
         name("Frustum Culling Test 1");
@@ -1074,7 +1075,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
         cam1->name("cam1");
         cam1->clipNear(0.1f);
         cam1->clipFar(100);
-        cam1->translation(0,0,5);
+        cam1->translation(0,0,40);
         cam1->lookAt(0, 0, 0);
         cam1->focalDist(5);
         cam1->setInitialState();
@@ -1114,68 +1115,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
 
         _background.colors(SLCol4f(0.1f,0.1f,0.1f));
         sv->camera(cam1);
-        _root3D = scene;
-    }
-    else
-    if (sceneName == cmdSceneFrustumCull2) //...................................
-    {
-        name("Frustum Culling Test 2");
-        info(sv, "View frustum culling: Only objects in view frustum are rendered. You can turn view culling off in the render flags.");
-        // Create textures and materials
-        SLGLTexture* t1 = new SLGLTexture("grass0512_C.jpg", GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR);
-        SLMaterial* m1 = new SLMaterial("m1", t1); m1->specular(SLCol4f::BLACK);
-        SLMaterial* m2 = new SLMaterial("m2", SLCol4f::WHITE*0.5, SLCol4f::WHITE,128, 0.5f, 0.0f, 1.0f);
-
-        // Define a light
-        SLLightSphere* light1 = new SLLightSphere(0, 20, 0, 0.5f);
-        light1->ambient (SLCol4f(0.2f,0.2f,0.2f));
-        light1->diffuse (SLCol4f(0.9f,0.9f,0.9f));
-        light1->specular(SLCol4f(0.9f,0.9f,0.9f));
-        light1->attenuation(1,0,0);
-
-        // Define camera
-        SLCamera* cam1 = new SLCamera;
-        cam1->translation(0,100,180);
-        cam1->lookAt(0, 0, 0);
-        cam1->setInitialState();
-
-        // Floor rectangle
-        SLNode* rect = new SLNode(new SLRectangle(SLVec2f(-100,-100), 
-                                                  SLVec2f( 100, 100), 
-                                                  SLVec2f(   0,   0), 
-                                                  SLVec2f(  50,  50), 50, 50, "Floor", m1));
-        rect->rotate(90, -1,0,0);
-        rect->translate(0,0,-5.5f, TS_Object);
-
-        SLNode* figure = BuildFigureGroup(m2);
-
-        // Add animation for light 1
-        SLAnimation* anim = SLAnimation::create("light1_anim", 4.0f);
-        anim->createEllipticNodeTrack(light1, 12.0f, ZAxis, 12.0f, XAxis);
-
-
-        // Assemble scene
-        SLNode* scene = new SLNode("scene group");
-        scene->addChild(light1);
-        scene->addChild(rect);
-        scene->addChild(figure);
-        scene->addChild(cam1);
-
-        // create spheres around the center sphere
-        SLint size = 15;
-        for (SLint iZ=-size; iZ<=size; ++iZ)
-        {   for (SLint iX=-size; iX<=size; ++iX)
-            {   if (iX!=0 || iZ!=0)
-                {   SLNode* f = figure->copyRec();
-                    f->translate(float(iX)*5, float(iZ)*5, 0, TS_Object);
-                    scene->addChild(f);
-                }
-            }
-        }
-
-        // Set backround color, active camera & the root pointer
-        _background.colors(SLCol4f(0.1f,0.4f,0.8f));
-        sv->camera(cam1);
+        sv->waitEvents(false);
         _root3D = scene;
     }
     else
