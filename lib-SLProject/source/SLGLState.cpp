@@ -100,12 +100,14 @@ void SLGLState::initAll()
     _glIsES3        = (_glVersion.find("OpenGL ES 3")!=string::npos);
 
     // Get extensions
+    #ifndef SL_GLES2
     if (_glVersionNOf > 3.0f)
     {   GLint n;
         glGetIntegerv(GL_NUM_EXTENSIONS, &n);
         for (int i = 0; i < n; i++)
             _glExtensions += SLstring((char*)glGetStringi(GL_EXTENSIONS, i)) + ", ";
     } else
+    #endif
     {   const GLubyte* ext = glGetString(GL_EXTENSIONS);
         if (ext) _glExtensions = SLstring((char*)ext);
     }

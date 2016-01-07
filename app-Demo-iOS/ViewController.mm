@@ -125,7 +125,7 @@ float GetSeconds()
     svIndex = slCreateSceneView(self.view.bounds.size.width * screenScale,
                                 self.view.bounds.size.height * screenScale,
                                 dpi,
-                                cmdSceneSmallTest,
+                                cmdSceneMinimal,
                                 cmdLineArgs,
                                 (void*)&onPaintRTGL,
                                 0,
@@ -133,7 +133,7 @@ float GetSeconds()
                                 0);
     
     [self setMotionInterval:1.0/60.0];
-    [self setupVideoCapture];
+    //[self setupVideoCapture];
 }
 //-----------------------------------------------------------------------------
 - (void)viewDidUnload

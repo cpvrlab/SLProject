@@ -48,11 +48,14 @@ SLGLVertexArray::~SLGLVertexArray()
 The vector _attribs with the attribute information is not cleared.
 */
 void SLGLVertexArray::deleteGL()
-{  
+{
+    #ifndef SL_GLES2
     if (_glHasVAO && _idVAO) 
     {   glDeleteVertexArrays(1, &_idVAO);
         _idVAO = 0;
     }
+    #endif
+    
     if (_idVBOAttribs)
     {   glDeleteBuffers(1, &_idVBOAttribs);
         _idVBOAttribs = 0;
@@ -145,9 +148,10 @@ void SLGLVertexArray::updateAttrib(SLVertexAttribType type,
     if (_attribs[index].elementSize != elementSize)
         SL_EXIT_MSG("Attribute element size differs.");
     
+    #ifndef SL_GLES2
     if (_glHasVAO)
-        glBindVertexArray(_idVAO
-        );
+        glBindVertexArray(_idVAO);
+    #endif
     
     // copy sub-data into existing buffer object
     glBindBuffer(GL_ARRAY_BUFFER, _idVBOAttribs);
@@ -155,9 +159,10 @@ void SLGLVertexArray::updateAttrib(SLVertexAttribType type,
                     _attribs[index].offsetBytes,
                     _attribs[index].bufferSizeBytes,
                     dataPointer);
-    
+    #ifndef SL_GLES2
     if (_glHasVAO)
         glBindVertexArray(0);
+    #endif
     
     #ifdef _GLDEBUG
     GET_GL_ERROR;
@@ -184,10 +189,14 @@ void SLGLVertexArray::generate(SLuint numVertices,
     _outputInterleaved = outputinterleaved;
 
     // Generate and bind VAO
+    #ifndef SL_GLES2
     if (_glHasVAO)
     {   glGenVertexArrays(1, &_idVAO);
         glBindVertexArray(_idVAO);
     }
+    #endif
+    
+    // Generate the vertex buffer object
     glGenBuffers(1, &_idVBOAttribs);
     glBindBuffer(GL_ARRAY_BUFFER, _idVBOAttribs);
 
@@ -339,9 +348,11 @@ void SLGLVertexArray::generate(SLuint numVertices,
         totalBufferSize += _numIndices * _indexTypeSize;
     }
 
+    #ifndef SL_GLES2
     if (_glHasVAO)
         glBindVertexArray(0);
-
+    #endif
+    
     #ifdef _GLDEBUG
     GET_GL_ERROR;
     #endif
@@ -359,9 +370,11 @@ void SLGLVertexArray::drawElementsAs(SLPrimitive primitiveType,
 
     // From OpenGL 3.0 on we have the OpenGL Vertex Arrays
     // Binding the VAO saves all the commands after the else (per draw call!)
+    #ifndef SL_GLES2
     if (_glHasVAO)
         glBindVertexArray(_idVAO);
     else
+    #endif
     {   glBindBuffer(GL_ARRAY_BUFFER, _idVBOAttribs);
         for (auto a : _attribs)
         {   if (a.location > -1)
@@ -396,9 +409,11 @@ void SLGLVertexArray::drawElementsAs(SLPrimitive primitiveType,
     
     totalDrawCalls++;
 
+    #ifndef SL_GLES2
     if (_glHasVAO)
         glBindVertexArray(0);
     else
+    #endif
     {   for (auto a : _attribs)
             if (a.location > -1)
                 glDisableVertexAttribArray(a.location);
@@ -416,10 +431,12 @@ void SLGLVertexArray::drawArrayAs(SLPrimitive primitiveType,
                                   SLint firstVertex,
                                   SLsizei countVertices)
 {   assert(_idVBOAttribs);
-
+    
+    #ifndef SL_GLES2
     if (_glHasVAO)
         glBindVertexArray(_idVAO);
     else
+    #endif
     {   glBindBuffer(GL_ARRAY_BUFFER, _idVBOAttribs);
         for (auto a : _attribs)
         {   if (a.location > -1)
@@ -446,10 +463,12 @@ void SLGLVertexArray::drawArrayAs(SLPrimitive primitiveType,
     ////////////////////////////////////////////////////////
     
     totalDrawCalls++;
-
+    
+    #ifndef SL_GLES2
     if (_glHasVAO)
         glBindVertexArray(0);
     else
+    #endif
     {   for (auto a : _attribs)
             if (a.location > -1)
                 glDisableVertexAttribArray(a.location);
