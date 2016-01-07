@@ -66,6 +66,12 @@ void SLGLVertexArray::glDelete()
     }
 }
 //-----------------------------------------------------------------------------
+/*! Defines a vertex attribute for the later generation. 
+It must be of a specific SLVertexAttribType. Each attribute can appear only 
+once in an vertex array.
+If all attributes of a vertex array have the same data pointer the data input 
+will be interpreted as an interleaved array.  
+*/
 void SLGLVertexArray::setAttrib(SLVertexAttribType type, 
                                 SLint elementSize,
                                 SLint location, 

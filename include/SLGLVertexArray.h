@@ -83,9 +83,22 @@ typedef vector<SLVertexAttrib>  SLVVertexAttrib;
 
 
 //-----------------------------------------------------------------------------
-//! Encapsulation of an OpenGL Vertex Array Object (VAO)
-/*! 
-
+//! SLGLVertexArray encapsulates the core OpenGL drawing
+/*! An SLGLVertexArray instance handles all OpenGL drawing with an OpenGL 
+Vertex Array Object (VAO )(if available) and a Vertex Buffer Object (VBO). 
+VAOs where introduces OpenGL 3.0 and reduce the per draw call overhead. 
+All vertex attributes (e.g. position, normals, texture coords, etc.) are float
+and are stored in one big VBO. They can be in sequential order (first all 
+positions, then all normals, etc.) or interleaved (all attributes together for
+one vertex).\n
+Vertices can be drawn either directly as in the array (SLGLVertexArray::drawArrayAs) 
+or by element (SLGLVertexArray::drawElementAs) with a separate indices VBO.\n
+The setup of a VAO has multiple steps:\n
+- Define one ore more attributes with SLGLVertexArray::setAttrib.
+- Define the index array for element drawing with SLGLVertexArray::setIndices.
+- Generate the OpenGL VAO and VBO with SLGLVertexArray::generate.
+It is important that the data structures passed in setAttrib and setIndices
+are still present when generate is called.
 */
 class SLGLVertexArray
 {
