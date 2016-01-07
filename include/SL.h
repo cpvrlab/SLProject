@@ -68,6 +68,7 @@ SL_USE_DISCARD_STEREOMODES: The discard stereo modes can be used (SLCamera)
         #define SL_OS_MACOSX
         //#define SL_OVR // No OSX support anymore from Oculus!
         #if defined(_DEBUG)
+            #define _GLDEBUG
             //#define SL_MEMLEAKDETECT  // nvwa doesn't work under OSX/clang
         #endif
     #endif

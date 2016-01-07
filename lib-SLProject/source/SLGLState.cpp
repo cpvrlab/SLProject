@@ -449,17 +449,21 @@ disabled.
 void SLGLState::bindAndEnableTexture(GLenum target, SLuint textureID)
 {
     if (target != _textureTarget || textureID != _textureID)
-    {   glBindTexture(target, textureID);
+    {
+        glBindTexture(target, textureID);
 
-        if (_textureTarget != GL_TEXTURE_2D &&
-            (_textureTarget != -1 || textureID == 0))
-            glDisable(_textureTarget);
+        if (glVersionNOf() < 3.0)
+        {
+            if (_textureTarget != GL_TEXTURE_2D &&
+               (_textureTarget != -1 || textureID == 0))
+                glDisable(_textureTarget);
+
+            if (_textureTarget != GL_TEXTURE_2D && textureID != 0)
+                glEnable(_textureTarget);
+        }
 
         _textureTarget = target;
         _textureID = textureID;
-
-        if (_textureTarget != GL_TEXTURE_2D && textureID != 0)
-            glEnable(_textureTarget);
                
         #ifdef _GLDEBUG
         GET_GL_ERROR;
@@ -532,33 +536,33 @@ void SLGLState::getGLError(char* file,
 
         fprintf(stderr, "OpenGL Error in %s, line %d: %s\n", file, line, errStr.c_str());
 
-        //// Build error string as a concatenation of file, line & error
-        //char sLine[32];
-        //sprintf(sLine, "%d", line);
+//        // Build error string as a concatenation of file, line & error
+//        char sLine[32];
+//        sprintf(sLine, "%d", line);
 
-        //string newErr(file);
-        //newErr += ": line:";
-        //newErr += sLine;
-        //newErr += ": ";
-        //newErr += errStr;
+//        string newErr(file);
+//        newErr += ": line:";
+//        newErr += sLine;
+//        newErr += ": ";
+//        newErr += errStr;
 
-        //// Check if error exists already
-        //bool errExists = std::find(errors.begin(), errors.end(), newErr)!=errors.end();
+//        // Check if error exists already
+//        bool errExists = std::find(errors.begin(), errors.end(), newErr)!=errors.end();
       
-        //// Only print
-        //if (!errExists)
-        //{
-        //    errors.push_back(newErr);
-        //    #ifdef SL_OS_ANDROID
-        //    __android_log_print(ANDROID_LOG_INFO, "SLProject", 
-        //                        "OpenGL Error in %s, line %d: %s\n", 
-        //                        file, line, errStr.c_str());
-        //    #else
-        //    fprintf(stderr, 
-        //            "OpenGL Error in %s, line %d: %s\n", 
-        //            file, line, errStr.c_str());
-        //    #endif
-        //}
+//        // Only print
+//        if (!errExists)
+//        {
+//            errors.push_back(newErr);
+//            #ifdef SL_OS_ANDROID
+//            __android_log_print(ANDROID_LOG_INFO, "SLProject",
+//                                "OpenGL Error in %s, line %d: %s\n",
+//                                file, line, errStr.c_str());
+//            #else
+//            fprintf(stderr,
+//                    "OpenGL Error in %s, line %d: %s\n",
+//                    file, line, errStr.c_str());
+//            #endif
+//        }
       
         if (quit) 
         {  

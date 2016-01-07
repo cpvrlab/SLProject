@@ -82,7 +82,7 @@ void drawXZGrid(const SLMat4f& mat)
                 gridVert.push_back(SLVec3f(offset, 0, gridMax));
             }
         }
-        grid.generateLineVertices(gridVert.size(), 3, &gridVert[0]);
+        grid.generateVertexPos(gridVert.size(), 3, &gridVert[0]);
         initialized = true;
     }
 
@@ -91,9 +91,9 @@ void drawXZGrid(const SLMat4f& mat)
     state->pushModelViewMatrix();
     state->modelViewMatrix = mat;
 
-    grid.drawColorLines(SLCol3f::RED,  1.0f, indexX, numXVerts);
-    grid.drawColorLines(SLCol3f::BLUE, 1.0f, indexZ, numZVerts);
-    grid.drawColorLines(SLCol3f(0.45f, 0.45f, 0.45f),  0.8f, indexGrid, numGridVerts);
+    grid.drawArrayAsColored(SL_LINES, SLCol3f::RED,  1.0f, indexX, numXVerts);
+    grid.drawArrayAsColored(SL_LINES, SLCol3f::BLUE, 1.0f, indexZ, numZVerts);
+    grid.drawArrayAsColored(SL_LINES, SLCol3f(0.45f, 0.45f, 0.45f),  0.8f, indexGrid, numGridVerts);
     
     state->popModelViewMatrix();
 }
