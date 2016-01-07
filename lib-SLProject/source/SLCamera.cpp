@@ -216,8 +216,7 @@ void SLCamera::drawMeshes(SLSceneView* sv)
         if (_projection == monoOrthographic)
         {
             const SLMat4f& vm = updateAndGetWMI();
-            SLVec3f P[17*2];
-            SLuint  i=0;
+            SLVVec3f P;
             SLVec3f pos(vm.translation());
             SLfloat t = tan(SL_DEG2RAD*_fov*0.5f) * pos.length();
             SLfloat b = -t;
@@ -225,38 +224,37 @@ void SLCamera::drawMeshes(SLSceneView* sv)
             SLfloat r = -l;
 
             // small line in view direction
-            P[i++].set(0,0,0); P[i++].set(0,0,_clipNear*4);
+            P.push_back(SLVec3f(0,0,0)); P.push_back(SLVec3f(0,0,_clipNear*4));
 
             // frustum pyramid lines
-            P[i++].set(r,t,_clipNear); P[i++].set(r,t,-_clipFar);
-            P[i++].set(l,t,_clipNear); P[i++].set(l,t,-_clipFar);
-            P[i++].set(l,b,_clipNear); P[i++].set(l,b,-_clipFar);
-            P[i++].set(r,b,_clipNear); P[i++].set(r,b,-_clipFar);
+            P.push_back(SLVec3f(r,t,_clipNear)); P.push_back(SLVec3f(r,t,-_clipFar));
+            P.push_back(SLVec3f(l,t,_clipNear)); P.push_back(SLVec3f(l,t,-_clipFar));
+            P.push_back(SLVec3f(l,b,_clipNear)); P.push_back(SLVec3f(l,b,-_clipFar));
+            P.push_back(SLVec3f(r,b,_clipNear)); P.push_back(SLVec3f(r,b,-_clipFar));
 
             // around far clipping plane
-            P[i++].set(r,t,-_clipFar); P[i++].set(r,b,-_clipFar);
-            P[i++].set(r,b,-_clipFar); P[i++].set(l,b,-_clipFar);
-            P[i++].set(l,b,-_clipFar); P[i++].set(l,t,-_clipFar);
-            P[i++].set(l,t,-_clipFar); P[i++].set(r,t,-_clipFar);
+            P.push_back(SLVec3f(r,t,-_clipFar)); P.push_back(SLVec3f(r,b,-_clipFar));
+            P.push_back(SLVec3f(r,b,-_clipFar)); P.push_back(SLVec3f(l,b,-_clipFar));
+            P.push_back(SLVec3f(l,b,-_clipFar)); P.push_back(SLVec3f(l,t,-_clipFar));
+            P.push_back(SLVec3f(l,t,-_clipFar)); P.push_back(SLVec3f(r,t,-_clipFar));
 
             // around projection plane at focal distance
-            P[i++].set(r,t,-_focalDist); P[i++].set(r,b,-_focalDist);
-            P[i++].set(r,b,-_focalDist); P[i++].set(l,b,-_focalDist);
-            P[i++].set(l,b,-_focalDist); P[i++].set(l,t,-_focalDist);
-            P[i++].set(l,t,-_focalDist); P[i++].set(r,t,-_focalDist);
+            P.push_back(SLVec3f(r,t,-_focalDist)); P.push_back(SLVec3f(r,b,-_focalDist));
+            P.push_back(SLVec3f(r,b,-_focalDist)); P.push_back(SLVec3f(l,b,-_focalDist));
+            P.push_back(SLVec3f(l,b,-_focalDist)); P.push_back(SLVec3f(l,t,-_focalDist));
+            P.push_back(SLVec3f(l,t,-_focalDist)); P.push_back(SLVec3f(r,t,-_focalDist));
 
             // around near clipping plane
-            P[i++].set(r,t,_clipNear); P[i++].set(r,b,_clipNear);
-            P[i++].set(r,b,_clipNear); P[i++].set(l,b,_clipNear);
-            P[i++].set(l,b,_clipNear); P[i++].set(l,t,_clipNear);
-            P[i++].set(l,t,_clipNear); P[i++].set(r,t,_clipNear);
+            P.push_back(SLVec3f(r,t,_clipNear)); P.push_back(SLVec3f(r,b,_clipNear));
+            P.push_back(SLVec3f(r,b,_clipNear)); P.push_back(SLVec3f(l,b,_clipNear));
+            P.push_back(SLVec3f(l,b,_clipNear)); P.push_back(SLVec3f(l,t,_clipNear));
+            P.push_back(SLVec3f(l,t,_clipNear)); P.push_back(SLVec3f(r,t,_clipNear));
 
-            _vao.generateLineVertices(i, 3, P);
+            _vao.generateVertexPos(P);
         }
         else
         {
-            SLVec3f P[17*2];
-            SLuint  i=0;
+            SLVVec3f P;
             SLfloat aspect = sv->scrWdivH();
             SLfloat tanFov = tan(_fov*SL_DEG2RAD*0.5f);
             SLfloat tF =  tanFov * _clipFar;    //top far
@@ -270,36 +268,36 @@ void SLCamera::drawMeshes(SLSceneView* sv)
             SLfloat lN = -tN * aspect;          //left near
 
             // small line in view direction
-            P[i++].set(0,0,0); P[i++].set(0,0,_clipNear*4);
+            P.push_back(SLVec3f(0,0,0)); P.push_back(SLVec3f(0,0,_clipNear*4));
 
             // frustum pyramid lines
-            P[i++].set(0,0,0); P[i++].set(rF, tF,-_clipFar);
-            P[i++].set(0,0,0); P[i++].set(lF, tF,-_clipFar);
-            P[i++].set(0,0,0); P[i++].set(lF,-tF,-_clipFar);
-            P[i++].set(0,0,0); P[i++].set(rF,-tF,-_clipFar);
+            P.push_back(SLVec3f(0,0,0)); P.push_back(SLVec3f(rF, tF,-_clipFar));
+            P.push_back(SLVec3f(0,0,0)); P.push_back(SLVec3f(lF, tF,-_clipFar));
+            P.push_back(SLVec3f(0,0,0)); P.push_back(SLVec3f(lF,-tF,-_clipFar));
+            P.push_back(SLVec3f(0,0,0)); P.push_back(SLVec3f(rF,-tF,-_clipFar));
 
             // around far clipping plane
-            P[i++].set(rF, tF,-_clipFar); P[i++].set(rF,-tF,-_clipFar);
-            P[i++].set(rF,-tF,-_clipFar); P[i++].set(lF,-tF,-_clipFar);
-            P[i++].set(lF,-tF,-_clipFar); P[i++].set(lF, tF,-_clipFar);
-            P[i++].set(lF, tF,-_clipFar); P[i++].set(rF, tF,-_clipFar);
+            P.push_back(SLVec3f(rF, tF,-_clipFar)); P.push_back(SLVec3f(rF,-tF,-_clipFar));
+            P.push_back(SLVec3f(rF,-tF,-_clipFar)); P.push_back(SLVec3f(lF,-tF,-_clipFar));
+            P.push_back(SLVec3f(lF,-tF,-_clipFar)); P.push_back(SLVec3f(lF, tF,-_clipFar));
+            P.push_back(SLVec3f(lF, tF,-_clipFar)); P.push_back(SLVec3f(rF, tF,-_clipFar));
 
             // around projection plane at focal distance
-            P[i++].set(rP, tP,-_focalDist); P[i++].set(rP,-tP,-_focalDist);
-            P[i++].set(rP,-tP,-_focalDist); P[i++].set(lP,-tP,-_focalDist);
-            P[i++].set(lP,-tP,-_focalDist); P[i++].set(lP, tP,-_focalDist);
-            P[i++].set(lP, tP,-_focalDist); P[i++].set(rP, tP,-_focalDist);
+            P.push_back(SLVec3f(rP, tP,-_focalDist)); P.push_back(SLVec3f(rP,-tP,-_focalDist));
+            P.push_back(SLVec3f(rP,-tP,-_focalDist)); P.push_back(SLVec3f(lP,-tP,-_focalDist));
+            P.push_back(SLVec3f(lP,-tP,-_focalDist)); P.push_back(SLVec3f(lP, tP,-_focalDist));
+            P.push_back(SLVec3f(lP, tP,-_focalDist)); P.push_back(SLVec3f(rP, tP,-_focalDist));
 
             // around near clipping plane
-            P[i++].set(rN, tN,-_clipNear); P[i++].set(rN,-tN,-_clipNear);
-            P[i++].set(rN,-tN,-_clipNear); P[i++].set(lN,-tN,-_clipNear);
-            P[i++].set(lN,-tN,-_clipNear); P[i++].set(lN, tN,-_clipNear);
-            P[i++].set(lN, tN,-_clipNear); P[i++].set(rN, tN,-_clipNear);
+            P.push_back(SLVec3f(rN, tN,-_clipNear)); P.push_back(SLVec3f(rN,-tN,-_clipNear));
+            P.push_back(SLVec3f(rN,-tN,-_clipNear)); P.push_back(SLVec3f(lN,-tN,-_clipNear));
+            P.push_back(SLVec3f(lN,-tN,-_clipNear)); P.push_back(SLVec3f(lN, tN,-_clipNear));
+            P.push_back(SLVec3f(lN, tN,-_clipNear)); P.push_back(SLVec3f(rN, tN,-_clipNear));
             
-            _vao.generateLineVertices(i, 3, P);
+            _vao.generateVertexPos(P);
         }
       
-        _vao.drawColorLines(SLCol3f::WHITE*0.7f);
+        _vao.drawArrayAsColored(SL_LINES, SLCol4f::WHITE*0.7f);
     }
 }
 //-----------------------------------------------------------------------------

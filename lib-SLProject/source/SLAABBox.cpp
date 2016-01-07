@@ -214,63 +214,63 @@ void SLAABBox::setCenterAndRadius()
 //! Generates the vertex buffer for the line visualization
 void SLAABBox::generateVAO()
 {
-    SLVec3f P[32];  // vertex positions (24 for aabb, 6 for axis, 3 for joint)
+    SLVVec3f P;  // vertex positions
 
-    P[ 0].set(_minWS.x, _minWS.y, _minWS.z); // lower rect
-    P[ 1].set(_maxWS.x, _minWS.y, _minWS.z);
-    P[ 2].set(_maxWS.x, _minWS.y, _minWS.z);
-    P[ 3].set(_maxWS.x, _minWS.y, _maxWS.z);
-    P[ 4].set(_maxWS.x, _minWS.y, _maxWS.z);
-    P[ 5].set(_minWS.x, _minWS.y, _maxWS.z);
-    P[ 6].set(_minWS.x, _minWS.y, _maxWS.z);
-    P[ 7].set(_minWS.x, _minWS.y, _minWS.z);
+    P.push_back(SLVec3f(_minWS.x, _minWS.y, _minWS.z)); // lower rect
+    P.push_back(SLVec3f(_maxWS.x, _minWS.y, _minWS.z));
+    P.push_back(SLVec3f(_maxWS.x, _minWS.y, _minWS.z));
+    P.push_back(SLVec3f(_maxWS.x, _minWS.y, _maxWS.z));
+    P.push_back(SLVec3f(_maxWS.x, _minWS.y, _maxWS.z));
+    P.push_back(SLVec3f(_minWS.x, _minWS.y, _maxWS.z));
+    P.push_back(SLVec3f(_minWS.x, _minWS.y, _maxWS.z));
+    P.push_back(SLVec3f(_minWS.x, _minWS.y, _minWS.z));
 
-    P[ 8].set(_minWS.x, _maxWS.y, _minWS.z); // upper rect
-    P[ 9].set(_maxWS.x, _maxWS.y, _minWS.z);
-    P[10].set(_maxWS.x, _maxWS.y, _minWS.z);
-    P[11].set(_maxWS.x, _maxWS.y, _maxWS.z);
-    P[12].set(_maxWS.x, _maxWS.y, _maxWS.z);
-    P[13].set(_minWS.x, _maxWS.y, _maxWS.z);
-    P[14].set(_minWS.x, _maxWS.y, _maxWS.z);
+    P.push_back(SLVec3f(_minWS.x, _maxWS.y, _minWS.z)); // upper rect
+    P.push_back(SLVec3f(_maxWS.x, _maxWS.y, _minWS.z));
+    P.push_back(SLVec3f(_maxWS.x, _maxWS.y, _minWS.z));
+    P.push_back(SLVec3f(_maxWS.x, _maxWS.y, _maxWS.z));
+    P.push_back(SLVec3f(_maxWS.x, _maxWS.y, _maxWS.z));
+    P.push_back(SLVec3f(_minWS.x, _maxWS.y, _maxWS.z));
+    P.push_back(SLVec3f(_minWS.x, _maxWS.y, _maxWS.z));
 
-    P[15].set(_minWS.x, _maxWS.y, _minWS.z); // vertical lines
-    P[16].set(_minWS.x, _minWS.y, _minWS.z);
-    P[17].set(_minWS.x, _maxWS.y, _minWS.z);
-    P[18].set(_maxWS.x, _minWS.y, _minWS.z);
-    P[19].set(_maxWS.x, _maxWS.y, _minWS.z);
-    P[20].set(_maxWS.x, _minWS.y, _maxWS.z);
-    P[21].set(_maxWS.x, _maxWS.y, _maxWS.z);
-    P[22].set(_minWS.x, _minWS.y, _maxWS.z);
-    P[23].set(_minWS.x, _maxWS.y, _maxWS.z);
+    P.push_back(SLVec3f(_minWS.x, _maxWS.y, _minWS.z)); // vertical lines
+    P.push_back(SLVec3f(_minWS.x, _minWS.y, _minWS.z));
+    P.push_back(SLVec3f(_minWS.x, _maxWS.y, _minWS.z));
+    P.push_back(SLVec3f(_maxWS.x, _minWS.y, _minWS.z));
+    P.push_back(SLVec3f(_maxWS.x, _maxWS.y, _minWS.z));
+    P.push_back(SLVec3f(_maxWS.x, _minWS.y, _maxWS.z));
+    P.push_back(SLVec3f(_maxWS.x, _maxWS.y, _maxWS.z));
+    P.push_back(SLVec3f(_minWS.x, _minWS.y, _maxWS.z));
+    P.push_back(SLVec3f(_minWS.x, _maxWS.y, _maxWS.z));
 
-    P[24].set(_axis0WS.x, _axis0WS.y, _axis0WS.z); // x-axis
-    P[25].set(_axisXWS.x, _axisXWS.y, _axisXWS.z);
-    P[26].set(_axis0WS.x, _axis0WS.y, _axis0WS.z); // y-axis
-    P[27].set(_axisYWS.x, _axisYWS.y, _axisYWS.z);
-    P[28].set(_axis0WS.x, _axis0WS.y, _axis0WS.z); // z-axis
-    P[29].set(_axisZWS.x, _axisZWS.y, _axisZWS.z);
+    P.push_back(SLVec3f(_axis0WS.x, _axis0WS.y, _axis0WS.z)); // x-axis
+    P.push_back(SLVec3f(_axisXWS.x, _axisXWS.y, _axisXWS.z));
+    P.push_back(SLVec3f(_axis0WS.x, _axis0WS.y, _axis0WS.z)); // y-axis
+    P.push_back(SLVec3f(_axisYWS.x, _axisYWS.y, _axisYWS.z));
+    P.push_back(SLVec3f(_axis0WS.x, _axis0WS.y, _axis0WS.z)); // z-axis
+    P.push_back(SLVec3f(_axisZWS.x, _axisZWS.y, _axisZWS.z));
 
     // Bone points
-    P[30].set(_parent0WS.x, _parent0WS.y, _parent0WS.z);
-    P[31].set(_axis0WS.x, _axis0WS.y, _axis0WS.z);
+    P.push_back(SLVec3f(_parent0WS.x, _parent0WS.y, _parent0WS.z));
+    P.push_back(SLVec3f(_axis0WS.x, _axis0WS.y, _axis0WS.z));
 
-    _vao.generateLineVertices(32, 3, P);
+    _vao.generateVertexPos(P);
 }
 //-----------------------------------------------------------------------------
 //! Draws the AABB in world space with lines in a color
-void SLAABBox::drawWS(const SLCol3f color)
+void SLAABBox::drawWS(const SLCol4f color)
 {
     if (!_vao.id()) generateVAO();
-    _vao.drawColorLines(color, 1.0f, 0, 24);
+    _vao.drawArrayAsColored(SL_LINES, color, 1.0f, 0, 24);
 }
 //-----------------------------------------------------------------------------
 //! Draws the axis in world space with lines in a color
 void SLAABBox::drawAxisWS()
 {
     if (!_vao.id()) generateVAO();
-    _vao.drawColorLines(SLCol3f::RED,   2.0f, 24, 2);
-    _vao.drawColorLines(SLCol3f::GREEN, 2.0f, 26, 2);
-    _vao.drawColorLines(SLCol3f::BLUE,  2.0f, 28, 2);
+    _vao.drawArrayAsColored(SL_LINES, SLCol3f::RED,   2.0f, 24, 2);
+    _vao.drawArrayAsColored(SL_LINES, SLCol3f::GREEN, 2.0f, 26, 2);
+    _vao.drawArrayAsColored(SL_LINES, SLCol3f::BLUE,  2.0f, 28, 2);
 }
 //-----------------------------------------------------------------------------
 //! Draws the joint axis and the parent bone in world space
@@ -281,14 +281,14 @@ an offset displacement in magenta. See also SLAABBox::updateBoneWS.
 void SLAABBox::drawBoneWS()
 {
     if (!_vao.id()) generateVAO();
-    _vao.drawColorLines(SLCol3f::RED,     2.0f, 24, 2);
-    _vao.drawColorLines(SLCol3f::GREEN,   2.0f, 26, 2);
-    _vao.drawColorLines(SLCol3f::BLUE,    2.0f, 28, 2);
+    _vao.drawArrayAsColored(SL_LINES, SLCol3f::RED,     2.0f, 24, 2);
+    _vao.drawArrayAsColored(SL_LINES, SLCol3f::GREEN,   2.0f, 26, 2);
+    _vao.drawArrayAsColored(SL_LINES, SLCol3f::BLUE,    2.0f, 28, 2);
 
     // draw either an offset line or a bone line as the parent
     if (!_boneIsOffset)
-         _vao.drawColorLines(SLCol3f::YELLOW,  1.0f, 30, 2);
-    else _vao.drawColorLines(SLCol3f::MAGENTA, 1.0f, 30, 2);
+         _vao.drawArrayAsColored(SL_LINES, SLCol3f::YELLOW,  1.0f, 30, 2);
+    else _vao.drawArrayAsColored(SL_LINES, SLCol3f::MAGENTA, 1.0f, 30, 2);
 }
 //-----------------------------------------------------------------------------
 //! SLAABBox::isHitInWS: Ray - AABB Intersection Test in object space

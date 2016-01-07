@@ -200,6 +200,7 @@ class SLMesh : public SLObject
             SLGLVertexArray _vao;           //!< OpenGL Vertex Array Object for drawing
             SLGLVertexArray _vaoN;          //!< OpenGL VAO for optional normal drawing
             SLGLVertexArray _vaoT;          //!< OpenGL VAO for optional tangent drawing
+            SLGLVertexArray _vaoS;          //!< OpenGL VAO for optional selection drawing
                
             SLbool          _isVolume;      //!< Flag for RT if mesh is a closed volume
                

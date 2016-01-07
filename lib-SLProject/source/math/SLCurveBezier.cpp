@@ -143,7 +143,7 @@ void SLCurveBezier::draw(const SLMat4f &wm)
       
         // Generate finally the OpenGL rendering buffer
         //_bufP.generate(&renderPoints[0], (SLint)renderPoints.size(), 3);
-        _vao.generateLineVertices((SLint)renderPoints.size(), 3, &renderPoints[0]);
+        _vao.generateVertexPos((SLint)renderPoints.size(), 3, &renderPoints[0]);
     }
    
     if (!_vao.id()) return;
@@ -157,22 +157,22 @@ void SLCurveBezier::draw(const SLMat4f &wm)
                            _count - numControlPoints - numTangentPoints;
    
     // Draw curve as a line strip through interpolated points
-    _vao.drawColorLineStrip(SLCol3f::RED, 1, 0, numCurvePoints);
+    _vao.drawArrayAsColored(SL_LINE_STRIP, SLCol3f::RED, 1, 0, numCurvePoints);
    
     // ES2 has often problems with rendering points
     #ifndef SL_GLES2
     // Draw curve as a line strip through interpolated points
-    _vao.drawColorPoints(SLCol3f::RED, 3, 0, numCurvePoints);
+    _vao.drawArrayAsColored(SL_POINTS, SLCol4f::RED, 3, 0, numCurvePoints);
 
     // Draw input points
-    _vao.drawColorPoints(SLCol3f::BLUE, 6, numCurvePoints, _count);
+    _vao.drawArrayAsColored(SL_POINTS, SLCol4f::BLUE, 6, numCurvePoints, _count);
 
     // Draw control points
-    _vao.drawColorPoints(SLCol3f::YELLOW, 6,
+    _vao.drawArrayAsColored(SL_POINTS, SLCol4f::YELLOW, 6,
         numCurvePoints + _count, numControlPoints);
 
     // Draw tangent points as lines
-    _vao.drawColorLines(SLCol3f::YELLOW, 1,
+    _vao.drawArrayAsColored(SL_LINES, SLCol4f::YELLOW, 1,
         numCurvePoints + _count + numControlPoints, numTangentPoints);
     #endif
 }

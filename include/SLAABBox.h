@@ -72,7 +72,7 @@ class SLAABBox
                                         const SLbool isRoot,
                                         const SLMat4f &nodeWM);
             void        mergeWS        (SLAABBox &bb);
-            void        drawWS         (const SLCol3f color);
+            void        drawWS         (const SLCol4f color);
             void        drawAxisWS     ();
             void        drawBoneWS     ();
             void        setCenterAndRadius();

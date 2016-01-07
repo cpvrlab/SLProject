@@ -107,13 +107,16 @@ class SLGLVertexArray
                    ~SLGLVertexArray     ();
         
         //! Deletes all vertex array & vertex buffer objects
-        void        glDelete            ();
+        void        deleteGL            ();
 
         //! Clears the attribute definition
-        void        clearAttribs        () {glDelete(); _attribs.clear();}
+        void        clearAttribs        () {deleteGL(); _attribs.clear();}
 
         //! Returns either the VAO id or the VBO id
         SLint       id                  () {return _glHasVAO?_idVAO:_idVBOAttribs;}
+
+        //! Returns the vector index if a vertex attribute exists otherwise -1
+        SLint       attribIndex         (SLVertexAttribType type);
 
         //! Adds a vertex attribute with data pointer and an element size
         void        setAttrib           (SLVertexAttribType type, 
@@ -181,32 +184,32 @@ class SLGLVertexArray
                                          SLint firstVertex = 0,
                                          SLsizei countVertices = 0);
 
-        //! Adds or updates & generates a position vertex attribute for const color line drawing
-        void        generateLineVertices(SLuint numVertices,
+        //////////////////////////////////////////////////
+        // Helper Functions for quick Line & Point Drawing 
+        //////////////////////////////////////////////////
+
+        //! Adds or updates & generates a position vertex attribute for colored line or point drawing
+        void        generateVertexPos   (SLuint numVertices,
                                          SLint elementSize,
                                          void* dataPointer);
 
-        //! Draws a position vertex array as lines with const color attribute
-        void        drawColorLines      (SLCol3f color,
-                                         SLfloat lineSize = 1.0f,
-                                         SLuint  indexFirstVertex = 0,
-                                         SLuint  numVertices = 0);
+        //! Adds or updates & generates a position vertex attribute for colored line or point drawing
+        void        generateVertexPos   (SLVVec2f p) {generateVertexPos((SLuint)p.size(), 2, (void*)&p[0]);}
+
+        //! Adds or updates & generates a position vertex attribute for colored line or point drawing
+        void        generateVertexPos   (SLVVec3f p) {generateVertexPos((SLuint)p.size(), 3, (void*)&p[0]);}
+
+        //! Adds or updates & generates a position vertex attribute for colored line or point drawing
+        void        generateVertexPos   (SLVVec4f p) {generateVertexPos((SLuint)p.size(), 4, (void*)&p[0]);}
         
-        //! Draws a position vertex array as line strip with const color attribute
-        void        drawColorLineStrip  (SLCol3f color,
-                                         SLfloat lineWidth,
-                                         SLuint  indexFirstVertex,
-                                         SLuint  numVertices);
-
-        //! Draws a position vertex array as points with const color attribute
-        void        drawColorPoints     (SLCol4f color,
-                                         SLfloat pointSize = 1.0f,
+        //! Draws the array as the specified primitive with the color 
+        void        drawArrayAsColored  (SLPrimitive primitiveType,
+                                         SLCol4f color,
+                                         SLfloat lineOrPointSize = 1.0f,
                                          SLuint  indexFirstVertex = 0,
-                                         SLuint  numVertices = 0);
+                                         SLuint  countVertices = 0);
+         
 
-        //! Returns the vector index if a vertex attribute exists otherwise -1
-        SLint       attribIndex         (SLVertexAttribType type);
-      
         // Some getter
         SLint       numVertices         () {return _numVertices;}
         SLint       numIndices          () {return _numIndices;}

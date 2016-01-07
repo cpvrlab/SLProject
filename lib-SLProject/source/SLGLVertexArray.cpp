@@ -41,13 +41,13 @@ SLGLVertexArray::SLGLVertexArray()
 */
 SLGLVertexArray::~SLGLVertexArray() 
 {
-    glDelete();
+    deleteGL();
 }
 //-----------------------------------------------------------------------------
 /*! Deletes the OpenGL objects for the vertex array and the vertex buffer.
 The vector _attribs with the attribute information is not cleared.
 */
-void SLGLVertexArray::glDelete()
+void SLGLVertexArray::deleteGL()
 {  
     if (_glHasVAO && _idVAO) 
     {   glDeleteVertexArrays(1, &_idVAO);
@@ -165,7 +165,11 @@ void SLGLVertexArray::updateAttrib(SLVertexAttribType type,
 }
 //-----------------------------------------------------------------------------
 /*! Generates the OpenGL objects for the vertex array (if available) and the 
-vertex buffer object.
+vertex buffer object. If the input data is an interleaved array (all attribute
+data pointer where identical) also the output buffer will be generated as an
+interleaved array. Vertex arrays with attributes that are updated can not be
+interleaved. Vertex attributes with separate arrays can generate an interleaved
+or a sequential vertex buffer.
 */
 void SLGLVertexArray::generate(SLuint numVertices, 
                                SLBufferUsage usage,
@@ -173,7 +177,7 @@ void SLGLVertexArray::generate(SLuint numVertices,
 {   assert(numVertices);
 
     // if buffers exist delete them first
-    glDelete();
+    deleteGL();
 
     _numVertices = numVertices;
     _usage = usage;
@@ -343,6 +347,9 @@ void SLGLVertexArray::generate(SLuint numVertices,
     #endif
 }      
 //-----------------------------------------------------------------------------
+/*! Draws the vertex attributes as a specified primitive type by elements with 
+the indices from the index buffer defined in setIndices.
+*/
 void SLGLVertexArray::drawElementsAs(SLPrimitive primitiveType,
                                      SLuint numIndexes,
                                      SLuint indexOffset)
@@ -402,6 +409,9 @@ void SLGLVertexArray::drawElementsAs(SLPrimitive primitiveType,
     #endif
 }
 //-----------------------------------------------------------------------------
+/*! Draws the vertex attributes as a specified primitive type as the vertices
+are defined in the attribute arrays.
+*/
 void SLGLVertexArray::drawArrayAs(SLPrimitive primitiveType,
                                   SLint firstVertex,
                                   SLsizei countVertices)
@@ -450,9 +460,13 @@ void SLGLVertexArray::drawArrayAs(SLPrimitive primitiveType,
     #endif
 }
 //-----------------------------------------------------------------------------
-void SLGLVertexArray::generateLineVertices(SLuint numVertices,
-                                           SLint elementSize,
-                                           void* dataPointer)
+/*! Helper function that sets the vertex position attribute and generates or 
+updates the vertex buffer from it. It is used together with the 
+drawArrayAsColored function.
+*/
+void SLGLVertexArray::generateVertexPos(SLuint numVertices,
+                                        SLint elementSize,
+                                        void* dataPointer)
 {
     assert(dataPointer);
     assert(elementSize);
@@ -473,14 +487,15 @@ void SLGLVertexArray::generateLineVertices(SLuint numVertices,
         updateAttrib(SL_POSITION, elementSize, dataPointer);
 }
 //-----------------------------------------------------------------------------
-/*! Draws the vertex position as line primitive with constant color
+/*! Draws the vertex positions as array with a specified primitive & color
 */
-void SLGLVertexArray::drawColorLines(SLCol3f color,
-                                     SLfloat lineWidth,
-                                     SLuint  indexFirstVertex,
-                                     SLuint  numVertices)
+void SLGLVertexArray::drawArrayAsColored(SLPrimitive primitiveType,
+                                         SLCol4f color,
+                                         SLfloat pointSize,
+                                         SLuint  indexFirstVertex,
+                                         SLuint  countVertices)
 {   assert(_idVBOAttribs);
-    assert(numVertices <= _numVertices);
+    assert(countVertices <= _numVertices);
    
     // Prepare shader
     SLMaterial::current = 0;
@@ -493,124 +508,19 @@ void SLGLVertexArray::drawColorLines(SLCol3f color,
     glUniform4fv(sp->getUniformLocation("u_color"), 1, (SLfloat*)&color);
    
     #ifndef SL_GLES2
-    if (lineWidth!=1.0f)
-        glLineWidth(lineWidth);
+    if (pointSize!=1.0f)
+        if (primitiveType == SL_POINTS)
+            glPointSize(pointSize);
     #endif
                 
-    drawArrayAs(SL_LINES, indexFirstVertex, numVertices);
-   
-    #ifndef SL_GLES2
-    if (lineWidth!=1.0f)
-        glLineWidth(1.0f);
-    #endif
-    
-    #ifdef _GLDEBUG
-    GET_GL_ERROR;
-    #endif
-}
-//-----------------------------------------------------------------------------
-/*! Draws a vertex array buffer as line strip primitive with constant color
-*/
-void SLGLVertexArray::drawColorLineStrip(SLCol3f color,
-                                         SLfloat lineWidth,
-                                         SLuint  indexFirstVertex,
-                                         SLuint  numVertices)
-{   assert(_idVBOAttribs);
-    assert(numVertices <= _numVertices);
-   
-    // Prepare shader
-    SLMaterial::current = 0;
-    SLGLProgram* sp = SLScene::current->programs(ColorUniform);
-    SLGLState* state = SLGLState::getInstance();
-    sp->useProgram();
-    sp->uniformMatrix4fv("u_mvpMatrix", 1, (SLfloat*)state->mvpMatrix());
-   
-    // Set uniform color           
-    SLint indexC = sp->getUniformLocation("u_color");
-    glUniform4fv(indexC, 1, (SLfloat*)&color);
-   
-    #ifndef SL_GLES2
-    if (lineWidth!=1.0f)
-        glLineWidth(lineWidth);
-    #endif
-   
-    drawArrayAs(SL_LINE_STRIP, indexFirstVertex, numVertices);
-   
-    #ifndef SL_GLES2
-    if (lineWidth!=1.0f)
-        glLineWidth(1.0f);
-    #endif
-    
-    #ifdef _GLDEBUG
-    GET_GL_ERROR;
-    #endif
-}
-//-----------------------------------------------------------------------------
-/*! Draws the vertex position attribute as color points
-*/
-void SLGLVertexArray::drawColorPoints(SLCol4f color,
-                                      SLfloat pointSize,
-                                      SLuint  indexFirstVertex,
-                                      SLuint  numVertices)
-{   assert(_idVBOAttribs);
-    assert(numVertices <= _numVertices);
-   
-    // Prepare shader
-    SLMaterial::current = 0;
-    SLGLProgram* sp = SLScene::current->programs(ColorUniform);
-    SLGLState* state = SLGLState::getInstance();
-    sp->useProgram();
-    sp->uniformMatrix4fv("u_mvpMatrix", 1, (SLfloat*)state->mvpMatrix());
-   
-    // Set uniform color           
-    SLint indexC = sp->getUniformLocation("u_color");
-    glUniform4fv(indexC, 1, (SLfloat*)&color);
-   
-    glBindBuffer(GL_ARRAY_BUFFER, _idVBOAttribs);
-
-    SLint posLoc = sp->getAttribLocation("a_position");
-
-    if (_glHasVAO)
-        glBindVertexArray(_idVAO);
-
-    for (auto a : _attribs)
-    {   if (a.type == SL_POSITION)
-        {
-            // Sets the vertex attribute data pointer to its corresponding GLSL variable
-            glVertexAttribPointer(posLoc, 
-                                  a.elementSize,
-                                  GL_FLOAT, 
-                                  GL_FALSE, 
-                                  _strideBytes, 
-                                  (void*)a.offsetBytes);
-
-            // Tell the attribute to be an array attribute instead of a state variable
-            glEnableVertexAttribArray(posLoc);
-        }
-    }
-
-    // Activate the index buffer
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _idVBOIndices);
-
-    #ifndef SL_GLES2
-    if (pointSize!=1.0f)
-        glPointSize(pointSize);
-    #endif
-
-    ///////////////////////////////////////////////////////
-    glDrawArrays(GL_POINTS, 
-                 indexFirstVertex, 
-                 numVertices ? numVertices : _numVertices);
-    ///////////////////////////////////////////////////////
-
-    totalDrawCalls++;
-
-    if (_glHasVAO)
-        glBindVertexArray(0);
+    ///////////////////////////////////////////////////////////
+    drawArrayAs(primitiveType, indexFirstVertex, countVertices);
+    ///////////////////////////////////////////////////////////
    
     #ifndef SL_GLES2
     if (pointSize!=1.0f)
-        glPointSize(1.0f);
+        if (primitiveType == SL_POINTS)
+            glPointSize(1.0f);
     #endif
     
     #ifdef _GLDEBUG

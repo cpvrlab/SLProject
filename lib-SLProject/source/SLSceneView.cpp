@@ -933,11 +933,11 @@ void SLSceneView::draw2DGLAll()
             touch[i].z = 0.0f;
         }
       
-        _vaoTouch.generateLineVertices(_touchDowns, 3, touch);
+        _vaoTouch.generateVertexPos(_touchDowns, 3, touch);
         delete [] touch;
       
         SLCol4f yelloAlpha(1.0f, 1.0f, 0.0f, 0.5f);
-        _vaoTouch.drawColorPoints(yelloAlpha, 21);
+        _vaoTouch.drawArrayAsColored(SL_POINTS, yelloAlpha, 21);
         _stateGL->popModelViewMatrix();
     }
     #endif
@@ -950,9 +950,9 @@ void SLSceneView::draw2DGLAll()
             _stateGL->modelViewMatrix.translate(0, 0, depth);
             SLVec3f cross;
             cross.set(0,0,0);
-            _vaoTouch.generateLineVertices(3, 1, &cross);
+            _vaoTouch.generateVertexPos(1, 3, &cross);
             SLCol4f yelloAlpha(1.0f, 1.0f, 0.0f, 0.5f);
-            _vaoTouch.drawColorPoints(yelloAlpha, (SLfloat)_dpi/12.0f);
+            _vaoTouch.drawArrayAsColored(SL_POINTS, yelloAlpha, (SLfloat)_dpi/12.0f);
             _stateGL->popModelViewMatrix();
         }
     }

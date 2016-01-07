@@ -98,9 +98,9 @@ void SLMesh::deleteData()
         _accelStruct = nullptr;
     }
 
-    _vao.glDelete();
-    _vaoN.glDelete();
-    _vaoT.glDelete();
+    _vao.deleteGL();
+    _vaoN.deleteGL();
+    _vaoT.deleteGL();
 }
 //-----------------------------------------------------------------------------
 //! SLMesh::shapeInit sets the transparency flag of the AABB
@@ -298,7 +298,7 @@ void SLMesh::draw(SLSceneView* sv, SLNode* node)
             }
 
             // Create or update VAO for normals
-            _vaoN.generateLineVertices(numV*2, 3, V2);
+            _vaoN.generateVertexPos(numV*2, 3, V2);
 
             if (T)
             {   for (SLuint i=0; i < numV; ++i)
@@ -308,18 +308,18 @@ void SLMesh::draw(SLSceneView* sv, SLNode* node)
                 }
 
                 // Create or update VAO for tangents
-                _vaoT.generateLineVertices(numV*2, 3, V2);
+                _vaoT.generateVertexPos(numV*2, 3, V2);
             }
             delete[] V2;
 
-            _vaoN.drawColorLines(SLCol3f::BLUE);
-            if (T) _vaoT.drawColorLines(SLCol3f::RED);
+            _vaoN.drawArrayAsColored(SL_LINES, SLCol4f::BLUE);
+            if (T) _vaoT.drawArrayAsColored(SL_LINES, SLCol4f::RED);
             if (blended) _stateGL->blend(false);
         } 
         else
         {   // release buffer objects for normal & tangent rendering
-            if (_vaoN.id()) _vaoN.glDelete();
-            if (_vaoT.id()) _vaoT.glDelete();
+            if (_vaoN.id()) _vaoN.deleteGL();
+            if (_vaoT.id()) _vaoT.deleteGL();
         }
         
         //////////////////////////////////////////
@@ -342,10 +342,13 @@ void SLMesh::draw(SLSceneView* sv, SLNode* node)
       
         if (SLScene::current->selectedMesh()==this)
         {   _stateGL->polygonOffset(true, 1.0f, 1.0f);
-            _vao.drawColorPoints(SLCol4f::YELLOW, 2);
+            _vaoS.generateVertexPos(numV, 3, finalP());
+            _vaoS.drawArrayAsColored(SL_POINTS, SLCol4f::YELLOW, 2);
             _stateGL->polygonLine(false);
             _stateGL->polygonOffset(false);
-        } 
+        } else
+        {   if (_vaoS.id()) _vaoS.deleteGL();
+        }
 
         if (blended) _stateGL->blend(true);
     }
