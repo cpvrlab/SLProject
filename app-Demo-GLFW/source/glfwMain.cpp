@@ -409,12 +409,11 @@ int main(int argc, char *argv[])
     // Enable fullscreen anti aliasing with 4 samples
     glfwWindowHint(GLFW_SAMPLES, 4);
 
-    //Using higher OpenGL Version than 2.1 is not possible
-    //because we use no version in the GLSL shader files.
-    //glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-    //glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-    //glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-    //glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
+    //You can restrict the OpenGL context (read the GLFW docu)
+    glfwWindowHint(GLFW_CLIENT_API, GLFW_OPENGL_API);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+    glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 
     scrWidth = 640;
     scrHeight = 480;
@@ -442,14 +441,14 @@ int main(int argc, char *argv[])
     scr2fbX = (float)fbWidth / (float)scrWidth;
     scr2fbY = (float)fbHeight / (float)scrHeight;
 
-    /* Include OpenGL via GLEW
-    The goal of the OpenGL Extension Wrangler Library (GLEW) is to assist C/C++ 
-    OpenGL developers with two tedious tasks: initializing and using extensions 
-    and writing portable applications. GLEW provides an efficient run-time 
-    mechanism to determine whether a certain extension is supported by the 
-    driver or not. OpenGL core and extension functionality is exposed via a 
-    single header file. Download GLEW at: http://glew.sourceforge.net/
-    */
+    // Include OpenGL via GLEW (init must be after window creation)
+    // The goal of the OpenGL Extension Wrangler Library (GLEW) is to assist C/C++ 
+    // OpenGL developers with two tedious tasks: initializing and using extensions 
+    // and writing portable applications. GLEW provides an efficient run-time 
+    // mechanism to determine whether a certain extension is supported by the 
+    // driver or not. OpenGL core and extension functionality is exposed via a 
+    // single header file. Download GLEW at: http://glew.sourceforge.net/
+    glewExperimental = GL_TRUE;  // avoids a crash
     GLenum err = glewInit();
     if (GLEW_OK != err)
     {   fprintf(stderr, "Error: %s\n", glewGetErrorString(err));

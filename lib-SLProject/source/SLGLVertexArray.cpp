@@ -44,7 +44,8 @@ SLGLVertexArray::~SLGLVertexArray()
     glDelete();
 }
 //-----------------------------------------------------------------------------
-/*! Deletes all data
+/*! Deletes the OpenGL objects for the vertex array and the vertex buffer.
+The vector _attribs with the attribute information is not cleared.
 */
 void SLGLVertexArray::glDelete()
 {  
@@ -70,7 +71,9 @@ void SLGLVertexArray::glDelete()
 It must be of a specific SLVertexAttribType. Each attribute can appear only 
 once in an vertex array.
 If all attributes of a vertex array have the same data pointer the data input 
-will be interpreted as an interleaved array.  
+will be interpreted as an interleaved array. See example in SLGLOcculus.
+Be aware that the VBO for the attribute will not be generated until generate 
+is called. The data pointer must still be valid when generate is called.
 */
 void SLGLVertexArray::setAttrib(SLVertexAttribType type, 
                                 SLint elementSize,
@@ -94,6 +97,11 @@ void SLGLVertexArray::setAttrib(SLVertexAttribType type,
     _attribs.push_back(va);
 }
 //-----------------------------------------------------------------------------
+/*! Defines the vertex indices for the element drawing. Without indices vertex
+array can only be drawn with SLGLVertexArray::drawArrayAs. 
+Be aware that the VBO for the indices will not be generated until generate 
+is called. The data pointer must still be valid when generate is called. 
+*/
 void SLGLVertexArray::setIndices(SLuint numIndices,
                                  SLBufferType indexDataType,
                                  void* dataPointer)
@@ -118,6 +126,10 @@ void SLGLVertexArray::setIndices(SLuint numIndices,
     }
 }
 //-----------------------------------------------------------------------------
+/*! Updates the specified vertex attribute. This works only for sequential 
+attributes and not for interleaved attributes. This is used e.g. for meshes
+with vertex skinning. See SLMesh::draw where we have joint attributes.
+*/
 void SLGLVertexArray::updateAttrib(SLVertexAttribType type, 
                                    SLint elementSize,
                                    void* dataPointer)
@@ -134,7 +146,8 @@ void SLGLVertexArray::updateAttrib(SLVertexAttribType type,
         SL_EXIT_MSG("Attribute element size differs.");
     
     if (_glHasVAO)
-        glBindVertexArray(_idVAO);
+        glBindVertexArray(_idVAO
+        );
     
     // copy sub-data into existing buffer object
     glBindBuffer(GL_ARRAY_BUFFER, _idVBOAttribs);
@@ -151,7 +164,8 @@ void SLGLVertexArray::updateAttrib(SLVertexAttribType type,
     #endif
 }
 //-----------------------------------------------------------------------------
-/*!
+/*! Generates the OpenGL objects for the vertex array (if available) and the 
+vertex buffer object.
 */
 void SLGLVertexArray::generate(SLuint numVertices, 
                                SLBufferUsage usage,
@@ -336,6 +350,8 @@ void SLGLVertexArray::drawElementsAs(SLPrimitive primitiveType,
     assert(_idVBOAttribs && "No VBO generated for VAO.");
     assert(_numIndices && _idVBOIndices && "No index VBO generated for VAO");
 
+    // From OpenGL 3.0 on we have the OpenGL Vertex Arrays
+    // Binding the VAO saves all the commands after the else (per draw call!)
     if (_glHasVAO)
         glBindVertexArray(_idVAO);
     else
