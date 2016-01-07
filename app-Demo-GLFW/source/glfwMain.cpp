@@ -409,7 +409,7 @@ int main(int argc, char *argv[])
     // Enable fullscreen anti aliasing with 4 samples
     glfwWindowHint(GLFW_SAMPLES, 4);
 
-    //You can restrict the OpenGL context (read the GLFW documentation)
+    //You can enable or restrict newer OpenGL context here (read the GLFW documentation)
     #ifdef SL_OS_MACOSX
     //glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     //glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 2);
