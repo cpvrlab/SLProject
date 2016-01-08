@@ -19,6 +19,7 @@
 #include <SLText.h>
 #include <SLTexFont.h>
 #include <SLAssimpImporter.h>
+#include <SLGLVertexArrayExt.h>
 
 #include "NewNodeSceneView.h"
 #include <GLFW/glfw3.h>
@@ -31,7 +32,7 @@ void drawXZGrid(const SLMat4f& mat)
     // for now we don't want to update the mesh implementation
     // or the buffer implementation, so we don't have vertex color support
     
-    static SLGLVertexArray grid;
+    static SLGLVertexArrayExt grid;
     static bool  initialized = false;
     static SLint indexX;
     static SLint indexZ;

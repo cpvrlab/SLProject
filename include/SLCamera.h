@@ -17,6 +17,7 @@
 #include <SLGLState.h>
 #include <SLSamples2D.h>
 #include <SLRay.h>
+#include <SLGLVertexArrayExt.h>
 
 class SLSceneView;
 
@@ -148,10 +149,10 @@ class SLCamera: public SLNode
             SLuint          _numRendered;           //!< num. of shapes in frustum
             enum {T=0,B,L,R,N,F};                   //!< enumeration for frustum planes
 
-            SLGLVertexArray _vao;                   //!< OpenGL Vertex array for rendering
+            SLGLVertexArrayExt _vao;                //!< OpenGL Vertex array for rendering
                
             // animation parameters
-            SLbool          _movedLastFrame;         //! did the camera update in the last frame?
+            SLbool          _movedLastFrame;        //! did the camera update in the last frame?
             SLCamAnim       _camAnim;               //!< Type of camera animation
             SLVec2f         _oldTouchPos1;          //!< Old mouse/touch position in pixels
             SLVec2f         _oldTouchPos2;          //!< Old 2nd finger touch position in pixels

@@ -413,6 +413,7 @@
     <ClInclude Include="..\include\SLCompactGrid.h" />
     <ClInclude Include="..\include\SLDisk.h" />
     <ClInclude Include="..\include\SLGLVertexArray.h" />
+    <ClInclude Include="..\include\SLGLVertexArrayExt.h" />
     <ClInclude Include="..\include\SLInputDevice.h" />
     <ClInclude Include="..\include\SLInputEvent.h" />
     <ClInclude Include="..\include\SLInputManager.h" />
@@ -490,6 +491,7 @@
     <ClCompile Include="source\SLCompactGrid.cpp" />
     <ClCompile Include="source\SLDisk.cpp" />
     <ClCompile Include="source\SLGLVertexArray.cpp" />
+    <ClCompile Include="source\SLGLVertexArrayExt.cpp" />
     <ClCompile Include="source\SLInputDevice.cpp" />
     <ClCompile Include="source\SLInputManager.cpp" />
     <ClCompile Include="source\SLJoint.cpp" />

@@ -1,5 +1,5 @@
 //#############################################################################
-//  File:      Globals/GL/glUtils.h
+//  File:      glUtils.h
 //  Purpose:   General OpenGL utility functions for simple OpenGL demo apps
 //  Date:      July 2014
 //  Copyright: Marcus Hudritsch
@@ -11,15 +11,12 @@
 #define GLUTILS_H
 
 #include <stdafx.h>           // precompiled headers
-#include <SLGLBuffer.h>
-#include <SLCamera.h>
-
 #include <array>
 
 using namespace std;
 
-#define GET_GL_UTILS_ERROR glUtils::getGLError((SLchar*)__FILE__, __LINE__, false)
-
+//-----------------------------------------------------------------------------
+#define GETGLERROR glUtils::getGLError((SLchar*)__FILE__, __LINE__, false)
 //-----------------------------------------------------------------------------
 //! OpenGL utility class with functions for simple OpenGL demo apps
 class glUtils

@@ -37,13 +37,6 @@ SLGLVertexArray::SLGLVertexArray()
     _outputInterleaved = false;
 }
 //-----------------------------------------------------------------------------
-/*! Destructor calling dispose
-*/
-SLGLVertexArray::~SLGLVertexArray() 
-{
-    deleteGL();
-}
-//-----------------------------------------------------------------------------
 /*! Deletes the OpenGL objects for the vertex array and the vertex buffer.
 The vector _attribs with the attribute information is not cleared.
 */
@@ -70,13 +63,22 @@ void SLGLVertexArray::deleteGL()
     }
 }
 //-----------------------------------------------------------------------------
+SLint SLGLVertexArray::attribIndex(SLVertexAttribType type)
+{    
+    for (SLint i=0; i<_attribs.size(); ++i)
+        if (_attribs[i].type == type)
+            return i;
+    return -1;
+}
+//-----------------------------------------------------------------------------
 /*! Defines a vertex attribute for the later generation. 
 It must be of a specific SLVertexAttribType. Each attribute can appear only 
 once in an vertex array.
 If all attributes of a vertex array have the same data pointer the data input 
-will be interpreted as an interleaved array. See example in SLGLOcculus.
+will be interpreted as an interleaved array. See example in SLGLOculus::init.
 Be aware that the VBO for the attribute will not be generated until generate 
-is called. The data pointer must still be valid when generate is called.
+is called. The data pointer must still be valid when SLGLVertexArray::generate 
+is called.
 */
 void SLGLVertexArray::setAttrib(SLVertexAttribType type, 
                                 SLint elementSize,
@@ -110,7 +112,13 @@ void SLGLVertexArray::setIndices(SLuint numIndices,
                                  void* dataPointer)
 {   assert(numIndices);
     assert(dataPointer);
-    assert(indexDataType);
+
+    switch (indexDataType)
+    {   case GL_UNSIGNED_BYTE:  _indexTypeSize = sizeof(GLubyte);  break;
+        case GL_UNSIGNED_SHORT: _indexTypeSize = sizeof(GLushort); break;
+        case GL_UNSIGNED_INT:   _indexTypeSize = sizeof(GLuint);   break;
+        default: SL_EXIT_MSG("Invalid index data type");
+    }
     
     if (indexDataType == SL_UNSIGNED_SHORT && numIndices > 65535)
         SL_EXIT_MSG("Index data type not sufficient.");
@@ -120,13 +128,6 @@ void SLGLVertexArray::setIndices(SLuint numIndices,
     _numIndices = numIndices;
     _indexDataType = indexDataType;
     _indexData = dataPointer;
-
-    switch (indexDataType)
-    {   case GL_UNSIGNED_BYTE:  _indexTypeSize = sizeof(GLubyte);  break;
-        case GL_UNSIGNED_SHORT: _indexTypeSize = sizeof(GLushort); break;
-        case GL_UNSIGNED_INT:   _indexTypeSize = sizeof(GLuint);   break;
-        default: SL_EXIT_MSG("Invalid index data type");
-    }
 }
 //-----------------------------------------------------------------------------
 /*! Updates the specified vertex attribute. This works only for sequential 
@@ -159,6 +160,7 @@ void SLGLVertexArray::updateAttrib(SLVertexAttribType type,
                     _attribs[index].offsetBytes,
                     _attribs[index].bufferSizeBytes,
                     dataPointer);
+
     #ifndef SL_GLES2
     if (_glHasVAO)
         glBindVertexArray(0);
@@ -174,7 +176,22 @@ vertex buffer object. If the input data is an interleaved array (all attribute
 data pointer where identical) also the output buffer will be generated as an
 interleaved array. Vertex arrays with attributes that are updated can not be
 interleaved. Vertex attributes with separate arrays can generate an interleaved
-or a sequential vertex buffer.
+or a sequential vertex buffer.\n\n
+<PRE>
+\n Sequential attribute layout:                                                          
+\n           |          Positions          |           Normals           |     TexCoords     |   
+\n Attribs:  |   Position0  |   Position1  |    Normal0   |    Normal1   |TexCoord0|TexCoord1|   
+\n Elements: | PX | PY | PZ | PX | PY | PZ | NX | NY | NZ | NX | NY | NZ | TX | TY | TX | TY |   
+\n Bytes:    |#### #### ####|#### #### ####|#### #### ####|#### #### ####|#### ####|#### ####|   
+\n                                                                                               
+\n Interleaved attribute layout:                                                                
+\n           |               Vertex 0                |               Vertex 1                |   
+\n Attribs:  |   Position0  |    Normal0   |TexCoord0|   Position1  |    Normal1   |TexCoord1|   
+\n Elements: | PX | PY | PZ | NX | NY | NZ | TX | TY | PX | PY | PZ | NX | NY | NZ | TX | TY |   
+\n Bytes:    |#### #### ####|#### #### ####|#### ####|#### #### ####|#### #### ####|#### ####|    
+\n           |                                       |                                            
+\n           |<--------- strideBytes = 32 ---------->|                                            
+</PRE>
 */
 void SLGLVertexArray::generate(SLuint numVertices, 
                                SLBufferUsage usage,
@@ -477,81 +494,5 @@ void SLGLVertexArray::drawArrayAs(SLPrimitive primitiveType,
     #ifdef _GLDEBUG
     GET_GL_ERROR;
     #endif
-}
-//-----------------------------------------------------------------------------
-/*! Helper function that sets the vertex position attribute and generates or 
-updates the vertex buffer from it. It is used together with the 
-drawArrayAsColored function.
-*/
-void SLGLVertexArray::generateVertexPos(SLuint numVertices,
-                                        SLint elementSize,
-                                        void* dataPointer)
-{
-    assert(dataPointer);
-    assert(elementSize);
-    assert(numVertices);
-    
-    SLGLProgram* sp = SLScene::current->programs(ColorUniform);
-    sp->useProgram();
-    SLint location = sp->getAttribLocation("a_position");
-    
-    if (location == -1)
-        SL_EXIT_MSG("The position attribute has no variable location.");
-    
-    // Add attribute if it doesn't exist
-    if (attribIndex(SL_POSITION) == -1)
-    {   setAttrib(SL_POSITION, elementSize, location, dataPointer);
-        generate(numVertices, SL_STATIC_DRAW, false);
-    } else
-        updateAttrib(SL_POSITION, elementSize, dataPointer);
-}
-//-----------------------------------------------------------------------------
-/*! Draws the vertex positions as array with a specified primitive & color
-*/
-void SLGLVertexArray::drawArrayAsColored(SLPrimitive primitiveType,
-                                         SLCol4f color,
-                                         SLfloat pointSize,
-                                         SLuint  indexFirstVertex,
-                                         SLuint  countVertices)
-{   assert(_idVBOAttribs);
-    assert(countVertices <= _numVertices);
-   
-    // Prepare shader
-    SLMaterial::current = 0;
-    SLGLProgram* sp = SLScene::current->programs(ColorUniform);
-    SLGLState* state = SLGLState::getInstance();
-    sp->useProgram();
-    sp->uniformMatrix4fv("u_mvpMatrix", 1, (SLfloat*)state->mvpMatrix());
-   
-    // Set uniform color
-    glUniform4fv(sp->getUniformLocation("u_color"), 1, (SLfloat*)&color);
-   
-    #ifndef SL_GLES2
-    if (pointSize!=1.0f)
-        if (primitiveType == SL_POINTS)
-            glPointSize(pointSize);
-    #endif
-                
-    ///////////////////////////////////////////////////////////
-    drawArrayAs(primitiveType, indexFirstVertex, countVertices);
-    ///////////////////////////////////////////////////////////
-   
-    #ifndef SL_GLES2
-    if (pointSize!=1.0f)
-        if (primitiveType == SL_POINTS)
-            glPointSize(1.0f);
-    #endif
-    
-    #ifdef _GLDEBUG
-    GET_GL_ERROR;
-    #endif
-}
-//-----------------------------------------------------------------------------
-SLint SLGLVertexArray::attribIndex(SLVertexAttribType type)
-{    
-    for (SLint i=0; i<_attribs.size(); ++i)
-        if (_attribs[i].type == type)
-            return i;
-    return -1;
 }
 //-----------------------------------------------------------------------------

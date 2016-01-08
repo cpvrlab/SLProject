@@ -13,7 +13,7 @@
 
 #include <SLCurve.h>
 #include <SLMat4.h>
-#include <SLGLVertexArray.h>
+#include <SLGLVertexArrayExt.h>
 
 //-----------------------------------------------------------------------------
 //!The SLCurveBezier class implements a Bezier curve interpolation
@@ -58,8 +58,8 @@ class SLCurveBezier : public SLCurve
         SLVec3f*    controls        (){return _controls;}
 
     protected:
-        SLVec3f*        _controls;  //!< Control points of Bézier curve
-        SLGLVertexArray _vao;       //!< Vertex array object for rendering
+        SLVec3f*            _controls;  //!< Control points of Bézier curve
+        SLGLVertexArrayExt  _vao;       //!< Vertex array object for rendering
 };
 //-----------------------------------------------------------------------------
 #endif

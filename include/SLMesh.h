@@ -197,10 +197,10 @@ class SLMesh : public SLObject
             SLGLState*      _stateGL;       //!< Pointer to the global SLGLState instance
             SLPrimitive     _primitive;     //!< Primitive type (default triangles)
 
-            SLGLVertexArray _vao;           //!< OpenGL Vertex Array Object for drawing
-            SLGLVertexArray _vaoN;          //!< OpenGL VAO for optional normal drawing
-            SLGLVertexArray _vaoT;          //!< OpenGL VAO for optional tangent drawing
-            SLGLVertexArray _vaoS;          //!< OpenGL VAO for optional selection drawing
+            SLGLVertexArray     _vao;       //!< OpenGL Vertex Array Object for drawing
+            SLGLVertexArrayExt  _vaoN;      //!< OpenGL VAO for optional normal drawing
+            SLGLVertexArrayExt  _vaoT;      //!< OpenGL VAO for optional tangent drawing
+            SLGLVertexArrayExt  _vaoS;      //!< OpenGL VAO for optional selection drawing
                
             SLbool          _isVolume;      //!< Flag for RT if mesh is a closed volume
                

@@ -19,6 +19,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\lib-SLProject\source\glUtils.cpp" />
     <ClCompile Include="..\lib-SLProject\source\SL\SL.cpp" />
     <ClCompile Include="..\lib-SLProject\source\SL\SLImage.cpp" />
     <ClCompile Include="..\lib-SLProject\source\SL\stdafx.cpp">
@@ -27,17 +28,16 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="glUtils.cpp" />
     <ClCompile Include="VolumeRendering.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\include\glUtils.h" />
     <ClInclude Include="..\include\SLMat3.h" />
     <ClInclude Include="..\include\SLMat4.h" />
     <ClInclude Include="..\include\SLVec3.h" />
     <ClInclude Include="..\include\SL.h" />
     <ClInclude Include="..\include\SLImage.h" />
     <ClInclude Include="..\include\stdafx.h" />
-    <ClInclude Include="glUtils.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="VolumeRenderingRayCast.vert" />

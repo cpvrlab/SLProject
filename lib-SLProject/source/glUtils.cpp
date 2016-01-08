@@ -1,5 +1,5 @@
 //#############################################################################
-//  File:      Globals/GL/glUtils.h
+//  File:      glUtils.cpp
 //  Purpose:   General OpenGL utility functions for simple OpenGL demo apps
 //  Author:    Marcus Hudritsch
 //  Date:      July 2014
@@ -19,16 +19,15 @@
 
 std::vector<string> errors;   // global vector for errors used in getGLError    
 
-
+//-----------------------------------------------------------------------------
 void glUtils::printGLInfo()
 {
-	std::cout << "OpenGL Version " << glGetString(GL_VERSION) << std::endl;
-	std::cout << "GLSL Version " << glGetString(GL_SHADING_LANGUAGE_VERSION) << std::endl;
-	std::cout << "OpenGL Renderer " << glGetString(GL_RENDERER) << std::endl;
-	std::cout << "OpenGL Vendor " << glGetString(GL_VENDOR) << std::endl;
-
+	std::cout << "OpenGL Version  : " << glGetString(GL_VERSION) << std::endl;
+	std::cout << "GLSL Version    : " << glGetString(GL_SHADING_LANGUAGE_VERSION) << std::endl;
+	std::cout << "OpenGL Renderer : " << glGetString(GL_RENDERER) << std::endl;
+	std::cout << "OpenGL Vendor   : " << glGetString(GL_VENDOR) << std::endl;
+    /*
 	std::cout << "OpenGL Extensions:" << std::endl;
-
 	std::stringstream ss;
 	int n;
 	glGetIntegerv(GL_NUM_EXTENSIONS, &n);
@@ -37,6 +36,7 @@ void glUtils::printGLInfo()
 		ss << glGetStringi(GL_EXTENSIONS, i) << " ";
 	}
 	std::cout << ss.str() << std::endl;
+    */
 }
 
 //-----------------------------------------------------------------------------
@@ -139,7 +139,7 @@ GLuint glUtils::buildVBO(void*   dataPointer,
     // Binds (activates) the buffer that is used next
     glBindBuffer(targetTypeGL, vboID);
    
-    // determine the buffersize in bytes
+    // determine the buffer size in bytes
     int bufSize = numElements * elementSize * typeSize;
    
     // Copy data to the VBO on the GPU. The data could be delete afterwards.
@@ -282,7 +282,7 @@ GLuint glUtils::build3DTexture(const std::vector<std::string> &files,
                 );
 
     glBindTexture(GL_TEXTURE_3D, 0);
-    GET_GL_UTILS_ERROR;
+    GETGLERROR;
 
 	return textureHandle;
 }
@@ -326,17 +326,10 @@ void glUtils::getGLError(char* file,
       
         // Only print
         if (!errExists)
-        {
-            errors.push_back(newErr);
-            #ifdef SL_OS_ANDROID
-            __android_log_print(ANDROID_LOG_INFO, "SLProject", 
-                                "OpenGL Error in %s, line %d: %s\n", 
-                                file, line, errStr.c_str());
-            #else
+        {   errors.push_back(newErr);
             fprintf(stderr, 
                     "OpenGL Error in %s, line %d: %s\n", 
                     file, line, errStr.c_str());
-            #endif
         }
       
         if (quit) 
@@ -351,7 +344,7 @@ void glUtils::getGLError(char* file,
     #endif
 }
 //-----------------------------------------------------------------------------
-//! Returns a vector of storted filesnames with path within a directory
+//! Returns a vector of sorted file names with path within a directory
 SLVstring glUtils::getFileNamesInDir(SLstring dirName)
 {
     SLVstring fileNames;
@@ -363,8 +356,8 @@ SLVstring glUtils::getFileNamesInDir(SLstring dirName)
     if (dir)
     {   while ((dirContent = readdir(dir)) != NULL)
         {   i++;
-            cout << sizeof(dirent) << endl;
-            printf("%s",dirContent->d_name);
+            //cout << sizeof(dirent) << endl;
+            //printf("%s",dirContent->d_name);
             SLstring name(dirContent->d_name);
             if(name != "." && name != "..")
                 fileNames.push_back(dirName+"/"+name);

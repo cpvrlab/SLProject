@@ -19,6 +19,8 @@
 
 #include <SLVec3.h>
 #include <SLAccelStruct.h>
+#include <SLGLVertexArrayExt.h>
+
 //-----------------------------------------------------------------------------
 typedef std::function<void(const SLuint, const SLuint)> triVoxCallback;
 //-----------------------------------------------------------------------------
@@ -53,14 +55,14 @@ class SLCompactGrid : public SLAccelStruct
                                             SLVec3i &maxCell);
         void        ifTriangleInVoxelDo (triVoxCallback cb);
     private:
-        SLVec3i         _size;              //!< num. of voxel in grid dir.
-        SLuint          _numTriangles;      //!< NO. of triangles in the mesh
-        SLVec3f         _voxelSize;         //!< size of a voxel
-        SLVec3f         _voxelSizeHalf;     //!< half size of a voxel
-        SLVuint         _voxelOffsets;      //!< Offset array (C in the paper)
-        SLVushort       _triangleIndexes16; //!< 16 bit triangle index array (L in the paper)
-        SLVuint         _triangleIndexes32; //!< 32 bit triangle index array (L in the paper)
-        SLGLVertexArray _vao;               //!< OpenGL vertex array for drawing
+        SLVec3i     _size;              //!< num. of voxel in grid dir.
+        SLuint      _numTriangles;      //!< NO. of triangles in the mesh
+        SLVec3f     _voxelSize;         //!< size of a voxel
+        SLVec3f     _voxelSizeHalf;     //!< half size of a voxel
+        SLVuint     _voxelOffsets;      //!< Offset array (C in the paper)
+        SLVushort   _triangleIndexes16; //!< 16 bit triangle index array (L in the paper)
+        SLVuint     _triangleIndexes32; //!< 32 bit triangle index array (L in the paper)
+        SLGLVertexArrayExt  _vao;       //!< Vertex array object for rendering
 };
 //-----------------------------------------------------------------------------
 #endif //SL_COMPACTGRID

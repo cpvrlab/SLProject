@@ -12,7 +12,7 @@
 #define SLAABBox_H
 
 #include <stdafx.h>
-#include <SLGLVertexArray.h>
+#include <SLGLVertexArrayExt.h>
 
 class SLRay;
 class SLScene;
@@ -34,71 +34,71 @@ center point are stored in _radiusOS/_centerOS and _radiusWS/_centerWS.
 class SLAABBox
 {
     public:
-                        SLAABBox  ();
-                       ~SLAABBox  (){;}
+                    SLAABBox  ();
+                   ~SLAABBox  (){;}
 
-            // Setters
-            void        minWS       (SLVec3f minC)  {_minWS = minC;}
-            void        maxWS       (SLVec3f maxC)  {_maxWS = maxC;}
-            void        minOS       (SLVec3f minC)  {_minOS = minC;}
-            void        maxOS       (SLVec3f maxC)  {_maxOS = maxC;}
+        // Setters
+        void        minWS       (SLVec3f minC)  {_minWS = minC;}
+        void        maxWS       (SLVec3f maxC)  {_maxWS = maxC;}
+        void        minOS       (SLVec3f minC)  {_minOS = minC;}
+        void        maxOS       (SLVec3f maxC)  {_maxOS = maxC;}
                
-            void        isVisible   (SLbool visible){_isVisible = visible;}
-            void        hasAlpha   (SLbool transp) {_hasTransp = transp;}   
-            void        sqrViewDist (SLfloat sqrVD) {_sqrViewDist = sqrVD;}    
+        void        isVisible   (SLbool visible){_isVisible = visible;}
+        void        hasAlpha   (SLbool transp) {_hasTransp = transp;}   
+        void        sqrViewDist (SLfloat sqrVD) {_sqrViewDist = sqrVD;}    
 
-            // Getters 
-            SLVec3f     minWS       () {return _minWS;}
-            SLVec3f     maxWS       () {return _maxWS;}
-            SLVec3f     centerWS    () {return _centerWS;}
-            SLfloat     radiusWS    () {return _radiusWS; }
-            SLVec3f     minOS       () {return _minOS;}
-            SLVec3f     maxOS       () {return _maxOS;}
-            SLVec3f     centerOS    () {return _centerOS;}
-            SLfloat     radiusOS    () {return _radiusOS;}
-            SLbool      isVisible   () {return _isVisible;}
-            SLbool      hasAlpha    () {return _hasTransp;}
-            SLfloat     sqrViewDist () {return _sqrViewDist;}
+        // Getters 
+        SLVec3f     minWS       () {return _minWS;}
+        SLVec3f     maxWS       () {return _maxWS;}
+        SLVec3f     centerWS    () {return _centerWS;}
+        SLfloat     radiusWS    () {return _radiusWS; }
+        SLVec3f     minOS       () {return _minOS;}
+        SLVec3f     maxOS       () {return _maxOS;}
+        SLVec3f     centerOS    () {return _centerOS;}
+        SLfloat     radiusOS    () {return _radiusOS;}
+        SLbool      isVisible   () {return _isVisible;}
+        SLbool      hasAlpha    () {return _hasTransp;}
+        SLfloat     sqrViewDist () {return _sqrViewDist;}
                
-            // Misc.
-            void        fromOStoWS     (const SLVec3f &minOS,
-                                        const SLVec3f &maxOS,
-                                        const SLMat4f &wm);
-            void        fromWStoOS     (const SLVec3f &minWS,
-                                        const SLVec3f &maxWS,
-                                        const SLMat4f &wmI);
-            void        updateAxisWS   (const SLMat4f &wm);
-            void        updateBoneWS   (const SLMat4f &parentWM,
-                                        const SLbool isRoot,
-                                        const SLMat4f &nodeWM);
-            void        mergeWS        (SLAABBox &bb);
-            void        drawWS         (const SLCol4f color);
-            void        drawAxisWS     ();
-            void        drawBoneWS     ();
-            void        setCenterAndRadius();
-            void        generateVAO    ();
-            SLbool      isHitInOS      (SLRay* ray);
-            SLbool      isHitInWS      (SLRay* ray);
+        // Misc.
+        void        fromOStoWS     (const SLVec3f &minOS,
+                                    const SLVec3f &maxOS,
+                                    const SLMat4f &wm);
+        void        fromWStoOS     (const SLVec3f &minWS,
+                                    const SLVec3f &maxWS,
+                                    const SLMat4f &wmI);
+        void        updateAxisWS   (const SLMat4f &wm);
+        void        updateBoneWS   (const SLMat4f &parentWM,
+                                    const SLbool isRoot,
+                                    const SLMat4f &nodeWM);
+        void        mergeWS        (SLAABBox &bb);
+        void        drawWS         (const SLCol4f color);
+        void        drawAxisWS     ();
+        void        drawBoneWS     ();
+        void        setCenterAndRadius();
+        void        generateVAO    ();
+        SLbool      isHitInOS      (SLRay* ray);
+        SLbool      isHitInWS      (SLRay* ray);
                
     private:
-            SLVec3f         _minWS;         //!< Min. corner in world space
-            SLVec3f         _minOS;         //!< Min. corner in object space
-            SLVec3f         _maxWS;         //!< Max. corner in world space
-            SLVec3f         _maxOS;         //!< Max. corner in object space
-            SLVec3f         _centerWS;      //!< Center of AABB in world space
-            SLVec3f         _centerOS;      //!< Center of AABB in object space
-            SLfloat         _radiusWS;      //!< Radius of sphere around AABB in WS
-            SLfloat         _radiusOS;      //!< Radius of sphere around AABB in OS
-            SLfloat         _sqrViewDist;   //!< Squared dist. from center to viewpoint
-            SLVec3f         _axis0WS;       //!< World space axis center point
-            SLVec3f         _axisXWS;       //!< World space x-axis vector
-            SLVec3f         _axisYWS;       //!< World space y-axis vector
-            SLVec3f         _axisZWS;       //!< World space z-axis vector
-            SLbool          _boneIsOffset;  //!< Flag if the connection parent to us is a bone or an offset
-            SLVec3f         _parent0WS;     //!< World space vector to the parent position
-            SLbool          _isVisible;     //!< Flag if AABB is in the view frustum
-            SLbool          _hasTransp;     //!< Flag if AABB has transparent shapes
-            SLGLVertexArray _vao;           //!< Vertex array object for rendering
+        SLVec3f     _minWS;         //!< Min. corner in world space
+        SLVec3f     _minOS;         //!< Min. corner in object space
+        SLVec3f     _maxWS;         //!< Max. corner in world space
+        SLVec3f     _maxOS;         //!< Max. corner in object space
+        SLVec3f     _centerWS;      //!< Center of AABB in world space
+        SLVec3f     _centerOS;      //!< Center of AABB in object space
+        SLfloat     _radiusWS;      //!< Radius of sphere around AABB in WS
+        SLfloat     _radiusOS;      //!< Radius of sphere around AABB in OS
+        SLfloat     _sqrViewDist;   //!< Squared dist. from center to viewpoint
+        SLVec3f     _axis0WS;       //!< World space axis center point
+        SLVec3f     _axisXWS;       //!< World space x-axis vector
+        SLVec3f     _axisYWS;       //!< World space y-axis vector
+        SLVec3f     _axisZWS;       //!< World space z-axis vector
+        SLbool      _boneIsOffset;  //!< Flag if the connection parent to us is a bone or an offset
+        SLVec3f     _parent0WS;     //!< World space vector to the parent position
+        SLbool      _isVisible;     //!< Flag if AABB is in the view frustum
+        SLbool      _hasTransp;     //!< Flag if AABB has transparent shapes
+        SLGLVertexArrayExt  _vao;   //!< Vertex array object for rendering
 };
 //-----------------------------------------------------------------------------
 

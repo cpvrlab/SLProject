@@ -292,7 +292,7 @@ void onInit()
     glClearColor(0.0f, 0.0f, 0.0f, 1);  // Set the background color
     glEnable(GL_DEPTH_TEST);            // Enables depth test
     glEnable(GL_CULL_FACE);             // Enables the culling of back faces
-    GET_GL_ERROR;                       // Check for OpenGL errors
+    GETGLERROR;                         // Check for OpenGL errors
 }
 //-----------------------------------------------------------------------------
 /*!
@@ -406,7 +406,7 @@ bool onPaint()
     glDisableVertexAttribArray(_tLoc);
 
     // Check for errors from time to time
-    GET_GL_ERROR;
+    GETGLERROR;
 
     // Fast copy the back buffer to the front buffer. This is OS dependent.
     glfwSwapBuffers(window);
@@ -571,7 +571,7 @@ int main()
         exit(EXIT_FAILURE);
     }
    
-    // Get the currenct GL context. After this you can call GL
+    // Get the current GL context. After this you can call GL
     glfwMakeContextCurrent(window);
 
     // On some systems screen & framebuffer size are different
@@ -582,12 +582,21 @@ int main()
     _scr2fbX = (float)fbWidth / (float)_scrWidth;
     _scr2fbY = (float)fbHeight / (float)_scrHeight;
 
-    // Include OpenGL via GLEW
+    // Include OpenGL via GLEW (init must be after window creation)
+    // The goal of the OpenGL Extension Wrangler Library (GLEW) is to assist C/C++ 
+    // OpenGL developers with two tedious tasks: initializing and using extensions 
+    // and writing portable applications. GLEW provides an efficient run-time 
+    // mechanism to determine whether a certain extension is supported by the 
+    // driver or not. OpenGL core and extension functionality is exposed via a 
+    // single header file. Download GLEW at: http://glew.sourceforge.net/
+    glewExperimental = GL_TRUE;  // avoids a crash
     GLenum err = glewInit();
     if (GLEW_OK != err)
     {   fprintf(stderr, "Error: %s\n", glewGetErrorString(err));
         exit(EXIT_FAILURE);
     }
+
+    glUtils::printGLInfo();
 
     glfwSetWindowTitle(window, "SLProject Test Application");
 

@@ -23,12 +23,6 @@ typedef enum
     SL_UNSIGNED_INT   = GL_UNSIGNED_INT    // vertex index type (0-2^32)
 } SLBufferType;
 //-----------------------------------------------------------------------------
-//! Enumeration for buffer target types
-typedef enum
-{   SL_ARRAY_BUFFER         = GL_ARRAY_BUFFER,         // vertex attributes arrays
-    SL_ELEMENT_ARRAY_BUFFER = GL_ELEMENT_ARRAY_BUFFER  // vertex index arrays
-} SLBufferTarget;
-//-----------------------------------------------------------------------------
 /*! Enumeration for buffer usage types also supported by OpenGL ES
 STATIC:  Buffer contents will be modified once and used many times.
 STREAM:  Buffer contents will be modified once and used at most a few times.
@@ -60,11 +54,16 @@ typedef enum
     SL_JOINTWEIGHT, //! Vertex joint weight for vertex skinning
     SL_JOINTINDEX,  //! Vertex joint id for vertex skinning
     SL_COLOR,       //! Vertex color as 3 or 4 component vector
+    SL_CUSTOM0,     //! Custom vertex attribute 0
     SL_CUSTOM1,     //! Custom vertex attribute 1
     SL_CUSTOM2,     //! Custom vertex attribute 2
     SL_CUSTOM3,     //! Custom vertex attribute 3
     SL_CUSTOM4,     //! Custom vertex attribute 4
-    SL_CUSTOM5      //! Custom vertex attribute 5
+    SL_CUSTOM5,     //! Custom vertex attribute 5
+    SL_CUSTOM6,     //! Custom vertex attribute 6
+    SL_CUSTOM7,     //! Custom vertex attribute 7
+    SL_CUSTOM8,     //! Custom vertex attribute 8
+    SL_CUSTOM9      //! Custom vertex attribute 0
 } SLVertexAttribType;
 //-----------------------------------------------------------------------------
 //! Struct for vertex attribute information
@@ -85,26 +84,27 @@ typedef vector<SLVertexAttrib>  SLVVertexAttrib;
 //-----------------------------------------------------------------------------
 //! SLGLVertexArray encapsulates the core OpenGL drawing
 /*! An SLGLVertexArray instance handles all OpenGL drawing with an OpenGL 
-Vertex Array Object (VAO )(if available) and a Vertex Buffer Object (VBO). 
-VAOs where introduces OpenGL 3.0 and reduce the per draw call overhead. 
+Vertex Array Object (VAO ) and a float Vertex Buffer Object (VBO) for all
+attributes and an index buffer for element drawing.\n 
+VAOs where introduces OpenGL 3.0 and reduce the overhead per draw call. 
 All vertex attributes (e.g. position, normals, texture coords, etc.) are float
 and are stored in one big VBO. They can be in sequential order (first all 
 positions, then all normals, etc.) or interleaved (all attributes together for
 one vertex).\n
 Vertices can be drawn either directly as in the array (SLGLVertexArray::drawArrayAs) 
-or by element (SLGLVertexArray::drawElementAs) with a separate indices VBO.\n
+or by element (SLGLVertexArray::drawElementsAs) with a separate indices buffer.\n
 The setup of a VAO has multiple steps:\n
 - Define one ore more attributes with SLGLVertexArray::setAttrib.
 - Define the index array for element drawing with SLGLVertexArray::setIndices.
-- Generate the OpenGL VAO and VBO with SLGLVertexArray::generate.
-It is important that the data structures passed in setAttrib and setIndices
-are still present when generate is called.
+- Generate the OpenGL VAO and VBO with SLGLVertexArray::generate.\n
+It is important that the data structures passed in SLGLVertexArray::setAttrib and 
+SLGLVertexArray::setIndices are still present when generate is called.
 */
 class SLGLVertexArray
 {
     public:
                     SLGLVertexArray     ();
-                   ~SLGLVertexArray     ();
+                   ~SLGLVertexArray     () {deleteGL();}
         
         //! Deletes all vertex array & vertex buffer objects
         void        deleteGL            ();
@@ -150,24 +150,40 @@ class SLGLVertexArray
                                          void* dataPointer);
         
         //! Adds the index array for indexed element drawing with a vector of ubyte
-        void        setIndices          (SLVubyte indices) {setIndices((SLuint)indices.size(), 
-                                                                       SL_UNSIGNED_BYTE, 
-                                                                       (void*)&indices[0]);}
-        
-        //! Adds the index array for indexed element drawing with a vector of ushort
-        void        setIndices          (SLVushort indices) {setIndices((SLuint)indices.size(), 
-                                                                        SL_UNSIGNED_SHORT, 
+        void        setIndices          (SLVubyte& indices) {setIndices((SLuint)indices.size(), 
+                                                                        SL_UNSIGNED_BYTE, 
                                                                         (void*)&indices[0]);}
         
+        //! Adds the index array for indexed element drawing with a vector of ushort
+        void        setIndices          (SLVushort& indices) {setIndices((SLuint)indices.size(), 
+                                                                         SL_UNSIGNED_SHORT, 
+                                                                         (void*)&indices[0]);}
+        
         //! Adds the index array for indexed element drawing with a vector of uint
-        void        setIndices          (SLVuint indices) {setIndices((SLuint)indices.size(), 
-                                                                      SL_UNSIGNED_INT, 
-                                                                      (void*)&indices[0]);}
+        void        setIndices          (SLVuint& indices) {setIndices((SLuint)indices.size(), 
+                                                                        SL_UNSIGNED_INT, 
+                                                                        (void*)&indices[0]);}
         
         //! Updates a specific vertex attribute in the VBO
         void        updateAttrib        (SLVertexAttribType type, 
                                          SLint elementSize, 
                                          void* dataPointer);
+        
+        //! Updates a specific vertex attribute in the VBO
+        void        updateAttrib        (SLVertexAttribType type, 
+                                         SLVfloat& data) {updateAttrib(type, 1, (void*)&data[0]);}
+        
+        //! Updates a specific vertex attribute in the VBO
+        void        updateAttrib        (SLVertexAttribType type, 
+                                         SLVVec2f& data) {updateAttrib(type, 2, (void*)&data[0]);}
+
+        //! Updates a specific vertex attribute in the VBO
+        void        updateAttrib        (SLVertexAttribType type, 
+                                         SLVVec3f& data) {updateAttrib(type, 3, (void*)&data[0]);}
+
+        //! Updates a specific vertex attribute in the VBO
+        void        updateAttrib        (SLVertexAttribType type, 
+                                         SLVVec4f& data) {updateAttrib(type, 4, (void*)&data[0]);}
         
         //! Generates the VA & VB objects for a NO. of vertices
         void        generate            (SLuint numVertices, 
@@ -184,33 +200,7 @@ class SLGLVertexArray
                                          SLint firstVertex = 0,
                                          SLsizei countVertices = 0);
 
-        //////////////////////////////////////////////////
-        // Helper Functions for quick Line & Point Drawing 
-        //////////////////////////////////////////////////
-
-        //! Adds or updates & generates a position vertex attribute for colored line or point drawing
-        void        generateVertexPos   (SLuint numVertices,
-                                         SLint elementSize,
-                                         void* dataPointer);
-
-        //! Adds or updates & generates a position vertex attribute for colored line or point drawing
-        void        generateVertexPos   (SLVVec2f p) {generateVertexPos((SLuint)p.size(), 2, (void*)&p[0]);}
-
-        //! Adds or updates & generates a position vertex attribute for colored line or point drawing
-        void        generateVertexPos   (SLVVec3f p) {generateVertexPos((SLuint)p.size(), 3, (void*)&p[0]);}
-
-        //! Adds or updates & generates a position vertex attribute for colored line or point drawing
-        void        generateVertexPos   (SLVVec4f p) {generateVertexPos((SLuint)p.size(), 4, (void*)&p[0]);}
-        
-        //! Draws the array as the specified primitive with the color 
-        void        drawArrayAsColored  (SLPrimitive primitiveType,
-                                         SLCol4f color,
-                                         SLfloat lineOrPointSize = 1.0f,
-                                         SLuint  indexFirstVertex = 0,
-                                         SLuint  countVertices = 0);
-         
-
-        // Some getter
+        // Some getters
         SLint       numVertices         () {return _numVertices;}
         SLint       numIndices          () {return _numIndices;}
 
@@ -219,7 +209,7 @@ class SLGLVertexArray
         static SLuint totalBufferSize;      //! static total size of all buffers in bytes
         static SLuint totalDrawCalls;       //! static total no. of draw calls
                                                
-    private:
+    protected:
         SLbool          _glHasVAO;          //! VAOs are present if OpenGL > 3.0    
         SLVVertexAttrib _attribs;           //! Vector of vertex attributes
         SLbool          _outputInterleaved; //! Flag if VBO should be generated interleaved
