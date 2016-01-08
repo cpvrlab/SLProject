@@ -72,7 +72,6 @@ class qtMainWindow : public QMainWindow
         void on_actionTexture_Blending_triggered();
         void on_actionTexture_Filtering_triggered();
         void on_actionFrustum_Culling_1_triggered();
-        void on_actionFrustum_Culling_2_triggered();
 
         void on_actionPer_Vertex_Lighting_triggered();
         void on_actionPer_Pixel_Lighting_triggered();

@@ -1,33 +1,22 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <ClCompile Include="TextureMapping.cpp" />
-    <ClCompile Include="..\lib-SLProject\source\glUtils.cpp">
-      <Filter>SLProject</Filter>
-    </ClCompile>
+    <ClCompile Include="DiffuseCube.cpp" />
     <ClCompile Include="..\lib-SLProject\source\SL\SL.cpp">
-      <Filter>SLProject</Filter>
+      <Filter>lib-SLProject</Filter>
     </ClCompile>
     <ClCompile Include="..\lib-SLProject\source\SL\SLImage.cpp">
-      <Filter>SLProject</Filter>
+      <Filter>lib-SLProject</Filter>
     </ClCompile>
     <ClCompile Include="..\lib-SLProject\source\SL\stdafx.cpp">
-      <Filter>SLProject</Filter>
+      <Filter>lib-SLProject</Filter>
+    </ClCompile>
+    <ClCompile Include="..\lib-SLProject\source\glUtils.cpp">
+      <Filter>include</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <Filter Include="SLProject">
-      <UniqueIdentifier>{91173a12-2db8-4773-a54b-4c7229c49556}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="include">
-      <UniqueIdentifier>{83353ee1-2e1c-4a06-9f4f-291e3ced8714}</UniqueIdentifier>
-    </Filter>
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="..\include\SLImage.h">
-      <Filter>include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\SLMat3.h">
+    <ClInclude Include="..\include\SL.h">
       <Filter>include</Filter>
     </ClInclude>
     <ClInclude Include="..\include\SLMat4.h">
@@ -36,10 +25,13 @@
     <ClInclude Include="..\include\SLVec3.h">
       <Filter>include</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\stdafx.h">
+    <ClInclude Include="..\include\SLImage.h">
       <Filter>include</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\SL.h">
+    <ClInclude Include="..\include\SLMat3.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\stdafx.h">
       <Filter>include</Filter>
     </ClInclude>
     <ClInclude Include="..\include\glUtils.h">
@@ -47,7 +39,15 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\_data\shaders\ADSTex.frag" />
-    <None Include="..\_data\shaders\ADSTex.vert" />
+    <None Include="..\_data\shaders\Diffuse.frag" />
+    <None Include="..\_data\shaders\Diffuse.vert" />
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="include">
+      <UniqueIdentifier>{bc95d668-1d20-4ccf-b54a-0276233606d7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="lib-SLProject">
+      <UniqueIdentifier>{a815d735-4dfe-41b3-8e14-458ddfec5a0d}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
 </Project>

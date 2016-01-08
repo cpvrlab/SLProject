@@ -84,7 +84,7 @@ enum SLCmd
     cmdSceneInfoToggle,
     cmdQuit,
    
-    cmdSceneSmallTest,   // Loads the different scenes
+    cmdSceneMinimal,   // Loads the different scenes
     cmdSceneFigure,   
     cmdSceneMeshLoad,
     cmdSceneVRSizeTest,
@@ -95,7 +95,6 @@ enum SLCmd
     cmdSceneTextureBlend,
     cmdSceneTextureVideo,
     cmdSceneFrustumCull1,
-    cmdSceneFrustumCull2,
 
     cmdScenePerVertexBlinn,
     cmdScenePerPixelBlinn,

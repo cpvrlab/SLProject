@@ -49,7 +49,7 @@ extern "C"
    JNIEXPORT bool JNICALL Java_ch_fhnw_comgr_GLES2Lib_usesRotation    (JNIEnv* env, jobject obj);
    JNIEXPORT bool JNICALL Java_ch_fhnw_comgr_GLES2Lib_usesVideoImage  (JNIEnv* env, jobject obj);
 };
-
+//-----------------------------------------------------------------------------
 //! Native ray tracing callback function that calls the Java class method GLES2Lib.RaytracingCallback
 bool Java_renderRaytracingCallback()
 {
@@ -57,14 +57,14 @@ bool Java_renderRaytracingCallback()
 	jmethodID method = environment->GetStaticMethodID(klass, "RaytracingCallback", "()Z");
    return environment->CallStaticObjectMethod(klass, method);
 }
-
+//-----------------------------------------------------------------------------
 //! Native OpenGL info string print functions used in onInit
 static void printGLString(const char *name, GLenum s) 
 {
     const char *v = (const char *) glGetString(s);
     SL_LOG("GL %s = %s\n", name, v);
 }
-
+//-----------------------------------------------------------------------------
 JNIEXPORT void JNICALL Java_ch_fhnw_comgr_GLES2Lib_onInit(JNIEnv* env, jobject obj, jint width, jint height, jint dpi, jstring filePath)
 {   
     environment = env;

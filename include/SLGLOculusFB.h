@@ -13,7 +13,7 @@
 #define SLGLOCULUSFB_H
 
 #include <stdafx.h>
-#include <SLGLBuffer.h>
+#include <SLGLVertexArray.h>
 #include <SLCamera.h>
 
 //-----------------------------------------------------------------------------
@@ -43,14 +43,14 @@ class SLGLOculusFB
         void        dispose        ();
         void        generateFBO    ();
 
-        SLint       _width;        //! Width of the buffer
-        SLint       _height;       //! Height of the buffer
-        SLint       _halfWidth;    //! Half the width of the buffer
-        SLint       _halfHeight;   //! Half the height of the buffer
-        SLuint      _fbID;         //! OpenGL id of frame buffer
-        SLuint      _depthRbID;    //! OpenGL id of depth render buffer
-        SLuint      _texID;        //! OpenGL id of
-        SLGLBuffer  _vbo;          //! VBO for the rendering
+        SLint           _width;         //! Width of the buffer
+        SLint           _height;        //! Height of the buffer
+        SLint           _halfWidth;     //! Half the width of the buffer
+        SLint           _halfHeight;    //! Half the height of the buffer
+        SLuint          _fbID;          //! OpenGL id of frame buffer
+        SLuint          _depthRbID;     //! OpenGL id of depth render buffer
+        SLuint          _texID;         //! OpenGL id of
+        SLGLVertexArray _vao;           //! Vertex array object for the rendering
 };
 //-----------------------------------------------------------------------------
 

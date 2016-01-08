@@ -338,7 +338,7 @@ void buildCube()
                               GL_ELEMENT_ARRAY_BUFFER,
                               GL_STATIC_DRAW
                               );
-    GET_GL_UTILS_ERROR;
+    GETGLERROR;
 }
 
 void drawSamplingMIP()
@@ -720,7 +720,7 @@ void applyLut()
 
 	// apply texture wrapping modes
 	glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-	GET_GL_UTILS_ERROR;
+	GETGLERROR;
 
 	glTexImage1D(GL_TEXTURE_1D, //Copy the new buffer to the GPU
                  0, //Mipmap level,
@@ -731,10 +731,10 @@ void applyLut()
                  GL_FLOAT, //Data type
                  &_tfLutBuffer[0]
                 );
-	GET_GL_UTILS_ERROR;
+	GETGLERROR;
 
 	glBindTexture(GL_TEXTURE_1D, 0);
-	GET_GL_UTILS_ERROR;
+	GETGLERROR;
 }
 
 void buildMaxIntensityLut()
@@ -849,10 +849,10 @@ void onInit()
     updateRenderMethodDescription();
 
     buildSliceQuads();
-    GET_GL_UTILS_ERROR;
+    GETGLERROR;
 
     buildCube();
-    GET_GL_UTILS_ERROR;
+    GETGLERROR;
 
     // backwards movement of the camera
     _camZ = -3.0f;
@@ -866,13 +866,13 @@ void onInit()
 
     // Load, compile & link shaders
     compilePrograms();
-    GET_GL_UTILS_ERROR;
+    GETGLERROR;
 
     // Set some OpenGL states
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);  // Set the background color
     glEnable(GL_DEPTH_TEST);            // Enables depth test
     glEnable(GL_CULL_FACE);             // Enables the culling of back faces
-    GET_GL_UTILS_ERROR;                       // Check for OpenGL errors
+    GETGLERROR;                       // Check for OpenGL errors
 }
 //-----------------------------------------------------------------------------
 /*!
@@ -925,7 +925,7 @@ bool onPaint()
     }
 
     // Check for errors from time to time
-    GET_GL_UTILS_ERROR;
+    GETGLERROR;
 
     // Fast copy the back buffer to the front buffer. This is OS dependent.
     glfwSwapBuffers(window);
@@ -1132,7 +1132,7 @@ int main()
         exit(EXIT_FAILURE);
     }
 
-    // Get the currenct GL context. After this you can call GL
+    // Get the current GL context. After this you can call GL
     glfwMakeContextCurrent(window);
 
     // On some systems screen & framebuffer size are different
@@ -1143,12 +1143,21 @@ int main()
     _scr2fbX = (float)fbWidth  / (float)_scrWidth;
     _scr2fbY = (float)fbHeight / (float)_scrHeight;
 
-    // Include OpenGL via GLEW
+    // Include OpenGL via GLEW (init must be after window creation)
+    // The goal of the OpenGL Extension Wrangler Library (GLEW) is to assist C/C++ 
+    // OpenGL developers with two tedious tasks: initializing and using extensions 
+    // and writing portable applications. GLEW provides an efficient run-time 
+    // mechanism to determine whether a certain extension is supported by the 
+    // driver or not. OpenGL core and extension functionality is exposed via a 
+    // single header file. Download GLEW at: http://glew.sourceforge.net/
+    glewExperimental = GL_TRUE;  // avoids a crash
     GLenum err = glewInit();
     if (GLEW_OK != err)
     {  fprintf(stderr, "Error: %s\n", glewGetErrorString(err));
         exit(EXIT_FAILURE);
     }
+
+    glUtils::printGLInfo();
 
     glfwSetWindowTitle(window, "Volume Rendering Test Application");
 
@@ -1177,7 +1186,7 @@ int main()
 
     buildMaxIntensityLut();
 
-    GET_GL_UTILS_ERROR;
+    GETGLERROR;
 
     onInit();
     onResize(window, (SLint)(_scrWidth  * _scr2fbX),

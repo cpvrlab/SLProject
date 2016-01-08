@@ -38,7 +38,6 @@ SLGLOculus::SLGLOculus() : _usingDebugHmd(false),
     #ifdef SL_OVR
     _hmd = nullptr;
     #endif
-    init();
 }
 //-----------------------------------------------------------------------------
 /*! Destructor calling dispose
@@ -90,11 +89,11 @@ void SLGLOculus::init()
         #endif
     }
     
-    // get hmd resolution
+    // get HMD resolution
     ovrSizei resolution = _hmd->Resolution;
     _resolution.set(resolution.w, resolution.h);
 
-    // set output resolution to the above set hmd resolution for now
+    // set output resolution to the above set HMD resolution for now
     // this can be changed later however if we want to output to a smaller screen
     renderResolution(_resolution.x, _resolution.y);
     
@@ -104,7 +103,7 @@ void SLGLOculus::init()
 
     // are we running in extended desktop mode or are we using the oculus driver
     SLbool useAppWindowFrame = (_hmd->HmdCaps & ovrHmdCap_ExtendDesktop) ? false : true;
-    // TODO: we need to call ovrHmd_AttachToWindow with a windw handle
+    // TODO: we need to call ovrHmd_AttachToWindow with a window handle
 
     _positionTrackingEnabled = (_hmd->TrackingCaps & ovrTrackingCap_Position) ? true : false;
     _lowPersistanceEnabled = (_hmd->HmdCaps & ovrHmdCap_LowPersistence) ? true : false;
@@ -155,36 +154,36 @@ void SLGLOculus::init()
 
         SLGLOcculusDistortionVertex* v = pVBVerts;
         ovrDistortionVertex * ov = meshData.pVertexData;
-        for ( unsigned vertNum = 0; vertNum < meshData.VertexCount; vertNum++ )
-        {
-            v->screenPosNDC.x = ov->ScreenPosNDC.x;
+        for (SLuint vertNum = 0; vertNum < meshData.VertexCount; vertNum++)
+        {   v->screenPosNDC.x = ov->ScreenPosNDC.x;
             v->screenPosNDC.y = ov->ScreenPosNDC.y;
-
             v->timeWarpFactor = ov->TimeWarpFactor;
             v->vignetteFactor = ov->VignetteFactor;
-            
             v->tanEyeAnglesR.x = ov->TanEyeAnglesR.x;
             v->tanEyeAnglesR.y = ov->TanEyeAnglesR.y;
-
             v->tanEyeAnglesG.x = ov->TanEyeAnglesG.x;
             v->tanEyeAnglesG.y = ov->TanEyeAnglesG.y;
-
             v->tanEyeAnglesB.x = ov->TanEyeAnglesB.x;
-            v->tanEyeAnglesB.y = ov->TanEyeAnglesB.y;
-            
+            v->tanEyeAnglesB.y = ov->TanEyeAnglesB.y;   
             v++; ov++;
         }
 
         for (unsigned i = 0; i < meshData.IndexCount; i++)
             tempIndex.push_back(meshData.pIndexData[i]);
 
-        //@todo the SLGLBuffer isn't made for this kind of interleaved usage
-        //       rework it so it is easier to use and more dynamic.
-        _distortionMeshVB[eyeNum].generate(pVBVerts, meshData.VertexCount, 10,
-                                         SL_FLOAT, SL_ARRAY_BUFFER, SL_STATIC_DRAW);
-        // somehow passing in meshData.pIndexData doesn't work...
-        _distortionMeshIB[eyeNum].generate(&tempIndex[0], meshData.IndexCount, 1,
-                                           SL_UNSIGNED_INT, SL_ELEMENT_ARRAY_BUFFER, SL_STATIC_DRAW);
+        SLGLProgram* sp = SLScene::current->programs(StereoOculusDistortionMesh);
+        sp->useProgram();
+
+        // set attributes with all the same data pointer to the interleaved array
+        _distortionMeshVAO[eyeNum].setAttrib(SL_POSITION, 2, sp->getAttribLocation("a_position"), pVBVerts);
+        _distortionMeshVAO[eyeNum].setAttrib(SL_CUSTOM1,  1, sp->getAttribLocation("a_timeWarpFactor"), pVBVerts);
+        _distortionMeshVAO[eyeNum].setAttrib(SL_CUSTOM2,  1, sp->getAttribLocation("a_vignetteFactor"), pVBVerts);
+        _distortionMeshVAO[eyeNum].setAttrib(SL_CUSTOM3,  2, sp->getAttribLocation("a_texCoordR"), pVBVerts);
+        _distortionMeshVAO[eyeNum].setAttrib(SL_CUSTOM4,  2, sp->getAttribLocation("a_texCoordG"), pVBVerts);
+        _distortionMeshVAO[eyeNum].setAttrib(SL_CUSTOM5,  2, sp->getAttribLocation("a_texCoordB"), pVBVerts);
+        _distortionMeshVAO[eyeNum].setIndices(meshData.IndexCount, SL_UNSIGNED_INT, &tempIndex[0]);
+        _distortionMeshVAO[eyeNum].generate(meshData.VertexCount);
+                
         delete[] pVBVerts;
         ovrHmd_DestroyDistortionMesh( &meshData );  
     }
@@ -206,15 +205,15 @@ void SLGLOculus::init()
         _projection[i].translate(-_viewAdjust[i]);
     }
     
-    createSLDistortionMesh(leftEye,  _distortionMeshVB[0], _distortionMeshIB[0]);
-    createSLDistortionMesh(rightEye, _distortionMeshVB[1], _distortionMeshIB[1]);
+    createSLDistortionMesh(leftEye,  _distortionMeshVAO[0]);
+    createSLDistortionMesh(rightEye, _distortionMeshVAO[1]);
 
 #endif
 
 }
 
 //-----------------------------------------------------------------------------
-/*! Renders the distortion mesh with timewarp and chromatic abberation
+/*! Renders the distortion mesh with time warp and chromatic abberation
 */
 void SLGLOculus::renderDistortion(SLint width, SLint height, SLuint tex)
 {
@@ -232,11 +231,11 @@ void SLGLOculus::renderDistortion(SLint width, SLint height, SLuint tex)
 
     sp->beginUse();
     
-    for (int eye = 0; eye < 2; eye++) {
-        
+    for (int eye = 0; eye < 2; eye++) 
+    {       
         sp->uniform1i("u_texture", 0);
 
-#ifdef SL_OVR
+        #ifdef SL_OVR
         sp->uniform2f("u_eyeToSourceUVScale",  _uvScaleOffset[eye][0].x, -_uvScaleOffset[eye][0].y);
         sp->uniform2f("u_eyeToSourceUVOffset", _uvScaleOffset[eye][1].x,  _uvScaleOffset[eye][1].y);
     
@@ -246,7 +245,7 @@ void SLGLOculus::renderDistortion(SLint width, SLint height, SLuint tex)
     
         sp->uniformMatrix4fv("u_eyeRotationStart", 1, (SLfloat*)&timeWarpMatrices[0]);
         sp->uniformMatrix4fv("u_eyeRotationEnd",   1, (SLfloat*)&timeWarpMatrices[1]);
-#else
+        #else
         sp->uniform2f("u_eyeToSourceUVScale",  0.232f, -0.376f);
         sp->uniform2f("u_eyeToSourceUVOffset", 0.246f, 0.5f);
 
@@ -254,46 +253,9 @@ void SLGLOculus::renderDistortion(SLint width, SLint height, SLuint tex)
 
         sp->uniformMatrix4fv("u_eyeRotationStart", 1, identity.m());
         sp->uniformMatrix4fv("u_eyeRotationEnd", 1, identity.m());
-#endif
+        #endif
 
-         // manually bind the array buffer since SLGLBuffer doesn't support interleaved
-        glBindBuffer(GL_ARRAY_BUFFER, _distortionMeshVB[eye].id());     
-
-        SLint attrPos       = sp->getAttribLocation("a_position");
-        SLint attrTimeWarp  = sp->getAttribLocation("a_timeWarpFactor");
-        SLint attrVignette  = sp->getAttribLocation("a_vignetteFactor");
-        SLint attrTexCoordR = sp->getAttribLocation("a_texCoordR");
-        SLint attrTexCoordG = sp->getAttribLocation("a_texCoordG");
-        SLint attrTexCoordB = sp->getAttribLocation("a_texCoordB");
-
-        // enable the vertex attribute data array by index
-        glEnableVertexAttribArray(attrPos);
-        glEnableVertexAttribArray(attrTimeWarp);
-        glEnableVertexAttribArray(attrVignette);
-        glEnableVertexAttribArray(attrTexCoordR);
-        glEnableVertexAttribArray(attrTexCoordG);
-        glEnableVertexAttribArray(attrTexCoordB);
-      
-        // defines the vertex attribute data array by index
-        glVertexAttribPointer(attrPos,       2, GL_FLOAT, GL_FALSE, sizeof(GLfloat)*10, 0);
-        glVertexAttribPointer(attrTimeWarp,  1, GL_FLOAT, GL_FALSE, sizeof(GLfloat)*10, (GLvoid*)(sizeof(GLfloat)*2));
-        glVertexAttribPointer(attrVignette,  1, GL_FLOAT, GL_FALSE, sizeof(GLfloat)*10, (GLvoid*)(sizeof(GLfloat)*3));
-        glVertexAttribPointer(attrTexCoordR, 2, GL_FLOAT, GL_FALSE, sizeof(GLfloat)*10, (GLvoid*)(sizeof(GLfloat)*4));
-        glVertexAttribPointer(attrTexCoordG, 2, GL_FLOAT, GL_FALSE, sizeof(GLfloat)*10, (GLvoid*)(sizeof(GLfloat)*6));
-        glVertexAttribPointer(attrTexCoordB, 2, GL_FLOAT, GL_FALSE, sizeof(GLfloat)*10, (GLvoid*)(sizeof(GLfloat)*8));
-    
-        //glPolygonMode(GL_FRONT_AND_BACK, GL_LINES);
-        //glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _distortionMeshIB[eye].id());
-        //glDrawElements(GL_TRIANGLES, _distortionMeshIB[eye].numElements(), GL_UNSIGNED_INT, 0);
-
-        _distortionMeshIB[eye].bindAndDrawElementsAs(SL_TRIANGLES);
-
-        glDisableVertexAttribArray(attrPos);
-        glDisableVertexAttribArray(attrTimeWarp);
-        glDisableVertexAttribArray(attrVignette);
-        glDisableVertexAttribArray(attrTexCoordR);
-        glDisableVertexAttribArray(attrTexCoordG);
-        glDisableVertexAttribArray(attrTexCoordB);
+        _distortionMeshVAO[eye].drawElementsAs(SL_TRIANGLES);
     }
 
     sp->endUse();
@@ -305,7 +267,7 @@ void SLGLOculus::renderDistortion(SLint width, SLint height, SLuint tex)
 
 
 //-----------------------------------------------------------------------------
-/*! Returns the view adjust vector as reported by the hmd for the specified eye
+/*! Returns the view adjust vector as reported by the HMD for the specified eye
 */
 const SLVec3f& SLGLOculus::viewAdjust(SLEye eye)
 {
@@ -364,7 +326,7 @@ void SLGLOculus::calculateHmdValues()
     _resolutionScale =  (SLfloat)_rtSize.x / _resolution.x;
 
     
-    // hmd caps
+    // HMD caps
     SLuint hmdCaps = 0;
     if (_lowPersistanceEnabled)
         hmdCaps |= ovrHmdCap_LowPersistence;

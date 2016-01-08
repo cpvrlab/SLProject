@@ -19,7 +19,7 @@
 #include "../lib-SLExternal/glfw3/include/GLFW/glfw3.h" // GLFW GUI library
 
 //-----------------------------------------------------------------------------
-//! Struct defintion for vertex attributes
+//! Struct definition for vertex attributes
 struct VertexPN
 {
    SLVec3f p;  // vertex position [x,y,z]
@@ -138,7 +138,7 @@ void onInit()
    // backwards movement of the camera
    _camZ = -4;
 
-   // Mouse rotation paramters
+   // Mouse rotation parameters
    _rotX = _rotY = 0;
    _deltaX = _deltaY = 0;
    _mouseLeftDown = false;
@@ -148,7 +148,7 @@ void onInit()
    _shaderFragID = glUtils::buildShader("../_data/shaders/Diffuse.frag", GL_FRAGMENT_SHADER);
    _shaderProgID = glUtils::buildProgram(_shaderVertID, _shaderFragID);
 
-   // Activate the shader programm
+   // Activate the shader program
    glUseProgram(_shaderProgID);
 
    // Get the variable locations (identifiers) within the program
@@ -163,6 +163,7 @@ void onInit()
    glClearColor(0.5f, 0.5f, 0.5f, 1);  // Set the background color
    glEnable(GL_DEPTH_TEST);            // Enables depth test
    glEnable(GL_CULL_FACE);             // Enables the culling of back faces
+   GETGLERROR;
 }
 //-----------------------------------------------------------------------------
 /*!
@@ -189,7 +190,7 @@ bool onPaint()
    // Clear the color & depth buffer
    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-   // View transform: move the coordiante system away from the camera
+   // View transform: move the coordinate system away from the camera
    _viewMatrix.identity();
    _viewMatrix.translate(0, 0, _camZ);
 
@@ -216,6 +217,8 @@ bool onPaint()
    glUniform3f(_lightDirVSLoc, 0.5f, 1.0f, 1.0f);          // light direction in view space
    glUniform4f(_lightDiffuseLoc, 1.0f, 1.0f,  1.0f, 1.0f);  // diffuse light intensity (RGBA)
    glUniform4f(_matDiffuseLoc, 1.0f, 0.0f, 0.0f, 1.0f);     // diffuse material reflection (RGBA)
+
+   GETGLERROR;
 
 
    /////////////////////////////////
@@ -265,7 +268,7 @@ bool onPaint()
    glUniformMatrix4fv(_mvpLoc, 1, 0, (float*)&mvp);
    glUniform4f(_matDiffuseLoc, 0.0f, 0.0f, 1.0f, 1.0f);
 
-   // Acitvate VBOs
+   // Activate VBOs
    glBindBuffer(GL_ARRAY_BUFFER, _vboV);
    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _vboI);
 
@@ -288,6 +291,8 @@ bool onPaint()
    // Fast copy the back buffer to the front buffer. This is OS dependent.
    glfwSwapBuffers(window);
 
+   GETGLERROR;
+
    // Return true to get an immediate refresh
    return true;
 }
@@ -307,6 +312,8 @@ void onResize(GLFWwindow* window, int width, int height)
 
    // define the viewport
    glViewport(0, 0, width, height);
+
+   GETGLERROR;
 
    onPaint();
 }
@@ -432,7 +439,7 @@ int main()
         exit(EXIT_FAILURE);
     }
 
-    // Get the currenct GL context. After this you can call GL
+    // Get the current GL context. After this you can call GL
     glfwMakeContextCurrent(window);
 
     // On some systems screen & framebuffer size are different
@@ -443,12 +450,21 @@ int main()
     _scr2fbX = (float)fbWidth / (float)_scrWidth;
     _scr2fbY = (float)fbHeight / (float)_scrHeight;
 
-    // Include OpenGL via GLEW
+    // Include OpenGL via GLEW (init must be after window creation)
+    // The goal of the OpenGL Extension Wrangler Library (GLEW) is to assist C/C++ 
+    // OpenGL developers with two tedious tasks: initializing and using extensions 
+    // and writing portable applications. GLEW provides an efficient run-time 
+    // mechanism to determine whether a certain extension is supported by the 
+    // driver or not. OpenGL core and extension functionality is exposed via a 
+    // single header file. Download GLEW at: http://glew.sourceforge.net/
+    glewExperimental = GL_TRUE;  // avoids a crash
     GLenum err = glewInit();
     if (GLEW_OK != err)
     {   fprintf(stderr, "Error: %s\n", glewGetErrorString(err));
         exit(EXIT_FAILURE);
     }
+
+    glUtils::printGLInfo();
 
     glfwSetWindowTitle(window, "Diffuse Cubes");
 

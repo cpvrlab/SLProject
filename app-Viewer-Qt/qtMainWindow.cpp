@@ -144,14 +144,13 @@ void qtMainWindow::setMenuState()
     ui->menuBar->addMenu(_menuHelp);
 
     // Menu Load Scenes
-    ui->actionSmall_Test_Scene->setChecked(s->currentID()==cmdSceneSmallTest);
+    ui->actionSmall_Test_Scene->setChecked(s->currentID()==cmdSceneMinimal);
     ui->actionLarge_Model->setChecked(s->currentID()==cmdSceneLargeModel);
     ui->actionFigure->setChecked(s->currentID()==cmdSceneFigure);
     ui->actionMesh_Loader->setChecked(s->currentID()==cmdSceneMeshLoad);
     ui->actionTexture_Blending->setChecked(s->currentID()==cmdSceneTextureBlend);
     ui->actionTexture_Filtering->setChecked(s->currentID()==cmdSceneTextureFilter);
     ui->actionFrustum_Culling_1->setChecked(s->currentID()==cmdSceneFrustumCull1);
-    ui->actionFrustum_Culling_2->setChecked(s->currentID()==cmdSceneFrustumCull2);
 
     ui->actionPer_Vertex_Lighting->setChecked(s->currentID()==cmdScenePerVertexBlinn);
     ui->actionPer_Pixel_Lighting->setChecked(s->currentID()==cmdScenePerPixelBlinn);
@@ -779,7 +778,7 @@ void qtMainWindow::on_action_Quit_triggered()
 void qtMainWindow::on_actionSmall_Test_Scene_triggered()
 {
     beforeSceneLoad();
-    _activeGLWidget->sv()->onCommand(cmdSceneSmallTest);
+    _activeGLWidget->sv()->onCommand(cmdSceneMinimal);
     afterSceneLoad();
 }
 void qtMainWindow::on_actionLarge_Model_triggered()
@@ -816,12 +815,6 @@ void qtMainWindow::on_actionFrustum_Culling_1_triggered()
 {
     beforeSceneLoad();
     _activeGLWidget->sv()->onCommand(cmdSceneFrustumCull1);
-    afterSceneLoad();
-}
-void qtMainWindow::on_actionFrustum_Culling_2_triggered()
-{
-    beforeSceneLoad();
-    _activeGLWidget->sv()->onCommand(cmdSceneFrustumCull2);
     afterSceneLoad();
 }
 

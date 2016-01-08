@@ -98,16 +98,9 @@ void SLMesh::deleteData()
         _accelStruct = nullptr;
     }
 
-    _bufP.dispose(); 
-    _bufN.dispose(); 
-    _bufC.dispose(); 
-    _bufTc.dispose();
-    _bufT.dispose(); 
-    _bufI.dispose(); 
-    _bufJi.dispose();
-    _bufJw.dispose();
-    _bufN2.dispose();
-    _bufT2.dispose();
+    _vao.deleteGL();
+    _vaoN.deleteGL();
+    _vaoT.deleteGL();
 }
 //-----------------------------------------------------------------------------
 //! SLMesh::shapeInit sets the transparency flag of the AABB
@@ -261,62 +254,32 @@ void SLMesh::draw(SLSceneView* sv, SLNode* node)
             sp->uniformMatrix4fv(locBM, _skeleton->numJoints(), (SLfloat*)_jointMatrices, false);
         }
 
-        /////////////////////
-        // 3) Build VBOs once
-        /////////////////////
+        ///////////////////////////////////////
+        // 3) Generate Vertex Array Object once
+        ///////////////////////////////////////
 
-        if (!_bufP.id())         _bufP.generate(finalP(), numV, 3);
-        if (!_bufN.id()  && N)   _bufN.generate(finalN(), numV, 3);
-        if (!_bufC.id()  && C)   _bufC.generate(C, numV, 4);
-        if (!_bufTc.id() && Tc)  _bufTc.generate(Tc, numV, 2);
-        if (!_bufJi.id() && Ji)  _bufJi.generate(Ji, numV, 4);
-        if (!_bufJw.id() && Jw)  _bufJw.generate(Jw, numV, 4);
-        if (!_bufT.id()  && T)   _bufT.generate(T, numV, 4);
-        if (!_bufI.id()  && I16) _bufI.generate(I16, numI, 1, SL_UNSIGNED_SHORT, SL_ELEMENT_ARRAY_BUFFER);
-        if (!_bufI.id()  && I32) _bufI.generate(I32, numI, 1, SL_UNSIGNED_INT,   SL_ELEMENT_ARRAY_BUFFER);    
-
-
-        ////////////////////////////////////////
-        // 4) Bind and enable attribute pointers
-        ////////////////////////////////////////
-
-        _bufP.bindAndEnableAttrib(sp->getAttribLocation("a_position"));
-        if (_bufN.id()) 
-            _bufN.bindAndEnableAttrib(sp->getAttribLocation("a_normal"));
-        if (_bufC.id()) 
-            _bufC.bindAndEnableAttrib(sp->getAttribLocation("a_color"));
-        if (_bufTc.id() && useTexture) 
-            _bufTc.bindAndEnableAttrib(sp->getAttribLocation("a_texCoord"));
-        if (_bufT.id())  
-            _bufT.bindAndEnableAttrib(sp->getAttribLocation("a_tangent"));
-        if (_bufJi.id())
-            _bufJi.bindAndEnableAttrib(sp->getAttribLocation("a_jointIds"));
-        if (_bufJw.id())
-            _bufJw.bindAndEnableAttrib(sp->getAttribLocation("a_jointWeights"));
-   
+        if (!_vao.id())
+        {            _vao.setAttrib(SL_POSITION,    3, sp->getAttribLocation("a_position"),     finalP());
+            if (N)   _vao.setAttrib(SL_NORMAL,      3, sp->getAttribLocation("a_normal"),       finalN());
+            if (Tc)  _vao.setAttrib(SL_TEXCOORD,    2, sp->getAttribLocation("a_texCoord"),     Tc);
+            if (C)   _vao.setAttrib(SL_COLOR,       4, sp->getAttribLocation("a_color"),        C);
+            if (T)   _vao.setAttrib(SL_TANGENT,     4, sp->getAttribLocation("a_tangent"),      T);
+            if (Ji)  _vao.setAttrib(SL_JOINTINDEX,  4, sp->getAttribLocation("a_jointIndex"),   Ji);
+            if (Jw)  _vao.setAttrib(SL_JOINTWEIGHT, 4, sp->getAttribLocation("a_jointWeights"), Jw);
+            if (I16) _vao.setIndices(numI, SL_UNSIGNED_SHORT, I16);
+            if (I32) _vao.setIndices(numI, SL_UNSIGNED_INT, I32);
+            _vao.generate(numV, (Ji&&Jw) ? SL_STREAM_DRAW : SL_STATIC_DRAW, !(Ji&&Jw)); 
+        }
 
         ///////////////////////////////
-        // 5): Finally do the draw call
+        // 4): Finally do the draw call
         ///////////////////////////////
 
-        _bufI.bindAndDrawElementsAs(primitiveType, numI, 0);
+        _vao.drawElementsAs(primitiveType);
 
-
-        ////////////////////////////////
-        // 6) Disable attribute pointers
-        ////////////////////////////////
-
-        _bufP.disableAttribArray();
-        if (_bufN.id())  _bufN.disableAttribArray();
-        if (_bufC.id())  _bufC.disableAttribArray();
-        if (_bufTc.id()) _bufTc.disableAttribArray();
-        if (_bufT.id())  _bufT.disableAttribArray();
-        if (_bufJi.id()) _bufJi.disableAttribArray();
-        if (_bufJw.id()) _bufJw.disableAttribArray();
-      
 
         //////////////////////////////////////
-        // 7) Draw optional normals & tangents
+        // 5) Draw optional normals & tangents
         //////////////////////////////////////
 
         // All helper lines must be drawn without blending
@@ -334,10 +297,8 @@ void SLMesh::draw(SLSceneView* sv, SLNode* node)
                 V2[(i<<1)+1].set(finalP()[i] + finalN()[i]*r);
             }
 
-            // Create or update buffer object for normals
-            if (_bufN2.id())
-                 _bufN2.update(V2, numV*2, 0);
-            else _bufN2.generate(V2, numV*2, 3);
+            // Create or update VAO for normals
+            _vaoN.generateVertexPos(numV*2, 3, V2);
 
             if (T)
             {   for (SLuint i=0; i < numV; ++i)
@@ -346,25 +307,23 @@ void SLMesh::draw(SLSceneView* sv, SLNode* node)
                                     finalP()[i].z+T[i].z*r);
                 }
 
-                // Create or update buffer object for tangents
-                if (_bufT2.id())
-                     _bufT2.update(V2, numV*2, 3);
-                else _bufT2.generate(V2, numV*2, 3);
+                // Create or update VAO for tangents
+                _vaoT.generateVertexPos(numV*2, 3, V2);
             }
             delete[] V2;
 
-            _bufN2.drawArrayAsConstantColorLines(SLCol3f::BLUE);
-            if (T) _bufT2.drawArrayAsConstantColorLines(SLCol3f::RED);
+            _vaoN.drawArrayAsColored(SL_LINES, SLCol4f::BLUE);
+            if (T) _vaoT.drawArrayAsColored(SL_LINES, SLCol4f::RED);
             if (blended) _stateGL->blend(false);
         } 
         else
         {   // release buffer objects for normal & tangent rendering
-            if (_bufN2.id()) _bufN2.dispose();
-            if (_bufT2.id()) _bufT2.dispose();
+            if (_vaoN.id()) _vaoN.deleteGL();
+            if (_vaoT.id()) _vaoT.deleteGL();
         }
         
         //////////////////////////////////////////
-        // 8) Draw optional acceleration structure
+        // 6) Draw optional acceleration structure
         //////////////////////////////////////////
 
         if (_accelStruct) 
@@ -377,16 +336,19 @@ void SLMesh::draw(SLSceneView* sv, SLNode* node)
             }
         }
 
-        ////////////////////////
-        // 6: Draw selected mesh
-        ////////////////////////
+        ////////////////////////////////////
+        // 7: Draw selected mesh with points
+        ////////////////////////////////////
       
         if (SLScene::current->selectedMesh()==this)
         {   _stateGL->polygonOffset(true, 1.0f, 1.0f);
-            _bufP.drawArrayAsConstantColorPoints(SLCol4f::YELLOW, 2);
+            _vaoS.generateVertexPos(numV, 3, finalP());
+            _vaoS.drawArrayAsColored(SL_POINTS, SLCol4f::YELLOW, 2);
             _stateGL->polygonLine(false);
             _stateGL->polygonOffset(false);
-        } 
+        } else
+        {   if (_vaoS.id()) _vaoS.deleteGL();
+        }
 
         if (blended) _stateGL->blend(true);
     }
@@ -629,7 +591,6 @@ void SLMesh::calcNormals()
     // Create array for the normals & Zero out the normals array
     delete[] N;
     N = 0;
-    _bufN.dispose();
 
     if (_primitive != SL_TRIANGLES)
         return;
@@ -1135,14 +1096,11 @@ void SLMesh::transformSkin()
     }  
 
     // update or create buffers
-    if (_bufP.id()) 
-         _bufP.update(finalP(), numV, 0);
-    else _bufP.generate(finalP(), numV, 3);
-    if (N)
-    {   if (_bufN.id())
-             _bufN.update(finalN(), numV, 0);
-        else _bufN.generate(finalN(), numV, 3);
-    }
+    if (_vao.id()) 
+    {   _vao.updateAttrib(SL_POSITION, 3, finalP());
+        if (N) _vao.updateAttrib(SL_NORMAL, 3, finalN());
+    }    
+    
 }
 
 //-----------------------------------------------------------------------------

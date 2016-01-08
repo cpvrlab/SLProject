@@ -380,7 +380,7 @@ the 2D or 3D graph was updated or waitEvents is false.
 SLbool SLSceneView::onPaint()
 {  
     SLScene* s = SLScene::current;
-    SLGLBuffer::totalDrawCalls = 0;
+    SLGLVertexArray::totalDrawCalls = 0;
     SLbool camUpdated = false;
     
     if (_camera  && s->_root3D)
@@ -402,10 +402,10 @@ SLbool SLSceneView::onPaint()
         s->oculus()->endFrame(_scrW, _scrH, _oculusFB.texID());
 
     // Update statistic of VBO's & drawcalls
-    _totalBufferCount = SLGLBuffer::totalBufferCount;
-    _totalBufferSize = SLGLBuffer::totalBufferSize;
-    _totalDrawCalls = SLGLBuffer::totalDrawCalls;
-    SLGLBuffer::totalDrawCalls   = 0;
+    _totalBufferCount = SLGLVertexArray::totalBufferCount;
+    _totalBufferSize = SLGLVertexArray::totalBufferSize;
+    _totalDrawCalls = SLGLVertexArray::totalDrawCalls;
+    SLGLVertexArray::totalDrawCalls   = 0;
 
     // Set gotPainted only to true if RT is not busy
     _gotPainted = _renderType==renderGL || raytracer()->state()!=rtBusy;
@@ -465,7 +465,7 @@ SLbool SLSceneView::draw3DGL(SLfloat elapsedTimeMS)
 
     SLfloat startMS = s->timeMilliSec();
     
-    // Update camera animation seperately (smooth transition on key movement)
+    // Update camera animation separately (smooth transition on key movement)
     SLbool camUpdated = _camera->camUpdate(elapsedTimeMS);
 
    
@@ -933,11 +933,11 @@ void SLSceneView::draw2DGLAll()
             touch[i].z = 0.0f;
         }
       
-        _bufTouch.generate(touch, _touchDowns, 3);
+        _vaoTouch.generateVertexPos(_touchDowns, 3, touch);
         delete [] touch;
       
         SLCol4f yelloAlpha(1.0f, 1.0f, 0.0f, 0.5f);
-        _bufTouch.drawArrayAsConstantColorPoints(yelloAlpha, 21);
+        _vaoTouch.drawArrayAsColored(SL_POINTS, yelloAlpha, 21);
         _stateGL->popModelViewMatrix();
     }
     #endif
@@ -950,14 +950,14 @@ void SLSceneView::draw2DGLAll()
             _stateGL->modelViewMatrix.translate(0, 0, depth);
             SLVec3f cross;
             cross.set(0,0,0);
-            _bufTouch.generate(&cross, 1, 3);
+            _vaoTouch.generateVertexPos(1, 3, &cross);
             SLCol4f yelloAlpha(1.0f, 1.0f, 0.0f, 0.5f);
-            _bufTouch.drawArrayAsConstantColorPoints(yelloAlpha, (SLfloat)_dpi/12.0f);
+            _vaoTouch.drawArrayAsColored(SL_POINTS, yelloAlpha, (SLfloat)_dpi/12.0f);
             _stateGL->popModelViewMatrix();
         }
     }
 
-    // Draw virtual mouse cursor if we're in hmd stereo mode
+    // Draw virtual mouse cursor if we're in HMD stereo mode
     if (_camera->projection() == stereoSideBySideD)
     {
         SLfloat hCur = (SLfloat)s->texCursor()->height();
@@ -1398,7 +1398,7 @@ SLbool SLSceneView::onCommand(SLCmd cmd)
         }
         else return false;
 
-    case cmdSceneSmallTest:
+    case cmdSceneMinimal:
     case cmdSceneFigure:
     case cmdSceneLargeModel:
     case cmdSceneMeshLoad:
@@ -1408,7 +1408,6 @@ SLbool SLSceneView::onCommand(SLCmd cmd)
     case cmdSceneTextureFilter:
     case cmdSceneTextureVideo:
     case cmdSceneFrustumCull1:
-    case cmdSceneFrustumCull2:
 
     case cmdScenePerVertexBlinn:
     case cmdScenePerPixelBlinn:
@@ -1633,7 +1632,7 @@ void SLSceneView::build2DMenus()
    
     mn3 = new SLButton(this, "General >", f);
     mn2->addChild(mn3);
-    mn3->addChild(new SLButton(this, "SmallTest", f, cmdSceneSmallTest, true, curS==cmdSceneSmallTest, mn2));
+    mn3->addChild(new SLButton(this, "SmallTest", f, cmdSceneMinimal, true, curS==cmdSceneMinimal, mn2));
     SLstring large1 = SLImporter::defaultPath + "PLY/xyzrgb_dragon.ply";
     SLstring large2 = SLImporter::defaultPath + "PLY/mesh_zermatt.ply";
     SLstring large3 = SLImporter::defaultPath + "PLY/switzerland.ply";
@@ -1648,7 +1647,6 @@ void SLSceneView::build2DMenus()
     mn3->addChild(new SLButton(this, "Texture Filters and 3D texture", f, cmdSceneTextureFilter, true, curS==cmdSceneTextureFilter, mn2));
     mn3->addChild(new SLButton(this, "Texture from live video", f, cmdSceneTextureVideo, true, curS==cmdSceneTextureVideo, mn2));
     mn3->addChild(new SLButton(this, "Frustum Culling 1", f, cmdSceneFrustumCull1, true, curS==cmdSceneFrustumCull1, mn2));
-    mn3->addChild(new SLButton(this, "Frustum Culling 2", f, cmdSceneFrustumCull2, true, curS==cmdSceneFrustumCull2, mn2));
 
     mn3 = new SLButton(this, "Shader >", f);
     mn2->addChild(mn3);

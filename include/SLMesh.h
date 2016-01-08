@@ -13,7 +13,7 @@
 
 #include <stdafx.h>
 #include <SLAABBox.h>
-#include <SLGLBuffer.h>
+#include <SLGLVertexArray.h>
 #include <SLEnums.h>
 
 class SLSceneView;
@@ -140,26 +140,26 @@ a vertex shader. If the skinning is done on CPU two additional arrays
 class SLMesh : public SLObject
 {   
     public:                    
-                            SLMesh         (SLstring name = "Mesh");
-                           ~SLMesh         ();
+                            SLMesh          (SLstring name = "Mesh");
+                           ~SLMesh          ();
                
-    virtual void            init           (SLNode* node);
-    virtual void            draw           (SLSceneView* sv, SLNode* node);
-            void            addStats       (SLNodeStats &stats);
-    virtual void            buildAABB      (SLAABBox &aabb, SLMat4f wmNode);
+    virtual void            init            (SLNode* node);
+    virtual void            draw            (SLSceneView* sv, SLNode* node);
+            void            addStats        (SLNodeStats &stats);
+    virtual void            buildAABB       (SLAABBox &aabb, SLMat4f wmNode);
             void            updateAccelStruct();
-            SLbool          hit            (SLRay* ray, SLNode* node);               
-    virtual void            preShade       (SLRay* ray);
+            SLbool          hit             (SLRay* ray, SLNode* node);               
+    virtual void            preShade        (SLRay* ray);
                
-            void            deleteData     ();
-    virtual void            calcNormals    ();
-            void            calcTangents   ();
-            void            calcTex3DMatrix(SLNode* node);
-    virtual void            calcMinMax     ();
-            void            calcCenterRad  (SLVec3f& center, SLfloat& radius);
-            SLbool          hitTriangleOS  (SLRay* ray, SLNode* node, SLuint iT);
+            void            deleteData      ();
+    virtual void            calcNormals     ();
+            void            calcTangents    ();
+            void            calcTex3DMatrix (SLNode* node);
+    virtual void            calcMinMax      ();
+            void            calcCenterRad   (SLVec3f& center, SLfloat& radius);
+            SLbool          hitTriangleOS   (SLRay* ray, SLNode* node, SLuint iT);
 
-            SLPrimitive     primitive      (){return _primitive;}
+            SLPrimitive     primitive       (){return _primitive;}
         
             void            transformSkin   ();
             void            skinMethod      (SLSkinMethod method);
@@ -197,17 +197,10 @@ class SLMesh : public SLObject
             SLGLState*      _stateGL;       //!< Pointer to the global SLGLState instance
             SLPrimitive     _primitive;     //!< Primitive type (default triangles)
 
-            SLGLBuffer      _bufP;          //!< Buffer for vertex positions
-            SLGLBuffer      _bufN;          //!< Buffer for vertex normals
-            SLGLBuffer      _bufC;          //!< Buffer for vertex colors
-            SLGLBuffer      _bufTc;         //!< Buffer for vertex texcoords
-            SLGLBuffer      _bufT;          //!< Buffer for vertex tangents
-            SLGLBuffer      _bufI;          //!< Buffer for vertex indexes
-            SLGLBuffer      _bufJi;         //!< Buffer for joint id
-            SLGLBuffer      _bufJw;         //!< Buffer for joint weight
-               
-            SLGLBuffer      _bufN2;         //!< Buffer for normal line rendering
-            SLGLBuffer      _bufT2;         //!< Buffer for tangent line rendering
+            SLGLVertexArray     _vao;       //!< OpenGL Vertex Array Object for drawing
+            SLGLVertexArrayExt  _vaoN;      //!< OpenGL VAO for optional normal drawing
+            SLGLVertexArrayExt  _vaoT;      //!< OpenGL VAO for optional tangent drawing
+            SLGLVertexArrayExt  _vaoS;      //!< OpenGL VAO for optional selection drawing
                
             SLbool          _isVolume;      //!< Flag for RT if mesh is a closed volume
                

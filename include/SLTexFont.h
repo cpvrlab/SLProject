@@ -12,7 +12,7 @@
 #include <stdafx.h>
 
 #include <SLGLTexture.h>
-#include <SLGLBuffer.h>
+#include <SLGLVertexArray.h>
 
 #ifndef SLTEXFONT
 #define SLTEXFONT
@@ -54,9 +54,7 @@ public:
                                      SLfloat lineHeightFactor = 1.5f);
     SLVstring       wrapTextToLines (SLstring text,
                                      SLfloat  maxW);
-    void            buildTextBuffers(SLGLBuffer* bufP,
-                                     SLGLBuffer* bufT,
-                                     SLGLBuffer* bufI,
+    void            buildTextBuffers(SLGLVertexArray& vao,
                                      SLstring text, 
                                      SLfloat maxWidth = 0.0f,
                                      SLfloat lineHeight = 1.5f);
@@ -64,7 +62,7 @@ public:
     //! Single Character info struct w. min. and max. texcoords.
     typedef struct
     {
-        SLfloat width; //!< Width of char. in texcoord.
+        SLfloat width; //!< Width of char. in tex-coord.
         SLfloat tx1;   //!< Min. Texture x-coord.         
         SLfloat ty1;   //!< Max. Texture y-coord.
         SLfloat tx2;   //!< Max. Texture x-coord. 

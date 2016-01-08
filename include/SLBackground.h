@@ -12,7 +12,7 @@
 #define SLBACKGROUND_H
 
 #include <stdafx.h>
-#include <SLGLBuffer.h>
+#include <SLGLVertexArray.h>
 
 class SLGLTexture;
 
@@ -52,10 +52,7 @@ private:
             SLbool          _updateTex; //!< Flag if texture is updated per frame
             SLint           _resX;      //!< Background resolution in x-dir.
             SLint           _resY;      //!< Background resolution in y-dir.
-            SLGLBuffer      _bufP;      //!< Buffer for vertex positions
-            SLGLBuffer      _bufT;      //!< Buffer for vertex texture coords
-            SLGLBuffer      _bufC;      //!< Buffer for vertex colors
-            SLGLBuffer      _bufI;      //!< Buffer for vertex indexes
+            SLGLVertexArray _vao;       //!< OpenGL Vertex Array Object for drawing
 };
 //-----------------------------------------------------------------------------
 #endif

@@ -87,11 +87,11 @@ INCLUDEPATH += \
     ../lib-SLExternal/jpeg-8 \
 
 SOURCES += VolumeRendering.cpp
-SOURCES += glUtils.cpp 
+SOURCES += ../lib-SLProject/source/glUtils.cpp
 SOURCES += ../lib-SLProject/source/SL/SLImage.cpp 
 SOURCES += ../lib-SLProject/source/SL/SL.cpp
 
-HEADERS += glUtils.h
+HEADERS += ../include/glUtils.h
 HEADERS += ../include/SLImage.h
 
 OTHER_FILES += VolumeRenderingRayCast.vert

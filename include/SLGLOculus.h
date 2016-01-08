@@ -20,7 +20,7 @@
 #endif
 
 //-----------------------------------------------------------------------------
-//! Distorted vertex used to draw in the Occulus frame buffer.
+//! Distorted vertex used to draw in the Oculus frame buffer.
 struct SLGLOcculusDistortionVertex
 {
     SLVec2f screenPosNDC;
@@ -38,6 +38,8 @@ class SLGLOculus
     public:
                         SLGLOculus          ();
                        ~SLGLOculus          ();
+
+            void        init                ();
       
     const   SLQuat4f&   orientation         (SLEye eye);
     const   SLVec3f&    position            (SLEye eye);
@@ -74,53 +76,50 @@ class SLGLOculus
 
 
     private:
-            void        init                ();
             void        dispose             ();
+            void        calculateHmdValues();       //!< recalculate HMD settings changed
             
 #ifdef SL_OVR
-            // ovr variables
+            // OVR variables
             ovrHmd              _hmd;
             ovrFrameTiming      _frameTiming;
-            SLuint              _startTrackingCaps;     //!< the current ovr tracking configuration
+            SLuint              _startTrackingCaps;     //!< the current OVR tracking configuration
             
-            ovrEyeRenderDesc    _eyeRenderDesc[2];      //!< ovr eye render description
-            ovrPosef            _eyeRenderPose[2];      //!< ovr individual eye render pose
+            ovrEyeRenderDesc    _eyeRenderDesc[2];      //!< OVR eye render description
+            ovrPosef            _eyeRenderPose[2];      //!< OVR individual eye render pose
 
             ovrRecti            _viewports[2];          //!< viewport size and offset for both eyes
             ovrVector2f         _uvScaleOffset[2][2];   //!< uv scale and offset for each eye
 #endif
 
-
             // SL variables that can be accessed via getters
-            SLVec2i             _outputRes;                 //!< output resolution used for ortho projection
-            SLQuat4f            _orientation[2];            //!< eye orientation
-            SLVec3f             _position[2];               //!< eye position
+            SLVec2i         _outputRes;                 //!< output resolution used for ortho projection
+            SLQuat4f        _orientation[2];            //!< eye orientation
+            SLVec3f         _position[2];               //!< eye position
                         
-            SLMat4f             _projection[2];             //!< projection matrices for left and right eye
-            SLMat4f             _orthoProjection[2];        //!< projection for 2d elements
-            SLVec3f             _viewAdjust[2];             //!< view ajust vector
-            
-            SLGLBuffer          _distortionMeshVB[2];       //!< distortion meshes for left and right eye 
-            SLGLBuffer          _distortionMeshIB[2];
-            
-            SLfloat             _resolutionScale;           //!< required resolution scale for a 1.0 min pixel density
-            
-            // distortion                
-            SLbool              _usingDebugHmd;             //!< we're using a debug hmd
-            SLbool              _positionTrackingEnabled;   //!< is position tracking enabled
-            SLbool              _lowPersistanceEnabled;     //!< low persistance rendering enabled
-            SLbool              _timeWarpEnabled;           //!< time warp correction enabled
-            SLbool              _displaySleep;              //!< is the display of the rift currently off
+            SLMat4f         _projection[2];             //!< projection matrices for left and right eye
+            SLMat4f         _orthoProjection[2];        //!< projection for 2d elements
+            SLVec3f         _viewAdjust[2];             //!< view adjust vector
 
-            SLbool              _isConnected;               //!< is hmd connected
-            SLbool              _isCameraConnected;         //!< is position tracker camera connected
-            SLbool              _isPositionTracked;         //!< is the position tracked (false if out of range)
-
-            SLVec2i             _resolution;                //!< Resolution of the hmd
-            SLVec2i             _rtSize;                    //!< Required resolution for the render target
+            SLGLVertexArray _distortionMeshVAO[2];      //!< distortion meshes for left and right eye 
             
-            SLbool              _hmdSettingsChanged;        //!< settings need to be updated flag
-            void                calculateHmdValues();       //!< recalculate hmd settings changed
+            SLfloat         _resolutionScale;           //!< required resolution scale for a 1.0 min pixel density
+            
+            // distortion            
+            SLbool          _usingDebugHmd;             //!< we're using a debug HMD
+            SLbool          _positionTrackingEnabled;   //!< is position tracking enabled
+            SLbool          _lowPersistanceEnabled;     //!< low persistence rendering enabled
+            SLbool          _timeWarpEnabled;           //!< time warp correction enabled
+            SLbool          _displaySleep;              //!< is the display of the rift currently off
+
+            SLbool          _isConnected;               //!< is HMD connected
+            SLbool          _isCameraConnected;         //!< is position tracker camera connected
+            SLbool          _isPositionTracked;         //!< is the position tracked (false if out of range)
+
+            SLVec2i         _resolution;                //!< Resolution of the HMD
+            SLVec2i         _rtSize;                    //!< Required resolution for the render target
+            
+            SLbool          _hmdSettingsChanged;        //!< settings need to be updated flag
 
 
 };

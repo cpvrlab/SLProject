@@ -185,15 +185,13 @@ void SLCompactGrid::draw (SLSceneView* sv)
 {
     if (_voxelCnt > 0)
     {
-        SLuint   i = 0;  // number of lines to draw
-
-        if (!_bufP.id())
+        if (!_vao.id())
         {
             SLint    x, y, z;
             SLuint   curVoxel = 0;
             SLVec3f  v;
             SLuint   numP = 12 * 2 * _voxelCnt;
-            SLVec3f* P = new SLVec3f[numP];
+            SLVVec3f P;
 
             // Loop through voxels
             v.z = _minV.z;
@@ -209,43 +207,42 @@ void SLCompactGrid::draw (SLSceneView* sv)
                         
                         if (_voxelOffsets[voxelID] < _voxelOffsets[voxelID + 1])
                         {
-                            P[i++].set(v.x               , v.y               , v.z);
-                            P[i++].set(v.x + _voxelSize.x, v.y               , v.z);
-                            P[i++].set(v.x + _voxelSize.x, v.y               , v.z);
-                            P[i++].set(v.x + _voxelSize.x, v.y               , v.z + _voxelSize.z);
-                            P[i++].set(v.x + _voxelSize.x, v.y               , v.z + _voxelSize.z);
-                            P[i++].set(v.x               , v.y               , v.z + _voxelSize.z);
-                            P[i++].set(v.x               , v.y               , v.z + _voxelSize.z);
-                            P[i++].set(v.x               , v.y               , v.z);
+                            P.push_back(SLVec3f(v.x               , v.y               , v.z               ));
+                            P.push_back(SLVec3f(v.x + _voxelSize.x, v.y               , v.z               ));
+                            P.push_back(SLVec3f(v.x + _voxelSize.x, v.y               , v.z               ));
+                            P.push_back(SLVec3f(v.x + _voxelSize.x, v.y               , v.z + _voxelSize.z));
+                            P.push_back(SLVec3f(v.x + _voxelSize.x, v.y               , v.z + _voxelSize.z));
+                            P.push_back(SLVec3f(v.x               , v.y               , v.z + _voxelSize.z));
+                            P.push_back(SLVec3f(v.x               , v.y               , v.z + _voxelSize.z));
+                            P.push_back(SLVec3f(v.x               , v.y               , v.z               ));
 
-                            P[i++].set(v.x               , v.y + _voxelSize.y, v.z);
-                            P[i++].set(v.x + _voxelSize.x, v.y + _voxelSize.y, v.z);
-                            P[i++].set(v.x + _voxelSize.x, v.y + _voxelSize.y, v.z);
-                            P[i++].set(v.x + _voxelSize.x, v.y + _voxelSize.y, v.z + _voxelSize.z);
-                            P[i++].set(v.x + _voxelSize.x, v.y + _voxelSize.y, v.z + _voxelSize.z);
-                            P[i++].set(v.x               , v.y + _voxelSize.y, v.z + _voxelSize.z);
-                            P[i++].set(v.x               , v.y + _voxelSize.y, v.z + _voxelSize.z);
-                            P[i++].set(v.x               , v.y + _voxelSize.y, v.z);
+                            P.push_back(SLVec3f(v.x               , v.y + _voxelSize.y, v.z               ));
+                            P.push_back(SLVec3f(v.x + _voxelSize.x, v.y + _voxelSize.y, v.z               ));
+                            P.push_back(SLVec3f(v.x + _voxelSize.x, v.y + _voxelSize.y, v.z               ));
+                            P.push_back(SLVec3f(v.x + _voxelSize.x, v.y + _voxelSize.y, v.z + _voxelSize.z));
+                            P.push_back(SLVec3f(v.x + _voxelSize.x, v.y + _voxelSize.y, v.z + _voxelSize.z));
+                            P.push_back(SLVec3f(v.x               , v.y + _voxelSize.y, v.z + _voxelSize.z));
+                            P.push_back(SLVec3f(v.x               , v.y + _voxelSize.y, v.z + _voxelSize.z));
+                            P.push_back(SLVec3f(v.x               , v.y + _voxelSize.y, v.z               ));
 
-                            P[i++].set(v.x               , v.y               , v.z);
-                            P[i++].set(v.x               , v.y + _voxelSize.y, v.z);
-                            P[i++].set(v.x + _voxelSize.x, v.y               , v.z);
-                            P[i++].set(v.x + _voxelSize.x, v.y + _voxelSize.y, v.z);
-                            P[i++].set(v.x + _voxelSize.x, v.y               , v.z + _voxelSize.z);
-                            P[i++].set(v.x + _voxelSize.x, v.y + _voxelSize.y, v.z + _voxelSize.z);
-                            P[i++].set(v.x               , v.y               , v.z + _voxelSize.z);
-                            P[i++].set(v.x               , v.y + _voxelSize.y, v.z + _voxelSize.z);
+                            P.push_back(SLVec3f(v.x               , v.y               , v.z               ));
+                            P.push_back(SLVec3f(v.x               , v.y + _voxelSize.y, v.z               ));
+                            P.push_back(SLVec3f(v.x + _voxelSize.x, v.y               , v.z               ));
+                            P.push_back(SLVec3f(v.x + _voxelSize.x, v.y + _voxelSize.y, v.z               ));
+                            P.push_back(SLVec3f(v.x + _voxelSize.x, v.y               , v.z + _voxelSize.z));
+                            P.push_back(SLVec3f(v.x + _voxelSize.x, v.y + _voxelSize.y, v.z + _voxelSize.z));
+                            P.push_back(SLVec3f(v.x               , v.y               , v.z + _voxelSize.z));
+                            P.push_back(SLVec3f(v.x               , v.y + _voxelSize.y, v.z + _voxelSize.z));
                         }
                         curVoxel++;
                     }
                 }
             }
 
-            _bufP.generate(P, i, 3);
-            delete[] P;
+            _vao.generateVertexPos(P);
         }
 
-        _bufP.drawArrayAsConstantColorLines(SLCol3f::CYAN);
+        _vao.drawArrayAsColored(SL_LINES, SLCol4f::CYAN);
     }
 }
 //-----------------------------------------------------------------------------

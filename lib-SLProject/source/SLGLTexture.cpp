@@ -150,9 +150,7 @@ void SLGLTexture::clearData()
     _images.clear();
 
     _texName = 0;
-    _bufP.dispose();
-    _bufT.dispose();
-    _bufI.dispose();
+    _vaoSprite.clearAttribs();
 }
 //-----------------------------------------------------------------------------
 //! Loads the texture, converts color depth & applies the mirroring
@@ -357,9 +355,7 @@ void SLGLTexture::build(SLint texID)
                          _images[i]->format(),
                          GL_UNSIGNED_BYTE,
                          (GLvoid*)_images[i]->data());
-            //////////////////////////////////////////////
-            
-            GET_GL_ERROR;  
+            //////////////////////////////////////////////  
         } 
         if (_min_filter>=GL_NEAREST_MIPMAP_NEAREST)
             glGenerateMipmap(GL_TEXTURE_2D);  
@@ -465,7 +461,7 @@ void SLGLTexture::drawSprite(SLbool doUpdate)
     SLfloat h = (SLfloat)_images[0]->height();
 
     // build buffer object once
-    if (!_bufP.id() && !_bufT.id() && !_bufI.id())
+    if (!_vaoSprite.id())
     {
         // Vertex X & Y of corners
         SLfloat P[8] = {0.0f, h, 
@@ -482,9 +478,12 @@ void SLGLTexture::drawSprite(SLbool doUpdate)
         // Indexes for a triangle strip
         SLushort I[4] = {0,1,2,3};
     
-        _bufP.generate(P, 4, 2);
-        _bufT.generate(T, 4, 2);
-        _bufI.generate(I, 4, 1, SL_UNSIGNED_SHORT, SL_ELEMENT_ARRAY_BUFFER);
+        SLGLProgram* sp = SLScene::current->programs(TextureOnly);
+        sp->useProgram();
+        _vaoSprite.setAttrib(SL_POSITION, 2, sp->getAttribLocation("a_position"), P);
+        _vaoSprite.setAttrib(SL_TEXCOORD, 2, sp->getAttribLocation("a_texCoord"), T);
+        _vaoSprite.setIndices(4, SL_UNSIGNED_SHORT, I);
+        _vaoSprite.generate(4);
     }
 
     bindActive(0);              // Enable & build texture
@@ -496,17 +495,10 @@ void SLGLTexture::drawSprite(SLbool doUpdate)
     sp->useProgram();
     sp->uniformMatrix4fv("u_mvpMatrix", 1, (SLfloat*)&mvp);
     sp->uniform1i("u_texture0", 0);
-   
-    // bind buffers and draw 
-    _bufP.bindAndEnableAttrib(sp->getAttribLocation("a_position"));
-    _bufT.bindAndEnableAttrib(sp->getAttribLocation("a_texCoord"));
  
     ///////////////////////////////////////////////
-    _bufI.bindAndDrawElementsAs(SL_TRIANGLE_STRIP);
+    _vaoSprite.drawElementsAs(SL_TRIANGLE_STRIP);
     ///////////////////////////////////////////////
- 
-    _bufP.disableAttribArray();
-    _bufT.disableAttribArray();
 }
 //-----------------------------------------------------------------------------
 /*!

@@ -745,11 +745,7 @@ void SLRaytracer::prepareImage()
             _texName = 0;
         }
 
-        // Dispose VBO is they already exist
-        _bufP.dispose();
-        _bufT.dispose();
-        _bufI.dispose();
-
+        _vaoSprite.clearAttribs();
         _images[0]->allocate(_sv->scrW(), _sv->scrH(), SL_RGB);
     }
    

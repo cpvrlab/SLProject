@@ -267,15 +267,11 @@ character. The text width < maxWidth the text will be on one line. If it is
 wider it will be split into multiple lines with a 
 height = font height * lineHeight.
 */
-void SLTexFont::buildTextBuffers(SLGLBuffer* bufP,    // vertex position
-                                 SLGLBuffer* bufT,    // vertex texture coords.
-                                 SLGLBuffer* bufI,    // vertex index
+void SLTexFont::buildTextBuffers(SLGLVertexArray& vao,
                                  SLstring text,       // text
-                                 SLfloat maxWidth,    // max. width for multiline text 
+                                 SLfloat maxWidth,    // max. width for multi-line text 
                                  SLfloat lineHeight)  // line height factor
-{
-    assert(bufP && bufT && bufI);
-   
+{   
     SLVstring lines;  // Vector of text lines
     SLVVec2f  sizes;  // Sizes of text lines
     SLint     numP=0; // No. of vertices
@@ -347,9 +343,12 @@ void SLTexFont::buildTextBuffers(SLGLBuffer* bufP,    // vertex position
     }
       
     // create buffers on GPU
-    bufP->generate(P, numP, 3);
-    bufT->generate(T, numP, 2);
-    bufI->generate(I, numI, 1, SL_UNSIGNED_SHORT, SL_ELEMENT_ARRAY_BUFFER);
+    SLGLProgram* sp = SLScene::current->programs(FontTex);
+    sp->useProgram();
+    vao.setAttrib(SL_POSITION, 3, sp->getAttribLocation("a_position"), P);
+    vao.setAttrib(SL_TEXCOORD, 2, sp->getAttribLocation("a_texCoord"), T);
+    vao.setIndices(numI, SL_UNSIGNED_SHORT, I);
+    vao.generate(numP);
    
     // delete data on CPU again     
     delete[] P;

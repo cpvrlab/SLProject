@@ -15,12 +15,15 @@
 #ifndef SL_OVR
 
 #include <stdafx.h>
+#include <SLGLOculus.h>
+#include <SLScene.h>
+#include <SLGLVertexArray.h>
 
 //-------------------------------------------------------------------------------------
 enum DistortionEqnType
 {
     Distortion_No_Override  = -1,    
-    // These two are leagcy and deprecated.
+    // These two are legacy and deprecated.
     Distortion_Poly4        = 0,    // scale = (K0 + K1*r^2 + K2*r^4 + K3*r^6)
     Distortion_RecipPoly4   = 1,    // scale = 1/(K0 + K1*r^2 + K2*r^4 + K3*r^6)
 
@@ -44,7 +47,7 @@ enum HmdTypeEnum
     HmdType_CrystalCoveProto,   // Crystal Cove, 5.66-inch panel, shown at shows but never sold.
     HmdType_DK2,
 
-    // Reminder - this header file is public - codenames only!
+    // Reminder - this header file is public - code names only!
     HmdType_Unknown,            // Used for unnamed HW lab experiments.
     HmdType_LAST
 };
@@ -78,8 +81,8 @@ enum EyeCupType
     EyeCup_DK1C = 2,
     EyeCup_DK2A = 3,
 
-    // Internal R&D codenames.
-    // Reminder - this header file is public - codenames only!
+    // Internal R&D code names.
+    // Reminder - this header file is public - code names only!
     EyeCup_DKHD2A,
     EyeCup_OrangeA,
     EyeCup_RedA,
@@ -664,7 +667,7 @@ struct DistortionMeshVertexData
     // [-1,+1],[-1,+1] over the entire framebuffer.
     SLVec2f    ScreenPosNDC;
     
-    // [0.0-1.0] interpolation value for timewarping - see documentation for details.
+    // [0.0-1.0] interpolation value for time warping - see documentation for details.
     float      TimewarpLerp;
     
     // [0.0-1.0] fade-to-black at the edges to reduce peripheral vision noise.
@@ -1018,7 +1021,7 @@ void createSLDistortionMesh(DistortionMeshVertexData **ppVertices,
 
 
 //-------------------------------------------------------------------------------------
-void createSLDistortionMesh(SLEye eye, SLGLBuffer& vb, SLGLBuffer& ib)
+void createSLDistortionMesh(SLEye eye, SLGLVertexArray& vao)
 {
     // fill the variables below with useful data from dk2
     HmdRenderInfo hmdri;
@@ -1189,16 +1192,12 @@ void createSLDistortionMesh(SLEye eye, SLGLBuffer& vb, SLGLBuffer& ib)
     {
         v->screenPosNDC.x = ov->ScreenPosNDC.x;
         v->screenPosNDC.y = ov->ScreenPosNDC.y;
-
         v->timeWarpFactor = ov->TimeWarpFactor;
         v->vignetteFactor = ov->VignetteFactor;
-            
         v->tanEyeAnglesR.x = ov->TanEyeAnglesR.x;
         v->tanEyeAnglesR.y = ov->TanEyeAnglesR.y;
-
         v->tanEyeAnglesG.x = ov->TanEyeAnglesG.x;
         v->tanEyeAnglesG.y = ov->TanEyeAnglesG.y;
-
         v->tanEyeAnglesB.x = ov->TanEyeAnglesB.x;
         v->tanEyeAnglesB.y = ov->TanEyeAnglesB.y;
             
@@ -1208,13 +1207,18 @@ void createSLDistortionMesh(SLEye eye, SLGLBuffer& vb, SLGLBuffer& ib)
     for (unsigned i = 0; i < indexCount; i++)
         tempIndex.push_back(indexData[i]);
 
-    //@todo the SLGLBuffer isn't made for this kind of interleaved usage
-    //       rework it so it is easier to use and more dynamic.
-    vb.generate(pVBVerts, vertexCount, 10,
-                SL_FLOAT, SL_ARRAY_BUFFER, SL_STATIC_DRAW);
-    // somehow passing in meshData.pIndexData doesn't work...
-    ib.generate(&tempIndex[0], indexCount, 1,
-                SL_UNSIGNED_INT, SL_ELEMENT_ARRAY_BUFFER, SL_STATIC_DRAW);
+    SLGLProgram* sp = SLScene::current->programs(StereoOculusDistortionMesh);
+    sp->useProgram();
+
+    // set attributes with all the same data pointer to the interleaved array
+    vao.setAttrib(SL_POSITION, 2, sp->getAttribLocation("a_position"), pVBVerts);
+    vao.setAttrib(SL_CUSTOM1,  1, sp->getAttribLocation("a_timeWarpFactor"), pVBVerts);
+    vao.setAttrib(SL_CUSTOM2,  1, sp->getAttribLocation("a_vignetteFactor"), pVBVerts);
+    vao.setAttrib(SL_CUSTOM3,  2, sp->getAttribLocation("a_texCoordR"), pVBVerts);
+    vao.setAttrib(SL_CUSTOM4,  2, sp->getAttribLocation("a_texCoordG"), pVBVerts);
+    vao.setAttrib(SL_CUSTOM5,  2, sp->getAttribLocation("a_texCoordB"), pVBVerts);
+    vao.setIndices(indexCount, SL_UNSIGNED_INT, &tempIndex[0]);
+    vao.generate(vertexCount);
 
     // dispose temp. arrays
     delete[] pVBVerts;

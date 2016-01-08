@@ -13,7 +13,7 @@
 
 #include <stdafx.h>
 #include <SLImage.h>
-#include <SLGLBuffer.h>
+#include <SLGLVertexArray.h>
 
 //-----------------------------------------------------------------------------
 // Special constants for anisotropic filtering
@@ -144,9 +144,7 @@ class SLGLTexture : public SLObject
             SLbool          _autoCalcTM3D;  //!< flag if texture matrix should be calculated from AABB for 3D mapping
             SLfloat         _bumpScale;     //!< Bump mapping scale factor
             SLbool          _resizeToPow2;  //!< Flag if image should be resized to n^2
-            SLGLBuffer      _bufP;          //!< Sprite buffer for vertex positions
-            SLGLBuffer      _bufT;          //!< Sprite buffer for vertex texcoords
-            SLGLBuffer      _bufI;          //!< Sprite buffer for vertex indexes
+            SLGLVertexArray _vaoSprite;     //!< Vertex array object for sprite rendering
             atomic<bool>    _needsUpdate;   //!< Flag if image needs an update
 };
 //-----------------------------------------------------------------------------

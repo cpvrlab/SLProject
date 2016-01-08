@@ -35,10 +35,6 @@ SLBackground::SLBackground() : SLObject("Background")
 //-----------------------------------------------------------------------------
 SLBackground::~SLBackground()
 {
-    _bufP.dispose();
-    _bufC.dispose();
-    _bufT.dispose();
-    _bufI.dispose();
 }
 //-----------------------------------------------------------------------------
 //! Sets a uniform background color
@@ -50,7 +46,7 @@ void SLBackground::colors(SLCol4f uniformColor)
     _colors[3].set(uniformColor);
     _isUniform = true;
     _texture = nullptr;
-    _bufC.dispose();
+    _vao.clearAttribs();
 }
 //-----------------------------------------------------------------------------
 //! Sets a gradient top-down background color
@@ -62,7 +58,7 @@ void SLBackground::colors(SLCol4f topColor, SLCol4f bottomColor)
     _colors[3].set(bottomColor);
     _isUniform = false;
     _texture = nullptr;
-    _bufC.dispose();
+    _vao.clearAttribs();
 }
 //-----------------------------------------------------------------------------
 //! Sets a gradient background color with a color per corner
@@ -75,7 +71,7 @@ void SLBackground::colors(SLCol4f topLeftColor,  SLCol4f bottomLeftColor,
     _colors[3].set(bottomRightColor);
     _isUniform = false;
     _texture = nullptr;
-    _bufC.dispose();
+    _vao.clearAttribs();
 }
 //-----------------------------------------------------------------------------
 //! Sets the background texture
@@ -85,7 +81,7 @@ void SLBackground::texture(SLGLTexture* backgroundTexture,
     _texture = backgroundTexture;
     _updateTex = updatePerFrame;
     _isUniform = false;
-    _bufC.dispose();
+    _vao.clearAttribs();
 }
 //-----------------------------------------------------------------------------
 //! Draws the background as 2D rectangle with OpenGL buffers
@@ -115,92 +111,64 @@ We render the quad as a triangle strip: <br>
 void SLBackground::render(SLint widthPX, SLint heightPX)
 {
     SLGLState* stateGL = SLGLState::getInstance();
+    SLScene* s = SLScene::current;
+
+    // Set orthographic projection
     stateGL->projectionMatrix.ortho(0.0f, (SLfloat)widthPX, 0.0f, (SLfloat)heightPX, 0.0f, 1.0f);
     stateGL->modelViewMatrix.identity();
+
+    // Combine modelview-projection matrix
+    SLMat4f mvp(stateGL->projectionMatrix * stateGL->modelViewMatrix);
+    
     stateGL->depthTest(false);
     stateGL->multiSample(false);
 
+    // Get shader program
+    SLGLProgram* sp = _texture ? s->programs(TextureOnly) : s->programs(ColorAttribute);
+    sp->useProgram();
+    sp->uniformMatrix4fv("u_mvpMatrix", 1, (SLfloat*)&mvp);
+
     // Create or update buffer for vertex position and indexes
-    if (_resX != widthPX || _resY != heightPX)
+    if (_resX != widthPX || _resY != heightPX || !_vao.id())
     {
         _resX = widthPX;
         _resY = heightPX;
+        _vao.clearAttribs();
 
-        // Vertex X & Y of corners
-        SLfloat P[16] = {0.0f, (SLfloat)_resY, 0.0f, 1.0f,
-                        0.0f, 0.0f, 0.0f, 1.0f,
-                        (SLfloat)_resX, (SLfloat)_resY, 0.0f, 1.0f,
-                        (SLfloat)_resX, 0.0f, 0.0f, 1.0f};
-
+        // Float array with vertex X & Y of corners
+        SLfloat P[8] = {0.0f, (SLfloat)_resY, 0.0f, 0.0f,
+                        (SLfloat)_resX, (SLfloat)_resY, (SLfloat)_resX, 0.0f}; 
+        _vao.setAttrib(SL_POSITION, 2, sp->getAttribLocation("a_position"), P);
+        
         // Indexes for a triangle strip
         SLushort I[4] = {0,1,2,3};
+        _vao.setIndices(4, SL_UNSIGNED_SHORT, I);
 
-        _bufP.generate(P, 4, 4);
-        _bufI.generate(I, 4, 1, SL_UNSIGNED_SHORT, SL_ELEMENT_ARRAY_BUFFER);
+        if(_texture)
+        {   // Float array of texture coordinates
+            SLfloat T[8] = {0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f, 0.0f};
+            _vao.setAttrib(SL_TEXCOORD, 2, sp->getAttribLocation("a_texCoord"), T);
+            _vao.generate(4);
+        } else
+        {   // Float array of colors of corners
+            SLfloat C[12] = {_colors[0].r, _colors[0].g, _colors[0].b,
+                             _colors[1].r, _colors[1].g, _colors[1].b,
+                             _colors[2].r, _colors[2].g, _colors[2].b,
+                             _colors[3].r, _colors[3].g, _colors[3].b};            
+            _vao.setAttrib(SL_COLOR, 3, sp->getAttribLocation("a_color"), C);
+            _vao.generate(4);
+        }
     }
 
     // draw a textured or colored quad
     if(_texture)
-    {
-        if (!_bufT.id())
-        {
-            // Float array of texture coords of corners
-            SLfloat T[8] = {0.0f, 1.0f,
-                            0.0f, 0.0f,
-                            1.0f, 1.0f,
-                            1.0f, 0.0f};
-            _bufT.generate(T, 4, 2);
-        }
-
-        _texture->bindActive(0);    // Enable & build texture
-
-        // Setup texture only shader
-        SLMat4f mvp(stateGL->projectionMatrix * stateGL->modelViewMatrix);
-        SLGLProgram* sp = SLScene::current->programs(TextureOnly);
-        sp->useProgram();
-        sp->uniformMatrix4fv("u_mvpMatrix", 1, (SLfloat*)&mvp);
+    {   _texture->bindActive(0);
         sp->uniform1i("u_texture0", 0);
-
-        // bind buffers and draw
-        _bufP.bindAndEnableAttrib(sp->getAttribLocation("a_position"));
-        _bufT.bindAndEnableAttrib(sp->getAttribLocation("a_texCoord"));
-
-        ///////////////////////////////////////////////
-        _bufI.bindAndDrawElementsAs(SL_TRIANGLE_STRIP);
-        ///////////////////////////////////////////////
-
-        _bufP.disableAttribArray();
-        _bufT.disableAttribArray();
-
-    } else // draw a colored quad
-    {
-        if (!_bufC.id())
-        {
-            // Float array of colors of corners
-            SLfloat C[16] = {_colors[0].r, _colors[0].g, _colors[0].b, 1.0f,
-                             _colors[1].r, _colors[1].g, _colors[1].b, 1.0f,
-                             _colors[2].r, _colors[2].g, _colors[2].b, 1.0f,
-                             _colors[3].r, _colors[3].g, _colors[3].b, 1.0f};
-            _bufC.generate(C, 4, 4);
-        }
-
-        // Setup color attribute shader
-        SLMat4f mvp(stateGL->projectionMatrix * stateGL->modelViewMatrix);
-        SLGLProgram* sp = SLScene::current->programs(ColorAttribute);
-        sp->useProgram();
-        sp->uniformMatrix4fv("u_mvpMatrix", 1, (SLfloat*)&mvp);
-
-        // bind buffers and draw
-        _bufP.bindAndEnableAttrib(sp->getAttribLocation("a_position"));
-        _bufC.bindAndEnableAttrib(sp->getAttribLocation("a_color"));
-
-        ///////////////////////////////////////////////
-        _bufI.bindAndDrawElementsAs(SL_TRIANGLE_STRIP);
-        ///////////////////////////////////////////////
-
-        _bufP.disableAttribArray();
-        _bufC.disableAttribArray();
     }
+
+    ///////////////////////////////////////
+    _vao.drawElementsAs(SL_TRIANGLE_STRIP);
+    ///////////////////////////////////////
 }
 //-----------------------------------------------------------------------------
 //! Returns the interpolated color at the pixel position p[x,y]

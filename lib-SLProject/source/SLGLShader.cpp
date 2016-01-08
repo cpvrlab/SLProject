@@ -97,7 +97,8 @@ SLbool SLGLShader::createAndCompile()
         // Replace deprecated texture functions
         if (verGLSL > "140")
         {   if (_type == FragmentShader)
-            {   SLUtils::replaceString(_code, "texture3D", "texture");
+            {   SLUtils::replaceString(_code, "texture2D", "texture");
+                SLUtils::replaceString(_code, "texture3D", "texture");
                 SLUtils::replaceString(_code, "textureCube", "texture");
             }
         }
