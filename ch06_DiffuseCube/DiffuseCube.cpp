@@ -34,7 +34,7 @@ struct VertexPN
 };
 //-----------------------------------------------------------------------------
 // GLobal application variables
-GLFWwindow* window;                 //!< The global glfw window handle
+GLFWwindow* window;                 //!< The global GLFW window handle
 SLint     _scrWidth;                //!< Window width at start up
 SLint     _scrHeight;               //!< Window height at start up
 SLfloat   _scr2fbX;                 //!< Factor from screen to framebuffer coords
@@ -180,6 +180,12 @@ void onClose(GLFWwindow* window)
    // Delete arrays & buffers on GPU
    glDeleteBuffers(1, &_vboV);
    glDeleteBuffers(1, &_vboI);
+
+   // Release CPU memory
+   delete[] _v; _v = 0;
+   delete[] _p; _p = 0;
+   delete[] _n; _n = 0;
+   delete[] _i; _i = 0;
 }
 //-----------------------------------------------------------------------------
 /*!

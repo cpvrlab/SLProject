@@ -163,6 +163,7 @@ void onInit()
    glClearColor(0.5f, 0.5f, 0.5f, 1);  // Set the background color
    glEnable(GL_DEPTH_TEST);            // Enables depth test
    glEnable(GL_CULL_FACE);             // Enables the culling of back faces
+   GETGLERROR;
 }
 //-----------------------------------------------------------------------------
 /*!
@@ -181,6 +182,7 @@ void onClose(GLFWwindow* window)
    delete[] _i;
    glDeleteBuffers(1, &_vboV);
    glDeleteBuffers(1, &_vboI);
+   GETGLERROR;
 }
 //-----------------------------------------------------------------------------
 /*!
@@ -191,7 +193,7 @@ bool onPaint()
     // Clear the color & depth buffer
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    // View transform: move the coordiante system away from the camera
+    // View transform: move the coordinate system away from the camera
     _viewMatrix.identity();
     _viewMatrix.translate(0, 0, _camZ);
 
@@ -226,7 +228,7 @@ bool onPaint()
    glEnableVertexAttribArray(_pLoc);
    glEnableVertexAttribArray(_nLoc);
 
-   // Acitvate VBOs
+   // Activate VBOs
    glBindBuffer(GL_ARRAY_BUFFER, _vboV);
    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _vboI);
 
@@ -259,6 +261,8 @@ bool onPaint()
    glfwSetWindowTitle(window, title);
    lastTimeSec = timeNowSec;
 
+   GETGLERROR;
+
    // Return true to get an immediate refresh 
    return true;
 }
@@ -278,12 +282,13 @@ void onResize(GLFWwindow* window, int width, int height)
 
     // define the viewport
     glViewport(0, 0, width, height);
+    GETGLERROR;
 
     onPaint();
 }
 //-----------------------------------------------------------------------------
 /*!
-Mouse button down & release eventhandler starts and end mouse rotation
+Mouse button down & release event handler starts and end mouse rotation
 */
 void onMouseButton(GLFWwindow* window, int button, int action, int mods)
 {
@@ -311,7 +316,7 @@ void onMouseButton(GLFWwindow* window, int button, int action, int mods)
 }
 //-----------------------------------------------------------------------------
 /*!
-Mouse move eventhandler tracks the mouse delta since touch down (_deltaX/_deltaY)
+Mouse move event handler tracks the mouse delta since touch down (_deltaX/_deltaY)
 */
 void onMouseMove(GLFWwindow* window, double x, double y)
 {
@@ -326,7 +331,7 @@ void onMouseMove(GLFWwindow* window, double x, double y)
 }
 //-----------------------------------------------------------------------------
 /*!
-Mouse wheel eventhandler that moves the camera foreward or backwards
+Mouse wheel event handler that moves the camera forward or backwards
 */
 void onMouseWheel(GLFWwindow* window, double xscroll, double yscroll)
 {
@@ -338,7 +343,7 @@ void onMouseWheel(GLFWwindow* window, double xscroll, double yscroll)
 }
 //-----------------------------------------------------------------------------
 /*!
-Key action eventhandler handles key down & release events
+Key action event handler handles key down & release events
 */
 void onKey(GLFWwindow* window, int GLFWKey, int scancode, int action, int mods)
 {         
@@ -396,7 +401,7 @@ int main()
 
     glfwSetErrorCallback(onGLFWError);
 
-    // Enable fullscreen anti aliasing with 4 samples
+    // Enable full screen anti aliasing with 4 samples
     glfwWindowHint(GLFW_SAMPLES, 4);
 
     _scrWidth = 640;
@@ -408,7 +413,7 @@ int main()
         exit(EXIT_FAILURE);
     }
 
-    // Get the currenct GL context. After this you can call GL
+    // Get the current GL context. After this you can call GL
     glfwMakeContextCurrent(window);
 
     // On some systems screen & framebuffer size are different
@@ -419,12 +424,22 @@ int main()
     _scr2fbX = (float)fbWidth / (float)_scrWidth;
     _scr2fbY = (float)fbHeight / (float)_scrHeight;
 
-    // Include OpenGL via GLEW
+    // Include OpenGL via GLEW (init must be after window creation)
+    // The goal of the OpenGL Extension Wrangler Library (GLEW) is to assist C/C++ 
+    // OpenGL developers with two tedious tasks: initializing and using extensions 
+    // and writing portable applications. GLEW provides an efficient run-time 
+    // mechanism to determine whether a certain extension is supported by the 
+    // driver or not. OpenGL core and extension functionality is exposed via a 
+    // single header file. Download GLEW at: http://glew.sourceforge.net/
+    glewExperimental = GL_TRUE;  // avoids a crash
     GLenum err = glewInit();
     if (GLEW_OK != err)
-    {   fprintf(stderr, "Error: %s\n", glewGetErrorString(err));
+    {
+        fprintf(stderr, "Error: %s\n", glewGetErrorString(err));
         exit(EXIT_FAILURE);
     }
+
+    glUtils::printGLInfo();
 
     glfwSetWindowTitle(window, "Diffuse Spheres");
 
