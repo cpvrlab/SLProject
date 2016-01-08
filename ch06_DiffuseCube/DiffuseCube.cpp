@@ -75,7 +75,7 @@ GLint    _mvLoc;           //!< uniform location for modelview matrix
 GLint    _nmLoc;           //!< uniform location for normal matrix
 GLint    _lightDirVSLoc;   //!< uniform location for light direction in VS
 GLint    _lightDiffuseLoc; //!< uniform location for diffuse light intensity
-GLint    _matDiffuseLoc;   //!< uniform location for diffuse light refelction
+GLint    _matDiffuseLoc;   //!< uniform location for diffuse light reflection
 
 //-----------------------------------------------------------------------------
 void buildBox()

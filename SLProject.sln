@@ -71,6 +71,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "app-VolumeRendering", "app-
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ch06_DiffuseCube", "ch06_DiffuseCube\ch06_DiffuseCube.vcxproj", "{0146E7DF-20B2-413B-AB05-7DC2D8F0C5E9}"
 	ProjectSection(ProjectDependencies) = postProject
+		{54BE2CB2-A4F9-481D-9C74-FAAE4CD0764D} = {54BE2CB2-A4F9-481D-9C74-FAAE4CD0764D}
 		{CCC645D3-B20F-431C-824A-7895D6E404DF} = {CCC645D3-B20F-431C-824A-7895D6E404DF}
 	EndProjectSection
 EndProject
