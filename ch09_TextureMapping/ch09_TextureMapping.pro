@@ -87,12 +87,12 @@ INCLUDEPATH += \
 
 SOURCES += \
     TextureMapping.cpp \
-    glUtils.cpp \
+    ../lib-SLProject/source/glUtils.cpp \
     ../lib-SLProject/source/SL/SLImage.cpp \
     ../lib-SLProject/source/SL/SL.cpp
 
 HEADERS += \
-    glUtils.h \
+    ../include/glUtils.h \
     ../include/SLImage.h
 
 OTHER_FILES += \

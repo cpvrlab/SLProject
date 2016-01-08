@@ -86,13 +86,13 @@ INCLUDEPATH += \
     ../lib-SLExternal/jpeg-8 \
 
 SOURCES += \
-    glUtils.cpp \
+    ../lib-SLProject/source/glUtils.cpp \
     ../lib-SLProject/source/SL/SL.cpp \
     ../lib-SLProject/source/SL/SLImage.cpp \
     DiffuseCube.cpp
 
 HEADERS += \
-    glUtils.h \
+    ../include/glUtils.h \
 
 OTHER_FILES += \
 ../_data/shaders/ADS.frag \

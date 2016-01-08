@@ -75,6 +75,7 @@ HEADERS += \
 ../include/SLGLTexture.h \
 ../include/SLGLUniform.h \
 ../include/SLGLVertexArray.h \
+../include/SLGLVertexArrayExt.h \
 ../include/SLGrid.h \
 ../include/SLImage.h \
 ../include/SLImporter.h \
@@ -150,6 +151,7 @@ source/SLGLShader.cpp \
 source/SLGLState.cpp \
 source/SLGLTexture.cpp \
 source/SLGLVertexArray.cpp \
+source/SLGLVertexArrayExt.cpp \
 source/SLGrid.cpp \
 source/SLInputDevice.cpp \
 source/SLInputManager.cpp \
