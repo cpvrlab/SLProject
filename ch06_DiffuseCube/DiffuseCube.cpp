@@ -44,12 +44,12 @@ SLMat4f  _viewMatrix;               //!< 4x4 view matrix
 SLMat4f  _modelMatrix;              //!< 4x4 model matrix
 SLMat4f  _projectionMatrix;         //!< 4x4 projection matrix
 
-VertexPN* _v=0;                     //!< Array of vertices
-SLVec3f*  _p=0;                     //!< Array for vertex positions
-SLVec3f*  _n=0;                     //!< Array for vertex normals
-GLubyte*  _i=0;                     //!< 36 indexes for 2 triangles per cube side
-GLuint   _vboV = 0;                 //!< ID of the VBO for vertex array
+GLuint   _vao = 0;                  //!< ID of the vertex array object
+GLuint   _vboV = 0;                 //!< ID of the VBO for vertex attributes
 GLuint   _vboI = 0;                 //!< ID of the VBO for vertex index array
+
+GLuint   _numV = 0;                 //!< NO. of vertices
+GLuint   _numI = 0;                 //!< NO. of vertex indexes for triangles
 
 float    _camZ;                     //!< z-distance of camera
 float    _rotX, _rotY;              //!< rotation angles around x & y axis
@@ -73,58 +73,79 @@ GLint    _nLoc;            //!< attribute location for vertex normal
 GLint    _mvpLoc;          //!< uniform location for modelview-projection matrix
 GLint    _mvLoc;           //!< uniform location for modelview matrix
 GLint    _nmLoc;           //!< uniform location for normal matrix
-GLint    _lightDirVSLoc;   //!< uniform location for light direction in VS
+GLint    _lightDirVSLoc;   //!< uniform location for light direction in view space (VS)
 GLint    _lightDiffuseLoc; //!< uniform location for diffuse light intensity
 GLint    _matDiffuseLoc;   //!< uniform location for diffuse light reflection
 
 //-----------------------------------------------------------------------------
 void buildBox()
 {
-    // create arrays
-    _p = new SLVec3f[24];
-    _n = new SLVec3f[24];
-    _v = new VertexPN[24];
-    _i = new GLubyte[36];
-
-    // Define the vertex pos. and normals as a structure of arrays (_p & _n)
-    // Define the vertex pos. and normals as an array of structure (_v)
-    _p[ 0].set(1, 1, 1); _n[ 0].set( 1, 0, 0); _v[ 0].set(1, 1, 1,  1, 0, 0);
-    _p[ 1].set(1, 0, 1); _n[ 1].set( 1, 0, 0); _v[ 1].set(1, 0, 1,  1, 0, 0);
-    _p[ 2].set(1, 0, 0); _n[ 2].set( 1, 0, 0); _v[ 2].set(1, 0, 0,  1, 0, 0);
-    _p[ 3].set(1, 1, 0); _n[ 3].set( 1, 0, 0); _v[ 3].set(1, 1, 0,  1, 0, 0);
-    _p[ 4].set(1, 1, 0); _n[ 4].set( 0, 0,-1); _v[ 4].set(1, 1, 0,  0, 0,-1);
-    _p[ 5].set(1, 0, 0); _n[ 5].set( 0, 0,-1); _v[ 5].set(1, 0, 0,  0, 0,-1);
-    _p[ 6].set(0, 0, 0); _n[ 6].set( 0, 0,-1); _v[ 6].set(0, 0, 0,  0, 0,-1);
-    _p[ 7].set(0, 1, 0); _n[ 7].set( 0, 0,-1); _v[ 7].set(0, 1, 0,  0, 0,-1);
-    _p[ 8].set(0, 0, 1); _n[ 8].set(-1, 0, 0); _v[ 8].set(0, 0, 1, -1, 0, 0);
-    _p[ 9].set(0, 1, 1); _n[ 9].set(-1, 0, 0); _v[ 9].set(0, 1, 1, -1, 0, 0);
-    _p[10].set(0, 1, 0); _n[10].set(-1, 0, 0); _v[10].set(0, 1, 0, -1, 0, 0);
-    _p[11].set(0, 0, 0); _n[11].set(-1, 0, 0); _v[11].set(0, 0, 0, -1, 0, 0);
-    _p[12].set(1, 1, 1); _n[12].set( 0, 0, 1); _v[12].set(1, 1, 1,  0, 0, 1);
-    _p[13].set(0, 1, 1); _n[13].set( 0, 0, 1); _v[13].set(0, 1, 1,  0, 0, 1);
-    _p[14].set(0, 0, 1); _n[14].set( 0, 0, 1); _v[14].set(0, 0, 1,  0, 0, 1);
-    _p[15].set(1, 0, 1); _n[15].set( 0, 0, 1); _v[15].set(1, 0, 1,  0, 0, 1);
-    _p[16].set(1, 1, 1); _n[16].set( 0, 1, 0); _v[16].set(1, 1, 1,  0, 1, 0);
-    _p[17].set(1, 1, 0); _n[17].set( 0, 1, 0); _v[17].set(1, 1, 0,  0, 1, 0);
-    _p[18].set(0, 1, 0); _n[18].set( 0, 1, 0); _v[18].set(0, 1, 0,  0, 1, 0);
-    _p[19].set(0, 1, 1); _n[19].set( 0, 1, 0); _v[19].set(0, 1, 1,  0, 1, 0);
-    _p[20].set(0, 0, 0); _n[20].set( 0,-1, 0); _v[20].set(0, 0, 0,  0,-1, 0);
-    _p[21].set(1, 0, 0); _n[21].set( 0,-1, 0); _v[21].set(1, 0, 0,  0,-1, 0);
-    _p[22].set(1, 0, 1); _n[22].set( 0,-1, 0); _v[22].set(1, 0, 1,  0,-1, 0);
-    _p[23].set(0, 0, 1); _n[23].set( 0,-1, 0); _v[23].set(0, 0, 1,  0,-1, 0);
+    // create C arrays on heap
+    // Define the vertex pos. and normals as an array of structure
+    _numV = 24;
+    VertexPN* vertices = new VertexPN[_numV];
+    vertices[ 0].set(1, 1, 1,  1, 0, 0);
+    vertices[ 1].set(1, 0, 1,  1, 0, 0);
+    vertices[ 2].set(1, 0, 0,  1, 0, 0);
+    vertices[ 3].set(1, 1, 0,  1, 0, 0);
+    vertices[ 4].set(1, 1, 0,  0, 0,-1);
+    vertices[ 5].set(1, 0, 0,  0, 0,-1);
+    vertices[ 6].set(0, 0, 0,  0, 0,-1);
+    vertices[ 7].set(0, 1, 0,  0, 0,-1);
+    vertices[ 8].set(0, 0, 1, -1, 0, 0);
+    vertices[ 9].set(0, 1, 1, -1, 0, 0);
+    vertices[10].set(0, 1, 0, -1, 0, 0);
+    vertices[11].set(0, 0, 0, -1, 0, 0);
+    vertices[12].set(1, 1, 1,  0, 0, 1);
+    vertices[13].set(0, 1, 1,  0, 0, 1);
+    vertices[14].set(0, 0, 1,  0, 0, 1);
+    vertices[15].set(1, 0, 1,  0, 0, 1);
+    vertices[16].set(1, 1, 1,  0, 1, 0);
+    vertices[17].set(1, 1, 0,  0, 1, 0);
+    vertices[18].set(0, 1, 0,  0, 1, 0);
+    vertices[19].set(0, 1, 1,  0, 1, 0);
+    vertices[20].set(0, 0, 0,  0,-1, 0);
+    vertices[21].set(1, 0, 0,  0,-1, 0);
+    vertices[22].set(1, 0, 1,  0,-1, 0);
+    vertices[23].set(0, 0, 1,  0,-1, 0);
 
     // Define the triangle indexes of the cubes vertices
+    _numI = 36;
+    GLuint* indices = new GLuint[_numI];
     int n = 0;
-    _i[n++] =  0; _i[n++] =  1; _i[n++] =  2;  _i[n++] =  0; _i[n++] =  2; _i[n++] =  3;
-    _i[n++] =  4; _i[n++] =  5; _i[n++] =  6;  _i[n++] =  4; _i[n++] =  6; _i[n++] =  7;
-    _i[n++] =  8; _i[n++] =  9; _i[n++] = 10;  _i[n++] =  8; _i[n++] = 10; _i[n++] = 11;
-    _i[n++] = 12; _i[n++] = 13; _i[n++] = 14;  _i[n++] = 12; _i[n++] = 14; _i[n++] = 15;
-    _i[n++] = 16; _i[n++] = 17; _i[n++] = 18;  _i[n++] = 16; _i[n++] = 18; _i[n++] = 19;
-    _i[n++] = 20; _i[n++] = 21; _i[n++] = 22;  _i[n++] = 20; _i[n++] = 22; _i[n++] = 23;
+    indices[n++] =  0; indices[n++] =  1; indices[n++] =  2;  indices[n++] =  0; indices[n++] =  2; indices[n++] =  3;
+    indices[n++] =  4; indices[n++] =  5; indices[n++] =  6;  indices[n++] =  4; indices[n++] =  6; indices[n++] =  7;
+    indices[n++] =  8; indices[n++] =  9; indices[n++] = 10;  indices[n++] =  8; indices[n++] = 10; indices[n++] = 11;
+    indices[n++] = 12; indices[n++] = 13; indices[n++] = 14;  indices[n++] = 12; indices[n++] = 14; indices[n++] = 15;
+    indices[n++] = 16; indices[n++] = 17; indices[n++] = 18;  indices[n++] = 16; indices[n++] = 18; indices[n++] = 19;
+    indices[n++] = 20; indices[n++] = 21; indices[n++] = 22;  indices[n++] = 20; indices[n++] = 22; indices[n++] = 23;
+
+    // Generate and bind OpenGL vertex array object
+    if (_vao) glDeleteVertexArrays(1, &_vao);
+    glGenVertexArrays(1, &_vao);
+    glBindVertexArray(_vao);
 
     // Create vertex buffer objects
-    _vboV = glUtils::buildVBO(_v, 24, 6, sizeof(GLfloat), GL_ARRAY_BUFFER, GL_STATIC_DRAW);
-    _vboI = glUtils::buildVBO(_i, 36, 1, sizeof(GLubyte), GL_ELEMENT_ARRAY_BUFFER, GL_STATIC_DRAW);
+    if (_vboV) glDeleteBuffers(1, &_vboV);
+    if (_vboI) glDeleteBuffers(1, &_vboI);
+    _vboV = glUtils::buildVBO(vertices, _numV, 6, sizeof(GLfloat), GL_ARRAY_BUFFER, GL_STATIC_DRAW);
+    _vboI = glUtils::buildVBO(indices,  _numI, 1, sizeof(GLuint), GL_ELEMENT_ARRAY_BUFFER, GL_STATIC_DRAW);
+
+    // Tell OpenGL how to interpret the vertex buffer                                                                                             
+    // We use an interleaved attribute layout:                                                                
+    //           |           Vertex 0          |           Vertex 1          |   
+    // Attribs:  |   Position0  |    Normal0   |   Position1  |    Normal1   |   
+    // Elements: | PX | PY | PZ | NX | NY | NZ | PX | PY | PZ | NX | NY | NZ |   
+    // Bytes:    |#### #### ####|#### #### ####|#### #### ####|#### #### ####|...
+    //           |                             |                                  
+    //           |<------- stride = 24 ------->|                                  
+    //           |<offsetN = 12>|
+    SLint stride  = sizeof(VertexPN);
+    SLint offsetN = sizeof(SLVec3f);
+    glVertexAttribPointer(_pLoc, 3, GL_FLOAT, GL_FALSE, stride, 0);
+    glVertexAttribPointer(_nLoc, 3, GL_FLOAT, GL_FALSE, stride, (void*)offsetN);
+    glEnableVertexAttribArray(_pLoc);
+    glEnableVertexAttribArray(_nLoc);
 }
 //-----------------------------------------------------------------------------
 /*!
@@ -133,37 +154,37 @@ should be called after a window with a valid OpenGL context is present.
 */
 void onInit()
 {
-   buildBox();
+    // backwards movement of the camera
+    _camZ = -4;
 
-   // backwards movement of the camera
-   _camZ = -4;
+    // Mouse rotation parameters
+    _rotX = _rotY = 0;
+    _deltaX = _deltaY = 0;
+    _mouseLeftDown = false;
 
-   // Mouse rotation parameters
-   _rotX = _rotY = 0;
-   _deltaX = _deltaY = 0;
-   _mouseLeftDown = false;
+    // Load, compile & link shaders
+    _shaderVertID = glUtils::buildShader("../_data/shaders/Diffuse.vert", GL_VERTEX_SHADER);
+    _shaderFragID = glUtils::buildShader("../_data/shaders/Diffuse.frag", GL_FRAGMENT_SHADER);
+    _shaderProgID = glUtils::buildProgram(_shaderVertID, _shaderFragID);
 
-   // Load, compile & link shaders
-   _shaderVertID = glUtils::buildShader("../_data/shaders/Diffuse.vert", GL_VERTEX_SHADER);
-   _shaderFragID = glUtils::buildShader("../_data/shaders/Diffuse.frag", GL_FRAGMENT_SHADER);
-   _shaderProgID = glUtils::buildProgram(_shaderVertID, _shaderFragID);
+    // Activate the shader program
+    glUseProgram(_shaderProgID);
 
-   // Activate the shader program
-   glUseProgram(_shaderProgID);
+    // Get the variable locations (identifiers) within the program
+    _pLoc            = glGetAttribLocation (_shaderProgID, "a_position");
+    _nLoc            = glGetAttribLocation (_shaderProgID, "a_normal");
+    _mvpLoc          = glGetUniformLocation(_shaderProgID, "u_mvpMatrix");
+    _nmLoc           = glGetUniformLocation(_shaderProgID, "u_nMatrix");
+    _lightDirVSLoc   = glGetUniformLocation(_shaderProgID, "u_lightDirVS");
+    _lightDiffuseLoc = glGetUniformLocation(_shaderProgID, "u_lightDiffuse");
+    _matDiffuseLoc   = glGetUniformLocation(_shaderProgID, "u_matDiffuse");
 
-   // Get the variable locations (identifiers) within the program
-   _pLoc            = glGetAttribLocation (_shaderProgID, "a_position");
-   _nLoc            = glGetAttribLocation (_shaderProgID, "a_normal");
-   _mvpLoc          = glGetUniformLocation(_shaderProgID, "u_mvpMatrix");
-   _nmLoc           = glGetUniformLocation(_shaderProgID, "u_nMatrix");
-   _lightDirVSLoc   = glGetUniformLocation(_shaderProgID, "u_lightDirVS");
-   _lightDiffuseLoc = glGetUniformLocation(_shaderProgID, "u_lightDiffuse");
-   _matDiffuseLoc   = glGetUniformLocation(_shaderProgID, "u_matDiffuse");
+    buildBox();
 
-   glClearColor(0.5f, 0.5f, 0.5f, 1);  // Set the background color
-   glEnable(GL_DEPTH_TEST);            // Enables depth test
-   glEnable(GL_CULL_FACE);             // Enables the culling of back faces
-   GETGLERROR;
+    glClearColor(0.5f, 0.5f, 0.5f, 1);  // Set the background color
+    glEnable(GL_DEPTH_TEST);            // Enables depth test
+    glEnable(GL_CULL_FACE);             // Enables the culling of back faces
+    GETGLERROR;
 }
 //-----------------------------------------------------------------------------
 /*!
@@ -178,14 +199,9 @@ void onClose(GLFWwindow* window)
    glDeleteProgram(_shaderProgID);
 
    // Delete arrays & buffers on GPU
+   glDeleteVertexArrays(1, &_vao);
    glDeleteBuffers(1, &_vboV);
    glDeleteBuffers(1, &_vboI);
-
-   // Release CPU memory
-   delete[] _v; _v = 0;
-   delete[] _p; _p = 0;
-   delete[] _n; _n = 0;
-   delete[] _i; _i = 0;
 }
 //-----------------------------------------------------------------------------
 /*!
@@ -193,114 +209,56 @@ onPaint does all the rendering for one frame from scratch with OpenGL.
 */
 bool onPaint()
 {
-   // Clear the color & depth buffer
-   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    // Clear the color & depth buffer
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-   // View transform: move the coordinate system away from the camera
-   _viewMatrix.identity();
-   _viewMatrix.translate(0, 0, _camZ);
+    // View transform: move the coordinate system away from the camera
+    _viewMatrix.identity();
+    _viewMatrix.translate(0, 0, _camZ);
 
-   // Model transform: rotate the coordinate system increasingly
-   _viewMatrix.rotate(_rotX + _deltaX, 1,0,0);
-   _viewMatrix.rotate(_rotY + _deltaY, 0,1,0);
+    // Model transform: rotate the coordinate system increasingly
+    _viewMatrix.rotate(_rotX + _deltaX, 1,0,0);
+    _viewMatrix.rotate(_rotY + _deltaY, 0,1,0);
 
-   // Model transform: move the cube so that it rotates around its center
-   _modelMatrix.identity();
-   _modelMatrix.translate(-2.0f, -0.5f, -0.5f);
+    // Model transform: move the cube so that it rotates around its center
+    _modelMatrix.identity();
+    _modelMatrix.translate(-0.5f, -0.5f, -0.5f);
 
-   // Build the combined modelview-projection matrix
-   SLMat4f mvp(_projectionMatrix);
-   SLMat4f mv(_viewMatrix);
-   mv.multiply(_modelMatrix);
-   mvp.multiply(mv);
+    // Build the combined modelview-projection matrix
+    SLMat4f mvp(_projectionMatrix);
+    SLMat4f mv(_viewMatrix);
+    mv.multiply(_modelMatrix);
+    mvp.multiply(mv);
 
-   // Build normal matrix
-   SLMat3f nm(mv.inverseTransposed());
+    // Build normal matrix
+    SLMat3f nm(mv.inverseTransposed());
 
-   // Pass the uniform variables to the shader
-   glUniformMatrix4fv(_mvpLoc, 1, 0, (float*)&mvp);
-   glUniformMatrix3fv(_nmLoc,   1, 0, (float*)&nm);
-   glUniform3f(_lightDirVSLoc, 0.5f, 1.0f, 1.0f);          // light direction in view space
-   glUniform4f(_lightDiffuseLoc, 1.0f, 1.0f,  1.0f, 1.0f);  // diffuse light intensity (RGBA)
-   glUniform4f(_matDiffuseLoc, 1.0f, 0.0f, 0.0f, 1.0f);     // diffuse material reflection (RGBA)
+    // Pass the uniform variables to the shader
+    glUseProgram(_shaderProgID);
+    glUniformMatrix4fv(_mvpLoc,  1, 0, (float*)&mvp);
+    glUniformMatrix3fv(_nmLoc,   1, 0, (float*)&nm);
+    glUniform3f(_lightDirVSLoc,   0.5f, 1.0f, 1.0f);         // light direction in view space
+    glUniform4f(_lightDiffuseLoc, 1.0f, 1.0f, 1.0f, 1.0f);   // diffuse light intensity (RGBA)
+    glUniform4f(_matDiffuseLoc,   1.0f, 0.0f, 0.0f, 1.0f);   // diffuse material reflection (RGBA)
 
-   GETGLERROR;
+    // Activate the vertex array
+    glBindVertexArray(_vao);
+   
+    // Activate the index buffer
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _vboI);
 
+    // Draw cube with triangles by indexes
+    glDrawElements(GL_TRIANGLES, _numI, GL_UNSIGNED_INT, 0);
 
-   /////////////////////////////////
-   // Draw red cube with 3 arrays //
-   /////////////////////////////////
+    glBindVertexArray(0);
+   
+    // Fast copy the back buffer to the front buffer. This is OS dependent.
+    glfwSwapBuffers(window);
 
-   // Enable the attributes as arrays (not constant)
-   glEnableVertexAttribArray(_pLoc);
-   glEnableVertexAttribArray(_nLoc);
+    GETGLERROR;
 
-   // Set the vertex attribute pointers to our vertex arrays
-   glVertexAttribPointer(_pLoc, 3, GL_FLOAT, GL_FALSE, 0, _p);
-   glVertexAttribPointer(_nLoc, 3, GL_FLOAT, GL_FALSE, 0, _n);
-
-   // Draw cube with triangles by indexes
-   glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_BYTE, _i);
-
-   ///////////////////////////////////
-   // Draw green cube with 2 arrays //
-   ///////////////////////////////////
-
-   // Transform 2 units to the left & rebuild mvp
-   _modelMatrix.translate(1.5f, 0.0f, 0.0f);
-   mvp.setMatrix(_projectionMatrix * _viewMatrix * _modelMatrix);
-
-   // Pass updated mvp and set the red color
-   glUniformMatrix4fv(_mvpLoc, 1, 0, (float*)&mvp);
-   glUniform4f(_matDiffuseLoc, 0.0f, 1.0f, 0.0f, 1.0f);
-
-   // Set the vertex attribute pointers to the array of structs
-   GLsizei stride = sizeof(VertexPN);
-   glVertexAttribPointer(_pLoc, 3, GL_FLOAT, GL_FALSE, stride, &_v[0].p.x);
-   glVertexAttribPointer(_nLoc, 3, GL_FLOAT, GL_FALSE, stride, &_v[0].n.x);
-
-   // Draw cube with triangles by indexes
-   glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_BYTE, _i);
-
-   ////////////////////////////////
-   // Draw blue cube with 2 VBOs //
-   ////////////////////////////////
-
-   // Transform 2 units to the left & rebuild mvp
-   _modelMatrix.translate(1.5f, 0.0f, 0.0f);
-   mvp.setMatrix(_projectionMatrix * _viewMatrix * _modelMatrix);
-
-   // Pass updated mvp and set the blue color
-   glUniformMatrix4fv(_mvpLoc, 1, 0, (float*)&mvp);
-   glUniform4f(_matDiffuseLoc, 0.0f, 0.0f, 1.0f, 1.0f);
-
-   // Activate VBOs
-   glBindBuffer(GL_ARRAY_BUFFER, _vboV);
-   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _vboI);
-
-   // For VBO only offset instead of data pointer
-   GLsizei offsetN = sizeof(SLVec3f);
-   glVertexAttribPointer(_pLoc, 3, GL_FLOAT, GL_FALSE, stride, 0);
-   glVertexAttribPointer(_nLoc, 3, GL_FLOAT, GL_FALSE, stride, (void*)offsetN);
-
-   // Draw cube with triangles by indexes
-   glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_BYTE, 0);
-
-   // Deactivate buffers
-   glBindBuffer(GL_ARRAY_BUFFER, 0);
-   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-
-   // Disable the vertex arrays
-   glDisableVertexAttribArray(_pLoc);
-   glDisableVertexAttribArray(_nLoc);
-
-   // Fast copy the back buffer to the front buffer. This is OS dependent.
-   glfwSwapBuffers(window);
-
-   GETGLERROR;
-
-   // Return true to get an immediate refresh
-   return true;
+    // Return true to get an immediate refresh
+    return true;
 }
 //-----------------------------------------------------------------------------
 /*!

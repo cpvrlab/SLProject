@@ -19,7 +19,7 @@
 #include "../lib-SLExternal/glfw3/include/GLFW/glfw3.h" // GLFW GUI library
 
 //-----------------------------------------------------------------------------
-//! Struct defintion for vertex attributes
+//! Struct definition for vertex attributes
 struct VertexPN
 {  
    SLVec3f p;  // vertex position [x,y,z]
@@ -44,12 +44,12 @@ SLMat4f  _viewMatrix;               //!< 4x4 view matrix
 SLMat4f  _modelMatrix;              //!< 4x4 model matrix
 SLMat4f  _projectionMatrix;         //!< 4x4 projection matrix
 
-VertexPN* _v    = 0;                //!< Array of vertices
-GLuint    _numV = 0;                //!< NO. of vertices
-GLuint*   _i    = 0;                //!< Vertex indexes for triangles
-GLuint    _numI = 0;                //!< NO. of vertex indexes for triangles
+GLuint    _vao  = 0;                //!< ID of the Vertex Array Object (VAO)
 GLuint    _vboV = 0;                //!< ID of the VBO for vertex array
 GLuint    _vboI = 0;                //!< ID of the VBO for vertex index array
+
+GLuint    _numV = 0;                //!< NO. of vertices
+GLuint    _numI = 0;                //!< NO. of vertex indexes for triangles
 GLint     _resolution;              //!< resolution of sphere stack & slices
 GLint     _primitiveType;           //!< Type of GL primitive to render
 
@@ -77,7 +77,7 @@ GLint    _mvLoc;           //!< uniform location for modelview matrix
 GLint    _nmLoc;           //!< uniform location for normal matrix
 GLint    _lightDirVSLoc;   //!< uniform location for light direction in VS
 GLint    _lightDiffuseLoc; //!< uniform location for diffuse light intensity
-GLint    _matDiffuseLoc;   //!< uniform location for diffuse light refelction
+GLint    _matDiffuseLoc;   //!< uniform location for diffuse light reflection
 
 static const SLfloat PI = 3.14159265358979f;
 
@@ -89,21 +89,41 @@ be GL_TRIANGLES or GL_TRIANGLE_STRIP.
 */
 void buildSphere(float radius, int stacks, int slices, GLuint primitveType)
 {  
-   assert(stacks > 3 && slices > 3);
-   assert(primitveType==GL_TRIANGLES || primitveType==GL_TRIANGLE_STRIP);
+    assert(stacks > 3 && slices > 3);
+    assert(primitveType==GL_TRIANGLES || primitveType==GL_TRIANGLE_STRIP);
 
-   //Spherical to cartesian coordinates
-   //dtheta = PI  / stacks;
-   //dphi = 2 * PI / slices;
-   //x = r*sin(theta)*cos(phi);
-   //y = r*sin(theta)*sin(phi);
-   //z = r*cos(theta);
-   //???
+    // Create vertex array
+    // ???
 
-   // Create vertex buffer objects
-   if (!_v || !_i) return;
-   _vboV = glUtils::buildVBO(_v, _numV, 6, sizeof(GLfloat), GL_ARRAY_BUFFER, GL_STATIC_DRAW);
-   _vboI = glUtils::buildVBO(_i, _numI, 1, sizeof(GLuint), GL_ELEMENT_ARRAY_BUFFER, GL_STATIC_DRAW);
+    // create Index array
+    // ???
+
+    // Generate and bind OpenGL vertex array object
+    if (_vao) glDeleteVertexArrays(1, &_vao);
+    glGenVertexArrays(1, &_vao);
+    glBindVertexArray(_vao);
+
+    // Create vertex buffer objects
+    if (_vboV) glDeleteBuffers(1, &_vboV);
+    if (_vboI) glDeleteBuffers(1, &_vboI);
+    _vboV = glUtils::buildVBO(vertices, _numV, 6, sizeof(GLfloat), GL_ARRAY_BUFFER, GL_STATIC_DRAW);
+    _vboI = glUtils::buildVBO(indices,  _numI, 1, sizeof(GLuint), GL_ELEMENT_ARRAY_BUFFER, GL_STATIC_DRAW);
+
+    // Tell OpenGL how to interpret the vertex buffer                                                                                             
+    // We use an interleaved attribute layout:                                                                
+    //           |           Vertex 0          |           Vertex 1          |   
+    // Attribs:  |   Position0  |    Normal0   |   Position1  |    Normal1   |   
+    // Elements: | PX | PY | PZ | NX | NY | NZ | PX | PY | PZ | NX | NY | NZ |   
+    // Bytes:    |#### #### ####|#### #### ####|#### #### ####|#### #### ####|...
+    //           |                             |                                  
+    //           |<------- stride = 24 ------->|                                  
+    //           |<offsetN = 12>|
+    SLint stride  = sizeof(VertexPN);
+    SLint offsetN = sizeof(SLVec3f);
+    glVertexAttribPointer(_pLoc, 3, GL_FLOAT, GL_FALSE, stride, 0);
+    glVertexAttribPointer(_nLoc, 3, GL_FLOAT, GL_FALSE, stride, (void*)offsetN);
+    glEnableVertexAttribArray(_pLoc);
+    glEnableVertexAttribArray(_nLoc);
 }
 //-----------------------------------------------------------------------------
 /*!
@@ -129,41 +149,40 @@ onInit initializes the global variables and builds the shader program. It
 should be called after a window with a valid OpenGL context is present.
 */
 void onInit()
-{
-   _resolution = 16;
-   _primitiveType = GL_TRIANGLE_STRIP;
+{   
+    // backwards movement of the camera
+    _camZ = -4;
 
-   buildSphere(1.0f, _resolution, _resolution, _primitiveType);
-   
-   // backwards movement of the camera
-   _camZ = -4;
+    // Mouse rotation parameters
+    _rotX = _rotY = 0;
+    _deltaX = _deltaY = 0;
+    _mouseLeftDown = false;
 
-   // Mouse rotation paramters
-   _rotX = _rotY = 0;
-   _deltaX = _deltaY = 0;
-   _mouseLeftDown = false;
+    // Load, compile & link shaders
+    _shaderVertID = glUtils::buildShader("../_data/shaders/Diffuse.vert", GL_VERTEX_SHADER);
+    _shaderFragID = glUtils::buildShader("../_data/shaders/Diffuse.frag", GL_FRAGMENT_SHADER);
+    _shaderProgID = glUtils::buildProgram(_shaderVertID, _shaderFragID);
 
-   // Load, compile & link shaders
-   _shaderVertID = glUtils::buildShader("../_data/shaders/Diffuse.vert", GL_VERTEX_SHADER);
-   _shaderFragID = glUtils::buildShader("../_data/shaders/Diffuse.frag", GL_FRAGMENT_SHADER);
-   _shaderProgID = glUtils::buildProgram(_shaderVertID, _shaderFragID);
+    // Activate the shader program
+    glUseProgram(_shaderProgID);
 
-   // Activate the shader programm
-   glUseProgram(_shaderProgID);
+    // Get the variable locations (identifiers) within the program
+    _pLoc            = glGetAttribLocation (_shaderProgID, "a_position");
+    _nLoc            = glGetAttribLocation (_shaderProgID, "a_normal");
+    _mvpLoc          = glGetUniformLocation(_shaderProgID, "u_mvpMatrix");
+    _nmLoc           = glGetUniformLocation(_shaderProgID, "u_nMatrix");
+    _lightDirVSLoc   = glGetUniformLocation(_shaderProgID, "u_lightDirVS");
+    _lightDiffuseLoc = glGetUniformLocation(_shaderProgID, "u_lightDiffuse");
+    _matDiffuseLoc   = glGetUniformLocation(_shaderProgID, "u_matDiffuse");
 
-   // Get the variable locations (identifiers) within the program
-   _pLoc            = glGetAttribLocation (_shaderProgID, "a_position");
-   _nLoc            = glGetAttribLocation (_shaderProgID, "a_normal");
-   _mvpLoc          = glGetUniformLocation(_shaderProgID, "u_mvpMatrix");
-   _nmLoc           = glGetUniformLocation(_shaderProgID, "u_nMatrix");
-   _lightDirVSLoc   = glGetUniformLocation(_shaderProgID, "u_lightDirVS");
-   _lightDiffuseLoc = glGetUniformLocation(_shaderProgID, "u_lightDiffuse");
-   _matDiffuseLoc   = glGetUniformLocation(_shaderProgID, "u_matDiffuse");
+    // Create sphere
+    _resolution = 16;
+    _primitiveType = GL_TRIANGLE_STRIP;
+    buildSphere(1.0f, _resolution, _resolution, _primitiveType);
 
-   glClearColor(0.5f, 0.5f, 0.5f, 1);  // Set the background color
-   glEnable(GL_DEPTH_TEST);            // Enables depth test
-   glEnable(GL_CULL_FACE);             // Enables the culling of back faces
-   GETGLERROR;
+    glClearColor(0.5f, 0.5f, 0.5f, 1);  // Set the background color
+    glEnable(GL_DEPTH_TEST);            // Enables depth test
+    glEnable(GL_CULL_FACE);             // Enables the culling of back faces
 }
 //-----------------------------------------------------------------------------
 /*!
@@ -178,11 +197,9 @@ void onClose(GLFWwindow* window)
    glDeleteProgram(_shaderProgID);
    
    // Delete arrays & buffers on GPU
-   delete[] _v;
-   delete[] _i;
+   glDeleteVertexArrays(1, &_vao);
    glDeleteBuffers(1, &_vboV);
    glDeleteBuffers(1, &_vboI);
-   GETGLERROR;
 }
 //-----------------------------------------------------------------------------
 /*!
@@ -221,50 +238,34 @@ bool onPaint()
     glUniform4f(_lightDiffuseLoc, 1.0f, 1.0f,  1.0f, 1.0f);  // diffuse light intensity (RGBA)
     glUniform4f(_matDiffuseLoc, 1.0f, 0.0f, 0.0f, 1.0f);     // diffuse material reflection (RGBA)
      
-   /////////////////////////////
-   // Draw sphere with 2 VBOs //
-   /////////////////////////////
+    // Activate
+    glBindVertexArray(_vao);
 
-   glEnableVertexAttribArray(_pLoc);
-   glEnableVertexAttribArray(_nLoc);
-
-   // Activate VBOs
-   glBindBuffer(GL_ARRAY_BUFFER, _vboV);
-   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _vboI);
-
-   // For VBO only offset instead of data pointer
-   GLsizei stride = sizeof(VertexPN);
-   glVertexAttribPointer(_pLoc, 3, GL_FLOAT, GL_FALSE, stride, 0);
-   glVertexAttribPointer(_nLoc, 3, GL_FLOAT, GL_FALSE, stride, (void*)12);
+    // Activate index VBO
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _vboI);
    
-   // Draw cube with triangles by indexes
-   glDrawElements(_primitiveType, _numI, GL_UNSIGNED_INT, 0);
+    //////////////////////////////////////////////////////////
+    glDrawElements(_primitiveType, _numI, GL_UNSIGNED_INT, 0);
+    //////////////////////////////////////////////////////////
 
-   // Deactivate buffers
-   glBindBuffer(GL_ARRAY_BUFFER, 0);
-   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+    // Deactivate VAO
+    glBindVertexArray(_vao);
 
-   // Disable the vertex arrays
-   glDisableVertexAttribArray(_pLoc);
-   glDisableVertexAttribArray(_nLoc);
+    // Fast copy the back buffer to the front buffer. This is OS dependent.
+    glfwSwapBuffers(window);
 
-   // Fast copy the back buffer to the front buffer. This is OS dependent.
-   glfwSwapBuffers(window);
+    // Calculate frames per second
+    char title[255];
+    static float lastTimeSec = 0;
+    float timeNowSec = (float)glfwGetTime();
+    float fps = calcFPS(timeNowSec-lastTimeSec);
+    string  prim = _primitiveType==GL_TRIANGLES ? "GL_TRIANGLES" : "GL_TRIANGLE_STRIPS";
+    sprintf(title, "Sphere, %d x %d, fps: %4.0f, %s", _resolution, _resolution, fps, prim.c_str());
+    glfwSetWindowTitle(window, title);
+    lastTimeSec = timeNowSec;
 
-   // Calculate frames per second
-   char title[255];
-   static float lastTimeSec = 0;
-   float timeNowSec = (float)glfwGetTime();
-   float fps = calcFPS(timeNowSec-lastTimeSec);
-   string  prim = _primitiveType==GL_TRIANGLES ? "GL_TRIANGLES" : "GL_TRIANGLE_STRIPS";
-   sprintf(title, "Sphere, %d x %d, fps: %4.0f, %s", _resolution, _resolution, fps, prim.c_str());
-   glfwSetWindowTitle(window, title);
-   lastTimeSec = timeNowSec;
-
-   GETGLERROR;
-
-   // Return true to get an immediate refresh 
-   return true;
+    // Return true to get an immediate refresh 
+    return true;
 }
 //-----------------------------------------------------------------------------
 /*!
@@ -282,13 +283,12 @@ void onResize(GLFWwindow* window, int width, int height)
 
     // define the viewport
     glViewport(0, 0, width, height);
-    GETGLERROR;
 
     onPaint();
 }
 //-----------------------------------------------------------------------------
 /*!
-Mouse button down & release event handler starts and end mouse rotation
+Mouse button down & release eventhandler starts and end mouse rotation
 */
 void onMouseButton(GLFWwindow* window, int button, int action, int mods)
 {
@@ -316,7 +316,7 @@ void onMouseButton(GLFWwindow* window, int button, int action, int mods)
 }
 //-----------------------------------------------------------------------------
 /*!
-Mouse move event handler tracks the mouse delta since touch down (_deltaX/_deltaY)
+Mouse move eventhandler tracks the mouse delta since touch down (_deltaX/_deltaY)
 */
 void onMouseMove(GLFWwindow* window, double x, double y)
 {
@@ -331,7 +331,7 @@ void onMouseMove(GLFWwindow* window, double x, double y)
 }
 //-----------------------------------------------------------------------------
 /*!
-Mouse wheel event handler that moves the camera forward or backwards
+Mouse wheel eventhandler that moves the camera foreward or backwards
 */
 void onMouseWheel(GLFWwindow* window, double xscroll, double yscroll)
 {
@@ -343,7 +343,7 @@ void onMouseWheel(GLFWwindow* window, double xscroll, double yscroll)
 }
 //-----------------------------------------------------------------------------
 /*!
-Key action event handler handles key down & release events
+Key action eventhandler handles key down & release events
 */
 void onKey(GLFWwindow* window, int GLFWKey, int scancode, int action, int mods)
 {         
@@ -401,7 +401,7 @@ int main()
 
     glfwSetErrorCallback(onGLFWError);
 
-    // Enable full screen anti aliasing with 4 samples
+    // Enable fullscreen anti aliasing with 4 samples
     glfwWindowHint(GLFW_SAMPLES, 4);
 
     _scrWidth = 640;
@@ -434,8 +434,7 @@ int main()
     glewExperimental = GL_TRUE;  // avoids a crash
     GLenum err = glewInit();
     if (GLEW_OK != err)
-    {
-        fprintf(stderr, "Error: %s\n", glewGetErrorString(err));
+    {   fprintf(stderr, "Error: %s\n", glewGetErrorString(err));
         exit(EXIT_FAILURE);
     }
 
