@@ -37,6 +37,33 @@ SLGLShader::SLGLShader(SLstring filename, SLShaderType shaderType)
     // Only load file at this moment, don't compile it.
     load(filename);
 }
+//-----------------------------------------------------------------------------
+//! SLGLShader::load loads a shader file into string _shaderSource
+void SLGLShader::load(SLstring filename)
+{  
+    fstream shaderFile(filename.c_str(), ios::in);
+    
+    if (!shaderFile.is_open())
+    {   SL_LOG("File open failed: %s\n", filename.c_str());
+        exit(1);
+    }
+   
+    std::stringstream buffer;
+    buffer << shaderFile.rdbuf(); 
+
+    // remove comments because some stupid ARM compiler can't handle GLSL comments
+    #ifdef SL_OS_MACIOS
+    _code = buffer.str();
+    #else
+    _code = removeComments(buffer.str());
+    #endif
+}
+//-----------------------------------------------------------------------------
+//! SLGLShader::load loads a shader file from memory into memory 
+void SLGLShader::loadFromMemory(const SLstring shaderSource)
+{
+    _code = shaderSource;
+}
 //----------------------------------------------------------------------------- 
 SLGLShader::~SLGLShader()
 {  
@@ -62,14 +89,6 @@ SLbool SLGLShader::createAndCompile()
             default:
                 SL_EXIT_MSG("SLGLShader::load: Unknown shader type.");
         }
-      
-        /*
-        All shaders are written with the initial GLSL version 110 and are
-        therefore backwards compatible with the compatibility profile
-        from OpenGL 2.1 and OpenGL ES 2 that runs on most mobile devices.
-        To be upwards compatible we have to do some modification depending on
-        the GLSL version.
-        */
 
         SLstring verGLSL = SLGLState::getInstance()->glSLVersionNO();
         SLstring srcVersion = "#version " + verGLSL + "\n";
@@ -135,30 +154,39 @@ SLbool SLGLShader::createAndCompile()
     return false;
 }
 //-----------------------------------------------------------------------------
-//! SLGLShader::load loads a shader file into string _shaderSource
-void SLGLShader::load(SLstring filename)
+//! SLUtils::removeComments for C/C++ comments removal from shader code
+SLstring SLGLShader::removeComments(SLstring src)
 {  
-    fstream shaderFile(filename.c_str(), ios::in);
-    
-    if (!shaderFile.is_open())
-    {   SL_LOG("File open failed: %s\n", filename.c_str());
-        exit(1);
-    }
-   
-    std::stringstream buffer;
-    buffer << shaderFile.rdbuf(); 
+    SLstring dst;
+    SLint len = (SLint)src.length();
+    SLint i = 0;
+    SLint line = 0;
+    SLint column = 0;
 
-    // remove comments because some stupid ARM compiler can't handle GLSL comments
-    #ifdef SL_OS_MACIOS
-    _code = buffer.str();
-    #else
-    _code = SLUtils::removeComments(buffer.str());
-    #endif
-}
-//-----------------------------------------------------------------------------
-//! SLGLShader::load loads a shader file from memory into memory 
-void SLGLShader::loadFromMemory(const SLstring shaderSource)
-{
-    _code = shaderSource;
+    while (i < len)
+    {   if (src[i]=='/' && src[i+1]=='/')
+        {   if (column > 0)
+                dst += '\n';
+            while (i<len && src[i] != '\n') i++;
+            i++; 
+        } 
+        else if (src[i]=='/' && src[i+1]=='*')
+        {   while (i<len && !(src[i]=='*' && src[i+1]=='/'))
+            {   if (src[i]=='\n') dst += '\n';
+                i++; 
+            }
+            i+=2;
+        } 
+        else
+        {   if (src[i] == '\n')
+            {   line++;
+                column = 0;
+            } else column++;
+
+            dst += src[i++];
+        } 
+    }
+    //cout << dst << "|" << endl;
+    return dst;
 }
 // ----------------------------------------------------------------------------

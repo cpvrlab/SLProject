@@ -24,21 +24,12 @@ class SLMaterial;
 class SLRay;
 class SLSkeleton;
 
-// @todo   The SLMesh and SLBuffer could use a little renovation work.
+// @todo   The SLMesh could use a little renovation work.
 //         Working with SLMesh at the moment feels a little clumsy
-//         since you have to handle everything in C-Buffer style.
-//         Furthermore introducing vertex semantics would help in
-//         automating vertex data upload etc.
+//         since you have to handle everything in C-Buffer style..
 
 /* Problems with the current SLMesh class:
-
-    1.  A single SLBuffer object per data in the mesh.
-        Position, normals, texture coordinates etc. all have their own SLBuffer instance in the mesh.
-        It is tedious to handle them and to upload the correct data.
-
-        Cue: Vertex Semantic
-
-    2.  Too tightly coupled with SLMaterial.
+    1.  Too tightly coupled with SLMaterial.
         e.x.:   SLMesh might need a different combination of vertex and fragment programs
                 depending on its own data. If it is an animated mesh it needs a vertex program
                 that supports GPU skinning. Then we also can choose between per vertex and per
@@ -125,8 +116,8 @@ are the vertices of the hard edges in the front of the sphere doubled.
 \n
 \image HTML boxVertices.png
 \n
-For all arrays a corresponding vertex buffer object (VBO) is created on the
-graphic card. All arrays remain in the main memory for ray tracing.
+All vertex attributes are added to the vertex array object _vao (SLVertexArray).<br>
+All arrays remain in the main memory for ray tracing.
 A mesh uses normally only one material referenced by the SLMesh::mat pointer.
 \n
 \n

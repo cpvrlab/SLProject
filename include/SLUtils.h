@@ -169,35 +169,6 @@ class SLUtils
                 pos += replace.length();
             }
         }
-
-        //! SLUtils::removeComments for C/C++ comments removal from shader code
-        static SLstring removeComments(SLstring src)
-        {  
-            SLstring dst;
-            SLint len = (SLint)src.length();
-            SLint i = 0;
-
-            while (i < len)
-            {   if (src[i]=='/' && src[i+1]=='/')
-                {   dst += '\n';
-                    while (i<len && src[i] != '\n') i++;
-                    i++; 
-                } 
-                else if (src[i]=='/' && src[i+1]=='*')
-                {   while (i<len && !(src[i]=='*' && src[i+1]=='/'))
-                    { 
-                        if (src[i]=='\n') dst += '\n';
-                        i++; 
-                    }
-                    i+=2;
-                } 
-                else
-                {  dst += src[i++];
-                } 
-            }
-            //cout << dst << "|" << endl;
-            return dst;
-        }
 };
 //-----------------------------------------------------------------------------
 #endif

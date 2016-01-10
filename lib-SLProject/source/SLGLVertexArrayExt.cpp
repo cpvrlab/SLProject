@@ -53,8 +53,11 @@ void SLGLVertexArrayExt::drawArrayAsColored(SLPrimitive primitiveType,
                                             SLfloat pointSize,
                                             SLuint  indexFirstVertex,
                                             SLuint  countVertices)
-{   assert(_idVBOAttribs);
-    assert(countVertices <= _numVertices);
+{   assert(countVertices <= _numVertices);
+
+    if (!_idVBOAttribs)
+        SL_EXIT_MSG("No VBO generated for VAO in drawArrayAsColored.");
+        
    
     // Prepare shader
     SLMaterial::current = 0;
@@ -72,9 +75,9 @@ void SLGLVertexArrayExt::drawArrayAsColored(SLPrimitive primitiveType,
             glPointSize(pointSize);
     #endif
                 
-    ///////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////
     drawArrayAs(primitiveType, indexFirstVertex, countVertices);
-    ///////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////
    
     #ifndef SL_GLES2
     if (pointSize!=1.0f)

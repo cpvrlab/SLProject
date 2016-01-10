@@ -39,7 +39,10 @@ Shading Language (GLSL). Multiple SLGLShader objects can be attached and linked
 at run time. An SLGLProgram object can then be attached to an SLMaterial
 node for execution. An SLGLProgram object can hold an array of uniform
 variable that can transfer variables from the CPU program to the GPU program.
-For more details on GLSL please refer to official GLSL documentation.
+For more details on GLSL please refer to official GLSL documentation and to
+SLGLShader.<br>
+All shader files are located in the directory _data/shaders. For OSX, iOS and
+Android applications they are copied to the appropriate file system locations.
 */
 //-----------------------------------------------------------------------------
 class SLGLProgram : public SLObject

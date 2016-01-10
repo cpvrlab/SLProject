@@ -151,8 +151,15 @@ void SLGLVertexArray::updateAttrib(SLVertexAttribType type,
     
     #ifndef SL_GLES2
     if (_glHasVAO)
+    {   if (_glHasVAO)
+            glGenVertexArrays(1, &_idVAO);
         glBindVertexArray(_idVAO);
+    }
     #endif
+
+    // Generate the vertex buffer object if there is none
+    if (!_idVBOAttribs)
+        glGenBuffers(1, &_idVBOAttribs);
     
     // copy sub-data into existing buffer object
     glBindBuffer(GL_ARRAY_BUFFER, _idVBOAttribs);

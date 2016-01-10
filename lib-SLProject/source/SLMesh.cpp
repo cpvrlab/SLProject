@@ -143,12 +143,11 @@ Optionally you can draw the normals and/or the uniform grid voxels.
 2b) Pass the modelview and modelview-projection matrix to the shader.<br>
 2c) If needed build and pass the inverse modelview and the normal matrix.<br>
 2d) If the mesh has a skeleton and HW skinning is applied pass the joint matrices.<br>
-3) Build VBOs once<br>
-4) Bind and enable attribute pointers<br>
-5) Finally do the draw call<br>
-6) Disable attribute pointers<br>
-7) Draw optional normals & tangents<br>
-8) Draw optional acceleration structure<br>
+3) Generate Vertex Array Object once<br>
+4) Finally do the draw call<br>
+5) Draw optional normals & tangents<br>
+6) Draw optional acceleration structure<br>
+7) Draw selected mesh with points<br>
 </p>
 Please view also the full process of rendering <a href="md_on_paint.html"><b>one frame</b></a>
 */
@@ -340,14 +339,17 @@ void SLMesh::draw(SLSceneView* sv, SLNode* node)
         // 7: Draw selected mesh with points
         ////////////////////////////////////
       
-        if (SLScene::current->selectedMesh()==this)
+        if (SLScene::current->selectedMesh())
         {   _stateGL->polygonOffset(true, 1.0f, 1.0f);
-            _vaoS.generateVertexPos(numV, 3, finalP());
-            _vaoS.drawArrayAsColored(SL_POINTS, SLCol4f::YELLOW, 2);
+            if (SLScene::current->selectedMesh()==this)
+            {   _vaoS.generateVertexPos(numV, 3, finalP());
+                _vaoS.drawArrayAsColored(SL_POINTS, SLCol4f::YELLOW, 2);
+            }
             _stateGL->polygonLine(false);
             _stateGL->polygonOffset(false);
         } else
-        {   if (_vaoS.id()) _vaoS.deleteGL();
+        {   if (_vaoS.id()) 
+                _vaoS.clearAttribs();
         }
 
         if (blended) _stateGL->blend(true);
