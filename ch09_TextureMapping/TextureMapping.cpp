@@ -19,7 +19,7 @@
 #include "../lib-SLExternal/glfw3/include/GLFW/glfw3.h" // GLFW GUI library 
 
 //-----------------------------------------------------------------------------
-//! Struct defintion for vertex attributes
+//! Struct definition for vertex attributes
 struct VertexPNT
 {  
    SLVec3f p;  // vertex position [x,y,z]
@@ -38,10 +38,14 @@ SLMat4f  _modelMatrix;              //!< 4x4 view matrix
 SLMat4f  _viewMatrix;               //!< 4x4 model matrix
 SLMat4f  _projectionMatrix;         //!< 4x4 projection matrix
 
-GLuint    _numI = 0;                //!< NO. of vertex indexes for triangles
-GLuint    _vboV = 0;                //!< ID of the VBO for vertex array
-GLuint    _vboI = 0;                //!< ID of the VBO for vertex index array
-GLint     _resolution;              //!< resolution of sphere stack & slicesscr
+GLuint   _vao  = 0;                 //!< ID of the vertex array object
+GLuint   _vboV = 0;                 //!< ID of the VBO for vertex attributes
+GLuint   _vboI = 0;                 //!< ID of the VBO for vertex index array
+
+GLuint   _numV = 0;                 //!< NO. of vertices
+GLuint   _numI = 0;                 //!< NO. of vertex indexes for triangles
+
+GLint     _resolution;              //!< resolution of sphere stack & slices
 
 float    _camZ;                     //!< z-distance of camera
 float    _rotX, _rotY;              //!< rotation angles around x & y axis
@@ -105,8 +109,8 @@ void buildSphere(float radius, int stacks, int slices)
     assert(stacks > 3 && slices > 3);
 
     // create vertex array
-    SLuint numV = (stacks+1) * (slices+1);
-    VertexPNT* v = new VertexPNT[numV];
+    _numV = (stacks+1) * (slices+1);
+    VertexPNT* vertices = new VertexPNT[_numV];
 
     float  theta, dtheta; // angles around x-axis
     float  phi, dphi;     // angles around z-axis
@@ -131,18 +135,18 @@ void buildSphere(float radius, int stacks, int slices)
             if (j==slices) phi = 0.0f;
 
             // define first the normal with length 1
-            v[iv].n.x = sin_theta * cos(phi);
-            v[iv].n.y = sin_theta * sin(phi);
-            v[iv].n.z = cos_theta;
+            vertices[iv].n.x = sin_theta * cos(phi);
+            vertices[iv].n.y = sin_theta * sin(phi);
+            vertices[iv].n.z = cos_theta;
 
             // set the vertex position w. the scaled normal
-            v[iv].p.x = radius * v[iv].n.x;
-            v[iv].p.y = radius * v[iv].n.y;
-            v[iv].p.z = radius * v[iv].n.z;
+            vertices[iv].p.x = radius * vertices[iv].n.x;
+            vertices[iv].p.y = radius * vertices[iv].n.y;
+            vertices[iv].p.z = radius * vertices[iv].n.z;
 
             // set the texture coords.
-            v[iv].t.x = 0; // ???
-            v[iv].t.y = 0; // ???
+            vertices[iv].t.x = 0; // ???
+            vertices[iv].t.y = 0; // ???
 
             phi += dphi;
             iv++;
@@ -152,7 +156,7 @@ void buildSphere(float radius, int stacks, int slices)
 
     // create Index array x
     _numI = slices * stacks * 2 * 3;
-    GLuint* x = new GLuint[_numI];
+    GLuint* indices = new GLuint[_numI];
     GLuint ii = 0, iV1, iV2;
 
     for (i=0; i<stacks; ++i)
@@ -163,23 +167,26 @@ void buildSphere(float radius, int stacks, int slices)
 
         for (j = 0; j<slices; ++j)
         {   // 1st triangle ccw
-            x[ii++] = iV1+j;
-            x[ii++] = iV2+j;
-            x[ii++] = iV2+j+1;
+            indices[ii++] = iV1+j;
+            indices[ii++] = iV2+j;
+            indices[ii++] = iV2+j+1;
             // 2nd triangle ccw
-            x[ii++] = iV1+j;
-            x[ii++] = iV2+j+1;
-            x[ii++] = iV1+j+1;
+            indices[ii++] = iV1+j;
+            indices[ii++] = iV2+j+1;
+            indices[ii++] = iV1+j+1;
         }
     }
 
-    // Create vertex buffer objects
-    _vboV = glUtils::buildVBO(v,  numV, 8, sizeof(GLfloat), GL_ARRAY_BUFFER, GL_STATIC_DRAW);
-    _vboI = glUtils::buildVBO(x, _numI, 1, sizeof(GLuint), GL_ELEMENT_ARRAY_BUFFER, GL_STATIC_DRAW);
+    
+    // Generate the OpenGL vertex array object
+    glUtils::buildVAO(_vao, _vboV, _vboI, 
+                      vertices, _numV, sizeof(VertexPNT), 
+                      indices,  _numI, sizeof(GL_UNSIGNED_INT),
+                      _shaderProgID, _pLoc, _nLoc, 0);
 
     // Delete arrays on heap
-    delete[] v;
-    delete[] x;
+    delete[] vertices;
+    delete[] indices;
 }
 //-----------------------------------------------------------------------------
 /*!
@@ -190,17 +197,24 @@ void buildSquare()
 {
     // create vertex array for interleaved position, normal and texCoord
     //           Position,   Normal  , texCrd,
-    float v[] = {-1, 0, -1,  0, -1, 0,  0,  0,  // Vertex 0
-                  1, 0, -1,  0, -1, 0,  1,  0,  // Vertex 1
-                  1, 0,  1,  0, -1, 0,  1,  1,  // Vertex 2
-                 -1, 0,  1,  0, -1, 0,  0,  1}; // Vertex 3
-
-    _vboV = glUtils::buildVBO(v, 6, 8, sizeof(GLfloat), GL_ARRAY_BUFFER, GL_STATIC_DRAW);
+    _numV = 4;
+    float vertices[] = {-1, 0, -1,  0, -1, 0,  0,  0,  // Vertex 0
+                         1, 0, -1,  0, -1, 0,  1,  0,  // Vertex 1
+                         1, 0,  1,  0, -1, 0,  1,  1,  // Vertex 2
+                        -1, 0,  1,  0, -1, 0,  0,  1}; // Vertex 3
 
     // create index array for GL_TRIANGLES
     _numI = 6;
-    GLuint i[] = {0, 1, 2,  0, 2, 3};
-    _vboI = glUtils::buildVBO(i, _numI, 1, sizeof(GLuint), GL_ELEMENT_ARRAY_BUFFER, GL_STATIC_DRAW);
+    GLuint indices[] = {0, 1, 2,  0, 2, 3};
+
+    // Generate the OpenGL vertex array object
+    glUtils::buildVAO(_vao, _vboV, _vboI, 
+                      vertices, _numV, sizeof(VertexPNT), 
+                      indices,  _numI, sizeof(GL_UNSIGNED_INT),
+                      _shaderProgID, _pLoc, _nLoc, _tLoc);
+
+    // The vertices and indices are on the stack memory and get deleted at the 
+    // end of the block.
 }
 //-----------------------------------------------------------------------------
 /*!
@@ -228,12 +242,6 @@ should be called after a window with a valid OpenGL context is present.
 */
 void onInit()
 {  
-    // Define sphere
-    _resolution = 64;
-
-    //buildSphere(1.0f, _resolution, _resolution);
-    buildSquare();
-
     // Set light parameters
     _globalAmbi.set(0.0f, 0.0f, 0.0f);
     _lightPos.set( 0.0f, 0.0f, 100.0f);
@@ -287,6 +295,9 @@ void onInit()
     _matEmissiveLoc  = glGetUniformLocation(_shaderProgID, "u_matEmissive");
     _matShininessLoc = glGetUniformLocation(_shaderProgID, "u_matShininess");
     _texture0Loc     = glGetUniformLocation(_shaderProgID, "u_texture0");
+
+    // Build object
+    buildSquare();
 
     // Set some OpenGL states
     glClearColor(0.0f, 0.0f, 0.0f, 1);  // Set the background color

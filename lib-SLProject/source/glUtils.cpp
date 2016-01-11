@@ -118,34 +118,109 @@ GLuint glUtils::buildProgram(GLuint vertShaderID,
 //-----------------------------------------------------------------------------
 /*! 
 buildVBO generates a Vertex Buffer Object (VBO) and copies the data into the
-buffer on the GPU and returns the id of the buffer,
-The size of the buffer is calculated as numElements * 
-elementSize * typeSize which means e.g.(NO. of vertices) * (3 for x,y& z) * 
-(4 for float). The targetTypeGL distincts between GL_ARRAY_BUFFER for attribute 
-data and GL_ELEMENT_ARRAY_BUFFER for index data. The usageTypeGL distincts 
-between GL_STREAM_DRAW, GL_STATIC_DRAW and GL_DYNAMIC_DRAW.
+buffer on the GPU. The targetTypeGL distincts between GL_ARRAY_BUFFER for 
+attribute data and GL_ELEMENT_ARRAY_BUFFER for index data. The usageTypeGL 
+distincts between GL_STREAM_DRAW, GL_STATIC_DRAW and GL_DYNAMIC_DRAW.
 */
-GLuint glUtils::buildVBO(void*   dataPointer, 
-                         GLint   numElements, 
-                         GLint   elementSize, 
-                         GLuint  typeSize,        
-                         GLuint  targetTypeGL,
-                         GLuint  usageTypeGL)
+void glUtils::buildVBO(GLuint& vboID,
+                       void*   dataPointer, 
+                       GLint   numElements, 
+                       GLint   elementSizeBytes, 
+                       GLuint  targetTypeGL,
+                       GLuint  usageTypeGL)
 {  
+    // Delete vertex buffer object if they exist
+    if (vboID) glDeleteBuffers(1, &vboID);
+    
     // Generate a buffer id
-    GLuint vboID;
     glGenBuffers(1, &vboID);
    
     // Binds (activates) the buffer that is used next
     glBindBuffer(targetTypeGL, vboID);
    
     // determine the buffer size in bytes
-    int bufSize = numElements * elementSize * typeSize;
+    int bufSize = numElements * elementSizeBytes;
    
     // Copy data to the VBO on the GPU. The data could be delete afterwards.
     glBufferData(targetTypeGL, bufSize, dataPointer, usageTypeGL);
-   
-    return vboID;
+}
+//-----------------------------------------------------------------------------
+/* Builds the OpenGL Vertex Array Object (VAO) with it associated vertex buffer 
+objects. VAOs where introduces OpenGL 3.0 and reduce the overhead per draw call. 
+All vertex attributes (e.g. position, normals, texture coords, etc.) are float
+and are stored in one big VBO. They can be in sequential order (first all 
+positions, then all normals, etc.) or interleaved (all attributes together for
+one vertex). We use interleaved order here.
+*/
+void glUtils::buildVAO(GLuint& vaoID,
+                       GLuint& vboIDVertices, 
+                       GLuint& vboIDIndices,
+                       void*   dataPointerVertices, 
+                       GLint   numVertices,
+                       GLint   sizeVertexBytes,
+                       void*   dataPointerIndices,
+                       GLint   numIndices,
+                       GLuint  sizeIndexBytes,
+                       GLint   shaderProgramID,
+                       GLint   attributePositionLoc, 
+                       GLint   attributeNormalLoc,
+                       GLint   attributeTexCoordLoc)
+{
+    assert(shaderProgramID);
+    assert(dataPointerVertices && numVertices);
+    assert(dataPointerIndices && numIndices);
+    assert(attributePositionLoc);
+
+    // Generate and bind OpenGL vertex array object
+    if (vaoID) glDeleteVertexArrays(1, &vaoID);
+    glGenVertexArrays(1, &vaoID);
+    glBindVertexArray(vaoID);
+
+    // Generate array buffer vbo for float vertices
+    buildVBO(vboIDVertices, 
+             dataPointerVertices, 
+             numVertices,
+             sizeVertexBytes, 
+             GL_ARRAY_BUFFER, GL_STATIC_DRAW);
+
+    // Generate element array buffer for indices
+    buildVBO(vboIDIndices, 
+             dataPointerIndices, 
+             numIndices,
+             sizeIndexBytes, 
+             GL_ELEMENT_ARRAY_BUFFER, GL_STATIC_DRAW);
+
+
+    // Tell OpenGL how to interpret the vertex buffer                                                                                             
+    // We use an interleaved attribute layout:
+    // With vertex position, normals and texture coordinates it would look like this:
+                                                    
+    //           |               Vertex 0                |               Vertex 1                |   
+    // Attribs:  |   Position0  |    Normal0   |TexCoord0|   Position1  |    Normal1   |TexCoord1|   
+    // Elements: | PX | PY | PZ | NX | NY | NZ | TX | TY | PX | PY | PZ | NX | NY | NZ | TX | TY |   
+    // Bytes:    |#### #### ####|#### #### ####|#### ####|#### #### ####|#### #### ####|#### ####|    
+    //           |                                       |                                            
+    //           |<--------- sizeVertexBytes = 32 ------>|                                   
+    //           |<offsetN = 12>|                                     
+    //           |<-------- offsetT = 24 ----->|
+
+    
+    // Activate GLSL shader program
+    glUseProgram(shaderProgramID);
+
+    // We always must have a position attribute
+    glVertexAttribPointer(attributePositionLoc, 3, GL_FLOAT, GL_FALSE, sizeVertexBytes, 0);
+    glEnableVertexAttribArray(attributePositionLoc);
+
+    if (attributeNormalLoc > -1)
+    {   glVertexAttribPointer(attributeNormalLoc, 3, GL_FLOAT, GL_FALSE, sizeVertexBytes, (void*)12);
+        glEnableVertexAttribArray(attributeNormalLoc);
+    }
+
+    if (attributeTexCoordLoc > -1)
+    {   glVertexAttribPointer(attributeTexCoordLoc, 2, GL_FLOAT, GL_FALSE, sizeVertexBytes, (void*)24);
+        glEnableVertexAttribArray(attributeTexCoordLoc);
+    }
 }
 //-----------------------------------------------------------------------------
 /*!

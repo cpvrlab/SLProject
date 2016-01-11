@@ -93,37 +93,26 @@ void buildSphere(float radius, int stacks, int slices, GLuint primitveType)
     assert(primitveType==GL_TRIANGLES || primitveType==GL_TRIANGLE_STRIP);
 
     // Create vertex array
+    VertexPN* vertices    = 0;                //!< Array of vertices
     // ???
 
     // create Index array
+    GLuint* indices = 0;
     // ???
 
-    // Generate and bind OpenGL vertex array object
-    if (_vao) glDeleteVertexArrays(1, &_vao);
-    glGenVertexArrays(1, &_vao);
-    glBindVertexArray(_vao);
+    
+    // Generate the OpenGL vertex array object
+    if (vertices && indices)
+    {
+        glUtils::buildVAO(_vao, _vboV, _vboI, 
+                          vertices, _numV, sizeof(VertexPN), 
+                          indices,  _numI, sizeof(GL_UNSIGNED_INT),
+                          _shaderProgID, _pLoc, _nLoc);
 
-    // Create vertex buffer objects
-    if (_vboV) glDeleteBuffers(1, &_vboV);
-    if (_vboI) glDeleteBuffers(1, &_vboI);
-    _vboV = glUtils::buildVBO(vertices, _numV, 6, sizeof(GLfloat), GL_ARRAY_BUFFER, GL_STATIC_DRAW);
-    _vboI = glUtils::buildVBO(indices,  _numI, 1, sizeof(GLuint), GL_ELEMENT_ARRAY_BUFFER, GL_STATIC_DRAW);
-
-    // Tell OpenGL how to interpret the vertex buffer                                                                                             
-    // We use an interleaved attribute layout:                                                                
-    //           |           Vertex 0          |           Vertex 1          |   
-    // Attribs:  |   Position0  |    Normal0   |   Position1  |    Normal1   |   
-    // Elements: | PX | PY | PZ | NX | NY | NZ | PX | PY | PZ | NX | NY | NZ |   
-    // Bytes:    |#### #### ####|#### #### ####|#### #### ####|#### #### ####|...
-    //           |                             |                                  
-    //           |<------- stride = 24 ------->|                                  
-    //           |<offsetN = 12>|
-    SLint stride  = sizeof(VertexPN);
-    SLint offsetN = sizeof(SLVec3f);
-    glVertexAttribPointer(_pLoc, 3, GL_FLOAT, GL_FALSE, stride, 0);
-    glVertexAttribPointer(_nLoc, 3, GL_FLOAT, GL_FALSE, stride, (void*)offsetN);
-    glEnableVertexAttribArray(_pLoc);
-    glEnableVertexAttribArray(_nLoc);
+        // Delete arrays on heap
+        delete[] vertices;
+        delete[] indices;
+    }
 }
 //-----------------------------------------------------------------------------
 /*!

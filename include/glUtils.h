@@ -35,13 +35,28 @@ class glUtils
         static GLuint buildProgram(GLuint vertShaderID, 
                                    GLuint fragShaderID);
 
-        //! Builds a vertex buffer object and returns the vbo id
-        static GLuint buildVBO    (void*   dataPointer, 
+        //! Builds an OpenGL Vertex Buffer Object
+        static void buildVBO      (GLuint& vboID,
+                                   void*   dataPointer, 
                                    GLint   numElements, 
-                                   GLint   elementSize, 
-                                   GLuint  typeSize,        
+                                   GLint   elementSizeBytes,     
                                    GLuint  targetTypeGL = GL_ARRAY_BUFFER,
                                    GLuint  usageTypeGL = GL_STATIC_DRAW);
+        
+        //! Builds an OpenGL Vertex Array Object
+        static void buildVAO      (GLuint& vaoID,
+                                   GLuint& vboIDVertices, 
+                                   GLuint& vboIDIndices,
+                                   void*   dataPointerVertices, 
+                                   GLint   numVertices,
+                                   GLint   sizeVertexBytes,
+                                   void*   dataPointerIndices,
+                                   GLint   numIndices,
+                                   GLuint  sizeIndexBytes,
+                                   GLint   shaderProgramID,
+                                   GLint   attributePositionLoc, 
+                                   GLint   attributeNormalLoc,
+                                   GLint   attributeTexCoordLoc = -1);
    
         //! Builds an OpenGL texture and returns the texture id
         static GLuint buildTexture(string textureFile,
