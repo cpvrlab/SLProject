@@ -140,6 +140,7 @@ void buildBox()
     //           |                             |                                  
     //           |<------- stride = 24 ------->|                                  
     //           |<offsetN = 12>|
+
     SLint stride  = sizeof(VertexPN);
     SLint offsetN = sizeof(SLVec3f);
     glVertexAttribPointer(_pLoc, 3, GL_FLOAT, GL_FALSE, stride, 0);
@@ -326,7 +327,7 @@ void onMouseMove(GLFWwindow* window, double x, double y)
 }
 //-----------------------------------------------------------------------------
 /*!
-Mouse wheel eventhandler that moves the camera foreward or backwards
+Mouse wheel eventhandler that moves the camera forward or backwards
 */
 void onMouseWheel(GLFWwindow* window, double xscroll, double yscroll)
 {
@@ -393,6 +394,19 @@ int main()
 
     // Enable fullscreen anti aliasing with 4 samples
     glfwWindowHint(GLFW_SAMPLES, 4);
+
+    //You can enable or restrict newer OpenGL context here (read the GLFW documentation)
+    #ifdef SL_OS_MACOSX
+    //glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+    //glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 2);
+    //glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
+    //glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+    #else
+    //glfwWindowHint(GLFW_CLIENT_API, GLFW_OPENGL_API);
+    //glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+    //glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+    //glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
+    #endif
 
     _scrWidth = 640;
     _scrHeight = 480;
