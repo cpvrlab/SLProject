@@ -288,7 +288,7 @@ void SLGLTexture::build(SLint texID)
     _stateGL->activeTexture(GL_TEXTURE0+texID);
 
     // create binding and apply texture properties
-    _stateGL->bindAndEnableTexture(_target, _texName);
+    _stateGL->bindTexture(_target, _texName);
    
     // check if anisotropic texture filter extension is available      
     if (maxAnisotropy < 0.0f)
@@ -406,7 +406,7 @@ void SLGLTexture::bindActive(SLint texID)
    
     if (_texName)
     {   _stateGL->activeTexture(GL_TEXTURE0 + texID);
-        _stateGL->bindAndEnableTexture(_target, _texName);
+        _stateGL->bindTexture(_target, _texName);
         SLScene* s = SLScene::current;
         if (this == s->videoTexture() &&
             s->usesVideoImage() &&

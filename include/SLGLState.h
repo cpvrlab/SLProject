@@ -102,49 +102,49 @@ class SLGLState
         SLbool   pixelFormatIsSupported(SLint pixelFormat);
       
         // light transformations into view space
-        void     calcLightPosVS       (SLint nLights);
-        void     calcLightDirVS       (SLint nLights);
+        void     calcLightPosVS         (SLint nLights);
+        void     calcLightDirVS         (SLint nLights);
       
         // state setters
-        void     depthTest            (SLbool state);
-        void     depthMask            (SLbool state);
-        void     cullFace             (SLbool state);
-        void     blend                (SLbool state);
-        void     multiSample          (SLbool state);
-        void     polygonLine          (SLbool state);
-        void     polygonOffset        (SLbool state, SLfloat factor=1.0f, SLfloat units=1.0f);
-        void     viewport             (SLint x, SLint y, SLsizei w, SLsizei h);
-        void     colorMask            (SLint r, SLint g, SLint b, SLint a);
-        void     useProgram           (SLuint progID);
-        void     bindAndEnableTexture (SLenum target, SLuint textureID);
-        void     activeTexture        (SLenum textureUnit);
-        void     clearColor           (SLCol4f c);
-        void     clearColorBuffer     () {glClear(GL_COLOR_BUFFER_BIT);}
-        void     clearDepthBuffer     () {glClear(GL_DEPTH_BUFFER_BIT);}
-        void     clearColorDepthBuffer() {glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);}
+        void     depthTest              (SLbool state);
+        void     depthMask              (SLbool state);
+        void     cullFace               (SLbool state);
+        void     blend                  (SLbool state);
+        void     multiSample            (SLbool state);
+        void     polygonLine            (SLbool state);
+        void     polygonOffset          (SLbool state, SLfloat factor=1.0f, SLfloat units=1.0f);
+        void     viewport               (SLint x, SLint y, SLsizei w, SLsizei h);
+        void     colorMask              (SLint r, SLint g, SLint b, SLint a);
+        void     useProgram             (SLuint progID);
+        void     bindTexture            (SLenum target, SLuint textureID);
+        void     activeTexture          (SLenum textureUnit);
+        void     clearColor             (SLCol4f c);
+        void     clearColorBuffer       () {glClear(GL_COLOR_BUFFER_BIT);}
+        void     clearDepthBuffer       () {glClear(GL_DEPTH_BUFFER_BIT);}
+        void     clearColorDepthBuffer  () {glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);}
       
         // state getters
-        SLbool   blend()                 {return _blend;}
-        SLstring glVersion()             {return _glVersion;}
-        SLstring glVersionNO()           {return _glVersionNO;}
-        SLfloat  glVersionNOf()          {return _glVersionNOf;}
-        SLstring glVendor()              {return _glVendor;}
-        SLstring glRenderer()            {return _glRenderer;}
-        SLstring glSLVersion()           {return _glSLVersion;}
-        SLstring glSLVersionNO()         {return _glSLVersionNO;}
-        SLbool   glIsES2()               {return _glIsES2;}
-        SLbool   glIsES3()               {return _glIsES3;}
-        SLbool   hasExtension(SLstring e){return _glExtensions.find(e)!=string::npos;}
+        SLbool   blend                  () {return _blend;}
+        SLstring glVersion              () {return _glVersion;}
+        SLstring glVersionNO            () {return _glVersionNO;}
+        SLfloat  glVersionNOf           () {return _glVersionNOf;}
+        SLstring glVendor               () {return _glVendor;}
+        SLstring glRenderer             () {return _glRenderer;}
+        SLstring glSLVersion            () {return _glSLVersion;}
+        SLstring glSLVersionNO          () {return _glSLVersionNO;}
+        SLbool   glIsES2                () {return _glIsES2;}
+        SLbool   glIsES3                () {return _glIsES3;}
+        SLbool   hasExtension           (SLstring e){return _glExtensions.find(e)!=string::npos;}
       
         // stack operations
-        inline void pushModelViewMatrix()   {_modelViewMatrixStack.push_back(modelViewMatrix);}
-        inline void popModelViewMatrix()    {modelViewMatrix = _modelViewMatrixStack.pop_back();}
+        inline void pushModelViewMatrix () {_modelViewMatrixStack.push_back(modelViewMatrix);}
+        inline void popModelViewMatrix  () {modelViewMatrix = _modelViewMatrixStack.pop_back();}
 
         //! Checks if an OpenGL error occurred
-        static void getGLError(char* file, int line, bool quit);
+        static void getGLError          (char* file, int line, bool quit);
 
-        SLstring getGLVersionNO();
-        SLstring getSLVersionNO();
+        SLstring getGLVersionNO         ();
+        SLstring getSLVersionNO         ();
       
     private:
                     SLGLState();            //!< private onetime constructor
