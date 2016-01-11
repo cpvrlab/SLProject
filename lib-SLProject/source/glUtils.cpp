@@ -80,11 +80,11 @@ GLuint glUtils::buildShader(string shaderFile,
 
     // Replace "attribute" and "varying" that came in GLSL 310
     if (verGLSL > "120")
-    {   if (shaderType == VertexShader)
+    {   if (shaderType == GL_VERTEX_SHADER)
         {   SLUtils::replaceString(source, "attribute", "in       ");
             SLUtils::replaceString(source, "varying", "out    ");
         }
-        if (shaderType == FragmentShader)
+        if (shaderType == GL_FRAGMENT_SHADER)
         {   SLUtils::replaceString(source, "varying", "in     ");
         }
     }
@@ -92,7 +92,7 @@ GLuint glUtils::buildShader(string shaderFile,
     // Replace "gl_FragColor" that was deprecated in GLSL 140 (OpenGL 3.1) by a custom out variable
     if (verGLSL > "130")
     {
-        if (shaderType == FragmentShader)
+        if (shaderType == GL_FRAGMENT_SHADER)
         {   SLUtils::replaceString(source, "gl_FragColor", "fragColor");
             SLUtils::replaceString(source, "void main", "out vec4 fragColor; \n\nvoid main");
         }
@@ -100,7 +100,7 @@ GLuint glUtils::buildShader(string shaderFile,
 
     // Replace deprecated texture functions
     if (verGLSL > "140")
-    {   if (shaderType == FragmentShader)
+    {   if (shaderType == GL_FRAGMENT_SHADER)
         {   SLUtils::replaceString(source, "texture2D", "texture");
             SLUtils::replaceString(source, "texture3D", "texture");
             SLUtils::replaceString(source, "textureCube", "texture");
@@ -128,6 +128,9 @@ GLuint glUtils::buildShader(string shaderFile,
         cout << log;
         exit(1);
     }
+
+    GETGLERROR;
+
     return shaderHandle;
 }
 //-----------------------------------------------------------------------------

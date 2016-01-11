@@ -424,6 +424,9 @@ int main()
         exit(EXIT_FAILURE);
     }
 
+    // Check errors before we start
+    GETGLERROR;
+
     glUtils::printGLInfo();
 
     glfwSetWindowTitle(window, "Diffuse Cubes");
@@ -446,7 +449,7 @@ int main()
     // Event loop
     while (!glfwWindowShouldClose(window))
     {
-      // if no updated occured wait for the next event (power saving)
+      // if no updated occurred wait for the next event (power saving)
       if (!onPaint())
            glfwWaitEvents();
       else glfwPollEvents();

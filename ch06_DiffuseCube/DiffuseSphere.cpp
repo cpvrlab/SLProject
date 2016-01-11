@@ -427,6 +427,9 @@ int main()
         exit(EXIT_FAILURE);
     }
 
+    // Check errors before we start
+    GETGLERROR;
+
     glUtils::printGLInfo();
 
     glfwSetWindowTitle(window, "Diffuse Spheres");
