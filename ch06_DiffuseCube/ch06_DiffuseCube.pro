@@ -95,7 +95,7 @@ HEADERS += \
     ../include/glUtils.h \
 
 OTHER_FILES += \
-../_data/shaders/ADS.frag \
-../_data/shaders/ADS.vert \
+../_data/shaders/Diffuse.frag \
+../_data/shaders/Diffuse.vert \
 
 

@@ -278,21 +278,18 @@ void buildSliceQuads()
         triangles.push_back(Triangle(i*4+1, i*4+2, i*4+3));
     }
 
-	_quadVboV = glUtils::buildVBO(vertices.data(),
-                                  vertices.size(),
-                                  1,
-                                  sizeof(SLVec3f),
-                                  GL_ARRAY_BUFFER,
-                                  GL_STATIC_DRAW
-                                 );
+    glUtils::buildVBO(_quadVboV,
+                      vertices.data(),
+                      vertices.size(),
+                      sizeof(SLVec3f),
+                      GL_ARRAY_BUFFER,
+                      GL_STATIC_DRAW);
 	_quadNumI = triangles.size() * 3;
-    _quadVboI = glUtils::buildVBO(triangles.data(),
-                                  triangles.size(),
-                                  1,
-                                  sizeof(Triangle),
-                                  GL_ELEMENT_ARRAY_BUFFER,
-                                  GL_STATIC_DRAW
-                                 );
+    glUtils::buildVBO(_quadVboI, triangles.data(),
+                      triangles.size(),
+                      sizeof(Triangle),
+                      GL_ELEMENT_ARRAY_BUFFER,
+                      GL_STATIC_DRAW);
 }
 
 void destroyQuads()
@@ -312,13 +309,12 @@ void buildCube()
                                        SLVec3f(-1, 1, 1),
                                        SLVec3f( 1, 1, 1)};
 
-    _cubeVboV = glUtils::buildVBO(vertices.data(),
-                                  vertices.size(),
-                                  1,
-                                  sizeof(SLVec3f),
-                                  GL_ARRAY_BUFFER,
-                                  GL_STATIC_DRAW
-                                 );
+     glUtils::buildVBO(_cubeVboV,
+                       vertices.data(),
+                       vertices.size(),
+                       sizeof(SLVec3f),
+                       GL_ARRAY_BUFFER,
+                       GL_STATIC_DRAW);
 
     std::array<Triangle, 12> triangles =
     {   Triangle(1,0,2), Triangle(1,2,3),   //Back face
@@ -329,15 +325,12 @@ void buildCube()
         Triangle(3,2,7), Triangle(2,6,7)    //Top face
     };
 
-
     _cubeNumI = triangles.size()*3;
-    _cubeVboI = glUtils::buildVBO(triangles.data(),
-                              triangles.size(),
-                              1,
-                              sizeof(Triangle),
-                              GL_ELEMENT_ARRAY_BUFFER,
-                              GL_STATIC_DRAW
-                              );
+    glUtils::buildVBO(_cubeVboI, triangles.data(),
+                      triangles.size(),
+                      sizeof(Triangle),
+                      GL_ELEMENT_ARRAY_BUFFER,
+                      GL_STATIC_DRAW);
     GETGLERROR;
 }
 

@@ -64,14 +64,56 @@ buildShader load the shader file, creates an OpenGL shader object, compiles the
 source code and returns the handle to the internal shader object. If the 
 compilation fails the compiler log is sent to the stdout before the app exits 
 with code 1.
+All shaders are written with the initial GLSL version 110 without version number
+in the code and are therefore backwards compatible with the compatibility
+profile from OpenGL 2.1 and OpenGL ES 2 that runs on most mobile devices.
+To be upwards compatible some modification have to be done.
 */
 GLuint glUtils::buildShader(string shaderFile, 
                             GLenum shaderType)
 {  
     // Load shader file, create shader and compile it
     string source = loadShader(shaderFile);
+
+    string verGLSL = glUtils::glSLVersionNO();
+    string srcVersion = "#version " + verGLSL + "\n";
+
+    // Replace "attribute" and "varying" that came in GLSL 310
+    if (verGLSL > "120")
+    {   if (shaderType == VertexShader)
+        {   SLUtils::replaceString(source, "attribute", "in       ");
+            SLUtils::replaceString(source, "varying", "out    ");
+        }
+        if (shaderType == FragmentShader)
+        {   SLUtils::replaceString(source, "varying", "in     ");
+        }
+    }
+
+    // Replace "gl_FragColor" that was deprecated in GLSL 140 (OpenGL 3.1) by a custom out variable
+    if (verGLSL > "130")
+    {
+        if (shaderType == FragmentShader)
+        {   SLUtils::replaceString(source, "gl_FragColor", "fragColor");
+            SLUtils::replaceString(source, "void main", "out vec4 fragColor; \n\nvoid main");
+        }
+    }
+
+    // Replace deprecated texture functions
+    if (verGLSL > "140")
+    {   if (shaderType == FragmentShader)
+        {   SLUtils::replaceString(source, "texture2D", "texture");
+            SLUtils::replaceString(source, "texture3D", "texture");
+            SLUtils::replaceString(source, "textureCube", "texture");
+        }
+    }
+
+    // Prepend the GLSL version as the first statement in the shader code
+    SLstring scrComplete = srcVersion + source;
+
+
+    // Compile Shader code
     GLuint shaderHandle = glCreateShader(shaderType);
-    const char* src = source.c_str();
+    const char* src = scrComplete.c_str();
     glShaderSource(shaderHandle, 1, &src, 0);
     glCompileShader(shaderHandle);
    
@@ -169,7 +211,7 @@ void glUtils::buildVAO(GLuint& vaoID,
     assert(shaderProgramID);
     assert(dataPointerVertices && numVertices);
     assert(dataPointerIndices && numIndices);
-    assert(attributePositionLoc);
+    assert(attributePositionLoc > -1);
 
     // Generate and bind OpenGL vertex array object
     if (vaoID) glDeleteVertexArrays(1, &vaoID);
@@ -440,5 +482,22 @@ SLVstring glUtils::getFileNamesInDir(SLstring dirName)
         closedir(dir);
     }
     return fileNames;
+}
+//-----------------------------------------------------------------------------
+//! Returns the OpenGL Shading Language version number as a string.
+/*! The string returned by glGetString can contain additional vendor
+information such as the build number and the brand name.
+For the shading language string "Nvidia GLSL 4.5" the function returns "450"
+*/
+string glUtils::glSLVersionNO()
+{
+    string versionStr = SLstring((char*)glGetString(GL_SHADING_LANGUAGE_VERSION));
+    size_t dotPos = versionStr.find(".");
+    char NO[4];
+    NO[0] = versionStr[dotPos - 1];
+    NO[1] = versionStr[dotPos + 1];
+    NO[2] = '0';
+    NO[3] = 0;
+    return SLstring(NO);
 }
 //-----------------------------------------------------------------------------

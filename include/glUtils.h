@@ -79,6 +79,9 @@ class glUtils
 
         //! Returns a vector of sorted file names within a directory
         static SLVstring getFileNamesInDir(SLstring dirName);
+
+        //! Returns the GLSL version string
+        static string glSLVersionNO();
 };
 //-----------------------------------------------------------------------------
 #endif
