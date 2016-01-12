@@ -486,7 +486,7 @@ void SLGLState::unbindAnythingAndFlush()
     // reset the bound texture unit
     // This is needed since leaving one texture unit bound over multiple windows
     // sometimes (most of the time) causes bugs
-    glBindTexture(GL_TEXTURE_2D, 0);
+    //glBindTexture(GL_TEXTURE_2D, 0);
     //glBindVertexArray(0);
     //glBindBuffer(GL_ARRAY_BUFFER, 0);
     //glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);

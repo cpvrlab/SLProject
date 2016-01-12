@@ -101,7 +101,8 @@ GLuint glUtils::buildShader(string shaderFile,
     // Replace deprecated texture functions
     if (verGLSL > "140")
     {   if (shaderType == GL_FRAGMENT_SHADER)
-        {   SLUtils::replaceString(source, "texture2D", "texture");
+        {   SLUtils::replaceString(source, "texture1D", "texture");
+            SLUtils::replaceString(source, "texture2D", "texture");
             SLUtils::replaceString(source, "texture3D", "texture");
             SLUtils::replaceString(source, "textureCube", "texture");
         }

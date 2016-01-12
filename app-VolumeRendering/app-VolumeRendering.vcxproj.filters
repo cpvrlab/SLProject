@@ -12,7 +12,7 @@
       <Filter>lib-SLProject</Filter>
     </ClCompile>
     <ClCompile Include="..\lib-SLProject\source\glUtils.cpp">
-      <Filter>includes</Filter>
+      <Filter>lib-SLProject</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

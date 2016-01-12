@@ -123,25 +123,27 @@ SLbool SLGLShader::createAndCompile()
         // Replace deprecated texture functions
         if (verGLSL > "140")
         {   if (_type == FragmentShader)
-            {   SLUtils::replaceString(_code, "texture2D", "texture");
-                SLUtils::replaceString(_code, "texture3D", "texture");
-                SLUtils::replaceString(_code, "textureCube", "texture");
-            }
+        {
+            SLUtils::replaceString(_code, "texture1D",   "texture");
+            SLUtils::replaceString(_code, "texture2D",   "texture");
+            SLUtils::replaceString(_code, "texture3D",   "texture");
+            SLUtils::replaceString(_code, "textureCube", "texture");
+        }
         }
         
-        SLstring scrComplete = srcVersion + _code;
+        _code = srcVersion + _code;
         
         //// write out the parsed shader code as text files
         //#ifdef _GLDEBUG
         //ofstream fs(name()+".Debug");
         //if(fs)
         //{
-        //    fs << scrComplete;
+        //    fs << _code;
         //    fs.close();
         //}
         //#endif
 
-        const char* src = scrComplete.c_str();
+        const char* src = _code.c_str();
         glShaderSource(_objectGL, 1, &src, 0);
         glCompileShader(_objectGL);
 

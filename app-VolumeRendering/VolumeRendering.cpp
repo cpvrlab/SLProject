@@ -54,21 +54,21 @@ GLuint  _quadVboI = 0;          //!< Handle for the vertex index VBO on the GPU
 
 enum RenderMethod
 {
-	SAMPLING = 1 << 0,
-	SIDDON   = 1 << 1,
-	SLICING  = 1 << 2
+	SAMPLING = 1,
+	SIDDON   = 2,
+	SLICING  = 4
 };
 
 enum DisplayMethod
 {
-	MAXIMUM_INTENSITY_PROJECTION = 1 << 3,
-	ALPHA_BLENDING_TF_LUT        = 1 << 4,
-	ALPHA_BLENDING_CUSTOM_TF_LUT = 1 << 5
+    MAXIMUM_INTENSITY_PROJECTION = 8,
+    ALPHA_BLENDING_TF_LUT        = 16,
+	ALPHA_BLENDING_CUSTOM_TF_LUT = 32
 };
 
-DisplayMethod _displayMethod = MAXIMUM_INTENSITY_PROJECTION; //!< The display method in use
-RenderMethod  _renderMethod = SAMPLING;                      //!< The render method in use
-SLstring      _renderMethodDescription = "";                 //!< A description of the current render and display methods
+DisplayMethod _displayMethod = MAXIMUM_INTENSITY_PROJECTION;   //!< The display method in use
+RenderMethod  _renderMethod = SAMPLING;                 //!< The render method in use
+SLstring      _renderMethodDescription = "";            //!< A description of the current render and display methods
 
 
 float    _camZ;                     //!< z-distance of camera
@@ -1151,6 +1151,18 @@ int main()
     }
 
     glUtils::printGLInfo();
+
+    cout << endl;
+    cout << "Use the following key to change the render method:" << endl;
+    cout << "1: SAMPLING" << endl;
+    cout << "2: VOXEL WALKING" << endl;
+    cout << "3: SLICING" << endl;
+    cout << endl;
+    cout << "Use the following key to change the display mode" << endl;
+    cout << "Q: MAXIMUM INTENSITY PROJECTION" << endl;
+    cout << "W: ALPHA BLENDING TRANSFER FUNCTION LOOKUP TABLE" << endl;
+    cout << "E: ALPHA BLENDING CUSTOM LOOKUP TABLE" << endl;
+
 
     glfwSetWindowTitle(window, "Volume Rendering Test Application");
 
