@@ -23,3 +23,10 @@ script:
 branches:
   only:
     - master
+    
+notifications:
+    email:
+        recipients:
+          - marcus.hudritsch@bfh.ch
+        on_success: never
+        on_failure: always

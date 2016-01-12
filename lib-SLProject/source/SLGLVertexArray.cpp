@@ -29,7 +29,7 @@ SLGLVertexArray::SLGLVertexArray()
 {   
     _glHasVAO = SLGLState::getInstance()->glVersionNOf() > 3.0f;
     _idVAO = 0;
-    _idVBOAttribs = 0;
+    _idVBOAttribs = 0
     _idVBOIndices = 0;
     _numIndices = 0;
     _numVertices = 0;
