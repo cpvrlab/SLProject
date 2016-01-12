@@ -22,22 +22,6 @@
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
-            shouldBeEnabled = "Yes"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "../include/SLUtils.h"
-            timestampString = "448649133.618741"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "123"
-            endingLineNumber = "123"
-            landmarkName = "getFileNamesInDir(SLstring dirName)"
-            landmarkType = "5">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
             shouldBeEnabled = "No"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
@@ -76,9 +60,7 @@
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "752"
-            endingLineNumber = "752"
-            landmarkName = "TransformTanFovSpaceToRendertargetNDC( ScaleAndOffset2D const &amp;eyeToSourceNDC, SLVec2f const &amp;tanEyeAngle )"
-            landmarkType = "7">
+            endingLineNumber = "752">
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
@@ -92,9 +74,7 @@
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "751"
-            endingLineNumber = "751"
-            landmarkName = "TransformTanFovSpaceToRendertargetNDC( ScaleAndOffset2D const &amp;eyeToSourceNDC, SLVec2f const &amp;tanEyeAngle )"
-            landmarkType = "7">
+            endingLineNumber = "751">
          </BreakpointContent>
       </BreakpointProxy>
    </Breakpoints>

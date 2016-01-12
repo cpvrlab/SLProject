@@ -189,15 +189,21 @@ or a sequential vertex buffer.\n\n
 \n           |          Positions          |           Normals           |     TexCoords     |   
 \n Attribs:  |   Position0  |   Position1  |    Normal0   |    Normal1   |TexCoord0|TexCoord1|   
 \n Elements: | PX | PY | PZ | PX | PY | PZ | NX | NY | NZ | NX | NY | NZ | TX | TY | TX | TY |   
-\n Bytes:    |#### #### ####|#### #### ####|#### #### ####|#### #### ####|#### ####|#### ####|   
+\n Bytes:    |#### #### ####|#### #### ####|#### #### ####|#### #### ####|#### ####|#### ####|  
+\n           |                             |                             |
+\n           |<------ offset Normals ----->|                             |
+\n           |<-------------------- offset TexCoords ------------------->|
 \n                                                                                               
 \n Interleaved attribute layout:                                                                
 \n           |               Vertex 0                |               Vertex 1                |   
 \n Attribs:  |   Position0  |    Normal0   |TexCoord0|   Position1  |    Normal1   |TexCoord1|   
 \n Elements: | PX | PY | PZ | NX | NY | NZ | TX | TY | PX | PY | PZ | NX | NY | NZ | TX | TY |   
 \n Bytes:    |#### #### ####|#### #### ####|#### ####|#### #### ####|#### #### ####|#### ####|    
+\n           |              |              |         |
+\n           |<-offsetN=32->|              |         |
+\n           |<------- offsetTC=32 ------->|         |
 \n           |                                       |                                            
-\n           |<--------- strideBytes = 32 ---------->|                                            
+\n           |<---------- strideBytes=32 ----------->|
 </PRE>
 */
 void SLGLVertexArray::generate(SLuint numVertices, 

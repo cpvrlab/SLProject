@@ -89,7 +89,6 @@
 		41627EA615CA8CE70023B936 /* SLTexFont.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 41627E9A15CA8CE70023B936 /* SLTexFont.cpp */; };
 		41627EA815CA8CE70023B936 /* stdafx.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 41627EA015CA8CE70023B936 /* stdafx.cpp */; };
 		41654BD914866F6B0003DF5E /* SLPlane.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 41654BD214866F6B0003DF5E /* SLPlane.cpp */; };
-		417E0E40148A692A0015B5B0 /* libz.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 417E0E3F148A69290015B5B0 /* libz.dylib */; };
 		417E0EB9148A70DE0015B5B0 /* brick0512_C.png in Resources */ = {isa = PBXBuildFile; fileRef = 417E0E9A148A70DE0015B5B0 /* brick0512_C.png */; };
 		417E0EBA148A70DE0015B5B0 /* bricks1_0256_C.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 417E0E9B148A70DE0015B5B0 /* bricks1_0256_C.jpg */; };
 		417E0EBB148A70DE0015B5B0 /* bricks1_0512_C.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 417E0E9C148A70DE0015B5B0 /* bricks1_0512_C.jpg */; };
@@ -391,6 +390,7 @@
 		41C99E7A18D4316A0045FD2D /* Icon_144.png in Resources */ = {isa = PBXBuildFile; fileRef = 41C99E7718D4316A0045FD2D /* Icon_144.png */; };
 		41C99E7C18D431B50045FD2D /* Icon_72.png in Resources */ = {isa = PBXBuildFile; fileRef = 41C99E7B18D431B50045FD2D /* Icon_72.png */; };
 		41E46000176C8F6800AB4653 /* SLTimer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 41E45FFE176C8F6800AB4653 /* SLTimer.cpp */; };
+		41EBB5E31C44D99500C9BAA5 /* SLGLVertexArrayExt.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 41EBB5E21C44D99500C9BAA5 /* SLGLVertexArrayExt.cpp */; };
 		41EDCB591B67B47B00DDC945 /* SLCompactGrid.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 41EDCB571B67B47B00DDC945 /* SLCompactGrid.cpp */; };
 		41FC8AA61959BF9F004A9E57 /* clipper.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 41FC8AA41959BF9F004A9E57 /* clipper.cpp */; };
 		41FC8AAE1959BFBA004A9E57 /* irrXML.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 41FC8AAC1959BFBA004A9E57 /* irrXML.cpp */; };
@@ -545,7 +545,6 @@
 		41654BD714866F6B0003DF5E /* TriangleBoxIntersect.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TriangleBoxIntersect.h; path = ../include/TriangleBoxIntersect.h; sourceTree = SOURCE_ROOT; };
 		416EE8ED148E388300AE5F6B /* Default@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "Default@2x.png"; path = "images/Default@2x.png"; sourceTree = SOURCE_ROOT; };
 		416EE8EE148E388300AE5F6B /* Icon@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "Icon@2x.png"; path = "images/Icon@2x.png"; sourceTree = SOURCE_ROOT; };
-		417E0E3F148A69290015B5B0 /* libz.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libz.dylib; path = usr/lib/libz.dylib; sourceTree = SDKROOT; };
 		417E0E9A148A70DE0015B5B0 /* brick0512_C.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = brick0512_C.png; path = ../_data/images/textures/brick0512_C.png; sourceTree = "<group>"; };
 		417E0E9B148A70DE0015B5B0 /* bricks1_0256_C.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; name = bricks1_0256_C.jpg; path = ../_data/images/textures/bricks1_0256_C.jpg; sourceTree = "<group>"; };
 		417E0E9C148A70DE0015B5B0 /* bricks1_0512_C.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; name = bricks1_0512_C.jpg; path = ../_data/images/textures/bricks1_0512_C.jpg; sourceTree = "<group>"; };
@@ -1059,6 +1058,8 @@
 		41C99E7B18D431B50045FD2D /* Icon_72.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = Icon_72.png; path = images/Icon_72.png; sourceTree = SOURCE_ROOT; };
 		41E45FFE176C8F6800AB4653 /* SLTimer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SLTimer.cpp; path = "../lib-SLProject/source/SL/SLTimer.cpp"; sourceTree = SOURCE_ROOT; };
 		41E45FFF176C8F6800AB4653 /* SLTimer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SLTimer.h; path = ../include/SLTimer.h; sourceTree = SOURCE_ROOT; };
+		41EBB5E01C44D96900C9BAA5 /* SLGLVertexArrayExt.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SLGLVertexArrayExt.h; path = ../include/SLGLVertexArrayExt.h; sourceTree = SOURCE_ROOT; };
+		41EBB5E21C44D99500C9BAA5 /* SLGLVertexArrayExt.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SLGLVertexArrayExt.cpp; path = "../lib-SLProject/source/SLGLVertexArrayExt.cpp"; sourceTree = SOURCE_ROOT; };
 		41EDCB571B67B47B00DDC945 /* SLCompactGrid.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SLCompactGrid.cpp; path = "../lib-SLProject/source/SLCompactGrid.cpp"; sourceTree = SOURCE_ROOT; };
 		41FC8AA41959BF9F004A9E57 /* clipper.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = clipper.cpp; path = "../lib-SLExternal/assimp/contrib/clipper/clipper.cpp"; sourceTree = SOURCE_ROOT; };
 		41FC8AA51959BF9F004A9E57 /* clipper.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = clipper.hpp; path = "../lib-SLExternal/assimp/contrib/clipper/clipper.hpp"; sourceTree = SOURCE_ROOT; };
@@ -1095,7 +1096,6 @@
 				419BCD4014865C0800D576F1 /* CoreGraphics.framework in Frameworks */,
 				419BCD4214865C0800D576F1 /* GLKit.framework in Frameworks */,
 				419BCD4414865C0800D576F1 /* OpenGLES.framework in Frameworks */,
-				417E0E40148A692A0015B5B0 /* libz.dylib in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1115,6 +1115,8 @@
 		414ABBEC148A629B0061231A /* GL */ = {
 			isa = PBXGroup;
 			children = (
+				41EBB5E21C44D99500C9BAA5 /* SLGLVertexArrayExt.cpp */,
+				41EBB5E01C44D96900C9BAA5 /* SLGLVertexArrayExt.h */,
 				4155FAF01C3EC3C30094BF61 /* SLGLVertexArray.cpp */,
 				4155FAEF1C3EC36E0094BF61 /* SLGLVertexArray.h */,
 				41A032D319F7C3BF00F9DB43 /* SLGLState.h */,
@@ -1857,7 +1859,6 @@
 				41901CF41959C478006795A8 /* iOS_Code */,
 				419BCD4514865C0800D576F1 /* SLProject */,
 				419BCD3A14865C0800D576F1 /* Frameworks */,
-				417E0E3F148A69290015B5B0 /* libz.dylib */,
 				419BCD3814865C0800D576F1 /* Products */,
 				417E0E43148A6EA40015B5B0 /* Shaders */,
 				417E0E99148A6F910015B5B0 /* Textures */,
@@ -2163,6 +2164,7 @@
 				418E0C1E148927F200C6274F /* SLScene_onLoad.cpp in Sources */,
 				4124EC111959C137003AA059 /* shapes.cc in Sources */,
 				419808A71959BA670048085E /* RemoveVCProcess.cpp in Sources */,
+				41EBB5E31C44D99500C9BAA5 /* SLGLVertexArrayExt.cpp in Sources */,
 				419808B41959BA670048085E /* XFileImporter.cpp in Sources */,
 				418E0C3F148929C800C6274F /* SLBox.cpp in Sources */,
 				419808EA1959BA670048085E /* SkeletonMeshBuilder.cpp in Sources */,

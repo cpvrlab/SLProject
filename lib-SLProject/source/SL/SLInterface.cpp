@@ -72,7 +72,8 @@ void slCreateScene(SLstring shaderPath,
     SL_LOG("OpenGL Version  : %s\n", stateGL->glVersion().c_str());
     SL_LOG("Vendor          : %s\n", stateGL->glVendor().c_str());
     SL_LOG("Renderer        : %s\n", stateGL->glRenderer().c_str());
-    SL_LOG("GLSL Version    : %s\n", stateGL->glSLVersion().c_str());
+    SL_LOG("GLSL Version    : %s (%s) \n", stateGL->glSLVersion().c_str(),
+                                           stateGL->getSLVersionNO().c_str());
 
     SLScene::current = new SLScene("");
 }

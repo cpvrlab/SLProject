@@ -52,11 +52,7 @@ void SLGLShader::load(SLstring filename)
     buffer << shaderFile.rdbuf(); 
 
     // remove comments because some stupid ARM compiler can't handle GLSL comments
-    #ifdef SL_OS_MACIOS
-    _code = buffer.str();
-    #else
     _code = removeComments(buffer.str());
-    #endif
 }
 //-----------------------------------------------------------------------------
 //! SLGLShader::load loads a shader file from memory into memory 
@@ -96,9 +92,13 @@ SLbool SLGLShader::createAndCompile()
             default:
                 SL_EXIT_MSG("SLGLShader::load: Unknown shader type.");
         }
-
-        SLstring verGLSL = SLGLState::getInstance()->glSLVersionNO();
-        SLstring srcVersion = "#version " + verGLSL + "\n";
+        
+        // Build version string as the first statement
+        SLGLState* state = SLGLState::getInstance();
+        SLstring verGLSL = state->glSLVersionNO();
+        SLstring srcVersion = "#version " + verGLSL;
+        if (state->glIsES3()) srcVersion += " es";
+        srcVersion += "\n";
 
         // Replace "attribute" and "varying" that came in GLSL 310
         if (verGLSL > "120")
@@ -131,15 +131,15 @@ SLbool SLGLShader::createAndCompile()
         
         SLstring scrComplete = srcVersion + _code;
         
-        // write out the parsed shader code as text files
-        #ifdef _GLDEBUG
-        ofstream fs(name()+".Debug"); 
-        if(fs)
-        {
-            fs << scrComplete;
-            fs.close();
-        }
-        #endif
+        //// write out the parsed shader code as text files
+        //#ifdef _GLDEBUG
+        //ofstream fs(name()+".Debug");
+        //if(fs)
+        //{
+        //    fs << scrComplete;
+        //    fs.close();
+        //}
+        //#endif
 
         const char* src = scrComplete.c_str();
         glShaderSource(_objectGL, 1, &src, 0);
@@ -153,7 +153,8 @@ SLbool SLGLShader::createAndCompile()
             glGetShaderInfoLog(_objectGL, sizeof(log), 0, &log[0]);
             SL_LOG("*** COMPILER ERROR ***\n");
             SL_LOG("Source file: %s\n", _file.c_str());
-            SL_LOG("%s\n\n", log);
+            SL_LOG("%s\n---\n", log);
+            SL_LOG("%s\n", src);
             return false;
         }
         return true;

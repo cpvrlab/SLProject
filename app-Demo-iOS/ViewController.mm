@@ -81,8 +81,13 @@ float GetSeconds()
 {
     [super viewDidLoad];
    
-    self.context = [[[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES2] autorelease];
-    if (!self.context) NSLog(@"Failed to create ES context");
+    self.context = [[[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES3] autorelease];
+    if (!self.context)
+    {   NSLog(@"Failed to create ES3 context");
+        self.context = [[[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES2] autorelease];
+        if (!self.context) NSLog(@"Failed to create ES2 context");
+    }
+    
     myView = (GLKView *)self.view;
     myView.context = self.context;
     myView.drawableDepthFormat = GLKViewDrawableDepthFormat24;
@@ -125,7 +130,7 @@ float GetSeconds()
     svIndex = slCreateSceneView(self.view.bounds.size.width * screenScale,
                                 self.view.bounds.size.height * screenScale,
                                 dpi,
-                                cmdSceneMinimal,
+                                cmdSceneMeshLoad,
                                 cmdLineArgs,
                                 (void*)&onPaintRTGL,
                                 0,

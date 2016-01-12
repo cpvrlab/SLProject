@@ -18,7 +18,7 @@
 //! SL::log
 void SL::log(const char* format, ...)
 {
-    char log[1024];
+    char log[4096];
     va_list argptr;
     va_start(argptr, format);
     vsprintf(log, format, argptr);

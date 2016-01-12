@@ -160,14 +160,33 @@ class SLUtils
         }
 
         //! Replaces in the subject string the search string by the replace string
-        static void replaceString(SLstring& subject, 
-                                  const SLstring& search,
-                                  const SLstring& replace)
-        {   size_t pos = 0;
-            while ((pos = subject.find(search, pos)) != std::string::npos) 
-            {   subject.replace(pos, search.length(), replace);
-                pos += replace.length();
+        static void replaceString(string& source,
+                                  const string& from,
+                                  const string& to)
+        {
+            //size_t pos = 0;
+            //while ((pos = source(from, pos)) != std::string::npos)
+            //{   source(pos, from.length(), replace);
+            //    pos += to.length();
+            //}
+            
+            //http://stackoverflow.com/questions/2896600/how-to-replace-all-occurrences-of-a-character-in-string
+            string newString;
+            newString.reserve(source.length() );  // avoids a few memory allocations
+
+            string::size_type lastPos = 0;
+            string::size_type findPos;
+
+            while( string::npos != ( findPos = source.find( from, lastPos )))
+            {
+                newString.append( source, lastPos, findPos - lastPos );
+                newString += to;
+                lastPos = findPos + from.length();
             }
+
+            // Care for the rest after last occurrence
+            newString += source.substr( lastPos );
+            source.swap( newString );
         }
 };
 //-----------------------------------------------------------------------------
