@@ -169,8 +169,8 @@ class SLMesh : public SLObject
 
             SLVec3f*        P;              //!< Array of vertex positions
             SLVec3f*        N;              //!< Array of vertex normals (opt.)
-            SLCol4f*        C;              //!< Array of vertex colors (opt.)
             SLVec2f*        Tc;             //!< Array of vertex tex. coords. (opt.)
+            SLCol4f*        C;              //!< Array of vertex colors (opt.)
             SLVec4f*        T;              //!< Array of vertex tangents (opt.)
             SLVec4f*        Ji;             //!< Array of per vertex joint ids (opt.)
             SLVec4f*        Jw;             //!< Array of per vertex joint weights (opt.)

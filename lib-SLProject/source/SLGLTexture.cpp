@@ -269,7 +269,8 @@ void SLGLTexture::build(SLint texID)
     // check 3D size
     if (_target == GL_TEXTURE_3D)
     {   SLint texMax3DSize=0;
-      glGetIntegerv(GL_MAX_3D_TEXTURE_SIZE, &texMax3DSize);for (auto img : _images)
+        glGetIntegerv(GL_MAX_3D_TEXTURE_SIZE, &texMax3DSize);
+        for (auto img : _images)
         {   if (img->width()  > (SLuint)texMax3DSize)
                 SL_EXIT_MSG("SLGLTexture::build: 3D Texture width is too big.");
             if (img->height() > (SLuint)texMax3DSize)
@@ -352,7 +353,7 @@ void SLGLTexture::build(SLint texID)
                 build2DMipmaps(GL_TEXTURE_2D, 0);
 
             // Mipmaps use 1/3 more memory on GPU
-            _bytesOnGPU *= 1.333333333f;
+            _bytesOnGPU = (SLuint)((SLfloat)_bytesOnGPU * 1.333333333f);
         }
 
         numBytesInTextures += _bytesOnGPU;
@@ -378,7 +379,12 @@ void SLGLTexture::build(SLint texID)
 
         numBytesInTextures += _bytesOnGPU;
         if (_min_filter>=GL_NEAREST_MIPMAP_NEAREST)
-            glGenerateMipmap(GL_TEXTURE_2D);  
+        {
+            glGenerateMipmap(GL_TEXTURE_2D);
+
+            // Mipmaps use 1/3 more memory on GPU
+            _bytesOnGPU = (SLuint)((SLfloat)_bytesOnGPU * 1.333333333f);
+        }
     }
     #ifndef SL_GLES2
     else if (_target == GL_TEXTURE_3D)

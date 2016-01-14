@@ -248,7 +248,7 @@ void SLMesh::draw(SLSceneView* sv, SLNode* node)
             // @todo    Secondly: It is a bad idea to keep the joint data in the mesh itself, this prevents us
             //          from instantiating a single mesh with multiple animations. Needs to be addressed ASAP. (see also SLMesh class problems in SLMesh.h at the top)
             //          In short, the solution would be an entity class which is an instance of a mesh (same mesh data) which can be animated. the original buffers
-            //          would be in the original mesh and the cpu skinned buffers in the entity. or if gpu skinned it would just be the jointmatrices array that's in the entity.
+            //          would be in the original mesh and the CPU skinned buffers in the entity. or if GPU skinned it would just be the jointmatrices array that's in the entity.
             SLint locBM = sp->getUniformLocation("u_jointMatrices");
             sp->uniformMatrix4fv(locBM, _skeleton->numJoints(), (SLfloat*)_jointMatrices, false);
         }
@@ -267,16 +267,17 @@ void SLMesh::draw(SLSceneView* sv, SLNode* node)
             if (Jw)  _vao.setAttrib(SL_JOINTWEIGHT, 4, sp->getAttribLocation("a_jointWeights"), Jw);
             if (I16) _vao.setIndices(numI, SL_UNSIGNED_SHORT, I16);
             if (I32) _vao.setIndices(numI, SL_UNSIGNED_INT, I32);
-            _vao.generate(numV, (Ji&&Jw) ? SL_STREAM_DRAW : SL_STATIC_DRAW, !(Ji&&Jw)); 
+            _vao.generate(numV, (Ji&&Jw) ? SL_STREAM_DRAW : SL_STATIC_DRAW, !(Ji&&Jw));
         }
 
         ///////////////////////////////
         // 4): Finally do the draw call
         ///////////////////////////////
 
+        if (Ji)
+            cout << ".";
+
         _vao.drawElementsAs(primitiveType);
-
-
         //////////////////////////////////////
         // 5) Draw optional normals & tangents
         //////////////////////////////////////
@@ -1098,10 +1099,11 @@ void SLMesh::transformSkin()
     }  
 
     // update or create buffers
-    if (_vao.id()) 
-    {   _vao.updateAttrib(SL_POSITION, 3, finalP());
+    if (_vao.id())
+    {
+        _vao.updateAttrib(SL_POSITION, 3, finalP());
         if (N) _vao.updateAttrib(SL_NORMAL, 3, finalN());
-    }    
+    }
     
 }
 

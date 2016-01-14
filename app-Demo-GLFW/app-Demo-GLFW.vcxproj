@@ -137,7 +137,7 @@
     <ClCompile>
       <Optimization>Disabled</Optimization>
       <AdditionalIncludeDirectories>$(ProjectDir);..\include;..\lib-SLExternal;..\lib-SLExternal\jpeg-8;..\lib-SLExternal\png;..\lib-SLExternal\zlib;..\lib-SLExternal\glew\include;..\lib-SLExternal\glfw3\include;..\lib-SLExternal\randomc;..\lib-SLExternal\Shoemake;..\lib-SLExternal\oculus\LibOVR\Include\;..\lib-SLExternal\nvwa;..\lib-SLExternal\assimp\include;..\lib-SLExternal\assimp\code;..\lib-SLExternal\dirent;..\lib-SLExternal\opencv\include</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>SL_STARTSCENE#cmdSceneMeshLoad;HAS_OPENCV;SL_GUI_GLFW;GLEW_STATIC;_DEBUG;UNICODE;_WINDOWS</PreprocessorDefinitions>
+      <PreprocessorDefinitions>SL_STARTSCENE#cmdSceneSkeletalAnimation;HAS_OPENCV;SL_GUI_GLFW;GLEW_STATIC;_DEBUG;UNICODE;_WINDOWS</PreprocessorDefinitions>
       <TreatWChar_tAsBuiltInType>false</TreatWChar_tAsBuiltInType>
       <OpenMPSupport>false</OpenMPSupport>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>

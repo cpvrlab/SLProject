@@ -294,7 +294,7 @@ void SLGLVertexArray::generate(SLuint numVertices,
             }
         }
 
-        // generate the interleaved vbo buffer on the GPU
+        // generate the interleaved VBO buffer on the GPU
         glBufferData(GL_ARRAY_BUFFER, _vboSize, _attribs[0].dataPointer, _usage);
     }
     else  // input is in separate attribute data block
@@ -330,19 +330,19 @@ void SLGLVertexArray::generate(SLuint numVertices,
                 }
             }
 
-            // generate the interleaved vbo buffer on the GPU
+            // generate the interleaved VBO buffer on the GPU
             glBufferData(GL_ARRAY_BUFFER, _vboSize, data, _usage);
             delete[] data;
         } 
         else // copy attributes buffers sequentially
         {   
-            // allocate the vbo buffer on the GPU
+            // allocate the VBO buffer on the GPU
             glBufferData(GL_ARRAY_BUFFER, _vboSize, NULL, _usage);
         
             for (auto a : _attribs)
             {   if (a.location > -1)
                 {
-                    // Copies the attributes data at the right offset into the vbo
+                    // Copies the attributes data at the right offset into the VBO
                     glBufferSubData(GL_ARRAY_BUFFER,
                                     a.offsetBytes,
                                     a.bufferSizeBytes,
