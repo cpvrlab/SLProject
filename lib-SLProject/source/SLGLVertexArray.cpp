@@ -151,7 +151,7 @@ void SLGLVertexArray::updateAttrib(SLVertexAttribType type,
     
     #ifndef SL_GLES2
     if (_glHasVAO)
-    {   if (_glHasVAO)
+    {   if (!_idVAO)
             glGenVertexArrays(1, &_idVAO);
         glBindVertexArray(_idVAO);
     }

@@ -1611,11 +1611,11 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
         SLNode* scene = new SLNode("scene group");
         scene->addChild(cam1);
         scene->addChild(light1);
-        //scene->addChild(character);
+        scene->addChild(character);
         scene->addChild(box1);
-        //scene->addChild(box2);
-        //scene->addChild(box3);
-        //scene->addChild(new SLNode(grid, "grid"));
+        scene->addChild(box2);
+        scene->addChild(box3);
+        scene->addChild(new SLNode(grid, "grid"));
 
         // Set background color, active camera & the root pointer
         _background.colors(SLCol4f(0.1f,0.4f,0.8f));

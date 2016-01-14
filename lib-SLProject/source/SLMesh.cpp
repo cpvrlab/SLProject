@@ -274,10 +274,9 @@ void SLMesh::draw(SLSceneView* sv, SLNode* node)
         // 4): Finally do the draw call
         ///////////////////////////////
 
-        if (Ji)
-            cout << ".";
-
         _vao.drawElementsAs(primitiveType);
+
+
         //////////////////////////////////////
         // 5) Draw optional normals & tangents
         //////////////////////////////////////
