@@ -21,6 +21,8 @@
 SLstring SLGLTexture::defaultPath = "../_data/images/textures/";
 //! maxAnisotropy=-1 show that GL_EXT_texture_filter_anisotropic is not checked
 SLfloat SLGLTexture::maxAnisotropy = -1.0f;
+//! NO. of texture byte allocated on GPU
+SLuint SLGLTexture::numBytesInTextures = 0;
 //-----------------------------------------------------------------------------
 //! default ctor for fonts
 SLGLTexture::SLGLTexture()
@@ -36,6 +38,7 @@ SLGLTexture::SLGLTexture()
     _bumpScale    = 1.0f;
     _resizeToPow2 = false;
     _autoCalcTM3D = false;
+    _bytesOnGPU   = 0;
 }
 //-----------------------------------------------------------------------------
 //! ctor 2D textures with internal image allocation
@@ -62,6 +65,7 @@ SLGLTexture::SLGLTexture(SLstring  filename,
     _resizeToPow2 = false;
     _autoCalcTM3D = false;
     _needsUpdate  = false;
+    _bytesOnGPU   = 0;
    
     // Add pointer to the global resource vectors for deallocation
     SLScene::current->textures().push_back(this);
@@ -93,6 +97,7 @@ SLGLTexture::SLGLTexture(SLVstring files,
     _resizeToPow2 = false;
     _autoCalcTM3D = true;
     _needsUpdate  = false;
+    _bytesOnGPU   = 0;
 
     // Add pointer to the global resource vectors for deallocation
     SLScene::current->textures().push_back(this);
@@ -129,6 +134,7 @@ SLGLTexture::SLGLTexture(SLstring  filenameXPos,
     _resizeToPow2 = false;
     _autoCalcTM3D = false;
     _needsUpdate  = false;
+    _bytesOnGPU   = 0;
 
     SLScene::current->textures().push_back(this);
 }
@@ -142,6 +148,8 @@ SLGLTexture::~SLGLTexture()
 void SLGLTexture::clearData()
 {
     glDeleteTextures(1, &_texName);
+
+    numBytesInTextures -= _bytesOnGPU;
 
     for (SLint i=0; i<_images.size(); ++i)
     {   delete _images[i];
@@ -331,6 +339,9 @@ void SLGLTexture::build(SLint texID)
                      GL_UNSIGNED_BYTE, 
                      (GLvoid*)_images[0]->data());
         //////////////////////////////////////////
+
+        _bytesOnGPU += _images[0]->bytesPerImage();
+        numBytesInTextures += _bytesOnGPU;
         
         if (_min_filter>=GL_NEAREST_MIPMAP_NEAREST)
         {   if (_stateGL->glIsES2() || 
@@ -355,8 +366,12 @@ void SLGLTexture::build(SLint texID)
                          _images[i]->format(),
                          GL_UNSIGNED_BYTE,
                          (GLvoid*)_images[i]->data());
-            //////////////////////////////////////////////  
-        } 
+            //////////////////////////////////////////////
+
+            _bytesOnGPU += _images[0]->bytesPerImage();
+        }
+
+        numBytesInTextures += _bytesOnGPU;
         if (_min_filter>=GL_NEAREST_MIPMAP_NEAREST)
             glGenerateMipmap(GL_TEXTURE_2D);  
     }
@@ -371,6 +386,7 @@ void SLGLTexture::build(SLint texID)
         for (SLImage* img : _images)
         {   memcpy(imageData, img->data(), img->bytesPerImage());
             imageData += img->bytesPerImage();
+            _bytesOnGPU += _images[0]->bytesPerImage();
         }
         
         /////////////////////////////////////////////////////
@@ -385,6 +401,8 @@ void SLGLTexture::build(SLint texID)
                      GL_UNSIGNED_BYTE,      //Data type
                      &buffer[0]);
         /////////////////////////////////////////////////////
+        
+        numBytesInTextures += _bytesOnGPU;
     }
     #endif
 
@@ -429,6 +447,8 @@ void SLGLTexture::fullUpdate()
         _target == GL_TEXTURE_2D)
     {   if (_min_filter==GL_NEAREST || _min_filter==GL_LINEAR)
         {   
+            numBytesInTextures -= _bytesOnGPU;
+
             /////////////////////////////////////////////
             glTexSubImage2D(_target, 0, 0, 0,
                             _images[0]->width(),
@@ -437,6 +457,9 @@ void SLGLTexture::fullUpdate()
                             GL_UNSIGNED_BYTE, 
                             (GLvoid*)_images[0]->data());
             /////////////////////////////////////////////
+            
+            _bytesOnGPU = _images[0]->bytesPerImage();
+            numBytesInTextures += _bytesOnGPU;
         } 
     }
     GET_GL_ERROR;

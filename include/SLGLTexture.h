@@ -124,28 +124,30 @@ class SLGLTexture : public SLObject
             SLVec2f     dsdt            (SLfloat s, SLfloat t); //! Returns the derivation as [s,t]
   
     // Statics
-    static  SLstring    defaultPath;    //!< Default path for textures
-    static  SLfloat     maxAnisotropy;  //!< max. anisotropy available
+    static  SLstring    defaultPath;        //!< Default path for textures
+    static  SLfloat     maxAnisotropy;      //!< max. anisotropy available
+    static  SLuint      numBytesInTextures; //!< NO. of texture bytes on GPU
 
     protected:
             // loading the image files
             void        load            (SLstring filename);
                                
-            SLGLState*      _stateGL;       //!< Pointer to global SLGLState instance
-            SLVImage        _images;        //!< vector of SLImage pointers
-            SLuint          _texName;       //!< OpenGL texture "name" (= ID)
-            SLTexType       _texType;       //!< [unknown, ColorMap, NormalMap, HeightMap, GlossMap]
-            SLint           _min_filter;    //!< Minification filter
-            SLint           _mag_filter;    //!< Magnification filter
-            SLint           _wrap_s;        //!< Wrapping in s direction
-            SLint           _wrap_t;        //!< Wrapping in t direction
-            SLenum          _target;        //!< texture target
-            SLMat4f         _tm;            //!< texture matrix
-            SLbool          _autoCalcTM3D;  //!< flag if texture matrix should be calculated from AABB for 3D mapping
-            SLfloat         _bumpScale;     //!< Bump mapping scale factor
-            SLbool          _resizeToPow2;  //!< Flag if image should be resized to n^2
-            SLGLVertexArray _vaoSprite;     //!< Vertex array object for sprite rendering
-            atomic<bool>    _needsUpdate;   //!< Flag if image needs an update
+            SLGLState*      _stateGL;        //!< Pointer to global SLGLState instance
+            SLVImage        _images;         //!< vector of SLImage pointers
+            SLuint          _texName;        //!< OpenGL texture "name" (= ID)
+            SLTexType       _texType;        //!< [unknown, ColorMap, NormalMap, HeightMap, GlossMap]
+            SLint           _min_filter;     //!< Minification filter
+            SLint           _mag_filter;     //!< Magnification filter
+            SLint           _wrap_s;         //!< Wrapping in s direction
+            SLint           _wrap_t;         //!< Wrapping in t direction
+            SLenum          _target;         //!< texture target
+            SLMat4f         _tm;             //!< texture matrix
+            SLuint          _bytesOnGPU;     //!< NO. of bytes on GPU
+            SLbool          _autoCalcTM3D;   //!< flag if texture matrix should be calculated from AABB for 3D mapping
+            SLfloat         _bumpScale;      //!< Bump mapping scale factor
+            SLbool          _resizeToPow2;   //!< Flag if image should be resized to n^2
+            SLGLVertexArray _vaoSprite;      //!< Vertex array object for sprite rendering
+            atomic<bool>    _needsUpdate;    //!< Flag if image needs an update
 };
 //-----------------------------------------------------------------------------
 //! STL vector of SLGLTexture pointers
