@@ -219,10 +219,6 @@ class SLSceneView: public SLObject
             SLbool          _showInfo;          //!< Flag if help should be displayed
             SLbool          _showLoading;       //!< Flag if loading should be displayed
 
-            SLuint          _totalBufferCount;  //!< Total NO. of VBOs in last frame
-            SLuint          _totalBufferSize;   //!< Total size of buffer memory in last frame
-            SLuint          _totalDrawCalls;    //!< Total NO. of drawCalls in last frame
-
             SLfloat         _cullTimeMS;        //!< time for culling in ms
             SLfloat         _draw3DTimeMS;      //!< time for 3D drawing in ms
             SLfloat         _draw2DTimeMS;      //!< time for 2D drawing in ms

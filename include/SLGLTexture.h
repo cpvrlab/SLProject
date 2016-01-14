@@ -35,7 +35,7 @@
 //! Texture type enumeration & their filename appendix for auto type detection
 enum SLTexType 
 {
-    UnknownMap  // will be handeled as color maps
+    UnknownMap  // will be handled as color maps
     ,ColorMap    //*_C.{ext}
     ,NormalMap   //*_N.{ext}
     ,HeightMap   //*_H.{ext}
@@ -56,7 +56,7 @@ for ray tracing.
 class SLGLTexture : public SLObject
 {
     public:        
-                        //! Default contructor for fonts
+                        //! Default constructor for fonts
                         SLGLTexture     ();
                      
                         //! ctor for 2D textures with internal image allocation
@@ -96,6 +96,7 @@ class SLGLTexture : public SLObject
             void        bumpScale       (SLfloat bs)    {_bumpScale = bs;}
       
             // Getters
+            SLVImage&   images          (){return _images;}
             SLenum      target          (){return _target;}
             SLTexType   texType         (){return _texType;}
             SLfloat     bumpScale       (){return _bumpScale;}

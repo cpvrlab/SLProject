@@ -68,6 +68,8 @@ class SLScene: public SLObject
             SLfloat         elapsedTimeSec  () {return _elapsedTimeMS * 0.001f;}
             SLButton*       menu2D          () {return _menu2D;}
             SLButton*       menuGL          () {return _menuGL;}
+            SLButton*       menuRT          () {return _menuRT;}
+            SLButton*       menuPT          () {return _menuPT;}
             SLGLTexture*    texCursor       () {return _texCursor;}
             SLCol4f         globalAmbiLight () const {return _globalAmbiLight;}
             SLVLight&       lights          () {return _lights;}

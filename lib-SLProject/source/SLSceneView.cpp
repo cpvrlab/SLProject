@@ -321,9 +321,13 @@ void SLSceneView::onInitialize()
       
         SL_LOG("Time for AABBs : %5.3f sec.\n", 
                 (SLfloat)(clock()-t)/(SLfloat)CLOCKS_PER_SEC);
-
+        
+        // Collect node statistics
         _stats.clear();
         s->root3D()->statsRec(_stats);
+        if (s->menuGL()) s->menuGL()->statsRec(_stats);
+        if (s->menuRT()) s->menuRT()->statsRec(_stats);
+        if (s->menuPT()) s->menuPT()->statsRec(_stats);
     }
 
     initSceneViewCamera();
@@ -401,11 +405,8 @@ SLbool SLSceneView::onPaint()
     if (_camera && _camera->projection() == stereoSideBySideD)
         s->oculus()->endFrame(_scrW, _scrH, _oculusFB.texID());
 
-    // Update statistic of VBO's & drawcalls
-    _totalBufferCount = SLGLVertexArray::totalBufferCount;
-    _totalBufferSize = SLGLVertexArray::totalBufferSize;
-    _totalDrawCalls = SLGLVertexArray::totalDrawCalls;
-    SLGLVertexArray::totalDrawCalls   = 0;
+    // Reset drawcalls
+    SLGLVertexArray::totalDrawCalls = 0;
 
     // Set gotPainted only to true if RT is not busy
     _gotPainted = _renderType==renderGL || raytracer()->state()!=rtBusy;
@@ -1854,7 +1855,13 @@ void SLSceneView::build2DInfoGL()
     SLfloat draw3DTimePC = s->_draw3DTimesMS.average() / s->_frameTimesMS.average()*100.0f;
     SLfloat draw2DTimePC = s->_draw2DTimesMS.average() / s->_frameTimesMS.average()*100.0f;
     SLfloat eyeSepPC = cam->eyeSeparation()/cam->focalDist()*100;
-   
+
+    // Calculate total size of texture bytes on CPU
+    SLuint cpuTexMemoryBytes = 0;
+    for (auto t : s->_textures)
+        for (auto i : t->images())
+            cpuTexMemoryBytes += i->bytesPerImage();
+
     SLchar m[2550];   // message character array
     m[0]=0;           // set zero length
     sprintf(m+strlen(m), "Scene: %s\\n", s->name().c_str());
@@ -1866,7 +1873,7 @@ void SLSceneView::build2DInfoGL()
     sprintf(m+strlen(m), "Draw Time 3D: %4.1f ms (%0.0f%%)\\n", s->_draw3DTimesMS.average(), draw3DTimePC);
     sprintf(m+strlen(m), "Draw Time 2D: %4.1f ms (%0.0f%%)\\n", s->_draw2DTimesMS.average(), draw2DTimePC);
     sprintf(m+strlen(m), "Shapes in Frustum: %d\\n", cam->numRendered());
-    sprintf(m+strlen(m), "NO. of drawcalls: %d\\n", _totalDrawCalls);
+    sprintf(m+strlen(m), "NO. of drawcalls: %d\\n", SLGLVertexArray::totalDrawCalls);
     sprintf(m+strlen(m), "--------------------------------------------\\n");
     sprintf(m+strlen(m), "OpenGL: %s (%s)\\n", _stateGL->glVersionNO().c_str(), _stateGL->glVersion().c_str());
     sprintf(m+strlen(m), "Vendor: %s\\n", _stateGL->glVendor().c_str());
@@ -1884,16 +1891,17 @@ void SLSceneView::build2DInfoGL()
     sprintf(m+strlen(m), "--------------------------------------------\\n");
     sprintf(m+strlen(m), "No. of Group/Leaf Nodes: %d / %d\\n", _stats.numGroupNodes,  _stats.numLeafNodes);
     sprintf(m+strlen(m), "Lights: %d\\n", _stats.numLights);
-    sprintf(m+strlen(m), "MB in Meshes: %4.2f\\n", (SLfloat)_stats.numBytes / 1000000.0f);
-    sprintf(m+strlen(m), "MB in Accel.: %4.2f\\n", (SLfloat)_stats.numBytesAccel / 1000000.0f);
-    sprintf(m+strlen(m), "No. of VBOs/MB: %u / %4.2f\\n", _totalBufferCount, (SLfloat)_totalBufferSize / 1000000.0f);
+    sprintf(m+strlen(m), "CPU MB in Tex.: %3.2f\\n", (SLfloat)cpuTexMemoryBytes / 1E6f);
+    sprintf(m+strlen(m), "CPU MB in Meshes: %3.2f\\n", (SLfloat)_stats.numBytes / 1E6f);
+    sprintf(m+strlen(m), "CPU MB in Voxel.: %3.2f\\n", (SLfloat)_stats.numBytesAccel / 1E6f);
+    sprintf(m+strlen(m), "CPU MB in Total: %3.2f\\n", (SLfloat)(cpuTexMemoryBytes + _stats.numBytes + _stats.numBytesAccel) / 1E6f);
+    sprintf(m+strlen(m), "GPU MB in VBO: %4.2f\\n", (SLfloat)SLGLVertexArray::totalBufferSize / 1E6f);
+    sprintf(m+strlen(m), "GPU MB in Tex.: %4.2f\\n", (SLfloat)SLGLTexture::numBytesInTextures / 1E6f);
+    sprintf(m+strlen(m), "GPU MB in Total: %3.2f\\n", (SLfloat)(SLGLVertexArray::totalBufferSize + SLGLTexture::numBytesInTextures) / 1E6f);
     sprintf(m+strlen(m), "No. of Voxels/empty: %d / %4.1f%%\\n", _stats.numVoxels, voxelsEmpty);
-    sprintf(m+strlen(m), "Avg. Tria/Voxel: %4.1f\\n", avgTriPerVox);
-    sprintf(m+strlen(m), "Max. Tria/Voxel: %d\\n", _stats.numVoxMaxTria);
-    sprintf(m+strlen(m), "Group Nodes: %u\\n", _stats.numGroupNodes);
-    sprintf(m+strlen(m), "Leaf Nodes: %u\\n", _stats.numLeafNodes);
-    sprintf(m+strlen(m), "Meshes: %u\\n", _stats.numMeshes);
-    sprintf(m+strlen(m), "Triangles: %u\\n", _stats.numTriangles);
+    sprintf(m+strlen(m), "Avg. & Max. Tria/Voxel: %4.1f / %d\\n", avgTriPerVox, _stats.numVoxMaxTria);
+    sprintf(m+strlen(m), "Group & Leaf Nodes: %u / %u\\n", _stats.numGroupNodes, _stats.numLeafNodes);
+    sprintf(m+strlen(m), "Meshes & Triangles: %u / %u\\n", _stats.numMeshes, _stats.numTriangles);
 
     SLTexFont* f = SLTexFont::getFont(1.2f, _dpi);
     SLText* t = new SLText(m, f, SLCol4f::WHITE, (SLfloat)_scrW, 1.0f);
@@ -1922,8 +1930,14 @@ void SLSceneView::build2DInfoRT()
     SLfloat numRTTria = (SLfloat)_stats.numTriangles;
     SLfloat avgTriPerVox = vox ? numRTTria / (vox-voxEmpty) : 0.0f;
     SLfloat rpms = rt->renderSec() ? total/rt->renderSec()/1000.0f : 0.0f;
+
+    // Calculate total size of texture bytes on CPU
+    SLuint cpuTexMemoryBytes = 0;
+    for (auto t : s->_textures)
+        for (auto i : t->images())
+            cpuTexMemoryBytes += i->bytesPerImage();
    
-    SLchar m[2550];   // message charcter array
+    SLchar m[2550];   // message character array
     m[0]=0;           // set zero length
     sprintf(m+strlen(m), "Scene: %s\\n", s->name().c_str());
     sprintf(m+strlen(m), "Time per frame: %4.2f sec.  (Size: %d x %d)\\n", rt->renderSec(), _scrW, _scrH);
@@ -1934,7 +1948,7 @@ void SLSceneView::build2DInfoRT()
     sprintf(m+strlen(m), "Max. allowed RT depth: %d\\n", SLRay::maxDepth);
     sprintf(m+strlen(m), "Max. reached RT depth: %d\\n", SLRay::maxDepthReached);
     sprintf(m+strlen(m), "Average RT depth: %4.2f\\n", SLRay::avgDepth/primaries);
-    sprintf(m+strlen(m), "AA threshhold: %2.1f\\n", rt->aaThreshold());
+    sprintf(m+strlen(m), "AA threshold: %2.1f\\n", rt->aaThreshold());
     sprintf(m+strlen(m), "AA samples: %d x %d\\n", rt->aaSamples(), rt->aaSamples());
     sprintf(m+strlen(m), "AA pixels: %u, %3.1f%%\\n", SLRay::subsampledPixels, (SLfloat)SLRay::subsampledPixels/primaries*100.0f);
     sprintf(m+strlen(m), "Primary rays: %u, %3.1f%%\\n", primaries, (SLfloat)primaries/total*100.0f);
@@ -1954,13 +1968,15 @@ void SLSceneView::build2DInfoRT()
     sprintf(m+strlen(m), "Group Nodes: %d\\n", _stats.numGroupNodes);
     sprintf(m+strlen(m), "Leaf Nodes: %d\\n", _stats.numLeafNodes);
     sprintf(m+strlen(m), "Lights: %d\\n", _stats.numLights);
-    sprintf(m+strlen(m), "MB in Meshes: %f\\n", (SLfloat)_stats.numBytes / 1000000.0f);
-    sprintf(m+strlen(m), "MB in Accel.: %f\\n", (SLfloat)_stats.numBytesAccel / 1000000.0f);
+    sprintf(m+strlen(m), "CPU MB in Textures: %f\\n", (SLfloat)cpuTexMemoryBytes / 1000000.0f);
+    sprintf(m+strlen(m), "CPU MB in Meshes: %f\\n", (SLfloat)_stats.numBytes / 1000000.0f);
+    sprintf(m+strlen(m), "CPU MB in Voxel.: %f\\n", (SLfloat)_stats.numBytesAccel / 1000000.0f);
+    sprintf(m+strlen(m), "CPU MB in Total: %f\\n", (SLfloat)(cpuTexMemoryBytes + _stats.numBytes + _stats.numBytesAccel) / 1000000.0f);
     sprintf(m+strlen(m), "Triangles: %d\\n", _stats.numTriangles);
     sprintf(m+strlen(m), "Voxels: %d\\n", _stats.numVoxels);
     sprintf(m+strlen(m), "Voxels empty: %4.1f%%\\n", voxelsEmpty);
-    sprintf(m+strlen(m), "Avg. Tria/Voxel: %4.1f\\n", avgTriPerVox);
-    sprintf(m+strlen(m), "Max. Tria/Voxel: %d", _stats.numVoxMaxTria);
+    sprintf(m+strlen(m), "Avg. Tria./Voxel: %4.1f\\n", avgTriPerVox);
+    sprintf(m+strlen(m), "Max. Tria./Voxel: %d", _stats.numVoxMaxTria);
    
     SLTexFont* f = SLTexFont::getFont(1.2f, _dpi);
     SLText* t = new SLText(m, f, SLCol4f::WHITE, (SLfloat)_scrW, 1.0f);

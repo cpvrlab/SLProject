@@ -25,6 +25,18 @@
     <Filter Include="dirent">
       <UniqueIdentifier>{797df031-6106-4be7-be2f-af2a7a4b43ae}</UniqueIdentifier>
     </Filter>
+    <Filter Include="ktx">
+      <UniqueIdentifier>{45f224d5-921a-45f8-935f-a398b97255ad}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ktx\Source Files">
+      <UniqueIdentifier>{0334416e-ef08-403f-97bc-d37909b600c8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ktx\Public Header Files">
+      <UniqueIdentifier>{83bfffdf-24b3-445d-ba7a-f782c3422b0a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ktx\Private Header Files">
+      <UniqueIdentifier>{963dd1ec-3298-479a-aa6b-461339cc879f}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="jpeg-8\jaricom.c">
@@ -333,6 +345,36 @@
     <ClCompile Include="dirent\dirent.c">
       <Filter>dirent</Filter>
     </ClCompile>
+    <ClCompile Include="ktx\lib\checkheader.c">
+      <Filter>ktx\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ktx\lib\errstr.c">
+      <Filter>ktx\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ktx\lib\etcdec.cxx">
+      <Filter>ktx\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ktx\lib\etcunpack.cxx">
+      <Filter>ktx\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ktx\lib\hashtable.c">
+      <Filter>ktx\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ktx\lib\ktxfilestream.c">
+      <Filter>ktx\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ktx\lib\ktxmemstream.c">
+      <Filter>ktx\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ktx\lib\loader.c">
+      <Filter>ktx\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ktx\lib\swap.c">
+      <Filter>ktx\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ktx\lib\writer.c">
+      <Filter>ktx\Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="randomc\random.h">
@@ -427,6 +469,33 @@
     </ClInclude>
     <ClInclude Include="dirent\dirent.h">
       <Filter>dirent</Filter>
+    </ClInclude>
+    <ClInclude Include="ktx\include\ktx.h">
+      <Filter>ktx\Public Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ktx\lib\gl_funcptrs.h">
+      <Filter>ktx\Private Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ktx\lib\gles1_funcptrs.h">
+      <Filter>ktx\Private Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ktx\lib\gles2_funcptrs.h">
+      <Filter>ktx\Private Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ktx\lib\ktxfilestream.h">
+      <Filter>ktx\Private Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ktx\lib\ktxint.h">
+      <Filter>ktx\Private Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ktx\lib\ktxmemstream.h">
+      <Filter>ktx\Private Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ktx\lib\ktxstream.h">
+      <Filter>ktx\Private Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ktx\lib\uthash.h">
+      <Filter>ktx\Private Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

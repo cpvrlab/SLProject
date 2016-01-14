@@ -427,6 +427,9 @@ void SLNode::statsRec(SLNodeStats &stats)
     if (_children.size() == 0)
          stats.numLeafNodes++;
     else stats.numGroupNodes++;
+
+    if (typeid(*this)==typeid(SLLightSphere)) stats.numLights++;
+    if (typeid(*this)==typeid(SLLightRect  )) stats.numLights++;
      
     for (auto mesh : _meshes) mesh->addStats(stats);
     for (auto child : _children) child->statsRec(stats);

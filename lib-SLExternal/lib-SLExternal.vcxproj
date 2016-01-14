@@ -134,8 +134,8 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>glfw3/include;zlib;png;$(ProjectDir);glew/include;dirent;randomc;Shoemake;oculus\LibOVR\Include;oculus\3rdParty\glext;assimp\code\BoostWorkaround;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>_GLFW_USE_OPENGL;_GLFW_WIN32;_GLFW_WGL;GLEW_STATIC;_DEBUG;_LIB;_CRT_SECURE_NO_WARNINGS;ASSIMP_BUILD_BOOST_WORKAROUND;ASSIMP_BUILD_NO_OWN_ZLIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>glfw3/include;zlib;png;$(ProjectDir);glew/include;dirent;randomc;Shoemake;oculus\LibOVR\Include;oculus\3rdParty\glext;assimp\code\BoostWorkaround;ktx/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>KTX_OPENGL;_GLFW_USE_OPENGL;_GLFW_WIN32;_GLFW_WGL;GLEW_STATIC;_DEBUG;_LIB;_CRT_SECURE_NO_WARNINGS;ASSIMP_BUILD_BOOST_WORKAROUND;ASSIMP_BUILD_NO_OWN_ZLIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MinimalRebuild>false</MinimalRebuild>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
@@ -206,8 +206,8 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
-      <AdditionalIncludeDirectories>glfw3/include;zlib;png;$(ProjectDir);glew/include;dirent;randomc;Shoemake;oculus\LibOVR\Include;oculus\3rdParty\glext;assimp\code\BoostWorkaround;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>_GLFW_USE_OPENGL;_GLFW_WIN32;_GLFW_WGL;GLEW_STATIC;NDEBUG;_LIB;_CRT_SECURE_NO_WARNINGS;ASSIMP_BUILD_BOOST_WORKAROUND;ASSIMP_BUILD_NO_OWN_ZLIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>glfw3/include;zlib;png;$(ProjectDir);glew/include;dirent;randomc;Shoemake;oculus\LibOVR\Include;oculus\3rdParty\glext;assimp\code\BoostWorkaround;ktx/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>KTX_OPENGL;_GLFW_USE_OPENGL;_GLFW_WIN32;_GLFW_WGL;GLEW_STATIC;NDEBUG;_LIB;_CRT_SECURE_NO_WARNINGS;ASSIMP_BUILD_BOOST_WORKAROUND;ASSIMP_BUILD_NO_OWN_ZLIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <BufferSecurityCheck>false</BufferSecurityCheck>
       <PrecompiledHeader>
@@ -308,6 +308,16 @@
     <ClCompile Include="jpeg-8\jquant1.c" />
     <ClCompile Include="jpeg-8\jquant2.c" />
     <ClCompile Include="jpeg-8\jutils.c" />
+    <ClCompile Include="ktx\lib\checkheader.c" />
+    <ClCompile Include="ktx\lib\errstr.c" />
+    <ClCompile Include="ktx\lib\etcdec.cxx" />
+    <ClCompile Include="ktx\lib\etcunpack.cxx" />
+    <ClCompile Include="ktx\lib\hashtable.c" />
+    <ClCompile Include="ktx\lib\ktxfilestream.c" />
+    <ClCompile Include="ktx\lib\ktxmemstream.c" />
+    <ClCompile Include="ktx\lib\loader.c" />
+    <ClCompile Include="ktx\lib\swap.c" />
+    <ClCompile Include="ktx\lib\writer.c" />
     <ClCompile Include="png\png.c" />
     <ClCompile Include="png\pngerror.c" />
     <ClCompile Include="png\pngget.c" />
@@ -363,6 +373,15 @@
     <ClInclude Include="glfw3\src\win32_platform.h" />
     <ClInclude Include="glfw3\src\win32_tls.h" />
     <ClInclude Include="glfw3\src\winmm_joystick.h" />
+    <ClInclude Include="ktx\include\ktx.h" />
+    <ClInclude Include="ktx\lib\gles1_funcptrs.h" />
+    <ClInclude Include="ktx\lib\gles2_funcptrs.h" />
+    <ClInclude Include="ktx\lib\gl_funcptrs.h" />
+    <ClInclude Include="ktx\lib\ktxfilestream.h" />
+    <ClInclude Include="ktx\lib\ktxint.h" />
+    <ClInclude Include="ktx\lib\ktxmemstream.h" />
+    <ClInclude Include="ktx\lib\ktxstream.h" />
+    <ClInclude Include="ktx\lib\uthash.h" />
     <ClInclude Include="randomc\random.h" />
     <ClInclude Include="randomc\randomc.h" />
     <ClInclude Include="Shoemake\Decompose.h" />

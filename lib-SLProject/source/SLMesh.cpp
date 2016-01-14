@@ -395,9 +395,11 @@ void SLMesh::addStats(SLNodeStats &stats)
     stats.numBytes += sizeof(SLMesh);               // myself
     if (P)  stats.numBytes += numV*sizeof(SLVec3f); // P
     if (N)  stats.numBytes += numV*sizeof(SLVec3f); // N
-    if (C)  stats.numBytes += numV*sizeof(SLCol4f); // C
-    if (T)  stats.numBytes += numV*sizeof(SLVec3f); // T
     if (Tc) stats.numBytes += numV*sizeof(SLVec2f); // Tc
+    if (C)  stats.numBytes += numV*sizeof(SLCol4f); // C
+    if (T)  stats.numBytes += numV*sizeof(SLVec4f); // T
+    if (Ji) stats.numBytes += numV*sizeof(SLVec4f); // Ji
+    if (Jw) stats.numBytes += numV*sizeof(SLVec4f); // Jw
 
     if (I16)
          stats.numBytes += numI*sizeof(SLushort);   // I16
@@ -406,8 +408,6 @@ void SLMesh::addStats(SLNodeStats &stats)
     stats.numMeshes++;
     if (_primitive==SL_TRIANGLES) stats.numTriangles += numI/3;
     if (_primitive==SL_LINES)     stats.numLines     += numI/2;
-    if (typeid(*this)==typeid(SLLightSphere)) stats.numLights++;
-    if (typeid(*this)==typeid(SLLightRect  )) stats.numLights++;
 
     if (_accelStruct) 
         _accelStruct->updateStats(stats);

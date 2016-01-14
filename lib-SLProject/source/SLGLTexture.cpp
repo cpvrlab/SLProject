@@ -158,6 +158,7 @@ void SLGLTexture::clearData()
     _images.clear();
 
     _texName = 0;
+    _bytesOnGPU = 0;
     _vaoSprite.clearAttribs();
 }
 //-----------------------------------------------------------------------------
@@ -189,7 +190,7 @@ void SLGLTexture::setVideoImage(SLstring videoImageFile)
 \brief SLGLTexture::copyVideoImage
 \param width Width in pixels of the image
 \param height Height in pixels of the image
-\param srcFormat Pixel format according to the OpenGL pixelformats
+\param srcFormat Pixel format according to the OpenGL pixel formats
 \param data Pointer to the first byte of the first pixel
 \param isTopLeft Flag if the data pointer points to the top left pixel
 \return Returns true if the texture was rebuilt
@@ -341,7 +342,6 @@ void SLGLTexture::build(SLint texID)
         //////////////////////////////////////////
 
         _bytesOnGPU += _images[0]->bytesPerImage();
-        numBytesInTextures += _bytesOnGPU;
         
         if (_min_filter>=GL_NEAREST_MIPMAP_NEAREST)
         {   if (_stateGL->glIsES2() || 
@@ -350,7 +350,12 @@ void SLGLTexture::build(SLint texID)
                 glGenerateMipmap(GL_TEXTURE_2D);
             else
                 build2DMipmaps(GL_TEXTURE_2D, 0);
+
+            // Mipmaps use 1/3 more memory on GPU
+            _bytesOnGPU *= 1.333333333f;
         }
+
+        numBytesInTextures += _bytesOnGPU;
     } 
     else if (_target == GL_TEXTURE_CUBE_MAP)
     {
