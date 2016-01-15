@@ -113,7 +113,7 @@ int slCreateSceneView(int screenWidth,
     SLuint index = newSVCallback();
     SLSceneView* sv = SLScene::current->sv(index);
 
-    sv->init("SceneView", 
+    sv->init("SceneView",
              screenWidth, 
              screenHeight, 
              dotsPerInch, 

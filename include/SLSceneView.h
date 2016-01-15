@@ -75,8 +75,8 @@ class SLSceneView: public SLObject
                                              void* onSelectNodeMeshCallback,
                                              void* onToggleSystemCursorCallback);
 
-		   // virtual hooks for subclasses of SLSceneView
-   virtual  void            onStartup       (SLVstring& cmdLineArgs) { }
+		      // virtual hooks for subclasses of SLSceneView
+   virtual  void            onStartup       (SLVstring& cmdLineArgs){ }
    virtual  void            preDraw         () { }
    virtual  void            postDraw        () { }
    virtual  void            postSceneLoad   () { }
