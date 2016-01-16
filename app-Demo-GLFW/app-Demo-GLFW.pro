@@ -18,7 +18,7 @@ CONFIG -= qt
 CONFIG += glfw
 CONFIG += warn_off
 
-DEFINES += "SL_STARTSCENE=cmdSceneRevolver"
+DEFINES += "SL_STARTSCENE=C_sceneRevolver"
 
 include(../SLProjectCommon.pro)
 

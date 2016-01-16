@@ -17,7 +17,7 @@ CONFIG += glfw
 CONFIG += warn_off
 CONFIG += app_bundle
 
-DEFINES += "SL_STARTSCENE=cmdSceneMeshLoad"
+DEFINES += "SL_STARTSCENE=C_sceneMeshLoad"
 
 include(../SLProjectCommon.pro)
 
