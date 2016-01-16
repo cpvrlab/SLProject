@@ -123,15 +123,15 @@ float GetSeconds()
     exeDir += "/";
     SLVstring cmdLineArgs;
     
-    slCreateScene(exeDir,
+    slCreateScene(cmdLineArgs,
+                  exeDir,
                   exeDir,
                   exeDir);
    
     svIndex = slCreateSceneView(self.view.bounds.size.width * screenScale,
                                 self.view.bounds.size.height * screenScale,
                                 dpi,
-                                cmdSceneMeshLoad,
-                                cmdLineArgs,
+                                C_sceneMeshLoad,
                                 (void*)&onPaintRTGL,
                                 0,
                                 0,
@@ -192,7 +192,7 @@ float GetSeconds()
    // end touch actions on sequential finger touch downs
    if (m_touchDowns > 0)
    {  if (m_touchDowns == 1)
-      slMouseUp(svIndex, ButtonLeft, pos1.x, pos1.y, KeyNone);
+      slMouseUp(svIndex, MB_left, pos1.x, pos1.y, K_none);
       if (m_touchDowns == 2)
       slTouch2Up(svIndex, 0, 0, 0, 0);
       // Reset touch counter if last touch event is older than a second.
@@ -207,9 +207,9 @@ float GetSeconds()
    
    if (m_touchDowns == 1 && [touches count] == 1)
    {  if (touchDownNowSec - m_lastTouchDownSec < 0.3f)
-      slDoubleClick(svIndex, ButtonLeft, pos1.x, pos1.y, KeyNone);
+      slDoubleClick(svIndex, MB_left, pos1.x, pos1.y, K_none);
       else
-      slMouseDown(svIndex, ButtonLeft, pos1.x, pos1.y, KeyNone);
+      slMouseDown(svIndex, MB_left, pos1.x, pos1.y, K_none);
    } else
    if (m_touchDowns == 2)
    {  if ([touches count] == 2)
@@ -260,7 +260,7 @@ float GetSeconds()
     pos1.y *= screenScale;
    
     if (m_touchDowns == 1 || [touches count] == 1)
-    {   slMouseUp(svIndex, ButtonLeft, pos1.x, pos1.y, KeyNone);
+    {   slMouseUp(svIndex, MB_left, pos1.x, pos1.y, K_none);
     } else
     if (m_touchDowns == 2 && [touches count] >= 2)
     {   UITouch* touch2 = [myTouches objectAtIndex:1];
@@ -285,7 +285,7 @@ float GetSeconds()
     CGPoint pos1 = [touch1 locationInView:touch1.view];
    
     if (m_touchDowns == 1 || [touches count] == 1)
-    {   slMouseUp(svIndex, ButtonLeft, pos1.x, pos1.y, KeyNone);
+    {   slMouseUp(svIndex, MB_left, pos1.x, pos1.y, K_none);
     } else
     if (m_touchDowns == 2 && [touches count] >= 2)
     {   UITouch* touch2 = [myTouches objectAtIndex:1];
@@ -319,7 +319,7 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
             return;
         }
         
-        slCopyVideoImage(width, height, SL_BGRA, data, true);
+        slCopyVideoImage(width, height, PF_bgra, data, true);
         
         m_lastVideoImageIsConsumed = false;
     }
