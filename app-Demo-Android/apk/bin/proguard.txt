@@ -1,0 +1,3 @@
+# view AndroidManifest.xml #generated:28
+-keep class ch.fhnw.comgr.GLES2Activity { <init>(...); }
+

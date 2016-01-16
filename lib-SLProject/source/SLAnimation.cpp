@@ -304,7 +304,7 @@ SLNodeAnimTrack* SLAnimation::createEllipticNodeTrack(SLNode* target,
 
     // create curve and delete temp arrays again
     track->interpolationCurve(new SLCurveBezier(points, times, (SLint)track->numKeyframes(), controls));
-    track->translationInterpolation(AI_Bezier);
+    track->translationInterpolation(AI_bezier);
 
     delete[] points;
     delete[] times;

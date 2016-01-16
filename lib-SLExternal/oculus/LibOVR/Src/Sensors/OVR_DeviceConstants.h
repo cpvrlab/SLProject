@@ -96,7 +96,7 @@ enum HmdTypeEnum
 //
 enum HmdShutterTypeEnum
 {
-    HmdShutter_Global,
+    HmdShutteRT_global,
     HmdShutter_RollingTopToBottom,
     HmdShutter_RollingLeftToRight,
     HmdShutter_RollingRightToLeft,

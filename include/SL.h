@@ -269,15 +269,21 @@ template<class T> inline SLint SL_sizeOfVector(const T &vector)
 class SL
 {
     public:
-    static void     log         (const char* format, ...);
-    static void     exitMsg     (const SLchar* msg, 
-                                 const SLint line, 
-                                 const SLchar* file);
-    static void     warnMsg     (const SLchar* msg, 
-                                 const SLint line, 
-                                 const SLchar* file);
-    static SLuint   maxThreads  ();
-    static SLstring getCWD      ();
+    static void     log             (const char* format, ...);
+    static void     exitMsg         (const SLchar* msg, 
+                                     const SLint line, 
+                                     const SLchar* file);
+    static void     warnMsg         (const SLchar* msg, 
+                                     const SLint line, 
+                                     const SLchar* file);
+    static SLuint   maxThreads      ();
+    static SLstring getCWD          ();
+    static void     parseCmdLineArgs(SLVstring& cmdLineArgs);
+    static SLint    testScene;
+    static SLint    testDurationSec;
+    static SLuint   testLogFlags;
+    static SLuint   testFrameCounter;
+    static const SLVstring testSceneName;
 };
 //-----------------------------------------------------------------------------
 #endif

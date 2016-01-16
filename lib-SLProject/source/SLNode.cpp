@@ -730,7 +730,7 @@ translate(pos, TS_Object)
 */
 void SLNode::translation(const SLVec3f& pos, SLTransformSpace relativeTo)
 {
-    if (relativeTo == TS_World && _parent)
+    if (relativeTo == TS_world && _parent)
     {   // transform position to local space
         SLVec3f localPos = _parent->updateAndGetWMI() * pos;
         _om.translation(localPos);
@@ -751,7 +751,7 @@ void SLNode::rotation(const SLQuat4f& rot,
 {   
     SLMat4f rotation = rot.toMat4(); 
     
-    if (_parent && relativeTo == TS_World)
+    if (_parent && relativeTo == TS_world)
     {
         // get the inverse parent rotation to remove it from our current rotation
         // we want the input quaternion to absolutely set our new rotation relative 
@@ -766,7 +766,7 @@ void SLNode::rotation(const SLQuat4f& rot,
         needUpdate();
         rotate(rot, relativeTo);
     }
-    else if (relativeTo == TS_Parent)
+    else if (relativeTo == TS_parent)
     {   // relative to parent, reset current rotation and just rotate again
         _om.rotation(0, 0, 0, 0);
         needUpdate();
@@ -811,11 +811,11 @@ void SLNode::translate(const SLVec3f& delta, SLTransformSpace relativeTo)
 {
     switch (relativeTo)
     {
-        case TS_Object:
+        case TS_object:
             _om.translate(delta);
             break;
 
-        case TS_World:
+        case TS_world:
             if (_parent)
             {   SLVec3f localVec = _parent->updateAndGetWMI().mat3() * delta;
                 _om.translation(localVec + _om.translation());
@@ -824,7 +824,7 @@ void SLNode::translate(const SLVec3f& delta, SLTransformSpace relativeTo)
                 _om.translation(delta + _om.translation());
             break;
 
-        case TS_Parent:
+        case TS_parent:
             _om.translation(delta + _om.translation());
             break;
     }
@@ -851,11 +851,11 @@ void SLNode::rotate(const SLQuat4f& rot, SLTransformSpace relativeTo)
     SLMat4f rotation = rot.toMat4();
 
 
-    if (relativeTo == TS_Object)
+    if (relativeTo == TS_object)
     {
         _om *= rotation;
     }
-    else if (_parent && relativeTo == TS_World)
+    else if (_parent && relativeTo == TS_world)
     {
         SLMat4f rot;
         rot.translate(updateAndGetWM().translation());
@@ -887,7 +887,7 @@ void SLNode::rotateAround(const SLVec3f& point, SLVec3f& axis,
     SLVec3f localPoint = point;
     SLVec3f localAxis = axis;
 
-    if (relativeTo == TS_World && _parent)
+    if (relativeTo == TS_world && _parent)
     {
         localPoint = _parent->updateAndGetWMI() * point;
         localAxis = _parent->updateAndGetWMI().mat3() * axis;
@@ -898,7 +898,7 @@ void SLNode::rotateAround(const SLVec3f& point, SLVec3f& axis,
     rot.rotate(angleDeg, localAxis);
     rot.translate(-localPoint);
 
-    if (relativeTo == TS_Object)
+    if (relativeTo == TS_object)
         _om.setMatrix(_om * rot);
     else
         _om.setMatrix(rot * _om);
@@ -930,13 +930,13 @@ void SLNode::lookAt(const SLVec3f& target, const SLVec3f& up,
     SLVec3f dir;
     SLVec3f localUp = up;
 
-    if (relativeTo == TS_World && _parent)
+    if (relativeTo == TS_world && _parent)
     {
         SLVec3f localTarget = _parent->updateAndGetWMI() * target;
         localUp = _parent->updateAndGetWMI().mat3() * up;
         dir = localTarget - translation();
     }
-    else if (relativeTo == TS_Object)
+    else if (relativeTo == TS_object)
         dir = _om * target - translation();
     else
         dir = target - translation();

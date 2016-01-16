@@ -61,8 +61,9 @@ class SLScene: public SLObject
      inline SLAnimManager&  animManager     () {return _animManager;}
      inline SLSceneView*    sv              (SLuint index) {return _sceneViews[index];}
      inline SLNode*         root3D          () {return _root3D;}
-            SLint           currentID       () const {return _currentID;}
+            SLint           currentID       () const {return _currentSceneID;}
             SLBackground&   background      () {return _background;}
+            void            timerStart      () {_timer.start();}
             SLfloat         timeSec         () {return (SLfloat)_timer.getElapsedTimeInSec();}
             SLfloat         timeMilliSec    () {return (SLfloat)_timer.getElapsedTimeInMilliSec();}
             SLfloat         elapsedTimeSec  () {return _elapsedTimeMS * 0.001f;}
@@ -78,7 +79,7 @@ class SLScene: public SLObject
             SLVMesh&        meshes          () {return _meshes;}
             SLVGLTexture&   textures        () {return _textures;}
             SLVGLProgram&   programs        () {return _programs;}
-            SLGLProgram*    programs        (SLStdShaderProg i) {return _programs[i];}
+            SLGLProgram*    programs        (SLShaderProg i) {return _programs[i];}
             SLText*         info            (SLSceneView* sv);
             SLstring        infoAbout_en    () const {return _infoAbout_en;}
             SLstring        infoCredits_en  () const {return _infoCredits_en;}
@@ -91,11 +92,11 @@ class SLScene: public SLObject
             SLGLTexture*    videoTexture    () {return &_videoTexture;}
             
             // Misc.
-   virtual  void            onLoad          (SLSceneView* sv, SLCmd sceneName);
+   virtual  void            onLoad          (SLSceneView* sv, SLCommand _currentID);
             void            init            ();
             void            unInit          ();
             bool            onUpdate        ();
-            SLbool          onCommandAllSV  (const SLCmd cmd);
+            SLbool          onCommandAllSV  (const SLCommand cmd);
             void            selectNode      (SLNode* nodeToSelect);
             void            selectNodeMesh  (SLNode* nodeToSelect, SLMesh* meshToSelect);
             void            copyVideoImage  (int width, int height, 
@@ -122,7 +123,7 @@ class SLScene: public SLObject
             SLTimer         _timer;             //!< high precision timer
             SLBackground    _background;        //!< Background colors or texture
             SLCol4f         _globalAmbiLight;   //!< global ambient light intensity
-            SLint           _currentID;         //!< Identifier of current scene
+            SLint           _currentSceneID;    //!< Identifier of current scene
             SLbool          _rootInitialized;   //!< Flag if scene is initialized
             SLint           _numProgsPreload;   //!< No. of preloaded shaderProgs
             

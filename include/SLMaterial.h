@@ -75,7 +75,7 @@ class SLMaterial : public SLObject
             //! Returns true if a material with textures tangents as additional attributes
             SLbool          needsTangents  () {return (_textures.size()>=2 &&
                                                        _textures[0]->target()==GL_TEXTURE_2D &&
-                                                       _textures[1]->texType()==NormalMap);}
+                                                       _textures[1]->texType()==TT_normal);}
             // Setters
             void            set             (SLMaterial* m);
             void            ambient         (SLCol4f ambi)    {_ambient = ambi;}

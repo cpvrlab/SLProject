@@ -186,8 +186,8 @@ LOCAL(void)
 print_mem_stats (j_common_ptr cinfo, int pool_id)
 {
   my_mem_ptr mem = (my_mem_ptr) cinfo->mem;
-  small_pool_ptr shdr_ptr;
-  large_pool_ptr lhdr_ptr;
+  small_pool_ptr shdRT_ptr;
+  large_pool_ptr lhdRT_ptr;
 
   /* Since this is only a debugging stub, we can cheat a little by using
    * fprintf directly rather than going through the trace message code.
@@ -196,17 +196,17 @@ print_mem_stats (j_common_ptr cinfo, int pool_id)
   fprintf(stderr, "Freeing pool %d, total space = %ld\n",
 	  pool_id, mem->total_space_allocated);
 
-  for (lhdr_ptr = mem->large_list[pool_id]; lhdr_ptr != NULL;
-       lhdr_ptr = lhdr_ptr->hdr.next) {
+  for (lhdRT_ptr = mem->large_list[pool_id]; lhdRT_ptr != NULL;
+       lhdRT_ptr = lhdRT_ptr->hdr.next) {
     fprintf(stderr, "  Large chunk used %ld\n",
-	    (long) lhdr_ptr->hdr.bytes_used);
+	    (long) lhdRT_ptr->hdr.bytes_used);
   }
 
-  for (shdr_ptr = mem->small_list[pool_id]; shdr_ptr != NULL;
-       shdr_ptr = shdr_ptr->hdr.next) {
+  for (shdRT_ptr = mem->small_list[pool_id]; shdRT_ptr != NULL;
+       shdRT_ptr = shdRT_ptr->hdr.next) {
     fprintf(stderr, "  Small chunk used %ld free %ld\n",
-	    (long) shdr_ptr->hdr.bytes_used,
-	    (long) shdr_ptr->hdr.bytes_left);
+	    (long) shdRT_ptr->hdr.bytes_used,
+	    (long) shdRT_ptr->hdr.bytes_left);
   }
 }
 
@@ -258,7 +258,7 @@ alloc_small (j_common_ptr cinfo, int pool_id, size_t sizeofobject)
 /* Allocate a "small" object */
 {
   my_mem_ptr mem = (my_mem_ptr) cinfo->mem;
-  small_pool_ptr hdr_ptr, prev_hdr_ptr;
+  small_pool_ptr hdRT_ptr, prev_hdRT_ptr;
   char * data_ptr;
   size_t odd_bytes, min_request, slop;
 
@@ -274,20 +274,20 @@ alloc_small (j_common_ptr cinfo, int pool_id, size_t sizeofobject)
   /* See if space is available in any existing pool */
   if (pool_id < 0 || pool_id >= JPOOL_NUMPOOLS)
     ERREXIT1(cinfo, JERR_BAD_POOL_ID, pool_id);	/* safety check */
-  prev_hdr_ptr = NULL;
-  hdr_ptr = mem->small_list[pool_id];
-  while (hdr_ptr != NULL) {
-    if (hdr_ptr->hdr.bytes_left >= sizeofobject)
+  prev_hdRT_ptr = NULL;
+  hdRT_ptr = mem->small_list[pool_id];
+  while (hdRT_ptr != NULL) {
+    if (hdRT_ptr->hdr.bytes_left >= sizeofobject)
       break;			/* found pool with enough space */
-    prev_hdr_ptr = hdr_ptr;
-    hdr_ptr = hdr_ptr->hdr.next;
+    prev_hdRT_ptr = hdRT_ptr;
+    hdRT_ptr = hdRT_ptr->hdr.next;
   }
 
   /* Time to make a new pool? */
-  if (hdr_ptr == NULL) {
+  if (hdRT_ptr == NULL) {
     /* min_request is what we need now, slop is what will be leftover */
     min_request = sizeofobject + SIZEOF(small_pool_hdr);
-    if (prev_hdr_ptr == NULL)	/* first pool in class? */
+    if (prev_hdRT_ptr == NULL)	/* first pool in class? */
       slop = first_pool_slop[pool_id];
     else
       slop = extra_pool_slop[pool_id];
@@ -296,8 +296,8 @@ alloc_small (j_common_ptr cinfo, int pool_id, size_t sizeofobject)
       slop = (size_t) (MAX_ALLOC_CHUNK-min_request);
     /* Try to get space, if fail reduce slop and try again */
     for (;;) {
-      hdr_ptr = (small_pool_ptr) jpeg_get_small(cinfo, min_request + slop);
-      if (hdr_ptr != NULL)
+      hdRT_ptr = (small_pool_ptr) jpeg_get_small(cinfo, min_request + slop);
+      if (hdRT_ptr != NULL)
 	break;
       slop /= 2;
       if (slop < MIN_SLOP)	/* give up when it gets real small */
@@ -305,20 +305,20 @@ alloc_small (j_common_ptr cinfo, int pool_id, size_t sizeofobject)
     }
     mem->total_space_allocated += (long)(min_request + slop);
     /* Success, initialize the new pool header and add to end of list */
-    hdr_ptr->hdr.next = NULL;
-    hdr_ptr->hdr.bytes_used = 0;
-    hdr_ptr->hdr.bytes_left = sizeofobject + slop;
-    if (prev_hdr_ptr == NULL)	/* first pool in class? */
-      mem->small_list[pool_id] = hdr_ptr;
+    hdRT_ptr->hdr.next = NULL;
+    hdRT_ptr->hdr.bytes_used = 0;
+    hdRT_ptr->hdr.bytes_left = sizeofobject + slop;
+    if (prev_hdRT_ptr == NULL)	/* first pool in class? */
+      mem->small_list[pool_id] = hdRT_ptr;
     else
-      prev_hdr_ptr->hdr.next = hdr_ptr;
+      prev_hdRT_ptr->hdr.next = hdRT_ptr;
   }
 
   /* OK, allocate the object from the current pool */
-  data_ptr = (char *) (hdr_ptr + 1); /* point to first data byte in pool */
-  data_ptr += hdr_ptr->hdr.bytes_used; /* point to place for object */
-  hdr_ptr->hdr.bytes_used += sizeofobject;
-  hdr_ptr->hdr.bytes_left -= sizeofobject;
+  data_ptr = (char *) (hdRT_ptr + 1); /* point to first data byte in pool */
+  data_ptr += hdRT_ptr->hdr.bytes_used; /* point to place for object */
+  hdRT_ptr->hdr.bytes_used += sizeofobject;
+  hdRT_ptr->hdr.bytes_left -= sizeofobject;
 
   return (void *) data_ptr;
 }
@@ -343,7 +343,7 @@ alloc_large (j_common_ptr cinfo, int pool_id, size_t sizeofobject)
 /* Allocate a "large" object */
 {
   my_mem_ptr mem = (my_mem_ptr) cinfo->mem;
-  large_pool_ptr hdr_ptr;
+  large_pool_ptr hdRT_ptr;
   size_t odd_bytes;
 
   /* Check for unsatisfiable request (do now to ensure no overflow below) */
@@ -359,22 +359,22 @@ alloc_large (j_common_ptr cinfo, int pool_id, size_t sizeofobject)
   if (pool_id < 0 || pool_id >= JPOOL_NUMPOOLS)
     ERREXIT1(cinfo, JERR_BAD_POOL_ID, pool_id);	/* safety check */
 
-  hdr_ptr = (large_pool_ptr) jpeg_get_large(cinfo, sizeofobject +
+  hdRT_ptr = (large_pool_ptr) jpeg_get_large(cinfo, sizeofobject +
 					    SIZEOF(large_pool_hdr));
-  if (hdr_ptr == NULL)
+  if (hdRT_ptr == NULL)
     out_of_memory(cinfo, 4);	/* jpeg_get_large failed */
   mem->total_space_allocated += (long)(sizeofobject + SIZEOF(large_pool_hdr));
 
   /* Success, initialize the new pool header and add to list */
-  hdr_ptr->hdr.next = mem->large_list[pool_id];
+  hdRT_ptr->hdr.next = mem->large_list[pool_id];
   /* We maintain space counts in each pool header for statistical purposes,
    * even though they are not needed for allocation.
    */
-  hdr_ptr->hdr.bytes_used = sizeofobject;
-  hdr_ptr->hdr.bytes_left = 0;
-  mem->large_list[pool_id] = hdr_ptr;
+  hdRT_ptr->hdr.bytes_used = sizeofobject;
+  hdRT_ptr->hdr.bytes_left = 0;
+  mem->large_list[pool_id] = hdRT_ptr;
 
-  return (void FAR *) (hdr_ptr + 1); /* point to first data byte in pool */
+  return (void FAR *) (hdRT_ptr + 1); /* point to first data byte in pool */
 }
 
 
@@ -930,8 +930,8 @@ METHODDEF(void)
 free_pool (j_common_ptr cinfo, int pool_id)
 {
   my_mem_ptr mem = (my_mem_ptr) cinfo->mem;
-  small_pool_ptr shdr_ptr;
-  large_pool_ptr lhdr_ptr;
+  small_pool_ptr shdRT_ptr;
+  large_pool_ptr lhdRT_ptr;
   size_t space_freed;
 
   if (pool_id < 0 || pool_id >= JPOOL_NUMPOOLS)
@@ -964,31 +964,31 @@ free_pool (j_common_ptr cinfo, int pool_id)
   }
 
   /* Release large objects */
-  lhdr_ptr = mem->large_list[pool_id];
+  lhdRT_ptr = mem->large_list[pool_id];
   mem->large_list[pool_id] = NULL;
 
-  while (lhdr_ptr != NULL) {
-    large_pool_ptr next_lhdr_ptr = lhdr_ptr->hdr.next;
-    space_freed = lhdr_ptr->hdr.bytes_used +
-		  lhdr_ptr->hdr.bytes_left +
+  while (lhdRT_ptr != NULL) {
+    large_pool_ptr next_lhdRT_ptr = lhdRT_ptr->hdr.next;
+    space_freed = lhdRT_ptr->hdr.bytes_used +
+		  lhdRT_ptr->hdr.bytes_left +
 		  SIZEOF(large_pool_hdr);
-    jpeg_free_large(cinfo, (void FAR *) lhdr_ptr, space_freed);
+    jpeg_free_large(cinfo, (void FAR *) lhdRT_ptr, space_freed);
     mem->total_space_allocated -= (long)space_freed;
-    lhdr_ptr = next_lhdr_ptr;
+    lhdRT_ptr = next_lhdRT_ptr;
   }
 
   /* Release small objects */
-  shdr_ptr = mem->small_list[pool_id];
+  shdRT_ptr = mem->small_list[pool_id];
   mem->small_list[pool_id] = NULL;
 
-  while (shdr_ptr != NULL) {
-    small_pool_ptr next_shdr_ptr = shdr_ptr->hdr.next;
-    space_freed = shdr_ptr->hdr.bytes_used +
-		  shdr_ptr->hdr.bytes_left +
+  while (shdRT_ptr != NULL) {
+    small_pool_ptr next_shdRT_ptr = shdRT_ptr->hdr.next;
+    space_freed = shdRT_ptr->hdr.bytes_used +
+		  shdRT_ptr->hdr.bytes_left +
 		  SIZEOF(small_pool_hdr);
-    jpeg_free_small(cinfo, (void *) shdr_ptr, space_freed);
+    jpeg_free_small(cinfo, (void *) shdRT_ptr, space_freed);
     mem->total_space_allocated -= (long)space_freed;
-    shdr_ptr = next_shdr_ptr;
+    shdRT_ptr = next_shdRT_ptr;
   }
 }
 

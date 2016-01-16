@@ -41,12 +41,12 @@ class SLGLOculus
 
             void        init                ();
       
-    const   SLQuat4f&   orientation         (SLEye eye);
-    const   SLVec3f&    position            (SLEye eye);
+    const   SLQuat4f&   orientation         (SLEyeType eye);
+    const   SLVec3f&    position            (SLEyeType eye);
 
-    const   SLVec3f&    viewAdjust          (SLEye eye);
-    const   SLMat4f&    projection          (SLEye eye);
-    const   SLMat4f&    orthoProjection     (SLEye eye);
+    const   SLVec3f&    viewAdjust          (SLEyeType eye);
+    const   SLMat4f&    projection          (SLEyeType eye);
+    const   SLMat4f&    orthoProjection     (SLEyeType eye);
             
             SLfloat     resolutionScale     () { return _resolutionScale; }
 

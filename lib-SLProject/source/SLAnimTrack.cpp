@@ -167,7 +167,7 @@ SLNodeAnimTrack::SLNodeAnimTrack(SLAnimation* animation)
                      :SLAnimTrack(animation),
                       _animatedNode(nullptr),
                       _interpolationCurve(nullptr),
-                      _translationInterpolation(AI_Linear),
+                      _translationInterpolation(AI_linear),
                       _rebuildInterpolationCurve(true)
 { }
 
@@ -209,7 +209,7 @@ void SLNodeAnimTrack::calcInterpolatedKeyframe(SLfloat time,
 
     SLVec3f base = kf1->translation();
     SLVec3f translation;
-    if (_translationInterpolation == AI_Linear)
+    if (_translationInterpolation == AI_linear)
         translation = base + (kf2->translation() - base) * t; 
     else
     {   if (_rebuildInterpolationCurve)
@@ -253,13 +253,13 @@ void SLNodeAnimTrack::applyToNode(SLNode* node,
     calcInterpolatedKeyframe(time, &kf);
 
     SLVec3f translation = kf.translation() * weight * scale;
-    node->translate(translation, TS_Parent);
+    node->translate(translation, TS_parent);
 
     // @todo update the slerp and lerp implementation for quaternions
     //       there is currently no early out for 1.0 and 0.0 inputs
     //       also provide a non OO version.
     SLQuat4f rotation = SLQuat4f().slerp(kf.rotation(), weight);
-    node->rotate(rotation, TS_Parent);
+    node->rotate(rotation, TS_parent);
 
     // @todo find a good way to combine scale animations, 
     // we can't just scale them by a weight factor...

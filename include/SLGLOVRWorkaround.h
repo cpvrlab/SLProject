@@ -56,7 +56,7 @@ enum HmdTypeEnum
 //
 enum HmdShutterTypeEnum
 {
-    HmdShutter_Global,
+    HmdShutteRT_global,
     HmdShutter_RollingTopToBottom,
     HmdShutter_RollingLeftToRight,
     HmdShutter_RollingRightToLeft,
@@ -905,7 +905,7 @@ void createSLDistortionMesh(DistortionMeshVertexData **ppVertices,
             HmdShutterTypeEnum shutterType = hmdRenderInfo.Shutter.Type;
             switch ( shutterType )
             {
-            case HmdShutter_Global:
+            case HmdShutteRT_global:
                 pcurVert->TimewarpLerp = 0.0f;
                 break;
             case HmdShutter_RollingLeftToRight:
@@ -1021,7 +1021,7 @@ void createSLDistortionMesh(DistortionMeshVertexData **ppVertices,
 
 
 //-------------------------------------------------------------------------------------
-void createSLDistortionMesh(SLEye eye, SLGLVertexArray& vao)
+void createSLDistortionMesh(SLEyeType eye, SLGLVertexArray& vao)
 {
     // fill the variables below with useful data from dk2
     HmdRenderInfo hmdri;
@@ -1161,7 +1161,7 @@ void createSLDistortionMesh(SLEye eye, SLGLVertexArray& vao)
     #ifdef SL_GUI_JAVA
     bool rightEye = (eye == rightEye);
     #else
-    bool rightEye = (eye == SLEye::rightEye);
+    bool rightEye = (eye == SLEyeType::ET_right);
     #endif
     ScaleAndOffset2D eyeToSourceNDC = CreateNDCScaleAndOffsetFromFov(fov);
     eyeToSourceNDC.Scale.x = 0.929788947f;
@@ -1207,17 +1207,17 @@ void createSLDistortionMesh(SLEye eye, SLGLVertexArray& vao)
     for (unsigned i = 0; i < indexCount; i++)
         tempIndex.push_back(indexData[i]);
 
-    SLGLProgram* sp = SLScene::current->programs(StereoOculusDistortionMesh);
+    SLGLProgram* sp = SLScene::current->programs(SP_stereoOculusDistortion);
     sp->useProgram();
 
     // set attributes with all the same data pointer to the interleaved array
-    vao.setAttrib(SL_POSITION, 2, sp->getAttribLocation("a_position"), pVBVerts);
-    vao.setAttrib(SL_CUSTOM1,  1, sp->getAttribLocation("a_timeWarpFactor"), pVBVerts);
-    vao.setAttrib(SL_CUSTOM2,  1, sp->getAttribLocation("a_vignetteFactor"), pVBVerts);
-    vao.setAttrib(SL_CUSTOM3,  2, sp->getAttribLocation("a_texCoordR"), pVBVerts);
-    vao.setAttrib(SL_CUSTOM4,  2, sp->getAttribLocation("a_texCoordG"), pVBVerts);
-    vao.setAttrib(SL_CUSTOM5,  2, sp->getAttribLocation("a_texCoordB"), pVBVerts);
-    vao.setIndices(indexCount, SL_UNSIGNED_INT, &tempIndex[0]);
+    vao.setAttrib(VAT_position, 2, sp->getAttribLocation("a_position"), pVBVerts);
+    vao.setAttrib(VAT_custom1,  1, sp->getAttribLocation("a_timeWarpFactor"), pVBVerts);
+    vao.setAttrib(VAT_custom2,  1, sp->getAttribLocation("a_vignetteFactor"), pVBVerts);
+    vao.setAttrib(VAT_custom3,  2, sp->getAttribLocation("a_texCoordR"), pVBVerts);
+    vao.setAttrib(VAT_custom4,  2, sp->getAttribLocation("a_texCoordG"), pVBVerts);
+    vao.setAttrib(VAT_custom5,  2, sp->getAttribLocation("a_texCoordB"), pVBVerts);
+    vao.setIndices(indexCount, BT_uint, &tempIndex[0]);
     vao.generate(vertexCount);
 
     // dispose temp. arrays

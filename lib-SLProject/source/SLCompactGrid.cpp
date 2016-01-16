@@ -242,7 +242,7 @@ void SLCompactGrid::draw (SLSceneView* sv)
             _vao.generateVertexPos(P);
         }
 
-        _vao.drawArrayAsColored(SL_LINES, SLCol4f::CYAN);
+        _vao.drawArrayAsColored(PT_lines, SLCol4f::CYAN);
     }
 }
 //-----------------------------------------------------------------------------

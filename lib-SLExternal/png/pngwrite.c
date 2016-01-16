@@ -886,7 +886,7 @@ png_write_flush(png_structp png_ptr)
 
 /* Free all memory used by the write */
 void PNGAPI
-png_destroy_write_struct(png_structpp png_ptr_ptr, png_infopp info_ptr_ptr)
+png_destroy_write_struct(png_structpp png_ptRT_ptr, png_infopp info_ptRT_ptr)
 {
    png_structp png_ptr = NULL;
    png_infop info_ptr = NULL;
@@ -897,8 +897,8 @@ png_destroy_write_struct(png_structpp png_ptr_ptr, png_infopp info_ptr_ptr)
 
    png_debug(1, "in png_destroy_write_struct");
 
-   if (png_ptr_ptr != NULL)
-      png_ptr = *png_ptr_ptr;
+   if (png_ptRT_ptr != NULL)
+      png_ptr = *png_ptRT_ptr;
 
 #ifdef PNG_USER_MEM_SUPPORTED
    if (png_ptr != NULL)
@@ -908,8 +908,8 @@ png_destroy_write_struct(png_structpp png_ptr_ptr, png_infopp info_ptr_ptr)
    }
 #endif
 
-   if (info_ptr_ptr != NULL)
-      info_ptr = *info_ptr_ptr;
+   if (info_ptRT_ptr != NULL)
+      info_ptr = *info_ptRT_ptr;
 
    if (info_ptr != NULL)
    {
@@ -932,7 +932,7 @@ png_destroy_write_struct(png_structpp png_ptr_ptr, png_infopp info_ptr_ptr)
 #else
       png_destroy_struct((png_voidp)info_ptr);
 #endif
-      *info_ptr_ptr = NULL;
+      *info_ptRT_ptr = NULL;
    }
 
    if (png_ptr != NULL)
@@ -944,7 +944,7 @@ png_destroy_write_struct(png_structpp png_ptr_ptr, png_infopp info_ptr_ptr)
 #else
       png_destroy_struct((png_voidp)png_ptr);
 #endif
-      *png_ptr_ptr = NULL;
+      *png_ptRT_ptr = NULL;
    }
 }
 

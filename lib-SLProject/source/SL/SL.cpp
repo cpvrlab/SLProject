@@ -15,16 +15,59 @@
 #include <cstdarg>
 
 //-----------------------------------------------------------------------------
+// Init global test variables from command line parameters
+SLint SL::testDurationSec = 0;
+SLint SL::testScene = -1;
+SLuint SL::testLogFlags = 0;
+SLuint SL::testFrameCounter = 0;
+const SLVstring SL::testSceneName = 
+{ 
+    "SceneAll",
+    "SceneMinimal",
+    "SceneFigure", 
+    "SceneMeshLoad",
+    "SceneVRSizeTest",
+    "SceneLargeModel",
+    "SceneChristoffel",
+    "SceneRevolver",
+    "SceneTextureFilter",
+    "SceneTextureBlend",
+    "SceneTextureVideo",
+    "SceneFrustumCull1",
+    "ScenePerVertexBlinn",
+    "ScenePerPixelBlinn",
+    "ScenePerVertexWave",
+    "SceneWater",
+    "SceneBumpNormal",
+    "SceneBumpParallax",
+    "SceneEarth",
+    "SceneMassAnimation",
+    "SceneTerrain",
+    "SceneSkeletalAnimation",
+    "SceneNodeAnimation",
+    "SceneAstroboyArmyGPU",
+    "SceneAstroboyArmyCPU",
+    "SceneRTMuttenzerBox",
+    "SceneRTSpheres",
+    "SceneRTSoftShadows",
+    "SceneRTDoF",
+    "SceneRTLens",
+    "SceneRTTest"
+};
+//-----------------------------------------------------------------------------
 //! SL::log
 void SL::log(const char* format, ...)
 {
-    char log[4096];
-    va_list argptr;
-    va_start(argptr, format);
-    vsprintf(log, format, argptr);
-    va_end(argptr);
+    if (SL::testLogFlags)
+    {
+        char log[4096];
+        va_list argptr;
+        va_start(argptr, format);
+        vsprintf(log, format, argptr);
+        va_end(argptr);
 
-    cerr << log;
+        cout << log;
+    }
 
     /*
     // In case we don't have a console
@@ -85,5 +128,31 @@ SLstring SL::getCWD()
     if (!SL_GETCWD(cCurrentPath, sizeof(cCurrentPath)))
          return SLstring("");
     else return SLstring(cCurrentPath);
+}
+//------------------------------------------------------------------------------
+//! Parses the command line arguments
+void SL::parseCmdLineArgs(SLVstring& cmdLineArgs)
+{   // Default values
+    SL::testScene = -1;
+    SL::testDurationSec = -1;
+
+    SLVstring argComponents;
+    for (SLstring arg : cmdLineArgs)
+    {
+        SLUtils::split(arg, '=', argComponents);
+        if (argComponents.size()==2)
+        {   
+            if(argComponents[0] ==  "testScene")
+            {   SLint iScene = atoi(argComponents[1].c_str());
+                if (iScene >= C_sceneMinimal && iScene <= C_sceneRTTest)
+                    SL::testScene = iScene;
+            }
+            if(argComponents[0] ==  "durationSec")
+            {   SLint sec = atoi(argComponents[1].c_str());
+                if (sec > 0) SL::testDurationSec = sec;
+            }
+        }
+        argComponents.clear();
+    }
 }
 //-----------------------------------------------------------------------------

@@ -414,19 +414,19 @@ struct OVR_GUID
 
 
 //-----------------------------------------------------------------------------------
-// ***** OVR_PTR_SIZE
+// ***** OVRT_ptR_SIZE
 // 
 // Specifies the byte size of pointers (same as sizeof void*).
 
-#if !defined(OVR_PTR_SIZE)
+#if !defined(OVRT_ptR_SIZE)
     #if defined(__WORDSIZE)
-        #define OVR_PTR_SIZE ((__WORDSIZE) / 8)
+        #define OVRT_ptR_SIZE ((__WORDSIZE) / 8)
     #elif defined(_WIN64) || defined(__LP64__) || defined(_LP64) || defined(_M_IA64) || defined(__ia64__) || defined(__arch64__) || defined(__64BIT__) || defined(__Ptr_Is_64)
-        #define OVR_PTR_SIZE 8
+        #define OVRT_ptR_SIZE 8
     #elif defined(__CC_ARM) && (__sizeof_ptr == 8)
-        #define OVR_PTR_SIZE 8
+        #define OVRT_ptR_SIZE 8
     #else
-        #define OVR_PTR_SIZE 4
+        #define OVRT_ptR_SIZE 4
     #endif
 #endif
 
@@ -438,7 +438,7 @@ struct OVR_GUID
 // the size of pointers, but usually >= the size of pointers.
 
 #if !defined(OVR_WORD_SIZE)
-   #define OVR_WORD_SIZE OVR_PTR_SIZE // For our currently supported platforms these are equal.
+   #define OVR_WORD_SIZE OVRT_ptR_SIZE // For our currently supported platforms these are equal.
 #endif
 
 

@@ -51,7 +51,7 @@ SLLightSphere::SLLightSphere(SLfloat posx,
 {  
     _radius = radius;
     _samples.samples(1,1,false);
-    translate(posx, posy, posz, TS_Object);
+    translate(posx, posy, posz, TS_object);
 
     if (hasMesh)
     {   SLMaterial* mat = new SLMaterial("LightSphereMeshMat", 

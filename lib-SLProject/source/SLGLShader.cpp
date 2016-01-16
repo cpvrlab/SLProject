@@ -85,9 +85,9 @@ SLbool SLGLShader::createAndCompile()
     if (_code!="")
     {  
         switch (_type)
-        {   case VertexShader:
+        {   case ST_vertex:
                 _objectGL = glCreateShader(GL_VERTEX_SHADER); break;
-            case FragmentShader:
+            case ST_fragment:
                 _objectGL = glCreateShader(GL_FRAGMENT_SHADER); break;
             default:
                 SL_EXIT_MSG("SLGLShader::load: Unknown shader type.");
@@ -102,11 +102,11 @@ SLbool SLGLShader::createAndCompile()
 
         // Replace "attribute" and "varying" that came in GLSL 310
         if (verGLSL > "120")
-        {   if (_type == VertexShader)
+        {   if (_type == ST_vertex)
             {   SLUtils::replaceString(_code, "attribute", "in       ");
                 SLUtils::replaceString(_code, "varying", "out    ");
             }
-            if (_type == FragmentShader)
+            if (_type == ST_fragment)
             {   SLUtils::replaceString(_code, "varying", "in     ");
             }
         }
@@ -114,7 +114,7 @@ SLbool SLGLShader::createAndCompile()
         // Replace "gl_FragColor" that was deprecated in GLSL 140 (OpenGL 3.1) by a custom out variable
         if (verGLSL > "130")
         {
-            if (_type == FragmentShader)
+            if (_type == ST_fragment)
             {   SLUtils::replaceString(_code, "gl_FragColor", "fragColor");
                 SLUtils::replaceString(_code, "void main", "out vec4 fragColor; \n\nvoid main");
             }
@@ -122,7 +122,7 @@ SLbool SLGLShader::createAndCompile()
         
         // Replace deprecated texture functions
         if (verGLSL > "140")
-        {   if (_type == FragmentShader)
+        {   if (_type == ST_fragment)
         {
             SLUtils::replaceString(_code, "texture1D",   "texture");
             SLUtils::replaceString(_code, "texture2D",   "texture");

@@ -157,22 +157,22 @@ void SLCurveBezier::draw(const SLMat4f &wm)
                            _count - numControlPoints - numTangentPoints;
    
     // Draw curve as a line strip through interpolated points
-    _vao.drawArrayAsColored(SL_LINE_STRIP, SLCol3f::RED, 1, 0, numCurvePoints);
+    _vao.drawArrayAsColored(PT_lineStrip, SLCol3f::RED, 1, 0, numCurvePoints);
    
     // ES2 has often problems with rendering points
     #ifndef SL_GLES2
     // Draw curve as a line strip through interpolated points
-    _vao.drawArrayAsColored(SL_POINTS, SLCol4f::RED, 3, 0, numCurvePoints);
+    _vao.drawArrayAsColored(PT_points, SLCol4f::RED, 3, 0, numCurvePoints);
 
     // Draw input points
-    _vao.drawArrayAsColored(SL_POINTS, SLCol4f::BLUE, 6, numCurvePoints, _count);
+    _vao.drawArrayAsColored(PT_points, SLCol4f::BLUE, 6, numCurvePoints, _count);
 
     // Draw control points
-    _vao.drawArrayAsColored(SL_POINTS, SLCol4f::YELLOW, 6,
+    _vao.drawArrayAsColored(PT_points, SLCol4f::YELLOW, 6,
         numCurvePoints + _count, numControlPoints);
 
     // Draw tangent points as lines
-    _vao.drawArrayAsColored(SL_LINES, SLCol4f::YELLOW, 1,
+    _vao.drawArrayAsColored(PT_lines, SLCol4f::YELLOW, 1,
         numCurvePoints + _count + numControlPoints, numTangentPoints);
     #endif
 }

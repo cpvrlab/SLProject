@@ -48,7 +48,7 @@ class qtMainWindow : public QMainWindow
         void        selectNodeOrMeshItem(SLNode* selectedNode,
                                          SLMesh* selectedMesh);
         void        updateAllGLWidgets();
-        void        applyCommandOnSV(const SLCmd cmd);
+        void        applyCommandOnSV(const SLCommand cmd);
         qtGLWidget* getOtherGLWidgetInSplitter();
 
         // Overwritten Event Handlers

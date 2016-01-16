@@ -149,7 +149,7 @@
       <ExceptionHandling>Sync</ExceptionHandling>
       <ObjectFileName>_release\obj\</ObjectFileName>
       <Optimization>MaxSpeed</Optimization>
-      <PreprocessorDefinitions>_CONSOLE;WIN32;SL_GUI_QT;SL_STARTSCENE=cmdSceneMeshLoad;SL_GUI_QT;GLEW_STATIC;_GLFW_NO_DLOAD_GDI32;_GLFW_NO_DLOAD_WINMM;QT_NO_DEBUG;QT_OPENGL_LIB;QT_WIDGETS_LIB;QT_GUI_LIB;QT_CORE_LIB;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_CONSOLE;WIN32;SL_GUI_QT;SL_STARTSCENE=C_sceneMeshLoad;SL_GUI_QT;GLEW_STATIC;_GLFW_NO_DLOAD_GDI32;_GLFW_NO_DLOAD_WINMM;QT_NO_DEBUG;QT_OPENGL_LIB;QT_WIDGETS_LIB;QT_GUI_LIB;QT_CORE_LIB;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PreprocessToFile>false</PreprocessToFile>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <RuntimeTypeInfo>true</RuntimeTypeInfo>
@@ -233,7 +233,7 @@
       <ExceptionHandling>Sync</ExceptionHandling>
       <ObjectFileName>_debug\obj\</ObjectFileName>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>_CONSOLE;WIN32;SL_GUI_QT;SL_STARTSCENE=cmdSceneMeshLoad;SL_GUI_QT;GLEW_STATIC;_GLFW_NO_DLOAD_GDI32;_GLFW_NO_DLOAD_WINMM;QT_OPENGL_LIB;QT_WIDGETS_LIB;QT_GUI_LIB;QT_CORE_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_CONSOLE;WIN32;SL_GUI_QT;SL_STARTSCENE=C_sceneMeshLoad;SL_GUI_QT;GLEW_STATIC;_GLFW_NO_DLOAD_GDI32;_GLFW_NO_DLOAD_WINMM;QT_OPENGL_LIB;QT_WIDGETS_LIB;QT_GUI_LIB;QT_CORE_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PreprocessToFile>false</PreprocessToFile>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
       <RuntimeTypeInfo>true</RuntimeTypeInfo>

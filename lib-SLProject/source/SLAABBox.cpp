@@ -261,16 +261,16 @@ void SLAABBox::generateVAO()
 void SLAABBox::drawWS(const SLCol4f color)
 {
     if (!_vao.id()) generateVAO();
-    _vao.drawArrayAsColored(SL_LINES, color, 1.0f, 0, 24);
+    _vao.drawArrayAsColored(PT_lines, color, 1.0f, 0, 24);
 }
 //-----------------------------------------------------------------------------
 //! Draws the axis in world space with lines in a color
 void SLAABBox::drawAxisWS()
 {
     if (!_vao.id()) generateVAO();
-    _vao.drawArrayAsColored(SL_LINES, SLCol3f::RED,   2.0f, 24, 2);
-    _vao.drawArrayAsColored(SL_LINES, SLCol3f::GREEN, 2.0f, 26, 2);
-    _vao.drawArrayAsColored(SL_LINES, SLCol3f::BLUE,  2.0f, 28, 2);
+    _vao.drawArrayAsColored(PT_lines, SLCol3f::RED,   2.0f, 24, 2);
+    _vao.drawArrayAsColored(PT_lines, SLCol3f::GREEN, 2.0f, 26, 2);
+    _vao.drawArrayAsColored(PT_lines, SLCol3f::BLUE,  2.0f, 28, 2);
 }
 //-----------------------------------------------------------------------------
 //! Draws the joint axis and the parent bone in world space
@@ -281,14 +281,14 @@ an offset displacement in magenta. See also SLAABBox::updateBoneWS.
 void SLAABBox::drawBoneWS()
 {
     if (!_vao.id()) generateVAO();
-    _vao.drawArrayAsColored(SL_LINES, SLCol3f::RED,     2.0f, 24, 2);
-    _vao.drawArrayAsColored(SL_LINES, SLCol3f::GREEN,   2.0f, 26, 2);
-    _vao.drawArrayAsColored(SL_LINES, SLCol3f::BLUE,    2.0f, 28, 2);
+    _vao.drawArrayAsColored(PT_lines, SLCol3f::RED,     2.0f, 24, 2);
+    _vao.drawArrayAsColored(PT_lines, SLCol3f::GREEN,   2.0f, 26, 2);
+    _vao.drawArrayAsColored(PT_lines, SLCol3f::BLUE,    2.0f, 28, 2);
 
     // draw either an offset line or a bone line as the parent
     if (!_boneIsOffset)
-         _vao.drawArrayAsColored(SL_LINES, SLCol3f::YELLOW,  1.0f, 30, 2);
-    else _vao.drawArrayAsColored(SL_LINES, SLCol3f::MAGENTA, 1.0f, 30, 2);
+         _vao.drawArrayAsColored(PT_lines, SLCol3f::YELLOW,  1.0f, 30, 2);
+    else _vao.drawArrayAsColored(PT_lines, SLCol3f::MAGENTA, 1.0f, 30, 2);
 }
 //-----------------------------------------------------------------------------
 //! SLAABBox::isHitInWS: Ray - AABB Intersection Test in object space

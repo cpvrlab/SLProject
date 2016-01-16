@@ -31,7 +31,7 @@ void SLGLVertexArrayExt::generateVertexPos(SLuint numVertices,
     assert(elementSize);
     assert(numVertices);
     
-    SLGLProgram* sp = SLScene::current->programs(ColorUniform);
+    SLGLProgram* sp = SLScene::current->programs(SP_colorUniform);
     sp->useProgram();
     SLint location = sp->getAttribLocation("a_position");
     
@@ -39,16 +39,16 @@ void SLGLVertexArrayExt::generateVertexPos(SLuint numVertices,
         SL_EXIT_MSG("The position attribute has no variable location.");
     
     // Add attribute if it doesn't exist
-    if (attribIndex(SL_POSITION) == -1)
-    {   setAttrib(SL_POSITION, elementSize, location, dataPointer);
-        generate(numVertices, SL_STATIC_DRAW, false);
+    if (attribIndex(VAT_position) == -1)
+    {   setAttrib(VAT_position, elementSize, location, dataPointer);
+        generate(numVertices, BU_static, false);
     } else
-        updateAttrib(SL_POSITION, elementSize, dataPointer);
+        updateAttrib(VAT_position, elementSize, dataPointer);
 }
 //-----------------------------------------------------------------------------
 /*! Draws the vertex positions as array with a specified primitive & color
 */
-void SLGLVertexArrayExt::drawArrayAsColored(SLPrimitive primitiveType,
+void SLGLVertexArrayExt::drawArrayAsColored(SLPrimitiveType primitiveType,
                                             SLCol4f color,
                                             SLfloat pointSize,
                                             SLuint  indexFirstVertex,
@@ -61,7 +61,7 @@ void SLGLVertexArrayExt::drawArrayAsColored(SLPrimitive primitiveType,
    
     // Prepare shader
     SLMaterial::current = 0;
-    SLGLProgram* sp = SLScene::current->programs(ColorUniform);
+    SLGLProgram* sp = SLScene::current->programs(SP_colorUniform);
     SLGLState* state = SLGLState::getInstance();
     sp->useProgram();
     sp->uniformMatrix4fv("u_mvpMatrix", 1, (SLfloat*)state->mvpMatrix());
@@ -71,7 +71,7 @@ void SLGLVertexArrayExt::drawArrayAsColored(SLPrimitive primitiveType,
    
     #ifndef SL_GLES2
     if (pointSize!=1.0f)
-        if (primitiveType == SL_POINTS)
+        if (primitiveType == PT_points)
             glPointSize(pointSize);
     #endif
                 
@@ -81,7 +81,7 @@ void SLGLVertexArrayExt::drawArrayAsColored(SLPrimitive primitiveType,
    
     #ifndef SL_GLES2
     if (pointSize!=1.0f)
-        if (primitiveType == SL_POINTS)
+        if (primitiveType == PT_points)
             glPointSize(1.0f);
     #endif
     

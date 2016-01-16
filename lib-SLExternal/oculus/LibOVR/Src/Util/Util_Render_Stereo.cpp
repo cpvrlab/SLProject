@@ -816,7 +816,7 @@ DistortionMeshVertexData DistortionMeshMakeVertex ( Vector2f screenNDC,
     HmdShutterTypeEnum shutterType = hmdRenderInfo.Shutter.Type;
     switch ( shutterType )
     {
-    case HmdShutter_Global:
+    case HmdShutteRT_global:
         result.TimewarpLerp = 0.0f;
         break;
     case HmdShutter_RollingLeftToRight:
@@ -1124,7 +1124,7 @@ void HeightmapMeshCreate( HeightmapMeshVertexData **ppVertices, uint16_t **ppTri
             HmdShutterTypeEnum shutterType = hmdRenderInfo.Shutter.Type;
             switch ( shutterType )
             {
-            case HmdShutter_Global:
+            case HmdShutteRT_global:
                 pcurVert->TimewarpLerp = 0.0f;
                 break;
             case HmdShutter_RollingLeftToRight:

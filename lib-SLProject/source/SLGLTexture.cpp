@@ -29,7 +29,7 @@ SLGLTexture::SLGLTexture()
 {  
     _stateGL      = SLGLState::getInstance();
     _texName      = 0;
-    _texType      = UnknownMap;
+    _texType      = TT_unknown;
     _min_filter   = GL_NEAREST;
     _mag_filter   = GL_NEAREST;
     _wrap_s       = GL_REPEAT;
@@ -45,13 +45,13 @@ SLGLTexture::SLGLTexture()
 SLGLTexture::SLGLTexture(SLstring  filename,
                          SLint     min_filter,
                          SLint     mag_filter,
-                         SLTexType type,
+                         SLTextureType type,
                          SLint     wrapS,
                          SLint     wrapT) : SLObject(filename)
 {  
     assert(filename!="");
     _stateGL = SLGLState::getInstance();
-    _texType = type==UnknownMap ? detectType(filename) : type;
+    _texType = type==TT_unknown ? detectType(filename) : type;
 
     load(filename);
    
@@ -78,7 +78,7 @@ SLGLTexture::SLGLTexture(SLVstring files,
 {
     assert(files.size() > 1);
     _stateGL = SLGLState::getInstance();
-    _texType = ColorMap;
+    _texType = TT_color;
 
     for (auto filename : files)
         load(filename);
@@ -112,10 +112,10 @@ SLGLTexture::SLGLTexture(SLstring  filenameXPos,
                          SLstring  filenameZNeg,
                          SLint     min_filter,
                          SLint     mag_filter,
-                         SLTexType type) : SLObject(filenameXPos)
+                         SLTextureType type) : SLObject(filenameXPos)
 {  
     _stateGL = SLGLState::getInstance();
-    _texType = type==UnknownMap ? detectType(filenameXPos) : type;
+    _texType = type==TT_unknown ? detectType(filenameXPos) : type;
    
     assert(filenameXPos!=""); load(filenameXPos);
     assert(filenameXNeg!=""); load(filenameXNeg);
@@ -204,7 +204,7 @@ SLbool SLGLTexture::copyVideoImage(SLint width,
                                    SLbool isTopLeft)
 {
     SLPixelFormat dstFormat = _stateGL->pixelFormatIsSupported(srcFormat) ?
-                                    srcFormat : SL_RGB;
+                                    srcFormat : PF_rgb;
                            
     bool needsRebuild = _images[0]->load(width,
                                          height,
@@ -512,11 +512,11 @@ void SLGLTexture::drawSprite(SLbool doUpdate)
         // Indexes for a triangle strip
         SLushort I[4] = {0,1,2,3};
     
-        SLGLProgram* sp = SLScene::current->programs(TextureOnly);
+        SLGLProgram* sp = SLScene::current->programs(SP_TextureOnly);
         sp->useProgram();
-        _vaoSprite.setAttrib(SL_POSITION, 2, sp->getAttribLocation("a_position"), P);
-        _vaoSprite.setAttrib(SL_TEXCOORD, 2, sp->getAttribLocation("a_texCoord"), T);
-        _vaoSprite.setIndices(4, SL_UNSIGNED_SHORT, I);
+        _vaoSprite.setAttrib(VAT_position, 2, sp->getAttribLocation("a_position"), P);
+        _vaoSprite.setAttrib(VAT_texCoord, 2, sp->getAttribLocation("a_texCoord"), T);
+        _vaoSprite.setIndices(4, BT_ushort, I);
         _vaoSprite.generate(4);
     }
 
@@ -525,13 +525,13 @@ void SLGLTexture::drawSprite(SLbool doUpdate)
    
     // Draw the character triangles
     SLMat4f mvp(_stateGL->projectionMatrix * _stateGL->modelViewMatrix);
-    SLGLProgram* sp = SLScene::current->programs(TextureOnly);
+    SLGLProgram* sp = SLScene::current->programs(SP_TextureOnly);
     sp->useProgram();
     sp->uniformMatrix4fv("u_mvpMatrix", 1, (SLfloat*)&mvp);
     sp->uniform1i("u_texture0", 0);
  
     ///////////////////////////////////////////////
-    _vaoSprite.drawElementsAs(SL_TRIANGLE_STRIP);
+    _vaoSprite.drawElementsAs(PT_triangleStrip);
     ///////////////////////////////////////////////
 }
 //-----------------------------------------------------------------------------
@@ -563,11 +563,11 @@ SLVec2f SLGLTexture::dsdt(SLfloat s, SLfloat t)
     SLfloat ds = 1.0f / _images[0]->width();
     SLfloat dt = 1.0f / _images[0]->height();
    
-    if (_texType==HeightMap)
+    if (_texType==TT_height)
     {   dsdt.x = (getTexelf(s+ds,t   ).x - getTexelf(s-ds,t   ).x) * -_bumpScale;
         dsdt.y = (getTexelf(s   ,t+dt).x - getTexelf(s   ,t-dt).x) * -_bumpScale;
     } else
-    if (_texType==NormalMap)
+    if (_texType==TT_normal)
     {   SLVec4f texel = getTexelf(s, t);
         dsdt.x = texel.r * 2.0f - 1.0f;
         dsdt.y = texel.g * 2.0f - 1.0f;
@@ -576,15 +576,15 @@ SLVec2f SLGLTexture::dsdt(SLfloat s, SLfloat t)
 }
 //-----------------------------------------------------------------------------
 //! Detects the texture type from the filename appendix (See SLTexType def.)
-SLTexType SLGLTexture::detectType(SLstring filename)
+SLTextureType SLGLTexture::detectType(SLstring filename)
 {
     SLstring name = SLUtils::getFileNameWOExt(filename);
     SLstring appendix = name.substr(name.length()-2, 2);
-    if (appendix=="_C") return ColorMap;
-    if (appendix=="_N") return NormalMap;
-    if (appendix=="_H") return HeightMap;
-    if (appendix=="_G") return GlossMap;
-    return ColorMap;
+    if (appendix=="_C") return TT_color;
+    if (appendix=="_N") return TT_normal;
+    if (appendix=="_H") return TT_height;
+    if (appendix=="_G") return TT_gloss;
+    return TT_color;
 }
 //-----------------------------------------------------------------------------
 //! Returns the closest power of 2 to a passed number.

@@ -124,7 +124,7 @@ void SLBackground::render(SLint widthPX, SLint heightPX)
     stateGL->multiSample(false);
 
     // Get shader program
-    SLGLProgram* sp = _texture ? s->programs(TextureOnly) : s->programs(ColorAttribute);
+    SLGLProgram* sp = _texture ? s->programs(SP_TextureOnly) : s->programs(SP_colorAttribute);
     sp->useProgram();
     sp->uniformMatrix4fv("u_mvpMatrix", 1, (SLfloat*)&mvp);
 
@@ -138,16 +138,16 @@ void SLBackground::render(SLint widthPX, SLint heightPX)
         // Float array with vertex X & Y of corners
         SLfloat P[8] = {0.0f, (SLfloat)_resY, 0.0f, 0.0f,
                         (SLfloat)_resX, (SLfloat)_resY, (SLfloat)_resX, 0.0f}; 
-        _vao.setAttrib(SL_POSITION, 2, sp->getAttribLocation("a_position"), P);
+        _vao.setAttrib(VAT_position, 2, sp->getAttribLocation("a_position"), P);
         
         // Indexes for a triangle strip
         SLushort I[4] = {0,1,2,3};
-        _vao.setIndices(4, SL_UNSIGNED_SHORT, I);
+        _vao.setIndices(4, BT_ushort, I);
 
         if(_texture)
         {   // Float array of texture coordinates
             SLfloat T[8] = {0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f, 0.0f};
-            _vao.setAttrib(SL_TEXCOORD, 2, sp->getAttribLocation("a_texCoord"), T);
+            _vao.setAttrib(VAT_texCoord, 2, sp->getAttribLocation("a_texCoord"), T);
             _vao.generate(4);
         } else
         {   // Float array of colors of corners
@@ -155,7 +155,7 @@ void SLBackground::render(SLint widthPX, SLint heightPX)
                              _colors[1].r, _colors[1].g, _colors[1].b,
                              _colors[2].r, _colors[2].g, _colors[2].b,
                              _colors[3].r, _colors[3].g, _colors[3].b};            
-            _vao.setAttrib(SL_COLOR, 3, sp->getAttribLocation("a_color"), C);
+            _vao.setAttrib(VAT_color, 3, sp->getAttribLocation("a_color"), C);
             _vao.generate(4);
         }
     }
@@ -167,7 +167,7 @@ void SLBackground::render(SLint widthPX, SLint heightPX)
     }
 
     ///////////////////////////////////////
-    _vao.drawElementsAs(SL_TRIANGLE_STRIP);
+    _vao.drawElementsAs(PT_triangleStrip);
     ///////////////////////////////////////
 }
 //-----------------------------------------------------------------------------

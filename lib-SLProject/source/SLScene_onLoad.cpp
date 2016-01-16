@@ -48,12 +48,12 @@ SLNode* SphereGroup(SLint depth,                    // depth of recursion
     SLstring name = matGlass->kt() > 0 ? "GlassSphere" : "RedSphere";
     if (depth==0)
     {   SLNode* s = new SLNode(new SLSphere(0.5f*scale,resolution,resolution, name, matRed)); 
-        s->translate(x,y,z, TS_Object);
+        s->translate(x,y,z, TS_object);
         return s;
     } else
     {   depth--;
         SLNode* sGroup = new SLNode("SphereGroup");
-        sGroup->translate(x,y,z, TS_Object);
+        sGroup->translate(x,y,z, TS_object);
         SLint newRes = max(resolution-8,8);
         sGroup->addChild(new SLNode(new SLSphere(0.5f*scale,resolution,resolution, name, matGlass)));
         sGroup->addChild(SphereGroup(depth, 0.643951f*scale, 0,               0.172546f*scale, scale/3, newRes, matRed, matRed));
@@ -79,69 +79,69 @@ SLNode* BuildFigureGroup(SLMaterial* mat, SLbool withAnimation)
     SLNode* feet = new SLNode("feet group (T13,R6)");
     feet->addMesh(new SLSphere(0.2f, 16, 16, "ankle", mat));
     SLNode* feetbox = new SLNode(new SLBox(-0.2f,-0.1f, 0.0f, 0.2f, 0.1f, 0.8f, "foot", mat), "feet (T14)");
-    feetbox->translate(0.0f,-0.25f,-0.15f, TS_Object);
+    feetbox->translate(0.0f,-0.25f,-0.15f, TS_object);
     feet->addChild(feetbox);
-    feet->translate(0.0f,0.0f,1.6f, TS_Object);
+    feet->translate(0.0f,0.0f,1.6f, TS_object);
     feet->rotate(-90.0f, 1.0f, 0.0f, 0.0f);
    
     // Assemble low leg
     SLNode* leglow = new SLNode("low leg group (T11, R5)");
     leglow->addMesh(new SLSphere(0.3f, 16, 16, "knee", mat));
     cyl = new SLNode(new SLCylinder(0.2f, 1.4f, 1, 16, false, false, "shin", mat), "shin (T12)");
-    cyl->translate(0.0f, 0.0f, 0.2f, TS_Object);            
+    cyl->translate(0.0f, 0.0f, 0.2f, TS_object);            
     leglow->addChild(cyl);
     leglow->addChild(feet);
-    leglow->translate(0.0f, 0.0f, 1.27f, TS_Object);
+    leglow->translate(0.0f, 0.0f, 1.27f, TS_object);
     leglow->rotate(0, 1.0f, 0.0f, 0.0f);
    
     // Assemble leg
     SLNode* leg = new SLNode("leg group ()");
     leg->addMesh(new SLSphere(0.4f, 16, 16, "hip joint", mat));
     cyl = new SLNode(new SLCylinder(0.3f, 1.0f, 1, 16, false, false, "thigh", mat), "thigh (T10)");
-    cyl->translate(0.0f, 0.0f, 0.27f, TS_Object);           
+    cyl->translate(0.0f, 0.0f, 0.27f, TS_object);           
     leg->addChild(cyl);
     leg->addChild(leglow);
 
     // Assemble left & right leg
     SLNode* legLeft = new SLNode("left leg group (T8)");
-    legLeft->translate(-0.4f, 0.0f, 2.2f, TS_Object);
+    legLeft->translate(-0.4f, 0.0f, 2.2f, TS_object);
     legLeft->addChild(leg);
     SLNode* legRight= new SLNode("right leg group (T9)");
-    legRight->translate(0.4f, 0.0f, 2.2f, TS_Object);       
+    legRight->translate(0.4f, 0.0f, 2.2f, TS_object);       
     legRight->addChild(leg->copyRec());
 
     // Assemble low arm
     SLNode* armlow = new SLNode("low arm group (T6,R4)");
     armlow->addMesh(new SLSphere(0.2f, 16, 16, "ellbow", mat));
     cyl = new SLNode(new SLCylinder(0.15f, 1.0f, 1, 16, true, false, "low arm", mat), "T7");
-    cyl->translate(0.0f, 0.0f, 0.14f, TS_Object);           
+    cyl->translate(0.0f, 0.0f, 0.14f, TS_object);           
     armlow->addChild(cyl);
-    armlow->translate(0.0f, 0.0f, 1.2f, TS_Object);
+    armlow->translate(0.0f, 0.0f, 1.2f, TS_object);
     armlow->rotate(45, -1.0f, 0.0f, 0.0f);
 
     // Assemble arm
     SLNode* arm = new SLNode("arm group ()");
     arm->addMesh(new SLSphere(0.3f, 16, 16, "shoulder", mat));
     cyl = new SLNode(new SLCylinder(0.2f, 1.0f, 1, 16, false, false, "upper arm", mat), "upper arm (T5)");
-    cyl->translate(0.0f, 0.0f, 0.2f, TS_Object);            
+    cyl->translate(0.0f, 0.0f, 0.2f, TS_object);            
     arm->addChild(cyl);
     arm->addChild(armlow);
 
     // Assemble left & right arm
     SLNode* armLeft = new SLNode("left arm group (T3,R2)");
-    armLeft->translate(-1.1f, 0.0f, 0.3f, TS_Object);       
+    armLeft->translate(-1.1f, 0.0f, 0.3f, TS_object);       
     armLeft->rotate(10, -1,0,0);
     armLeft->addChild(arm);
     SLNode* armRight= new SLNode("right arm group (T4,R3)");
-    armRight->translate(1.1f, 0.0f, 0.3f, TS_Object);       
+    armRight->translate(1.1f, 0.0f, 0.3f, TS_object);       
     armRight->rotate(-60, -1,0,0);
     armRight->addChild(arm->copyRec());
 
     // Assemble head & neck
     SLNode* head = new SLNode(new SLSphere(0.5f, 16, 16, "head", mat), "head (T1)");
-    head->translate(0.0f, 0.0f,-0.7f, TS_Object);
+    head->translate(0.0f, 0.0f,-0.7f, TS_object);
     SLNode* neck = new SLNode(new SLCylinder(0.25f, 0.3f, 1, 16, false, false, "neck", mat), "neck (T2)");
-    neck->translate(0.0f, 0.0f,-0.3f, TS_Object);
+    neck->translate(0.0f, 0.0f,-0.3f, TS_object);
       
     // Assemble figure Left
     SLNode* figure = new SLNode("figure group (R1)");
@@ -172,15 +172,14 @@ SLNode* BuildFigureGroup(SLMaterial* mat, SLbool withAnimation)
     return figure;
 }
 //-----------------------------------------------------------------------------
-//! SLScene::onLoad(int sceneName) builds a scene from source code.
+//! SLScene::onLoad(int _currentID) builds a scene from source code.
 /*! SLScene::onLoad builds a scene from source code.
-The parameter sceneName is the scene to choose and corresponds to enumeration 
-SLCommand value for the different scenes. The first scene is cmdSceneFigure.
+The parameter _currentID is the scene to choose and corresponds to enumeration 
+SLCommand value for the different scenes. The first scene is C_sceneFigure.
 */
-void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
+void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
 {  
     // Initialize all preloaded stuff from SLScene
-    cout << "------------------------------------------------------------------" << endl;
     init();
 
     // Show once the empty loading screen without scene
@@ -189,9 +188,11 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
         if (sv != nullptr)
             sv->showLoading(true);
 
-    _currentID = sceneName;
+    // Override input scene if test scene is required
+    SLCommand test = (SLCommand)SL::testScene;
+    _currentSceneID = (test >= C_sceneMinimal && test <= C_sceneRTTest) ? test : sceneName;
 
-    if (sceneName == cmdSceneMinimal) //.......................................
+    if (_currentSceneID == C_sceneMinimal) //.......................................
     {
         // Set scene name and info string
         name("Minimal Texture Example");
@@ -232,7 +233,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
         sv->camera(cam1);
     }
     else
-    if (sceneName == cmdSceneFigure) //.........................................
+    if (_currentSceneID == C_sceneFigure) //.........................................
     {
         name("Hierarchical Figure Scene");
         info(sv, "Hierarchical scenegraph with multiple subgroups.");
@@ -272,7 +273,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
         _root3D = scene;
     }
     else
-    if (sceneName == cmdSceneMeshLoad) //.......................................
+    if (_currentSceneID == C_sceneMeshLoad) //.......................................
     {
         name("Mesh 3D Loader Test");
         info(sv, "3D file import test for: 3DS, DAE & FBX");
@@ -332,19 +333,19 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
         charAnim->playbackRate(0.8f);
 
         // Scale to so that the AstroBoy is about 2 (meters) high.
-        if (mesh3DS) {mesh3DS->scale(0.1f);  mesh3DS->translate(-22.0f, 1.9f, 3.5f, TS_Object);}
-        if (meshDAE) {meshDAE->translate(0,-3,0, TS_Object); meshDAE->scale(2.7f);}
-        if (meshFBX) {meshFBX->scale(0.1f);  meshFBX->scale(0.1f); meshFBX->translate(200, 30, -30, TS_Object); meshFBX->rotate(-90,0,1,0);}
+        if (mesh3DS) {mesh3DS->scale(0.1f);  mesh3DS->translate(-22.0f, 1.9f, 3.5f, TS_object);}
+        if (meshDAE) {meshDAE->translate(0,-3,0, TS_object); meshDAE->scale(2.7f);}
+        if (meshFBX) {meshFBX->scale(0.1f);  meshFBX->scale(0.1f); meshFBX->translate(200, 30, -30, TS_object); meshFBX->rotate(-90,0,1,0);}
         
         // define rectangles for the surrounding box
         SLfloat b=3; // edge size of rectangles
         SLNode *rb, *rl, *rr, *rf, *rt;
         SLuint res = 20;
-        rb = new SLNode(new SLRectangle(SLVec2f(-b,-b), SLVec2f(b,b), res, res, "rectB", matBlu), "rectBNode");                         rb->translate(0,0,-b, TS_Object);
-        rl = new SLNode(new SLRectangle(SLVec2f(-b,-b), SLVec2f(b,b), res, res, "rectL", matRed), "rectLNode"); rl->rotate( 90, 0,1,0); rl->translate(0,0,-b, TS_Object);
-        rr = new SLNode(new SLRectangle(SLVec2f(-b,-b), SLVec2f(b,b), res, res, "rectR", matGre), "rectRNode"); rr->rotate(-90, 0,1,0); rr->translate(0,0,-b, TS_Object);
-        rf = new SLNode(new SLRectangle(SLVec2f(-b,-b), SLVec2f(b,b), res, res, "rectF", matGra), "rectFNode"); rf->rotate(-90, 1,0,0); rf->translate(0,0,-b, TS_Object);
-        rt = new SLNode(new SLRectangle(SLVec2f(-b,-b), SLVec2f(b,b), res, res, "rectT", matGra), "rectTNode"); rt->rotate( 90, 1,0,0); rt->translate(0,0,-b, TS_Object);
+        rb = new SLNode(new SLRectangle(SLVec2f(-b,-b), SLVec2f(b,b), res, res, "rectB", matBlu), "rectBNode");                         rb->translate(0,0,-b, TS_object);
+        rl = new SLNode(new SLRectangle(SLVec2f(-b,-b), SLVec2f(b,b), res, res, "rectL", matRed), "rectLNode"); rl->rotate( 90, 0,1,0); rl->translate(0,0,-b, TS_object);
+        rr = new SLNode(new SLRectangle(SLVec2f(-b,-b), SLVec2f(b,b), res, res, "rectR", matGre), "rectRNode"); rr->rotate(-90, 0,1,0); rr->translate(0,0,-b, TS_object);
+        rf = new SLNode(new SLRectangle(SLVec2f(-b,-b), SLVec2f(b,b), res, res, "rectF", matGra), "rectFNode"); rf->rotate(-90, 1,0,0); rf->translate(0,0,-b, TS_object);
+        rt = new SLNode(new SLRectangle(SLVec2f(-b,-b), SLVec2f(b,b), res, res, "rectT", matGra), "rectTNode"); rt->rotate( 90, 1,0,0); rt->translate(0,0,-b, TS_object);
 
         SLNode* scene = new SLNode("Scene");
         scene->addChild(light1);
@@ -364,7 +365,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
         _root3D = scene;
     }
     else
-    if (sceneName == cmdSceneVRSizeTest) //.....................................
+    if (_currentSceneID == C_sceneVRSizeTest) //.....................................
     {
         name("Virtual Reality test scene");
         info(sv, "Test scene for virtual reality size perception.");
@@ -379,7 +380,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
                                             ,SL_ANISOTROPY_MAX
                                             ,GL_LINEAR),
                                             nullptr, nullptr, nullptr,
-                                            _programs[TextureOnly]);
+                                            _programs[SP_TextureOnly]);
         SLNode* floor = new SLNode(
                             new SLRectangle(SLVec2f(-1000, -1000), SLVec2f(1000,1000),
                                             SLVec2f(-1000, -1000), SLVec2f(1000,1000),
@@ -401,30 +402,30 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
         
         
         crate->rotate(20, 0, 1, 0);
-        crate->translate(2, 0, -1, TS_World);
+        crate->translate(2, 0, -1, TS_world);
         scene->addChild(crate);
         
         crate = new SLNode;
         crate->addMesh(crateMesh);
         crate->rotate(20, 0, 1, 0);
-        crate->translate(3.1f, 0, -1, TS_World);
+        crate->translate(3.1f, 0, -1, TS_world);
         scene->addChild(crate);
         
         crate = new SLNode(crateMesh);
         crate->rotate(-10, 0, 1, 0);
-        crate->translate(2.5f, 1, -1, TS_World);
+        crate->translate(2.5f, 1, -1, TS_world);
         scene->addChild(crate);
 
         
         crate = new SLNode(crateMesh);
         crate->rotate(60, 0, 1, 0);
-        crate->translate(-4, 0, 1, TS_World);
+        crate->translate(-4, 0, 1, TS_world);
         crate->scale(2);
         scene->addChild(crate);
         
         crate = new SLNode(crateMesh);
         crate->rotate(30, 0, 1, 0);
-        crate->translate(-5, 0, -8, TS_World);
+        crate->translate(-5, 0, -8, TS_world);
         crate->scale(4);
         scene->addChild(crate);
 
@@ -433,7 +434,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
         cam1->lookAt(0, 1.67f, -1.0f);
         cam1->focalDist(22);
         cam1->setInitialState();
-        cam1->camAnim(walkingYUp);
+        cam1->camAnim(CA_walkingYUp);
         scene->addChild(cam1);
 
         // big astroboy
@@ -527,13 +528,13 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
             sizeIndicator->addMesh(plane1);
             //sizeIndicator->scale();
             SLVec3f pos = indicators[i].pos;
-            sizeIndicator->translate(pos, TS_World);
+            sizeIndicator->translate(pos, TS_world);
             sizeIndicator->scale(1, indicators[i].yScale, 1);
-            sizeIndicator->rotate(indicators[i].yRot, 0, 1, 0, TS_World);
+            sizeIndicator->rotate(indicators[i].yRot, 0, 1, 0, TS_world);
         
             SLText* sizeText1M = new SLText(indicators[i].text, SLTexFont::font22);
             sizeText1M->translate(pos.x + 0.05f, pos.y + 0.5f * indicators[i].yScale, pos.z);
-            sizeText1M->rotate(indicators[i].yRot, 0, 1, 0, TS_World);
+            sizeText1M->rotate(indicators[i].yRot, 0, 1, 0, TS_world);
             sizeText1M->scale(0.005f);
 
 
@@ -551,7 +552,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
         _root3D = scene;
     }
     else
-    if (sceneName == cmdSceneRevolver) //.......................................
+    if (_currentSceneID == C_sceneRevolver) //.......................................
     {
         name("Revolving Mesh Test w. glass shader");
         info(sv, "Examples of revolving mesh objects constructed by rotating a 2D curve. The glass shader reflects and refracts the environment map. Try ray tracing.");
@@ -604,7 +605,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
         light1->specular(SLCol4f(1, 1, 1));
         light1->attenuation(1,0,0);
         SLAnimation* anim = SLAnimation::create("light1_anim", 4.0f);
-        anim->createEllipticNodeTrack(light1, 6.0f, ZAxis, 6.0f, XAxis);
+        anim->createEllipticNodeTrack(light1, 6.0f, A_z, 6.0f, A_x);
 
         // glass 2D polygon definition for revolution
         SLVVec3f revG;
@@ -630,7 +631,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
         revG.push_back(SLVec3f(2.00f, 7.10f)); // inner cup
         revG.push_back(SLVec3f(2.05f, 6.00f));
         SLNode* glass = new SLNode(new SLRevolver(revG, SLVec3f(0,1,0), 36, true, false, "GlassRev", mat5));
-        glass->translate(0.0f,-3.5f, 0.0f, TS_Object);
+        glass->translate(0.0f,-3.5f, 0.0f, TS_object);
 
         // wine 2D polyline definition for revolution with two sided material
         SLVVec3f revW;
@@ -644,21 +645,21 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
         SLMesh* wineMesh = new SLRevolver(revW, SLVec3f(0,1,0), 36, true, false, "WineRev", mat6);
         wineMesh->matOut = mat5;
         SLNode* wine = new SLNode(wineMesh);
-        wine->translate(0.0f,-3.5f, 0.0f, TS_Object);
+        wine->translate(0.0f,-3.5f, 0.0f, TS_object);
 
         // wine fluid top
         SLNode* wineTop = new SLNode(new SLDisk(2.05f, -SLVec3f::AXISY, 36, false, "WineRevTop", mat6));
-        wineTop->translate(0.0f, 2.5f, 0.0f, TS_Object);
+        wineTop->translate(0.0f, 2.5f, 0.0f, TS_object);
 
         // Other revolver objects
         SLNode* sphere = new SLNode(new SLSphere(1,16,16, "sphere", mat1));
-        sphere->translate(3,0,0, TS_Object);
+        sphere->translate(3,0,0, TS_object);
         SLNode* cylinder = new SLNode(new SLCylinder(0.1f, 7, 3, 16, true, true, "cylinder", mat1));
         cylinder->translate(0,0.5f,0);
         cylinder->rotate(90,-1,0,0);
         cylinder->rotate(30, 0,1,0);
         SLNode* cone = new SLNode(new SLCone(1, 3, 3, 16, true, "cone", mat1));
-        cone->translate(-3,-1,0, TS_Object);
+        cone->translate(-3,-1,0, TS_object);
         cone->rotate(90, -1,0,0);
 
         // Cube dimensions
@@ -668,23 +669,23 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
 
         //// bottom rectangle
         SLNode* b = new SLNode(new SLRectangle(SLVec2f(pL,-pN), SLVec2f(pR,-pF), 10, 10, "PolygonFloor", mat2));
-        b->rotate(90, -1,0,0); b->translate(0,0,pB, TS_Object);
+        b->rotate(90, -1,0,0); b->translate(0,0,pB, TS_object);
 
         // top rectangle
         SLNode* t = new SLNode(new SLRectangle(SLVec2f(pL,pF), SLVec2f(pR,pN), 10, 10, "top", mat2));
-        t->rotate(90, 1,0,0); t->translate(0,0,-pT, TS_Object);
+        t->rotate(90, 1,0,0); t->translate(0,0,-pT, TS_object);
 
         // far rectangle
         SLNode* f = new SLNode(new SLRectangle(SLVec2f(pL,pB), SLVec2f(pR,pT), 10, 10, "far", mat3));
-        f->translate(0,0,pF, TS_Object);
+        f->translate(0,0,pF, TS_object);
 
         // left rectangle
         SLNode* l = new SLNode(new SLRectangle(SLVec2f(-pN,pB), SLVec2f(-pF,pT), 10, 10, "left", mat4));
-        l->rotate(90, 0,1,0); l->translate(0,0,pL, TS_Object);
+        l->rotate(90, 0,1,0); l->translate(0,0,pL, TS_object);
 
         // right rectangle
         SLNode* r = new SLNode(new SLRectangle(SLVec2f(pF,pB), SLVec2f(pN,pT), 10, 10, "right", mat4));
-        r->rotate(90, 0,-1,0); r->translate(0,0,-pR, TS_Object);
+        r->rotate(90, 0,-1,0); r->translate(0,0,-pR, TS_object);
 
         SLNode* scene = new SLNode;
         scene->addChild(light1);
@@ -706,7 +707,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
         _root3D = scene;
     }
     else
-    if (sceneName == cmdSceneLargeModel) //.....................................
+    if (_currentSceneID == C_sceneLargeModel) //.....................................
     {
         name("Large Model Test");
         info(sv, "Large Model with 7.2 mio. triangles.");
@@ -774,7 +775,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
         
     }
     else
-    if (sceneName == cmdSceneChristoffel) //...................................
+    if (_currentSceneID == C_sceneChristoffel) //...................................
     {
         name("Christoffel Tower");
         info(sv, "Augmented Reality Christoffel Tower");
@@ -786,7 +787,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
         cam1->clipNear(0.1f);
         cam1->clipFar(500.0f);
         cam1->setInitialState();
-        cam1->camAnim(walkingYUp);
+        cam1->camAnim(CA_walkingYUp);
 
         SLLightSphere* light1 = new SLLightSphere(120,120,120, 1);
         light1->ambient(SLCol4f(1,1,1));
@@ -816,21 +817,21 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
         _root3D = scene;
     }
     else
-    if (sceneName == cmdSceneTextureBlend) //..................................
+    if (_currentSceneID == C_sceneTextureBlend) //..................................
     {
         name("Blending: Texture Transparency with sorting");
         info(sv, "Texture map blending with depth sorting. Trees in view frustum are rendered back to front.");
 
         SLGLTexture* t1 = new SLGLTexture("tree1_1024_C.png",
                                           GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR,
-                                          ColorMap,
+                                          TT_color,
                                           GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE);
         SLGLTexture* t2 = new SLGLTexture("grass0512_C.jpg",
                                           GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR);
 
         SLMaterial* m1 = new SLMaterial("m1", SLCol4f(1,1,1), SLCol4f(0,0,0), 100);
         SLMaterial* m2 = new SLMaterial("m2", SLCol4f(1,1,1), SLCol4f(0,0,0), 100);
-        m1->program(_programs[TextureOnly]);
+        m1->program(_programs[SP_TextureOnly]);
         m1->textures().push_back(t1);
         m2->textures().push_back(t2);
 
@@ -898,7 +899,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
                 {   SLNode* t = tree->copyRec();
                     t->translate(float(iX)*2+SL_random(0.7f,1.4f),
                                 0,
-                                float(iZ)*2+SL_random(0.7f,1.4f), TS_Object);
+                                float(iZ)*2+SL_random(0.7f,1.4f), TS_object);
                     t->rotate(SL_random(0, 90), 0,1,0);
                     t->scale(SL_random(0.5f,1.0f));
                     scene->addChild(t);
@@ -913,7 +914,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
         _root3D = scene;
     }
     else
-    if (sceneName == cmdSceneTextureFilter) //.................................
+    if (_currentSceneID == C_sceneTextureFilter) //.................................
     {
         name("Texturing: Filter Compare and 3D texture");
         info(sv, "Texture filters: Bottom: nearest, left: linear, top: linear mipmap, right: anisotropic");
@@ -933,10 +934,10 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
                                             ,GL_LINEAR);
 
         // define materials with textureOnly shader, no light needed
-        SLMaterial* matB = new SLMaterial("matB", texB,0,0,0, _programs[TextureOnly]);
-        SLMaterial* matL = new SLMaterial("matL", texL,0,0,0, _programs[TextureOnly]);
-        SLMaterial* matT = new SLMaterial("matT", texT,0,0,0, _programs[TextureOnly]);
-        SLMaterial* matR = new SLMaterial("matR", texR,0,0,0, _programs[TextureOnly]);
+        SLMaterial* matB = new SLMaterial("matB", texB,0,0,0, _programs[SP_TextureOnly]);
+        SLMaterial* matL = new SLMaterial("matL", texL,0,0,0, _programs[SP_TextureOnly]);
+        SLMaterial* matT = new SLMaterial("matT", texT,0,0,0, _programs[SP_TextureOnly]);
+        SLMaterial* matR = new SLMaterial("matR", texR,0,0,0, _programs[SP_TextureOnly]);
 
         // build polygons for bottom, left, top & right side
         SLVVec3f VB;
@@ -1021,7 +1022,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
         _root3D = scene;
     }
     else
-    if (sceneName == cmdSceneTextureVideo) //..................................
+    if (_currentSceneID == C_sceneTextureVideo) //..................................
     {
         // Set scene name and info string
         name("Live Video Texture Example");
@@ -1062,7 +1063,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
         sv->camera(cam1);
     }
     else
-    if (sceneName == cmdSceneFrustumCull1) //...................................
+    if (_currentSceneID == C_sceneFrustumCull1) //...................................
     {  
         name("Frustum Culling Test 1");
         info(sv, "View frustum culling: Only objects in view frustum are rendered. You can turn view culling off in the render flags.");
@@ -1103,7 +1104,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
                 {   if (iX!=0 || iY!=0 || iZ !=0)
                     {
                         SLNode* s = sphere->copyRec();
-                        s->translate(float(iX), float(iY), float(iZ), TS_Object);
+                        s->translate(float(iX), float(iY), float(iZ), TS_object);
                         scene->addChild(s);
                     }
                 }
@@ -1119,13 +1120,13 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
         _root3D = scene;
     }
     else
-    if (sceneName == cmdScenePerVertexBlinn) //.................................
+    if (_currentSceneID == C_scenePerVertexBlinn) //.................................
     {
         name("Blinn-Phong per vertex lighting");
         info(sv, "Per-vertex lighting with Blinn-Phong lightmodel. The reflection of 4 light sources is calculated per vertex and is then interpolated over the triangles.");
 
         // create material
-        SLMaterial* m1 = new SLMaterial("m1", 0,0,0,0, _programs[PerVrtBlinn]);
+        SLMaterial* m1 = new SLMaterial("m1", 0,0,0,0, _programs[SP_perVrtBlinn]);
         m1->shininess(500);
 
         SLCamera* cam1 = new SLCamera;
@@ -1183,13 +1184,13 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
         _root3D = scene;
     }
     else
-    if (sceneName == cmdScenePerPixelBlinn) //..................................
+    if (_currentSceneID == C_scenePerPixelBlinn) //..................................
     {
         name("Blinn-Phong per pixel lighting");
         info(sv, "Per-pixel lighting with Blinn-Phong lightmodel. The reflection of 4 light sources is calculated per pixel.");
 
         // create material
-        SLMaterial* m1 = new SLMaterial("m1", 0,0,0,0, _programs[PerPixBlinn]);
+        SLMaterial* m1 = new SLMaterial("m1", 0,0,0,0, _programs[SP_perPixBlinn]);
         m1->shininess(500);
 
         SLCamera* cam1 = new SLCamera;
@@ -1247,7 +1248,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
         _root3D = scene;
     }
     else
-    if (sceneName == cmdScenePerVertexWave) //..................................
+    if (_currentSceneID == C_scenePerVertexWave) //..................................
     {
         name("Wave Shader");
         info(sv, "Vertex Shader with wave displacment.");
@@ -1261,12 +1262,12 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
 
         // Create generic shader program with 4 custom uniforms
         SLGLProgram* sp = new SLGLGenericProgram("Wave.vert", "Wave.frag");
-        SLGLUniform1f* u_h = new SLGLUniform1f(UF1Const, "u_h", 0.1f, 0.05f, 0.0f, 0.5f, (SLKey)'H');
+        SLGLUniform1f* u_h = new SLGLUniform1f(UT_const, "u_h", 0.1f, 0.05f, 0.0f, 0.5f, (SLKey)'H');
         _eventHandlers.push_back(u_h);
         sp->addUniform1f(u_h);
-        sp->addUniform1f(new SLGLUniform1f(UF1Inc,    "u_t", 0.0f, 0.06f));
-        sp->addUniform1f(new SLGLUniform1f(UF1Const,  "u_a", 2.5f));
-        sp->addUniform1f(new SLGLUniform1f(UF1IncDec, "u_b", 2.2f, 0.01f, 2.0f, 2.5f));
+        sp->addUniform1f(new SLGLUniform1f(UT_inc,    "u_t", 0.0f, 0.06f));
+        sp->addUniform1f(new SLGLUniform1f(UT_const,  "u_a", 2.5f));
+        sp->addUniform1f(new SLGLUniform1f(UT_incDec, "u_b", 2.2f, 0.01f, 2.0f, 2.5f));
 
         // Create materials
         SLMaterial* matWater = new SLMaterial("matWater", SLCol4f(0.45f,0.65f,0.70f),
@@ -1282,7 +1283,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
         SLLightSphere* light0 = new SLLightSphere();
         light0->ambient(SLCol4f(0,0,0));
         light0->diffuse(SLCol4f(1,1,1));
-        light0->translate(0,4,-4, TS_Object);
+        light0->translate(0,4,-4, TS_object);
         light0->attenuation(1,0,0);
 
         SLNode* scene = new SLNode;
@@ -1297,7 +1298,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
         sv->waitEvents(false);
     }
     else
-    if (sceneName == cmdSceneWater) //..........................................
+    if (_currentSceneID == C_sceneWater) //..........................................
     {
         name("Water Shader");
         info(sv, "Water Shader with reflection & refraction mapping.");
@@ -1317,12 +1318,12 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
         // Create generic shader program with 4 custom uniforms
         SLGLProgram* sp = new SLGLGenericProgram("WaveRefractReflect.vert",
                                                        "RefractReflect.frag");
-        SLGLUniform1f* u_h = new SLGLUniform1f(UF1Const, "u_h", 0.1f, 0.05f, 0.0f, 0.5f, (SLKey)'H');
+        SLGLUniform1f* u_h = new SLGLUniform1f(UT_const, "u_h", 0.1f, 0.05f, 0.0f, 0.5f, (SLKey)'H');
         _eventHandlers.push_back(u_h);
         sp->addUniform1f(u_h);
-        sp->addUniform1f(new SLGLUniform1f(UF1Inc,    "u_t", 0.0f, 0.06f));
-        sp->addUniform1f(new SLGLUniform1f(UF1Const,  "u_a", 2.5f));
-        sp->addUniform1f(new SLGLUniform1f(UF1IncDec, "u_b", 2.2f, 0.01f, 2.0f, 2.5f));
+        sp->addUniform1f(new SLGLUniform1f(UT_inc,    "u_t", 0.0f, 0.06f));
+        sp->addUniform1f(new SLGLUniform1f(UT_const,  "u_a", 2.5f));
+        sp->addUniform1f(new SLGLUniform1f(UT_incDec, "u_b", 2.2f, 0.01f, 2.0f, 2.5f));
 
         // Create materials
         SLMaterial* matWater = new SLMaterial("matWater", SLCol4f(0.45f,0.65f,0.70f),
@@ -1350,16 +1351,16 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
                                                    SLVec2f(0,0), SLVec2f(10, 2.5f), 10, 10, "rectR", matTile));
         SLNode* rectB = new SLNode(new SLRectangle(SLVec2f(-SL_PI,-SL_PI  ), SLVec2f( SL_PI, SL_PI  ),
                                                    SLVec2f(0,0), SLVec2f(10, 10  ), 10, 10, "rectB", matTile));
-        rectF->translate(0,0,-SL_PI, TS_Object);
-        rectL->rotate( 90, 0,1,0); rectL->translate(0,0,-SL_PI, TS_Object);
-        rectN->rotate(180, 0,1,0); rectN->translate(0,0,-SL_PI, TS_Object);
-        rectR->rotate(270, 0,1,0); rectR->translate(0,0,-SL_PI, TS_Object);
-        rectB->rotate( 90,-1,0,0); rectB->translate(0,0,-SL_PI/6, TS_Object);
+        rectF->translate(0,0,-SL_PI, TS_object);
+        rectL->rotate( 90, 0,1,0); rectL->translate(0,0,-SL_PI, TS_object);
+        rectN->rotate(180, 0,1,0); rectN->translate(0,0,-SL_PI, TS_object);
+        rectR->rotate(270, 0,1,0); rectR->translate(0,0,-SL_PI, TS_object);
+        rectB->rotate( 90,-1,0,0); rectB->translate(0,0,-SL_PI/6, TS_object);
 
         SLLightSphere* light0 = new SLLightSphere();
         light0->ambient(SLCol4f(0,0,0));
         light0->diffuse(SLCol4f(1,1,1));
-        light0->translate(0,4,-4, TS_Object);
+        light0->translate(0,4,-4, TS_object);
         light0->attenuation(1,0,0);
 
         SLNode* scene = new SLNode;
@@ -1379,7 +1380,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
         sv->waitEvents(false);
     }
     else
-    if (sceneName == cmdSceneBumpNormal) //.....................................
+    if (_currentSceneID == C_sceneBumpNormal) //.....................................
     {
         name("Normal Map Bump Mapping");
         info(sv, "Normal map bump mapping combined with a per pixel spot lighting.");
@@ -1389,7 +1390,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
         SLGLTexture* texN = new SLGLTexture("brickwall0512_N.jpg");
 
         // Create materials
-        SLMaterial* m1 = new SLMaterial("m1", texC, texN, 0, 0, _programs[BumpNormal]);
+        SLMaterial* m1 = new SLMaterial("m1", texC, texN, 0, 0, _programs[SP_bumpNormal]);
 
         SLCamera* cam1 = new SLCamera();
         cam1->name("cam1");
@@ -1407,7 +1408,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
         light1->spotCutoff(40);
 
         SLAnimation* anim = SLAnimation::create("light1_anim", 2.0f);
-        anim->createEllipticNodeTrack(light1, 2.0f, XAxis, 2.0f, YAxis);
+        anim->createEllipticNodeTrack(light1, 2.0f, A_x, 2.0f, A_Y);
 
         SLNode* scene = new SLNode;
         scene->addChild(light1);
@@ -1419,7 +1420,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
         _root3D = scene;
     }
     else
-    if (sceneName == cmdSceneBumpParallax) //...................................
+    if (_currentSceneID == C_sceneBumpParallax) //...................................
     {
         name("Parallax Bump Mapping");
         cout << "Demo application for parallax bump mapping.\n";
@@ -1429,8 +1430,8 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
 
         // Create shader program with 4 uniforms
         SLGLProgram* sp = new SLGLGenericProgram("BumpNormal.vert", "BumpNormalParallax.frag");
-        SLGLUniform1f* scale = new SLGLUniform1f(UF1Const, "u_scale", 0.04f, 0.002f, 0, 1, (SLKey)'X');
-        SLGLUniform1f* offset = new SLGLUniform1f(UF1Const, "u_offset", -0.03f, 0.002f,-1, 1, (SLKey)'O');
+        SLGLUniform1f* scale = new SLGLUniform1f(UT_const, "u_scale", 0.04f, 0.002f, 0, 1, (SLKey)'X');
+        SLGLUniform1f* offset = new SLGLUniform1f(UT_const, "u_offset", -0.03f, 0.002f,-1, 1, (SLKey)'O');
         _eventHandlers.push_back(scale);
         _eventHandlers.push_back(offset);
         sp->addUniform1f(scale);
@@ -1460,7 +1461,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
         light1->spotCutoff(50);
 
         SLAnimation* anim = SLAnimation::create("light1_anim", 2.0f);
-        anim->createEllipticNodeTrack(light1, 2.0f, XAxis, 2.0f, YAxis);
+        anim->createEllipticNodeTrack(light1, 2.0f, A_x, 2.0f, A_Y);
 
         SLNode* scene = new SLNode;
         scene->addChild(light1);
@@ -1472,7 +1473,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
         _root3D = scene;
     }
     else
-    if (sceneName == cmdSceneEarth) //..........................................
+    if (_currentSceneID == C_sceneEarth) //..........................................
     {
         name("Earth Shader from Markus Knecht");
         cout << "Earth Shader from Markus Knecht\n";
@@ -1483,8 +1484,8 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
 
         // Create shader program with 4 uniforms
         SLGLProgram* sp = new SLGLGenericProgram("BumpNormal.vert", "BumpNormalEarth.frag");
-        SLGLUniform1f* scale = new SLGLUniform1f(UF1Const, "u_scale", 0.02f, 0.002f, 0, 1, (SLKey)'X');
-        SLGLUniform1f* offset = new SLGLUniform1f(UF1Const, "u_offset", -0.02f, 0.002f,-1, 1, (SLKey)'O');
+        SLGLUniform1f* scale = new SLGLUniform1f(UT_const, "u_scale", 0.02f, 0.002f, 0, 1, (SLKey)'X');
+        SLGLUniform1f* offset = new SLGLUniform1f(UT_const, "u_offset", -0.02f, 0.002f,-1, 1, (SLKey)'O');
         _eventHandlers.push_back(scale);
         _eventHandlers.push_back(offset);
         sp->addUniform1f(scale);
@@ -1527,7 +1528,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
         sun->attenuation(1,0,0);
         
         SLAnimation* anim = SLAnimation::create("light1_anim", 24.0f);
-        anim->createEllipticNodeTrack(sun, 50.0f, XAxis, 50.0f, ZAxis);
+        anim->createEllipticNodeTrack(sun, 50.0f, A_x, 50.0f, A_z);
 
         SLNode* earth = new SLNode(new SLSphere(1, 36, 36, "Earth", matEarth));
         earth->rotate(90,-1,0,0);
@@ -1542,7 +1543,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
         _root3D = scene;
     }
     else
-    if (sceneName == cmdSceneSkeletalAnimation) //..............................
+    if (_currentSceneID == C_sceneSkeletalAnimation) //..............................
     {
         name("Skeletal Animation Test");
         info(sv, "Skeletal Animation Test Scene");
@@ -1623,7 +1624,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
         _root3D = scene;
     }
     else
-    if (sceneName == cmdSceneNodeAnimation) //..................................
+    if (_currentSceneID == C_sceneNodeAnimation) //..................................
     {
         name("Node Animations");
         info(sv, "Node animations with different easing curves.");
@@ -1640,27 +1641,27 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
 
         // Bouncing balls
         SLNode* ball1 = new SLNode(new SLSphere(0.3f, 16, 16, "Ball1", m2));
-        ball1->translate(0,0,4, TS_Object);
+        ball1->translate(0,0,4, TS_object);
         SLAnimation* ball1Anim = SLAnimation::create("Ball1_anim", 1.0f, true, EC_linear, AL_pingPongLoop);
         ball1Anim->createSimpleTranslationNodeTrack(ball1, SLVec3f(0.0f, -5.2f, 0.0f));
 
         SLNode* ball2 = new SLNode(new SLSphere(0.3f, 16, 16, "Ball2", m2));
-        ball2->translate(-1.5f,0,4, TS_Object);
+        ball2->translate(-1.5f,0,4, TS_object);
         SLAnimation* ball2Anim = SLAnimation::create("Ball2_anim", 1.0f, true, EC_inQuad, AL_pingPongLoop);
         ball2Anim->createSimpleTranslationNodeTrack(ball2, SLVec3f(0.0f, -5.2f, 0.0f));
 
         SLNode* ball3 = new SLNode(new SLSphere(0.3f, 16, 16, "Ball3", m2));
-        ball3->translate(-2.5f,0,4, TS_Object);
+        ball3->translate(-2.5f,0,4, TS_object);
         SLAnimation* ball3Anim = SLAnimation::create("Ball3_anim", 1.0f, true, EC_outQuad, AL_pingPongLoop);
         ball3Anim->createSimpleTranslationNodeTrack(ball3, SLVec3f(0.0f, -5.2f, 0.0f));
 
         SLNode* ball4 = new SLNode(new SLSphere(0.3f, 16, 16, "Ball4", m2));
-        ball4->translate( 1.5f,0,4, TS_Object);
+        ball4->translate( 1.5f,0,4, TS_object);
         SLAnimation* ball4Anim = SLAnimation::create("Ball4_anim", 1.0f, true, EC_inOutQuad, AL_pingPongLoop);
         ball4Anim->createSimpleTranslationNodeTrack(ball4, SLVec3f(0.0f, -5.2f, 0.0f));
 
         SLNode* ball5 = new SLNode(new SLSphere(0.3f, 16, 16, "Ball5", m2));
-        ball5->translate( 2.5f,0,4, TS_Object);
+        ball5->translate( 2.5f,0,4, TS_object);
         SLAnimation* ball5Anim = SLAnimation::create("Ball5_anim", 1.0f, true, EC_outInQuad, AL_pingPongLoop);
         ball5Anim->createSimpleTranslationNodeTrack(ball5, SLVec3f(0.0f, -5.2f, 0.0f));
 
@@ -1681,14 +1682,14 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
         light1->specular(SLCol4f(0.9f,0.9f,0.9f));
         light1->attenuation(1,0,0);
         SLAnimation* light1Anim = SLAnimation::create("Light1_anim", 4.0f);
-        light1Anim->createEllipticNodeTrack(light1, 6, ZAxis, 6, XAxis);
+        light1Anim->createEllipticNodeTrack(light1, 6, A_z, 6, A_x);
 
         SLLightSphere* light2 = new SLLightSphere(0, 0, 0, 0.2f);
         light2->ambient (SLCol4f(0.2f,0.0f,0.0f));
         light2->diffuse (SLCol4f(0.9f,0.0f,0.0f));
         light2->specular(SLCol4f(0.9f,0.9f,0.9f));
         light2->attenuation(1,0,0);
-        light2->translate(-8, -4, 0, TS_World);
+        light2->translate(-8, -4, 0, TS_world);
         light2->setInitialState();
 
         SLAnimation* light2Anim = SLAnimation::create("light2_anim", 2.0f, true, EC_linear, AL_pingPongLoop);
@@ -1697,7 +1698,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
         track->createNodeKeyframe(0.0f);
         track->createNodeKeyframe(1.0f)->translation(SLVec3f(8, 8, 0));
         track->createNodeKeyframe(2.0f)->translation(SLVec3f(16, 0, 0));
-        track->translationInterpolation(AI_Bezier);
+        track->translationInterpolation(AI_bezier);
 
         SLNode* figure = BuildFigureGroup(m2, true);
 
@@ -1720,7 +1721,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
         _root3D = scene;
     }
     else
-    if (sceneName == cmdSceneMassAnimation) //..................................
+    if (_currentSceneID == C_sceneMassAnimation) //..................................
     {
         name("Mass Animation");
         info(sv, "Performance test for transform updates from many animations.");
@@ -1729,7 +1730,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
 
         SLLightSphere* light1 = new SLLightSphere(7,7,0, 0.1f, 5, 10);
         light1->attenuation(0,0,1);
-        light1->translate(-3, 5, 2, TS_Object);
+        light1->translate(-3, 5, 2, TS_object);
 
         // build a basic scene to have a reference for the occuring rotations
         SLMaterial* genericMat = new SLMaterial("some material");
@@ -1782,7 +1783,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
                     SLfloat z = (SLfloat)((i > 0) ? i / gridSize - gridHalf : -gridHalf);
                     SLVec3f pos(x*nodeSpacing[lvl] *1.1f, 1.5f, z*nodeSpacing[lvl]*1.1f);
 
-                    node->translate(pos, TS_Object);
+                    node->translate(pos, TS_object);
                     //node->scale(1.1f);
 
                     SLfloat duration = 1.0f + 5.0f * ((SLfloat)i/(SLfloat)nodesPerLvl);
@@ -1795,8 +1796,8 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
         }
     }
     else
-    if (sceneName == cmdSceneAstroboyArmyCPU ||
-        sceneName == cmdSceneAstroboyArmyGPU) //................................
+    if (_currentSceneID == C_sceneAstroboyArmyCPU ||
+        _currentSceneID == C_sceneAstroboyArmyGPU) //................................
     {
         info(sv, "Mass animation scene of identitcal Astroboy models");
 
@@ -1834,10 +1835,10 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
 
         // set the skinning method of the loaded meshes
         // @note RT currently only works with software skinning
-        if (sceneName == cmdSceneAstroboyArmyGPU)
+        if (_currentSceneID == C_sceneAstroboyArmyGPU)
         {   name("Astroboy army skinned on GPU");
             for (auto m : importer.meshes())
-               m->skinMethod(SM_HardwareSkinning);
+               m->skinMethod(SM_hardware);
         } else
             name("Astroboy army skinned on CPU");
 
@@ -1862,7 +1863,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
                 {   SLNode* n = new SLNode;
                     float xt = float(iX) * 1.0f;
                     float zt = float(iZ) * 1.0f + ((shift) ? 0.5f : 0.0f);
-                    n->translate(xt, 0, zt, TS_Object);
+                    n->translate(xt, 0, zt, TS_object);
                     for (auto m : importer.meshes())
                         n->addMesh(m);
                     scene->addChild(n);
@@ -1876,7 +1877,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
         _root3D = scene;
     }
     else
-    if (sceneName == cmdSceneRTMuttenzerBox) //.................................
+    if (_currentSceneID == C_sceneRTMuttenzerBox) //.................................
     {
         name("Muttenzer Box (RT)");
         info(sv, "Muttenzer Box with environment mapped reflective sphere and transparenz refractive glass sphere. Try ray tracing for real reflections and soft shadows.",
@@ -1915,10 +1916,10 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
         refr->program(sp2);
    
         SLNode* sphere1 = new SLNode(new SLSphere(0.5f, 32, 32, "Sphere1", refl));
-        sphere1->translate(-0.65f, -0.75f, -0.55f, TS_Object);
+        sphere1->translate(-0.65f, -0.75f, -0.55f, TS_object);
 
         SLNode* sphere2 = new SLNode(new SLSphere(0.45f, 32, 32, "Sphere2", refr));
-        sphere2->translate( 0.73f, -0.8f, 0.10f, TS_Object);
+        sphere2->translate( 0.73f, -0.8f, 0.10f, TS_object);
 
         SLNode* balls = new SLNode;
         balls->addChild(sphere1);
@@ -1927,7 +1928,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
         // Rectangular light 
         SLLightRect* lightRect = new SLLightRect(1, 0.65f);
         lightRect->rotate(90, -1.0f, 0.0f, 0.0f);
-        lightRect->translate(0.0f, -0.25f, 1.18f, TS_Object);
+        lightRect->translate(0.0f, -0.25f, 1.18f, TS_object);
         lightRect->spotCutoff(90);
         lightRect->spotExponent(1.0);
         lightRect->diffuse(lightEmisRGB);
@@ -1955,23 +1956,23 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
       
         // bottom plane
         SLNode* b = new SLNode(new SLRectangle(SLVec2f(pL,-pN), SLVec2f(pR,-pF), 6, 6, "bottom", cream)); 
-        b->rotate(90, -1,0,0); b->translate(0,0,pB,TS_Object); scene->addChild(b);
+        b->rotate(90, -1,0,0); b->translate(0,0,pB,TS_object); scene->addChild(b);
    
         // top plane
         SLNode* t = new SLNode(new SLRectangle(SLVec2f(pL,pF), SLVec2f(pR,pN), 6, 6, "top", cream)); 
-        t->rotate(90, 1,0,0); t->translate(0,0,-pT,TS_Object); scene->addChild(t);
+        t->rotate(90, 1,0,0); t->translate(0,0,-pT,TS_object); scene->addChild(t);
    
         // far plane
         SLNode* f = new SLNode(new SLRectangle(SLVec2f(pL,pB), SLVec2f(pR,pT), 6, 6, "far", cream)); 
-        f->translate(0,0,pF,TS_Object); scene->addChild(f);
+        f->translate(0,0,pF,TS_object); scene->addChild(f);
    
         // left plane
         SLNode* l = new SLNode(new SLRectangle(SLVec2f(-pN,pB), SLVec2f(-pF,pT), 6, 6, "left", red)); 
-        l->rotate(90, 0,1,0); l->translate(0,0,pL,TS_Object); scene->addChild(l);
+        l->rotate(90, 0,1,0); l->translate(0,0,pL,TS_object); scene->addChild(l);
    
         // right plane
         SLNode* r = new SLNode(new SLRectangle(SLVec2f(pF,pB), SLVec2f(pN,pT), 6, 6, "right", blue)); 
-        r->rotate(90, 0,-1,0); r->translate(0,0,-pR,TS_Object); scene->addChild(r);
+        r->rotate(90, 0,-1,0); r->translate(0,0,-pR,TS_object); scene->addChild(r);
       
         scene->addChild(balls);
 
@@ -1980,7 +1981,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
         _root3D = scene;
     }
     else
-    if (sceneName == cmdSceneRTSpheres) //......................................
+    if (_currentSceneID == C_sceneRTSpheres) //......................................
     {
         name("Ray tracing Spheres");
         info(sv, "Classic ray tracing scene with transparent and reflective spheres. Be patient on mobile devices.");
@@ -2003,7 +2004,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
 
         SLNode *rect = new SLNode(new SLRectangle(SLVec2f(-3,-3), SLVec2f(5,4), 20, 20, "Floor", matYel));
         rect->rotate(90, -1,0,0);
-        rect->translate(0, -1, -0.5f, TS_Object);
+        rect->translate(0, -1, -0.5f, TS_object);
 
         SLLightSphere* light1 = new SLLightSphere(2, 2, 2, 0.1f);
         light1->ambient(SLCol4f(1, 1, 1));
@@ -2029,7 +2030,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
         sv->camera(cam1);
     }
     else
-    if (sceneName == cmdSceneRTSoftShadows) //..................................
+    if (_currentSceneID == C_sceneRTSoftShadows) //..................................
     {
         name("Ray tracing Softshadows");
         info(sv, "Ray tracing with soft shadow light sampling. Each light source is sampled 64x per pixel. Be patient on mobile devices.");
@@ -2047,7 +2048,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
 
         SLNode* rect = new SLNode(new SLRectangle(SLVec2f(-3,-3), SLVec2f(5,4), 32, 32, "Rect", matYel));
         rect->rotate(90, -1,0,0);
-        rect->translate(0, -1, -0.5f, TS_Object);
+        rect->translate(0, -1, -0.5f, TS_object);
 
         SLLightSphere* light1 = new SLLightSphere(3, 3, 3, 0.3f);
         #ifndef SL_GLES2
@@ -2078,7 +2079,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
         _root3D = scene;
     }
     else
-    if (sceneName == cmdSceneRTDoF) //..........................................
+    if (_currentSceneID == C_sceneRTDoF) //..........................................
     {
         name("Ray tracing: Depth of Field");
         info(sv, "Ray tracing with depth of field blur. Each pixel is sampled 100x from a lens. Be patient on mobile devices.");
@@ -2109,20 +2110,20 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
 
         SLNode* rect = new SLNode(new SLRectangle(SLVec2f(-5,-5), SLVec2f(5,5), 20, 20, "Rect", mT));
         rect->rotate(90, -1,0,0);
-        rect->translate(0,0,-0.5f, TS_Object);
+        rect->translate(0,0,-0.5f, TS_object);
 
         SLLightSphere* light1 = new SLLightSphere(2,2,0, 0.1f);
         light1->attenuation(0,0,1);
 
         SLNode* balls = new SLNode;
         SLNode* s;
-        s = new SLNode(new SLSphere(0.5f,32,32,"S1",mW)); s->translate( 2.0,0,-4,TS_Object);  balls->addChild(s);
-        s = new SLNode(new SLSphere(0.5f,32,32,"S2",mB)); s->translate( 1.5,0,-3,TS_Object);  balls->addChild(s);
-        s = new SLNode(new SLSphere(0.5f,32,32,"S3",mY)); s->translate( 1.0,0,-2,TS_Object);  balls->addChild(s);
-        s = new SLNode(new SLSphere(0.5f,32,32,"S4",mR)); s->translate( 0.5,0,-1,TS_Object);  balls->addChild(s);
-        s = new SLNode(new SLSphere(0.5f,32,32,"S5",mG)); s->translate( 0.0,0, 0,TS_Object);  balls->addChild(s);
-        s = new SLNode(new SLSphere(0.5f,32,32,"S6",mM)); s->translate(-0.5,0, 1,TS_Object);  balls->addChild(s);
-        s = new SLNode(new SLSphere(0.5f,32,32,"S7",mW)); s->translate(-1.0,0, 2,TS_Object);  balls->addChild(s);
+        s = new SLNode(new SLSphere(0.5f,32,32,"S1",mW)); s->translate( 2.0,0,-4,TS_object);  balls->addChild(s);
+        s = new SLNode(new SLSphere(0.5f,32,32,"S2",mB)); s->translate( 1.5,0,-3,TS_object);  balls->addChild(s);
+        s = new SLNode(new SLSphere(0.5f,32,32,"S3",mY)); s->translate( 1.0,0,-2,TS_object);  balls->addChild(s);
+        s = new SLNode(new SLSphere(0.5f,32,32,"S4",mR)); s->translate( 0.5,0,-1,TS_object);  balls->addChild(s);
+        s = new SLNode(new SLSphere(0.5f,32,32,"S5",mG)); s->translate( 0.0,0, 0,TS_object);  balls->addChild(s);
+        s = new SLNode(new SLSphere(0.5f,32,32,"S6",mM)); s->translate(-0.5,0, 1,TS_object);  balls->addChild(s);
+        s = new SLNode(new SLSphere(0.5f,32,32,"S7",mW)); s->translate(-1.0,0, 2,TS_object);  balls->addChild(s);
 
         SLNode* scene  = new SLNode;
         scene->addChild(light1);
@@ -2135,7 +2136,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
         _root3D = scene;
     }
     else
-    if (sceneName == cmdSceneRTLens) //.........................................
+    if (_currentSceneID == C_sceneRTLens) //.........................................
 	{
         name("Ray tracing: Lens test");
         info(sv,"Ray tracing lens test scene.");
@@ -2182,7 +2183,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
 
         SLNode* rect = new SLNode(new SLRectangle(SLVec2f(-5, -5), SLVec2f(5, 5), 20, 20, "Rect", mT));
         rect->rotate(90, -1, 0, 0);
-        rect->translate(0, 0, -0.0f, TS_Object);
+        rect->translate(0, 0, -0.0f, TS_object);
 
         // Lens from eye prescription card   
         //SLNode* lensA = new SLNode(new SLLens(0.50f, -0.50f, 4.0f, 0.0f, 32, 32, "presbyopic", matLens));   // Weitsichtig
@@ -2194,7 +2195,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
         //SLNode* lensC = new SLNode(new SLLens(5.0, 4.0, 4.0f, 0.0f, 32, 32, "presbyopic", matLens));        // Weitsichtig
         SLNode* lensD = new SLNode(new SLLens(-15.0f, -15.0f, 1.0f, 0.1f, 32, 32, "myopic", matLens));          // Kurzsichtig
         //lensC->translate(-2, 1, 2, TS_Object);
-        lensD->translate(0, 6, 0, TS_Object);
+        lensD->translate(0, 6, 0, TS_object);
 
         // Node
         SLNode* scene = new SLNode;
@@ -2211,7 +2212,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
         _root3D = scene;
     }
     else
-    if (sceneName == cmdSceneRTTest) //.........................................
+    if (_currentSceneID == C_sceneRTTest) //.........................................
     {
         // Set scene name and info string
         name("RT Test Scene");
@@ -2252,6 +2253,15 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd sceneName)
 
         // Set active camera
         sv->camera(cam1);
+    }
+
+    // More test settings
+    if (test >= C_sceneMinimal && test <= C_sceneRTTest)
+    {
+        sv->showInfo(false);
+        sv->showMenu(false);
+        sv->showStats(false);
+        sv->waitEvents(false);
     }
 
     // call onInitialize on all scene views

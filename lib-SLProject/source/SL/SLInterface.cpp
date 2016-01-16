@@ -45,10 +45,11 @@ See examples usages in:
   - app-Demo-GLFW: glfwMain.cpp in function main()
   - app-Demo-Qt: qtGLWidget::initializeGL()
   - app-Viewer-Qt: qtGLWidget::initializeGL()
-  - app-Demo-Android: Java_ch_fhnw_comgr_GLES2Lib_onInit()
+  - app-Demo-Android: Java_ch_fhnw_comgRT_glES2Lib_onInit()
   - app-Demo-iOS: ViewController.m in method viewDidLoad()
 */
-void slCreateScene(SLstring shaderPath,
+void slCreateScene(SLVstring& cmdLineArgs,
+                   SLstring shaderPath,
                    SLstring modelPath,
                    SLstring texturePath)
 {
@@ -58,6 +59,8 @@ void slCreateScene(SLstring shaderPath,
     SLGLTexture::defaultPath      = texturePath;
     SLAssimpImporter::defaultPath = modelPath;
     SLGLState* stateGL            = SLGLState::getInstance();
+
+    SL::parseCmdLineArgs(cmdLineArgs);
     
     SL_LOG("Path to Models  : %s\n", modelPath.c_str());
     SL_LOG("Path to Shaders : %s\n", shaderPath.c_str());
@@ -88,14 +91,13 @@ See examples usages in:
   - app-Demo-GLFW: glfwMain.cpp in function main()
   - app-Demo-Qt: qtGLWidget::initializeGL()
   - app-Viewer-Qt: qtGLWidget::initializeGL()
-  - app-Demo-Android: Java_ch_fhnw_comgr_GLES2Lib_onInit()
+  - app-Demo-Android: Java_ch_fhnw_comgRT_glES2Lib_onInit()
   - app-Demo-iOS: ViewController.m in method viewDidLoad()
 */
 int slCreateSceneView(int screenWidth,
                       int screenHeight,
                       int dotsPerInch,
-                      SLCmd initScene,  
-                      SLVstring& cmdLineArgs,
+                      SLCommand initScene,
                       void* onWndUpdateCallback,
                       void* onSelectNodeMeshCallback,
                       void* onNewSceneViewCallback,
@@ -117,7 +119,6 @@ int slCreateSceneView(int screenWidth,
              screenWidth, 
              screenHeight, 
              dotsPerInch, 
-             cmdLineArgs,
              onWndUpdateCallback,
              onSelectNodeMeshCallback,
              onShowSystemCursorCallback);
@@ -370,7 +371,7 @@ void slCharInput(int sceneViewIndex, unsigned int character)
 //-----------------------------------------------------------------------------
 /*! Global event handler for keyboard key release events. 
 */
-void slCommand(int sceneViewIndex, SLCmd command) 
+void slCommand(int sceneViewIndex, SLCommand command) 
 {  
     SLCommandEvent* e = new SLCommandEvent;
     e->svIndex = sceneViewIndex;
@@ -467,9 +468,9 @@ void slGrabCopyVideoImage()
             // Set the according OpenGL format
             SLPixelFormat format;
             switch (frame.type())
-            {   case CV_8UC1: format = SL_LUMINANCE; break;
-                case CV_8UC3: format = SL_RGB; break;
-                case CV_8UC4: format = SL_RGBA; break;
+            {   case CV_8UC1: format = PF_luminance; break;
+                case CV_8UC3: format = PF_rgb; break;
+                case CV_8UC4: format = PF_rgba; break;
                 default: SL_EXIT_MSG("OpenCV image format not supported");
             }
 

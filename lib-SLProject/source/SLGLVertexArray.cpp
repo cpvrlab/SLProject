@@ -87,7 +87,7 @@ void SLGLVertexArray::setAttrib(SLVertexAttribType type,
 {   assert(dataPointer);
     assert(elementSize);
 
-    if (type == SL_POSITION && location == -1)
+    if (type == VAT_position && location == -1)
         SL_EXIT_MSG("The position attribute has no variable location.");
 
     if (attribIndex(type) >= 0)
@@ -120,9 +120,9 @@ void SLGLVertexArray::setIndices(SLuint numIndices,
         default: SL_EXIT_MSG("Invalid index data type");
     }
     
-    if (indexDataType == SL_UNSIGNED_SHORT && numIndices > 65535)
+    if (indexDataType == BT_ushort && numIndices > 65535)
         SL_EXIT_MSG("Index data type not sufficient.");
-    if (indexDataType == SL_UNSIGNED_BYTE && numIndices > 255)
+    if (indexDataType == BT_ubyte && numIndices > 255)
         SL_EXIT_MSG("Index data type not sufficient.");
         
     _numIndices = numIndices;
@@ -391,7 +391,7 @@ void SLGLVertexArray::generate(SLuint numVertices,
 /*! Draws the vertex attributes as a specified primitive type by elements with 
 the indices from the index buffer defined in setIndices.
 */
-void SLGLVertexArray::drawElementsAs(SLPrimitive primitiveType,
+void SLGLVertexArray::drawElementsAs(SLPrimitiveType primitiveType,
                                      SLuint numIndexes,
                                      SLuint indexOffset)
 {   
@@ -457,7 +457,7 @@ void SLGLVertexArray::drawElementsAs(SLPrimitive primitiveType,
 /*! Draws the vertex attributes as a specified primitive type as the vertices
 are defined in the attribute arrays.
 */
-void SLGLVertexArray::drawArrayAs(SLPrimitive primitiveType,
+void SLGLVertexArray::drawArrayAs(SLPrimitiveType primitiveType,
                                   SLint firstVertex,
                                   SLsizei countVertices)
 {   assert(_idVBOAttribs);

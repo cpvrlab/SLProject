@@ -70,13 +70,12 @@ class SLSceneView: public SLObject
                                              SLint screenWidth,
                                              SLint screenHeight,
                                              SLint dotsPerInch,
-                                             SLVstring& cmdLineArgs,
                                              void* onWndUpdateCallback,
                                              void* onSelectNodeMeshCallback,
                                              void* onToggleSystemCursorCallback);
 
 		      // virtual hooks for subclasses of SLSceneView
-   virtual  void            onStartup       (SLVstring& cmdLineArgs){ }
+   virtual  void            onStartup       () { }
    virtual  void            preDraw         () { }
    virtual  void            postDraw        () { }
    virtual  void            postSceneLoad   () { }
@@ -109,7 +108,7 @@ class SLSceneView: public SLObject
                                              SLfloat quatY, 
                                              SLfloat quatZ, 
                                              SLfloat quatW);
-            SLbool          onCommand       (SLCmd cmd);
+            SLbool          onCommand       (SLCommand cmd);
             
             // Drawing subroutines
             SLbool          draw3DGL            (SLfloat elapsedTimeSec);
@@ -126,7 +125,7 @@ class SLSceneView: public SLObject
             
             // SceneView camera
             void            initSceneViewCamera (const SLVec3f& dir = -SLVec3f::AXISZ, 
-                                                SLProjection proj = monoPerspective);
+                                                SLProjection proj = P_monoPerspective);
             void            switchToSceneViewCamera();
             SLbool          isSceneViewCameraActive() {return _camera == &_sceneViewCamera;}
 
@@ -159,6 +158,7 @@ class SLSceneView: public SLObject
             void            showMenu        (SLbool show){_showMenu = show;
                                                           SLScene::current->_menu2D = SLScene::current->_menuGL;}
             void            showInfo        (SLbool show) {_showInfo = show;}
+            void            showStats       (SLbool show) {_showStats = show;}
             void            gotPainted      (SLbool val) {_gotPainted = val;}
 
             // Getters
@@ -187,7 +187,7 @@ class SLSceneView: public SLObject
             SLVNode*        opaqueNodes     () {return &_opaqueNodes;}
             SLRaytracer*    raytracer       () {return &_raytracer;}
             SLPathtracer*   pathtracer      () {return &_pathtracer;}
-            SLRenderer      renderType      () const {return _renderType;}
+            SLRenderType      renderType      () const {return _renderType;}
             SLGLOculusFB*   oculusFB        () {return &_oculusFB;}
             SLDrawBits*     drawBits        () {return &_drawBits;}
             SLbool          drawBit         (SLuint bit) {return _drawBits.get(bit);}
@@ -205,7 +205,7 @@ class SLSceneView: public SLObject
             SLNodeStats     _stats;             //!< Statistic numbers
             SLbool          _gotPainted;        //!< flag if this sceneview got painted
 
-            SLRenderer      _renderType;        //!< rendering type (GL,RT,PT)
+            SLRenderType      _renderType;        //!< rendering type (GL,RT,PT)
             
             SLbool          _doDepthTest;       //!< Flag if depth test is turned on
             SLbool          _doMultiSampling;   //!< Flag if multisampling is on
@@ -221,7 +221,7 @@ class SLSceneView: public SLObject
 
             SLfloat         _cullTimeMS;        //!< time for culling in ms
             SLfloat         _draw3DTimeMS;      //!< time for 3D drawing in ms
-            SLfloat         _draw2DTimeMS;      //!< time for 2D drawing in ms
+            SLfloat         _draw2DTimeMS;      //!< time for 2D drawing in ms 
 
             SLbool          _mouseDownL;        //!< Flag if left mouse button is pressed
             SLbool          _mouseDownR;        //!< Flag if right mouse button is pressed
@@ -229,8 +229,8 @@ class SLSceneView: public SLObject
             SLKey           _mouseMod;          //!< mouse modifier key on key down
             SLint           _touchDowns;        //!< finger touch down count
             SLVec2i         _touch[3];          //!< up to 3 finger touch coordinates
-            SLGLVertexArrayExt _vaoTouch;          //!< Buffer for touch pos. rendering
-            SLGLVertexArrayExt _vaoCursor;         //!< Virtual cursor for stereo rendering
+            SLGLVertexArrayExt _vaoTouch;       //!< Buffer for touch pos. rendering
+            SLGLVertexArrayExt _vaoCursor;      //!< Virtual cursor for stereo rendering
             
             SLVec2i         _posCursor;         //!< Cursor position as reported by the os
             SLint           _scrW;              //!< Screen width in pixels

@@ -387,7 +387,7 @@ void SLRaytracer::setPrimaryRay(SLfloat x, SLfloat y, SLRay* primaryRay)
     primaryRay->backgroundColor = SLScene::current->background().colorAtPos(x,y);
 
     // calculate ray from eye to pixel (See also prepareImage())
-    if (_cam->projection() == monoOrthographic)
+    if (_cam->projection() == P_monoOrthographic)
     {   primaryRay->setDir(_LA);
         primaryRay->origin = _BL + _pxSize*((SLfloat)x*_LR + (SLfloat)y*_LU);
     } else
@@ -698,7 +698,7 @@ void SLRaytracer::prepareImage()
     // get camera vectors eye, lookAt, lookUp
     _cam->updateAndGetVM().lookAt(&_EYE, &_LA, &_LU, &_LR);
 
-    if (_cam->projection() == monoOrthographic)
+    if (_cam->projection() == P_monoOrthographic)
     {   /*
         In orthographic projection the bottom-left vector (_BL) points
         from the eye to the center of the bottom-left pixel of a plane that
@@ -734,7 +734,7 @@ void SLRaytracer::prepareImage()
 
     // Create the image for the first time
     if (_images.size()==0)
-        _images.push_back(new SLImage(_sv->scrW(), _sv->scrH(), SL_RGB));
+        _images.push_back(new SLImage(_sv->scrW(), _sv->scrH(), PF_rgb));
 
     // Allocate image of the inherited texture class 
     if (_sv->scrW() != _images[0]->width() || _sv->scrH() != _images[0]->height())
@@ -746,7 +746,7 @@ void SLRaytracer::prepareImage()
         }
 
         _vaoSprite.clearAttribs();
-        _images[0]->allocate(_sv->scrW(), _sv->scrH(), SL_RGB);
+        _images[0]->allocate(_sv->scrW(), _sv->scrH(), PF_rgb);
     }
    
     // Fill image black for single RT

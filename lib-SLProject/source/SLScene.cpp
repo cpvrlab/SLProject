@@ -55,7 +55,7 @@ As examples you can see it in:
   - app-Demo-GLFW: glfwMain.cpp in function main()
   - app-Demo-Qt: qtGLWidget::initializeGL()
   - app-Viewer-Qt: qtGLWidget::initializeGL()
-  - app-Demo-Android: Java_ch_fhnw_comgr_GLES2Lib_onInit()
+  - app-Demo-Android: Java_ch_fhnw_comgRT_glES2Lib_onInit()
   - app-Demo-iOS: ViewController.m in method viewDidLoad()
 */
 SLScene::SLScene(SLstring name) : SLObject(name)
@@ -309,7 +309,7 @@ bool SLScene::onUpdate()
         {   sumCullTimeMS   += sv->cullTimeMS();
             sumDraw3DTimeMS += sv->draw3DTimeMS();
             sumDraw2DTimeMS += sv->draw2DTimeMS();
-            if (!renderTypeIsRT && sv->renderType()==renderRT)
+            if (!renderTypeIsRT && sv->renderType()==RT_rt)
                 renderTypeIsRT = true;
             if (!voxelsAreShown && sv->drawBit(SL_DB_VOXELS))
                 voxelsAreShown = true;
@@ -352,7 +352,7 @@ bool SLScene::onUpdate()
     for (auto mesh : _meshes) 
     {   if (mesh->skeleton() && 
             mesh->skeleton()->changed() && 
-            mesh->skinMethod() == SM_SoftwareSkinning)
+            mesh->skinMethod() == SM_software)
         {   mesh->transformSkin();
             animatedOrChanged = true;
         }
@@ -388,7 +388,7 @@ void SLScene::info(SLSceneView* sv, SLstring infoText, SLCol4f color)
                        sv->scrW()-minX-5.0f,
                        1.2f);
 
-    _info->translate(minX, SLButton::minMenuPos.y, 0, TS_Object);
+    _info->translate(minX, SLButton::minMenuPos.y, 0, TS_object);
 }
 //-----------------------------------------------------------------------------
 /*! 
@@ -438,7 +438,7 @@ void SLScene::selectNodeMesh(SLNode* nodeToSelect, SLMesh* meshToSelect)
 }
 //-----------------------------------------------------------------------------
 //! Executes a command on all sceneview
-SLbool SLScene::onCommandAllSV(const SLCmd cmd)
+SLbool SLScene::onCommandAllSV(const SLCommand cmd)
 {
     SLbool result = false;
     for(auto sv : _sceneViews)

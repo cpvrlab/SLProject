@@ -29,7 +29,7 @@ SLVec2f   SLButton::newMenuPos = SLVec2f(0,0);
 SLVec2f   SLButton::oldMenuPos = SLVec2f(0,0);
 //-----------------------------------------------------------------------------
 /*! SLButton Constructor: 
-If command is cmdMenu the button is supposed to have sub menu buttons.
+If command is C_menu the button is supposed to have sub menu buttons.
 If isCheckable is true the button gets a check box
 If isChecked is true the check box gets a little cross
 If radioParent is a parent button all of it checkable children act as radio buttons.
@@ -38,7 +38,7 @@ If closeOnClick is true the entire menu gets closed after command execution.
 SLButton::SLButton(SLSceneView* sv,
                    SLstring     text,  
                    SLTexFont*   txtFont,
-                   SLCmd        command, 
+                   SLCommand        command, 
                    SLbool       isCheckable, 
                    SLbool       isChecked, 
                    SLButton*    radioParent, 
@@ -99,7 +99,7 @@ void SLButton::drawRec(SLSceneView* sv)
     {
         // Setup shader
         SLMaterial::current = 0;
-        SLGLProgram* sp = SLScene::current->programs(ColorAttribute);
+        SLGLProgram* sp = SLScene::current->programs(SP_colorAttribute);
         SLGLState* state = SLGLState::getInstance();
         sp->useProgram();
         sp->uniformMatrix4fv("u_mvpMatrix", 1, (SLfloat*)state->mvpMatrix());
@@ -108,32 +108,32 @@ void SLButton::drawRec(SLSceneView* sv)
         state->multiSample(true);
    
         // Draw button rectangle
-        _vao.drawArrayAs(SL_TRIANGLE_STRIP, _isDown ? buttonDown==this ? 8:4:0, 4);
+        _vao.drawArrayAs(PT_triangleStrip, _isDown ? buttonDown==this ? 8:4:0, 4);
    
         // Draw border line
-        _vao.drawArrayAs(SL_LINE_LOOP, _isDown ? 12 : 16, 4);
+        _vao.drawArrayAs(PT_lineLoop, _isDown ? 12 : 16, 4);
    
         // Draw check box
         if (_isCheckable) 
-            _vao.drawArrayAs(SL_LINE_LOOP, 20, 4);
+            _vao.drawArrayAs(PT_lineLoop, 20, 4);
    
         // Draw check mark
         if (_isChecked)
-            _vao.drawArrayAs(SL_LINES, 24, 4);  
+            _vao.drawArrayAs(PT_lines, 24, 4);  
       
         // Set start position at bottom left corner of the text
         SLfloat x = (SLfloat)_minX; 
         SLfloat y = (SLfloat)_minY;
         switch (_txtAlign)
-        {   case topLeft:      x+=4*sv->dpmm()*BTN_GAP_W_MM;  y+= _btnH-_textSize.y;       break;
-            case topCenter:    x+=(_btnW-_textSize.x)*0.5f;   y+= _btnH-_textSize.y;       break;
-            case topRight:     x+= _btnW-_textSize.x;         y+= _btnH-_textSize.y;       break;
-            case centerLeft:   x+=4*sv->dpmm()*BTN_GAP_W_MM;  y+=(_btnH-_textSize.y)*0.5f; break;
-            case centerCenter: x+=(_btnW-_textSize.x)*0.5f;   y+=(_btnH-_textSize.y)*0.5f; break;
-            case centerRight:  x+= _btnW-_textSize.x;         y+=(_btnH-_textSize.y)*0.5f; break;
-            case bottomLeft:   x+=4*sv->dpmm()*BTN_GAP_W_MM;                               break;
-            case bottomCenter: x+=(_btnW-_textSize.x)*0.5f;                                break;
-            case bottomRight:  x+= _btnW-_textSize.x;                                      break;
+        {   case TA_topLeft:      x+=4*sv->dpmm()*BTN_GAP_W_MM;  y+= _btnH-_textSize.y;       break;
+            case TA_topCenter:    x+=(_btnW-_textSize.x)*0.5f;   y+= _btnH-_textSize.y;       break;
+            case TA_topRight:     x+= _btnW-_textSize.x;         y+= _btnH-_textSize.y;       break;
+            case TA_centerLeft:   x+=4*sv->dpmm()*BTN_GAP_W_MM;  y+=(_btnH-_textSize.y)*0.5f; break;
+            case TA_centerCenter: x+=(_btnW-_textSize.x)*0.5f;   y+=(_btnH-_textSize.y)*0.5f; break;
+            case TA_centerRight:  x+= _btnW-_textSize.x;         y+=(_btnH-_textSize.y)*0.5f; break;
+            case TA_bottomLeft:   x+=4*sv->dpmm()*BTN_GAP_W_MM;                               break;
+            case TA_bottomCenter: x+=(_btnW-_textSize.x)*0.5f;                                break;
+            case TA_bottomRight:  x+= _btnW-_textSize.x;                                      break;
         }
    
         // position & draw the text
@@ -240,10 +240,10 @@ void SLButton::buildBuffers()
     C.push_back(SLCol4f(1,1,1,0.8f));
       
     // create buffers on GPU
-    SLGLProgram* sp = SLScene::current->programs(ColorAttribute);
+    SLGLProgram* sp = SLScene::current->programs(SP_colorAttribute);
     sp->useProgram();
-    _vao.setAttrib(SL_POSITION, sp->getAttribLocation("a_position"), P);
-    _vao.setAttrib(SL_COLOR, sp->getAttribLocation("a_color"), C);
+    _vao.setAttrib(VAT_position, sp->getAttribLocation("a_position"), P);
+    _vao.setAttrib(VAT_color, sp->getAttribLocation("a_color"), C);
     _vao.generate((SLuint)P.size());
 }
 //-----------------------------------------------------------------------------
@@ -385,7 +385,7 @@ SLbool SLButton::onMouseUp(const SLMouseButton button,
             {   newMenuPos.set(-buttonParent->minX()+minMenuPos.x, 0);
                 if (newMenuPos != oldMenuPos) 
                 {  
-                    mnu2D->translate(newMenuPos.x - oldMenuPos.x, 0, 0, TS_Object);
+                    mnu2D->translate(newMenuPos.x - oldMenuPos.x, 0, 0, TS_object);
                
                     // update AABB's
                     _stateGL->pushModelViewMatrix();

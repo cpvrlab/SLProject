@@ -25,7 +25,7 @@ SLButton defines a GUI button with optional submenus as children of the group.
 It serves as a minimal hierarchical GUI element for implementing a menu.
 It has a SLText instance for text rendering. The button can be
 either a click-, check- or radio-button. For check and radio button there is a
-cross drawn in checked state. A button can have a command (SLCmd) associated.
+cross drawn in checked state. A button can have a command (SLCommand) associated.
 A button without command is expected to open its children button as a submenu.
 The button tree is created in SLSceneView::build2DMenus and attached to 
 SLScene._menu2D. Opening, closing & command execution is handled in
@@ -36,7 +36,7 @@ class SLButton: public SLNode
                         SLButton    (SLSceneView* sv,
                                      SLstring     text,
                                      SLTexFont*   txtFont,
-                                     SLCmd        cmd = cmdMenu,
+                                     SLCommand        cmd = C_menu,
                                      SLbool       isCheckable = false,
                                      SLbool       isChecked = false,
                                      SLButton*    radioParent = 0,
@@ -45,7 +45,7 @@ class SLButton: public SLNode
                                      SLfloat      btnHeight = 0.0f, 
                                      SLCol3f      btnColor = SLCol3f::COLBFH,
                                      SLfloat      btnAlpha = 0.8f,
-                                     SLTextAlign  txtAlign = centerLeft,
+                                     SLTextAlign  txtAlign = TA_centerLeft,
                                      SLCol4f      txtColor = SLCol4f::WHITE);
 
                        ~SLButton    ();
@@ -73,7 +73,7 @@ class SLButton: public SLNode
             void        btnH        (SLfloat h) {_btnH = h;}
 
             // Getters
-            SLCmd       command     () {return _command;}
+            SLCommand       command     () {return _command;}
             SLText*     text        () {return _text;}
             SLbool      isDown      () {return _isDown;}
             SLbool      isCheckable () {return _isCheckable;}
@@ -100,7 +100,7 @@ class SLButton: public SLNode
 
    private:
             SLSceneView* _sv;          //!< SV on which the button appears   
-            SLCmd       _command;      //!< CMD id that is issued on click
+            SLCommand       _command;      //!< CMD id that is issued on click
             SLbool      _isCheckable;  //!< Flag if button is checkable
             SLbool      _isChecked;    //!< Flag if button has a check cross
             SLButton*   _radioParent;  //!< parent button group for radio buttons

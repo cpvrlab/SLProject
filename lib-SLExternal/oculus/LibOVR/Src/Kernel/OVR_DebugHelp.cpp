@@ -191,13 +191,13 @@ void GetInstructionPointer(void*& pInstruction)
 static size_t SprintfAddress(char* threadHandleStr, size_t threadHandleStrCapacity, const void* pAddress)
 {
     #if defined(OVR_CC_MSVC)
-        #if (OVR_PTR_SIZE >= 8)
+        #if (OVRT_ptR_SIZE >= 8)
             return OVR_snprintf(threadHandleStr, threadHandleStrCapacity, "0x%016I64x", pAddress);  // e.g. 0x0123456789abcdef
         #else
             return OVR_snprintf(threadHandleStr, threadHandleStrCapacity, "0x%08x", pAddress);      // e.g. 0x89abcdef
         #endif
     #else
-        #if (OVR_PTR_SIZE >= 8)
+        #if (OVRT_ptR_SIZE >= 8)
             return OVR_snprintf(threadHandleStr, threadHandleStrCapacity, "%016llx", pAddress);     // e.g. 0x0123456789abcdef
         #else
             return OVR_snprintf(threadHandleStr, threadHandleStrCapacity, "%08x", pAddress);        // e.g. 0x89abcdef
@@ -239,7 +239,7 @@ void GetThreadStackBounds(void*& pStackBase, void*& pStackLimit, ThreadHandle th
 
         if(threadSysId == threadSysIdCurrent)
         {
-            #if (OVR_PTR_SIZE == 4)
+            #if (OVRT_ptR_SIZE == 4)
                 // Need to use __asm__("movl %%fs:0x18, %0" : "=r" (pTIB) : : ); under gcc/clang.
                 __asm {
                     mov eax, fs:[18h]
@@ -251,7 +251,7 @@ void GetThreadStackBounds(void*& pStackBase, void*& pStackLimit, ThreadHandle th
         }
         else
         {
-            #if (OVR_PTR_SIZE == 4)
+            #if (OVRT_ptR_SIZE == 4)
                 // It turns out we don't need to suspend the thread when getting SegFs/SegGS, as that's 
                 // constant per thread and doesn't require the thread to be suspended.
                 //SuspendThread((HANDLE)threadHandle); 
@@ -457,7 +457,7 @@ void SafeMMapFree(const void* memory, size_t size)
 // 32 bit app running on a 64 bit operating system.
 static bool Is64BitOS()
 {
-    #if (OVR_PTR_SIZE >= 8)
+    #if (OVRT_ptR_SIZE >= 8)
         return true;
 
     #elif defined(OVR_OS_WIN32) || defined(OVR_OS_WIN64)
@@ -1960,7 +1960,7 @@ bool SymbolLookup::LookupSymbols(uint64_t* addressArray, SymbolInfo* pSymbolInfo
         // malloc arena corruption (quite common) you will likely fault in backtrace_symbols.
         // To do: Use allowMemoryAllocation here.
     
-        #if (OVR_PTR_SIZE == 4)
+        #if (OVRT_ptR_SIZE == 4)
             // backtrace_symbols takes a void* array, but we have a uint64_t array. So for 32 bit we
             // need to convert the 64 bit array to 32 bit temporarily for the backtrace_symbols call.
             void* ptr32Array[256]; // To do: Remove this limit.
@@ -2822,11 +2822,11 @@ void ExceptionHandler::WriteThreadCallstack(ThreadHandle threadHandle, ThreadSys
     void*   pStackLimit;
     bool    isExceptionThread = (threadSysId == exceptionInfo.threadSysId);
 
-    #if defined(OVR_OS_MS) && (OVR_PTR_SIZE == 8)
+    #if defined(OVR_OS_MS) && (OVRT_ptR_SIZE == 8)
       void* pStackCurrent = (threadSysId == exceptionInfo.threadSysId) ? (void*)exceptionInfo.cpuContext.Rsp : nullptr; // We would need to suspend the thread, get its context, resume it, then read the rsp register. It turns out we are already doing that suspend/resume below in the backtrace call. 
     #elif defined(OVR_OS_MS)
       void* pStackCurrent = (threadSysId == exceptionInfo.threadSysId) ? (void*)exceptionInfo.cpuContext.Esp : nullptr;
-    #elif defined(OVR_OS_MAC) && (OVR_PTR_SIZE == 8)
+    #elif defined(OVR_OS_MAC) && (OVRT_ptR_SIZE == 8)
       void* pStackCurrent = (threadSysId == exceptionInfo.threadSysId) ? (void*)exceptionInfo.cpuContext.threadState.uts.ts64.__rsp : nullptr;
     #elif defined(OVR_OS_MAC)
       void* pStackCurrent = (threadSysId == exceptionInfo.threadSysId) ? (void*)exceptionInfo.cpuContext.threadState.uts.ts32.__esp : nullptr;
@@ -3076,7 +3076,7 @@ void ExceptionHandler::WriteReport()
             GetCurrentProcessFilePath(appPath, OVR_ARRAY_COUNT(appPath));
             WriteReportLineF("Process path: %s\r\n", appPath);
 
-            #if (OVR_PTR_SIZE == 4)
+            #if (OVRT_ptR_SIZE == 4)
                 WriteReportLine("App format: 32 bit\r\n");
             #else
                 WriteReportLine("App format: 64 bit\r\n");
@@ -3389,7 +3389,7 @@ void ExceptionHandler::WriteReport()
                     // Print a header
                     WriteReportLine("\r\nModule list\r\n");
 
-                    #if (OVR_PTR_SIZE == 4)
+                    #if (OVRT_ptR_SIZE == 4)
                         WriteReportLine("Base        Size       Entrypoint Name                     Path\r\n");
                     #else
                         WriteReportLine("Base                Size               Entrypoint         Name                     Path\r\n");
@@ -3435,7 +3435,7 @@ void ExceptionHandler::WriteReport()
                         path[length]     = '"';
                         path[length + 1] = '\0';
 
-                        #if (OVR_PTR_SIZE == 4)
+                        #if (OVRT_ptR_SIZE == 4)
                             WriteReportLineF("0x%08x, 0x%08x 0x%08x %-24ls %ls\r\n", (uint32_t)mi.lpBaseOfDll, (uint32_t)mi.SizeOfImage, (uint32_t)mi.EntryPoint, name, path);
                         #else
                             WriteReportLineF("0x%016I64x 0x%016I64x 0x%016I64x %-24ls %ls\r\n", (uint64_t)mi.lpBaseOfDll, (uint64_t)mi.SizeOfImage, (uint64_t)mi.EntryPoint, name, path);
@@ -3503,7 +3503,7 @@ void ExceptionHandler::WriteReport()
         GetCurrentProcessFilePath(appPath, OVR_ARRAY_COUNT(appPath));
         WriteReportLineF("Process path: %s\r\n", appPath);
 
-        #if (OVR_PTR_SIZE == 4)
+        #if (OVRT_ptR_SIZE == 4)
             WriteReportLine("App format: 32 bit\r\n");
         #else
             WriteReportLine("App format: 64 bit\r\n");
@@ -3673,7 +3673,7 @@ void ExceptionHandler::WriteReport()
     
         if(moduleInfoArray)
         {
-            #if (OVR_PTR_SIZE == 4)
+            #if (OVRT_ptR_SIZE == 4)
                 WriteReportLine("Base        Size       Name                     Path\r\n");
             #else
                 WriteReportLine("Base                Size               Name                     Path\r\n");
@@ -3687,7 +3687,7 @@ void ExceptionHandler::WriteReport()
             {
                 const ModuleInfo& mi = moduleInfoArray[i];
                 
-                #if (OVR_PTR_SIZE == 4)
+                #if (OVRT_ptR_SIZE == 4)
                     WriteReportLineF("0x%08x, 0x%08x %-24s %s\r\n", (uint32_t)mi.baseAddress, (uint32_t)mi.size, mi.name, mi.filePath);
                 #else
                     WriteReportLineF("0x%016llx 0x%016llx %-24s %s\r\n", (uint64_t)mi.baseAddress, (uint64_t)mi.size, mi.name, mi.filePath);

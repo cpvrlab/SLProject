@@ -136,49 +136,49 @@ void qtMainWindow::setMenuState()
     ui->menuBar->addMenu(_menuCamera);
     ui->menuBar->addMenu(_menuAnimation);
     ui->menuBar->addMenu(_menuRenderFlags);
-    if (sv->renderType()==renderRT)
+    if (sv->renderType()==RT_rt)
         ui->menuBar->addMenu(_menuRayTracing);
-    if (sv->renderType()==renderPT)
+    if (sv->renderType()==RT_rt)
         ui->menuBar->addMenu(_menuPathTracing);
     ui->menuBar->addMenu(_menuWindow);
     ui->menuBar->addMenu(_menuHelp);
 
     // Menu Load Scenes
-    ui->actionSmall_Test_Scene->setChecked(s->currentID()==cmdSceneMinimal);
-    ui->actionLarge_Model->setChecked(s->currentID()==cmdSceneLargeModel);
-    ui->actionFigure->setChecked(s->currentID()==cmdSceneFigure);
-    ui->actionMesh_Loader->setChecked(s->currentID()==cmdSceneMeshLoad);
-    ui->actionTexture_Blending->setChecked(s->currentID()==cmdSceneTextureBlend);
-    ui->actionTexture_Filtering->setChecked(s->currentID()==cmdSceneTextureFilter);
-    ui->actionFrustum_Culling_1->setChecked(s->currentID()==cmdSceneFrustumCull1);
+    ui->actionSmall_Test_Scene->setChecked(s->currentID()==C_sceneMinimal);
+    ui->actionLarge_Model->setChecked(s->currentID()==C_sceneLargeModel);
+    ui->actionFigure->setChecked(s->currentID()==C_sceneFigure);
+    ui->actionMesh_Loader->setChecked(s->currentID()==C_sceneMeshLoad);
+    ui->actionTexture_Blending->setChecked(s->currentID()==C_sceneTextureBlend);
+    ui->actionTexture_Filtering->setChecked(s->currentID()==C_sceneTextureFilter);
+    ui->actionFrustum_Culling_1->setChecked(s->currentID()==C_sceneFrustumCull1);
 
-    ui->actionPer_Vertex_Lighting->setChecked(s->currentID()==cmdScenePerVertexBlinn);
-    ui->actionPer_Pixel_Lighting->setChecked(s->currentID()==cmdScenePerPixelBlinn);
-    ui->actionPer_Vertex_Wave->setChecked(s->currentID()==cmdScenePerVertexWave);
-    ui->actionWater->setChecked(s->currentID()==cmdSceneWater);
-    ui->actionBump_Mapping->setChecked(s->currentID()==cmdSceneBumpNormal);
-    ui->actionParallax_Mapping->setChecked(s->currentID()==cmdSceneBumpParallax);
-    ui->actionGlass_Shader->setChecked(s->currentID()==cmdSceneRevolver);
-    ui->actionEarth_Shader->setChecked(s->currentID()==cmdSceneEarth);
+    ui->actionPer_Vertex_Lighting->setChecked(s->currentID()==C_scenePerVertexBlinn);
+    ui->actionPer_Pixel_Lighting->setChecked(s->currentID()==C_scenePerPixelBlinn);
+    ui->actionPer_Vertex_Wave->setChecked(s->currentID()==C_scenePerVertexWave);
+    ui->actionWater->setChecked(s->currentID()==C_sceneWater);
+    ui->actionBump_Mapping->setChecked(s->currentID()==C_sceneBumpNormal);
+    ui->actionParallax_Mapping->setChecked(s->currentID()==C_sceneBumpParallax);
+    ui->actionGlass_Shader->setChecked(s->currentID()==C_sceneRevolver);
+    ui->actionEarth_Shader->setChecked(s->currentID()==C_sceneEarth);
 
-    ui->actionNode_Animation->setChecked(s->currentID()==cmdSceneNodeAnimation);
-    ui->actionSkeletal_Animation->setChecked(s->currentID()==cmdSceneSkeletalAnimation);
-    ui->actionAstroboy_Army_CPU->setChecked(s->currentID()==cmdSceneAstroboyArmyCPU);
-    ui->actionAstroboy_Army_GPU->setChecked(s->currentID()==cmdSceneAstroboyArmyGPU);
-    ui->actionMass_Animation->setChecked(s->currentID()==cmdSceneMassAnimation);
+    ui->actionNode_Animation->setChecked(s->currentID()==C_sceneNodeAnimation);
+    ui->actionSkeletal_Animation->setChecked(s->currentID()==C_sceneSkeletalAnimation);
+    ui->actionAstroboy_Army_CPU->setChecked(s->currentID()==C_sceneAstroboyArmyCPU);
+    ui->actionAstroboy_Army_GPU->setChecked(s->currentID()==C_sceneAstroboyArmyGPU);
+    ui->actionMass_Animation->setChecked(s->currentID()==C_sceneMassAnimation);
 
-    ui->actionRT_Spheres->setChecked(s->currentID()==cmdSceneRTSpheres);
-    ui->actionRT_Muttenzer_Box->setChecked(s->currentID()==cmdSceneRTMuttenzerBox);
-    ui->actionRT_Soft_Shadows->setChecked(s->currentID()==cmdSceneRTSoftShadows);
-    ui->actionRT_Depth_of_Field->setChecked(s->currentID()==cmdSceneRTDoF);
-    ui->actionRT_Lens->setChecked(s->currentID()==cmdSceneRTLens);
+    ui->actionRT_Spheres->setChecked(s->currentID()==C_sceneRTSpheres);
+    ui->actionRT_Muttenzer_Box->setChecked(s->currentID()==C_sceneRTMuttenzerBox);
+    ui->actionRT_Soft_Shadows->setChecked(s->currentID()==C_sceneRTSoftShadows);
+    ui->actionRT_Depth_of_Field->setChecked(s->currentID()==C_sceneRTDoF);
+    ui->actionRT_Lens->setChecked(s->currentID()==C_sceneRTLens);
 
     // Menu Renderer
-    ui->actionOpenGL->setChecked(sv->renderType()==renderGL);
-    ui->actionRay_Tracer->setChecked(sv->renderType()==renderRT);
-    ui->actionPath_Tracer->setChecked(sv->renderType()==renderPT);
-    ui->actionRay_Tracer->setEnabled(cam->projection() <= monoOrthographic);
-    ui->actionPath_Tracer->setEnabled(cam->projection() <= monoOrthographic);
+    ui->actionOpenGL->setChecked(sv->renderType()==RT_gl);
+    ui->actionRay_Tracer->setChecked(sv->renderType()==RT_rt);
+    ui->actionPath_Tracer->setChecked(sv->renderType()==RT_pt);
+    ui->actionRay_Tracer->setEnabled(cam->projection() <= P_monoOrthographic);
+    ui->actionPath_Tracer->setEnabled(cam->projection() <= P_monoOrthographic);
 
     // Menu Info
     ui->actionShow_DockScenegraph->setChecked(ui->dockScenegraph->isVisible());
@@ -192,27 +192,27 @@ void qtMainWindow::setMenuState()
 
     // Menu Camera states
     ui->actionUse_SceneView_Camera->setChecked(sv->isSceneViewCameraActive());
-    ui->actionPerspective->setChecked(cam->projection() == monoPerspective);
-    ui->actionOrthographic->setChecked(cam->projection() == monoOrthographic);
-    ui->menuStereo->setEnabled(sv->renderType()==renderGL);
-    ui->actionSide_by_side->setChecked(cam->projection() == stereoSideBySide);
-    ui->actionSide_by_side_proportional->setChecked(cam->projection() == stereoSideBySideP);
-    ui->actionSide_by_side_distorted->setChecked(cam->projection() == stereoSideBySideD);
-    ui->actionLine_by_line->setChecked(cam->projection() == stereoLineByLine);
-    ui->actionColumn_by_column->setChecked(cam->projection() == stereoColumnByColumn);
-    ui->actionPixel_by_pixel->setChecked(cam->projection() == stereoPixelByPixel);
-    ui->actionColor_Red_Cyan->setChecked(cam->projection() == stereoColorRC);
-    ui->actionColor_Red_Green->setChecked(cam->projection() == stereoColorRG);
-    ui->actionColor_Red_Blue->setChecked(cam->projection() == stereoColorRB);
-    ui->actionColor_Cyan_Yellow->setChecked(cam->projection() == stereoColorYB);
-    ui->actionTurntable_Y_up->setChecked(cam->camAnim() == turntableYUp);
-    ui->actionTurntable_Z_up->setChecked(cam->camAnim() == turntableZUp);
-    ui->actionWalking_Y_up->setChecked(cam->camAnim() == walkingYUp);
-    ui->actionWalking_Z_up->setChecked(cam->camAnim() == walkingZUp);
+    ui->actionPerspective->setChecked(cam->projection() == P_monoPerspective);
+    ui->actionOrthographic->setChecked(cam->projection() == P_monoOrthographic);
+    ui->menuStereo->setEnabled(sv->renderType()==RT_gl);
+    ui->actionSide_by_side->setChecked(cam->projection() == P_stereoSideBySide);
+    ui->actionSide_by_side_proportional->setChecked(cam->projection() == P_stereoSideBySideP);
+    ui->actionSide_by_side_distorted->setChecked(cam->projection() == P_stereoSideBySideD);
+    ui->actionLine_by_line->setChecked(cam->projection() == P_stereoLineByLine);
+    ui->actionColumn_by_column->setChecked(cam->projection() == P_stereoColumnByColumn);
+    ui->actionPixel_by_pixel->setChecked(cam->projection() == P_stereoPixelByPixel);
+    ui->actionColor_Red_Cyan->setChecked(cam->projection() == P_stereoColorRC);
+    ui->actionColor_Red_Green->setChecked(cam->projection() == P_stereoColorRG);
+    ui->actionColor_Red_Blue->setChecked(cam->projection() == P_stereoColorRB);
+    ui->actionColor_Cyan_Yellow->setChecked(cam->projection() == P_stereoColorYB);
+    ui->actionTurntable_Y_up->setChecked(cam->camAnim() == CA_turntableYUp);
+    ui->actionTurntable_Z_up->setChecked(cam->camAnim() == CA_turntableZUp);
+    ui->actionWalking_Y_up->setChecked(cam->camAnim() == CA_walkingYUp);
+    ui->actionWalking_Z_up->setChecked(cam->camAnim() == CA_walkingZUp);
 
     // Menu Render Flags
     ui->actionAntialiasing->setChecked(sv->doMultiSampling());
-    ui->actionAntialiasing->setEnabled(sv->hasMultiSampling() || sv->renderType()==renderRT);
+    ui->actionAntialiasing->setEnabled(sv->hasMultiSampling() || sv->renderType()==RT_rt);
     ui->actionView_Frustum_Culling->setChecked(sv->doFrustumCulling());
     ui->actionSlowdown_on_Idle->setChecked(sv->waitEvents());
     ui->actionDepthTest->setChecked(sv->doDepthTest());
@@ -226,16 +226,16 @@ void qtMainWindow::setMenuState()
 
     ui->actionAnimation_off->setChecked(s->stopAnimations());
 
-    ui->actionView_Frustum_Culling->setEnabled(sv->renderType()==renderGL);
-    ui->actionSlowdown_on_Idle->setEnabled(sv->renderType()==renderGL);
-    ui->actionDepthTest->setEnabled(sv->renderType()==renderGL);
-    ui->actionShow_Normals->setEnabled(sv->renderType()==renderGL);
-    ui->actionShow_Wired_Mesh->setEnabled(sv->renderType()==renderGL);
-    ui->actionShow_Bounding_Boxes->setEnabled(sv->renderType()==renderGL);
-    ui->actionShow_Axis->setEnabled(sv->renderType()==renderGL);
-    ui->actionShow_Voxels->setEnabled(sv->renderType()==renderGL);
-    ui->actionShow_Backfaces->setEnabled(sv->renderType()==renderGL);
-    ui->actionTextures_off->setEnabled(sv->renderType()==renderGL);
+    ui->actionView_Frustum_Culling->setEnabled(sv->renderType()==RT_gl);
+    ui->actionSlowdown_on_Idle->setEnabled(sv->renderType()==RT_gl);
+    ui->actionDepthTest->setEnabled(sv->renderType()==RT_gl);
+    ui->actionShow_Normals->setEnabled(sv->renderType()==RT_gl);
+    ui->actionShow_Wired_Mesh->setEnabled(sv->renderType()==RT_gl);
+    ui->actionShow_Bounding_Boxes->setEnabled(sv->renderType()==RT_gl);
+    ui->actionShow_Axis->setEnabled(sv->renderType()==RT_gl);
+    ui->actionShow_Voxels->setEnabled(sv->renderType()==RT_gl);
+    ui->actionShow_Backfaces->setEnabled(sv->renderType()==RT_gl);
+    ui->actionTextures_off->setEnabled(sv->renderType()==RT_gl);
 
     // Menu Ray Tracer
     ui->actionConstant_Redering->setChecked(sv->raytracer()->continuous());
@@ -458,11 +458,11 @@ void qtMainWindow::buildPropertyTree()
                              bind((void(SLMesh::*)(const string&))&SLMesh::name, mesh, _1));
         ui->propertyTree->addTopLevelItem(level1);
 
-        if (mesh->primitive()==SL_TRIANGLES)
+        if (mesh->primitive()==PT_triangles)
             level1 = new qtPropertyTreeItem("Vertices/Triangles",
                                             QString::number(mesh->numV)+" / "+
                                             QString::number(mesh->numI/3));
-        if (mesh->primitive()==SL_LINES)
+        if (mesh->primitive()==PT_lines)
             level1 = new qtPropertyTreeItem("Vertices/Lines",
                                             QString::number(mesh->numV)+" / "+
                                             QString::number(mesh->numI/2));
@@ -490,7 +490,7 @@ void qtMainWindow::buildPropertyTree()
                                 bind((void(SLMaterial::*)(SLCol4f))&SLMaterial::specular, mat, _1));
             level1->addChild(level2);
 
-            level2 = new qtPropertyTreeItem("Emmissive Color:", "", allowEdit);
+            level2 = new qtPropertyTreeItem("Emissive Color:", "", allowEdit);
             level2->setGetVec4f(bind((SLCol4f(SLMaterial::*)(void))&SLMaterial::emission, mat),
                                 bind((void(SLMaterial::*)(SLCol4f))&SLMaterial::emission, mat, _1));
             level1->addChild(level2);
@@ -523,13 +523,13 @@ void qtMainWindow::buildPropertyTree()
 
                 SLVGLShader& shaders = prog->shaders();
                 for (auto shader : shaders)
-                {   if(shader->shaderType() ==VertexShader)
+                {   if(shader->shaderType() ==ST_vertex)
                     {   level3 = new qtPropertyTreeItem("Vertex Shader:");
                         level3->setGetString(bind((const string&(SLGLShader::*)(void)const)&SLGLShader::name, shader),
                                              bind((void(SLGLShader::*)(const string&))&SLGLShader::name, shader, _1));
                         level2->addChild(level3);
                     } else
-                    if(shader->shaderType()==FragmentShader)
+                    if(shader->shaderType()==ST_fragment)
                     {   level3 = new qtPropertyTreeItem("Fragment Shader:");
                         level3->setGetString(bind((const string&(SLGLShader::*)(void)const)&SLGLShader::name, shader),
                                              bind((void(SLGLShader::*)(const string&))&SLGLShader::name, shader, _1));
@@ -702,7 +702,7 @@ void qtMainWindow::updateAllGLWidgets()
     updateAnimationTimeline();
 }
 //-----------------------------------------------------------------------------
-void qtMainWindow::applyCommandOnSV(const SLCmd cmd)
+void qtMainWindow::applyCommandOnSV(const SLCommand cmd)
 {
     if (QApplication::keyboardModifiers() == Qt::ShiftModifier)
         SLScene::current->onCommandAllSV(cmd);
@@ -778,178 +778,178 @@ void qtMainWindow::on_action_Quit_triggered()
 void qtMainWindow::on_actionSmall_Test_Scene_triggered()
 {
     beforeSceneLoad();
-    _activeGLWidget->sv()->onCommand(cmdSceneMinimal);
+    _activeGLWidget->sv()->onCommand(C_sceneMinimal);
     afterSceneLoad();
 }
 void qtMainWindow::on_actionLarge_Model_triggered()
 {
     beforeSceneLoad();
-    _activeGLWidget->sv()->onCommand(cmdSceneLargeModel);
+    _activeGLWidget->sv()->onCommand(C_sceneLargeModel);
     afterSceneLoad();
 }
 void qtMainWindow::on_actionFigure_triggered()
 {
     beforeSceneLoad();
-    _activeGLWidget->sv()->onCommand(cmdSceneFigure);
+    _activeGLWidget->sv()->onCommand(C_sceneFigure);
     afterSceneLoad();
 }
 void qtMainWindow::on_actionMesh_Loader_triggered()
 {
     beforeSceneLoad();
-    _activeGLWidget->sv()->onCommand(cmdSceneMeshLoad);
+    _activeGLWidget->sv()->onCommand(C_sceneMeshLoad);
     afterSceneLoad();
 }
 void qtMainWindow::on_actionTexture_Blending_triggered()
 {
     beforeSceneLoad();
-    _activeGLWidget->sv()->onCommand(cmdSceneTextureBlend);
+    _activeGLWidget->sv()->onCommand(C_sceneTextureBlend);
     afterSceneLoad();
 }
 void qtMainWindow::on_actionTexture_Filtering_triggered()
 {
     beforeSceneLoad();
-    _activeGLWidget->sv()->onCommand(cmdSceneTextureFilter);
+    _activeGLWidget->sv()->onCommand(C_sceneTextureFilter);
     afterSceneLoad();
 }
 void qtMainWindow::on_actionFrustum_Culling_1_triggered()
 {
     beforeSceneLoad();
-    _activeGLWidget->sv()->onCommand(cmdSceneFrustumCull1);
+    _activeGLWidget->sv()->onCommand(C_sceneFrustumCull1);
     afterSceneLoad();
 }
 
 void qtMainWindow::on_actionPer_Vertex_Lighting_triggered()
 {
     beforeSceneLoad();
-    _activeGLWidget->sv()->onCommand(cmdScenePerVertexBlinn);
+    _activeGLWidget->sv()->onCommand(C_scenePerVertexBlinn);
     afterSceneLoad();
 }
 void qtMainWindow::on_actionPer_Pixel_Lighting_triggered()
 {
     beforeSceneLoad();
-    _activeGLWidget->sv()->onCommand(cmdScenePerPixelBlinn);
+    _activeGLWidget->sv()->onCommand(C_scenePerPixelBlinn);
     afterSceneLoad();
 }
 void qtMainWindow::on_actionPer_Vertex_Wave_triggered()
 {
     beforeSceneLoad();
-    _activeGLWidget->sv()->onCommand(cmdScenePerVertexWave);
+    _activeGLWidget->sv()->onCommand(C_scenePerVertexWave);
     afterSceneLoad();
 }
 void qtMainWindow::on_actionWater_triggered()
 {
     beforeSceneLoad();
-    _activeGLWidget->sv()->onCommand(cmdSceneWater);
+    _activeGLWidget->sv()->onCommand(C_sceneWater);
     afterSceneLoad();
 }
 void qtMainWindow::on_actionBump_Mapping_triggered()
 {
     beforeSceneLoad();
-    _activeGLWidget->sv()->onCommand(cmdSceneBumpNormal);
+    _activeGLWidget->sv()->onCommand(C_sceneBumpNormal);
     afterSceneLoad();
 }
 void qtMainWindow::on_actionParallax_Mapping_triggered()
 {
     beforeSceneLoad();
-    _activeGLWidget->sv()->onCommand(cmdSceneBumpParallax);
+    _activeGLWidget->sv()->onCommand(C_sceneBumpParallax);
     afterSceneLoad();
 }
 void qtMainWindow::on_actionGlass_Shader_triggered()
 {
     beforeSceneLoad();
-    _activeGLWidget->sv()->onCommand(cmdSceneRevolver);
+    _activeGLWidget->sv()->onCommand(C_sceneRevolver);
     afterSceneLoad();
 }
 void qtMainWindow::on_actionEarth_Shader_triggered()
 {
     beforeSceneLoad();
-    _activeGLWidget->sv()->onCommand(cmdSceneEarth);
+    _activeGLWidget->sv()->onCommand(C_sceneEarth);
     afterSceneLoad();
 }
 
 void qtMainWindow::on_actionNode_Animation_triggered()
 {
     beforeSceneLoad();
-    _activeGLWidget->sv()->onCommand(cmdSceneNodeAnimation);
+    _activeGLWidget->sv()->onCommand(C_sceneNodeAnimation);
     afterSceneLoad();
 }
 void qtMainWindow::on_actionSkeletal_Animation_triggered()
 {
     beforeSceneLoad();
-    _activeGLWidget->sv()->onCommand(cmdSceneSkeletalAnimation);
+    _activeGLWidget->sv()->onCommand(C_sceneSkeletalAnimation);
     afterSceneLoad();
 }
 void qtMainWindow::on_actionAstroboy_Army_CPU_triggered()
 {
     beforeSceneLoad();
-    _activeGLWidget->sv()->onCommand(cmdSceneAstroboyArmyCPU);
+    _activeGLWidget->sv()->onCommand(C_sceneAstroboyArmyCPU);
     afterSceneLoad();
 }
 void qtMainWindow::on_actionAstroboy_Army_GPU_triggered()
 {
     beforeSceneLoad();
-    _activeGLWidget->sv()->onCommand(cmdSceneAstroboyArmyGPU);
+    _activeGLWidget->sv()->onCommand(C_sceneAstroboyArmyGPU);
     afterSceneLoad();
 }
 void qtMainWindow::on_actionMass_Animation_triggered()
 {
     beforeSceneLoad();
-    _activeGLWidget->sv()->onCommand(cmdSceneMassAnimation);
+    _activeGLWidget->sv()->onCommand(C_sceneMassAnimation);
     afterSceneLoad();
 }
 
 void qtMainWindow::on_actionRT_Spheres_triggered()
 {
     beforeSceneLoad();
-    _activeGLWidget->sv()->onCommand(cmdSceneRTSpheres);
+    _activeGLWidget->sv()->onCommand(C_sceneRTSpheres);
     afterSceneLoad();
 }
 void qtMainWindow::on_actionRT_Muttenzer_Box_triggered()
 {
     beforeSceneLoad();
-    _activeGLWidget->sv()->onCommand(cmdSceneRTMuttenzerBox);
+    _activeGLWidget->sv()->onCommand(C_sceneRTMuttenzerBox);
     afterSceneLoad();
 }
 void qtMainWindow::on_actionRT_Depth_of_Field_triggered()
 {
     beforeSceneLoad();
-    _activeGLWidget->sv()->onCommand(cmdSceneRTDoF);
+    _activeGLWidget->sv()->onCommand(C_sceneRTDoF);
     afterSceneLoad();
 }
 void qtMainWindow::on_actionRT_Lens_triggered()
 {
     beforeSceneLoad();
-    _activeGLWidget->sv()->onCommand(cmdSceneRTLens);
+    _activeGLWidget->sv()->onCommand(C_sceneRTLens);
     afterSceneLoad();
 }
 void qtMainWindow::on_actionRT_Soft_Shadows_triggered()
 {
     beforeSceneLoad();
-    _activeGLWidget->sv()->onCommand(cmdSceneRTSoftShadows);
+    _activeGLWidget->sv()->onCommand(C_sceneRTSoftShadows);
     afterSceneLoad();
 }
 
 // Menu Renderer
 void qtMainWindow::on_actionOpenGL_triggered()
 {
-    _activeGLWidget->sv()->onCommand(cmdRenderOpenGL);
+    _activeGLWidget->sv()->onCommand(C_renderOpenGL);
     setMenuState();
     updateAllGLWidgets();
 }
 void qtMainWindow::on_actionRay_Tracer_triggered()
 {
     SLSceneView* sv =  _activeGLWidget->sv();
-    if (sv->camera()->projection() > monoOrthographic)
-        sv->onCommand(cmdProjPersp);
-    sv->onCommand(cmdRT5);
+    if (sv->camera()->projection() > P_monoOrthographic)
+        sv->onCommand(C_projPersp);
+    sv->onCommand(C_rt5);
     setMenuState();
 }
 void qtMainWindow::on_actionPath_Tracer_triggered()
 {
     SLSceneView* sv =  _activeGLWidget->sv();
-    if (sv->camera()->projection() > monoOrthographic)
-        sv->onCommand(cmdProjPersp);
-    sv->onCommand(cmdPT10);
+    if (sv->camera()->projection() > P_monoOrthographic)
+        sv->onCommand(C_projPersp);
+    sv->onCommand(C_pt10);
     setMenuState();
 }
 
@@ -985,11 +985,11 @@ void qtMainWindow::on_actionShow_Statusbar_triggered()
 }
 void qtMainWindow::on_actionShow_Statistics_triggered()
 {
-    applyCommandOnSV(cmdStatsToggle);
+    applyCommandOnSV(C_statsToggle);
 }
 void qtMainWindow::on_actionShow_Scene_Info_triggered()
 {
-    applyCommandOnSV(cmdSceneInfoToggle);
+    applyCommandOnSV(C_sceneInfoToggle);
 }
 void qtMainWindow::on_actionShow_Menu_triggered()
 {
@@ -1015,214 +1015,214 @@ void qtMainWindow::on_actionAbout_Qt_triggered()
 // Menu Camera
 void qtMainWindow::on_actionReset_triggered()
 {
-    applyCommandOnSV(cmdCamReset);
+    applyCommandOnSV(C_camReset);
 }
 void qtMainWindow::on_actionUse_SceneView_Camera_triggered()
 {
-    applyCommandOnSV(cmdUseSceneViewCamera);
+    applyCommandOnSV(C_useSceneViewCamera);
 }
 void qtMainWindow::on_actionPerspective_triggered()
 {
-    applyCommandOnSV(cmdProjPersp);
+    applyCommandOnSV(C_projPersp);
 }
 void qtMainWindow::on_actionOrthographic_triggered()
 {
-    applyCommandOnSV(cmdProjOrtho);
+    applyCommandOnSV(C_projOrtho);
 }
 void qtMainWindow::on_actionSide_by_side_triggered()
 {
-    applyCommandOnSV(cmdProjSideBySide);
+    applyCommandOnSV(C_projSideBySide);
 }
 void qtMainWindow::on_actionSide_by_side_proportional_triggered()
 {
-    applyCommandOnSV(cmdProjSideBySideP);
+    applyCommandOnSV(C_projSideBySideP);
 }
 void qtMainWindow::on_actionSide_by_side_distorted_triggered()
 {
-    applyCommandOnSV(cmdProjSideBySideD);
+    applyCommandOnSV(C_projSideBySideD);
 }
 void qtMainWindow::on_actionLine_by_line_triggered()
 {
-    applyCommandOnSV(cmdProjLineByLine);
+    applyCommandOnSV(C_projLineByLine);
 }
 void qtMainWindow::on_actionColumn_by_column_triggered()
 {
-    applyCommandOnSV(cmdProjColumnByColumn);
+    applyCommandOnSV(C_projColumnByColumn);
 }
 void qtMainWindow::on_actionPixel_by_pixel_triggered()
 {
-    applyCommandOnSV(cmdProjPixelByPixel);
+    applyCommandOnSV(C_projPixelByPixel);
 }
 void qtMainWindow::on_actionColor_Red_Cyan_triggered()
 {
-    applyCommandOnSV(cmdProjColorRC);
+    applyCommandOnSV(C_projColorRC);
 }
 void qtMainWindow::on_actionColor_Red_Green_triggered()
 {
-    applyCommandOnSV(cmdProjColorRG);
+    applyCommandOnSV(C_projColorRG);
 }
 void qtMainWindow::on_actionColor_Red_Blue_triggered()
 {
-    applyCommandOnSV(cmdProjColorRB);
+    applyCommandOnSV(C_projColorRB);
 }
 void qtMainWindow::on_actionColor_Cyan_Yellow_triggered()
 {
-    applyCommandOnSV(cmdProjColorYB);
+    applyCommandOnSV(C_projColorYB);
 }
 void qtMainWindow::on_action_eyeSepInc10_triggered()
 {
-    applyCommandOnSV(cmdCamEyeSepInc);
+    applyCommandOnSV(C_camEyeSepInc);
 }
 void qtMainWindow::on_action_eyeSepDec10_triggered()
 {
-    applyCommandOnSV(cmdCamEyeSepDec);
+    applyCommandOnSV(C_camEyeSepDec);
 }
 void qtMainWindow::on_action_focalDistInc_triggered()
 {
-    applyCommandOnSV(cmdCamFocalDistInc);
+    applyCommandOnSV(C_camFocalDistInc);
 }
 void qtMainWindow::on_action_focalDistDec_triggered()
 {
-    applyCommandOnSV(cmdCamFocalDistDec);
+    applyCommandOnSV(C_camFocalDistDec);
 }
 void qtMainWindow::on_action_fovInc10_triggered()
 {
-    applyCommandOnSV(cmdCamFOVInc);
+    applyCommandOnSV(C_camFOVInc);
 }
 void qtMainWindow::on_action_fovDec10_triggered()
 {
-    applyCommandOnSV(cmdCamFOVDec);
+    applyCommandOnSV(C_camFOVDec);
 }
 void qtMainWindow::on_actionTurntable_Y_up_triggered()
 {
-    applyCommandOnSV(cmdCamAnimTurnYUp);
+    applyCommandOnSV(C_camAnimTurnYUp);
 }
 void qtMainWindow::on_actionTurntable_Z_up_triggered()
 {
-    applyCommandOnSV(cmdCamAnimTurnZUp);
+    applyCommandOnSV(C_camAnimTurnZUp);
 }
 void qtMainWindow::on_actionWalking_Y_up_triggered()
 {
-    applyCommandOnSV(cmdCamAnimWalkYUp);
+    applyCommandOnSV(C_camAnimWalkYUp);
 }
 void qtMainWindow::on_actionWalking_Z_up_triggered()
 {
-    applyCommandOnSV(cmdCamAnimWalkZUp);
+    applyCommandOnSV(C_camAnimWalkZUp);
 }
 void qtMainWindow::on_action_speedInc_triggered()
 {
-    applyCommandOnSV(cmdCamSpeedLimitInc);
+    applyCommandOnSV(C_camSpeedLimitInc);
 }
 void qtMainWindow::on_action_speedDec_triggered()
 {
-    applyCommandOnSV(cmdCamSpeedLimitDec);
+    applyCommandOnSV(C_camSpeedLimitDec);
 }
 
 // Menu Render Flags
 void qtMainWindow::on_actionDepthTest_triggered()
 {
-    applyCommandOnSV(cmdDepthTestToggle);
+    applyCommandOnSV(C_depthTestToggle);
 }
 void qtMainWindow::on_actionAntialiasing_triggered()
 {
-    applyCommandOnSV(cmdMultiSampleToggle);
+    applyCommandOnSV(C_multiSampleToggle);
 }
 void qtMainWindow::on_actionView_Frustum_Culling_triggered()
 {
-    applyCommandOnSV(cmdFrustCullToggle);
+    applyCommandOnSV(C_frustCullToggle);
 }
 void qtMainWindow::on_actionSlowdown_on_Idle_triggered()
 {
-    applyCommandOnSV(cmdWaitEventsToggle);
+    applyCommandOnSV(C_waitEventsToggle);
 }
 
 void qtMainWindow::on_actionShow_Normals_triggered()
 {
-    applyCommandOnSV(cmdNormalsToggle);
+    applyCommandOnSV(C_normalsToggle);
 }
 void qtMainWindow::on_actionShow_Wired_Mesh_triggered()
 {
-    applyCommandOnSV(cmdWireMeshToggle);
+    applyCommandOnSV(C_wireMeshToggle);
 }
 void qtMainWindow::on_actionShow_Bounding_Boxes_triggered()
 {
-    applyCommandOnSV(cmdBBoxToggle);
+    applyCommandOnSV(C_bBoxToggle);
 }
 void qtMainWindow::on_actionShow_Axis_triggered()
 {
-    applyCommandOnSV(cmdAxisToggle);
+    applyCommandOnSV(C_axisToggle);
 }
 void qtMainWindow::on_actionShow_Skeleton_triggered()
 {
-    applyCommandOnSV(cmdSkeletonToggle);
+    applyCommandOnSV(C_skeletonToggle);
 }
 void qtMainWindow::on_actionShow_Backfaces_triggered()
 {
-    applyCommandOnSV(cmdFaceCullToggle);
+    applyCommandOnSV(C_faceCullToggle);
 }
 void qtMainWindow::on_actionShow_Voxels_triggered()
 {
-    applyCommandOnSV(cmdVoxelsToggle);
+    applyCommandOnSV(C_voxelsToggle);
 }
 void qtMainWindow::on_actionTextures_off_triggered()
 {
-    applyCommandOnSV(cmdTextureToggle);
+    applyCommandOnSV(C_textureToggle);
 }
 
 void qtMainWindow::on_actionAnimation_off_triggered()
 {
-    applyCommandOnSV(cmdAnimationToggle);
+    applyCommandOnSV(C_animationToggle);
     ui->dockAnimation->setEnabled(!ui->actionAnimation_off->isChecked());
 }
 
 // Menu Ray Tracing
 void qtMainWindow::on_actionRender_to_depth_1_triggered()
 {
-    applyCommandOnSV(cmdRT1);
+    applyCommandOnSV(C_rt1);
 }
 void qtMainWindow::on_actionRender_to_depth_2_triggered()
 {
-    applyCommandOnSV(cmdRT2);
+    applyCommandOnSV(C_rt2);
 }
 void qtMainWindow::on_actionRender_to_depth_5_triggered()
 {
-    applyCommandOnSV(cmdRT5);
+    applyCommandOnSV(C_rt5);
 }
 void qtMainWindow::on_actionRender_to_max_depth_triggered()
 {
-    applyCommandOnSV(cmdRT0);
+    applyCommandOnSV(C_rt0);
 }
 void qtMainWindow::on_actionConstant_Redering_triggered()
 {
-    applyCommandOnSV(cmdRTContinuously);
+    applyCommandOnSV(C_rtContinuously);
     setMenuState();
 }
 void qtMainWindow::on_actionRender_Distributed_RT_features_triggered()
 {
-    applyCommandOnSV(cmdRTDistributed);
+    applyCommandOnSV(C_rtDistributed);
     setMenuState();
 }
 
 // Menu Path Tracing
 void qtMainWindow::on_action1_Sample_triggered()
 {
-    applyCommandOnSV(cmdPT1);
+    applyCommandOnSV(C_pt1);
 }
 void qtMainWindow::on_action10_Samples_triggered()
 {
-    applyCommandOnSV(cmdPT10);
+    applyCommandOnSV(C_pt10);
 }
 void qtMainWindow::on_action100_Sample_triggered()
 {
-    applyCommandOnSV(cmdPT100);
+    applyCommandOnSV(C_pt100);
 }
 void qtMainWindow::on_action1000_Samples_triggered()
 {
-    applyCommandOnSV(cmdPT1000);
+    applyCommandOnSV(C_pt1000);
 }
 void qtMainWindow::on_action10000_Samples_triggered()
 {
-    applyCommandOnSV(cmdPT10000);
+    applyCommandOnSV(C_pt10000);
 }
 
 // Menu Window
@@ -1251,9 +1251,9 @@ void qtMainWindow::on_actionSplit_into_4_views_triggered()
     qtGLWidget* bottomRight = topRight->splitActive(Qt::Vertical);
 
     // manually call init to set the correct scene view camera positions
-    topRight->sv()->initSceneViewCamera(-SLVec3f::AXISY, monoOrthographic);
-    bottomLeft->sv()->initSceneViewCamera(-SLVec3f::AXISZ, monoOrthographic);
-    bottomRight->sv()->initSceneViewCamera(-SLVec3f::AXISX, monoOrthographic);
+    topRight->sv()->initSceneViewCamera(-SLVec3f::AXISY, P_monoOrthographic);
+    bottomLeft->sv()->initSceneViewCamera(-SLVec3f::AXISZ, P_monoOrthographic);
+    bottomRight->sv()->initSceneViewCamera(-SLVec3f::AXISX, P_monoOrthographic);
 
     setMenuState();
 }

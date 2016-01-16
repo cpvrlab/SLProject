@@ -188,38 +188,38 @@ class SLNode: public SLObject, public SLEventHandler
 
             // transform setter methods
             void            translation         (const SLVec3f& pos,
-                                                 SLTransformSpace relativeTo = TS_Parent);
+                                                 SLTransformSpace relativeTo = TS_parent);
             void            translation         (SLfloat x, SLfloat y, SLfloat z,
-                                                 SLTransformSpace relativeTo = TS_Parent);
+                                                 SLTransformSpace relativeTo = TS_parent);
             void            rotation            (const SLQuat4f& rot, 
-                                                 SLTransformSpace relativeTo = TS_Parent);    
+                                                 SLTransformSpace relativeTo = TS_parent);    
             void            rotation            (SLfloat angleDeg, const SLVec3f& axis,
-                                                 SLTransformSpace relativeTo = TS_Parent);
+                                                 SLTransformSpace relativeTo = TS_parent);
             void            scaling             (SLfloat s);
             void            scaling             (SLfloat x, SLfloat y, SLfloat z);
             void            scaling             (const SLVec3f& scaling);
             void            lookAt              (SLfloat targetX, SLfloat targetY, SLfloat targetZ,
                                                  SLfloat upX = 0, SLfloat upY = 1, SLfloat upZ = 0,
-                                                 SLTransformSpace relativeTo = TS_World);
+                                                 SLTransformSpace relativeTo = TS_world);
             void            lookAt              (const SLVec3f& target,
                                                  const SLVec3f& up = SLVec3f::AXISY,
-                                                 SLTransformSpace relativeTo = TS_World);
+                                                 SLTransformSpace relativeTo = TS_world);
 
             // transform modifier methods
             void            translate           (const SLVec3f& vec, 
-                                                 SLTransformSpace relativeTo = TS_Object);
+                                                 SLTransformSpace relativeTo = TS_object);
             void            translate           (SLfloat x, SLfloat y, SLfloat z, 
-                                                 SLTransformSpace relativeTo = TS_Object);
+                                                 SLTransformSpace relativeTo = TS_object);
             void            rotate              (const SLQuat4f& rot, 
-                                                 SLTransformSpace relativeTo = TS_Object);
+                                                 SLTransformSpace relativeTo = TS_object);
             void            rotate              (SLfloat angleDeg, const SLVec3f& axis, 
-                                                 SLTransformSpace relativeTo = TS_Object);
+                                                 SLTransformSpace relativeTo = TS_object);
             void            rotate              (SLfloat angleDeg, 
                                                  SLfloat x, SLfloat y, SLfloat z,
-                                                 SLTransformSpace relativeTo = TS_Object);
+                                                 SLTransformSpace relativeTo = TS_object);
             void            rotateAround        (const SLVec3f& point,
                                                  SLVec3f& axis, SLfloat angleDeg,
-                                                 SLTransformSpace relativeTo = TS_World);
+                                                 SLTransformSpace relativeTo = TS_world);
             void            scale               (SLfloat s);
             void            scale               (SLfloat x, SLfloat y, SLfloat z);
             void            scale               (const SLVec3f& scale);

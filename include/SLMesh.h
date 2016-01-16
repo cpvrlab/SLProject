@@ -150,7 +150,7 @@ class SLMesh : public SLObject
             void            calcCenterRad   (SLVec3f& center, SLfloat& radius);
             SLbool          hitTriangleOS   (SLRay* ray, SLNode* node, SLuint iT);
 
-            SLPrimitive     primitive       (){return _primitive;}
+            SLPrimitiveType primitive       (){return _primitive;}
         
             void            transformSkin   ();
             void            skinMethod      (SLSkinMethod method);
@@ -186,7 +186,7 @@ class SLMesh : public SLObject
    
     protected:
             SLGLState*      _stateGL;       //!< Pointer to the global SLGLState instance
-            SLPrimitive     _primitive;     //!< Primitive type (default triangles)
+            SLPrimitiveType _primitive;     //!< Primitive type (default triangles)
 
             SLGLVertexArray     _vao;       //!< OpenGL Vertex Array Object for drawing
             SLGLVertexArrayExt  _vaoN;      //!< OpenGL VAO for optional normal drawing

@@ -16,67 +16,64 @@
 
 //-----------------------------------------------------------------------------
 //! Enumeration for buffer data types
-typedef enum
-{   SL_FLOAT          = GL_FLOAT,          // vertex attributes (position, normals)
-    SL_UNSIGNED_BYTE  = GL_UNSIGNED_BYTE,  // vertex index type (0-2^8)
-    SL_UNSIGNED_SHORT = GL_UNSIGNED_SHORT, // vertex index type (0-2^16)
-    SL_UNSIGNED_INT   = GL_UNSIGNED_INT    // vertex index type (0-2^32)
-} SLBufferType;
+enum SLBufferType
+{   BT_float  = GL_FLOAT,          //!< vertex attributes (position, normals)
+    BT_ubyte  = GL_UNSIGNED_BYTE,  //!< vertex index type (0-2^8)
+    BT_ushort = GL_UNSIGNED_SHORT, //!< vertex index type (0-2^16)
+    BT_uint   = GL_UNSIGNED_INT    //!< vertex index type (0-2^32)
+};
 //-----------------------------------------------------------------------------
-/*! Enumeration for buffer usage types also supported by OpenGL ES
-STATIC:  Buffer contents will be modified once and used many times.
-STREAM:  Buffer contents will be modified once and used at most a few times.
-DYNAMIC: Buffer contents will be modified repeatedly and used many times.
-*/
-typedef enum
-{   SL_STATIC_DRAW  = GL_STATIC_DRAW,
-    SL_STREAM_DRAW  = GL_STREAM_DRAW,
-    SL_DYNAMIC_DRAW = GL_DYNAMIC_DRAW,
-} SLBufferUsage;
+//! Enumeration for buffer usage types also supported by OpenGL ES
+enum SLBufferUsage
+{   BU_static  = GL_STATIC_DRAW,    //!< Buffer will be modified once and used many times.
+    BU_stream  = GL_STREAM_DRAW,    //!< Buffer will be modified once and used at most a few times.
+    BU_dynamic = GL_DYNAMIC_DRAW,   //!< Buffer will be modified repeatedly and used many times.
+};
 //-----------------------------------------------------------------------------
-// Enumeration for OpenGL primitive types also available on OpenGL ES
-typedef enum
-{   SL_POINTS         = GL_POINTS,
-    SL_LINES          = GL_LINES,
-    SL_LINE_LOOP      = GL_LINE_LOOP,
-    SL_LINE_STRIP     = GL_LINE_STRIP,
-    SL_TRIANGLES      = GL_TRIANGLES,
-    SL_TRIANGLE_STRIP = GL_TRIANGLE_STRIP,
-    SL_TRIANGLE_FAN   = GL_TRIANGLE_FAN
-} SLPrimitive;
+// Enumeration for OpenGL primitive types
+enum SLPrimitiveType
+{   PT_points        = GL_POINTS,
+    PT_lines         = GL_LINES,
+    PT_lineLoop      = GL_LINE_LOOP,
+    PT_lineStrip     = GL_LINE_STRIP,
+    PT_triangles     = GL_TRIANGLES,
+    PT_triangleStrip = GL_TRIANGLE_STRIP,
+    PT_triangleFan   = GL_TRIANGLE_FAN
+};
 //-----------------------------------------------------------------------------
 //! Enumeration for float vertex attribute types
-typedef enum
-{   SL_POSITION,    //! Vertex position as a 2, 3 or 4 component vectors
-    SL_NORMAL,      //! Vertex normal as a 3 component vector
-    SL_TEXCOORD,    //! Vertex texture coordinate as 2 component vector
-    SL_TANGENT,     //! Vertex tangent as a 4 component vector (see SLMesh) 
-    SL_JOINTWEIGHT, //! Vertex joint weight for vertex skinning
-    SL_JOINTINDEX,  //! Vertex joint id for vertex skinning
-    SL_COLOR,       //! Vertex color as 3 or 4 component vector
-    SL_CUSTOM0,     //! Custom vertex attribute 0
-    SL_CUSTOM1,     //! Custom vertex attribute 1
-    SL_CUSTOM2,     //! Custom vertex attribute 2
-    SL_CUSTOM3,     //! Custom vertex attribute 3
-    SL_CUSTOM4,     //! Custom vertex attribute 4
-    SL_CUSTOM5,     //! Custom vertex attribute 5
-    SL_CUSTOM6,     //! Custom vertex attribute 6
-    SL_CUSTOM7,     //! Custom vertex attribute 7
-    SL_CUSTOM8,     //! Custom vertex attribute 8
-    SL_CUSTOM9      //! Custom vertex attribute 0
-} SLVertexAttribType;
+enum SLVertexAttribType
+{   VAT_position,    //!< Vertex position as a 2, 3 or 4 component vectors
+    VAT_normal,      //!< Vertex normal as a 3 component vector
+    VAT_texCoord,    //!< Vertex texture coordinate as 2 component vector
+    VAT_tangent,     //!< Vertex tangent as a 4 component vector (see SLMesh) 
+    VAT_jointWeight, //!< Vertex joint weight for vertex skinning
+    VAT_jointIndex,  //!< Vertex joint id for vertex skinning
+    VAT_color,       //!< Vertex color as 3 or 4 component vector
+    VAT_custom0,     //!< Custom vertex attribute 0
+    VAT_custom1,     //!< Custom vertex attribute 1
+    VAT_custom2,     //!< Custom vertex attribute 2
+    VAT_custom3,     //!< Custom vertex attribute 3
+    VAT_custom4,     //!< Custom vertex attribute 4
+    VAT_custom5,     //!< Custom vertex attribute 5
+    VAT_custom6,     //!< Custom vertex attribute 6
+    VAT_custom7,     //!< Custom vertex attribute 7
+    VAT_custom8,     //!< Custom vertex attribute 8
+    VAT_custom9      //!< Custom vertex attribute 0
+};
 //-----------------------------------------------------------------------------
 //! Struct for vertex attribute information
 struct SLVertexAttrib
-{   SLVertexAttribType type;    //! type of vertex attribute
-    SLint elementSize;          //! size of attribute element (SLVec3f has 3)
-    SLuint offsetBytes;         //! offset of the attribute data in the buffer
-    SLuint bufferSizeBytes;     //! size of the attribute part in the buffer
-    void* dataPointer;          //! pointer to the attributes source data
-    SLint location;             //! GLSL input variable location index
+{   SLVertexAttribType  type;           //!< type of vertex attribute
+    SLint               elementSize;    //!< size of attribute element (SLVec3f has 3)
+    SLuint              offsetBytes;    //!< offset of the attribute data in the buffer
+    SLuint              bufferSizeBytes;//!< size of the attribute part in the buffer
+    void*               dataPointer;    //!< pointer to the attributes source data
+    SLint               location;       //!< GLSL input variable location index
 };
 //-----------------------------------------------------------------------------
 typedef vector<SLVertexAttrib>  SLVVertexAttrib;
+//-----------------------------------------------------------------------------
 
 
 
@@ -151,17 +148,17 @@ class SLGLVertexArray
         
         //! Adds the index array for indexed element drawing with a vector of ubyte
         void        setIndices          (SLVubyte& indices) {setIndices((SLuint)indices.size(), 
-                                                                        SL_UNSIGNED_BYTE, 
+                                                                        BT_ubyte, 
                                                                         (void*)&indices[0]);}
         
         //! Adds the index array for indexed element drawing with a vector of ushort
         void        setIndices          (SLVushort& indices) {setIndices((SLuint)indices.size(), 
-                                                                         SL_UNSIGNED_SHORT, 
+                                                                         BT_ushort, 
                                                                          (void*)&indices[0]);}
         
         //! Adds the index array for indexed element drawing with a vector of uint
         void        setIndices          (SLVuint& indices) {setIndices((SLuint)indices.size(), 
-                                                                        SL_UNSIGNED_INT, 
+                                                                        BT_uint, 
                                                                         (void*)&indices[0]);}
         
         //! Updates a specific vertex attribute in the VBO
@@ -187,16 +184,16 @@ class SLGLVertexArray
         
         //! Generates the VA & VB objects for a NO. of vertices
         void        generate            (SLuint numVertices, 
-                                         SLBufferUsage usage = SL_STATIC_DRAW,
+                                         SLBufferUsage usage = BU_static,
                                          SLbool outputInterleaved = true);
 
         //! Draws the VAO by element indices with a primitive type
-        void        drawElementsAs      (SLPrimitive primitiveType,
+        void        drawElementsAs      (SLPrimitiveType primitiveType,
                                          SLuint numIndexes = 0,
                                          SLuint indexOffsetBytes = 0);
         
         //! Draws the VAO as an array with a primitive type 
-        void        drawArrayAs         (SLPrimitive primitiveType,
+        void        drawArrayAs         (SLPrimitiveType primitiveType,
                                          SLint firstVertex = 0,
                                          SLsizei countVertices = 0);
 

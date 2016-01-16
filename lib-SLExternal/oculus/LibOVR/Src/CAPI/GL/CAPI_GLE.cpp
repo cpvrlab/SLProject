@@ -1,6 +1,6 @@
 /************************************************************************************
 
-Filename    :   Render_GLE.cpp
+Filename    :   RendeRT_glE.cpp
 Content     :   OpenGL Extensions support. Implements a stripped down glew-like 
                 interface with some additional functionality.
 Copyright   :   Copyright 2014 Oculus VR, LLC All Rights reserved.

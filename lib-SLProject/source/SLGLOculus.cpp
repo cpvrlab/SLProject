@@ -171,17 +171,17 @@ void SLGLOculus::init()
         for (unsigned i = 0; i < meshData.IndexCount; i++)
             tempIndex.push_back(meshData.pIndexData[i]);
 
-        SLGLProgram* sp = SLScene::current->programs(StereoOculusDistortionMesh);
+        SLGLProgram* sp = SLScene::current->programs(SP_stereoOculusDistortion);
         sp->useProgram();
 
         // set attributes with all the same data pointer to the interleaved array
-        _distortionMeshVAO[eyeNum].setAttrib(SL_POSITION, 2, sp->getAttribLocation("a_position"), pVBVerts);
-        _distortionMeshVAO[eyeNum].setAttrib(SL_CUSTOM1,  1, sp->getAttribLocation("a_timeWarpFactor"), pVBVerts);
-        _distortionMeshVAO[eyeNum].setAttrib(SL_CUSTOM2,  1, sp->getAttribLocation("a_vignetteFactor"), pVBVerts);
-        _distortionMeshVAO[eyeNum].setAttrib(SL_CUSTOM3,  2, sp->getAttribLocation("a_texCoordR"), pVBVerts);
-        _distortionMeshVAO[eyeNum].setAttrib(SL_CUSTOM4,  2, sp->getAttribLocation("a_texCoordG"), pVBVerts);
-        _distortionMeshVAO[eyeNum].setAttrib(SL_CUSTOM5,  2, sp->getAttribLocation("a_texCoordB"), pVBVerts);
-        _distortionMeshVAO[eyeNum].setIndices(meshData.IndexCount, SL_UNSIGNED_INT, &tempIndex[0]);
+        _distortionMeshVAO[eyeNum].setAttrib(VAT_position, 2, sp->getAttribLocation("a_position"), pVBVerts);
+        _distortionMeshVAO[eyeNum].setAttrib(VAT_custom1,  1, sp->getAttribLocation("a_timeWarpFactor"), pVBVerts);
+        _distortionMeshVAO[eyeNum].setAttrib(VAT_custom2,  1, sp->getAttribLocation("a_vignetteFactor"), pVBVerts);
+        _distortionMeshVAO[eyeNum].setAttrib(VAT_custom3,  2, sp->getAttribLocation("a_texCoordR"), pVBVerts);
+        _distortionMeshVAO[eyeNum].setAttrib(VAT_custom4,  2, sp->getAttribLocation("a_texCoordG"), pVBVerts);
+        _distortionMeshVAO[eyeNum].setAttrib(VAT_custom5,  2, sp->getAttribLocation("a_texCoordB"), pVBVerts);
+        _distortionMeshVAO[eyeNum].setIndices(meshData.IndexCount, BT_uint, &tempIndex[0]);
         _distortionMeshVAO[eyeNum].generate(meshData.VertexCount);
                 
         delete[] pVBVerts;
@@ -205,8 +205,8 @@ void SLGLOculus::init()
         _projection[i].translate(-_viewAdjust[i]);
     }
     
-    createSLDistortionMesh(leftEye,  _distortionMeshVAO[0]);
-    createSLDistortionMesh(rightEye, _distortionMeshVAO[1]);
+    createSLDistortionMesh(ET_left,  _distortionMeshVAO[0]);
+    createSLDistortionMesh(ET_right, _distortionMeshVAO[1]);
 
 #endif
 
@@ -217,7 +217,7 @@ void SLGLOculus::init()
 */
 void SLGLOculus::renderDistortion(SLint width, SLint height, SLuint tex)
 {
-    SLGLProgram* sp = SLScene::current->programs(StereoOculusDistortionMesh);
+    SLGLProgram* sp = SLScene::current->programs(SP_stereoOculusDistortion);
 
     glViewport(0, 0, width, height);
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -255,7 +255,7 @@ void SLGLOculus::renderDistortion(SLint width, SLint height, SLuint tex)
         sp->uniformMatrix4fv("u_eyeRotationEnd", 1, identity.m());
         #endif
 
-        _distortionMeshVAO[eye].drawElementsAs(SL_TRIANGLES);
+        _distortionMeshVAO[eye].drawElementsAs(PT_triangles);
     }
 
     sp->endUse();
@@ -269,10 +269,10 @@ void SLGLOculus::renderDistortion(SLint width, SLint height, SLuint tex)
 //-----------------------------------------------------------------------------
 /*! Returns the view adjust vector as reported by the HMD for the specified eye
 */
-const SLVec3f& SLGLOculus::viewAdjust(SLEye eye)
+const SLVec3f& SLGLOculus::viewAdjust(SLEyeType eye)
 {
     //@todo find a nicer way to store this (SLEye has a -1 for left and +1 for right eye)
-    if (eye == leftEye)
+    if (eye == ET_left)
         return _viewAdjust[0];
     else
         return _viewAdjust[1];
@@ -280,9 +280,9 @@ const SLVec3f& SLGLOculus::viewAdjust(SLEye eye)
 //-----------------------------------------------------------------------------
 /*! Returns an perspective projection matrix for the specified eye
 */
-const SLMat4f& SLGLOculus::projection(SLEye eye)
+const SLMat4f& SLGLOculus::projection(SLEyeType eye)
 {
-    if (eye == leftEye)
+    if (eye == ET_left)
         return _projection[0];
     else
         return _projection[1];
@@ -290,9 +290,9 @@ const SLMat4f& SLGLOculus::projection(SLEye eye)
 //-----------------------------------------------------------------------------
 /*! Returns an orthogonal projection matrix for the specified eye
 */
-const SLMat4f& SLGLOculus::orthoProjection(SLEye eye)
+const SLMat4f& SLGLOculus::orthoProjection(SLEyeType eye)
 {
-    if (eye == leftEye)
+    if (eye == ET_left)
         return _orthoProjection[0];
     else
         return _orthoProjection[1];
@@ -492,18 +492,18 @@ void SLGLOculus::endFrame(SLint width, SLint height, SLuint tex)
 /*! Returns the Oculus orientation as quaternion. If no Oculus Rift is 
 recognized it returns a unit quaternion.
 */
-const SLQuat4f& SLGLOculus::orientation(SLEye eye)
+const SLQuat4f& SLGLOculus::orientation(SLEyeType eye)
 {
-    if (eye == leftEye) return _orientation[0];
+    if (eye == ET_left) return _orientation[0];
     else                return _orientation[1];
 }
 //-----------------------------------------------------------------------------
 
 /*! Returns the Oculus position.
 */
-const SLVec3f& SLGLOculus::position(SLEye eye)
+const SLVec3f& SLGLOculus::position(SLEyeType eye)
 {
-    if (eye == leftEye) return _position[0];
+    if (eye == ET_left) return _position[0];
     else                return _position[1];
 }
 //-----------------------------------------------------------------------------

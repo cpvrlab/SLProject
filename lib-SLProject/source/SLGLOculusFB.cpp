@@ -71,7 +71,7 @@ void SLGLOculusFB::generateFBO()
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-    glTexImage2D(GL_TEXTURE_2D, 0, SL_RGBA, _width, _height, 0, SL_RGBA,
+    glTexImage2D(GL_TEXTURE_2D, 0, PF_rgba, _width, _height, 0, PF_rgba,
                  GL_UNSIGNED_BYTE, nullptr);
     glBindTexture(GL_TEXTURE_2D, 0);
 
@@ -120,7 +120,7 @@ void SLGLOculusFB::updateSize(SLint scrWidth,
     else
     {  // Resize the intermediate render targets
         glBindTexture(GL_TEXTURE_2D, _texID);
-        glTexImage2D(GL_TEXTURE_2D, 0, SL_RGBA, _width, _height, 0, SL_RGBA, GL_UNSIGNED_BYTE, nullptr);
+        glTexImage2D(GL_TEXTURE_2D, 0, PF_rgba, _width, _height, 0, PF_rgba, GL_UNSIGNED_BYTE, nullptr);
         glBindTexture(GL_TEXTURE_2D, 0);
 
         // Resize the depth render buffer
@@ -149,21 +149,21 @@ void SLGLOculusFB::drawFramebuffer()
     glDisable(GL_DEPTH_TEST);
 
     //bind the rift shader
-    SLGLProgram* sp = SLScene::current->programs(StereoOculus);
+    SLGLProgram* sp = SLScene::current->programs(SP_stereoOculus);
     sp->useProgram();
     SLint location = sp->getAttribLocation("a_position");
    
     // Create VBO for screen quad once
     if (!_vao.id())
     {   SLfloat P[] = {-1,-1,  1,-1,  -1,1,  1,1};
-        _vao.setAttrib(SL_POSITION, 2, location, P);
+        _vao.setAttrib(VAT_position, 2, location, P);
         _vao.generate(4); 
     }
 
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, _texID);
 
-    _vao.drawArrayAs(SL_TRIANGLE_STRIP);
+    _vao.drawArrayAs(PT_triangleStrip);
 
     glEnable(GL_DEPTH_TEST);
 }

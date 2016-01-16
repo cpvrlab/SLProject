@@ -82,7 +82,7 @@ OVR_DEFINE_SINGLETON(LogSubject);
 namespace OVR {
 
     // Global Log pointer.
-    Log* volatile OVR_GlobalLog = 0;
+    Log* volatile OVRT_globalLog = 0;
 
 //-----------------------------------------------------------------------------------
 // ***** Log Implementation
@@ -106,10 +106,10 @@ Log::~Log()
 #endif
 
     // Clear out global log
-    if (this == OVR_GlobalLog)
+    if (this == OVRT_globalLog)
     {
         // TBD: perhaps we should ASSERT if this happens before system shutdown?
-        OVR_GlobalLog = 0;
+        OVRT_globalLog = 0;
     }
 }
 void Log::AddLogObserver(ObserverScope<LogHandler> *logObserver)
@@ -309,15 +309,15 @@ void Log::DefaultLogOutput(const char* formattedText, LogMessageType messageType
 //static
 void Log::SetGlobalLog(Log *log)
 {
-    OVR_GlobalLog = log;
+    OVRT_globalLog = log;
 }
 //static
 Log* Log::GetGlobalLog()
 {
 // No global log by default?
-//    if (!OVR_GlobalLog)
-//        OVR_GlobalLog = GetDefaultLog();
-    return OVR_GlobalLog;
+//    if (!OVRT_globalLog)
+//        OVRT_globalLog = GetDefaultLog();
+    return OVRT_globalLog;
 }
 
 //static
@@ -338,15 +338,15 @@ Log* Log::GetDefaultLog()
 #define OVR_LOG_FUNCTION_IMPL(Name)  \
     void Log##Name(const char* fmt, ...) \
     {                                                                    \
-        if (OVR_GlobalLog)                                               \
+        if (OVRT_globalLog)                                               \
         {                                                                \
             va_list argList1;                                             \
             va_start(argList1, fmt);                                     \
             va_list argList2;                                             \
             va_copy(argList2, argList1);                                 \
-            OVR_GlobalLog->LogMessageVargInt(Log_##Name, fmt, argList2); \
+            OVRT_globalLog->LogMessageVargInt(Log_##Name, fmt, argList2); \
             va_end(argList2);                                             \
-            OVR_GlobalLog->LogMessageVarg(Log_##Name, fmt, argList1);    \
+            OVRT_globalLog->LogMessageVarg(Log_##Name, fmt, argList1);    \
             va_end(argList1);                                            \
         }                                                                \
     }
@@ -354,12 +354,12 @@ Log* Log::GetDefaultLog()
 #define OVR_LOG_FUNCTION_IMPL(Name)  \
     void Log##Name(const char* fmt, ...) \
     {                                                                    \
-        if (OVR_GlobalLog)                                               \
+        if (OVRT_globalLog)                                               \
         {                                                                \
             va_list argList1;                                             \
             va_start(argList1, fmt);                                     \
-            OVR_GlobalLog->LogMessageVargInt(Log_##Name, fmt, argList1); \
-            OVR_GlobalLog->LogMessageVarg(Log_##Name, fmt, argList1);    \
+            OVRT_globalLog->LogMessageVargInt(Log_##Name, fmt, argList1); \
+            OVRT_globalLog->LogMessageVarg(Log_##Name, fmt, argList1);    \
             va_end(argList1);                                            \
         }                                                                \
     }

@@ -8,8 +8,8 @@
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
 
-#ifndef SLANIMPLAYBACK_H
-#define SLANIMPLAYBACK_H
+#ifndef SLANIMPLAYBACK_h
+#define SLANIMPLAYBACK_h
 
 #include <stdafx.h>
 #include <SLEnums.h>

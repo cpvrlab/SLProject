@@ -3314,7 +3314,7 @@ GLboolean __GLEW_MESAX_texture_stack = GL_FALSE;
 GLboolean __GLEW_MESA_pack_invert = GL_FALSE;
 GLboolean __GLEW_MESA_resize_buffers = GL_FALSE;
 GLboolean __GLEW_MESA_window_pos = GL_FALSE;
-GLboolean __GLEW_MESA_ycbcr_texture = GL_FALSE;
+GLboolean __GLEW_MESA_Ycbcr_texture = GL_FALSE;
 GLboolean __GLEW_NVX_conditional_render = GL_FALSE;
 GLboolean __GLEW_NVX_gpu_memory_info = GL_FALSE;
 GLboolean __GLEW_NV_bindless_multi_draw_indirect = GL_FALSE;
@@ -8423,9 +8423,9 @@ static GLboolean _glewInit_GL_MESA_window_pos (GLEW_CONTEXT_ARG_DEF_INIT)
 
 #endif /* GL_MESA_window_pos */
 
-#ifdef GL_MESA_ycbcr_texture
+#ifdef GL_MESA_Ycbcr_texture
 
-#endif /* GL_MESA_ycbcr_texture */
+#endif /* GL_MESA_Ycbcr_texture */
 
 #ifdef GL_NVX_conditional_render
 
@@ -10304,7 +10304,7 @@ GLenum GLEWAPIENTRY glewContextInit (GLEW_CONTEXT_ARG_DEF_LIST)
 
   if (major == 1 && minor == 0)
   {
-    return GLEW_ERROR_GL_VERSION_10_ONLY;
+    return GLEW_ERRORT_gl_VERSION_10_ONLY;
   }
   else
   {
@@ -11698,9 +11698,9 @@ GLenum GLEWAPIENTRY glewContextInit (GLEW_CONTEXT_ARG_DEF_LIST)
   GLEW_MESA_window_pos = _glewSearchExtension("GL_MESA_window_pos", extStart, extEnd);
   if (glewExperimental || GLEW_MESA_window_pos) GLEW_MESA_window_pos = !_glewInit_GL_MESA_window_pos(GLEW_CONTEXT_ARG_VAR_INIT);
 #endif /* GL_MESA_window_pos */
-#ifdef GL_MESA_ycbcr_texture
-  GLEW_MESA_ycbcr_texture = _glewSearchExtension("GL_MESA_ycbcr_texture", extStart, extEnd);
-#endif /* GL_MESA_ycbcr_texture */
+#ifdef GL_MESA_Ycbcr_texture
+  GLEW_MESA_Ycbcr_texture = _glewSearchExtension("GL_MESA_Ycbcr_texture", extStart, extEnd);
+#endif /* GL_MESA_Ycbcr_texture */
 #ifdef GL_NVX_conditional_render
   GLEW_NVX_conditional_render = _glewSearchExtension("GL_NVX_conditional_render", extStart, extEnd);
   if (glewExperimental || GLEW_NVX_conditional_render) GLEW_NVX_conditional_render = !_glewInit_GL_NVX_conditional_render(GLEW_CONTEXT_ARG_VAR_INIT);
@@ -14250,7 +14250,7 @@ GLenum glxewContextInit (GLXEW_CONTEXT_ARG_DEF_LIST)
   const GLubyte* extStart;
   const GLubyte* extEnd;
   /* initialize core GLX 1.2 */
-  if (_glewInit_GLX_VERSION_1_2(GLEW_CONTEXT_ARG_VAR_INIT)) return GLEW_ERROR_GLX_VERSION_11_ONLY;
+  if (_glewInit_GLX_VERSION_1_2(GLEW_CONTEXT_ARG_VAR_INIT)) return GLEW_ERRORT_glX_VERSION_11_ONLY;
   /* initialize flags */
   GLXEW_VERSION_1_0 = GL_TRUE;
   GLXEW_VERSION_1_1 = GL_TRUE;
@@ -14271,7 +14271,7 @@ GLenum glxewContextInit (GLXEW_CONTEXT_ARG_DEF_LIST)
       GLXEW_VERSION_1_3 = GL_FALSE;
       break;
       default:
-      return GLEW_ERROR_GLX_VERSION_11_ONLY;
+      return GLEW_ERRORT_glX_VERSION_11_ONLY;
       break;
     }
   }
@@ -17395,10 +17395,10 @@ GLboolean GLEWAPIENTRY glewIsSupported (const char* name)
           continue;
         }
 #endif
-#ifdef GL_MESA_ycbcr_texture
+#ifdef GL_MESA_Ycbcr_texture
         if (_glewStrSame3(&pos, &len, (const GLubyte*)"ycbcr_texture", 13))
         {
-          ret = GLEW_MESA_ycbcr_texture;
+          ret = GLEW_MESA_Ycbcr_texture;
           continue;
         }
 #endif

@@ -73,8 +73,8 @@ class SLCamera: public SLNode
             SLbool          isInFrustum     (SLAABBox* aabb);
                             
             // Apply projection, viewport and view transformations
-            void            setProjection   (SLSceneView* sv, const SLEye eye);
-            void            setView         (SLSceneView* sv, const SLEye eye);
+            void            setProjection   (SLSceneView* sv, const SLEyeType eye);
+            void            setView         (SLSceneView* sv, const SLEyeType eye);
             void            setFrustumPlanes();
 
             // Setters

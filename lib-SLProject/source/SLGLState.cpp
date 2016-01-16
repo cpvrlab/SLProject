@@ -630,24 +630,24 @@ SLbool SLGLState::pixelFormatIsSupported(SLint pixelFormat)
     */
     switch(pixelFormat)
     {
-        case SL_RGB:
-        case SL_RGBA: return true;
-        case SL_RED: return (!_glIsES2);
-        case SL_BGR:
-        case SL_BGRA: return (!_glIsES2 && !_glIsES3);
-        case SL_LUMINANCE:
-        case SL_LUMINANCE_ALPHA:
-        case SL_ALPHA: return (_glIsES2 || _glIsES3 || (((SLint)_glVersionNOf) == 2));
-        case SL_INTENSITY:
-        case SL_GREEN:
-        case SL_BLUE: return (!_glIsES2 && !_glIsES3 && (((SLint)_glVersionNOf) == 2));
-        case SL_RG: return (!_glIsES2 && _glVersionNOf >= 3);
-        case SL_RG_INTEGER:
-        case SL_RED_INTEGER:
-        case SL_RGB_INTEGER:
-        case SL_RGBA_INTEGER: return (!_glIsES2 && _glVersionNOf >= 4);
-        case SL_BGR_INTEGER:
-        case SL_BGRA_INTEGER: return (_glVersionNOf >= 4);
+        case PF_rgb:
+        case PF_rgba: return true;
+        case PF_red: return (!_glIsES2);
+        case PF_bgr:
+        case PF_bgra: return (!_glIsES2 && !_glIsES3);
+        case PF_luminance:
+        case PF_luminance_alpha:
+        case PF_alpha: return (_glIsES2 || _glIsES3 || (((SLint)_glVersionNOf) == 2));
+        case PF_intensity:
+        case PF_green:
+        case PF_blue: return (!_glIsES2 && !_glIsES3 && (((SLint)_glVersionNOf) == 2));
+        case PF_rg: return (!_glIsES2 && _glVersionNOf >= 3);
+        case PF_rg_integer:
+        case PF_red_integer:
+        case PF_rgb_integer:
+        case PF_rgba_integer: return (!_glIsES2 && _glVersionNOf >= 4);
+        case PF_bgr_integer:
+        case PF_bgra_integer: return (_glVersionNOf >= 4);
         default: return false;
     }
 }

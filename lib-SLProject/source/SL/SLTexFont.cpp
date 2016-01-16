@@ -34,7 +34,7 @@ SLTexFont* SLTexFont::font22 = 0;
 SLTexFont::SLTexFont(const SLuchar *bmp, SLint bmpW, SLint bmpH)
 {
     // Init texture members
-    _texType = FontMap;
+    _texType = TT_font;
     _wrap_s = GL_CLAMP_TO_EDGE;
     _wrap_t = GL_CLAMP_TO_EDGE;
     _min_filter = GL_NEAREST;
@@ -123,7 +123,7 @@ void SLTexFont::create(const SLuchar *bmp, SLint bmpW, SLint bmpH)
    
     //Allocate memory for image pixels using only the alpha channel
     _images.clear();
-    SLPixelFormat format = _stateGL->pixelFormatIsSupported(SL_LUMINANCE) ? SL_LUMINANCE : SL_RED;
+    SLPixelFormat format = _stateGL->pixelFormatIsSupported(PF_luminance) ? PF_luminance : PF_red;
     _images.push_back(new SLImage(texWidth, texHeight, format));
   
     //Fill up with 0
@@ -343,11 +343,11 @@ void SLTexFont::buildTextBuffers(SLGLVertexArray& vao,
     }
       
     // create buffers on GPU
-    SLGLProgram* sp = SLScene::current->programs(FontTex);
+    SLGLProgram* sp = SLScene::current->programs(SP_fontTex);
     sp->useProgram();
-    vao.setAttrib(SL_POSITION, 3, sp->getAttribLocation("a_position"), P);
-    vao.setAttrib(SL_TEXCOORD, 2, sp->getAttribLocation("a_texCoord"), T);
-    vao.setIndices(numI, SL_UNSIGNED_SHORT, I);
+    vao.setAttrib(VAT_position, 3, sp->getAttribLocation("a_position"), P);
+    vao.setAttrib(VAT_texCoord, 2, sp->getAttribLocation("a_texCoord"), T);
+    vao.setIndices(numI, BT_ushort, I);
     vao.generate(numP);
    
     // delete data on CPU again     

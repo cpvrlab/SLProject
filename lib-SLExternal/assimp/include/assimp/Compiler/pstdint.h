@@ -681,34 +681,34 @@ typedef uint_least32_t uint_fast32_t;
 # endif
 
 # ifdef stdint_intptr_bits
-#  define stdint_intptr_glue3_i(a,b,c)  a##b##c
-#  define stdint_intptr_glue3(a,b,c)    stdint_intptr_glue3_i(a,b,c)
+#  define stdint_intptRT_glue3_i(a,b,c)  a##b##c
+#  define stdint_intptRT_glue3(a,b,c)    stdint_intptRT_glue3_i(a,b,c)
 #  ifndef PRINTF_INTPTR_MODIFIER
-#    define PRINTF_INTPTR_MODIFIER      stdint_intptr_glue3(PRINTF_INT,stdint_intptr_bits,_MODIFIER)
+#    define PRINTF_INTPTR_MODIFIER      stdint_intptRT_glue3(PRINTF_INT,stdint_intptr_bits,_MODIFIER)
 #  endif
 #  ifndef PTRDIFF_MAX
-#    define PTRDIFF_MAX                 stdint_intptr_glue3(INT,stdint_intptr_bits,_MAX)
+#    define PTRDIFF_MAX                 stdint_intptRT_glue3(INT,stdint_intptr_bits,_MAX)
 #  endif
 #  ifndef PTRDIFF_MIN
-#    define PTRDIFF_MIN                 stdint_intptr_glue3(INT,stdint_intptr_bits,_MIN)
+#    define PTRDIFF_MIN                 stdint_intptRT_glue3(INT,stdint_intptr_bits,_MIN)
 #  endif
 #  ifndef UINTPTR_MAX
-#    define UINTPTR_MAX                 stdint_intptr_glue3(UINT,stdint_intptr_bits,_MAX)
+#    define UINTPTR_MAX                 stdint_intptRT_glue3(UINT,stdint_intptr_bits,_MAX)
 #  endif
 #  ifndef INTPTR_MAX
-#    define INTPTR_MAX                  stdint_intptr_glue3(INT,stdint_intptr_bits,_MAX)
+#    define INTPTR_MAX                  stdint_intptRT_glue3(INT,stdint_intptr_bits,_MAX)
 #  endif
 #  ifndef INTPTR_MIN
-#    define INTPTR_MIN                  stdint_intptr_glue3(INT,stdint_intptr_bits,_MIN)
+#    define INTPTR_MIN                  stdint_intptRT_glue3(INT,stdint_intptr_bits,_MIN)
 #  endif
 #  ifndef INTPTR_C
-#    define INTPTR_C(x)                 stdint_intptr_glue3(INT,stdint_intptr_bits,_C)(x)
+#    define INTPTR_C(x)                 stdint_intptRT_glue3(INT,stdint_intptr_bits,_C)(x)
 #  endif
 #  ifndef UINTPTR_C
-#    define UINTPTR_C(x)                stdint_intptr_glue3(UINT,stdint_intptr_bits,_C)(x)
+#    define UINTPTR_C(x)                stdint_intptRT_glue3(UINT,stdint_intptr_bits,_C)(x)
 #  endif
-  typedef stdint_intptr_glue3(uint,stdint_intptr_bits,_t) uintptr_t;
-  typedef stdint_intptr_glue3( int,stdint_intptr_bits,_t)  intptr_t;
+  typedef stdint_intptRT_glue3(uint,stdint_intptr_bits,_t) uintptr_t;
+  typedef stdint_intptRT_glue3( int,stdint_intptr_bits,_t)  intptr_t;
 # else
 /* TODO -- This following is likely wrong for some platforms, and does
    nothing for the definition of uintptr_t. */

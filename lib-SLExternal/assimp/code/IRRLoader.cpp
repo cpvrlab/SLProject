@@ -57,7 +57,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "Importer.h"
 
 // We need boost::common_factor to compute the lcm/gcd of a number
-#include <boost/math/common_factor_rt.hpp>
+#include <boost/math/common_factoRT_rt.hpp>
 
 using namespace Assimp;
 using namespace irr;
@@ -1427,7 +1427,7 @@ void IRRImporter::InternReadFile( const std::string& pFile,
 		// correctly, users will need to combine the global anim
 		// channel with all the local animations they want to play
 		// ***********************************************************
-		an->mName.Set("Irr_GlobalAnimChannel");
+		an->mName.Set("IrRT_globalAnimChannel");
 
 		// copy all node animation channels to the global channel
 		an->mNumChannels = (unsigned int)anims.size();

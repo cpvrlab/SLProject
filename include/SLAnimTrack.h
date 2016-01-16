@@ -8,8 +8,8 @@
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
 
-#ifndef SLANIMTRACK_H
-#define SLANIMTRACK_H
+#ifndef SLANIMTRACK_h
+#define SLANIMTRACK_h
 
 #include <stdafx.h>
 #include <SLEnums.h>

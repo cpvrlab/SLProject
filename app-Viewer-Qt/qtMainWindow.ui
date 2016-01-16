@@ -1864,7 +1864,7 @@ QSlider::handle:horizontal:disabled {
    </property>
    <property name="icon">
     <iconset resource="resources.qrc">
-     <normaloff>:/images/renderGL.png</normaloff>:/images/renderGL.png</iconset>
+     <normaloff>:/images/RT_gl.png</normaloff>:/images/RT_gl.png</iconset>
    </property>
    <property name="text">
     <string>OpenGL</string>

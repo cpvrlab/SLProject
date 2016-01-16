@@ -38,8 +38,8 @@ class SLAssimpImporter : public SLImporter
                 SLAssimpImporter(SLLogVerbosity consoleVerb)
                     : SLImporter(consoleVerb) { }
                 SLAssimpImporter(const SLstring& logFile,
-                                 SLLogVerbosity logConsoleVerb = LV_Normal,
-                                 SLLogVerbosity logFileVerb = LV_Diagnostic)
+                                 SLLogVerbosity logConsoleVerb = LV_normal,
+                                 SLLogVerbosity logFileVerb = LV_diagnostic)
                     : SLImporter(logFile, logConsoleVerb, logFileVerb) { }
 
             SLNode*     load    (SLstring pathFilename,
@@ -102,7 +102,7 @@ protected:
     void            loadSkeleton(SLJoint* parent, aiNode* node);
 
     SLMaterial*     loadMaterial(SLint index, aiMaterial* material, SLstring modelPath);
-    SLGLTexture*    loadTexture(SLstring &path, SLTexType texType);
+    SLGLTexture*    loadTexture(SLstring &path, SLTextureType texType);
     SLMesh*         loadMesh(aiMesh *mesh);
     SLNode*         loadNodesRec(SLNode *curNode, aiNode *aiNode, SLMeshMap& meshes, SLbool loadMeshesOnly = true);
     SLAnimation*    loadAnimation(aiAnimation* anim);

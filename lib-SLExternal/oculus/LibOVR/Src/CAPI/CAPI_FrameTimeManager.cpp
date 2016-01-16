@@ -450,7 +450,7 @@ void FrameTimeManager::Timing::InitTimingFromInputs(const FrameTimeManager::Timi
         TimeWarpStartEndTimes[1][0]     = nextFrameBase ;
         TimeWarpStartEndTimes[1][1]     = nextFrameBase + frameDelta;
         break;
-    case HmdShutter_Global:
+    case HmdShutteRT_global:
         // TBD
         EyeRenderTimes[0]               = MidpointTime;
         EyeRenderTimes[1]               = MidpointTime;

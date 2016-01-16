@@ -254,7 +254,7 @@ png_create_info_struct,(png_structp png_ptr),PNG_ALLOCATED)
  * useful for some applications.
  */
 void PNGAPI
-png_destroy_info_struct(png_structp png_ptr, png_infopp info_ptr_ptr)
+png_destroy_info_struct(png_structp png_ptr, png_infopp info_ptRT_ptr)
 {
    png_infop info_ptr = NULL;
 
@@ -263,8 +263,8 @@ png_destroy_info_struct(png_structp png_ptr, png_infopp info_ptr_ptr)
    if (png_ptr == NULL)
       return;
 
-   if (info_ptr_ptr != NULL)
-      info_ptr = *info_ptr_ptr;
+   if (info_ptRT_ptr != NULL)
+      info_ptr = *info_ptRT_ptr;
 
    if (info_ptr != NULL)
    {
@@ -276,7 +276,7 @@ png_destroy_info_struct(png_structp png_ptr, png_infopp info_ptr_ptr)
 #else
       png_destroy_struct((png_voidp)info_ptr);
 #endif
-      *info_ptr_ptr = NULL;
+      *info_ptRT_ptr = NULL;
    }
 }
 
@@ -286,9 +286,9 @@ png_destroy_info_struct(png_structp png_ptr, png_infopp info_ptr_ptr)
  */
 
 void PNGAPI
-png_info_init_3(png_infopp ptr_ptr, png_size_t png_info_struct_size)
+png_info_init_3(png_infopp ptRT_ptr, png_size_t png_info_struct_size)
 {
-   png_infop info_ptr = *ptr_ptr;
+   png_infop info_ptr = *ptRT_ptr;
 
    png_debug(1, "in png_info_init_3");
 
@@ -299,7 +299,7 @@ png_info_init_3(png_infopp ptr_ptr, png_size_t png_info_struct_size)
    {
       png_destroy_struct(info_ptr);
       info_ptr = (png_infop)png_create_struct(PNG_STRUCT_INFO);
-      *ptr_ptr = info_ptr;
+      *ptRT_ptr = info_ptr;
    }
 
    /* Set everything to 0 */

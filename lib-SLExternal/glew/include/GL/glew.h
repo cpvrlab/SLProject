@@ -12065,18 +12065,18 @@ typedef void (GLAPIENTRY * PFNGLWINDOWPOS4SVMESAPROC) (const GLshort* p);
 
 #endif /* GL_MESA_window_pos */
 
-/* ------------------------- GL_MESA_ycbcr_texture ------------------------- */
+/* ------------------------- GL_MESA_Ycbcr_texture ------------------------- */
 
-#ifndef GL_MESA_ycbcr_texture
-#define GL_MESA_ycbcr_texture 1
+#ifndef GL_MESA_Ycbcr_texture
+#define GL_MESA_Ycbcr_texture 1
 
 #define GL_UNSIGNED_SHORT_8_8_MESA 0x85BA
 #define GL_UNSIGNED_SHORT_8_8_REV_MESA 0x85BB
 #define GL_YCBCR_MESA 0x8757
 
-#define GLEW_MESA_ycbcr_texture GLEW_GET_VAR(__GLEW_MESA_ycbcr_texture)
+#define GLEW_MESA_Ycbcr_texture GLEW_GET_VAR(__GLEW_MESA_Ycbcr_texture)
 
-#endif /* GL_MESA_ycbcr_texture */
+#endif /* GL_MESA_Ycbcr_texture */
 
 /* ----------------------- GL_NVX_conditional_render ----------------------- */
 
@@ -19114,7 +19114,7 @@ GLEW_VAR_EXPORT GLboolean __GLEW_MESAX_texture_stack;
 GLEW_VAR_EXPORT GLboolean __GLEW_MESA_pack_invert;
 GLEW_VAR_EXPORT GLboolean __GLEW_MESA_resize_buffers;
 GLEW_VAR_EXPORT GLboolean __GLEW_MESA_window_pos;
-GLEW_VAR_EXPORT GLboolean __GLEW_MESA_ycbcr_texture;
+GLEW_VAR_EXPORT GLboolean __GLEW_MESA_Ycbcr_texture;
 GLEW_VAR_EXPORT GLboolean __GLEW_NVX_conditional_render;
 GLEW_VAR_EXPORT GLboolean __GLEW_NVX_gpu_memory_info;
 GLEW_VAR_EXPORT GLboolean __GLEW_NV_bindless_multi_draw_indirect;
@@ -19299,8 +19299,8 @@ GLEW_VAR_EXPORT GLboolean __GLEW_WIN_swap_hint;
 #define GLEW_OK 0
 #define GLEW_NO_ERROR 0
 #define GLEW_ERROR_NO_GL_VERSION 1  /* missing GL version */
-#define GLEW_ERROR_GL_VERSION_10_ONLY 2  /* Need at least OpenGL 1.1 */
-#define GLEW_ERROR_GLX_VERSION_11_ONLY 3  /* Need at least GLX 1.2 */
+#define GLEW_ERRORT_gl_VERSION_10_ONLY 2  /* Need at least OpenGL 1.1 */
+#define GLEW_ERRORT_glX_VERSION_11_ONLY 3  /* Need at least GLX 1.2 */
 
 /* string codes */
 #define GLEW_VERSION 1

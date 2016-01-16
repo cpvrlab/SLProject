@@ -42,7 +42,7 @@ class SLGLVertexArrayExt : public SLGLVertexArray
         void        generateVertexPos   (SLVVec4f p) {generateVertexPos((SLuint)p.size(), 4, (void*)&p[0]);}
         
         //! Draws the array as the specified primitive with the color 
-        void        drawArrayAsColored  (SLPrimitive primitiveType,
+        void        drawArrayAsColored  (SLPrimitiveType primitiveType,
                                          SLCol4f color,
                                          SLfloat lineOrPointSize = 1.0f,
                                          SLuint  indexFirstVertex = 0,

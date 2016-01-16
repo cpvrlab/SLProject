@@ -24,14 +24,14 @@ by a native API such as Java Native Interface (JNI).
 See the implementation for more information.
 */
 //-----------------------------------------------------------------------------
-void    slCreateScene       (SLstring shaderPath,
+void    slCreateScene       (SLVstring& cmdLineArgs,
+                             SLstring shaderPath,
                              SLstring modelPath,
                              SLstring texturePath);
 int     slCreateSceneView   (int screenWidth,
                              int screenHeight,
                              int dotsPerInch,
-                             SLCmd initScene,  
-                             SLVstring& cmdLineArgs,
+                             SLCommand initScene,  
                              void* onWndUpdateCallback,
                              void* onSelectNodeMeshCallback = 0,
                              void* onNewSceneViewCallback = 0,
@@ -54,7 +54,7 @@ void    slMouseWheel        (int sceneViewIndex, int pos, SLKey modifier);
 void    slKeyPress          (int sceneViewIndex, SLKey key, SLKey modifier);
 void    slKeyRelease        (int sceneViewIndex, SLKey key, SLKey modifier);
 void    slCharInput         (int sceneViewIndex, unsigned int character);
-void    slCommand           (int sceneViewIndex, SLCmd command);
+void    slCommand           (int sceneViewIndex, SLCommand command);
 bool    slUsesRotation      (int sceneViewIndex);
 void    slRotationPYR       (int sceneViewIndex, float pitchRAD, float yawRAD, float rollRAD);
 void    slRotationQUAT      (int sceneViewIndex, float angleRAD, float axisX, float axisY, float axisZ);

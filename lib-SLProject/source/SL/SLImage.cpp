@@ -113,24 +113,24 @@ SLint SLImage::bytesPerPixel(SLPixelFormat format)
 {
     switch (format)
     {
-        case SL_RED:
-        case SL_RED_INTEGER:
-        case SL_GREEN:
-        case SL_ALPHA:
-        case SL_BLUE:
-        case SL_LUMINANCE:
-        case SL_INTENSITY: return 1;
-        case SL_RG:
-        case SL_RG_INTEGER:
-        case SL_LUMINANCE_ALPHA: return 2;
-        case SL_RGB:
-        case SL_BGR:
-        case SL_RGB_INTEGER:
-        case SL_BGR_INTEGER: return 3;
-        case SL_RGBA:
-        case SL_BGRA:
-        case SL_RGBA_INTEGER:
-        case SL_BGRA_INTEGER: return 4;
+        case PF_red:
+        case PF_red_integer:
+        case PF_green:
+        case PF_alpha:
+        case PF_blue:
+        case PF_luminance:
+        case PF_intensity: return 1;
+        case PF_rg:
+        case PF_rg_integer:
+        case PF_luminance_alpha: return 2;
+        case PF_rgb:
+        case PF_bgr:
+        case PF_rgb_integer:
+        case PF_bgr_integer: return 3;
+        case PF_rgba:
+        case PF_bgra:
+        case PF_rgba_integer:
+        case PF_bgra_integer: return 4;
         default:
             SL_EXIT_MSG("SLImage::bytesPerPixel: unknown pixel format");
     }
@@ -181,9 +181,9 @@ SLbool SLImage::load(SLint width,
         }
         else
         {
-            if (srcPixelFormatGL==SL_BGRA)
+            if (srcPixelFormatGL==PF_bgra)
             {
-                if (dstPixelFormatGL==SL_RGB)
+                if (dstPixelFormatGL==PF_rgb)
                 {
                     for (SLint h=0; h<_height; ++h, srcStart += srcBPL, dstStart -= dstBPL)
                     {   SLubyte* src = srcStart;
@@ -196,7 +196,7 @@ SLbool SLImage::load(SLint width,
                     }
                 }
                 else
-                if (dstPixelFormatGL==SL_RGBA)
+                if (dstPixelFormatGL==PF_rgba)
                 {
                     for (SLint h=0; h<_height; ++h, srcStart += srcBPL, dstStart -= dstBPL)
                     {   SLubyte* src = srcStart;
@@ -211,9 +211,9 @@ SLbool SLImage::load(SLint width,
                     
                 }
             }  else
-            if (srcPixelFormatGL==SL_BGR || srcPixelFormatGL==SL_RGB)
+            if (srcPixelFormatGL==PF_bgr || srcPixelFormatGL==PF_rgb)
             {
-                if (dstPixelFormatGL==SL_RGB || dstPixelFormatGL==SL_BGR)
+                if (dstPixelFormatGL==PF_rgb || dstPixelFormatGL==PF_bgr)
                 {
                     for (SLint h=0; h<_height; ++h, srcStart += srcBPL, dstStart -= dstBPL)
                     {   SLubyte* src = srcStart;
@@ -242,9 +242,9 @@ SLbool SLImage::load(SLint width,
             SLubyte* dstStart = _data;
             SLubyte* srcStart = data;
             
-            if (srcPixelFormatGL==SL_BGRA)
+            if (srcPixelFormatGL==PF_bgra)
             {
-                if (dstPixelFormatGL==SL_RGB)
+                if (dstPixelFormatGL==PF_rgb)
                 {
                     for(SLint h=0; h<_height-1; ++h, srcStart+=srcBPL, dstStart+=dstBPL)
                     {   SLubyte* src = srcStart;
@@ -256,7 +256,7 @@ SLbool SLImage::load(SLint width,
                         }
                     }
                 } else
-                if (dstPixelFormatGL==SL_RGBA)
+                if (dstPixelFormatGL==PF_rgba)
                 {
                     for(SLint h=0; h<_height-1; ++h, srcStart+=srcBPL, dstStart+=dstBPL)
                     {   SLubyte* src = srcStart;
@@ -270,9 +270,9 @@ SLbool SLImage::load(SLint width,
                     }
                 }
             } else
-            if (srcPixelFormatGL==SL_BGR || srcPixelFormatGL==SL_RGB)
+            if (srcPixelFormatGL==PF_bgr || srcPixelFormatGL==PF_rgb)
             {
-                if (dstPixelFormatGL==SL_RGB || dstPixelFormatGL==SL_BGR)
+                if (dstPixelFormatGL==PF_rgb || dstPixelFormatGL==PF_bgr)
                 {
                     for(SLint h=0; h<_height-1; ++h, srcStart+=srcBPL, dstStart+=dstBPL)
                     {   SLubyte* src = srcStart;
@@ -315,24 +315,24 @@ SLstring SLImage::formatString()
 {
     switch (_format)
     {
-        case SL_RGB: return SLstring("SL_RGB");
-        case SL_RGBA: return SLstring("SL_RGBA");
-        case SL_BGRA: return SLstring("SL_BGRA");
-        case SL_RED: return SLstring("SL_RED");
-        case SL_RED_INTEGER: return SLstring("SL_RED_INTEGER");
-        case SL_GREEN: return SLstring("SL_GREEN");
-        case SL_ALPHA: return SLstring("SL_BLUE");
-        case SL_BLUE: return SLstring("SL_BLUE");
-        case SL_LUMINANCE: return SLstring("SL_LUMINANCE");
-        case SL_INTENSITY: return SLstring("SL_INTENSITY");
-        case SL_RG: return SLstring("SL_RG");
-        case SL_RG_INTEGER: return SLstring("SL_RG_INTEGER");
-        case SL_LUMINANCE_ALPHA: return SLstring("SL_LUMINANCE_ALPHA");
-        case SL_BGR: return SLstring("SL_BGR");
-        case SL_RGB_INTEGER: return SLstring("SL_RGB_INTEGER");
-        case SL_BGR_INTEGER: return SLstring("SL_BGR_INTEGER");
-        case SL_RGBA_INTEGER: return SLstring("SL_RGBA_INTEGER");
-        case SL_BGRA_INTEGER: return SLstring("SL_BGRA_INTEGER");
+        case PF_rgb: return SLstring("SL_RGB");
+        case PF_rgba: return SLstring("SL_RGBA");
+        case PF_bgra: return SLstring("SL_BGRA");
+        case PF_red: return SLstring("SL_RED");
+        case PF_red_integer: return SLstring("SL_RED_INTEGER");
+        case PF_green: return SLstring("SL_GREEN");
+        case PF_alpha: return SLstring("SL_BLUE");
+        case PF_blue: return SLstring("SL_BLUE");
+        case PF_luminance: return SLstring("SL_LUMINANCE");
+        case PF_intensity: return SLstring("SL_INTENSITY");
+        case PF_rg: return SLstring("SL_RG");
+        case PF_rg_integer: return SLstring("SL_RG_INTEGER");
+        case PF_luminance_alpha: return SLstring("SL_LUMINANCE_ALPHA");
+        case PF_bgr: return SLstring("SL_BGR");
+        case PF_rgb_integer: return SLstring("SL_RGB_INTEGER");
+        case PF_bgr_integer: return SLstring("SL_BGR_INTEGER");
+        case PF_rgba_integer: return SLstring("SL_RGBA_INTEGER");
+        case PF_bgra_integer: return SLstring("SL_BGRA_INTEGER");
         default: return SLstring("Unknow pixel format");
     }
 }
@@ -408,14 +408,14 @@ void SLImage::loadJPG(SLstring filename)
     switch (cinfo.out_color_space)
     {   case JCS_GRAYSCALE:  
             #ifdef SL_GLES2
-            _format = SL_LUMINANCE;
+            _format = PF_luminance;
             #else
-            _format = SL_RED;
+            _format = PF_red;
             #endif
             _bytesPerPixel = 1;
             break;
         case JCS_RGB:        
-            _format = SL_RGB;
+            _format = PF_rgb;
             _bytesPerPixel = 3;
             break; 
         case JCS_UNKNOWN: 
@@ -527,23 +527,23 @@ void SLImage::loadPNG(SLstring filename)
     switch (color_type)
     {   case PNG_COLOR_TYPE_GRAY: 
             #ifdef SL_GLES2
-            _format = SL_LUMINANCE;
+            _format = PF_luminance;
             #else
-            _format = SL_RED;
+            _format = PF_red;
             #endif
             break;
         case PNG_COLOR_TYPE_GRAY_ALPHA:
             #ifdef SL_GLES2
-            _format = SL_LUMINANCE_ALPHA;
+            _format = PF_luminance_alpha;
             #else 
-            _format = SL_RG;
+            _format = PF_rg;
             #endif
             break;
         case PNG_COLOR_TYPE_RGB: 
-            _format = SL_RGB;
+            _format = PF_rgb;
             break;
         case PNG_COLOR_TYPE_RGB_ALPHA: 
-            _format = SL_RGBA;
+            _format = PF_rgba;
             break;
         default: 
             SL_EXIT_MSG("Wrong PNG color type!"); break;
@@ -639,7 +639,7 @@ void SLImage::loadBMP(SLstring filename)
         SL_EXIT_MSG("SLImage::loadBMP: Not enough data in file!");
 
     // Allocate for the image data block for RGB data
-    _format = SL_RGB;
+    _format = PF_rgb;
     _width  = BIH.biWidth;
     _height = BIH.biHeight;
     _bytesPerPixel = 3; 
@@ -718,10 +718,10 @@ void SLImage::loadTGA(SLstring filename)
     }
 
     if (bitsPerPixel == 24)
-        _format = SL_RGB;
+        _format = PF_rgb;
     else
     if (bitsPerPixel == 32)
-        _format = SL_RGBA;
+        _format = PF_rgba;
     else
     {   fclose(fp);
         SL_EXIT_MSG("SLImage::loadTGA: Only 24 and 32 bit bit per pixel supported!");
@@ -911,14 +911,14 @@ void SLImage::savePNG(SLstring filename)
     switch (_format)
     {  
         #ifdef SL_GLES2
-        case SL_LUMINANCE:      color_type = PNG_COLOR_TYPE_GRAY;       break;
-        case SL_LUMINANCE_ALPHA:color_type = PNG_COLOR_TYPE_GRAY_ALPHA; break;
+        case PF_luminance:      color_type = PNG_COLOR_TYPE_GRAY;       break;
+        case PF_luminance_alpha:color_type = PNG_COLOR_TYPE_GRAY_ALPHA; break;
         #else
-        case SL_RED:   color_type = PNG_COLOR_TYPE_GRAY;       break;
-        case SL_RG:    color_type = PNG_COLOR_TYPE_GRAY_ALPHA; break;
+        case PF_red:   color_type = PNG_COLOR_TYPE_GRAY;       break;
+        case PF_rg:    color_type = PNG_COLOR_TYPE_GRAY_ALPHA; break;
         #endif
-        case SL_RGB:   color_type = PNG_COLOR_TYPE_RGB;        break;
-        case SL_RGBA:  color_type = PNG_COLOR_TYPE_RGB_ALPHA;  break;
+        case PF_rgb:   color_type = PNG_COLOR_TYPE_RGB;        break;
+        case PF_rgba:  color_type = PNG_COLOR_TYPE_RGB_ALPHA;  break;
         default: SL_EXIT_MSG("Wrong pixel format.");
     }
    
@@ -967,30 +967,30 @@ SLCol4f SLImage::getPixeli(SLint x, SLint y)
     y %= _height;
 
     switch (_format)
-    {   case SL_RGB:
+    {   case PF_rgb:
             addr = _bytesPerLine*y + 3*x;
             color.set(_data[addr], _data[addr+1], _data[addr+2], 255.0f);
             break; 
-        case SL_RGBA:
+        case PF_rgba:
             addr = _bytesPerLine*y + 4*x; 
             color.set(_data[addr], _data[addr+1], _data[addr+2], _data[addr+3]);
             break;
-        case SL_BGRA:
+        case PF_bgra:
             addr = _bytesPerLine*y + 4*x;
             color.set(_data[addr+2], _data[addr+1], _data[addr], _data[addr+3]);
             break;
         #ifdef SL_GLES2
-        case SL_LUMINANCE:
+        case PF_luminance:
         #else
-        case SL_RED:
+        case PF_red:
         #endif
             addr = _bytesPerLine*y + x;
             color.set(_data[addr], _data[addr], _data[addr], 255.0f);
             break;
         #ifdef SL_GLES2
-        case SL_LUMINANCE_ALPHA:
+        case PF_luminance_alpha:
         #else
-        case SL_RG:
+        case PF_rg:
         #endif
             addr = _bytesPerLine*y + 2*x; 
             color.set(_data[addr], _data[addr], _data[addr], _data[addr+1]);
@@ -1063,26 +1063,26 @@ void SLImage::setPixeli(SLint x, SLint y, SLCol4f color)
     SLint R, G, B;
 
     switch (_format)
-    {   case SL_RGB:
+    {   case PF_rgb:
             addr = _data + _bytesPerLine*y + 3*x;
             *(addr++) = (SLubyte)(color.r * 255.0f);
             *(addr++) = (SLubyte)(color.g * 255.0f);
             *(addr  ) = (SLubyte)(color.b * 255.0f);
             break;
-        case SL_BGR:
+        case PF_bgr:
             addr = _data + _bytesPerLine*y + 3*x;
             *(addr++) = (SLubyte)(color.b * 255.0f);
             *(addr++) = (SLubyte)(color.g * 255.0f);
             *(addr  ) = (SLubyte)(color.r * 255.0f);
             break;
-        case SL_RGBA:
+        case PF_rgba:
             addr = _data + _bytesPerLine*y + 4*x; 
             *(addr++) = (SLubyte)(color.r * 255.0f);
             *(addr++) = (SLubyte)(color.g * 255.0f);
             *(addr++) = (SLubyte)(color.b * 255.0f);
             *(addr  ) = (SLubyte)(color.a * 255.0f);
             break;
-        case SL_BGRA:
+        case PF_bgra:
             addr = _data + _bytesPerLine*y + 4*x; 
             *(addr++) = (SLubyte)(color.b * 255.0f);
             *(addr++) = (SLubyte)(color.g * 255.0f);
@@ -1090,9 +1090,9 @@ void SLImage::setPixeli(SLint x, SLint y, SLCol4f color)
             *(addr  ) = (SLubyte)(color.a * 255.0f);
             break;
         #ifdef SL_GLES2
-        case SL_LUMINANCE:
+        case PF_luminance:
         #else
-        case SL_RED:
+        case PF_red:
         #endif
             addr = _data + _bytesPerLine*y + x;
             R = (SLint)(color.r * 255.0f);
@@ -1101,9 +1101,9 @@ void SLImage::setPixeli(SLint x, SLint y, SLCol4f color)
             *(addr) = (SLubyte)((( 66*R + 129*G +  25*B + 128)>>8) + 16);
             break;
         #ifdef SL_GLES2
-        case SL_LUMINANCE_ALPHA:
+        case PF_luminance_alpha:
         #else
-        case SL_RG:
+        case PF_rg:
         #endif
             addr = _data + _bytesPerLine*y + 2*x; 
             R = (SLint)(color.r * 255.0f);

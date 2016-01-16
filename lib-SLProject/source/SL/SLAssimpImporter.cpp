@@ -325,7 +325,7 @@ SLNode* SLAssimpImporter::load(SLstring file,           //!< File with path or o
     for (SLint i = 0; i < (SLint)scene->mNumAnimations; i++)
         animations.push_back(loadAnimation(scene->mAnimations[i]));
 
-    logMessage(LV_Minimal, "\n---------------------------\n\n");
+    logMessage(LV_minimal, "\n---------------------------\n\n");
 
     return _sceneRoot;
 }
@@ -365,20 +365,20 @@ const SLMat4f SLAssimpImporter::getOffsetMat(const SLstring& name)
 void SLAssimpImporter::performInitialScan(const aiScene* scene)
 {
     // populate the _nameToNode map and print the assimp structure on detailed log verbosity.
-    logMessage(LV_Detailed, "[Assimp scene]\n");
-    logMessage(LV_Detailed, "  Cameras: %d\n", scene->mNumCameras);
-    logMessage(LV_Detailed, "  Lights: %d\n", scene->mNumLights);
-    logMessage(LV_Detailed, "  Meshes: %d\n", scene->mNumMeshes);
-    logMessage(LV_Detailed, "  Materials: %d\n", scene->mNumMaterials);
-    logMessage(LV_Detailed, "  Textures: %d\n", scene->mNumTextures);
-    logMessage(LV_Detailed, "  Animations: %d\n", scene->mNumAnimations);
+    logMessage(LV_detailed, "[Assimp scene]\n");
+    logMessage(LV_detailed, "  Cameras: %d\n", scene->mNumCameras);
+    logMessage(LV_detailed, "  Lights: %d\n", scene->mNumLights);
+    logMessage(LV_detailed, "  Meshes: %d\n", scene->mNumMeshes);
+    logMessage(LV_detailed, "  Materials: %d\n", scene->mNumMaterials);
+    logMessage(LV_detailed, "  Textures: %d\n", scene->mNumTextures);
+    logMessage(LV_detailed, "  Animations: %d\n", scene->mNumAnimations);
     
-    logMessage(LV_Detailed, "---------------------------------------------\n");
-    logMessage(LV_Detailed, "  Node node tree: \n");
+    logMessage(LV_detailed, "---------------------------------------------\n");
+    logMessage(LV_detailed, "  Node node tree: \n");
     findNodes(scene->mRootNode, "  ", true);
     
-    logMessage(LV_Detailed, "---------------------------------------------\n");
-    logMessage(LV_Detailed, "   Searching for skinned meshes and scanning joint names.\n");
+    logMessage(LV_detailed, "---------------------------------------------\n");
+    logMessage(LV_detailed, "   Searching for skinned meshes and scanning joint names.\n");
 
 
     findJoints(scene);
@@ -420,7 +420,7 @@ void SLAssimpImporter::findNodes(aiNode* node, SLstring padding, SLbool lastChil
     _nodeMap[name] = node;
 
     //logMessage(LV_Detailed, "%s   |\n", padding.c_str());
-    logMessage(LV_Detailed, "%s  |-[%s]   (%d children, %d meshes)\n", 
+    logMessage(LV_detailed, "%s  |-[%s]   (%d children, %d meshes)\n", 
                padding.c_str(), 
                name.c_str(),
                node->mNumChildren, 
@@ -446,7 +446,7 @@ void SLAssimpImporter::findJoints(const aiScene* scene)
         if(!mesh->HasBones())
             continue;
 
-		logMessage(LV_Normal, "   Mesh '%s' contains %d joints.\n", mesh->mName.C_Str(), mesh->mNumBones);
+		logMessage(LV_normal, "   Mesh '%s' contains %d joints.\n", mesh->mName.C_Str(), mesh->mNumBones);
         
         for (SLuint j = 0; j < mesh->mNumBones; j++)
         {
@@ -462,7 +462,7 @@ void SLAssimpImporter::findJoints(const aiScene* scene)
 			_jointOffsets[name] = offsetMat;
 
 
-			logMessage(LV_Detailed, "     Bone '%s' found.\n", name.c_str());
+			logMessage(LV_detailed, "     Bone '%s' found.\n", name.c_str());
         }
     }
 }
@@ -481,7 +481,7 @@ void SLAssimpImporter::findSkeletonRoot()
     SLint minDepth = INT_MAX;
     SLint index = 0;    
 
-    logMessage(LV_Detailed, "Building joint ancestor lists.\n");
+    logMessage(LV_detailed, "Building joint ancestor lists.\n");
 
     auto it = _jointOffsets.begin();
     for (; it != _jointOffsets.end(); it++, index++)
@@ -495,21 +495,21 @@ void SLAssimpImporter::findSkeletonRoot()
         }
 
         // log the gathered ancestor list if on diagnostic
-        if (LV_Diagnostic)
-        {   logMessage(LV_Diagnostic, "   '%s' ancestor list: ", it->first.c_str());
+        if (LV_diagnostic)
+        {   logMessage(LV_diagnostic, "   '%s' ancestor list: ", it->first.c_str());
             for (SLint i = 0; i < list.size(); i++)
-                logMessage(LV_Diagnostic, "'%s' ", list[i]->mName.C_Str());
-            logMessage(LV_Diagnostic, "\n");
+                logMessage(LV_diagnostic, "'%s' ", list[i]->mName.C_Str());
+            logMessage(LV_diagnostic, "\n");
         } else
-            logMessage(LV_Detailed, "   '%s' lies at a depth of %d\n", it->first.c_str(), list.size());
+            logMessage(LV_detailed, "   '%s' lies at a depth of %d\n", it->first.c_str(), list.size());
 
         minDepth = min(minDepth, (SLint)list.size());
     }
 
 
-    logMessage(LV_Detailed, "Bone ancestor lists completed, min depth: %d\n", minDepth);
+    logMessage(LV_detailed, "Bone ancestor lists completed, min depth: %d\n", minDepth);
     
-    logMessage(LV_Detailed, "Searching ancestor lists for common ancestor.\n");
+    logMessage(LV_detailed, "Searching ancestor lists for common ancestor.\n");
     // now we have a ancestor list for each joint node beginning with the root node
     for (SLint i = 0; i < minDepth; i++) 
     {
@@ -527,7 +527,7 @@ void SLAssimpImporter::findSkeletonRoot()
         if (!failed)
         {
             _skeletonRoot = lastMatch;
-            logMessage(LV_Detailed, "Found matching ancestor '%s'.\n", _skeletonRoot->mName.C_Str());
+            logMessage(LV_detailed, "Found matching ancestor '%s'.\n", _skeletonRoot->mName.C_Str());
         }
         else
         {
@@ -540,7 +540,7 @@ void SLAssimpImporter::findSkeletonRoot()
     if (!_skeletonRoot)
     _skeletonRoot = ancestorList[0][1];
 
-    logMessage(LV_Normal, "Determined '%s' to be the skeleton's root node.\n", _skeletonRoot->mName.C_Str());
+    logMessage(LV_normal, "Determined '%s' to be the skeleton's root node.\n", _skeletonRoot->mName.C_Str());
 }
 //-----------------------------------------------------------------------------
 //! Loads the skeleton
@@ -554,7 +554,7 @@ void SLAssimpImporter::loadSkeleton(SLJoint* parent, aiNode* node)
     SLstring name = node->mName.C_Str();
     if (!parent)
     {
-	    logMessage(LV_Normal, "Loading skeleton skeleton.\n");
+	    logMessage(LV_normal, "Loading skeleton skeleton.\n");
         _skeleton = new SLSkeleton;
         _jointIndex = 0;
 
@@ -631,11 +631,11 @@ SLMaterial* SLAssimpImporter::loadMaterial(SLint index,
     {   if(material->GetTextureCount(textureTypes[i]) > 0) 
         {   aiString aipath;
             material->GetTexture(textureTypes[i], 0, &aipath, nullptr, nullptr, nullptr, nullptr, nullptr);
-            SLTexType texType = textureTypes[i]==aiTextureType_DIFFUSE  ? ColorMap :
-                                textureTypes[i]==aiTextureType_NORMALS  ? NormalMap :
-                                textureTypes[i]==aiTextureType_SPECULAR ? GlossMap :
-                                textureTypes[i]==aiTextureType_HEIGHT   ? HeightMap : 
-                                UnknownMap;
+            SLTextureType texType = textureTypes[i]==aiTextureType_DIFFUSE  ? TT_color :
+                                textureTypes[i]==aiTextureType_NORMALS  ? TT_normal :
+                                textureTypes[i]==aiTextureType_SPECULAR ? TT_gloss :
+                                textureTypes[i]==aiTextureType_HEIGHT   ? TT_height : 
+                                TT_unknown;
             SLstring texFile = checkFilePath(modelPath, aipath.data);
             SLGLTexture* tex = loadTexture(texFile, texType);
             mat->textures().push_back(tex);
@@ -679,7 +679,7 @@ SLMaterial* SLAssimpImporter::loadMaterial(SLint index,
 SLAssimpImporter::loadTexture loads the AssImp texture an returns the SLGLTexture
 */
 SLGLTexture* SLAssimpImporter::loadTexture(SLstring& textureFile,
-                                           SLTexType texType)
+                                           SLTextureType texType)
 {
     SLVGLTexture& sceneTex = SLScene::current->textures();
 
@@ -888,11 +888,11 @@ SLAnimation* SLAssimpImporter::loadAnimation(aiAnimation* anim)
         animName = anim->mName.C_Str();
 
     // log
-    logMessage(LV_Minimal, "\nLoading animation %s\n", animName.c_str());
-    logMessage(LV_Normal, " Duration(seconds): %f \n", animDuration);
-    logMessage(LV_Normal, " Duration(ticks): %f \n", anim->mDuration);
-    logMessage(LV_Normal, " Ticks per second: %f \n", animTicksPerSec);
-    logMessage(LV_Normal, " Num channels: %d\n", anim->mNumChannels);
+    logMessage(LV_minimal, "\nLoading animation %s\n", animName.c_str());
+    logMessage(LV_normal, " Duration(seconds): %f \n", animDuration);
+    logMessage(LV_normal, " Duration(ticks): %f \n", anim->mDuration);
+    logMessage(LV_normal, " Ticks per second: %f \n", animTicksPerSec);
+    logMessage(LV_normal, " Num channels: %d\n", anim->mNumChannels);
                 
     // exit if we didn't load a skeleton but have animations for one
     if (_skinnedMeshes.size() > 0)
@@ -969,11 +969,11 @@ SLAnimation* SLAssimpImporter::loadAnimation(aiAnimation* anim)
         }
                             
         // log
-        logMessage(LV_Normal, "\n  Channel %d %s", i, (isJointNode) ? "(joint animation)\n" : "\n");
-        logMessage(LV_Normal, "   Affected node: %s\n", channel->mNodeName.C_Str());
-        logMessage(LV_Detailed, "   Num position keys: %d\n", channel->mNumPositionKeys);
-        logMessage(LV_Detailed, "   Num rotation keys: %d\n", channel->mNumRotationKeys);
-        logMessage(LV_Detailed, "   Num scaling keys: %d\n", channel->mNumScalingKeys);
+        logMessage(LV_normal, "\n  Channel %d %s", i, (isJointNode) ? "(joint animation)\n" : "\n");
+        logMessage(LV_normal, "   Affected node: %s\n", channel->mNodeName.C_Str());
+        logMessage(LV_detailed, "   Num position keys: %d\n", channel->mNumPositionKeys);
+        logMessage(LV_detailed, "   Num rotation keys: %d\n", channel->mNumRotationKeys);
+        logMessage(LV_detailed, "   Num scaling keys: %d\n", channel->mNumScalingKeys);
 
         
         // joint animation channels should receive the correct node id, normal node animations just get 0
@@ -1024,7 +1024,7 @@ SLAnimation* SLAssimpImporter::loadAnimation(aiAnimation* anim)
             }
         }
 
-        logMessage(LV_Normal, "   Found %d distinct keyframe timestamp(s).\n", 
+        logMessage(LV_normal, "   Found %d distinct keyframe timestamp(s).\n", 
                               keyframes.size());
 
         for (auto it : keyframes)
@@ -1034,20 +1034,20 @@ SLAnimation* SLAssimpImporter::loadAnimation(aiAnimation* anim)
             kf->scale(getScaling(it.first, keyframes));
 
             // log
-            logMessage(LV_Detailed, "\n   Generating keyframe at time '%.2f'\n", 
+            logMessage(LV_detailed, "\n   Generating keyframe at time '%.2f'\n", 
                        it.first);
-            logMessage(LV_Detailed, "    Translation: (%.2f, %.2f, %.2f) %s\n", 
+            logMessage(LV_detailed, "    Translation: (%.2f, %.2f, %.2f) %s\n", 
                        kf->translation().x, 
                        kf->translation().y, 
                        kf->translation().z, 
                        (it.second.translation != nullptr) ? "imported" : "generated");
-            logMessage(LV_Detailed, "    Rotation: (%.2f, %.2f, %.2f, %.2f) %s\n", 
+            logMessage(LV_detailed, "    Rotation: (%.2f, %.2f, %.2f, %.2f) %s\n", 
                        kf->rotation().x(), 
                        kf->rotation().y(), 
                        kf->rotation().z(), 
                        kf->rotation().w(), 
                        (it.second.rotation != nullptr) ? "imported" : "generated");
-            logMessage(LV_Detailed, "    Scale: (%.2f, %.2f, %.2f) %s\n", 
+            logMessage(LV_detailed, "    Scale: (%.2f, %.2f, %.2f) %s\n", 
                        kf->scale().x, 
                        kf->scale().y, 
                        kf->scale().z, 

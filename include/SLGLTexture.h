@@ -33,14 +33,13 @@
 #endif
 //-----------------------------------------------------------------------------
 //! Texture type enumeration & their filename appendix for auto type detection
-enum SLTexType 
-{
-    UnknownMap  // will be handled as color maps
-    ,ColorMap    //*_C.{ext}
-    ,NormalMap   //*_N.{ext}
-    ,HeightMap   //*_H.{ext}
-    ,GlossMap    //*_G.{ext}
-    ,FontMap     //*_F.glf
+enum SLTextureType 
+{   TT_unknown, // will be handled as color maps
+    TT_color,   //*_C.{ext}
+    TT_normal,  //*_N.{ext}
+    TT_height,  //*_H.{ext}
+    TT_gloss,   //*_G.{ext}
+    TT_font     //*_F.glf
 };
 //-----------------------------------------------------------------------------
 //! Texture object for OpenGL texturing
@@ -56,78 +55,78 @@ for ray tracing.
 class SLGLTexture : public SLObject
 {
     public:        
-                        //! Default constructor for fonts
-                        SLGLTexture     ();
-                     
-                        //! ctor for 2D textures with internal image allocation
-                        SLGLTexture     (SLstring   imageFilename,
-                                         SLint      min_filte = GL_LINEAR_MIPMAP_LINEAR,
-                                         SLint      mag_filte = GL_LINEAR,
-                                         SLTexType  type = UnknownMap,
-                                         SLint      wrapS = GL_REPEAT,
-                                         SLint      wrapT = GL_REPEAT);
+                            //! Default constructor for fonts
+                            SLGLTexture     ();
+                         
+                            //! ctor for 2D textures with internal image allocation
+                            SLGLTexture     (SLstring   imageFilename,
+                                             SLint      min_filte = GL_LINEAR_MIPMAP_LINEAR,
+                                             SLint      mag_filte = GL_LINEAR,
+                                             SLTextureType  type = TT_unknown,
+                                             SLint      wrapS = GL_REPEAT,
+                                             SLint      wrapT = GL_REPEAT);
 
-                        //! ctor for 3D texture with internal image allocation
-                        SLGLTexture     (SLVstring  imageFilenames,
-                                         SLint      min_filte = GL_LINEAR,
-                                         SLint      mag_filte = GL_LINEAR);
+                            //! ctor for 3D texture with internal image allocation
+                            SLGLTexture     (SLVstring  imageFilenames,
+                                             SLint      min_filte = GL_LINEAR,
+                                             SLint      mag_filte = GL_LINEAR);
                   
-                        //! ctor for cube mapping with internal image allocation
-                        SLGLTexture     (SLstring   imageFilenameXPos,
-                                         SLstring   imageFilenameXNeg,
-                                         SLstring   imageFilenameYPos,
-                                         SLstring   imageFilenameYNeg,
-                                         SLstring   imageFilenameZPos,
-                                         SLstring   imageFilenameZNeg,
-                                         SLint      min_filter = GL_LINEAR,
-                                         SLint      mag_filter = GL_LINEAR,
-                                         SLTexType  type = UnknownMap);      
+                            //! ctor for cube mapping with internal image allocation
+                            SLGLTexture     (SLstring   imageFilenameXPos,
+                                             SLstring   imageFilenameXNeg,
+                                             SLstring   imageFilenameYPos,
+                                             SLstring   imageFilenameYNeg,
+                                             SLstring   imageFilenameZPos,
+                                             SLstring   imageFilenameZNeg,
+                                             SLint      min_filter = GL_LINEAR,
+                                             SLint      mag_filter = GL_LINEAR,
+                                             SLTextureType  type = TT_unknown);      
                   
-    virtual            ~SLGLTexture     ();
+    virtual                ~SLGLTexture     ();
 
-            void        clearData       ();
-            void        build           (SLint texID=0);
-            void        bindActive      (SLint texID=0);
-            void        fullUpdate      ();
-            void        drawSprite      (SLbool doUpdate = false);
+            void            clearData       ();
+            void            build           (SLint texID=0);
+            void            bindActive      (SLint texID=0);
+            void            fullUpdate      ();
+            void            drawSprite      (SLbool doUpdate = false);
       
             // Setters
-            void        texType         (SLTexType bt)  {_texType = bt;}
-            void        bumpScale       (SLfloat bs)    {_bumpScale = bs;}
+            void            texType         (SLTextureType bt)  {_texType = bt;}
+            void            bumpScale       (SLfloat bs)    {_bumpScale = bs;}
       
             // Getters
-            SLVImage&   images          (){return _images;}
-            SLenum      target          (){return _target;}
-            SLTexType   texType         (){return _texType;}
-            SLfloat     bumpScale       (){return _bumpScale;}
-            SLCol4f     getTexelf       (SLfloat s, SLfloat t);
-            SLbool      hasAlpha        (){return (_images.size() &&
-                                                   ((_images[0]->format()==SL_RGBA  ||
-                                                    _images[0]->format()==SL_BGRA) ||
-                                                   _texType==FontMap));}
-            SLint       width           (){return _images[0]->width();}
-            SLint       height          (){return _images[0]->height();}
-            SLMat4f     tm              (){return _tm;}
-            SLbool      autoCalcTM3D    (){return _autoCalcTM3D;}
-            SLbool      needsUpdate     (){return _needsUpdate;}
+            SLVImage&       images          (){return _images;}
+            SLenum          target          (){return _target;}
+            SLTextureType   texType         (){return _texType;}
+            SLfloat         bumpScale       (){return _bumpScale;}
+            SLCol4f         getTexelf       (SLfloat s, SLfloat t);
+            SLbool          hasAlpha        (){return (_images.size() &&
+                                                   ((_images[0]->format()==PF_rgba  ||
+                                                    _images[0]->format()==PF_bgra) ||
+                                                   _texType==TT_font));}
+            SLint           width           (){return _images[0]->width();}
+            SLint           height          (){return _images[0]->height();}
+            SLMat4f         tm              (){return _tm;}
+            SLbool          autoCalcTM3D    (){return _autoCalcTM3D;}
+            SLbool          needsUpdate     (){return _needsUpdate;}
       
             // Misc     
-            SLTexType   detectType      (SLstring filename);  
-            SLuint      closestPowerOf2 (SLuint num); 
-            SLuint      nextPowerOf2    (SLuint num);
-            void        build2DMipmaps  (SLint target, SLuint index);
-            void        setVideoImage   (SLstring videoImageFile);
-            SLbool      copyVideoImage  (SLint width, SLint height,
-                                         SLPixelFormat glFormat, 
-                                         SLuchar* data, 
-                                         SLbool isTopLeft);
+            SLTextureType   detectType      (SLstring filename);  
+            SLuint          closestPowerOf2 (SLuint num); 
+            SLuint          nextPowerOf2    (SLuint num);
+            void            build2DMipmaps  (SLint target, SLuint index);
+            void            setVideoImage   (SLstring videoImageFile);
+            SLbool          copyVideoImage  (SLint width, SLint height,
+                                             SLPixelFormat glFormat, 
+                                             SLuchar* data, 
+                                             SLbool isTopLeft);
             // Bumpmap methods
-            SLVec2f     dsdt            (SLfloat s, SLfloat t); //! Returns the derivation as [s,t]
+            SLVec2f         dsdt            (SLfloat s, SLfloat t); //! Returns the derivation as [s,t]
   
     // Statics
-    static  SLstring    defaultPath;        //!< Default path for textures
-    static  SLfloat     maxAnisotropy;      //!< max. anisotropy available
-    static  SLuint      numBytesInTextures; //!< NO. of texture bytes on GPU
+    static  SLstring        defaultPath;        //!< Default path for textures
+    static  SLfloat         maxAnisotropy;      //!< max. anisotropy available
+    static  SLuint          numBytesInTextures; //!< NO. of texture bytes on GPU
 
     protected:
             // loading the image files
@@ -136,7 +135,7 @@ class SLGLTexture : public SLObject
             SLGLState*      _stateGL;        //!< Pointer to global SLGLState instance
             SLVImage        _images;         //!< vector of SLImage pointers
             SLuint          _texName;        //!< OpenGL texture "name" (= ID)
-            SLTexType       _texType;        //!< [unknown, ColorMap, NormalMap, HeightMap, GlossMap]
+            SLTextureType       _texType;        //!< [unknown, ColorMap, NormalMap, HeightMap, GlossMap]
             SLint           _min_filter;     //!< Minification filter
             SLint           _mag_filter;     //!< Magnification filter
             SLint           _wrap_s;         //!< Wrapping in s direction

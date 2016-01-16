@@ -50,17 +50,6 @@ enum SLPostProcessSteps
 };
 
 //-----------------------------------------------------------------------------
-// @todo build a dedicated log class that defines this verbosity levels
-enum SLLogVerbosity
-{
-    LV_Quiet = 0,
-    LV_Minimal = 1,
-    LV_Normal = 2,
-    LV_Detailed = 3,
-    LV_Diagnostic = 4
-};
-
-//-----------------------------------------------------------------------------
 typedef std::map<int, SLMesh*> SLMeshMap;
 //-----------------------------------------------------------------------------
 //! Interface for 3D file format importer implementations
@@ -87,7 +76,7 @@ protected:
 public:
     SLImporter();
     SLImporter(SLLogVerbosity consoleVerb);
-    SLImporter(const SLstring& logFile, SLLogVerbosity logConsoleVerb = LV_Normal, SLLogVerbosity logFileVerb = LV_Diagnostic);
+    SLImporter(const SLstring& logFile, SLLogVerbosity logConsoleVerb = LV_normal, SLLogVerbosity logFileVerb = LV_diagnostic);
     ~SLImporter();
     
     void logConsoleVerbosity(SLLogVerbosity verb) { _logConsoleVerbosity = verb; }
@@ -129,7 +118,7 @@ public:
     SLSkeleton*     skeleton        () { return _skeleton; }
     SLVAnimation&   nodeAnimations  () { return _nodeAnimations; }
 
-      static SLstring      defaultPath;
+    static SLstring defaultPath;
 };
 //-----------------------------------------------------------------------------
 #endif // SLIMPORTER_H

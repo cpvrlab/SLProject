@@ -8,8 +8,8 @@
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
 
-#ifndef SLDISK_H
-#define SLDISK_H
+#ifndef SLDISK_h
+#define SLDISK_h
 
 #include <stdafx.h>
 #include <SLRevolver.h>
@@ -34,5 +34,5 @@ class SLDisk: public SLRevolver
             SLbool         _doubleSided;    //!< flag if disk has two sides
 };
 //-----------------------------------------------------------------------------
-#endif //SLDISK_H
+#endif //SLDISK_h
 

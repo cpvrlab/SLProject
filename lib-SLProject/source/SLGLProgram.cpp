@@ -34,8 +34,8 @@ SLGLProgram::SLGLProgram(SLstring vertShaderFile,
     _objectGL = 0;
 
     // optional load vertex and/or fragment shaders
-    addShader(new SLGLShader(defaultPath+vertShaderFile, VertexShader));
-    addShader(new SLGLShader(defaultPath+fragShaderFile, FragmentShader));
+    addShader(new SLGLShader(defaultPath+vertShaderFile, ST_vertex));
+    addShader(new SLGLShader(defaultPath+fragShaderFile, ST_fragment));
 
     // Add pointer to the global resource vectors for deallocation
     SLScene::current->programs().push_back(this);
@@ -115,8 +115,8 @@ void SLGLProgram::init()
         _uniforms1f.clear();
         _uniforms1i.clear();
 
-        addShader(new SLGLShader(defaultPath+"ErrorTex.vert", VertexShader));
-        addShader(new SLGLShader(defaultPath+"ErrorTex.frag", FragmentShader));
+        addShader(new SLGLShader(defaultPath+"ErrorTex.vert", ST_vertex));
+        addShader(new SLGLShader(defaultPath+"ErrorTex.frag", ST_fragment));
 
         allSuccuessfullyCompiled = true;
         for (auto shader : _shaders)

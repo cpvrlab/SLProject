@@ -38,7 +38,7 @@ SLint       lastWidth;              //!< Last window width in pixels
 SLint       lastHeight;             //!< Last window height in pixels
 SLint       lastMouseWheelPos;      //!< Last mouse wheel position
 SLfloat     lastMouseDownTime=0.0f; //!< Last mouse press time
-SLKey       modifiers=KeyNone;      //!< last modifier keys
+SLKey       modifiers=K_none;      //!< last modifier keys
 SLbool      fullscreen = false;     //!< flag if window is in fullscreen mode
 
 //-----------------------------------------------------------------------------
@@ -78,56 +78,56 @@ SLbool onPaint()
 const SLKey mapKeyToSLKey(SLint key)
 {  
     switch (key)
-    {   case GLFW_KEY_SPACE:        return KeySpace;
-        case GLFW_KEY_ESCAPE:       return KeyEsc;
-        case GLFW_KEY_F1:           return KeyF1;
-        case GLFW_KEY_F2:           return KeyF2;
-        case GLFW_KEY_F3:           return KeyF3;
-        case GLFW_KEY_F4:           return KeyF4;
-        case GLFW_KEY_F5:           return KeyF5;
-        case GLFW_KEY_F6:           return KeyF6;
-        case GLFW_KEY_F7:           return KeyF7;
-        case GLFW_KEY_F8:           return KeyF8;
-        case GLFW_KEY_F9:           return KeyF9;
-        case GLFW_KEY_F10:          return KeyF10;
-        case GLFW_KEY_F11:          return KeyF11;
-        case GLFW_KEY_F12:          return KeyF12;      
-        case GLFW_KEY_UP:           return KeyUp;
-        case GLFW_KEY_DOWN:         return KeyDown;
-        case GLFW_KEY_LEFT:         return KeyLeft;
-        case GLFW_KEY_RIGHT:        return KeyRight;
-        case GLFW_KEY_LEFT_SHIFT:   return KeyShift;
-        case GLFW_KEY_RIGHT_SHIFT:  return KeyShift;
-        case GLFW_KEY_LEFT_CONTROL: return KeyCtrl;
-        case GLFW_KEY_RIGHT_CONTROL:return KeyCtrl;
-        case GLFW_KEY_LEFT_ALT:     return KeyAlt;
-        case GLFW_KEY_RIGHT_ALT:    return KeyAlt;
-        case GLFW_KEY_LEFT_SUPER:   return KeySuper; // Apple command key
-        case GLFW_KEY_RIGHT_SUPER:  return KeySuper; // Apple command key
-        case GLFW_KEY_TAB:          return KeyTab;
-        case GLFW_KEY_ENTER:        return KeyEnter;
-        case GLFW_KEY_BACKSPACE:    return KeyBackspace;
-        case GLFW_KEY_INSERT:       return KeyInsert;
-        case GLFW_KEY_DELETE:       return KeyDelete;
-        case GLFW_KEY_PAGE_UP:      return KeyPageUp;
-        case GLFW_KEY_PAGE_DOWN:    return KeyPageDown;
-        case GLFW_KEY_HOME:         return KeyHome;
-        case GLFW_KEY_END:          return KeyEnd;
-        case GLFW_KEY_KP_0:         return KeyNP0;
-        case GLFW_KEY_KP_1:         return KeyNP1;
-        case GLFW_KEY_KP_2:         return KeyNP2;
-        case GLFW_KEY_KP_3:         return KeyNP3;
-        case GLFW_KEY_KP_4:         return KeyNP4;
-        case GLFW_KEY_KP_5:         return KeyNP5;
-        case GLFW_KEY_KP_6:         return KeyNP6;
-        case GLFW_KEY_KP_7:         return KeyNP7;
-        case GLFW_KEY_KP_8:         return KeyNP8;
-        case GLFW_KEY_KP_9:         return KeyNP9;
-        case GLFW_KEY_KP_DIVIDE:    return KeyNPDivide;
-        case GLFW_KEY_KP_MULTIPLY:  return KeyNPMultiply;
-        case GLFW_KEY_KP_SUBTRACT:  return KeyNPSubtract;
-        case GLFW_KEY_KP_ADD:       return KeyNPAdd;
-        case GLFW_KEY_KP_DECIMAL:   return KeyNPDecimal;
+    {   case GLFW_KEY_SPACE:        return K_space;
+        case GLFW_KEY_ESCAPE:       return K_esc;
+        case GLFW_KEY_F1:           return K_F1;
+        case GLFW_KEY_F2:           return K_F2;
+        case GLFW_KEY_F3:           return K_F3;
+        case GLFW_KEY_F4:           return K_F4;
+        case GLFW_KEY_F5:           return K_F5;
+        case GLFW_KEY_F6:           return K_F6;
+        case GLFW_KEY_F7:           return K_F7;
+        case GLFW_KEY_F8:           return K_F8;
+        case GLFW_KEY_F9:           return K_F9;
+        case GLFW_KEY_F10:          return K_F10;
+        case GLFW_KEY_F11:          return K_F11;
+        case GLFW_KEY_F12:          return K_F12;      
+        case GLFW_KEY_UP:           return K_up;
+        case GLFW_KEY_DOWN:         return K_down;
+        case GLFW_KEY_LEFT:         return K_left;
+        case GLFW_KEY_RIGHT:        return K_right;
+        case GLFW_KEY_LEFT_SHIFT:   return K_shift;
+        case GLFW_KEY_RIGHT_SHIFT:  return K_shift;
+        case GLFW_KEY_LEFT_CONTROL: return K_ctrl;
+        case GLFW_KEY_RIGHT_CONTROL:return K_ctrl;
+        case GLFW_KEY_LEFT_ALT:     return K_alt;
+        case GLFW_KEY_RIGHT_ALT:    return K_alt;
+        case GLFW_KEY_LEFT_SUPER:   return K_super; // Apple command key
+        case GLFW_KEY_RIGHT_SUPER:  return K_super; // Apple command key
+        case GLFW_KEY_TAB:          return K_tab;
+        case GLFW_KEY_ENTER:        return K_enter;
+        case GLFW_KEY_BACKSPACE:    return K_backspace;
+        case GLFW_KEY_INSERT:       return K_insert;
+        case GLFW_KEY_DELETE:       return K_delete;
+        case GLFW_KEY_PAGE_UP:      return K_pageUp;
+        case GLFW_KEY_PAGE_DOWN:    return K_pageDown;
+        case GLFW_KEY_HOME:         return K_home;
+        case GLFW_KEY_END:          return K_end;
+        case GLFW_KEY_KP_0:         return K_NP0;
+        case GLFW_KEY_KP_1:         return K_NP1;
+        case GLFW_KEY_KP_2:         return K_NP2;
+        case GLFW_KEY_KP_3:         return K_NP3;
+        case GLFW_KEY_KP_4:         return K_NP4;
+        case GLFW_KEY_KP_5:         return K_NP5;
+        case GLFW_KEY_KP_6:         return K_NP6;
+        case GLFW_KEY_KP_7:         return K_NP7;
+        case GLFW_KEY_KP_8:         return K_NP8;
+        case GLFW_KEY_KP_9:         return K_NP9;
+        case GLFW_KEY_KP_DIVIDE:    return K_NPDivide;
+        case GLFW_KEY_KP_MULTIPLY:  return K_NPMultiply;
+        case GLFW_KEY_KP_SUBTRACT:  return K_NPSubtract;
+        case GLFW_KEY_KP_ADD:       return K_NPAdd;
+        case GLFW_KEY_KP_DECIMAL:   return K_NPDecimal;
     }
     return (SLKey)key;
 }
@@ -169,15 +169,15 @@ static void onMouseButton(GLFWwindow* window, int button, int action, int mods)
     startY = y;
    
     // Translate modifiers
-    modifiers=KeyNone;
-    if (mods & GLFW_MOD_SHIFT)    modifiers = (SLKey)(modifiers|KeyShift);
-    if (mods & GLFW_MOD_CONTROL)  modifiers = (SLKey)(modifiers|KeyCtrl);
-    if (mods & GLFW_MOD_ALT)      modifiers = (SLKey)(modifiers|KeyAlt);
+    modifiers=K_none;
+    if (mods & GLFW_MOD_SHIFT)    modifiers = (SLKey)(modifiers|K_shift);
+    if (mods & GLFW_MOD_CONTROL)  modifiers = (SLKey)(modifiers|K_ctrl);
+    if (mods & GLFW_MOD_ALT)      modifiers = (SLKey)(modifiers|K_alt);
 
     if (action==GLFW_PRESS)
     {  
         // simulate double touch from touch devices
-        if (modifiers & KeyAlt) 
+        if (modifiers & K_alt) 
         {  
             // init for first touch
             if (touch2.x < 0)
@@ -188,7 +188,7 @@ static void onMouseButton(GLFWwindow* window, int button, int action, int mods)
             }
 
             // Do parallel double finger move
-            if (modifiers & KeyShift)
+            if (modifiers & K_shift)
             {  slTouch2Down(svIndex, x, y, x - touchDelta.x, y - touchDelta.y);
             } else // Do concentric double finger pinch
             {  slTouch2Down(svIndex, x, y, touch2.x, touch2.y);
@@ -204,13 +204,13 @@ static void onMouseButton(GLFWwindow* window, int button, int action, int mods)
             {
                 switch (button)
                 {   case GLFW_MOUSE_BUTTON_LEFT:
-                        slDoubleClick(svIndex, ButtonLeft, x, y, modifiers);
+                        slDoubleClick(svIndex, MB_left, x, y, modifiers);
                         break;
                     case GLFW_MOUSE_BUTTON_RIGHT:
-                        slDoubleClick(svIndex, ButtonRight, x, y, modifiers);
+                        slDoubleClick(svIndex, MB_right, x, y, modifiers);
                         break;
                     case GLFW_MOUSE_BUTTON_MIDDLE:
-                        slDoubleClick(svIndex, ButtonMiddle, x, y, modifiers);
+                        slDoubleClick(svIndex, MB_middle, x, y, modifiers);
                         break;
                 }
             } 
@@ -221,13 +221,13 @@ static void onMouseButton(GLFWwindow* window, int button, int action, int mods)
 
                 switch (button)
                 {   case GLFW_MOUSE_BUTTON_LEFT:
-                        slMouseDown(svIndex, ButtonLeft, x, y, modifiers);
+                        slMouseDown(svIndex, MB_left, x, y, modifiers);
                         break;
                     case GLFW_MOUSE_BUTTON_RIGHT:
-                        slMouseDown(svIndex, ButtonRight, x, y, modifiers);
+                        slMouseDown(svIndex, MB_right, x, y, modifiers);
                         break;
                     case GLFW_MOUSE_BUTTON_MIDDLE:
-                        slMouseDown(svIndex, ButtonMiddle, x, y, modifiers);
+                        slMouseDown(svIndex, MB_middle, x, y, modifiers);
                         break;
                 }
             }
@@ -239,10 +239,10 @@ static void onMouseButton(GLFWwindow* window, int button, int action, int mods)
         startY = -1;
 
         // simulate double touch from touch devices
-        if (modifiers & KeyAlt) 
+        if (modifiers & K_alt) 
         {  
             // Do parallel double finger move
-            if (modifiers & KeyShift)
+            if (modifiers & K_shift)
             {   slTouch2Up(svIndex, x, y, x - (touch2.x - x), y - (touch2.y - y));
             } else // Do concentric double finger pinch
             {   slTouch2Up(svIndex, x, y, touch2.x, touch2.y); 
@@ -251,13 +251,13 @@ static void onMouseButton(GLFWwindow* window, int button, int action, int mods)
         else  // Do standard mouse down
         {  switch (button)
             {   case GLFW_MOUSE_BUTTON_LEFT:
-                    slMouseUp(svIndex, ButtonLeft, x, y, modifiers);
+                    slMouseUp(svIndex, MB_left, x, y, modifiers);
                     break;
                 case GLFW_MOUSE_BUTTON_RIGHT:
-                    slMouseUp(svIndex, ButtonRight, x, y, modifiers);
+                    slMouseUp(svIndex, MB_right, x, y, modifiers);
                     break;
                 case GLFW_MOUSE_BUTTON_MIDDLE:
-                    slMouseUp(svIndex, ButtonMiddle, x, y, modifiers);
+                    slMouseUp(svIndex, MB_middle, x, y, modifiers);
                     break;
             }
         }
@@ -279,10 +279,10 @@ static void onMouseMove(GLFWwindow* window, double x, double y)
     // Offset of 2nd. finger for two finger simulation
    
     // Simulate double finger touches   
-    if (modifiers & KeyAlt) 
+    if (modifiers & K_alt) 
     {  
         // Do parallel double finger move
-        if (modifiers & KeyShift)
+        if (modifiers & K_shift)
         {   slTouch2Move(svIndex, (int)x, (int)y, (int)x - touchDelta.x, (int)y - touchDelta.y);
         } 
         else // Do concentric double finger pinch
@@ -321,21 +321,21 @@ static void onKeyAction(GLFWwindow* window, int GLFWKey, int scancode, int actio
     
     if (action==GLFW_PRESS)
     {   switch (key)
-        {   case KeyCtrl:  modifiers = (SLKey)(modifiers|KeyCtrl);  return;
-            case KeyAlt:   modifiers = (SLKey)(modifiers|KeyAlt);   return;
-            case KeyShift: modifiers = (SLKey)(modifiers|KeyShift); return;
+        {   case K_ctrl:  modifiers = (SLKey)(modifiers|K_ctrl);  return;
+            case K_alt:   modifiers = (SLKey)(modifiers|K_alt);   return;
+            case K_shift: modifiers = (SLKey)(modifiers|K_shift); return;
         }
     } else
     if (action==GLFW_RELEASE)
     {   switch (key)
-        {   case KeyCtrl:  modifiers = (SLKey)(modifiers^KeyCtrl);  return;
-            case KeyAlt:   modifiers = (SLKey)(modifiers^KeyAlt);   return;
-            case KeyShift: modifiers = (SLKey)(modifiers^KeyShift); return;
+        {   case K_ctrl:  modifiers = (SLKey)(modifiers^K_ctrl);  return;
+            case K_alt:   modifiers = (SLKey)(modifiers^K_alt);   return;
+            case K_shift: modifiers = (SLKey)(modifiers^K_shift); return;
         }
     }
    
     // Special treatment for ESC key
-    if (key == KeyEsc && action==GLFW_RELEASE) 
+    if (key == K_esc && action==GLFW_RELEASE) 
     {  
         if (fullscreen)
         {   fullscreen = !fullscreen;
@@ -348,7 +348,7 @@ static void onKeyAction(GLFWwindow* window, int GLFWKey, int scancode, int actio
         }
     } else 
     // Toggle fullscreen mode
-    if (key == KeyF9 && action==GLFW_PRESS)
+    if (key == K_F9 && action==GLFW_PRESS)
     {
         fullscreen = !fullscreen;
 
@@ -471,26 +471,30 @@ int main(int argc, char *argv[])
     // Get GL errors that occurred before our framework is involved
     GET_GL_ERROR;
 
+    SL::parseCmdLineArgs(cmdLineArgs);
+
     // Set your own physical screen dpi
     int dpi = (int)(142 * scr2fbX);
-    cout << "------------------------------------------------------------------" << endl;
-    cout << "GUI             : GLFW (Version: " << GLFW_VERSION_MAJOR << "." << 
-                                                   GLFW_VERSION_MINOR << "." << 
-                                                   GLFW_VERSION_REVISION << ")" << endl;
-    cout << "DPI             : " << dpi << endl;
+    if (!SL::testScene)
+    {   cout << "------------------------------------------------------------------" << endl;
+        cout << "GUI             : GLFW (Version: " << GLFW_VERSION_MAJOR << "." << 
+                                                       GLFW_VERSION_MINOR << "." << 
+                                                       GLFW_VERSION_REVISION << ")" << endl;
+        cout << "DPI             : " << dpi << endl;
+    }
 
     // get executable path
     SLstring exeDir = SLUtils::getPath(cmdLineArgs[0]);
 
-    slCreateScene(exeDir + "../_data/shaders/",
+    slCreateScene(cmdLineArgs,
+                  exeDir + "../_data/shaders/",
                   exeDir + "../_data/models/",
                   exeDir + "../_data/images/textures/");
 
     svIndex = slCreateSceneView((int)(scrWidth  * scr2fbX),
                                 (int)(scrHeight * scr2fbY),
                                 dpi, 
-                                (SLCmd)SL_STARTSCENE,
-                                cmdLineArgs,
+                                (SLCommand)SL_STARTSCENE,
                                 (void*)&onPaint, 
                                 0,
                                 0,
@@ -512,6 +516,15 @@ int main(int argc, char *argv[])
             glfwWaitEvents();
         else
             glfwPollEvents();
+    }
+
+    if (SL::testScene)
+    {   cout << SL::testSceneName[SL::testScene] 
+             << ": Frames rendered: " 
+             << SL::testFrameCounter 
+             << ", fps: " 
+             << ((float)SL::testFrameCounter / (float)SL::testDurationSec)
+             << endl;
     }
    
     slTerminate();

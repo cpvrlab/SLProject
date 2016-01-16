@@ -77,7 +77,6 @@ void SLSceneView::init(SLstring name,
                        SLint screenWidth, 
                        SLint screenHeight, 
                        SLint dotsPerInch, 
-                       SLVstring& cmdLineArgs,
                        void* onWndUpdateCallback,
                        void* onSelectNodeMeshCallback,
                        void* onShowSystemCursorCallback)
@@ -130,9 +129,9 @@ void SLSceneView::init(SLstring name,
     _scrHdiv2 = _scrH>>1;
     _scrWdivH = (SLfloat)_scrW / (SLfloat)_scrH;
       
-    _renderType = renderGL;
+    _renderType = RT_gl;
 
-    onStartup(cmdLineArgs); 
+    onStartup(); 
 }
 //-----------------------------------------------------------------------------
 /*!
@@ -142,13 +141,13 @@ OpenGL function.
 */
 void SLSceneView::initSceneViewCamera(const SLVec3f& dir, SLProjection proj)
 {             
-    _sceneViewCamera.camAnim(turntableYUp);
+    _sceneViewCamera.camAnim(CA_turntableYUp);
     _sceneViewCamera.name("SceneViewCamera");
     _sceneViewCamera.clipNear(.1f);
     _sceneViewCamera.clipFar(2000.0f);
     _sceneViewCamera.maxSpeed(40);
     _sceneViewCamera.eyeSeparation(_sceneViewCamera.focalDist()/30.0f);
-    _sceneViewCamera.setProjection(this, centerEye);
+    _sceneViewCamera.setProjection(this, ET_center);
   
 	// ignore projection if in vr mode
 	if(!_vrMode)
@@ -161,8 +160,8 @@ void SLSceneView::initSceneViewCamera(const SLVec3f& dir, SLProjection proj)
         // we want to fit the scenes combined aabb in the view frustum
         SLAABBox* sceneBounds = s->root3D()->aabb();
 
-        _sceneViewCamera.translation(sceneBounds->centerWS(), TS_World);
-        _sceneViewCamera.lookAt(sceneBounds->centerWS() + dir, SLVec3f::AXISY, TS_Parent);
+        _sceneViewCamera.translation(sceneBounds->centerWS(), TS_world);
+        _sceneViewCamera.lookAt(sceneBounds->centerWS() + dir, SLVec3f::AXISY, TS_parent);
 
         SLfloat minX = sceneBounds->minWS().x;
         SLfloat minY = sceneBounds->minWS().y;
@@ -230,7 +229,7 @@ void SLSceneView::initSceneViewCamera(const SLVec3f& dir, SLProjection proj)
         SLfloat ar = _sceneViewCamera.aspect();
 
         // special case for orthographic cameras
-        if (proj == monoOrthographic)
+        if (proj == P_monoOrthographic)
         {
             // NOTE, the orthographic camera has the ability to zoom by using the following:
             // tan(SL_DEG2RAD*_fov*0.5f) * pos.length();
@@ -252,7 +251,7 @@ void SLSceneView::initSceneViewCamera(const SLVec3f& dir, SLProjection proj)
 
         // set focal distance
         _sceneViewCamera.focalDist(dist);
-        _sceneViewCamera.translate(SLVec3f(0, 0, dist), TS_Object);
+        _sceneViewCamera.translate(SLVec3f(0, 0, dist), TS_object);
     }
 
     _stateGL->modelViewMatrix.identity();
@@ -307,7 +306,7 @@ void SLSceneView::onInitialize()
     _opaqueNodes.clear();
 
     _raytracer.clearData();
-    _renderType = renderGL;
+    _renderType = RT_gl;
 
     // init 3D scene with initial depth 1
     if (s->root3D() && s->root3D()->aabb()->radiusOS()==0)
@@ -356,7 +355,7 @@ void SLSceneView::onResize(SLint width, SLint height)
 
         //@todo move this code to SLGLOculus (problem with that comes when 
         // using multiple views with different resolutions)
-        if (_camera && _camera->projection() == stereoSideBySideD)
+        if (_camera && _camera->projection() == P_stereoSideBySideD)
         {
             _oculusFB.updateSize((SLint)(s->oculus()->resolutionScale()*(SLfloat)_scrW), 
                                  (SLint)(s->oculus()->resolutionScale()*(SLfloat)_scrH));
@@ -364,8 +363,8 @@ void SLSceneView::onResize(SLint width, SLint height)
         }
       
         // Stop raytracing & pathtracing on resize
-        if (_renderType != renderGL)
-        {   _renderType = renderGL;
+        if (_renderType != RT_gl)
+        {   _renderType = RT_gl;
             _raytracer.continuous(false);
             s->menu2D(s->_menuGL);
             s->menu2D()->hideAndReleaseRec();
@@ -386,13 +385,31 @@ SLbool SLSceneView::onPaint()
     SLScene* s = SLScene::current;
     SLGLVertexArray::totalDrawCalls = 0;
     SLbool camUpdated = false;
+
+    // Check time for test scenes
+    if (SL::testDurationSec > 0)
+    {   
+        if (SL::testFrameCounter == 0)
+            s->timerStart();
+
+        if (s->timeSec() > SL::testDurationSec)
+        {   
+            if (SL::testScene==C_sceneAll)
+            {   
+            } else
+            {   onCommand(C_quit);
+                return false;
+            }
+        }
+        SL::testFrameCounter++;
+    }
     
     if (_camera  && s->_root3D)
     {   // Render the 3D scenegraph by by raytracing, pathtracing or OpenGL
         switch (_renderType)
-        {   case renderGL: camUpdated = draw3DGL(s->_elapsedTimeMS); break;
-            case renderRT: camUpdated = draw3DRT(); break;
-            case renderPT: camUpdated = draw3DPT(); break;
+        {   case RT_gl: camUpdated = draw3DGL(s->_elapsedTimeMS); break;
+            case RT_rt: camUpdated = draw3DRT(); break;
+            case RT_pt: camUpdated = draw3DPT(); break;
         }
     };
 
@@ -402,14 +419,14 @@ SLbool SLSceneView::onPaint()
     _stateGL->unbindAnythingAndFlush();
 
     // Finish Oculus framebuffer
-    if (_camera && _camera->projection() == stereoSideBySideD)
+    if (_camera && _camera->projection() == P_stereoSideBySideD)
         s->oculus()->endFrame(_scrW, _scrH, _oculusFB.texID());
 
     // Reset drawcalls
     SLGLVertexArray::totalDrawCalls = 0;
 
     // Set gotPainted only to true if RT is not busy
-    _gotPainted = _renderType==renderGL || raytracer()->state()!=rtBusy;
+    _gotPainted = _renderType==RT_gl || raytracer()->state()!=rtBusy;
 
     // Return true if a repaint is needed
     return !_waitEvents || camUpdated;
@@ -475,7 +492,7 @@ SLbool SLSceneView::draw3DGL(SLfloat elapsedTimeMS)
     //////////////////////
     
     // Render into framebuffer if Oculus stereo projection is used
-    if (_camera->projection() == stereoSideBySideD)
+    if (_camera->projection() == P_stereoSideBySideD)
     {   s->oculus()->beginFrame();
         
         _oculusFB.bindFramebuffer((SLint)(s->oculus()->resolutionScale() * (SLfloat)_scrW), 
@@ -500,14 +517,14 @@ SLbool SLSceneView::draw3DGL(SLfloat elapsedTimeMS)
     //////////////////////////////
 
     // Set projection and viewport
-    if (_camera->projection() > monoOrthographic)   
-         _camera->setProjection(this, leftEye);
-    else _camera->setProjection(this, centerEye);
+    if (_camera->projection() > P_monoOrthographic)   
+         _camera->setProjection(this, ET_left);
+    else _camera->setProjection(this, ET_center);
 
     // Set view center eye or left eye
-    if (_camera->projection() > monoOrthographic)   
-         _camera->setView(this, leftEye);
-    else _camera->setView(this, centerEye);
+    if (_camera->projection() > P_monoOrthographic)   
+         _camera->setView(this, ET_left);
+    else _camera->setView(this, ET_center);
 
     ////////////////////////
     // 4. Frustum Culling //
@@ -534,9 +551,9 @@ SLbool SLSceneView::draw3DGL(SLfloat elapsedTimeMS)
     draw3DGLAll();
    
     // For stereo draw for right eye
-    if (_camera->projection() > monoOrthographic)   
-    {   _camera->setProjection(this, rightEye);
-        _camera->setView(this, rightEye);
+    if (_camera->projection() > P_monoOrthographic)   
+    {   _camera->setProjection(this, ET_right);
+        _camera->setView(this, ET_right);
         draw3DGLAll();
     }
       
@@ -741,7 +758,7 @@ void SLSceneView::draw2DGL()
    
     // Set orthographic projection with 0,0,0 in the screen center
     // for now we just have one special GUI case for side by side HMD stereo rendering
-    if (_camera && _camera->projection() != stereoSideBySideD)
+    if (_camera && _camera->projection() != P_stereoSideBySideD)
     {        
         // @todo this doesn't need to be done every frame, we can save the current ortho matrix and update on resize
         _stateGL->projectionMatrix.ortho(-w2, w2,-h2, h2, 1.0f, -1.0f);
@@ -753,14 +770,14 @@ void SLSceneView::draw2DGL()
     else
     {
         // left eye
-        _stateGL->projectionMatrix.setMatrix(s->oculus()->orthoProjection(leftEye));
+        _stateGL->projectionMatrix.setMatrix(s->oculus()->orthoProjection(ET_left));
         // Set viewport over entire screen
         _stateGL->viewport(0, 0, _oculusFB.halfWidth(), _oculusFB.height());
         
         draw2DGLAll();
 
         // left eye
-        _stateGL->projectionMatrix.setMatrix(s->oculus()->orthoProjection(rightEye));
+        _stateGL->projectionMatrix.setMatrix(s->oculus()->orthoProjection(ET_right));
         // Set viewport over entire screen
         _stateGL->viewport(_oculusFB.halfWidth(), 0, _oculusFB.halfWidth(), _oculusFB.height());
         
@@ -839,7 +856,7 @@ void SLSceneView::draw2DGLAll()
     _stateGL->pushModelViewMatrix();
     _stateGL->modelViewMatrix.identity();
 
-    if (_camera->projection() == stereoSideBySideD)
+    if (_camera->projection() == P_stereoSideBySideD)
     {
         //@todo the line below will squish the menu. It is the best solution we have currently
         //       that requires no changes to other portions of the menu building. 
@@ -898,7 +915,7 @@ void SLSceneView::draw2DGLAll()
     // Draw scene info text if menuGL or menuRT is closed
     if (!_showLoading && 
         _showInfo && s->_info &&
-        _camera->projection()<=monoOrthographic &&
+        _camera->projection()<=P_monoOrthographic &&
         (s->_menu2D==s->_menuGL || 
          s->_menu2D==s->_menuRT ||
          s->_menu2D==s->_menuPT) && SLButton::buttonParent==nullptr)
@@ -938,14 +955,14 @@ void SLSceneView::draw2DGLAll()
         delete [] touch;
       
         SLCol4f yelloAlpha(1.0f, 1.0f, 0.0f, 0.5f);
-        _vaoTouch.drawArrayAsColored(SL_POINTS, yelloAlpha, 21);
+        _vaoTouch.drawArrayAsColored(PT_points, yelloAlpha, 21);
         _stateGL->popModelViewMatrix();
     }
     #endif
 
     // Draw turntable rotation point
     if ((_mouseDownL || _mouseDownM) && _touchDowns==0)
-    {   if (_camera->camAnim()==turntableYUp || _camera->camAnim()==turntableZUp)
+    {   if (_camera->camAnim()==CA_turntableYUp || _camera->camAnim()==CA_turntableZUp)
         {   _stateGL->multiSample(true);
             _stateGL->pushModelViewMatrix();  
             _stateGL->modelViewMatrix.translate(0, 0, depth);
@@ -953,13 +970,13 @@ void SLSceneView::draw2DGLAll()
             cross.set(0,0,0);
             _vaoTouch.generateVertexPos(1, 3, &cross);
             SLCol4f yelloAlpha(1.0f, 1.0f, 0.0f, 0.5f);
-            _vaoTouch.drawArrayAsColored(SL_POINTS, yelloAlpha, (SLfloat)_dpi/12.0f);
+            _vaoTouch.drawArrayAsColored(PT_points, yelloAlpha, (SLfloat)_dpi/12.0f);
             _stateGL->popModelViewMatrix();
         }
     }
 
     // Draw virtual mouse cursor if we're in HMD stereo mode
-    if (_camera->projection() == stereoSideBySideD)
+    if (_camera->projection() == P_stereoSideBySideD)
     {
         SLfloat hCur = (SLfloat)s->texCursor()->height();
         _stateGL->multiSample(true);
@@ -1006,9 +1023,9 @@ SLbool SLSceneView::onMouseDown(SLMouseButton button,
     if (SLButton::buttonParent && s->menu2D())
         s->menu2D()->closeAll();
    
-    _mouseDownL = (button == ButtonLeft);
-    _mouseDownR = (button == ButtonRight);
-    _mouseDownM = (button == ButtonMiddle);
+    _mouseDownL = (button == MB_left);
+    _mouseDownR = (button == MB_right);
+    _mouseDownM = (button == MB_middle);
     _mouseMod = mod;
    
     SLbool result = false;
@@ -1030,7 +1047,7 @@ SLbool SLSceneView::onMouseUp(SLMouseButton button,
     _touchDowns = 0;
    
     if (_raytracer.state()==rtMoveGL)
-    {   _renderType = renderRT;
+    {   _renderType = RT_rt;
         _raytracer.state(rtReady);
     }   
    
@@ -1069,11 +1086,11 @@ SLbool SLSceneView::onMouseMove(SLint x, SLint y)
     SLbool result = false;
       
     if (_mouseDownL || _mouseDownR || _mouseDownM)
-    {   SLMouseButton btn = _mouseDownL ? ButtonLeft : 
-                            _mouseDownR ? ButtonRight : ButtonMiddle;
+    {   SLMouseButton btn = _mouseDownL ? MB_left : 
+                            _mouseDownR ? MB_right : MB_middle;
       
         // Handle move in RT mode
-        if (_renderType == renderRT && !_raytracer.continuous())
+        if (_renderType == RT_rt && !_raytracer.continuous())
         {   if (_raytracer.state()==rtFinished)
                 _raytracer.state(rtMoveGL);
             else
@@ -1082,7 +1099,7 @@ SLbool SLSceneView::onMouseMove(SLint x, SLint y)
                 s->menu2D()->hideAndReleaseRec();
                 s->menu2D()->drawBits()->off(SL_DB_HIDDEN);
             }
-            _renderType = renderGL;
+            _renderType = RT_gl;
         }
       
         result = _camera->onMouseMove(btn, x, y, _mouseMod);
@@ -1114,7 +1131,7 @@ The parameter delta is positive/negative depending on the wheel direction
 SLbool SLSceneView::onMouseWheel(SLint delta, SLKey mod)
 {
     // Handle mouse wheel in RT mode
-    if (_renderType == renderRT && !_raytracer.continuous() && 
+    if (_renderType == RT_rt && !_raytracer.continuous() && 
         _raytracer.state()==rtFinished)
         _raytracer.state(rtReady);
 
@@ -1146,7 +1163,7 @@ SLbool SLSceneView::onDoubleClick(SLMouseButton button,
     SLbool result = false;
    
     // Do object picking with ray cast
-    if (button == ButtonLeft)
+    if (button == MB_left)
     {   _mouseDownR = false;
       
         SLRay pickRay;
@@ -1257,26 +1274,26 @@ SLbool SLSceneView::onKeyPress(SLKey key, SLKey mod)
     if (key == '2') { _animTime += 0.1f; return true; }
     if (key == '3') { _runBackwards = !_runBackwards; return true; }
     if (key == '4') { _showAnimWeightEffects = !_showAnimWeightEffects; _animWeightTime = 0.0f; return true; }
-    if (key == KeyNPAdd) { _animMultiplier += 0.1f; return true; }
-    if (key == KeyNPSubtract) { if(_animMultiplier > 0.1f) _animMultiplier += -0.1f; return true; }
+    if (key == K_NPAdd) { _animMultiplier += 0.1f; return true; }
+    if (key == K_NPSubtract) { if(_animMultiplier > 0.1f) _animMultiplier += -0.1f; return true; }
     
     if (key == '5') { _camera->unitScaling(_camera->unitScaling()+0.1f); SL_LOG("New unit scaling: %f", _camera->unitScaling()); return true; }
     if (key == '6') { _camera->unitScaling(_camera->unitScaling()-0.1f); SL_LOG("New unit scaling: %f", _camera->unitScaling()); return true; }
 
-    if (key=='N') return onCommand(cmdNormalsToggle);
-    if (key=='P') return onCommand(cmdWireMeshToggle);
-    if (key=='C') return onCommand(cmdFaceCullToggle);
-    if (key=='T') return onCommand(cmdTextureToggle);
-    if (key=='M') return onCommand(cmdMultiSampleToggle);
-    if (key=='F') return onCommand(cmdFrustCullToggle);
-    if (key=='B') return onCommand(cmdBBoxToggle);
+    if (key=='N') return onCommand(C_normalsToggle);
+    if (key=='P') return onCommand(C_wireMeshToggle);
+    if (key=='C') return onCommand(C_faceCullToggle);
+    if (key=='T') return onCommand(C_textureToggle);
+    if (key=='M') return onCommand(C_multiSampleToggle);
+    if (key=='F') return onCommand(C_frustCullToggle);
+    if (key=='B') return onCommand(C_bBoxToggle);
 
-    if (key==KeyEsc)
-    {   if(_renderType == renderRT)
+    if (key==K_esc)
+    {   if(_renderType == RT_rt)
         {  _stopRT = true;
             return false;
         }
-        else if(_renderType == renderPT)
+        else if(_renderType == RT_pt)
         {  _stopPT = true;
             return false;
         }
@@ -1361,187 +1378,187 @@ void SLSceneView::onRotationQUAT(SLfloat quatX,
 SLSceneView::onCommand: Event handler for commands. Most key press or menu
 commands are collected and dispatched here.
 */
-SLbool SLSceneView::onCommand(SLCmd cmd)
+SLbool SLSceneView::onCommand(SLCommand cmd)
 {
     SLScene* s = SLScene::current;
 
     switch (cmd)
     {
-    case cmdQuit:
-        slShouldClose(true);
-    case cmdMenu:
-        return false;
-    case cmdAboutToggle:
-        if (s->_menu2D)
-        {
-            if (s->_menu2D == s->_menuGL)
-                s->_menu2D = s->_btnAbout;
-            else s->_menu2D = s->_menuGL;
+        case C_quit:
+            slShouldClose(true);
+        case C_menu:
+            return false;
+        case C_aboutToggle:
+            if (s->_menu2D)
+            {
+                if (s->_menu2D == s->_menuGL)
+                    s->_menu2D = s->_btnAbout;
+                else s->_menu2D = s->_menuGL;
+                return true;
+            }
+            else return false;
+        case C_helpToggle:
+            if (s->_menu2D)
+            {
+                if (s->_menu2D == s->_menuGL)
+                    s->_menu2D = s->_btnHelp;
+                else s->_menu2D = s->_menuGL;
+                return true;
+            }
+            else return false;
+        case C_creditsToggle:
+            if (s->_menu2D)
+            {
+                if (s->_menu2D == s->_menuGL)
+                    s->_menu2D = s->_btnCredits;
+                else s->_menu2D = s->_menuGL;
+                return true;
+            }
+            else return false;
+
+        case C_sceneMinimal:
+        case C_sceneFigure:
+        case C_sceneLargeModel:
+        case C_sceneMeshLoad:
+        case C_sceneChristoffel:
+        case C_sceneRevolver:
+        case C_sceneTextureBlend:
+        case C_sceneTextureFilter:
+        case C_sceneTextureVideo:
+        case C_sceneFrustumCull1:
+
+        case C_scenePerVertexBlinn:
+        case C_scenePerPixelBlinn:
+        case C_scenePerVertexWave:
+        case C_sceneWater:
+        case C_sceneBumpNormal:
+        case C_sceneBumpParallax:
+        case C_sceneEarth:
+
+        case C_sceneMassAnimation:
+        case C_sceneNodeAnimation:
+        case C_sceneSkeletalAnimation:
+        case C_sceneAstroboyArmyCPU:
+        case C_sceneAstroboyArmyGPU:
+
+        case C_sceneRTSpheres:
+        case C_sceneRTMuttenzerBox:
+        case C_sceneRTSoftShadows:
+        case C_sceneRTDoF:
+        case C_sceneRTTest:
+        case C_sceneRTLens:        s->onLoad(this, (SLCommand)cmd); return false;
+
+        case C_useSceneViewCamera: switchToSceneViewCamera(); return true;
+        case C_statsToggle:        _showStats = !_showStats; return true;
+        case C_sceneInfoToggle:    _showInfo = !_showInfo; return true;
+        case C_waitEventsToggle:   _waitEvents = !_waitEvents; return true;
+        case C_multiSampleToggle:
+            _doMultiSampling = !_doMultiSampling;
+            _raytracer.aaSamples(_doMultiSampling ? 3 : 1);
             return true;
-        }
-        else return false;
-    case cmdHelpToggle:
-        if (s->_menu2D)
-        {
-            if (s->_menu2D == s->_menuGL)
-                s->_menu2D = s->_btnHelp;
-            else s->_menu2D = s->_menuGL;
+        case C_frustCullToggle:    _doFrustumCulling = !_doFrustumCulling; return true;
+        case C_depthTestToggle:    _doDepthTest = !_doDepthTest; return true;
+
+        case C_normalsToggle:      _drawBits.toggle(SL_DB_NORMALS);  return true;
+        case C_wireMeshToggle:     _drawBits.toggle(SL_DB_WIREMESH); return true;
+        case C_bBoxToggle:         _drawBits.toggle(SL_DB_BBOX);     return true;
+        case C_axisToggle:         _drawBits.toggle(SL_DB_AXIS);     return true;
+        case C_skeletonToggle:     _drawBits.toggle(SL_DB_SKELETON); return true;
+        case C_voxelsToggle:       _drawBits.toggle(SL_DB_VOXELS);   return true;
+        case C_faceCullToggle:     _drawBits.toggle(SL_DB_CULLOFF);  return true;
+        case C_textureToggle:      _drawBits.toggle(SL_DB_TEXOFF);   return true;
+
+        case C_animationToggle: s->_stopAnimations = !s->_stopAnimations; return true;
+
+        case C_renderOpenGL:
+            _renderType = RT_gl;
+            s->menu2D(s->_menuGL);
             return true;
-        }
-        else return false;
-    case cmdCreditsToggle:
-        if (s->_menu2D)
-        {
-            if (s->_menu2D == s->_menuGL)
-                s->_menu2D = s->_btnCredits;
-            else s->_menu2D = s->_menuGL;
+        case C_rtContinuously:
+            _raytracer.continuous(!_raytracer.continuous());
             return true;
-        }
-        else return false;
+        case C_rtDistributed:
+            _raytracer.distributed(!_raytracer.distributed());
+            startRaytracing(5);
+            return true;
+        case C_rt1: startRaytracing(1); return true;
+        case C_rt2: startRaytracing(2); return true;
+        case C_rt3: startRaytracing(3); return true;
+        case C_rt4: startRaytracing(4); return true;
+        case C_rt5: startRaytracing(5); return true;
+        case C_rt6: startRaytracing(6); return true;
+        case C_rt7: startRaytracing(7); return true;
+        case C_rt8: startRaytracing(8); return true;
+        case C_rt9: startRaytracing(9); return true;
+        case C_rt0: startRaytracing(0); return true;
+        case C_rtSaveImage: _raytracer.saveImage(); return true;
 
-    case cmdSceneMinimal:
-    case cmdSceneFigure:
-    case cmdSceneLargeModel:
-    case cmdSceneMeshLoad:
-    case cmdSceneChristoffel:
-    case cmdSceneRevolver:
-    case cmdSceneTextureBlend:
-    case cmdSceneTextureFilter:
-    case cmdSceneTextureVideo:
-    case cmdSceneFrustumCull1:
+        case C_pt1: startPathtracing(5, 1); return true;
+        case C_pt10: startPathtracing(5, 10); return true;
+        case C_pt50: startPathtracing(5, 50); return true;
+        case C_pt100: startPathtracing(5, 100); return true;
+        case C_pt500: startPathtracing(5, 500); return true;
+        case C_pt1000: startPathtracing(5, 1000); return true;
+        case C_pt5000: startPathtracing(5, 5000); return true;
+        case C_pt10000: startPathtracing(5, 100000); return true;
+        case C_ptSaveImage: _pathtracer.saveImage(); return true;
 
-    case cmdScenePerVertexBlinn:
-    case cmdScenePerPixelBlinn:
-    case cmdScenePerVertexWave:
-    case cmdSceneWater:
-    case cmdSceneBumpNormal:
-    case cmdSceneBumpParallax:
-    case cmdSceneEarth:
-
-    case cmdSceneMassAnimation:
-    case cmdSceneNodeAnimation:
-    case cmdSceneSkeletalAnimation:
-    case cmdSceneAstroboyArmyCPU:
-    case cmdSceneAstroboyArmyGPU:
-
-    case cmdSceneRTSpheres:
-    case cmdSceneRTMuttenzerBox:
-    case cmdSceneRTSoftShadows:
-    case cmdSceneRTDoF:
-    case cmdSceneRTTest:
-    case cmdSceneRTLens:        s->onLoad(this, (SLCmd)cmd); return false;
-
-    case cmdUseSceneViewCamera: switchToSceneViewCamera(); return true;
-    case cmdStatsToggle:        _showStats = !_showStats; return true;
-    case cmdSceneInfoToggle:    _showInfo = !_showInfo; return true;
-    case cmdWaitEventsToggle:   _waitEvents = !_waitEvents; return true;
-    case cmdMultiSampleToggle:
-        _doMultiSampling = !_doMultiSampling;
-        _raytracer.aaSamples(_doMultiSampling ? 3 : 1);
-        return true;
-    case cmdFrustCullToggle:    _doFrustumCulling = !_doFrustumCulling; return true;
-    case cmdDepthTestToggle:    _doDepthTest = !_doDepthTest; return true;
-
-    case cmdNormalsToggle:      _drawBits.toggle(SL_DB_NORMALS);  return true;
-    case cmdWireMeshToggle:     _drawBits.toggle(SL_DB_WIREMESH); return true;
-    case cmdBBoxToggle:         _drawBits.toggle(SL_DB_BBOX);     return true;
-    case cmdAxisToggle:         _drawBits.toggle(SL_DB_AXIS);     return true;
-    case cmdSkeletonToggle:     _drawBits.toggle(SL_DB_SKELETON); return true;
-    case cmdVoxelsToggle:       _drawBits.toggle(SL_DB_VOXELS);   return true;
-    case cmdFaceCullToggle:     _drawBits.toggle(SL_DB_CULLOFF);  return true;
-    case cmdTextureToggle:      _drawBits.toggle(SL_DB_TEXOFF);   return true;
-
-    case cmdAnimationToggle: s->_stopAnimations = !s->_stopAnimations; return true;
-
-    case cmdRenderOpenGL:
-        _renderType = renderGL;
-        s->menu2D(s->_menuGL);
-        return true;
-    case cmdRTContinuously:
-        _raytracer.continuous(!_raytracer.continuous());
-        return true;
-    case cmdRTDistributed:
-        _raytracer.distributed(!_raytracer.distributed());
-        startRaytracing(5);
-        return true;
-    case cmdRT1: startRaytracing(1); return true;
-    case cmdRT2: startRaytracing(2); return true;
-    case cmdRT3: startRaytracing(3); return true;
-    case cmdRT4: startRaytracing(4); return true;
-    case cmdRT5: startRaytracing(5); return true;
-    case cmdRT6: startRaytracing(6); return true;
-    case cmdRT7: startRaytracing(7); return true;
-    case cmdRT8: startRaytracing(8); return true;
-    case cmdRT9: startRaytracing(9); return true;
-    case cmdRT0: startRaytracing(0); return true;
-    case cmdRTSaveImage: _raytracer.saveImage(); return true;
-
-    case cmdPT1: startPathtracing(5, 1); return true;
-    case cmdPT10: startPathtracing(5, 10); return true;
-    case cmdPT50: startPathtracing(5, 50); return true;
-    case cmdPT100: startPathtracing(5, 100); return true;
-    case cmdPT500: startPathtracing(5, 500); return true;
-    case cmdPT1000: startPathtracing(5, 1000); return true;
-    case cmdPT5000: startPathtracing(5, 5000); return true;
-    case cmdPT10000: startPathtracing(5, 100000); return true;
-    case cmdPTSaveImage: _pathtracer.saveImage(); return true;
-
-    default: break;
+        default: break;
     }
 
     if (_camera)
     {
         SLProjection prevProjection = _camera->projection();
-        SLbool perspectiveChanged = prevProjection != (SLProjection)(cmd - cmdProjPersp);
+        SLbool perspectiveChanged = prevProjection != (SLProjection)(cmd - C_projPersp);
 
         switch (cmd)
         {
-        case cmdProjPersp:
-            _camera->projection(monoPerspective);
-            if (_renderType == renderRT && !_raytracer.continuous() &&
+        case C_projPersp:
+            _camera->projection(P_monoPerspective);
+            if (_renderType == RT_rt && !_raytracer.continuous() &&
                 _raytracer.state() == rtFinished)
                 _raytracer.state(rtReady);
             break;
-        case cmdProjOrtho:
-            _camera->projection(monoOrthographic);
-            if (_renderType == renderRT && !_raytracer.continuous() &&
+        case C_projOrtho:
+            _camera->projection(P_monoOrthographic);
+            if (_renderType == RT_rt && !_raytracer.continuous() &&
                 _raytracer.state() == rtFinished)
                 _raytracer.state(rtReady);
             break;
-        case cmdProjSideBySide:    _camera->projection(stereoSideBySide); break;
-        case cmdProjSideBySideP:   _camera->projection(stereoSideBySideP); break;
-        case cmdProjSideBySideD:   _camera->projection(stereoSideBySideD); break;
-        case cmdProjLineByLine:    _camera->projection(stereoLineByLine); break;
-        case cmdProjColumnByColumn:_camera->projection(stereoColumnByColumn); break;
-        case cmdProjPixelByPixel:  _camera->projection(stereoPixelByPixel); break;
-        case cmdProjColorRC:       _camera->projection(stereoColorRC); break;
-        case cmdProjColorRG:       _camera->projection(stereoColorRG); break;
-        case cmdProjColorRB:       _camera->projection(stereoColorRB); break;
-        case cmdProjColorYB:       _camera->projection(stereoColorYB); break;
+        case C_projSideBySide:    _camera->projection(P_stereoSideBySide); break;
+        case C_projSideBySideP:   _camera->projection(P_stereoSideBySideP); break;
+        case C_projSideBySideD:   _camera->projection(P_stereoSideBySideD); break;
+        case C_projLineByLine:    _camera->projection(P_stereoLineByLine); break;
+        case C_projColumnByColumn:_camera->projection(P_stereoColumnByColumn); break;
+        case C_projPixelByPixel:  _camera->projection(P_stereoPixelByPixel); break;
+        case C_projColorRC:       _camera->projection(P_stereoColorRC); break;
+        case C_projColorRG:       _camera->projection(P_stereoColorRG); break;
+        case C_projColorRB:       _camera->projection(P_stereoColorRB); break;
+        case C_projColorYB:       _camera->projection(P_stereoColorYB); break;
 
-        case cmdCamSpeedLimitInc:  _camera->maxSpeed(_camera->maxSpeed()*1.2f); return true;
-        case cmdCamSpeedLimitDec:  _camera->maxSpeed(_camera->maxSpeed()*0.8f); return true;
-        case cmdCamEyeSepInc:      _camera->onMouseWheel(1, KeyCtrl); return true;
-        case cmdCamEyeSepDec:      _camera->onMouseWheel(-1, KeyCtrl); return true;
-        case cmdCamFocalDistInc:   _camera->onMouseWheel(1, KeyShift); return true;
-        case cmdCamFocalDistDec:   _camera->onMouseWheel(-1, KeyShift); return true;
-        case cmdCamFOVInc:         _camera->onMouseWheel(1, KeyAlt); return true;
-        case cmdCamFOVDec:         _camera->onMouseWheel(-1, KeyAlt); return true;
-        case cmdCamAnimTurnYUp:    _camera->camAnim(turntableYUp); return true;
-        case cmdCamAnimTurnZUp:    _camera->camAnim(turntableZUp); return true;
-        case cmdCamAnimWalkYUp:    _camera->camAnim(walkingYUp); return true;
-        case cmdCamAnimWalkZUp:    _camera->camAnim(walkingZUp); return true;
-        case cmdCamDeviceRotOn:    _camera->useDeviceRot(true); return true;
-        case cmdCamDeviceRotOff:   _camera->useDeviceRot(false); return true;
-        case cmdCamDeviceRotToggle:_camera->useDeviceRot(!_camera->useDeviceRot()); return true;
-        case cmdCamReset:          _camera->resetToInitialState(); return true;
+        case C_camSpeedLimitInc:  _camera->maxSpeed(_camera->maxSpeed()*1.2f); return true;
+        case C_camSpeedLimitDec:  _camera->maxSpeed(_camera->maxSpeed()*0.8f); return true;
+        case C_camEyeSepInc:      _camera->onMouseWheel(1, K_ctrl); return true;
+        case C_camEyeSepDec:      _camera->onMouseWheel(-1, K_ctrl); return true;
+        case C_camFocalDistInc:   _camera->onMouseWheel(1, K_shift); return true;
+        case C_camFocalDistDec:   _camera->onMouseWheel(-1, K_shift); return true;
+        case C_camFOVInc:         _camera->onMouseWheel(1, K_alt); return true;
+        case C_camFOVDec:         _camera->onMouseWheel(-1, K_alt); return true;
+        case C_camAnimTurnYUp:    _camera->camAnim(CA_turntableYUp); return true;
+        case C_camAnimTurnZUp:    _camera->camAnim(CA_turntableZUp); return true;
+        case C_camAnimWalkYUp:    _camera->camAnim(CA_walkingYUp); return true;
+        case C_camAnimWalkZUp:    _camera->camAnim(CA_walkingZUp); return true;
+        case C_camDeviceRotOn:    _camera->useDeviceRot(true); return true;
+        case C_camDeviceRotOff:   _camera->useDeviceRot(false); return true;
+        case C_camDeviceRotToggle:_camera->useDeviceRot(!_camera->useDeviceRot()); return true;
+        case C_camReset:          _camera->resetToInitialState(); return true;
         default: break;
         }
 
         // special case code ???
         if (perspectiveChanged)
         {
-            if (cmd == cmdProjSideBySideD)
+            if (cmd == C_projSideBySideD)
             {
                 _vrMode = true;
                 dpi(dpi() * 2);
@@ -1550,7 +1567,7 @@ SLbool SLSceneView::onCommand(SLCmd cmd)
                 if (onShowSysCursor)
                     onShowSysCursor(false);
             }
-            else if (prevProjection == stereoSideBySideD)
+            else if (prevProjection == P_stereoSideBySideD)
             {
                 _vrMode = false;
                 dpi((SLint)((SLfloat)dpi()*0.5f));
@@ -1611,10 +1628,10 @@ void SLSceneView::build2DMenus()
     if (s->_menu2D) return;
 
     // Get current camera projection
-    SLProjection proj = _camera ? _camera->projection() : monoPerspective;
+    SLProjection proj = _camera ? _camera->projection() : P_monoPerspective;
    
     // Get current camera animation
-    SLCamAnim anim = _camera ? _camera->camAnim() : turntableYUp;
+    SLCamAnim anim = _camera ? _camera->camAnim() : CA_turntableYUp;
 
     // Get current camera device rotation usage
     SLbool useDeviceRot = _camera ? _camera->useDeviceRot() : true;
@@ -1623,9 +1640,9 @@ void SLSceneView::build2DMenus()
     SLTexFont* f = SLTexFont::getFont(1.7f, _dpi);
 
     SLButton *mn1, *mn2, *mn3, *mn4, *mn5;    // sub menu button pointer
-    SLCmd curS = (SLCmd)s->_currentID;    // current scene number
+    SLCommand curS = (SLCommand)s->_currentSceneID;    // current scene number
    
-    mn1 = new SLButton(this, ">", f, cmdMenu, false, false, 0, true, 0, 0, SLCol3f::COLBFH, 0.3f, centerCenter);
+    mn1 = new SLButton(this, ">", f, C_menu, false, false, 0, true, 0, 0, SLCol3f::COLBFH, 0.3f, TA_centerCenter);
     mn1->drawBits()->off(SL_DB_HIDDEN);
 
     mn2 = new SLButton(this, "Load Scene >", f);
@@ -1633,63 +1650,63 @@ void SLSceneView::build2DMenus()
    
     mn3 = new SLButton(this, "General >", f);
     mn2->addChild(mn3);
-    mn3->addChild(new SLButton(this, "SmallTest", f, cmdSceneMinimal, true, curS==cmdSceneMinimal, mn2));
+    mn3->addChild(new SLButton(this, "SmallTest", f, C_sceneMinimal, true, curS==C_sceneMinimal, mn2));
     SLstring large1 = SLImporter::defaultPath + "PLY/xyzrgb_dragon.ply";
     SLstring large2 = SLImporter::defaultPath + "PLY/mesh_zermatt.ply";
     SLstring large3 = SLImporter::defaultPath + "PLY/switzerland.ply";
     if(SLFileSystem::fileExists(large1) || 
        SLFileSystem::fileExists(large2) || 
        SLFileSystem::fileExists(large3))
-        mn3->addChild(new SLButton(this, "Large Model", f, cmdSceneLargeModel, true, curS==cmdSceneLargeModel, mn2));
-    mn3->addChild(new SLButton(this, "Figure", f, cmdSceneFigure, true, curS==cmdSceneFigure, mn2));
-    mn3->addChild(new SLButton(this, "Mesh Loader", f, cmdSceneMeshLoad, true, curS == cmdSceneMeshLoad, mn2));
-    mn3->addChild(new SLButton(this, "Christoffel Tower", f, cmdSceneChristoffel, true, curS == cmdSceneChristoffel, mn2));
-    mn3->addChild(new SLButton(this, "Texture Blending", f, cmdSceneTextureBlend, true, curS==cmdSceneTextureBlend, mn2));
-    mn3->addChild(new SLButton(this, "Texture Filters and 3D texture", f, cmdSceneTextureFilter, true, curS==cmdSceneTextureFilter, mn2));
-    mn3->addChild(new SLButton(this, "Texture from live video", f, cmdSceneTextureVideo, true, curS==cmdSceneTextureVideo, mn2));
-    mn3->addChild(new SLButton(this, "Frustum Culling 1", f, cmdSceneFrustumCull1, true, curS==cmdSceneFrustumCull1, mn2));
+        mn3->addChild(new SLButton(this, "Large Model", f, C_sceneLargeModel, true, curS==C_sceneLargeModel, mn2));
+    mn3->addChild(new SLButton(this, "Figure", f, C_sceneFigure, true, curS==C_sceneFigure, mn2));
+    mn3->addChild(new SLButton(this, "Mesh Loader", f, C_sceneMeshLoad, true, curS == C_sceneMeshLoad, mn2));
+    mn3->addChild(new SLButton(this, "Christoffel Tower", f, C_sceneChristoffel, true, curS == C_sceneChristoffel, mn2));
+    mn3->addChild(new SLButton(this, "Texture Blending", f, C_sceneTextureBlend, true, curS==C_sceneTextureBlend, mn2));
+    mn3->addChild(new SLButton(this, "Texture Filters and 3D texture", f, C_sceneTextureFilter, true, curS==C_sceneTextureFilter, mn2));
+    mn3->addChild(new SLButton(this, "Texture from live video", f, C_sceneTextureVideo, true, curS==C_sceneTextureVideo, mn2));
+    mn3->addChild(new SLButton(this, "Frustum Culling 1", f, C_sceneFrustumCull1, true, curS==C_sceneFrustumCull1, mn2));
 
     mn3 = new SLButton(this, "Shader >", f);
     mn2->addChild(mn3);
-    mn3->addChild(new SLButton(this, "Per Vertex Lighting", f, cmdScenePerVertexBlinn, true, curS==cmdScenePerVertexBlinn, mn2));
-    mn3->addChild(new SLButton(this, "Per Pixel Lighting", f, cmdScenePerPixelBlinn, true, curS==cmdScenePerPixelBlinn, mn2));
-    mn3->addChild(new SLButton(this, "Per Vertex Wave", f, cmdScenePerVertexWave, true, curS==cmdScenePerVertexWave, mn2));
-    mn3->addChild(new SLButton(this, "Water", f, cmdSceneWater, true, curS==cmdSceneWater, mn2));
-    mn3->addChild(new SLButton(this, "Bump Mapping", f, cmdSceneBumpNormal, true, curS==cmdSceneBumpNormal, mn2, true));
-    mn3->addChild(new SLButton(this, "Parallax Mapping", f, cmdSceneBumpParallax, true, curS==cmdSceneBumpParallax, mn2));
-    mn3->addChild(new SLButton(this, "Glass Shader", f, cmdSceneRevolver, true, curS==cmdSceneRevolver, mn2));
-    mn3->addChild(new SLButton(this, "Earth Shader", f, cmdSceneEarth, true, curS==cmdSceneEarth, mn2));
+    mn3->addChild(new SLButton(this, "Per Vertex Lighting", f, C_scenePerVertexBlinn, true, curS==C_scenePerVertexBlinn, mn2));
+    mn3->addChild(new SLButton(this, "Per Pixel Lighting", f, C_scenePerPixelBlinn, true, curS==C_scenePerPixelBlinn, mn2));
+    mn3->addChild(new SLButton(this, "Per Vertex Wave", f, C_scenePerVertexWave, true, curS==C_scenePerVertexWave, mn2));
+    mn3->addChild(new SLButton(this, "Water", f, C_sceneWater, true, curS==C_sceneWater, mn2));
+    mn3->addChild(new SLButton(this, "Bump Mapping", f, C_sceneBumpNormal, true, curS==C_sceneBumpNormal, mn2, true));
+    mn3->addChild(new SLButton(this, "Parallax Mapping", f, C_sceneBumpParallax, true, curS==C_sceneBumpParallax, mn2));
+    mn3->addChild(new SLButton(this, "Glass Shader", f, C_sceneRevolver, true, curS==C_sceneRevolver, mn2));
+    mn3->addChild(new SLButton(this, "Earth Shader", f, C_sceneEarth, true, curS==C_sceneEarth, mn2));
 
     mn3 = new SLButton(this, "Animation >", f);
     mn2->addChild(mn3);
-    mn3->addChild(new SLButton(this, "Mass Animation", f, cmdSceneMassAnimation, true, curS==cmdSceneMassAnimation, mn2));
-    mn3->addChild(new SLButton(this, "Astroboy Army CPU", f, cmdSceneAstroboyArmyCPU, true, curS==cmdSceneAstroboyArmyCPU, mn2));
-    mn3->addChild(new SLButton(this, "Astroboy Army GPU", f, cmdSceneAstroboyArmyGPU, true, curS==cmdSceneAstroboyArmyGPU, mn2));
-    mn3->addChild(new SLButton(this, "Skeletal Animation", f, cmdSceneSkeletalAnimation, true, curS==cmdSceneSkeletalAnimation, mn2));
-    mn3->addChild(new SLButton(this, "Node Animation", f, cmdSceneNodeAnimation, true, curS==cmdSceneNodeAnimation, mn2));
+    mn3->addChild(new SLButton(this, "Mass Animation", f, C_sceneMassAnimation, true, curS==C_sceneMassAnimation, mn2));
+    mn3->addChild(new SLButton(this, "Astroboy Army CPU", f, C_sceneAstroboyArmyCPU, true, curS==C_sceneAstroboyArmyCPU, mn2));
+    mn3->addChild(new SLButton(this, "Astroboy Army GPU", f, C_sceneAstroboyArmyGPU, true, curS==C_sceneAstroboyArmyGPU, mn2));
+    mn3->addChild(new SLButton(this, "Skeletal Animation", f, C_sceneSkeletalAnimation, true, curS==C_sceneSkeletalAnimation, mn2));
+    mn3->addChild(new SLButton(this, "Node Animation", f, C_sceneNodeAnimation, true, curS==C_sceneNodeAnimation, mn2));
 
     mn3 = new SLButton(this, "Ray tracing >", f);
     mn2->addChild(mn3);
-    mn3->addChild(new SLButton(this, "Spheres", f, cmdSceneRTSpheres, true, curS==cmdSceneRTSpheres, mn2));
-    mn3->addChild(new SLButton(this, "Muttenzer Box", f, cmdSceneRTMuttenzerBox, true, curS==cmdSceneRTMuttenzerBox, mn2));
-    mn3->addChild(new SLButton(this, "Soft Shadows", f, cmdSceneRTSoftShadows, true, curS==cmdSceneRTSoftShadows, mn2));
-    mn3->addChild(new SLButton(this, "Depth of Field", f, cmdSceneRTDoF, true, curS==cmdSceneRTDoF, mn2));
-    mn3->addChild(new SLButton(this, "Lens Test", f, cmdSceneRTLens, true, curS == cmdSceneRTLens, mn2));
-    mn3->addChild(new SLButton(this, "RT Test", f, cmdSceneRTTest, true, curS == cmdSceneRTTest, mn2));
+    mn3->addChild(new SLButton(this, "Spheres", f, C_sceneRTSpheres, true, curS==C_sceneRTSpheres, mn2));
+    mn3->addChild(new SLButton(this, "Muttenzer Box", f, C_sceneRTMuttenzerBox, true, curS==C_sceneRTMuttenzerBox, mn2));
+    mn3->addChild(new SLButton(this, "Soft Shadows", f, C_sceneRTSoftShadows, true, curS==C_sceneRTSoftShadows, mn2));
+    mn3->addChild(new SLButton(this, "Depth of Field", f, C_sceneRTDoF, true, curS==C_sceneRTDoF, mn2));
+    mn3->addChild(new SLButton(this, "Lens Test", f, C_sceneRTLens, true, curS == C_sceneRTLens, mn2));
+    mn3->addChild(new SLButton(this, "RT Test", f, C_sceneRTTest, true, curS == C_sceneRTTest, mn2));
 
     mn3 = new SLButton(this, "Path tracing >", f);
     mn2->addChild(mn3);
-    mn3->addChild(new SLButton(this, "Muttenzer Box", f, cmdSceneRTMuttenzerBox, true, curS==cmdSceneRTMuttenzerBox, mn2));
+    mn3->addChild(new SLButton(this, "Muttenzer Box", f, C_sceneRTMuttenzerBox, true, curS==C_sceneRTMuttenzerBox, mn2));
 
     mn2 = new SLButton(this, "Camera >", f); mn1->addChild(mn2);
    
-    mn2->addChild(new SLButton(this, "Reset", f, cmdCamReset));
+    mn2->addChild(new SLButton(this, "Reset", f, C_camReset));
     
     mn3 = new SLButton(this, "Projection >", f);
     mn2->addChild(mn3);
-    for (SLint p=monoPerspective; p<=monoOrthographic; ++p)
+    for (SLint p=P_monoPerspective; p<=P_monoOrthographic; ++p)
     {   mn3->addChild(new SLButton(this, SLCamera::projectionToStr((SLProjection)p), f, 
-                                   (SLCmd)(cmdProjPersp+p), true, proj==p, mn3));
+                                   (SLCommand)(C_projPersp+p), true, proj==p, mn3));
     }
 
     mn4 = new SLButton(this, "Stereo >", f);
@@ -1697,77 +1714,77 @@ void SLSceneView::build2DMenus()
 
     mn5 = new SLButton(this, "Eye separation >", f);
     mn4->addChild(mn5);
-    mn5->addChild(new SLButton(this, "-10%", f, cmdCamEyeSepDec, false, false, 0, false));
-    mn5->addChild(new SLButton(this, "+10%", f, cmdCamEyeSepInc, false, false, 0, false));
+    mn5->addChild(new SLButton(this, "-10%", f, C_camEyeSepDec, false, false, 0, false));
+    mn5->addChild(new SLButton(this, "+10%", f, C_camEyeSepInc, false, false, 0, false));
 
     mn5 = new SLButton(this, "Focal dist. >", f);
     mn4->addChild(mn5);
-    mn5->addChild(new SLButton(this, "+5%", f, cmdCamFocalDistInc, false, false, 0, false));
-    mn5->addChild(new SLButton(this, "-5%", f, cmdCamFocalDistDec, false, false, 0, false));
+    mn5->addChild(new SLButton(this, "+5%", f, C_camFocalDistInc, false, false, 0, false));
+    mn5->addChild(new SLButton(this, "-5%", f, C_camFocalDistDec, false, false, 0, false));
 
-    for (SLint p=stereoSideBySide; p<=stereoColorYB; ++p)
+    for (SLint p=P_stereoSideBySide; p<=P_stereoColorYB; ++p)
     {   mn4->addChild(new SLButton(this, SLCamera::projectionToStr((SLProjection)p), f, 
-                                   (SLCmd)(cmdProjPersp+p), true, proj==p, mn3));
+                                   (SLCommand)(C_projPersp+p), true, proj==p, mn3));
     }
    
     mn3 = new SLButton(this, "Animation >", f);
     mn2->addChild(mn3);
-    mn3->addChild(new SLButton(this, "Walking Y up",   f, cmdCamAnimWalkYUp, true, anim==walkingYUp, mn3));
-    mn3->addChild(new SLButton(this, "Walking Z up",   f, cmdCamAnimWalkZUp, true, anim==walkingYUp, mn3));
-    mn3->addChild(new SLButton(this, "Turntable Y up", f, cmdCamAnimTurnYUp, true, anim==turntableYUp, mn3));
-    mn3->addChild(new SLButton(this, "Turntable Z up", f, cmdCamAnimTurnZUp, true, anim==turntableZUp, mn3));
+    mn3->addChild(new SLButton(this, "Walking Y up",   f, C_camAnimWalkYUp, true, anim==CA_walkingYUp, mn3));
+    mn3->addChild(new SLButton(this, "Walking Z up",   f, C_camAnimWalkZUp, true, anim==CA_walkingYUp, mn3));
+    mn3->addChild(new SLButton(this, "Turntable Y up", f, C_camAnimTurnYUp, true, anim==CA_turntableYUp, mn3));
+    mn3->addChild(new SLButton(this, "Turntable Z up", f, C_camAnimTurnZUp, true, anim==CA_turntableZUp, mn3));
       
     mn3 = new SLButton(this, "View Angle >", f);
     mn2->addChild(mn3);
-    mn3->addChild(new SLButton(this, "+5 deg.", f, cmdCamFOVInc, false, false, 0, false));
-    mn3->addChild(new SLButton(this, "-5 deg.", f, cmdCamFOVDec, false, false, 0, false));
+    mn3->addChild(new SLButton(this, "+5 deg.", f, C_camFOVInc, false, false, 0, false));
+    mn3->addChild(new SLButton(this, "-5 deg.", f, C_camFOVDec, false, false, 0, false));
    
     mn3 = new SLButton(this, "Walk Speed >", f);
     mn2->addChild(mn3);
-    mn3->addChild(new SLButton(this, "+20%", f, cmdCamSpeedLimitInc, false, false, 0, false));
-    mn3->addChild(new SLButton(this, "-20%", f, cmdCamSpeedLimitDec, false, false, 0, false));
+    mn3->addChild(new SLButton(this, "+20%", f, C_camSpeedLimitInc, false, false, 0, false));
+    mn3->addChild(new SLButton(this, "-20%", f, C_camSpeedLimitDec, false, false, 0, false));
 
-    mn3 = new SLButton(this, "Use Device Rotation", f, cmdCamDeviceRotToggle, true, useDeviceRot, 0, false);
+    mn3 = new SLButton(this, "Use Device Rotation", f, C_camDeviceRotToggle, true, useDeviceRot, 0, false);
     mn2->addChild(mn3);
 
     mn2 = new SLButton(this, "Render States >", f);
     mn1->addChild(mn2);
-    mn2->addChild(new SLButton(this, "Slowdown on Idle", f, cmdWaitEventsToggle, true, _waitEvents, 0, false));
+    mn2->addChild(new SLButton(this, "Slowdown on Idle", f, C_waitEventsToggle, true, _waitEvents, 0, false));
     if (_stateGL->hasMultiSampling())
-        mn2->addChild(new SLButton(this, "Do Multi Sampling", f, cmdMultiSampleToggle, true, _doMultiSampling, 0, false));
-    mn2->addChild(new SLButton(this, "Do Frustum Culling", f, cmdFrustCullToggle, true, _doFrustumCulling, 0, false));
-    mn2->addChild(new SLButton(this, "Do Depth Test", f, cmdDepthTestToggle, true, _doDepthTest, 0, false));
-    mn2->addChild(new SLButton(this, "Animation off", f, cmdAnimationToggle, true, false, 0, false));
+        mn2->addChild(new SLButton(this, "Do Multi Sampling", f, C_multiSampleToggle, true, _doMultiSampling, 0, false));
+    mn2->addChild(new SLButton(this, "Do Frustum Culling", f, C_frustCullToggle, true, _doFrustumCulling, 0, false));
+    mn2->addChild(new SLButton(this, "Do Depth Test", f, C_depthTestToggle, true, _doDepthTest, 0, false));
+    mn2->addChild(new SLButton(this, "Animation off", f, C_animationToggle, true, false, 0, false));
 
     mn2 = new SLButton(this, "Render Flags >", f);
     mn1->addChild(mn2);
-    mn2->addChild(new SLButton(this, "Textures off", f, cmdTextureToggle, true, false, 0, false));
-    mn2->addChild(new SLButton(this, "Back Faces", f, cmdFaceCullToggle, true, false, 0, false));
-    mn2->addChild(new SLButton(this, "Skeleton", f, cmdSkeletonToggle, true, false, 0, false));
-    mn2->addChild(new SLButton(this, "AABB", f, cmdBBoxToggle, true, false, 0, false));
-    mn2->addChild(new SLButton(this, "Axis", f, cmdAxisToggle, true, false, 0, false));
-    mn2->addChild(new SLButton(this, "Voxels", f, cmdVoxelsToggle, true, false, 0, false));
-    mn2->addChild(new SLButton(this, "Normals", f, cmdNormalsToggle, true, false, 0, false));
-    mn2->addChild(new SLButton(this, "Wired mesh", f, cmdWireMeshToggle, true, false, 0, false));
+    mn2->addChild(new SLButton(this, "Textures off", f, C_textureToggle, true, false, 0, false));
+    mn2->addChild(new SLButton(this, "Back Faces", f, C_faceCullToggle, true, false, 0, false));
+    mn2->addChild(new SLButton(this, "Skeleton", f, C_skeletonToggle, true, false, 0, false));
+    mn2->addChild(new SLButton(this, "AABB", f, C_bBoxToggle, true, false, 0, false));
+    mn2->addChild(new SLButton(this, "Axis", f, C_axisToggle, true, false, 0, false));
+    mn2->addChild(new SLButton(this, "Voxels", f, C_voxelsToggle, true, false, 0, false));
+    mn2->addChild(new SLButton(this, "Normals", f, C_normalsToggle, true, false, 0, false));
+    mn2->addChild(new SLButton(this, "Wired mesh", f, C_wireMeshToggle, true, false, 0, false));
    
     mn2 = new SLButton(this, "Infos >", f);
     mn1->addChild(mn2);
-    mn2->addChild(new SLButton(this, "About", f, cmdAboutToggle));
-    mn2->addChild(new SLButton(this, "Help", f, cmdHelpToggle));
-    mn2->addChild(new SLButton(this, "Credits", f, cmdCreditsToggle));
-    mn2->addChild(new SLButton(this, "Scene Info", f, cmdSceneInfoToggle, true, _showInfo));
-    mn2->addChild(new SLButton(this, "Statistics", f, cmdStatsToggle, true, _showStats));
+    mn2->addChild(new SLButton(this, "About", f, C_aboutToggle));
+    mn2->addChild(new SLButton(this, "Help", f, C_helpToggle));
+    mn2->addChild(new SLButton(this, "Credits", f, C_creditsToggle));
+    mn2->addChild(new SLButton(this, "Scene Info", f, C_sceneInfoToggle, true, _showInfo));
+    mn2->addChild(new SLButton(this, "Statistics", f, C_statsToggle, true, _showStats));
 
     mn2 = new SLButton(this, "Renderer >", f);
     mn1->addChild(mn2);
-    mn2->addChild(new SLButton(this, "Ray tracing", f, cmdRT5, false, false, 0, true));
+    mn2->addChild(new SLButton(this, "Ray tracing", f, C_rt5, false, false, 0, true));
     #ifndef SL_GLES2
-    mn2->addChild(new SLButton(this, "Path tracing", f, cmdPT10, false, false, 0, true));
+    mn2->addChild(new SLButton(this, "Path tracing", f, C_pt10, false, false, 0, true));
     #else
-    mn2->addChild(new SLButton(this, "Path tracing", f, cmdPT1, false, false, 0, true));
+    mn2->addChild(new SLButton(this, "Path tracing", f, C_pt1, false, false, 0, true));
     #endif
 
-    mn2 = new SLButton(this, "Quit", f, cmdQuit);
+    mn2 = new SLButton(this, "Quit", f, C_quit);
     mn1->addChild(mn2);
 
     // Init OpenGL menu
@@ -1780,17 +1797,17 @@ void SLSceneView::build2DMenus()
     // Build ray tracing menu
     SLCol3f green(0.0f,0.5f,0.0f);
    
-    mn1 = new SLButton(this, ">", f, cmdMenu, false, false, 0, true,  0, 0, green, 0.3f, centerCenter);
+    mn1 = new SLButton(this, ">", f, C_menu, false, false, 0, true,  0, 0, green, 0.3f, TA_centerCenter);
     mn1->drawBits()->off(SL_DB_HIDDEN);
    
-    mn1->addChild(new SLButton(this, "OpenGL Rendering", f, cmdRenderOpenGL, false, false, 0, true,  0, 0, green));
-    mn1->addChild(new SLButton(this, "Render continuously", f, cmdRTContinuously, true, _raytracer.continuous(), 0, true,  0, 0, green));
-    mn1->addChild(new SLButton(this, "Render parallel distributed", f, cmdRTDistributed, true, _raytracer.distributed(), 0, true,  0, 0, green));
-    mn1->addChild(new SLButton(this, "Rendering Depth 1", f, cmdRT1, false, false, 0, true,  0, 0, green));
-    mn1->addChild(new SLButton(this, "Rendering Depth 5", f, cmdRT5, false, false, 0, true,  0, 0, green));
-    mn1->addChild(new SLButton(this, "Rendering Depth max.", f, cmdRT0, false, false, 0, true,  0, 0, green));
+    mn1->addChild(new SLButton(this, "OpenGL Rendering", f, C_renderOpenGL, false, false, 0, true,  0, 0, green));
+    mn1->addChild(new SLButton(this, "Render continuously", f, C_rtContinuously, true, _raytracer.continuous(), 0, true,  0, 0, green));
+    mn1->addChild(new SLButton(this, "Render parallel distributed", f, C_rtDistributed, true, _raytracer.distributed(), 0, true,  0, 0, green));
+    mn1->addChild(new SLButton(this, "Rendering Depth 1", f, C_rt1, false, false, 0, true,  0, 0, green));
+    mn1->addChild(new SLButton(this, "Rendering Depth 5", f, C_rt5, false, false, 0, true,  0, 0, green));
+    mn1->addChild(new SLButton(this, "Rendering Depth max.", f, C_rt0, false, false, 0, true,  0, 0, green));
     #ifndef SL_GLES2
-    mn1->addChild(new SLButton(this, "Save Image", f, cmdRTSaveImage, false, false, 0, true,  0, 0, green));
+    mn1->addChild(new SLButton(this, "Save Image", f, C_rtSaveImage, false, false, 0, true,  0, 0, green));
     #endif
 
     // Init RT menu
@@ -1803,20 +1820,20 @@ void SLSceneView::build2DMenus()
     // Build path tracing menu
     SLCol3f blue(0.0f,0.0f,0.5f);
    
-    mn1 = new SLButton(this, ">", f, cmdMenu, false, false, 0, true,  0, 0, blue, 0.3f, centerCenter);
+    mn1 = new SLButton(this, ">", f, C_menu, false, false, 0, true,  0, 0, blue, 0.3f, TA_centerCenter);
     mn1->drawBits()->off(SL_DB_HIDDEN);
 
-    mn1->addChild(new SLButton(this, "OpenGL Rendering", f, cmdRenderOpenGL, false, false, 0, true,  0, 0, blue));
-    mn1->addChild(new SLButton(this, "1 Sample Ray", f, cmdPT1, false, false, 0, true,  0, 0, blue));
-    mn1->addChild(new SLButton(this, "10 Sample Rays", f, cmdPT10, false, false, 0, true,  0, 0, blue));
-    mn1->addChild(new SLButton(this, "50 Sample Rays", f, cmdPT50, false, false, 0, true,  0, 0, blue));
-    mn1->addChild(new SLButton(this, "100 Sample Rays", f, cmdPT100, false, false, 0, true,  0, 0, blue));
-    mn1->addChild(new SLButton(this, "500 Sample Rays", f, cmdPT500, false, false, 0, true,  0, 0, blue));
-    mn1->addChild(new SLButton(this, "1000 Sample Rays", f, cmdPT1000, false, false, 0, true,  0, 0, blue));
-    mn1->addChild(new SLButton(this, "5000 Sample Rays", f, cmdPT5000, false, false, 0, true,  0, 0, blue));
-    mn1->addChild(new SLButton(this, "10000 Sample Rays", f, cmdPT10000, false, false, 0, true,  0, 0, blue));
+    mn1->addChild(new SLButton(this, "OpenGL Rendering", f, C_renderOpenGL, false, false, 0, true,  0, 0, blue));
+    mn1->addChild(new SLButton(this, "1 Sample Ray", f, C_pt1, false, false, 0, true,  0, 0, blue));
+    mn1->addChild(new SLButton(this, "10 Sample Rays", f, C_pt10, false, false, 0, true,  0, 0, blue));
+    mn1->addChild(new SLButton(this, "50 Sample Rays", f, C_pt50, false, false, 0, true,  0, 0, blue));
+    mn1->addChild(new SLButton(this, "100 Sample Rays", f, C_pt100, false, false, 0, true,  0, 0, blue));
+    mn1->addChild(new SLButton(this, "500 Sample Rays", f, C_pt500, false, false, 0, true,  0, 0, blue));
+    mn1->addChild(new SLButton(this, "1000 Sample Rays", f, C_pt1000, false, false, 0, true,  0, 0, blue));
+    mn1->addChild(new SLButton(this, "5000 Sample Rays", f, C_pt5000, false, false, 0, true,  0, 0, blue));
+    mn1->addChild(new SLButton(this, "10000 Sample Rays", f, C_pt10000, false, false, 0, true,  0, 0, blue));
     #ifndef SL_GLES2
-    mn1->addChild(new SLButton(this, "Save Image", f, cmdPTSaveImage, false, false, 0, true,  0, 0, blue));
+    mn1->addChild(new SLButton(this, "Save Image", f, C_ptSaveImage, false, false, 0, true,  0, 0, blue));
     #endif
 
     // Init PT menu
@@ -1883,7 +1900,7 @@ void SLSceneView::build2DInfoGL()
     sprintf(m+strlen(m), "Projection: %s\\n", cam->projectionStr().c_str());
     sprintf(m+strlen(m), "Animation: %s\\n", cam->animationStr().c_str());
     sprintf(m+strlen(m), "Max speed: %4.1f/sec.\\n", cam->maxSpeed());
-    if (camera()->projection() > monoOrthographic)
+    if (camera()->projection() > P_monoOrthographic)
         sprintf(m+strlen(m), "Eye separation: %4.2f (%3.1f%% of f)\\n", cam->eyeSeparation(), eyeSepPC);
     sprintf(m+strlen(m), "fov: %4.2f\\n", cam->fov());
     sprintf(m+strlen(m), "Focal distance (f): %4.2f\\n", cam->focalDist());
@@ -1905,7 +1922,7 @@ void SLSceneView::build2DInfoGL()
 
     SLTexFont* f = SLTexFont::getFont(1.2f, _dpi);
     SLText* t = new SLText(m, f, SLCol4f::WHITE, (SLfloat)_scrW, 1.0f);
-    t->translate(10.0f, -t->size().y-5.0f, 0.0f, TS_Object);
+    t->translate(10.0f, -t->size().y-5.0f, 0.0f, TS_object);
     s->_infoGL = t;
 }
 //-----------------------------------------------------------------------------
@@ -1980,7 +1997,7 @@ void SLSceneView::build2DInfoRT()
    
     SLTexFont* f = SLTexFont::getFont(1.2f, _dpi);
     SLText* t = new SLText(m, f, SLCol4f::WHITE, (SLfloat)_scrW, 1.0f);
-    t->translate(10.0f, -t->size().y-5.0f, 0.0f, TS_Object);
+    t->translate(10.0f, -t->size().y-5.0f, 0.0f, TS_object);
     s->_infoRT = t;
 }
 //-----------------------------------------------------------------------------
@@ -1994,8 +2011,8 @@ void SLSceneView::build2DInfoLoading()
     if (s->_infoLoading) return;
     SLTexFont* f = SLTexFont::getFont(3, _dpi);
     SLText* t = new SLText("Loading Scene . . .", f, SLCol4f::WHITE, (SLfloat)_scrW, 1.0f);
-    t->translate(10.0f, -t->size().y-5.0f, 0.0f, TS_Object);
-    t->translate(_scrW*0.5f - t->size().x*0.5f, -(_scrH*0.5f) + t->size().y, 0.0f, TS_Object);
+    t->translate(10.0f, -t->size().y-5.0f, 0.0f, TS_object);
+    t->translate(_scrW*0.5f - t->size().x*0.5f, -(_scrH*0.5f) + t->size().y, 0.0f, TS_object);
     s->_infoLoading = t;
 }
 //-----------------------------------------------------------------------------
@@ -2010,9 +2027,9 @@ void SLSceneView::build2DMsgBoxes()
     // Help button
     if (s->_btnHelp) delete s->_btnHelp;
     s->_btnHelp = new SLButton(this, s->_infoHelp_en, f,
-                               cmdAboutToggle, false, false, 0, true,
+                               C_aboutToggle, false, false, 0, true,
                                _scrW - 2*SLButton::minMenuPos.x, 0.0f,
-                               SLCol3f::COLBFH, 0.8f, centerCenter);
+                               SLCol3f::COLBFH, 0.8f, TA_centerCenter);
 
     _stateGL->modelViewMatrix.identity();
     s->_btnHelp->drawBits()->off(SL_DB_HIDDEN);
@@ -2023,9 +2040,9 @@ void SLSceneView::build2DMsgBoxes()
     // About button
     if (s->_btnAbout) delete s->_btnAbout;
     s->_btnAbout = new SLButton(this, s->_infoAbout_en, f,
-                                cmdAboutToggle, false, false, 0, true,
+                                C_aboutToggle, false, false, 0, true,
                                 _scrW - 2*SLButton::minMenuPos.x, 0.0f,
-                                SLCol3f::COLBFH, 0.8f, centerCenter);
+                                SLCol3f::COLBFH, 0.8f, TA_centerCenter);
 
     _stateGL->modelViewMatrix.identity();
     s->_btnAbout->drawBits()->off(SL_DB_HIDDEN);
@@ -2036,9 +2053,9 @@ void SLSceneView::build2DMsgBoxes()
     // Credits button
     if (s->_btnCredits) delete s->_btnCredits;
     s->_btnCredits = new SLButton(this, s->_infoCredits_en, f,
-                                    cmdAboutToggle, false, false, 0, true,
+                                    C_aboutToggle, false, false, 0, true,
                                     _scrW - 2*SLButton::minMenuPos.x, 0.0f,
-                                    SLCol3f::COLBFH, 0.8f, centerCenter);
+                                    SLCol3f::COLBFH, 0.8f, TA_centerCenter);
 
     _stateGL->modelViewMatrix.identity();
     s->_btnCredits->drawBits()->off(SL_DB_HIDDEN);
@@ -2063,7 +2080,7 @@ SLstring SLSceneView::windowTitle()
     if (!_camera || !s->_root3D)
         return SLstring("-");
 
-    if (_renderType == renderRT)
+    if (_renderType == RT_rt)
     {   if (_raytracer.continuous())
         {   sprintf(title, "%s (fps: %4.1f, Threads: %d)", 
                     s->name().c_str(), 
@@ -2076,7 +2093,7 @@ SLstring SLSceneView::windowTitle()
                     _raytracer.numThreads());
         }
     } else
-    if (_renderType == renderPT)
+    if (_renderType == RT_pt)
     {   sprintf(title, "%s (%d%%, Threads: %d)", 
                 s->name().c_str(), 
                 _pathtracer.pcRendered(), 
@@ -2099,7 +2116,7 @@ Starts the ray tracing & sets the RT menu
 void SLSceneView::startRaytracing(SLint maxDepth)
 {  
     SLScene* s = SLScene::current;
-    _renderType = renderRT;
+    _renderType = RT_rt;
     _stopRT = false;
     _raytracer.maxDepth(maxDepth);
     _raytracer.aaSamples(_doMultiSampling?3:1);
@@ -2139,7 +2156,7 @@ SLbool SLSceneView::draw3DRT()
 
     // React on the stop flag (e.g. ESC)
     if(_stopRT)
-    {   _renderType = renderGL;
+    {   _renderType = RT_gl;
         SLScene* s = SLScene::current;
         s->menu2D(s->_menuGL);
         s->menu2D()->closeAll();
@@ -2155,7 +2172,7 @@ Starts the pathtracing
 void SLSceneView::startPathtracing(SLint maxDepth, SLint samples)
 {  
     SLScene* s = SLScene::current;
-    _renderType = renderPT;
+    _renderType = RT_pt;
     _stopPT = false;
     _pathtracer.maxDepth(maxDepth);
     _pathtracer.aaSamples(samples);
@@ -2192,7 +2209,7 @@ SLbool SLSceneView::draw3DPT()
 
     // React on the stop flag (e.g. ESC)
     if(_stopPT)
-    {   _renderType = renderGL;
+    {   _renderType = RT_gl;
         SLScene* s = SLScene::current;
         s->menu2D(s->_menuGL);
         s->menu2D()->closeAll();

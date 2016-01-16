@@ -16,272 +16,250 @@
 //-----------------------------------------------------------------------------
 //! Keyboard key codes enumeration
 enum SLKey
-{
-    KeyNone=0, 
-    KeySpace=32,
-    KeyTab=256,KeyEnter,KeyEsc,KeyBackspace,KeyDelete,
-    KeyUp,KeyDown,KeyRight,KeyLeft, 
-    KeyHome, KeyEnd, KeyInsert, KeyPageUp, KeyPageDown,
-    KeyNP0,KeyNP1,KeyNP2,KeyNP3,KeyNP4,KeyNP5,KeyNP6,KeyNP7,KeyNP8,KeyNP9,
-    KeyNPDivide,KeyNPMultiply,KeyNPAdd,KeyNPSubtract,KeyNPEnter,KeyNPDecimal,
-    KeyF1,KeyF2,KeyF3,KeyF4,KeyF5,KeyF6,KeyF7,KeyF8,KeyF9,KeyF10,KeyF11,KeyF12, 
-    KeySuper=0x00100000,KeyShift=0x00200000,KeyCtrl=0x00400000,KeyAlt=0x00800000
+{   K_none=0, 
+    K_space=32,
+    K_tab=256, K_enter, K_esc, K_backspace, K_delete,
+    K_up, K_down, K_right, K_left, 
+    K_home, K_end, K_insert, K_pageUp, K_pageDown,
+    K_NP0, K_NP1, K_NP2, K_NP3, K_NP4, K_NP5, K_NP6, K_NP7, K_NP8, K_NP9,
+    K_NPDivide, K_NPMultiply, K_NPAdd, K_NPSubtract, K_NPEnter, K_NPDecimal,
+    K_F1, K_F2, K_F3, K_F4, K_F5, K_F6, K_F7, K_F8, K_F9, K_F10, K_F11, K_F12, 
+    K_super=0x00100000, K_shift=0x00200000, K_ctrl=0x00400000, K_alt=0x00800000
 };
-
 //-----------------------------------------------------------------------------
 //! Rendering type enumeration
-enum SLRenderer
-{
-    renderGL=0,
-    renderRT=1,
-    renderPT=2
+enum SLRenderType
+{   RT_gl=0,    //!< OpenGL
+    RT_rt=1,    //!< Ray Tracing
+    RT_pt=2     //!< Path Tracing
 };
-
 //-----------------------------------------------------------------------------
 //! Coordinate axis enumeration
 enum SLAxis
-{
-    XAxis=0, 
-    YAxis=1,
-    ZAxis=2
+{   A_x=0, 
+    A_Y=1,
+    A_z=2
 };
-
 //-----------------------------------------------------------------------------
 //! Pixel format according to OpenGL pixel format defines
 enum SLPixelFormat
-{
-    SL_ALPHA = 0x1906,             // ES2 ES3 GL2
-    SL_LUMINANCE = 0x1909,         // ES2 ES3 GL2
-    SL_LUMINANCE_ALPHA = 0x190A,   // ES2 ES3 GL2
-    SL_INTENSITY = 0x8049,         //         GL2
-    SL_GREEN = 0x1904,             //         GL2
-    SL_BLUE = 0x1905,              //         GL2
-    SL_DEPTH_COMPONENT = 0x1902,   //     ES3 GL2     GL4
+{   PF_alpha = 0x1906,             // ES2 ES3 GL2
+    PF_luminance = 0x1909,         // ES2 ES3 GL2
+    PF_luminance_alpha = 0x190A,   // ES2 ES3 GL2
+    PF_intensity = 0x8049,         //         GL2
+    PF_green = 0x1904,             //         GL2
+    PF_blue = 0x1905,              //         GL2
+    PF_depth_component = 0x1902,   //     ES3 GL2     GL4
 
-    SL_RED  = 0x1903,              //     ES3 GL2 GL3 GL4
-    SL_RG   = 0x8227,              //     ES3     GL3 GL4
-    SL_RGB  = 0x1907,              // ES2 ES3 GL2 GL3 GL4
-    SL_RGBA = 0x1908,              // ES2 ES3 GL2 GL3 GL4
-    SL_BGR  = 0x80E0,              //         GL2 GL3 GL4
-    SL_BGRA = 0x80E1,              //         GL2 GL3 GL4
+    PF_red  = 0x1903,              //     ES3 GL2 GL3 GL4
+    PF_rg   = 0x8227,              //     ES3     GL3 GL4
+    PF_rgb  = 0x1907,              // ES2 ES3 GL2 GL3 GL4
+    PF_rgba = 0x1908,              // ES2 ES3 GL2 GL3 GL4
+    PF_bgr  = 0x80E0,              //         GL2 GL3 GL4
+    PF_bgra = 0x80E1,              //         GL2 GL3 GL4
 
-    SL_RG_INTEGER = 0x8228,        //     ES3         GL4
-    SL_RED_INTEGER = 0x8D94,       //     ES3         GL4
-    SL_RGB_INTEGER = 0x8D98,       //     ES3         GL4
-    SL_RGBA_INTEGER = 0x8D99,      //     ES3         GL4
-    SL_BGR_INTEGER = 0x8D9A,       //                 GL4
-    SL_BGRA_INTEGER = 0x8D9B       //                 GL4
+    PF_rg_integer = 0x8228,        //     ES3         GL4
+    PF_red_integer = 0x8D94,       //     ES3         GL4
+    PF_rgb_integer = 0x8D98,       //     ES3         GL4
+    PF_rgba_integer = 0x8D99,      //     ES3         GL4
+    PF_bgr_integer = 0x8D9A,       //                 GL4
+    PF_bgra_integer = 0x8D9B       //                 GL4
 };
-
 //-----------------------------------------------------------------------------
-//! SLCmd enumerates all possible menu and keyboard commands
-enum SLCmd
-{
-    cmdMenu,
-    cmdAboutToggle,
-    cmdHelpToggle,
-    cmdCreditsToggle,
-    cmdSceneInfoToggle,
-    cmdQuit,
+//! SLCommand enumerates all possible menu and keyboard commands
+enum SLCommand
+{   C_sceneAll = 0,   // Loads all scenes one after the other
+    C_sceneMinimal,
+    C_sceneFigure,   
+    C_sceneMeshLoad,
+    C_sceneVRSizeTest,
+    C_sceneLargeModel,
+    C_sceneChristoffel,
+    C_sceneRevolver,
+    C_sceneTextureFilter,
+    C_sceneTextureBlend,
+    C_sceneTextureVideo,
+    C_sceneFrustumCull1,
+
+    C_scenePerVertexBlinn,
+    C_scenePerPixelBlinn,
+    C_scenePerVertexWave,
+    C_sceneWater,
+    C_sceneBumpNormal,
+    C_sceneBumpParallax,
+    C_sceneEarth,
+    C_sceneMassAnimation,
+    C_sceneTerrain,
+
+    C_sceneSkeletalAnimation,
+    C_sceneNodeAnimation,
+    C_sceneAstroboyArmyGPU,
+    C_sceneAstroboyArmyCPU,
+
+    C_sceneRTMuttenzerBox,
+    C_sceneRTSpheres,
+    C_sceneRTSoftShadows,
+    C_sceneRTDoF,
+    C_sceneRTLens,
+    C_sceneRTTest,
+    
+    C_menu,
+    C_aboutToggle,
+    C_helpToggle,
+    C_creditsToggle,
+    C_sceneInfoToggle,
+    C_quit,
+
+    C_multiSampleToggle,// Toggles multisampling
+    C_depthTestToggle,  // Toggles the depth test flag
+    C_frustCullToggle,  // Toggles frustum culling
+    C_waitEventsToggle, // Toggles the wait event flag
+
+    C_skeletonToggle,   // Toggles skeleton drawing bit
+    C_bBoxToggle,       // Toggles bounding box drawing bit
+    C_axisToggle,       // Toggles axis drawing bit
+    C_faceCullToggle,   // Toggles face culling
+    C_wireMeshToggle,   // Toggles wireframe drawing bit
+    C_normalsToggle,    // Toggles normal drawing bit
+    C_animationToggle,  // Animation bit toggle
+    C_textureToggle,    // Texture drawing bit toggle
+    C_voxelsToggle,     // Voxel drawing bit toggle
    
-    cmdSceneMinimal,   // Loads the different scenes
-    cmdSceneFigure,   
-    cmdSceneMeshLoad,
-    cmdSceneVRSizeTest,
-    cmdSceneLargeModel,
-    cmdSceneChristoffel,
-    cmdSceneRevolver,
-    cmdSceneTextureFilter,
-    cmdSceneTextureBlend,
-    cmdSceneTextureVideo,
-    cmdSceneFrustumCull1,
-
-    cmdScenePerVertexBlinn,
-    cmdScenePerPixelBlinn,
-    cmdScenePerVertexWave,
-    cmdSceneWater,
-    cmdSceneBumpNormal,
-    cmdSceneBumpParallax,
-    cmdSceneEarth,
-    cmdSceneMassAnimation,
-    cmdSceneTerrain,
-
-    cmdSceneSkeletalAnimation,
-    cmdSceneNodeAnimation,
-    cmdSceneAstroboyArmyGPU,
-    cmdSceneAstroboyArmyCPU,
-
-    cmdSceneRTMuttenzerBox,
-    cmdSceneRTSpheres,
-    cmdSceneRTSoftShadows,
-    cmdSceneRTDoF,
-    cmdSceneRTLens,
-    cmdSceneRTTest,
-
-    cmdMultiSampleToggle,// Toggles multisampling
-    cmdDepthTestToggle,  // Toggles the depth test flag
-    cmdFrustCullToggle,  // Toggles frustum culling
-    cmdWaitEventsToggle, // Toggles the wait event flag
-
-    cmdSkeletonToggle,   // Toggles skeleton drawing bit
-    cmdBBoxToggle,       // Toggles bounding box drawing bit
-    cmdAxisToggle,       // Toggles axis drawing bit
-    cmdFaceCullToggle,   // Toggles face culling
-    cmdWireMeshToggle,   // Toggles wireframe drawing bit
-    cmdNormalsToggle,    // Toggles normale drawing bit
-    cmdAnimationToggle,  // Animation bit toggle
-    cmdTextureToggle,    // Texture drawing bit toggle
-    cmdVoxelsToggle,     // Voxel drawing bit toggle
+    C_projPersp,        // Perspective projection
+    C_projOrtho,        // Orthographic projection
+    C_projSideBySide,   // side-by-side
+    C_projSideBySideP,  // side-by-side proportional
+    C_projSideBySideD,  // Oculus Rift stereo mode
+    C_projLineByLine,   // line-by-line
+    C_projColumnByColumn,// column-by-column
+    C_projPixelByPixel, // checkerboard pattern (DLP3D)
+    C_projColorRC,      // color masking for red-cyan anaglyphs
+    C_projColorRG,      // color masking for red-green anaglyphs
+    C_projColorRB,      // color masking for red-blue anaglyphs
+    C_projColorYB,      // color masking for yellow-blue anaglyphs (ColorCode 3D)
    
-    cmdProjPersp,        // Perspective projection
-    cmdProjOrtho,        // Orthographic projection
-    cmdProjSideBySide,   // side-by-side
-    cmdProjSideBySideP,  // side-by-side proportional
-    cmdProjSideBySideD,  // Oculus Rift stereo mode
-    cmdProjLineByLine,   // line-by-line
-    cmdProjColumnByColumn,// column-by-column
-    cmdProjPixelByPixel, // checkerboard pattern (DLP3D)
-    cmdProjColorRC,      // color masking for red-cyan anaglyphs
-    cmdProjColorRG,      // color masking for red-green anaglyphs
-    cmdProjColorRB,      // color masking for red-blue anaglyphs
-    cmdProjColorYB,      // color masking for yellow-blue anaglyphs (ColorCode 3D)
-   
-    cmdCamReset,         // Resets to the initial camera view
-    cmdUseSceneViewCamera,  // make the editor camera active
-    cmdCamDeviceRotOn,   // Use devices rotation (mobile or Oculus Rift) for camera view
-    cmdCamDeviceRotOff,  // Don't use devices rotation (mobile or Oculus Rift) for camera view
-    cmdCamDeviceRotToggle, // Toggle devices rotation (mobile or Oculus Rift) for camera view
-    cmdCamEyeSepInc,     // Cameras eye separation distance increase
-    cmdCamEyeSepDec,     // Cameras eye separation distance decrease
-    cmdCamFocalDistInc,  // Cameras focal distance increase
-    cmdCamFocalDistDec,  // Cameras focal distance decrease
-    cmdCamFOVInc,        // Cameras field of view increase
-    cmdCamFOVDec,        // Cameras field of view decrease
-    cmdCamAnimTurnYUp,   // Sets turntable camera animation w. Y axis up
-    cmdCamAnimTurnZUp,   // Sets turntable camera animation w. Z axis up
-    cmdCamAnimWalkYUp,   // Sets 1st person walking camera animation w. Y axis up
-    cmdCamAnimWalkZUp,   // Sets 1st person walking camera animation w. Z axis up
-    cmdCamAnimFly1stP,   // Sets 1st person flying camera animation
-    cmdCamSpeedLimitInc, // Increments the speed limit by 10%
-    cmdCamSpeedLimitDec, // Decrements the speed limit by 10%
+    C_camReset,         // Resets to the initial camera view
+    C_useSceneViewCamera,  // make the editor camera active
+    C_camDeviceRotOn,   // Use devices rotation (mobile or Oculus Rift) for camera view
+    C_camDeviceRotOff,  // Don't use devices rotation (mobile or Oculus Rift) for camera view
+    C_camDeviceRotToggle, // Toggle devices rotation (mobile or Oculus Rift) for camera view
+    C_camEyeSepInc,     // Cameras eye separation distance increase
+    C_camEyeSepDec,     // Cameras eye separation distance decrease
+    C_camFocalDistInc,  // Cameras focal distance increase
+    C_camFocalDistDec,  // Cameras focal distance decrease
+    C_camFOVInc,        // Cameras field of view increase
+    C_camFOVDec,        // Cameras field of view decrease
+    C_camAnimTurnYUp,   // Sets turntable camera animation w. Y axis up
+    C_camAnimTurnZUp,   // Sets turntable camera animation w. Z axis up
+    C_camAnimWalkYUp,   // Sets 1st person walking camera animation w. Y axis up
+    C_camAnimWalkZUp,   // Sets 1st person walking camera animation w. Z axis up
+    C_camAnimFly1stP,   // Sets 1st person flying camera animation
+    C_camSpeedLimitInc, // Increments the speed limit by 10%
+    C_camSpeedLimitDec, // Decrements the speed limit by 10%
 
+    C_statsToggle,      // Toggles statistics on/off
 
-    cmdStatsToggle,      // Toggles statistics on/off
-
-    cmdRenderOpenGL,     // Render with GL
-    cmdRTContinuously,   // Do ray tracing continuously
-    cmdRTDistributed,    // Do ray tracing distributed
-    cmdRTStop,           // Stop ray tracing
-    cmdRT1,              //1: Do ray tracing with max. depth 1
-    cmdRT2,              //2: Do ray tracing with max. depth 2
-    cmdRT3,              //3: Do ray tracing with max. depth 3
-    cmdRT4,              //4: Do ray tracing with max. depth 4
-    cmdRT5,              //5: Do ray tracing with max. depth 5
-    cmdRT6,              //6: Do ray tracing with max. depth 6
-    cmdRT7,              //7: Do ray tracing with max. depth 7
-    cmdRT8,              //8: Do ray tracing with max. depth 8
-    cmdRT9,              //9: Do ray tracing with max. depth 9
-    cmdRT0,              //0: Do ray tracing with max. depth
-    cmdRTSaveImage,      // Save the ray tracing image
-    cmdPT1,              // Do pathtracing 1 Rays
-    cmdPT10,             // Do pathtracing 10 Rays
-    cmdPT50,             // Do pathtracing 50 Rays
-    cmdPT100,            // Do pathtracing 100 Rays
-    cmdPT500,            // Do pathtracing 500 Rays
-    cmdPT1000,           // Do pathtracing 1000 Rays
-    cmdPT5000,           // Do pathtracing 5000 Rays
-    cmdPT10000,          // Do pathtracing 10000 Rays
-    cmdPTSaveImage       // Save the ray tracing image
+    C_renderOpenGL,     // Render with GL
+    C_rtContinuously,   // Do ray tracing continuously
+    C_rtDistributed,    // Do ray tracing distributed
+    C_rtStop,           // Stop ray tracing
+    C_rt1,              //1: Do ray tracing with max. depth 1
+    C_rt2,              //2: Do ray tracing with max. depth 2
+    C_rt3,              //3: Do ray tracing with max. depth 3
+    C_rt4,              //4: Do ray tracing with max. depth 4
+    C_rt5,              //5: Do ray tracing with max. depth 5
+    C_rt6,              //6: Do ray tracing with max. depth 6
+    C_rt7,              //7: Do ray tracing with max. depth 7
+    C_rt8,              //8: Do ray tracing with max. depth 8
+    C_rt9,              //9: Do ray tracing with max. depth 9
+    C_rt0,              //0: Do ray tracing with max. depth
+    C_rtSaveImage,      // Save the ray tracing image
+    C_pt1,              // Do pathtracing 1 Rays
+    C_pt10,             // Do pathtracing 10 Rays
+    C_pt50,             // Do pathtracing 50 Rays
+    C_pt100,            // Do pathtracing 100 Rays
+    C_pt500,            // Do pathtracing 500 Rays
+    C_pt1000,           // Do pathtracing 1000 Rays
+    C_pt5000,           // Do pathtracing 5000 Rays
+    C_pt10000,          // Do pathtracing 10000 Rays
+    C_ptSaveImage       // Save the ray tracing image
 };
-
 //-----------------------------------------------------------------------------
 //! Mouse button codes
 enum SLMouseButton
-{
-    ButtonNone=0,
-    ButtonLeft,
-    ButtonMiddle,
-    ButtonRight
+{   MB_none,
+    MB_left,
+    MB_middle,
+    MB_right
 };
-
 //-----------------------------------------------------------------------------
 //! Enumeration for text alignment in a box
 enum SLTextAlign
-{
-    topLeft, topCenter, topRight,
-    centerLeft, centerCenter, centerRight,
-    bottomLeft, bottomCenter, bottomRight
+{   TA_topLeft, TA_topCenter, TA_topRight,
+    TA_centerLeft, TA_centerCenter, TA_centerRight,
+    TA_bottomLeft, TA_bottomCenter, TA_bottomRight
 };
-
 //-----------------------------------------------------------------------------
 //! Enumeration for possible camera animation types
 enum SLCamAnim
-{
-    turntableYUp = 0,
-    turntableZUp,
-    walkingYUp,
-    walkingZUp
+{   CA_turntableYUp,
+    CA_turntableZUp,
+    CA_walkingYUp,
+    CA_walkingZUp
 };
-
 //-----------------------------------------------------------------------------
-//! Enumeration for differen camera projections
+//! Enumeration for different camera projections
 enum SLProjection
-{
-    monoPerspective = 0, //! standard mono pinhole perspective projection
-    monoOrthographic,    //! standard mono orthgraphic projection
-    stereoSideBySide,    //! side-by-side
-    stereoSideBySideP,   //! side-by-side proportional for mirror stereoscopes
-    stereoSideBySideD,   //! side-by-side distorted for Oculus Rift like glasses
-    stereoLineByLine,    //! line-by-line
-    stereoColumnByColumn,//! column-by-column
-    stereoPixelByPixel,  //! checkerboard pattern (DLP3D)
-    stereoColorRC,       //! color masking for red-cyan anaglyphs
-    stereoColorRG,       //! color masking for red-green anaglyphs
-    stereoColorRB,       //! color masking for red-blue anaglyphs
-    stereoColorYB        //! color masking for yellow-blue anaglyphs (ColorCode 3D)
+{   P_monoPerspective,     //! standard mono pinhole perspective projection
+    P_monoOrthographic,    //! standard mono orthographic projection
+    P_stereoSideBySide,    //! side-by-side
+    P_stereoSideBySideP,   //! side-by-side proportional for mirror stereoscopes
+    P_stereoSideBySideD,   //! side-by-side distorted for Oculus Rift like glasses
+    P_stereoLineByLine,    //! line-by-line
+    P_stereoColumnByColumn,//! column-by-column
+    P_stereoPixelByPixel,  //! checkerboard pattern (DLP3D)
+    P_stereoColorRC,       //! color masking for red-cyan anaglyphs
+    P_stereoColorRG,       //! color masking for red-green anaglyphs
+    P_stereoColorRB,       //! color masking for red-blue anaglyphs
+    P_stereoColorYB        //! color masking for yellow-blue anaglyphs (ColorCode 3D)
 };
 //-----------------------------------------------------------------------------
 //! Enumeration for stereo eye type used for camera projection
-enum SLEye
-{
-    leftEye   =-1,
-    centerEye = 0,
-    rightEye  = 1
+enum SLEyeType
+{   ET_left   =-1,
+    ET_center = 0,
+    ET_right  = 1
 };
 //-----------------------------------------------------------------------------
 //! Enumeration for animation modes
 enum SLAnimInterpolation
-{
-    AI_Linear,
-    AI_Bezier
+{   AI_linear,
+    AI_bezier
 };
 //-----------------------------------------------------------------------------
 //! Enumeration for animation modes
 enum SLAnimLooping
-{
-    AL_once = 0,          //!< play once
+{   AL_once = 0,          //!< play once
     AL_loop = 1,          //!< loop
     AL_pingPong = 2,      //!< play once in two directions
     AL_pingPongLoop = 3   //!< loop forward and backwards
 };
-
 //-----------------------------------------------------------------------------
 //! Enumeration for animation easing curves
 /*! 
-Enumatrations copied from Qt class QEasingCurve. 
+Enumerations copied from Qt class QEasingCurve. 
 See http://qt-project.org/doc/qt-4.8/qeasingcurve.html#Type-enum
 */
 enum SLEasingCurve
-{
-    EC_linear = 0,      //!< linear easing with constant velocity
+{   EC_linear = 0,      //!< linear easing with constant velocity
     EC_inQuad = 1,      //!< quadratic easing in, acceleration from zero velocity
     EC_outQuad = 2,     //!< quadratic easing out, decelerating to zero velocity
     EC_inOutQuad = 3,   //!< quadratic easing in and then out  
     EC_outInQuad = 4,   //!< quadratic easing out and then in
-    EC_inCubic = 5,     //!< qubic in easing in, acceleration from zero velocity
-    EC_outCubic = 6,    //!< qubic easing out, decelerating to zero velocity
-    EC_inOutCubic = 7,  //!< qubic easing in and then out 
-    EC_outInCubic = 8,  //!< qubic easing out and then in
+    EC_inCubic = 5,     //!< cubic in easing in, acceleration from zero velocity
+    EC_outCubic = 6,    //!< cubic easing out, decelerating to zero velocity
+    EC_inOutCubic = 7,  //!< cubic easing in and then out 
+    EC_outInCubic = 8,  //!< cubic easing out and then in
     EC_inQuart = 9,     //!< quartic easing in, acceleration from zero velocity
     EC_outQuart = 10,   //!< quartic easing out, decelerating to zero velocity
     EC_inOutQuart = 11, //!< quartic easing in and then out 
@@ -290,7 +268,7 @@ enum SLEasingCurve
     EC_outQuint = 14,   //!< quintic easing out, decelerating to zero velocity
     EC_inOutQuint = 15, //!< quintic easing in and then out 
     EC_outInQuint = 16, //!< quintic easing out and then in
-    EC_inSine = 17,     //!< sine ieasing in, acceleration from zero velocity
+    EC_inSine = 17,     //!< sine easing in, acceleration from zero velocity
     EC_outSine = 18,    //!< sine easing out, decelerating to zero velocity
     EC_inOutSine = 19,  //!< sine easing in and then out  
     EC_outInSine = 20,  //!< sine easing out and then in
@@ -298,57 +276,59 @@ enum SLEasingCurve
 //-----------------------------------------------------------------------------
 //! Describes the relative space a transformation is applied in.
 enum SLTransformSpace
-{
-    TS_World, 
-    TS_Parent,  
-    TS_Object,
+{   TS_world, 
+    TS_parent,  
+    TS_object,
 };
 //-----------------------------------------------------------------------------
 //! Skinning methods
 enum SLSkinMethod
-{
-    SM_HardwareSkinning, //!< Do vertex skinning on the GPU
-    SM_SoftwareSkinning  //!< Do vertex skinning on the CPU
+{   SM_hardware, //!< Do vertex skinning on the GPU
+    SM_software  //!< Do vertex skinning on the CPU
 };
-
 //-----------------------------------------------------------------------------
 //! Shader type enumeration for vertex or fragment (pixel) shader
 enum SLShaderType
-{
-    NoShader=0,
-    VertexShader=1,
-    FragmentShader=2
+{   ST_none,
+    ST_vertex,
+    ST_fragment,
+    ST_geometry,
+    ST_tesselation
 };
-
 //-----------------------------------------------------------------------------
 //! Enumeration for standard preloaded shader programs in SLScene::_shaderProgs
-enum SLStdShaderProg
-{
-    ColorAttribute,
-    ColorUniform,
-    PerVrtBlinn,
-    PerVrtBlinnTex,
-    TextureOnly,
-    PerPixBlinn,
-    PerPixBlinnTex,
-    BumpNormal,
-    BumpNormalParallax,
-    FontTex,
-    StereoOculus,
-    StereoOculusDistortionMesh
+enum SLShaderProg
+{   SP_colorAttribute,
+    SP_colorUniform,
+    SP_perVrtBlinn,
+    SP_perVrtBlinnTex,
+    SP_TextureOnly,
+    SP_perPixBlinn,
+    SP_perPixBlinnTex,
+    SP_bumpNormal,
+    SP_bumpNormalParallax,
+    SP_fontTex,
+    SP_stereoOculus,
+    SP_stereoOculusDistortion
 };
-
 //-----------------------------------------------------------------------------
 //! Type definition for GLSL uniform1f variables that change per frame.
-enum SLUF1Type
-{
-    UF1Const,   //!< constant value
-    UF1IncDec,  //!< never ending loop from min to max and max to min
-    UF1IncInc,  //!< never ending loop from min to max
-    UF1Inc,     //!< never ending increment
-    UF1Random,  //!< random values between min and max
-    UF1Seconds  //!< seconds since the process has started
+enum SLUniformType
+{   UT_const,   //!< constant value
+    UT_incDec,  //!< never ending loop from min to max and max to min
+    UT_incInc,  //!< never ending loop from min to max
+    UT_inc,     //!< never ending increment
+    UT_random,  //!< random values between min and max
+    UT_seconds  //!< seconds since the process has started
 };
-
+//-----------------------------------------------------------------------------
+// @todo build a dedicated log class that defines this verbosity levels
+enum SLLogVerbosity
+{   LV_quiet = 0,
+    LV_minimal = 1,
+    LV_normal = 2,
+    LV_detailed = 3,
+    LV_diagnostic = 4
+};
 //-----------------------------------------------------------------------------
 #endif

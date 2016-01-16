@@ -33,7 +33,7 @@ in SLScene::unInit().
 */
 SLMesh::SLMesh(SLstring name) : SLObject(name)
 {   
-    _primitive = SL_TRIANGLES;
+    _primitive = PT_triangles;
     cpuSkinningP = nullptr;
     cpuSkinningN = nullptr;
     P   = nullptr;
@@ -56,7 +56,7 @@ SLMesh::SLMesh(SLstring name) : SLObject(name)
    
     _skeleton = nullptr;
     _jointMatrices = nullptr;
-    _skinMethod = SM_SoftwareSkinning;
+    _skinMethod = SM_software;
 
     _stateGL = SLGLState::getInstance();  
     _isVolume = true; // is used for RT to decide inside/outside
@@ -163,13 +163,13 @@ void SLMesh::draw(SLSceneView* sv, SLNode* node)
         if (sv->drawBit(SL_DB_HIDDEN) || node->drawBit(SL_DB_HIDDEN)) 
             return;
 
-        SLPrimitive primitiveType = _primitive;
+        SLPrimitiveType primitiveType = _primitive;
               
         // Set polygon mode
         if (sv->drawBit(SL_DB_WIREMESH) || node->drawBit(SL_DB_WIREMESH))
         {
             #if defined(SL_GLES2)
-            primitiveType = SL_LINE_LOOP; // There is no polygon mode on ES2!
+            primitiveType = PT_lineLoop; // There is no polygon mode on ES2!
             #else
             _stateGL->polygonLine(true);
             #endif
@@ -226,7 +226,7 @@ void SLMesh::draw(SLSceneView* sv, SLNode* node)
         }
 
         // 2.d) Do GPU skinning for animated meshes
-        if (_skeleton && Ji && Jw && _skinMethod == SM_HardwareSkinning)
+        if (_skeleton && Ji && Jw && _skinMethod == SM_hardware)
         {
             if (!_jointMatrices)
             _jointMatrices = new SLMat4f[_skeleton->numJoints()];
@@ -258,16 +258,16 @@ void SLMesh::draw(SLSceneView* sv, SLNode* node)
         ///////////////////////////////////////
 
         if (!_vao.id())
-        {            _vao.setAttrib(SL_POSITION,    3, sp->getAttribLocation("a_position"),     finalP());
-            if (N)   _vao.setAttrib(SL_NORMAL,      3, sp->getAttribLocation("a_normal"),       finalN());
-            if (Tc)  _vao.setAttrib(SL_TEXCOORD,    2, sp->getAttribLocation("a_texCoord"),     Tc);
-            if (C)   _vao.setAttrib(SL_COLOR,       4, sp->getAttribLocation("a_color"),        C);
-            if (T)   _vao.setAttrib(SL_TANGENT,     4, sp->getAttribLocation("a_tangent"),      T);
-            if (Ji)  _vao.setAttrib(SL_JOINTINDEX,  4, sp->getAttribLocation("a_jointIndex"),   Ji);
-            if (Jw)  _vao.setAttrib(SL_JOINTWEIGHT, 4, sp->getAttribLocation("a_jointWeights"), Jw);
-            if (I16) _vao.setIndices(numI, SL_UNSIGNED_SHORT, I16);
-            if (I32) _vao.setIndices(numI, SL_UNSIGNED_INT, I32);
-            _vao.generate(numV, (Ji&&Jw) ? SL_STREAM_DRAW : SL_STATIC_DRAW, !(Ji&&Jw));
+        {            _vao.setAttrib(VAT_position,    3, sp->getAttribLocation("a_position"),     finalP());
+            if (N)   _vao.setAttrib(VAT_normal,      3, sp->getAttribLocation("a_normal"),       finalN());
+            if (Tc)  _vao.setAttrib(VAT_texCoord,    2, sp->getAttribLocation("a_texCoord"),     Tc);
+            if (C)   _vao.setAttrib(VAT_color,       4, sp->getAttribLocation("a_color"),        C);
+            if (T)   _vao.setAttrib(VAT_tangent,     4, sp->getAttribLocation("a_tangent"),      T);
+            if (Ji)  _vao.setAttrib(VAT_jointIndex,  4, sp->getAttribLocation("a_jointIndex"),   Ji);
+            if (Jw)  _vao.setAttrib(VAT_jointWeight, 4, sp->getAttribLocation("a_jointWeights"), Jw);
+            if (I16) _vao.setIndices(numI, BT_ushort, I16);
+            if (I32) _vao.setIndices(numI, BT_uint, I32);
+            _vao.generate(numV, (Ji&&Jw) ? BU_stream : BU_static, !(Ji&&Jw));
         }
 
         ///////////////////////////////
@@ -311,8 +311,8 @@ void SLMesh::draw(SLSceneView* sv, SLNode* node)
             }
             delete[] V2;
 
-            _vaoN.drawArrayAsColored(SL_LINES, SLCol4f::BLUE);
-            if (T) _vaoT.drawArrayAsColored(SL_LINES, SLCol4f::RED);
+            _vaoN.drawArrayAsColored(PT_lines, SLCol4f::BLUE);
+            if (T) _vaoT.drawArrayAsColored(PT_lines, SLCol4f::RED);
             if (blended) _stateGL->blend(false);
         } 
         else
@@ -343,7 +343,7 @@ void SLMesh::draw(SLSceneView* sv, SLNode* node)
         {   _stateGL->polygonOffset(true, 1.0f, 1.0f);
             if (SLScene::current->selectedMesh()==this)
             {   _vaoS.generateVertexPos(numV, 3, finalP());
-                _vaoS.drawArrayAsColored(SL_POINTS, SLCol4f::YELLOW, 2);
+                _vaoS.drawArrayAsColored(PT_points, SLCol4f::YELLOW, 2);
             }
             _stateGL->polygonLine(false);
             _stateGL->polygonOffset(false);
@@ -370,7 +370,7 @@ structure is defined all triangles are tested in a brute force manner.
 */
 SLbool SLMesh::hit(SLRay* ray, SLNode* node)
 {  
-    if (_primitive != SL_TRIANGLES)
+    if (_primitive != PT_triangles)
         return false;
      
     if (_accelStruct)
@@ -406,8 +406,8 @@ void SLMesh::addStats(SLNodeStats &stats)
     else stats.numBytes += numI*sizeof(SLuint);     // I32
         
     stats.numMeshes++;
-    if (_primitive==SL_TRIANGLES) stats.numTriangles += numI/3;
-    if (_primitive==SL_LINES)     stats.numLines     += numI/2;
+    if (_primitive==PT_triangles) stats.numTriangles += numI/3;
+    if (_primitive==PT_lines)     stats.numLines     += numI/2;
 
     if (_accelStruct) 
         _accelStruct->updateStats(stats);
@@ -568,7 +568,7 @@ void SLMesh::updateAccelStruct()
     minP -= addon;
     maxP += addon;
 
-    if (_accelStruct == nullptr && _primitive == SL_TRIANGLES)
+    if (_accelStruct == nullptr && _primitive == PT_triangles)
         _accelStruct = new SLCompactGrid(this);
 
     if (_accelStruct && numI > 15)
@@ -594,7 +594,7 @@ void SLMesh::calcNormals()
     delete[] N;
     N = 0;
 
-    if (_primitive != SL_TRIANGLES)
+    if (_primitive != PT_triangles)
         return;
 
     N = new SLVec3f[numV];
@@ -660,7 +660,7 @@ void SLMesh::calcTangents()
         delete[] T;
         T = 0;
         
-        if (_primitive != SL_TRIANGLES)
+        if (_primitive != PT_triangles)
             return;
         
         // allocate tangents
@@ -771,7 +771,7 @@ SLbool SLMesh::hitTriangleOS(SLRay* ray, SLNode* node, SLuint iT)
     ++SLRay::tests;
     #endif
  
-    if (_primitive != SL_TRIANGLES)
+    if (_primitive != PT_triangles)
         return false;
 
     // prevent self-intersection of triangle
@@ -889,7 +889,7 @@ shading when the final intersection point of the closest triangle was found.
 */
 void SLMesh::preShade(SLRay* ray)
 {
-    assert (_primitive == SL_TRIANGLES);
+    assert (_primitive == PT_triangles);
 
     // Get the triangle indexes
     SLuint iA, iB, iC;
@@ -1000,7 +1000,7 @@ void SLMesh::skinMethod(SLSkinMethod method)
 
     _skinMethod = method;
 
-    if (_skinMethod == SM_HardwareSkinning)
+    if (_skinMethod == SM_hardware)
     {
         _finalP = &P;
         _finalN = &N;
@@ -1100,8 +1100,8 @@ void SLMesh::transformSkin()
     // update or create buffers
     if (_vao.id())
     {
-        _vao.updateAttrib(SL_POSITION, 3, finalP());
-        if (N) _vao.updateAttrib(SL_NORMAL, 3, finalN());
+        _vao.updateAttrib(VAT_position, 3, finalP());
+        if (N) _vao.updateAttrib(VAT_normal, 3, finalN());
     }
     
 }

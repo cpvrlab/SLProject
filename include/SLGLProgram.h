@@ -129,15 +129,15 @@ class SLGLProgram : public SLObject
                                          const SLfloat* value, 
                                          GLboolean transpose=false); 
       // statics
-    static  SLstring   defaultPath;     //!< default path for GLSL programs
+    static  SLstring    defaultPath;     //!< default path for GLSL programs
       
     private:
-        SLGLState*    _stateGL;         //!< Pointer to global SLGLState instance
-        SLuint        _objectGL;        //!< OpenGL shader program object
-        SLbool        _isLinked;        //!< Flag if program is linked
-        SLVGLShader   _shaders;         //!< Vector of all shader objects
-        SLVUniform1f  _uniforms1f;      //!< Vector of uniform1f variables
-        SLVUniform1i  _uniforms1i;      //!< Vector of uniform1i variables
+            SLGLState*      _stateGL;    //!< Pointer to global SLGLState instance
+            SLuint          _objectGL;   //!< OpenGL shader program object
+            SLbool          _isLinked;   //!< Flag if program is linked
+            SLVGLShader     _shaders;    //!< Vector of all shader objects
+            SLVUniform1f    _uniforms1f; //!< Vector of uniform1f variables
+            SLVUniform1i    _uniforms1i; //!< Vector of uniform1i variables
 };
 //-----------------------------------------------------------------------------
 //! STL vector of SLGLProgram pointers

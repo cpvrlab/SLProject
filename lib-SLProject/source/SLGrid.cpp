@@ -28,7 +28,7 @@ SLGrid::SLGrid(SLVec3f minXZ, SLVec3f maxXZ,
     assert(name!="");
     assert(minXZ.y==0 && maxXZ.y==0);
 
-    _primitive = SL_LINES;
+    _primitive = PT_lines;
     _min = minXZ;
     _max = maxXZ;
     _resX = resX;

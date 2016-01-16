@@ -23,13 +23,13 @@ template<class T>
 class SLGLUniform : public SLEventHandler
 {
     public:
-        SLGLUniform(SLUF1Type type,
+        SLGLUniform(SLUniformType type,
                     const SLchar* name,
                     T value,
                     T inc=0.0f,
                     T min=0.0f,
                     T max=0.0f,
-                    SLKey   keyInc=KeyNone)
+                    SLKey   keyInc=K_none)
         {   _name   = name;
             _value  = value;
             _min    = min;
@@ -47,40 +47,40 @@ class SLGLUniform : public SLEventHandler
         */
         T value()
         {  
-            if (_type==UF1Const) 
+            if (_type==UT_const) 
             return _value;
-            if (_type==UF1IncDec)
+            if (_type==UT_incDec)
             {   if ((_inc>0.0f && _value>=_max) || 
                 (_inc<0.0f && _value<=_min)) _inc*=-1; 
                 _value+=_inc;
                 return _value;
             }
-            if (_type==UF1IncInc)
+            if (_type==UT_incInc)
             {   if (_inc>0 && _value>=_max) _value=_min; 
                 if (_inc<0 && _value<=_min) _value=_max; 
                 _value+=_inc;
                 return _value;
             }
-            if (_type==UF1Inc)
+            if (_type==UT_inc)
             {   _value+=_inc;
                 return _value;
             }
-            if (_type==UF1Random)
+            if (_type==UT_random)
             {   _value = _min + ((T)rand()/(T)RAND_MAX)*(_max-_min);
                 return _value;
             }
-            if (_type==UF1Seconds)
+            if (_type==UT_seconds)
             {   _value = (T)clock()/CLOCKS_PER_SEC;
                 return _value;
             }
             else return _value;
         }
    
-        //! Keypress eventhandler
+        //! Key press eventhandler
         SLbool onKeyPress(const SLKey key, const SLKey mod)
-        {   if (_keyInc!=KeyNone)
+        {   if (_keyInc!=K_none)
             {   if (key==_keyInc) 
-                {   if (mod==KeyNone) 
+                {   if (mod==K_none) 
                     {   if (_value <_max)
                         {   _value+=_inc;
                             cout << "Uniform: " << _name.c_str() << " = " << _value << endl;
@@ -92,7 +92,7 @@ class SLGLUniform : public SLEventHandler
                             return true;
                         }
                     } else
-                    if (mod==KeyShift) 
+                    if (mod==K_shift) 
                     {   if (_value>_min)
                         {   _value-=_inc;
                             cout << "Uniform: " << _name.c_str() << " = " << _value << endl;
@@ -110,7 +110,7 @@ class SLGLUniform : public SLEventHandler
         T           _max;       //!< Max. value for IncInc, IncDec & random types
         T           _min;       //!< Min. value for IncInc, IncDec & random types
         T           _inc;       //!< Increment value for IncInc, IncDec & Inc types
-        SLUF1Type   _type;      //!< Uniform1f type
+        SLUniformType   _type;      //!< Uniform1f type
         SLKey       _keyInc;    //!< keyboard key incrementing const values
 };
 //-----------------------------------------------------------------------------

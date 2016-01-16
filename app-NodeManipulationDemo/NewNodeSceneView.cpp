@@ -92,14 +92,14 @@ void drawXZGrid(const SLMat4f& mat)
     state->pushModelViewMatrix();
     state->modelViewMatrix = mat;
 
-    grid.drawArrayAsColored(SL_LINES, SLCol3f::RED,  1.0f, indexX, numXVerts);
-    grid.drawArrayAsColored(SL_LINES, SLCol3f::BLUE, 1.0f, indexZ, numZVerts);
-    grid.drawArrayAsColored(SL_LINES, SLCol3f(0.45f, 0.45f, 0.45f),  0.8f, indexGrid, numGridVerts);
+    grid.drawArrayAsColored(PT_lines, SLCol3f::RED,  1.0f, indexX, numXVerts);
+    grid.drawArrayAsColored(PT_lines, SLCol3f::BLUE, 1.0f, indexZ, numZVerts);
+    grid.drawArrayAsColored(PT_lines, SLCol3f(0.45f, 0.45f, 0.45f),  0.8f, indexGrid, numGridVerts);
     
     state->popModelViewMatrix();
 }
 //-----------------------------------------------------------------------------
-void SLScene::onLoad(SLSceneView* sv, SLCmd cmd)
+void SLScene::onLoad(SLSceneView* sv, SLCommand cmd)
 {
     init();
     
@@ -127,10 +127,10 @@ void SLScene::onLoad(SLSceneView* sv, SLCmd cmd)
 //-----------------------------------------------------------------------------
 NewNodeSceneView::NewNodeSceneView(): _infoText(NULL),
                                      _curMode(TranslationMode),
-                                     _curSpace(TS_Parent),
+                                     _curSpace(TS_parent),
                                      _curObject(NULL),
                                      _continuousInput(true),
-                                     _modifiers(KeyNone)
+                                     _modifiers(K_none)
 {
     for (bool& ks : _keyStates)
         ks = false;
@@ -281,7 +281,7 @@ SLbool NewNodeSceneView::onContinuousKeyPress(SLKey key)
     }
     else if (_curMode == RotationAroundMode)
     {
-        if (_modifiers & KeyShift)
+        if (_modifiers & K_shift)
         {   switch (key)
             {   case 'W': translatePivot(SLVec3f( 0, 0,-1)); return true;
                 case 'S': translatePivot(SLVec3f( 0, 0, 1)); return true;
@@ -315,7 +315,7 @@ SLbool NewNodeSceneView::onContinuousKeyPress(SLKey key)
         // if we look at a point in local space then the local space will change.
         // we want to keep the old look at position in world space though so that
         // the user can confirm that his object is in fact looking at the point it should.
-        if (_curSpace == TS_Object)
+        if (_curSpace == TS_object)
         {   SLVec3f pivotWorldPos = _curObject->updateAndGetWM() * _pivotPos;
             _curObject->lookAt(_pivotPos, SLVec3f::AXISY, _curSpace);
             _pivotPos = _curObject->updateAndGetWMI() * pivotWorldPos;
@@ -342,16 +342,16 @@ SLbool NewNodeSceneView::onKeyPress(const SLKey key, const SLKey mod)
         case '4': _curMode = LookAtMode; break;
 
         // select parent object
-        case KeyF1:
+        case K_F1:
             _curObject = (_curObject == _moveBox) ? _moveBoxChild : _moveBox;
             SLScene::current->selectNodeMesh(_curObject, _curObject->meshes()[0]);
             break;
-        case KeyF2: _continuousInput = ! _continuousInput; break;
+        case K_F2: _continuousInput = ! _continuousInput; break;
         case 'R': reset(); break;
         case 'Y':
-        case 'Z': _curSpace = TS_Object; break;
-        case 'X': _curSpace = TS_Parent; break;
-        case 'C': _curSpace = TS_World; break;
+        case 'Z': _curSpace = TS_object; break;
+        case 'X': _curSpace = TS_parent; break;
+        case 'C': _curSpace = TS_world; break;
     }
 
     updateInfoText();
@@ -372,17 +372,17 @@ void NewNodeSceneView::updateCurOrigin()
 {
     switch (_curSpace)
     {
-    case TS_World:
+    case TS_world:
         _curOrigin.identity();
         _axesNode->resetToInitialState();
         break;
 
-    case TS_Parent:
+    case TS_parent:
         _curOrigin.setMatrix(_curObject->parent()->updateAndGetWM());
         _axesNode->om(_curObject->parent()->updateAndGetWM());
         break;
 
-    case TS_Object:
+    case TS_object:
         _curOrigin.setMatrix(_curObject->updateAndGetWM());
         _axesNode->om(_curObject->updateAndGetWM());
         break;
@@ -390,11 +390,11 @@ void NewNodeSceneView::updateCurOrigin()
 
     // if in rotation mode, move the axis to the objects origin, but keep the orientation
     if (_curMode == TranslationMode || _curMode == RotationMode) {
-        _axesNode->translation(_curObject->updateAndGetWM().translation(), TS_World);
+        _axesNode->translation(_curObject->updateAndGetWM().translation(), TS_world);
     }
     // look at nd rotate around mode both move the pivot relative to the current system
     if (_curMode == RotationAroundMode || _curMode == LookAtMode) {
-        _axesNode->translate(_pivotPos.x, _pivotPos.y, _pivotPos.z, TS_Object);
+        _axesNode->translate(_pivotPos.x, _pivotPos.y, _pivotPos.z, TS_object);
     }
 
     
@@ -427,9 +427,9 @@ void NewNodeSceneView::updateInfoText()
     
     SLstring space;        
     switch (_curSpace)
-    {   case TS_Object: space = "TS_Object"; break;
-        case TS_Parent: space = "TS_Parent"; break;
-        case TS_World:  space = "TS_World"; break;
+    {   case TS_object: space = "TS_Object"; break;
+        case TS_parent: space = "TS_Parent"; break;
+        case TS_world:  space = "TS_World"; break;
     }
 
     SLstring mode;
@@ -488,7 +488,7 @@ void NewNodeSceneView::updateInfoText()
     
     SLTexFont* f = SLTexFont::getFont(1.2f, _dpi);
     _infoText = new SLText(m, f, SLCol4f::BLACK, (SLfloat)_scrW, 1.0f);
-    _infoText->translate(10.0f, -_infoText->size().y-5.0f, 0.0f, TS_Object);
+    _infoText->translate(10.0f, -_infoText->size().y-5.0f, 0.0f, TS_object);
 
 }
 //-----------------------------------------------------------------------------

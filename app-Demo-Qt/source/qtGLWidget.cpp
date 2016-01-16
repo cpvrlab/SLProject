@@ -122,15 +122,14 @@ void qtGLWidget::initializeGL()
         }
         #endif
       
-        slCreateScene(shaders, models, textures);
+        slCreateScene(_cmdLineArgs, shaders, models, textures);
     }   
 
     // Create a sceneview for every new glWidget
     _svIndex = slCreateSceneView(this->width() * (int)GETDEVICEPIXELRATIO(),
                                  this->height() * (int)GETDEVICEPIXELRATIO(),
                                  dpi, 
-                                 (SLCmd)SL_STARTSCENE,
-                                 _cmdLineArgs,
+                                 (SLCommand)SL_STARTSCENE,
                                  (void*)&onUpdateWidget);
 
     // Get the SLSceneView pointer
@@ -189,10 +188,10 @@ mousePressEvent: Event handler called when a mouse buttons where pressed.
 */
 void qtGLWidget::mousePressEvent(QMouseEvent *e)
 {
-    SLKey modifiers = KeyNone;
-    if (e->modifiers() & Qt::SHIFT) modifiers = KeyShift;
-    if (e->modifiers() & Qt::CTRL)  modifiers = (SLKey)(modifiers|KeyCtrl);
-    if (e->modifiers() & Qt::ALT)   modifiers = (SLKey)(modifiers|KeyAlt);
+    SLKey modifiers = K_none;
+    if (e->modifiers() & Qt::SHIFT) modifiers = K_shift;
+    if (e->modifiers() & Qt::CTRL)  modifiers = (SLKey)(modifiers|K_ctrl);
+    if (e->modifiers() & Qt::ALT)   modifiers = (SLKey)(modifiers|K_alt);
 
 
     // adapt for Mac retina displays
@@ -203,7 +202,7 @@ void qtGLWidget::mousePressEvent(QMouseEvent *e)
     // Start single shot timer for long touches
     QTimer::singleShot(SLSceneView::LONGTOUCH_MS, this, SLOT(longTouch()));
 
-    if (modifiers & KeyAlt)
+    if (modifiers & K_alt)
     {
         // init for first touch
         if (_touch2.x < 0)
@@ -214,20 +213,20 @@ void qtGLWidget::mousePressEvent(QMouseEvent *e)
         }
 
         // Do parallel double finger move
-        if (modifiers & KeyShift)
+        if (modifiers & K_shift)
         {   slTouch2Down(_svIndex, x, y, x - _touchDelta.x, y - _touchDelta.y);
         } else // Do concentric double finger pinch
         {   slTouch2Down(_svIndex, x, y, _touch2.x, _touch2.y);
         }
     } else // normal mouse down
     {   if (e->button()==Qt::LeftButton)
-        {  slMouseDown(_svIndex, ButtonLeft, x, y, modifiers);
+        {  slMouseDown(_svIndex, MB_left, x, y, modifiers);
         } else
         if (e->button()==Qt::RightButton)
-        {  slMouseDown(_svIndex, ButtonRight, x, y, modifiers);
+        {  slMouseDown(_svIndex, MB_right, x, y, modifiers);
         } else
         if (e->button()==Qt::MidButton)
-        {  slMouseDown(_svIndex, ButtonMiddle, x, y, modifiers);
+        {  slMouseDown(_svIndex, MB_middle, x, y, modifiers);
         }
     }
     
@@ -239,10 +238,10 @@ mouseReleaseEvent: Event handler called when a mouse buttons where released.
 */
 void qtGLWidget::mouseReleaseEvent(QMouseEvent *e)
 {
-    SLKey modifiers = KeyNone;
-    if (e->modifiers() & Qt::SHIFT) modifiers = KeyShift;
-    if (e->modifiers() & Qt::CTRL)  modifiers = (SLKey)(modifiers|KeyCtrl);
-    if (e->modifiers() & Qt::ALT)   modifiers = (SLKey)(modifiers|KeyAlt);
+    SLKey modifiers = K_none;
+    if (e->modifiers() & Qt::SHIFT) modifiers = K_shift;
+    if (e->modifiers() & Qt::CTRL)  modifiers = (SLKey)(modifiers|K_ctrl);
+    if (e->modifiers() & Qt::ALT)   modifiers = (SLKey)(modifiers|K_alt);
 
     // adapt for Mac retina displays
     int x = (int)((float)e->x() * GETDEVICEPIXELRATIO());
@@ -250,13 +249,13 @@ void qtGLWidget::mouseReleaseEvent(QMouseEvent *e)
     _touchStart.set(-1, -1); // flag for touch end
 
     if (e->button()==Qt::LeftButton)
-    {  slMouseUp(_svIndex, ButtonLeft, x, y, modifiers);
+    {  slMouseUp(_svIndex, MB_left, x, y, modifiers);
     } else
     if (e->button()==Qt::RightButton)
-    {  slMouseUp(_svIndex, ButtonRight, x, y, modifiers);
+    {  slMouseUp(_svIndex, MB_right, x, y, modifiers);
     } else
     if (e->button()==Qt::MidButton)
-    {  slMouseUp(_svIndex, ButtonMiddle, x, y, modifiers);
+    {  slMouseUp(_svIndex, MB_middle, x, y, modifiers);
     }
     
     updateGL();
@@ -267,23 +266,23 @@ mouseDoubleClickEvent: Event handler for mouse button is doubleclicks
 */
 void qtGLWidget::mouseDoubleClickEvent(QMouseEvent *e)
 {
-    SLKey modifiers = KeyNone;
-    if (e->modifiers() & Qt::SHIFT) modifiers = KeyShift;
-    if (e->modifiers() & Qt::CTRL)  modifiers = (SLKey)(modifiers|KeyCtrl);
-    if (e->modifiers() & Qt::ALT)   modifiers = (SLKey)(modifiers|KeyAlt);
+    SLKey modifiers = K_none;
+    if (e->modifiers() & Qt::SHIFT) modifiers = K_shift;
+    if (e->modifiers() & Qt::CTRL)  modifiers = (SLKey)(modifiers|K_ctrl);
+    if (e->modifiers() & Qt::ALT)   modifiers = (SLKey)(modifiers|K_alt);
 
     // adapt for Mac retina displays
     int x = (int)((float)e->x() * GETDEVICEPIXELRATIO());
     int y = (int)((float)e->y() * GETDEVICEPIXELRATIO());
 
     if (e->button()==Qt::LeftButton)
-    {  slDoubleClick(_svIndex, ButtonLeft, x, y, modifiers);
+    {  slDoubleClick(_svIndex, MB_left, x, y, modifiers);
     } else
     if (e->button()==Qt::RightButton) 
-    {  slDoubleClick(_svIndex, ButtonRight, x, y, modifiers);
+    {  slDoubleClick(_svIndex, MB_right, x, y, modifiers);
     } else 
     if (e->button()==Qt::MidButton) 
-    {  slDoubleClick(_svIndex, ButtonMiddle, x, y, modifiers);
+    {  slDoubleClick(_svIndex, MB_middle, x, y, modifiers);
     }
     
     updateGL();
@@ -294,10 +293,10 @@ mouseMoveEvent: Event handler called when the mouse is moving.
 */
 void qtGLWidget::mouseMoveEvent(QMouseEvent *e)
 {
-    SLuint modifiers = KeyNone;
-    if (e->modifiers() & Qt::SHIFT) modifiers = KeyShift;
-    if (e->modifiers() & Qt::CTRL)  modifiers = (SLKey)(modifiers|KeyCtrl);
-    if (e->modifiers() & Qt::ALT)   modifiers = (SLKey)(modifiers|KeyAlt);
+    SLuint modifiers = K_none;
+    if (e->modifiers() & Qt::SHIFT) modifiers = K_shift;
+    if (e->modifiers() & Qt::CTRL)  modifiers = (SLKey)(modifiers|K_ctrl);
+    if (e->modifiers() & Qt::ALT)   modifiers = (SLKey)(modifiers|K_alt);
 
     // adapt for Mac retina displays
     int x = (int)((float)e->x() * GETDEVICEPIXELRATIO());
@@ -305,10 +304,10 @@ void qtGLWidget::mouseMoveEvent(QMouseEvent *e)
     _touchLast.set(x, y);
 
     // Simulate double finger touches
-    if (modifiers & KeyAlt)
+    if (modifiers & K_alt)
     {
         // Do parallel double finger move
-        if (modifiers & KeyShift)
+        if (modifiers & K_shift)
         {   slTouch2Move(_svIndex, x, y, x - _touchDelta.x, y - _touchDelta.y);
         }
         else // Do concentric double finger pinch
@@ -330,10 +329,10 @@ handler of SLScene the key modifiers are evaluated.
 */
 void qtGLWidget::wheelEvent(QWheelEvent *e)
 {
-    SLKey modifiers = KeyNone;
-    if (e->modifiers() & Qt::SHIFT) modifiers = KeyShift;
-    if (e->modifiers() & Qt::CTRL)  modifiers = (SLKey)(modifiers|KeyCtrl);
-    if (e->modifiers() & Qt::ALT)   modifiers = (SLKey)(modifiers|KeyAlt);
+    SLKey modifiers = K_none;
+    if (e->modifiers() & Qt::SHIFT) modifiers = K_shift;
+    if (e->modifiers() & Qt::CTRL)  modifiers = (SLKey)(modifiers|K_ctrl);
+    if (e->modifiers() & Qt::ALT)   modifiers = (SLKey)(modifiers|K_alt);
     slMouseWheel(_svIndex, e->delta(), modifiers);
     
     updateGL();
@@ -345,37 +344,36 @@ forewarded to SLScene::onKeyPress event handler.
 */
 void qtGLWidget::keyPressEvent(QKeyEvent* e)
 {
-    SLKey modifiers = KeyNone;
-    if (e->modifiers() & Qt::SHIFT) modifiers = KeyShift;
-    if (e->modifiers() & Qt::CTRL)  modifiers = (SLKey)(modifiers|KeyCtrl);
-    if (e->modifiers() & Qt::ALT)   modifiers = (SLKey)(modifiers|KeyAlt);
+    SLKey modifiers = K_none;
+    if (e->modifiers() & Qt::SHIFT) modifiers = K_shift;
+    if (e->modifiers() & Qt::CTRL)  modifiers = (SLKey)(modifiers|K_ctrl);
+    if (e->modifiers() & Qt::ALT)   modifiers = (SLKey)(modifiers|K_alt);
 
-    SLKey key=KeyNone;
+    SLKey key=K_none;
     if (e->key() >= ' ' && e->key() <= 'Z') key = (SLKey)e->key();
     switch (e->key())
-    {   case Qt::Key_Escape:    key = KeyEsc;      break;
-        case Qt::Key_Up:        key = KeyUp;       break;
-        case Qt::Key_Down:      key = KeyDown;     break;
-        case Qt::Key_Left:      key = KeyLeft;     break;
-        case Qt::Key_Right:     key = KeyRight;    break;
-        case Qt::Key_PageUp:    key = KeyPageUp;   break;
-        case Qt::Key_PageDown:  key = KeyPageDown; break;
-        case Qt::Key_Home:      key = KeyHome;     break;
-        case Qt::Key_F1:        key = KeyF1;       break;
-        case Qt::Key_F2:        key = KeyF2;       break;
-        case Qt::Key_F3:        key = KeyF3;       break;
-        case Qt::Key_F4:        key = KeyF4;       break;
-        case Qt::Key_F5:        key = KeyF5;       break;
-        case Qt::Key_F6:        key = KeyF6;       break;
-        case Qt::Key_F7:        key = KeyF7;       break;
-        case Qt::Key_F8:        key = KeyF8;       break;
-        case Qt::Key_F9:        key = KeyF9;       break;
-        case Qt::Key_F10:       key = KeyF10;      break;
-        case Qt::Key_F11:       key = KeyF11;      break;
-        case Qt::Key_F12:       key = KeyF12;      break;
-        case Qt::Key_Tab:       key = KeyTab;      break;
+    {   case Qt::Key_Escape:    key = K_esc;      break;
+        case Qt::Key_Up:        key = K_up;       break;
+        case Qt::Key_Down:      key = K_down;     break;
+        case Qt::Key_Left:      key = K_left;     break;
+        case Qt::Key_Right:     key = K_right;    break;
+        case Qt::Key_PageUp:    key = K_pageUp;   break;
+        case Qt::Key_PageDown:  key = K_pageDown; break;
+        case Qt::Key_Home:      key = K_home;     break;
+        case Qt::Key_F1:        key = K_F1;       break;
+        case Qt::Key_F2:        key = K_F2;       break;
+        case Qt::Key_F3:        key = K_F3;       break;
+        case Qt::Key_F4:        key = K_F4;       break;
+        case Qt::Key_F5:        key = K_F5;       break;
+        case Qt::Key_F6:        key = K_F6;       break;
+        case Qt::Key_F7:        key = K_F7;       break;
+        case Qt::Key_F8:        key = K_F8;       break;
+        case Qt::Key_F9:        key = K_F9;       break;
+        case Qt::Key_F10:       key = K_F10;      break;
+        case Qt::Key_F11:       key = K_F11;      break;
+        case Qt::Key_F12:       key = K_F12;      break;
+        case Qt::Key_Tab:       key = K_tab;      break;
     }
-   
     slKeyPress(_svIndex, key, modifiers);
 
     updateGL();
@@ -387,38 +385,38 @@ forewarded to SLScene::onKeyRelease event handler.
 */
 void qtGLWidget::keyReleaseEvent(QKeyEvent* e)
 {
-    SLKey modifiers = KeyNone;
-    if(e->modifiers() & Qt::SHIFT) modifiers = KeyShift;
-    if(e->modifiers() & Qt::CTRL)  modifiers = (SLKey)(modifiers | KeyCtrl);
-    if(e->modifiers() & Qt::ALT)   modifiers = (SLKey)(modifiers | KeyAlt);
+    SLKey modifiers = K_none;
+    if(e->modifiers() & Qt::SHIFT) modifiers = K_shift;
+    if(e->modifiers() & Qt::CTRL)  modifiers = (SLKey)(modifiers | K_ctrl);
+    if(e->modifiers() & Qt::ALT)   modifiers = (SLKey)(modifiers | K_alt);
 
-    SLKey key = KeyNone;
+    SLKey key = K_none;
     if(e->key() >= ' ' && e->key() <= 'Z') key = (SLKey)e->key();
     switch(e->key())
-    {   case Qt::Key_Escape:    key = KeyEsc;      break;
-        case Qt::Key_Up:        key = KeyUp;       break;
-        case Qt::Key_Down:      key = KeyDown;     break;
-        case Qt::Key_Left:      key = KeyLeft;     break;
-        case Qt::Key_Right:     key = KeyRight;    break;
-        case Qt::Key_PageUp:    key = KeyPageUp;   break;
-        case Qt::Key_PageDown:  key = KeyPageDown; break;
-        case Qt::Key_Home:      key = KeyHome;     break;
-        case Qt::Key_F1:        key = KeyF1;       break;
-        case Qt::Key_F2:        key = KeyF2;       break;
-        case Qt::Key_F3:        key = KeyF3;       break;
-        case Qt::Key_F4:        key = KeyF4;       break;
-        case Qt::Key_F5:        key = KeyF5;       break;
-        case Qt::Key_F6:        key = KeyF6;       break;
-        case Qt::Key_F7:        key = KeyF7;       break;
-        case Qt::Key_F8:        key = KeyF8;       break;
-        case Qt::Key_F9:        key = KeyF9;       break;
-        case Qt::Key_F10:       key = KeyF10;      break;
-        case Qt::Key_F11:       key = KeyF11;      break;
-        case Qt::Key_F12:       key = KeyF12;      break;
-        case Qt::Key_Tab:       key = KeyTab;      break;
+    {   case Qt::Key_Escape:    key = K_esc;      break;
+        case Qt::Key_Up:        key = K_up;       break;
+        case Qt::Key_Down:      key = K_down;     break;
+        case Qt::Key_Left:      key = K_left;     break;
+        case Qt::Key_Right:     key = K_right;    break;
+        case Qt::Key_PageUp:    key = K_pageUp;   break;
+        case Qt::Key_PageDown:  key = K_pageDown; break;
+        case Qt::Key_Home:      key = K_home;     break;
+        case Qt::Key_F1:        key = K_F1;       break;
+        case Qt::Key_F2:        key = K_F2;       break;
+        case Qt::Key_F3:        key = K_F3;       break;
+        case Qt::Key_F4:        key = K_F4;       break;
+        case Qt::Key_F5:        key = K_F5;       break;
+        case Qt::Key_F6:        key = K_F6;       break;
+        case Qt::Key_F7:        key = K_F7;       break;
+        case Qt::Key_F8:        key = K_F8;       break;
+        case Qt::Key_F9:        key = K_F9;       break;
+        case Qt::Key_F10:       key = K_F10;      break;
+        case Qt::Key_F11:       key = K_F11;      break;
+        case Qt::Key_F12:       key = K_F12;      break;
+        case Qt::Key_Tab:       key = K_tab;      break;
     }
 
-    if(key == KeyEsc) QCoreApplication::quit();
+    if(key == K_esc) QCoreApplication::quit();
     slKeyRelease(_svIndex, key, modifiers);
 
     updateGL();
