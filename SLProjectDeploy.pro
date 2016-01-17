@@ -24,9 +24,14 @@ textures.files = \
   ../_data/images/textures/earth1024_G.jpg \
   ../_data/images/textures/earth1024_H.jpg \
   ../_data/images/textures/earth1024_N.jpg \
+  ../_data/images/textures/earthNight1024_C.jpg \
+  ../_data/images/textures/earth2048_C.jpg \
+  ../_data/images/textures/earth2048_N.jpg \
+  ../_data/images/textures/earth2048_H.jpg \
+  ../_data/images/textures/earth2048_G.jpg \
+  ../_data/images/textures/earthNight2048_C.jpg \
   ../_data/images/textures/earthCloud1024_A.jpg \
   ../_data/images/textures/earthCloud1024_C.jpg \
-  ../_data/images/textures/earthNight1024_C.jpg \
   ../_data/images/textures/grass0512_C.jpg \
   ../_data/images/textures/gray_0256_C.jpg \
   ../_data/images/textures/MuttenzerBox+X0512_C.png \
@@ -44,6 +49,7 @@ textures.files = \
   ../_data/images/textures/Testmap_0512_C.png \
   ../_data/images/textures/tile1_0256_C.jpg \
   ../_data/images/textures/tree1_1024_C.png \
+  ../_data/images/textures/tron_floor2.png \
   ../_data/images/textures/VisionExample.png \
   ../_data/images/textures/VisionTest.png \
   ../_data/images/textures/Wave_radial10_256C.jpg \
@@ -124,6 +130,15 @@ models_DAE_SkinnedCube.files = \
   ../_data/models/DAE/SkinnedCube/skinnedcube4.dae \
   ../_data/models/DAE/SkinnedCube/skinnedcube5.dae \
 
+models_DAE_Table.files = \
+  ../_data/models/DAE/Table/table.dae \
+  ../_data/models/DAE/Table/Noyer_france.jpg \
+
+models_DAE_Crate.files = \
+  ../_data/models/DAE/Crate/crate.dae \
+  ../_data/models/DAE/Crate/Crate1.png \
+  ../_data/models/DAE/Crate/Crate2.png \
+
 models_FBX_Duck.files = \
   ../_data/models/FBX/Duck/duck.fbx \
   ../_data/models/FBX/Duck/duckCM.png \
@@ -188,6 +203,8 @@ macx: {
     models_3DS_Halloween.path = Contents/_data/models/3DS/Halloween
     models_DAE_AstroBoy.path = Contents/_data/models/DAE/AstroBoy
     models_DAE_SkinnedCube.path = Contents/_data/models/DAE/SkinnedCube
+    models_DAE_Table.path = Contents/_data/models/DAE/Table
+    models_DAE_Crate.path = Contents/_data/models/DAE/Crate
     models_FBX_Duck.path = Contents/_data/models/FBX/Duck
     models_FBX_Axes.path = Contents/_data/models/FBX/Axes
     models_OBJ_Christoffelturm.path = Contents/_data/models/OBJ/Christoffelturm
@@ -198,6 +215,8 @@ macx: {
     QMAKE_BUNDLE_DATA += models_3DS_Halloween
     QMAKE_BUNDLE_DATA += models_DAE_AstroBoy
     QMAKE_BUNDLE_DATA += models_DAE_SkinnedCube
+    QMAKE_BUNDLE_DATA += models_DAE_Table
+    QMAKE_BUNDLE_DATA += models_DAE_Crate
     QMAKE_BUNDLE_DATA += models_FBX_Duck
     QMAKE_BUNDLE_DATA += models_FBX_Axes
     QMAKE_BUNDLE_DATA += models_OBJ_Christoffelturm

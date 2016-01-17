@@ -430,7 +430,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         scene->addChild(crate);
 
         SLCamera* cam1 = new SLCamera();
-        cam1->translation(0, 1.67f, 0);    // eye height for 180cm high male
+        cam1->translation(0, 1.67f, 5);    // eye height for 180cm high male
         cam1->lookAt(0, 1.67f, -1.0f);
         cam1->focalDist(22);
         cam1->setInitialState();
