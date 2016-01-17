@@ -15,7 +15,7 @@ CONFIG += staticlib
 CONFIG -= qt
 CONFIG += warn_off
 
-DEFINES += "SL_STARTSCENE=cmdSceneMeshLoad"
+DEFINES += "SL_STARTSCENE=C_sceneMeshLoad"
 
 #define platform variable for folder name
 win32 {contains(QMAKE_TARGET.arch, x86_64) {PLATFORM = x64} else {PLATFORM = Win32}}

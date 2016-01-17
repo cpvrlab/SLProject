@@ -11,7 +11,7 @@
 #ifndef SLENUMS_H
 #define SLENUMS_H
 
-#include <stdafx.h>
+//#include <stdafx.h> // gets included before SL.h
 
 //-----------------------------------------------------------------------------
 //! Keyboard key codes enumeration
@@ -210,18 +210,18 @@ enum SLCamAnim
 //-----------------------------------------------------------------------------
 //! Enumeration for different camera projections
 enum SLProjection
-{   P_monoPerspective,     //! standard mono pinhole perspective projection
-    P_monoOrthographic,    //! standard mono orthographic projection
-    P_stereoSideBySide,    //! side-by-side
-    P_stereoSideBySideP,   //! side-by-side proportional for mirror stereoscopes
-    P_stereoSideBySideD,   //! side-by-side distorted for Oculus Rift like glasses
-    P_stereoLineByLine,    //! line-by-line
-    P_stereoColumnByColumn,//! column-by-column
-    P_stereoPixelByPixel,  //! checkerboard pattern (DLP3D)
-    P_stereoColorRC,       //! color masking for red-cyan anaglyphs
-    P_stereoColorRG,       //! color masking for red-green anaglyphs
-    P_stereoColorRB,       //! color masking for red-blue anaglyphs
-    P_stereoColorYB        //! color masking for yellow-blue anaglyphs (ColorCode 3D)
+{   P_monoPerspective,     //!< standard mono pinhole perspective projection
+    P_monoOrthographic,    //!< standard mono orthographic projection
+    P_stereoSideBySide,    //!< side-by-side
+    P_stereoSideBySideP,   //!< side-by-side proportional for mirror stereoscopes
+    P_stereoSideBySideD,   //!< side-by-side distorted for Oculus Rift like glasses
+    P_stereoLineByLine,    //!< line-by-line
+    P_stereoColumnByColumn,//!< column-by-column
+    P_stereoPixelByPixel,  //!< checkerboard pattern (DLP3D)
+    P_stereoColorRC,       //!< color masking for red-cyan anaglyphs
+    P_stereoColorRG,       //!< color masking for red-green anaglyphs
+    P_stereoColorRB,       //!< color masking for red-blue anaglyphs
+    P_stereoColorYB        //!< color masking for yellow-blue anaglyphs (ColorCode 3D)
 };
 //-----------------------------------------------------------------------------
 //! Enumeration for stereo eye type used for camera projection

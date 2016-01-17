@@ -11,6 +11,8 @@
 #ifndef SL_H
 #define SL_H
 
+#include <SLEnums.h>
+
 //-----------------------------------------------------------------------------
 // Include standard C++ libraries
 #include <iostream>
@@ -199,7 +201,7 @@ using namespace std;
 #endif
 
 //-----------------------------------------------------------------------------
-// Redefinition of standard types for platform independency
+// Redefinition of standard types for platform independence
 typedef std::string     SLstring;
 #ifndef SL_OS_ANDROID
     typedef std::wstring    SLwstring;
@@ -269,21 +271,27 @@ template<class T> inline SLint SL_sizeOfVector(const T &vector)
 class SL
 {
     public:
-    static void     log             (const char* format, ...);
-    static void     exitMsg         (const SLchar* msg, 
-                                     const SLint line, 
-                                     const SLchar* file);
-    static void     warnMsg         (const SLchar* msg, 
-                                     const SLint line, 
-                                     const SLchar* file);
-    static SLuint   maxThreads      ();
-    static SLstring getCWD          ();
-    static void     parseCmdLineArgs(SLVstring& cmdLineArgs);
-    static SLint    testScene;
-    static SLint    testDurationSec;
-    static SLuint   testLogFlags;
-    static SLuint   testFrameCounter;
-    static const SLVstring testSceneName;
+    static void             log                 (const char* format, ...);
+    static void             exitMsg             (const SLchar* msg, 
+                                                 const SLint line, 
+                                                 const SLchar* file);
+    static void             warnMsg             (const SLchar* msg, 
+                                                 const SLint line, 
+                                                 const SLchar* file);
+    static SLuint           maxThreads          ();
+    static SLstring         getCWD              ();
+    static void             parseCmdLineArgs    (SLVstring& cmdLineArgs);
+    static SLbool           noTestIsRunning     (){return testScene == -1;}
+    static SLbool           singleTestIsRunning (){return testScene > C_sceneAll && 
+                                                          testScene <= C_sceneRTTest;}
+    static SLbool           allTestIsRunning    (){return testScene > C_sceneAll && 
+                                                          testScene <= C_sceneRTTest;}
+    static SLCommand        testScene;          //!< Test scene command id
+    static SLCommand        testSceneAll;       //!< Test scene command id for all tests
+    static SLint            testDurationSec;    //!< Test time in seconds
+    static SLLogVerbosity   testLogVerbosity;   //!< Test logging verbosity
+    static SLuint           testFrameCounter;   //!< Test frame counters
+    static const SLVstring  testSceneNames;     //!< Vector with scene names
 };
 //-----------------------------------------------------------------------------
 #endif

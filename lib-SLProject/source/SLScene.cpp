@@ -184,15 +184,7 @@ SLScene::~SLScene()
     SLTexFont::deleteFonts();
    
     // delete menus & statistic texts
-    delete _menuGL;     _menuGL     = nullptr;
-    delete _menuRT;     _menuRT     = nullptr;
-    delete _menuPT;     _menuPT     = nullptr;
-    delete _info;       _info       = nullptr;
-    delete _infoGL;     _infoGL     = nullptr;
-    delete _infoRT;     _infoRT     = nullptr;
-    delete _btnAbout;   _btnAbout   = nullptr;
-    delete _btnHelp;    _btnHelp    = nullptr;
-    delete _btnCredits; _btnCredits = nullptr;
+    deleteAllMenus();
    
     current = nullptr;
 
@@ -456,5 +448,19 @@ void SLScene::copyVideoImage(SLint width,
                              SLbool isTopLeft)
 {
     _videoTexture.copyVideoImage(width, height, srcPixelFormat, data, isTopLeft);
+}
+//-----------------------------------------------------------------------------
+//! Deletes all menus and buttons objects
+void SLScene::deleteAllMenus()
+{                        _menu2D     = nullptr;
+    delete _menuGL;      _menuGL     = nullptr;
+    delete _menuRT;      _menuRT     = nullptr;
+    delete _menuPT;      _menuPT     = nullptr;
+    delete _info;        _info       = nullptr;
+    delete _infoGL;      _infoGL     = nullptr;
+    delete _infoRT;      _infoRT     = nullptr;
+    delete _btnAbout;    _btnAbout   = nullptr;
+    delete _btnHelp;     _btnHelp    = nullptr;
+    delete _btnCredits;  _btnCredits = nullptr;
 }
 //-----------------------------------------------------------------------------

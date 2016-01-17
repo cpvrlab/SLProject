@@ -141,6 +141,7 @@ class SLSceneView: public SLObject
             void            startRaytracing     (SLint maxDepth);
             void            startPathtracing    (SLint maxDepth, SLint samples);
             void            printStats          () {_stats.print();}
+            SLbool          testRunIsFinished   ();
 
             // Callback routines
             cbOnWndUpdate       onWndUpdate;        //!< Callback for intermediate window repaint
@@ -156,7 +157,7 @@ class SLSceneView: public SLObject
             void            dpi             (SLint newDPI){_dpi = newDPI;}
             void            showLoading     (SLbool showLoading);
             void            showMenu        (SLbool show){_showMenu = show;
-                                                          SLScene::current->_menu2D = SLScene::current->_menuGL;}
+                                                          SLScene::current->menu2D(SLScene::current->menuGL());}
             void            showInfo        (SLbool show) {_showInfo = show;}
             void            showStats       (SLbool show) {_showStats = show;}
             void            gotPainted      (SLbool val) {_gotPainted = val;}

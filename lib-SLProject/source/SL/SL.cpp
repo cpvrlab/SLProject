@@ -17,57 +17,53 @@
 //-----------------------------------------------------------------------------
 // Init global test variables from command line parameters
 SLint SL::testDurationSec = 0;
-SLint SL::testScene = -1;
-SLuint SL::testLogFlags = 0;
+SLCommand SL::testScene = (SLCommand)-1;
+SLCommand SL::testSceneAll = C_sceneMinimal;
+SLLogVerbosity SL::testLogVerbosity = LV_quiet;
 SLuint SL::testFrameCounter = 0;
-const SLVstring SL::testSceneName = 
-{ 
-    "SceneAll",
-    "SceneMinimal",
-    "SceneFigure", 
-    "SceneMeshLoad",
-    "SceneVRSizeTest",
-    "SceneLargeModel",
-    "SceneChristoffel",
-    "SceneRevolver",
-    "SceneTextureFilter",
-    "SceneTextureBlend",
-    "SceneTextureVideo",
-    "SceneFrustumCull1",
-    "ScenePerVertexBlinn",
-    "ScenePerPixelBlinn",
-    "ScenePerVertexWave",
-    "SceneWater",
-    "SceneBumpNormal",
-    "SceneBumpParallax",
-    "SceneEarth",
-    "SceneMassAnimation",
-    "SceneTerrain",
-    "SceneSkeletalAnimation",
-    "SceneNodeAnimation",
-    "SceneAstroboyArmyGPU",
-    "SceneAstroboyArmyCPU",
-    "SceneRTMuttenzerBox",
-    "SceneRTSpheres",
-    "SceneRTSoftShadows",
-    "SceneRTDoF",
-    "SceneRTLens",
-    "SceneRTTest"
+const SLVstring SL::testSceneNames = 
+{   "SceneAll               ",
+    "SceneMinimal           ",
+    "SceneFigure            ", 
+    "SceneMeshLoad          ",
+    "SceneVRSizeTest        ",
+    "SceneLargeModel        ",
+    "SceneChristoffel       ",
+    "SceneRevolver          ",
+    "SceneTextureFilter     ",
+    "SceneTextureBlend      ",
+    "SceneTextureVideo      ",
+    "SceneFrustumCull1      ",
+    "ScenePerVertexBlinn    ",
+    "ScenePerPixelBlinn     ",
+    "ScenePerVertexWave     ",
+    "SceneWater             ",
+    "SceneBumpNormal        ",
+    "SceneBumpParallax      ",
+    "SceneEarth             ",
+    "SceneMassAnimation     ",
+    "SceneTerrain           ",
+    "SceneSkeletalAnimation ",
+    "SceneNodeAnimation     ",
+    "SceneAstroboyArmyGPU   ",
+    "SceneAstroboyArmyCPU   ",
+    "SceneRTMuttenzerBox    ",
+    "SceneRTSpheres         ",
+    "SceneRTSoftShadows     ",
+    "SceneRTDoF             ",
+    "SceneRTLens            ",
+    "SceneRTTest            "
 };
 //-----------------------------------------------------------------------------
 //! SL::log
 void SL::log(const char* format, ...)
 {
-    if (SL::testLogFlags)
-    {
-        char log[4096];
-        va_list argptr;
-        va_start(argptr, format);
-        vsprintf(log, format, argptr);
-        va_end(argptr);
-
-        cout << log;
-    }
+    char log[4096];
+    va_list argptr;
+    va_start(argptr, format);
+    vsprintf(log, format, argptr);
+    va_end(argptr);
+    cout << log;
 
     /*
     // In case we don't have a console
@@ -133,7 +129,7 @@ SLstring SL::getCWD()
 //! Parses the command line arguments
 void SL::parseCmdLineArgs(SLVstring& cmdLineArgs)
 {   // Default values
-    SL::testScene = -1;
+    SL::testScene = (SLCommand)-1;
     SL::testDurationSec = -1;
 
     SLVstring argComponents;
@@ -144,8 +140,14 @@ void SL::parseCmdLineArgs(SLVstring& cmdLineArgs)
         {   
             if(argComponents[0] ==  "testScene")
             {   SLint iScene = atoi(argComponents[1].c_str());
-                if (iScene >= C_sceneMinimal && iScene <= C_sceneRTTest)
-                    SL::testScene = iScene;
+                if (iScene >= C_sceneAll && iScene <= C_sceneRTTest)
+                {   SL::testScene = (SLCommand)iScene;
+                    SL::testLogVerbosity = LV_normal;
+                    if (SL::testScene == C_sceneAll)
+                        SL::testSceneAll = C_sceneMinimal;
+                    if (SL::testDurationSec == -1)
+                        SL::testDurationSec = 5;
+                }
             }
             if(argComponents[0] ==  "durationSec")
             {   SLint sec = atoi(argComponents[1].c_str());

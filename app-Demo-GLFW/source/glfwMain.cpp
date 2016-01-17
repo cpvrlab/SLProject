@@ -475,13 +475,12 @@ int main(int argc, char *argv[])
 
     // Set your own physical screen dpi
     int dpi = (int)(142 * scr2fbX);
-    if (!SL::testScene)
-    {   cout << "------------------------------------------------------------------" << endl;
-        cout << "GUI             : GLFW (Version: " << GLFW_VERSION_MAJOR << "." << 
-                                                       GLFW_VERSION_MINOR << "." << 
-                                                       GLFW_VERSION_REVISION << ")" << endl;
-        cout << "DPI             : " << dpi << endl;
-    }
+    cout << "------------------------------------------------------------------" << endl;
+    cout << "GUI             : GLFW (Version: " << GLFW_VERSION_MAJOR << "." << 
+                                                   GLFW_VERSION_MINOR << "." << 
+                                                   GLFW_VERSION_REVISION << ")" << endl;
+    cout << "DPI             : " << dpi << endl;
+
 
     // get executable path
     SLstring exeDir = SLUtils::getPath(cmdLineArgs[0]);
@@ -516,15 +515,6 @@ int main(int argc, char *argv[])
             glfwWaitEvents();
         else
             glfwPollEvents();
-    }
-
-    if (SL::testScene)
-    {   cout << SL::testSceneName[SL::testScene] 
-             << ": Frames rendered: " 
-             << SL::testFrameCounter 
-             << ", fps: " 
-             << ((float)SL::testFrameCounter / (float)SL::testDurationSec)
-             << endl;
     }
    
     slTerminate();

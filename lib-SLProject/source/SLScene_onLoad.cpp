@@ -189,8 +189,8 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
             sv->showLoading(true);
 
     // Override input scene if test scene is required
-    SLCommand test = (SLCommand)SL::testScene;
-    _currentSceneID = (test >= C_sceneMinimal && test <= C_sceneRTTest) ? test : sceneName;
+    _currentSceneID = (SL::noTestIsRunning()) ? sceneName :
+                       SL::singleTestIsRunning() ? SL::testScene : SL::testSceneAll;
 
     if (_currentSceneID == C_sceneMinimal) //.......................................
     {
@@ -1112,7 +1112,8 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         }
 
         SLint num = size + size + 1;
-        SL_LOG("Triangles in scene: %d\n", resolution*resolution*2*num*num*num);
+        if (SL::noTestIsRunning())
+            SL_LOG("Triangles in scene: %d\n", resolution*resolution*2*num*num*num);
 
         _background.colors(SLCol4f(0.1f,0.1f,0.1f));
         sv->camera(cam1);
@@ -1252,7 +1253,8 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
     {
         name("Wave Shader");
         info(sv, "Vertex Shader with wave displacment.");
-        cout << "Use H-Key to increment (decrement w. shift) the wave height.\n\n";
+        if (SL::noTestIsRunning())
+            SL_LOG("Use H-Key to increment (decrement w. shift) the wave height.\n\n");
 
         SLCamera* cam1 = new SLCamera;
         cam1->translation(0,3,8);
@@ -1302,7 +1304,8 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
     {
         name("Water Shader");
         info(sv, "Water Shader with reflection & refraction mapping.");
-        cout << "Use H-Key to increment (decrement w. shift) the wave height.\n\n";
+        if (SL::noTestIsRunning())
+            SL_LOG("Use H-Key to increment (decrement w. shift) the wave height.\n\n");
 
         SLCamera* cam1 = new SLCamera;
         cam1->translation(0,3,8);
@@ -1423,9 +1426,11 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
     if (_currentSceneID == C_sceneBumpParallax) //...................................
     {
         name("Parallax Bump Mapping");
-        cout << "Demo application for parallax bump mapping.\n";
-        cout << "Use S-Key to increment (decrement w. shift) parallax scale.\n";
-        cout << "Use O-Key to increment (decrement w. shift) parallax offset.\n\n";
+        if (SL::noTestIsRunning())
+        {   SL_LOG("Demo application for parallax bump mapping.\n");
+            SL_LOG("Use S-Key to increment (decrement w. shift) parallax scale.\n");
+            SL_LOG("Use O-Key to increment (decrement w. shift) parallax offset.\n\n");
+        }
         info(sv, "Normal map parallax mapping.");
 
         // Create shader program with 4 uniforms
@@ -1476,10 +1481,12 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
     if (_currentSceneID == C_sceneEarth) //..........................................
     {
         name("Earth Shader from Markus Knecht");
-        cout << "Earth Shader from Markus Knecht\n";
-        cout << "Use (SHIFT) & key Y to change scale of the parallax mapping\n";
-        cout << "Use (SHIFT) & key X to change bias of the parallax mapping\n";
-        cout << "Use (SHIFT) & key C to change cloud height\n";
+        if (SL::noTestIsRunning())
+        {   SL_LOG("Earth Shader from Markus Knecht\n");
+            SL_LOG("Use (SHIFT) & key Y to change scale of the parallax mapping\n");
+            SL_LOG("Use (SHIFT) & key X to change bias of the parallax mapping\n");
+            SL_LOG("Use (SHIFT) & key C to change cloud height\n");
+        }
         info(sv, "Complex earth shader with 7 textures: daycolor, nightcolor, normal, height & gloss map of earth, color & alphamap of clouds");
 
         // Create shader program with 4 uniforms
@@ -1715,7 +1722,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         scene->addChild(ball5);
         scene->addChild(figure);
 
-        // Set backround color, active camera & the root pointer
+        // Set background color, active camera & the root pointer
         _background.colors(SLCol4f(0.1f,0.4f,0.8f));
         sv->camera(cam1);
         _root3D = scene;
@@ -1871,7 +1878,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
             }
         }
 
-        // Set backround color, active camera & the root pointer
+        // Set background color, active camera & the root pointer
         _background.colors(SLCol4f(0.1f,0.4f,0.8f));
         sv->camera(cam1);
         _root3D = scene;
@@ -2032,7 +2039,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
     else
     if (_currentSceneID == C_sceneRTSoftShadows) //..................................
     {
-        name("Ray tracing Softshadows");
+        name("Ray tracing soft shadows");
         info(sv, "Ray tracing with soft shadow light sampling. Each light source is sampled 64x per pixel. Be patient on mobile devices.");
 
         // define materials
@@ -2256,7 +2263,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
     }
 
     // More test settings
-    if (test >= C_sceneMinimal && test <= C_sceneRTTest)
+    if (!SL::noTestIsRunning())
     {
         sv->showInfo(false);
         sv->showMenu(false);

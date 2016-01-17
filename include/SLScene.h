@@ -44,46 +44,69 @@ You can access the current scene from everywhere with the static pointer _curren
 class SLScene: public SLObject    
 {  
     friend class SLNode;
-    friend class SLSceneView;
    
     public:           
                             SLScene         (SLstring name="");
                            ~SLScene         ();
             // Setters
             void            root3D          (SLNode* root3D){_root3D = root3D;}
-            void            menu2D          (SLButton* menu2D){_menu2D = menu2D;}
             void            globalAmbiLight (SLCol4f gloAmbi){_globalAmbiLight=gloAmbi;}
             void            info            (SLSceneView* sv, SLstring infoText, 
                                              SLCol4f color=SLCol4f::WHITE);
-            void            stopAnimations  (SLbool stop){_stopAnimations = stop;}
+            void            stopAnimations  (SLbool stop) {_stopAnimations = stop;}
+            void            infoGL          (SLText* t) {_infoGL = t;}
+            void            infoRT          (SLText* t) {_infoRT = t;}
+            void            infoLoading     (SLText* t) {_infoLoading = t;}
+            void            menu2D          (SLButton* b) {_menu2D = b;}
+            void            menuGL          (SLButton* b) {_menuGL = b;}
+            void            menuRT          (SLButton* b) {_menuRT = b;}
+            void            menuPT          (SLButton* b) {_menuPT = b;}
+            void            btnAbout        (SLButton* b) {_btnAbout = b;}
+            void            btnCredits      (SLButton* b) {_btnCredits = b;}
+            void            btnHelp         (SLButton* b) {_btnHelp = b;}
                            
             // Getters
-     inline SLAnimManager&  animManager     () {return _animManager;}
-     inline SLSceneView*    sv              (SLuint index) {return _sceneViews[index];}
-     inline SLNode*         root3D          () {return _root3D;}
-            SLint           currentID       () const {return _currentSceneID;}
+            SLAnimManager&  animManager     () {return _animManager;}
+            SLSceneView*    sv              (SLuint index) {return _sceneViews[index];}
+            SLVSceneView&   sceneViews      () {return _sceneViews;}
+            SLNode*         root3D          () {return _root3D;}
+            SLCommand       currentSceneID  () const {return _currentSceneID;}
             SLBackground&   background      () {return _background;}
             void            timerStart      () {_timer.start();}
             SLfloat         timeSec         () {return (SLfloat)_timer.getElapsedTimeInSec();}
             SLfloat         timeMilliSec    () {return (SLfloat)_timer.getElapsedTimeInMilliSec();}
+            SLfloat         elapsedTimeMS   () {return _elapsedTimeMS;}
             SLfloat         elapsedTimeSec  () {return _elapsedTimeMS * 0.001f;}
+            SLVEventHandler& eventHandlers  () {return _eventHandlers;}
             SLButton*       menu2D          () {return _menu2D;}
             SLButton*       menuGL          () {return _menuGL;}
             SLButton*       menuRT          () {return _menuRT;}
             SLButton*       menuPT          () {return _menuPT;}
+            SLButton*       btnAbout        () {return _btnAbout;}
+            SLButton*       btnHelp         () {return _btnHelp;}
+            SLButton*       btnCredits      () {return _btnCredits;}
+            SLstring        infoAbout_en    () const {return _infoAbout_en;}
+            SLstring        infoCredits_en  () const {return _infoCredits_en;}
+            SLstring        infoHelp_en     () const {return _infoHelp_en;}
+            SLText*         info            (SLSceneView* sv);
+            SLText*         info            () {return _info;}
+            SLText*         infoGL          () {return _infoGL;}
+            SLText*         infoRT          () {return _infoRT;}
+            SLText*         infoLoading     () {return _infoLoading;}
             SLGLTexture*    texCursor       () {return _texCursor;}
             SLCol4f         globalAmbiLight () const {return _globalAmbiLight;}
             SLVLight&       lights          () {return _lights;}
-            SLVEventHandler& eventHandlers  () {return _eventHandlers;}
+            SLfloat         fps             () {return _fps;}
+            SLAvgFloat&     frameTimesMS    () {return _frameTimesMS;}
+            SLAvgFloat&     updateTimesMS   () {return _updateTimesMS;}
+            SLAvgFloat&     cullTimesMS     () {return _cullTimesMS;}
+            SLAvgFloat&     draw2DTimesMS   () {return _draw2DTimesMS;}
+            SLAvgFloat&     draw3DTimesMS   () {return _draw3DTimesMS;}
             SLVMaterial&    materials       () {return _materials;}
             SLVMesh&        meshes          () {return _meshes;}
             SLVGLTexture&   textures        () {return _textures;}
             SLVGLProgram&   programs        () {return _programs;}
             SLGLProgram*    programs        (SLShaderProg i) {return _programs[i];}
-            SLText*         info            (SLSceneView* sv);
-            SLstring        infoAbout_en    () const {return _infoAbout_en;}
-            SLstring        infoCredits_en  () const {return _infoCredits_en;}
-            SLstring        infoHelp_en     () const {return _infoHelp_en;}
             SLNode*         selectedNode    () {return _selectedNode;}
             SLMesh*         selectedMesh    () {return _selectedMesh;}
             SLbool          stopAnimations  () const {return _stopAnimations;}
@@ -96,6 +119,7 @@ class SLScene: public SLObject
             void            init            ();
             void            unInit          ();
             bool            onUpdate        ();
+            void            deleteAllMenus  ();
             SLbool          onCommandAllSV  (const SLCommand cmd);
             void            selectNode      (SLNode* nodeToSelect);
             void            selectNodeMesh  (SLNode* nodeToSelect, SLMesh* meshToSelect);
@@ -123,7 +147,7 @@ class SLScene: public SLObject
             SLTimer         _timer;             //!< high precision timer
             SLBackground    _background;        //!< Background colors or texture
             SLCol4f         _globalAmbiLight;   //!< global ambient light intensity
-            SLint           _currentSceneID;    //!< Identifier of current scene
+            SLCommand       _currentSceneID;    //!< Identifier of current scene
             SLbool          _rootInitialized;   //!< Flag if scene is initialized
             SLint           _numProgsPreload;   //!< No. of preloaded shaderProgs
             

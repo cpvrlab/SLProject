@@ -109,7 +109,7 @@
       <ExceptionHandling>Sync</ExceptionHandling>
       <ObjectFileName>_release\obj\</ObjectFileName>
       <Optimization>MaxSpeed</Optimization>
-      <PreprocessorDefinitions>_CONSOLE;WIN32;SL_GUI_QT;SL_STARTSCENE=cmdSceneMeshLoad;SL_GUI_QT;GLEW_STATIC;_GLFW_NO_DLOAD_GDI32;_GLFW_NO_DLOAD_WINMM;QT_NO_DEBUG;QT_OPENGL_LIB;QT_WIDGETS_LIB;QT_GUI_LIB;QT_CORE_LIB;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_CONSOLE;WIN32;SL_GUI_QT;SL_STARTSCENE=C_sceneMeshLoad;SL_GUI_QT;GLEW_STATIC;_GLFW_NO_DLOAD_GDI32;_GLFW_NO_DLOAD_WINMM;QT_NO_DEBUG;QT_OPENGL_LIB;QT_WIDGETS_LIB;QT_GUI_LIB;QT_CORE_LIB;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PreprocessToFile>false</PreprocessToFile>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <RuntimeTypeInfo>true</RuntimeTypeInfo>
@@ -136,7 +136,7 @@
       <WarningLevel>0</WarningLevel>
     </Midl>
     <ResourceCompile>
-      <PreprocessorDefinitions>_CONSOLE;WIN32;SL_GUI_QT;SL_STARTSCENE=cmdSceneMeshLoad;SL_GUI_QT;GLEW_STATIC;_GLFW_NO_DLOAD_GDI32;_GLFW_NO_DLOAD_WINMM;QT_NO_DEBUG;QT_OPENGL_LIB;QT_WIDGETS_LIB;QT_GUI_LIB;QT_CORE_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_CONSOLE;WIN32;SL_GUI_QT;SL_STARTSCENE=C_sceneMeshLoad;SL_GUI_QT;GLEW_STATIC;_GLFW_NO_DLOAD_GDI32;_GLFW_NO_DLOAD_WINMM;QT_NO_DEBUG;QT_OPENGL_LIB;QT_WIDGETS_LIB;QT_GUI_LIB;QT_CORE_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ResourceCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -177,7 +177,7 @@
       <WarningLevel>0</WarningLevel>
     </Midl>
     <ResourceCompile>
-      <PreprocessorDefinitions>_CONSOLE;WIN32;SL_GUI_QT;SL_STARTSCENE=cmdSceneMeshLoad;SL_GUI_QT;GLEW_STATIC;_GLFW_NO_DLOAD_GDI32;_GLFW_NO_DLOAD_WINMM;QT_NO_DEBUG;QT_OPENGL_LIB;QT_WIDGETS_LIB;QT_GUI_LIB;QT_CORE_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_CONSOLE;WIN32;SL_GUI_QT;SL_STARTSCENE=C_sceneMeshLoad;SL_GUI_QT;GLEW_STATIC;_GLFW_NO_DLOAD_GDI32;_GLFW_NO_DLOAD_WINMM;QT_NO_DEBUG;QT_OPENGL_LIB;QT_WIDGETS_LIB;QT_GUI_LIB;QT_CORE_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ResourceCompile>
     <PostBuildEvent>
       <Command>xcopy $(SolutionDir)\_lib\prebuilt\OpenCV\x64\vc12\bin\OpenCV_core300.dll $(SolutionDir)\_bin-$(Configuration)-$(Platform) /s /d</Command>
@@ -193,7 +193,7 @@
       <ExceptionHandling>Sync</ExceptionHandling>
       <ObjectFileName>_debug\obj\</ObjectFileName>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>_CONSOLE;WIN32;SL_GUI_QT;SL_STARTSCENE=cmdSceneRevolver;SL_GUI_QT;GLEW_STATIC;_GLFW_NO_DLOAD_GDI32;_GLFW_NO_DLOAD_WINMM;QT_OPENGL_LIB;QT_WIDGETS_LIB;QT_GUI_LIB;QT_CORE_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_CONSOLE;WIN32;SL_GUI_QT;SL_STARTSCENE=C_sceneRevolver;SL_GUI_QT;GLEW_STATIC;_GLFW_NO_DLOAD_GDI32;_GLFW_NO_DLOAD_WINMM;QT_OPENGL_LIB;QT_WIDGETS_LIB;QT_GUI_LIB;QT_CORE_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PreprocessToFile>false</PreprocessToFile>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
       <RuntimeTypeInfo>true</RuntimeTypeInfo>
@@ -220,7 +220,7 @@
       <WarningLevel>0</WarningLevel>
     </Midl>
     <ResourceCompile>
-      <PreprocessorDefinitions>_CONSOLE;WIN32;SL_GUI_QT;SL_STARTSCENE=cmdSceneMeshLoad;SL_GUI_QT;GLEW_STATIC;_GLFW_NO_DLOAD_GDI32;_GLFW_NO_DLOAD_WINMM;QT_OPENGL_LIB;QT_WIDGETS_LIB;QT_GUI_LIB;QT_CORE_LIB;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_CONSOLE;WIN32;SL_GUI_QT;SL_STARTSCENE=C_sceneMeshLoad;SL_GUI_QT;GLEW_STATIC;_GLFW_NO_DLOAD_GDI32;_GLFW_NO_DLOAD_WINMM;QT_OPENGL_LIB;QT_WIDGETS_LIB;QT_GUI_LIB;QT_CORE_LIB;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ResourceCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -260,7 +260,7 @@
       <WarningLevel>0</WarningLevel>
     </Midl>
     <ResourceCompile>
-      <PreprocessorDefinitions>_CONSOLE;WIN32;SL_GUI_QT;SL_STARTSCENE=cmdSceneMeshLoad;SL_GUI_QT;GLEW_STATIC;_GLFW_NO_DLOAD_GDI32;_GLFW_NO_DLOAD_WINMM;QT_OPENGL_LIB;QT_WIDGETS_LIB;QT_GUI_LIB;QT_CORE_LIB;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_CONSOLE;WIN32;SL_GUI_QT;SL_STARTSCENE=C_sceneMeshLoad;SL_GUI_QT;GLEW_STATIC;_GLFW_NO_DLOAD_GDI32;_GLFW_NO_DLOAD_WINMM;QT_OPENGL_LIB;QT_WIDGETS_LIB;QT_GUI_LIB;QT_CORE_LIB;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ResourceCompile>
     <Bscmake>
       <PreserveSbr>true</PreserveSbr>

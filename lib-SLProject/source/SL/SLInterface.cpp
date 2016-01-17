@@ -77,6 +77,7 @@ void slCreateScene(SLVstring& cmdLineArgs,
     SL_LOG("Renderer        : %s\n", stateGL->glRenderer().c_str());
     SL_LOG("GLSL Version    : %s (%s) \n", stateGL->glSLVersion().c_str(),
                                            stateGL->getSLVersionNO().c_str());
+    SL_LOG("------------------------------------------------------------------\n");
 
     SLScene::current = new SLScene("");
 }
@@ -457,7 +458,8 @@ void slGrabCopyVideoImage()
         {   gCaptureDevice = new cv::VideoCapture(0);
             if (!gCaptureDevice->isOpened())
                 return;
-            SL_LOG("Capture devices created.\n");
+            if (SL::noTestIsRunning())
+                SL_LOG("Capture devices created.\n");
         }
 
         if (gCaptureDevice && gCaptureDevice->isOpened())
@@ -481,7 +483,8 @@ void slGrabCopyVideoImage()
         {   
 			static bool logOnce = true;
 			if (logOnce)
-			{	SL_LOG("OpenCV: Unable to create capture device.\n");
+			{	if (SL::noTestIsRunning())
+                    SL_LOG("OpenCV: Unable to create capture device.\n");
 				logOnce = false;
 			}
         }

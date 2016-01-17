@@ -320,7 +320,7 @@ SLbool SLButton::onMouseUp(const SLMouseButton button,
         if (buttonDown==this)
         { 
             // For a command execute it
-            if (_command) 
+            if (_command != C_menu) 
             {  _isDown = false;
             
                 // Toggle checkable buttons
