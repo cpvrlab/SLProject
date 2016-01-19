@@ -17,6 +17,7 @@
 //-----------------------------------------------------------------------------
 // Init global test variables from command line parameters
 SLint SL::testDurationSec = 0;
+SLint SL::testFactor = 1;
 SLCommand SL::testScene = (SLCommand)-1;
 SLCommand SL::testSceneAll = C_sceneMinimal;
 SLLogVerbosity SL::testLogVerbosity = LV_quiet;

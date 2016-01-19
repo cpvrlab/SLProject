@@ -27,7 +27,7 @@
 
 //-----------------------------------------------------------------------------
 /*! 
-The constructor initialises everything to 0 and adds the instance to the vector
+The constructor initializes everything to 0 and adds the instance to the vector
 SLScene::_meshes. All meshes are held globally in this vector and are deallocated
 in SLScene::unInit().
 */

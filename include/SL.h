@@ -12,7 +12,6 @@
 #define SL_H
 
 #include <SLEnums.h>
-
 //-----------------------------------------------------------------------------
 // Include standard C++ libraries
 #include <iostream>
@@ -41,6 +40,10 @@
 #include <sys/stat.h>            // for file info used in SLUtils
 #include <math.h>                // for math functions
 #include <string.h>              // for string functions
+//-----------------------------------------------------------------------------
+// Half precision floating point type
+#include <half.hpp>
+using half_float::half;
 
 /////////////////////////////////////////////////////////
 // Preprocessor constant definitions used in the SLProject
@@ -219,6 +222,7 @@ typedef GLuint          SLuint;
 typedef int64_t         SLint64;
 typedef uint64_t        SLuint64;
 typedef GLsizei         SLsizei;
+typedef half            SLhalf;
 typedef GLfloat         SLfloat;
 #ifdef SL_HAS_DOUBLE
 typedef GLdouble        SLdouble;
@@ -289,6 +293,7 @@ class SL
     static SLCommand        testScene;          //!< Test scene command id
     static SLCommand        testSceneAll;       //!< Test scene command id for all tests
     static SLint            testDurationSec;    //!< Test time in seconds
+    static SLint            testFactor;         //!< Test factor for scene construction
     static SLLogVerbosity   testLogVerbosity;   //!< Test logging verbosity
     static SLuint           testFrameCounter;   //!< Test frame counters
     static const SLVstring  testSceneNames;     //!< Vector with scene names
