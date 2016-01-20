@@ -64,6 +64,7 @@ HEADERS += \
 ../include/SLEnums.h \
 ../include/SLEventHandler.h \
 ../include/SLFileSystem.h \
+../include/SLGLEnums.h \
 ../include/SLGLGenericProgram.h \
 ../include/SLGLOculus.h \
 ../include/SLGLOculus.h \
@@ -76,6 +77,7 @@ HEADERS += \
 ../include/SLGLUniform.h \
 ../include/SLGLVertexArray.h \
 ../include/SLGLVertexArrayExt.h \
+../include/SLGLVertexBuffer.h \
 ../include/SLGrid.h \
 ../include/SLImage.h \
 ../include/SLImporter.h \
@@ -152,6 +154,7 @@ source/SLGLState.cpp \
 source/SLGLTexture.cpp \
 source/SLGLVertexArray.cpp \
 source/SLGLVertexArrayExt.cpp \
+source/SLGLVertexBuffer.cpp \
 source/SLGrid.cpp \
 source/SLInputDevice.cpp \
 source/SLInputManager.cpp \

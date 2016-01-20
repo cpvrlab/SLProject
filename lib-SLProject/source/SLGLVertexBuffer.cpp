@@ -398,9 +398,14 @@ void SLGLVertexBuffer::disableAttrib()
 SLint SLGLVertexBuffer::sizeOfType(SLGLBufferType type)
 {
     switch (type)
-    {   case BT_half :  return sizeof(half);
+    {
+        #ifdef SL_GLES2
         case BT_float:  return sizeof(float);
+        #else
+        case BT_half :  return sizeof(half);
         case BT_double: return sizeof(double);
+        case BT_float:  return sizeof(float);
+        #endif
         case BT_ubyte:  return sizeof(unsigned char);
         case BT_ushort: return sizeof(unsigned short);
         case BT_uint:   return sizeof(unsigned int);

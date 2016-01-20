@@ -285,7 +285,7 @@ class SL
     static SLuint           maxThreads          ();
     static SLstring         getCWD              ();
     static void             parseCmdLineArgs    (SLVstring& cmdLineArgs);
-    static SLbool           noTestIsRunning     (){return testScene == -1;}
+    static SLbool           noTestIsRunning     (){return (SLint)testScene == -1;}
     static SLbool           singleTestIsRunning (){return testScene > C_sceneAll && 
                                                           testScene <= C_sceneRTTest;}
     static SLbool           allTestIsRunning    (){return testScene > C_sceneAll && 

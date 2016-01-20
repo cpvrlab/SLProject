@@ -48,4 +48,5 @@ INCLUDEPATH += \
     ../lib-SLExternal/jpeg-8\
     ../lib-SLExternal/oculus/LibOVR/Include \
     ../lib-SLExternal/opencv/include \
+    ../lib-SLExternal/half/include \
 

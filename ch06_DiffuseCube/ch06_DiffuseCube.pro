@@ -82,6 +82,7 @@ INCLUDEPATH += \
     ../lib-SLExternal \
     ../lib-SLExternal/glew/include \
     ../lib-SLExternal/glfw3/include \
+    ../lib-SLExternal/half/include \
     ../lib-SLExternal/zlib \
     ../lib-SLExternal/jpeg-8 \
 
