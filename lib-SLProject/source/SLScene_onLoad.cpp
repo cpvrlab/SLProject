@@ -74,6 +74,7 @@ SLNode* BuildFigureGroup(SLMaterial* mat, SLbool withAnimation = false);
 SLNode* BuildFigureGroup(SLMaterial* mat, SLbool withAnimation)
 {
     SLNode* cyl;
+    SLint res = 16 * SL::testFactor;
    
     // Feet
     SLNode* feet = new SLNode("feet group (T13,R6)");
@@ -86,8 +87,8 @@ SLNode* BuildFigureGroup(SLMaterial* mat, SLbool withAnimation)
    
     // Assemble low leg
     SLNode* leglow = new SLNode("low leg group (T11, R5)");
-    leglow->addMesh(new SLSphere(0.3f, 16, 16, "knee", mat));
-    cyl = new SLNode(new SLCylinder(0.2f, 1.4f, 1, 16, false, false, "shin", mat), "shin (T12)");
+    leglow->addMesh(new SLSphere(0.3f, res, res, "knee", mat));
+    cyl = new SLNode(new SLCylinder(0.2f, 1.4f, 1, res, false, false, "shin", mat), "shin (T12)");
     cyl->translate(0.0f, 0.0f, 0.2f, TS_object);            
     leglow->addChild(cyl);
     leglow->addChild(feet);
@@ -96,8 +97,8 @@ SLNode* BuildFigureGroup(SLMaterial* mat, SLbool withAnimation)
    
     // Assemble leg
     SLNode* leg = new SLNode("leg group ()");
-    leg->addMesh(new SLSphere(0.4f, 16, 16, "hip joint", mat));
-    cyl = new SLNode(new SLCylinder(0.3f, 1.0f, 1, 16, false, false, "thigh", mat), "thigh (T10)");
+    leg->addMesh(new SLSphere(0.4f, res, res, "hip joint", mat));
+    cyl = new SLNode(new SLCylinder(0.3f, 1.0f, 1, res, false, false, "thigh", mat), "thigh (T10)");
     cyl->translate(0.0f, 0.0f, 0.27f, TS_object);           
     leg->addChild(cyl);
     leg->addChild(leglow);
@@ -112,8 +113,8 @@ SLNode* BuildFigureGroup(SLMaterial* mat, SLbool withAnimation)
 
     // Assemble low arm
     SLNode* armlow = new SLNode("low arm group (T6,R4)");
-    armlow->addMesh(new SLSphere(0.2f, 16, 16, "ellbow", mat));
-    cyl = new SLNode(new SLCylinder(0.15f, 1.0f, 1, 16, true, false, "low arm", mat), "T7");
+    armlow->addMesh(new SLSphere(0.2f, 16, 16, "elbow", mat));
+    cyl = new SLNode(new SLCylinder(0.15f, 1.0f, 1, res, true, false, "low arm", mat), "T7");
     cyl->translate(0.0f, 0.0f, 0.14f, TS_object);           
     armlow->addChild(cyl);
     armlow->translate(0.0f, 0.0f, 1.2f, TS_object);
@@ -122,7 +123,7 @@ SLNode* BuildFigureGroup(SLMaterial* mat, SLbool withAnimation)
     // Assemble arm
     SLNode* arm = new SLNode("arm group ()");
     arm->addMesh(new SLSphere(0.3f, 16, 16, "shoulder", mat));
-    cyl = new SLNode(new SLCylinder(0.2f, 1.0f, 1, 16, false, false, "upper arm", mat), "upper arm (T5)");
+    cyl = new SLNode(new SLCylinder(0.2f, 1.0f, 1, res, false, false, "upper arm", mat), "upper arm (T5)");
     cyl->translate(0.0f, 0.0f, 0.2f, TS_object);            
     arm->addChild(cyl);
     arm->addChild(armlow);
@@ -138,9 +139,9 @@ SLNode* BuildFigureGroup(SLMaterial* mat, SLbool withAnimation)
     armRight->addChild(arm->copyRec());
 
     // Assemble head & neck
-    SLNode* head = new SLNode(new SLSphere(0.5f, 16, 16, "head", mat), "head (T1)");
+    SLNode* head = new SLNode(new SLSphere(0.5f, res, res, "head", mat), "head (T1)");
     head->translate(0.0f, 0.0f,-0.7f, TS_object);
-    SLNode* neck = new SLNode(new SLCylinder(0.25f, 0.3f, 1, 16, false, false, "neck", mat), "neck (T2)");
+    SLNode* neck = new SLNode(new SLCylinder(0.25f, 0.3f, 1, res, false, false, "neck", mat), "neck (T2)");
     neck->translate(0.0f, 0.0f,-0.3f, TS_object);
       
     // Assemble figure Left
@@ -242,7 +243,8 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         SLMaterial* m1 = new SLMaterial("m1", SLCol4f::BLACK, SLCol4f::WHITE,128, 0.2f, 0.8f, 1.5f);
         SLMaterial* m2 = new SLMaterial("m2", SLCol4f::WHITE*0.3f, SLCol4f::WHITE,128, 0.5f, 0.0f, 1.0f);
 
-        SLMesh* floorMesh = new SLRectangle(SLVec2f(-5,-5), SLVec2f(5,5), 20, 20, "floor mesh", m2);
+        SLint res = 20 * SL::testFactor;
+        SLMesh* floorMesh = new SLRectangle(SLVec2f(-5,-5), SLVec2f(5,5), res, res, "floor mesh", m2);
         SLNode* floorRect = new SLNode(floorMesh);
         floorRect->rotate(90, -1,0,0);
         floorRect->translate(0,0,-5.5f);
@@ -340,7 +342,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         // define rectangles for the surrounding box
         SLfloat b=3; // edge size of rectangles
         SLNode *rb, *rl, *rr, *rf, *rt;
-        SLuint res = 20;
+        SLuint res = 20*SL::testFactor;
         rb = new SLNode(new SLRectangle(SLVec2f(-b,-b), SLVec2f(b,b), res, res, "rectB", matBlu), "rectBNode");                         rb->translate(0,0,-b, TS_object);
         rl = new SLNode(new SLRectangle(SLVec2f(-b,-b), SLVec2f(b,b), res, res, "rectL", matRed), "rectLNode"); rl->rotate( 90, 0,1,0); rl->translate(0,0,-b, TS_object);
         rr = new SLNode(new SLRectangle(SLVec2f(-b,-b), SLVec2f(b,b), res, res, "rectR", matGre), "rectRNode"); rr->rotate(-90, 0,1,0); rr->translate(0,0,-b, TS_object);
@@ -630,7 +632,8 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         revG.push_back(SLVec3f(2.05f, 7.15f));
         revG.push_back(SLVec3f(2.00f, 7.10f)); // inner cup
         revG.push_back(SLVec3f(2.05f, 6.00f));
-        SLNode* glass = new SLNode(new SLRevolver(revG, SLVec3f(0,1,0), 36, true, false, "GlassRev", mat5));
+        SLint res = 30*SL::testFactor;
+        SLNode* glass = new SLNode(new SLRevolver(revG, SLVec3f(0,1,0), res, true, false, "GlassRev", mat5));
         glass->translate(0.0f,-3.5f, 0.0f, TS_object);
 
         // wine 2D polyline definition for revolution with two sided material
@@ -642,13 +645,13 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         revW.push_back(SLVec3f(1.70f, 4.80f));
         revW.push_back(SLVec3f(1.95f, 5.40f));
         revW.push_back(SLVec3f(2.05f, 6.00f));
-        SLMesh* wineMesh = new SLRevolver(revW, SLVec3f(0,1,0), 36, true, false, "WineRev", mat6);
+        SLMesh* wineMesh = new SLRevolver(revW, SLVec3f(0,1,0), res, true, false, "WineRev", mat6);
         wineMesh->matOut = mat5;
         SLNode* wine = new SLNode(wineMesh);
         wine->translate(0.0f,-3.5f, 0.0f, TS_object);
 
         // wine fluid top
-        SLNode* wineTop = new SLNode(new SLDisk(2.05f, -SLVec3f::AXISY, 36, false, "WineRevTop", mat6));
+        SLNode* wineTop = new SLNode(new SLDisk(2.05f, -SLVec3f::AXISY, res, false, "WineRevTop", mat6));
         wineTop->translate(0.0f, 2.5f, 0.0f, TS_object);
 
         // Other revolver objects
@@ -847,7 +850,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         light->lookAt(0, 0, 0);
         light->attenuation(1,0,0);
 
-        // Build arrays for polygon vertices and texcords for tree
+        // Build arrays for polygon vertices and texcoords for tree
         SLVVec3f pNW, pSE;
         SLVVec2f tNW, tSE;
         pNW.push_back(SLVec3f( 0, 0,0)); tNW.push_back(SLVec2f(0.5f,0.0f));
@@ -878,13 +881,14 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         tree->addChild(p3);
         tree->addChild(p4);
 
-        // Build arrays for polygon vertices and texcords for ground
+        // Build arrays for polygon vertices and texcoords for ground
         SLVVec3f pG;
         SLVVec2f tG;
-        pG.push_back(SLVec3f(-22, 0, 22)); tG.push_back(SLVec2f( 0, 0));
-        pG.push_back(SLVec3f( 22, 0, 22)); tG.push_back(SLVec2f(30, 0));
-        pG.push_back(SLVec3f( 22, 0,-22)); tG.push_back(SLVec2f(30,30));
-        pG.push_back(SLVec3f(-22, 0,-22)); tG.push_back(SLVec2f( 0,30));
+        SLfloat size = 22.0f * (SLfloat)SL::testFactor;
+        pG.push_back(SLVec3f(-size, 0, size)); tG.push_back(SLVec2f( 0, 0));
+        pG.push_back(SLVec3f( size, 0, size)); tG.push_back(SLVec2f(30, 0));
+        pG.push_back(SLVec3f( size, 0,-size)); tG.push_back(SLVec2f(30,30));
+        pG.push_back(SLVec3f(-size, 0,-size)); tG.push_back(SLVec2f( 0,30));
 
         SLNode* scene = new SLNode("grScene");
         scene->addChild(light);
@@ -892,9 +896,9 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         scene->addChild(new SLNode(new SLPolygon(pG, tG, "Ground", m2)));
 
         //create 21*21*21-1 references around the center tree
-        SLint size = 10;
-        for (SLint iZ=-size; iZ<=size; ++iZ)
-        {   for (SLint iX=-size; iX<=size; ++iX)
+        SLint res = 10 * SL::testFactor;
+        for (SLint iZ=-res; iZ<=res; ++iZ)
+        {   for (SLint iX=-res; iX<=res; ++iX)
             {  if (iX!=0 || iZ!=0)
                 {   SLNode* t = tree->copyRec();
                     t->translate(float(iX)*2+SL_random(0.7f,1.4f),
@@ -1092,12 +1096,12 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         scene->addChild(light1);
 
         // add one single sphere in the center
-        SLint resolution = 16;
-        SLNode* sphere = new SLNode(new SLSphere(0.15f, resolution, resolution, "mySphere", mat1));
+        SLint res = 16 * SL::testFactor;
+        SLNode* sphere = new SLNode(new SLSphere(0.15f, res, res, "mySphere", mat1));
         scene->addChild(sphere);
 
         // create spheres around the center sphere
-        SLint size = 10;
+        SLint size = 10 * SL::testFactor;
         for (SLint iZ=-size; iZ<=size; ++iZ)
         {   for (SLint iY=-size; iY<=size; ++iY)
             {   for (SLint iX=-size; iX<=size; ++iX)
@@ -1113,7 +1117,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
 
         SLint num = size + size + 1;
         if (SL::noTestIsRunning())
-            SL_LOG("Triangles in scene: %d\n", resolution*resolution*2*num*num*num);
+            SL_LOG("Triangles in scene: %d\n", res*res*2*num*num*num);
 
         _background.colors(SLCol4f(0.1f,0.1f,0.1f));
         sv->camera(cam1);
@@ -1273,13 +1277,13 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
 
         // Create materials
         SLMaterial* matWater = new SLMaterial("matWater", SLCol4f(0.45f,0.65f,0.70f),
-                                                        SLCol4f::WHITE, 300);
+                                                          SLCol4f::WHITE, 300);
         matWater->program(sp);
         SLMaterial* matRed  = new SLMaterial("matRed", SLCol4f(1.00f,0.00f,0.00f));
 
         // water rectangle in the y=0 plane
         SLNode* wave = new SLNode(new SLRectangle(SLVec2f(-SL_PI,-SL_PI), SLVec2f( SL_PI, SL_PI),
-                                                    40, 40, "WaterRect", matWater));
+                                                    40*SL::testFactor, 40*SL::testFactor, "WaterRect", matWater));
         wave->rotate(90, -1,0,0);
 
         SLLightSphere* light0 = new SLLightSphere();
@@ -1291,7 +1295,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         SLNode* scene = new SLNode;
         scene->addChild(light0);
         scene->addChild(wave);
-        scene->addChild(new SLNode(new SLSphere(1, 32, 32, "Red Sphere", matRed)));
+        scene->addChild(new SLNode(new SLSphere(1, 32*SL::testFactor, 32*SL::testFactor, "Red Sphere", matRed)));
         scene->addChild(cam1);
 
         _background.colors(SLCol4f(0.1f,0.4f,0.8f));
@@ -1320,7 +1324,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
 
         // Create generic shader program with 4 custom uniforms
         SLGLProgram* sp = new SLGLGenericProgram("WaveRefractReflect.vert",
-                                                       "RefractReflect.frag");
+                                                 "RefractReflect.frag");
         SLGLUniform1f* u_h = new SLGLUniform1f(UT_const, "u_h", 0.1f, 0.05f, 0.0f, 0.5f, (SLKey)'H');
         _eventHandlers.push_back(u_h);
         sp->addUniform1f(u_h);
@@ -1330,7 +1334,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
 
         // Create materials
         SLMaterial* matWater = new SLMaterial("matWater", SLCol4f(0.45f,0.65f,0.70f),
-                                                        SLCol4f::WHITE, 100, 0.1f, 0.9f, 1.5f);
+                                                          SLCol4f::WHITE, 100, 0.1f, 0.9f, 1.5f);
         matWater->program(sp);
         matWater->textures().push_back(tex1);
         SLMaterial* matRed  = new SLMaterial("matRed", SLCol4f(1.00f,0.00f,0.00f));
@@ -1340,20 +1344,21 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         // water rectangle in the y=0 plane
         SLNode* rect = new SLNode(new SLRectangle(SLVec2f(-SL_PI,-SL_PI), 
                                                   SLVec2f( SL_PI, SL_PI),
-                                                  40, 40, "WaterRect", matWater));
+                                                  40*SL::testFactor, 40*SL::testFactor, "WaterRect", matWater));
         rect->rotate(90, -1,0,0);
 
         // Pool rectangles
+        SLint res = 10 * SL::testFactor;
         SLNode* rectF = new SLNode(new SLRectangle(SLVec2f(-SL_PI,-SL_PI/6), SLVec2f( SL_PI, SL_PI/6),
-                                                   SLVec2f(0,0), SLVec2f(10, 2.5f), 10, 10, "rectF", matTile));
+                                                   SLVec2f(0,0), SLVec2f(10, 2.5f), res, res, "rectF", matTile));
         SLNode* rectN = new SLNode(new SLRectangle(SLVec2f(-SL_PI,-SL_PI/6), SLVec2f( SL_PI, SL_PI/6),
-                                                   SLVec2f(0,0), SLVec2f(10, 2.5f), 10, 10, "rectN", matTile));
+                                                   SLVec2f(0,0), SLVec2f(10, 2.5f), res, res, "rectN", matTile));
         SLNode* rectL = new SLNode(new SLRectangle(SLVec2f(-SL_PI,-SL_PI/6), SLVec2f( SL_PI, SL_PI/6),
-                                                   SLVec2f(0,0), SLVec2f(10, 2.5f), 10, 10, "rectL", matTile));
+                                                   SLVec2f(0,0), SLVec2f(10, 2.5f), res, res, "rectL", matTile));
         SLNode* rectR = new SLNode(new SLRectangle(SLVec2f(-SL_PI,-SL_PI/6), SLVec2f( SL_PI, SL_PI/6),
-                                                   SLVec2f(0,0), SLVec2f(10, 2.5f), 10, 10, "rectR", matTile));
+                                                   SLVec2f(0,0), SLVec2f(10, 2.5f), res, res, "rectR", matTile));
         SLNode* rectB = new SLNode(new SLRectangle(SLVec2f(-SL_PI,-SL_PI  ), SLVec2f( SL_PI, SL_PI  ),
-                                                   SLVec2f(0,0), SLVec2f(10, 10  ), 10, 10, "rectB", matTile));
+                                                   SLVec2f(0,0), SLVec2f(10, 10  ), res, res, "rectB", matTile));
         rectF->translate(0,0,-SL_PI, TS_object);
         rectL->rotate( 90, 0,1,0); rectL->translate(0,0,-SL_PI, TS_object);
         rectN->rotate(180, 0,1,0); rectN->translate(0,0,-SL_PI, TS_object);
@@ -1537,7 +1542,8 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         SLAnimation* anim = SLAnimation::create("light1_anim", 24.0f);
         anim->createEllipticNodeTrack(sun, 50.0f, A_x, 50.0f, A_z);
 
-        SLNode* earth = new SLNode(new SLSphere(1, 36, 36, "Earth", matEarth));
+        SLint res = 30*SL::testFactor;
+        SLNode* earth = new SLNode(new SLSphere(1, res, res, "Earth", matEarth));
         earth->rotate(90,-1,0,0);
 
         SLNode* scene = new SLNode;
@@ -2009,7 +2015,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         cam1->lookAt(0, 0, 0);
         cam1->focalDist(4);
 
-        SLNode *rect = new SLNode(new SLRectangle(SLVec2f(-3,-3), SLVec2f(5,4), 20, 20, "Floor", matYel));
+        SLNode *rect = new SLNode(new SLRectangle(SLVec2f(-3,-3), SLVec2f(5,4), 20*SL::testFactor, 20, "Floor", matYel));
         rect->rotate(90, -1,0,0);
         rect->translate(0, -1, -0.5f, TS_object);
 
@@ -2028,7 +2034,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         SLNode* scene  = new SLNode;
         scene->addChild(light1);
         scene->addChild(light2);
-        scene->addChild(SphereGroup(2, 0,0,0, 1, 32, matGla, matRed));
+        scene->addChild(SphereGroup(3, 0,0,0, 1, 30*SL::testFactor, matGla, matRed));
         scene->addChild(rect);
         scene->addChild(cam1);
 
@@ -2052,14 +2058,15 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         cam1->translation(0, 0.1f, 6);
         cam1->lookAt(0, 0, 0);
         cam1->focalDist(6);
-
-        SLNode* rect = new SLNode(new SLRectangle(SLVec2f(-3,-3), SLVec2f(5,4), 32, 32, "Rect", matYel));
+        
+        SLint res = 30 * SL::testFactor;
+        SLNode* rect = new SLNode(new SLRectangle(SLVec2f(-3,-3), SLVec2f(5,4), res, res, "Rect", matYel));
         rect->rotate(90, -1,0,0);
         rect->translate(0, -1, -0.5f, TS_object);
 
         SLLightSphere* light1 = new SLLightSphere(3, 3, 3, 0.3f);
         #ifndef SL_GLES2
-        SLint numSamples = 6;
+        SLint numSamples = 10*SL::testFactor;
         #else
         SLint numSamples = 8;
         #endif
@@ -2077,7 +2084,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         SLNode* scene  = new SLNode;
         scene->addChild(light1);
         scene->addChild(light2);
-        scene->addChild(SphereGroup(1, 0,0,0, 1, 32, matBlk, matRed));
+        scene->addChild(SphereGroup(1*SL::testFactor, 0,0,0, 1, res, matBlk, matRed));
         scene->addChild(rect);
         scene->addChild(cam1);
 
@@ -2102,9 +2109,9 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         SLMaterial* mM = new SLMaterial("mM", SLCol4f::MAGENTA);
 
         #ifndef SL_GLES2
-        SLint numSamples = 6;
+        SLint numSamples = 10*SL::testFactor;
         #else
-        SLint numSamples = 10;
+        SLint numSamples = 6;
         #endif
 
         SLCamera* cam1 = new SLCamera;
@@ -2114,8 +2121,9 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         cam1->lensDiameter(0.4f);
         cam1->lensSamples()->samples(numSamples, numSamples);
         cam1->setInitialState();
-
-        SLNode* rect = new SLNode(new SLRectangle(SLVec2f(-5,-5), SLVec2f(5,5), 20, 20, "Rect", mT));
+        
+        SLint res = 30 * SL::testFactor;
+        SLNode* rect = new SLNode(new SLRectangle(SLVec2f(-5,-5), SLVec2f(5,5), res, res, "Rect", mT));
         rect->rotate(90, -1,0,0);
         rect->translate(0,0,-0.5f, TS_object);
 
@@ -2124,13 +2132,13 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
 
         SLNode* balls = new SLNode;
         SLNode* s;
-        s = new SLNode(new SLSphere(0.5f,32,32,"S1",mW)); s->translate( 2.0,0,-4,TS_object);  balls->addChild(s);
-        s = new SLNode(new SLSphere(0.5f,32,32,"S2",mB)); s->translate( 1.5,0,-3,TS_object);  balls->addChild(s);
-        s = new SLNode(new SLSphere(0.5f,32,32,"S3",mY)); s->translate( 1.0,0,-2,TS_object);  balls->addChild(s);
-        s = new SLNode(new SLSphere(0.5f,32,32,"S4",mR)); s->translate( 0.5,0,-1,TS_object);  balls->addChild(s);
-        s = new SLNode(new SLSphere(0.5f,32,32,"S5",mG)); s->translate( 0.0,0, 0,TS_object);  balls->addChild(s);
-        s = new SLNode(new SLSphere(0.5f,32,32,"S6",mM)); s->translate(-0.5,0, 1,TS_object);  balls->addChild(s);
-        s = new SLNode(new SLSphere(0.5f,32,32,"S7",mW)); s->translate(-1.0,0, 2,TS_object);  balls->addChild(s);
+        s = new SLNode(new SLSphere(0.5f,res,res,"S1",mW)); s->translate( 2.0,0,-4,TS_object);  balls->addChild(s);
+        s = new SLNode(new SLSphere(0.5f,res,res,"S2",mB)); s->translate( 1.5,0,-3,TS_object);  balls->addChild(s);
+        s = new SLNode(new SLSphere(0.5f,res,res,"S3",mY)); s->translate( 1.0,0,-2,TS_object);  balls->addChild(s);
+        s = new SLNode(new SLSphere(0.5f,res,res,"S4",mR)); s->translate( 0.5,0,-1,TS_object);  balls->addChild(s);
+        s = new SLNode(new SLSphere(0.5f,res,res,"S5",mG)); s->translate( 0.0,0, 0,TS_object);  balls->addChild(s);
+        s = new SLNode(new SLSphere(0.5f,res,res,"S6",mM)); s->translate(-0.5,0, 1,TS_object);  balls->addChild(s);
+        s = new SLNode(new SLSphere(0.5f,res,res,"S7",mW)); s->translate(-1.0,0, 2,TS_object);  balls->addChild(s);
 
         SLNode* scene  = new SLNode;
         scene->addChild(light1);
@@ -2161,7 +2169,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         //matLens->shaderProg(sp1);
 
         #ifndef SL_GLES2
-            SLint numSamples = 10;
+            SLint numSamples = 10*SL::testFactor;
         #else
             SLint numSamples = 6;
         #endif
@@ -2187,8 +2195,8 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         SLLightSphere* light1 = new SLLightSphere(1, 6, 1, 0.1f);
         light1->attenuation(0, 0, 1);
         
-
-        SLNode* rect = new SLNode(new SLRectangle(SLVec2f(-5, -5), SLVec2f(5, 5), 20, 20, "Rect", mT));
+        SLint res = 20 * SL::testFactor;
+        SLNode* rect = new SLNode(new SLRectangle(SLVec2f(-5, -5), SLVec2f(5, 5), res, res, "Rect", mT));
         rect->rotate(90, -1, 0, 0);
         rect->translate(0, 0, -0.0f, TS_object);
 
@@ -2200,7 +2208,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
 
         // Lens with radius
         //SLNode* lensC = new SLNode(new SLLens(5.0, 4.0, 4.0f, 0.0f, 32, 32, "presbyopic", matLens));        // Weitsichtig
-        SLNode* lensD = new SLNode(new SLLens(-15.0f, -15.0f, 1.0f, 0.1f, 32, 32, "myopic", matLens));          // Kurzsichtig
+        SLNode* lensD = new SLNode(new SLLens(-15.0f, -15.0f, 1.0f, 0.1f, res, res, "myopic", matLens));          // Kurzsichtig
         //lensC->translate(-2, 1, 2, TS_Object);
         lensD->translate(0, 6, 0, TS_object);
 

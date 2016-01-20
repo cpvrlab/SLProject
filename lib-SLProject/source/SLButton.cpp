@@ -242,8 +242,8 @@ void SLButton::buildBuffers()
     // create buffers on GPU
     SLGLProgram* sp = SLScene::current->programs(SP_colorAttribute);
     sp->useProgram();
-    _vao.setAttrib(VAT_position, sp->getAttribLocation("a_position"), P);
-    _vao.setAttrib(VAT_color, sp->getAttribLocation("a_color"), C);
+    _vao.setAttrib(AT_position, sp->getAttribLocation("a_position"), P);
+    _vao.setAttrib(AT_color, sp->getAttribLocation("a_color"), C);
     _vao.generate((SLuint)P.size());
 }
 //-----------------------------------------------------------------------------

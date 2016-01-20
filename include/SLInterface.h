@@ -14,6 +14,7 @@
 
 #include <stdafx.h>
 #include <SLEnums.h>
+#include <SLGLEnums.h>
 
 //! \file SLInterface.h SLProject C-functions interface declaration.
 /*! \file SLInterface.h

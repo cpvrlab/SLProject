@@ -335,13 +335,13 @@ struct VertexAnimationTrack
 	enum Type
 	{
 		/// No animation
-		VAT_NONE = 0,
+		AT_NONE = 0,
 		/// Morph animation is made up of many interpolated snapshot keyframes
-		VAT_MORPH = 1,
+		AT_MORPH = 1,
 		/// Pose animation is made up of a single delta pose keyframe
-		VAT_POSE = 2,
+		AT_POSE = 2,
 		/// Keyframe that has its on pos, rot and scale for a time position
-		VAT_TRANSFORM = 3
+		AT_TRANSFORM = 3
 	};
 
 	VertexAnimationTrack();
@@ -357,7 +357,7 @@ struct VertexAnimationTrack
 		>0 == submesh index + 1 */
 	uint16_t target;
 	
-	/// Only valid for VAT_TRANSFORM.
+	/// Only valid for AT_TRANSFORM.
 	std::string boneName;
 
 	/// Only one of these will contain key frames, depending on the type enum.

@@ -1211,12 +1211,12 @@ void createSLDistortionMesh(SLEyeType eye, SLGLVertexArray& vao)
     sp->useProgram();
 
     // set attributes with all the same data pointer to the interleaved array
-    vao.setAttrib(VAT_position, 2, sp->getAttribLocation("a_position"), pVBVerts);
-    vao.setAttrib(VAT_custom1,  1, sp->getAttribLocation("a_timeWarpFactor"), pVBVerts);
-    vao.setAttrib(VAT_custom2,  1, sp->getAttribLocation("a_vignetteFactor"), pVBVerts);
-    vao.setAttrib(VAT_custom3,  2, sp->getAttribLocation("a_texCoordR"), pVBVerts);
-    vao.setAttrib(VAT_custom4,  2, sp->getAttribLocation("a_texCoordG"), pVBVerts);
-    vao.setAttrib(VAT_custom5,  2, sp->getAttribLocation("a_texCoordB"), pVBVerts);
+    vao.setAttrib(AT_position, 2, sp->getAttribLocation("a_position"), pVBVerts);
+    vao.setAttrib(AT_custom1,  1, sp->getAttribLocation("a_timeWarpFactor"), pVBVerts);
+    vao.setAttrib(AT_custom2,  1, sp->getAttribLocation("a_vignetteFactor"), pVBVerts);
+    vao.setAttrib(AT_custom3,  2, sp->getAttribLocation("a_texCoordR"), pVBVerts);
+    vao.setAttrib(AT_custom4,  2, sp->getAttribLocation("a_texCoordG"), pVBVerts);
+    vao.setAttrib(AT_custom5,  2, sp->getAttribLocation("a_texCoordB"), pVBVerts);
     vao.setIndices(indexCount, BT_uint, &tempIndex[0]);
     vao.generate(vertexCount);
 

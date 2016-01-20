@@ -43,7 +43,7 @@
 //-----------------------------------------------------------------------------
 // Half precision floating point type
 #include <half.hpp>
-using half_float::half;
+using namespace half_float;
 
 /////////////////////////////////////////////////////////
 // Preprocessor constant definitions used in the SLProject

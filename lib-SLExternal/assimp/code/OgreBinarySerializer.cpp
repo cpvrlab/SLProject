@@ -1064,7 +1064,7 @@ void OgreBinarySerializer::ReadSkeletonAnimationTrack(Skeleton *skeleton, Animat
 	}
 	
 	VertexAnimationTrack track;
-	track.type = VertexAnimationTrack::VAT_TRANSFORM;
+	track.type = VertexAnimationTrack::AT_TRANSFORM;
 	track.boneName = bone->name;
 	
 	uint16_t id = ReadHeader();

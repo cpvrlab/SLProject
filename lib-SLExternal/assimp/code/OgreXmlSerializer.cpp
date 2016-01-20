@@ -817,7 +817,7 @@ void OgreXmlSerializer::ReadAnimationTracks(Animation *dest)
 	while(m_currentNodeName == nnTrack)
 	{
 		VertexAnimationTrack track;
-		track.type = VertexAnimationTrack::VAT_TRANSFORM;
+		track.type = VertexAnimationTrack::AT_TRANSFORM;
 		track.boneName = ReadAttribute<std::string>("bone");
 
 		if (NextNode() != nnKeyFrames) {

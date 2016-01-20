@@ -163,7 +163,7 @@ void SLMesh::draw(SLSceneView* sv, SLNode* node)
         if (sv->drawBit(SL_DB_HIDDEN) || node->drawBit(SL_DB_HIDDEN)) 
             return;
 
-        SLPrimitiveType primitiveType = _primitive;
+        SLGLPrimitiveType primitiveType = _primitive;
               
         // Set polygon mode
         if (sv->drawBit(SL_DB_WIREMESH) || node->drawBit(SL_DB_WIREMESH))
@@ -258,16 +258,16 @@ void SLMesh::draw(SLSceneView* sv, SLNode* node)
         ///////////////////////////////////////
 
         if (!_vao.id())
-        {            _vao.setAttrib(VAT_position,    3, sp->getAttribLocation("a_position"),     finalP());
-            if (N)   _vao.setAttrib(VAT_normal,      3, sp->getAttribLocation("a_normal"),       finalN());
-            if (Tc)  _vao.setAttrib(VAT_texCoord,    2, sp->getAttribLocation("a_texCoord"),     Tc);
-            if (C)   _vao.setAttrib(VAT_color,       4, sp->getAttribLocation("a_color"),        C);
-            if (T)   _vao.setAttrib(VAT_tangent,     4, sp->getAttribLocation("a_tangent"),      T);
-            if (Ji)  _vao.setAttrib(VAT_jointIndex,  4, sp->getAttribLocation("a_jointIndex"),   Ji);
-            if (Jw)  _vao.setAttrib(VAT_jointWeight, 4, sp->getAttribLocation("a_jointWeights"), Jw);
+        {            _vao.setAttrib(AT_position,    3, sp->getAttribLocation("a_position"), finalP());
+            if (N)   _vao.setAttrib(AT_normal,      3, sp->getAttribLocation("a_normal"), finalN());
+            if (Tc)  _vao.setAttrib(AT_texCoord,    2, sp->getAttribLocation("a_texCoord"), Tc);
+            if (C)   _vao.setAttrib(AT_color,       4, sp->getAttribLocation("a_color"), C);
+            if (T)   _vao.setAttrib(AT_tangent,     4, sp->getAttribLocation("a_tangent"), T);
+            if (Ji)  _vao.setAttrib(AT_jointIndex,  4, sp->getAttribLocation("a_jointIds"), Ji);
+            if (Jw)  _vao.setAttrib(AT_jointWeight, 4, sp->getAttribLocation("a_jointWeights"), Jw);
             if (I16) _vao.setIndices(numI, BT_ushort, I16);
             if (I32) _vao.setIndices(numI, BT_uint, I32);
-            _vao.generate(numV, (Ji&&Jw) ? BU_stream : BU_static, !(Ji&&Jw));
+            _vao.generate(numV, (Ji&&Jw) ? BU_stream : BU_static, false); //!(Ji&&Jw));
         }
 
         ///////////////////////////////
@@ -536,7 +536,7 @@ the min & max points in WS with the passed WM of the node.
 */
 void SLMesh::buildAABB(SLAABBox &aabb, SLMat4f wmNode)
 {   
-    // update accel struct and calculate min max
+    // update acceleration struct and calculate min max
     //updateAccelStruct();
     if (_skeleton)
     {
@@ -545,7 +545,7 @@ void SLMesh::buildAABB(SLAABBox &aabb, SLMat4f wmNode)
     }     
     else {
         // for now we just update the acceleration struct for non skinned meshes
-        // Building the entire voxelization of a mesh every frame is not feasable
+        // Building the entire voxelization of a mesh every frame is not feasible
         updateAccelStruct();
     }
     // Apply world matrix
@@ -1100,8 +1100,8 @@ void SLMesh::transformSkin()
     // update or create buffers
     if (_vao.id())
     {
-        _vao.updateAttrib(VAT_position, 3, finalP());
-        if (N) _vao.updateAttrib(VAT_normal, 3, finalN());
+        _vao.updateAttrib(AT_position, 3, finalP());
+        if (N) _vao.updateAttrib(AT_normal, 3, finalN());
     }
     
 }

@@ -12,6 +12,7 @@
 #define SLIMAGE_H
 
 #include <stdafx.h>
+
 #ifdef SL_HAS_OPENCV
 #include <opencv2/opencv.hpp>
 #endif

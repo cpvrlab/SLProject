@@ -14,7 +14,8 @@
 #include <debug_new.h>        // memory leak detector
 #endif
 
-#include "SLGLState.h"
+#include <SLGLEnums.h>
+#include <SLGLState.h>
 
 //-----------------------------------------------------------------------------
 SLGLState* SLGLState::instance = nullptr;

@@ -13,81 +13,22 @@
 #define SLGLVERTEXARRAY_H
 
 #include <stdafx.h>
-
-//-----------------------------------------------------------------------------
-//! Enumeration for buffer data types
-enum SLBufferType
-{   BT_float  = GL_FLOAT,          //!< vertex attributes (position, normals)
-    BT_ubyte  = GL_UNSIGNED_BYTE,  //!< vertex index type (0-2^8)
-    BT_ushort = GL_UNSIGNED_SHORT, //!< vertex index type (0-2^16)
-    BT_uint   = GL_UNSIGNED_INT    //!< vertex index type (0-2^32)
-};
-//-----------------------------------------------------------------------------
-//! Enumeration for buffer usage types also supported by OpenGL ES
-enum SLBufferUsage
-{   BU_static  = GL_STATIC_DRAW,    //!< Buffer will be modified once and used many times.
-    BU_stream  = GL_STREAM_DRAW,    //!< Buffer will be modified once and used at most a few times.
-    BU_dynamic = GL_DYNAMIC_DRAW,   //!< Buffer will be modified repeatedly and used many times.
-};
-//-----------------------------------------------------------------------------
-// Enumeration for OpenGL primitive types
-enum SLPrimitiveType
-{   PT_points        = GL_POINTS,
-    PT_lines         = GL_LINES,
-    PT_lineLoop      = GL_LINE_LOOP,
-    PT_lineStrip     = GL_LINE_STRIP,
-    PT_triangles     = GL_TRIANGLES,
-    PT_triangleStrip = GL_TRIANGLE_STRIP,
-    PT_triangleFan   = GL_TRIANGLE_FAN
-};
-//-----------------------------------------------------------------------------
-//! Enumeration for float vertex attribute types
-enum SLVertexAttribType
-{   VAT_position,    //!< Vertex position as a 2, 3 or 4 component vectors
-    VAT_normal,      //!< Vertex normal as a 3 component vector
-    VAT_texCoord,    //!< Vertex texture coordinate as 2 component vector
-    VAT_tangent,     //!< Vertex tangent as a 4 component vector (see SLMesh) 
-    VAT_jointWeight, //!< Vertex joint weight for vertex skinning
-    VAT_jointIndex,  //!< Vertex joint id for vertex skinning
-    VAT_color,       //!< Vertex color as 3 or 4 component vector
-    VAT_custom0,     //!< Custom vertex attribute 0
-    VAT_custom1,     //!< Custom vertex attribute 1
-    VAT_custom2,     //!< Custom vertex attribute 2
-    VAT_custom3,     //!< Custom vertex attribute 3
-    VAT_custom4,     //!< Custom vertex attribute 4
-    VAT_custom5,     //!< Custom vertex attribute 5
-    VAT_custom6,     //!< Custom vertex attribute 6
-    VAT_custom7,     //!< Custom vertex attribute 7
-    VAT_custom8,     //!< Custom vertex attribute 8
-    VAT_custom9      //!< Custom vertex attribute 0
-};
-//-----------------------------------------------------------------------------
-//! Struct for vertex attribute information
-struct SLVertexAttrib
-{   SLVertexAttribType  type;           //!< type of vertex attribute
-    SLint               elementSize;    //!< size of attribute element (SLVec3f has 3)
-    SLuint              offsetBytes;    //!< offset of the attribute data in the buffer
-    SLuint              bufferSizeBytes;//!< size of the attribute part in the buffer
-    void*               dataPointer;    //!< pointer to the attributes source data
-    SLint               location;       //!< GLSL input variable location index
-};
-//-----------------------------------------------------------------------------
-typedef vector<SLVertexAttrib>  SLVVertexAttrib;
-//-----------------------------------------------------------------------------
-
-
-
+#include <SLGLEnums.h>
+#include <SLGLVertexBuffer.h>
 
 //-----------------------------------------------------------------------------
 //! SLGLVertexArray encapsulates the core OpenGL drawing
 /*! An SLGLVertexArray instance handles all OpenGL drawing with an OpenGL 
-Vertex Array Object (VAO ) and a float Vertex Buffer Object (VBO) for all
-attributes and an index buffer for element drawing.\n 
+Vertex Array Object (VAO), a vertex buffer objects (VBO) for the attributes
+and an index buffer for element drawing. Attributes can be stored in a float
+or half float VBO of type SLGLVertexBuffer.\n 
 VAOs where introduces OpenGL 3.0 and reduce the overhead per draw call. 
-All vertex attributes (e.g. position, normals, texture coords, etc.) are float
-and are stored in one big VBO. They can be in sequential order (first all 
-positions, then all normals, etc.) or interleaved (all attributes together for
-one vertex).\n
+All vertex attributes (e.g. position, normals, texture coords, etc.) are must be
+float at the input. They can be flagged to be converted to half floats so that
+they will be stored in a separate VBO with half floats (_VBOh). 
+Attributes can be in sequential order (first all positions, then all normals, etc.) 
+or interleaved (all attributes together for one vertex). See 
+SGLVertexBuffer::generate for more information.\n
 Vertices can be drawn either directly as in the array (SLGLVertexArray::drawArrayAs) 
 or by element (SLGLVertexArray::drawElementsAs) with a separate indices buffer.\n
 The setup of a VAO has multiple steps:\n
@@ -107,43 +48,50 @@ class SLGLVertexArray
         void        deleteGL            ();
 
         //! Clears the attribute definition
-        void        clearAttribs        () {deleteGL(); _attribs.clear();}
+        void        clearAttribs        () {deleteGL(); 
+                                            _VBOf.clear(BT_float); 
+                                            _VBOh.clear(BT_half);}
 
         //! Returns either the VAO id or the VBO id
-        SLint       id                  () {return _glHasVAO?_idVAO:_idVBOAttribs;}
+        SLint       id                  () {return _glHasVAO?_idVAO:_VBOf.id();}
 
-        //! Returns the vector index if a vertex attribute exists otherwise -1
-        SLint       attribIndex         (SLVertexAttribType type);
+        //! Returns the vector index if a float vertex attribute exists otherwise -1
+        SLint       attribIndexh        (SLGLAttributeType type);
 
         //! Adds a vertex attribute with data pointer and an element size
-        void        setAttrib           (SLVertexAttribType type, 
+        void        setAttrib           (SLGLAttributeType type, 
                                          SLint elementSize, 
                                          SLint location, 
-                                         void* dataPointer);
+                                         void* dataPointer,
+                                         SLbool convertToHalf=false);
 
         //! Adds a vertex attribute with vector of SLfloat
-        void        setAttrib           (SLVertexAttribType type,
+        void        setAttrib           (SLGLAttributeType type,
                                          SLint location, 
-                                         SLVfloat& data) {setAttrib(type, 1, location, (void*)&data[0]);}
+                                         SLVfloat& data,
+                                         SLbool convertToHalf=false) {setAttrib(type, 1, location, (void*)&data[0]);}
 
         //! Adds a vertex attribute with vector of SLVec2f
-        void        setAttrib           (SLVertexAttribType type,
+        void        setAttrib           (SLGLAttributeType type,
                                          SLint location, 
-                                         SLVVec2f& data) {setAttrib(type, 2, location, (void*)&data[0]);}
+                                         SLVVec2f& data,
+                                         SLbool convertToHalf=false) {setAttrib(type, 2, location, (void*)&data[0]);}
 
         //! Adds a vertex attribute with vector of SLVec3f
-        void        setAttrib           (SLVertexAttribType type,
+        void        setAttrib           (SLGLAttributeType type,
                                          SLint location, 
-                                         SLVVec3f& data) {setAttrib(type, 3, location, (void*)&data[0]);}
+                                         SLVVec3f& data,
+                                         SLbool convertToHalf=false) {setAttrib(type, 3, location, (void*)&data[0]);}
 
         //! Adds a vertex attribute with vector of SLVec4f
-        void        setAttrib           (SLVertexAttribType type,
+        void        setAttrib           (SLGLAttributeType type,
                                          SLint location, 
-                                         SLVVec4f& data) {setAttrib(type, 4, location, (void*)&data[0]);}
+                                         SLVVec4f& data,
+                                         SLbool convertToHalf=false) {setAttrib(type, 4, location, (void*)&data[0]);}
         
         //! Adds the index array for indexed element drawing
         void        setIndices          (SLuint numIndices,
-                                         SLBufferType indexDataType,
+                                         SLGLBufferType indexDataType,
                                          void* dataPointer);
         
         //! Adds the index array for indexed element drawing with a vector of ubyte
@@ -162,38 +110,38 @@ class SLGLVertexArray
                                                                         (void*)&indices[0]);}
         
         //! Updates a specific vertex attribute in the VBO
-        void        updateAttrib        (SLVertexAttribType type, 
+        void        updateAttrib        (SLGLAttributeType type, 
                                          SLint elementSize, 
                                          void* dataPointer);
         
         //! Updates a specific vertex attribute in the VBO
-        void        updateAttrib        (SLVertexAttribType type, 
+        void        updateAttrib        (SLGLAttributeType type, 
                                          SLVfloat& data) {updateAttrib(type, 1, (void*)&data[0]);}
         
         //! Updates a specific vertex attribute in the VBO
-        void        updateAttrib        (SLVertexAttribType type, 
+        void        updateAttrib        (SLGLAttributeType type, 
                                          SLVVec2f& data) {updateAttrib(type, 2, (void*)&data[0]);}
 
         //! Updates a specific vertex attribute in the VBO
-        void        updateAttrib        (SLVertexAttribType type, 
+        void        updateAttrib        (SLGLAttributeType type, 
                                          SLVVec3f& data) {updateAttrib(type, 3, (void*)&data[0]);}
 
         //! Updates a specific vertex attribute in the VBO
-        void        updateAttrib        (SLVertexAttribType type, 
+        void        updateAttrib        (SLGLAttributeType type, 
                                          SLVVec4f& data) {updateAttrib(type, 4, (void*)&data[0]);}
         
         //! Generates the VA & VB objects for a NO. of vertices
         void        generate            (SLuint numVertices, 
-                                         SLBufferUsage usage = BU_static,
+                                         SLGLBufferUsage usage = BU_static,
                                          SLbool outputInterleaved = true);
 
         //! Draws the VAO by element indices with a primitive type
-        void        drawElementsAs      (SLPrimitiveType primitiveType,
+        void        drawElementsAs      (SLGLPrimitiveType primitiveType,
                                          SLuint numIndexes = 0,
                                          SLuint indexOffsetBytes = 0);
         
         //! Draws the VAO as an array with a primitive type 
-        void        drawArrayAs         (SLPrimitiveType primitiveType,
+        void        drawArrayAs         (SLGLPrimitiveType primitiveType,
                                          SLint firstVertex = 0,
                                          SLsizei countVertices = 0);
 
@@ -202,27 +150,20 @@ class SLGLVertexArray
         SLint       numIndices          () {return _numIndices;}
 
         // Some statistics
-        static SLuint totalBufferCount;     //! static total no. of buffers in use
-        static SLuint totalBufferSize;      //! static total size of all buffers in bytes
         static SLuint totalDrawCalls;       //! static total no. of draw calls
+            
                                                
     protected:
-        SLbool          _glHasVAO;          //! VAOs are present if OpenGL > 3.0    
-        SLVVertexAttrib _attribs;           //! Vector of vertex attributes
-        SLbool          _outputInterleaved; //! Flag if VBO should be generated interleaved
-        SLint           _strideBytes;       //! Distance for interleaved attributes in bytes
-         
-        SLuint          _idVAO;             //! OpenGL id of vertex array object
-        SLuint          _idVBOAttribs;      //! OpenGL id of vertex buffer object
-        SLuint          _idVBOIndices;      //! OpenGL id of index vbo
-        
-        SLuint          _numVertices;       //! NO. of vertices in array
-        SLuint          _vboSize;           //! Total size of VBO in bytes
-        SLuint          _numIndices;        //! NO. of vertex indices in array
-        void*           _indexData;         //! pointer to index data
-        SLBufferType    _indexDataType;     //! index data type (ubyte, ushort, uint)
-        SLint           _indexTypeSize;     //! index data type size
-        SLBufferUsage   _usage;             //! buffer usage (static, dynamic or stream)
+        SLbool              _glHasVAO;          //! VAOs are present if OpenGL > 3.0   
+        SLuint              _idVAO;             //! OpenGL id of vertex array object
+        SLuint              _numVertices;       //! NO. of vertices in array
+        SLGLVertexBuffer    _VBOf;              //! Vertex buffer object for float attributes 
+        SLGLVertexBuffer    _VBOh;              //! Vertex buffer object for half float attributes
+
+        SLuint              _idVBOIndices;      //! OpenGL id of index vbo
+        SLuint              _numIndices;        //! NO. of vertex indices in array
+        void*               _indexData;         //! pointer to index data
+        SLGLBufferType      _indexDataType;     //! index data type (ubyte, ushort, uint)
 };
 //-----------------------------------------------------------------------------
 

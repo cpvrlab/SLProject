@@ -39,23 +39,23 @@ void SLGLVertexArrayExt::generateVertexPos(SLuint numVertices,
         SL_EXIT_MSG("The position attribute has no variable location.");
     
     // Add attribute if it doesn't exist
-    if (attribIndex(VAT_position) == -1)
-    {   setAttrib(VAT_position, elementSize, location, dataPointer);
+    if (_VBOf.attribIndex(AT_position) == -1)
+    {   setAttrib(AT_position, elementSize, location, dataPointer, false);
         generate(numVertices, BU_static, false);
     } else
-        updateAttrib(VAT_position, elementSize, dataPointer);
+        updateAttrib(AT_position, elementSize, dataPointer);
 }
 //-----------------------------------------------------------------------------
 /*! Draws the vertex positions as array with a specified primitive & color
 */
-void SLGLVertexArrayExt::drawArrayAsColored(SLPrimitiveType primitiveType,
+void SLGLVertexArrayExt::drawArrayAsColored(SLGLPrimitiveType primitiveType,
                                             SLCol4f color,
                                             SLfloat pointSize,
                                             SLuint  indexFirstVertex,
                                             SLuint  countVertices)
 {   assert(countVertices <= _numVertices);
 
-    if (!_idVBOAttribs)
+    if (!_VBOf.id())
         SL_EXIT_MSG("No VBO generated for VAO in drawArrayAsColored.");
         
    

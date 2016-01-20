@@ -154,6 +154,10 @@ void SL::parseCmdLineArgs(SLVstring& cmdLineArgs)
             {   SLint sec = atoi(argComponents[1].c_str());
                 if (sec > 0) SL::testDurationSec = sec;
             }
+            if(argComponents[0] ==  "testFactor")
+            {   SLint factor = atoi(argComponents[1].c_str());
+                if (factor > 0) SL::testFactor = factor;
+            }
         }
         argComponents.clear();
     }

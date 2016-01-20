@@ -13,7 +13,7 @@
 #include <debug_new.h>        // memory leak detector
 #endif
 
-#include "SLImage.h"
+#include <SLImage.h>
 #include <jpeglib.h>          // JPEG lib
 #include <png.h>              // libpng
 

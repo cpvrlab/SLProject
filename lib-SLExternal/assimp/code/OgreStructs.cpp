@@ -1123,14 +1123,14 @@ aiBone *Bone::ConvertToAssimpBone(Skeleton *parent, const std::vector<aiVertexWe
 
 VertexAnimationTrack::VertexAnimationTrack() :
 	target(0),
-	type(VAT_NONE)
+	type(AT_NONE)
 {
 }
 
 aiNodeAnim *VertexAnimationTrack::ConvertToAssimpAnimationNode(Skeleton *skeleton)
 {
-	if (boneName.empty() || type != VAT_TRANSFORM) {
-		throw DeadlyImportError("VertexAnimationTrack::ConvertToAssimpAnimationNode: Cannot convert track that has no target bone name or is not type of VAT_TRANSFORM");
+	if (boneName.empty() || type != AT_TRANSFORM) {
+		throw DeadlyImportError("VertexAnimationTrack::ConvertToAssimpAnimationNode: Cannot convert track that has no target bone name or is not type of AT_TRANSFORM");
 	}
 
 	aiNodeAnim *nodeAnim = new aiNodeAnim();

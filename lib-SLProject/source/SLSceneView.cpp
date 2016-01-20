@@ -1889,9 +1889,9 @@ void SLSceneView::build2DInfoGL()
     sprintf(m+strlen(m), "CPU MB in Meshes: %3.2f\\n", (SLfloat)_stats.numBytes / 1E6f);
     sprintf(m+strlen(m), "CPU MB in Voxel.: %3.2f\\n", (SLfloat)_stats.numBytesAccel / 1E6f);
     sprintf(m+strlen(m), "CPU MB in Total: %3.2f\\n", (SLfloat)(cpuTexMemoryBytes + _stats.numBytes + _stats.numBytesAccel) / 1E6f);
-    sprintf(m+strlen(m), "GPU MB in VBO: %4.2f\\n", (SLfloat)SLGLVertexArray::totalBufferSize / 1E6f);
+    sprintf(m+strlen(m), "GPU MB in VBO: %4.2f\\n", (SLfloat)SLGLVertexBuffer::totalBufferSize / 1E6f);
     sprintf(m+strlen(m), "GPU MB in Tex.: %4.2f\\n", (SLfloat)SLGLTexture::numBytesInTextures / 1E6f);
-    sprintf(m+strlen(m), "GPU MB in Total: %3.2f\\n", (SLfloat)(SLGLVertexArray::totalBufferSize + SLGLTexture::numBytesInTextures) / 1E6f);
+    sprintf(m+strlen(m), "GPU MB in Total: %3.2f\\n", (SLfloat)(SLGLVertexBuffer::totalBufferSize + SLGLTexture::numBytesInTextures) / 1E6f);
     sprintf(m+strlen(m), "No. of Voxels/empty: %d / %4.1f%%\\n", _stats.numVoxels, voxelsEmpty);
     sprintf(m+strlen(m), "Avg. & Max. Tria/Voxel: %4.1f / %d\\n", avgTriPerVox, _stats.numVoxMaxTria);
     sprintf(m+strlen(m), "Group & Leaf Nodes: %u / %u\\n", _stats.numGroupNodes, _stats.numLeafNodes);

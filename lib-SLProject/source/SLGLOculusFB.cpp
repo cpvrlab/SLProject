@@ -156,7 +156,7 @@ void SLGLOculusFB::drawFramebuffer()
     // Create VBO for screen quad once
     if (!_vao.id())
     {   SLfloat P[] = {-1,-1,  1,-1,  -1,1,  1,1};
-        _vao.setAttrib(VAT_position, 2, location, P);
+        _vao.setAttrib(AT_position, 2, location, P);
         _vao.generate(4); 
     }
 

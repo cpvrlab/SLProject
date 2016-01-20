@@ -514,8 +514,8 @@ void SLGLTexture::drawSprite(SLbool doUpdate)
     
         SLGLProgram* sp = SLScene::current->programs(SP_TextureOnly);
         sp->useProgram();
-        _vaoSprite.setAttrib(VAT_position, 2, sp->getAttribLocation("a_position"), P);
-        _vaoSprite.setAttrib(VAT_texCoord, 2, sp->getAttribLocation("a_texCoord"), T);
+        _vaoSprite.setAttrib(AT_position, 2, sp->getAttribLocation("a_position"), P);
+        _vaoSprite.setAttrib(AT_texCoord, 2, sp->getAttribLocation("a_texCoord"), T);
         _vaoSprite.setIndices(4, BT_ushort, I);
         _vaoSprite.generate(4);
     }
