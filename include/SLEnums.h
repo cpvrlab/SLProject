@@ -79,7 +79,8 @@ enum SLCommand
     C_sceneTextureFilter,
     C_sceneTextureBlend,
     C_sceneTextureVideo,
-    C_sceneFrustumCull1,
+    C_sceneFrustumCull,
+    C_sceneMassiveData,
 
     C_scenePerVertexBlinn,
     C_scenePerPixelBlinn,

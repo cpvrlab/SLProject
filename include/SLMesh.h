@@ -149,6 +149,7 @@ class SLMesh : public SLObject
     virtual void            calcMinMax      ();
             void            calcCenterRad   (SLVec3f& center, SLfloat& radius);
             SLbool          hitTriangleOS   (SLRay* ray, SLNode* node, SLuint iT);
+            void            useHalfFloats   (SLbool useHalf) {_useHalf = useHalf;}
 
             SLGLPrimitiveType primitive       (){return _primitive;}
         
@@ -185,24 +186,24 @@ class SLMesh : public SLObject
             SLVec3f         maxP;           //!< max. vertex in OS
    
     protected:
-            SLGLState*      _stateGL;       //!< Pointer to the global SLGLState instance
-            SLGLPrimitiveType _primitive;     //!< Primitive type (default triangles)
+            SLGLState*          _stateGL;       //!< Pointer to the global SLGLState instance
+            SLGLPrimitiveType   _primitive;     //!< Primitive type (default triangles)
 
-            SLGLVertexArray     _vao;       //!< OpenGL Vertex Array Object for drawing
-            SLGLVertexArrayExt  _vaoN;      //!< OpenGL VAO for optional normal drawing
-            SLGLVertexArrayExt  _vaoT;      //!< OpenGL VAO for optional tangent drawing
-            SLGLVertexArrayExt  _vaoS;      //!< OpenGL VAO for optional selection drawing
+            SLGLVertexArray     _vao;           //!< OpenGL Vertex Array Object for drawing
+            SLGLVertexArrayExt  _vaoN;          //!< OpenGL VAO for optional normal drawing
+            SLGLVertexArrayExt  _vaoT;          //!< OpenGL VAO for optional tangent drawing
+            SLGLVertexArrayExt  _vaoS;          //!< OpenGL VAO for optional selection drawing
+            SLbool              _useHalf;       //!< Use half floats for N,T,C, Tc,Ji & Jw
                
-            SLbool          _isVolume;      //!< Flag for RT if mesh is a closed volume
-               
-            SLAccelStruct*  _accelStruct;           //!< KD-tree or uniform grid
-            SLbool          _accelStructOutOfDate;  //!< flag id accel.struct needs update
+            SLbool              _isVolume;              //!< Flag for RT if mesh is a closed volume
+            SLAccelStruct*      _accelStruct;           //!< KD-tree or uniform grid
+            SLbool              _accelStructOutOfDate;  //!< flag id accel.struct needs update
 
-            SLSkinMethod    _skinMethod;    //!< CPU or GPU skinning method
-            SLSkeleton*     _skeleton;      //!< the skeleton this mesh is bound to
-            SLMat4f*        _jointMatrices; //!< joint matrix stack for this mesh
-            SLVec3f**       _finalP;        //!< pointer to final vertex position array
-            SLVec3f**       _finalN;        //!< pointer to final vertex normal array
+            SLSkinMethod        _skinMethod;    //!< CPU or GPU skinning method
+            SLSkeleton*         _skeleton;      //!< the skeleton this mesh is bound to
+            SLMat4f*            _jointMatrices; //!< joint matrix stack for this mesh
+            SLVec3f**           _finalP;        //!< pointer to final vertex position array
+            SLVec3f**           _finalN;        //!< pointer to final vertex normal array
 
             void            notifyParentNodesAABBUpdate() const;
 };

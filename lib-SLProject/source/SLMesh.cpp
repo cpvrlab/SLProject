@@ -49,6 +49,7 @@ SLMesh::SLMesh(SLstring name) : SLObject(name)
     matOut = nullptr;
     _finalP = &P;
     _finalN = &N;
+    _useHalf = false;
     numV = 0;
     numI = 0;
     minP.set( FLT_MAX,  FLT_MAX,  FLT_MAX);
@@ -259,12 +260,12 @@ void SLMesh::draw(SLSceneView* sv, SLNode* node)
 
         if (!_vao.id())
         {            _vao.setAttrib(AT_position,    3, sp->getAttribLocation("a_position"), finalP());
-            if (N)   _vao.setAttrib(AT_normal,      3, sp->getAttribLocation("a_normal"), finalN());
-            if (Tc)  _vao.setAttrib(AT_texCoord,    2, sp->getAttribLocation("a_texCoord"), Tc);
-            if (C)   _vao.setAttrib(AT_color,       4, sp->getAttribLocation("a_color"), C);
-            if (T)   _vao.setAttrib(AT_tangent,     4, sp->getAttribLocation("a_tangent"), T);
-            if (Ji)  _vao.setAttrib(AT_jointIndex,  4, sp->getAttribLocation("a_jointIds"), Ji);
-            if (Jw)  _vao.setAttrib(AT_jointWeight, 4, sp->getAttribLocation("a_jointWeights"), Jw);
+            if (N)   _vao.setAttrib(AT_normal,      3, sp->getAttribLocation("a_normal"), finalN(), _useHalf);
+            if (Tc)  _vao.setAttrib(AT_texCoord,    2, sp->getAttribLocation("a_texCoord"), Tc, _useHalf);
+            if (C)   _vao.setAttrib(AT_color,       4, sp->getAttribLocation("a_color"), C, _useHalf);
+            if (T)   _vao.setAttrib(AT_tangent,     4, sp->getAttribLocation("a_tangent"), T, _useHalf);
+            if (Ji)  _vao.setAttrib(AT_jointIndex,  4, sp->getAttribLocation("a_jointIds"), Ji, _useHalf);
+            if (Jw)  _vao.setAttrib(AT_jointWeight, 4, sp->getAttribLocation("a_jointWeights"), Jw, _useHalf);
             if (I16) _vao.setIndices(numI, BT_ushort, I16);
             if (I32) _vao.setIndices(numI, BT_uint, I32);
             _vao.generate(numV, (Ji&&Jw) ? BU_stream : BU_static, false); //!(Ji&&Jw));

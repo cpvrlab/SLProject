@@ -41,8 +41,8 @@ attributes only use 2 bytes per number but will be converted to 4 byte floats
 before they arrive in the shader.\n
 Attributes can be either be in sequential order (first all positions, then all 
 normals, etc.) or interleaved (all attributes together for one vertex). See 
-SGLVertexBuffer::generate for more information.\n
-Vertex index buffer are not handled in this class. They are generted in
+SLGLVertexBuffer::generate for more information.\n
+Vertex index buffer are not handled in this class. They are generated in
 SLGLVertexArray.
 */
 class SLGLVertexBuffer

@@ -1067,9 +1067,9 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         sv->camera(cam1);
     }
     else
-    if (_currentSceneID == C_sceneFrustumCull1) //...................................
+    if (_currentSceneID == C_sceneFrustumCull) //...................................
     {  
-        name("Frustum Culling Test 1");
+        name("Frustum Culling Test");
         info(sv, "View frustum culling: Only objects in view frustum are rendered. You can turn view culling off in the render flags.");
 
         // create texture
@@ -1080,7 +1080,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         cam1->name("cam1");
         cam1->clipNear(0.1f);
         cam1->clipFar(100);
-        cam1->translation(0,0,40);
+        cam1->translation(0,0,1);
         cam1->lookAt(0, 0, 0);
         cam1->focalDist(5);
         cam1->setInitialState();
@@ -1118,6 +1118,68 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         SLint num = size + size + 1;
         if (SL::noTestIsRunning())
             SL_LOG("Triangles in scene: %d\n", res*res*2*num*num*num);
+
+        _background.colors(SLCol4f(0.1f,0.1f,0.1f));
+        sv->camera(cam1);
+        sv->waitEvents(false);
+        _root3D = scene;
+    }
+    else
+    if (_currentSceneID == C_sceneMassiveData) //...................................
+    {  
+        name("Massive Data Test");
+        info(sv, "No data is shared on the GPU. Check Memory consumption.");
+
+        SLCamera* cam1 = new SLCamera();
+        cam1->name("cam1");
+        cam1->clipNear(0.1f);
+        cam1->clipFar(100);
+        cam1->translation(0,0,50);
+        cam1->lookAt(0, 0, 0);
+        cam1->focalDist(5);
+        cam1->setInitialState();
+
+        SLLightSphere* light1 = new SLLightSphere(10, 10, 10, 0.3f);
+        light1->ambient(SLCol4f(0.2f, 0.2f, 0.2f));
+        light1->diffuse(SLCol4f(0.8f, 0.8f, 0.8f));
+        light1->specular(SLCol4f(1, 1, 1));
+        light1->attenuation(1,0,0);
+
+        SLNode* scene = new SLNode;
+        scene->addChild(cam1);
+        scene->addChild(light1);
+
+        // Create shader program with 4 uniforms
+        SLGLProgram* sp = new SLGLGenericProgram("BumpNormal.vert", "BumpNormalParallax.frag");
+        SLGLUniform1f* scale = new SLGLUniform1f(UT_const, "u_scale", 0.04f, 0.002f, 0, 1, (SLKey)'X');
+        SLGLUniform1f* offset = new SLGLUniform1f(UT_const, "u_offset", -0.03f, 0.002f,-1, 1, (SLKey)'O');
+        _eventHandlers.push_back(scale);
+        _eventHandlers.push_back(offset);
+        sp->addUniform1f(scale);
+        sp->addUniform1f(offset);
+        
+        // create new materials for every sphere
+        SLGLTexture* texC = new SLGLTexture("earth2048_C.jpg"); // color map
+        SLGLTexture* texN = new SLGLTexture("earth2048_N.jpg"); // normal map
+        SLMaterial*  mat  = new SLMaterial("mat1", texC, texN, 0, 0, sp);
+
+
+        // create spheres around the center sphere
+        SLint size = 8 * SL::testFactor;
+        for (SLint iZ=-size; iZ<=size; ++iZ)
+        {   for (SLint iY=-size; iY<=size; ++iY)
+            {   for (SLint iX=-size; iX<=size; ++iX)
+                {   
+                    // add one single sphere in the center
+                    SLint res = 30 * SL::testFactor;
+                    SLSphere* earth = new SLSphere(0.3f, res, res, "earth", mat);
+                    earth->useHalfFloats(false);
+                    SLNode* sphere = new SLNode(earth);
+                    sphere->translate(float(iX), float(iY), float(iZ), TS_object);
+                    scene->addChild(sphere);
+                }
+            }
+        }
 
         _background.colors(SLCol4f(0.1f,0.1f,0.1f));
         sv->camera(cam1);
