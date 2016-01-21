@@ -77,5 +77,21 @@
             endingLineNumber = "751">
          </BreakpointContent>
       </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "../lib-SLProject/source/SLGLVertexArray.cpp"
+            timestampString = "475053706.154788"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "83"
+            endingLineNumber = "83"
+            landmarkName = "SLGLVertexArray::setAttrib(SLGLAttributeType type, SLint elementSize, SLint location, void* dataPointer, SLbool convertToHalf)"
+            landmarkType = "5">
+         </BreakpointContent>
+      </BreakpointProxy>
    </Breakpoints>
 </Bucket>

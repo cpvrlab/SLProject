@@ -52,7 +52,7 @@ class SLGLVertexArray
                                             _VBOh.clear(BT_half);}
 
         //! Returns either the VAO id or the VBO id
-        SLint       id                  () {return _glHasVAO?_idVAO:_VBOf.id();}
+        SLint       id                  () {return _hasGL3orGreater?_idVAO:_VBOf.id();}
 
         //! Returns the vector index if a float vertex attribute exists otherwise -1
         SLint       attribIndexh        (SLGLAttributeType type);
@@ -153,7 +153,7 @@ class SLGLVertexArray
             
                                                
     protected:
-        SLbool              _glHasVAO;          //! VAOs are present if OpenGL > 3.0   
+        SLbool              _hasGL3orGreater;   //! VAOs are present if OpenGL > 3.0
         SLuint              _idVAO;             //! OpenGL id of vertex array object
         SLuint              _numVertices;       //! NO. of vertices in array
         SLGLVertexBuffer    _VBOf;              //! Vertex buffer object for float attributes 

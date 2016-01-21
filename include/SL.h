@@ -123,8 +123,8 @@ SL_GUI_JAVA :Java on Android (with the VS-Android project)
 //-----------------------------------------------------------------------------
 #if defined(SL_OS_MACIOS)
     #include <sys/time.h>
-    #include <OpenGLES/ES2/gl.h>
-    #include <OpenGLES/ES2/glext.h>
+    #include <OpenGLES/ES3/gl.h>
+    #include <OpenGLES/ES3/glext.h>
     #include <zlib.h>
     #include <functional>
     #include <thread>

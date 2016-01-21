@@ -18,13 +18,7 @@
 //! Enumeration for buffer data types
 enum SLGLBufferType
 {
-    #ifdef SL_GLES2
-    BT_half   = GL_FLOAT,               //!< GLES2 has no half float
-    BT_double = GL_FLOAT,               //!< GLES2 has no double float
-    #else
     BT_half   = GL_HALF_FLOAT,          //!< half float vertex attributes
-    BT_double = GL_DOUBLE,              //!< double vertex attributes
-    #endif
     BT_float  = GL_FLOAT,               //!< float vertex attributes
     BT_ubyte  = GL_UNSIGNED_BYTE,       //!< vertex index type (0-2^8)
     BT_ushort = GL_UNSIGNED_SHORT,      //!< vertex index type (0-2^16)
