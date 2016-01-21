@@ -18,13 +18,13 @@
 //-----------------------------------------------------------------------------
 //! Struct for vertex attribute information
 struct SLGLAttribute
-{   SLGLAttributeType   type;           //!< type of vertex attribute
-    SLint               elementSize;    //!< size of attribute element (SLVec3f has 3)
-    SLuint              offsetBytes;    //!< offset of the attribute data in the buffer
-    SLuint              bufferSizeBytes;//!< size of the attribute part in the buffer
-    void*               dataPointer;    //!< pointer to the attributes source data
-    SLint               location;       //!< GLSL input variable location index
-    SLbool              convertToHalf;  //!< Flag if float attribute is converted to half float 
+{   SLGLAttributeType type;   //!< type of vertex attribute
+    SLint   elementSize;      //!< size of attribute element (SLVec3f has 3)
+    SLuint  offsetBytes;      //!< offset of the attribute data in the buffer
+    SLuint  bufferSizeBytes;  //!< size of the attribute part in the buffer
+    void*   dataPointer;      //!< pointer to the attributes source data
+    SLint   location;         //!< GLSL input variable location index
+    SLbool  convertToHalf;    //!< Flag if float attribute is converted to half float 
 };
 //-----------------------------------------------------------------------------
 typedef vector<SLGLAttribute>  SLVVertexAttrib;
@@ -34,17 +34,21 @@ typedef vector<SLGLAttribute>  SLVVertexAttrib;
 
 
 //-----------------------------------------------------------------------------
-//! SLGLVertexBuffer encapsulates an OpenGL vertex buffer object
-/*!
+//! SLGLVertexBuffer encapsulates an OpenGL buffer for vertex attributes
+/*! SLGLVertexBuffer is only meant to be used within the SLGLVertexArray class.
+A vertex attribute buffer is either of type float or half float. Half float 
+attributes only use 2 bytes per number but will be converted to 4 byte floats 
+before they arrive in the shader.\n
+Attributes can be either be in sequential order (first all positions, then all 
+normals, etc.) or interleaved (all attributes together for one vertex). See 
+SGLVertexBuffer::generate for more information.\n
+Vertex index buffer are not handled in this class. They are generted in
+SLGLVertexArray.
 */
 class SLGLVertexBuffer
 {
-    public:
-                    SLGLVertexBuffer    ();
+    public:         SLGLVertexBuffer    ();
                    ~SLGLVertexBuffer    () {clear(BT_float);}
-        
-        //! Sets the buffer data type (float or half float)
-        void        dataType            (SLGLBufferType bt);
 
         //! Deletes all vertex array & vertex buffer objects
         void        deleteGL            ();
@@ -82,10 +86,10 @@ class SLGLVertexBuffer
                                          SLGLBufferUsage usage = BU_static,
                                          SLbool outputInterleaved = true);
         
-        //! Binds & enables the vertex attribute
+        //! Binds & enables the vertex attribute for OpenGL < 3.0
         void        bindAndEnableAttrib ();
         
-        //! disables the vertex attribute
+        //! disables the vertex attribute for OpenGL < 3.0
         void        disableAttrib ();
 
         // Getters
@@ -103,7 +107,7 @@ class SLGLVertexBuffer
     protected:
         SLuint          _id;                //! OpenGL id of vertex buffer object
         SLuint          _numVertices;       //! NO. of vertices in array
-        SLGLBufferType  _dataType;          //! Data Type              
+        SLGLBufferType  _dataType;          //! Data Type (BT_float or BT_half)            
         SLVVertexAttrib _attribs;           //! Vector of vertex attributes 
         SLbool          _outputInterleaved; //! Flag if VBO should be generated interleaved
         SLint           _strideBytes;       //! Distance for interleaved attributes in bytes

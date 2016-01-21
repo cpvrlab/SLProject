@@ -23,12 +23,12 @@ Vertex Array Object (VAO), a vertex buffer objects (VBO) for the attributes
 and an index buffer for element drawing. Attributes can be stored in a float
 or half float VBO of type SLGLVertexBuffer.\n 
 VAOs where introduces OpenGL 3.0 and reduce the overhead per draw call. 
-All vertex attributes (e.g. position, normals, texture coords, etc.) are must be
+All vertex attributes (e.g. position, normals, texture coords, etc.) must be
 float at the input. They can be flagged to be converted to half floats so that
-they will be stored in a separate VBO with half floats (_VBOh). 
-Attributes can be in sequential order (first all positions, then all normals, etc.) 
-or interleaved (all attributes together for one vertex). See 
-SGLVertexBuffer::generate for more information.\n
+they will be stored in a separate VBO. All float attributes will be in one VBO
+(_VBOf) and all half float attributes are stored in one half float VBO (_VBOh).
+Half float attributes only use 2 bytes per number but will be converted to 4
+byte floats before they arrive in the shader. 
 Vertices can be drawn either directly as in the array (SLGLVertexArray::drawArrayAs) 
 or by element (SLGLVertexArray::drawElementsAs) with a separate indices buffer.\n
 The setup of a VAO has multiple steps:\n
@@ -40,8 +40,7 @@ SLGLVertexArray::setIndices are still present when generate is called.
 */
 class SLGLVertexArray
 {
-    public:
-                    SLGLVertexArray     ();
+    public:         SLGLVertexArray     ();
                    ~SLGLVertexArray     () {deleteGL();}
         
         //! Deletes all vertex array & vertex buffer objects

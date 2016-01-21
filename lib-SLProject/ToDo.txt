@@ -13,7 +13,6 @@ Prio 2:
 - Creating bump map material if files contain normal map materials
 - mh: Skybox würde mit wenig Aufwand Attraktivität erhöhen
 - Billboards
-- Tags in GLSL shader geparsed über regex ermöglicht höhere GLSL Standards
 - mh: Im continuous RT haben gewisse AABB Aussetzer
 - Implement RenderQueue and RenderPriorityGroups.
 - Edit & update transforms with decompose and compose transforms

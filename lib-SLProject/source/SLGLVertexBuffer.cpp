@@ -23,8 +23,7 @@
 SLuint SLGLVertexBuffer::totalBufferSize  = 0;
 SLuint SLGLVertexBuffer::totalBufferCount = 0;
 //-----------------------------------------------------------------------------
-/*! Constructor initializing with default values
-*/
+//! Constructor initializing with default values
 SLGLVertexBuffer::SLGLVertexBuffer()
 {   
     _id = 0;
@@ -34,14 +33,6 @@ SLGLVertexBuffer::SLGLVertexBuffer()
     _usage = BU_stream;
     _dataType = BT_float;
 }
-//-----------------------------------------------------------------------------
-void SLGLVertexBuffer::dataType(SLGLBufferType bufferType) 
-{   
-    if (bufferType != BT_float && bufferType != BT_half)
-        SL_EXIT_MSG("The vertex buffer attribute type must be float or half float");
-        
-    _dataType = bufferType;
-};
 //-----------------------------------------------------------------------------
 /*! Deletes the OpenGL objects for the vertex array and the vertex buffer.
 The vector _attribs with the attribute information is not cleared.
@@ -57,7 +48,8 @@ void SLGLVertexBuffer::deleteGL()
 }
 //-----------------------------------------------------------------------------
 void SLGLVertexBuffer::clear(SLGLBufferType dataType) 
-{   deleteGL(); 
+{   
+   deleteGL(); 
     _attribs.clear(); 
     _dataType = dataType;
 }
@@ -142,11 +134,12 @@ void SLGLVertexBuffer::updateAttrib(SLGLAttributeType type,
     #endif
 }
 //-----------------------------------------------------------------------------
-/*! Generates the OpenGL VBO. If the input data is an interleaved array 
-(all attribute data pointer where identical) also the output buffer will be 
-generated as an interleaved array. Vertex arrays with attributes that are 
-updated can not be interleaved. Vertex attributes with separate arrays can 
-generate an interleaved or a sequential vertex buffer.\n\n
+/*! Generates the OpenGL VBO for one or more vertex attributes. 
+If the input data is an interleaved array (all attribute data pointer where 
+identical) also the output buffer will be generated as an interleaved array. 
+Vertex arrays with attributes that are updated can not be interleaved. 
+Vertex attributes with separate arrays can generate an interleaved or a 
+sequential vertex buffer.\n\n
 <PRE>
 \n Sequential attribute layout:                                                          
 \n           |          Positions          |           Normals           |     TexCoords     |   
@@ -362,6 +355,10 @@ void SLGLVertexBuffer::generate(SLuint numVertices,
     #endif
 }
 //-----------------------------------------------------------------------------
+/*! This method is only used by SLGLVertexArray drawing methods for OpenGL
+contexts prior to 3.0 where vertex array objects did not exist. This is the 
+additional overhead that had to be done per draw call.
+*/
 void SLGLVertexBuffer::bindAndEnableAttrib()
 {
     if (_attribs.size())
@@ -374,7 +371,7 @@ void SLGLVertexBuffer::bindAndEnableAttrib()
                 // Sets the vertex attribute data pointer to its corresponding GLSL variable
                 glVertexAttribPointer(a.location, 
                                         a.elementSize,
-                                        GL_FLOAT, 
+                                        _dataType, 
                                         GL_FALSE, 
                                         _strideBytes, 
                                         (void*)a.offsetBytes);
@@ -386,6 +383,10 @@ void SLGLVertexBuffer::bindAndEnableAttrib()
     }
 }
 //-----------------------------------------------------------------------------
+/*! This method is only used by SLGLVertexArray drawing methods for OpenGL
+contexts prior to 3.0 where vertex array objects did not exist. This is the 
+additional overhead that had to be done per draw call.
+*/
 void SLGLVertexBuffer::disableAttrib()
 {
     if (_attribs.size())
