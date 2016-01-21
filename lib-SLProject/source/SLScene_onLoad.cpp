@@ -1165,7 +1165,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
 
 
         // create spheres around the center sphere
-        SLint size = 14;
+        SLint size = 8;
         for (SLint iZ=-size; iZ<=size; ++iZ)
         {   for (SLint iY=-size; iY<=size; ++iY)
             {   for (SLint iX=-size; iX<=size; ++iX)

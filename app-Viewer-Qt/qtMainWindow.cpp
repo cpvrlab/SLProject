@@ -150,7 +150,7 @@ void qtMainWindow::setMenuState()
     ui->actionMesh_Loader->setChecked(s->currentSceneID()==C_sceneMeshLoad);
     ui->actionTexture_Blending->setChecked(s->currentSceneID()==C_sceneTextureBlend);
     ui->actionTexture_Filtering->setChecked(s->currentSceneID()==C_sceneTextureFilter);
-    ui->actionFrustum_Culling_1->setChecked(s->currentSceneID()==C_sceneFrustumCull1);
+    ui->actionFrustum_Culling->setChecked(s->currentSceneID()==C_sceneFrustumCull);
 
     ui->actionPer_Vertex_Lighting->setChecked(s->currentSceneID()==C_scenePerVertexBlinn);
     ui->actionPer_Pixel_Lighting->setChecked(s->currentSceneID()==C_scenePerPixelBlinn);
@@ -811,10 +811,10 @@ void qtMainWindow::on_actionTexture_Filtering_triggered()
     _activeGLWidget->sv()->onCommand(C_sceneTextureFilter);
     afterSceneLoad();
 }
-void qtMainWindow::on_actionFrustum_Culling_1_triggered()
+void qtMainWindow::on_actionFrustum_Culling_triggered()
 {
     beforeSceneLoad();
-    _activeGLWidget->sv()->onCommand(C_sceneFrustumCull1);
+    _activeGLWidget->sv()->onCommand(C_sceneFrustumCull);
     afterSceneLoad();
 }
 

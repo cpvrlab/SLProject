@@ -65,7 +65,7 @@
       <addaction name="actionMesh_Loader"/>
       <addaction name="actionTexture_Blending"/>
       <addaction name="actionTexture_Filtering"/>
-      <addaction name="actionFrustum_Culling_1"/>
+      <addaction name="actionFrustum_Culling"/>
       <addaction name="actionFrustum_Culling_2"/>
      </widget>
      <widget class="QMenu" name="menuShader_Scenes">
@@ -1284,7 +1284,7 @@ QSlider::handle:horizontal:disabled {
     <string>Loads a scene with transparent trees for depth sort testing</string>
    </property>
   </action>
-  <action name="actionFrustum_Culling_1">
+  <action name="actionFrustum_Culling">
    <property name="checkable">
     <bool>true</bool>
    </property>
