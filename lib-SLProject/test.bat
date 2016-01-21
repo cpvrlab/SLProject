@@ -1,1 +1,0 @@
-..\_bin-Release-x64\app-Demo-GLFW.exe testScene=0
