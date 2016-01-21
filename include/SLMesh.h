@@ -195,7 +195,7 @@ class SLMesh : public SLObject
             SLGLVertexArrayExt  _vaoS;          //!< OpenGL VAO for optional selection drawing
             SLbool              _useHalf;       //!< Use half floats for N,T,C, Tc,Ji & Jw
                
-            SLbool              _isVolume;              //!< Flag for RT if mesh is a closed volume
+            SLbool              _isVolume;      //!< Flag for RT if mesh is a closed volume
             SLAccelStruct*      _accelStruct;           //!< KD-tree or uniform grid
             SLbool              _accelStructOutOfDate;  //!< flag id accel.struct needs update
 

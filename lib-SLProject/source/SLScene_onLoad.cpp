@@ -1151,8 +1151,8 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
 
         // Create shader program with 4 uniforms
         SLGLProgram* sp = new SLGLGenericProgram("BumpNormal.vert", "BumpNormalParallax.frag");
-        SLGLUniform1f* scale = new SLGLUniform1f(UT_const, "u_scale", 0.04f, 0.002f, 0, 1, (SLKey)'X');
-        SLGLUniform1f* offset = new SLGLUniform1f(UT_const, "u_offset", -0.03f, 0.002f,-1, 1, (SLKey)'O');
+        SLGLUniform1f* scale = new SLGLUniform1f(UT_const, "u_scale", 0.01f, 0.002f, 0, 1, (SLKey)'X');
+        SLGLUniform1f* offset = new SLGLUniform1f(UT_const, "u_offset", 0.01f, 0.002f,-1, 1, (SLKey)'O');
         _eventHandlers.push_back(scale);
         _eventHandlers.push_back(offset);
         sp->addUniform1f(scale);
@@ -1165,7 +1165,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
 
 
         // create spheres around the center sphere
-        SLint size = 8 * SL::testFactor;
+        SLint size = 14;
         for (SLint iZ=-size; iZ<=size; ++iZ)
         {   for (SLint iY=-size; iY<=size; ++iY)
             {   for (SLint iX=-size; iX<=size; ++iX)
