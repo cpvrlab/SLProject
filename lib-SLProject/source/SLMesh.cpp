@@ -883,6 +883,19 @@ SLbool SLMesh::hitTriangleOS(SLRay* ray, SLNode* node, SLuint iT)
     return true;
 }
 //-----------------------------------------------------------------------------
+//! Flags the mesh to convert all non-position attributes to half floats.
+/*! With this flag set to true, all attribute data in N, C, Tc, T, Ji & Jw are
+converted from float to half float before they are passed to the vertex buffer
+in SLGLVertexBuffer. The memory footprint is reduced from 4 to 2 bytes per
+attribute component. The performance gain with half floats is though not
+remarkable. In some cases it even slows down the performance. Use half floats
+only if you have very large models.
+*/
+void SLMesh::useHalfFloats(SLbool useHalf)
+{
+    _useHalf = useHalf;
+}
+//-----------------------------------------------------------------------------
 /*!
 SLMesh::preShade calculates the rest of the intersection information 
 after the final hit point is determined. Should be called just before the 

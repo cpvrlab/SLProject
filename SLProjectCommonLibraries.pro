@@ -30,14 +30,12 @@ win32 {
     DEFINES += SL_HAS_OPENCV
     INCLUDEPATH += ../lib-SLExternal/png \
                    ../lib-SLExternal/dirent \
-
 }
 macx {
     # mac only
     QMAKE_MAC_SDK = macosx10.11
     CONFIG += c++11
     DEFINES += GLEW_NO_GLU
-   #LIBS += -framework Foundation
     LIBS += -framework Cocoa
     LIBS += -framework IOKit
     LIBS += -framework OpenGL

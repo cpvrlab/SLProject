@@ -149,7 +149,7 @@ class SLMesh : public SLObject
     virtual void            calcMinMax      ();
             void            calcCenterRad   (SLVec3f& center, SLfloat& radius);
             SLbool          hitTriangleOS   (SLRay* ray, SLNode* node, SLuint iT);
-            void            useHalfFloats   (SLbool useHalf) {_useHalf = useHalf;}
+            void            useHalfFloats   (SLbool useHalf);
 
             SLGLPrimitiveType primitive       (){return _primitive;}
         
