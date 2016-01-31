@@ -498,25 +498,25 @@ void SLGLTexture::drawSprite(SLbool doUpdate)
     if (!_vaoSprite.id())
     {
         // Vertex X & Y of corners
-        SLfloat P[8] = {0.0f, h, 
-                        0.0f, 0.0f, 
-                        w,    h, 
-                        w,    0.0f};
+        SLVVec2f P = {{0.0f, h}, 
+                      {0.0f, 0.0f}, 
+                      {w,    h}, 
+                      {w,    0.0f}};
       
         // Texture coords of corners
-        SLfloat T[8] = {0.0f, 1.0f, 
-                        0.0f, 0.0f, 
-                        1.0f, 1.0f, 
-                        1.0f, 0.0f};
+        SLVVec2f T = {{0.0f, 1.0f}, 
+                      {0.0f, 0.0f}, 
+                      {1.0f, 1.0f}, 
+                      {1.0f, 0.0f}};
       
         // Indexes for a triangle strip
-        SLushort I[4] = {0,1,2,3};
+        SLVushort I = {0,1,2,3};
     
         SLGLProgram* sp = SLScene::current->programs(SP_TextureOnly);
         sp->useProgram();
-        _vaoSprite.setAttrib(AT_position, 2, sp->getAttribLocation("a_position"), P);
-        _vaoSprite.setAttrib(AT_texCoord, 2, sp->getAttribLocation("a_texCoord"), T);
-        _vaoSprite.setIndices(4, BT_ushort, I);
+        _vaoSprite.setAttrib(AT_position, sp->getAttribLocation("a_position"), &P);
+        _vaoSprite.setAttrib(AT_texCoord, sp->getAttribLocation("a_texCoord"), &T);
+        _vaoSprite.setIndices(&I);
         _vaoSprite.generate(4);
     }
 

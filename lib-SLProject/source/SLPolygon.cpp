@@ -16,7 +16,7 @@
 #include <SLPolygon.h>
 
 //-----------------------------------------------------------------------------
-//! SLPolygon ctor with corner points array 
+//! SLPolygon ctor with corner points vector 
 SLPolygon::SLPolygon(SLVVec3f corners, SLstring name, SLMaterial* mat)
           :SLMesh(name) 
 {
@@ -25,7 +25,7 @@ SLPolygon::SLPolygon(SLVVec3f corners, SLstring name, SLMaterial* mat)
     buildMesh(mat);
 }
 //-----------------------------------------------------------------------------
-//! SLPolygon ctor with corner points and its texture coords array 
+//! SLPolygon ctor with corner points and its texture coords vector 
 SLPolygon::SLPolygon(SLVVec3f corners,
                      SLVVec2f texCoords,
                      SLstring name, 
@@ -64,13 +64,11 @@ void SLPolygon::buildMesh(SLMaterial* material)
     if (_corners.size() >= 65535) 
         SL_EXIT_MSG("SLPolygon::buildMesh: NO. of vertices exceeds the maximum (65535) allowed.");
 
-    // allocate new arrays of SLMesh
-    numV = (SLuint)_corners.size();
-    numI = (numV - 2) * 3 ;
-    P = new SLVec3f[numV];
-    N = new SLVec3f[numV];
-    if (_texCoord.size()) Tc = new SLVec2f[numV];
-    I16 = new SLushort[numI];
+    // allocate vectors of SLMesh
+    P.clear(); P.resize(_corners.size());
+    N.clear(); N.resize(P.size());
+    if (_texCoord.size()) Tc.resize(P.size());
+    I16.clear(); I16.resize((P.size() - 2) * 3);
    
     // Calculate normal from the first 3 corners
     SLVec3f v1(_corners[0]-_corners[1]);
@@ -82,13 +80,13 @@ void SLPolygon::buildMesh(SLMaterial* material)
     mat = material;
    
     //Copy vertices and normals
-    for (SLushort i=0; i<numV; ++i)
+    for (SLushort i=0; i<P.size(); ++i)
     {   P[i] = _corners[i];
         N[i] = n;
-        if (Tc) Tc[i] = _texCoord[i];
+        if (Tc.size()) Tc[i] = _texCoord[i];
     }
    
-    // Build face vertex indexes
+    // Build face vertex indices
     for (SLuint f=0; f<_corners.size()-2; ++f) 
     {   SLuint i = f * 3;
         I16[i  ] = 0;

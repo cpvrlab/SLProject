@@ -18,19 +18,19 @@
 #include <SLGLState.h>
 
 //-------------------------------------------------------------------------------
-SLCurveBezier::SLCurveBezier(const SLVec3f*  points,
-                             const SLfloat*  times,
-                             const SLint     numPointsAndTimes,
-                             const SLVec3f*  controlPoints)
+SLCurveBezier::SLCurveBezier(const SLVVec4f& points)
 {
-    _points = 0;
-    _controls = 0;
-    _times = 0;
-    _lengths = 0;
     _totalLength = 0.0f;
-    _count = 0;
-
-    init(points, times, numPointsAndTimes, controlPoints);
+    SLVVec3f ctrls;
+    init(points, ctrls);
+}
+//-------------------------------------------------------------------------------
+SLCurveBezier::SLCurveBezier(const SLVVec4f& points,
+                             const SLVVec3f& controlPoints)
+{
+    _totalLength = 0.0f;
+ 
+    init(points, controlPoints);
 }
 //-------------------------------------------------------------------------------
 SLCurveBezier::~SLCurveBezier()
@@ -39,66 +39,60 @@ SLCurveBezier::~SLCurveBezier()
 }
 //-------------------------------------------------------------------------------
 /*! 
-Init curve with curve points and times (pointsAndTimes.w = time). If no control
+Init curve with curve points and times. If no control
 points are passed they will be calculated automatically
-@param points Array of points on the Bézier curve
-@param times Array times for the according Bézier point
-@param numPointsAndTimes NO. of points in the arrays
+@param points Array of points on the Bézier curve (w = time)
 @param controlPoints Array of control points with size = 2*(numPointsAndTimes-1)
 */
-void SLCurveBezier::init(const SLVec3f*  points,
-                         const SLfloat*  times,
-                         const SLint     numPointsAndTimes,
-                         const SLVec3f*  controlPoints)
-{
-    assert(numPointsAndTimes > 1);
+void SLCurveBezier::init(const SLVVec4f& points,
+                         const SLVVec3f& controlPoints)
+{   assert(points.size() > 1);
 
     dispose();
    
     // set up arrays
-    _count     = numPointsAndTimes;
-    _points    = new SLVec3f[_count];
-    _times     = new SLfloat[_count];
-    _controls  = new SLVec3f[2*(_count-1)];
+    _points.clear();
+    _points.resize(points.size());
+    _controls.resize(2*(points.size()-1));
 
     // copy interpolated data
-    unsigned int i;
-    for (i = 0; i < _count; ++i)
+    SLuint i;
+    for (i = 0; i < _points.size(); ++i)
     {   _points[i] = points[i];
-        _times[i]  = times[i];
     }
 
-    if (controlPoints == 0)
+    if (controlPoints.size()==0)
     {  
-        if (_count > 2)
+        if (points.size() > 2)
         {   // create approximating control points
-            for (i = 0; i < _count-1; ++i)
+            for (i = 0; i < _points.size()-1; ++i)
             {   if (i > 0)
-                    _controls[2*i  ] = _points[i  ] + (_points[i+1]-_points[i-1])/3.0f;
-                if (i < _count-2)
-                    _controls[2*i+1] = _points[i+1] - (_points[i+2]-_points[i  ])/3.0f;
+                    _controls[2*i] = (_points[i] + (_points[i+1]-_points[i-1])/3.0f).vec3();
+                if (i < _points.size()-2)
+                    _controls[2*i+1] = (_points[i+1] - (_points[i+2]-_points[i  ])/3.0f).vec3();
             }
 
-            _controls[0] = _controls[1] - (_points[1] - _points[0])/3.0f;
-            _controls[2*_count-3] = _controls[2*_count-4] + 
-                                    (_points[_count-1] - _points[_count-2])/3.0f;
+            _controls[0] = (SLVec4f(_controls[1]) - (_points[1] - _points[0])/3.0f).vec3();
+            _controls[2*_points.size()-3] = (SLVec4f(_controls[2*_points.size()-4]) + 
+                         (_points[_points.size()-1] - _points[_points.size()-2])/3.0f).vec3();
         } else
-        {   _controls[0] = _points[0] + (_points[1]-_points[0])/3.0f;
-            _controls[1] = _points[1] - (_points[1]-_points[0])/3.0f;
+        {   _controls[0] = (_points[0] + (_points[1]-_points[0])/3.0f).vec3();
+            _controls[1] = (_points[1] - (_points[1]-_points[0])/3.0f).vec3();
         }
     }
     else
     {  // copy approximating control points
-        for (i = 0; i < 2*(_count-1); ++i)
+        for (i = 0; i < 2*(_points.size()-1); ++i)
             _controls[i] = controlPoints[i];
     }
 
     // set up curve segment lengths
-    _lengths = new SLfloat[_count-1];
+    _lengths.clear();
+    _lengths.resize(_points.size()-1);
     _totalLength = 0.0f;
 
     _totalLength = 0.0f;
-    for (SLuint i = 0; i < _count-1; ++i)
+    for (SLuint i = 0; i < _points.size()-1; ++i)
     {   _lengths[i] = segmentArcLength(i, 0.0f, 1.0f);
         _totalLength += _lengths[i];
     }
@@ -110,25 +104,25 @@ space.
 */
 void SLCurveBezier::draw(const SLMat4f &wm)
 {  
-    SLint numControlPoints = 2*(_count-1);
+    SLint numControlPoints = 2*((SLint)_points.size()-1);
 
     // Create buffer object
     if (!_vao.id())
     {  
         // Build renderPoints by recursively subdividing the curve
         SLVVec3f renderPoints;
-        for (SLuint i = 0; i < _count-1; ++i)
-        {  subdivideRender(renderPoints, wm, 0.00001f, 
-                            _points[i], _controls[2*i], 
-                           _controls[2*i+1], _points[i+1]);
+        for (SLuint i = 0; i < _points.size()-1; ++i)
+        {   subdivideRender(renderPoints, wm, 0.00001f, 
+                            _points[i].vec3(), _controls[2*i], 
+                            _controls[2*i+1], _points[i+1].vec3());
         }
    
         // add last point to the curve vector
-        renderPoints.push_back(wm.multVec(_points[_count-1]));
+        renderPoints.push_back(wm.multVec(_points[_points.size()-1].vec3()));
 
         // add inputs points
-        for (SLuint i = 0; i < _count; ++i)
-            renderPoints.push_back(wm.multVec(_points[i]));
+        for (SLuint i = 0; i < _points.size(); ++i)
+            renderPoints.push_back(wm.multVec(_points[i].vec3()));
       
         // add control points
         for (SLint i = 0; i < numControlPoints; ++i)
@@ -138,12 +132,11 @@ void SLCurveBezier::draw(const SLMat4f &wm)
         for (SLint i = 0; i < numControlPoints; ++i)
         {   renderPoints.push_back(wm.multVec(_controls[i]));
             int iPoint = (SLint)((SLfloat)i/2.0f + 0.5f);
-            renderPoints.push_back(wm.multVec(_points[iPoint]));
+            renderPoints.push_back(wm.multVec(_points[iPoint].vec3()));
         }
       
         // Generate finally the OpenGL rendering buffer
-        //_bufP.generate(&renderPoints[0], (SLint)renderPoints.size(), 3);
-        _vao.generateVertexPos((SLint)renderPoints.size(), 3, &renderPoints[0]);
+        _vao.generateVertexPos(&renderPoints);
     }
    
     if (!_vao.id()) return;
@@ -154,7 +147,7 @@ void SLCurveBezier::draw(const SLMat4f &wm)
 
     SLint numTangentPoints = numControlPoints * 2;
     SLint numCurvePoints = _vao.numVertices() -
-                           _count - numControlPoints - numTangentPoints;
+                           (SLint)_points.size() - numControlPoints - numTangentPoints;
    
     // Draw curve as a line strip through interpolated points
     _vao.drawArrayAsColored(PT_lineStrip, SLCol3f::RED, 1, 0, numCurvePoints);
@@ -165,33 +158,27 @@ void SLCurveBezier::draw(const SLMat4f &wm)
     _vao.drawArrayAsColored(PT_points, SLCol4f::RED, 3, 0, numCurvePoints);
 
     // Draw input points
-    _vao.drawArrayAsColored(PT_points, SLCol4f::BLUE, 6, numCurvePoints, _count);
+    _vao.drawArrayAsColored(PT_points, SLCol4f::BLUE, 6, 
+                            numCurvePoints, (SLuint)_points.size());
 
     // Draw control points
     _vao.drawArrayAsColored(PT_points, SLCol4f::YELLOW, 6,
-        numCurvePoints + _count, numControlPoints);
+                            numCurvePoints + (SLuint)_points.size(), 
+                            numControlPoints);
 
     // Draw tangent points as lines
     _vao.drawArrayAsColored(PT_lines, SLCol4f::YELLOW, 1,
-        numCurvePoints + _count + numControlPoints, numTangentPoints);
+                            numCurvePoints + (SLint)_points.size() + numControlPoints, 
+                            numTangentPoints);
     #endif
 }
 //-------------------------------------------------------------------------------
 //! Deletes all curve arrays
 void SLCurveBezier::dispose()
 {
-    delete [] _points;   
-    delete [] _controls; 
-    delete [] _times;    
-    delete [] _lengths;
-
-    _points = 0;
-    _controls = 0;
-    _times = 0;
-    _lengths = 0;
-
+    _points.clear();   
+    _lengths.clear();
     _totalLength = 0.0f;
-    _count = 0;
 }
 //-------------------------------------------------------------------------------
 /*!
@@ -199,71 +186,71 @@ SLCurveBezier::curveEvaluate determines the position on the curve at time t.
 */
 SLVec3f SLCurveBezier::evaluate(const SLfloat t)
 {
-    assert(_count > 1 && _points && _times);
+    assert(_points.size() > 1);
 
     // handle boundary conditions
-    if (t <= _times[0]) return _points[0]; else 
-    if (t >= _times[_count-1]) return _points[_count-1];
+    if (t <= _points[0].w) return _points[0].vec3(); else 
+    if (t >= _points[_points.size()-1].w) return _points[_points.size()-1].vec3();
 
     // find segment and parameter
     unsigned int i;
-    for (i = 0; i < _count-1; ++i)
-        if (t < _times[i+1]) 
+    for (i = 0; i < _points.size()-1; ++i)
+        if (t < _points[i+1].w) 
             break;
 
-    SLfloat t0 = _times[i];
-    SLfloat t1 = _times[i+1];
+    SLfloat t0 = _points[i].w;
+    SLfloat t1 = _points[i+1].w;
     SLfloat u  = (t - t0)/(t1 - t0);
 
     // evaluate
-    SLVec3f A =        _points[i+1]
+    SLVec3f A =        _points[i+1].vec3()
                 - 3.0f*_controls[2*i+1]
                 + 3.0f*_controls[2*i]
-                -      _points[i];
+                -      _points[i].vec3();
     SLVec3f B =   3.0f*_controls[2*i+1]
                 - 6.0f*_controls[2*i]
-                + 3.0f*_points[i];
+                + 3.0f*_points[i].vec3();
     SLVec3f C =   3.0f*_controls[2*i]
-                - 3.0f*_points[i];
+                - 3.0f*_points[i].vec3();
     
-    return _points[i] + u*(C + u*(B + u*A));
+    return _points[i].vec3() + u*(C + u*(B + u*A));
 }
 //-------------------------------------------------------------------------------
 /*!
 SLCurveBezier::curveVelocity determines the velocity vector on the curve at 
 point t. The velocity vector direction is the tangent vector at t an is the first 
-derivative at point t. The velocity vector magnitute is the speed at point t. 
+derivative at point t. The velocity vector magnitude is the speed at point t. 
 */
 SLVec3f SLCurveBezier::velocity(SLfloat t)
 {
-    assert(_count > 1 && _points && _times);
+    assert(_points.size() > 1);
 
     // handle boundary conditions
-    if (t <= _times[0])
-        return _points[0];
-    else if (t >= _times[_count-1])
-        return _points[_count-1];
+    if (t <= _points[0].w)
+        return _points[0].vec3();
+    else if (t >= _points[_points.size()-1].w)
+        return _points[_points.size()-1].vec3();
 
     // find segment and parameter
     unsigned int i;
-    for (i = 0; i < _count-1; ++i)
-        if (t < _times[i+1])
+    for (i = 0; i < _points.size()-1; ++i)
+        if (t < _points[i+1].w)
             break;
 
-    SLfloat t0 = _times[i];
-    SLfloat t1 = _times[i+1];
+    SLfloat t0 = _points[i].w;
+    SLfloat t1 = _points[i+1].w;
     SLfloat u  = (t - t0)/(t1 - t0);
 
     // evaluate
-    SLVec3f A = _points[i+1]
+    SLVec3f A = _points[i+1].vec3()
                 - 3.0f*_controls[2*i+1]
                 + 3.0f*_controls[2*i]
-                - _points[i];
+                - _points[i].vec3();
     SLVec3f B = 6.0f*_controls[2*i+1]
                 - 12.0f*_controls[2*i]
-                + 6.0f*_points[i];
+                + 6.0f*_points[i].vec3();
     SLVec3f C = 3.0f*_controls[2*i]
-                - 3.0f*_points[i];
+                - 3.0f*_points[i].vec3();
     
     return C + u*(B + 3.0f*u*A);
 
@@ -275,31 +262,31 @@ at time t. It is the second derivative at point t.
 */
 SLVec3f SLCurveBezier::acceleration(SLfloat t)
 {
-    assert(_count > 1 && _points && _times);
+    assert(_points.size() > 1);
 
     // handle boundary conditions
-    if (t <= _times[0])
-        return _points[0];
-    else if (t >= _times[_count-1])
-        return _points[_count-1];
+    if (t <= _points[0].w)
+        return _points[0].vec3();
+    else if (t >= _points[_points.size()-1].w)
+        return _points[_points.size()-1].vec3();
 
     // find segment and parameter
     unsigned int i;
-    for (i = 0; i < _count-1; ++i)
-        if (t < _times[i+1]) break;
+    for (i = 0; i < _points.size()-1; ++i)
+        if (t < _points[i+1].w) break;
 
-    SLfloat t0 = _times[i];
-    SLfloat t1 = _times[i+1];
+    SLfloat t0 = _points[i].w;
+    SLfloat t1 = _points[i+1].w;
     SLfloat u  = (t - t0)/(t1 - t0);
 
     // evaluate
-    SLVec3f A =         _points[i+1]
+    SLVec3f A =         _points[i+1].vec3()
                 -  3.0f*_controls[2*i+1]
                 +  3.0f*_controls[2*i]
-                -       _points[i];
+                -       _points[i].vec3();
     SLVec3f B =    6.0f*_controls[2*i+1]
                 - 12.0f*_controls[2*i]
-                +  6.0f*_points[i];
+                +  6.0f*_points[i].vec3();
     
     return B + 6.0f*u*A;
 
@@ -312,11 +299,11 @@ Returns max SLfloat if can't find it.
 SLfloat SLCurveBezier::findParamByDist(SLfloat t1, SLfloat s)
 {
     // ensure that we remain within valid parameter space
-    if (s > arcLength(t1, _times[_count-1]))
-        return _times[_count-1];
+    if (s > arcLength(t1, _points[_points.size()-1].w))
+        return _points[_points.size()-1].w;
 
     // make first guess
-    SLfloat p = t1 + s*(_times[_count-1]-_times[0])/_totalLength;
+    SLfloat p = t1 + s*(_points[_points.size()-1].w-_points[0].w)/_totalLength;
     for (SLuint i = 0; i < 32; ++i)
     {
         // compute function value and test against zero
@@ -339,24 +326,24 @@ Calculate length of curve between parameters t1 and t2
 SLfloat SLCurveBezier::arcLength(SLfloat t1, SLfloat t2)
 {
     if (t2 <= t1) return 0.0f;
-    if (t1 < _times[0]) t1 = _times[0];
-    if (t2 > _times[_count-1]) t2 = _times[_count-1];
+    if (t1 < _points[0].w) t1 = _points[0].w;
+    if (t2 > _points[_points.size()-1].w) t2 = _points[_points.size()-1].w;
 
     // find segment and parameter
     unsigned int seg1;
-    for (seg1 = 0; seg1 < _count-1; ++seg1)
-        if (t1 < _times[seg1+1])
+    for (seg1 = 0; seg1 < _points.size()-1; ++seg1)
+        if (t1 < _points[seg1+1].w)
             break;
 
-    SLfloat u1 = (t1 - _times[seg1])/(_times[seg1+1] - _times[seg1]);
+    SLfloat u1 = (t1 - _points[seg1].w)/(_points[seg1+1].w - _points[seg1].w);
     
     // find segment and parameter
     unsigned int seg2;
-    for (seg2 = 0; seg2 < _count-1; ++seg2)
-    if (t2 <= _times[seg2+1])
+    for (seg2 = 0; seg2 < _points.size()-1; ++seg2)
+    if (t2 <= _points[seg2+1].w)
         break;
 
-    SLfloat u2 = (t2 - _times[seg2])/(_times[seg2+1] - _times[seg2]);
+    SLfloat u2 = (t2 - _points[seg2].w)/(_points[seg2+1].w - _points[seg2].w);
     
     // both parameters lie in one segment
     SLfloat result;
@@ -380,16 +367,16 @@ parameters u1 and u2 by recursively subdividing the segment.
 */
 SLfloat SLCurveBezier::segmentArcLength(SLuint  i, SLfloat u1, SLfloat u2)
 {
-    assert(i >= 0 && i < _count-1);
+    assert(i >= 0 && i < _points.size()-1);
 
     if (u2 <= u1) return 0.0f;
     if (u1 < 0.0f) u1 = 0.0f;
     if (u2 > 1.0f) u2 = 1.0f;
 
-    SLVec3f P0 = _points[i];
+    SLVec3f P0 = _points[i].vec3();
     SLVec3f P1 = _controls[2*i];
     SLVec3f P2 = _controls[2*i+1];
-    SLVec3f P3 = _points[i+1];
+    SLVec3f P3 = _points[i+1].vec3();
 
     // get control points for subcurve from 0.0 to u2 (de Casteljau's method)
     // http://de.wikipedia.org/wiki/De-Casteljau-Algorithmus

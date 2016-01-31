@@ -34,29 +34,15 @@ in SLScene::unInit().
 SLMesh::SLMesh(SLstring name) : SLObject(name)
 {   
     _primitive = PT_triangles;
-    cpuSkinningP = nullptr;
-    cpuSkinningN = nullptr;
-    P   = nullptr;
-    N   = nullptr;
-    C   = nullptr;
-    T   = nullptr;
-    Tc  = nullptr;
-    Ji  = nullptr;
-    Jw  = nullptr;
-    I16 = nullptr;
-    I32 = nullptr;
     mat = nullptr;
     matOut = nullptr;
     _finalP = &P;
     _finalN = &N;
     _useHalf = false;
-    numV = 0;
-    numI = 0;
     minP.set( FLT_MAX,  FLT_MAX,  FLT_MAX);
     maxP.set(-FLT_MAX, -FLT_MAX, -FLT_MAX);
    
     _skeleton = nullptr;
-    _jointMatrices = nullptr;
     _skinMethod = SM_software;
 
     _stateGL = SLGLState::getInstance();  
@@ -80,19 +66,19 @@ SLMesh::~SLMesh()
 //! SLMesh::deleteData deletes all mesh data and vbo's
 void SLMesh::deleteData()
 {
-    if (P)   delete[] P;    P=nullptr;
-    if (N)   delete[] N;    N=nullptr;
-    if (C)   delete[] C;    C=nullptr;
-    if (T)   delete[] T;    T=nullptr;
-    if (Tc)  delete[] Tc;   Tc=nullptr;
-    if (Ji)  delete[] Ji;   Ji=nullptr;
-    if (Jw)  delete[] Jw;   Jw=nullptr;
-    if (I16) delete[] I16;  I16=nullptr;
-    if (I32) delete[] I32;  I32=nullptr;
+    P.clear();
+    N.clear();
+    C.clear();
+    T.clear();
+    Tc.clear();
+    Ji.clear();
+    Jw.clear();
+    I16.clear();
+    I32.clear();
 
-    if (_jointMatrices) delete[] _jointMatrices; _jointMatrices = nullptr;
-    if (cpuSkinningP)   delete[] cpuSkinningP; cpuSkinningP = nullptr;
-    if (cpuSkinningN)   delete[] cpuSkinningN; cpuSkinningN = nullptr;
+    _jointMatrices.clear();
+    skinnedP.clear();
+    skinnedN.clear();
 
     if (_accelStruct) 
     {   delete _accelStruct;      
@@ -107,9 +93,9 @@ void SLMesh::deleteData()
 //! SLMesh::shapeInit sets the transparency flag of the AABB
 void SLMesh::init(SLNode* node)
 {   
-    if (P && numV && (I16 || I32) && numI)
+    if (P.size() && (I16.size() || I32.size()))
     {  
-        if (!N) calcNormals();
+        if (!N.size()) calcNormals();
 
         mat = (mat) ? mat : SLMaterial::defaultMaterial();
 
@@ -118,23 +104,21 @@ void SLMesh::init(SLNode* node)
             node->aabb()->hasAlpha(true);
          
         // build tangents for bump mapping
-        if (mat->needsTangents() && Tc && T==nullptr)
+        if (mat->needsTangents() && Tc.size() && !T.size())
             calcTangents();
     }
     else
     {   SLstring msg;
-        if (!P) msg = "No vertex positions (P)\n";
-        if (!numV) msg += "No NO. if vertices (numV)\n";
-        if (!I16 && !I32) msg += "No vertex indexes (I16 or I32)\n";
-        if (!numI) msg += "No NO. io vertex indexes (numI)\n";
+        if (!P.size()) msg = "No vertex positions (P)\n";
+        if (!I16.size() && !I32.size()) msg += "No vertex indices (I16 or I32)\n";
         SL_EXIT_MSG((msg + "in mesh: " + _name).c_str());
     }
 }
 //-----------------------------------------------------------------------------
 /*! 
 SLMesh::draw does the OpenGL rendering of the mesh. The GL_TRIANGLES or 
-GL_LINES primitives are rendered normally with the vertex position array P,
-the normal array N, the array Tc and the index array I16 or I32. 
+GL_LINES primitives are rendered normally with the vertex position vector P,
+the normal vector N, the vector Tc and the index vector I16 or I32. 
 Optionally you can draw the normals and/or the uniform grid voxels.
 <p> The method performs the following steps:</p>
 <p>
@@ -154,7 +138,7 @@ Please view also the full process of rendering <a href="md_on_paint.html"><b>one
 */
 void SLMesh::draw(SLSceneView* sv, SLNode* node)
 {  
-    if (P && numV && (I16 || I32) && numI)
+    if (P.size() && (I16.size() || I32.size()))
     {     
         ////////////////////////
         // 1) Apply Drawing Bits
@@ -181,7 +165,7 @@ void SLMesh::draw(SLSceneView* sv, SLNode* node)
         _stateGL->cullFace(!noFaceCulling);
       
         // check if texture exists
-        SLbool useTexture = Tc && !sv->drawBit(SL_DB_TEXOFF) && !node->drawBit(SL_DB_TEXOFF);
+        SLbool useTexture = Tc.size() && !sv->drawBit(SL_DB_TEXOFF) && !node->drawBit(SL_DB_TEXOFF);
                                      
         // enable polygon offset if voxels are drawn to avoid stitching
         if (sv->drawBit(SL_DB_VOXELS) || node->drawBit(SL_DB_VOXELS))
@@ -227,15 +211,17 @@ void SLMesh::draw(SLSceneView* sv, SLNode* node)
         }
 
         // 2.d) Do GPU skinning for animated meshes
-        if (_skeleton && Ji && Jw && _skinMethod == SM_hardware)
+        if (_skeleton && Ji.size() && Jw.size() && _skinMethod == SM_hardware)
         {
-            if (!_jointMatrices)
-            _jointMatrices = new SLMat4f[_skeleton->numJoints()];
+            if (!_jointMatrices.size())
+            {   _jointMatrices.clear();
+                _jointMatrices.resize(_skeleton->numJoints());
+            }
 
             if (_skeleton->changed())
             {
                 // update the joint matrix array
-                _skeleton->getJointWorldMatrices(_jointMatrices);
+                _skeleton->getJointMatrices(_jointMatrices);
                 // remove the changed flag from the skeleton since our joint matrices are up to date again
                 // @note    the skeleton referenced here would be the skeleton instance proposed in the documentation
                 //          of SLSkeleton. So the _jointMatrices array is the only thing that is concerned with the changed flag
@@ -249,9 +235,9 @@ void SLMesh::draw(SLSceneView* sv, SLNode* node)
             // @todo    Secondly: It is a bad idea to keep the joint data in the mesh itself, this prevents us
             //          from instantiating a single mesh with multiple animations. Needs to be addressed ASAP. (see also SLMesh class problems in SLMesh.h at the top)
             //          In short, the solution would be an entity class which is an instance of a mesh (same mesh data) which can be animated. the original buffers
-            //          would be in the original mesh and the CPU skinned buffers in the entity. or if GPU skinned it would just be the jointmatrices array that's in the entity.
+            //          would be in the original mesh and the CPU skinned buffers in the entity. or if GPU skinned it would just be the joint matrices array that's in the entity.
             SLint locBM = sp->getUniformLocation("u_jointMatrices");
-            sp->uniformMatrix4fv(locBM, _skeleton->numJoints(), (SLfloat*)_jointMatrices, false);
+            sp->uniformMatrix4fv(locBM, _skeleton->numJoints(), (SLfloat*)&_jointMatrices[0], false);
         }
 
         ///////////////////////////////////////
@@ -259,16 +245,16 @@ void SLMesh::draw(SLSceneView* sv, SLNode* node)
         ///////////////////////////////////////
 
         if (!_vao.id())
-        {            _vao.setAttrib(AT_position,    3, sp->getAttribLocation("a_position"), finalP());
-            if (N)   _vao.setAttrib(AT_normal,      3, sp->getAttribLocation("a_normal"), finalN(), _useHalf);
-            if (Tc)  _vao.setAttrib(AT_texCoord,    2, sp->getAttribLocation("a_texCoord"), Tc, _useHalf);
-            if (C)   _vao.setAttrib(AT_color,       4, sp->getAttribLocation("a_color"), C, _useHalf);
-            if (T)   _vao.setAttrib(AT_tangent,     4, sp->getAttribLocation("a_tangent"), T, _useHalf);
-            if (Ji)  _vao.setAttrib(AT_jointIndex,  4, sp->getAttribLocation("a_jointIds"), Ji, _useHalf);
-            if (Jw)  _vao.setAttrib(AT_jointWeight, 4, sp->getAttribLocation("a_jointWeights"), Jw, _useHalf);
-            if (I16) _vao.setIndices(numI, BT_ushort, I16);
-            if (I32) _vao.setIndices(numI, BT_uint, I32);
-            _vao.generate(numV, (Ji&&Jw) ? BU_stream : BU_static, false); //!(Ji&&Jw));
+        {                   _vao.setAttrib(AT_position,    sp->getAttribLocation("a_position"), _finalP);
+            if (N.size())   _vao.setAttrib(AT_normal,      sp->getAttribLocation("a_normal"), _finalN, _useHalf);
+            if (Tc.size())  _vao.setAttrib(AT_texCoord,    sp->getAttribLocation("a_texCoord"), &Tc, _useHalf);
+            if (C.size())   _vao.setAttrib(AT_color,       sp->getAttribLocation("a_color"), &C, _useHalf);
+            if (T.size())   _vao.setAttrib(AT_tangent,     sp->getAttribLocation("a_tangent"), &T, _useHalf);
+            if (Ji.size())  _vao.setAttrib(AT_jointIndex,  sp->getAttribLocation("a_jointIds"), &Ji, _useHalf);
+            if (Jw.size())  _vao.setAttrib(AT_jointWeight, sp->getAttribLocation("a_jointWeights"), &Jw, _useHalf);
+            if (I16.size()) _vao.setIndices(&I16);
+            if (I32.size()) _vao.setIndices(&I32);
+            _vao.generate((SLuint)P.size(), Ji.size() ? BU_stream : BU_static, !Ji.size());
         }
 
         ///////////////////////////////
@@ -286,34 +272,33 @@ void SLMesh::draw(SLSceneView* sv, SLNode* node)
         SLbool blended = _stateGL->blend();
         if (blended) _stateGL->blend(false);
         
-        if (N && (sv->drawBit(SL_DB_NORMALS) || node->drawBit(SL_DB_NORMALS)))
+        if (N.size() && (sv->drawBit(SL_DB_NORMALS) || node->drawBit(SL_DB_NORMALS)))
         {  
             // scale factor r 5% from scaled radius for normals & tangents
             // build array between vertex and normal target point
             float r = node->aabb()->radiusOS() * 0.05f;
-            SLVec3f* V2 = new SLVec3f[numV*2];
-            for (SLuint i=0; i < numV; ++i)
-            {   V2[i<<1] = finalP()[i];
-                V2[(i<<1)+1].set(finalP()[i] + finalN()[i]*r);
+            SLVVec3f V2; V2.resize(P.size()*2);
+            for (SLuint i=0; i < P.size(); ++i)
+            {   V2[i<<1] = finalP(i);
+                V2[(i<<1)+1].set(finalP(i) + finalN(i)*r);
             }
 
             // Create or update VAO for normals
-            _vaoN.generateVertexPos(numV*2, 3, V2);
+            _vaoN.generateVertexPos(&V2);
 
-            if (T)
-            {   for (SLuint i=0; i < numV; ++i)
-                {  V2[(i<<1)+1].set(finalP()[i].x+T[i].x*r,
-                                    finalP()[i].y+T[i].y*r,
-                                    finalP()[i].z+T[i].z*r);
+            if (T.size())
+            {   for (SLuint i=0; i < P.size(); ++i)
+                {  V2[(i<<1)+1].set(finalP(i).x+T[i].x*r,
+                                    finalP(i).y+T[i].y*r,
+                                    finalP(i).z+T[i].z*r);
                 }
 
                 // Create or update VAO for tangents
-                _vaoT.generateVertexPos(numV*2, 3, V2);
+                _vaoT.generateVertexPos(&V2);
             }
-            delete[] V2;
 
             _vaoN.drawArrayAsColored(PT_lines, SLCol4f::BLUE);
-            if (T) _vaoT.drawArrayAsColored(PT_lines, SLCol4f::RED);
+            if (T.size()) _vaoT.drawArrayAsColored(PT_lines, SLCol4f::RED);
             if (blended) _stateGL->blend(false);
         } 
         else
@@ -343,7 +328,7 @@ void SLMesh::draw(SLSceneView* sv, SLNode* node)
         if (SLScene::current->selectedMesh())
         {   _stateGL->polygonOffset(true, 1.0f, 1.0f);
             if (SLScene::current->selectedMesh()==this)
-            {   _vaoS.generateVertexPos(numV, 3, finalP());
+            {   _vaoS.generateVertexPos(_finalP);
                 _vaoS.drawArrayAsColored(PT_points, SLCol4f::YELLOW, 2);
             }
             _stateGL->polygonLine(false);
@@ -357,10 +342,8 @@ void SLMesh::draw(SLSceneView* sv, SLNode* node)
     }
     else
     {   SLstring msg;
-        if (!P) msg = "No vertex positions (P)\n";
-        if (!numV) msg += "No NO. if vertices (numV)\n";
-        if (!I16 && !I32) msg += "No vertex indexes (I16 or I32)\n";
-        if (!numI) msg += "No NO. io vertex indexes (numI)\n";
+        if (!P.size()) msg = "No vertex positions (P)\n";
+        if (!I16.size() && !I32.size()) msg += "No vertex indices (I16 or I32)\n";
         SL_EXIT_MSG((msg + "in mesh: " + _name).c_str());
     }
 }
@@ -380,7 +363,7 @@ SLbool SLMesh::hit(SLRay* ray, SLNode* node)
     {   // intersect against all faces
         SLbool wasHit = false; 
 
-        for (SLuint t=0; t<numI; t+=3)
+        for (SLuint t=0; t<numI(); t+=3)
             if(hitTriangleOS(ray, node, t) && !wasHit) 
                 wasHit = true;
 
@@ -393,22 +376,22 @@ SLMesh::updateStats updates the parent node statistics.
 */
 void SLMesh::addStats(SLNodeStats &stats)
 {  
-    stats.numBytes += sizeof(SLMesh);               // myself
-    if (P)  stats.numBytes += numV*sizeof(SLVec3f); // P
-    if (N)  stats.numBytes += numV*sizeof(SLVec3f); // N
-    if (Tc) stats.numBytes += numV*sizeof(SLVec2f); // Tc
-    if (C)  stats.numBytes += numV*sizeof(SLCol4f); // C
-    if (T)  stats.numBytes += numV*sizeof(SLVec4f); // T
-    if (Ji) stats.numBytes += numV*sizeof(SLVec4f); // Ji
-    if (Jw) stats.numBytes += numV*sizeof(SLVec4f); // Jw
+    stats.numBytes += sizeof(SLMesh);
+    if (P.size())  stats.numBytes += SL_sizeOfVector(P);
+    if (N.size())  stats.numBytes += SL_sizeOfVector(N);
+    if (Tc.size()) stats.numBytes += SL_sizeOfVector(Tc);
+    if (C.size())  stats.numBytes += SL_sizeOfVector(C);
+    if (T.size())  stats.numBytes += SL_sizeOfVector(T);
+    if (Ji.size()) stats.numBytes += SL_sizeOfVector(Ji);
+    if (Jw.size()) stats.numBytes += SL_sizeOfVector(Jw);
 
-    if (I16)
-         stats.numBytes += numI*sizeof(SLushort);   // I16
-    else stats.numBytes += numI*sizeof(SLuint);     // I32
-        
+    if (I16.size())
+         stats.numBytes += (SLuint)(I16.size()*sizeof(SLushort));
+    else stats.numBytes += (SLuint)(I32.size()*sizeof(SLuint));
+
     stats.numMeshes++;
-    if (_primitive==PT_triangles) stats.numTriangles += numI/3;
-    if (_primitive==PT_lines)     stats.numLines     += numI/2;
+    if (_primitive==PT_triangles) stats.numTriangles += numI()/3;
+    if (_primitive==PT_lines)     stats.numLines     += numI()/2;
 
     if (_accelStruct) 
         _accelStruct->updateStats(stats);
@@ -424,13 +407,13 @@ void SLMesh::calcMinMax()
     maxP.set(-FLT_MAX, -FLT_MAX, -FLT_MAX);
 
     // calc min and max point of all vertices
-    for (SLuint i=0; i<numV; ++i)
-    {   if (finalP()[i].x < minP.x) minP.x = finalP()[i].x;
-        if (finalP()[i].x > maxP.x) maxP.x = finalP()[i].x;
-        if (finalP()[i].y < minP.y) minP.y = finalP()[i].y;
-        if (finalP()[i].y > maxP.y) maxP.y = finalP()[i].y;
-        if (finalP()[i].z < minP.z) minP.z = finalP()[i].z;
-        if (finalP()[i].z > maxP.z) maxP.z = finalP()[i].z;
+    for (SLuint i=0; i<P.size(); ++i)
+    {   if (finalP(i).x < minP.x) minP.x = finalP(i).x;
+        if (finalP(i).x > maxP.x) maxP.x = finalP(i).x;
+        if (finalP(i).y < minP.y) minP.y = finalP(i).y;
+        if (finalP(i).y > maxP.y) maxP.y = finalP(i).y;
+        if (finalP(i).z < minP.z) minP.z = finalP(i).z;
+        if (finalP(i).z > maxP.z) maxP.z = finalP(i).z;
     } 
 }
 //-----------------------------------------------------------------------------
@@ -450,9 +433,8 @@ void SLMesh::calcCenterRad(SLVec3f& center, SLfloat& radius)
     xmin.x = ymin.y = zmin.z=  FLT_MAX;
     xmax.x = ymax.y = zmax.z= -FLT_MAX;
    
-    for (i=0; i<numV; ++i)
-    {
-        if (P[i].x < xmin.x) xmin = P[i]; else
+    for (i=0; i<P.size(); ++i)
+    {   if (P[i].x < xmin.x) xmin = P[i]; else
         if (P[i].x > xmax.x) xmax = P[i];
         if (P[i].y < ymin.y) ymin = P[i]; else
         if (P[i].y > ymax.y) ymax = P[i];
@@ -502,7 +484,7 @@ void SLMesh::calcCenterRad(SLVec3f& center, SLfloat& radius)
     radius  = sqrt(radius2);
 
     // SECOND PASS: increment current sphere
-    for (i=0; i<numV; ++i)
+    for (i=0; i<P.size(); ++i)
     {
         dx = P[i].x - center.x;
         dy = P[i].y - center.y;
@@ -572,7 +554,7 @@ void SLMesh::updateAccelStruct()
     if (_accelStruct == nullptr && _primitive == PT_triangles)
         _accelStruct = new SLCompactGrid(this);
 
-    if (_accelStruct && numI > 15)
+    if (_accelStruct && numI() > 15)
     {   _accelStruct->build(minP, maxP);
         _accelStructOutOfDate = false;
     }
@@ -589,22 +571,22 @@ quality. At the end all vertex normals are normalized.
 */
 void SLMesh::calcNormals()
 {
-    assert(numV && P && (I16 || I32));
+    assert(P.size() && (I16.size() || I32.size()));
 
-    // Create array for the normals & Zero out the normals array
-    delete[] N;
-    N = 0;
+    // Set vector for the normals & Zero out the normals vector
+    N.clear();
 
     if (_primitive != PT_triangles)
         return;
 
-    N = new SLVec3f[numV];
-    for (SLuint i = 0; i < numV; ++i) N[i] = SLVec3f::ZERO;
+    // Create vector and fill with zero vectors
+    N.resize(P.size());
+    std::fill(N.begin(), N.end(), SLVec3f::ZERO);
    
-    if (I16)
+    if (I16.size())
     {   
         // Loop over all triangles
-        for (SLuint i = 0; i < numI-3; i+=3)
+        for (SLuint i = 0; i < I16.size()-3; i+=3)
         {  
             // Calculate the face's normal
             SLVec3f e1, e2, n;
@@ -621,11 +603,8 @@ void SLMesh::calcNormals()
             N[I16[i+1]] += n;
             N[I16[i+2]] += n;
         }
-    }
-   
-    if (I32)
-    {   
-        for (SLuint i = 0; i < numI-3; i+=3)
+    } else
+    {   for (SLuint i = 0; i < I32.size()-3; i+=3)
         {  
             // Calculate the face's normal
             SLVec3f e1, e2, n;
@@ -645,7 +624,7 @@ void SLMesh::calcNormals()
     } 
       
     // normalize vertex normals
-    for (SLuint i=0; i < numV; ++i) N[i].normalize();
+    for (SLuint i=0; i < P.size(); ++i) N[i].normalize();
 }
 //-----------------------------------------------------------------------------
 //! SLMesh::calcTangents computes the tangents per vertex for triangle meshes. 
@@ -655,32 +634,30 @@ detail explained in: http://www.terathon.com/code/tangent.html
 */
 void SLMesh::calcTangents()
 {
-    if (P && N && Tc && (I16||I32))
+    if (P.size() && N.size() && Tc.size() && (I16.size()||I32.size()))
     {
         // Delete old tangents
-        delete[] T;
-        T = 0;
+        T.clear();
         
         if (_primitive != PT_triangles)
             return;
         
         // allocate tangents
-        T = new SLVec4f[numV];
+        T.resize(P.size());
       
         // allocate temp arrays for tangents
-        SLVec3f* T1 = new SLVec3f[numV * 2];
-        SLVec3f* T2 = T1 + numV;
-        memset(T1, 0, numV * sizeof(SLVec3f) * 2);
+        SLVVec3f T1; T1.resize(P.size()); fill(T1.begin(), T1.end(), SLVec3f::ZERO);
+        SLVVec3f T2; T2.resize(P.size()); fill(T2.begin(), T2.end(), SLVec3f::ZERO);
 
         SLuint iVA, iVB, iVC;
-        SLuint numT = numI / 3; //NO. of triangles
+        SLuint numT = numI()/3; //NO. of triangles
 
         for (SLuint t = 0; t < numT; ++t)
         {
             SLuint i = t * 3;   // vertex index
 
-            // Get the 3 vertex indexes
-            if (I16)
+            // Get the 3 vertex indices
+            if (I16.size())
             {   iVA = I16[i  ];
                 iVB = I16[i+1];
                 iVC = I16[i+2];
@@ -716,7 +693,7 @@ void SLMesh::calcTangents()
         }
 
 
-        for (SLuint i=0; i < numV; ++i)
+        for (SLuint i=0; i < P.size(); ++i)
         {
             // Gram-Schmidt orthogonalization
             T[i] = T1[i] - N[i] * N[i].dot(T1[i]);
@@ -727,8 +704,6 @@ void SLMesh::calcTangents()
             bitangent.cross(N[i], T1[i]);
             T[i].w = (bitangent.dot(T2[i]) < 0.0f) ? -1.0f : 1.0f;
         }
-       
-        delete[] T1;
     }
 }
 //-----------------------------------------------------------------------------
@@ -784,14 +759,14 @@ SLbool SLMesh::hitTriangleOS(SLRay* ray, SLNode* node, SLuint iT)
     SLVec3f AO, K, Q;
    
     // get the corner vertices
-    if (I16)
-    {   A = finalP()[I16[iT  ]];
-        B = finalP()[I16[iT+1]];
-        C = finalP()[I16[iT+2]];
+    if (I16.size())
+    {   A = finalP(I16[iT  ]);
+        B = finalP(I16[iT+1]);
+        C = finalP(I16[iT+2]);
     } else
-    {   A = finalP()[I32[iT  ]];
-        B = finalP()[I32[iT+1]];
-        C = finalP()[I32[iT+2]];
+    {   A = finalP(I32[iT  ]);
+        B = finalP(I32[iT+1]);
+        C = finalP(I32[iT+2]);
     }
    
     // find vectors for two edges sharing the triangle vertex A
@@ -905,9 +880,9 @@ void SLMesh::preShade(SLRay* ray)
 {
     assert (_primitive == PT_triangles);
 
-    // Get the triangle indexes
+    // Get the triangle indices
     SLuint iA, iB, iC;
-    if (I16)
+    if (I16.size())
     {   iA = I16[ray->hitTriangle  ];
         iB = I16[ray->hitTriangle+1];
         iC = I16[ray->hitTriangle+2];
@@ -921,9 +896,9 @@ void SLMesh::preShade(SLRay* ray)
     ray->hitPoint.set(ray->origin + ray->length * ray->dir);
       
     // calculate the interpolated normal with vertex normals in object space
-    ray->hitNormal.set(finalN()[iA] * (1-(ray->hitU + ray->hitV)) +
-                       finalN()[iB] * ray->hitU +
-                       finalN()[iC] * ray->hitV);
+    ray->hitNormal.set(finalN(iA) * (1-(ray->hitU + ray->hitV)) +
+                       finalN(iB) * ray->hitU +
+                       finalN(iC) * ray->hitV);
                       
     // transform normal back to world space
     ray->hitNormal.set(ray->hitNode->updateAndGetWMN() * ray->hitNormal);
@@ -941,7 +916,7 @@ void SLMesh::preShade(SLRay* ray)
       
         // bump mapping
         if (textures.size() > 1)
-        {   if (T)
+        {   if (T.size())
             {  
                 // calculate the interpolated tangent with vertex tangent in object space
                 SLVec4f hitT(T[iA] * (1-(ray->hitU+ray->hitV)) + 
@@ -969,10 +944,10 @@ returns true if added successfully, false if already full
 */
 SLbool SLMesh::addWeight(SLint vertId, SLuint jointId, SLfloat weight)
 {
-    if (!Ji || !Jw)
+    if (!Ji.size() || !Jw.size())
         return false;
 
-    assert(vertId < (SLint)numV && "An illegal index was passed in to SLMesh::addWeight");
+    assert(vertId < P.size() && "An illegal index was passed in to SLMesh::addWeight");
     
     SLVec4f& jId = Ji[vertId];
     SLVec4f& jWeight = Jw[vertId];
@@ -1009,7 +984,7 @@ void SLMesh::skinMethod(SLSkinMethod method)
         return;
 
     // return if this isn't a skinned mesh
-    if (!_skeleton || !Ji || !Jw)
+    if (!_skeleton || !Ji.size() || !Jw.size())
         return;
 
     _skinMethod = method;
@@ -1020,7 +995,7 @@ void SLMesh::skinMethod(SLSkinMethod method)
         _finalN = &N;
 
         // if we are a textured mesh
-        if (Tc)
+        if (Tc.size())
         {   SLGLGenericProgram* skinningShaderTex = new SLGLGenericProgram("PerPixBlinnTexSkinned.vert",
                                                                            "PerPixBlinnTex.frag");
             mat->program(skinningShaderTex);
@@ -1045,40 +1020,43 @@ This skinning process can also be done (a lot faster) on the GPU.
 This software skinning is also needed for ray or path tracing.  
 */
 void SLMesh::transformSkin()
-{
+{   
     // create the secondary buffers for P and N once   
-    if (!cpuSkinningP)
-    {   cpuSkinningP = new SLVec3f[numV];
-        for (SLuint i = 0; i < numV; ++i)
-            cpuSkinningP[i] = P[i];
+    if (!skinnedP.size())
+    {   skinnedP.resize(P.size());
+        for (SLuint i = 0; i < P.size(); ++i)
+            skinnedP[i] = P[i];
     }
-    if (!cpuSkinningN && N) 
-    {   cpuSkinningN = new SLVec3f[numV];
-        for (SLuint i = 0; i < numV; ++i)
-            cpuSkinningN[i] = N[i];
+    if (!skinnedN.size() && N.size()) 
+    {   skinnedN.resize(P.size());
+        for (SLuint i = 0; i < P.size(); ++i)
+            skinnedN[i] = N[i];
     }
 
     // Create array for joint matrices once
-    if (!_jointMatrices)
-        _jointMatrices = new SLMat4f[_skeleton->numJoints()];
+    if (!_jointMatrices.size())
+    {   _jointMatrices.clear();
+        _jointMatrices.resize(_skeleton->numJoints());
+    }
+        
 
     // update the joint matrix array
-    _skeleton->getJointWorldMatrices(_jointMatrices);
+    _skeleton->getJointMatrices(_jointMatrices);
 
     notifyParentNodesAABBUpdate();
 
     // temporarily set finalP and finalN
-    _finalP = &cpuSkinningP;
-    _finalN = &cpuSkinningN;
+    _finalP = &skinnedP;
+    _finalN = &skinnedN;
     
     // flag acceleration structure to be rebuilt
     _accelStructOutOfDate = true;
         
     // iterate over all vertices and write to new buffers
-    for (SLuint i = 0; i < numV; ++i)
+    for (SLuint i = 0; i < P.size(); ++i)
     {
-        cpuSkinningP[i] = SLVec3f::ZERO;
-        if (N) cpuSkinningN[i] = SLVec3f::ZERO;
+        skinnedP[i] = SLVec3f::ZERO;
+        if (N.size()) skinnedN[i] = SLVec3f::ZERO;
 
         // array form for easier iteration
         SLfloat jointWeights[4] = {Jw[i].x, Jw[i].y, Jw[i].z, Jw[i].w};
@@ -1093,19 +1071,17 @@ void SLMesh::transformSkin()
             {
                 const SLMat4f& jm = _jointMatrices[jointIndices[j]];
                 SLVec4f tempPos = jm * P[i];
-                cpuSkinningP[i].x += tempPos.x * jointWeights[j];
-                cpuSkinningP[i].y += tempPos.y * jointWeights[j];
-                cpuSkinningP[i].z += tempPos.z * jointWeights[j];
+                skinnedP[i].x += tempPos.x * jointWeights[j];
+                skinnedP[i].y += tempPos.y * jointWeights[j];
+                skinnedP[i].z += tempPos.z * jointWeights[j];
 
-                if (N) 
+                if (N.size()) 
                 {   // Build the 3x3 submatrix in GLSL 110 (= mat3 jt3 = mat3(jt))
                     // for the normal transform that is the normally the inverse transpose.
                     // The inverse transpose can be ignored as long as we only have
                     // rotation and uniform scaling in the 3x3 submatrix.
                     SLMat3f jnm = jm.mat3();
-                    //jnm.invert();
-                    //jnm.transpose();
-                    cpuSkinningN[i] += jnm * N[i] * jointWeights[j];
+                    skinnedN[i] += jnm * N[i] * jointWeights[j];
                 }
             }
         }
@@ -1114,8 +1090,8 @@ void SLMesh::transformSkin()
     // update or create buffers
     if (_vao.id())
     {
-        _vao.updateAttrib(AT_position, 3, finalP());
-        if (N) _vao.updateAttrib(AT_normal, 3, finalN());
+        _vao.updateAttrib(AT_position, _finalP);
+        if (N.size()) _vao.updateAttrib(AT_normal, _finalN);
     }
     
 }

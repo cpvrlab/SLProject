@@ -481,7 +481,7 @@ SLCol4f SLRaytracer::shade(SLRay* ray)
     }
 
     if (texture.size()) 
-    {   localColor &= ray->hitTexCol;    // componentwise multiply
+    {   localColor &= ray->hitTexCol;    // component wise multiply
         localColor += localSpec;         // add afterwards the specular component
     } else localColor += localSpec; 
          
@@ -490,13 +490,14 @@ SLCol4f SLRaytracer::shade(SLRay* ray)
 }
 //-----------------------------------------------------------------------------
 /*!
-This method fills the pixels into the vector pix that need to be supsampled
-because the contrast to its left and/or above neighbour is above a threshold.
+This method fills the pixels into the vector pix that need to be subsampled
+because the contrast to its left and/or above neighbor is above a threshold.
 */
 void SLRaytracer::getAAPixels()
 {
     SLCol4f  color, colorLeft, colorUp;    // pixel colors to be compared
-    SLbool*  gotSampled = new SLbool[_images[0]->width()];// Flags if above pixel got sampled
+    SLVbool gotSampled; 
+    gotSampled.resize(_images[0]->width());// Flags if above pixel got sampled
     SLbool   isSubsampled = false;         // Flag if pixel got subsampled
 
     // Nothing got sampled at beginning
@@ -533,7 +534,6 @@ void SLRaytracer::getAAPixels()
             gotSampled[x] = isSubsampled;
         }
     }
-    delete[] gotSampled;
     SLRay::subsampledPixels = (SLint)_aaPixels.size();
 }
 //-----------------------------------------------------------------------------
@@ -543,7 +543,7 @@ antialiased. See also getAAPixels. This routine can be called by multiple
 threads.
 The _next index is used and incremented by every thread. So it should be locked
 or an atomic index. I prefer not protecting it because it's faster. If the
-increment is not done proberly some pixels may get raytraced twice. Only the
+increment is not done properly some pixels may get ray traced twice. Only the
 main thread is allowed to call a repaint of the image.
 */
 void SLRaytracer::sampleAAPixels(const bool isMainThread)

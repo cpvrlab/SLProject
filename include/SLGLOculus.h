@@ -21,7 +21,7 @@
 
 //-----------------------------------------------------------------------------
 //! Distorted vertex used to draw in the Oculus frame buffer.
-struct SLGLOcculusDistortionVertex
+struct SLVertexOculus
 {
     SLVec2f screenPosNDC;
     float   timeWarpFactor;
@@ -30,6 +30,8 @@ struct SLGLOcculusDistortionVertex
     SLVec2f tanEyeAnglesG;
     SLVec2f tanEyeAnglesB;
 };
+
+typedef std::vector<SLVertexOculus>  SLVVertexOculus;
 
 //-----------------------------------------------------------------------------
 //! Wrapper around Oculus Rift

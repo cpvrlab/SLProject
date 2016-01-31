@@ -56,7 +56,8 @@ class SLGLVertexArray
 
         //! Returns the vector index if a float vertex attribute exists otherwise -1
         SLint       attribIndexh        (SLGLAttributeType type);
-
+            
+                                    
         //! Adds a vertex attribute with data pointer and an element size
         void        setAttrib           (SLGLAttributeType type, 
                                          SLint elementSize, 
@@ -67,26 +68,26 @@ class SLGLVertexArray
         //! Adds a vertex attribute with vector of SLfloat
         void        setAttrib           (SLGLAttributeType type,
                                          SLint location, 
-                                         SLVfloat& data,
-                                         SLbool convertToHalf=false) {setAttrib(type, 1, location, (void*)&data[0]);}
+                                         SLVfloat* data,
+                                         SLbool convertToHalf=false) {setAttrib(type, 1, location, &data->operator[](0));}
 
         //! Adds a vertex attribute with vector of SLVec2f
         void        setAttrib           (SLGLAttributeType type,
                                          SLint location, 
-                                         SLVVec2f& data,
-                                         SLbool convertToHalf=false) {setAttrib(type, 2, location, (void*)&data[0]);}
+                                         SLVVec2f* data,
+                                         SLbool convertToHalf=false) {setAttrib(type, 2, location, &data->operator[](0));}
 
         //! Adds a vertex attribute with vector of SLVec3f
         void        setAttrib           (SLGLAttributeType type,
                                          SLint location, 
-                                         SLVVec3f& data,
-                                         SLbool convertToHalf=false) {setAttrib(type, 3, location, (void*)&data[0]);}
+                                         SLVVec3f* data,
+                                         SLbool convertToHalf=false) {setAttrib(type, 3, location, &data->operator[](0));}
 
         //! Adds a vertex attribute with vector of SLVec4f
         void        setAttrib           (SLGLAttributeType type,
                                          SLint location, 
-                                         SLVVec4f& data,
-                                         SLbool convertToHalf=false) {setAttrib(type, 4, location, (void*)&data[0]);}
+                                         SLVVec4f* data,
+                                         SLbool convertToHalf=false) {setAttrib(type, 4, location, &data->operator[](0));}
         
         //! Adds the index array for indexed element drawing
         void        setIndices          (SLuint numIndices,
@@ -94,19 +95,19 @@ class SLGLVertexArray
                                          void* dataPointer);
         
         //! Adds the index array for indexed element drawing with a vector of ubyte
-        void        setIndices          (SLVubyte& indices) {setIndices((SLuint)indices.size(), 
+        void        setIndices          (SLVubyte* indices) {setIndices((SLuint)indices->size(), 
                                                                         BT_ubyte, 
                                                                         (void*)&indices[0]);}
         
         //! Adds the index array for indexed element drawing with a vector of ushort
-        void        setIndices          (SLVushort& indices) {setIndices((SLuint)indices.size(), 
+        void        setIndices          (SLVushort* indices) {setIndices((SLuint)indices->size(), 
                                                                          BT_ushort, 
-                                                                         (void*)&indices[0]);}
+                                                                         &indices->operator[](0));}
         
         //! Adds the index array for indexed element drawing with a vector of uint
-        void        setIndices          (SLVuint& indices) {setIndices((SLuint)indices.size(), 
+        void        setIndices          (SLVuint* indices) {setIndices((SLuint)indices->size(), 
                                                                         BT_uint, 
-                                                                        (void*)&indices[0]);}
+                                                                        &indices->operator[](0));}
         
         //! Updates a specific vertex attribute in the VBO
         void        updateAttrib        (SLGLAttributeType type, 
@@ -115,19 +116,19 @@ class SLGLVertexArray
         
         //! Updates a specific vertex attribute in the VBO
         void        updateAttrib        (SLGLAttributeType type, 
-                                         SLVfloat& data) {updateAttrib(type, 1, (void*)&data[0]);}
+                                         SLVfloat* data) {updateAttrib(type, 1, (void*)&data->operator[](0));}
         
         //! Updates a specific vertex attribute in the VBO
         void        updateAttrib        (SLGLAttributeType type, 
-                                         SLVVec2f& data) {updateAttrib(type, 2, (void*)&data[0]);}
+                                         SLVVec2f* data) {updateAttrib(type, 2, (void*)&data->operator[](0));}
 
         //! Updates a specific vertex attribute in the VBO
         void        updateAttrib        (SLGLAttributeType type, 
-                                         SLVVec3f& data) {updateAttrib(type, 3, (void*)&data[0]);}
+                                         SLVVec3f* data) {updateAttrib(type, 3, (void*)&data->operator[](0));}
 
         //! Updates a specific vertex attribute in the VBO
         void        updateAttrib        (SLGLAttributeType type, 
-                                         SLVVec4f& data) {updateAttrib(type, 4, (void*)&data[0]);}
+                                         SLVVec4f* data) {updateAttrib(type, 4, (void*)&data->operator[](0));}
         
         //! Generates the VA & VB objects for a NO. of vertices
         void        generate            (SLuint numVertices, 
@@ -150,9 +151,8 @@ class SLGLVertexArray
 
         // Some statistics
         static SLuint totalDrawCalls;       //! static total no. of draw calls
-            
-                                               
-    protected:
+    
+    protected: 
         SLbool              _hasGL3orGreater;   //! VAOs are present if OpenGL > 3.0
         SLuint              _idVAO;             //! OpenGL id of vertex array object
         SLuint              _numVertices;       //! NO. of vertices in array

@@ -40,12 +40,10 @@ void SLTriangle::buildMesh(SLMaterial* material)
 {
     deleteData();
 
-    numV = 3;                   //!< Number of elements in P, N, C, T & Tc
-    numI = 3;                   //!< Number of elements in I16 or I32
-    P = new SLVec3f[numV];      //!< Array of vertex positions
-    N = new SLVec3f[numV];      //!< Array of vertex normals (opt.)
-    Tc = new SLVec2f[numV];     //!< Array of vertex tex. coords. (opt.)
-    I16 = new SLushort[numI];   //!< Array of vertex indexes 16 bit
+    P.clear(); P.resize(3);          // Vector for positions
+    N.clear(); N.resize(P.size());   // Vector for vertex normals (opt.)
+    Tc.clear(); Tc.resize(P.size()); // Vector for vertex tex. coords. (opt.)
+    I16.clear(); I16.resize(3);      // Vector for vertex indices 16 bit
 
     // vertex positions
     P[0] = p[0];
@@ -57,7 +55,7 @@ void SLTriangle::buildMesh(SLMaterial* material)
     Tc[1] = t[1];
     Tc[2] = t[2];
 
-    // indexes
+    // indices
     I16[0] = 0;
     I16[1] = 1;
     I16[2] = 2;

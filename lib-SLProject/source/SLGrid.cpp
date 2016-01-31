@@ -48,14 +48,16 @@ void SLGrid::buildMesh(SLMaterial* material)
     if (uIntNumV64 > UINT_MAX)
         SL_EXIT_MSG("SLGrid supports max. 2^32 vertices.");
 
-    // allocate new arrays of SLMesh
-    numV = (_resX+1) * 2 + (_resZ+1) * 2;
-    numI = numV;
-    P = new SLVec3f[numV];
+    // allocate vectors of SLMesh
+    P.clear(); P.resize((_resX+1) * 2 + (_resZ+1) * 2);
 
     if (uIntNumV64 < 65535)
-         I16 = new SLushort[numI];
-    else I32 = new SLuint[numI];
+    {   I16.clear();
+        I16.resize(P.size());
+    } else 
+    {   I32.clear();
+        I32.resize(P.size());
+    }
 
     //Set one default material index
     mat = material;
@@ -77,8 +79,8 @@ void SLGrid::buildMesh(SLMaterial* material)
     }
 
     // Indexes
-    if (I16)
-         for (SLuint i=0; i < numI; ++i) I16[i] = i;
-    else for (SLuint i=0; i < numI; ++i) I32[i] = i;
+    if (I16.size())
+         for (SLuint i=0; i < P.size(); ++i) I16[i] = i;
+    else for (SLuint i=0; i < P.size(); ++i) I32[i] = i;
 }
 //-----------------------------------------------------------------------------

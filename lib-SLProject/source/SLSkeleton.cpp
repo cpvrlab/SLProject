@@ -103,7 +103,7 @@ SLJoint* SLSkeleton::getJoint(const SLstring& name)
 //-----------------------------------------------------------------------------
 /*! Fills a SLMat4f array with the final joint matrices for this skeleton.
 */
-void SLSkeleton::getJointWorldMatrices(SLMat4f* jointWM)
+void SLSkeleton::getJointMatrices(SLVMat4f& jointWM)
 {
     for (SLint i = 0; i < _joints.size(); i++)
     {

@@ -128,7 +128,7 @@ void SLBackground::render(SLint widthPX, SLint heightPX)
     sp->useProgram();
     sp->uniformMatrix4fv("u_mvpMatrix", 1, (SLfloat*)&mvp);
 
-    // Create or update buffer for vertex position and indexes
+    // Create or update buffer for vertex position and indices
     if (_resX != widthPX || _resY != heightPX || !_vao.id())
     {
         _resX = widthPX;
@@ -136,26 +136,26 @@ void SLBackground::render(SLint widthPX, SLint heightPX)
         _vao.clearAttribs();
 
         // Float array with vertex X & Y of corners
-        SLfloat P[8] = {0.0f, (SLfloat)_resY, 0.0f, 0.0f,
-                        (SLfloat)_resX, (SLfloat)_resY, (SLfloat)_resX, 0.0f}; 
-        _vao.setAttrib(AT_position, 2, sp->getAttribLocation("a_position"), P);
+        SLVVec2f P = {{0.0f, (SLfloat)_resY}, {0.0f, 0.0f},
+                      {(SLfloat)_resX, (SLfloat)_resY}, {(SLfloat)_resX, 0.0f}}; 
+        _vao.setAttrib(AT_position, sp->getAttribLocation("a_position"), &P);
         
         // Indexes for a triangle strip
-        SLushort I[4] = {0,1,2,3};
-        _vao.setIndices(4, BT_ushort, I);
+        SLVushort I = {0,1,2,3};
+        _vao.setIndices(&I);
 
         if(_texture)
         {   // Float array of texture coordinates
-            SLfloat T[8] = {0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f, 0.0f};
-            _vao.setAttrib(AT_texCoord, 2, sp->getAttribLocation("a_texCoord"), T);
+            SLVVec2f T = {{0.0f, 1.0f}, {0.0f, 0.0f}, {1.0f, 1.0f}, {1.0f, 0.0f}};
+            _vao.setAttrib(AT_texCoord, sp->getAttribLocation("a_texCoord"), &T);
             _vao.generate(4);
         } else
         {   // Float array of colors of corners
-            SLfloat C[12] = {_colors[0].r, _colors[0].g, _colors[0].b,
-                             _colors[1].r, _colors[1].g, _colors[1].b,
-                             _colors[2].r, _colors[2].g, _colors[2].b,
-                             _colors[3].r, _colors[3].g, _colors[3].b};            
-            _vao.setAttrib(AT_color, 3, sp->getAttribLocation("a_color"), C);
+            SLVVec3f C = {{_colors[0].r, _colors[0].g, _colors[0].b},
+                          {_colors[1].r, _colors[1].g, _colors[1].b},
+                          {_colors[2].r, _colors[2].g, _colors[2].b},
+                          {_colors[3].r, _colors[3].g, _colors[3].b}};            
+            _vao.setAttrib(AT_color, sp->getAttribLocation("a_color"), &C);
             _vao.generate(4);
         }
     }

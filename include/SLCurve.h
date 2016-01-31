@@ -22,11 +22,7 @@ SLCurveBezier) implement specific curve interpolation schemes.
 class SLCurve
 {
     public:
-                        SLCurve()
-                        {   _points = 0;
-                            _times  = 0;
-                            _count  = 0;
-                        }
+                        SLCurve() {}
         virtual        ~SLCurve() {}
 
         virtual void    dispose  () = 0;
@@ -34,10 +30,8 @@ class SLCurve
         virtual void    draw     (const SLMat4f &wm) = 0;
 
     protected:
-        SLVec3f*        _points;       //!< Sample points of curve
-        SLfloat*        _times;        //!< Time to arrive at each point
-        SLuint          _count;        //!< Number of points and times
-        SLfloat*        _lengths;      //!< Length of each curve segment
+        SLVVec4f        _points;       //!< Sample points (x,y,z) and time (w) of curve
+        SLVfloat        _lengths;      //!< Length of each curve segment
         SLfloat         _totalLength;  //!< Total length of curve
 };
 //-----------------------------------------------------------------------------

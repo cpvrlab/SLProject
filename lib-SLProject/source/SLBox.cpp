@@ -42,20 +42,18 @@ void SLBox::buildMesh(SLMaterial* material)
 {  
     //deleteData();
     
-    // allocate new arrays of SLMesh
-    numV = 24;      // 6 sides with 4 vertices
-    numI = 12*3;    // 6 sides with 2 triangles * 3 indexes
-    P = new SLVec3f[numV];
-    N = new SLVec3f[numV];
-    Tc = 0; // no texcoords
-    I16 = new SLushort[numI];
+    // allocate new vectors of SLMesh
+    P.clear(); P.resize(24);        // 6 sides with 4 vertices
+    I16.clear(); I16.resize(12*3);  // 6 sides with 2 triangles * 3 indices
+    N.clear(); N.resize(P.size());
+    Tc.clear();                     // no texcoords
     
     //Set one default material index
     mat = material;
     
     SLint p=0, i=0;
    
-    // predifined normals
+    // predefined normals
     SLVec3f NX = SLVec3f( 1, 0, 0);
     SLVec3f NY = SLVec3f( 0, 1, 0);
     SLVec3f NZ = SLVec3f( 0, 0, 1);

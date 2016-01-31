@@ -699,7 +699,7 @@ SLGLTexture* SLAssimpImporter::loadTexture(SLstring& textureFile,
 //-----------------------------------------------------------------------------
 /*!
 SLAssimpImporter::loadMesh creates a new SLMesh an copies the meshs vertex data and
-triangle face indexes. Normals & tangents are not loaded. They are calculated
+triangle face indices. Normals & tangents are not loaded. They are calculated
 in SLMesh.
 */
 SLMesh* SLAssimpImporter::loadMesh(aiMesh *mesh)
@@ -719,35 +719,38 @@ SLMesh* SLAssimpImporter::loadMesh(aiMesh *mesh)
     SLstring name = mesh->mName.data;
     SLMesh *m = new SLMesh(name.empty() ? "Imported Mesh" : name);
 
-    // create position & normal array
-    m->numV = mesh->mNumVertices;
-    m->P = new SLVec3f[m->numV];
+    // create position & normal vector
+    m->P.clear(); m->P.resize(mesh->mNumVertices);
 
-    // create normal array
+    // create normal vector
     if (mesh->HasNormals())
-        m->N = new SLVec3f[m->numV];
+    {   m->N.clear();
+        m->N.resize(m->P.size());
+    }
 
-    // create texCoord array if needed
+    // allocate texCoord vector if needed
     if (mesh->HasTextureCoords(0))
-        m->Tc = new SLVec2f[m->numV];
+    {   m->Tc.clear();
+        m->Tc.resize(m->P.size());
+    }
 
     // copy vertex positions & texCoord
-    for(SLuint i = 0; i < m->numV; ++i)
+    for(SLuint i = 0; i < m->P.size(); ++i)
     {   m->P[i].set(mesh->mVertices[i].x, 
         mesh->mVertices[i].y, 
         mesh->mVertices[i].z);
-        if (m->N)
+        if (m->N.size())
             m->N[i].set(mesh->mNormals[i].x, mesh->mNormals[i].y, mesh->mNormals[i].z);
-        if (m->Tc)
+        if (m->Tc.size())
             m->Tc[i].set(mesh->mTextureCoords[0][i].x, mesh->mTextureCoords[0][i].y);
     }
 
-    // create face index array
-    m->numI = mesh->mNumFaces * 3;
-    if (m->numV < 65536)
-    {   m->I16 = new SLushort[m->numI];
+    // create face index vector
+    if (m->P.size() < 65536)
+    {   m->I16.clear();
+        m->I16.resize(mesh->mNumFaces * 3);
 
-        // load face triangle indexes only
+        // load face triangle indices only
         SLuint j = 0;
         for(SLuint i = 0; i <  mesh->mNumFaces; ++i)
         {   if(mesh->mFaces[i].mNumIndices == 3)
@@ -757,9 +760,10 @@ SLMesh* SLAssimpImporter::loadMesh(aiMesh *mesh)
             }
         }
     } else 
-    {   m->I32 = new SLuint[m->numI];
+    {   m->I32.clear();
+        m->I32.resize(mesh->mNumFaces * 3);
 
-        // load face triangle indexes only
+        // load face triangle indices only
         SLuint j = 0;
         for(SLuint i = 0; i <  mesh->mNumFaces; ++i)
         {  if(mesh->mFaces[i].mNumIndices == 3)
@@ -770,7 +774,7 @@ SLMesh* SLAssimpImporter::loadMesh(aiMesh *mesh)
         }
     }
 
-    if (!m->N)
+    if (!m->N.size())
         m->calcNormals();
 
     // load joints
@@ -779,12 +783,12 @@ SLMesh* SLAssimpImporter::loadMesh(aiMesh *mesh)
         _skinnedMeshes.push_back(m);
         m->skeleton(_skeleton);
 
-        m->Ji = new SLVec4f[m->numV];
-        m->Jw = new SLVec4f[m->numV];
+        m->Ji.resize(m->P.size());
+        m->Jw.resize(m->P.size());
         
         // make sure to initialize the weights with 0 vectors
-        std::fill_n(m->Ji, m->numV, SLVec4f(0, 0, 0, 0));
-        std::fill_n(m->Jw, m->numV, SLVec4f(0, 0, 0, 0));
+        std::fill(m->Ji.begin(), m->Ji.end(), SLVec4f(0, 0, 0, 0));
+        std::fill(m->Jw.begin(), m->Jw.end(), SLVec4f(0, 0, 0, 0));
 
         for (SLuint i = 0; i < mesh->mNumBones; i++)
         {

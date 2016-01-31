@@ -37,7 +37,7 @@ typedef map<string, int> SLLocMap;
 The SLGLProgram base class represents a shader program object of the OpenGL
 Shading Language (GLSL). Multiple SLGLShader objects can be attached and linked 
 at run time. An SLGLProgram object can then be attached to an SLMaterial
-node for execution. An SLGLProgram object can hold an array of uniform
+node for execution. An SLGLProgram object can hold an vector of uniform
 variable that can transfer variables from the CPU program to the GPU program.
 For more details on GLSL please refer to official GLSL documentation and to
 SLGLShader.<br>

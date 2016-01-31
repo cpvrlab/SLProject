@@ -68,16 +68,18 @@ void SLRectangle::buildMesh(SLMaterial* material)
     if (uIntNumV64 > UINT_MAX)
         SL_EXIT_MSG("SLMesh supports max. 2^32 vertices.");
 
-    // allocate new arrays of SLMesh
-    numV = (_resX+1) * (_resY+1);
-    numI = _resX * _resY * 2 * 3;
-    P = new SLVec3f[numV];
-    N = new SLVec3f[numV];
-    Tc = new SLVec2f[numV];
+    // allocate vectors of SLMesh
+    P.clear(); P.resize((_resX+1) * (_resY+1));
+    N.clear(); N.resize(P.size());
+    Tc.clear(); Tc.resize(P.size());
 
     if (uIntNumV64 < 65535)
-         I16 = new SLushort[numI];
-    else I32 = new SLuint[numI];
+    {   I16.clear();
+        I16.resize(_resX * _resY * 2 * 3);
+    } else 
+    {   I32.clear();
+        I32.resize(_resX * _resY * 2 * 3);
+    }
    
     // Calculate normal from the first 3 corners
     SLVec3f maxmin(_max.x, _min.y, 0);
@@ -115,10 +117,10 @@ void SLRectangle::buildMesh(SLMaterial* material)
         }      
     }
    
-    // Build face vertex indexes
-    if (I16)
+    // Build face vertex indices
+    if (I16.size())
     {
-        SLuint v = 0, i = 0; //index for vertices and indexes
+        SLuint v = 0, i = 0; //index for vertices and indices
         for (SLuint y=0; y<_resY; ++y)
         {  
             for (SLuint x=0; x<_resX; ++x, ++v)
@@ -136,7 +138,7 @@ void SLRectangle::buildMesh(SLMaterial* material)
         }
     } else
     {
-        SLuint v = 0, i = 0; //index for vertices and indexes
+        SLuint v = 0, i = 0; //index for vertices and indices
         for (SLuint y=0; y<_resY; ++y)
         {  
             for (SLuint x=0; x<_resX; ++x, ++v)

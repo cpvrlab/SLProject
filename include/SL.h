@@ -236,6 +236,7 @@ typedef GLbitfield      SLbitfield;
 typedef GLfloat         SLfloat;
 
 // all std::vectors begin with SLV*
+typedef std::vector<SLbool>   SLVbool;
 typedef std::vector<SLbyte>   SLVbyte;
 typedef std::vector<SLubyte>  SLVubyte;
 typedef std::vector<SLchar>   SLVchar;

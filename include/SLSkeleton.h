@@ -66,7 +66,7 @@ public:
 
             void        loadAnimation   (const SLstring& file);
             void        addAnimation    (SLAnimation* anim);
-            void        getJointWorldMatrices(SLMat4f* jointWM);
+            void        getJointMatrices(SLVMat4f& jointWM);
             void        reset           ();
 
             // Getters

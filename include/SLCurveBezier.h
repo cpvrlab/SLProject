@@ -25,17 +25,14 @@ James M. Van Verth and Lars M. Bishop.
 class SLCurveBezier : public SLCurve
 {
     public:
-                    SLCurveBezier   (const SLVec3f*  points,
-                                      const SLfloat*  times,
-                                      const SLint     numPointsAndTimes,
-                                      const SLVec3f*  controlPoints=0);
-                    ~SLCurveBezier  ();
+                    SLCurveBezier   (const SLVVec4f& points);
+                    SLCurveBezier   (const SLVVec4f& points,
+                                     const SLVVec3f& controlPoints);
+                   ~SLCurveBezier   ();
 
         void        dispose         ();
-        void        init            (const SLVec3f*  points,
-                                     const SLfloat*  times,
-                                     const SLint     numPointsAndTimes,
-                                     const SLVec3f*  controlPoints);
+        void        init            (const SLVVec4f& points,
+                                     const SLVVec3f& controlPoints);
         void        draw            (const SLMat4f &wm);
         SLVec3f     evaluate        (const SLfloat t);
         SLVec3f     velocity        (SLfloat t);
@@ -44,7 +41,7 @@ class SLCurveBezier : public SLCurve
         SLfloat     segmentArcLength(SLuint i, 
                                       SLfloat u1, SLfloat u2);
         SLfloat     subdivideLength (const SLVec3f& P0, const SLVec3f& P1, 
-                                      const SLVec3f& P2, const SLVec3f& P3);
+                                     const SLVec3f& P2, const SLVec3f& P3);
         void        subdivideRender (SLVVec3f &points,
                                      const SLMat4f &wm,
                                      SLfloat epsilon,
@@ -54,11 +51,11 @@ class SLCurveBezier : public SLCurve
         SLfloat     findParamByDist (SLfloat t1, SLfloat s);
 
         // Getters
-        SLint       numControlPoints(){return 2*(_count-1);}
-        SLVec3f*    controls        (){return _controls;}
+        SLint       numControlPoints(){return 2*((SLint)_points.size()-1);}
+        SLVVec3f&   controls        (){return _controls;}
 
     protected:
-        SLVec3f*            _controls;  //!< Control points of Bézier curve
+        SLVVec3f            _controls;  //!< Control points of Bézier curve
         SLGLVertexArrayExt  _vao;       //!< Vertex array object for rendering
 };
 //-----------------------------------------------------------------------------

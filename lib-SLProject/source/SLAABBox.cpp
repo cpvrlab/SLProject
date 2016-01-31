@@ -254,7 +254,7 @@ void SLAABBox::generateVAO()
     P.push_back(SLVec3f(_parent0WS.x, _parent0WS.y, _parent0WS.z));
     P.push_back(SLVec3f(_axis0WS.x, _axis0WS.y, _axis0WS.z));
 
-    _vao.generateVertexPos(P);
+    _vao.generateVertexPos(&P);
 }
 //-----------------------------------------------------------------------------
 //! Draws the AABB in world space with lines in a color

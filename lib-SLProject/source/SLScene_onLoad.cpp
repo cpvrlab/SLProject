@@ -992,10 +992,8 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         // Create 3D textured pyramid mesh and node
         SLMesh* pyramid = new SLMesh("Pyramid");
         pyramid->mat = mat3D;
-        pyramid->P = new SLVec3f[5]{{-1,-1,1},{1,-1,1},{1,-1,-1},{-1,-1,-1},{0,2,0}};
-        pyramid->numV = 5;
-        pyramid->I16 = new SLushort[18]{0,3,1, 1,3,2, 4,0,1, 4,1,2, 4,2,3, 4,3,0};
-        pyramid->numI = 18;
+        pyramid->P = {{-1,-1,1},{1,-1,1},{1,-1,-1},{-1,-1,-1},{0,2,0}};
+        pyramid->I16 = {0,3,1, 1,3,2, 4,0,1, 4,1,2, 4,2,3, 4,3,0};
         SLNode* pyramidNode = new SLNode(pyramid, "Pyramid");
         pyramidNode->scale(0.2f);
         pyramidNode->translate(0, 0, -3);

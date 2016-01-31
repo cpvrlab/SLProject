@@ -148,11 +148,11 @@ void SLGLOculus::init()
                                        _uvScaleOffset[eyeNum]);
 
         // Now parse the vertex data and create a render ready vertex buffer from it
-        SLGLOcculusDistortionVertex* pVBVerts = new SLGLOcculusDistortionVertex[meshData.VertexCount];
+        SLVertexOculus* verts = new SLVertexOculus[meshData.VertexCount];
 
         vector<SLuint> tempIndex;
 
-        SLGLOcculusDistortionVertex* v = pVBVerts;
+        SLVertexOculus* v = verts;
         ovrDistortionVertex * ov = meshData.pVertexData;
         for (SLuint vertNum = 0; vertNum < meshData.VertexCount; vertNum++)
         {   v->screenPosNDC.x = ov->ScreenPosNDC.x;
@@ -175,16 +175,16 @@ void SLGLOculus::init()
         sp->useProgram();
 
         // set attributes with all the same data pointer to the interleaved array
-        _distortionMeshVAO[eyeNum].setAttrib(AT_position, 2, sp->getAttribLocation("a_position"), pVBVerts);
-        _distortionMeshVAO[eyeNum].setAttrib(AT_custom1,  1, sp->getAttribLocation("a_timeWarpFactor"), pVBVerts);
-        _distortionMeshVAO[eyeNum].setAttrib(AT_custom2,  1, sp->getAttribLocation("a_vignetteFactor"), pVBVerts);
-        _distortionMeshVAO[eyeNum].setAttrib(AT_custom3,  2, sp->getAttribLocation("a_texCoordR"), pVBVerts);
-        _distortionMeshVAO[eyeNum].setAttrib(AT_custom4,  2, sp->getAttribLocation("a_texCoordG"), pVBVerts);
-        _distortionMeshVAO[eyeNum].setAttrib(AT_custom5,  2, sp->getAttribLocation("a_texCoordB"), pVBVerts);
+        _distortionMeshVAO[eyeNum].setAttrib(AT_position, 2, sp->getAttribLocation("a_position"), verts);
+        _distortionMeshVAO[eyeNum].setAttrib(AT_custom1,  1, sp->getAttribLocation("a_timeWarpFactor"), verts);
+        _distortionMeshVAO[eyeNum].setAttrib(AT_custom2,  1, sp->getAttribLocation("a_vignetteFactor"), verts);
+        _distortionMeshVAO[eyeNum].setAttrib(AT_custom3,  2, sp->getAttribLocation("a_texCoordR"), verts);
+        _distortionMeshVAO[eyeNum].setAttrib(AT_custom4,  2, sp->getAttribLocation("a_texCoordG"), verts);
+        _distortionMeshVAO[eyeNum].setAttrib(AT_custom5,  2, sp->getAttribLocation("a_texCoordB"), verts);
         _distortionMeshVAO[eyeNum].setIndices(meshData.IndexCount, BT_uint, &tempIndex[0]);
         _distortionMeshVAO[eyeNum].generate(meshData.VertexCount);
                 
-        delete[] pVBVerts;
+        delete[] verts;
         ovrHmd_DestroyDistortionMesh( &meshData );  
     }
 #else

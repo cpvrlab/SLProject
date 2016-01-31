@@ -289,18 +289,15 @@ void SLNodeAnimTrack::buildInterpolationCurve() const
         if (_interpolationCurve) delete _interpolationCurve;
 
         // Build curve data w. cumulated times
-        SLVec3f* points = new SLVec3f[numKeyframes()];
-        SLfloat* times  = new SLfloat[numKeyframes()];
+        SLVVec4f points; points.resize(numKeyframes());
         SLfloat  curTime = 0;
         for (SLint i=0; i<numKeyframes(); ++i)
-        {   times[i] = _keyframes[i]->time();
-            points[i] = ((SLTransformKeyframe*)_keyframes[i])->translation();
+        {   SLVec3f t = ((SLTransformKeyframe*)_keyframes[i])->translation();
+            points[i].set(t.x, t.y, t.z, _keyframes[i]->time());
         }
 
         // create curve and delete temp arrays again
-        _interpolationCurve = new SLCurveBezier(points, times, (SLint)numKeyframes());
-        delete[] points;
-        delete[] times;
+        _interpolationCurve = new SLCurveBezier(points);
     }
 }
 

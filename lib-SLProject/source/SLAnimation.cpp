@@ -274,8 +274,8 @@ SLNodeAnimTrack* SLAnimation::createEllipticNodeTrack(SLNode* target,
     // Control points with the magic factor kappa for control points
     SLfloat k = 0.5522847498f;
 
-    SLVec3f controls[8];
-    for (SLint i=0; i<8; ++i) controls[i].set(0,0,0);
+    SLVVec3f controls; controls.resize(8);
+    for (SLint i=0; i<controls.size(); ++i) controls[i].set(0,0,0);
     controls[0].comp[axisA] = radiusA; controls[0].comp[axisB] = k *  radiusB;
     controls[1].comp[axisB] = radiusB; controls[1].comp[axisA] = k *  radiusA;
     controls[2].comp[axisB] = radiusB; controls[2].comp[axisA] = k * -radiusA;
@@ -294,21 +294,18 @@ SLNodeAnimTrack* SLAnimation::createEllipticNodeTrack(SLNode* target,
     track->createNodeKeyframe(4.0f * t4)->translation(A);
 
     // Build curve data w. cumulated times
-    SLVec3f* points = new SLVec3f[track->numKeyframes()];
-    SLfloat* times  = new SLfloat[track->numKeyframes()];
+    SLVVec4f points; points.resize(track->numKeyframes());
     for (SLint i=0; i<track->numKeyframes(); ++i)
     {   SLTransformKeyframe* kf = (SLTransformKeyframe*)track->keyframe(i);
-        points[i] =kf->translation();
-        times[i] = kf->time();
+        points[i].set(kf->translation().x, 
+                      kf->translation().y, 
+                      kf->translation().z, 
+                      kf->time());
     }
 
     // create curve and delete temp arrays again
-    track->interpolationCurve(new SLCurveBezier(points, times, (SLint)track->numKeyframes(), controls));
+    track->interpolationCurve(new SLCurveBezier(points, controls));
     track->translationInterpolation(AI_bezier);
-
-    delete[] points;
-    delete[] times;
-
 
     return track;
 }

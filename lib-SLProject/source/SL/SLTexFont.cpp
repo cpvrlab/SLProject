@@ -275,13 +275,13 @@ void SLTexFont::buildTextBuffers(SLGLVertexArray& vao,
     SLVstring lines;  // Vector of text lines
     SLVVec2f  sizes;  // Sizes of text lines
     SLint     numP=0; // No. of vertices
-    SLint     numI=0; // No. of indexes (3 per triangle)
+    SLint     numI=0; // No. of indices (3 per triangle)
     SLfloat   x;      // current lower-left x position
     SLfloat   y;      // current lower-left y position
     SLuint    iV;     // current vertex index
     SLuint    iI;     // current vertex index index
 
-    // Calculate number of vertices & indexes
+    // Calculate number of vertices & indices
     if (maxWidth > 0.0f)
     {   // multiple text lines
         lines = wrapTextToLines(text, maxWidth);
@@ -298,9 +298,9 @@ void SLTexFont::buildTextBuffers(SLGLVertexArray& vao,
         numI = (SLint)text.length()*2*3;
     }
 
-    SLVec3f*  P = new SLVec3f[numP];      // Vertex positions
-    SLVec2f*  T = new SLVec2f[numP];      // Vertex texture coords.
-    SLushort* I = new SLushort[numI];     // Indexes
+    SLVVec3f  P; P.resize(numP);      // Vertex positions
+    SLVVec2f  T; T.resize(numP);      // Vertex texture coords.
+    SLVushort I; I.resize(numI);     // Indexes
 
     iV = iI = 0;
     y = (lines.size()-1) * (SLfloat)charsHeight * lineHeight;
@@ -330,7 +330,7 @@ void SLTexFont::buildTextBuffers(SLGLVertexArray& vao,
             P[iV+2].set(x+w, y+h);
             P[iV+3].set(x,   y+h);
       
-            // triangle indexes of the character quad
+            // triangle indices of the character quad
             I[iI++]=iV;   I[iI++]=iV+1; I[iI++]=iV+3;
             I[iI++]=iV+1; I[iI++]=iV+2; I[iI++]=iV+3;
  
@@ -345,15 +345,10 @@ void SLTexFont::buildTextBuffers(SLGLVertexArray& vao,
     // create buffers on GPU
     SLGLProgram* sp = SLScene::current->programs(SP_fontTex);
     sp->useProgram();
-    vao.setAttrib(AT_position, 3, sp->getAttribLocation("a_position"), P);
-    vao.setAttrib(AT_texCoord, 2, sp->getAttribLocation("a_texCoord"), T);
-    vao.setIndices(numI, BT_ushort, I);
+    vao.setAttrib(AT_position, sp->getAttribLocation("a_position"), &P);
+    vao.setAttrib(AT_texCoord, sp->getAttribLocation("a_texCoord"), &T);
+    vao.setIndices(&I);
     vao.generate(numP);
-   
-    // delete data on CPU again     
-    delete[] P;
-    delete[] T;
-    delete[] I;
 }
 //-----------------------------------------------------------------------------
 // Smallest 7 Pixel font

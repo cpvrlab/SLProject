@@ -52,14 +52,13 @@ void SLRevolver::buildMesh(SLMaterial* material)
     // Vertices & Texture coords //
     ///////////////////////////////
 
-    // calculate no. of vertices & allocate arrays for P, Tc & N.
+    // calculate no. of vertices & allocate vectors for P, Tc & N.
     // On one stack it has one vertex more at the end that is identical with the
     // first vertex of the stack. This is for cylindrical texture mapping where 
     // we need 2 different texture s-coords (0 & 1) at the same point.
-    numV = (SLuint)((_slices+1) * _revPoints.size());
-    P    = new SLVec3f[numV];
-    N    = new SLVec3f[numV];
-    Tc   = new SLVec2f[numV];
+    P.clear(); P.resize((_slices+1) * _revPoints.size());
+    N.clear(); N.resize(P.size());
+    Tc.clear(); Tc.resize(P.size());
    
     // calculate length of segments for texture coords
     SLfloat totalLenght = 0;
@@ -72,7 +71,7 @@ void SLRevolver::buildMesh(SLMaterial* material)
         segments.push_back(len);
     }
 
-    // Normalize segment lenghts for texture coords
+    // Normalize segment lengths for texture coords
     for (auto& segment : segments)
         segment /= totalLenght;
    
@@ -115,7 +114,7 @@ void SLRevolver::buildMesh(SLMaterial* material)
     {   iV1 =  r    * (_slices+1);
         iV2 = (r+1) * (_slices+1);
       
-        // only define faces if neighbouring points are different
+        // only define faces if neighboring points are different
         if (_revPoints[r] != _revPoints[r+1])
         {  
             for (SLint s=0; s<_slices; ++s)
@@ -141,17 +140,18 @@ void SLRevolver::buildMesh(SLMaterial* material)
     }
 
     // calculate no. of faces (triangles) & allocate arrays
-    numI = (SLuint)faces.size() * 3;
     SLuint i = 0;
-    if (numV < 65536)
-    {   I16 = new SLushort[numI];
+    if (P.size() < 65536)
+    {   I16.clear();
+        I16.resize(faces.size() * 3);
         for(auto face : faces) 
         {   I16[i++] = face.x;
             I16[i++] = face.y;
             I16[i++] = face.z;
         }
     } else
-    {   I32 = new SLuint[numI];
+    {   I32.clear();
+        I32.resize(faces.size() * 3);
         for(auto face : faces) 
         {   I32[i++] = face.x;
             I32[i++] = face.y;
@@ -180,8 +180,8 @@ void SLRevolver::buildMesh(SLMaterial* material)
     // correct normals at the first point
     if (_smoothLast)
     {   for (SLint s=0; s<_slices; ++s)
-        {   N[numV-s-1] = _revAxis;
-            N[numV-s-2] = _revAxis;
+        {   N[P.size()-s-1] = _revAxis;
+            N[P.size()-s-2] = _revAxis;
         }
     }
    

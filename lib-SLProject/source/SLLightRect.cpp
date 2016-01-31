@@ -59,7 +59,7 @@ void SLLightRect::init()
     if (SLScene::current->lights().size() >= SL_MAX_LIGHTS) 
         SL_EXIT_MSG("Max. NO. of lights is exceeded!");
 
-    // Add the light to the lights array of the scene
+    // Add the light to the lights vector of the scene
     if (_id==-1)
     {   _id = (SLint)SLScene::current->lights().size();
         SLScene::current->lights().push_back(this);

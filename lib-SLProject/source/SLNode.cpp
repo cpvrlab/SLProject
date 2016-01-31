@@ -696,7 +696,7 @@ void SLNode::dumpRec()
     {   for (auto mesh : _meshes)
         {   for (SLint i = 0; i < _depth; ++i) cout << "   ";
             cout << "- Mesh: " << mesh->name();
-            cout << ", " << mesh->numI*3 << " tri";
+            cout << ", " << mesh->numI()*3 << " tri";
             if (mesh->mat)
             cout << ", Mat: " << mesh->mat->name();
             cout << endl;

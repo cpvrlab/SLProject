@@ -31,7 +31,7 @@ SLVec3i SLCompactGrid::containingVoxel(const SLVec3f &p) const
     pos.y = (SLint)(delta.y / _voxelSize.y);
     pos.z = (SLint)(delta.z / _voxelSize.z);
 
-    // Check bounds of voxel indexes
+    // Check bounds of voxel indices
     if (pos.x >= _size.x) pos.x = _size.x - 1; if (pos.x < 0) pos.x = 0;
     if (pos.y >= _size.y) pos.y = _size.y - 1; if (pos.y < 0) pos.y = 0;
     if (pos.z >= _size.z) pos.z = _size.z - 1; if (pos.z < 0) pos.z = 0;
@@ -83,9 +83,10 @@ void SLCompactGrid::ifTriangleInVoxelDo(triVoxCallback callback)
 
     for (SLuint i = 0; i < _numTriangles; ++i)
     {
-        auto index  = [&](int j) { return _m->I16 ? _m->I16[i*3+j] : _m->I32[i*3+j]; };
-        auto vertex = [&](int j) { return _m->finalP()[index(j)]; };
-        Triangle triangle = { vertex(0), vertex(1), vertex(2) };
+        auto index  = [&](int j) { return _m->I16.size() ? _m->I16[i*3+j] : _m->I32[i*3+j]; };
+        Triangle triangle = {_m->finalP(index(0)), 
+                             _m->finalP(index(1)), 
+                             _m->finalP(index(2))};
         SLVec3i min, max, pos;
         getMinMaxVoxel(triangle, min, max);
 
@@ -113,11 +114,13 @@ their paper "Compact, Fast and Robust Grids for Ray Tracing".
 */
 void SLCompactGrid::build (SLVec3f minV, SLVec3f maxV)
 {
+    assert(_m->I16.size() || _m->I32.size());
+
     deleteAll();
 
     _minV = minV;
     _maxV = maxV;
-    _numTriangles = _m->numI / 3;
+    _numTriangles = _m->numI() / 3;
 
     // Calculate grid size
     const SLfloat DENSITY = 8;
@@ -147,7 +150,7 @@ void SLCompactGrid::build (SLVec3f minV, SLVec3f maxV)
         _voxelOffsets[i] += _voxelOffsets[i - 1];
     }
 
-    if (_m->I16)
+    if (_m->I16.size())
     {   _triangleIndexes16.resize(_voxelOffsets.back());
         ifTriangleInVoxelDo([&](const SLuint &i, const SLuint &voxIndex)
                             {   SLint location = --_voxelOffsets[voxIndex];
@@ -174,8 +177,8 @@ void SLCompactGrid::updateStats (SLNodeStats &stats)
 
     stats.numBytesAccel += sizeof(SLCompactGrid);
     stats.numBytesAccel += SL_sizeOfVector(_voxelOffsets);
-    stats.numBytesAccel += _m->I16 ? SL_sizeOfVector(_triangleIndexes16):
-                                     SL_sizeOfVector(_triangleIndexes32);
+    stats.numBytesAccel += _m->I16.size() ? SL_sizeOfVector(_triangleIndexes16):
+                                            SL_sizeOfVector(_triangleIndexes32);
 
     stats.numVoxMaxTria = SL_max(_voxelMaxTria, stats.numVoxMaxTria);
 }
@@ -239,7 +242,7 @@ void SLCompactGrid::draw (SLSceneView* sv)
                 }
             }
 
-            _vao.generateVertexPos(P);
+            _vao.generateVertexPos(&P);
         }
 
         _vao.drawArrayAsColored(PT_lines, SLCol4f::CYAN);
@@ -308,7 +311,7 @@ SLbool SLCompactGrid::intersect (SLRay* ray, SLNode* node)
 			// Now traverse the voxels
 			while (!wasHit)
 			{
-                if (_m->I16)
+                if (_m->I16.size())
                 {   for (SLuint i = _voxelOffsets[voxID]; i < _voxelOffsets[voxID + 1]; ++i)
                     {   if (_m->hitTriangleOS(ray, node, _triangleIndexes16[i] * 3))
                         {   if (ray->length <= tMax && !wasHit)
@@ -368,7 +371,7 @@ SLbool SLCompactGrid::intersect (SLRay* ray, SLNode* node)
 		}
 		else
 		{  // not enough triangles for regular grid > check them all
-			for (SLuint t = 0; t<_m->numI; t += 3)
+			for (SLuint t = 0; t<_m->numI(); t += 3)
 			{
 				if (_m->hitTriangleOS(ray, node, t) && !wasHit) wasHit = true;
 			}

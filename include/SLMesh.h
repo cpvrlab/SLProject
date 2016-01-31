@@ -24,10 +24,6 @@ class SLMaterial;
 class SLRay;
 class SLSkeleton;
 
-// @todo   The SLMesh could use a little renovation work.
-//         Working with SLMesh at the moment feels a little clumsy
-//         since you have to handle everything in C-Buffer style..
-
 /* Problems with the current SLMesh class:
     1.  Too tightly coupled with SLMaterial.
         e.x.:   SLMesh might need a different combination of vertex and fragment programs
@@ -43,16 +39,16 @@ class SLSkeleton;
 //!An SLMesh object is a triangulated mesh that is drawn with one draw call.
 /*!
 The SLMesh class represents a single GL_TRIANGLES or GL_LINES mesh object. The
-mesh object is drawn with one draw call using the vertex indexes in I16 or I32.
-The vertex attributes are stored in arrays with equal number (numV) of elements:
-\n P (vertex position)
+mesh object is drawn with one draw call using the vertex indices in I16 or I32.
+The vertex attributes are stored in vectors with equal number of elements:
+\n P (vertex position, mandatory)
 \n N (vertex normals)
 \n C (vertex color)
 \n Tc (vertex texture coordinates) optional
 \n T (vertex tangents) optional
 \n Jw (vertex joint weights) optional
-\n I16 holds the unsigned short vertex indexes.
-\n I32 holds the unsigned int vertex indexes.
+\n I16 holds the unsigned short vertex indices.
+\n I32 holds the unsigned int vertex indices.
 \n
 \n
 The normals of a vertex are automatically calculated in the method calcNormals()
@@ -68,14 +64,14 @@ of the box.
 \n
 The following image shows a box with sharp edges and a sphere with mostly
 smooth but also 4 sharp edges. The smooth red normal as the top vertex got
-averaged because its position is only once in the array P. On the other hand
+averaged because its position is only once in the vector P. On the other hand
 are the vertices of the hard edges in the front of the sphere doubled.
 \n
 \image HTML sharpAndSmoothEdges.png
 \n
 \n The following the example creates the box with 24 vertices:
 \n The vertex positions and normals in P and N:
-\n numV = 24
+\n P.size = 24
 \n P[0] = [1,1,1]   N[0] = [1,0,0]
 \n P[1] = [1,0,1]   N[1] = [1,0,0]
 \n P[2] = [1,0,0]   N[2] = [1,0,0]
@@ -106,7 +102,7 @@ are the vertices of the hard edges in the front of the sphere doubled.
 \n P[22]= [1,0,1]   N[22]= [0,-1,0]
 \n P[23]= [0,0,1]   N[23]= [0,-1,0]
 \n
-\n The vertex indexes in I16:
+\n The vertex indices in I16:
 \n I16[] = {0,1,2, 0,2,3,
 \n          4,5,6, 4,6,7,
 \n          8,9,10, 8,10,11,
@@ -152,34 +148,32 @@ class SLMesh : public SLObject
             void            useHalfFloats   (SLbool useHalf);
 
             SLGLPrimitiveType primitive       (){return _primitive;}
-        
             void            transformSkin   ();
             void            skinMethod      (SLSkinMethod method);
             SLSkinMethod    skinMethod      () const { return _skinMethod; }
             void            skeleton        (SLSkeleton* skel) { _skeleton = skel; }
       const SLSkeleton*     skeleton        () const { return _skeleton; }
             SLbool          addWeight       (SLint vertId, SLuint jointId, SLfloat weight);
+            SLuint          numI            () {return (SLuint)(I16.size() ? I16.size() : I32.size());}
         
             // getter for position and normal data for rendering
-            SLVec3f*        finalP          () {return *_finalP;}
-            SLVec3f*        finalN          () {return *_finalN;}
+            SLVec3f         finalP          (SLuint i) {return _finalP->operator[](i);}
+            SLVec3f         finalN          (SLuint i) {return _finalN->operator[](i);}
 
             // temporary software skinning buffers
-            SLVec3f*        cpuSkinningP;   //!< buffer for the CPU skinning position data
-            SLVec3f*        cpuSkinningN;   //!< buffer for the CPU skinning normal data
+            SLVVec3f        skinnedP;       //!< Vector for CPU skinned vertex positions
+            SLVVec3f        skinnedN;       //!< Vector for CPU skinned vertex normals 
 
-            SLVec3f*        P;              //!< Array of vertex positions
-            SLVec3f*        N;              //!< Array of vertex normals (opt.)
-            SLVec2f*        Tc;             //!< Array of vertex tex. coords. (opt.)
-            SLCol4f*        C;              //!< Array of vertex colors (opt.)
-            SLVec4f*        T;              //!< Array of vertex tangents (opt.)
-            SLVec4f*        Ji;             //!< Array of per vertex joint ids (opt.)
-            SLVec4f*        Jw;             //!< Array of per vertex joint weights (opt.)
-            SLushort*       I16;            //!< Array of vertex indexes 16 bit
-            SLuint*         I32;            //!< Array of vertex indexes 32 bit
+            SLVVec3f        P;              //!< Vector for vertex positions
+            SLVVec3f        N;              //!< Vector for vertex normals (opt.)
+            SLVVec2f        Tc;             //!< Vector of vertex tex. coords. (opt.)
+            SLVCol4f        C;              //!< Vector of vertex colors (opt.)
+            SLVVec4f        T;              //!< Vector of vertex tangents (opt.)
+            SLVVec4f        Ji;             //!< Vector of per vertex joint ids (opt.)
+            SLVVec4f        Jw;             //!< Vector of per vertex joint weights (opt.)
+            SLVushort       I16;            //!< Vector of vertex indices 16 bit
+            SLVuint         I32;            //!< Vector of vertex indices 32 bit
 
-            SLuint          numV;           //!< Number of elements in P, N, C, T & Tc   
-            SLuint          numI;           //!< Number of elements in I16 or I32
             SLMaterial*     mat;            //!< Pointer to the inside material
             SLMaterial*     matOut;         //!< Pointer to the outside material
             SLVec3f         minP;           //!< min. vertex in OS
@@ -201,9 +195,9 @@ class SLMesh : public SLObject
 
             SLSkinMethod        _skinMethod;    //!< CPU or GPU skinning method
             SLSkeleton*         _skeleton;      //!< the skeleton this mesh is bound to
-            SLMat4f*            _jointMatrices; //!< joint matrix stack for this mesh
-            SLVec3f**           _finalP;        //!< pointer to final vertex position array
-            SLVec3f**           _finalN;        //!< pointer to final vertex normal array
+            SLVMat4f            _jointMatrices; //!< joint matrix vector for this mesh
+            SLVVec3f*           _finalP;        //!< Pointer to final vertex position vector
+            SLVVec3f*           _finalN;        //!< pointer to final vertex normal vector
 
             void            notifyParentNodesAABBUpdate() const;
 };

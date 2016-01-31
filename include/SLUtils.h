@@ -163,16 +163,10 @@ class SLUtils
         static void replaceString(string& source,
                                   const string& from,
                                   const string& to)
-        {
-            //size_t pos = 0;
-            //while ((pos = source(from, pos)) != std::string::npos)
-            //{   source(pos, from.length(), replace);
-            //    pos += to.length();
-            //}
-            
-            //http://stackoverflow.com/questions/2896600/how-to-replace-all-occurrences-of-a-character-in-string
+        {   
+            // Code from: http://stackoverflow.com/questions/2896600/how-to-replace-all-occurrences-of-a-character-in-string
             string newString;
-            newString.reserve(source.length() );  // avoids a few memory allocations
+            newString.reserve(source.length());  // avoids a few memory allocations
 
             string::size_type lastPos = 0;
             string::size_type findPos;

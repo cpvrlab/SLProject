@@ -250,7 +250,7 @@ void SLCamera::drawMeshes(SLSceneView* sv)
             P.push_back(SLVec3f(l,b,_clipNear)); P.push_back(SLVec3f(l,t,_clipNear));
             P.push_back(SLVec3f(l,t,_clipNear)); P.push_back(SLVec3f(r,t,_clipNear));
 
-            _vao.generateVertexPos(P);
+            _vao.generateVertexPos(&P);
         }
         else
         {
@@ -294,7 +294,7 @@ void SLCamera::drawMeshes(SLSceneView* sv)
             P.push_back(SLVec3f(lN,-tN,-_clipNear)); P.push_back(SLVec3f(lN, tN,-_clipNear));
             P.push_back(SLVec3f(lN, tN,-_clipNear)); P.push_back(SLVec3f(rN, tN,-_clipNear));
             
-            _vao.generateVertexPos(P);
+            _vao.generateVertexPos(&P);
         }
       
         _vao.drawArrayAsColored(PT_lines, SLCol4f::WHITE*0.7f);

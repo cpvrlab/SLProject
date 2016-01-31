@@ -1182,11 +1182,11 @@ void createSLDistortionMesh(SLEyeType eye, SLGLVertexArray& vao)
 
 
     // Now parse the vertex data and create a render ready vertex buffer from it
-    SLGLOcculusDistortionVertex* pVBVerts = new SLGLOcculusDistortionVertex[vertexCount];
+    SLVertexOculus* pVBVerts = new SLVertexOculus[vertexCount];
 
     vector<SLuint> tempIndex;
 
-    SLGLOcculusDistortionVertex* v = pVBVerts;
+    SLVertexOculus* v = pVBVerts;
     ovrDistortionVertex* ov = vertexData;
     for ( unsigned vertNum = 0; vertNum < vertexCount; vertNum++ )
     {

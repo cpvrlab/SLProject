@@ -100,11 +100,13 @@ class SLVec4
                                                          y = a.z*b.x - a.x*b.z;
                                                          z = a.x*b.y - a.y*b.x;
                                                          w = 1;}
+    inline SLVec3<T> vec3       () const                {return SLVec3<T>(x,y,z);}
+    inline SLVec2<T> vec2       () const                {return SLVec2<T>(x,y);}
     inline T        length      () const                {return (T)sqrt(x*x+y*y+z*z+w*w);}
     inline T        lengthSqr   () const                {return (x*x+y*y+z*z+w*w);}
     inline SLVec4&  normalize   ()                      {T L = length(); 
-                                                            if (L>0){x/=L; y/=L; z/=L; w/=L;} 
-                                                            return *this;}
+                                                         if (L>0){x/=L; y/=L; z/=L; w/=L;} 
+                                                         return *this;}
     inline void     wdiv        ()                      {x/=w; y/=w; z/=w; w=1;} 
     inline void     clampMinMax (const T min, 
                                  const T max)           {x = (x>max)?max : (x<min)?min : x;
