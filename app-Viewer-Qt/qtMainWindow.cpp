@@ -460,12 +460,12 @@ void qtMainWindow::buildPropertyTree()
 
         if (mesh->primitive()==PT_triangles)
             level1 = new qtPropertyTreeItem("Vertices/Triangles",
-                                            QString::number(mesh->numV)+" / "+
-                                            QString::number(mesh->numI/3));
+                                            QString::number(mesh->P.size())+" / "+
+                                            QString::number(mesh->numI()/3));
         if (mesh->primitive()==PT_lines)
             level1 = new qtPropertyTreeItem("Vertices/Lines",
-                                            QString::number(mesh->numV)+" / "+
-                                            QString::number(mesh->numI/2));
+                                            QString::number(mesh->P.size())+" / "+
+                                            QString::number(mesh->numI()/2));
         ui->propertyTree->addTopLevelItem(level1);
 
         if (mat)

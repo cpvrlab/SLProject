@@ -83,7 +83,7 @@ void drawXZGrid(const SLMat4f& mat)
                 gridVert.push_back(SLVec3f(offset, 0, gridMax));
             }
         }
-        grid.generateVertexPos(gridVert.size(), 3, &gridVert[0]);
+        grid.generateVertexPos(&gridVert);
         initialized = true;
     }
 
