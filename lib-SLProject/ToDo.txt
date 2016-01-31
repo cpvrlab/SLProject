@@ -16,8 +16,6 @@ Prio 2:
 - mh: Im continuous RT haben gewisse AABB Aussetzer
 - Implement RenderQueue and RenderPriorityGroups.
 - Edit & update transforms with decompose and compose transforms
-- Edit & update material parameters
-- Edit & update parameters of plantonic meshes
 - Edit Shaderprogs by choosing alternative progs from a dropdown list
 - Integrate RackNet into lib-SLExternal
 - Solve recursive OpenGL repaints during RT and loading screens
