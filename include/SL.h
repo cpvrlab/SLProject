@@ -248,6 +248,7 @@ typedef std::vector<SLuint>   SLVuint;
 typedef std::vector<SLlong>   SLVlong;
 typedef std::vector<SLulong>  SLVulong;
 typedef std::vector<SLfloat>  SLVfloat;
+typedef std::vector<SLhalf>   SLVhalf;
 typedef std::vector<SLstring> SLVstring;
 //-----------------------------------------------------------------------------
 // Shortcut for size of a vector

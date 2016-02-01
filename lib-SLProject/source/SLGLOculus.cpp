@@ -148,24 +148,24 @@ void SLGLOculus::init()
                                        _uvScaleOffset[eyeNum]);
 
         // Now parse the vertex data and create a render ready vertex buffer from it
-        SLVertexOculus* verts = new SLVertexOculus[meshData.VertexCount];
+        SLVVertexOculus verts;
+        verts.resize(meshData.VertexCount);
 
         vector<SLuint> tempIndex;
 
-        SLVertexOculus* v = verts;
         ovrDistortionVertex * ov = meshData.pVertexData;
         for (SLuint vertNum = 0; vertNum < meshData.VertexCount; vertNum++)
-        {   v->screenPosNDC.x = ov->ScreenPosNDC.x;
-            v->screenPosNDC.y = ov->ScreenPosNDC.y;
-            v->timeWarpFactor = ov->TimeWarpFactor;
-            v->vignetteFactor = ov->VignetteFactor;
-            v->tanEyeAnglesR.x = ov->TanEyeAnglesR.x;
-            v->tanEyeAnglesR.y = ov->TanEyeAnglesR.y;
-            v->tanEyeAnglesG.x = ov->TanEyeAnglesG.x;
-            v->tanEyeAnglesG.y = ov->TanEyeAnglesG.y;
-            v->tanEyeAnglesB.x = ov->TanEyeAnglesB.x;
-            v->tanEyeAnglesB.y = ov->TanEyeAnglesB.y;   
-            v++; ov++;
+        {   verts[vertNum].screenPosNDC.x = ov->ScreenPosNDC.x;
+            verts[vertNum].screenPosNDC.y = ov->ScreenPosNDC.y;
+            verts[vertNum].timeWarpFactor = ov->TimeWarpFactor;
+            verts[vertNum].vignetteFactor = ov->VignetteFactor;
+            verts[vertNum].tanEyeAnglesR.x = ov->TanEyeAnglesR.x;
+            verts[vertNum].tanEyeAnglesR.y = ov->TanEyeAnglesR.y;
+            verts[vertNum].tanEyeAnglesG.x = ov->TanEyeAnglesG.x;
+            verts[vertNum].tanEyeAnglesG.y = ov->TanEyeAnglesG.y;
+            verts[vertNum].tanEyeAnglesB.x = ov->TanEyeAnglesB.x;
+            verts[vertNum].tanEyeAnglesB.y = ov->TanEyeAnglesB.y;   
+            ov++;
         }
 
         for (unsigned i = 0; i < meshData.IndexCount; i++)
@@ -175,16 +175,15 @@ void SLGLOculus::init()
         sp->useProgram();
 
         // set attributes with all the same data pointer to the interleaved array
-        _distortionMeshVAO[eyeNum].setAttrib(AT_position, 2, sp->getAttribLocation("a_position"), verts);
-        _distortionMeshVAO[eyeNum].setAttrib(AT_custom1,  1, sp->getAttribLocation("a_timeWarpFactor"), verts);
-        _distortionMeshVAO[eyeNum].setAttrib(AT_custom2,  1, sp->getAttribLocation("a_vignetteFactor"), verts);
-        _distortionMeshVAO[eyeNum].setAttrib(AT_custom3,  2, sp->getAttribLocation("a_texCoordR"), verts);
-        _distortionMeshVAO[eyeNum].setAttrib(AT_custom4,  2, sp->getAttribLocation("a_texCoordG"), verts);
-        _distortionMeshVAO[eyeNum].setAttrib(AT_custom5,  2, sp->getAttribLocation("a_texCoordB"), verts);
+        _distortionMeshVAO[eyeNum].setAttrib(AT_position, 2, sp->getAttribLocation("a_position"),       &verts[0]);
+        _distortionMeshVAO[eyeNum].setAttrib(AT_custom1,  1, sp->getAttribLocation("a_timeWarpFactor"), &verts[0]);
+        _distortionMeshVAO[eyeNum].setAttrib(AT_custom2,  1, sp->getAttribLocation("a_vignetteFactor"), &verts[0]);
+        _distortionMeshVAO[eyeNum].setAttrib(AT_custom3,  2, sp->getAttribLocation("a_texCoordR"),      &verts[0]);
+        _distortionMeshVAO[eyeNum].setAttrib(AT_custom4,  2, sp->getAttribLocation("a_texCoordG"),      &verts[0]);
+        _distortionMeshVAO[eyeNum].setAttrib(AT_custom5,  2, sp->getAttribLocation("a_texCoordB"),      &verts[0]);
         _distortionMeshVAO[eyeNum].setIndices(meshData.IndexCount, BT_uint, &tempIndex[0]);
         _distortionMeshVAO[eyeNum].generate(meshData.VertexCount);
                 
-        delete[] verts;
         ovrHmd_DestroyDistortionMesh( &meshData );  
     }
 #else

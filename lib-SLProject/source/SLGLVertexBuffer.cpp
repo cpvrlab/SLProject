@@ -93,18 +93,20 @@ void SLGLVertexBuffer::updateAttrib(SLGLAttributeType type,
     // Convert to Half Floats
     /////////////////////////
 
+    SLVhalf halfs;
+
     if (_dataType == BT_half)
     {   
         // Create a new array on the heap that must be deleted after glBufferData
         SLint numHalfs = _numVertices * _attribs[index].elementSize;
-        SLhalf* pHalfs = new SLhalf[numHalfs];
+        halfs.resize(numHalfs);
 
         // Convert all float to half floats
         for (SLint h=0; h<numHalfs; ++h)
-            pHalfs[h] = half_cast<half>(((SLfloat*)_attribs[index].dataPointer)[h]);
+            halfs[h] = half_cast<half>(((SLfloat*)_attribs[index].dataPointer)[h]);
 
         // Replace the data pointer
-        _attribs[index].dataPointer = pHalfs;
+        _attribs[index].dataPointer = &halfs[0];
     }
     
 
@@ -124,8 +126,7 @@ void SLGLVertexBuffer::updateAttrib(SLGLAttributeType type,
     ///////////////////////////////////
 
     if (_dataType == BT_half)
-    {   
-        delete[] _attribs[index].dataPointer;
+    {   halfs.clear();
         _attribs[index].dataPointer = 0;
     }
 
@@ -273,7 +274,8 @@ void SLGLVertexBuffer::generate(SLuint numVertices,
     {    
         if (_outputInterleaved) // Copy attribute data interleaved
         {
-            SLuchar* data = new SLuchar[_sizeBytes];
+            SLVuchar data; 
+            data.resize(_sizeBytes);
 
             for (auto a : _attribs)
             {   
@@ -303,8 +305,7 @@ void SLGLVertexBuffer::generate(SLuint numVertices,
             }
 
             // generate the interleaved VBO buffer on the GPU
-            glBufferData(GL_ARRAY_BUFFER, _sizeBytes, data, _usage);
-            delete[] data;
+            glBufferData(GL_ARRAY_BUFFER, _sizeBytes, &data[0], _usage);
         } 
         else // copy attributes buffers sequentially
         {   

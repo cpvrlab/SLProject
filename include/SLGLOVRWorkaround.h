@@ -886,7 +886,7 @@ void createSLDistortionMesh(DistortionMeshVertexData **ppVertices,
 
             // Find a corresponding screen position.
             // Note - this function does not have to be precise - we're just trying to match the mesh tessellation
-            // with the shape of the distortion to minimise the number of trianlges needed.
+            // with the shape of the distortion to minimize the number of triangles needed.
             SLVec2f screenNDC = TransformTanFovSpaceToScreenNDC ( distortion, tanEyeAngle, false );
             // ...but don't let verts overlap to the other eye.
             screenNDC.x = SL_max ( -1.0f, SL_min ( screenNDC.x, 1.0f ) );
@@ -1182,26 +1182,26 @@ void createSLDistortionMesh(SLEyeType eye, SLGLVertexArray& vao)
 
 
     // Now parse the vertex data and create a render ready vertex buffer from it
-    SLVertexOculus* pVBVerts = new SLVertexOculus[vertexCount];
+    SLVVertexOculus verts;
+    verts.resize(vertexCount);
 
-    vector<SLuint> tempIndex;
+    SLVuint tempIndex;
 
-    SLVertexOculus* v = pVBVerts;
     ovrDistortionVertex* ov = vertexData;
     for ( unsigned vertNum = 0; vertNum < vertexCount; vertNum++ )
     {
-        v->screenPosNDC.x = ov->ScreenPosNDC.x;
-        v->screenPosNDC.y = ov->ScreenPosNDC.y;
-        v->timeWarpFactor = ov->TimeWarpFactor;
-        v->vignetteFactor = ov->VignetteFactor;
-        v->tanEyeAnglesR.x = ov->TanEyeAnglesR.x;
-        v->tanEyeAnglesR.y = ov->TanEyeAnglesR.y;
-        v->tanEyeAnglesG.x = ov->TanEyeAnglesG.x;
-        v->tanEyeAnglesG.y = ov->TanEyeAnglesG.y;
-        v->tanEyeAnglesB.x = ov->TanEyeAnglesB.x;
-        v->tanEyeAnglesB.y = ov->TanEyeAnglesB.y;
+        verts[vertNum].screenPosNDC.x = ov->ScreenPosNDC.x;
+        verts[vertNum].screenPosNDC.y = ov->ScreenPosNDC.y;
+        verts[vertNum].timeWarpFactor = ov->TimeWarpFactor;
+        verts[vertNum].vignetteFactor = ov->VignetteFactor;
+        verts[vertNum].tanEyeAnglesR.x = ov->TanEyeAnglesR.x;
+        verts[vertNum].tanEyeAnglesR.y = ov->TanEyeAnglesR.y;
+        verts[vertNum].tanEyeAnglesG.x = ov->TanEyeAnglesG.x;
+        verts[vertNum].tanEyeAnglesG.y = ov->TanEyeAnglesG.y;
+        verts[vertNum].tanEyeAnglesB.x = ov->TanEyeAnglesB.x;
+        verts[vertNum].tanEyeAnglesB.y = ov->TanEyeAnglesB.y;
             
-        v++; ov++;
+        ov++;
     }
 
     for (unsigned i = 0; i < indexCount; i++)
@@ -1211,17 +1211,16 @@ void createSLDistortionMesh(SLEyeType eye, SLGLVertexArray& vao)
     sp->useProgram();
 
     // set attributes with all the same data pointer to the interleaved array
-    vao.setAttrib(AT_position, 2, sp->getAttribLocation("a_position"), pVBVerts);
-    vao.setAttrib(AT_custom1,  1, sp->getAttribLocation("a_timeWarpFactor"), pVBVerts);
-    vao.setAttrib(AT_custom2,  1, sp->getAttribLocation("a_vignetteFactor"), pVBVerts);
-    vao.setAttrib(AT_custom3,  2, sp->getAttribLocation("a_texCoordR"), pVBVerts);
-    vao.setAttrib(AT_custom4,  2, sp->getAttribLocation("a_texCoordG"), pVBVerts);
-    vao.setAttrib(AT_custom5,  2, sp->getAttribLocation("a_texCoordB"), pVBVerts);
+    vao.setAttrib(AT_position, 2, sp->getAttribLocation("a_position"), &verts[0]);
+    vao.setAttrib(AT_custom1,  1, sp->getAttribLocation("a_timeWarpFactor"), &verts[0]);
+    vao.setAttrib(AT_custom2,  1, sp->getAttribLocation("a_vignetteFactor"), &verts[0]);
+    vao.setAttrib(AT_custom3,  2, sp->getAttribLocation("a_texCoordR"), &verts[0]);
+    vao.setAttrib(AT_custom4,  2, sp->getAttribLocation("a_texCoordG"), &verts[0]);
+    vao.setAttrib(AT_custom5,  2, sp->getAttribLocation("a_texCoordB"), &verts[0]);
     vao.setIndices(indexCount, BT_uint, &tempIndex[0]);
     vao.generate(vertexCount);
 
     // dispose temp. arrays
-    delete[] pVBVerts;
     delete[] vertexData;
     delete[] indexData;
 }

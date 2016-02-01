@@ -165,22 +165,24 @@ SLfloat SLLightRect::shadowTest(SLRay* ray, // ray of hit point
         SLfloat dl = (SLfloat)_height/(SLfloat)_samples.y;// length of a sample cell
         SLint   x, y, hx=_samples.x/2, hy=_samples.y/2;
         SLint   samples = _samples.x*_samples.y;
-        SLbool* isSampled = new SLbool[samples];
+        SLVbool isSampled;
         SLbool  importantPointsAreLighting = true;
         SLfloat lighted = 0.0f; // return value
         SLfloat invSamples = 1.0f/(SLfloat)(samples);
-        SLVec3f SP; // vector hitpoint to samplepoint in world coords
+        SLVec3f SP; // vector hit point to sample point in world coords
+
+        isSampled.resize(samples);
 
         for (y=0; y<_samples.y; ++y)
         {   for (x=0; x<_samples.x; ++x)
-            {  SLint iSP = y*_samples.x + x;
-            isSampled[iSP]=false;
+            {   SLint iSP = y*_samples.x + x;
+                isSampled[iSP]=false;
             }
         }
 
         /*
         Important sample points (X) on a 7 by 5 rectangular light.
-        If all of them are lighting the hitpoint the sample points
+        If all of them are lighting the hit point the sample points
         in between (O) are not tested anymore.
 
              0   1   2   3   4   5   6         
@@ -200,27 +202,27 @@ SLfloat SLLightRect::shadowTest(SLRay* ray, // ray of hit point
         // Double loop for the important sample points
         for (y=-hy; y<=hy; y+=hy)
         {   for (x=-hx; x<=hx; x+=hx)
-            {  SLint iSP = (y+hy)*_samples.x + x+hx;
-            isSampled[iSP]=true;
+            {   SLint iSP = (y+hy)*_samples.x + x+hx;
+                isSampled[iSP]=true;
             
-            SP.set(updateAndGetWM().multVec(SLVec3f(x*dw, y*dl, 0)) - ray->hitPoint);
-            SLfloat SPDist = SP.length();
-            SP.normalize();
-            SLRay shadowRay(SPDist, SP, ray);
+                SP.set(updateAndGetWM().multVec(SLVec3f(x*dw, y*dl, 0)) - ray->hitPoint);
+                SLfloat SPDist = SP.length();
+                SP.normalize();
+                SLRay shadowRay(SPDist, SP, ray);
 
-            SLScene::current->root3D()->hitRec(&shadowRay);
+                SLScene::current->root3D()->hitRec(&shadowRay);
             
-            if (shadowRay.length >= SPDist-FLT_EPSILON) 
-                lighted += invSamples; // sum up the light
-            else 
-                importantPointsAreLighting = false;
+                if (shadowRay.length >= SPDist-FLT_EPSILON) 
+                    lighted += invSamples; // sum up the light
+                else 
+                    importantPointsAreLighting = false;
             }
         }
 
         if (importantPointsAreLighting)
             lighted = 1.0f;
         else
-        {  // Double loop for the samplepoints inbetween
+        {  // Double loop for the sample points in between
             for (y=-hy; y<=hy; ++y)
             {   for (x=-hx; x<=hx; ++x)
                 {  SLint iSP = (y+hy)*_samples.x + x+hx;
@@ -239,7 +241,6 @@ SLfloat SLLightRect::shadowTest(SLRay* ray, // ray of hit point
                 }
             }
         }
-        if (isSampled) delete [] isSampled;
         return lighted;
     }
 }

@@ -15,45 +15,45 @@
 #include <QTreeWidget>
 #include <QTreeWidgetItem>
 //----------------------------------------------------------------------------
-//! qtNodeTreeItem: QTreeWidgetItem derived class for the scene node treeview.
+//! qtNodeTreeItem: QTreeWidgetItem derived class for the scene node tree view.
 class qtNodeTreeItem : public QTreeWidgetItem
 {
     public:
-                        // Constructor for the first item in the tree widget
-                        qtNodeTreeItem(SLNode* node,
-                                    QTreeWidget* parent) :
-                                    QTreeWidgetItem(parent)
-                        {  _node = node;
-                        _mesh = 0;
-                        setText(0,(char*)_node->name().c_str());
-                        }
-                     
-                        // Constructor for an item after a previous one
-                        qtNodeTreeItem(SLNode* node,
-                                    qtNodeTreeItem* parent) :
-                                    QTreeWidgetItem(parent, parent->child(parent->childCount()-1))
-                        {  _node = node;
-                        _mesh = 0;
-                        setText(0,(char*)_node->name().c_str());
-                        }
+                // Constructor for the first item in the tree widget
+                qtNodeTreeItem(SLNode* node,
+                               QTreeWidget* parent) :
+                               QTreeWidgetItem(parent)
+                {   _node = node;
+                    _mesh = 0;
+                    setText(0,(char*)_node->name().c_str());
+                }
+                
+                // Constructor for an item after a previous one
+                qtNodeTreeItem(SLNode* node,
+                               qtNodeTreeItem* parent) :
+                               QTreeWidgetItem(parent, parent->child(parent->childCount()-1))
+                {   _node = node;
+                    _mesh = 0;
+                    setText(0,(char*)_node->name().c_str());
+                }
 
-                        // Constructor for an item after a previous one
-                        qtNodeTreeItem(SLMesh* mesh,
-                                    qtNodeTreeItem* parent) :
-                                    QTreeWidgetItem(parent, parent->child(parent->childCount()-1))
-                        {   _node = parent->_node;
-                        _mesh = mesh;
-                        setText(0,(char*)_mesh->name().c_str());
-                        setTextColor(0, Qt::darkRed);
-                        setBackgroundColor(0, Qt::lightGray);
-                        }
+                // Constructor for an item after a previous one
+                qtNodeTreeItem(SLMesh* mesh,
+                               qtNodeTreeItem* parent) :
+                               QTreeWidgetItem(parent, parent->child(parent->childCount()-1))
+                {   _node = parent->_node;
+                    _mesh = mesh;
+                    setText(0,(char*)_mesh->name().c_str());
+                    setTextColor(0, Qt::darkRed);
+                    setBackgroundColor(0, Qt::lightGray);
+                }
 
-        SLNode*        node() {return _node;}
-        SLMesh*        mesh() {return _mesh;}
+        SLNode* node() {return _node;}
+        SLMesh* mesh() {return _mesh;}
 
     private:
-        SLNode*        _node;
-        SLMesh*        _mesh;
+        SLNode* _node;
+        SLMesh* _mesh;
 };
 //----------------------------------------------------------------------------
 #endif

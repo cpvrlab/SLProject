@@ -525,35 +525,35 @@ void SLGLState::getGLError(char* file,
                 errStr = "Unknown error";
         }
 
-        fprintf(stderr, "OpenGL Error in %s, line %d: %s\n", file, line, errStr.c_str());
+        //fprintf(stderr, "OpenGL Error in %s, line %d: %s\n", file, line, errStr.c_str());
 
-//        // Build error string as a concatenation of file, line & error
-//        char sLine[32];
-//        sprintf(sLine, "%d", line);
+        // Build error string as a concatenation of file, line & error
+        char sLine[32];
+        sprintf(sLine, "%d", line);
 
-//        string newErr(file);
-//        newErr += ": line:";
-//        newErr += sLine;
-//        newErr += ": ";
-//        newErr += errStr;
+        string newErr(file);
+        newErr += ": line:";
+        newErr += sLine;
+        newErr += ": ";
+        newErr += errStr;
 
-//        // Check if error exists already
-//        bool errExists = std::find(errors.begin(), errors.end(), newErr)!=errors.end();
+        // Check if error exists already
+        bool errExists = std::find(errors.begin(), errors.end(), newErr)!=errors.end();
       
-//        // Only print
-//        if (!errExists)
-//        {
-//            errors.push_back(newErr);
-//            #ifdef SL_OS_ANDROID
-//            __android_log_print(ANDROID_LOG_INFO, "SLProject",
-//                                "OpenGL Error in %s, line %d: %s\n",
-//                                file, line, errStr.c_str());
-//            #else
-//            fprintf(stderr,
-//                    "OpenGL Error in %s, line %d: %s\n",
-//                    file, line, errStr.c_str());
-//            #endif
-//        }
+        // Only print
+        if (!errExists)
+        {
+            errors.push_back(newErr);
+            #ifdef SL_OS_ANDROID
+            __android_log_print(ANDROID_LOG_INFO, "SLProject",
+                                "OpenGL Error in %s, line %d: %s\n",
+                                file, line, errStr.c_str());
+            #else
+            fprintf(stderr,
+                    "OpenGL Error in %s, line %d: %s\n",
+                    file, line, errStr.c_str());
+            #endif
+        }
       
         if (quit) 
         {  

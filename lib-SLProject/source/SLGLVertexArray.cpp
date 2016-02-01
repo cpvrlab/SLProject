@@ -253,13 +253,16 @@ void SLGLVertexArray::drawElementsAs(SLGLPrimitiveType primitiveType,
     // Binding the VAO saves all the commands after the else (per draw call!)
     
     if (_hasGL3orGreater)
-        glBindVertexArray(_idVAO);
+    {   glBindVertexArray(_idVAO);
+        GET_GL_ERROR;
+    }
     else
     {   _VBOf.bindAndEnableAttrib();
         _VBOh.bindAndEnableAttrib();
 
         // Activate the index buffer
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _idVBOIndices);
+        GET_GL_ERROR;
     }
 
     // Do the draw call with indices 
@@ -275,6 +278,7 @@ void SLGLVertexArray::drawElementsAs(SLGLPrimitiveType primitiveType,
                    (void*)(indexOffset*indexTypeSize));
     ////////////////////////////////////////////////////
     
+    GET_GL_ERROR;
     totalDrawCalls++;
 
     if (_hasGL3orGreater)
