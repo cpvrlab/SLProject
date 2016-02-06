@@ -192,52 +192,49 @@ onPaint does all the rendering for one frame from scratch with OpenGL.
 */
 bool onPaint()
 {
-    // Clear the color & depth buffer
+    //1) Clear the color & depth buffer
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    // View transform: move the coordinate system away from the camera
+    //2a) View transform: move the coordinate system away from the camera
     _viewMatrix.identity();
     _viewMatrix.translate(0, 0, _camZ);
 
-    // Model transform: rotate the coordinate system increasingly
+    //2b) Model transform: rotate the coordinate system increasingly
     _viewMatrix.rotate(_rotX + _deltaX, 1,0,0);
     _viewMatrix.rotate(_rotY + _deltaY, 0,1,0);
 
-    // Model transform: move the cube so that it rotates around its center
+    //3) Model transform: move the cube so that it rotates around its center
     _modelMatrix.identity();
     _modelMatrix.translate(-0.5f, -0.5f, -0.5f);
 
-    // Build the combined modelview-projection matrix
+    //4) Build the combined modelview-projection matrix
     SLMat4f mvp(_projectionMatrix);
     SLMat4f mv(_viewMatrix);
     mv.multiply(_modelMatrix);
     mvp.multiply(mv);
 
-    // Build normal matrix
+    //5) Build normal matrix
     SLMat3f nm(mv.inverseTransposed());
 
-    // Pass the uniform variables to the shader
+    //6) Activate the shader program and pass the uniform variables to the shader
     glUseProgram(_shaderProgID);
-    glUniformMatrix4fv(_mvpLoc,  1, 0, (float*)&mvp);
-    glUniformMatrix3fv(_nmLoc,   1, 0, (float*)&nm);
-    glUniform3f(_lightDirVSLoc,   0.5f, 1.0f, 1.0f);         // light direction in view space
-    glUniform4f(_lightDiffuseLoc, 1.0f, 1.0f, 1.0f, 1.0f);   // diffuse light intensity (RGBA)
-    glUniform4f(_matDiffuseLoc,   1.0f, 0.0f, 0.0f, 1.0f);   // diffuse material reflection (RGBA)
+    glUniformMatrix4fv(_mvpLoc, 1, 0, (float*)&mvp);
+    glUniformMatrix3fv(_nmLoc,  1, 0, (float*)&nm);
+    glUniform3f(_lightDirVSLoc,   0.5f, 1.0f, 1.0f);       // light direction in view space
+    glUniform4f(_lightDiffuseLoc, 1.0f, 1.0f, 1.0f, 1.0f); // diffuse light intensity
+    glUniform4f(_matDiffuseLoc,   1.0f, 0.0f, 0.0f, 1.0f); // diffuse material reflection
 
-    // Activate the vertex array
+    //7a) Activate the vertex array
     glBindVertexArray(_vao);
-   
-    // Activate the index buffer
+
+    //7b) Activate the index buffer
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _vboI);
 
-    // Draw cube with triangles by indexes
+    //7c) Draw cube with triangles by indexes
     glDrawElements(GL_TRIANGLES, _numI, GL_UNSIGNED_INT, 0);
 
-    glBindVertexArray(0);
-   
-    // Fast copy the back buffer to the front buffer. This is OS dependent.
+    //8) Fast copy the back buffer to the front buffer. This is OS dependent.
     glfwSwapBuffers(window);
-
     GETGLERROR;
 
     // Return true to get an immediate refresh
@@ -367,6 +364,7 @@ The C main procedure running the GLFW GUI application.
 */
 int main()
 {
+    // Initialize the platform independent GUI-Library GLFW
     if (!glfwInit())
     {   fprintf(stderr, "Failed to initialize GLFW\n");
         exit(EXIT_FAILURE);
@@ -379,10 +377,10 @@ int main()
 
     //You can enable or restrict newer OpenGL context here (read the GLFW documentation)
     #ifdef SL_OS_MACOSX
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 2);
-    glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
-    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+    //glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+    //glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 2);
+    //glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
+    //glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
     #else
     //glfwWindowHint(GLFW_CLIENT_API, GLFW_OPENGL_API);
     //glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
@@ -393,7 +391,9 @@ int main()
     _scrWidth = 640;
     _scrHeight = 480;
 
-    window = glfwCreateWindow(_scrWidth, _scrHeight, "My Title", NULL, NULL);
+    // Create the GLFW window
+    window = glfwCreateWindow(_scrWidth, _scrHeight, "Diffuse Cube", NULL, NULL);
+
     if (!window)
     {   glfwTerminate();
         exit(EXIT_FAILURE);
@@ -402,7 +402,7 @@ int main()
     // Get the current GL context. After this you can call GL
     glfwMakeContextCurrent(window);
 
-    // On some systems screen & framebuffer size are different
+    // On some systems screen & framebuffer size are different (e.g. Mac Retina Displays)
     // All commands in GLFW are in screen coords but rendering in GL is
     // in framebuffer coords
     SLint fbWidth, fbHeight;
@@ -429,12 +429,13 @@ int main()
 
     glUtils::printGLInfo();
 
-    glfwSetWindowTitle(window, "Diffuse Cubes");
-
     // Set number of monitor refreshes between 2 buffer swaps
     glfwSwapInterval(1);
 
+    // Prepare all OpenGL stuff
     onInit();
+
+    // Call resize once for correct projection
     onResize(window, (SLint)(_scrWidth  * _scr2fbX),
                      (SLint)(_scrHeight * _scr2fbY));
 
@@ -449,10 +450,10 @@ int main()
     // Event loop
     while (!glfwWindowShouldClose(window))
     {
-      // if no updated occurred wait for the next event (power saving)
-      if (!onPaint())
-           glfwWaitEvents();
-      else glfwPollEvents();
+        // if no updated occurred wait for the next event (power saving)
+        if (!onPaint())
+             glfwWaitEvents();
+        else glfwPollEvents();
     }
 
     glfwDestroyWindow(window);

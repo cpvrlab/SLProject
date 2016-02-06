@@ -91,8 +91,7 @@ GLuint glUtils::buildShader(string shaderFile,
 
     // Replace "gl_FragColor" that was deprecated in GLSL 140 (OpenGL 3.1) by a custom out variable
     if (verGLSL > "130")
-    {
-        if (shaderType == GL_FRAGMENT_SHADER)
+    {   if (shaderType == GL_FRAGMENT_SHADER)
         {   SLUtils::replaceString(source, "gl_FragColor", "fragColor");
             SLUtils::replaceString(source, "void main", "out vec4 fragColor; \n\nvoid main");
         }

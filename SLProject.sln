@@ -1,4 +1,4 @@
-﻿
+
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2013
 VisualStudioVersion = 12.0.21005.1
@@ -69,7 +69,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "app-VolumeRendering", "app-
 		{CCC645D3-B20F-431C-824A-7895D6E404DF} = {CCC645D3-B20F-431C-824A-7895D6E404DF}
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ch06_DiffuseCube", "ch06_DiffuseCube\ch06_DiffuseCube.vcxproj", "{0146E7DF-20B2-413B-AB05-7DC2D8F0C5E9}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ch07_DiffuseCube", "ch07_DiffuseCube\ch07_DiffuseCube.vcxproj", "{0146E7DF-20B2-413B-AB05-7DC2D8F0C5E9}"
 	ProjectSection(ProjectDependencies) = postProject
 		{CCC645D3-B20F-431C-824A-7895D6E404DF} = {CCC645D3-B20F-431C-824A-7895D6E404DF}
 	EndProjectSection

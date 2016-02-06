@@ -9,7 +9,7 @@ SUBDIRS += app-Demo-Qt
 SUBDIRS += app-NodeManipulationDemo
 SUBDIRS += app-Viewer-Qt
 SUBDIRS += app-VolumeRendering
-SUBDIRS += ch06_DiffuseCube
+SUBDIRS += ch07_DiffuseCube
 SUBDIRS += ch09_TextureMapping
 
 lib-SLProject.depends = lib-SLExternal
@@ -20,7 +20,7 @@ app-Viewer-Qt.depends = lib-SLProject
 app-LeapMotionTest.depends = lib-SLProject
 app-NodeManipulationDemo.depends = lib-SLProject
 app-VolumeRendering.depends = lib-SLProject
-ch06_DiffuseCube.depends = lib-SLExternal
+ch07_DiffuseCube.depends = lib-SLExternal
 ch09_TextureMapping.depends = lib-SLExternal
 
 CONFIG -= qml_debug

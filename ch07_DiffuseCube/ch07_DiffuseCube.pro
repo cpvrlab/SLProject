@@ -1,5 +1,5 @@
 ##############################################################################
-#  File:      ch06_DiffuseCube.pro
+#  File:      ch07_DiffuseCube.pro
 #  Purpose:   QMake project definition file for the Hello Cube demo w. OpenGL
 #  Author:    Marcus Hudritsch
 #  Date:      September 2012 (HS12)
@@ -9,7 +9,7 @@
 ##############################################################################
 
 TEMPLATE = app
-TARGET = ch06_DiffuseCube
+TARGET = ch07_DiffuseCube
 
 CONFIG += warn_off
 CONFIG -= qml_debug
