@@ -398,7 +398,10 @@ void SLGLOculus::calculateHmdValues()
         fov.RightTan = 1.092f;
         _projection[i] =  CreateProjection( true, fov,0.01f, 10000.0f );
     
-        _orthoProjection[i] = ovrMatrix4f_OrthoSubProjection(_projection[i], SLVec2f(1.0f/(549.618286 * ((SLfloat)_outputRes.x /_resolution.x)), 1.0f/(549.618286 * ((SLfloat)_outputRes.x /_resolution.x))), 0.8f, _viewAdjust[i].x);
+        _orthoProjection[i] = ovrMatrix4f_OrthoSubProjection(_projection[i],
+                                                             SLVec2f(1.0f/(549.618286 * ((SLfloat)_outputRes.x /_resolution.x)),
+                                                                     1.0f/(549.618286 * ((SLfloat)_outputRes.x /_resolution.x))),
+                                                             0.8f, _viewAdjust[i].x);
 
         SLMat4f flipY(1.0f, 0.0f, 0.0f, 0.0f,
                       0.0f,-1.0f, 0.0f, 0.0f,

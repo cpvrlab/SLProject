@@ -19,7 +19,7 @@
 #include "../lib-SLExternal/glfw3/include/GLFW/glfw3.h" // GLFW GUI library
 
 //-----------------------------------------------------------------------------
-//! Struct definition for vertex attributes
+//! Struct definition for vertex attribute position and normal
 struct VertexPN
 {
    SLVec3f p;  // vertex position [x,y,z]

@@ -27,54 +27,54 @@ struct VertexPNT
    SLVec2f t;  // vertex texture coord. [s,t]
 };
 //-----------------------------------------------------------------------------
-GLFWwindow* window;                 //!< The global glfw window handle
-SLint     _scrWidth;                //!< Window width at start up
-SLint     _scrHeight;               //!< Window height at start up
-SLfloat   _scr2fbX;                 //!< Factor from screen to framebuffer coords
-SLfloat   _scr2fbY;                 //!< Factor from screen to framebuffer coords
+GLFWwindow* window;             //!< The global glfw window handle
+SLint     _scrWidth;            //!< Window width at start up
+SLint     _scrHeight;           //!< Window height at start up
+SLfloat   _scr2fbX;             //!< Factor from screen to framebuffer coords
+SLfloat   _scr2fbY;             //!< Factor from screen to framebuffer coords
 
 // GLobal application variables
-SLMat4f  _modelMatrix;              //!< 4x4 view matrix
-SLMat4f  _viewMatrix;               //!< 4x4 model matrix
-SLMat4f  _projectionMatrix;         //!< 4x4 projection matrix
+SLMat4f  _modelMatrix;          //!< 4x4 view matrix
+SLMat4f  _viewMatrix;           //!< 4x4 model matrix
+SLMat4f  _projectionMatrix;     //!< 4x4 projection matrix
 
-GLuint   _vao  = 0;                 //!< ID of the vertex array object
-GLuint   _vboV = 0;                 //!< ID of the VBO for vertex attributes
-GLuint   _vboI = 0;                 //!< ID of the VBO for vertex index array
+GLuint   _vao  = 0;             //!< ID of the vertex array object
+GLuint   _vboV = 0;             //!< ID of the VBO for vertex attributes
+GLuint   _vboI = 0;             //!< ID of the VBO for vertex index array
 
-GLuint   _numV = 0;                 //!< NO. of vertices
-GLuint   _numI = 0;                 //!< NO. of vertex indexes for triangles
+GLuint   _numV = 0;             //!< NO. of vertices
+GLuint   _numI = 0;             //!< NO. of vertex indexes for triangles
 
-GLint     _resolution;              //!< resolution of sphere stack & slices
+GLint     _resolution;          //!< resolution of sphere stack & slices
 
-float    _camZ;                     //!< z-distance of camera
-float    _rotX, _rotY;              //!< rotation angles around x & y axis
-int      _deltaX, _deltaY;          //!< delta mouse motion
-int      _startX, _startY;          //!< x,y mouse start positions
-int      _mouseX, _mouseY;          //!< current mouse position
-bool     _mouseLeftDown;            //!< Flag if mouse is down
-GLuint   _modifiers = 0;            //!< modifier bit flags
-const GLuint NONE  = 0;             //!< constant for no modifier
-const GLuint SHIFT = 0x00200000;    //!< constant for shift key modifier
-const GLuint CTRL  = 0x00400000;    //!< constant for control key modifier
-const GLuint ALT   = 0x00800000;    //!< constant for alt key modifier
+float    _camZ;                 //!< z-distance of camera
+float    _rotX, _rotY;          //!< rotation angles around x & y axis
+int      _deltaX, _deltaY;      //!< delta mouse motion
+int      _startX, _startY;      //!< x,y mouse start positions
+int      _mouseX, _mouseY;      //!< current mouse position
+bool     _mouseLeftDown;        //!< Flag if mouse is down
+GLuint   _modifiers = 0;        //!< modifier bit flags
+const GLuint NONE  = 0;         //!< constant for no modifier
+const GLuint SHIFT = 0x00200000;//!< constant for shift key modifier
+const GLuint CTRL  = 0x00400000;//!< constant for control key modifier
+const GLuint ALT   = 0x00800000;//!< constant for alt key modifier
 
-SLVec4f  _globalAmbi;               //!< global ambient intensity
-SLVec3f  _lightPos;                 //!< Light position in world space
-SLVec3f  _lightDir;                 //!< Light direction in world space
-SLVec4f  _lightAmbient;             //!< Light ambient intensity   
-SLVec4f  _lightDiffuse;             //!< Light diffuse intensity   
-SLVec4f  _lightSpecular;            //!< Light specular intensity
-SLVec4f  _matAmbient;               //!< Material ambient reflection coeff.
-SLVec4f  _matDiffuse;               //!< Material diffuse reflection coeff.
-SLVec4f  _matSpecular;              //!< Material specular reflection coeff.
-SLVec4f  _matEmissive;              //!< Material emissive coeff.
-float    _matShininess;             //!< Material shininess exponent
+SLVec4f  _globalAmbi;           //!< global ambient intensity
+SLVec3f  _lightPos;             //!< Light position in world space
+SLVec3f  _lightDir;             //!< Light direction in world space
+SLVec4f  _lightAmbient;         //!< Light ambient intensity
+SLVec4f  _lightDiffuse;         //!< Light diffuse intensity
+SLVec4f  _lightSpecular;        //!< Light specular intensity
+SLVec4f  _matAmbient;           //!< Material ambient reflection coeff.
+SLVec4f  _matDiffuse;           //!< Material diffuse reflection coeff.
+SLVec4f  _matSpecular;          //!< Material specular reflection coeff.
+SLVec4f  _matEmissive;          //!< Material emissive coeff.
+float    _matShininess;         //!< Material shininess exponent
 
-GLuint   _shaderVertID = 0;         //!< vertex shader id
-GLuint   _shaderFragID = 0;         //!< fragment shader id
-GLuint   _shaderProgID = 0;         //!< shader program id
-GLuint   _textureID = 0;            //!< texture id
+GLuint   _shaderVertID = 0;     //!< vertex shader id
+GLuint   _shaderFragID = 0;     //!< fragment shader id
+GLuint   _shaderProgID = 0;     //!< shader program id
+GLuint   _textureID = 0;        //!< texture id
   
 GLint    _pLoc;             //!< attribute location for vertex position
 GLint    _nLoc;             //!< attribute location for vertex normal

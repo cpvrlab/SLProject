@@ -55,7 +55,7 @@ class glUtils
                                    GLuint  sizeIndexBytes,
                                    GLint   shaderProgramID,
                                    GLint   attributePositionLoc, 
-                                   GLint   attributeNormalLoc,
+                                   GLint   attributeNormalLoc = -1,
                                    GLint   attributeTexCoordLoc = -1);
    
         //! Builds an OpenGL texture and returns the texture id
