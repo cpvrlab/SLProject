@@ -138,7 +138,7 @@ should be called after a window with a valid OpenGL context is present.
 void onInit()
 {
     // backwards movement of the camera
-    _camZ = -4;
+    _camZ = -3;
 
     // Mouse rotation parameters
     _rotX = _rotY = 0;
@@ -146,8 +146,8 @@ void onInit()
     _mouseLeftDown = false;
 
     // Load, compile & link shaders
-    _shaderVertID = glUtils::buildShader("../../_data/shaders/Diffuse.vert", GL_VERTEX_SHADER);
-    _shaderFragID = glUtils::buildShader("../../_data/shaders/Diffuse.frag", GL_FRAGMENT_SHADER);
+    _shaderVertID = glUtils::buildShader("../_data/shaders/Diffuse.vert", GL_VERTEX_SHADER);
+    _shaderFragID = glUtils::buildShader("../_data/shaders/Diffuse.frag", GL_FRAGMENT_SHADER);
     _shaderProgID = glUtils::buildProgram(_shaderVertID, _shaderFragID);
 
     // Activate the shader program

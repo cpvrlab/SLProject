@@ -34,38 +34,38 @@ struct VertexPC
 };
 //-----------------------------------------------------------------------------
 // GLobal application variables
-GLFWwindow* window;                 //!< The global GLFW window handle
-SLint     _scrWidth;                //!< Window width at start up
-SLint     _scrHeight;               //!< Window height at start up
-SLfloat   _scr2fbX;                 //!< Factor from screen to framebuffer coords
-SLfloat   _scr2fbY;                 //!< Factor from screen to framebuffer coords
+GLFWwindow* window;             //!< The global GLFW window handle
+SLint     _scrWidth;            //!< Window width at start up
+SLint     _scrHeight;           //!< Window height at start up
+SLfloat   _scr2fbX;             //!< Factor from screen to framebuffer coords
+SLfloat   _scr2fbY;             //!< Factor from screen to framebuffer coords
 
-SLMat4f  _viewMatrix;               //!< 4x4 view matrix
-SLMat4f  _modelMatrix;              //!< 4x4 model matrix
-SLMat4f  _projectionMatrix;         //!< 4x4 projection matrix
+SLMat4f  _viewMatrix;           //!< 4x4 view matrix
+SLMat4f  _modelMatrix;          //!< 4x4 model matrix
+SLMat4f  _projectionMatrix;     //!< 4x4 projection matrix
 
-GLuint   _vao = 0;                  //!< ID of the vertex array object
-GLuint   _vboV = 0;                 //!< ID of the VBO for vertex attributes
-GLuint   _vboI = 0;                 //!< ID of the VBO for vertex index array
+GLuint   _vao = 0;              //!< ID of the vertex array object
+GLuint   _vboV = 0;             //!< ID of the VBO for vertex attributes
+GLuint   _vboI = 0;             //!< ID of the VBO for vertex index array
 
-GLuint   _numV = 0;                 //!< NO. of vertices
-GLuint   _numI = 0;                 //!< NO. of vertex indexes for triangles
+GLuint   _numV = 0;             //!< NO. of vertices
+GLuint   _numI = 0;             //!< NO. of vertex indexes for triangles
 
-float    _camZ;                     //!< z-distance of camera
-float    _rotX, _rotY;              //!< rotation angles around x & y axis
-int      _deltaX, _deltaY;          //!< delta mouse motion
-int      _startX, _startY;          //!< x,y mouse start positions
-int      _mouseX, _mouseY;          //!< current mouse position
-bool     _mouseLeftDown;            //!< Flag if mouse is down
-GLuint   _modifiers = 0;            //!< modifier bit flags
-const GLuint NONE  = 0;             //!< constant for no modifier
-const GLuint SHIFT = 0x00200000;    //!< constant for shift key modifier
-const GLuint CTRL  = 0x00400000;    //!< constant for control key modifier
-const GLuint ALT   = 0x00800000;    //!< constant for alt key modifier
+float    _camZ;                 //!< z-distance of camera
+float    _rotX, _rotY;          //!< rotation angles around x & y axis
+int      _deltaX, _deltaY;      //!< delta mouse motion
+int      _startX, _startY;      //!< x,y mouse start positions
+int      _mouseX, _mouseY;      //!< current mouse position
+bool     _mouseLeftDown;        //!< Flag if mouse is down
+GLuint   _modifiers = 0;        //!< modifier bit flags
+const GLuint NONE  = 0;         //!< constant for no modifier
+const GLuint SHIFT = 0x00200000;//!< constant for shift key modifier
+const GLuint CTRL  = 0x00400000;//!< constant for control key modifier
+const GLuint ALT   = 0x00800000;//!< constant for alt key modifier
 
-GLuint   _shaderVertID = 0;         //! vertex shader id
-GLuint   _shaderFragID = 0;         //! fragment shader id
-GLuint   _shaderProgID = 0;         //! shader program id
+GLuint   _shaderVertID = 0;     //! vertex shader id
+GLuint   _shaderFragID = 0;     //! fragment shader id
+GLuint   _shaderProgID = 0;     //! shader program id
 
 // Attribute & uniform variable location indexes
 GLint    _pLoc;            //!< attribute location for vertex position
@@ -76,33 +76,35 @@ GLint    _mvpLoc;          //!< uniform location for modelview-projection matrix
 void buildBox()
 {
     // create C arrays on heap
-    // Define the vertex pos. and normals as an array of structure
+    // Define the vertex position and colors as an array of structure
+    // We define the colors with the same components as the cubes corners.
+
     _numV = 24;
     VertexPC* vertices = new VertexPC[_numV];
-    vertices[ 0].set(1, 1, 1,  1, 0, 0);
-    vertices[ 1].set(1, 0, 1,  1, 0, 0);
+    vertices[ 0].set(1, 1, 1,  1, 1, 1);
+    vertices[ 1].set(1, 0, 1,  1, 0, 1);
     vertices[ 2].set(1, 0, 0,  1, 0, 0);
-    vertices[ 3].set(1, 1, 0,  1, 0, 0);
-    vertices[ 4].set(1, 1, 0,  0, 0,-1);
-    vertices[ 5].set(1, 0, 0,  0, 0, 1);
-    vertices[ 6].set(0, 0, 0,  0, 0, 1);
-    vertices[ 7].set(0, 1, 0,  0, 0, 1);
-    vertices[ 8].set(0, 0, 1,  1, 0, 0);
-    vertices[ 9].set(0, 1, 1,  1, 0, 0);
-    vertices[10].set(0, 1, 0,  1, 0, 0);
-    vertices[11].set(0, 0, 0,  1, 0, 0);
-    vertices[12].set(1, 1, 1,  0, 0, 1);
-    vertices[13].set(0, 1, 1,  0, 0, 1);
+    vertices[ 3].set(1, 1, 0,  1, 1, 0);
+    vertices[ 4].set(1, 1, 0,  1, 1, 0);
+    vertices[ 5].set(1, 0, 0,  1, 0, 0);
+    vertices[ 6].set(0, 0, 0,  0, 0, 0);
+    vertices[ 7].set(0, 1, 0,  0, 1, 0);
+    vertices[ 8].set(0, 0, 1,  0, 0, 1);
+    vertices[ 9].set(0, 1, 1,  0, 1, 1);
+    vertices[10].set(0, 1, 0,  0, 1, 0);
+    vertices[11].set(0, 0, 0,  0, 0, 0);
+    vertices[12].set(1, 1, 1,  1, 1, 1);
+    vertices[13].set(0, 1, 1,  0, 1, 1);
     vertices[14].set(0, 0, 1,  0, 0, 1);
-    vertices[15].set(1, 0, 1,  0, 0, 1);
-    vertices[16].set(1, 1, 1,  0, 1, 0);
-    vertices[17].set(1, 1, 0,  0, 1, 0);
+    vertices[15].set(1, 0, 1,  1, 0, 1);
+    vertices[16].set(1, 1, 1,  1, 1, 1);
+    vertices[17].set(1, 1, 0,  1, 1, 0);
     vertices[18].set(0, 1, 0,  0, 1, 0);
-    vertices[19].set(0, 1, 1,  0, 1, 0);
-    vertices[20].set(0, 0, 0,  0, 1, 0);
-    vertices[21].set(1, 0, 0,  0, 1, 0);
-    vertices[22].set(1, 0, 1,  0, 1, 0);
-    vertices[23].set(0, 0, 1,  0, 1, 0);
+    vertices[19].set(0, 1, 1,  0, 1, 1);
+    vertices[20].set(0, 0, 0,  0, 0, 0);
+    vertices[21].set(1, 0, 0,  1, 0, 0);
+    vertices[22].set(1, 0, 1,  1, 0, 1);
+    vertices[23].set(0, 0, 1,  0, 0, 1);
 
     // Define the triangle indexes of the cubes vertices
     _numI = 36;
@@ -133,7 +135,7 @@ should be called after a window with a valid OpenGL context is present.
 void onInit()
 {
     // backwards movement of the camera
-    _camZ = -4;
+    _camZ = -3;
 
     // Mouse rotation parameters
     _rotX = _rotY = 0;
@@ -141,17 +143,17 @@ void onInit()
     _mouseLeftDown = false;
 
     // Load, compile & link shaders
-    _shaderVertID = glUtils::buildShader("../../_data/shaders/ColorAttribute.vert", GL_VERTEX_SHADER);
-    _shaderFragID = glUtils::buildShader("../../_data/shaders/Color.frag", GL_FRAGMENT_SHADER);
+    _shaderVertID = glUtils::buildShader("../_data/shaders/ColorAttribute.vert", GL_VERTEX_SHADER);
+    _shaderFragID = glUtils::buildShader("../_data/shaders/Color.frag", GL_FRAGMENT_SHADER);
     _shaderProgID = glUtils::buildProgram(_shaderVertID, _shaderFragID);
 
     // Activate the shader program
     glUseProgram(_shaderProgID);
 
     // Get the variable locations (identifiers) within the program
-    _pLoc            = glGetAttribLocation (_shaderProgID, "a_position");
-    _cLoc            = glGetAttribLocation (_shaderProgID, "a_color");
-    _mvpLoc          = glGetUniformLocation(_shaderProgID, "u_mvpMatrix");
+    _pLoc   = glGetAttribLocation (_shaderProgID, "a_position");
+    _cLoc   = glGetAttribLocation (_shaderProgID, "a_color");
+    _mvpLoc = glGetUniformLocation(_shaderProgID, "u_mvpMatrix");
 
     buildBox();
 

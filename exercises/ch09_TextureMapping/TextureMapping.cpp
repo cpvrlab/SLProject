@@ -266,11 +266,11 @@ void onInit()
     _mouseLeftDown = false;
 
     // Load textures
-    _textureID = glUtils::buildTexture("../../_data/images/textures/earth2048_C.jpg");
+    _textureID = glUtils::buildTexture("../_data/images/textures/earth2048_C.jpg");
 
     // Load, compile & link shaders
-    _shaderVertID = glUtils::buildShader("../../_data/shaders/ADSTex.vert", GL_VERTEX_SHADER);
-    _shaderFragID = glUtils::buildShader("../../_data/shaders/ADSTex.frag", GL_FRAGMENT_SHADER);
+    _shaderVertID = glUtils::buildShader("../_data/shaders/ADSTex.vert", GL_VERTEX_SHADER);
+    _shaderFragID = glUtils::buildShader("../_data/shaders/ADSTex.frag", GL_FRAGMENT_SHADER);
     _shaderProgID = glUtils::buildProgram(_shaderVertID, _shaderFragID);
 
     // Activate the shader program

@@ -49,6 +49,7 @@ string glUtils::loadShader(string filename)
 {  
     // Loader file and return it as a string
     fstream shaderFile(filename.c_str(), ios::in);
+
     if (shaderFile.is_open())
     {   std::stringstream buffer;
         buffer << shaderFile.rdbuf();

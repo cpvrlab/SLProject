@@ -20,7 +20,7 @@
 
 //-----------------------------------------------------------------------------
 //! Default path for shader files used when only filename is passed in load.
-SLstring SLGLProgram::defaultPath = "../lib-SLProject/source/oglsl/";
+SLstring SLGLProgram::defaultPath = "../_data/shaders";
 //-----------------------------------------------------------------------------
 // Error Strings defined in SLGLShader.h
 extern char* aGLSLErrorString[];

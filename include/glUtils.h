@@ -82,7 +82,7 @@ class glUtils
         static SLVstring getFileNamesInDir(SLstring dirName);
 
         //! Returns the GLSL version string
-        static string glSLVersionNO();
+        static SLstring glSLVersionNO();
 };
 //-----------------------------------------------------------------------------
 #endif
