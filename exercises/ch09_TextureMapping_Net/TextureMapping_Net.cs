@@ -98,8 +98,8 @@ public class TextureMapping_Net : GameWindow
         // create vertex array for interleaved position, normal and texCoord
 	    //                       Position         ,  Normal           ,  texCoord   ,
         float[] v = new float[]{-1.0f, 0.0f, -1.0f,  0.0f, -1.0f, 0.0f,  0.0f,  0.0f, // Vertex 0
-                                1.0f, 0.0f, -1.0f,  0.0f, -1.0f, 0.0f,  1.0f,  0.0f, // Vertex 1
-                                1.0f, 0.0f,  1.0f,  0.0f, -1.0f, 0.0f,  1.0f,  1.0f, // Vertex 2
+                                 1.0f, 0.0f, -1.0f,  0.0f, -1.0f, 0.0f,  1.0f,  0.0f, // Vertex 1
+                                 1.0f, 0.0f,  1.0f,  0.0f, -1.0f, 0.0f,  1.0f,  1.0f, // Vertex 2
                                 -1.0f, 0.0f,  1.0f,  0.0f, -1.0f, 0.0f,  0.0f,  1.0f};// Vertex 3
 
         _vboV = glUtils.BuildVBO(v, 6, 8, 

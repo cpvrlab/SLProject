@@ -165,69 +165,69 @@ public class glUtils
                                   TextureWrapMode wrapS, 
                                   TextureWrapMode wrapT)
    {  
-      // load texture image
-      Bitmap img = null;
-      try {img = (Bitmap)Image.FromFile(textureFile);}
-      catch(Exception ex)
-      {  Console.WriteLine("BuildTexture: Loading failed: " + ex.ToString());
-         Application.Exit();
-      }
+        // load texture image
+        Bitmap img = null;
+        try {img = (Bitmap)Image.FromFile(textureFile);}
+        catch(Exception ex)
+        {  Console.WriteLine("BuildTexture: Loading failed: " + ex.ToString());
+            Application.Exit();
+        }
 
-      // Images on Windows are top left but OpenGL expects them bottom left
-      img.RotateFlip(RotateFlipType.RotateNoneFlipY);
+        // Images on Windows are top left but OpenGL expects them bottom left
+        img.RotateFlip(RotateFlipType.RotateNoneFlipY);
 
-      // check max. size
-      int maxSize = 0;
-      gl.GetInteger(GetPName.MaxTextureSize, out maxSize);
-      if (img.Width  > maxSize || img.Height > maxSize) 
-      {  Console.WriteLine("BuildTexture: Texture width or height is too big.");
-         Application.Exit();
-      }
+        // check max. size
+        int maxSize = 0;
+        gl.GetInteger(GetPName.MaxTextureSize, out maxSize);
+        if (img.Width  > maxSize || img.Height > maxSize) 
+        {   Console.WriteLine("BuildTexture: Texture width or height is too big.");
+            Application.Exit();
+        }
 
-      // generate texture name (= internal texture object)
-      int textureHandle;
-      gl.GenTextures(1, out textureHandle);
+        // generate texture name (= internal texture object)
+        int textureHandle;
+        gl.GenTextures(1, out textureHandle);
 
-      // bind the texture as the active one
-		gl.BindTexture(TextureTarget.Texture2D, textureHandle);
+        // bind the texture as the active one
+        gl.BindTexture(TextureTarget.Texture2D, textureHandle);
 
-      // apply minification & magnification filter
-      gl.TexParameter(TextureTarget.Texture2D, 
-                      TextureParameterName.TextureMinFilter, 
-                      (int)min_filter);
-      gl.TexParameter(TextureTarget.Texture2D, 
-                      TextureParameterName.TextureMagFilter, 
-                      (int)mag_filter);
+        // apply minification & magnification filter
+        gl.TexParameter(TextureTarget.Texture2D, 
+                        TextureParameterName.TextureMinFilter, 
+                        (int)min_filter);
+        gl.TexParameter(TextureTarget.Texture2D, 
+                        TextureParameterName.TextureMagFilter, 
+                        (int)mag_filter);
       
-      // apply texture wrapping modes
-      gl.TexParameter(TextureTarget.Texture2D, 
-                      TextureParameterName.TextureWrapS, 
-                      (int)wrapS);
-      gl.TexParameter(TextureTarget.Texture2D, 
-                      TextureParameterName.TextureWrapT, 
-                      (int)wrapT);
+        // apply texture wrapping modes
+        gl.TexParameter(TextureTarget.Texture2D, 
+                        TextureParameterName.TextureWrapS, 
+                        (int)wrapS);
+        gl.TexParameter(TextureTarget.Texture2D, 
+                        TextureParameterName.TextureWrapT, 
+                        (int)wrapT);
       
-      // Lock the image data memory to access the data
-      BitmapData data = img.LockBits(new Rectangle(0, 0, img.Width, img.Height), 
-                                     ImageLockMode.ReadOnly, 
-                                     img.PixelFormat);
+        // Lock the image data memory to access the data
+        BitmapData data = img.LockBits(new Rectangle(0, 0, img.Width, img.Height), 
+                                        ImageLockMode.ReadOnly, 
+                                        img.PixelFormat);
 
-      PixelInternalFormat internFormat = PixelInternalFormat.Four;
-      OpenTK.Graphics.OpenGL.PixelFormat pixelFormat = OpenTK.Graphics.OpenGL.PixelFormat.Bgra;
-      switch(img.PixelFormat)
-      {  case System.Drawing.Imaging.PixelFormat.Alpha:           
-            internFormat = PixelInternalFormat.Alpha; 
-            pixelFormat = OpenTK.Graphics.OpenGL.PixelFormat.Alpha;
-            break;
-         case System.Drawing.Imaging.PixelFormat.Format24bppRgb:  
-            internFormat = PixelInternalFormat.Rgb; 
-            pixelFormat = OpenTK.Graphics.OpenGL.PixelFormat.Bgr;
-            break;
-         case System.Drawing.Imaging.PixelFormat.Format8bppIndexed: 
-            internFormat = PixelInternalFormat.Luminance;  
-            pixelFormat = OpenTK.Graphics.OpenGL.PixelFormat.Luminance;
-            break;
-      }
+        PixelInternalFormat internFormat = PixelInternalFormat.Four;
+        OpenTK.Graphics.OpenGL.PixelFormat pixelFormat = OpenTK.Graphics.OpenGL.PixelFormat.Bgra;
+        switch(img.PixelFormat)
+        {   case System.Drawing.Imaging.PixelFormat.Alpha:           
+                internFormat = PixelInternalFormat.Alpha; 
+                pixelFormat = OpenTK.Graphics.OpenGL.PixelFormat.Alpha;
+                break;
+            case System.Drawing.Imaging.PixelFormat.Format24bppRgb:  
+                internFormat = PixelInternalFormat.Rgb; 
+                pixelFormat = OpenTK.Graphics.OpenGL.PixelFormat.Bgr;
+                break;
+            case System.Drawing.Imaging.PixelFormat.Format8bppIndexed: 
+                internFormat = PixelInternalFormat.Luminance;  
+                pixelFormat = OpenTK.Graphics.OpenGL.PixelFormat.Luminance;
+                break;
+        }
 
                                      
       // Copy image data to the GPU. The image can be delete afterwards
