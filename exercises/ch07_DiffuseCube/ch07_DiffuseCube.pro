@@ -25,9 +25,9 @@ android {PLATFORM = android}
 #define configuration variable for folder name
 CONFIG(debug, debug|release) {CONFIGURATION = Debug} else {CONFIGURATION = Release}
 
-DESTDIR = ../_bin-$$CONFIGURATION-$$PLATFORM
-OBJECTS_DIR = ../intermediate/$$TARGET/$$CONFIGURATION/$$PLATFORM
-LIBS += -L../_lib/$$CONFIGURATION/$$PLATFORM -llib-SLExternal
+DESTDIR = ../../_bin-$$CONFIGURATION-$$PLATFORM
+OBJECTS_DIR = ../../intermediate/$$TARGET/$$CONFIGURATION/$$PLATFORM
+LIBS += -L../../_lib/$$CONFIGURATION/$$PLATFORM -llib-SLExternal
 
 win32 {
     # windows only
@@ -43,7 +43,8 @@ win32 {
     DEFINES += _GLFW_NO_DLOAD_GDI32
     DEFINES += _GLFW_NO_DLOAD_WINMM
     DEFINES -= UNICODE
-    INCLUDEPATH += ../lib-SLExternal/png
+    INCLUDEPATH += ../../lib-SLExternal/png
+    INCLUDEPATH += ../../lib-SLExternal/dirent
 }
 macx {
     # mac only
@@ -56,7 +57,7 @@ macx {
     LIBS += -framework QuartzCore
     LIBS += -stdlib=libc++
     INCLUDEPATH += /usr/include
-    INCLUDEPATH += ../lib-SLExternal/png
+    INCLUDEPATH += ../../lib-SLExternal/png
 }
 unix:!macx:!android {
     # linux only
@@ -78,25 +79,25 @@ unix:!macx:!android {
 }
 
 INCLUDEPATH += \
-    ../include\
-    ../lib-SLExternal \
-    ../lib-SLExternal/glew/include \
-    ../lib-SLExternal/glfw3/include \
-    ../lib-SLExternal/half/include \
-    ../lib-SLExternal/zlib \
-    ../lib-SLExternal/jpeg-8 \
+    ../../include\
+    ../../lib-SLExternal \
+    ../../lib-SLExternal/glew/include \
+    ../../lib-SLExternal/glfw3/include \
+    ../../lib-SLExternal/half/include \
+    ../../lib-SLExternal/zlib \
+    ../../lib-SLExternal/jpeg-8 \
 
 SOURCES += \
-    ../lib-SLProject/source/glUtils.cpp \
-    ../lib-SLProject/source/SL/SL.cpp \
-    ../lib-SLProject/source/SL/SLImage.cpp \
+    ../../lib-SLProject/source/glUtils.cpp \
+    ../../lib-SLProject/source/SL/SL.cpp \
+    ../../lib-SLProject/source/SL/SLImage.cpp \
     DiffuseCube.cpp
 
 HEADERS += \
-    ../include/glUtils.h \
+    ../../include/glUtils.h \
 
 OTHER_FILES += \
-../_data/shaders/Diffuse.frag \
-../_data/shaders/Diffuse.vert \
+../../_data/shaders/Diffuse.frag \
+../../_data/shaders/Diffuse.vert \
 
 

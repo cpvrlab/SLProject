@@ -55,6 +55,7 @@ class glUtils
                                    GLuint  sizeIndexBytes,
                                    GLint   shaderProgramID,
                                    GLint   attributePositionLoc, 
+                                   GLint   attributeColorLoc = -1,
                                    GLint   attributeNormalLoc = -1,
                                    GLint   attributeTexCoordLoc = -1);
    

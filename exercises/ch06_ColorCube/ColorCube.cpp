@@ -1,6 +1,6 @@
 //#############################################################################
-//  File:      DiffuseCube.cpp
-//  Purpose:   Core profile OpenGL application with diffuse lighted cube with
+//  File:      ColorCube.cpp
+//  Purpose:   Core profile OpenGL application with a colored cube with 
 //             GLFW as the OS GUI interface (http://www.glfw.org/).
 //  Author:    Marcus Hudritsch
 //  Date:      September 2012 (HS12)
@@ -19,17 +19,17 @@
 #include "../lib-SLExternal/glfw3/include/GLFW/glfw3.h" // GLFW GUI library
 
 //-----------------------------------------------------------------------------
-//! Struct definition for vertex attribute position and normal
-struct VertexPN
+//! Struct definition for vertex attribute position and color
+struct VertexPC
 {
    SLVec3f p;  // vertex position [x,y,z]
-   SLVec3f n;  // vertex normal [x,y,z]
+   SLCol3f n;  // vertex color [r,g,b]
 
    // Setter method
    void set(float posX, float posY, float posZ,
-            float normalX, float normalY, float normalZ)
+            float colorR, float colorG, float colorB)
    {  p.set(posX, posY, posZ);
-      n.set(normalX, normalY, normalZ);
+      n.set(colorR, colorG, colorB);
    }
 };
 //-----------------------------------------------------------------------------
@@ -69,13 +69,8 @@ GLuint   _shaderProgID = 0;         //! shader program id
 
 // Attribute & uniform variable location indexes
 GLint    _pLoc;            //!< attribute location for vertex position
-GLint    _nLoc;            //!< attribute location for vertex normal
+GLint    _cLoc;            //!< attribute location for vertex color
 GLint    _mvpLoc;          //!< uniform location for modelview-projection matrix
-GLint    _mvLoc;           //!< uniform location for modelview matrix
-GLint    _nmLoc;           //!< uniform location for normal matrix
-GLint    _lightDirVSLoc;   //!< uniform location for light direction in view space (VS)
-GLint    _lightDiffuseLoc; //!< uniform location for diffuse light intensity
-GLint    _matDiffuseLoc;   //!< uniform location for diffuse light reflection
 
 //-----------------------------------------------------------------------------
 void buildBox()
@@ -83,19 +78,19 @@ void buildBox()
     // create C arrays on heap
     // Define the vertex pos. and normals as an array of structure
     _numV = 24;
-    VertexPN* vertices = new VertexPN[_numV];
+    VertexPC* vertices = new VertexPC[_numV];
     vertices[ 0].set(1, 1, 1,  1, 0, 0);
     vertices[ 1].set(1, 0, 1,  1, 0, 0);
     vertices[ 2].set(1, 0, 0,  1, 0, 0);
     vertices[ 3].set(1, 1, 0,  1, 0, 0);
     vertices[ 4].set(1, 1, 0,  0, 0,-1);
-    vertices[ 5].set(1, 0, 0,  0, 0,-1);
-    vertices[ 6].set(0, 0, 0,  0, 0,-1);
-    vertices[ 7].set(0, 1, 0,  0, 0,-1);
-    vertices[ 8].set(0, 0, 1, -1, 0, 0);
-    vertices[ 9].set(0, 1, 1, -1, 0, 0);
-    vertices[10].set(0, 1, 0, -1, 0, 0);
-    vertices[11].set(0, 0, 0, -1, 0, 0);
+    vertices[ 5].set(1, 0, 0,  0, 0, 1);
+    vertices[ 6].set(0, 0, 0,  0, 0, 1);
+    vertices[ 7].set(0, 1, 0,  0, 0, 1);
+    vertices[ 8].set(0, 0, 1,  1, 0, 0);
+    vertices[ 9].set(0, 1, 1,  1, 0, 0);
+    vertices[10].set(0, 1, 0,  1, 0, 0);
+    vertices[11].set(0, 0, 0,  1, 0, 0);
     vertices[12].set(1, 1, 1,  0, 0, 1);
     vertices[13].set(0, 1, 1,  0, 0, 1);
     vertices[14].set(0, 0, 1,  0, 0, 1);
@@ -104,10 +99,10 @@ void buildBox()
     vertices[17].set(1, 1, 0,  0, 1, 0);
     vertices[18].set(0, 1, 0,  0, 1, 0);
     vertices[19].set(0, 1, 1,  0, 1, 0);
-    vertices[20].set(0, 0, 0,  0,-1, 0);
-    vertices[21].set(1, 0, 0,  0,-1, 0);
-    vertices[22].set(1, 0, 1,  0,-1, 0);
-    vertices[23].set(0, 0, 1,  0,-1, 0);
+    vertices[20].set(0, 0, 0,  0, 1, 0);
+    vertices[21].set(1, 0, 0,  0, 1, 0);
+    vertices[22].set(1, 0, 1,  0, 1, 0);
+    vertices[23].set(0, 0, 1,  0, 1, 0);
 
     // Define the triangle indexes of the cubes vertices
     _numI = 36;
@@ -122,9 +117,9 @@ void buildBox()
 
     // Generate the OpenGL vertex array object
     glUtils::buildVAO(_vao, _vboV, _vboI, 
-                      vertices, _numV, sizeof(VertexPN), 
+                      vertices, _numV, sizeof(VertexPC), 
                       indices, _numI, sizeof(GL_UNSIGNED_INT),
-                      _shaderProgID, _pLoc, _nLoc);
+                      _shaderProgID, _pLoc, _cLoc);
 
     // delete data on heap. The VBOs are now on the GPU
     delete[] vertices;
@@ -146,8 +141,8 @@ void onInit()
     _mouseLeftDown = false;
 
     // Load, compile & link shaders
-    _shaderVertID = glUtils::buildShader("../_data/shaders/Diffuse.vert", GL_VERTEX_SHADER);
-    _shaderFragID = glUtils::buildShader("../_data/shaders/Diffuse.frag", GL_FRAGMENT_SHADER);
+    _shaderVertID = glUtils::buildShader("../../_data/shaders/ColorAttribute.vert", GL_VERTEX_SHADER);
+    _shaderFragID = glUtils::buildShader("../../_data/shaders/Color.frag", GL_FRAGMENT_SHADER);
     _shaderProgID = glUtils::buildProgram(_shaderVertID, _shaderFragID);
 
     // Activate the shader program
@@ -155,12 +150,8 @@ void onInit()
 
     // Get the variable locations (identifiers) within the program
     _pLoc            = glGetAttribLocation (_shaderProgID, "a_position");
-    _nLoc            = glGetAttribLocation (_shaderProgID, "a_normal");
+    _cLoc            = glGetAttribLocation (_shaderProgID, "a_color");
     _mvpLoc          = glGetUniformLocation(_shaderProgID, "u_mvpMatrix");
-    _nmLoc           = glGetUniformLocation(_shaderProgID, "u_nMatrix");
-    _lightDirVSLoc   = glGetUniformLocation(_shaderProgID, "u_lightDirVS");
-    _lightDiffuseLoc = glGetUniformLocation(_shaderProgID, "u_lightDiffuse");
-    _matDiffuseLoc   = glGetUniformLocation(_shaderProgID, "u_matDiffuse");
 
     buildBox();
 
@@ -219,10 +210,6 @@ bool onPaint()
     //6) Activate the shader program and pass the uniform variables to the shader
     glUseProgram(_shaderProgID);
     glUniformMatrix4fv(_mvpLoc, 1, 0, (float*)&mvp);
-    glUniformMatrix3fv(_nmLoc,  1, 0, (float*)&nm);
-    glUniform3f(_lightDirVSLoc,   0.5f, 1.0f, 1.0f);       // light direction in view space
-    glUniform4f(_lightDiffuseLoc, 1.0f, 1.0f, 1.0f, 1.0f); // diffuse light intensity
-    glUniform4f(_matDiffuseLoc,   1.0f, 0.0f, 0.0f, 1.0f); // diffuse material reflection
 
     //7a) Activate the vertex array
     glBindVertexArray(_vao);
@@ -392,7 +379,7 @@ int main()
     _scrHeight = 480;
 
     // Create the GLFW window
-    window = glfwCreateWindow(_scrWidth, _scrHeight, "Diffuse Cube", NULL, NULL);
+    window = glfwCreateWindow(_scrWidth, _scrHeight, "Color Cube", NULL, NULL);
 
     if (!window)
     {   glfwTerminate();

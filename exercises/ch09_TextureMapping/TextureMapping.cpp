@@ -182,7 +182,7 @@ void buildSphere(float radius, int stacks, int slices)
     glUtils::buildVAO(_vao, _vboV, _vboI, 
                       vertices, _numV, sizeof(VertexPNT), 
                       indices,  _numI, sizeof(GL_UNSIGNED_INT),
-                      _shaderProgID, _pLoc, _nLoc, 0);
+                      _shaderProgID, _pLoc, -1, _nLoc);
 
     // Delete arrays on heap
     delete[] vertices;
@@ -196,7 +196,7 @@ The square lies in the x-z-plane and is facing towards -y (downwards).
 void buildSquare()
 {
     // create vertex array for interleaved position, normal and texCoord
-    //           Position,   Normal  , texCrd,
+    //                  Position,   Normal  , texCrd,
     _numV = 4;
     float vertices[] = {-1, 0, -1,  0, -1, 0,  0,  0,  // Vertex 0
                          1, 0, -1,  0, -1, 0,  1,  0,  // Vertex 1
@@ -266,11 +266,11 @@ void onInit()
     _mouseLeftDown = false;
 
     // Load textures
-    _textureID = glUtils::buildTexture("../_data/images/textures/earth2048_C.jpg");
+    _textureID = glUtils::buildTexture("../../_data/images/textures/earth2048_C.jpg");
 
     // Load, compile & link shaders
-    _shaderVertID = glUtils::buildShader("../_data/shaders/ADSTex.vert", GL_VERTEX_SHADER);
-    _shaderFragID = glUtils::buildShader("../_data/shaders/ADSTex.frag", GL_FRAGMENT_SHADER);
+    _shaderVertID = glUtils::buildShader("../../_data/shaders/ADSTex.vert", GL_VERTEX_SHADER);
+    _shaderFragID = glUtils::buildShader("../../_data/shaders/ADSTex.frag", GL_FRAGMENT_SHADER);
     _shaderProgID = glUtils::buildProgram(_shaderVertID, _shaderFragID);
 
     // Activate the shader program

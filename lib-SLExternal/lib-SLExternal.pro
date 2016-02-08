@@ -86,6 +86,7 @@ INCLUDEPATH += \
     ../include \
     glew/include \
     glfw3/include \
+    half/include \
     glfw3/src \
     png \
     jpeg-8 \

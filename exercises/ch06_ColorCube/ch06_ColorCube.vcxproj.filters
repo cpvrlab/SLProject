@@ -1,46 +1,46 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <ClCompile Include="..\lib-SLProject\source\SL\SL.cpp">
-      <Filter>lib-SLProject</Filter>
-    </ClCompile>
-    <ClCompile Include="..\lib-SLProject\source\SL\SLImage.cpp">
-      <Filter>lib-SLProject</Filter>
-    </ClCompile>
-    <ClCompile Include="..\lib-SLProject\source\SL\stdafx.cpp">
-      <Filter>lib-SLProject</Filter>
-    </ClCompile>
-    <ClCompile Include="..\lib-SLProject\source\glUtils.cpp">
-      <Filter>lib-SLProject</Filter>
-    </ClCompile>
     <ClCompile Include="DiffuseCube.cpp" />
+    <ClCompile Include="..\..\lib-SLProject\source\glUtils.cpp">
+      <Filter>lib-SLProject</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\lib-SLProject\source\SL\SL.cpp">
+      <Filter>lib-SLProject</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\lib-SLProject\source\SL\stdafx.cpp">
+      <Filter>lib-SLProject</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\lib-SLProject\source\SL\SLImage.cpp">
+      <Filter>lib-SLProject</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\include\SL.h">
+    <ClInclude Include="..\..\include\SLVec3.h">
       <Filter>include</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\SLMat4.h">
+    <ClInclude Include="..\..\include\SL.h">
       <Filter>include</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\SLVec3.h">
+    <ClInclude Include="..\..\include\SLImage.h">
       <Filter>include</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\SLImage.h">
+    <ClInclude Include="..\..\include\SLMat3.h">
       <Filter>include</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\SLMat3.h">
+    <ClInclude Include="..\..\include\SLMat4.h">
       <Filter>include</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\stdafx.h">
+    <ClInclude Include="..\..\include\glUtils.h">
       <Filter>include</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\glUtils.h">
+    <ClInclude Include="..\..\include\stdafx.h">
       <Filter>include</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\_data\shaders\Diffuse.frag" />
-    <None Include="..\_data\shaders\Diffuse.vert" />
+    <None Include="..\..\_data\shaders\Diffuse.frag" />
+    <None Include="..\..\_data\shaders\Diffuse.vert" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="include">

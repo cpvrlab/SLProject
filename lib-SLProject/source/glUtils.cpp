@@ -10,7 +10,7 @@
 
 #include <stdafx.h>           // precompiled headers
 
-#include "glUtils.h"
+#include <glUtils.h>
 #include <SLImage.h>          // for image loading
 
 #include <algorithm>
@@ -187,10 +187,15 @@ void glUtils::buildVBO(GLuint& vboID,
 //-----------------------------------------------------------------------------
 /* Builds the OpenGL Vertex Array Object (VAO) with it associated vertex buffer 
 objects. VAOs where introduces OpenGL 3.0 and reduce the overhead per draw call. 
-All vertex attributes (e.g. position, normals, texture coords, etc.) are float
-and are stored in one big VBO. We expect the data in interleaved order: First
-3 floats for position, then optionally 3 floats for the normal and last and
-optional 2 floats for a texture coordinate.
+All vertex attributes (e.g. position, colors, normals, texture coords, etc.) 
+are float and are stored in one big VBO.
+We expect the data in following interleaved order:
+- 3 floats for position
+- 3 floats for the color (optional)
+- 3 floats for the normal (optional)
+- 2 floats for a texture coordinate (optional)
+If one of the optional attributes are not in the vertex array its attribute
+location must be -1.
 */
 void glUtils::buildVAO(GLuint& vaoID,
                        GLuint& vboIDVertices, 
@@ -203,6 +208,7 @@ void glUtils::buildVAO(GLuint& vaoID,
                        GLuint  sizeIndexBytes,
                        GLint   shaderProgramID,
                        GLint   attributePositionLoc, 
+                       GLint   attributeColorLoc,
                        GLint   attributeNormalLoc,
                        GLint   attributeTexCoordLoc)
 {
@@ -231,7 +237,7 @@ void glUtils::buildVAO(GLuint& vaoID,
              GL_ELEMENT_ARRAY_BUFFER, GL_STATIC_DRAW);
 
     // Tell OpenGL how to interpret the vertex buffer                                                                                             
-    // We use an interleaved attribute layout:
+    // We use an interleaved attribute layout.
     // With vertex position, normals and texture coordinates it would look like this:                                           
     //           |               Vertex 0                |               Vertex 1                |   
     // Attribs:  |   Position0  |    Normal0   |TexCoord0|   Position1  |    Normal1   |TexCoord1|   
@@ -248,16 +254,25 @@ void glUtils::buildVAO(GLuint& vaoID,
     //5a) We always must have a position attribute
     glVertexAttribPointer(attributePositionLoc, 3, GL_FLOAT, GL_FALSE, sizeVertexBytes, 0);
     glEnableVertexAttribArray(attributePositionLoc);
+    SLint offset = 3 * sizeof(float);
 
     //5b) If we have normals they are the second attribute with 12 bytes offset
-    if (attributeNormalLoc > -1)
-    {   glVertexAttribPointer(attributeNormalLoc, 3, GL_FLOAT, GL_FALSE, sizeVertexBytes, (void*)12);
-        glEnableVertexAttribArray(attributeNormalLoc);
+    if (attributeColorLoc > -1)
+    {   glVertexAttribPointer(attributeColorLoc, 3, GL_FLOAT, GL_FALSE, sizeVertexBytes, (void*)offset);
+        glEnableVertexAttribArray(attributeColorLoc);
+        offset += 3 * sizeof(float);
     }
 
-    //5c) If we have texture coords they are the third attribute with 24 bytes offset
+    //5c) If we have normals they are the second attribute with 12 bytes offset
+    if (attributeNormalLoc > -1)
+    {   glVertexAttribPointer(attributeNormalLoc, 3, GL_FLOAT, GL_FALSE, sizeVertexBytes, (void*)offset);
+        glEnableVertexAttribArray(attributeNormalLoc);
+        offset += 3 * sizeof(float);
+    }
+
+    //5d) If we have texture coords they are the third attribute with 24 bytes offset
     if (attributeTexCoordLoc > -1)
-    {   glVertexAttribPointer(attributeTexCoordLoc, 2, GL_FLOAT, GL_FALSE, sizeVertexBytes, (void*)24);
+    {   glVertexAttribPointer(attributeTexCoordLoc, 2, GL_FLOAT, GL_FALSE, sizeVertexBytes, (void*)offset);
         glEnableVertexAttribArray(attributeTexCoordLoc);
     }
 }
