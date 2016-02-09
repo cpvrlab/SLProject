@@ -66,10 +66,16 @@ EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "lib-ovr", "lib-SLExternal\oculus\LibOVR\Projects\Win32\VS2013\LibOVR.vcxproj", "{EA50E705-5113-49E5-B105-2512EDC8DDC6}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ch09_TextureMapping", "exercises\ch09_TextureMapping\ch09_TextureMapping.vcxproj", "{0D63243A-A87C-48F6-8822-6DE3B67E2F2A}"
+	ProjectSection(ProjectDependencies) = postProject
+		{CCC645D3-B20F-431C-824A-7895D6E404DF} = {CCC645D3-B20F-431C-824A-7895D6E404DF}
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ch09_TextureMapping_Net", "exercises\ch09_TextureMapping_Net\ch09_TextureMapping_Net.csproj", "{E9A4D0F3-3B11-4912-A951-9F3307E3D66B}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ch06_ColorCube", "exercises\ch06_ColorCube\ch06_ColorCube.vcxproj", "{0146E7DF-20B2-413B-AB05-7DC1D8F0C5E9}"
+	ProjectSection(ProjectDependencies) = postProject
+		{CCC645D3-B20F-431C-824A-7895D6E404DF} = {CCC645D3-B20F-431C-824A-7895D6E404DF}
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
