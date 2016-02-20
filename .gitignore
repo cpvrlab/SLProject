@@ -12,6 +12,11 @@
 *.lib
 *.exe
 *.so
+*~
+
+moc_*.cpp
+qrc_*.cpp
+
 obj/
 ipch/
 _bin/
