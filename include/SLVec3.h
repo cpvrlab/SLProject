@@ -141,7 +141,7 @@ class SLVec3
             T       distance (const SLVec3& p) const    {SLVec3 d(x-p.x, y-p.y, z-p.z);
                                                          return d.length();}
 
-            //! Calculate the squard distance from the vector to point q
+            //! Calculate the squared distance from the vector to point q
             T       distSquared (const SLVec3& q)       {SLVec3 dir(x,y,z); dir.normalize();
                                                          T t = dir.dot(q);
                                                          SLVec3 qPrime = t*dir;
@@ -212,7 +212,7 @@ class SLVec3
             //! Earth Centered Earth Fixed (ecef) to Latitude Longitude Altitude (lla) using the WGS84 model
             /*!
             Longitude and latitude are in decimal degrees and altitude in meters.
-            The cartesian ecef coordinates are in meters.
+            The Cartesian ecef coordinates are in meters.
             See for more details: https://microem.ru/files/2012/08/GPS.G1-X-00006.pdf
             */
             void ecef2lla(const SLVec3 &ecef)
@@ -238,7 +238,7 @@ class SLVec3
             //! Latitude Longitude Altitude (lla) to Earth Centered Earth Fixed (ecef) using the WGS84 model
             /*!
             Longitude and latitude are in decimal degrees and altitude in meters.
-            The cartesian ecef coordinates are in meters.
+            The Cartesian ecef coordinates are in meters.
             See for more details: https://microem.ru/files/2012/08/GPS.G1-X-00006.pdf
             */
             void lla2ecef(const SLVec3 &LongDegLatDegAltM)
