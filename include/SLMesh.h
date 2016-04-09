@@ -46,6 +46,7 @@ The vertex attributes are stored in vectors with equal number of elements:
 \n C (vertex color)
 \n Tc (vertex texture coordinates) optional
 \n T (vertex tangents) optional
+\n Ji (vertex joint index) optional
 \n Jw (vertex joint weights) optional
 \n I16 holds the unsigned short vertex indices.
 \n I32 holds the unsigned int vertex indices.
