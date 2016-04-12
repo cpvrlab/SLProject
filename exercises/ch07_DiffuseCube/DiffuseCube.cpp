@@ -35,6 +35,7 @@ struct VertexPN
 //-----------------------------------------------------------------------------
 // GLobal application variables
 GLFWwindow* window;                 //!< The global GLFW window handle
+SLstring  _exeDir;                  //!< Directory of executable
 SLint     _scrWidth;                //!< Window width at start up
 SLint     _scrHeight;               //!< Window height at start up
 SLfloat   _scr2fbX;                 //!< Factor from screen to framebuffer coords
@@ -146,8 +147,8 @@ void onInit()
     _mouseLeftDown = false;
 
     // Load, compile & link shaders
-    _shaderVertID = glUtils::buildShader("../_data/shaders/Diffuse.vert", GL_VERTEX_SHADER);
-    _shaderFragID = glUtils::buildShader("../_data/shaders/Diffuse.frag", GL_FRAGMENT_SHADER);
+    _shaderVertID = glUtils::buildShader(_exeDir + "../_data/shaders/Diffuse.vert", GL_VERTEX_SHADER);
+    _shaderFragID = glUtils::buildShader(_exeDir + "../_data/shaders/Diffuse.frag", GL_FRAGMENT_SHADER);
     _shaderProgID = glUtils::buildProgram(_shaderVertID, _shaderFragID);
 
     // Activate the shader program
@@ -362,8 +363,11 @@ void onGLFWError(int error, const char* description)
 /*!
 The C main procedure running the GLFW GUI application.
 */
-int main()
+int main(int argc, char *argv[])
 {
+    // get executable path
+    _exeDir = SLUtils::getPath(argv[0]);
+
     // Initialize the platform independent GUI-Library GLFW
     if (!glfwInit())
     {   fprintf(stderr, "Failed to initialize GLFW\n");
