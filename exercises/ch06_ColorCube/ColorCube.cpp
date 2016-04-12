@@ -23,13 +23,13 @@
 struct VertexPC
 {
    SLVec3f p;  // vertex position [x,y,z]
-   SLCol3f n;  // vertex color [r,g,b]
+   SLCol3f c;  // vertex color [r,g,b]
 
    // Setter method
    void set(float posX, float posY, float posZ,
             float colorR, float colorG, float colorB)
    {  p.set(posX, posY, posZ);
-      n.set(colorR, colorG, colorB);
+      c.set(colorR, colorG, colorB);
    }
 };
 //-----------------------------------------------------------------------------
@@ -78,44 +78,27 @@ void buildBox()
     // create C arrays on heap
     // Define the vertex position and colors as an array of structure
     // We define the colors with the same components as the cubes corners.
-
-    _numV = 24;
+    _numV = 8;
     VertexPC* vertices = new VertexPC[_numV];
-    vertices[ 0].set(1, 1, 1,  1, 1, 1);
-    vertices[ 1].set(1, 0, 1,  1, 0, 1);
-    vertices[ 2].set(1, 0, 0,  1, 0, 0);
-    vertices[ 3].set(1, 1, 0,  1, 1, 0);
-    vertices[ 4].set(1, 1, 0,  1, 1, 0);
-    vertices[ 5].set(1, 0, 0,  1, 0, 0);
-    vertices[ 6].set(0, 0, 0,  0, 0, 0);
-    vertices[ 7].set(0, 1, 0,  0, 1, 0);
-    vertices[ 8].set(0, 0, 1,  0, 0, 1);
-    vertices[ 9].set(0, 1, 1,  0, 1, 1);
-    vertices[10].set(0, 1, 0,  0, 1, 0);
-    vertices[11].set(0, 0, 0,  0, 0, 0);
-    vertices[12].set(1, 1, 1,  1, 1, 1);
-    vertices[13].set(0, 1, 1,  0, 1, 1);
-    vertices[14].set(0, 0, 1,  0, 0, 1);
-    vertices[15].set(1, 0, 1,  1, 0, 1);
-    vertices[16].set(1, 1, 1,  1, 1, 1);
-    vertices[17].set(1, 1, 0,  1, 1, 0);
-    vertices[18].set(0, 1, 0,  0, 1, 0);
-    vertices[19].set(0, 1, 1,  0, 1, 1);
-    vertices[20].set(0, 0, 0,  0, 0, 0);
-    vertices[21].set(1, 0, 0,  1, 0, 0);
-    vertices[22].set(1, 0, 1,  1, 0, 1);
-    vertices[23].set(0, 0, 1,  0, 0, 1);
+    vertices[ 0].set(1, 1, 1,  1, 1, 1); //LTN
+    vertices[ 1].set(1, 0, 1,  1, 0, 1); //LBN
+    vertices[ 2].set(1, 0, 0,  1, 0, 0); //LBF
+    vertices[ 3].set(1, 1, 0,  1, 1, 0); //LTF
+    vertices[ 4].set(0, 0, 0,  0, 0, 0); //RBF
+    vertices[ 5].set(0, 0, 1,  0, 0, 1); //RBN
+    vertices[ 6].set(0, 1, 1,  0, 1, 1); //RTN
+    vertices[ 7].set(0, 1, 0,  0, 1, 0); //RTF
 
     // Define the triangle indexes of the cubes vertices
     _numI = 36;
     GLuint* indices = new GLuint[_numI];
     int n = 0;
-    indices[n++] =  0; indices[n++] =  1; indices[n++] =  2;  indices[n++] =  0; indices[n++] =  2; indices[n++] =  3;
-    indices[n++] =  4; indices[n++] =  5; indices[n++] =  6;  indices[n++] =  4; indices[n++] =  6; indices[n++] =  7;
-    indices[n++] =  8; indices[n++] =  9; indices[n++] = 10;  indices[n++] =  8; indices[n++] = 10; indices[n++] = 11;
-    indices[n++] = 12; indices[n++] = 13; indices[n++] = 14;  indices[n++] = 12; indices[n++] = 14; indices[n++] = 15;
-    indices[n++] = 16; indices[n++] = 17; indices[n++] = 18;  indices[n++] = 16; indices[n++] = 18; indices[n++] = 19;
-    indices[n++] = 20; indices[n++] = 21; indices[n++] = 22;  indices[n++] = 20; indices[n++] = 22; indices[n++] = 23;
+    indices[n++] =  0; indices[n++] =  1; indices[n++] =  2;  indices[n++] =  0; indices[n++] =  2; indices[n++] =  3; // Right
+    indices[n++] =  4; indices[n++] =  5; indices[n++] =  6;  indices[n++] =  4; indices[n++] =  6; indices[n++] =  7; // Left
+    indices[n++] =  0; indices[n++] =  3; indices[n++] =  7;  indices[n++] =  0; indices[n++] =  7; indices[n++] =  6; // Top
+    indices[n++] =  1; indices[n++] =  5; indices[n++] =  2;  indices[n++] =  2; indices[n++] =  5; indices[n++] =  4; // Bottom
+    indices[n++] =  0; indices[n++] =  5; indices[n++] =  1;  indices[n++] =  0; indices[n++] =  6; indices[n++] =  5; // Near
+    indices[n++] =  4; indices[n++] =  7; indices[n++] =  3;  indices[n++] =  3; indices[n++] =  2; indices[n++] =  4; // Far
 
     // Generate the OpenGL vertex array object
     glUtils::buildVAO(_vao, _vboV, _vboI, 
