@@ -81,25 +81,25 @@ void buildBox()
     // We define the colors with the same components as the cubes corners.
     _numV = 8;
     VertexPC* vertices = new VertexPC[_numV];
-    vertices[ 0].set(1, 1, 1,  1, 1, 1); //LTN
-    vertices[ 1].set(1, 0, 1,  1, 0, 1); //LBN
-    vertices[ 2].set(1, 0, 0,  1, 0, 0); //LBF
-    vertices[ 3].set(1, 1, 0,  1, 1, 0); //LTF
-    vertices[ 4].set(0, 0, 0,  0, 0, 0); //RBF
-    vertices[ 5].set(0, 0, 1,  0, 0, 1); //RBN
-    vertices[ 6].set(0, 1, 1,  0, 1, 1); //RTN
-    vertices[ 7].set(0, 1, 0,  0, 1, 0); //RTF
+    vertices[0].set(1, 1, 1,  1, 1, 1); //LTN
+    vertices[1].set(1, 0, 1,  1, 0, 1); //LBN
+    vertices[2].set(1, 0, 0,  1, 0, 0); //LBF
+    vertices[3].set(1, 1, 0,  1, 1, 0); //LTF
+    vertices[4].set(0, 0, 0,  0, 0, 0); //RBF
+    vertices[5].set(0, 0, 1,  0, 0, 1); //RBN
+    vertices[6].set(0, 1, 1,  0, 1, 1); //RTN
+    vertices[7].set(0, 1, 0,  0, 1, 0); //RTF
 
     // Define the triangle indexes of the cubes vertices
     _numI = 36;
     GLuint* indices = new GLuint[_numI];
     int n = 0;
-    indices[n++] =  0; indices[n++] =  1; indices[n++] =  2;  indices[n++] =  0; indices[n++] =  2; indices[n++] =  3; // Right
-    indices[n++] =  4; indices[n++] =  5; indices[n++] =  6;  indices[n++] =  4; indices[n++] =  6; indices[n++] =  7; // Left
-    indices[n++] =  0; indices[n++] =  3; indices[n++] =  7;  indices[n++] =  0; indices[n++] =  7; indices[n++] =  6; // Top
-    indices[n++] =  1; indices[n++] =  5; indices[n++] =  2;  indices[n++] =  2; indices[n++] =  5; indices[n++] =  4; // Bottom
-    indices[n++] =  0; indices[n++] =  5; indices[n++] =  1;  indices[n++] =  0; indices[n++] =  6; indices[n++] =  5; // Near
-    indices[n++] =  4; indices[n++] =  7; indices[n++] =  3;  indices[n++] =  3; indices[n++] =  2; indices[n++] =  4; // Far
+    indices[n++] = 0; indices[n++] = 1; indices[n++] = 2;  indices[n++] = 0; indices[n++] = 2; indices[n++] = 3; // Right
+    indices[n++] = 4; indices[n++] = 5; indices[n++] = 6;  indices[n++] = 4; indices[n++] = 6; indices[n++] = 7; // Left
+    indices[n++] = 0; indices[n++] = 3; indices[n++] = 7;  indices[n++] = 0; indices[n++] = 7; indices[n++] = 6; // Top
+    indices[n++] = 1; indices[n++] = 5; indices[n++] = 2;  indices[n++] = 2; indices[n++] = 5; indices[n++] = 4; // Bottom
+    indices[n++] = 0; indices[n++] = 5; indices[n++] = 1;  indices[n++] = 0; indices[n++] = 6; indices[n++] = 5; // Near
+    indices[n++] = 4; indices[n++] = 7; indices[n++] = 3;  indices[n++] = 3; indices[n++] = 2; indices[n++] = 4; // Far
 
     // Generate the OpenGL vertex array object
     glUtils::buildVAO(_vao, _vboV, _vboI, 
