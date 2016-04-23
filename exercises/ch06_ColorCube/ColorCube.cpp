@@ -3,7 +3,7 @@
 //  Purpose:   Core profile OpenGL application with a colored cube with 
 //             GLFW as the OS GUI interface (http://www.glfw.org/).
 //  Author:    Marcus Hudritsch
-//  Date:      September 2012 (HS12)
+//  Date:      April 2016 (FS16)
 //  Copyright: Marcus Hudritsch, Switzerland
 //             THIS SOFTWARE IS PROVIDED FOR EDUCATIONAL PURPOSE ONLY AND
 //             WITHOUT ANY WARRANTIES WHETHER EXPRESSED OR IMPLIED.
