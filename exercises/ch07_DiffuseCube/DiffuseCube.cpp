@@ -9,10 +9,9 @@
 //             WITHOUT ANY WARRANTIES WHETHER EXPRESSED OR IMPLIED.
 //#############################################################################
 
-#include "stdafx.h"
+#include "stdafx.h"    // Precompiled Headers
 #include "glUtils.h"   // Basics for OpenGL shaders, buffers & textures
 #include "SL.h"        // Basic SL type definitions
-#include "SLImage.h"   // Image class for image loading
 #include "SLVec3.h"    // 3D vector class
 #include "SLMat4.h"    // 4x4 matrix class
 #include "../lib-SLExternal/glew/include/GL/glew.h"     // OpenGL headers
