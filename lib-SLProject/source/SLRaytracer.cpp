@@ -35,7 +35,8 @@ SLRaytracer::SLRaytracer()
     name("myCoolRaytracer");
    
     _state = rtReady;
-    _distributed = true;
+    _distributed = false;
+    _continuous = false;
     _maxDepth = 5;
     _aaThreshold = 0.3f; // = 10% color difference
     _aaSamples = 3;
@@ -46,9 +47,6 @@ SLRaytracer::SLRaytracer()
     _wrap_s       = GL_CLAMP_TO_EDGE;
     _wrap_t       = GL_CLAMP_TO_EDGE;
     _resizeToPow2 = false;
-   
-    _continuous = false;
-    _distributed = true;
 }
 //-----------------------------------------------------------------------------
 SLRaytracer::~SLRaytracer()
