@@ -35,7 +35,7 @@ SLRaytracer::SLRaytracer()
     name("myCoolRaytracer");
    
     _state = rtReady;
-    _distributed = false;
+    _distributed = true;
     _continuous = false;
     _maxDepth = 5;
     _aaThreshold = 0.3f; // = 10% color difference
@@ -76,8 +76,8 @@ SLbool SLRaytracer::renderClassic(SLSceneView* sv)
     double t1 = SLScene::current->timeSec();
     double tStart = t1;
 
-    for (SLuint y = 0; y < _images[0]->height(); ++y)
-    {   for (SLuint x = 0; x < _images[0]->width(); ++x)
+    for (SLuint y = 100; y < _images[0]->height(); ++y)
+    {   for (SLuint x = 100; x < _images[0]->width(); ++x)
         {
             SLRay primaryRay;
             setPrimaryRay((SLfloat)x, (SLfloat)y, &primaryRay);
