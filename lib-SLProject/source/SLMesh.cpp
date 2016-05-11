@@ -154,7 +154,7 @@ void SLMesh::draw(SLSceneView* sv, SLNode* node)
         if (sv->drawBit(SL_DB_WIREMESH) || node->drawBit(SL_DB_WIREMESH))
         {
             #if defined(SL_GLES2)
-            primitiveType = PT_lineLoop; // There is no polygon mode on ES2!
+            primitiveType = PT_lineLoop; // There is no polygon line or point mode on ES2!
             #else
             _stateGL->polygonLine(true);
             #endif

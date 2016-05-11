@@ -709,8 +709,7 @@ void SLNode::dumpRec()
 }
 //-----------------------------------------------------------------------------
 /*!
-recursively sets the specified drawbit on or off.
-See also SLDrawBits.
+Recursively sets the specified drawbit on or off. See also SLDrawBits.
 */
 void SLNode::setDrawBitsRec(SLuint bit, SLbool state)
 {
@@ -719,7 +718,18 @@ void SLNode::setDrawBitsRec(SLuint bit, SLbool state)
         child->setDrawBitsRec(bit, state);
 }
 //-----------------------------------------------------------------------------
+/*!
+Recursively sets the specified OpenGL primitive type.
+*/
+void SLNode::setPrimitiveTypeRec (SLGLPrimitiveType primitiveType)
+{
+    for (auto child : _children)
+        child->setPrimitiveTypeRec(primitiveType);
 
+    for (auto mesh : _meshes)
+        mesh->primitive(primitiveType);
+}
+//-----------------------------------------------------------------------------
 
 
 //-----------------------------------------------------------------------------

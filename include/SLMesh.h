@@ -148,14 +148,19 @@ class SLMesh : public SLObject
             SLbool          hitTriangleOS   (SLRay* ray, SLNode* node, SLuint iT);
             void            useHalfFloats   (SLbool useHalf);
 
-            SLGLPrimitiveType primitive       (){return _primitive;}
             void            transformSkin   ();
-            void            skinMethod      (SLSkinMethod method);
-            SLSkinMethod    skinMethod      () const { return _skinMethod; }
-            void            skeleton        (SLSkeleton* skel) { _skeleton = skel; }
-      const SLSkeleton*     skeleton        () const { return _skeleton; }
-            SLbool          addWeight       (SLint vertId, SLuint jointId, SLfloat weight);
+
+            // Getters
+            SLGLPrimitiveType primitive     () const {return _primitive;}
+            SLSkinMethod    skinMethod      () const {return _skinMethod;}
+      const SLSkeleton*     skeleton        () const {return _skeleton;}
             SLuint          numI            () {return (SLuint)(I16.size() ? I16.size() : I32.size());}
+
+            // Setters
+            void            primitive       (SLGLPrimitiveType pt) {_primitive = pt;}
+            void            skinMethod      (SLSkinMethod method);
+            void            skeleton        (SLSkeleton* skel) { _skeleton = skel; }
+            SLbool          addWeight       (SLint vertId, SLuint jointId, SLfloat weight);
         
             // getter for position and normal data for rendering
             SLVec3f         finalP          (SLuint i) {return _finalP->operator[](i);}

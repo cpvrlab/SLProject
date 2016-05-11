@@ -805,6 +805,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         SLNode* tower = importer.load("OBJ/Christoffelturm/christoffelturm.obj");
         #endif
         tower->rotate(90, -1,0,0);
+        tower->setPrimitiveTypeRec(PT_points);
 
         SLNode* scene = new SLNode("Scene");
         scene->addChild(light1);

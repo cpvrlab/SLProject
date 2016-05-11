@@ -147,6 +147,7 @@ class SLNode: public SLObject, public SLEventHandler
     virtual SLAABBox&       updateAABBRec       ();
     virtual void            dumpRec             ();
             void            setDrawBitsRec      (SLuint bit, SLbool state);
+            void            setPrimitiveTypeRec (SLGLPrimitiveType primitiveType);
 
             // Mesh methods (see impl. for details)
             SLint           numMeshes           () {return (SLint)_meshes.size();}

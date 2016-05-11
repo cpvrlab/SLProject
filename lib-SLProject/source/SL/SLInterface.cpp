@@ -450,12 +450,12 @@ bool slUsesVideoImage()
 After grabbing the image is copied to the SLScenes::_videoTexture 
 Not all application will use OpenCV for capturing live video.
 */
-void slGrabCopyVideoImage()
+void slGrabCopyVideoImage(SLint device)
 {
     #ifdef SL_HAS_OPENCV
     try
     {   if (!gCaptureDevice)
-        {   gCaptureDevice = new cv::VideoCapture(0);
+        {   gCaptureDevice = new cv::VideoCapture(device);
             if (!gCaptureDevice->isOpened())
                 return;
             if (SL::noTestIsRunning())
