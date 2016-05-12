@@ -620,12 +620,12 @@ SLbool SLCamera::onMouseDown(const SLMouseButton button,
 {  
     SLScene* s = SLScene::current;
 
-    // Determine the lookAt point by ray cast
+    // Determine the lookAt point by ray cast to the screen center
     eyeToPixelRay((SLfloat)(_scrW>>1), (SLfloat)(_scrH>>1), &_lookAtRay);
-    //eyeToPixelRay(x, y, &_lookAtRay);
    
-    if (s->root3D()) s->root3D()->hitRec(&_lookAtRay);
-    
+    if (s->root3D())
+        s->root3D()->hitRec(&_lookAtRay);
+
     // Init both position in case that the second finger came with delay
     _oldTouchPos1.set((SLfloat)x, (SLfloat)y);
     _oldTouchPos2.set((SLfloat)x, (SLfloat)y);
@@ -637,7 +637,7 @@ SLbool SLCamera::onMouseDown(const SLMouseButton button,
 SLbool SLCamera::onMouseMove(const SLMouseButton button, 
                              const SLint x, const SLint y, const SLKey mod)
 {  
-    if (button == MB_left) //================================================
+    if (button == MB_left) //==================================================
     {   
         // new vars needed
         SLVec3f position = this->translation();
@@ -647,7 +647,6 @@ SLbool SLCamera::onMouseMove(const SLMouseButton button,
 
         // The lookAt point
         SLVec3f laP = position + _focalDist * forward;
-
          
         // Determine rotation point as the center of the AABB of the hitNode
         SLVec3f rtP;
@@ -659,7 +658,7 @@ SLbool SLCamera::onMouseMove(const SLMouseButton button,
         SLfloat dY = (y-_oldTouchPos1.y) * _rotFactor;
         SLfloat dX = (x-_oldTouchPos1.x) * _rotFactor;
 
-        if (_camAnim==CA_turntableYUp) //.......................................
+        if (_camAnim==CA_turntableYUp) //......................................
         {
             SLMat4f rot;
             rot.translate(rtP);
@@ -670,7 +669,7 @@ SLbool SLCamera::onMouseMove(const SLMouseButton button,
             _om.setMatrix(rot * _om);
             needWMUpdate();
         }
-        else if (_camAnim==CA_turntableZUp) //..................................
+        else if (_camAnim==CA_turntableZUp) //.................................
         {
             SLMat4f rot;
             rot.translate(rtP);
@@ -681,7 +680,7 @@ SLbool SLCamera::onMouseMove(const SLMouseButton button,
             _om.setMatrix(rot * _om);
             needWMUpdate();
         }
-        else if (_camAnim==CA_walkingYUp) //....................................
+        else if (_camAnim==CA_walkingYUp) //...................................
         {
             dY *= 0.5f; 
             dX *= 0.5f; 
@@ -693,7 +692,7 @@ SLbool SLCamera::onMouseMove(const SLMouseButton button,
             forward.set(rot.multVec(forward));
             lookAt(position + forward);
         }
-        else if (_camAnim==CA_walkingZUp) //....................................
+        else if (_camAnim==CA_walkingZUp) //...................................
         {
             dY *= 0.5f; 
             dX *= 0.5f; 
@@ -709,7 +708,7 @@ SLbool SLCamera::onMouseMove(const SLMouseButton button,
         _oldTouchPos1.set((SLfloat)x,(SLfloat)y);
     } 
     else
-    if (button == MB_middle) //==============================================
+    if (button == MB_middle) //================================================
     {   if (_camAnim==CA_turntableYUp || _camAnim==CA_turntableZUp)
         {  
             // Calculate the fraction delta of the mouse movement
@@ -740,7 +739,7 @@ SLbool SLCamera::onMouseMove(const SLMouseButton button,
             }
             _oldTouchPos1.set((SLfloat)x,(SLfloat)y);
         }
-    } //========================================================================
+    } //=======================================================================
     return true;
 }
 //-----------------------------------------------------------------------------
