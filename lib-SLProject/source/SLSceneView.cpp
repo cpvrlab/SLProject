@@ -484,7 +484,6 @@ SLbool SLSceneView::draw3DGL(SLfloat elapsedTimeMS)
     // Render into framebuffer if Oculus stereo projection is used
     if (_camera->projection() == P_stereoSideBySideD)
     {   s->oculus()->beginFrame();
-        
         _oculusFB.bindFramebuffer((SLint)(s->oculus()->resolutionScale() * (SLfloat)_scrW), 
                                   (SLint)(s->oculus()->resolutionScale() * (SLfloat)_scrH)); 
     }

@@ -38,7 +38,7 @@
      <x>0</x>
      <y>0</y>
      <width>906</width>
-     <height>22</height>
+     <height>21</height>
     </rect>
    </property>
    <property name="defaultUp">
@@ -1864,7 +1864,7 @@ QSlider::handle:horizontal:disabled {
    </property>
    <property name="icon">
     <iconset resource="resources.qrc">
-     <normaloff>:/images/RT_gl.png</normaloff>:/images/RT_gl.png</iconset>
+     <normaloff>:/images/renderGL.png</normaloff>:/images/renderGL.png</iconset>
    </property>
    <property name="text">
     <string>OpenGL</string>
