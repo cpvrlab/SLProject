@@ -295,7 +295,7 @@ void SLGLState::depthMask(SLbool stateNew)
 }
 //-----------------------------------------------------------------------------
 /*! SLGLState::cullFace sets the GL_CULL_FACE state but only if the state 
-really changes. If face culling is turned on no backfaces are processed. 
+really changes. If face culling is turned on no back faces are processed. 
 */
 void SLGLState::cullFace(SLbool stateNew)
 {
@@ -400,10 +400,7 @@ void SLGLState::polygonOffset(SLbool stateNew, SLfloat factor, SLfloat units)
 void SLGLState::viewport(SLint x, SLint y, SLsizei width, SLsizei height)
 {
 
-    if (_viewport.x!=x ||
-        _viewport.y!=y ||
-        _viewport.z!=width ||
-        _viewport.w!=height)
+    if (_viewport.x!=x || _viewport.y!=y || _viewport.z!=width || _viewport.w!=height)
     {   glViewport(x, y, width, height);
         _viewport.set(x, y, width, height);
     
@@ -417,8 +414,7 @@ void SLGLState::viewport(SLint x, SLint y, SLsizei width, SLsizei height)
 */
 void SLGLState::colorMask(SLint r, SLint g, SLint b, SLint a)
 {
-    if (r != _colorMaskR || g != _colorMaskG || 
-        b != _colorMaskB || a != _colorMaskA)
+    if (r != _colorMaskR || g != _colorMaskG || b != _colorMaskB || a != _colorMaskA)
     {   glColorMask(r, g, b, a);
         _colorMaskR = r;
         _colorMaskG = g;
