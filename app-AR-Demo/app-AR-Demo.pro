@@ -1,6 +1,43 @@
-TEMPLATE = app
-CONFIG += console c++11
-CONFIG -= app_bundle
-CONFIG -= qt
+##############################################################################
+#  File:      app-AR-Demo.pro
+#  Purpose:   QMake project definition file for demo application with GLFW
+#  Author:    Michael Göttlicher
+#  Date:      May 2016
+#  Copyright: Marcus Hudritsch, Switzerland
+#             THIS SOFTWARE IS PROVIDED FOR EDUCATIONAL PURPOSE ONLY AND
+#             WITHOUT ANY WARRANTIES WHETHER EXPRESSED OR IMPLIED.
+##############################################################################
 
-SOURCES += main.cpp
+TEMPLATE = app
+TARGET = app-AR-Demo
+
+CONFIG += console
+CONFIG -= qt
+CONFIG += glfw
+CONFIG += warn_off
+CONFIG += app_bundle
+
+DEFINES += "SL_STARTSCENE=C_sceneMeshLoad"
+
+include(../SLProjectCommon.pro)
+
+DESTDIR     = ../_bin-$$CONFIGURATION-$$PLATFORM
+OBJECTS_DIR = ../intermediate/$$TARGET/$$CONFIGURATION/$$PLATFORM
+
+LIBS += -L$$PWD/../_lib/$$CONFIGURATION/$$PLATFORM -llib-SLProject
+LIBS += -L$$PWD/../_lib/$$CONFIGURATION/$$PLATFORM -llib-SLExternal
+LIBS += -L$$PWD/../_lib/$$CONFIGURATION/$$PLATFORM -llib-assimp
+win32 {LIBS += -L../_lib/$$CONFIGURATION/$$PLATFORM -llib-ovr}
+
+win32 {POST_TARGETDEPS += $$PWD/../_lib/$$CONFIGURATION/$$PLATFORM/lib-SLProject.lib}
+else  {POST_TARGETDEPS += $$PWD/../_lib/$$CONFIGURATION/$$PLATFORM/liblib-SLProject.a}
+   
+SOURCES += \
+   glfwMain.cpp \
+   ARSceneView.cpp
+	   
+HEADERS += \
+    ARSceneView.h
+
+include(../SLProjectCommonLibraries.pro)
+include(../SLProjectDeploy.pro)

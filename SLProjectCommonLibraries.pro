@@ -54,10 +54,11 @@ unix:!macx:!android {
     # sudo apt-get install libopencv-core-dev libopencv-imgproc-dev libopencv-video-dev libopencv-videoio-dev
     OPENCV_LIB_DIRS += /usr/lib #default
     OPENCV_LIB_DIRS += /usr/lib/x86_64-linux-gnu #ubuntu
+    OPENCV_LIB_DIRS += /home/ghm1/libs/opencv-3.1.0/release/lib #ubuntu
     for(dir,OPENCV_LIB_DIRS) {
         !opencv { #If opencv was already found, skip this loop
             CONFIG += opencv
-            OPENCV_LIBS =  opencv_core opencv_imgproc opencv_imgproc opencv_video opencv_videoio
+            OPENCV_LIBS =  opencv_core opencv_imgproc opencv_imgproc opencv_video opencv_videoio opencv_calib3d
             #Scan for opencv libs, if one is missing, remove the opencv flag.
             for(lib,OPENCV_LIBS):!exists($$dir/lib$${lib}.so*):CONFIG -= opencv
             opencv {

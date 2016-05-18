@@ -162,7 +162,7 @@ void qtGLWidget::paintGL()
     {
         // If live video image is requested grab it and copy it
         if (slUsesVideoImage())
-            slGrabCopyVideoImage();
+            slGrabCopyVideoImage(_svIndex);
 
         // makes the OpenGL context the current for this widget
         makeCurrent();  
