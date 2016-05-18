@@ -60,6 +60,8 @@ SLSceneView::SLSceneView() : SLObject()
     // No gaps, so add it and get the index back.
     s->sceneViews().push_back(this);
     _index = (SLuint)s->sceneViews().size() - 1;
+
+    _tracker = nullptr;
 }
 //-----------------------------------------------------------------------------
 SLSceneView::~SLSceneView()
@@ -503,14 +505,13 @@ SLbool SLSceneView::draw3DGL(SLfloat elapsedTimeMS)
     //////////////////////////////
     // 3. Set Projection & View //
     //////////////////////////////
-
     // Set projection and viewport
-    if (_camera->projection() > P_monoOrthographic)   
+    if (_camera->projection() > P_monoOrthographic)
          _camera->setProjection(this, ET_left);
     else _camera->setProjection(this, ET_center);
 
     // Set view center eye or left eye
-    if (_camera->projection() > P_monoOrthographic)   
+    if (_camera->projection() > P_monoOrthographic)
          _camera->setView(this, ET_left);
     else _camera->setView(this, ET_center);
 
@@ -555,7 +556,8 @@ SLbool SLSceneView::draw3DGL(SLfloat elapsedTimeMS)
     GET_GL_ERROR; // Check if any OGL errors occurred
     return camUpdated;
 }
-//----------------------------------------------------------------------------- 
+//-----------------------------------------------------------------------------
+
 /*!
 SLSceneView::draw3DGLAll renders the opaque nodes before blended nodes.
 Opaque nodes must be drawn before the blended, transparent nodes.

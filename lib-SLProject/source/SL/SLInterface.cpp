@@ -450,7 +450,7 @@ bool slUsesVideoImage()
 After grabbing the image is copied to the SLScenes::_videoTexture 
 Not all application will use OpenCV for capturing live video.
 */
-void slGrabCopyVideoImage(SLint device)
+void slGrabCopyVideoImage(int sceneViewIndex, SLint device)
 {
     #ifdef SL_HAS_OPENCV
     try
@@ -479,6 +479,11 @@ void slGrabCopyVideoImage(SLint device)
             // OpenGL ES doesn't support BGR or BGRA
             cvtColor(frame, frame, CV_BGR2RGB);
             slCopyVideoImage(frame.cols, frame.rows, format, frame.data, true);
+
+            //set image to tracker instance in SceneView for augmented reality demo
+            SLSceneView* sv = SLScene::current->sv(sceneViewIndex);
+            if( sv->tracker())
+                sv->tracker()->setImage(frame);
         } else
         {   
 			static bool logOnce = true;
