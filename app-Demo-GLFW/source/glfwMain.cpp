@@ -10,7 +10,7 @@
 
 #include <stdafx.h>
 #ifdef SL_MEMLEAKDETECT       // set in SL.h for debug config only
-#include <debug_new.h>        // memory leak detector
+#include <debug_new.h>        // my own memory leak detector
 #endif
 
 #include <GLFW/glfw3.h>
