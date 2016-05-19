@@ -13,6 +13,7 @@
 #include <ARTracker.h>
 
 //-----------------------------------------------------------------------------
+
 /*!
 SLSceneView derived class for a node transform test application that
 demonstrates all transform possibilities in SLNode
@@ -20,6 +21,14 @@ demonstrates all transform possibilities in SLNode
 class ARSceneView : public SLSceneView
 {
     public:
+        enum ARSceneViewMode
+        {
+            CalibrationMode,
+            Idle,
+            ChessboardMode,
+            ArucoMode
+        };
+
                 ARSceneView();
                 ~ARSceneView();
         void    initChessboardTracking  (string camParamsFilename, int boardHeight, int boardWidth,
@@ -31,13 +40,22 @@ class ARSceneView : public SLSceneView
 
         // From SLSceneView overwritten
         void                preDraw();
-        void                postDraw() {}
+        void                postDraw();
         void                postSceneLoad();
+
+        SLbool              onKeyPress(const SLKey key, const SLKey mod);
 
     private:
         void                loadNewFrameIntoTracker();
 
+        void                renderText();
+        void                updateInfoText();
+
         std::map<int,SLNode*> _arucoNodes;
         ARTracker*      _tracker;            //!< Tracker instance
+
+        SLText*             _infoText;      //!< node for all text display
+
+        ARSceneViewMode     _curMode;
 };
 //-----------------------------------------------------------------------------

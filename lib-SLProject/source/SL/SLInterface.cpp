@@ -481,7 +481,6 @@ void slGrabCopyVideoImage(int sceneViewIndex, SLint device)
             slCopyVideoImage(frame.cols, frame.rows, format, frame.data, true);
 
             std::shared_ptr<SLImage> img( new SLImage );
-            //SLImage* img = new SLImage;
             img->load(frame.cols,
                      frame.rows,
                      format,
