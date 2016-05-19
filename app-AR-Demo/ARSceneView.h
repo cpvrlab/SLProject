@@ -19,13 +19,18 @@ demonstrates all transform possibilities in SLNode
 class ARSceneView : public SLSceneView
 {
     public:
-                            ARSceneView(string camParamsFilename, int boardHeight, int boardWidth,
-                                        float edgeLengthM );
                            ~ARSceneView();
+        void initChessboardTracking(string camParamsFilename, int boardHeight, int boardWidth,
+            float edgeLengthM );
+        void initArucoTracking(string camParamsFilename, int dictionaryId, float markerLength,
+            string detectParamFilename );
 
         // From SLSceneView overwritten
-        void                preDraw() {}
+        void                preDraw();
         void                postDraw() {}
-        void                postSceneLoad() {}
+        void                postSceneLoad();
+
+    private:
+        std::map<int,SLNode*> _arucoNodes;
 };
 //-----------------------------------------------------------------------------

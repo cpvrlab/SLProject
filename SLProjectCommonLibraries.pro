@@ -58,7 +58,7 @@ unix:!macx:!android {
     for(dir,OPENCV_LIB_DIRS) {
         !opencv { #If opencv was already found, skip this loop
             CONFIG += opencv
-            OPENCV_LIBS =  opencv_core opencv_imgproc opencv_imgproc opencv_video opencv_videoio opencv_calib3d
+            OPENCV_LIBS =  opencv_core opencv_imgproc opencv_imgproc opencv_video opencv_videoio opencv_calib3d opencv_imgcodecs opencv_aruco opencv_highgui
             #Scan for opencv libs, if one is missing, remove the opencv flag.
             for(lib,OPENCV_LIBS):!exists($$dir/lib$${lib}.so*):CONFIG -= opencv
             opencv {
@@ -85,6 +85,7 @@ unix:!macx:!android {
     LIBS += -lpthread   #libpthread
     LIBS += -lpng
     LIBS += -lz
+    INCLUDEPATH += /home/ghm1/libs/opencv-3.1.0/release/include
     QMAKE_CXXFLAGS += -std=c++11
     QMAKE_CXXFLAGS += -Wunused-parameter
     QMAKE_CXXFLAGS += -Wno-unused-parameter

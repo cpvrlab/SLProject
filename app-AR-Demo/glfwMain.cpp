@@ -43,12 +43,29 @@ SLKey       modifiers=K_none;      //!< last modifier keys
 SLbool      fullscreen = false;     //!< flag if window is in fullscreen mode
 
 ARSceneView* nodeARSV;       //!< pointer to the sceneview
-string filename = "out_camera_data.xml";
+
+//-----------------------------------------------------------------------------
+//AR / Tracking parameter
+
+//common parameter
+string calibFilename = "michis_calibration.xml";
+//active Tracking type
+//SLTracker::TrackingTypes trackingType = SLTracker::ARUCO;
+SLTracker::TrackingTypes trackingType = SLTracker::CHESSBOARD;
+string    calibDir;                 //!< directory of calibration files
+
+//chessboard tracking parameter
 //chessboard size (number of inner corners)
 int boardHeight = 6;
 int boardWidth = 8;
 //edge length of chessboard square in meters
 float edgeLengthM = 0.035;
+
+//aruco parameter
+string arucoDetectorParams = "aruco_detector_params.yml";
+SLstring    detectorParamsDir;                 //!< directory of detector_param files
+float arucoEdgeLength = 0.06f;
+int arucoDictionaryId = 0;
 
 //-----------------------------------------------------------------------------
 /*! 
@@ -71,20 +88,6 @@ SLbool onPaint()
     // If live video image is requested grab it and copy it
     if (slUsesVideoImage())
         slGrabCopyVideoImage(svIndex, 1);
-
-    //track chessboard
-    SLTracker* tracker = SLScene::current->sv(svIndex)->tracker();
-    if(tracker)
-    {
-        if( tracker->trackChessboard())
-        {
-            //update camera with calculated view matrix
-            SLMat4f vm = tracker->getViewMatrix();
-            //invert view matrix because we want to set the camera object matrix
-            SLMat4f camOm = vm.inverse();
-            SLScene::current->sv(svIndex)->camera()->om( camOm );
-        }
-    }
 
     bool viewNeedsRepaint = slUpdateAndPaint(svIndex);
 
@@ -375,7 +378,13 @@ void onGLFWError(int error, const char* description)
 //! Alternative SceneView creation function passed by slCreateSceneView
 SLuint createARSceneView()
 {
-    nodeARSV = new ARSceneView(filename, boardHeight, boardWidth, edgeLengthM );
+    nodeARSV = new ARSceneView;
+
+    if( trackingType == SLTracker::CHESSBOARD )
+        nodeARSV->initChessboardTracking(calibDir + calibFilename, boardHeight, boardWidth, edgeLengthM );
+    else if( trackingType == SLTracker::ARUCO )
+        nodeARSV->initArucoTracking(calibDir + calibFilename, arucoDictionaryId, arucoEdgeLength, detectorParamsDir + arucoDetectorParams );
+
     return nodeARSV->index();
 }
 //-----------------------------------------------------------------------------
@@ -384,6 +393,9 @@ The C main procedure running the GLFW GUI application.
 */
 int main(int argc, char *argv[])
 {  
+//    SLTracker tracker;
+//    tracker.drawArucoMarkerBoard( 2, 2, 200, 200, 0, "aruco_marker_test_4.png", false );
+
     // set command line arguments
     SLVstring cmdLineArgs;
     for(int i = 0; i < argc; i++)
@@ -454,6 +466,9 @@ int main(int argc, char *argv[])
                   exeDir + "../_data/shaders/",
                   exeDir + "../_data/models/",
                   exeDir + "../_data/images/textures/");
+
+    detectorParamsDir = exeDir + "../_data/detector_params/";
+    calibDir = exeDir + "../_data/calibrations/";
 
     svIndex = slCreateSceneView((int)(scrWidth  * scr2fbX),
                                 (int)(scrHeight * scr2fbY),

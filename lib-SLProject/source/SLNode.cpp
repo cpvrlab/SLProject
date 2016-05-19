@@ -228,6 +228,7 @@ void SLNode::addChild(SLNode* child)
         child->parent()->deleteChild(child);
 
     _children.push_back(child);
+    _isAABBUpToDate = false;
     child->parent(this);
 }
 //-----------------------------------------------------------------------------
@@ -244,6 +245,7 @@ bool SLNode::insertChild(SLNode* insertC, SLNode* afterC)
     if (found != _children.end())
     {   _children.insert(found, insertC);
         insertC->parent(this);
+        _isAABBUpToDate = false;
         return true;
     }
     return false;
@@ -267,6 +269,7 @@ bool SLNode::deleteChild()
     if (_children.size() > 0)
     {   delete _children[_children.size()-1];
         _children.pop_back();
+        _isAABBUpToDate = false;
         return true;
     }
     return false;
@@ -282,6 +285,7 @@ bool SLNode::deleteChild(SLNode* child)
     {   if (_children[i]==child)
         {   _children.erase(_children.begin()+i);
             delete child;
+            _isAABBUpToDate = false;
             return true;
         }
     }
