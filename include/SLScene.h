@@ -45,7 +45,8 @@ class SLScene: public SLObject
 {  
     friend class SLNode;
    
-    public:           
+    public:
+
                             SLScene         (SLstring name="");
                            ~SLScene         ();
             // Setters

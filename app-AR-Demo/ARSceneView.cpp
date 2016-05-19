@@ -17,10 +17,13 @@
 #include <SLLightSphere.h>
 #include <ARTracker.h>
 #include <SLAssimpImporter.h>
+#include <SLImage.h>
 
 #include "ARSceneView.h"
 #include <GLFW/glfw3.h>
 #include <sstream>
+
+#include <opencv2/highgui.hpp>
 
 //-----------------------------------------------------------------------------
 extern GLFWwindow* window;
@@ -129,12 +132,33 @@ static void calcObjectMatrix(const SLMat4f& cameraObjectMat, SLMat4f& objectView
     //new object matrix = camera object matrix * object-view matrix
     objectMat = cameraObjectMat * objectViewMat;
 }
+//-----------------------------------------------------------------------------
+void ARSceneView::loadNewFrameIntoTracker()
+{
+    //convert video image to cv::Mat and set into tracker
+    int ocvType = -1;
+    switch (_lastVideoFrame->format())
+    {   case PF_luminance: ocvType = CV_8UC1; break;
+        case PF_rgb: ocvType = CV_8UC3; break;
+        case PF_rgba: ocvType = CV_8UC4; break;
+        default: SL_EXIT_MSG("OpenCV image format not supported");
+    }
 
+    if( ocvType != -1 )
+    {
+        cv::Mat newImage( _lastVideoFrame->height(), _lastVideoFrame->width(), ocvType, _lastVideoFrame->data());
+        _tracker->setImage(newImage);
+        //cv::imwrite("newImg.png", newImage);
+    }
+}
 //-----------------------------------------------------------------------------
 void ARSceneView::preDraw()
 {
     if(_tracker)
     {
+        //convert video image to cv::Mat and set into tracker
+        loadNewFrameIntoTracker();
+
         if( _tracker->getType() == ARTracker::CHESSBOARD )
         {
             if( _tracker->trackChessboard())

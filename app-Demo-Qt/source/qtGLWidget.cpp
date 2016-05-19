@@ -18,7 +18,7 @@
 #include <QApplication>
 #include <QMouseEvent>
 #include <QTimer>
-#include <opencv2/opencv.hpp>
+//#include <opencv2/opencv.hpp>
 
 //-----------------------------------------------------------------------------
 //for backwards compatibility with QT below 5.2
@@ -161,9 +161,8 @@ void qtGLWidget::paintGL()
     else
     {
         // If live video image is requested grab it and copy it
-        cv::Mat newFrame;
         if (slUsesVideoImage())
-            slGrabCopyVideoImage(_svIndex, newFrame);
+            slGrabCopyVideoImage(_svIndex);
 
         // makes the OpenGL context the current for this widget
         makeCurrent();  

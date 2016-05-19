@@ -450,7 +450,7 @@ bool slUsesVideoImage()
 After grabbing the image is copied to the SLScenes::_videoTexture 
 Not all application will use OpenCV for capturing live video.
 */
-void slGrabCopyVideoImage(int sceneViewIndex, cv::Mat& newFrame, SLint device)
+void slGrabCopyVideoImage(int sceneViewIndex, SLint device)
 {
     #ifdef SL_HAS_OPENCV
     try
@@ -480,8 +480,17 @@ void slGrabCopyVideoImage(int sceneViewIndex, cv::Mat& newFrame, SLint device)
             cvtColor(frame, frame, CV_BGR2RGB);
             slCopyVideoImage(frame.cols, frame.rows, format, frame.data, true);
 
-            //return reference to new frame
-            newFrame = frame;
+            std::shared_ptr<SLImage> img( new SLImage );
+            //SLImage* img = new SLImage;
+            img->load(frame.cols,
+                     frame.rows,
+                     format,
+                     format,
+                     frame.data,
+                     false);
+
+            SLSceneView* sv = SLScene::current->sv(sceneViewIndex);
+            sv->_lastVideoFrame = img;
 
         } else
         {   

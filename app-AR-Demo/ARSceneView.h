@@ -35,6 +35,8 @@ class ARSceneView : public SLSceneView
         void                postSceneLoad();
 
     private:
+        void                loadNewFrameIntoTracker();
+
         std::map<int,SLNode*> _arucoNodes;
         ARTracker*      _tracker;            //!< Tracker instance
 };

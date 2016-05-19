@@ -448,6 +448,8 @@ void SLScene::copyVideoImage(SLint width,
                              SLbool isTopLeft)
 {
     _videoTexture.copyVideoImage(width, height, srcPixelFormat, data, isTopLeft);
+
+
 }
 //-----------------------------------------------------------------------------
 //! Deletes all menus and buttons objects
