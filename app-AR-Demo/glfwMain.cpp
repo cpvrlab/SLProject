@@ -50,8 +50,8 @@ ARSceneView* nodeARSV;       //!< pointer to the sceneview
 //common parameter
 string calibFilename = "michis_calibration.xml";
 //active Tracking type
-//SLTracker::TrackingTypes trackingType = SLTracker::ARUCO;
-SLTracker::TrackingTypes trackingType = SLTracker::CHESSBOARD;
+ARTracker::TrackingTypes trackingType = ARTracker::ARUCO;
+//ARTracker::TrackingTypes trackingType = ARTracker::CHESSBOARD;
 string    calibDir;                 //!< directory of calibration files
 
 //chessboard tracking parameter
@@ -86,8 +86,12 @@ frame buffer swapping. The FPS calculation is done in slGetWindowTitle.
 SLbool onPaint()
 {
     // If live video image is requested grab it and copy it
+    cv::Mat newFrame;
     if (slUsesVideoImage())
-        slGrabCopyVideoImage(svIndex, 1);
+    {
+        slGrabCopyVideoImage(svIndex, newFrame, 1);
+        nodeARSV->tracker()->setImage(newFrame);
+    }
 
     bool viewNeedsRepaint = slUpdateAndPaint(svIndex);
 
@@ -380,9 +384,9 @@ SLuint createARSceneView()
 {
     nodeARSV = new ARSceneView;
 
-    if( trackingType == SLTracker::CHESSBOARD )
+    if( trackingType == ARTracker::CHESSBOARD )
         nodeARSV->initChessboardTracking(calibDir + calibFilename, boardHeight, boardWidth, edgeLengthM );
-    else if( trackingType == SLTracker::ARUCO )
+    else if( trackingType == ARTracker::ARUCO )
         nodeARSV->initArucoTracking(calibDir + calibFilename, arucoDictionaryId, arucoEdgeLength, detectorParamsDir + arucoDetectorParams );
 
     return nodeARSV->index();
@@ -393,7 +397,7 @@ The C main procedure running the GLFW GUI application.
 */
 int main(int argc, char *argv[])
 {  
-//    SLTracker tracker;
+//    ARTracker tracker;
 //    tracker.drawArucoMarkerBoard( 2, 2, 200, 200, 0, "aruco_marker_test_4.png", false );
 
     // set command line arguments

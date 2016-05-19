@@ -16,6 +16,10 @@
 #include <SLEnums.h>
 #include <SLGLEnums.h>
 
+#ifdef SL_HAS_OPENCV
+#include <opencv2/opencv.hpp>
+#endif
+
 //! \file SLInterface.h SLProject C-functions interface declaration.
 /*! \file SLInterface.h
 The SLInterface.h has all declarations of the SLProject C-Interface.
@@ -61,7 +65,7 @@ void    slRotationPYR       (int sceneViewIndex, float pitchRAD, float yawRAD, f
 void    slRotationQUAT      (int sceneViewIndex, float angleRAD, float axisX, float axisY, float axisZ);
 string  slGetWindowTitle    (int sceneViewIndex);
 bool    slUsesVideoImage    ();
-void    slGrabCopyVideoImage(int sceneViewIndex, SLint device = 0);
+void    slGrabCopyVideoImage(int sceneViewIndex, cv::Mat& newFrame, SLint device = 0);
 void    slCopyVideoImage    (int width, int height, SLPixelFormat glFormat, SLuchar* data, bool isTopLeft);
 //-----------------------------------------------------------------------------
 #endif // SLINTERFACE_H

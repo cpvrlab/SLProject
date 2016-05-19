@@ -60,8 +60,6 @@ SLSceneView::SLSceneView() : SLObject()
     // No gaps, so add it and get the index back.
     s->sceneViews().push_back(this);
     _index = (SLuint)s->sceneViews().size() - 1;
-
-    _tracker = nullptr;
 }
 //-----------------------------------------------------------------------------
 SLSceneView::~SLSceneView()

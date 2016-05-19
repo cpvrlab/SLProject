@@ -1,5 +1,5 @@
 //#############################################################################
-//  File:      SLTracker.cpp
+//  File:      ARTracker.cpp
 //  Author:    Michael Göttlicher
 //  Date:      Spring 2016
 //  Codestyle: https://github.com/cpvrlab/SLProject/wiki/Coding-Style-Guidelines
@@ -8,29 +8,29 @@
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
 
-#ifndef SLTRACKER_H
-#define SLTRACKER_H
+#ifndef ARTracker_H
+#define ARTracker_H
 
 #include <stdafx.h>
 #include <opencv/cv.h>
 #include <opencv2/aruco.hpp>
 
 //-----------------------------------------------------------------------------
-//! SLTracker is the central class for tracking features in video stream.
+//! ARTracker is the central class for tracking features in video stream.
 /*!   
 A instance of this class is hold by the SLScene instance.
 */
-class SLTracker
+class ARTracker
 {
 public:
     enum TrackingTypes { CHESSBOARD, ARUCO };
 
-    SLTracker();
-    ~SLTracker();
+    ARTracker();
+    ~ARTracker();
     void            initChessboard      (int boardWidth, int boardHeight, float edgeLengthM);
     void            loadCamParams       (string filename);
     bool            trackChessboard     ();
-    void            setImage            (cv::Mat grayImage) { _image = grayImage; }
+    void            setImage            (cv::Mat image)     { _image = image; }
     float           getCameraFov        ()                  { return _cameraFovDeg; }
     SLMat4f         getViewMatrix       ()                  { return _viewMat; }
     TrackingTypes   getType             ()                  { return _type; }

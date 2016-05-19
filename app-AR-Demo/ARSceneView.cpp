@@ -15,7 +15,7 @@
 
 #include <SLBox.h>
 #include <SLLightSphere.h>
-#include <SLTracker.h>
+#include <ARTracker.h>
 #include <SLAssimpImporter.h>
 
 #include "ARSceneView.h"
@@ -33,11 +33,14 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand cmd)
 
     //setup camera
     SLCamera* cam1 = new SLCamera;
-    float fov = sv->tracker()->getCameraFov();
+
+    float fov = 1.0f;
+    if( ARSceneView* arSV = dynamic_cast<ARSceneView*>(sv))
+        fov = arSV->tracker()->getCameraFov();
     cam1->fov(fov);
     cam1->clipNear(0.01);
     cam1->clipFar(10);
-    //initial translation: will be overwritten as soon as first camera pose is estimated in SLTracker
+    //initial translation: will be overwritten as soon as first camera pose is estimated in ARTracker
     cam1->translate(0,0,0.5f);
 
     //set video image as backgound texture
@@ -59,9 +62,19 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand cmd)
     sv->onInitialize();
 }
 //-----------------------------------------------------------------------------
+ARSceneView::ARSceneView() :
+    _tracker(nullptr)
+{
+}
+//-----------------------------------------------------------------------------
+ARSceneView::~ARSceneView()
+{
+    if(_tracker) delete _tracker; _tracker = nullptr;
+}
+//-----------------------------------------------------------------------------
 void ARSceneView::postSceneLoad()
 {
-    if( _tracker->getType() == SLTracker::CHESSBOARD )
+    if( _tracker->getType() == ARTracker::CHESSBOARD )
     {
         SLMaterial* rMat = new SLMaterial("rMat", SLCol4f(1.0f,0.7f,0.7f));
         SLNode* box = new SLNode("Box");
@@ -122,7 +135,7 @@ void ARSceneView::preDraw()
 {
     if(_tracker)
     {
-        if( _tracker->getType() == SLTracker::CHESSBOARD )
+        if( _tracker->getType() == ARTracker::CHESSBOARD )
         {
             if( _tracker->trackChessboard())
             {
@@ -133,7 +146,7 @@ void ARSceneView::preDraw()
                 camera()->om( camOm );
             }
         }
-        else if( _tracker->getType() == SLTracker::ARUCO )
+        else if( _tracker->getType() == ARTracker::ARUCO )
         {
             if( _tracker->trackArucoMarkers())
             {
@@ -226,29 +239,26 @@ void ARSceneView::initChessboardTracking(string camParamsFilename, int boardHeig
     float edgeLengthM )
 {
     //Tracking initialization
-    _tracker = new SLTracker();
+    _tracker = new ARTracker();
     //load camera parameter matrix
     _tracker->loadCamParams(camParamsFilename);
     //initialize chessboard tracker
     _tracker->initChessboard(boardWidth, boardHeight, edgeLengthM);
     //set type
-    _tracker->setType(SLTracker::CHESSBOARD);
+    _tracker->setType(ARTracker::CHESSBOARD);
 }
 //-----------------------------------------------------------------------------
 void ARSceneView::initArucoTracking(string camParamsFilename, int dictionaryId, float markerLength,
                          string detectParamFilename )
 {
     //Tracking initialization
-    _tracker = new SLTracker();
+    _tracker = new ARTracker();
     //load camera parameter matrix
     _tracker->loadCamParams(camParamsFilename);
     //initialize aruco tracker
     _tracker->initArucoMarkerDetection(dictionaryId, markerLength, detectParamFilename );
     //set type
-    _tracker->setType(SLTracker::ARUCO);
+    _tracker->setType(ARTracker::ARUCO);
 }
 //-----------------------------------------------------------------------------
-ARSceneView::~ARSceneView()
-{
-    if(_tracker) delete _tracker; _tracker = nullptr;
-}
+

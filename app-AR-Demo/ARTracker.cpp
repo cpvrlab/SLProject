@@ -1,5 +1,5 @@
 //#############################################################################
-//  File:      SLTracker.cpp
+//  File:      ARTracker.cpp
 //  Author:    Michael Göttlicher
 //  Date:      Spring 2016
 //  Codestyle: https://github.com/cpvrlab/SLProject/wiki/Coding-Style-Guidelines
@@ -13,7 +13,7 @@
 #include <debug_new.h>        // memory leak detector
 #endif
 #include <SLScene.h>
-#include <SLTracker.h>
+#include <ARTracker.h>
 
 // OpenCV
 #include <opencv2/core/core.hpp>
@@ -28,7 +28,7 @@ using namespace cv;
 
 //-----------------------------------------------------------------------------
 //! constructor
-SLTracker::SLTracker() :
+ARTracker::ARTracker() :
     _cbEdgeLengthM(0.035f),
     _cameraFovDeg(0.0f),
     _arucoMarkerLength(100.0),
@@ -37,12 +37,12 @@ SLTracker::SLTracker() :
 }
 //-----------------------------------------------------------------------------
 //! destructor
-SLTracker::~SLTracker()
+ARTracker::~ARTracker()
 {
 }
 
 //-----------------------------------------------------------------------------
-void SLTracker::initChessboard(int boardWidth, int boardHeight, float edgeLengthM)
+void ARTracker::initChessboard(int boardWidth, int boardHeight, float edgeLengthM)
 {
     _cbSize = Size(boardHeight, boardWidth);
     _cbEdgeLengthM = edgeLengthM;
@@ -63,7 +63,7 @@ void SLTracker::initChessboard(int boardWidth, int boardHeight, float edgeLength
 }
 
 //-----------------------------------------------------------------------------
-void SLTracker::loadCamParams(string filename)
+void ARTracker::loadCamParams(string filename)
 {
     //load camera parameter
     //set up a FileStorage object to read camera params from file
@@ -87,7 +87,7 @@ void SLTracker::loadCamParams(string filename)
 }
 
 //-----------------------------------------------------------------------------
-void SLTracker::calculateCameraFieldOfView()
+void ARTracker::calculateCameraFieldOfView()
 {
     //calculate vertical field of view
     float fy = _intrinsics.at<double>(1,1);
@@ -97,7 +97,7 @@ void SLTracker::calculateCameraFieldOfView()
 }
 
 //-----------------------------------------------------------------------------
-bool SLTracker::trackChessboard()
+bool ARTracker::trackChessboard()
 {
     bool found = false;
 
@@ -159,7 +159,7 @@ bool SLTracker::trackChessboard()
     return found;
 }
 //-----------------------------------------------------------------------------
-void SLTracker::drawArucoMarkerBoard(int numMarkersX, int numMarkersY, int markerEdgeLengthPix, int markerSepaPix,
+void ARTracker::drawArucoMarkerBoard(int numMarkersX, int numMarkersY, int markerEdgeLengthPix, int markerSepaPix,
                                      int dictionaryId, string imgName, bool showImage, int borderBits, int marginsSize )
 {
     if(marginsSize == 0)
@@ -215,7 +215,7 @@ static bool readDetectorParameters(string filename, Ptr<aruco::DetectorParameter
     return true;
 }
 //-----------------------------------------------------------------------------
-bool SLTracker::initArucoMarkerDetection( int dictionaryId, float markerLength, string paramFileName )
+bool ARTracker::initArucoMarkerDetection( int dictionaryId, float markerLength, string paramFileName )
 {
     _detectorParams = aruco::DetectorParameters::create();
 
@@ -236,7 +236,7 @@ bool SLTracker::initArucoMarkerDetection( int dictionaryId, float markerLength, 
     return true;
 }
 //-----------------------------------------------------------------------------
-bool SLTracker::trackArucoMarkers()
+bool ARTracker::trackArucoMarkers()
 {
     vector< int > ids;
     vector< vector< Point2f > > corners, rejected;

@@ -22,7 +22,6 @@
 #include <SLDrawBits.h>
 #include <SLGLOculusFB.h>
 #include <SLGLVertexArrayExt.h>
-#include <SLTracker.h>
 
 //-----------------------------------------------------------------------------
 class SLCamera;
@@ -197,8 +196,6 @@ class SLSceneView: public SLObject
             SLfloat         draw3DTimeMS    () const {return _draw3DTimeMS;}
             SLfloat         draw2DTimeMS    () const {return _draw2DTimeMS;}
 
-            SLTracker*      tracker         () {return _tracker;}
-
     static const SLint      LONGTOUCH_MS;       //!< Milliseconds duration of a long touch event 
 
    protected:
@@ -265,8 +262,6 @@ class SLSceneView: public SLObject
             SLfloat         _animMultiplier;
             SLbool          _showAnimWeightEffects;
             SLfloat         _animWeightTime;
-
-            SLTracker*      _tracker;            //!< Tracker instance
 };
 //-----------------------------------------------------------------------------
 #endif

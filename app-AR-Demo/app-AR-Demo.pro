@@ -34,10 +34,12 @@ else  {POST_TARGETDEPS += $$PWD/../_lib/$$CONFIGURATION/$$PLATFORM/liblib-SLProj
    
 SOURCES += \
    glfwMain.cpp \
-   ARSceneView.cpp
+   ARSceneView.cpp \
+   ARTracker.cpp
 	   
 HEADERS += \
-    ARSceneView.h
+    ARSceneView.h \
+    ARTracker.h
 
 include(../SLProjectCommonLibraries.pro)
 include(../SLProjectDeploy.pro)
