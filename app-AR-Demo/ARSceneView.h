@@ -35,41 +35,41 @@ class ARSceneView : public SLSceneView
         ARTracker*      tracker         () {return _tracker;}
 
         // From SLSceneView overwritten
-        void                preDraw();
-        void                postDraw();
-        void                postSceneLoad();
+        void            preDraw         ();
+        void            postDraw        ();
+        void            postSceneLoad   ();
 
-        SLbool              onKeyPress(const SLKey key, const SLKey mod);
+        SLbool          onKeyPress      (const SLKey key, const SLKey mod);
 
-        float           getCameraFov        ()                  { return _cameraFovDeg; }
+        float           getCameraFov    () { return _cameraFovDeg; }
 
     private:
-        void                loadNewFrameIntoTracker();
+        void            loadNewFrameIntoTracker();
 
-        void                renderText();
-        void                updateInfoText();
+        void            renderText      ();
+        void            updateInfoText  ();
 
-        void                loadCamParams       (string filename);
+        void            loadCamParams   (string filename);
         void            calculateCameraFieldOfView();
 
 //        std::map<int,SLNode*> _arucoNodes;
         ARTracker*      _tracker;            //!< Tracker instance
 
-        SLText*             _infoText;      //!< node for all text display
+        SLText*         _infoText;      //!< node for all text display
 
-        ARSceneViewMode     _newMode;
-        ARSceneViewMode     _currMode;
+        ARSceneViewMode _newMode;
+        ARSceneViewMode _currMode;
 
         //camera intrinsic parameter
-        cv::Mat _intrinsics;
+        cv::Mat         _intrinsics;
         //camera distortion parameter
-        cv::Mat _distortion;
+        cv::Mat         _distortion;
         // camera field of view
-        float   _cameraFovDeg;
+        float           _cameraFovDeg;
 
         //directory, where the calibration files are stored
-        string _calibFileDir;
+        string          _calibFileDir;
         //directory, where the parameter files are stored
-        string _paramFilesDir;
+        string          _paramFilesDir;
 };
 //-----------------------------------------------------------------------------

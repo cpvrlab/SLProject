@@ -39,34 +39,15 @@ SLint       lastWidth;              //!< Last window width in pixels
 SLint       lastHeight;             //!< Last window height in pixels
 SLint       lastMouseWheelPos;      //!< Last mouse wheel position
 SLfloat     lastMouseDownTime = 0.0f; //!< Last mouse press time
-SLKey       modifiers=K_none;      //!< last modifier keys
+SLKey       modifiers=K_none;       //!< last modifier keys
 SLbool      fullscreen = false;     //!< flag if window is in fullscreen mode
 
-ARSceneView* nodeARSV;       //!< pointer to the sceneview
+ARSceneView* nodeARSV;              //!< pointer to the sceneview
 
 //-----------------------------------------------------------------------------
 //AR / Tracking parameter
-
-//common parameter
-string calibFilename = "michis_calibration.xml";
-//active Tracking type
-//ARTracker::TrackingTypes trackingType = ARTracker::ARUCO;
-//ARTracker::TrackingTypes trackingType = ARTracker::CHESSBOARD;
 string    calibDir;                 //!< directory of calibration files
-
-////chessboard tracking parameter
-////chessboard size (number of inner corners)
-//int boardHeight = 6;
-//int boardWidth = 8;
-////edge length of chessboard square in meters
-//float edgeLengthM = 0.035;
-
-//aruco parameter
-//string arucoDetectorParams = "aruco_detector_params.yml";
-SLstring    detectorParamsDir;                 //!< directory of detector_param files
-//float arucoEdgeLength = 0.06f;
-//int arucoDictionaryId = 0;
-
+SLstring  detectorParamsDir;        //!< directory of detector_param files
 //-----------------------------------------------------------------------------
 /*! 
 onClose event handler for deallocation of the scene & sceneview. onClose is

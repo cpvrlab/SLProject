@@ -32,7 +32,7 @@ ARChessboardTracker::ARChessboardTracker(Mat intrinsics, Mat distoriton) :
 //-----------------------------------------------------------------------------
 bool ARChessboardTracker::init(string paramsFileDir)
 {
-    if( !_p.loadFromFile(paramsFileDir + _p.filename))
+    if( !_p.loadFromFile(paramsFileDir))
         return false;
 
     //set up matrices for storage of translation and rotation vector

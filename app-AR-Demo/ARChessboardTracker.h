@@ -14,37 +14,51 @@
 #include <ARTracker.h>
 #include <SLNode.h>
 
-//Parameter class for chessboard tracking parameter
+//-----------------------------------------------------------------------------
+
+/*!
+Parameter class for chessboard tracking parameter
+*/
 class ARChessboardParams
 {
 public:
     ARChessboardParams() :
         boardWidth(6),
         boardHeight(8),
-        edgeLengthM(0.035f)
+        edgeLengthM(0.035f),
+        filename("chessboard_detector_params.yml")
     {}
 
-    bool loadFromFile(string filename)
+    bool loadFromFile(string paramsDir)
     {
-        //if not loading
+        cv::FileStorage fs( paramsDir + filename, cv::FileStorage::READ);
+        if(!fs.isOpened())
         {
             cout << "Could not find parameter file for Chessboard tracking!" << endl;
-            cout << "Tried ..." << endl;
+            cout << "Tried " << paramsDir + filename << endl;
+            return false;
         }
-
+        fs["boardWidth"] >> boardWidth;
+        fs["boardHeight"] >> boardHeight;
+        fs["edgeLengthM"] >> edgeLengthM;
         return true;
     }
 
+    //number of inner chessboard corners in width direction
     int boardWidth;
+    //number of inner chessboard corners in height direction
     int boardHeight;
-    //chessboard size (number of inner squares)
-    //cv::Size cbSize;
     //edge length of chessboard square in meters
     float edgeLengthM;
     //parameter file name
     string filename;
 };
 
+//-----------------------------------------------------------------------------
+
+/*!
+Chessboard tracking class
+*/
 class ARChessboardTracker : public ARTracker
 {
 public:
@@ -58,9 +72,6 @@ public:
     const ARChessboardParams& params() const { return _p; }
 
 private:
-    //void    initChessboardTracking  (string camParamsFilename, int boardHeight, int boardWidth, float   edgeLengthM );
-    //bool    trackChessboard     ();
-
     //chessboard corners in world coordinate system
     vector<cv::Point3d> _boardPoints;
     //calculated image points in findChessboardCorners

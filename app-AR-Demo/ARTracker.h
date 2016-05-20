@@ -28,12 +28,12 @@ public:
     ~ARTracker();
 
     //new functions
-    virtual bool init(string paramsFileDir) = 0;
-    virtual bool track() = 0;
+    virtual bool init           (string paramsFileDir) = 0;
+    virtual bool track          () = 0;
     virtual void updateSceneView( ARSceneView* sv ) = 0;
     virtual void unloadSGObjects() = 0;
 
-    void            setImage            (cv::Mat image)     { _image = image; }
+    void         setImage        (cv::Mat image)     { _image = image; }
 
     //raw rotation vector from opencvs solvePNP function
     cv::Mat _rVec;

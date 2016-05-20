@@ -15,90 +15,79 @@
 #include <SLNode.h>
 #include <opencv2/aruco.hpp>
 
+//-----------------------------------------------------------------------------
+
+/*!
+Parameter class for aruco tracking
+*/
 class ARArucoParams
 {
 public:
     ARArucoParams() :
-        arucoDetectorParams("aruco_detector_params.yml"),
         edgeLength(0.06f),
         arucoDictionaryId(0),
-        filename("todo")
+        filename("aruco_detector_params.yml")
     {
         arucoParams = cv::aruco::DetectorParameters::create();
-        dictionary =  cv::aruco::getPredefinedDictionary(cv::aruco::PREDEFINED_DICTIONARY_NAME(arucoDictionaryId));
-
-        // do corner refinement in markers
-        //todo: put in param file
-        arucoParams->doCornerRefinement = true;
-        arucoParams->adaptiveThreshWinSizeMin = 4;
-        arucoParams->adaptiveThreshWinSizeMax = 7;
-        arucoParams->adaptiveThreshWinSizeStep = 1;
     }
 
-    //-----------------------------------------------------------------------------
-    bool readDetectorParameters(string filename, cv::Ptr<cv::aruco::DetectorParameters> &params) {
-        cv::FileStorage fs(filename, cv::FileStorage::READ);
-        if(!fs.isOpened())
-            return false;
-        fs["adaptiveThreshWinSizeMin"] >> params->adaptiveThreshWinSizeMin;
-        fs["adaptiveThreshWinSizeMax"] >> params->adaptiveThreshWinSizeMax;
-        fs["adaptiveThreshWinSizeStep"] >> params->adaptiveThreshWinSizeStep;
-        fs["adaptiveThreshConstant"] >> params->adaptiveThreshConstant;
-        fs["minMarkerPerimeterRate"] >> params->minMarkerPerimeterRate;
-        fs["maxMarkerPerimeterRate"] >> params->maxMarkerPerimeterRate;
-        fs["polygonalApproxAccuracyRate"] >> params->polygonalApproxAccuracyRate;
-        fs["minCornerDistanceRate"] >> params->minCornerDistanceRate;
-        fs["minDistanceToBorder"] >> params->minDistanceToBorder;
-        fs["minMarkerDistanceRate"] >> params->minMarkerDistanceRate;
-        fs["doCornerRefinement"] >> params->doCornerRefinement;
-        fs["cornerRefinementWinSize"] >> params->cornerRefinementWinSize;
-        fs["cornerRefinementMaxIterations"] >> params->cornerRefinementMaxIterations;
-        fs["cornerRefinementMinAccuracy"] >> params->cornerRefinementMinAccuracy;
-        fs["markerBorderBits"] >> params->markerBorderBits;
-        fs["perspectiveRemovePixelPerCell"] >> params->perspectiveRemovePixelPerCell;
-        fs["perspectiveRemoveIgnoredMarginPerCell"] >> params->perspectiveRemoveIgnoredMarginPerCell;
-        fs["maxErroneousBitsInBorderRate"] >> params->maxErroneousBitsInBorderRate;
-        fs["minOtsuStdDev"] >> params->minOtsuStdDev;
-        fs["errorCorrectionRate"] >> params->errorCorrectionRate;
-        return true;
-    }
-
-    bool loadFromFile(string fileName)
+    bool loadFromFile(string paramsDir )
     {
-        bool readOk = readDetectorParameters(fileName + arucoDetectorParams, arucoParams);
-        if(!readOk) {
-            cerr << "Invalid detector parameters file" << endl;
-            return false;
-        }
-
-        // do corner refinement in markers
-        //todo: put in param file
-        arucoParams->doCornerRefinement = true;
-        arucoParams->adaptiveThreshWinSizeMin = 4;
-        arucoParams->adaptiveThreshWinSizeMax = 7;
-        arucoParams->adaptiveThreshWinSizeStep = 1;
-
-        //if not loading
+        string path = paramsDir + filename;
+        cv::FileStorage fs( path, cv::FileStorage::READ);
+        if(!fs.isOpened())
         {
             cout << "Could not find parameter file for ArUco tracking!" << endl;
-            cout << "Tried ..." << endl;
+            cout << "Tried " << paramsDir + filename << endl;
+            return false;
         }
+
+        fs["adaptiveThreshWinSizeMin"] >> arucoParams->adaptiveThreshWinSizeMin;
+        fs["adaptiveThreshWinSizeMax"] >> arucoParams->adaptiveThreshWinSizeMax;
+        fs["adaptiveThreshWinSizeStep"] >> arucoParams->adaptiveThreshWinSizeStep;
+        fs["adaptiveThreshConstant"] >> arucoParams->adaptiveThreshConstant;
+        fs["minMarkerPerimeterRate"] >> arucoParams->minMarkerPerimeterRate;
+        fs["maxMarkerPerimeterRate"] >> arucoParams->maxMarkerPerimeterRate;
+        fs["polygonalApproxAccuracyRate"] >> arucoParams->polygonalApproxAccuracyRate;
+        fs["minCornerDistanceRate"] >> arucoParams->minCornerDistanceRate;
+        fs["minDistanceToBorder"] >> arucoParams->minDistanceToBorder;
+        fs["minMarkerDistanceRate"] >> arucoParams->minMarkerDistanceRate; //achtung minMarkerDistance -> minMarkerDistanceRate
+        fs["doCornerRefinement"] >> arucoParams->doCornerRefinement;
+        fs["cornerRefinementWinSize"] >> arucoParams->cornerRefinementWinSize;
+        fs["cornerRefinementMaxIterations"] >> arucoParams->cornerRefinementMaxIterations;
+        fs["cornerRefinementMinAccuracy"] >> arucoParams->cornerRefinementMinAccuracy;
+        fs["markerBorderBits"] >> arucoParams->markerBorderBits;
+        fs["perspectiveRemovePixelPerCell"] >> arucoParams->perspectiveRemovePixelPerCell;
+        fs["perspectiveRemoveIgnoredMarginPerCell"] >> arucoParams->perspectiveRemoveIgnoredMarginPerCell;
+        fs["maxErroneousBitsInBorderRate"] >> arucoParams->maxErroneousBitsInBorderRate;
+
+        fs["edgeLength"] >> edgeLength;
+        fs["arucoDictionaryId"] >> arucoDictionaryId;
+        dictionary =  cv::aruco::getPredefinedDictionary(cv::aruco::PREDEFINED_DICTIONARY_NAME(arucoDictionaryId));
+
+        return true;
     }
 
     //detector parameter structure for aruco detection function
     cv::Ptr<cv::aruco::DetectorParameters> arucoParams;
-    //todo: put in one file
-    string arucoDetectorParams;
     //marker edge length
     float edgeLength;
     //id of aruco dictionary
     int arucoDictionaryId;
-    //parameter filename
-    string filename;
+
     //predefined dictionary
     cv::Ptr<cv::aruco::Dictionary> dictionary;
+    //todo: put in one file
+    string arucoDetectorParams;
+    //parameter filename
+    string filename;
 };
 
+//-----------------------------------------------------------------------------
+
+/*!
+Tracking class for ArUco markers tracking
+*/
 class ARArucoTracker : public ARTracker
 {
 public:
