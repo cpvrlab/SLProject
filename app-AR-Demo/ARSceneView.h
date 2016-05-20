@@ -29,12 +29,8 @@ class ARSceneView : public SLSceneView
             ArucoMode
         };
 
-                ARSceneView();
-                ~ARSceneView();
-        void    initChessboardTracking  (string camParamsFilename, int boardHeight, int boardWidth,
-        float   edgeLengthM );
-        void    initArucoTracking       (string camParamsFilename, int dictionaryId,
-                                  float markerLength, string detectParamFilename );
+        ARSceneView( string calibFileDir, string paramFilesDir);
+        ~ARSceneView();
 
         ARTracker*      tracker         () {return _tracker;}
 
@@ -45,17 +41,35 @@ class ARSceneView : public SLSceneView
 
         SLbool              onKeyPress(const SLKey key, const SLKey mod);
 
+        float           getCameraFov        ()                  { return _cameraFovDeg; }
+
     private:
         void                loadNewFrameIntoTracker();
 
         void                renderText();
         void                updateInfoText();
 
-        std::map<int,SLNode*> _arucoNodes;
+        void                loadCamParams       (string filename);
+        void            calculateCameraFieldOfView();
+
+//        std::map<int,SLNode*> _arucoNodes;
         ARTracker*      _tracker;            //!< Tracker instance
 
         SLText*             _infoText;      //!< node for all text display
 
-        ARSceneViewMode     _curMode;
+        ARSceneViewMode     _newMode;
+        ARSceneViewMode     _currMode;
+
+        //camera intrinsic parameter
+        cv::Mat _intrinsics;
+        //camera distortion parameter
+        cv::Mat _distortion;
+        // camera field of view
+        float   _cameraFovDeg;
+
+        //directory, where the calibration files are stored
+        string _calibFileDir;
+        //directory, where the parameter files are stored
+        string _paramFilesDir;
 };
 //-----------------------------------------------------------------------------

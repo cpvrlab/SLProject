@@ -50,22 +50,22 @@ ARSceneView* nodeARSV;       //!< pointer to the sceneview
 //common parameter
 string calibFilename = "michis_calibration.xml";
 //active Tracking type
-ARTracker::TrackingTypes trackingType = ARTracker::ARUCO;
+//ARTracker::TrackingTypes trackingType = ARTracker::ARUCO;
 //ARTracker::TrackingTypes trackingType = ARTracker::CHESSBOARD;
 string    calibDir;                 //!< directory of calibration files
 
-//chessboard tracking parameter
-//chessboard size (number of inner corners)
-int boardHeight = 6;
-int boardWidth = 8;
-//edge length of chessboard square in meters
-float edgeLengthM = 0.035;
+////chessboard tracking parameter
+////chessboard size (number of inner corners)
+//int boardHeight = 6;
+//int boardWidth = 8;
+////edge length of chessboard square in meters
+//float edgeLengthM = 0.035;
 
 //aruco parameter
-string arucoDetectorParams = "aruco_detector_params.yml";
+//string arucoDetectorParams = "aruco_detector_params.yml";
 SLstring    detectorParamsDir;                 //!< directory of detector_param files
-float arucoEdgeLength = 0.06f;
-int arucoDictionaryId = 0;
+//float arucoEdgeLength = 0.06f;
+//int arucoDictionaryId = 0;
 
 //-----------------------------------------------------------------------------
 /*! 
@@ -378,13 +378,7 @@ void onGLFWError(int error, const char* description)
 //! Alternative SceneView creation function passed by slCreateSceneView
 SLuint createARSceneView()
 {
-    nodeARSV = new ARSceneView;
-
-    if( trackingType == ARTracker::CHESSBOARD )
-        nodeARSV->initChessboardTracking(calibDir + calibFilename, boardHeight, boardWidth, edgeLengthM );
-    else if( trackingType == ARTracker::ARUCO )
-        nodeARSV->initArucoTracking(calibDir + calibFilename, arucoDictionaryId, arucoEdgeLength, detectorParamsDir + arucoDetectorParams );
-
+    nodeARSV = new ARSceneView( calibDir, detectorParamsDir );
     return nodeARSV->index();
 }
 //-----------------------------------------------------------------------------
