@@ -52,6 +52,8 @@ bool ARArucoTracker::track()
 
             for( size_t i=0; i < rvecs.size(); ++i)
             {
+                cout << "number of new elements: "
+                        "" << rvecs.size() << endl;
                 //Transform calculated position (rotation and translation vector) from openCV to SLProject form
                 //as discribed in this post:
                 //http://www.morethantechnical.com/2015/02/17/augmented-reality-on-libqglviewer-and-opencv-opengl-tips-wcode/
