@@ -60,13 +60,19 @@ bool ARChessboardTracker::track()
     if(!_image.empty() && !_intrinsics.empty())
     {
         //make a gray copy of the webcam image
-        cvtColor(_image, _grayImg, CV_RGB2GRAY);
+        //cvtColor(_image, _grayImg, CV_RGB2GRAY);
 
         //detect chessboard corners
-        _cbVisible = findChessboardCorners(_grayImg, Size(_p.boardHeight,_p.boardWidth), _imagePoints );
+        int chessBoardFlags = CALIB_CB_ADAPTIVE_THRESH | CALIB_CB_NORMALIZE_IMAGE | CALIB_CB_FAST_CHECK;
+        _cbVisible = findChessboardCorners(_image, Size(_p.boardHeight,_p.boardWidth), _imagePoints, chessBoardFlags );
 
         if(_cbVisible)
         {
+//            Mat gray;
+//            cvtColor(_image, gray, COLOR_BGR2GRAY);
+//            cornerSubPix( gray, _imagePoints, Size(11,11),
+//                Size(-1,-1), TermCriteria( TermCriteria::EPS+TermCriteria::COUNT, 30, 0.1 ));
+
             //find the camera extrinsic parameters
             solvePnP(Mat(_boardPoints), Mat(_imagePoints), _intrinsics, _distortion, _rVec, _tVec, false);
 

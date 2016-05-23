@@ -246,10 +246,6 @@ void ARCalibration::addImage(cv::Mat image)
     //set image size
     _imageSize = image.size();
 
-    //make a gray copy of the webcam image
-//    Mat grayImg;
-//    cvtColor(image, grayImg, CV_RGB2GRAY);
-
     //check if we have a timeout
     bool timeOut = clock() - _prevTimestamp > _captureDelayMS * 1e-3 * CLOCKS_PER_SEC ? true : false;
     //try to detect chessboard
@@ -257,6 +253,8 @@ void ARCalibration::addImage(cv::Mat image)
     Size boardSize = cv::Size(_numInnerCornersWidth, _numInnerCornersHeight);
     int chessBoardFlags = CALIB_CB_ADAPTIVE_THRESH | CALIB_CB_NORMALIZE_IMAGE | CALIB_CB_FAST_CHECK;
     bool found = cv::findChessboardCorners(image, boardSize, newImagePoints, chessBoardFlags);
+    //draw colored points
+
     //if chessboard was not found reset timer
     if(!found)
     {
@@ -280,5 +278,12 @@ void ARCalibration::addImage(cv::Mat image)
         _numCaptured++;
         //reset timer
         _prevTimestamp = clock();
+
+        //simulate a snapshot
+        cv::bitwise_not(image, image);
     }
+
+    // Draw the corners
+    if(found)
+        drawChessboardCorners( image, boardSize, Mat(newImagePoints), found );
 }

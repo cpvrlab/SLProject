@@ -476,20 +476,23 @@ void slGrabCopyVideoImage(int sceneViewIndex, SLint device)
                 default: SL_EXIT_MSG("OpenCV image format not supported");
             }
 
+            //cv::imwrite("testbgr0.png", frame);
             // OpenGL ES doesn't support BGR or BGRA
             cvtColor(frame, frame, CV_BGR2RGB);
+            //cv::imwrite("testbgr1.png", frame);
+
             slCopyVideoImage(frame.cols, frame.rows, format, frame.data, true);
 
-            std::shared_ptr<SLImage> img( new SLImage );
-            img->load(frame.cols,
-                     frame.rows,
-                     format,
-                     format,
-                     frame.data,
-                     false);
+//            std::shared_ptr<SLImage> img( new SLImage );
+//            img->load(frame.cols,
+//                     frame.rows,
+//                     format,
+//                     format,
+//                     frame.data,
+//                     false);
 
-            SLSceneView* sv = SLScene::current->sv(sceneViewIndex);
-            sv->_lastVideoFrame = img;
+//            SLSceneView* sv = SLScene::current->sv(sceneViewIndex);
+//            sv->_lastVideoFrame = img;
 
         } else
         {   

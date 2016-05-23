@@ -113,21 +113,82 @@ void ARSceneView::getConvertedImage(cv::Mat& image )
     }
 }
 //-----------------------------------------------------------------------------
+bool ARSceneView::getOCVImageFromTexture(cv::Mat& image )
+{
+    //get image from video texture buffer
+    if( !SLScene::current->videoTexture()->images().size())
+        return false;
+
+//    SLImage* texImg = SLScene::current->videoTexture()->images()[0];
+//    SLImage img = *texImg;
+//    SLImage* slImg = &img;
+    SLImage* slImg = SLScene::current->videoTexture()->images()[0];
+    //slImg->savePNG("slImage0.png");
+    //convert to opencv Mat
+    int ocvType = -1;
+    switch (slImg->format())
+    {   case PF_luminance: ocvType = CV_8UC1; break;
+        case PF_rgb: ocvType = CV_8UC3; break;
+        case PF_rgba: ocvType = CV_8UC4; break;
+        default: SL_EXIT_MSG("OpenCV image format not supported");
+    }
+
+    if( ocvType != -1 )
+    {
+        image = cv::Mat( slImg->height(), slImg->width(), ocvType, slImg->data());
+        //cv::imwrite("image0.png", image);
+        cvtColor(image, image, CV_RGB2BGR);
+        cv::flip(image, image, 0);
+        //cv::imwrite("image1.png", image);
+    }
+
+    return true;
+}
+//-----------------------------------------------------------------------------
+void ARSceneView::setOCVImageToTexture(cv::Mat& image )
+{
+    cvtColor(image, image, CV_BGR2RGB);
+    cv::flip(image, image, 0);
+
+    // Set the according OpenGL format
+    SLPixelFormat format;
+    switch (image.type())
+    {   case CV_8UC1: format = PF_luminance; break;
+        case CV_8UC3: format = PF_rgb; break;
+        case CV_8UC4: format = PF_rgba; break;
+        default: SL_EXIT_MSG("OpenCV image format not supported");
+    }
+
+    SLScene::current->videoTexture()->copyVideoImage(
+             image.cols,
+             image.rows,
+             format,
+             image.data,
+             false);
+
+    //SLScene::current->videoTexture()->images()[0]->savePNG("slImage0.png");
+}
+//-----------------------------------------------------------------------------
 void ARSceneView::preDraw()
 {
     if(_tracker)
     {
         //convert video image to cv::Mat and set into tracker
         cv::Mat cvImage;
-        getConvertedImage(cvImage);
+        getOCVImageFromTexture(cvImage);
+        //getConvertedImage(cvImage);
         if(!cvImage.empty())
+        {
             _tracker->setImage(cvImage);
 
-        if( _currMode != ARSceneViewMode::Idle || _currMode != ARSceneViewMode::CalibrationMode )
-        {
-            _tracker->track();
-            _tracker->updateSceneView(this);
+            if( _currMode != ARSceneViewMode::Idle || _currMode != ARSceneViewMode::CalibrationMode )
+            {
+                _tracker->track();
+                _tracker->updateSceneView(this);
+            }
         }
+
+        setOCVImageToTexture(cvImage);
     }
     else if(_currMode == CalibrationMode)
     {
@@ -135,7 +196,8 @@ void ARSceneView::preDraw()
         if( _calibMgr.capturing())
         {
             cv::Mat cvImage;
-            getConvertedImage(cvImage);
+            //getConvertedImage(cvImage);
+            getOCVImageFromTexture(cvImage);
             if(!cvImage.empty())
                 _calibMgr.addImage(cvImage);
             //get number of all images to  be captured
@@ -155,6 +217,8 @@ void ARSceneView::preDraw()
                 _calibMgr.calculate( _calibFileDir );
             }
             setInfoLineText( ss.str());
+
+            setOCVImageToTexture(cvImage);
         }
         else if(_calibMgr.calibrated())
         {

@@ -48,6 +48,8 @@ class ARSceneView : public SLSceneView
 
     private:
         void            getConvertedImage(cv::Mat& image);
+        bool            getOCVImageFromTexture(cv::Mat& image);
+        void            setOCVImageToTexture(cv::Mat& image );
 
         void            renderText      ();
         void            updateInfoText  ();
