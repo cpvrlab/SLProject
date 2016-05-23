@@ -37,13 +37,15 @@ SOURCES += \
    ARSceneView.cpp \
    ARTracker.cpp \
     ARChessboardTracker.cpp \
-    ARArucoTracker.cpp
+    ARArucoTracker.cpp \
+    ARCalibration.cpp
 	   
 HEADERS += \
     ARSceneView.h \
     ARTracker.h \
     ARChessboardTracker.h \
-    ARArucoTracker.h
+    ARArucoTracker.h \
+    ARCalibration.h
 
 include(../SLProjectCommonLibraries.pro)
 include(../SLProjectDeploy.pro)

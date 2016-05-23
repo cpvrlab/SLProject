@@ -45,7 +45,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand cmd)
 
     float fov = 1.0f;
     if( ARSceneView* arSV = dynamic_cast<ARSceneView*>(sv))
-        fov = arSV->getCameraFov();
+        fov = arSV->calibration().getCameraFov();
     cam1->fov(fov);
     cam1->clipNear(0.01);
     cam1->clipFar(10);
@@ -74,47 +74,20 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand cmd)
 ARSceneView::ARSceneView(string calibFileDir, string paramFilesDir) :
     _tracker(nullptr),
     _infoText(nullptr),
+    _infoBottomText(nullptr),
     _newMode(Idle),
     _currMode(Idle),
     _calibFileDir(calibFileDir),
     _paramFilesDir(paramFilesDir)
 {
-    loadCamParams(calibFileDir + "michis_calibration.xml");
+    _calibMgr.loadCamParams(calibFileDir);
 }
 //-----------------------------------------------------------------------------
 ARSceneView::~ARSceneView()
 {
     if(_tracker) delete _tracker; _tracker = nullptr;
     if(_infoText) delete _infoText; _infoText = nullptr;
-}
-//-----------------------------------------------------------------------------
-void ARSceneView::loadCamParams(string filename)
-{
-    //load camera parameter
-    FileStorage fs;
-    fs.open(filename, FileStorage::READ);
-    if (!fs.isOpened())
-    {
-        cout << "Could not open the calibration file" << endl;
-        return;
-    }
-
-    fs["camera_matrix"] >> _intrinsics;
-    fs["distortion_coefficients"] >> _distortion;
-    // close the input file
-    fs.release();
-
-    //calculate projection matrix
-    calculateCameraFieldOfView();
-}
-//-----------------------------------------------------------------------------
-void ARSceneView::calculateCameraFieldOfView()
-{
-    //calculate vertical field of view
-    float fy = _intrinsics.at<double>(1,1);
-    float cy = _intrinsics.at<double>(1,2);
-    float fovRad = 2 * atan2( cy, fy );
-    _cameraFovDeg = fovRad * SL_RAD2DEG;
+    if(_infoBottomText) delete _infoBottomText; _infoBottomText = nullptr;
 }
 //-----------------------------------------------------------------------------
 void ARSceneView::postSceneLoad()
@@ -122,7 +95,7 @@ void ARSceneView::postSceneLoad()
     updateInfoText();
 }
 //-----------------------------------------------------------------------------
-void ARSceneView::loadNewFrameIntoTracker()
+void ARSceneView::getConvertedImage(cv::Mat& image )
 {
     //convert video image to cv::Mat and set into tracker
     int ocvType = -1;
@@ -135,66 +108,62 @@ void ARSceneView::loadNewFrameIntoTracker()
 
     if( ocvType != -1 )
     {
-        cv::Mat newImage( _lastVideoFrame->height(), _lastVideoFrame->width(), ocvType, _lastVideoFrame->data());
-        _tracker->setImage(newImage);
+        image = cv::Mat( _lastVideoFrame->height(), _lastVideoFrame->width(), ocvType, _lastVideoFrame->data());
         //cv::imwrite("newImg.png", newImage);
     }
 }
 //-----------------------------------------------------------------------------
 void ARSceneView::preDraw()
 {
-    //check if mode has changed
-    if(_newMode != _currMode )
-    {
-        if(_tracker) {
-            //todo: unload old scene graph objects
-            _tracker->unloadSGObjects();
-            //delete tracker instance
-            delete _tracker; _tracker = nullptr;
-        }
-
-        //try to init this tracker mode
-        switch( _newMode )
-        {
-        case ARSceneViewMode::Idle:
-            break;
-        case ARSceneViewMode::ChessboardMode:
-            //instantiate
-            _tracker = new ARChessboardTracker(_intrinsics, _distortion);
-            //initialize
-            if(!_tracker->init(_paramFilesDir))
-            {
-                //init failed
-                _newMode = ARSceneViewMode::ArucoMode;
-                updateInfoText();
-            }
-            break;
-        case ARSceneViewMode::ArucoMode:
-            //instantiate
-            _tracker = new ARArucoTracker(_intrinsics, _distortion);
-            //initialize
-            if(!_tracker->init(_paramFilesDir))
-            {
-                //init failed
-                _newMode = ARSceneViewMode::Idle;
-                updateInfoText();
-            }
-            break;
-        }
-
-        //at last set _oldMode to _curMode
-        _currMode = _newMode;
-    }
-
     if(_tracker)
     {
         //convert video image to cv::Mat and set into tracker
-        loadNewFrameIntoTracker();
+        cv::Mat cvImage;
+        getConvertedImage(cvImage);
+        if(!cvImage.empty())
+            _tracker->setImage(cvImage);
 
         if( _currMode != ARSceneViewMode::Idle || _currMode != ARSceneViewMode::CalibrationMode )
         {
             _tracker->track();
             _tracker->updateSceneView(this);
+        }
+    }
+    else if(_currMode == CalibrationMode)
+    {
+        //load image into calibration manager
+        if( _calibMgr.capturing())
+        {
+            cv::Mat cvImage;
+            getConvertedImage(cvImage);
+            if(!cvImage.empty())
+                _calibMgr.addImage(cvImage);
+            //get number of all images to  be captured
+            int imgsToCap = _calibMgr.getNumImgsToCapture();
+            //get number of already captured images
+            int imgsCaped = _calibMgr.getNumCapturedImgs();
+            //update Info line
+            std::stringstream ss;
+            if(imgsCaped < imgsToCap)
+            {
+                ss << "Capturing: Focus chessboard filling screen. (" << imgsCaped << "/" << imgsToCap << ")";
+            }
+            else
+            {
+                ss << "Calculating, please wait.";
+                //if we captured all images then calculate
+                _calibMgr.calculate( _calibFileDir );
+            }
+            setInfoLineText( ss.str());
+        }
+        else if(_calibMgr.calibrated())
+        {
+            float reprojError = _calibMgr.getReprojectionError();
+            this->camera()->fov(_calibMgr.getCameraFov());
+            //update Info line
+            std::stringstream ss;
+            ss << "Calibrated: Reprojection error: " << reprojError;
+            setInfoLineText( ss.str());
         }
     }
 }
@@ -207,6 +176,7 @@ void ARSceneView::postDraw()
 void ARSceneView::updateInfoText()
 {
     if (_infoText) delete _infoText;
+    if (_infoBottomText) delete _infoBottomText;
 
     SLchar m[2550];   // message character array
     m[0]=0;           // set zero length
@@ -243,6 +213,19 @@ void ARSceneView::updateInfoText()
     SLTexFont* f = SLTexFont::getFont(1.2f, _dpi);
     _infoText = new SLText(m, f, SLCol4f::BLACK, (SLfloat)_scrW, 1.0f);
     _infoText->translate(10.0f, -_infoText->size().y-5.0f, 0.0f, TS_object);
+
+    if(_infoLine.size())
+    {
+        //update bottom info line
+        SLchar info[2550];   // message character array
+        info[0]=0;           // set zero length
+
+        sprintf(info+strlen(info), "%s", _infoLine.c_str());
+
+        SLTexFont* fi = SLTexFont::getFont(2.4f, _dpi);
+        _infoBottomText = new SLText(info, fi, SLCol4f::RED, (SLfloat)_scrW, 1.0f);
+        _infoBottomText->translate(10.0f, -_infoBottomText->size().y-5.0f, 0.0f, TS_object);
+    }
 }
 //-----------------------------------------------------------------------------
 void ARSceneView::renderText()
@@ -275,6 +258,98 @@ void ARSceneView::renderText()
     _stateGL->depthMask(true);    // enable depth buffer writing
     _stateGL->depthTest(true);    // enable depth testing
     GET_GL_ERROR;                 // check if any OGL errors occured
+
+    if (!_infoBottomText)
+        return;
+
+    _stateGL->depthMask(false);         // Freeze depth buffer for blending
+    _stateGL->depthTest(false);         // Disable depth testing
+    _stateGL->blend(true);              // Enable blending
+    _stateGL->polygonLine(false);       // Only filled polygons
+
+    // Set orthographic projection with 0,0,0 in the screen center
+    _stateGL->projectionMatrix.ortho(-w2, w2,-h2, h2, 1.0f, -1.0f);
+
+    // Set viewport over entire screen
+    _stateGL->viewport(0, 0, _scrW, _scrH);
+
+    _stateGL->modelViewMatrix.identity();
+    _stateGL->modelViewMatrix.translate(-w2, -h2+35.0f, depth);
+    _stateGL->modelViewMatrix.multiply(_infoBottomText->om());
+    _infoBottomText->drawRec(this);
+
+    _stateGL->blend(false);       // turn off blending
+    _stateGL->depthMask(true);    // enable depth buffer writing
+    _stateGL->depthTest(true);    // enable depth testing
+    GET_GL_ERROR;                 // check if any OGL errors occured
+}
+//-----------------------------------------------------------------------------
+void ARSceneView::processModeChange()
+{
+    //check if mode has changed
+    if(_newMode != _currMode )
+    {
+        if(_tracker) {
+            //unload old scene graph objects
+            _tracker->unloadSGObjects();
+            //delete tracker instance
+            delete _tracker; _tracker = nullptr;
+        }
+
+        //try to init this mode
+        switch( _newMode )
+        {
+        case ARSceneViewMode::Idle:
+            clearInfoLine();
+            break;
+        case ARSceneViewMode::CalibrationMode:
+            //execute calibration
+            if(_calibMgr.loadCalibrationParams(_calibFileDir)) {
+                _calibMgr.calibrate();
+            }
+            else {
+                setInfoLineText("Info: Could not load calibration parameter file.");
+                break;
+            }
+            break;
+        case ARSceneViewMode::ChessboardMode:
+            if(_calibMgr.uncalibrated())
+            {
+                setInfoLineText("Info: System uncalibrated. Perform camera calibration.");
+                break;
+            }
+            clearInfoLine();
+            //instantiate
+            _tracker = new ARChessboardTracker(_calibMgr.intrinsics(), _calibMgr.distortion());
+            //initialize
+            if(!_tracker->init(_paramFilesDir))
+            {
+                //init failed
+                _newMode = ARSceneViewMode::ArucoMode;
+            }
+            break;
+        case ARSceneViewMode::ArucoMode:
+            if(_calibMgr.uncalibrated())
+            {
+                setInfoLineText("Info: System uncalibrated. Perform camera calibration.");
+                break;
+            }
+            clearInfoLine();
+            //instantiate
+            _tracker = new ARArucoTracker(_calibMgr.intrinsics(), _calibMgr.distortion());
+            //initialize
+            if(!_tracker->init(_paramFilesDir))
+            {
+                //init failed
+                _newMode = ARSceneViewMode::Idle;
+            }
+            break;
+
+        }
+
+        //at last set _oldMode to _curMode
+        _currMode = _newMode;
+    }
 }
 //-----------------------------------------------------------------------------
 SLbool ARSceneView::onKeyPress(const SLKey key, const SLKey mod)
@@ -295,7 +370,22 @@ SLbool ARSceneView::onKeyPress(const SLKey key, const SLKey mod)
         break;
     }
 
-    updateInfoText();
+    processModeChange();
 }
 //-----------------------------------------------------------------------------
+void ARSceneView::clearInfoLine()
+{
+    _infoLine = "";
+    delete _infoBottomText;
+    _infoBottomText = nullptr;
+}
+//-----------------------------------------------------------------------------
+void ARSceneView::setInfoLineText( SLstring text )
+{
+    if( text != _infoLine )
+    {
+        _infoLine = text;
+        updateInfoText();
+    }
+}
 

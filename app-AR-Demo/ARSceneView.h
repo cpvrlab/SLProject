@@ -11,6 +11,7 @@
 
 #include <SLSceneView.h>
 #include <ARTracker.h>
+#include <ARCalibration.h>
 
 //-----------------------------------------------------------------------------
 
@@ -23,8 +24,8 @@ class ARSceneView : public SLSceneView
     public:
         enum ARSceneViewMode
         {
-            CalibrationMode,
             Idle,
+            CalibrationMode,
             ChessboardMode,
             ArucoMode
         };
@@ -41,35 +42,36 @@ class ARSceneView : public SLSceneView
 
         SLbool          onKeyPress      (const SLKey key, const SLKey mod);
 
-        float           getCameraFov    () { return _cameraFovDeg; }
+        ARCalibration& calibration()  { return _calibMgr; }
+        void            clearInfoLine();
+        void            setInfoLineText( SLstring text );
 
     private:
-        void            loadNewFrameIntoTracker();
+        void            getConvertedImage(cv::Mat& image);
 
         void            renderText      ();
         void            updateInfoText  ();
 
-        void            loadCamParams   (string filename);
+        bool            loadCamParams   (string filename);
         void            calculateCameraFieldOfView();
+        void            processModeChange();
 
 //        std::map<int,SLNode*> _arucoNodes;
         ARTracker*      _tracker;            //!< Tracker instance
 
-        SLText*         _infoText;      //!< node for all text display
+        SLText*         _infoText;           //!< node for all text display
+        SLText*         _infoBottomText;     //!< node for all text display
+        SLstring        _infoLine;
 
         ARSceneViewMode _newMode;
         ARSceneViewMode _currMode;
-
-        //camera intrinsic parameter
-        cv::Mat         _intrinsics;
-        //camera distortion parameter
-        cv::Mat         _distortion;
-        // camera field of view
-        float           _cameraFovDeg;
 
         //directory, where the calibration files are stored
         string          _calibFileDir;
         //directory, where the parameter files are stored
         string          _paramFilesDir;
+
+        //Calibration manager
+        ARCalibration   _calibMgr;
 };
 //-----------------------------------------------------------------------------
