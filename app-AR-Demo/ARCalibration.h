@@ -36,6 +36,7 @@ public:
     int         getNumCapturedImgs()  { return _numCaptured; }
     float       getReprojectionError() { return _reprojectionError; }
     void        calculate( std::string saveDir );
+    bool        getShowUndistorted() { return _showUndistorted; }
 
 private:
     void calculateCameraFieldOfView();
@@ -65,6 +66,8 @@ private:
     std::vector<std::vector<cv::Point2f> > _imagePoints;
 
     cv::Size _imageSize;
+
+    bool _showUndistorted;
 };
 
 #endif // ARCALIBRATION_H

@@ -54,6 +54,8 @@ public:
     cv::Mat _intrinsics;
     //camera distortion parameter
     cv::Mat _distortion;
+
+    bool _showUndistorted;
 };
 
 //-----------------------------------------------------------------------------

@@ -188,7 +188,16 @@ void ARSceneView::preDraw()
             }
         }
 
-        setOCVImageToTexture(cvImage);
+        if(_calibMgr.getShowUndistorted())
+        {
+            Mat undistorted;
+            undistort(cvImage, undistorted, _calibMgr.intrinsics(), _calibMgr.distortion());
+            setOCVImageToTexture(undistorted);
+        }
+        else
+        {
+            setOCVImageToTexture(cvImage);
+        }
     }
     else if(_currMode == CalibrationMode)
     {
@@ -218,7 +227,16 @@ void ARSceneView::preDraw()
             }
             setInfoLineText( ss.str());
 
-            setOCVImageToTexture(cvImage);
+            if(_calibMgr.getShowUndistorted())
+            {
+                Mat undistorted;
+                undistort(cvImage, undistorted, _calibMgr.intrinsics(), _calibMgr.distortion());
+                setOCVImageToTexture(undistorted);
+            }
+            else
+            {
+                setOCVImageToTexture(cvImage);
+            }
         }
         else if(_calibMgr.calibrated())
         {

@@ -28,7 +28,8 @@ ARCalibration::ARCalibration() :
     _numOfImgsToCapture(0),
     _numCaptured(0),
     _reprojectionError(-1.0f),
-    _prevTimestamp(0)
+    _prevTimestamp(0),
+    _showUndistorted(true)
 {
 }
 //-----------------------------------------------------------------------------
