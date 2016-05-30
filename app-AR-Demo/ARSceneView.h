@@ -12,6 +12,7 @@
 #include <SLSceneView.h>
 #include <ARTracker.h>
 #include <ARCalibration.h>
+#include <AR2DMapper.h>
 
 //-----------------------------------------------------------------------------
 
@@ -27,7 +28,9 @@ class ARSceneView : public SLSceneView
             Idle,
             CalibrationMode,
             ChessboardMode,
-            ArucoMode
+            ArucoMode,
+            Mapper2D,
+            Tracker2D
         };
 
         ARSceneView( string calibFileDir, string paramFilesDir);
@@ -46,7 +49,7 @@ class ARSceneView : public SLSceneView
         void            clearInfoLine();
         void            setInfoLineText( SLstring text );
 
-    private:
+private:
         void            getConvertedImage(cv::Mat& image);
         bool            getOCVImageFromTexture(cv::Mat& image);
         void            setOCVImageToTexture(cv::Mat& image );
@@ -75,5 +78,8 @@ class ARSceneView : public SLSceneView
 
         //Calibration manager
         ARCalibration   _calibMgr;
+
+        //2D Mapping
+        AR2DMapper      _mapper2D;
 };
 //-----------------------------------------------------------------------------

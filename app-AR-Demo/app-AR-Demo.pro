@@ -38,14 +38,18 @@ SOURCES += \
    ARTracker.cpp \
     ARChessboardTracker.cpp \
     ARArucoTracker.cpp \
-    ARCalibration.cpp
+    ARCalibration.cpp \
+    AR2DMapper.cpp \
+    AR2DTracker.cpp
 	   
 HEADERS += \
     ARSceneView.h \
     ARTracker.h \
     ARChessboardTracker.h \
     ARArucoTracker.h \
-    ARCalibration.h
+    ARCalibration.h \
+    AR2DMapper.h \
+    AR2DTracker.h
 
 include(../SLProjectCommonLibraries.pro)
 include(../SLProjectDeploy.pro)

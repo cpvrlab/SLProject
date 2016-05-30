@@ -35,12 +35,6 @@ bool ARChessboardTracker::init(string paramsFileDir)
     if( !_p.loadFromFile(paramsFileDir))
         return false;
 
-    //set up matrices for storage of translation and rotation vector
-    _rVec = Mat(Size(3, 1), CV_64F);
-    _tVec = Mat(Size(3, 1), CV_64F);
-    //set up matrix for rotation matrix after rodrigues transformation
-    _rMat = Mat(3,3,CV_64F);
-
     //generate vectors for the points on the chessboard
     for (int i = 0; i < _p.boardWidth; i++)
     {
@@ -74,7 +68,7 @@ bool ARChessboardTracker::track()
 //                Size(-1,-1), TermCriteria( TermCriteria::EPS+TermCriteria::COUNT, 30, 0.1 ));
 
             //find the camera extrinsic parameters
-            solvePnP(Mat(_boardPoints), Mat(_imagePoints), _intrinsics, _distortion, _rVec, _tVec, false);
+            bool result = solvePnP(Mat(_boardPoints), Mat(_imagePoints), _intrinsics, _distortion, _rVec, _tVec, false, cv::SOLVEPNP_ITERATIVE);
 
             //Transform calculated position (rotation and translation vector) from openCV to SLProject form
             //as discribed in this post:
@@ -114,7 +108,8 @@ bool ARChessboardTracker::track()
             _viewMat(3,2) = 0.0f;
             _viewMat(3,3) = 1.0f;
 
-            //_viewMat.print();
+            cout << "ARChessboardTracker viewMat:" << endl;
+            _viewMat.print();
         }
     }
 

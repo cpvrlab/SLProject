@@ -13,6 +13,8 @@
 #include <debug_new.h>        // memory leak detector
 #endif
 
+#include "ARSceneView.h"
+
 #include <SLBox.h>
 #include <SLLightSphere.h>
 #include <ARTracker.h>
@@ -23,7 +25,9 @@
 
 #include <ARChessboardTracker.h>
 #include <ARArucoTracker.h>
-#include "ARSceneView.h"
+#include <AR2DMapper.h>
+#include <AR2DTracker.h>
+
 #include <GLFW/glfw3.h>
 #include <sstream>
 
@@ -188,6 +192,7 @@ void ARSceneView::preDraw()
             }
         }
 
+        //show undistorted image
         if(_calibMgr.getShowUndistorted())
         {
             Mat undistorted;
@@ -227,16 +232,7 @@ void ARSceneView::preDraw()
             }
             setInfoLineText( ss.str());
 
-            if(_calibMgr.getShowUndistorted())
-            {
-                Mat undistorted;
-                undistort(cvImage, undistorted, _calibMgr.intrinsics(), _calibMgr.distortion());
-                setOCVImageToTexture(undistorted);
-            }
-            else
-            {
-                setOCVImageToTexture(cvImage);
-            }
+            setOCVImageToTexture(cvImage);
         }
         else if(_calibMgr.calibrated())
         {
@@ -247,6 +243,39 @@ void ARSceneView::preDraw()
             ss << "Calibrated: Reprojection error: " << reprojError;
             setInfoLineText( ss.str());
         }
+    }
+    else if(_currMode == Mapper2D )
+    {
+        Mat cvImage;
+        getOCVImageFromTexture(cvImage);
+
+        //undistort image for map creation
+        Mat undistorted;
+        undistort(cvImage, undistorted, _calibMgr.intrinsics(), _calibMgr.distortion());
+
+        if( _mapper2D.stateLineInput())
+        {
+            //update info line
+            String msg = "Insert reference width of captured image in m: " + _mapper2D.getCurrentRefWidthStr();
+            setInfoLineText( msg );
+        }
+        else if(_mapper2D.stateCapture())
+        {
+            //simulate a snapshot
+            cv::bitwise_not(undistorted, undistorted);
+
+            //use image to generate a new mapping
+            _mapper2D.createMap( undistorted, 0.0f, 0.0f, _paramFilesDir, "map2d", AR2DMap::AR_ORB );
+
+
+            _mapper2D.setState(AR2DMapper::Mapper2DState::IDLE);
+        }
+        else if( _mapper2D.stateIdle())
+        {
+            setInfoLineText( "Press 'l' to create a new map." );
+        }
+        //set image
+        setOCVImageToTexture(undistorted);
     }
 }
 //-----------------------------------------------------------------------------
@@ -269,6 +298,8 @@ void ARSceneView::updateInfoText()
     modes += "0: Tracking disabled \\n";
     modes += "1: Track chessboard \\n";
     modes += "2: Track ArUco markers \\n";
+    modes += "3: Track 2D map \\n";
+    modes += "4: Enter 2D mapping mode (press 'l' for snapshot)\\n";
 
     SLstring modeName;
     switch (_newMode)
@@ -284,6 +315,12 @@ void ARSceneView::updateInfoText()
         break;
     case ArucoMode:
         modeName = "Aruco Tracking Mode";
+        break;
+    case Mapper2D:
+        modeName = "2D Mapping Mode";
+        break;
+    case Tracker2D:
+        modeName = "2D Tracking Mode";
         break;
     }
 
@@ -356,7 +393,7 @@ void ARSceneView::renderText()
     _stateGL->viewport(0, 0, _scrW, _scrH);
 
     _stateGL->modelViewMatrix.identity();
-    _stateGL->modelViewMatrix.translate(-w2, -h2+35.0f, depth);
+    _stateGL->modelViewMatrix.translate(-w2, -h2+50.0f, depth);
     _stateGL->modelViewMatrix.multiply(_infoBottomText->om());
     _infoBottomText->drawRec(this);
 
@@ -384,6 +421,7 @@ void ARSceneView::processModeChange()
         case ARSceneViewMode::Idle:
             clearInfoLine();
             break;
+
         case ARSceneViewMode::CalibrationMode:
             //execute calibration
             if(_calibMgr.loadCalibrationParams(_calibFileDir)) {
@@ -394,6 +432,7 @@ void ARSceneView::processModeChange()
                 break;
             }
             break;
+
         case ARSceneViewMode::ChessboardMode:
             if(_calibMgr.uncalibrated())
             {
@@ -410,6 +449,7 @@ void ARSceneView::processModeChange()
                 _newMode = ARSceneViewMode::ArucoMode;
             }
             break;
+
         case ARSceneViewMode::ArucoMode:
             if(_calibMgr.uncalibrated())
             {
@@ -427,29 +467,91 @@ void ARSceneView::processModeChange()
             }
             break;
 
+        case ARSceneViewMode::Tracker2D:
+            if(_calibMgr.uncalibrated())
+            {
+                setInfoLineText("Info: System uncalibrated. Perform camera calibration.");
+                break;
+            }
+            clearInfoLine();
+            //instantiate
+            _tracker = new AR2DTracker(_calibMgr.intrinsics(), _calibMgr.distortion());
+            //initialize
+            if(!_tracker->init(_paramFilesDir))
+            {
+                //init failed
+                _newMode = ARSceneViewMode::Idle;
+            }
+            break;
+
+        case ARSceneViewMode::Mapper2D:
+            if(_calibMgr.uncalibrated())
+            {
+                setInfoLineText("Info: System uncalibrated. Perform camera calibration.");
+                break;
+            }
+        break;
         }
 
         //at last set _oldMode to _curMode
         _currMode = _newMode;
+        updateInfoText();
     }
 }
 //-----------------------------------------------------------------------------
 SLbool ARSceneView::onKeyPress(const SLKey key, const SLKey mod)
 {
-    switch(key)
+    if( _currMode == ARSceneViewMode::Mapper2D && _mapper2D.stateLineInput())
     {
-    case 'C':
-        _newMode = ARSceneViewMode::CalibrationMode;
-        break;
-    case '0':
-        _newMode = ARSceneViewMode::Idle;
-        break;
-    case '1':
-        _newMode = ARSceneViewMode::ChessboardMode;
-        break;
-    case '2':
-        _newMode = ARSceneViewMode::ArucoMode;
-        break;
+        switch(key)
+        {
+        case '0': _mapper2D.addDigit("0"); break;
+        case '1': _mapper2D.addDigit("1"); break;
+        case '2': _mapper2D.addDigit("2"); break;
+        case '3': _mapper2D.addDigit("3"); break;
+        case '4': _mapper2D.addDigit("4"); break;
+        case '5': _mapper2D.addDigit("5"); break;
+        case '6': _mapper2D.addDigit("6"); break;
+        case '7': _mapper2D.addDigit("7"); break;
+        case '8': _mapper2D.addDigit("8"); break;
+        case '9': _mapper2D.addDigit("9"); break;
+        case '.': _mapper2D.addDigit("."); break;
+        case SLKey::K_backspace: _mapper2D.removeLastDigit(); break;
+
+        case SLKey::K_enter:
+            _mapper2D.setState(AR2DMapper::IDLE);
+            break;
+        }
+    }
+    else
+    {
+        switch(key)
+        {
+        case 'C':
+            _newMode = ARSceneViewMode::CalibrationMode;
+            break;
+        case '0':
+            _newMode = ARSceneViewMode::Idle;
+            break;
+        case '1':
+            _newMode = ARSceneViewMode::ChessboardMode;
+            break;
+        case '2':
+            _newMode = ARSceneViewMode::ArucoMode;
+            break;
+        case '3':
+            _newMode = ARSceneViewMode::Tracker2D;
+            break;
+        case '4':
+            _newMode = ARSceneViewMode::Mapper2D;
+            _mapper2D.clear();
+            _mapper2D.setState(AR2DMapper::LINE_INPUT);
+            break;
+
+        case 'L':
+            _mapper2D.setState(AR2DMapper::CAPTURE);
+            break;
+        }
     }
 
     processModeChange();
@@ -470,4 +572,3 @@ void ARSceneView::setInfoLineText( SLstring text )
         updateInfoText();
     }
 }
-

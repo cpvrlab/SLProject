@@ -54,11 +54,17 @@ unix:!macx:!android {
     # sudo apt-get install libopencv-core-dev libopencv-imgproc-dev libopencv-video-dev libopencv-videoio-dev
     OPENCV_LIB_DIRS += /usr/lib #default
     OPENCV_LIB_DIRS += /usr/lib/x86_64-linux-gnu #ubuntu
-    OPENCV_LIB_DIRS += /home/ghm1/libs/opencv-3.1.0/release/lib #ubuntu
+
+    CONFIG(release, debug|release) {
+        OPENCV_LIB_DIRS += /home/ghm1/libs/opencv-3.1.0/release/lib #ubuntu
+    }
+    CONFIG(debug, debug|release) {
+        OPENCV_LIB_DIRS += /home/ghm1/libs/opencv-3.1.0/debug/lib #ubuntu
+    }
     for(dir,OPENCV_LIB_DIRS) {
         !opencv { #If opencv was already found, skip this loop
             CONFIG += opencv
-            OPENCV_LIBS =  opencv_core opencv_imgproc opencv_imgproc opencv_video opencv_videoio opencv_calib3d opencv_imgcodecs opencv_aruco opencv_highgui
+            OPENCV_LIBS =  opencv_core opencv_imgproc opencv_imgproc opencv_video opencv_videoio opencv_calib3d opencv_imgcodecs opencv_aruco opencv_highgui opencv_xfeatures2d opencv_features2d
             #Scan for opencv libs, if one is missing, remove the opencv flag.
             for(lib,OPENCV_LIBS):!exists($$dir/lib$${lib}.so*):CONFIG -= opencv
             opencv {
@@ -85,7 +91,14 @@ unix:!macx:!android {
     LIBS += -lpthread   #libpthread
     LIBS += -lpng
     LIBS += -lz
-    INCLUDEPATH += /home/ghm1/libs/opencv-3.1.0/release/include
+
+    CONFIG(release, debug|release) {
+        INCLUDEPATH += /home/ghm1/libs/opencv-3.1.0/release/include
+    }
+    CONFIG(debug, debug|release) {
+        INCLUDEPATH += /home/ghm1/libs/opencv-3.1.0/debug/include
+    }
+
     QMAKE_CXXFLAGS += -std=c++11
     QMAKE_CXXFLAGS += -Wunused-parameter
     QMAKE_CXXFLAGS += -Wno-unused-parameter

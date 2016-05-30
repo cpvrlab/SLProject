@@ -95,6 +95,9 @@ bool ARArucoTracker::track()
                 vm(3,2) = 0.0f;
                 vm(3,3) = 1.0f;
 
+                //cout << "aruco vm: " << endl;
+                //vm.print();
+
                 _arucoVMs.insert( pair<int,SLMat4f>(ids[i], vm));
             }
         }
