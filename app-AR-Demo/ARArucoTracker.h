@@ -1,9 +1,9 @@
 //#############################################################################
 //  File:      ARTracker.cpp
-//  Author:    Michael GÃ¶ttlicher
+//  Author:    Michael Göttlicher
 //  Date:      Spring 2016
 //  Codestyle: https://github.com/cpvrlab/SLProject/wiki/Coding-Style-Guidelines
-//  Copyright: Marcus Hudritsch
+//  Copyright: Marcus Hudritsch, Michael Göttlicher
 //             This software is provide under the GNU General Public License
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
@@ -15,8 +15,10 @@
 #include <SLNode.h>
 #include <opencv2/aruco.hpp>
 
-//-----------------------------------------------------------------------------
+using namespace std;
 
+
+//-----------------------------------------------------------------------------
 /*!
 Parameter class for aruco tracking
 */
@@ -31,7 +33,7 @@ public:
         arucoParams = cv::aruco::DetectorParameters::create();
     }
 
-    bool loadFromFile(string paramsDir )
+    bool loadFromFile(string paramsDir)
     {
         string path = paramsDir + filename;
         cv::FileStorage fs( path, cv::FileStorage::READ);
@@ -60,7 +62,6 @@ public:
         fs["perspectiveRemovePixelPerCell"] >> arucoParams->perspectiveRemovePixelPerCell;
         fs["perspectiveRemoveIgnoredMarginPerCell"] >> arucoParams->perspectiveRemoveIgnoredMarginPerCell;
         fs["maxErroneousBitsInBorderRate"] >> arucoParams->maxErroneousBitsInBorderRate;
-
         fs["edgeLength"] >> edgeLength;
         fs["arucoDictionaryId"] >> arucoDictionaryId;
         dictionary =  cv::aruco::getPredefinedDictionary(cv::aruco::PREDEFINED_DICTIONARY_NAME(arucoDictionaryId));
@@ -68,19 +69,13 @@ public:
         return true;
     }
 
-    //detector parameter structure for aruco detection function
-    cv::Ptr<cv::aruco::DetectorParameters> arucoParams;
-    //marker edge length
-    float edgeLength;
-    //id of aruco dictionary
-    int arucoDictionaryId;
+    cv::Ptr<cv::aruco::DetectorParameters>  arucoParams;    //!< detector parameter structure for aruco detection function
+    cv::Ptr<cv::aruco::Dictionary>          dictionary;     //!< predefined dictionary
 
-    //predefined dictionary
-    cv::Ptr<cv::aruco::Dictionary> dictionary;
-    //todo: put in one file
-    string arucoDetectorParams;
-    //parameter filename
-    string filename;
+    float   edgeLength;             //!< marker edge length
+    int     arucoDictionaryId;      //!< id of aruco dictionary
+    string  arucoDetectorParams;    //!< todo: put in one file
+    string  filename;               //!< parameter filename
 };
 
 //-----------------------------------------------------------------------------
@@ -90,28 +85,34 @@ Tracking class for ArUco markers tracking
 */
 class ARArucoTracker : public ARTracker
 {
-public:
-    ARArucoTracker(cv::Mat intrinsics, cv::Mat distoriton);
-    bool init(string paramsFileDir) override;
-    bool track() override;
-    void updateSceneView( ARSceneView* sv ) override;
-    void unloadSGObjects() override;
+    public:
+                ARArucoTracker  (cv::Mat intrinsics,
+                                 cv::Mat distoriton);
 
-    std::map<int,SLMat4f>& getArucoVMs () { return _arucoVMs; }
+        bool    init            (string paramsFileDir) override;
+        bool    track           () override;
+        void    updateSceneView (ARSceneView* sv) override;
+        void    unloadSGObjects () override;
 
-private:
-    bool            trackArucoMarkers   ();
-    void            drawArucoMarkerBoard(int numMarkersX, int numMarkersY, int markerEdgeLengthPix,
-                    int markerSepaPix,  int dictionaryId, string imgName, bool showImage = false,
-                    int borderBits = 1, int marginsSize = 0 );
+        std::map<int,SLMat4f>& getArucoVMs () {return _arucoVMs;}
+
+    private:
+        bool    trackArucoMarkers   ();
+        void    drawArucoMarkerBoard(int numMarkersX,
+                                     int numMarkersY,
+                                     int markerEdgeLengthPix,
+                                     int markerSepaPix,
+                                     int dictionaryId,
+                                     string imgName,
+                                     bool showImage = false,
+                                     int borderBits = 1,
+                                     int marginsSize = 0 );
+
+        map<int,SLMat4f>    _arucoVMs;  //!< Transformations of aruco markers with respect to camera
+        map<int,SLNode*>    _arucoNodes;
 
 
-    //Transformations of aruco markers with respect to camera
-    std::map<int,SLMat4f> _arucoVMs;
-    std::map<int,SLNode*> _arucoNodes;
-
-    //Parameter class instance
-    ARArucoParams _p;
+        ARArucoParams       _p; //!< Parameter class instance
 };
 
 #endif // ARARUCOTRACKER_H

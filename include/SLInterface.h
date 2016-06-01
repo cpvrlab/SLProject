@@ -25,43 +25,45 @@ by a native API such as Java Native Interface (JNI).
 See the implementation for more information.
 */
 //-----------------------------------------------------------------------------
-void    slCreateScene       (SLVstring& cmdLineArgs,
-                             SLstring shaderPath,
-                             SLstring modelPath,
-                             SLstring texturePath);
-int     slCreateSceneView   (int screenWidth,
-                             int screenHeight,
-                             int dotsPerInch,
-                             SLCommand initScene,  
-                             void* onWndUpdateCallback,
-                             void* onSelectNodeMeshCallback = 0,
-                             void* onNewSceneViewCallback = 0,
-                             void* onShowSystemCursorCallback = 0);
-int     slNewSceneView      ();
-bool    slShouldClose       ();
-void    slShouldClose       (bool val);
-void    slTerminate         ();
-void    slResize            (int sceneViewIndex, int width, int height);
-bool    slUpdateAndPaint    (int sceneViewIndex);
-void    slMouseDown         (int sceneViewIndex, SLMouseButton button, int x, int y, SLKey modifier);
-void    slMouseMove         (int sceneViewIndex, int x, int y);
-void    slMouseUp           (int sceneViewIndex, SLMouseButton button, int x, int y, SLKey modifier);
-void    slDoubleClick       (int sceneViewIndex, SLMouseButton button, int x, int y, SLKey modifier);
-void    slLongTouch         (int sceneViewIndex, int x, int y);
-void    slTouch2Down        (int sceneViewIndex, int x1, int y1, int x2, int y2);
-void    slTouch2Move        (int sceneViewIndex, int x1, int y1, int x2, int y2);
-void    slTouch2Up          (int sceneViewIndex, int x1, int y1, int x2, int y2);
-void    slMouseWheel        (int sceneViewIndex, int pos, SLKey modifier);
-void    slKeyPress          (int sceneViewIndex, SLKey key, SLKey modifier);
-void    slKeyRelease        (int sceneViewIndex, SLKey key, SLKey modifier);
-void    slCharInput         (int sceneViewIndex, unsigned int character);
-void    slCommand           (int sceneViewIndex, SLCommand command);
-bool    slUsesRotation      (int sceneViewIndex);
-void    slRotationPYR       (int sceneViewIndex, float pitchRAD, float yawRAD, float rollRAD);
-void    slRotationQUAT      (int sceneViewIndex, float angleRAD, float axisX, float axisY, float axisZ);
-string  slGetWindowTitle    (int sceneViewIndex);
-bool    slUsesVideoImage    ();
-void    slGrabCopyVideoImage(int sceneViewIndex, SLint device = 0);
-void    slCopyVideoImage    (int width, int height, SLPixelFormat glFormat, SLuchar* data, bool isTopLeft);
+void    slCreateScene           (SLVstring& cmdLineArgs,
+                                 SLstring shaderPath,
+                                 SLstring modelPath,
+                                 SLstring texturePath);
+int     slCreateSceneView       (int screenWidth,
+                                 int screenHeight,
+                                 int dotsPerInch,
+                                 SLCommand initScene,
+                                 void* onWndUpdateCallback,
+                                 void* onSelectNodeMeshCallback = 0,
+                                 void* onNewSceneViewCallback = 0,
+                                 void* onShowSystemCursorCallback = 0);
+int     slNewSceneView          ();
+bool    slShouldClose           ();
+void    slShouldClose           (bool val);
+void    slTerminate             ();
+void    slResize                (int sceneViewIndex, int width, int height);
+bool    slUpdateAndPaint        (int sceneViewIndex);
+void    slMouseDown             (int sceneViewIndex, SLMouseButton button, int x, int y, SLKey modifier);
+void    slMouseMove             (int sceneViewIndex, int x, int y);
+void    slMouseUp               (int sceneViewIndex, SLMouseButton button, int x, int y, SLKey modifier);
+void    slDoubleClick           (int sceneViewIndex, SLMouseButton button, int x, int y, SLKey modifier);
+void    slLongTouch             (int sceneViewIndex, int x, int y);
+void    slTouch2Down            (int sceneViewIndex, int x1, int y1, int x2, int y2);
+void    slTouch2Move            (int sceneViewIndex, int x1, int y1, int x2, int y2);
+void    slTouch2Up              (int sceneViewIndex, int x1, int y1, int x2, int y2);
+void    slMouseWheel            (int sceneViewIndex, int pos, SLKey modifier);
+void    slKeyPress              (int sceneViewIndex, SLKey key, SLKey modifier);
+void    slKeyRelease            (int sceneViewIndex, SLKey key, SLKey modifier);
+void    slCharInput             (int sceneViewIndex, unsigned int character);
+void    slCommand               (int sceneViewIndex, SLCommand command);
+bool    slUsesRotation          (int sceneViewIndex);
+void    slRotationPYR           (int sceneViewIndex, float pitchRAD, float yawRAD, float rollRAD);
+void    slRotationQUAT          (int sceneViewIndex, float angleRAD, float axisX, float axisY, float axisZ);
+string  slGetWindowTitle        (int sceneViewIndex);
+
+bool    slUsesVideoImage        ();
+SLVec2i slCreateCaptureDevice   (SLint device = 0);
+void    slGrabCopyVideoImage    (int sceneViewIndex, SLint device = 0);
+void    slCopyVideoImage        (int width, int height, SLPixelFormat glFormat, SLuchar* data, bool isTopLeft);
 //-----------------------------------------------------------------------------
 #endif // SLINTERFACE_H

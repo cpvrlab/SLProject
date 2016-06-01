@@ -1,10 +1,10 @@
 //#############################################################################
 //  File:      ARSceneView.h
 //  Purpose:   Augmented Reality Demo
-//  Author:    Michael GÃ¶ttlicher
-//  Date:      May 2016
+//  Author:    Michael Göttlicher
+//  Date:      Spring 2016
 //  Codestyle: https://github.com/cpvrlab/SLProject/wiki/Coding-Style-Guidelines
-//  Copyright: Marcus Hudritsch
+//  Copyright: Marcus Hudritsch, Michael Göttlicher
 //             This software is provide under the GNU General Public License
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
@@ -24,8 +24,7 @@ class ARSceneView : public SLSceneView
 {
     public:
         enum ARSceneViewMode
-        {
-            Idle,
+        {   Idle,
             CalibrationMode,
             ChessboardMode,
             ArucoMode,
@@ -33,35 +32,36 @@ class ARSceneView : public SLSceneView
             Tracker2D
         };
 
-        ARSceneView( string calibFileDir, string paramFilesDir);
-        ~ARSceneView();
+                        ARSceneView         (string calibFileDir,
+                                             string paramFilesDir);
+                       ~ARSceneView         ();
 
-        ARTracker*      tracker         () {return _tracker;}
+        ARTracker*      tracker             () {return _tracker;}
 
         // From SLSceneView overwritten
-        void            preDraw         ();
-        void            postDraw        ();
-        void            postSceneLoad   ();
+        void            preDraw             ();
+        void            postDraw            ();
+        void            postSceneLoad       ();
 
-        SLbool          onKeyPress      (const SLKey key, const SLKey mod);
+        SLbool          onKeyPress          (const SLKey key, const SLKey mod);
 
-        ARCalibration& calibration()  { return _calibMgr; }
-        void            clearInfoLine();
-        void            setInfoLineText( SLstring text );
+        ARCalibration&  calibration         ()  { return _calibMgr; }
+        void            clearInfoLine       ();
+        void            setInfoLineText     (SLstring text);
 
 private:
-        void            getConvertedImage(cv::Mat& image);
-        bool            getOCVImageFromTexture(cv::Mat& image);
-        void            setOCVImageToTexture(cv::Mat& image );
+        void            getConvertedImage   (cv::Mat& image);
+        bool            setTextureToCVImage (cv::Mat& image);
+        void            setCVImageToTexture (cv::Mat& image);
 
-        void            renderText      ();
-        void            updateInfoText  ();
+        void            renderText          ();
+        void            updateInfoText      ();
 
-        bool            loadCamParams   (string filename);
-        void            calculateCameraFieldOfView();
-        void            processModeChange();
+        bool            loadCamParams       (string filename);
+        void            calcCameraFOV       ();
+        void            processModeChange   ();
 
-//        std::map<int,SLNode*> _arucoNodes;
+        //std::map<int,SLNode*> _arucoNodes;
         ARTracker*      _tracker;            //!< Tracker instance
 
         SLText*         _infoText;           //!< node for all text display
@@ -71,15 +71,10 @@ private:
         ARSceneViewMode _newMode;
         ARSceneViewMode _currMode;
 
-        //directory, where the calibration files are stored
-        string          _calibFileDir;
-        //directory, where the parameter files are stored
-        string          _paramFilesDir;
+        string          _calibFileDir;      //!< path to calibration files are stored
+        string          _paramFilesDir;     //!< path to parameter files are stored
 
-        //Calibration manager
-        ARCalibration   _calibMgr;
-
-        //2D Mapping
-        AR2DMapper      _mapper2D;
+        ARCalibration   _calibMgr;          //!< calibration manager
+        AR2DMapper      _mapper2D;          //!< 2D Mapping
 };
 //-----------------------------------------------------------------------------

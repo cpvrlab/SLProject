@@ -446,6 +446,35 @@ bool slUsesVideoImage()
     return SLScene::current->usesVideoImage();
 }
 //-----------------------------------------------------------------------------
+/*! Creates the OpenCV video capture device and stores the handle in
+gCaptureDevice. It returns the frame width & height as an SLVec2i.
+*/
+SLVec2i slCreateCaptureDevice(SLint device)
+{
+    #ifdef SL_HAS_OPENCV
+    try
+    {   if (!gCaptureDevice)
+        {   gCaptureDevice = new cv::VideoCapture(device);
+            if (!gCaptureDevice->isOpened())
+                return SLVec2i::ZERO;
+            if (SL::noTestIsRunning())
+                SL_LOG("Capture devices created.\n");
+
+            int w = (int)gCaptureDevice->get(CV_CAP_PROP_FRAME_WIDTH);
+            int h = (int)gCaptureDevice->get(CV_CAP_PROP_FRAME_HEIGHT);
+            cout << "CV_CAP_PROP_FRAME_WIDTH : " << w << endl;
+            cout << "CV_CAP_PROP_FRAME_HEIGHT: " << h << endl;
+            return SLVec2i(w,h);
+        }
+    }
+    catch (exception e)
+    {   SL_LOG("Exception during OpenCV video capture creation\n");
+    }
+    #endif
+
+    return SLVec2i::ZERO;
+}
+//-----------------------------------------------------------------------------
 /*! Grabs an image from the live video stream with the OpenCV library.
 After grabbing the image is copied to the SLScenes::_videoTexture 
 Not all application will use OpenCV for capturing live video.
@@ -455,12 +484,7 @@ void slGrabCopyVideoImage(int sceneViewIndex, SLint device)
     #ifdef SL_HAS_OPENCV
     try
     {   if (!gCaptureDevice)
-        {   gCaptureDevice = new cv::VideoCapture(device);
-            if (!gCaptureDevice->isOpened())
-                return;
-            if (SL::noTestIsRunning())
-                SL_LOG("Capture devices created.\n");
-        }
+            slCreateCaptureDevice(device);
 
         if (gCaptureDevice && gCaptureDevice->isOpened())
         {   cv::Mat frame;

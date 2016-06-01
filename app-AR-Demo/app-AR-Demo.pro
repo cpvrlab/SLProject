@@ -33,9 +33,9 @@ win32 {POST_TARGETDEPS += $$PWD/../_lib/$$CONFIGURATION/$$PLATFORM/lib-SLProject
 else  {POST_TARGETDEPS += $$PWD/../_lib/$$CONFIGURATION/$$PLATFORM/liblib-SLProject.a}
    
 SOURCES += \
-   glfwMain.cpp \
-   ARSceneView.cpp \
-   ARTracker.cpp \
+    glfwMain.cpp \
+    ARSceneView.cpp \
+    ARTracker.cpp \
     ARChessboardTracker.cpp \
     ARArucoTracker.cpp \
     ARCalibration.cpp \

@@ -153,6 +153,13 @@ models_OBJ_Christoffelturm.files = \
   ../_data/models/OBJ/Christoffelturm/texture2.jpg \
   ../_data/models/OBJ/Christoffelturm/shadow.png \
 
+calibrations.files = \
+  ../_data/calibrations/calib_in_params.yml \
+
+detector_params.files = \
+  ../_data/detector_params/aruco_detector_params.yml \
+  ../_data/detector_params/chessboard_detector_params.yml \
+
 
 # Copies the given files to the destination directory
 defineTest(copyToDestdir) {
@@ -176,21 +183,33 @@ win32 {
 }
 macx {
     cvlibs.files += \
-        ../_lib/prebuilt/OpenCV/macx/libopencv_core.3.0.0.dylib \
-        ../_lib/prebuilt/OpenCV/macx/libopencv_core.3.0.dylib \
+        ../_lib/prebuilt/OpenCV/macx/libopencv_core.3.1.0.dylib \
+        ../_lib/prebuilt/OpenCV/macx/libopencv_core.3.1.dylib \
         ../_lib/prebuilt/OpenCV/macx/libopencv_core.dylib \
-        ../_lib/prebuilt/OpenCV/macx/libopencv_imgproc.3.0.0.dylib \
-        ../_lib/prebuilt/OpenCV/macx/libopencv_imgproc.3.0.dylib \
+        ../_lib/prebuilt/OpenCV/macx/libopencv_imgproc.3.1.0.dylib \
+        ../_lib/prebuilt/OpenCV/macx/libopencv_imgproc.3.1.dylib \
         ../_lib/prebuilt/OpenCV/macx/libopencv_imgproc.dylib \
-        ../_lib/prebuilt/OpenCV/macx/libopencv_video.3.0.0.dylib \
-        ../_lib/prebuilt/OpenCV/macx/libopencv_video.3.0.dylib \
+        ../_lib/prebuilt/OpenCV/macx/libopencv_video.3.1.0.dylib \
+        ../_lib/prebuilt/OpenCV/macx/libopencv_video.3.1.dylib \
         ../_lib/prebuilt/OpenCV/macx/libopencv_video.dylib \
-        ../_lib/prebuilt/OpenCV/macx/libopencv_videoio.3.0.0.dylib \
-        ../_lib/prebuilt/OpenCV/macx/libopencv_videoio.3.0.dylib \
+        ../_lib/prebuilt/OpenCV/macx/libopencv_videoio.3.1.0.dylib \
+        ../_lib/prebuilt/OpenCV/macx/libopencv_videoio.3.1.dylib \
         ../_lib/prebuilt/OpenCV/macx/libopencv_videoio.dylib \
-        ../_lib/prebuilt/OpenCV/macx/libopencv_imgcodecs.3.0.0.dylib \
-        ../_lib/prebuilt/OpenCV/macx/libopencv_imgcodecs.3.0.dylib \
-        ../_lib/prebuilt/OpenCV/macx/libopencv_imgcodecs.dylib
+        ../_lib/prebuilt/OpenCV/macx/libopencv_imgcodecs.3.1.0.dylib \
+        ../_lib/prebuilt/OpenCV/macx/libopencv_imgcodecs.3.1.dylib \
+        ../_lib/prebuilt/OpenCV/macx/libopencv_imgcodecs.dylib \
+        ../_lib/prebuilt/OpenCV/macx/libopencv_calib3d.3.1.0.dylib \
+        ../_lib/prebuilt/OpenCV/macx/libopencv_calib3d.3.1.dylib \
+        ../_lib/prebuilt/OpenCV/macx/libopencv_calib3d.dylib \
+        ../_lib/prebuilt/OpenCV/macx/libopencv_aruco.3.1.0.dylib \
+        ../_lib/prebuilt/OpenCV/macx/libopencv_aruco.3.1.dylib \
+        ../_lib/prebuilt/OpenCV/macx/libopencv_aruco.dylib \
+        ../_lib/prebuilt/OpenCV/macx/libopencv_features2d.3.1.0.dylib \
+        ../_lib/prebuilt/OpenCV/macx/libopencv_features2d.3.1.dylib \
+        ../_lib/prebuilt/OpenCV/macx/libopencv_features2d.dylib \
+        ../_lib/prebuilt/OpenCV/macx/libopencv_xfeatures2d.3.1.0.dylib \
+        ../_lib/prebuilt/OpenCV/macx/libopencv_xfeatures2d.3.1.dylib \
+        ../_lib/prebuilt/OpenCV/macx/libopencv_xfeatures2d.dylib
 }
 unix:!macx:!android {
     # linux only
@@ -208,6 +227,8 @@ macx: {
     models_FBX_Duck.path = Contents/_data/models/FBX/Duck
     models_FBX_Axes.path = Contents/_data/models/FBX/Axes
     models_OBJ_Christoffelturm.path = Contents/_data/models/OBJ/Christoffelturm
+    calibrations.path = Contents/_data/calibrations
+    detector_params.path = Contents/_data/detector_params
     cvlibs.path = Contents/Frameworks
 
     QMAKE_BUNDLE_DATA += textures
@@ -220,6 +241,8 @@ macx: {
     QMAKE_BUNDLE_DATA += models_FBX_Duck
     QMAKE_BUNDLE_DATA += models_FBX_Axes
     QMAKE_BUNDLE_DATA += models_OBJ_Christoffelturm
+    QMAKE_BUNDLE_DATA += calibrations
+    QMAKE_BUNDLE_DATA += detector_params
     QMAKE_BUNDLE_DATA += cvlibs
 
     macx {ICON = ../lib-SLProject/SLProject-Icon.icns}

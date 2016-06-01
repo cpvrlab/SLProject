@@ -12,62 +12,59 @@
 #define ARCALIBRATION_H
 
 #include <opencv2/core.hpp>
+using namespace std;
 
 class ARCalibration
 {
 public:
-    enum CalibState { IDLE, CAPTURING, CALCULATING, CALIBRATED };
-    ARCalibration();
-    bool loadCamParams(std::string dir);
-    void calibrate();
+    enum CalibState {IDLE, CAPTURING, CALCULATING, CALIBRATED};
 
-    cv::Mat&    intrinsics() { return _intrinsics; }
-    cv::Mat&    distortion() { return _distortion; }
-    float       getCameraFov() { return _cameraFovDeg; }
-    void        addImage(cv::Mat image);
+                ARCalibration       ();
 
-    bool        capturing() { return _state == CAPTURING; }
-    bool        calibrated() { return _state == CALIBRATED; }
-    bool        uncalibrated() { return _state != CALIBRATED; }
+    bool        loadCamParams       (string dir);
+    bool        loadCalibParams     (string calibFilesDir);
+    void        calibrate           ();
+    void        addImage            (cv::Mat image);
+    void        calculate           (string saveDir);
 
-    bool        loadCalibrationParams(std::string calibFilesDir);
-
-    int         getNumImgsToCapture() { return _numOfImgsToCapture; }
-    int         getNumCapturedImgs()  { return _numCaptured; }
-    float       getReprojectionError() { return _reprojectionError; }
-    void        calculate( std::string saveDir );
-    bool        getShowUndistorted() { return _showUndistorted; }
+    // Getters
+    cv::Mat&    intrinsics          () {return _intrinsics;}
+    cv::Mat&    distortion          () {return _distortion;}
+    float       cameraFovDeg        () {return _cameraFovDeg;}
+    bool        stateIsCapturing    () {return _state == CAPTURING;}
+    bool        stateIsCalibrated   () {return _state == CALIBRATED;}
+    int         numImgsToCapture    () {return _numOfImgsToCapture;}
+    int         numCapturedImgs     () {return _numCaptured;}
+    float       reprojectionError   () {return _reprojectionError;}
+    bool        showUndistorted     () {return _showUndistorted;}
 
 private:
-    void calculateCameraFieldOfView();
-    void clear();
+    void        calculateCameraFOV  ();
+    void        clear();
 
-    cv::Mat _intrinsics;
-    cv::Mat _distortion;
-    float   _cameraFovDeg;
+    cv::Mat     _intrinsics;
+    cv::Mat     _distortion;
+    float       _cameraFovDeg;
 
-    //cv::Mat     _image;
     CalibState  _state;
+    string      _calibFileName;         //!< name for calibration file
+    string      _calibParamsFileName;
 
-    //name for calibration file
-    std::string          _calibFileName;
-    std::string          _calibParamsFileName;
+    int         _numInnerCornersWidth;
+    int         _numInnerCornersHeight;
+    float       _squareSizeMM;
+    int         _captureDelayMS;
+    int         _numOfImgsToCapture;
 
-    int _numInnerCornersWidth;
-    int _numInnerCornersHeight;
-    float _squareSizeMM;
-    int _captureDelayMS;
-    int _numOfImgsToCapture;
+    int         _numCaptured;
+    float       _reprojectionError;
 
-    int _numCaptured;
-    float _reprojectionError;
+    clock_t     _prevTimestamp;
+    vector<vector<cv::Point2f>> _imagePoints;
 
-    clock_t _prevTimestamp;
-    std::vector<std::vector<cv::Point2f> > _imagePoints;
+    cv::Size    _imageSize;
 
-    cv::Size _imageSize;
-
-    bool _showUndistorted;
+    bool        _showUndistorted;
 };
 
 #endif // ARCALIBRATION_H

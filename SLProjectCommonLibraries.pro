@@ -43,8 +43,14 @@ macx {
     LIBS += -stdlib=libc++
     LIBS += -L../_lib/prebuilt/OpenCV/macx -lopencv_core
     LIBS += -L../_lib/prebuilt/OpenCV/macx -lopencv_imgproc
+    LIBS += -L../_lib/prebuilt/OpenCV/macx -lopencv_imgcodecs
     LIBS += -L../_lib/prebuilt/OpenCV/macx -lopencv_video
     LIBS += -L../_lib/prebuilt/OpenCV/macx -lopencv_videoio
+    LIBS += -L../_lib/prebuilt/OpenCV/macx -lopencv_aruco
+    LIBS += -L../_lib/prebuilt/OpenCV/macx -lopencv_features2d
+    LIBS += -L../_lib/prebuilt/OpenCV/macx -lopencv_xfeatures2d
+    LIBS += -L../_lib/prebuilt/OpenCV/macx -lopencv_calib3d
+    LIBS += -L../_lib/prebuilt/OpenCV/macx -lopencv_highgui
     INCLUDEPATH += ../lib-SLExternal/png
     INCLUDEPATH += /usr/include
     DEFINES += SL_HAS_OPENCV

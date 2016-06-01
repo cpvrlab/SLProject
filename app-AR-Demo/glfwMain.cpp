@@ -1,9 +1,10 @@
 //#############################################################################
 //  File:      glfwMain.cpp
 //  Purpose:   Implementation of the GUI with the GLFW3 (http://www.glfw.org/)
-//  Author:    Marcus Hudritsch
-//  Date:      July 2014
-//  Copyright: Marcus Hudritsch
+//  Author:    Michael Göttlicher
+//  Date:      Spring 2016
+//  Codestyle: https://github.com/cpvrlab/SLProject/wiki/Coding-Style-Guidelines
+//  Copyright: Marcus Hudritsch, Michael Göttlicher
 //             This software is provide under the GNU General Public License
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
@@ -68,7 +69,7 @@ SLbool onPaint()
 {
     // If live video image is requested grab it and copy it
     if (slUsesVideoImage())
-        slGrabCopyVideoImage(svIndex, 1);
+        slGrabCopyVideoImage(svIndex, 0);
 
     bool viewNeedsRepaint = slUpdateAndPaint(svIndex);
 
@@ -359,7 +360,7 @@ void onGLFWError(int error, const char* description)
 //! Alternative SceneView creation function passed by slCreateSceneView
 SLuint createARSceneView()
 {
-    nodeARSV = new ARSceneView( calibDir, detectorParamsDir );
+    nodeARSV = new ARSceneView(calibDir, detectorParamsDir);
     return nodeARSV->index();
 }
 //-----------------------------------------------------------------------------
@@ -367,10 +368,7 @@ SLuint createARSceneView()
 The C main procedure running the GLFW GUI application.
 */
 int main(int argc, char *argv[])
-{  
-//    ARTracker tracker;
-//    tracker.drawArucoMarkerBoard( 2, 2, 200, 200, 0, "aruco_marker_test_4.png", false );
-
+{
     // set command line arguments
     SLVstring cmdLineArgs;
     for(int i = 0; i < argc; i++)
@@ -387,8 +385,16 @@ int main(int argc, char *argv[])
     glfwWindowHint(GLFW_SAMPLES, 4);
     //glfwWindowHint(GLFW_DECORATED, false); // start without any window frame
 
-    scrWidth = 640;
-    scrHeight = 480;
+    SLVec2i captureSize = slCreateCaptureDevice(0);
+
+    if (captureSize != SLVec2i::ZERO)
+    {   scrWidth = captureSize.x;
+        scrHeight = captureSize.y;
+    } else
+    {   scrWidth = 640;
+        scrHeight = 480;
+    }
+
 
     window = glfwCreateWindow(scrWidth, scrHeight, "My Title", NULL, NULL);
     if (!window)
@@ -443,7 +449,7 @@ int main(int argc, char *argv[])
                   exeDir + "../_data/images/textures/");
 
     detectorParamsDir = exeDir + "../_data/detector_params/";
-    calibDir = exeDir + "../_data/calibrations/";
+    calibDir          = exeDir + "../_data/calibrations/";
 
     svIndex = slCreateSceneView((int)(scrWidth  * scr2fbX),
                                 (int)(scrHeight * scr2fbY),

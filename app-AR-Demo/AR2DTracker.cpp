@@ -1,9 +1,9 @@
 //#############################################################################
 //  File:      AR2DTracker.cpp
-//  Author:    Michael GÃ¶ttlicher
+//  Author:    Michael Göttlicher
 //  Date:      Spring 2016
 //  Codestyle: https://github.com/cpvrlab/SLProject/wiki/Coding-Style-Guidelines
-//  Copyright: Marcus Hudritsch
+//  Copyright: Marcus Hudritsch, Michael Göttlicher
 //             This software is provide under the GNU General Public License
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
