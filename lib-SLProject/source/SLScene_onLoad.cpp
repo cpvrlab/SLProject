@@ -1064,6 +1064,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
 
         // Set active camera
         sv->camera(cam1);
+        sv->waitEvents(false);
     }
     else
     if (_currentSceneID == C_sceneFrustumCull) //...................................

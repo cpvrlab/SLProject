@@ -129,11 +129,13 @@ bool ARSceneView::setTextureToCVImage(cv::Mat& image )
     if( !SLScene::current->videoTexture()->images().size())
         return false;
 
-//    SLImage* texImg = SLScene::current->videoTexture()->images()[0];
-//    SLImage img = *texImg;
-//    SLImage* slImg = &img;
+    //SLImage* texImg = SLScene::current->videoTexture()->images()[0];
+    //SLImage img = *texImg;
+    //SLImage* slImg = &img;
+
     SLImage* slImg = SLScene::current->videoTexture()->images()[0];
     //slImg->savePNG("slImage0.png");
+
     //convert to opencv Mat
     int ocvType = -1;
     switch (slImg->format())
@@ -187,21 +189,18 @@ void ARSceneView::preDraw()
         cv::Mat cvImage;
         setTextureToCVImage(cvImage);
         //getConvertedImage(cvImage);
-        if(!cvImage.empty())
-        {
-            _tracker->image(cvImage);
 
+        if(!cvImage.empty())
+        {   _tracker->image(cvImage);
             if( _currMode != ARSceneViewMode::Idle || _currMode != ARSceneViewMode::CalibrationMode )
-            {
-                _tracker->track();
+            {   _tracker->track();
                 _tracker->updateSceneView(this);
             }
         }
 
         //show undistorted image
         if(_calibMgr.showUndistorted())
-        {
-            Mat undistorted;
+        {   Mat undistorted;
             undistort(cvImage, undistorted, _calibMgr.intrinsics(), _calibMgr.distortion());
             setCVImageToTexture(undistorted);
         }
@@ -216,12 +215,15 @@ void ARSceneView::preDraw()
         if( _calibMgr.stateIsCapturing())
         {
             cv::Mat cvImage;
+
             //getConvertedImage(cvImage);
             setTextureToCVImage(cvImage);
             if(!cvImage.empty())
                 _calibMgr.addImage(cvImage);
+
             //get number of all images to  be captured
             int imgsToCap = _calibMgr.numImgsToCapture();
+
             //get number of already captured images
             int imgsCaped = _calibMgr.numCapturedImgs();
             //update Info line
