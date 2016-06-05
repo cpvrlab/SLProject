@@ -175,11 +175,17 @@ defineTest(copyToDestdir) {
 
 # OpenCV
 win32 {
-    copyToDestdir($$PWD\_lib\prebuilt\OpenCV\x64\vc12\bin\opencv_core300.dll)
-    copyToDestdir($$PWD\_lib\prebuilt\OpenCV\x64\vc12\bin\opencv_imgproc300.dll)
-    copyToDestdir($$PWD\_lib\prebuilt\OpenCV\x64\vc12\bin\opencv_imgcodecs300.dll)
-    copyToDestdir($$PWD\_lib\prebuilt\OpenCV\x64\vc12\bin\opencv_video300.dll)
-    copyToDestdir($$PWD\_lib\prebuilt\OpenCV\x64\vc12\bin\opencv_videoio300.dll)
+    copyToDestdir($$PWD\_lib\prebuilt\OpenCV\x64\vc12\bin\opencv_core310.lib)
+    copyToDestdir($$PWD\_lib\prebuilt\OpenCV\x64\vc12\bin\opencv_imgproc310.lib)
+    copyToDestdir($$PWD\_lib\prebuilt\OpenCV\x64\vc12\bin\opencv_imgcodecs310.lib)
+    copyToDestdir($$PWD\_lib\prebuilt\OpenCV\x64\vc12\bin\opencv_video310.lib)
+    copyToDestdir($$PWD\_lib\prebuilt\OpenCV\x64\vc12\bin\opencv_videoio310.lib)
+    copyToDestdir($$PWD\_lib\prebuilt\OpenCV\x64\vc12\bin\opencv_aruco310.lib)
+    copyToDestdir($$PWD\_lib\prebuilt\OpenCV\x64\vc12\bin\opencv_features2d310.lib)
+    copyToDestdir($$PWD\_lib\prebuilt\OpenCV\x64\vc12\bin\opencv_xfeatures2d310.lib)
+    copyToDestdir($$PWD\_lib\prebuilt\OpenCV\x64\vc12\bin\opencv_calib3d310.lib)
+    copyToDestdir($$PWD\_lib\prebuilt\OpenCV\x64\vc12\bin\opencv_highgui310.lib)
+    copyToDestdir($$PWD\_lib\prebuilt\OpenCV\x64\vc12\bin\opencv_flann310.lib)
 }
 macx {
     cvlibs.files += \
@@ -209,7 +215,10 @@ macx {
         ../_lib/prebuilt/OpenCV/macx/libopencv_features2d.dylib \
         ../_lib/prebuilt/OpenCV/macx/libopencv_xfeatures2d.3.1.0.dylib \
         ../_lib/prebuilt/OpenCV/macx/libopencv_xfeatures2d.3.1.dylib \
-        ../_lib/prebuilt/OpenCV/macx/libopencv_xfeatures2d.dylib
+        ../_lib/prebuilt/OpenCV/macx/libopencv_xfeatures2d.dylib \
+        ../_lib/prebuilt/OpenCV/macx/libopencv_flann.3.1.0.dylib \
+        ../_lib/prebuilt/OpenCV/macx/libopencv_flann.3.1.dylib \
+        ../_lib/prebuilt/OpenCV/macx/libopencv_flann.dylib
 }
 unix:!macx:!android {
     # linux only

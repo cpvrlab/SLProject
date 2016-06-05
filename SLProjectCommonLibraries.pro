@@ -18,10 +18,18 @@ win32 {
     LIBS += -lshell32
     LIBS += -lsetupapi
     LIBS += -lws2_32
-    LIBS += $$PWD\_lib\prebuilt\OpenCV\x64\vc12\lib\opencv_core300.lib
-    LIBS += $$PWD\_lib\prebuilt\OpenCV\x64\vc12\lib\opencv_imgproc300.lib
-    LIBS += $$PWD\_lib\prebuilt\OpenCV\x64\vc12\lib\opencv_video300.lib
-    LIBS += $$PWD\_lib\prebuilt\OpenCV\x64\vc12\lib\opencv_videoio300.lib
+    LIBS += $$PWD\_lib\prebuilt\OpenCV\x64\vc12\lib\opencv_core310.lib
+    LIBS += $$PWD\_lib\prebuilt\OpenCV\x64\vc12\lib\opencv_imgproc310.lib
+    LIBS += $$PWD\_lib\prebuilt\OpenCV\x64\vc12\lib\opencv_imgcodecs310.lib
+    LIBS += $$PWD\_lib\prebuilt\OpenCV\x64\vc12\lib\opencv_video310.lib
+    LIBS += $$PWD\_lib\prebuilt\OpenCV\x64\vc12\lib\opencv_videoio310.lib
+    LIBS += $$PWD\_lib\prebuilt\OpenCV\x64\vc12\lib\opencv_aruco310.lib
+    LIBS += $$PWD\_lib\prebuilt\OpenCV\x64\vc12\lib\opencv_features2d310.lib
+    LIBS += $$PWD\_lib\prebuilt\OpenCV\x64\vc12\lib\opencv_xfeatures2d310.lib
+    LIBS += $$PWD\_lib\prebuilt\OpenCV\x64\vc12\lib\opencv_calib3d310.lib
+    LIBS += $$PWD\_lib\prebuilt\OpenCV\x64\vc12\lib\opencv_highgui310.lib
+    LIBS += $$PWD\_lib\prebuilt\OpenCV\x64\vc12\lib\opencv_flann310.lib
+
     DEFINES += GLEW_STATIC
     DEFINES += GLEW_NO_GLU
     DEFINES += _GLFW_NO_DLOAD_GDI32
@@ -51,6 +59,7 @@ macx {
     LIBS += -L../_lib/prebuilt/OpenCV/macx -lopencv_xfeatures2d
     LIBS += -L../_lib/prebuilt/OpenCV/macx -lopencv_calib3d
     LIBS += -L../_lib/prebuilt/OpenCV/macx -lopencv_highgui
+    LIBS += -L../_lib/prebuilt/OpenCV/macx -lopencv_flann
     INCLUDEPATH += ../lib-SLExternal/png
     INCLUDEPATH += /usr/include
     DEFINES += SL_HAS_OPENCV
