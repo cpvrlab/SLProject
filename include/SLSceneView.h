@@ -188,7 +188,7 @@ class SLSceneView: public SLObject
             SLVNode*        opaqueNodes     () {return &_opaqueNodes;}
             SLRaytracer*    raytracer       () {return &_raytracer;}
             SLPathtracer*   pathtracer      () {return &_pathtracer;}
-            SLRenderType      renderType      () const {return _renderType;}
+            SLRenderType    renderType      () const {return _renderType;}
             SLGLOculusFB*   oculusFB        () {return &_oculusFB;}
             SLDrawBits*     drawBits        () {return &_drawBits;}
             SLbool          drawBit         (SLuint bit) {return _drawBits.get(bit);}
@@ -196,9 +196,7 @@ class SLSceneView: public SLObject
             SLfloat         draw3DTimeMS    () const {return _draw3DTimeMS;}
             SLfloat         draw2DTimeMS    () const {return _draw2DTimeMS;}
 
-    static const SLint      LONGTOUCH_MS;       //!< Milliseconds duration of a long touch event 
-
-            std::shared_ptr<SLImage>   _lastVideoFrame;
+    static const SLint      LONGTOUCH_MS;       //!< Milliseconds duration of a long touch event
 
    protected:
             SLuint          _index;             //!< index of this pointer in SLScene::sceneView vector

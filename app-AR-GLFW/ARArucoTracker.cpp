@@ -196,7 +196,7 @@ void ARArucoTracker::updateSceneView( ARSceneView* sv )
             // load coordinate axis arrows
             SLAssimpImporter importer;
             SLNode* axesNode = importer.load("FBX/Axes/axes_blender.fbx");
-            axesNode->scale(0.3);
+            axesNode->scale(0.3f);
             box->addChild(axesNode);
 
             //add new object to Scene

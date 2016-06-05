@@ -11,6 +11,7 @@
 #ifndef ARCALIBRATION_H
 #define ARCALIBRATION_H
 
+#include <stdafx.h>
 #include <opencv2/core.hpp>
 using namespace std;
 

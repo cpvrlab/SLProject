@@ -94,7 +94,7 @@ bool AR2DTracker::init(string paramsFileDir)
         //initialize matcher
         _matcher = DescriptorMatcher::create("BruteForce-Hamming");
     }
-
+    return true; //???
 }
 //-----------------------------------------------------------------------------
 bool AR2DTracker::track()
@@ -125,10 +125,10 @@ bool AR2DTracker::track()
     {
 #if AR_KNN_MATCH
         std::vector<vector<DMatch> > matches;
-        //fint two nearest neighbors
+        //find two nearest neighbors
         _matcher->knnMatch(_sceneDescriptors, _map.descriptors, matches, 2 );
         //apply sift ratio test
-        const float ratio = 0.8; // As in Lowe's paper
+        const float ratio = 0.8f; // As in Lowe's paper
         for (int i = 0; i < matches.size(); ++i)
         {
             //we want matches, which have no near neighbors and are kind of unique
@@ -162,7 +162,7 @@ bool AR2DTracker::track()
         }
 #endif
 
-        //extrakt 2d pts depending on good matches
+        //extract 2d pts depending on good matches
         for( size_t i = 0; i < goodMatches.size(); i++ )
         {
           //-- Get the keypoints from the good matches
@@ -244,16 +244,16 @@ bool AR2DTracker::track()
         {
             _posValid = true;
 
-            //reproject map onto image (discart points that are out of bounds)
+            //reproject map onto image (discard points that are out of bounds)
             //(look inside optical flow, how they do)
             //try to find additional features in near environment
             //(look inside optical flow, how they do)
             //optimize position using homography or some optimization strategy
 
             //Transform calculated position (rotation and translation vector) from openCV to SLProject form
-            //as discribed in this post:
+            //as described in this post:
             //http://www.morethantechnical.com/2015/02/17/augmented-reality-on-libqglviewer-and-opencv-opengl-tips-wcode/
-            //attention: We dont have to transpose the resulting matrix, because SLProject uses row-major matrices.
+            //attention: We don't have to transpose the resulting matrix, because SLProject uses row-major matrices.
             //For direct openGL use you have to transpose the resulting matrix additionally.
 
             //convert vector to rotation matrix
@@ -293,6 +293,7 @@ bool AR2DTracker::track()
             //update the tracking status visualization in Scene View
         }
     }
+    return true; //???
 }
 //-----------------------------------------------------------------------------
 void AR2DTracker::updateSceneView( ARSceneView* sv )
@@ -306,7 +307,7 @@ void AR2DTracker::updateSceneView( ARSceneView* sv )
         // load coordinate axis arrows
         SLAssimpImporter importer;
         SLNode* axesNode = importer.load("FBX/Axes/axes_blender.fbx");
-        axesNode->scale(0.3);
+        axesNode->scale(0.3f);
         _node->addChild(axesNode);
 
         float edgeLength = 0.16f / 2;

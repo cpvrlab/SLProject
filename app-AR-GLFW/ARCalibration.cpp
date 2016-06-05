@@ -10,6 +10,7 @@
 
 #include "ARCalibration.h"
 #include <ARSceneView.h>
+#include <opencv2/opencv.hpp>
 #include <opencv2/highgui.hpp>
 #include <opencv2/calib3d.hpp>
 
@@ -298,7 +299,7 @@ void ARCalibration::addImage(cv::Mat image)
     else if(timeOut)
     {
         Mat imageGray;
-        cvtColor(image, imageGray, COLOR_BGR2GRAY);
+        cv::cvtColor(image, imageGray, COLOR_BGR2GRAY);
         cornerSubPix(imageGray, newImagePoints, Size(11,11),
             Size(-1,-1), TermCriteria(TermCriteria::EPS+TermCriteria::COUNT, 30, 0.1));
 

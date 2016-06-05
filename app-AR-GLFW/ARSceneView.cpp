@@ -31,6 +31,7 @@
 #include <GLFW/glfw3.h>
 #include <sstream>
 
+#include <opencv2/opencv.hpp>
 #include <opencv2/highgui.hpp>
 
 using namespace cv;
@@ -52,13 +53,13 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand cmd)
         fov = arSV->calibration().cameraFovDeg();
 
     cam1->fov(fov);
-    cam1->clipNear(0.01);
-    cam1->clipFar(10);
+    cam1->clipNear(0.01f);
+    cam1->clipFar(10.0f);
 
     //initial translation: will be overwritten as soon as first camera pose is estimated in ARTracker
     cam1->translate(0,0,0.5f);
 
-    //set video image as backgound texture
+    //set video image as background texture
     _background.texture(&_videoTexture, true);
     _usesVideoImage = true;
 
@@ -105,7 +106,9 @@ void ARSceneView::getConvertedImage(cv::Mat& image )
 {
     //convert video image to cv::Mat and set into tracker
     int ocvType = -1;
-    switch (_lastVideoFrame->format())
+    SLImage* lastVideoFrame = SLScene::current->videoTexture()->images()[0];
+
+    switch (lastVideoFrame->format())
     {   case PF_luminance: ocvType = CV_8UC1; break;
         case PF_rgb: ocvType = CV_8UC3; break;
         case PF_rgba: ocvType = CV_8UC4; break;
@@ -114,12 +117,10 @@ void ARSceneView::getConvertedImage(cv::Mat& image )
 
     if( ocvType != -1 )
     {
-        image = cv::Mat( _lastVideoFrame->height(),
-                         _lastVideoFrame->width(),
+        image = cv::Mat( lastVideoFrame->height(),
+                         lastVideoFrame->width(),
                          ocvType,
-                         _lastVideoFrame->data());
-
-        //cv::imwrite("newImg.png", newImage);
+                         lastVideoFrame->data());
     }
 }
 //-----------------------------------------------------------------------------
@@ -502,6 +503,7 @@ SLbool ARSceneView::onKeyPress(const SLKey key, const SLKey mod)
     }
 
     processModeChange();
+    return true;
 }
 //-----------------------------------------------------------------------------
 void ARSceneView::clearInfoLine()

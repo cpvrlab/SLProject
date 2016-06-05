@@ -128,7 +128,7 @@ void ARChessboardTracker::updateSceneView( ARSceneView* sv )
         // load coordinate axis arrows
         SLAssimpImporter importer;
         SLNode* axesNode = importer.load("FBX/Axes/axes_blender.fbx");
-        axesNode->scale(0.3);
+        axesNode->scale(0.3f);
         _node->addChild(axesNode);
 
         float edgeLength = _p.edgeLengthM * 3;
