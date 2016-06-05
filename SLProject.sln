@@ -77,6 +77,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ch06_ColorCube", "exercises
 		{CCC645D3-B20F-431C-824A-7895D6E404DF} = {CCC645D3-B20F-431C-824A-7895D6E404DF}
 	EndProjectSection
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "app-AR-GLFW", "app-AR-GLFW\app-AR-GLFW.vcxproj", "{DD67BAF6-BF3D-4A45-A411-C1465F63E9C5}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Android = Debug|Android
@@ -183,6 +185,12 @@ Global
 		{0146E7DF-20B2-413B-AB05-7DC1D8F0C5E9}.Release|Android.ActiveCfg = Release|x64
 		{0146E7DF-20B2-413B-AB05-7DC1D8F0C5E9}.Release|x64.ActiveCfg = Release|x64
 		{0146E7DF-20B2-413B-AB05-7DC1D8F0C5E9}.Release|x64.Build.0 = Release|x64
+		{DD67BAF6-BF3D-4A45-A411-C1465F63E9C5}.Debug|Android.ActiveCfg = Debug|Win32
+		{DD67BAF6-BF3D-4A45-A411-C1465F63E9C5}.Debug|x64.ActiveCfg = Debug|x64
+		{DD67BAF6-BF3D-4A45-A411-C1465F63E9C5}.Debug|x64.Build.0 = Debug|x64
+		{DD67BAF6-BF3D-4A45-A411-C1465F63E9C5}.Release|Android.ActiveCfg = Release|Win32
+		{DD67BAF6-BF3D-4A45-A411-C1465F63E9C5}.Release|x64.ActiveCfg = Release|x64
+		{DD67BAF6-BF3D-4A45-A411-C1465F63E9C5}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

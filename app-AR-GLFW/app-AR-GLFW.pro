@@ -1,6 +1,6 @@
 ##############################################################################
-#  File:      app-AR-Demo.pro
-#  Purpose:   QMake project definition file for demo application with GLFW
+#  File:      app-AR-GLFW.pro
+#  Purpose:   QMake project definition file for an AR application with GLFW
 #  Author:    Michael Göttlicher
 #  Date:      May 2016
 #  Copyright: Marcus Hudritsch, Switzerland
@@ -9,7 +9,7 @@
 ##############################################################################
 
 TEMPLATE = app
-TARGET = app-AR-Demo
+TARGET = app-AR-GLFW
 
 CONFIG += console
 CONFIG -= qt
