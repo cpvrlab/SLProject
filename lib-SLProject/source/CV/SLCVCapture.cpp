@@ -16,6 +16,7 @@
 //-----------------------------------------------------------------------------
 // Global static variables
 Mat             SLCVCapture::lastFrame;
+SLPixelFormat   SLCVCapture::format;
 VideoCapture    SLCVCapture::_captureDevice;
 //-----------------------------------------------------------------------------
 //! Opens the capture device and returns the frame size
@@ -45,7 +46,7 @@ SLVec2i SLCVCapture::open(int deviceNum)
 }
 //-----------------------------------------------------------------------------
 //! Grabs a new frame from the capture device and copies it to the SLScene
-void SLCVCapture::grabAndCopy()
+void SLCVCapture::grabAndCopyToSL()
 {
     try
     {   if (_captureDevice.isOpened())
@@ -54,7 +55,6 @@ void SLCVCapture::grabAndCopy()
                 return;
 
             // Set the according OpenGL format
-            SLPixelFormat format;
             switch (lastFrame.type())
             {   case CV_8UC1: format = PF_luminance; break;
                 case CV_8UC3: format = PF_rgb; break;
@@ -63,9 +63,14 @@ void SLCVCapture::grabAndCopy()
             }
 
             // OpenGL ES doesn't support BGR or BGRA
-            cvtColor(lastFrame, lastFrame, CV_BGR2RGB);
+            //cv::cvtColor(lastFrame, lastFrame, CV_BGR2RGB);
+            //cv::flip(lastFrame, lastFrame, 0);
 
-            SLScene::current->copyVideoImage(lastFrame.cols, lastFrame.rows, format, lastFrame.data, true);
+            SLScene::current->copyVideoImage(lastFrame.cols,
+                                             lastFrame.rows,
+                                             format,
+                                             lastFrame.data,
+                                             true);
         }
         else
         {   static bool logOnce = true;
@@ -81,5 +86,15 @@ void SLCVCapture::grabAndCopy()
     {
         SL_LOG("Exception during OpenCV video capture creation\n");
     }
+}
+//-----------------------------------------------------------------------------
+//! Copies the last frame to the SLScene
+void SLCVCapture::copyFrameToSL()
+{
+    SLScene::current->copyVideoImage(lastFrame.cols,
+                                     lastFrame.rows,
+                                     format,
+                                     lastFrame.data,
+                                     true);
 }
 //-----------------------------------------------------------------------------

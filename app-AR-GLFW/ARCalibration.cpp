@@ -274,7 +274,7 @@ void ARCalibration::calculate(string saveDir)
     }
 }
 //-----------------------------------------------------------------------------
-void ARCalibration::addImage(const cv::Mat& image)
+void ARCalibration::addImage(cv::Mat image)
 {
     //set image size
     _imageSize = image.size();
@@ -287,8 +287,8 @@ void ARCalibration::addImage(const cv::Mat& image)
     Size boardSize = cv::Size(_numInnerCornersWidth, _numInnerCornersHeight);
     int chessBoardFlags = CALIB_CB_ADAPTIVE_THRESH | CALIB_CB_NORMALIZE_IMAGE | CALIB_CB_FAST_CHECK;
     bool found = cv::findChessboardCorners(image, boardSize, newImagePoints, chessBoardFlags);
-    //draw colored points
 
+    //draw colored points
     //if chessboard was not found reset timer
     if(!found)
     {

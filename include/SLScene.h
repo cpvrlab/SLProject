@@ -129,7 +129,7 @@ class SLScene: public SLObject
                                              SLint height, 
                                              SLPixelFormat srcPixelFormat,
                                              SLuchar* data, 
-                                             bool isTopLeft);
+                                             bool isTopLeft=false);
 
      static SLScene*        current;            //!< global static scene pointer
 

@@ -25,8 +25,9 @@ public:
     bool        loadCamParams       (string dir);
     bool        loadCalibParams     (string calibFilesDir);
     void        calibrate           ();
-    void        addImage            (const cv::Mat& image);
+    void        addImage            (cv::Mat image);
     void        calculate           (string saveDir);
+    void        showUndistorted     (bool su) {_showUndistorted = su;}
 
     // Getters
     cv::Mat&    intrinsics          () {return _intrinsics;}

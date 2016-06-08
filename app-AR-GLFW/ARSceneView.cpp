@@ -22,6 +22,7 @@
 #include <SLImage.h>
 #include <SLTexFont.h>
 #include <SLText.h>
+#include <SLCVCapture.h>
 
 #include <ARChessboardTracker.h>
 #include <ARArucoTracker.h>
@@ -102,70 +103,21 @@ void ARSceneView::postSceneLoad()
     updateInfoText();
 }
 //-----------------------------------------------------------------------------
-bool ARSceneView::setTextureToCVImage(cv::Mat& image )
-{
-    //get image from video texture buffer
-    if( !SLScene::current->videoTexture()->images().size())
-        return false;
-
-    SLImage* slImg = SLScene::current->videoTexture()->images()[0];
-    //slImg->savePNG("slImage0.png");
-
-    //convert to opencv Mat
-    int ocvType = -1;
-    switch (slImg->format())
-    {   case PF_luminance: ocvType = CV_8UC1; break;
-        case PF_rgb: ocvType = CV_8UC3; break;
-        case PF_rgba: ocvType = CV_8UC4; break;
-        default: SL_EXIT_MSG("OpenCV image format not supported");
-    }
-
-    if( ocvType != -1 )
-    {
-        image = cv::Mat( slImg->height(), slImg->width(), ocvType, slImg->data());
-        //cv::imwrite("image0.png", image);
-        cvtColor(image, image, CV_RGB2BGR);
-        cv::flip(image, image, 0);
-        //cv::imwrite("image1.png", image);
-    }
-
-    return true;
-}
-//-----------------------------------------------------------------------------
 void ARSceneView::setCVImageToTexture(cv::Mat& image )
 {
-    cvtColor(image, image, CV_BGR2RGB);
-    cv::flip(image, image, 0);
-
-    // Set the according OpenGL format
-    SLPixelFormat format;
-    switch (image.type())
-    {   case CV_8UC1: format = PF_luminance; break;
-        case CV_8UC3: format = PF_rgb; break;
-        case CV_8UC4: format = PF_rgba; break;
-        default: SL_EXIT_MSG("OpenCV image format not supported");
-    }
-
-    SLScene::current->videoTexture()->copyVideoImage(
-             image.cols,
-             image.rows,
-             format,
-             image.data,
-             false);
-
-    //SLScene::current->videoTexture()->images()[0]->savePNG("slImage0.png");
+    SLScene::current->videoTexture()->copyVideoImage(image.cols,
+                                                     image.rows,
+                                                     SLCVCapture::format,
+                                                     image.data,
+                                                     true);
 }
 //-----------------------------------------------------------------------------
 void ARSceneView::preDraw()
 {
     if(_tracker)
     {
-        //convert video image to cv::Mat and set into tracker
-        cv::Mat cvImage;
-        setTextureToCVImage(cvImage);
-
-        if(!cvImage.empty())
-        {   _tracker->image(cvImage);
+        if(!SLCVCapture::lastFrame.empty())
+        {   _tracker->image(SLCVCapture::lastFrame);
             if( _currMode != ARSceneViewMode::Idle || _currMode != ARSceneViewMode::CalibrationMode )
             {   _tracker->track();
                 _tracker->updateSceneView(this);
@@ -175,12 +127,11 @@ void ARSceneView::preDraw()
         //show undistorted image
         if(_calibMgr.showUndistorted())
         {   Mat undistorted;
-            undistort(cvImage, undistorted, _calibMgr.intrinsics(), _calibMgr.distortion());
+            undistort(SLCVCapture::lastFrame,
+                      undistorted,
+                      _calibMgr.intrinsics(),
+                      _calibMgr.distortion());
             setCVImageToTexture(undistorted);
-        }
-        else
-        {
-            setCVImageToTexture(cvImage);
         }
     }
     else if(_currMode == CalibrationMode)
@@ -188,24 +139,19 @@ void ARSceneView::preDraw()
         //load image into calibration manager
         if( _calibMgr.stateIsCapturing())
         {
-            cv::Mat cvImage;
-
-            //getConvertedImage(cvImage);
-            setTextureToCVImage(cvImage);
-            if(!cvImage.empty())
-                _calibMgr.addImage(cvImage);
+            if(!SLCVCapture::lastFrame.empty())
+                _calibMgr.addImage(SLCVCapture::lastFrame);
 
             //get number of all images to  be captured
             int imgsToCap = _calibMgr.numImgsToCapture();
 
             //get number of already captured images
             int imgsCaped = _calibMgr.numCapturedImgs();
+
             //update Info line
             std::stringstream ss;
             if(imgsCaped < imgsToCap)
-            {
                 ss << "Capturing: Focus chessboard filling screen. (" << imgsCaped << "/" << imgsToCap << ")";
-            }
             else
             {
                 ss << "Calculating, please wait.";
@@ -214,7 +160,7 @@ void ARSceneView::preDraw()
             }
             setInfoLineText( ss.str());
 
-            setCVImageToTexture(cvImage);
+            setCVImageToTexture(SLCVCapture::lastFrame);
         }
         else if(_calibMgr.stateIsCalibrated())
         {
@@ -228,12 +174,9 @@ void ARSceneView::preDraw()
     }
     else if(_currMode == Mapper2D )
     {
-        Mat cvImage;
-        setTextureToCVImage(cvImage);
-
         //undistort image for map creation
         Mat undistorted;
-        undistort(cvImage, undistorted, _calibMgr.intrinsics(), _calibMgr.distortion());
+        undistort(SLCVCapture::lastFrame, undistorted, _calibMgr.intrinsics(), _calibMgr.distortion());
 
         if( _mapper2D.stateIsLineInput())
         {
@@ -248,8 +191,6 @@ void ARSceneView::preDraw()
 
             //use image to generate a new mapping
             _mapper2D.createMap( undistorted, 0.0f, 0.0f, _paramFilesDir, "map2d", AR2DMap::AR_ORB );
-
-
             _mapper2D.state(AR2DMapper::Mapper2DState::IDLE);
         }
         else if( _mapper2D.stateIsIdle())
@@ -472,6 +413,7 @@ SLbool ARSceneView::onKeyPress(const SLKey key, const SLKey mod)
                       _mapper2D.clear();
                       _mapper2D.state(AR2DMapper::LINE_INPUT); break;
             case 'L': _mapper2D.state(AR2DMapper::CAPTURE); break;
+            case 'U': _calibMgr.showUndistorted(!_calibMgr.showUndistorted()); break;
         }
     }
 

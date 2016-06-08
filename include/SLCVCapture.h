@@ -22,12 +22,14 @@ using namespace cv;
 //! Encapsulation of the OpenCV Capture Device
 class SLCVCapture
 {   public:
-    static  SLVec2i         open        (int deviceNum);
-    static  void            grabAndCopy ();
-    static  bool            isOpened    () { return _captureDevice.isOpened();}
-    static  void            release     () {_captureDevice.release();}
+    static  SLVec2i         open            (int deviceNum);
+    static  void            grabAndCopyToSL ();
+    static  void            copyFrameToSL   ();
+    static  bool            isOpened        () { return _captureDevice.isOpened();}
+    static  void            release         () {_captureDevice.release();}
     
     static  Mat             lastFrame;      //!< last frame grabbed
+    static  SLPixelFormat   format;         //!< SL pixel format
 
     private:
     static  VideoCapture    _captureDevice; //!< OpenCV capture device
