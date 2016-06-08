@@ -25,7 +25,7 @@ public:
     bool        loadCamParams       (string dir);
     bool        loadCalibParams     (string calibFilesDir);
     void        calibrate           ();
-    void        addImage            (cv::Mat image);
+    void        addImage            (const cv::Mat& image);
     void        calculate           (string saveDir);
 
     // Getters

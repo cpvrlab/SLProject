@@ -37,6 +37,9 @@
     <Filter Include="Input">
       <UniqueIdentifier>{d4a3c382-a5bf-4836-a8f6-0f22cde70947}</UniqueIdentifier>
     </Filter>
+    <Filter Include="CV">
+      <UniqueIdentifier>{45fa37f0-a194-4082-833c-66d049c33b5c}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\include\SLAABBox.h">
@@ -276,6 +279,9 @@
     <ClInclude Include="..\include\SLGLEnums.h">
       <Filter>GL</Filter>
     </ClInclude>
+    <ClInclude Include="..\include\SLCVCapture.h">
+      <Filter>CV</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="source\SLAABBox.cpp">
@@ -457,6 +463,9 @@
     </ClCompile>
     <ClCompile Include="source\SLGLVertexBuffer.cpp">
       <Filter>GL</Filter>
+    </ClCompile>
+    <ClCompile Include="source\CV\SLCVCapture.cpp">
+      <Filter>CV</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

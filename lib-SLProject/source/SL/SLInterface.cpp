@@ -15,9 +15,7 @@
 #include <SLSceneView.h>
 #include <SLAssimpImporter.h>
 #include <SLInputManager.h>
-#ifdef SL_HAS_OPENCV
-#include <opencv2/opencv.hpp>
-#endif
+#include <SLCVCapture.h>
 
 //! \file SLInterface.cpp SLProject C-functions interface implementation.
 /*! \file SLInterface.cpp
@@ -29,12 +27,8 @@ by a native API such as Java Native Interface (JNI).
 
 //-----------------------------------------------------------------------------
 //! global flag that determines if the application should be closed
-bool gShouldClose = false; 
-//!----------------------------------------------------------------------------
-//!< global pointer to an OpenCV video capture device
-#ifdef SL_HAS_OPENCV
-cv::VideoCapture* gCaptureDevice = 0;
-#endif
+bool gShouldClose = false;
+
 //-----------------------------------------------------------------------------
 /*! Global creation function for a SLScene instance. This function should be
 called only once per application. The SLScene constructor call is delayed until
@@ -171,15 +165,6 @@ void slTerminate()
     // Deletes all remaining sceneviews the current scene instance  
     delete SLScene::current;
     SLScene::current = 0;
-
-    #ifdef SL_HAS_OPENCV
-    // Release OpenCV capture device
-    if (gCaptureDevice && gCaptureDevice->isOpened())
-    {   gCaptureDevice->release(); // calls the destructor
-        gCaptureDevice = 0;
-        SL_LOG("OpenCV video capture realeased.\n");
-    }
-    #endif
 }
 //-----------------------------------------------------------------------------
 /*! Global rendering function that first updates the scene due to user or
@@ -446,77 +431,4 @@ bool slUsesVideoImage()
     return SLScene::current->usesVideoImage();
 }
 //-----------------------------------------------------------------------------
-/*! Creates the OpenCV video capture device and stores the handle in
-gCaptureDevice. It returns the frame width & height as an SLVec2i.
-*/
-SLVec2i slCreateCaptureDevice(SLint device)
-{
-    #ifdef SL_HAS_OPENCV
-    try
-    {   if (!gCaptureDevice)
-        {   gCaptureDevice = new cv::VideoCapture(device);
-            if (!gCaptureDevice->isOpened())
-                return SLVec2i::ZERO;
-            if (SL::noTestIsRunning())
-                SL_LOG("Capture devices created.\n");
 
-            int w = (int)gCaptureDevice->get(CV_CAP_PROP_FRAME_WIDTH);
-            int h = (int)gCaptureDevice->get(CV_CAP_PROP_FRAME_HEIGHT);
-            cout << "CV_CAP_PROP_FRAME_WIDTH : " << w << endl;
-            cout << "CV_CAP_PROP_FRAME_HEIGHT: " << h << endl;
-            return SLVec2i(w,h);
-        }
-    }
-    catch (exception e)
-    {   SL_LOG("Exception during OpenCV video capture creation\n");
-    }
-    #endif
-
-    return SLVec2i::ZERO;
-}
-//-----------------------------------------------------------------------------
-/*! Grabs an image from the live video stream with the OpenCV library.
-After grabbing the image is copied to the SLScenes::_videoTexture 
-Not all application will use OpenCV for capturing live video.
-*/
-void slGrabCopyVideoImage(int sceneViewIndex, SLint device)
-{
-    #ifdef SL_HAS_OPENCV
-    try
-    {   if (!gCaptureDevice)
-            slCreateCaptureDevice(device);
-
-        if (gCaptureDevice && gCaptureDevice->isOpened())
-        {   cv::Mat frame;
-            if (!gCaptureDevice->read(frame))
-                return;
-
-            // Set the according OpenGL format
-            SLPixelFormat format;
-            switch (frame.type())
-            {   case CV_8UC1: format = PF_luminance; break;
-                case CV_8UC3: format = PF_rgb; break;
-                case CV_8UC4: format = PF_rgba; break;
-                default: SL_EXIT_MSG("OpenCV image format not supported");
-            }
-
-            // OpenGL ES doesn't support BGR or BGRA
-            cvtColor(frame, frame, CV_BGR2RGB);
-
-            slCopyVideoImage(frame.cols, frame.rows, format, frame.data, true);
-        } else
-        {   
-			static bool logOnce = true;
-			if (logOnce)
-			{	if (SL::noTestIsRunning())
-                    SL_LOG("OpenCV: Unable to create capture device.\n");
-				logOnce = false;
-			}
-        }
-    }
-    catch (exception e)
-    {   SL_LOG("Exception during OpenCV video capture creation\n");
-    }
-    #endif
-}
-//-----------------------------------------------------------------------------

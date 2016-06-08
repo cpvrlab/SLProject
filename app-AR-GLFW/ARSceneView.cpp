@@ -102,37 +102,11 @@ void ARSceneView::postSceneLoad()
     updateInfoText();
 }
 //-----------------------------------------------------------------------------
-void ARSceneView::getConvertedImage(cv::Mat& image )
-{
-    //convert video image to cv::Mat and set into tracker
-    int ocvType = -1;
-    SLImage* lastVideoFrame = SLScene::current->videoTexture()->images()[0];
-
-    switch (lastVideoFrame->format())
-    {   case PF_luminance: ocvType = CV_8UC1; break;
-        case PF_rgb: ocvType = CV_8UC3; break;
-        case PF_rgba: ocvType = CV_8UC4; break;
-        default: SL_EXIT_MSG("OpenCV image format not supported");
-    }
-
-    if( ocvType != -1 )
-    {
-        image = cv::Mat( lastVideoFrame->height(),
-                         lastVideoFrame->width(),
-                         ocvType,
-                         lastVideoFrame->data());
-    }
-}
-//-----------------------------------------------------------------------------
 bool ARSceneView::setTextureToCVImage(cv::Mat& image )
 {
     //get image from video texture buffer
     if( !SLScene::current->videoTexture()->images().size())
         return false;
-
-    //SLImage* texImg = SLScene::current->videoTexture()->images()[0];
-    //SLImage img = *texImg;
-    //SLImage* slImg = &img;
 
     SLImage* slImg = SLScene::current->videoTexture()->images()[0];
     //slImg->savePNG("slImage0.png");
@@ -189,7 +163,6 @@ void ARSceneView::preDraw()
         //convert video image to cv::Mat and set into tracker
         cv::Mat cvImage;
         setTextureToCVImage(cvImage);
-        //getConvertedImage(cvImage);
 
         if(!cvImage.empty())
         {   _tracker->image(cvImage);
@@ -521,3 +494,4 @@ void ARSceneView::setInfoLineText( SLstring text )
         updateInfoText();
     }
 }
+//-----------------------------------------------------------------------------

@@ -13,6 +13,7 @@
 #include <SLScene.h>
 #include <SLSceneView.h>
 #include <SLNode.h>
+#include <SLCVCapture.h>
 
 #include <qtGLWidget.h>
 #include <QApplication>
@@ -162,7 +163,7 @@ void qtGLWidget::paintGL()
     {
         // If live video image is requested grab it and copy it
         if (slUsesVideoImage())
-            slGrabCopyVideoImage(_svIndex);
+            SLCVCapture::grabAndCopy();
 
         // makes the OpenGL context the current for this widget
         makeCurrent();  

@@ -18,7 +18,7 @@
 #include <SLInterface.h>
 #include <SLSceneView.h>
 #include <SLEnums.h>
-#include <opencv2/opencv.hpp>
+#include <SLCVCapture.h>
 
 #include "ARSceneView.h"
 
@@ -69,7 +69,7 @@ SLbool onPaint()
 {
     // If live video image is requested grab it and copy it
     if (slUsesVideoImage())
-        slGrabCopyVideoImage(svIndex, 0);
+        SLCVCapture::grabAndCopy();
 
     bool viewNeedsRepaint = slUpdateAndPaint(svIndex);
 
@@ -374,6 +374,17 @@ int main(int argc, char *argv[])
     for(int i = 0; i < argc; i++)
 	    cmdLineArgs.push_back(argv[i]);
 
+    // Create OpenCV Capture Device
+    SLVec2i captureSize = SLCVCapture::open(0);
+    if (captureSize != SLVec2i::ZERO)
+    {   scrWidth = captureSize.x;
+        scrHeight = captureSize.y;
+    } else
+    {   scrWidth = 640;
+        scrHeight = 480;
+    }
+
+
     if (!glfwInit())
     {   fprintf(stderr, "Failed to initialize GLFW\n");
         exit(EXIT_FAILURE);
@@ -384,17 +395,6 @@ int main(int argc, char *argv[])
     // Enable fullscreen anti aliasing with 4 samples
     glfwWindowHint(GLFW_SAMPLES, 4);
     //glfwWindowHint(GLFW_DECORATED, false); // start without any window frame
-
-    SLVec2i captureSize = slCreateCaptureDevice(0);
-
-    if (captureSize != SLVec2i::ZERO)
-    {   scrWidth = captureSize.x;
-        scrHeight = captureSize.y;
-    } else
-    {   scrWidth = 640;
-        scrHeight = 480;
-    }
-
 
     window = glfwCreateWindow(scrWidth, scrHeight, "My Title", NULL, NULL);
     if (!window)

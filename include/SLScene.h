@@ -117,14 +117,16 @@ class SLScene: public SLObject
             
             // Misc.
    virtual  void            onLoad          (SLSceneView* sv, SLCommand _currentID);
+   virtual  void            onAfterLoad     ();
+            bool            onUpdate();
             void            init            ();
             void            unInit          ();
-            bool            onUpdate        ();
             void            deleteAllMenus  ();
             SLbool          onCommandAllSV  (const SLCommand cmd);
             void            selectNode      (SLNode* nodeToSelect);
             void            selectNodeMesh  (SLNode* nodeToSelect, SLMesh* meshToSelect);
-            void            copyVideoImage  (int width, int height, 
+            void            copyVideoImage  (SLint width, 
+                                             SLint height, 
                                              SLPixelFormat srcPixelFormat,
                                              SLuchar* data, 
                                              bool isTopLeft);

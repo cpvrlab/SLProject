@@ -50,7 +50,6 @@ class ARSceneView : public SLSceneView
         void            setInfoLineText     (SLstring text);
 
 private:
-        void            getConvertedImage   (cv::Mat& image);
         bool            setTextureToCVImage (cv::Mat& image);
         void            setCVImageToTexture (cv::Mat& image);
 

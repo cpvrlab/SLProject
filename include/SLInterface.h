@@ -62,8 +62,6 @@ void    slRotationQUAT          (int sceneViewIndex, float angleRAD, float axisX
 string  slGetWindowTitle        (int sceneViewIndex);
 
 bool    slUsesVideoImage        ();
-SLVec2i slCreateCaptureDevice   (SLint device = 0);
-void    slGrabCopyVideoImage    (int sceneViewIndex, SLint device = 0);
 void    slCopyVideoImage        (int width, int height, SLPixelFormat glFormat, SLuchar* data, bool isTopLeft);
 //-----------------------------------------------------------------------------
 #endif // SLINTERFACE_H

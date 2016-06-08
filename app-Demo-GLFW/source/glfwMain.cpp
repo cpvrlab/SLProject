@@ -19,6 +19,7 @@
 #include <SLInterface.h>
 #include <SLSceneView.h>
 #include <SLEnums.h>
+#include <SLCVCapture.h>
 
 //-----------------------------------------------------------------------------
 // GLobal application variables
@@ -58,7 +59,7 @@ SLbool onPaint()
 {
     // If live video image is requested grab it and copy it
     if (slUsesVideoImage())
-        slGrabCopyVideoImage(svIndex);
+        SLCVCapture::grabAndCopy();
 
     //////////////////////////////////////////////////
     bool viewNeedsRepaint = slUpdateAndPaint(svIndex);

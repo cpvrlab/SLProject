@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project DefaultTargets="Build" ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project DefaultTargets="Build" ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
       <Configuration>Debug</Configuration>
@@ -27,26 +27,26 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v120</PlatformToolset>
+    <PlatformToolset>v140</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v120</PlatformToolset>
+    <PlatformToolset>v140</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v120</PlatformToolset>
+    <PlatformToolset>v140</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v120</PlatformToolset>
+    <PlatformToolset>v140</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
@@ -109,7 +109,7 @@
       </PrecompiledHeader>
       <WarningLevel>Level2</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>NOMINMAX;SL_GUI_GLFW;SL_STARTSCENE#C_sceneMinimal;SL_RT1;GLEW_STATIC;UNICODE;_WINDOWS;_CRT_SECURE_NO_WARNINGS;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>NOMINMAX;SL_GUI_GLFW;SL_STARTSCENE#C_sceneMinimal;SL_HAS_OPENCV;GLEW_STATIC;UNICODE;_WINDOWS;_CRT_SECURE_NO_WARNINGS;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
       <AdditionalIncludeDirectories>$(ProjectDir);..\include;..\lib-SLExternal;..\lib-SLExternal\jpeg-8;..\lib-SLExternal\png;..\lib-SLExternal\zlib;..\lib-SLExternal\glew\include;..\lib-SLExternal\glfw3\include;..\lib-SLExternal\randomc;..\lib-SLExternal\Shoemake;..\lib-SLExternal\oculus\LibOVR\Include\;..\lib-SLExternal\nvwa;..\lib-SLExternal\assimp\include;..\lib-SLExternal\assimp\code;..\lib-SLExternal\dirent;..\lib-SLExternal\opencv\include;..\lib-SLExternal\half\include</AdditionalIncludeDirectories>
     </ClCompile>
@@ -117,20 +117,20 @@
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalDependencies>ws2_32.lib;opengl32.lib;lib-SLExternal.lib;lib-SLProject.lib;lib-Assimp.lib;lib-ovr.lib;opencv_core310.lib;opencv_imgproc310.lib;opencv_imgcodecs310.lib;opencv_video310.lib;opencv_videoio310.lib;opencv_aruco310.lib;opencv_features2d310.lib;opencv_xfeatures2d310.lib;opencv_calib3d310.lib;opencv_highgui310.lib;opencv_flann310.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(SolutionDir)_lib\$(Configuration)\$(Platform)\;$(SolutionDir)_lib\prebuilt\OpenCV\x64\vc12\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(SolutionDir)_lib\$(Configuration)\$(Platform)\;$(SolutionDir)_lib\prebuilt\OpenCV\x64\vc14\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
-      <Command>xcopy $(SolutionDir)\_lib\prebuilt\OpenCV\x64\vc12\bin\opencv_core310.dll $(SolutionDir)\_bin-$(Configuration)-$(Platform) /s /d
-xcopy $(SolutionDir)\_lib\prebuilt\OpenCV\x64\vc12\bin\opencv_imgproc310.dll $(SolutionDir)\_bin-$(Configuration)-$(Platform) /s /d
-xcopy $(SolutionDir)\_lib\prebuilt\OpenCV\x64\vc12\bin\opencv_imgcodecs310.dll $(SolutionDir)\_bin-$(Configuration)-$(Platform) /s /d
-xcopy $(SolutionDir)\_lib\prebuilt\OpenCV\x64\vc12\bin\opencv_video310.dll $(SolutionDir)\_bin-$(Configuration)-$(Platform) /s /d
-xcopy $(SolutionDir)\_lib\prebuilt\OpenCV\x64\vc12\bin\opencv_videoio310.dll $(SolutionDir)\_bin-$(Configuration)-$(Platform) /s /d
-xcopy $(SolutionDir)\_lib\prebuilt\OpenCV\x64\vc12\bin\opencv_aruco310.dll $(SolutionDir)\_bin-$(Configuration)-$(Platform) /s /d
-xcopy $(SolutionDir)\_lib\prebuilt\OpenCV\x64\vc12\bin\opencv_features2d310.dll $(SolutionDir)\_bin-$(Configuration)-$(Platform) /s /d
-xcopy $(SolutionDir)\_lib\prebuilt\OpenCV\x64\vc12\bin\opencv_xfeatures2d310.dll $(SolutionDir)\_bin-$(Configuration)-$(Platform) /s /d
-xcopy $(SolutionDir)\_lib\prebuilt\OpenCV\x64\vc12\bin\opencv_calib3d310.dll $(SolutionDir)\_bin-$(Configuration)-$(Platform) /s /d
-xcopy $(SolutionDir)\_lib\prebuilt\OpenCV\x64\vc12\bin\opencv_highgui310.dll $(SolutionDir)\_bin-$(Configuration)-$(Platform) /s /d
-xcopy $(SolutionDir)\_lib\prebuilt\OpenCV\x64\vc12\bin\opencv_flann310.dll $(SolutionDir)\_bin-$(Configuration)-$(Platform) /s /d</Command>
+      <Command>xcopy $(SolutionDir)\_lib\prebuilt\OpenCV\x64\vc14\bin\opencv_core310.dll $(SolutionDir)\_bin-$(Configuration)-$(Platform) /s /d
+xcopy $(SolutionDir)\_lib\prebuilt\OpenCV\x64\vc14\bin\opencv_imgproc310.dll $(SolutionDir)\_bin-$(Configuration)-$(Platform) /s /d
+xcopy $(SolutionDir)\_lib\prebuilt\OpenCV\x64\vc14\bin\opencv_imgcodecs310.dll $(SolutionDir)\_bin-$(Configuration)-$(Platform) /s /d
+xcopy $(SolutionDir)\_lib\prebuilt\OpenCV\x64\vc14\bin\opencv_video310.dll $(SolutionDir)\_bin-$(Configuration)-$(Platform) /s /d
+xcopy $(SolutionDir)\_lib\prebuilt\OpenCV\x64\vc14\bin\opencv_videoio310.dll $(SolutionDir)\_bin-$(Configuration)-$(Platform) /s /d
+xcopy $(SolutionDir)\_lib\prebuilt\OpenCV\x64\vc14\bin\opencv_aruco310.dll $(SolutionDir)\_bin-$(Configuration)-$(Platform) /s /d
+xcopy $(SolutionDir)\_lib\prebuilt\OpenCV\x64\vc14\bin\opencv_features2d310.dll $(SolutionDir)\_bin-$(Configuration)-$(Platform) /s /d
+xcopy $(SolutionDir)\_lib\prebuilt\OpenCV\x64\vc14\bin\opencv_xfeatures2d310.dll $(SolutionDir)\_bin-$(Configuration)-$(Platform) /s /d
+xcopy $(SolutionDir)\_lib\prebuilt\OpenCV\x64\vc14\bin\opencv_calib3d310.dll $(SolutionDir)\_bin-$(Configuration)-$(Platform) /s /d
+xcopy $(SolutionDir)\_lib\prebuilt\OpenCV\x64\vc14\bin\opencv_highgui310.dll $(SolutionDir)\_bin-$(Configuration)-$(Platform) /s /d
+xcopy $(SolutionDir)\_lib\prebuilt\OpenCV\x64\vc14\bin\opencv_flann310.dll $(SolutionDir)\_bin-$(Configuration)-$(Platform) /s /d</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -162,7 +162,7 @@ xcopy $(SolutionDir)\_lib\prebuilt\OpenCV\x64\vc12\bin\opencv_flann310.dll $(Sol
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <PreprocessorDefinitions>NOMINMAX;SL_GUI_GLFW;SL_STARTSCENE#C_sceneRevolver;SL_RT1;GLEW_STATIC;UNICODE;_WINDOWS;_CRT_SECURE_NO_WARNINGS;NDEBUG;_CONSOLE;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>NOMINMAX;SL_GUI_GLFW;SL_STARTSCENE#C_sceneRevolver;SL_HAS_OPENCV;GLEW_STATIC;UNICODE;_WINDOWS;_CRT_SECURE_NO_WARNINGS;NDEBUG;_CONSOLE;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
       <AdditionalIncludeDirectories>$(ProjectDir);..\include;..\lib-SLExternal;..\lib-SLExternal\jpeg-8;..\lib-SLExternal\png;..\lib-SLExternal\zlib;..\lib-SLExternal\glew\include;..\lib-SLExternal\glfw3\include;..\lib-SLExternal\randomc;..\lib-SLExternal\Shoemake;..\lib-SLExternal\oculus\LibOVR\Include\;..\lib-SLExternal\nvwa;..\lib-SLExternal\assimp\include;..\lib-SLExternal\assimp\code;..\lib-SLExternal\dirent;..\lib-SLExternal\opencv\include;..\lib-SLExternal\half\include</AdditionalIncludeDirectories>
     </ClCompile>
@@ -172,20 +172,20 @@ xcopy $(SolutionDir)\_lib\prebuilt\OpenCV\x64\vc12\bin\opencv_flann310.dll $(Sol
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <AdditionalDependencies>ws2_32.lib;opengl32.lib;lib-SLExternal.lib;lib-SLProject.lib;lib-Assimp.lib;lib-ovr.lib;opencv_core310.lib;opencv_imgproc310.lib;opencv_imgcodecs310.lib;opencv_video310.lib;opencv_videoio310.lib;opencv_aruco310.lib;opencv_features2d310.lib;opencv_xfeatures2d310.lib;opencv_calib3d310.lib;opencv_highgui310.lib;opencv_flann310.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(SolutionDir)_lib\$(Configuration)\$(Platform)\;$(SolutionDir)_lib\prebuilt\OpenCV\x64\vc12\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(SolutionDir)_lib\$(Configuration)\$(Platform)\;$(SolutionDir)_lib\prebuilt\OpenCV\x64\vc14\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
-      <Command>xcopy $(SolutionDir)\_lib\prebuilt\OpenCV\x64\vc12\bin\opencv_core310.dll $(SolutionDir)\_bin-$(Configuration)-$(Platform) /s /d
-xcopy $(SolutionDir)\_lib\prebuilt\OpenCV\x64\vc12\bin\opencv_imgproc310.dll $(SolutionDir)\_bin-$(Configuration)-$(Platform) /s /d
-xcopy $(SolutionDir)\_lib\prebuilt\OpenCV\x64\vc12\bin\opencv_imgcodecs310.dll $(SolutionDir)\_bin-$(Configuration)-$(Platform) /s /d
-xcopy $(SolutionDir)\_lib\prebuilt\OpenCV\x64\vc12\bin\opencv_video310.dll $(SolutionDir)\_bin-$(Configuration)-$(Platform) /s /d
-xcopy $(SolutionDir)\_lib\prebuilt\OpenCV\x64\vc12\bin\opencv_videoio310.dll $(SolutionDir)\_bin-$(Configuration)-$(Platform) /s /d
-xcopy $(SolutionDir)\_lib\prebuilt\OpenCV\x64\vc12\bin\opencv_aruco310.dll $(SolutionDir)\_bin-$(Configuration)-$(Platform) /s /d
-xcopy $(SolutionDir)\_lib\prebuilt\OpenCV\x64\vc12\bin\opencv_features2d310.dll $(SolutionDir)\_bin-$(Configuration)-$(Platform) /s /d
-xcopy $(SolutionDir)\_lib\prebuilt\OpenCV\x64\vc12\bin\opencv_xfeatures2d310.dll $(SolutionDir)\_bin-$(Configuration)-$(Platform) /s /d
-xcopy $(SolutionDir)\_lib\prebuilt\OpenCV\x64\vc12\bin\opencv_calib3d310.dll $(SolutionDir)\_bin-$(Configuration)-$(Platform) /s /d
-xcopy $(SolutionDir)\_lib\prebuilt\OpenCV\x64\vc12\bin\opencv_highgui310.dll $(SolutionDir)\_bin-$(Configuration)-$(Platform) /s /d
-xcopy $(SolutionDir)\_lib\prebuilt\OpenCV\x64\vc12\bin\opencv_flann310.dll $(SolutionDir)\_bin-$(Configuration)-$(Platform) /s /d</Command>
+      <Command>xcopy $(SolutionDir)\_lib\prebuilt\OpenCV\x64\vc14\bin\opencv_core310.dll $(SolutionDir)\_bin-$(Configuration)-$(Platform) /s /d
+xcopy $(SolutionDir)\_lib\prebuilt\OpenCV\x64\vc14\bin\opencv_imgproc310.dll $(SolutionDir)\_bin-$(Configuration)-$(Platform) /s /d
+xcopy $(SolutionDir)\_lib\prebuilt\OpenCV\x64\vc14\bin\opencv_imgcodecs310.dll $(SolutionDir)\_bin-$(Configuration)-$(Platform) /s /d
+xcopy $(SolutionDir)\_lib\prebuilt\OpenCV\x64\vc14\bin\opencv_video310.dll $(SolutionDir)\_bin-$(Configuration)-$(Platform) /s /d
+xcopy $(SolutionDir)\_lib\prebuilt\OpenCV\x64\vc14\bin\opencv_videoio310.dll $(SolutionDir)\_bin-$(Configuration)-$(Platform) /s /d
+xcopy $(SolutionDir)\_lib\prebuilt\OpenCV\x64\vc14\bin\opencv_aruco310.dll $(SolutionDir)\_bin-$(Configuration)-$(Platform) /s /d
+xcopy $(SolutionDir)\_lib\prebuilt\OpenCV\x64\vc14\bin\opencv_features2d310.dll $(SolutionDir)\_bin-$(Configuration)-$(Platform) /s /d
+xcopy $(SolutionDir)\_lib\prebuilt\OpenCV\x64\vc14\bin\opencv_xfeatures2d310.dll $(SolutionDir)\_bin-$(Configuration)-$(Platform) /s /d
+xcopy $(SolutionDir)\_lib\prebuilt\OpenCV\x64\vc14\bin\opencv_calib3d310.dll $(SolutionDir)\_bin-$(Configuration)-$(Platform) /s /d
+xcopy $(SolutionDir)\_lib\prebuilt\OpenCV\x64\vc14\bin\opencv_highgui310.dll $(SolutionDir)\_bin-$(Configuration)-$(Platform) /s /d
+xcopy $(SolutionDir)\_lib\prebuilt\OpenCV\x64\vc14\bin\opencv_flann310.dll $(SolutionDir)\_bin-$(Configuration)-$(Platform) /s /d</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>

@@ -23,6 +23,7 @@
 #include <SLAnimation.h>
 #include <SLAnimManager.h>
 #include <SLInputManager.h>
+#include <SLCVCapture.h>
 
 //-----------------------------------------------------------------------------
 /*! Global static scene pointer that can be used throughout the entire library
@@ -187,6 +188,9 @@ SLScene::~SLScene()
     deleteAllMenus();
    
     current = nullptr;
+
+    // release the capture device
+    SLCVCapture::release();
 
     SL_LOG("~SLScene\n");
     SL_LOG("------------------------------------------------------------------\n");
@@ -363,7 +367,15 @@ bool SLScene::onUpdate()
     
     return animatedOrChanged;
 }
-
+//-----------------------------------------------------------------------------
+//! SLScene::onAfterLoad gets called after onLoad
+void SLScene::onAfterLoad()
+{
+    if (_usesVideoImage)
+    {   if (!SLCVCapture::isOpened())
+            SLCVCapture::open(0);
+    }
+}
 //-----------------------------------------------------------------------------
 /*!
 SLScene::info deletes previous info text and sets new one with a max. width 
@@ -441,15 +453,13 @@ SLbool SLScene::onCommandAllSV(const SLCommand cmd)
 }
 //-----------------------------------------------------------------------------
 //! Copies the image data from a video camera into image[0] of the video texture
-void SLScene::copyVideoImage(SLint width, 
-                             SLint height, 
+void SLScene::copyVideoImage(SLint width,
+                             SLint height,
                              SLPixelFormat srcPixelFormat,
-                             SLuchar* data, 
-                             SLbool isTopLeft)
+                             SLuchar* data,
+                             bool isTopLeft)
 {
     _videoTexture.copyVideoImage(width, height, srcPixelFormat, data, isTopLeft);
-
-
 }
 //-----------------------------------------------------------------------------
 //! Deletes all menus and buttons objects

@@ -2349,5 +2349,6 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         }
     }
 
+    onAfterLoad();
 }
 //-----------------------------------------------------------------------------

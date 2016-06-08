@@ -344,7 +344,7 @@ public:
     T       LengthSq() const                     { return (x * x + y * y); }
 
     // Return vector length.
-    T       Length() const                       { return sqrt(LengthSq()); }
+    T       Length() const                       { return (float)sqrt(LengthSq()); }
 
     // Returns squared distance between two points represented by vectors.
     T       DistanceSq(const Vector2& b) const   { return (*this - b).LengthSq(); }

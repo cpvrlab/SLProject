@@ -1,5 +1,6 @@
 # Ignored files
 *.suo
+*.vsp
 *.user
 *.sdf
 *.opensdf
@@ -11,6 +12,9 @@
 *.dll
 *.lib
 *.exe
+*.opendb
+*.psess
+*.db
 *.so
 *~
 

@@ -274,7 +274,7 @@ void ARCalibration::calculate(string saveDir)
     }
 }
 //-----------------------------------------------------------------------------
-void ARCalibration::addImage(cv::Mat image)
+void ARCalibration::addImage(const cv::Mat& image)
 {
     //set image size
     _imageSize = image.size();
