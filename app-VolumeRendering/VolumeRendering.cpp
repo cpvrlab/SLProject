@@ -66,10 +66,9 @@ enum DisplayMethod
 	ALPHA_BLENDING_CUSTOM_TF_LUT = 32
 };
 
-DisplayMethod _displayMethod = MAXIMUM_INTENSITY_PROJECTION;   //!< The display method in use
+DisplayMethod _displayMethod = ALPHA_BLENDING_TF_LUT;   //!< The display method in use
 RenderMethod  _renderMethod = SAMPLING;                 //!< The render method in use
 SLstring      _renderMethodDescription = "";            //!< A description of the current render and display methods
-
 
 float    _camZ;                     //!< z-distance of camera
 float    _rotX, _rotY;              //!< rotation angles around x & y axis
@@ -840,7 +839,7 @@ should be called after a window with a valid OpenGL context is present.
 void onInit()
 {
     updateRenderMethodDescription();
-
+    buildDefaultLut();
     buildSliceQuads();
     GETGLERROR;
 

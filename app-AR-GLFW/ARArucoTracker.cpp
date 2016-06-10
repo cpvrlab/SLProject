@@ -38,8 +38,8 @@ bool ARArucoTracker::track()
     vector< int > ids;
     vector< vector< Point2f > > corners, rejected;
     vector< Vec3d > rvecs, tvecs;
-    //clear detected Objects from last frame
-    _arucoVMs.clear();
+    
+    _arucoVMs.clear(); //clear detected Objects from last frame
 
     if(!_image.empty() && !_intrinsics.empty() && !_p.arucoParams.empty() && !_p.dictionary.empty())
     {
@@ -47,8 +47,12 @@ bool ARArucoTracker::track()
 
         if( ids.size() > 0)
         {
-            aruco::estimatePoseSingleMarkers(corners, _p.edgeLength, _intrinsics, _distortion, rvecs,
-                                                         tvecs);
+            aruco::estimatePoseSingleMarkers(corners, 
+                                             _p.edgeLength, 
+                                             _intrinsics, 
+                                             _distortion, 
+                                             rvecs,
+                                             tvecs);
 
             for( size_t i=0; i < rvecs.size(); ++i)
             {

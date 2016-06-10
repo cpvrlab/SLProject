@@ -194,12 +194,30 @@ int main(int argc, const char *argv[])
 
 @see cv::ColormapTypes
 
+    @defgroup imgproc_subdiv2d Planar Subdivision
+
+The Subdiv2D class described in this section is used to perform various planar subdivision on
+a set of 2D points (represented as vector of Point2f). OpenCV subdivides a plane into triangles
+using the Delaunay’s algorithm, which corresponds to the dual graph of the Voronoi diagram.
+In the figure below, the Delaunay’s triangulation is marked with black lines and the Voronoi
+diagram with red lines.
+
+![Delaunay triangulation (black) and Voronoi (red)](pics/delaunay_voronoi.png)
+
+The subdivisions can be used for the 3D piece-wise transformation of a plane, morphing, fast
+location of points on the plane, building special graphs (such as NNG,RNG), and so forth.
+
     @defgroup imgproc_hist Histograms
     @defgroup imgproc_shape Structural Analysis and Shape Descriptors
     @defgroup imgproc_motion Motion Analysis and Object Tracking
     @defgroup imgproc_feature Feature Detection
     @defgroup imgproc_object Object Detection
     @defgroup imgproc_c C API
+    @defgroup imgproc_hal Hardware Acceleration Layer
+    @{
+        @defgroup imgproc_hal_functions Functions
+        @defgroup imgproc_hal_interface Interface
+    @}
   @}
 */
 
@@ -225,8 +243,10 @@ enum MorphTypes{
                         //!< \f[\texttt{dst} = \mathrm{morph\_grad} ( \texttt{src} , \texttt{element} )= \mathrm{dilate} ( \texttt{src} , \texttt{element} )- \mathrm{erode} ( \texttt{src} , \texttt{element} )\f]
     MORPH_TOPHAT   = 5, //!< "top hat"
                         //!< \f[\texttt{dst} = \mathrm{tophat} ( \texttt{src} , \texttt{element} )= \texttt{src} - \mathrm{open} ( \texttt{src} , \texttt{element} )\f]
-    MORPH_BLACKHAT = 6  //!< "black hat"
+    MORPH_BLACKHAT = 6, //!< "black hat"
                         //!< \f[\texttt{dst} = \mathrm{blackhat} ( \texttt{src} , \texttt{element} )= \mathrm{close} ( \texttt{src} , \texttt{element} )- \texttt{src}\f]
+    MORPH_HITMISS  = 7  //!< "hit and miss"
+                        //!<   .- Only supported for CV_8UC1 binary images. Tutorial can be found in [this page](http://opencv-code.com/tutorials/hit-or-miss-transform-in-opencv/)
 };
 
 //! shape of the structuring element
@@ -872,16 +892,21 @@ public:
 };
 
 
+//! @addtogroup imgproc_subdiv2d
+//! @{
+
 class CV_EXPORTS_W Subdiv2D
 {
 public:
-    enum { PTLOC_ERROR        = -2,
-           PTLOC_OUTSIDE_RECT = -1,
-           PTLOC_INSIDE       = 0,
-           PTLOC_VERTEX       = 1,
-           PTLOC_ON_EDGE      = 2
+    /** Subdiv2D point location cases */
+    enum { PTLOC_ERROR        = -2, //!< Point location error
+           PTLOC_OUTSIDE_RECT = -1, //!< Point outside the subdivision bounding rect
+           PTLOC_INSIDE       = 0, //!< Point inside some facet
+           PTLOC_VERTEX       = 1, //!< Point coincides with one of the subdivision vertices
+           PTLOC_ON_EDGE      = 2  //!< Point on some edge
          };
 
+    /** Subdiv2D edge type navigation (see: getEdge()) */
     enum { NEXT_AROUND_ORG   = 0x00,
            NEXT_AROUND_DST   = 0x22,
            PREV_AROUND_ORG   = 0x11,
@@ -892,27 +917,182 @@ public:
            PREV_AROUND_RIGHT = 0x02
          };
 
+    /** creates an empty Subdiv2D object.
+    To create a new empty Delaunay subdivision you need to use the initDelaunay() function.
+     */
     CV_WRAP Subdiv2D();
+
+    /** @overload
+
+    @param rect – Rectangle that includes all of the 2D points that are to be added to the subdivision.
+
+    The function creates an empty Delaunay subdivision where 2D points can be added using the function
+    insert() . All of the points to be added must be within the specified rectangle, otherwise a runtime
+    error is raised.
+     */
     CV_WRAP Subdiv2D(Rect rect);
+
+    /** @brief Creates a new empty Delaunay subdivision
+
+    @param rect – Rectangle that includes all of the 2D points that are to be added to the subdivision.
+
+     */
     CV_WRAP void initDelaunay(Rect rect);
 
+    /** @brief Insert a single point into a Delaunay triangulation.
+
+    @param pt – Point to insert.
+
+    The function inserts a single point into a subdivision and modifies the subdivision topology
+    appropriately. If a point with the same coordinates exists already, no new point is added.
+    @returns the ID of the point.
+
+    @note If the point is outside of the triangulation specified rect a runtime error is raised.
+     */
     CV_WRAP int insert(Point2f pt);
+
+    /** @brief Insert multiple points into a Delaunay triangulation.
+
+    @param ptvec – Points to insert.
+
+    The function inserts a vector of points into a subdivision and modifies the subdivision topology
+    appropriately.
+     */
     CV_WRAP void insert(const std::vector<Point2f>& ptvec);
+
+    /** @brief Returns the location of a point within a Delaunay triangulation.
+
+    @param pt – Point to locate.
+    @param edge – Output edge that the point belongs to or is located to the right of it.
+    @param vertex – Optional output vertex the input point coincides with.
+
+    The function locates the input point within the subdivision and gives one of the triangle edges
+    or vertices.
+
+    @returns an integer which specify one of the following five cases for point location:
+    -  The point falls into some facet. The function returns PTLOC_INSIDE and edge will contain one of
+       edges of the facet.
+    -  The point falls onto the edge. The function returns PTLOC_ON_EDGE and edge will contain this edge.
+    -  The point coincides with one of the subdivision vertices. The function returns PTLOC_VERTEX and
+       vertex will contain a pointer to the vertex.
+    -  The point is outside the subdivision reference rectangle. The function returns PTLOC_OUTSIDE_RECT
+       and no pointers are filled.
+    -  One of input arguments is invalid. A runtime error is raised or, if silent or “parent” error
+       processing mode is selected, CV_PTLOC_ERROR is returnd.
+     */
     CV_WRAP int locate(Point2f pt, CV_OUT int& edge, CV_OUT int& vertex);
 
+    /** @brief Finds the subdivision vertex closest to the given point.
+
+    @param pt – Input point.
+    @param nearestPt – Output subdivision vertex point.
+
+    The function is another function that locates the input point within the subdivision. It finds the
+    subdivision vertex that is the closest to the input point. It is not necessarily one of vertices
+    of the facet containing the input point, though the facet (located using locate() ) is used as a
+    starting point.
+
+    @returns vertex ID.
+     */
     CV_WRAP int findNearest(Point2f pt, CV_OUT Point2f* nearestPt = 0);
+
+    /** @brief Returns a list of all edges.
+
+    @param edgeList – Output vector.
+
+    The function gives each edge as a 4 numbers vector, where each two are one of the edge
+    vertices. i.e. org_x = v[0], org_y = v[1], dst_x = v[2], dst_y = v[3].
+     */
     CV_WRAP void getEdgeList(CV_OUT std::vector<Vec4f>& edgeList) const;
+
+    /** @brief Returns a list of all triangles.
+
+    @param triangleList – Output vector.
+
+    The function gives each triangle as a 6 numbers vector, where each two are one of the triangle
+    vertices. i.e. p1_x = v[0], p1_y = v[1], p2_x = v[2], p2_y = v[3], p3_x = v[4], p3_y = v[5].
+     */
     CV_WRAP void getTriangleList(CV_OUT std::vector<Vec6f>& triangleList) const;
+
+    /** @brief Returns a list of all Voroni facets.
+
+    @param idx – Vector of vertices IDs to consider. For all vertices you can pass empty vector.
+    @param facetList – Output vector of the Voroni facets.
+    @param facetCenters – Output vector of the Voroni facets center points.
+
+     */
     CV_WRAP void getVoronoiFacetList(const std::vector<int>& idx, CV_OUT std::vector<std::vector<Point2f> >& facetList,
                                      CV_OUT std::vector<Point2f>& facetCenters);
 
+    /** @brief Returns vertex location from vertex ID.
+
+    @param vertex – vertex ID.
+    @param firstEdge – Optional. The first edge ID which is connected to the vertex.
+    @returns vertex (x,y)
+
+     */
     CV_WRAP Point2f getVertex(int vertex, CV_OUT int* firstEdge = 0) const;
 
+    /** @brief Returns one of the edges related to the given edge.
+
+    @param edge – Subdivision edge ID.
+    @param nextEdgeType - Parameter specifying which of the related edges to return.
+    The following values are possible:
+    -   NEXT_AROUND_ORG next around the edge origin ( eOnext on the picture below if e is the input edge)
+    -   NEXT_AROUND_DST next around the edge vertex ( eDnext )
+    -   PREV_AROUND_ORG previous around the edge origin (reversed eRnext )
+    -   PREV_AROUND_DST previous around the edge destination (reversed eLnext )
+    -   NEXT_AROUND_LEFT next around the left facet ( eLnext )
+    -   NEXT_AROUND_RIGHT next around the right facet ( eRnext )
+    -   PREV_AROUND_LEFT previous around the left facet (reversed eOnext )
+    -   PREV_AROUND_RIGHT previous around the right facet (reversed eDnext )
+
+    ![sample output](pics/quadedge.png)
+
+    @returns edge ID related to the input edge.
+     */
     CV_WRAP int getEdge( int edge, int nextEdgeType ) const;
+
+    /** @brief Returns next edge around the edge origin.
+
+    @param edge – Subdivision edge ID.
+
+    @returns an integer which is next edge ID around the edge origin: eOnext on the
+    picture above if e is the input edge).
+     */
     CV_WRAP int nextEdge(int edge) const;
+
+    /** @brief Returns another edge of the same quad-edge.
+
+    @param edge – Subdivision edge ID.
+    @param rotate - Parameter specifying which of the edges of the same quad-edge as the input
+    one to return. The following values are possible:
+    -   0 - the input edge ( e on the picture below if e is the input edge)
+    -   1 - the rotated edge ( eRot )
+    -   2 - the reversed edge (reversed e (in green))
+    -   3 - the reversed rotated edge (reversed eRot (in green))
+
+    @returns one of the edges ID of the same quad-edge as the input edge.
+     */
     CV_WRAP int rotateEdge(int edge, int rotate) const;
     CV_WRAP int symEdge(int edge) const;
+
+    /** @brief Returns the edge origin.
+
+    @param edge – Subdivision edge ID.
+    @param orgpt – Output vertex location.
+
+    @returns vertex ID.
+     */
     CV_WRAP int edgeOrg(int edge, CV_OUT Point2f* orgpt = 0) const;
+
+    /** @brief Returns the edge destination.
+
+    @param edge – Subdivision edge ID.
+    @param dstpt – Output vertex location.
+
+    @returns vertex ID.
+     */
     CV_WRAP int edgeDst(int edge, CV_OUT Point2f* dstpt = 0) const;
 
 protected:
@@ -951,16 +1131,22 @@ protected:
         int pt[4];
     };
 
+    //! All of the vertices
     std::vector<Vertex> vtx;
+    //! All of the edges
     std::vector<QuadEdge> qedges;
     int freeQEdge;
     int freePoint;
     bool validGeometry;
 
     int recentEdge;
+    //! Top left corner of the bounding rect
     Point2f topLeft;
+    //! Bottom right corner of the bounding rect
     Point2f bottomRight;
 };
+
+//! @} imgproc_subdiv2d
 
 //! @addtogroup imgproc_feature
 //! @{
@@ -1369,6 +1555,28 @@ CV_EXPORTS_W void Sobel( InputArray src, OutputArray dst, int ddepth,
                          double scale = 1, double delta = 0,
                          int borderType = BORDER_DEFAULT );
 
+/** @brief Calculates the first order image derivative in both x and y using a Sobel operator
+
+Equivalent to calling:
+
+@code
+Sobel( src, dx, CV_16SC1, 1, 0, 3 );
+Sobel( src, dy, CV_16SC1, 0, 1, 3 );
+@endcode
+
+@param src input image.
+@param dx output image with first-order derivative in x.
+@param dy output image with first-order derivative in y.
+@param ksize size of Sobel kernel. It must be 3.
+@param borderType pixel extrapolation method, see cv::BorderTypes
+
+@sa Sobel
+ */
+
+CV_EXPORTS_W void spatialGradient( InputArray src, OutputArray dx,
+                                   OutputArray dy, int ksize = 3,
+                                   int borderType = BORDER_DEFAULT );
+
 /** @brief Calculates the first x- or y- image derivative using Scharr operator.
 
 The function computes the first x- or y- spatial image derivative using the Scharr operator. The
@@ -1689,6 +1897,7 @@ See the line detection example below:
     #include <opencv2/highgui.hpp>
 
     using namespace cv;
+    using namespace std;
 
     int main(int argc, char** argv)
     {
@@ -1774,18 +1983,19 @@ Example: :
     #include <math.h>
 
     using namespace cv;
+    using namespace std;
 
     int main(int argc, char** argv)
     {
         Mat img, gray;
-        if( argc != 2 && !(img=imread(argv[1], 1)).data)
+        if( argc != 2 || !(img=imread(argv[1], 1)).data)
             return -1;
         cvtColor(img, gray, COLOR_BGR2GRAY);
         // smooth it, otherwise a lot of false circles may be detected
         GaussianBlur( gray, gray, Size(9, 9), 2, 2 );
         vector<Vec3f> circles;
         HoughCircles(gray, circles, HOUGH_GRADIENT,
-                     2, gray->rows/4, 200, 100 );
+                     2, gray.rows/4, 200, 100 );
         for( size_t i = 0; i < circles.size(); i++ )
         {
              Point center(cvRound(circles[i][0]), cvRound(circles[i][1]));
@@ -1797,6 +2007,8 @@ Example: :
         }
         namedWindow( "circles", 1 );
         imshow( "circles", img );
+
+        waitKey(0);
         return 0;
     }
 @endcode
@@ -1896,7 +2108,7 @@ CV_EXPORTS_W void dilate( InputArray src, OutputArray dst, InputArray kernel,
 
 /** @brief Performs advanced morphological transformations.
 
-The function can perform advanced morphological transformations using an erosion and dilation as
+The function morphologyEx can perform advanced morphological transformations using an erosion and dilation as
 basic operations.
 
 Any of the operations can be done in-place. In case of multi-channel images, each channel is
@@ -1904,11 +2116,11 @@ processed independently.
 
 @param src Source image. The number of channels can be arbitrary. The depth should be one of
 CV_8U, CV_16U, CV_16S, CV_32F or CV_64F.
-@param dst Destination image of the same size and type as  src\` .
-@param kernel Structuring element. It can be created using getStructuringElement.
+@param dst Destination image of the same size and type as source image.
+@param op Type of a morphological operation, see cv::MorphTypes
+@param kernel Structuring element. It can be created using cv::getStructuringElement.
 @param anchor Anchor position with the kernel. Negative values mean that the anchor is at the
 kernel center.
-@param op Type of a morphological operation, see cv::MorphTypes
 @param iterations Number of times erosion and dilation are applied.
 @param borderType Pixel extrapolation method, see cv::BorderTypes
 @param borderValue Border value in case of a constant border. The default value has a special
@@ -1942,8 +2154,8 @@ way:
     // specify fx and fy and let the function compute the destination image size.
     resize(src, dst, Size(), 0.5, 0.5, interpolation);
 @endcode
-To shrink an image, it will generally look best with CV_INTER_AREA interpolation, whereas to
-enlarge an image, it will generally look best with CV_INTER_CUBIC (slow) or CV_INTER_LINEAR
+To shrink an image, it will generally look best with cv::INTER_AREA interpolation, whereas to
+enlarge an image, it will generally look best with cv::INTER_CUBIC (slow) or cv::INTER_LINEAR
 (faster but still looks OK).
 
 @param src input image.
@@ -2570,8 +2782,8 @@ the same.
 @param dst Output (corrected) image that has the same size and type as src .
 @param cameraMatrix Input camera matrix \f$A = \vecthreethree{f_x}{0}{c_x}{0}{f_y}{c_y}{0}{0}{1}\f$ .
 @param distCoeffs Input vector of distortion coefficients
-\f$(k_1, k_2, p_1, p_2[, k_3[, k_4, k_5, k_6]])\f$ of 4, 5, or 8 elements. If the vector is
-NULL/empty, the zero distortion coefficients are assumed.
+\f$(k_1, k_2, p_1, p_2[, k_3[, k_4, k_5, k_6[, s_1, s_2, s_3, s_4[, \tau_x, \tau_y]]]])\f$
+of 4, 5, 8, 12 or 14 elements. If the vector is NULL/empty, the zero distortion coefficients are assumed.
 @param newCameraMatrix Camera matrix of the distorted image. By default, it is the same as
 cameraMatrix but you may additionally scale and shift the result by using a different matrix.
  */
@@ -2597,8 +2809,28 @@ The function actually builds the maps for the inverse mapping algorithm that is 
 is, for each pixel \f$(u, v)\f$ in the destination (corrected and rectified) image, the function
 computes the corresponding coordinates in the source image (that is, in the original image from
 camera). The following process is applied:
-\f[\begin{array}{l} x  \leftarrow (u - {c'}_x)/{f'}_x  \\ y  \leftarrow (v - {c'}_y)/{f'}_y  \\{[X\,Y\,W]} ^T  \leftarrow R^{-1}*[x \, y \, 1]^T  \\ x'  \leftarrow X/W  \\ y'  \leftarrow Y/W  \\ x"  \leftarrow x' (1 + k_1 r^2 + k_2 r^4 + k_3 r^6) + 2p_1 x' y' + p_2(r^2 + 2 x'^2)  \\ y"  \leftarrow y' (1 + k_1 r^2 + k_2 r^4 + k_3 r^6) + p_1 (r^2 + 2 y'^2) + 2 p_2 x' y'  \\ map_x(u,v)  \leftarrow x" f_x + c_x  \\ map_y(u,v)  \leftarrow y" f_y + c_y \end{array}\f]
-where \f$(k_1, k_2, p_1, p_2[, k_3])\f$ are the distortion coefficients.
+\f[
+\begin{array}{l}
+x  \leftarrow (u - {c'}_x)/{f'}_x  \\
+y  \leftarrow (v - {c'}_y)/{f'}_y  \\
+{[X\,Y\,W]} ^T  \leftarrow R^{-1}*[x \, y \, 1]^T  \\
+x'  \leftarrow X/W  \\
+y'  \leftarrow Y/W  \\
+r^2  \leftarrow x'^2 + y'^2 \\
+x''  \leftarrow x' \frac{1 + k_1 r^2 + k_2 r^4 + k_3 r^6}{1 + k_4 r^2 + k_5 r^4 + k_6 r^6}
++ 2p_1 x' y' + p_2(r^2 + 2 x'^2)  + s_1 r^2 + s_2 r^4\\
+y''  \leftarrow y' \frac{1 + k_1 r^2 + k_2 r^4 + k_3 r^6}{1 + k_4 r^2 + k_5 r^4 + k_6 r^6}
++ p_1 (r^2 + 2 y'^2) + 2 p_2 x' y' + s_3 r^2 + s_4 r^4 \\
+s\vecthree{x'''}{y'''}{1} =
+\vecthreethree{R_{33}(\tau_x, \tau_y)}{0}{-R_{13}((\tau_x, \tau_y)}
+{0}{R_{33}(\tau_x, \tau_y)}{-R_{23}(\tau_x, \tau_y)}
+{0}{0}{1} R(\tau_x, \tau_y) \vecthree{x''}{y''}{1}\\
+map_x(u,v)  \leftarrow x''' f_x + c_x  \\
+map_y(u,v)  \leftarrow y''' f_y + c_y
+\end{array}
+\f]
+where \f$(k_1, k_2, p_1, p_2[, k_3[, k_4, k_5, k_6[, s_1, s_2, s_3, s_4[, \tau_x, \tau_y]]]])\f$
+are the distortion coefficients.
 
 In case of a stereo camera, this function is called twice: once for each camera head, after
 stereoRectify, which in its turn is called after cv::stereoCalibrate. But if the stereo camera
@@ -2611,8 +2843,8 @@ where cameraMatrix can be chosen arbitrarily.
 
 @param cameraMatrix Input camera matrix \f$A=\vecthreethree{f_x}{0}{c_x}{0}{f_y}{c_y}{0}{0}{1}\f$ .
 @param distCoeffs Input vector of distortion coefficients
-\f$(k_1, k_2, p_1, p_2[, k_3[, k_4, k_5, k_6]])\f$ of 4, 5, or 8 elements. If the vector is
-NULL/empty, the zero distortion coefficients are assumed.
+\f$(k_1, k_2, p_1, p_2[, k_3[, k_4, k_5, k_6[, s_1, s_2, s_3, s_4[, \tau_x, \tau_y]]]])\f$
+of 4, 5, 8, 12 or 14 elements. If the vector is NULL/empty, the zero distortion coefficients are assumed.
 @param R Optional rectification transformation in the object space (3x3 matrix). R1 or R2 ,
 computed by stereoRectify can be passed here. If the matrix is empty, the identity transformation
 is assumed. In cvInitUndistortMap R assumed to be an identity matrix.
@@ -2687,8 +2919,8 @@ The function can be used for both a stereo camera head or a monocular camera (wh
 transformation. If matrix P is identity or omitted, dst will contain normalized point coordinates.
 @param cameraMatrix Camera matrix \f$\vecthreethree{f_x}{0}{c_x}{0}{f_y}{c_y}{0}{0}{1}\f$ .
 @param distCoeffs Input vector of distortion coefficients
-\f$(k_1, k_2, p_1, p_2[, k_3[, k_4, k_5, k_6]])\f$ of 4, 5, or 8 elements. If the vector is
-NULL/empty, the zero distortion coefficients are assumed.
+\f$(k_1, k_2, p_1, p_2[, k_3[, k_4, k_5, k_6[, s_1, s_2, s_3, s_4[, \tau_x, \tau_y]]]])\f$
+of 4, 5, 8, 12 or 14 elements. If the vector is NULL/empty, the zero distortion coefficients are assumed.
 @param R Rectification transformation in the object space (3x3 matrix). R1 or R2 computed by
 cv::stereoRectify can be passed here. If the matrix is empty, the identity transformation is used.
 @param P New camera matrix (3x3) or new projection matrix (3x4). P1 or P2 computed by
@@ -2709,7 +2941,7 @@ An example for creating histograms of an image
 
 /** @brief Calculates a histogram of a set of arrays.
 
-The functions calcHist calculate the histogram of one or more arrays. The elements of a tuple used
+The function cv::calcHist calculates the histogram of one or more arrays. The elements of a tuple used
 to increment a histogram bin are taken from the corresponding input arrays at the same location. The
 sample below shows how to compute a 2D Hue-Saturation histogram for a color image. :
 @code
@@ -2770,7 +3002,7 @@ sample below shows how to compute a 2D Hue-Saturation histogram for a color imag
     }
 @endcode
 
-@param images Source arrays. They all should have the same depth, CV_8U or CV_32F , and the same
+@param images Source arrays. They all should have the same depth, CV_8U, CV_16U or CV_32F , and the same
 size. Each of them can have an arbitrary number of channels.
 @param nimages Number of source images.
 @param channels List of the dims channels used to compute the histogram. The first array channels
@@ -2821,7 +3053,7 @@ CV_EXPORTS_W void calcHist( InputArrayOfArrays images,
 
 /** @brief Calculates the back projection of a histogram.
 
-The functions calcBackProject calculate the back project of the histogram. That is, similarly to
+The function cv::calcBackProject calculates the back project of the histogram. That is, similarly to
 cv::calcHist , at each location (x, y) the function collects the values from the selected channels
 in the input images and finds the corresponding histogram bin. But instead of incrementing it, the
 function reads the bin value, scales it by scale , and stores in backProject(x,y) . In terms of
@@ -2842,7 +3074,7 @@ component.
 
 This is an approximate algorithm of the CamShift color object tracker.
 
-@param images Source arrays. They all should have the same depth, CV_8U or CV_32F , and the same
+@param images Source arrays. They all should have the same depth, CV_8U, CV_16U or CV_32F , and the same
 size. Each of them can have an arbitrary number of channels.
 @param nimages Number of source images.
 @param channels The list of channels used to compute the back projection. The number of channels
@@ -2852,7 +3084,7 @@ images[0].channels() + images[1].channels()-1, and so on.
 @param hist Input histogram that can be dense or sparse.
 @param backProject Destination back projection array that is a single-channel array of the same
 size and depth as images[0] .
-@param ranges Array of arrays of the histogram bin boundaries in each dimension. See calcHist .
+@param ranges Array of arrays of the histogram bin boundaries in each dimension. See cv::calcHist .
 @param scale Optional scale factor for the output back projection.
 @param uniform Flag indicating whether the histogram is uniform or not (see above).
 
@@ -2877,7 +3109,7 @@ CV_EXPORTS_W void calcBackProject( InputArrayOfArrays images, const std::vector<
 
 /** @brief Compares two histograms.
 
-The function compare two dense or two sparse histograms using the specified method.
+The function cv::compareHist compares two dense or two sparse histograms using the specified method.
 
 The function returns \f$d(H_1, H_2)\f$ .
 
@@ -3365,7 +3597,7 @@ represents the background label. ltype specifies the output label image type, an
 consideration based on the total number of labels or alternatively the total number of pixels in
 the source image.
 
-@param image the image to be labeled
+@param image the 8-bit single-channel image to be labeled
 @param labels destination labeled image
 @param connectivity 8 or 4 for 8-way or 4-way connectivity respectively
 @param ltype output image label type. Currently CV_32S and CV_16U are supported.
@@ -3374,12 +3606,13 @@ CV_EXPORTS_W int connectedComponents(InputArray image, OutputArray labels,
                                      int connectivity = 8, int ltype = CV_32S);
 
 /** @overload
-@param image the image to be labeled
+@param image the 8-bit single-channel image to be labeled
 @param labels destination labeled image
 @param stats statistics output for each label, including the background label, see below for
 available statistics. Statistics are accessed via stats(label, COLUMN) where COLUMN is one of
-cv::ConnectedComponentsTypes
-@param centroids floating point centroid (x,y) output for each label, including the background label
+cv::ConnectedComponentsTypes. The data type is CV_32S.
+@param centroids centroid output for each label, including the background label. Centroids are
+accessed via centroids(label, 0) for x and centroids(label, 1) for y. The data type CV_64F.
 @param connectivity 8 or 4 for 8-way or 4-way connectivity respectively
 @param ltype output image label type. Currently CV_32S and CV_16U are supported.
 */
@@ -3742,12 +3975,12 @@ enum ColormapTypes
     COLORMAP_HSV = 9, //!< ![HSV](pics/colormaps/colorscale_hsv.jpg)
     COLORMAP_PINK = 10, //!< ![pink](pics/colormaps/colorscale_pink.jpg)
     COLORMAP_HOT = 11, //!< ![hot](pics/colormaps/colorscale_hot.jpg)
-    COLORMAP_PARULA = 12 //!< ![hot](pics/colormaps/colorscale_parula.jpg)
+    COLORMAP_PARULA = 12 //!< ![parula](pics/colormaps/colorscale_parula.jpg)
 };
 
 /** @brief Applies a GNU Octave/MATLAB equivalent colormap on a given image.
 
-@param src The source image, grayscale or colored does not matter.
+@param src The source image, grayscale or colored of type CV_8UC1 or CV_8UC3.
 @param dst The result is the colormapped source image. Note: Mat::create is called on dst.
 @param colormap The colormap to apply, see cv::ColormapTypes
  */
@@ -3874,6 +4107,43 @@ a filled ellipse sector is to be drawn.
 */
 CV_EXPORTS_W void ellipse(InputOutputArray img, const RotatedRect& box, const Scalar& color,
                         int thickness = 1, int lineType = LINE_8);
+
+/* ----------------------------------------------------------------------------------------- */
+/* ADDING A SET OF PREDEFINED MARKERS WHICH COULD BE USED TO HIGHLIGHT POSITIONS IN AN IMAGE */
+/* ----------------------------------------------------------------------------------------- */
+
+//! Possible set of marker types used for the cv::drawMarker function
+enum MarkerTypes
+{
+    MARKER_CROSS = 0,           //!< A crosshair marker shape
+    MARKER_TILTED_CROSS = 1,    //!< A 45 degree tilted crosshair marker shape
+    MARKER_STAR = 2,            //!< A star marker shape, combination of cross and tilted cross
+    MARKER_DIAMOND = 3,         //!< A diamond marker shape
+    MARKER_SQUARE = 4,          //!< A square marker shape
+    MARKER_TRIANGLE_UP = 5,     //!< An upwards pointing triangle marker shape
+    MARKER_TRIANGLE_DOWN = 6    //!< A downwards pointing triangle marker shape
+};
+
+/** @brief Draws a marker on a predefined position in an image.
+
+The function drawMarker draws a marker on a given position in the image. For the moment several
+marker types are supported, see cv::MarkerTypes for more information.
+
+@param img Image.
+@param position The point where the crosshair is positioned.
+@param color Line color.
+@param markerType The specific type of marker you want to use, see cv::MarkerTypes
+@param thickness Line thickness.
+@param line_type Type of the line, see cv::LineTypes
+@param markerSize The length of the marker axis [default = 20 pixels]
+ */
+CV_EXPORTS_W void drawMarker(CV_IN_OUT Mat& img, Point position, const Scalar& color,
+                             int markerType = MARKER_CROSS, int markerSize=20, int thickness=1,
+                             int line_type=8);
+
+/* ----------------------------------------------------------------------------------------- */
+/* END OF MARKER SECTION */
+/* ----------------------------------------------------------------------------------------- */
 
 /** @overload */
 CV_EXPORTS void fillConvexPoly(Mat& img, const Point* pts, int npts,

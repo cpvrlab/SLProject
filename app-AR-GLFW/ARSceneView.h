@@ -11,7 +11,7 @@
 
 #include <SLSceneView.h>
 #include <ARTracker.h>
-#include <ARCalibration.h>
+#include <SLCVCalibration.h>
 #include <AR2DMapper.h>
 
 //-----------------------------------------------------------------------------
@@ -45,7 +45,7 @@ class ARSceneView : public SLSceneView
 
         SLbool          onKeyPress          (const SLKey key, const SLKey mod);
 
-        ARCalibration&  calibration         ()  { return _calibMgr; }
+        SLCVCalibration&  calibration         ()  { return _calibMgr; }
         void            clearInfoLine       ();
         void            setInfoLineText     (SLstring text);
 
@@ -73,7 +73,7 @@ private:
         string          _calibFileDir;      //!< path to calibration files are stored
         string          _paramFilesDir;     //!< path to parameter files are stored
 
-        ARCalibration   _calibMgr;          //!< calibration manager
+        SLCVCalibration   _calibMgr;          //!< calibration manager
         AR2DMapper      _mapper2D;          //!< 2D Mapping
 };
 //-----------------------------------------------------------------------------

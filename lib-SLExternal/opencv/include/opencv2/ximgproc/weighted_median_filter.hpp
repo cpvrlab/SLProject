@@ -7,13 +7,11 @@
 //  copy or use the software.
 //
 //
-//                          License Agreement
+//                           License Agreement
 //                For Open Source Computer Vision Library
 //
-// Copyright (C) 2000-2008, Intel Corporation, all rights reserved.
-// Copyright (C) 2009, Willow Garage Inc., all rights reserved.
-// Copyright (C) 2013, OpenCV Foundation, all rights reserved.
-// Copyright (C) 2015, Itseez Inc., all rights reserved.
+// Copyright (C) 2015, The Chinese University of Hong Kong, all rights reserved.
+//
 // Third party copyrights are property of their respective owners.
 //
 // Redistribution and use in source and binary forms, with or without modification,
@@ -42,57 +40,56 @@
 //
 //M*/
 
-#ifndef __OPENCV_HAL_HPP__
-#define __OPENCV_HAL_HPP__
-
-#include "opencv2/hal/defs.h"
+#ifndef  __OPENCV_WEIGHTED_MEDIAN_FILTER_HPP__
+#define  __OPENCV_WEIGHTED_MEDIAN_FILTER_HPP__
+#ifdef __cplusplus
 
 /**
-  @defgroup hal Hardware Acceleration Layer
+* @file
+* @date Sept 9, 2015
+* @author Zhou Chao
 */
 
-namespace cv { namespace hal {
+#include <opencv2/core.hpp>
+#include <string>
 
-namespace Error {
-
-enum
+namespace cv
 {
-    Ok = 0,
-    Unknown = -1
+namespace ximgproc
+{
+
+/**
+* @brief Specifies weight types of weighted median filter.
+*/
+enum WMFWeightType
+{
+    WMF_EXP, //!< \f$exp(-|I1-I2|^2/(2*sigma^2))\f$
+    WMF_IV1, //!< \f$(|I1-I2|+sigma)^-1\f$
+    WMF_IV2, //!< \f$(|I1-I2|^2+sigma^2)^-1\f$
+    WMF_COS, //!< \f$dot(I1,I2)/(|I1|*|I2|)\f$
+    WMF_JAC, //!< \f$(min(r1,r2)+min(g1,g2)+min(b1,b2))/(max(r1,r2)+max(g1,g2)+max(b1,b2))\f$
+    WMF_OFF //!< unweighted
 };
 
+/**
+* @brief   Applies weighted median filter to an image.
+*
+* For more details about this implementation, please see @cite zhang2014100+
+*
+* @param   joint       Joint 8-bit, 1-channel or 3-channel image.
+* @param   src         Source 8-bit or floating-point, 1-channel or 3-channel image.
+* @param   dst         Destination image.
+* @param   r           Radius of filtering kernel, should be a positive integer.
+* @param   sigma       Filter range standard deviation for the joint image.
+* @param   weightType  weightType The type of weight definition, see WMFWeightType
+* @param   mask        A 0-1 mask that has the same size with I. This mask is used to ignore the effect of some pixels. If the pixel value on mask is 0,
+*                           the pixel will be ignored when maintaining the joint-histogram. This is useful for applications like optical flow occlusion handling.
+*
+* @sa medianBlur, jointBilateralFilter
+*/
+CV_EXPORTS void weightedMedianFilter(InputArray joint, InputArray src, OutputArray dst, int r, double sigma=25.5, WMFWeightType weightType=WMF_EXP, Mat mask=Mat());
+}
 }
 
-int normHamming(const uchar* a, int n);
-int normHamming(const uchar* a, const uchar* b, int n);
-
-int normHamming(const uchar* a, int n, int cellSize);
-int normHamming(const uchar* a, const uchar* b, int n, int cellSize);
-
-//////////////////////////////// low-level functions ////////////////////////////////
-
-int LU(float* A, size_t astep, int m, float* b, size_t bstep, int n);
-int LU(double* A, size_t astep, int m, double* b, size_t bstep, int n);
-bool Cholesky(float* A, size_t astep, int m, float* b, size_t bstep, int n);
-bool Cholesky(double* A, size_t astep, int m, double* b, size_t bstep, int n);
-
-int normL1_(const uchar* a, const uchar* b, int n);
-float normL1_(const float* a, const float* b, int n);
-float normL2Sqr_(const float* a, const float* b, int n);
-
-void exp(const float* src, float* dst, int n);
-void exp(const double* src, double* dst, int n);
-void log(const float* src, float* dst, int n);
-void log(const double* src, double* dst, int n);
-
-void fastAtan2(const float* y, const float* x, float* dst, int n, bool angleInDegrees);
-void magnitude(const float* x, const float* y, float* dst, int n);
-void magnitude(const double* x, const double* y, double* dst, int n);
-void sqrt(const float* src, float* dst, int len);
-void sqrt(const double* src, double* dst, int len);
-void invSqrt(const float* src, float* dst, int len);
-void invSqrt(const double* src, double* dst, int len);
-
-}} //cv::hal
-
-#endif //__OPENCV_HAL_HPP__
+#endif
+#endif

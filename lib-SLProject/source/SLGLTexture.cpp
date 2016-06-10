@@ -202,14 +202,11 @@ SLbool SLGLTexture::copyVideoImage(SLint width,
                                    SLPixelFormat srcFormat,
                                    SLuchar* data,
                                    SLbool isTopLeft)
-{
-    SLPixelFormat dstFormat = _stateGL->pixelFormatIsSupported(srcFormat) ?
-                              srcFormat : PF_rgb;
-                           
+{                         
     bool needsRebuild = _images[0]->load(width,
                                          height,
                                          srcFormat,
-                                         dstFormat,
+                                         PF_rgb,
                                          data,
                                          isTopLeft);
     

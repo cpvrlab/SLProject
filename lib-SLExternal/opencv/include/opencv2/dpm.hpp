@@ -10,7 +10,7 @@
 //                           License Agreement
 //                For Open Source Computer Vision Library
 //
-// Copyright (C) 2010-2013, University of Nizhny Novgorod, all rights reserved.
+// Copyright (C) 2015, Itseez Inc, all rights reserved.
 // Third party copyrights are property of their respective owners.
 //
 // Redistribution and use in source and binary forms, with or without modification,
@@ -29,7 +29,7 @@
 // This software is provided by the copyright holders and contributors "as is" and
 // any express or implied warranties, including, but not limited to, the implied
 // warranties of merchantability and fitness for a particular purpose are disclaimed.
-// In no event shall the Intel Corporation or contributors be liable for any direct,
+// In no event shall the Itseez Inc or contributors be liable for any direct,
 // indirect, incidental, special, exemplary, or consequential damages
 // (including, but not limited to, procurement of substitute goods or services;
 // loss of use, data, or profits; or business interruption) however caused
@@ -37,7 +37,8 @@
 // or tort (including negligence or otherwise) arising in any way out of
 // the use of this software, even if advised of the possibility of such damage.
 //
-// SVM implementation authors:
+// Implementation authors:
+// Jiaolong Xu - jiaolongxu@gmail.com
 // Evgeniy Kozinov - evgeniy.kozinov@gmail.com
 // Valentina Kustikova - valentina.kustikova@gmail.com
 // Nikolai Zolotykh - Nikolai.Zolotykh@gmail.com
@@ -55,7 +56,7 @@
 #include <vector>
 #include <string>
 
-/** @defgroup latentsvm Latent SVM
+/** @defgroup dpm Deformable Part-based Models
 
 Discriminatively Trained Part Based Models for Object Detection
 ---------------------------------------------------------------
@@ -85,19 +86,19 @@ Using this hierarchy, low scoring hypotheses can be pruned after looking at the 
 of a subset of the parts. Hypotheses that score high under a weak model are evaluated further using
 a richer model.
 
-In OpenCV there is an C++ implementation of Latent SVM.
+In OpenCV there is an C++ implementation of DPM cascade detector.
 
 */
 
 namespace cv
 {
 
-namespace lsvm
+namespace dpm
 {
 
-/** @brief This is a C++ abstract class, it provides external user API to work with Latent SVM.
+/** @brief This is a C++ abstract class, it provides external user API to work with DPM.
  */
-class CV_EXPORTS_W LSVMDetector
+class CV_EXPORTS_W DPMDetector
 {
 public:
 
@@ -116,10 +117,8 @@ public:
     (models) and corresponding confidence levels.
     @param image An image.
     @param objects The detections: rectangulars, scores and class IDs.
-    @param overlapThreshold Threshold for the non-maximum suppression algorithm.
-     */
-    virtual void detect(cv::Mat const &image, CV_OUT std::vector<ObjectDetection> &objects,
-                         float overlapThreshold=0.5f ) = 0;
+    */
+    virtual void detect(cv::Mat &image, CV_OUT std::vector<ObjectDetection> &objects) = 0;
 
     /** @brief Return the class (model) names that were passed in constructor or method load or extracted from
     models filenames in those methods.
@@ -130,20 +129,20 @@ public:
      */
     virtual size_t getClassCount() const = 0;
 
-        /** @brief Load the trained models from given .xml files and return cv::Ptr\<LSVMDetector\>.
+    /** @brief Load the trained models from given .xml files and return cv::Ptr\<DPMDetector\>.
     @param filenames A set of filenames storing the trained detectors (models). Each file contains one
-    model. See examples of such files here `/opencv_extra/testdata/cv/LSVMDetector/models_VOC2007/`.
+    model. See examples of such files here `/opencv_extra/testdata/cv/dpm/VOC2007_Cascade/`.
     @param classNames A set of trained models names. If it's empty then the name of each model will be
     constructed from the name of file containing the model. E.g. the model stored in
     "/home/user/cat.xml" will get the name "cat".
      */
-    static cv::Ptr<LSVMDetector> create(std::vector<std::string> const &filenames,
-                                        std::vector<std::string> const &classNames = std::vector<std::string>());
+    static cv::Ptr<DPMDetector> create(std::vector<std::string> const &filenames,
+            std::vector<std::string> const &classNames = std::vector<std::string>());
 
-    virtual ~LSVMDetector(){}
+    virtual ~DPMDetector(){}
 };
 
-} // namespace lsvm
+} // namespace dpm
 } // namespace cv
 
 #endif

@@ -411,6 +411,7 @@
     <ClInclude Include="..\include\SLAverage.h" />
     <ClInclude Include="..\include\SLBackground.h" />
     <ClInclude Include="..\include\SLCompactGrid.h" />
+    <ClInclude Include="..\include\SLCVCalibration.h" />
     <ClInclude Include="..\include\SLCVCapture.h" />
     <ClInclude Include="..\include\SLDisk.h" />
     <ClInclude Include="..\include\SLGLEnums.h" />
@@ -493,6 +494,7 @@
     <ClCompile Include="source\SLAnimTrack.cpp" />
     <ClCompile Include="source\SLBackground.cpp" />
     <ClCompile Include="source\SLCompactGrid.cpp" />
+    <ClCompile Include="source\SLCVCalibration.cpp" />
     <ClCompile Include="source\SLDisk.cpp" />
     <ClCompile Include="source\SLGLVertexArray.cpp" />
     <ClCompile Include="source\SLGLVertexArrayExt.cpp" />

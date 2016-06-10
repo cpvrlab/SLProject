@@ -75,7 +75,7 @@ private:
     //chessboard corners in world coordinate system
     vector<cv::Point3d> _boardPoints;
     //calculated image points in findChessboardCorners
-    vector<cv::Point2d> _imagePoints;
+    vector<cv::Point2f> _imagePoints;
     //Parameter class instance
     ARChessboardParams _p;
 

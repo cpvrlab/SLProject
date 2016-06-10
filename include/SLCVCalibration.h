@@ -1,5 +1,5 @@
 //#############################################################################
-//  File:      ARTracker.cpp
+//  File:      SLCVCalibration.cpp
 //  Author:    Michael Göttlicher
 //  Date:      Spring 2016
 //  Codestyle: https://github.com/cpvrlab/SLProject/wiki/Coding-Style-Guidelines
@@ -8,19 +8,20 @@
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
 
-#ifndef ARCALIBRATION_H
-#define ARCALIBRATION_H
+#ifndef SLCVCALIBRATION_H
+#define SLCVCALIBRATION_H
 
 #include <stdafx.h>
 #include <opencv2/core.hpp>
 using namespace std;
 
-class ARCalibration
+//-----------------------------------------------------------------------------
+class SLCVCalibration
 {
 public:
-    enum CalibState {IDLE, CAPTURING, CALCULATING, CALIBRATED};
+    enum SLCVCalibState {IDLE, CAPTURING, CALCULATING, CALIBRATED};
 
-                ARCalibration       ();
+                SLCVCalibration       ();
 
     bool        loadCamParams       (string dir);
     bool        loadCalibParams     (string calibFilesDir);
@@ -28,6 +29,10 @@ public:
     void        addImage            (cv::Mat image);
     void        calculate           (string saveDir);
     void        showUndistorted     (bool su) {_showUndistorted = su;}
+    static bool findChessboard      (cv::Mat& frame,
+                                     cv::Size& size,
+                                     vector<cv::Point2f>& corners,
+                                     int flags);
 
     // Getters
     cv::Mat&    intrinsics          () {return _intrinsics;}
@@ -42,31 +47,28 @@ public:
 
 private:
     void        calculateCameraFOV  ();
-    void        clear();
+    void        clear               ();
 
-    cv::Mat     _intrinsics;
-    cv::Mat     _distortion;
-    float       _cameraFovDeg;
+    cv::Mat         _intrinsics;            
+    cv::Mat         _distortion;
+    float           _cameraFovDeg;
 
-    CalibState  _state;
-    string      _calibFileName;         //!< name for calibration file
-    string      _calibParamsFileName;
+    SLCVCalibState  _state;
+    string          _calibFileName;         //!< name for calibration file
+    string          _calibParamsFileName;
+    int             _numInnerCornersWidth;
+    int             _numInnerCornersHeight;
+    float           _squareSizeMM;
+    int             _captureDelayMS;
+    int             _numOfImgsToCapture;
+    int             _numCaptured;
+    float           _reprojectionError;
 
-    int         _numInnerCornersWidth;
-    int         _numInnerCornersHeight;
-    float       _squareSizeMM;
-    int         _captureDelayMS;
-    int         _numOfImgsToCapture;
-
-    int         _numCaptured;
-    float       _reprojectionError;
-
-    clock_t     _prevTimestamp;
+    clock_t         _prevTimestamp;
     vector<vector<cv::Point2f>> _imagePoints;
 
-    cv::Size    _imageSize;
-
-    bool        _showUndistorted;
+    cv::Size        _imageSize;
+    bool            _showUndistorted;
 };
-
-#endif // ARCALIBRATION_H
+//-----------------------------------------------------------------------------
+#endif // SLCVCalibration_H

@@ -192,7 +192,6 @@ xcopy $(SolutionDir)\_lib\prebuilt\OpenCV\x64\vc14\bin\opencv_flann310.dll $(Sol
     <ClCompile Include="AR2DMapper.cpp" />
     <ClCompile Include="AR2DTracker.cpp" />
     <ClCompile Include="ARArucoTracker.cpp" />
-    <ClCompile Include="ARCalibration.cpp" />
     <ClCompile Include="ARChessboardTracker.cpp" />
     <ClCompile Include="ARSceneView.cpp" />
     <ClCompile Include="ARTracker.cpp" />
@@ -202,7 +201,6 @@ xcopy $(SolutionDir)\_lib\prebuilt\OpenCV\x64\vc14\bin\opencv_flann310.dll $(Sol
     <ClInclude Include="AR2DMapper.h" />
     <ClInclude Include="AR2DTracker.h" />
     <ClInclude Include="ARArucoTracker.h" />
-    <ClInclude Include="ARCalibration.h" />
     <ClInclude Include="ARChessboardTracker.h" />
     <ClInclude Include="ARSceneView.h" />
     <ClInclude Include="ARTracker.h" />

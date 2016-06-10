@@ -57,8 +57,8 @@ void SLCVCapture::grabAndCopyToSL()
             // Set the according OpenGL format
             switch (lastFrame.type())
             {   case CV_8UC1: format = PF_luminance; break;
-                case CV_8UC3: format = PF_rgb; break;
-                case CV_8UC4: format = PF_rgba; break;
+                case CV_8UC3: format = PF_bgr; break;
+                case CV_8UC4: format = PF_bgra; break;
                 default: SL_EXIT_MSG("OpenCV image format not supported");
             }
 

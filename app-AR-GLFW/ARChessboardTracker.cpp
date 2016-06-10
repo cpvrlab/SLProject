@@ -57,8 +57,9 @@ bool ARChessboardTracker::track()
         //cvtColor(_image, _grayImg, CV_RGB2GRAY);
 
         //detect chessboard corners
-        int chessBoardFlags = CALIB_CB_ADAPTIVE_THRESH | CALIB_CB_NORMALIZE_IMAGE | CALIB_CB_FAST_CHECK;
-        _cbVisible = findChessboardCorners(_image, Size(_p.boardHeight,_p.boardWidth), _imagePoints, chessBoardFlags );
+        int flags = CALIB_CB_ADAPTIVE_THRESH | CALIB_CB_NORMALIZE_IMAGE | CALIB_CB_FAST_CHECK;
+        cv::Size size = Size(_p.boardHeight, _p.boardWidth);
+        _cbVisible = SLCVCalibration::findChessboard(_image, size, _imagePoints,flags);
 
         if(_cbVisible)
         {
@@ -142,8 +143,10 @@ void ARChessboardTracker::updateSceneView( ARSceneView* sv )
     {
         //invert view matrix because we want to set the camera object matrix
         SLMat4f camOm = _viewMat.inverse();
+
         //update camera with calculated view matrix:
         sv->camera()->om( camOm );
+
         //set node visible
         _node->setDrawBitsRec( SL_DB_HIDDEN, false );
     }

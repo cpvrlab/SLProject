@@ -282,6 +282,9 @@
     <ClInclude Include="..\include\SLCVCapture.h">
       <Filter>CV</Filter>
     </ClInclude>
+    <ClInclude Include="..\include\SLCVCalibration.h">
+      <Filter>CV</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="source\SLAABBox.cpp">
@@ -465,6 +468,9 @@
       <Filter>GL</Filter>
     </ClCompile>
     <ClCompile Include="source\CV\SLCVCapture.cpp">
+      <Filter>CV</Filter>
+    </ClCompile>
+    <ClCompile Include="source\SLCVCalibration.cpp">
       <Filter>CV</Filter>
     </ClCompile>
   </ItemGroup>

@@ -1,5 +1,5 @@
 //#############################################################################
-//  File:      ARTracker.cpp
+//  File:      SLCVCalibration.cpp
 //  Author:    Michael Göttlicher
 //  Date:      Spring 2016
 //  Codestyle: https://github.com/cpvrlab/SLProject/wiki/Coding-Style-Guidelines
@@ -8,8 +8,8 @@
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
 
-#include "ARCalibration.h"
-#include <ARSceneView.h>
+#include <stdafx.h>         // precompiled headers
+#include "SLCVCalibration.h"
 #include <opencv2/opencv.hpp>
 #include <opencv2/highgui.hpp>
 #include <opencv2/calib3d.hpp>
@@ -17,7 +17,7 @@
 using namespace cv;
 using namespace std;
 
-ARCalibration::ARCalibration() :
+SLCVCalibration::SLCVCalibration() :
     _cameraFovDeg(1.0f),
     _state(IDLE),
     _calibFileName("cam_calibration.xml"),
@@ -34,14 +34,14 @@ ARCalibration::ARCalibration() :
 {
 }
 //-----------------------------------------------------------------------------
-void ARCalibration::clear()
+void SLCVCalibration::clear()
 {
     _numCaptured = 0;
     _reprojectionError = -1.0f;
     _imagePoints.clear();
 }
 //-----------------------------------------------------------------------------
-bool ARCalibration::loadCamParams(string dir)
+bool SLCVCalibration::loadCamParams(string dir)
 {
     //load camera parameter
     FileStorage fs;
@@ -67,7 +67,7 @@ bool ARCalibration::loadCamParams(string dir)
     return true;
 }
 //-----------------------------------------------------------------------------
-bool ARCalibration::loadCalibParams(std::string calibFilesDir)
+bool SLCVCalibration::loadCalibParams(std::string calibFilesDir)
 {
     //load camera parameter
     FileStorage fs;
@@ -90,12 +90,12 @@ bool ARCalibration::loadCalibParams(std::string calibFilesDir)
     return true;
 }
 //-----------------------------------------------------------------------------
-void ARCalibration::calculateCameraFOV()
+void SLCVCalibration::calculateCameraFOV()
 {
     //calculate vertical field of view
-    float fy = _intrinsics.at<double>(1,1);
-    float cy = _intrinsics.at<double>(1,2);
-    float fovRad = 2 * atan2(cy, fy);
+    float fy = (float)_intrinsics.at<double>(1,1);
+    float cy = (float)_intrinsics.at<double>(1,2);
+    float fovRad = 2 * (float)atan2(cy, fy);
     _cameraFovDeg = fovRad * SL_RAD2DEG;
 }
 //-----------------------------------------------------------------------------
@@ -232,13 +232,35 @@ static void saveCameraParams(Size& imageSize,
     fs << "avg_reprojection_error" << totalAvgErr;
 }
 //-----------------------------------------------------------------------------
-void ARCalibration::calibrate()
+//!< Find the chessboard corners with CV C-function interface
+bool SLCVCalibration::findChessboard(cv::Mat& frame,
+                                            cv::Size& size,
+                                            vector<cv::Point2f>& corners,
+                                            int flags)
+{
+    // C++ version with STL vector crashes in visual studio
+    //bool ok = cv::findChessboardCorners(frame, size, corners, flags);
+
+    int count = 0;
+    CvMat image = frame;
+    cv::Mat tmpCorners;
+    tmpCorners.create(size.area(), 1, CV_32FC2);
+    bool ok = cvFindChessboardCorners(&image,
+        size,
+        reinterpret_cast<CvPoint2D32f*>(tmpCorners.data),
+        &count,
+        flags) > 0;
+    corners.assign((Point2f*)tmpCorners.datastart, (Point2f*)tmpCorners.dataend);
+    return ok;
+}
+//-----------------------------------------------------------------------------
+void SLCVCalibration::calibrate()
 {
     clear();
     _state = CAPTURING;
 }
 //-----------------------------------------------------------------------------
-void ARCalibration::calculate(string saveDir)
+void SLCVCalibration::calculate(string saveDir)
 {
     _state = CALCULATING;
 
@@ -269,12 +291,12 @@ void ARCalibration::calculate(string saveDir)
 
         //calculation successful
         calculateCameraFOV();
-        _reprojectionError = totalAvgErr;
+        _reprojectionError = (float)totalAvgErr;
         _state = CALIBRATED;
     }
 }
 //-----------------------------------------------------------------------------
-void ARCalibration::addImage(cv::Mat image)
+void SLCVCalibration::addImage(cv::Mat image)
 {
     //set image size
     _imageSize = image.size();
@@ -283,10 +305,11 @@ void ARCalibration::addImage(cv::Mat image)
     bool timeOut = clock() - _prevTimestamp > _captureDelayMS * 1e-3 * CLOCKS_PER_SEC ? true : false;
 
     //try to detect chessboard
-    vector<cv::Point2f> newImagePoints;
+    vector<cv::Point2f> corners;
     Size boardSize = cv::Size(_numInnerCornersWidth, _numInnerCornersHeight);
-    int chessBoardFlags = CALIB_CB_ADAPTIVE_THRESH | CALIB_CB_NORMALIZE_IMAGE | CALIB_CB_FAST_CHECK;
-    bool found = cv::findChessboardCorners(image, boardSize, newImagePoints, chessBoardFlags);
+    int flags = CALIB_CB_ADAPTIVE_THRESH | CALIB_CB_NORMALIZE_IMAGE | CALIB_CB_FAST_CHECK;
+
+    bool found = findChessboard(image, boardSize, corners, flags);
 
     //draw colored points
     //if chessboard was not found reset timer
@@ -300,16 +323,18 @@ void ARCalibration::addImage(cv::Mat image)
     {
         Mat imageGray;
         cv::cvtColor(image, imageGray, COLOR_BGR2GRAY);
-        cornerSubPix(imageGray, newImagePoints, Size(11,11),
+        cornerSubPix(imageGray, corners, Size(11,11),
             Size(-1,-1), TermCriteria(TermCriteria::EPS+TermCriteria::COUNT, 30, 0.1));
 
         //debug save image
         stringstream ss;
         ss << "imageIn_" << _numCaptured << ".png";
         cv::imwrite(ss.str(), image);
+
         //add detected points
-        _imagePoints.push_back(newImagePoints);
+        _imagePoints.push_back(corners);
         _numCaptured++;
+
         //reset timer
         _prevTimestamp = clock();
 
@@ -319,5 +344,6 @@ void ARCalibration::addImage(cv::Mat image)
 
     // Draw the corners
     if(found)
-        drawChessboardCorners(image, boardSize, Mat(newImagePoints), found);
+        drawChessboardCorners(image, boardSize, Mat(corners), found);
 }
+//-----------------------------------------------------------------------------

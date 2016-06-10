@@ -260,7 +260,7 @@ void SLGLVertexBuffer::generate(SLuint numVertices,
                                       _dataType,
                                       GL_FALSE, 
                                       _strideBytes,
-                                      (void*)a.offsetBytes);
+                                      (void*)(size_t)a.offsetBytes);
         
                 // Tell the attribute to be an array attribute instead of a state variable
                 glEnableVertexAttribArray(a.location);
@@ -296,7 +296,7 @@ void SLGLVertexBuffer::generate(SLuint numVertices,
                                           _dataType,
                                           GL_FALSE, 
                                           _strideBytes,
-                                          (void*)a.offsetBytes);
+                                          (void*)(size_t)a.offsetBytes);
         
                     // Tell the attribute to be an array attribute instead of a state variable
                     glEnableVertexAttribArray(a.location);
@@ -327,7 +327,7 @@ void SLGLVertexBuffer::generate(SLuint numVertices,
                                           _dataType,
                                           GL_FALSE, 
                                           0,
-                                          (void*)a.offsetBytes);
+                                          (void*)(size_t)a.offsetBytes);
         
                     // Tell the attribute to be an array attribute instead of a state variable
                     glEnableVertexAttribArray(a.location);
@@ -375,7 +375,7 @@ void SLGLVertexBuffer::bindAndEnableAttrib()
                                         _dataType, 
                                         GL_FALSE, 
                                         _strideBytes, 
-                                        (void*)a.offsetBytes);
+                                        (void*)(size_t)a.offsetBytes);
 
                 // Tell the attribute to be an array attribute instead of a state variable
                 glEnableVertexAttribArray(a.location);

@@ -271,12 +271,12 @@ void SLGLVertexArray::drawElementsAs(SLGLPrimitiveType primitiveType,
     
     SLint indexTypeSize = SLGLVertexBuffer::sizeOfType(_indexDataType);
 
-    ////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////
     glDrawElements(primitiveType, 
                    numIndexes, 
                    _indexDataType, 
-                   (void*)(indexOffset*indexTypeSize));
-    ////////////////////////////////////////////////////
+                   (void*)(size_t)(indexOffset*indexTypeSize));
+    ////////////////////////////////////////////////////////////
     
     GET_GL_ERROR;
     totalDrawCalls++;
