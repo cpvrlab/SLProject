@@ -38,7 +38,6 @@ SOURCES += \
     ARTracker.cpp \
     ARChessboardTracker.cpp \
     ARArucoTracker.cpp \
-    ARCalibration.cpp \
     AR2DMapper.cpp \
     AR2DTracker.cpp
 	   
