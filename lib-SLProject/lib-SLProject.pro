@@ -121,7 +121,8 @@ HEADERS += \
 ../include/SLVector.h \
 ../include/stdafx.h \
 ../include/TriangleBoxIntersect.h \
-    ../include/SLCVCapture.h
+    ../include/SLCVCapture.h \
+    ../include/SLCVCalibration.h
 
 SOURCES += \
 source/math/SLCurveBezier.cpp \
@@ -181,7 +182,8 @@ source/SLScene_onLoad.cpp \
 source/SLSkeleton.cpp \
 source/SLSphere.cpp \
 source/SLText.cpp \
-    source/CV/SLCVCapture.cpp
+    source/CV/SLCVCapture.cpp \
+    source/CV/SLCVCalibration.cpp
 
 OTHER_FILES += \
 ../_data/shaders/BumpNormal.frag \
