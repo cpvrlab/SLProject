@@ -135,6 +135,17 @@ source/SL/SLImporter.cpp \
 source/SL/SLInterface.cpp \
 source/SL/SLTexFont.cpp \
 source/SL/SLTimer.cpp \
+source/GL/SLGLOculus.cpp \
+source/GL/SLGLOculusFB.cpp \
+source/GL/SLGLProgram.cpp \
+source/GL/SLGLShader.cpp \
+source/GL/SLGLState.cpp \
+source/GL/SLGLTexture.cpp \
+source/GL/SLGLVertexArray.cpp \
+source/GL/SLGLVertexArrayExt.cpp \
+source/GL/SLGLVertexBuffer.cpp \
+source/CV/SLCVCapture.cpp \
+source/CV/SLCVCalibration.cpp \
 source/SLAABBox.cpp \
 source/SLAnimation.cpp \
 source/SLAnimManager.cpp \
@@ -148,15 +159,6 @@ source/SLCone.cpp \
 source/SLCompactGrid.cpp \
 source/SLCylinder.cpp \
 source/SLDisk.cpp \
-source/SLGLOculus.cpp \
-source/SLGLOculusFB.cpp \
-source/SLGLProgram.cpp \
-source/SLGLShader.cpp \
-source/SLGLState.cpp \
-source/SLGLTexture.cpp \
-source/SLGLVertexArray.cpp \
-source/SLGLVertexArrayExt.cpp \
-source/SLGLVertexBuffer.cpp \
 source/SLGrid.cpp \
 source/SLInputDevice.cpp \
 source/SLInputManager.cpp \
@@ -181,9 +183,7 @@ source/SLSceneView.cpp \
 source/SLScene_onLoad.cpp \
 source/SLSkeleton.cpp \
 source/SLSphere.cpp \
-source/SLText.cpp \
-    source/CV/SLCVCapture.cpp \
-    source/CV/SLCVCalibration.cpp
+source/SLText.cpp
 
 OTHER_FILES += \
 ../_data/shaders/BumpNormal.frag \
