@@ -44,3 +44,26 @@ ARTracker::~ARTracker()
 {
 }
 //-----------------------------------------------------------------------------
+SLMat4f ARTracker::cvToSLMat(Mat& tVec, Mat& rMat)
+{
+    // Transform calculated position (rotation and translation vector) 
+    // from openCV to SLProject form as discribed in this post:
+    // www.morethantechnical.com/2015/02/17/
+    // augmented-reality-on-libqglviewer-and-opencv-opengl-tips-wcode
+    // convert to SLMat4f:
+    // y- and z- axis have to be inverted
+    /*
+    tVec = |  t0,  t1,  t2 |
+                                        |  r00   r01   r02   t0 |
+           | r00, r10, r20 |            | -r10  -r11  -r12  -t1 |
+    rMat = | r01, r11, r21 |    slMat = | -r20  -r21  -r22  -t2 |
+           | r02, r12, r22 |            |    0     0     0    1 |
+    */
+
+    SLMat4f slMat( rMat.at<double>(0, 0),  rMat.at<double>(0, 1),  rMat.at<double>(0, 2),  tVec.at<double>(0, 0),
+                  -rMat.at<double>(1, 0), -rMat.at<double>(1, 1), -rMat.at<double>(1, 2), -tVec.at<double>(1, 0),
+                  -rMat.at<double>(2, 0), -rMat.at<double>(2, 1), -rMat.at<double>(2, 2), -tVec.at<double>(2, 0),
+                                    0.0f,                   0.0f,                   0.0f,                   1.0f);
+    return slMat;
+}
+//-----------------------------------------------------------------------------

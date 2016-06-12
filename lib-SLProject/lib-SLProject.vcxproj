@@ -185,7 +185,7 @@
       <TreatWChar_tAsBuiltInType>false</TreatWChar_tAsBuiltInType>
       <OpenMPSupport>false</OpenMPSupport>
       <PrecompiledHeader>Use</PrecompiledHeader>
-      <PrecompiledHeaderOutputFile>$(IntDir)$(TargetName).pch</PrecompiledHeaderOutputFile>
+      <PrecompiledHeaderOutputFile>$(IntDir)$(TargetName)_$(Configuration).pch</PrecompiledHeaderOutputFile>
       <ProgramDataBaseFileName>$(TargetName).pdb</ProgramDataBaseFileName>
       <GenerateXMLDocumentationFiles>false</GenerateXMLDocumentationFiles>
       <WarningLevel>Level3</WarningLevel>
@@ -323,7 +323,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <OpenMPSupport>true</OpenMPSupport>
       <PrecompiledHeader>Use</PrecompiledHeader>
-      <PrecompiledHeaderOutputFile>$(IntDir)$(TargetName).pch</PrecompiledHeaderOutputFile>
+      <PrecompiledHeaderOutputFile>$(IntDir)$(TargetName)_$(Configuration).pch</PrecompiledHeaderOutputFile>
       <ProgramDataBaseFileName>$(TargetName).pdb</ProgramDataBaseFileName>
       <WarningLevel>Level2</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
@@ -485,7 +485,17 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\lib-SLExternal\nvwa\debug_new.cpp" />
+    <ClCompile Include="source\CV\SLCVCalibration.cpp" />
     <ClCompile Include="source\CV\SLCVCapture.cpp" />
+    <ClCompile Include="source\GL\SLGLOculus.cpp" />
+    <ClCompile Include="source\GL\SLGLOculusFB.cpp" />
+    <ClCompile Include="source\GL\SLGLProgram.cpp" />
+    <ClCompile Include="source\GL\SLGLShader.cpp" />
+    <ClCompile Include="source\GL\SLGLState.cpp" />
+    <ClCompile Include="source\GL\SLGLTexture.cpp" />
+    <ClCompile Include="source\GL\SLGLVertexArray.cpp" />
+    <ClCompile Include="source\GL\SLGLVertexArrayExt.cpp" />
+    <ClCompile Include="source\GL\SLGLVertexBuffer.cpp" />
     <ClCompile Include="source\math\SLCurveBezier.cpp" />
     <ClCompile Include="source\math\SLPlane.cpp" />
     <ClCompile Include="source\SLAnimation.cpp" />
@@ -494,11 +504,7 @@
     <ClCompile Include="source\SLAnimTrack.cpp" />
     <ClCompile Include="source\SLBackground.cpp" />
     <ClCompile Include="source\SLCompactGrid.cpp" />
-    <ClCompile Include="source\SLCVCalibration.cpp" />
     <ClCompile Include="source\SLDisk.cpp" />
-    <ClCompile Include="source\SLGLVertexArray.cpp" />
-    <ClCompile Include="source\SLGLVertexArrayExt.cpp" />
-    <ClCompile Include="source\SLGLVertexBuffer.cpp" />
     <ClCompile Include="source\SLInputDevice.cpp" />
     <ClCompile Include="source\SLInputManager.cpp" />
     <ClCompile Include="source\SLJoint.cpp" />
@@ -507,12 +513,6 @@
     <ClCompile Include="source\SLCamera.cpp" />
     <ClCompile Include="source\SLCone.cpp" />
     <ClCompile Include="source\SLCylinder.cpp" />
-    <ClCompile Include="source\SLGLOculus.cpp" />
-    <ClCompile Include="source\SLGLOculusFB.cpp" />
-    <ClCompile Include="source\SLGLProgram.cpp" />
-    <ClCompile Include="source\SLGLShader.cpp" />
-    <ClCompile Include="source\SLGLState.cpp" />
-    <ClCompile Include="source\SLGLTexture.cpp" />
     <ClCompile Include="source\SLGrid.cpp" />
     <ClCompile Include="source\SLKeyframe.cpp" />
     <ClCompile Include="source\SLLens.cpp" />

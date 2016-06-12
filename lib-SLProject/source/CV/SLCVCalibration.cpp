@@ -9,7 +9,7 @@
 //#############################################################################
 
 #include <stdafx.h>         // precompiled headers
-#include "SLCVCalibration.h"
+#include <SLCVCalibration.h>
 #include <opencv2/opencv.hpp>
 #include <opencv2/highgui.hpp>
 #include <opencv2/calib3d.hpp>
@@ -17,6 +17,7 @@
 using namespace cv;
 using namespace std;
 
+//-----------------------------------------------------------------------------
 SLCVCalibration::SLCVCalibration() :
     _cameraFovDeg(1.0f),
     _state(IDLE),
@@ -99,7 +100,9 @@ void SLCVCalibration::calculateCameraFOV()
     _cameraFovDeg = fovRad * SL_RAD2DEG;
 }
 //-----------------------------------------------------------------------------
-static void calcBoardCornerPositions(Size boardSize, float squareSize, vector<Point3f>& corners)
+static void calcBoardCornerPositions(Size boardSize, 
+                                     float squareSize, 
+                                     vector<Point3f>& corners)
 {
     corners.clear();
     for(int i = 0; i < boardSize.height; ++i)
@@ -217,12 +220,11 @@ static void saveCameraParams(Size& imageSize,
     fs << "fix_aspect_ratio" << 1;
 
     if (flag)
-    {
-        sprintf(buf, "flags:%s%s%s%s",
-                 flag & CALIB_USE_INTRINSIC_GUESS ? " +use_intrinsic_guess" : "",
-                 flag & CALIB_FIX_ASPECT_RATIO ? " +fix_aspectRatio" : "",
-                 flag & CALIB_FIX_PRINCIPAL_POINT ? " +fix_principal_point" : "",
-                 flag & CALIB_ZERO_TANGENT_DIST ? " +zero_tangent_dist" : "");
+    {   sprintf(buf, "flags:%s%s%s%s",
+                flag & CALIB_USE_INTRINSIC_GUESS ? " +use_intrinsic_guess" : "",
+                flag & CALIB_FIX_ASPECT_RATIO ? " +fix_aspectRatio" : "",
+                flag & CALIB_FIX_PRINCIPAL_POINT ? " +fix_principal_point" : "",
+                flag & CALIB_ZERO_TANGENT_DIST ? " +zero_tangent_dist" : "");
         cvWriteComment(*fs, buf, 0);
     }
 
@@ -282,9 +284,8 @@ void SLCVCalibration::calculate(string saveDir)
          << ". avg re projection error = " << totalAvgErr << endl;
 
     if (ok)
-    {
-        cout << "intrinsics" << _intrinsics << endl;
-        cout <<  "distortion" << _distortion << endl;
+    {   cout << "intrinsics" << _intrinsics << endl;
+        cout << "distortion" << _distortion << endl;
 
         saveCameraParams(_imageSize, _intrinsics, _distortion, rvecs, tvecs, reprojErrs, _imagePoints,
                          totalAvgErr, flag, saveDir + _calibFileName, boardSize, _squareSizeMM);

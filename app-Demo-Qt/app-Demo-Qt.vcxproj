@@ -173,7 +173,7 @@
       <TreatWChar_tAsBuiltInType>false</TreatWChar_tAsBuiltInType>
       <OpenMPSupport>false</OpenMPSupport>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
-      <PrecompiledHeaderOutputFile>$(IntDir)$(TargetName).pch</PrecompiledHeaderOutputFile>
+      <PrecompiledHeaderOutputFile>$(IntDir)$(TargetName)_$(Configuration).pch</PrecompiledHeaderOutputFile>
       <ProgramDataBaseFileName>$(TargetName).pdb</ProgramDataBaseFileName>
       <GenerateXMLDocumentationFiles>false</GenerateXMLDocumentationFiles>
       <WarningLevel>Level2</WarningLevel>
@@ -198,7 +198,17 @@
       <ResourceOutputFileName>$(IntDir)$(TargetFileName).manifest.res</ResourceOutputFileName>
     </ManifestResourceCompile>
     <PostBuildEvent>
-      <Command>xcopy $(SolutionDir)\_lib\prebuilt\OpenCV\x64\vc12\bin\OpenCV_core300.dll $(SolutionDir)\_bin-$(Configuration)-$(Platform) /s /d</Command>
+      <Command>xcopy $(SolutionDir)\_lib\prebuilt\OpenCV\x64\vc14\bin\opencv_core310.dll $(SolutionDir)\_bin-$(Configuration)-$(Platform) /s /d
+xcopy $(SolutionDir)\_lib\prebuilt\OpenCV\x64\vc14\bin\opencv_imgproc310.dll $(SolutionDir)\_bin-$(Configuration)-$(Platform) /s /d
+xcopy $(SolutionDir)\_lib\prebuilt\OpenCV\x64\vc14\bin\opencv_imgcodecs310.dll $(SolutionDir)\_bin-$(Configuration)-$(Platform) /s /d
+xcopy $(SolutionDir)\_lib\prebuilt\OpenCV\x64\vc14\bin\opencv_video310.dll $(SolutionDir)\_bin-$(Configuration)-$(Platform) /s /d
+xcopy $(SolutionDir)\_lib\prebuilt\OpenCV\x64\vc14\bin\opencv_videoio310.dll $(SolutionDir)\_bin-$(Configuration)-$(Platform) /s /d
+xcopy $(SolutionDir)\_lib\prebuilt\OpenCV\x64\vc14\bin\opencv_aruco310.dll $(SolutionDir)\_bin-$(Configuration)-$(Platform) /s /d
+xcopy $(SolutionDir)\_lib\prebuilt\OpenCV\x64\vc14\bin\opencv_features2d310.dll $(SolutionDir)\_bin-$(Configuration)-$(Platform) /s /d
+xcopy $(SolutionDir)\_lib\prebuilt\OpenCV\x64\vc14\bin\opencv_xfeatures2d310.dll $(SolutionDir)\_bin-$(Configuration)-$(Platform) /s /d
+xcopy $(SolutionDir)\_lib\prebuilt\OpenCV\x64\vc14\bin\opencv_calib3d310.dll $(SolutionDir)\_bin-$(Configuration)-$(Platform) /s /d
+xcopy $(SolutionDir)\_lib\prebuilt\OpenCV\x64\vc14\bin\opencv_highgui310.dll $(SolutionDir)\_bin-$(Configuration)-$(Platform) /s /d
+xcopy $(SolutionDir)\_lib\prebuilt\OpenCV\x64\vc14\bin\opencv_flann310.dll $(SolutionDir)\_bin-$(Configuration)-$(Platform) /s /d</Command>
     </PostBuildEvent>
     <Bscmake>
       <PreserveSbr>true</PreserveSbr>
@@ -256,7 +266,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <OpenMPSupport>true</OpenMPSupport>
       <PrecompiledHeader>Use</PrecompiledHeader>
-      <PrecompiledHeaderOutputFile>$(IntDir)$(TargetName).pch</PrecompiledHeaderOutputFile>
+      <PrecompiledHeaderOutputFile>$(IntDir)$(TargetName)_$(Configuration).pch</PrecompiledHeaderOutputFile>
       <ProgramDataBaseFileName>$(TargetName).pdb</ProgramDataBaseFileName>
       <WarningLevel>TurnOffAllWarnings</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
@@ -279,7 +289,17 @@
       <LargeAddressAware>true</LargeAddressAware>
     </Link>
     <PostBuildEvent>
-      <Command>xcopy $(SolutionDir)\_lib\prebuilt\OpenCV\x64\vc12\bin\OpenCV_core300.dll $(SolutionDir)\_bin-$(Configuration)-$(Platform) /s /d</Command>
+      <Command>xcopy $(SolutionDir)\_lib\prebuilt\OpenCV\x64\vc14\bin\opencv_core310.dll $(SolutionDir)\_bin-$(Configuration)-$(Platform) /s /d
+xcopy $(SolutionDir)\_lib\prebuilt\OpenCV\x64\vc14\bin\opencv_imgproc310.dll $(SolutionDir)\_bin-$(Configuration)-$(Platform) /s /d
+xcopy $(SolutionDir)\_lib\prebuilt\OpenCV\x64\vc14\bin\opencv_imgcodecs310.dll $(SolutionDir)\_bin-$(Configuration)-$(Platform) /s /d
+xcopy $(SolutionDir)\_lib\prebuilt\OpenCV\x64\vc14\bin\opencv_video310.dll $(SolutionDir)\_bin-$(Configuration)-$(Platform) /s /d
+xcopy $(SolutionDir)\_lib\prebuilt\OpenCV\x64\vc14\bin\opencv_videoio310.dll $(SolutionDir)\_bin-$(Configuration)-$(Platform) /s /d
+xcopy $(SolutionDir)\_lib\prebuilt\OpenCV\x64\vc14\bin\opencv_aruco310.dll $(SolutionDir)\_bin-$(Configuration)-$(Platform) /s /d
+xcopy $(SolutionDir)\_lib\prebuilt\OpenCV\x64\vc14\bin\opencv_features2d310.dll $(SolutionDir)\_bin-$(Configuration)-$(Platform) /s /d
+xcopy $(SolutionDir)\_lib\prebuilt\OpenCV\x64\vc14\bin\opencv_xfeatures2d310.dll $(SolutionDir)\_bin-$(Configuration)-$(Platform) /s /d
+xcopy $(SolutionDir)\_lib\prebuilt\OpenCV\x64\vc14\bin\opencv_calib3d310.dll $(SolutionDir)\_bin-$(Configuration)-$(Platform) /s /d
+xcopy $(SolutionDir)\_lib\prebuilt\OpenCV\x64\vc14\bin\opencv_highgui310.dll $(SolutionDir)\_bin-$(Configuration)-$(Platform) /s /d
+xcopy $(SolutionDir)\_lib\prebuilt\OpenCV\x64\vc14\bin\opencv_flann310.dll $(SolutionDir)\_bin-$(Configuration)-$(Platform) /s /d</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

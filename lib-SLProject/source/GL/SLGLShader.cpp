@@ -13,8 +13,8 @@
 #include <debug_new.h>        // memory leak detector
 #endif
 
-#include "SLGLShader.h"
-#include "SLGLProgram.h"
+#include <SLGLShader.h>
+#include <SLGLProgram.h>
 
 //-----------------------------------------------------------------------------
 // Error Strings

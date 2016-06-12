@@ -118,7 +118,8 @@ void ARSceneView::preDraw()
     {
         if(!SLCVCapture::lastFrame.empty())
         {   _tracker->image(SLCVCapture::lastFrame);
-            if( _currMode != ARSceneViewMode::Idle || _currMode != ARSceneViewMode::CalibrationMode )
+            if( _currMode != ARSceneViewMode::Idle || 
+                _currMode != ARSceneViewMode::CalibrationMode )
             {   _tracker->track();
                 _tracker->updateSceneView(this);
             }
@@ -151,7 +152,8 @@ void ARSceneView::preDraw()
             //update Info line
             std::stringstream ss;
             if(imgsCaped < imgsToCap)
-                ss << "Capturing: Focus chessboard filling screen. (" << imgsCaped << "/" << imgsToCap << ")";
+                ss << "Capturing: Focus chessboard filling screen. (" 
+                   << imgsCaped << "/" << imgsToCap << ")";
             else
             {
                 ss << "Calculating, please wait.";
@@ -176,7 +178,10 @@ void ARSceneView::preDraw()
     {
         //undistort image for map creation
         Mat undistorted;
-        undistort(SLCVCapture::lastFrame, undistorted, _calibMgr.intrinsics(), _calibMgr.distortion());
+        undistort(SLCVCapture::lastFrame, 
+                  undistorted, 
+                  _calibMgr.intrinsics(), 
+                  _calibMgr.distortion());
 
         if( _mapper2D.stateIsLineInput())
         {

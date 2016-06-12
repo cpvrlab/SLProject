@@ -64,7 +64,7 @@ public:
         fs["maxErroneousBitsInBorderRate"] >> arucoParams->maxErroneousBitsInBorderRate;
         fs["edgeLength"] >> edgeLength;
         fs["arucoDictionaryId"] >> arucoDictionaryId;
-        dictionary =  cv::aruco::getPredefinedDictionary(cv::aruco::PREDEFINED_DICTIONARY_NAME(arucoDictionaryId));
+        dictionary = cv::aruco::getPredefinedDictionary(cv::aruco::PREDEFINED_DICTIONARY_NAME(arucoDictionaryId));
 
         return true;
     }
@@ -96,17 +96,24 @@ class ARArucoTracker : public ARTracker
 
         std::map<int,SLMat4f>& getArucoVMs () {return _arucoVMs;}
 
+        //! Helper function to draw and save an aruco marker board image
+        static void drawArucoMarkerBoard(int numMarkersX,
+                                    int numMarkersY,
+                                    int markerEdgeLengthPix,
+                                    int markerSepaPix,
+                                    int dictionaryId,
+                                    string imgName,
+                                    bool showImage = false,
+                                    int borderBits = 1,
+                                    int marginsSize = 0);
+
+        //! Helper function to draw and save an aruco marker set
+        static void drawArucoMarker(int dictionaryId,
+                                    int minMarkerId,
+                                    int maxMarkerId,
+                                    int markerSizePX=200);
+
     private:
-        bool    trackArucoMarkers   ();
-        void    drawArucoMarkerBoard(int numMarkersX,
-                                     int numMarkersY,
-                                     int markerEdgeLengthPix,
-                                     int markerSepaPix,
-                                     int dictionaryId,
-                                     string imgName,
-                                     bool showImage = false,
-                                     int borderBits = 1,
-                                     int marginsSize = 0 );
 
         map<int,SLMat4f>    _arucoVMs;  //!< Transformations of aruco markers with respect to camera
         map<int,SLNode*>    _arucoNodes;

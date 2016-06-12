@@ -37,13 +37,10 @@ bool ARChessboardTracker::init(string paramsFileDir)
 
     //generate vectors for the points on the chessboard
     for (int i = 0; i < _p.boardWidth; i++)
-    {
         for (int j = 0; j < _p.boardHeight; j++)
-        {
-            _boardPoints.push_back(Point3d(double(i * _p.edgeLengthM), double(j * _p.edgeLengthM), 0.0));
-        }
-    }
-
+            _boardPoints.push_back(Point3d(double(i * _p.edgeLengthM), 
+                                           double(j * _p.edgeLengthM), 
+                                           0.0));
     return true;
 }
 //-----------------------------------------------------------------------------
@@ -57,57 +54,34 @@ bool ARChessboardTracker::track()
         //cvtColor(_image, _grayImg, CV_RGB2GRAY);
 
         //detect chessboard corners
-        int flags = CALIB_CB_ADAPTIVE_THRESH | CALIB_CB_NORMALIZE_IMAGE | CALIB_CB_FAST_CHECK;
+        int flags = CALIB_CB_ADAPTIVE_THRESH | 
+                    CALIB_CB_NORMALIZE_IMAGE | 
+                    CALIB_CB_FAST_CHECK;
         cv::Size size = Size(_p.boardHeight, _p.boardWidth);
+
         _cbVisible = SLCVCalibration::findChessboard(_image, size, _imagePoints,flags);
 
         if(_cbVisible)
         {
-//            Mat gray;
-//            cvtColor(_image, gray, COLOR_BGR2GRAY);
-//            cornerSubPix( gray, _imagePoints, Size(11,11),
-//                Size(-1,-1), TermCriteria( TermCriteria::EPS+TermCriteria::COUNT, 30, 0.1 ));
+            //Mat gray;
+            //cvtColor(_image, gray, COLOR_BGR2GRAY);
+            //cornerSubPix( gray, _imagePoints, Size(11,11),
+            //    Size(-1,-1), TermCriteria( TermCriteria::EPS+TermCriteria::COUNT, 30, 0.1 ));
 
             //find the camera extrinsic parameters
-            bool result = solvePnP(Mat(_boardPoints), Mat(_imagePoints), _intrinsics, _distortion, _rVec, _tVec, false, cv::SOLVEPNP_ITERATIVE);
-
-            //Transform calculated position (rotation and translation vector) from openCV to SLProject form
-            //as discribed in this post:
-            //http://www.morethantechnical.com/2015/02/17/augmented-reality-on-libqglviewer-and-opencv-opengl-tips-wcode/
-            //attention: We dont have to transpose the resulting matrix, because SLProject uses row-major matrices.
-            //For direct openGL use you have to transpose the resulting matrix additionally.
+            bool result = solvePnP(Mat(_boardPoints), 
+                                   Mat(_imagePoints), 
+                                   _intrinsics, 
+                                   _distortion, 
+                                   _rVec, 
+                                   _tVec, 
+                                   false, 
+                                   cv::SOLVEPNP_ITERATIVE);
 
             //convert vector to rotation matrix
             Rodrigues(_rVec, _rMat);
 
-            //convert to SLMat4f:
-            //y- and z- axis have to be inverted
-            /*
-                  |  r00   r01   r02   t0 |
-                  | -r10  -r11  -r12  -t1 |
-              m = | -r20  -r21  -r22  -t2 |
-                  |    0     0     0    1 |
-            */
-            //1st row
-            _viewMat(0,0) = _rMat.at<double>(0,0);
-            _viewMat(0,1) = _rMat.at<double>(0,1);
-            _viewMat(0,2) = _rMat.at<double>(0,2);
-            _viewMat(0,3) = _tVec.at<double>(0,0);
-            //2nd row
-            _viewMat(1,0) = -_rMat.at<double>(1,0);
-            _viewMat(1,1) = -_rMat.at<double>(1,1);
-            _viewMat(1,2) = -_rMat.at<double>(1,2);
-            _viewMat(1,3) = -_tVec.at<double>(1,0);
-            //3rd row
-            _viewMat(2,0) = -_rMat.at<double>(2,0);
-            _viewMat(2,1) = -_rMat.at<double>(2,1);
-            _viewMat(2,2) = -_rMat.at<double>(2,2);
-            _viewMat(2,3) = -_tVec.at<double>(2,0);
-            //4th row
-            _viewMat(3,0) = 0.0f;
-            _viewMat(3,1) = 0.0f;
-            _viewMat(3,2) = 0.0f;
-            _viewMat(3,3) = 1.0f;
+
 
             cout << "ARChessboardTracker viewMat:" << endl;
             _viewMat.print();
@@ -165,3 +139,4 @@ void ARChessboardTracker::unloadSGObjects()
         parent->updateAABBRec();
     }
 }
+//------------------------------------------------------------------------------

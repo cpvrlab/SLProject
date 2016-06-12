@@ -359,21 +359,6 @@
     <ClCompile Include="source\SLGrid.cpp">
       <Filter>Nodes\Meshes</Filter>
     </ClCompile>
-    <ClCompile Include="source\SLGLOculus.cpp">
-      <Filter>GL</Filter>
-    </ClCompile>
-    <ClCompile Include="source\SLGLOculusFB.cpp">
-      <Filter>GL</Filter>
-    </ClCompile>
-    <ClCompile Include="source\SLGLShader.cpp">
-      <Filter>GL</Filter>
-    </ClCompile>
-    <ClCompile Include="source\SLGLState.cpp">
-      <Filter>GL</Filter>
-    </ClCompile>
-    <ClCompile Include="source\SLGLTexture.cpp">
-      <Filter>GL</Filter>
-    </ClCompile>
     <ClCompile Include="source\SL\SL.cpp">
       <Filter>SL</Filter>
     </ClCompile>
@@ -400,9 +385,6 @@
     </ClCompile>
     <ClCompile Include="source\math\SLPlane.cpp">
       <Filter>Math</Filter>
-    </ClCompile>
-    <ClCompile Include="source\SLGLProgram.cpp">
-      <Filter>GL</Filter>
     </ClCompile>
     <ClCompile Include="source\SLSkeleton.cpp">
       <Filter>Animation</Filter>
@@ -458,20 +440,38 @@
     <ClCompile Include="source\SLBackground.cpp">
       <Filter>Scene</Filter>
     </ClCompile>
-    <ClCompile Include="source\SLGLVertexArray.cpp">
-      <Filter>GL</Filter>
-    </ClCompile>
-    <ClCompile Include="source\SLGLVertexArrayExt.cpp">
-      <Filter>GL</Filter>
-    </ClCompile>
-    <ClCompile Include="source\SLGLVertexBuffer.cpp">
-      <Filter>GL</Filter>
-    </ClCompile>
     <ClCompile Include="source\CV\SLCVCapture.cpp">
       <Filter>CV</Filter>
     </ClCompile>
-    <ClCompile Include="source\SLCVCalibration.cpp">
+    <ClCompile Include="source\CV\SLCVCalibration.cpp">
       <Filter>CV</Filter>
+    </ClCompile>
+    <ClCompile Include="source\GL\SLGLOculus.cpp">
+      <Filter>GL</Filter>
+    </ClCompile>
+    <ClCompile Include="source\GL\SLGLOculusFB.cpp">
+      <Filter>GL</Filter>
+    </ClCompile>
+    <ClCompile Include="source\GL\SLGLProgram.cpp">
+      <Filter>GL</Filter>
+    </ClCompile>
+    <ClCompile Include="source\GL\SLGLShader.cpp">
+      <Filter>GL</Filter>
+    </ClCompile>
+    <ClCompile Include="source\GL\SLGLState.cpp">
+      <Filter>GL</Filter>
+    </ClCompile>
+    <ClCompile Include="source\GL\SLGLTexture.cpp">
+      <Filter>GL</Filter>
+    </ClCompile>
+    <ClCompile Include="source\GL\SLGLVertexArray.cpp">
+      <Filter>GL</Filter>
+    </ClCompile>
+    <ClCompile Include="source\GL\SLGLVertexArrayExt.cpp">
+      <Filter>GL</Filter>
+    </ClCompile>
+    <ClCompile Include="source\GL\SLGLVertexBuffer.cpp">
+      <Filter>GL</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

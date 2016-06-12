@@ -58,6 +58,7 @@ bool ARArucoTracker::track()
             {
                 cout << "number of new elements: "
                         "" << rvecs.size() << endl;
+
                 //Transform calculated position (rotation and translation vector) from openCV to SLProject form
                 //as discribed in this post:
                 //http://www.morethantechnical.com/2015/02/17/augmented-reality-on-libqglviewer-and-opencv-opengl-tips-wcode/
@@ -173,13 +174,16 @@ void ARArucoTracker::updateSceneView( ARSceneView* sv )
         {
             //set object transformation matrix
             SLNode* node = it->second;
+
             //set new object matrix
             node->om( om );
+
             //set unhidden
             node->setDrawBitsRec( SL_DB_HIDDEN, false );
 
             //add to container newObjects
             updatedNodes.insert( /*std::pair<int,SLNode*>(key, node)*/ *it );
+
             //remove it from container existing objects
             _arucoNodes.erase(it);
         }
@@ -244,31 +248,71 @@ void ARArucoTracker::unloadSGObjects()
     }
 }
 //-----------------------------------------------------------------------------
-void ARArucoTracker::drawArucoMarkerBoard(int numMarkersX, int numMarkersY, int markerEdgeLengthPix, int markerSepaPix,
-                                     int dictionaryId, string imgName, bool showImage, int borderBits, int marginsSize )
+void ARArucoTracker::drawArucoMarkerBoard(int dictionaryId,
+                                          int numMarkersX,
+                                          int numMarkersY, 
+                                          int markerEdgeLengthPix, 
+                                          int markerSepaPix,
+                                          string imgName, 
+                                          bool showImage, 
+                                          int borderBits, 
+                                          int marginsSize)
 {
     if(marginsSize == 0)
         marginsSize = markerSepaPix;
 
     Size imageSize;
-    imageSize.width = numMarkersX * (markerEdgeLengthPix + markerSepaPix) - markerSepaPix + 2 * marginsSize;
+    imageSize.width  = numMarkersX * (markerEdgeLengthPix + markerSepaPix) - markerSepaPix + 2 * marginsSize;
     imageSize.height = numMarkersY * (markerEdgeLengthPix + markerSepaPix) - markerSepaPix + 2 * marginsSize;
 
     Ptr<aruco::Dictionary> dictionary =
-     aruco::getPredefinedDictionary(aruco::PREDEFINED_DICTIONARY_NAME(dictionaryId));
+        aruco::getPredefinedDictionary(aruco::PREDEFINED_DICTIONARY_NAME(dictionaryId));
 
-    Ptr<aruco::GridBoard> board = aruco::GridBoard::create(numMarkersX, numMarkersY, float(markerEdgeLengthPix),
-                                                   float(markerSepaPix), dictionary);
+    Ptr<aruco::GridBoard> board = aruco::GridBoard::create(numMarkersX, 
+                                                           numMarkersY, 
+                                                           float(markerEdgeLengthPix),
+                                                           float(markerSepaPix), 
+                                                           dictionary);
 
     // show created board
     Mat boardImage;
     board->draw(imageSize, boardImage, marginsSize, borderBits);
 
-    if(showImage) {
-        imshow("board", boardImage);
+    if(showImage) 
+    {   imshow("board", boardImage);
         waitKey(0);
     }
 
     imwrite(imgName, boardImage);
+}
+//-----------------------------------------------------------------------------
+void ARArucoTracker::drawArucoMarker(int dictionaryId,
+                                     int minMarkerId,
+                                     int maxMarkerId,
+                                     int markerSizePX)
+{
+    assert(dictionaryId > 0);
+    assert(minMarkerId > 0);
+    assert(minMarkerId < maxMarkerId);
+
+    using namespace aruco;
+
+    Ptr<Dictionary> dict = getPredefinedDictionary(PREDEFINED_DICTIONARY_NAME(dictionaryId));
+    if (maxMarkerId > dict->bytesList.rows)
+        maxMarkerId = dict->bytesList.rows;
+
+    Mat markerImg;
+
+    for (int i=minMarkerId; i<maxMarkerId; ++i)
+    {   drawMarker(dict, i, markerSizePX, markerImg, 1);
+        char name[255];
+        sprintf(name, 
+                "ArucoMarker_Dict%d_%dpx_Id%d.png", 
+                dictionaryId, 
+                markerSizePX, 
+                i);
+
+        imwrite(name, markerImg);
+    }
 }
 //-----------------------------------------------------------------------------

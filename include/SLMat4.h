@@ -730,7 +730,7 @@ void SLMat4<T>::lightAt(const SLVec3<T>& pos,
 {
     SLVec3<T> VX, VY, VZ;
     SLMat3<T> xz(0.0, 0.0, 1.0,         // matrix that transforms VZ into a
-                0.0, 0.0, 0.0,         // vector that is perpendicular to YZ and 
+                 0.0, 0.0, 0.0,         // vector that is perpendicular to YZ and 
                 -1.0, 0.0, 0.0);        // lies in the x-z plane
 
     VZ = pos-At;   VZ.normalize();
@@ -744,9 +744,9 @@ void SLMat4<T>::lightAt(const SLVec3<T>& pos,
     }
 
     setMatrix(VX.x, VY.x, VZ.x, pos.x,
-                VX.y, VY.y, VZ.y, pos.y,
-                VX.z, VY.z, VZ.z, pos.z,
-                0.0,  0.0,  0.0, 1.0);
+              VX.y, VY.y, VZ.y, pos.y,
+              VX.z, VY.z, VZ.z, pos.z,
+               0.0,  0.0,  0.0, 1.0);
 }
 //-----------------------------------------------------------------------------
 //! Same as lightAt
@@ -787,10 +787,10 @@ template<class T>
 void SLMat4<T>::frustum(const T l, const T r, const T b, const T t, 
                         const T n, const T f)
 {
-    _m[0]=(2*n)/(r-l); _m[4]=0;           _m[8] = (r+l)/(r-l); _m[12]=0;
-    _m[1]=0;           _m[5]=(2*n)/(t-b); _m[9] = (t+b)/(t-b); _m[13]=0;
-    _m[2]=0;           _m[6]=0;           _m[10]=-(f+n)/(f-n); _m[14]=(-2*f*n)/(f-n);
-    _m[3]=0;           _m[7]=0;           _m[11]=-1;           _m[15]=0;
+    _m[0]=2*n/(r-l); _m[4]=0;         _m[8] = (r+l)/(r-l); _m[12]=0;
+    _m[1]=0;         _m[5]=2*n/(t-b); _m[9] = (t+b)/(t-b); _m[13]=0;
+    _m[2]=0;         _m[6]=0;         _m[10]=-(f+n)/(f-n); _m[14]=-2*f*n/(f-n);
+    _m[3]=0;         _m[7]=0;         _m[11]=-1;           _m[15]=0;
 }
 //---------------------------------------------------------------------------
 //! Defines a view frustum projection matrix for a perspective projection
