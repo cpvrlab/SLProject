@@ -31,7 +31,7 @@ public:
 
     bool loadFromFile(string paramsDir)
     {
-        cv::FileStorage fs( paramsDir + filename, cv::FileStorage::READ);
+        cv::FileStorage fs(paramsDir + filename, cv::FileStorage::READ);
         if(!fs.isOpened())
         {
             cout << "Could not find parameter file for Chessboard tracking!" << endl;
@@ -66,7 +66,7 @@ public:
 
     bool init(string paramsFileDir) override;
     bool track() override;
-    void updateSceneView( ARSceneView* sv ) override;
+    void updateSceneView(ARSceneView* sv) override;
     void unloadSGObjects() override;
 
     const ARChessboardParams& params() const { return _p; }

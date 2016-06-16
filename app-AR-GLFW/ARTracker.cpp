@@ -22,7 +22,6 @@
 #include <opencv2/imgproc.hpp>
 #include <opencv2/calib3d.hpp>
 #include <opencv2/video/tracking.hpp>
-//#include <opencv2/aruco.hpp>
 
 using namespace cv;
 
@@ -44,7 +43,7 @@ ARTracker::~ARTracker()
 {
 }
 //-----------------------------------------------------------------------------
-SLMat4f ARTracker::cvToSLMat(Mat& tVec, Mat& rMat)
+SLMat4f ARTracker::cvMatToGLMat(Mat& tVec, Mat& rMat)
 {
     // Transform calculated position (rotation and translation vector) 
     // from openCV to SLProject form as discribed in this post:

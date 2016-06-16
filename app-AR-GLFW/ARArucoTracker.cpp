@@ -35,18 +35,21 @@ bool ARArucoTracker::init(string paramsFileDir)
 //-----------------------------------------------------------------------------
 bool ARArucoTracker::track()
 {
-    vector< int > ids;
-    vector< vector< Point2f > > corners, rejected;
-    vector< Vec3d > rvecs, tvecs;
+    vector<int> ids;
+    vector<vector<Point2f>> corners, rejected;
+    vector<Vec3d> rvecs, tvecs;
     
-    _arucoVMs.clear(); //clear detected Objects from last frame
+    //clear detected oject view matrices from last frame
+    _arucoOVMs.clear(); 
 
     if(!_image.empty() && !_intrinsics.empty() && !_p.arucoParams.empty() && !_p.dictionary.empty())
     {
         aruco::detectMarkers(_image, _p.dictionary, corners, ids, _p.arucoParams, rejected);
 
-        if( ids.size() > 0)
+        if(ids.size() > 0)
         {
+            cout << "Aruco IdS: " << ids.size() << " : ";
+
             aruco::estimatePoseSingleMarkers(corners, 
                                              _p.edgeLength, 
                                              _intrinsics, 
@@ -54,57 +57,20 @@ bool ARArucoTracker::track()
                                              rvecs,
                                              tvecs);
 
-            for( size_t i=0; i < rvecs.size(); ++i)
+            for(size_t i=0; i < rvecs.size(); ++i)
             {
-                cout << "number of new elements: "
-                        "" << rvecs.size() << endl;
+                cout << ids[i] << ",";
 
-                //Transform calculated position (rotation and translation vector) from openCV to SLProject form
-                //as discribed in this post:
-                //http://www.morethantechnical.com/2015/02/17/augmented-reality-on-libqglviewer-and-opencv-opengl-tips-wcode/
-                //attention: We dont have to transpose the resulting matrix, because SLProject uses row-major matrices.
-                //For direct openGL use you have to transpose the resulting matrix additionally.
-
-                //convert vector to rotation matrix
+                // Convert vector to rotation matrix
                 Rodrigues(rvecs[i], _rMat);
                 _tVec = Mat(tvecs[i]);
 
-                //convert to SLMat4f:
-                //y- and z- axis have to be inverted
-                /*
-                      |  r00   r01   r02   t0 |
-                      | -r10  -r11  -r12  -t1 |
-                  m = | -r20  -r21  -r22  -t2 |
-                      |    0     0     0    1 |
-                */
+                // Convert cv translation & rotation to OpenGL transform matrix
+                SLMat4f ovm = cvMatToGLMat(_tVec, _rMat);
 
-                SLMat4f vm;
-                //1st row
-                vm(0,0) = _rMat.at<double>(0,0);
-                vm(0,1) = _rMat.at<double>(0,1);
-                vm(0,2) = _rMat.at<double>(0,2);
-                vm(0,3) = _tVec.at<double>(0,0);
-                //2nd row
-                vm(1,0) = -_rMat.at<double>(1,0);
-                vm(1,1) = -_rMat.at<double>(1,1);
-                vm(1,2) = -_rMat.at<double>(1,2);
-                vm(1,3) = -_tVec.at<double>(1,0);
-                //3rd row
-                vm(2,0) = -_rMat.at<double>(2,0);
-                vm(2,1) = -_rMat.at<double>(2,1);
-                vm(2,2) = -_rMat.at<double>(2,2);
-                vm(2,3) = -_tVec.at<double>(2,0);
-                //4th row
-                vm(3,0) = 0.0f;
-                vm(3,1) = 0.0f;
-                vm(3,2) = 0.0f;
-                vm(3,3) = 1.0f;
-
-                //cout << "aruco vm: " << endl;
-                //vm.print();
-
-                _arucoVMs.insert( pair<int,SLMat4f>(ids[i], vm));
+                _arucoOVMs.insert(pair<int,SLMat4f>(ids[i], ovm));
             }
+            cout << endl;
         }
         return true;
     }
@@ -112,77 +78,76 @@ bool ARArucoTracker::track()
     return false;
 }
 //-----------------------------------------------------------------------------
-static void calcObjectMatrix(const SLMat4f& cameraObjectMat, SLMat4f& objectViewMat, SLMat4f& objectMat )
-{
-    //calculate objectmatrix:
-    /*
-     * Nomenclature:
-     * T = homogenious transformation matrix
-     *
-     * a
-     *  T = homogenious transformation matrix with subscript b and superscript a
-     *   b
-     *
-     * Subscrips and superscripts:
-     * w = world
-     * o = object
-     * c = camera
-     *
-     * c
-     *  T  = Transformation of object with respect to camera coordinate system. It discribes
-     *   o   the position of an object in the camera coordinate system. We get this Transformation
-     *       from openCVs solvePNP function.
-     *
-     * w       c    -1
-     *  T  = (  T  )    = Transformation of camera with respect to world coordinate system. Inversion exchanges
-     *   c       w        sub- and superscript
-     *
-     * We can combine two or more homogenious transformations to a new one if the inner sub- and superscript
-     * fit together. The resulting transformation inherits the superscrip from the left and the subscript from
-     * the right transformation.
-     * The following tranformation is what we want to do:
-     *  w    w     c
-     *   T  = T  *  T   = Transformation of object with respect to world coordinate system (object matrix)
-     *    o    c     o
-     */
+/*! Explains the calculation of the object matrix from the cameraObject and the
+object view matrix in detail:
 
-    //new object matrix = camera object matrix * object-view matrix
+Nomenclature:
+T = homogenious transformation matrix
+
+a
+ T = homogenious transformation matrix with subscript b and superscript a
+  b
+
+Subscrips and superscripts:  w = world  o = object  c = camera
+
+c
+ T  = Transformation of object with respect to camera coordinate system.
+  o   It discribes the position of an object in the camera coordinate system.
+We get this Transformation from openCVs solvePNP function.
+
+w       c    -1
+ T  = ( T )    = Transformation of camera with respect to world coord.-system.
+  c       w        Inversion exchanges sub- and superscript.
+This is also called the view matrix.
+
+We can combine two or more homogenious transformations to a new one if the
+inner sub- and superscript fit together. The resulting transformation
+inherits the superscrip from the left and the subscript from the right
+transformation. The following tranformation is what we want to do:
+
+w    w     c
+ T  = T  *  T   = Transformation of object with respect to world
+  o    c     o    coordinate system (object matrix)
+*/
+static void calcObjectMatrix(const SLMat4f& cameraObjectMat, 
+                             const SLMat4f& objectViewMat, 
+                             SLMat4f& objectMat)
+{   
+    // new object matrix = camera object matrix * object-view matrix
     objectMat = cameraObjectMat * objectViewMat;
 }
 //-----------------------------------------------------------------------------
-void ARArucoTracker::updateSceneView( ARSceneView* sv )
+void ARArucoTracker::updateSceneView(ARSceneView* sv)
 {
     //container for updated nodes
     std::map<int,SLNode*> updatedNodes;
 
-    //get new ids and transformations from tracker
-    //std::map<int,SLMat4f>& vms = getArucoVMs();
-
     bool newNodesAdded = false;
+
     //for all new items
-    for( const auto& pair : _arucoVMs)
+    for(const auto& pair : _arucoOVMs)
     {
         int key = pair.first;
         SLMat4f ovm = pair.second;
-        //calculate object transformation matrix
-        SLMat4f om;
-        calcObjectMatrix(sv->camera()->om(), ovm, om );
+
+        //calculate object transformation matrix (see also calcObjectMatrix)
+        SLMat4f om = sv->camera()->om() * ovm;
 
         //check if there is already an object for this id in existingObjects
         auto it = _arucoNodes.find(key);
-        if( it != _arucoNodes.end()) //if object already exists
+        if(it != _arucoNodes.end()) //if object already exists
         {
             //set object transformation matrix
             SLNode* node = it->second;
 
             //set new object matrix
-            node->om( om );
+            node->om(om);
 
             //set unhidden
-            node->setDrawBitsRec( SL_DB_HIDDEN, false );
+            node->setDrawBitsRec(SL_DB_HIDDEN, false);
 
             //add to container newObjects
-            updatedNodes.insert( /*std::pair<int,SLNode*>(key, node)*/ *it );
+            updatedNodes.insert(/*std::pair<int,SLNode*>(key, node)*/ *it);
 
             //remove it from container existing objects
             _arucoNodes.erase(it);
@@ -190,16 +155,16 @@ void ARArucoTracker::updateSceneView( ARSceneView* sv )
         else //object does not exist
         {
             //create a new object
-            float r = ( rand() % 10 + 1 ) / 10.0f;
-            float g = ( rand() % 10 + 1 ) / 10.0f;
-            float b = ( rand() % 10 + 1 ) / 10.0f;
+            float r = (rand() % 10 + 1) / 10.0f;
+            float g = (rand() % 10 + 1) / 10.0f;
+            float b = (rand() % 10 + 1) / 10.0f;
             SLMaterial* rMat = new SLMaterial("rMat", SLCol4f(r,g,b));
             stringstream ss; ss << "Box" << key;
-            SLNode* box = new SLNode( ss.str() );
+            SLNode* box = new SLNode(ss.str());
 
             box->addMesh(new SLBox(-_p.edgeLength/2, -_p.edgeLength/2, 0.0f, _p.edgeLength/2, _p.edgeLength/2, _p.edgeLength, "Box", rMat));
             //set object transformation matrix
-            box->om( om );
+            box->om(om);
 
             // load coordinate axis arrows
             SLAssimpImporter importer;
@@ -212,24 +177,23 @@ void ARArucoTracker::updateSceneView( ARSceneView* sv )
             newNodesAdded = true;
 
             //add to container of updated objects
-            updatedNodes.insert( std::pair<int,SLNode*>(key, box));
-
-            cout << "Aruco Markers: Added new object for id " << key << endl << endl;
+            updatedNodes.insert(std::pair<int,SLNode*>(key, box));
         }
     }
 
     //for all remaining objects in existingObjects
-    for( auto& it : _arucoNodes )
+    for(auto& it : _arucoNodes)
     {
         //hide
         SLNode* node = it.second;
-        node->setDrawBitsRec( SL_DB_HIDDEN, true );
+        node->setDrawBitsRec(SL_DB_HIDDEN, true);
+
         //add to updated objects
-        updatedNodes.insert( it );
+        updatedNodes.insert(it);
     }
 
     //update aabbs if new nodes added
-    if( newNodesAdded )
+    if(newNodesAdded)
         SLScene::current->root3D()->updateAABBRec();
 
     //overwrite aruco nodes
@@ -238,7 +202,7 @@ void ARArucoTracker::updateSceneView( ARSceneView* sv )
 //-----------------------------------------------------------------------------
 void ARArucoTracker::unloadSGObjects()
 {
-    for( auto& it : _arucoNodes )
+    for(auto& it : _arucoNodes)
     {
         SLNode* node = it.second;
         SLNode* parent = node->parent();
@@ -251,27 +215,27 @@ void ARArucoTracker::unloadSGObjects()
 void ARArucoTracker::drawArucoMarkerBoard(int dictionaryId,
                                           int numMarkersX,
                                           int numMarkersY, 
-                                          int markerEdgeLengthPix, 
-                                          int markerSepaPix,
+                                          int markerEdgePX, 
+                                          int markerSepaPX,
                                           string imgName, 
                                           bool showImage, 
                                           int borderBits, 
                                           int marginsSize)
 {
     if(marginsSize == 0)
-        marginsSize = markerSepaPix;
+        marginsSize = markerSepaPX;
 
     Size imageSize;
-    imageSize.width  = numMarkersX * (markerEdgeLengthPix + markerSepaPix) - markerSepaPix + 2 * marginsSize;
-    imageSize.height = numMarkersY * (markerEdgeLengthPix + markerSepaPix) - markerSepaPix + 2 * marginsSize;
+    imageSize.width  = numMarkersX * (markerEdgePX + markerSepaPX) - markerSepaPX + 2 * marginsSize;
+    imageSize.height = numMarkersY * (markerEdgePX + markerSepaPX) - markerSepaPX + 2 * marginsSize;
 
     Ptr<aruco::Dictionary> dictionary =
         aruco::getPredefinedDictionary(aruco::PREDEFINED_DICTIONARY_NAME(dictionaryId));
 
     Ptr<aruco::GridBoard> board = aruco::GridBoard::create(numMarkersX, 
                                                            numMarkersY, 
-                                                           float(markerEdgeLengthPix),
-                                                           float(markerSepaPix), 
+                                                           float(markerEdgePX),
+                                                           float(markerSepaPX), 
                                                            dictionary);
 
     // show created board

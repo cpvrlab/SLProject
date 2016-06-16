@@ -334,7 +334,7 @@ static void onKeyAction(GLFWwindow* window, int GLFWKey, int scancode, int actio
     {
         fullscreen = !fullscreen;
 
-        if (fullscreen ) 
+        if (fullscreen) 
         {   GLFWmonitor* primary = glfwGetPrimaryMonitor();
             const GLFWvidmode* mode = glfwGetVideoMode(primary);
             glfwSetWindowSize(window, mode->width, mode->height);

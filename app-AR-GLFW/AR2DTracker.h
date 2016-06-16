@@ -25,7 +25,7 @@ class AR2DTracker : public ARTracker
 
         bool    init            (string paramsFileDir) override;
         bool    track           () override;
-        void    updateSceneView ( ARSceneView* sv ) override;
+        void    updateSceneView (ARSceneView* sv) override;
         void    unloadSGObjects () override;
 
     private:

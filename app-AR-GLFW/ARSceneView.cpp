@@ -103,7 +103,7 @@ void ARSceneView::postSceneLoad()
     updateInfoText();
 }
 //-----------------------------------------------------------------------------
-void ARSceneView::setCVImageToTexture(cv::Mat& image )
+void ARSceneView::setCVImageToTexture(cv::Mat& image)
 {
     SLScene::current->videoTexture()->copyVideoImage(image.cols,
                                                      image.rows,
@@ -118,8 +118,8 @@ void ARSceneView::preDraw()
     {
         if(!SLCVCapture::lastFrame.empty())
         {   _tracker->image(SLCVCapture::lastFrame);
-            if( _currMode != ARSceneViewMode::Idle || 
-                _currMode != ARSceneViewMode::CalibrationMode )
+            if(_currMode != ARSceneViewMode::Idle || 
+                _currMode != ARSceneViewMode::CalibrationMode)
             {   _tracker->track();
                 _tracker->updateSceneView(this);
             }
@@ -138,7 +138,7 @@ void ARSceneView::preDraw()
     else if(_currMode == CalibrationMode)
     {
         //load image into calibration manager
-        if( _calibMgr.stateIsCapturing())
+        if(_calibMgr.stateIsCapturing())
         {
             if(!SLCVCapture::lastFrame.empty())
                 _calibMgr.addImage(SLCVCapture::lastFrame);
@@ -158,9 +158,9 @@ void ARSceneView::preDraw()
             {
                 ss << "Calculating, please wait.";
                 //if we captured all images then calculate
-                _calibMgr.calculate( _calibFileDir );
+                _calibMgr.calculate(_calibFileDir);
             }
-            setInfoLineText( ss.str());
+            setInfoLineText(ss.str());
 
             setCVImageToTexture(SLCVCapture::lastFrame);
         }
@@ -171,10 +171,10 @@ void ARSceneView::preDraw()
             //update Info line
             std::stringstream ss;
             ss << "Calibrated: Reprojection error: " << reprojError;
-            setInfoLineText( ss.str());
+            setInfoLineText(ss.str());
         }
     }
-    else if(_currMode == Mapper2D )
+    else if(_currMode == Mapper2D)
     {
         //undistort image for map creation
         Mat undistorted;
@@ -183,11 +183,11 @@ void ARSceneView::preDraw()
                   _calibMgr.intrinsics(), 
                   _calibMgr.distortion());
 
-        if( _mapper2D.stateIsLineInput())
+        if(_mapper2D.stateIsLineInput())
         {
             //update info line
             String msg = "Insert reference width of captured image in m: " + _mapper2D.getRefWidthStr();
-            setInfoLineText( msg );
+            setInfoLineText(msg);
         }
         else if(_mapper2D.stateIsCapture())
         {
@@ -195,12 +195,12 @@ void ARSceneView::preDraw()
             cv::bitwise_not(undistorted, undistorted);
 
             //use image to generate a new mapping
-            _mapper2D.createMap( undistorted, 0.0f, 0.0f, _paramFilesDir, "map2d", AR2DMap::AR_ORB );
+            _mapper2D.createMap(undistorted, 0.0f, 0.0f, _paramFilesDir, "map2d", AR2DMap::AR_ORB);
             _mapper2D.state(AR2DMapper::Mapper2DState::IDLE);
         }
-        else if( _mapper2D.stateIsIdle())
+        else if(_mapper2D.stateIsIdle())
         {
-            setInfoLineText( "Press 'l' to create a new map." );
+            setInfoLineText("Press 'l' to create a new map.");
         }
         //set image
         setCVImageToTexture(undistorted);
@@ -321,7 +321,7 @@ void ARSceneView::renderText()
 void ARSceneView::processModeChange()
 {
     //check if mode has changed
-    if(_newMode != _currMode )
+    if(_newMode != _currMode)
     {
         if(_tracker)
         {   _tracker->unloadSGObjects();
@@ -330,7 +330,7 @@ void ARSceneView::processModeChange()
         }
 
         //try to init this mode
-        switch( _newMode )
+        switch(_newMode)
         {
             case ARSceneViewMode::Idle:
                 clearInfoLine();
@@ -390,7 +390,7 @@ void ARSceneView::processModeChange()
 //-----------------------------------------------------------------------------
 SLbool ARSceneView::onKeyPress(const SLKey key, const SLKey mod)
 {
-    if( _currMode == ARSceneViewMode::Mapper2D && _mapper2D.stateIsLineInput())
+    if(_currMode == ARSceneViewMode::Mapper2D && _mapper2D.stateIsLineInput())
     {
         switch(key)
         {   case '0': _mapper2D.addDigit("0"); break;
@@ -433,9 +433,9 @@ void ARSceneView::clearInfoLine()
     _infoBottomText = nullptr;
 }
 //-----------------------------------------------------------------------------
-void ARSceneView::setInfoLineText( SLstring text )
+void ARSceneView::setInfoLineText(SLstring text)
 {
-    if( text != _infoLine )
+    if(text != _infoLine)
     {
         _infoLine = text;
         updateInfoText();

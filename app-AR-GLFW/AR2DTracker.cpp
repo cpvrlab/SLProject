@@ -44,16 +44,16 @@ AR2DTracker::AR2DTracker(cv::Mat intrinsics, cv::Mat distoriton) :
 bool AR2DTracker::init(string paramsFileDir)
 {
     //load ARMap
-    _map.loadFromFile( paramsFileDir, "map2d" );
+    _map.loadFromFile(paramsFileDir, "map2d");
 
     //initialize feature detector depending on _map type
-    if( _map.type == AR2DMap::AR_SURF )
+    if(_map.type == AR2DMap::AR_SURF)
     {
         _detector = SURF::create(_map.minHessian);
         //initialize matcher
         _matcher = DescriptorMatcher::create("BruteForce");
     }
-    else if( _map.type == AR2DMap::AR_ORB )
+    else if(_map.type == AR2DMap::AR_ORB)
     {
         /*The maximum number of features to retain.*/
         int nFeatures = 1000;
@@ -105,28 +105,28 @@ bool AR2DTracker::track()
     Mat gray;
     cvtColor(_image, gray, COLOR_RGB2GRAY);
     //detect features in video stream
-    _detector->detectAndCompute(gray, Mat(), _sceneKeypoints, _sceneDescriptors );
+    _detector->detectAndCompute(gray, Mat(), _sceneKeypoints, _sceneDescriptors);
 
 #if AR_SAVE_DEBUG_IMAGES
     Mat sceneKeyPtsImg;
-    cv::drawKeypoints(_image, _sceneKeypoints, sceneKeyPtsImg );
-    cv::imwrite( "sceneKeyPtsImg.bmp", sceneKeyPtsImg );
+    cv::drawKeypoints(_image, _sceneKeypoints, sceneKeyPtsImg);
+    cv::imwrite("sceneKeyPtsImg.bmp", sceneKeyPtsImg);
 
     Mat mapKeyPtsImg;
-    cv::drawKeypoints(_map.image, _map.keypoints, mapKeyPtsImg );
-    cv::imwrite( "mapKeyPtsImg.bmp", mapKeyPtsImg );
+    cv::drawKeypoints(_map.image, _map.keypoints, mapKeyPtsImg);
+    cv::imwrite("mapKeyPtsImg.bmp", mapKeyPtsImg);
 #endif
     _mapPts.clear();
     _scenePts.clear();
     std::vector< DMatch > goodMatches;
 
     //if we have no initial position
-    if(!_posInitialized )
+    if(!_posInitialized)
     {
 #if AR_KNN_MATCH
         std::vector<vector<DMatch> > matches;
         //find two nearest neighbors
-        _matcher->knnMatch(_sceneDescriptors, _map.descriptors, matches, 2 );
+        _matcher->knnMatch(_sceneDescriptors, _map.descriptors, matches, 2);
         //apply sift ratio test
         const float ratio = 0.8f; // As in Lowe's paper
         for (int i = 0; i < matches.size(); ++i)
@@ -144,39 +144,39 @@ bool AR2DTracker::track()
 
         //filter matches depending on distance
         double maxDist = 0; double minDist = 100;
-        for( int i = 0; i < _map.descriptors.rows; i++ )
+        for(int i = 0; i < _map.descriptors.rows; i++)
         { double dist = matches[i].distance;
-          if( dist < minDist ) minDist = dist;
-          if( dist > maxDist ) maxDist = dist;
+          if(dist < minDist) minDist = dist;
+          if(dist > maxDist) maxDist = dist;
         }
-        printf("-- Max dist : %f \n", maxDist );
-        printf("-- Min dist : %f \n", minDist );
-        //good matches (distance is less than 3*minDist )
+        printf("-- Max dist : %f \n", maxDist);
+        printf("-- Min dist : %f \n", minDist);
+        //good matches (distance is less than 3*minDist)
 
-        for( int i = 0; i < _map.descriptors.rows; i++ )
+        for(int i = 0; i < _map.descriptors.rows; i++)
         {
-            if( matches[i].distance < 3 * minDist )
+            if(matches[i].distance < 3 * minDist)
             {
-                goodMatches.push_back( matches[i]);
+                goodMatches.push_back(matches[i]);
             }
         }
 #endif
 
         //extract 2d pts depending on good matches
-        for( size_t i = 0; i < goodMatches.size(); i++ )
+        for(size_t i = 0; i < goodMatches.size(); i++)
         {
           //-- Get the keypoints from the good matches
           const Point2f& pt = _map.pts[ goodMatches[i].trainIdx ];
-          _mapPts.push_back( Point3f(pt.x, pt.y, 0.0f) );
+          _mapPts.push_back(Point3f(pt.x, pt.y, 0.0f));
           const Point2f& scPt = _sceneKeypoints[ goodMatches[i].queryIdx ].pt;
-          _scenePts.push_back( scPt );
+          _scenePts.push_back(scPt);
         }
 
 #if AR_SAVE_DEBUG_IMAGES
         Mat imgMatches;
-        drawMatches( _image, _sceneKeypoints, _map.image, _map.keypoints,
+        drawMatches(_image, _sceneKeypoints, _map.image, _map.keypoints,
                      goodMatches, imgMatches, Scalar::all(-1), Scalar::all(-1),
-                     std::vector<char>(), DrawMatchesFlags::NOT_DRAW_SINGLE_POINTS );
+                     std::vector<char>(), DrawMatchesFlags::NOT_DRAW_SINGLE_POINTS);
 
         imwrite("Good_matches.png", imgMatches);
 #endif
@@ -189,18 +189,18 @@ bool AR2DTracker::track()
 
     }
 
-    if( _scenePts.size() > 10 )
+    if(_scenePts.size() > 10)
     {
 
         std::vector< DMatch > realGoodMatches;
 
 #if AR_USE_HOMOGRAPHY
         //estimate camera position with homography
-        Mat H = findHomography( _mapPts, _scenePts, RANSAC );
+        Mat H = findHomography(_mapPts, _scenePts, RANSAC);
         //cout << "H: " << H << endl;
         std::vector<cv::Mat> Rs, Ts, Ns;
-        cv::decomposeHomographyMat(H, _intrinsics, Rs, Ts, Ns );
-        for(size_t i=0; i < Rs.size(); ++i )
+        cv::decomposeHomographyMat(H, _intrinsics, Rs, Ts, Ns);
+        for(size_t i=0; i < Rs.size(); ++i)
         {
             cout << "Homography Rs:" << Rs[i] << endl;
         }
@@ -214,29 +214,29 @@ bool AR2DTracker::track()
 #else
         //Mat inliers_idx;
         std::vector<int> inliers;
-        //solvePnP( _mapPts, _scenePts, _intrinsics, _distortion, _rVec, _tVec, false, SOLVEPNP_ITERATIVE );
-        solvePnPRansac( _mapPts, _scenePts, _intrinsics, _distortion, _rVec, _tVec, true, 1000, 1.0, 0.99, inliers,
-                        /*cv::SOLVEPNP_P3P*/ /*cv::SOLVEPNP_EPNP*/  SOLVEPNP_ITERATIVE /*cv::SOLVEPNP_DLS*/ /*cv::SOLVEPNP_UPNP*/ );
+        //solvePnP(_mapPts, _scenePts, _intrinsics, _distortion, _rVec, _tVec, false, SOLVEPNP_ITERATIVE);
+        solvePnPRansac(_mapPts, _scenePts, _intrinsics, _distortion, _rVec, _tVec, true, 1000, 1.0, 0.99, inliers,
+                        /*cv::SOLVEPNP_P3P*/ /*cv::SOLVEPNP_EPNP*/  SOLVEPNP_ITERATIVE /*cv::SOLVEPNP_DLS*/ /*cv::SOLVEPNP_UPNP*/);
 
-        for( size_t i=0; i < inliers.size(); ++i )
+        for(size_t i=0; i < inliers.size(); ++i)
         {
             unsigned int idx = inliers[i];
-            realGoodMatches.push_back( goodMatches[idx] );
+            realGoodMatches.push_back(goodMatches[idx]);
         }
 #endif
 
 
 #if AR_SAVE_DEBUG_IMAGES
         Mat imgMatches;
-        drawMatches( _image, _sceneKeypoints, _map.image, _map.keypoints,
+        drawMatches(_image, _sceneKeypoints, _map.image, _map.keypoints,
                      realGoodMatches, imgMatches, Scalar::all(-1), Scalar::all(-1),
-                     std::vector<char>(), DrawMatchesFlags::NOT_DRAW_SINGLE_POINTS );
+                     std::vector<char>(), DrawMatchesFlags::NOT_DRAW_SINGLE_POINTS);
         imwrite("Real_Good_matches.png", imgMatches);
 #endif
 
         //check if we have enough inliers
-        //if( countNonZero( Mat(matchMask) ) < 15 )
-        if( realGoodMatches.size() < 10 )
+        //if(countNonZero(Mat(matchMask)) < 15)
+        if(realGoodMatches.size() < 10)
         {
             _posValid = false;
         }
@@ -296,7 +296,7 @@ bool AR2DTracker::track()
     return true; //???
 }
 //-----------------------------------------------------------------------------
-void AR2DTracker::updateSceneView( ARSceneView* sv )
+void AR2DTracker::updateSceneView(ARSceneView* sv)
 {
     if(!_node)
     {
@@ -322,18 +322,18 @@ void AR2DTracker::updateSceneView( ARSceneView* sv )
         //invert view matrix because we want to set the camera object matrix
         SLMat4f camOm = _viewMat.inverse();
         //update camera with calculated view matrix:
-        sv->camera()->om( camOm );
+        sv->camera()->om(camOm);
         //set node visible
-        _node->setDrawBitsRec( SL_DB_HIDDEN, false );
+        _node->setDrawBitsRec(SL_DB_HIDDEN, false);
     }
     else
         //set invisible
-        _node->setDrawBitsRec( SL_DB_HIDDEN, true );
+        _node->setDrawBitsRec(SL_DB_HIDDEN, true);
 }
 //-----------------------------------------------------------------------------
 void AR2DTracker::unloadSGObjects()
 {
-    if( _node )
+    if(_node)
     {
         SLNode* parent = _node->parent();
         parent->deleteChild(_node);

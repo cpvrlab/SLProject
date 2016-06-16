@@ -36,7 +36,7 @@ public:
     bool loadFromFile(string paramsDir)
     {
         string path = paramsDir + filename;
-        cv::FileStorage fs( path, cv::FileStorage::READ);
+        cv::FileStorage fs(path, cv::FileStorage::READ);
         if(!fs.isOpened())
         {
             cout << "Could not find parameter file for ArUco tracking!" << endl;
@@ -94,7 +94,7 @@ class ARArucoTracker : public ARTracker
         void    updateSceneView (ARSceneView* sv) override;
         void    unloadSGObjects () override;
 
-        std::map<int,SLMat4f>& getArucoVMs () {return _arucoVMs;}
+        std::map<int,SLMat4f>& getArucoVMs () {return _arucoOVMs;}
 
         //! Helper function to draw and save an aruco marker board image
         static void drawArucoMarkerBoard(int numMarkersX,
@@ -115,7 +115,7 @@ class ARArucoTracker : public ARTracker
 
     private:
 
-        map<int,SLMat4f>    _arucoVMs;  //!< Transformations of aruco markers with respect to camera
+        map<int,SLMat4f>    _arucoOVMs;  //!< Transformations of aruco markers with respect to camera
         map<int,SLNode*>    _arucoNodes;
 
 

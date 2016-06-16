@@ -32,7 +32,7 @@ ARChessboardTracker::ARChessboardTracker(Mat intrinsics, Mat distoriton) :
 //-----------------------------------------------------------------------------
 bool ARChessboardTracker::init(string paramsFileDir)
 {
-    if( !_p.loadFromFile(paramsFileDir))
+    if(!_p.loadFromFile(paramsFileDir))
         return false;
 
     //generate vectors for the points on the chessboard
@@ -59,15 +59,10 @@ bool ARChessboardTracker::track()
                     CALIB_CB_FAST_CHECK;
         cv::Size size = Size(_p.boardHeight, _p.boardWidth);
 
-        _cbVisible = SLCVCalibration::findChessboard(_image, size, _imagePoints,flags);
+        _cbVisible = cv::findChessboardCorners(_image, size, _imagePoints, flags);
 
         if(_cbVisible)
         {
-            //Mat gray;
-            //cvtColor(_image, gray, COLOR_BGR2GRAY);
-            //cornerSubPix( gray, _imagePoints, Size(11,11),
-            //    Size(-1,-1), TermCriteria( TermCriteria::EPS+TermCriteria::COUNT, 30, 0.1 ));
-
             //find the camera extrinsic parameters
             bool result = solvePnP(Mat(_boardPoints), 
                                    Mat(_imagePoints), 
@@ -81,10 +76,8 @@ bool ARChessboardTracker::track()
             //convert vector to rotation matrix
             Rodrigues(_rVec, _rMat);
 
-
-
-            cout << "ARChessboardTracker viewMat:" << endl;
-            _viewMat.print();
+            // Convert cv translation & rotation to OpenGL transform matrix
+            _viewMat = cvMatToGLMat(_tVec, _rMat);
         }
     }
 
@@ -92,7 +85,7 @@ bool ARChessboardTracker::track()
     return _cbVisible;
 }
 //-----------------------------------------------------------------------------
-void ARChessboardTracker::updateSceneView( ARSceneView* sv )
+void ARChessboardTracker::updateSceneView(ARSceneView* sv)
 {
     if(!_node)
     {
@@ -119,19 +112,19 @@ void ARChessboardTracker::updateSceneView( ARSceneView* sv )
         SLMat4f camOm = _viewMat.inverse();
 
         //update camera with calculated view matrix:
-        sv->camera()->om( camOm );
+        sv->camera()->om(camOm);
 
         //set node visible
-        _node->setDrawBitsRec( SL_DB_HIDDEN, false );
+        _node->setDrawBitsRec(SL_DB_HIDDEN, false);
     }
     else
         //set invisible
-        _node->setDrawBitsRec( SL_DB_HIDDEN, true );
+        _node->setDrawBitsRec(SL_DB_HIDDEN, true);
 }
 //-----------------------------------------------------------------------------
 void ARChessboardTracker::unloadSGObjects()
 {
-    if( _node )
+    if(_node)
     {
         SLNode* parent = _node->parent();
         parent->deleteChild(_node);

@@ -29,11 +29,11 @@ public:
         minHessian(400.0f)
     {}
 
-    void saveToFile( std::string dir, std::string filename )
+    void saveToFile(std::string dir, std::string filename)
     {
         cv::Mat points2d(pts);
         std::string typeName = mapType(type);
-        cv::FileStorage storage( dir + filename + ".yml", cv::FileStorage::WRITE);
+        cv::FileStorage storage(dir + filename + ".yml", cv::FileStorage::WRITE);
         storage << "points2d" << points2d;
         storage << "descriptors" << descriptors;
         storage << "scaleFactor" << scaleFactorPixPerMM;
@@ -45,14 +45,14 @@ public:
 
         storage.release();
 
-        cv::imwrite( dir + filename + ".png", image );
+        cv::imwrite(dir + filename + ".png", image);
     }
 
-    void loadFromFile( std::string dir, std::string filename )
+    void loadFromFile(std::string dir, std::string filename)
     {
         cv::Mat points2d;
         std::string typeName;
-        cv::FileStorage storage( dir + filename + ".yml", cv::FileStorage::READ);
+        cv::FileStorage storage(dir + filename + ".yml", cv::FileStorage::READ);
         storage["points2d"] >> points2d;
         storage["descriptors"] >> descriptors;
         storage["scaleFactor"] >> scaleFactorPixPerMM;
@@ -65,7 +65,7 @@ public:
         points2d.copyTo(pts);
         type = mapType(typeName);
 
-        image = cv::imread( dir + filename + ".png" );
+        image = cv::imread(dir + filename + ".png");
     }
 
 

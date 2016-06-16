@@ -184,7 +184,7 @@
       <BrowseInformation>true</BrowseInformation>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>ws2_32.lib;lib-ovr.lib;opengl32.lib;lib-SLExternal.lib;lib-SLProject.lib;opencv_core310.lib;opencv_imgproc310.lib;opencv_imgcodecs310.lib;opencv_video310.lib;opencv_videoio310.lib;opencv_aruco310.lib;opencv_features2d310.lib;opencv_xfeatures2d310.lib;opencv_calib3d310.lib;opencv_highgui310.lib;opencv_flann310.lib;lib-Assimp.lib;$(QTDIR)/lib/Qt5Core.lib;$(QTDIR)/lib/Qt5Gui.lib;$(QTDIR)/lib/Qt5Widgets.lib;$(QTDIR)/lib/Qt5OpenGL.lib;$(QTDIR)/lib/Qt5Multimedia.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>ws2_32.lib;lib-ovr.lib;opengl32.lib;lib-SLExternal.lib;lib-SLProject.lib;opencv_core310d.lib;opencv_imgproc310d.lib;opencv_imgcodecs310d.lib;opencv_video310d.lib;opencv_videoio310d.lib;opencv_aruco310d.lib;opencv_features2d310d.lib;opencv_xfeatures2d310d.lib;opencv_calib3d310d.lib;opencv_highgui310d.lib;opencv_flann310d.lib;lib-Assimp.lib;$(QTDIR)/lib/Qt5Core.lib;$(QTDIR)/lib/Qt5Gui.lib;$(QTDIR)/lib/Qt5Widgets.lib;$(QTDIR)/lib/Qt5OpenGL.lib;$(QTDIR)/lib/Qt5Multimedia.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
       <AdditionalLibraryDirectories>$(SolutionDir)_lib\$(Configuration)\$(Platform)\;$(QTDIR)\lib;$(SolutionDir)_lib\prebuilt\OpenCV\x64\vc14\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <GenerateDebugInformation>true</GenerateDebugInformation>

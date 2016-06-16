@@ -30,8 +30,8 @@ AR2DMapper::AR2DMapper() :
 {
 }
 //-----------------------------------------------------------------------------
-void AR2DMapper::createMap( cv::Mat image, float offsetXMM, float offsetYMM,
-                std::string dir, std::string filename, AR2DMap::ARFeatureType type )
+void AR2DMapper::createMap(cv::Mat image, float offsetXMM, float offsetYMM,
+                std::string dir, std::string filename, AR2DMap::ARFeatureType type)
 {
     //instantiate feature detector depending on type
     Ptr<FeatureDetector> detector;
@@ -81,7 +81,7 @@ void AR2DMapper::createMap( cv::Mat image, float offsetXMM, float offsetYMM,
 
     case AR2DMap::AR_SURF:
         _map.minHessian = 400.0f;
-        detector = SURF::create( _map.minHessian );
+        detector = SURF::create(_map.minHessian);
         break;
     }
 
@@ -91,49 +91,49 @@ void AR2DMapper::createMap( cv::Mat image, float offsetXMM, float offsetYMM,
     //detect features
     Mat gray;
     cvtColor(image, gray, COLOR_RGB2GRAY);
-    detector->detectAndCompute( gray, Mat(), _map.keypoints, _map.descriptors );
+    detector->detectAndCompute(gray, Mat(), _map.keypoints, _map.descriptors);
 
     //copy points to new array
     std::vector<cv::Point2f> imagePts;
-    for(auto& keyPt : _map.keypoints )
-        imagePts.push_back( keyPt.pt );
+    for(auto& keyPt : _map.keypoints)
+        imagePts.push_back(keyPt.pt);
 
     if(imagePts.size())
     {
         //subpixels accuracy
         Mat imageGray;
         cvtColor(image, imageGray, COLOR_BGR2GRAY);
-        cornerSubPix( gray, imagePts, Size(11,11),
-            Size(-1,-1), TermCriteria( TermCriteria::EPS+TermCriteria::COUNT, 30, 0.1 ));
+        cornerSubPix(gray, imagePts, Size(11,11),
+            Size(-1,-1), TermCriteria(TermCriteria::EPS+TermCriteria::COUNT, 30, 0.1));
     }
 
     //calculate scale factor
     float refWidthMM = 1.0f;
-    if( _refWidthStr.str().size() > 0 )
+    if(_refWidthStr.str().size() > 0)
     {
         float refWidthMM = std::stof(_refWidthStr.str());
-        if( refWidthMM == 0.0f)
+        if(refWidthMM == 0.0f)
             cout << "Division by zero not possible. No scale factor applied." << endl;
     }
     else
         cout << "No scale factor applied." << endl;
 
     //extract and scale point positions
-    for( size_t i = 0; i < _map.keypoints.size(); ++i )
+    for(size_t i = 0; i < _map.keypoints.size(); ++i)
     {
         //Point2f pt =  _map.keypoints[i].pt / _map.scaleFactorPixPerMM;
         Point2f pt =  imagePts[i];
-        pt.y = - ( pt.y - 480.0f );
+        pt.y = - (pt.y - 480.0f);
         pt /= _map.scaleFactorPixPerMM;
 
-        _map.pts.push_back( pt );
+        _map.pts.push_back(pt);
     }
 
     //save image
     _map.image = image;
 
     //save to filea
-    _map.saveToFile( dir, filename );
+    _map.saveToFile(dir, filename);
 
 
 }
@@ -141,14 +141,14 @@ void AR2DMapper::createMap( cv::Mat image, float offsetXMM, float offsetYMM,
 void AR2DMapper::clear()
 {
     _state = AR2DMapper::IDLE;
-    _refWidthStr.str( std::string());
+    _refWidthStr.str(std::string());
     _refWidthStr.clear();
 }
 //-----------------------------------------------------------------------------
 void AR2DMapper::removeLastDigit()
 {
     string content = _refWidthStr.str();
-    if( content.size())
+    if(content.size())
     {
         content.pop_back();//.erase(content.end());
         _refWidthStr.clear();

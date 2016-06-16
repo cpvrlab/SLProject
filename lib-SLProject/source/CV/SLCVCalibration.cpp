@@ -310,7 +310,7 @@ void SLCVCalibration::addImage(cv::Mat image)
     Size boardSize = cv::Size(_numInnerCornersWidth, _numInnerCornersHeight);
     int flags = CALIB_CB_ADAPTIVE_THRESH | CALIB_CB_NORMALIZE_IMAGE | CALIB_CB_FAST_CHECK;
 
-    bool found = findChessboard(image, boardSize, corners, flags);
+    bool found = cv::findChessboardCorners(image, boardSize, corners, flags);
 
     //draw colored points
     //if chessboard was not found reset timer

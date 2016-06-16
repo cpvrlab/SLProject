@@ -35,7 +35,7 @@ class ARTracker
         virtual void unloadSGObjects() = 0;
 
         void         image          (cv::Mat image)  {_image = image;}
-        SLMat4f      cvToSLMat      (cv::Mat& tVec, cv::Mat& rMat);
+        SLMat4f      cvMatToGLMat   (cv::Mat& tVec, cv::Mat& rMat);
 
         cv::Mat _rVec;              //!< raw rotation vector from opencvs solvePNP
         cv::Mat _tVec;              //!< raw translation vector from opencvs solvePNP
