@@ -38,6 +38,7 @@ scene must be deleted when the scene changes.
 The following standard shaders are preloaded:
   - ColorAttribute.vert, Color.frag
   - ColorUniform.vert, Color.frag
+  - DiffuseAttribute.vert, Diffuse.frag
   - PerVrtBlinn.vert, PerVrtBlinn.frag
   - PerVrtBlinnTex.vert, PerVrtBlinnTex.frag
   - TextureOnly.vert, TextureOnly.frag
@@ -94,6 +95,7 @@ SLScene::SLScene(SLstring name) : SLObject(name)
     p = new SLGLGenericProgram("ColorAttribute.vert","Color.frag");
     p = new SLGLGenericProgram("ColorUniform.vert","Color.frag");
     p = new SLGLGenericProgram("PerVrtBlinn.vert","PerVrtBlinn.frag");
+    p = new SLGLGenericProgram("PerVrtBlinnColorAttrib.vert","PerVrtBlinn.frag");
     p = new SLGLGenericProgram("PerVrtBlinnTex.vert","PerVrtBlinnTex.frag");
     p = new SLGLGenericProgram("TextureOnly.vert","TextureOnly.frag");
     p = new SLGLGenericProgram("PerPixBlinn.vert","PerPixBlinn.frag");
@@ -241,8 +243,9 @@ void SLScene::unInit()
     for (auto t : _textures) delete t;
     _textures.clear();
    
-    // manually clear the default material (it will get deleted below)
-    SLMaterial::defaultMaterial(nullptr);
+    // manually clear the default materials (it will get deleted below)
+    SLMaterial::default(nullptr);
+    SLMaterial::diffuseAttrib(nullptr);
     
     // delete materials 
     for (auto m : _materials) delete m;

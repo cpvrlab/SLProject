@@ -45,7 +45,7 @@ class ARSceneView : public SLSceneView
 
         SLbool          onKeyPress          (const SLKey key, const SLKey mod);
 
-        SLCVCalibration&  calibration         ()  { return _calibMgr; }
+        SLCVCalibration&  calibration         ()  { return _calibration; }
         void            clearInfoLine       ();
         void            setInfoLineText     (SLstring text);
 
@@ -56,8 +56,6 @@ private:
         void            renderText          ();
         void            updateInfoText      ();
 
-        bool            loadCamParams       (string filename);
-        void            calcCameraFOV       ();
         void            processModeChange   ();
 
         //std::map<int,SLNode*> _arucoNodes;
@@ -73,7 +71,7 @@ private:
         string          _calibFileDir;      //!< path to calibration files are stored
         string          _paramFilesDir;     //!< path to parameter files are stored
 
-        SLCVCalibration   _calibMgr;          //!< calibration manager
+        SLCVCalibration _calibration;       //!< calibration manager
         AR2DMapper      _mapper2D;          //!< 2D Mapping
 };
 //-----------------------------------------------------------------------------

@@ -285,6 +285,9 @@
     <ClInclude Include="..\include\SLCVCalibration.h">
       <Filter>CV</Filter>
     </ClInclude>
+    <ClInclude Include="..\include\SLCoordAxis.h">
+      <Filter>Nodes\Meshes</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="source\SLAABBox.cpp">
@@ -473,6 +476,9 @@
     <ClCompile Include="source\GL\SLGLVertexBuffer.cpp">
       <Filter>GL</Filter>
     </ClCompile>
+    <ClCompile Include="source\SLCoordAxis.cpp">
+      <Filter>Nodes\Meshes</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\_data\shaders\ADS.frag">
@@ -653,6 +659,9 @@
       <Filter>GLSL</Filter>
     </None>
     <None Include="..\_data\shaders\WaveRefractReflect.vert">
+      <Filter>GLSL</Filter>
+    </None>
+    <None Include="..\_data\shaders\PerVrtBlinnColorAttrib.vert">
       <Filter>GLSL</Filter>
     </None>
   </ItemGroup>

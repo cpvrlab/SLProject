@@ -21,7 +21,8 @@ SLfloat SLMaterial::PERFECT = 1000.0f;
 //-----------------------------------------------------------------------------
 SLMaterial* SLMaterial::current = 0;
 //-----------------------------------------------------------------------------
-SLMaterial* SLMaterial::_defaultMaterial = 0;
+SLMaterial* SLMaterial::_default = 0;
+SLMaterial* SLMaterial::_diffuseAttrib = 0;
 //-----------------------------------------------------------------------------
 // Default ctor
 SLMaterial::SLMaterial(const SLchar* name,
@@ -157,32 +158,61 @@ void SLMaterial::activate(SLGLState* state, SLDrawBits drawBits)
 }
 //-----------------------------------------------------------------------------
 /*! 
-The destructor doesn't delete attached the textures or shader program because
-Such shared resources get deleted in the arrays of SLScene.
+Getter for the global default gray material
 */
-SLMaterial* SLMaterial::defaultMaterial()
+SLMaterial* SLMaterial::default()
 {
-    if (!_defaultMaterial)
-        _defaultMaterial = new SLMaterial("default", SLVec4f::BLUE, SLVec4f::BLUE);
-
-    return _defaultMaterial;
+    if (!_default)
+        _default = new SLMaterial("default", SLVec4f::GRAY, SLVec4f::GRAY);
+    return _default;
 }
 //-----------------------------------------------------------------------------
 /*! 
 The destructor doesn't delete attached the textures or shader program because
 Such shared resources get deleted in the arrays of SLScene.
 */
-void SLMaterial::defaultMaterial(SLMaterial* mat)
+void SLMaterial::default(SLMaterial* mat)
 {
-    if (mat == _defaultMaterial)
+    if (mat == _default)
         return;
 
-    if (_defaultMaterial)
+    if (_default)
     {   SLVMaterial& list = SLScene::current->materials();
-        list.erase(remove(list.begin(), list.end(), _defaultMaterial), list.end());
-        delete _defaultMaterial;
+        list.erase(remove(list.begin(), list.end(), _default), list.end());
+        delete _default;
     }
 
-    _defaultMaterial = mat;
+    _default = mat;
+}
+//-----------------------------------------------------------------------------
+/*! 
+Getter for the global diffuse per vertex color attribute material
+*/
+SLMaterial* SLMaterial::diffuseAttrib()
+{
+    if (!_diffuseAttrib)
+    {   _diffuseAttrib = new SLMaterial("diffuseAttrib");
+        _diffuseAttrib->specular(SLCol4f::BLACK);
+        _diffuseAttrib->program(SLScene::current->programs(SP_perVrtBlinnColorAttrib));
+    }
+    return _diffuseAttrib;
+}
+//-----------------------------------------------------------------------------
+/*! 
+The destructor doesn't delete attached the textures or shader program because
+Such shared resources get deleted in the arrays of SLScene.
+*/
+void SLMaterial::diffuseAttrib(SLMaterial* mat)
+{
+    if (mat == _diffuseAttrib)
+        return;
+
+    if (_diffuseAttrib)
+    {   SLVMaterial& list = SLScene::current->materials();
+        list.erase(remove(list.begin(), list.end(), _diffuseAttrib), list.end());
+        delete _diffuseAttrib;
+    }
+
+    _diffuseAttrib = mat;
 }
 //-----------------------------------------------------------------------------

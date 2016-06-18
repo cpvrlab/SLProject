@@ -88,7 +88,7 @@ ARSceneView::ARSceneView(string calibFileDir, string paramFilesDir) :
     _calibFileDir(calibFileDir),
     _paramFilesDir(paramFilesDir)
 {
-    _calibMgr.loadCamParams(calibFileDir);
+    _calibration.loadCamParams(calibFileDir);
 }
 //-----------------------------------------------------------------------------
 ARSceneView::~ARSceneView()
@@ -126,28 +126,28 @@ void ARSceneView::preDraw()
         }
 
         //show undistorted image
-        if(_calibMgr.showUndistorted())
+        if(_calibration.showUndistorted())
         {   Mat undistorted;
             undistort(SLCVCapture::lastFrame,
                       undistorted,
-                      _calibMgr.intrinsics(),
-                      _calibMgr.distortion());
+                      _calibration.intrinsics(),
+                      _calibration.distortion());
             setCVImageToTexture(undistorted);
         }
     }
     else if(_currMode == CalibrationMode)
     {
         //load image into calibration manager
-        if(_calibMgr.stateIsCapturing())
+        if(_calibration.stateIsCapturing())
         {
             if(!SLCVCapture::lastFrame.empty())
-                _calibMgr.addImage(SLCVCapture::lastFrame);
+                _calibration.addImage(SLCVCapture::lastFrame);
 
             //get number of all images to  be captured
-            int imgsToCap = _calibMgr.numImgsToCapture();
+            int imgsToCap = _calibration.numImgsToCapture();
 
             //get number of already captured images
-            int imgsCaped = _calibMgr.numCapturedImgs();
+            int imgsCaped = _calibration.numCapturedImgs();
 
             //update Info line
             std::stringstream ss;
@@ -158,16 +158,16 @@ void ARSceneView::preDraw()
             {
                 ss << "Calculating, please wait.";
                 //if we captured all images then calculate
-                _calibMgr.calculate(_calibFileDir);
+                _calibration.calculate(_calibFileDir);
             }
             setInfoLineText(ss.str());
 
             setCVImageToTexture(SLCVCapture::lastFrame);
         }
-        else if(_calibMgr.stateIsCalibrated())
+        else if(_calibration.stateIsCalibrated())
         {
-            float reprojError = _calibMgr.reprojectionError();
-            this->camera()->fov(_calibMgr.cameraFovDeg());
+            float reprojError = _calibration.reprojectionError();
+            this->camera()->fov(_calibration.cameraFovDeg());
             //update Info line
             std::stringstream ss;
             ss << "Calibrated: Reprojection error: " << reprojError;
@@ -180,8 +180,8 @@ void ARSceneView::preDraw()
         Mat undistorted;
         undistort(SLCVCapture::lastFrame, 
                   undistorted, 
-                  _calibMgr.intrinsics(), 
-                  _calibMgr.distortion());
+                  _calibration.intrinsics(), 
+                  _calibration.distortion());
 
         if(_mapper2D.stateIsLineInput())
         {
@@ -338,46 +338,46 @@ void ARSceneView::processModeChange()
 
             case ARSceneViewMode::CalibrationMode:
                 //execute calibration
-                if(_calibMgr.loadCalibParams(_calibFileDir))
-                     _calibMgr.calibrate();
+                if(_calibration.loadCalibParams(_calibFileDir))
+                     _calibration.calibrate();
                 else setInfoLineText("Info: Could not load calibration parameter file.");
                 break;
 
             case ARSceneViewMode::ChessboardMode:
-                if(!_calibMgr.stateIsCalibrated())
+                if(!_calibration.stateIsCalibrated())
                 {   setInfoLineText("Info: System uncalibrated. Perform camera calibration.");
                     break;
                 }
                 clearInfoLine();
-                _tracker = new ARChessboardTracker(_calibMgr.intrinsics(), _calibMgr.distortion());
+                _tracker = new ARChessboardTracker(_calibration.intrinsics(), _calibration.distortion());
                 if(!_tracker->init(_paramFilesDir))
                     _newMode = ARSceneViewMode::ArucoMode;
                 break;
 
             case ARSceneViewMode::ArucoMode:
-                if(!_calibMgr.stateIsCalibrated())
+                if(!_calibration.stateIsCalibrated())
                 {   setInfoLineText("Info: System uncalibrated. Perform camera calibration.");
                     break;
                 }
                 clearInfoLine();
-                _tracker = new ARArucoTracker(_calibMgr.intrinsics(), _calibMgr.distortion());
+                _tracker = new ARArucoTracker(_calibration.intrinsics(), _calibration.distortion());
                 if(!_tracker->init(_paramFilesDir))
                     _newMode = ARSceneViewMode::Idle;
                 break;
 
             case ARSceneViewMode::Tracker2D:
-                if(!_calibMgr.stateIsCalibrated())
+                if(!_calibration.stateIsCalibrated())
                 {   setInfoLineText("Info: System uncalibrated. Perform camera calibration.");
                     break;
                 }
                 clearInfoLine();
-                _tracker = new AR2DTracker(_calibMgr.intrinsics(), _calibMgr.distortion());
+                _tracker = new AR2DTracker(_calibration.intrinsics(), _calibration.distortion());
                 if(!_tracker->init(_paramFilesDir))
                     _newMode = ARSceneViewMode::Idle;
                 break;
 
             case ARSceneViewMode::Mapper2D:
-                if(!_calibMgr.stateIsCalibrated())
+                if(!_calibration.stateIsCalibrated())
                     setInfoLineText("Info: System uncalibrated. Perform camera calibration.");
                 break;
         }
@@ -418,7 +418,7 @@ SLbool ARSceneView::onKeyPress(const SLKey key, const SLKey mod)
                       _mapper2D.clear();
                       _mapper2D.state(AR2DMapper::LINE_INPUT); break;
             case 'L': _mapper2D.state(AR2DMapper::CAPTURE); break;
-            case 'U': _calibMgr.showUndistorted(!_calibMgr.showUndistorted()); break;
+            case 'U': _calibration.showUndistorted(!_calibration.showUndistorted()); break;
         }
     }
 

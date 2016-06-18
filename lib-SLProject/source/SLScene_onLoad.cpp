@@ -34,6 +34,7 @@
 #include <SLText.h>
 #include <SLGrid.h>
 #include <SLLens.h>
+#include <SLCoordAxis.h>
 
 SLNode* SphereGroup(SLint, SLfloat, SLfloat, SLfloat, SLfloat, SLint, SLMaterial*, SLMaterial*);
 //-----------------------------------------------------------------------------
@@ -219,12 +220,14 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         // Create meshes and nodes
         SLMesh* rectMesh = new SLRectangle(SLVec2f(-5,-5), SLVec2f(5,5), 1,1, "rect mesh", m1);
         SLNode* rectNode = new SLNode(rectMesh, "rect node");
+        SLNode* axisNode = new SLNode(new SLCoordAxis(), "myAxis");
 
         // Create a scene group and add all nodes
         SLNode* scene = new SLNode("scene node");
         scene->addChild(light1);
         scene->addChild(cam1);
-        scene->addChild(rectNode);
+        //scene->addChild(rectNode);
+        scene->addChild(axisNode);
 
         // Set background color and the root scene node
         _background.colors(SLCol4f(0.7f,0.7f,0.7f), SLCol4f(0.2f,0.2f,0.2f));

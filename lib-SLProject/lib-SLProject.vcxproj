@@ -409,6 +409,7 @@
     <ClInclude Include="..\include\SLAnimTrack.h" />
     <ClInclude Include="..\include\SLAssimpImporter.h" />
     <ClInclude Include="..\include\SLAverage.h" />
+    <ClInclude Include="..\include\SLCoordAxis.h" />
     <ClInclude Include="..\include\SLBackground.h" />
     <ClInclude Include="..\include\SLCompactGrid.h" />
     <ClInclude Include="..\include\SLCVCalibration.h" />
@@ -502,6 +503,7 @@
     <ClCompile Include="source\SLAnimManager.cpp" />
     <ClCompile Include="source\SLAnimPlayback.cpp" />
     <ClCompile Include="source\SLAnimTrack.cpp" />
+    <ClCompile Include="source\SLCoordAxis.cpp" />
     <ClCompile Include="source\SLBackground.cpp" />
     <ClCompile Include="source\SLCompactGrid.cpp" />
     <ClCompile Include="source\SLDisk.cpp" />
@@ -585,6 +587,7 @@
     <None Include="..\_data\shaders\PerPixBlinnTexSkinned.vert" />
     <None Include="..\_data\shaders\PerVrtBlinn.frag" />
     <None Include="..\_data\shaders\PerVrtBlinn.vert" />
+    <None Include="..\_data\shaders\PerVrtBlinnColorAttrib.vert" />
     <None Include="..\_data\shaders\PerVrtBlinnSkinned.vert" />
     <None Include="..\_data\shaders\PerVrtBlinnTex.frag" />
     <None Include="..\_data\shaders\PerVrtBlinnTex.vert" />

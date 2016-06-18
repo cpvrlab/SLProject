@@ -302,6 +302,7 @@ enum SLShaderProg
 {   SP_colorAttribute,
     SP_colorUniform,
     SP_perVrtBlinn,
+    SP_perVrtBlinnColorAttrib,
     SP_perVrtBlinnTex,
     SP_TextureOnly,
     SP_perPixBlinn,
