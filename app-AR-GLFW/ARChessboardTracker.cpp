@@ -63,21 +63,23 @@ bool ARChessboardTracker::track()
 
         if(_cbVisible)
         {
+            cv::Mat rVec, rMat, tVec;
+
             //find the camera extrinsic parameters
             bool result = solvePnP(Mat(_boardPoints), 
                                    Mat(_imagePoints), 
                                    _intrinsics, 
                                    _distortion, 
-                                   _rVec, 
-                                   _tVec, 
+                                   rVec, 
+                                   tVec, 
                                    false, 
                                    cv::SOLVEPNP_ITERATIVE);
 
             //convert vector to rotation matrix
-            Rodrigues(_rVec, _rMat);
+            Rodrigues(rVec, rMat);
 
             // Convert cv translation & rotation to OpenGL transform matrix
-            _viewMat = cvMatToGLMat(_tVec, _rMat);
+            _viewMat = cvMatToGLMat(tVec, rMat);
         }
     }
 

@@ -37,9 +37,6 @@ class ARTracker
         void         image          (cv::Mat image)  {_image = image;}
         SLMat4f      cvMatToGLMat   (cv::Mat& tVec, cv::Mat& rMat);
 
-        cv::Mat _rVec;              //!< raw rotation vector from opencvs solvePNP
-        cv::Mat _tVec;              //!< raw translation vector from opencvs solvePNP
-        cv::Mat _rMat;              //!< rotation matrix after Rodrigues transformation
         cv::Mat _image;             //!< camera color image
         cv::Mat _grayImg;           //!< gray image
         SLMat4f _viewMat;           //!< view transformation matrix

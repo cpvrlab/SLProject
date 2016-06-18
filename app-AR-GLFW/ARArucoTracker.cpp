@@ -60,13 +60,14 @@ bool ARArucoTracker::track()
             for(size_t i=0; i < rvecs.size(); ++i)
             {
                 cout << ids[i] << ",";
+                cv::Mat rMat, tVec;
 
                 // Convert vector to rotation matrix
-                Rodrigues(rvecs[i], _rMat);
-                _tVec = Mat(tvecs[i]);
+                Rodrigues(rvecs[i], rMat);
+                tVec = Mat(tvecs[i]);
 
                 // Convert cv translation & rotation to OpenGL transform matrix
-                SLMat4f ovm = cvMatToGLMat(_tVec, _rMat);
+                SLMat4f ovm = cvMatToGLMat(tVec, rMat);
 
                 _arucoOVMs.insert(pair<int,SLMat4f>(ids[i], ovm));
             }

@@ -31,11 +31,6 @@ ARTracker::ARTracker(Mat intrinsics, Mat distoriton) :
     _intrinsics(intrinsics),
     _distortion(distoriton)
 {
-    //set up matrices for storage of translation and rotation vector
-    _rVec = Mat(Size(3, 1), CV_64F);
-    _tVec = Mat(Size(3, 1), CV_64F);
-    //set up matrix for rotation matrix after rodrigues transformation
-    _rMat = Mat(3,3,CV_64F);
 }
 //-----------------------------------------------------------------------------
 //! destructor

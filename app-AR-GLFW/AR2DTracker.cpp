@@ -102,12 +102,12 @@ bool AR2DTracker::track()
     //reset flag
     _posValid = false;
 
-    Mat gray;
+    Mat gray, rVec, rMat, tVec;
     cvtColor(_image, gray, COLOR_RGB2GRAY);
     //detect features in video stream
     _detector->detectAndCompute(gray, Mat(), _sceneKeypoints, _sceneDescriptors);
 
-#if AR_SAVE_DEBUG_IMAGES
+    #if AR_SAVE_DEBUG_IMAGES
     Mat sceneKeyPtsImg;
     cv::drawKeypoints(_image, _sceneKeypoints, sceneKeyPtsImg);
     cv::imwrite("sceneKeyPtsImg.bmp", sceneKeyPtsImg);
@@ -115,7 +115,7 @@ bool AR2DTracker::track()
     Mat mapKeyPtsImg;
     cv::drawKeypoints(_map.image, _map.keypoints, mapKeyPtsImg);
     cv::imwrite("mapKeyPtsImg.bmp", mapKeyPtsImg);
-#endif
+    #endif
     _mapPts.clear();
     _scenePts.clear();
     std::vector< DMatch > goodMatches;
@@ -123,7 +123,7 @@ bool AR2DTracker::track()
     //if we have no initial position
     if(!_posInitialized)
     {
-#if AR_KNN_MATCH
+        #if AR_KNN_MATCH
         std::vector<vector<DMatch> > matches;
         //find two nearest neighbors
         _matcher->knnMatch(_sceneDescriptors, _map.descriptors, matches, 2);
@@ -137,7 +137,7 @@ bool AR2DTracker::track()
                 goodMatches.push_back(matches[i][0]);
             }
         }
-#else
+        #else
         //match features
         vector<DMatch> matches;
         _matcher->match(_sceneDescriptors, _map.descriptors, matches);
@@ -160,7 +160,7 @@ bool AR2DTracker::track()
                 goodMatches.push_back(matches[i]);
             }
         }
-#endif
+        #endif
 
         //extract 2d pts depending on good matches
         for(size_t i = 0; i < goodMatches.size(); i++)
@@ -172,14 +172,14 @@ bool AR2DTracker::track()
           _scenePts.push_back(scPt);
         }
 
-#if AR_SAVE_DEBUG_IMAGES
+        #if AR_SAVE_DEBUG_IMAGES
         Mat imgMatches;
         drawMatches(_image, _sceneKeypoints, _map.image, _map.keypoints,
                      goodMatches, imgMatches, Scalar::all(-1), Scalar::all(-1),
                      std::vector<char>(), DrawMatchesFlags::NOT_DRAW_SINGLE_POINTS);
 
         imwrite("Good_matches.png", imgMatches);
-#endif
+        #endif
     }
     //else if we have an initial position
     else
@@ -191,10 +191,9 @@ bool AR2DTracker::track()
 
     if(_scenePts.size() > 10)
     {
-
         std::vector< DMatch > realGoodMatches;
 
-#if AR_USE_HOMOGRAPHY
+        #if AR_USE_HOMOGRAPHY
         //estimate camera position with homography
         Mat H = findHomography(_mapPts, _scenePts, RANSAC);
         //cout << "H: " << H << endl;
@@ -205,17 +204,27 @@ bool AR2DTracker::track()
             cout << "Homography Rs:" << Rs[i] << endl;
         }
 
-//        cv::Mat homRVect;
-//        cv::Rodrigues(Rs[2], homRVect);
-//        cout << "Homography homRVect:" << homRVect << endl;
+        //        cv::Mat homRVect;
+        //        cv::Rodrigues(Rs[2], homRVect);
+        //        cout << "Homography homRVect:" << homRVect << endl;
 
         //cout << "Homography Rs:" << Rs[i] << endl;
         cout << "" << endl;
-#else
+        #else
         //Mat inliers_idx;
         std::vector<int> inliers;
         //solvePnP(_mapPts, _scenePts, _intrinsics, _distortion, _rVec, _tVec, false, SOLVEPNP_ITERATIVE);
-        solvePnPRansac(_mapPts, _scenePts, _intrinsics, _distortion, _rVec, _tVec, true, 1000, 1.0, 0.99, inliers,
+        solvePnPRansac(_mapPts, 
+                       _scenePts, 
+                       _intrinsics, 
+                       _distortion, 
+                       rVec, 
+                       tVec, 
+                       true, 
+                       1000, 
+                       1.0, 
+                       0.99, 
+                       inliers,
                         /*cv::SOLVEPNP_P3P*/ /*cv::SOLVEPNP_EPNP*/  SOLVEPNP_ITERATIVE /*cv::SOLVEPNP_DLS*/ /*cv::SOLVEPNP_UPNP*/);
 
         for(size_t i=0; i < inliers.size(); ++i)
@@ -223,16 +232,16 @@ bool AR2DTracker::track()
             unsigned int idx = inliers[i];
             realGoodMatches.push_back(goodMatches[idx]);
         }
-#endif
+        #endif
 
 
-#if AR_SAVE_DEBUG_IMAGES
+        #if AR_SAVE_DEBUG_IMAGES
         Mat imgMatches;
         drawMatches(_image, _sceneKeypoints, _map.image, _map.keypoints,
                      realGoodMatches, imgMatches, Scalar::all(-1), Scalar::all(-1),
                      std::vector<char>(), DrawMatchesFlags::NOT_DRAW_SINGLE_POINTS);
         imwrite("Real_Good_matches.png", imgMatches);
-#endif
+        #endif
 
         //check if we have enough inliers
         //if(countNonZero(Mat(matchMask)) < 15)
@@ -257,40 +266,10 @@ bool AR2DTracker::track()
             //For direct openGL use you have to transpose the resulting matrix additionally.
 
             //convert vector to rotation matrix
-            Rodrigues(_rVec, _rMat);
-//            cout << "solvePnP _rMat: " << _rMat << endl;
-//            cout << "" << endl;
+            Rodrigues(rVec, rMat);
 
-            //convert to SLMat4f:
-            //y- and z- axis have to be inverted
-            /*
-                  |  r00   r01   r02   t0 |
-                  | -r10  -r11  -r12  -t1 |
-              m = | -r20  -r21  -r22  -t2 |
-                  |    0     0     0    1 |
-            */
-            //1st row
-            _viewMat(0,0) = _rMat.at<double>(0,0);
-            _viewMat(0,1) = _rMat.at<double>(0,1);
-            _viewMat(0,2) = _rMat.at<double>(0,2);
-            _viewMat(0,3) = _tVec.at<double>(0,0);
-            //2nd row
-            _viewMat(1,0) = -_rMat.at<double>(1,0);
-            _viewMat(1,1) = -_rMat.at<double>(1,1);
-            _viewMat(1,2) = -_rMat.at<double>(1,2);
-            _viewMat(1,3) = -_tVec.at<double>(1,0);
-            //3rd row
-            _viewMat(2,0) = -_rMat.at<double>(2,0);
-            _viewMat(2,1) = -_rMat.at<double>(2,1);
-            _viewMat(2,2) = -_rMat.at<double>(2,2);
-            _viewMat(2,3) = -_tVec.at<double>(2,0);
-            //4th row
-            _viewMat(3,0) = 0.0f;
-            _viewMat(3,1) = 0.0f;
-            _viewMat(3,2) = 0.0f;
-            _viewMat(3,3) = 1.0f;
-
-            //update the tracking status visualization in Scene View
+            // Convert cv translation & rotation to OpenGL transform matrix
+            SLMat4f ovm = cvMatToGLMat(tVec, rMat);
         }
     }
     return true; //???
