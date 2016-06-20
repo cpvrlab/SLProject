@@ -23,17 +23,13 @@
 using namespace cv;
 
 //-----------------------------------------------------------------------------
-ARArucoTracker::ARArucoTracker(Mat intrinsics, Mat distoriton) :
-    ARTracker(intrinsics, distoriton)
-{
-}
-//-----------------------------------------------------------------------------
 bool ARArucoTracker::init(string paramsFileDir)
 {
-    return _p.loadFromFile(paramsFileDir);
+    return _params.loadFromFile(paramsFileDir);
 }
 //-----------------------------------------------------------------------------
-bool ARArucoTracker::track()
+bool ARArucoTracker::track(cv::Mat image, 
+                           SLCVCalibration& calib)
 {
     vector<int> ids;
     vector<vector<Point2f>> corners, rejected;
@@ -42,18 +38,21 @@ bool ARArucoTracker::track()
     //clear detected oject view matrices from last frame
     _arucoOVMs.clear(); 
 
-    if(!_image.empty() && !_intrinsics.empty() && !_p.arucoParams.empty() && !_p.dictionary.empty())
+    if(!image.empty() && 
+       !calib.intrinsics().empty() && 
+       !_params.arucoParams.empty() && 
+       !_params.dictionary.empty())
     {
-        aruco::detectMarkers(_image, _p.dictionary, corners, ids, _p.arucoParams, rejected);
+        aruco::detectMarkers(image, _params.dictionary, corners, ids, _params.arucoParams, rejected);
 
         if(ids.size() > 0)
         {
             cout << "Aruco IdS: " << ids.size() << " : ";
 
             aruco::estimatePoseSingleMarkers(corners, 
-                                             _p.edgeLength, 
-                                             _intrinsics, 
-                                             _distortion, 
+                                             _params.edgeLength, 
+                                             calib.intrinsics(), 
+                                             calib.distortion(), 
                                              rvecs,
                                              tvecs);
 
@@ -163,7 +162,14 @@ void ARArucoTracker::updateSceneView(ARSceneView* sv)
             stringstream ss; ss << "Box" << key;
             SLNode* box = new SLNode(ss.str());
 
-            box->addMesh(new SLBox(-_p.edgeLength/2, -_p.edgeLength/2, 0.0f, _p.edgeLength/2, _p.edgeLength/2, _p.edgeLength, "Box", rMat));
+            box->addMesh(new SLBox(-_params.edgeLength/2, 
+                                    -_params.edgeLength/2, 
+                                    0.0f, 
+                                    _params.edgeLength/2, 
+                                    _params.edgeLength/2, 
+                                    _params.edgeLength, 
+                                    "Box", rMat));
+
             //set object transformation matrix
             box->om(om);
 

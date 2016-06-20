@@ -86,11 +86,11 @@ Tracking class for ArUco markers tracking
 class ARArucoTracker : public ARTracker
 {
     public:
-                ARArucoTracker  (cv::Mat intrinsics,
-                                 cv::Mat distoriton);
+                ARArucoTracker  (){;}
 
         bool    init            (string paramsFileDir) override;
-        bool    track           () override;
+        bool    track           (cv::Mat image, 
+                                 SLCVCalibration& calib) override;
         void    updateSceneView (ARSceneView* sv) override;
         void    unloadSGObjects () override;
 
@@ -114,12 +114,9 @@ class ARArucoTracker : public ARTracker
                                     int markerSizePX=200);
 
     private:
-
-        map<int,SLMat4f>    _arucoOVMs;  //!< Transformations of aruco markers with respect to camera
-        map<int,SLNode*>    _arucoNodes;
-
-
-        ARArucoParams       _p; //!< Parameter class instance
+        map<int,SLMat4f>    _arucoOVMs;     //!< Transformations of aruco markers with respect to camera
+        map<int,SLNode*>    _arucoNodes;    //!< Map from aruco marker id to SLNode
+        ARArucoParams       _params;        //!< Parameter class instance
 };
 
 #endif // ARARUCOTRACKER_H

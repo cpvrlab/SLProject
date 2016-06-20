@@ -33,8 +33,7 @@ using namespace std;
 #define AR_USE_HOMOGRAPHY 0
 
 //-----------------------------------------------------------------------------
-AR2DTracker::AR2DTracker(cv::Mat intrinsics, cv::Mat distoriton) :
-    ARTracker(intrinsics, distoriton),
+AR2DTracker::AR2DTracker() :
     _posInitialized(false),
     _posValid(false),
     _node(nullptr)
@@ -97,13 +96,15 @@ bool AR2DTracker::init(string paramsFileDir)
     return true; //???
 }
 //-----------------------------------------------------------------------------
-bool AR2DTracker::track()
+bool AR2DTracker::track(cv::Mat image, 
+                        SLCVCalibration& calib)
 {
     //reset flag
     _posValid = false;
 
     Mat gray, rVec, rMat, tVec;
-    cvtColor(_image, gray, COLOR_RGB2GRAY);
+    cvtColor(image, gray, COLOR_RGB2GRAY);
+
     //detect features in video stream
     _detector->detectAndCompute(gray, Mat(), _sceneKeypoints, _sceneDescriptors);
 
@@ -216,8 +217,8 @@ bool AR2DTracker::track()
         //solvePnP(_mapPts, _scenePts, _intrinsics, _distortion, _rVec, _tVec, false, SOLVEPNP_ITERATIVE);
         solvePnPRansac(_mapPts, 
                        _scenePts, 
-                       _intrinsics, 
-                       _distortion, 
+                       calib.intrinsics(), 
+                       calib.distortion(), 
                        rVec, 
                        tVec, 
                        true, 

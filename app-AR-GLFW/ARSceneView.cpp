@@ -117,10 +117,10 @@ void ARSceneView::preDraw()
     if(_tracker)
     {
         if(!SLCVCapture::lastFrame.empty())
-        {   _tracker->image(SLCVCapture::lastFrame);
+        {   
             if(_currMode != ARSceneViewMode::Idle || 
                 _currMode != ARSceneViewMode::CalibrationMode)
-            {   _tracker->track();
+            {   _tracker->track(SLCVCapture::lastFrame, _calibration);
                 _tracker->updateSceneView(this);
             }
         }
@@ -349,7 +349,7 @@ void ARSceneView::processModeChange()
                     break;
                 }
                 clearInfoLine();
-                _tracker = new ARChessboardTracker(_calibration.intrinsics(), _calibration.distortion());
+                _tracker = new ARChessboardTracker();
                 if(!_tracker->init(_paramFilesDir))
                     _newMode = ARSceneViewMode::ArucoMode;
                 break;
@@ -360,7 +360,7 @@ void ARSceneView::processModeChange()
                     break;
                 }
                 clearInfoLine();
-                _tracker = new ARArucoTracker(_calibration.intrinsics(), _calibration.distortion());
+                _tracker = new ARArucoTracker();
                 if(!_tracker->init(_paramFilesDir))
                     _newMode = ARSceneViewMode::Idle;
                 break;
@@ -371,7 +371,7 @@ void ARSceneView::processModeChange()
                     break;
                 }
                 clearInfoLine();
-                _tracker = new AR2DTracker(_calibration.intrinsics(), _calibration.distortion());
+                _tracker = new AR2DTracker();
                 if(!_tracker->init(_paramFilesDir))
                     _newMode = ARSceneViewMode::Idle;
                 break;

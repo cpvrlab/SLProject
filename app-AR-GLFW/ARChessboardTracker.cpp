@@ -22,33 +22,34 @@
 using namespace cv;
 
 //-----------------------------------------------------------------------------
-ARChessboardTracker::ARChessboardTracker(Mat intrinsics, Mat distoriton) :
-    ARTracker(intrinsics, distoriton),
-    _node(nullptr),
-    _cbVisible(false)
-
+bool ARChessboardTracker::init(string paramsDir)
 {
-}
-//-----------------------------------------------------------------------------
-bool ARChessboardTracker::init(string paramsFileDir)
-{
-    if(!_p.loadFromFile(paramsFileDir))
+    SLstring filename = "chessboard_detector_params.yml";
+    cv::FileStorage fs(paramsDir + filename, cv::FileStorage::READ);
+    if(!fs.isOpened())
+    {   cout << "Could not find parameter file for Chessboard tracking!" << endl;
+        cout << "Tried " << paramsDir + filename << endl;
         return false;
+    }
+    fs["boardWidth"]  >> _boardSize.width;
+    fs["boardHeight"] >> _boardSize.height;
+    fs["edgeLengthM"] >> _edgeLengthM;
 
     //generate vectors for the points on the chessboard
-    for (int i = 0; i < _p.boardWidth; i++)
-        for (int j = 0; j < _p.boardHeight; j++)
-            _boardPoints.push_back(Point3d(double(i * _p.edgeLengthM), 
-                                           double(j * _p.edgeLengthM), 
+    for (int i = 0; i < _boardSize.width; i++)
+        for (int j = 0; j < _boardSize.height; j++)
+            _boardPoints.push_back(Point3d(double(i * _edgeLengthM), 
+                                           double(j * _edgeLengthM), 
                                            0.0));
     return true;
 }
 //-----------------------------------------------------------------------------
-bool ARChessboardTracker::track()
+bool ARChessboardTracker::track(cv::Mat image, 
+                                SLCVCalibration& calib)
 {
     bool found = false;
 
-    if(!_image.empty() && !_intrinsics.empty())
+    if(!image.empty() && !calib.intrinsics().empty())
     {
         //make a gray copy of the webcam image
         //cvtColor(_image, _grayImg, CV_RGB2GRAY);
@@ -57,19 +58,20 @@ bool ARChessboardTracker::track()
         int flags = CALIB_CB_ADAPTIVE_THRESH | 
                     CALIB_CB_NORMALIZE_IMAGE | 
                     CALIB_CB_FAST_CHECK;
-        cv::Size size = Size(_p.boardHeight, _p.boardWidth);
 
-        _cbVisible = cv::findChessboardCorners(_image, size, _imagePoints, flags);
+        vector<cv::Point2f> corners;
 
-        if(_cbVisible)
+        _isVisible = cv::findChessboardCorners(image, _boardSize, corners, flags);
+
+        if(_isVisible)
         {
             cv::Mat rVec, rMat, tVec;
 
             //find the camera extrinsic parameters
             bool result = solvePnP(Mat(_boardPoints), 
-                                   Mat(_imagePoints), 
-                                   _intrinsics, 
-                                   _distortion, 
+                                   Mat(corners), 
+                                   calib.intrinsics(), 
+                                   calib.distortion(), 
                                    rVec, 
                                    tVec, 
                                    false, 
@@ -84,7 +86,7 @@ bool ARChessboardTracker::track()
     }
 
     //todo: return not nessasary
-    return _cbVisible;
+    return _isVisible;
 }
 //-----------------------------------------------------------------------------
 void ARChessboardTracker::updateSceneView(ARSceneView* sv)
@@ -101,14 +103,14 @@ void ARChessboardTracker::updateSceneView(ARSceneView* sv)
         axesNode->scale(0.3f);
         _node->addChild(axesNode);
 
-        float edgeLength = _p.edgeLengthM * 3;
+        float edgeLength = _edgeLengthM * 3;
         _node->addMesh(new SLBox(0.0f, 0.0f, 0.0f, edgeLength, edgeLength, edgeLength, "Box", rMat));
 
         SLScene::current->root3D()->addChild(_node);
         _node->updateAABBRec();
     }
 
-    if(_cbVisible)
+    if(_isVisible)
     {
         //invert view matrix because we want to set the camera object matrix
         SLMat4f camOm = _viewMat.inverse();

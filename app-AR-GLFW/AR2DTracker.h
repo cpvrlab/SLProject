@@ -20,11 +20,11 @@
 class AR2DTracker : public ARTracker
 {
     public:
-                AR2DTracker     (cv::Mat intrinsics,
-                                 cv::Mat distoriton);
+                AR2DTracker     ();
 
         bool    init            (string paramsFileDir) override;
-        bool    track           () override;
+        bool    track           (cv::Mat image, 
+                                 SLCVCalibration& calib) override;
         void    updateSceneView (ARSceneView* sv) override;
         void    unloadSGObjects () override;
 

@@ -26,18 +26,6 @@
 using namespace cv;
 
 //-----------------------------------------------------------------------------
-//! constructor
-ARTracker::ARTracker(Mat intrinsics, Mat distoriton) :
-    _intrinsics(intrinsics),
-    _distortion(distoriton)
-{
-}
-//-----------------------------------------------------------------------------
-//! destructor
-ARTracker::~ARTracker()
-{
-}
-//-----------------------------------------------------------------------------
 SLMat4f ARTracker::cvMatToGLMat(Mat& tVec, Mat& rMat)
 {
     // Transform calculated position (rotation and translation vector) 
