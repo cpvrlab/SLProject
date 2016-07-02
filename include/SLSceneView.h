@@ -206,7 +206,7 @@ class SLSceneView: public SLObject
             SLNodeStats     _stats;             //!< Statistic numbers
             SLbool          _gotPainted;        //!< flag if this sceneview got painted
 
-            SLRenderType      _renderType;        //!< rendering type (GL,RT,PT)
+            SLRenderType    _renderType;        //!< rendering type (GL,RT,PT)
             
             SLbool          _doDepthTest;       //!< Flag if depth test is turned on
             SLbool          _doMultiSampling;   //!< Flag if multisampling is on
@@ -253,14 +253,6 @@ class SLSceneView: public SLObject
 
             SLPathtracer    _pathtracer;        //!< Pathtracer
             SLbool          _stopPT;            //!< Flag to stop the PT
-
-            // temporary test stuff
-            SLfloat         _animTime;
-            SLbool          _runAnim;
-            SLbool          _runBackwards;
-            SLfloat         _animMultiplier;
-            SLbool          _showAnimWeightEffects;
-            SLfloat         _animWeightTime;
 };
 //-----------------------------------------------------------------------------
 #endif

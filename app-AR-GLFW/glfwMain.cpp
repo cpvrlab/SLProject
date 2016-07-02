@@ -361,7 +361,7 @@ void onGLFWError(int error, const char* description)
 //! Alternative SceneView creation function passed by slCreateSceneView
 SLuint createARSceneView()
 {
-    nodeARSV = new ARSceneView(calibDir, detectorParamsDir);
+    nodeARSV = new ARSceneView();
     return nodeARSV->index();
 }
 //-----------------------------------------------------------------------------
@@ -449,10 +449,8 @@ int main(int argc, char *argv[])
     slCreateScene(cmdLineArgs,
                   exeDir + "../_data/shaders/",
                   exeDir + "../_data/models/",
-                  exeDir + "../_data/images/textures/");
-
-    detectorParamsDir = exeDir + "../_data/detector_params/";
-    calibDir          = exeDir + "../_data/calibrations/";
+                  exeDir + "../_data/images/textures/",
+                  exeDir + "../_data/calibrations/");
 
     svIndex = slCreateSceneView((int)(scrWidth  * scr2fbX),
                                 (int)(scrHeight * scr2fbY),

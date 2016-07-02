@@ -79,6 +79,7 @@ SLScene::SLScene(SLstring name) : SLObject(name)
     _selectedMesh   = nullptr;
     _selectedNode   = nullptr;
     _stopAnimations = false;
+    _arTracker      = nullptr;
 
     _fps = 0;
     _elapsedTimeMS = 0;
@@ -112,6 +113,10 @@ SLScene::SLScene(SLstring name) : SLObject(name)
 
     // load default video image that is displayed when no live video is available
     _videoTexture.setVideoImage("LiveVideoError.png");
+
+    // load opencv camera calibration
+    _calibration.loadCamParams();
+    _calibration.loadCalibParams();
 
     _oculus.init();
 
@@ -268,6 +273,11 @@ void SLScene::unInit()
     _eventHandlers.clear();
 
     _animManager.clear();
+
+    // delete AR tracker
+    if (_arTracker)
+        delete _arTracker;
+    _arTracker = nullptr;
 
     // reset all states
     SLGLState::getInstance()->initAll();

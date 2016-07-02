@@ -23,16 +23,20 @@ public:
 
                 SLCVCalibration       ();
 
-    bool        loadCamParams       (string dir);
-    bool        loadCalibParams     (string calibFilesDir);
+    bool        loadCamParams       ();
+    bool        loadCalibParams     ();
     void        calibrate           ();
     void        addImage            (cv::Mat image);
-    void        calculate           (string saveDir);
+    void        calculate           ();
     void        showUndistorted     (bool su) {_showUndistorted = su;}
+    SLMat4f     createGLMatrix      (const cv::Mat& tVec, 
+                                     const cv::Mat& rVec);
     static bool findChessboard      (cv::Mat& frame,
                                      cv::Size& size,
                                      vector<cv::Point2f>& corners,
                                      int flags);
+
+    static SLstring defaultPath;    //!< Default path for calibration files
 
     // Getters
     cv::Mat&    intrinsics          () {return _intrinsics;}

@@ -21,10 +21,12 @@
 #include <SLGLOculus.h>
 #include <SLAnimManager.h>
 #include <SLAverage.h>
+#include <SLCVCalibration.h>
 
 class SLSceneView;
 class SLButton;
 class SLText;
+class SLCVTracker;
 
 //-----------------------------------------------------------------------------
 typedef std::vector<SLSceneView*> SLVSceneView; //!< Vector of SceneView pointers
@@ -45,9 +47,7 @@ class SLScene: public SLObject
 {  
     friend class SLNode;
    
-    public:
-
-                            SLScene         (SLstring name="");
+    public:                 SLScene         (SLstring name="");
                            ~SLScene         ();
             // Setters
             void            root3D          (SLNode* root3D){_root3D = root3D;}
@@ -114,6 +114,7 @@ class SLScene: public SLObject
             SLGLOculus*     oculus          () {return &_oculus;}   
             SLbool          usesVideoImage  () {return _usesVideoImage;}
             SLGLTexture*    videoTexture    () {return &_videoTexture;}
+            SLCVCalibration&    calibration () {return _calibration;}
             
             // Misc.
    virtual  void            onLoad          (SLSceneView* sv, SLCommand _currentID);
@@ -183,9 +184,12 @@ class SLScene: public SLObject
             SLbool          _stopAnimations;    //!< Global flag for stopping all animations
             
             SLGLOculus      _oculus;            //!< Oculus Rift interface
-
+            
+            // OpenCV stuff
             SLbool          _usesVideoImage;    //!< Flag for updating the video image
             SLGLTexture     _videoTexture;      //!< Texture for live video image
+            SLCVCalibration _calibration;       //!< OpenCV calibration manager
+            SLCVTracker*    _arTracker;         //!< OpenCV AR tracker
 };
 //-----------------------------------------------------------------------------
 #endif

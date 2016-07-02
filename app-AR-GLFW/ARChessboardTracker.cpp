@@ -22,13 +22,14 @@
 using namespace cv;
 
 //-----------------------------------------------------------------------------
-bool ARChessboardTracker::init(string paramsDir)
+bool ARChessboardTracker::init()
 {
     SLstring filename = "chessboard_detector_params.yml";
-    cv::FileStorage fs(paramsDir + filename, cv::FileStorage::READ);
+    cv::FileStorage fs(SLCVCalibration::defaultPath + filename, 
+                       cv::FileStorage::READ);
     if(!fs.isOpened())
     {   cout << "Could not find parameter file for Chessboard tracking!" << endl;
-        cout << "Tried " << paramsDir + filename << endl;
+        cout << "Tried " << SLCVCalibration::defaultPath + filename << endl;
         return false;
     }
     fs["boardWidth"]  >> _boardSize.width;
@@ -65,7 +66,7 @@ bool ARChessboardTracker::track(cv::Mat image,
 
         if(_isVisible)
         {
-            cv::Mat rVec, rMat, tVec;
+            cv::Mat rVec, tVec;
 
             //find the camera extrinsic parameters
             bool result = solvePnP(Mat(_boardPoints), 
@@ -77,11 +78,8 @@ bool ARChessboardTracker::track(cv::Mat image,
                                    false, 
                                    cv::SOLVEPNP_ITERATIVE);
 
-            //convert vector to rotation matrix
-            Rodrigues(rVec, rMat);
-
             // Convert cv translation & rotation to OpenGL transform matrix
-            _viewMat = cvMatToGLMat(tVec, rMat);
+            _viewMat = calib.createGLMatrix(tVec, rVec);
         }
     }
 

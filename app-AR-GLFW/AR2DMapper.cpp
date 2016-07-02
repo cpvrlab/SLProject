@@ -8,7 +8,8 @@
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
 
-#include "AR2DMapper.h"
+#include <AR2DMapper.h>
+#include <SLCVCalibration.h>
 
 #include <stdio.h>
 #include <iostream>
@@ -31,7 +32,7 @@ AR2DMapper::AR2DMapper() :
 }
 //-----------------------------------------------------------------------------
 void AR2DMapper::createMap(cv::Mat image, float offsetXMM, float offsetYMM,
-                std::string dir, std::string filename, AR2DMap::ARFeatureType type)
+                           std::string filename, AR2DMap::ARFeatureType type)
 {
     //instantiate feature detector depending on type
     Ptr<FeatureDetector> detector;
@@ -41,20 +42,25 @@ void AR2DMapper::createMap(cv::Mat image, float offsetXMM, float offsetYMM,
         {
             /*The maximum number of features to retain.*/
             int nFeatures = 1000;
+            
             /*Pyramid decimation ratio, greater than 1. scaleFactor==2 means the classical
             pyramid, where each next level has 4x less pixels than the previous, but such a big scale factor
             will degrade feature matching scores dramatically. On the other hand, too close to 1 scale factor
             will mean that to cover certain scale range you will need more pyramid levels and so the speed
             will suffer.*/
             float scaleFactor = 1.2f;
+            
             /*The number of pyramid levels. The smallest level will have linear size equal to
             input_image_linear_size/pow(scaleFactor, nlevels).*/
             int nlevels = 8;
+            
             /*This is size of the border where the features are not detected. It should
             roughly match the patchSize parameter.*/
             int edgeThreshold = 31;
+            
             //It should be 0 in the current implementation.
             int firstLevel = 0;
+            
             /*The number of points that produce each element of the oriented BRIEF descriptor. The
             default value 2 means the BRIEF where we take a random point pair and compare their brightnesses,
             so we get 0/1 response. Other possible values are 3 and 4. For example, 3 means that we take 3
@@ -65,17 +71,27 @@ void AR2DMapper::createMap(cv::Mat image, float offsetXMM, float offsetYMM,
             denoted as NORM_HAMMING2 (2 bits per bin). When WTA_K=4, we take 4 random points to compute each
             bin (that will also occupy 2 bits with possible values 0, 1, 2 or 3).*/
             int WTA_K = 2;
+            
             /*The default HARRIS_SCORE means that Harris algorithm is used to rank features
             (the score is written to KeyPoint::score and is used to retain best nfeatures features);
             FAST_SCORE is alternative value of the parameter that produces slightly less stable keypoints,
             but it is a little faster to compute.*/
             int scoreType = ORB::HARRIS_SCORE;
+            
             /*size of the patch used by the oriented BRIEF descriptor. Of course, on smaller
             pyramid layers the perceived image area covered by a feature will be larger.*/
             int patchSize = 31;
             int fastThreshold = 20;
 
-            detector = ORB::create(nFeatures, scaleFactor, nlevels, edgeThreshold, firstLevel, WTA_K, scoreType, patchSize, fastThreshold);
+            detector = ORB::create(nFeatures, 
+                                   scaleFactor, 
+                                   nlevels, 
+                                   edgeThreshold, 
+                                   firstLevel, 
+                                   WTA_K, 
+                                   scoreType, 
+                                   patchSize, 
+                                   fastThreshold);
         }
         break;
 
@@ -103,8 +119,11 @@ void AR2DMapper::createMap(cv::Mat image, float offsetXMM, float offsetYMM,
         //subpixels accuracy
         Mat imageGray;
         cvtColor(image, imageGray, COLOR_BGR2GRAY);
-        cornerSubPix(gray, imagePts, Size(11,11),
-            Size(-1,-1), TermCriteria(TermCriteria::EPS+TermCriteria::COUNT, 30, 0.1));
+        cornerSubPix(gray, 
+                     imagePts, 
+                     Size(11,11),
+                     Size(-1,-1), 
+                     TermCriteria(TermCriteria::EPS+TermCriteria::COUNT, 30, 0.1));
     }
 
     //calculate scale factor
@@ -132,10 +151,8 @@ void AR2DMapper::createMap(cv::Mat image, float offsetXMM, float offsetYMM,
     //save image
     _map.image = image;
 
-    //save to filea
-    _map.saveToFile(dir, filename);
-
-
+    //save to file
+    _map.saveToFile(SLCVCalibration::defaultPath, filename);
 }
 //-----------------------------------------------------------------------------
 void AR2DMapper::clear()

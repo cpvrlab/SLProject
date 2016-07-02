@@ -40,11 +40,6 @@ It never changes throughout the life of a sceneview.
 */
 SLSceneView::SLSceneView() : SLObject()
 { 
-    _animMultiplier = 1.0f;
-    _animWeightTime = 1.0f;
-    _showAnimWeightEffects = false;
-    _animTime = 0.0f;
-    _runBackwards = false;
     SLScene* s = SLScene::current;
     assert(s && "No SLScene::current instance.");
    
@@ -1256,13 +1251,6 @@ SLbool SLSceneView::onKeyPress(SLKey key, SLKey mod)
 {  
     SLScene* s = SLScene::current;
     
-    if (key == '1') { _runAnim = !_runAnim; return true; }
-    if (key == '2') { _animTime += 0.1f; return true; }
-    if (key == '3') { _runBackwards = !_runBackwards; return true; }
-    if (key == '4') { _showAnimWeightEffects = !_showAnimWeightEffects; _animWeightTime = 0.0f; return true; }
-    if (key == K_NPAdd) { _animMultiplier += 0.1f; return true; }
-    if (key == K_NPSubtract) { if(_animMultiplier > 0.1f) _animMultiplier += -0.1f; return true; }
-    
     if (key == '5') { _camera->unitScaling(_camera->unitScaling()+0.1f); SL_LOG("New unit scaling: %f", _camera->unitScaling()); return true; }
     if (key == '6') { _camera->unitScaling(_camera->unitScaling()-0.1f); SL_LOG("New unit scaling: %f", _camera->unitScaling()); return true; }
 
@@ -1662,6 +1650,11 @@ void SLSceneView::build2DMenus()
     mn3->addChild(new SLButton(this, "Skeletal Animation", f, C_sceneSkeletalAnimation, true, curS==C_sceneSkeletalAnimation, mn2));
     mn3->addChild(new SLButton(this, "Node Animation", f, C_sceneNodeAnimation, true, curS==C_sceneNodeAnimation, mn2));
 
+    mn3 = new SLButton(this, "Augmented Reality >", f);
+    mn2->addChild(mn3);
+    mn3->addChild(new SLButton(this, "Calibration", f, C_sceneARCalibration, true, curS==C_sceneARCalibration, mn2));
+    mn3->addChild(new SLButton(this, "Track Aruco Marker", f, C_sceneARTrackAruco, true, curS==C_sceneARTrackAruco, mn2));
+   
     mn3 = new SLButton(this, "Ray tracing >", f);
     mn2->addChild(mn3);
     mn3->addChild(new SLButton(this, "Spheres", f, C_sceneRTSpheres, true, curS==C_sceneRTSpheres, mn2));

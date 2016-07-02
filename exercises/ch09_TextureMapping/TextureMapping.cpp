@@ -400,8 +400,8 @@ bool onPaint()
     GLsizei offsetN = sizeof(SLVec3f);
     GLsizei offsetT = sizeof(SLVec3f) + sizeof(SLVec3f);
     glVertexAttribPointer(_pLoc, 3, GL_FLOAT, GL_FALSE, stride, 0);
-    glVertexAttribPointer(_nLoc, 3, GL_FLOAT, GL_FALSE, stride, (void*)offsetN);
-    glVertexAttribPointer(_tLoc, 2, GL_FLOAT, GL_FALSE, stride, (void*)offsetT);
+    glVertexAttribPointer(_nLoc, 3, GL_FLOAT, GL_FALSE, stride, (void*)(size_t)offsetN);
+    glVertexAttribPointer(_tLoc, 2, GL_FLOAT, GL_FALSE, stride, (void*)(size_t)offsetT);
    
     ////////////////////////////////////////////////////////
     // Draw cube model triangles by indexes

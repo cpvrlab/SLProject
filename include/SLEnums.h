@@ -97,6 +97,11 @@ enum SLCommand
     C_sceneAstroboyArmyGPU,
     C_sceneAstroboyArmyCPU,
 
+    C_sceneARCalibration,
+    C_sceneARTrackAruco,
+    C_sceneARTrackChessboard,
+    C_sceneARTrack2D,
+
     C_sceneRTMuttenzerBox,
     C_sceneRTSpheres,
     C_sceneRTSoftShadows,

@@ -23,9 +23,9 @@
 using namespace cv;
 
 //-----------------------------------------------------------------------------
-bool ARArucoTracker::init(string paramsFileDir)
+bool ARArucoTracker::init()
 {
-    return _params.loadFromFile(paramsFileDir);
+    return _params.loadFromFile();
 }
 //-----------------------------------------------------------------------------
 bool ARArucoTracker::track(cv::Mat image, 
@@ -59,14 +59,9 @@ bool ARArucoTracker::track(cv::Mat image,
             for(size_t i=0; i < rvecs.size(); ++i)
             {
                 cout << ids[i] << ",";
-                cv::Mat rMat, tVec;
-
-                // Convert vector to rotation matrix
-                Rodrigues(rvecs[i], rMat);
-                tVec = Mat(tvecs[i]);
 
                 // Convert cv translation & rotation to OpenGL transform matrix
-                SLMat4f ovm = cvMatToGLMat(tVec, rMat);
+                SLMat4f ovm = calib.createGLMatrix(cv::Mat(tvecs[i]), cv::Mat(rvecs[i]));
 
                 _arucoOVMs.insert(pair<int,SLMat4f>(ids[i], ovm));
             }

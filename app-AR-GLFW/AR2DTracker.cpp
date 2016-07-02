@@ -40,10 +40,10 @@ AR2DTracker::AR2DTracker() :
 {
 }
 //-----------------------------------------------------------------------------
-bool AR2DTracker::init(string paramsFileDir)
+bool AR2DTracker::init()
 {
     //load ARMap
-    _map.loadFromFile(paramsFileDir, "map2d");
+    _map.loadFromFile("map2d");
 
     //initialize feature detector depending on _map type
     if(_map.type == AR2DMap::AR_SURF)
@@ -254,23 +254,8 @@ bool AR2DTracker::track(cv::Mat image,
         {
             _posValid = true;
 
-            //reproject map onto image (discard points that are out of bounds)
-            //(look inside optical flow, how they do)
-            //try to find additional features in near environment
-            //(look inside optical flow, how they do)
-            //optimize position using homography or some optimization strategy
-
-            //Transform calculated position (rotation and translation vector) from openCV to SLProject form
-            //as described in this post:
-            //http://www.morethantechnical.com/2015/02/17/augmented-reality-on-libqglviewer-and-opencv-opengl-tips-wcode/
-            //attention: We don't have to transpose the resulting matrix, because SLProject uses row-major matrices.
-            //For direct openGL use you have to transpose the resulting matrix additionally.
-
-            //convert vector to rotation matrix
-            Rodrigues(rVec, rMat);
-
             // Convert cv translation & rotation to OpenGL transform matrix
-            SLMat4f ovm = cvMatToGLMat(tVec, rMat);
+            SLMat4f ovm = calib.createGLMatrix(tVec, rVec);
         }
     }
     return true; //???

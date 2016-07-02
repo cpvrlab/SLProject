@@ -1,5 +1,5 @@
 //#############################################################################
-//  File:      ARTracker.cpp
+//  File:      SLCVTracker.cpp
 //  Author:    Michael Göttlicher
 //  Date:      Spring 2016
 //  Codestyle: https://github.com/cpvrlab/SLProject/wiki/Coding-Style-Guidelines
@@ -8,8 +8,8 @@
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
 
-#ifndef ARTracker_H
-#define ARTracker_H
+#ifndef SLCVTRACKER_H
+#define SLCVTRACKER_H
 
 #include <stdafx.h>
 #include <SLNode.h>
@@ -19,22 +19,22 @@
 
 class ARSceneView;
 //-----------------------------------------------------------------------------
-//! ARTracker is the pure virtual base class for tracking features in video.
+//! SLCVTracker is the pure virtual base class for tracking features in video.
 /*!   
 A instance of this class is hold by the SLScene instance.
 */
-class ARTracker
+class SLCVTracker
 {
     public:
-                     ARTracker      (): _node(nullptr), _isVisible(false){;}
-                    ~ARTracker      (){;}
+                     SLCVTracker      (SLNode* node = nullptr): 
+                                      _node(node), _isVisible(false){;}
+        virtual     ~SLCVTracker      () = 0;
 
         //new functions
-        virtual bool init           () = 0;
+        virtual bool init           (string paramsFileDir) = 0;
         virtual bool track          (cv::Mat image, 
-                                     SLCVCalibration& calib) = 0;
-        virtual void updateSceneView(ARSceneView* sv) = 0;
-        virtual void unloadSGObjects() = 0;
+                                     SLCVCalibration& calib,
+                                     SLSceneView* sv) = 0;
     
     protected:
         SLNode*     _node;          //<! Connected node

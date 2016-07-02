@@ -22,7 +22,7 @@ class AR2DTracker : public ARTracker
     public:
                 AR2DTracker     ();
 
-        bool    init            (string paramsFileDir) override;
+        bool    init            () override;
         bool    track           (cv::Mat image, 
                                  SLCVCalibration& calib) override;
         void    updateSceneView (ARSceneView* sv) override;

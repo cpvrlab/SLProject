@@ -45,20 +45,25 @@ See examples usages in:
 void slCreateScene(SLVstring& cmdLineArgs,
                    SLstring shaderPath,
                    SLstring modelPath,
-                   SLstring texturePath)
+                   SLstring texturePath,
+                   SLstring calibrationPath)
 {
     assert(SLScene::current==nullptr && "SLScene is already created!");
    
     SLGLProgram::defaultPath      = shaderPath;
     SLGLTexture::defaultPath      = texturePath;
     SLAssimpImporter::defaultPath = modelPath;
+    SLCVCalibration::defaultPath  = calibrationPath;
+
     SLGLState* stateGL            = SLGLState::getInstance();
 
     SL::parseCmdLineArgs(cmdLineArgs);
     
     SL_LOG("Path to Models  : %s\n", modelPath.c_str());
     SL_LOG("Path to Shaders : %s\n", shaderPath.c_str());
-    SL_LOG("Path to Textures: %s\n", texturePath.c_str());   
+    SL_LOG("Path to Textures: %s\n", texturePath.c_str()); 
+    SL_LOG("Path to Calibration: %s\n", calibrationPath.c_str());   
+
     #ifdef SL_HAS_OPENCV
     SL_LOG("OpenCV Version  : %d.%d.%d\n", CV_MAJOR_VERSION, 
                                            CV_MINOR_VERSION, 

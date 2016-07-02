@@ -128,12 +128,13 @@ void qtGLWidget::initializeGL()
         SLstring shaders  = exeDir + "../_data/shaders/";
         SLstring models   = exeDir + "../_data/models/";
         SLstring textures = exeDir + "../_data/images/textures/";
+        SLstring calibs   = exeDir + "../_data/calibrations/";
 
         cout << "------------------------------------------------------------------" << endl;
         cout << "GUI             : Qt (Version: " << QT_VERSION_STR << ")" << endl;
         cout << "DPI             : " << dpi << endl;
       
-        slCreateScene(_cmdLineArgs, shaders, models, textures);
+        slCreateScene(_cmdLineArgs, shaders, models, textures, calibs);
     }   
 
     // Create a sceneview for every new glWidget

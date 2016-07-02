@@ -288,6 +288,15 @@
     <ClInclude Include="..\include\SLCoordAxis.h">
       <Filter>Nodes\Meshes</Filter>
     </ClInclude>
+    <ClInclude Include="..\include\SLCVArucoTracker.h">
+      <Filter>CV</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\SLCVChessboardTracker.h">
+      <Filter>CV</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\SLCVTracker.h">
+      <Filter>CV</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="source\SLAABBox.cpp">
@@ -478,6 +487,12 @@
     </ClCompile>
     <ClCompile Include="source\SLCoordAxis.cpp">
       <Filter>Nodes\Meshes</Filter>
+    </ClCompile>
+    <ClCompile Include="source\CV\SLCVArucoTracker.cpp">
+      <Filter>CV</Filter>
+    </ClCompile>
+    <ClCompile Include="source\CV\SLCVChessboardTracker.cpp">
+      <Filter>CV</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

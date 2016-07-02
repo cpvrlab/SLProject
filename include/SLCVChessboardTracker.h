@@ -1,5 +1,5 @@
 //#############################################################################
-//  File:      ARTracker.cpp
+//  File:      SLCVTracker.cpp
 //  Author:    Michael Göttlicher
 //  Date:      Spring 2016
 //  Codestyle: https://github.com/cpvrlab/SLProject/wiki/Coding-Style-Guidelines
@@ -8,25 +8,23 @@
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
 
-#ifndef ARCHESSBOARDTRACKER_H
-#define ARCHESSBOARDTRACKER_H
+#ifndef SLCVCHESSBOARDTRACKER_H
+#define SLCVCHESSBOARDTRACKER_H
 
-#include <ARTracker.h>
-#include <SLNode.h>
+#include <SLCVTracker.h>
 
 //-----------------------------------------------------------------------------
 /*!
 Chessboard tracking class
 */
-class ARChessboardTracker : public ARTracker
+class SLCVChessboardTracker : public SLCVTracker
 {
     public:
-                    ARChessboardTracker (){;}
-        bool        init                () override;
-        bool        track               (cv::Mat image, 
-                                         SLCVCalibration& calib) override;
-        void        updateSceneView     (ARSceneView* sv) override;
-        void        unloadSGObjects     () override;
+                SLCVChessboardTracker   (SLNode* node) : SLCVTracker(node){;}
+        bool    init                    (string paramsFileDir) override;
+        bool    track                   (cv::Mat image, 
+                                         SLCVCalibration& calib,
+                                         SLSceneView* sv) = 0;
 
     private:
         vector<cv::Point3d> _boardPoints;   //<! chessboard corners in world coordinate system
@@ -35,4 +33,4 @@ class ARChessboardTracker : public ARTracker
 };
 //-----------------------------------------------------------------------------
 
-#endif // ARCHESSBOARDTRACKER_H
+#endif // SLCVCHESSBOARDTRACKER_H

@@ -32,8 +32,7 @@ class ARSceneView : public SLSceneView
             Tracker2D
         };
 
-                        ARSceneView         (string calibFileDir,
-                                             string paramFilesDir);
+                        ARSceneView         ();
                        ~ARSceneView         ();
 
         ARTracker*      tracker             () {return _tracker;}
@@ -44,8 +43,6 @@ class ARSceneView : public SLSceneView
         void            postSceneLoad       ();
 
         SLbool          onKeyPress          (const SLKey key, const SLKey mod);
-
-        SLCVCalibration&  calibration         ()  { return _calibration; }
         void            clearInfoLine       ();
         void            setInfoLineText     (SLstring text);
 
@@ -68,10 +65,6 @@ private:
         ARSceneViewMode _newMode;
         ARSceneViewMode _currMode;
 
-        string          _calibFileDir;      //!< path to calibration files are stored
-        string          _paramFilesDir;     //!< path to parameter files are stored
-
-        SLCVCalibration _calibration;       //!< calibration manager
         AR2DMapper      _mapper2D;          //!< 2D Mapping
 };
 //-----------------------------------------------------------------------------

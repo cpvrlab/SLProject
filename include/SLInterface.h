@@ -28,7 +28,8 @@ See the implementation for more information.
 void    slCreateScene           (SLVstring& cmdLineArgs,
                                  SLstring shaderPath,
                                  SLstring modelPath,
-                                 SLstring texturePath);
+                                 SLstring texturePath,
+                                 SLstring calibrationPath);
 int     slCreateSceneView       (int screenWidth,
                                  int screenHeight,
                                  int dotsPerInch,

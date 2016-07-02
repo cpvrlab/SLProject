@@ -11,6 +11,8 @@
 #ifndef AR2DMAPPER_H
 #define AR2DMAPPER_H
 
+#include <SLCVCalibration.h>
+
 #include <opencv2/core.hpp>
 #include "opencv2/highgui.hpp"
 
@@ -48,11 +50,12 @@ public:
         cv::imwrite(dir + filename + ".png", image);
     }
 
-    void loadFromFile(std::string dir, std::string filename)
+    void loadFromFile(std::string filename)
     {
         cv::Mat points2d;
         std::string typeName;
-        cv::FileStorage storage(dir + filename + ".yml", cv::FileStorage::READ);
+        cv::FileStorage storage(SLCVCalibration::defaultPath + filename + ".yml", 
+                                cv::FileStorage::READ);
         storage["points2d"] >> points2d;
         storage["descriptors"] >> descriptors;
         storage["scaleFactor"] >> scaleFactorPixPerMM;
@@ -65,7 +68,7 @@ public:
         points2d.copyTo(pts);
         type = mapType(typeName);
 
-        image = cv::imread(dir + filename + ".png");
+        image = cv::imread(SLCVCalibration::defaultPath + filename + ".png");
     }
 
 
@@ -107,7 +110,6 @@ class AR2DMapper
         void    createMap       (cv::Mat image,
                                  float offsetXMM,
                                  float offsetYMM,
-                                 string dir,
                                  string filename,
                                  AR2DMap::ARFeatureType type);
 

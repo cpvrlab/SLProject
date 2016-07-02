@@ -1,5 +1,5 @@
 //#############################################################################
-//  File:      ARTracker.cpp
+//  File:      SLCVTracker.cpp
 //  Author:    Michael Göttlicher
 //  Date:      Spring 2016
 //  Codestyle: https://github.com/cpvrlab/SLProject/wiki/Coding-Style-Guidelines
@@ -8,10 +8,10 @@
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
 
-#ifndef ARARUCOTRACKER_H
-#define ARARUCOTRACKER_H
+#ifndef SLCVARUCOTRACKER_H
+#define SLCVARUCOTRACKER_H
 
-#include <ARTracker.h>
+#include <SLCVTracker.h>
 #include <SLNode.h>
 #include <opencv2/aruco.hpp>
 
@@ -22,10 +22,10 @@ using namespace std;
 /*!
 Parameter class for aruco tracking
 */
-class ARArucoParams
+class SLCVArucoParams
 {
 public:
-    ARArucoParams() :
+    SLCVArucoParams() :
         edgeLength(0.06f),
         arucoDictionaryId(0),
         filename("aruco_detector_params.yml")
@@ -33,14 +33,14 @@ public:
         arucoParams = cv::aruco::DetectorParameters::create();
     }
 
-    bool loadFromFile()
+    bool loadFromFile(string paramsDir)
     {
-        string path = SLCVCalibration::defaultPath + filename;
+        string path = paramsDir + filename;
         cv::FileStorage fs(path, cv::FileStorage::READ);
         if(!fs.isOpened())
         {
             cout << "Could not find parameter file for ArUco tracking!" << endl;
-            cout << "Tried " << SLCVCalibration::defaultPath + filename << endl;
+            cout << "Tried " << paramsDir + filename << endl;
             return false;
         }
 
@@ -83,18 +83,14 @@ public:
 /*!
 Tracking class for ArUco markers tracking
 */
-class ARArucoTracker : public ARTracker
+class SLCVArucoTracker : public SLCVTracker
 {
     public:
-                ARArucoTracker  (){;}
-
-        bool    init            () override;
+                SLCVArucoTracker(SLNode* node) : SLCVTracker(node) {;}
+        bool    init            (string paramsFileDir);
         bool    track           (cv::Mat image, 
-                                 SLCVCalibration& calib) override;
-        void    updateSceneView (ARSceneView* sv) override;
-        void    unloadSGObjects () override;
-
-        std::map<int,SLMat4f>& getArucoVMs () {return _arucoOVMs;}
+                                 SLCVCalibration& calib,
+                                 SLSceneView* sv);
 
         //! Helper function to draw and save an aruco marker board image
         static void drawArucoMarkerBoard(int numMarkersX,
@@ -114,9 +110,9 @@ class ARArucoTracker : public ARTracker
                                     int markerSizePX=200);
 
     private:
-        map<int,SLMat4f>    _arucoOVMs;     //!< Transformations of aruco markers with respect to camera
-        map<int,SLNode*>    _arucoNodes;    //!< Map from aruco marker id to SLNode
-        ARArucoParams       _params;        //!< Parameter class instance
+        SLVint              _arucoIDs;      //!< detected Aruco marker IDs
+        SLVMat4f            _objectViewMats;//!< object view matrices
+        SLCVArucoParams     _params;        //!< Parameter class instance
 };
-
-#endif // ARARUCOTRACKER_H
+//-----------------------------------------------------------------------------
+#endif // SLCVArucoTracker_H

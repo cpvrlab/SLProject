@@ -259,21 +259,21 @@ void glUtils::buildVAO(GLuint& vaoID,
 
     //5b) If we have normals they are the second attribute with 12 bytes offset
     if (attributeColorLoc > -1)
-    {   glVertexAttribPointer(attributeColorLoc, 3, GL_FLOAT, GL_FALSE, sizeVertexBytes, (void*)offset);
+    {   glVertexAttribPointer(attributeColorLoc, 3, GL_FLOAT, GL_FALSE, sizeVertexBytes, (void*)(size_t)offset);
         glEnableVertexAttribArray(attributeColorLoc);
         offset += 3 * sizeof(float);
     }
 
     //5c) If we have normals they are the second attribute with 12 bytes offset
     if (attributeNormalLoc > -1)
-    {   glVertexAttribPointer(attributeNormalLoc, 3, GL_FLOAT, GL_FALSE, sizeVertexBytes, (void*)offset);
+    {   glVertexAttribPointer(attributeNormalLoc, 3, GL_FLOAT, GL_FALSE, sizeVertexBytes, (void*)(size_t)offset);
         glEnableVertexAttribArray(attributeNormalLoc);
         offset += 3 * sizeof(float);
     }
 
     //5d) If we have texture coords they are the third attribute with 24 bytes offset
     if (attributeTexCoordLoc > -1)
-    {   glVertexAttribPointer(attributeTexCoordLoc, 2, GL_FLOAT, GL_FALSE, sizeVertexBytes, (void*)offset);
+    {   glVertexAttribPointer(attributeTexCoordLoc, 2, GL_FLOAT, GL_FALSE, sizeVertexBytes, (void*)(size_t)offset);
         glEnableVertexAttribArray(attributeTexCoordLoc);
     }
 }

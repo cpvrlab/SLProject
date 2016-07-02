@@ -18,6 +18,9 @@ using namespace cv;
 using namespace std;
 
 //-----------------------------------------------------------------------------
+//! Default path for calibration files
+SLstring SLCVCalibration::defaultPath = "../_data/calibrations/";
+//-----------------------------------------------------------------------------
 SLCVCalibration::SLCVCalibration() :
     _cameraFovDeg(1.0f),
     _state(IDLE),
@@ -42,15 +45,15 @@ void SLCVCalibration::clear()
     _imagePoints.clear();
 }
 //-----------------------------------------------------------------------------
-bool SLCVCalibration::loadCamParams(string dir)
+bool SLCVCalibration::loadCamParams()
 {
     //load camera parameter
     FileStorage fs;
-    fs.open(dir + _calibFileName, FileStorage::READ);
+    fs.open(defaultPath + _calibFileName, FileStorage::READ);
     if (!fs.isOpened())
     {
         cout << "Could not open the calibration file: "
-             << (dir + _calibFileName) << endl;
+             << (defaultPath + _calibFileName) << endl;
         _state = IDLE;
         return false;
     }
@@ -68,15 +71,14 @@ bool SLCVCalibration::loadCamParams(string dir)
     return true;
 }
 //-----------------------------------------------------------------------------
-bool SLCVCalibration::loadCalibParams(std::string calibFilesDir)
+bool SLCVCalibration::loadCalibParams()
 {
     //load camera parameter
     FileStorage fs;
-    fs.open(calibFilesDir + _calibParamsFileName, FileStorage::READ);
+    fs.open(defaultPath + _calibParamsFileName, FileStorage::READ);
     if (!fs.isOpened())
-    {
-        cout << "Could not open the calibration parameter file: "
-             << (calibFilesDir + _calibParamsFileName) << endl;
+    {   cout << "Could not open the calibration parameter file: "
+             << (defaultPath + _calibParamsFileName) << endl;
         _state = IDLE;
         return false;
     }
@@ -199,7 +201,7 @@ static void saveCameraParams(Size& imageSize,
                              Size& boardSize,
                              float squareSize)
 {
-    FileStorage fs(filename, FileStorage::WRITE);
+    FileStorage fs(SLCVCalibration::defaultPath + filename, FileStorage::WRITE);
 
     time_t tm;
     time(&tm);
@@ -262,7 +264,7 @@ void SLCVCalibration::calibrate()
     _state = CAPTURING;
 }
 //-----------------------------------------------------------------------------
-void SLCVCalibration::calculate(string saveDir)
+void SLCVCalibration::calculate()
 {
     _state = CALCULATING;
 
@@ -278,8 +280,18 @@ void SLCVCalibration::calculate(string saveDir)
     flag |= CALIB_ZERO_TANGENT_DIST;
     flag |= CALIB_FIX_ASPECT_RATIO;
 
-    bool ok = runCalibration(_imageSize, _intrinsics, _distortion, _imagePoints, rvecs, tvecs, reprojErrs,
-                             totalAvgErr, boardSize, _squareSizeMM, flag);
+    bool ok = runCalibration(_imageSize, 
+                             _intrinsics, 
+                             _distortion, 
+                             _imagePoints, 
+                             rvecs, 
+                             tvecs, 
+                             reprojErrs,
+                             totalAvgErr, 
+                             boardSize, 
+                             _squareSizeMM, 
+                             flag);
+
     cout << (ok ? "Calibration succeeded" : "Calibration failed")
          << ". avg re projection error = " << totalAvgErr << endl;
 
@@ -287,8 +299,18 @@ void SLCVCalibration::calculate(string saveDir)
     {   cout << "intrinsics" << _intrinsics << endl;
         cout << "distortion" << _distortion << endl;
 
-        saveCameraParams(_imageSize, _intrinsics, _distortion, rvecs, tvecs, reprojErrs, _imagePoints,
-                         totalAvgErr, flag, saveDir + _calibFileName, boardSize, _squareSizeMM);
+        saveCameraParams(_imageSize, 
+                         _intrinsics, 
+                         _distortion, 
+                         rvecs, 
+                         tvecs, 
+                         reprojErrs, 
+                         _imagePoints,
+                         totalAvgErr, 
+                         flag, 
+                         _calibFileName, 
+                         boardSize, 
+                         _squareSizeMM);
 
         //calculation successful
         calculateCameraFOV();
@@ -346,5 +368,33 @@ void SLCVCalibration::addImage(cv::Mat image)
     // Draw the corners
     if(found)
         drawChessboardCorners(image, boardSize, Mat(corners), found);
+}
+//-----------------------------------------------------------------------------
+//! Create an OpenGL 4x4 matrix from a translation & rotation vector
+SLMat4f SLCVCalibration::createGLMatrix(const Mat& tVec, const Mat& rVec)
+{
+    // 1) convert the passed rotation vector to a rotation matrix
+    cv::Mat rMat;
+    Rodrigues(rVec, rMat);
+
+    // 2) Create an OpenGL 4x4 column major matrix from the rotation matrix and 
+    // translation vector from openCV as discribed in this post:
+    // www.morethantechnical.com/2015/02/17/
+    // augmented-reality-on-libqglviewer-and-opencv-opengl-tips-wcode
+      
+    // The y- and z- axis have to be inverted:
+    /*
+    tVec = |  t0,  t1,  t2 |
+                                        |  r00   r01   r02   t0 |
+           | r00, r10, r20 |            | -r10  -r11  -r12  -t1 |
+    rMat = | r01, r11, r21 |    slMat = | -r20  -r21  -r22  -t2 |
+           | r02, r12, r22 |            |    0     0     0    1 |
+    */
+
+    SLMat4f slMat( rMat.at<double>(0, 0),  rMat.at<double>(0, 1),  rMat.at<double>(0, 2),  tVec.at<double>(0, 0),
+                  -rMat.at<double>(1, 0), -rMat.at<double>(1, 1), -rMat.at<double>(1, 2), -tVec.at<double>(1, 0),
+                  -rMat.at<double>(2, 0), -rMat.at<double>(2, 1), -rMat.at<double>(2, 2), -tVec.at<double>(2, 0),
+                                    0.0f,                   0.0f,                   0.0f,                   1.0f);
+    return slMat;
 }
 //-----------------------------------------------------------------------------
