@@ -129,7 +129,7 @@ void SLLightSphere::drawMeshes(SLSceneView* sv)
             if (_meshes[0]->mat)
                 _meshes[0]->mat->emission(_on ? diffuse() : SLCol4f::BLACK);   
    
-        // now draw the inherited meshes
+        // now draw the meshes of the node
         SLNode::drawMeshes(sv);
    }
 }
@@ -316,7 +316,7 @@ void SLLightSphere::setState()
     if (_id!=-1) 
     {   _stateGL->lightIsOn[_id]       = _on;
         _stateGL->lightPosWS[_id]      = positionWS();
-        _stateGL->lightDirWS[_id]      = spotDirWS();           
+        _stateGL->lightSpotDirWS[_id]  = spotDirWS();           
         _stateGL->lightAmbient[_id]    = _ambient;              
         _stateGL->lightDiffuse[_id]    = _diffuse;              
         _stateGL->lightSpecular[_id]   = _specular;    

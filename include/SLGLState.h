@@ -54,8 +54,8 @@ class SLGLState
         SLVec4f  lightAmbient[SL_MAX_LIGHTS];     //!< ambient light intensity (Ia)
         SLVec4f  lightDiffuse[SL_MAX_LIGHTS];     //!< diffuse light intensity (Id)
         SLVec4f  lightSpecular[SL_MAX_LIGHTS];    //!< specular light intensity (Is)
-        SLVec3f  lightDirWS[SL_MAX_LIGHTS];       //!< spot direction in world space
-        SLVec3f  lightDirVS[SL_MAX_LIGHTS];       //!< spot direction in view space
+        SLVec3f  lightSpotDirWS[SL_MAX_LIGHTS];   //!< spot direction in world space
+        SLVec3f  lightSpotDirVS[SL_MAX_LIGHTS];   //!< spot direction in view space
         SLfloat  lightSpotCutoff[SL_MAX_LIGHTS];  //!< spot cutoff angle 1-180 degrees
         SLfloat  lightSpotCosCut[SL_MAX_LIGHTS];  //!< cosine of spot cutoff angle
         SLfloat  lightSpotExp[SL_MAX_LIGHTS];     //!< spot exponent

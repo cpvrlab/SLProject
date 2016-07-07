@@ -68,14 +68,14 @@ GLuint   _shaderFragID = 0;         //! fragment shader id
 GLuint   _shaderProgID = 0;         //! shader program id
 
 // Attribute & uniform variable location indexes
-GLint    _pLoc;            //!< attribute location for vertex position
-GLint    _nLoc;            //!< attribute location for vertex normal
-GLint    _mvpLoc;          //!< uniform location for modelview-projection matrix
-GLint    _mvLoc;           //!< uniform location for modelview matrix
-GLint    _nmLoc;           //!< uniform location for normal matrix
-GLint    _lightDirVSLoc;   //!< uniform location for light direction in view space (VS)
-GLint    _lightDiffuseLoc; //!< uniform location for diffuse light intensity
-GLint    _matDiffuseLoc;   //!< uniform location for diffuse light reflection
+GLint    _pLoc;             //!< attribute location for vertex position
+GLint    _nLoc;             //!< attribute location for vertex normal
+GLint    _mvpLoc;           //!< uniform location for modelview-projection matrix
+GLint    _mvLoc;            //!< uniform location for modelview matrix
+GLint    _nmLoc;            //!< uniform location for normal matrix
+GLint    _lightSpotDirVSLoc;//!< uniform location for light direction in view space (VS)
+GLint    _lightDiffuseLoc;  //!< uniform location for diffuse light intensity
+GLint    _matDiffuseLoc;    //!< uniform location for diffuse light reflection
 
 //-----------------------------------------------------------------------------
 void buildBox()
@@ -154,13 +154,13 @@ void onInit()
     glUseProgram(_shaderProgID);
 
     // Get the variable locations (identifiers) within the program
-    _pLoc            = glGetAttribLocation (_shaderProgID, "a_position");
-    _nLoc            = glGetAttribLocation (_shaderProgID, "a_normal");
-    _mvpLoc          = glGetUniformLocation(_shaderProgID, "u_mvpMatrix");
-    _nmLoc           = glGetUniformLocation(_shaderProgID, "u_nMatrix");
-    _lightDirVSLoc   = glGetUniformLocation(_shaderProgID, "u_lightDirVS");
-    _lightDiffuseLoc = glGetUniformLocation(_shaderProgID, "u_lightDiffuse");
-    _matDiffuseLoc   = glGetUniformLocation(_shaderProgID, "u_matDiffuse");
+    _pLoc              = glGetAttribLocation (_shaderProgID, "a_position");
+    _nLoc              = glGetAttribLocation (_shaderProgID, "a_normal");
+    _mvpLoc            = glGetUniformLocation(_shaderProgID, "u_mvpMatrix");
+    _nmLoc             = glGetUniformLocation(_shaderProgID, "u_nMatrix");
+    _lightSpotDirVSLoc = glGetUniformLocation(_shaderProgID, "u_lightSpotDirVS");
+    _lightDiffuseLoc   = glGetUniformLocation(_shaderProgID, "u_lightDiffuse");
+    _matDiffuseLoc     = glGetUniformLocation(_shaderProgID, "u_matDiffuse");
 
     buildBox();
 
@@ -220,7 +220,7 @@ bool onPaint()
     glUseProgram(_shaderProgID);
     glUniformMatrix4fv(_mvpLoc, 1, 0, (float*)&mvp);
     glUniformMatrix3fv(_nmLoc,  1, 0, (float*)&nm);
-    glUniform3f(_lightDirVSLoc,   0.5f, 1.0f, 1.0f);       // light direction in view space
+    glUniform3f(_lightSpotDirVSLoc,   0.5f, 1.0f, 1.0f);       // light direction in view space
     glUniform4f(_lightDiffuseLoc, 1.0f, 1.0f, 1.0f, 1.0f); // diffuse light intensity
     glUniform4f(_matDiffuseLoc,   1.0f, 0.0f, 0.0f, 1.0f); // diffuse material reflection
 

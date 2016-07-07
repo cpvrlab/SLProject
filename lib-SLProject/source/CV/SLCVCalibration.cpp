@@ -391,10 +391,10 @@ SLMat4f SLCVCalibration::createGLMatrix(const Mat& tVec, const Mat& rVec)
            | r02, r12, r22 |            |    0     0     0    1 |
     */
 
-    SLMat4f slMat( rMat.at<double>(0, 0),  rMat.at<double>(0, 1),  rMat.at<double>(0, 2),  tVec.at<double>(0, 0),
-                  -rMat.at<double>(1, 0), -rMat.at<double>(1, 1), -rMat.at<double>(1, 2), -tVec.at<double>(1, 0),
-                  -rMat.at<double>(2, 0), -rMat.at<double>(2, 1), -rMat.at<double>(2, 2), -tVec.at<double>(2, 0),
-                                    0.0f,                   0.0f,                   0.0f,                   1.0f);
+    SLMat4f slMat((SLfloat) rMat.at<double>(0, 0), (SLfloat) rMat.at<double>(0, 1), (SLfloat) rMat.at<double>(0, 2), (SLfloat) tVec.at<double>(0, 0),
+                  (SLfloat)-rMat.at<double>(1, 0), (SLfloat)-rMat.at<double>(1, 1), (SLfloat)-rMat.at<double>(1, 2), (SLfloat)-tVec.at<double>(1, 0),
+                  (SLfloat)-rMat.at<double>(2, 0), (SLfloat)-rMat.at<double>(2, 1), (SLfloat)-rMat.at<double>(2, 2), (SLfloat)-tVec.at<double>(2, 0),
+                                             0.0f,                            0.0f,                            0.0f,                            1.0f);
     return slMat;
 }
 //-----------------------------------------------------------------------------

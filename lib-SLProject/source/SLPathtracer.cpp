@@ -222,7 +222,7 @@ SLCol4f SLPathtracer::trace(SLRay* ray, SLbool em)
     {
         // Add component wise the texture color
         if (mat->textures().size()) 
-        {  objectColor &= ray->hitTexCol;
+        {  objectColor &= ray->hitColor;
         }
 
         // calculate direct illumination
@@ -339,7 +339,7 @@ SLCol4f SLPathtracer::shade(SLRay* ray, SLCol4f* objectColor)
         if (light && light->on())
         {
             N.set(ray->hitNormal);
-            L.sub(light->positionWS(), ray->hitPoint);
+            L.sub(light->positionWS().vec3(), ray->hitPoint);
             lightDist = L.length();
             L /= lightDist;
             LdN = L.dot(N);

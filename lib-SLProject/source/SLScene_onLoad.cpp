@@ -23,6 +23,7 @@
 #include <SLCamera.h>
 #include <SLLightSphere.h>
 #include <SLLightRect.h>
+#include <SLLightDirect.h>
 #include <SLMesh.h>
 #include <SLPolygon.h>
 #include <SLBox.h>
@@ -226,7 +227,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         SLNode* scene = new SLNode("scene node");
         scene->addChild(light1);
         scene->addChild(cam1);
-        //scene->addChild(rectNode);
+        scene->addChild(rectNode);
         scene->addChild(axisNode);
 
         // Set background color and the root scene node
@@ -1205,7 +1206,8 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         cam1->focalDist(8);
         cam1->setInitialState();
 
-        // define 4 light sources
+        // Define 5 light sources
+        // A rectangluar wight light on top
         SLLightRect* light0 = new SLLightRect(2.0f,1.0f);
         light0->ambient(SLCol4f(0,0,0));
         light0->diffuse(SLCol4f(1,1,1));
@@ -1213,6 +1215,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         light0->lookAt(0,0,0, 0,0,-1);
         light0->attenuation(0,0,1);
 
+        // A red point light from from front left
         SLLightSphere* light1 = new SLLightSphere(0.1f);
         light1->ambient(SLCol4f(0,0,0));
         light1->diffuse(SLCol4f(1,0,0));
@@ -1221,23 +1224,33 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         light1->lookAt(0, 0, 0);
         light1->attenuation(0,0,1);
 
+        // A green spot light with 40° spot angle from front right
         SLLightSphere* light2 = new SLLightSphere(0.1f);
         light2->ambient(SLCol4f(0,0,0));
         light2->diffuse(SLCol4f(0,1,0));
         light2->specular(SLCol4f(0,1,0));
-        light2->translation(1.5, 1.5, 1.5);
+        light2->translation(1.5f, 1.5f, 1.5f);
         light2->lookAt(0, 0, 0);
         light2->spotCutoff(20);
         light2->attenuation(0,0,1);
-
+        
+        // A blue spot light with 40° spot angle from front left
         SLLightSphere* light3 = new SLLightSphere(0.1f);
         light3->ambient(SLCol4f(0,0,0));
         light3->diffuse(SLCol4f(0,0,1));
         light3->specular(SLCol4f(0,0,1));
-        light3->translation(-1.5, 1.5, 1.5);
+        light3->translation(-1.5f, 1.5f, 1.5f);
         light3->lookAt(0, 0, 0);
         light3->spotCutoff(20);
         light3->attenuation(0,0,1);
+
+        // A yellow directional light from the back-bottom
+        SLLightDirect* light4 = new SLLightDirect(0.05f);
+        light4->ambient(SLCol4f(0,0,0));
+        light4->diffuse(SLCol4f(1,1,0));
+        light4->specular(SLCol4f(1,1,0));
+        light4->translation(-1.5f, -1.5f, -1.5f);
+        light4->lookAt(0, 0, 0);
 
         // Assemble scene graph
         SLNode* scene = new SLNode;
@@ -1246,6 +1259,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         scene->addChild(light1);
         scene->addChild(light2);
         scene->addChild(light3);
+        scene->addChild(light4);
         scene->addChild(new SLNode(new SLSphere(1.0f, 20, 20, "Sphere", m1)));
         scene->addChild(new SLNode(new SLBox(1,-1,-1, 2,1,1, "Box", m1)));
 
@@ -1269,7 +1283,8 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         cam1->focalDist(8);
         cam1->setInitialState();
 
-        // define 4 light sources
+        // Define 5 light sources
+        // A rectangluar wight light on top
         SLLightRect* light0 = new SLLightRect(2.0f,1.0f);
         light0->ambient(SLCol4f(0,0,0));
         light0->diffuse(SLCol4f(1,1,1));
@@ -1277,6 +1292,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         light0->lookAt(0,0,0, 0,0,-1);
         light0->attenuation(0,0,1);
 
+        // A red point light from from front left
         SLLightSphere* light1 = new SLLightSphere(0.1f);
         light1->ambient(SLCol4f(0,0,0));
         light1->diffuse(SLCol4f(1,0,0));
@@ -1285,23 +1301,33 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         light1->lookAt(0, 0, 0);
         light1->attenuation(0,0,1);
 
+        // A green spot light with 40° spot angle from front right
         SLLightSphere* light2 = new SLLightSphere(0.1f);
         light2->ambient(SLCol4f(0,0,0));
         light2->diffuse(SLCol4f(0,1,0));
         light2->specular(SLCol4f(0,1,0));
-        light2->translation(1.5, 1.5, 1.5);
+        light2->translation(1.5f, 1.5f, 1.5f);
         light2->lookAt(0, 0, 0);
         light2->spotCutoff(20);
         light2->attenuation(0,0,1);
-
+        
+        // A blue spot light with 40° spot angle from front left
         SLLightSphere* light3 = new SLLightSphere(0.1f);
         light3->ambient(SLCol4f(0,0,0));
         light3->diffuse(SLCol4f(0,0,1));
         light3->specular(SLCol4f(0,0,1));
-        light3->translation(-1.5, 1.5, 1.5);
+        light3->translation(-1.5f, 1.5f, 1.5f);
         light3->lookAt(0, 0, 0);
         light3->spotCutoff(20);
         light3->attenuation(0,0,1);
+
+        // A yellow directional light from the back-bottom
+        SLLightDirect* light4 = new SLLightDirect(0.05f);
+        light4->ambient(SLCol4f(0,0,0));
+        light4->diffuse(SLCol4f(1,1,0));
+        light4->specular(SLCol4f(1,1,0));
+        light4->translation(-1.5f, -1.5f, -1.5f);
+        light4->lookAt(0, 0, 0);
 
         // Assemble scene graph
         SLNode* scene = new SLNode;
@@ -1310,6 +1336,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         scene->addChild(light1);
         scene->addChild(light2);
         scene->addChild(light3);
+        scene->addChild(light4);
         scene->addChild(new SLNode(new SLSphere(1.0f, 20, 20, "Sphere", m1)));
         scene->addChild(new SLNode(new SLBox(1,-1,-1, 2,1,1, "Box", m1)));
 

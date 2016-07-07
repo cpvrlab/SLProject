@@ -166,7 +166,5 @@ void SLCoordAxis::buildMesh()
     P.push_back(SLVec3f( t,-t, -t)); C.push_back(b); v2=i; i++;
     P.push_back(SLVec3f(-t,-t, -t)); C.push_back(b); v3=i; i++;
     P.push_back(SLVec3f(-t, t, -t)); C.push_back(b); v4=i; i++; I16.push_back(v1); I16.push_back(v2); I16.push_back(v3); I16.push_back(v1); I16.push_back(v3); I16.push_back(v4);
-
-    
 }
 //-----------------------------------------------------------------------------

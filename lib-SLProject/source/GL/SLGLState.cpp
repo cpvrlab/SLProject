@@ -66,8 +66,8 @@ void SLGLState::initAll()
         lightAmbient[i] = SLCol4f::BLACK;
         lightDiffuse[i] = SLCol4f::BLACK;
         lightSpecular[i] = SLCol4f::BLACK;
-        lightDirWS[i] = SLVec3f(0,0,-1);
-        lightDirVS[i] = SLVec3f(0,0,-1);
+        lightSpotDirWS[i] = SLVec3f(0,0,-1);
+        lightSpotDirVS[i] = SLVec3f(0,0,-1);
         lightSpotCutoff[i] = 180.0f;
         lightSpotCosCut[i] = cos(SL_DEG2RAD*lightSpotCutoff[i]);
         lightSpotExp[i] = 1.0f;
@@ -236,7 +236,7 @@ void SLGLState::calcLightDirVS(SLint nLights)
     vRot.translation(0,0,0); // delete translation part, only rotation needed
    
     for (SLint i=0; i<nLights; ++i)
-        lightDirVS[i].set(vRot.multVec(lightDirWS[i]));
+        lightSpotDirVS[i].set(vRot.multVec(lightSpotDirWS[i]));
 }
 //-----------------------------------------------------------------------------
 /*! Returns the global ambient color as the component wise product of the global

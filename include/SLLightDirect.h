@@ -1,15 +1,15 @@
 //#############################################################################
-//  File:      SLLightSphere.h
+//  File:      SLLightDirect.h
 //  Author:    Marcus Hudritsch
-//  Date:      July 2014
+//  Date:      July 2016
 //  Codestyle: https://github.com/cpvrlab/SLProject/wiki/Coding-Style-Guidelines
 //  Copyright: Marcus Hudritsch
 //             This software is provide under the GNU General Public License
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
 
-#ifndef SLLIGHTSPHERE_H
-#define SLLIGHTSPHERE_H
+#ifndef SLLIGHTDIRECT_H
+#define SLLIGHTDIRECT_H
 
 #include <stdafx.h>
 #include <SLNode.h>
@@ -20,27 +20,31 @@ class SLSceneView;
 class SLRay;
 
 //-----------------------------------------------------------------------------
-//! SLLightSphere class for a spherical light source
+//! SLLightDirect class for a directional light source
 /*!      
-SLLightSphere is a node and a light that can have a sphere mesh for its 
-representation.
+SLLightDirect is a node and a light that can have a sphere mesh with a line for 
+its direction representation. 
+For directional lights the position vector is in infinite distance
+We use its homogeneos component w as zero as the directional light flag.
+The spot direction is used in the shaders for the light direction.
 */
-class SLLightSphere: public SLNode, public SLLight
+class SLLightDirect: public SLNode, public SLLight
 {  public:
-                        SLLightSphere  (SLfloat radius = 0.3f, 
+                        SLLightDirect  (SLfloat radius = 0.1f, 
                                         SLbool  hasMesh = true);
-                        SLLightSphere  (SLfloat posx, 
-                                        SLfloat posy, 
-                                        SLfloat posz,
-                                        SLfloat radius = 0.3f,
+                        SLLightDirect  (SLfloat dirx, 
+                                        SLfloat diry, 
+                                        SLfloat dirz,
+                                        SLfloat radius = 0.1f,
+                                        SLfloat dirLength = 1.0f,
                                         SLfloat ambiPower = 1.0f,
                                         SLfloat diffPower = 10.0f,
                                         SLfloat specPower = 10.0f, 
                                         SLbool  hasMesh = true);
-                       ~SLLightSphere  (){;}
+                       ~SLLightDirect  (){;}
 
             void        init           ();
-            bool        hitRec         (SLRay* ray);
+            bool        hitRec         (SLRay* ray){return false;}
             void        statsRec       (SLNodeStats &stats);
             void        drawMeshes     (SLSceneView* sv);
             
@@ -52,19 +56,21 @@ class SLLightSphere: public SLNode, public SLLight
                                         const SLVec3f& L,
                                         const SLfloat lightDist);
             
-            // Setters
-            void        samples        (SLint x, SLint y)
-                                       {_samples.samples(x, y, false);}
-            
             // Getters
             SLfloat     radius         () {return _radius;}
-            SLint       samples        () {return _samples.samples();}
-            SLVec4f     positionWS     () {return updateAndGetWM().translation();}
+            SLfloat     dirLength      () {return _dirLength;}
+            
+            // For directional lights the position vector is interpreted as a
+            // direction with the homogeneous component equls zero:
+            SLVec4f     positionWS     () {SLVec4f pos(updateAndGetWM().translation());
+                                           pos.w = 0.0f;
+                                           return pos;}
+
             SLVec3f     spotDirWS      () {return forward();}
 
    private:
             SLfloat     _radius;       //!< The sphere lights radius
-            SLSamples2D _samples;      //!< 2D samplepoints for soft shadows
+            SLfloat     _dirLength;    //!< Length of direction line
 };
 //-----------------------------------------------------------------------------
 #endif

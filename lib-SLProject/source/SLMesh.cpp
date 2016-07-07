@@ -97,6 +97,9 @@ void SLMesh::init(SLNode* node)
     {  
         if (!N.size()) calcNormals();
 
+        // Set default materials if no materials are asigned
+        // If colors are available use diffuse color attribute shader
+        // otherwise use the default gray material
         if (!mat) 
             if (C.size()) 
                  mat = SLMaterial::diffuseAttrib();
@@ -915,7 +918,7 @@ void SLMesh::preShade(SLRay* ray)
     {   SLVec2f Tu(Tc[iB] - Tc[iA]);
         SLVec2f Tv(Tc[iC] - Tc[iA]);
         SLVec2f tc(Tc[iA] + ray->hitU*Tu + ray->hitV*Tv);
-        ray->hitTexCol.set(textures[0]->getTexelf(tc.x,tc.y));
+        ray->hitColor.set(textures[0]->getTexelf(tc.x,tc.y));
       
         // bump mapping
         if (textures.size() > 1)
@@ -938,6 +941,16 @@ void SLMesh::preShade(SLRay* ray)
                 ray->hitNormal.set(N);
             }
         }
+    }
+
+    // calculate interpolated color for meshes with color attributes
+    if (ray->hitMesh->C.size())
+    {   SLCol4f CA = ray->hitMesh->C[iA];
+        SLCol4f CB = ray->hitMesh->C[iB];
+        SLCol4f CC = ray->hitMesh->C[iC];
+        ray->hitColor.set(CA * (1-(ray->hitU + ray->hitV)) +
+                          CB * ray->hitU +
+                          CC * ray->hitV);
     }
 }
 

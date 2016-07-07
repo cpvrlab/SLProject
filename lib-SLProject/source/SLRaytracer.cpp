@@ -434,9 +434,21 @@ SLCol4f SLRaytracer::shade(SLRay* ray)
         {              
             // calculate light vector L and distance to light
             N.set(ray->hitNormal);
-            L.sub(light->positionWS(), ray->hitPoint);
-            lightDist = L.length();
-            L/=lightDist; 
+
+            // Distinguish between point and directional lights
+            SLVec4f lightPos = light->positionWS();
+            if (lightPos.w == 0.0f)
+            {   // directional light
+                L = lightPos.vec3().normalized();
+                lightDist = FLT_MAX; // = infinity
+            } else
+            {   // Point light
+                L.sub(lightPos.vec3(), ray->hitPoint);
+                lightDist = L.length();
+                L/=lightDist;
+            } 
+
+            // Cosine between L and N
             LdN = L.dot(N);
 
             // check shadow ray if hit point is towards the light
@@ -448,15 +460,15 @@ SLCol4f SLRaytracer::shade(SLRay* ray)
       
             // calculate spot effect if light is a spotlight
             if (lighted > 0.0f && light->spotCutoff() < 180.0f)
-            {  SLfloat LdS = SL_max(-L.dot(light->spotDirWS()), 0.0f);
+            {   SLfloat LdS = SL_max(-L.dot(light->spotDirWS()), 0.0f);
          
-            // check if point is in spot cone
-            if (LdS > light->spotCosCut())
-            {  spotEffect = pow(LdS, (SLfloat)light->spotExponent());
-            } else 
-            {   lighted = 0.0f;
-                spotEffect = 0.0f;
-            }
+                // check if point is in spot cone
+                if (LdS > light->spotCosCut())
+                {  spotEffect = pow(LdS, (SLfloat)light->spotExponent());
+                } else 
+                {   lighted = 0.0f;
+                    spotEffect = 0.0f;
+                }
             } else spotEffect = 1.0f;
          
             // calculate local illumination only if point is not shaded
@@ -478,8 +490,8 @@ SLCol4f SLRaytracer::shade(SLRay* ray)
         }
     }
 
-    if (texture.size()) 
-    {   localColor &= ray->hitTexCol;    // component wise multiply
+    if (texture.size() || ray->hitMesh->C.size()) 
+    {   localColor &= ray->hitColor;    // component wise multiply
         localColor += localSpec;         // add afterwards the specular component
     } else localColor += localSpec; 
          

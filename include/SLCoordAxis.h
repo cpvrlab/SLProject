@@ -1,7 +1,7 @@
 //#############################################################################
 //  File:      SLCoordAxis.h
 //  Author:    Marcus Hudritsch
-//  Date:      July 2014
+//  Date:      July 2016
 //  Codestyle: https://github.com/cpvrlab/SLProject/wiki/Coding-Style-Guidelines
 //  Copyright: Marcus Hudritsch
 //             This software is provide under the GNU General Public License

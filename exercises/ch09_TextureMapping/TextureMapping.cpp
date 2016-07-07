@@ -85,7 +85,7 @@ GLint    _mvMatrixLoc;      //!< uniform location for modelview matrix
 GLint    _nMatrixLoc;       //!< uniform location for normal matrix
 GLint    _globalAmbiLoc;    //!< uniform location for global ambient intensity
 GLint    _lightPosVSLoc;    //!< uniform location for light position in VS
-GLint    _lightDirVSLoc;    //!< uniform location for light direction in VS
+GLint    _lightSpotDirVSLoc;    //!< uniform location for light direction in VS
 GLint    _lightAmbientLoc;  //!< uniform location for ambient light intensity
 GLint    _lightDiffuseLoc;  //!< uniform location for diffuse light intensity
 GLint    _lightSpecularLoc; //!< uniform location for specular light intensity
@@ -278,24 +278,24 @@ void onInit()
     glUseProgram(_shaderProgID);
 
     // Get the variable locations (identifiers) within the vertex & pixel shader programs
-    _pLoc            = glGetAttribLocation (_shaderProgID, "a_position");
-    _nLoc            = glGetAttribLocation (_shaderProgID, "a_normal");
-    _tLoc            = glGetAttribLocation (_shaderProgID, "a_texCoord");
-    _mvMatrixLoc     = glGetUniformLocation(_shaderProgID, "u_mvMatrix");
-    _mvpMatrixLoc    = glGetUniformLocation(_shaderProgID, "u_mvpMatrix");
-    _nMatrixLoc      = glGetUniformLocation(_shaderProgID, "u_nMatrix");
-    _globalAmbiLoc   = glGetUniformLocation(_shaderProgID, "u_globalAmbi");
-    _lightPosVSLoc   = glGetUniformLocation(_shaderProgID, "u_lightPosVS");
-    _lightDirVSLoc   = glGetUniformLocation(_shaderProgID, "u_lightDirVS");
-    _lightAmbientLoc = glGetUniformLocation(_shaderProgID, "u_lightAmbient");
-    _lightDiffuseLoc = glGetUniformLocation(_shaderProgID, "u_lightDiffuse");
-    _lightSpecularLoc= glGetUniformLocation(_shaderProgID, "u_lightSpecular");
-    _matAmbientLoc   = glGetUniformLocation(_shaderProgID, "u_matAmbient");
-    _matDiffuseLoc   = glGetUniformLocation(_shaderProgID, "u_matDiffuse");
-    _matSpecularLoc  = glGetUniformLocation(_shaderProgID, "u_matSpecular");
-    _matEmissiveLoc  = glGetUniformLocation(_shaderProgID, "u_matEmissive");
-    _matShininessLoc = glGetUniformLocation(_shaderProgID, "u_matShininess");
-    _texture0Loc     = glGetUniformLocation(_shaderProgID, "u_texture0");
+    _pLoc              = glGetAttribLocation (_shaderProgID, "a_position");
+    _nLoc              = glGetAttribLocation (_shaderProgID, "a_normal");
+    _tLoc              = glGetAttribLocation (_shaderProgID, "a_texCoord");
+    _mvMatrixLoc       = glGetUniformLocation(_shaderProgID, "u_mvMatrix");
+    _mvpMatrixLoc      = glGetUniformLocation(_shaderProgID, "u_mvpMatrix");
+    _nMatrixLoc        = glGetUniformLocation(_shaderProgID, "u_nMatrix");
+    _globalAmbiLoc     = glGetUniformLocation(_shaderProgID, "u_globalAmbi");
+    _lightPosVSLoc     = glGetUniformLocation(_shaderProgID, "u_lightPosVS");
+    _lightSpotDirVSLoc = glGetUniformLocation(_shaderProgID, "u_lightSpotDirVS");
+    _lightAmbientLoc   = glGetUniformLocation(_shaderProgID, "u_lightAmbient");
+    _lightDiffuseLoc   = glGetUniformLocation(_shaderProgID, "u_lightDiffuse");
+    _lightSpecularLoc  = glGetUniformLocation(_shaderProgID, "u_lightSpecular");
+    _matAmbientLoc     = glGetUniformLocation(_shaderProgID, "u_matAmbient");
+    _matDiffuseLoc     = glGetUniformLocation(_shaderProgID, "u_matDiffuse");
+    _matSpecularLoc    = glGetUniformLocation(_shaderProgID, "u_matSpecular");
+    _matEmissiveLoc    = glGetUniformLocation(_shaderProgID, "u_matEmissive");
+    _matShininessLoc   = glGetUniformLocation(_shaderProgID, "u_matShininess");
+    _texture0Loc       = glGetUniformLocation(_shaderProgID, "u_texture0");
 
     // Build object
     buildSquare();
@@ -368,7 +368,7 @@ bool onPaint()
     // Pass lighting uniforms variables
     glUniform4fv(_globalAmbiLoc,     1, (float*)&_globalAmbi);
     glUniform3fv(_lightPosVSLoc,     1, (float*)&lightPosVS);
-    glUniform3fv(_lightDirVSLoc,     1, (float*)&lightDirVS);
+    glUniform3fv(_lightSpotDirVSLoc,     1, (float*)&lightDirVS);
     glUniform4fv(_lightAmbientLoc,   1, (float*)&_lightAmbient);
     glUniform4fv(_lightDiffuseLoc,   1, (float*)&_lightDiffuse);
     glUniform4fv(_lightSpecularLoc,  1, (float*)&_lightSpecular);

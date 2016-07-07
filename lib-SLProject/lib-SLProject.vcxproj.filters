@@ -40,6 +40,9 @@
     <Filter Include="CV">
       <UniqueIdentifier>{45fa37f0-a194-4082-833c-66d049c33b5c}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Nodes\Lights">
+      <UniqueIdentifier>{2d08b2c5-129c-472b-853a-539acb067534}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\include\SLAABBox.h">
@@ -62,12 +65,6 @@
     </ClInclude>
     <ClInclude Include="..\include\SLCylinder.h">
       <Filter>Nodes\Meshes</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\SLLightRect.h">
-      <Filter>Nodes</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\SLLightSphere.h">
-      <Filter>Nodes</Filter>
     </ClInclude>
     <ClInclude Include="..\include\SLPolygon.h">
       <Filter>Nodes\Meshes</Filter>
@@ -297,6 +294,18 @@
     <ClInclude Include="..\include\SLCVTracker.h">
       <Filter>CV</Filter>
     </ClInclude>
+    <ClInclude Include="..\include\SLLightDirect.h">
+      <Filter>Nodes\Lights</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\SLLightRect.h">
+      <Filter>Nodes\Lights</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\SLLightSphere.h">
+      <Filter>Nodes\Lights</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\SLPolyline.h">
+      <Filter>Nodes\Meshes</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="source\SLAABBox.cpp">
@@ -330,12 +339,6 @@
       <Filter>Nodes</Filter>
     </ClCompile>
     <ClCompile Include="source\SLText.cpp">
-      <Filter>Nodes</Filter>
-    </ClCompile>
-    <ClCompile Include="source\SLLightSphere.cpp">
-      <Filter>Nodes</Filter>
-    </ClCompile>
-    <ClCompile Include="source\SLLightRect.cpp">
       <Filter>Nodes</Filter>
     </ClCompile>
     <ClCompile Include="source\SLCamera.cpp">
@@ -493,6 +496,15 @@
     </ClCompile>
     <ClCompile Include="source\CV\SLCVChessboardTracker.cpp">
       <Filter>CV</Filter>
+    </ClCompile>
+    <ClCompile Include="source\SLLightDirect.cpp">
+      <Filter>Nodes\Lights</Filter>
+    </ClCompile>
+    <ClCompile Include="source\SLLightRect.cpp">
+      <Filter>Nodes\Lights</Filter>
+    </ClCompile>
+    <ClCompile Include="source\SLLightSphere.cpp">
+      <Filter>Nodes\Lights</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

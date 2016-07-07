@@ -95,7 +95,7 @@ class SLRay
             // Members set before shading
             SLVec3f     hitPoint;       //!< Point of intersection
             SLVec3f     hitNormal;      //!< Surface normal at intersection point
-            SLCol4f     hitTexCol;      //!< Texture color at intersection point
+            SLCol4f     hitColor;       //!< Color at intersection for texture or color attributes
             
             // Helpers for fast AABB intersection
             SLVec3f     invDir;         //!< Inverse ray dir for fast AABB hit in WS

@@ -199,7 +199,7 @@ void SLGLProgram::beginUse(SLMaterial* mat)
             loc = uniform4fv("u_lightAmbient",   nL, (SLfloat*) _stateGL->lightAmbient);
             loc = uniform4fv("u_lightDiffuse",   nL, (SLfloat*) _stateGL->lightDiffuse);
             loc = uniform4fv("u_lightSpecular",  nL, (SLfloat*) _stateGL->lightSpecular);
-            loc = uniform3fv("u_lightDirVS",     nL, (SLfloat*) _stateGL->lightDirVS);
+            loc = uniform3fv("u_lightSpotDirVS", nL, (SLfloat*) _stateGL->lightSpotDirVS);
             loc = uniform1fv("u_lightSpotCutoff",nL, (SLfloat*) _stateGL->lightSpotCutoff);
             loc = uniform1fv("u_lightSpotCosCut",nL, (SLfloat*) _stateGL->lightSpotCosCut);
             loc = uniform1fv("u_lightSpotExp",   nL, (SLfloat*) _stateGL->lightSpotExp);

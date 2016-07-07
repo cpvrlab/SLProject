@@ -66,7 +66,7 @@ class SLLight
                         }
             
             // some virtuals needed for ray tracing
-   virtual  SLVec3f     positionWS  () = 0;
+   virtual  SLVec4f     positionWS  () = 0;
    virtual  SLVec3f     spotDirWS   () = 0;
    virtual  SLfloat     shadowTest  (SLRay* ray,       
                                      const SLVec3f& L, 

@@ -63,7 +63,7 @@ public class TextureMapping_Net : GameWindow
     int      _nMatrixLoc;         // uniform location for normal matrix
     int      _globalAmbiLoc;      // uniform location for global ambient intensity
     int      _lightPosVSLoc;      // uniform location for light position in VS 
-    int      _lightDirVSLoc;      // uniform location for light direction in VS 
+    int      _lightSpotDirVSLoc;      // uniform location for light direction in VS 
     int      _lightAmbientLoc;    // uniform location for ambient light intensity 
     int      _lightDiffuseLoc;    // uniform location for diffuse light intensity 
     int      _lightSpecularLoc;   // uniform location for specular light intensity
@@ -169,24 +169,24 @@ public class TextureMapping_Net : GameWindow
         gl.UseProgram(_shaderProgID); 
 
         // Get the variable locations (identifiers) within the program
-        _pLoc            = gl.GetAttribLocation (_shaderProgID, "a_position");
-        _nLoc            = gl.GetAttribLocation (_shaderProgID, "a_normal");
-        _tLoc            = gl.GetAttribLocation (_shaderProgID, "a_texCoord");
-        _mvMatrixLoc     = gl.GetUniformLocation(_shaderProgID, "u_mvMatrix");
-        _mvpMatrixLoc    = gl.GetUniformLocation(_shaderProgID, "u_mvpMatrix");
-        _nMatrixLoc      = gl.GetUniformLocation(_shaderProgID, "u_nMatrix");
-        _globalAmbiLoc   = gl.GetUniformLocation(_shaderProgID, "u_globalAmbi");
-        _lightPosVSLoc   = gl.GetUniformLocation(_shaderProgID, "u_lightPosVS");
-        _lightDirVSLoc   = gl.GetUniformLocation(_shaderProgID, "u_lightDirVS");
-        _lightAmbientLoc = gl.GetUniformLocation(_shaderProgID, "u_lightAmbient");
-        _lightDiffuseLoc = gl.GetUniformLocation(_shaderProgID, "u_lightDiffuse");
-        _lightSpecularLoc= gl.GetUniformLocation(_shaderProgID, "u_lightSpecular");
-        _matAmbientLoc   = gl.GetUniformLocation(_shaderProgID, "u_matAmbient");
-        _matDiffuseLoc   = gl.GetUniformLocation(_shaderProgID, "u_matDiffuse");
-        _matSpecularLoc  = gl.GetUniformLocation(_shaderProgID, "u_matSpecular");
-        _matEmissiveLoc  = gl.GetUniformLocation(_shaderProgID, "u_matEmissive");
-        _matShininessLoc = gl.GetUniformLocation(_shaderProgID, "u_matShininess");
-        _texture0Loc     = gl.GetUniformLocation(_shaderProgID, "u_texture0");      
+        _pLoc              = gl.GetAttribLocation (_shaderProgID, "a_position");
+        _nLoc              = gl.GetAttribLocation (_shaderProgID, "a_normal");
+        _tLoc              = gl.GetAttribLocation (_shaderProgID, "a_texCoord");
+        _mvMatrixLoc       = gl.GetUniformLocation(_shaderProgID, "u_mvMatrix");
+        _mvpMatrixLoc      = gl.GetUniformLocation(_shaderProgID, "u_mvpMatrix");
+        _nMatrixLoc        = gl.GetUniformLocation(_shaderProgID, "u_nMatrix");
+        _globalAmbiLoc     = gl.GetUniformLocation(_shaderProgID, "u_globalAmbi");
+        _lightPosVSLoc     = gl.GetUniformLocation(_shaderProgID, "u_lightPosVS");
+        _lightSpotDirVSLoc = gl.GetUniformLocation(_shaderProgID, "u_lightSpotDirVS");
+        _lightAmbientLoc   = gl.GetUniformLocation(_shaderProgID, "u_lightAmbient");
+        _lightDiffuseLoc   = gl.GetUniformLocation(_shaderProgID, "u_lightDiffuse");
+        _lightSpecularLoc  = gl.GetUniformLocation(_shaderProgID, "u_lightSpecular");
+        _matAmbientLoc     = gl.GetUniformLocation(_shaderProgID, "u_matAmbient");
+        _matDiffuseLoc     = gl.GetUniformLocation(_shaderProgID, "u_matDiffuse");
+        _matSpecularLoc    = gl.GetUniformLocation(_shaderProgID, "u_matSpecular");
+        _matEmissiveLoc    = gl.GetUniformLocation(_shaderProgID, "u_matEmissive");
+        _matShininessLoc   = gl.GetUniformLocation(_shaderProgID, "u_matShininess");
+        _texture0Loc       = gl.GetUniformLocation(_shaderProgID, "u_texture0");      
 
         // Set some OpenGL states
         gl.ClearColor(0.0f, 0.0f, 0.0f, 1);  // Set the background color         
@@ -314,7 +314,7 @@ public class TextureMapping_Net : GameWindow
             // Pass lighting uniforms variables
             gl.Uniform4(_globalAmbiLoc,     1, (float[])_globalAmbi);
             gl.Uniform3(_lightPosVSLoc,     1, (float[])lightPosVS);
-            gl.Uniform3(_lightDirVSLoc,     1, (float[])lightDirVS);
+            gl.Uniform3(_lightSpotDirVSLoc,     1, (float[])lightDirVS);
             gl.Uniform4(_lightAmbientLoc,   1, (float[])_lightAmbient);
             gl.Uniform4(_lightDiffuseLoc,   1, (float[])_lightDiffuse);
             gl.Uniform4(_lightSpecularLoc,  1, (float[])_lightSpecular);
