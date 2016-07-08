@@ -18,7 +18,7 @@ CONFIG -= qt
 CONFIG += glfw
 CONFIG += warn_off
 
-DEFINES += "SL_STARTSCENE=C_sceneChristoffel"
+DEFINES += "SL_STARTSCENE=C_sceneMeshLoad"
 
 include(../SLProjectCommon.pro)
 

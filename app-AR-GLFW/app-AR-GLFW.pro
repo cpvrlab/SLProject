@@ -35,7 +35,6 @@ else  {POST_TARGETDEPS += $$PWD/../_lib/$$CONFIGURATION/$$PLATFORM/liblib-SLProj
 SOURCES += \
     glfwMain.cpp \
     ARSceneView.cpp \
-    ARTracker.cpp \
     ARChessboardTracker.cpp \
     ARArucoTracker.cpp \
     AR2DMapper.cpp \

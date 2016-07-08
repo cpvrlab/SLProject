@@ -249,7 +249,7 @@ void SLScene::unInit()
     _textures.clear();
    
     // manually clear the default materials (it will get deleted below)
-    SLMaterial::default(nullptr);
+    SLMaterial::defaultGray(nullptr);
     SLMaterial::diffuseAttrib(nullptr);
     
     // delete materials 

@@ -21,7 +21,7 @@ SLfloat SLMaterial::PERFECT = 1000.0f;
 //-----------------------------------------------------------------------------
 SLMaterial* SLMaterial::current = 0;
 //-----------------------------------------------------------------------------
-SLMaterial* SLMaterial::_default = 0;
+SLMaterial* SLMaterial::_defaultGray = 0;
 SLMaterial* SLMaterial::_diffuseAttrib = 0;
 //-----------------------------------------------------------------------------
 // Default ctor
@@ -160,29 +160,29 @@ void SLMaterial::activate(SLGLState* state, SLDrawBits drawBits)
 /*! 
 Getter for the global default gray material
 */
-SLMaterial* SLMaterial::default()
+SLMaterial* SLMaterial::defaultGray()
 {
-    if (!_default)
-        _default = new SLMaterial("default", SLVec4f::GRAY, SLVec4f::GRAY);
-    return _default;
+    if (!_defaultGray)
+        _defaultGray = new SLMaterial("default", SLVec4f::GRAY, SLVec4f::GRAY);
+    return _defaultGray;
 }
 //-----------------------------------------------------------------------------
 /*! 
 The destructor doesn't delete attached the textures or shader program because
 Such shared resources get deleted in the arrays of SLScene.
 */
-void SLMaterial::default(SLMaterial* mat)
+void SLMaterial::defaultGray(SLMaterial* mat)
 {
-    if (mat == _default)
+    if (mat == _defaultGray)
         return;
 
-    if (_default)
+    if (_defaultGray)
     {   SLVMaterial& list = SLScene::current->materials();
-        list.erase(remove(list.begin(), list.end(), _default), list.end());
-        delete _default;
+        list.erase(remove(list.begin(), list.end(), _defaultGray), list.end());
+        delete _defaultGray;
     }
 
-    _default = mat;
+    _defaultGray = mat;
 }
 //-----------------------------------------------------------------------------
 /*! 

@@ -103,7 +103,7 @@ void SLMesh::init(SLNode* node)
         if (!mat) 
             if (C.size()) 
                  mat = SLMaterial::diffuseAttrib();
-            else mat = SLMaterial::default();
+            else mat = SLMaterial::defaultGray();
 
         // set transparent flag of the mesh
         if (!node->aabb()->hasAlpha() && mat->hasAlpha()) 

@@ -114,8 +114,8 @@ class SLMaterial : public SLObject
             SLVGLTexture&   textures        () {return _textures;}
             SLGLProgram*    program         () {return _program;}
 
-     static SLMaterial*     default         ();
-     static void            default         (SLMaterial* mat);
+     static SLMaterial*     defaultGray     ();
+     static void            defaultGray     (SLMaterial* mat);
      static SLMaterial*     diffuseAttrib   ();
      static void            diffuseAttrib   (SLMaterial* mat);
 
@@ -140,7 +140,7 @@ class SLMaterial : public SLObject
             SLGLProgram*    _program;       //!< pointer to a GLSL shader program
 
     private:
-    static  SLMaterial*     _default;       //!< Global default gray color material for meshes that don't define their own.
+    static  SLMaterial*     _defaultGray;   //!< Global default gray color material for meshes that don't define their own.
     static  SLMaterial*     _diffuseAttrib; //!< Global diffuse reflection material for meshes with color vertex attributes.
 };
 //-----------------------------------------------------------------------------

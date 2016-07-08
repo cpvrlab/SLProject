@@ -56,6 +56,7 @@ HEADERS += \
 ../include/SLCamera.h \
 ../include/SLCone.h \
 ../include/SLCompactGrid.h \
+../include/SLCoordAxis.h \
 ../include/SLCurve.h \
 ../include/SLCurveBezier.h \
 ../include/SLCylinder.h \
@@ -91,6 +92,7 @@ HEADERS += \
 ../include/SLLight.h \
 ../include/SLLightRect.h \
 ../include/SLLightSphere.h \
+../include/SLLightDirect.h \
 ../include/SLMat3.h \
 ../include/SLMat4.h \
 ../include/SLMaterial.h \
@@ -101,6 +103,7 @@ HEADERS += \
 ../include/SLPathtracer.h \
 ../include/SLPlane.h \
 ../include/SLPolygon.h \
+../include/SLPolyline.h \
 ../include/SLQuat4.h \
 ../include/SLRay.h \
 ../include/SLRaytracer.h \
@@ -157,6 +160,7 @@ source/SLButton.cpp \
 source/SLCamera.cpp \
 source/SLCone.cpp \
 source/SLCompactGrid.cpp \
+source/SLCoordAxis.cpp \
 source/SLCylinder.cpp \
 source/SLDisk.cpp \
 source/SLGrid.cpp \
@@ -168,6 +172,7 @@ source/SLLens.cpp \
 source/SLLight.cpp \
 source/SLLightRect.cpp \
 source/SLLightSphere.cpp \
+source/SLLightDirect.cpp \
 source/SLMaterial.cpp \
 source/SLMesh.cpp \
 source/SLNode.cpp \

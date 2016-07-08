@@ -195,7 +195,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
     _currentSceneID = (SL::noTestIsRunning()) ? sceneName :
                        SL::singleTestIsRunning() ? SL::testScene : SL::testSceneAll;
 
-    if (_currentSceneID == C_sceneMinimal) //.......................................
+    if (_currentSceneID == C_sceneMinimal) //............................... ........
     {
         // Set scene name and info string
         name("Minimal Texture Example");
@@ -782,7 +782,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         
     }
     else
-    if (_currentSceneID == C_sceneChristoffel) //...................................
+    if (_currentSceneID == C_sceneChristoffel) //..................... ..............
     {
         name("Christoffel Tower");
         info(sv, "Augmented Reality Christoffel Tower");
@@ -825,7 +825,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         _root3D = scene;
     }
     else
-    if (_currentSceneID == C_sceneTextureBlend) //..................................
+    if (_currentSceneID == C_sceneTextureBlend) //............................. .....
     {
         name("Blending: Texture Transparency with sorting");
         info(sv, "Texture map blending with depth sorting. Trees in view frustum are rendered back to front.");
@@ -923,7 +923,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         _root3D = scene;
     }
     else
-    if (_currentSceneID == C_sceneTextureFilter) //.................................
+    if (_currentSceneID == C_sceneTextureFilter) //......................... ........
     {
         name("Texturing: Filter Compare and 3D texture");
         info(sv, "Texture filters: Bottom: nearest, left: linear, top: linear mipmap, right: anisotropic");
@@ -1029,7 +1029,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         _root3D = scene;
     }
     else
-    if (_currentSceneID == C_sceneTextureVideo) //..................................
+    if (_currentSceneID == C_sceneTextureVideo) //........................... .......
     {
         // Set scene name and info string
         name("Live Video Texture Example");
@@ -1071,7 +1071,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         sv->waitEvents(false);
     }
     else
-    if (_currentSceneID == C_sceneFrustumCull) //...................................
+    if (_currentSceneID == C_sceneFrustumCull) //............................ .......
     {  
         name("Frustum Culling Test");
         info(sv, "View frustum culling: Only objects in view frustum are rendered. You can turn view culling off in the render flags.");
@@ -1129,7 +1129,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         _root3D = scene;
     }
     else
-    if (_currentSceneID == C_sceneMassiveData) //...................................
+    if (_currentSceneID == C_sceneMassiveData) //............................ .......
     {  
         name("Massive Data Test");
         info(sv, "No data is shared on the GPU. Check Memory consumption.");

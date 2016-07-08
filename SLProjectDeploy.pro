@@ -77,6 +77,7 @@ shaders.files = \
   ../_data/shaders/PerPixBlinn.frag \
   ../_data/shaders/PerPixBlinn.vert \
   ../_data/shaders/PerPixBlinnSkinned.vert \
+  ../_data/shaders/PerVrtBlinnColorAttrib.vert \
   ../_data/shaders/PerPixBlinnTex.frag \
   ../_data/shaders/PerPixBlinnTex.vert \
   ../_data/shaders/PerPixBlinnTexSkinned.vert \
@@ -155,10 +156,8 @@ models_OBJ_Christoffelturm.files = \
 
 calibrations.files = \
   ../_data/calibrations/calib_in_params.yml \
-
-detector_params.files = \
-  ../_data/detector_params/aruco_detector_params.yml \
-  ../_data/detector_params/chessboard_detector_params.yml \
+  ../_data/calibrations/aruco_detector_params.yml \
+  ../_data/calibrations/chessboard_detector_params.yml \
 
 
 # Copies the given files to the destination directory
@@ -237,7 +236,6 @@ macx: {
     models_FBX_Axes.path = Contents/_data/models/FBX/Axes
     models_OBJ_Christoffelturm.path = Contents/_data/models/OBJ/Christoffelturm
     calibrations.path = Contents/_data/calibrations
-    detector_params.path = Contents/_data/detector_params
     cvlibs.path = Contents/Frameworks
 
     QMAKE_BUNDLE_DATA += textures
@@ -251,7 +249,6 @@ macx: {
     QMAKE_BUNDLE_DATA += models_FBX_Axes
     QMAKE_BUNDLE_DATA += models_OBJ_Christoffelturm
     QMAKE_BUNDLE_DATA += calibrations
-    QMAKE_BUNDLE_DATA += detector_params
     QMAKE_BUNDLE_DATA += cvlibs
 
     macx {ICON = ../lib-SLProject/SLProject-Icon.icns}
