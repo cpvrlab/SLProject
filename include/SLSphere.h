@@ -24,7 +24,7 @@ class SLSphere: public SLRevolver
                             SLSphere(SLfloat radius,
                                      SLint stacks = 32,
                                      SLint slices = 32,
-                                     SLstring name = "Sphere",
+                                     SLstring name = "sphere mesh",
                                      SLMaterial* mat = 0);
                                            
                             ~SLSphere(){;}

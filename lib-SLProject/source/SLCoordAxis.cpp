@@ -19,7 +19,7 @@
 //! SLAxis::SLAxis ctor with the arrow dimensions
 SLCoordAxis::SLCoordAxis(SLfloat arrowThickness,
                          SLfloat arrowHeadLenght,
-                         SLfloat arrowHeadWidth) : SLMesh("Axis")
+                         SLfloat arrowHeadWidth) : SLMesh("coord axis mesh")
 {
     _arrowThickness = arrowThickness;
     _arrowHeadLength = arrowHeadLenght;

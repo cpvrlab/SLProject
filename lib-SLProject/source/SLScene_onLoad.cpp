@@ -219,9 +219,9 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         light1->name("light node");
 
         // Create meshes and nodes
-        SLMesh* rectMesh = new SLRectangle(SLVec2f(-5,-5), SLVec2f(5,5), 1,1, "rect mesh", m1);
-        SLNode* rectNode = new SLNode(rectMesh, "rect node");
-        SLNode* axisNode = new SLNode(new SLCoordAxis(), "myAxis");
+        SLMesh* rectMesh = new SLRectangle(SLVec2f(-5,-5), SLVec2f(5,5), 1,1, "rectangle mesh", m1);
+        SLNode* rectNode = new SLNode(rectMesh, "rectangle node");
+        SLNode* axisNode = new SLNode(new SLCoordAxis(), "axis node");
 
         // Create a scene group and add all nodes
         SLNode* scene = new SLNode("scene node");

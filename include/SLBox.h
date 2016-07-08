@@ -30,11 +30,11 @@ class SLBox: public SLMesh
                                     SLfloat maxx=1, 
                                     SLfloat maxy=1, 
                                     SLfloat maxz=1,
-                                    SLstring name = "Box",
+                                    SLstring name = "box mesh",
                                     SLMaterial* mat = 0);
                         SLBox       (SLVec3f min, 
                                     SLVec3f max,
-                                    SLstring name = "Box",
+                                    SLstring name = "box mesh",
                                     SLMaterial* mat = 0);
                
             void        buildMesh   (SLMaterial* mat);

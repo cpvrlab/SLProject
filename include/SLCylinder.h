@@ -23,7 +23,7 @@ class SLCylinder: public SLRevolver
                                         SLint    slices = 16,
                                         SLbool   hasTop = true,
                                         SLbool   hasBottom = true,
-                                        SLstring name = "Cylinder",
+                                        SLstring name = "cylinder mesh",
                                         SLMaterial* mat = 0);
                             ~SLCylinder   (){;}
                               

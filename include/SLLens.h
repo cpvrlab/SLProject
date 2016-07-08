@@ -40,7 +40,7 @@ class SLLens: public SLRevolver
                                  SLfloat thickness,
                                  SLint stacks = 32,
                                  SLint slices = 32,
-                                 SLstring name = "Lens",
+                                 SLstring name = "lens mesh",
                                  SLMaterial* mat = 0);
 
                 //! Create a lense with given radius, diameter and thickness
@@ -50,7 +50,7 @@ class SLLens: public SLRevolver
                                  SLfloat thickness,
                                  SLint stacks = 32,
                                  SLint slices = 32,
-                                 SLstring name = "Lens",
+                                 SLstring name = "lens mesh",
                                  SLMaterial* mat = 0);
 
                ~SLLens          () {;}

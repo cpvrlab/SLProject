@@ -22,7 +22,7 @@ class SLDisk: public SLRevolver
                                     SLVec3f     revolveAxis = SLVec3f::AXISY,
                                     SLint       slices = 36,
                                     SLbool      doubleSided = false,
-                                    SLstring    name = "Disk",
+                                    SLstring    name = "disk mesh",
                                     SLMaterial* mat = 0);
                            ~SLDisk (){;}
 

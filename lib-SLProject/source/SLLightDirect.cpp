@@ -24,7 +24,7 @@
 
 //-----------------------------------------------------------------------------
 SLLightDirect::SLLightDirect(SLfloat radius, SLbool hasMesh) :
-               SLNode("LightSphere")
+               SLNode("LightDirect")
 {  
     _radius = radius;
     _dirLength = 1.0;

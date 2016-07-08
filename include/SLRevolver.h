@@ -31,7 +31,7 @@ class SLRevolver: public SLMesh
                                         SLint    slices = 36, 
                                         SLbool   smoothFirst = false,
                                         SLbool   smoothLast = false,
-                                        SLstring name = "Revolver",
+                                        SLstring name = "revolver mesh",
                                         SLMaterial* mat = 0);
 
                             //! ctor for derived revolver shapes
