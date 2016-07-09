@@ -1,5 +1,5 @@
 //#############################################################################
-//  File:      SLSphere.cpp
+//  File:      SLSpheric.cpp
 //  Author:    Marcus Hudritsch
 //  Date:      July 2014
 //  Codestyle: https://github.com/cpvrlab/SLProject/wiki/Coding-Style-Guidelines
@@ -13,13 +13,15 @@
 #include <debug_new.h>        // memory leak detector
 #endif
 
-#include "SLSphere.h"
+#include "SLSpheric.h"
 
 //-----------------------------------------------------------------------------
 /*!
-SLSphere::SLSphere ctor for spheric revolution object around the z-axis.
+SLSpheric::SLSpheric ctor for spheric revolution object around the z-axis.
 */
-SLSphere::SLSphere(SLfloat sphereRadius,
+SLSpheric::SLSpheric(SLfloat sphereRadius,
+                     SLfloat thetaStartDEG,
+                     SLfloat thetaEndDEG,
                      SLint stacks, 
                      SLint slices,
                      SLstring name,
@@ -27,19 +29,28 @@ SLSphere::SLSphere(SLfloat sphereRadius,
 {
     assert(slices >= 3 && "Error: Not enough slices.");
     assert(slices >  0 && "Error: Not enough stacks.");
+    assert(thetaStartDEG >= 0.0f && thetaStartDEG < 180.0f && 
+           "Error: Polar start angle < 0 or > 180");
+    assert(thetaEndDEG > 0.0f && thetaEndDEG <= 180.0f && 
+           "Error: Polar end angle < 0 or > 180");
+    assert(thetaStartDEG < thetaEndDEG && 
+           "Error: Polar start angle > end angle");
    
     _radius = sphereRadius;
     _stacks = stacks;
+    _thetaStartDEG = thetaStartDEG;
+    _thetaEndDEG = thetaEndDEG;
 
     _slices = slices;
-    _smoothFirst = true;
-    _smoothLast  = true;
+    _smoothFirst = (thetaStartDEG == 0.0f);
+    _smoothLast  = (thetaEndDEG == 180.0f);
+    _isVolume = (thetaStartDEG == 0.0f && thetaEndDEG == 180.0f );
     _revAxis.set(0,0,1);
     _revPoints.reserve(stacks+1);
 
-    SLfloat theta = -SL_PI;
-    SLfloat phi   = 0;
-    SLfloat dTheta= SL_PI / stacks;
+    SLfloat theta  = -SL_PI + thetaStartDEG * SL_DEG2RAD;
+    SLfloat phi    = 0;
+    SLfloat dTheta = (thetaEndDEG-thetaStartDEG) * SL_DEG2RAD / stacks;
    
     for (SLint i=0; i<=stacks; ++i)
     {   SLVec3f p;

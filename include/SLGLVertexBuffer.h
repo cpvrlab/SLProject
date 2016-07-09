@@ -50,13 +50,13 @@ SLGLVertexArray.
 class SLGLVertexBuffer
 {
     public:         SLGLVertexBuffer    ();
-                   ~SLGLVertexBuffer    () {clear(BT_float);}
+                   ~SLGLVertexBuffer    () {clear();}
 
         //! Deletes all vertex array & vertex buffer objects
         void        deleteGL            ();
 
-        //! Clears the attribute definition and sets the buffer data type
-        void        clear               (SLGLBufferType bt);
+        //! Calls deleteGL & clears the attributes
+        void        clear               ();
 
         //! Returns the vector index if a vertex attribute exists otherwise -1
         SLint       attribIndex         (SLGLAttributeType type);
@@ -98,6 +98,9 @@ class SLGLVertexBuffer
         SLint       id                  () {return _id;}
         SLVVertexAttrib& attribs        () {return _attribs;} 
         SLbool      outputInterleaved   () {return _outputInterleaved;}
+
+        // Setters
+        void        dataType            (SLGLBufferType dt){_dataType = dt;}
 
         // Some statistics
         static SLuint totalBufferCount;     //! static total no. of buffers in use

@@ -407,6 +407,7 @@
     <ClInclude Include="..\include\SLAnimManager.h" />
     <ClInclude Include="..\include\SLAnimPlayback.h" />
     <ClInclude Include="..\include\SLAnimTrack.h" />
+    <ClInclude Include="..\include\SLArrow.h" />
     <ClInclude Include="..\include\SLAssimpImporter.h" />
     <ClInclude Include="..\include\SLAverage.h" />
     <ClInclude Include="..\include\SLCoordAxis.h" />
@@ -456,6 +457,7 @@
     <ClInclude Include="..\include\SLPolyline.h" />
     <ClInclude Include="..\include\SLQuat4.h" />
     <ClInclude Include="..\include\SLSkeleton.h" />
+    <ClInclude Include="..\include\SLSphere.h" />
     <ClInclude Include="..\include\SLTexFont.h" />
     <ClInclude Include="..\include\SLTimer.h" />
     <ClInclude Include="..\include\SLTriangle.h" />
@@ -471,10 +473,10 @@
     <ClInclude Include="..\include\SLCone.h" />
     <ClInclude Include="..\include\SLCylinder.h" />
     <ClInclude Include="..\include\SLLightRect.h" />
-    <ClInclude Include="..\include\SLLightSphere.h" />
+    <ClInclude Include="..\include\SLLightSpot.h" />
     <ClInclude Include="..\include\SLPolygon.h" />
     <ClInclude Include="..\include\SLRectangle.h" />
-    <ClInclude Include="..\include\SLSphere.h" />
+    <ClInclude Include="..\include\SLSpheric.h" />
     <ClInclude Include="..\include\SLRevolver.h" />
     <ClInclude Include="..\include\SLText.h" />
     <ClInclude Include="..\include\SLNode.h" />
@@ -527,12 +529,12 @@
     <ClCompile Include="source\SLLens.cpp" />
     <ClCompile Include="source\SLLightDirect.cpp" />
     <ClCompile Include="source\SLLightRect.cpp" />
-    <ClCompile Include="source\SLLightSphere.cpp" />
+    <ClCompile Include="source\SLLightSpot.cpp" />
     <ClCompile Include="source\SLPathtracer.cpp" />
     <ClCompile Include="source\SLPolygon.cpp" />
     <ClCompile Include="source\SLRectangle.cpp" />
     <ClCompile Include="source\SLSkeleton.cpp" />
-    <ClCompile Include="source\SLSphere.cpp" />
+    <ClCompile Include="source\SLSpheric.cpp" />
     <ClCompile Include="source\SLRevolver.cpp" />
     <ClCompile Include="source\SLText.cpp" />
     <ClCompile Include="source\SLNode.cpp" />

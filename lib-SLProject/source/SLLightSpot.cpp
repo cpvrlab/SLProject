@@ -1,5 +1,5 @@
 //#############################################################################
-//  File:      SLLightSphere.cpp
+//  File:      SLLightSpot.cpp
 //  Author:    Marcus Hudritsch
 //  Date:      July 2014
 //  Codestyle: https://github.com/cpvrlab/SLProject/wiki/Coding-Style-Guidelines
@@ -13,61 +13,84 @@
 #include <nvwa/debug_new.h>   // memory leak detector
 #endif
 
-#include <SLLightSphere.h>
-#include <SLSphere.h>
+#include <SLLightSpot.h>
+#include <SLSpheric.h>
 #include <SLRay.h>
 #include <SLScene.h>
 #include <SLSceneView.h>
 #include <SLMaterial.h>
 #include <SLMesh.h>
+#include <SLSphere.h>
+#include <SLSpheric.h>
 
 //-----------------------------------------------------------------------------
-SLLightSphere::SLLightSphere(SLfloat radius, SLbool hasMesh) :
-               SLNode("LightSphere")
+SLLightSpot::SLLightSpot(SLfloat radius, 
+                         SLfloat spotAngleDEG, 
+                         SLbool hasMesh) : SLNode("LightSpot Node")
 {  
     _radius = radius;
     _samples.samples(1,1,false);
+    spotCutoff(spotAngleDEG);
 
     if (hasMesh)
-    {   SLMaterial* mat = new SLMaterial("LightSphereMeshMat", 
+    {   SLMaterial* mat = new SLMaterial("LightSpot Mesh Mat", 
                                          SLCol4f::BLACK, 
                                          SLCol4f::BLACK);
-        addMesh(new SLSphere(radius, 16, 16, "LightSphereMesh", mat));
+        if (spotAngleDEG < 180.0f)
+        {   addMesh(new SLSpheric(radius, 0.0f, spotAngleDEG, 16, 16, 
+                                  "LightSpot Mesh", mat));
+            addMesh(new SLSpheric(radius, spotAngleDEG, 
+                                  180.0f, 16, 16, 
+                                  "LightSpot Back Mesh", 
+                                  SLMaterial::defaultGray()));
+        } else
+            addMesh(new SLSphere(radius, 16, 16, "LightSpot Mesh", mat));
     }
 
     init();
 }
 //-----------------------------------------------------------------------------
-SLLightSphere::SLLightSphere(SLfloat posx, 
-                             SLfloat posy, 
-                             SLfloat posz,
-                             SLfloat radius,
-                             SLfloat ambiPower,
-                             SLfloat diffPower,
-                             SLfloat specPower,
-                             SLbool hasMesh) : 
-                SLNode("Sphere Light"), 
+SLLightSpot::SLLightSpot(SLfloat posx, 
+                         SLfloat posy, 
+                         SLfloat posz,
+                         SLfloat radius,
+                         SLfloat spotAngleDEG, 
+                         SLfloat ambiPower,
+                         SLfloat diffPower,
+                         SLfloat specPower,
+                         SLbool hasMesh) : 
+                SLNode("LightSpot Node"), 
                 SLLight(ambiPower, diffPower, specPower)
 {  
     _radius = radius;
     _samples.samples(1,1,false);
+    spotCutoff(spotAngleDEG);
+
     translate(posx, posy, posz, TS_object);
 
     if (hasMesh)
-    {   SLMaterial* mat = new SLMaterial("LightSphereMeshMat", 
+    {   SLMaterial* mat = new SLMaterial("LightSpot Mesh Mat", 
                                          SLCol4f::BLACK, 
                                          SLCol4f::BLACK);
-        addMesh(new SLSphere(radius, 16, 16, "LightSphereMesh", mat));
+        if (spotAngleDEG < 180.0f)
+        {   addMesh(new SLSpheric(radius, 0.0f, spotAngleDEG, 16, 16, 
+                                  "LightSpot Mesh", mat));
+            addMesh(new SLSpheric(radius, spotAngleDEG, 
+                                  180.0f, 16, 16, 
+                                  "LightSpot Back Mesh", 
+                                  SLMaterial::defaultGray()));
+        } else
+            addMesh(new SLSphere(radius, 16, 16, "LightSpot Mesh", mat));
     }
     init();
 }
 //-----------------------------------------------------------------------------
 /*! 
-SLLightSphere::init sets the light id, the light states & creates an 
+SLLightSpot::init sets the light id, the light states & creates an 
 emissive mat.
 @todo properly remove this function and find a clean way to init lights in a scene
 */
-void SLLightSphere::init()
+void SLLightSpot::init()
 {  
     // Check if OpenGL lights are available
     if (SLScene::current->lights().size() >= SL_MAX_LIGHTS) 
@@ -80,7 +103,7 @@ void SLLightSphere::init()
     }
    
     // Set the OpenGL light states
-    setState();
+    SLLightSpot::setState();
     _stateGL->numLightsUsed = (SLint)SLScene::current->lights().size();
    
     // Set emissive light material to the lights diffuse color
@@ -90,9 +113,9 @@ void SLLightSphere::init()
 }
 //-----------------------------------------------------------------------------
 /*!
-SLLightSphere::hitRec calls the recursive node intersection.
+SLLightSpot::hitRec calls the recursive node intersection.
 */
-SLbool SLLightSphere::hitRec(SLRay* ray)
+SLbool SLLightSpot::hitRec(SLRay* ray)
 {     
     // do not intersect shadow rays
     if (ray->type==SHADOW) return false;
@@ -104,24 +127,24 @@ SLbool SLLightSphere::hitRec(SLRay* ray)
     return SLNode::hitRec(ray);
 }
 //-----------------------------------------------------------------------------
-//! SLLightSphere::statsRec updates the statistic parameters
-void SLLightSphere::statsRec(SLNodeStats &stats)
+//! SLLightSpot::statsRec updates the statistic parameters
+void SLLightSpot::statsRec(SLNodeStats &stats)
 {  
-    stats.numBytes += sizeof(SLLightSphere);
+    stats.numBytes += sizeof(SLLightSpot);
     stats.numBytes += _samples.sizeInBytes();
     SLNode::statsRec(stats);
 }
 //-----------------------------------------------------------------------------
 /*!
-SLLightSphere::drawMeshes sets the light states and calls then the drawMeshes 
+SLLightSpot::drawMeshes sets the light states and calls then the drawMeshes 
 method of its node.
 */
-void SLLightSphere::drawMeshes(SLSceneView* sv)
+void SLLightSpot::drawMeshes(SLSceneView* sv)
 {  
     if (_id!=-1) 
     {  
         // Set the OpenGL light states
-        SLLightSphere::setState();
+        SLLightSpot::setState();
         _stateGL->numLightsUsed = (SLint)SLScene::current->lights().size();
    
         // Set emissive light material to the lights diffuse color
@@ -135,11 +158,11 @@ void SLLightSphere::drawMeshes(SLSceneView* sv)
 }
 //-----------------------------------------------------------------------------
 /*!
-SLLightSphere::shadowTest returns 0.0 if the hit point is completely shaded and 
+SLLightSpot::shadowTest returns 0.0 if the hit point is completely shaded and 
 1.0 if it is 100% lighted. A return value inbetween is calculate by the ratio 
 of the shadow rays not blocked to the total number of casted shadow rays.
 */
-SLfloat SLLightSphere::shadowTest(SLRay* ray,         // ray of hit point
+SLfloat SLLightSpot::shadowTest(SLRay* ray,         // ray of hit point
                                   const SLVec3f& L,   // vector from hit point to light
                                   SLfloat lightDist)  // distance to light
 {  
@@ -153,9 +176,9 @@ SLfloat SLLightSphere::shadowTest(SLRay* ray,         // ray of hit point
         {  
             // Handle shadow value of transparent materials
             if (shadowRay.hitMesh->mat->hasAlpha())
-            {  shadowRay.hitMesh->preShade(&shadowRay);
-            SLfloat shadowTransp = SL_abs(shadowRay.dir.dot(shadowRay.hitNormal));
-            return shadowTransp * shadowRay.hitMesh->mat->kt();
+            {   shadowRay.hitMesh->preShade(&shadowRay);
+                SLfloat shadowTransp = SL_abs(shadowRay.dir.dot(shadowRay.hitNormal));
+                return shadowTransp * shadowRay.hitMesh->mat->kt();
             }
             else return 0.0f;
         } 
@@ -219,11 +242,11 @@ SLfloat SLLightSphere::shadowTest(SLRay* ray,         // ray of hit point
 
 //-----------------------------------------------------------------------------     
 /*!
-SLLightSphere::shadowTest returns 0.0 if the hit point is completely shaded and
+SLLightSpot::shadowTest returns 0.0 if the hit point is completely shaded and
 1.0 if it is 100% lighted. A return value inbetween is calculate by the ratio
 of the shadow rays not blocked to the total number of casted shadow rays.
 */
-SLfloat SLLightSphere::shadowTestMC(SLRay* ray,         // ray of hit point
+SLfloat SLLightSpot::shadowTestMC(SLRay* ray,         // ray of hit point
                                     const SLVec3f& L,   // vector from hit point to light
                                     SLfloat lightDist)  // distance to light
 {
@@ -237,10 +260,9 @@ SLfloat SLLightSphere::shadowTestMC(SLRay* ray,         // ray of hit point
         {
             // Handle shadow value of transparent materials
             if (shadowRay.hitMesh->mat->hasAlpha())
-            {
-            shadowRay.hitMesh->preShade(&shadowRay);
-            SLfloat shadowTransp = SL_abs(shadowRay.dir.dot(shadowRay.hitNormal));
-            return shadowTransp * shadowRay.hitMesh->mat->kt();
+            {   shadowRay.hitMesh->preShade(&shadowRay);
+                SLfloat shadowTransp = SL_abs(shadowRay.dir.dot(shadowRay.hitNormal));
+                return shadowTransp * shadowRay.hitMesh->mat->kt();
             }
             else return 0.0f;
         }
@@ -309,9 +331,9 @@ SLfloat SLLightSphere::shadowTestMC(SLRay* ray,         // ray of hit point
 }
 
 //-----------------------------------------------------------------------------
-/*! SLLightRect::setState sets the global rendering state
+/*! SLLightSpot::setState sets the global rendering state
 */
-void SLLightSphere::setState()
+void SLLightSpot::setState()
 {  
     if (_id!=-1) 
     {   _stateGL->lightIsOn[_id]       = _on;

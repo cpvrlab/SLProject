@@ -15,7 +15,7 @@
 #endif
 
 #include <SLBox.h>
-#include <SLLightSphere.h>
+#include <SLLightSpot.h>
 #include <SLText.h>
 #include <SLTexFont.h>
 #include <SLAssimpImporter.h>
@@ -110,7 +110,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand cmd)
     cam1->lookAt(-2, -1.0, 1);
     cam1->focalDist(6);
 
-    SLLightSphere* light1 = new SLLightSphere(0.3f);
+    SLLightSpot* light1 = new SLLightSpot(0.3f);
     light1->translation(10,10,10);
 
     SLNode* scene = new SLNode;

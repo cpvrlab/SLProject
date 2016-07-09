@@ -14,13 +14,14 @@
 #endif
 
 #include <SLLightDirect.h>
+#include <SLSpheric.h>
 #include <SLSphere.h>
 #include <SLRay.h>
 #include <SLScene.h>
 #include <SLSceneView.h>
 #include <SLMaterial.h>
 #include <SLMesh.h>
-#include <SLPolyline.h>
+#include <SLArrow.h>
 
 //-----------------------------------------------------------------------------
 SLLightDirect::SLLightDirect(SLfloat radius, SLbool hasMesh) :
@@ -30,12 +31,10 @@ SLLightDirect::SLLightDirect(SLfloat radius, SLbool hasMesh) :
     _dirLength = 1.0;
 
     if (hasMesh)
-    {   SLMaterial* mat = new SLMaterial("LightDirectMeshMat", 
+    {   SLMaterial* mat = new SLMaterial("LightDirect Mesh Mat", 
                                          SLCol4f::BLACK, 
                                          SLCol4f::BLACK);
-        addMesh(new SLSphere(radius, 16, 16, "LightDirectMesh", mat));
-        addMesh(new SLPolyline({SLVec3f(0,0,-0.5f), SLVec3f(0,0,0.5f)}, 
-                               false, "LightDirection", mat));
+        addMesh(new SLArrow(.05f, .5f, .2f, .1f, 16, "LightDirect Mesh", mat));
     }
 
     init();
@@ -58,12 +57,10 @@ SLLightDirect::SLLightDirect(SLfloat dirx,
     translate(dirx, diry, dirz, TS_object);
 
     if (hasMesh)
-    {   SLMaterial* mat = new SLMaterial("LightDirectMeshMat", 
+    {   SLMaterial* mat = new SLMaterial("LightDirect Mesh Mat", 
                                          SLCol4f::BLACK, 
                                          SLCol4f::BLACK);
-        addMesh(new SLSphere(radius, 16, 16, "LightDirectMesh", mat));
-        addMesh(new SLPolyline({SLVec3f(0,0,-0.5f), SLVec3f(0,0,0.5f)}, 
-                               false, "LightDirection", mat));
+        addMesh(new SLArrow(.05f, .5f, .2f, .1f, 16, "LightDirect Mesh", mat));
     }
     init();
 }
@@ -95,6 +92,21 @@ void SLLightDirect::init()
             _meshes[0]->mat->emission(_on ? diffuse() : SLCol4f::BLACK);   
 }
 //-----------------------------------------------------------------------------
+/*!
+SLLightDirect::hitRec calls the recursive node intersection.
+*/
+SLbool SLLightDirect::hitRec(SLRay* ray)
+{     
+    // do not intersect shadow rays
+    if (ray->type==SHADOW) return false;
+   
+    // only allow intersection with primary rays (no lights in reflections)
+    if (ray->type!=PRIMARY) return false;
+   
+    // call the intersection routine of the node   
+    return SLNode::hitRec(ray);
+}
+//-----------------------------------------------------------------------------
 //! SLLightDirect::statsRec updates the statistic parameters
 void SLLightDirect::statsRec(SLNodeStats &stats)
 {  
@@ -116,10 +128,8 @@ void SLLightDirect::drawMeshes(SLSceneView* sv)
    
         // Set emissive light material to the lights diffuse color
         if (_meshes.size() > 0)
-        {   for (SLMesh* mesh : _meshes)
-                if (mesh->mat)
-                    mesh->mat->emission(_on ? diffuse() : SLCol4f::BLACK); 
-        }  
+            if (_meshes[0]->mat)
+                _meshes[0]->mat->emission(_on ? diffuse() : SLCol4f::BLACK);   
    
         // now draw the meshes of the node
         SLNode::drawMeshes(sv);

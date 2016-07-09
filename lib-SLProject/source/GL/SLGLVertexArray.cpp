@@ -27,8 +27,10 @@ SLGLVertexArray::SLGLVertexArray()
 {   
     _hasGL3orGreater = SLGLState::getInstance()->glVersionNOf() >= 3.0f;
     _idVAO = 0;
-    _VBOf.clear(BT_float);
-    _VBOh.clear(BT_half);
+    _VBOf.dataType(BT_float);
+    _VBOh.dataType(BT_half);
+    _VBOf.clear();
+    _VBOh.clear();
     _idVBOIndices = 0;
     _numIndices = 0;
     _numVertices = 0;
@@ -44,8 +46,8 @@ void SLGLVertexArray::deleteGL()
         _idVAO = 0;
     }
     
-    _VBOf.deleteGL();
-    _VBOh.deleteGL();
+    if (_VBOf.id()) _VBOf.clear();
+    if (_VBOh.id()) _VBOh.clear();
 
     if (_idVBOIndices)
     {   glDeleteBuffers(1, &_idVBOIndices);

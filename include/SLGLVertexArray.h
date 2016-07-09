@@ -48,15 +48,11 @@ class SLGLVertexArray
 
         //! Clears the attribute definition
         void        clearAttribs        () {deleteGL(); 
-                                            _VBOf.clear(BT_float); 
-                                            _VBOh.clear(BT_half);}
+                                            _VBOf.clear(); 
+                                            _VBOh.clear();}
 
         //! Returns either the VAO id or the VBO id
-        SLint       id                  () {return _hasGL3orGreater?_idVAO:_VBOf.id();}
-
-        //! Returns the vector index if a float vertex attribute exists otherwise -1
-        SLint       attribIndexh        (SLGLAttributeType type);
-            
+        SLint       id                  () {return _hasGL3orGreater?_idVAO:_VBOf.id();}            
                                     
         //! Adds a vertex attribute with data pointer and an element size
         void        setAttrib           (SLGLAttributeType type, 

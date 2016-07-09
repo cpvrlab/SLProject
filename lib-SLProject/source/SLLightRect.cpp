@@ -112,7 +112,7 @@ SLbool SLLightRect::hitRec(SLRay* ray)
     return SLNode::hitRec(ray);
 }
 //-----------------------------------------------------------------------------
-//! SLLightSphere::statsRec updates the statistic parameters
+//! SLLightSpot::statsRec updates the statistic parameters
 void SLLightRect::statsRec(SLNodeStats &stats)
 {  
     stats.numBytes += sizeof(SLLightRect);

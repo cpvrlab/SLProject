@@ -93,9 +93,6 @@
     <ClInclude Include="..\include\SLSceneView.h">
       <Filter>Scene</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\SLSphere.h">
-      <Filter>Nodes\Meshes</Filter>
-    </ClInclude>
     <ClInclude Include="..\include\SLRevolver.h">
       <Filter>Nodes\Meshes</Filter>
     </ClInclude>
@@ -300,10 +297,19 @@
     <ClInclude Include="..\include\SLLightRect.h">
       <Filter>Nodes\Lights</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\SLLightSphere.h">
+    <ClInclude Include="..\include\SLPolyline.h">
+      <Filter>Nodes\Meshes</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\SLSpheric.h">
+      <Filter>Nodes\Meshes</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\SLSphere.h">
+      <Filter>Nodes\Meshes</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\SLLightSpot.h">
       <Filter>Nodes\Lights</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\SLPolyline.h">
+    <ClInclude Include="..\include\SLArrow.h">
       <Filter>Nodes\Meshes</Filter>
     </ClInclude>
   </ItemGroup>
@@ -363,9 +369,6 @@
       <Filter>Nodes\Meshes</Filter>
     </ClCompile>
     <ClCompile Include="source\SLRevolver.cpp">
-      <Filter>Nodes\Meshes</Filter>
-    </ClCompile>
-    <ClCompile Include="source\SLSphere.cpp">
       <Filter>Nodes\Meshes</Filter>
     </ClCompile>
     <ClCompile Include="source\SLMesh.cpp">
@@ -503,7 +506,10 @@
     <ClCompile Include="source\SLLightRect.cpp">
       <Filter>Nodes\Lights</Filter>
     </ClCompile>
-    <ClCompile Include="source\SLLightSphere.cpp">
+    <ClCompile Include="source\SLSpheric.cpp">
+      <Filter>Nodes\Meshes</Filter>
+    </ClCompile>
+    <ClCompile Include="source\SLLightSpot.cpp">
       <Filter>Nodes\Lights</Filter>
     </ClCompile>
   </ItemGroup>

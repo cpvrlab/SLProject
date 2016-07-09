@@ -30,7 +30,7 @@
 #include <SLCamera.h>
 #include <SLLight.h>
 #include <SLLightRect.h>
-#include <SLLightSphere.h>
+#include <SLLightSpot.h>
 #include <SLAnimPlayback.h>
 
 using namespace std::placeholders;
@@ -410,10 +410,10 @@ void qtMainWindow::buildPropertyTree()
         }
 
         // Show special light properties
-        if (typeid(*node)==typeid(SLLightSphere) || typeid(*node)==typeid(SLLightRect))
+        if (typeid(*node)==typeid(SLLightSpot) || typeid(*node)==typeid(SLLightRect))
         {
             SLLight* light;
-            if (typeid(*node)==typeid(SLLightSphere)) light = (SLLight*)(SLLightSphere*)node;
+            if (typeid(*node)==typeid(SLLightSpot)) light = (SLLight*)(SLLightSpot*)node;
             if (typeid(*node)==typeid(SLLightRect)) light = (SLLight*)(SLLightRect*)node;
 
             level1 = new qtPropertyTreeItem("Light:");

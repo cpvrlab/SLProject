@@ -19,7 +19,7 @@ using namespace std::chrono;
 #include <SLRaytracer.h>
 #include <SLCamera.h>
 #include <SLSceneView.h>
-#include <SLLightSphere.h>
+#include <SLLightSpot.h>
 #include <SLLightRect.h>
 #include <SLLight.h>
 #include <SLNode.h>
@@ -415,13 +415,6 @@ SLCol4f SLRaytracer::shade(SLRay* ray)
     SLfloat     lightDist, LdN, NdH, df, sf, spotEffect, att, lighted = 0.0f;
     SLCol4f     amdi, spec;
     SLCol4f     localSpec(0,0,0,1);
-   
-    // Don't shade lights. Only take emissive color as material 
-    if (typeid(*ray->hitNode)==typeid(SLLightSphere) || 
-        typeid(*ray->hitNode)==typeid(SLLightRect))
-    {   localColor = mat->emission();
-        return localColor;
-    } 
 
     localColor = mat->emission() + (mat->ambient()&s->globalAmbiLight());
   

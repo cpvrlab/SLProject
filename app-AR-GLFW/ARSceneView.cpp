@@ -16,7 +16,7 @@
 #include "ARSceneView.h"
 
 #include <SLBox.h>
-#include <SLLightSphere.h>
+#include <SLLightSpot.h>
 #include <ARTracker.h>
 #include <SLAssimpImporter.h>
 #include <SLImage.h>
@@ -64,7 +64,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand cmd)
     _background.texture(&_videoTexture, true);
     _usesVideoImage = true;
 
-    SLLightSphere* light1 = new SLLightSphere(0.3f);
+    SLLightSpot* light1 = new SLLightSpot(0.3f);
     light1->translation(0,0,10);
 
     SLNode* scene = new SLNode;

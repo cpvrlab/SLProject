@@ -12,30 +12,26 @@
 #define SLSPHERE_H
 
 #include <stdafx.h>
-#include <SLRevolver.h>
+#include <SLSpheric.h>
 
 class SLRay;
 class SLMaterial;
 
 //-----------------------------------------------------------------------------
-//! SLSphere creates a sphere mesh based on SLRevolver     
-class SLSphere: public SLRevolver 
+//! SLSphere creates a sphere mesh based on SLSpheric w. 180° polar angle.     
+class SLSphere: public SLSpheric 
 {  public:                     
-                            SLSphere(SLfloat radius,
-                                     SLint stacks = 32,
-                                     SLint slices = 32,
-                                     SLstring name = "sphere mesh",
-                                     SLMaterial* mat = 0);
-                                           
-                            ~SLSphere(){;}
-                              
-            // Getters
-            SLfloat        radius() {return _radius;}
-            SLint          stacks() {return _stacks;}
-               
-   protected:    
-            SLfloat        _radius; //!< radius of the sphere
-            SLint          _stacks; //!< No. of stacks of the sphere
+                        SLSphere(SLfloat radius,
+                                 SLint stacks = 32,
+                                 SLint slices = 32,
+                                 SLstring name = "sphere mesh",
+                                 SLMaterial* mat = 0) : 
+                                 SLSpheric(radius, 
+                                           0.0f, 180.0f, 
+                                           stacks, slices, 
+                                           name, mat){;}
+                                                
+                       ~SLSphere(){;}
 };
 //-----------------------------------------------------------------------------
 #endif //SLSPHERE_H

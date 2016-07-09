@@ -20,7 +20,7 @@
 #include <SLSceneView.h>
 #include <SLCamera.h>
 #include <SLCompactGrid.h>
-#include <SLLightSphere.h>
+#include <SLLightSpot.h>
 #include <SLLightRect.h>
 #include <SLSkeleton.h>
 #include <SLGLProgram.h>

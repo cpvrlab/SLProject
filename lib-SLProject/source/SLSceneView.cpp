@@ -20,7 +20,7 @@
 #include <SLGLProgram.h>
 #include <SLAnimation.h>
 #include <SLAnimManager.h>
-#include <SLLightSphere.h>
+#include <SLLightSpot.h>
 #include <SLLightRect.h>
 #include <SLRay.h>
 #include <SLTexFont.h>

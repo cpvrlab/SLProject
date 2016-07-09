@@ -44,7 +44,7 @@ class SLLightDirect: public SLNode, public SLLight
                        ~SLLightDirect  (){;}
 
             void        init           ();
-            bool        hitRec         (SLRay* ray){return false;}
+            bool        hitRec         (SLRay* ray);
             void        statsRec       (SLNodeStats &stats);
             void        drawMeshes     (SLSceneView* sv);
             

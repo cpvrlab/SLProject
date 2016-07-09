@@ -123,7 +123,7 @@ SLEventHandler interface.
 
 The SLCamera is derived from the SLNode and implements a camera through which the
 scene can be viewed (see also SLSceneView).
-The SLLightSphere and SLLightRect are derived from SLNode and represent light
+The SLLightSpot and SLLightRect are derived from SLNode and represent light
 sources in the scene.
 Cameras and lights can be placed in the scene because of their inheritance of 
 SLNode.

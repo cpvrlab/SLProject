@@ -47,11 +47,10 @@ void SLGLVertexBuffer::deleteGL()
     }
 }
 //-----------------------------------------------------------------------------
-void SLGLVertexBuffer::clear(SLGLBufferType dataType) 
+void SLGLVertexBuffer::clear() 
 {   
-   deleteGL(); 
+    deleteGL(); 
     _attribs.clear(); 
-    _dataType = dataType;
 }
 //-----------------------------------------------------------------------------
 SLint SLGLVertexBuffer::attribIndex(SLGLAttributeType type)

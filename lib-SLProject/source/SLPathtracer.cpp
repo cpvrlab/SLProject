@@ -19,7 +19,7 @@ using namespace std::chrono;
 #include <SLPathtracer.h>
 #include <SLCamera.h>
 #include <SLSceneView.h>
-#include <SLLightSphere.h>
+#include <SLLightSpot.h>
 #include <SLLightRect.h>
 #include <SLLight.h>
 #include <SLVolume.h>
