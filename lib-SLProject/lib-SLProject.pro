@@ -48,6 +48,7 @@ HEADERS += \
 ../include/SLAnimManager.h \
 ../include/SLAnimPlayback.h \
 ../include/SLAnimTrack.h \
+../include/SLArrow.h \
 ../include/SLAssimpImporter.h \
 ../include/SLAverage.h \
 ../include/SLBackground.h \
@@ -91,7 +92,7 @@ HEADERS += \
 ../include/SLLens.h \
 ../include/SLLight.h \
 ../include/SLLightRect.h \
-../include/SLLightSphere.h \
+../include/SLLightSpot.h \
 ../include/SLLightDirect.h \
 ../include/SLMat3.h \
 ../include/SLMat4.h \
@@ -114,6 +115,7 @@ HEADERS += \
 ../include/SLSceneView.h \
 ../include/SLSkeleton.h \
 ../include/SLSphere.h \
+../include/SLSpheric.h \
 ../include/SLTexFont.h \
 ../include/SLText.h \
 ../include/SLTimer.h \
@@ -171,7 +173,7 @@ source/SLKeyframe.cpp \
 source/SLLens.cpp \
 source/SLLight.cpp \
 source/SLLightRect.cpp \
-source/SLLightSphere.cpp \
+source/SLLightSpot.cpp \
 source/SLLightDirect.cpp \
 source/SLMaterial.cpp \
 source/SLMesh.cpp \
@@ -187,7 +189,7 @@ source/SLScene.cpp \
 source/SLSceneView.cpp \
 source/SLScene_onLoad.cpp \
 source/SLSkeleton.cpp \
-source/SLSphere.cpp \
+source/SLSpheric.cpp \
 source/SLText.cpp
 
 OTHER_FILES += \
