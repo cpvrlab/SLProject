@@ -1121,6 +1121,7 @@ SLbool SLSceneView::onMouseWheel(SLint delta, SLKey mod)
 
     // update active camera
     result = _camera->onMouseWheel(delta, mod);
+
     for (auto eh : s->eventHandlers())
     {   if (eh->onMouseWheel(delta, mod))
             result = true;

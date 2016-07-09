@@ -26,7 +26,7 @@ SLfloat      SLCamera::currentFOV          = 45.0f;
 SLint        SLCamera::currentDevRotation  = 0;
 //-----------------------------------------------------------------------------
 SLCamera::SLCamera() 
-    : SLNode("Camera"), 
+    : SLNode("Camera Node"), 
       _maxSpeed(2.0f), 
       _velocity(0.0f, 0.0f, 0.0f),
       _drag(0.05f),

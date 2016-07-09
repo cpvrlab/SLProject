@@ -71,6 +71,7 @@ class SLLightDirect: public SLNode, public SLLight
    private:
             SLfloat     _radius;       //!< The sphere lights radius
             SLfloat     _dirLength;    //!< Length of direction line
+            SLVec2f     _oldTouchPos1; //!< Old mouse/touch position in pixels
 };
 //-----------------------------------------------------------------------------
 #endif

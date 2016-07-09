@@ -1338,6 +1338,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         scene->addChild(new SLNode(new SLBox(1,-1,-1, 2,1,1, "Box", m1)));
 
         _background.colors(SLCol4f(0.1f,0.1f,0.1f));
+
         sv->camera(cam1);
         _root3D = scene;
     }

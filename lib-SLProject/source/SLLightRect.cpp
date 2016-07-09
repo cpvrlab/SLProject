@@ -25,7 +25,7 @@ extern SLfloat rnd01();
 
 //-----------------------------------------------------------------------------
 SLLightRect::SLLightRect(SLfloat w, SLfloat h, SLbool hasMesh) :
-              SLNode("LightRect")
+              SLNode("LightRect Node")
 {  
     width(w);
     height(h);
@@ -40,10 +40,10 @@ SLLightRect::SLLightRect(SLfloat w, SLfloat h, SLbool hasMesh) :
     spotExponent(1.0);
 
     if (hasMesh)
-    {   SLMaterial* mat = new SLMaterial("LightRectMeshMat", 
+    {   SLMaterial* mat = new SLMaterial("LightRect Mesh Mat", 
                                           SLCol4f::BLACK, 
                                           SLCol4f::BLACK);
-        addMesh(new SLPolygon(w, h, "LightRectMesh", mat));
+        addMesh(new SLPolygon(w, h, "LightRect Mesh", mat));
     }
     init();
 }
