@@ -63,8 +63,8 @@ class qtMainWindow : public QMainWindow
         // Setters
         void        activeGLWidget(qtGLWidget* active) {_activeGLWidget = active;}
 
-	private slots:
-        void on_actionClose_Scene_triggert();
+    private slots:
+        void on_actionClose_Scene_triggered();
         void on_action_Quit_triggered();
         void on_actionSmall_Test_Scene_triggered();
         void on_actionLarge_Model_triggered();
@@ -195,7 +195,7 @@ class qtMainWindow : public QMainWindow
         void on_animTimelineSlider_valueChanged(int value);
         void on_animWeightInput_valueChanged(double d);
         void on_animSpeedInput_valueChanged(double d);
-        
+
 private:
         Ui::qtMainWindow*  ui;
         std::vector<qtGLWidget*> _allGLWidgets;

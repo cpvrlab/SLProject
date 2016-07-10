@@ -38,7 +38,7 @@
      <x>0</x>
      <y>0</y>
      <width>906</width>
-     <height>21</height>
+     <height>22</height>
     </rect>
    </property>
    <property name="defaultUp">
@@ -2458,8 +2458,8 @@ QSlider::handle:horizontal:disabled {
      <y>-1</y>
     </hint>
     <hint type="destinationlabel">
-     <x>357</x>
-     <y>617</y>
+     <x>320</x>
+     <y>607</y>
     </hint>
    </hints>
   </connection>
@@ -2474,8 +2474,8 @@ QSlider::handle:horizontal:disabled {
      <y>-1</y>
     </hint>
     <hint type="destinationlabel">
-     <x>285</x>
-     <y>617</y>
+     <x>239</x>
+     <y>607</y>
     </hint>
    </hints>
   </connection>
@@ -2490,8 +2490,8 @@ QSlider::handle:horizontal:disabled {
      <y>-1</y>
     </hint>
     <hint type="destinationlabel">
-     <x>333</x>
-     <y>617</y>
+     <x>293</x>
+     <y>607</y>
     </hint>
    </hints>
   </connection>
@@ -2506,8 +2506,8 @@ QSlider::handle:horizontal:disabled {
      <y>-1</y>
     </hint>
     <hint type="destinationlabel">
-     <x>381</x>
-     <y>617</y>
+     <x>347</x>
+     <y>607</y>
     </hint>
    </hints>
   </connection>
@@ -2522,8 +2522,8 @@ QSlider::handle:horizontal:disabled {
      <y>-1</y>
     </hint>
     <hint type="destinationlabel">
-     <x>261</x>
-     <y>617</y>
+     <x>212</x>
+     <y>607</y>
     </hint>
    </hints>
   </connection>
@@ -2538,8 +2538,8 @@ QSlider::handle:horizontal:disabled {
      <y>-1</y>
     </hint>
     <hint type="destinationlabel">
-     <x>405</x>
-     <y>617</y>
+     <x>374</x>
+     <y>607</y>
     </hint>
    </hints>
   </connection>
@@ -2554,8 +2554,8 @@ QSlider::handle:horizontal:disabled {
      <y>-1</y>
     </hint>
     <hint type="destinationlabel">
-     <x>237</x>
-     <y>617</y>
+     <x>185</x>
+     <y>607</y>
     </hint>
    </hints>
   </connection>
@@ -2570,8 +2570,8 @@ QSlider::handle:horizontal:disabled {
      <y>-1</y>
     </hint>
     <hint type="destinationlabel">
-     <x>309</x>
-     <y>617</y>
+     <x>266</x>
+     <y>607</y>
     </hint>
    </hints>
   </connection>
