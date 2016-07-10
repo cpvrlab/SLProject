@@ -697,6 +697,7 @@
     <None Include="..\_data\shaders\PerVrtBlinnColorAttrib.vert">
       <Filter>GLSL</Filter>
     </None>
+    <None Include="ClassDiagram.cd" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="ToDo.txt" />

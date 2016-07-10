@@ -775,6 +775,9 @@ void qtMainWindow::on_action_Quit_triggered()
 }
 
 // Menu Load Scene
+void qtMainWindow::on_actionClose_Scene_triggert()
+{
+}
 void qtMainWindow::on_actionSmall_Test_Scene_triggered()
 {
     beforeSceneLoad();

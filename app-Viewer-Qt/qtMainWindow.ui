@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>906</width>
-    <height>679</height>
+    <height>637</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -53,7 +53,7 @@
     </property>
     <widget class="QMenu" name="menuLoad_Scene">
      <property name="title">
-      <string>Load Scene</string>
+      <string>Load Test Scene</string>
      </property>
      <widget class="QMenu" name="menuGeneral_Scenes">
       <property name="title">
@@ -107,6 +107,7 @@
      <addaction name="menuRay_Tracing_Scenes"/>
     </widget>
     <addaction name="menuLoad_Scene"/>
+    <addaction name="actionClose_Scene"/>
     <addaction name="separator"/>
     <addaction name="action_Quit"/>
    </widget>
@@ -1227,6 +1228,9 @@ QSlider::handle:horizontal:disabled {
   <action name="action_Quit">
    <property name="text">
     <string>Quit</string>
+   </property>
+   <property name="toolTip">
+    <string>Quit the application</string>
    </property>
   </action>
   <action name="actionSmall_Test_Scene">
@@ -2417,6 +2421,14 @@ QSlider::handle:horizontal:disabled {
     <string>Shows the skeleton joint axis in RGB, their parent bone in yellow and the parent offset in pink.</string>
    </property>
   </action>
+  <action name="actionClose_Scene">
+   <property name="text">
+    <string>Close Scene</string>
+   </property>
+   <property name="toolTip">
+    <string>Closes the current Scene</string>
+   </property>
+  </action>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
  <customwidgets>
@@ -2446,8 +2458,8 @@ QSlider::handle:horizontal:disabled {
      <y>-1</y>
     </hint>
     <hint type="destinationlabel">
-     <x>115</x>
-     <y>623</y>
+     <x>357</x>
+     <y>617</y>
     </hint>
    </hints>
   </connection>
@@ -2462,8 +2474,8 @@ QSlider::handle:horizontal:disabled {
      <y>-1</y>
     </hint>
     <hint type="destinationlabel">
-     <x>65</x>
-     <y>623</y>
+     <x>285</x>
+     <y>617</y>
     </hint>
    </hints>
   </connection>
@@ -2478,8 +2490,8 @@ QSlider::handle:horizontal:disabled {
      <y>-1</y>
     </hint>
     <hint type="destinationlabel">
-     <x>90</x>
-     <y>623</y>
+     <x>333</x>
+     <y>617</y>
     </hint>
    </hints>
   </connection>
@@ -2494,8 +2506,8 @@ QSlider::handle:horizontal:disabled {
      <y>-1</y>
     </hint>
     <hint type="destinationlabel">
-     <x>140</x>
-     <y>623</y>
+     <x>381</x>
+     <y>617</y>
     </hint>
    </hints>
   </connection>
@@ -2510,8 +2522,8 @@ QSlider::handle:horizontal:disabled {
      <y>-1</y>
     </hint>
     <hint type="destinationlabel">
-     <x>40</x>
-     <y>623</y>
+     <x>261</x>
+     <y>617</y>
     </hint>
    </hints>
   </connection>
@@ -2526,8 +2538,8 @@ QSlider::handle:horizontal:disabled {
      <y>-1</y>
     </hint>
     <hint type="destinationlabel">
-     <x>165</x>
-     <y>623</y>
+     <x>405</x>
+     <y>617</y>
     </hint>
    </hints>
   </connection>
@@ -2542,8 +2554,8 @@ QSlider::handle:horizontal:disabled {
      <y>-1</y>
     </hint>
     <hint type="destinationlabel">
-     <x>15</x>
-     <y>623</y>
+     <x>237</x>
+     <y>617</y>
     </hint>
    </hints>
   </connection>
@@ -2558,8 +2570,8 @@ QSlider::handle:horizontal:disabled {
      <y>-1</y>
     </hint>
     <hint type="destinationlabel">
-     <x>90</x>
-     <y>623</y>
+     <x>309</x>
+     <y>617</y>
     </hint>
    </hints>
   </connection>
