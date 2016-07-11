@@ -17,7 +17,7 @@ CONFIG += qt
 CONFIG -= glfw
 
 DEFINES += SL_GUI_QT
-DEFINES += "SL_STARTSCENE=C_sceneMeshLoad"
+DEFINES += "SL_STARTSCENE=C_sceneEmpty"
 
 include(../SLProjectCommon.pro)
 

@@ -195,24 +195,6 @@ void SLSceneView::initSceneViewCamera(const SLVec3f& dir, SLProjection proj)
             vsMax.y = max(vsMax.y, vsCorners[i].y);
             vsMax.z = max(vsMax.z, vsCorners[i].z);
         }
-
-        /*
-        // visualize the view space oriented bounding box
-        SLMaterial* mat = new SLMaterial("test", SLCol4f::WHITE, SLCol4f::WHITE, 100.0f, 0.5f, 0.5f, 0.5f);
-        mat->translucency(0.5f);
-        mat->transmission(SLCol4f(0, 0, 0, 0.5f));
-        SLBox* box = new SLBox(-1, -1, -1, 1, 1, 1, "test", mat);
-        
-        SLNode* testNode = new SLNode;
-        testNode->scale(vsMax.x, vsMax.y, vsMax.z);
-        SLMat4f vsRot = _sceneViewCamera.updateAndGetWM();
-        vsRot.translation(0, 0, 0);
-        testNode->multiply(vsRot);
-        testNode->translation(sceneBounds->centerWS());
-        testNode->addMesh(box);
-        testNode->buildAABBRec();
-        s->root3D()->addChild(testNode);
-         */
         
         SLfloat dist = 0.0f;
         SLfloat distX = 0.0f;
@@ -324,6 +306,10 @@ void SLSceneView::onInitialize()
         if (s->menuGL()) s->menuGL()->statsRec(_stats);
         if (s->menuRT()) s->menuRT()->statsRec(_stats);
         if (s->menuPT()) s->menuPT()->statsRec(_stats);
+
+        // Warn if there are no light in scene
+        if (s->lights().size() == 0)
+            SL_LOG("\n**** No Lights found in scene! ****\n");
     }
 
     initSceneViewCamera();
