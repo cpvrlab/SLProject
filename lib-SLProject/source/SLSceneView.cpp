@@ -302,6 +302,7 @@ void SLSceneView::onInitialize()
 
     _raytracer.clearData();
     _renderType = RT_gl;
+    _isFirstFrame = true;
 
     // init 3D scene with initial depth 1
     if (s->root3D() && s->root3D()->aabb()->radiusOS()==0)
@@ -387,7 +388,7 @@ SLbool SLSceneView::onPaint()
         if (testRunIsFinished())
             return false;
     
-    if (_camera  && s->root3D())
+    if (_camera)
     {   // Render the 3D scenegraph by by raytracing, pathtracing or OpenGL
         switch (_renderType)
         {   case RT_gl: camUpdated = draw3DGL(s->elapsedTimeMS()); break;
@@ -411,7 +412,12 @@ SLbool SLSceneView::onPaint()
     // Set gotPainted only to true if RT is not busy
     _gotPainted = _renderType==RT_gl || raytracer()->state()!=rtBusy;
 
-    // Return true if a repaint is needed
+    // Return true if it is the first frame or a repaint is needed
+    if (_isFirstFrame) 
+    {   _isFirstFrame = false;
+        return true;
+    }
+
     return !_waitEvents || camUpdated;
 }
 //-----------------------------------------------------------------------------
@@ -514,7 +520,8 @@ SLbool SLSceneView::draw3DGL(SLfloat elapsedTimeMS)
     _camera->setFrustumPlanes(); 
     _blendNodes.clear();
     _opaqueNodes.clear();     
-    s->root3D()->cullRec(this);
+    if (s->root3D())
+        s->root3D()->cullRec(this);
    
     _cullTimeMS = s->timeMilliSec() - startMS;
 
@@ -524,11 +531,6 @@ SLbool SLSceneView::draw3DGL(SLfloat elapsedTimeMS)
     ////////////////////////////////////
 
     startMS = s->timeMilliSec();
-
-    // We could also draw the scenegraph recursively
-    // but this doesn't split transparent from opaque nodes
-    //s->root3D()->drawRec(this);
-
     draw3DGLAll();
    
     // For stereo draw for right eye
@@ -995,6 +997,7 @@ SLbool SLSceneView::onMouseDown(SLMouseButton button,
                                 SLint x, SLint y, SLKey mod)
 {
     SLScene* s = SLScene::current;
+    if (!s->root3D()) return false;
    
     // Check first if mouse down was on a button    
     if (s->menu2D() && s->menu2D()->onMouseDown(button, x, y, mod))
@@ -1025,6 +1028,7 @@ SLbool SLSceneView::onMouseUp(SLMouseButton button,
                               SLint x, SLint y, SLKey mod)
 {  
     SLScene* s = SLScene::current;
+    if (!s->root3D()) return false;
     _touchDowns = 0;
    
     if (_raytracer.state()==rtMoveGL)
@@ -1059,6 +1063,7 @@ SLSceneView::onMouseMove gets called whenever the mouse is moved.
 SLbool SLSceneView::onMouseMove(SLint x, SLint y)
 {     
     SLScene* s = SLScene::current;
+    if (!s->root3D()) return false;
 
     // save cursor position
     _posCursor.set(x, y);
@@ -1099,6 +1104,9 @@ The parameter wheelPos is an increasing or decreeing counter number.
 */
 SLbool SLSceneView::onMouseWheelPos(SLint wheelPos, SLKey mod)
 {  
+    SLScene* s = SLScene::current;
+    if (!s->root3D()) return false;
+
     static SLint lastMouseWheelPos = 0;
     SLint delta = wheelPos-lastMouseWheelPos;
     lastMouseWheelPos = wheelPos;
@@ -1111,12 +1119,13 @@ The parameter delta is positive/negative depending on the wheel direction
 */
 SLbool SLSceneView::onMouseWheel(SLint delta, SLKey mod)
 {
+    SLScene* s = SLScene::current;
+    if (!s->root3D()) return false;
+
     // Handle mouse wheel in RT mode
     if (_renderType == RT_rt && !_raytracer.continuous() && 
         _raytracer.state()==rtFinished)
         _raytracer.state(rtReady);
-
-    SLScene* s = SLScene::current;
     SLbool result = false;
 
     // update active camera
@@ -1137,6 +1146,7 @@ SLbool SLSceneView::onDoubleClick(SLMouseButton button,
                                   SLint x, SLint y, SLKey mod)
 {  
     SLScene* s = SLScene::current;
+    if (!s->root3D()) return false;
    
     // Check first if mouse down was on a button    
     if (s->menu2D() && s->menu2D()->onDoubleClick(button, x, y, mod))
@@ -1189,6 +1199,8 @@ screen.
 SLbool SLSceneView::onTouch2Down(SLint x1, SLint y1, SLint x2, SLint y2)
 {
     SLScene* s = SLScene::current;
+    if (!s->root3D()) return false;
+
     _touch[0].set(x1, y1);
     _touch[1].set(x2, y2);
     _touchDowns = 2;
@@ -1209,6 +1221,8 @@ screen.
 SLbool SLSceneView::onTouch2Move(SLint x1, SLint y1, SLint x2, SLint y2)
 {
     SLScene* s = SLScene::current;
+    if (!s->root3D()) return false;
+
     _touch[0].set(x1, y1);
     _touch[1].set(x2, y2);
    
@@ -1230,6 +1244,8 @@ screen.
 SLbool SLSceneView::onTouch2Up(SLint x1, SLint y1, SLint x2, SLint y2)
 {
     SLScene* s = SLScene::current;
+    if (!s->root3D()) return false;
+
     _touch[0].set(x1, y1);
     _touch[1].set(x2, y2);
     _touchDowns = 0;
@@ -1251,6 +1267,7 @@ forwarding them to onCommand.
 SLbool SLSceneView::onKeyPress(SLKey key, SLKey mod)
 {  
     SLScene* s = SLScene::current;
+    if (!s->root3D()) return false;
     
     if (key == '5') { _camera->unitScaling(_camera->unitScaling()+0.1f); SL_LOG("New unit scaling: %f", _camera->unitScaling()); return true; }
     if (key == '6') { _camera->unitScaling(_camera->unitScaling()-0.1f); SL_LOG("New unit scaling: %f", _camera->unitScaling()); return true; }
@@ -1292,6 +1309,8 @@ SLSceneView::onKeyRelease get called whenever a key is released.
 SLbool SLSceneView::onKeyRelease(SLKey key, SLKey mod)
 {  
     SLScene* s = SLScene::current;
+    if (!s->root3D()) return false;
+
     SLbool result = false;
    
     if (key || mod)
@@ -1315,6 +1334,9 @@ void SLSceneView::onRotationPYR(SLfloat pitchRAD,
                                 SLfloat rollRAD,
                                 SLfloat zeroYawAfterSec)
 {
+    SLScene* s = SLScene::current;
+    if (!s->root3D()) return;
+
     SL_LOG("onRotation: pitch: %3.1f, yaw: %3.1f, roll: %3.1f\n",
            pitchRAD * SL_RAD2DEG,
            yawRAD   * SL_RAD2DEG,
@@ -1345,6 +1367,9 @@ void SLSceneView::onRotationQUAT(SLfloat quatX,
                                  SLfloat quatZ, 
                                  SLfloat quatW)
 {
+    SLScene* s = SLScene::current;
+    if (!s->root3D()) return;
+
     _deviceRotation.set(quatX, quatY, quatZ, quatW);
 }
 
@@ -2049,7 +2074,7 @@ SLstring SLSceneView::windowTitle()
     SLScene* s = SLScene::current;
     SLchar title[255];
     if (!_camera || !s->root3D())
-        return SLstring("-");
+        return SLstring("No scene loaded.");
 
     if (_renderType == RT_rt)
     {   if (_raytracer.continuous())

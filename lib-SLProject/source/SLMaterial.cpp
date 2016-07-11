@@ -163,7 +163,9 @@ Getter for the global default gray material
 SLMaterial* SLMaterial::defaultGray()
 {
     if (!_defaultGray)
-        _defaultGray = new SLMaterial("default", SLVec4f::GRAY, SLVec4f::GRAY);
+    {   _defaultGray = new SLMaterial("default", SLVec4f::GRAY, SLVec4f::WHITE);
+        _defaultGray->ambient({0.2f, 0.2f, 0.2f});
+    }
     return _defaultGray;
 }
 //-----------------------------------------------------------------------------

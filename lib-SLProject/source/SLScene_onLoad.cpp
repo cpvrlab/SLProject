@@ -196,7 +196,14 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
     _currentSceneID = (SL::noTestIsRunning()) ? sceneName :
                        SL::singleTestIsRunning() ? SL::testScene : SL::testSceneAll;
 
-    if (_currentSceneID == C_sceneMinimal) //............................... ........
+    if (_currentSceneID == C_sceneEmpty) //..........................................
+    {   
+        name("Empty Scene.");
+        _background.colors(SLCol4f(0.7f,0.7f,0.7f), SLCol4f(0.2f,0.2f,0.2f));
+        _root3D = nullptr;
+        sv->camera(nullptr);
+    } else
+    if (_currentSceneID == C_sceneMinimal) //........................................
     {
         // Set scene name and info string
         name("Minimal Texture Example");
@@ -770,11 +777,13 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
                                             //|SLProcess_FindInvalidData
                                             //|SLProcess_SplitLargeMeshes
                                            );
-        largeModel->scaleToCenter(100000.0f);
-
+        
         SLNode* scene = new SLNode("Scene");
         scene->addChild(light1);
-        if (largeModel) scene->addChild(largeModel);
+        if (largeModel) 
+        {   largeModel->scaleToCenter(100000.0f);
+            scene->addChild(largeModel);
+        }
         scene->addChild(cam1);
 
         _background.colors(SLCol4f(0.5f,0.5f,0.5f));

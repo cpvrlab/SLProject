@@ -108,17 +108,18 @@ class SLVec2
     }
 
     //! Calculate the absolute to the vector v
-    T        diff        (const SLVec2& v)       {return SL_abs(x-v.x) + 
+    T       diff        (const SLVec2& v)       {return SL_abs(x-v.x) + 
                                                         SL_abs(y-v.y);}  
-    void     setMin      (const SLVec2& v)       {if (v.x < x) x=v.x;
+    void    setMin      (const SLVec2& v)       {if (v.x < x) x=v.x;
                                                   if (v.y < y) y=v.y;}
-    void     setMax      (const SLVec2& v)       {if (v.x > x) x=v.x;
+    void    setMax      (const SLVec2& v)       {if (v.x > x) x=v.x;
                                                   if (v.y > y) y=v.y;}
-    void     print       (const char* str=0)     {if (str) SL_LOG("%s",str); 
+    SLbool  isZero      ()                      {return (x==0 && y==0);}
+    void    print       (const char* str=0)     {if (str) SL_LOG("%s",str); 
                                                   SL_LOG("% 3.3f, % 3.3f\n",x, y);}
    
     static 
-    SLVec2   ZERO;
+    SLVec2  ZERO;
 };
 //-----------------------------------------------------------------------------
 template<class T> SLVec2<T> SLVec2<T>::ZERO = SLVec2<T>(0,0);

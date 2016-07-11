@@ -137,6 +137,8 @@ class SLVec3
     inline  SLint   maxAxis     ()                      {if (x>=y && x>=z) return 0;
                                                          else if (y>=z)    return 1;
                                                          else              return 2;}
+    inline  SLbool  isZero      ()                      {return (x==0 && y==0 && z==0);}
+
             //! Calculate the distance to point p
             T       distance (const SLVec3& p) const    {SLVec3 d(x-p.x, y-p.y, z-p.z);
                                                          return d.length();}

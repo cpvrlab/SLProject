@@ -20,6 +20,7 @@
 #include <SLCamera.h>
 #include <SLLightSpot.h>
 #include <SLLightRect.h>
+#include <SLLightDirect.h>
 
 //-----------------------------------------------------------------------------
 /*! 
@@ -346,8 +347,9 @@ void SLNode::cullRec(SLSceneView* sv)
     // Do frustum culling for all shapes except cameras & lights
     if (sv->doFrustumCulling() &&
         typeid(*this)!=typeid(SLCamera) &&
+        typeid(*this)!=typeid(SLLightRect) &&
         typeid(*this)!=typeid(SLLightSpot) &&
-        typeid(*this)!=typeid(SLLightRect))
+        typeid(*this)!=typeid(SLLightDirect))
         sv->camera()->isInFrustum(&_aabb);
     else _aabb.isVisible(true);
 
@@ -433,7 +435,8 @@ void SLNode::statsRec(SLNodeStats &stats)
     else stats.numGroupNodes++;
 
     if (typeid(*this)==typeid(SLLightSpot)) stats.numLights++;
-    if (typeid(*this)==typeid(SLLightRect  )) stats.numLights++;
+    if (typeid(*this)==typeid(SLLightRect)) stats.numLights++;
+    if (typeid(*this)==typeid(SLLightDirect)) stats.numLights++;
      
     for (auto mesh : _meshes) mesh->addStats(stats);
     for (auto child : _children) child->statsRec(stats);

@@ -163,8 +163,8 @@ SLLightSpot::shadowTest returns 0.0 if the hit point is completely shaded and
 of the shadow rays not blocked to the total number of casted shadow rays.
 */
 SLfloat SLLightSpot::shadowTest(SLRay* ray,         // ray of hit point
-                                  const SLVec3f& L,   // vector from hit point to light
-                                  SLfloat lightDist)  // distance to light
+                                const SLVec3f& L,   // vector from hit point to light
+                                SLfloat lightDist)  // distance to light
 {  
     if (_samples.samples()==1)
     {  

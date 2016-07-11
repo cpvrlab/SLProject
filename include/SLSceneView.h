@@ -212,6 +212,7 @@ class SLSceneView: public SLObject
             SLbool          _doMultiSampling;   //!< Flag if multisampling is on
             SLbool          _doFrustumCulling;  //!< Flag if view frustum culling is on
             SLbool          _waitEvents;        //!< Flag for Event waiting
+            SLbool          _isFirstFrame;      //!< Flag if it is the first frame rendering
             SLbool          _usesRotation;      //!< Flag if device rotation is used
             SLDrawBits      _drawBits;          //!< Sceneview level drawing flags
 

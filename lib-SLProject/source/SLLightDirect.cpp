@@ -24,27 +24,30 @@
 #include <SLArrow.h>
 
 //-----------------------------------------------------------------------------
-SLLightDirect::SLLightDirect(SLfloat radius, SLbool hasMesh) :
-               SLNode("LightDirect Node")
+SLLightDirect::SLLightDirect(SLfloat arrowLength,
+                             SLbool hasMesh) : SLNode("LightDirect Node")
 {  
-    _radius = radius;
-    _dirLength = 1.0;
+    _arrowRadius = arrowLength * 0.1f;
+    _arrowLength = arrowLength;
 
     if (hasMesh)
     {   SLMaterial* mat = new SLMaterial("LightDirect Mesh Mat", 
                                          SLCol4f::BLACK, 
                                          SLCol4f::BLACK);
-        addMesh(new SLArrow(.05f, .5f, .2f, .1f, 16, "LightDirect Mesh", mat));
+        addMesh(new SLArrow(_arrowRadius, 
+                            _arrowLength, 
+                            _arrowLength * 0.3f, 
+                            _arrowRadius * 2.0f, 
+                            16, "LightDirect Mesh", mat));
     }
 
     init();
 }
 //-----------------------------------------------------------------------------
-SLLightDirect::SLLightDirect(SLfloat dirx, 
-                             SLfloat diry, 
-                             SLfloat dirz,
-                             SLfloat radius,
-                             SLfloat dirLength,
+SLLightDirect::SLLightDirect(SLfloat posx, 
+                             SLfloat posy, 
+                             SLfloat posz,
+                             SLfloat arrowLength,
                              SLfloat ambiPower,
                              SLfloat diffPower,
                              SLfloat specPower,
@@ -52,15 +55,19 @@ SLLightDirect::SLLightDirect(SLfloat dirx,
                 SLNode("Directional Light"), 
                 SLLight(ambiPower, diffPower, specPower)
 {  
-    _radius = radius;
-    _dirLength = dirLength;
-    translate(dirx, diry, dirz, TS_object);
+    _arrowRadius = arrowLength * 0.1f;
+    _arrowLength = arrowLength;
+    translate(posx, posy, posz, TS_object);
 
     if (hasMesh)
     {   SLMaterial* mat = new SLMaterial("LightDirect Mesh Mat", 
                                          SLCol4f::BLACK, 
                                          SLCol4f::BLACK);
-        addMesh(new SLArrow(.05f, .5f, .2f, .1f, 16, "LightDirect Mesh", mat));
+        addMesh(new SLArrow(_arrowRadius, 
+                            _arrowLength, 
+                            _arrowLength * 0.3f, 
+                            _arrowRadius * 2.0f, 
+                            16, "LightDirect Mesh", mat));
     }
     init();
 }

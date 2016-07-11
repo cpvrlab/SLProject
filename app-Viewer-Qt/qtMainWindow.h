@@ -64,8 +64,9 @@ class qtMainWindow : public QMainWindow
         void        activeGLWidget(qtGLWidget* active) {_activeGLWidget = active;}
 
     private slots:
+        void on_actionLoad_Asset_triggered();
         void on_actionClose_Scene_triggered();
-        void on_action_Quit_triggered();
+        void on_actionQuit_triggered();
         void on_actionSmall_Test_Scene_triggered();
         void on_actionLarge_Model_triggered();
         void on_actionFigure_triggered();

@@ -30,13 +30,12 @@ The spot direction is used in the shaders for the light direction.
 */
 class SLLightDirect: public SLNode, public SLLight
 {  public:
-                        SLLightDirect  (SLfloat radius = 0.1f, 
+                        SLLightDirect  (SLfloat arrowLength = 0.5f, 
                                         SLbool  hasMesh = true);
-                        SLLightDirect  (SLfloat dirx, 
-                                        SLfloat diry, 
-                                        SLfloat dirz,
-                                        SLfloat radius = 0.1f,
-                                        SLfloat dirLength = 1.0f,
+                        SLLightDirect  (SLfloat posx, 
+                                        SLfloat posy, 
+                                        SLfloat posz,
+                                        SLfloat arrowLength = 0.5f, 
                                         SLfloat ambiPower = 1.0f,
                                         SLfloat diffPower = 10.0f,
                                         SLfloat specPower = 10.0f, 
@@ -57,8 +56,8 @@ class SLLightDirect: public SLNode, public SLLight
                                         const SLfloat lightDist);
             
             // Getters
-            SLfloat     radius         () {return _radius;}
-            SLfloat     dirLength      () {return _dirLength;}
+            SLfloat     radius         () {return _arrowRadius;}
+            SLfloat     dirLength      () {return _arrowLength;}
             
             // For directional lights the position vector is interpreted as a
             // direction with the homogeneous component equls zero:
@@ -69,8 +68,8 @@ class SLLightDirect: public SLNode, public SLLight
             SLVec3f     spotDirWS      () {return forward();}
 
    private:
-            SLfloat     _radius;       //!< The sphere lights radius
-            SLfloat     _dirLength;    //!< Length of direction line
+            SLfloat     _arrowRadius;       //!< The sphere lights radius
+            SLfloat     _arrowLength;    //!< Length of direction line
             SLVec2f     _oldTouchPos1; //!< Old mouse/touch position in pixels
 };
 //-----------------------------------------------------------------------------

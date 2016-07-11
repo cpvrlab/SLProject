@@ -24,6 +24,9 @@
 #include <SLAnimManager.h>
 #include <SLInputManager.h>
 #include <SLCVCapture.h>
+#include <SLAssimpImporter.h>
+#include <SLBox.h>
+#include <SLLightDirect.h>
 
 //-----------------------------------------------------------------------------
 /*! Global static scene pointer that can be used throughout the entire library
@@ -121,7 +124,7 @@ SLScene::SLScene(SLstring name) : SLObject(name)
     _oculus.init();
 
     _infoAbout_en =
-"Welcome to the SLProject demo app (v1.3). It is developed at the \
+"Welcome to the SLProject demo app (v1.4). It is developed at the \
 Computer Science Department of the Bern University of Applied Sciences. \
 The app shows what you can learn in one semester about 3D computer graphics \
 in real time rendering and ray tracing. The framework is developed \
@@ -209,7 +212,7 @@ void SLScene::init()
 {     
     unInit();
    
-    _background.colors(SLCol4f(0.1f,0.4f,0.8f,1.0f));
+    _background.colors(SLCol4f(0.6f,0.6f,0.6f), SLCol4f(0.3f,0.3f,0.3f));
     _globalAmbiLight.set(0.2f,0.2f,0.2f,0.0f);
     _selectedNode = 0;
 
@@ -281,6 +284,8 @@ void SLScene::unInit()
 
     // reset all states
     SLGLState::getInstance()->initAll();
+
+    _currentSceneID = C_sceneEmpty;
 }
 //-----------------------------------------------------------------------------
 //! Updates all animations in the scene after all views got painted.
@@ -373,7 +378,8 @@ bool SLScene::onUpdate()
     
     // Update AABBs efficiently. The updateAABBRec call won't generate any overhead if nothing changed
     SLGLState::getInstance()->modelViewMatrix.identity();
-    _root3D->updateAABBRec();
+    if (_root3D)
+        _root3D->updateAABBRec();
 
 
     _updateTimesMS.set(timeMilliSec()-startUpdateMS);
@@ -487,5 +493,51 @@ void SLScene::deleteAllMenus()
     delete _btnAbout;    _btnAbout   = nullptr;
     delete _btnHelp;     _btnHelp    = nullptr;
     delete _btnCredits;  _btnCredits = nullptr;
+}
+//-----------------------------------------------------------------------------
+void SLScene::onLoadAsset(SLstring assetFile, 
+                          SLuint processFlags)
+{
+    _currentSceneID = C_sceneFromFile;
+    
+    if (!SLFileSystem::fileExists(assetFile))
+    {   SL_WARN_MSG("File to load doesn't exist.");
+        return;
+    }
+
+    // Set scene name and info string
+    name(SLUtils::getFileName(assetFile));
+
+    // Try to load assed and add it to the scene root node
+    SLAssimpImporter importer;
+    SLNode* loaded = importer.load(assetFile, true, processFlags);
+    SLNode* scene = new SLNode("Scene");
+    if (loaded) scene->addChild(loaded);
+    _root3D = scene;
+
+    // Add directional light if no light was in loaded asset
+    if (!_lights.size())
+    {   SLAABBox boundingBox = _root3D->updateAABBRec();
+        SLfloat arrowLength = boundingBox.radiusWS() > FLT_EPSILON ? 
+                              boundingBox.radiusWS() * 0.1f : 0.5f;
+        SLLightDirect* light = new SLLightDirect(0,0,0, 
+                                                 arrowLength,
+                                                 1.0f, 1.0f, 1.0f);
+        SLVec3f pos = boundingBox.maxWS().isZero() ? 
+                      SLVec3f(1,1,1) : boundingBox.maxWS() * 1.1f;
+        light->translation(pos);
+        light->lookAt(boundingBox.centerWS());
+        light->attenuation(1,0,0);
+        scene->addChild(light);
+        _root3D->aabb()->reset(); // rest aabb so that it is recalculated
+    }
+
+    // call onInitialize on all scene views
+    for (auto sv : _sceneViews)
+    {   if (sv != nullptr)
+        {   sv->onInitialize();
+            sv->showLoading(false);
+        }
+    }
 }
 //-----------------------------------------------------------------------------

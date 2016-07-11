@@ -18,6 +18,7 @@
 #include <QMessageBox>
 #include <QSplitter>
 #include <QIcon>
+#include <QFileDialog>
 #include <functional>
 
 #include <SL.h>
@@ -31,7 +32,9 @@
 #include <SLLight.h>
 #include <SLLightRect.h>
 #include <SLLightSpot.h>
+#include <SLLightDirect.h>
 #include <SLAnimPlayback.h>
+#include <SLImporter.h>
 
 using namespace std::placeholders;
 
@@ -131,19 +134,25 @@ void qtMainWindow::setMenuState()
     // Assemble menu bar
     ui->menuBar->clear();
     ui->menuBar->addMenu(_menuFile);
-    ui->menuBar->addMenu(_menuRenderer);
-    ui->menuBar->addMenu(_menuInfos);
-    ui->menuBar->addMenu(_menuCamera);
-    ui->menuBar->addMenu(_menuAnimation);
-    ui->menuBar->addMenu(_menuRenderFlags);
-    if (sv->renderType()==RT_rt)
-        ui->menuBar->addMenu(_menuRayTracing);
-    if (sv->renderType()==RT_rt)
-        ui->menuBar->addMenu(_menuPathTracing);
-    ui->menuBar->addMenu(_menuWindow);
+    
+    if (s->root3D())
+    {   ui->menuBar->addMenu(_menuRenderer);
+        ui->menuBar->addMenu(_menuInfos);
+        ui->menuBar->addMenu(_menuCamera);
+        ui->menuBar->addMenu(_menuAnimation);
+        ui->menuBar->addMenu(_menuRenderFlags);
+        if (sv->renderType()==RT_rt)
+            ui->menuBar->addMenu(_menuRayTracing);
+        if (sv->renderType()==RT_rt)
+            ui->menuBar->addMenu(_menuPathTracing);
+        ui->menuBar->addMenu(_menuWindow);
+    }
     ui->menuBar->addMenu(_menuHelp);
 
+    ui->toolBar->setEnabled(s->root3D()!=nullptr);
+
     // Menu Load Scenes
+    ui->actionClose_Scene->setEnabled(s->root3D()!=nullptr);
     ui->actionSmall_Test_Scene->setChecked(s->currentSceneID()==C_sceneMinimal);
     ui->actionLarge_Model->setChecked(s->currentSceneID()==C_sceneLargeModel);
     ui->actionFigure->setChecked(s->currentSceneID()==C_sceneFigure);
@@ -349,7 +358,7 @@ void qtMainWindow::buildPropertyTree()
         level1->addChild(level2);
 
         level2 = new qtPropertyTreeItem("Show Wire Mesh:", "", true);
-        level2->setGetBool(bind((bool(SLNode::*)(uint))&SLNode::drawBit, node, SL_DB_WIREMESH),
+        level2->setGetBool(bind((SLbool(SLNode::*)(SLuint))&SLNode::drawBit, node, SL_DB_WIREMESH),
                            bind(&SLNode::setDrawBitsRec, node, SL_DB_WIREMESH, _1));
         level1->addChild(level2);
 
@@ -410,11 +419,14 @@ void qtMainWindow::buildPropertyTree()
         }
 
         // Show special light properties
-        if (typeid(*node)==typeid(SLLightSpot) || typeid(*node)==typeid(SLLightRect))
+        if (typeid(*node)==typeid(SLLightSpot) || 
+            typeid(*node)==typeid(SLLightRect) || 
+            typeid(*node)==typeid(SLLightDirect))
         {
             SLLight* light;
             if (typeid(*node)==typeid(SLLightSpot)) light = (SLLight*)(SLLightSpot*)node;
             if (typeid(*node)==typeid(SLLightRect)) light = (SLLight*)(SLLightRect*)node;
+            if (typeid(*node)==typeid(SLLightDirect)) light = (SLLight*)(SLLightDirect*)node;
 
             level1 = new qtPropertyTreeItem("Light:");
             ui->propertyTree->addTopLevelItem(level1);
@@ -640,18 +652,21 @@ void qtMainWindow::selectAnimationFromNode(SLNode* node)
 //-----------------------------------------------------------------------------
 void qtMainWindow::beforeSceneLoad()
 {
-    //on_actionSingle_view_triggered();
+    QApplication::setOverrideCursor(Qt::WaitCursor);
     _selectedNodeItem = 0;
     ui->nodeTree->clear();
     ui->propertyTree->clear();
     updateAnimationList();
+    SLScene::current->init(); // calls first uninit
+    setMenuState();
 }
 //-----------------------------------------------------------------------------
 void qtMainWindow::afterSceneLoad()
 {
-    setMenuState();
     buildNodeTree();
     updateAnimationList();
+    setMenuState();
+    QApplication::restoreOverrideCursor();
 }
 //-----------------------------------------------------------------------------
 void qtMainWindow::selectNodeOrMeshItem(SLNode* selectedNode, SLMesh* selectedMesh)
@@ -767,18 +782,70 @@ void qtMainWindow::closeEvent(QCloseEvent *event)
 // ACTIONS
 //
 // Menu File
+void qtMainWindow::on_actionLoad_Asset_triggered()
+{
+    beforeSceneLoad();
+    QApplication::restoreOverrideCursor();
+
+    QFileDialog dlg(this);
+    dlg.setFileMode(QFileDialog::ExistingFile);
+    dlg.setViewMode(QFileDialog::Detail);
+    dlg.setNameFilter(tr("3D-Asset-Files (*.obj *.fbx *.dae *.3ds)"));
+
+    QStringList fileNames;
+    if (dlg.exec())
+        fileNames = dlg.selectedFiles();
+
+    QApplication::setOverrideCursor(Qt::WaitCursor);
+    if (fileNames.size() > 0)
+    {
+        //ui->actionAdd_Light->isChecked();
+        SLScene::current->onLoadAsset(fileNames.at(0).toLocal8Bit().constData(), 
+                                      SLProcess_Triangulate
+                                     |SLProcess_JoinIdenticalVertices
+                                     |SLProcess_RemoveRedundantMaterials
+                                     |SLProcess_FindDegenerates
+                                     |SLProcess_FindInvalidData
+                                     |SLProcess_SplitLargeMeshes
+                                     //|SLProcess_SortByPType
+                                     //|SLProcess_OptimizeMeshes
+                                     //|SLProcess_OptimizeGraph
+                                     //|SLProcess_CalcTangentSpace
+                                     //|SLProcess_MakeLeftHanded
+                                     //|SLProcess_RemoveComponent
+                                     //|SLProcess_GenNormals
+                                     //|SLProcess_GenSmoothNormals
+                                     //|SLProcess_PreTransformVertices
+                                     //|SLProcess_LimitJointWeights
+                                     //|SLProcess_ValidateDataStructure
+                                     //|SLProcess_ImproveCacheLocality
+                                     //|SLProcess_FixInfacingNormals
+                                     //|SLProcess_GenUVCoords
+                                     //|SLProcess_TransformUVCoords
+                                     //|SLProcess_FindInstances
+                                     //|SLProcess_FlipUVs
+                                     //|SLProcess_FlipWindingOrder
+                                     //|SLProcess_SplitByJointCount
+                                     //|SLProcess_Dejoint
+                                     );
+    }
+    afterSceneLoad();
+    QApplication::restoreOverrideCursor();
+}
 void qtMainWindow::on_actionClose_Scene_triggered()
 {
-
+    beforeSceneLoad();
+    _activeGLWidget->sv()->waitEvents(true);
+    afterSceneLoad();
 }
-void qtMainWindow::on_action_Quit_triggered()
+void qtMainWindow::on_actionQuit_triggered()
 {
     SLScene::current->unInit();
     delete SLScene::current;
     QApplication::exit(0);
 }
 
-// Menu Load Scene
+// Menu Load Test Scene
 void qtMainWindow::on_actionSmall_Test_Scene_triggered()
 {
     beforeSceneLoad();

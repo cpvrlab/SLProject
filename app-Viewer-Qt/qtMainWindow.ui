@@ -38,7 +38,7 @@
      <x>0</x>
      <y>0</y>
      <width>906</width>
-     <height>22</height>
+     <height>21</height>
     </rect>
    </property>
    <property name="defaultUp">
@@ -106,10 +106,18 @@
      <addaction name="menuAnimation_Scenes"/>
      <addaction name="menuRay_Tracing_Scenes"/>
     </widget>
+    <widget class="QMenu" name="menuLoad_Settings">
+     <property name="title">
+      <string>Load Settings</string>
+     </property>
+     <addaction name="actionFind_degenerated"/>
+    </widget>
+    <addaction name="actionLoad_Asset"/>
+    <addaction name="menuLoad_Settings"/>
     <addaction name="menuLoad_Scene"/>
     <addaction name="actionClose_Scene"/>
     <addaction name="separator"/>
-    <addaction name="action_Quit"/>
+    <addaction name="actionQuit"/>
    </widget>
    <widget class="QMenu" name="menuCamera">
     <property name="title">
@@ -1225,7 +1233,7 @@ QSlider::handle:horizontal:disabled {
     </layout>
    </widget>
   </widget>
-  <action name="action_Quit">
+  <action name="actionQuit">
    <property name="text">
     <string>Quit</string>
    </property>
@@ -2427,6 +2435,33 @@ QSlider::handle:horizontal:disabled {
    </property>
    <property name="toolTip">
     <string>Closes the current Scene</string>
+   </property>
+  </action>
+  <action name="actionAdd_Light">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Add directional light if no light is loaded</string>
+   </property>
+  </action>
+  <action name="actionFind_degenerated">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Find degenerated</string>
+   </property>
+  </action>
+  <action name="actionLoad_Asset">
+   <property name="text">
+    <string>Load Asset</string>
    </property>
   </action>
  </widget>

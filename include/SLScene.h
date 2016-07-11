@@ -117,7 +117,10 @@ class SLScene: public SLObject
             SLCVCalibration&    calibration () {return _calibration;}
             
             // Misc.
-   virtual  void            onLoad          (SLSceneView* sv, SLCommand _currentID);
+   virtual  void            onLoad          (SLSceneView* sv, 
+                                             SLCommand _currentID);
+   virtual  void            onLoadAsset     (SLstring assetFile, 
+                                             SLuint processFlags);
    virtual  void            onAfterLoad     ();
             bool            onUpdate();
             void            init            ();

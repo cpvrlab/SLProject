@@ -68,7 +68,10 @@ enum SLPixelFormat
 //-----------------------------------------------------------------------------
 //! SLCommand enumerates all possible menu and keyboard commands
 enum SLCommand
-{   C_sceneAll = 0,   // Loads all scenes one after the other
+{   
+    C_sceneFromFile = -2,   // Custom assted loaded over menu
+    C_sceneEmpty = -1,      // No data in scene
+    C_sceneAll = 0,         // Loads all scenes one after the other
     C_sceneMinimal,
     C_sceneFigure,   
     C_sceneMeshLoad,

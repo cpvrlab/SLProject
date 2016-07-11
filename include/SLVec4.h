@@ -130,6 +130,8 @@ class SLVec4
     inline T        maxXYZ      ()                      {if (x>=y && x>=z)   return x;
                                                          else if (y>=z)      return y;
                                                          else                return z;}
+    inline  SLbool  isZero      ()                      {return (x==0 && y==0 && z==0 && w==0);}
+
             //! Gamma correction
             void    gamma       (T gammaVal)            {x= pow(x,1.0/gammaVal);
                                                          y= pow(y,1.0/gammaVal);

@@ -196,7 +196,8 @@ void qtGLWidget::paintGL()
         swapBuffers();  
 
         // Build caption string with scene name and fps
-        mainWindow->setWindowTitle(slGetWindowTitle(_svIndex).c_str());
+        string wndTitle = "SLProject Viewer: " + slGetWindowTitle(_svIndex);
+        mainWindow->setWindowTitle(wndTitle.c_str());
 
         // Simply call update for constant repaint. Never call paintGL directly
         if (viewNeedsRepaint)

@@ -61,24 +61,25 @@ class SLAABBox
         SLfloat     sqrViewDist () {return _sqrViewDist;}
                
         // Misc.
-        void        fromOStoWS     (const SLVec3f &minOS,
-                                    const SLVec3f &maxOS,
-                                    const SLMat4f &wm);
-        void        fromWStoOS     (const SLVec3f &minWS,
-                                    const SLVec3f &maxWS,
-                                    const SLMat4f &wmI);
-        void        updateAxisWS   (const SLMat4f &wm);
-        void        updateBoneWS   (const SLMat4f &parentWM,
-                                    const SLbool isRoot,
-                                    const SLMat4f &nodeWM);
-        void        mergeWS        (SLAABBox &bb);
-        void        drawWS         (const SLCol4f color);
-        void        drawAxisWS     ();
-        void        drawBoneWS     ();
+        void        reset       ();
+        void        fromOStoWS  (const SLVec3f &minOS,
+                                 const SLVec3f &maxOS,
+                                 const SLMat4f &wm);
+        void        fromWStoOS  (const SLVec3f &minWS,
+                                 const SLVec3f &maxWS,
+                                 const SLMat4f &wmI);
+        void        updateAxisWS(const SLMat4f &wm);
+        void        updateBoneWS(const SLMat4f &parentWM,
+                                 const SLbool isRoot,
+                                 const SLMat4f &nodeWM);
+        void        mergeWS     (SLAABBox &bb);
+        void        drawWS      (const SLCol4f color);
+        void        drawAxisWS  ();
+        void        drawBoneWS  ();
         void        setCenterAndRadius();
-        void        generateVAO    ();
-        SLbool      isHitInOS      (SLRay* ray);
-        SLbool      isHitInWS      (SLRay* ray);
+        void        generateVAO ();
+        SLbool      isHitInOS   (SLRay* ray);
+        SLbool      isHitInWS   (SLRay* ray);
                
     private:
         SLVec3f     _minWS;         //!< Min. corner in world space
