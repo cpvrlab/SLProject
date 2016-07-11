@@ -13,6 +13,7 @@
 
 #include <QMainWindow>
 #include <QSplitter>
+#include <QSettings>
 #include <SL.h>
 #include <SLNode.h>
 #include <SLMesh.h>
@@ -198,6 +199,7 @@ class qtMainWindow : public QMainWindow
         void on_animSpeedInput_valueChanged(double d);
 
 private:
+        QSettings         _settings;
         Ui::qtMainWindow*  ui;
         std::vector<qtGLWidget*> _allGLWidgets;
         qtGLWidget*       _activeGLWidget;

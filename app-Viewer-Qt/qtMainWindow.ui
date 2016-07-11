@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>906</width>
-    <height>637</height>
+    <width>1032</width>
+    <height>687</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -18,8 +18,8 @@
   </property>
   <property name="minimumSize">
    <size>
-    <width>0</width>
-    <height>0</height>
+    <width>600</width>
+    <height>400</height>
    </size>
   </property>
   <property name="focusPolicy">
@@ -37,7 +37,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>906</width>
+     <width>1032</width>
      <height>21</height>
     </rect>
    </property>
@@ -111,6 +111,12 @@
       <string>Load Settings</string>
      </property>
      <addaction name="actionFind_degenerated"/>
+     <addaction name="actionSplit_large_meshes"/>
+     <addaction name="actionJoin_identical_vertices"/>
+     <addaction name="actionFind_invalid_data"/>
+     <addaction name="actionFix_infacing_normals"/>
+     <addaction name="actionSort_by_primitive_type"/>
+     <addaction name="actionRemove_redundant_materials"/>
     </widget>
     <addaction name="actionLoad_Asset"/>
     <addaction name="menuLoad_Settings"/>
@@ -2456,12 +2462,78 @@ QSlider::handle:horizontal:disabled {
     <bool>true</bool>
    </property>
    <property name="text">
-    <string>Find degenerated</string>
+    <string>Find degenerated primitives</string>
    </property>
   </action>
   <action name="actionLoad_Asset">
    <property name="text">
     <string>Load Asset</string>
+   </property>
+  </action>
+  <action name="actionSplit_large_meshes">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Split large meshes</string>
+   </property>
+  </action>
+  <action name="actionJoin_identical_vertices">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Join identical vertices</string>
+   </property>
+  </action>
+  <action name="actionFind_invalid_data">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Find invalid data</string>
+   </property>
+  </action>
+  <action name="actionFix_infacing_normals">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Fix infacing normals</string>
+   </property>
+  </action>
+  <action name="actionSort_by_primitive_type">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Sort by primitive type</string>
+   </property>
+  </action>
+  <action name="actionRemove_redundant_materials">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Remove redundant materials</string>
    </property>
   </action>
  </widget>
@@ -2493,8 +2565,8 @@ QSlider::handle:horizontal:disabled {
      <y>-1</y>
     </hint>
     <hint type="destinationlabel">
-     <x>320</x>
-     <y>607</y>
+     <x>357</x>
+     <y>611</y>
     </hint>
    </hints>
   </connection>
@@ -2509,8 +2581,8 @@ QSlider::handle:horizontal:disabled {
      <y>-1</y>
     </hint>
     <hint type="destinationlabel">
-     <x>239</x>
-     <y>607</y>
+     <x>285</x>
+     <y>611</y>
     </hint>
    </hints>
   </connection>
@@ -2525,8 +2597,8 @@ QSlider::handle:horizontal:disabled {
      <y>-1</y>
     </hint>
     <hint type="destinationlabel">
-     <x>293</x>
-     <y>607</y>
+     <x>333</x>
+     <y>611</y>
     </hint>
    </hints>
   </connection>
@@ -2541,8 +2613,8 @@ QSlider::handle:horizontal:disabled {
      <y>-1</y>
     </hint>
     <hint type="destinationlabel">
-     <x>347</x>
-     <y>607</y>
+     <x>381</x>
+     <y>611</y>
     </hint>
    </hints>
   </connection>
@@ -2557,8 +2629,8 @@ QSlider::handle:horizontal:disabled {
      <y>-1</y>
     </hint>
     <hint type="destinationlabel">
-     <x>212</x>
-     <y>607</y>
+     <x>261</x>
+     <y>611</y>
     </hint>
    </hints>
   </connection>
@@ -2573,8 +2645,8 @@ QSlider::handle:horizontal:disabled {
      <y>-1</y>
     </hint>
     <hint type="destinationlabel">
-     <x>374</x>
-     <y>607</y>
+     <x>405</x>
+     <y>611</y>
     </hint>
    </hints>
   </connection>
@@ -2589,8 +2661,8 @@ QSlider::handle:horizontal:disabled {
      <y>-1</y>
     </hint>
     <hint type="destinationlabel">
-     <x>185</x>
-     <y>607</y>
+     <x>237</x>
+     <y>611</y>
     </hint>
    </hints>
   </connection>
@@ -2605,8 +2677,8 @@ QSlider::handle:horizontal:disabled {
      <y>-1</y>
     </hint>
     <hint type="destinationlabel">
-     <x>266</x>
-     <y>607</y>
+     <x>309</x>
+     <y>611</y>
     </hint>
    </hints>
   </connection>

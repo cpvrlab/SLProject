@@ -22,6 +22,10 @@ int main(int argc, char *argv[])
         for(int i = 0; i < argc; i++)
             cmdLineArgs.push_back(argv[i]);
 
+        QApplication::setOrganizationName("cpvrLab");
+        QApplication::setOrganizationDomain("bfh.ch");
+        QApplication::setApplicationName("SLProject Viewer");
+
         QApplication app(argc, argv);
         app.setWindowIcon(QIcon("appIcon36.png"));
         qtMainWindow wnd(0, cmdLineArgs);

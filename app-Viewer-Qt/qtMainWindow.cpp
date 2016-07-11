@@ -51,9 +51,7 @@ qtMainWindow::qtMainWindow(QWidget *parent, SLVstring cmdLineArgs) :
     ui->setupUi(this);
 
     _selectedNodeItem = 0;
-
     _selectedAnim = NULL;
-
     _menuFile = ui->menuFile;
     _menuCamera = ui->menuCamera;
     _menuAnimation = ui->menuAnimation;
@@ -115,6 +113,22 @@ qtMainWindow::qtMainWindow(QWidget *parent, SLVstring cmdLineArgs) :
     splitter->show();
     borderWidget->show();
     _activeGLWidget->show();
+
+    // load settings
+    int posx = _settings.value("window/posx", 0).toInt();
+    int posy = _settings.value("window/posy", 0).toInt();
+    int width = _settings.value("window/width", 800).toInt();
+    int height = _settings.value("window/height", 600).toInt();
+    this->move(QPoint(posx, posy));
+    this->resize(QSize(width, height));
+
+    ui->actionFind_degenerated->setChecked(_settings.value("processFlags/findDegenerated", true).toBool());
+    ui->actionFind_invalid_data->setChecked(_settings.value("processFlags/findInvalidData", true).toBool());
+    ui->actionSplit_large_meshes->setChecked(_settings.value("processFlags/splitLargeMeshes", true).toBool());
+    ui->actionFix_infacing_normals->setChecked(_settings.value("processFlags/fixInfacingNormals", true).toBool());
+    ui->actionJoin_identical_vertices->setChecked(_settings.value("processFlags/joinIdenticalVertices", true).toBool());
+    ui->actionSort_by_primitive_type->setChecked(_settings.value("processFlags/sortByPrimitiveType", true).toBool());
+    ui->actionRemove_redundant_materials->setChecked(_settings.value("processFlags/removeRedundantMaterials", true).toBool());
 }
 
 qtMainWindow::~qtMainWindow()
@@ -653,6 +667,8 @@ void qtMainWindow::selectAnimationFromNode(SLNode* node)
 void qtMainWindow::beforeSceneLoad()
 {
     QApplication::setOverrideCursor(Qt::WaitCursor);
+    QApplication::sync();
+
     _selectedNodeItem = 0;
     ui->nodeTree->clear();
     ui->propertyTree->clear();
@@ -775,6 +791,18 @@ void qtMainWindow::changeEvent(QEvent* event)
 void qtMainWindow::closeEvent(QCloseEvent *event)
 {  
     slTerminate();
+
+    _settings.setValue("window/posx", this->pos().x());
+    _settings.setValue("window/posy", this->pos().y());
+    _settings.setValue("window/width", this->width());
+    _settings.setValue("window/height", this->height());
+    _settings.setValue("processFlags/findDegenerated", ui->actionFind_degenerated->isChecked());
+    _settings.setValue("processFlags/findInvalidData", ui->actionFind_invalid_data->isChecked());
+    _settings.setValue("processFlags/splitLargeMeshes", ui->actionSplit_large_meshes->isChecked());
+    _settings.setValue("processFlags/fixInfacingNormals", ui->actionFix_infacing_normals->isChecked());
+    _settings.setValue("processFlags/joinIdenticalVertices", ui->actionJoin_identical_vertices->isChecked());
+    _settings.setValue("processFlags/sortByPrimitiveType", ui->actionSort_by_primitive_type->isChecked());
+    _settings.setValue("processFlags/removeRedundantMaterials", ui->actionRemove_redundant_materials->isChecked());
 }
 //-----------------------------------------------------------------------------
 
@@ -792,42 +820,27 @@ void qtMainWindow::on_actionLoad_Asset_triggered()
     dlg.setViewMode(QFileDialog::Detail);
     dlg.setNameFilter(tr("3D-Asset-Files (*.obj *.fbx *.dae *.3ds)"));
 
-    QStringList fileNames;
+    QStringList names;
     if (dlg.exec())
-        fileNames = dlg.selectedFiles();
+        names = dlg.selectedFiles();
 
     QApplication::setOverrideCursor(Qt::WaitCursor);
-    if (fileNames.size() > 0)
+    QApplication::sync();
+
+    if (names.size() > 0)
     {
-        //ui->actionAdd_Light->isChecked();
-        SLScene::current->onLoadAsset(fileNames.at(0).toLocal8Bit().constData(), 
-                                      SLProcess_Triangulate
-                                     |SLProcess_JoinIdenticalVertices
-                                     |SLProcess_RemoveRedundantMaterials
-                                     |SLProcess_FindDegenerates
-                                     |SLProcess_FindInvalidData
-                                     |SLProcess_SplitLargeMeshes
-                                     //|SLProcess_SortByPType
-                                     //|SLProcess_OptimizeMeshes
-                                     //|SLProcess_OptimizeGraph
-                                     //|SLProcess_CalcTangentSpace
-                                     //|SLProcess_MakeLeftHanded
-                                     //|SLProcess_RemoveComponent
-                                     //|SLProcess_GenNormals
-                                     //|SLProcess_GenSmoothNormals
-                                     //|SLProcess_PreTransformVertices
-                                     //|SLProcess_LimitJointWeights
-                                     //|SLProcess_ValidateDataStructure
-                                     //|SLProcess_ImproveCacheLocality
-                                     //|SLProcess_FixInfacingNormals
-                                     //|SLProcess_GenUVCoords
-                                     //|SLProcess_TransformUVCoords
-                                     //|SLProcess_FindInstances
-                                     //|SLProcess_FlipUVs
-                                     //|SLProcess_FlipWindingOrder
-                                     //|SLProcess_SplitByJointCount
-                                     //|SLProcess_Dejoint
-                                     );
+        // Set default process flags
+        SLuint flags = 0;
+        flags |= SLProcess_Triangulate;
+        if (ui->actionFind_degenerated->isChecked()) flags |= SLProcess_FindDegenerates; 
+        if (ui->actionFind_invalid_data->isChecked()) flags |= SLProcess_FindInvalidData;
+        if (ui->actionSplit_large_meshes->isChecked()) flags |= SLProcess_SplitLargeMeshes;
+        if (ui->actionFix_infacing_normals->isChecked()) flags |= SLProcess_FixInfacingNormals;
+        if (ui->actionJoin_identical_vertices->isChecked()) flags |= SLProcess_JoinIdenticalVertices;
+        if (ui->actionSort_by_primitive_type->isChecked()) flags |= SLProcess_SortByPType;
+        if (ui->actionRemove_redundant_materials->isChecked()) flags |= SLProcess_RemoveRedundantMaterials;
+
+        SLScene::current->onLoadAsset(names.at(0).toLocal8Bit().constData(), flags);
     }
     afterSceneLoad();
     QApplication::restoreOverrideCursor();

@@ -526,7 +526,7 @@ void SLScene::onLoadAsset(SLstring assetFile,
         SLVec3f pos = boundingBox.maxWS().isZero() ? 
                       SLVec3f(1,1,1) : boundingBox.maxWS() * 1.1f;
         light->translation(pos);
-        light->lookAt(boundingBox.centerWS());
+        light->lookAt(pos-SLVec3f(1,1,1));
         light->attenuation(1,0,0);
         scene->addChild(light);
         _root3D->aabb()->reset(); // rest aabb so that it is recalculated
