@@ -157,9 +157,6 @@ class qtMainWindow : public QMainWindow
         void on_actionShow_Scene_Info_triggered();
         void on_actionShow_Menu_triggered();
         void on_actionShow_Toolbar_triggered();
-        void on_actionAbout_SLProject_triggered();
-        void on_actionCredits_triggered();
-        void on_actionAbout_Qt_triggered();
 
         void on_actionRender_to_depth_1_triggered();
         void on_actionRender_to_depth_2_triggered();
@@ -181,14 +178,22 @@ class qtMainWindow : public QMainWindow
         void on_actionDelete_active_view_triggered();
         void on_actionSingle_view_triggered();
 
+        void on_actionAbout_SLProject_triggered();
+        void on_actionVisit_SLProject_on_Github_triggered();
+        void on_actionVisit_cpvrLab_homepage_triggered();
+        void on_actionCredits_triggered();
+        void on_actionAbout_Qt_triggered();
+
+        // node tree actions
         void on_nodeTree_itemClicked(QTreeWidgetItem *item, int column);
         void on_nodeTree_itemDoubleClicked(QTreeWidgetItem *item, int column);
         void on_propertyTree_itemChanged(QTreeWidgetItem *item, int column);
+        void on_propertyTree_itemDoubleClicked(QTreeWidgetItem *item, int column);
         void on_dockScenegraph_visibilityChanged(bool visible);
         void on_dockProperties_visibilityChanged(bool visible);
         void on_dockAnimation_visibilityChanged(bool visible);
 
-        // animation
+        // animation actions
         void on_animAnimatedObjectSelect_currentIndexChanged(int index);
         void on_animAnimationSelect_currentIndexChanged(int index);
         void on_animSkipStartButton_clicked();
