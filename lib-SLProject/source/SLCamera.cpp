@@ -650,7 +650,7 @@ SLbool SLCamera::onMouseMove(const SLMouseButton button,
          
         // Determine rotation point as the center of the AABB of the hitNode
         SLVec3f rtP;
-        if (_lookAtRay.length < FLT_MAX && _lookAtRay.hitNode)
+        if (_lookAtRay.hitNode) //_lookAtRay.length < FLT_MAX && 
              rtP = _lookAtRay.hitNode->aabb()->centerWS();
         else rtP = laP;
               
@@ -753,7 +753,7 @@ SLbool SLCamera::onMouseUp(const SLMouseButton button,
     //SL_LOG("onMouseUp\n");
     if (button == MB_left) //===============================================
     {   if (_camAnim==CA_turntableYUp) //.........................................
-        {  return true;
+        {   return true;
         } 
         else if (_camAnim==CA_walkingYUp) //......................................
         {  return true;
@@ -780,7 +780,8 @@ SLbool SLCamera::onMouseWheel(const SLint delta, const SLKey mod)
             eyeToPixelRay((SLfloat)(_scrW>>1),
                         (SLfloat)(_scrH>>1), &_lookAtRay);
 
-            if (s->root3D()) s->root3D()->hitRec(&_lookAtRay);
+            if (s->root3D()) 
+                s->root3D()->hitRec(&_lookAtRay);
 
             if (_lookAtRay.length < FLT_MAX) 
                 _lookAtRay.hitPoint = _lookAtRay.origin + 
@@ -788,7 +789,7 @@ SLbool SLCamera::onMouseWheel(const SLint delta, const SLKey mod)
          
             // Scale the mouse delta by the lookAt distance
             SLfloat lookAtDist;
-            if (_lookAtRay.length < FLT_MAX && _lookAtRay.hitNode)
+            if (_lookAtRay.hitNode)
                  lookAtDist = _lookAtRay.length;
             else lookAtDist = _focalDist;
                   
@@ -1085,7 +1086,9 @@ void SLCamera::eyeToPixelRay(SLfloat x, SLfloat y, SLRay* ray)
     ray->y = y;  
     ray->hitTriangle = -1;
     ray->hitNormal.set(SLVec3f::ZERO);
-    ray->hitPoint.set(SLVec3f::ZERO); 
+    ray->hitPoint.set(SLVec3f::ZERO);
+    ray->hitNode = nullptr;
+    ray->hitMesh = nullptr;
     ray->srcTriangle = 0;
 }
 //-----------------------------------------------------------------------------

@@ -461,11 +461,10 @@ bool SLNode::hitRec(SLRay* ray)
         return false;
    
     // Check first AABB for intersection
-    if (!_aabb.isHitInWS(ray)) 
+    if (!_aabb.isHitInWS(ray))
         return false;
 
-
-    SLbool wasHit = false;
+    SLbool meshWasHit = false;
    
     // Transform ray to object space for non-groups
     if (_meshes.size() > 0)    
@@ -478,8 +477,8 @@ bool SLNode::hitRec(SLRay* ray)
 
         // test all meshes
         for (auto mesh : _meshes)
-        {   if (mesh->hit(ray, this) && !wasHit) 
-                wasHit = true;
+        {   if (mesh->hit(ray, this) && !meshWasHit)
+                meshWasHit = true;
             if (ray->isShaded()) 
                 return true;
         }
@@ -487,13 +486,13 @@ bool SLNode::hitRec(SLRay* ray)
 
     // Test children nodes
     for (auto child : _children)
-    {   if (child->hitRec(ray) && !wasHit) 
-            wasHit = true;
+    {   if (child->hitRec(ray) && !meshWasHit) 
+            meshWasHit = true;
         if (ray->isShaded()) 
             return true;
     }
 
-    return wasHit;
+    return meshWasHit;
 }
 //-----------------------------------------------------------------------------
 /*! 

@@ -110,15 +110,20 @@
      <property name="title">
       <string>Load Settings</string>
      </property>
+     <addaction name="actionSet_default_settings"/>
+     <addaction name="separator"/>
+     <addaction name="actionGenerate_smooth_normals"/>
      <addaction name="actionFind_degenerated"/>
      <addaction name="actionSplit_large_meshes"/>
      <addaction name="actionJoin_identical_vertices"/>
      <addaction name="actionFind_invalid_data"/>
      <addaction name="actionFix_infacing_normals"/>
-     <addaction name="actionSort_by_primitive_type"/>
      <addaction name="actionRemove_redundant_materials"/>
+     <addaction name="separator"/>
+     <addaction name="actionShow_process_info"/>
     </widget>
     <addaction name="actionLoad_Asset"/>
+    <addaction name="actionImport_Asset"/>
     <addaction name="menuLoad_Settings"/>
     <addaction name="menuLoad_Scene"/>
     <addaction name="actionClose_Scene"/>
@@ -275,6 +280,7 @@
     <addaction name="actionSplit_into_4_views"/>
     <addaction name="actionDelete_active_view"/>
     <addaction name="actionSingle_view"/>
+    <addaction name="actionUse_dark_ui"/>
    </widget>
    <widget class="QMenu" name="menuHelp">
     <property name="title">
@@ -2443,17 +2449,6 @@ QSlider::handle:horizontal:disabled {
     <string>Closes the current Scene</string>
    </property>
   </action>
-  <action name="actionAdd_Light">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="checked">
-    <bool>true</bool>
-   </property>
-   <property name="text">
-    <string>Add directional light if no light is loaded</string>
-   </property>
-  </action>
   <action name="actionFind_degenerated">
    <property name="checkable">
     <bool>true</bool>
@@ -2467,7 +2462,10 @@ QSlider::handle:horizontal:disabled {
   </action>
   <action name="actionLoad_Asset">
    <property name="text">
-    <string>Load Asset</string>
+    <string>Load Scene Assets from File</string>
+   </property>
+   <property name="toolTip">
+    <string>Loads a new scene from a 3D asset file</string>
    </property>
   </action>
   <action name="actionSplit_large_meshes">
@@ -2534,6 +2532,49 @@ QSlider::handle:horizontal:disabled {
    </property>
    <property name="text">
     <string>Remove redundant materials</string>
+   </property>
+  </action>
+  <action name="actionUse_dark_ui">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Use dark user interface (after restart)</string>
+   </property>
+  </action>
+  <action name="actionImport_Asset">
+   <property name="text">
+    <string>Import Scene Assets from File</string>
+   </property>
+   <property name="toolTip">
+    <string>Adds the scene contents from a 3D asset files to the current scene</string>
+   </property>
+  </action>
+  <action name="actionGenerate_smooth_normals">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Generate smooth normals</string>
+   </property>
+  </action>
+  <action name="actionSet_default_settings">
+   <property name="text">
+    <string>Set default settings</string>
+   </property>
+   <property name="toolTip">
+    <string>Sets proposeed default settings</string>
+   </property>
+  </action>
+  <action name="actionShow_process_info">
+   <property name="text">
+    <string>Show more information on these settings</string>
+   </property>
+   <property name="toolTip">
+    <string>Opens the ASSIMP doc page on the process settings.</string>
    </property>
   </action>
  </widget>

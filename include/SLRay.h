@@ -54,7 +54,6 @@ class SLRay
             bool        reflectMC   (SLRay* reflected, SLMat3f rotMat);
             void        refractMC   (SLRay* refracted, SLMat3f rotMat);
             void        diffuseMC   (SLRay* scattered);
-            void        volumeRay   (SLRay* volumeRay);
             void        print       () const;
             
     // Helper methods    

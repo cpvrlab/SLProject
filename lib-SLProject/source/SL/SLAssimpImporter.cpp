@@ -305,7 +305,7 @@ SLNode* SLAssimpImporter::load(SLstring file,           //!< File with path or o
     SLVMaterial materials;
     for(SLint i = 0; i < (SLint)scene->mNumMaterials; i++)
         materials.push_back(loadMaterial(i, scene->mMaterials[i], modelPath));
-
+        
     // load meshes & set their material
     std::map<int, SLMesh*> meshMap;  // map from the ai index to our mesh
     for(SLint i = 0; i < (SLint)scene->mNumMeshes; i++)
@@ -705,31 +705,64 @@ in SLMesh.
 SLMesh* SLAssimpImporter::loadMesh(aiMesh *mesh)
 {
     // Count first the NO. of triangles in the mesh
+    SLuint numPoints = 0;
+    SLuint numLines = 0;
     SLuint numTriangles = 0;
-    for(unsigned int i = 0; i <  mesh->mNumFaces; ++i)
-        if(mesh->mFaces[i].mNumIndices == 3)
-            numTriangles++;
+    SLuint numPolygons = 0;
 
-    // We only load meshes that contain triangles
-    if (numTriangles==0 || mesh->mNumVertices==0)
-        return nullptr; 
+    for(unsigned int i = 0; i <  mesh->mNumFaces; ++i)
+    {   if(mesh->mFaces[i].mNumIndices == 1) numPoints++;
+        if(mesh->mFaces[i].mNumIndices == 2) numLines++;
+        if(mesh->mFaces[i].mNumIndices == 3) numTriangles++;
+        if(mesh->mFaces[i].mNumIndices > 3)  numPolygons++;
+    }
+
+    // A mesh can contain either point, lines or triangles
+    if ((numTriangles && (numLines || numPoints)) ||
+        (numLines && (numTriangles || numPoints)) ||
+        (numPoints && (numLines || numTriangles)))
+    {   SL_LOG("SLAssimpImporter::loadMesh:  Mesh contains multiple primitive types!");
+        return nullptr;
+    }
+
+    if (numPolygons > 0)
+    {   SL_LOG("SLAssimpImporter::loadMesh:  Mesh contains polygons!");
+        return nullptr;
+    }
+
+    // We only load meshes that contain triangles or lines
+    if (mesh->mNumVertices==0)
+    {   SL_LOG("SLAssimpImporter::loadMesh:  Mesh has no vertices!");
+        return nullptr;
+    }
+
+    // We only load meshes that contain triangles or lines
+    if (numTriangles==0 && numLines==0 && numPoints==0)
+    {   SL_LOG("SLAssimpImporter::loadMesh:  Mesh has has no triangles nor lines nor points.");
+        return nullptr;
+    }
 
     // create a new mesh. 
     // The mesh pointer is added automatically to the SLScene::meshes vector.
     SLstring name = mesh->mName.data;
     SLMesh *m = new SLMesh(name.empty() ? "Imported Mesh" : name);
+    
+    // Set primitive type
+    if (numTriangles) m->primitive(SLGLPrimitiveType::PT_triangles);
+    if (numPoints) m->primitive(SLGLPrimitiveType::PT_points);
+    if (numLines) m->primitive(SLGLPrimitiveType::PT_lines);
 
     // create position & normal vector
     m->P.clear(); m->P.resize(mesh->mNumVertices);
 
-    // create normal vector
-    if (mesh->HasNormals())
+    // create normal vector for triangle primitive types
+    if (mesh->HasNormals() && numTriangles)
     {   m->N.clear();
         m->N.resize(m->P.size());
     }
 
     // allocate texCoord vector if needed
-    if (mesh->HasTextureCoords(0))
+    if (mesh->HasTextureCoords(0) && numTriangles)
     {   m->Tc.clear();
         m->Tc.resize(m->P.size());
     }
@@ -737,44 +770,68 @@ SLMesh* SLAssimpImporter::loadMesh(aiMesh *mesh)
     // copy vertex positions & texCoord
     for(SLuint i = 0; i < m->P.size(); ++i)
     {   m->P[i].set(mesh->mVertices[i].x, 
-        mesh->mVertices[i].y, 
-        mesh->mVertices[i].z);
+                    mesh->mVertices[i].y, 
+                    mesh->mVertices[i].z);
         if (m->N.size())
-            m->N[i].set(mesh->mNormals[i].x, mesh->mNormals[i].y, mesh->mNormals[i].z);
+            m->N[i].set(mesh->mNormals[i].x, 
+                        mesh->mNormals[i].y, 
+                        mesh->mNormals[i].z);
         if (m->Tc.size())
-            m->Tc[i].set(mesh->mTextureCoords[0][i].x, mesh->mTextureCoords[0][i].y);
+            m->Tc[i].set(mesh->mTextureCoords[0][i].x, 
+                         mesh->mTextureCoords[0][i].y);
     }
 
-    // create face index vector
+    // create primitive index vector
+    SLuint j = 0;
     if (m->P.size() < 65536)
     {   m->I16.clear();
-        m->I16.resize(mesh->mNumFaces * 3);
-
-        // load face triangle indices only
-        SLuint j = 0;
-        for(SLuint i = 0; i <  mesh->mNumFaces; ++i)
-        {   if(mesh->mFaces[i].mNumIndices == 3)
+        if (numTriangles)
+        {   m->I16.resize(mesh->mNumFaces * 3);
+            for(SLuint i = 0; i <  mesh->mNumFaces; ++i)
             {   m->I16[j++] = mesh->mFaces[i].mIndices[0];
                 m->I16[j++] = mesh->mFaces[i].mIndices[1];
                 m->I16[j++] = mesh->mFaces[i].mIndices[2];
             }
+        } else
+        if (numLines)
+        {   m->I16.resize(mesh->mNumFaces * 2);
+            for(SLuint i = 0; i <  mesh->mNumFaces; ++i)
+            {   m->I16[j++] = mesh->mFaces[i].mIndices[0];
+                m->I16[j++] = mesh->mFaces[i].mIndices[1];
+            }
+        } else
+        if (numPoints)
+        {   m->I16.resize(mesh->mNumFaces * 1);
+            for(SLuint i = 0; i <  mesh->mNumFaces; ++i)
+            {   m->I16[j++] = mesh->mFaces[i].mIndices[0];
+            }
         }
     } else 
     {   m->I32.clear();
-        m->I32.resize(mesh->mNumFaces * 3);
-
-        // load face triangle indices only
-        SLuint j = 0;
-        for(SLuint i = 0; i <  mesh->mNumFaces; ++i)
-        {  if(mesh->mFaces[i].mNumIndices == 3)
+        if (numTriangles)
+        {   m->I32.resize(mesh->mNumFaces * 3);
+            for(SLuint i = 0; i <  mesh->mNumFaces; ++i)
             {   m->I32[j++] = mesh->mFaces[i].mIndices[0];
                 m->I32[j++] = mesh->mFaces[i].mIndices[1];
                 m->I32[j++] = mesh->mFaces[i].mIndices[2];
             }
+        } else
+        if (numLines)
+        {   m->I32.resize(mesh->mNumFaces * 2);
+            for(SLuint i = 0; i <  mesh->mNumFaces; ++i)
+            {   m->I32[j++] = mesh->mFaces[i].mIndices[0];
+                m->I32[j++] = mesh->mFaces[i].mIndices[1];
+            }
+        } else
+        if (numPoints)
+        {   m->I32.resize(mesh->mNumFaces * 1);
+            for(SLuint i = 0; i <  mesh->mNumFaces; ++i)
+            {   m->I32[j++] = mesh->mFaces[i].mIndices[0];
+            }
         }
     }
 
-    if (!m->N.size())
+    if (!mesh->HasNormals() && numTriangles)
         m->calcNormals();
 
     // load joints

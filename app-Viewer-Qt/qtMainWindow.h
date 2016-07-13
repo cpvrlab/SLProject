@@ -32,42 +32,49 @@ class qtMainWindow : public QMainWindow
 	friend qtGLWidget;
 
 	public:
-        explicit qtMainWindow(QWidget *parent, SLVstring cmdLineArgs);
-        ~qtMainWindow();
+        explicit    qtMainWindow        (QWidget *parent, SLVstring cmdLineArgs);
+                   ~qtMainWindow        ();
 
-        void        setMenuState();
-        void        beforeSceneLoad();
-        void        afterSceneLoad();
-        void        buildNodeTree();
-        void        updateAnimationList();
-        void        updateAnimationTimeline();
-        void        selectAnimationFromNode(SLNode* node);
-        void        buildPropertyTree();
-        void        addNodeTreeItem(SLNode* node,
-							        QTreeWidget* tree,
-							        qtNodeTreeItem* parent);
+        void        loadSettings        ();
+        void        saveSettings        ();
+        void        setMenuState        ();
+        void        beforeSceneLoad     ();
+        void        afterSceneLoad      ();
+        void        buildNodeTree       ();
+        void        updateAnimList      ();
+        void        updateAnimTimeline  ();
+        void        selectAnimFromNode  (SLNode* node);
+        void        buildPropertyTree   ();
+        void        addNodeTreeItem     (SLNode* node,
+							             QTreeWidget* tree,
+							             qtNodeTreeItem* parent);
         void        selectNodeOrMeshItem(SLNode* selectedNode,
                                          SLMesh* selectedMesh);
-        void        updateAllGLWidgets();
-        void        applyCommandOnSV(const SLCommand cmd);
+        void        updateAllGLWidgets  ();
+        void        applyCommandOnSV    (const SLCommand cmd);
         qtGLWidget* getOtherGLWidgetInSplitter();
 
         // Overwritten Event Handlers
-        void        resizeEvent(QResizeEvent* event);
-        void        changeEvent(QEvent * event);
-        void        closeEvent(QCloseEvent *event);
+        void        resizeEvent         (QResizeEvent* event);
+        void        changeEvent         (QEvent * event);
+        void        closeEvent          (QCloseEvent *event);
 
         // Getters
-        qtGLWidget* activeGLWidget() {return _activeGLWidget;}
-        int         nodeTreeItemCount() {return ui->nodeTree->topLevelItemCount();}
+        qtGLWidget* activeGLWidget      () {return _activeGLWidget;}
+        int         nodeTreeItemCount   () {return ui->nodeTree->topLevelItemCount();}
+        bool        useDarkUI           (){return _settings.value("window/UseDarkUI", false).toBool();}
 
         // Setters
-        void        activeGLWidget(qtGLWidget* active) {_activeGLWidget = active;}
+        void        activeGLWidget      (qtGLWidget* active) {_activeGLWidget = active;}
 
     private slots:
         void on_actionLoad_Asset_triggered();
+        void on_actionImport_Asset_triggered();
         void on_actionClose_Scene_triggered();
+        void on_actionSet_default_settings_triggered();
+        void on_actionShow_process_info_triggered();
         void on_actionQuit_triggered();
+
         void on_actionSmall_Test_Scene_triggered();
         void on_actionLarge_Model_triggered();
         void on_actionFigure_triggered();

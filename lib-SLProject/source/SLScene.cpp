@@ -499,21 +499,27 @@ void SLScene::onLoadAsset(SLstring assetFile,
                           SLuint processFlags)
 {
     _currentSceneID = C_sceneFromFile;
-    
-    if (!SLFileSystem::fileExists(assetFile))
-    {   SL_WARN_MSG("File to load doesn't exist.");
-        return;
-    }
 
-    // Set scene name and info string
-    name(SLUtils::getFileName(assetFile));
+    // Set scene name for new scenes
+    if (!_root3D)
+        name(SLUtils::getFileName(assetFile));
 
     // Try to load assed and add it to the scene root node
     SLAssimpImporter importer;
+
+    //////////////////////////////////////////////////////////////
     SLNode* loaded = importer.load(assetFile, true, processFlags);
-    SLNode* scene = new SLNode("Scene");
-    if (loaded) scene->addChild(loaded);
-    _root3D = scene;
+    //////////////////////////////////////////////////////////////
+
+    // Add root node on empty scene
+    if (!_root3D)
+    {   SLNode* scene = new SLNode("Scene");
+        _root3D = scene;
+    }
+
+    // Add loaded scene
+    if (loaded) 
+        _root3D->addChild(loaded);
 
     // Add directional light if no light was in loaded asset
     if (!_lights.size())
@@ -528,7 +534,7 @@ void SLScene::onLoadAsset(SLstring assetFile,
         light->translation(pos);
         light->lookAt(pos-SLVec3f(1,1,1));
         light->attenuation(1,0,0);
-        scene->addChild(light);
+        _root3D->addChild(light);
         _root3D->aabb()->reset(); // rest aabb so that it is recalculated
     }
 

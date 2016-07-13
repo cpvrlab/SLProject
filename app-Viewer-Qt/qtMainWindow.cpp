@@ -19,6 +19,7 @@
 #include <QSplitter>
 #include <QIcon>
 #include <QFileDialog>
+#include <QDesktopServices>
 #include <functional>
 
 #include <SL.h>
@@ -114,7 +115,18 @@ qtMainWindow::qtMainWindow(QWidget *parent, SLVstring cmdLineArgs) :
     borderWidget->show();
     _activeGLWidget->show();
 
-    // load settings
+    loadSettings();
+}
+
+qtMainWindow::~qtMainWindow()
+{
+    delete ui;
+}
+
+//-----------------------------------------------------------------------------
+//! Loads the applications settings via QSettings
+void qtMainWindow::loadSettings()
+{
     int posx = _settings.value("window/posx", 0).toInt();
     int posy = _settings.value("window/posy", 0).toInt();
     int width = _settings.value("window/width", 800).toInt();
@@ -127,15 +139,31 @@ qtMainWindow::qtMainWindow(QWidget *parent, SLVstring cmdLineArgs) :
     ui->actionSplit_large_meshes->setChecked(_settings.value("processFlags/splitLargeMeshes", true).toBool());
     ui->actionFix_infacing_normals->setChecked(_settings.value("processFlags/fixInfacingNormals", true).toBool());
     ui->actionJoin_identical_vertices->setChecked(_settings.value("processFlags/joinIdenticalVertices", true).toBool());
-    ui->actionSort_by_primitive_type->setChecked(_settings.value("processFlags/sortByPrimitiveType", true).toBool());
     ui->actionRemove_redundant_materials->setChecked(_settings.value("processFlags/removeRedundantMaterials", true).toBool());
+    ui->actionUse_dark_ui->setChecked(_settings.value("window/UseDarkUI", false).toBool());
 }
-
-qtMainWindow::~qtMainWindow()
+//-----------------------------------------------------------------------------
+//! Saves the settings values via QSettings
+void qtMainWindow::saveSettings()
 {
-    delete ui;
-}
+    int posx =  this->pos().x();
+    int posy =  this->pos().y();
+    int width = this->width();
+    int height = this->height();
+    bool useDarkUI = ui->actionUse_dark_ui->isChecked();
 
+    _settings.setValue("window/posx", posx);
+    _settings.setValue("window/posy", posy);
+    _settings.setValue("window/width", width);
+    _settings.setValue("window/height", height);
+    _settings.setValue("window/UseDarkUI", useDarkUI);
+    _settings.setValue("processFlags/findDegenerated", ui->actionFind_degenerated->isChecked());
+    _settings.setValue("processFlags/findInvalidData", ui->actionFind_invalid_data->isChecked());
+    _settings.setValue("processFlags/splitLargeMeshes", ui->actionSplit_large_meshes->isChecked());
+    _settings.setValue("processFlags/fixInfacingNormals", ui->actionFix_infacing_normals->isChecked());
+    _settings.setValue("processFlags/joinIdenticalVertices", ui->actionJoin_identical_vertices->isChecked());
+    _settings.setValue("processFlags/removeRedundantMaterials", ui->actionRemove_redundant_materials->isChecked());
+}
 //-----------------------------------------------------------------------------
 //! Sets the correct menu checkmarks
 void qtMainWindow::setMenuState()
@@ -584,7 +612,7 @@ void qtMainWindow::buildPropertyTree()
     ui->propertyTree->update();
 }
 //-----------------------------------------------------------------------------
-void qtMainWindow::updateAnimationList()
+void qtMainWindow::updateAnimList()
 {
     // clear both lists
     SLbool hasAnimations = false;
@@ -619,7 +647,7 @@ void qtMainWindow::updateAnimationList()
 }
 
 //-----------------------------------------------------------------------------
-void qtMainWindow::updateAnimationTimeline()
+void qtMainWindow::updateAnimTimeline()
 {
     if (!_selectedAnim)
         return;
@@ -629,7 +657,7 @@ void qtMainWindow::updateAnimationTimeline()
 }
 
 //-----------------------------------------------------------------------------
-void qtMainWindow::selectAnimationFromNode(SLNode* node)
+void qtMainWindow::selectAnimFromNode(SLNode* node)
 {
     for(auto& kv : SLScene::current->animManager().animations())
     {
@@ -672,15 +700,14 @@ void qtMainWindow::beforeSceneLoad()
     _selectedNodeItem = 0;
     ui->nodeTree->clear();
     ui->propertyTree->clear();
-    updateAnimationList();
-    SLScene::current->init(); // calls first uninit
+    updateAnimList();
     setMenuState();
 }
 //-----------------------------------------------------------------------------
 void qtMainWindow::afterSceneLoad()
 {
     buildNodeTree();
-    updateAnimationList();
+    updateAnimList();
     setMenuState();
     QApplication::restoreOverrideCursor();
 }
@@ -695,7 +722,7 @@ void qtMainWindow::selectNodeOrMeshItem(SLNode* selectedNode, SLMesh* selectedMe
 
 
     // select animation related to this node if it exists
-    selectAnimationFromNode(selectedNode);
+    selectAnimFromNode(selectedNode);
 
     QTreeWidgetItemIterator it(ui->nodeTree);
     while (*it) 
@@ -730,7 +757,7 @@ void qtMainWindow::selectNodeOrMeshItem(SLNode* selectedNode, SLMesh* selectedMe
 void qtMainWindow::updateAllGLWidgets()
 {
     for (auto widget : _allGLWidgets) widget->update();
-    updateAnimationTimeline();
+    updateAnimTimeline();
 }
 //-----------------------------------------------------------------------------
 void qtMainWindow::applyCommandOnSV(const SLCommand cmd)
@@ -791,18 +818,7 @@ void qtMainWindow::changeEvent(QEvent* event)
 void qtMainWindow::closeEvent(QCloseEvent *event)
 {  
     slTerminate();
-
-    _settings.setValue("window/posx", this->pos().x());
-    _settings.setValue("window/posy", this->pos().y());
-    _settings.setValue("window/width", this->width());
-    _settings.setValue("window/height", this->height());
-    _settings.setValue("processFlags/findDegenerated", ui->actionFind_degenerated->isChecked());
-    _settings.setValue("processFlags/findInvalidData", ui->actionFind_invalid_data->isChecked());
-    _settings.setValue("processFlags/splitLargeMeshes", ui->actionSplit_large_meshes->isChecked());
-    _settings.setValue("processFlags/fixInfacingNormals", ui->actionFix_infacing_normals->isChecked());
-    _settings.setValue("processFlags/joinIdenticalVertices", ui->actionJoin_identical_vertices->isChecked());
-    _settings.setValue("processFlags/sortByPrimitiveType", ui->actionSort_by_primitive_type->isChecked());
-    _settings.setValue("processFlags/removeRedundantMaterials", ui->actionRemove_redundant_materials->isChecked());
+    saveSettings();
 }
 //-----------------------------------------------------------------------------
 
@@ -812,10 +828,18 @@ void qtMainWindow::closeEvent(QCloseEvent *event)
 // Menu File
 void qtMainWindow::on_actionLoad_Asset_triggered()
 {
+    SLScene::current->init(); // calls first uninit
+    on_actionImport_Asset_triggered();
+}
+void qtMainWindow::on_actionImport_Asset_triggered()
+{   
     beforeSceneLoad();
     QApplication::restoreOverrideCursor();
 
+    QString path = _settings.value("lastFileOpenPath", "").toString();
     QFileDialog dlg(this);
+    if (!path.isEmpty() && QDir(path).exists()) 
+        dlg.setDirectory(path);
     dlg.setFileMode(QFileDialog::ExistingFile);
     dlg.setViewMode(QFileDialog::Detail);
     dlg.setNameFilter(tr("3D-Asset-Files (*.obj *.fbx *.dae *.3ds)"));
@@ -829,27 +853,51 @@ void qtMainWindow::on_actionLoad_Asset_triggered()
 
     if (names.size() > 0)
     {
+        // store path in settings
+        SLstring filename = names.at(0).toLocal8Bit().constData();
+        SLstring path = SLUtils::getPath(filename);
+        _settings.setValue("lastFileOpenPath", path.c_str());
+
         // Set default process flags
         SLuint flags = 0;
         flags |= SLProcess_Triangulate;
+        flags |= SLProcess_SortByPType;
+        //flags |= SLProcess_GenNormals;
+        flags |= SLProcess_GenSmoothNormals;
+
         if (ui->actionFind_degenerated->isChecked()) flags |= SLProcess_FindDegenerates; 
         if (ui->actionFind_invalid_data->isChecked()) flags |= SLProcess_FindInvalidData;
         if (ui->actionSplit_large_meshes->isChecked()) flags |= SLProcess_SplitLargeMeshes;
         if (ui->actionFix_infacing_normals->isChecked()) flags |= SLProcess_FixInfacingNormals;
         if (ui->actionJoin_identical_vertices->isChecked()) flags |= SLProcess_JoinIdenticalVertices;
-        if (ui->actionSort_by_primitive_type->isChecked()) flags |= SLProcess_SortByPType;
         if (ui->actionRemove_redundant_materials->isChecked()) flags |= SLProcess_RemoveRedundantMaterials;
 
-        SLScene::current->onLoadAsset(names.at(0).toLocal8Bit().constData(), flags);
+        SLScene::current->onLoadAsset(filename, flags);
     }
     afterSceneLoad();
     QApplication::restoreOverrideCursor();
 }
 void qtMainWindow::on_actionClose_Scene_triggered()
 {
+    SLScene::current->init(); // calls first uninit
     beforeSceneLoad();
     _activeGLWidget->sv()->waitEvents(true);
     afterSceneLoad();
+}
+void qtMainWindow::on_actionSet_default_settings_triggered()
+{
+    ui->actionFind_degenerated->setChecked(true);
+    ui->actionGenerate_smooth_normals->setChecked(true);
+    ui->actionFind_invalid_data->setChecked(true);
+    ui->actionFix_infacing_normals->setChecked(true);
+    ui->actionSplit_large_meshes->setChecked(true);
+    ui->actionSort_by_primitive_type->setChecked(true);
+    ui->actionRemove_redundant_materials->setChecked(true);
+}
+void qtMainWindow::on_actionShow_process_info_triggered()
+{   
+    QUrl url("http://www.assimp.org/lib_html/postprocess_8h.html");
+    QDesktopServices::openUrl(url);
 }
 void qtMainWindow::on_actionQuit_triggered()
 {
@@ -861,42 +909,49 @@ void qtMainWindow::on_actionQuit_triggered()
 // Menu Load Test Scene
 void qtMainWindow::on_actionSmall_Test_Scene_triggered()
 {
+    SLScene::current->init(); // calls first uninit
     beforeSceneLoad();
     _activeGLWidget->sv()->onCommand(C_sceneMinimal);
     afterSceneLoad();
 }
 void qtMainWindow::on_actionLarge_Model_triggered()
 {
+    SLScene::current->init(); // calls first uninit
     beforeSceneLoad();
     _activeGLWidget->sv()->onCommand(C_sceneLargeModel);
     afterSceneLoad();
 }
 void qtMainWindow::on_actionFigure_triggered()
 {
+    SLScene::current->init(); // calls first uninit
     beforeSceneLoad();
     _activeGLWidget->sv()->onCommand(C_sceneFigure);
     afterSceneLoad();
 }
 void qtMainWindow::on_actionMesh_Loader_triggered()
 {
+    SLScene::current->init(); // calls first uninit
     beforeSceneLoad();
     _activeGLWidget->sv()->onCommand(C_sceneMeshLoad);
     afterSceneLoad();
 }
 void qtMainWindow::on_actionTexture_Blending_triggered()
 {
+    SLScene::current->init(); // calls first uninit
     beforeSceneLoad();
     _activeGLWidget->sv()->onCommand(C_sceneTextureBlend);
     afterSceneLoad();
 }
 void qtMainWindow::on_actionTexture_Filtering_triggered()
 {
+    SLScene::current->init(); // calls first uninit
     beforeSceneLoad();
     _activeGLWidget->sv()->onCommand(C_sceneTextureFilter);
     afterSceneLoad();
 }
 void qtMainWindow::on_actionFrustum_Culling_triggered()
 {
+    SLScene::current->init(); // calls first uninit
     beforeSceneLoad();
     _activeGLWidget->sv()->onCommand(C_sceneFrustumCull);
     afterSceneLoad();
@@ -904,48 +959,56 @@ void qtMainWindow::on_actionFrustum_Culling_triggered()
 
 void qtMainWindow::on_actionPer_Vertex_Lighting_triggered()
 {
+    SLScene::current->init(); // calls first uninit
     beforeSceneLoad();
     _activeGLWidget->sv()->onCommand(C_scenePerVertexBlinn);
     afterSceneLoad();
 }
 void qtMainWindow::on_actionPer_Pixel_Lighting_triggered()
 {
+    SLScene::current->init(); // calls first uninit
     beforeSceneLoad();
     _activeGLWidget->sv()->onCommand(C_scenePerPixelBlinn);
     afterSceneLoad();
 }
 void qtMainWindow::on_actionPer_Vertex_Wave_triggered()
 {
+    SLScene::current->init(); // calls first uninit
     beforeSceneLoad();
     _activeGLWidget->sv()->onCommand(C_scenePerVertexWave);
     afterSceneLoad();
 }
 void qtMainWindow::on_actionWater_triggered()
 {
+    SLScene::current->init(); // calls first uninit
     beforeSceneLoad();
     _activeGLWidget->sv()->onCommand(C_sceneWater);
     afterSceneLoad();
 }
 void qtMainWindow::on_actionBump_Mapping_triggered()
 {
+    SLScene::current->init(); // calls first uninit
     beforeSceneLoad();
     _activeGLWidget->sv()->onCommand(C_sceneBumpNormal);
     afterSceneLoad();
 }
 void qtMainWindow::on_actionParallax_Mapping_triggered()
 {
+    SLScene::current->init(); // calls first uninit
     beforeSceneLoad();
     _activeGLWidget->sv()->onCommand(C_sceneBumpParallax);
     afterSceneLoad();
 }
 void qtMainWindow::on_actionGlass_Shader_triggered()
 {
+    SLScene::current->init(); // calls first uninit
     beforeSceneLoad();
     _activeGLWidget->sv()->onCommand(C_sceneRevolver);
     afterSceneLoad();
 }
 void qtMainWindow::on_actionEarth_Shader_triggered()
 {
+    SLScene::current->init(); // calls first uninit
     beforeSceneLoad();
     _activeGLWidget->sv()->onCommand(C_sceneEarth);
     afterSceneLoad();
@@ -953,30 +1016,35 @@ void qtMainWindow::on_actionEarth_Shader_triggered()
 
 void qtMainWindow::on_actionNode_Animation_triggered()
 {
+    SLScene::current->init(); // calls first uninit
     beforeSceneLoad();
     _activeGLWidget->sv()->onCommand(C_sceneNodeAnimation);
     afterSceneLoad();
 }
 void qtMainWindow::on_actionSkeletal_Animation_triggered()
 {
+    SLScene::current->init(); // calls first uninit
     beforeSceneLoad();
     _activeGLWidget->sv()->onCommand(C_sceneSkeletalAnimation);
     afterSceneLoad();
 }
 void qtMainWindow::on_actionAstroboy_Army_CPU_triggered()
 {
+    SLScene::current->init(); // calls first uninit
     beforeSceneLoad();
     _activeGLWidget->sv()->onCommand(C_sceneAstroboyArmyCPU);
     afterSceneLoad();
 }
 void qtMainWindow::on_actionAstroboy_Army_GPU_triggered()
 {
+    SLScene::current->init(); // calls first uninit
     beforeSceneLoad();
     _activeGLWidget->sv()->onCommand(C_sceneAstroboyArmyGPU);
     afterSceneLoad();
 }
 void qtMainWindow::on_actionMass_Animation_triggered()
 {
+    SLScene::current->init(); // calls first uninit
     beforeSceneLoad();
     _activeGLWidget->sv()->onCommand(C_sceneMassAnimation);
     afterSceneLoad();
@@ -984,30 +1052,35 @@ void qtMainWindow::on_actionMass_Animation_triggered()
 
 void qtMainWindow::on_actionRT_Spheres_triggered()
 {
+    SLScene::current->init(); // calls first uninit
     beforeSceneLoad();
     _activeGLWidget->sv()->onCommand(C_sceneRTSpheres);
     afterSceneLoad();
 }
 void qtMainWindow::on_actionRT_Muttenzer_Box_triggered()
 {
+    SLScene::current->init(); // calls first uninit
     beforeSceneLoad();
     _activeGLWidget->sv()->onCommand(C_sceneRTMuttenzerBox);
     afterSceneLoad();
 }
 void qtMainWindow::on_actionRT_Depth_of_Field_triggered()
 {
+    SLScene::current->init(); // calls first uninit
     beforeSceneLoad();
     _activeGLWidget->sv()->onCommand(C_sceneRTDoF);
     afterSceneLoad();
 }
 void qtMainWindow::on_actionRT_Lens_triggered()
 {
+    SLScene::current->init(); // calls first uninit
     beforeSceneLoad();
     _activeGLWidget->sv()->onCommand(C_sceneRTLens);
     afterSceneLoad();
 }
 void qtMainWindow::on_actionRT_Soft_Shadows_triggered()
 {
+    SLScene::current->init(); // calls first uninit
     beforeSceneLoad();
     _activeGLWidget->sv()->onCommand(C_sceneRTSoftShadows);
     afterSceneLoad();
