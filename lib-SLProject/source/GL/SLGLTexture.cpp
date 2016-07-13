@@ -47,7 +47,8 @@ SLGLTexture::SLGLTexture(SLstring  filename,
                          SLint     mag_filter,
                          SLTextureType type,
                          SLint     wrapS,
-                         SLint     wrapT) : SLObject(filename)
+                         SLint     wrapT) : 
+            SLObject(SLUtils::getFileName(filename), filename)
 {  
     assert(filename!="");
     _stateGL = SLGLState::getInstance();
@@ -650,6 +651,21 @@ void SLGLTexture::build2DMipmaps(SLint target, SLuint index)
                      GL_UNSIGNED_BYTE, 
                      (GLvoid*)img2.data());
         GET_GL_ERROR;
+    }
+}
+//-----------------------------------------------------------------------------
+//! Returns the texture type as string
+SLstring SLGLTexture::typeName()
+{
+    switch(_texType)
+    {
+        case TT_unknown: return "Unknown type"; break;
+        case TT_color:   return "color map"; break;
+        case TT_normal:  return "normal map"; break;
+        case TT_height:  return "hight map"; break;
+        case TT_gloss:   return "gloss map"; break;
+        case TT_font:    return "font map"; break;
+        default: return "Unknown type";
     }
 }
 //-----------------------------------------------------------------------------

@@ -28,7 +28,8 @@ SLImage::SLImage(SLint width, SLint height, SLPixelFormat format) : SLObject()
 }
 //-----------------------------------------------------------------------------
 //! Contructor for image from file
-SLImage::SLImage(const SLstring  filename) : SLObject(filename)
+SLImage::SLImage(const SLstring  filename) : 
+         SLObject(SLUtils::getFileName(filename), filename)
 {
     assert(filename!="");
     _data = 0;
@@ -38,7 +39,7 @@ SLImage::SLImage(const SLstring  filename) : SLObject(filename)
 }
 //-----------------------------------------------------------------------------
 //! Copy contructor from a source image
-SLImage::SLImage(SLImage &src) : SLObject(src.name())
+SLImage::SLImage(SLImage &src) : SLObject(src.name(), src.url())
 {
     assert(src.width() && src.height() && src.data());
     _width  = src.width();
@@ -298,7 +299,7 @@ SLbool SLImage::load(SLint width,
 void SLImage::load(const SLstring filename)
 {    
     SLstring ext = SLUtils::getFileExt(filename);
-    _name = SLUtils::getFileNameWOExt(filename);
+    _name = SLUtils::getFileName(filename);
     _path = SLUtils::getPath(filename);
    
     if (ext=="jpg") {loadJPG(filename); return;}

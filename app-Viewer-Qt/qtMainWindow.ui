@@ -287,6 +287,8 @@
      <string>Help</string>
     </property>
     <addaction name="actionAbout_SLProject"/>
+    <addaction name="actionVisit_SLProject_on_Github"/>
+    <addaction name="actionVisit_cpvrLab_homepage"/>
     <addaction name="actionAbout_Qt"/>
     <addaction name="actionCredits"/>
    </widget>
@@ -2575,6 +2577,19 @@ QSlider::handle:horizontal:disabled {
    </property>
    <property name="toolTip">
     <string>Opens the ASSIMP doc page on the process settings.</string>
+   </property>
+  </action>
+  <action name="actionVisit_SLProject_on_Github">
+   <property name="text">
+    <string>Visit SLProject on Github</string>
+   </property>
+  </action>
+  <action name="actionVisit_cpvrLab_homepage">
+   <property name="text">
+    <string>Visit cpvrLab homepage</string>
+   </property>
+   <property name="toolTip">
+    <string>Visit cpvrLab homepage</string>
    </property>
   </action>
  </widget>

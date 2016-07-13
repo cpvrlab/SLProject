@@ -68,9 +68,9 @@ class SLLightDirect: public SLNode, public SLLight
             SLVec3f     spotDirWS      () {return forward();}
 
    private:
-            SLfloat     _arrowRadius;       //!< The sphere lights radius
-            SLfloat     _arrowLength;    //!< Length of direction line
-            SLVec2f     _oldTouchPos1; //!< Old mouse/touch position in pixels
+            SLfloat     _arrowRadius;   //!< The sphere lights radius
+            SLfloat     _arrowLength;   //!< Length of direction line
+            SLVec2f     _oldTouchPos1;  //!< Old mouse/touch position in pixels
 };
 //-----------------------------------------------------------------------------
 #endif

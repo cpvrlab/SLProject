@@ -300,8 +300,9 @@ xcopy $(SolutionDir)\_lib\prebuilt\OpenCV\x64\vc14\bin\opencv_flann310d.dll $(So
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="qtAnimationSlider.h" />
-    <ClInclude Include="qtPropertyTreeItem.h" />
+    <ClInclude Include="qtProperty.h" />
     <ClInclude Include="qtPropertyTreeWidget.h" />
+    <ClInclude Include="qtUtils.h" />
     <ClInclude Include="ui_qtMainWindow.h" />
     <CustomBuild Include="qtMainWindow.h">
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">qtMainWindow.h;%(AdditionalInputs)</AdditionalInputs>
@@ -324,7 +325,7 @@ xcopy $(SolutionDir)\_lib\prebuilt\OpenCV\x64\vc14\bin\opencv_flann310d.dll $(So
     <ClInclude Include="qtGLWidget.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="qtPropertyTreeItem.cpp" />
+    <ClCompile Include="qtProperty.cpp" />
     <ClInclude Include="qtNodeTreeItem.h" />
   </ItemGroup>
   <ItemGroup>

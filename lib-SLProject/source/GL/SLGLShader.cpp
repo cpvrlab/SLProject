@@ -27,7 +27,7 @@ SLchar* aGLSLErrorString[] = {(SLchar*)"(e0000) GLSL not enabled",
 //----------------------------------------------------------------------------- 
 //! Ctor with shader filename & shader type
 SLGLShader::SLGLShader(SLstring filename, SLShaderType shaderType) 
-           :SLObject(SLUtils::getFileName(filename))
+           :SLObject(SLUtils::getFileName(filename), filename)
 {  
     _type = shaderType;
     _code = "";

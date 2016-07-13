@@ -109,6 +109,7 @@ class SLGLTexture : public SLObject
             SLMat4f         tm              (){return _tm;}
             SLbool          autoCalcTM3D    (){return _autoCalcTM3D;}
             SLbool          needsUpdate     (){return _needsUpdate;}
+            SLstring        typeName        ();
       
             // Misc     
             SLTextureType   detectType      (SLstring filename);  
@@ -130,12 +131,12 @@ class SLGLTexture : public SLObject
 
     protected:
             // loading the image files
-            void        load            (SLstring filename);
+            void            load            (SLstring filename);
                                
             SLGLState*      _stateGL;        //!< Pointer to global SLGLState instance
             SLVImage        _images;         //!< vector of SLImage pointers
             SLuint          _texName;        //!< OpenGL texture "name" (= ID)
-            SLTextureType       _texType;        //!< [unknown, ColorMap, NormalMap, HeightMap, GlossMap]
+            SLTextureType   _texType;        //!< [unknown, ColorMap, NormalMap, HeightMap, GlossMap]
             SLint           _min_filter;     //!< Minification filter
             SLint           _mag_filter;     //!< Magnification filter
             SLint           _wrap_s;         //!< Wrapping in s direction
