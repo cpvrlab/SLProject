@@ -213,30 +213,35 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         SLGLTexture* texC = new SLGLTexture("earth1024_C.jpg");
         SLMaterial* m1 = new SLMaterial("m1", texC);
 
+        // Create a scene group node
+        SLNode* scene = new SLNode("scene node");
+
         // Create a camera node
         SLCamera* cam1 = new SLCamera();
         cam1->name("camera node");
         cam1->translation(0,0,20);
         cam1->lookAt(0, 0, 0);
         cam1->setInitialState();
-
-        // Create a light source node
-        SLLightSpot* light1 = new SLLightSpot(0.3f);
-        light1->translation(0,0,5);
-        light1->lookAt(0, 0, 0);
-        light1->name("light node");
-
-        // Create meshes and nodes
-        SLMesh* rectMesh = new SLRectangle(SLVec2f(-5,-5), SLVec2f(5,5), 1,1, "rectangle mesh", m1);
-        SLNode* rectNode = new SLNode(rectMesh, "rectangle node");
-        SLNode* axisNode = new SLNode(new SLCoordAxis(), "axis node");
-
-        // Create a scene group and add all nodes
-        SLNode* scene = new SLNode("scene node");
-        scene->addChild(light1);
         scene->addChild(cam1);
-        scene->addChild(rectNode);
-        scene->addChild(axisNode);
+
+        // Create a head light source node and add it to the camera
+        //SLLightSpot* light1 = new SLLightSpot(0.3f);
+        //light1->translation(2,0,-10);
+        //light1->lookAt(2, 0, -11);
+        //light1->name("light node");
+        //cam1->addChild(light1);
+
+        // Create a light source node and add it to the scene
+        SLLightSpot* light1 = new SLLightSpot(0.3f);
+        light1->translation(2,0,10);
+        light1->lookAt(2, 0, 0);
+        light1->name("light node");
+        scene->addChild(light1);
+
+        // Create earth mesh and node
+        SLNode* earth = new SLNode(new SLSphere(2, 32, 32, "Sphere", m1), "Sphere Node");
+        earth->rotate(90, -1,0,0);
+        scene->addChild(earth);
 
         // Set background color and the root scene node
         _background.colors(SLCol4f(0.7f,0.7f,0.7f), SLCol4f(0.2f,0.2f,0.2f));

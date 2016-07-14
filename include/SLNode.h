@@ -182,10 +182,14 @@ class SLNode: public SLObject, public SLEventHandler
                                                  SLbool findRecursive = true);
             
             // local direction getter functions
-            SLVec3f         translation         () const;
-            SLVec3f         forward             () const;
-            SLVec3f         right               () const;
-            SLVec3f         up                  () const;
+            SLVec3f         translationOS       () const;
+            SLVec3f         forwardOS           () const;
+            SLVec3f         rightOS             () const;
+            SLVec3f         upOS                () const;
+            SLVec3f         translationWS       () const;
+            SLVec3f         forwardWS           () const;
+            SLVec3f         rightWS             () const;
+            SLVec3f         upWS                () const;
 
             // transform setter methods
             void            translation         (const SLVec3f& pos,
@@ -373,16 +377,15 @@ void SLNode::findChildrenHelper(const SLstring& name, vector<T*>& list,
 /*!
 SLNode::position returns current local position
 */
-inline SLVec3f SLNode::translation() const
+inline SLVec3f SLNode::translationOS() const
 {
     return _om.translation();
 }
-
 //-----------------------------------------------------------------------------
 /*!
 SLNode::forward returns local forward vector
 */
-inline SLVec3f SLNode::forward() const
+inline SLVec3f SLNode::forwardOS() const
 {
     return SLVec3f(-_om.m(8), -_om.m(9), -_om.m(10));
 }
@@ -390,7 +393,7 @@ inline SLVec3f SLNode::forward() const
 /*!
 SLNode::right returns local right vector
 */
-inline SLVec3f SLNode::right() const
+inline SLVec3f SLNode::rightOS() const
 {
     return SLVec3f(_om.m(0), _om.m(1), _om.m(2));
 }
@@ -398,9 +401,45 @@ inline SLVec3f SLNode::right() const
 /*!
 SLNode::up returns local up vector
 */
-inline SLVec3f SLNode::up() const
+inline SLVec3f SLNode::upOS() const
 {
     return SLVec3f(_om.m(4), _om.m(5), _om.m(6));
+}
+//-----------------------------------------------------------------------------
+/*!
+SLNode::position returns current local position
+*/
+inline SLVec3f SLNode::translationWS() const
+{
+    updateAndGetWM();
+    return _wm.translation();
+}
+//-----------------------------------------------------------------------------
+/*!
+SLNode::forward returns worlds forward vector
+*/
+inline SLVec3f SLNode::forwardWS() const
+{
+    updateAndGetWM();
+    return SLVec3f(-_wm.m(8), -_wm.m(9), -_wm.m(10));
+}
+//-----------------------------------------------------------------------------
+/*!
+SLNode::right returns worlds right vector
+*/
+inline SLVec3f SLNode::rightWS() const
+{
+    updateAndGetWM();
+    return SLVec3f(_wm.m(0), _wm.m(1), _wm.m(2));
+}
+//-----------------------------------------------------------------------------
+/*!
+SLNode::up returns worlds up vector
+*/
+inline SLVec3f SLNode::upWS() const
+{
+    updateAndGetWM();
+    return SLVec3f(_wm.m(4), _wm.m(5), _wm.m(6));
 }
 //-----------------------------------------------------------------------------
 inline void SLNode::translation(SLfloat x, SLfloat y, SLfloat z, 

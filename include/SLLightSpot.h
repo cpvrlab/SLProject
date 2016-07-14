@@ -61,8 +61,8 @@ class SLLightSpot: public SLNode, public SLLight
             // Getters
             SLfloat     radius      () {return _radius;}
             SLint       samples     () {return _samples.samples();}
-            SLVec4f     positionWS  () {return updateAndGetWM().translation();}
-            SLVec3f     spotDirWS   () {return forward();}
+            SLVec4f     positionWS  () {return translationWS();}
+            SLVec3f     spotDirWS   () {return forwardWS();}
 
     private:
             SLfloat     _radius;    //!< The sphere lights radius

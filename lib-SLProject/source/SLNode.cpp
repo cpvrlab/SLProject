@@ -221,12 +221,9 @@ Adds a child node to the children vector
 */
 void SLNode::addChild(SLNode* child)
 {
-    assert(child);
-    assert(this != child);
-
-    // remove the node from it's old parent
-    if(child->parent())
-        child->parent()->deleteChild(child);
+    assert(child && "The child pointer is null.");
+    assert(this != child && "You can not add the node to itself.");
+    assert(!child->parent() && "The child has already a parent.");
 
     _children.push_back(child);
     _isAABBUpToDate = false;
@@ -883,9 +880,9 @@ void SLNode::rotate(const SLQuat4f& rot, SLTransformSpace relativeTo)
     else // relativeTo == TS_Parent || relativeTo == TS_World && !_parent
     {
         SLMat4f rot;
-        rot.translate(translation());
+        rot.translate(translationOS());
         rot.multiply(rotation);
-        rot.translate(-translation());
+        rot.translate(-translationOS());
 
         _om.setMatrix(rot * _om);
     }
@@ -942,7 +939,7 @@ the 'target' parameter is to be interpreted in.
 void SLNode::lookAt(const SLVec3f& target, const SLVec3f& up, 
                     SLTransformSpace relativeTo)
 {
-    SLVec3f pos = translation();
+    SLVec3f pos = translationOS();
     SLVec3f dir;
     SLVec3f localUp = up;
 
@@ -950,12 +947,12 @@ void SLNode::lookAt(const SLVec3f& target, const SLVec3f& up,
     {
         SLVec3f localTarget = _parent->updateAndGetWMI() * target;
         localUp = _parent->updateAndGetWMI().mat3() * up;
-        dir = localTarget - translation();
+        dir = localTarget - translationOS();
     }
     else if (relativeTo == TS_object)
-        dir = _om * target - translation();
+        dir = _om * target - translationOS();
     else
-        dir = target - translation();
+        dir = target - translationOS();
 
     dir.normalize();
     
@@ -969,7 +966,7 @@ void SLNode::lookAt(const SLVec3f& target, const SLVec3f& up,
     if (fabs(cosAngle-1.0) <= FLT_EPSILON || fabs(cosAngle+1.0) <= FLT_EPSILON)
     {
         SLMat3f rot;
-        rot.rotation(-90.0f, right());
+        rot.rotation(-90.0f, rightOS());
 
         localUp = rot * localUp;
     }

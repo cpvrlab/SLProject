@@ -81,11 +81,11 @@ SLbool SLCamera::camUpdate(SLfloat elapsedTimeMS)
         // x and z movement direction vector should be projected on the x,z plane while
         // but still in local space
         // the y movement direction should alway be in world space
-        SLVec3f f = forward();
+        SLVec3f f = forwardOS();
         f.y = 0;
         f.normalize();
 
-        SLVec3f r = right();
+        SLVec3f r = rightOS();
         r.y = 0;
         r.normalize();
 
@@ -640,10 +640,10 @@ SLbool SLCamera::onMouseMove(const SLMouseButton button,
     if (button == MB_left) //==================================================
     {   
         // new vars needed
-        SLVec3f position = this->translation();
-        SLVec3f forward =  this->forward();
-        SLVec3f right =    this->right();
-        SLVec3f up =       this->up();
+        SLVec3f position = this->translationOS();
+        SLVec3f forward =  this->forwardOS();
+        SLVec3f right =    this->rightOS();
+        SLVec3f up =       this->upOS();
 
         // The lookAt point
         SLVec3f laP = position + _focalDist * forward;

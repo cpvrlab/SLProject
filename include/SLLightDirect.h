@@ -65,7 +65,7 @@ class SLLightDirect: public SLNode, public SLLight
                                            pos.w = 0.0f;
                                            return pos;}
 
-            SLVec3f     spotDirWS      () {return forward();}
+            SLVec3f     spotDirWS      () {return forwardOS();}
 
    private:
             SLfloat     _arrowRadius;   //!< The sphere lights radius
