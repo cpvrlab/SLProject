@@ -23,9 +23,9 @@ SLLight::SLLight(SLfloat ambiPower,
 {  
     // Set parameter of SLLight
     _id = id;
-    _on = true;
-    _spotCutoff = 180.0f;
-    _spotCosCut = cos(SL_DEG2RAD*_spotCutoff);
+    _isOn = true;
+    _spotCutOffDEG = 180.0f;
+    _spotCosCutOffRAD = cos(SL_DEG2RAD*_spotCutOffDEG);
     _spotExponent = 1.0f;
 
     // Set parameters of inherited SLMaterial 
@@ -61,5 +61,11 @@ void SLLight::kq(SLfloat kq)
 {
     _kq = kq;
     _isAttenuated = (_kc==1.0f && _kl==0.0f && _kq==0.0f) ? false : true;
+}
+//-----------------------------------------------------------------------------
+void SLLight::spotCutOffDEG(const SLfloat cutOffAngleDEG)  
+{   
+    _spotCutOffDEG = cutOffAngleDEG;
+    _spotCosCutOffRAD = cos(SL_DEG2RAD*_spotCutOffDEG);
 }
 //-----------------------------------------------------------------------------

@@ -225,18 +225,18 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         scene->addChild(cam1);
 
         // Create a head light source node and add it to the camera
-        //SLLightSpot* light1 = new SLLightSpot(0.3f);
-        //light1->translation(2,0,-10);
-        //light1->lookAt(2, 0, -11);
-        //light1->name("light node");
-        //cam1->addChild(light1);
+        SLLightSpot* light1 = new SLLightSpot(0.3f, 10.0f);
+        light1->translation(5,0,-15);
+        light1->lookAt(0, 0, -20);
+        light1->name("light node");
+        cam1->addChild(light1);
 
         // Create a light source node and add it to the scene
-        SLLightSpot* light1 = new SLLightSpot(0.3f);
-        light1->translation(2,0,10);
-        light1->lookAt(2, 0, 0);
-        light1->name("light node");
-        scene->addChild(light1);
+        //SLLightSpot* light1 = new SLLightSpot(0.3f, 10.0f);
+        //light1->translation(5,0,5);
+        //light1->lookAt(0, 0, 0);
+        //light1->name("light node");
+        //scene->addChild(light1);
 
         // Create earth mesh and node
         SLNode* earth = new SLNode(new SLSphere(2, 32, 32, "Sphere", m1), "Sphere Node");
@@ -1144,7 +1144,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         _root3D = scene;
     }
     else
-    if (_currentSceneID == C_sceneMassiveData) //............................ .......
+    if (_currentSceneID == C_sceneMassiveData) //..............................
     {  
         name("Massive Data Test");
         info(sv, "No data is shared on the GPU. Check Memory consumption.");
@@ -1206,95 +1206,32 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         _root3D = scene;
     }
     else
-    if (_currentSceneID == C_scenePerVertexBlinn) //.................................
+    if (_currentSceneID == C_scenePerPixelBlinn ||
+        _currentSceneID == C_scenePerVertexBlinn) //...........................
     {
-        name("Blinn-Phong per vertex lighting");
-        info(sv, "Per-vertex lighting with Blinn-Phong lightmodel. The reflection of 5 light sources is calculated per vertex and is then interpolated over the triangles.");
+         SLMaterial* m1;
 
-        // create material
-        SLMaterial* m1 = new SLMaterial("m1", 0,0,0,0, _programs[SP_perVrtBlinn]);
+        if (_currentSceneID == C_scenePerPixelBlinn)
+        {   name("Blinn-Phong per pixel lighting");
+            info(sv, "Per-pixel lighting with Blinn-Phong lightmodel. The reflection of 5 light sources is calculated per pixel.");
+            m1 = new SLMaterial("m1", 0,0,0,0, _programs[SP_perPixBlinn]);
+        } else
+        {   name("Blinn-Phong per vertex lighting");
+            info(sv, "Per-vertex lighting with Blinn-Phong lightmodel. The reflection of 5 light sources is calculated per vertex.");
+            m1 = new SLMaterial("m1", 0,0,0,0);
+        }
+
         m1->shininess(500);
 
-        SLCamera* cam1 = new SLCamera;
-        cam1->translation(0,1,8);
-        cam1->lookAt(0,1,0);
-        cam1->focalDist(8);
-        cam1->setInitialState();
-
-        // Define 5 light sources
-        // A rectangluar wight light on top
-       SLLightRect* light0 = new SLLightRect(2.0f,1.0f);
-        light0->ambient(SLCol4f(0,0,0));
-        light0->diffuse(SLCol4f(1,1,1));
-        light0->translation(0,3,0);
-        light0->lookAt(0,0,0, 0,0,-1);
-        light0->attenuation(0,0,1);
-
-        // A red point light from from front left
-        SLLightSpot* light1 = new SLLightSpot(0.1f);
-        light1->ambient(SLCol4f(0,0,0));
-        light1->diffuse(SLCol4f(1,0,0));
-        light1->specular(SLCol4f(1,0,0));
-        light1->translation(0, 0, 2);
-        light1->lookAt(0, 0, 0);
-        light1->attenuation(0,0,1);
-
-        // A green spot light with 40° spot angle from front right
-        SLLightSpot* light2 = new SLLightSpot(0.1f, 20.0f, true);
-        light2->ambient(SLCol4f(0,0,0));
-        light2->diffuse(SLCol4f(0,1,0));
-        light2->specular(SLCol4f(0,1,0));
-        light2->translation(1.5f, 1.5f, 1.5f);
-        light2->lookAt(0, 0, 0);
-        light2->attenuation(0,0,1);
-        
-        // A blue spot light with 40° spot angle from front left
-        SLLightSpot* light3 = new SLLightSpot(0.1f, 20.0f, true);
-        light3->ambient(SLCol4f(0,0,0));
-        light3->diffuse(SLCol4f(0,0,1));
-        light3->specular(SLCol4f(0,0,1));
-        light3->translation(-1.5f, 1.5f, 1.5f);
-        light3->lookAt(0, 0, 0);
-        light3->attenuation(0,0,1);
-
-        // A yellow directional light from the back-bottom
-        SLLightDirect* light4 = new SLLightDirect(0.05f);
-        light4->ambient(SLCol4f(0,0,0));
-        light4->diffuse(SLCol4f(1,1,0));
-        light4->specular(SLCol4f(1,1,0));
-        light4->translation(-1.5f, -1.5f, -1.5f);
-        light4->lookAt(0, 0, 0);
-
-        // Assemble scene graph
+        // Base root group node for the scene
         SLNode* scene = new SLNode;
-        scene->addChild(cam1);
-        scene->addChild(light0);
-        scene->addChild(light1);
-        scene->addChild(light2);
-        scene->addChild(light3);
-        scene->addChild(light4);
-        scene->addChild(new SLNode(new SLSpheric(1.0f, 0.0f, 180.0f, 20, 20, "Sphere", m1)));
-        scene->addChild(new SLNode(new SLBox(1,-1,-1, 2,1,1, "Box", m1)));
-
-        _background.colors(SLCol4f(0.1f,0.1f,0.1f));
-        sv->camera(cam1);
-        _root3D = scene;
-    }
-    else
-    if (_currentSceneID == C_scenePerPixelBlinn) //..................................
-    {
-        name("Blinn-Phong per pixel lighting");
-        info(sv, "Per-pixel lighting with Blinn-Phong lightmodel. The reflection of 5 light sources is calculated per pixel.");
-
-        // create material
-        SLMaterial* m1 = new SLMaterial("m1", 0,0,0,0, _programs[SP_perPixBlinn]);
-        m1->shininess(500);
 
         SLCamera* cam1 = new SLCamera;
         cam1->translation(0,1,8);
         cam1->lookAt(0,1,0);
         cam1->focalDist(8);
         cam1->setInitialState();
+        scene->addChild(cam1);
 
         // Define 5 light sources
         // A rectangluar wight light on top
@@ -1304,6 +1241,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         light0->translation(0,3,0);
         light0->lookAt(0,0,0, 0,0,-1);
         light0->attenuation(0,0,1);
+        scene->addChild(light0);
 
         // A red point light from from front left
         SLLightSpot* light1 = new SLLightSpot(0.1f);
@@ -1313,15 +1251,27 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         light1->translation(0, 0, 2);
         light1->lookAt(0, 0, 0);
         light1->attenuation(0,0,1);
+        scene->addChild(light1);
 
         // A green spot light with 40° spot angle from front right
+        //SLLightSpot* light2 = new SLLightSpot(0.1f, 20.0f, true);
+        //light2->ambient(SLCol4f(0,0,0));
+        //light2->diffuse(SLCol4f(0,1,0));
+        //light2->specular(SLCol4f(0,1,0));
+        //light2->translation(1.5f, 1.5f, 1.5f);
+        //light2->lookAt(0, 0, 0);
+        //light2->attenuation(0,0,1);
+        //scene->addChild(light2);
+
+        // A green spot head light with 40° spot angle from front right
         SLLightSpot* light2 = new SLLightSpot(0.1f, 20.0f, true);
         light2->ambient(SLCol4f(0,0,0));
         light2->diffuse(SLCol4f(0,1,0));
         light2->specular(SLCol4f(0,1,0));
-        light2->translation(1.5f, 1.5f, 1.5f);
-        light2->lookAt(0, 0, 0);
+        light2->translation(1.5f, 0.5f, -6.5f);
+        light2->lookAt(0.5f,-0.5f, -7.5f);
         light2->attenuation(0,0,1);
+        cam1->addChild(light2);
         
         // A blue spot light with 40° spot angle from front left
         SLLightSpot* light3 = new SLLightSpot(0.1f, 20.0f, true);
@@ -1331,23 +1281,18 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         light3->translation(-1.5f, 1.5f, 1.5f);
         light3->lookAt(0, 0, 0);
         light3->attenuation(0,0,1);
+        scene->addChild(light3);
 
         // A yellow directional light from the back-bottom
-        SLLightDirect* light4 = new SLLightDirect(0.05f);
+        SLLightDirect* light4 = new SLLightDirect();
         light4->ambient(SLCol4f(0,0,0));
         light4->diffuse(SLCol4f(1,1,0));
         light4->specular(SLCol4f(1,1,0));
         light4->translation(-1.5f, -1.5f, -1.5f);
         light4->lookAt(0, 0, 0);
-
-        // Assemble scene graph
-        SLNode* scene = new SLNode;
-        scene->addChild(cam1);
-        scene->addChild(light0);
-        scene->addChild(light1);
-        scene->addChild(light2);
-        scene->addChild(light3);
         scene->addChild(light4);
+
+        // Add some meshes to be lighted
         scene->addChild(new SLNode(new SLSpheric(1.0f, 0.0f, 180.0f, 20, 20, "Sphere", m1)));
         scene->addChild(new SLNode(new SLBox(1,-1,-1, 2,1,1, "Box", m1)));
 
@@ -1517,7 +1462,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         light1->attenuation(1,0,0);
         light1->translation(0,0,5);
         light1->lookAt(0, 0, 0);
-        light1->spotCutoff(40);
+        light1->spotCutOffDEG(40);
 
         SLAnimation* anim = SLAnimation::create("light1_anim", 2.0f);
         anim->createEllipticNodeTrack(light1, 2.0f, A_x, 2.0f, A_Y);
@@ -1572,7 +1517,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         light1->attenuation(1,0,0);
         light1->translation(0,0,5);
         light1->lookAt(0, 0, 0);
-        light1->spotCutoff(50);
+        light1->spotCutOffDEG(50);
 
         SLAnimation* anim = SLAnimation::create("light1_anim", 2.0f);
         anim->createEllipticNodeTrack(light1, 2.0f, A_x, 2.0f, A_Y);
@@ -2046,7 +1991,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         SLLightRect* lightRect = new SLLightRect(1, 0.65f);
         lightRect->rotate(90, -1.0f, 0.0f, 0.0f);
         lightRect->translate(0.0f, -0.25f, 1.18f, TS_object);
-        lightRect->spotCutoff(90);
+        lightRect->spotCutOffDEG(90);
         lightRect->spotExponent(1.0);
         lightRect->diffuse(lightEmisRGB);
         lightRect->attenuation(0,0,1);

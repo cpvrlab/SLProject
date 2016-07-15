@@ -33,56 +33,56 @@ onMouseDown and onMouseUp.
 */  
 class SLButton: public SLNode
 {  public:                 
-                        SLButton    (SLSceneView* sv,
-                                     SLstring     text,
-                                     SLTexFont*   txtFont,
-                                     SLCommand        cmd = C_menu,
-                                     SLbool       isCheckable = false,
-                                     SLbool       isChecked = false,
-                                     SLButton*    radioParent = 0,
-                                     SLbool       closeOnClick = true,
-                                     SLfloat      btnWidth = 0.0f, 
-                                     SLfloat      btnHeight = 0.0f, 
-                                     SLCol3f      btnColor = SLCol3f::COLBFH,
-                                     SLfloat      btnAlpha = 0.8f,
-                                     SLTextAlign  txtAlign = TA_centerLeft,
-                                     SLCol4f      txtColor = SLCol4f::WHITE);
+                        SLButton        (SLSceneView* sv,
+                                         SLstring     text,
+                                         SLTexFont*   txtFont,
+                                         SLCommand        cmd = C_menu,
+                                         SLbool       isCheckable = false,
+                                         SLbool       isChecked = false,
+                                         SLButton*    radioParent = 0,
+                                         SLbool       closeOnClick = true,
+                                         SLfloat      btnWidth = 0.0f, 
+                                         SLfloat      btnHeight = 0.0f, 
+                                         SLCol3f      btnColor = SLCol3f::COLBFH,
+                                         SLfloat      btnAlpha = 0.8f,
+                                         SLTextAlign  txtAlign = TA_centerLeft,
+                                         SLCol4f      txtColor = SLCol4f::WHITE);
 
-                       ~SLButton    ();
+                       ~SLButton        ();
                         
-            void        drawRec     (SLSceneView* sv);
-            SLAABBox&   updateAABBRec();
-            SLbool      hitRec      (SLRay* ray){(void)ray; return false;}
+            void        drawRec         (SLSceneView* sv);
+            SLAABBox&   updateAABBRec   ();
+            SLbool      hitRec          (SLRay* ray){(void)ray; return false;}
             
             // Mouse down handler
-            SLbool      onMouseDown    (const SLMouseButton button, 
-                                        const SLint x, const SLint y, 
-                                        const SLKey mod); 
-            SLbool      onMouseUp      (const SLMouseButton button, 
-                                        const SLint x, const SLint y, 
-                                        const SLKey mod); 
-            SLbool      onDoubleClick  (const SLMouseButton button, 
-                                        const SLint x, const SLint y, 
-                                        const SLKey mod){return false;}               
+            SLbool      onMouseDown     (const SLMouseButton button, 
+                                         const SLint x, const SLint y, 
+                                         const SLKey mod); 
+            SLbool      onMouseUp       (const SLMouseButton button, 
+                                         const SLint x, const SLint y, 
+                                         const SLKey mod); 
+            SLbool      onDoubleClick   (const SLMouseButton button, 
+                                         const SLint x, const SLint y, 
+                                         const SLKey mod){return false;}               
             // Setters
-            void        isDown      (SLbool down)  {_isDown=down;}
-            void        isChecked   (SLbool check) {if (_isCheckable)
-                                                      _isChecked=check;
-                                                    else _isChecked=false;}
-            void        btnW        (SLfloat w) {_btnW = w;}
-            void        btnH        (SLfloat h) {_btnH = h;}
+            void        isDown          (SLbool down)  {_isDown=down;}
+            void        isChecked       (SLbool check) {if (_isCheckable)
+                                                          _isChecked=check;
+                                                        else _isChecked=false;}
+            void        btnW            (SLfloat w) {_btnW = w;}
+            void        btnH            (SLfloat h) {_btnH = h;}
 
             // Getters
-            SLCommand       command     () {return _command;}
-            SLText*     text        () {return _text;}
-            SLbool      isDown      () {return _isDown;}
-            SLbool      isCheckable () {return _isCheckable;}
-            SLbool      isChecked   () {return _isChecked;}
-            SLbool      isRadio     () {return _radioParent ? true : false;}
-            SLfloat     btnW        () {return _btnW;}
-            SLfloat     btnH        () {return _btnH;}
-            SLfloat     minX        () {return _minX;}
-            SLfloat     minY        () {return _minY;}
+            SLCommand   command         () {return _command;}
+            SLText*     text            () {return _text;}
+            SLbool      isDown          () {return _isDown;}
+            SLbool      isCheckable     () {return _isCheckable;}
+            SLbool      isChecked       () {return _isChecked;}
+            SLbool      isRadio         () {return _radioParent ? true : false;}
+            SLfloat     btnW            () {return _btnW;}
+            SLfloat     btnH            () {return _btnH;}
+            SLfloat     minX            () {return _minX;}
+            SLfloat     minY            () {return _minY;}
                
             // Misc.
             void        buildBuffers      ();

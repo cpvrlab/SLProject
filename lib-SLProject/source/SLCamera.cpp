@@ -38,11 +38,12 @@ SLCamera::SLCamera()
       _movedLastFrame(false)
 {  
     _fovInit      = 0;
+    _aspect       = 0;
     _clipNear     = 0.1f;
     _clipFar      = 300.0f;
-    _fov          = 45;               //currentFOV;
+    _fov          = 45;                 //currentFOV;
     _projection   = P_monoPerspective;  //currentProjection;
-    _camAnim      = CA_turntableYUp;     //currentAnimation
+    _camAnim      = CA_turntableYUp;    //currentAnimation
     _useDeviceRot = true;
 
     // depth of field parameters
@@ -309,19 +310,20 @@ void SLCamera::statsRec(SLNodeStats &stats)
     SLNode::statsRec(stats);
 }
 //-----------------------------------------------------------------------------
-/*!
-SLCamera::updateAABBRec builds and returns the axis-aligned bounding box.
-*/
-SLAABBox& SLCamera::updateAABBRec()
-{
-    // calculate min & max in object space
-    SLVec3f minOS, maxOS;
-    calcMinMax(minOS, maxOS);
-
-    // apply world matrix
-    _aabb.fromOStoWS(minOS, maxOS, _wm);
-    return _aabb;
-}
+///*!
+//SLCamera::updateAABBRec builds and returns the axis-aligned bounding box.
+//*/
+//SLAABBox& SLCamera::updateAABBRec()
+//{
+//    // calculate min & max in object space
+//    //if (SLScene::current->)
+//    SLVec3f minOS, maxOS;
+//    calcMinMax(minOS, maxOS);
+//
+//    // apply world matrix
+//    _aabb.fromOStoWS(minOS, maxOS, _wm);
+//    return _aabb;
+//}
 //-----------------------------------------------------------------------------
 /*!
 SLCamera::calcMinMax calculates the axis alligned minimum and maximum point of
@@ -667,7 +669,7 @@ SLbool SLCamera::onMouseMove(const SLMouseButton button,
             rot.translate(-rtP);
 			
             _om.setMatrix(rot * _om);
-            needWMUpdate();
+            needUpdate();
         }
         else if (_camAnim==CA_turntableZUp) //.................................
         {

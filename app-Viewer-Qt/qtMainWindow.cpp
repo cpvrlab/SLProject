@@ -484,8 +484,8 @@ void qtMainWindow::buildPropertyTree()
             ui->propertyTree->addTopLevelItem(level1);
 
             level2 = new qtProperty("Turned on:", "", onDblClickEdit);
-            level2->setGetBool(bind((bool(SLLight::*)(void))&SLLight::on, light),
-                               bind((void(SLLight::*)(bool))&SLLight::on, light, _1));
+            level2->setGetBool(bind((bool(SLLight::*)(void))&SLLight::isOn, light),
+                               bind((void(SLLight::*)(bool))&SLLight::isOn, light, _1));
             level1->addChild(level2);
 
             level2 = new qtProperty("Ambient Intensity:", "", onDblClickEdit);
@@ -506,8 +506,8 @@ void qtMainWindow::buildPropertyTree()
             if (typeid(*node)!=typeid(SLLightDirect))
             {
                 level2 = new qtProperty("Cut off angle:", "", onDblClickEdit);
-                level2->setGetFloat(bind((float(SLLight::*)(void))&SLLight::spotCutoff, light),
-                                    bind((void(SLLight::*)(float))&SLLight::spotCutoff, light, _1));
+                level2->setGetFloat(bind((float(SLLight::*)(void))&SLLight::spotCutOffDEG, light),
+                                    bind((void(SLLight::*)(float))&SLLight::spotCutOffDEG, light, _1));
                 level1->addChild(level2);
             
                 level2 = new qtProperty("Attenuation:");

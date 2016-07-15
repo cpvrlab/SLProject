@@ -27,6 +27,17 @@ its direction representation.
 For directional lights the position vector is in infinite distance
 We use its homogeneos component w as zero as the directional light flag.
 The spot direction is used in the shaders for the light direction.
+If a light node is added to the scene it stays fix in the scene.\n
+If a light node is added to the camera it moves with the camera.\n
+See the scene examples for Per-Vertex-Blinn or Per-Pixel-Blinn lighting where
+all light node types are used. \n
+All light nodes inherited from SLLight work automatically together with the
+following shaders: \n
+  - PerVrtBlinn.vert, PerVrtBlinn.frag \n
+  - PerVrtBlinnTex.vert, PerVrtBlinnTex.frag \n
+  - PerPixBlinn.vert, PerPixBlinn.frag \n
+  - PerPixBlinnTex.vert, PerPixBlinnTex.frag \n
+
 */
 class SLLightDirect: public SLNode, public SLLight
 {  public:

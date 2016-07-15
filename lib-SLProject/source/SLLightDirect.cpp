@@ -96,7 +96,7 @@ void SLLightDirect::init()
     // Set emissive light material to the lights diffuse color
     if (_meshes.size() > 0)
         if (_meshes[0]->mat)
-            _meshes[0]->mat->emission(_on ? diffuse() : SLCol4f::BLACK);   
+            _meshes[0]->mat->emission(_isOn ? diffuse() : SLCol4f::BLACK);   
 }
 //-----------------------------------------------------------------------------
 /*!
@@ -136,7 +136,7 @@ void SLLightDirect::drawMeshes(SLSceneView* sv)
         // Set emissive light material to the lights diffuse color
         if (_meshes.size() > 0)
             if (_meshes[0]->mat)
-                _meshes[0]->mat->emission(_on ? diffuse() : SLCol4f::BLACK);   
+                _meshes[0]->mat->emission(_isOn ? diffuse() : SLCol4f::BLACK);   
    
         // now draw the meshes of the node
         SLNode::drawMeshes(sv);
@@ -201,7 +201,7 @@ SLfloat SLLightDirect::shadowTestMC(SLRay* ray,         // ray of hit point
 void SLLightDirect::setState()
 {  
     if (_id!=-1) 
-    {   _stateGL->lightIsOn[_id]       = _on;
+    {   _stateGL->lightIsOn[_id]       = _isOn;
 
         // For directional lights the position vector is in infinite distance
         // We use its homogeneos component w as zero as the directional light flag.
@@ -213,8 +213,8 @@ void SLLightDirect::setState()
         _stateGL->lightAmbient[_id]    = _ambient;              
         _stateGL->lightDiffuse[_id]    = _diffuse;              
         _stateGL->lightSpecular[_id]   = _specular;    
-        _stateGL->lightSpotCutoff[_id] = _spotCutoff;           
-        _stateGL->lightSpotCosCut[_id] = _spotCosCut;           
+        _stateGL->lightSpotCutoff[_id] = _spotCutOffDEG;           
+        _stateGL->lightSpotCosCut[_id] = _spotCosCutOffRAD;           
         _stateGL->lightSpotExp[_id]    = _spotExponent;         
         _stateGL->lightAtt[_id].x      = _kc;  
         _stateGL->lightAtt[_id].y      = _kl;    

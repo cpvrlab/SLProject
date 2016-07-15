@@ -30,7 +30,7 @@ SLLightSpot::SLLightSpot(SLfloat radius,
 {  
     _radius = radius;
     _samples.samples(1,1,false);
-    spotCutoff(spotAngleDEG);
+    spotCutOffDEG(spotAngleDEG);
 
     if (hasMesh)
     {   SLMaterial* mat = new SLMaterial("LightSpot Mesh Mat", 
@@ -64,7 +64,7 @@ SLLightSpot::SLLightSpot(SLfloat posx,
 {  
     _radius = radius;
     _samples.samples(1,1,false);
-    spotCutoff(spotAngleDEG);
+    spotCutOffDEG(spotAngleDEG);
 
     translate(posx, posy, posz, TS_object);
 
@@ -109,7 +109,7 @@ void SLLightSpot::init()
     // Set emissive light material to the lights diffuse color
     if (_meshes.size() > 0)
         if (_meshes[0]->mat)
-            _meshes[0]->mat->emission(_on ? diffuse() : SLCol4f::BLACK);   
+            _meshes[0]->mat->emission(_isOn ? diffuse() : SLCol4f::BLACK);   
 }
 //-----------------------------------------------------------------------------
 /*!
@@ -150,7 +150,7 @@ void SLLightSpot::drawMeshes(SLSceneView* sv)
         // Set emissive light material to the lights diffuse color
         if (_meshes.size() > 0)
             if (_meshes[0]->mat)
-                _meshes[0]->mat->emission(_on ? diffuse() : SLCol4f::BLACK);   
+                _meshes[0]->mat->emission(_isOn ? diffuse() : SLCol4f::BLACK);   
    
         // now draw the meshes of the node
         SLNode::drawMeshes(sv);
@@ -336,14 +336,14 @@ SLfloat SLLightSpot::shadowTestMC(SLRay* ray,         // ray of hit point
 void SLLightSpot::setState()
 {  
     if (_id!=-1) 
-    {   _stateGL->lightIsOn[_id]       = _on;
+    {   _stateGL->lightIsOn[_id]       = _isOn;
         _stateGL->lightPosWS[_id]      = positionWS();
         _stateGL->lightSpotDirWS[_id]  = spotDirWS();           
         _stateGL->lightAmbient[_id]    = _ambient;              
         _stateGL->lightDiffuse[_id]    = _diffuse;              
         _stateGL->lightSpecular[_id]   = _specular;    
-        _stateGL->lightSpotCutoff[_id] = _spotCutoff;           
-        _stateGL->lightSpotCosCut[_id] = _spotCosCut;           
+        _stateGL->lightSpotCutoff[_id] = _spotCutOffDEG;           
+        _stateGL->lightSpotCosCut[_id] = _spotCosCutOffRAD;           
         _stateGL->lightSpotExp[_id]    = _spotExponent;         
         _stateGL->lightAtt[_id].x      = _kc;  
         _stateGL->lightAtt[_id].y      = _kl;    

@@ -40,9 +40,9 @@ class SLCamera: public SLNode
                             SLCamera        ();
                            ~SLCamera        ();
 
-            SLbool          hitRec          (SLRay* ray){(void)ray; return false;}
+          //SLbool          hitRec          (SLRay* ray);
             void            statsRec        (SLNodeStats &stats);
-            SLAABBox&       updateAABBRec    ();
+          //SLAABBox&       updateAABBRec   ();
 
             void            drawMeshes      (SLSceneView* sv);
     virtual SLbool          camUpdate       (SLfloat timeMS);

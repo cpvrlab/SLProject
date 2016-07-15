@@ -336,7 +336,7 @@ SLCol4f SLPathtracer::shade(SLRay* ray, SLCol4f* objectColor)
     {
         SLLight* light = s->lights()[i];
 
-        if (light && light->on())
+        if (light && light->isOn())
         {
             N.set(ray->hitNormal);
             L.sub(light->positionWS().vec3(), ray->hitPoint);
@@ -348,7 +348,7 @@ SLCol4f SLPathtracer::shade(SLRay* ray, SLCol4f* objectColor)
             lighted = (SLfloat)((LdN > 0) ? light->shadowTestMC(ray, L, lightDist) : 0);
 
             // calculate spot effect if light is a spotlight
-            if (lighted > 0.0f && light->spotCutoff() < 180.0f)
+            if (lighted > 0.0f && light->spotCutOffDEG() < 180.0f)
             {
                 SLfloat LdS = SL_max(-L.dot(light->spotDirWS()), 0.0f);
 

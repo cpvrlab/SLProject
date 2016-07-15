@@ -289,6 +289,9 @@ void SLSceneView::onInitialize()
     // init 3D scene with initial depth 1
     if (s->root3D() && s->root3D()->aabb()->radiusOS()==0)
     {
+        // Init camera so that its frustum is set
+        _camera->setProjection(this, ET_center);
+
         // build axis aligned bounding box hierarchy after init
         clock_t t = clock();
         s->root3D()->updateAABBRec();

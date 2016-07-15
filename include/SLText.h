@@ -29,30 +29,30 @@ is 1.0 the minimal line spacing is used.
 */
 class SLText: public SLNode 
 {  public:                     
-                        SLText(SLstring text,
-                               SLTexFont* font = SLTexFont::font09,
-                               SLCol4f txtCol = SLCol4f::WHITE,
-                               SLfloat maxWidth = 0.0f,
-                               SLfloat lineHeightFactor = 1.3f);
+                        SLText          (SLstring text,
+                                         SLTexFont* font = SLTexFont::font09,
+                                         SLCol4f txtCol = SLCol4f::WHITE,
+                                         SLfloat maxWidth = 0.0f,
+                                         SLfloat lineHeightFactor = 1.3f);
 
-                       ~SLText(){;}
+                       ~SLText          (){;}
             
-            void        drawRec     (SLSceneView* sv);
-            void        statsRec    (SLNodeStats &stats);
-            SLAABBox&   updateAABBRec();
-            SLbool      hitRec      (SLRay* ray){return false;}
-    virtual void        drawMeshes  (SLSceneView* sv);
+            void        drawRec         (SLSceneView* sv);
+            void        statsRec        (SLNodeStats &stats);
+            SLAABBox&   updateAABBRec   ();
+            SLbool      hitRec          (SLRay* ray){return false;}
+    virtual void        drawMeshes      (SLSceneView* sv);
             
-            void        preShade    (SLRay* ray){;}
+            void        preShade        (SLRay* ray){;}
             
             // Getters
-            SLstring    text        (){return _text;}
-            SLCol4f     color       (){return _color;}
-            SLVec2f     size        (){return _font->calcTextSize(_text,
-                                                                  _maxW,
-                                                                  _lineH);}
-            SLfloat     fontHeightPX(){return(SLfloat)_font->charsHeight;}
-            SLint       length      (){return (SLint)_text.length();}
+            SLstring    text            (){return _text;}
+            SLCol4f     color           (){return _color;}
+            SLVec2f     size            (){return _font->calcTextSize(_text,
+                                                                      _maxW,
+                                                                      _lineH);}
+            SLfloat     fontHeightPX    (){return(SLfloat)_font->charsHeight;}
+            SLint       length          (){return (SLint)_text.length();}
             
    protected:    
             SLstring        _text;  //!< Text of the button

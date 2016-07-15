@@ -33,62 +33,59 @@ class SLLight
     virtual void        setState    () = 0;
             
             // Setters
-            void        id          (const SLint id)     {_id = id;}
-            void        on          (const SLbool on)    {_on = on;}
-            void        ambient     (SLCol4f ambi)       {_ambient = ambi;}
-            void        diffuse     (SLCol4f diff)       {_diffuse = diff;}
-            void        specular    (SLCol4f spec)       {_specular = spec;}
-            void        spotCutoff  (const SLfloat cut)  {_spotCutoff = cut;
-                                                          _spotCosCut = cos(SL_DEG2RAD*_spotCutoff);}
-            void        spotExponent(const SLfloat exp)  {_spotExponent = exp;}
-            void        kc          (const SLfloat kc);
-            void        kl          (const SLfloat kl);
-            void        kq          (const SLfloat kq);
-            void        attenuation (const SLfloat kC,
-                                     const SLfloat kL,
-                                     const SLfloat kQ)   {kc(kC); kl(kL); kq(kQ);}
+            void        id              (const SLint id)     {_id = id;}
+            void        isOn            (const SLbool on)    {_isOn = on;}
+            void        ambient         (const SLCol4f ambi) {_ambient = ambi;}
+            void        diffuse         (const SLCol4f diff) {_diffuse = diff;}
+            void        specular        (const SLCol4f spec) {_specular = spec;}
+            void        spotExponent    (const SLfloat exp)  {_spotExponent = exp;}
+            void        spotCutOffDEG   (const SLfloat cutOffAngleDEG);
+            void        kc              (const SLfloat kc);
+            void        kl              (const SLfloat kl);
+            void        kq              (const SLfloat kq);
+            void        attenuation     (const SLfloat kC,
+                                         const SLfloat kL,
+                                         const SLfloat kQ)   {kc(kC); kl(kL); kq(kQ);}
 
             // Getters
-            SLint       id          () {return _id;}
-            SLbool      on          () {return _on;}
-            SLCol4f     ambient     () {return _ambient;}
-            SLCol4f     diffuse     () {return _diffuse;}
-            SLCol4f     specular    () {return _specular;}
-            SLfloat     spotCutoff  () {return _spotCutoff;}
-            SLfloat     spotCosCut  () {return _spotCosCut;}
-            SLfloat     spotExponent() {return _spotExponent;}
-            SLfloat     kc          () {return _kc;}
-            SLfloat     kl          () {return _kl;}
-            SLfloat     kq          () {return _kq;}
-            SLbool      isAttenuated() {return _isAttenuated;}
-            SLfloat     attenuation (SLfloat dist) 
-                        {  return 1.0f/(_kc+_kl*dist+_kq*dist*dist);
-                        }
+            SLint       id              () {return _id;}
+            SLbool      isOn            () {return _isOn;}
+            SLCol4f     ambient         () {return _ambient;}
+            SLCol4f     diffuse         () {return _diffuse;}
+            SLCol4f     specular        () {return _specular;}
+            SLfloat     spotCutOffDEG   () {return _spotCutOffDEG;}
+            SLfloat     spotCosCut      () {return _spotCosCutOffRAD;}
+            SLfloat     spotExponent    () {return _spotExponent;}
+            SLfloat     kc              () {return _kc;}
+            SLfloat     kl              () {return _kl;}
+            SLfloat     kq              () {return _kq;}
+            SLbool      isAttenuated    () {return _isAttenuated;}
+            SLfloat     attenuation     (SLfloat dist) {return 1.0f/(_kc+_kl*dist+_kq*dist*dist);}
             
             // some virtuals needed for ray tracing
-   virtual  SLVec4f     positionWS  () = 0;
-   virtual  SLVec3f     spotDirWS   () = 0;
-   virtual  SLfloat     shadowTest  (SLRay* ray,       
-                                     const SLVec3f& L, 
-                                     const SLfloat lightDist) = 0;
-   virtual  SLfloat     shadowTestMC(SLRay* ray,
-                                     const SLVec3f& L,
-                                     const SLfloat lightDist) = 0;                           
+   virtual  SLVec4f     positionWS      () = 0;
+   virtual  SLVec3f     spotDirWS       () = 0;
+   virtual  SLfloat     shadowTest      (SLRay* ray,       
+                                         const SLVec3f& L, 
+                                         const SLfloat lightDist) = 0;
+   virtual  SLfloat     shadowTestMC    (SLRay* ray,
+                                         const SLVec3f& L,
+                                         const SLfloat lightDist) = 0;                           
             
    protected:
-            SLint       _id;           //!< OpenGL light number (0-7)
-            SLbool      _on;           //!< Flag if light is on or off
-            SLCol4f     _ambient;      //!< Ambient light intensity Ia
-            SLCol4f     _diffuse;      //!< Diffuse light intensity Id
-            SLCol4f     _specular;     //!< Specular light intensity Is
-            SLfloat     _spotCutoff;   //!< Half the spot cone angle
-            SLfloat     _spotCosCut;   //!< cosine of spotCutoff angle
-            SLfloat     _spotExponent; //!< Spot attenuation from center to edge of cone
-            SLfloat     _kc;           //!< Constant light attenuation
-            SLfloat     _kl;           //!< Linear light attenuation
-            SLfloat     _kq;           //!< Quadratic light attenuation
-            SLbool      _isAttenuated; //!< fast attenuation flag for ray tracing
-            SLint       _samples;      //!< number of samples for area lights
+            SLint       _id;            //!< OpenGL light number (0-7)
+            SLbool      _isOn;          //!< Flag if light is on or off
+            SLCol4f     _ambient;       //!< Ambient light intensity Ia
+            SLCol4f     _diffuse;       //!< Diffuse light intensity Id
+            SLCol4f     _specular;      //!< Specular light intensity Is
+            SLfloat     _spotCutOffDEG; //!< Half the spot cone angle
+            SLfloat     _spotCosCutOffRAD;  //!< cosine of spotCutoff angle
+            SLfloat     _spotExponent;  //!< Spot attenuation from center to edge of cone
+            SLfloat     _kc;            //!< Constant light attenuation
+            SLfloat     _kl;            //!< Linear light attenuation
+            SLfloat     _kq;            //!< Quadratic light attenuation
+            SLbool      _isAttenuated;  //!< fast attenuation flag for ray tracing
+            SLint       _samples;       //!< number of samples for area lights
 };
 //-----------------------------------------------------------------------------
 //! STL vector of light pointers

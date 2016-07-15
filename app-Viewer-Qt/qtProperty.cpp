@@ -13,6 +13,7 @@
 #include "qtUtils.h"
 #include <QColorDialog>
 #include <QFile>
+#include <QFileInfo>
 #include <QUrl>
 #include <QDesktopServices>
 #include <QMessageBox>
@@ -142,10 +143,16 @@ void qtProperty::onItemDblClicked(int column)
             }
         }
         if (_onDblClick == openFile)
-        {   if (QFile::exists(_getURL().c_str()))
-                QDesktopServices::openUrl(QUrl(_getURL().c_str()));
+        {   QFileInfo fileToOpen(_getURL().c_str());
+            
+            cout << _getURL() << endl;
+            cout << fileToOpen.canonicalFilePath().toStdString() << endl;
+
+            if (fileToOpen.exists() && fileToOpen.isFile())
+                QDesktopServices::openUrl(fileToOpen.canonicalFilePath());
             else
-            {   SLstring msg = "File not found: \n" + _getURL();
+            {   SLstring msg = "File not found: \n" + 
+                               fileToOpen.canonicalFilePath().toStdString();
                 qtUtils::showMsgBox(msg.c_str());
             }
         }

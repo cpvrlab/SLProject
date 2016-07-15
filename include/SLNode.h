@@ -113,7 +113,7 @@ A node can be transformed by one of the various transform functions such
 as translate(). Many of these functions take an additional parameter 
 'relativeTo'. This parameter tells the transform function in what space
 the transformation should be applied in. The available transform spaces
-are:
+are:\n
    - TS_World: Space relative to the global world coordinate system.
    - TS_Parent: Space relative to our parent's transformation.
    - TS_Object: Space relative to our current node's origin.
@@ -135,7 +135,6 @@ class SLNode: public SLObject, public SLEventHandler
     public:
                             SLNode              (SLstring name="Node");
                             SLNode              (SLMesh* mesh, SLstring name="Node");
-                            SLNode              (const SLNode& node);
     virtual                ~SLNode              ();
          
             // Recursive scene traversal methods (see impl. for details)

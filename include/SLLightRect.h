@@ -26,6 +26,16 @@ object and applies the OpenGL light settings through the SLLight class.
 The light rectangle is defined with its width and height and lies initially 
 centered in the x-y-plane. The light shines as a spotlight with 90 degrees 
 cutoff angle towards the negative z-axis.
+If a light node is added to the scene it stays fix in the scene.\n
+If a light node is added to the camera it moves with the camera.\n
+See the scene examples for Per-Vertex-Blinn or Per-Pixel-Blinn lighting where
+all light node types are used. \n
+All light nodes inherited from SLLight work automatically together with the
+following shaders: \n
+  - PerVrtBlinn.vert, PerVrtBlinn.frag \n
+  - PerVrtBlinnTex.vert, PerVrtBlinnTex.frag \n
+  - PerPixBlinn.vert, PerPixBlinn.frag \n
+  - PerPixBlinnTex.vert, PerPixBlinnTex.frag \n
 */
 class SLLightRect: public SLNode, public SLLight
 {  public:

@@ -423,7 +423,7 @@ SLCol4f SLRaytracer::shade(SLRay* ray)
     for (SLint i=0; i<s->lights().size(); ++i) 
     {  SLLight* light = s->lights()[i];
    
-        if (light && light->on())
+        if (light && light->isOn())
         {              
             // calculate light vector L and distance to light
             N.set(ray->hitNormal);
@@ -452,7 +452,7 @@ SLCol4f SLRaytracer::shade(SLRay* ray)
             spec.set(0,0,0);
       
             // calculate spot effect if light is a spotlight
-            if (lighted > 0.0f && light->spotCutoff() < 180.0f)
+            if (lighted > 0.0f && light->spotCutOffDEG() < 180.0f)
             {   SLfloat LdS = SL_max(-L.dot(light->spotDirWS()), 0.0f);
          
                 // check if point is in spot cone

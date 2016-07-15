@@ -670,10 +670,17 @@ SLAABBox& SLNode::updateAABBRec()
         _aabb.mergeWS(aabbMesh);
     }
     
-    // Merge children in WS
+    // Merge children in WS except for cameras except if cameras have children
     for (auto child : _children)
-        if (typeid(*child)!=typeid(SLCamera))
+    {
+        bool childIsCamera = typeid(*child)==typeid(SLCamera);
+        bool cameraHasChildren = false;
+        if (childIsCamera)
+            cameraHasChildren = child->children().size() > 0;
+            
+        if (!childIsCamera || cameraHasChildren)
             _aabb.mergeWS(child->updateAABBRec());
+    }
 
     // We need min & max also in OS for the uniform grid intersection in OS
     _aabb.fromWStoOS(_aabb.minWS(), _aabb.maxWS(), updateAndGetWMI());
