@@ -37,7 +37,7 @@ The SLScene class holds everything that is common for all scene views such as
 the root pointer (_root3D) to the scene, the background color, an array of
 lights as well as the global resources (_meshes (SLMesh), _materials (SLMaterial), 
 _textures (SLGLTexture) and _shaderProgs (SLGLProgram)).
-All these resources and the scene with all nodes to witch _root3D pointer points
+All these resources and the scene with all nodes to which _root3D pointer points
 get deleted in the method unInit. A scene could have multiple scene views. 
 A pointer of each is stored in the vector _sceneViews. 
 The onLoad method can build a of several built in test and demo scenes.
