@@ -107,9 +107,9 @@ void SLGLVertexArray::setIndices(SLuint numIndices,
 {   assert(numIndices);
     assert(dataPointer);
     
-    if (indexDataType == BT_ushort && numIndices > 65535)
+    if (indexDataType == BT_ushort && _numVertices > 65535)
         SL_EXIT_MSG("Index data type not sufficient.");
-    if (indexDataType == BT_ubyte && numIndices > 255)
+    if (indexDataType == BT_ubyte && _numVertices > 255)
         SL_EXIT_MSG("Index data type not sufficient.");
         
     _numIndices = numIndices;
