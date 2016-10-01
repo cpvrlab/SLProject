@@ -50,8 +50,16 @@ macx {
     DEFINES += SL_HAS_OPENCV
 }
 unix:!macx:!android {
+    # OpenCV Installation in Linux
+    # Feature detection tutorial depends on the nonfree module, which is not included in apt-get repos.
+    # It can be installed following instructions:
+    # sudo add-apt-repository --yes ppa:xqms/opencv-nonfree
+    # sudo apt-get update
+    # sudo apt-get install libopencv-nonfree-dev
+    #
     # Install opencv with the following command:
     # sudo apt-get install libopencv-core-dev libopencv-imgproc-dev libopencv-video-dev libopencv-videoio-dev
+
     OPENCV_LIB_DIRS += /usr/lib #default
     OPENCV_LIB_DIRS += /usr/lib/x86_64-linux-gnu #ubuntu
     for(dir,OPENCV_LIB_DIRS) {
