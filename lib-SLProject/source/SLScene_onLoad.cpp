@@ -224,27 +224,24 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         cam1->setInitialState();
         scene->addChild(cam1);
 
-        // Create a head light source node and add it to the camera
-        SLLightSpot* light1 = new SLLightSpot(0.3f, 10.0f);
-        light1->translation(5,0,-15);
-        light1->lookAt(0, 0, -20);
+        // Create a light source node
+        SLLightSpot* light1 = new SLLightSpot(0.3f);
+        light1->translation(0,0,5);
+        light1->lookAt(0,0,0);
         light1->name("light node");
-        cam1->addChild(light1);
+        scene->addChild(light1);
 
-        // Create a light source node and add it to the scene
-        //SLLightSpot* light1 = new SLLightSpot(0.3f, 10.0f);
-        //light1->translation(5,0,5);
-        //light1->lookAt(0, 0, 0);
-        //light1->name("light node");
-        //scene->addChild(light1);
-
-        // Create earth mesh and node
-        SLNode* earth = new SLNode(new SLSphere(2, 32, 32, "Sphere", m1), "Sphere Node");
-        earth->rotate(90, -1,0,0);
-        scene->addChild(earth);
+        // Create meshes and nodes
+        SLMesh* rectMesh = new SLRectangle(SLVec2f(-5,-5),SLVec2f(5,5),1,1,"rectangle mesh",m1);
+        SLNode* rectNode = new SLNode(rectMesh,"rectangle node");
+        scene->addChild(rectNode);
+        SLNode* axisNode = new SLNode(new SLCoordAxis(),"axis node");
+        scene->addChild(axisNode);
 
         // Set background color and the root scene node
-        _background.colors(SLCol4f(0.7f,0.7f,0.7f), SLCol4f(0.2f,0.2f,0.2f));
+        _background.colors(SLCol4f(0.7f,0.7f,0.7f),SLCol4f(0.2f,0.2f,0.2f));
+        
+        // pass the scene group as root node
         _root3D = scene;
 
         // Set active camera

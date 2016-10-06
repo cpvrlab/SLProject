@@ -21,7 +21,7 @@ class SLCVCalibration
 public:
     enum SLCVCalibState {IDLE, CAPTURING, CALCULATING, CALIBRATED};
 
-                SLCVCalibration       ();
+                SLCVCalibration     ();
 
     bool        loadCamParams       ();
     bool        loadCalibParams     ();

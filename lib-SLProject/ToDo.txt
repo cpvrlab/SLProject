@@ -5,10 +5,15 @@
 Next Steps:
 
 Prio 1:
-- Save scene as Collada dae file
-- Directional light
+- Update libpng to be compatible again with Google App Store.
+- Integrate CV tracking classes. Implement Test scenes for marker tracking in demo applications
+- Build mobile demo versions with AR tracking examples.
+  If no camera calibration exists, the demo app automatically starts the camera of mobile devices
+  in the calibarion mode.
+- Save scene as Collada dae file.
 
 Prio 2:
+- Fix multi SceneView problems in app-Viewer-Qt or shall we drop the Qt projects?
 - LongTouch Menu Öffnung fertig machen
 - Creating bump map material if files contain normal map materials
 - mh: Skybox würde mit wenig Aufwand Attraktivität erhöhen
