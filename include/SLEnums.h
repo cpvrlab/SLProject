@@ -97,8 +97,7 @@ enum SLCommand
 
     C_sceneSkeletalAnimation,
     C_sceneNodeAnimation,
-    C_sceneAstroboyArmyGPU,
-    C_sceneAstroboyArmyCPU,
+    C_sceneAstroboyArmy,
 
     C_sceneARCalibration,
     C_sceneARTrackAruco,

@@ -131,10 +131,16 @@ class SLVec3
     inline  T       maxXYZ      ()                      {if (x>=y && x>=z) return x;
                                                          else if (y>=z)    return y;
                                                          else              return z;}
-    inline  T       maxXYZ      (SLint &axis)           {if (x>=y && x>=z){axis=0; return x;}
-                                                         else if (y>=z)   {axis=1; return y;}
-                                                         else             {axis=2; return z;}}
-    inline  SLint   maxAxis     ()                      {if (x>=y && x>=z) return 0;
+    inline  T       minXYZ      ()                      {if (x<=y && x<=z) return x;
+                                                         else if (y<=z)    return y;
+                                                         else              return z;}
+    inline  T       maxXYZ      (SLint &comp)           {if (x>=y && x>=z){comp=0; return x;}
+                                                         else if (y>=z)   {comp=1; return y;}
+                                                         else             {comp=2; return z;}}
+    inline  T       minXYZ      (SLint &comp)           {if (x<=y && x<=z){comp=0; return x;}
+                                                         else if (y<=z)   {comp=1; return y;}
+                                                         else             {comp=2; return z;}}
+    inline  SLint   maxComp     ()                      {if (x>=y && x>=z) return 0;
                                                          else if (y>=z)    return 1;
                                                          else              return 2;}
     inline  SLbool  isZero      ()                      {return (x==0 && y==0 && z==0);}

@@ -235,7 +235,7 @@ typedef GLenum          SLenum;
 typedef GLbitfield      SLbitfield;
 typedef GLfloat         SLfloat;
 
-// all std::vectors begin with SLV*
+// All 1D vectors begin with SLV*
 typedef std::vector<SLbool>   SLVbool;
 typedef std::vector<SLbyte>   SLVbyte;
 typedef std::vector<SLubyte>  SLVubyte;
@@ -250,6 +250,16 @@ typedef std::vector<SLulong>  SLVulong;
 typedef std::vector<SLfloat>  SLVfloat;
 typedef std::vector<SLhalf>   SLVhalf;
 typedef std::vector<SLstring> SLVstring;
+
+// All 2D vectors begin with SLVV*
+typedef std::vector<vector<SLfloat>>    SLVVfloat;
+typedef std::vector<vector<SLuchar>>    SLVVuchar;
+typedef std::vector<vector<SLushort>>   SLVVushort;
+typedef std::vector<vector<SLuint>>     SLVVuint;
+typedef std::vector<vector<SLchar>>     SLVVchar;
+typedef std::vector<vector<SLshort>>    SLVVshort;
+typedef std::vector<vector<SLint>>      SLVVint;
+
 //-----------------------------------------------------------------------------
 // Shortcut for size of a vector
 template<class T> inline SLint SL_sizeOfVector(const T &vector)

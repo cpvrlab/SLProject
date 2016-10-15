@@ -127,9 +127,28 @@ class SLVec4
                                                          y = a.y*factor_a + b.y*factor_b;
                                                          z = a.z*factor_a + b.z*factor_b;
                                                          w = a.w*factor_a + b.w*factor_b;}
+    inline T        minXYZ      ()                      {if (x<=y && x<=z)   return x;
+                                                         else if (y<=z)      return y;
+                                                         else                return z;}
     inline T        maxXYZ      ()                      {if (x>=y && x>=z)   return x;
                                                          else if (y>=z)      return y;
                                                          else                return z;}
+    inline T        minXYZW     ()                      {if (x<=y && x<=z && x<=w) return x;
+                                                         else if (y<=z && y<=w)    return y;
+                                                         else if (z<=w)            return z;
+                                                         else                      return w;}
+    inline T        maxXYZW     ()                      {if (x>=y && x>=z && x>=w) return x;
+                                                         else if (y>=z && y>=w)    return y;
+                                                         else if (z>=w)            return z;
+                                                         else                      return w;}
+    inline SLint    maxComp     ()                      {if (x>=y && x>=z && x>=w) return 0;
+                                                         else if (y>=z && y>=w)    return 1;
+                                                         else if (z>=w)            return 2;
+                                                         else                      return 3;}
+    inline SLint    minComp     ()                      {if (x<=y && x<=z && x<=w) return 0;
+                                                         else if (y<=z && y<=w)    return 1;
+                                                         else if (z<=w)            return 2;
+                                                         else                      return 3;}
     inline  SLbool  isZero      ()                      {return (x==0 && y==0 && z==0 && w==0);}
 
             //! Gamma correction

@@ -364,9 +364,7 @@ bool SLScene::onUpdate()
     
     // Do software skinning on all changed skeletons
     for (auto mesh : _meshes) 
-    {   if (mesh->skeleton() && 
-            mesh->skeleton()->changed() && 
-            mesh->skinMethod() == SM_software)
+    {   if (mesh->skeleton() && mesh->skeleton()->changed())
         {   mesh->transformSkin();
             animatedOrChanged = true;
         }

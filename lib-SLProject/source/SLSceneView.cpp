@@ -1427,8 +1427,7 @@ SLbool SLSceneView::onCommand(SLCommand cmd)
         case C_sceneMassAnimation:
         case C_sceneNodeAnimation:
         case C_sceneSkeletalAnimation:
-        case C_sceneAstroboyArmyCPU:
-        case C_sceneAstroboyArmyGPU:
+        case C_sceneAstroboyArmy:
 
         case C_sceneRTSpheres:
         case C_sceneRTMuttenzerBox:
@@ -1660,8 +1659,7 @@ void SLSceneView::build2DMenus()
     mn3 = new SLButton(this, "Animation >", f);
     mn2->addChild(mn3);
     mn3->addChild(new SLButton(this, "Mass Animation", f, C_sceneMassAnimation, true, curS==C_sceneMassAnimation, mn2));
-    mn3->addChild(new SLButton(this, "Astroboy Army CPU", f, C_sceneAstroboyArmyCPU, true, curS==C_sceneAstroboyArmyCPU, mn2));
-    mn3->addChild(new SLButton(this, "Astroboy Army GPU", f, C_sceneAstroboyArmyGPU, true, curS==C_sceneAstroboyArmyGPU, mn2));
+    mn3->addChild(new SLButton(this, "Astroboy Army", f, C_sceneAstroboyArmy, true, curS==C_sceneAstroboyArmy, mn2));
     mn3->addChild(new SLButton(this, "Skeletal Animation", f, C_sceneSkeletalAnimation, true, curS==C_sceneSkeletalAnimation, mn2));
     mn3->addChild(new SLButton(this, "Node Animation", f, C_sceneNodeAnimation, true, curS==C_sceneNodeAnimation, mn2));
 

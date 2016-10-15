@@ -340,7 +340,8 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         SLAssimpImporter importer;
         SLNode* mesh3DS = importer.load("3DS/Halloween/jackolan.3ds");
         SLNode* meshFBX = importer.load("FBX/Duck/duck.fbx");
-        SLNode* meshDAE = importer.load("DAE/AstroBoy/AstroBoy.dae");
+        //SLNode* meshDAE = importer.load("DAE/AstroBoy/AstroBoy.dae");
+        SLNode* meshDAE = importer.load("DAE/Sintel/SintelLowResOwnRig.dae");
         #endif
 
         // Start animation
@@ -350,7 +351,8 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
 
         // Scale to so that the AstroBoy is about 2 (meters) high.
         if (mesh3DS) {mesh3DS->scale(0.1f);  mesh3DS->translate(-22.0f, 1.9f, 3.5f, TS_object);}
-        if (meshDAE) {meshDAE->translate(0,-3,0, TS_object); meshDAE->scale(2.7f);}
+        //if (meshDAE) {meshDAE->translate(0,-3,0, TS_object); meshDAE->scale(2.7f);}
+        if (meshDAE) {meshDAE->translate(0,0,-3.0f, TS_object); meshDAE->scale(2.5f);}
         if (meshFBX) {meshFBX->scale(0.1f);  meshFBX->scale(0.1f); meshFBX->translate(200, 30, -30, TS_object); meshFBX->rotate(-90,0,1,0);}
         
         // define rectangles for the surrounding box
@@ -1855,10 +1857,11 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         }
     }
     else
-    if (_currentSceneID == C_sceneAstroboyArmyCPU ||
-        _currentSceneID == C_sceneAstroboyArmyGPU) //................................
+    if (_currentSceneID == C_sceneAstroboyArmy) //................................
     {
         info(sv, "Mass animation scene of identitcal Astroboy models");
+        name("Astroboy army skinned on CPU");
+
 
         // Create materials
         SLMaterial* m1 = new SLMaterial("m1", SLCol4f::GRAY); m1->specular(SLCol4f::BLACK);
@@ -1891,15 +1894,6 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         #endif
         //center->scale(100);
         importer.skeleton()->getAnimPlayback("unnamed_anim_0")->playForward();
-
-        // set the skinning method of the loaded meshes
-        // @note RT currently only works with software skinning
-        if (_currentSceneID == C_sceneAstroboyArmyGPU)
-        {   name("Astroboy army skinned on GPU");
-            for (auto m : importer.meshes())
-               m->skinMethod(SM_hardware);
-        } else
-            name("Astroboy army skinned on CPU");
 
 
         // Assemble scene

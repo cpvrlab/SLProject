@@ -24,17 +24,6 @@ class SLMaterial;
 class SLRay;
 class SLSkeleton;
 
-/* Problems with the current SLMesh class:
-    1.  Too tightly coupled with SLMaterial.
-        e.x.:   SLMesh might need a different combination of vertex and fragment programs
-                depending on its own data. If it is an animated mesh it needs a vertex program
-                that supports GPU skinning. Then we also can choose between per vertex and per
-                fragment lighting.
-
-                For the old model it was somewhat ok to specify per vertex/fragment lighting in 
-                the material, but specifying a skinning shader in the material doesn't seem right.
-*/
-
 //-----------------------------------------------------------------------------
 //!An SLMesh object is a triangulated mesh that is drawn with one draw call.
 /*!
@@ -46,8 +35,8 @@ The vertex attributes are stored in vectors with equal number of elements:
 \n C (vertex color)
 \n Tc (vertex texture coordinates) optional
 \n T (vertex tangents) optional
-\n Ji (vertex joint index) optional
-\n Jw (vertex joint weights) optional
+\n Ji (vertex joint index) optional 2D vector
+\n Jw (vertex joint weights) optional 2D vector
 \n I16 holds the unsigned short vertex indices.
 \n I32 holds the unsigned int vertex indices.
 \n
@@ -121,10 +110,10 @@ A mesh uses normally only one material referenced by the SLMesh::mat pointer.
 If a mesh is associated with a skeleton all its vertices and normals are
 transformed every frame by the joint weights. Every vertex of a mesh has
 weights for four joints by which it can be influenced. This transform is
-called skinning and can be done in CPU in the method transformSkin or by
-a vertex shader. If the skinning is done on CPU two additional arrays
-(_finalP and _finalN) for the transformed vertices and normals are needed.
-*/      
+called skinning and is done in CPU in the method transformSkin. The final
+transformed vertices and normals are stored in _finalP and _finalN.
+*/
+ 
 class SLMesh : public SLObject
 {   
     public:                    
@@ -152,15 +141,12 @@ class SLMesh : public SLObject
 
             // Getters
             SLGLPrimitiveType primitive     () const {return _primitive;}
-            SLSkinMethod    skinMethod      () const {return _skinMethod;}
       const SLSkeleton*     skeleton        () const {return _skeleton;}
             SLuint          numI            () {return (SLuint)(I16.size() ? I16.size() : I32.size());}
 
             // Setters
             void            primitive       (SLGLPrimitiveType pt) {_primitive = pt;}
-            void            skinMethod      (SLSkinMethod method);
-            void            skeleton        (SLSkeleton* skel) { _skeleton = skel; }
-            SLbool          addWeight       (SLint vertId, SLuint jointId, SLfloat weight);
+            void            skeleton        (SLSkeleton* skel) {_skeleton = skel;}
         
             // getter for position and normal data for rendering
             SLVec3f         finalP          (SLuint i) {return _finalP->operator[](i);}
@@ -175,8 +161,8 @@ class SLMesh : public SLObject
             SLVVec2f        Tc;             //!< Vector of vertex tex. coords. (opt.)
             SLVCol4f        C;              //!< Vector of vertex colors (opt.)
             SLVVec4f        T;              //!< Vector of vertex tangents (opt.)
-            SLVVec4f        Ji;             //!< Vector of per vertex joint ids (opt.)
-            SLVVec4f        Jw;             //!< Vector of per vertex joint weights (opt.)
+            SLVVuchar       Ji;             //!< 2D Vector of per vertex joint ids (opt.)
+            SLVVfloat       Jw;             //!< 2D Vector of per vertex joint weights (opt.)
             SLVushort       I16;            //!< Vector of vertex indices 16 bit
             SLVuint         I32;            //!< Vector of vertex indices 32 bit
 
@@ -199,7 +185,6 @@ class SLMesh : public SLObject
             SLAccelStruct*      _accelStruct;           //!< KD-tree or uniform grid
             SLbool              _accelStructOutOfDate;  //!< flag id accel.struct needs update
 
-            SLSkinMethod        _skinMethod;    //!< CPU or GPU skinning method
             SLSkeleton*         _skeleton;      //!< the skeleton this mesh is bound to
             SLVMat4f            _jointMatrices; //!< joint matrix vector for this mesh
             SLVVec3f*           _finalP;        //!< Pointer to final vertex position vector

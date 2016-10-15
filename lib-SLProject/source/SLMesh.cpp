@@ -43,7 +43,6 @@ SLMesh::SLMesh(SLstring name) : SLObject(name)
     maxP.set(-FLT_MAX, -FLT_MAX, -FLT_MAX);
    
     _skeleton = nullptr;
-    _skinMethod = SM_software;
 
     _stateGL = SLGLState::getInstance();  
     _isVolume = true; // is used for RT to decide inside/outside
@@ -71,8 +70,8 @@ void SLMesh::deleteData()
     C.clear();
     T.clear();
     Tc.clear();
-    Ji.clear();
-    Jw.clear();
+    for (auto i : Ji) i.clear(); Ji.clear();
+    for (auto i : Jw) i.clear(); Jw.clear();
     I16.clear();
     I32.clear();
 
@@ -216,36 +215,6 @@ void SLMesh::draw(SLSceneView* sv, SLNode* node)
             sp->uniformMatrix4fv(locTM, 1, (SLfloat*)&_stateGL->textureMatrix);
         }
 
-        // 2.d) Do GPU skinning for animated meshes
-        if (_skeleton && Ji.size() && Jw.size() && _skinMethod == SM_hardware)
-        {
-            if (!_jointMatrices.size())
-            {   _jointMatrices.clear();
-                _jointMatrices.resize(_skeleton->numJoints());
-            }
-
-            if (_skeleton->changed())
-            {
-                // update the joint matrix array
-                _skeleton->getJointMatrices(_jointMatrices);
-                // remove the changed flag from the skeleton since our joint matrices are up to date again
-                // @note    the skeleton referenced here would be the skeleton instance proposed in the documentation
-                //          of SLSkeleton. So the _jointMatrices array is the only thing that is concerned with the changed flag
-                //          however currently we don't have that and multiple meshes need to know if a skeleton changed this frame.
-                //          This is why we can't reset the skeleton changed flag at this point in time. If only one entity or mesh required
-                //          the information we wouldn't have a problem.
-                // notify all nodes that contain this mesh about the change
-                notifyParentNodesAABBUpdate();
-            }
-
-            // @todo    Secondly: It is a bad idea to keep the joint data in the mesh itself, this prevents us
-            //          from instantiating a single mesh with multiple animations. Needs to be addressed ASAP. (see also SLMesh class problems in SLMesh.h at the top)
-            //          In short, the solution would be an entity class which is an instance of a mesh (same mesh data) which can be animated. the original buffers
-            //          would be in the original mesh and the CPU skinned buffers in the entity. or if GPU skinned it would just be the joint matrices array that's in the entity.
-            SLint locBM = sp->getUniformLocation("u_jointMatrices");
-            sp->uniformMatrix4fv(locBM, _skeleton->numJoints(), (SLfloat*)&_jointMatrices[0], false);
-        }
-
         ///////////////////////////////////////
         // 3) Generate Vertex Array Object once
         ///////////////////////////////////////
@@ -256,8 +225,6 @@ void SLMesh::draw(SLSceneView* sv, SLNode* node)
             if (Tc.size())  _vao.setAttrib(AT_texCoord,    sp->getAttribLocation("a_texCoord"), &Tc, _useHalf);
             if (C.size())   _vao.setAttrib(AT_color,       sp->getAttribLocation("a_color"), &C, _useHalf);
             if (T.size())   _vao.setAttrib(AT_tangent,     sp->getAttribLocation("a_tangent"), &T, _useHalf);
-            if (Ji.size())  _vao.setAttrib(AT_jointIndex,  sp->getAttribLocation("a_jointIds"), &Ji, _useHalf);
-            if (Jw.size())  _vao.setAttrib(AT_jointWeight, sp->getAttribLocation("a_jointWeights"), &Jw, _useHalf);
             if (I16.size()) _vao.setIndices(&I16);
             if (I32.size()) _vao.setIndices(&I32);
             _vao.generate((SLuint)P.size(), Ji.size() ? BU_stream : BU_static, !Ji.size());
@@ -955,79 +922,6 @@ void SLMesh::preShade(SLRay* ray)
 }
 
 //-----------------------------------------------------------------------------
-/*! Adds an joint weight to the specified vertex id (max 4 weights per vertex)
-returns true if added successfully, false if already full
-*/
-SLbool SLMesh::addWeight(SLint vertId, SLuint jointId, SLfloat weight)
-{
-    if (!Ji.size() || !Jw.size())
-        return false;
-
-    assert(vertId < P.size() && "An illegal index was passed in to SLMesh::addWeight");
-    
-    SLVec4f& jId = Ji[vertId];
-    SLVec4f& jWeight = Jw[vertId];
-
-    // "iterator" over our vectors
-    SLfloat* jIdIt = &jId.x;
-    SLfloat* jWeightIt = &jWeight.x;
-
-    for (SLint i = 0; i < 4; ++i)
-    {
-        if (*jWeightIt == 0.0f)
-        {
-            *jIdIt = (SLfloat)jointId;
-            *jWeightIt = weight;
-            break;
-        }
-
-        jIdIt++;
-        jWeightIt++;
-    }
-
-    return true;
-}
-
-//-----------------------------------------------------------------------------
-/*! Sets the current skinning method.
-@todo   This function is still kind of hackish, we manually change the material in the mesh. The skinning
-        shouldn't rely on a material however, the shader should know if it needs skinning variables and 
-        transformations and apply them to the current used shader.
-*/
-void SLMesh::skinMethod(SLSkinMethod method) 
-{ 
-    if (method == _skinMethod)
-        return;
-
-    // return if this isn't a skinned mesh
-    if (!_skeleton || !Ji.size() || !Jw.size())
-        return;
-
-    _skinMethod = method;
-
-    if (_skinMethod == SM_hardware)
-    {
-        _finalP = &P;
-        _finalN = &N;
-
-        // if we are a textured mesh
-        if (Tc.size())
-        {   SLGLGenericProgram* skinningShaderTex = new SLGLGenericProgram("PerPixBlinnTexSkinned.vert",
-                                                                           "PerPixBlinnTex.frag");
-            mat->program(skinningShaderTex);
-        } else
-        {   SLGLGenericProgram* skinningShader = new SLGLGenericProgram("PerVrtBlinnSkinned.vert",
-                                                                        "PerVrtBlinn.frag");
-            mat->program(skinningShader);
-        }
-    }
-    else
-    {
-        mat->program(0);
-    }
-}
-
-//-----------------------------------------------------------------------------
 //! Transforms the vertex positions and normals with by joint weights
 /*! If the mesh is used for skinned skeleton animation this method transforms
 each vertex and normal by max. four joints of the skeleton. Each joint has
@@ -1073,32 +967,23 @@ void SLMesh::transformSkin()
     {
         skinnedP[i] = SLVec3f::ZERO;
         if (N.size()) skinnedN[i] = SLVec3f::ZERO;
-
-        // array form for easier iteration
-        SLfloat jointWeights[4] = {Jw[i].x, Jw[i].y, Jw[i].z, Jw[i].w};
-        SLint   jointIndices[4] = {(SLint)Ji[i].x,
-                                   (SLint)Ji[i].y,
-                                   (SLint)Ji[i].z,
-                                   (SLint)Ji[i].w};
                     
         // accumulate final normal and positions
-        for (SLint j = 0; j < 4; ++j)
-        {   if (jointWeights[j] > 0.0f)
-            {
-                const SLMat4f& jm = _jointMatrices[jointIndices[j]];
-                SLVec4f tempPos = jm * P[i];
-                skinnedP[i].x += tempPos.x * jointWeights[j];
-                skinnedP[i].y += tempPos.y * jointWeights[j];
-                skinnedP[i].z += tempPos.z * jointWeights[j];
+        for (SLint j = 0; j < Ji[i].size(); ++j)
+        {   
+            const SLMat4f& jm = _jointMatrices[Ji[i][j]];
+            SLVec4f tempPos = jm * P[i];
+            skinnedP[i].x += tempPos.x * Jw[i][j];
+            skinnedP[i].y += tempPos.y * Jw[i][j];
+            skinnedP[i].z += tempPos.z * Jw[i][j];
 
-                if (N.size()) 
-                {   // Build the 3x3 submatrix in GLSL 110 (= mat3 jt3 = mat3(jt))
-                    // for the normal transform that is the normally the inverse transpose.
-                    // The inverse transpose can be ignored as long as we only have
-                    // rotation and uniform scaling in the 3x3 submatrix.
-                    SLMat3f jnm = jm.mat3();
-                    skinnedN[i] += jnm * N[i] * jointWeights[j];
-                }
+            if (N.size()) 
+            {   // Build the 3x3 submatrix in GLSL 110 (= mat3 jt3 = mat3(jt))
+                // for the normal transform that is the normally the inverse transpose.
+                // The inverse transpose can be ignored as long as we only have
+                // rotation and uniform scaling in the 3x3 submatrix.
+                SLMat3f jnm = jm.mat3();
+                skinnedN[i] += jnm * N[i] * Jw[i][j];
             }
         }
     }  
