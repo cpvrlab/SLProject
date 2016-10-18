@@ -204,12 +204,25 @@ the meshes the drawRec method is called on each children node. By pushing
 the OpenGL modelview matrix before on a stack this method is also referred as
 stack drawing.
 </li>
+<li>
+<b>Filter meshes for blended or opaque pass</b>:
+SLSceneView::draw3DGLAll renders the opaque nodes before blended nodes and
+the blended nodes have to be drawn from back to front.
+During the cull traversal all nodes with alpha materials are flagged and 
+added the to the vector _alphaNodes. The visibleNodes vector contains all
+visible opaque and transparent nodes because a node with alpha meshes still 
+can have nodes with opaque material. To avoid double drawing the 
+SLNode::drawMeshes draws in the blended pass only the alpha meshes and in 
+the opaque pass only the opaque meshes.
+</li>
 </ul>
 */
 void SLNode::drawMeshes(SLSceneView* sv)
 {
     for (auto mesh : _meshes)
-        mesh->draw(sv, this);
+        if ( _stateGL->blend() &&  mesh->mat->hasAlpha() ||
+            !_stateGL->blend() && !mesh->mat->hasAlpha())
+            mesh->draw(sv, this);
 }
 //-----------------------------------------------------------------------------
 
@@ -337,7 +350,7 @@ Does the view frustum culling by checking whether the AABB is
 inside the view frustum. The check is done in world space. If a AABB is visible
 the nodes children are checked recursively.
 If a node containes meshes with alpha blended materials it is added to the 
-blendedNodes vector. If not it is added to the opaqueNodes vector.
+_blendedNodes vector. See also SLSceneView::draw3DGLAll for more details.
 */
 void SLNode::cullRec(SLSceneView* sv)  
 {     
@@ -356,10 +369,13 @@ void SLNode::cullRec(SLSceneView* sv)
         for (auto child : _children)
             child->cullRec(sv);
       
-        // for leaf nodes add them to the blended or opaque vector
+        // for leaf nodes add them to the blended vector
         if (_aabb.hasAlpha())
              sv->blendNodes()->push_back(this);
-        else sv->opaqueNodes()->push_back(this);
+        
+        // Add all nodes to the opaque list
+        // A node that has alpha meshes still can have opaque meshes  
+        sv->visibleNodes()->push_back(this);
     }
 }
 //-----------------------------------------------------------------------------

@@ -73,7 +73,7 @@ enum SLCommand
     C_sceneEmpty = -1,      // No data in scene
     C_sceneAll = 0,         // Loads all scenes one after the other
     C_sceneMinimal,
-    C_sceneFigure,   
+    C_sceneFigure,
     C_sceneMeshLoad,
     C_sceneVRSizeTest,
     C_sceneLargeModel,

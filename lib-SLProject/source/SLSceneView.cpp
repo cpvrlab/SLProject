@@ -280,7 +280,7 @@ void SLSceneView::onInitialize()
     _stateGL->onInitialize(s->background().colors()[0]);
     
     _blendNodes.clear();
-    _opaqueNodes.clear();
+    _visibleNodes.clear();
 
     _raytracer.clearData();
     _renderType = RT_gl;
@@ -431,16 +431,19 @@ for the center or left eye.
 </li>
 <li>
 <b>Frustum Culling</b>:
-The frustum culling traversal fills the vectors SLSceneView::_opaqueNodes 
-and SLSceneView::_blendNodes with the visible nodes. Nodes that are not
-visible with the current camera are not drawn. 
+The frustum culling traversal fills the vectors SLSceneView::_visibleNodes 
+and SLSceneView::_blendNodes with the visible transparent nodes. 
+Nodes that are not visible with the current camera are not drawn. 
 </li>
 <li>
 <b>Draw Opaque and Blended Nodes</b>:
 By calling the SLSceneView::draw3D all nodes in the vectors 
-SLSceneView::_opaqueNodes and SLSceneView::_blendNodes will be drawn.
-If a stereo projection is set, the scene gets drawn a second time for
-the right eye.
+SLSceneView::_visibleNodes and SLSceneView::_blendNodes will be drawn.
+_blendNodes is a vector with all nodes that contain 1-n meshes with 
+alpha material. _visibleNodes is a vector with all visible nodes. 
+Even if a node contains alpha meshes it still can contain meshes with 
+opaque material. If a stereo projection is set, the scene gets drawn 
+a second time for the right eye.
 </li>
 <li>
 <b>Draw Oculus Framebuffer</b>:
@@ -508,7 +511,7 @@ SLbool SLSceneView::draw3DGL(SLfloat elapsedTimeMS)
    
     _camera->setFrustumPlanes(); 
     _blendNodes.clear();
-    _opaqueNodes.clear();     
+    _visibleNodes.clear();     
     if (s->root3D())
         s->root3D()->cullRec(this);
    
@@ -542,23 +545,26 @@ SLbool SLSceneView::draw3DGL(SLfloat elapsedTimeMS)
 //-----------------------------------------------------------------------------
 
 /*!
-SLSceneView::draw3DGLAll renders the opaque nodes before blended nodes.
-Opaque nodes must be drawn before the blended, transparent nodes.
-During the cull traversal all nodes with opaque materials are flagged and 
-added the to the array _opaqueNodes.
+SLSceneView::draw3DGLAll renders the opaque nodes before blended nodes and
+the blended nodes have to be drawn from back to front.
+During the cull traversal all nodes with alpha materials are flagged and 
+added the to the vector _alphaNodes. The _visibleNodes vector contains all
+nodes because a node with alpha meshes still can have nodes with opaque
+material. To avoid double drawing the SLNode::drawMeshes draws in the blended
+pass only the alpha meshes and in the opaque pass only the opaque meshes.
 */
 void SLSceneView::draw3DGLAll()
 {  
     // 1) Draw first the opaque shapes and all helper lines (normals and AABBs)
-    draw3DGLNodes(_opaqueNodes, false, false);
-    draw3DGLLines(_opaqueNodes);
+    draw3DGLNodes(_visibleNodes, false, false);
+    draw3DGLLines(_visibleNodes);
     draw3DGLLines(_blendNodes);
 
     // 2) Draw blended nodes sorted back to front
     draw3DGLNodes(_blendNodes, true, true);
 
     // 3) Draw helper
-    draw3DGLLinesOverlay(_opaqueNodes);
+    draw3DGLLinesOverlay(_visibleNodes);
     draw3DGLLinesOverlay(_blendNodes);
 
     // 4) Draw visualization lines of animation curves
@@ -578,9 +584,13 @@ void SLSceneView::draw3DGLNodes(SLVNode &nodes,
                                 SLbool alphaBlended,
                                 SLbool depthSorted)
 {
+    if (nodes.size() == 0) return;
+
+    // For blended nodes we activate OpenGL blending and stop depth buffer updates
     _stateGL->blend(alphaBlended);
     _stateGL->depthMask(!alphaBlended);
 
+    // Important and expensive step for blended nodes with alpha meshes
     // Depth sort with lambda function by their view distance
     if (depthSorted)
     {   std::sort(nodes.begin(), nodes.end(),
@@ -618,6 +628,8 @@ Yellow: AABB of selected node
 */
 void SLSceneView::draw3DGLLines(SLVNode &nodes)
 {  
+    if (nodes.size() == 0) return;
+
     _stateGL->blend(false);
     _stateGL->depthMask(true);
 

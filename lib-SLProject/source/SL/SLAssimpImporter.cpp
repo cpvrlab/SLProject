@@ -619,12 +619,13 @@ SLMaterial* SLAssimpImporter::loadMaterial(SLint index,
     SLMaterial* mat = new SLMaterial(name.c_str());
 
     // set the texture types to import into our material
-    const SLint		textureCount = 4;
+    const SLint		textureCount = 5;
     aiTextureType	textureTypes[textureCount];
     textureTypes[0] = aiTextureType_DIFFUSE;
     textureTypes[1] = aiTextureType_NORMALS;
     textureTypes[2] = aiTextureType_SPECULAR;
     textureTypes[3] = aiTextureType_HEIGHT;
+    textureTypes[4] = aiTextureType_OPACITY; // Texture with alpha channel
    
     // load all the textures for this material and add it to the material vector
     for(SLint i = 0; i < textureCount; ++i) 
@@ -632,13 +633,19 @@ SLMaterial* SLAssimpImporter::loadMaterial(SLint index,
         {   aiString aipath;
             material->GetTexture(textureTypes[i], 0, &aipath, nullptr, nullptr, nullptr, nullptr, nullptr);
             SLTextureType texType = textureTypes[i]==aiTextureType_DIFFUSE  ? TT_color :
-                                textureTypes[i]==aiTextureType_NORMALS  ? TT_normal :
-                                textureTypes[i]==aiTextureType_SPECULAR ? TT_gloss :
-                                textureTypes[i]==aiTextureType_HEIGHT   ? TT_height : 
-                                TT_unknown;
+                                    textureTypes[i]==aiTextureType_NORMALS  ? TT_normal :
+                                    textureTypes[i]==aiTextureType_SPECULAR ? TT_gloss :
+                                    textureTypes[i]==aiTextureType_HEIGHT   ? TT_height : 
+                                    textureTypes[i]==aiTextureType_OPACITY  ? TT_color : 
+                                    TT_unknown;
             SLstring texFile = checkFilePath(modelPath, aipath.data);
-            SLGLTexture* tex = loadTexture(texFile, texType);
-            mat->textures().push_back(tex);
+
+            // Only color texture are loaded so far
+            // For normal maps we have to adjust first the normal and tangent generation
+            if (texType == TT_color)
+            {   SLGLTexture* tex = loadTexture(texFile, texType);
+                mat->textures().push_back(tex);
+            }
         }
     }
    
@@ -853,9 +860,7 @@ SLMesh* SLAssimpImporter::loadMesh(aiMesh *mesh)
         for (auto i : m->I32)
             assert(i < m->P.size() && "SLAssimpImporter::loadMesh: Invalid Index");
     }
-
-                    
-
+ 
     if (!mesh->HasNormals() && numTriangles)
         m->calcNormals();
 
@@ -901,6 +906,7 @@ SLMesh* SLAssimpImporter::loadMesh(aiMesh *mesh)
         }
 
     }
+    
     return m;
 }
 //-----------------------------------------------------------------------------
@@ -920,9 +926,9 @@ SLNode* SLAssimpImporter::loadNodesRec(
     // load local transform
    aiMatrix4x4* M = &node->mTransformation;
    SLMat4f SLM(M->a1, M->a2, M->a3, M->a4,
-                      M->b1, M->b2, M->b3, M->b4,
-                      M->c1, M->c2, M->c3, M->c4,
-                      M->d1, M->d2, M->d3, M->d4);
+               M->b1, M->b2, M->b3, M->b4,
+               M->c1, M->c2, M->c3, M->c4,
+               M->d1, M->d2, M->d3, M->d4);
 
    curNode->om(SLM);
 

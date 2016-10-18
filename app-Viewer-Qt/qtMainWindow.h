@@ -94,8 +94,7 @@ class qtMainWindow : public QMainWindow
 
         void on_actionNode_Animation_triggered();
         void on_actionSkeletal_Animation_triggered();
-        void on_actionAstroboy_Army_GPU_triggered();
-        void on_actionAstroboy_Army_CPU_triggered();
+        void on_actionAstroboy_Army_triggered();
         void on_actionMass_Animation_triggered();
 
         void on_actionRT_Spheres_triggered();

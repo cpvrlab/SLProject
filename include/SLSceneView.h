@@ -184,8 +184,8 @@ class SLSceneView: public SLObject
             SLbool          showStats       () const {return _showStats;}
             SLbool          showInfo        () const {return _showInfo;}
             SLbool          showMenu        () const {return _showMenu;}
+            SLVNode*        visibleNodes    () {return &_visibleNodes;}
             SLVNode*        blendNodes      () {return &_blendNodes;}
-            SLVNode*        opaqueNodes     () {return &_opaqueNodes;}
             SLRaytracer*    raytracer       () {return &_raytracer;}
             SLPathtracer*   pathtracer      () {return &_pathtracer;}
             SLRenderType    renderType      () const {return _renderType;}
@@ -246,8 +246,8 @@ class SLSceneView: public SLObject
             SLGLOculusFB    _oculusFB;          //!< Oculus framebuffer
 			SLbool			_vrMode;			//!< Flag if we're in VR mode (forces camera to stereoD)
 
-            SLVNode         _blendNodes;        //!< Vector of blended nodes
-            SLVNode         _opaqueNodes;       //!< Vector of opaque nodes
+            SLVNode         _blendNodes;        //!< Vector of visible and blended nodes
+            SLVNode         _visibleNodes;      //!< Vector of all visible nodes
             
             SLRaytracer     _raytracer;         //!< Whitted style raytracer
             SLbool          _stopRT;            //!< Flag to stop the RT

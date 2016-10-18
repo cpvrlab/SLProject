@@ -214,8 +214,7 @@ void qtMainWindow::setMenuState()
 
     ui->actionNode_Animation->setChecked(s->currentSceneID()==C_sceneNodeAnimation);
     ui->actionSkeletal_Animation->setChecked(s->currentSceneID()==C_sceneSkeletalAnimation);
-    ui->actionAstroboy_Army_CPU->setChecked(s->currentSceneID()==C_sceneAstroboyArmyCPU);
-    ui->actionAstroboy_Army_GPU->setChecked(s->currentSceneID()==C_sceneAstroboyArmyGPU);
+    ui->actionAstroboy_Army_CPU->setChecked(s->currentSceneID()==C_sceneAstroboyArmy);
     ui->actionMass_Animation->setChecked(s->currentSceneID()==C_sceneMassAnimation);
 
     ui->actionRT_Spheres->setChecked(s->currentSceneID()==C_sceneRTSpheres);
@@ -1065,18 +1064,11 @@ void qtMainWindow::on_actionSkeletal_Animation_triggered()
     _activeGLWidget->sv()->onCommand(C_sceneSkeletalAnimation);
     afterSceneLoad();
 }
-void qtMainWindow::on_actionAstroboy_Army_CPU_triggered()
+void qtMainWindow::on_actionAstroboy_Army_triggered()
 {
     SLScene::current->init(); // calls first uninit
     beforeSceneLoad();
-    _activeGLWidget->sv()->onCommand(C_sceneAstroboyArmyCPU);
-    afterSceneLoad();
-}
-void qtMainWindow::on_actionAstroboy_Army_GPU_triggered()
-{
-    SLScene::current->init(); // calls first uninit
-    beforeSceneLoad();
-    _activeGLWidget->sv()->onCommand(C_sceneAstroboyArmyGPU);
+    _activeGLWidget->sv()->onCommand(C_sceneAstroboyArmy);
     afterSceneLoad();
 }
 void qtMainWindow::on_actionMass_Animation_triggered()

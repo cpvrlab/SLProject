@@ -104,7 +104,7 @@ void SLMesh::init(SLNode* node)
                  mat = SLMaterial::diffuseAttrib();
             else mat = SLMaterial::defaultGray();
 
-        // set transparent flag of the mesh
+        // set transparent flag of the node if mesh contains alpha material
         if (!node->aabb()->hasAlpha() && mat->hasAlpha()) 
             node->aabb()->hasAlpha(true);
          
@@ -215,6 +215,39 @@ void SLMesh::draw(SLSceneView* sv, SLNode* node)
             sp->uniformMatrix4fv(locTM, 1, (SLfloat*)&_stateGL->textureMatrix);
         }
 
+        /* Depricated step for HW skinning on GPU
+        // 2.d) Do GPU skinning for animated meshes
+        if (_skeleton && Ji.size() && Jw.size() && _skinMethod == SM_hardware)
+        {
+            if (!_jointMatrices.size())
+            {   _jointMatrices.clear();
+                _jointMatrices.resize(_skeleton->numJoints());
+            }
+        
+            if (_skeleton->changed())
+            {
+                // update the joint matrix array
+                _skeleton->getJointMatrices(_jointMatrices);
+                // remove the changed flag from the skeleton since our joint matrices are up to date again
+                // @note    the skeleton referenced here would be the skeleton instance proposed in the documentation
+                //          of SLSkeleton. So the _jointMatrices array is the only thing that is concerned with the changed flag
+                //          however currently we don't have that and multiple meshes need to know if a skeleton changed this frame.
+                //          This is why we can't reset the skeleton changed flag at this point in time. If only one entity or mesh required
+                //          the information we wouldn't have a problem.
+                // notify all nodes that contain this mesh about the change
+                notifyParentNodesAABBUpdate();
+            }
+        
+            // @todo    Secondly: It is a bad idea to keep the joint data in the mesh itself, this prevents us
+            //          from instantiating a single mesh with multiple animations. Needs to be addressed ASAP. (see also SLMesh class problems in SLMesh.h at the top)
+            //          In short, the solution would be an entity class which is an instance of a mesh (same mesh data) which can be animated. the original buffers
+            //          would be in the original mesh and the CPU skinned buffers in the entity. or if GPU skinned it would just be the joint matrices array that's in the entity.
+            SLint locBM = sp->getUniformLocation("u_jointMatrices");
+            sp->uniformMatrix4fv(locBM, _skeleton->numJoints(), (SLfloat*)&_jointMatrices[0], false);
+        }
+        */
+        
+
         ///////////////////////////////////////
         // 3) Generate Vertex Array Object once
         ///////////////////////////////////////
@@ -227,6 +260,9 @@ void SLMesh::draw(SLSceneView* sv, SLNode* node)
             if (T.size())   _vao.setAttrib(AT_tangent,     sp->getAttribLocation("a_tangent"), &T, _useHalf);
             if (I16.size()) _vao.setIndices(&I16);
             if (I32.size()) _vao.setIndices(&I32);
+            // Depricated HW skinning on GPU
+            //if (Ji.size())  _vao.setAttrib(AT_jointIndex,  sp->getAttribLocation("a_jointIds"), &Ji, _useHalf);
+            //if (Jw.size())  _vao.setAttrib(AT_jointWeight, sp->getAttribLocation("a_jointWeights"), &Jw, _useHalf);
             _vao.generate((SLuint)P.size(), Ji.size() ? BU_stream : BU_static, !Ji.size());
         }
 
@@ -247,9 +283,9 @@ void SLMesh::draw(SLSceneView* sv, SLNode* node)
         
         if (N.size() && (sv->drawBit(SL_DB_NORMALS) || node->drawBit(SL_DB_NORMALS)))
         {  
-            // scale factor r 5% from scaled radius for normals & tangents
+            // scale factor r 2% from scaled radius for normals & tangents
             // build array between vertex and normal target point
-            float r = node->aabb()->radiusOS() * 0.05f;
+            float r = node->aabb()->radiusOS() * 0.02f;
             SLVVec3f V2; V2.resize(P.size()*2);
             for (SLuint i=0; i < P.size(); ++i)
             {   V2[i<<1] = finalP(i);

@@ -102,7 +102,7 @@ class SLGLTexture : public SLObject
             SLCol4f         getTexelf       (SLfloat s, SLfloat t);
             SLbool          hasAlpha        (){return (_images.size() &&
                                                    ((_images[0]->format()==PF_rgba  ||
-                                                    _images[0]->format()==PF_bgra) ||
+                                                     _images[0]->format()==PF_bgra) ||
                                                    _texType==TT_font));}
             SLint           width           (){return _images[0]->width();}
             SLint           height          (){return _images[0]->height();}

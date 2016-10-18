@@ -317,7 +317,6 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         light1->diffuse(SLCol4f(1.0f, 1.0f, 1.0f));
         light1->specular(SLCol4f(1.0f, 1.0f, 1.0f));
         light1->attenuation(1,0,0);
-        //light1->samples(8,8); // soft shadows for RT
         SLAnimation* anim = SLAnimation::create("anim_light1_backforth", 2.0f, true, EC_inOutQuad, AL_pingPongLoop);
         anim->createSimpleTranslationNodeTrack(light1, SLVec3f(0.0f, 0.0f, -5.0f));
 
@@ -326,7 +325,6 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         light2->diffuse(SLCol4f(1.0f, 1.0f, 1.0f));
         light2->specular(SLCol4f(1.0f, 1.0f, 1.0f));
         light2->attenuation(1,0,0);
-        //light2->samples(8,8); // soft shadows for RT
         anim = SLAnimation::create("anim_light2_updown", 2.0f, true, EC_inOutQuint, AL_pingPongLoop);
         anim->createSimpleTranslationNodeTrack(light2, SLVec3f(0.0f, 5.0f, 0.0f));
 
@@ -335,13 +333,11 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         SLNode* mesh3DS = importer.load("jackolan.3ds");
         SLNode* meshFBX = importer.load("duck.fbx");
         SLNode* meshDAE = importer.load("AstroBoy.dae");
-      
         #else
         SLAssimpImporter importer;
         SLNode* mesh3DS = importer.load("3DS/Halloween/jackolan.3ds");
         SLNode* meshFBX = importer.load("FBX/Duck/duck.fbx");
-        //SLNode* meshDAE = importer.load("DAE/AstroBoy/AstroBoy.dae");
-        SLNode* meshDAE = importer.load("DAE/Sintel/SintelLowResOwnRig.dae");
+        SLNode* meshDAE = importer.load("DAE/AstroBoy/AstroBoy.dae");
         #endif
 
         // Start animation
@@ -351,8 +347,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
 
         // Scale to so that the AstroBoy is about 2 (meters) high.
         if (mesh3DS) {mesh3DS->scale(0.1f);  mesh3DS->translate(-22.0f, 1.9f, 3.5f, TS_object);}
-        //if (meshDAE) {meshDAE->translate(0,-3,0, TS_object); meshDAE->scale(2.7f);}
-        if (meshDAE) {meshDAE->translate(0,0,-3.0f, TS_object); meshDAE->scale(2.5f);}
+        if (meshDAE) {meshDAE->translate(0,-3,0, TS_object); meshDAE->scale(2.7f);}
         if (meshFBX) {meshFBX->scale(0.1f);  meshFBX->scale(0.1f); meshFBX->translate(200, 30, -30, TS_object); meshFBX->rotate(-90,0,1,0);}
         
         // define rectangles for the surrounding box
@@ -773,7 +768,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         light1->attenuation(1,0,0);
 
         SLAssimpImporter importer;
-        SLNode* largeModel = importer.load("PLY/switzerland.ply"
+        SLNode* largeModel = importer.load("PLY/switzerland.ply", true
                                             //,SLProcess_JoinIdenticalVertices
                                             //|SLProcess_RemoveRedundantMaterials
                                             //|SLProcess_SortByPType
@@ -1610,74 +1605,96 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         info(sv, "Skeletal Animation Test Scene");
 
         SLAssimpImporter importer;
-        #if defined(SL_OS_IOS) || defined(SL_OS_ANDROID)
-        SLNode* character = importer.load("AstroBoy.dae");
-        #else
-        SLNode* character = importer.load("DAE/AstroBoy/AstroBoy.dae");
-        #endif
-        SLAnimPlayback* charAnim = importer.skeleton()->getAnimPlayback("unnamed_anim_0");
         
-        #if defined(SL_OS_IOS) || defined(SL_OS_ANDROID)
-        SLNode* box1 = importer.load("skinnedcube2.dae");
-        #else
-        SLNode* box1 = importer.load("DAE/SkinnedCube/skinnedcube2.dae");
-        #endif
-        SLAnimPlayback* box1Anim = importer.skeleton()->getAnimPlayback("unnamed_anim_0");
+        // Root scene node
+        SLNode* scene = new SLNode("scene group");
 
-        #if defined(SL_OS_IOS) || defined(SL_OS_ANDROID)
-        SLNode* box2 = importer.load("skinnedcube4.dae");
-        #else
-        SLNode* box2 = importer.load("DAE/SkinnedCube/skinnedcube4.dae");
-        #endif
-        SLAnimPlayback* box2Anim = importer.skeleton()->getAnimPlayback("unnamed_anim_0");
-
-        #if defined(SL_OS_IOS) || defined(SL_OS_ANDROID)
-        SLNode* box3 = importer.load("skinnedcube5.dae");
-        #else
-        SLNode* box3 = importer.load("DAE/SkinnedCube/skinnedcube5.dae");
-        #endif
-        SLAnimPlayback* box3Anim = importer.skeleton()->getAnimPlayback("unnamed_anim_0");
-
-        box1->translate(3, 0, 0);
-        box2->translate(-3, 0, 0);
-        box3->translate(0, 3, 0);
-
-        box1Anim->easing(EC_inOutSine);
-        box2Anim->easing(EC_inOutSine);
-        box3Anim->loop(AL_pingPongLoop);
-        box3Anim->easing(EC_inOutCubic);
-
-        charAnim->playForward();
-        box1Anim->playForward();
-        box2Anim->playForward();
-        box3Anim->playForward();
-
-        // Define camera
+        // camera
         SLCamera* cam1 = new SLCamera();
         cam1->translation(0,2,10);
         cam1->lookAt(0, 2, 0);
         cam1->setInitialState();
+        scene->addChild(cam1);
 
-        // Define a light
+        // light
         SLLightSpot* light1 = new SLLightSpot(10, 10, 5, 0.5f);
         light1->ambient (SLCol4f(0.2f,0.2f,0.2f));
-        light1->diffuse (SLCol4f(0.9f,0.9f,0.9f));
-        light1->specular(SLCol4f(0.9f,0.9f,0.9f));
+        light1->diffuse (SLCol4f(1,1,1));
+        light1->specular(SLCol4f(1,1,1));
         light1->attenuation(1,0,0);
+        scene->addChild(light1);
 
-
+        // Floor grid
         SLMaterial* m2 = new SLMaterial(SLCol4f::WHITE);
         SLGrid* grid = new SLGrid(SLVec3f(-5,0,-5), SLVec3f(5,0,5), 20, 20, "Grid", m2);
-
-        // Assemble scene
-        SLNode* scene = new SLNode("scene group");
-        scene->addChild(cam1);
-        scene->addChild(light1);
-        scene->addChild(character);
-        scene->addChild(box1);
-        scene->addChild(box2);
-        scene->addChild(box3);
         scene->addChild(new SLNode(grid, "grid"));
+
+        // Astro boy character
+        #if defined(SL_OS_IOS) || defined(SL_OS_ANDROID)
+        SLNode* char1 = importer.load("AstroBoy.dae");
+        #else
+        SLNode* char1 = importer.load("DAE/AstroBoy/AstroBoy.dae");
+        #endif
+        char1->translate(-1,0,0);
+        SLAnimPlayback* char1Anim = importer.skeleton()->getAnimPlayback("unnamed_anim_0");
+        char1Anim->playForward();
+        scene->addChild(char1);
+        
+        // Sintel character
+        #if defined(SL_OS_IOS) || defined(SL_OS_ANDROID)
+        SLNode* char2 = importer.load("SintelLowResOwnRig.dae");
+        #else
+        SLNode* char2 = importer.load("DAE/Sintel/SintelLowResOwnRig.dae"
+                                        //,true
+                                        //,SLProcess_JoinIdenticalVertices
+                                        //|SLProcess_RemoveRedundantMaterials
+                                        //|SLProcess_SortByPType
+                                        //|SLProcess_FindDegenerates
+                                        //|SLProcess_FindInvalidData
+                                        //|SLProcess_SplitLargeMeshes
+                                        );
+        #endif
+        char2->translate(1,0,0);
+        SLAnimPlayback* char2Anim = importer.skeleton()->getAnimPlayback("unnamed_anim_0");
+        char2Anim->playForward();
+        scene->addChild(char2);
+
+        // Skinned cube 1
+        #if defined(SL_OS_IOS) || defined(SL_OS_ANDROID)
+        SLNode* cube1 = importer.load("skinnedcube2.dae");
+        #else
+        SLNode* cube1 = importer.load("DAE/SkinnedCube/skinnedcube2.dae");
+        #endif
+        cube1->translate(3, 0, 0);
+        SLAnimPlayback* cube1Anim = importer.skeleton()->getAnimPlayback("unnamed_anim_0");
+        cube1Anim->easing(EC_inOutSine);
+        cube1Anim->playForward();
+        scene->addChild(cube1);
+        
+        // Skinned cube 2
+        #if defined(SL_OS_IOS) || defined(SL_OS_ANDROID)
+        SLNode* cube2 = importer.load("skinnedcube4.dae");
+        #else
+        SLNode* cube2 = importer.load("DAE/SkinnedCube/skinnedcube4.dae");
+        #endif
+        cube2->translate(-3, 0, 0);
+        SLAnimPlayback* cube2Anim = importer.skeleton()->getAnimPlayback("unnamed_anim_0");
+        cube2Anim->easing(EC_inOutSine);
+        cube2Anim->playForward();
+        scene->addChild(cube2);
+        
+        // Skinned cube 3
+        #if defined(SL_OS_IOS) || defined(SL_OS_ANDROID)
+        SLNode* cube3 = importer.load("skinnedcube5.dae");
+        #else
+        SLNode* cube3 = importer.load("DAE/SkinnedCube/skinnedcube5.dae");
+        #endif
+        cube3->translate(0, 3, 0);
+        SLAnimPlayback* cube3Anim = importer.skeleton()->getAnimPlayback("unnamed_anim_0");
+        cube3Anim->loop(AL_pingPongLoop);
+        cube3Anim->easing(EC_inOutCubic);
+        cube3Anim->playForward();
+        scene->addChild(cube3);
 
         // Set background color, active camera & the root pointer
         _background.colors(SLCol4f(0.1f,0.4f,0.8f));

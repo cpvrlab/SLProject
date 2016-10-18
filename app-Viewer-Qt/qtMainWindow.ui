@@ -98,7 +98,6 @@
       <addaction name="actionNode_Animation"/>
       <addaction name="actionMass_Animation"/>
       <addaction name="actionSkeletal_Animation"/>
-      <addaction name="actionAstroboy_Army_GPU"/>
       <addaction name="actionAstroboy_Army_CPU"/>
      </widget>
      <addaction name="menuGeneral_Scenes"/>
@@ -2406,7 +2405,7 @@ QSlider::handle:horizontal:disabled {
     <bool>true</bool>
    </property>
    <property name="text">
-    <string>Astroboy Army (CPU)</string>
+    <string>Astroboy Army</string>
    </property>
    <property name="statusTip">
     <string>Loads a scene with many identical CPU animated characters.</string>
@@ -2590,6 +2589,14 @@ QSlider::handle:horizontal:disabled {
    </property>
    <property name="toolTip">
     <string>Visit cpvrLab homepage</string>
+   </property>
+  </action>
+  <action name="actionSintel">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Sintel Character</string>
    </property>
   </action>
  </widget>

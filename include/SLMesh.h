@@ -109,7 +109,7 @@ A mesh uses normally only one material referenced by the SLMesh::mat pointer.
 \n
 If a mesh is associated with a skeleton all its vertices and normals are
 transformed every frame by the joint weights. Every vertex of a mesh has
-weights for four joints by which it can be influenced. This transform is
+weights for 1-n joints by which it can be influenced. This transform is
 called skinning and is done in CPU in the method transformSkin. The final
 transformed vertices and normals are stored in _finalP and _finalN.
 */
