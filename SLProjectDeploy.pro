@@ -125,6 +125,13 @@ models_DAE_AstroBoy.files = \
   ../_data/models/DAE/AstroBoy/AstroBoy.dae \
   ../_data/models/DAE/AstroBoy/boy_10.jpg \
 
+models_DAE_Sintel.files = \
+  ../_data/models/DAE/Sintel/SintelLowResOwnRig.dae \
+  ../_data/models/DAE/Sintel/sintel_diff.png \
+  ../_data/models/DAE/Sintel/eyelash.png \
+  ../_data/models/DAE/Sintel/sintel_eyeball_diff.png \
+  ../_data/models/DAE/Sintel/sintel_hair_solid.jpg \
+
 models_DAE_SkinnedCube.files = \
   ../_data/models/DAE/SkinnedCube/skinnedcube.dae \
   ../_data/models/DAE/SkinnedCube/skinnedcube2.dae \
@@ -229,6 +236,7 @@ macx: {
     shaders.path = Contents/_data/shaders
     models_3DS_Halloween.path = Contents/_data/models/3DS/Halloween
     models_DAE_AstroBoy.path = Contents/_data/models/DAE/AstroBoy
+    models_DAE_Sintel.path = Contents/_data/models/DAE/Sintel
     models_DAE_SkinnedCube.path = Contents/_data/models/DAE/SkinnedCube
     models_DAE_Table.path = Contents/_data/models/DAE/Table
     models_DAE_Crate.path = Contents/_data/models/DAE/Crate
@@ -242,6 +250,7 @@ macx: {
     QMAKE_BUNDLE_DATA += shaders
     QMAKE_BUNDLE_DATA += models_3DS_Halloween
     QMAKE_BUNDLE_DATA += models_DAE_AstroBoy
+    QMAKE_BUNDLE_DATA += models_DAE_Sintel
     QMAKE_BUNDLE_DATA += models_DAE_SkinnedCube
     QMAKE_BUNDLE_DATA += models_DAE_Table
     QMAKE_BUNDLE_DATA += models_DAE_Crate

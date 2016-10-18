@@ -36,13 +36,13 @@ SOURCES += \
    qtMain.cpp \
    qtMainWindow.cpp \
    qtGLWidget.cpp \
-   qtPropertyTreeItem.cpp
+   qtProperty.cpp
 
 HEADERS += \
    qtMainWindow.h \
    qtGLWidget.h \
    qtNodeTreeItem.h \
-   qtPropertyTreeItem.h \
+   qtProperty.h \
    qtPropertyTreeWidget.h
 
 FORMS += \
