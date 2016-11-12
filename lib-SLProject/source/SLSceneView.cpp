@@ -1441,6 +1441,10 @@ SLbool SLSceneView::onCommand(SLCommand cmd)
         case C_sceneSkeletalAnimation:
         case C_sceneAstroboyArmy:
 
+        case C_sceneARCalibration:
+        case C_sceneARTrackAruco:
+        case C_sceneARTrackChessboard:
+
         case C_sceneRTSpheres:
         case C_sceneRTMuttenzerBox:
         case C_sceneRTSoftShadows:
@@ -1677,7 +1681,7 @@ void SLSceneView::build2DMenus()
 
     mn3 = new SLButton(this, "Augmented Reality >", f);
     mn2->addChild(mn3);
-    mn3->addChild(new SLButton(this, "Calibration", f, C_sceneARCalibration, true, curS==C_sceneARCalibration, mn2));
+    //mn3->addChild(new SLButton(this, "Calibration", f, C_sceneARCalibration, true, curS==C_sceneARCalibration, mn2));
     mn3->addChild(new SLButton(this, "Track Aruco Marker", f, C_sceneARTrackAruco, true, curS==C_sceneARTrackAruco, mn2));
    
     mn3 = new SLButton(this, "Ray tracing >", f);

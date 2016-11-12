@@ -37,6 +37,8 @@
 #include <SLGrid.h>
 #include <SLLens.h>
 #include <SLCoordAxis.h>
+#include <SLCVTrackerAruco.h>
+#include <SLCVTrackerChessboard.h>
 
 SLNode* SphereGroup(SLint, SLfloat, SLfloat, SLfloat, SLfloat, SLint, SLMaterial*, SLMaterial*);
 //-----------------------------------------------------------------------------
@@ -202,7 +204,8 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         _background.colors(SLCol4f(0.7f,0.7f,0.7f), SLCol4f(0.2f,0.2f,0.2f));
         _root3D = nullptr;
         sv->camera(nullptr);
-    } else
+    } 
+    else
     if (_currentSceneID == C_sceneMinimal) //........................................
     {
         // Set scene name and info string
@@ -825,6 +828,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         if (tower) scene->addChild(tower);
         scene->addChild(cam1);
 
+        // Set backround texture to the video texture and use it
         _background.texture(&_videoTexture, true);
         _usesVideoImage = true;
 
@@ -1945,6 +1949,74 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         _background.colors(SLCol4f(0.1f,0.4f,0.8f));
         sv->camera(cam1);
         _root3D = scene;
+    }
+    else
+    if (_currentSceneID == C_sceneARCalibration)
+    {
+    }
+    else
+    if (_currentSceneID == C_sceneARTrackAruco)
+    {
+        // Set scene name and info string
+        name("AR Aruco Marker Tracking");
+        info(sv, "Augmented Reality Aruco Marker Tracking.");
+        
+        // Material
+        SLMaterial* yellow = new SLMaterial("mY", SLCol4f::YELLOW);
+        SLMaterial* cyan   = new SLMaterial("mC", SLCol4f::CYAN);
+
+        // Create a scene group node
+        SLNode* scene = new SLNode("scene node");
+
+        // Create a camera node
+        SLCamera* cam1 = new SLCamera();
+        cam1->name("camera node");
+        cam1->translation(0,0,5);
+        cam1->lookAt(0, 0, 0);
+        cam1->fov(_calibration.cameraFovDeg());
+        scene->addChild(cam1);
+
+        // Create a light source node
+        SLLightSpot* light1 = new SLLightSpot(0.05f);
+        light1->translation(0.2f,0.2f,0.2f);
+        light1->name("light node");
+        scene->addChild(light1);
+
+        // Get the half edge length of the aruco marker
+        float he = SLCVTrackerAruco::params.edgeLength * 0.5f;
+        
+        // Build mesh & node that will be tracked by the 1st marker (camera)  
+        SLBox* box1 = new SLBox(-he,-he, 0.0f, he, he, 2*he, "Box 1", yellow);
+        SLNode* boxNode1 = new SLNode(box1, "Box Node 1");
+        SLNode* axisNode1 = new SLNode(new SLCoordAxis(),"Axis Node 1");
+        axisNode1->scale(0.1f);
+        boxNode1->addChild(axisNode1);
+        scene->addChild(boxNode1);
+        
+        // Build mesh & node that will be tracked by the 2nd marker  
+        SLBox* box2 = new SLBox(-he,-he, 0.0f, he, he, 2*he, "Box 2", cyan);
+        SLNode* boxNode2 = new SLNode(box2, "Box Node 2");
+        SLNode* axisNode2 = new SLNode(new SLCoordAxis(),"Axis Node 2");
+        axisNode2->scale(0.1f);
+        boxNode2->addChild(axisNode2);
+        scene->addChild(boxNode2);
+
+        // Create OpenCV Tracker for the camera & the 2nd box node
+        _trackers.push_back(new SLCVTrackerAruco(cam1, 0));
+        _trackers.push_back(new SLCVTrackerAruco(boxNode2, 1));
+        
+        // Set backround texture to the video texture and use it
+        _background.texture(&_videoTexture, true);
+        _usesVideoImage = true;
+        
+        // pass the scene group as root node
+        _root3D = scene;
+
+        // Set active camera
+        sv->camera(cam1);
+
+        // Turn on constant redraw
+        sv->waitEvents(false);
     }
     else
     if (_currentSceneID == C_sceneRTMuttenzerBox) //.................................

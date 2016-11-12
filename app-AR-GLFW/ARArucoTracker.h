@@ -29,9 +29,9 @@ public:
         edgeLength(0.06f),
         arucoDictionaryId(0),
         filename("aruco_detector_params.yml")
-    {
-        arucoParams = cv::aruco::DetectorParameters::create();
-    }
+        {
+            arucoParams = cv::aruco::DetectorParameters::create();
+        }
 
     bool loadFromFile()
     {

@@ -1,6 +1,6 @@
 //#############################################################################
-//  File:      SLCVTracker.cpp
-//  Author:    Michael Göttlicher
+//  File:      SLCVTrackerChessboard.cpp
+//  Author:    Michael Göttlicher, Marcus Hudritsch
 //  Date:      Spring 2016
 //  Codestyle: https://github.com/cpvrlab/SLProject/wiki/Coding-Style-Guidelines
 //  Copyright: Marcus Hudritsch, Michael Göttlicher
@@ -9,7 +9,7 @@
 //#############################################################################
 
 #include <stdafx.h>         // precompiled headers
-#include <SLCVChessboardTracker.h>
+#include <SLCVTrackerChessboard.h>
 #include <opencv2/core/core.hpp>
 #include <opencv2/core/utility.hpp>
 #include <opencv2/highgui.hpp>
@@ -20,7 +20,7 @@
 using namespace cv;
 
 //-----------------------------------------------------------------------------
-bool SLCVChessboardTracker::init(string paramsDir)
+bool SLCVTrackerChessboard::init(string paramsDir)
 {
     SLstring filename = "chessboard_detector_params.yml";
     cv::FileStorage fs(paramsDir + filename, cv::FileStorage::READ);
@@ -42,9 +42,9 @@ bool SLCVChessboardTracker::init(string paramsDir)
     return true;
 }
 //-----------------------------------------------------------------------------
-bool SLCVChessboardTracker::track(cv::Mat image, 
+bool SLCVTrackerChessboard::track(cv::Mat image, 
                                   SLCVCalibration& calib,
-                                  SLSceneView* sv)
+                                  SLVSceneView& sceneViews)
 {
     if(image.empty() || 
        calib.intrinsics().empty() ||

@@ -1,6 +1,6 @@
 //#############################################################################
-//  File:      SLCVTracker.cpp
-//  Author:    Michael Göttlicher
+//  File:      SLCVTrackerAruco.cpp
+//  Author:    Michael Göttlicher, Marcus Hudritsch
 //  Date:      Spring 2016
 //  Codestyle: https://github.com/cpvrlab/SLProject/wiki/Coding-Style-Guidelines
 //  Copyright: Marcus Hudritsch, Michael Göttlicher
@@ -8,8 +8,8 @@
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
 
-#ifndef SLCVARUCOTRACKER_H
-#define SLCVARUCOTRACKER_H
+#ifndef SLCVTrackerAruco_H
+#define SLCVTrackerAruco_H
 
 #include <SLCVTracker.h>
 #include <SLNode.h>
@@ -29,18 +29,18 @@ public:
         edgeLength(0.06f),
         arucoDictionaryId(0),
         filename("aruco_detector_params.yml")
-    {
-        arucoParams = cv::aruco::DetectorParameters::create();
-    }
+        {
+            arucoParams = cv::aruco::DetectorParameters::create();
+        }
 
-    bool loadFromFile(string paramsDir)
+    bool loadFromFile()
     {
-        string path = paramsDir + filename;
+        string path = SLCVCalibration::defaultPath + filename;
         cv::FileStorage fs(path, cv::FileStorage::READ);
         if(!fs.isOpened())
         {
             cout << "Could not find parameter file for ArUco tracking!" << endl;
-            cout << "Tried " << paramsDir + filename << endl;
+            cout << "Tried " << SLCVCalibration::defaultPath + filename << endl;
             return false;
         }
 
@@ -79,18 +79,18 @@ public:
 };
 
 //-----------------------------------------------------------------------------
-
 /*!
-Tracking class for ArUco markers tracking
+Tracking class for Aruco markers tracking
 */
-class SLCVArucoTracker : public SLCVTracker
+class SLCVTrackerAruco : public SLCVTracker
 {
     public:
-                SLCVArucoTracker(SLNode* node) : SLCVTracker(node) {;}
-        bool    init            (string paramsFileDir);
+                SLCVTrackerAruco(SLNode* node, SLint arucoID);
+               ~SLCVTrackerAruco() {;}
+
         bool    track           (cv::Mat image, 
                                  SLCVCalibration& calib,
-                                 SLSceneView* sv);
+                                 SLVSceneView& sv);
 
         //! Helper function to draw and save an aruco marker board image
         static void drawArucoMarkerBoard(int numMarkersX,
@@ -108,11 +108,16 @@ class SLCVArucoTracker : public SLCVTracker
                                     int minMarkerId,
                                     int maxMarkerId,
                                     int markerSizePX=200);
+                                    
+        static bool             trackAllOnce;   //!< Flag for tracking all markers once per frame
+        static SLCVArucoParams  params;         //!< Parameter class instance
 
     private:
-        SLVint              _arucoIDs;      //!< detected Aruco marker IDs
-        SLVMat4f            _objectViewMats;//!< object view matrices
-        SLCVArucoParams     _params;        //!< Parameter class instance
+        static bool             paramsLoaded;   //!< Flag for loaded parameters
+        static SLVint           arucoIDs;       //!< detected Aruco marker IDs
+        static SLVMat4f         objectViewMats; //!< object view matrices
+
+               SLint            _arucoID;       //!< Aruco Marker ID for this node
 };
 //-----------------------------------------------------------------------------
-#endif // SLCVArucoTracker_H
+#endif // SLCVTrackerAruco_H

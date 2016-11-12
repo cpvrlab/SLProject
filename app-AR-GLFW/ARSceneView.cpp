@@ -118,14 +118,14 @@ void ARSceneView::preDraw()
         if(!SLCVCapture::lastFrame.empty())
         {   
             if(_currMode != ARSceneViewMode::Idle || 
-                _currMode != ARSceneViewMode::CalibrationMode)
+               _currMode != ARSceneViewMode::CalibrationMode)
             {   _tracker->track(SLCVCapture::lastFrame, s->calibration());
                 _tracker->updateSceneView(this);
             }
         }
 
         //show undistorted image
-        if( s->calibration().showUndistorted())
+        if(s->calibration().showUndistorted())
         {   Mat undistorted;
             undistort(SLCVCapture::lastFrame,
                       undistorted,

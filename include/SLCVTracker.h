@@ -14,10 +14,10 @@
 #include <stdafx.h>
 #include <SLNode.h>
 #include <SLCVCalibration.h>
+#include <SLSceneView.h>
 #include <opencv/cv.h>
 #include <opencv2/aruco.hpp>
 
-class ARSceneView;
 //-----------------------------------------------------------------------------
 //! SLCVTracker is the pure virtual base class for tracking features in video.
 /*!   
@@ -26,15 +26,13 @@ A instance of this class is hold by the SLScene instance.
 class SLCVTracker
 {
     public:
-                     SLCVTracker      (SLNode* node = nullptr): 
-                                      _node(node), _isVisible(false){;}
-        virtual     ~SLCVTracker      () = 0;
+                     SLCVTracker    (SLNode* node = nullptr): 
+                                     _node(node), _isVisible(false){;}
+        virtual     ~SLCVTracker    (){;}
 
-        //new functions
-        virtual bool init           (string paramsFileDir) = 0;
         virtual bool track          (cv::Mat image, 
                                      SLCVCalibration& calib,
-                                     SLSceneView* sv) = 0;
+                                     SLVSceneView& sv) = 0;
     
     protected:
         SLNode*     _node;          //<! Connected node

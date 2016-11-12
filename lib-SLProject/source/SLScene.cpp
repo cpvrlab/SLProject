@@ -27,6 +27,8 @@
 #include <SLAssimpImporter.h>
 #include <SLBox.h>
 #include <SLLightDirect.h>
+#include <SLCVTracker.h>
+#include <SLCVTrackerAruco.h>
 
 //-----------------------------------------------------------------------------
 /*! Global static scene pointer that can be used throughout the entire library
@@ -82,7 +84,6 @@ SLScene::SLScene(SLstring name) : SLObject(name)
     _selectedMesh   = nullptr;
     _selectedNode   = nullptr;
     _stopAnimations = false;
-    _arTracker      = nullptr;
 
     _fps = 0;
     _elapsedTimeMS = 0;
@@ -177,19 +178,23 @@ SLScene::~SLScene()
    
     // delete materials 
     for (auto m : _materials) delete m;
-        _materials.clear();
+    _materials.clear();
    
     // delete materials 
     for (auto m : _meshes) delete m;
-        _meshes.clear();
+    _meshes.clear();
    
     // delete textures
     for (auto t : _textures) delete t;
-        _textures.clear();
+    _textures.clear();
    
     // delete shader programs
     for (auto p : _programs) delete p;
-        _programs.clear();
+    _programs.clear();
+        
+    // delete AR tracker programs
+    for (auto t : _trackers) delete t;
+    _trackers.clear();
    
     // delete fonts   
     SLTexFont::deleteFonts();
@@ -271,16 +276,15 @@ void SLScene::unInit()
         delete sp;
         _programs.pop_back();
     }
+
+    // delete trackers 
+    for (auto t : _trackers) delete t;
+    _trackers.clear();
    
     // clear eventHandlers
     _eventHandlers.clear();
 
     _animManager.clear();
-
-    // delete AR tracker
-    if (_arTracker)
-        delete _arTracker;
-    _arTracker = nullptr;
 
     // reset all states
     SLGLState::getInstance()->initAll();
@@ -305,19 +309,23 @@ bool SLScene::onUpdate()
     for (auto sv : _sceneViews)
         if (sv != nullptr)
             sv->gotPainted(false);
+    
+
+    //////////////////////////
+    // Calculate frame time //
+    //////////////////////////
 
     // Calculate the elapsed time for the animation
     // todo: If slowdown on idle is enabled the delta time will be wrong!
     _elapsedTimeMS = timeMilliSec() - _lastUpdateTimeMS;
     _lastUpdateTimeMS = timeMilliSec();
-        
-    // Sum up times of all scene views
+     
+    // Sum up all timings of all sceneviews
     SLfloat sumCullTimeMS   = 0.0f;
     SLfloat sumDraw3DTimeMS = 0.0f;
     SLfloat sumDraw2DTimeMS = 0.0f;
     SLbool renderTypeIsRT = false;
     SLbool voxelsAreShown = false;
-
     for (auto sv : _sceneViews)
     {   if (sv != nullptr)
         {   sumCullTimeMS   += sv->cullTimeMS();
@@ -338,29 +346,21 @@ bool SLScene::onUpdate()
     _fps = 1 / _frameTimesMS.average() * 1000.0f;
     if (_fps < 0.0f) _fps = 0.0f;
 
-    // Do animations
+
+    ///////////////////
+    // Do animations //
+    ///////////////////
+
     SLfloat startUpdateMS = timeMilliSec();
 
     // reset the dirty flag on all skeletons
-    // @todo    put this functionality in the animation manager
-    // @note    This would not be necessary if we had a 1 to 1 relationship of meshes to skeletons
-    //          then  the mesh could just mark the skeleton as clean after retrieving the new data.
-    //          Currently however we could have multiple meshes that reference the same skeleton.
-    //          This could be solved by taking the mesh/submesh architecture approach. All logically
-    //          grouped meshes are submeshes to one mesh. For example a character with glasses and clothes
-    //          would consist of a submesh for the glasses, the clothing and the character body. The 
-    //          skeleton data update would then be done on mesh level which in turn updates all of its submeshes.
-    //
-    //          For now we need to reset the dirty flag manually at the start of each frame because of the above note.
     for(auto skeleton : _animManager.skeletons())
         skeleton->changed(false);
 
     // Process queued up system events and poll custom input devices
     SLbool animatedOrChanged = SLInputManager::instance().pollEvents();
 
-    ///////////////////////////////////////////////////////////////////////////////
     animatedOrChanged |= !_stopAnimations && _animManager.update(elapsedTimeSec());
-    ///////////////////////////////////////////////////////////////////////////////
     
     // Do software skinning on all changed skeletons
     for (auto mesh : _meshes) 
@@ -374,7 +374,42 @@ bool SLScene::onUpdate()
             mesh->updateAccelStruct();
     }
     
-    // Update AABBs efficiently. The updateAABBRec call won't generate any overhead if nothing changed
+
+    ////////////////////
+    // Do AR Tracking //
+    ////////////////////
+
+    if (_trackers.size() > 0 && !SLCVCapture::lastFrame.empty())
+    {   
+        SLCVTrackerAruco::trackAllOnce = true;
+        
+        for (auto tracker : _trackers)
+            tracker->track(SLCVCapture::lastFrame, _calibration, _sceneViews);
+
+        //undistorted camera image
+        if(_calibration.showUndistorted())
+        {   
+            Mat undistorted;
+
+            undistort(SLCVCapture::lastFrame,
+                      undistorted,
+                      _calibration.intrinsics(),
+                      _calibration.distortion());
+
+            _videoTexture.copyVideoImage(undistorted.cols,
+                                         undistorted.rows, 
+                                         SLCVCapture::format, 
+                                         undistorted.data,
+                                         true);
+        }
+    }
+
+
+    //////////////////
+    // Update AABBs //
+    //////////////////
+
+    // The updateAABBRec call won't generate any overhead if nothing changed
     SLGLState::getInstance()->modelViewMatrix.identity();
     if (_root3D)
         _root3D->updateAABBRec();

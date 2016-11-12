@@ -17,14 +17,15 @@
 /*!
 Chessboard tracking class
 */
-class SLCVChessboardTracker : public SLCVTracker
+class SLCVTrackerChessboard : public SLCVTracker
 {
     public:
-                SLCVChessboardTracker   (SLNode* node) : SLCVTracker(node){;}
-        bool    init                    (string paramsFileDir) override;
+                SLCVTrackerChessboard   (SLNode* node) : SLCVTracker(node){;}
+               ~SLCVTrackerChessboard   () {;}
+        bool    init                    (string paramsFileDir);
         bool    track                   (cv::Mat image, 
                                          SLCVCalibration& calib,
-                                         SLSceneView* sv) = 0;
+                                         SLVSceneView& sceneViews);
 
     private:
         vector<cv::Point3d> _boardPoints;   //<! chessboard corners in world coordinate system

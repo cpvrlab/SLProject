@@ -23,6 +23,7 @@ class SLRay;
 class SLAABBox;
 class SLNode;
 class SLAnimation;
+class SLCVTracker;
 
 //-----------------------------------------------------------------------------
 //! SLVNode typdef for a vector of SLNodes
@@ -236,10 +237,11 @@ class SLNode: public SLObject, public SLEventHandler
             // Setters (see also members)
             void            parent              (SLNode* p);
             void            om                  (const SLMat4f& mat) {_om = mat; needUpdate();}
-            void            animation           (SLAnimation* a)  {_animation = a;}
+            void            animation           (SLAnimation* a) {_animation = a;}
     virtual void            needUpdate          ();
             void            needWMUpdate        ();
             void            needAABBUpdate      ();
+            void            tracker             (SLCVTracker* t);
                
             // Getters (see also member)
             SLNode*         parent              () {return _parent;}
@@ -256,6 +258,7 @@ class SLNode: public SLObject, public SLEventHandler
             SLVMesh&        meshes              () {return _meshes;}
             SLVNode&        children            () {return _children;}
       const SLSkeleton*     skeleton            ();
+            SLCVTracker*    tracker             () {return _tracker;}
 
     private:
             void            updateWM            () const;   
@@ -266,7 +269,6 @@ class SLNode: public SLObject, public SLEventHandler
             void            findChildrenHelper  (const SLMesh* mesh, 
                                                  vector<SLNode*>& list, 
                                                  SLbool findRecursive);
-
     protected:
             SLGLState*   _stateGL;          //!< pointer to the global SLGLState instance
             SLNode*      _parent;           //!< pointer to the parent node
@@ -283,6 +285,7 @@ class SLNode: public SLObject, public SLEventHandler
             SLDrawBits   _drawBits;         //!< node level drawing flags
             SLAABBox     _aabb;             //!< axis aligned bounding box
             SLAnimation* _animation;        //!< animation of the node
+            SLCVTracker* _tracker;          //!< OpenCV Augmented Reality Tracker
 };
 
 ////////////////////////

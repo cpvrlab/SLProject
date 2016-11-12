@@ -413,10 +413,10 @@
     <ClInclude Include="..\include\SLCoordAxis.h" />
     <ClInclude Include="..\include\SLBackground.h" />
     <ClInclude Include="..\include\SLCompactGrid.h" />
-    <ClInclude Include="..\include\SLCVArucoTracker.h" />
+    <ClInclude Include="..\include\SLCVTrackerAruco.h" />
     <ClInclude Include="..\include\SLCVCalibration.h" />
     <ClInclude Include="..\include\SLCVCapture.h" />
-    <ClInclude Include="..\include\SLCVChessboardTracker.h" />
+    <ClInclude Include="..\include\SLCVTrackerChessboard.h" />
     <ClInclude Include="..\include\SLCVTracker.h" />
     <ClInclude Include="..\include\SLDisk.h" />
     <ClInclude Include="..\include\SLGLEnums.h" />
@@ -493,10 +493,10 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\lib-SLExternal\nvwa\debug_new.cpp" />
-    <ClCompile Include="source\CV\SLCVArucoTracker.cpp" />
+    <ClCompile Include="source\CV\SLCVTrackerAruco.cpp" />
     <ClCompile Include="source\CV\SLCVCalibration.cpp" />
     <ClCompile Include="source\CV\SLCVCapture.cpp" />
-    <ClCompile Include="source\CV\SLCVChessboardTracker.cpp" />
+    <ClCompile Include="source\CV\SLCVTrackerChessboard.cpp" />
     <ClCompile Include="source\GL\SLGLOculus.cpp" />
     <ClCompile Include="source\GL\SLGLOculusFB.cpp" />
     <ClCompile Include="source\GL\SLGLProgram.cpp" />

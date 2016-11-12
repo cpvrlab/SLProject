@@ -136,7 +136,6 @@ class SLSceneView: public SLObject
             void            build2DInfoRT       ();
             void            build2DInfoLoading  ();
             void            build2DMsgBoxes     ();
-            SLfloat         calcFPS             (SLfloat deltaTimeSec); 
             SLstring        windowTitle         ();
             void            startRaytracing     (SLint maxDepth);
             void            startPathtracing    (SLint maxDepth, SLint samples);

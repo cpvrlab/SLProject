@@ -1,5 +1,5 @@
 //#############################################################################
-//  File:      SLCVArucoTracker.cpp
+//  File:      SLCVTrackerAruco.cpp
 //  Author:    Michael Göttlicher & Marcus Hudritsch
 //  Date:      Spring 2016
 //  Codestyle: https://github.com/cpvrlab/SLProject/wiki/Coding-Style-Guidelines
@@ -10,7 +10,7 @@
 
 #include <stdafx.h>         // precompiled headers
 #include <SLSceneView.h>
-#include <SLCVArucoTracker.h>
+#include <SLCVTrackerAruco.h>
 
 #include <opencv2/core/core.hpp>
 #include <opencv2/core/utility.hpp>
@@ -20,70 +20,99 @@
 #include <opencv2/video/tracking.hpp>
 
 using namespace cv;
-
 //-----------------------------------------------------------------------------
-bool SLCVArucoTracker::init(string paramsFileDir)
+// Initialize static variables
+bool            SLCVTrackerAruco::trackAllOnce = true;
+bool            SLCVTrackerAruco::paramsLoaded = false;
+SLVint          SLCVTrackerAruco::arucoIDs;
+SLVMat4f        SLCVTrackerAruco::objectViewMats;
+SLCVArucoParams SLCVTrackerAruco::params;
+//-----------------------------------------------------------------------------
+SLCVTrackerAruco::SLCVTrackerAruco(SLNode* node, SLint arucoID) : 
+                  SLCVTracker(node) 
 {
-    return _params.loadFromFile(paramsFileDir);
+    _arucoID = arucoID;
 }
 //-----------------------------------------------------------------------------
-bool SLCVArucoTracker::track(cv::Mat image, 
+bool SLCVTrackerAruco::track(cv::Mat image, 
                              SLCVCalibration& calib,
-                             SLSceneView* sv)
+                             SLVSceneView& sceneViews)
 {
-    if(image.empty() || 
-       calib.intrinsics().empty() || 
-       _params.arucoParams.empty() || 
-       _params.dictionary.empty() ||
-       _node == nullptr)
-       return false;
+    assert(!image.empty() && "Image is empty");
+    assert(!calib.intrinsics().empty() && "Calibration is empty");
+    assert(_node && "Node pointer is null");
    
-    vector<vector<Point2f>> corners, rejected;
-    vector<Vec3d> rVecs, tVecs;
+    // Load aruco parameter once
+    if (!paramsLoaded)
+    {   paramsLoaded = params.loadFromFile();
+        if (!paramsLoaded)
+            SL_EXIT_MSG("SLCVTrackerAruco::track: Failed to load Aruco parameters.");
+    }
+    if(params.arucoParams.empty() || params.dictionary.empty())
+    {   SL_WARN_MSG("SLCVTrackerAruco::track: Aruco paramters are empty.");
+        return false;
+    }
 
-    //clear detected oject view matrices from last frame
-    _arucoIDs.clear();
-    _objectViewMats.clear();
+    // Track all Aruco markers only once per frame
+    if (trackAllOnce)
+    {   arucoIDs.clear();
+        objectViewMats.clear();
+        vector<vector<cv::Point2f>> corners, rejected;
 
-    aruco::detectMarkers(image, 
-                         _params.dictionary, 
-                         corners, 
-                         _arucoIDs, 
-                         _params.arucoParams, 
-                         rejected);
+        aruco::detectMarkers(image, 
+                             params.dictionary, 
+                             corners, 
+                             arucoIDs, 
+                             params.arucoParams, 
+                             rejected);
 
-    if(_arucoIDs.size() > 0)
-    {
-        cout << "Aruco IdS: " << _arucoIDs.size() << " : ";
+        if(arucoIDs.size() > 0)
+        {   cout << "Aruco IdS: " << arucoIDs.size() << " : ";
+            vector<cv::Vec3d> rVecs, tVecs;
 
-        aruco::estimatePoseSingleMarkers(corners, 
-                                         _params.edgeLength, 
-                                         calib.intrinsics(), 
-                                         calib.distortion(), 
-                                         rVecs,
-                                         tVecs);
+            aruco::estimatePoseSingleMarkers(corners, 
+                                             params.edgeLength, 
+                                             calib.intrinsics(), 
+                                             calib.distortion(), 
+                                             rVecs, tVecs);
 
-        for(size_t i=0; i < _arucoIDs.size(); ++i)
-        {
-            cout << _arucoIDs[i] << ",";
-
-            // Convert cv translation & rotation vector to OpenGL matrix
-            SLMat4f ovm = calib.createGLMatrix(cv::Mat(tVecs[i]), cv::Mat(rVecs[i]));
-
-            _objectViewMats.push_back(ovm);
+            for(size_t i=0; i < arucoIDs.size(); ++i)
+            {   cout << arucoIDs[i] << ",";
+                SLMat4f ovm = calib.createGLMatrix(cv::Mat(tVecs[i]), cv::Mat(rVecs[i]));
+                objectViewMats.push_back(ovm);
+            }
+            cout << endl;
         }
-        cout << endl;
+        trackAllOnce = false;
+    }
 
-        //calculate object transformation matrix (see also calcObjectMatrix)
-        SLMat4f om = sv->camera()->om() * _objectViewMats[0];
-        
-        _node->om(om);
-        _node->setDrawBitsRec(SL_DB_HIDDEN, false);
+    if(arucoIDs.size() > 0)
+    {   
+        // Find the marker with the matching id
+        for(size_t i=0; i < arucoIDs.size(); ++i)
+        {   if (arucoIDs[i] == _arucoID)
+            {   
+                for (auto sv : sceneViews)
+                {
+                    if (_node == sv->camera())
+                    {
+                        _node->om(objectViewMats[i].inverse());
+                    }
+                    else
+                    {   //calculate object transformation matrix (see also calcObjectMatrix)
+                        SLMat4f om = sv->camera()->om() * objectViewMats[i];
+                        _node->om(om);
+                    }
+                    _node->setDrawBitsRec(SL_DB_HIDDEN, false);
+                    return true;
+                }
+            }
+        }
     }
     else
         _node->setDrawBitsRec(SL_DB_HIDDEN, true);
 
-    return true;
+    return false;
 }
 //-----------------------------------------------------------------------------
 /*! Explains the calculation of the object matrix from the cameraObject and the
@@ -125,7 +154,7 @@ static void calcObjectMatrix(const SLMat4f& cameraObjectMat,
     objectMat = cameraObjectMat * objectViewMat;
 }
 //-----------------------------------------------------------------------------
-void SLCVArucoTracker::drawArucoMarkerBoard(int dictionaryId,
+void SLCVTrackerAruco::drawArucoMarkerBoard(int dictionaryId,
                                             int numMarkersX,
                                             int numMarkersY, 
                                             int markerEdgePX, 
@@ -163,7 +192,7 @@ void SLCVArucoTracker::drawArucoMarkerBoard(int dictionaryId,
     imwrite(imgName, boardImage);
 }
 //-----------------------------------------------------------------------------
-void SLCVArucoTracker::drawArucoMarker(int dictionaryId,
+void SLCVTrackerAruco::drawArucoMarker(int dictionaryId,
                                        int minMarkerId,
                                        int maxMarkerId,
                                        int markerSizePX)

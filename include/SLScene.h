@@ -24,12 +24,13 @@
 #include <SLCVCalibration.h>
 
 class SLSceneView;
+class SLCVTracker;
 class SLButton;
 class SLText;
-class SLCVTracker;
 
 //-----------------------------------------------------------------------------
 typedef std::vector<SLSceneView*> SLVSceneView; //!< Vector of SceneView pointers
+typedef std::vector<SLCVTracker*> SLVCVTracker; //!< Vector of CV tracker pointers
 //-----------------------------------------------------------------------------
 //! The SLScene class represents the top level instance holding the scene structure
 /*!      
@@ -114,7 +115,8 @@ class SLScene: public SLObject
             SLGLOculus*     oculus          () {return &_oculus;}   
             SLbool          usesVideoImage  () {return _usesVideoImage;}
             SLGLTexture*    videoTexture    () {return &_videoTexture;}
-            SLCVCalibration&    calibration () {return _calibration;}
+            SLCVCalibration& calibration    () {return _calibration;}
+            SLVCVTracker&   trackers        () {return _trackers;}
             
             // Misc.
    virtual  void            onLoad          (SLSceneView* sv, 
@@ -188,11 +190,11 @@ class SLScene: public SLObject
             
             SLGLOculus      _oculus;            //!< Oculus Rift interface
             
-            // OpenCV stuff
+            // Augmented Reality stuff
             SLbool          _usesVideoImage;    //!< Flag for updating the video image
             SLGLTexture     _videoTexture;      //!< Texture for live video image
             SLCVCalibration _calibration;       //!< OpenCV calibration manager
-            SLCVTracker*    _arTracker;         //!< OpenCV AR tracker
+            SLVCVTracker    _trackers;          //!< Vector of all AR trackers
 };
 //-----------------------------------------------------------------------------
 #endif
