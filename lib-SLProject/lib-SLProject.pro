@@ -61,6 +61,11 @@ HEADERS += \
 ../include/SLCurve.h \
 ../include/SLCurveBezier.h \
 ../include/SLCylinder.h \
+../include/SLCVCapture.h \
+../include/SLCVCalibration.h \
+../include/SLCVTracker.h \
+../include/SLCVTrackerAruco.h \
+../include/SLCVTrackerChessboard.h \
 ../include/SLDisk.h \
 ../include/SLDrawBits.h \
 ../include/SLEnums.h \
@@ -125,9 +130,7 @@ HEADERS += \
 ../include/SLVec4.h \
 ../include/SLVector.h \
 ../include/stdafx.h \
-../include/TriangleBoxIntersect.h \
-    ../include/SLCVCapture.h \
-    ../include/SLCVCalibration.h
+../include/TriangleBoxIntersect.h
 
 SOURCES += \
 source/math/SLCurveBezier.cpp \
@@ -151,6 +154,8 @@ source/GL/SLGLVertexArrayExt.cpp \
 source/GL/SLGLVertexBuffer.cpp \
 source/CV/SLCVCapture.cpp \
 source/CV/SLCVCalibration.cpp \
+source/CV/SLCVTrackerAruco.cpp \
+source/CV/SLCVTrackerChessboard.cpp \
 source/SLAABBox.cpp \
 source/SLAnimation.cpp \
 source/SLAnimManager.cpp \
