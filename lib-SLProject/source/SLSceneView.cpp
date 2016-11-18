@@ -27,6 +27,7 @@
 #include <SLButton.h>
 #include <SLBox.h>
 #include <SLImporter.h>
+#include <SLCVCapture.h>
 
 //-----------------------------------------------------------------------------
 // Milliseconds duration of a long touch event
@@ -898,8 +899,8 @@ void SLSceneView::draw2DGLAll()
     }
 
     // Draw scene info text if menuGL or menuRT is closed
-    if (!_showLoading && 
-        _showInfo && s->info() &&
+    if (!_showLoading && _showInfo && 
+        s->info() && !s->info()->text().empty() &&
         _camera->projection()<=P_monoOrthographic &&
         (s->menu2D()==s->menuGL() || 
          s->menu2D()==s->menuRT() ||
@@ -998,7 +999,6 @@ SLbool SLSceneView::onMouseDown(SLMouseButton button,
                                 SLint x, SLint y, SLKey mod)
 {
     SLScene* s = SLScene::current;
-    if (!s->root3D()) return false;
    
     // Check first if mouse down was on a button    
     if (s->menu2D() && s->menu2D()->onMouseDown(button, x, y, mod))
@@ -1014,11 +1014,18 @@ SLbool SLSceneView::onMouseDown(SLMouseButton button,
     _mouseMod = mod;
    
     SLbool result = false;
-    result = _camera->onMouseDown(button, x, y, mod);
-    for (auto eh : s->eventHandlers())
-    {   if (eh->onMouseDown(button, x, y, mod))
-            result = true;
-    }  
+    if (_camera && s->root3D())
+    {   result = _camera->onMouseDown(button, x, y, mod);
+        for (auto eh : s->eventHandlers())
+        {   if (eh->onMouseDown(button, x, y, mod))
+                result = true;
+        }
+    } 
+
+    // Grab image during calibration if calibration stream is running
+    if (s->calibration().state() == CS_calibrateStream)
+        s->calibration().state(CS_calibrateGrab); 
+
     return result;
 }  
 //-----------------------------------------------------------------------------
@@ -1029,7 +1036,6 @@ SLbool SLSceneView::onMouseUp(SLMouseButton button,
                               SLint x, SLint y, SLKey mod)
 {  
     SLScene* s = SLScene::current;
-    if (!s->root3D()) return false;
     _touchDowns = 0;
    
     if (_raytracer.state()==rtMoveGL)
@@ -1407,10 +1413,16 @@ SLbool SLSceneView::onCommand(SLCommand cmd)
             else return false;
         case C_creditsToggle:
             if (s->menu2D())
-            {
-                if (s->menu2D() == s->menuGL())
+            {   if (s->menu2D() == s->menuGL())
                     s->menu2D(s->btnCredits());
                 else s->menu2D(s->menuGL());
+                return true;
+            }
+            else return false;
+        case C_noCalibToggle:
+            if (s->menu2D())
+            {   s->onLoad(this, (SLCommand)C_sceneEmpty); 
+                s->menu2D(s->menuGL());
                 return true;
             }
             else return false;
@@ -1443,7 +1455,6 @@ SLbool SLSceneView::onCommand(SLCommand cmd)
 
         case C_sceneARCalibration:
         case C_sceneARTrackAruco:
-        case C_sceneARTrackChessboard:
 
         case C_sceneRTSpheres:
         case C_sceneRTMuttenzerBox:
@@ -1472,7 +1483,10 @@ SLbool SLSceneView::onCommand(SLCommand cmd)
         case C_faceCullToggle:     _drawBits.toggle(SL_DB_CULLOFF);  return true;
         case C_textureToggle:      _drawBits.toggle(SL_DB_TEXOFF);   return true;
 
-        case C_animationToggle: s->stopAnimations(!s->stopAnimations()); return true;
+        case C_animationToggle:     s->stopAnimations(!s->stopAnimations()); return true;
+
+        case C_clearCalibration:    s->calibration().state(CS_uncalibrated); 
+                                    s->onLoad(this, C_sceneARCalibration); return false;
 
         case C_renderOpenGL:
             _renderType = RT_gl;
@@ -1681,7 +1695,8 @@ void SLSceneView::build2DMenus()
 
     mn3 = new SLButton(this, "Augmented Reality >", f);
     mn2->addChild(mn3);
-    //mn3->addChild(new SLButton(this, "Calibration", f, C_sceneARCalibration, true, curS==C_sceneARCalibration, mn2));
+    mn3->addChild(new SLButton(this, "Clear Camera Calibration", f, C_clearCalibration, false, false, mn2));
+    mn3->addChild(new SLButton(this, "Calibrate Camera", f, C_sceneARCalibration, true, curS==C_sceneARCalibration, mn2));
     mn3->addChild(new SLButton(this, "Track Aruco Marker", f, C_sceneARTrackAruco, true, curS==C_sceneARTrackAruco, mn2));
    
     mn3 = new SLButton(this, "Ray tracing >", f);
@@ -2053,14 +2068,27 @@ void SLSceneView::build2DMsgBoxes()
     if (s->btnCredits()) delete s->btnCredits();
     s->btnCredits(new SLButton(this, s->infoCredits_en(), f,
                                C_aboutToggle, false, false, 0, true,
-                              _scrW - 2*SLButton::minMenuPos.x, 0.0f,
-                              SLCol3f::COLBFH, 0.8f, TA_centerCenter));
+                               _scrW - 2*SLButton::minMenuPos.x, 0.0f,
+                               SLCol3f::COLBFH, 0.8f, TA_centerCenter));
 
     _stateGL->modelViewMatrix.identity();
     s->btnCredits()->drawBits()->off(SL_DB_HIDDEN);
     s->btnCredits()->setSizeRec();
     s->btnCredits()->setPosRec(SLButton::minMenuPos.x, SLButton::minMenuPos.y);
     s->btnCredits()->updateAABBRec();
+   
+    // No calibration button
+    if (s->btnNoCalib()) delete s->btnNoCalib();
+    s->btnNoCalib(new SLButton(this, s->infoNoCalib_en(), f,
+                               C_noCalibToggle, false, false, 0, true,
+                               _scrW - 2*SLButton::minMenuPos.x, 0.0f,
+                               SLCol3f::COLBFH, 0.8f, TA_centerCenter));
+
+    _stateGL->modelViewMatrix.identity();
+    s->btnNoCalib()->drawBits()->off(SL_DB_HIDDEN);
+    s->btnNoCalib()->setSizeRec();
+    s->btnNoCalib()->setPosRec(SLButton::minMenuPos.x, SLButton::minMenuPos.y);
+    s->btnNoCalib()->updateAABBRec();
 }
 //-----------------------------------------------------------------------------
 
@@ -2076,8 +2104,6 @@ SLstring SLSceneView::windowTitle()
 {  
     SLScene* s = SLScene::current;
     SLchar title[255];
-    if (!_camera || !s->root3D())
-        return SLstring("No scene loaded.");
 
     if (_renderType == RT_rt)
     {   if (_raytracer.continuous())

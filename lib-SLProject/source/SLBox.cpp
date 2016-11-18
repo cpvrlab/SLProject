@@ -25,6 +25,8 @@ SLBox::SLBox(SLfloat minx, SLfloat miny, SLfloat minz,
 {  
     _min.set(minx, miny, minz);
     _max.set(maxx, maxy, maxz);
+    SLVec3f diag(_max-_min);
+    assert(diag.length() > FLT_EPSILON && "Box has no size!");
     buildMesh(mat);
 }
 //-----------------------------------------------------------------------------
@@ -34,19 +36,20 @@ SLBox::SLBox(SLVec3f min, SLVec3f max,
 {  
     _min.set(min);
     _max.set(max);
+    SLVec3f diag(_max-_min);
+    assert(diag.length() > FLT_EPSILON && "Box has no size!");
     buildMesh(mat);
 }
 //-----------------------------------------------------------------------------
 //! SLBox::buildMesh fills in the underlying arrays from the SLMesh object
 void SLBox::buildMesh(SLMaterial* material)
 {  
-    //deleteData();
+    deleteData();
     
     // allocate new vectors of SLMesh
-    P.clear(); P.resize(24);        // 6 sides with 4 vertices
-    I16.clear(); I16.resize(12*3);  // 6 sides with 2 triangles * 3 indices
-    N.clear(); N.resize(P.size());
-    Tc.clear();                     // no texcoords
+    P.resize(24);       // 6 sides with 4 vertices
+    I16.resize(12*3);   // 6 sides with 2 triangles * 3 indices
+    N.resize(P.size());
     
     //Set one default material index
     mat = material;

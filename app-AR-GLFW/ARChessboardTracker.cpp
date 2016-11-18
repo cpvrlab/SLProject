@@ -101,8 +101,8 @@ void ARChessboardTracker::updateSceneView(ARSceneView* sv)
         axesNode->scale(0.3f);
         _node->addChild(axesNode);
 
-        float edgeLength = _edgeLengthM * 3;
-        _node->addMesh(new SLBox(0.0f, 0.0f, 0.0f, edgeLength, edgeLength, edgeLength, "Box", rMat));
+        float e3 = _edgeLengthM * 3;
+        _node->addMesh(new SLBox(0.0f, 0.0f, 0.0f, e3, e3, e3, "Box", rMat));
 
         SLScene::current->root3D()->addChild(_node);
         _node->updateAABBRec();

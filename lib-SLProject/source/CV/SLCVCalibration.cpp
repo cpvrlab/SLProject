@@ -23,17 +23,14 @@ SLstring SLCVCalibration::defaultPath = "../_data/calibrations/";
 //-----------------------------------------------------------------------------
 SLCVCalibration::SLCVCalibration() :
     _cameraFovDeg(1.0f),
-    _state(IDLE),
+    _state(CS_uncalibrated),
     _calibFileName("cam_calibration.xml"),
     _calibParamsFileName("calib_in_params.yml"),
-    _numInnerCornersWidth(0),
-    _numInnerCornersHeight(0),
-    _squareSizeMM(0.0f),
-    _captureDelayMS(0),
+    _boardSize(0, 0),
+    _boardSquareMM(0.0f),
     _numOfImgsToCapture(0),
     _numCaptured(0),
     _reprojectionError(-1.0f),
-    _prevTimestamp(0),
     _showUndistorted(true)
 {
 }
@@ -54,19 +51,22 @@ bool SLCVCalibration::loadCamParams()
     {
         cout << "Could not open the calibration file: "
              << (defaultPath + _calibFileName) << endl;
-        _state = IDLE;
+        _state = CS_uncalibrated;
         return false;
     }
 
     fs["camera_matrix"] >> _intrinsics;
     fs["distortion_coefficients"] >> _distortion;
+    fs["avg_reprojection_error"] >> _reprojectionError;
+
+
     // close the input file
     fs.release();
 
     //calculate projection matrix
     calculateCameraFOV();
 
-    _state = CALIBRATED;
+    _state = CS_calibrated;
 
     return true;
 }
@@ -79,15 +79,14 @@ bool SLCVCalibration::loadCalibParams()
     if (!fs.isOpened())
     {   cout << "Could not open the calibration parameter file: "
              << (defaultPath + _calibParamsFileName) << endl;
-        _state = IDLE;
+        _state = CS_uncalibrated;
         return false;
     }
 
     //assign paramters
-    fs["numInnerCornersWidth"] >> _numInnerCornersWidth;
-    fs["numInnerCornersHeight"] >> _numInnerCornersHeight;
-    fs["squareSizeMM"] >> _squareSizeMM;
-    fs["captureDelayMS"] >> _captureDelayMS;
+    fs["numInnerCornersWidth"] >> _boardSize.width;
+    fs["numInnerCornersHeight"] >> _boardSize.height;
+    fs["squareSizeMM"] >> _boardSquareMM;
     fs["numOfImgsToCapture"] >> _numOfImgsToCapture;
 
     return true;
@@ -201,7 +200,7 @@ static void saveCameraParams(Size& imageSize,
                              Size& boardSize,
                              float squareSize)
 {
-    FileStorage fs(SLCVCalibration::defaultPath + filename, FileStorage::WRITE);
+    cv::FileStorage fs(SLCVCalibration::defaultPath + filename, FileStorage::WRITE);
 
     time_t tm;
     time(&tm);
@@ -236,44 +235,66 @@ static void saveCameraParams(Size& imageSize,
     fs << "avg_reprojection_error" << totalAvgErr;
 }
 //-----------------------------------------------------------------------------
-//!< Find the chessboard corners with CV C-function interface
-bool SLCVCalibration::findChessboard(cv::Mat& frame,
-                                            cv::Size& size,
-                                            vector<cv::Point2f>& corners,
-                                            int flags)
-{
-    // C++ version with STL vector crashes in visual studio
-    //bool ok = cv::findChessboardCorners(frame, size, corners, flags);
+//!< Find the chessboard
+bool SLCVCalibration::findChessboard(cv::Mat image,
+                                     bool drawCorners)
+{   
+    _imageSize = image.size();
+    vector<cv::Point2f> corners;
+    int flags = CALIB_CB_ADAPTIVE_THRESH | 
+                CALIB_CB_NORMALIZE_IMAGE | 
+                CALIB_CB_FAST_CHECK;
 
-    int count = 0;
-    CvMat image = frame;
-    cv::Mat tmpCorners;
-    tmpCorners.create(size.area(), 1, CV_32FC2);
-    bool ok = cvFindChessboardCorners(&image,
-        size,
-        reinterpret_cast<CvPoint2D32f*>(tmpCorners.data),
-        &count,
-        flags) > 0;
-    corners.assign((Point2f*)tmpCorners.datastart, (Point2f*)tmpCorners.dataend);
-    return ok;
+    bool found = cv::findChessboardCorners(image, _boardSize, corners, flags);
+
+    if(found && drawCorners)
+        drawChessboardCorners(image, _boardSize, Mat(corners), found);
+
+    if (found && _state == CS_calibrateGrab)
+    {
+        Mat imageGray;
+        cv::cvtColor(image, imageGray, COLOR_BGR2GRAY);
+        
+        cornerSubPix(imageGray, 
+                     corners, Size(11,11),
+                     Size(-1,-1), 
+                     TermCriteria(TermCriteria::EPS+TermCriteria::COUNT, 
+                     30, 
+                     0.1));
+
+        //debug save image
+        //stringstream ss;
+        //ss << "imageIn_" << _numCaptured << ".png";
+        //cv::imwrite(ss.str(), image);
+
+        //add detected points
+        _imagePoints.push_back(corners);
+        _numCaptured++;
+
+        //simulate a snapshot
+        cv::bitwise_not(image, image);
+
+        _state = CS_calibrateStream;
+
+        // make beep sound
+        cout << '\a';
+    }
+    return found;
 }
 //-----------------------------------------------------------------------------
 void SLCVCalibration::calibrate()
 {
     clear();
-    _state = CAPTURING;
+    _state = CS_calibrateStream;
 }
 //-----------------------------------------------------------------------------
 void SLCVCalibration::calculate()
 {
-    _state = CALCULATING;
+    _state = CS_starcCalculating;
 
     vector<Mat> rvecs, tvecs;
     vector<float> reprojErrs;
     double totalAvgErr = 0;
-    Size boardSize;
-    boardSize.width = _numInnerCornersWidth;
-    boardSize.height = _numInnerCornersHeight;
 
     int flag = 0;
     flag |= CALIB_FIX_PRINCIPAL_POINT;
@@ -288,8 +309,8 @@ void SLCVCalibration::calculate()
                              tvecs, 
                              reprojErrs,
                              totalAvgErr, 
-                             boardSize, 
-                             _squareSizeMM, 
+                             _boardSize, 
+                             _boardSquareMM, 
                              flag);
 
     cout << (ok ? "Calibration succeeded" : "Calibration failed")
@@ -309,65 +330,13 @@ void SLCVCalibration::calculate()
                          totalAvgErr, 
                          flag, 
                          _calibFileName, 
-                         boardSize, 
-                         _squareSizeMM);
+                         _boardSize, 
+                         _boardSquareMM);
 
-        //calculation successful
         calculateCameraFOV();
         _reprojectionError = (float)totalAvgErr;
-        _state = CALIBRATED;
+        _state = CS_calibrated;
     }
-}
-//-----------------------------------------------------------------------------
-void SLCVCalibration::addImage(cv::Mat image)
-{
-    //set image size
-    _imageSize = image.size();
-
-    //check if we have a timeout
-    bool timeOut = clock() - _prevTimestamp > _captureDelayMS * 1e-3 * CLOCKS_PER_SEC ? true : false;
-
-    //try to detect chessboard
-    vector<cv::Point2f> corners;
-    Size boardSize = cv::Size(_numInnerCornersWidth, _numInnerCornersHeight);
-    int flags = CALIB_CB_ADAPTIVE_THRESH | CALIB_CB_NORMALIZE_IMAGE | CALIB_CB_FAST_CHECK;
-
-    bool found = cv::findChessboardCorners(image, boardSize, corners, flags);
-
-    //draw colored points
-    //if chessboard was not found reset timer
-    if(!found)
-    {
-        //reset timer
-        _prevTimestamp = clock();
-    }
-    //if chessboard was found and timer is down, add detected points to container
-    else if(timeOut)
-    {
-        Mat imageGray;
-        cv::cvtColor(image, imageGray, COLOR_BGR2GRAY);
-        cornerSubPix(imageGray, corners, Size(11,11),
-            Size(-1,-1), TermCriteria(TermCriteria::EPS+TermCriteria::COUNT, 30, 0.1));
-
-        //debug save image
-        stringstream ss;
-        ss << "imageIn_" << _numCaptured << ".png";
-        cv::imwrite(ss.str(), image);
-
-        //add detected points
-        _imagePoints.push_back(corners);
-        _numCaptured++;
-
-        //reset timer
-        _prevTimestamp = clock();
-
-        //simulate a snapshot
-        cv::bitwise_not(image, image);
-    }
-
-    // Draw the corners
-    if(found)
-        drawChessboardCorners(image, boardSize, Mat(corners), found);
 }
 //-----------------------------------------------------------------------------
 //! Create an OpenGL 4x4 matrix from a translation & rotation vector

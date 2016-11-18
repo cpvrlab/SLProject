@@ -18,42 +18,28 @@
 #include <opencv2/video/tracking.hpp>
 
 using namespace cv;
-
 //-----------------------------------------------------------------------------
-bool SLCVTrackerChessboard::init(string paramsDir)
+SLCVTrackerChessboard::SLCVTrackerChessboard(SLNode* node) : SLCVTracker(node)
 {
-    SLstring filename = "chessboard_detector_params.yml";
-    cv::FileStorage fs(paramsDir + filename, cv::FileStorage::READ);
-    if(!fs.isOpened())
-    {   cout << "Could not find parameter file for Chessboard tracking!" << endl;
-        cout << "Tried " << paramsDir + filename << endl;
-        return false;
-    }
-    fs["boardWidth"]  >> _boardSize.width;
-    fs["boardHeight"] >> _boardSize.height;
-    fs["edgeLengthM"] >> _edgeLengthM;
+    SLCVCalibration& calib = SLScene::current->calibration();
 
     //generate vectors for the points on the chessboard
-    for (int i = 0; i < _boardSize.width; i++)
-        for (int j = 0; j < _boardSize.height; j++)
-            _boardPoints.push_back(Point3d(double(i * _edgeLengthM), 
-                                           double(j * _edgeLengthM), 
+    for (int w = 0; w < calib.boardSize().width; w++)
+        for (int h = 0; h < calib.boardSize().height; h++)
+            _boardPoints.push_back(Point3d(double(w * calib.boardSquareM()), 
+                                           double(h * calib.boardSquareM()), 
                                            0.0));
-    return true;
 }
 //-----------------------------------------------------------------------------
 bool SLCVTrackerChessboard::track(cv::Mat image, 
                                   SLCVCalibration& calib,
                                   SLVSceneView& sceneViews)
 {
-    if(image.empty() || 
-       calib.intrinsics().empty() ||
-       _node == nullptr)
-       return false;
-
-
-    //make a gray copy of the webcam image
-    //cvtColor(_image, _grayImg, CV_RGB2GRAY);
+    assert(!image.empty() && "Image is empty");
+    assert(!calib.intrinsics().empty() && "Calibration is empty");
+    assert(_node && "Node pointer is null");
+    
+    SLCVCalibration& c= SLScene::current->calibration();
 
     //detect chessboard corners
     int flags = CALIB_CB_ADAPTIVE_THRESH | 
@@ -62,36 +48,44 @@ bool SLCVTrackerChessboard::track(cv::Mat image,
 
     vector<cv::Point2f> corners;
 
-    _isVisible = cv::findChessboardCorners(image, _boardSize, corners, flags);
+    _isVisible = cv::findChessboardCorners(image, c.boardSize(), corners, flags);
 
     if(_isVisible)
     {
         cv::Mat rVec, tVec;
 
         //find the camera extrinsic parameters
-        bool result = solvePnP(Mat(_boardPoints), 
-                                Mat(corners), 
-                                calib.intrinsics(), 
-                                calib.distortion(), 
-                                rVec, 
-                                tVec, 
-                                false, 
-                                cv::SOLVEPNP_ITERATIVE);
+        bool solved = solvePnP(Mat(_boardPoints), 
+                               Mat(corners), 
+                               calib.intrinsics(), 
+                               calib.distortion(), 
+                               rVec, 
+                               tVec, 
+                               false, 
+                               cv::SOLVEPNP_ITERATIVE);
+        if (solved)
+        {
+            _viewMat = calib.createGLMatrix(tVec, rVec);
 
-        // Convert cv translation & rotation vector to OpenGL matrix
-        _viewMat = calib.createGLMatrix(tVec, rVec);
-
-        ////invert view matrix because we want to set the camera object matrix
-        //SLMat4f camOm = _viewMat.inverse();
-
-        ////update camera with calculated view matrix:
-        //sv->camera()->om(camOm);
-
-        _node->setDrawBitsRec(SL_DB_HIDDEN, false);
+            for (auto sv : sceneViews)
+            {
+                if (_node == sv->camera())
+                    _node->om(_viewMat.inverse());
+                else
+                {   //calculate object matrix (see also calcObjectMatrix)
+                    _node->om(sv->camera()->om() * _viewMat);
+                    _node->setDrawBitsRec(SL_DB_HIDDEN, false);
+                }
+                return true;
+            }
+        }
     }
-    else
-        _node->setDrawBitsRec(SL_DB_HIDDEN, true);
- 
-    return true;
+    
+    // Hide tracked node if not visible
+    for (auto sv : sceneViews)
+        if (_node != sv->camera())
+            _node->setDrawBitsRec(SL_DB_HIDDEN, true);
+
+    return false;
 }
 //------------------------------------------------------------------------------

@@ -81,6 +81,7 @@ SLScene::SLScene(SLstring name) : SLObject(name)
     _btnHelp        = nullptr;
     _btnAbout       = nullptr;
     _btnCredits     = nullptr;
+    _btnNoCalib     = nullptr;
     _selectedMesh   = nullptr;
     _selectedNode   = nullptr;
     _stopAnimations = false;
@@ -156,6 +157,15 @@ For more information please visit: https://github.com/cpvrlab/SLProject";
 on iOS: Quick hold down home & power button, \\n\
 on Android: Quick hold down back & home button \\n\
 on desktop: Use a screenshot tool";
+
+    _infoNoCalib_en = 
+"You are trying to use a scene that requires a calibrated live camera image. \
+To calibrate your camera please use the Load Scene > Augmented Reality > Calibrate Camera. \
+It requires a chessboard PFD to be printed and glued on a flat board.  \
+You can find the PDF on: \\n\
+https://github.com/cpvrlab/SLProject_data/tree/master/ \\n\
+calibrations/CalibrationChessboard_8x5_A4.pdf";
+
 }
 //-----------------------------------------------------------------------------
 /*! The destructor does the final total deallocation of all global resources.
@@ -379,29 +389,78 @@ bool SLScene::onUpdate()
     // Do AR Tracking //
     ////////////////////
 
-    if (_trackers.size() > 0 && !SLCVCapture::lastFrame.empty())
+    if (!SLCVCapture::lastFrame.empty() && _trackers.size() > 0)
     {   
-        SLCVTrackerAruco::trackAllOnce = true;
-        
-        for (auto tracker : _trackers)
-            tracker->track(SLCVCapture::lastFrame, _calibration, _sceneViews);
+        stringstream ss; // info line text
 
-        //undistorted camera image
-        if(_calibration.showUndistorted())
+        if (_calibration.state() == CS_uncalibrated)
         {   
-            Mat undistorted;
+            menu2D(btnNoCalib());
+        } 
+        else
+        if (_calibration.state() == CS_calibrateStream || 
+            _calibration.state() == CS_calibrateGrab)
+        {               
+            _calibration.findChessboard(SLCVCapture::lastFrame);
 
-            undistort(SLCVCapture::lastFrame,
-                      undistorted,
-                      _calibration.intrinsics(),
-                      _calibration.distortion());
+            int imgsToCap = _calibration.numImgsToCapture();
+            int imgsCaped = _calibration.numCapturedImgs();
 
-            _videoTexture.copyVideoImage(undistorted.cols,
-                                         undistorted.rows, 
+            //update info line
+            if(imgsCaped < imgsToCap)
+                ss << "Click on the screen to create a calibration foto. Created " 
+                   << imgsCaped << " of " << imgsToCap;
+            else
+            {   ss << "Calculating, please wait ...";
+                _calibration.state(CS_starcCalculating);
+            }
+
+            _videoTexture.copyVideoImage(SLCVCapture::lastFrame.cols,
+                                         SLCVCapture::lastFrame.rows, 
                                          SLCVCapture::format, 
-                                         undistorted.data,
+                                         SLCVCapture::lastFrame.data,
                                          true);
+        } 
+        else
+        if (_calibration.state() == CS_starcCalculating)
+        {
+            _calibration.calculate();
+
+            for (auto sv : _sceneViews)
+                sv->camera()->fov(_calibration.cameraFovDeg());
         }
+        else
+        if (_calibration.state() == CS_calibrated)
+        {
+            SLCVTrackerAruco::trackAllOnce = true;
+        
+            for (auto tracker : _trackers)
+                tracker->track(SLCVCapture::lastFrame, _calibration, _sceneViews);
+
+            //undistorted camera image
+            if(_calibration.showUndistorted())
+            {   
+                Mat undistorted;
+
+                undistort(SLCVCapture::lastFrame,
+                          undistorted,
+                          _calibration.intrinsics(),
+                          _calibration.distortion());
+
+                _videoTexture.copyVideoImage(undistorted.cols,
+                                             undistorted.rows, 
+                                             SLCVCapture::format, 
+                                             undistorted.data,
+                                             true);
+            }
+            
+            ss << "Camera calibration: fov: " << _calibration.cameraFovDeg() << 
+                  ", error: " << _calibration.reprojectionError();
+        }
+
+        // update info line text
+        for (auto sv : _sceneViews)
+            info(sv, ss.str());
     }
 
 
@@ -516,16 +575,17 @@ void SLScene::copyVideoImage(SLint width,
 //-----------------------------------------------------------------------------
 //! Deletes all menus and buttons objects
 void SLScene::deleteAllMenus()
-{                        _menu2D     = nullptr;
-    delete _menuGL;      _menuGL     = nullptr;
-    delete _menuRT;      _menuRT     = nullptr;
-    delete _menuPT;      _menuPT     = nullptr;
-    delete _info;        _info       = nullptr;
-    delete _infoGL;      _infoGL     = nullptr;
-    delete _infoRT;      _infoRT     = nullptr;
-    delete _btnAbout;    _btnAbout   = nullptr;
-    delete _btnHelp;     _btnHelp    = nullptr;
-    delete _btnCredits;  _btnCredits = nullptr;
+{                           _menu2D     = nullptr;
+    delete _menuGL;         _menuGL     = nullptr;
+    delete _menuRT;         _menuRT     = nullptr;
+    delete _menuPT;         _menuPT     = nullptr;
+    delete _info;           _info       = nullptr;
+    delete _infoGL;         _infoGL     = nullptr;
+    delete _infoRT;         _infoRT     = nullptr;
+    delete _btnAbout;       _btnAbout   = nullptr;
+    delete _btnHelp;        _btnHelp    = nullptr;
+    delete _btnCredits;     _btnCredits = nullptr;
+    delete _btnNoCalib;     _btnNoCalib = nullptr;
 }
 //-----------------------------------------------------------------------------
 void SLScene::onLoadAsset(SLstring assetFile, 

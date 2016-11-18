@@ -95,22 +95,23 @@ bool SLCVTrackerAruco::track(cv::Mat image,
                 for (auto sv : sceneViews)
                 {
                     if (_node == sv->camera())
-                    {
                         _node->om(objectViewMats[i].inverse());
-                    }
                     else
                     {   //calculate object transformation matrix (see also calcObjectMatrix)
-                        SLMat4f om = sv->camera()->om() * objectViewMats[i];
-                        _node->om(om);
+                        _node->om(sv->camera()->om() * objectViewMats[i]);
+                        _node->setDrawBitsRec(SL_DB_HIDDEN, false);
                     }
-                    _node->setDrawBitsRec(SL_DB_HIDDEN, false);
                     return true;
                 }
             }
         }
+    } else
+    {
+        // Hide tracked node if not visible
+        for (auto sv : sceneViews)
+            if (_node != sv->camera())
+                _node->setDrawBitsRec(SL_DB_HIDDEN, true);
     }
-    else
-        _node->setDrawBitsRec(SL_DB_HIDDEN, true);
 
     return false;
 }

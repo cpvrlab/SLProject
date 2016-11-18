@@ -20,17 +20,15 @@ Chessboard tracking class
 class SLCVTrackerChessboard : public SLCVTracker
 {
     public:
-                SLCVTrackerChessboard   (SLNode* node) : SLCVTracker(node){;}
+                SLCVTrackerChessboard   (SLNode* node);
                ~SLCVTrackerChessboard   () {;}
-        bool    init                    (string paramsFileDir);
         bool    track                   (cv::Mat image, 
                                          SLCVCalibration& calib,
                                          SLVSceneView& sceneViews);
-
     private:
-        vector<cv::Point3d> _boardPoints;   //<! chessboard corners in world coordinate system
-        cv::Size            _boardSize;     //<! NO. of inner chessboard corners
-        SLfloat             _edgeLengthM;   //<! Length of chessboard square
+        SLfloat              _edgeLengthM;  //<! Length of chessboard square in meters
+        vector<cv::Point3d>  _boardPoints;  //<! chessboard corners in world coordinate system
+        cv::Size             _boardSize;    //<! NO. of inner chessboard corners
 };
 //-----------------------------------------------------------------------------
 

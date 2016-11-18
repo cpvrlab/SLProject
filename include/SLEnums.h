@@ -101,8 +101,6 @@ enum SLCommand
 
     C_sceneARCalibration,
     C_sceneARTrackAruco,
-    C_sceneARTrackChessboard,
-    C_sceneARTrack2D,
 
     C_sceneRTMuttenzerBox,
     C_sceneRTSpheres,
@@ -115,8 +113,10 @@ enum SLCommand
     C_aboutToggle,
     C_helpToggle,
     C_creditsToggle,
+    C_noCalibToggle,
     C_sceneInfoToggle,
     C_quit,
+    C_clearCalibration,
 
     C_multiSampleToggle,// Toggles multisampling
     C_depthTestToggle,  // Toggles the depth test flag
@@ -338,6 +338,15 @@ enum SLLogVerbosity
     LV_normal = 2,
     LV_detailed = 3,
     LV_diagnostic = 4
+};
+//-----------------------------------------------------------------------------
+//! OpenCV Calibration state
+enum SLCVCalibState 
+{   CS_uncalibrated,    //!< The camera is not calibrated (no calibration found)
+    CS_calibrateStream, //!< The calibration is running with live vidoe stream
+    CS_calibrateGrab,   //!< The calibration is running and an image should be grabbed
+    CS_starcCalculating,     //!< The calibration is being calculated
+    CS_calibrated       //!< The camera is calibrated 
 };
 //-----------------------------------------------------------------------------
 #endif

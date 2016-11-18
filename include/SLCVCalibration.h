@@ -19,56 +19,53 @@ using namespace std;
 class SLCVCalibration
 {
 public:
-    enum SLCVCalibState {IDLE, CAPTURING, CALCULATING, CALIBRATED};
-
                 SLCVCalibration     ();
 
     bool        loadCamParams       ();
     bool        loadCalibParams     ();
     void        calibrate           ();
-    void        addImage            (cv::Mat image);
     void        calculate           ();
     void        showUndistorted     (bool su) {_showUndistorted = su;}
     SLMat4f     createGLMatrix      (const cv::Mat& tVec, 
                                      const cv::Mat& rVec);
-    static bool findChessboard      (cv::Mat& frame,
-                                     cv::Size& size,
-                                     vector<cv::Point2f>& corners,
-                                     int flags);
+    bool        findChessboard      (cv::Mat image,
+                                     bool drawCorners = true);
 
     static SLstring defaultPath;    //!< Default path for calibration files
 
+    // Setters
+    void            state               (SLCVCalibState s) {_state = s;}
+
     // Getters
-    cv::Mat&    intrinsics          () {return _intrinsics;}
-    cv::Mat&    distortion          () {return _distortion;}
-    float       cameraFovDeg        () {return _cameraFovDeg;}
-    bool        stateIsCapturing    () {return _state == CAPTURING;}
-    bool        stateIsCalibrated   () {return _state == CALIBRATED;}
-    int         numImgsToCapture    () {return _numOfImgsToCapture;}
-    int         numCapturedImgs     () {return _numCaptured;}
-    float       reprojectionError   () {return _reprojectionError;}
-    bool        showUndistorted     () {return _showUndistorted;}
+    cv::Mat&        intrinsics          () {return _intrinsics;}
+    cv::Mat&        distortion          () {return _distortion;}
+    float           cameraFovDeg        () {return _cameraFovDeg;}
+    SLCVCalibState  state               () {return _state;}
+    int             numImgsToCapture    () {return _numOfImgsToCapture;}
+    int             numCapturedImgs     () {return _numCaptured;}
+    float           reprojectionError   () {return _reprojectionError;}
+    bool            showUndistorted     () {return _showUndistorted;}
+    cv::Size        boardSize           () {return _boardSize;}
+    float           boardSquareMM       () {return _boardSquareMM;}
+    float           boardSquareM        () {return _boardSquareMM * 0.001f;}
 
 private:
-    void        calculateCameraFOV  ();
-    void        clear               ();
+    void            calculateCameraFOV  ();
+    void            clear               ();
 
-    cv::Mat         _intrinsics;            
-    cv::Mat         _distortion;
-    float           _cameraFovDeg;
+    cv::Mat         _intrinsics;            //!< Matrix with intrisic camera paramters           
+    cv::Mat         _distortion;            //!< Matrix with distortion parameters
+    float           _cameraFovDeg;          //!< Field of view in degrees
 
     SLCVCalibState  _state;
     string          _calibFileName;         //!< name for calibration file
-    string          _calibParamsFileName;
-    int             _numInnerCornersWidth;
-    int             _numInnerCornersHeight;
-    float           _squareSizeMM;
-    int             _captureDelayMS;
-    int             _numOfImgsToCapture;
-    int             _numCaptured;
-    float           _reprojectionError;
+    string          _calibParamsFileName;   //!< name of calibration paramters file
+    cv::Size        _boardSize;             //!< NO. of inner chessboard corners.
+    float           _boardSquareMM;         //!< Size of chessboard square in mm
+    int             _numOfImgsToCapture;    //!< NO. of images to capture
+    int             _numCaptured;           //!< NO. of images captured
+    float           _reprojectionError;     //!< Reprojection error after calibration
 
-    clock_t         _prevTimestamp;
     vector<vector<cv::Point2f>> _imagePoints;
 
     cv::Size        _imageSize;

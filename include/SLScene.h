@@ -65,6 +65,7 @@ class SLScene: public SLObject
             void            menuPT          (SLButton* b) {_menuPT = b;}
             void            btnAbout        (SLButton* b) {_btnAbout = b;}
             void            btnCredits      (SLButton* b) {_btnCredits = b;}
+            void            btnNoCalib      (SLButton* b) {_btnNoCalib = b;}
             void            btnHelp         (SLButton* b) {_btnHelp = b;}
                            
             // Getters
@@ -87,9 +88,11 @@ class SLScene: public SLObject
             SLButton*       btnAbout        () {return _btnAbout;}
             SLButton*       btnHelp         () {return _btnHelp;}
             SLButton*       btnCredits      () {return _btnCredits;}
+            SLButton*       btnNoCalib      () {return _btnNoCalib;}
             SLstring        infoAbout_en    () const {return _infoAbout_en;}
             SLstring        infoCredits_en  () const {return _infoCredits_en;}
             SLstring        infoHelp_en     () const {return _infoHelp_en;}
+            SLstring        infoNoCalib_en  () const {return _infoNoCalib_en;}
             SLText*         info            (SLSceneView* sv);
             SLText*         info            () {return _info;}
             SLText*         infoGL          () {return _infoGL;}
@@ -167,6 +170,8 @@ class SLScene: public SLObject
             SLstring        _infoAbout_en;      //!< About info text
             SLstring        _infoCredits_en;    //!< Credits info text
             SLstring        _infoHelp_en;       //!< Help info text
+            SLstring        _infoNoCalib_en;    //!< No calibration info text
+            SLstring        _infoCalibInstr_en; //!< Calibration instruction info text
 
             SLButton*       _menu2D;            //!< Root button node for 2D GUI
             SLButton*       _menuGL;            //!< Root button node for OpenGL menu
@@ -175,6 +180,7 @@ class SLScene: public SLObject
             SLButton*       _btnAbout;          //!< About button
             SLButton*       _btnHelp;           //!< Help button
             SLButton*       _btnCredits;        //!< Credits button
+            SLButton*       _btnNoCalib;        //!< No calibration infos
             SLGLTexture*    _texCursor;         //!< Texture for the virtual cursor
             
             SLfloat         _elapsedTimeMS;     //!< Last frame time in ms

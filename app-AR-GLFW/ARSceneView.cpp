@@ -136,34 +136,29 @@ void ARSceneView::preDraw()
     }
     else if(_currMode == CalibrationMode)
     {
-        //load image into calibration manager
-        if( s->calibration().stateIsCapturing())
-        {
-            if(!SLCVCapture::lastFrame.empty())
-                 s->calibration().addImage(SLCVCapture::lastFrame);
+        if (s->calibration().state() == CS_calibrateStream || 
+            s->calibration().state() == CS_calibrateGrab)
+        {               
+            s->calibration().findChessboard(SLCVCapture::lastFrame, false);
 
-            //get number of all images to  be captured
             int imgsToCap = s->calibration().numImgsToCapture();
-
-            //get number of already captured images
             int imgsCaped = s->calibration().numCapturedImgs();
 
             //update Info line
-            std::stringstream ss;
+            stringstream ss;
             if(imgsCaped < imgsToCap)
-                ss << "Capturing: Focus chessboard filling screen. (" 
-                   << imgsCaped << "/" << imgsToCap << ")";
+                ss << "Click on the screen to create a calibration foto. Created " 
+                   << imgsCaped << " of " << imgsToCap;
             else
-            {
-                ss << "Calculating, please wait.";
-                //if we captured all images then calculate
+            {   ss << "Calculating, please wait ...";
                 s->calibration().calculate();
             }
+
             setInfoLineText(ss.str());
 
             setCVImageToTexture(SLCVCapture::lastFrame);
         }
-        else if(s->calibration().stateIsCalibrated())
+        else if(s->calibration().state() == CS_calibrated)
         {
             float reprojError = s->calibration().reprojectionError();
             this->camera()->fov(s->calibration().cameraFovDeg());
@@ -345,7 +340,7 @@ void ARSceneView::processModeChange()
                 break;
 
             case ARSceneViewMode::ChessboardMode:
-                if(!s->calibration().stateIsCalibrated())
+                if(s->calibration().state() == CS_uncalibrated)
                 {   setInfoLineText("Info: System uncalibrated. Perform camera calibration.");
                     break;
                 }
@@ -356,7 +351,7 @@ void ARSceneView::processModeChange()
                 break;
 
             case ARSceneViewMode::ArucoMode:
-                if(!s->calibration().stateIsCalibrated())
+                if(s->calibration().state() == CS_uncalibrated)
                 {   setInfoLineText("Info: System uncalibrated. Perform camera calibration.");
                     break;
                 }
@@ -367,7 +362,7 @@ void ARSceneView::processModeChange()
                 break;
 
             case ARSceneViewMode::Tracker2D:
-                if(!s->calibration().stateIsCalibrated())
+                if(s->calibration().state() == CS_uncalibrated)
                 {   setInfoLineText("Info: System uncalibrated. Perform camera calibration.");
                     break;
                 }
@@ -378,7 +373,7 @@ void ARSceneView::processModeChange()
                 break;
 
             case ARSceneViewMode::Mapper2D:
-                if(!s->calibration().stateIsCalibrated())
+                if(s->calibration().state() == CS_uncalibrated)
                     setInfoLineText("Info: System uncalibrated. Perform camera calibration.");
                 break;
         }
