@@ -11,6 +11,7 @@
 #ifndef SLCVCHESSBOARDTRACKER_H
 #define SLCVCHESSBOARDTRACKER_H
 
+#include <SLCV.h>
 #include <SLCVTracker.h>
 
 //-----------------------------------------------------------------------------
@@ -24,11 +25,11 @@ class SLCVTrackerChessboard : public SLCVTracker
                ~SLCVTrackerChessboard   () {;}
         bool    track                   (cv::Mat image, 
                                          SLCVCalibration& calib,
-                                         SLVSceneView& sceneViews);
+                                         SLSceneView* sv);
     private:
-        SLfloat              _edgeLengthM;  //<! Length of chessboard square in meters
-        vector<cv::Point3d>  _boardPoints;  //<! chessboard corners in world coordinate system
-        cv::Size             _boardSize;    //<! NO. of inner chessboard corners
+        SLfloat         _edgeLengthM;   //<! Length of chessboard square in meters
+        SLCVVPoint3d    _boardPoints;   //<! chessboard corners in world coordinate system
+        SLCVSize        _boardSize;     //<! NO. of inner chessboard corners
 };
 //-----------------------------------------------------------------------------
 

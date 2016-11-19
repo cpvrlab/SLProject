@@ -15,12 +15,12 @@
 
 //-----------------------------------------------------------------------------
 // Global static variables
-Mat             SLCVCapture::lastFrame;
-SLPixelFormat   SLCVCapture::format;
-VideoCapture    SLCVCapture::_captureDevice;
+SLCVMat             SLCVCapture::lastFrame;
+SLPixelFormat       SLCVCapture::format;
+cv::VideoCapture    SLCVCapture::_captureDevice;
 //-----------------------------------------------------------------------------
 //! Opens the capture device and returns the frame size
-SLVec2i SLCVCapture::open(int deviceNum)
+SLVec2i SLCVCapture::open(SLint deviceNum)
 {
     try
     {
@@ -32,8 +32,8 @@ SLVec2i SLCVCapture::open(int deviceNum)
         if (SL::noTestIsRunning())
             SL_LOG("Capture devices created.\n");
 
-        int w = (int)_captureDevice.get(CV_CAP_PROP_FRAME_WIDTH);
-        int h = (int)_captureDevice.get(CV_CAP_PROP_FRAME_HEIGHT);
+        SLint w = (int)_captureDevice.get(CV_CAP_PROP_FRAME_WIDTH);
+        SLint h = (int)_captureDevice.get(CV_CAP_PROP_FRAME_HEIGHT);
         cout << "CV_CAP_PROP_FRAME_WIDTH : " << w << endl;
         cout << "CV_CAP_PROP_FRAME_HEIGHT: " << h << endl;
 

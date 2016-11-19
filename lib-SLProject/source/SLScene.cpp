@@ -159,10 +159,12 @@ on Android: Quick hold down back & home button \\n\
 on desktop: Use a screenshot tool";
 
     _infoNoCalib_en = 
-"You are trying to use a scene that requires a calibrated live camera image. \
-To calibrate your camera please use the Load Scene > Augmented Reality > Calibrate Camera. \
-It requires a chessboard PFD to be printed and glued on a flat board.  \
-You can find the PDF on: \\n\
+"Your device camera is not yet or not anymore calibrated. \\n\
+You are trying to use a scene that requires a calibrated live camera image. \\n\
+To calibrate your camera please open the calibration scene with \\n\
+Load Scene > Augmented Reality > Calibrate Camera. \\n\
+It requires a chessboard image to be printed and glued on a flat board. \\n\
+You can find the PDF with the chessboard image on: \\n\
 https://github.com/cpvrlab/SLProject_data/tree/master/ \\n\
 calibrations/CalibrationChessboard_8x5_A4.pdf";
 
@@ -434,13 +436,14 @@ bool SLScene::onUpdate()
         {
             SLCVTrackerAruco::trackAllOnce = true;
         
+            // track all trackers in the first sceneview
             for (auto tracker : _trackers)
-                tracker->track(SLCVCapture::lastFrame, _calibration, _sceneViews);
+                tracker->track(SLCVCapture::lastFrame, _calibration, _sceneViews[0]);
 
             //undistorted camera image
             if(_calibration.showUndistorted())
             {   
-                Mat undistorted;
+                SLCVMat undistorted;
 
                 undistort(SLCVCapture::lastFrame,
                           undistorted,
@@ -458,9 +461,8 @@ bool SLScene::onUpdate()
                   ", error: " << _calibration.reprojectionError();
         }
 
-        // update info line text
-        for (auto sv : _sceneViews)
-            info(sv, ss.str());
+        // update info line text in the first sceneview
+        info(_sceneViews[0], ss.str());
     }
 
 

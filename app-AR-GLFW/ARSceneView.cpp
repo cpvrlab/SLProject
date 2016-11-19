@@ -335,7 +335,7 @@ void ARSceneView::processModeChange()
             case ARSceneViewMode::CalibrationMode:
                 //execute calibration
                 if(s->calibration().loadCalibParams())
-                     s->calibration().calibrate();
+                     s->calibration().setCalibrationState();
                 else setInfoLineText("Info: Could not load calibration parameter file.");
                 break;
 

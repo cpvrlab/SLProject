@@ -34,13 +34,16 @@ SLCVTrackerAruco::SLCVTrackerAruco(SLNode* node, SLint arucoID) :
     _arucoID = arucoID;
 }
 //-----------------------------------------------------------------------------
-bool SLCVTrackerAruco::track(cv::Mat image, 
+//! Tracks the all ArUco markers in the given image for the first sceneview
+bool SLCVTrackerAruco::track(SLCVMat image, 
                              SLCVCalibration& calib,
-                             SLVSceneView& sceneViews)
+                             SLSceneView* sv)
 {
     assert(!image.empty() && "Image is empty");
     assert(!calib.intrinsics().empty() && "Calibration is empty");
     assert(_node && "Node pointer is null");
+    assert(sv && "No sceneview pointer passed");
+    assert(sv->camera() && "No active camera in sceneview");
    
     // Load aruco parameter once
     if (!paramsLoaded)
@@ -57,7 +60,7 @@ bool SLCVTrackerAruco::track(cv::Mat image,
     if (trackAllOnce)
     {   arucoIDs.clear();
         objectViewMats.clear();
-        vector<vector<cv::Point2f>> corners, rejected;
+        SLCVVVPoint2f corners, rejected;
 
         aruco::detectMarkers(image, 
                              params.dictionary, 
@@ -68,7 +71,7 @@ bool SLCVTrackerAruco::track(cv::Mat image,
 
         if(arucoIDs.size() > 0)
         {   cout << "Aruco IdS: " << arucoIDs.size() << " : ";
-            vector<cv::Vec3d> rVecs, tVecs;
+            SLCVVPoint3d rVecs, tVecs;
 
             aruco::estimatePoseSingleMarkers(corners, 
                                              params.edgeLength, 
@@ -78,7 +81,7 @@ bool SLCVTrackerAruco::track(cv::Mat image,
 
             for(size_t i=0; i < arucoIDs.size(); ++i)
             {   cout << arucoIDs[i] << ",";
-                SLMat4f ovm = calib.createGLMatrix(cv::Mat(tVecs[i]), cv::Mat(rVecs[i]));
+                SLMat4f ovm = createGLMatrix(cv::Mat(tVecs[i]), cv::Mat(rVecs[i]));
                 objectViewMats.push_back(ovm);
             }
             cout << endl;
@@ -91,16 +94,11 @@ bool SLCVTrackerAruco::track(cv::Mat image,
         // Find the marker with the matching id
         for(size_t i=0; i < arucoIDs.size(); ++i)
         {   if (arucoIDs[i] == _arucoID)
-            {   
-                for (auto sv : sceneViews)
-                {
-                    if (_node == sv->camera())
-                        _node->om(objectViewMats[i].inverse());
-                    else
-                    {   //calculate object transformation matrix (see also calcObjectMatrix)
-                        _node->om(sv->camera()->om() * objectViewMats[i]);
-                        _node->setDrawBitsRec(SL_DB_HIDDEN, false);
-                    }
+            {   if (_node == sv->camera())
+                    _node->om(objectViewMats[i].inverse());
+                else
+                {   _node->om(calcObjectMatrix(sv->camera()->om(),_viewMat));
+                    _node->setDrawBitsRec(SL_DB_HIDDEN, false);
                 }
             }
         }
@@ -108,51 +106,11 @@ bool SLCVTrackerAruco::track(cv::Mat image,
     } else
     {
         // Hide tracked node if not visible
-        for (auto sv : sceneViews)
-            if (_node != sv->camera())
-                _node->setDrawBitsRec(SL_DB_HIDDEN, true);
+        if (_node != sv->camera())
+            _node->setDrawBitsRec(SL_DB_HIDDEN, true);
     }
 
     return false;
-}
-//-----------------------------------------------------------------------------
-/*! Explains the calculation of the object matrix from the cameraObject and the
-object view matrix in detail:
-
-Nomenclature:
-T = homogenious transformation matrix
-
-a
- T = homogenious transformation matrix with subscript b and superscript a
-  b
-
-Subscrips and superscripts:  w = world  o = object  c = camera
-
-c
- T  = Transformation of object with respect to camera coordinate system.
-  o   It discribes the position of an object in the camera coordinate system.
-We get this Transformation from openCVs solvePNP function.
-
-w       c    -1
- T  = ( T )    = Transformation of camera with respect to world coord.-system.
-  c       w        Inversion exchanges sub- and superscript.
-This is also called the view matrix.
-
-We can combine two or more homogenious transformations to a new one if the
-inner sub- and superscript fit together. The resulting transformation
-inherits the superscrip from the left and the subscript from the right
-transformation. The following tranformation is what we want to do:
-
-w    w     c
- T  = T  *  T   = Transformation of object with respect to world
-  o    c     o    coordinate system (object matrix)
-*/
-static void calcObjectMatrix(const SLMat4f& cameraObjectMat, 
-                             const SLMat4f& objectViewMat, 
-                             SLMat4f& objectMat)
-{   
-    // new object matrix = camera object matrix * object-view matrix
-    objectMat = cameraObjectMat * objectViewMat;
 }
 //-----------------------------------------------------------------------------
 void SLCVTrackerAruco::drawArucoMarkerBoard(int dictionaryId,
@@ -168,7 +126,7 @@ void SLCVTrackerAruco::drawArucoMarkerBoard(int dictionaryId,
     if(marginsSize == 0)
         marginsSize = markerSepaPX;
 
-    Size imageSize;
+    SLCVSize imageSize;
     imageSize.width  = numMarkersX * (markerEdgePX + markerSepaPX) - markerSepaPX + 2 * marginsSize;
     imageSize.height = numMarkersY * (markerEdgePX + markerSepaPX) - markerSepaPX + 2 * marginsSize;
 

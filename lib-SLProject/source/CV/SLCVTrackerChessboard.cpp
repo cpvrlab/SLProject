@@ -10,12 +10,6 @@
 
 #include <stdafx.h>         // precompiled headers
 #include <SLCVTrackerChessboard.h>
-#include <opencv2/core/core.hpp>
-#include <opencv2/core/utility.hpp>
-#include <opencv2/highgui.hpp>
-#include <opencv2/imgproc.hpp>
-#include <opencv2/calib3d.hpp>
-#include <opencv2/video/tracking.hpp>
 
 using namespace cv;
 //-----------------------------------------------------------------------------
@@ -31,20 +25,23 @@ SLCVTrackerChessboard::SLCVTrackerChessboard(SLNode* node) : SLCVTracker(node)
                                            0.0));
 }
 //-----------------------------------------------------------------------------
+//! Tracks the chessboard image in the given image for the first sceneview
 bool SLCVTrackerChessboard::track(cv::Mat image, 
                                   SLCVCalibration& calib,
-                                  SLVSceneView& sceneViews)
+                                  SLSceneView* sv)
 {
     assert(!image.empty() && "Image is empty");
     assert(!calib.intrinsics().empty() && "Calibration is empty");
     assert(_node && "Node pointer is null");
+    assert(sv && "No sceneview pointer passed");
+    assert(sv->camera() && "No active camera in sceneview");
     
     SLCVCalibration& c= SLScene::current->calibration();
 
     //detect chessboard corners
-    int flags = CALIB_CB_ADAPTIVE_THRESH | 
-                CALIB_CB_NORMALIZE_IMAGE | 
-                CALIB_CB_FAST_CHECK;
+    SLint flags = CALIB_CB_ADAPTIVE_THRESH | 
+                  CALIB_CB_NORMALIZE_IMAGE | 
+                  CALIB_CB_FAST_CHECK;
 
     vector<cv::Point2f> corners;
 
@@ -55,8 +52,8 @@ bool SLCVTrackerChessboard::track(cv::Mat image,
         cv::Mat rVec, tVec;
 
         //find the camera extrinsic parameters
-        bool solved = solvePnP(Mat(_boardPoints), 
-                               Mat(corners), 
+        bool solved = solvePnP(SLCVMat(_boardPoints), 
+                               SLCVMat(corners), 
                                calib.intrinsics(), 
                                calib.distortion(), 
                                rVec, 
@@ -64,27 +61,21 @@ bool SLCVTrackerChessboard::track(cv::Mat image,
                                false, 
                                cv::SOLVEPNP_ITERATIVE);
         if (solved)
-        {
-            _viewMat = calib.createGLMatrix(tVec, rVec);
+        {   _viewMat = createGLMatrix(tVec, rVec);
 
-            for (auto sv : sceneViews)
-            {
-                if (_node == sv->camera())
-                    _node->om(_viewMat.inverse());
-                else
-                {   //calculate object matrix (see also calcObjectMatrix)
-                    _node->om(sv->camera()->om() * _viewMat);
-                    _node->setDrawBitsRec(SL_DB_HIDDEN, false);
-                }
+            if (_node == sv->camera())
+                _node->om(_viewMat.inverse());
+            else
+            {   _node->om(calcObjectMatrix(sv->camera()->om(),_viewMat));
+                _node->setDrawBitsRec(SL_DB_HIDDEN, false);
             }
             return true;
         }
     }
     
     // Hide tracked node if not visible
-    for (auto sv : sceneViews)
-        if (_node != sv->camera())
-            _node->setDrawBitsRec(SL_DB_HIDDEN, true);
+    if (_node != sv->camera())
+        _node->setDrawBitsRec(SL_DB_HIDDEN, true);
 
     return false;
 }

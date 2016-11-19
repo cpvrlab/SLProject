@@ -2014,7 +2014,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         sv->waitEvents(true);
 
         if (_calibration.state() == CS_uncalibrated)
-            _calibration.calibrate();
+            _calibration.setCalibrationState();
     }
     else
     if (_currentSceneID == C_sceneARTrackAruco)

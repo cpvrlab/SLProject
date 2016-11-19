@@ -16,8 +16,6 @@
 #include <stdafx.h>
 #include <opencv2/opencv.hpp>
 
-using namespace cv;
-
 //-----------------------------------------------------------------------------
 //! Encapsulation of the OpenCV Capture Device
 class SLCVCapture
@@ -28,11 +26,11 @@ class SLCVCapture
     static  bool            isOpened        () { return _captureDevice.isOpened();}
     static  void            release         () {_captureDevice.release();}
     
-    static  Mat             lastFrame;      //!< last frame grabbed
+    static  SLCVMat         lastFrame;      //!< last frame grabbed
     static  SLPixelFormat   format;         //!< SL pixel format
 
     private:
-    static  VideoCapture    _captureDevice; //!< OpenCV capture device
+    static  cv::VideoCapture _captureDevice; //!< OpenCV capture device
 };
 //-----------------------------------------------------------------------------
 #endif

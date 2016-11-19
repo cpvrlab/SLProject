@@ -10,7 +10,6 @@
 
 #include <stdafx.h>         // precompiled headers
 #include <SLCVCalibration.h>
-#include <opencv2/opencv.hpp>
 #include <opencv2/highgui.hpp>
 #include <opencv2/calib3d.hpp>
 
@@ -35,13 +34,16 @@ SLCVCalibration::SLCVCalibration() :
 {
 }
 //-----------------------------------------------------------------------------
+//! Resets the calibration to the uncalibrated state
 void SLCVCalibration::clear()
 {
     _numCaptured = 0;
     _reprojectionError = -1.0f;
     _imagePoints.clear();
+    _state = CS_uncalibrated;
 }
 //-----------------------------------------------------------------------------
+//! Loads the calibration information from the config file
 bool SLCVCalibration::loadCamParams()
 {
     //load camera parameter
@@ -55,25 +57,28 @@ bool SLCVCalibration::loadCamParams()
         return false;
     }
 
+
     fs["camera_matrix"] >> _intrinsics;
     fs["distortion_coefficients"] >> _distortion;
     fs["avg_reprojection_error"] >> _reprojectionError;
+    fs["image_width"] >> _imageSize.width;
+    fs["image_height"] >> _imageSize.height;
 
 
     // close the input file
     fs.release();
 
     //calculate projection matrix
-    calculateCameraFOV();
+    calcCameraFOV();
 
     _state = CS_calibrated;
 
     return true;
 }
 //-----------------------------------------------------------------------------
+//! Loads the chessboard calibration pattern parameters
 bool SLCVCalibration::loadCalibParams()
 {
-    //load camera parameter
     FileStorage fs;
     fs.open(defaultPath + _calibParamsFileName, FileStorage::READ);
     if (!fs.isOpened())
@@ -92,45 +97,54 @@ bool SLCVCalibration::loadCalibParams()
     return true;
 }
 //-----------------------------------------------------------------------------
-void SLCVCalibration::calculateCameraFOV()
+//! Calculates the vertical field of view angle in degrees
+void SLCVCalibration::calcCameraFOV()
 {
     //calculate vertical field of view
-    float fy = (float)_intrinsics.at<double>(1,1);
-    float cy = (float)_intrinsics.at<double>(1,2);
-    float fovRad = 2 * (float)atan2(cy, fy);
+    SLfloat fy = (SLfloat)_intrinsics.at<double>(1,1);
+    SLfloat cy = (SLfloat)_intrinsics.at<double>(1,2);
+    SLfloat fovRad = 2 * (SLfloat)atan2(cy, fy);
     _cameraFovDeg = fovRad * SL_RAD2DEG;
 }
 //-----------------------------------------------------------------------------
+//! Calculates the 3D positions of the chessboard corners
 static void calcBoardCornerPositions(Size boardSize, 
-                                     float squareSize, 
-                                     vector<Point3f>& corners)
+                                     SLfloat squareSize, 
+                                     SLCVVPoint3f& corners)
 {
     corners.clear();
     for(int i = 0; i < boardSize.height; ++i)
         for(int j = 0; j < boardSize.width; ++j)
-            corners.push_back(Point3f(j*squareSize, i*squareSize, 0));
+            corners.push_back(SLCVPoint3f(j*squareSize, i*squareSize, 0));
 }
 //-----------------------------------------------------------------------------
-static double computeReprojectionErrors(const vector<vector<Point3f>>& objectPoints,
-                                        const vector<vector<Point2f>>& imagePoints,
-                                        const vector<Mat>& rvecs,
-                                        const vector<Mat>& tvecs,
-                                        const Mat& cameraMatrix ,
-                                        const Mat& distCoeffs,
-                                        vector<float>& perViewErrors)
+//! Calculates the reprojection error of the calibration
+static double calcReprojectionErrors(const SLCVVVPoint3f& objectPoints,
+                                     const SLCVVVPoint2f& imagePoints,
+                                     const SLCVVMat& rvecs,
+                                     const SLCVVMat& tvecs,
+                                     const SLCVMat& cameraMatrix ,
+                                     const SLCVMat& distCoeffs,
+                                     SLVfloat& perViewErrors)
 {
-    vector<Point2f> imagePoints2;
+    SLCVVPoint2f imagePoints2;
     size_t totalPoints = 0;
     double totalErr = 0, err;
     perViewErrors.resize(objectPoints.size());
 
     for(size_t i = 0; i < objectPoints.size(); ++i)
     {
-        projectPoints(objectPoints[i], rvecs[i], tvecs[i], cameraMatrix, distCoeffs, imagePoints2);
+        cv::projectPoints(objectPoints[i], 
+                          rvecs[i], 
+                          tvecs[i], 
+                          cameraMatrix, 
+                          distCoeffs, 
+                          imagePoints2);
+
         err = norm(imagePoints[i], imagePoints2, NORM_L2);
 
         size_t n = objectPoints[i].size();
-        perViewErrors[i] = (float) std::sqrt(err*err/n);
+        perViewErrors[i] = (SLfloat) std::sqrt(err*err/n);
         totalErr        += err*err;
         totalPoints     += n;
     }
@@ -138,67 +152,75 @@ static double computeReprojectionErrors(const vector<vector<Point3f>>& objectPoi
     return std::sqrt(totalErr/totalPoints);
 }
 //-----------------------------------------------------------------------------
-static bool runCalibration(Size& imageSize,
-                           Mat& cameraMatrix,
-                           Mat& distCoeffs,
-                           vector<vector<Point2f>> imagePoints,
-                           vector<Mat>& rvecs, vector<Mat>& tvecs,
-                           vector<float>& reprojErrs,
-                           double& totalAvgErr,
-                           Size& boardSize,
-                           float squareSize,
-                           int flag)
+//! Calculates the calibration with the given set of image points
+static bool calcCalibration(SLCVSize& imageSize,
+                            SLCVMat& cameraMatrix,
+                            SLCVMat& distCoeffs,
+                            SLCVVVPoint2f imagePoints,
+                            SLCVVMat& rvecs, 
+                            SLCVVMat& tvecs,
+                            SLVfloat& reprojErrs,
+                            double& totalAvgErr,
+                            SLCVSize& boardSize,
+                            SLfloat squareSize,
+                            SLint flag)
 {
-    // [fixed_aspect]
-    cameraMatrix = Mat::eye(3, 3, CV_64F);
+    // fixed_aspect
+    cameraMatrix = SLCVMat::eye(3, 3, CV_64F);
 
-    //if 1, only fy is considered as a free parameter, the ratio fx/fy stays the same as in the input cameraMatrix.
+    //if 1, only fy is considered as a free parameter, 
+    // the ratio fx/fy stays the same as in the input cameraMatrix.
     cameraMatrix.at<double>(0,0) = 1.0;
 
-    // [fixed_aspect]
-    distCoeffs = Mat::zeros(8, 1, CV_64F);
+    // fixed_aspect
+    distCoeffs = SLCVMat::zeros(8, 1, CV_64F);
 
-    vector<vector<Point3f> > objectPoints(1);
-    calcBoardCornerPositions(boardSize, squareSize, objectPoints[0]);
+    SLCVVVPoint3f objectPoints(1);
+
+    calcBoardCornerPositions(boardSize, 
+                             squareSize, 
+                             objectPoints[0]);
 
     objectPoints.resize(imagePoints.size(),objectPoints[0]);
 
+    ////////////////////////////////////////////////
     //Find intrinsic and extrinsic camera parameters
-    double rms = calibrateCamera(objectPoints,
-                                 imagePoints,
-                                 imageSize,
-                                 cameraMatrix,
-                                 distCoeffs,
-                                 rvecs,
-                                 tvecs,
-                                 flag);
+    double rms = cv::calibrateCamera(objectPoints,
+                                     imagePoints,
+                                     imageSize,
+                                     cameraMatrix,
+                                     distCoeffs,
+                                     rvecs,
+                                     tvecs,
+                                     flag);
+    ////////////////////////////////////////////////
 
     cout << "Re-projection error reported by calibrateCamera: "<< rms << endl;
 
-    bool ok = checkRange(cameraMatrix) && checkRange(distCoeffs);
+    bool ok = cv::checkRange(cameraMatrix) && cv::checkRange(distCoeffs);
 
-    totalAvgErr = computeReprojectionErrors(objectPoints,
-                                            imagePoints,
-                                            rvecs,
-                                            tvecs,
-                                            cameraMatrix,
-                                            distCoeffs,
-                                            reprojErrs);
+    totalAvgErr = calcReprojectionErrors(objectPoints,
+                                         imagePoints,
+                                         rvecs,
+                                         tvecs,
+                                         cameraMatrix,
+                                         distCoeffs,
+                                         reprojErrs);
     return ok;
 }
 //-----------------------------------------------------------------------------
-// Print camera parameters to the output file
-static void saveCameraParams(Size& imageSize,
-                             Mat& cameraMatrix, Mat& distCoeffs,
-                             const vector<Mat>& rvecs,
-                             const vector<Mat>& tvecs,
-                             const vector<float>& reprojErrs,
-                             const vector<vector<Point2f>>& imagePoints,
+//! Saves the camera calibration parameters to the config file
+static void saveCameraParams(SLCVSize& imageSize,
+                             SLCVMat& cameraMatrix, Mat& distCoeffs,
+                             const SLCVVMat& rvecs,
+                             const SLCVVMat& tvecs,
+                             const SLVfloat& reprojErrs,
+                             const SLCVVVPoint2f& imagePoints,
                              double totalAvgErr,
-                             int flag,
-                             string filename,
-                             Size& boardSize,
-                             float squareSize)
+                             SLint flag,
+                             SLstring filename,
+                             SLCVSize& boardSize,
+                             SLfloat squareSize)
 {
     cv::FileStorage fs(SLCVCalibration::defaultPath + filename, FileStorage::WRITE);
 
@@ -235,32 +257,32 @@ static void saveCameraParams(Size& imageSize,
     fs << "avg_reprojection_error" << totalAvgErr;
 }
 //-----------------------------------------------------------------------------
-//!< Find the chessboard
-bool SLCVCalibration::findChessboard(cv::Mat image,
+//!< Finds the inner chessboard corners in the given image
+bool SLCVCalibration::findChessboard(SLCVMat image,
                                      bool drawCorners)
 {   
     _imageSize = image.size();
-    vector<cv::Point2f> corners;
-    int flags = CALIB_CB_ADAPTIVE_THRESH | 
-                CALIB_CB_NORMALIZE_IMAGE | 
-                CALIB_CB_FAST_CHECK;
+    SLCVVPoint2f corners;
+    SLint flags = CALIB_CB_ADAPTIVE_THRESH | 
+                  CALIB_CB_NORMALIZE_IMAGE | 
+                  CALIB_CB_FAST_CHECK;
 
     bool found = cv::findChessboardCorners(image, _boardSize, corners, flags);
 
     if(found && drawCorners)
-        drawChessboardCorners(image, _boardSize, Mat(corners), found);
+        cv::drawChessboardCorners(image, _boardSize, Mat(corners), found);
 
     if (found && _state == CS_calibrateGrab)
     {
         Mat imageGray;
         cv::cvtColor(image, imageGray, COLOR_BGR2GRAY);
         
-        cornerSubPix(imageGray, 
-                     corners, Size(11,11),
-                     Size(-1,-1), 
-                     TermCriteria(TermCriteria::EPS+TermCriteria::COUNT, 
-                     30, 
-                     0.1));
+        cv::cornerSubPix(imageGray, 
+                         corners, SLCVSize(11,11),
+                         SLCVSize(-1,-1), 
+                         TermCriteria(TermCriteria::EPS+TermCriteria::COUNT, 
+                         30, 
+                         0.1));
 
         //debug save image
         //stringstream ss;
@@ -282,36 +304,38 @@ bool SLCVCalibration::findChessboard(cv::Mat image,
     return found;
 }
 //-----------------------------------------------------------------------------
-void SLCVCalibration::calibrate()
+//! Clears and flags the state for calibration
+void SLCVCalibration::setCalibrationState()
 {
     clear();
     _state = CS_calibrateStream;
 }
 //-----------------------------------------------------------------------------
+//! Initiates the final calculation
 void SLCVCalibration::calculate()
 {
     _state = CS_starcCalculating;
 
-    vector<Mat> rvecs, tvecs;
-    vector<float> reprojErrs;
+    SLCVVMat rvecs, tvecs;
+    SLVfloat reprojErrs;
     double totalAvgErr = 0;
 
-    int flag = 0;
+    SLint flag = 0;
     flag |= CALIB_FIX_PRINCIPAL_POINT;
     flag |= CALIB_ZERO_TANGENT_DIST;
     flag |= CALIB_FIX_ASPECT_RATIO;
 
-    bool ok = runCalibration(_imageSize, 
-                             _intrinsics, 
-                             _distortion, 
-                             _imagePoints, 
-                             rvecs, 
-                             tvecs, 
-                             reprojErrs,
-                             totalAvgErr, 
-                             _boardSize, 
-                             _boardSquareMM, 
-                             flag);
+    bool ok = calcCalibration(_imageSize, 
+                              _intrinsics, 
+                              _distortion, 
+                              _imagePoints, 
+                              rvecs, 
+                              tvecs, 
+                              reprojErrs,
+                              totalAvgErr, 
+                              _boardSize, 
+                              _boardSquareMM, 
+                              flag);
 
     cout << (ok ? "Calibration succeeded" : "Calibration failed")
          << ". avg re projection error = " << totalAvgErr << endl;
@@ -333,37 +357,9 @@ void SLCVCalibration::calculate()
                          _boardSize, 
                          _boardSquareMM);
 
-        calculateCameraFOV();
+        calcCameraFOV();
         _reprojectionError = (float)totalAvgErr;
         _state = CS_calibrated;
     }
-}
-//-----------------------------------------------------------------------------
-//! Create an OpenGL 4x4 matrix from a translation & rotation vector
-SLMat4f SLCVCalibration::createGLMatrix(const Mat& tVec, const Mat& rVec)
-{
-    // 1) convert the passed rotation vector to a rotation matrix
-    cv::Mat rMat;
-    Rodrigues(rVec, rMat);
-
-    // 2) Create an OpenGL 4x4 column major matrix from the rotation matrix and 
-    // translation vector from openCV as discribed in this post:
-    // www.morethantechnical.com/2015/02/17/
-    // augmented-reality-on-libqglviewer-and-opencv-opengl-tips-wcode
-      
-    // The y- and z- axis have to be inverted:
-    /*
-    tVec = |  t0,  t1,  t2 |
-                                        |  r00   r01   r02   t0 |
-           | r00, r10, r20 |            | -r10  -r11  -r12  -t1 |
-    rMat = | r01, r11, r21 |    slMat = | -r20  -r21  -r22  -t2 |
-           | r02, r12, r22 |            |    0     0     0    1 |
-    */
-
-    SLMat4f slMat((SLfloat) rMat.at<double>(0, 0), (SLfloat) rMat.at<double>(0, 1), (SLfloat) rMat.at<double>(0, 2), (SLfloat) tVec.at<double>(0, 0),
-                  (SLfloat)-rMat.at<double>(1, 0), (SLfloat)-rMat.at<double>(1, 1), (SLfloat)-rMat.at<double>(1, 2), (SLfloat)-tVec.at<double>(1, 0),
-                  (SLfloat)-rMat.at<double>(2, 0), (SLfloat)-rMat.at<double>(2, 1), (SLfloat)-rMat.at<double>(2, 2), (SLfloat)-tVec.at<double>(2, 0),
-                                             0.0f,                            0.0f,                            0.0f,                            1.0f);
-    return slMat;
 }
 //-----------------------------------------------------------------------------

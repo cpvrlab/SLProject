@@ -11,12 +11,10 @@
 #ifndef SLCVTrackerAruco_H
 #define SLCVTrackerAruco_H
 
+#include <SLCV.h>
 #include <SLCVTracker.h>
 #include <SLNode.h>
 #include <opencv2/aruco.hpp>
-
-using namespace std;
-
 
 //-----------------------------------------------------------------------------
 /*!
@@ -72,25 +70,26 @@ public:
     cv::Ptr<cv::aruco::DetectorParameters>  arucoParams;    //!< detector parameter structure for aruco detection function
     cv::Ptr<cv::aruco::Dictionary>          dictionary;     //!< predefined dictionary
 
-    float   edgeLength;             //!< marker edge length
-    int     arucoDictionaryId;      //!< id of aruco dictionary
-    string  arucoDetectorParams;    //!< todo: put in one file
-    string  filename;               //!< parameter filename
+    SLfloat     edgeLength;             //!< marker edge length
+    SLint       arucoDictionaryId;      //!< id of aruco dictionary
+    SLstring    arucoDetectorParams;    //!< todo: put in one file
+    SLstring    filename;               //!< parameter filename
 };
 
 //-----------------------------------------------------------------------------
 /*!
-Tracking class for Aruco markers tracking
+Tracking class for ArUco markers tracking. See the official OpenCV docs on
+ArUco markers: http://docs.opencv.org/3.1.0/d5/dae/tutorial_aruco_detection.html
 */
 class SLCVTrackerAruco : public SLCVTracker
 {
     public:
-                SLCVTrackerAruco(SLNode* node, SLint arucoID);
-               ~SLCVTrackerAruco() {;}
+                SLCVTrackerAruco    (SLNode* node, SLint arucoID);
+               ~SLCVTrackerAruco    () {;}
 
-        bool    track           (cv::Mat image, 
-                                 SLCVCalibration& calib,
-                                 SLVSceneView& sv);
+        bool    track               (cv::Mat image, 
+                                     SLCVCalibration& calib,
+                                     SLSceneView* sv);
 
         //! Helper function to draw and save an aruco marker board image
         static void drawArucoMarkerBoard(int numMarkersX,
