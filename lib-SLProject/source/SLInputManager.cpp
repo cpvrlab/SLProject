@@ -31,16 +31,17 @@ SLInputManager& SLInputManager::instance()
 /*! Sends any queued up system event's to their correct receiver and
 polls all activated SLInputDevices. 
 
-@note   The event queue is similar to how Qt manages it's events. The main difference
-        is, that we don't use the SLInputEvent class outside of the SLInputManager.
-        The SLInputManager calls the correct SLSceneView input handler functions directly.
-        Also we don't allow for custom SLInputEvents. This is the other main difference
-        to the Qt event system. The decision to go this route is simplicity for now. 
+@note   The event queue is similar to how Qt manages it's events. The main 
+        difference is, that we don't use the SLInputEvent class outside of the
+        SLInputManager. The SLInputManager calls the correct SLSceneView input 
+        handler functions directly. Also we don't allow for custom SLInputEvents. 
+        This is the other main difference to the Qt event system. 
+        The decision to go this route is simplicity for now.
         It is totally sufficient for our use cases to provide the user with the
         SLInputDevice interface to realize custom input. 
-        However it has to be considered, that Qt also has many GUI related events like
-        MouseEnter, MouseLeave, Drag etc. For a sophisticated GUI implementation the 
-        whole input management in SL would have to be reviewed.
+        However it has to be considered, that Qt also has many GUI related events 
+        like MouseEnter, MouseLeave, Drag etc. For a sophisticated GUI 
+        implementation the whole input management in SL would have to be reviewed.
 */
 SLbool SLInputManager::pollEvents()
 {

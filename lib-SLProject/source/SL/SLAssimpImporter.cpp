@@ -501,7 +501,9 @@ void SLAssimpImporter::findSkeletonRoot()
                 logMessage(LV_diagnostic, "'%s' ", list[i]->mName.C_Str());
             logMessage(LV_diagnostic, "\n");
         } else
-            logMessage(LV_detailed, "   '%s' lies at a depth of %d\n", it->first.c_str(), list.size());
+            logMessage(LV_detailed, "   '%s' lies at a depth of %d\n",
+                       it->first.c_str(),
+                       list.size());
 
         minDepth = min(minDepth, (SLint)list.size());
     }

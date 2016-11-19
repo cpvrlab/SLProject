@@ -101,10 +101,10 @@ bool SLCVTrackerAruco::track(cv::Mat image,
                         _node->om(sv->camera()->om() * objectViewMats[i]);
                         _node->setDrawBitsRec(SL_DB_HIDDEN, false);
                     }
-                    return true;
                 }
             }
         }
+        return true;
     } else
     {
         // Hide tracked node if not visible

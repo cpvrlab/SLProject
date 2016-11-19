@@ -370,8 +370,6 @@ The C main procedure running the GLFW GUI application.
 */
 int main(int argc, char *argv[])
 {
-    //ARArucoTracker::drawArucoMarker(0,0,10);
-
     // set command line arguments
     SLVstring cmdLineArgs;
     for(int i = 0; i < argc; i++)

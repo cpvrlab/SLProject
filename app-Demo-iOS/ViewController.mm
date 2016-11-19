@@ -126,6 +126,7 @@ float GetSeconds()
     slCreateScene(cmdLineArgs,
                   exeDir,
                   exeDir,
+                  exeDir,
                   exeDir);
    
     svIndex = slCreateSceneView(self.view.bounds.size.width * screenScale,

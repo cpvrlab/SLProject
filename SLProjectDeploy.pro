@@ -165,7 +165,6 @@ calibrations.files = \
   ../_data/calibrations/cam_calibration.xml \
   ../_data/calibrations/calib_in_params.yml \
   ../_data/calibrations/aruco_detector_params.yml \
-  ../_data/calibrations/chessboard_detector_params.yml \
 
 
 # Copies the given files to the destination directory

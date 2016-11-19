@@ -100,9 +100,10 @@ void SLMesh::init(SLNode* node)
         // If colors are available use diffuse color attribute shader
         // otherwise use the default gray material
         if (!mat) 
-            if (C.size()) 
+        {   if (C.size())
                  mat = SLMaterial::diffuseAttrib();
             else mat = SLMaterial::defaultGray();
+        }
 
         // set transparent flag of the node if mesh contains alpha material
         if (!node->aabb()->hasAlpha() && mat->hasAlpha()) 

@@ -223,8 +223,8 @@ the opaque pass only the opaque meshes.
 void SLNode::drawMeshes(SLSceneView* sv)
 {
     for (auto mesh : _meshes)
-        if ( _stateGL->blend() &&  mesh->mat->hasAlpha() ||
-            !_stateGL->blend() && !mesh->mat->hasAlpha())
+        if (( _stateGL->blend() &&  mesh->mat->hasAlpha()) ||
+            (!_stateGL->blend() && !mesh->mat->hasAlpha()))
             mesh->draw(sv, this);
 }
 //-----------------------------------------------------------------------------

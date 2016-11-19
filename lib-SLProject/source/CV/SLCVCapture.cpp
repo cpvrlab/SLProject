@@ -36,6 +36,7 @@ SLVec2i SLCVCapture::open(int deviceNum)
         int h = (int)_captureDevice.get(CV_CAP_PROP_FRAME_HEIGHT);
         cout << "CV_CAP_PROP_FRAME_WIDTH : " << w << endl;
         cout << "CV_CAP_PROP_FRAME_HEIGHT: " << h << endl;
+
         return SLVec2i(w, h);
     }
     catch (exception e)

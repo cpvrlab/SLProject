@@ -76,8 +76,8 @@ bool SLCVTrackerChessboard::track(cv::Mat image,
                     _node->om(sv->camera()->om() * _viewMat);
                     _node->setDrawBitsRec(SL_DB_HIDDEN, false);
                 }
-                return true;
             }
+            return true;
         }
     }
     
