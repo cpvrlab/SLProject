@@ -255,7 +255,7 @@ bool AR2DTracker::track(cv::Mat image,
             _posValid = true;
 
             // Convert cv translation & rotation to OpenGL transform matrix
-            SLMat4f ovm = calib.createGLMatrix(tVec, rVec);
+            SLMat4f ovm = createGLMatrix(tVec, rVec);
         }
     }
     return true; //???

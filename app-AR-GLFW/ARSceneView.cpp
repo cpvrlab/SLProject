@@ -106,6 +106,7 @@ void ARSceneView::setCVImageToTexture(cv::Mat& image)
                                                      image.rows,
                                                      SLCVCapture::format,
                                                      image.data,
+                                                     image.isContinuous(),
                                                      true);
 }
 //-----------------------------------------------------------------------------

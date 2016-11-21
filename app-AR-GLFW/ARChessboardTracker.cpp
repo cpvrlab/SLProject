@@ -79,7 +79,7 @@ bool ARChessboardTracker::track(cv::Mat image,
                                    cv::SOLVEPNP_ITERATIVE);
 
             // Convert cv translation & rotation to OpenGL transform matrix
-            _viewMat = calib.createGLMatrix(tVec, rVec);
+            _viewMat = createGLMatrix(tVec, rVec);
         }
     }
 

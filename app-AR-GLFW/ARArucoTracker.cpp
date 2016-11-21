@@ -61,7 +61,7 @@ bool ARArucoTracker::track(cv::Mat image,
                 cout << ids[i] << ",";
 
                 // Convert cv translation & rotation to OpenGL transform matrix
-                SLMat4f ovm = calib.createGLMatrix(cv::Mat(tvecs[i]), cv::Mat(rvecs[i]));
+                SLMat4f ovm = createGLMatrix(cv::Mat(tvecs[i]), cv::Mat(rvecs[i]));
 
                 _arucoOVMs.insert(pair<int,SLMat4f>(ids[i], ovm));
             }

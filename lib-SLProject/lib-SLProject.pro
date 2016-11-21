@@ -195,7 +195,8 @@ source/SLSceneView.cpp \
 source/SLScene_onLoad.cpp \
 source/SLSkeleton.cpp \
 source/SLSpheric.cpp \
-source/SLText.cpp
+source/SLText.cpp \
+    source/CV/SLCVTracker.cpp
 
 OTHER_FILES += \
 ../_data/shaders/BumpNormal.frag \

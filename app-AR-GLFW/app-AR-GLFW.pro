@@ -38,7 +38,8 @@ SOURCES += \
     ARChessboardTracker.cpp \
     ARArucoTracker.cpp \
     AR2DMapper.cpp \
-    AR2DTracker.cpp
+    AR2DTracker.cpp \
+    ARTracker.cpp
 	   
 HEADERS += \
     ARSceneView.h \

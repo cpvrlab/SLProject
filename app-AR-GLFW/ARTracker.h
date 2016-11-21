@@ -35,6 +35,11 @@ class ARTracker
                                      SLCVCalibration& calib) = 0;
         virtual void updateSceneView(ARSceneView* sv) = 0;
         virtual void unloadSGObjects() = 0;
+
+         SLMat4f     createGLMatrix  (const SLCVMat& tVec,
+                                      const SLCVMat& rVec);
+         SLMat4f     calcObjectMatrix(const SLMat4f& cameraObjectMat,
+                                      const SLMat4f& objectViewMat);
     
     protected:
         SLNode*     _node;          //<! Connected node

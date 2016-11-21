@@ -2016,7 +2016,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
 
         // Set active camera
         sv->camera(cam1);
-        sv->waitEvents(true);
+        sv->waitEvents(false);
 
         menu2D(btnNoCalib());
 
