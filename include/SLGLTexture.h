@@ -117,9 +117,11 @@ class SLGLTexture : public SLObject
             SLuint          nextPowerOf2    (SLuint num);
             void            build2DMipmaps  (SLint target, SLuint index);
             void            setVideoImage   (SLstring videoImageFile);
-            SLbool          copyVideoImage  (SLint width, SLint height,
+            SLbool          copyVideoImage  (SLint camWidth, 
+                                             SLint camHeight,
                                              SLPixelFormat glFormat, 
                                              SLuchar* data, 
+                                             SLbool isContinuous,
                                              SLbool isTopLeft);
             // Bumpmap methods
             SLVec2f         dsdt            (SLfloat s, SLfloat t); //! Returns the derivation as [s,t]

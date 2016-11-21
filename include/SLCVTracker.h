@@ -33,7 +33,7 @@ class SLCVTracker
                                      _node(node), _isVisible(false){;}
         virtual     ~SLCVTracker    (){;}
 
-        virtual bool track          (SLCVMat image, 
+        virtual SLbool track        (SLCVMat image, 
                                      SLCVCalibration& calib,
                                      SLSceneView* sv) = 0;
 
@@ -44,7 +44,7 @@ class SLCVTracker
 
     protected:
         SLNode*     _node;          //<! Connected node
-        bool        _isVisible;     //<! Flag if marker is visible
+        SLbool      _isVisible;     //<! Flag if marker is visible
         SLMat4f     _viewMat;       //!< view transformation matrix
 };
 //-----------------------------------------------------------------------------

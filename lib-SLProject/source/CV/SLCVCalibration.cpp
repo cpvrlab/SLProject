@@ -314,7 +314,7 @@ void SLCVCalibration::setCalibrationState()
 //! Initiates the final calculation
 void SLCVCalibration::calculate()
 {
-    _state = CS_starcCalculating;
+    _state = CS_startCalculating;
 
     SLCVVMat rvecs, tvecs;
     SLVfloat reprojErrs;

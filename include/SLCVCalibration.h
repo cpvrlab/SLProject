@@ -16,6 +16,22 @@
 using namespace std;
 
 //-----------------------------------------------------------------------------
+//! Live video camera calibration class with OpenCV an OpenCV calibration.
+/* For the calibration internals see the OpenCV documentation:
+http://docs.opencv.org/3.1.0/dc/dbb/tutorial_py_calibration.html
+After a successufull calibration the parameters are stored in a config file on
+the SLCVCalibration::defaultPath. If it exists, it is loaded from there at
+startup. If doesn't exist a calibration can be done with the calibration scene 
+(Load Scene > Augmented Reality > Calibrate Camera).\n
+\n
+The different calibration states are handled within SLScene::onUpdate:
+\n
+\nCS_uncalibrated:     The camera is not calibrated (no or invalid calibration found)
+\nCS_calibrateStream:  The calibration is running with live video stream
+\nCS_calibrateGrab:    The calibration is running and an image should be grabbed
+\nCS_startCalculating: The calibration starts during the next frame
+\nCS_calibrated:       The camera is calibrated
+*/
 class SLCVCalibration
 {
 public:
@@ -45,13 +61,13 @@ public:
     SLint           numImgsToCapture    () {return _numOfImgsToCapture;}
     SLint           numCapturedImgs     () {return _numCaptured;}
     SLfloat         reprojectionError   () {return _reprojectionError;}
-    bool            showUndistorted     () {return _showUndistorted;}
+    SLbool          showUndistorted     () {return _showUndistorted;}
     SLCVSize        boardSize           () {return _boardSize;}
     SLfloat         boardSquareMM       () {return _boardSquareMM;}
     SLfloat         boardSquareM        () {return _boardSquareMM * 0.001f;}
 
 private:
-    void            calcCameraFOV  ();
+    void            calcCameraFOV       ();
 
     SLCVMat         _intrinsics;            //!< Matrix with intrisic camera paramters           
     SLCVMat         _distortion;            //!< Matrix with distortion parameters
@@ -66,7 +82,7 @@ private:
     SLfloat         _reprojectionError;     //!< Reprojection error after calibration
     SLCVVVPoint2f   _imagePoints;           //!< 2D vector of corner points in chessboard
     SLCVSize        _imageSize;             //!< Input image size in pixels
-    bool            _showUndistorted;       //!< Flag if image should be undistorted
+    SLbool          _showUndistorted;       //!< Flag if image should be undistorted
 };
 //-----------------------------------------------------------------------------
 #endif // SLCVCalibration_H

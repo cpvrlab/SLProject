@@ -126,7 +126,7 @@ SLScene::SLScene(SLstring name) : SLObject(name)
     _oculus.init();
 
     _infoAbout_en =
-"Welcome to the SLProject demo app (v1.4). It is developed at the \
+"Welcome to the SLProject demo app (v2.0). It is developed at the \
 Computer Science Department of the Bern University of Applied Sciences. \
 The app shows what you can learn in one semester about 3D computer graphics \
 in real time rendering and ray tracing. The framework is developed \
@@ -166,7 +166,10 @@ Load Scene > Augmented Reality > Calibrate Camera. \\n\
 It requires a chessboard image to be printed and glued on a flat board. \\n\
 You can find the PDF with the chessboard image on: \\n\
 https://github.com/cpvrlab/SLProject_data/tree/master/ \\n\
-calibrations/CalibrationChessboard_8x5_A4.pdf";
+calibrations/CalibrationChessboard_8x5_A4.pdf \\n\\n\
+For a calibration you have to take 20 images with detected inner \\n\
+chessboard corners. To take an image you have to click with the mouse \\n\
+or tap with finger into the screen.";
 
 }
 //-----------------------------------------------------------------------------
@@ -305,9 +308,15 @@ void SLScene::unInit()
 }
 //-----------------------------------------------------------------------------
 //! Updates all animations in the scene after all views got painted.
-/*! Updates all animations in the scene after all views got painted and
-calculates the elapsed time for one frame in all views. A scene can be displayed
-in multiple views as demonstrated in the app-Viewer-Qt example.
+/*! Updates different important updates in the scene after all views got painted:
+\n
+\n 1) Calculate frame time
+\n 2) Update all animations
+\n 3) Augmented Reality (AR) Tracking with the live camera
+\n 4) Update AABBs
+\n
+A scene can be displayed in multiple views as demonstrated in the app-Viewer-Qt 
+example. AR tracking is only handled on the first scene view.
 \return true if really something got updated
 */
 bool SLScene::onUpdate()
@@ -323,9 +332,9 @@ bool SLScene::onUpdate()
             sv->gotPainted(false);
     
 
-    //////////////////////////
-    // Calculate frame time //
-    //////////////////////////
+    /////////////////////////////
+    // 1) Calculate frame time //
+    /////////////////////////////
 
     // Calculate the elapsed time for the animation
     // todo: If slowdown on idle is enabled the delta time will be wrong!
@@ -359,9 +368,9 @@ bool SLScene::onUpdate()
     if (_fps < 0.0f) _fps = 0.0f;
 
 
-    ///////////////////
-    // Do animations //
-    ///////////////////
+    //////////////////////////////
+    // 2) Update all animations //
+    //////////////////////////////
 
     SLfloat startUpdateMS = timeMilliSec();
 
@@ -388,16 +397,25 @@ bool SLScene::onUpdate()
     
 
     ////////////////////
-    // Do AR Tracking //
+    // 3) AR Tracking //
     ////////////////////
 
     if (!SLCVCapture::lastFrame.empty() && _trackers.size() > 0)
     {   
+        // Invalidate calibration if camera input aspect doesn't match output
+        SLfloat calibWdivH = _calibration.imageAspectRatio();
+        SLbool aspectRatioDoesNotMatch = SL_abs(_sceneViews[0]->scrWdivH() - calibWdivH) > 0.01f;
+        if (aspectRatioDoesNotMatch && _calibration.state() == CS_calibrated)
+        {   _calibration.clear();
+        }
+
         stringstream ss; // info line text
 
         if (_calibration.state() == CS_uncalibrated)
         {   
             menu2D(btnNoCalib());
+            if (_currentSceneID == C_sceneARCalibration)
+                _calibration.state(CS_calibrateStream);
         } 
         else
         if (_calibration.state() == CS_calibrateStream || 
@@ -414,17 +432,19 @@ bool SLScene::onUpdate()
                    << imgsCaped << " of " << imgsToCap;
             else
             {   ss << "Calculating, please wait ...";
-                _calibration.state(CS_starcCalculating);
+                _calibration.state(CS_startCalculating);
             }
+            info(_sceneViews[0], ss.str());
 
             _videoTexture.copyVideoImage(SLCVCapture::lastFrame.cols,
-                                         SLCVCapture::lastFrame.rows, 
+                                         SLCVCapture::lastFrame.rows,
                                          SLCVCapture::format, 
                                          SLCVCapture::lastFrame.data,
+                                         SLCVCapture::lastFrame.isContinuous(),
                                          true);
-        } 
+        }
         else
-        if (_calibration.state() == CS_starcCalculating)
+        if (_calibration.state() == CS_startCalculating)
         {
             _calibration.calculate();
 
@@ -453,22 +473,23 @@ bool SLScene::onUpdate()
                 _videoTexture.copyVideoImage(undistorted.cols,
                                              undistorted.rows, 
                                              SLCVCapture::format, 
-                                             undistorted.data,
+                                             SLCVCapture::lastFrame.data,
+                                             SLCVCapture::lastFrame.isContinuous(),
                                              true);
             }
             
-            ss << "Camera calibration: fov: " << _calibration.cameraFovDeg() << 
-                  ", error: " << _calibration.reprojectionError();
+            if (_currentSceneID == C_sceneARCalibration)
+            {   ss << "Camera calibration: fov: " << _calibration.cameraFovDeg() << 
+                      ", error: " << _calibration.reprojectionError();
+                info(_sceneViews[0], ss.str());
+            }
         }
-
-        // update info line text in the first sceneview
-        info(_sceneViews[0], ss.str());
     }
 
 
-    //////////////////
-    // Update AABBs //
-    //////////////////
+    /////////////////////
+    // 4) Update AABBs //
+    /////////////////////
 
     // The updateAABBRec call won't generate any overhead if nothing changed
     SLGLState::getInstance()->modelViewMatrix.identity();
@@ -570,9 +591,15 @@ void SLScene::copyVideoImage(SLint width,
                              SLint height,
                              SLPixelFormat srcPixelFormat,
                              SLuchar* data,
-                             bool isTopLeft)
+                             SLbool isContinuous,
+                             SLbool isTopLeft)
 {
-    _videoTexture.copyVideoImage(width, height, srcPixelFormat, data, isTopLeft);
+    _videoTexture.copyVideoImage(width, 
+                                 height, 
+                                 srcPixelFormat, 
+                                 data, 
+                                 isContinuous,
+                                 isTopLeft);
 }
 //-----------------------------------------------------------------------------
 //! Deletes all menus and buttons objects

@@ -11,6 +11,7 @@
 
 #include <stdafx.h>         // precompiled headers
 #include <SLScene.h>
+#include <SLSceneView.h>
 #include <SLCVCapture.h>
 
 //-----------------------------------------------------------------------------
@@ -49,6 +50,8 @@ SLVec2i SLCVCapture::open(SLint deviceNum)
 //! Grabs a new frame from the capture device and copies it to the SLScene
 void SLCVCapture::grabAndCopyToSL()
 {
+    SLScene* s = SLScene::current;
+
     try
     {   if (_captureDevice.isOpened())
         {
@@ -63,15 +66,40 @@ void SLCVCapture::grabAndCopyToSL()
                 default: SL_EXIT_MSG("OpenCV image format not supported");
             }
 
-            // OpenGL ES doesn't support BGR or BGRA
-            //cv::cvtColor(lastFrame, lastFrame, CV_BGR2RGB);
-            //cv::flip(lastFrame, lastFrame, 0);
+            // Crop input image if it doesn't match the screens aspect ratio
+            if (s->usesVideoAsBckgrnd())
+            {
+                SLint width = 0;    // width in pixels of the destination image
+                SLint height = 0;   // height in pixels of the destination image
+                SLint cropH = 0;    // crop height in pixels of the source image 
+                SLint cropW = 0;    // crop width in pixels of the source image 
 
-            SLScene::current->copyVideoImage(lastFrame.cols,
-                                             lastFrame.rows,
-                                             format,
-                                             lastFrame.data,
-                                             true);
+                SLfloat inWdivH = (SLfloat)lastFrame.cols / (SLfloat)lastFrame.rows;
+                SLfloat outWdivH = s->sceneViews()[0]->scrWdivH();
+
+                // Check for cropping
+                if (SL_abs(inWdivH - outWdivH) > 0.01f)
+                {   if (inWdivH > outWdivH) // crop input image left & right 
+                    {   width = (SLint)((SLfloat)lastFrame.rows * outWdivH);
+                        height = lastFrame.rows;
+                        cropW = (SLint)((SLfloat)(lastFrame.cols - width) * 0.5f);    
+                    } else // crop input image at top & bottom
+                    {   width = lastFrame.cols;
+                        height = (SLint)((SLfloat)lastFrame.cols / outWdivH);
+                        cropH = (SLint)((SLfloat)(lastFrame.rows - height) * 0.5f);
+                    }
+                    lastFrame(SLCVRect(cropW, cropH, width, height)).copyTo(lastFrame);
+                    //imwrite("AfterCropping.bmp", lastFrame);
+                }
+            }
+
+            // Use the datastart pointer to access the region of interest
+            s->copyVideoImage(lastFrame.cols,
+                              lastFrame.rows,
+                              format,
+                              lastFrame.data,
+                              lastFrame.isContinuous(),
+                              true);
         }
         else
         {   static bool logOnce = true;

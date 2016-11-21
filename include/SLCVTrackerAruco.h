@@ -80,6 +80,10 @@ public:
 /*!
 Tracking class for ArUco markers tracking. See the official OpenCV docs on
 ArUco markers: http://docs.opencv.org/3.1.0/d5/dae/tutorial_aruco_detection.html
+The aruco marker used in the SLProject are printed in a PDF stored in the
+_data/Calibration folder. They use the dictionary 0 and where generated with the
+functions SLCVTrackerAruco::drawArucoMarkerBoard and 
+SLCVTrackerAruco::drawArucoMarker.
 */
 class SLCVTrackerAruco : public SLCVTracker
 {
@@ -87,32 +91,32 @@ class SLCVTrackerAruco : public SLCVTracker
                 SLCVTrackerAruco    (SLNode* node, SLint arucoID);
                ~SLCVTrackerAruco    () {;}
 
-        bool    track               (cv::Mat image, 
+        SLbool  track               (SLCVMat image, 
                                      SLCVCalibration& calib,
                                      SLSceneView* sv);
 
         //! Helper function to draw and save an aruco marker board image
-        static void drawArucoMarkerBoard(int numMarkersX,
-                                    int numMarkersY,
-                                    int markerEdgeLengthPix,
-                                    int markerSepaPix,
-                                    int dictionaryId,
-                                    string imgName,
-                                    bool showImage = false,
-                                    int borderBits = 1,
-                                    int marginsSize = 0);
-
+        static void drawArucoMarkerBoard(SLint numMarkersX,
+                                         SLint numMarkersY,
+                                         SLint markerEdgeLengthPix,
+                                         SLint markerSepaPix,
+                                         SLint dictionaryId,
+                                         SLstring imgName,
+                                         SLbool showImage = false,
+                                         SLint borderBits = 1,
+                                         SLint marginsSize = 0);
+ 
         //! Helper function to draw and save an aruco marker set
-        static void drawArucoMarker(int dictionaryId,
-                                    int minMarkerId,
-                                    int maxMarkerId,
-                                    int markerSizePX=200);
+        static void drawArucoMarker(SLint dictionaryId,
+                                    SLint minMarkerId,
+                                    SLint maxMarkerId,
+                                    SLint markerSizePX=200);
                                     
-        static bool             trackAllOnce;   //!< Flag for tracking all markers once per frame
+        static SLbool           trackAllOnce;   //!< Flag for tracking all markers once per frame
         static SLCVArucoParams  params;         //!< Parameter class instance
 
     private:
-        static bool             paramsLoaded;   //!< Flag for loaded parameters
+        static SLbool           paramsLoaded;   //!< Flag for loaded parameters
         static SLVint           arucoIDs;       //!< detected Aruco marker IDs
         static SLVMat4f         objectViewMats; //!< object view matrices
 

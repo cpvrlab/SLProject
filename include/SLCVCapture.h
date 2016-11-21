@@ -20,10 +20,10 @@
 //! Encapsulation of the OpenCV Capture Device
 class SLCVCapture
 {   public:
-    static  SLVec2i         open            (int deviceNum);
+    static  SLVec2i         open            (SLint deviceNum);
     static  void            grabAndCopyToSL ();
     static  void            copyFrameToSL   ();
-    static  bool            isOpened        () { return _captureDevice.isOpened();}
+    static  SLbool          isOpened        () {return _captureDevice.isOpened();}
     static  void            release         () {_captureDevice.release();}
     
     static  SLCVMat         lastFrame;      //!< last frame grabbed

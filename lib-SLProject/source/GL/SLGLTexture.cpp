@@ -189,8 +189,8 @@ void SLGLTexture::setVideoImage(SLstring videoImageFile)
 //! Copies the image data from a video camera into the current video image
 /*!
 \brief SLGLTexture::copyVideoImage
-\param width Width in pixels of the image
-\param height Height in pixels of the image
+\param camWidth Width in pixels of the camera image
+\param camHeight Height in pixels of the camera image
 \param srcFormat Pixel format according to the OpenGL pixel formats
 \param data Pointer to the first byte of the first pixel
 \param isTopLeft Flag if the data pointer points to the top left pixel
@@ -198,19 +198,22 @@ void SLGLTexture::setVideoImage(SLstring videoImageFile)
 It is important that passed pixel format is either RGB or RGBA. Otherwise
 an expensive conversion must be done.
 */
-SLbool SLGLTexture::copyVideoImage(SLint width,
-                                   SLint height,
+SLbool SLGLTexture::copyVideoImage(SLint camWidth,
+                                   SLint camHeight,
                                    SLPixelFormat srcFormat,
                                    SLuchar* data,
+                                   SLbool isContinuous,
                                    SLbool isTopLeft)
 {                         
-    bool needsRebuild = _images[0]->load(width,
-                                         height,
+    bool needsRebuild = _images[0]->load(camWidth,
+                                         camHeight,
                                          srcFormat,
                                          PF_rgb,
                                          data,
+                                         isContinuous,
                                          isTopLeft);
-    
+    //_images[0]->savePNG("Test.png");
+
     // OpenGL ES 2 only can resize non-power-of-two texture with clamp to edge
     _wrap_s = GL_CLAMP_TO_EDGE;
     _wrap_t = GL_CLAMP_TO_EDGE;

@@ -94,13 +94,15 @@ class SLImage : public SLObject
             void            clearData       ();
             SLbool          allocate        (SLint width,
                                              SLint height,
-                                             SLPixelFormat format);
+                                             SLPixelFormat format,
+                                             SLbool isContinuous = false);
             void            load            (const SLstring filename);
-            SLbool          load            (SLint width,
-                                             SLint height,
+            SLbool          load            (SLint inWidth,
+                                             SLint inHeight,
                                              SLPixelFormat srcFormat,
                                              SLPixelFormat dstFormat,
                                              SLuchar* data,
+                                             SLbool isContinuous,
                                              SLbool isTopLeft);
             void            savePNG         (const SLstring filename);
             SLCol4f         getPixeli       (SLint x, SLint y);
@@ -132,13 +134,19 @@ class SLImage : public SLObject
                                             
     private:
             SLint           bytesPerPixel   (SLPixelFormat pixelFormat);
-            SLint           bytesPerLine    (SLint width, SLPixelFormat pixelFormat);
+            SLint           bytesPerLine    (SLint width, 
+                                             SLPixelFormat pixelFormat,
+                                             SLbool isContinuous = false);
             void            loadJPG         (SLstring filename);
             void            loadPNG         (SLstring filename);
             void            loadBMP         (SLstring filename);
             void            loadTGA         (SLstring filename);
-            void            loadTGAuncompr  (SLstring filename, FILE* fp, sTGA& tga);
-            void            loadTGAcompr    (SLstring filename, FILE* fp, sTGA& tga);
+            void            loadTGAuncompr  (SLstring filename, 
+                                             FILE* fp, 
+                                             sTGA& tga);
+            void            loadTGAcompr    (SLstring filename, 
+                                             FILE* fp, 
+                                             sTGA& tga);
                                             
             SLubyte*        _data;          //!< pointer to the image memory
             SLint           _width;         //!< width of the texture image in pixel

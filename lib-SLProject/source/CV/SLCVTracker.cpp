@@ -15,7 +15,7 @@ using namespace cv;
 using namespace std;
 
 //-----------------------------------------------------------------------------
-//! Create an OpenGL 4x4 matrix from a translation & rotation vector
+//! Create an OpenGL 4x4 matrix from an OpenCV translation & rotation vector
 SLMat4f SLCVTracker::createGLMatrix(const SLCVMat& tVec, const SLCVMat& rVec)
 {
     // 1) convert the passed rotation vector to a rotation matrix

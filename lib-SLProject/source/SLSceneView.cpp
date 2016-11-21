@@ -357,11 +357,6 @@ void SLSceneView::onResize(SLint width, SLint height)
             s->menu2D()->hideAndReleaseRec();
             s->menu2D()->drawBits()->off(SL_DB_HIDDEN);
         }
-
-        // Invalidate calibration if camera input aspect doesn't match output
-        float inputWdivH = s->calibration().imageAspectRatio();
-        if (SL_abs(_scrWdivH-inputWdivH) > 0.001f)
-            s->calibration().clear();
     }
 }
 //-----------------------------------------------------------------------------
@@ -1426,7 +1421,8 @@ SLbool SLSceneView::onCommand(SLCommand cmd)
             else return false;
         case C_noCalibToggle:
             if (s->menu2D())
-            {   s->onLoad(this, (SLCommand)C_sceneEmpty); 
+            {   if (s->currentSceneID() != C_sceneARCalibration)
+                    s->onLoad(this, (SLCommand)C_sceneEmpty); 
                 s->menu2D(s->menuGL());
                 return true;
             }

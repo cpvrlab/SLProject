@@ -343,9 +343,9 @@ enum SLLogVerbosity
 //! OpenCV Calibration state
 enum SLCVCalibState 
 {   CS_uncalibrated,    //!< The camera is not calibrated (no calibration found)
-    CS_calibrateStream, //!< The calibration is running with live vidoe stream
+    CS_calibrateStream, //!< The calibration is running with live video stream
     CS_calibrateGrab,   //!< The calibration is running and an image should be grabbed
-    CS_starcCalculating,     //!< The calibration is being calculated
+    CS_startCalculating,//!< The calibration starts during the next frame
     CS_calibrated       //!< The camera is calibrated 
 };
 //-----------------------------------------------------------------------------

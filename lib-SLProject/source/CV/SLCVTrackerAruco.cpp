@@ -35,9 +35,12 @@ SLCVTrackerAruco::SLCVTrackerAruco(SLNode* node, SLint arucoID) :
 }
 //-----------------------------------------------------------------------------
 //! Tracks the all ArUco markers in the given image for the first sceneview
-bool SLCVTrackerAruco::track(SLCVMat image, 
-                             SLCVCalibration& calib,
-                             SLSceneView* sv)
+/* The tracking of all aruco markers is done only once even if multiple aruco 
+markers are used for different SLNode.
+*/
+SLbool SLCVTrackerAruco::track(SLCVMat image, 
+                               SLCVCalibration& calib,
+                               SLSceneView* sv)
 {
     assert(!image.empty() && "Image is empty");
     assert(!calib.intrinsics().empty() && "Calibration is empty");
@@ -113,15 +116,15 @@ bool SLCVTrackerAruco::track(SLCVMat image,
     return false;
 }
 //-----------------------------------------------------------------------------
-void SLCVTrackerAruco::drawArucoMarkerBoard(int dictionaryId,
-                                            int numMarkersX,
-                                            int numMarkersY, 
-                                            int markerEdgePX, 
-                                            int markerSepaPX,
-                                            string imgName, 
-                                            bool showImage, 
-                                            int borderBits, 
-                                            int marginsSize)
+void SLCVTrackerAruco::drawArucoMarkerBoard(SLint dictionaryId,
+                                            SLint numMarkersX,
+                                            SLint numMarkersY, 
+                                            SLint markerEdgePX, 
+                                            SLint markerSepaPX,
+                                            SLstring imgName, 
+                                            SLbool showImage, 
+                                            SLint borderBits, 
+                                            SLint marginsSize)
 {
     if(marginsSize == 0)
         marginsSize = markerSepaPX;
@@ -135,12 +138,12 @@ void SLCVTrackerAruco::drawArucoMarkerBoard(int dictionaryId,
 
     Ptr<aruco::GridBoard> board = aruco::GridBoard::create(numMarkersX, 
                                                            numMarkersY, 
-                                                           float(markerEdgePX),
-                                                           float(markerSepaPX), 
+                                                           SLfloat(markerEdgePX),
+                                                           SLfloat(markerSepaPX), 
                                                            dictionary);
 
     // show created board
-    Mat boardImage;
+    SLCVMat boardImage;
     board->draw(imageSize, boardImage, marginsSize, borderBits);
 
     if(showImage) 
@@ -151,10 +154,10 @@ void SLCVTrackerAruco::drawArucoMarkerBoard(int dictionaryId,
     imwrite(imgName, boardImage);
 }
 //-----------------------------------------------------------------------------
-void SLCVTrackerAruco::drawArucoMarker(int dictionaryId,
-                                       int minMarkerId,
-                                       int maxMarkerId,
-                                       int markerSizePX)
+void SLCVTrackerAruco::drawArucoMarker(SLint dictionaryId,
+                                       SLint minMarkerId,
+                                       SLint maxMarkerId,
+                                       SLint markerSizePX)
 {
     assert(dictionaryId > 0);
     assert(minMarkerId > 0);
@@ -166,11 +169,11 @@ void SLCVTrackerAruco::drawArucoMarker(int dictionaryId,
     if (maxMarkerId > dict->bytesList.rows)
         maxMarkerId = dict->bytesList.rows;
 
-    Mat markerImg;
+    SLCVMat markerImg;
 
-    for (int i=minMarkerId; i<maxMarkerId; ++i)
+    for (SLint i=minMarkerId; i<maxMarkerId; ++i)
     {   drawMarker(dict, i, markerSizePX, markerImg, 1);
-        char name[255];
+        SLchar name[255];
         sprintf(name, 
                 "ArucoMarker_Dict%d_%dpx_Id%d.png", 
                 dictionaryId, 

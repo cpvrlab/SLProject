@@ -198,6 +198,11 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
     _currentSceneID = (SL::noTestIsRunning()) ? sceneName :
                        SL::singleTestIsRunning() ? SL::testScene : SL::testSceneAll;
 
+    // Reset calibration process at scene change
+    if (_calibration.state() != CS_calibrated && 
+        _calibration.state() != CS_uncalibrated)
+        _calibration.state(CS_uncalibrated);
+
     if (_currentSceneID == C_sceneEmpty) //..........................................
     {   
         name("No Scene loaded.");
@@ -2013,6 +2018,8 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         sv->camera(cam1);
         sv->waitEvents(true);
 
+        menu2D(btnNoCalib());
+
         if (_calibration.state() == CS_uncalibrated)
             _calibration.setCalibrationState();
     }
@@ -2021,7 +2028,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
     {
         // Set scene name and info string
         name("AR Aruco Marker Tracking");
-        info(sv, "Augmented Reality Aruco Marker Tracking.");
+        info(sv, "Hold Aruco Marker 0 and/or 1 into the field of view of the camera.");
         
         // Material
         SLMaterial* yellow = new SLMaterial("mY", SLCol4f::YELLOW);
