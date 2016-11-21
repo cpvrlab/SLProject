@@ -37,8 +37,8 @@ bool ARChessboardTracker::init()
     fs["edgeLengthM"] >> _edgeLengthM;
 
     //generate vectors for the points on the chessboard
-    for (int i = 0; i < _boardSize.width; i++)
-        for (int j = 0; j < _boardSize.height; j++)
+    for (int i = 0; i < _boardSize.height; i++)
+        for (int j = 0; j < _boardSize.width; j++)
             _boardPoints.push_back(Point3d(double(i * _edgeLengthM), 
                                            double(j * _edgeLengthM), 
                                            0.0));

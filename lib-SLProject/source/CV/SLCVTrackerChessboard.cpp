@@ -18,10 +18,10 @@ SLCVTrackerChessboard::SLCVTrackerChessboard(SLNode* node) : SLCVTracker(node)
     SLCVCalibration& calib = SLScene::current->calibration();
 
     //generate vectors for the points on the chessboard
-    for (int w = 0; w < calib.boardSize().width; w++)
-        for (int h = 0; h < calib.boardSize().height; h++)
-            _boardPoints.push_back(Point3d(double(w * calib.boardSquareM()), 
-                                           double(h * calib.boardSquareM()), 
+    for (int y = 0; y < calib.boardSize().height; y++)
+        for (int x = 0; x < calib.boardSize().width; x++)
+            _boardPoints.push_back(Point3d(double(y * calib.boardSquareM()),
+                                           double(x * calib.boardSquareM()),
                                            0.0));
 }
 //-----------------------------------------------------------------------------
