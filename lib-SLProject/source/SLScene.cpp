@@ -473,8 +473,8 @@ bool SLScene::onUpdate()
                 _videoTexture.copyVideoImage(undistorted.cols,
                                              undistorted.rows, 
                                              SLCVCapture::format, 
-                                             SLCVCapture::lastFrame.data,
-                                             SLCVCapture::lastFrame.isContinuous(),
+                                             undistorted.data,
+                                             undistorted.isContinuous(),
                                              true);
             }
             
