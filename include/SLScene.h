@@ -140,7 +140,7 @@ class SLScene: public SLObject
                                                  SLPixelFormat srcPixelFormat,
                                                  SLuchar* data,
                                                  SLbool isContinuous,
-                                                 SLbool isTopLeft = false);
+                                                 SLbool isTopLeft);
 
      static SLScene*        current;            //!< global static scene pointer
 

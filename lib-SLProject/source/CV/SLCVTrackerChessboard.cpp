@@ -49,9 +49,8 @@ bool SLCVTrackerChessboard::track(cv::Mat image,
 
     if(_isVisible)
     {
-        cv::Mat rVec, tVec;
-
-        //find the camera extrinsic parameters
+        //find the camera extrinsic parameters (rVec & tVec)
+        SLCVMat rVec, tVec;
         bool solved = solvePnP(SLCVMat(_boardPoints), 
                                SLCVMat(corners), 
                                calib.intrinsics(), 
@@ -61,12 +60,15 @@ bool SLCVTrackerChessboard::track(cv::Mat image,
                                false, 
                                cv::SOLVEPNP_ITERATIVE);
         if (solved)
-        {   _viewMat = createGLMatrix(tVec, rVec);
+        {
+            _objectViewMat = createGLMatrix(tVec, rVec);
 
+            // set the object matrix depending if the
+            // tracked node is the active camera or not
             if (_node == sv->camera())
-                _node->om(_viewMat.inverse());
+                _node->om(_objectViewMat.inverse());
             else
-            {   _node->om(calcObjectMatrix(sv->camera()->om(),_viewMat));
+            {   _node->om(calcObjectMatrix(sv->camera()->om(), _objectViewMat));
                 _node->setDrawBitsRec(SL_DB_HIDDEN, false);
             }
             return true;

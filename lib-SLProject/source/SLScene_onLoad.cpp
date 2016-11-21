@@ -2046,8 +2046,8 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         scene->addChild(cam1);
 
         // Create a light source node
-        SLLightSpot* light1 = new SLLightSpot(0.05f);
-        light1->translation(0.2f,0.2f,0.2f);
+        SLLightSpot* light1 = new SLLightSpot(0.02f);
+        light1->translation(0.12f,0.12f,0.12f);
         light1->name("light node");
         scene->addChild(light1);
 
@@ -2070,6 +2070,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         SLNode* axisNode2 = new SLNode(new SLCoordAxis(),"Axis Node 2");
         axisNode2->scale(0.1f);
         boxNode2->addChild(axisNode2);
+        boxNode2->setDrawBitsRec(SL_DB_HIDDEN, true);
         boxNode2->setDrawBitsRec(SL_DB_WIREMESH, true);
         boxNode2->setDrawBitsRec(SL_DB_CULLOFF, true);
         scene->addChild(boxNode2);

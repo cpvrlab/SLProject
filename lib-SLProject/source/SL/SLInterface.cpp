@@ -422,11 +422,19 @@ string slGetWindowTitle(int sceneViewIndex)
 An application can grab the live video image with OpenCV via slGrabCopyVideoImage
 or with another OS dependent framework.
 */
-void slCopyVideoImage(int width, int height,
+void slCopyVideoImage(SLint width,
+                      SLint height,
                       SLPixelFormat format,
-                      SLuchar* data, bool isTopLeft)
+                      SLuchar* data,
+                      SLbool isContinuous,
+                      SLbool isTopLeft)
 {
-    SLScene::current->copyVideoImage(width, height, format, data, isTopLeft);
+    SLCVCapture::loadIntoLastFrame(width,
+                                   height,
+                                   format,
+                                   data,
+                                   isContinuous,
+                                   isTopLeft);
 }
 //-----------------------------------------------------------------------------
 /*! Global function returns true if SL wants a live video images

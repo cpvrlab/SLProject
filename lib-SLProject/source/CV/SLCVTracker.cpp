@@ -61,7 +61,7 @@ We get this Transformation from openCVs solvePNP function.
 
 w       c    -1
  T  = ( T )    = Transformation of camera with respect to world coord.-system.
-  c       w        Inversion exchanges sub- and superscript.
+  c       w      Inversion exchanges sub- and superscript.
 This is also called the view matrix.
 
 We can combine two or more homogenious transformations to a new one if the

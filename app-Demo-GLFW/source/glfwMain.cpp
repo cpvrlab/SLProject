@@ -59,7 +59,7 @@ SLbool onPaint()
 {
     // If live video image is requested grab it and copy it
     if (slUsesVideoImage())
-        SLCVCapture::grabAndCopyToSL();
+        SLCVCapture::grabCropAndCopyToSL();
 
     //////////////////////////////////////////////////
     bool viewNeedsRepaint = slUpdateAndPaint(svIndex);

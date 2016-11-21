@@ -74,14 +74,17 @@ SLbool SLCVTrackerAruco::track(SLCVMat image,
 
         if(arucoIDs.size() > 0)
         {   cout << "Aruco IdS: " << arucoIDs.size() << " : ";
-            SLCVVPoint3d rVecs, tVecs;
 
+            //find the camera extrinsic parameters (rVec & tVec)
+            SLCVVPoint3d rVecs, tVecs;
             aruco::estimatePoseSingleMarkers(corners, 
                                              params.edgeLength, 
                                              calib.intrinsics(), 
                                              calib.distortion(), 
-                                             rVecs, tVecs);
+                                             rVecs,
+                                             tVecs);
 
+            // Get the object view matrix for all aruco markers
             for(size_t i=0; i < arucoIDs.size(); ++i)
             {   cout << arucoIDs[i] << ",";
                 SLMat4f ovm = createGLMatrix(cv::Mat(tVecs[i]), cv::Mat(rVecs[i]));
@@ -97,10 +100,14 @@ SLbool SLCVTrackerAruco::track(SLCVMat image,
         // Find the marker with the matching id
         for(size_t i=0; i < arucoIDs.size(); ++i)
         {   if (arucoIDs[i] == _arucoID)
-            {   if (_node == sv->camera())
+            {
+                // set the object matrix depending if the
+                // tracked node is the active camera or not
+                if (_node == sv->camera())
                     _node->om(objectViewMats[i].inverse());
                 else
-                {   _node->om(calcObjectMatrix(sv->camera()->om(),_viewMat));
+                {   _node->om(calcObjectMatrix(sv->camera()->om(),
+                                               objectViewMats[i]));
                     _node->setDrawBitsRec(SL_DB_HIDDEN, false);
                 }
             }

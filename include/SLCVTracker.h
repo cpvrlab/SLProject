@@ -13,8 +13,9 @@
 
 #include <stdafx.h>
 #include <SLNode.h>
-#include <SLCVCalibration.h>
 #include <SLSceneView.h>
+#include <SLCV.h>
+#include <SLCVCalibration.h>
 #include <opencv2/aruco.hpp>
 
 //-----------------------------------------------------------------------------
@@ -43,9 +44,9 @@ class SLCVTracker
                                      const SLMat4f& objectViewMat);
 
     protected:
-        SLNode*     _node;          //<! Connected node
-        SLbool      _isVisible;     //<! Flag if marker is visible
-        SLMat4f     _viewMat;       //!< view transformation matrix
+        SLNode*     _node;          //!< Connected node
+        SLbool      _isVisible;     //!< Flag if marker is visible
+        SLMat4f     _objectViewMat; //!< view transformation matrix
 };
 //-----------------------------------------------------------------------------
 #endif

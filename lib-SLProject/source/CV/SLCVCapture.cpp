@@ -50,8 +50,10 @@ SLVec2i SLCVCapture::open(SLint deviceNum)
     return SLVec2i::ZERO;
 }
 //-----------------------------------------------------------------------------
-//! Grabs a new frame from the capture device and copies it to the SLScene
-void SLCVCapture::grabAndCopyToSL()
+/*! Grabs a new frame from the OpenCV capture device, crops the frame if
+neccecary and copies it to the SLScene video texture.
+*/
+void SLCVCapture::grabCropAndCopyToSL()
 {
     SLScene* s = SLScene::current;
 
@@ -61,48 +63,7 @@ void SLCVCapture::grabAndCopyToSL()
            if (!_captureDevice.read(lastFrame))
                 return;
 
-            // Set the according OpenGL format
-            switch (lastFrame.type())
-            {   case CV_8UC1: format = PF_luminance; break;
-                case CV_8UC3: format = PF_bgr; break;
-                case CV_8UC4: format = PF_bgra; break;
-                default: SL_EXIT_MSG("OpenCV image format not supported");
-            }
-
-            // Crop input image if it doesn't match the screens aspect ratio
-            if (s->usesVideoAsBckgrnd())
-            {
-                SLint width = 0;    // width in pixels of the destination image
-                SLint height = 0;   // height in pixels of the destination image
-                SLint cropH = 0;    // crop height in pixels of the source image 
-                SLint cropW = 0;    // crop width in pixels of the source image 
-
-                SLfloat inWdivH = (SLfloat)lastFrame.cols / (SLfloat)lastFrame.rows;
-                SLfloat outWdivH = s->sceneViews()[0]->scrWdivH();
-
-                // Check for cropping
-                if (SL_abs(inWdivH - outWdivH) > 0.01f)
-                {   if (inWdivH > outWdivH) // crop input image left & right 
-                    {   width = (SLint)((SLfloat)lastFrame.rows * outWdivH);
-                        height = lastFrame.rows;
-                        cropW = (SLint)((SLfloat)(lastFrame.cols - width) * 0.5f);    
-                    } else // crop input image at top & bottom
-                    {   width = lastFrame.cols;
-                        height = (SLint)((SLfloat)lastFrame.cols / outWdivH);
-                        cropH = (SLint)((SLfloat)(lastFrame.rows - height) * 0.5f);
-                    }
-                    lastFrame(SLCVRect(cropW, cropH, width, height)).copyTo(lastFrame);
-                    //imwrite("AfterCropping.bmp", lastFrame);
-                }
-            }
-
-            // Use the datastart pointer to access the region of interest
-            s->copyVideoImage(lastFrame.cols,
-                              lastFrame.rows,
-                              format,
-                              lastFrame.data,
-                              lastFrame.isContinuous(),
-                              true);
+           cropAndCopyToSL();
         }
         else
         {   static bool logOnce = true;
@@ -120,13 +81,89 @@ void SLCVCapture::grabAndCopyToSL()
     }
 }
 //-----------------------------------------------------------------------------
-//! Copies the last frame to the SLScene
-void SLCVCapture::copyFrameToSL()
+//! Crops the last captured frame and copies it to the SLScene video texture
+void SLCVCapture::cropAndCopyToSL()
 {
-    SLScene::current->copyVideoImage(lastFrame.cols,
-                                     lastFrame.rows,
-                                     format,
-                                     lastFrame.data,
-                                     true);
+    SLScene* s = SLScene::current;
+
+    try
+    {   // Set the according OpenGL format
+        switch (lastFrame.type())
+        {   case CV_8UC1: format = PF_luminance; break;
+            case CV_8UC3: format = PF_bgr; break;
+            case CV_8UC4: format = PF_bgra; break;
+            default: SL_EXIT_MSG("OpenCV image format not supported");
+        }
+
+        // Crop input image if it doesn't match the screens aspect ratio
+        if (s->usesVideoAsBckgrnd())
+        {
+            SLint width = 0;    // width in pixels of the destination image
+            SLint height = 0;   // height in pixels of the destination image
+            SLint cropH = 0;    // crop height in pixels of the source image
+            SLint cropW = 0;    // crop width in pixels of the source image
+
+            SLfloat inWdivH = (SLfloat)lastFrame.cols / (SLfloat)lastFrame.rows;
+            SLfloat outWdivH = s->sceneViews()[0]->scrWdivH();
+
+            // Check for cropping
+            if (SL_abs(inWdivH - outWdivH) > 0.01f)
+            {   if (inWdivH > outWdivH) // crop input image left & right
+                {   width = (SLint)((SLfloat)lastFrame.rows * outWdivH);
+                    height = lastFrame.rows;
+                    cropW = (SLint)((SLfloat)(lastFrame.cols - width) * 0.5f);
+                } else // crop input image at top & bottom
+                {   width = lastFrame.cols;
+                    height = (SLint)((SLfloat)lastFrame.cols / outWdivH);
+                    cropH = (SLint)((SLfloat)(lastFrame.rows - height) * 0.5f);
+                }
+                lastFrame(SLCVRect(cropW, cropH, width, height)).copyTo(lastFrame);
+                //imwrite("AfterCropping.bmp", lastFrame);
+            }
+        }
+
+        // Use the datastart pointer to access the region of interest
+        s->copyVideoImage(lastFrame.cols,
+                          lastFrame.rows,
+                          format,
+                          lastFrame.data,
+                          lastFrame.isContinuous(),
+                          true);
+    }
+    catch (exception e)
+    {
+        SL_LOG("Exception during OpenCV video capture creation\n");
+    }
 }
 //-----------------------------------------------------------------------------
+void SLCVCapture::loadIntoLastFrame(SLint width,
+                                    SLint height,
+                                    SLPixelFormat format,
+                                    SLuchar* data,
+                                    SLbool isContinuous,
+                                    SLbool isTopLeft)
+{
+    // Set the according OpenCV format
+    SLint cvType = 0;
+    SLint bpp = 0;
+    switch (format)
+    {   case PF_luminance:  cvType = CV_8UC1; bpp = 1; break;
+        case PF_bgr:        cvType = CV_8UC3; bpp = 3;  break;
+        case PF_rgb:        cvType = CV_8UC3; bpp = 3;  break;
+        case PF_bgra:       cvType = CV_8UC4; bpp = 4;  break;
+        case PF_rgba:       cvType = CV_8UC4; bpp = 4;  break;
+        default: SL_EXIT_MSG("Pixel format not supported");
+    }
+
+    // calculate padding NO. of stride bytes (= step in OpenCV terminology)
+    size_t stride = 0;
+    if (!isContinuous)
+    {
+        SLint bitsPerPixel = bpp * 8;
+        SLint bpl = ((width * bitsPerPixel + 31) / 32) * 4;
+        stride = bpl - width * bpp;
+    }
+
+    SLCVCapture::lastFrame = SLCVMat(width, height, cvType, (void*)data, stride);
+}
+//------------------------------------------------------------------------------
