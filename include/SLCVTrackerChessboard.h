@@ -28,7 +28,7 @@ class SLCVTrackerChessboard : public SLCVTracker
                                          SLSceneView* sv);
     private:
         SLfloat         _edgeLengthM;   //<! Length of chessboard square in meters
-        SLCVVPoint3d    _boardPoints;   //<! chessboard corners in world coordinate system
+        SLCVVPoint3f    _boardPoints3D; //<! chessboard corners in world coordinate system
         SLCVSize        _boardSize;     //<! NO. of inner chessboard corners
 };
 //-----------------------------------------------------------------------------

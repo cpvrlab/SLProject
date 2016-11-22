@@ -2018,10 +2018,10 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         sv->camera(cam1);
         sv->waitEvents(false);
 
-        menu2D(btnNoCalib());
-
         if (_calibration.state() == CS_uncalibrated)
+        {   menu2D(btnNoCalib());
             _calibration.setCalibrationState();
+        }
     }
     else
     if (_currentSceneID == C_sceneARTrackAruco)

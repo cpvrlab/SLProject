@@ -36,12 +36,7 @@ bool ARChessboardTracker::init()
     fs["boardHeight"] >> _boardSize.height;
     fs["edgeLengthM"] >> _edgeLengthM;
 
-    //generate vectors for the points on the chessboard
-    for (int i = 0; i < _boardSize.height; i++)
-        for (int j = 0; j < _boardSize.width; j++)
-            _boardPoints.push_back(Point3d(double(i * _edgeLengthM), 
-                                           double(j * _edgeLengthM), 
-                                           0.0));
+    SLCVCalibration::calcBoardCorners3D(_boardSize, _edgeLengthM, _boardPoints3D);
     return true;
 }
 //-----------------------------------------------------------------------------
@@ -69,7 +64,7 @@ bool ARChessboardTracker::track(cv::Mat image,
             cv::Mat rVec, tVec;
 
             //find the camera extrinsic parameters
-            bool result = solvePnP(Mat(_boardPoints), 
+            bool result = solvePnP(Mat(_boardPoints3D), 
                                    Mat(corners), 
                                    calib.intrinsics(), 
                                    calib.distortion(), 

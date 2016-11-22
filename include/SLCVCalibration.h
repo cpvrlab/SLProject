@@ -31,6 +31,10 @@ The different calibration states are handled within SLScene::onUpdate:
 \nCS_calibrateGrab:    The calibration is running and an image should be grabbed
 \nCS_startCalculating: The calibration starts during the next frame
 \nCS_calibrated:       The camera is calibrated
+\n
+The chessboard pattern can be printed from the CalibrationChessboard_8x5_A4.pdf
+in the folder _data/calibration. It is important that one side has an odd number
+of inner corners. Like this it is unambiguous and can be rotated in any direction.
 */
 class SLCVCalibration
 {
@@ -47,6 +51,9 @@ public:
                                          bool drawCorners = true);
 
     static SLstring defaultPath;        //!< Default path for calibration files
+    static void     calcBoardCorners3D  (SLCVSize boardSize, 
+                                         SLfloat squareSize, 
+                                         SLCVVPoint3f& objectPoints3D);
 
     // Setters
     void            state               (SLCVCalibState s) {_state = s;}

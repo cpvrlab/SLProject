@@ -18,15 +18,19 @@ SLCVTrackerChessboard::SLCVTrackerChessboard(SLNode* node) : SLCVTracker(node)
     SLCVCalibration& calib = SLScene::current->calibration();
 
     //generate vectors for the points on the chessboard
-    for (int y = 0; y < calib.boardSize().height; y++)
-        for (int x = 0; x < calib.boardSize().width; x++)
-            _boardPoints.push_back(Point3d(double(y * calib.boardSquareM()),
-                                           double(x * calib.boardSquareM()),
-                                           0.0));
+    //for (int y = 0; y < calib.boardSize().height; y++)
+    //    for (int x = 0; x < calib.boardSize().width; x++)
+    //        _boardPoints3D.push_back(Point3d(double(y * calib.boardSquareM()),
+    //                                         double(x * calib.boardSquareM()),
+    //                                         0.0));
+
+    SLCVCalibration::calcBoardCorners3D(calib.boardSize(),
+                                        calib.boardSquareM(),
+                                        _boardPoints3D);
 }
 //-----------------------------------------------------------------------------
 //! Tracks the chessboard image in the given image for the first sceneview
-bool SLCVTrackerChessboard::track(cv::Mat image, 
+bool SLCVTrackerChessboard::track(SLCVMat image, 
                                   SLCVCalibration& calib,
                                   SLSceneView* sv)
 {
@@ -35,24 +39,22 @@ bool SLCVTrackerChessboard::track(cv::Mat image,
     assert(_node && "Node pointer is null");
     assert(sv && "No sceneview pointer passed");
     assert(sv->camera() && "No active camera in sceneview");
-    
-    SLCVCalibration& c= SLScene::current->calibration();
 
     //detect chessboard corners
     SLint flags = CALIB_CB_ADAPTIVE_THRESH | 
                   CALIB_CB_NORMALIZE_IMAGE | 
                   CALIB_CB_FAST_CHECK;
 
-    vector<cv::Point2f> corners;
+    SLCVVPoint2f corners2D;
 
-    _isVisible = cv::findChessboardCorners(image, c.boardSize(), corners, flags);
+    _isVisible = cv::findChessboardCorners(image, calib.boardSize(), corners2D, flags);
 
     if(_isVisible)
     {
         //find the camera extrinsic parameters (rVec & tVec)
         SLCVMat rVec, tVec;
-        bool solved = solvePnP(SLCVMat(_boardPoints), 
-                               SLCVMat(corners), 
+        bool solved = solvePnP(SLCVMat(_boardPoints3D), 
+                               SLCVMat(corners2D), 
                                calib.intrinsics(), 
                                calib.distortion(), 
                                rVec, 

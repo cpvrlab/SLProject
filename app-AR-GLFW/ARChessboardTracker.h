@@ -29,9 +29,9 @@ class ARChessboardTracker : public ARTracker
         void        unloadSGObjects     () override;
 
     private:
-        vector<cv::Point3d> _boardPoints;   //<! chessboard corners in world coordinate system
-        cv::Size            _boardSize;     //<! NO. of inner chessboard corners
-        SLfloat             _edgeLengthM;   //<! Length of chessboard square
+        SLCVVPoint3f    _boardPoints3D; //<! chessboard corners in world coordinate system
+        SLCVSize        _boardSize;     //<! NO. of inner chessboard corners
+        SLfloat         _edgeLengthM;   //<! Length of chessboard square
 };
 //-----------------------------------------------------------------------------
 

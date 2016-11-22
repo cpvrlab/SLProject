@@ -108,14 +108,18 @@ void SLCVCalibration::calcCameraFOV()
 }
 //-----------------------------------------------------------------------------
 //! Calculates the 3D positions of the chessboard corners
-static void calcBoardCornerPositions(Size boardSize, 
-                                     SLfloat squareSize, 
-                                     SLCVVPoint3f& corners)
+void SLCVCalibration::calcBoardCorners3D(SLCVSize boardSize, 
+                                         SLfloat squareSize, 
+                                         SLCVVPoint3f& objectPoints3D)
 {
-    corners.clear();
-    for(int i = 0; i < boardSize.height; ++i)
-        for(int j = 0; j < boardSize.width; ++j)
-            corners.push_back(SLCVPoint3f(j*squareSize, i*squareSize, 0));
+    // Because OpenCV image coords are top-left we define the according
+    // 3D coords also top-left.
+    objectPoints3D.clear();
+    for(SLint y = boardSize.height-1; y >= 0 ; --y)
+        for(SLint x = 0; x < boardSize.width; ++x)
+            objectPoints3D.push_back(SLCVPoint3f(x*squareSize, 
+                                                 y*squareSize, 
+                                                 0));
 }
 //-----------------------------------------------------------------------------
 //! Calculates the reprojection error of the calibration
@@ -177,9 +181,9 @@ static bool calcCalibration(SLCVSize& imageSize,
 
     SLCVVVPoint3f objectPoints(1);
 
-    calcBoardCornerPositions(boardSize, 
-                             squareSize, 
-                             objectPoints[0]);
+    SLCVCalibration::calcBoardCorners3D(boardSize, 
+                                        squareSize, 
+                                        objectPoints[0]);
 
     objectPoints.resize(imagePoints.size(),objectPoints[0]);
 
@@ -262,15 +266,15 @@ bool SLCVCalibration::findChessboard(SLCVMat image,
                                      bool drawCorners)
 {   
     _imageSize = image.size();
-    SLCVVPoint2f corners;
+    SLCVVPoint2f corners2D;
     SLint flags = CALIB_CB_ADAPTIVE_THRESH | 
                   CALIB_CB_NORMALIZE_IMAGE | 
                   CALIB_CB_FAST_CHECK;
 
-    bool found = cv::findChessboardCorners(image, _boardSize, corners, flags);
+    bool found = cv::findChessboardCorners(image, _boardSize, corners2D, flags);
 
     if(found && drawCorners)
-        cv::drawChessboardCorners(image, _boardSize, Mat(corners), found);
+        cv::drawChessboardCorners(image, _boardSize, SLCVMat(corners2D), found);
 
     if (found && _state == CS_calibrateGrab)
     {
@@ -278,7 +282,8 @@ bool SLCVCalibration::findChessboard(SLCVMat image,
         cv::cvtColor(image, imageGray, COLOR_BGR2GRAY);
         
         cv::cornerSubPix(imageGray, 
-                         corners, SLCVSize(11,11),
+                         corners2D, 
+                         SLCVSize(11,11),
                          SLCVSize(-1,-1), 
                          TermCriteria(TermCriteria::EPS+TermCriteria::COUNT, 
                          30, 
@@ -290,7 +295,7 @@ bool SLCVCalibration::findChessboard(SLCVMat image,
         //cv::imwrite(ss.str(), image);
 
         //add detected points
-        _imagePoints.push_back(corners);
+        _imagePoints.push_back(corners2D);
         _numCaptured++;
 
         //simulate a snapshot
