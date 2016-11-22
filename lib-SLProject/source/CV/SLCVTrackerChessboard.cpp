@@ -16,14 +16,6 @@ using namespace cv;
 SLCVTrackerChessboard::SLCVTrackerChessboard(SLNode* node) : SLCVTracker(node)
 {
     SLCVCalibration& calib = SLScene::current->calibration();
-
-    //generate vectors for the points on the chessboard
-    //for (int y = 0; y < calib.boardSize().height; y++)
-    //    for (int x = 0; x < calib.boardSize().width; x++)
-    //        _boardPoints3D.push_back(Point3d(double(y * calib.boardSquareM()),
-    //                                         double(x * calib.boardSquareM()),
-    //                                         0.0));
-
     SLCVCalibration::calcBoardCorners3D(calib.boardSize(),
                                         calib.boardSquareM(),
                                         _boardPoints3D);
