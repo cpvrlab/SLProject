@@ -320,7 +320,7 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
             return;
         }
         
-        slCopyVideoImage(width, height, PF_bgra, data, true);
+        slCopyVideoImage(width, height, PF_bgra, data, true, true);
         
         m_lastVideoImageIsConsumed = false;
     }

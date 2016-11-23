@@ -407,6 +407,8 @@
 		41FC947D19F7D6410026919B /* SLGLShader.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 41FC947619F7D6410026919B /* SLGLShader.cpp */; };
 		41FC947F19F7D6410026919B /* SLGLState.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 41FC947819F7D6410026919B /* SLGLState.cpp */; };
 		41FC948019F7D6410026919B /* SLGLTexture.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 41FC947919F7D6410026919B /* SLGLTexture.cpp */; };
+		CF3F571A1DE5906C00928DDD /* SLCVTracker.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CF3F57191DE5906C00928DDD /* SLCVTracker.cpp */; };
+		CF3F571D1DE592F200928DDD /* PerVrtBlinnColorAttrib.vert in Resources */ = {isa = PBXBuildFile; fileRef = CF3F571C1DE592F200928DDD /* PerVrtBlinnColorAttrib.vert */; };
 		DE38C72019EFBD440069B8BB /* cursor.tga in Resources */ = {isa = PBXBuildFile; fileRef = DE38C71F19EFBD440069B8BB /* cursor.tga */; };
 		DE38C74819EFCB420069B8BB /* SLGrid.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DE38C74719EFCB420069B8BB /* SLGrid.cpp */; };
 /* End PBXBuildFile section */
@@ -1098,6 +1100,8 @@
 		41FC947819F7D6410026919B /* SLGLState.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SLGLState.cpp; path = "../lib-SLProject/source/GL/SLGLState.cpp"; sourceTree = SOURCE_ROOT; };
 		41FC947919F7D6410026919B /* SLGLTexture.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SLGLTexture.cpp; path = "../lib-SLProject/source/GL/SLGLTexture.cpp"; sourceTree = SOURCE_ROOT; };
 		41FE0B041959C9DA00486424 /* lib-SLExternal.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = "lib-SLExternal.xcodeproj"; path = "../lib-SLExternal/lib-SLExternal.xcodeproj"; sourceTree = "<group>"; };
+		CF3F57191DE5906C00928DDD /* SLCVTracker.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = SLCVTracker.cpp; path = "../lib-SLProject/source/CV/SLCVTracker.cpp"; sourceTree = SOURCE_ROOT; };
+		CF3F571C1DE592F200928DDD /* PerVrtBlinnColorAttrib.vert */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = PerVrtBlinnColorAttrib.vert; path = ../_data/shaders/PerVrtBlinnColorAttrib.vert; sourceTree = "<group>"; };
 		DE38C71F19EFBD440069B8BB /* cursor.tga */ = {isa = PBXFileReference; lastKnownFileType = file; name = cursor.tga; path = ../_data/images/textures/cursor.tga; sourceTree = "<group>"; };
 		DE38C74619EFCA5B0069B8BB /* SLGrid.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SLGrid.h; path = ../include/SLGrid.h; sourceTree = SOURCE_ROOT; };
 		DE38C74719EFCB420069B8BB /* SLGrid.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SLGrid.cpp; path = "../lib-SLProject/source/SLGrid.cpp"; sourceTree = SOURCE_ROOT; };
@@ -1144,6 +1148,7 @@
 				414333811DE03DAD0027E1C3 /* SLCVTrackerChessboard.h */,
 				414333751DE03D590027E1C3 /* SLCVCalibration.cpp */,
 				414333761DE03D590027E1C3 /* SLCVCapture.cpp */,
+				CF3F57191DE5906C00928DDD /* SLCVTracker.cpp */,
 				414333771DE03D590027E1C3 /* SLCVTrackerAruco.cpp */,
 				414333781DE03D590027E1C3 /* SLCVTrackerChessboard.cpp */,
 			);
@@ -1268,6 +1273,7 @@
 				418BF4271B8B0D4F0049E387 /* PerPixBlinnTexSkinned.vert */,
 				418BF4281B8B0D4F0049E387 /* PerVrtBlinn.frag */,
 				418BF4291B8B0D4F0049E387 /* PerVrtBlinn.vert */,
+				CF3F571C1DE592F200928DDD /* PerVrtBlinnColorAttrib.vert */,
 				418BF42A1B8B0D4F0049E387 /* PerVrtBlinnSkinned.vert */,
 				418BF42B1B8B0D4F0049E387 /* PerVrtBlinnTex.frag */,
 				418BF42C1B8B0D4F0049E387 /* PerVrtBlinnTex.vert */,
@@ -2029,7 +2035,12 @@
 		419BCD2E14865C0800D576F1 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastUpgradeCheck = 0710;
+				LastUpgradeCheck = 0810;
+				TargetAttributes = {
+					419BCD3614865C0800D576F1 = {
+						DevelopmentTeam = 7T728A9HD4;
+					};
+				};
 			};
 			buildConfigurationList = 419BCD3114865C0800D576F1 /* Build configuration list for PBXProject "app-Demo-iOS" */;
 			compatibilityVersion = "Xcode 3.2";
@@ -2122,6 +2133,7 @@
 				417E0ECC148A70DE0015B5B0 /* MuttenzerBox-Y0512_C.png in Resources */,
 				418BF4541B8B0D500049E387 /* PerPixBlinnTexSkinned.vert in Resources */,
 				417E0ECD148A70DE0015B5B0 /* MuttenzerBox-Z0512_C.png in Resources */,
+				CF3F571D1DE592F200928DDD /* PerVrtBlinnColorAttrib.vert in Resources */,
 				DE38C72019EFBD440069B8BB /* cursor.tga in Resources */,
 				417E0ECE148A70DE0015B5B0 /* MuttenzerBox+X0512_C.png in Resources */,
 				417E0ECF148A70DE0015B5B0 /* MuttenzerBox+Y0512_C.png in Resources */,
@@ -2403,6 +2415,7 @@
 				419F43441959C072009D9E2E /* unzip.c in Sources */,
 				414ABC59148A63370061231A /* jfdctfst.c in Sources */,
 				414ABC5A148A63370061231A /* jfdctint.c in Sources */,
+				CF3F571A1DE5906C00928DDD /* SLCVTracker.cpp in Sources */,
 				41A355051A7E63E100791841 /* SLKeyframe.cpp in Sources */,
 				419808B71959BA670048085E /* 3DSLoader.cpp in Sources */,
 				419808E91959BA670048085E /* RemoveComments.cpp in Sources */,
@@ -2517,7 +2530,9 @@
 				CLANG_WARN_CONSTANT_CONVERSION = YES;
 				CLANG_WARN_EMPTY_BODY = YES;
 				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
 				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
@@ -2525,6 +2540,7 @@
 				COPY_PHASE_STRIP = NO;
 				CPP11 = "";
 				CPP11Lib = "";
+				ENABLE_BITCODE = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu99;
@@ -2582,7 +2598,7 @@
 					"lib-SLExternal",
 				);
 				INFOPLIST_FILE = "SceneLib-Info.plist";
-				IPHONEOS_DEPLOYMENT_TARGET = 5.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				ONLY_ACTIVE_ARCH = YES;
 				PRODUCT_NAME = SceneLib;
 				PROVISIONING_PROFILE = "";
@@ -2601,7 +2617,9 @@
 				CLANG_WARN_CONSTANT_CONVERSION = YES;
 				CLANG_WARN_EMPTY_BODY = YES;
 				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
 				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
@@ -2609,6 +2627,7 @@
 				COPY_PHASE_STRIP = YES;
 				CPP11 = "";
 				CPP11Lib = "";
+				ENABLE_BITCODE = NO;
 				ENABLE_OPENMP_SUPPORT = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu99;
@@ -2661,7 +2680,7 @@
 					"lib-SLExternal",
 				);
 				INFOPLIST_FILE = "SceneLib-Info.plist";
-				IPHONEOS_DEPLOYMENT_TARGET = 5.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				OTHER_CFLAGS = "-DNS_BLOCK_ASSERTIONS=1";
 				PRODUCT_NAME = SceneLib;
 				PROVISIONING_PROFILE = "";
@@ -2676,9 +2695,10 @@
 			buildSettings = {
 				CLANG_CXX_LANGUAGE_STANDARD = "c++0x";
 				CLANG_CXX_LIBRARY = "libc++";
+				DEVELOPMENT_TEAM = 7T728A9HD4;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
-					/Users/hudrima1/Documents/GitHub/SLProject/_lib/prebuilt/OpenCV/ios,
+					../_lib/prebuilt/OpenCV/ios,
 				);
 				"GCC_C_LANGUAGE_STANDARD[arch=*]" = gnu99;
 				GCC_OPTIMIZATION_LEVEL = s;
@@ -2697,7 +2717,7 @@
 					"../lib-SLExternal/**",
 				);
 				INFOPLIST_FILE = "SceneLib-Info.plist";
-				IPHONEOS_DEPLOYMENT_TARGET = 5.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				IPHONE_OPTIMIZE_OPTIONS = "-skip-PNGs";
 				PRODUCT_BUNDLE_IDENTIFIER = ch.bfh.ti.slproject;
 				PRODUCT_NAME = SLProject;
@@ -2711,10 +2731,11 @@
 			buildSettings = {
 				CLANG_CXX_LANGUAGE_STANDARD = "c++0x";
 				CLANG_CXX_LIBRARY = "libc++";
+				DEVELOPMENT_TEAM = 7T728A9HD4;
 				ENABLE_OPENMP_SUPPORT = NO;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
-					/Users/hudrima1/Documents/GitHub/SLProject/_lib/prebuilt/OpenCV/ios,
+					../_lib/prebuilt/OpenCV/ios,
 				);
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "comgr-Prefix.pch";
@@ -2730,7 +2751,7 @@
 					"../lib-SLExternal/**",
 				);
 				INFOPLIST_FILE = "SceneLib-Info.plist";
-				IPHONEOS_DEPLOYMENT_TARGET = 5.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				IPHONE_OPTIMIZE_OPTIONS = "-skip-PNGs";
 				PRODUCT_BUNDLE_IDENTIFIER = ch.bfh.ti.slproject;
 				PRODUCT_NAME = SLProject;
