@@ -58,6 +58,8 @@
 	<string>1.0</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
+	<key>NSCameraUsageDescription</key>
+	<string>Used for Augmented Reality rendering</string>
 	<key>UILaunchImages</key>
 	<array>
 		<dict>
