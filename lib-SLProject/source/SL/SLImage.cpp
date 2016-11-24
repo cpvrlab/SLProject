@@ -186,7 +186,7 @@ SLbool SLImage::load(SLint width,
     
     SLbool needsTextureRebuild = allocate(width, 
                                           height, 
-                                          dstPixelFormatGL, 
+                                          dstPixelFormatGL,
                                           false);
     
     SLint    dstBPL   = _bytesPerLine;
@@ -941,11 +941,11 @@ void SLImage::savePNG(SLstring filename)
         case PF_luminance:      color_type = PNG_COLOR_TYPE_GRAY;       break;
         case PF_luminance_alpha:color_type = PNG_COLOR_TYPE_GRAY_ALPHA; break;
         #else
-        case PF_red:   color_type = PNG_COLOR_TYPE_GRAY;       break;
-        case PF_rg:    color_type = PNG_COLOR_TYPE_GRAY_ALPHA; break;
+        case PF_red:        color_type = PNG_COLOR_TYPE_GRAY;       break;
+        case PF_rg:         color_type = PNG_COLOR_TYPE_GRAY_ALPHA; break;
         #endif
-        case PF_rgb:   color_type = PNG_COLOR_TYPE_RGB;        break;
-        case PF_rgba:  color_type = PNG_COLOR_TYPE_RGB_ALPHA;  break;
+        case PF_rgb:        color_type = PNG_COLOR_TYPE_RGB;        break;
+        case PF_rgba:       color_type = PNG_COLOR_TYPE_RGB_ALPHA;  break;
         default: SL_EXIT_MSG("Wrong pixel format.");
     }
    

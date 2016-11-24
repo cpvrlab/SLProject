@@ -15,6 +15,9 @@
 #include <cstdarg>
 
 //-----------------------------------------------------------------------------
+//! Default path for configuration files
+SLstring SL::configPath = "../_data/config/";
+//-----------------------------------------------------------------------------
 // Init global test variables from command line parameters
 SLint SL::testDurationSec = 0;
 SLint SL::testFactor = 1;

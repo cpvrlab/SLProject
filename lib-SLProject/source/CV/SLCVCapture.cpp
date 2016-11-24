@@ -17,6 +17,7 @@
 //-----------------------------------------------------------------------------
 // Global static variables
 SLCVMat             SLCVCapture::lastFrame;
+SLCVMat             SLCVCapture::lastFrameGray;
 SLPixelFormat       SLCVCapture::format;
 cv::VideoCapture    SLCVCapture::_captureDevice;
 //-----------------------------------------------------------------------------
@@ -50,27 +51,24 @@ SLVec2i SLCVCapture::open(SLint deviceNum)
     return SLVec2i::ZERO;
 }
 //-----------------------------------------------------------------------------
-/*! Grabs a new frame from the OpenCV capture device, crops the frame if
-neccecary and copies it to the SLScene video texture.
+/*! Grabs a new frame from the OpenCV capture device and adjusts it for SL
 */
-void SLCVCapture::grabCropAndCopyToSL()
+void SLCVCapture::grabAndAdjustForSL()
 {
-    SLScene* s = SLScene::current;
-
     try
     {   if (_captureDevice.isOpened())
         {
            if (!_captureDevice.read(lastFrame))
                 return;
 
-           cropAndCopyToSL();
+           adjustForSL();
         }
         else
         {   static bool logOnce = true;
             if (logOnce)
             {
                 if (SL::noTestIsRunning())
-                    SL_LOG("OpenCV: Unable to create capture device.\n");
+                    SL_LOG("OpenCV: Capture Device is not open!\n");
                 logOnce = false;
             }
         }
@@ -82,14 +80,14 @@ void SLCVCapture::grabCropAndCopyToSL()
 }
 //-----------------------------------------------------------------------------
 //! Crops the last captured frame and copies it to the SLScene video texture
-void SLCVCapture::cropAndCopyToSL()
+void SLCVCapture::adjustForSL()
 {
     SLScene* s = SLScene::current;
 
     try
     {   // Set the according OpenGL format
         switch (lastFrame.type())
-        {   case CV_8UC1: format = PF_luminance; break;
+        {   case CV_8UC1: format = PF_red; break;
             case CV_8UC3: format = PF_bgr; break;
             case CV_8UC4: format = PF_bgra; break;
             default: SL_EXIT_MSG("OpenCV image format not supported");
@@ -122,36 +120,34 @@ void SLCVCapture::cropAndCopyToSL()
             }
         }
 
-        // Use the datastart pointer to access the region of interest
-        s->copyVideoImage(lastFrame.cols,
-                          lastFrame.rows,
-                          format,
-                          lastFrame.data,
-                          lastFrame.isContinuous(),
-                          true);
+        // Create grayscale version in case of coloured lastFrame
+        cv::cvtColor(lastFrame, lastFrameGray, cv::COLOR_BGR2GRAY);
+
+        // Do not copy into the video texture here.
+        // It is done in SLScene:onUpdate
     }
     catch (exception e)
     {
-        SL_LOG("Exception during OpenCV video capture creation\n");
+        SL_LOG("Exception in SLCVCapture::adjustForSL: %s\n", e.what());
     }
 }
 //-----------------------------------------------------------------------------
-void SLCVCapture::loadIntoLastFrame(SLint width,
-                                    SLint height,
-                                    SLPixelFormat format,
-                                    SLuchar* data,
-                                    SLbool isContinuous,
-                                    SLbool isTopLeft)
+void SLCVCapture::loadIntoLastFrame(const SLint width,
+                                    const SLint height,
+                                    const SLPixelFormat format,
+                                    const SLuchar* data,
+                                    const SLbool isContinuous,
+                                    const SLbool isTopLeft)
 {
     // Set the according OpenCV format
-    SLint cvType = 0;
-    SLint bpp = 0;
+    SLint cvType = 0, bpp = 0;
+    
     switch (format)
-    {   case PF_luminance:  cvType = CV_8UC1; bpp = 1; break;
-        case PF_bgr:        cvType = CV_8UC3; bpp = 3;  break;
-        case PF_rgb:        cvType = CV_8UC3; bpp = 3;  break;
-        case PF_bgra:       cvType = CV_8UC4; bpp = 4;  break;
-        case PF_rgba:       cvType = CV_8UC4; bpp = 4;  break;
+    {   case PF_luminance:  {cvType = CV_8UC1; bpp = 1; break;}
+        case PF_bgr:        {cvType = CV_8UC3; bpp = 3; break;}
+        case PF_rgb:        {cvType = CV_8UC3; bpp = 3; break;}
+        case PF_bgra:       {cvType = CV_8UC4; bpp = 4; break;}
+        case PF_rgba:       {cvType = CV_8UC4; bpp = 4; break;}
         default: SL_EXIT_MSG("Pixel format not supported");
     }
 
@@ -164,6 +160,6 @@ void SLCVCapture::loadIntoLastFrame(SLint width,
         stride = bpl - width * bpp;
     }
 
-    SLCVCapture::lastFrame = SLCVMat(width, height, cvType, (void*)data, stride);
+    SLCVCapture::lastFrame = SLCVMat(height, width, cvType, (void*)data, stride);
 }
 //------------------------------------------------------------------------------

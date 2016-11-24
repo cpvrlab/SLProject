@@ -29,7 +29,8 @@ void    slCreateScene           (SLVstring& cmdLineArgs,
                                  SLstring shaderPath,
                                  SLstring modelPath,
                                  SLstring texturePath,
-                                 SLstring calibrationPath);
+                                 SLstring calibrationPath,
+                                 SLstring configPath);
 int     slCreateSceneView       (int screenWidth,
                                  int screenHeight,
                                  int dotsPerInch,
@@ -62,7 +63,7 @@ void    slRotationPYR           (int sceneViewIndex, float pitchRAD, float yawRA
 void    slRotationQUAT          (int sceneViewIndex, float angleRAD, float axisX, float axisY, float axisZ);
 string  slGetWindowTitle        (int sceneViewIndex);
 
-bool    slUsesVideoImage        ();
+bool    slUsesVideo             ();
 void    slCopyVideoImage        (int width, int height, SLPixelFormat glFormat, SLuchar* data, bool isContiuous, bool isTopLeft);
 //-----------------------------------------------------------------------------
 #endif // SLINTERFACE_H

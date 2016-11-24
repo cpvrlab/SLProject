@@ -30,7 +30,7 @@ SLCVCalibration::SLCVCalibration() :
     _numOfImgsToCapture(0),
     _numCaptured(0),
     _reprojectionError(-1.0f),
-    _showUndistorted(true)
+    _showUndistorted(false)
 {
 }
 //-----------------------------------------------------------------------------
@@ -48,11 +48,11 @@ bool SLCVCalibration::loadCamParams()
 {
     //load camera parameter
     FileStorage fs;
-    fs.open(defaultPath + _calibFileName, FileStorage::READ);
+    fs.open(SL::configPath + _calibFileName, FileStorage::READ);
     if (!fs.isOpened())
     {
         cout << "Could not open the calibration file: "
-             << (defaultPath + _calibFileName) << endl;
+             << (SL::configPath + _calibFileName) << endl;
         _state = CS_uncalibrated;
         return false;
     }
@@ -226,7 +226,15 @@ static void saveCameraParams(SLCVSize& imageSize,
                              SLCVSize& boardSize,
                              SLfloat squareSize)
 {
-    cv::FileStorage fs(SLCVCalibration::defaultPath + filename, FileStorage::WRITE);
+    SLstring fullPathAndFilename = SL::configPath + filename;
+    cout << "saveCameraParams: " << fullPathAndFilename << endl;
+    
+    cv::FileStorage fs(fullPathAndFilename, FileStorage::WRITE);
+    
+    if (!fs.isOpened())
+    {   SL_EXIT_MSG("Failed to open file for writing!");
+        return;
+    }
 
     time_t tm;
     time(&tm);
@@ -238,11 +246,11 @@ static void saveCameraParams(SLCVSize& imageSize,
 
     if(!rvecs.empty() || !reprojErrs.empty())
         fs << "nr_of_frames" << (int)std::max(rvecs.size(), reprojErrs.size());
-    fs << "image_width" << imageSize.width;
+    fs << "image_width"  << imageSize.width;
     fs << "image_height" << imageSize.height;
-    fs << "board_width" << boardSize.width;
+    fs << "board_width"  << boardSize.width;
     fs << "board_height" << boardSize.height;
-    fs << "square_size" << squareSize;
+    fs << "square_size"  << squareSize;
 
     fs << "fix_aspect_ratio" << 1;
 
@@ -262,26 +270,31 @@ static void saveCameraParams(SLCVSize& imageSize,
 }
 //-----------------------------------------------------------------------------
 //!< Finds the inner chessboard corners in the given image
-bool SLCVCalibration::findChessboard(SLCVMat image,
+bool SLCVCalibration::findChessboard(SLCVMat imageColor,
+                                     SLCVMat imageGray,
                                      bool drawCorners)
 {   
-    _imageSize = image.size();
+    _imageSize = imageColor.size();
+
     SLCVVPoint2f corners2D;
     SLint flags = CALIB_CB_ADAPTIVE_THRESH | 
                   CALIB_CB_NORMALIZE_IMAGE | 
                   CALIB_CB_FAST_CHECK;
 
-    bool found = cv::findChessboardCorners(image, _boardSize, corners2D, flags);
+    bool found = cv::findChessboardCorners(imageGray,
+                                           _boardSize,
+                                           corners2D,
+                                           flags);
 
     if(found && drawCorners)
-        cv::drawChessboardCorners(image, _boardSize, SLCVMat(corners2D), found);
+        cv::drawChessboardCorners(imageColor,
+                                  _boardSize,
+                                  SLCVMat(corners2D),
+                                  found);
 
     if (found && _state == CS_calibrateGrab)
     {
-        Mat imageGray;
-        cv::cvtColor(image, imageGray, COLOR_BGR2GRAY);
-        
-        cv::cornerSubPix(imageGray, 
+        cv::cornerSubPix(imageGray,
                          corners2D, 
                          SLCVSize(11,11),
                          SLCVSize(-1,-1), 
@@ -299,12 +312,9 @@ bool SLCVCalibration::findChessboard(SLCVMat image,
         _numCaptured++;
 
         //simulate a snapshot
-        cv::bitwise_not(image, image);
+        cv::bitwise_not(imageColor, imageColor);
 
         _state = CS_calibrateStream;
-
-        // make beep sound
-        cout << '\a';
     }
     return found;
 }

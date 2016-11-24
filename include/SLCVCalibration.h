@@ -47,7 +47,8 @@ public:
     void            calculate           ();
     void            clear               ();
     void            showUndistorted     (bool su) {_showUndistorted = su;}
-    bool            findChessboard      (SLCVMat image,
+    bool            findChessboard      (SLCVMat imageColor,
+                                         SLCVMat imageGray,
                                          bool drawCorners = true);
 
     static SLstring defaultPath;        //!< Default path for calibration files

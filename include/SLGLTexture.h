@@ -101,9 +101,9 @@ class SLGLTexture : public SLObject
             SLfloat         bumpScale       (){return _bumpScale;}
             SLCol4f         getTexelf       (SLfloat s, SLfloat t);
             SLbool          hasAlpha        (){return (_images.size() &&
-                                                   ((_images[0]->format()==PF_rgba  ||
-                                                     _images[0]->format()==PF_bgra) ||
-                                                   _texType==TT_font));}
+                                                      ((_images[0]->format()==PF_rgba  ||
+                                                       _images[0]->format()==PF_bgra) ||
+                                                       _texType==TT_font));}
             SLint           width           (){return _images[0]->width();}
             SLint           height          (){return _images[0]->height();}
             SLMat4f         tm              (){return _tm;}

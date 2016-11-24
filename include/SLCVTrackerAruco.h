@@ -91,7 +91,7 @@ class SLCVTrackerAruco : public SLCVTracker
                 SLCVTrackerAruco    (SLNode* node, SLint arucoID);
                ~SLCVTrackerAruco    () {;}
 
-        SLbool  track               (SLCVMat image, 
+        SLbool  track               (SLCVMat imageGray,
                                      SLCVCalibration& calib,
                                      SLSceneView* sv);
 

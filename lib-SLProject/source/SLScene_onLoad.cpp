@@ -837,7 +837,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
 
         // Set backround texture to the video texture and use it
         _background.texture(&_videoTexture, true);
-        _usesVideoImage = true;
+        _usesVideo = true;
 
         sv->waitEvents(false); // for constant video feed
         //sv->usesRotation(true);
@@ -1057,7 +1057,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
 
         // Back wall material with live video texture
         SLMaterial* m1 = new SLMaterial("mat3", &_videoTexture);
-        _usesVideoImage = true;
+        _usesVideo = true;
 
         // Create a camera node
         SLCamera* cam1 = new SLCamera();
@@ -1972,6 +1972,11 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         // Material
         SLMaterial* yellow = new SLMaterial("mY", SLCol4f::YELLOW);
 
+        // Get the edge length of a chessboard
+        SLfloat e1 = _calibration.boardSquareM();
+        SLfloat e3 = e1 * 3.0f;
+        SLfloat e9 = e3 * 3.0f;
+
         // Create a scene group node
         SLNode* scene = new SLNode("scene node");
 
@@ -1984,32 +1989,29 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         scene->addChild(cam1);
 
         // Create a light source node
-        SLLightSpot* light1 = new SLLightSpot(0.05f);
-        light1->translation(0.2f,0.2f,0.2f);
+        SLLightSpot* light1 = new SLLightSpot(e1*0.5f);
+        light1->translate(e9,e9,e9);
         light1->name("light node");
         scene->addChild(light1);
-
-        // Get the edge length of a chessboard
-        float e3 = _calibration.boardSquareM() * 3.0f;
         
         // Build mesh & node that will be tracked by the camera marker  
         SLBox* box = new SLBox(0.0f, 0.0f, 0.0f, e3, e3, e3, "Box", yellow);
         SLNode* boxNode = new SLNode(box, "Box Node");
-        SLNode* axisNode = new SLNode(new SLCoordAxis(),"Axis Node");
-        axisNode->scale(0.2f);
-        boxNode->addChild(axisNode);
-        boxNode->setDrawBitsRec(SL_DB_HIDDEN, true);
         boxNode->setDrawBitsRec(SL_DB_WIREMESH, true);
         boxNode->setDrawBitsRec(SL_DB_CULLOFF, true);
+        SLNode* axisNode = new SLNode(new SLCoordAxis(),"Axis Node");
+        axisNode->setDrawBitsRec(SL_DB_WIREMESH, false);
+        axisNode->scale(e3);
+        boxNode->addChild(axisNode);
 
         scene->addChild(boxNode);
 
         // Create OpenCV Tracker for the box node
-        _trackers.push_back(new SLCVTrackerChessboard(boxNode));
+        _trackers.push_back(new SLCVTrackerChessboard(cam1));
 
         // Set backround texture to the video texture and use it
         _background.texture(&_videoTexture, true);
-        _usesVideoImage = true;
+        _usesVideo = true;
         
         // pass the scene group as root node
         _root3D = scene;
@@ -2052,26 +2054,29 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         scene->addChild(light1);
 
         // Get the half edge length of the aruco marker
-        float he = SLCVTrackerAruco::params.edgeLength * 0.5f;
+        SLfloat edgeLen = SLCVTrackerAruco::params.edgeLength;
+        SLfloat he = edgeLen * 0.5f;
         
         // Build mesh & node that will be tracked by the 1st marker (camera)  
         SLBox* box1 = new SLBox(-he,-he, 0.0f, he, he, 2*he, "Box 1", yellow);
         SLNode* boxNode1 = new SLNode(box1, "Box Node 1");
-        SLNode* axisNode1 = new SLNode(new SLCoordAxis(),"Axis Node 1");
-        axisNode1->scale(0.1f);
-        boxNode1->addChild(axisNode1);
         boxNode1->setDrawBitsRec(SL_DB_WIREMESH, true);
+        SLNode* axisNode1 = new SLNode(new SLCoordAxis(),"Axis Node 1");
+        axisNode1->setDrawBitsRec(SL_DB_WIREMESH, false);
+        axisNode1->scale(edgeLen);
+        boxNode1->addChild(axisNode1);
         boxNode1->setDrawBitsRec(SL_DB_CULLOFF, true);
         scene->addChild(boxNode1);
         
         // Build mesh & node that will be tracked by the 2nd marker  
         SLBox* box2 = new SLBox(-he,-he, 0.0f, he, he, 2*he, "Box 2", cyan);
         SLNode* boxNode2 = new SLNode(box2, "Box Node 2");
+        boxNode2->setDrawBitsRec(SL_DB_WIREMESH, true);
         SLNode* axisNode2 = new SLNode(new SLCoordAxis(),"Axis Node 2");
-        axisNode2->scale(0.1f);
+        axisNode2->setDrawBitsRec(SL_DB_WIREMESH, false);
+        axisNode2->scale(edgeLen);
         boxNode2->addChild(axisNode2);
         boxNode2->setDrawBitsRec(SL_DB_HIDDEN, true);
-        boxNode2->setDrawBitsRec(SL_DB_WIREMESH, true);
         boxNode2->setDrawBitsRec(SL_DB_CULLOFF, true);
         scene->addChild(boxNode2);
 
@@ -2081,7 +2086,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         
         // Set backround texture to the video texture and use it
         _background.texture(&_videoTexture, true);
-        _usesVideoImage = true;
+        _usesVideo = true;
         
         // pass the scene group as root node
         _root3D = scene;

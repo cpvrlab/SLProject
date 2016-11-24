@@ -309,6 +309,8 @@ class SL
     static SLLogVerbosity   testLogVerbosity;   //!< Test logging verbosity
     static SLuint           testFrameCounter;   //!< Test frame counters
     static const SLVstring  testSceneNames;     //!< Vector with scene names
+    
+    static SLstring         configPath;         //!< Default path for calibration files
 };
 //-----------------------------------------------------------------------------
 #endif

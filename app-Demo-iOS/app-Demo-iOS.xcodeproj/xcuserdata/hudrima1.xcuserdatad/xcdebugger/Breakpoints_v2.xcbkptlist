@@ -16,7 +16,7 @@
             startingLineNumber = "949"
             endingLineNumber = "949"
             landmarkName = "SLSceneView::draw2DGLAll()"
-            landmarkType = "5">
+            landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
@@ -91,6 +91,86 @@
             endingLineNumber = "83"
             landmarkName = "SLGLVertexArray::setAttrib(SLGLAttributeType type, SLint elementSize, SLint location, void* dataPointer, SLbool convertToHalf)"
             landmarkType = "5">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "../lib-SLProject/source/CV/SLCVCapture.cpp"
+            timestampString = "501603681.852103"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "150"
+            endingLineNumber = "150"
+            landmarkName = "SLCVCapture::loadIntoLastFrame(const SLint width, const SLint height, const SLPixelFormat format, const SLuchar* data, const SLbool isContinuous, const SLbool isTopLeft)"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "../lib-SLProject/source/CV/SLCVCapture.cpp"
+            timestampString = "501603681.852103"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "160"
+            endingLineNumber = "160"
+            landmarkName = "SLCVCapture::loadIntoLastFrame(const SLint width, const SLint height, const SLPixelFormat format, const SLuchar* data, const SLbool isContinuous, const SLbool isTopLeft)"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "../lib-SLProject/source/CV/SLCVCapture.cpp"
+            timestampString = "501603101.472283"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "149"
+            endingLineNumber = "149"
+            landmarkName = "SLCVCapture::loadIntoLastFrame(const SLint width, const SLint height, const SLPixelFormat format, const SLuchar* data, const SLbool isContinuous, const SLbool isTopLeft)"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "../lib-SLProject/source/CV/SLCVCapture.cpp"
+            timestampString = "501603681.852103"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "153"
+            endingLineNumber = "153"
+            landmarkName = "SLCVCapture::loadIntoLastFrame(const SLint width, const SLint height, const SLPixelFormat format, const SLuchar* data, const SLbool isContinuous, const SLbool isTopLeft)"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "../lib-SLProject/source/CV/SLCVCalibration.cpp"
+            timestampString = "501605441.523701"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "232"
+            endingLineNumber = "232"
+            landmarkName = "saveCameraParams(SLCVSize&amp; imageSize, SLCVMat&amp; cameraMatrix, Mat&amp; distCoeffs, const SLCVVMat&amp; rvecs, const SLCVVMat&amp; tvecs, const SLVfloat&amp; reprojErrs, const SLCVVVPoint2f&amp; imagePoints, double totalAvgErr, SLint flag, SLstring filename, SLCVSize&amp; boardSize, SLfloat squareSize)"
+            landmarkType = "9">
          </BreakpointContent>
       </BreakpointProxy>
    </Breakpoints>

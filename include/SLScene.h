@@ -116,7 +116,7 @@ class SLScene: public SLObject
             SLMesh*         selectedMesh        () {return _selectedMesh;}
             SLbool          stopAnimations      () const {return _stopAnimations;}
             SLGLOculus*     oculus              () {return &_oculus;}   
-            SLbool          usesVideoImage      () {return _usesVideoImage;}
+            SLbool          usesVideo           () {return _usesVideo;}
             SLbool          usesVideoAsBckgrnd  () {return _background.texture() == &_videoTexture;}
             SLGLTexture*    videoTexture        () {return &_videoTexture;}
             SLCVCalibration& calibration        () {return _calibration;}
@@ -199,7 +199,7 @@ class SLScene: public SLObject
             SLGLOculus      _oculus;            //!< Oculus Rift interface
             
             // Augmented Reality stuff
-            SLbool          _usesVideoImage;    //!< Flag for updating the video image
+            SLbool          _usesVideo;         //!< Flag for using the live video image
             SLGLTexture     _videoTexture;      //!< Texture for live video image
             SLCVCalibration _calibration;       //!< OpenCV calibration manager
             SLVCVTracker    _trackers;          //!< Vector of all AR trackers

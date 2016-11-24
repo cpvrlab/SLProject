@@ -219,8 +219,11 @@ SLScene::~SLScene()
    
     current = nullptr;
 
+
+    #ifdef SL_USES_CVCAPTURE
     // release the capture device
     SLCVCapture::release();
+    #endif
 
     SL_LOG("~SLScene\n");
     SL_LOG("------------------------------------------------------------------\n");
@@ -242,7 +245,7 @@ void SLScene::init()
     _texCursor = new SLGLTexture("cursor.tga");
 
     // load dummy live video texture
-    _usesVideoImage = false;
+    _usesVideo = false;
 }
 //-----------------------------------------------------------------------------
 /*! The scene uninitializing clears the scenegraph (_root3D) and all global
@@ -400,7 +403,7 @@ bool SLScene::onUpdate()
     // 3) AR Tracking //
     ////////////////////
 
-    if (!SLCVCapture::lastFrame.empty() && _trackers.size() > 0)
+    if (_usesVideo && !SLCVCapture::lastFrame.empty())
     {   
         // Invalidate calibration if camera input aspect doesn't match output
         SLfloat calibWdivH = _calibration.imageAspectRatio();
@@ -421,7 +424,9 @@ bool SLScene::onUpdate()
         if (_calibration.state() == CS_calibrateStream || 
             _calibration.state() == CS_calibrateGrab)
         {               
-            _calibration.findChessboard(SLCVCapture::lastFrame);
+            _calibration.findChessboard(SLCVCapture::lastFrame,
+                                        SLCVCapture::lastFrameGray,
+                                        true);
 
             int imgsToCap = _calibration.numImgsToCapture();
             int imgsCaped = _calibration.numCapturedImgs();
@@ -435,21 +440,12 @@ bool SLScene::onUpdate()
                 _calibration.state(CS_startCalculating);
             }
             info(_sceneViews[0], ss.str());
-
-            _videoTexture.copyVideoImage(SLCVCapture::lastFrame.cols,
-                                         SLCVCapture::lastFrame.rows,
-                                         SLCVCapture::format, 
-                                         SLCVCapture::lastFrame.data,
-                                         SLCVCapture::lastFrame.isContinuous(),
-                                         true);
         }
         else
         if (_calibration.state() == CS_startCalculating)
         {
             _calibration.calculate();
-
-            for (auto sv : _sceneViews)
-                sv->camera()->fov(_calibration.cameraFovDeg());
+            _sceneViews[0]->camera()->fov(_calibration.cameraFovDeg());
         }
         else
         if (_calibration.state() == CS_calibrated)
@@ -458,31 +454,42 @@ bool SLScene::onUpdate()
         
             // track all trackers in the first sceneview
             for (auto tracker : _trackers)
-                tracker->track(SLCVCapture::lastFrame, _calibration, _sceneViews[0]);
-
-            //undistorted camera image
-            if(_calibration.showUndistorted())
-            {   
-                SLCVMat undistorted;
-
-                undistort(SLCVCapture::lastFrame,
-                          undistorted,
-                          _calibration.intrinsics(),
-                          _calibration.distortion());
-
-                _videoTexture.copyVideoImage(undistorted.cols,
-                                             undistorted.rows, 
-                                             SLCVCapture::format, 
-                                             undistorted.data,
-                                             undistorted.isContinuous(),
-                                             true);
-            }
+                tracker->track(SLCVCapture::lastFrameGray,
+                               _calibration,
+                               _sceneViews[0]);
             
             if (_currentSceneID == C_sceneARCalibration)
             {   ss << "Camera calibration: fov: " << _calibration.cameraFovDeg() << 
                       ", error: " << _calibration.reprojectionError();
                 info(_sceneViews[0], ss.str());
             }
+        }
+
+        //copy image to video texture
+        if(_calibration.state() == CS_calibrated && _calibration.showUndistorted())
+        {
+            SLCVMat undistorted;
+
+            undistort(SLCVCapture::lastFrame,
+                      undistorted,
+                      _calibration.intrinsics(),
+                      _calibration.distortion());
+
+            _videoTexture.copyVideoImage(undistorted.cols,
+                                         undistorted.rows,
+                                         SLCVCapture::format,
+                                         undistorted.data,
+                                         undistorted.isContinuous(),
+                                         true);
+        } else
+        {
+            _videoTexture.copyVideoImage(SLCVCapture::lastFrame.cols,
+                                         SLCVCapture::lastFrame.rows,
+                                         SLCVCapture::format,
+                                         SLCVCapture::lastFrame.data,
+                                         SLCVCapture::lastFrame.isContinuous(),
+                                         true);
+
         }
     }
 
@@ -505,10 +512,12 @@ bool SLScene::onUpdate()
 //! SLScene::onAfterLoad gets called after onLoad
 void SLScene::onAfterLoad()
 {
-    if (_usesVideoImage)
+    #ifdef SL_USES_CVCAPTURE
+    if (_usesVideo)
     {   if (!SLCVCapture::isOpened())
             SLCVCapture::open(0);
     }
+    #endif
 }
 //-----------------------------------------------------------------------------
 /*!

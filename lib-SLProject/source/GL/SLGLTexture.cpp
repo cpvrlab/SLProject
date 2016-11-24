@@ -195,8 +195,8 @@ void SLGLTexture::setVideoImage(SLstring videoImageFile)
 \param data Pointer to the first byte of the first pixel
 \param isTopLeft Flag if the data pointer points to the top left pixel
 \return Returns true if the texture was rebuilt
-It is important that passed pixel format is either RGB or RGBA. Otherwise
-an expensive conversion must be done.
+It is important that passed pixel format is either PF_LUMINANCE, RGB or RGBA.
+otherwise an expensive conversion must be done.
 */
 SLbool SLGLTexture::copyVideoImage(SLint camWidth,
                                    SLint camHeight,
@@ -439,7 +439,7 @@ void SLGLTexture::bindActive(SLint texID)
         _stateGL->bindTexture(_target, _texName);
         SLScene* s = SLScene::current;
         if (this == s->videoTexture() &&
-            s->usesVideoImage() &&
+            s->usesVideo() &&
             _needsUpdate)
         {   fullUpdate();
             _needsUpdate = false;

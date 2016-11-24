@@ -38,11 +38,11 @@ SLCVTrackerAruco::SLCVTrackerAruco(SLNode* node, SLint arucoID) :
 /* The tracking of all aruco markers is done only once even if multiple aruco 
 markers are used for different SLNode.
 */
-SLbool SLCVTrackerAruco::track(SLCVMat image, 
+SLbool SLCVTrackerAruco::track(SLCVMat imageGray,
                                SLCVCalibration& calib,
                                SLSceneView* sv)
 {
-    assert(!image.empty() && "Image is empty");
+    assert(!imageGray.empty() && "Image is empty");
     assert(!calib.intrinsics().empty() && "Calibration is empty");
     assert(_node && "Node pointer is null");
     assert(sv && "No sceneview pointer passed");
@@ -65,7 +65,7 @@ SLbool SLCVTrackerAruco::track(SLCVMat image,
         objectViewMats.clear();
         SLCVVVPoint2f corners, rejected;
 
-        aruco::detectMarkers(image, 
+        aruco::detectMarkers(imageGray,
                              params.dictionary, 
                              corners, 
                              arucoIDs, 

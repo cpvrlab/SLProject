@@ -429,6 +429,7 @@ int main(int argc, char *argv[])
                   exeDir + "../_data/shaders/",
                   exeDir + "../_data/models/",
                   exeDir + "../_data/images/textures/",
+                  exeDir + "../_data/calibrations/",
                   exeDir + "../_data/calibrations/");
 
     svIndex = slCreateSceneView((int)(scrWidth  * scr2fbX),

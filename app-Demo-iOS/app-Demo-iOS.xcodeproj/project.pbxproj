@@ -370,6 +370,8 @@
 		419BCD4014865C0800D576F1 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 419BCD3F14865C0800D576F1 /* CoreGraphics.framework */; };
 		419BCD4214865C0800D576F1 /* GLKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 419BCD4114865C0800D576F1 /* GLKit.framework */; };
 		419BCD4414865C0800D576F1 /* OpenGLES.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 419BCD4314865C0800D576F1 /* OpenGLES.framework */; };
+		419BEFC51DE5C91E00C3E171 /* opencv2.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 41ABC8BE1B875C1E009F6C37 /* opencv2.framework */; };
+		419BEFC71DE5EE9300C3E171 /* aruco_detector_params.yml in Resources */ = {isa = PBXBuildFile; fileRef = 419BEFC61DE5EE9300C3E171 /* aruco_detector_params.yml */; };
 		419E11A81B74AF0000203E70 /* SLBackground.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 419E11A71B74AF0000203E70 /* SLBackground.cpp */; };
 		419E11AA1B74B02000203E70 /* LiveVideoError.png in Resources */ = {isa = PBXBuildFile; fileRef = 419E11A91B74B02000203E70 /* LiveVideoError.png */; };
 		419F43431959C072009D9E2E /* ioapi.c in Sources */ = {isa = PBXBuildFile; fileRef = 419F433F1959C072009D9E2E /* ioapi.c */; };
@@ -388,7 +390,6 @@
 		41A355071A7E63E100791841 /* SLSkeleton.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 41A355001A7E63E100791841 /* SLSkeleton.cpp */; };
 		41A3550A1A7E676800791841 /* SLInputDevice.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 41A355081A7E676800791841 /* SLInputDevice.cpp */; };
 		41A3550B1A7E676800791841 /* SLInputManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 41A355091A7E676800791841 /* SLInputManager.cpp */; };
-		41ABC8BF1B875C1E009F6C37 /* opencv2.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 41ABC8BE1B875C1E009F6C37 /* opencv2.framework */; };
 		41B86C5A1C4FE21400BB409D /* SLGLVertexBuffer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 41B86C591C4FE21400BB409D /* SLGLVertexBuffer.cpp */; };
 		41BEFC071B78F84F009EF31F /* AVFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 41BEFC061B78F84F009EF31F /* AVFoundation.framework */; };
 		41BEFC0A1B78F85A009EF31F /* CoreMedia.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 41BEFC091B78F85A009EF31F /* CoreMedia.framework */; };
@@ -1039,6 +1040,7 @@
 		419BCD3F14865C0800D576F1 /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
 		419BCD4114865C0800D576F1 /* GLKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = GLKit.framework; path = System/Library/Frameworks/GLKit.framework; sourceTree = SDKROOT; };
 		419BCD4314865C0800D576F1 /* OpenGLES.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGLES.framework; path = System/Library/Frameworks/OpenGLES.framework; sourceTree = SDKROOT; };
+		419BEFC61DE5EE9300C3E171 /* aruco_detector_params.yml */ = {isa = PBXFileReference; lastKnownFileType = text; name = aruco_detector_params.yml; path = ../_data/calibrations/aruco_detector_params.yml; sourceTree = "<group>"; };
 		419E11A51B74AED200203E70 /* SLBackground.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SLBackground.h; path = ../include/SLBackground.h; sourceTree = SOURCE_ROOT; };
 		419E11A71B74AF0000203E70 /* SLBackground.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SLBackground.cpp; path = "../lib-SLProject/source/SLBackground.cpp"; sourceTree = SOURCE_ROOT; };
 		419E11A91B74B02000203E70 /* LiveVideoError.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = LiveVideoError.png; path = ../_data/images/textures/LiveVideoError.png; sourceTree = "<group>"; };
@@ -1116,7 +1118,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				41ABC8BF1B875C1E009F6C37 /* opencv2.framework in Frameworks */,
+				419BEFC51DE5C91E00C3E171 /* opencv2.framework in Frameworks */,
 				41A16C3C1B836835001EA07E /* CoreMotion.framework in Frameworks */,
 				41BEFC0C1B78F866009EF31F /* CoreVideo.framework in Frameworks */,
 				41BEFC0A1B78F85A009EF31F /* CoreMedia.framework in Frameworks */,
@@ -1911,6 +1913,7 @@
 		419BCD2C14865C0800D576F1 = {
 			isa = PBXGroup;
 			children = (
+				419BEFC61DE5EE9300C3E171 /* aruco_detector_params.yml */,
 				41901CF41959C478006795A8 /* iOS_Code */,
 				419BCD4514865C0800D576F1 /* SLProject */,
 				419BCD3A14865C0800D576F1 /* Frameworks */,
@@ -2044,7 +2047,7 @@
 				LastUpgradeCheck = 0810;
 				TargetAttributes = {
 					419BCD3614865C0800D576F1 = {
-						DevelopmentTeam = 7T728A9HD4;
+						DevelopmentTeam = 858Y9EWZ4B;
 					};
 				};
 			};
@@ -2086,6 +2089,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				419BEFC71DE5EE9300C3E171 /* aruco_detector_params.yml in Resources */,
 				418BF4601B8B0D500049E387 /* RefractReflectDisp.vert in Resources */,
 				418BF4491B8B0D4F0049E387 /* Diffuse.vert in Resources */,
 				41C99E7918D4316A0045FD2D /* Icon_114.png in Resources */,
@@ -2532,6 +2536,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = YES;
+				ARCHS = arm64;
 				CLANG_CXX_LANGUAGE_STANDARD = "c++0x";
 				CLANG_CXX_LIBRARY = "libc++";
 				CLANG_WARN_BOOL_CONVERSION = YES;
@@ -2619,6 +2624,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = YES;
+				ARCHS = arm64;
 				CLANG_CXX_LANGUAGE_STANDARD = "c++0x";
 				CLANG_CXX_LIBRARY = "libc++";
 				CLANG_WARN_BOOL_CONVERSION = YES;
@@ -2703,13 +2709,13 @@
 			buildSettings = {
 				CLANG_CXX_LANGUAGE_STANDARD = "c++0x";
 				CLANG_CXX_LIBRARY = "libc++";
-				DEVELOPMENT_TEAM = 7T728A9HD4;
+				DEVELOPMENT_TEAM = 858Y9EWZ4B;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					../_lib/prebuilt/OpenCV/ios,
 				);
 				"GCC_C_LANGUAGE_STANDARD[arch=*]" = gnu99;
-				GCC_OPTIMIZATION_LEVEL = s;
+				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "comgr-Prefix.pch";
 				GCC_PREPROCESSOR_DEFINITIONS = (
@@ -2739,7 +2745,7 @@
 			buildSettings = {
 				CLANG_CXX_LANGUAGE_STANDARD = "c++0x";
 				CLANG_CXX_LIBRARY = "libc++";
-				DEVELOPMENT_TEAM = 7T728A9HD4;
+				DEVELOPMENT_TEAM = 858Y9EWZ4B;
 				ENABLE_OPENMP_SUPPORT = NO;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",

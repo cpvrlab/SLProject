@@ -12,6 +12,8 @@ CONFIG += warn_off
 CONFIG -= qml_debug
 CONFIG(debug, debug|release) {DEFINES += _DEBUG}
 
+DEFINES += SL_USES_CVCAPTURE
+
 CONFIG(qt) {
    QT += core gui widgets opengl
    DEFINES += SL_GUI_QT

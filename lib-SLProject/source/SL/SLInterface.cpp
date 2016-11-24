@@ -46,7 +46,8 @@ void slCreateScene(SLVstring& cmdLineArgs,
                    SLstring shaderPath,
                    SLstring modelPath,
                    SLstring texturePath,
-                   SLstring calibrationPath)
+                   SLstring calibrationPath,
+                   SLstring configPath)
 {
     assert(SLScene::current==nullptr && "SLScene is already created!");
    
@@ -54,27 +55,28 @@ void slCreateScene(SLVstring& cmdLineArgs,
     SLGLTexture::defaultPath      = texturePath;
     SLAssimpImporter::defaultPath = modelPath;
     SLCVCalibration::defaultPath  = calibrationPath;
+    SL::configPath                = configPath;
 
     SLGLState* stateGL            = SLGLState::getInstance();
 
     SL::parseCmdLineArgs(cmdLineArgs);
     
-    SL_LOG("Path to Models  : %s\n", modelPath.c_str());
-    SL_LOG("Path to Shaders : %s\n", shaderPath.c_str());
-    SL_LOG("Path to Textures: %s\n", texturePath.c_str()); 
+    SL_LOG("Path to Models     : %s\n", modelPath.c_str());
+    SL_LOG("Path to Shaders    : %s\n", shaderPath.c_str());
+    SL_LOG("Path to Textures   : %s\n", texturePath.c_str());
     SL_LOG("Path to Calibration: %s\n", calibrationPath.c_str());   
 
     #ifdef SL_HAS_OPENCV
-    SL_LOG("OpenCV Version  : %d.%d.%d\n", CV_MAJOR_VERSION, 
+    SL_LOG("OpenCV Version     : %d.%d.%d\n", CV_MAJOR_VERSION,
                                            CV_MINOR_VERSION, 
                                            CV_VERSION_REVISION);
     #else
-    SL_LOG("OpenCV Version  : Not installed\n");
+    SL_LOG("OpenCV Version     : Not installed\n");
     #endif
-    SL_LOG("OpenGL Version  : %s\n", stateGL->glVersion().c_str());
-    SL_LOG("Vendor          : %s\n", stateGL->glVendor().c_str());
-    SL_LOG("Renderer        : %s\n", stateGL->glRenderer().c_str());
-    SL_LOG("GLSL Version    : %s (%s) \n", stateGL->glSLVersion().c_str(),
+    SL_LOG("OpenGL Version     : %s\n", stateGL->glVersion().c_str());
+    SL_LOG("Vendor             : %s\n", stateGL->glVendor().c_str());
+    SL_LOG("Renderer           : %s\n", stateGL->glRenderer().c_str());
+    SL_LOG("GLSL Version       : %s (%s) \n", stateGL->glSLVersion().c_str(),
                                            stateGL->getSLVersionNO().c_str());
     SL_LOG("------------------------------------------------------------------\n");
 
@@ -435,13 +437,14 @@ void slCopyVideoImage(SLint width,
                                    data,
                                    isContinuous,
                                    isTopLeft);
+    SLCVCapture::adjustForSL();
 }
 //-----------------------------------------------------------------------------
 /*! Global function returns true if SL wants a live video images
 */
-bool slUsesVideoImage()
+bool slUsesVideo()
 {
-    return SLScene::current->usesVideoImage();
+    return SLScene::current->usesVideo();
 }
 //-----------------------------------------------------------------------------
 

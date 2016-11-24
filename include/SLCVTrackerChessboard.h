@@ -23,13 +23,17 @@ class SLCVTrackerChessboard : public SLCVTracker
     public:
                 SLCVTrackerChessboard   (SLNode* node);
                ~SLCVTrackerChessboard   () {;}
-        bool    track                   (cv::Mat image, 
+        bool    track                   (SLCVMat imageGray,
                                          SLCVCalibration& calib,
                                          SLSceneView* sv);
     private:
         SLfloat         _edgeLengthM;   //<! Length of chessboard square in meters
         SLCVVPoint3f    _boardPoints3D; //<! chessboard corners in world coordinate system
         SLCVSize        _boardSize;     //<! NO. of inner chessboard corners
+        SLbool          _solved;        //<! Flag if last solvePnP was solved
+        SLCVMat         _rVec;          //<! rotation angle vector from solvePnP
+        SLCVMat         _tVec;          //<! translation vector from solvePnP
+        
 };
 //-----------------------------------------------------------------------------
 

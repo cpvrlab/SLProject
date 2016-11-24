@@ -62,7 +62,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand cmd)
 
     //set video image as background texture
     _background.texture(&_videoTexture, true);
-    _usesVideoImage = true;
+    _usesVideo = true;
 
     SLLightSpot* light1 = new SLLightSpot(0.3f);
     light1->translation(0,0,10);
@@ -140,7 +140,9 @@ void ARSceneView::preDraw()
         if (s->calibration().state() == CS_calibrateStream || 
             s->calibration().state() == CS_calibrateGrab)
         {               
-            s->calibration().findChessboard(SLCVCapture::lastFrame, false);
+            s->calibration().findChessboard(SLCVCapture::lastFrame,
+                                            SLCVCapture::lastFrameGray,
+                                            true);
 
             int imgsToCap = s->calibration().numImgsToCapture();
             int imgsCaped = s->calibration().numCapturedImgs();

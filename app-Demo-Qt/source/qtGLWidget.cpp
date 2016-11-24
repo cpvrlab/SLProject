@@ -124,7 +124,12 @@ void qtGLWidget::initializeGL()
         }
         #endif
       
-        slCreateScene(_cmdLineArgs, shaders, models, textures, calibrations);
+        slCreateScene(_cmdLineArgs,
+                      shaders,
+                      models,
+                      textures,
+                      calibrations,
+                      calibrations);
     }   
 
     // Create a sceneview for every new glWidget
@@ -163,8 +168,8 @@ void qtGLWidget::paintGL()
     else
     {
         // If live video image is requested grab it and copy it
-        if (slUsesVideoImage())
-            SLCVCapture::grabCropAndCopyToSL();
+        if (slUsesVideo())
+            SLCVCapture::grabAndAdjustForSL();
 
         // makes the OpenGL context the current for this widget
         makeCurrent();  

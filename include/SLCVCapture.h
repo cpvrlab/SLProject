@@ -25,19 +25,20 @@ instance of the OpenCV capture device.
 class SLCVCapture
 {   public:
     static  SLVec2i         open                (SLint deviceNum);
-    static  void            grabCropAndCopyToSL ();
-    static  void            cropAndCopyToSL     ();
+    static  void            grabAndAdjustForSL  ();
+    static  void            adjustForSL         ();
     static  SLbool          isOpened            () {return _captureDevice.isOpened();}
     static  void            release             () {_captureDevice.release();}
-    static  void            loadIntoLastFrame   (SLint camWidth,
-                                                 SLint camHeight,
-                                                 SLPixelFormat srcPixelFormat,
-                                                 SLuchar* data,
-                                                 SLbool isContinuous,
-                                                 SLbool isTopLeft);
+    static  void            loadIntoLastFrame   (const SLint camWidth,
+                                                 const SLint camHeight,
+                                                 const SLPixelFormat srcPixelFormat,
+                                                 const SLuchar* data,
+                                                 const SLbool isContinuous,
+                                                 const SLbool isTopLeft);
 
-    static  SLCVMat         lastFrame;  //!< last frame grabbed
-    static  SLPixelFormat   format;     //!< SL pixel format
+    static  SLCVMat         lastFrame;      //!< last frame grabbed
+    static  SLCVMat         lastFrameGray;  //!< last frame in grayscale
+    static  SLPixelFormat   format;         //!< SL pixel format
 
     private:
     static  cv::VideoCapture _captureDevice; //!< OpenCV capture device
