@@ -162,7 +162,6 @@ models_OBJ_Christoffelturm.files = \
   ../_data/models/OBJ/Christoffelturm/shadow.png \
 
 calibrations.files = \
-  ../_data/calibrations/cam_calibration.xml \
   ../_data/calibrations/calib_in_params.yml \
   ../_data/calibrations/aruco_detector_params.yml \
 

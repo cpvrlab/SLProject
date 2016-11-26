@@ -34,6 +34,12 @@ bool gShouldClose = false;
 called only once per application. The SLScene constructor call is delayed until
 the first SLSceneView is created to guarantee, that the OpenGL context is
 present.<br>
+/param cmdLineArgs Command line arguments
+/param shaderPath Path to the shader files (readonly)
+/param modelPath Path to the 3D model files (readonly)
+/param texturePath Path to the texture image files (readonly)
+/param calibrationPath Path to the calibration ini files (readonly)
+/param configPath Path where the config files are stored (read-write)
 <br>
 See examples usages in:
   - app-Demo-GLFW: glfwMain.cpp in function main()
@@ -51,6 +57,7 @@ void slCreateScene(SLVstring& cmdLineArgs,
 {
     assert(SLScene::current==nullptr && "SLScene is already created!");
    
+    // Default paths for all loaded resources
     SLGLProgram::defaultPath      = shaderPath;
     SLGLTexture::defaultPath      = texturePath;
     SLAssimpImporter::defaultPath = modelPath;
@@ -61,22 +68,23 @@ void slCreateScene(SLVstring& cmdLineArgs,
 
     SL::parseCmdLineArgs(cmdLineArgs);
     
-    SL_LOG("Path to Models     : %s\n", modelPath.c_str());
-    SL_LOG("Path to Shaders    : %s\n", shaderPath.c_str());
-    SL_LOG("Path to Textures   : %s\n", texturePath.c_str());
-    SL_LOG("Path to Calibration: %s\n", calibrationPath.c_str());   
+    SL_LOG("Path to Models  : %s\n", modelPath.c_str());
+    SL_LOG("Path to Shaders : %s\n", shaderPath.c_str());
+    SL_LOG("Path to Textures: %s\n", texturePath.c_str());
+    SL_LOG("Path to Calibr. : %s\n", calibrationPath.c_str());
+    SL_LOG("Path to Config. : %s\n", configPath.c_str());
 
     #ifdef SL_HAS_OPENCV
-    SL_LOG("OpenCV Version     : %d.%d.%d\n", CV_MAJOR_VERSION,
-                                           CV_MINOR_VERSION, 
+    SL_LOG("OpenCV Version  : %d.%d.%d\n", CV_MAJOR_VERSION,
+                                           CV_MINOR_VERSION,
                                            CV_VERSION_REVISION);
     #else
-    SL_LOG("OpenCV Version     : Not installed\n");
+    SL_LOG("OpenCV Version  : Not installed\n");
     #endif
-    SL_LOG("OpenGL Version     : %s\n", stateGL->glVersion().c_str());
-    SL_LOG("Vendor             : %s\n", stateGL->glVendor().c_str());
-    SL_LOG("Renderer           : %s\n", stateGL->glRenderer().c_str());
-    SL_LOG("GLSL Version       : %s (%s) \n", stateGL->glSLVersion().c_str(),
+    SL_LOG("OpenGL Version  : %s\n", stateGL->glVersion().c_str());
+    SL_LOG("Vendor          : %s\n", stateGL->glVendor().c_str());
+    SL_LOG("Renderer        : %s\n", stateGL->glRenderer().c_str());
+    SL_LOG("GLSL Version    : %s (%s) \n", stateGL->glSLVersion().c_str(),
                                            stateGL->getSLVersionNO().c_str());
     SL_LOG("------------------------------------------------------------------\n");
 
