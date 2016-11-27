@@ -51,7 +51,7 @@ using namespace half_float;
 
 //-----------------------------------------------------------------------------
 /* Determine one of the following operating systems:
-SL_OS_MACOSX   :Apple Mac OSX
+SL_OS_MACOS    :Apple Mac OSX
 SL_OS_MACIOS   :Apple iOS
 SL_OS_WINDOWS  :Microsoft desktop Windows XP, 7, 8, ...
 SL_OS_ANDROID  :Goggle Android
@@ -70,26 +70,20 @@ SL_USE_DISCARD_STEREOMODES: The discard stereo modes can be used (SLCamera)
         #define SL_OS_MACIOS
         #define SL_GLES2
     #else
-        #define SL_OS_MACOSX
+        #define SL_OS_MACOS
         //#define SL_OVR // No OSX support anymore from Oculus!
         #if defined(_DEBUG)
             #define _GLDEBUG
             //#define SL_MEMLEAKDETECT  // nvwa doesn't work under OSX/clang
         #endif
     #endif
-    #include <unistd.h> //getcwd
-    #define SL_GETCWD getcwd
 #elif defined(ANDROID) || defined(ANDROID_NDK)
     #define SL_OS_ANDROID
     #define SL_GLES2
-    #include <unistd.h> //getcwd
-    #define SL_GETCWD getcwd
 #elif defined(_WIN32)
     #define SL_OS_WINDOWS
     #define SL_USE_DISCARD_STEREOMODES
     #define SL_OVR
-    #include <direct.h> //_getcwd
-    #define SL_GETCWD _getcwd
     #ifdef _DEBUG
         #define _GLDEBUG
         //#define SL_MEMLEAKDETECT
@@ -103,8 +97,6 @@ SL_USE_DISCARD_STEREOMODES: The discard stereo modes can be used (SLCamera)
     #ifdef _DEBUG
         //#define SL_MEMLEAKDETECT  // nvwa doesn't work under OSX/clang
     #endif
-    #include <unistd.h> //getcwd
-    #define SL_GETCWD getcwd
 #else
     #error "SL has not been ported to this OS"
 #endif
@@ -130,7 +122,7 @@ SL_GUI_JAVA :Java on Android (with the VS-Android project)
     #include <thread>
     #include <chrono>
     #include <random>
-#elif defined(SL_OS_MACOSX)
+#elif defined(SL_OS_MACOS)
     #include <sys/time.h>
     #include <functional>
     #include <thread>

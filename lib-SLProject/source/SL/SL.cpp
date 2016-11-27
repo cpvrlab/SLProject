@@ -119,16 +119,6 @@ SLuint SL::maxThreads()
     return SL_max(thread::hardware_concurrency(), 1U);
     #endif
 }
-//-----------------------------------------------------------------------------
-//! Returns the current working directory
-SLstring SL::getCWD()
-{
-    SLchar cCurrentPath[FILENAME_MAX];
-
-    if (!SL_GETCWD(cCurrentPath, sizeof(cCurrentPath)))
-         return SLstring("");
-    else return SLstring(cCurrentPath);
-}
 //------------------------------------------------------------------------------
 //! Parses the command line arguments
 void SL::parseCmdLineArgs(SLVstring& cmdLineArgs)

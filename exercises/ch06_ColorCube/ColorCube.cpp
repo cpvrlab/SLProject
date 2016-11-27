@@ -351,7 +351,7 @@ int main(int argc, char *argv[])
     glfwWindowHint(GLFW_SAMPLES, 4);
 
     //You can enable or restrict newer OpenGL context here (read the GLFW documentation)
-    #ifdef SL_OS_MACOSX
+    #ifdef SL_OS_MACOS
     //glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     //glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 2);
     //glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
