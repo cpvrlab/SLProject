@@ -410,7 +410,6 @@
 		41FC948019F7D6410026919B /* SLGLTexture.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 41FC947919F7D6410026919B /* SLGLTexture.cpp */; };
 		CF3F571A1DE5906C00928DDD /* SLCVTracker.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CF3F57191DE5906C00928DDD /* SLCVTracker.cpp */; };
 		CF3F571D1DE592F200928DDD /* PerVrtBlinnColorAttrib.vert in Resources */ = {isa = PBXBuildFile; fileRef = CF3F571C1DE592F200928DDD /* PerVrtBlinnColorAttrib.vert */; };
-		CF3F57201DE593D500928DDD /* cam_calibration.xml in Resources */ = {isa = PBXBuildFile; fileRef = CF3F571F1DE593D500928DDD /* cam_calibration.xml */; };
 		CF3F57221DE5945F00928DDD /* calib_in_params.yml in Resources */ = {isa = PBXBuildFile; fileRef = CF3F57211DE5945F00928DDD /* calib_in_params.yml */; };
 		DE38C72019EFBD440069B8BB /* cursor.tga in Resources */ = {isa = PBXBuildFile; fileRef = DE38C71F19EFBD440069B8BB /* cursor.tga */; };
 		DE38C74819EFCB420069B8BB /* SLGrid.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DE38C74719EFCB420069B8BB /* SLGrid.cpp */; };
@@ -1106,7 +1105,6 @@
 		41FE0B041959C9DA00486424 /* lib-SLExternal.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = "lib-SLExternal.xcodeproj"; path = "../lib-SLExternal/lib-SLExternal.xcodeproj"; sourceTree = "<group>"; };
 		CF3F57191DE5906C00928DDD /* SLCVTracker.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = SLCVTracker.cpp; path = "../lib-SLProject/source/CV/SLCVTracker.cpp"; sourceTree = SOURCE_ROOT; };
 		CF3F571C1DE592F200928DDD /* PerVrtBlinnColorAttrib.vert */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = PerVrtBlinnColorAttrib.vert; path = ../_data/shaders/PerVrtBlinnColorAttrib.vert; sourceTree = "<group>"; };
-		CF3F571F1DE593D500928DDD /* cam_calibration.xml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; name = cam_calibration.xml; path = ../_data/calibrations/cam_calibration.xml; sourceTree = "<group>"; };
 		CF3F57211DE5945F00928DDD /* calib_in_params.yml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = calib_in_params.yml; path = ../_data/calibrations/calib_in_params.yml; sourceTree = "<group>"; };
 		DE38C71F19EFBD440069B8BB /* cursor.tga */ = {isa = PBXFileReference; lastKnownFileType = file; name = cursor.tga; path = ../_data/images/textures/cursor.tga; sourceTree = "<group>"; };
 		DE38C74619EFCA5B0069B8BB /* SLGrid.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SLGrid.h; path = ../include/SLGrid.h; sourceTree = SOURCE_ROOT; };
@@ -1555,7 +1553,6 @@
 				41565008148AA62400A3CAA6 /* ViewController_iPad.xib */,
 				4156500A148AA62400A3CAA6 /* ViewController_iPhone.xib */,
 				CF3F57211DE5945F00928DDD /* calib_in_params.yml */,
-				CF3F571F1DE593D500928DDD /* cam_calibration.xml */,
 			);
 			name = iOS_Code;
 			sourceTree = "<group>";
@@ -2103,7 +2100,6 @@
 				418BF4411B8B0D4F0049E387 /* BumpNormal.frag in Resources */,
 				418BF4451B8B0D4F0049E387 /* Color.frag in Resources */,
 				411BA72718C0702600F10475 /* Icon_120.png in Resources */,
-				CF3F57201DE593D500928DDD /* cam_calibration.xml in Resources */,
 				417E0EB9148A70DE0015B5B0 /* brick0512_C.png in Resources */,
 				419808AA1959BA670048085E /* SmoothingGroups.inl in Resources */,
 				418BF44D1B8B0D500049E387 /* FontTex.frag in Resources */,

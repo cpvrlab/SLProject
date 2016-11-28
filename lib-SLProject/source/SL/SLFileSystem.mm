@@ -15,6 +15,17 @@
 #include "SLFileSystem.h"
 
 //-----------------------------------------------------------------------------
+SLbool SLFileSystem::dirExists(SLstring& path)
+{
+    struct stat info;
+    if(stat(path.c_str(), &info ) != 0)
+        return false;
+    else if(info.st_mode & S_IFDIR)
+        return true;
+    else
+        return false;
+}
+//-----------------------------------------------------------------------------
 /*! SLFileSystem::fileExists returns true if the file exists. This code works
 only Apple OSX and iOS. If no file matches, it checks all files of the same
 directory and compares them case insensitive. If now one file matches the 
@@ -65,7 +76,37 @@ SLbool SLFileSystem::fileExists(SLstring& pathfilename)
    return false;
 }
 //-----------------------------------------------------------------------------
-
+SLstring SLFileSystem::getAppsWritableDir()
+{
+    // Get library directory for config file
+    NSArray *paths = NSSearchPathForDirectoriesInDomains(NSLibraryDirectory,
+                                                         NSUserDomainMask,
+                                                         YES);
+    NSString *libraryDirectory = [paths objectAtIndex:0];
+    string configDir = [libraryDirectory UTF8String];
+    configDir += "/SLProject";
+    NSString* configPath = [NSString stringWithUTF8String:configDir.c_str()];
+    
+    // Create if it does not exist
+    NSError *error;
+    if (![[NSFileManager defaultManager] fileExistsAtPath:configPath])
+        [[NSFileManager defaultManager] createDirectoryAtPath:configPath
+                                        withIntermediateDirectories:NO
+                                        attributes:nil
+                                        error:&error];
+    
+    return configDir + "/";
+}
+//-----------------------------------------------------------------------------
+SLstring SLFileSystem::getCurrentWorkingDir()
+{
+    // Get the main bundle path and pass it the SLTexture and SLShaderProg
+    // This will be the default storage location for textures and shaders
+    NSString* bundlePath =[[NSBundle mainBundle] resourcePath];
+    string cwd = [bundlePath UTF8String];
+    return cwd + "/";
+}
+//-----------------------------------------------------------------------------
 
 
 

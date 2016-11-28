@@ -18,8 +18,7 @@
 #ifdef SL_OS_WINDOWS
     #include <direct.h> //_getcwd
 #elif defined(SL_OS_MACOS)
-    #include <unistd.h> //getcwd
-    #include <CoreServices/CoreServices.h>
+    #include <unistd.h>
 #elif defined(SL_OS_MACIOS)
     #include <unistd.h> //getcwd
 #elif defined(SL_OS_ANDROID)
@@ -62,22 +61,22 @@ SLstring SLFileSystem::getAppsWritableDir()
         SLstring configDir = appData + "/SLProject";
         if (!dirExists(configDir))
             _mkdir(configDir.c_str());
-        return configDir;
+        return configDir + "/";
     #elif defined(SL_OS_MACOS)
-        FSRef ref;
-        OSType folderType = kApplicationSupportFolderType;
-        char configDir[PATH_MAX];
-        FSFindFolder( kUserDomain, folderType, kCreateFolder, &ref );
-        FSRefMakePath( &ref, (UInt8*)&configDir, PATH_MAX );
-        return SLstring(configDir) + + "/SLProject";
+        SLstring home = getenv("HOME");
+        SLstring appData = home + "/Library/Application Support";
+        SLstring configDir = appData +"/SLProject";
+        if (!dirExists(configDir))
+            mkdir(configDir.c_str(), S_IRWXU);
+        return configDir + "/";
     #elif defined(SL_OS_ANDROID)
 
     #elif defined(SL_OS_LINUX)
         SLstring home = getenv("HOME");
         SLstring configDir = home +"/AppData/SLProject";
         if (!dirExists(configDir))
-            mkdir(configDir.c_str());
-        return configDir;
+            mkdir(configDir.c_str(), S_IRWXU | S_IRWXG | S_IRWXO);
+        return configDir + "/";
     #else
         #error "SL has not been ported to this OS"
     #endif
@@ -86,9 +85,15 @@ SLstring SLFileSystem::getAppsWritableDir()
 SLstring SLFileSystem::getCurrentWorkingDir()
 {
     #ifdef SL_OS_WINDOWS
-        return SLstring((const SLchar*)_getcwd);
+        return SLstring((const SLchar*)_getcwd());
     #else
-        return SLstring((const SLchar*)getcwd);
+        size_t size = 256;
+        char *buffer = (char *) malloc (size);
+        if (getcwd (buffer, size) == buffer)
+            return SLstring(buffer) + "/";
+
+        free (buffer);
+        return "";
     #endif
 }
 //-----------------------------------------------------------------------------

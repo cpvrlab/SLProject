@@ -115,25 +115,9 @@ float GetSeconds()
          dpi = 163 * screenScale;
     else dpi = 160 * screenScale;
    
-   
-    // Get the main bundle path and pass it the SLTexture and SLShaderProg
-    // This will be the default storage location for textures and shaders
-    NSString* bundlePath =[[NSBundle mainBundle] resourcePath];
-    string exeDir = [bundlePath UTF8String];
-    exeDir += "/";
     SLVstring cmdLineArgs;
-    
-    // Get library directory for config file
-    NSArray *paths = NSSearchPathForDirectoriesInDomains(NSLibraryDirectory, NSUserDomainMask, YES);
-    NSString *libraryDirectory = [paths objectAtIndex:0];
-    string configDir = [libraryDirectory UTF8String];
-    configDir += "/SLProject/";
-    NSString* configPath = [NSString stringWithUTF8String:configDir.c_str()];
-    
-    // Create if it does not exist
-    NSError *error;
-    if (![[NSFileManager defaultManager] fileExistsAtPath:configPath])
-        [[NSFileManager defaultManager] createDirectoryAtPath:configPath withIntermediateDirectories:NO attributes:nil error:&error];
+    SLstring exeDir = SLFileSystem::getCurrentWorkingDir();
+    SLstring configDir = SLFileSystem::getAppsWritableDir();
     
     //////////////////////////
     slCreateScene(cmdLineArgs,
