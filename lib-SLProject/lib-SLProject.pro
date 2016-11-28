@@ -63,6 +63,8 @@ HEADERS += \
 ../include/SLCylinder.h \
 ../include/SLCVCapture.h \
 ../include/SLCVCalibration.h \
+../include/SLCVFeatureMap2D.h \
+../include/SLCVFeatureMapper2D.h \
 ../include/SLCVTracker.h \
 ../include/SLCVTrackerAruco.h \
 ../include/SLCVTrackerChessboard.h \
@@ -154,6 +156,8 @@ source/GL/SLGLVertexArrayExt.cpp \
 source/GL/SLGLVertexBuffer.cpp \
 source/CV/SLCVCapture.cpp \
 source/CV/SLCVCalibration.cpp \
+source/CV/SLCVTracker.cpp \
+source/CV/SLCVFeatureMapper2D.cpp \
 source/CV/SLCVTrackerAruco.cpp \
 source/CV/SLCVTrackerChessboard.cpp \
 source/SLAABBox.cpp \
@@ -195,8 +199,7 @@ source/SLSceneView.cpp \
 source/SLScene_onLoad.cpp \
 source/SLSkeleton.cpp \
 source/SLSpheric.cpp \
-source/SLText.cpp \
-    source/CV/SLCVTracker.cpp
+source/SLText.cpp
 
 OTHER_FILES += \
 ../_data/shaders/BumpNormal.frag \
