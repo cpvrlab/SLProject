@@ -29,8 +29,8 @@ class SLButton;
 class SLText;
 
 //-----------------------------------------------------------------------------
-typedef std::vector<SLSceneView*> SLVSceneView; //!< Vector of SceneView pointers
-typedef std::vector<SLCVTracker*> SLVCVTracker; //!< Vector of CV tracker pointers
+typedef vector<SLSceneView*> SLVSceneView; //!< Vector of SceneView pointers
+typedef vector<SLCVTracker*> SLVCVTracker; //!< Vector of CV tracker pointers
 //-----------------------------------------------------------------------------
 //! The SLScene class represents the top level instance holding the scene structure
 /*!      

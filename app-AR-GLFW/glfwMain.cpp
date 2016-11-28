@@ -442,14 +442,15 @@ int main(int argc, char *argv[])
     cout << "DPI             : " << dpi << endl;
 
     // get executable path
-    SLstring exeDir = SLUtils::getPath(cmdLineArgs[0]);
+    SLstring exeDir = SLFileSystem::getCurrentWorkingDir();
+    SLstring configDir = SLFileSystem::getAppsWritableDir();
 
     slCreateScene(cmdLineArgs,
                   exeDir + "../_data/shaders/",
                   exeDir + "../_data/models/",
                   exeDir + "../_data/images/textures/",
                   exeDir + "../_data/calibrations/",
-                  exeDir + "../_data/calibrations/");
+                  configDir);
 
     svIndex = slCreateSceneView((int)(scrWidth  * scr2fbX),
                                 (int)(scrHeight * scr2fbY),
@@ -472,7 +473,7 @@ int main(int argc, char *argv[])
     {
         // if no updated occurred wait for the next event (power saving)
         if (!onPaint()) 
-            glfwWaitEvents();
+             glfwWaitEvents();
         else glfwPollEvents();
     }
    

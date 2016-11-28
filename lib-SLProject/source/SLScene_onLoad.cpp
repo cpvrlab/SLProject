@@ -1958,9 +1958,9 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         _root3D = scene;
     }
     else
-    if (_currentSceneID == C_sceneARCalibration)
+    if (_currentSceneID == C_sceneTrackChessboard)
     {
-        name("Camera Calibration");
+        name("Track Chessboard or Create Camera Calibration");
         if (_calibration.state() == CS_calibrated)
         {   stringstream ss; 
             ss << "Camera calibration: fov: " << _calibration.cameraFovDeg() << 
@@ -2026,7 +2026,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         }
     }
     else
-    if (_currentSceneID == C_sceneARTrackAruco)
+    if (_currentSceneID == C_sceneTrackAruco)
     {
         // Set scene name and info string
         name("AR Aruco Marker Tracking");
@@ -2096,6 +2096,75 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
 
         // Turn on constant redraw
         sv->waitEvents(false);
+    }
+    else
+    if (_currentSceneID == C_sceneTrackFeatures2D)
+    {
+        name("Track or Create 2D-Feature Marker");
+
+        //if (_calibration.state() == CS_calibrated)
+        //{   stringstream ss; 
+        //    ss << "Camera calibration: fov: " << _calibration.cameraFovDeg() << 
+        //          ", error: " << _calibration.reprojectionError();
+        //    info(sv, ss.str());
+        //} else
+        //    info(sv, "Tap on the screen to create a calibration foto: ");
+        
+        // Material
+        SLMaterial* yellow = new SLMaterial("mY", SLCol4f::YELLOW);
+
+        // Get the edge length of a chessboard
+        SLfloat e1 = _calibration.boardSquareM();
+        SLfloat e3 = e1 * 3.0f;
+        SLfloat e9 = e3 * 3.0f;
+
+        // Create a scene group node
+        SLNode* scene = new SLNode("scene node");
+
+        // Create a camera node
+        SLCamera* cam1 = new SLCamera();
+        cam1->name("camera node");
+        cam1->translation(0,0,5);
+        cam1->lookAt(0, 0, 0);
+        cam1->fov(_calibration.cameraFovDeg());
+        scene->addChild(cam1);
+
+        // Create a light source node
+        SLLightSpot* light1 = new SLLightSpot(e1*0.5f);
+        light1->translate(e9,e9,e9);
+        light1->name("light node");
+        scene->addChild(light1);
+        
+        // Build mesh & node that will be tracked by the camera marker  
+        SLBox* box = new SLBox(0.0f, 0.0f, 0.0f, e3, e3, e3, "Box", yellow);
+        SLNode* boxNode = new SLNode(box, "Box Node");
+        boxNode->setDrawBitsRec(SL_DB_WIREMESH, true);
+        boxNode->setDrawBitsRec(SL_DB_CULLOFF, true);
+        SLNode* axisNode = new SLNode(new SLCoordAxis(),"Axis Node");
+        axisNode->setDrawBitsRec(SL_DB_WIREMESH, false);
+        axisNode->scale(e3);
+        boxNode->addChild(axisNode);
+
+        scene->addChild(boxNode);
+
+        // Create OpenCV Tracker for the box node
+        //_trackers.push_back(new SLCVTrackerChessboard(cam1));
+
+        // Set backround texture to the video texture and use it
+        _background.texture(&_videoTexture, true);
+        _usesVideo = true;
+        
+        // pass the scene group as root node
+        _root3D = scene;
+
+        // Set active camera
+        sv->camera(cam1);
+        sv->waitEvents(false);
+
+        //if (_calibration.state() == CS_uncalibrated)
+        //{   menu2D(btnNoCalib());
+        //    _calibration.setCalibrationState();
+        //}
     }
     else
     if (_currentSceneID == C_sceneRTMuttenzerBox) //.................................

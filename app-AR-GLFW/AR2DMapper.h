@@ -54,7 +54,7 @@ public:
     {
         cv::Mat points2d;
         std::string typeName;
-        cv::FileStorage storage(SLCVCalibration::defaultPath + filename + ".yml", 
+        cv::FileStorage storage(SL::configPath + filename + ".yml", 
                                 cv::FileStorage::READ);
         storage["points2d"] >> points2d;
         storage["descriptors"] >> descriptors;
@@ -68,7 +68,7 @@ public:
         points2d.copyTo(pts);
         type = mapType(typeName);
 
-        image = cv::imread(SLCVCalibration::defaultPath + filename + ".png");
+        image = cv::imread(SL::configPath + filename + ".png");
     }
 
 

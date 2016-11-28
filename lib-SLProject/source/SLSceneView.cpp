@@ -1421,7 +1421,7 @@ SLbool SLSceneView::onCommand(SLCommand cmd)
             else return false;
         case C_noCalibToggle:
             if (s->menu2D())
-            {   if (s->currentSceneID() != C_sceneARCalibration)
+            {   if (s->currentSceneID() != C_sceneTrackChessboard)
                     s->onLoad(this, (SLCommand)C_sceneEmpty); 
                 s->menu2D(s->menuGL());
                 return true;
@@ -1454,8 +1454,9 @@ SLbool SLSceneView::onCommand(SLCommand cmd)
         case C_sceneSkeletalAnimation:
         case C_sceneAstroboyArmy:
 
-        case C_sceneARCalibration:
-        case C_sceneARTrackAruco:
+        case C_sceneTrackChessboard:
+        case C_sceneTrackAruco:
+        case C_sceneTrackFeatures2D:
 
         case C_sceneRTSpheres:
         case C_sceneRTMuttenzerBox:
@@ -1487,7 +1488,7 @@ SLbool SLSceneView::onCommand(SLCommand cmd)
         case C_animationToggle:     s->stopAnimations(!s->stopAnimations()); return true;
 
         case C_clearCalibration:    s->calibration().state(CS_uncalibrated); 
-                                    s->onLoad(this, C_sceneARCalibration); return false;
+                                    s->onLoad(this, C_sceneTrackChessboard); return false;
 
         case C_renderOpenGL:
             _renderType = RT_gl;
@@ -1696,9 +1697,10 @@ void SLSceneView::build2DMenus()
 
     mn3 = new SLButton(this, "Augmented Reality >", f);
     mn2->addChild(mn3);
+    mn3->addChild(new SLButton(this, "Track or Create 2D-Feature Marker", f, C_sceneTrackFeatures2D, true, curS==C_sceneTrackFeatures2D, mn2));
+    mn3->addChild(new SLButton(this, "Track ArUco Marker", f, C_sceneTrackAruco, true, curS==C_sceneTrackAruco, mn2));
+    mn3->addChild(new SLButton(this, "Track Chessboard or Calibrate Camera", f, C_sceneTrackChessboard, true, curS==C_sceneTrackChessboard, mn2));
     mn3->addChild(new SLButton(this, "Clear Camera Calibration", f, C_clearCalibration, false, false, mn2));
-    mn3->addChild(new SLButton(this, "Calibrate Camera", f, C_sceneARCalibration, true, curS==C_sceneARCalibration, mn2));
-    mn3->addChild(new SLButton(this, "Track Aruco Marker", f, C_sceneARTrackAruco, true, curS==C_sceneARTrackAruco, mn2));
    
     mn3 = new SLButton(this, "Ray tracing >", f);
     mn2->addChild(mn3);

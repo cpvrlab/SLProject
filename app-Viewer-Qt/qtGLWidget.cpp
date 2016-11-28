@@ -124,11 +124,12 @@ void qtGLWidget::initializeGL()
         #endif
 
         // Set the paths for shaders, models & textures
-        SLstring exeDir   = SLUtils::getPath(_cmdLineArgs[0]);
-        SLstring shaders  = exeDir + "../_data/shaders/";
-        SLstring models   = exeDir + "../_data/models/";
-        SLstring textures = exeDir + "../_data/images/textures/";
-        SLstring calibs   = exeDir + "../_data/calibrations/";
+        SLstring exeDir     = SLFileSystem::getCurrentWorkingDir();
+        SLstring shaders    = exeDir + "../_data/shaders/";
+        SLstring models     = exeDir + "../_data/models/";
+        SLstring textures   = exeDir + "../_data/images/textures/";
+        SLstring calibs     = exeDir + "../_data/calibrations/";
+        SLstring configPath = SLFileSystem::getAppsWritableDir();
 
         cout << "------------------------------------------------------------------" << endl;
         cout << "GUI             : Qt (Version: " << QT_VERSION_STR << ")" << endl;
@@ -139,7 +140,7 @@ void qtGLWidget::initializeGL()
                       models,
                       textures,
                       calibs,
-                      calibs);
+                      configPath);
     }   
 
     // Create a sceneview for every new glWidget

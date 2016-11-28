@@ -61,7 +61,7 @@ void slCreateScene(SLVstring& cmdLineArgs,
     SLGLProgram::defaultPath      = shaderPath;
     SLGLTexture::defaultPath      = texturePath;
     SLAssimpImporter::defaultPath = modelPath;
-    SLCVCalibration::defaultPath  = calibrationPath;
+    SLCVCalibration::calibIniPath  = calibrationPath;
     SL::configPath                = configPath;
 
     SLGLState* stateGL            = SLGLState::getInstance();

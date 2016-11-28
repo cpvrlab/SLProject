@@ -152,7 +152,7 @@ void AR2DMapper::createMap(cv::Mat image, float offsetXMM, float offsetYMM,
     _map.image = image;
 
     //save to file
-    _map.saveToFile(SLCVCalibration::defaultPath, filename);
+    _map.saveToFile(SL::configPath, filename);
 }
 //-----------------------------------------------------------------------------
 void AR2DMapper::clear()

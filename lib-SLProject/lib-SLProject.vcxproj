@@ -414,6 +414,8 @@
     <ClInclude Include="..\include\SLBackground.h" />
     <ClInclude Include="..\include\SLCompactGrid.h" />
     <ClInclude Include="..\include\SLCV.h" />
+    <ClInclude Include="..\include\SLCVFeatureMap2D.h" />
+    <ClInclude Include="..\include\SLCVFeatureMapper2D.h" />
     <ClInclude Include="..\include\SLCVTrackerAruco.h" />
     <ClInclude Include="..\include\SLCVCalibration.h" />
     <ClInclude Include="..\include\SLCVCapture.h" />
@@ -494,6 +496,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\lib-SLExternal\nvwa\debug_new.cpp" />
+    <ClCompile Include="source\CV\SLCVFeatureMapper2D.cpp" />
     <ClCompile Include="source\CV\SLCVTracker.cpp" />
     <ClCompile Include="source\CV\SLCVTrackerAruco.cpp" />
     <ClCompile Include="source\CV\SLCVCalibration.cpp" />

@@ -35,12 +35,12 @@ public:
 
     bool loadFromFile()
     {
-        string path = SLCVCalibration::defaultPath + filename;
+        string path = SLCVCalibration::calibIniPath + filename;
         cv::FileStorage fs(path, cv::FileStorage::READ);
         if(!fs.isOpened())
         {
             cout << "Could not find parameter file for ArUco tracking!" << endl;
-            cout << "Tried " << SLCVCalibration::defaultPath + filename << endl;
+            cout << "Tried " << SLCVCalibration::calibIniPath + filename << endl;
             return false;
         }
 

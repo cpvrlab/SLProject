@@ -18,7 +18,7 @@ using namespace std;
 
 //-----------------------------------------------------------------------------
 //! Default path for calibration files
-SLstring SLCVCalibration::defaultPath = "../_data/calibrations/";
+SLstring SLCVCalibration::calibIniPath = "../_data/calibrations/";
 //-----------------------------------------------------------------------------
 SLCVCalibration::SLCVCalibration() :
     _cameraFovDeg(1.0f),
@@ -80,10 +80,10 @@ bool SLCVCalibration::loadCamParams()
 bool SLCVCalibration::loadCalibParams()
 {
     FileStorage fs;
-    fs.open(defaultPath + _calibParamsFileName, FileStorage::READ);
+    fs.open(calibIniPath + _calibParamsFileName, FileStorage::READ);
     if (!fs.isOpened())
     {   cout << "Could not open the calibration parameter file: "
-             << (defaultPath + _calibParamsFileName) << endl;
+             << (calibIniPath + _calibParamsFileName) << endl;
         _state = CS_uncalibrated;
         return false;
     }

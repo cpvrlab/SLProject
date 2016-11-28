@@ -25,11 +25,11 @@ using namespace cv;
 bool ARChessboardTracker::init()
 {
     SLstring filename = "chessboard_detector_params.yml";
-    cv::FileStorage fs(SLCVCalibration::defaultPath + filename, 
+    cv::FileStorage fs(SLCVCalibration::calibIniPath + filename, 
                        cv::FileStorage::READ);
     if(!fs.isOpened())
     {   cout << "Could not find parameter file for Chessboard tracking!" << endl;
-        cout << "Tried " << SLCVCalibration::defaultPath + filename << endl;
+        cout << "Tried " << SLCVCalibration::calibIniPath + filename << endl;
         return false;
     }
     fs["boardWidth"]  >> _boardSize.width;

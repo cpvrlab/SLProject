@@ -70,8 +70,9 @@ SLstring SLFileSystem::getAppsWritableDir()
             mkdir(configDir.c_str(), S_IRWXU);
         return configDir + "/";
     #elif defined(SL_OS_ANDROID)
-
+        // @todo Where is the app data path on Andoroid?
     #elif defined(SL_OS_LINUX)
+        // @todo Where is the app data path on Linux?
         SLstring home = getenv("HOME");
         SLstring configDir = home +"/AppData/SLProject";
         if (!dirExists(configDir))
@@ -85,11 +86,17 @@ SLstring SLFileSystem::getAppsWritableDir()
 SLstring SLFileSystem::getCurrentWorkingDir()
 {
     #ifdef SL_OS_WINDOWS
-        return SLstring((const SLchar*)_getcwd());
+        SLint size = 256;
+        char* buffer = (char *) malloc (size);
+        if (_getcwd(buffer, size) == buffer)
+            return SLstring(buffer) + "/";
+
+        free (buffer);
+        return "";
     #else
         size_t size = 256;
-        char *buffer = (char *) malloc (size);
-        if (getcwd (buffer, size) == buffer)
+        char* buffer = (char *) malloc (size);
+        if (getcwd(buffer, size) == buffer)
             return SLstring(buffer) + "/";
 
         free (buffer);

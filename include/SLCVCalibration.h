@@ -51,7 +51,7 @@ public:
                                          SLCVMat imageGray,
                                          bool drawCorners = true);
 
-    static SLstring defaultPath;        //!< Default path for calibration files
+    static SLstring calibIniPath;       //!< calibration init parameters file path
     static void     calcBoardCorners3D  (SLCVSize boardSize, 
                                          SLfloat squareSize, 
                                          SLCVVPoint3f& objectPoints3D);

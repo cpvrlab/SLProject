@@ -99,8 +99,9 @@ enum SLCommand
     C_sceneNodeAnimation,
     C_sceneAstroboyArmy,
 
-    C_sceneARCalibration,
-    C_sceneARTrackAruco,
+    C_sceneTrackChessboard,
+    C_sceneTrackAruco,
+    C_sceneTrackFeatures2D,
 
     C_sceneRTMuttenzerBox,
     C_sceneRTSpheres,
@@ -347,6 +348,13 @@ enum SLCVCalibState
     CS_calibrateGrab,   //!< The calibration is running and an image should be grabbed
     CS_startCalculating,//!< The calibration starts during the next frame
     CS_calibrated       //!< The camera is calibrated 
+};
+//-----------------------------------------------------------------------------
+//! OpenCV feature type
+enum SLCVFeatureType
+{   FT_SIFT,    //!<
+    FT_SURF,    //!<
+    FT_ORB      //!< 
 };
 //-----------------------------------------------------------------------------
 #endif

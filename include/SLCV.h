@@ -24,6 +24,8 @@ typedef cv::Point2f                 SLCVPoint2f;
 typedef cv::Point3f                 SLCVPoint3f;
 typedef cv::Size                    SLCVSize;
 typedef cv::Size2f                  SLCVSize2f;
+typedef cv::KeyPoint                SLCVKeyPoint;
+typedef cv::FileStorage             SLCVFileStorage;
 
 // 1D STL vectors
 typedef vector<cv::Mat>             SLCVVMat;
@@ -32,6 +34,7 @@ typedef vector<cv::Point2f>         SLCVVPoint2f;
 typedef vector<cv::Point2d>         SLCVVPoint2d;
 typedef vector<cv::Point3f>         SLCVVPoint3f;
 typedef vector<cv::Point3d>         SLCVVPoint3d;
+typedef vector<cv::KeyPoint>        SLCVVKeyPoint;
 
 // 2D STL vectors 
 typedef vector<vector<cv::Point>>   SLCVVVPoint;
