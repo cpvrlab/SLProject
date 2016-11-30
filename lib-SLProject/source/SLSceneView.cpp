@@ -1697,7 +1697,7 @@ void SLSceneView::build2DMenus()
 
     mn3 = new SLButton(this, "Augmented Reality >", f);
     mn2->addChild(mn3);
-    mn3->addChild(new SLButton(this, "Track or Create 2D-Feature Marker", f, C_sceneTrackFeatures2D, true, curS==C_sceneTrackFeatures2D, mn2));
+    //mn3->addChild(new SLButton(this, "Track or Create 2D-Feature Marker", f, C_sceneTrackFeatures2D, true, curS==C_sceneTrackFeatures2D, mn2));
     mn3->addChild(new SLButton(this, "Track ArUco Marker", f, C_sceneTrackAruco, true, curS==C_sceneTrackAruco, mn2));
     mn3->addChild(new SLButton(this, "Track Chessboard or Calibrate Camera", f, C_sceneTrackChessboard, true, curS==C_sceneTrackChessboard, mn2));
     mn3->addChild(new SLButton(this, "Clear Camera Calibration", f, C_clearCalibration, false, false, mn2));
