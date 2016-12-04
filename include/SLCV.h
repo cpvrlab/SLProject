@@ -11,6 +11,18 @@
 #ifndef SLCV_H
 #define SLCV_H
 
+/* 
+If an application uses live video processing you have to define 
+the preprocessor contant SL_HAS_OPENCV in the project settings.
+The OpenCV library version 3.1 with extra module must be present.
+If the application captures the live video stream with OpenCV you have
+to define in addition the constant SL_USES_CVCAPTURE.
+All classes that use OpenCV begin with SLCV.
+See also the class docs for SLCVCapture, SLCVCalibration and SLCVTracker
+for a good top down information.
+*/
+#ifdef SL_HAS_OPENCV
+
 #include <stdafx.h>
 #include <opencv/cv.h>
 #include <opencv2/core.hpp>
@@ -41,4 +53,5 @@ typedef vector<vector<cv::Point>>   SLCVVVPoint;
 typedef vector<vector<cv::Point2f>> SLCVVVPoint2f;
 typedef vector<vector<cv::Point3f>> SLCVVVPoint3f;
 //-----------------------------------------------------------------------------
-#endif
+#endif // SL_CV_H
+#endif // SL_HAS_OPENCV

@@ -1,7 +1,7 @@
 //#############################################################################
 //  File:      SLCVCalibration.cpp
-//  Author:    Michael Göttlicher
-//  Date:      Spring 2016
+//  Author:    Michael Göttlicher, Marcus Hudritsch
+//  Date:      Winter 2016
 //  Codestyle: https://github.com/cpvrlab/SLProject/wiki/Coding-Style-Guidelines
 //  Copyright: Marcus Hudritsch
 //             This software is provide under the GNU General Public License
@@ -10,6 +10,18 @@
 
 #ifndef SLCVCALIBRATION_H
 #define SLCVCALIBRATION_H
+
+/* 
+If an application uses live video processing you have to define 
+the preprocessor contant SL_HAS_OPENCV in the project settings.
+The OpenCV library version 3.1 with extra module must be present.
+If the application captures the live video stream with OpenCV you have
+to define in addition the constant SL_USES_CVCAPTURE.
+All classes that use OpenCV begin with SLCV.
+See also the class docs for SLCVCapture, SLCVCalibration and SLCVTracker
+for a good top down information.
+*/
+#ifdef SL_HAS_OPENCV
 
 #include <stdafx.h>
 #include <SLCV.h>
@@ -94,3 +106,4 @@ private:
 };
 //-----------------------------------------------------------------------------
 #endif // SLCVCalibration_H
+#endif // SL_HAS_OPENCV

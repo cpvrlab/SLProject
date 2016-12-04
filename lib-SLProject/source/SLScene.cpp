@@ -116,12 +116,14 @@ SLScene::SLScene(SLstring name) : SLObject(name)
     // font and video texture are not added to the _textures vector
     SLTexFont::generateFonts();
 
+    #ifdef SL_HAS_OPENCV
     // load default video image that is displayed when no live video is available
     _videoTexture.setVideoImage("LiveVideoError.png");
 
     // load opencv camera calibration
     _calibration.loadCamParams();
     _calibration.loadCalibParams();
+    #endif // SL_HAS_OPENCV
 
     _oculus.init();
 
@@ -208,8 +210,10 @@ SLScene::~SLScene()
     _programs.clear();
         
     // delete AR tracker programs
+    #ifdef SL_HAS_OPENCV
     for (auto t : _trackers) delete t;
     _trackers.clear();
+    #endif
    
     // delete fonts   
     SLTexFont::deleteFonts();
@@ -245,7 +249,9 @@ void SLScene::init()
     _texCursor = new SLGLTexture("cursor.tga");
 
     // load dummy live video texture
+    #ifdef SL_HAS_OPENCV
     _usesVideo = false;
+    #endif
 }
 //-----------------------------------------------------------------------------
 /*! The scene uninitializing clears the scenegraph (_root3D) and all global
@@ -295,9 +301,11 @@ void SLScene::unInit()
         _programs.pop_back();
     }
 
-    // delete trackers 
+    // delete trackers
+    #ifdef SL_HAS_OPENCV
     for (auto t : _trackers) delete t;
     _trackers.clear();
+    #endif
    
     // clear eventHandlers
     _eventHandlers.clear();
@@ -402,7 +410,8 @@ bool SLScene::onUpdate()
     ////////////////////
     // 3) AR Tracking //
     ////////////////////
-
+    
+    #ifdef SL_HAS_OPENCV
     if (_usesVideo && !SLCVCapture::lastFrame.empty())
     {   
         // Invalidate calibration if camera input aspect doesn't match output
@@ -492,6 +501,7 @@ bool SLScene::onUpdate()
 
         }
     }
+    #endif // SL_HAS_OPENCV
 
 
     /////////////////////
@@ -603,12 +613,14 @@ void SLScene::copyVideoImage(SLint width,
                              SLbool isContinuous,
                              SLbool isTopLeft)
 {
+    #ifdef SL_HAS_OPENCV
     _videoTexture.copyVideoImage(width, 
                                  height, 
                                  srcPixelFormat, 
                                  data, 
                                  isContinuous,
                                  isTopLeft);
+    #endif
 }
 //-----------------------------------------------------------------------------
 //! Deletes all menus and buttons objects

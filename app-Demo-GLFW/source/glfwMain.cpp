@@ -58,8 +58,10 @@ onPaint: Paint event handler that passes the event to the slPaint function.
 SLbool onPaint()
 {
     // If live video image is requested grab it and copy it
+    #ifdef SL_HAS_OPENCV
     if (slUsesVideo())
         SLCVCapture::grabAndAdjustForSL();
+    #endif
 
     //////////////////////////////////////////////////
     bool viewNeedsRepaint = slUpdateAndPaint(svIndex);

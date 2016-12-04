@@ -438,12 +438,15 @@ void SLGLTexture::bindActive(SLint texID)
     {   _stateGL->activeTexture(GL_TEXTURE0 + texID);
         _stateGL->bindTexture(_target, _texName);
         SLScene* s = SLScene::current;
+        
+        #ifdef SL_HAS_OPENCV
         if (this == s->videoTexture() &&
             s->usesVideo() &&
             _needsUpdate)
         {   fullUpdate();
             _needsUpdate = false;
-        }   
+        }
+        #endif // SL_HAS_OPENCV
     }
 
     GET_GL_ERROR;

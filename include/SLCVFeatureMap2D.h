@@ -1,7 +1,7 @@
 //#############################################################################
 //  File:      SLCVFeatureMap2D.cpp
 //  Author:    Michael Göttlicher, Marcus Hudritsch
-//  Date:      Spring 2016
+//  Date:      Winter 2016
 //  Codestyle: https://github.com/cpvrlab/SLProject/wiki/Coding-Style-Guidelines
 //  Copyright: Marcus Hudritsch, Michael Göttlicher
 //             This software is provide under the GNU General Public License
@@ -10,6 +10,18 @@
 
 #ifndef SLCVFEATUREMAP2D_H
 #define SLCVFEATUREMAP2D_H
+
+/* 
+If an application uses live video processing you have to define 
+the preprocessor contant SL_HAS_OPENCV in the project settings.
+The OpenCV library version 3.1 with extra module must be present.
+If the application captures the live video stream with OpenCV you have
+to define in addition the constant SL_USES_CVCAPTURE.
+All classes that use OpenCV begin with SLCV.
+See also the class docs for SLCVCapture, SLCVCalibration and SLCVTracker
+for a good top down information.
+*/
+#ifdef SL_HAS_OPENCV
 
 #include <SLCV.h>
 
@@ -98,3 +110,4 @@ private:
 //-----------------------------------------------------------------------------
 
 #endif // SLCVFEATUREMAP2D_H
+#endif // SL_HAS_OPENCV

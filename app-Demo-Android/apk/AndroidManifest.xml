@@ -38,7 +38,7 @@
         </activity>
     </application>
     <uses-feature android:glEsVersion="0x00020000"/>
-    <uses-sdk android:minSdkVersion="15"/>
+    <uses-sdk android:minSdkVersion="21"/>
     <!--
     /*
     <uses-permission android:name="android.permission.CAMERA" />
