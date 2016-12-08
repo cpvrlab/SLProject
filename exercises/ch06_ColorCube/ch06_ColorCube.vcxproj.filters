@@ -1,6 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
+    <ClCompile Include="DiffuseCube.cpp" />
     <ClCompile Include="..\..\lib-SLProject\source\glUtils.cpp">
       <Filter>lib-SLProject</Filter>
     </ClCompile>
@@ -13,7 +14,6 @@
     <ClCompile Include="..\..\lib-SLProject\source\SL\SLImage.cpp">
       <Filter>lib-SLProject</Filter>
     </ClCompile>
-    <ClCompile Include="ColorCube.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\include\SLVec3.h">
@@ -39,8 +39,8 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\..\_data\shaders\Color.frag" />
-    <None Include="..\..\_data\shaders\ColorAttribute.vert" />
+    <None Include="..\..\_data\shaders\Diffuse.frag" />
+    <None Include="..\..\_data\shaders\Diffuse.vert" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="include">
