@@ -62,9 +62,11 @@ HEADERS += \
 ../include/SLCurveBezier.h \
 ../include/SLCylinder.h \
 ../include/SLCVCapture.h \
+../include/SLCV.h \
 ../include/SLCVCalibration.h \
 ../include/SLCVFeatureMap2D.h \
 ../include/SLCVFeatureMapper2D.h \
+../include/SLCVImage.h \
 ../include/SLCVTracker.h \
 ../include/SLCVTrackerAruco.h \
 ../include/SLCVTrackerChessboard.h \
@@ -158,6 +160,7 @@ source/CV/SLCVCapture.cpp \
 source/CV/SLCVCalibration.cpp \
 source/CV/SLCVTracker.cpp \
 source/CV/SLCVFeatureMapper2D.cpp \
+source/CV/SLCVImage.cpp \
 source/CV/SLCVTrackerAruco.cpp \
 source/CV/SLCVTrackerChessboard.cpp \
 source/SLAABBox.cpp \
