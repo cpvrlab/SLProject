@@ -120,15 +120,10 @@ void SLTexFont::create(const SLuchar *bmp, SLint bmpW, SLint bmpH)
     charsHeight = h;
     SLint texWidth  = nextPowerOf2(lmax);
     SLint texHeight = nextPowerOf2(14*(h+MARGIN_Y));
-   
-    //Allocate memory for image pixels using only the alpha channel
-    _images.clear();
-    SLPixelFormat format = _stateGL->pixelFormatIsSupported(PF_luminance) ? PF_luminance : PF_red;
-    _images.push_back(new SLImage(texWidth, texHeight, format));
   
     //Fill up with 0
-    SLuchar* bits = _images[0]->data();
-    memset(bits, 0, _images[0]->width()*_images[0]->height());
+    SLuchar* bits = new SLuchar[texWidth * texHeight];
+    memset(bits, 0, texWidth * texHeight);
    
     SLfloat du = 0.0f;
     SLfloat dv = 0.0f;
@@ -136,7 +131,7 @@ void SLTexFont::create(const SLuchar *bmp, SLint bmpW, SLint bmpH)
     for (r=0; r<14; ++r)
     {   for (SLint xx=0, ch=r*16; ch<(r+1)*16; ++ch)
         {   if (y1[ch]-y0[ch]==h-1)
-            {  for (y=0; y<h; ++y)
+            {   for (y=0; y<h; ++y)
                 {   for (x=x0[ch]; x<=x1[ch]; ++x)
                     {   SLfloat alpha = ((SLfloat)(bmp[x+(y0[ch]+y)*bmpW]))/256.0f;
                         //alpha = alpha*sqrtf(alpha); // powf(alpha, 1.5f);   // some gamma correction
@@ -153,11 +148,20 @@ void SLTexFont::create(const SLuchar *bmp, SLint bmpW, SLint bmpH)
             }
         }
     }
+
+    
+   
+    //Allocate memory for image pixels using only the alpha channel
+    _images.clear();
+    SLPixelFormat format = _stateGL->pixelFormatIsSupported(PF_luminance) ? PF_luminance : PF_red;
+    _images.push_back(new SLCVImage(texWidth, texHeight, format));
+    _images[0]->load(texWidth, texHeight, format, format, bits, true, false);
+    delete [] bits;
    
     // Set characters below 32 to default
     const SLuchar Undef = 127; // default character used as for undifined ones (having ascii codes from 0 to 31)
     for (ch=0; ch<32; ++ch)
-    {  chars[ch].tx1 = chars[Undef].tx1;
+    {   chars[ch].tx1 = chars[Undef].tx1;
         chars[ch].tx2 = chars[Undef].tx2;
         chars[ch].ty1 = chars[Undef].ty1;
         chars[ch].ty2 = chars[Undef].ty2;

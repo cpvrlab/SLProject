@@ -144,9 +144,6 @@
     <ClInclude Include="..\include\SLFileSystem.h">
       <Filter>SL</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\SLImage.h">
-      <Filter>SL</Filter>
-    </ClInclude>
     <ClInclude Include="..\include\SLInterface.h">
       <Filter>SL</Filter>
     </ClInclude>
@@ -321,6 +318,9 @@
     <ClInclude Include="..\include\SLCVFeatureMapper2D.h">
       <Filter>CV</Filter>
     </ClInclude>
+    <ClInclude Include="..\include\SLCVImage.h">
+      <Filter>CV</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="source\SLAABBox.cpp">
@@ -390,9 +390,6 @@
       <Filter>SL</Filter>
     </ClCompile>
     <ClCompile Include="source\SL\SLFileSystem.cpp">
-      <Filter>SL</Filter>
-    </ClCompile>
-    <ClCompile Include="source\SL\SLImage.cpp">
       <Filter>SL</Filter>
     </ClCompile>
     <ClCompile Include="source\SL\SLInterface.cpp">
@@ -525,6 +522,9 @@
       <Filter>CV</Filter>
     </ClCompile>
     <ClCompile Include="source\CV\SLCVFeatureMapper2D.cpp">
+      <Filter>CV</Filter>
+    </ClCompile>
+    <ClCompile Include="source\CV\SLCVImage.cpp">
       <Filter>CV</Filter>
     </ClCompile>
   </ItemGroup>

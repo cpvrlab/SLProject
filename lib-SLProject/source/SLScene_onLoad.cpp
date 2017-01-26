@@ -199,11 +199,9 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
                        SL::singleTestIsRunning() ? SL::testScene : SL::testSceneAll;
 
     // Reset calibration process at scene change
-    #ifdef SL_HAS_OPENCV
     if (_calibration.state() != CS_calibrated && 
         _calibration.state() != CS_uncalibrated)
         _calibration.state(CS_uncalibrated);
-    #endif // SL_HAS_OPENCV
 
     if (_currentSceneID == C_sceneEmpty) //..........................................
     {   
@@ -1874,7 +1872,6 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         _root3D = scene;
     }
     else
-    #ifdef SL_HAS_OPENCV
     if (_currentSceneID == C_sceneChristoffel) //..................... ..............
     {
         name("Christoffel Tower");
@@ -2169,7 +2166,6 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         //}
     }
     else
-    #endif // SL_HAS_OPENCV
     if (_currentSceneID == C_sceneRTMuttenzerBox) //.................................
     {
         name("Muttenzer Box (RT)");

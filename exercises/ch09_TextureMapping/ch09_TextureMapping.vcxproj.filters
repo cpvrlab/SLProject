@@ -14,6 +14,9 @@
     <ClCompile Include="..\..\lib-SLProject\source\SL\stdafx.cpp">
       <Filter>SLProject</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\lib-SLProject\source\CV\SLCVImage.cpp">
+      <Filter>SLProject</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="SLProject">
@@ -30,9 +33,6 @@
     <ClInclude Include="..\..\include\SL.h">
       <Filter>include</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\include\SLImage.h">
-      <Filter>include</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\include\SLMat4.h">
       <Filter>include</Filter>
     </ClInclude>
@@ -43,6 +43,9 @@
       <Filter>include</Filter>
     </ClInclude>
     <ClInclude Include="..\..\include\stdafx.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\SLCVImage.h">
       <Filter>include</Filter>
     </ClInclude>
   </ItemGroup>

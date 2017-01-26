@@ -12,15 +12,13 @@
 #define SLIMAGE_H
 
 #include <stdafx.h>
-
-#ifdef SL_HAS_OPENCV
 #include <SLCV.h>
-#include <opencv2/opencv.hpp>
-#endif
 
 //-----------------------------------------------------------------------------
 //! OpenCV image class with the same interface as the former SLImage class
-/*!
+/*! Before OpenCV was integrated we used the class SLImage to load images.
+It used the PNG and JPEG library to load these formats. Since the integration
+of OpenCV we kept the interface and migrated the methods to work with OpenCV.
 */
 class SLCVImage : public SLObject
 {
@@ -56,18 +54,18 @@ class SLCVImage : public SLObject
             void            setPixeliRGB    (SLint x, SLint y, SLCol3f color);
             void            setPixeliRGB    (SLint x, SLint y, SLCol4f color);
             void            setPixeliRGBA   (SLint x, SLint y, SLCol4f color);
-//            void            resize          (SLint width,
-//                                             SLint height,
-//                                             SLImage* dstImg=0,
-//                                             SLbool invert=false);
+            void            resize          (SLint width,
+                                             SLint height);
             void            flipY           ();
-            void            fill            (SLubyte r=0, 
-                                             SLubyte g=0,
-                                             SLubyte b=0);
-            void            fill            (SLubyte r=0,
-                                             SLubyte g=0,
-                                             SLubyte b=0,
-                                             SLubyte a=0);
+            void            fill            (SLubyte r, 
+                                             SLubyte g,
+                                             SLubyte b);
+            void            fill            (SLubyte r,
+                                             SLubyte g,
+                                             SLubyte b,
+                                             SLubyte a);
+    static  SLPixelFormat   cv2glPixelFormat(SLint cvType);
+
             // Getters                      
             SLCVMat         cvMat           () {return _cvMat;}
             SLubyte*        data            () {return _cvMat.data;}

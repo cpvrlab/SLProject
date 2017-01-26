@@ -12,7 +12,7 @@
 #define SLGLTEXTURE_H
 
 #include <stdafx.h>
-#include <SLImage.h>
+#include <SLCVImage.h>
 #include <SLGLVertexArray.h>
 
 //-----------------------------------------------------------------------------
@@ -45,7 +45,7 @@ enum SLTextureType
 //! Texture object for OpenGL texturing
 /*!      
 The SLGLTexture class implements an OpenGL texture object that can is used by the 
-SLMaterial class. A texture can have 1-n SLImages in the vector _images.
+SLMaterial class. A texture can have 1-n SLCVImages in the vector _images.
 A simple 2D texture has just a single texture image (_images[0]). For cube maps
 you will need 6 images (_images[0-5]). For 3D textures you can have as much
 images of the same size than your GPU and/or CPU memory can hold.
@@ -95,7 +95,7 @@ class SLGLTexture : public SLObject
             void            bumpScale       (SLfloat bs)    {_bumpScale = bs;}
       
             // Getters
-            SLVImage&       images          (){return _images;}
+            SLCVVImage&     images          (){return _images;}
             SLenum          target          (){return _target;}
             SLTextureType   texType         (){return _texType;}
             SLfloat         bumpScale       (){return _bumpScale;}
@@ -136,7 +136,7 @@ class SLGLTexture : public SLObject
             void            load            (SLstring filename);
                                
             SLGLState*      _stateGL;        //!< Pointer to global SLGLState instance
-            SLVImage        _images;         //!< vector of SLImage pointers
+            SLCVVImage      _images;         //!< vector of SLCVImage pointers
             SLuint          _texName;        //!< OpenGL texture "name" (= ID)
             SLTextureType   _texType;        //!< [unknown, ColorMap, NormalMap, HeightMap, GlossMap]
             SLint           _min_filter;     //!< Minification filter

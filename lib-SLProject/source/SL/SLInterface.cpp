@@ -61,9 +61,7 @@ void slCreateScene(SLVstring& cmdLineArgs,
     SLGLProgram::defaultPath      = shaderPath;
     SLGLTexture::defaultPath      = texturePath;
     SLAssimpImporter::defaultPath = modelPath;
-    #ifdef SL_HAS_OPENCV
-    SLCVCalibration::calibIniPath  = calibrationPath;
-    #endif
+    SLCVCalibration::calibIniPath = calibrationPath;
     SL::configPath                = configPath;
 
     SLGLState* stateGL            = SLGLState::getInstance();
@@ -75,13 +73,9 @@ void slCreateScene(SLVstring& cmdLineArgs,
     SL_LOG("Path to Textures: %s\n", texturePath.c_str());
     SL_LOG("Path to Calibr. : %s\n", calibrationPath.c_str());
     SL_LOG("Path to Config. : %s\n", configPath.c_str());
-    #ifdef SL_HAS_OPENCV
     SL_LOG("OpenCV Version  : %d.%d.%d\n", CV_MAJOR_VERSION,
                                            CV_MINOR_VERSION,
                                            CV_VERSION_REVISION);
-    #else
-    SL_LOG("OpenCV Version  : Not installed\n");
-    #endif
     SL_LOG("OpenGL Version  : %s\n", stateGL->glVersion().c_str());
     SL_LOG("Vendor          : %s\n", stateGL->glVendor().c_str());
     SL_LOG("Renderer        : %s\n", stateGL->glRenderer().c_str());
@@ -440,7 +434,6 @@ void slCopyVideoImage(SLint width,
                       SLbool isContinuous,
                       SLbool isTopLeft)
 {
-    #ifdef SL_HAS_OPENCV
     SLCVCapture::loadIntoLastFrame(width,
                                    height,
                                    format,
@@ -448,18 +441,13 @@ void slCopyVideoImage(SLint width,
                                    isContinuous,
                                    isTopLeft);
     SLCVCapture::adjustForSL();
-    #endif
 }
 //-----------------------------------------------------------------------------
 /*! Global function returns true if SL wants a live video images
 */
 bool slUsesVideo()
 {
-    #ifdef SL_HAS_OPENCV
     return SLScene::current->usesVideo();
-    #else
-    return false;
-    #endif
 }
 //-----------------------------------------------------------------------------
 

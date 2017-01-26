@@ -11,7 +11,7 @@
 #include <stdafx.h>           // precompiled headers
 
 #include <glUtils.h>
-#include <SLImage.h>          // for image loading
+#include <SLCVImage.h>          // for image loading
 
 #include <algorithm>
 #include <numeric>
@@ -26,6 +26,8 @@ void glUtils::printGLInfo()
 	std::cout << "GLSL Version    : " << glGetString(GL_SHADING_LANGUAGE_VERSION) << std::endl;
 	std::cout << "OpenGL Renderer : " << glGetString(GL_RENDERER) << std::endl;
 	std::cout << "OpenGL Vendor   : " << glGetString(GL_VENDOR) << std::endl;
+
+    GETGLERROR;
     /*
 	std::cout << "OpenGL Extensions:" << std::endl;
 	std::stringstream ss;
@@ -291,7 +293,7 @@ GLuint glUtils::buildTexture(string textureFile,
                              GLint wrapT)
 {  
     // load texture image
-    SLImage img(textureFile);
+    SLCVImage img(textureFile);
 
     // check max. size
     GLint maxSize = 0;
@@ -318,21 +320,22 @@ GLuint glUtils::buildTexture(string textureFile,
 
     // Copy image data to the GPU. The image can be delete afterwards
     glTexImage2D(GL_TEXTURE_2D,     // target texture type 1D, 2D or 3D
-                 0,                 // Base level for mipmapped textures
-                 img.format(),      // internal format: e.g. GL_RGBA, see spec.
-                 img.width(),       // image width
-                 img.height(),      // image height
-                 0,                 // border pixels: must be 0
-                 img.format(),      // data format: e.g. GL_RGBA, see spec. 
-                 GL_UNSIGNED_BYTE,  // data type
-                 (GLvoid*)img.data()); // image data pointer
+                    0,                 // Base level for mipmapped textures
+                    img.format(),      // internal format: e.g. GL_RGBA, see spec.
+                    img.width(),       // image width
+                    img.height(),      // image height
+                    0,                 // border pixels: must be 0
+                    img.format(),      // data format: e.g. GL_RGBA, see spec. 
+                    GL_UNSIGNED_BYTE,  // data type
+                    (GLvoid*)img.data()); // image data pointer
    
-   // generate the mipmap levels 
-   if (min_filter>=GL_NEAREST_MIPMAP_NEAREST)
-	{  glGenerateMipmap(GL_TEXTURE_2D);
-   }
+    // generate the mipmap levels 
+    if (min_filter>=GL_NEAREST_MIPMAP_NEAREST)
+        glGenerateMipmap(GL_TEXTURE_2D);
+
+    GETGLERROR;
    
-   return textureHandle;
+    return textureHandle;
 }
 
 //-----------------------------------------------------------------------------
@@ -355,7 +358,7 @@ GLuint glUtils::build3DTexture(const std::vector<std::string> &files,
 	//The checks takes up valuable runtime; only do it in debug builds
     assert(files.size() > 0);
 
-    SLImage first(files.front());
+    SLCVImage first(files.front());
     if (min(min((SLuint)files.size(), first.height()), first.width()) > maxSize)
     {
         std::cout << "glUtils: Texture is too big in at least one dimension."<< std::endl;
@@ -367,7 +370,7 @@ GLuint glUtils::build3DTexture(const std::vector<std::string> &files,
     unsigned char *imageData = &buffer[0]; //Concatenate the image data in a new buffer
     for (auto &file : files)
     {
-        SLImage image(file);
+        SLCVImage image(file);
         assert(image.height() == first.height());
         assert(image.width()  == first.width());
         assert(image.format() == first.format());

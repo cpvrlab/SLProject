@@ -15,9 +15,9 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\lib-SLProject\source\CV\SLCVImage.cpp" />
     <ClCompile Include="..\..\lib-SLProject\source\glUtils.cpp" />
     <ClCompile Include="..\..\lib-SLProject\source\SL\SL.cpp" />
-    <ClCompile Include="..\..\lib-SLProject\source\SL\SLImage.cpp" />
     <ClCompile Include="..\..\lib-SLProject\source\SL\stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
@@ -26,11 +26,11 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\include\glUtils.h" />
+    <ClInclude Include="..\..\include\SLCVImage.h" />
     <ClInclude Include="..\..\include\SLMat3.h" />
     <ClInclude Include="..\..\include\SLMat4.h" />
     <ClInclude Include="..\..\include\SLVec3.h" />
     <ClInclude Include="..\..\include\SL.h" />
-    <ClInclude Include="..\..\include\SLImage.h" />
     <ClInclude Include="..\..\include\stdafx.h" />
   </ItemGroup>
   <ItemGroup>
@@ -169,9 +169,9 @@
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>opengl32.lib;lib-SLExternal.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>opengl32.lib;lib-SLExternal.lib;opencv_core310d.lib;opencv_imgproc310d.lib;opencv_imgcodecs310d.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
-      <AdditionalLibraryDirectories>$(SolutionDir)_lib\$(Configuration)\$(Platform)\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(SolutionDir)_lib\$(Configuration)\$(Platform)\;$(SolutionDir)_lib\prebuilt\OpenCV\x64\vc14\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Console</SubSystem>
       <RandomizedBaseAddress>true</RandomizedBaseAddress>
@@ -247,9 +247,9 @@
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>opengl32.lib;lib-SLExternal.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>opengl32.lib;lib-SLExternal.lib;opencv_core310.lib;opencv_imgproc310.lib;opencv_imgcodecs310.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
-      <AdditionalLibraryDirectories>$(SolutionDir)_lib\$(Configuration)\$(Platform)\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(SolutionDir)_lib\$(Configuration)\$(Platform)\;$(SolutionDir)_lib\prebuilt\OpenCV\x64\vc14\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <GenerateDebugInformation>false</GenerateDebugInformation>
       <SubSystem>Console</SubSystem>
       <OptimizeReferences>true</OptimizeReferences>

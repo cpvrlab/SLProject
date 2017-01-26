@@ -175,7 +175,7 @@ void SLGLTexture::load(SLstring filename)
         }
     }
     
-    _images.push_back(new SLImage(filename));
+    _images.push_back(new SLCVImage(filename));
 }
 //-----------------------------------------------------------------------------
 void SLGLTexture::setVideoImage(SLstring videoImageFile)
@@ -395,7 +395,7 @@ void SLGLTexture::build(SLint texID)
         SLuchar* imageData = &buffer[0];
 
         // copy each image data into temp. buffer
-        for (SLImage* img : _images)
+        for (SLCVImage* img : _images)
         {   memcpy(imageData, img->data(), img->bytesPerImage());
             imageData += img->bytesPerImage();
             _bytesOnGPU += _images[0]->bytesPerImage();
@@ -439,14 +439,12 @@ void SLGLTexture::bindActive(SLint texID)
         _stateGL->bindTexture(_target, _texName);
         SLScene* s = SLScene::current;
         
-        #ifdef SL_HAS_OPENCV
         if (this == s->videoTexture() &&
             s->usesVideo() &&
             _needsUpdate)
         {   fullUpdate();
             _needsUpdate = false;
         }
-        #endif // SL_HAS_OPENCV
     }
 
     GET_GL_ERROR;
@@ -629,7 +627,7 @@ void SLGLTexture::build2DMipmaps(SLint target, SLuint index)
     GET_GL_ERROR;
     
     // working copy of the base mipmap   
-    SLImage img2(*_images[index]);
+    SLCVImage img2(*_images[index]);
    
     // create half sized sub level mipmaps
     while(img2.width() > 1 || img2.height() > 1 )

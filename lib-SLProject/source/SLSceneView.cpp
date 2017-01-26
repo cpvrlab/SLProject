@@ -1022,11 +1022,9 @@ SLbool SLSceneView::onMouseDown(SLMouseButton button,
         }
     } 
     
-    #ifdef SL_HAS_OPENCV
     // Grab image during calibration if calibration stream is running
     if (s->calibration().state() == CS_calibrateStream)
-        s->calibration().state(CS_calibrateGrab); 
-    #endif
+        s->calibration().state(CS_calibrateGrab);
 
     return result;
 }  
@@ -1488,12 +1486,8 @@ SLbool SLSceneView::onCommand(SLCommand cmd)
         case C_textureToggle:      _drawBits.toggle(SL_DB_TEXOFF);   return true;
 
         case C_animationToggle:     s->stopAnimations(!s->stopAnimations()); return true;
-        
-        #ifdef SL_HAS_OPENCV
         case C_clearCalibration:    s->calibration().state(CS_uncalibrated); 
                                     s->onLoad(this, C_sceneTrackChessboard); return false;
-        #endif
-
         case C_renderOpenGL:
             _renderType = RT_gl;
             s->menu2D(s->menuGL());
@@ -1697,7 +1691,6 @@ void SLSceneView::build2DMenus()
     mn3->addChild(new SLButton(this, "Skeletal Animation", f, C_sceneSkeletalAnimation, true, curS==C_sceneSkeletalAnimation, mn2));
     mn3->addChild(new SLButton(this, "Node Animation", f, C_sceneNodeAnimation, true, curS==C_sceneNodeAnimation, mn2));
     
-    #ifdef SL_HAS_OPENCV
     mn3 = new SLButton(this, "Using Video >", f);
     mn2->addChild(mn3);
     //mn3->addChild(new SLButton(this, "Track or Create 2D-Feature Marker", f, C_sceneTrackFeatures2D, true, curS==C_sceneTrackFeatures2D, mn2));
@@ -1706,7 +1699,6 @@ void SLSceneView::build2DMenus()
     mn3->addChild(new SLButton(this, "Clear Camera Calibration", f, C_clearCalibration, false, false, mn2));
     mn3->addChild(new SLButton(this, "Christoffel Tower", f, C_sceneChristoffel, true, curS == C_sceneChristoffel, mn2));
     mn3->addChild(new SLButton(this, "Texture from live video", f, C_sceneTextureVideo, true, curS==C_sceneTextureVideo, mn2));
-    #endif
    
     mn3 = new SLButton(this, "Ray tracing >", f);
     mn2->addChild(mn3);

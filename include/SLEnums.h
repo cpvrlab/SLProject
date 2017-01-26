@@ -63,7 +63,9 @@ enum SLPixelFormat
     PF_rgb_integer = 0x8D98,       //     ES3         GL4
     PF_rgba_integer = 0x8D99,      //     ES3         GL4
     PF_bgr_integer = 0x8D9A,       //                 GL4
-    PF_bgra_integer = 0x8D9B       //                 GL4
+    PF_bgra_integer = 0x8D9B,      //                 GL4
+
+    PF_unknown = 0
 };
 //-----------------------------------------------------------------------------
 //! SLCommand enumerates all possible menu and keyboard commands

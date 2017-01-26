@@ -57,7 +57,7 @@ SLbool SLPathtracer::render(SLSceneView* sv)
     prepareImage();
 
     // Set second image for render update to the same size
-    _images.push_back(new SLImage(_sv->scrW(), _sv->scrH(), PF_rgb));
+    _images.push_back(new SLCVImage(_sv->scrW(), _sv->scrH(), PF_rgb));
 
     // Measure time 
     double t1 = SLScene::current->timeSec();

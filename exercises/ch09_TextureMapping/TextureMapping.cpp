@@ -267,7 +267,7 @@ void onInit()
     _mouseLeftDown = false;
 
     // Load textures
-    _textureID = glUtils::buildTexture(_exeDir + "../_data/images/textures/earth2048_C.jpg");
+    _textureID = glUtils::buildTexture(_exeDir + "../_data/images/textures/earth1024_C.jpg");
 
     // Load, compile & link shaders
     _shaderVertID = glUtils::buildShader(_exeDir + "../_data/shaders/ADSTex.vert", GL_VERTEX_SHADER);

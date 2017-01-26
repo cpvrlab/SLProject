@@ -633,8 +633,8 @@ void qtMainWindow::buildPropertyTree()
                     level2->addChild(level3);
                     for (auto image : texture->images())
                     {   level4 = new qtProperty("Image:", "", onDblClickFile);
-                        level4->getNameAndURL(bind((const string&(SLImage::*)(void)const)&SLImage::name, image),
-                                              bind((const string&(SLImage::*)(void)const)&SLImage::url, image));
+                        level4->getNameAndURL(bind((const string&(SLCVImage::*)(void)const)&SLCVImage::name, image),
+                                              bind((const string&(SLCVImage::*)(void)const)&SLCVImage::url, image));
                         level3->addChild(level4);
                     }
                 }
