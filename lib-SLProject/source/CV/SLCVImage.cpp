@@ -471,33 +471,36 @@ SLCol4f SLCVImage::getPixeli(SLint x, SLint y)
     {   case PF_rgb:
         {   cv::Vec3b c = _cvMat.at<cv::Vec3b>(y, x);
             color.set(c.val[0], c.val[1], c.val[2], 255.0f);
-        } break;
+            break;
+        }
         case PF_rgba:
         {   cv::Vec4b c = _cvMat.at<cv::Vec4b>(y, x);
             color.set(c.val[0], c.val[1], c.val[2], c.val[3]);
-        } break;
+            break;
+        }
         case PF_bgra:
         {   cv::Vec4b c = _cvMat.at<cv::Vec4b>(y, x);
             color.set(c.val[2], c.val[1], c.val[0], c.val[3]);
-        } break;
+            break;
+        }
         #ifdef SL_GLES2
         case PF_luminance:
         #else
         case PF_red:
-        {
         #endif
-            SLuchar c = _cvMat.at<SLuchar>(y, x);
+        {   SLuchar c = _cvMat.at<SLuchar>(y, x);
             color.set(c, c, c, 255.0f);
-        } break;
+            break;
+        }
         #ifdef SL_GLES2
         case PF_luminance_alpha:
         #else
         case PF_rg:
-        {
         #endif
-            cv::Vec2b c = _cvMat.at<cv::Vec2b>(y, x);
+        {   cv::Vec2b c = _cvMat.at<cv::Vec2b>(y, x);
             color.set(c.val[0], c.val[0], c.val[0], c.val[1]);
-        } break;
+            break;
+        }
         default: SL_EXIT_MSG("SLCVImage::getPixeli: Unknown format!");
     }
     color /= 255.0f;   
