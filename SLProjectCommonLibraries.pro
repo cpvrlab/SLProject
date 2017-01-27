@@ -35,9 +35,7 @@ win32 {
     DEFINES += _GLFW_NO_DLOAD_GDI32
     DEFINES += _GLFW_NO_DLOAD_WINMM
     DEFINES -= UNICODE
-    DEFINES += SL_HAS_OPENCV
-    INCLUDEPATH += ../lib-SLExternal/png \
-                   ../lib-SLExternal/dirent \
+    INCLUDEPATH += ../lib-SLExternal/dirent \
 }
 macx {
     # mac only
@@ -49,20 +47,18 @@ macx {
     LIBS += -framework OpenGL
     LIBS += -framework QuartzCore
     LIBS += -stdlib=libc++
-    LIBS += -L../_lib/prebuilt/OpenCV/macx -lopencv_core
-    LIBS += -L../_lib/prebuilt/OpenCV/macx -lopencv_imgproc
-    LIBS += -L../_lib/prebuilt/OpenCV/macx -lopencv_imgcodecs
-    LIBS += -L../_lib/prebuilt/OpenCV/macx -lopencv_video
-    LIBS += -L../_lib/prebuilt/OpenCV/macx -lopencv_videoio
-    LIBS += -L../_lib/prebuilt/OpenCV/macx -lopencv_aruco
-    LIBS += -L../_lib/prebuilt/OpenCV/macx -lopencv_features2d
-    LIBS += -L../_lib/prebuilt/OpenCV/macx -lopencv_xfeatures2d
-    LIBS += -L../_lib/prebuilt/OpenCV/macx -lopencv_calib3d
-    LIBS += -L../_lib/prebuilt/OpenCV/macx -lopencv_highgui
-    LIBS += -L../_lib/prebuilt/OpenCV/macx -lopencv_flann
-    INCLUDEPATH += ../lib-SLExternal/png
+    LIBS += -L$$PWD/_lib/prebuilt/OpenCV/macx -lopencv_core
+    LIBS += -L$$PWD/_lib/prebuilt/OpenCV/macx -lopencv_imgproc
+    LIBS += -L$$PWD/_lib/prebuilt/OpenCV/macx -lopencv_imgcodecs
+    LIBS += -L$$PWD/_lib/prebuilt/OpenCV/macx -lopencv_video
+    LIBS += -L$$PWD/_lib/prebuilt/OpenCV/macx -lopencv_videoio
+    LIBS += -L$$PWD/_lib/prebuilt/OpenCV/macx -lopencv_aruco
+    LIBS += -L$$PWD/_lib/prebuilt/OpenCV/macx -lopencv_features2d
+    LIBS += -L$$PWD/_lib/prebuilt/OpenCV/macx -lopencv_xfeatures2d
+    LIBS += -L$$PWD/_lib/prebuilt/OpenCV/macx -lopencv_calib3d
+    LIBS += -L$$PWD/_lib/prebuilt/OpenCV/macx -lopencv_highgui
+    LIBS += -L$$PWD/_lib/prebuilt/OpenCV/macx -lopencv_flann
     INCLUDEPATH += /usr/include
-    DEFINES += SL_HAS_OPENCV
 }
 unix:!macx:!android {
     # Install opencv with the following command:
@@ -83,7 +79,6 @@ unix:!macx:!android {
             #Scan for opencv libs, if one is missing, remove the opencv flag.
             for(lib,OPENCV_LIBS):!exists($$dir/lib$${lib}.so*):CONFIG -= opencv
             opencv {
-                DEFINES += SL_HAS_OPENCV
                 INCLUDEPATH += /usr/include/
                 LIBS += -L$$dir
                 for(lib,OPENCV_LIBS) LIBS += -l$$lib

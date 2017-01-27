@@ -44,11 +44,9 @@ INCLUDEPATH += \
     ../lib-SLExternal/assimp/code \
     ../lib-SLExternal/glew/include \
     ../lib-SLExternal/glfw3/include \
-    ../lib-SLExternal/zlib\
     ../lib-SLExternal/randomc \
     ../lib-SLExternal/half/include \
     ../lib-SLExternal/nvwa \
-    ../lib-SLExternal/jpeg-8 \
     ../lib-SLExternal/oculus/LibOVR/Include \
     ../lib-SLExternal/opencv/include \
     ../lib-SLExternal/half/include \

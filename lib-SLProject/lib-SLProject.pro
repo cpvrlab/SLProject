@@ -90,7 +90,6 @@ HEADERS += \
 ../include/SLGLVertexArrayExt.h \
 ../include/SLGLVertexBuffer.h \
 ../include/SLGrid.h \
-../include/SLImage.h \
 ../include/SLImporter.h \
 ../include/SLInputDevice.h \
 ../include/SLInputEvent.h \
@@ -142,7 +141,6 @@ source/math/SLPlane.cpp \
 source/SL/SL.cpp \
 source/SL/SLAssimpImporter.cpp \
 source/SL/SLFileSystem.cpp \
-source/SL/SLImage.cpp \
 source/SL/SLImporter.cpp \
 source/SL/SLInterface.cpp \
 source/SL/SLTexFont.cpp \

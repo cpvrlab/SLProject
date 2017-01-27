@@ -9,14 +9,14 @@
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
 
-#include "stdafx.h"
-#include "glUtils.h"   // Basics for OpenGL shaders, buffers & textures
-#include "SL.h"        // Basic SL type definitions
-#include "SLImage.h"   // Image class for image loading
-#include "SLVec3.h"    // 3D vector class
-#include "SLMat4.h"    // 4x4 matrix class
-#include "../lib-SLExternal/glew/include/GL/glew.h"     // OpenGL headers
-#include "../lib-SLExternal/glfw3/include/GLFW/glfw3.h" // GLFW GUI library 
+#include <stdafx.h>
+#include <glUtils.h>    // Basics for OpenGL shaders, buffers & textures
+#include <SL.h>         // Basic SL type definitions
+#include <SLCVImage.h>  // Image class for image loading
+#include <SLVec3.h>     // 3D vector class
+#include <SLMat4.h>     // 4x4 matrix class
+#include <GL/glew.h>    // OpenGL headers
+#include <GLFW/glfw3.h> // GLFW GUI library
 
 //-----------------------------------------------------------------------------
 //! Struct definition for vertex attributes

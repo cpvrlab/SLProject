@@ -29,72 +29,26 @@ DESTDIR = ../../_bin-$$CONFIGURATION-$$PLATFORM
 OBJECTS_DIR = ../../intermediate/$$TARGET/$$CONFIGURATION/$$PLATFORM
 LIBS += -L../../_lib/$$CONFIGURATION/$$PLATFORM -llib-SLExternal
 
-win32 {
-    # windows only
-    LIBS += -lOpenGL32
-    LIBS += -lwinmm
-    LIBS += -lgdi32
-    LIBS += -luser32
-    LIBS += -lkernel32
-    LIBS += -lshell32
-    LIBS += -lsetupapi
-    LIBS += -lws2_32
-    DEFINES += GLEW_STATIC
-    DEFINES += _GLFW_NO_DLOAD_GDI32
-    DEFINES += _GLFW_NO_DLOAD_WINMM
-    DEFINES -= UNICODE
-    INCLUDEPATH += ../../lib-SLExternal/png
-    INCLUDEPATH += ../../lib-SLExternal/dirent
-}
-macx {
-    # mac only
-    QMAKE_MAC_SDK = macosx10.12
-    CONFIG += c++11
-    DEFINES += GLEW_NO_GLU
-    LIBS += -framework OpenGL
-    LIBS += -framework Cocoa
-    LIBS += -framework IOKit
-    LIBS += -framework QuartzCore
-    LIBS += -stdlib=libc++
-    INCLUDEPATH += /usr/include
-    INCLUDEPATH += ../../lib-SLExternal/png
-}
-unix:!macx:!android {
-    # linux only
-    LIBS += -ldl
-    LIBS += -lGL
-    LIBS += -lX11
-    LIBS += -lXrandr    #livrandr-dev
-    LIBS += -lXi        #libxi-dev
-    LIBS += -lXinerama  #libxinerama-dev
-    LIBS += -lXxf86vm   #libxf86vm
-    LIBS += -lXcursor
-    LIBS += -ludev      #libudev-dev
-    LIBS += -lpthread   #libpthread
-    LIBS += -lpng
-    LIBS += -lz
-    QMAKE_CXXFLAGS += -std=c++11
-    QMAKE_CXXFLAGS += -Wunused-parameter
-    QMAKE_CXXFLAGS += -Wno-unused-parameter
-}
-
 INCLUDEPATH += \
+    ../include \
     ../../include\
-    ../../lib-SLExternal \
+    ../../lib-SLExternal\
     ../../lib-SLExternal/glew/include \
     ../../lib-SLExternal/glfw3/include \
+    ../../lib-SLExternal/opencv/include \
     ../../lib-SLExternal/half/include \
-    ../../lib-SLExternal/zlib \
-    ../../lib-SLExternal/jpeg-8 \
+
+include(../../SLProjectCommonLibraries.pro)
+
+HEADERS += \
+    ../../include/glUtils.h \
+    ../../include/SLCVImage.h \
 
 SOURCES += \
     ../../lib-SLProject/source/glUtils.cpp \
     ../../lib-SLProject/source/SL/SL.cpp \
-    ../../lib-SLProject/source/SL/SLImage.cpp \
+    ../../lib-SLProject/source/CV/SLCVImage.cpp \
     DiffuseCube.cpp
-
-HEADERS += \
-    ../../include/glUtils.h \
 
 OTHER_FILES += \
 ../../_data/shaders/Diffuse.frag \
