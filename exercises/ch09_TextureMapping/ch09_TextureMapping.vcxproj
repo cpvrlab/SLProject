@@ -22,7 +22,6 @@
     <ClCompile Include="..\..\lib-SLProject\source\CV\SLCVImage.cpp" />
     <ClCompile Include="..\..\lib-SLProject\source\glUtils.cpp" />
     <ClCompile Include="..\..\lib-SLProject\source\SL\SL.cpp" />
-    <ClCompile Include="..\..\lib-SLProject\source\SL\SLImage.cpp" />
     <ClCompile Include="..\..\lib-SLProject\source\SL\stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>

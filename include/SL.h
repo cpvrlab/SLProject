@@ -60,7 +60,6 @@ SL_OS_LINUX    :Linux desktop OS
 With the OS definition the following constants are defined:
 SL_GLES2: Supports only OpenGL ES2
 SL_MEMLEAKDETECT: The memory leak detector NVWA is used
-SL_OVR: Support for Oculus Rift SDK
 SL_USE_DISCARD_STEREOMODES: The discard stereo modes can be used (SLCamera)
 */
 
@@ -71,7 +70,6 @@ SL_USE_DISCARD_STEREOMODES: The discard stereo modes can be used (SLCamera)
         #define SL_GLES2
     #else
         #define SL_OS_MACOS
-        //#define SL_OVR // No OSX support anymore from Oculus!
         #if defined(_DEBUG)
             #define _GLDEBUG
             //#define SL_MEMLEAKDETECT  // nvwa doesn't work under OSX/clang
@@ -83,7 +81,6 @@ SL_USE_DISCARD_STEREOMODES: The discard stereo modes can be used (SLCamera)
 #elif defined(_WIN32)
     #define SL_OS_WINDOWS
     #define SL_USE_DISCARD_STEREOMODES
-    #define SL_OVR
     #ifdef _DEBUG
         #define _GLDEBUG
         //#define SL_MEMLEAKDETECT
@@ -92,7 +89,6 @@ SL_USE_DISCARD_STEREOMODES: The discard stereo modes can be used (SLCamera)
     #define STDCALL __stdcall
 #elif defined(linux) || defined(__linux) || defined(__linux__)
     #define SL_OS_LINUX
-    //#define SL_OVR
     #define SL_USE_DISCARD_STEREOMODES
     #ifdef _DEBUG
         //#define SL_MEMLEAKDETECT  // nvwa doesn't work under OSX/clang

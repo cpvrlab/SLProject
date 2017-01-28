@@ -15,10 +15,6 @@
 #include <stdafx.h>
 #include <SLCamera.h>
 
-#ifdef SL_OVR
-#include <OVR.h>
-#endif
-
 //-----------------------------------------------------------------------------
 //! Distorted vertex used to draw in the Oculus frame buffer.
 struct SLVertexOculus
@@ -34,7 +30,11 @@ struct SLVertexOculus
 typedef std::vector<SLVertexOculus>  SLVVertexOculus;
 
 //-----------------------------------------------------------------------------
-//! Wrapper around Oculus Rift
+//! Wrapper around Oculus Rift Devkit 2. 
+/*! This class is depricated since the lib_ovr from Oculus completely changed
+The lib_ovr that connects the Oculus hardware was removed since it only worked
+for devkit2 under windows.
+*/
 class SLGLOculus
 {
     public:
@@ -51,16 +51,11 @@ class SLGLOculus
     const   SLMat4f&    orthoProjection     (SLEyeType eye);
             
             SLfloat     resolutionScale     () { return _resolutionScale; }
-
             void        renderResolution    (SLint width, SLint height);
-
             void        beginFrame          ();
             void        endFrame            (SLint width, SLint height, SLuint tex);
-
-
             void        renderDistortion    (SLint width, SLint height, SLuint tex);
             
-
             // Setters
             void        lowPersistance      (SLbool val);
             void        timeWarp            (SLbool val);
@@ -80,19 +75,6 @@ class SLGLOculus
     private:
             void        dispose             ();
             void        calculateHmdValues();       //!< recalculate HMD settings changed
-            
-#ifdef SL_OVR
-            // OVR variables
-            ovrHmd              _hmd;
-            ovrFrameTiming      _frameTiming;
-            SLuint              _startTrackingCaps;     //!< the current OVR tracking configuration
-            
-            ovrEyeRenderDesc    _eyeRenderDesc[2];      //!< OVR eye render description
-            ovrPosef            _eyeRenderPose[2];      //!< OVR individual eye render pose
-
-            ovrRecti            _viewports[2];          //!< viewport size and offset for both eyes
-            ovrVector2f         _uvScaleOffset[2][2];   //!< uv scale and offset for each eye
-#endif
 
             // SL variables that can be accessed via getters
             SLVec2i         _outputRes;                 //!< output resolution used for ortho projection

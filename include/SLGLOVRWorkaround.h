@@ -1,5 +1,5 @@
 //#############################################################################
-//  File:      SLOculus.h
+//  File:      SLGLOVRWorkaround.h
 //  Purpose:   Wrapper around Oculus Rift
 //  Author:    Marc Wacker, Roman Kühne, Marcus Hudritsch
 //  Date:      July 2014
@@ -11,8 +11,6 @@
 
 #ifndef SLOVRWORKAROUND_H
 #define SLOVRWORKAROUND_H
-
-#ifndef SL_OVR
 
 #include <stdafx.h>
 #include <SLGLOculus.h>
@@ -29,7 +27,6 @@ enum DistortionEqnType
 
     // CatmullRom10 is the preferred distortion format.
     Distortion_CatmullRom10 = 2,    // scale = Catmull-Rom spline through points (1.0, K[1]...K[9])
-
     Distortion_LAST                 // For ease of enumeration.
 };
 
@@ -590,23 +587,6 @@ SLMat4f ovrMatrix4f_OrthoSubProjection(SLMat4f projection, SLVec2f orthoScale,
     orthoData[9] = 0.0f;
     orthoData[13] = -projection.m(9);
 
-    /*
-    if ( fabsf ( zNear - zFar ) < 0.001f )
-    {
-        orthoData[2][0] = 0.0f;
-        orthoData[2][1] = 0.0f;
-        orthoData[2][2] = 0.0f;
-        orthoData[2][3] = zFar;
-    }
-    else
-    {
-        orthoData[2][0] = 0.0f;
-        orthoData[2][1] = 0.0f;
-        orthoData[2][2] = zFar / (zNear - zFar);
-        orthoData[2][3] = (zFar * zNear) / (zNear - zFar);
-    }
-    */
-
     // mA: Undo effect of sign
     orthoData[2] = 0.0f;
     orthoData[1] = 0.0f;
@@ -623,7 +603,6 @@ SLMat4f ovrMatrix4f_OrthoSubProjection(SLMat4f projection, SLVec2f orthoScale,
     
     SLMat4f ortho(orthoData);
 
-
     return ortho;
 }
 
@@ -636,6 +615,7 @@ struct DistortionRenderDesc
     // These map from [-1,1] across the eye being rendered into TanEyeAngle space (but still distorted)
     SLVec2f            LensCenter;
     SLVec2f            TanEyeAngleScale;
+
     // Computed from device characteristics, IPD and eye-relief.
     // (not directly used for rendering, but very useful)
     SLVec2f            PixelsPerTanAngleAtCenter;
@@ -842,8 +822,8 @@ SLMat4f CreateProjection( bool rightHanded, ovrFovPort tanHalfFov,
 //-------------------------------------------------------------------------------------
 void createSLDistortionMesh(DistortionMeshVertexData **ppVertices,
                             uint16_t **ppTriangleListIndices,
-                            int *pNumVertices,
-                            int *pNumTriangles,
+                            SLuint *pNumVertices,
+                            SLuint *pNumTriangles,
                             bool rightEye,
                             const HmdRenderInfo &hmdRenderInfo,
                             const DistortionRenderDesc &distortion,
@@ -1155,9 +1135,9 @@ void createSLDistortionMesh(SLEyeType eye, SLGLVertexArray& vao)
     fov.RightTan = 1.092f;
 
     ovrDistortionVertex* vertexData;
-    unsigned short* indexData;
-    int triangleCount = 0;
-    int vertexCount = 0;
+    SLushort* indexData;
+    SLuint triangleCount = 0;
+    SLuint vertexCount = 0;
     #ifdef SL_GUI_JAVA
     bool rightEye = (eye == rightEye);
     #else
@@ -1178,7 +1158,7 @@ void createSLDistortionMesh(SLEyeType eye, SLGLVertexArray& vao)
                            rightEye,
                            hmdri, distortion, eyeToSourceNDC);
 
-    int indexCount = triangleCount * 3;
+    SLuint indexCount = triangleCount * 3;
 
 
     // Now parse the vertex data and create a render ready vertex buffer from it
@@ -1188,7 +1168,7 @@ void createSLDistortionMesh(SLEyeType eye, SLGLVertexArray& vao)
     SLVuint tempIndex;
 
     ovrDistortionVertex* ov = vertexData;
-    for ( unsigned vertNum = 0; vertNum < vertexCount; vertNum++ )
+    for (SLuint vertNum = 0; vertNum < vertexCount; vertNum++ )
     {
         verts[vertNum].screenPosNDC.x = ov->ScreenPosNDC.x;
         verts[vertNum].screenPosNDC.y = ov->ScreenPosNDC.y;
@@ -1204,7 +1184,7 @@ void createSLDistortionMesh(SLEyeType eye, SLGLVertexArray& vao)
         ov++;
     }
 
-    for (unsigned i = 0; i < indexCount; i++)
+    for (SLuint i = 0; i < indexCount; i++)
         tempIndex.push_back(indexData[i]);
 
     SLGLProgram* sp = SLScene::current->programs(SP_stereoOculusDistortion);
@@ -1226,6 +1206,4 @@ void createSLDistortionMesh(SLEyeType eye, SLGLVertexArray& vao)
 }
 
 //-------------------------------------------------------------------------------------
-#endif
-
 #endif

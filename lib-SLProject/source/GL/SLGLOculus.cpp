@@ -17,10 +17,7 @@
 #include <SLGLOculus.h>
 #include <SLGLProgram.h>
 #include <SLScene.h>
-
-#ifndef SL_OVR
 #include <SLGLOVRWorkaround.h>
-#endif
 
 
 //-----------------------------------------------------------------------------
@@ -35,9 +32,6 @@ SLGLOculus::SLGLOculus() : _usingDebugHmd(false),
                            _isCameraConnected(false),
                            _isPositionTracked(false)
 {
-    #ifdef SL_OVR
-    _hmd = nullptr;
-    #endif
 }
 //-----------------------------------------------------------------------------
 /*! Destructor calling dispose
@@ -51,15 +45,6 @@ SLGLOculus::~SLGLOculus()
 */
 void SLGLOculus::dispose()
 {  
-    #ifdef SL_OVR
-    // dispose Oculus
-    if (_hmd)
-        ovrHmd_Destroy(_hmd);
-
-    ovr_Shutdown();
-    #else
-    
-    #endif
 }
 
 //-----------------------------------------------------------------------------
@@ -67,127 +52,6 @@ void SLGLOculus::dispose()
 */
 void SLGLOculus::init()
 {
-#ifdef SL_OVR
-    ovr_Initialize();
-    
-    // for now we just support one device
-    _hmd = ovrHmd_Create(0);
-    //SL_LOG("%s", ovrHmd_GetLastError(_hmd));
-    
-    #ifdef _DEBUG
-    GET_GL_ERROR;
-    #endif
-
-    if (!_hmd)
-    {   // create a debug device if we didn't find a physical one
-        _hmd = ovrHmd_CreateDebug(ovrHmd_DK2);
-        _usingDebugHmd = true;
-        assert(_hmd);
-        
-        #ifdef _DEBUG
-        GET_GL_ERROR;
-        #endif
-    }
-    
-    // get HMD resolution
-    ovrSizei resolution = _hmd->Resolution;
-    _resolution.set(resolution.w, resolution.h);
-
-    // set output resolution to the above set HMD resolution for now
-    // this can be changed later however if we want to output to a smaller screen
-    renderResolution(_resolution.x, _resolution.y);
-    
-    #ifdef _DEBUG
-    GET_GL_ERROR;
-    #endif
-
-    // are we running in extended desktop mode or are we using the oculus driver
-    SLbool useAppWindowFrame = (_hmd->HmdCaps & ovrHmdCap_ExtendDesktop) ? false : true;
-    // TODO: we need to call ovrHmd_AttachToWindow with a window handle
-
-    _positionTrackingEnabled = (_hmd->TrackingCaps & ovrTrackingCap_Position) ? true : false;
-    _lowPersistanceEnabled = (_hmd->HmdCaps & ovrHmdCap_LowPersistence) ? true : false;
-    
-    calculateHmdValues();
-
-    _viewports[0].Pos = OVR::Vector2i(0, 0);
-    _viewports[0].Size = OVR::Sizei(_rtSize.x / 2, _rtSize.y);
-    _viewports[1].Pos = OVR::Vector2i((_rtSize.x + 1) / 2, 0);
-    _viewports[1].Size = _viewports[0].Size;
-
-    #ifdef _DEBUG
-    GET_GL_ERROR;
-    #endif
-
-    //Generate distortion mesh for each eye
-    SLuint distortionCaps = ovrDistortionCap_Chromatic | ovrDistortionCap_TimeWarp 
-        | ovrDistortionCap_Vignette | ovrDistortionCap_FlipInput;
-
-    // TODO: careful here, the actual size of the framebuffer might differ due to hardware limitations
-    ovrFovPort viewports[2] = { _hmd->DefaultEyeFov[0], _hmd->DefaultEyeFov[1] };
-    OVR::Sizei rtSize(_rtSize.x, _rtSize.y);
-    
-    #ifdef _DEBUG
-    GET_GL_ERROR;
-    #endif
-
-
-    for ( int eyeNum = 0; eyeNum < 2; eyeNum++ )
-    {
-        // Allocate & generate distortion mesh vertices.
-        ovrDistortionMesh meshData;
-        ovrHmd_CreateDistortionMesh(_hmd, 
-                                    (ovrEyeType)eyeNum, 
-                                    _eyeRenderDesc[eyeNum].Fov,
-                                    distortionCaps, 
-                                    &meshData);
-
-        ovrHmd_GetRenderScaleAndOffset(_eyeRenderDesc[eyeNum].Fov,
-                                       rtSize, 
-                                       _viewports[eyeNum], 
-                                       _uvScaleOffset[eyeNum]);
-
-        // Now parse the vertex data and create a render ready vertex buffer from it
-        SLVVertexOculus verts;
-        verts.resize(meshData.VertexCount);
-
-        vector<SLuint> tempIndex;
-
-        ovrDistortionVertex * ov = meshData.pVertexData;
-        for (SLuint vertNum = 0; vertNum < meshData.VertexCount; vertNum++)
-        {   verts[vertNum].screenPosNDC.x = ov->ScreenPosNDC.x;
-            verts[vertNum].screenPosNDC.y = ov->ScreenPosNDC.y;
-            verts[vertNum].timeWarpFactor = ov->TimeWarpFactor;
-            verts[vertNum].vignetteFactor = ov->VignetteFactor;
-            verts[vertNum].tanEyeAnglesR.x = ov->TanEyeAnglesR.x;
-            verts[vertNum].tanEyeAnglesR.y = ov->TanEyeAnglesR.y;
-            verts[vertNum].tanEyeAnglesG.x = ov->TanEyeAnglesG.x;
-            verts[vertNum].tanEyeAnglesG.y = ov->TanEyeAnglesG.y;
-            verts[vertNum].tanEyeAnglesB.x = ov->TanEyeAnglesB.x;
-            verts[vertNum].tanEyeAnglesB.y = ov->TanEyeAnglesB.y;   
-            ov++;
-        }
-
-        for (unsigned i = 0; i < meshData.IndexCount; i++)
-            tempIndex.push_back(meshData.pIndexData[i]);
-
-        SLGLProgram* sp = SLScene::current->programs(SP_stereoOculusDistortion);
-        sp->useProgram();
-
-        // set attributes with all the same data pointer to the interleaved array
-        _distortionMeshVAO[eyeNum].setAttrib(AT_position, 2, sp->getAttribLocation("a_position"),       &verts[0]);
-        _distortionMeshVAO[eyeNum].setAttrib(AT_custom1,  1, sp->getAttribLocation("a_timeWarpFactor"), &verts[0]);
-        _distortionMeshVAO[eyeNum].setAttrib(AT_custom2,  1, sp->getAttribLocation("a_vignetteFactor"), &verts[0]);
-        _distortionMeshVAO[eyeNum].setAttrib(AT_custom3,  2, sp->getAttribLocation("a_texCoordR"),      &verts[0]);
-        _distortionMeshVAO[eyeNum].setAttrib(AT_custom4,  2, sp->getAttribLocation("a_texCoordG"),      &verts[0]);
-        _distortionMeshVAO[eyeNum].setAttrib(AT_custom5,  2, sp->getAttribLocation("a_texCoordB"),      &verts[0]);
-        _distortionMeshVAO[eyeNum].setIndices(meshData.IndexCount, BT_uint, &tempIndex[0]);
-        _distortionMeshVAO[eyeNum].generate(meshData.VertexCount);
-                
-        ovrHmd_DestroyDistortionMesh( &meshData );  
-    }
-#else
-
 	_resolutionScale = 1.25f;
     _resolution.set(1920, 1080);
     renderResolution(1920, 1080);
@@ -206,9 +70,6 @@ void SLGLOculus::init()
     
     createSLDistortionMesh(ET_left,  _distortionMeshVAO[0]);
     createSLDistortionMesh(ET_right, _distortionMeshVAO[1]);
-
-#endif
-
 }
 
 //-----------------------------------------------------------------------------
@@ -233,18 +94,6 @@ void SLGLOculus::renderDistortion(SLint width, SLint height, SLuint tex)
     for (int eye = 0; eye < 2; eye++) 
     {       
         sp->uniform1i("u_texture", 0);
-
-        #ifdef SL_OVR
-        sp->uniform2f("u_eyeToSourceUVScale",  _uvScaleOffset[eye][0].x, -_uvScaleOffset[eye][0].y);
-        sp->uniform2f("u_eyeToSourceUVOffset", _uvScaleOffset[eye][1].x,  _uvScaleOffset[eye][1].y);
-    
-		ovrPosef eyeRenderPose = ovrHmd_GetHmdPosePerEye(_hmd, (ovrEyeType)0);
-        ovrMatrix4f timeWarpMatrices[2];
-        ovrHmd_GetEyeTimewarpMatrices(_hmd, (ovrEyeType)0, eyeRenderPose, timeWarpMatrices);
-    
-        sp->uniformMatrix4fv("u_eyeRotationStart", 1, (SLfloat*)&timeWarpMatrices[0]);
-        sp->uniformMatrix4fv("u_eyeRotationEnd",   1, (SLfloat*)&timeWarpMatrices[1]);
-        #else
         sp->uniform2f("u_eyeToSourceUVScale",  0.232f, -0.376f);
         sp->uniform2f("u_eyeToSourceUVOffset", 0.246f, 0.5f);
 
@@ -252,7 +101,6 @@ void SLGLOculus::renderDistortion(SLint width, SLint height, SLuint tex)
 
         sp->uniformMatrix4fv("u_eyeRotationStart", 1, identity.m());
         sp->uniformMatrix4fv("u_eyeRotationEnd", 1, identity.m());
-        #endif
 
         _distortionMeshVAO[eye].drawElementsAs(PT_triangles);
     }
@@ -303,87 +151,6 @@ This function gets called whenever some settings changed.
 */
 void SLGLOculus::calculateHmdValues()
 {
-#ifdef SL_OVR
-    ovrFovPort eyeFov[2];
-    eyeFov[0] = _hmd->DefaultEyeFov[0];
-    eyeFov[1] = _hmd->DefaultEyeFov[1];
-
-    _eyeRenderDesc[0] = ovrHmd_GetRenderDesc(_hmd, ovrEye_Left, eyeFov[0]);
-    _eyeRenderDesc[1] = ovrHmd_GetRenderDesc(_hmd, ovrEye_Right, eyeFov[1]);
-
-    float desiredPixelDensity = 1.0f;
-
-    
-    OVR::Sizei recommendTex0Size = ovrHmd_GetFovTextureSize(_hmd, ovrEye_Left, eyeFov[0], desiredPixelDensity);
-    OVR::Sizei recommendTex1Size = ovrHmd_GetFovTextureSize(_hmd, ovrEye_Right, eyeFov[1], desiredPixelDensity);
-
-    //@todo the calculated size below might not be achievable due to hw limits
-    //       make sure to query for actual max dimensions
-    _rtSize.set(recommendTex0Size.w + recommendTex1Size.w,
-                max(recommendTex0Size.h, recommendTex1Size.h));
-
-    _resolutionScale =  (SLfloat)_rtSize.x / _resolution.x;
-
-    
-    // HMD caps
-    SLuint hmdCaps = 0;
-    if (_lowPersistanceEnabled)
-        hmdCaps |= ovrHmdCap_LowPersistence;
-    if (_displaySleep)
-        hmdCaps |= ovrHmdCap_DisplayOff;
-
-    ovrHmd_SetEnabledCaps(_hmd, hmdCaps);
-
-    SLuint sensorCaps = ovrTrackingCap_Orientation|ovrTrackingCap_MagYawCorrection;
-    if (_positionTrackingEnabled)
-        sensorCaps |= ovrTrackingCap_Position;
-
-    // update current tracking config if it changed
-    if (_startTrackingCaps != sensorCaps)
-    {
-        ovrHmd_ConfigureTracking(_hmd, sensorCaps, 0);
-        _startTrackingCaps = sensorCaps;
-    }
-
-    // calculate projections
-    ovrMatrix4f projLeft  = ovrMatrix4f_Projection(_eyeRenderDesc[0].Fov, 0.01f, 1000.0f, true);
-    ovrMatrix4f projRight = ovrMatrix4f_Projection(_eyeRenderDesc[1].Fov, 0.01f, 1000.0f, true);
-    
-    float orthoDistance = 0.8f; // 2D is 0.8 meter from camera     
-    OVR::Vector2f orthoScale0 = OVR::Vector2f(1.0f) / OVR::Vector2f(_eyeRenderDesc[0].PixelsPerTanAngleAtCenter);
-    OVR::Vector2f orthoScale1 = OVR::Vector2f(1.0f) / OVR::Vector2f(_eyeRenderDesc[0].PixelsPerTanAngleAtCenter);
-    orthoScale0.x /= (SLfloat)_outputRes.x /_resolution.x;
-    orthoScale0.y /= (SLfloat)_outputRes.y /_resolution.y;
-    orthoScale1.x /= (SLfloat)_outputRes.x /_resolution.x;
-    orthoScale1.y /= (SLfloat)_outputRes.y /_resolution.y;
-
-    ovrMatrix4f orthoProjLeft  = ovrMatrix4f_OrthoSubProjection(projLeft, orthoScale0, orthoDistance,
-                                                                _eyeRenderDesc[0].HmdToEyeViewOffset.x);
-    ovrMatrix4f orthoProjRight = ovrMatrix4f_OrthoSubProjection(projRight, orthoScale1, orthoDistance,
-																_eyeRenderDesc[1].HmdToEyeViewOffset.x);
-
-    
-    memcpy(&_projection[0], &projLeft, sizeof(ovrMatrix4f));
-    memcpy(&_projection[1], &projRight, sizeof(ovrMatrix4f));
-    _projection[0].transpose();
-    _projection[1].transpose();
-    
-    memcpy(&_orthoProjection[0], &orthoProjLeft, sizeof(ovrMatrix4f));
-    memcpy(&_orthoProjection[1], &orthoProjRight, sizeof(ovrMatrix4f));
-    _orthoProjection[0].transpose();
-    _orthoProjection[1].transpose();
-
-    SLMat4f flipY(1.0f, 0.0f, 0.0f, 0.0f,
-                  0.0f,-1.0f, 0.0f, 0.0f,
-                  0.0f, 0.0f, 1.0f, 0.0f,
-                  0.0f, 0.0f, 0.0f, 1.0f);
-    _orthoProjection[0] = flipY * _orthoProjection[0];
-    _orthoProjection[1] = flipY * _orthoProjection[1];
-    
-    memcpy(&_viewAdjust[0], &_eyeRenderDesc[0].HmdToEyeViewOffset, sizeof(SLVec3f));
-    memcpy(&_viewAdjust[1], &_eyeRenderDesc[1].HmdToEyeViewOffset, sizeof(SLVec3f));
-    
-#else
     for (SLint i = 0; i < 2; ++i)
     {
         _position[i].set(0, 0, 0);
@@ -398,8 +165,8 @@ void SLGLOculus::calculateHmdValues()
         _projection[i] =  CreateProjection( true, fov,0.01f, 10000.0f );
     
         _orthoProjection[i] = ovrMatrix4f_OrthoSubProjection(_projection[i],
-                                                             SLVec2f(1.0f/(549.618286 * ((SLfloat)_outputRes.x /_resolution.x)),
-                                                                     1.0f/(549.618286 * ((SLfloat)_outputRes.x /_resolution.x))),
+                                                             SLVec2f(1.0f/(549.618286f * ((SLfloat)_outputRes.x /_resolution.x)),
+                                                                     1.0f/(549.618286f * ((SLfloat)_outputRes.x /_resolution.x))),
                                                              0.8f, _viewAdjust[i].x);
 
         SLMat4f flipY(1.0f, 0.0f, 0.0f, 0.0f,
@@ -408,8 +175,6 @@ void SLGLOculus::calculateHmdValues()
                       0.0f, 0.0f, 0.0f, 1.0f);
         _orthoProjection[i] = flipY * _orthoProjection[i];
     }
-#endif
-
 
     // done
     _hmdSettingsChanged = false;
@@ -429,7 +194,6 @@ void SLGLOculus::renderResolution(SLint width, SLint height)
     _hmdSettingsChanged = true;
 }
 
-
 //-----------------------------------------------------------------------------
 /*! Updates rift status and collects data for timewarp
 */
@@ -438,37 +202,6 @@ void SLGLOculus::beginFrame()
     // update changed settings
     if (_hmdSettingsChanged)
         calculateHmdValues();
-
-#ifdef SL_OVR
-    _frameTiming = ovrHmd_BeginFrameTiming(_hmd, 0);
-    
-    // update sensor status
-    ovrTrackingState trackState = ovrHmd_GetTrackingState(_hmd, _frameTiming.ScanoutMidpointSeconds);
-    
-    _isConnected = (trackState.StatusFlags & ovrStatus_HmdConnected) ? true : false;
-    _isCameraConnected = (trackState.StatusFlags & ovrStatus_PositionConnected) ? true : false;
-    _isPositionTracked = (trackState.StatusFlags & ovrStatus_PositionTracked) ? true : false;
-
-    // code for binding frame buffer here 
-    for (int eyeIndex = 0; eyeIndex < 2; ++eyeIndex)
-    {
-        ovrEyeType eye = (ovrEyeType) eyeIndex; // _hmd->EyeRenderOrder[eyeIndex]; <-- would be the better way
-		_eyeRenderPose[eye] = ovrHmd_GetHmdPosePerEye(_hmd, eye);
-
-        _orientation[eyeIndex].set(_eyeRenderPose[eye].Orientation.x, 
-                                   _eyeRenderPose[eye].Orientation.y, 
-                                   _eyeRenderPose[eye].Orientation.z, 
-                                   _eyeRenderPose[eye].Orientation.w);
-        if (!_positionTrackingEnabled)
-        {   _position[eyeIndex].set(0,0,0);
-        }
-        else
-        {   _position[eyeIndex].set(_eyeRenderPose[eye].Position.x, 
-                                    _eyeRenderPose[eye].Position.y, 
-                                    _eyeRenderPose[eye].Position.z);
-        }
-    }
-#endif
 }
 
 //-----------------------------------------------------------------------------
@@ -476,19 +209,7 @@ void SLGLOculus::beginFrame()
 */
 void SLGLOculus::endFrame(SLint width, SLint height, SLuint tex)
 {
-#ifdef SL_OVR
-    // wait till timewarp point to reduce latency
-    ovr_WaitTillTime(_frameTiming.TimewarpPointSeconds);
-    
-    renderDistortion(width, height, tex);
-
-    if (_hmd->HmdCaps & ovrHmdCap_ExtendDesktop)
-        glFlush();
-
-    ovrHmd_EndFrameTiming(_hmd);
-#else
 	renderDistortion(width, height, tex);
-#endif
 }
 //-----------------------------------------------------------------------------
 /*! Returns the Oculus orientation as quaternion. If no Oculus Rift is 
