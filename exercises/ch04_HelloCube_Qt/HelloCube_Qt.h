@@ -15,7 +15,6 @@
 #include <QObject>
 #include <QEvent>
 
-#include "stdafx.h"
 #include "SL.h"      // Basic SL type definitions
 #include "SLMat4.h"  // 4x4 matrix class
 #include "SLVec3.h"  // 3D vector class
@@ -39,7 +38,6 @@ class HelloCube_Qt : public QMainWindow
         void    resizeEvent     (QResizeEvent *event);
         void    paintEvent      (QPaintEvent *e);
         void    mouseMoveEvent  (QMouseEvent *event);
-        void    update();
 
     private:
         Ui::MainWindow* ui;                 //!< Qt ui window object
