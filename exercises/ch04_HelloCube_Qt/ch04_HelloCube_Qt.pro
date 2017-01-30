@@ -1,19 +1,21 @@
 ##############################################################################
-#  File:      ch06_ColorCube.pro
+#  File:      ch04_HelloCube-Qt.pro
 #  Purpose:   QMake project definition file for the Hello Cube demo w. OpenGL
 #  Author:    Marcus Hudritsch
-#  Date:      September 2012 (HS12)
+#  Date:      September 2016 (HS16)
 #  Copyright: Marcus Hudritsch, Switzerland
 #             THIS SOFTWARE IS PROVIDED FOR EDUCATIONAL PURPOSE ONLY AND
 #             WITHOUT ANY WARRANTIES WHETHER EXPRESSED OR IMPLIED.
 ##############################################################################
 
+QT       += core gui
+greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
+
 TEMPLATE = app
-TARGET = ch06_ColorCube
+TARGET = ch06_HelloCube_Qt
 
 CONFIG += warn_off
 CONFIG -= qml_debug
-CONFIG -= qt
 CONFIG -= app_bundle
 
 #define platform variable for folder name
@@ -32,27 +34,13 @@ LIBS += -L../../_lib/$$CONFIGURATION/$$PLATFORM -llib-SLExternal
 include(../../SLProjectCommonLibraries.pro)
 
 INCLUDEPATH += \
-    ../include \
     ../../include\
-    ../../lib-SLExternal\
+    ../../lib-SLExternal \
     ../../lib-SLExternal/glew/include \
-    ../../lib-SLExternal/glfw3/include \
-    ../../lib-SLExternal/opencv/include \
     ../../lib-SLExternal/half/include \
 
-HEADERS += \
-    ../../include/glUtils.h \
-    ../../include/SLCV.h \
-    ../../include/SLCVImage.h \
+SOURCES += HelloCube_Qt.cpp
 
-SOURCES += \
-    ../../lib-SLProject/source/glUtils.cpp \
-    ../../lib-SLProject/source/SL/SL.cpp \
-    ../../lib-SLProject/source/CV/SLCVImage.cpp \
-    ColorCube.cpp
+HEADERS += HelloCube_Qt.h
 
-OTHER_FILES += \
-../../_data/shaders/ColorAttribute.vert \
-../../_data/shaders/Color.frag \
-
-
+FORMS += HelloCube_Qt.ui

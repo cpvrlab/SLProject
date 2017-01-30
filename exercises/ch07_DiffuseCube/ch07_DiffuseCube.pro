@@ -29,6 +29,8 @@ DESTDIR = ../../_bin-$$CONFIGURATION-$$PLATFORM
 OBJECTS_DIR = ../../intermediate/$$TARGET/$$CONFIGURATION/$$PLATFORM
 LIBS += -L../../_lib/$$CONFIGURATION/$$PLATFORM -llib-SLExternal
 
+include(../../SLProjectCommonLibraries.pro)
+
 INCLUDEPATH += \
     ../include \
     ../../include\
@@ -37,8 +39,6 @@ INCLUDEPATH += \
     ../../lib-SLExternal/glfw3/include \
     ../../lib-SLExternal/opencv/include \
     ../../lib-SLExternal/half/include \
-
-include(../../SLProjectCommonLibraries.pro)
 
 HEADERS += \
     ../../include/glUtils.h \
