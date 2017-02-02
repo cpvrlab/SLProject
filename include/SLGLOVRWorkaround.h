@@ -1,7 +1,7 @@
 //#############################################################################
 //  File:      SLGLOVRWorkaround.h
 //  Purpose:   Wrapper around Oculus Rift
-//  Author:    Marc Wacker, Roman Kühne, Marcus Hudritsch
+//  Author:    Marc Wacker, Roman Kuehne, Marcus Hudritsch
 //  Date:      July 2014
 //  Codestyle: https://code.google.com/p/slproject/wiki/CodingStyleGuidelines
 //  Copyright: Marcus Hudritsch

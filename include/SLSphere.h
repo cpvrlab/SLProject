@@ -18,7 +18,7 @@ class SLRay;
 class SLMaterial;
 
 //-----------------------------------------------------------------------------
-//! SLSphere creates a sphere mesh based on SLSpheric w. 180° polar angle.     
+//! SLSphere creates a sphere mesh based on SLSpheric w. 180 deg polar angle.     
 class SLSphere: public SLSpheric 
 {  public:                     
                         SLSphere(SLfloat radius,

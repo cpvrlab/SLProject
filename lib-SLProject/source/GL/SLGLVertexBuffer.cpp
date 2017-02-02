@@ -17,7 +17,9 @@
 #include <SLGLVertexBuffer.h>
 #include <SLGLProgram.h>
 #include <SLScene.h>
+#ifdef SL_HAS_HALF
 #include <half.hpp>
+#endif
 
 //-----------------------------------------------------------------------------
 SLuint SLGLVertexBuffer::totalBufferSize  = 0;
@@ -88,6 +90,7 @@ void SLGLVertexBuffer::updateAttrib(SLGLAttributeType type,
     
     _attribs[index].dataPointer = dataPointer;
 
+    #ifdef SL_HAS_HALF
     /////////////////////////
     // Convert to Half Floats
     /////////////////////////
@@ -107,6 +110,7 @@ void SLGLVertexBuffer::updateAttrib(SLGLAttributeType type,
         // Replace the data pointer
         _attribs[index].dataPointer = &halfs[0];
     }
+    #endif
     
 
     ////////////////////////////////////////////
@@ -120,6 +124,7 @@ void SLGLVertexBuffer::updateAttrib(SLGLAttributeType type,
                     _attribs[index].dataPointer);
     
 
+    #ifdef SL_HAS_HALF
     ///////////////////////////////////
     // Delete the converted half floats
     ///////////////////////////////////
@@ -128,6 +133,7 @@ void SLGLVertexBuffer::updateAttrib(SLGLAttributeType type,
     {   halfs.clear();
         _attribs[index].dataPointer = 0;
     }
+    #endif
 
     #ifdef _GLDEBUG
     GET_GL_ERROR;
@@ -224,6 +230,7 @@ void SLGLVertexBuffer::generate(SLuint numVertices,
     }
 
 
+    #ifdef SL_HAS_HALF
     /////////////////////////
     // Convert to Half Floats
     /////////////////////////
@@ -242,6 +249,7 @@ void SLGLVertexBuffer::generate(SLuint numVertices,
             _attribs[i].dataPointer = pHalfs;
         }
     }
+    #endif
 
 
     //////////////////////////////
@@ -338,7 +346,7 @@ void SLGLVertexBuffer::generate(SLuint numVertices,
     totalBufferCount++;
     totalBufferSize += _sizeBytes;
 
-
+    #ifdef SL_HAS_HALF
     ///////////////////////////////////
     // Delete the converted half floats
     ///////////////////////////////////
@@ -349,6 +357,7 @@ void SLGLVertexBuffer::generate(SLuint numVertices,
             _attribs[i].dataPointer = 0;
         }
     }
+    #endif
     
     #ifdef _GLDEBUG
     GET_GL_ERROR;
@@ -399,7 +408,10 @@ void SLGLVertexBuffer::disableAttrib()
 SLint SLGLVertexBuffer::sizeOfType(SLGLBufferType type)
 {
     switch (type)
-    {   case BT_half :  return sizeof(half);
+    {
+        #ifdef SL_HAS_HALF
+        case BT_half :  return sizeof(half);
+        #endif
         case BT_float:  return sizeof(float);
         case BT_ubyte:  return sizeof(unsigned char);
         case BT_ushort: return sizeof(unsigned short);

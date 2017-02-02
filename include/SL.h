@@ -42,8 +42,10 @@
 #include <string.h>              // for string functions
 //-----------------------------------------------------------------------------
 // Half precision floating point type
+#ifdef SL_HAS_HALF
 #include <half.hpp>
 using namespace half_float;
+#endif
 
 /////////////////////////////////////////////////////////
 // Preprocessor constant definitions used in the SLProject
@@ -210,7 +212,9 @@ typedef GLuint          SLuint;
 typedef int64_t         SLint64;
 typedef uint64_t        SLuint64;
 typedef GLsizei         SLsizei;
+#ifdef SL_HAS_HALF
 typedef half            SLhalf;  // half is from the half float library (http://half.sourceforge.net/). GLhalf is an ushort!
+#endif
 typedef GLfloat         SLfloat;
 #ifdef SL_HAS_DOUBLE
 typedef GLdouble        SLdouble;
@@ -236,7 +240,9 @@ typedef std::vector<SLuint>   SLVuint;
 typedef std::vector<SLlong>   SLVlong;
 typedef std::vector<SLulong>  SLVulong;
 typedef std::vector<SLfloat>  SLVfloat;
+#ifdef SL_HAS_HALF
 typedef std::vector<SLhalf>   SLVhalf;
+#endif
 typedef std::vector<SLstring> SLVstring;
 
 // All 2D vectors begin with SLVV*

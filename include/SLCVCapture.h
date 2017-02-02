@@ -1,7 +1,7 @@
 //#############################################################################
 //  File:      SLCVCapture
 //  Purpose:   OpenCV Capture Device
-//  Author:    Michael Göttlicher, Marcus Hudritsch
+//  Author:    Michael Goettlicher, Marcus Hudritsch
 //  Date:      Winter 2016
 //  Codestyle: https://github.com/cpvrlab/SLProject/wiki/Coding-Style-Guidelines
 //  Copyright: Marcus Hudritsch

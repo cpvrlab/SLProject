@@ -8,9 +8,9 @@
 //             WITHOUT ANY WARRANTIES WHETHER EXPRESSED OR IMPLIED.
 //#############################################################################
 
-#include "stdafx.h"
-#include "HelloCube_Qt.h"
-#include "ui_HelloCube_Qt.h"
+#include <stdafx.h>
+#include <HelloCube_Qt.h>
+#include <ui_HelloCube_Qt.h>
 #include <QPainter>
 #include <QMouseEvent>
 #include <QDebug>

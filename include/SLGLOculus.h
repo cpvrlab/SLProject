@@ -1,7 +1,7 @@
 //#############################################################################
 //  File:      SLOculus.h
 //  Purpose:   Wrapper around Oculus Rift
-//  Author:    Marc Wacker, Roman Kühne, Marcus Hudritsch
+//  Author:    Marc Wacker, Roman Kuehne, Marcus Hudritsch
 //  Date:      July 2014
 //  Codestyle: https://github.com/cpvrlab/SLProject/wiki/Coding-Style-Guidelines
 //  Copyright: Marcus Hudritsch

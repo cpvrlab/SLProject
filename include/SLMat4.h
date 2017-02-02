@@ -943,7 +943,7 @@ void SLMat4<T>::rotation(const T degAng,
 /*!
 Defines a rotation matrix that rotates the vector from to the vector to.
 Code and explanation comes from the paper "Efficiently build
-a matrix to ratate one vector to another" from Thomas Möller and John Hughes in
+a matrix to ratate one vector to another" from Thomas Mueller and John Hughes in
 the Journal of Graphic Tools, volume 4.
 */
 template<class T>
@@ -1150,7 +1150,7 @@ void SLMat4<T>::fromEulerAnglesXYZ(const double angle1RAD,
 Gets one set of possible z-y-x euler angles that will generate this matrix
 Assumes that upper 3x3 is a rotation matrix
 Source: Essential Mathematics for Games and Interactive Applications
-A Programmer’s Guide 2nd edition by James M. Van Verth and Lars M. Bishop
+A Programmer's Guide 2nd edition by James M. Van Verth and Lars M. Bishop
 */
 template<class T>
 void SLMat4<T>::toEulerAnglesZYX(T& zRotRAD, T& yRotRAD, T& xRotRAD)

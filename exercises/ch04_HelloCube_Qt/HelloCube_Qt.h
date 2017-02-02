@@ -15,9 +15,7 @@
 #include <QObject>
 #include <QEvent>
 
-#include "SL.h"      // Basic SL type definitions
-#include "SLMat4.h"  // 4x4 matrix class
-#include "SLVec3.h"  // 3D vector class
+#include <stdafx.h> // precompiled headers
 
 using namespace std;
 
