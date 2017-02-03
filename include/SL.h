@@ -69,7 +69,7 @@ SL_USE_DISCARD_STEREOMODES: The discard stereo modes can be used (SLCamera)
     #include <TargetConditionals.h>
     #if TARGET_OS_IOS
         #define SL_OS_MACIOS
-        #define SL_GLES2
+        #define SL_GLES3
     #else
         #define SL_OS_MACOS
         #if defined(_DEBUG)
@@ -79,7 +79,7 @@ SL_USE_DISCARD_STEREOMODES: The discard stereo modes can be used (SLCamera)
     #endif
 #elif defined(ANDROID) || defined(ANDROID_NDK)
     #define SL_OS_ANDROID
-    #define SL_GLES2
+    #define SL_GLES3
 #elif defined(_WIN32)
     #define SL_OS_WINDOWS
     #define SL_USE_DISCARD_STEREOMODES
@@ -129,6 +129,14 @@ SL_GUI_JAVA :Java on Android (with the VS-Android project)
     #include <GL/glew.h>
 #elif defined(SL_OS_ANDROID)
     #include <sys/time.h>
+    #ifdef SL_GLES2
+        #include <GLES2/gl2.h>
+        #include <GLES2/gl2ext.h>
+    #endif
+    #ifdef SL_GLES3
+        #include <GLES3/gl3.h>
+        #include <GLES3/gl3ext.h>
+    #endif
     #include <android/log.h>
     #include <functional>
     #include <thread>

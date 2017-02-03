@@ -27,8 +27,15 @@ SLGLVertexArray::SLGLVertexArray()
 {   
     _hasGL3orGreater = SLGLState::getInstance()->glVersionNOf() >= 3.0f;
     _idVAO = 0;
+
     _VBOf.dataType(BT_float);
+
+    #ifdef SL_HAS_HALF
     _VBOh.dataType(BT_half);
+    #else
+    _VBOh.dataType(BT_float);
+    #endif
+
     _VBOf.clear();
     _VBOh.clear();
     _idVBOIndices = 0;
@@ -41,10 +48,12 @@ The vector _attribs with the attribute information is not cleared.
 */
 void SLGLVertexArray::deleteGL()
 {
+    #ifndef SL_GLES2
     if (_hasGL3orGreater && _idVAO)
     {   glDeleteVertexArrays(1, &_idVAO);
-        _idVAO = 0;
     }
+    #endif
+    _idVAO = 0;
     
     if (_VBOf.id()) _VBOf.clear();
     if (_VBOh.id()) _VBOh.clear();
@@ -56,7 +65,16 @@ void SLGLVertexArray::deleteGL()
         SLGLVertexBuffer::totalBufferSize -= _numIndices * SLGLVertexBuffer::sizeOfType(_indexDataType);
     }
 }
-
+//-----------------------------------------------------------------------------
+// Returns the vertex array object id
+SLint SLGLVertexArray::id ()
+{
+    #ifndef SL_GLES2
+    return _hasGL3orGreater?_idVAO:_VBOf.id();
+    #else
+    return _VBOf.id();
+    #endif
+}
 //-----------------------------------------------------------------------------
 /*! Defines a vertex attribute for the later generation. 
 It must be of a specific SLVertexAttribType. Each attribute can appear only 
@@ -197,10 +215,12 @@ void SLGLVertexArray::generate(SLuint numVertices,
     _numVertices = numVertices;
 
     // Generate and bind VAO
+    #ifndef SL_GLES2
     if (_hasGL3orGreater)
     {   glGenVertexArrays(1, &_idVAO);
         glBindVertexArray(_idVAO);
     }
+    #endif
     
     
     ///////////////////////////////
@@ -233,8 +253,10 @@ void SLGLVertexArray::generate(SLuint numVertices,
         SLGLVertexBuffer::totalBufferSize += _numIndices * typeSize;
     }
 
+    #ifndef SL_GLES2
     if (_hasGL3orGreater)
         glBindVertexArray(0);
+    #endif
     
     #ifdef _GLDEBUG
     GET_GL_ERROR;
@@ -253,12 +275,14 @@ void SLGLVertexArray::drawElementsAs(SLGLPrimitiveType primitiveType,
 
     // From OpenGL 3.0 on we have the OpenGL Vertex Arrays
     // Binding the VAO saves all the commands after the else (per draw call!)
-    
+
+    #ifndef SL_GLES2
     if (_hasGL3orGreater)
     {   glBindVertexArray(_idVAO);
         GET_GL_ERROR;
     }
     else
+    #else
     {   _VBOf.bindAndEnableAttrib();
         _VBOh.bindAndEnableAttrib();
 
@@ -266,6 +290,7 @@ void SLGLVertexArray::drawElementsAs(SLGLPrimitiveType primitiveType,
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _idVBOIndices);
         GET_GL_ERROR;
     }
+    #endif
 
     // Do the draw call with indices 
     if (numIndexes==0) 
@@ -283,12 +308,14 @@ void SLGLVertexArray::drawElementsAs(SLGLPrimitiveType primitiveType,
     GET_GL_ERROR;
     totalDrawCalls++;
 
+    #ifndef SL_GLES2
     if (_hasGL3orGreater)
         glBindVertexArray(0);
-    else
+    #else
     {   _VBOf.disableAttrib();
         _VBOh.disableAttrib();
     }
+    #endif
 
     #ifdef _GLDEBUG
     GET_GL_ERROR;
@@ -303,13 +330,16 @@ void SLGLVertexArray::drawArrayAs(SLGLPrimitiveType primitiveType,
                                   SLsizei countVertices)
 {   
     assert((_VBOf.id() || _VBOh.id()) && "No VBO generated for VAO.");
-    
+
+
+    #ifndef SL_GLES2
     if (_hasGL3orGreater)
         glBindVertexArray(_idVAO);
-    else
+    #else
     {   _VBOf.bindAndEnableAttrib();
         _VBOh.bindAndEnableAttrib();
     }
+    #endif
 
     if (countVertices == 0)
         countVertices = _numVertices;
@@ -319,13 +349,15 @@ void SLGLVertexArray::drawArrayAs(SLGLPrimitiveType primitiveType,
     ////////////////////////////////////////////////////////
     
     totalDrawCalls++;
-    
+
+    #ifndef SL_GLES2
     if (_hasGL3orGreater)
         glBindVertexArray(0);
-    else
+    #else
     {   _VBOf.disableAttrib();
         _VBOh.disableAttrib();
     }
+    #endif
 
     #ifdef _GLDEBUG
     GET_GL_ERROR;

@@ -26,7 +26,10 @@ public class PreviewCallback {
     private Surface surface;
     private CameraService.ImageAvailableListener imageAvailableListener;
 
-    public PreviewCallback(Size[] outputSizes, CameraService.ImageAvailableListener imageAvailableListener, CameraDevice mCameraDevice) throws CameraAccessException {
+    public PreviewCallback(Size[] outputSizes,
+                           CameraService.ImageAvailableListener imageAvailableListener,
+                           CameraDevice mCameraDevice) throws CameraAccessException
+    {
         this.imageAvailableListener = imageAvailableListener;
         this.mCameraDevice = mCameraDevice;
 
@@ -38,20 +41,25 @@ public class PreviewCallback {
         setupSurface();
     }
 
-    private void setupSurface() {
-        ImageReader mImageReader = ImageReader.newInstance(mTargetPreviewSize.getWidth(), mTargetPreviewSize.getHeight(), ImageFormat.RAW_SENSOR, /*maxImages*/ 2);
+    private void setupSurface()
+    {
+        ImageReader mImageReader = ImageReader.newInstance(mTargetPreviewSize.getWidth(),
+                                                           mTargetPreviewSize.getHeight(),
+                                                           ImageFormat.RAW_SENSOR, /*maxImages*/ 2);
         mImageReader.setOnImageAvailableListener(imageAvailableListener, null);
         surface = mImageReader.getSurface();
     }
 
 
     //Request for a basic preview
-    protected CaptureRequest.Builder createPreviewRequestBuilder() throws CameraAccessException {
+    protected CaptureRequest.Builder createPreviewRequestBuilder() throws CameraAccessException
+    {
         return getCameraDevice().createCaptureRequest(CameraDevice.TEMPLATE_PREVIEW);
     }
 
     //Return all target surfaces for camera frames
-    protected List<Surface> getCaptureTargets() {
+    protected List<Surface> getCaptureTargets()
+    {
         List<Surface> baseTargets = new ArrayList<>();
         baseTargets.add(surface);
         return baseTargets;
@@ -62,7 +70,8 @@ public class PreviewCallback {
      * state is shared between them. The object is lazily created
      * the first time it is needed.
      */
-    protected final CaptureRequest.Builder getPreviewRequestBuilder() throws CameraAccessException {
+    protected final CaptureRequest.Builder getPreviewRequestBuilder() throws CameraAccessException
+    {
         if (mPreviewRequestBuilder == null)
             mPreviewRequestBuilder = createPreviewRequestBuilder();
 
@@ -98,7 +107,8 @@ public class PreviewCallback {
     /*
      * Begin streaming preview data.
      */
-    public void startPreviewSession() throws CameraAccessException {
+    public void startPreviewSession() throws CameraAccessException
+    {
         //Cancel any active sessions
         cancelActiveCaptureSession();
 

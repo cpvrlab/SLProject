@@ -26,17 +26,21 @@ public class CameraService extends Service {
     private PreviewCallback previewCallback;
 
     @Override
-    public int onStartCommand(Intent intent, int flags, int startId) {
-        try {
+    public int onStartCommand(Intent intent, int flags, int startId)
+    {
+        try
+        {
             CameraManager cameraManager = (CameraManager) getSystemService(Context.CAMERA_SERVICE);
             String cameraId = cameraManager.getCameraIdList()[0];
             CameraCharacteristics cc = cameraManager.getCameraCharacteristics(cameraId);
             StreamConfigurationMap streamConfigs = cc.get(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP);
             Size[] outputSizes = streamConfigs.getOutputSizes(ImageFormat.RAW_SENSOR);
 
-            cameraManager.openCamera(cameraId, new CameraDevice.StateCallback() {
+            cameraManager.openCamera(cameraId, new CameraDevice.StateCallback()
+            {
                 @Override
-                public void onOpened(CameraDevice camera) {
+                public void onOpened(CameraDevice camera)
+                {
                     try {
                         ImageAvailableListener imageAvailableListener = new ImageAvailableListener();
                         previewCallback = new PreviewCallback(outputSizes, imageAvailableListener, camera);
@@ -47,17 +51,20 @@ public class CameraService extends Service {
                 }
 
                 @Override
-                public void onDisconnected(CameraDevice camera) {
+                public void onDisconnected(CameraDevice camera)
+                {
                     previewCallback.cancelActiveCaptureSession();
                 }
 
                 @Override
-                public void onError(CameraDevice camera, int error) {
+                public void onError(CameraDevice camera, int error)
+                {
                 }
             }, null);
 
 
-        } catch (CameraAccessException e) {
+        } catch (CameraAccessException e)
+        {
             Log.e(TAG, "Cannot setup camera");
         }
 
@@ -65,7 +72,8 @@ public class CameraService extends Service {
     }
 
 
-    public class ImageAvailableListener implements ImageReader.OnImageAvailableListener {
+    public class ImageAvailableListener implements ImageReader.OnImageAvailableListener
+    {
 
         @Override
         public void onImageAvailable(ImageReader reader) {
@@ -80,7 +88,8 @@ public class CameraService extends Service {
     }
 
     @Override
-    public void onDestroy() {
+    public void onDestroy()
+    {
         previewCallback.cancelActiveCaptureSession();
         super.onDestroy();
     }

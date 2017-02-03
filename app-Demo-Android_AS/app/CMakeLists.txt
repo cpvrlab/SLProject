@@ -5,6 +5,7 @@
 cmake_minimum_required(VERSION 3.4.1)
 
 add_definitions(-DSL_GUI_JAVA)
+add_definitions(-DSL_GLES2)
 add_definitions(-DASSIMP_BUILD_NO_BLEND_IMPORTER)
 add_definitions(-DSL_HAS_OPENCV)
 add_definitions(-DSL_USES_CVCAPTURE)
@@ -21,8 +22,7 @@ file(GLOB_RECURSE SLPROJECT_SOURCES     ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SL
                                         ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/math/SLPlane.cpp 
                                         ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/SL/SL.cpp 
                                         ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/SL/SLAssimpImporter.cpp 
-                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/SL/SLFileSystem.cpp 
-                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/SL/SLImage.cpp 
+                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/SL/SLFileSystem.cpp
                                         ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/SL/SLImporter.cpp 
                                         ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/SL/SLInterface.cpp 
                                         ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/SL/SLTexFont.cpp 
@@ -37,9 +37,11 @@ file(GLOB_RECURSE SLPROJECT_SOURCES     ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SL
                                         ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/GL/SLGLVertexArrayExt.cpp 
                                         ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/GL/SLGLVertexBuffer.cpp 
                                         ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/CV/SLCVCapture.cpp 
-                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/CV/SLCVCalibration.cpp 
+                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/CV/SLCVCalibration.cpp
+                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/CV/SLCVImage.cpp
+                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/CV/SLCVTracker.cpp
                                         ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/CV/SLCVTrackerAruco.cpp 
-                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/CV/SLCVTrackerChessboard.cpp 
+                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/CV/SLCVTrackerChessboard.cpp
                                         ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/SLAABBox.cpp 
                                         ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/SLAnimation.cpp 
                                         ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/SLAnimManager.cpp 
@@ -79,64 +81,11 @@ file(GLOB_RECURSE SLPROJECT_SOURCES     ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SL
                                         ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/SLScene_onLoad.cpp 
                                         ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/SLSkeleton.cpp 
                                         ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/SLSpheric.cpp 
-                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/SLText.cpp 
-                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/CV/SLCVTracker.cpp)
+                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/SLText.cpp )
 
+file(GLOB_RECURSE SLPROJECT_INCLUDES    ${CMAKE_CURRENT_SOURCE_DIR}/../../include/*.h)
 
-file(GLOB_RECURSE SLEXTERNAL_SOURCES    #${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLExternal/glew/src/glew.c
-                                        #${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLExternal/glfw3/src/context.c
-                                        #${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLExternal/glfw3/src/init.c
-                                        #${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLExternal/glfw3/src/input.c
-                                        #${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLExternal/glfw3/src/monitor.c
-                                        #${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLExternal/glfw3/src/window.c
-                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLExternal/jpeg-8/jutils.c
-                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLExternal/jpeg-8/jquant2.c
-                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLExternal/jpeg-8/jquant1.c
-                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLExternal/jpeg-8/jmemnobs.c
-                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLExternal/jpeg-8/jmemmgr.c
-                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLExternal/jpeg-8/jidctint.c
-                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLExternal/jpeg-8/jidctfst.c
-                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLExternal/jpeg-8/jidctflt.c
-                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLExternal/jpeg-8/jfdctint.c
-                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLExternal/jpeg-8/jfdctfst.c
-                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLExternal/jpeg-8/jfdctflt.c
-                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLExternal/jpeg-8/jerror.c
-                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLExternal/jpeg-8/jdtrans.c
-                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLExternal/jpeg-8/jdsample.c
-                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLExternal/jpeg-8/jdpostct.c
-                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLExternal/jpeg-8/jdmerge.c
-                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLExternal/jpeg-8/jdmaster.c
-                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLExternal/jpeg-8/jdmarker.c
-                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLExternal/jpeg-8/jdmainct.c
-                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLExternal/jpeg-8/jdinput.c
-                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLExternal/jpeg-8/jdhuff.c
-                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLExternal/jpeg-8/jddctmgr.c
-                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLExternal/jpeg-8/jdcolor.c
-                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLExternal/jpeg-8/jdcoefct.c
-                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLExternal/jpeg-8/jdatasrc.c
-                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLExternal/jpeg-8/jdatadst.c
-                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLExternal/jpeg-8/jdarith.c
-                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLExternal/jpeg-8/jdapistd.c
-                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLExternal/jpeg-8/jdapimin.c
-                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLExternal/jpeg-8/jctrans.c
-                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLExternal/jpeg-8/jcsample.c
-                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLExternal/jpeg-8/jcprepct.c
-                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLExternal/jpeg-8/jcparam.c
-                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLExternal/jpeg-8/jcomapi.c
-                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLExternal/jpeg-8/jcmaster.c
-                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLExternal/jpeg-8/jcmarker.c
-                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLExternal/jpeg-8/jcmainct.c
-                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLExternal/jpeg-8/jcinit.c
-                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLExternal/jpeg-8/jchuff.c
-                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLExternal/jpeg-8/jcdctmgr.c
-                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLExternal/jpeg-8/jccolor.c
-                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLExternal/jpeg-8/jccoefct.c
-                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLExternal/jpeg-8/jcarith.c
-                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLExternal/jpeg-8/jcapistd.c
-                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLExternal/jpeg-8/jcapimin.c
-                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLExternal/jpeg-8/jaricom.c
-                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLExternal/png/*.c
-                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLExternal/assimp/code/*.cpp
+file(GLOB_RECURSE SLEXTERNAL_SOURCES    ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLExternal/assimp/code/*.cpp
                                         ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLExternal/assimp/contrib/*.cpp
                                         ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLExternal/assimp/contrib/*.c
                                         ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLExternal/assimp/contrib/*.cc
@@ -154,9 +103,7 @@ list(REMOVE_ITEM SLEXTERNAL_SOURCES     ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SL
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../../include)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLExternal)
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLExternal/jpeg-8)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLExternal/randomc)
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLExternal/png)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLExternal/nvwa)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLExternal/zlib)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLExternal/assimp/include)
@@ -166,9 +113,6 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLExternal/assimp/cont
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLExternal/assimp/contrib/irrXML)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLExternal/assimp/contrib/poly2tri)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLExternal/assimp/code/BoostWorkaround)
-#include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLExternal/glew/include)
-#include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLExternal/glfw3/include)
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLExternal/half/include)
 
 #
 # OpenCV
@@ -177,11 +121,11 @@ add_library(lib_opencv SHARED IMPORTED)
 set_target_properties(lib_opencv PROPERTIES IMPORTED_LOCATION ${CMAKE_CURRENT_SOURCE_DIR}/../../_lib/prebuilt/OpenCV/android/${ANDROID_ABI}/libopencv_java3.so)
 
 
-add_library( native-lib
-             SHARED
-             src/main/cpp/native-lib.cpp
-             ${SLPROJECT_SOURCES}
-             ${SLEXTERNAL_SOURCES}
+add_library(native-lib
+            SHARED
+            src/main/cpp/native-lib.cpp
+            ${SLPROJECT_SOURCES}
+            ${SLEXTERNAL_SOURCES}
 )
 
 find_library( log-lib log )
@@ -190,55 +134,61 @@ find_library( log-lib log )
 # GLES
 #
 set(OPENGL_LIB_v2 GLESv2)
-set(OPENGL_LIB_v3 GLESv3)
+#set(OPENGL_LIB_v3 GLESv3)
 
 # Specifies libraries CMake should link to your target library. You
 # can link multiple libraries, such as libraries you define in the
 # build script, prebuilt third-party libraries, or system libraries.
 
-target_link_libraries( native-lib
+target_link_libraries(  native-lib
                         lib_opencv
                         ${OPENGL_LIB_v2}
-                        ${OPENGL_LIB_v3}
+                        #${OPENGL_LIB_v3}
                         ${log-lib}
                      )
 
 #
 # Copy APK contents
 #
-file(GLOB_RECURSE TEXTURES
-    ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/images/textures/*
-)
 
-file(GLOB_RECURSE MODELS
-    ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/models/*
-)
+file(GLOB_RECURSE TEXTURES  ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/images/textures/CompileError.png
+                            ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/images/textures/brick0512_C.png
+                            ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/images/textures/bricks*.jpg
+                            ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/images/textures/Checkerboard0512_C.png
+                            ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/images/textures/Chess0256_C.bmp
+                            ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/images/textures/earth*.jpg
+                            ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/images/textures/grass0512_C.jpg
+                            ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/images/textures/gray_0256_C.jpg
+                            ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/images/textures/MuttenzerBox*.png
+                            ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/images/textures/Pool*.png
+                            ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/images/textures/Testmap_0512_C.png
+                            ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/images/textures/tile1_0256_C.jpg
+                            ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/images/textures/tree1_1024_C.png
+                            ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/images/textures/wood*.jpg
+                            ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/images/textures/cursor.png
+                            ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/images/textures/Vision*.png
+                            ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/images/textures/LiveVideoError.png)
 
-file(GLOB_RECURSE SHADERS
-    ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/shaders/*.vert
-    ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/shaders/*.frag
-)
+file(GLOB_RECURSE MODELS        ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/models/*)
 
-file(GLOB_RECURSE CALIBRATIONS
-    ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/calibrations/*
-)
+file(GLOB_RECURSE SHADERS       ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/shaders/*.vert
+                                ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/shaders/*.frag)
 
-file(GLOB_RECURSE CONFIG
-#    ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/config/???
-)
+file(GLOB_RECURSE CALIBRATIONS  ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/calibrations/calib_in_params.yml
+                                ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/calibrations/aruco_detector_params.yml)
+
+#file(GLOB_RECURSE CONFIG       ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/config/???)
 
 set(APK_ASSETS "${CMAKE_CURRENT_SOURCE_DIR}/src/main/assets")
 
-file(MAKE_DIRECTORY
-    ${APK_ASSETS}/textures
-    ${APK_ASSETS}/models
-    ${APK_ASSETS}/shaders
-    ${APK_ASSETS}/calibrations
-    ${APK_ASSETS}/config
-)
+file(MAKE_DIRECTORY     ${APK_ASSETS}/textures
+                        ${APK_ASSETS}/models
+                        ${APK_ASSETS}/shaders
+                        ${APK_ASSETS}/calibrations
+                        ${APK_ASSETS}/config)
 
-file(COPY ${TEXTURES} DESTINATION ${APK_ASSETS}/textures)
-file(COPY ${MODELS} DESTINATION ${APK_ASSETS}/models)
-file(COPY ${SHADERS} DESTINATION ${APK_ASSETS}/shaders)
-file(COPY ${CALIBRATIONS} DESTINATION ${APK_ASSETS}/calibrations)
-file(COPY ${CONFIG} DESTINATION ${APK_ASSETS}/config)
+file(COPY ${TEXTURES} DESTINATION       ${APK_ASSETS}/textures)
+file(COPY ${MODELS} DESTINATION         ${APK_ASSETS}/models)
+file(COPY ${SHADERS} DESTINATION        ${APK_ASSETS}/shaders)
+file(COPY ${CALIBRATIONS} DESTINATION   ${APK_ASSETS}/calibrations)
+file(COPY ${CONFIG} DESTINATION         ${APK_ASSETS}/config)

@@ -337,9 +337,11 @@ void SLGLState::multiSample(SLbool stateNew)
     {   
         if (_multiSampleSamples > 0)
         {
+            #ifndef SL_GLES3
             if (stateNew) glEnable(GL_MULTISAMPLE);
             else glDisable(GL_MULTISAMPLE);
             _multisample = stateNew;
+            #endif
         }
     
         #ifdef _GLDEBUG
@@ -357,10 +359,13 @@ void SLGLState::polygonLine(SLbool stateNew)
 {  
     #ifndef SL_GLES2
     if (_polygonLine != stateNew)
-    {   if (stateNew)
+    {
+        #ifndef SL_GLES3
+        if (stateNew)
              glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
         else glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
         _polygonLine = stateNew;
+        #endif
     
         #ifdef _GLDEBUG
         GET_GL_ERROR;

@@ -69,7 +69,7 @@ void SLGLVertexArrayExt::drawArrayAsColored(SLGLPrimitiveType primitiveType,
     // Set uniform color
     glUniform4fv(sp->getUniformLocation("u_color"), 1, (SLfloat*)&color);
    
-    #ifndef SL_GLES2
+    #ifndef SL_GLES3
     if (pointSize!=1.0f)
         if (primitiveType == PT_points)
             glPointSize(pointSize);
@@ -79,7 +79,7 @@ void SLGLVertexArrayExt::drawArrayAsColored(SLGLPrimitiveType primitiveType,
     drawArrayAs(primitiveType, indexFirstVertex, countVertices);
     ////////////////////////////////////////////////////////////
    
-    #ifndef SL_GLES2
+    #ifndef SL_GLES3
     if (pointSize!=1.0f)
         if (primitiveType == PT_points)
             glPointSize(1.0f);

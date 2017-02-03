@@ -52,7 +52,7 @@ class SLGLVertexArray
                                             _VBOh.clear();}
 
         //! Returns either the VAO id or the VBO id
-        SLint       id                  () {return _hasGL3orGreater?_idVAO:_VBOf.id();}            
+        SLint       id                  ();
                                     
         //! Adds a vertex attribute with data pointer and an element size
         void        setAttrib           (SLGLAttributeType type, 

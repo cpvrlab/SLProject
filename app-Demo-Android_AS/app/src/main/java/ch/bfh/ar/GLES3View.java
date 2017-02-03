@@ -15,7 +15,8 @@ import javax.microedition.khronos.opengles.GL10;
  * Created by zinggpa on 27.11.16.
  */
 
-public class GLES3View extends GLSurfaceView {
+public class GLES3View extends GLSurfaceView
+{
     private static String TAG = "SLProject";
     private static final boolean DEBUG = false;
 
@@ -29,18 +30,20 @@ public class GLES3View extends GLSurfaceView {
     private boolean 			_cameraIsInitialized = false;
 	*/
 
-    public GLES3View(Context context) {
+    public GLES3View(Context context)
+    {
         super(context);
         init(false, 16, 0);
     }
 
-    public GLES3View(Context context, boolean translucent, int depth, int stencil) {
+    public GLES3View(Context context, boolean translucent, int depth, int stencil)
+    {
         super(context);
         init(translucent, depth, stencil);
     }
 
-    private void init(boolean translucent, int depth, int stencil) {
-
+    private void init(boolean translucent, int depth, int stencil)
+    {
         /* By default, GLSurfaceView() creates a RGB_565 opaque surface.
          * If we want a translucent one, we should change the surface's
          * format here, using PixelFormat.TRANSLUCENT for GL Surfaces
@@ -50,7 +53,7 @@ public class GLES3View extends GLSurfaceView {
             this.getHolder().setFormat(PixelFormat.TRANSLUCENT);
         }
 
-        /* Setup the context factory for 2.0 rendering.
+        /* Setup the context factory for 3.0 rendering.
          * See ContextFactory class definition below
          */
         setEGLContextFactory(new ContextFactory());
@@ -74,10 +77,12 @@ public class GLES3View extends GLSurfaceView {
         setRenderMode(RENDERMODE_WHEN_DIRTY);
     }
 
-    private static class ContextFactory implements GLSurfaceView.EGLContextFactory {
+    private static class ContextFactory implements GLSurfaceView.EGLContextFactory
+    {
         private static int EGL_CONTEXT_CLIENT_VERSION = 0x3098;
 
-        public EGLContext createContext(EGL10 egl, EGLDisplay display, EGLConfig eglConfig) {
+        public EGLContext createContext(EGL10 egl, EGLDisplay display, EGLConfig eglConfig)
+        {
             Log.w(TAG, "creating OpenGL ES 2.0 context");
             checkEglError("Before eglCreateContext", egl);
             int[] attrib_list = {EGL_CONTEXT_CLIENT_VERSION, 2, EGL10.EGL_NONE};
@@ -87,21 +92,25 @@ public class GLES3View extends GLSurfaceView {
             return context;
         }
 
-        public void destroyContext(EGL10 egl, EGLDisplay display, EGLContext context) {
+        public void destroyContext(EGL10 egl, EGLDisplay display, EGLContext context)
+        {
             egl.eglDestroyContext(display, context);
             Log.i(TAG, "ContextFactory.destroyContext");
         }
     }
 
-    private static void checkEglError(String prompt, EGL10 egl) {
+    private static void checkEglError(String prompt, EGL10 egl)
+    {
         int error;
         while ((error = egl.eglGetError()) != EGL10.EGL_SUCCESS) {
             Log.e(TAG, String.format("%s: EGL error: 0x%x", prompt, error));
         }
     }
 
-    private static class ConfigChooser implements GLSurfaceView.EGLConfigChooser {
-        public ConfigChooser(int r, int g, int b, int a, int depth, int stencil) {
+    private static class ConfigChooser implements GLSurfaceView.EGLConfigChooser
+    {
+        public ConfigChooser(int r, int g, int b, int a, int depth, int stencil)
+        {
             mRedSize = r;
             mGreenSize = g;
             mBlueSize = b;
@@ -124,7 +133,9 @@ public class GLES3View extends GLSurfaceView {
                         EGL10.EGL_NONE
                 };
 
-        public EGLConfig chooseConfig(EGL10 egl, EGLDisplay display) {
+        public EGLConfig chooseConfig(EGL10 egl,
+                                      EGLDisplay display)
+        {
 
             /* Get the number of minimally matching EGL configurations
              */
@@ -150,8 +161,10 @@ public class GLES3View extends GLSurfaceView {
             return chooseConfig(egl, display, configs);
         }
 
-        public EGLConfig chooseConfig(EGL10 egl, EGLDisplay display,
-                                      EGLConfig[] configs) {
+        public EGLConfig chooseConfig(EGL10 egl,
+                                      EGLDisplay display,
+                                      EGLConfig[] configs)
+        {
             for (EGLConfig config : configs) {
                 int d = findConfigAttrib(egl, display, config,
                         EGL10.EGL_DEPTH_SIZE, 0);
@@ -179,7 +192,10 @@ public class GLES3View extends GLSurfaceView {
         }
 
         private int findConfigAttrib(EGL10 egl, EGLDisplay display,
-                                     EGLConfig config, int attribute, int defaultValue) {
+                                     EGLConfig config,
+                                     int attribute,
+                                     int defaultValue)
+        {
 
             if (egl.eglGetConfigAttrib(display, config, attribute, mValue)) {
                 return mValue[0];
@@ -187,8 +203,10 @@ public class GLES3View extends GLSurfaceView {
             return defaultValue;
         }
 
-        private void printConfigs(EGL10 egl, EGLDisplay display,
-                                  EGLConfig[] configs) {
+        private void printConfigs(EGL10 egl,
+                                  EGLDisplay display,
+                                  EGLConfig[] configs)
+        {
             int numConfigs = configs.length;
             Log.w(TAG, String.format("%d configurations", numConfigs));
             for (int i = 0; i < numConfigs; i++) {
@@ -197,8 +215,10 @@ public class GLES3View extends GLSurfaceView {
             }
         }
 
-        private void printConfig(EGL10 egl, EGLDisplay display,
-                                 EGLConfig config) {
+        private void printConfig(EGL10 egl,
+                                 EGLDisplay display,
+                                 EGLConfig config)
+        {
             int[] attributes = {
                     EGL10.EGL_BUFFER_SIZE,
                     EGL10.EGL_ALPHA_SIZE,
@@ -292,8 +312,10 @@ public class GLES3View extends GLSurfaceView {
         private int[] mValue = new int[1];
     }
 
-    private static class Renderer implements GLSurfaceView.Renderer {
-        public void onSurfaceCreated(GL10 gl, EGLConfig config) {
+    private static class Renderer implements GLSurfaceView.Renderer
+    {
+        public void onSurfaceCreated(GL10 gl, EGLConfig config)
+        {
             Log.i(TAG, "Renderer.onSurfaceCreated");
             int w = GLES3Lib.view.getWidth();
             int h = GLES3Lib.view.getHeight();
@@ -303,7 +325,8 @@ public class GLES3View extends GLSurfaceView {
             //GLES3Lib.view.setupCamera(w, h);
         }
 
-        public void onSurfaceChanged(GL10 gl, int width, int height) {
+        public void onSurfaceChanged(GL10 gl, int width, int height)
+        {
             Log.i(TAG, "Renderer.onSurfaceChanged");
             GLES3Lib.onResize(width, height);
             GLES3Lib.view.requestRender();
@@ -311,10 +334,10 @@ public class GLES3View extends GLSurfaceView {
             //GLES3Lib.view.setupCamera(width, height);
         }
 
-        public void onDrawFrame(GL10 gl) {
-            if (GLES3Lib.onUpdateAndPaint()) {
+        public void onDrawFrame(GL10 gl)
+        {
+            if (GLES3Lib.onUpdateAndPaint())
                 GLES3Lib.view.requestRender();
-            }
             if (GLES3Lib.shouldClose())
                 GLES3Lib.onClose();
         }
