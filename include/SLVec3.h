@@ -298,10 +298,6 @@ template<class T> SLVec3<T> SLVec3<T>::AXISX  = SLVec3<T>(1.0f, 0.0f, 0.0f);
 template<class T> SLVec3<T> SLVec3<T>::AXISY  = SLVec3<T>(0.0f, 1.0f, 0.0f);
 template<class T> SLVec3<T> SLVec3<T>::AXISZ  = SLVec3<T>(0.0f, 0.0f, 1.0f);
 //-----------------------------------------------------------------------------
-#ifdef SL_HAS_HALF
-typedef SLVec3<SLhalf>        SLVec3h;
-typedef SLVec3<SLhalf>        SLCol3h;
-#endif
 typedef SLVec3<SLfloat>       SLVec3f;
 typedef SLVec3<SLfloat>       SLCol3f;
 typedef SLVec3<SLint>         SLVec3i; 

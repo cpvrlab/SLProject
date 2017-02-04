@@ -17,9 +17,6 @@
 #include <SLGLVertexBuffer.h>
 #include <SLGLProgram.h>
 #include <SLScene.h>
-#ifdef SL_HAS_HALF
-#include <half.hpp>
-#endif
 
 //-----------------------------------------------------------------------------
 SLuint SLGLVertexBuffer::totalBufferSize  = 0;
@@ -88,30 +85,7 @@ void SLGLVertexBuffer::updateAttrib(SLGLAttributeType type,
         glGenBuffers(1, &_id);
 
     
-    _attribs[index].dataPointer = dataPointer;
-
-    #ifdef SL_HAS_HALF
-    /////////////////////////
-    // Convert to Half Floats
-    /////////////////////////
-
-    SLVhalf halfs;
-
-    if (_dataType == BT_half)
-    {   
-        // Create a new array on the heap that must be deleted after glBufferData
-        SLint numHalfs = _numVertices * _attribs[index].elementSize;
-        halfs.resize(numHalfs);
-
-        // Convert all float to half floats
-        for (SLint h=0; h<numHalfs; ++h)
-            halfs[h] = half_cast<half>(((SLfloat*)_attribs[index].dataPointer)[h]);
-
-        // Replace the data pointer
-        _attribs[index].dataPointer = &halfs[0];
-    }
-    #endif
-    
+    _attribs[index].dataPointer = dataPointer;    
 
     ////////////////////////////////////////////
     // copy sub-data into existing buffer object
@@ -122,18 +96,6 @@ void SLGLVertexBuffer::updateAttrib(SLGLAttributeType type,
                     _attribs[index].offsetBytes,
                     _attribs[index].bufferSizeBytes,
                     _attribs[index].dataPointer);
-    
-
-    #ifdef SL_HAS_HALF
-    ///////////////////////////////////
-    // Delete the converted half floats
-    ///////////////////////////////////
-
-    if (_dataType == BT_half)
-    {   halfs.clear();
-        _attribs[index].dataPointer = 0;
-    }
-    #endif
 
     #ifdef _GLDEBUG
     GET_GL_ERROR;
@@ -230,28 +192,6 @@ void SLGLVertexBuffer::generate(SLuint numVertices,
     }
 
 
-    #ifdef SL_HAS_HALF
-    /////////////////////////
-    // Convert to Half Floats
-    /////////////////////////
-
-    if (_dataType == BT_half)
-    {   for (SLint i=0; i < _attribs.size(); ++i)
-        {   // Create a new array on the heap that must be deleted after glBufferData
-            SLint numHalfs = _numVertices * _attribs[i].elementSize;
-            SLhalf* pHalfs = new SLhalf[numHalfs];
-
-            // Convert all float to half floats
-            for (SLint h=0; h<numHalfs; ++h)
-                pHalfs[h] = half_cast<half>(((SLfloat*)_attribs[i].dataPointer)[h]);
-
-            // Replace the data pointer
-            _attribs[i].dataPointer = pHalfs;
-        }
-    }
-    #endif
-
-
     //////////////////////////////
     // Generate VBO for Attributes
     //////////////////////////////
@@ -345,19 +285,6 @@ void SLGLVertexBuffer::generate(SLuint numVertices,
 
     totalBufferCount++;
     totalBufferSize += _sizeBytes;
-
-    #ifdef SL_HAS_HALF
-    ///////////////////////////////////
-    // Delete the converted half floats
-    ///////////////////////////////////
-
-    if (_dataType == BT_half)
-    {   for (SLint i=0; i < _attribs.size(); ++i)
-        {   delete[] _attribs[i].dataPointer;
-            _attribs[i].dataPointer = 0;
-        }
-    }
-    #endif
     
     #ifdef _GLDEBUG
     GET_GL_ERROR;
@@ -409,9 +336,6 @@ SLint SLGLVertexBuffer::sizeOfType(SLGLBufferType type)
 {
     switch (type)
     {
-        #ifdef SL_HAS_HALF
-        case BT_half :  return sizeof(half);
-        #endif
         case BT_float:  return sizeof(float);
         case BT_ubyte:  return sizeof(unsigned char);
         case BT_ushort: return sizeof(unsigned short);

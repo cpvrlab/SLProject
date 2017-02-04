@@ -41,15 +41,10 @@
 #include <math.h>                // for math functions
 #include <string.h>              // for string functions
 //-----------------------------------------------------------------------------
-// Half precision floating point type
-#ifdef SL_HAS_HALF
-#include <half.hpp>
-using namespace half_float;
-#endif
 
-/////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////
 // Preprocessor constant definitions used in the SLProject
-/////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////
 
 //-----------------------------------------------------------------------------
 /* Determine one of the following operating systems:
@@ -60,7 +55,9 @@ SL_OS_ANDROID  :Goggle Android
 SL_OS_LINUX    :Linux desktop OS
 
 With the OS definition the following constants are defined:
+SL_GLES : Any version of OpenGL ES
 SL_GLES2: Supports only OpenGL ES2
+SL_GLES3: Supports only OpenGL ES3
 SL_MEMLEAKDETECT: The memory leak detector NVWA is used
 SL_USE_DISCARD_STEREOMODES: The discard stereo modes can be used (SLCamera)
 */
@@ -69,6 +66,7 @@ SL_USE_DISCARD_STEREOMODES: The discard stereo modes can be used (SLCamera)
     #include <TargetConditionals.h>
     #if TARGET_OS_IOS
         #define SL_OS_MACIOS
+        #define SL_GLES
         #define SL_GLES3
     #else
         #define SL_OS_MACOS
@@ -79,6 +77,7 @@ SL_USE_DISCARD_STEREOMODES: The discard stereo modes can be used (SLCamera)
     #endif
 #elif defined(ANDROID) || defined(ANDROID_NDK)
     #define SL_OS_ANDROID
+    #define SL_GLES
     #define SL_GLES3
 #elif defined(_WIN32)
     #define SL_OS_WINDOWS
@@ -142,15 +141,6 @@ SL_GUI_JAVA :Java on Android (with the VS-Android project)
     #include <thread>
     #include <chrono>
     #include <random>
-    #if defined(SL_GUI_QT)
-        #include <QGLWidget>
-    #elif defined(SL_GUI_JAVA)
-        #include <jni.h>
-        #include <GLES2/gl2.h>
-        #include <GLES2/gl2ext.h>
-    #else
-        #error "This GUI system is not supported under Android"
-    #endif
 #elif defined(SL_OS_WINDOWS)
     #include <functional>
     #include <thread>
@@ -220,9 +210,6 @@ typedef GLuint          SLuint;
 typedef int64_t         SLint64;
 typedef uint64_t        SLuint64;
 typedef GLsizei         SLsizei;
-#ifdef SL_HAS_HALF
-typedef half            SLhalf;  // half is from the half float library (http://half.sourceforge.net/). GLhalf is an ushort!
-#endif
 typedef GLfloat         SLfloat;
 #ifdef SL_HAS_DOUBLE
 typedef GLdouble        SLdouble;
@@ -248,9 +235,6 @@ typedef std::vector<SLuint>   SLVuint;
 typedef std::vector<SLlong>   SLVlong;
 typedef std::vector<SLulong>  SLVulong;
 typedef std::vector<SLfloat>  SLVfloat;
-#ifdef SL_HAS_HALF
-typedef std::vector<SLhalf>   SLVhalf;
-#endif
 typedef std::vector<SLstring> SLVstring;
 
 // All 2D vectors begin with SLVV*

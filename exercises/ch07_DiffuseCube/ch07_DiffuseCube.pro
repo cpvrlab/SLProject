@@ -38,7 +38,6 @@ INCLUDEPATH += \
     ../../lib-SLExternal/glew/include \
     ../../lib-SLExternal/glfw3/include \
     ../../lib-SLExternal/opencv/include \
-    ../../lib-SLExternal/half/include \
 
 HEADERS += \
     ../../include/glUtils.h \

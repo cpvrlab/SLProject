@@ -123,12 +123,12 @@ SLbool SLGLShader::createAndCompile()
         // Replace deprecated texture functions
         if (verGLSL > "140")
         {   if (_type == ST_fragment)
-        {
-            SLUtils::replaceString(_code, "texture1D",   "texture");
-            SLUtils::replaceString(_code, "texture2D",   "texture");
-            SLUtils::replaceString(_code, "texture3D",   "texture");
-            SLUtils::replaceString(_code, "textureCube", "texture");
-        }
+            {
+                SLUtils::replaceString(_code, "texture1D",   "texture");
+                SLUtils::replaceString(_code, "texture2D",   "texture");
+                SLUtils::replaceString(_code, "texture3D",   "texture");
+                SLUtils::replaceString(_code, "textureCube", "texture");
+            }
         }
         
         _code = srcVersion + _code;

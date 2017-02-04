@@ -133,8 +133,8 @@ find_library( log-lib log )
 #
 # GLES
 #
-set(OPENGL_LIB_v2 GLESv2)
-#set(OPENGL_LIB_v3 GLESv3)
+#set(OPENGL_LIB_v2 GLESv2)
+set(OPENGL_LIB_v3 GLESv3)
 
 # Specifies libraries CMake should link to your target library. You
 # can link multiple libraries, such as libraries you define in the
@@ -142,8 +142,8 @@ set(OPENGL_LIB_v2 GLESv2)
 
 target_link_libraries(  native-lib
                         lib_opencv
-                        ${OPENGL_LIB_v2}
-                        #${OPENGL_LIB_v3}
+                        #${OPENGL_LIB_v2}
+                        ${OPENGL_LIB_v3}
                         ${log-lib}
                      )
 

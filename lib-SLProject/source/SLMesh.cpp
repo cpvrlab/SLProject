@@ -38,7 +38,6 @@ SLMesh::SLMesh(SLstring name) : SLObject(name)
     matOut = nullptr;
     _finalP = &P;
     _finalN = &N;
-    _useHalf = false;
     minP.set( FLT_MAX,  FLT_MAX,  FLT_MAX);
     maxP.set(-FLT_MAX, -FLT_MAX, -FLT_MAX);
    
@@ -255,10 +254,10 @@ void SLMesh::draw(SLSceneView* sv, SLNode* node)
 
         if (!_vao.id())
         {                   _vao.setAttrib(AT_position,    sp->getAttribLocation("a_position"), _finalP);
-            if (N.size())   _vao.setAttrib(AT_normal,      sp->getAttribLocation("a_normal"), _finalN, _useHalf);
-            if (Tc.size())  _vao.setAttrib(AT_texCoord,    sp->getAttribLocation("a_texCoord"), &Tc, _useHalf);
-            if (C.size())   _vao.setAttrib(AT_color,       sp->getAttribLocation("a_color"), &C, _useHalf);
-            if (T.size())   _vao.setAttrib(AT_tangent,     sp->getAttribLocation("a_tangent"), &T, _useHalf);
+            if (N.size())   _vao.setAttrib(AT_normal,      sp->getAttribLocation("a_normal"), _finalN);
+            if (Tc.size())  _vao.setAttrib(AT_texCoord,    sp->getAttribLocation("a_texCoord"), &Tc);
+            if (C.size())   _vao.setAttrib(AT_color,       sp->getAttribLocation("a_color"), &C);
+            if (T.size())   _vao.setAttrib(AT_tangent,     sp->getAttribLocation("a_tangent"), &T);
             if (I16.size()) _vao.setIndices(&I16);
             if (I32.size()) _vao.setIndices(&I32);
             // Depricated HW skinning on GPU
@@ -866,19 +865,6 @@ SLbool SLMesh::hitTriangleOS(SLRay* ray, SLNode* node, SLuint iT)
     #endif
 
     return true;
-}
-//-----------------------------------------------------------------------------
-//! Flags the mesh to convert all non-position attributes to half floats.
-/*! With this flag set to true, all attribute data in N, C, Tc, T, Ji & Jw are
-converted from float to half float before they are passed to the vertex buffer
-in SLGLVertexBuffer. The memory footprint is reduced from 4 to 2 bytes per
-attribute component. The performance gain with half floats is though not
-remarkable. In some cases it even slows down the performance. Use half floats
-only if you have very large models.
-*/
-void SLMesh::useHalfFloats(SLbool useHalf)
-{
-    _useHalf = useHalf;
 }
 //-----------------------------------------------------------------------------
 /*!

@@ -29,15 +29,7 @@ SLGLVertexArray::SLGLVertexArray()
     _idVAO = 0;
 
     _VBOf.dataType(BT_float);
-
-    #ifdef SL_HAS_HALF
-    _VBOh.dataType(BT_half);
-    #else
-    _VBOh.dataType(BT_float);
-    #endif
-
     _VBOf.clear();
-    _VBOh.clear();
     _idVBOIndices = 0;
     _numIndices = 0;
     _numVertices = 0;
@@ -56,7 +48,6 @@ void SLGLVertexArray::deleteGL()
     _idVAO = 0;
     
     if (_VBOf.id()) _VBOf.clear();
-    if (_VBOh.id()) _VBOh.clear();
 
     if (_idVBOIndices)
     {   glDeleteBuffers(1, &_idVBOIndices);
@@ -67,7 +58,7 @@ void SLGLVertexArray::deleteGL()
 }
 //-----------------------------------------------------------------------------
 // Returns the vertex array object id
-SLint SLGLVertexArray::id ()
+SLint SLGLVertexArray::id()
 {
     #ifndef SL_GLES2
     return _hasGL3orGreater?_idVAO:_VBOf.id();
@@ -88,18 +79,14 @@ is called.
 void SLGLVertexArray::setAttrib(SLGLAttributeType type, 
                                 SLint elementSize,
                                 SLint location, 
-                                void* dataPointer,
-                                SLbool convertToHalf)
+                                void* dataPointer)
 {   assert(dataPointer);
     assert(elementSize);
 
     if (type == AT_position && location == -1)
         SL_EXIT_MSG("The position attribute has no variable location.");
 
-    if (type == AT_position && convertToHalf)
-        SL_EXIT_MSG("The position attribute should be from float data type.");
-
-    if (_VBOf.attribIndex(type) >= 0 || _VBOh.attribIndex(type) >= 0)
+    if (_VBOf.attribIndex(type) >= 0)
         SL_EXIT_MSG("Attribute type already exists.");
 
     SLGLAttribute va;
@@ -109,9 +96,7 @@ void SLGLVertexArray::setAttrib(SLGLAttributeType type,
     va.location = location;
     va.bufferSizeBytes = 0;
 
-    if (convertToHalf && _hasGL3orGreater)
-         _VBOh.attribs().push_back(va);
-    else _VBOf.attribs().push_back(va);
+    _VBOf.attribs().push_back(va);
 }
 //-----------------------------------------------------------------------------
 /*! Defines the vertex indices for the element drawing. Without indices vertex
@@ -148,8 +133,7 @@ void SLGLVertexArray::updateAttrib(SLGLAttributeType type,
     
     // Get attribute index and check element size
     SLint indexf = _VBOf.attribIndex(type);
-    SLint indexh = _VBOh.attribIndex(type);
-    if (indexf == -1 && indexh == -1)
+    if (indexf == -1)
         SL_EXIT_MSG("Attribute type does not exist in VAO.");
     
     #ifndef SL_GLES2
@@ -163,8 +147,6 @@ void SLGLVertexArray::updateAttrib(SLGLAttributeType type,
     // update the appropriate VBO
     if (indexf>-1) 
         _VBOf.updateAttrib(type, elementSize, dataPointer);
-    if (indexh>-1) 
-        _VBOh.updateAttrib(type, elementSize, dataPointer);
 
     #ifndef SL_GLES2
     if (_hasGL3orGreater)
@@ -230,10 +212,6 @@ void SLGLVertexArray::generate(SLuint numVertices,
     // Generate the vertex buffer object for float attributes
     if (_VBOf.attribs().size())
         _VBOf.generate(numVertices, usage, outputinterleaved);
-        
-    // Generate the vertex buffer object for half float attributes
-    if (_VBOh.attribs().size())
-        _VBOh.generate(numVertices, usage, outputinterleaved);
 
 
     //////////////////////////////////////////
@@ -270,7 +248,6 @@ void SLGLVertexArray::drawElementsAs(SLGLPrimitiveType primitiveType,
                                      SLuint numIndexes,
                                      SLuint indexOffset)
 {   
-    assert((_VBOf.id() || _VBOh.id()) && "No VBO generated for VAO.");
     assert(_numIndices && _idVBOIndices && "No index VBO generated for VAO");
 
     // From OpenGL 3.0 on we have the OpenGL Vertex Arrays
@@ -281,15 +258,14 @@ void SLGLVertexArray::drawElementsAs(SLGLPrimitiveType primitiveType,
     {   glBindVertexArray(_idVAO);
         GET_GL_ERROR;
     }
-    else
     #else
-    {   _VBOf.bindAndEnableAttrib();
-        _VBOh.bindAndEnableAttrib();
+    if (!_VBOf.id())
+        SL_EXIT_MSG("No VBO generated for VAO.");
+    _VBOf.bindAndEnableAttrib();
 
-        // Activate the index buffer
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _idVBOIndices);
-        GET_GL_ERROR;
-    }
+    // Activate the index buffer
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _idVBOIndices);
+    GET_GL_ERROR;
     #endif
 
     // Do the draw call with indices 
@@ -312,9 +288,7 @@ void SLGLVertexArray::drawElementsAs(SLGLPrimitiveType primitiveType,
     if (_hasGL3orGreater)
         glBindVertexArray(0);
     #else
-    {   _VBOf.disableAttrib();
-        _VBOh.disableAttrib();
-    }
+    _VBOf.disableAttrib();
     #endif
 
     #ifdef _GLDEBUG
@@ -329,16 +303,14 @@ void SLGLVertexArray::drawArrayAs(SLGLPrimitiveType primitiveType,
                                   SLint firstVertex,
                                   SLsizei countVertices)
 {   
-    assert((_VBOf.id() || _VBOh.id()) && "No VBO generated for VAO.");
+    assert((_VBOf.id()) && "No VBO generated for VAO.");
 
 
     #ifndef SL_GLES2
     if (_hasGL3orGreater)
         glBindVertexArray(_idVAO);
     #else
-    {   _VBOf.bindAndEnableAttrib();
-        _VBOh.bindAndEnableAttrib();
-    }
+    _VBOf.bindAndEnableAttrib();
     #endif
 
     if (countVertices == 0)
@@ -354,9 +326,7 @@ void SLGLVertexArray::drawArrayAs(SLGLPrimitiveType primitiveType,
     if (_hasGL3orGreater)
         glBindVertexArray(0);
     #else
-    {   _VBOf.disableAttrib();
-        _VBOh.disableAttrib();
-    }
+    _VBOf.disableAttrib();
     #endif
 
     #ifdef _GLDEBUG

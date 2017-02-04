@@ -1111,7 +1111,6 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
                     // add one single sphere in the center
                     SLint res = 30 * SL::testFactor;
                     SLSphere* earth = new SLSphere(0.3f, res, res, "earth", mat);
-                    earth->useHalfFloats(false);
                     SLNode* sphere = new SLNode(earth);
                     sphere->translate(float(iX), float(iY), float(iZ), TS_object);
                     scene->addChild(sphere);

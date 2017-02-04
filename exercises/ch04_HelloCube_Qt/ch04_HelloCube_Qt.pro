@@ -37,7 +37,6 @@ INCLUDEPATH += \
     ../../include\
     ../../lib-SLExternal \
     ../../lib-SLExternal/glew/include \
-    ../../lib-SLExternal/half/include \
 
 SOURCES += HelloCube_Qt.cpp
 

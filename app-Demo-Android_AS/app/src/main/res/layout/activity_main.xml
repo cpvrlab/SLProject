@@ -8,7 +8,7 @@
     android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
-    tools:context="ch.bfh.ar.GLES3Activity">
+    tools:context="ch.fhnw.comgr.GLES3Activity">
 
     <org.opencv.android.JavaCameraView
         android:layout_width="fill_parent"

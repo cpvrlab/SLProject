@@ -135,7 +135,6 @@ class SLMesh : public SLObject
     virtual void            calcMinMax      ();
             void            calcCenterRad   (SLVec3f& center, SLfloat& radius);
             SLbool          hitTriangleOS   (SLRay* ray, SLNode* node, SLuint iT);
-            void            useHalfFloats   (SLbool useHalf);
 
             void            transformSkin   ();
 
@@ -179,7 +178,6 @@ class SLMesh : public SLObject
             SLGLVertexArrayExt  _vaoN;          //!< OpenGL VAO for optional normal drawing
             SLGLVertexArrayExt  _vaoT;          //!< OpenGL VAO for optional tangent drawing
             SLGLVertexArrayExt  _vaoS;          //!< OpenGL VAO for optional selection drawing
-            SLbool              _useHalf;       //!< Use half floats for N,T,C, Tc,Ji & Jw
                
             SLbool              _isVolume;      //!< Flag for RT if mesh is a closed volume
             SLAccelStruct*      _accelStruct;           //!< KD-tree or uniform grid
