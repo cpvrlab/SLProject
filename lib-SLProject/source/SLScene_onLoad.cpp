@@ -1171,7 +1171,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         light1->attenuation(0,0,1);
         scene->addChild(light1);
 
-        // A green spot light with 40° spot angle from front right
+        // A green spot light with 40? spot angle from front right
         //SLLightSpot* light2 = new SLLightSpot(0.1f, 20.0f, true);
         //light2->ambient(SLCol4f(0,0,0));
         //light2->diffuse(SLCol4f(0,1,0));
@@ -1181,7 +1181,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         //light2->attenuation(0,0,1);
         //scene->addChild(light2);
 
-        // A green spot head light with 40° spot angle from front right
+        // A green spot head light with 40? spot angle from front right
         SLLightSpot* light2 = new SLLightSpot(0.1f, 20.0f, true);
         light2->ambient(SLCol4f(0,0,0));
         light2->diffuse(SLCol4f(0,1,0));
@@ -1191,7 +1191,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         light2->attenuation(0,0,1);
         cam1->addChild(light2);
         
-        // A blue spot light with 40° spot angle from front left
+        // A blue spot light with 40? spot angle from front left
         SLLightSpot* light3 = new SLLightSpot(0.1f, 20.0f, true);
         light3->ambient(SLCol4f(0,0,0));
         light3->diffuse(SLCol4f(0,0,1));

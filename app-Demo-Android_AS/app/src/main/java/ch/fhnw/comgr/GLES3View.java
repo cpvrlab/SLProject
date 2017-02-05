@@ -1,3 +1,14 @@
+//#############################################################################
+//  File:      GLES3View.java
+//  Author:    Marcus Hudritsch, Zingg Pascal
+//  Date:      Spring 2017
+//  Purpose:   Android Java toplevel windows interface into the SLProject demo
+//  Codestyle: https://github.com/cpvrlab/SLProject/wiki/Coding-Style-Guidelines
+//  Copyright: Marcus Hudritsch, Zingg Pascal
+//             This software is provide under the GNU General Public License
+//             Please visit: http://opensource.org/licenses/GPL-3.0
+//#############################################################################
+
 package ch.fhnw.comgr;
 
 
@@ -11,10 +22,6 @@ import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.egl.EGLContext;
 import javax.microedition.khronos.egl.EGLDisplay;
 import javax.microedition.khronos.opengles.GL10;
-
-/**
- * Created by zinggpa on 27.11.16.
- */
 
 public class GLES3View extends GLSurfaceView
 {

@@ -1,3 +1,14 @@
+//#############################################################################
+//  File:      GLES3lib.java
+//  Author:    Marcus Hudritsch, Zingg Pascal
+//  Date:      Spring 2017
+//  Purpose:   Android Java native interface into the SLProject C++ library
+//  Codestyle: https://github.com/cpvrlab/SLProject/wiki/Coding-Style-Guidelines
+//  Copyright: Marcus Hudritsch, Zingg Pascal
+//             This software is provide under the GNU General Public License
+//             Please visit: http://opensource.org/licenses/GPL-3.0
+//#############################################################################
+
 package ch.fhnw.comgr;
 
 import android.app.Application;

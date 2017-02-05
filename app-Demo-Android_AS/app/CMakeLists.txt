@@ -6,9 +6,40 @@ cmake_minimum_required(VERSION 3.4.1)
 
 add_definitions(-DSL_GUI_JAVA)
 add_definitions(-DSL_GLES2)
+
+add_definitions(-DASSIMP_BUILD_BOOST_WORKAROUND)
+add_definitions(-DASSIMP_BUILD_NO_OWN_ZLIB)
+
 add_definitions(-DASSIMP_BUILD_NO_BLEND_IMPORTER)
-add_definitions(-DSL_HAS_OPENCV)
-add_definitions(-DSL_USES_CVCAPTURE)
+add_definitions(-DASSIMP_BUILD_NO_MD3_IMPORTER)
+add_definitions(-DASSIMP_BUILD_NO_MDL_IMPORTER)
+add_definitions(-DASSIMP_BUILD_NO_MD2_IMPORTER)
+add_definitions(-DASSIMP_BUILD_NO_ASE_IMPORTER)
+add_definitions(-DASSIMP_BUILD_NO_HMP_IMPORTER)
+add_definitions(-DASSIMP_BUILD_NO_SMD_IMPORTER)
+add_definitions(-DASSIMP_BUILD_NO_MDC_IMPORTER)
+add_definitions(-DASSIMP_BUILD_NO_MD5_IMPORTER)
+add_definitions(-DASSIMP_BUILD_NO_LWO_IMPORTER)
+add_definitions(-DASSIMP_BUILD_NO_NFF_IMPORTER)
+add_definitions(-DASSIMP_BUILD_NO_RAW_IMPORTER)
+add_definitions(-DASSIMP_BUILD_NO_OFF_IMPORTER)
+add_definitions(-DASSIMP_BUILD_NO_AC_IMPORTER)
+add_definitions(-DASSIMP_BUILD_NO_BVH_IMPORTER)
+add_definitions(-DASSIMP_BUILD_NO_IRRMESH_IMPORTER)
+add_definitions(-DASSIMP_BUILD_NO_IRR_IMPORTER)
+add_definitions(-DASSIMP_BUILD_NO_Q3D_IMPORTER)
+add_definitions(-DASSIMP_BUILD_NO_B3D_IMPORTER)
+add_definitions(-DASSIMP_BUILD_NO_TERRAGEN_IMPORTER)
+add_definitions(-DASSIMP_BUILD_NO_CSM_IMPORTER)
+add_definitions(-DASSIMP_BUILD_NO_3D_IMPORTER)
+add_definitions(-DASSIMP_BUILD_NO_LWS_IMPORTER)
+add_definitions(-DASSIMP_BUILD_NO_OGRE_IMPORTER)
+add_definitions(-DASSIMP_BUILD_NO_MS3D_IMPORTER)
+add_definitions(-DASSIMP_BUILD_NO_COB_IMPORTER)
+add_definitions(-DASSIMP_BUILD_NO_Q3BSP_IMPORTER)
+add_definitions(-DASSIMP_BUILD_NO_NDO_IMPORTER)
+add_definitions(-DASSIMP_BUILD_NO_IFC_IMPORTER)
+add_definitions(-DASSIMP_BUILD_NO_XGL_IMPORTER)
 
 #
 # OpenCV
@@ -81,9 +112,9 @@ file(GLOB_RECURSE SLPROJECT_SOURCES     ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SL
                                         ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/SLScene_onLoad.cpp 
                                         ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/SLSkeleton.cpp 
                                         ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/SLSpheric.cpp 
-                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/SLText.cpp )
-
-file(GLOB_RECURSE SLPROJECT_INCLUDES    ${CMAKE_CURRENT_SOURCE_DIR}/../../include/*.h)
+                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/SLText.cpp
+                                        CMAKE_CURRENT_SOURCE_DIR}/../../include/*.h
+                                        )
 
 file(GLOB_RECURSE SLEXTERNAL_SOURCES    ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLExternal/assimp/code/*.cpp
                                         ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLExternal/assimp/contrib/*.cpp
@@ -96,10 +127,12 @@ file(GLOB_RECURSE SLEXTERNAL_SOURCES    ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SL
                                         ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLExternal/randomc/mother.cpp
                                         ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLExternal/randomc/mersenne.cpp
                                         ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLExternal/Shoemake/EulerAngles.cpp
-                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLExternal/Shoemake/Decompose.cpp)
+                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLExternal/Shoemake/Decompose.cpp
+                                        )
 
 list(REMOVE_ITEM SLEXTERNAL_SOURCES     ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLExternal/assimp/code/OgreMesh.cpp
-                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLExternal/assimp/code/OgreSkeleton.cpp)
+                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLExternal/assimp/code/OgreSkeleton.cpp
+                                        )
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../../include)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLExternal)
@@ -153,7 +186,7 @@ target_link_libraries(  native-lib
 
 file(GLOB_RECURSE TEXTURES  ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/images/textures/CompileError.png
                             ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/images/textures/brick0512_C.png
-                            ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/images/textures/bricks*.jpg
+                            ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/images/textures/brick*.jpg
                             ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/images/textures/Checkerboard0512_C.png
                             ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/images/textures/Chess0256_C.bmp
                             ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/images/textures/earth*.jpg
