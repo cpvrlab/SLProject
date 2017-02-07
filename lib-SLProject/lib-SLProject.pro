@@ -203,56 +203,9 @@ source/SLSpheric.cpp \
 source/SLText.cpp
 
 OTHER_FILES += \
-../_data/shaders/BumpNormal.frag \
-../_data/shaders/BumpNormal.vert \
-../_data/shaders/BumpNormalEarth.frag \
-../_data/shaders/BumpNormalParallax.frag \
-../_data/shaders/Color.frag \
-../_data/shaders/ColorAttribute.vert \
-../_data/shaders/ColorUniform.vert \
-../_data/shaders/Diffuse.frag \
-../_data/shaders/Diffuse.vert \
-../_data/shaders/Earth.frag \
-../_data/shaders/ErrorTex.frag \
-../_data/shaders/ErrorTex.vert \
-../_data/shaders/FontTex.frag \
-../_data/shaders/FontTex.vert \
-../_data/shaders/PerPixBlinn.frag \
-../_data/shaders/PerPixBlinn.vert \
-../_data/shaders/PerPixBlinnTex.frag \
-../_data/shaders/PerPixBlinnTex.vert \
-../_data/shaders/PerPixBlinnSkinned.vert \
-../_data/shaders/PerPixBlinnTexSkinned.vert \
-../_data/shaders/PerVrtBlinn.frag \
-../_data/shaders/PerVrtBlinn.vert \
-../_data/shaders/PerVrtBlinnTex.frag \
-../_data/shaders/PerVrtBlinnTex.vert \
-../_data/shaders/PerVrtBlinnSkinned.vert \
-../_data/shaders/PerVrtBlinnTexSkinned.vert \
-../_data/shaders/Reflect.frag \
-../_data/shaders/Reflect.vert \
-../_data/shaders/RefractReflect.frag \
-../_data/shaders/RefractReflect.vert \
-../_data/shaders/RefractReflectDisp.frag \
-../_data/shaders/RefractReflectDisp.vert \
-../_data/shaders/Terrain.frag \
-../_data/shaders/Terrain.vert \
-../_data/shaders/Terrain_Loesung.frag \
-../_data/shaders/Terrain_Loesung.vert \
-../_data/shaders/TextureOnly.frag \
-../_data/shaders/TextureOnly.vert \
-../_data/shaders/StereoOculus.frag \
-../_data/shaders/StereoOculusDistortionMesh.frag \
-../_data/shaders/StereoOculus.vert \
-../_data/shaders/StereoOculusDistortionMesh.vert \
-../_data/shaders/Wave.frag \
-../_data/shaders/Wave.vert \
-../_data/shaders/WaveRefractReflect.vert \
-../_data/shaders/TextureOnly3D.frag \
-../_data/shaders/TextureOnly3D.vert
+../_data/shaders/*.vert \
+../_data/shaders/*.frag \
 ToDo.txt \
-
-OBJECTIVE_SOURCES += \
 
 DISTFILES += \
 Doxyfile \
