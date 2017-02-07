@@ -18,17 +18,17 @@ win32 {
     LIBS += -lshell32
     LIBS += -lsetupapi
     LIBS += -lws2_32
-    LIBS += $$PWD\_lib\prebuilt\OpenCV\x64\vc12\lib\opencv_core310.lib
-    LIBS += $$PWD\_lib\prebuilt\OpenCV\x64\vc12\lib\opencv_imgproc310.lib
-    LIBS += $$PWD\_lib\prebuilt\OpenCV\x64\vc12\lib\opencv_imgcodecs310.lib
-    LIBS += $$PWD\_lib\prebuilt\OpenCV\x64\vc12\lib\opencv_video310.lib
-    LIBS += $$PWD\_lib\prebuilt\OpenCV\x64\vc12\lib\opencv_videoio310.lib
-    LIBS += $$PWD\_lib\prebuilt\OpenCV\x64\vc12\lib\opencv_aruco310.lib
-    LIBS += $$PWD\_lib\prebuilt\OpenCV\x64\vc12\lib\opencv_features2d310.lib
-    LIBS += $$PWD\_lib\prebuilt\OpenCV\x64\vc12\lib\opencv_xfeatures2d310.lib
-    LIBS += $$PWD\_lib\prebuilt\OpenCV\x64\vc12\lib\opencv_calib3d310.lib
-    LIBS += $$PWD\_lib\prebuilt\OpenCV\x64\vc12\lib\opencv_highgui310.lib
-    LIBS += $$PWD\_lib\prebuilt\OpenCV\x64\vc12\lib\opencv_flann310.lib
+    LIBS += $$PWD\_lib\prebuilt\OpenCV\x64\vc12\lib\opencv_core320.lib
+    LIBS += $$PWD\_lib\prebuilt\OpenCV\x64\vc12\lib\opencv_imgproc320.lib
+    LIBS += $$PWD\_lib\prebuilt\OpenCV\x64\vc12\lib\opencv_imgcodecs320.lib
+    LIBS += $$PWD\_lib\prebuilt\OpenCV\x64\vc12\lib\opencv_video320.lib
+    LIBS += $$PWD\_lib\prebuilt\OpenCV\x64\vc12\lib\opencv_videoio320.lib
+    LIBS += $$PWD\_lib\prebuilt\OpenCV\x64\vc12\lib\opencv_aruco320.lib
+    LIBS += $$PWD\_lib\prebuilt\OpenCV\x64\vc12\lib\opencv_features2d320.lib
+    LIBS += $$PWD\_lib\prebuilt\OpenCV\x64\vc12\lib\opencv_xfeatures2d320.lib
+    LIBS += $$PWD\_lib\prebuilt\OpenCV\x64\vc12\lib\opencv_calib3d320.lib
+    LIBS += $$PWD\_lib\prebuilt\OpenCV\x64\vc12\lib\opencv_highgui320.lib
+    LIBS += $$PWD\_lib\prebuilt\OpenCV\x64\vc12\lib\opencv_flann320.lib
 
     DEFINES += GLEW_STATIC
     DEFINES += GLEW_NO_GLU
@@ -67,10 +67,10 @@ unix:!macx:!android {
     OPENCV_LIB_DIRS += /usr/lib/x86_64-linux-gnu #ubuntu
 
     CONFIG(release, debug|release) {
-        OPENCV_LIB_DIRS += /home/ghm1/libs/opencv-3.1.0/release/lib #ubuntu
+        OPENCV_LIB_DIRS += /home/ghm1/libs/opencv-3.2.0/release/lib #ubuntu
     }
     CONFIG(debug, debug|release) {
-        OPENCV_LIB_DIRS += /home/ghm1/libs/opencv-3.1.0/debug/lib #ubuntu
+        OPENCV_LIB_DIRS += /home/ghm1/libs/opencv-3.2.0/debug/lib #ubuntu
     }
     for(dir,OPENCV_LIB_DIRS) {
         !opencv { #If opencv was already found, skip this loop
@@ -86,7 +86,7 @@ unix:!macx:!android {
             unset(OPENCV_LIBS)
         }
     }
-    !opencv:warning(OpenCV is either not installed or not up to date (install OpenCV 3.0))
+    !opencv:warning(OpenCV is either not installed or not up to date (install OpenCV 3.x))
 
     # linux only
     LIBS += -ldl
@@ -103,10 +103,10 @@ unix:!macx:!android {
     LIBS += -lz
 
     CONFIG(release, debug|release) {
-        INCLUDEPATH += /home/ghm1/libs/opencv-3.1.0/release/include
+        INCLUDEPATH += /home/ghm1/libs/opencv-3.2.0/release/include
     }
     CONFIG(debug, debug|release) {
-        INCLUDEPATH += /home/ghm1/libs/opencv-3.1.0/debug/include
+        INCLUDEPATH += /home/ghm1/libs/opencv-3.2.0/debug/include
     }
 
     QMAKE_CXXFLAGS += -std=c++11

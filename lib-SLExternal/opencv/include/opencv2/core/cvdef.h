@@ -42,8 +42,8 @@
 //
 //M*/
 
-#ifndef __OPENCV_CORE_CVDEF_H__
-#define __OPENCV_CORE_CVDEF_H__
+#ifndef OPENCV_CORE_CVDEF_H
+#define OPENCV_CORE_CVDEF_H
 
 //! @addtogroup core_utils
 //! @{
@@ -112,7 +112,7 @@
 #define CV_CPU_SSE4_1           6
 #define CV_CPU_SSE4_2           7
 #define CV_CPU_POPCNT           8
-
+#define CV_CPU_FP16             9
 #define CV_CPU_AVX              10
 #define CV_CPU_AVX2             11
 #define CV_CPU_FMA3             12
@@ -143,7 +143,7 @@ enum CpuFeatures {
     CPU_SSE4_1          = 6,
     CPU_SSE4_2          = 7,
     CPU_POPCNT          = 8,
-
+    CPU_FP16            = 9,
     CPU_AVX             = 10,
     CPU_AVX2            = 11,
     CPU_FMA3            = 12,
@@ -188,8 +188,16 @@ enum CpuFeatures {
 #  if defined __POPCNT__ || (defined _MSC_VER && _MSC_VER >= 1500)
 #    ifdef _MSC_VER
 #      include <nmmintrin.h>
+#      if defined(_M_X64)
+#        define CV_POPCNT_U64 _mm_popcnt_u64
+#      endif
+#      define CV_POPCNT_U32 _mm_popcnt_u32
 #    else
 #      include <popcntintrin.h>
+#      if defined(__x86_64__)
+#        define CV_POPCNT_U64 __builtin_popcountll
+#      endif
+#      define CV_POPCNT_U32 __builtin_popcount
 #    endif
 #    define CV_POPCNT 1
 #  endif
@@ -215,7 +223,7 @@ enum CpuFeatures {
 
 #if (defined WIN32 || defined _WIN32) && defined(_M_ARM)
 # include <Intrin.h>
-# include "arm_neon.h"
+# include <arm_neon.h>
 # define CV_NEON 1
 # define CPU_HAS_NEON_FEATURE (true)
 #elif defined(__ARM_NEON__) || (defined (__ARM_NEON) && defined(__aarch64__))
@@ -303,11 +311,39 @@ enum CpuFeatures {
 #define CV_2PI 6.283185307179586476925286766559
 #define CV_LOG2 0.69314718055994530941723212145818
 
+#if defined __ARM_FP16_FORMAT_IEEE \
+    && !defined __CUDACC__
+#  define CV_FP16_TYPE 1
+#else
+#  define CV_FP16_TYPE 0
+#endif
+
+typedef union Cv16suf
+{
+    short i;
+#if CV_FP16_TYPE
+    __fp16 h;
+#endif
+    struct _fp16Format
+    {
+        unsigned int significand : 10;
+        unsigned int exponent    : 5;
+        unsigned int sign        : 1;
+    } fmt;
+}
+Cv16suf;
+
 typedef union Cv32suf
 {
     int i;
     unsigned u;
     float f;
+    struct _fp32Format
+    {
+        unsigned int significand : 23;
+        unsigned int exponent    : 8;
+        unsigned int sign        : 1;
+    } fmt;
 }
 Cv32suf;
 
@@ -331,6 +367,16 @@ Cv64suf;
 #  define CV_EXPORTS __attribute__ ((visibility ("default")))
 #else
 #  define CV_EXPORTS
+#endif
+
+#ifndef CV_DEPRECATED
+#  if defined(__GNUC__)
+#    define CV_DEPRECATED __attribute__ ((deprecated))
+#  elif defined(_MSC_VER)
+#    define CV_DEPRECATED __declspec(deprecated)
+#  else
+#    define CV_DEPRECATED
+#  endif
 #endif
 
 #ifndef CV_EXTERN_C
@@ -390,9 +436,8 @@ Cv64suf;
 *          exchange-add operation for atomic operations on reference counters            *
 \****************************************************************************************/
 
-#if defined __INTEL_COMPILER && !(defined WIN32 || defined _WIN32)
-   // atomic increment on the linux version of the Intel(tm) compiler
-#  define CV_XADD(addr, delta) (int)_InterlockedExchangeAdd(const_cast<void*>(reinterpret_cast<volatile void*>(addr)), delta)
+#ifdef CV_XADD
+  // allow to use user-defined macro
 #elif defined __GNUC__
 #  if defined __clang__ && __clang_major__ >= 3 && !defined __ANDROID__ && !defined __EMSCRIPTEN__ && !defined(__CUDACC__)
 #    ifdef __ATOMIC_ACQ_REL
@@ -451,4 +496,4 @@ Cv64suf;
 
 //! @}
 
-#endif // __OPENCV_CORE_CVDEF_H__
+#endif // OPENCV_CORE_CVDEF_H

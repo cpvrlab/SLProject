@@ -44,9 +44,7 @@
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "170"
-            endingLineNumber = "170"
-            landmarkName = "SLImage::load(SLint width, SLint height, SLPixelFormat srcPixelFormatGL, SLPixelFormat dstPixelFormatGL, SLuchar* data, SLbool isTopLeft)"
-            landmarkType = "5">
+            endingLineNumber = "170">
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy

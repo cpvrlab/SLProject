@@ -6,6 +6,10 @@
  *
 */
 
+// This definition means that OpenCV is built with enabled non-free code.
+// For example, patented algorithms for non-profit/non-commercial use only.
+/* #undef OPENCV_ENABLE_NONFREE */
+
 #define HAVE_OPENCV_ARUCO
 #define HAVE_OPENCV_BGSEGM
 #define HAVE_OPENCV_BIOINSPIRED
@@ -26,6 +30,7 @@
 #define HAVE_OPENCV_ML
 #define HAVE_OPENCV_OBJDETECT
 #define HAVE_OPENCV_OPTFLOW
+#define HAVE_OPENCV_PHASE_UNWRAPPING
 #define HAVE_OPENCV_PHOTO
 #define HAVE_OPENCV_PLOT
 #define HAVE_OPENCV_REG

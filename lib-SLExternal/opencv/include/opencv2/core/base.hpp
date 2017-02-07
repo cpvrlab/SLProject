@@ -42,12 +42,14 @@
 //
 //M*/
 
-#ifndef __OPENCV_CORE_BASE_HPP__
-#define __OPENCV_CORE_BASE_HPP__
+#ifndef OPENCV_CORE_BASE_HPP
+#define OPENCV_CORE_BASE_HPP
 
 #ifndef __cplusplus
 #  error base.hpp header must be compiled as C++
 #endif
+
+#include "opencv2/opencv_modules.hpp"
 
 #include <climits>
 #include <algorithm>
@@ -665,13 +667,13 @@ namespace cudev
 
 namespace ipp
 {
-CV_EXPORTS int getIppFeatures();
-CV_EXPORTS void setIppStatus(int status, const char * const funcname = NULL, const char * const filename = NULL,
+CV_EXPORTS   int getIppFeatures();
+CV_EXPORTS   void setIppStatus(int status, const char * const funcname = NULL, const char * const filename = NULL,
                              int line = 0);
-CV_EXPORTS int getIppStatus();
-CV_EXPORTS String getIppErrorLocation();
-CV_EXPORTS bool useIPP();
-CV_EXPORTS void setUseIPP(bool flag);
+CV_EXPORTS   int getIppStatus();
+CV_EXPORTS   String getIppErrorLocation();
+CV_EXPORTS_W bool useIPP();
+CV_EXPORTS_W void setUseIPP(bool flag);
 
 } // ipp
 
@@ -686,4 +688,4 @@ CV_EXPORTS void setUseIPP(bool flag);
 
 #include "opencv2/core/neon_utils.hpp"
 
-#endif //__OPENCV_CORE_BASE_HPP__
+#endif //OPENCV_CORE_BASE_HPP

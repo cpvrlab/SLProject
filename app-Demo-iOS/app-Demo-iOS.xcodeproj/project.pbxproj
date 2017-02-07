@@ -47,7 +47,6 @@
 		41618D6816C1855500641165 /* Default-Landscape@2x~ipad.png in Resources */ = {isa = PBXBuildFile; fileRef = 41618D6316C1855500641165 /* Default-Landscape@2x~ipad.png */; };
 		41627EA215CA8CE70023B936 /* SL.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 41627E8F15CA8CE70023B936 /* SL.cpp */; };
 		41627EA315CA8CE70023B936 /* SLFileSystem.mm in Sources */ = {isa = PBXBuildFile; fileRef = 41627E9415CA8CE70023B936 /* SLFileSystem.mm */; };
-		41627EA415CA8CE70023B936 /* SLImage.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 41627E9515CA8CE70023B936 /* SLImage.cpp */; };
 		41627EA515CA8CE70023B936 /* SLInterface.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 41627E9715CA8CE70023B936 /* SLInterface.cpp */; };
 		41627EA615CA8CE70023B936 /* SLTexFont.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 41627E9A15CA8CE70023B936 /* SLTexFont.cpp */; };
 		41627EA815CA8CE70023B936 /* stdafx.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 41627EA015CA8CE70023B936 /* stdafx.cpp */; };
@@ -329,6 +328,8 @@
 		41A355071A7E63E100791841 /* SLSkeleton.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 41A355001A7E63E100791841 /* SLSkeleton.cpp */; };
 		41A3550A1A7E676800791841 /* SLInputDevice.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 41A355081A7E676800791841 /* SLInputDevice.cpp */; };
 		41A3550B1A7E676800791841 /* SLInputManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 41A355091A7E676800791841 /* SLInputManager.cpp */; };
+		41B7BDDD1E49B4BC007B8B39 /* cursor.png in Resources */ = {isa = PBXBuildFile; fileRef = 41B7BDDC1E49B4BC007B8B39 /* cursor.png */; };
+		41B7BDE01E49B553007B8B39 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 41B7BDDF1E49B553007B8B39 /* Images.xcassets */; };
 		41B86C5A1C4FE21400BB409D /* SLGLVertexBuffer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 41B86C591C4FE21400BB409D /* SLGLVertexBuffer.cpp */; };
 		41BEFC071B78F84F009EF31F /* AVFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 41BEFC061B78F84F009EF31F /* AVFoundation.framework */; };
 		41BEFC0A1B78F85A009EF31F /* CoreMedia.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 41BEFC091B78F85A009EF31F /* CoreMedia.framework */; };
@@ -351,7 +352,6 @@
 		CF3F571A1DE5906C00928DDD /* SLCVTracker.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CF3F57191DE5906C00928DDD /* SLCVTracker.cpp */; };
 		CF3F571D1DE592F200928DDD /* PerVrtBlinnColorAttrib.vert in Resources */ = {isa = PBXBuildFile; fileRef = CF3F571C1DE592F200928DDD /* PerVrtBlinnColorAttrib.vert */; };
 		CF3F57221DE5945F00928DDD /* calib_in_params.yml in Resources */ = {isa = PBXBuildFile; fileRef = CF3F57211DE5945F00928DDD /* calib_in_params.yml */; };
-		DE38C72019EFBD440069B8BB /* cursor.tga in Resources */ = {isa = PBXBuildFile; fileRef = DE38C71F19EFBD440069B8BB /* cursor.tga */; };
 		DE38C74819EFCB420069B8BB /* SLGrid.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DE38C74719EFCB420069B8BB /* SLGrid.cpp */; };
 /* End PBXBuildFile section */
 
@@ -433,8 +433,6 @@
 		41627E9215CA8CE70023B936 /* SLEventHandler.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SLEventHandler.h; path = ../include/SLEventHandler.h; sourceTree = SOURCE_ROOT; };
 		41627E9315CA8CE70023B936 /* SLFileSystem.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SLFileSystem.h; path = ../include/SLFileSystem.h; sourceTree = SOURCE_ROOT; };
 		41627E9415CA8CE70023B936 /* SLFileSystem.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = SLFileSystem.mm; path = "../lib-SLProject/source/SL/SLFileSystem.mm"; sourceTree = SOURCE_ROOT; };
-		41627E9515CA8CE70023B936 /* SLImage.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SLImage.cpp; path = "../lib-SLProject/source/SL/SLImage.cpp"; sourceTree = SOURCE_ROOT; };
-		41627E9615CA8CE70023B936 /* SLImage.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SLImage.h; path = ../include/SLImage.h; sourceTree = SOURCE_ROOT; };
 		41627E9715CA8CE70023B936 /* SLInterface.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SLInterface.cpp; path = "../lib-SLProject/source/SL/SLInterface.cpp"; sourceTree = SOURCE_ROOT; };
 		41627E9815CA8CE70023B936 /* SLInterface.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SLInterface.h; path = ../include/SLInterface.h; sourceTree = SOURCE_ROOT; };
 		41627E9915CA8CE70023B936 /* SLObject.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SLObject.h; path = ../include/SLObject.h; sourceTree = SOURCE_ROOT; };
@@ -938,6 +936,8 @@
 		41A355091A7E676800791841 /* SLInputManager.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SLInputManager.cpp; path = "../lib-SLProject/source/SLInputManager.cpp"; sourceTree = SOURCE_ROOT; };
 		41ABC8BE1B875C1E009F6C37 /* opencv2.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = opencv2.framework; path = ../_lib/prebuilt/OpenCV/ios/opencv2.framework; sourceTree = "<group>"; };
 		41B3821E18D593D1000F37CC /* SLAverage.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SLAverage.h; path = ../include/SLAverage.h; sourceTree = SOURCE_ROOT; };
+		41B7BDDC1E49B4BC007B8B39 /* cursor.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = cursor.png; path = ../_data/images/textures/cursor.png; sourceTree = "<group>"; };
+		41B7BDDF1E49B553007B8B39 /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Images.xcassets; path = SLProject/Images.xcassets; sourceTree = SOURCE_ROOT; };
 		41B86C591C4FE21400BB409D /* SLGLVertexBuffer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SLGLVertexBuffer.cpp; path = "../lib-SLProject/source/GL/SLGLVertexBuffer.cpp"; sourceTree = SOURCE_ROOT; };
 		41B86C5C1C4FE23A00BB409D /* SLGLVertexBuffer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SLGLVertexBuffer.h; path = ../include/SLGLVertexBuffer.h; sourceTree = SOURCE_ROOT; };
 		41B86C5D1C4FE23A00BB409D /* SLGLEnums.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SLGLEnums.h; path = ../include/SLGLEnums.h; sourceTree = SOURCE_ROOT; };
@@ -976,7 +976,6 @@
 		CF3F57191DE5906C00928DDD /* SLCVTracker.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = SLCVTracker.cpp; path = "../lib-SLProject/source/CV/SLCVTracker.cpp"; sourceTree = SOURCE_ROOT; };
 		CF3F571C1DE592F200928DDD /* PerVrtBlinnColorAttrib.vert */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = PerVrtBlinnColorAttrib.vert; path = ../_data/shaders/PerVrtBlinnColorAttrib.vert; sourceTree = "<group>"; };
 		CF3F57211DE5945F00928DDD /* calib_in_params.yml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = calib_in_params.yml; path = ../_data/calibrations/calib_in_params.yml; sourceTree = "<group>"; };
-		DE38C71F19EFBD440069B8BB /* cursor.tga */ = {isa = PBXFileReference; lastKnownFileType = file; name = cursor.tga; path = ../_data/images/textures/cursor.tga; sourceTree = "<group>"; };
 		DE38C74619EFCA5B0069B8BB /* SLGrid.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SLGrid.h; path = ../include/SLGrid.h; sourceTree = SOURCE_ROOT; };
 		DE38C74719EFCB420069B8BB /* SLGrid.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SLGrid.cpp; path = "../lib-SLProject/source/SLGrid.cpp"; sourceTree = SOURCE_ROOT; };
 /* End PBXFileReference section */
@@ -1075,8 +1074,6 @@
 				41627E9215CA8CE70023B936 /* SLEventHandler.h */,
 				41627E9315CA8CE70023B936 /* SLFileSystem.h */,
 				41627E9415CA8CE70023B936 /* SLFileSystem.mm */,
-				41627E9515CA8CE70023B936 /* SLImage.cpp */,
-				41627E9615CA8CE70023B936 /* SLImage.h */,
 				41627E9715CA8CE70023B936 /* SLInterface.cpp */,
 				41627E9815CA8CE70023B936 /* SLInterface.h */,
 				41627E9915CA8CE70023B936 /* SLObject.h */,
@@ -1191,7 +1188,7 @@
 			isa = PBXGroup;
 			children = (
 				419E11A91B74B02000203E70 /* LiveVideoError.png */,
-				DE38C71F19EFBD440069B8BB /* cursor.tga */,
+				41B7BDDC1E49B4BC007B8B39 /* cursor.png */,
 				41486AB715165E2A00102F27 /* CompileError.png */,
 				417E0ED8148A71220015B5B0 /* Pool-X0512_C.png */,
 				417E0ED9148A71220015B5B0 /* Pool-Y0512_C.png */,
@@ -1694,11 +1691,11 @@
 		419BCD2C14865C0800D576F1 = {
 			isa = PBXGroup;
 			children = (
-				419BEFC61DE5EE9300C3E171 /* aruco_detector_params.yml */,
 				41901CF41959C478006795A8 /* iOS_Code */,
 				419BCD4514865C0800D576F1 /* SLProject */,
 				419BCD3A14865C0800D576F1 /* Frameworks */,
 				419BCD3814865C0800D576F1 /* Products */,
+				41B7BDDA1E49AE4C007B8B39 /* Calibrations */,
 				417E0E43148A6EA40015B5B0 /* Shaders */,
 				417E0E99148A6F910015B5B0 /* Textures */,
 				417E0E44148A6EBC0015B5B0 /* Models */,
@@ -1744,6 +1741,7 @@
 				418E0C251489296A00C6274F /* Nodes */,
 				418E0C56148929CE00C6274F /* Raytracer */,
 				41654BDA14866F870003DF5E /* Scene */,
+				41B7BDDF1E49B553007B8B39 /* Images.xcassets */,
 			);
 			name = SLProject;
 			path = comgr;
@@ -1763,6 +1761,14 @@
 				41A355001A7E63E100791841 /* SLSkeleton.cpp */,
 			);
 			name = Animation;
+			sourceTree = "<group>";
+		};
+		41B7BDDA1E49AE4C007B8B39 /* Calibrations */ = {
+			isa = PBXGroup;
+			children = (
+				419BEFC61DE5EE9300C3E171 /* aruco_detector_params.yml */,
+			);
+			name = Calibrations;
 			sourceTree = "<group>";
 		};
 		41B849FF148B2C3700305DB5 /* Images */ = {
@@ -1871,6 +1877,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				419BEFC71DE5EE9300C3E171 /* aruco_detector_params.yml in Resources */,
+				41B7BDE01E49B553007B8B39 /* Images.xcassets in Resources */,
 				418BF4601B8B0D500049E387 /* RefractReflectDisp.vert in Resources */,
 				418BF4491B8B0D4F0049E387 /* Diffuse.vert in Resources */,
 				41C99E7918D4316A0045FD2D /* Icon_114.png in Resources */,
@@ -1906,6 +1913,7 @@
 				41C99E7A18D4316A0045FD2D /* Icon_144.png in Resources */,
 				417E0EC0148A70DE0015B5B0 /* Checkerboard0512_C.png in Resources */,
 				417E0EC1148A70DE0015B5B0 /* Chess0256_C.bmp in Resources */,
+				41B7BDDD1E49B4BC007B8B39 /* cursor.png in Resources */,
 				417E0EC2148A70DE0015B5B0 /* earth1024_C.jpg in Resources */,
 				418BF44F1B8B0D500049E387 /* PerPixBlinn.frag in Resources */,
 				417E0EC3148A70DE0015B5B0 /* earth1024_G.jpg in Resources */,
@@ -1925,7 +1933,6 @@
 				418BF4541B8B0D500049E387 /* PerPixBlinnTexSkinned.vert in Resources */,
 				417E0ECD148A70DE0015B5B0 /* MuttenzerBox-Z0512_C.png in Resources */,
 				CF3F571D1DE592F200928DDD /* PerVrtBlinnColorAttrib.vert in Resources */,
-				DE38C72019EFBD440069B8BB /* cursor.tga in Resources */,
 				417E0ECE148A70DE0015B5B0 /* MuttenzerBox+X0512_C.png in Resources */,
 				417E0ECF148A70DE0015B5B0 /* MuttenzerBox+Y0512_C.png in Resources */,
 				417E0ED0148A70DE0015B5B0 /* MuttenzerBox+Z0512_C.png in Resources */,
@@ -2199,7 +2206,6 @@
 				419808711959BA670048085E /* DefaultLogger.cpp in Sources */,
 				4198089D1959BA670048085E /* OptimizeGraph.cpp in Sources */,
 				419808931959BA670048085E /* MDLLoader.cpp in Sources */,
-				41627EA415CA8CE70023B936 /* SLImage.cpp in Sources */,
 				41627EA515CA8CE70023B936 /* SLInterface.cpp in Sources */,
 				419808BA1959BA670048085E /* IRRMeshLoader.cpp in Sources */,
 				4198088D1959BA670048085E /* LWOLoader.cpp in Sources */,
@@ -2427,6 +2433,8 @@
 		419BCD6114865C0800D576F1 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = "LaunchImage-2";
 				CLANG_CXX_LANGUAGE_STANDARD = "c++0x";
 				CLANG_CXX_LIBRARY = "libc++";
 				DEVELOPMENT_TEAM = 858Y9EWZ4B;
@@ -2463,6 +2471,8 @@
 		419BCD6214865C0800D576F1 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = "LaunchImage-2";
 				CLANG_CXX_LANGUAGE_STANDARD = "c++0x";
 				CLANG_CXX_LIBRARY = "libc++";
 				DEVELOPMENT_TEAM = 858Y9EWZ4B;
