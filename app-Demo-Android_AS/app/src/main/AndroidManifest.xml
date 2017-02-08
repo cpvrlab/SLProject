@@ -32,7 +32,7 @@
         </activity>
 
         <service
-            android:name="ch.fhnw.comgr.CameraService"
+            android:name="ch.fhnw.comgr.GLES3Camera2Service"
             android:label="Camera service"/>
     </application>
 

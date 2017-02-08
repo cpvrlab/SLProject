@@ -335,7 +335,7 @@ float GetSeconds()
         return;
     }
         
-    slCopyVideoImage(width, height, PF_bgra, data, false, false);
+    slCopyVideoImage(width, height, PF_bgra, data, false);
     
     CVPixelBufferUnlockBaseAddress(pixelBuffer, 0);
         

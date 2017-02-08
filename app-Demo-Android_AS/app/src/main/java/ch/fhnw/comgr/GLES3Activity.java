@@ -74,18 +74,13 @@ public class GLES3Activity extends Activity implements View.OnTouchListener, Sen
         // Init Sensor
         mSensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
 
-        /* Init Camera
-        Log.i(TAG, "Going to start camera service...");
-        ActivityCompat.requestPermissions(GLES3Activity.this,
-                                          new String[]{Manifest.permission.CAMERA},
-                                          1);
-        initCameraService();
-        */
-    }
+        // Init Camera
+        Log.i(TAG, "Request camera permission ...");
+        ActivityCompat.requestPermissions(GLES3Activity.this, new String[]{Manifest.permission.CAMERA}, 1);
 
-    private void initCameraService()
-    {
-        startService(new Intent(getBaseContext(), CameraService.class));
+        Log.i(TAG, "Going to start camera service...");
+        startService(new Intent(getBaseContext(), GLES3Camera2Service.class));
+
     }
 
     @Override
@@ -361,7 +356,12 @@ public class GLES3Activity extends Activity implements View.OnTouchListener, Sen
 
             // Check display orientation (a preset orientation is set in the AndroidManifext.xml)
             Display display = getWindowManager().getDefaultDisplay();
-            if (display.getWidth() < display.getHeight()) {    // Map pitch, yaw and roll to portrait display orientation
+            DisplayMetrics displaymetrics = new DisplayMetrics();
+            display.getMetrics(displaymetrics);
+            int screenWidth = displaymetrics.widthPixels;
+            int screenHeight = displaymetrics.heightPixels;
+
+            if (screenWidth < screenHeight) {    // Map pitch, yaw and roll to portrait display orientation
                 final float p = YPR[1] * -1.0f - (float) Math.PI * 0.5f;
                 final float y = YPR[0] * -1.0f;
                 final float r = YPR[2] * -1.0f;

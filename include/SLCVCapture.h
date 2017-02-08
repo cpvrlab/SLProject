@@ -47,8 +47,7 @@ class SLCVCapture
                                                  const SLint camHeight,
                                                  const SLPixelFormat srcPixelFormat,
                                                  const SLuchar* data,
-                                                 const SLbool isContinuous,
-                                                 const SLbool isTopLeft);
+                                                 const SLbool isContinuous);
 
     static  SLCVMat         lastFrame;      //!< last frame grabbed
     static  SLCVMat         lastFrameGray;  //!< last frame in grayscale

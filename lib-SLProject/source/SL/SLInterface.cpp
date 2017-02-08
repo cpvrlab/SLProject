@@ -431,15 +431,13 @@ void slCopyVideoImage(SLint width,
                       SLint height,
                       SLPixelFormat format,
                       SLuchar* data,
-                      SLbool isContinuous,
-                      SLbool isTopLeft)
+                      SLbool isContinuous)
 {
     SLCVCapture::loadIntoLastFrame(width,
                                    height,
                                    format,
                                    data,
-                                   isContinuous,
-                                   isTopLeft);
+                                   isContinuous);
     SLCVCapture::adjustForSL();
 }
 //-----------------------------------------------------------------------------

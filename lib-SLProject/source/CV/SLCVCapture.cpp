@@ -1,7 +1,7 @@
 //#############################################################################
 //  File:      SLCVCapture.cpp
 //  Purpose:   OpenCV Capture Device
-//  Author:    Michael Göttlicher, Marcus Hudritsch
+//  Author:    Michael Goettlicher, Marcus Hudritsch
 //  Date:      Winter 2016
 //  Codestyle: https://github.com/cpvrlab/SLProject/wiki/Coding-Style-Guidelines
 //  Copyright: Marcus Hudritsch
@@ -140,30 +140,40 @@ void SLCVCapture::loadIntoLastFrame(const SLint width,
                                     const SLint height,
                                     const SLPixelFormat format,
                                     const SLuchar* data,
-                                    const SLbool isContinuous,
-                                    const SLbool isTopLeft)
+                                    const SLbool isContinuous)
 {
-    // Set the according OpenCV format
-    SLint cvType = 0, bpp = 0;
-    
-    switch (format)
-    {   case PF_luminance:  {cvType = CV_8UC1; bpp = 1; break;}
-        case PF_bgr:        {cvType = CV_8UC3; bpp = 3; break;}
-        case PF_rgb:        {cvType = CV_8UC3; bpp = 3; break;}
-        case PF_bgra:       {cvType = CV_8UC4; bpp = 4; break;}
-        case PF_rgba:       {cvType = CV_8UC4; bpp = 4; break;}
-        default: SL_EXIT_MSG("Pixel format not supported");
-    }
-
-    // calculate padding NO. of stride bytes (= step in OpenCV terminology)
-    size_t stride = 0;
-    if (!isContinuous)
+    // treat Android YUV to RGB conversion speacial
+    if (format == PF_yuv_420_888)
     {
-        SLint bitsPerPixel = bpp * 8;
-        SLint bpl = ((width * bitsPerPixel + 31) / 32) * 4;
-        stride = bpl - width * bpp;
+        SLCVMat yuv(height + height / 2, width, CV_8UC1, (void*)data);
+        SLCVMat rgba(height, width, CV_8UC4);
+        cvtColor(yuv, rgba, CV_YUV2RGBA_NV21);
+        SLCVCapture::lastFrame = rgba;
     }
+    else
+    {
+        // Set the according OpenCV format
+        SLint cvType = 0, bpp = 0;
 
-    SLCVCapture::lastFrame = SLCVMat(height, width, cvType, (void*)data, stride);
+        switch (format)
+        {   case PF_luminance:  {cvType = CV_8UC1; bpp = 1; break;}
+            case PF_bgr:        {cvType = CV_8UC3; bpp = 3; break;}
+            case PF_rgb:        {cvType = CV_8UC3; bpp = 3; break;}
+            case PF_bgra:       {cvType = CV_8UC4; bpp = 4; break;}
+            case PF_rgba:       {cvType = CV_8UC4; bpp = 4; break;}
+            default: SL_EXIT_MSG("Pixel format not supported");
+        }
+
+        // calculate padding NO. of stride bytes (= step in OpenCV terminology)
+        size_t stride = 0;
+        if (!isContinuous)
+        {
+            SLint bitsPerPixel = bpp * 8;
+            SLint bpl = ((width * bitsPerPixel + 31) / 32) * 4;
+            stride = bpl - width * bpp;
+        }
+
+        SLCVCapture::lastFrame = SLCVMat(height, width, cvType, (void*)data, stride);
+    }
 }
 //------------------------------------------------------------------------------

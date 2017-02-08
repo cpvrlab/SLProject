@@ -28,16 +28,6 @@ public class GLES3View extends GLSurfaceView
     private static String TAG = "SLProject";
     private static final boolean DEBUG = false;
 
-	/*
-    private Camera              _camera;
-    private int                 _frameWidth;
-    private int                 _frameHeight;
-    private byte[]              _frame;
-    private boolean             _threadRun;
-    private byte[]              _buffer;
-    private boolean 			_cameraIsInitialized = false;
-	*/
-
     public GLES3View(Context context)
     {
         super(context);
@@ -305,9 +295,6 @@ public class GLES3View extends GLSurfaceView
             int w = GLES3Lib.view.getWidth();
             int h = GLES3Lib.view.getHeight();
             GLES3Lib.onInit(w, h, GLES3Lib.dpi, GLES3Lib.App.getApplicationContext().getFilesDir().getAbsolutePath());
-
-            //GLES3Lib.view.openCamera();
-            //GLES3Lib.view.setupCamera(w, h);
         }
 
         public void onSurfaceChanged(GL10 gl, int width, int height)
@@ -315,8 +302,6 @@ public class GLES3View extends GLSurfaceView
             Log.i(TAG, "Renderer.onSurfaceChanged");
             GLES3Lib.onResize(width, height);
             GLES3Lib.view.requestRender();
-
-            //GLES3Lib.view.setupCamera(width, height);
         }
 
         public void onDrawFrame(GL10 gl)
