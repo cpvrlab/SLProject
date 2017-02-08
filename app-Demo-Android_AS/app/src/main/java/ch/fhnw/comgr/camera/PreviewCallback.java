@@ -34,7 +34,8 @@ public class PreviewCallback {
         this.mCameraDevice = mCameraDevice;
 
         // TODO: Smaller sizes
-        if (outputSizes.length > 0) {
+        if (outputSizes.length > 0)
+        {
             mTargetPreviewSize = outputSizes[0];
         }
 
@@ -45,7 +46,9 @@ public class PreviewCallback {
     {
         ImageReader mImageReader = ImageReader.newInstance(mTargetPreviewSize.getWidth(),
                                                            mTargetPreviewSize.getHeight(),
-                                                           ImageFormat.RAW_SENSOR, /*maxImages*/ 2);
+                                                           ImageFormat.YUV_420_888,
+                                                           2);
+
         mImageReader.setOnImageAvailableListener(imageAvailableListener, null);
         surface = mImageReader.getSurface();
     }

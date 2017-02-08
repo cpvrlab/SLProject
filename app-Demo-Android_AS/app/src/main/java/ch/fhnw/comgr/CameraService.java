@@ -33,8 +33,9 @@ public class CameraService extends Service {
             CameraManager cameraManager = (CameraManager) getSystemService(Context.CAMERA_SERVICE);
             String cameraId = cameraManager.getCameraIdList()[0];
             CameraCharacteristics cc = cameraManager.getCameraCharacteristics(cameraId);
+
             StreamConfigurationMap streamConfigs = cc.get(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP);
-            Size[] outputSizes = streamConfigs.getOutputSizes(ImageFormat.RAW_SENSOR);
+            Size[] outputSizes = streamConfigs.getOutputSizes(ImageFormat.YUV_420_888);
 
             cameraManager.openCamera(cameraId, new CameraDevice.StateCallback()
             {
@@ -43,7 +44,9 @@ public class CameraService extends Service {
                 {
                     try {
                         ImageAvailableListener imageAvailableListener = new ImageAvailableListener();
+
                         previewCallback = new PreviewCallback(outputSizes, imageAvailableListener, camera);
+
                         previewCallback.startPreviewSession();
                     } catch (CameraAccessException e) {
                         Log.e(TAG, "Cannot access to cam");
@@ -59,6 +62,7 @@ public class CameraService extends Service {
                 @Override
                 public void onError(CameraDevice camera, int error)
                 {
+                    Log.e(TAG, "onError");
                 }
             }, null);
 

@@ -74,8 +74,7 @@ public class GLES3Activity extends Activity implements View.OnTouchListener, Sen
         // Init Sensor
         mSensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
 
-        // Init Camera
-        /*
+        /* Init Camera
         Log.i(TAG, "Going to start camera service...");
         ActivityCompat.requestPermissions(GLES3Activity.this,
                                           new String[]{Manifest.permission.CAMERA},
@@ -131,11 +130,12 @@ public class GLES3Activity extends Activity implements View.OnTouchListener, Sen
         super.onDestroy();
     }
 
-    /*
+
     @Override
     public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults)
     {
-        switch (requestCode) {
+        switch (requestCode)
+        {
             case 1: {
                 // If request is cancelled, the result arrays are empty.
                 if (grantResults.length > 0
@@ -153,7 +153,6 @@ public class GLES3Activity extends Activity implements View.OnTouchListener, Sen
             // permissions this app might request
         }
     }
-    */
 
     /**
      * Events:

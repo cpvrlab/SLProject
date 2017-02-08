@@ -23,9 +23,11 @@ import java.io.OutputStream;
 import javax.microedition.khronos.egl.EGL10;
 import javax.microedition.khronos.egl.EGLContext;
 
-public class GLES3Lib {
+public class GLES3Lib
+{
 
-    static {
+    static
+    {
         System.loadLibrary("native-lib");
     }
 
@@ -82,7 +84,8 @@ public class GLES3Lib {
      * Java. See also the Java_renderRaytracingCallback in SLInterface that calls this
      * function.
      */
-    public static boolean RaytracingCallback() {
+    public static boolean RaytracingCallback()
+    {
         // calls the OpenGL rendering to display the RT image on a simple rectangle
         boolean stopSignal = GLES3Lib.onUpdateAndPaint();
 
@@ -98,7 +101,8 @@ public class GLES3Lib {
      * into the corresponding folders. This has to be done because most files in the apk/assets
      * folder are compressed and can not be read with standard C-file IO.
      */
-    public static void extractAPK() throws IOException {
+    public static void extractAPK() throws IOException
+    {
         FilesPath = App.getApplicationContext().getFilesDir().getAbsolutePath();
         Log.i("SLProject", "Destination: " + FilesPath);
         extractAPKFolder(FilesPath, "textures");
@@ -116,10 +120,12 @@ public class GLES3Lib {
      * @param AssetPath path inside the asset folder. No leading or closing /
      * @throws IOException
      */
-    public static void extractAPKFolder(String FilesPath, String AssetPath) throws IOException {
+    public static void extractAPKFolder(String FilesPath, String AssetPath) throws IOException
+    {
         String[] files = App.getAssets().list(AssetPath);
 
-        for (String file : files) {
+        for (String file : files)
+        {
             if (!file.contains("."))
                 continue;
 
@@ -139,7 +145,8 @@ public class GLES3Lib {
      * @param Path to create
      * @throws IOException
      */
-    public static void createDir(String Path) throws IOException {
+    public static void createDir(String Path) throws IOException
+    {
         File directory = new File(Path);
         if (directory.exists())
             return;
@@ -154,11 +161,13 @@ public class GLES3Lib {
      * @param os
      * @throws IOException
      */
-    public static void copyFile(InputStream is, OutputStream os) throws IOException {
+    public static void copyFile(InputStream is, OutputStream os) throws IOException
+    {
         byte[] buffer = new byte[1024];
 
         int length;
-        while ((length = is.read(buffer)) > 0) {
+        while ((length = is.read(buffer)) > 0)
+        {
             os.write(buffer, 0, length);
         }
         os.flush();
