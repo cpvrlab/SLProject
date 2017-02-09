@@ -44,7 +44,7 @@ public class GLES3View extends GLSurfaceView
         setRenderer(new Renderer());
 
         // From Android r15
-        //setPreserveEGLContextOnPause(true);
+        setPreserveEGLContextOnPause(true);
 
         // Render only when needed. Without this it would render continuously with lots of power consumption
         setRenderMode(RENDERMODE_WHEN_DIRTY);
@@ -308,8 +308,12 @@ public class GLES3View extends GLSurfaceView
         {
             if (GLES3Lib.onUpdateAndPaint())
                 GLES3Lib.view.requestRender();
+
             if (GLES3Lib.shouldClose())
                 GLES3Lib.onClose();
+
+            if (GLES3Lib.usesVideoImage())
+                GLES3Camera2Service.lastVideoImageIsConsumed = true;
         }
     }
 }

@@ -35,7 +35,7 @@ JNIEXPORT void JNICALL Java_ch_fhnw_comgr_GLES3Lib_onClose(JNIEnv *env, jobject 
 JNIEXPORT bool JNICALL Java_ch_fhnw_comgr_GLES3Lib_shouldClose(JNIEnv *env, jobject obj);
 JNIEXPORT bool JNICALL Java_ch_fhnw_comgr_GLES3Lib_usesRotation(JNIEnv *env, jobject obj);
 JNIEXPORT bool JNICALL Java_ch_fhnw_comgr_GLES3Lib_usesVideoImage(JNIEnv *env, jobject obj);
-JNIEXPORT void JNICALL Java_ch_fhnw_comgr_GLES3Lib_copyYUVImage(JNIEnv *env, jobject obj, jint srcWidth, jint srcHeight, jobject srcBuffer);
+JNIEXPORT void JNICALL Java_ch_fhnw_comgr_GLES3Lib_copyVideoImage(JNIEnv *env, jobject obj, jint srcWidth, jint srcHeight, jobject srcBuffer);
 };
 
 //-----------------------------------------------------------------------------
@@ -174,7 +174,7 @@ JNIEXPORT void JNICALL Java_ch_fhnw_comgr_GLES3Lib_copyVideoImage(JNIEnv *env, j
     SLuchar* srcLumaPtr = reinterpret_cast<SLuchar*>(env->GetDirectBufferAddress(imgBuffer));
 
     if (srcLumaPtr == nullptr)
-        SL_EXIT_MSG("copyYUVImage: No image data pointer passed!");
+        SL_EXIT_MSG("copyVideoImage: No image data pointer passed!");
 
     slCopyVideoImage(imgWidth, imgHeight, PF_yuv_420_888, srcLumaPtr, false);
 }

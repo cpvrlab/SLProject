@@ -50,8 +50,6 @@ public class GLES3Lib {
 
     public static native boolean onMouseMove(int x, int y);
 
-    //public static native boolean onMouseWheel(int pos);
-
     public static native boolean onTouch2Down(int x1, int y1, int x2, int y2);
 
     public static native boolean onTouch2Up(int x1, int y1, int x2, int y2);
@@ -63,8 +61,6 @@ public class GLES3Lib {
     public static native void onRotationPYR(float pitchRAD, float yawRAD, float rollRAD);
 
     public static native void onRotationQUAT(float quatX, float quatY, float quatZ, float quatW);
-
-    //public static native void onStopRT();
 
     public static native void onClose();
 

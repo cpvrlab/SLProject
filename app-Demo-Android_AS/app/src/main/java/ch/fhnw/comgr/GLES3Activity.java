@@ -88,15 +88,7 @@ public class GLES3Activity extends Activity implements View.OnTouchListener, Sen
     {
         Log.i(TAG, "GLES3Activity.onPause");
         super.onPause();
-        /*
         myView.onPause();
-        myView.queueEvent(new Runnable() {public void run() {GLES3Lib.onClose();}});
-        finish();
-        mSensorManager.unregisterListener(this);
-        Log.i(TAG, "System.exit(0)");
-        System.exit(0);
-        */
-        //android.os.Process.killProcess(android.os.Process.myPid());
     }
 
     @Override
@@ -104,18 +96,12 @@ public class GLES3Activity extends Activity implements View.OnTouchListener, Sen
     {
         Log.i(TAG, "GLES3Activity.onResume");
         super.onResume();
-        mSensorManager.registerListener(this,
-                mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER),
-                SensorManager.SENSOR_DELAY_FASTEST);
         myView.onResume();
-    }
 
-    @Override
-    protected void onStop()
-    {
-        Log.i(TAG, "GLES3Activity.onStop");
-        super.onStop();
-        System.exit(0);
+        if (mSensorManager != null)
+            mSensorManager.registerListener(this,
+                                            mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER),
+                                            SensorManager.SENSOR_DELAY_FASTEST);
     }
 
     @Override
@@ -124,6 +110,107 @@ public class GLES3Activity extends Activity implements View.OnTouchListener, Sen
         Log.i(TAG, "GLES3Activity.onDestroy");
         super.onDestroy();
     }
+
+    @Override
+    public boolean onTouch(View v, final MotionEvent event)
+    {
+        if (event == null) {
+            Log.i(TAG, "onTouch: null event");
+            return false;
+        }
+
+        int action = event.getAction();
+        int actionCode = action & MotionEvent.ACTION_MASK;
+
+        try {
+            if (actionCode == MotionEvent.ACTION_DOWN ||
+                    actionCode == MotionEvent.ACTION_POINTER_DOWN)
+                return handleTouchDown(event);
+            else if (actionCode == MotionEvent.ACTION_UP ||
+                    actionCode == MotionEvent.ACTION_POINTER_UP)
+                return handleTouchUp(event);
+            else if (actionCode == MotionEvent.ACTION_MOVE)
+                return handleTouchMove(event);
+            else Log.i(TAG, "Unhandeled Event: " + actionCode);
+        } catch (Exception ex) {
+            Log.i(TAG, "onTouch (Exception: " + actionCode);
+        }
+
+        return false;
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu)
+    {
+        Log.i(TAG, "onCreateOptionsMenu");
+        myView.queueEvent(new Runnable() {
+            public void run() {
+                GLES3Lib.onMenuButton();
+            }
+        });
+        return false;
+    }
+
+    @Override
+    public void onAccuracyChanged(Sensor sensor, int accuracy)
+    {
+        Log.i(TAG, String.format("onAccuracyChanged"));
+    }
+
+    @Override
+    public void onSensorChanged(SensorEvent event)
+    {
+        if (event.sensor.getType() == Sensor.TYPE_ROTATION_VECTOR && GLES3Lib.usesRotation()) {
+            // The ROTATION_VECTOR sensor is a virtual fusion sensor
+            // The quality strongly depends on the underlying algorithm and on
+            // the sensor manufacturer. (See also chapter 7 in the book:
+            // "Professional Sensor Programming (WROX Publishing)"
+
+            // Get 3x3 rotation matrix from XYZ-rotation vector (see docs)
+            float R[] = new float[9];
+            SensorManager.getRotationMatrixFromVector(R, event.values);
+
+            // Get yaw, pitch & roll rotation angles in radians from rotation matrix
+            float[] YPR = new float[3];
+            SensorManager.getOrientation(R, YPR);
+
+            // Check display orientation (a preset orientation is set in the AndroidManifext.xml)
+            Display display = getWindowManager().getDefaultDisplay();
+            DisplayMetrics displaymetrics = new DisplayMetrics();
+            display.getMetrics(displaymetrics);
+            int screenWidth = displaymetrics.widthPixels;
+            int screenHeight = displaymetrics.heightPixels;
+
+            if (screenWidth < screenHeight) {    // Map pitch, yaw and roll to portrait display orientation
+                final float p = YPR[1] * -1.0f - (float) Math.PI * 0.5f;
+                final float y = YPR[0] * -1.0f;
+                final float r = YPR[2] * -1.0f;
+                myView.queueEvent(new Runnable() {
+                    public void run() {
+                        GLES3Lib.onRotationPYR(p, y, r);
+                    }
+                });
+            } else {    // Map pitch, yaw and roll to landscape display orientation for Oculus Rift conformance
+                final float p = YPR[2] * -1.0f - (float) Math.PI * 0.5f;
+                final float y = YPR[0] * -1.0f;
+                final float r = YPR[1];
+                myView.queueEvent(new Runnable() {
+                    public void run() {
+                        GLES3Lib.onRotationPYR(p, y, r);
+                    }
+                });
+            }
+
+			/*
+            // Get the rotation quaternion from the XYZ-rotation vector (see docs)
+			final float Q[] = new float[4];
+			SensorManager.getQuaternionFromVector(Q, event.values);
+			myView.queueEvent(new Runnable() {public void run() {GLES3Lib.onRotationQUAT(Q[1],Q[2],Q[3],Q[0]);}});
+			*/
+        }
+    }
+
+
 
 
     @Override
@@ -292,103 +379,4 @@ public class GLES3Activity extends Activity implements View.OnTouchListener, Sen
         myView.requestRender();
         return true;
     }
-
-    @Override
-    public boolean onTouch(View v, final MotionEvent event)
-    {
-        if (event == null) {
-            Log.i(TAG, "onTouch: null event");
-            return false;
-        }
-
-        int action = event.getAction();
-        int actionCode = action & MotionEvent.ACTION_MASK;
-
-        try {
-            if (actionCode == MotionEvent.ACTION_DOWN ||
-                    actionCode == MotionEvent.ACTION_POINTER_DOWN)
-                return handleTouchDown(event);
-            else if (actionCode == MotionEvent.ACTION_UP ||
-                    actionCode == MotionEvent.ACTION_POINTER_UP)
-                return handleTouchUp(event);
-            else if (actionCode == MotionEvent.ACTION_MOVE)
-                return handleTouchMove(event);
-            else Log.i(TAG, "Unhandeled Event: " + actionCode);
-        } catch (Exception ex) {
-            Log.i(TAG, "onTouch (Exception: " + actionCode);
-        }
-
-        return false;
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu)
-    {
-        Log.i(TAG, "Menu Button pressed");
-        myView.queueEvent(new Runnable() {
-            public void run() {
-                GLES3Lib.onMenuButton();
-            }
-        });
-        return false;
-    }
-
-    public void onAccuracyChanged(Sensor sensor, int accuracy)
-    {
-        Log.i(TAG, String.format("onAccuracyChanged"));
-    }
-
-    public void onSensorChanged(SensorEvent event)
-    {
-        if (event.sensor.getType() == Sensor.TYPE_ROTATION_VECTOR && GLES3Lib.usesRotation()) {
-            // The ROTATION_VECTOR sensor is a virtual fusion sensor
-            // The quality strongly depends on the underlying algorithm and on
-            // the sensor manufacturer. (See also chapter 7 in the book:
-            // "Professional Sensor Programming (WROX Publishing)"
-
-            // Get 3x3 rotation matrix from XYZ-rotation vector (see docs)
-            float R[] = new float[9];
-            SensorManager.getRotationMatrixFromVector(R, event.values);
-
-            // Get yaw, pitch & roll rotation angles in radians from rotation matrix
-            float[] YPR = new float[3];
-            SensorManager.getOrientation(R, YPR);
-
-            // Check display orientation (a preset orientation is set in the AndroidManifext.xml)
-            Display display = getWindowManager().getDefaultDisplay();
-            DisplayMetrics displaymetrics = new DisplayMetrics();
-            display.getMetrics(displaymetrics);
-            int screenWidth = displaymetrics.widthPixels;
-            int screenHeight = displaymetrics.heightPixels;
-
-            if (screenWidth < screenHeight) {    // Map pitch, yaw and roll to portrait display orientation
-                final float p = YPR[1] * -1.0f - (float) Math.PI * 0.5f;
-                final float y = YPR[0] * -1.0f;
-                final float r = YPR[2] * -1.0f;
-                myView.queueEvent(new Runnable() {
-                    public void run() {
-                        GLES3Lib.onRotationPYR(p, y, r);
-                    }
-                });
-            } else {    // Map pitch, yaw and roll to landscape display orientation for Oculus Rift conformance
-                final float p = YPR[2] * -1.0f - (float) Math.PI * 0.5f;
-                final float y = YPR[0] * -1.0f;
-                final float r = YPR[1];
-                myView.queueEvent(new Runnable() {
-                    public void run() {
-                        GLES3Lib.onRotationPYR(p, y, r);
-                    }
-                });
-            }
-
-			/*
-            // Get the rotation quaternion from the XYZ-rotation vector (see docs)
-			final float Q[] = new float[4];
-			SensorManager.getQuaternionFromVector(Q, event.values);
-			myView.queueEvent(new Runnable() {public void run() {GLES3Lib.onRotationQUAT(Q[1],Q[2],Q[3],Q[0]);}});
-			*/
-        }
-    }
-
-
 }

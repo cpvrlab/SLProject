@@ -15,6 +15,7 @@ import android.os.IBinder;
 import android.support.annotation.NonNull;
 import android.util.Log;
 
+import java.nio.ByteBuffer;
 import java.util.Arrays;
 
 @SuppressWarnings("MissingPermission")
@@ -24,6 +25,7 @@ public class GLES3Camera2Service extends Service {
     protected CameraDevice cameraDevice;
     protected CameraCaptureSession session;
     protected ImageReader imageReader;
+    public static boolean lastVideoImageIsConsumed = false;
 
 
     @Override
@@ -34,7 +36,7 @@ public class GLES3Camera2Service extends Service {
         try {
             String pickedCamera = getCamera(manager);
             manager.openCamera(pickedCamera, cameraStateCallback, null);
-            imageReader = ImageReader.newInstance(640, 480, ImageFormat.YUV_420_888, 2 /* images buffered */);
+            imageReader = ImageReader.newInstance(640, 480, ImageFormat.YUV_420_888, 2);
             imageReader.setOnImageAvailableListener(onImageAvailableListener, null);
             Log.i(TAG, "imageReader created");
         } catch (CameraAccessException e){
@@ -98,6 +100,9 @@ public class GLES3Camera2Service extends Service {
     protected ImageReader.OnImageAvailableListener onImageAvailableListener = new ImageReader.OnImageAvailableListener() {
         @Override
         public void onImageAvailable(ImageReader reader) {
+
+            //if (!GLES3Camera2Service.lastVideoImageIsConsumed) return;
+
             Image img = reader.acquireLatestImage();
 
             if (img == null)
@@ -118,9 +123,14 @@ public class GLES3Camera2Service extends Service {
                                 + planes[1].getPixelStride());
             }
 
+            ////////////////////////////////////////////////////////////////////////////////
             GLES3Lib.copyVideoImage(img.getWidth(), img.getHeight(), planes[0].getBuffer());
+            ////////////////////////////////////////////////////////////////////////////////
 
             img.close();
+
+            GLES3Camera2Service.lastVideoImageIsConsumed = false;
+
         }
     };
 
