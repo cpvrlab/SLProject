@@ -38,7 +38,7 @@ If closeOnClick is true the entire menu gets closed after command execution.
 SLButton::SLButton(SLSceneView* sv,
                    SLstring     text,  
                    SLTexFont*   txtFont,
-                   SLCommand        command, 
+                   SLCommand    command,
                    SLbool       isCheckable, 
                    SLbool       isChecked, 
                    SLButton*    radioParent, 
@@ -69,8 +69,10 @@ SLButton::SLButton(SLSceneView* sv,
     _btnAlpha     = btnAlpha;
     _drawBits.on(SL_DB_HIDDEN);
 
-    _text = new SLText(text, txtFont, txtColor, 
-                        _btnW-2*_sv->dpmm()*BTN_BORDER_W_MM);
+    _text = new SLText(text,
+                       txtFont,
+                       txtColor,
+                       _btnW-2*_sv->dpmm()*BTN_BORDER_W_MM);
 }
 //-----------------------------------------------------------------------------
 SLButton::~SLButton()

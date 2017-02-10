@@ -1,6 +1,7 @@
 package ch.fhnw.comgr;
 
 import android.app.Service;
+import android.content.AsyncQueryHandler;
 import android.content.Intent;
 import android.graphics.ImageFormat;
 import android.hardware.camera2.CameraAccessException;
@@ -12,6 +13,8 @@ import android.hardware.camera2.CaptureRequest;
 import android.media.Image;
 import android.media.ImageReader;
 import android.os.IBinder;
+import android.os.Handler;
+import android.os.Looper;
 import android.support.annotation.NonNull;
 import android.util.Log;
 
@@ -25,7 +28,7 @@ public class GLES3Camera2Service extends Service {
     protected CameraDevice cameraDevice;
     protected CameraCaptureSession session;
     protected ImageReader imageReader;
-    public static boolean lastVideoImageIsConsumed = false;
+    protected Handler mainLoopHandler;
 
 
     @Override
@@ -34,6 +37,7 @@ public class GLES3Camera2Service extends Service {
 
         CameraManager manager = (CameraManager) getSystemService(CAMERA_SERVICE);
         try {
+            mainLoopHandler = new Handler(Looper.getMainLooper());
             String pickedCamera = getCamera(manager);
             manager.openCamera(pickedCamera, cameraStateCallback, null);
             imageReader = ImageReader.newInstance(640, 480, ImageFormat.YUV_420_888, 2);
@@ -101,39 +105,33 @@ public class GLES3Camera2Service extends Service {
         @Override
         public void onImageAvailable(ImageReader reader) {
 
-            //if (!GLES3Camera2Service.lastVideoImageIsConsumed) return;
+            // The opengl renderer runs in its own thread. We have to copy the image in the renderers thread!
+            GLES3Lib.view.queueEvent(new Runnable() {
+                @Override
+                public void run() {
+                    //Log.i(TAG, "<" + Thread.currentThread().getId());
+                    Image img = reader.acquireLatestImage();
 
-            Image img = reader.acquireLatestImage();
+                    if (img == null)
+                        return;
 
-            if (img == null)
-                return;
+                    // Check image format
+                    int format = reader.getImageFormat();
+                    if (format != ImageFormat.YUV_420_888) {
+                        throw new IllegalArgumentException("Camera image must have format YUV_420_888.");
+                    }
 
-            // Check image format
-            int format = reader.getImageFormat();
-            if (format != ImageFormat.YUV_420_888) {
-                throw new IllegalArgumentException("Camera image must have format YUV_420_888.");
-            }
+                    Image.Plane[] planes = img.getPlanes();
 
-            Image.Plane[] planes = img.getPlanes();
-            // Spec guarantees that planes[0] is luma and has pixel stride of 1.
-            // It also guarantees that planes[1] and planes[2] have the same row and pixel stride.
-            if (planes[1].getPixelStride() != 1 && planes[1].getPixelStride() != 2) {
-                throw new IllegalArgumentException(
-                        "src chroma plane must have a pixel stride of 1 or 2: got "
-                                + planes[1].getPixelStride());
-            }
+                    ////////////////////////////////////////////////////////////////////////////////
+                    GLES3Lib.copyVideoImage(img.getWidth(), img.getHeight(), planes[0].getBuffer());
+                    ////////////////////////////////////////////////////////////////////////////////
 
-            ////////////////////////////////////////////////////////////////////////////////
-            GLES3Lib.copyVideoImage(img.getWidth(), img.getHeight(), planes[0].getBuffer());
-            ////////////////////////////////////////////////////////////////////////////////
-
-            img.close();
-
-            GLES3Camera2Service.lastVideoImageIsConsumed = false;
-
+                    img.close();
+                }
+            });
         }
     };
-
 
 
     public void actOnReadyCameraDevice()

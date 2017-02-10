@@ -306,14 +306,13 @@ public class GLES3View extends GLSurfaceView
 
         public void onDrawFrame(GL10 gl)
         {
+            //Log.i(TAG, "+ " + Thread.currentThread().getId());
+
             if (GLES3Lib.onUpdateAndPaint())
                 GLES3Lib.view.requestRender();
 
             if (GLES3Lib.shouldClose())
                 GLES3Lib.onClose();
-
-            if (GLES3Lib.usesVideoImage())
-                GLES3Camera2Service.lastVideoImageIsConsumed = true;
         }
     }
 }

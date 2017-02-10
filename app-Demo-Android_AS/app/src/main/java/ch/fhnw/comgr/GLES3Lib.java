@@ -33,6 +33,7 @@ public class GLES3Lib {
     public static Application App = null;
     public static String FilesPath = null;
     public static GLES3View view;
+    public static GLES3Activity activity;
     public static int dpi;
     public static boolean RTIsRunning = false;
 

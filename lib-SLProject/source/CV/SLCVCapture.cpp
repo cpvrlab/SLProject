@@ -146,9 +146,11 @@ void SLCVCapture::loadIntoLastFrame(const SLint width,
     if (format == PF_yuv_420_888)
     {
         SLCVMat yuv(height + height / 2, width, CV_8UC1, (void*)data);
-        SLCVMat rgba(height, width, CV_8UC4);
-        cvtColor(yuv, rgba, CV_YUV2RGBA_NV21);
-        SLCVCapture::lastFrame = rgba;
+        SLCVMat bgr(height, width, CV_8UC3);
+        cvtColor(yuv, bgr, CV_YUV2BGR_NV21);
+        //SLCVMat flipped(bgr.rows, bgr.cols, bgr.type());
+        //cv::flip(bgr, flipped, -1);
+        SLCVCapture::lastFrame = bgr;
     }
     else
     {

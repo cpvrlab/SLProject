@@ -15,10 +15,13 @@ import android.Manifest;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.ImageFormat;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
+import android.media.Image;
+import android.media.ImageReader;
 import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
 import android.util.DisplayMetrics;
@@ -60,6 +63,7 @@ public class GLES3Activity extends Activity implements View.OnTouchListener, Sen
         // Create view
         myView = new GLES3View(GLES3Lib.App);
         GLES3Lib.view = myView;
+        GLES3Lib.activity = this;
         myView.setOnTouchListener(this);
         Log.i(TAG, "setContentView");
         setContentView(myView);
@@ -209,8 +213,6 @@ public class GLES3Activity extends Activity implements View.OnTouchListener, Sen
 			*/
         }
     }
-
-
 
 
     @Override
@@ -379,4 +381,5 @@ public class GLES3Activity extends Activity implements View.OnTouchListener, Sen
         myView.requestRender();
         return true;
     }
+
 }

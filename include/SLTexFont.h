@@ -61,8 +61,7 @@ public:
                                           
     //! Single Character info struct w. min. and max. texcoords.
     typedef struct
-    {
-        SLfloat width; //!< Width of char. in tex-coord.
+    {   SLfloat width; //!< Width of char. in tex-coord.
         SLfloat tx1;   //!< Min. Texture x-coord.         
         SLfloat ty1;   //!< Max. Texture y-coord.
         SLfloat tx2;   //!< Max. Texture x-coord. 
@@ -87,6 +86,7 @@ public:
     static SLTexFont* font18;
     static SLTexFont* font20;
     static SLTexFont* font22;
+    static SLTexFont* font24;
 };
 //-----------------------------------------------------------------------------
 #endif
