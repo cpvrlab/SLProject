@@ -44,13 +44,12 @@ public class GLES3View extends GLSurfaceView
         setRenderer(new Renderer());
 
         // From Android r15
-        setPreserveEGLContextOnPause(true);
+        //setPreserveEGLContextOnPause(true);
 
         // Render only when needed. Without this it would render continuously with lots of power consumption
         setRenderMode(RENDERMODE_WHEN_DIRTY);
 
     }
-
 
     private static class ContextFactory implements GLSurfaceView.EGLContextFactory
     {

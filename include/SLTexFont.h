@@ -86,7 +86,6 @@ public:
     static SLTexFont* font18;
     static SLTexFont* font20;
     static SLTexFont* font22;
-    static SLTexFont* font24;
 };
 //-----------------------------------------------------------------------------
 #endif

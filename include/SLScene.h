@@ -104,9 +104,11 @@ class SLScene: public SLObject
             SLfloat         fps                 () {return _fps;}
             SLAvgFloat&     frameTimesMS        () {return _frameTimesMS;}
             SLAvgFloat&     updateTimesMS       () {return _updateTimesMS;}
+            SLAvgFloat&     trackingTimesMS     () {return _trackingTimesMS;}
             SLAvgFloat&     cullTimesMS         () {return _cullTimesMS;}
             SLAvgFloat&     draw2DTimesMS       () {return _draw2DTimesMS;}
             SLAvgFloat&     draw3DTimesMS       () {return _draw3DTimesMS;}
+            SLAvgFloat&     captureTimesMS      () {return _captureTimesMS;}
             SLVMaterial&    materials           () {return _materials;}
             SLVMesh&        meshes              () {return _meshes;}
             SLVGLTexture&   textures            () {return _textures;}
@@ -191,10 +193,12 @@ class SLScene: public SLObject
             SLfloat         _lastUpdateTimeMS;  //!< Last time after update in ms
             SLfloat         _fps;               //!< Averaged no. of frames per second
             SLAvgFloat      _updateTimesMS;     //!< Averaged time for update in ms
+            SLAvgFloat      _trackingTimesMS;   //!< Averaged time for video tracking in ms
             SLAvgFloat      _frameTimesMS;      //!< Averaged time per frame in ms
             SLAvgFloat      _cullTimesMS;       //!< Averaged time for culling in ms
             SLAvgFloat      _draw3DTimesMS;     //!< Averaged time for 3D drawing in ms
             SLAvgFloat      _draw2DTimesMS;     //!< Averaged time for 2D drawing in ms
+            SLAvgFloat      _captureTimesMS;    //!< Averaged time for video capturing in ms
             
             SLbool          _stopAnimations;    //!< Global flag for stopping all animations
             

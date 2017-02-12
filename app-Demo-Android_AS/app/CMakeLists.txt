@@ -210,7 +210,7 @@ file(GLOB_RECURSE SHADERS       ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/shaders/
 file(GLOB_RECURSE CALIBRATIONS  ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/calibrations/calib_in_params.yml
                                 ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/calibrations/aruco_detector_params.yml)
 
-#file(GLOB_RECURSE CONFIG       ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/config/???)
+file(GLOB_RECURSE CONFIG        ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/config/dummyFile.txt)
 
 set(APK_ASSETS "${CMAKE_CURRENT_SOURCE_DIR}/src/main/assets")
 
@@ -220,8 +220,8 @@ file(MAKE_DIRECTORY     ${APK_ASSETS}/textures
                         ${APK_ASSETS}/calibrations
                         ${APK_ASSETS}/config)
 
-file(COPY ${TEXTURES} DESTINATION       ${APK_ASSETS}/textures)
-file(COPY ${MODELS} DESTINATION         ${APK_ASSETS}/models)
-file(COPY ${SHADERS} DESTINATION        ${APK_ASSETS}/shaders)
-file(COPY ${CALIBRATIONS} DESTINATION   ${APK_ASSETS}/calibrations)
-file(COPY ${CONFIG} DESTINATION         ${APK_ASSETS}/config)
+file(COPY ${TEXTURES}       DESTINATION ${APK_ASSETS}/textures)
+file(COPY ${MODELS}         DESTINATION ${APK_ASSETS}/models)
+file(COPY ${SHADERS}        DESTINATION ${APK_ASSETS}/shaders)
+file(COPY ${CALIBRATIONS}   DESTINATION ${APK_ASSETS}/calibrations)
+file(COPY ${CONFIG}         DESTINATION ${APK_ASSETS}/config)

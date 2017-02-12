@@ -1898,7 +1898,6 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         SLNode* tower = importer.load("OBJ/Christoffelturm/christoffelturm.obj");
         #endif
         tower->rotate(90, -1,0,0);
-        tower->setPrimitiveTypeRec(PT_points);
 
         SLNode* scene = new SLNode("Scene");
         scene->addChild(light1);
@@ -2550,7 +2549,11 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
     {
         sv->showInfo(false);
         sv->showMenu(false);
-        sv->showStats(false);
+        sv->showStatsTiming(false);
+        sv->showStatsRender(false);
+        sv->showStatsMemory(false);
+        sv->showStatsCamera(false);
+        sv->showStatsVideo(false);
         sv->waitEvents(false);
     }
 

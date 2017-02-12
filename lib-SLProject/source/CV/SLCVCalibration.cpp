@@ -39,7 +39,8 @@ SLCVCalibration::SLCVCalibration() :
     _numOfImgsToCapture(0),
     _numCaptured(0),
     _reprojectionError(-1.0f),
-    _showUndistorted(false)
+    _showUndistorted(false),
+    _calibrationTime("-")
 {
 }
 //-----------------------------------------------------------------------------
@@ -63,6 +64,9 @@ bool SLCVCalibration::loadCamParams()
         cout << "Could not open the calibration file: "
              << (SL::configPath + _calibFileName) << endl;
         _state = CS_uncalibrated;
+        _calibrationTime = "n/a";
+
+        SL_LOG("Calib. loaded   : no calibration file\n");
         return false;
     }
 
@@ -72,6 +76,7 @@ bool SLCVCalibration::loadCamParams()
     fs["avg_reprojection_error"] >> _reprojectionError;
     fs["image_width"] >> _imageSize.width;
     fs["image_height"] >> _imageSize.height;
+    fs["calibration_time"] >> _calibrationTime;
 
 
     // close the input file
@@ -79,6 +84,9 @@ bool SLCVCalibration::loadCamParams()
 
     //calculate projection matrix
     calcCameraFOV();
+
+    SL_LOG("Calib. loaded   : %s\n", _calibrationTime.c_str());
+    SL_LOG("Camera FOV      : %f\n", _cameraFovDeg);
 
     _state = CS_calibrated;
 

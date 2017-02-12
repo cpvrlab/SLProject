@@ -171,7 +171,11 @@ enum SLCommand
     C_camSpeedLimitInc, // Increments the speed limit by 10%
     C_camSpeedLimitDec, // Decrements the speed limit by 10%
 
-    C_statsToggle,      // Toggles statistics on/off
+    C_statsTimingToggle,
+    C_statsRendererToggle,
+    C_statsMemoryToggle,
+    C_statsVideoToggle,
+    C_statsCameraToggle,
 
     C_renderOpenGL,     // Render with GL
     C_rtContinuously,   // Do ray tracing continuously

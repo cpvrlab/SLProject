@@ -158,7 +158,11 @@ class SLSceneView: public SLObject
             void            showMenu        (SLbool show){_showMenu = show;
                                                           SLScene::current->menu2D(SLScene::current->menuGL());}
             void            showInfo        (SLbool show) {_showInfo = show;}
-            void            showStats       (SLbool show) {_showStats = show;}
+            void            showStatsTiming (SLbool show) {_showStatsTiming = show;}
+            void            showStatsRender (SLbool show) {_showStatsRenderer = show;}
+            void            showStatsMemory (SLbool show) {_showStatsMemory = show;}
+            void            showStatsCamera (SLbool show) {_showStatsCamera = show;}
+            void            showStatsVideo  (SLbool show) {_showStatsVideo = show;}
             void            gotPainted      (SLbool val) {_gotPainted = val;}
 
             // Getters
@@ -180,7 +184,11 @@ class SLSceneView: public SLObject
             SLbool          doDepthTest     () const {return _doDepthTest;}
             SLbool          usesRotation    () const {return _usesRotation;}
             SLbool          waitEvents      () const {return _waitEvents;}
-            SLbool          showStats       () const {return _showStats;}
+            SLbool          showStatsTiming () const {return _showStatsTiming;}
+            SLbool          showStatsOpenGL () const {return _showStatsRenderer;}
+            SLbool          showStatsMemory () const {return _showStatsMemory;}
+            SLbool          showStatsCamera () const {return _showStatsCamera;}
+            SLbool          showStatsVideo  () const {return _showStatsVideo;}
             SLbool          showInfo        () const {return _showInfo;}
             SLbool          showMenu        () const {return _showMenu;}
             SLVNode*        visibleNodes    () {return &_visibleNodes;}
@@ -215,8 +223,12 @@ class SLSceneView: public SLObject
             SLbool          _usesRotation;      //!< Flag if device rotation is used
             SLDrawBits      _drawBits;          //!< Sceneview level drawing flags
 
+            SLbool          _showStatsTiming;   //!< Flag if timing stats should be displayed
+            SLbool          _showStatsRenderer; //!< Flag if GL or RT stats should be displayed
+            SLbool          _showStatsCamera;   //!< Flag if camera stats should be displayed
+            SLbool          _showStatsMemory;   //!< Flag if memory stats should be displayed
+            SLbool          _showStatsVideo;    //!< Flag if video stats should be displayed
             SLbool          _showMenu;          //!< Flag if menu should be displayed
-            SLbool          _showStats;         //!< Flag if stats should be displayed
             SLbool          _showInfo;          //!< Flag if help should be displayed
             SLbool          _showLoading;       //!< Flag if loading should be displayed
 

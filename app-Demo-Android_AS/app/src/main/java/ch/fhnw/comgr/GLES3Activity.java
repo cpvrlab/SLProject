@@ -214,7 +214,6 @@ public class GLES3Activity extends Activity implements View.OnTouchListener, Sen
         }
     }
 
-
     @Override
     public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults)
     {

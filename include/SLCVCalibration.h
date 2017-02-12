@@ -82,6 +82,7 @@ public:
     SLCVSize        boardSize           () {return _boardSize;}
     SLfloat         boardSquareMM       () {return _boardSquareMM;}
     SLfloat         boardSquareM        () {return _boardSquareMM * 0.001f;}
+    SLstring        calibrationTime     () {return _calibrationTime;}
 
 private:
     void            calcCameraFOV       ();
@@ -100,6 +101,7 @@ private:
     SLCVVVPoint2f   _imagePoints;           //!< 2D vector of corner points in chessboard
     SLCVSize        _imageSize;             //!< Input image size in pixels
     SLbool          _showUndistorted;       //!< Flag if image should be undistorted
+    SLstring        _calibrationTime;       //!< Time stamp string of calibration
 };
 //-----------------------------------------------------------------------------
 #endif // SLCVCalibration_H

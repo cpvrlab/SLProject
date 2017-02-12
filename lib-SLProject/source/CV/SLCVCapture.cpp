@@ -29,6 +29,8 @@ SLCVMat             SLCVCapture::lastFrame;
 SLCVMat             SLCVCapture::lastFrameGray;
 SLPixelFormat       SLCVCapture::format;
 cv::VideoCapture    SLCVCapture::_captureDevice;
+SLCVSize            SLCVCapture::captureSize;
+SLfloat             SLCVCapture::startCaptureTimeMS;
 //-----------------------------------------------------------------------------
 //! Opens the capture device and returns the frame size
 SLVec2i SLCVCapture::open(SLint deviceNum)
@@ -64,6 +66,8 @@ SLVec2i SLCVCapture::open(SLint deviceNum)
 */
 void SLCVCapture::grabAndAdjustForSL()
 {
+    SLCVCapture::startCaptureTimeMS = SLScene::current->timeMilliSec();
+
     try
     {   if (_captureDevice.isOpened())
         {
@@ -92,6 +96,7 @@ void SLCVCapture::grabAndAdjustForSL()
 void SLCVCapture::adjustForSL()
 {
     SLScene* s = SLScene::current;
+    captureSize = lastFrame.size();
 
     try
     {   
@@ -129,6 +134,8 @@ void SLCVCapture::adjustForSL()
 
         // Do not copy into the video texture here.
         // It is done in SLScene:onUpdate
+
+        s->captureTimesMS().set(s->timeMilliSec() - SLCVCapture::startCaptureTimeMS);
     }
     catch (exception e)
     {
@@ -142,14 +149,14 @@ void SLCVCapture::loadIntoLastFrame(const SLint width,
                                     const SLuchar* data,
                                     const SLbool isContinuous)
 {
+    SLCVCapture::startCaptureTimeMS = SLScene::current->timeMilliSec();
+
     // treat Android YUV to RGB conversion speacial
     if (format == PF_yuv_420_888)
     {
         SLCVMat yuv(height + height / 2, width, CV_8UC1, (void*)data);
         SLCVMat bgr(height, width, CV_8UC3);
         cvtColor(yuv, bgr, CV_YUV2BGR_NV21);
-        //SLCVMat flipped(bgr.rows, bgr.cols, bgr.type());
-        //cv::flip(bgr, flipped, -1);
         SLCVCapture::lastFrame = bgr;
     }
     else
@@ -177,5 +184,7 @@ void SLCVCapture::loadIntoLastFrame(const SLint width,
 
         SLCVCapture::lastFrame = SLCVMat(height, width, cvType, (void*)data, stride);
     }
+    
+    adjustForSL();
 }
 //------------------------------------------------------------------------------

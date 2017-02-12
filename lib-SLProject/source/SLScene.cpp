@@ -130,7 +130,7 @@ SLScene::SLScene(SLstring name) : SLObject(name)
 Computer Science Department of the Bern University of Applied Sciences. \
 The app shows what you can learn in one semester about 3D computer graphics \
 in real time rendering and ray tracing. The framework is developed \
-in C++ with OpenGL ES2 so that it can run also on mobile devices. \
+in C++ with OpenGL ES2 or ES3 so that it can run also on mobile devices. \
 Ray tracing provides in addition high quality transparencies, reflections and soft shadows. \
 Click to close and use the menu to choose different scenes and view settings. \
 For more information please visit: https://github.com/cpvrlab/SLProject";
@@ -140,9 +140,8 @@ For more information please visit: https://github.com/cpvrlab/SLProject";
 - assimp: assimp.sourceforge.net \\n\
 - glew: glew.sourceforge.net \\n\
 - glfw: www.glfw.org \\n\
-- jpeg: www.jpeg.org \\n\
 - nvwa: sourceforge.net/projects/nvwa \\n\
-- png: www.libpng.org \\n\
+- OpenCV: opencv.org \\n\
 - Qt: www.qt-project.org \\n\
 - randomc: www.agner.org/random \\n\
 - zlib: zlib.net";
@@ -405,6 +404,8 @@ bool SLScene::onUpdate()
     
     if (_usesVideo && !SLCVCapture::lastFrame.empty())
     {   
+        SLfloat trackingTimeStartMS = timeMilliSec();
+
         // Invalidate calibration if camera input aspect doesn't match output
         SLfloat calibWdivH = _calibration.imageAspectRatio();
         SLbool aspectRatioDoesNotMatch = SL_abs(_sceneViews[0]->scrWdivH() - calibWdivH) > 0.01f;
@@ -491,6 +492,8 @@ bool SLScene::onUpdate()
                                          true);
 
         }
+
+        _trackingTimesMS.set(timeMilliSec()-trackingTimeStartMS);
     }
 
 

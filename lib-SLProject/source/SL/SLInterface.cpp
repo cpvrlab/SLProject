@@ -438,7 +438,6 @@ void slCopyVideoImage(SLint width,
                                    format,
                                    data,
                                    isContinuous);
-    SLCVCapture::adjustForSL();
 }
 //-----------------------------------------------------------------------------
 /*! Global function returns true if SL wants a live video images

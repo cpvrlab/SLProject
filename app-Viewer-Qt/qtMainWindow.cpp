@@ -236,7 +236,7 @@ void qtMainWindow::setMenuState()
     ui->actionShow_Animation_Controler->setChecked(ui->dockAnimation->isVisible());
     ui->actionShow_Toolbar->setChecked(ui->toolBar->isVisible());
     ui->actionShow_Statusbar->setChecked(ui->statusBar->isVisible());
-    ui->actionShow_Statistics->setChecked(sv->showStats());
+    ui->actionShow_Statistics->setChecked(sv->showStatsTiming());
     ui->actionShow_Scene_Info->setChecked(sv->showInfo());
     ui->actionShow_Menu->setChecked(sv->showMenu());
 
@@ -1171,7 +1171,7 @@ void qtMainWindow::on_actionShow_Statusbar_triggered()
 }
 void qtMainWindow::on_actionShow_Statistics_triggered()
 {
-    applyCommandOnSV(C_statsToggle);
+    applyCommandOnSV(C_statsTimingToggle);
 }
 void qtMainWindow::on_actionShow_Scene_Info_triggered()
 {

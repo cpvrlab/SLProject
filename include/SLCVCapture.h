@@ -49,12 +49,14 @@ class SLCVCapture
                                                  const SLuchar* data,
                                                  const SLbool isContinuous);
 
-    static  SLCVMat         lastFrame;      //!< last frame grabbed
-    static  SLCVMat         lastFrameGray;  //!< last frame in grayscale
-    static  SLPixelFormat   format;         //!< SL pixel format
+    static  SLCVMat         lastFrame;          //!< last frame grabbed
+    static  SLCVMat         lastFrameGray;      //!< last frame in grayscale
+    static  SLPixelFormat   format;             //!< SL pixel format
+    static  SLCVSize        captureSize;        //!< size of captured fram
+    static  SLfloat         startCaptureTimeMS; //!< start time of capturing in ms
 
     private:
-    static  cv::VideoCapture _captureDevice; //!< OpenCV capture device
+    static  cv::VideoCapture _captureDevice;    //!< OpenCV capture device
 };
 //-----------------------------------------------------------------------------
 #endif // SLCVCAPTURE_H

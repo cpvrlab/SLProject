@@ -93,7 +93,7 @@ public class GLES3Lib {
 
     /**
      * Extracts the relevant folders from the assets in our private storage on the device
-     * internal storage. We extract all files from the folders texutures, models & shaders
+     * internal storage. We extract all files from the folders textures, models, shaders, etc.
      * into the corresponding folders. This has to be done because most files in the apk/assets
      * folder are compressed and can not be read with standard C-file IO.
      */
@@ -129,7 +129,9 @@ public class GLES3Lib {
             if (f.exists())
                 continue;
 
-            createDir(FilesPath + "/" + AssetPath);
+            if (createDir(FilesPath + "/" + AssetPath))
+                Log.i("SLProject", "Folder created: " + FilesPath + "/" + AssetPath + "/ -------------------------------------------\r\n");
+
             copyFile(App.getAssets().open(AssetPath + "/" + file), new FileOutputStream(FilesPath + "/" + AssetPath + "/" + file));
             Log.i("SLProject", "File: " + FilesPath + "/" + AssetPath + "/" + file + "\r\n");
         }
@@ -141,13 +143,14 @@ public class GLES3Lib {
      * @param Path to create
      * @throws IOException
      */
-    public static void createDir(String Path) throws IOException
+    public static boolean createDir(String Path) throws IOException
     {
         File directory = new File(Path);
         if (directory.exists())
-            return;
+            return false;
         if (!directory.mkdirs())
             throw new IOException("Directory couldn't be created: " + Path);
+        return true;
     }
 
     /**
