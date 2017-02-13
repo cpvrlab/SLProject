@@ -9,6 +9,7 @@
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
 
+// Please do not change the name space. The SLProject app is identified in the app-store with it.
 package ch.fhnw.comgr;
 
 import android.app.Application;
@@ -20,7 +21,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.ByteBuffer;
-
 import javax.microedition.khronos.egl.EGL10;
 import javax.microedition.khronos.egl.EGLContext;
 
@@ -37,41 +37,24 @@ public class GLES3Lib {
     public static int dpi;
     public static boolean RTIsRunning = false;
 
-    public static native void onInit(int width, int height, int dotsPerInch, String FilePath);
-
-    public static native boolean onUpdateAndPaint();
-
-    public static native void onResize(int width, int height);
-
-    public static native void onMenuButton();
-
-    public static native boolean onMouseDown(int button, int x, int y);
-
-    public static native boolean onMouseUp(int button, int x, int y);
-
-    public static native boolean onMouseMove(int x, int y);
-
-    public static native boolean onTouch2Down(int x1, int y1, int x2, int y2);
-
-    public static native boolean onTouch2Up(int x1, int y1, int x2, int y2);
-
-    public static native boolean onTouch2Move(int x1, int y1, int x2, int y2);
-
-    public static native boolean onDoubleClick(int button, int x, int y);
-
-    public static native void onRotationPYR(float pitchRAD, float yawRAD, float rollRAD);
-
-    public static native void onRotationQUAT(float quatX, float quatY, float quatZ, float quatW);
-
-    public static native void onClose();
-
-    public static native boolean shouldClose();
-
-    public static native boolean usesRotation();
-
-    public static native boolean usesVideoImage();
-
-    public static native void copyVideoImage(int imgWidth, int imgHeight, ByteBuffer imgBuffer);
+    public static native void    onInit             (int width, int height, int dotsPerInch, String FilePath);
+    public static native boolean onUpdateAndPaint   ();
+    public static native void    onResize           (int width, int height);
+    public static native void    onMenuButton       ();
+    public static native boolean onMouseDown        (int button, int x, int y);
+    public static native boolean onMouseUp          (int button, int x, int y);
+    public static native boolean onMouseMove        (int x, int y);
+    public static native boolean onTouch2Down       (int x1, int y1, int x2, int y2);
+    public static native boolean onTouch2Up         (int x1, int y1, int x2, int y2);
+    public static native boolean onTouch2Move       (int x1, int y1, int x2, int y2);
+    public static native boolean onDoubleClick      (int button, int x, int y);
+    public static native void    onRotationPYR      (float pitchRAD, float yawRAD, float rollRAD);
+    public static native void    onRotationQUAT     (float quatX, float quatY, float quatZ, float quatW);
+    public static native void    onClose            ();
+    public static native boolean shouldClose        ();
+    public static native boolean usesRotation       ();
+    public static native int     getVideoType       ();
+    public static native void    copyVideoImage     (int imgWidth, int imgHeight, ByteBuffer imgBuffer);
 
     /**
      * The RaytracingCallback function is used to repaint the ray tracing image during the
@@ -80,8 +63,7 @@ public class GLES3Lib {
      * Java. See also the Java_renderRaytracingCallback in SLInterface that calls this
      * function.
      */
-    public static boolean RaytracingCallback()
-    {
+    public static boolean RaytracingCallback() {
         // calls the OpenGL rendering to display the RT image on a simple rectangle
         boolean stopSignal = GLES3Lib.onUpdateAndPaint();
 
@@ -97,8 +79,7 @@ public class GLES3Lib {
      * into the corresponding folders. This has to be done because most files in the apk/assets
      * folder are compressed and can not be read with standard C-file IO.
      */
-    public static void extractAPK() throws IOException
-    {
+    public static void extractAPK() throws IOException {
         FilesPath = App.getApplicationContext().getFilesDir().getAbsolutePath();
         Log.i("SLProject", "Destination: " + FilesPath);
         extractAPKFolder(FilesPath, "textures");
@@ -116,8 +97,7 @@ public class GLES3Lib {
      * @param AssetPath path inside the asset folder. No leading or closing /
      * @throws IOException
      */
-    public static void extractAPKFolder(String FilesPath, String AssetPath) throws IOException
-    {
+    public static void extractAPKFolder(String FilesPath, String AssetPath) throws IOException {
         String[] files = App.getAssets().list(AssetPath);
 
         for (String file : files)
@@ -143,8 +123,7 @@ public class GLES3Lib {
      * @param Path to create
      * @throws IOException
      */
-    public static boolean createDir(String Path) throws IOException
-    {
+    public static boolean createDir(String Path) throws IOException {
         File directory = new File(Path);
         if (directory.exists())
             return false;
@@ -160,8 +139,7 @@ public class GLES3Lib {
      * @param os
      * @throws IOException
      */
-    public static void copyFile(InputStream is, OutputStream os) throws IOException
-    {
+    public static void copyFile(InputStream is, OutputStream os) throws IOException {
         byte[] buffer = new byte[1024];
 
         int length;

@@ -69,7 +69,7 @@ frame buffer swapping. The FPS calculation is done in slGetWindowTitle.
 SLbool onPaint()
 {
     // If live video image is requested grab it and copy it
-    if (slUsesVideo())
+    if (slGetVideoType()!=VT_NONE)
         SLCVCapture::grabAndAdjustForSL();
 
     bool viewNeedsRepaint = slUpdateAndPaint(svIndex);

@@ -62,7 +62,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand cmd)
 
     //set video image as background texture
     _background.texture(&_videoTexture, true);
-    _usesVideo = true;
+    _videoType = VT_MAIN;
 
     SLLightSpot* light1 = new SLLightSpot(0.3f);
     light1->translation(0,0,10);

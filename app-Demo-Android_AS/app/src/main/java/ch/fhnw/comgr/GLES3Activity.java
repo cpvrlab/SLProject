@@ -9,19 +9,18 @@
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
 
+// Please do not change the name space. The SLProject app is identified in the app-store with it.
 package ch.fhnw.comgr;
 
 import android.Manifest;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.graphics.ImageFormat;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
-import android.media.Image;
-import android.media.ImageReader;
+import android.hardware.camera2.CameraCharacteristics;
 import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
 import android.util.DisplayMetrics;
@@ -30,7 +29,6 @@ import android.view.Display;
 import android.view.Menu;
 import android.view.MotionEvent;
 import android.view.View;
-import android.widget.Toast;
 
 import java.io.IOException;
 
@@ -43,6 +41,8 @@ public class GLES3Activity extends Activity implements View.OnTouchListener, Sen
     private SensorManager mSensorManager;
 
     private static final String TAG = "SLProject";
+    private int currentVideoType;
+    private boolean cameraPermissionGranted;
 
 
     @Override
@@ -78,26 +78,20 @@ public class GLES3Activity extends Activity implements View.OnTouchListener, Sen
         // Init Sensor
         mSensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
 
-        // Init Camera
+        // Init Camera (the camera is started by cameraStart from within the view renderer)
         Log.i(TAG, "Request camera permission ...");
         ActivityCompat.requestPermissions(GLES3Activity.this, new String[]{Manifest.permission.CAMERA}, 1);
-
-        Log.i(TAG, "Going to start camera service...");
-        startService(new Intent(getBaseContext(), GLES3Camera2Service.class));
-
     }
 
     @Override
-    protected void onPause()
-    {
+    protected void onPause() {
         Log.i(TAG, "GLES3Activity.onPause");
         super.onPause();
         myView.onPause();
     }
 
     @Override
-    protected void onResume()
-    {
+    protected void onResume() {
         Log.i(TAG, "GLES3Activity.onResume");
         super.onResume();
         myView.onResume();
@@ -109,15 +103,14 @@ public class GLES3Activity extends Activity implements View.OnTouchListener, Sen
     }
 
     @Override
-    protected void onDestroy()
-    {
+    protected void onDestroy() {
         Log.i(TAG, "GLES3Activity.onDestroy");
+        cameraStop();
         super.onDestroy();
     }
 
     @Override
-    public boolean onTouch(View v, final MotionEvent event)
-    {
+    public boolean onTouch(View v, final MotionEvent event) {
         if (event == null) {
             Log.i(TAG, "onTouch: null event");
             return false;
@@ -144,8 +137,7 @@ public class GLES3Activity extends Activity implements View.OnTouchListener, Sen
     }
 
     @Override
-    public boolean onCreateOptionsMenu(Menu menu)
-    {
+    public boolean onCreateOptionsMenu(Menu menu) {
         Log.i(TAG, "onCreateOptionsMenu");
         myView.queueEvent(new Runnable() {
             public void run() {
@@ -156,14 +148,12 @@ public class GLES3Activity extends Activity implements View.OnTouchListener, Sen
     }
 
     @Override
-    public void onAccuracyChanged(Sensor sensor, int accuracy)
-    {
+    public void onAccuracyChanged(Sensor sensor, int accuracy) {
         Log.i(TAG, String.format("onAccuracyChanged"));
     }
 
     @Override
-    public void onSensorChanged(SensorEvent event)
-    {
+    public void onSensorChanged(SensorEvent event) {
         if (event.sensor.getType() == Sensor.TYPE_ROTATION_VECTOR && GLES3Lib.usesRotation()) {
             // The ROTATION_VECTOR sensor is a virtual fusion sensor
             // The quality strongly depends on the underlying algorithm and on
@@ -215,25 +205,20 @@ public class GLES3Activity extends Activity implements View.OnTouchListener, Sen
     }
 
     @Override
-    public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults)
-    {
+    public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
         switch (requestCode)
         {
             case 1: {
                 // If request is cancelled, the result arrays are empty.
-                if (grantResults.length > 0
-                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    // permission was granted, yay! Do the
-                    // contacts-related task you need to do.
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    Log.i(TAG, String.format("onRequestPermissionsResult: CAMERA permission granted."));
+                    cameraPermissionGranted = true;
                 } else {
-                    // permission denied, boo! Disable the
-                    // functionality that depends on this permission.
-                    Toast.makeText(GLES3Activity.this, "Permission denied ", Toast.LENGTH_SHORT).show();
+                    Log.i(TAG, String.format("onRequestPermissionsResult: CAMERA permission refused."));
+                    cameraPermissionGranted = false;
                 }
                 return;
             }
-            // other 'case' lines to check for other
-            // permissions this app might request
         }
     }
 
@@ -257,8 +242,7 @@ public class GLES3Activity extends Activity implements View.OnTouchListener, Sen
      * 2 Down, release both not same time -> onTouch2Up
      */
 
-    public boolean handleTouchDown(final MotionEvent event)
-    {
+    public boolean handleTouchDown(final MotionEvent event) {
         int touchCount = event.getPointerCount();
         final int x0 = (int) event.getX(0);
         final int y0 = (int) event.getY(0);
@@ -328,8 +312,7 @@ public class GLES3Activity extends Activity implements View.OnTouchListener, Sen
         return true;
     }
 
-    public boolean handleTouchUp(final MotionEvent event)
-    {
+    public boolean handleTouchUp(final MotionEvent event) {
         int touchCount = event.getPointerCount();
         //Log.i(TAG, "Up:" + touchCount + " x: " + (int)event.getX(0) + " y: " + (int)event.getY(0));
         final int x0 = (int) event.getX(0);
@@ -355,8 +338,7 @@ public class GLES3Activity extends Activity implements View.OnTouchListener, Sen
         return true;
     }
 
-    public boolean handleTouchMove(final MotionEvent event)
-    {
+    public boolean handleTouchMove(final MotionEvent event) {
         final int x0 = (int) event.getX(0);
         final int y0 = (int) event.getY(0);
         int touchCount = event.getPointerCount();
@@ -381,4 +363,57 @@ public class GLES3Activity extends Activity implements View.OnTouchListener, Sen
         return true;
     }
 
+    /**
+     * Starts the camera service if not running.
+     * It is called from the GL view renderer thread.
+     * While the service is starting no other calls to startService are allowed.
+     */
+    public void cameraStart(int requestedVideoType) {
+        if (!cameraPermissionGranted) return;
+        if (!GLES3Camera2Service.isTransitioning) {
+            if (!GLES3Camera2Service.isRunning) {
+
+                GLES3Camera2Service.isTransitioning = true;
+                if (requestedVideoType == 1) {
+                    GLES3Camera2Service.videoType = CameraCharacteristics.LENS_FACING_BACK;
+                    Log.i(TAG, "Going to start main back camera service ...");
+                } else {
+                    GLES3Camera2Service.videoType = CameraCharacteristics.LENS_FACING_FRONT;
+                    Log.i(TAG, "Going to start front camera service ...");
+                }
+
+                //////////////////////////////////////////////////////////////////////
+                startService(new Intent(getBaseContext(), GLES3Camera2Service.class));
+                //////////////////////////////////////////////////////////////////////
+
+                currentVideoType = requestedVideoType;
+            } else {
+                // if the camera is running the camera type is different we first stop the camera
+                if (requestedVideoType != currentVideoType) {
+                    GLES3Camera2Service.isTransitioning = true;
+                    Log.i(TAG, "Going to stop camera service to change type ...");
+                    stopService(new Intent(getBaseContext(), GLES3Camera2Service.class));
+                }
+            }
+        }
+    }
+
+    /**
+     * Stops the camera service if running.
+     * It is called from the GL view renderer thread.
+     * While the service is stopping no other calls to stopService are allowed.
+     */
+    public void cameraStop() {
+        if (!cameraPermissionGranted) return;
+        if (!GLES3Camera2Service.isTransitioning) {
+            if (GLES3Camera2Service.isRunning) {
+                GLES3Camera2Service.isTransitioning = true;
+                Log.i(TAG, "Going to stop camera service ...");
+
+                /////////////////////////////////////////////////////////////////////
+                stopService(new Intent(getBaseContext(), GLES3Camera2Service.class));
+                /////////////////////////////////////////////////////////////////////
+            }
+        }
+    }
 }

@@ -440,7 +440,7 @@ void SLGLTexture::bindActive(SLint texID)
         SLScene* s = SLScene::current;
         
         if (this == s->videoTexture() &&
-            s->usesVideo() &&
+            s->videoType()!=VT_NONE &&
             _needsUpdate)
         {   fullUpdate();
             _needsUpdate = false;

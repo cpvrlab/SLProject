@@ -9,12 +9,13 @@
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
 
+// Please do not change the name space. The SLProject app is identified in the app-store with it.
 package ch.fhnw.comgr;
 
-
 import android.content.Context;
-import android.graphics.PixelFormat;
 import android.opengl.GLSurfaceView;
+import android.os.Handler;
+import android.os.Looper;
 import android.util.Log;
 
 import javax.microedition.khronos.egl.EGL10;
@@ -27,6 +28,9 @@ public class GLES3View extends GLSurfaceView
 {
     private static String TAG = "SLProject";
     private static final boolean DEBUG = false;
+    private static final int VT_NONE = 0;
+    private static final int VT_MAIN = 1;
+    private static final int VT_SECOND = 2;
 
     public GLES3View(Context context)
     {
@@ -51,8 +55,7 @@ public class GLES3View extends GLSurfaceView
 
     }
 
-    private static class ContextFactory implements GLSurfaceView.EGLContextFactory
-    {
+    private static class ContextFactory implements GLSurfaceView.EGLContextFactory {
         private static int EGL_CONTEXT_CLIENT_VERSION = 0x3098;
 
         public EGLContext createContext(EGL10 egl, EGLDisplay display, EGLConfig eglConfig)
@@ -73,16 +76,14 @@ public class GLES3View extends GLSurfaceView
         }
     }
 
-    private static void checkEglError(String prompt, EGL10 egl)
-    {
+    private static void checkEglError(String prompt, EGL10 egl) {
         int error;
         while ((error = egl.eglGetError()) != EGL10.EGL_SUCCESS) {
             Log.e(TAG, String.format("%s: EGL error: 0x%x", prompt, error));
         }
     }
 
-    private static class ConfigChooser implements GLSurfaceView.EGLConfigChooser
-    {
+    private static class ConfigChooser implements GLSurfaceView.EGLConfigChooser {
         public ConfigChooser(int r, int g, int b, int a, int depth, int stencil)
         {
             mRedSize = r;
@@ -286,26 +287,40 @@ public class GLES3View extends GLSurfaceView
         private int[] mValue = new int[1];
     }
 
-    private static class Renderer implements GLSurfaceView.Renderer
-    {
-        public void onSurfaceCreated(GL10 gl, EGLConfig config)
-        {
+    /**
+     * The renderer implements the major callback for the OpenGL ES rendering:
+     * - onSurfaceCreated calls SLProjects onInit
+     * - onSurfaceChanged calls SLProjects onResize
+     * - onDrawFrame      calls SLProjects onUpdateAndPaint
+     * Be aware that the renderer runs in a separate thread. Calling something in the
+     * activity cross thread invocations.
+     */
+    private static class Renderer implements GLSurfaceView.Renderer {
+        protected Handler mainLoop;
+
+        public void onSurfaceCreated(GL10 gl, EGLConfig config) {
             Log.i(TAG, "Renderer.onSurfaceCreated");
             int w = GLES3Lib.view.getWidth();
             int h = GLES3Lib.view.getHeight();
-            GLES3Lib.onInit(w, h, GLES3Lib.dpi, GLES3Lib.App.getApplicationContext().getFilesDir().getAbsolutePath());
+            GLES3Lib.onInit(w, h,
+                            GLES3Lib.dpi,
+                            GLES3Lib.App.getApplicationContext().getFilesDir().getAbsolutePath());
+
+            // Get main event handler of UI thread
+            mainLoop = new Handler(Looper.getMainLooper());
         }
 
-        public void onSurfaceChanged(GL10 gl, int width, int height)
-        {
+        public void onSurfaceChanged(GL10 gl, int width, int height) {
             Log.i(TAG, "Renderer.onSurfaceChanged");
             GLES3Lib.onResize(width, height);
             GLES3Lib.view.requestRender();
         }
 
-        public void onDrawFrame(GL10 gl)
-        {
-            //Log.i(TAG, "+ " + Thread.currentThread().getId());
+        public void onDrawFrame(GL10 gl) {
+            int videoType = GLES3Lib.getVideoType();
+            if (videoType!=VT_NONE)
+                 mainLoop.post(new Runnable() {@Override public void run() {GLES3Lib.activity.cameraStart(videoType);}});
+            else mainLoop.post(new Runnable() {@Override public void run() {GLES3Lib.activity.cameraStop();}});
 
             if (GLES3Lib.onUpdateAndPaint())
                 GLES3Lib.view.requestRender();

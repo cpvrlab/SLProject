@@ -1,15 +1,23 @@
+//#############################################################################
+//  File:      native-lib.cpp
+//  Author:    Marcus Hudritsch, Zingg Pascal
+//  Date:      Spring 2017
+//  Purpose:   Android Java native interface into the SLProject C++ library
+//  Codestyle: https://github.com/cpvrlab/SLProject/wiki/Coding-Style-Guidelines
+//  Copyright: Marcus Hudritsch, Zingg Pascal
+//             This software is provide under the GNU General Public License
+//             Please visit: http://opensource.org/licenses/GPL-3.0
+//#############################################################################
+
 #include <jni.h>
 #include <stdafx.h>
 #include <SLInterface.h>
 #include <SLScene.h>
-#include <SLSceneView.h>
-#include <SLEnums.h>
-#include <SLGLEnums.h>
 
 //-----------------------------------------------------------------------------
 // Some global variable for the JNI interface
 JNIEnv *environment;    //! Pointer to JAVA environment used in ray tracing callback
-int svIndex;        //!< SceneView index
+int svIndex;            //!< SceneView index
 //-----------------------------------------------------------------------------
 /*! Java Native Interface (JNI) function declarations. These functions are
 called by the Java interface class GLES3Lib. The function name follows the pattern
@@ -34,7 +42,7 @@ JNIEXPORT void JNICALL Java_ch_fhnw_comgr_GLES3Lib_onRotationQUAT(JNIEnv *env, j
 JNIEXPORT void JNICALL Java_ch_fhnw_comgr_GLES3Lib_onClose(JNIEnv *env, jobject obj);
 JNIEXPORT bool JNICALL Java_ch_fhnw_comgr_GLES3Lib_shouldClose(JNIEnv *env, jobject obj);
 JNIEXPORT bool JNICALL Java_ch_fhnw_comgr_GLES3Lib_usesRotation(JNIEnv *env, jobject obj);
-JNIEXPORT bool JNICALL Java_ch_fhnw_comgr_GLES3Lib_usesVideoImage(JNIEnv *env, jobject obj);
+JNIEXPORT jint JNICALL Java_ch_fhnw_comgr_GLES3Lib_getVideoType(JNIEnv *env, jobject obj);
 JNIEXPORT void JNICALL Java_ch_fhnw_comgr_GLES3Lib_copyVideoImage(JNIEnv *env, jobject obj, jint srcWidth, jint srcHeight, jobject srcBuffer);
 };
 
@@ -164,9 +172,9 @@ JNIEXPORT bool JNICALL Java_ch_fhnw_comgr_GLES3Lib_usesRotation(JNIEnv *env, job
     return slUsesRotation(svIndex);
 }
 //-----------------------------------------------------------------------------
-JNIEXPORT bool JNICALL Java_ch_fhnw_comgr_GLES3Lib_usesVideoImage(JNIEnv *env, jobject obj)
+JNIEXPORT jint JNICALL Java_ch_fhnw_comgr_GLES3Lib_getVideoType(JNIEnv *env, jobject obj)
 {
-    return slUsesVideo();
+    return slGetVideoType();
 }
 //-----------------------------------------------------------------------------
 JNIEXPORT void JNICALL Java_ch_fhnw_comgr_GLES3Lib_copyVideoImage(JNIEnv *env, jobject obj, jint imgWidth, jint imgHeight, jobject imgBuffer)

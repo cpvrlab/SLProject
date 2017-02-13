@@ -440,11 +440,11 @@ void slCopyVideoImage(SLint width,
                                    isContinuous);
 }
 //-----------------------------------------------------------------------------
-/*! Global function returns true if SL wants a live video images
+/*! Global function returns the type of video camera wanted
 */
-bool slUsesVideo()
+int slGetVideoType()
 {
-    return SLScene::current->usesVideo();
+    return (int)SLScene::current->videoType();
 }
 //-----------------------------------------------------------------------------
 

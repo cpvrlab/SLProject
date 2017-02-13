@@ -1906,7 +1906,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
 
         // Set backround texture to the video texture and use it
         _background.texture(&_videoTexture, true);
-        _usesVideo = true;
+        _videoType = VT_MAIN;
 
         sv->waitEvents(false); // for constant video feed
         //sv->usesRotation(true);
@@ -1921,7 +1921,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
 
         // Back wall material with live video texture
         SLMaterial* m1 = new SLMaterial("mat3", &_videoTexture);
-        _usesVideo = true;
+        _videoType = VT_SCND;
 
         // Create a camera node
         SLCamera* cam1 = new SLCamera();
@@ -2008,7 +2008,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
 
         // Set backround texture to the video texture and use it
         _background.texture(&_videoTexture, true);
-        _usesVideo = true;
+        _videoType = VT_MAIN;
         
         // pass the scene group as root node
         _root3D = scene;
@@ -2083,7 +2083,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         
         // Set backround texture to the video texture and use it
         _background.texture(&_videoTexture, true);
-        _usesVideo = true;
+        _videoType = VT_MAIN;
         
         // pass the scene group as root node
         _root3D = scene;
@@ -2149,7 +2149,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
 
         // Set backround texture to the video texture and use it
         _background.texture(&_videoTexture, true);
-        _usesVideo = true;
+        _videoType = VT_MAIN;
         
         // pass the scene group as root node
         _root3D = scene;

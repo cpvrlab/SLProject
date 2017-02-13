@@ -366,4 +366,11 @@ enum SLCVFeatureType
     FT_ORB      //!< 
 };
 //-----------------------------------------------------------------------------
+//! Video type if multiple exist on mobile devices
+enum SLVideoType
+{   VT_NONE =  0,  //!< No camera needed
+    VT_MAIN =  1,  //!< Back facing camera on mobile devices
+    VT_SCND =  2,  //!< Front facing camera on mobile devices
+};
+//-----------------------------------------------------------------------------
 #endif

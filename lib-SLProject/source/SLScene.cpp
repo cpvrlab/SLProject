@@ -15,17 +15,11 @@
 
 #include <SLScene.h>
 #include <SLSceneView.h>
-#include <SLCamera.h>
 #include <SLText.h>
-#include <SLLight.h>
-#include <SLTexFont.h>
 #include <SLButton.h>
-#include <SLAnimation.h>
-#include <SLAnimManager.h>
 #include <SLInputManager.h>
 #include <SLCVCapture.h>
 #include <SLAssimpImporter.h>
-#include <SLBox.h>
 #include <SLLightDirect.h>
 #include <SLCVTracker.h>
 #include <SLCVTrackerAruco.h>
@@ -89,11 +83,6 @@ SLScene::SLScene(SLstring name) : SLObject(name)
     _fps = 0;
     _elapsedTimeMS = 0;
     _lastUpdateTimeMS = 0;
-    _frameTimesMS.init();
-    _updateTimesMS.init();
-    _cullTimesMS.init();
-    _draw3DTimesMS.init();
-    _draw2DTimesMS.init();
      
     // Load std. shader programs in order as defined in SLStdShaderProgs enum
     // In the constructor they are added the _shaderProgs vector
@@ -239,12 +228,16 @@ void SLScene::init()
     _selectedNode = 0;
 
     _timer.start();
+    _frameTimesMS.init();
+    _updateTimesMS.init();
+    _cullTimesMS.init();
+    _draw3DTimesMS.init();
+    _draw2DTimesMS.init();
+    _trackingTimesMS.init();
+    _captureTimesMS.init();
 
     // load virtual cursor texture
     _texCursor = new SLGLTexture("cursor.png");
-
-    // load dummy live video texture
-    _usesVideo = false;
 }
 //-----------------------------------------------------------------------------
 /*! The scene uninitializing clears the scenegraph (_root3D) and all global
@@ -297,6 +290,8 @@ void SLScene::unInit()
     // delete trackers
     for (auto t : _trackers) delete t;
         _trackers.clear();
+
+    _videoType = VT_NONE;
    
     // clear eventHandlers
     _eventHandlers.clear();
@@ -402,7 +397,7 @@ bool SLScene::onUpdate()
     // 3) AR Tracking //
     ////////////////////
     
-    if (_usesVideo && !SLCVCapture::lastFrame.empty())
+    if (_videoType!=VT_NONE && !SLCVCapture::lastFrame.empty())
     {   
         SLfloat trackingTimeStartMS = timeMilliSec();
 
@@ -516,7 +511,7 @@ bool SLScene::onUpdate()
 void SLScene::onAfterLoad()
 {
     #ifdef SL_USES_CVCAPTURE
-    if (_usesVideo)
+    if (_videoType!=VT_NONE)
     {   if (!SLCVCapture::isOpened())
             SLCVCapture::open(0);
     }

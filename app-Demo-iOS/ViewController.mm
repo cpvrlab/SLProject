@@ -179,7 +179,7 @@ float GetSeconds()
 - (void)glkView:(GLKView *)view drawInRect:(CGRect)rect
 {
     
-    if (slUsesVideo())
+    if (slGetVideoType() != VT_NONE)
     {   if (![m_avSession isRunning])
             [m_avSession startRunning];
     } else
@@ -447,7 +447,7 @@ float GetSeconds()
     // kCVPixelFormatType_420YpCbCr8BiPlanarVideoRange
     // kCVPixelFormatType_420YpCbCr8BiPlanarFullRange
     [dataOutput setVideoSettings:[NSDictionary dictionaryWithObject:[NSNumber numberWithInt:kCVPixelFormatType_32BGRA]
-                                                                    forKey:(id)kCVPixelBufferPixelFormatTypeKey]];
+        forKey:(id)kCVPixelBufferPixelFormatTypeKey]];
     
     // Set dispatch to be on the main thread so OpenGL can do things with the data
     [dataOutput setSampleBufferDelegate:self queue:dispatch_get_main_queue()];

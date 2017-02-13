@@ -62,7 +62,7 @@ bool    slUsesRotation          (int sceneViewIndex);
 void    slRotationPYR           (int sceneViewIndex, float pitchRAD, float yawRAD, float rollRAD);
 void    slRotationQUAT          (int sceneViewIndex, float angleRAD, float axisX, float axisY, float axisZ);
 string  slGetWindowTitle        (int sceneViewIndex);
-bool    slUsesVideo             ();
+int     slGetVideoType          ();
 void    slCopyVideoImage        (int width, int height, SLPixelFormat glFormat, SLuchar* data, bool isContiuous);
 //-----------------------------------------------------------------------------
 #endif // SLINTERFACE_H

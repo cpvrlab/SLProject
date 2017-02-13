@@ -1966,9 +1966,10 @@ void SLSceneView::build2DInfoGL()
     {
         SLCVCalibration& cal = s->calibration();
         SLCVSize capSize = SLCVCapture::captureSize;
+        SLVideoType vt = s->videoType();
 
         sprintf(m+strlen(m), "Video --------------------------------------\\n");
-        sprintf(m+strlen(m), "Scene uses video: %s\\n", s->usesVideo() ? "Yes":"No");
+        sprintf(m+strlen(m), "Video Type: %s\\n", vt==0 ? "None" : vt==1 ? "Main Camera" : "Secondary Camera");
         sprintf(m+strlen(m), "Display size: %d x %d\\n", cal.imageSize().width, cal.imageSize().height);
         sprintf(m+strlen(m), "Capture size: %d x %d\\n", capSize.width, capSize.height);
         sprintf(m+strlen(m), "Field of view (deg.): %4.1f\\n", cal.cameraFovDeg());
