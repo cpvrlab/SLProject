@@ -27,7 +27,8 @@ class SLCVImage : public SLObject
                             SLCVImage       (SLint width,
                                              SLint height,
                                              SLPixelFormat format);
-                            SLCVImage       (const SLstring imageFilename);
+                            SLCVImage       (const SLstring imageFilename, 
+                                             bool flipVertical = true);
                             SLCVImage       (SLCVImage &srcImage);
                            ~SLCVImage       ();
             // Misc                         
@@ -36,7 +37,8 @@ class SLCVImage : public SLObject
                                              SLint height,
                                              SLPixelFormat format,
                                              SLbool isContinuous = false);
-            void            load            (const SLstring filename);
+            void            load            (const SLstring filename, 
+                                             bool flipVertical = true);
             SLbool          load            (SLint inWidth,
                                              SLint inHeight,
                                              SLPixelFormat srcFormat,

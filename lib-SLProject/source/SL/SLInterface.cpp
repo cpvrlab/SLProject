@@ -38,6 +38,7 @@ present.<br>
 /param shaderPath Path to the shader files (readonly)
 /param modelPath Path to the 3D model files (readonly)
 /param texturePath Path to the texture image files (readonly)
+/param fontPath Path to the font image files (readonly)
 /param calibrationPath Path to the calibration ini files (readonly)
 /param configPath Path where the config files are stored (read-write)
 <br>
@@ -52,6 +53,7 @@ void slCreateScene(SLVstring& cmdLineArgs,
                    SLstring shaderPath,
                    SLstring modelPath,
                    SLstring texturePath,
+                   SLstring fontPath,
                    SLstring calibrationPath,
                    SLstring configPath)
 {
@@ -60,6 +62,7 @@ void slCreateScene(SLVstring& cmdLineArgs,
     // Default paths for all loaded resources
     SLGLProgram::defaultPath      = shaderPath;
     SLGLTexture::defaultPath      = texturePath;
+    SLGLTexture::defaultPathFonts = fontPath;
     SLAssimpImporter::defaultPath = modelPath;
     SLCVCalibration::calibIniPath = calibrationPath;
     SL::configPath                = configPath;
@@ -71,6 +74,7 @@ void slCreateScene(SLVstring& cmdLineArgs,
     SL_LOG("Path to Models  : %s\n", modelPath.c_str());
     SL_LOG("Path to Shaders : %s\n", shaderPath.c_str());
     SL_LOG("Path to Textures: %s\n", texturePath.c_str());
+    SL_LOG("Path to Textures: %s\n", fontPath.c_str());
     SL_LOG("Path to Calibr. : %s\n", calibrationPath.c_str());
     SL_LOG("Path to Config. : %s\n", configPath.c_str());
     SL_LOG("OpenCV Version  : %d.%d.%d\n", CV_MAJOR_VERSION,

@@ -128,6 +128,7 @@ class SLGLTexture : public SLObject
   
     // Statics
     static  SLstring        defaultPath;        //!< Default path for textures
+    static  SLstring        defaultPathFonts;   //!< Default path for fonts images
     static  SLfloat         maxAnisotropy;      //!< max. anisotropy available
     static  SLuint          numBytesInTextures; //!< NO. of texture bytes on GPU
 

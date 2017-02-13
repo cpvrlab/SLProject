@@ -128,6 +128,7 @@ void qtGLWidget::initializeGL()
         SLstring shaders    = exeDir + "../_data/shaders/";
         SLstring models     = exeDir + "../_data/models/";
         SLstring textures   = exeDir + "../_data/images/textures/";
+        SLstring fonts      = exeDir + "../_data/images/fonts/";
         SLstring calibs     = exeDir + "../_data/calibrations/";
         SLstring configPath = SLFileSystem::getAppsWritableDir();
 
@@ -139,6 +140,7 @@ void qtGLWidget::initializeGL()
                       shaders,
                       models,
                       textures,
+                      fonts,
                       calibs,
                       configPath);
     }   

@@ -41,14 +41,10 @@ file SLTexFont.cpp.
 */
 class SLTexFont : public SLGLTexture
 {  
-public:
-                    SLTexFont       (const SLuchar *bmp, 
-                                     SLint bmpW, SLint bmpH);
+    public:         SLTexFont       (SLstring fontFilename);
                    ~SLTexFont       (){;}
-                    
-    void            create          (const SLuchar *bmp, 
-                                      SLint bmpW, SLint bmpH);
-                                        
+
+    void            create          (SLstring fontFilename);
     SLVec2f         calcTextSize    (SLstring text, 
                                      SLfloat maxWidth = 0.0f, 
                                      SLfloat lineHeightFactor = 1.5f);
@@ -86,6 +82,7 @@ public:
     static SLTexFont* font18;
     static SLTexFont* font20;
     static SLTexFont* font22;
+    static SLTexFont* font24;
 };
 //-----------------------------------------------------------------------------
 #endif

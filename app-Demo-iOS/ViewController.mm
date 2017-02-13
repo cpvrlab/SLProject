@@ -126,6 +126,7 @@ float GetSeconds()
                   exeDir,
                   exeDir,
                   exeDir,
+                  exeDir,
                   configDir);
     //////////////////////////
    

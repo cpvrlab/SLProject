@@ -29,6 +29,7 @@ void    slCreateScene           (SLVstring& cmdLineArgs,
                                  SLstring shaderPath,
                                  SLstring modelPath,
                                  SLstring texturePath,
+                                 SLstring fontPath,
                                  SLstring calibrationPath,
                                  SLstring configPath);
 int     slCreateSceneView       (int screenWidth,

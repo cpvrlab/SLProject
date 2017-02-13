@@ -83,6 +83,7 @@ public class GLES3Lib {
         FilesPath = App.getApplicationContext().getFilesDir().getAbsolutePath();
         Log.i("SLProject", "Destination: " + FilesPath);
         extractAPKFolder(FilesPath, "textures");
+        extractAPKFolder(FilesPath, "fonts");
         extractAPKFolder(FilesPath, "models");
         extractAPKFolder(FilesPath, "shaders");
         extractAPKFolder(FilesPath, "calibrations");

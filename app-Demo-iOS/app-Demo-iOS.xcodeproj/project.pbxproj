@@ -349,6 +349,17 @@
 		41FC947D19F7D6410026919B /* SLGLShader.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 41FC947619F7D6410026919B /* SLGLShader.cpp */; };
 		41FC947F19F7D6410026919B /* SLGLState.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 41FC947819F7D6410026919B /* SLGLState.cpp */; };
 		41FC948019F7D6410026919B /* SLGLTexture.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 41FC947919F7D6410026919B /* SLGLTexture.cpp */; };
+		41FD9D111E523AD70063A1B7 /* Font07.png in Resources */ = {isa = PBXBuildFile; fileRef = 41FD9D061E523AD70063A1B7 /* Font07.png */; };
+		41FD9D121E523AD70063A1B7 /* Font08.png in Resources */ = {isa = PBXBuildFile; fileRef = 41FD9D071E523AD70063A1B7 /* Font08.png */; };
+		41FD9D131E523AD70063A1B7 /* Font09.png in Resources */ = {isa = PBXBuildFile; fileRef = 41FD9D081E523AD70063A1B7 /* Font09.png */; };
+		41FD9D141E523AD70063A1B7 /* Font10.png in Resources */ = {isa = PBXBuildFile; fileRef = 41FD9D091E523AD70063A1B7 /* Font10.png */; };
+		41FD9D151E523AD70063A1B7 /* Font12.png in Resources */ = {isa = PBXBuildFile; fileRef = 41FD9D0A1E523AD70063A1B7 /* Font12.png */; };
+		41FD9D161E523AD70063A1B7 /* Font14.png in Resources */ = {isa = PBXBuildFile; fileRef = 41FD9D0B1E523AD70063A1B7 /* Font14.png */; };
+		41FD9D171E523AD70063A1B7 /* Font16.png in Resources */ = {isa = PBXBuildFile; fileRef = 41FD9D0C1E523AD70063A1B7 /* Font16.png */; };
+		41FD9D181E523AD70063A1B7 /* Font18.png in Resources */ = {isa = PBXBuildFile; fileRef = 41FD9D0D1E523AD70063A1B7 /* Font18.png */; };
+		41FD9D191E523AD70063A1B7 /* Font20.png in Resources */ = {isa = PBXBuildFile; fileRef = 41FD9D0E1E523AD70063A1B7 /* Font20.png */; };
+		41FD9D1A1E523AD70063A1B7 /* Font22.png in Resources */ = {isa = PBXBuildFile; fileRef = 41FD9D0F1E523AD70063A1B7 /* Font22.png */; };
+		41FD9D1B1E523AD70063A1B7 /* Font24.png in Resources */ = {isa = PBXBuildFile; fileRef = 41FD9D101E523AD70063A1B7 /* Font24.png */; };
 		CF3F571A1DE5906C00928DDD /* SLCVTracker.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CF3F57191DE5906C00928DDD /* SLCVTracker.cpp */; };
 		CF3F571D1DE592F200928DDD /* PerVrtBlinnColorAttrib.vert in Resources */ = {isa = PBXBuildFile; fileRef = CF3F571C1DE592F200928DDD /* PerVrtBlinnColorAttrib.vert */; };
 		CF3F57221DE5945F00928DDD /* calib_in_params.yml in Resources */ = {isa = PBXBuildFile; fileRef = CF3F57211DE5945F00928DDD /* calib_in_params.yml */; };
@@ -972,6 +983,17 @@
 		41FC947619F7D6410026919B /* SLGLShader.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SLGLShader.cpp; path = "../lib-SLProject/source/GL/SLGLShader.cpp"; sourceTree = SOURCE_ROOT; };
 		41FC947819F7D6410026919B /* SLGLState.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SLGLState.cpp; path = "../lib-SLProject/source/GL/SLGLState.cpp"; sourceTree = SOURCE_ROOT; };
 		41FC947919F7D6410026919B /* SLGLTexture.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SLGLTexture.cpp; path = "../lib-SLProject/source/GL/SLGLTexture.cpp"; sourceTree = SOURCE_ROOT; };
+		41FD9D061E523AD70063A1B7 /* Font07.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = Font07.png; path = ../_data/images/fonts/Font07.png; sourceTree = "<group>"; };
+		41FD9D071E523AD70063A1B7 /* Font08.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = Font08.png; path = ../_data/images/fonts/Font08.png; sourceTree = "<group>"; };
+		41FD9D081E523AD70063A1B7 /* Font09.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = Font09.png; path = ../_data/images/fonts/Font09.png; sourceTree = "<group>"; };
+		41FD9D091E523AD70063A1B7 /* Font10.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = Font10.png; path = ../_data/images/fonts/Font10.png; sourceTree = "<group>"; };
+		41FD9D0A1E523AD70063A1B7 /* Font12.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = Font12.png; path = ../_data/images/fonts/Font12.png; sourceTree = "<group>"; };
+		41FD9D0B1E523AD70063A1B7 /* Font14.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = Font14.png; path = ../_data/images/fonts/Font14.png; sourceTree = "<group>"; };
+		41FD9D0C1E523AD70063A1B7 /* Font16.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = Font16.png; path = ../_data/images/fonts/Font16.png; sourceTree = "<group>"; };
+		41FD9D0D1E523AD70063A1B7 /* Font18.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = Font18.png; path = ../_data/images/fonts/Font18.png; sourceTree = "<group>"; };
+		41FD9D0E1E523AD70063A1B7 /* Font20.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = Font20.png; path = ../_data/images/fonts/Font20.png; sourceTree = "<group>"; };
+		41FD9D0F1E523AD70063A1B7 /* Font22.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = Font22.png; path = ../_data/images/fonts/Font22.png; sourceTree = "<group>"; };
+		41FD9D101E523AD70063A1B7 /* Font24.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = Font24.png; path = ../_data/images/fonts/Font24.png; sourceTree = "<group>"; };
 		41FE0B041959C9DA00486424 /* lib-SLExternal.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = "lib-SLExternal.xcodeproj"; path = "../lib-SLExternal/lib-SLExternal.xcodeproj"; sourceTree = "<group>"; };
 		CF3F57191DE5906C00928DDD /* SLCVTracker.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = SLCVTracker.cpp; path = "../lib-SLProject/source/CV/SLCVTracker.cpp"; sourceTree = SOURCE_ROOT; };
 		CF3F571C1DE592F200928DDD /* PerVrtBlinnColorAttrib.vert */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = PerVrtBlinnColorAttrib.vert; path = ../_data/shaders/PerVrtBlinnColorAttrib.vert; sourceTree = "<group>"; };
@@ -1187,6 +1209,17 @@
 		417E0E99148A6F910015B5B0 /* Textures */ = {
 			isa = PBXGroup;
 			children = (
+				41FD9D061E523AD70063A1B7 /* Font07.png */,
+				41FD9D071E523AD70063A1B7 /* Font08.png */,
+				41FD9D081E523AD70063A1B7 /* Font09.png */,
+				41FD9D091E523AD70063A1B7 /* Font10.png */,
+				41FD9D0A1E523AD70063A1B7 /* Font12.png */,
+				41FD9D0B1E523AD70063A1B7 /* Font14.png */,
+				41FD9D0C1E523AD70063A1B7 /* Font16.png */,
+				41FD9D0D1E523AD70063A1B7 /* Font18.png */,
+				41FD9D0E1E523AD70063A1B7 /* Font20.png */,
+				41FD9D0F1E523AD70063A1B7 /* Font22.png */,
+				41FD9D101E523AD70063A1B7 /* Font24.png */,
 				419E11A91B74B02000203E70 /* LiveVideoError.png */,
 				41B7BDDC1E49B4BC007B8B39 /* cursor.png */,
 				41486AB715165E2A00102F27 /* CompileError.png */,
@@ -1894,9 +1927,12 @@
 				411BA72718C0702600F10475 /* Icon_120.png in Resources */,
 				417E0EB9148A70DE0015B5B0 /* brick0512_C.png in Resources */,
 				419808AA1959BA670048085E /* SmoothingGroups.inl in Resources */,
+				41FD9D171E523AD70063A1B7 /* Font16.png in Resources */,
 				418BF44D1B8B0D500049E387 /* FontTex.frag in Resources */,
 				418BF45E1B8B0D500049E387 /* RefractReflect.vert in Resources */,
+				41FD9D111E523AD70063A1B7 /* Font07.png in Resources */,
 				417E0EBA148A70DE0015B5B0 /* bricks1_0256_C.jpg in Resources */,
+				41FD9D131E523AD70063A1B7 /* Font09.png in Resources */,
 				418BF4631B8B0D500049E387 /* StereoOculus.frag in Resources */,
 				41901CF81959C58D006795A8 /* FBX in Resources */,
 				417E0EBB148A70DE0015B5B0 /* bricks1_0512_C.jpg in Resources */,
@@ -1906,6 +1942,7 @@
 				417E0EBC148A70DE0015B5B0 /* brickwall0512_C.jpg in Resources */,
 				418BF4661B8B0D500049E387 /* StereoOculusDistortionMesh.vert in Resources */,
 				418BF44E1B8B0D500049E387 /* FontTex.vert in Resources */,
+				41FD9D1A1E523AD70063A1B7 /* Font22.png in Resources */,
 				418BF4501B8B0D500049E387 /* PerPixBlinn.vert in Resources */,
 				417E0EBD148A70DE0015B5B0 /* brickwall0512_G.jpg in Resources */,
 				417E0EBE148A70DE0015B5B0 /* brickwall0512_H.jpg in Resources */,
@@ -1915,12 +1952,15 @@
 				417E0EC0148A70DE0015B5B0 /* Checkerboard0512_C.png in Resources */,
 				417E0EC1148A70DE0015B5B0 /* Chess0256_C.bmp in Resources */,
 				41B7BDDD1E49B4BC007B8B39 /* cursor.png in Resources */,
+				41FD9D181E523AD70063A1B7 /* Font18.png in Resources */,
 				417E0EC2148A70DE0015B5B0 /* earth1024_C.jpg in Resources */,
 				418BF44F1B8B0D500049E387 /* PerPixBlinn.frag in Resources */,
 				417E0EC3148A70DE0015B5B0 /* earth1024_G.jpg in Resources */,
 				411BA73118C0773B00F10475 /* Default-Portrait@2~ipad.png in Resources */,
+				41FD9D121E523AD70063A1B7 /* Font08.png in Resources */,
 				418BF46A1B8B0D500049E387 /* TextureOnly3D.vert in Resources */,
 				418BF45C1B8B0D500049E387 /* Reflect.vert in Resources */,
+				41FD9D151E523AD70063A1B7 /* Font12.png in Resources */,
 				417E0EC4148A70DE0015B5B0 /* earth1024_H.jpg in Resources */,
 				418BF44B1B8B0D4F0049E387 /* ErrorTex.frag in Resources */,
 				417E0EC5148A70DE0015B5B0 /* earth1024_N.jpg in Resources */,
@@ -1970,12 +2010,14 @@
 				418BF4561B8B0D500049E387 /* PerVrtBlinn.vert in Resources */,
 				417E0EE3148A71220015B5B0 /* Pool+Z0512_C.png in Resources */,
 				418BF45B1B8B0D500049E387 /* Reflect.frag in Resources */,
+				41FD9D1B1E523AD70063A1B7 /* Font24.png in Resources */,
 				41C99E7C18D431B50045FD2D /* Icon_72.png in Resources */,
 				4156500C148AA62400A3CAA6 /* ViewController_iPad.xib in Resources */,
 				418BF4621B8B0D500049E387 /* ShadowMapping.vert in Resources */,
 				418BF4511B8B0D500049E387 /* PerPixBlinnSkinned.vert in Resources */,
 				4156500D148AA62400A3CAA6 /* ViewController_iPhone.xib in Resources */,
 				41565010148AA63200A3CAA6 /* InfoPlist.strings in Resources */,
+				41FD9D141E523AD70063A1B7 /* Font10.png in Resources */,
 				419808DB1959BA670048085E /* makefile.mingw in Resources */,
 				414B3FEB148AAE520074D939 /* Default.png in Resources */,
 				414B3FED148AAE520074D939 /* Icon.png in Resources */,
@@ -1988,7 +2030,9 @@
 				418BF4641B8B0D500049E387 /* StereoOculus.vert in Resources */,
 				418BF44A1B8B0D4F0049E387 /* Earth.frag in Resources */,
 				41486AB815165E2A00102F27 /* CompileError.png in Resources */,
+				41FD9D191E523AD70063A1B7 /* Font20.png in Resources */,
 				411BA72F18C075E500F10475 /* Default~ipad.png in Resources */,
+				41FD9D161E523AD70063A1B7 /* Font14.png in Resources */,
 				418BF46B1B8B0D500049E387 /* Wave.frag in Resources */,
 				41618D6816C1855500641165 /* Default-Landscape@2x~ipad.png in Resources */,
 				CF3F57221DE5945F00928DDD /* calib_in_params.yml in Resources */,

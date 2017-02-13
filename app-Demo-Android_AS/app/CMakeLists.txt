@@ -184,23 +184,25 @@ target_link_libraries(  native-lib
 # Copy APK contents
 #
 
-file(GLOB_RECURSE TEXTURES  ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/images/textures/CompileError.png
-                            ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/images/textures/brick0512_C.png
-                            ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/images/textures/brick*.jpg
-                            ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/images/textures/Checkerboard0512_C.png
-                            ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/images/textures/Chess0256_C.bmp
-                            ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/images/textures/earth*.jpg
-                            ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/images/textures/grass0512_C.jpg
-                            ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/images/textures/gray_0256_C.jpg
-                            ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/images/textures/MuttenzerBox*.png
-                            ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/images/textures/Pool*.png
-                            ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/images/textures/Testmap_0512_C.png
-                            ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/images/textures/tile1_0256_C.jpg
-                            ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/images/textures/tree1_1024_C.png
-                            ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/images/textures/wood*.jpg
-                            ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/images/textures/cursor.png
-                            ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/images/textures/Vision*.png
-                            ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/images/textures/LiveVideoError.png)
+file(GLOB_RECURSE TEXTURES      ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/images/textures/CompileError.png
+                                ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/images/textures/brick0512_C.png
+                                ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/images/textures/brick*.jpg
+                                ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/images/textures/Checkerboard0512_C.png
+                                ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/images/textures/Chess0256_C.bmp
+                                ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/images/textures/earth*.jpg
+                                ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/images/textures/grass0512_C.jpg
+                                ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/images/textures/gray_0256_C.jpg
+                                ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/images/textures/MuttenzerBox*.png
+                                ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/images/textures/Pool*.png
+                                ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/images/textures/Testmap_0512_C.png
+                                ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/images/textures/tile1_0256_C.jpg
+                                ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/images/textures/tree1_1024_C.png
+                                ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/images/textures/wood*.jpg
+                                ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/images/textures/cursor.png
+                                ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/images/textures/Vision*.png
+                                ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/images/textures/LiveVideoError.png)
+
+file(GLOB_RECURSE FONTS         ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/images/fonts/*.png)
 
 file(GLOB_RECURSE MODELS        ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/models/*)
 
@@ -214,12 +216,14 @@ file(GLOB_RECURSE CONFIG        ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/config/d
 
 set(APK_ASSETS "${CMAKE_CURRENT_SOURCE_DIR}/src/main/assets")
 
-file(MAKE_DIRECTORY     ${APK_ASSETS}/textures
+file(MAKE_DIRECTORY     ${APK_ASSETS}/fonts
+                        ${APK_ASSETS}/textures
                         ${APK_ASSETS}/models
                         ${APK_ASSETS}/shaders
                         ${APK_ASSETS}/calibrations
                         ${APK_ASSETS}/config)
 
+file(COPY ${FONTS}          DESTINATION ${APK_ASSETS}/fonts)
 file(COPY ${TEXTURES}       DESTINATION ${APK_ASSETS}/textures)
 file(COPY ${MODELS}         DESTINATION ${APK_ASSETS}/models)
 file(COPY ${SHADERS}        DESTINATION ${APK_ASSETS}/shaders)

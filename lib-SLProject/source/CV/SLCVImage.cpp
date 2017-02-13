@@ -23,12 +23,13 @@ SLCVImage::SLCVImage(SLint width, SLint height, SLPixelFormat format) : SLObject
 }
 //-----------------------------------------------------------------------------
 //! Contructor for image from file
-SLCVImage::SLCVImage(const SLstring  filename) :
+SLCVImage::SLCVImage(const SLstring  filename, 
+                     bool flipVertical) :
          SLObject(SLUtils::getFileName(filename), filename)
 {
     assert(filename!="");
     clearData();
-    load(filename);
+    load(filename, flipVertical);
 }
 //-----------------------------------------------------------------------------
 //! Copy contructor from a source image
@@ -310,7 +311,7 @@ SLbool SLCVImage::load(SLint width,
 }
 //-----------------------------------------------------------------------------
 //! Loads the image with the appropriate image loader
-void SLCVImage::load(const SLstring filename)
+void SLCVImage::load(const SLstring filename, bool flipVertical)
 {    
     SLstring ext = SLUtils::getFileExt(filename);
     _name = SLUtils::getFileName(filename);
@@ -345,7 +346,8 @@ void SLCVImage::load(const SLstring filename)
     _bytesPerImage = _bytesPerLine * _cvMat.rows;
 
     // OpenCV loads top-left but OpenGL is bottom left
-    flipY();
+    if (flipVertical)
+        flipY();
 }
 //-----------------------------------------------------------------------------
 //! Converts OpenCV mat type to OpenGL pixel format
