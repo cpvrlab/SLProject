@@ -74,7 +74,7 @@ void slCreateScene(SLVstring& cmdLineArgs,
     SL_LOG("Path to Models  : %s\n", modelPath.c_str());
     SL_LOG("Path to Shaders : %s\n", shaderPath.c_str());
     SL_LOG("Path to Textures: %s\n", texturePath.c_str());
-    SL_LOG("Path to Textures: %s\n", fontPath.c_str());
+    SL_LOG("Path to Fonts   : %s\n", fontPath.c_str());
     SL_LOG("Path to Calibr. : %s\n", calibrationPath.c_str());
     SL_LOG("Path to Config. : %s\n", configPath.c_str());
     SL_LOG("OpenCV Version  : %d.%d.%d\n", CV_MAJOR_VERSION,

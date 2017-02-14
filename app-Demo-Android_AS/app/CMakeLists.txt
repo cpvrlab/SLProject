@@ -214,14 +214,14 @@ file(GLOB_RECURSE CALIBRATIONS  ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/calibrat
 
 file(GLOB_RECURSE CONFIG        ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/config/dummyFile.txt)
 
-set(APK_ASSETS "${CMAKE_CURRENT_SOURCE_DIR}/src/main/assets")
+set(APK_ASSETS                  ${CMAKE_CURRENT_SOURCE_DIR}/src/main/assets)
 
-file(MAKE_DIRECTORY     ${APK_ASSETS}/fonts
-                        ${APK_ASSETS}/textures
-                        ${APK_ASSETS}/models
-                        ${APK_ASSETS}/shaders
-                        ${APK_ASSETS}/calibrations
-                        ${APK_ASSETS}/config)
+file(MAKE_DIRECTORY             ${APK_ASSETS}/fonts
+                                ${APK_ASSETS}/textures
+                                ${APK_ASSETS}/models
+                                ${APK_ASSETS}/shaders
+                                ${APK_ASSETS}/calibrations
+                                ${APK_ASSETS}/config)
 
 file(COPY ${FONTS}          DESTINATION ${APK_ASSETS}/fonts)
 file(COPY ${TEXTURES}       DESTINATION ${APK_ASSETS}/textures)

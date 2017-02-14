@@ -75,8 +75,9 @@ typedef struct
     GLuint  Bpp;           // Bits per pixel
 } sTGA;
 //-----------------------------------------------------------------------------
-//! Small image class for loading JPG, PNG, BMP, TGA and saving PNG files 
-/*! Minimal class for loading JPG, PNG, BMP, TGA and saving PNG files. In addition
+//! @Deprecated This class is deprecated.
+/*! @Deprecated This class is deprecated. Please use the new SLCVImage class insted.
+Minimal class for loading JPG, PNG, BMP, TGA and saving PNG files. In addition
 you can fill, resize, flip and convolve an image. The class is used in 
 SLGLTexture. SLImage interpretes an image starting at bottom left as OpenGL.
 */

@@ -31,7 +31,7 @@ http://docs.opencv.org/3.1.0/dc/dbb/tutorial_py_calibration.html
 After a successufull calibration the parameters are stored in a config file on
 the SLCVCalibration::defaultPath. If it exists, it is loaded from there at
 startup. If doesn't exist a calibration can be done with the calibration scene 
-(Load Scene > Augmented Reality > Calibrate Camera).\n
+(Load Scene > Using Video > Calibrate Camera).\n
 \n
 The different calibration states are handled within SLScene::onUpdate:
 \n

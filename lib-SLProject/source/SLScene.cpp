@@ -119,7 +119,7 @@ SLScene::SLScene(SLstring name) : SLObject(name)
 Computer Science Department of the Bern University of Applied Sciences. \
 The app shows what you can learn in one semester about 3D computer graphics \
 in real time rendering and ray tracing. The framework is developed \
-in C++ with OpenGL ES2 or ES3 so that it can run also on mobile devices. \
+in C++ with OpenGL ES so that it can run also on mobile devices. \
 Ray tracing provides in addition high quality transparencies, reflections and soft shadows. \
 Click to close and use the menu to choose different scenes and view settings. \
 For more information please visit: https://github.com/cpvrlab/SLProject";
@@ -129,11 +129,10 @@ For more information please visit: https://github.com/cpvrlab/SLProject";
 - assimp: assimp.sourceforge.net \\n\
 - glew: glew.sourceforge.net \\n\
 - glfw: www.glfw.org \\n\
-- nvwa: sourceforge.net/projects/nvwa \\n\
 - OpenCV: opencv.org \\n\
-- Qt: www.qt-project.org \\n\
-- randomc: www.agner.org/random \\n\
-- zlib: zlib.net";
+- OpenGL: opengl.org \\n\
+- Qt: www.qt-project.org \\n\\n\
+Contributors since 2005 in alphabetic order: Manuel Frischknecht, Michael Goettlicher, Timo Tschanz, Marc Wacker, Pascal Zingg";
 
     _infoHelp_en =
 "Help for mouse or finger control: \\n\
@@ -150,14 +149,15 @@ on desktop: Use a screenshot tool";
 "Your device camera is not yet or not anymore calibrated. \\n\
 You are trying to use a scene that requires a calibrated live camera image. \\n\
 To calibrate your camera please open the calibration scene with \\n\
-Load Scene > Augmented Reality > Track Chessboard or Calibrate Camera. \\n\
+Load Scene > Using Video > Track Chessboard or Calibrate Camera. \\n\
 It requires a chessboard image to be printed and glued on a flat board. \\n\
 You can find the PDF with the chessboard image on: \\n\
 https://github.com/cpvrlab/SLProject_data/tree/master/ \\n\
 calibrations/CalibrationChessboard_8x5_A4.pdf \\n\\n\
 For a calibration you have to take 20 images with detected inner \\n\
 chessboard corners. To take an image you have to click with the mouse \\n\
-or tap with finger into the screen.";
+or tap with finger into the screen. \\n\
+After calibration the yellow wireframe cube should stick on the chessboard.";
 
 }
 //-----------------------------------------------------------------------------

@@ -18,7 +18,7 @@
 #include <png.h>              // libpng
 
 //-----------------------------------------------------------------------------
-//! Constructor for empty image of a certain format and size
+//! @Deprecated: Constructor for empty image of a certain format and size
 SLImage::SLImage(SLint width, SLint height, SLPixelFormat format) : SLObject()
 {
     _data = 0;

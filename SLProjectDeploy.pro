@@ -59,6 +59,19 @@ textures.files = \
   ../_data/images/textures/wood2_0512_C.jpg \
   ../_data/images/textures/LiveVideoError.png \
 
+fonts.files =  \
+  ../_data/images/fonts/Font07.png \
+  ../_data/images/fonts/Font08.png \
+  ../_data/images/fonts/Font09.png \
+  ../_data/images/fonts/Font10.png \
+  ../_data/images/fonts/Font12.png \
+  ../_data/images/fonts/Font14.png \
+  ../_data/images/fonts/Font16.png \
+  ../_data/images/fonts/Font18.png \
+  ../_data/images/fonts/Font20.png \
+  ../_data/images/fonts/Font22.png \
+  ../_data/images/fonts/Font24.png \
+
 shaders.files = \
   ../_data/shaders/BumpNormal.frag \
   ../_data/shaders/BumpNormal.vert \
@@ -232,6 +245,7 @@ unix:!macx:!android {
 # Deployment
 macx: {
     textures.path = Contents/_data/images/textures
+    fonts.path = Contents/_data/images/fonts
     shaders.path = Contents/_data/shaders
     models_3DS_Halloween.path = Contents/_data/models/3DS/Halloween
     models_DAE_AstroBoy.path = Contents/_data/models/DAE/AstroBoy
@@ -246,6 +260,7 @@ macx: {
     cvlibs.path = Contents/Frameworks
 
     QMAKE_BUNDLE_DATA += textures
+    QMAKE_BUNDLE_DATA += fonts
     QMAKE_BUNDLE_DATA += shaders
     QMAKE_BUNDLE_DATA += models_3DS_Halloween
     QMAKE_BUNDLE_DATA += models_DAE_AstroBoy
