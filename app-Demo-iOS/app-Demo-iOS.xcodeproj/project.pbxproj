@@ -7,7 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		411B11D31B74B62900CDF1FC /* OBJ in Resources */ = {isa = PBXBuildFile; fileRef = 411B11D21B74B62900CDF1FC /* OBJ */; };
 		411BA72718C0702600F10475 /* Icon_120.png in Resources */ = {isa = PBXBuildFile; fileRef = 411BA72618C0702600F10475 /* Icon_120.png */; };
 		411BA72918C0716700F10475 /* Icon_76.png in Resources */ = {isa = PBXBuildFile; fileRef = 411BA72818C0716700F10475 /* Icon_76.png */; };
 		411BA72B18C071CA00F10475 /* Icon_152.png in Resources */ = {isa = PBXBuildFile; fileRef = 411BA72A18C071CA00F10475 /* Icon_152.png */; };
@@ -349,6 +348,7 @@
 		41FC947D19F7D6410026919B /* SLGLShader.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 41FC947619F7D6410026919B /* SLGLShader.cpp */; };
 		41FC947F19F7D6410026919B /* SLGLState.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 41FC947819F7D6410026919B /* SLGLState.cpp */; };
 		41FC948019F7D6410026919B /* SLGLTexture.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 41FC947919F7D6410026919B /* SLGLTexture.cpp */; };
+		41FD158E1E5455FB00BA1B7A /* Wavefront-OBJ in Resources */ = {isa = PBXBuildFile; fileRef = 41FD158D1E5455FB00BA1B7A /* Wavefront-OBJ */; };
 		41FD9D111E523AD70063A1B7 /* Font07.png in Resources */ = {isa = PBXBuildFile; fileRef = 41FD9D061E523AD70063A1B7 /* Font07.png */; };
 		41FD9D121E523AD70063A1B7 /* Font08.png in Resources */ = {isa = PBXBuildFile; fileRef = 41FD9D071E523AD70063A1B7 /* Font08.png */; };
 		41FD9D131E523AD70063A1B7 /* Font09.png in Resources */ = {isa = PBXBuildFile; fileRef = 41FD9D081E523AD70063A1B7 /* Font09.png */; };
@@ -377,7 +377,6 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		411B11D21B74B62900CDF1FC /* OBJ */ = {isa = PBXFileReference; lastKnownFileType = folder; name = OBJ; path = ../_data/models/OBJ; sourceTree = "<group>"; };
 		411BA72618C0702600F10475 /* Icon_120.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = Icon_120.png; path = images/Icon_120.png; sourceTree = SOURCE_ROOT; };
 		411BA72818C0716700F10475 /* Icon_76.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = Icon_76.png; path = images/Icon_76.png; sourceTree = SOURCE_ROOT; };
 		411BA72A18C071CA00F10475 /* Icon_152.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = Icon_152.png; path = images/Icon_152.png; sourceTree = SOURCE_ROOT; };
@@ -983,6 +982,7 @@
 		41FC947619F7D6410026919B /* SLGLShader.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SLGLShader.cpp; path = "../lib-SLProject/source/GL/SLGLShader.cpp"; sourceTree = SOURCE_ROOT; };
 		41FC947819F7D6410026919B /* SLGLState.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SLGLState.cpp; path = "../lib-SLProject/source/GL/SLGLState.cpp"; sourceTree = SOURCE_ROOT; };
 		41FC947919F7D6410026919B /* SLGLTexture.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SLGLTexture.cpp; path = "../lib-SLProject/source/GL/SLGLTexture.cpp"; sourceTree = SOURCE_ROOT; };
+		41FD158D1E5455FB00BA1B7A /* Wavefront-OBJ */ = {isa = PBXFileReference; lastKnownFileType = folder; name = "Wavefront-OBJ"; path = "../_data/models/Wavefront-OBJ"; sourceTree = "<group>"; };
 		41FD9D061E523AD70063A1B7 /* Font07.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = Font07.png; path = ../_data/images/fonts/Font07.png; sourceTree = "<group>"; };
 		41FD9D071E523AD70063A1B7 /* Font08.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = Font08.png; path = ../_data/images/fonts/Font08.png; sourceTree = "<group>"; };
 		41FD9D081E523AD70063A1B7 /* Font09.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = Font09.png; path = ../_data/images/fonts/Font09.png; sourceTree = "<group>"; };
@@ -1198,7 +1198,7 @@
 		417E0E44148A6EBC0015B5B0 /* Models */ = {
 			isa = PBXGroup;
 			children = (
-				411B11D21B74B62900CDF1FC /* OBJ */,
+				41FD158D1E5455FB00BA1B7A /* Wavefront-OBJ */,
 				41901CFB1959C5BB006795A8 /* 3DS */,
 				41901CF91959C5AC006795A8 /* DAE */,
 				41901CF71959C58D006795A8 /* FBX */,
@@ -1983,7 +1983,7 @@
 				418BF4481B8B0D4F0049E387 /* Diffuse.frag in Resources */,
 				418BF46C1B8B0D500049E387 /* Wave.vert in Resources */,
 				417E0ED3148A70DE0015B5B0 /* tree1_1024_C.png in Resources */,
-				411B11D31B74B62900CDF1FC /* OBJ in Resources */,
+				41FD158E1E5455FB00BA1B7A /* Wavefront-OBJ in Resources */,
 				418BF4441B8B0D4F0049E387 /* BumpNormalParallax.frag in Resources */,
 				418BF4591B8B0D500049E387 /* PerVrtBlinnTex.vert in Resources */,
 				417E0ED4148A70DE0015B5B0 /* wood0_0256_C.jpg in Resources */,

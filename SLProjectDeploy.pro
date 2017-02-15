@@ -168,11 +168,11 @@ models_FBX_Axes.files = \
   ../_data/models/FBX/Axes/axes_blender.fbx \
 
 models_OBJ_Christoffelturm.files = \
-  ../_data/models/OBJ/Christoffelturm/christoffelturm.obj \
-  ../_data/models/OBJ/Christoffelturm/christoffelturm.mtl \
-  ../_data/models/OBJ/Christoffelturm/texture1.jpg \
-  ../_data/models/OBJ/Christoffelturm/texture2.jpg \
-  ../_data/models/OBJ/Christoffelturm/shadow.png \
+  ../_data/models/Wavefront-OBJ/Christoffelturm/christoffelturm.obj \
+  ../_data/models/Wavefront-OBJ/Christoffelturm/christoffelturm.mtl \
+  ../_data/models/Wavefront-OBJ/Christoffelturm/texture1.jpg \
+  ../_data/models/Wavefront-OBJ/Christoffelturm/texture2.jpg \
+  ../_data/models/Wavefront-OBJ/Christoffelturm/shadow.png \
 
 calibrations.files = \
   ../_data/calibrations/calib_in_params.yml \
@@ -255,7 +255,7 @@ macx: {
     models_DAE_Crate.path = Contents/_data/models/DAE/Crate
     models_FBX_Duck.path = Contents/_data/models/FBX/Duck
     models_FBX_Axes.path = Contents/_data/models/FBX/Axes
-    models_OBJ_Christoffelturm.path = Contents/_data/models/OBJ/Christoffelturm
+    models_OBJ_Christoffelturm.path = Contents/_data/models/Wavefront-OBJ/Christoffelturm
     calibrations.path = Contents/_data/calibrations
     cvlibs.path = Contents/Frameworks
 

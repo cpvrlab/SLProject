@@ -1,4 +1,7 @@
 # Ignored files
+
+
+
 *.suo
 *.vsp
 *.user
@@ -21,6 +24,8 @@
 
 moc_*.cpp
 qrc_*.cpp
+
+!christoffelturm.obj
 
 obj/
 ipch/

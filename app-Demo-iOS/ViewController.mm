@@ -155,7 +155,7 @@ float GetSeconds()
     {   [EAGLContext setCurrentContext:nil];
     }
     self.context = nil;
-}
+}   
 //-----------------------------------------------------------------------------
 - (void)didReceiveMemoryWarning
 {
