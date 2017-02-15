@@ -36,7 +36,7 @@ class SLCVImage : public SLObject
             SLbool          allocate        (SLint width,
                                              SLint height,
                                              SLPixelFormat format,
-                                             SLbool isContinuous = false);
+                                             SLbool isContinuous = true);
             void            load            (const SLstring filename, 
                                              bool flipVertical = true);
             SLbool          load            (SLint inWidth,

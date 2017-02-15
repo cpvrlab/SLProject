@@ -456,7 +456,8 @@ Fully updates the OpenGL internal texture data by the image data
 */
 void SLGLTexture::fullUpdate()
 {  
-    if (_texName && _images.size() &&
+    if (_texName && 
+        _images.size() &&
         _images[0]->data() &&
         _target == GL_TEXTURE_2D)
     {   if (_min_filter==GL_NEAREST || _min_filter==GL_LINEAR)
@@ -533,9 +534,9 @@ void SLGLTexture::drawSprite(SLbool doUpdate)
     sp->uniformMatrix4fv("u_mvpMatrix", 1, (SLfloat*)&mvp);
     sp->uniform1i("u_texture0", 0);
  
-    ///////////////////////////////////////////////
+    ////////////////////////////////////////////
     _vaoSprite.drawElementsAs(PT_triangleStrip);
-    ///////////////////////////////////////////////
+    ////////////////////////////////////////////
 }
 //-----------------------------------------------------------------------------
 /*!

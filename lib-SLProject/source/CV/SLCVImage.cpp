@@ -23,9 +23,8 @@ SLCVImage::SLCVImage(SLint width, SLint height, SLPixelFormat format) : SLObject
 }
 //-----------------------------------------------------------------------------
 //! Contructor for image from file
-SLCVImage::SLCVImage(const SLstring  filename, 
-                     bool flipVertical) :
-         SLObject(SLUtils::getFileName(filename), filename)
+SLCVImage::SLCVImage(const SLstring  filename, bool flipVertical) :
+           SLObject(SLUtils::getFileName(filename), filename)
 {
     assert(filename!="");
     clearData();
@@ -420,7 +419,6 @@ void SLCVImage::savePNG(const SLstring filename, const SLint compressionLevel)
 {  
     SLVint compression_params;
     compression_params.push_back(CV_IMWRITE_PNG_COMPRESSION);
-    compression_params.push_back(CV_IMWRITE_JPEG_PROGRESSIVE);
     compression_params.push_back(compressionLevel);
 
     try
@@ -444,6 +442,7 @@ void SLCVImage::saveJPG(const SLstring filename, const SLint compressionLevel)
 {
     SLVint compression_params;
     compression_params.push_back(CV_IMWRITE_JPEG_QUALITY);
+    compression_params.push_back(CV_IMWRITE_JPEG_PROGRESSIVE);
     compression_params.push_back(compressionLevel);
 
     try

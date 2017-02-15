@@ -139,6 +139,14 @@ void SLGLState::initAll()
     _isInitialized = true;   
     
     glGetIntegerv(GL_SAMPLES, &_multiSampleSamples);
+
+    /* After over 10 years of OpenGL experience I used once a texture that is
+    not divisible by 4 and this caused distorted texture displays. By default
+    OpenGL has a pixel alignment of 4 which means that all images must be
+    divisible by 4! If you want to use textures of any size you have to set
+    a pixel alignment of 1:*/
+    glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+    glPixelStorei(GL_PACK_ALIGNMENT, 1);
     
     #ifdef _GLDEBUG
     GET_GL_ERROR;
