@@ -75,8 +75,9 @@ typedef struct
     GLuint  Bpp;           // Bits per pixel
 } sTGA;
 //-----------------------------------------------------------------------------
-//! Small image class for loading JPG, PNG, BMP, TGA and saving PNG files 
-/*! Minimal class for loading JPG, PNG, BMP, TGA and saving PNG files. In addition
+//! @Deprecated This class is deprecated.
+/*! @Deprecated This class is deprecated. Please use the new SLCVImage class insted.
+Minimal class for loading JPG, PNG, BMP, TGA and saving PNG files. In addition
 you can fill, resize, flip and convolve an image. The class is used in 
 SLGLTexture. SLImage interpretes an image starting at bottom left as OpenGL.
 */
@@ -94,13 +95,15 @@ class SLImage : public SLObject
             void            clearData       ();
             SLbool          allocate        (SLint width,
                                              SLint height,
-                                             SLPixelFormat format);
+                                             SLPixelFormat format,
+                                             SLbool isContinuous = false);
             void            load            (const SLstring filename);
-            SLbool          load            (SLint width,
-                                             SLint height,
+            SLbool          load            (SLint inWidth,
+                                             SLint inHeight,
                                              SLPixelFormat srcFormat,
                                              SLPixelFormat dstFormat,
                                              SLuchar* data,
+                                             SLbool isContinuous,
                                              SLbool isTopLeft);
             void            savePNG         (const SLstring filename);
             SLCol4f         getPixeli       (SLint x, SLint y);
@@ -132,13 +135,19 @@ class SLImage : public SLObject
                                             
     private:
             SLint           bytesPerPixel   (SLPixelFormat pixelFormat);
-            SLint           bytesPerLine    (SLint width, SLPixelFormat pixelFormat);
+            SLint           bytesPerLine    (SLint width, 
+                                             SLPixelFormat pixelFormat,
+                                             SLbool isContinuous = false);
             void            loadJPG         (SLstring filename);
             void            loadPNG         (SLstring filename);
             void            loadBMP         (SLstring filename);
             void            loadTGA         (SLstring filename);
-            void            loadTGAuncompr  (SLstring filename, FILE* fp, sTGA& tga);
-            void            loadTGAcompr    (SLstring filename, FILE* fp, sTGA& tga);
+            void            loadTGAuncompr  (SLstring filename, 
+                                             FILE* fp, 
+                                             sTGA& tga);
+            void            loadTGAcompr    (SLstring filename, 
+                                             FILE* fp, 
+                                             sTGA& tga);
                                             
             SLubyte*        _data;          //!< pointer to the image memory
             SLint           _width;         //!< width of the texture image in pixel

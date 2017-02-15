@@ -30,70 +30,17 @@ DESTDIR = ../_bin-$$CONFIGURATION-$$PLATFORM
 OBJECTS_DIR = ../intermediate/$$TARGET/$$CONFIGURATION/$$PLATFORM
 LIBS += -L../_lib/$$CONFIGURATION/$$PLATFORM -llib-SLExternal
 
-win32 {
-    # windows only
-    LIBS += -lOpenGL32
-    LIBS += -lwinmm
-    LIBS += -lgdi32
-    LIBS += -luser32
-    LIBS += -lkernel32
-    LIBS += -lshell32
-    LIBS += -lsetupapi
-    LIBS += -lws2_32
-    DEFINES += GLEW_STATIC
-    DEFINES += _GLFW_NO_DLOAD_GDI32
-    DEFINES += _GLFW_NO_DLOAD_WINMM
-    DEFINES -= UNICODE
-    INCLUDEPATH += ../lib-SLExternal/png
-}
-macx {
-    # mac only
-    QMAKE_MAC_SDK = macosx10.11
-    CONFIG += c++11
-    DEFINES += GLEW_NO_GLU
-    LIBS += -framework Cocoa
-    LIBS += -framework IOKit
-    LIBS += -framework OpenGL
-    LIBS += -framework QuartzCore
-    LIBS += -stdlib=libc++
-    INCLUDEPATH += /usr/include
-    INCLUDEPATH += ../lib-SLExternal/png
-}
-unix:!macx:!android {
-    # linux only
-    LIBS += -ldl
-    LIBS += -lGL
-    LIBS += -lX11
-    LIBS += -lXrandr    #livrandr-dev
-    LIBS += -lXi        #libxi-dev
-    LIBS += -lXinerama  #libxinerama-dev
-    LIBS += -lXxf86vm   #libxf86vm
-    LIBS += -lXcursor
-    LIBS += -ludev      #libudev-dev
-    LIBS += -lpthread   #libpthread
-    LIBS += -lpng
-    LIBS += -lz
-    QMAKE_CXXFLAGS += -std=c++11
-    QMAKE_CXXFLAGS += -Wunused-parameter
-    QMAKE_CXXFLAGS += -Wno-unused-parameter
-}
-
-INCLUDEPATH += \
-    ../include\
-    ../lib-SLExternal \
-    ../lib-SLExternal/glew/include \
-    ../lib-SLExternal/glfw3/include \
-    ../lib-SLExternal/half/include \
-    ../lib-SLExternal/zlib \
-    ../lib-SLExternal/jpeg-8 \
+include(../SLProjectCommon.pro)
+include(../SLProjectCommonLibraries.pro)
 
 SOURCES += VolumeRendering.cpp
 SOURCES += ../lib-SLProject/source/glUtils.cpp
-SOURCES += ../lib-SLProject/source/SL/SLImage.cpp 
+SOURCES += ../lib-SLProject/source/CV/SLCVImage.cpp
 SOURCES += ../lib-SLProject/source/SL/SL.cpp
 
 HEADERS += ../include/glUtils.h
-HEADERS += ../include/SLImage.h
+HEADERS += ../include/SLCV.h
+HEADERS += ../include/SLCVImage.h
 
 OTHER_FILES += VolumeRenderingRayCast.vert
 OTHER_FILES += VolumeRenderingSiddon_TF.frag

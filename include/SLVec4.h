@@ -127,9 +127,30 @@ class SLVec4
                                                          y = a.y*factor_a + b.y*factor_b;
                                                          z = a.z*factor_a + b.z*factor_b;
                                                          w = a.w*factor_a + b.w*factor_b;}
+    inline T        minXYZ      ()                      {if (x<=y && x<=z)   return x;
+                                                         else if (y<=z)      return y;
+                                                         else                return z;}
     inline T        maxXYZ      ()                      {if (x>=y && x>=z)   return x;
                                                          else if (y>=z)      return y;
                                                          else                return z;}
+    inline T        minXYZW     ()                      {if (x<=y && x<=z && x<=w) return x;
+                                                         else if (y<=z && y<=w)    return y;
+                                                         else if (z<=w)            return z;
+                                                         else                      return w;}
+    inline T        maxXYZW     ()                      {if (x>=y && x>=z && x>=w) return x;
+                                                         else if (y>=z && y>=w)    return y;
+                                                         else if (z>=w)            return z;
+                                                         else                      return w;}
+    inline SLint    maxComp     ()                      {if (x>=y && x>=z && x>=w) return 0;
+                                                         else if (y>=z && y>=w)    return 1;
+                                                         else if (z>=w)            return 2;
+                                                         else                      return 3;}
+    inline SLint    minComp     ()                      {if (x<=y && x<=z && x<=w) return 0;
+                                                         else if (y<=z && y<=w)    return 1;
+                                                         else if (z<=w)            return 2;
+                                                         else                      return 3;}
+    inline  SLbool  isZero      ()                      {return (x==0 && y==0 && z==0 && w==0);}
+
             //! Gamma correction
             void    gamma       (T gammaVal)            {x= pow(x,1.0/gammaVal);
                                                          y= pow(y,1.0/gammaVal);
@@ -161,7 +182,7 @@ class SLVec4
             //! HSVA to RGBA color conversion (http://www.rapidtables.com/convert/color/hsv-to-rgb.htm)
             void    hsva2rgba   (const SLVec4 &hsva)
             {
-                T h = fmod(fmod(hsva.x, SL_2PI) + SL_2PI, SL_2PI); // 0° <= H <= 360°
+                T h = fmod(fmod(hsva.x, SL_2PI) + SL_2PI, SL_2PI); // 0 deg <= H <= 360 deg
                 T s = SL_clamp(hsva.y, 0.0f, 1.0f);
                 T v = SL_clamp(hsva.z, 0.0f, 1.0f);
                 T a = SL_clamp(hsva.w, 0.0f, 1.0f);
@@ -171,12 +192,12 @@ class SLVec4
                 T m = v - c;
 
                 switch (SLint(floor(h*3.0f / SL_PI)))
-                {   case 0: return set(m + c, m + x, m    , a); // [  0°, 60°]
-                    case 1: return set(m + x, m + c, m    , a); // [ 60°,120°]
-                    case 2: return set(m    , m + c, m + x, a); // [120°,180°]
-                    case 3: return set(m    , m + x, m + c, a); // [180°,240°]
-                    case 4: return set(m + x, m    , m + c, a); // [240°,300°]
-                    case 5: return set(m + c, m    , m + x, a); // [300°,360°]
+                {   case 0: return set(m + c, m + x, m    , a); // [  0 deg, 60 deg]
+                    case 1: return set(m + x, m + c, m    , a); // [ 60 deg,120 deg]
+                    case 2: return set(m    , m + c, m + x, a); // [120 deg,180 deg]
+                    case 3: return set(m    , m + x, m + c, a); // [180 deg,240 deg]
+                    case 4: return set(m + x, m    , m + c, a); // [240 deg,300 deg]
+                    case 5: return set(m + c, m    , m + x, a); // [300 deg,360 deg]
                 }
             }
 

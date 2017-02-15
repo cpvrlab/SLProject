@@ -13,6 +13,7 @@
 #define SLMAT3_H
 
 #include <SL.h>
+#include <SLVec3.h>
 
 //-----------------------------------------------------------------------------
 //! 3x3 matrix template class
@@ -552,7 +553,7 @@ void SLMat3<T>::toAngleAxis(T& angleDEG, SLVec3<T>& axis) const
 /*!
 Gets one set of possible z-y-x euler angles that will generate this matrix
 Source: Essential Mathematics for Games and Interactive Applications
-A Programmer’s Guide 2nd edition by James M. Van Verth and Lars M. Bishop
+A Programmer's Guide 2nd edition by James M. Van Verth and Lars M. Bishop
 */
 template<class T>
 void SLMat3<T>::toEulerAnglesZYX(T& zRotRAD, T& yRotRAD, T& xRotRAD)

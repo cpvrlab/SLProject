@@ -305,7 +305,7 @@ SLNode* SLAssimpImporter::load(SLstring file,           //!< File with path or o
     SLVMaterial materials;
     for(SLint i = 0; i < (SLint)scene->mNumMaterials; i++)
         materials.push_back(loadMaterial(i, scene->mMaterials[i], modelPath));
-
+        
     // load meshes & set their material
     std::map<int, SLMesh*> meshMap;  // map from the ai index to our mesh
     for(SLint i = 0; i < (SLint)scene->mNumMeshes; i++)
@@ -501,7 +501,9 @@ void SLAssimpImporter::findSkeletonRoot()
                 logMessage(LV_diagnostic, "'%s' ", list[i]->mName.C_Str());
             logMessage(LV_diagnostic, "\n");
         } else
-            logMessage(LV_detailed, "   '%s' lies at a depth of %d\n", it->first.c_str(), list.size());
+            logMessage(LV_detailed, "   '%s' lies at a depth of %d\n",
+                       it->first.c_str(),
+                       list.size());
 
         minDepth = min(minDepth, (SLint)list.size());
     }
@@ -619,12 +621,13 @@ SLMaterial* SLAssimpImporter::loadMaterial(SLint index,
     SLMaterial* mat = new SLMaterial(name.c_str());
 
     // set the texture types to import into our material
-    const SLint		textureCount = 4;
+    const SLint		textureCount = 5;
     aiTextureType	textureTypes[textureCount];
     textureTypes[0] = aiTextureType_DIFFUSE;
     textureTypes[1] = aiTextureType_NORMALS;
     textureTypes[2] = aiTextureType_SPECULAR;
     textureTypes[3] = aiTextureType_HEIGHT;
+    textureTypes[4] = aiTextureType_OPACITY; // Texture with alpha channel
    
     // load all the textures for this material and add it to the material vector
     for(SLint i = 0; i < textureCount; ++i) 
@@ -632,13 +635,19 @@ SLMaterial* SLAssimpImporter::loadMaterial(SLint index,
         {   aiString aipath;
             material->GetTexture(textureTypes[i], 0, &aipath, nullptr, nullptr, nullptr, nullptr, nullptr);
             SLTextureType texType = textureTypes[i]==aiTextureType_DIFFUSE  ? TT_color :
-                                textureTypes[i]==aiTextureType_NORMALS  ? TT_normal :
-                                textureTypes[i]==aiTextureType_SPECULAR ? TT_gloss :
-                                textureTypes[i]==aiTextureType_HEIGHT   ? TT_height : 
-                                TT_unknown;
+                                    textureTypes[i]==aiTextureType_NORMALS  ? TT_normal :
+                                    textureTypes[i]==aiTextureType_SPECULAR ? TT_gloss :
+                                    textureTypes[i]==aiTextureType_HEIGHT   ? TT_height : 
+                                    textureTypes[i]==aiTextureType_OPACITY  ? TT_color : 
+                                    TT_unknown;
             SLstring texFile = checkFilePath(modelPath, aipath.data);
-            SLGLTexture* tex = loadTexture(texFile, texType);
-            mat->textures().push_back(tex);
+
+            // Only color texture are loaded so far
+            // For normal maps we have to adjust first the normal and tangent generation
+            if (texType == TT_color)
+            {   SLGLTexture* tex = loadTexture(texFile, texType);
+                mat->textures().push_back(tex);
+            }
         }
     }
    
@@ -705,31 +714,68 @@ in SLMesh.
 SLMesh* SLAssimpImporter::loadMesh(aiMesh *mesh)
 {
     // Count first the NO. of triangles in the mesh
+    SLuint numPoints = 0;
+    SLuint numLines = 0;
     SLuint numTriangles = 0;
-    for(unsigned int i = 0; i <  mesh->mNumFaces; ++i)
-        if(mesh->mFaces[i].mNumIndices == 3)
-            numTriangles++;
+    SLuint numPolygons = 0;
 
-    // We only load meshes that contain triangles
-    if (numTriangles==0 || mesh->mNumVertices==0)
-        return nullptr; 
+    for(unsigned int i = 0; i <  mesh->mNumFaces; ++i)
+    {   if(mesh->mFaces[i].mNumIndices == 1) numPoints++;
+        if(mesh->mFaces[i].mNumIndices == 2) numLines++;
+        if(mesh->mFaces[i].mNumIndices == 3) numTriangles++;
+        if(mesh->mFaces[i].mNumIndices > 3)  numPolygons++;
+    }
+
+    // A mesh can contain either point, lines or triangles
+    if ((numTriangles && (numLines || numPoints)) ||
+        (numLines && (numTriangles || numPoints)) ||
+        (numPoints && (numLines || numTriangles)))
+    {   SL_LOG("SLAssimpImporter::loadMesh:  Mesh contains multiple primitive types: %s\n", mesh->mName.C_Str());
+        
+        // Prioritize triangles over lines over points
+        if (numTriangles && numLines) numLines = 0;
+        if (numTriangles && numPoints) numPoints = 0;
+        if (numLines && numPoints) numPoints = 0;
+    }
+
+    if (numPolygons > 0)
+    {   SL_LOG("SLAssimpImporter::loadMesh:  Mesh contains polygons: %s\n", mesh->mName.C_Str());
+        return nullptr;
+    }
+
+    // We only load meshes that contain triangles or lines
+    if (mesh->mNumVertices==0)
+    {   SL_LOG("SLAssimpImporter::loadMesh:  Mesh has no vertices: %s\n", mesh->mName.C_Str());
+        return nullptr;
+    }
+
+    // We only load meshes that contain triangles or lines
+    if (numTriangles==0 && numLines==0 && numPoints==0)
+    {   SL_LOG("SLAssimpImporter::loadMesh:  Mesh has has no triangles nor lines nor points: %s\n", mesh->mName.C_Str());
+        return nullptr;
+    }
 
     // create a new mesh. 
     // The mesh pointer is added automatically to the SLScene::meshes vector.
     SLstring name = mesh->mName.data;
     SLMesh *m = new SLMesh(name.empty() ? "Imported Mesh" : name);
+    
+    // Set primitive type
+    if (numTriangles) m->primitive(SLGLPrimitiveType::PT_triangles);
+    if (numLines) m->primitive(SLGLPrimitiveType::PT_lines);
+    if (numPoints) m->primitive(SLGLPrimitiveType::PT_points);
 
     // create position & normal vector
     m->P.clear(); m->P.resize(mesh->mNumVertices);
 
-    // create normal vector
-    if (mesh->HasNormals())
+    // create normal vector for triangle primitive types
+    if (mesh->HasNormals() && numTriangles)
     {   m->N.clear();
         m->N.resize(m->P.size());
     }
 
     // allocate texCoord vector if needed
-    if (mesh->HasTextureCoords(0))
+    if (mesh->HasTextureCoords(0) && numTriangles)
     {   m->Tc.clear();
         m->Tc.resize(m->P.size());
     }
@@ -737,44 +783,87 @@ SLMesh* SLAssimpImporter::loadMesh(aiMesh *mesh)
     // copy vertex positions & texCoord
     for(SLuint i = 0; i < m->P.size(); ++i)
     {   m->P[i].set(mesh->mVertices[i].x, 
-        mesh->mVertices[i].y, 
-        mesh->mVertices[i].z);
+                    mesh->mVertices[i].y, 
+                    mesh->mVertices[i].z);
         if (m->N.size())
-            m->N[i].set(mesh->mNormals[i].x, mesh->mNormals[i].y, mesh->mNormals[i].z);
+            m->N[i].set(mesh->mNormals[i].x, 
+                        mesh->mNormals[i].y, 
+                        mesh->mNormals[i].z);
         if (m->Tc.size())
-            m->Tc[i].set(mesh->mTextureCoords[0][i].x, mesh->mTextureCoords[0][i].y);
+            m->Tc[i].set(mesh->mTextureCoords[0][i].x, 
+                         mesh->mTextureCoords[0][i].y);
     }
 
-    // create face index vector
+    // create primitive index vector
+    SLuint j = 0;
     if (m->P.size() < 65536)
     {   m->I16.clear();
-        m->I16.resize(mesh->mNumFaces * 3);
-
-        // load face triangle indices only
-        SLuint j = 0;
-        for(SLuint i = 0; i <  mesh->mNumFaces; ++i)
-        {   if(mesh->mFaces[i].mNumIndices == 3)
-            {   m->I16[j++] = mesh->mFaces[i].mIndices[0];
-                m->I16[j++] = mesh->mFaces[i].mIndices[1];
-                m->I16[j++] = mesh->mFaces[i].mIndices[2];
+        if (numTriangles)
+        {   m->I16.resize(numTriangles * 3);
+            for(SLuint i = 0; i <  mesh->mNumFaces; ++i)
+            {   if (mesh->mFaces[i].mNumIndices == 3)
+                {   m->I16[j++] = mesh->mFaces[i].mIndices[0];
+                    m->I16[j++] = mesh->mFaces[i].mIndices[1];
+                    m->I16[j++] = mesh->mFaces[i].mIndices[2];
+                }
+            }
+        } else
+        if (numLines)
+        {   m->I16.resize(numLines * 2);
+            for(SLuint i = 0; i <  mesh->mNumFaces; ++i)
+            {   if (mesh->mFaces[i].mNumIndices == 2)
+                {   m->I16[j++] = mesh->mFaces[i].mIndices[0];
+                    m->I16[j++] = mesh->mFaces[i].mIndices[1];
+                }
+            }
+        } else
+        if (numPoints)
+        {   m->I16.resize(numPoints);
+            for(SLuint i = 0; i <  mesh->mNumFaces; ++i)
+            {   if (mesh->mFaces[i].mNumIndices == 1)
+                    m->I16[j++] = mesh->mFaces[i].mIndices[0];
             }
         }
-    } else 
+
+        // check for invalid indices
+        for (auto i : m->I16)
+            assert(i < m->P.size() && "SLAssimpImporter::loadMesh: Invalid Index");
+    } 
+    else 
     {   m->I32.clear();
-        m->I32.resize(mesh->mNumFaces * 3);
-
-        // load face triangle indices only
-        SLuint j = 0;
-        for(SLuint i = 0; i <  mesh->mNumFaces; ++i)
-        {  if(mesh->mFaces[i].mNumIndices == 3)
-            {   m->I32[j++] = mesh->mFaces[i].mIndices[0];
-                m->I32[j++] = mesh->mFaces[i].mIndices[1];
-                m->I32[j++] = mesh->mFaces[i].mIndices[2];
+        if (numTriangles)
+        {   m->I32.resize(numTriangles * 3);
+            for(SLuint i = 0; i <  mesh->mNumFaces; ++i)
+            {   if (mesh->mFaces[i].mNumIndices == 3)
+                {   m->I32[j++] = mesh->mFaces[i].mIndices[0];
+                    m->I32[j++] = mesh->mFaces[i].mIndices[1];
+                    m->I32[j++] = mesh->mFaces[i].mIndices[2];
+                }
+            }
+        } else
+        if (numLines)
+        {   m->I32.resize(numLines * 2);
+            for(SLuint i = 0; i <  mesh->mNumFaces; ++i)
+            {   if (mesh->mFaces[i].mNumIndices == 2)
+                {   m->I32[j++] = mesh->mFaces[i].mIndices[0];
+                    m->I32[j++] = mesh->mFaces[i].mIndices[1];
+                }
+            }
+        } else
+        if (numPoints)
+        {   m->I32.resize(numPoints * 1);
+            for(SLuint i = 0; i <  mesh->mNumFaces; ++i)
+            {   if (mesh->mFaces[i].mNumIndices == 1)
+                    m->I32[j++] = mesh->mFaces[i].mIndices[0];
             }
         }
-    }
 
-    if (!m->N.size())
+        // check for invalid indices
+        for (auto i : m->I32)
+            assert(i < m->P.size() && "SLAssimpImporter::loadMesh: Invalid Index");
+    }
+ 
+    if (!mesh->HasNormals() && numTriangles)
         m->calcNormals();
 
     // load joints
@@ -785,10 +874,6 @@ SLMesh* SLAssimpImporter::loadMesh(aiMesh *mesh)
 
         m->Ji.resize(m->P.size());
         m->Jw.resize(m->P.size());
-        
-        // make sure to initialize the weights with 0 vectors
-        std::fill(m->Ji.begin(), m->Ji.end(), SLVec4f(0, 0, 0, 0));
-        std::fill(m->Jw.begin(), m->Jw.end(), SLVec4f(0, 0, 0, 0));
 
         for (SLuint i = 0; i < mesh->mNumBones; i++)
         {
@@ -798,15 +883,14 @@ SLMesh* SLAssimpImporter::loadMesh(aiMesh *mesh)
             // @todo On OSX it happens from time to time that slJoint is nullptr
             if (slJoint)
             {
-                SLuint jointId = slJoint->id();
-
                 for (SLuint j = 0; j < joint->mNumWeights; j++)
                 {
                     // add the weight
                     SLuint vertId = joint->mWeights[j].mVertexId;
                     SLfloat weight = joint->mWeights[j].mWeight;
 
-                    m->addWeight(vertId, jointId, weight);
+                    m->Ji[vertId].push_back((SLuchar)slJoint->id());
+                    m->Jw[vertId].push_back(weight);
 
                     // check if the bones max radius changed
                     // @todo this is very specific to this loaded mesh,
@@ -819,11 +903,12 @@ SLMesh* SLAssimpImporter::loadMesh(aiMesh *mesh)
             }
             else
             {   SL_LOG("Failed to load joint of skeleton in SLAssimpImporter::loadMesh: %s\n", joint->mName.C_Str());
-                return nullptr;
+                //return nullptr;
             }
         }
 
     }
+    
     return m;
 }
 //-----------------------------------------------------------------------------
@@ -843,9 +928,9 @@ SLNode* SLAssimpImporter::loadNodesRec(
     // load local transform
    aiMatrix4x4* M = &node->mTransformation;
    SLMat4f SLM(M->a1, M->a2, M->a3, M->a4,
-                      M->b1, M->b2, M->b3, M->b4,
-                      M->c1, M->c2, M->c3, M->c4,
-                      M->d1, M->d2, M->d3, M->d4);
+               M->b1, M->b2, M->b3, M->b4,
+               M->c1, M->c2, M->c3, M->c4,
+               M->d1, M->d2, M->d3, M->d4);
 
    curNode->om(SLM);
 

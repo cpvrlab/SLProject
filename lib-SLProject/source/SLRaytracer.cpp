@@ -19,15 +19,9 @@ using namespace std::chrono;
 #include <SLRaytracer.h>
 #include <SLCamera.h>
 #include <SLSceneView.h>
-#include <SLLightSphere.h>
+#include <SLLightSpot.h>
 #include <SLLightRect.h>
-#include <SLLight.h>
-#include <SLNode.h>
-#include <SLMesh.h>
 #include <SLText.h>
-#include <SLGLTexture.h>
-#include <SLSamples2D.h>
-#include <SLGLProgram.h>
 
 //-----------------------------------------------------------------------------
 SLRaytracer::SLRaytracer()
@@ -415,28 +409,33 @@ SLCol4f SLRaytracer::shade(SLRay* ray)
     SLfloat     lightDist, LdN, NdH, df, sf, spotEffect, att, lighted = 0.0f;
     SLCol4f     amdi, spec;
     SLCol4f     localSpec(0,0,0,1);
-   
-    // Don't shade lights. Only take emissive color as material 
-    if (typeid(*ray->hitNode)==typeid(SLLightSphere) || 
-        typeid(*ray->hitNode)==typeid(SLLightRect))
-    {   localColor = mat->emission();
-        return localColor;
-    } 
 
     localColor = mat->emission() + (mat->ambient()&s->globalAmbiLight());
-  
+    
     ray->hitMesh->preShade(ray);
       
     for (SLint i=0; i<s->lights().size(); ++i) 
     {  SLLight* light = s->lights()[i];
    
-        if (light && light->on())
+        if (light && light->isOn())
         {              
             // calculate light vector L and distance to light
             N.set(ray->hitNormal);
-            L.sub(light->positionWS(), ray->hitPoint);
-            lightDist = L.length();
-            L/=lightDist; 
+
+            // Distinguish between point and directional lights
+            SLVec4f lightPos = light->positionWS();
+            if (lightPos.w == 0.0f)
+            {   // directional light
+                L = lightPos.vec3().normalized();
+                lightDist = FLT_MAX; // = infinity
+            } else
+            {   // Point light
+                L.sub(lightPos.vec3(), ray->hitPoint);
+                lightDist = L.length();
+                L/=lightDist;
+            } 
+
+            // Cosine between L and N
             LdN = L.dot(N);
 
             // check shadow ray if hit point is towards the light
@@ -447,16 +446,16 @@ SLCol4f SLRaytracer::shade(SLRay* ray)
             spec.set(0,0,0);
       
             // calculate spot effect if light is a spotlight
-            if (lighted > 0.0f && light->spotCutoff() < 180.0f)
-            {  SLfloat LdS = SL_max(-L.dot(light->spotDirWS()), 0.0f);
+            if (lighted > 0.0f && light->spotCutOffDEG() < 180.0f)
+            {   SLfloat LdS = SL_max(-L.dot(light->spotDirWS()), 0.0f);
          
-            // check if point is in spot cone
-            if (LdS > light->spotCosCut())
-            {  spotEffect = pow(LdS, (SLfloat)light->spotExponent());
-            } else 
-            {   lighted = 0.0f;
-                spotEffect = 0.0f;
-            }
+                // check if point is in spot cone
+                if (LdS > light->spotCosCut())
+                {  spotEffect = pow(LdS, (SLfloat)light->spotExponent());
+                } else 
+                {   lighted = 0.0f;
+                    spotEffect = 0.0f;
+                }
             } else spotEffect = 1.0f;
          
             // calculate local illumination only if point is not shaded
@@ -478,8 +477,8 @@ SLCol4f SLRaytracer::shade(SLRay* ray)
         }
     }
 
-    if (texture.size()) 
-    {   localColor &= ray->hitTexCol;    // component wise multiply
+    if (texture.size() || ray->hitMesh->C.size()) 
+    {   localColor &= ray->hitColor;    // component wise multiply
         localColor += localSpec;         // add afterwards the specular component
     } else localColor += localSpec; 
          
@@ -732,7 +731,7 @@ void SLRaytracer::prepareImage()
 
     // Create the image for the first time
     if (_images.size()==0)
-        _images.push_back(new SLImage(_sv->scrW(), _sv->scrH(), PF_rgb));
+        _images.push_back(new SLCVImage(_sv->scrW(), _sv->scrH(), PF_rgb));
 
     // Allocate image of the inherited texture class 
     if (_sv->scrW() != _images[0]->width() || _sv->scrH() != _images[0]->height())
@@ -748,7 +747,7 @@ void SLRaytracer::prepareImage()
     }
    
     // Fill image black for single RT
-    if (!_continuous) _images[0]->fill();
+    if (!_continuous) _images[0]->fill(0,0,0);
 }
 //-----------------------------------------------------------------------------
 /*! 

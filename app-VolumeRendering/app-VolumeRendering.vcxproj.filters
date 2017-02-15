@@ -5,21 +5,18 @@
     <ClCompile Include="..\lib-SLProject\source\SL\SL.cpp">
       <Filter>lib-SLProject</Filter>
     </ClCompile>
-    <ClCompile Include="..\lib-SLProject\source\SL\SLImage.cpp">
-      <Filter>lib-SLProject</Filter>
-    </ClCompile>
     <ClCompile Include="..\lib-SLProject\source\SL\stdafx.cpp">
       <Filter>lib-SLProject</Filter>
     </ClCompile>
     <ClCompile Include="..\lib-SLProject\source\glUtils.cpp">
       <Filter>lib-SLProject</Filter>
     </ClCompile>
+    <ClCompile Include="..\lib-SLProject\source\CV\SLCVImage.cpp">
+      <Filter>lib-SLProject</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\include\SL.h">
-      <Filter>includes</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\SLImage.h">
       <Filter>includes</Filter>
     </ClInclude>
     <ClInclude Include="..\include\SLMat4.h">
@@ -35,6 +32,9 @@
       <Filter>lib-SLProject</Filter>
     </ClInclude>
     <ClInclude Include="..\include\glUtils.h">
+      <Filter>includes</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\SLCVImage.h">
       <Filter>includes</Filter>
     </ClInclude>
   </ItemGroup>

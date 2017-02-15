@@ -85,14 +85,18 @@ class SLUtils
         //! SLUtils::getFileName returns the filename of path-filename string
         static SLstring getFileName(const SLstring& pathFilename) 
         {
-            size_t i;
-            i = pathFilename.rfind('\\', pathFilename.length( ));
-            if (i != string::npos) 
-                return(pathFilename.substr(i+1, pathFilename.length( ) - i));
-            i = pathFilename.rfind('/', pathFilename.length( ));
-            if (i != string::npos) 
-                return(pathFilename.substr(i+1, pathFilename.length( ) - i));
-            return pathFilename;
+            size_t i=0, i1, i2;
+            i1 = pathFilename.rfind('\\', pathFilename.length( ));
+            i2 = pathFilename.rfind('/', pathFilename.length( ));
+
+            if (i1 != string::npos && i2 != string::npos)
+                i = SL_max(i1, i2);
+            else if (i1 != string::npos)
+                i = i1;
+            else if (i2 != string::npos)
+                i = i2;
+
+            return pathFilename.substr(i+1, pathFilename.length( ) - i);
         }
       
         //! SLUtils::getFileNameWOExt returns the filename without extension

@@ -24,7 +24,7 @@ class SLGrid: public SLMesh
                         //! ctor for rectangle w. min & max corner
                         SLGrid(SLVec3f minXZ, SLVec3f maxXZ,
                                SLuint resX, SLuint resZ,
-                               SLstring name = "Grid",
+                               SLstring name = "grid mesh",
                                SLMaterial* mat=0);
                
             void        buildMesh(SLMaterial* mat);

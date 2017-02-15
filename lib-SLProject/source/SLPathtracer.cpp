@@ -19,17 +19,10 @@ using namespace std::chrono;
 #include <SLPathtracer.h>
 #include <SLCamera.h>
 #include <SLSceneView.h>
-#include <SLLightSphere.h>
+#include <SLLightSpot.h>
 #include <SLLightRect.h>
-#include <SLLight.h>
 #include <SLVolume.h>
-#include <SLNode.h>
 #include <SLText.h>
-#include <SLMesh.h>
-#include <SLGLTexture.h>
-#include <SLSamples2D.h>
-#include <SLGLProgram.h>
-#include <SLRay.h>
 
 extern SLfloat rnd01();
 
@@ -57,7 +50,7 @@ SLbool SLPathtracer::render(SLSceneView* sv)
     prepareImage();
 
     // Set second image for render update to the same size
-    _images.push_back(new SLImage(_sv->scrW(), _sv->scrH(), PF_rgb));
+    _images.push_back(new SLCVImage(_sv->scrW(), _sv->scrH(), PF_rgb));
 
     // Measure time 
     double t1 = SLScene::current->timeSec();
@@ -222,7 +215,7 @@ SLCol4f SLPathtracer::trace(SLRay* ray, SLbool em)
     {
         // Add component wise the texture color
         if (mat->textures().size()) 
-        {  objectColor &= ray->hitTexCol;
+        {  objectColor &= ray->hitColor;
         }
 
         // calculate direct illumination
@@ -336,10 +329,10 @@ SLCol4f SLPathtracer::shade(SLRay* ray, SLCol4f* objectColor)
     {
         SLLight* light = s->lights()[i];
 
-        if (light && light->on())
+        if (light && light->isOn())
         {
             N.set(ray->hitNormal);
-            L.sub(light->positionWS(), ray->hitPoint);
+            L.sub(light->positionWS().vec3(), ray->hitPoint);
             lightDist = L.length();
             L /= lightDist;
             LdN = L.dot(N);
@@ -348,7 +341,7 @@ SLCol4f SLPathtracer::shade(SLRay* ray, SLCol4f* objectColor)
             lighted = (SLfloat)((LdN > 0) ? light->shadowTestMC(ray, L, lightDist) : 0);
 
             // calculate spot effect if light is a spotlight
-            if (lighted > 0.0f && light->spotCutoff() < 180.0f)
+            if (lighted > 0.0f && light->spotCutOffDEG() < 180.0f)
             {
                 SLfloat LdS = SL_max(-L.dot(light->spotDirWS()), 0.0f);
 

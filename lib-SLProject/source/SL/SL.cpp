@@ -15,6 +15,9 @@
 #include <cstdarg>
 
 //-----------------------------------------------------------------------------
+//! Default path for configuration files
+SLstring SL::configPath = "../_data/config/";
+//-----------------------------------------------------------------------------
 // Init global test variables from command line parameters
 SLint SL::testDurationSec = 0;
 SLint SL::testFactor = 1;
@@ -115,16 +118,6 @@ SLuint SL::maxThreads()
     #else
     return SL_max(thread::hardware_concurrency(), 1U);
     #endif
-}
-//-----------------------------------------------------------------------------
-//! Returns the current working directory
-SLstring SL::getCWD()
-{
-    SLchar cCurrentPath[FILENAME_MAX];
-
-    if (!SL_GETCWD(cCurrentPath, sizeof(cCurrentPath)))
-         return SLstring("");
-    else return SLstring(cCurrentPath);
 }
 //------------------------------------------------------------------------------
 //! Parses the command line arguments

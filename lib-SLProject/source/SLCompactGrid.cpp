@@ -126,6 +126,11 @@ void SLCompactGrid::build (SLVec3f minV, SLVec3f maxV)
     const SLfloat DENSITY = 8;
     SLVec3f size = _maxV - _minV;
     SLfloat volume = size.x * size.y * size.z;
+    if (volume < FLT_EPSILON) 
+    {   SL_WARN_MSG("\n\n **** SLCompactGrid::build: Zero Volume. ****");  
+        return;
+    }
+
     float f = cbrtf(DENSITY*_numTriangles / volume);
     _voxelSize.x = size.x / ceil(size.x*f);
     _voxelSize.y = size.y / ceil(size.y*f);

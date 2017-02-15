@@ -19,10 +19,17 @@ class SLFileSystem
 {
     public:
    
-    /*! 
-    fileExists returns true if a file exists.
-    */
+    //! Returns true if a directory exists.
+    static SLbool dirExists(SLstring& path);
+
+    //! Returns true if a file exists.
     static SLbool fileExists(SLstring& pathfilename);
+
+    //! Returns the writable configuration directory
+    static SLstring getAppsWritableDir();
+    
+    //! Returns the working directory
+    static SLstring getCurrentWorkingDir();
 };
 //-----------------------------------------------------------------------------
 #endif

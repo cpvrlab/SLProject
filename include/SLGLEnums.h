@@ -18,7 +18,6 @@
 //! Enumeration for buffer data types
 enum SLGLBufferType
 {
-    BT_half   = GL_HALF_FLOAT,          //!< half float vertex attributes
     BT_float  = GL_FLOAT,               //!< float vertex attributes
     BT_ubyte  = GL_UNSIGNED_BYTE,       //!< vertex index type (0-2^8)
     BT_ushort = GL_UNSIGNED_SHORT,      //!< vertex index type (0-2^16)

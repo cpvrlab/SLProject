@@ -1,0 +1,68 @@
+apply plugin: 'com.android.application'
+
+android {
+    compileSdkVersion 24
+    buildToolsVersion "25.0.0"
+    defaultConfig {
+        jackOptions {
+            enabled true
+        }
+        applicationId "ch.fhnw.comgr"
+        minSdkVersion 21
+        targetSdkVersion 24
+        versionCode 14
+        versionName "2.0.000"
+        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+        ndk {
+            abiFilters 'armeabi-v7a', 'arm64-v8a'
+        }
+        externalNativeBuild {
+            cmake {
+                cppFlags "-frtti -fexceptions -std=c++11 -w"
+                abiFilters 'armeabi-v7a', 'arm64-v8a'
+            }
+        }
+    }
+    sourceSets {
+        main {
+            jniLibs.srcDirs = ['../../_lib/prebuilt/OpenCV/android']
+            assets.srcDirs = ['src/main/assets']
+        }
+    }
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+    externalNativeBuild {
+        cmake {
+            path "CMakeLists.txt"
+        }
+    }
+    compileOptions {
+        targetCompatibility 1.8
+        sourceCompatibility 1.8
+    }
+}
+
+/*
+task myCopy(type: Copy) {
+    description = '#### Copy Images ####'
+    from '../../_data/images/textures/tron_floor2.png'
+    into 'src/main/assets/textures'
+}
+assemble.dependsOn myCopy
+*/
+
+dependencies {
+    compile fileTree(include: ['*.jar'], dir: 'libs')
+    compile 'com.android.support:appcompat-v7:24.+'
+    /*
+    androidTestCompile('com.android.support.test.espresso:espresso-core:2.0', {
+        exclude group: 'com.android.support', module: 'support-annotations'
+    })
+    testCompile 'junit:junit:4.12'
+    compile project(':openCVLibrary310')
+    */
+}

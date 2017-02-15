@@ -252,14 +252,14 @@ float LensConfig::DistortionFnInverse(float r) const
     // Better to start guessing too low & take longer to converge than too high
     // and hit singularities. Empirically, r * 0.5f is too high in some cases.
     s = r * 0.25f;
-    d = fabs(r - DistortionFn(s));
+    d = (float)fabs(r - DistortionFn(s));
 
     for (int i = 0; i < 20; i++)
     {
         float sUp   = s + delta;
         float sDown = s - delta;
-        float dUp   = fabs(r - DistortionFn(sUp));
-        float dDown = fabs(r - DistortionFn(sDown));
+        float dUp   = (float)fabs(r - DistortionFn(sUp));
+        float dDown = (float)fabs(r - DistortionFn(sDown));
 
         if (dUp < d)
         {
@@ -953,7 +953,7 @@ LensConfig GenerateLensConfigFromEyeRelief ( float eyeReliefInMeters, HmdRenderI
         distortions[numDistortions].Config.K[8]                          = 5.1f;
         distortions[numDistortions].Config.K[9]                          = 7.4f;
         distortions[numDistortions].Config.K[10]                         = 11.0f;
-        distortions[numDistortions].MaxRadius                            = sqrt(1.8f);
+        distortions[numDistortions].MaxRadius                            = (float)sqrt(1.8f);
         defaultDistortion = numDistortions;                      // this is the default
         numDistortions++;
         

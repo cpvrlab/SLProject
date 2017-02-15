@@ -19,7 +19,7 @@ class SLTriangle : public SLMesh
 {
 public:
     SLTriangle( SLMaterial *mat,
-                SLstring name = "Triangle",
+                SLstring name = "triangle mesh",
                 SLVec3f p0 = SLVec3f(0, 0, 0),
                 SLVec3f p1 = SLVec3f(1, 0, 0),
                 SLVec3f p2 = SLVec3f(0, 1, 0),

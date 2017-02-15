@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>906</width>
-    <height>679</height>
+    <width>1032</width>
+    <height>687</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -18,8 +18,8 @@
   </property>
   <property name="minimumSize">
    <size>
-    <width>0</width>
-    <height>0</height>
+    <width>600</width>
+    <height>400</height>
    </size>
   </property>
   <property name="focusPolicy">
@@ -37,7 +37,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>906</width>
+     <width>1032</width>
      <height>21</height>
     </rect>
    </property>
@@ -53,7 +53,7 @@
     </property>
     <widget class="QMenu" name="menuLoad_Scene">
      <property name="title">
-      <string>Load Scene</string>
+      <string>Load Test Scene</string>
      </property>
      <widget class="QMenu" name="menuGeneral_Scenes">
       <property name="title">
@@ -98,7 +98,6 @@
       <addaction name="actionNode_Animation"/>
       <addaction name="actionMass_Animation"/>
       <addaction name="actionSkeletal_Animation"/>
-      <addaction name="actionAstroboy_Army_GPU"/>
       <addaction name="actionAstroboy_Army_CPU"/>
      </widget>
      <addaction name="menuGeneral_Scenes"/>
@@ -106,9 +105,29 @@
      <addaction name="menuAnimation_Scenes"/>
      <addaction name="menuRay_Tracing_Scenes"/>
     </widget>
+    <widget class="QMenu" name="menuLoad_Settings">
+     <property name="title">
+      <string>Load Settings</string>
+     </property>
+     <addaction name="actionSet_default_settings"/>
+     <addaction name="separator"/>
+     <addaction name="actionGenerate_smooth_normals"/>
+     <addaction name="actionFind_degenerated"/>
+     <addaction name="actionSplit_large_meshes"/>
+     <addaction name="actionJoin_identical_vertices"/>
+     <addaction name="actionFind_invalid_data"/>
+     <addaction name="actionFix_infacing_normals"/>
+     <addaction name="actionRemove_redundant_materials"/>
+     <addaction name="separator"/>
+     <addaction name="actionShow_process_info"/>
+    </widget>
+    <addaction name="actionLoad_Asset"/>
+    <addaction name="actionImport_Asset"/>
+    <addaction name="menuLoad_Settings"/>
     <addaction name="menuLoad_Scene"/>
+    <addaction name="actionClose_Scene"/>
     <addaction name="separator"/>
-    <addaction name="action_Quit"/>
+    <addaction name="actionQuit"/>
    </widget>
    <widget class="QMenu" name="menuCamera">
     <property name="title">
@@ -260,12 +279,15 @@
     <addaction name="actionSplit_into_4_views"/>
     <addaction name="actionDelete_active_view"/>
     <addaction name="actionSingle_view"/>
+    <addaction name="actionUse_dark_ui"/>
    </widget>
    <widget class="QMenu" name="menuHelp">
     <property name="title">
      <string>Help</string>
     </property>
     <addaction name="actionAbout_SLProject"/>
+    <addaction name="actionVisit_SLProject_on_Github"/>
+    <addaction name="actionVisit_cpvrLab_homepage"/>
     <addaction name="actionAbout_Qt"/>
     <addaction name="actionCredits"/>
    </widget>
@@ -1224,9 +1246,12 @@ QSlider::handle:horizontal:disabled {
     </layout>
    </widget>
   </widget>
-  <action name="action_Quit">
+  <action name="actionQuit">
    <property name="text">
     <string>Quit</string>
+   </property>
+   <property name="toolTip">
+    <string>Quit the application</string>
    </property>
   </action>
   <action name="actionSmall_Test_Scene">
@@ -2380,7 +2405,7 @@ QSlider::handle:horizontal:disabled {
     <bool>true</bool>
    </property>
    <property name="text">
-    <string>Astroboy Army (CPU)</string>
+    <string>Astroboy Army</string>
    </property>
    <property name="statusTip">
     <string>Loads a scene with many identical CPU animated characters.</string>
@@ -2417,6 +2442,163 @@ QSlider::handle:horizontal:disabled {
     <string>Shows the skeleton joint axis in RGB, their parent bone in yellow and the parent offset in pink.</string>
    </property>
   </action>
+  <action name="actionClose_Scene">
+   <property name="text">
+    <string>Close Scene</string>
+   </property>
+   <property name="toolTip">
+    <string>Closes the current Scene</string>
+   </property>
+  </action>
+  <action name="actionFind_degenerated">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Find degenerated primitives</string>
+   </property>
+  </action>
+  <action name="actionLoad_Asset">
+   <property name="text">
+    <string>Load Scene Assets from File</string>
+   </property>
+   <property name="toolTip">
+    <string>Loads a new scene from a 3D asset file</string>
+   </property>
+  </action>
+  <action name="actionSplit_large_meshes">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Split large meshes</string>
+   </property>
+  </action>
+  <action name="actionJoin_identical_vertices">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Join identical vertices</string>
+   </property>
+  </action>
+  <action name="actionFind_invalid_data">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Find invalid data</string>
+   </property>
+  </action>
+  <action name="actionFix_infacing_normals">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Fix infacing normals</string>
+   </property>
+  </action>
+  <action name="actionSort_by_primitive_type">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Sort by primitive type</string>
+   </property>
+  </action>
+  <action name="actionRemove_redundant_materials">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Remove redundant materials</string>
+   </property>
+  </action>
+  <action name="actionUse_dark_ui">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Use dark user interface (after restart)</string>
+   </property>
+  </action>
+  <action name="actionImport_Asset">
+   <property name="text">
+    <string>Import Scene Assets from File</string>
+   </property>
+   <property name="toolTip">
+    <string>Adds the scene contents from a 3D asset files to the current scene</string>
+   </property>
+  </action>
+  <action name="actionGenerate_smooth_normals">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Generate smooth normals</string>
+   </property>
+  </action>
+  <action name="actionSet_default_settings">
+   <property name="text">
+    <string>Set default settings</string>
+   </property>
+   <property name="toolTip">
+    <string>Sets proposeed default settings</string>
+   </property>
+  </action>
+  <action name="actionShow_process_info">
+   <property name="text">
+    <string>Show more information on these settings</string>
+   </property>
+   <property name="toolTip">
+    <string>Opens the ASSIMP doc page on the process settings.</string>
+   </property>
+  </action>
+  <action name="actionVisit_SLProject_on_Github">
+   <property name="text">
+    <string>Visit SLProject on Github</string>
+   </property>
+  </action>
+  <action name="actionVisit_cpvrLab_homepage">
+   <property name="text">
+    <string>Visit cpvrLab homepage</string>
+   </property>
+   <property name="toolTip">
+    <string>Visit cpvrLab homepage</string>
+   </property>
+  </action>
+  <action name="actionSintel">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Sintel Character</string>
+   </property>
+  </action>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
  <customwidgets>
@@ -2446,8 +2628,8 @@ QSlider::handle:horizontal:disabled {
      <y>-1</y>
     </hint>
     <hint type="destinationlabel">
-     <x>115</x>
-     <y>623</y>
+     <x>357</x>
+     <y>611</y>
     </hint>
    </hints>
   </connection>
@@ -2462,8 +2644,8 @@ QSlider::handle:horizontal:disabled {
      <y>-1</y>
     </hint>
     <hint type="destinationlabel">
-     <x>65</x>
-     <y>623</y>
+     <x>285</x>
+     <y>611</y>
     </hint>
    </hints>
   </connection>
@@ -2478,8 +2660,8 @@ QSlider::handle:horizontal:disabled {
      <y>-1</y>
     </hint>
     <hint type="destinationlabel">
-     <x>90</x>
-     <y>623</y>
+     <x>333</x>
+     <y>611</y>
     </hint>
    </hints>
   </connection>
@@ -2494,8 +2676,8 @@ QSlider::handle:horizontal:disabled {
      <y>-1</y>
     </hint>
     <hint type="destinationlabel">
-     <x>140</x>
-     <y>623</y>
+     <x>381</x>
+     <y>611</y>
     </hint>
    </hints>
   </connection>
@@ -2510,8 +2692,8 @@ QSlider::handle:horizontal:disabled {
      <y>-1</y>
     </hint>
     <hint type="destinationlabel">
-     <x>40</x>
-     <y>623</y>
+     <x>261</x>
+     <y>611</y>
     </hint>
    </hints>
   </connection>
@@ -2526,8 +2708,8 @@ QSlider::handle:horizontal:disabled {
      <y>-1</y>
     </hint>
     <hint type="destinationlabel">
-     <x>165</x>
-     <y>623</y>
+     <x>405</x>
+     <y>611</y>
     </hint>
    </hints>
   </connection>
@@ -2542,8 +2724,8 @@ QSlider::handle:horizontal:disabled {
      <y>-1</y>
     </hint>
     <hint type="destinationlabel">
-     <x>15</x>
-     <y>623</y>
+     <x>237</x>
+     <y>611</y>
     </hint>
    </hints>
   </connection>
@@ -2558,8 +2740,8 @@ QSlider::handle:horizontal:disabled {
      <y>-1</y>
     </hint>
     <hint type="destinationlabel">
-     <x>90</x>
-     <y>623</y>
+     <x>309</x>
+     <y>611</y>
     </hint>
    </hints>
   </connection>

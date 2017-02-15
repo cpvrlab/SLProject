@@ -22,28 +22,33 @@ int main(int argc, char *argv[])
         for(int i = 0; i < argc; i++)
             cmdLineArgs.push_back(argv[i]);
 
+        QApplication::setOrganizationName("cpvrLab");
+        QApplication::setOrganizationDomain("bfh.ch");
+        QApplication::setApplicationName("SLProject Viewer");
+
         QApplication app(argc, argv);
         app.setWindowIcon(QIcon("appIcon36.png"));
         qtMainWindow wnd(0, cmdLineArgs);
 
         // Set dark Fusion style
-//        app.setStyle(QStyleFactory::create("Fusion"));
-//        QPalette darkPalette;
-//        wnd.darkPalette.setColor(QPalette::Window, QColor(53,53,53));
-//        wnd.darkPalette.setColor(QPalette::WindowText, Qt::white);
-//        wnd.darkPalette.setColor(QPalette::Base, QColor(25,25,25));
-//        wnd.darkPalette.setColor(QPalette::AlternateBase, QColor(53,53,53));
-//        wnd.darkPalette.setColor(QPalette::ToolTipBase, Qt::white);
-//        wnd.darkPalette.setColor(QPalette::ToolTipText, Qt::white);
-//        wnd.darkPalette.setColor(QPalette::Text, Qt::white);
-//        wnd.darkPalette.setColor(QPalette::Button, QColor(53,53,53));
-//        wnd.darkPalette.setColor(QPalette::ButtonText, Qt::white);
-//        wnd.darkPalette.setColor(QPalette::BrightText, Qt::red);
-//        wnd.darkPalette.setColor(QPalette::Link, QColor(42, 130, 218));
-//        wnd.darkPalette.setColor(QPalette::Highlight, QColor(42, 130, 218));
-//        wnd.darkPalette.setColor(QPalette::HighlightedText, Qt::black);
-//        wnd.setPalette(darkPalette);
-
+        if (wnd.useDarkUI())
+        {   app.setStyle(QStyleFactory::create("Fusion"));
+            QPalette darkPalette;
+            darkPalette.setColor(QPalette::Window, QColor(53,53,53));
+            darkPalette.setColor(QPalette::WindowText, Qt::white);
+            darkPalette.setColor(QPalette::Base, QColor(25,25,25));
+            darkPalette.setColor(QPalette::AlternateBase, QColor(53,53,53));
+            darkPalette.setColor(QPalette::ToolTipBase, Qt::white);
+            darkPalette.setColor(QPalette::ToolTipText, Qt::white);
+            darkPalette.setColor(QPalette::Text, Qt::white);
+            darkPalette.setColor(QPalette::Button, QColor(53,53,53));
+            darkPalette.setColor(QPalette::ButtonText, Qt::white);
+            darkPalette.setColor(QPalette::BrightText, Qt::red);
+            darkPalette.setColor(QPalette::Link, QColor(42, 130, 218));
+            darkPalette.setColor(QPalette::Highlight, QColor(42, 130, 218));
+            darkPalette.setColor(QPalette::HighlightedText, Qt::black);
+            wnd.setPalette(darkPalette);
+        }
         wnd.show();
         return app.exec();
     #else

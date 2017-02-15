@@ -18,14 +18,12 @@
 #include <SLRay.h>
 #include <SLScene.h>
 #include <SLSceneView.h>
-#include <SLMaterial.h>
-#include <SLMesh.h>
 
 extern SLfloat rnd01();
 
 //-----------------------------------------------------------------------------
 SLLightRect::SLLightRect(SLfloat w, SLfloat h, SLbool hasMesh) :
-              SLNode("LightRect")
+              SLNode("LightRect Node")
 {  
     width(w);
     height(h);
@@ -36,14 +34,14 @@ SLLightRect::SLLightRect(SLfloat w, SLfloat h, SLbool hasMesh) :
     if (_samples.x%2==0) _samples.x++;
     if (_samples.y%2==0) _samples.y++;
    
-    spotCutoff(90.0f);
+    spotCutOffDEG(90.0f);
     spotExponent(1.0);
 
     if (hasMesh)
-    {   SLMaterial* mat = new SLMaterial("LightRectMeshMat", 
+    {   SLMaterial* mat = new SLMaterial("LightRect Mesh Mat", 
                                           SLCol4f::BLACK, 
                                           SLCol4f::BLACK);
-        addMesh(new SLPolygon(w, h, "LightRectMesh", mat));
+        addMesh(new SLPolygon(w, h, "LightRect Mesh", mat));
     }
     init();
 }
@@ -72,7 +70,7 @@ void SLLightRect::init()
     // Set emissive light material to the lights diffuse color
     if (_meshes.size() > 0)
         if (_meshes[0]->mat)
-            _meshes[0]->mat->emission(_on ? diffuse() : SLCol4f::BLACK);   
+            _meshes[0]->mat->emission(_isOn ? diffuse() : SLCol4f::BLACK);   
 }
 //-----------------------------------------------------------------------------
 /*!
@@ -90,7 +88,7 @@ void SLLightRect::drawRec(SLSceneView* sv)
         // Set emissive light material to the lights diffuse color
         if (_meshes.size() > 0)
             if (_meshes[0]->mat)
-                _meshes[0]->mat->emission(_on ? diffuse() : SLCol4f::BLACK);   
+                _meshes[0]->mat->emission(_isOn ? diffuse() : SLCol4f::BLACK);   
    
         // now draw the inherited object
         SLNode::drawRec(sv);
@@ -112,7 +110,7 @@ SLbool SLLightRect::hitRec(SLRay* ray)
     return SLNode::hitRec(ray);
 }
 //-----------------------------------------------------------------------------
-//! SLLightSphere::statsRec updates the statistic parameters
+//! SLLightSpot::statsRec updates the statistic parameters
 void SLLightRect::statsRec(SLNodeStats &stats)
 {  
     stats.numBytes += sizeof(SLLightRect);
@@ -134,10 +132,10 @@ void SLLightRect::drawMeshes(SLSceneView* sv)
         // Set emissive light material to the lights diffuse color
         if (_meshes.size() > 0)
         {   if (_meshes[0]->mat)
-            _meshes[0]->mat->emission(_on ? diffuse() : SLCol4f::BLACK);   
+            _meshes[0]->mat->emission(_isOn ? diffuse() : SLCol4f::BLACK);   
         }
    
-        // now draw the inherited meshes
+        // now draw the meshes of the node
         SLNode::drawMeshes(sv);
     }
 }
@@ -281,14 +279,14 @@ SLfloat SLLightRect::shadowTestMC(SLRay* ray, // ray of hit point
 void SLLightRect::setState()
 {  
     if (_id!=-1) 
-    {   _stateGL->lightIsOn[_id]       = _on;
+    {   _stateGL->lightIsOn[_id]       = _isOn;
         _stateGL->lightPosWS[_id]      = positionWS();           
-        _stateGL->lightDirWS[_id]      = spotDirWS();           
+        _stateGL->lightSpotDirWS[_id]  = spotDirWS();           
         _stateGL->lightAmbient[_id]    = _ambient;              
         _stateGL->lightDiffuse[_id]    = _diffuse;              
         _stateGL->lightSpecular[_id]   = _specular;    
-        _stateGL->lightSpotCutoff[_id] = _spotCutoff;           
-        _stateGL->lightSpotCosCut[_id] = _spotCosCut;           
+        _stateGL->lightSpotCutoff[_id] = _spotCutOffDEG;           
+        _stateGL->lightSpotCosCut[_id] = _spotCosCutOffRAD;           
         _stateGL->lightSpotExp[_id]    = _spotExponent;         
         _stateGL->lightAtt[_id].x      = _kc;  
         _stateGL->lightAtt[_id].y      = _kl;    

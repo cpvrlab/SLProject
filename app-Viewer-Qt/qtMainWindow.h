@@ -13,6 +13,7 @@
 
 #include <QMainWindow>
 #include <QSplitter>
+#include <QSettings>
 #include <SL.h>
 #include <SLNode.h>
 #include <SLMesh.h>
@@ -31,40 +32,49 @@ class qtMainWindow : public QMainWindow
 	friend qtGLWidget;
 
 	public:
-        explicit qtMainWindow(QWidget *parent, SLVstring cmdLineArgs);
-        ~qtMainWindow();
+        explicit    qtMainWindow        (QWidget *parent, SLVstring cmdLineArgs);
+                   ~qtMainWindow        ();
 
-        void        setMenuState();
-        void        beforeSceneLoad();
-        void        afterSceneLoad();
-        void        buildNodeTree();
-        void        updateAnimationList();
-        void        updateAnimationTimeline();
-        void        selectAnimationFromNode(SLNode* node);
-        void        buildPropertyTree();
-        void        addNodeTreeItem(SLNode* node,
-							        QTreeWidget* tree,
-							        qtNodeTreeItem* parent);
+        void        loadSettings        ();
+        void        saveSettings        ();
+        void        setMenuState        ();
+        void        beforeSceneLoad     ();
+        void        afterSceneLoad      ();
+        void        buildNodeTree       ();
+        void        updateAnimList      ();
+        void        updateAnimTimeline  ();
+        void        selectAnimFromNode  (SLNode* node);
+        void        buildPropertyTree   ();
+        void        addNodeTreeItem     (SLNode* node,
+							             QTreeWidget* tree,
+							             qtNodeTreeItem* parent);
         void        selectNodeOrMeshItem(SLNode* selectedNode,
                                          SLMesh* selectedMesh);
-        void        updateAllGLWidgets();
-        void        applyCommandOnSV(const SLCommand cmd);
+        void        updateAllGLWidgets  ();
+        void        applyCommandOnSV    (const SLCommand cmd);
         qtGLWidget* getOtherGLWidgetInSplitter();
 
         // Overwritten Event Handlers
-        void        resizeEvent(QResizeEvent* event);
-        void        changeEvent(QEvent * event);
-        void        closeEvent(QCloseEvent *event);
+        void        resizeEvent         (QResizeEvent* event);
+        void        changeEvent         (QEvent * event);
+        void        closeEvent          (QCloseEvent *event);
 
         // Getters
-        qtGLWidget* activeGLWidget() {return _activeGLWidget;}
-        int         nodeTreeItemCount() {return ui->nodeTree->topLevelItemCount();}
+        qtGLWidget* activeGLWidget      () {return _activeGLWidget;}
+        int         nodeTreeItemCount   () {return ui->nodeTree->topLevelItemCount();}
+        bool        useDarkUI           (){return _settings.value("window/UseDarkUI", false).toBool();}
 
         // Setters
-        void        activeGLWidget(qtGLWidget* active) {_activeGLWidget = active;}
+        void        activeGLWidget      (qtGLWidget* active) {_activeGLWidget = active;}
 
-	private slots:
-        void on_action_Quit_triggered();
+    private slots:
+        void on_actionLoad_Asset_triggered();
+        void on_actionImport_Asset_triggered();
+        void on_actionClose_Scene_triggered();
+        void on_actionSet_default_settings_triggered();
+        void on_actionShow_process_info_triggered();
+        void on_actionQuit_triggered();
+
         void on_actionSmall_Test_Scene_triggered();
         void on_actionLarge_Model_triggered();
         void on_actionFigure_triggered();
@@ -84,8 +94,7 @@ class qtMainWindow : public QMainWindow
 
         void on_actionNode_Animation_triggered();
         void on_actionSkeletal_Animation_triggered();
-        void on_actionAstroboy_Army_GPU_triggered();
-        void on_actionAstroboy_Army_CPU_triggered();
+        void on_actionAstroboy_Army_triggered();
         void on_actionMass_Animation_triggered();
 
         void on_actionRT_Spheres_triggered();
@@ -147,9 +156,6 @@ class qtMainWindow : public QMainWindow
         void on_actionShow_Scene_Info_triggered();
         void on_actionShow_Menu_triggered();
         void on_actionShow_Toolbar_triggered();
-        void on_actionAbout_SLProject_triggered();
-        void on_actionCredits_triggered();
-        void on_actionAbout_Qt_triggered();
 
         void on_actionRender_to_depth_1_triggered();
         void on_actionRender_to_depth_2_triggered();
@@ -171,14 +177,22 @@ class qtMainWindow : public QMainWindow
         void on_actionDelete_active_view_triggered();
         void on_actionSingle_view_triggered();
 
+        void on_actionAbout_SLProject_triggered();
+        void on_actionVisit_SLProject_on_Github_triggered();
+        void on_actionVisit_cpvrLab_homepage_triggered();
+        void on_actionCredits_triggered();
+        void on_actionAbout_Qt_triggered();
+
+        // node tree actions
         void on_nodeTree_itemClicked(QTreeWidgetItem *item, int column);
         void on_nodeTree_itemDoubleClicked(QTreeWidgetItem *item, int column);
         void on_propertyTree_itemChanged(QTreeWidgetItem *item, int column);
+        void on_propertyTree_itemDoubleClicked(QTreeWidgetItem *item, int column);
         void on_dockScenegraph_visibilityChanged(bool visible);
         void on_dockProperties_visibilityChanged(bool visible);
         void on_dockAnimation_visibilityChanged(bool visible);
 
-        // animation
+        // animation actions
         void on_animAnimatedObjectSelect_currentIndexChanged(int index);
         void on_animAnimationSelect_currentIndexChanged(int index);
         void on_animSkipStartButton_clicked();
@@ -194,8 +208,9 @@ class qtMainWindow : public QMainWindow
         void on_animTimelineSlider_valueChanged(int value);
         void on_animWeightInput_valueChanged(double d);
         void on_animSpeedInput_valueChanged(double d);
-        
+
 private:
+        QSettings         _settings;
         Ui::qtMainWindow*  ui;
         std::vector<qtGLWidget*> _allGLWidgets;
         qtGLWidget*       _activeGLWidget;

@@ -131,12 +131,20 @@ class SLVec3
     inline  T       maxXYZ      ()                      {if (x>=y && x>=z) return x;
                                                          else if (y>=z)    return y;
                                                          else              return z;}
-    inline  T       maxXYZ      (SLint &axis)           {if (x>=y && x>=z){axis=0; return x;}
-                                                         else if (y>=z)   {axis=1; return y;}
-                                                         else             {axis=2; return z;}}
-    inline  SLint   maxAxis     ()                      {if (x>=y && x>=z) return 0;
+    inline  T       minXYZ      ()                      {if (x<=y && x<=z) return x;
+                                                         else if (y<=z)    return y;
+                                                         else              return z;}
+    inline  T       maxXYZ      (SLint &comp)           {if (x>=y && x>=z){comp=0; return x;}
+                                                         else if (y>=z)   {comp=1; return y;}
+                                                         else             {comp=2; return z;}}
+    inline  T       minXYZ      (SLint &comp)           {if (x<=y && x<=z){comp=0; return x;}
+                                                         else if (y<=z)   {comp=1; return y;}
+                                                         else             {comp=2; return z;}}
+    inline  SLint   maxComp     ()                      {if (x>=y && x>=z) return 0;
                                                          else if (y>=z)    return 1;
                                                          else              return 2;}
+    inline  SLbool  isZero      ()                      {return (x==0 && y==0 && z==0);}
+
             //! Calculate the distance to point p
             T       distance (const SLVec3& p) const    {SLVec3 d(x-p.x, y-p.y, z-p.z);
                                                          return d.length();}
@@ -190,7 +198,7 @@ class SLVec3
             //! HSV (0-1) to RGB (0-1) color conversion (http://www.rapidtables.com/convert/color/hsv-to-rgb.htm)
             void hsv2rgb (const SLVec3 &hsv)
             {
-                T h = fmod(fmod(hsv.x, SL_2PI) + SL_2PI, SL_2PI); // 0° <= H <= 360°
+                T h = fmod(fmod(hsv.x, SL_2PI) + SL_2PI, SL_2PI); // 0 deg <= H <= 360 deg
                 T s = SL_clamp(hsv.y, 0.0f, 1.0f);
                 T v = SL_clamp(hsv.z, 0.0f, 1.0f);
                 T a = SL_clamp(hsv.w, 0.0f, 1.0f);
@@ -200,12 +208,12 @@ class SLVec3
                 T m = v - c;
 
                 switch (SLint(floor(h*3.0f / SL_PI)))
-                {   case 0: return set(m + c, m + x, m    ); // [  0°, 60°]
-                    case 1: return set(m + x, m + c, m    ); // [ 60°,120°]
-                    case 2: return set(m    , m + c, m + x); // [120°,180°]
-                    case 3: return set(m    , m + x, m + c); // [180°,240°]
-                    case 4: return set(m + x, m    , m + c); // [240°,300°]
-                    case 5: return set(m + c, m    , m + x); // [300°,360°]
+                {   case 0: return set(m + c, m + x, m    ); // [  0 deg, 60 deg]
+                    case 1: return set(m + x, m + c, m    ); // [ 60 deg,120 deg]
+                    case 2: return set(m    , m + c, m + x); // [120 deg,180 deg]
+                    case 3: return set(m    , m + x, m + c); // [180 deg,240 deg]
+                    case 4: return set(m + x, m    , m + c); // [240 deg,300 deg]
+                    case 5: return set(m + c, m    , m + x); // [300 deg,360 deg]
                 }
             }
 
@@ -290,8 +298,6 @@ template<class T> SLVec3<T> SLVec3<T>::AXISX  = SLVec3<T>(1.0f, 0.0f, 0.0f);
 template<class T> SLVec3<T> SLVec3<T>::AXISY  = SLVec3<T>(0.0f, 1.0f, 0.0f);
 template<class T> SLVec3<T> SLVec3<T>::AXISZ  = SLVec3<T>(0.0f, 0.0f, 1.0f);
 //-----------------------------------------------------------------------------
-typedef SLVec3<SLhalf>        SLVec3h;
-typedef SLVec3<SLhalf>        SLCol3h;
 typedef SLVec3<SLfloat>       SLVec3f;
 typedef SLVec3<SLfloat>       SLCol3f;
 typedef SLVec3<SLint>         SLVec3i; 

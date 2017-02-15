@@ -17,7 +17,7 @@ CONFIG += qt
 CONFIG -= glfw
 
 DEFINES += SL_GUI_QT
-DEFINES += "SL_STARTSCENE=C_sceneMeshLoad"
+DEFINES += "SL_STARTSCENE=C_sceneEmpty"
 
 include(../SLProjectCommon.pro)
 
@@ -36,13 +36,13 @@ SOURCES += \
    qtMain.cpp \
    qtMainWindow.cpp \
    qtGLWidget.cpp \
-   qtPropertyTreeItem.cpp
+   qtProperty.cpp
 
 HEADERS += \
    qtMainWindow.h \
    qtGLWidget.h \
    qtNodeTreeItem.h \
-   qtPropertyTreeItem.h \
+   qtProperty.h \
    qtPropertyTreeWidget.h
 
 FORMS += \

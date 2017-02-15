@@ -55,7 +55,7 @@ class SLCurveBezier : public SLCurve
         SLVVec3f&   controls        (){return _controls;}
 
     protected:
-        SLVVec3f            _controls;  //!< Control points of Bézier curve
+        SLVVec3f            _controls;  //!< Control points of Bezier curve
         SLGLVertexArrayExt  _vao;       //!< Vertex array object for rendering
 };
 //-----------------------------------------------------------------------------

@@ -25,14 +25,14 @@ class SLRectangle: public SLMesh
                         //! ctor for rectangle w. min & max corner
                         SLRectangle(SLVec2f min, SLVec2f max,
                                     SLuint resX, SLuint resY,
-                                    SLstring name = "Rectangle",
+                                    SLstring name = "rectangle mesh",
                                     SLMaterial* mat=0);
 
                         //! ctor for rectangle w. min & max corner & texCoord
                         SLRectangle(SLVec2f min, SLVec2f max,
                                     SLVec2f tmin, SLVec2f tmax,
                                     SLuint resX, SLuint resY,
-                                    SLstring name = "Rectangle",
+                                    SLstring name = "rectangle mesh",
                                     SLMaterial* mat=0);
                
             void        buildMesh(SLMaterial* mat);

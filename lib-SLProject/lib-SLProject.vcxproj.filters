@@ -37,6 +37,12 @@
     <Filter Include="Input">
       <UniqueIdentifier>{d4a3c382-a5bf-4836-a8f6-0f22cde70947}</UniqueIdentifier>
     </Filter>
+    <Filter Include="CV">
+      <UniqueIdentifier>{45fa37f0-a194-4082-833c-66d049c33b5c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Nodes\Lights">
+      <UniqueIdentifier>{2d08b2c5-129c-472b-853a-539acb067534}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\include\SLAABBox.h">
@@ -59,12 +65,6 @@
     </ClInclude>
     <ClInclude Include="..\include\SLCylinder.h">
       <Filter>Nodes\Meshes</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\SLLightRect.h">
-      <Filter>Nodes</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\SLLightSphere.h">
-      <Filter>Nodes</Filter>
     </ClInclude>
     <ClInclude Include="..\include\SLPolygon.h">
       <Filter>Nodes\Meshes</Filter>
@@ -92,9 +92,6 @@
     </ClInclude>
     <ClInclude Include="..\include\SLSceneView.h">
       <Filter>Scene</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\SLSphere.h">
-      <Filter>Nodes\Meshes</Filter>
     </ClInclude>
     <ClInclude Include="..\include\SLRevolver.h">
       <Filter>Nodes\Meshes</Filter>
@@ -145,9 +142,6 @@
       <Filter>SL</Filter>
     </ClInclude>
     <ClInclude Include="..\include\SLFileSystem.h">
-      <Filter>SL</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\SLImage.h">
       <Filter>SL</Filter>
     </ClInclude>
     <ClInclude Include="..\include\SLInterface.h">
@@ -276,6 +270,57 @@
     <ClInclude Include="..\include\SLGLEnums.h">
       <Filter>GL</Filter>
     </ClInclude>
+    <ClInclude Include="..\include\SLCVCapture.h">
+      <Filter>CV</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\SLCVCalibration.h">
+      <Filter>CV</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\SLCoordAxis.h">
+      <Filter>Nodes\Meshes</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\SLCVTracker.h">
+      <Filter>CV</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\SLLightDirect.h">
+      <Filter>Nodes\Lights</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\SLLightRect.h">
+      <Filter>Nodes\Lights</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\SLPolyline.h">
+      <Filter>Nodes\Meshes</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\SLSpheric.h">
+      <Filter>Nodes\Meshes</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\SLSphere.h">
+      <Filter>Nodes\Meshes</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\SLLightSpot.h">
+      <Filter>Nodes\Lights</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\SLArrow.h">
+      <Filter>Nodes\Meshes</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\SLCVTrackerChessboard.h">
+      <Filter>CV</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\SLCVTrackerAruco.h">
+      <Filter>CV</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\SLCV.h">
+      <Filter>CV</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\SLCVFeatureMap2D.h">
+      <Filter>CV</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\SLCVFeatureMapper2D.h">
+      <Filter>CV</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\SLCVImage.h">
+      <Filter>CV</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="source\SLAABBox.cpp">
@@ -311,12 +356,6 @@
     <ClCompile Include="source\SLText.cpp">
       <Filter>Nodes</Filter>
     </ClCompile>
-    <ClCompile Include="source\SLLightSphere.cpp">
-      <Filter>Nodes</Filter>
-    </ClCompile>
-    <ClCompile Include="source\SLLightRect.cpp">
-      <Filter>Nodes</Filter>
-    </ClCompile>
     <ClCompile Include="source\SLCamera.cpp">
       <Filter>Nodes</Filter>
     </ClCompile>
@@ -341,37 +380,16 @@
     <ClCompile Include="source\SLRevolver.cpp">
       <Filter>Nodes\Meshes</Filter>
     </ClCompile>
-    <ClCompile Include="source\SLSphere.cpp">
-      <Filter>Nodes\Meshes</Filter>
-    </ClCompile>
     <ClCompile Include="source\SLMesh.cpp">
       <Filter>Nodes\Meshes</Filter>
     </ClCompile>
     <ClCompile Include="source\SLGrid.cpp">
       <Filter>Nodes\Meshes</Filter>
     </ClCompile>
-    <ClCompile Include="source\SLGLOculus.cpp">
-      <Filter>GL</Filter>
-    </ClCompile>
-    <ClCompile Include="source\SLGLOculusFB.cpp">
-      <Filter>GL</Filter>
-    </ClCompile>
-    <ClCompile Include="source\SLGLShader.cpp">
-      <Filter>GL</Filter>
-    </ClCompile>
-    <ClCompile Include="source\SLGLState.cpp">
-      <Filter>GL</Filter>
-    </ClCompile>
-    <ClCompile Include="source\SLGLTexture.cpp">
-      <Filter>GL</Filter>
-    </ClCompile>
     <ClCompile Include="source\SL\SL.cpp">
       <Filter>SL</Filter>
     </ClCompile>
     <ClCompile Include="source\SL\SLFileSystem.cpp">
-      <Filter>SL</Filter>
-    </ClCompile>
-    <ClCompile Include="source\SL\SLImage.cpp">
       <Filter>SL</Filter>
     </ClCompile>
     <ClCompile Include="source\SL\SLInterface.cpp">
@@ -391,9 +409,6 @@
     </ClCompile>
     <ClCompile Include="source\math\SLPlane.cpp">
       <Filter>Math</Filter>
-    </ClCompile>
-    <ClCompile Include="source\SLGLProgram.cpp">
-      <Filter>GL</Filter>
     </ClCompile>
     <ClCompile Include="source\SLSkeleton.cpp">
       <Filter>Animation</Filter>
@@ -449,14 +464,68 @@
     <ClCompile Include="source\SLBackground.cpp">
       <Filter>Scene</Filter>
     </ClCompile>
-    <ClCompile Include="source\SLGLVertexArray.cpp">
+    <ClCompile Include="source\CV\SLCVCapture.cpp">
+      <Filter>CV</Filter>
+    </ClCompile>
+    <ClCompile Include="source\CV\SLCVCalibration.cpp">
+      <Filter>CV</Filter>
+    </ClCompile>
+    <ClCompile Include="source\GL\SLGLOculus.cpp">
       <Filter>GL</Filter>
     </ClCompile>
-    <ClCompile Include="source\SLGLVertexArrayExt.cpp">
+    <ClCompile Include="source\GL\SLGLOculusFB.cpp">
       <Filter>GL</Filter>
     </ClCompile>
-    <ClCompile Include="source\SLGLVertexBuffer.cpp">
+    <ClCompile Include="source\GL\SLGLProgram.cpp">
       <Filter>GL</Filter>
+    </ClCompile>
+    <ClCompile Include="source\GL\SLGLShader.cpp">
+      <Filter>GL</Filter>
+    </ClCompile>
+    <ClCompile Include="source\GL\SLGLState.cpp">
+      <Filter>GL</Filter>
+    </ClCompile>
+    <ClCompile Include="source\GL\SLGLTexture.cpp">
+      <Filter>GL</Filter>
+    </ClCompile>
+    <ClCompile Include="source\GL\SLGLVertexArray.cpp">
+      <Filter>GL</Filter>
+    </ClCompile>
+    <ClCompile Include="source\GL\SLGLVertexArrayExt.cpp">
+      <Filter>GL</Filter>
+    </ClCompile>
+    <ClCompile Include="source\GL\SLGLVertexBuffer.cpp">
+      <Filter>GL</Filter>
+    </ClCompile>
+    <ClCompile Include="source\SLCoordAxis.cpp">
+      <Filter>Nodes\Meshes</Filter>
+    </ClCompile>
+    <ClCompile Include="source\SLLightDirect.cpp">
+      <Filter>Nodes\Lights</Filter>
+    </ClCompile>
+    <ClCompile Include="source\SLLightRect.cpp">
+      <Filter>Nodes\Lights</Filter>
+    </ClCompile>
+    <ClCompile Include="source\SLSpheric.cpp">
+      <Filter>Nodes\Meshes</Filter>
+    </ClCompile>
+    <ClCompile Include="source\SLLightSpot.cpp">
+      <Filter>Nodes\Lights</Filter>
+    </ClCompile>
+    <ClCompile Include="source\CV\SLCVTrackerChessboard.cpp">
+      <Filter>CV</Filter>
+    </ClCompile>
+    <ClCompile Include="source\CV\SLCVTrackerAruco.cpp">
+      <Filter>CV</Filter>
+    </ClCompile>
+    <ClCompile Include="source\CV\SLCVTracker.cpp">
+      <Filter>CV</Filter>
+    </ClCompile>
+    <ClCompile Include="source\CV\SLCVFeatureMapper2D.cpp">
+      <Filter>CV</Filter>
+    </ClCompile>
+    <ClCompile Include="source\CV\SLCVImage.cpp">
+      <Filter>CV</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -640,6 +709,10 @@
     <None Include="..\_data\shaders\WaveRefractReflect.vert">
       <Filter>GLSL</Filter>
     </None>
+    <None Include="..\_data\shaders\PerVrtBlinnColorAttrib.vert">
+      <Filter>GLSL</Filter>
+    </None>
+    <None Include="ClassDiagram.cd" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="ToDo.txt" />

@@ -15,13 +15,17 @@
 
 #include <SLAABBox.h>
 #include <SLRay.h>
-#include <SLGLProgram.h>
-#include <SLMesh.h>
 #include <SLScene.h>
 
 //-----------------------------------------------------------------------------
 //! Default contructor with default zero vector initialization
 SLAABBox::SLAABBox()
+{
+    reset();
+}
+//-----------------------------------------------------------------------------
+//! Resets initial state without contents
+void SLAABBox::reset()
 {
     _minWS    = SLVec3f::ZERO;
     _maxWS    = SLVec3f::ZERO;

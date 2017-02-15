@@ -12,7 +12,7 @@
 #define SLGLTEXTURE_H
 
 #include <stdafx.h>
-#include <SLImage.h>
+#include <SLCVImage.h>
 #include <SLGLVertexArray.h>
 
 //-----------------------------------------------------------------------------
@@ -45,7 +45,7 @@ enum SLTextureType
 //! Texture object for OpenGL texturing
 /*!      
 The SLGLTexture class implements an OpenGL texture object that can is used by the 
-SLMaterial class. A texture can have 1-n SLImages in the vector _images.
+SLMaterial class. A texture can have 1-n SLCVImages in the vector _images.
 A simple 2D texture has just a single texture image (_images[0]). For cube maps
 you will need 6 images (_images[0-5]). For 3D textures you can have as much
 images of the same size than your GPU and/or CPU memory can hold.
@@ -95,20 +95,21 @@ class SLGLTexture : public SLObject
             void            bumpScale       (SLfloat bs)    {_bumpScale = bs;}
       
             // Getters
-            SLVImage&       images          (){return _images;}
+            SLCVVImage&     images          (){return _images;}
             SLenum          target          (){return _target;}
             SLTextureType   texType         (){return _texType;}
             SLfloat         bumpScale       (){return _bumpScale;}
             SLCol4f         getTexelf       (SLfloat s, SLfloat t);
             SLbool          hasAlpha        (){return (_images.size() &&
-                                                   ((_images[0]->format()==PF_rgba  ||
-                                                    _images[0]->format()==PF_bgra) ||
-                                                   _texType==TT_font));}
+                                                      ((_images[0]->format()==PF_rgba  ||
+                                                       _images[0]->format()==PF_bgra) ||
+                                                       _texType==TT_font));}
             SLint           width           (){return _images[0]->width();}
             SLint           height          (){return _images[0]->height();}
             SLMat4f         tm              (){return _tm;}
             SLbool          autoCalcTM3D    (){return _autoCalcTM3D;}
             SLbool          needsUpdate     (){return _needsUpdate;}
+            SLstring        typeName        ();
       
             // Misc     
             SLTextureType   detectType      (SLstring filename);  
@@ -116,26 +117,29 @@ class SLGLTexture : public SLObject
             SLuint          nextPowerOf2    (SLuint num);
             void            build2DMipmaps  (SLint target, SLuint index);
             void            setVideoImage   (SLstring videoImageFile);
-            SLbool          copyVideoImage  (SLint width, SLint height,
+            SLbool          copyVideoImage  (SLint camWidth, 
+                                             SLint camHeight,
                                              SLPixelFormat glFormat, 
                                              SLuchar* data, 
+                                             SLbool isContinuous,
                                              SLbool isTopLeft);
             // Bumpmap methods
             SLVec2f         dsdt            (SLfloat s, SLfloat t); //! Returns the derivation as [s,t]
   
     // Statics
     static  SLstring        defaultPath;        //!< Default path for textures
+    static  SLstring        defaultPathFonts;   //!< Default path for fonts images
     static  SLfloat         maxAnisotropy;      //!< max. anisotropy available
     static  SLuint          numBytesInTextures; //!< NO. of texture bytes on GPU
 
     protected:
             // loading the image files
-            void        load            (SLstring filename);
+            void            load            (SLstring filename);
                                
             SLGLState*      _stateGL;        //!< Pointer to global SLGLState instance
-            SLVImage        _images;         //!< vector of SLImage pointers
+            SLCVVImage      _images;         //!< vector of SLCVImage pointers
             SLuint          _texName;        //!< OpenGL texture "name" (= ID)
-            SLTextureType       _texType;        //!< [unknown, ColorMap, NormalMap, HeightMap, GlossMap]
+            SLTextureType   _texType;        //!< [unknown, ColorMap, NormalMap, HeightMap, GlossMap]
             SLint           _min_filter;     //!< Minification filter
             SLint           _mag_filter;     //!< Magnification filter
             SLint           _wrap_s;         //!< Wrapping in s direction

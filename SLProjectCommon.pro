@@ -12,6 +12,8 @@ CONFIG += warn_off
 CONFIG -= qml_debug
 CONFIG(debug, debug|release) {DEFINES += _DEBUG}
 
+DEFINES += SL_USES_CVCAPTURE
+
 CONFIG(qt) {
    QT += core gui widgets opengl
    DEFINES += SL_GUI_QT
@@ -42,12 +44,8 @@ INCLUDEPATH += \
     ../lib-SLExternal/assimp/code \
     ../lib-SLExternal/glew/include \
     ../lib-SLExternal/glfw3/include \
-    ../lib-SLExternal/zlib\
     ../lib-SLExternal/randomc \
-    ../lib-SLExternal/half/include \
     ../lib-SLExternal/nvwa \
-    ../lib-SLExternal/jpeg-8 \
     ../lib-SLExternal/oculus/LibOVR/Include \
     ../lib-SLExternal/opencv/include \
-    ../lib-SLExternal/half/include \
 

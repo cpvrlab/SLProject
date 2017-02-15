@@ -1,5 +1,9 @@
 # Ignored files
+
+
+
 *.suo
+*.vsp
 *.user
 *.sdf
 *.opensdf
@@ -11,11 +15,17 @@
 *.dll
 *.lib
 *.exe
+*.opendb
+*.psess
+*.db
 *.so
+*.xcuserstate
 *~
 
 moc_*.cpp
 qrc_*.cpp
+
+!christoffelturm.obj
 
 obj/
 ipch/

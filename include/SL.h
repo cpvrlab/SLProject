@@ -41,26 +41,24 @@
 #include <math.h>                // for math functions
 #include <string.h>              // for string functions
 //-----------------------------------------------------------------------------
-// Half precision floating point type
-#include <half.hpp>
-using namespace half_float;
 
-/////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////
 // Preprocessor constant definitions used in the SLProject
-/////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////
 
 //-----------------------------------------------------------------------------
 /* Determine one of the following operating systems:
-SL_OS_MACOSX   :Apple Mac OSX
+SL_OS_MACOS    :Apple Mac OSX
 SL_OS_MACIOS   :Apple iOS
 SL_OS_WINDOWS  :Microsoft desktop Windows XP, 7, 8, ...
 SL_OS_ANDROID  :Goggle Android
 SL_OS_LINUX    :Linux desktop OS
 
 With the OS definition the following constants are defined:
+SL_GLES : Any version of OpenGL ES
 SL_GLES2: Supports only OpenGL ES2
+SL_GLES3: Supports only OpenGL ES3
 SL_MEMLEAKDETECT: The memory leak detector NVWA is used
-SL_OVR: Support for Oculus Rift SDK
 SL_USE_DISCARD_STEREOMODES: The discard stereo modes can be used (SLCamera)
 */
 
@@ -68,28 +66,22 @@ SL_USE_DISCARD_STEREOMODES: The discard stereo modes can be used (SLCamera)
     #include <TargetConditionals.h>
     #if TARGET_OS_IOS
         #define SL_OS_MACIOS
-        #define SL_GLES2
+        #define SL_GLES
+        #define SL_GLES3
     #else
-        #define SL_OS_MACOSX
-        //#define SL_OVR // No OSX support anymore from Oculus!
+        #define SL_OS_MACOS
         #if defined(_DEBUG)
             #define _GLDEBUG
             //#define SL_MEMLEAKDETECT  // nvwa doesn't work under OSX/clang
         #endif
     #endif
-    #include <unistd.h> //getcwd
-    #define SL_GETCWD getcwd
 #elif defined(ANDROID) || defined(ANDROID_NDK)
     #define SL_OS_ANDROID
-    #define SL_GLES2
-    #include <unistd.h> //getcwd
-    #define SL_GETCWD getcwd
+    #define SL_GLES
+    #define SL_GLES3
 #elif defined(_WIN32)
     #define SL_OS_WINDOWS
     #define SL_USE_DISCARD_STEREOMODES
-    #define SL_OVR
-    #include <direct.h> //_getcwd
-    #define SL_GETCWD _getcwd
     #ifdef _DEBUG
         #define _GLDEBUG
         //#define SL_MEMLEAKDETECT
@@ -98,13 +90,10 @@ SL_USE_DISCARD_STEREOMODES: The discard stereo modes can be used (SLCamera)
     #define STDCALL __stdcall
 #elif defined(linux) || defined(__linux) || defined(__linux__)
     #define SL_OS_LINUX
-    //#define SL_OVR
     #define SL_USE_DISCARD_STEREOMODES
     #ifdef _DEBUG
         //#define SL_MEMLEAKDETECT  // nvwa doesn't work under OSX/clang
     #endif
-    #include <unistd.h> //getcwd
-    #define SL_GETCWD getcwd
 #else
     #error "SL has not been ported to this OS"
 #endif
@@ -130,7 +119,7 @@ SL_GUI_JAVA :Java on Android (with the VS-Android project)
     #include <thread>
     #include <chrono>
     #include <random>
-#elif defined(SL_OS_MACOSX)
+#elif defined(SL_OS_MACOS)
     #include <sys/time.h>
     #include <functional>
     #include <thread>
@@ -139,20 +128,19 @@ SL_GUI_JAVA :Java on Android (with the VS-Android project)
     #include <GL/glew.h>
 #elif defined(SL_OS_ANDROID)
     #include <sys/time.h>
+    #ifdef SL_GLES2
+        #include <GLES2/gl2.h>
+        #include <GLES2/gl2ext.h>
+    #endif
+    #ifdef SL_GLES3
+        #include <GLES3/gl3.h>
+        #include <GLES3/gl3ext.h>
+    #endif
     #include <android/log.h>
     #include <functional>
     #include <thread>
     #include <chrono>
     #include <random>
-    #if defined(SL_GUI_QT)
-        #include <QGLWidget>
-    #elif defined(SL_GUI_JAVA)
-        #include <jni.h>
-        #include <GLES2/gl2.h>
-        #include <GLES2/gl2ext.h>
-    #else
-        #error "This GUI system is not supported under Android"
-    #endif
 #elif defined(SL_OS_WINDOWS)
     #include <functional>
     #include <thread>
@@ -222,7 +210,6 @@ typedef GLuint          SLuint;
 typedef int64_t         SLint64;
 typedef uint64_t        SLuint64;
 typedef GLsizei         SLsizei;
-typedef half            SLhalf;  // half is from the half float library (http://half.sourceforge.net/). GLhalf is an ushort!
 typedef GLfloat         SLfloat;
 #ifdef SL_HAS_DOUBLE
 typedef GLdouble        SLdouble;
@@ -235,7 +222,7 @@ typedef GLenum          SLenum;
 typedef GLbitfield      SLbitfield;
 typedef GLfloat         SLfloat;
 
-// all std::vectors begin with SLV*
+// All 1D vectors begin with SLV*
 typedef std::vector<SLbool>   SLVbool;
 typedef std::vector<SLbyte>   SLVbyte;
 typedef std::vector<SLubyte>  SLVubyte;
@@ -248,8 +235,17 @@ typedef std::vector<SLuint>   SLVuint;
 typedef std::vector<SLlong>   SLVlong;
 typedef std::vector<SLulong>  SLVulong;
 typedef std::vector<SLfloat>  SLVfloat;
-typedef std::vector<SLhalf>   SLVhalf;
 typedef std::vector<SLstring> SLVstring;
+
+// All 2D vectors begin with SLVV*
+typedef std::vector<vector<SLfloat>>    SLVVfloat;
+typedef std::vector<vector<SLuchar>>    SLVVuchar;
+typedef std::vector<vector<SLushort>>   SLVVushort;
+typedef std::vector<vector<SLuint>>     SLVVuint;
+typedef std::vector<vector<SLchar>>     SLVVchar;
+typedef std::vector<vector<SLshort>>    SLVVshort;
+typedef std::vector<vector<SLint>>      SLVVint;
+
 //-----------------------------------------------------------------------------
 // Shortcut for size of a vector
 template<class T> inline SLint SL_sizeOfVector(const T &vector)
@@ -299,6 +295,8 @@ class SL
     static SLLogVerbosity   testLogVerbosity;   //!< Test logging verbosity
     static SLuint           testFrameCounter;   //!< Test frame counters
     static const SLVstring  testSceneNames;     //!< Vector with scene names
+    
+    static SLstring         configPath;         //!< Default path for calibration files
 };
 //-----------------------------------------------------------------------------
 #endif

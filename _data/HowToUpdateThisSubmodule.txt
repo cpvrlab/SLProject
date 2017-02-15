@@ -1,0 +1,12 @@
+# before adding the files
+cd _data
+git checkout master 
+
+# after adding the files
+git add "filename"
+git commit -m "message"
+git push origin master
+cd ..
+git add -u
+git commit -m "updated submodule"
+git push origin <branch>

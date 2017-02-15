@@ -43,34 +43,42 @@ enum SLAxis
 //-----------------------------------------------------------------------------
 //! Pixel format according to OpenGL pixel format defines
 enum SLPixelFormat
-{   PF_alpha = 0x1906,             // ES2 ES3 GL2
-    PF_luminance = 0x1909,         // ES2 ES3 GL2
-    PF_luminance_alpha = 0x190A,   // ES2 ES3 GL2
-    PF_intensity = 0x8049,         //         GL2
-    PF_green = 0x1904,             //         GL2
-    PF_blue = 0x1905,              //         GL2
-    PF_depth_component = 0x1902,   //     ES3 GL2     GL4
+{
+    PF_unknown = 0,
+    PF_yuv_420_888 = 1,         // YUV format from Android not supported in GL
 
-    PF_red  = 0x1903,              //     ES3 GL2 GL3 GL4
-    PF_rg   = 0x8227,              //     ES3     GL3 GL4
-    PF_rgb  = 0x1907,              // ES2 ES3 GL2 GL3 GL4
-    PF_rgba = 0x1908,              // ES2 ES3 GL2 GL3 GL4
-    PF_bgr  = 0x80E0,              //         GL2 GL3 GL4
-    PF_bgra = 0x80E1,              //         GL2 GL3 GL4
+    PF_alpha = 0x1906,          // ES2 ES3 GL2
+    PF_luminance = 0x1909,      // ES2 ES3 GL2
+    PF_luminance_alpha = 0x190A,// ES2 ES3 GL2
+    PF_intensity = 0x8049,      //         GL2
+    PF_green = 0x1904,          //         GL2
+    PF_blue = 0x1905,           //         GL2
+    PF_depth_component = 0x1902,//     ES3 GL2     GL4
 
-    PF_rg_integer = 0x8228,        //     ES3         GL4
-    PF_red_integer = 0x8D94,       //     ES3         GL4
-    PF_rgb_integer = 0x8D98,       //     ES3         GL4
-    PF_rgba_integer = 0x8D99,      //     ES3         GL4
-    PF_bgr_integer = 0x8D9A,       //                 GL4
-    PF_bgra_integer = 0x8D9B       //                 GL4
+    PF_red  = 0x1903,           //     ES3 GL2 GL3 GL4
+    PF_rg   = 0x8227,           //     ES3     GL3 GL4
+    PF_rgb  = 0x1907,           // ES2 ES3 GL2 GL3 GL4
+    PF_rgba = 0x1908,           // ES2 ES3 GL2 GL3 GL4
+    PF_bgr  = 0x80E0,           //         GL2 GL3 GL4
+    PF_bgra = 0x80E1,           //         GL2 GL3 GL4
+
+    PF_rg_integer = 0x8228,     //     ES3         GL4
+    PF_red_integer = 0x8D94,    //     ES3         GL4
+    PF_rgb_integer = 0x8D98,    //     ES3         GL4
+    PF_rgba_integer = 0x8D99,   //     ES3         GL4
+    PF_bgr_integer = 0x8D9A,    //                 GL4
+    PF_bgra_integer = 0x8D9B,   //                 GL4
+
 };
 //-----------------------------------------------------------------------------
 //! SLCommand enumerates all possible menu and keyboard commands
 enum SLCommand
-{   C_sceneAll = 0,   // Loads all scenes one after the other
+{   
+    C_sceneFromFile = -2,   // Custom assted loaded over menu
+    C_sceneEmpty = -1,      // No data in scene
+    C_sceneAll = 0,         // Loads all scenes one after the other
     C_sceneMinimal,
-    C_sceneFigure,   
+    C_sceneFigure,
     C_sceneMeshLoad,
     C_sceneVRSizeTest,
     C_sceneLargeModel,
@@ -94,8 +102,11 @@ enum SLCommand
 
     C_sceneSkeletalAnimation,
     C_sceneNodeAnimation,
-    C_sceneAstroboyArmyGPU,
-    C_sceneAstroboyArmyCPU,
+    C_sceneAstroboyArmy,
+
+    C_sceneTrackChessboard,
+    C_sceneTrackAruco,
+    C_sceneTrackFeatures2D,
 
     C_sceneRTMuttenzerBox,
     C_sceneRTSpheres,
@@ -108,8 +119,10 @@ enum SLCommand
     C_aboutToggle,
     C_helpToggle,
     C_creditsToggle,
+    C_noCalibToggle,
     C_sceneInfoToggle,
     C_quit,
+    C_clearCalibration,
 
     C_multiSampleToggle,// Toggles multisampling
     C_depthTestToggle,  // Toggles the depth test flag
@@ -158,7 +171,11 @@ enum SLCommand
     C_camSpeedLimitInc, // Increments the speed limit by 10%
     C_camSpeedLimitDec, // Decrements the speed limit by 10%
 
-    C_statsToggle,      // Toggles statistics on/off
+    C_statsTimingToggle,
+    C_statsRendererToggle,
+    C_statsMemoryToggle,
+    C_statsVideoToggle,
+    C_statsCameraToggle,
 
     C_renderOpenGL,     // Render with GL
     C_rtContinuously,   // Do ray tracing continuously
@@ -302,6 +319,7 @@ enum SLShaderProg
 {   SP_colorAttribute,
     SP_colorUniform,
     SP_perVrtBlinn,
+    SP_perVrtBlinnColorAttrib,
     SP_perVrtBlinnTex,
     SP_TextureOnly,
     SP_perPixBlinn,
@@ -330,6 +348,29 @@ enum SLLogVerbosity
     LV_normal = 2,
     LV_detailed = 3,
     LV_diagnostic = 4
+};
+//-----------------------------------------------------------------------------
+//! OpenCV Calibration state
+enum SLCVCalibState 
+{   CS_uncalibrated,    //!< The camera is not calibrated (no calibration found)
+    CS_calibrateStream, //!< The calibration is running with live video stream
+    CS_calibrateGrab,   //!< The calibration is running and an image should be grabbed
+    CS_startCalculating,//!< The calibration starts during the next frame
+    CS_calibrated       //!< The camera is calibrated 
+};
+//-----------------------------------------------------------------------------
+//! OpenCV feature type
+enum SLCVFeatureType
+{   FT_SIFT,    //!<
+    FT_SURF,    //!<
+    FT_ORB      //!< 
+};
+//-----------------------------------------------------------------------------
+//! Video type if multiple exist on mobile devices
+enum SLVideoType
+{   VT_NONE =  0,  //!< No camera needed
+    VT_MAIN =  1,  //!< Back facing camera on mobile devices
+    VT_SCND =  2,  //!< Front facing camera on mobile devices
 };
 //-----------------------------------------------------------------------------
 #endif

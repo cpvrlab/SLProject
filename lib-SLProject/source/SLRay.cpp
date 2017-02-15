@@ -13,7 +13,6 @@
 #endif
 
 #include <SLRay.h>
-#include <SLMesh.h>
 
 // init static variables
 SLint   SLRay::maxDepth = 0;
@@ -54,7 +53,7 @@ SLRay::SLRay()
     hitTriangle     = -1;
     hitPoint        = SLVec3f::ZERO;
     hitNormal       = SLVec3f::ZERO;
-    hitTexCol       = SLCol4f::BLACK;
+    hitColor       = SLCol4f::BLACK;
     hitNode         = nullptr;
     hitMesh         = nullptr;
     srcNode         = nullptr;
@@ -80,7 +79,7 @@ SLRay::SLRay(SLVec3f Origin, SLVec3f Dir, SLfloat X, SLfloat Y, SLCol4f backColo
     hitTriangle     = -1;
     hitPoint        = SLVec3f::ZERO;
     hitNormal       = SLVec3f::ZERO;
-    hitTexCol       = SLCol4f::BLACK;
+    hitColor       = SLCol4f::BLACK;
     hitNode         = nullptr;
     hitMesh         = nullptr;
     srcNode         = nullptr;
@@ -109,7 +108,7 @@ SLRay::SLRay(SLfloat distToLight,
     depth           = rayFromHitPoint->depth;
     hitPoint        = SLVec3f::ZERO;
     hitNormal       = SLVec3f::ZERO;
-    hitTexCol       = SLCol4f::BLACK;
+    hitColor       = SLCol4f::BLACK;
     hitTriangle     = -1;
     hitNode         = nullptr;
     hitMesh         = nullptr;
@@ -138,7 +137,7 @@ void SLRay::print() const
 /*!
 SLRay::reflect calculates a secondary ray reflected at the normal, starting at 
 the intersection point. All vectors must be normalized vectors.
-R = 2(-I·N) N + I
+R = 2(-Iï¿½N) N + I
 */
 void SLRay::reflect(SLRay* reflected)
 {

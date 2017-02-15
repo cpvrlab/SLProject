@@ -24,13 +24,13 @@ class SLPolygon: public SLMesh
 {  public:                 
                         //! ctor for generic convex polygon
                         SLPolygon(SLVVec3f corner,
-                                  SLstring name = "Polygon",
+                                  SLstring name = "polygon mesh",
                                   SLMaterial* mat=0);
                            
                         //! ctor for generic convex polygon with texCoords          
                         SLPolygon(SLVVec3f corners,
                                   SLVVec2f texcoords,
-                                  SLstring name = "Polygon",
+                                  SLstring name = "polygon mesh",
                                   SLMaterial* mat=0);
                                      
                         //! ctor for centered rectangle in x-y-plane (N=-z)

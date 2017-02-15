@@ -13,11 +13,13 @@
 #include "qtGLWidget.h"
 #include "qtAnimationSlider.h"
 #include "qtPropertyTreeWidget.h"
-#include "qtPropertyTreeItem.h"
+#include "qtProperty.h"
 #include <qstylefactory.h>
 #include <QMessageBox>
 #include <QSplitter>
 #include <QIcon>
+#include <QFileDialog>
+#include <QDesktopServices>
 #include <functional>
 
 #include <SL.h>
@@ -30,8 +32,10 @@
 #include <SLCamera.h>
 #include <SLLight.h>
 #include <SLLightRect.h>
-#include <SLLightSphere.h>
+#include <SLLightSpot.h>
+#include <SLLightDirect.h>
 #include <SLAnimPlayback.h>
+#include <SLImporter.h>
 
 using namespace std::placeholders;
 
@@ -48,9 +52,7 @@ qtMainWindow::qtMainWindow(QWidget *parent, SLVstring cmdLineArgs) :
     ui->setupUi(this);
 
     _selectedNodeItem = 0;
-
     _selectedAnim = NULL;
-
     _menuFile = ui->menuFile;
     _menuCamera = ui->menuCamera;
     _menuAnimation = ui->menuAnimation;
@@ -112,6 +114,8 @@ qtMainWindow::qtMainWindow(QWidget *parent, SLVstring cmdLineArgs) :
     splitter->show();
     borderWidget->show();
     _activeGLWidget->show();
+
+    loadSettings();
 }
 
 qtMainWindow::~qtMainWindow()
@@ -119,6 +123,47 @@ qtMainWindow::~qtMainWindow()
     delete ui;
 }
 
+//-----------------------------------------------------------------------------
+//! Loads the applications settings via QSettings
+void qtMainWindow::loadSettings()
+{
+    int posx = _settings.value("window/posx", 0).toInt();
+    int posy = _settings.value("window/posy", 0).toInt();
+    int width = _settings.value("window/width", 800).toInt();
+    int height = _settings.value("window/height", 600).toInt();
+    this->move(QPoint(posx, posy));
+    this->resize(QSize(width, height));
+
+    ui->actionFind_degenerated->setChecked(_settings.value("processFlags/findDegenerated", true).toBool());
+    ui->actionFind_invalid_data->setChecked(_settings.value("processFlags/findInvalidData", true).toBool());
+    ui->actionSplit_large_meshes->setChecked(_settings.value("processFlags/splitLargeMeshes", true).toBool());
+    ui->actionFix_infacing_normals->setChecked(_settings.value("processFlags/fixInfacingNormals", true).toBool());
+    ui->actionJoin_identical_vertices->setChecked(_settings.value("processFlags/joinIdenticalVertices", true).toBool());
+    ui->actionRemove_redundant_materials->setChecked(_settings.value("processFlags/removeRedundantMaterials", true).toBool());
+    ui->actionUse_dark_ui->setChecked(_settings.value("window/UseDarkUI", false).toBool());
+}
+//-----------------------------------------------------------------------------
+//! Saves the settings values via QSettings
+void qtMainWindow::saveSettings()
+{
+    int posx =  this->pos().x();
+    int posy =  this->pos().y();
+    int width = this->width();
+    int height = this->height();
+    bool useDarkUI = ui->actionUse_dark_ui->isChecked();
+
+    _settings.setValue("window/posx", posx);
+    _settings.setValue("window/posy", posy);
+    _settings.setValue("window/width", width);
+    _settings.setValue("window/height", height);
+    _settings.setValue("window/UseDarkUI", useDarkUI);
+    _settings.setValue("processFlags/findDegenerated", ui->actionFind_degenerated->isChecked());
+    _settings.setValue("processFlags/findInvalidData", ui->actionFind_invalid_data->isChecked());
+    _settings.setValue("processFlags/splitLargeMeshes", ui->actionSplit_large_meshes->isChecked());
+    _settings.setValue("processFlags/fixInfacingNormals", ui->actionFix_infacing_normals->isChecked());
+    _settings.setValue("processFlags/joinIdenticalVertices", ui->actionJoin_identical_vertices->isChecked());
+    _settings.setValue("processFlags/removeRedundantMaterials", ui->actionRemove_redundant_materials->isChecked());
+}
 //-----------------------------------------------------------------------------
 //! Sets the correct menu checkmarks
 void qtMainWindow::setMenuState()
@@ -131,19 +176,25 @@ void qtMainWindow::setMenuState()
     // Assemble menu bar
     ui->menuBar->clear();
     ui->menuBar->addMenu(_menuFile);
-    ui->menuBar->addMenu(_menuRenderer);
-    ui->menuBar->addMenu(_menuInfos);
-    ui->menuBar->addMenu(_menuCamera);
-    ui->menuBar->addMenu(_menuAnimation);
-    ui->menuBar->addMenu(_menuRenderFlags);
-    if (sv->renderType()==RT_rt)
-        ui->menuBar->addMenu(_menuRayTracing);
-    if (sv->renderType()==RT_rt)
-        ui->menuBar->addMenu(_menuPathTracing);
-    ui->menuBar->addMenu(_menuWindow);
+    
+    if (s->root3D())
+    {   ui->menuBar->addMenu(_menuRenderer);
+        ui->menuBar->addMenu(_menuInfos);
+        ui->menuBar->addMenu(_menuCamera);
+        ui->menuBar->addMenu(_menuAnimation);
+        ui->menuBar->addMenu(_menuRenderFlags);
+        if (sv->renderType()==RT_rt)
+            ui->menuBar->addMenu(_menuRayTracing);
+        if (sv->renderType()==RT_rt)
+            ui->menuBar->addMenu(_menuPathTracing);
+        ui->menuBar->addMenu(_menuWindow);
+    }
     ui->menuBar->addMenu(_menuHelp);
 
+    ui->toolBar->setEnabled(s->root3D()!=nullptr);
+
     // Menu Load Scenes
+    ui->actionClose_Scene->setEnabled(s->root3D()!=nullptr);
     ui->actionSmall_Test_Scene->setChecked(s->currentSceneID()==C_sceneMinimal);
     ui->actionLarge_Model->setChecked(s->currentSceneID()==C_sceneLargeModel);
     ui->actionFigure->setChecked(s->currentSceneID()==C_sceneFigure);
@@ -163,8 +214,7 @@ void qtMainWindow::setMenuState()
 
     ui->actionNode_Animation->setChecked(s->currentSceneID()==C_sceneNodeAnimation);
     ui->actionSkeletal_Animation->setChecked(s->currentSceneID()==C_sceneSkeletalAnimation);
-    ui->actionAstroboy_Army_CPU->setChecked(s->currentSceneID()==C_sceneAstroboyArmyCPU);
-    ui->actionAstroboy_Army_GPU->setChecked(s->currentSceneID()==C_sceneAstroboyArmyGPU);
+    ui->actionAstroboy_Army_CPU->setChecked(s->currentSceneID()==C_sceneAstroboyArmy);
     ui->actionMass_Animation->setChecked(s->currentSceneID()==C_sceneMassAnimation);
 
     ui->actionRT_Spheres->setChecked(s->currentSceneID()==C_sceneRTSpheres);
@@ -186,7 +236,7 @@ void qtMainWindow::setMenuState()
     ui->actionShow_Animation_Controler->setChecked(ui->dockAnimation->isVisible());
     ui->actionShow_Toolbar->setChecked(ui->toolBar->isVisible());
     ui->actionShow_Statusbar->setChecked(ui->statusBar->isVisible());
-    ui->actionShow_Statistics->setChecked(sv->showStats());
+    ui->actionShow_Statistics->setChecked(sv->showStatsTiming());
     ui->actionShow_Scene_Info->setChecked(sv->showInfo());
     ui->actionShow_Menu->setChecked(sv->showMenu());
 
@@ -293,26 +343,26 @@ void qtMainWindow::buildPropertyTree()
     ui->propertyTree->setUpdatesEnabled(false); // do this for performance
 
     qtPropertyTreeWidget::isBeingBuilt = true;
-    qtPropertyTreeItem *level1, *level2, *level3;
+    qtProperty *level1, *level2, *level3, *level4;
     SLNode* node = 0;
-    bool allowEdit = false;
+    qtProperty::ActionOnDblClick onDblClickEdit = qtProperty::ActionOnDblClick::edit;
+    qtProperty::ActionOnDblClick onDblClickPick = qtProperty::ActionOnDblClick::colorPick;
+    qtProperty::ActionOnDblClick onDblClickFile = qtProperty::ActionOnDblClick::openFile;
 
     // Show Node Properties
     if (_selectedNodeItem->node())
     {  
         node = _selectedNodeItem->node();
 
-        level1 = new qtPropertyTreeItem("Node Name:", "", allowEdit);
+        level1 = new qtProperty("Node Name:", "", onDblClickEdit);
         level1->setGetString(bind((const string&(SLNode::*)(void)const)&SLNode::name, node),
-                            bind((void(SLNode::*)(const string&))&SLNode::name, node, _1));
+                             bind((void(SLNode::*)(const string&))&SLNode::name, node, _1));
         ui->propertyTree->addTopLevelItem(level1);
       
-        level1 = new qtPropertyTreeItem("No. of child nodes:",
-                                        QString::number(node->children().size()));
+        level1 = new qtProperty("No. of child nodes:", QString::number(node->children().size()));
         ui->propertyTree->addTopLevelItem(level1);
       
-        level1 = new qtPropertyTreeItem("No. of child meshes:",
-                                        QString::number(node->meshes().size()));
+        level1 = new qtProperty("No. of child meshes:", QString::number(node->meshes().size()));
         ui->propertyTree->addTopLevelItem(level1);
 
         // Get the object transform matrix
@@ -321,64 +371,64 @@ void qtMainWindow::buildPropertyTree()
         om.decompose(translation, rotAngles, scaleFactors);
         rotAngles *= SL_RAD2DEG;
       
-        level1 = new qtPropertyTreeItem("Local Transform:");
+        level1 = new qtProperty("Local Transform:");
         ui->propertyTree->addTopLevelItem(level1);
 
-        level2 = new qtPropertyTreeItem("Translation:", QString::fromStdString(translation.toString()));
+        level2 = new qtProperty("Translation:", QString::fromStdString(translation.toString()), onDblClickEdit);
         level1->addChild(level2);
 
-        level2 = new qtPropertyTreeItem("Rotation:", QString::fromStdString(rotAngles.toString()));
+        level2 = new qtProperty("Rotation:", QString::fromStdString(rotAngles.toString()), onDblClickEdit);
         level1->addChild(level2);
 
-        level2 = new qtPropertyTreeItem("Scaling:", QString::fromStdString(scaleFactors.toString()));
+        level2 = new qtProperty("Scaling:", QString::fromStdString(scaleFactors.toString()), onDblClickEdit);
         level1->addChild(level2);
 
       
         // Add Drawing flags sub items
-        level1 = new qtPropertyTreeItem("Drawflags:");
+        level1 = new qtProperty("Drawflags:");
         ui->propertyTree->addTopLevelItem(level1);
 
-        level2 = new qtPropertyTreeItem("Hide:", "", true);
+        level2 = new qtProperty("Hide:", "", onDblClickEdit);
         level2->setGetBool(bind((bool(SLNode::*)(uint))&SLNode::drawBit, node, SL_DB_HIDDEN),
                            bind((void(SLNode::*)(uint, bool))&SLNode::setDrawBitsRec, node, SL_DB_HIDDEN, _1));
         level1->addChild(level2);
 
-        level2 = new qtPropertyTreeItem("Show Normals:", "", true);
+        level2 = new qtProperty("Show Normals:", "", onDblClickEdit);
         level2->setGetBool(bind((bool(SLNode::*)(uint))&SLNode::drawBit, node, SL_DB_NORMALS),
                            bind(&SLNode::setDrawBitsRec, node, SL_DB_NORMALS, _1));
         level1->addChild(level2);
 
-        level2 = new qtPropertyTreeItem("Show Wire Mesh:", "", true);
-        level2->setGetBool(bind((bool(SLNode::*)(uint))&SLNode::drawBit, node, SL_DB_WIREMESH),
+        level2 = new qtProperty("Show Wire Mesh:", "", onDblClickEdit);
+        level2->setGetBool(bind((SLbool(SLNode::*)(SLuint))&SLNode::drawBit, node, SL_DB_WIREMESH),
                            bind(&SLNode::setDrawBitsRec, node, SL_DB_WIREMESH, _1));
         level1->addChild(level2);
 
-        level2 = new qtPropertyTreeItem("Show Bounding Box:", "", true);
+        level2 = new qtProperty("Show Bounding Box:", "", onDblClickEdit);
         level2->setGetBool(bind((bool(SLNode::*)(uint))&SLNode::drawBit, node, SL_DB_BBOX),
                            bind(&SLNode::setDrawBitsRec, node, SL_DB_BBOX, _1));
         level1->addChild(level2);
 
-        level2 = new qtPropertyTreeItem("Show Axis:", "", true);
+        level2 = new qtProperty("Show Axis:", "", onDblClickEdit);
         level2->setGetBool(bind((bool(SLNode::*)(uint))&SLNode::drawBit, node, SL_DB_AXIS),
                            bind(&SLNode::setDrawBitsRec, node, SL_DB_AXIS, _1));
         level1->addChild(level2);
 
-        level2 = new qtPropertyTreeItem("Show Skeleton:", "", true);
+        level2 = new qtProperty("Show Skeleton:", "", onDblClickEdit);
         level2->setGetBool(bind((bool(SLNode::*)(uint))&SLNode::drawBit, node, SL_DB_SKELETON),
                            bind(&SLNode::setDrawBitsRec, node, SL_DB_SKELETON, _1));
         level1->addChild(level2);
 
-        level2 = new qtPropertyTreeItem("Show Voxels:", "", true);
+        level2 = new qtProperty("Show Voxels:", "", onDblClickEdit);
         level2->setGetBool(bind((bool(SLNode::*)(uint))&SLNode::drawBit, node, SL_DB_VOXELS),
                            bind(&SLNode::setDrawBitsRec, node, SL_DB_VOXELS, _1));
         level1->addChild(level2);
 
-        level2 = new qtPropertyTreeItem("Show Back Faces:", "", true);
+        level2 = new qtProperty("Show Back Faces:", "", onDblClickEdit);
         level2->setGetBool(bind((bool(SLNode::*)(uint))&SLNode::drawBit, node, SL_DB_CULLOFF),
                            bind(&SLNode::setDrawBitsRec, node, SL_DB_CULLOFF, _1));
         level1->addChild(level2);
 
-        level2 = new qtPropertyTreeItem("Textures off:", "", true);
+        level2 = new qtProperty("Textures off:", "", onDblClickEdit);
         level2->setGetBool(bind((bool(SLNode::*)(uint))&SLNode::drawBit, node, SL_DB_TEXOFF),
                            bind(&SLNode::setDrawBitsRec, node, SL_DB_TEXOFF, _1));
         level1->addChild(level2);
@@ -389,60 +439,94 @@ void qtMainWindow::buildPropertyTree()
         {
             SLCamera* cam = (SLCamera*)node;
             if (cam == _activeGLWidget->sv()->camera())
-                 level1 = new qtPropertyTreeItem("Camera (active):");
-            else level1 = new qtPropertyTreeItem("Camera:");
+                 level1 = new qtProperty("Camera (active):");
+            else level1 = new qtProperty("Camera:");
             ui->propertyTree->addTopLevelItem(level1);
 
-            level2 = new qtPropertyTreeItem("Field of view:", "", allowEdit);
+            level2 = new qtProperty("Field of view:", "", onDblClickEdit);
             level2->setGetFloat(bind((float(SLCamera::*)(void) const)&SLCamera::fov, cam),
                                 bind((void(SLCamera::*)(float))&SLCamera::fov, cam, _1));
             level1->addChild(level2);
 
-            level2 = new qtPropertyTreeItem("Near clip plane:", "", allowEdit);
+            level2 = new qtProperty("Near clip plane:", "", onDblClickEdit);
             level2->setGetFloat(bind((float(SLCamera::*)(void) const)&SLCamera::clipNear, cam),
                                 bind((void(SLCamera::*)(float))&SLCamera::clipNear, cam, _1));
             level1->addChild(level2);
 
-            level2 = new qtPropertyTreeItem("Far clip plane:", "", allowEdit);
+            level2 = new qtProperty("Far clip plane:", "", onDblClickEdit);
             level2->setGetFloat(bind((float(SLCamera::*)(void) const)&SLCamera::clipFar, cam),
                                 bind((void(SLCamera::*)(float))&SLCamera::clipFar, cam, _1));
             level1->addChild(level2);
         }
 
         // Show special light properties
-        if (typeid(*node)==typeid(SLLightSphere) || typeid(*node)==typeid(SLLightRect))
+        if (typeid(*node)==typeid(SLLightSpot) || 
+            typeid(*node)==typeid(SLLightRect) || 
+            typeid(*node)==typeid(SLLightDirect))
         {
             SLLight* light;
-            if (typeid(*node)==typeid(SLLightSphere)) light = (SLLight*)(SLLightSphere*)node;
-            if (typeid(*node)==typeid(SLLightRect)) light = (SLLight*)(SLLightRect*)node;
+            SLstring typeName;
+            if (typeid(*node)==typeid(SLLightSpot))   
+            {   light = (SLLight*)(SLLightSpot*)node;
+                typeName = "Light (spot):";
+            }
+            if (typeid(*node)==typeid(SLLightRect))   
+            {   light = (SLLight*)(SLLightRect*)node;
+                typeName = "Light (rectangular):";
+            }
+            if (typeid(*node)==typeid(SLLightDirect))   
+            {   light = (SLLight*)(SLLightDirect*)node;
+                typeName = "Light (directional):";
+            }
 
-            level1 = new qtPropertyTreeItem("Light:");
+            level1 = new qtProperty(typeName.c_str());
             ui->propertyTree->addTopLevelItem(level1);
 
-            level2 = new qtPropertyTreeItem("Turned on:", "", true);
-            level2->setGetBool(bind((bool(SLLight::*)(void))&SLLight::on, light),
-                               bind((void(SLLight::*)(bool))&SLLight::on, light, _1));
+            level2 = new qtProperty("Turned on:", "", onDblClickEdit);
+            level2->setGetBool(bind((bool(SLLight::*)(void))&SLLight::isOn, light),
+                               bind((void(SLLight::*)(bool))&SLLight::isOn, light, _1));
             level1->addChild(level2);
 
-            level2 = new qtPropertyTreeItem("Ambient Intensity:", "", allowEdit);
+            level2 = new qtProperty("Ambient Intensity:", "", onDblClickEdit);
             level2->setGetVec4f(bind((SLCol4f(SLLight::*)(void))&SLLight::ambient, light),
                                 bind((void(SLLight::*)(SLCol4f))&SLLight::ambient, light, _1));
             level1->addChild(level2);
 
-            level2 = new qtPropertyTreeItem("Diffuse Intensity:", "", allowEdit);
+            level2 = new qtProperty("Diffuse Intensity:", "", onDblClickEdit);
             level2->setGetVec4f(bind((SLCol4f(SLLight::*)(void))&SLLight::diffuse, light),
                                 bind((void(SLLight::*)(SLCol4f))&SLLight::diffuse, light, _1));
             level1->addChild(level2);
 
-            level2 = new qtPropertyTreeItem("Specular Intensity:", "", allowEdit);
+            level2 = new qtProperty("Specular Intensity:", "", onDblClickEdit);
             level2->setGetVec4f(bind((SLCol4f(SLLight::*)(void))&SLLight::specular, light),
                                 bind((void(SLLight::*)(SLCol4f))&SLLight::specular, light, _1));
             level1->addChild(level2);
 
-            level2 = new qtPropertyTreeItem("Cut off angle:", "", allowEdit);
-            level2->setGetFloat(bind((float(SLLight::*)(void))&SLLight::spotCutoff, light),
-                                bind((void(SLLight::*)(float))&SLLight::spotCutoff, light, _1));
-            level1->addChild(level2);
+            if (typeid(*node)!=typeid(SLLightDirect))
+            {
+                level2 = new qtProperty("Cut off angle:", "", onDblClickEdit);
+                level2->setGetFloat(bind((float(SLLight::*)(void))&SLLight::spotCutOffDEG, light),
+                                    bind((void(SLLight::*)(float))&SLLight::spotCutOffDEG, light, _1));
+                level1->addChild(level2);
+            
+                level2 = new qtProperty("Attenuation:");
+                level1->addChild(level2);
+            
+                level3 = new qtProperty("Constant factor:", "", onDblClickEdit);
+                level3->setGetFloat(bind((float(SLLight::*)(void))&SLLight::kc, light),
+                                    bind((void(SLLight::*)(float))&SLLight::kc, light, _1));
+                level2->addChild(level3);
+            
+                level3 = new qtProperty("Linear factor:", "", onDblClickEdit);
+                level3->setGetFloat(bind((float(SLLight::*)(void))&SLLight::kl, light),
+                                    bind((void(SLLight::*)(float))&SLLight::kl, light, _1));
+                level2->addChild(level3);
+            
+                level3 = new qtProperty("Quadratic factor:", "", onDblClickEdit);
+                level3->setGetFloat(bind((float(SLLight::*)(void))&SLLight::kq, light),
+                                    bind((void(SLLight::*)(float))&SLLight::kq, light, _1));
+                level2->addChild(level3);
+            }
 
         }
     }
@@ -453,64 +537,65 @@ void qtMainWindow::buildPropertyTree()
         SLMesh* mesh = _selectedNodeItem->mesh();
         SLMaterial* mat = mesh->mat;
 
-        level1 = new qtPropertyTreeItem("Mesh Name:", "", allowEdit);
+        level1 = new qtProperty("Mesh Name:", "", onDblClickEdit);
         level1->setGetString(bind((const string&(SLMesh::*)(void) const)&SLMesh::name, mesh),
                              bind((void(SLMesh::*)(const string&))&SLMesh::name, mesh, _1));
         ui->propertyTree->addTopLevelItem(level1);
 
         if (mesh->primitive()==PT_triangles)
-            level1 = new qtPropertyTreeItem("Vertices/Triangles",
-                                            QString::number(mesh->P.size())+" / "+
-                                            QString::number(mesh->numI()/3));
+            level1 = new qtProperty("Vertices/Triangles",
+                                    QString::number(mesh->P.size())+" / "+
+                                    QString::number(mesh->numI()/3));
         if (mesh->primitive()==PT_lines)
-            level1 = new qtPropertyTreeItem("Vertices/Lines",
-                                            QString::number(mesh->P.size())+" / "+
-                                            QString::number(mesh->numI()/2));
+            level1 = new qtProperty("Vertices/Lines",
+                                    QString::number(mesh->P.size())+" / "+
+                                    QString::number(mesh->numI()/2));
         ui->propertyTree->addTopLevelItem(level1);
 
         if (mat)
         {
-            level1 = new qtPropertyTreeItem("Material:", "", allowEdit);
+            level1 = new qtProperty("Material Name:", "", onDblClickEdit);
             level1->setGetString(bind((const string&(SLMaterial::*)(void)const)&SLMaterial::name, mat),
                                  bind((void(SLMaterial::*)(const string&))&SLMaterial::name, mat, _1));
             ui->propertyTree->addTopLevelItem(level1);
 
-            level2 = new qtPropertyTreeItem("Ambient Color:", "", allowEdit);
+            level2 = new qtProperty("Ambient Color:", "", onDblClickPick);
             level2->setGetVec4f(bind((SLCol4f(SLMaterial::*)(void))&SLMaterial::ambient, mat),
                                 bind((void(SLMaterial::*)(SLCol4f))&SLMaterial::ambient, mat, _1));
             level1->addChild(level2);
 
-            level2 = new qtPropertyTreeItem("Diffuse Color:", "", allowEdit);
+
+            level2 = new qtProperty("Diffuse Color:", "", onDblClickPick);
             level2->setGetVec4f(bind((SLCol4f(SLMaterial::*)(void))&SLMaterial::diffuse, mat),
                                 bind((void(SLMaterial::*)(SLCol4f))&SLMaterial::diffuse, mat, _1));
             level1->addChild(level2);
 
-            level2 = new qtPropertyTreeItem("Specular Color:", "", allowEdit);
+            level2 = new qtProperty("Specular Color:", "", onDblClickPick);
             level2->setGetVec4f(bind((SLCol4f(SLMaterial::*)(void))&SLMaterial::specular, mat),
                                 bind((void(SLMaterial::*)(SLCol4f))&SLMaterial::specular, mat, _1));
             level1->addChild(level2);
 
-            level2 = new qtPropertyTreeItem("Emissive Color:", "", allowEdit);
+            level2 = new qtProperty("Emissive Color:", "", onDblClickPick);
             level2->setGetVec4f(bind((SLCol4f(SLMaterial::*)(void))&SLMaterial::emission, mat),
                                 bind((void(SLMaterial::*)(SLCol4f))&SLMaterial::emission, mat, _1));
             level1->addChild(level2);
 
-            level2 = new qtPropertyTreeItem("Shininess:", "", allowEdit);
+            level2 = new qtProperty("Shininess:", "", onDblClickEdit);
             level2->setGetFloat(bind((float(SLMaterial::*)(void))&SLMaterial::shininess, mat),
                                 bind((void(SLMaterial::*)(float))&SLMaterial::shininess, mat, _1));
             level1->addChild(level2);
 
-            level2 = new qtPropertyTreeItem("Reflectivity:", "", allowEdit);
+            level2 = new qtProperty("Reflectivity:", "", onDblClickEdit);
             level2->setGetFloat(bind((float(SLMaterial::*)(void))&SLMaterial::kr, mat),
                                 bind((void(SLMaterial::*)(float))&SLMaterial::kr, mat, _1));
             level1->addChild(level2);
 
-            level2 = new qtPropertyTreeItem("Transparency:", "", allowEdit);
+            level2 = new qtProperty("Transparency:", "", onDblClickEdit);
             level2->setGetFloat(bind((float(SLMaterial::*)(void))&SLMaterial::kt, mat),
                                 bind((void(SLMaterial::*)(float))&SLMaterial::kt, mat, _1));
             level1->addChild(level2);
 
-            level2 = new qtPropertyTreeItem("Refractive Index:", "", allowEdit);
+            level2 = new qtProperty("Refractive Index:", "", onDblClickEdit);
             level2->setGetFloat(bind((float(SLMaterial::*)(void))&SLMaterial::kn, mat),
                                 bind((void(SLMaterial::*)(float))&SLMaterial::kn, mat, _1));
             level1->addChild(level2);
@@ -518,35 +603,40 @@ void qtMainWindow::buildPropertyTree()
 
             SLGLProgram *prog = mat->program();
             if (prog)
-            {  level2 = new qtPropertyTreeItem("Shader Program:");
+            {  level2 = new qtProperty("Shader Program:");
                 level1->addChild(level2);
 
                 SLVGLShader& shaders = prog->shaders();
                 for (auto shader : shaders)
                 {   if(shader->shaderType() ==ST_vertex)
-                    {   level3 = new qtPropertyTreeItem("Vertex Shader:");
-                        level3->setGetString(bind((const string&(SLGLShader::*)(void)const)&SLGLShader::name, shader),
-                                             bind((void(SLGLShader::*)(const string&))&SLGLShader::name, shader, _1));
+                    {   level3 = new qtProperty("Vertex Shader:", "", onDblClickFile);
+                        level3->getNameAndURL(bind((const string&(SLGLShader::*)(void)const)&SLGLShader::name, shader),
+                                              bind((const string&(SLGLShader::*)(void)const)&SLGLShader::url, shader));
                         level2->addChild(level3);
                     } else
                     if(shader->shaderType()==ST_fragment)
-                    {   level3 = new qtPropertyTreeItem("Fragment Shader:");
-                        level3->setGetString(bind((const string&(SLGLShader::*)(void)const)&SLGLShader::name, shader),
-                                             bind((void(SLGLShader::*)(const string&))&SLGLShader::name, shader, _1));
+                    {   level3 = new qtProperty("Fragment Shader:", "", onDblClickFile);
+                        level3->getNameAndURL(bind((const string&(SLGLShader::*)(void)const)&SLGLShader::name, shader),
+                                              bind((const string&(SLGLShader::*)(void)const)&SLGLShader::url, shader));
                         level2->addChild(level3);
                     }
                 }
             }
 
             if (mat->textures().size() > 0)
-            {   level2 = new qtPropertyTreeItem("Textures:");
+            {   level2 = new qtProperty("Textures:");
                 level1->addChild(level2);
 
                 for (auto texture : mat->textures())
-                {   level3 = new qtPropertyTreeItem("Texture:");
-                    level3->setGetString(bind((const string&(SLGLTexture::*)(void)const)&SLGLTexture::name, texture),
-                                         bind((void(SLGLTexture::*)(const string&))&SLGLTexture::name, texture, _1));
+                {   SLstring type = "Type: " + texture->typeName();
+                    level3 = new qtProperty("Texture:", type.c_str());
                     level2->addChild(level3);
+                    for (auto image : texture->images())
+                    {   level4 = new qtProperty("Image:", "", onDblClickFile);
+                        level4->getNameAndURL(bind((const string&(SLCVImage::*)(void)const)&SLCVImage::name, image),
+                                              bind((const string&(SLCVImage::*)(void)const)&SLCVImage::url, image));
+                        level3->addChild(level4);
+                    }
                 }
             }
         }
@@ -558,7 +648,7 @@ void qtMainWindow::buildPropertyTree()
     ui->propertyTree->update();
 }
 //-----------------------------------------------------------------------------
-void qtMainWindow::updateAnimationList()
+void qtMainWindow::updateAnimList()
 {
     // clear both lists
     SLbool hasAnimations = false;
@@ -593,7 +683,7 @@ void qtMainWindow::updateAnimationList()
 }
 
 //-----------------------------------------------------------------------------
-void qtMainWindow::updateAnimationTimeline()
+void qtMainWindow::updateAnimTimeline()
 {
     if (!_selectedAnim)
         return;
@@ -603,7 +693,7 @@ void qtMainWindow::updateAnimationTimeline()
 }
 
 //-----------------------------------------------------------------------------
-void qtMainWindow::selectAnimationFromNode(SLNode* node)
+void qtMainWindow::selectAnimFromNode(SLNode* node)
 {
     for(auto& kv : SLScene::current->animManager().animations())
     {
@@ -640,18 +730,22 @@ void qtMainWindow::selectAnimationFromNode(SLNode* node)
 //-----------------------------------------------------------------------------
 void qtMainWindow::beforeSceneLoad()
 {
-    //on_actionSingle_view_triggered();
+    QApplication::setOverrideCursor(Qt::WaitCursor);
+    QApplication::sync();
+
     _selectedNodeItem = 0;
     ui->nodeTree->clear();
     ui->propertyTree->clear();
-    updateAnimationList();
+    updateAnimList();
+    setMenuState();
 }
 //-----------------------------------------------------------------------------
 void qtMainWindow::afterSceneLoad()
 {
-    setMenuState();
     buildNodeTree();
-    updateAnimationList();
+    updateAnimList();
+    setMenuState();
+    QApplication::restoreOverrideCursor();
 }
 //-----------------------------------------------------------------------------
 void qtMainWindow::selectNodeOrMeshItem(SLNode* selectedNode, SLMesh* selectedMesh)
@@ -664,7 +758,7 @@ void qtMainWindow::selectNodeOrMeshItem(SLNode* selectedNode, SLMesh* selectedMe
 
 
     // select animation related to this node if it exists
-    selectAnimationFromNode(selectedNode);
+    selectAnimFromNode(selectedNode);
 
     QTreeWidgetItemIterator it(ui->nodeTree);
     while (*it) 
@@ -699,7 +793,7 @@ void qtMainWindow::selectNodeOrMeshItem(SLNode* selectedNode, SLMesh* selectedMe
 void qtMainWindow::updateAllGLWidgets()
 {
     for (auto widget : _allGLWidgets) widget->update();
-    updateAnimationTimeline();
+    updateAnimTimeline();
 }
 //-----------------------------------------------------------------------------
 void qtMainWindow::applyCommandOnSV(const SLCommand cmd)
@@ -760,6 +854,7 @@ void qtMainWindow::changeEvent(QEvent* event)
 void qtMainWindow::closeEvent(QCloseEvent *event)
 {  
     slTerminate();
+    saveSettings();
 }
 //-----------------------------------------------------------------------------
 
@@ -767,52 +862,132 @@ void qtMainWindow::closeEvent(QCloseEvent *event)
 // ACTIONS
 //
 // Menu File
-void qtMainWindow::on_action_Quit_triggered()
+void qtMainWindow::on_actionLoad_Asset_triggered()
+{
+    SLScene::current->init(); // calls first uninit
+    on_actionImport_Asset_triggered();
+}
+void qtMainWindow::on_actionImport_Asset_triggered()
+{   
+    beforeSceneLoad();
+    QApplication::restoreOverrideCursor();
+
+    QString path = _settings.value("lastFileOpenPath", "").toString();
+    QFileDialog dlg(this);
+    if (!path.isEmpty() && QDir(path).exists()) 
+        dlg.setDirectory(path);
+    dlg.setFileMode(QFileDialog::ExistingFile);
+    dlg.setViewMode(QFileDialog::Detail);
+    dlg.setNameFilter(tr("3D-Asset-Files (*.obj *.fbx *.dae *.3ds)"));
+
+    QStringList names;
+    if (dlg.exec())
+        names = dlg.selectedFiles();
+
+    QApplication::setOverrideCursor(Qt::WaitCursor);
+    QApplication::sync();
+
+    if (names.size() > 0)
+    {
+        // store path in settings
+        SLstring filename = names.at(0).toLocal8Bit().constData();
+        SLstring path = SLUtils::getPath(filename);
+        _settings.setValue("lastFileOpenPath", path.c_str());
+
+        // Set default process flags
+        SLuint flags = 0;
+        flags |= SLProcess_Triangulate;
+        flags |= SLProcess_SortByPType;
+        //flags |= SLProcess_GenNormals;
+        flags |= SLProcess_GenSmoothNormals;
+
+        if (ui->actionFind_degenerated->isChecked()) flags |= SLProcess_FindDegenerates; 
+        if (ui->actionFind_invalid_data->isChecked()) flags |= SLProcess_FindInvalidData;
+        if (ui->actionSplit_large_meshes->isChecked()) flags |= SLProcess_SplitLargeMeshes;
+        if (ui->actionFix_infacing_normals->isChecked()) flags |= SLProcess_FixInfacingNormals;
+        if (ui->actionJoin_identical_vertices->isChecked()) flags |= SLProcess_JoinIdenticalVertices;
+        if (ui->actionRemove_redundant_materials->isChecked()) flags |= SLProcess_RemoveRedundantMaterials;
+
+        SLScene::current->onLoadAsset(filename, flags);
+    }
+    afterSceneLoad();
+    QApplication::restoreOverrideCursor();
+}
+void qtMainWindow::on_actionClose_Scene_triggered()
+{
+    SLScene::current->init(); // calls first uninit
+    beforeSceneLoad();
+    _activeGLWidget->sv()->waitEvents(true);
+    afterSceneLoad();
+}
+void qtMainWindow::on_actionSet_default_settings_triggered()
+{
+    ui->actionFind_degenerated->setChecked(true);
+    ui->actionGenerate_smooth_normals->setChecked(true);
+    ui->actionFind_invalid_data->setChecked(true);
+    ui->actionFix_infacing_normals->setChecked(true);
+    ui->actionSplit_large_meshes->setChecked(true);
+    ui->actionSort_by_primitive_type->setChecked(true);
+    ui->actionRemove_redundant_materials->setChecked(true);
+}
+void qtMainWindow::on_actionShow_process_info_triggered()
+{   
+    QUrl url("http://www.assimp.org/lib_html/postprocess_8h.html");
+    QDesktopServices::openUrl(url);
+}
+void qtMainWindow::on_actionQuit_triggered()
 {
     SLScene::current->unInit();
     delete SLScene::current;
     QApplication::exit(0);
 }
 
-// Menu Load Scene
+// Menu Load Test Scene
 void qtMainWindow::on_actionSmall_Test_Scene_triggered()
 {
+    SLScene::current->init(); // calls first uninit
     beforeSceneLoad();
     _activeGLWidget->sv()->onCommand(C_sceneMinimal);
     afterSceneLoad();
 }
 void qtMainWindow::on_actionLarge_Model_triggered()
 {
+    SLScene::current->init(); // calls first uninit
     beforeSceneLoad();
     _activeGLWidget->sv()->onCommand(C_sceneLargeModel);
     afterSceneLoad();
 }
 void qtMainWindow::on_actionFigure_triggered()
 {
+    SLScene::current->init(); // calls first uninit
     beforeSceneLoad();
     _activeGLWidget->sv()->onCommand(C_sceneFigure);
     afterSceneLoad();
 }
 void qtMainWindow::on_actionMesh_Loader_triggered()
 {
+    SLScene::current->init(); // calls first uninit
     beforeSceneLoad();
     _activeGLWidget->sv()->onCommand(C_sceneMeshLoad);
     afterSceneLoad();
 }
 void qtMainWindow::on_actionTexture_Blending_triggered()
 {
+    SLScene::current->init(); // calls first uninit
     beforeSceneLoad();
     _activeGLWidget->sv()->onCommand(C_sceneTextureBlend);
     afterSceneLoad();
 }
 void qtMainWindow::on_actionTexture_Filtering_triggered()
 {
+    SLScene::current->init(); // calls first uninit
     beforeSceneLoad();
     _activeGLWidget->sv()->onCommand(C_sceneTextureFilter);
     afterSceneLoad();
 }
 void qtMainWindow::on_actionFrustum_Culling_triggered()
 {
+    SLScene::current->init(); // calls first uninit
     beforeSceneLoad();
     _activeGLWidget->sv()->onCommand(C_sceneFrustumCull);
     afterSceneLoad();
@@ -820,48 +995,56 @@ void qtMainWindow::on_actionFrustum_Culling_triggered()
 
 void qtMainWindow::on_actionPer_Vertex_Lighting_triggered()
 {
+    SLScene::current->init(); // calls first uninit
     beforeSceneLoad();
     _activeGLWidget->sv()->onCommand(C_scenePerVertexBlinn);
     afterSceneLoad();
 }
 void qtMainWindow::on_actionPer_Pixel_Lighting_triggered()
 {
+    SLScene::current->init(); // calls first uninit
     beforeSceneLoad();
     _activeGLWidget->sv()->onCommand(C_scenePerPixelBlinn);
     afterSceneLoad();
 }
 void qtMainWindow::on_actionPer_Vertex_Wave_triggered()
 {
+    SLScene::current->init(); // calls first uninit
     beforeSceneLoad();
     _activeGLWidget->sv()->onCommand(C_scenePerVertexWave);
     afterSceneLoad();
 }
 void qtMainWindow::on_actionWater_triggered()
 {
+    SLScene::current->init(); // calls first uninit
     beforeSceneLoad();
     _activeGLWidget->sv()->onCommand(C_sceneWater);
     afterSceneLoad();
 }
 void qtMainWindow::on_actionBump_Mapping_triggered()
 {
+    SLScene::current->init(); // calls first uninit
     beforeSceneLoad();
     _activeGLWidget->sv()->onCommand(C_sceneBumpNormal);
     afterSceneLoad();
 }
 void qtMainWindow::on_actionParallax_Mapping_triggered()
 {
+    SLScene::current->init(); // calls first uninit
     beforeSceneLoad();
     _activeGLWidget->sv()->onCommand(C_sceneBumpParallax);
     afterSceneLoad();
 }
 void qtMainWindow::on_actionGlass_Shader_triggered()
 {
+    SLScene::current->init(); // calls first uninit
     beforeSceneLoad();
     _activeGLWidget->sv()->onCommand(C_sceneRevolver);
     afterSceneLoad();
 }
 void qtMainWindow::on_actionEarth_Shader_triggered()
 {
+    SLScene::current->init(); // calls first uninit
     beforeSceneLoad();
     _activeGLWidget->sv()->onCommand(C_sceneEarth);
     afterSceneLoad();
@@ -869,30 +1052,28 @@ void qtMainWindow::on_actionEarth_Shader_triggered()
 
 void qtMainWindow::on_actionNode_Animation_triggered()
 {
+    SLScene::current->init(); // calls first uninit
     beforeSceneLoad();
     _activeGLWidget->sv()->onCommand(C_sceneNodeAnimation);
     afterSceneLoad();
 }
 void qtMainWindow::on_actionSkeletal_Animation_triggered()
 {
+    SLScene::current->init(); // calls first uninit
     beforeSceneLoad();
     _activeGLWidget->sv()->onCommand(C_sceneSkeletalAnimation);
     afterSceneLoad();
 }
-void qtMainWindow::on_actionAstroboy_Army_CPU_triggered()
+void qtMainWindow::on_actionAstroboy_Army_triggered()
 {
+    SLScene::current->init(); // calls first uninit
     beforeSceneLoad();
-    _activeGLWidget->sv()->onCommand(C_sceneAstroboyArmyCPU);
-    afterSceneLoad();
-}
-void qtMainWindow::on_actionAstroboy_Army_GPU_triggered()
-{
-    beforeSceneLoad();
-    _activeGLWidget->sv()->onCommand(C_sceneAstroboyArmyGPU);
+    _activeGLWidget->sv()->onCommand(C_sceneAstroboyArmy);
     afterSceneLoad();
 }
 void qtMainWindow::on_actionMass_Animation_triggered()
 {
+    SLScene::current->init(); // calls first uninit
     beforeSceneLoad();
     _activeGLWidget->sv()->onCommand(C_sceneMassAnimation);
     afterSceneLoad();
@@ -900,30 +1081,35 @@ void qtMainWindow::on_actionMass_Animation_triggered()
 
 void qtMainWindow::on_actionRT_Spheres_triggered()
 {
+    SLScene::current->init(); // calls first uninit
     beforeSceneLoad();
     _activeGLWidget->sv()->onCommand(C_sceneRTSpheres);
     afterSceneLoad();
 }
 void qtMainWindow::on_actionRT_Muttenzer_Box_triggered()
 {
+    SLScene::current->init(); // calls first uninit
     beforeSceneLoad();
     _activeGLWidget->sv()->onCommand(C_sceneRTMuttenzerBox);
     afterSceneLoad();
 }
 void qtMainWindow::on_actionRT_Depth_of_Field_triggered()
 {
+    SLScene::current->init(); // calls first uninit
     beforeSceneLoad();
     _activeGLWidget->sv()->onCommand(C_sceneRTDoF);
     afterSceneLoad();
 }
 void qtMainWindow::on_actionRT_Lens_triggered()
 {
+    SLScene::current->init(); // calls first uninit
     beforeSceneLoad();
     _activeGLWidget->sv()->onCommand(C_sceneRTLens);
     afterSceneLoad();
 }
 void qtMainWindow::on_actionRT_Soft_Shadows_triggered()
 {
+    SLScene::current->init(); // calls first uninit
     beforeSceneLoad();
     _activeGLWidget->sv()->onCommand(C_sceneRTSoftShadows);
     afterSceneLoad();
@@ -985,7 +1171,7 @@ void qtMainWindow::on_actionShow_Statusbar_triggered()
 }
 void qtMainWindow::on_actionShow_Statistics_triggered()
 {
-    applyCommandOnSV(C_statsToggle);
+    applyCommandOnSV(C_statsTimingToggle);
 }
 void qtMainWindow::on_actionShow_Scene_Info_triggered()
 {
@@ -996,20 +1182,6 @@ void qtMainWindow::on_actionShow_Menu_triggered()
     SLSceneView* sv = _activeGLWidget->sv();
     sv->showMenu(!sv->showMenu());
     setMenuState();
-}
-void qtMainWindow::on_actionAbout_SLProject_triggered()
-{
-    QMessageBox::information(this, "About SLProject",
-                             QString::fromStdString(SLScene::current->infoAbout_en()));
-}
-void qtMainWindow::on_actionCredits_triggered()
-{
-    QMessageBox::information(this, "About External Libraries",
-                             QString::fromStdString(SLScene::current->infoCredits_en()).replace("\\n","\n"));
-}
-void qtMainWindow::on_actionAbout_Qt_triggered()
-{
-    QMessageBox::aboutQt(this, "About Qt");
 }
 
 // Menu Camera
@@ -1135,7 +1307,6 @@ void qtMainWindow::on_actionSlowdown_on_Idle_triggered()
 {
     applyCommandOnSV(C_waitEventsToggle);
 }
-
 void qtMainWindow::on_actionShow_Normals_triggered()
 {
     applyCommandOnSV(C_normalsToggle);
@@ -1168,7 +1339,6 @@ void qtMainWindow::on_actionTextures_off_triggered()
 {
     applyCommandOnSV(C_textureToggle);
 }
-
 void qtMainWindow::on_actionAnimation_off_triggered()
 {
     applyCommandOnSV(C_animationToggle);
@@ -1441,7 +1611,33 @@ void qtMainWindow::on_actionDelete_active_view_triggered()
     setMenuState();
 }
 
-// Other Slots
+// Help window
+void qtMainWindow::on_actionAbout_SLProject_triggered()
+{
+    QMessageBox::information(this, "About SLProject",
+                             QString::fromStdString(SLScene::current->infoAbout_en()));
+}
+void qtMainWindow::on_actionVisit_SLProject_on_Github_triggered()
+{
+    QUrl url("https://github.com/cpvrlab/SLProject");
+    QDesktopServices::openUrl(url);
+}
+void qtMainWindow::on_actionVisit_cpvrLab_homepage_triggered()
+{
+    QUrl url("https://www.cpvrlab.ti.bfh.ch");
+    QDesktopServices::openUrl(url);
+}
+void qtMainWindow::on_actionCredits_triggered()
+{
+    QMessageBox::information(this, "About External Libraries",
+                             QString::fromStdString(SLScene::current->infoCredits_en()).replace("\\n","\n"));
+}
+void qtMainWindow::on_actionAbout_Qt_triggered()
+{
+    QMessageBox::aboutQt(this, "About Qt");
+}
+
+// Tree actions
 void qtMainWindow::on_nodeTree_itemClicked(QTreeWidgetItem *item, int column)
 {
     SLScene* s = SLScene::current;
@@ -1474,6 +1670,21 @@ void qtMainWindow::on_nodeTree_itemDoubleClicked(QTreeWidgetItem *item, int colu
     // we need to set the menu state because the scene camera might not be active anymore
     setMenuState();
 }
+void qtMainWindow::on_propertyTree_itemChanged(QTreeWidgetItem *item, int column)
+{
+    ((qtProperty*)item)->onItemChanged(column);
+    ui->propertyTree->update();
+    updateAllGLWidgets();
+}
+void qtMainWindow::on_propertyTree_itemDoubleClicked(QTreeWidgetItem *item, int column)
+{   
+    if (((qtProperty*)item)->onDblClick() <= qtProperty::ActionOnDblClick::edit)
+        return;
+
+    ((qtProperty*)item)->onItemDblClicked(column);
+    ui->propertyTree->update();
+    updateAllGLWidgets();
+}
 void qtMainWindow::on_dockScenegraph_visibilityChanged(bool visible)
 {
     setMenuState();
@@ -1485,12 +1696,6 @@ void qtMainWindow::on_dockProperties_visibilityChanged(bool visible)
 void qtMainWindow::on_dockAnimation_visibilityChanged(bool visible)
 {
     setMenuState();
-}
-void qtMainWindow::on_propertyTree_itemChanged(QTreeWidgetItem *item, int column)
-{
-    ((qtPropertyTreeItem*)item)->onItemChanged(column);
-    ui->propertyTree->update();
-    updateAllGLWidgets();
 }
 
 // Animation Controller

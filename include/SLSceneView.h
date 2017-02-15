@@ -136,7 +136,6 @@ class SLSceneView: public SLObject
             void            build2DInfoRT       ();
             void            build2DInfoLoading  ();
             void            build2DMsgBoxes     ();
-            SLfloat         calcFPS             (SLfloat deltaTimeSec); 
             SLstring        windowTitle         ();
             void            startRaytracing     (SLint maxDepth);
             void            startPathtracing    (SLint maxDepth, SLint samples);
@@ -159,7 +158,11 @@ class SLSceneView: public SLObject
             void            showMenu        (SLbool show){_showMenu = show;
                                                           SLScene::current->menu2D(SLScene::current->menuGL());}
             void            showInfo        (SLbool show) {_showInfo = show;}
-            void            showStats       (SLbool show) {_showStats = show;}
+            void            showStatsTiming (SLbool show) {_showStatsTiming = show;}
+            void            showStatsRender (SLbool show) {_showStatsRenderer = show;}
+            void            showStatsMemory (SLbool show) {_showStatsMemory = show;}
+            void            showStatsCamera (SLbool show) {_showStatsCamera = show;}
+            void            showStatsVideo  (SLbool show) {_showStatsVideo = show;}
             void            gotPainted      (SLbool val) {_gotPainted = val;}
 
             // Getters
@@ -181,14 +184,18 @@ class SLSceneView: public SLObject
             SLbool          doDepthTest     () const {return _doDepthTest;}
             SLbool          usesRotation    () const {return _usesRotation;}
             SLbool          waitEvents      () const {return _waitEvents;}
-            SLbool          showStats       () const {return _showStats;}
+            SLbool          showStatsTiming () const {return _showStatsTiming;}
+            SLbool          showStatsOpenGL () const {return _showStatsRenderer;}
+            SLbool          showStatsMemory () const {return _showStatsMemory;}
+            SLbool          showStatsCamera () const {return _showStatsCamera;}
+            SLbool          showStatsVideo  () const {return _showStatsVideo;}
             SLbool          showInfo        () const {return _showInfo;}
             SLbool          showMenu        () const {return _showMenu;}
+            SLVNode*        visibleNodes    () {return &_visibleNodes;}
             SLVNode*        blendNodes      () {return &_blendNodes;}
-            SLVNode*        opaqueNodes     () {return &_opaqueNodes;}
             SLRaytracer*    raytracer       () {return &_raytracer;}
             SLPathtracer*   pathtracer      () {return &_pathtracer;}
-            SLRenderType      renderType      () const {return _renderType;}
+            SLRenderType    renderType      () const {return _renderType;}
             SLGLOculusFB*   oculusFB        () {return &_oculusFB;}
             SLDrawBits*     drawBits        () {return &_drawBits;}
             SLbool          drawBit         (SLuint bit) {return _drawBits.get(bit);}
@@ -196,7 +203,7 @@ class SLSceneView: public SLObject
             SLfloat         draw3DTimeMS    () const {return _draw3DTimeMS;}
             SLfloat         draw2DTimeMS    () const {return _draw2DTimeMS;}
 
-    static const SLint      LONGTOUCH_MS;       //!< Milliseconds duration of a long touch event 
+    static const SLint      LONGTOUCH_MS;       //!< Milliseconds duration of a long touch event
 
    protected:
             SLuint          _index;             //!< index of this pointer in SLScene::sceneView vector
@@ -206,17 +213,22 @@ class SLSceneView: public SLObject
             SLNodeStats     _stats;             //!< Statistic numbers
             SLbool          _gotPainted;        //!< flag if this sceneview got painted
 
-            SLRenderType      _renderType;        //!< rendering type (GL,RT,PT)
+            SLRenderType    _renderType;        //!< rendering type (GL,RT,PT)
             
             SLbool          _doDepthTest;       //!< Flag if depth test is turned on
             SLbool          _doMultiSampling;   //!< Flag if multisampling is on
             SLbool          _doFrustumCulling;  //!< Flag if view frustum culling is on
             SLbool          _waitEvents;        //!< Flag for Event waiting
+            SLbool          _isFirstFrame;      //!< Flag if it is the first frame rendering
             SLbool          _usesRotation;      //!< Flag if device rotation is used
             SLDrawBits      _drawBits;          //!< Sceneview level drawing flags
 
+            SLbool          _showStatsTiming;   //!< Flag if timing stats should be displayed
+            SLbool          _showStatsRenderer; //!< Flag if GL or RT stats should be displayed
+            SLbool          _showStatsCamera;   //!< Flag if camera stats should be displayed
+            SLbool          _showStatsMemory;   //!< Flag if memory stats should be displayed
+            SLbool          _showStatsVideo;    //!< Flag if video stats should be displayed
             SLbool          _showMenu;          //!< Flag if menu should be displayed
-            SLbool          _showStats;         //!< Flag if stats should be displayed
             SLbool          _showInfo;          //!< Flag if help should be displayed
             SLbool          _showLoading;       //!< Flag if loading should be displayed
 
@@ -245,23 +257,14 @@ class SLSceneView: public SLObject
             SLGLOculusFB    _oculusFB;          //!< Oculus framebuffer
 			SLbool			_vrMode;			//!< Flag if we're in VR mode (forces camera to stereoD)
 
-            SLVNode         _blendNodes;        //!< Vector of blended nodes
-            SLVNode         _opaqueNodes;       //!< Vector of opaque nodes
+            SLVNode         _blendNodes;        //!< Vector of visible and blended nodes
+            SLVNode         _visibleNodes;      //!< Vector of all visible nodes
             
             SLRaytracer     _raytracer;         //!< Whitted style raytracer
             SLbool          _stopRT;            //!< Flag to stop the RT
 
             SLPathtracer    _pathtracer;        //!< Pathtracer
-            SLbool          _stopPT;            //!< Flag to stop the PT 
-
-
-            // temporary test stuff
-            SLfloat         _animTime;
-            SLbool          _runAnim;
-            SLbool          _runBackwards;
-            SLfloat         _animMultiplier;
-            SLbool          _showAnimWeightEffects;
-            SLfloat         _animWeightTime;
+            SLbool          _stopPT;            //!< Flag to stop the PT
 };
 //-----------------------------------------------------------------------------
 #endif

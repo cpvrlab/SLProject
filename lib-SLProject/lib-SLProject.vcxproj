@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project DefaultTargets="Build" ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project DefaultTargets="Build" ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Android">
       <Configuration>Debug</Configuration>
@@ -37,13 +37,13 @@
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <CharacterSet>Unicode</CharacterSet>
     <WholeProgramOptimization>true</WholeProgramOptimization>
-    <PlatformToolset>v120</PlatformToolset>
+    <PlatformToolset>v140</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <CharacterSet>Unicode</CharacterSet>
     <WholeProgramOptimization>true</WholeProgramOptimization>
-    <PlatformToolset>v120</PlatformToolset>
+    <PlatformToolset>v140</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Android'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
@@ -56,12 +56,12 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <CharacterSet>Unicode</CharacterSet>
-    <PlatformToolset>v120</PlatformToolset>
+    <PlatformToolset>v140</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <CharacterSet>Unicode</CharacterSet>
-    <PlatformToolset>v120</PlatformToolset>
+    <PlatformToolset>v140</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Android'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
@@ -180,12 +180,12 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>$(ProjectDir);..\include;..\lib-SLExternal;..\lib-SLExternal\jpeg-8;..\lib-SLExternal\png;..\lib-SLExternal\zlib;..\lib-SLExternal\glew\include;..\lib-SLExternal\glfw3\include;..\lib-SLExternal\randomc;..\lib-SLExternal\Shoemake;..\lib-SLExternal\oculus\LibOVR\Include\;..\lib-SLExternal\nvwa;..\lib-SLExternal\assimp\include;..\lib-SLExternal\assimp\code;..\lib-SLExternal\dirent;..\lib-SLExternal\opencv\include;..\lib-SLExternal\half\include</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>SL_HAS_OPENCV;SL_STARTSCENE#C_sceneRTMuttenzerBox;GLEW_STATIC;_DEBUG;UNICODE;WIN32;_WINDOWS;_CRT_SECURE_NO_WARNING</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(ProjectDir);..\include;..\lib-SLExternal;..\lib-SLExternal\zlib;..\lib-SLExternal\glew\include;..\lib-SLExternal\glfw3\include;..\lib-SLExternal\randomc;..\lib-SLExternal\Shoemake;..\lib-SLExternal\oculus\LibOVR\Include\;..\lib-SLExternal\nvwa;..\lib-SLExternal\assimp\include;..\lib-SLExternal\assimp\code;..\lib-SLExternal\dirent;..\lib-SLExternal\opencv\include</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>SL_STARTSCENE#C_sceneRTMuttenzerBox;SL_HAS_OPENCV;SL_USES_CVCAPTURE;GLEW_STATIC;_DEBUG;UNICODE;WIN32;_WINDOWS;_CRT_SECURE_NO_WARNING</PreprocessorDefinitions>
       <TreatWChar_tAsBuiltInType>false</TreatWChar_tAsBuiltInType>
       <OpenMPSupport>false</OpenMPSupport>
       <PrecompiledHeader>Use</PrecompiledHeader>
-      <PrecompiledHeaderOutputFile>$(IntDir)$(TargetName).pch</PrecompiledHeaderOutputFile>
+      <PrecompiledHeaderOutputFile>$(IntDir)$(TargetName)_$(Configuration).pch</PrecompiledHeaderOutputFile>
       <ProgramDataBaseFileName>$(TargetName).pdb</ProgramDataBaseFileName>
       <GenerateXMLDocumentationFiles>false</GenerateXMLDocumentationFiles>
       <WarningLevel>Level3</WarningLevel>
@@ -316,14 +316,14 @@
       <AdditionalOptions>/wd4996 %(AdditionalOptions)</AdditionalOptions>
       <Optimization>Full</Optimization>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <AdditionalIncludeDirectories>$(ProjectDir);..\include;..\lib-SLExternal;..\lib-SLExternal\jpeg-8;..\lib-SLExternal\png;..\lib-SLExternal\zlib;..\lib-SLExternal\glew\include;..\lib-SLExternal\glfw3\include;..\lib-SLExternal\randomc;..\lib-SLExternal\Shoemake;..\lib-SLExternal\oculus\LibOVR\Include\;..\lib-SLExternal\nvwa;..\lib-SLExternal\assimp\include;..\lib-SLExternal\assimp\code;..\lib-SLExternal\dirent;..\lib-SLExternal\opencv\include;..\lib-SLExternal\half\include</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>SL_HAS_OPENCV;SL_STARTSCENE#C_sceneRevolver;GLEW_STATIC;UNICODE;WIN32;_WINDOWS</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(ProjectDir);..\include;..\lib-SLExternal;..\lib-SLExternal\zlib;..\lib-SLExternal\glew\include;..\lib-SLExternal\glfw3\include;..\lib-SLExternal\randomc;..\lib-SLExternal\Shoemake;..\lib-SLExternal\oculus\LibOVR\Include\;..\lib-SLExternal\nvwa;..\lib-SLExternal\assimp\include;..\lib-SLExternal\assimp\code;..\lib-SLExternal\dirent;..\lib-SLExternal\opencv\include</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>SL_HAS_OPENCV;SL_USES_CVCAPTURE;SL_STARTSCENE#C_sceneRevolver;GLEW_STATIC;UNICODE;WIN32;_WINDOWS</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <BufferSecurityCheck>true</BufferSecurityCheck>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <OpenMPSupport>true</OpenMPSupport>
       <PrecompiledHeader>Use</PrecompiledHeader>
-      <PrecompiledHeaderOutputFile>$(IntDir)$(TargetName).pch</PrecompiledHeaderOutputFile>
+      <PrecompiledHeaderOutputFile>$(IntDir)$(TargetName)_$(Configuration).pch</PrecompiledHeaderOutputFile>
       <ProgramDataBaseFileName>$(TargetName).pdb</ProgramDataBaseFileName>
       <WarningLevel>Level2</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
@@ -407,10 +407,21 @@
     <ClInclude Include="..\include\SLAnimManager.h" />
     <ClInclude Include="..\include\SLAnimPlayback.h" />
     <ClInclude Include="..\include\SLAnimTrack.h" />
+    <ClInclude Include="..\include\SLArrow.h" />
     <ClInclude Include="..\include\SLAssimpImporter.h" />
     <ClInclude Include="..\include\SLAverage.h" />
+    <ClInclude Include="..\include\SLCoordAxis.h" />
     <ClInclude Include="..\include\SLBackground.h" />
     <ClInclude Include="..\include\SLCompactGrid.h" />
+    <ClInclude Include="..\include\SLCV.h" />
+    <ClInclude Include="..\include\SLCVFeatureMap2D.h" />
+    <ClInclude Include="..\include\SLCVFeatureMapper2D.h" />
+    <ClInclude Include="..\include\SLCVImage.h" />
+    <ClInclude Include="..\include\SLCVTrackerAruco.h" />
+    <ClInclude Include="..\include\SLCVCalibration.h" />
+    <ClInclude Include="..\include\SLCVCapture.h" />
+    <ClInclude Include="..\include\SLCVTrackerChessboard.h" />
+    <ClInclude Include="..\include\SLCVTracker.h" />
     <ClInclude Include="..\include\SLDisk.h" />
     <ClInclude Include="..\include\SLGLEnums.h" />
     <ClInclude Include="..\include\SLGLVertexArray.h" />
@@ -436,18 +447,20 @@
     <ClInclude Include="..\include\SLGLTexture.h" />
     <ClInclude Include="..\include\SLGLUniform.h" />
     <ClInclude Include="..\include\SLGrid.h" />
-    <ClInclude Include="..\include\SLImage.h" />
     <ClInclude Include="..\include\SLImporter.h" />
     <ClInclude Include="..\include\SLInterface.h" />
     <ClInclude Include="..\include\SLLens.h" />
+    <ClInclude Include="..\include\SLLightDirect.h" />
     <ClInclude Include="..\include\SLMat3.h" />
     <ClInclude Include="..\include\SLMat4.h" />
     <ClInclude Include="..\include\SLMath.h" />
     <ClInclude Include="..\include\SLObject.h" />
     <ClInclude Include="..\include\SLPathtracer.h" />
     <ClInclude Include="..\include\SLPlane.h" />
+    <ClInclude Include="..\include\SLPolyline.h" />
     <ClInclude Include="..\include\SLQuat4.h" />
     <ClInclude Include="..\include\SLSkeleton.h" />
+    <ClInclude Include="..\include\SLSphere.h" />
     <ClInclude Include="..\include\SLTexFont.h" />
     <ClInclude Include="..\include\SLTimer.h" />
     <ClInclude Include="..\include\SLTriangle.h" />
@@ -463,10 +476,10 @@
     <ClInclude Include="..\include\SLCone.h" />
     <ClInclude Include="..\include\SLCylinder.h" />
     <ClInclude Include="..\include\SLLightRect.h" />
-    <ClInclude Include="..\include\SLLightSphere.h" />
+    <ClInclude Include="..\include\SLLightSpot.h" />
     <ClInclude Include="..\include\SLPolygon.h" />
     <ClInclude Include="..\include\SLRectangle.h" />
-    <ClInclude Include="..\include\SLSphere.h" />
+    <ClInclude Include="..\include\SLSpheric.h" />
     <ClInclude Include="..\include\SLRevolver.h" />
     <ClInclude Include="..\include\SLText.h" />
     <ClInclude Include="..\include\SLNode.h" />
@@ -483,18 +496,32 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\lib-SLExternal\nvwa\debug_new.cpp" />
+    <ClCompile Include="source\CV\SLCVFeatureMapper2D.cpp" />
+    <ClCompile Include="source\CV\SLCVImage.cpp" />
+    <ClCompile Include="source\CV\SLCVTracker.cpp" />
+    <ClCompile Include="source\CV\SLCVTrackerAruco.cpp" />
+    <ClCompile Include="source\CV\SLCVCalibration.cpp" />
+    <ClCompile Include="source\CV\SLCVCapture.cpp" />
+    <ClCompile Include="source\CV\SLCVTrackerChessboard.cpp" />
+    <ClCompile Include="source\GL\SLGLOculus.cpp" />
+    <ClCompile Include="source\GL\SLGLOculusFB.cpp" />
+    <ClCompile Include="source\GL\SLGLProgram.cpp" />
+    <ClCompile Include="source\GL\SLGLShader.cpp" />
+    <ClCompile Include="source\GL\SLGLState.cpp" />
+    <ClCompile Include="source\GL\SLGLTexture.cpp" />
+    <ClCompile Include="source\GL\SLGLVertexArray.cpp" />
+    <ClCompile Include="source\GL\SLGLVertexArrayExt.cpp" />
+    <ClCompile Include="source\GL\SLGLVertexBuffer.cpp" />
     <ClCompile Include="source\math\SLCurveBezier.cpp" />
     <ClCompile Include="source\math\SLPlane.cpp" />
     <ClCompile Include="source\SLAnimation.cpp" />
     <ClCompile Include="source\SLAnimManager.cpp" />
     <ClCompile Include="source\SLAnimPlayback.cpp" />
     <ClCompile Include="source\SLAnimTrack.cpp" />
+    <ClCompile Include="source\SLCoordAxis.cpp" />
     <ClCompile Include="source\SLBackground.cpp" />
     <ClCompile Include="source\SLCompactGrid.cpp" />
     <ClCompile Include="source\SLDisk.cpp" />
-    <ClCompile Include="source\SLGLVertexArray.cpp" />
-    <ClCompile Include="source\SLGLVertexArrayExt.cpp" />
-    <ClCompile Include="source\SLGLVertexBuffer.cpp" />
     <ClCompile Include="source\SLInputDevice.cpp" />
     <ClCompile Include="source\SLInputManager.cpp" />
     <ClCompile Include="source\SLJoint.cpp" />
@@ -503,22 +530,17 @@
     <ClCompile Include="source\SLCamera.cpp" />
     <ClCompile Include="source\SLCone.cpp" />
     <ClCompile Include="source\SLCylinder.cpp" />
-    <ClCompile Include="source\SLGLOculus.cpp" />
-    <ClCompile Include="source\SLGLOculusFB.cpp" />
-    <ClCompile Include="source\SLGLProgram.cpp" />
-    <ClCompile Include="source\SLGLShader.cpp" />
-    <ClCompile Include="source\SLGLState.cpp" />
-    <ClCompile Include="source\SLGLTexture.cpp" />
     <ClCompile Include="source\SLGrid.cpp" />
     <ClCompile Include="source\SLKeyframe.cpp" />
     <ClCompile Include="source\SLLens.cpp" />
+    <ClCompile Include="source\SLLightDirect.cpp" />
     <ClCompile Include="source\SLLightRect.cpp" />
-    <ClCompile Include="source\SLLightSphere.cpp" />
+    <ClCompile Include="source\SLLightSpot.cpp" />
     <ClCompile Include="source\SLPathtracer.cpp" />
     <ClCompile Include="source\SLPolygon.cpp" />
     <ClCompile Include="source\SLRectangle.cpp" />
     <ClCompile Include="source\SLSkeleton.cpp" />
-    <ClCompile Include="source\SLSphere.cpp" />
+    <ClCompile Include="source\SLSpheric.cpp" />
     <ClCompile Include="source\SLRevolver.cpp" />
     <ClCompile Include="source\SLText.cpp" />
     <ClCompile Include="source\SLNode.cpp" />
@@ -536,7 +558,6 @@
     <ClCompile Include="source\SL\SL.cpp" />
     <ClCompile Include="source\SL\SLAssimpImporter.cpp" />
     <ClCompile Include="source\SL\SLFileSystem.cpp" />
-    <ClCompile Include="source\SL\SLImage.cpp" />
     <ClCompile Include="source\SL\SLImporter.cpp" />
     <ClCompile Include="source\SL\SLInterface.cpp" />
     <ClCompile Include="source\SL\SLTexFont.cpp" />
@@ -581,6 +602,7 @@
     <None Include="..\_data\shaders\PerPixBlinnTexSkinned.vert" />
     <None Include="..\_data\shaders\PerVrtBlinn.frag" />
     <None Include="..\_data\shaders\PerVrtBlinn.vert" />
+    <None Include="..\_data\shaders\PerVrtBlinnColorAttrib.vert" />
     <None Include="..\_data\shaders\PerVrtBlinnSkinned.vert" />
     <None Include="..\_data\shaders\PerVrtBlinnTex.frag" />
     <None Include="..\_data\shaders\PerVrtBlinnTex.vert" />
@@ -610,6 +632,7 @@
     <None Include="..\_data\shaders\Wave.frag" />
     <None Include="..\_data\shaders\Wave.vert" />
     <None Include="..\_data\shaders\WaveRefractReflect.vert" />
+    <None Include="ClassDiagram.cd" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="ToDo.txt" />

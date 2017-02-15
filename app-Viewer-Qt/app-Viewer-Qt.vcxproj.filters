@@ -2,7 +2,6 @@
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
     <ClCompile Include="qtGLWidget.cpp" />
-    <ClCompile Include="qtPropertyTreeItem.cpp" />
     <ClCompile Include="qtMainWindow.cpp" />
     <ClCompile Include="qtMain.cpp" />
     <ClCompile Include="debug\moc_qtMainWindow.cpp">
@@ -11,6 +10,7 @@
     <ClCompile Include="qrc_resources.cpp">
       <Filter>Generated</Filter>
     </ClCompile>
+    <ClCompile Include="qtProperty.cpp" />
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="qtMainWindow.h" />
@@ -21,11 +21,12 @@
     <ClInclude Include="qtGLWidget.h" />
     <ClInclude Include="qtNodeTreeItem.h" />
     <ClInclude Include="qtPropertyTreeWidget.h" />
-    <ClInclude Include="qtPropertyTreeItem.h" />
     <ClInclude Include="ui_qtMainWindow.h">
       <Filter>Generated</Filter>
     </ClInclude>
     <ClInclude Include="qtAnimationSlider.h" />
+    <ClInclude Include="qtProperty.h" />
+    <ClInclude Include="qtUtils.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Generated">

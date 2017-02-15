@@ -13,12 +13,13 @@
 #include <SLScene.h>
 #include <SLSceneView.h>
 #include <SLNode.h>
+#include <SLCVCapture.h>
 
 #include <qtGLWidget.h>
 #include <QApplication>
 #include <QMouseEvent>
 #include <QTimer>
-#include <opencv2/opencv.hpp>
+//#include <opencv2/opencv.hpp>
 
 //-----------------------------------------------------------------------------
 //for backwards compatibility with QT below 5.2
@@ -98,10 +99,13 @@ void qtGLWidget::initializeGL()
     cout << "DPI             : " << dpi << endl;
 
     // Set the paths for shaders, models & textures
-    SLstring exeDir   = SLUtils::getPath(_cmdLineArgs[0]);
-    SLstring shaders  = exeDir + "../_data/shaders/";
-    SLstring models   = exeDir + "../_data/models/";
-    SLstring textures = exeDir + "../_data/images/textures/";
+    SLstring exeDir       = SLFileSystem::getCurrentWorkingDir();
+    SLstring shaders      = exeDir + "../_data/shaders/";
+    SLstring models       = exeDir + "../_data/models/";
+    SLstring textures     = exeDir + "../_data/images/textures/";
+    SLstring fonts        = exeDir + "../_data/images/fonts/";
+    SLstring calibrations = exeDir + "../_data/calibrations/";
+    SLstring configPath   = SLFileSystem::getAppsWritableDir();
 
     // Create Scene only once
     if (SLScene::current == 0)
@@ -122,7 +126,13 @@ void qtGLWidget::initializeGL()
         }
         #endif
       
-        slCreateScene(_cmdLineArgs, shaders, models, textures);
+        slCreateScene(_cmdLineArgs,
+                      shaders,
+                      models,
+                      textures,
+                      fonts,
+                      calibrations,
+                      configPath);
     }   
 
     // Create a sceneview for every new glWidget
@@ -161,8 +171,8 @@ void qtGLWidget::paintGL()
     else
     {
         // If live video image is requested grab it and copy it
-        if (slUsesVideoImage())
-            slGrabCopyVideoImage();
+        if (slGetVideoType()!=VT_NONE)
+            SLCVCapture::grabAndAdjustForSL();
 
         // makes the OpenGL context the current for this widget
         makeCurrent();  

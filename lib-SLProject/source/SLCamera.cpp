@@ -14,9 +14,6 @@
 #endif
 
 #include <SLSceneView.h>
-#include <SLCamera.h>
-#include <SLRay.h>
-#include <SLAABBox.h>
 
 //-----------------------------------------------------------------------------
 // Static global default parameters for new cameras
@@ -26,7 +23,7 @@ SLfloat      SLCamera::currentFOV          = 45.0f;
 SLint        SLCamera::currentDevRotation  = 0;
 //-----------------------------------------------------------------------------
 SLCamera::SLCamera() 
-    : SLNode("Camera"), 
+    : SLNode("Camera Node"), 
       _maxSpeed(2.0f), 
       _velocity(0.0f, 0.0f, 0.0f),
       _drag(0.05f),
@@ -38,11 +35,12 @@ SLCamera::SLCamera()
       _movedLastFrame(false)
 {  
     _fovInit      = 0;
+    _aspect       = 0;
     _clipNear     = 0.1f;
     _clipFar      = 300.0f;
-    _fov          = 45;               //currentFOV;
+    _fov          = 45;                 //currentFOV;
     _projection   = P_monoPerspective;  //currentProjection;
-    _camAnim      = CA_turntableYUp;     //currentAnimation
+    _camAnim      = CA_turntableYUp;    //currentAnimation
     _useDeviceRot = true;
 
     // depth of field parameters
@@ -81,11 +79,11 @@ SLbool SLCamera::camUpdate(SLfloat elapsedTimeMS)
         // x and z movement direction vector should be projected on the x,z plane while
         // but still in local space
         // the y movement direction should alway be in world space
-        SLVec3f f = forward();
+        SLVec3f f = forwardOS();
         f.y = 0;
         f.normalize();
 
-        SLVec3f r = right();
+        SLVec3f r = rightOS();
         r.y = 0;
         r.normalize();
 
@@ -309,19 +307,20 @@ void SLCamera::statsRec(SLNodeStats &stats)
     SLNode::statsRec(stats);
 }
 //-----------------------------------------------------------------------------
-/*!
-SLCamera::updateAABBRec builds and returns the axis-aligned bounding box.
-*/
-SLAABBox& SLCamera::updateAABBRec()
-{
-    // calculate min & max in object space
-    SLVec3f minOS, maxOS;
-    calcMinMax(minOS, maxOS);
-
-    // apply world matrix
-    _aabb.fromOStoWS(minOS, maxOS, _wm);
-    return _aabb;
-}
+///*!
+//SLCamera::updateAABBRec builds and returns the axis-aligned bounding box.
+//*/
+//SLAABBox& SLCamera::updateAABBRec()
+//{
+//    // calculate min & max in object space
+//    //if (SLScene::current->)
+//    SLVec3f minOS, maxOS;
+//    calcMinMax(minOS, maxOS);
+//
+//    // apply world matrix
+//    _aabb.fromOStoWS(minOS, maxOS, _wm);
+//    return _aabb;
+//}
 //-----------------------------------------------------------------------------
 /*!
 SLCamera::calcMinMax calculates the axis alligned minimum and maximum point of
@@ -640,17 +639,17 @@ SLbool SLCamera::onMouseMove(const SLMouseButton button,
     if (button == MB_left) //==================================================
     {   
         // new vars needed
-        SLVec3f position = this->translation();
-        SLVec3f forward =  this->forward();
-        SLVec3f right =    this->right();
-        SLVec3f up =       this->up();
+        SLVec3f position = this->translationOS();
+        SLVec3f forward =  this->forwardOS();
+        SLVec3f right =    this->rightOS();
+        SLVec3f up =       this->upOS();
 
         // The lookAt point
         SLVec3f laP = position + _focalDist * forward;
          
         // Determine rotation point as the center of the AABB of the hitNode
         SLVec3f rtP;
-        if (_lookAtRay.length < FLT_MAX && _lookAtRay.hitNode)
+        if (_lookAtRay.hitNode) //_lookAtRay.length < FLT_MAX && 
              rtP = _lookAtRay.hitNode->aabb()->centerWS();
         else rtP = laP;
               
@@ -667,7 +666,7 @@ SLbool SLCamera::onMouseMove(const SLMouseButton button,
             rot.translate(-rtP);
 			
             _om.setMatrix(rot * _om);
-            needWMUpdate();
+            needUpdate();
         }
         else if (_camAnim==CA_turntableZUp) //.................................
         {
@@ -753,7 +752,7 @@ SLbool SLCamera::onMouseUp(const SLMouseButton button,
     //SL_LOG("onMouseUp\n");
     if (button == MB_left) //===============================================
     {   if (_camAnim==CA_turntableYUp) //.........................................
-        {  return true;
+        {   return true;
         } 
         else if (_camAnim==CA_walkingYUp) //......................................
         {  return true;
@@ -780,7 +779,8 @@ SLbool SLCamera::onMouseWheel(const SLint delta, const SLKey mod)
             eyeToPixelRay((SLfloat)(_scrW>>1),
                         (SLfloat)(_scrH>>1), &_lookAtRay);
 
-            if (s->root3D()) s->root3D()->hitRec(&_lookAtRay);
+            if (s->root3D()) 
+                s->root3D()->hitRec(&_lookAtRay);
 
             if (_lookAtRay.length < FLT_MAX) 
                 _lookAtRay.hitPoint = _lookAtRay.origin + 
@@ -788,7 +788,7 @@ SLbool SLCamera::onMouseWheel(const SLint delta, const SLKey mod)
          
             // Scale the mouse delta by the lookAt distance
             SLfloat lookAtDist;
-            if (_lookAtRay.length < FLT_MAX && _lookAtRay.hitNode)
+            if (_lookAtRay.hitNode)
                  lookAtDist = _lookAtRay.length;
             else lookAtDist = _focalDist;
                   
@@ -1085,7 +1085,9 @@ void SLCamera::eyeToPixelRay(SLfloat x, SLfloat y, SLRay* ray)
     ray->y = y;  
     ray->hitTriangle = -1;
     ray->hitNormal.set(SLVec3f::ZERO);
-    ray->hitPoint.set(SLVec3f::ZERO); 
+    ray->hitPoint.set(SLVec3f::ZERO);
+    ray->hitNode = nullptr;
+    ray->hitMesh = nullptr;
     ray->srcTriangle = 0;
 }
 //-----------------------------------------------------------------------------

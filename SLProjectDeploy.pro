@@ -19,7 +19,7 @@ textures.files = \
   ../_data/images/textures/Checkerboard0512_C.png \
   ../_data/images/textures/Chess0256_C.bmp \
   ../_data/images/textures/CompileError.png \
-  ../_data/images/textures/cursor.tga \
+  ../_data/images/textures/cursor.png \
   ../_data/images/textures/earth1024_C.jpg \
   ../_data/images/textures/earth1024_G.jpg \
   ../_data/images/textures/earth1024_H.jpg \
@@ -59,6 +59,19 @@ textures.files = \
   ../_data/images/textures/wood2_0512_C.jpg \
   ../_data/images/textures/LiveVideoError.png \
 
+fonts.files =  \
+  ../_data/images/fonts/Font07.png \
+  ../_data/images/fonts/Font08.png \
+  ../_data/images/fonts/Font09.png \
+  ../_data/images/fonts/Font10.png \
+  ../_data/images/fonts/Font12.png \
+  ../_data/images/fonts/Font14.png \
+  ../_data/images/fonts/Font16.png \
+  ../_data/images/fonts/Font18.png \
+  ../_data/images/fonts/Font20.png \
+  ../_data/images/fonts/Font22.png \
+  ../_data/images/fonts/Font24.png \
+
 shaders.files = \
   ../_data/shaders/BumpNormal.frag \
   ../_data/shaders/BumpNormal.vert \
@@ -77,6 +90,7 @@ shaders.files = \
   ../_data/shaders/PerPixBlinn.frag \
   ../_data/shaders/PerPixBlinn.vert \
   ../_data/shaders/PerPixBlinnSkinned.vert \
+  ../_data/shaders/PerVrtBlinnColorAttrib.vert \
   ../_data/shaders/PerPixBlinnTex.frag \
   ../_data/shaders/PerPixBlinnTex.vert \
   ../_data/shaders/PerPixBlinnTexSkinned.vert \
@@ -124,6 +138,13 @@ models_DAE_AstroBoy.files = \
   ../_data/models/DAE/AstroBoy/AstroBoy.dae \
   ../_data/models/DAE/AstroBoy/boy_10.jpg \
 
+models_DAE_Sintel.files = \
+  ../_data/models/DAE/Sintel/SintelLowResOwnRig.dae \
+  ../_data/models/DAE/Sintel/sintel_diff.png \
+  ../_data/models/DAE/Sintel/eyelash.png \
+  ../_data/models/DAE/Sintel/sintel_eyeball_diff.png \
+  ../_data/models/DAE/Sintel/sintel_hair_solid.jpg \
+
 models_DAE_SkinnedCube.files = \
   ../_data/models/DAE/SkinnedCube/skinnedcube.dae \
   ../_data/models/DAE/SkinnedCube/skinnedcube2.dae \
@@ -147,11 +168,15 @@ models_FBX_Axes.files = \
   ../_data/models/FBX/Axes/axes_blender.fbx \
 
 models_OBJ_Christoffelturm.files = \
-  ../_data/models/OBJ/Christoffelturm/christoffelturm.obj \
-  ../_data/models/OBJ/Christoffelturm/christoffelturm.mtl \
-  ../_data/models/OBJ/Christoffelturm/texture1.jpg \
-  ../_data/models/OBJ/Christoffelturm/texture2.jpg \
-  ../_data/models/OBJ/Christoffelturm/shadow.png \
+  ../_data/models/Wavefront-OBJ/Christoffelturm/christoffelturm.obj \
+  ../_data/models/Wavefront-OBJ/Christoffelturm/christoffelturm.mtl \
+  ../_data/models/Wavefront-OBJ/Christoffelturm/texture1.jpg \
+  ../_data/models/Wavefront-OBJ/Christoffelturm/texture2.jpg \
+  ../_data/models/Wavefront-OBJ/Christoffelturm/shadow.png \
+
+calibrations.files = \
+  ../_data/calibrations/calib_in_params.yml \
+  ../_data/calibrations/aruco_detector_params.yml \
 
 
 # Copies the given files to the destination directory
@@ -168,29 +193,50 @@ defineTest(copyToDestdir) {
 
 # OpenCV
 win32 {
-    copyToDestdir($$PWD\_lib\prebuilt\OpenCV\x64\vc12\bin\opencv_core300.dll)
-    copyToDestdir($$PWD\_lib\prebuilt\OpenCV\x64\vc12\bin\opencv_imgproc300.dll)
-    copyToDestdir($$PWD\_lib\prebuilt\OpenCV\x64\vc12\bin\opencv_imgcodecs300.dll)
-    copyToDestdir($$PWD\_lib\prebuilt\OpenCV\x64\vc12\bin\opencv_video300.dll)
-    copyToDestdir($$PWD\_lib\prebuilt\OpenCV\x64\vc12\bin\opencv_videoio300.dll)
+    copyToDestdir($$PWD\_lib\prebuilt\OpenCV\x64\vc12\bin\opencv_core320.lib)
+    copyToDestdir($$PWD\_lib\prebuilt\OpenCV\x64\vc12\bin\opencv_imgproc320.lib)
+    copyToDestdir($$PWD\_lib\prebuilt\OpenCV\x64\vc12\bin\opencv_imgcodecs320.lib)
+    copyToDestdir($$PWD\_lib\prebuilt\OpenCV\x64\vc12\bin\opencv_video320.lib)
+    copyToDestdir($$PWD\_lib\prebuilt\OpenCV\x64\vc12\bin\opencv_videoio320.lib)
+    copyToDestdir($$PWD\_lib\prebuilt\OpenCV\x64\vc12\bin\opencv_aruco320.lib)
+    copyToDestdir($$PWD\_lib\prebuilt\OpenCV\x64\vc12\bin\opencv_features2d320.lib)
+    copyToDestdir($$PWD\_lib\prebuilt\OpenCV\x64\vc12\bin\opencv_xfeatures2d320.lib)
+    copyToDestdir($$PWD\_lib\prebuilt\OpenCV\x64\vc12\bin\opencv_calib3d320.lib)
+    copyToDestdir($$PWD\_lib\prebuilt\OpenCV\x64\vc12\bin\opencv_highgui320.lib)
+    copyToDestdir($$PWD\_lib\prebuilt\OpenCV\x64\vc12\bin\opencv_flann320.lib)
 }
 macx {
     cvlibs.files += \
-        ../_lib/prebuilt/OpenCV/macx/libopencv_core.3.0.0.dylib \
-        ../_lib/prebuilt/OpenCV/macx/libopencv_core.3.0.dylib \
+        ../_lib/prebuilt/OpenCV/macx/libopencv_core.3.2.0.dylib \
+        ../_lib/prebuilt/OpenCV/macx/libopencv_core.3.2.dylib \
         ../_lib/prebuilt/OpenCV/macx/libopencv_core.dylib \
-        ../_lib/prebuilt/OpenCV/macx/libopencv_imgproc.3.0.0.dylib \
-        ../_lib/prebuilt/OpenCV/macx/libopencv_imgproc.3.0.dylib \
+        ../_lib/prebuilt/OpenCV/macx/libopencv_imgproc.3.2.0.dylib \
+        ../_lib/prebuilt/OpenCV/macx/libopencv_imgproc.3.2.dylib \
         ../_lib/prebuilt/OpenCV/macx/libopencv_imgproc.dylib \
-        ../_lib/prebuilt/OpenCV/macx/libopencv_video.3.0.0.dylib \
-        ../_lib/prebuilt/OpenCV/macx/libopencv_video.3.0.dylib \
+        ../_lib/prebuilt/OpenCV/macx/libopencv_video.3.2.0.dylib \
+        ../_lib/prebuilt/OpenCV/macx/libopencv_video.3.2.dylib \
         ../_lib/prebuilt/OpenCV/macx/libopencv_video.dylib \
-        ../_lib/prebuilt/OpenCV/macx/libopencv_videoio.3.0.0.dylib \
-        ../_lib/prebuilt/OpenCV/macx/libopencv_videoio.3.0.dylib \
+        ../_lib/prebuilt/OpenCV/macx/libopencv_videoio.3.2.0.dylib \
+        ../_lib/prebuilt/OpenCV/macx/libopencv_videoio.3.2.dylib \
         ../_lib/prebuilt/OpenCV/macx/libopencv_videoio.dylib \
-        ../_lib/prebuilt/OpenCV/macx/libopencv_imgcodecs.3.0.0.dylib \
-        ../_lib/prebuilt/OpenCV/macx/libopencv_imgcodecs.3.0.dylib \
-        ../_lib/prebuilt/OpenCV/macx/libopencv_imgcodecs.dylib
+        ../_lib/prebuilt/OpenCV/macx/libopencv_imgcodecs.3.2.0.dylib \
+        ../_lib/prebuilt/OpenCV/macx/libopencv_imgcodecs.3.2.dylib \
+        ../_lib/prebuilt/OpenCV/macx/libopencv_imgcodecs.dylib \
+        ../_lib/prebuilt/OpenCV/macx/libopencv_calib3d.3.2.0.dylib \
+        ../_lib/prebuilt/OpenCV/macx/libopencv_calib3d.3.2.dylib \
+        ../_lib/prebuilt/OpenCV/macx/libopencv_calib3d.dylib \
+        ../_lib/prebuilt/OpenCV/macx/libopencv_aruco.3.2.0.dylib \
+        ../_lib/prebuilt/OpenCV/macx/libopencv_aruco.3.2.dylib \
+        ../_lib/prebuilt/OpenCV/macx/libopencv_aruco.dylib \
+        ../_lib/prebuilt/OpenCV/macx/libopencv_features2d.3.2.0.dylib \
+        ../_lib/prebuilt/OpenCV/macx/libopencv_features2d.3.2.dylib \
+        ../_lib/prebuilt/OpenCV/macx/libopencv_features2d.dylib \
+        ../_lib/prebuilt/OpenCV/macx/libopencv_xfeatures2d.3.2.0.dylib \
+        ../_lib/prebuilt/OpenCV/macx/libopencv_xfeatures2d.3.2.dylib \
+        ../_lib/prebuilt/OpenCV/macx/libopencv_xfeatures2d.dylib \
+        ../_lib/prebuilt/OpenCV/macx/libopencv_flann.3.2.0.dylib \
+        ../_lib/prebuilt/OpenCV/macx/libopencv_flann.3.2.dylib \
+        ../_lib/prebuilt/OpenCV/macx/libopencv_flann.dylib
 }
 unix:!macx:!android {
     # linux only
@@ -199,27 +245,33 @@ unix:!macx:!android {
 # Deployment
 macx: {
     textures.path = Contents/_data/images/textures
+    fonts.path = Contents/_data/images/fonts
     shaders.path = Contents/_data/shaders
     models_3DS_Halloween.path = Contents/_data/models/3DS/Halloween
     models_DAE_AstroBoy.path = Contents/_data/models/DAE/AstroBoy
+    models_DAE_Sintel.path = Contents/_data/models/DAE/Sintel
     models_DAE_SkinnedCube.path = Contents/_data/models/DAE/SkinnedCube
     models_DAE_Table.path = Contents/_data/models/DAE/Table
     models_DAE_Crate.path = Contents/_data/models/DAE/Crate
     models_FBX_Duck.path = Contents/_data/models/FBX/Duck
     models_FBX_Axes.path = Contents/_data/models/FBX/Axes
-    models_OBJ_Christoffelturm.path = Contents/_data/models/OBJ/Christoffelturm
+    models_OBJ_Christoffelturm.path = Contents/_data/models/Wavefront-OBJ/Christoffelturm
+    calibrations.path = Contents/_data/calibrations
     cvlibs.path = Contents/Frameworks
 
     QMAKE_BUNDLE_DATA += textures
+    QMAKE_BUNDLE_DATA += fonts
     QMAKE_BUNDLE_DATA += shaders
     QMAKE_BUNDLE_DATA += models_3DS_Halloween
     QMAKE_BUNDLE_DATA += models_DAE_AstroBoy
+    QMAKE_BUNDLE_DATA += models_DAE_Sintel
     QMAKE_BUNDLE_DATA += models_DAE_SkinnedCube
     QMAKE_BUNDLE_DATA += models_DAE_Table
     QMAKE_BUNDLE_DATA += models_DAE_Crate
     QMAKE_BUNDLE_DATA += models_FBX_Duck
     QMAKE_BUNDLE_DATA += models_FBX_Axes
     QMAKE_BUNDLE_DATA += models_OBJ_Christoffelturm
+    QMAKE_BUNDLE_DATA += calibrations
     QMAKE_BUNDLE_DATA += cvlibs
 
     macx {ICON = ../lib-SLProject/SLProject-Icon.icns}

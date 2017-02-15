@@ -15,8 +15,6 @@
 
 #include <SLText.h>
 #include <SLScene.h>
-#include <SLGLProgram.h>
-#include <SLGLState.h>
 
 //-----------------------------------------------------------------------------
 /*! 

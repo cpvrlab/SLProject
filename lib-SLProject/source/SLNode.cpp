@@ -16,10 +16,10 @@
 #include <SLNode.h>
 #include <SLAnimation.h>
 #include <SLSceneView.h>
-#include <SLRay.h>
-#include <SLCamera.h>
-#include <SLLightSphere.h>
+#include <SLLightSpot.h>
 #include <SLLightRect.h>
+#include <SLLightDirect.h>
+#include <SLCVTracker.h>
 
 //-----------------------------------------------------------------------------
 /*! 
@@ -38,6 +38,7 @@ SLNode::SLNode(SLstring name) : SLObject(name)
     _animation = 0;
     _isWMUpToDate = false;
     _isAABBUpToDate = false;
+    _tracker = nullptr;
 }
 //-----------------------------------------------------------------------------
 /*! 
@@ -56,6 +57,7 @@ SLNode::SLNode(SLMesh* mesh, SLstring name) : SLObject(name)
     _animation = 0;
     _isWMUpToDate = false;
     _isAABBUpToDate = false;
+    _tracker = nullptr;
     
     addMesh(mesh);
 }
@@ -203,12 +205,25 @@ the meshes the drawRec method is called on each children node. By pushing
 the OpenGL modelview matrix before on a stack this method is also referred as
 stack drawing.
 </li>
+<li>
+<b>Filter meshes for blended or opaque pass</b>:
+SLSceneView::draw3DGLAll renders the opaque nodes before blended nodes and
+the blended nodes have to be drawn from back to front.
+During the cull traversal all nodes with alpha materials are flagged and 
+added the to the vector _alphaNodes. The visibleNodes vector contains all
+visible opaque and transparent nodes because a node with alpha meshes still 
+can have nodes with opaque material. To avoid double drawing the 
+SLNode::drawMeshes draws in the blended pass only the alpha meshes and in 
+the opaque pass only the opaque meshes.
+</li>
 </ul>
 */
 void SLNode::drawMeshes(SLSceneView* sv)
 {
     for (auto mesh : _meshes)
-        mesh->draw(sv, this);
+        if (( _stateGL->blend() &&  mesh->mat->hasAlpha()) ||
+            (!_stateGL->blend() && !mesh->mat->hasAlpha()))
+            mesh->draw(sv, this);
 }
 //-----------------------------------------------------------------------------
 
@@ -220,14 +235,12 @@ Adds a child node to the children vector
 */
 void SLNode::addChild(SLNode* child)
 {
-    assert(child);
-    assert(this != child);
-
-    // remove the node from it's old parent
-    if(child->parent())
-        child->parent()->deleteChild(child);
+    assert(child && "The child pointer is null.");
+    assert(this != child && "You can not add the node to itself.");
+    assert(!child->parent() && "The child has already a parent.");
 
     _children.push_back(child);
+    _isAABBUpToDate = false;
     child->parent(this);
 }
 //-----------------------------------------------------------------------------
@@ -244,6 +257,7 @@ bool SLNode::insertChild(SLNode* insertC, SLNode* afterC)
     if (found != _children.end())
     {   _children.insert(found, insertC);
         insertC->parent(this);
+        _isAABBUpToDate = false;
         return true;
     }
     return false;
@@ -267,6 +281,7 @@ bool SLNode::deleteChild()
     if (_children.size() > 0)
     {   delete _children[_children.size()-1];
         _children.pop_back();
+        _isAABBUpToDate = false;
         return true;
     }
     return false;
@@ -282,6 +297,7 @@ bool SLNode::deleteChild(SLNode* child)
     {   if (_children[i]==child)
         {   _children.erase(_children.begin()+i);
             delete child;
+            _isAABBUpToDate = false;
             return true;
         }
     }
@@ -335,15 +351,16 @@ Does the view frustum culling by checking whether the AABB is
 inside the view frustum. The check is done in world space. If a AABB is visible
 the nodes children are checked recursively.
 If a node containes meshes with alpha blended materials it is added to the 
-blendedNodes vector. If not it is added to the opaqueNodes vector.
+_blendedNodes vector. See also SLSceneView::draw3DGLAll for more details.
 */
 void SLNode::cullRec(SLSceneView* sv)  
 {     
     // Do frustum culling for all shapes except cameras & lights
     if (sv->doFrustumCulling() &&
         typeid(*this)!=typeid(SLCamera) &&
-        typeid(*this)!=typeid(SLLightSphere) &&
-        typeid(*this)!=typeid(SLLightRect))
+        typeid(*this)!=typeid(SLLightRect) &&
+        typeid(*this)!=typeid(SLLightSpot) &&
+        typeid(*this)!=typeid(SLLightDirect))
         sv->camera()->isInFrustum(&_aabb);
     else _aabb.isVisible(true);
 
@@ -353,10 +370,13 @@ void SLNode::cullRec(SLSceneView* sv)
         for (auto child : _children)
             child->cullRec(sv);
       
-        // for leaf nodes add them to the blended or opaque vector
+        // for leaf nodes add them to the blended vector
         if (_aabb.hasAlpha())
              sv->blendNodes()->push_back(this);
-        else sv->opaqueNodes()->push_back(this);
+        
+        // Add all nodes to the opaque list
+        // A node that has alpha meshes still can have opaque meshes  
+        sv->visibleNodes()->push_back(this);
     }
 }
 //-----------------------------------------------------------------------------
@@ -428,8 +448,9 @@ void SLNode::statsRec(SLNodeStats &stats)
          stats.numLeafNodes++;
     else stats.numGroupNodes++;
 
-    if (typeid(*this)==typeid(SLLightSphere)) stats.numLights++;
-    if (typeid(*this)==typeid(SLLightRect  )) stats.numLights++;
+    if (typeid(*this)==typeid(SLLightSpot)) stats.numLights++;
+    if (typeid(*this)==typeid(SLLightRect)) stats.numLights++;
+    if (typeid(*this)==typeid(SLLightDirect)) stats.numLights++;
      
     for (auto mesh : _meshes) mesh->addStats(stats);
     for (auto child : _children) child->statsRec(stats);
@@ -454,11 +475,10 @@ bool SLNode::hitRec(SLRay* ray)
         return false;
    
     // Check first AABB for intersection
-    if (!_aabb.isHitInWS(ray)) 
+    if (!_aabb.isHitInWS(ray))
         return false;
 
-
-    SLbool wasHit = false;
+    SLbool meshWasHit = false;
    
     // Transform ray to object space for non-groups
     if (_meshes.size() > 0)    
@@ -471,8 +491,8 @@ bool SLNode::hitRec(SLRay* ray)
 
         // test all meshes
         for (auto mesh : _meshes)
-        {   if (mesh->hit(ray, this) && !wasHit) 
-                wasHit = true;
+        {   if (mesh->hit(ray, this) && !meshWasHit)
+                meshWasHit = true;
             if (ray->isShaded()) 
                 return true;
         }
@@ -480,13 +500,13 @@ bool SLNode::hitRec(SLRay* ray)
 
     // Test children nodes
     for (auto child : _children)
-    {   if (child->hitRec(ray) && !wasHit) 
-            wasHit = true;
+    {   if (child->hitRec(ray) && !meshWasHit) 
+            meshWasHit = true;
         if (ray->isShaded()) 
             return true;
     }
 
-    return wasHit;
+    return meshWasHit;
 }
 //-----------------------------------------------------------------------------
 /*! 
@@ -667,10 +687,17 @@ SLAABBox& SLNode::updateAABBRec()
         _aabb.mergeWS(aabbMesh);
     }
     
-    // Merge children in WS
+    // Merge children in WS except for cameras except if cameras have children
     for (auto child : _children)
-        if (typeid(*child)!=typeid(SLCamera))
+    {
+        bool childIsCamera = typeid(*child)==typeid(SLCamera);
+        bool cameraHasChildren = false;
+        if (childIsCamera)
+            cameraHasChildren = child->children().size() > 0;
+            
+        if (!childIsCamera || cameraHasChildren)
             _aabb.mergeWS(child->updateAABBRec());
+    }
 
     // We need min & max also in OS for the uniform grid intersection in OS
     _aabb.fromWStoOS(_aabb.minWS(), _aabb.maxWS(), updateAndGetWMI());
@@ -877,9 +904,9 @@ void SLNode::rotate(const SLQuat4f& rot, SLTransformSpace relativeTo)
     else // relativeTo == TS_Parent || relativeTo == TS_World && !_parent
     {
         SLMat4f rot;
-        rot.translate(translation());
+        rot.translate(translationOS());
         rot.multiply(rotation);
-        rot.translate(-translation());
+        rot.translate(-translationOS());
 
         _om.setMatrix(rot * _om);
     }
@@ -936,7 +963,7 @@ the 'target' parameter is to be interpreted in.
 void SLNode::lookAt(const SLVec3f& target, const SLVec3f& up, 
                     SLTransformSpace relativeTo)
 {
-    SLVec3f pos = translation();
+    SLVec3f pos = translationOS();
     SLVec3f dir;
     SLVec3f localUp = up;
 
@@ -944,12 +971,12 @@ void SLNode::lookAt(const SLVec3f& target, const SLVec3f& up,
     {
         SLVec3f localTarget = _parent->updateAndGetWMI() * target;
         localUp = _parent->updateAndGetWMI().mat3() * up;
-        dir = localTarget - translation();
+        dir = localTarget - translationOS();
     }
     else if (relativeTo == TS_object)
-        dir = _om * target - translation();
+        dir = _om * target - translationOS();
     else
-        dir = target - translation();
+        dir = target - translationOS();
 
     dir.normalize();
     
@@ -957,13 +984,13 @@ void SLNode::lookAt(const SLVec3f& target, const SLVec3f& up,
     
     // dir and up are parallel and facing in the same direction 
     // or facing in opposite directions.
-    // in this case we just rotate the up vector by 90° around
+    // in this case we just rotate the up vector by 90ï¿½ around
     // our current right vector
     // @todo This check might make more sense to be in Mat3.posAtUp
     if (fabs(cosAngle-1.0) <= FLT_EPSILON || fabs(cosAngle+1.0) <= FLT_EPSILON)
     {
         SLMat3f rot;
-        rot.rotation(-90.0f, right());
+        rot.rotation(-90.0f, rightOS());
 
         localUp = rot * localUp;
     }

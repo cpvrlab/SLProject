@@ -18,8 +18,9 @@
 
 //-----------------------------------------------------------------------------
 //! Wrapper around Oculus Rift and its Frame Buffer Objects 
-/*! 
-
+/*! This class is depricated since the lib_ovr from Oculus completely changed
+The lib_ovr that connects the Oculus hardware was removed since it only worked
+for devkit2 under windows.
 */
 class SLGLOculusFB
 {

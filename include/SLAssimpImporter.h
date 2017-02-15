@@ -48,10 +48,10 @@ class SLAssimpImporter : public SLImporter
                                  SLProcess_Triangulate
                                 |SLProcess_JoinIdenticalVertices
                                 |SLProcess_RemoveRedundantMaterials
-                                |SLProcess_SortByPType
                                 |SLProcess_FindDegenerates
                                 |SLProcess_FindInvalidData
                                 |SLProcess_SplitLargeMeshes
+                                //|SLProcess_SortByPType
                                 //|SLProcess_OptimizeMeshes
                                 //|SLProcess_OptimizeGraph
                                 //|SLProcess_CalcTangentSpace

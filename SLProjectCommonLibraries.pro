@@ -18,22 +18,28 @@ win32 {
     LIBS += -lshell32
     LIBS += -lsetupapi
     LIBS += -lws2_32
-    LIBS += $$PWD\_lib\prebuilt\OpenCV\x64\vc12\lib\opencv_core300.lib
-    LIBS += $$PWD\_lib\prebuilt\OpenCV\x64\vc12\lib\opencv_imgproc300.lib
-    LIBS += $$PWD\_lib\prebuilt\OpenCV\x64\vc12\lib\opencv_video300.lib
-    LIBS += $$PWD\_lib\prebuilt\OpenCV\x64\vc12\lib\opencv_videoio300.lib
+    LIBS += $$PWD\_lib\prebuilt\OpenCV\x64\vc12\lib\opencv_core320.lib
+    LIBS += $$PWD\_lib\prebuilt\OpenCV\x64\vc12\lib\opencv_imgproc320.lib
+    LIBS += $$PWD\_lib\prebuilt\OpenCV\x64\vc12\lib\opencv_imgcodecs320.lib
+    LIBS += $$PWD\_lib\prebuilt\OpenCV\x64\vc12\lib\opencv_video320.lib
+    LIBS += $$PWD\_lib\prebuilt\OpenCV\x64\vc12\lib\opencv_videoio320.lib
+    LIBS += $$PWD\_lib\prebuilt\OpenCV\x64\vc12\lib\opencv_aruco320.lib
+    LIBS += $$PWD\_lib\prebuilt\OpenCV\x64\vc12\lib\opencv_features2d320.lib
+    LIBS += $$PWD\_lib\prebuilt\OpenCV\x64\vc12\lib\opencv_xfeatures2d320.lib
+    LIBS += $$PWD\_lib\prebuilt\OpenCV\x64\vc12\lib\opencv_calib3d320.lib
+    LIBS += $$PWD\_lib\prebuilt\OpenCV\x64\vc12\lib\opencv_highgui320.lib
+    LIBS += $$PWD\_lib\prebuilt\OpenCV\x64\vc12\lib\opencv_flann320.lib
+
     DEFINES += GLEW_STATIC
     DEFINES += GLEW_NO_GLU
     DEFINES += _GLFW_NO_DLOAD_GDI32
     DEFINES += _GLFW_NO_DLOAD_WINMM
     DEFINES -= UNICODE
-    DEFINES += SL_HAS_OPENCV
-    INCLUDEPATH += ../lib-SLExternal/png \
-                   ../lib-SLExternal/dirent \
+    INCLUDEPATH += ../lib-SLExternal/dirent \
 }
 macx {
     # mac only
-    QMAKE_MAC_SDK = macosx10.11
+    QMAKE_MAC_SDK = macosx10.12
     CONFIG += c++11
     DEFINES += GLEW_NO_GLU
     LIBS += -framework Cocoa
@@ -41,27 +47,38 @@ macx {
     LIBS += -framework OpenGL
     LIBS += -framework QuartzCore
     LIBS += -stdlib=libc++
-    LIBS += -L../_lib/prebuilt/OpenCV/macx -lopencv_core
-    LIBS += -L../_lib/prebuilt/OpenCV/macx -lopencv_imgproc
-    LIBS += -L../_lib/prebuilt/OpenCV/macx -lopencv_video
-    LIBS += -L../_lib/prebuilt/OpenCV/macx -lopencv_videoio
-    INCLUDEPATH += ../lib-SLExternal/png
+    LIBS += -L$$PWD/_lib/prebuilt/OpenCV/macx -lopencv_core
+    LIBS += -L$$PWD/_lib/prebuilt/OpenCV/macx -lopencv_imgproc
+    LIBS += -L$$PWD/_lib/prebuilt/OpenCV/macx -lopencv_imgcodecs
+    LIBS += -L$$PWD/_lib/prebuilt/OpenCV/macx -lopencv_video
+    LIBS += -L$$PWD/_lib/prebuilt/OpenCV/macx -lopencv_videoio
+    LIBS += -L$$PWD/_lib/prebuilt/OpenCV/macx -lopencv_aruco
+    LIBS += -L$$PWD/_lib/prebuilt/OpenCV/macx -lopencv_features2d
+    LIBS += -L$$PWD/_lib/prebuilt/OpenCV/macx -lopencv_xfeatures2d
+    LIBS += -L$$PWD/_lib/prebuilt/OpenCV/macx -lopencv_calib3d
+    LIBS += -L$$PWD/_lib/prebuilt/OpenCV/macx -lopencv_highgui
+    LIBS += -L$$PWD/_lib/prebuilt/OpenCV/macx -lopencv_flann
     INCLUDEPATH += /usr/include
-    DEFINES += SL_HAS_OPENCV
 }
 unix:!macx:!android {
     # Install opencv with the following command:
     # sudo apt-get install libopencv-core-dev libopencv-imgproc-dev libopencv-video-dev libopencv-videoio-dev
     OPENCV_LIB_DIRS += /usr/lib #default
     OPENCV_LIB_DIRS += /usr/lib/x86_64-linux-gnu #ubuntu
+
+    CONFIG(release, debug|release) {
+        OPENCV_LIB_DIRS += /home/ghm1/libs/opencv-3.2.0/release/lib #ubuntu
+    }
+    CONFIG(debug, debug|release) {
+        OPENCV_LIB_DIRS += /home/ghm1/libs/opencv-3.2.0/debug/lib #ubuntu
+    }
     for(dir,OPENCV_LIB_DIRS) {
         !opencv { #If opencv was already found, skip this loop
             CONFIG += opencv
-            OPENCV_LIBS =  opencv_core opencv_imgproc opencv_imgproc opencv_video opencv_videoio
+            OPENCV_LIBS =  opencv_core opencv_imgproc opencv_imgproc opencv_video opencv_videoio opencv_calib3d opencv_imgcodecs opencv_aruco opencv_highgui opencv_xfeatures2d opencv_features2d
             #Scan for opencv libs, if one is missing, remove the opencv flag.
             for(lib,OPENCV_LIBS):!exists($$dir/lib$${lib}.so*):CONFIG -= opencv
             opencv {
-                DEFINES += SL_HAS_OPENCV
                 INCLUDEPATH += /usr/include/
                 LIBS += -L$$dir
                 for(lib,OPENCV_LIBS) LIBS += -l$$lib
@@ -69,7 +86,7 @@ unix:!macx:!android {
             unset(OPENCV_LIBS)
         }
     }
-    !opencv:warning(OpenCV is either not installed or not up to date (install OpenCV 3.0))
+    !opencv:warning(OpenCV is either not installed or not up to date (install OpenCV 3.x))
 
     # linux only
     LIBS += -ldl
@@ -84,6 +101,14 @@ unix:!macx:!android {
     LIBS += -lpthread   #libpthread
     LIBS += -lpng
     LIBS += -lz
+
+    CONFIG(release, debug|release) {
+        INCLUDEPATH += /home/ghm1/libs/opencv-3.2.0/release/include
+    }
+    CONFIG(debug, debug|release) {
+        INCLUDEPATH += /home/ghm1/libs/opencv-3.2.0/debug/include
+    }
+
     QMAKE_CXXFLAGS += -std=c++11
     QMAKE_CXXFLAGS += -Wunused-parameter
     QMAKE_CXXFLAGS += -Wno-unused-parameter

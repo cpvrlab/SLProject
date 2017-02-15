@@ -14,7 +14,6 @@
 #endif
 #include <SLSkeleton.h>
 #include <SLScene.h>
-#include <SLAnimPlayback.h>
 #include <SLSceneView.h>
 
 //-----------------------------------------------------------------------------

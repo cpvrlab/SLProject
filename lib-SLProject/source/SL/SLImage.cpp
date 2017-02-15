@@ -18,7 +18,7 @@
 #include <png.h>              // libpng
 
 //-----------------------------------------------------------------------------
-//! Constructor for empty image of a certain format and size
+//! @Deprecated: Constructor for empty image of a certain format and size
 SLImage::SLImage(SLint width, SLint height, SLPixelFormat format) : SLObject()
 {
     _data = 0;
@@ -28,7 +28,8 @@ SLImage::SLImage(SLint width, SLint height, SLPixelFormat format) : SLObject()
 }
 //-----------------------------------------------------------------------------
 //! Contructor for image from file
-SLImage::SLImage(const SLstring  filename) : SLObject(filename)
+SLImage::SLImage(const SLstring  filename) : 
+         SLObject(SLUtils::getFileName(filename), filename)
 {
     assert(filename!="");
     _data = 0;
@@ -38,7 +39,7 @@ SLImage::SLImage(const SLstring  filename) : SLObject(filename)
 }
 //-----------------------------------------------------------------------------
 //! Copy contructor from a source image
-SLImage::SLImage(SLImage &src) : SLObject(src.name())
+SLImage::SLImage(SLImage &src) : SLObject(src.name(), src.url())
 {
     assert(src.width() && src.height() && src.data());
     _width  = src.width();
@@ -84,8 +85,15 @@ void SLImage::clearData()
 //-----------------------------------------------------------------------------
 //! Memory allocation function
 /*! It returns true if width or height or the pixelformat has changed
+/param width Width of image in pixels
+/param height Height of image in pixels
+/param pixelFormatGL OpenGL pixel format enum
+/param isContinuous True if the memory is continuous and has no stride bytes at the end of the line
 */
-SLbool SLImage::allocate(SLint width, SLint height, SLPixelFormat pixelFormatGL)
+SLbool SLImage::allocate(SLint width, 
+                         SLint height, 
+                         SLPixelFormat pixelFormatGL,
+                         SLbool isContinuous)
 {
     assert(width>0 && height>0);
 
@@ -97,7 +105,7 @@ SLbool SLImage::allocate(SLint width, SLint height, SLPixelFormat pixelFormatGL)
     _height = height;
     _format = pixelFormatGL;
     _bytesPerPixel = bytesPerPixel(pixelFormatGL);
-    _bytesPerLine  = bytesPerLine(width, pixelFormatGL);
+    _bytesPerLine  = bytesPerLine(width, pixelFormatGL, isContinuous);
     _bytesPerImage = _bytesPerLine * _height;
    
     delete[] _data;
@@ -138,34 +146,53 @@ SLint SLImage::bytesPerPixel(SLPixelFormat format)
 }
 //-----------------------------------------------------------------------------
 //! Returns the NO. of bytes per image line for the passed pixel format
-SLint SLImage::bytesPerLine(SLint width, SLPixelFormat format)
+/*
+/param width Width of image in pixels
+/param pixelFormatGL OpenGL pixel format enum
+/param isContinuous True if the memory is continuous and has no stride bytes at the end of the line
+*/
+SLint SLImage::bytesPerLine(SLint width, 
+                            SLPixelFormat format, 
+                            SLbool isContinuous)
 {
     SLint bpp = bytesPerPixel(format);
     SLint bitsPerPixel = bpp * 8;
-    SLint bpl = ((width * bitsPerPixel + 31) / 32) * 4;
+    SLint bpl = isContinuous ? width * bpp : 
+                ((width * bitsPerPixel + 31) / 32) * 4;
     return bpl;
 }
 //-----------------------------------------------------------------------------
-//! loads an image from a memory
+//! loads an image from a memory with format change.
 /*! It returns true if the width, height or destination format has changed so
 that the depending texture can be rebuild in OpenGL. If the source and
 destination pixel format does not match a conversion for certain formats is
 done.
+/param width Width of image in pixels
+/param height Height of image in pixels
+/param srcPixelFormatGL OpenGL pixel format enum of source image
+/param dstPixelFormatGL OpenGL pixel format enum of destination image
+/param data Pointer to the first byte of the image data
+/param isContinuous True if the memory is continuous and has no stride bytes at the end of the line
+/param isTopLeft True if image data starts at top left of image (else bottom left)
 */
 SLbool SLImage::load(SLint width,
                      SLint height,
                      SLPixelFormat srcPixelFormatGL,
                      SLPixelFormat dstPixelFormatGL,
                      SLuchar* data,
+                     SLbool isContinuous,
                      SLbool isTopLeft)
 {
     
-    SLbool needsTextureRebuild = allocate(width, height, dstPixelFormatGL);
+    SLbool needsTextureRebuild = allocate(width, 
+                                          height, 
+                                          dstPixelFormatGL,
+                                          false);
     
     SLint    dstBPL   = _bytesPerLine;
     SLint    dstBPP   = _bytesPerPixel;
     SLint    srcBPP   = bytesPerPixel(srcPixelFormatGL);
-    SLint    srcBPL   = bytesPerLine(width, srcPixelFormatGL);
+    SLint    srcBPL   = bytesPerLine(width, srcPixelFormatGL, isContinuous);
     
     if (isTopLeft)
     {
@@ -298,7 +325,7 @@ SLbool SLImage::load(SLint width,
 void SLImage::load(const SLstring filename)
 {    
     SLstring ext = SLUtils::getFileExt(filename);
-    _name = SLUtils::getFileNameWOExt(filename);
+    _name = SLUtils::getFileName(filename);
     _path = SLUtils::getPath(filename);
    
     if (ext=="jpg") {loadJPG(filename); return;}
@@ -914,11 +941,11 @@ void SLImage::savePNG(SLstring filename)
         case PF_luminance:      color_type = PNG_COLOR_TYPE_GRAY;       break;
         case PF_luminance_alpha:color_type = PNG_COLOR_TYPE_GRAY_ALPHA; break;
         #else
-        case PF_red:   color_type = PNG_COLOR_TYPE_GRAY;       break;
-        case PF_rg:    color_type = PNG_COLOR_TYPE_GRAY_ALPHA; break;
+        case PF_red:        color_type = PNG_COLOR_TYPE_GRAY;       break;
+        case PF_rg:         color_type = PNG_COLOR_TYPE_GRAY_ALPHA; break;
         #endif
-        case PF_rgb:   color_type = PNG_COLOR_TYPE_RGB;        break;
-        case PF_rgba:  color_type = PNG_COLOR_TYPE_RGB_ALPHA;  break;
+        case PF_rgb:        color_type = PNG_COLOR_TYPE_RGB;        break;
+        case PF_rgba:       color_type = PNG_COLOR_TYPE_RGB_ALPHA;  break;
         default: SL_EXIT_MSG("Wrong pixel format.");
     }
    

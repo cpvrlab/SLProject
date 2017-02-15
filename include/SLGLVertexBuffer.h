@@ -24,7 +24,6 @@ struct SLGLAttribute
     SLuint  bufferSizeBytes;  //!< size of the attribute part in the buffer
     void*   dataPointer;      //!< pointer to the attributes source data
     SLint   location;         //!< GLSL input variable location index
-    SLbool  convertToHalf;    //!< Flag if float attribute is converted to half float 
 };
 //-----------------------------------------------------------------------------
 typedef vector<SLGLAttribute>  SLVVertexAttrib;
@@ -36,11 +35,6 @@ typedef vector<SLGLAttribute>  SLVVertexAttrib;
 //-----------------------------------------------------------------------------
 //! SLGLVertexBuffer encapsulates an OpenGL buffer for vertex attributes
 /*! SLGLVertexBuffer is only meant to be used within the SLGLVertexArray class.
-A vertex attribute buffer is either of type float or half float. Half float 
-attributes only use 2 bytes per number but will be converted to 4 byte floats 
-before they arrive in the shader. The performance gain with half floats is not
-remarkable. In some cases it even slows down the performance. Use half floats
-only if you have very large models.\n
 Attributes can be either be in sequential order (first all positions, then all 
 normals, etc.) or interleaved (all attributes together for one vertex). See 
 SLGLVertexBuffer::generate for more information.\n
@@ -50,13 +44,13 @@ SLGLVertexArray.
 class SLGLVertexBuffer
 {
     public:         SLGLVertexBuffer    ();
-                   ~SLGLVertexBuffer    () {clear(BT_float);}
+                   ~SLGLVertexBuffer    () {clear();}
 
         //! Deletes all vertex array & vertex buffer objects
         void        deleteGL            ();
 
-        //! Clears the attribute definition and sets the buffer data type
-        void        clear               (SLGLBufferType bt);
+        //! Calls deleteGL & clears the attributes
+        void        clear               ();
 
         //! Returns the vector index if a vertex attribute exists otherwise -1
         SLint       attribIndex         (SLGLAttributeType type);
@@ -98,6 +92,9 @@ class SLGLVertexBuffer
         SLint       id                  () {return _id;}
         SLVVertexAttrib& attribs        () {return _attribs;} 
         SLbool      outputInterleaved   () {return _outputInterleaved;}
+
+        // Setters
+        void        dataType            (SLGLBufferType dt){_dataType = dt;}
 
         // Some statistics
         static SLuint totalBufferCount;     //! static total no. of buffers in use

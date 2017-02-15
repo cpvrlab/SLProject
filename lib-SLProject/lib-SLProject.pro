@@ -48,6 +48,7 @@ HEADERS += \
 ../include/SLAnimManager.h \
 ../include/SLAnimPlayback.h \
 ../include/SLAnimTrack.h \
+../include/SLArrow.h \
 ../include/SLAssimpImporter.h \
 ../include/SLAverage.h \
 ../include/SLBackground.h \
@@ -56,9 +57,19 @@ HEADERS += \
 ../include/SLCamera.h \
 ../include/SLCone.h \
 ../include/SLCompactGrid.h \
+../include/SLCoordAxis.h \
 ../include/SLCurve.h \
 ../include/SLCurveBezier.h \
 ../include/SLCylinder.h \
+../include/SLCVCapture.h \
+../include/SLCV.h \
+../include/SLCVCalibration.h \
+../include/SLCVFeatureMap2D.h \
+../include/SLCVFeatureMapper2D.h \
+../include/SLCVImage.h \
+../include/SLCVTracker.h \
+../include/SLCVTrackerAruco.h \
+../include/SLCVTrackerChessboard.h \
 ../include/SLDisk.h \
 ../include/SLDrawBits.h \
 ../include/SLEnums.h \
@@ -79,7 +90,6 @@ HEADERS += \
 ../include/SLGLVertexArrayExt.h \
 ../include/SLGLVertexBuffer.h \
 ../include/SLGrid.h \
-../include/SLImage.h \
 ../include/SLImporter.h \
 ../include/SLInputDevice.h \
 ../include/SLInputEvent.h \
@@ -90,7 +100,8 @@ HEADERS += \
 ../include/SLLens.h \
 ../include/SLLight.h \
 ../include/SLLightRect.h \
-../include/SLLightSphere.h \
+../include/SLLightSpot.h \
+../include/SLLightDirect.h \
 ../include/SLMat3.h \
 ../include/SLMat4.h \
 ../include/SLMaterial.h \
@@ -101,6 +112,7 @@ HEADERS += \
 ../include/SLPathtracer.h \
 ../include/SLPlane.h \
 ../include/SLPolygon.h \
+../include/SLPolyline.h \
 ../include/SLQuat4.h \
 ../include/SLRay.h \
 ../include/SLRaytracer.h \
@@ -111,6 +123,7 @@ HEADERS += \
 ../include/SLSceneView.h \
 ../include/SLSkeleton.h \
 ../include/SLSphere.h \
+../include/SLSpheric.h \
 ../include/SLTexFont.h \
 ../include/SLText.h \
 ../include/SLTimer.h \
@@ -128,11 +141,26 @@ source/math/SLPlane.cpp \
 source/SL/SL.cpp \
 source/SL/SLAssimpImporter.cpp \
 source/SL/SLFileSystem.cpp \
-source/SL/SLImage.cpp \
 source/SL/SLImporter.cpp \
 source/SL/SLInterface.cpp \
 source/SL/SLTexFont.cpp \
 source/SL/SLTimer.cpp \
+source/GL/SLGLOculus.cpp \
+source/GL/SLGLOculusFB.cpp \
+source/GL/SLGLProgram.cpp \
+source/GL/SLGLShader.cpp \
+source/GL/SLGLState.cpp \
+source/GL/SLGLTexture.cpp \
+source/GL/SLGLVertexArray.cpp \
+source/GL/SLGLVertexArrayExt.cpp \
+source/GL/SLGLVertexBuffer.cpp \
+source/CV/SLCVCapture.cpp \
+source/CV/SLCVCalibration.cpp \
+source/CV/SLCVTracker.cpp \
+source/CV/SLCVFeatureMapper2D.cpp \
+source/CV/SLCVImage.cpp \
+source/CV/SLCVTrackerAruco.cpp \
+source/CV/SLCVTrackerChessboard.cpp \
 source/SLAABBox.cpp \
 source/SLAnimation.cpp \
 source/SLAnimManager.cpp \
@@ -144,17 +172,9 @@ source/SLButton.cpp \
 source/SLCamera.cpp \
 source/SLCone.cpp \
 source/SLCompactGrid.cpp \
+source/SLCoordAxis.cpp \
 source/SLCylinder.cpp \
 source/SLDisk.cpp \
-source/SLGLOculus.cpp \
-source/SLGLOculusFB.cpp \
-source/SLGLProgram.cpp \
-source/SLGLShader.cpp \
-source/SLGLState.cpp \
-source/SLGLTexture.cpp \
-source/SLGLVertexArray.cpp \
-source/SLGLVertexArrayExt.cpp \
-source/SLGLVertexBuffer.cpp \
 source/SLGrid.cpp \
 source/SLInputDevice.cpp \
 source/SLInputManager.cpp \
@@ -163,7 +183,8 @@ source/SLKeyframe.cpp \
 source/SLLens.cpp \
 source/SLLight.cpp \
 source/SLLightRect.cpp \
-source/SLLightSphere.cpp \
+source/SLLightSpot.cpp \
+source/SLLightDirect.cpp \
 source/SLMaterial.cpp \
 source/SLMesh.cpp \
 source/SLNode.cpp \
@@ -178,60 +199,13 @@ source/SLScene.cpp \
 source/SLSceneView.cpp \
 source/SLScene_onLoad.cpp \
 source/SLSkeleton.cpp \
-source/SLSphere.cpp \
+source/SLSpheric.cpp \
 source/SLText.cpp
 
 OTHER_FILES += \
-../_data/shaders/BumpNormal.frag \
-../_data/shaders/BumpNormal.vert \
-../_data/shaders/BumpNormalEarth.frag \
-../_data/shaders/BumpNormalParallax.frag \
-../_data/shaders/Color.frag \
-../_data/shaders/ColorAttribute.vert \
-../_data/shaders/ColorUniform.vert \
-../_data/shaders/Diffuse.frag \
-../_data/shaders/Diffuse.vert \
-../_data/shaders/Earth.frag \
-../_data/shaders/ErrorTex.frag \
-../_data/shaders/ErrorTex.vert \
-../_data/shaders/FontTex.frag \
-../_data/shaders/FontTex.vert \
-../_data/shaders/PerPixBlinn.frag \
-../_data/shaders/PerPixBlinn.vert \
-../_data/shaders/PerPixBlinnTex.frag \
-../_data/shaders/PerPixBlinnTex.vert \
-../_data/shaders/PerPixBlinnSkinned.vert \
-../_data/shaders/PerPixBlinnTexSkinned.vert \
-../_data/shaders/PerVrtBlinn.frag \
-../_data/shaders/PerVrtBlinn.vert \
-../_data/shaders/PerVrtBlinnTex.frag \
-../_data/shaders/PerVrtBlinnTex.vert \
-../_data/shaders/PerVrtBlinnSkinned.vert \
-../_data/shaders/PerVrtBlinnTexSkinned.vert \
-../_data/shaders/Reflect.frag \
-../_data/shaders/Reflect.vert \
-../_data/shaders/RefractReflect.frag \
-../_data/shaders/RefractReflect.vert \
-../_data/shaders/RefractReflectDisp.frag \
-../_data/shaders/RefractReflectDisp.vert \
-../_data/shaders/Terrain.frag \
-../_data/shaders/Terrain.vert \
-../_data/shaders/Terrain_Loesung.frag \
-../_data/shaders/Terrain_Loesung.vert \
-../_data/shaders/TextureOnly.frag \
-../_data/shaders/TextureOnly.vert \
-../_data/shaders/StereoOculus.frag \
-../_data/shaders/StereoOculusDistortionMesh.frag \
-../_data/shaders/StereoOculus.vert \
-../_data/shaders/StereoOculusDistortionMesh.vert \
-../_data/shaders/Wave.frag \
-../_data/shaders/Wave.vert \
-../_data/shaders/WaveRefractReflect.vert \
-../_data/shaders/TextureOnly3D.frag \
-../_data/shaders/TextureOnly3D.vert
+../_data/shaders/*.vert \
+../_data/shaders/*.frag \
 ToDo.txt \
-
-OBJECTIVE_SOURCES += \
 
 DISTFILES += \
 Doxyfile \

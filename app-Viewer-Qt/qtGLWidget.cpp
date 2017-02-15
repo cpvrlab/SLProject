@@ -13,7 +13,7 @@
 #include <SLScene.h>
 #include <SLSceneView.h>
 #include <SLNode.h>
-#include <opencv2/opencv.hpp>
+#include <SLCVCapture.h>
 
 #include "qtGLWidget.h"
 #include "qtMainWindow.h"
@@ -124,16 +124,25 @@ void qtGLWidget::initializeGL()
         #endif
 
         // Set the paths for shaders, models & textures
-        SLstring exeDir   = SLUtils::getPath(_cmdLineArgs[0]);
-        SLstring shaders  = exeDir + "../_data/shaders/";
-        SLstring models   = exeDir + "../_data/models/";
-        SLstring textures = exeDir + "../_data/images/textures/";
+        SLstring exeDir     = SLFileSystem::getCurrentWorkingDir();
+        SLstring shaders    = exeDir + "../_data/shaders/";
+        SLstring models     = exeDir + "../_data/models/";
+        SLstring textures   = exeDir + "../_data/images/textures/";
+        SLstring fonts      = exeDir + "../_data/images/fonts/";
+        SLstring calibs     = exeDir + "../_data/calibrations/";
+        SLstring configPath = SLFileSystem::getAppsWritableDir();
 
         cout << "------------------------------------------------------------------" << endl;
         cout << "GUI             : Qt (Version: " << QT_VERSION_STR << ")" << endl;
         cout << "DPI             : " << dpi << endl;
       
-        slCreateScene(_cmdLineArgs, shaders, models, textures);
+        slCreateScene(_cmdLineArgs,
+                      shaders,
+                      models,
+                      textures,
+                      fonts,
+                      calibs,
+                      configPath);
     }   
 
     // Create a sceneview for every new glWidget
@@ -181,8 +190,8 @@ void qtGLWidget::paintGL()
     else
     {
         // If live video image is requested grab it and copy it
-        if (slUsesVideoImage())
-            slGrabCopyVideoImage();
+        if (slGetVideoType()!=VT_NONE)
+            SLCVCapture::grabAndAdjustForSL();
 
         // makes the OpenGL context the current for this widget
         makeCurrent();  
@@ -195,7 +204,8 @@ void qtGLWidget::paintGL()
         swapBuffers();  
 
         // Build caption string with scene name and fps
-        mainWindow->setWindowTitle(slGetWindowTitle(_svIndex).c_str());
+        string wndTitle = "SLProject Viewer: " + slGetWindowTitle(_svIndex);
+        mainWindow->setWindowTitle(wndTitle.c_str());
 
         // Simply call update for constant repaint. Never call paintGL directly
         if (viewNeedsRepaint)

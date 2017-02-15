@@ -45,6 +45,7 @@ class SLBackground: public SLObject
             // Getters
             SLVCol4f        colors      () {return _colors;}
             SLbool          isUniform   () {return _isUniform;}
+            SLGLTexture*    texture     () {return _texture;}
 private:
             SLbool          _isUniform; //!< Flag if background has uniform color
             SLVCol4f        _colors;    //!< Vector of 4 corner colors {TL,BL,TR,BR}

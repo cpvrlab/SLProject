@@ -31,7 +31,7 @@ used in special shaders and ray tracing.
 class SLMaterial : public SLObject
 {  public:
                             //! Default ctor
-                            SLMaterial(const SLchar* name=(SLchar*)"Default material",
+                            SLMaterial(const SLchar* name,
                                        SLCol4f amdi=SLCol4f::WHITE, 
                                        SLCol4f spec=SLCol4f::WHITE,
                                        SLfloat shininess=100.0f,
@@ -98,7 +98,7 @@ class SLMaterial : public SLObject
                                                               _specular.w = 1.0f-kt;}
             void            kn              (SLfloat kn)      {assert(kn>=0.0f);
                                                               _kn = kn;}  
-            void            program      (SLGLProgram* sp){_program = sp;}
+            void            program         (SLGLProgram* sp){_program = sp;}
             
             // Getters
             SLCol4f         ambient         () {return _ambient;}
@@ -114,8 +114,10 @@ class SLMaterial : public SLObject
             SLVGLTexture&   textures        () {return _textures;}
             SLGLProgram*    program         () {return _program;}
 
-     static SLMaterial*     defaultMaterial ();
-     static void            defaultMaterial (SLMaterial* mat);
+     static SLMaterial*     defaultGray     ();
+     static void            defaultGray     (SLMaterial* mat);
+     static SLMaterial*     diffuseAttrib   ();
+     static void            diffuseAttrib   (SLMaterial* mat);
 
 
      // Static variables & functions
@@ -138,7 +140,8 @@ class SLMaterial : public SLObject
             SLGLProgram*    _program;       //!< pointer to a GLSL shader program
 
     private:
-    static  SLMaterial*     _defaultMaterial;//!< Global default material for meshes that don't define their own.
+    static  SLMaterial*     _defaultGray;   //!< Global default gray color material for meshes that don't define their own.
+    static  SLMaterial*     _diffuseAttrib; //!< Global diffuse reflection material for meshes with color vertex attributes.
 };
 //-----------------------------------------------------------------------------
 //! STL vector of material pointers

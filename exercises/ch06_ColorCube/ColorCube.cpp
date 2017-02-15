@@ -9,11 +9,11 @@
 //             WITHOUT ANY WARRANTIES WHETHER EXPRESSED OR IMPLIED.
 //#############################################################################
 
-#include "stdafx.h"     // Precompiled Headers
-#include "glUtils.h"    // Basics for OpenGL shaders, buffers & textures
-#include "SL.h"         // Basic SL type definitions
-#include "SLVec3.h"     // 3D vector class
-#include "SLMat4.h"     // 4x4 matrix class
+#include <stdafx.h>     // Precompiled Headers
+#include <glUtils.h>    // Basics for OpenGL shaders, buffers & textures
+#include <SL.h>         // Basic SL type definitions
+#include <SLVec3.h>     // 3D vector class
+#include <SLMat4.h>     // 4x4 matrix class
 #include "../lib-SLExternal/glew/include/GL/glew.h"     // OpenGL headers
 #include "../lib-SLExternal/glfw3/include/GLFW/glfw3.h" // GLFW GUI library
 
@@ -351,7 +351,7 @@ int main(int argc, char *argv[])
     glfwWindowHint(GLFW_SAMPLES, 4);
 
     //You can enable or restrict newer OpenGL context here (read the GLFW documentation)
-    #ifdef SL_OS_MACOSX
+    #ifdef SL_OS_MACOS
     //glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     //glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 2);
     //glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);

@@ -14,16 +14,12 @@
 #endif
 
 #include <SLNode.h>
-#include <SLMesh.h>
 #include <SLRay.h>
 #include <SLRaytracer.h>
 #include <SLSceneView.h>
-#include <SLCamera.h>
 #include <SLCompactGrid.h>
-#include <SLLightSphere.h>
+#include <SLLightSpot.h>
 #include <SLLightRect.h>
-#include <SLSkeleton.h>
-#include <SLGLProgram.h>
 
 //-----------------------------------------------------------------------------
 /*! 
@@ -38,12 +34,10 @@ SLMesh::SLMesh(SLstring name) : SLObject(name)
     matOut = nullptr;
     _finalP = &P;
     _finalN = &N;
-    _useHalf = false;
     minP.set( FLT_MAX,  FLT_MAX,  FLT_MAX);
     maxP.set(-FLT_MAX, -FLT_MAX, -FLT_MAX);
    
     _skeleton = nullptr;
-    _skinMethod = SM_software;
 
     _stateGL = SLGLState::getInstance();  
     _isVolume = true; // is used for RT to decide inside/outside
@@ -71,8 +65,8 @@ void SLMesh::deleteData()
     C.clear();
     T.clear();
     Tc.clear();
-    Ji.clear();
-    Jw.clear();
+    for (auto i : Ji) i.clear(); Ji.clear();
+    for (auto i : Jw) i.clear(); Jw.clear();
     I16.clear();
     I32.clear();
 
@@ -97,9 +91,16 @@ void SLMesh::init(SLNode* node)
     {  
         if (!N.size()) calcNormals();
 
-        mat = (mat) ? mat : SLMaterial::defaultMaterial();
+        // Set default materials if no materials are asigned
+        // If colors are available use diffuse color attribute shader
+        // otherwise use the default gray material
+        if (!mat) 
+        {   if (C.size())
+                 mat = SLMaterial::diffuseAttrib();
+            else mat = SLMaterial::defaultGray();
+        }
 
-        // set transparent flag of the mesh
+        // set transparent flag of the node if mesh contains alpha material
         if (!node->aabb()->hasAlpha() && mat->hasAlpha()) 
             node->aabb()->hasAlpha(true);
          
@@ -153,7 +154,7 @@ void SLMesh::draw(SLSceneView* sv, SLNode* node)
         // Set polygon mode
         if (sv->drawBit(SL_DB_WIREMESH) || node->drawBit(SL_DB_WIREMESH))
         {
-            #if defined(SL_GLES2)
+            #ifdef SL_GLES
             primitiveType = PT_lineLoop; // There is no polygon line or point mode on ES2!
             #else
             _stateGL->polygonLine(true);
@@ -210,6 +211,7 @@ void SLMesh::draw(SLSceneView* sv, SLNode* node)
             sp->uniformMatrix4fv(locTM, 1, (SLfloat*)&_stateGL->textureMatrix);
         }
 
+        /* Depricated step for HW skinning on GPU
         // 2.d) Do GPU skinning for animated meshes
         if (_skeleton && Ji.size() && Jw.size() && _skinMethod == SM_hardware)
         {
@@ -217,7 +219,7 @@ void SLMesh::draw(SLSceneView* sv, SLNode* node)
             {   _jointMatrices.clear();
                 _jointMatrices.resize(_skeleton->numJoints());
             }
-
+        
             if (_skeleton->changed())
             {
                 // update the joint matrix array
@@ -231,7 +233,7 @@ void SLMesh::draw(SLSceneView* sv, SLNode* node)
                 // notify all nodes that contain this mesh about the change
                 notifyParentNodesAABBUpdate();
             }
-
+        
             // @todo    Secondly: It is a bad idea to keep the joint data in the mesh itself, this prevents us
             //          from instantiating a single mesh with multiple animations. Needs to be addressed ASAP. (see also SLMesh class problems in SLMesh.h at the top)
             //          In short, the solution would be an entity class which is an instance of a mesh (same mesh data) which can be animated. the original buffers
@@ -239,6 +241,8 @@ void SLMesh::draw(SLSceneView* sv, SLNode* node)
             SLint locBM = sp->getUniformLocation("u_jointMatrices");
             sp->uniformMatrix4fv(locBM, _skeleton->numJoints(), (SLfloat*)&_jointMatrices[0], false);
         }
+        */
+        
 
         ///////////////////////////////////////
         // 3) Generate Vertex Array Object once
@@ -246,14 +250,15 @@ void SLMesh::draw(SLSceneView* sv, SLNode* node)
 
         if (!_vao.id())
         {                   _vao.setAttrib(AT_position,    sp->getAttribLocation("a_position"), _finalP);
-            if (N.size())   _vao.setAttrib(AT_normal,      sp->getAttribLocation("a_normal"), _finalN, _useHalf);
-            if (Tc.size())  _vao.setAttrib(AT_texCoord,    sp->getAttribLocation("a_texCoord"), &Tc, _useHalf);
-            if (C.size())   _vao.setAttrib(AT_color,       sp->getAttribLocation("a_color"), &C, _useHalf);
-            if (T.size())   _vao.setAttrib(AT_tangent,     sp->getAttribLocation("a_tangent"), &T, _useHalf);
-            if (Ji.size())  _vao.setAttrib(AT_jointIndex,  sp->getAttribLocation("a_jointIds"), &Ji, _useHalf);
-            if (Jw.size())  _vao.setAttrib(AT_jointWeight, sp->getAttribLocation("a_jointWeights"), &Jw, _useHalf);
+            if (N.size())   _vao.setAttrib(AT_normal,      sp->getAttribLocation("a_normal"), _finalN);
+            if (Tc.size())  _vao.setAttrib(AT_texCoord,    sp->getAttribLocation("a_texCoord"), &Tc);
+            if (C.size())   _vao.setAttrib(AT_color,       sp->getAttribLocation("a_color"), &C);
+            if (T.size())   _vao.setAttrib(AT_tangent,     sp->getAttribLocation("a_tangent"), &T);
             if (I16.size()) _vao.setIndices(&I16);
             if (I32.size()) _vao.setIndices(&I32);
+            // Depricated HW skinning on GPU
+            //if (Ji.size())  _vao.setAttrib(AT_jointIndex,  sp->getAttribLocation("a_jointIds"), &Ji, _useHalf);
+            //if (Jw.size())  _vao.setAttrib(AT_jointWeight, sp->getAttribLocation("a_jointWeights"), &Jw, _useHalf);
             _vao.generate((SLuint)P.size(), Ji.size() ? BU_stream : BU_static, !Ji.size());
         }
 
@@ -274,9 +279,9 @@ void SLMesh::draw(SLSceneView* sv, SLNode* node)
         
         if (N.size() && (sv->drawBit(SL_DB_NORMALS) || node->drawBit(SL_DB_NORMALS)))
         {  
-            // scale factor r 5% from scaled radius for normals & tangents
+            // scale factor r 2% from scaled radius for normals & tangents
             // build array between vertex and normal target point
-            float r = node->aabb()->radiusOS() * 0.05f;
+            float r = node->aabb()->radiusOS() * 0.02f;
             SLVVec3f V2; V2.resize(P.size()*2);
             for (SLuint i=0; i < P.size(); ++i)
             {   V2[i<<1] = finalP(i);
@@ -858,19 +863,6 @@ SLbool SLMesh::hitTriangleOS(SLRay* ray, SLNode* node, SLuint iT)
     return true;
 }
 //-----------------------------------------------------------------------------
-//! Flags the mesh to convert all non-position attributes to half floats.
-/*! With this flag set to true, all attribute data in N, C, Tc, T, Ji & Jw are
-converted from float to half float before they are passed to the vertex buffer
-in SLGLVertexBuffer. The memory footprint is reduced from 4 to 2 bytes per
-attribute component. The performance gain with half floats is though not
-remarkable. In some cases it even slows down the performance. Use half floats
-only if you have very large models.
-*/
-void SLMesh::useHalfFloats(SLbool useHalf)
-{
-    _useHalf = useHalf;
-}
-//-----------------------------------------------------------------------------
 /*!
 SLMesh::preShade calculates the rest of the intersection information 
 after the final hit point is determined. Should be called just before the 
@@ -912,7 +904,7 @@ void SLMesh::preShade(SLRay* ray)
     {   SLVec2f Tu(Tc[iB] - Tc[iA]);
         SLVec2f Tv(Tc[iC] - Tc[iA]);
         SLVec2f tc(Tc[iA] + ray->hitU*Tu + ray->hitV*Tv);
-        ray->hitTexCol.set(textures[0]->getTexelf(tc.x,tc.y));
+        ray->hitColor.set(textures[0]->getTexelf(tc.x,tc.y));
       
         // bump mapping
         if (textures.size() > 1)
@@ -936,78 +928,15 @@ void SLMesh::preShade(SLRay* ray)
             }
         }
     }
-}
 
-//-----------------------------------------------------------------------------
-/*! Adds an joint weight to the specified vertex id (max 4 weights per vertex)
-returns true if added successfully, false if already full
-*/
-SLbool SLMesh::addWeight(SLint vertId, SLuint jointId, SLfloat weight)
-{
-    if (!Ji.size() || !Jw.size())
-        return false;
-
-    assert(vertId < P.size() && "An illegal index was passed in to SLMesh::addWeight");
-    
-    SLVec4f& jId = Ji[vertId];
-    SLVec4f& jWeight = Jw[vertId];
-
-    // "iterator" over our vectors
-    SLfloat* jIdIt = &jId.x;
-    SLfloat* jWeightIt = &jWeight.x;
-
-    for (SLint i = 0; i < 4; ++i)
-    {
-        if (*jWeightIt == 0.0f)
-        {
-            *jIdIt = (SLfloat)jointId;
-            *jWeightIt = weight;
-            break;
-        }
-
-        jIdIt++;
-        jWeightIt++;
-    }
-
-    return true;
-}
-
-//-----------------------------------------------------------------------------
-/*! Sets the current skinning method.
-@todo   This function is still kind of hackish, we manually change the material in the mesh. The skinning
-        shouldn't rely on a material however, the shader should know if it needs skinning variables and 
-        transformations and apply them to the current used shader.
-*/
-void SLMesh::skinMethod(SLSkinMethod method) 
-{ 
-    if (method == _skinMethod)
-        return;
-
-    // return if this isn't a skinned mesh
-    if (!_skeleton || !Ji.size() || !Jw.size())
-        return;
-
-    _skinMethod = method;
-
-    if (_skinMethod == SM_hardware)
-    {
-        _finalP = &P;
-        _finalN = &N;
-
-        // if we are a textured mesh
-        if (Tc.size())
-        {   SLGLGenericProgram* skinningShaderTex = new SLGLGenericProgram("PerPixBlinnTexSkinned.vert",
-                                                                           "PerPixBlinnTex.frag");
-            mat->program(skinningShaderTex);
-        } else
-        {   SLGLGenericProgram* skinningShader = new SLGLGenericProgram("PerVrtBlinnSkinned.vert",
-                                                                        "PerVrtBlinn.frag");
-            mat->program(skinningShader);
-        }
-    }
-    else
-    {
-        mat->program(0);
+    // calculate interpolated color for meshes with color attributes
+    if (ray->hitMesh->C.size())
+    {   SLCol4f CA = ray->hitMesh->C[iA];
+        SLCol4f CB = ray->hitMesh->C[iB];
+        SLCol4f CC = ray->hitMesh->C[iC];
+        ray->hitColor.set(CA * (1-(ray->hitU + ray->hitV)) +
+                          CB * ray->hitU +
+                          CC * ray->hitV);
     }
 }
 
@@ -1057,32 +986,23 @@ void SLMesh::transformSkin()
     {
         skinnedP[i] = SLVec3f::ZERO;
         if (N.size()) skinnedN[i] = SLVec3f::ZERO;
-
-        // array form for easier iteration
-        SLfloat jointWeights[4] = {Jw[i].x, Jw[i].y, Jw[i].z, Jw[i].w};
-        SLint   jointIndices[4] = {(SLint)Ji[i].x,
-                                   (SLint)Ji[i].y,
-                                   (SLint)Ji[i].z,
-                                   (SLint)Ji[i].w};
                     
         // accumulate final normal and positions
-        for (SLint j = 0; j < 4; ++j)
-        {   if (jointWeights[j] > 0.0f)
-            {
-                const SLMat4f& jm = _jointMatrices[jointIndices[j]];
-                SLVec4f tempPos = jm * P[i];
-                skinnedP[i].x += tempPos.x * jointWeights[j];
-                skinnedP[i].y += tempPos.y * jointWeights[j];
-                skinnedP[i].z += tempPos.z * jointWeights[j];
+        for (SLint j = 0; j < Ji[i].size(); ++j)
+        {   
+            const SLMat4f& jm = _jointMatrices[Ji[i][j]];
+            SLVec4f tempPos = jm * P[i];
+            skinnedP[i].x += tempPos.x * Jw[i][j];
+            skinnedP[i].y += tempPos.y * Jw[i][j];
+            skinnedP[i].z += tempPos.z * Jw[i][j];
 
-                if (N.size()) 
-                {   // Build the 3x3 submatrix in GLSL 110 (= mat3 jt3 = mat3(jt))
-                    // for the normal transform that is the normally the inverse transpose.
-                    // The inverse transpose can be ignored as long as we only have
-                    // rotation and uniform scaling in the 3x3 submatrix.
-                    SLMat3f jnm = jm.mat3();
-                    skinnedN[i] += jnm * N[i] * jointWeights[j];
-                }
+            if (N.size()) 
+            {   // Build the 3x3 submatrix in GLSL 110 (= mat3 jt3 = mat3(jt))
+                // for the normal transform that is the normally the inverse transpose.
+                // The inverse transpose can be ignored as long as we only have
+                // rotation and uniform scaling in the 3x3 submatrix.
+                SLMat3f jnm = jm.mat3();
+                skinnedN[i] += jnm * N[i] * Jw[i][j];
             }
         }
     }  

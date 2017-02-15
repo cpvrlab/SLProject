@@ -47,7 +47,7 @@ win32 {
 }
 macx {
     # mac only
-    QMAKE_MAC_SDK = macosx10.11
+    QMAKE_MAC_SDK = macosx10.12
     DEFINES += GLEW_STATIC
     DEFINES += _GLFW_COCOA
     DEFINES += _GLFW_NSGL
@@ -88,8 +88,6 @@ INCLUDEPATH += \
     glfw3/include \
     half/include \
     glfw3/src \
-    png \
-    jpeg-8 \
     nvwa \
     randomc \
     zlib \
@@ -100,15 +98,6 @@ HEADERS += \
     glfw3/include/GLFW/glfw3native.h \
     glfw3/src/glfw_config.h \
     glfw3/src/internal.h \
-    jpeg-8/jversion.h \
-    jpeg-8/jpeglib.h \
-    jpeg-8/jpegint.h \
-    jpeg-8/jmorecfg.h \
-    jpeg-8/jmemsys.h \
-    jpeg-8/jinclude.h \
-    jpeg-8/jerror.h \
-    jpeg-8/jdct.h \
-    jpeg-8/jconfig.h \
     randomc/randomc.h \
     randomc/random.h \
     Shoemake/Decompose.h \
@@ -122,52 +111,6 @@ SOURCES += \
     glfw3/src/input.c \
     glfw3/src/monitor.c \
     glfw3/src/window.c \
-    jpeg-8/jutils.c \
-    jpeg-8/jquant2.c \
-    jpeg-8/jquant1.c \
-    jpeg-8/jmemnobs.c \
-    jpeg-8/jmemmgr.c \
-    jpeg-8/jidctint.c \
-    jpeg-8/jidctfst.c \
-    jpeg-8/jidctflt.c \
-    jpeg-8/jfdctint.c \
-    jpeg-8/jfdctfst.c \
-    jpeg-8/jfdctflt.c \
-    jpeg-8/jerror.c \
-    jpeg-8/jdtrans.c \
-    jpeg-8/jdsample.c \
-    jpeg-8/jdpostct.c \
-    jpeg-8/jdmerge.c \
-    jpeg-8/jdmaster.c \
-    jpeg-8/jdmarker.c \
-    jpeg-8/jdmainct.c \
-    jpeg-8/jdinput.c \
-    jpeg-8/jdhuff.c \
-    jpeg-8/jddctmgr.c \
-    jpeg-8/jdcolor.c \
-    jpeg-8/jdcoefct.c \
-    jpeg-8/jdatasrc.c \
-    jpeg-8/jdatadst.c \
-    jpeg-8/jdarith.c \
-    jpeg-8/jdapistd.c \
-    jpeg-8/jdapimin.c \
-    jpeg-8/jctrans.c \
-    jpeg-8/jcsample.c \
-    jpeg-8/jcprepct.c \
-    jpeg-8/jcparam.c \
-    jpeg-8/jcomapi.c \
-    jpeg-8/jcmaster.c \
-    jpeg-8/jcmarker.c \
-    jpeg-8/jcmainct.c \
-    jpeg-8/jcinit.c \
-    jpeg-8/jchuff.c \
-    jpeg-8/jcdctmgr.c \
-    jpeg-8/jccolor.c \
-    jpeg-8/jccoefct.c \
-    jpeg-8/jcarith.c \
-    jpeg-8/jcapistd.c \
-    jpeg-8/jcapimin.c \
-    jpeg-8/jaricom.c \
     randomc/sobol.cpp \
     randomc/ranrotw.cpp \
     randomc/ranrotb.cpp \
@@ -203,21 +146,6 @@ HEADERS += \
 SOURCES += \
     glfw3/src/mach_time.c \
     glfw3/src/posix_tls.c \
-    png/pngwutil.c \
-    png/pngwtran.c \
-    png/pngwrite.c \
-    png/pngwio.c \
-    png/pngtrans.c \
-    png/pngset.c \
-    png/pngrutil.c \
-    png/pngrtran.c \
-    png/pngrio.c \
-    png/pngread.c \
-    png/pngpread.c \
-    png/pngmem.c \
-    png/pngget.c \
-    png/pngerror.c \
-    png/png.c \
     zlib/zutil.c \
     zlib/uncompr.c \
     zlib/trees.c \
@@ -297,21 +225,6 @@ SOURCES += \
     zlib/adler32.c \
     zlib/ioapi.c \
     zlib/unzip.c \
-    png/pngwutil.c \
-    png/pngwtran.c \
-    png/pngwrite.c \
-    png/pngwio.c \
-    png/pngtrans.c \
-    png/pngset.c \
-    png/pngrutil.c \
-    png/pngrtran.c \
-    png/pngrio.c \
-    png/pngread.c \
-    png/pngpread.c \
-    png/pngmem.c \
-    png/pngget.c \
-    png/pngerror.c \
-    png/png.c \
     dirent/dirent.c \
 
 }
