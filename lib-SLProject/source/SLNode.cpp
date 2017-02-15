@@ -16,8 +16,6 @@
 #include <SLNode.h>
 #include <SLAnimation.h>
 #include <SLSceneView.h>
-#include <SLRay.h>
-#include <SLCamera.h>
 #include <SLLightSpot.h>
 #include <SLLightRect.h>
 #include <SLLightDirect.h>
@@ -986,7 +984,7 @@ void SLNode::lookAt(const SLVec3f& target, const SLVec3f& up,
     
     // dir and up are parallel and facing in the same direction 
     // or facing in opposite directions.
-    // in this case we just rotate the up vector by 90° around
+    // in this case we just rotate the up vector by 90ï¿½ around
     // our current right vector
     // @todo This check might make more sense to be in Mat3.posAtUp
     if (fabs(cosAngle-1.0) <= FLT_EPSILON || fabs(cosAngle+1.0) <= FLT_EPSILON)

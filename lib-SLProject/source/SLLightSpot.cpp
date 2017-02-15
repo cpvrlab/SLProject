@@ -18,10 +18,7 @@
 #include <SLRay.h>
 #include <SLScene.h>
 #include <SLSceneView.h>
-#include <SLMaterial.h>
-#include <SLMesh.h>
 #include <SLSphere.h>
-#include <SLSpheric.h>
 
 //-----------------------------------------------------------------------------
 SLLightSpot::SLLightSpot(SLfloat radius, 

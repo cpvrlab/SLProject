@@ -13,7 +13,7 @@
 #include <debug_new.h>        // memory leak detector
 #endif
 
-#include "SLSpheric.h"
+#include <SLSpheric.h>
 
 //-----------------------------------------------------------------------------
 /*!

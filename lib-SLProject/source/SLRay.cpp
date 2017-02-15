@@ -13,7 +13,6 @@
 #endif
 
 #include <SLRay.h>
-#include <SLMesh.h>
 
 // init static variables
 SLint   SLRay::maxDepth = 0;
@@ -138,7 +137,7 @@ void SLRay::print() const
 /*!
 SLRay::reflect calculates a secondary ray reflected at the normal, starting at 
 the intersection point. All vectors must be normalized vectors.
-R = 2(-I·N) N + I
+R = 2(-Iï¿½N) N + I
 */
 void SLRay::reflect(SLRay* reflected)
 {

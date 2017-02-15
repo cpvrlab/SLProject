@@ -16,16 +16,12 @@
 #include <SLInterface.h>
 #include <SLLight.h>
 #include <SLCamera.h>
-#include <SLAABBox.h>
-#include <SLGLProgram.h>
 #include <SLAnimation.h>
 #include <SLAnimManager.h>
 #include <SLLightSpot.h>
 #include <SLLightRect.h>
-#include <SLRay.h>
 #include <SLTexFont.h>
 #include <SLButton.h>
-#include <SLBox.h>
 #include <SLImporter.h>
 #include <SLCVCapture.h>
 

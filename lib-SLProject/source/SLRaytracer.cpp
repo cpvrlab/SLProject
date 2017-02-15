@@ -21,13 +21,7 @@ using namespace std::chrono;
 #include <SLSceneView.h>
 #include <SLLightSpot.h>
 #include <SLLightRect.h>
-#include <SLLight.h>
-#include <SLNode.h>
-#include <SLMesh.h>
 #include <SLText.h>
-#include <SLGLTexture.h>
-#include <SLSamples2D.h>
-#include <SLGLProgram.h>
 
 //-----------------------------------------------------------------------------
 SLRaytracer::SLRaytracer()

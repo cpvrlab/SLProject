@@ -15,7 +15,6 @@
 
 #include <SLBox.h>
 #include <SLMaterial.h>
-#include <SLRay.h>
 
 //-----------------------------------------------------------------------------
 //! SLBox::SLBox ctor with min. & max. coords. of the axis aligned box

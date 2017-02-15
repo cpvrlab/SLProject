@@ -14,16 +14,12 @@
 #endif
 
 #include <SLNode.h>
-#include <SLMesh.h>
 #include <SLRay.h>
 #include <SLRaytracer.h>
 #include <SLSceneView.h>
-#include <SLCamera.h>
 #include <SLCompactGrid.h>
 #include <SLLightSpot.h>
 #include <SLLightRect.h>
-#include <SLSkeleton.h>
-#include <SLGLProgram.h>
 
 //-----------------------------------------------------------------------------
 /*! 

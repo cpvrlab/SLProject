@@ -14,7 +14,6 @@
 #endif
 
 #include <SLButton.h>
-#include <SLCamera.h>
 
 //-----------------------------------------------------------------------------
 const SLfloat BTN_TXT2BTN_H_FACTOR = 1.0f;  // Button height factor from text hight

@@ -13,10 +13,6 @@
 #include <debug_new.h>        // memory leak detector
 #endif
 #include <SLScene.h>
-#include <SLAnimation.h>
-#include <SLAnimPlayback.h>
-#include <SLAnimManager.h>
-#include <SLSkeleton.h>
 
 //-----------------------------------------------------------------------------
 //! destructor

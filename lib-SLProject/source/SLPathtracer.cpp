@@ -21,15 +21,8 @@ using namespace std::chrono;
 #include <SLSceneView.h>
 #include <SLLightSpot.h>
 #include <SLLightRect.h>
-#include <SLLight.h>
 #include <SLVolume.h>
-#include <SLNode.h>
 #include <SLText.h>
-#include <SLMesh.h>
-#include <SLGLTexture.h>
-#include <SLSamples2D.h>
-#include <SLGLProgram.h>
-#include <SLRay.h>
 
 extern SLfloat rnd01();
 

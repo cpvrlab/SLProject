@@ -14,7 +14,6 @@
 #endif
 #include <SLAnimTrack.h>
 #include <SLAnimation.h>
-#include <SLNode.h>
 #include <SLCurveBezier.h>
 #include <SLSceneView.h>
 
@@ -64,8 +63,8 @@ SLKeyframe* SLAnimTrack::keyframe(SLint index)
     If only one keyframe exists the two values will be equivalent.
 */
 SLfloat SLAnimTrack::getKeyframesAtTime(SLfloat time,
-                                             SLKeyframe** k1,
-                                             SLKeyframe** k2) const
+                                        SLKeyframe** k1,
+                                        SLKeyframe** k2) const
 {
     SLfloat t1, t2;
     SLint numKf = (SLint)_keyframes.size();
@@ -280,7 +279,7 @@ void SLNodeAnimTrack::drawVisuals(SLSceneView* sv)
     }
 }
 //-----------------------------------------------------------------------------
-/*! Rebuilds the translation interpolation Bézier curve.
+/*! Rebuilds the translation interpolation Bï¿½zier curve.
 */
 void SLNodeAnimTrack::buildInterpolationCurve() const
 {

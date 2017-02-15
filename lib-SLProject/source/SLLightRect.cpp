@@ -18,8 +18,6 @@
 #include <SLRay.h>
 #include <SLScene.h>
 #include <SLSceneView.h>
-#include <SLMaterial.h>
-#include <SLMesh.h>
 
 extern SLfloat rnd01();
 

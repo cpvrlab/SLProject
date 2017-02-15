@@ -13,9 +13,6 @@
 #include <debug_new.h>        // memory leak detector
 #endif
 #include <SLScene.h>
-#include <SLAnimation.h>
-#include <SLAnimManager.h>
-#include <SLSkeleton.h>
 #include <SLCurveBezier.h>
 
 //-----------------------------------------------------------------------------
@@ -256,11 +253,11 @@ SLNodeAnimTrack* SLAnimation::createEllipticNodeTrack(SLNode* target,
         c2----B----c1
 
     c3                 c0
-    ¦                   ¦
-    ¦         ¦         ¦
+    ï¿½                   ï¿½
+    ï¿½         ï¿½         ï¿½
     C       --0--       A
-    ¦         ¦         ¦
-    ¦                   ¦
+    ï¿½         ï¿½         ï¿½
+    ï¿½                   ï¿½
     c4                 c7 
 
         c5----D----c6

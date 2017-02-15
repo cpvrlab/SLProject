@@ -15,23 +15,17 @@
 
 #include <SLScene.h>
 #include <SLSceneView.h>
-#include <SLKeyframe.h>
-#include <SLAnimation.h>
-#include <SLAnimManager.h>
 #include <SLAssimpImporter.h>
 
-#include <SLCamera.h>
 #include <SLLightSpot.h>
 #include <SLLightRect.h>
 #include <SLLightDirect.h>
-#include <SLMesh.h>
 #include <SLPolygon.h>
 #include <SLBox.h>
 #include <SLCone.h>
 #include <SLCylinder.h>
 #include <SLDisk.h>
 #include <SLSphere.h>
-#include <SLSpheric.h>
 #include <SLRectangle.h>
 #include <SLText.h>
 #include <SLGrid.h>

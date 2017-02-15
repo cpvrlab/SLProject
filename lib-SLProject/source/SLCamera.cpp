@@ -14,9 +14,6 @@
 #endif
 
 #include <SLSceneView.h>
-#include <SLCamera.h>
-#include <SLRay.h>
-#include <SLAABBox.h>
 
 //-----------------------------------------------------------------------------
 // Static global default parameters for new cameras

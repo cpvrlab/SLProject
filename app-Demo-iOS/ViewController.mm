@@ -131,8 +131,8 @@ float GetSeconds()
     //////////////////////////
    
     ///////////////////////////////////////////////////////////////////////
-    svIndex = slCreateSceneView(self.view.bounds.size.width * screenScale,
-                                self.view.bounds.size.height * screenScale,
+    svIndex = slCreateSceneView(self.view.bounds.size.height * screenScale,
+                                self.view.bounds.size.width * screenScale,
                                 dpi,
                                 C_sceneMeshLoad,
                                 (void*)&onPaintRTGL,
@@ -166,9 +166,10 @@ float GetSeconds()
 - (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation
 {
     // Return YES for supported orientations
-    if ([[UIDevice currentDevice] userInterfaceIdiom] == UIUserInterfaceIdiomPhone)
-         return (interfaceOrientation != UIInterfaceOrientationPortraitUpsideDown);
-    else return YES;
+    //if ([[UIDevice currentDevice] userInterfaceIdiom] == UIUserInterfaceIdiomPhone)
+    //     return (interfaceOrientation != UIInterfaceOrientationPortraitUpsideDown);
+    //else return YES;
+    return NO;
 }
 //-----------------------------------------------------------------------------
 - (void)update
