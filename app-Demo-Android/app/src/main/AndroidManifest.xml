@@ -1,18 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="ch.fhnw.comgr"
-    android:versionCode="13"
-    android:versionName="1.3.000">
+    android:versionCode="14"
+    android:versionName="2.0.000">
 
     <uses-permission android:name="android.permission.CAMERA"/>
     <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW"/>
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
 
-    <uses-feature android:name="android.hardware.camera"                 android:required="true"/>
-    <uses-feature android:name="android.hardware.camera.autofocus"       android:required="true"/>
-    <uses-feature android:name="android.hardware.camera.front"           android:required="true"/>
-    <uses-feature android:name="android.hardware.camera.front.autofocus" android:required="true"/>
-    <uses-feature android:glEsVersion="0x00030000"                       android:required="true"/>
+    <uses-feature android:name="android.hardware.camera"                 android:required="false"/>
+    <uses-feature android:name="android.hardware.camera.autofocus"       android:required="false"/>
+    <uses-feature android:name="android.hardware.camera.front"           android:required="false"/>
+    <uses-feature android:name="android.hardware.camera.front.autofocus" android:required="false"/>
+    <uses-feature android:glEsVersion="0x00030000"                       android:required="false"/>
 
     <application
         android:allowBackup="false"

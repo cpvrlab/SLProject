@@ -529,13 +529,13 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
             SLstring text;
         };
         indicatorData indicators[] = {
-            // pos                             y rot    y scale text
-            indicatorData(3.0f, 0.0f, -0.2f,    -20.0f,    1.0f,   "1m"),
-            indicatorData(0.7f, 0.0f, -0.8f,    0.0f,    1.1f,   "1.10m"),
-            indicatorData(0.05f, 1.1f, -1.0f,    0.0f,    0.18f,   "18cm"),
-            indicatorData(-1.2f, 0.0f, -1.0f,    0.0f,    1.8f,   "1.80m"),
-            indicatorData(-2.8f, 0.0f, 0.2f,    60.0f,    2.0f,   "2m"),
-            indicatorData(-2.0f, 0.0f, -7.0f,   20.0f,   4.0f,   "4m")
+                // pos                       y rot    y scale text
+            indicatorData( 3.0f, 0.0f, -0.2f,-20.0f,   1.0f,   "1m"),
+            indicatorData( 0.7f, 0.0f, -0.8f,  0.0f,   1.1f,   "1.10m"),
+            indicatorData(0.05f, 1.1f, -1.0f,  0.0f,  0.18f,   "18cm"),
+            indicatorData(-1.2f, 0.0f, -1.0f,  0.0f,   1.8f,   "1.80m"),
+            indicatorData(-2.8f, 0.0f,  0.2f, 60.0f,   2.0f,   "2m"),
+            indicatorData(-2.0f, 0.0f, -7.0f, 20.0f,   4.0f,   "4m")
         };        
 
         for (SLint i = 0; i < 6; i++)
@@ -1930,8 +1930,10 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         light1->lookAt(0, 0, 0);
         light1->name("light node");
 
-        // Create meshes and nodes
-        SLMesh* rectMesh = new SLRectangle(SLVec2f(-5,-5), SLVec2f(5,5), 1,1, "rect mesh", m1);
+        // Create rectangle meshe and nodes
+        SLfloat h = 5.0f;
+        SLfloat w = h * sv->scrWdivH();
+        SLMesh* rectMesh = new SLRectangle(SLVec2f(-w,-h), SLVec2f(w,h), 1,1, "rect mesh", m1);
         SLNode* rectNode = new SLNode(rectMesh, "rect node");
 
         // Create a scene group and add all nodes

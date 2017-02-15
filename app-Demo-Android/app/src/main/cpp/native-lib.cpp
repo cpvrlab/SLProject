@@ -89,7 +89,7 @@ JNIEXPORT void JNICALL Java_ch_fhnw_comgr_GLES3Lib_onInit(JNIEnv *env, jobject o
     svIndex = slCreateSceneView((int) width,
                                 (int) height,
                                 (int) dpi,
-                                C_sceneMeshLoad,
+                                C_sceneRevolver,
                                 (void *) &Java_renderRaytracingCallback);
     delete cmdLineArgs;
 }
