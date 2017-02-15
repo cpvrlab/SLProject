@@ -13,17 +13,17 @@ precision mediump float;
 #endif
 
 //-----------------------------------------------------------------------------
-attribute   vec4  a_position;   // Vertex position attribute
-attribute   vec3  a_normal;     // Vertex normal attribute
-attribute   vec4  a_tangent;    // Vertex tangent attribute
-attribute   vec2  a_texCoord;   // Vertex texture coordiante attribute
+attribute   vec4  a_position; // Vertex position attribute
+attribute   vec3  a_normal;   // Vertex normal attribute
+attribute   vec4  a_tangent;  // Vertex tangent attribute
+attribute   vec2  a_texCoord; // Vertex texture coordiante attribute
 
 uniform     mat4  u_mvMatrix;   // modelview matrix 
 uniform     mat3  u_nMatrix;    // normal matrix=transpose(inverse(mv))
 uniform     mat4  u_mvpMatrix;  // = projection * modelView
 
 uniform     vec4  u_lightPosVS[8];     // position of light in view space
-uniform     vec3  u_lightSpotDirVS[8]; // spot direction in view space
+uniform     vec3  u_lightDirVS[8];     // spot direction in view space
 uniform     float u_lightSpotCutoff[8];// spot cutoff angle 1-180 degrees
 
 varying     vec2  v_texCoord; // Texture coordiante varying
@@ -49,7 +49,7 @@ void main()
    
     // Transform spotdir into tangent space
     if (u_lightSpotCutoff[0] < 180.0)
-    {   v_S_TS = u_lightSpotDirVS[0];
+    {   v_S_TS = u_lightDirVS[0];
         v_S_TS *= TBN;
     }
       

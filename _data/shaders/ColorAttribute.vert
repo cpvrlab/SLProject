@@ -1,5 +1,5 @@
 //#############################################################################
-//  File:      ColorAttribute.vert
+//  File:      ConstUniform.vert
 //  Purpose:   GLSL vertex program for simple per vertex attribute color
 //  Author:    Marcus Hudritsch
 //  Date:      July 2014
