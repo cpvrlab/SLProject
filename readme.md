@@ -10,6 +10,7 @@ You can clone recursively either with the GitHub GUI-Tool or with the following 
 ```sh
 git clone --recursive https://github.com/cpvrlab/SLProject.git
 cd SLProject
+git submodule update --init --recursive
 ```
 
 For detailed build instructions on various platforms go to the [SLProject wiki](https://github.com/cpvrlab/SLProject/wiki).
