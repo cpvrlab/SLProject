@@ -80,7 +80,15 @@ public class GLES3Activity extends Activity implements View.OnTouchListener, Sen
 
         // Init Camera (the camera is started by cameraStart from within the view renderer)
         Log.i(TAG, "Request camera permission ...");
-        ActivityCompat.requestPermissions(GLES3Activity.this, new String[]{Manifest.permission.CAMERA}, 1);
+        //If we are on android 5.1 or lower the permission was granted during installation.
+        //On android 6.0 or higher it requests a dangerous permission during runtime.
+        if( ActivityCompat.checkSelfPermission(GLES3Activity.this, Manifest.permission.CAMERA) ==
+                PackageManager.PERMISSION_GRANTED ) {
+            cameraPermissionGranted=true;
+        }
+        else {
+            ActivityCompat.requestPermissions(GLES3Activity.this, new String[]{Manifest.permission.CAMERA}, 1);
+        }
     }
 
     @Override
