@@ -14,7 +14,6 @@ cd SLProject
 
 For detailed build instructions on various platforms go to the [SLProject wiki](https://github.com/cpvrlab/SLProject/wiki).
 
-[![Build Status](https://travis-ci.org/cpvrlab/SLProject.svg?branch=master)](https://travis-ci.org/cpvrlab/SLProject)
 [![Build Status](https://ci.appveyor.com/api/projects/status/d101mkgdfy4lqe01?svg=true)](https://ci.appveyor.com/project/MarcusHudritsch/slproject)
 
 See the [SLProject Homepage](http://cpvrlab.github.io/SLProject_doc/) for more information.
