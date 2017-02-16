@@ -2,7 +2,7 @@
 #  File:      SLProjectCommonLibraries.pro
 #  Purpose:   QMake project definition for common SLProject projects
 #  Author:    Marcus Hudritsch, Manuel Frischknecht
-#  Date:      August 2015
+#  Date:      Februar 2017
 #  Copyright: Marcus Hudritsch, Manuel Frischknecht, Switzerland
 #             THIS SOFTWARE IS PROVIDED FOR EDUCATIONAL PURPOSE ONLY AND
 #             WITHOUT ANY WARRANTIES WHETHER EXPRESSED OR IMPLIED.
@@ -29,7 +29,6 @@ win32 {
     LIBS += $$PWD\_lib\prebuilt\OpenCV\x64\vc12\lib\opencv_calib3d320.lib
     LIBS += $$PWD\_lib\prebuilt\OpenCV\x64\vc12\lib\opencv_highgui320.lib
     LIBS += $$PWD\_lib\prebuilt\OpenCV\x64\vc12\lib\opencv_flann320.lib
-
     DEFINES += GLEW_STATIC
     DEFINES += GLEW_NO_GLU
     DEFINES += _GLFW_NO_DLOAD_GDI32
@@ -61,34 +60,8 @@ macx {
     INCLUDEPATH += /usr/include
 }
 unix:!macx:!android {
-    # Install opencv with the following command:
-    # sudo apt-get install libopencv-core-dev libopencv-imgproc-dev libopencv-video-dev libopencv-videoio-dev
-    OPENCV_LIB_DIRS += /usr/lib #default
-    OPENCV_LIB_DIRS += /usr/lib/x86_64-linux-gnu #ubuntu
-
-    CONFIG(release, debug|release) {
-        OPENCV_LIB_DIRS += /home/ghm1/libs/opencv-3.2.0/release/lib #ubuntu
-    }
-    CONFIG(debug, debug|release) {
-        OPENCV_LIB_DIRS += /home/ghm1/libs/opencv-3.2.0/debug/lib #ubuntu
-    }
-    for(dir,OPENCV_LIB_DIRS) {
-        !opencv { #If opencv was already found, skip this loop
-            CONFIG += opencv
-            OPENCV_LIBS =  opencv_core opencv_imgproc opencv_imgproc opencv_video opencv_videoio opencv_calib3d opencv_imgcodecs opencv_aruco opencv_highgui opencv_xfeatures2d opencv_features2d
-            #Scan for opencv libs, if one is missing, remove the opencv flag.
-            for(lib,OPENCV_LIBS):!exists($$dir/lib$${lib}.so*):CONFIG -= opencv
-            opencv {
-                INCLUDEPATH += /usr/include/
-                LIBS += -L$$dir
-                for(lib,OPENCV_LIBS) LIBS += -l$$lib
-            }
-            unset(OPENCV_LIBS)
-        }
-    }
-    !opencv:warning(OpenCV is either not installed or not up to date (install OpenCV 3.x))
-
-    # linux only
+    # Setup the linux system as described in:
+    # https://github.com/cpvrlab/SLProject/wiki/Setup-Ubuntu-for-SLProject
     LIBS += -ldl
     LIBS += -lGL
     LIBS += -lX11
@@ -101,14 +74,18 @@ unix:!macx:!android {
     LIBS += -lpthread   #libpthread
     LIBS += -lpng
     LIBS += -lz
-
-    CONFIG(release, debug|release) {
-        INCLUDEPATH += /home/ghm1/libs/opencv-3.2.0/release/include
-    }
-    CONFIG(debug, debug|release) {
-        INCLUDEPATH += /home/ghm1/libs/opencv-3.2.0/debug/include
-    }
-
+    LIBS += /usr/local/lib/libopencv_core.so
+    LIBS += /usr/local/lib/libopencv_imgproc.so
+    LIBS += /usr/local/lib/libopencv_imgcodecs.so
+    LIBS += /usr/local/lib/libopencv_video.so
+    LIBS += /usr/local/lib/libopencv_videoio.so
+    LIBS += /usr/local/lib/libopencv_aruco.so
+    LIBS += /usr/local/lib/libopencv_features2d.so
+    LIBS += /usr/local/lib/libopencv_xfeatures2d.so
+    LIBS += /usr/local/lib/libopencv_calib3d.so
+    LIBS += /usr/local/lib/libopencv_flann.so
+    LIBS += /usr/local/lib/libopencv_highgui.so
+    INCLUDEPATH += /usr/local/include
     QMAKE_CXXFLAGS += -std=c++11
     QMAKE_CXXFLAGS += -Wunused-parameter
     QMAKE_CXXFLAGS += -Wno-unused-parameter
