@@ -10,8 +10,8 @@ android {
         applicationId "ch.fhnw.comgr"
         minSdkVersion 21
         targetSdkVersion 24
-        versionCode 14
-        versionName "2.0.000"
+        versionCode 15
+        versionName "2.0.001"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         ndk {
             abiFilters 'armeabi-v7a', 'arm64-v8a'

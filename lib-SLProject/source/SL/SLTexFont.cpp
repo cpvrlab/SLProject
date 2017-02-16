@@ -416,7 +416,7 @@ SLTexFont* SLTexFont::getFont(SLfloat heightMM, SLint dpi)
     if (targetH_PX < 16) return font16;
     if (targetH_PX < 18) return font18;
     if (targetH_PX < 20) return font20;
-    if (targetH_PX < 22) return font22;
+    if (targetH_PX < 24) return font22;
     return font24;
 }
 //-----------------------------------------------------------------------------

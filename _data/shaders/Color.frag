@@ -1,5 +1,5 @@
 //#############################################################################
-//  File:      ConstColor.frag
+//  File:      Color.frag
 //  Purpose:   Simple GLSL fragment program for constant color
 //  Date:      July 2014
 //  Copyright: Marcus Hudritsch

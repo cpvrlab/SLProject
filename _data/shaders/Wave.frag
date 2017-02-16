@@ -23,7 +23,7 @@ uniform vec4   u_lightPosVS[8];     // position of light in view space
 uniform vec4   u_lightAmbient[8];   // ambient light intensity (Ia)
 uniform vec4   u_lightDiffuse[8];   // diffuse light intensity (Id)
 uniform vec4   u_lightSpecular[8];  // specular light intensity (Is)
-uniform vec3   u_lightDirVS[8];     // spot direction in view space
+uniform vec3   u_lightSpotDirVS[8]; // spot direction in view space
 uniform float  u_lightSpotCutoff[8];// spot cutoff angle 1-180 degrees
 uniform float  u_lightSpotCosCut[8];// cosine of spot cutoff angle
 uniform float  u_lightSpotExp[8];   // spot exponent
