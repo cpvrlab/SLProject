@@ -74,6 +74,10 @@ public:
     SLCVMat&        intrinsics          () {return _intrinsics;}
     SLCVMat&        distortion          () {return _distortion;}
     SLfloat         cameraFovDeg        () {return _cameraFovDeg;}
+    SLfloat         fx                  () {return _intrinsics.cols==3 && _intrinsics.rows==3 ? (SLfloat)_intrinsics.at<double>(0,0) : 0.0f;}
+    SLfloat         fy                  () {return _intrinsics.cols==3 && _intrinsics.rows==3 ? (SLfloat)_intrinsics.at<double>(1,1) : 0.0f;}
+    SLfloat         cx                  () {return _intrinsics.cols==3 && _intrinsics.rows==3 ? (SLfloat)_intrinsics.at<double>(0,2) : 0.0f;}
+    SLfloat         cy                  () {return _intrinsics.cols==3 && _intrinsics.rows==3 ? (SLfloat)_intrinsics.at<double>(1,2) : 0.0f;}
     SLCVCalibState  state               () {return _state;}
     SLint           numImgsToCapture    () {return _numOfImgsToCapture;}
     SLint           numCapturedImgs     () {return _numCaptured;}

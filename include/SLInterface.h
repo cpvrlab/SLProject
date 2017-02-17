@@ -64,6 +64,6 @@ void    slRotationPYR           (int sceneViewIndex, float pitchRAD, float yawRA
 void    slRotationQUAT          (int sceneViewIndex, float angleRAD, float axisX, float axisY, float axisZ);
 string  slGetWindowTitle        (int sceneViewIndex);
 int     slGetVideoType          ();
-void    slCopyVideoImage        (int width, int height, SLPixelFormat glFormat, SLuchar* data, bool isContiuous);
+void    slCopyVideoImage        (int width, int height, SLPixelFormat glFormat, SLuchar* data, bool isContinuous);
 //-----------------------------------------------------------------------------
 #endif // SLINTERFACE_H

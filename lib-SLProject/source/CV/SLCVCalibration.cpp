@@ -71,12 +71,14 @@ bool SLCVCalibration::loadCamParams()
     }
 
 
-    fs["camera_matrix"] >> _intrinsics;
+    fs["camera_matrix"]           >> _intrinsics;
     fs["distortion_coefficients"] >> _distortion;
-    fs["avg_reprojection_error"] >> _reprojectionError;
-    fs["image_width"] >> _imageSize.width;
-    fs["image_height"] >> _imageSize.height;
-    fs["calibration_time"] >> _calibrationTime;
+    fs["avg_reprojection_error"]  >> _reprojectionError;
+    fs["image_width"]             >> _imageSize.width;
+    fs["image_height"]            >> _imageSize.height;
+    fs["calibration_time"]        >> _calibrationTime;
+
+    _state = CS_calibrated;
 
 
     // close the input file
@@ -87,8 +89,6 @@ bool SLCVCalibration::loadCamParams()
 
     SL_LOG("Calib. loaded   : %s\n", _calibrationTime.c_str());
     SL_LOG("Camera FOV      : %f\n", _cameraFovDeg);
-
-    _state = CS_calibrated;
 
     return true;
 }
@@ -106,10 +106,10 @@ bool SLCVCalibration::loadCalibParams()
     }
 
     //assign paramters
-    fs["numInnerCornersWidth"] >> _boardSize.width;
+    fs["numInnerCornersWidth"]  >> _boardSize.width;
     fs["numInnerCornersHeight"] >> _boardSize.height;
-    fs["squareSizeMM"] >> _boardSquareMM;
-    fs["numOfImgsToCapture"] >> _numOfImgsToCapture;
+    fs["squareSizeMM"]          >> _boardSquareMM;
+    fs["numOfImgsToCapture"]    >> _numOfImgsToCapture;
 
     return true;
 }
@@ -117,6 +117,9 @@ bool SLCVCalibration::loadCalibParams()
 //! Calculates the vertical field of view angle in degrees
 void SLCVCalibration::calcCameraFOV()
 {
+    if (_intrinsics.rows!=3||_intrinsics.cols!=3)
+        SL_EXIT_MSG("SLCVCalibration::calcCameraFOV: No intrinsic parameter available");
+
     //calculate vertical field of view
     SLfloat fy = (SLfloat)_intrinsics.at<double>(1,1);
     SLfloat cy = (SLfloat)_intrinsics.at<double>(1,2);
@@ -139,7 +142,7 @@ void SLCVCalibration::calcBoardCorners3D(SLCVSize boardSize,
                                                  0));
 }
 //-----------------------------------------------------------------------------
-//! Calculates the reprojection error of the calibration
+//! Calculates the reprojecion error of the calibration
 static double calcReprojectionErrors(const SLCVVVPoint3f& objectPoints,
                                      const SLCVVVPoint2f& imagePoints,
                                      const SLCVVMat& rvecs,

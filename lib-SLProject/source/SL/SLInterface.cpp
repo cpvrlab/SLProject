@@ -427,6 +427,13 @@ string slGetWindowTitle(int sceneViewIndex)
     return sv->windowTitle();
 }
 //-----------------------------------------------------------------------------
+/*! Global function returns the type of video camera wanted
+*/
+int slGetVideoType()
+{
+    return (int)SLScene::current->videoType();
+}
+//-----------------------------------------------------------------------------
 /*! Global function to copy a new camera image to the SLScene::_videoTexture.
 An application can grab the live video image with OpenCV via slGrabCopyVideoImage
 or with another OS dependent framework.
@@ -442,13 +449,6 @@ void slCopyVideoImage(SLint width,
                                    format,
                                    data,
                                    isContinuous);
-}
-//-----------------------------------------------------------------------------
-/*! Global function returns the type of video camera wanted
-*/
-int slGetVideoType()
-{
-    return (int)SLScene::current->videoType();
 }
 //-----------------------------------------------------------------------------
 

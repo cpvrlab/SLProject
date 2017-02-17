@@ -1963,7 +1963,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
             info(sv, "Tap on the screen to create a calibration foto: ");
         
         // Material
-        SLMaterial* yellow = new SLMaterial("mY", SLCol4f::YELLOW);
+        SLMaterial* yellow = new SLMaterial("mY", SLCol4f(1,1,0,0.5f));
 
         // Get the edge length of a chessboard
         SLfloat e1 = _calibration.boardSquareM();
@@ -1990,7 +1990,6 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         // Build mesh & node that will be tracked by the camera marker  
         SLBox* box = new SLBox(0.0f, 0.0f, 0.0f, e3, e3, e3, "Box", yellow);
         SLNode* boxNode = new SLNode(box, "Box Node");
-        boxNode->setDrawBitsRec(SL_DB_WIREMESH, true);
         boxNode->setDrawBitsRec(SL_DB_CULLOFF, true);
         SLNode* axisNode = new SLNode(new SLCoordAxis(),"Axis Node");
         axisNode->setDrawBitsRec(SL_DB_WIREMESH, false);
@@ -2026,8 +2025,8 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         info(sv, "Hold Aruco Marker 0 and/or 1 into the field of view of the camera.");
         
         // Material
-        SLMaterial* yellow = new SLMaterial("mY", SLCol4f::YELLOW);
-        SLMaterial* cyan   = new SLMaterial("mC", SLCol4f::CYAN);
+        SLMaterial* yellow = new SLMaterial("mY", SLCol4f(1,1,0,0.5f));
+        SLMaterial* cyan   = new SLMaterial("mY", SLCol4f(0,1,1,0.5f));
 
         // Create a scene group node
         SLNode* scene = new SLNode("scene node");
@@ -2053,7 +2052,6 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         // Build mesh & node that will be tracked by the 1st marker (camera)  
         SLBox* box1 = new SLBox(-he,-he, 0.0f, he, he, 2*he, "Box 1", yellow);
         SLNode* boxNode1 = new SLNode(box1, "Box Node 1");
-        boxNode1->setDrawBitsRec(SL_DB_WIREMESH, true);
         SLNode* axisNode1 = new SLNode(new SLCoordAxis(),"Axis Node 1");
         axisNode1->setDrawBitsRec(SL_DB_WIREMESH, false);
         axisNode1->scale(edgeLen);
@@ -2064,7 +2062,6 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         // Build mesh & node that will be tracked by the 2nd marker  
         SLBox* box2 = new SLBox(-he,-he, 0.0f, he, he, 2*he, "Box 2", cyan);
         SLNode* boxNode2 = new SLNode(box2, "Box Node 2");
-        boxNode2->setDrawBitsRec(SL_DB_WIREMESH, true);
         SLNode* axisNode2 = new SLNode(new SLCoordAxis(),"Axis Node 2");
         axisNode2->setDrawBitsRec(SL_DB_WIREMESH, false);
         axisNode2->scale(edgeLen);

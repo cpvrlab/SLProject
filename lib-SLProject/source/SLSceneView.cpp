@@ -1540,54 +1540,52 @@ SLbool SLSceneView::onCommand(SLCommand cmd)
 
         switch (cmd)
         {
-        case C_projPersp:
-            _camera->projection(P_monoPerspective);
-            if (_renderType == RT_rt && !_raytracer.continuous() &&
-                _raytracer.state() == rtFinished)
-                _raytracer.state(rtReady);
-            break;
-        case C_projOrtho:
-            _camera->projection(P_monoOrthographic);
-            if (_renderType == RT_rt && !_raytracer.continuous() &&
-                _raytracer.state() == rtFinished)
-                _raytracer.state(rtReady);
-            break;
-        case C_projSideBySide:    _camera->projection(P_stereoSideBySide); break;
-        case C_projSideBySideP:   _camera->projection(P_stereoSideBySideP); break;
-        case C_projSideBySideD:   _camera->projection(P_stereoSideBySideD); break;
-        case C_projLineByLine:    _camera->projection(P_stereoLineByLine); break;
-        case C_projColumnByColumn:_camera->projection(P_stereoColumnByColumn); break;
-        case C_projPixelByPixel:  _camera->projection(P_stereoPixelByPixel); break;
-        case C_projColorRC:       _camera->projection(P_stereoColorRC); break;
-        case C_projColorRG:       _camera->projection(P_stereoColorRG); break;
-        case C_projColorRB:       _camera->projection(P_stereoColorRB); break;
-        case C_projColorYB:       _camera->projection(P_stereoColorYB); break;
+            case C_projPersp:
+                _camera->projection(P_monoPerspective);
+                if (_renderType == RT_rt && !_raytracer.continuous() &&
+                    _raytracer.state() == rtFinished)
+                    _raytracer.state(rtReady);
+                break;
+            case C_projOrtho:
+                _camera->projection(P_monoOrthographic);
+                if (_renderType == RT_rt && !_raytracer.continuous() &&
+                    _raytracer.state() == rtFinished)
+                    _raytracer.state(rtReady);
+                break;
+            case C_projSideBySide:    _camera->projection(P_stereoSideBySide); break;
+            case C_projSideBySideP:   _camera->projection(P_stereoSideBySideP); break;
+            case C_projSideBySideD:   _camera->projection(P_stereoSideBySideD); break;
+            case C_projLineByLine:    _camera->projection(P_stereoLineByLine); break;
+            case C_projColumnByColumn:_camera->projection(P_stereoColumnByColumn); break;
+            case C_projPixelByPixel:  _camera->projection(P_stereoPixelByPixel); break;
+            case C_projColorRC:       _camera->projection(P_stereoColorRC); break;
+            case C_projColorRG:       _camera->projection(P_stereoColorRG); break;
+            case C_projColorRB:       _camera->projection(P_stereoColorRB); break;
+            case C_projColorYB:       _camera->projection(P_stereoColorYB); break;
 
-        case C_camSpeedLimitInc:  _camera->maxSpeed(_camera->maxSpeed()*1.2f); return true;
-        case C_camSpeedLimitDec:  _camera->maxSpeed(_camera->maxSpeed()*0.8f); return true;
-        case C_camEyeSepInc:      _camera->onMouseWheel(1, K_ctrl); return true;
-        case C_camEyeSepDec:      _camera->onMouseWheel(-1, K_ctrl); return true;
-        case C_camFocalDistInc:   _camera->onMouseWheel(1, K_shift); return true;
-        case C_camFocalDistDec:   _camera->onMouseWheel(-1, K_shift); return true;
-        case C_camFOVInc:         _camera->onMouseWheel(1, K_alt); return true;
-        case C_camFOVDec:         _camera->onMouseWheel(-1, K_alt); return true;
-        case C_camAnimTurnYUp:    _camera->camAnim(CA_turntableYUp); return true;
-        case C_camAnimTurnZUp:    _camera->camAnim(CA_turntableZUp); return true;
-        case C_camAnimWalkYUp:    _camera->camAnim(CA_walkingYUp); return true;
-        case C_camAnimWalkZUp:    _camera->camAnim(CA_walkingZUp); return true;
-        case C_camDeviceRotOn:    _camera->useDeviceRot(true); return true;
-        case C_camDeviceRotOff:   _camera->useDeviceRot(false); return true;
-        case C_camDeviceRotToggle:_camera->useDeviceRot(!_camera->useDeviceRot()); return true;
-        case C_camReset:          _camera->resetToInitialState(); return true;
-        default: break;
+            case C_camSpeedLimitInc:  _camera->maxSpeed(_camera->maxSpeed()*1.2f); return true;
+            case C_camSpeedLimitDec:  _camera->maxSpeed(_camera->maxSpeed()*0.8f); return true;
+            case C_camEyeSepInc:      _camera->onMouseWheel(1, K_ctrl); return true;
+            case C_camEyeSepDec:      _camera->onMouseWheel(-1, K_ctrl); return true;
+            case C_camFocalDistInc:   _camera->onMouseWheel(1, K_shift); return true;
+            case C_camFocalDistDec:   _camera->onMouseWheel(-1, K_shift); return true;
+            case C_camFOVInc:         _camera->onMouseWheel(1, K_alt); return true;
+            case C_camFOVDec:         _camera->onMouseWheel(-1, K_alt); return true;
+            case C_camAnimTurnYUp:    _camera->camAnim(CA_turntableYUp); return true;
+            case C_camAnimTurnZUp:    _camera->camAnim(CA_turntableZUp); return true;
+            case C_camAnimWalkYUp:    _camera->camAnim(CA_walkingYUp); return true;
+            case C_camAnimWalkZUp:    _camera->camAnim(CA_walkingZUp); return true;
+            case C_camDeviceRotOn:    _camera->useDeviceRot(true); return true;
+            case C_camDeviceRotOff:   _camera->useDeviceRot(false); return true;
+            case C_camDeviceRotToggle:_camera->useDeviceRot(!_camera->useDeviceRot()); return true;
+            case C_camReset:          _camera->resetToInitialState(); return true;
+            default: break;
         }
 
-        // special case code ???
+        // special treatment for the menu position in side-by-side projection
         if (perspectiveChanged)
-        {
-            if (cmd == C_projSideBySideD)
-            {
-                _vrMode = true;
+        {   if (cmd == C_projSideBySideD)
+            {   _vrMode = true;
                 dpi(dpi() * 2);
                 SLButton::minMenuPos.set(_scrW*0.25f + 100.0f, _scrH*0.5f - 150.0f);
                 rebuild2DMenus();
@@ -1595,8 +1593,7 @@ SLbool SLSceneView::onCommand(SLCommand cmd)
                     onShowSysCursor(false);
             }
             else if (prevProjection == P_stereoSideBySideD)
-            {
-                _vrMode = false;
+            {   _vrMode = false;
                 dpi((SLint)((SLfloat)dpi()*0.5f));
                 SLButton::minMenuPos.set(10.0f, 10.0f);
                 rebuild2DMenus();
@@ -1969,6 +1966,8 @@ void SLSceneView::build2DInfoGL()
         sprintf(m+strlen(m), "Display size: %d x %d\\n", cal.imageSize().width, cal.imageSize().height);
         sprintf(m+strlen(m), "Capture size: %d x %d\\n", capSize.width, capSize.height);
         sprintf(m+strlen(m), "Field of view (deg.): %4.1f\\n", cal.cameraFovDeg());
+        sprintf(m+strlen(m), "fx, fy, cx, cy: %4.1f,%4.1f,%4.1f,%4.1f\\n", cal.fx(),cal.fy(),cal.cx(),cal.cy());
+        sprintf(m+strlen(m), "fx/Width: %4.2f\\n", cal.fx()/cal.imageSize().width);
         sprintf(m+strlen(m), "Calibration time: %s\\n", cal.calibrationTime().c_str());
     }
 
