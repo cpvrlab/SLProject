@@ -1882,8 +1882,7 @@ void SLSceneView::build2DInfoGL()
 
         sprintf(m+strlen(m), "Timing -------------------------------------\\n");
         sprintf(m+strlen(m), "Scene: %s\\n", s->name().c_str());
-        sprintf(m+strlen(m), "DPI: %d\\n", _dpi);
-        sprintf(m+strlen(m), "FPS: %4.1f  (Size: %d x %d)\\n", s->fps(), _scrW, _scrH);
+        sprintf(m+strlen(m), "FPS: %4.1f  (Size: %d x %d, DPI: %d)\\n", s->fps(), _scrW, _scrH, _dpi);
         sprintf(m+strlen(m), "Frame Time : %4.1f ms (100%%)\\n", s->frameTimesMS().average());
         sprintf(m+strlen(m), "Update Time : %4.1f ms (%0.0f%%)\\n", s->updateTimesMS().average(), updateTimePC);
         sprintf(m+strlen(m), "> Tracking Time: %4.1f ms (%0.0f%%)\\n", s->trackingTimesMS().average(), trackingTimePC);

@@ -444,7 +444,7 @@ bool SLScene::onUpdate()
             _sceneViews[0]->camera()->fov(_calibration.cameraFovDeg());
         }
         else
-        if (_calibration.state() == CS_calibrated)
+        if (_calibration.state() == CS_calibrated || _calibration.state() == CS_approximated)
         {
             SLCVTrackerAruco::trackAllOnce = true;
         
@@ -454,10 +454,12 @@ bool SLScene::onUpdate()
                                _calibration,
                                _sceneViews[0]);
             
-            if (_currentSceneID == C_sceneTrackChessboard)
+            if (_calibration.state() == CS_calibrated)
             {   ss << "Camera calibration: fov: " << _calibration.cameraFovDeg() << 
                       ", error: " << _calibration.reprojectionError();
                 info(_sceneViews[0], ss.str());
+            } else 
+            {   info(_sceneViews[0], "The video camera is not calibrated.");
             }
         }
 

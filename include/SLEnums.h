@@ -356,7 +356,8 @@ enum SLCVCalibState
     CS_calibrateStream, //!< The calibration is running with live video stream
     CS_calibrateGrab,   //!< The calibration is running and an image should be grabbed
     CS_startCalculating,//!< The calibration starts during the next frame
-    CS_calibrated       //!< The camera is calibrated 
+    CS_calibrated,      //!< The camera is calibrated 
+    CS_approximated     //!< The camera intrinsics where approximated
 };
 //-----------------------------------------------------------------------------
 //! OpenCV feature type

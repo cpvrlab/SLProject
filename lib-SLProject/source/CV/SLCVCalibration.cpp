@@ -61,8 +61,8 @@ bool SLCVCalibration::loadCamParams()
     fs.open(SL::configPath + _calibFileName, FileStorage::READ);
     if (!fs.isOpened())
     {
-        cout << "Could not open the calibration file: "
-             << (SL::configPath + _calibFileName) << endl;
+        SL_LOG("Could not open the calibration file: ",
+               (SL::configPath + _calibFileName).c_str());
         _state = CS_uncalibrated;
         _calibrationTime = "n/a";
 
@@ -70,16 +70,16 @@ bool SLCVCalibration::loadCamParams()
         return false;
     }
 
-
     fs["camera_matrix"]           >> _intrinsics;
     fs["distortion_coefficients"] >> _distortion;
     fs["avg_reprojection_error"]  >> _reprojectionError;
     fs["image_width"]             >> _imageSize.width;
     fs["image_height"]            >> _imageSize.height;
     fs["calibration_time"]        >> _calibrationTime;
+    fs["nr_of_frames"]            >> _numCaptured;
 
+    //_state = _numCaptured ? CS_calibrated : CS_approximated;
     _state = CS_calibrated;
-
 
     // close the input file
     fs.release();
@@ -247,7 +247,7 @@ static void saveCameraParams(SLCVSize& imageSize,
                              SLfloat squareSize)
 {
     SLstring fullPathAndFilename = SL::configPath + filename;
-    cout << "saveCameraParams: " << fullPathAndFilename << endl;
+    SL_LOG("Save camera calibration: ", fullPathAndFilename.c_str());
     
     cv::FileStorage fs(fullPathAndFilename, FileStorage::WRITE);
     
@@ -283,10 +283,13 @@ static void saveCameraParams(SLCVSize& imageSize,
         cvWriteComment(*fs, buf, 0);
     }
 
-    fs << "flags" << flag;
-    fs << "camera_matrix" << cameraMatrix;
+    fs << "flags"                   << flag;
+    fs << "camera_matrix"           << cameraMatrix;
     fs << "distortion_coefficients" << distCoeffs;
-    fs << "avg_reprojection_error" << totalAvgErr;
+    fs << "avg_reprojection_error"  << totalAvgErr;
+
+    // close file
+    fs.release();
 }
 //-----------------------------------------------------------------------------
 //!< Finds the inner chessboard corners in the given image
@@ -396,5 +399,51 @@ void SLCVCalibration::calculate()
         _reprojectionError = (float)totalAvgErr;
         _state = CS_calibrated;
     }
+}
+//-----------------------------------------------------------------------------
+//! Writes an approximated calibration with a standard FOV and no distortion
+void SLCVCalibration::writeApproximation(SLfloat horizontalViewAngleDEG, 
+                                         SLCVSize& imageSize)
+{
+    SLstring fullPathAndFilename = SL::configPath + _calibFileName;
+    SL_LOG("Save approximated camera calibration: ", fullPathAndFilename.c_str());
+    
+    cv::FileStorage fs(fullPathAndFilename, FileStorage::WRITE);
+    
+    if (!fs.isOpened())
+    {   SL_EXIT_MSG("Failed to open file for writing!");
+        return;
+    }
+
+    // Build time string
+    time_t tm;
+    time(&tm);
+    struct tm *t2 = localtime(&tm);
+    char buf[1024];
+    strftime(buf, sizeof(buf), "%c", t2);
+
+    // Create standard camera matrix
+    SLfloat cx = (float)imageSize.width;
+    SLfloat cy = (float)imageSize.height;
+    SLfloat fx = cx / tanf(horizontalViewAngleDEG*SL_DEG2RAD);
+    SLfloat fy = fx;
+
+    SLCVMat cameraMatrix = (Mat_<float>(3,3) << fx,  0, cx, 
+                                                 0, fy, cy, 
+                                                 0,  0,  1);
+
+    // Create distortion paramters for no distortion
+    SLCVMat distCoeffs = (Mat_<float>(5,1) << 0,0,0,0,0);
+
+    fs << "calibration_time"        << buf;
+    fs << "nr_of_frames"            << 0; // 0 = indicator for approximation
+    fs << "image_width"             << imageSize.width;
+    fs << "image_height"            << imageSize.height;
+    fs << "camera_matrix"           << cameraMatrix;
+    fs << "distortion_coefficients" << distCoeffs;
+    fs << "avg_reprojection_error"  << 0.0f;
+
+    // Release file stream
+    fs.release();
 }
 //-----------------------------------------------------------------------------

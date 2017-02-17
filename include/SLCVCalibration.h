@@ -40,6 +40,7 @@ The different calibration states are handled within SLScene::onUpdate:
 \nCS_calibrateGrab:    The calibration is running and an image should be grabbed
 \nCS_startCalculating: The calibration starts during the next frame
 \nCS_calibrated:       The camera is calibrated
+\nCS_approximated:     The camera intrinsics are approximated
 \n
 The chessboard pattern can be printed from the CalibrationChessboard_8x5_A4.pdf
 in the folder _data/calibration. It is important that one side has an odd number
@@ -59,6 +60,8 @@ public:
     bool            findChessboard      (SLCVMat imageColor,
                                          SLCVMat imageGray,
                                          bool drawCorners = true);
+    void            writeApproximation  (SLfloat horizontalViewAngleDEG,
+                                         SLCVSize& imageSize);
 
     static SLstring calibIniPath;       //!< calibration init parameters file path
     static void     calcBoardCorners3D  (SLCVSize boardSize, 
