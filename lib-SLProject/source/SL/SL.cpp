@@ -13,18 +13,20 @@
 #include <debug_new.h>        // memory leak detector
 #endif
 #include <cstdarg>
+#include <SLCV.h>
 
 //-----------------------------------------------------------------------------
-//! Default path for configuration files
-SLstring SL::configPath = "../_data/config/";
-//-----------------------------------------------------------------------------
-// Init global test variables from command line parameters
-SLint SL::testDurationSec = 0;
-SLint SL::testFactor = 1;
-SLCommand SL::testScene = (SLCommand)-1;
-SLCommand SL::testSceneAll = C_sceneMinimal;
+//! Default values for static fields
+SLstring    SL::configPath      = "../_data/config/";
+SLstring    SL::configTime      = "-";
+SLint       SL::dpi             = 0;
+SLCommand   SL::currentSceneID  = C_sceneEmpty;
+SLint       SL::testDurationSec = 0;
+SLint       SL::testFactor      = 1;
+SLCommand   SL::testScene       = (SLCommand)-1;
+SLCommand   SL::testSceneAll    = C_sceneMinimal;
 SLLogVerbosity SL::testLogVerbosity = LV_quiet;
-SLuint SL::testFrameCounter = 0;
+SLuint      SL::testFrameCounter = 0;
 const SLVstring SL::testSceneNames = 
 {   "SceneAll               ",
     "SceneMinimal           ",
@@ -67,16 +69,12 @@ void SL::log(const char* format, ...)
     va_start(argptr, format);
     vsprintf(log, format, argptr);
     va_end(argptr);
+
+    #if defined(SL_OS_ANDROID)
+    __android_log_print(ANDROID_LOG_INFO, "SLProject", log);
+    #else
     cout << log;
-
-    /*
-    // In case we don't have a console
-    static ofstream logFile;
-    if (!logFile.is_open())
-        logFile.open ("Users/Shared/SLProjectLog.txt");
-
-    logFile << log;
-    */
+    #endif
 }
 //-----------------------------------------------------------------------------
 //! SL::Exit terminates the application with a message. No leak cheching.
@@ -85,7 +83,6 @@ void SL::exitMsg(const SLchar* msg, const SLint line, const SLchar* file)
     #if defined(SL_OS_ANDROID)
     __android_log_print(ANDROID_LOG_INFO, "SLProject", 
                         "Exit %s at line %d in %s\n", msg, line, file);
-    #else
     SL::log("Exit %s at line %d in %s\n", msg, line, file);
     #endif
    
@@ -154,5 +151,49 @@ void SL::parseCmdLineArgs(SLVstring& cmdLineArgs)
         }
         argComponents.clear();
     }
+}
+//-----------------------------------------------------------------------------
+//! Loads the configuration from readable path
+void SL::loadConfig()
+{
+    SLstring fullPathAndFilename = SL::configPath + "SLProject.yml";
+
+    if (!SLFileSystem::fileExists(fullPathAndFilename))
+        return;
+        
+    SLCVFileStorage fs(fullPathAndFilename, SLCVFileStorage::READ);
+    
+    if (!fs.isOpened())
+    {   SL_LOG("Failed to open file for reading!");
+        return;
+    }
+
+    SLint currentScene;
+    fs["configTime"]        >> SL::configTime;
+    fs["dpi"]               >> SL::dpi;
+    fs["currentSceneID"]    >> currentScene; 
+    SL::currentSceneID = (SLCommand)currentScene;
+
+    fs.release();
+    SL_LOG("Config. loaded  : %s\n", fullPathAndFilename.c_str());
+}
+//-----------------------------------------------------------------------------
+//! Saves the configuration to a writable path
+void SL::saveConfig()
+{ 
+    SLstring fullPathAndFilename = SL::configPath + "SLProject.yml";
+    SLCVFileStorage fs(fullPathAndFilename, SLCVFileStorage::WRITE);
+    
+    if (!fs.isOpened())
+    {   SL_EXIT_MSG("Failed to open file for writing!");
+        return;
+    }
+
+    fs << "configTime"      << SLUtils::getLocalTimeString();
+    fs << "dpi"             << SL::dpi;
+    fs << "currentSceneID"  << (SLint)SL::currentSceneID;
+
+    fs.release();
+    SL_LOG("Config. saved   : %s\n", fullPathAndFilename.c_str());
 }
 //-----------------------------------------------------------------------------

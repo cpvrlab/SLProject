@@ -137,45 +137,45 @@ class SLCamera: public SLNode
 
    protected:
             // projection parameters
-            SLProjection    _projection;            //!< projection type
-            SLint           _scrW;                  //!< screen width in pixels
-            SLint           _scrH;                  //!< screen height in pixels
-            SLfloat         _aspect;                //!< _scrW /_srcH = screen ratio
-            SLfloat         _fov;                   //!< Current field of view (view angle)
-            SLfloat         _fovInit;               //!< Initial field of view (view angle)
-            SLfloat         _clipNear;              //!< Dist. to the near clipping plane
-            SLfloat         _clipFar;               //!< Dist. to the far clipping plane
-            SLPlane         _plane[6];              //!< 6 frustum planes (t, b, l, r, n, f)
-            SLuint          _numRendered;           //!< num. of shapes in frustum
-            enum {T=0,B,L,R,N,F};                   //!< enumeration for frustum planes
+            SLProjection    _projection;        //!< projection type
+            SLint           _scrW;              //!< screen width in pixels
+            SLint           _scrH;              //!< screen height in pixels
+            SLfloat         _aspect;            //!< _scrW /_srcH = screen ratio
+            SLfloat         _fov;               //!< Current field of view (view angle)
+            SLfloat         _fovInit;           //!< Initial field of view (view angle)
+            SLfloat         _clipNear;          //!< Dist. to the near clipping plane
+            SLfloat         _clipFar;           //!< Dist. to the far clipping plane
+            SLPlane         _plane[6];          //!< 6 frustum planes (t, b, l, r, n, f)
+            SLuint          _numRendered;       //!< num. of shapes in frustum
+            enum {T=0,B,L,R,N,F};               //!< enumeration for frustum planes
 
-            SLGLVertexArrayExt _vao;                //!< OpenGL Vertex array for rendering
+            SLGLVertexArrayExt _vao;            //!< OpenGL Vertex array for rendering
                
             // animation parameters
-            SLbool          _movedLastFrame;        //! did the camera update in the last frame?
-            SLCamAnim       _camAnim;               //!< Type of camera animation
-            SLVec2f         _oldTouchPos1;          //!< Old mouse/touch position in pixels
-            SLVec2f         _oldTouchPos2;          //!< Old 2nd finger touch position in pixels
+            SLbool          _movedLastFrame;    //! did the camera update in the last frame?
+            SLCamAnim       _camAnim;           //!< Type of camera animation
+            SLVec2f         _oldTouchPos1;      //!< Old mouse/touch position in pixels
+            SLVec2f         _oldTouchPos2;      //!< Old 2nd finger touch position in pixels
 
-            SLVec3f         _moveDir;               //!< accumulated movement directions based on pressed buttons
-            SLfloat         _drag;                  //!< simple constant drag that affects velocity
-            SLfloat         _maxSpeed;              //!< maximum speed in m/s, with high drag values this speed might not be achievable at all
-            SLVec3f         _velocity;              //!< current velocity vector
-            SLVec3f         _acceleration;          //!< current acceleration vector
-            SLfloat         _brakeAccel;            //!< brake acceleration
-            SLfloat         _moveAccel;             //!< move acceleration
+            SLVec3f         _moveDir;           //!< accumulated movement directions based on pressed buttons
+            SLfloat         _drag;              //!< simple constant drag that affects velocity
+            SLfloat         _maxSpeed;          //!< maximum speed in m/s, with high drag values this speed might not be achievable at all
+            SLVec3f         _velocity;          //!< current velocity vector
+            SLVec3f         _acceleration;      //!< current acceleration vector
+            SLfloat         _brakeAccel;        //!< brake acceleration
+            SLfloat         _moveAccel;         //!< move acceleration
             
-            SLbool          _useDeviceRot;          //!< Flag if mobile device or oculus Rift rotation should be used 
+            SLbool          _useDeviceRot;      //!< Flag if mobile device or oculus Rift rotation should be used 
                
             // ray tracing parameters
-            SLRay           _lookAtRay;             //!< Ray through the center of screen
-            SLfloat         _focalDist;             //!< distance of focal plane from lens
-            SLfloat         _lensDiameter;          //!< Lens diameter
-            SLSamples2D     _lensSamples;           //!< sample points for lens sampling (DOF)
+            SLRay           _lookAtRay;         //!< Ray through the center of screen
+            SLfloat         _focalDist;         //!< distance of focal plane from lens
+            SLfloat         _lensDiameter;      //!< Lens diameter
+            SLSamples2D     _lensSamples;       //!< sample points for lens sampling (DOF)
 
             // Stereo rendering
-            SLfloat         _eyeSeparation;         //!< eye separation for stereo mode
-            SLfloat         _unitScaling;           //!< indicate what the current unit scaling is to adjust movement and stereo rendering correctly
+            SLfloat         _eyeSeparation;     //!< eye separation for stereo mode
+            SLfloat         _unitScaling;       //!< indicate what the current unit scaling is to adjust movement and stereo rendering correctly
 };
 //-----------------------------------------------------------------------------
 #endif

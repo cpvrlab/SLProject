@@ -195,33 +195,33 @@ void qtMainWindow::setMenuState()
 
     // Menu Load Scenes
     ui->actionClose_Scene->setEnabled(s->root3D()!=nullptr);
-    ui->actionSmall_Test_Scene->setChecked(s->currentSceneID()==C_sceneMinimal);
-    ui->actionLarge_Model->setChecked(s->currentSceneID()==C_sceneLargeModel);
-    ui->actionFigure->setChecked(s->currentSceneID()==C_sceneFigure);
-    ui->actionMesh_Loader->setChecked(s->currentSceneID()==C_sceneMeshLoad);
-    ui->actionTexture_Blending->setChecked(s->currentSceneID()==C_sceneTextureBlend);
-    ui->actionTexture_Filtering->setChecked(s->currentSceneID()==C_sceneTextureFilter);
-    ui->actionFrustum_Culling->setChecked(s->currentSceneID()==C_sceneFrustumCull);
+    ui->actionSmall_Test_Scene->setChecked(SL::currentSceneID==C_sceneMinimal);
+    ui->actionLarge_Model->setChecked(SL::currentSceneID==C_sceneLargeModel);
+    ui->actionFigure->setChecked(SL::currentSceneID==C_sceneFigure);
+    ui->actionMesh_Loader->setChecked(SL::currentSceneID==C_sceneMeshLoad);
+    ui->actionTexture_Blending->setChecked(SL::currentSceneID==C_sceneTextureBlend);
+    ui->actionTexture_Filtering->setChecked(SL::currentSceneID==C_sceneTextureFilter);
+    ui->actionFrustum_Culling->setChecked(SL::currentSceneID==C_sceneFrustumCull);
 
-    ui->actionPer_Vertex_Lighting->setChecked(s->currentSceneID()==C_scenePerVertexBlinn);
-    ui->actionPer_Pixel_Lighting->setChecked(s->currentSceneID()==C_scenePerPixelBlinn);
-    ui->actionPer_Vertex_Wave->setChecked(s->currentSceneID()==C_scenePerVertexWave);
-    ui->actionWater->setChecked(s->currentSceneID()==C_sceneWater);
-    ui->actionBump_Mapping->setChecked(s->currentSceneID()==C_sceneBumpNormal);
-    ui->actionParallax_Mapping->setChecked(s->currentSceneID()==C_sceneBumpParallax);
-    ui->actionGlass_Shader->setChecked(s->currentSceneID()==C_sceneRevolver);
-    ui->actionEarth_Shader->setChecked(s->currentSceneID()==C_sceneEarth);
+    ui->actionPer_Vertex_Lighting->setChecked(SL::currentSceneID==C_scenePerVertexBlinn);
+    ui->actionPer_Pixel_Lighting->setChecked(SL::currentSceneID==C_scenePerPixelBlinn);
+    ui->actionPer_Vertex_Wave->setChecked(SL::currentSceneID==C_scenePerVertexWave);
+    ui->actionWater->setChecked(SL::currentSceneID==C_sceneWater);
+    ui->actionBump_Mapping->setChecked(SL::currentSceneID==C_sceneBumpNormal);
+    ui->actionParallax_Mapping->setChecked(SL::currentSceneID==C_sceneBumpParallax);
+    ui->actionGlass_Shader->setChecked(SL::currentSceneID==C_sceneRevolver);
+    ui->actionEarth_Shader->setChecked(SL::currentSceneID==C_sceneEarth);
 
-    ui->actionNode_Animation->setChecked(s->currentSceneID()==C_sceneNodeAnimation);
-    ui->actionSkeletal_Animation->setChecked(s->currentSceneID()==C_sceneSkeletalAnimation);
-    ui->actionAstroboy_Army_CPU->setChecked(s->currentSceneID()==C_sceneAstroboyArmy);
-    ui->actionMass_Animation->setChecked(s->currentSceneID()==C_sceneMassAnimation);
+    ui->actionNode_Animation->setChecked(SL::currentSceneID==C_sceneNodeAnimation);
+    ui->actionSkeletal_Animation->setChecked(SL::currentSceneID==C_sceneSkeletalAnimation);
+    ui->actionAstroboy_Army_CPU->setChecked(SL::currentSceneID==C_sceneAstroboyArmy);
+    ui->actionMass_Animation->setChecked(SL::currentSceneID==C_sceneMassAnimation);
 
-    ui->actionRT_Spheres->setChecked(s->currentSceneID()==C_sceneRTSpheres);
-    ui->actionRT_Muttenzer_Box->setChecked(s->currentSceneID()==C_sceneRTMuttenzerBox);
-    ui->actionRT_Soft_Shadows->setChecked(s->currentSceneID()==C_sceneRTSoftShadows);
-    ui->actionRT_Depth_of_Field->setChecked(s->currentSceneID()==C_sceneRTDoF);
-    ui->actionRT_Lens->setChecked(s->currentSceneID()==C_sceneRTLens);
+    ui->actionRT_Spheres->setChecked(SL::currentSceneID==C_sceneRTSpheres);
+    ui->actionRT_Muttenzer_Box->setChecked(SL::currentSceneID==C_sceneRTMuttenzerBox);
+    ui->actionRT_Soft_Shadows->setChecked(SL::currentSceneID==C_sceneRTSoftShadows);
+    ui->actionRT_Depth_of_Field->setChecked(SL::currentSceneID==C_sceneRTDoF);
+    ui->actionRT_Lens->setChecked(SL::currentSceneID==C_sceneRTLens);
 
     // Menu Renderer
     ui->actionOpenGL->setChecked(sv->renderType()==RT_gl);

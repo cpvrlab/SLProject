@@ -73,7 +73,6 @@ class SLScene: public SLObject
             SLSceneView*    sv                  (SLuint index) {return _sceneViews[index];}
             SLVSceneView&   sceneViews          () {return _sceneViews;}
             SLNode*         root3D              () {return _root3D;}
-            SLCommand       currentSceneID      () const {return _currentSceneID;}
             SLBackground&   background          () {return _background;}
             void            timerStart          () {_timer.start();}
             SLfloat         timeSec             () {return (SLfloat)_timer.getElapsedTimeInSec();}
@@ -165,7 +164,6 @@ class SLScene: public SLObject
             SLTimer         _timer;             //!< high precision timer
             SLBackground    _background;        //!< Background colors or texture
             SLCol4f         _globalAmbiLight;   //!< global ambient light intensity
-            SLCommand       _currentSceneID;    //!< Identifier of current scene
             SLbool          _rootInitialized;   //!< Flag if scene is initialized
             SLint           _numProgsPreload;   //!< No. of preloaded shaderProgs
             

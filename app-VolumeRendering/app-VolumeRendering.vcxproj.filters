@@ -14,6 +14,9 @@
     <ClCompile Include="..\lib-SLProject\source\CV\SLCVImage.cpp">
       <Filter>lib-SLProject</Filter>
     </ClCompile>
+    <ClCompile Include="..\lib-SLProject\source\SL\SLFileSystem.cpp">
+      <Filter>lib-SLProject</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\include\SL.h">

@@ -71,7 +71,7 @@ SLButton::SLButton(SLSceneView* sv,
     _text = new SLText(text,
                        txtFont,
                        txtColor,
-                       _btnW-2*_sv->dpmm()*BTN_BORDER_W_MM);
+                       _btnW-2*SL::dpmm()*BTN_BORDER_W_MM);
 }
 //-----------------------------------------------------------------------------
 SLButton::~SLButton()
@@ -126,13 +126,13 @@ void SLButton::drawRec(SLSceneView* sv)
         SLfloat x = (SLfloat)_minX; 
         SLfloat y = (SLfloat)_minY;
         switch (_txtAlign)
-        {   case TA_topLeft:      x+=4*sv->dpmm()*BTN_GAP_W_MM;  y+= _btnH-_textSize.y;       break;
+        {   case TA_topLeft:      x+=4*SL::dpmm()*BTN_GAP_W_MM;  y+= _btnH-_textSize.y;       break;
             case TA_topCenter:    x+=(_btnW-_textSize.x)*0.5f;   y+= _btnH-_textSize.y;       break;
             case TA_topRight:     x+= _btnW-_textSize.x;         y+= _btnH-_textSize.y;       break;
-            case TA_centerLeft:   x+=4*sv->dpmm()*BTN_GAP_W_MM;  y+=(_btnH-_textSize.y)*0.5f; break;
+            case TA_centerLeft:   x+=4*SL::dpmm()*BTN_GAP_W_MM;  y+=(_btnH-_textSize.y)*0.5f; break;
             case TA_centerCenter: x+=(_btnW-_textSize.x)*0.5f;   y+=(_btnH-_textSize.y)*0.5f; break;
             case TA_centerRight:  x+= _btnW-_textSize.x;         y+=(_btnH-_textSize.y)*0.5f; break;
-            case TA_bottomLeft:   x+=4*sv->dpmm()*BTN_GAP_W_MM;                               break;
+            case TA_bottomLeft:   x+=4*SL::dpmm()*BTN_GAP_W_MM;                               break;
             case TA_bottomCenter: x+=(_btnW-_textSize.x)*0.5f;                                break;
             case TA_bottomRight:  x+= _btnW-_textSize.x;                                      break;
         }
@@ -163,7 +163,7 @@ void SLButton::buildBuffers()
     SLfloat   y = _minY;
     SLfloat   w = _btnW;
     SLfloat   h = _btnH;
-    SLfloat   mx = x + 2*_sv->dpmm()*BTN_GAP_W_MM; // center x of check mark
+    SLfloat   mx = x + 2*SL::dpmm()*BTN_GAP_W_MM; // center x of check mark
     SLfloat   my = y + h*0.5f; // center y of check mark
     SLfloat   diff1 = 0.3f;    // button color difference upper to lower border
     SLfloat   diff2 = 0.6f;    // border color difference upper to lower border  
@@ -480,7 +480,7 @@ SLButton::setSizeRecursive set the text and button size recursively
 SLVec2f SLButton::setSizeRec()
 {  
     _textSize = _text->size();
-    if (_btnW==0.0f) _btnW = _textSize.x + 2*_sv->dpmm()*BTN_BORDER_W_MM;
+    if (_btnW==0.0f) _btnW = _textSize.x + 2*SL::dpmm()*BTN_BORDER_W_MM;
     if (_btnH==0.0f) _btnH = _textSize.y + _text->fontHeightPX()*BTN_TXT2BTN_H_FACTOR;
    
     if (_children.size()>0)
@@ -498,7 +498,7 @@ SLVec2f SLButton::setSizeRec()
         // Loop through children & set all button to max. size
         for (auto child : _children)
         {   SLButton* btn = (SLButton*)child;
-            btn->btnW(maxW + 2*_sv->dpmm()*BTN_BORDER_W_MM);
+            btn->btnW(maxW + 2*SL::dpmm()*BTN_BORDER_W_MM);
             btn->btnH(maxH + _text->fontHeightPX()*BTN_TXT2BTN_H_FACTOR);
         }
     }
@@ -519,14 +519,14 @@ void SLButton::setPosRec(SLfloat x, SLfloat y)
         SLfloat curChildY = _minY;
         SLfloat childH = ((SLButton*)_children[0])->btnH();
         if (_children.size()>2)
-            curChildY -= (_children.size()/2) * (childH + _sv->dpmm()*BTN_GAP_H_MM);
+            curChildY -= (_children.size()/2) * (childH + SL::dpmm()*BTN_GAP_H_MM);
         curChildY = SL_max(curChildY, minMenuPos.y);
              
         // Loop through children & set their position
         for (auto child : _children)
         {   SLButton* btn = (SLButton*)child;
-            btn->setPosRec(_minX + _btnW + _sv->dpmm()*BTN_GAP_W_MM, curChildY);
-            curChildY += btn->btnH() + _sv->dpmm()*BTN_GAP_H_MM;
+            btn->setPosRec(_minX + _btnW + SL::dpmm()*BTN_GAP_W_MM, curChildY);
+            curChildY += btn->btnH() + SL::dpmm()*BTN_GAP_H_MM;
         }
     }
 }

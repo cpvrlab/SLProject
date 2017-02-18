@@ -75,7 +75,7 @@ JNIEXPORT void JNICALL Java_ch_fhnw_comgr_GLES3Lib_onInit(JNIEnv *env, jobject o
     SL_LOG("GUI            : Android");
 
     string device_path_msg = "Device path:" + devicePath;
-    SL_LOG(device_path_msg.c_str());
+    SL_LOG(device_path_msg.c_str(),0);
 
     slCreateScene(*cmdLineArgs,
                   devicePath + "/shaders/",

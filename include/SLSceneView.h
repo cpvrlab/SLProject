@@ -69,7 +69,6 @@ class SLSceneView: public SLObject
             void            init            (SLstring name,
                                              SLint screenWidth,
                                              SLint screenHeight,
-                                             SLint dotsPerInch,
                                              void* onWndUpdateCallback,
                                              void* onSelectNodeMeshCallback,
                                              void* onToggleSystemCursorCallback);
@@ -153,7 +152,6 @@ class SLSceneView: public SLObject
             void            scrH            (SLint  scrH){_scrH = scrH;} 
             void            waitEvents      (SLbool wait){_waitEvents = wait;}
             void            usesRotation    (SLbool use){_usesRotation = use;}
-            void            dpi             (SLint newDPI){_dpi = newDPI;}
             void            showLoading     (SLbool showLoading);
             void            showMenu        (SLbool show){_showMenu = show;
                                                           SLScene::current->menu2D(SLScene::current->menuGL());}
@@ -174,8 +172,6 @@ class SLSceneView: public SLObject
     inline  SLint           scrWdiv2        () const {return _scrWdiv2;}
     inline  SLint           scrHdiv2        () const {return _scrHdiv2;}
     inline  SLfloat         scrWdivH        () const {return _scrWdivH;}
-    inline  SLint           dpi             () const {return _dpi;}
-    inline  SLfloat         dpmm            () const {return (float)_dpi/25.4f;}
     inline  SLQuat4f        deviceRotation  () const {return _deviceRotation;}
             SLbool          gotPainted      () const {return _gotPainted;}
             SLbool          doFrustumCulling() const {return _doFrustumCulling;}
@@ -251,7 +247,6 @@ class SLSceneView: public SLObject
             SLint           _scrWdiv2;          //!< Screen half width in pixels
             SLint           _scrHdiv2;          //!< Screen half height in pixels
             SLfloat         _scrWdivH;          //!< Screen side aspect ratio
-            SLint           _dpi;               //!< Screen resolution in dots per inch
             SLQuat4f        _deviceRotation;    //!< Mobile device rotation as quaternion
 
             SLGLOculusFB    _oculusFB;          //!< Oculus framebuffer

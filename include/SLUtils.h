@@ -186,6 +186,17 @@ class SLUtils
             newString += source.substr( lastPos );
             source.swap( newString );
         }
+
+        //! Returns local time as string
+        static SLstring getLocalTimeString()
+        {
+            time_t tm;
+            time(&tm);
+            struct tm *t2 = localtime(&tm);
+            char buf[1024];
+            strftime(buf, sizeof(buf), "%c", t2);
+            return SLstring(buf);
+        }
 };
 //-----------------------------------------------------------------------------
 #endif

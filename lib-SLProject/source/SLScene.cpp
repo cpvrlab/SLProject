@@ -125,14 +125,15 @@ Click to close and use the menu to choose different scenes and view settings. \
 For more information please visit: https://github.com/cpvrlab/SLProject";
 
     _infoCredits_en =
-"Credits for external libraries: \\n\
+"Contributors since 2005 in alphabetic order: Manuel Frischknecht, Michael Goettlicher, Timo Tschanz, Marc Wacker, Pascal Zingg \\n\\n\
+Credits for external libraries: \\n\
 - assimp: assimp.sourceforge.net \\n\
 - glew: glew.sourceforge.net \\n\
 - glfw: www.glfw.org \\n\
 - OpenCV: opencv.org \\n\
 - OpenGL: opengl.org \\n\
-- Qt: www.qt-project.org \\n\\n\
-Contributors since 2005 in alphabetic order: Manuel Frischknecht, Michael Goettlicher, Timo Tschanz, Marc Wacker, Pascal Zingg";
+- Qt: www.qt-project.org"
+;
 
     _infoHelp_en =
 "Help for mouse or finger control: \\n\
@@ -213,7 +214,9 @@ SLScene::~SLScene()
     SLCVCapture::release();
     #endif
 
-    SL_LOG("~SLScene\n");
+    SL::saveConfig();
+
+    SL_LOG("Destructor      : ~SLScene\n");
     SL_LOG("------------------------------------------------------------------\n");
 }
 //-----------------------------------------------------------------------------
@@ -300,8 +303,6 @@ void SLScene::unInit()
 
     // reset all states
     SLGLState::getInstance()->initAll();
-
-    _currentSceneID = C_sceneEmpty;
 }
 //-----------------------------------------------------------------------------
 //! Updates all animations in the scene after all views got painted.
@@ -413,7 +414,7 @@ bool SLScene::onUpdate()
         if (_calibration.state() == CS_uncalibrated)
         {   
             menu2D(btnNoCalib());
-            if (_currentSceneID == C_sceneTrackChessboard)
+            if (SL::currentSceneID == C_sceneTrackChessboard)
                 _calibration.state(CS_calibrateStream);
         } 
         else
@@ -528,9 +529,9 @@ void SLScene::info(SLSceneView* sv, SLstring infoText, SLCol4f color)
     delete _info;
    
     // Set font size depending on DPI
-    SLTexFont* f = SLTexFont::getFont(1.5f, sv->dpi());
+    SLTexFont* f = SLTexFont::getFont(1.5f, SL::dpi);
 
-    SLfloat minX = 11 * sv->dpmm();
+    SLfloat minX = 11 * SL::dpmm();
     _info = new SLText(infoText, f, color, 
                        sv->scrW()-minX-5.0f,
                        1.2f);
@@ -629,7 +630,7 @@ void SLScene::deleteAllMenus()
 void SLScene::onLoadAsset(SLstring assetFile, 
                           SLuint processFlags)
 {
-    _currentSceneID = C_sceneFromFile;
+    SL::currentSceneID = C_sceneFromFile;
 
     // Set scene name for new scenes
     if (!_root3D)
@@ -677,4 +678,6 @@ void SLScene::onLoadAsset(SLstring assetFile,
         }
     }
 }
+//-----------------------------------------------------------------------------
+
 //-----------------------------------------------------------------------------

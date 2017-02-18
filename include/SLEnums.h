@@ -177,6 +177,9 @@ enum SLCommand
     C_statsVideoToggle,
     C_statsCameraToggle,
 
+    C_dpiInc,           // Increase DPI 10%
+    C_dpiDec,           // Decrease DPI 10%
+
     C_renderOpenGL,     // Render with GL
     C_rtContinuously,   // Do ray tracing continuously
     C_rtDistributed,    // Do ray tracing distributed

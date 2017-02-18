@@ -57,8 +57,8 @@ void SLCVCalibration::clear()
 bool SLCVCalibration::loadCamParams()
 {
     //load camera parameter
-    FileStorage fs;
-    fs.open(SL::configPath + _calibFileName, FileStorage::READ);
+    FileStorage fs(SL::configPath + _calibFileName, FileStorage::READ);
+
     if (!fs.isOpened())
     {
         SL_LOG("Could not open the calibration file: ",
@@ -256,13 +256,7 @@ static void saveCameraParams(SLCVSize& imageSize,
         return;
     }
 
-    time_t tm;
-    time(&tm);
-    struct tm *t2 = localtime(&tm);
-    char buf[1024];
-    strftime(buf, sizeof(buf), "%c", t2);
-
-    fs << "calibration_time" << buf;
+    fs << "calibration_time" << SLUtils::getLocalTimeString();
 
     if(!rvecs.empty() || !reprojErrs.empty())
         fs << "nr_of_frames" << (int)std::max(rvecs.size(), reprojErrs.size());
@@ -274,6 +268,7 @@ static void saveCameraParams(SLCVSize& imageSize,
 
     fs << "fix_aspect_ratio" << 1;
 
+    SLchar buf[1024];
     if (flag)
     {   sprintf(buf, "flags:%s%s%s%s",
                 flag & CALIB_USE_INTRINSIC_GUESS ? " +use_intrinsic_guess" : "",

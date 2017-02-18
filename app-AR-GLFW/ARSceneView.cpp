@@ -241,7 +241,7 @@ void ARSceneView::updateInfoText()
     string title = modeName;
     glfwSetWindowTitle(window, title.c_str());
 
-    SLTexFont* f = SLTexFont::getFont(1.2f, _dpi);
+    SLTexFont* f = SLTexFont::getFont(1.2f, SL::dpi);
     _infoText = new SLText(m, f, SLCol4f::BLACK, (SLfloat)_scrW, 1.0f);
     _infoText->translate(10.0f, -_infoText->size().y-5.0f, 0.0f, TS_object);
 
@@ -253,7 +253,7 @@ void ARSceneView::updateInfoText()
 
         sprintf(info+strlen(info), "%s", _infoLine.c_str());
 
-        SLTexFont* fi = SLTexFont::getFont(2.4f, _dpi);
+        SLTexFont* fi = SLTexFont::getFont(2.4f, SL::dpi);
         _infoBottomText = new SLText(info, fi, SLCol4f::RED, (SLfloat)_scrW, 1.0f);
         _infoBottomText->translate(10.0f, -_infoBottomText->size().y-5.0f, 0.0f, TS_object);
     }

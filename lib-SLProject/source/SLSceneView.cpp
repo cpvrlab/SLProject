@@ -27,7 +27,7 @@
 
 //-----------------------------------------------------------------------------
 // Milliseconds duration of a long touch event
-const SLint SLSceneView::LONGTOUCH_MS = 500;
+const SLint SLSceneView::LONGTOUCH_MS   = 500;
 //-----------------------------------------------------------------------------
 //! SLSceneView default constructor
 /*! The default constructor adds the this pointer to the sceneView vector in 
@@ -59,7 +59,7 @@ SLSceneView::~SLSceneView()
     // Set pointer in SLScene::sceneViews vector to zero but leave it.
     // The remaining sceneviews must keep their index in the vector
     SLScene::current->sceneViews()[_index] = 0;
-    SL_LOG("~SLSceneView\n");
+    SL_LOG("Destructor      : ~SLSceneView\n");
 }
 //-----------------------------------------------------------------------------
 /*!
@@ -67,8 +67,7 @@ SLSceneView::init initializes default values for an empty scene
 */
 void SLSceneView::init(SLstring name, 
                        SLint screenWidth, 
-                       SLint screenHeight, 
-                       SLint dotsPerInch, 
+                       SLint screenHeight,
                        void* onWndUpdateCallback,
                        void* onSelectNodeMeshCallback,
                        void* onShowSystemCursorCallback)
@@ -76,7 +75,6 @@ void SLSceneView::init(SLstring name,
     _name = name;
     _scrW = screenWidth;
     _scrH = screenHeight;
-    _dpi = dotsPerInch;
 	_vrMode = false;
     _gotPainted = true;
 
@@ -87,12 +85,12 @@ void SLSceneView::init(SLstring name,
 
     /* The on select node callback is called when a node got selected on double
     click, so that the UI can react on it.*/
-    onSelectedNodeMesh = (cbOnSelectNodeMesh) onSelectNodeMeshCallback;
+    onSelectedNodeMesh = (cbOnSelectNodeMesh)onSelectNodeMeshCallback;
 
     /* We need access to the system specific cursor and be able to hide it
     if we need to draw our own. 
     @todo could be simplified if we implemented our own SLWindow class */
-    onShowSysCursor = (cbOnShowSysCursor) onShowSystemCursorCallback;
+    onShowSysCursor = (cbOnShowSysCursor)onShowSystemCursorCallback;
 
     _stateGL = 0;
    
@@ -958,7 +956,7 @@ void SLSceneView::draw2DGLAll()
             SLVVec3f cross = {{0,0,0}};
             _vaoTouch.generateVertexPos(&cross);
             SLCol4f yelloAlpha(1.0f, 1.0f, 0.0f, 0.5f);
-            _vaoTouch.drawArrayAsColored(PT_points, yelloAlpha, (SLfloat)_dpi/12.0f);
+            _vaoTouch.drawArrayAsColored(PT_points, yelloAlpha, (SLfloat)SL::dpi/12.0f);
             _stateGL->popModelViewMatrix();
         }
     }
@@ -1281,6 +1279,8 @@ SLbool SLSceneView::onKeyPress(SLKey key, SLKey mod)
     
     if (key == '5') { _camera->unitScaling(_camera->unitScaling()+0.1f); SL_LOG("New unit scaling: %f", _camera->unitScaling()); return true; }
     if (key == '6') { _camera->unitScaling(_camera->unitScaling()-0.1f); SL_LOG("New unit scaling: %f", _camera->unitScaling()); return true; }
+    if (key == '7') return onCommand(C_dpiInc);
+    if (key == '8') return onCommand(C_dpiDec);
 
     if (key=='N') return onCommand(C_normalsToggle);
     if (key=='P') return onCommand(C_wireMeshToggle);
@@ -1424,12 +1424,24 @@ SLbool SLSceneView::onCommand(SLCommand cmd)
             else return false;
         case C_noCalibToggle:
             if (s->menu2D())
-            {   if (s->currentSceneID() != C_sceneTrackChessboard)
+            {   if (SL::currentSceneID != C_sceneTrackChessboard)
                     s->onLoad(this, (SLCommand)C_sceneEmpty); 
                 s->menu2D(s->menuGL());
                 return true;
             }
             else return false;
+        case C_dpiInc:
+            if (SL::dpi < 500)
+            {   SL::dpi = (SLint)((SLfloat)SL::dpi * 1.1f);
+                rebuild2DMenus(false);
+                return true;
+            } else return false;
+        case C_dpiDec:
+            if (SL::dpi > 140)
+            {   SL::dpi = (SLint)((SLfloat)SL::dpi * 0.9f);
+                rebuild2DMenus(false);
+                return true;
+            } else return false;
 
         case C_sceneMinimal:
         case C_sceneFigure:
@@ -1586,7 +1598,7 @@ SLbool SLSceneView::onCommand(SLCommand cmd)
         if (perspectiveChanged)
         {   if (cmd == C_projSideBySideD)
             {   _vrMode = true;
-                dpi(dpi() * 2);
+                SL::dpi *= 2;
                 SLButton::minMenuPos.set(_scrW*0.25f + 100.0f, _scrH*0.5f - 150.0f);
                 rebuild2DMenus();
                 if (onShowSysCursor)
@@ -1594,7 +1606,7 @@ SLbool SLSceneView::onCommand(SLCommand cmd)
             }
             else if (prevProjection == P_stereoSideBySideD)
             {   _vrMode = false;
-                dpi((SLint)((SLfloat)dpi()*0.5f));
+                SL::dpi /= 2;               
                 SLButton::minMenuPos.set(10.0f, 10.0f);
                 rebuild2DMenus();
                 if (onShowSysCursor)
@@ -1622,11 +1634,15 @@ if dpi or other screenspace related parameters changed.
 void SLSceneView::rebuild2DMenus(SLbool showAboutFirst)
 {
     SLScene* s = SLScene::current;
-    
+    SLstring infoText = s->info()->text();
+
     s->deleteAllMenus();
     build2DMenus();
     if (!showAboutFirst)
         s->menu2D(s->menuGL());
+
+    if (_showInfo)
+        s->info(this, infoText);
 }
 //-----------------------------------------------------------------------------
 /*! 
@@ -1651,10 +1667,10 @@ void SLSceneView::build2DMenus()
     SLbool useDeviceRot = _camera ? _camera->useDeviceRot() : true;
 
     // Set font size depending on DPI
-    SLTexFont* f = SLTexFont::getFont(1.7f, _dpi);
+    SLTexFont* f = SLTexFont::getFont(1.7f, SL::dpi);
 
     SLButton *mn1, *mn2, *mn3, *mn4, *mn5;  // sub menu button pointer
-    SLCommand curS = s->currentSceneID();   // current scene number
+    SLCommand curS = SL::currentSceneID;   // current scene number
    
     mn1 = new SLButton(this, ">", f, C_menu, false, false, 0, true, 0, 0, SLCol3f::COLBFH, 0.3f, TA_centerCenter); mn1->drawBits()->off(SL_DB_HIDDEN);
 
@@ -1713,6 +1729,11 @@ void SLSceneView::build2DMenus()
 
         mn2 = new SLButton(this, "Camera >", f); mn1->addChild(mn2);
         mn2->addChild(new SLButton(this, "Reset", f, C_camReset));
+
+            stringstream ss;  ss << "UI-Resolution (DPI: " << SL::dpi << ") >";
+            mn3 = new SLButton(this, ss.str(), f); mn2->addChild(mn3);
+            mn3->addChild(new SLButton(this, "+10%", f, C_dpiInc));
+            mn3->addChild(new SLButton(this, "-10%", f, C_dpiDec));
     
             mn3 = new SLButton(this, "Projection >", f); mn2->addChild(mn3);
             for (SLint p=P_monoPerspective; p<=P_monoOrthographic; ++p)
@@ -1882,7 +1903,7 @@ void SLSceneView::build2DInfoGL()
 
         sprintf(m+strlen(m), "Timing -------------------------------------\\n");
         sprintf(m+strlen(m), "Scene: %s\\n", s->name().c_str());
-        sprintf(m+strlen(m), "FPS: %4.1f  (Size: %d x %d, DPI: %d)\\n", s->fps(), _scrW, _scrH, _dpi);
+        sprintf(m+strlen(m), "FPS: %4.1f  (Size: %d x %d, DPI: %d)\\n", s->fps(), _scrW, _scrH, SL::dpi);
         sprintf(m+strlen(m), "Frame Time : %4.1f ms (100%%)\\n", s->frameTimesMS().average());
         sprintf(m+strlen(m), "Update Time : %4.1f ms (%0.0f%%)\\n", s->updateTimesMS().average(), updateTimePC);
         sprintf(m+strlen(m), "> Tracking Time: %4.1f ms (%0.0f%%)\\n", s->trackingTimesMS().average(), trackingTimePC);
@@ -1970,7 +1991,7 @@ void SLSceneView::build2DInfoGL()
         sprintf(m+strlen(m), "Calibration time: %s\\n", cal.calibrationTime().c_str());
     }
 
-    SLTexFont* f = SLTexFont::getFont(1.2f, _dpi);
+    SLTexFont* f = SLTexFont::getFont(1.2f, SL::dpi);
     SLText* t = new SLText(m, f, SLCol4f::WHITE, (SLfloat)_scrW, 1.0f);
     t->translate(5.0f, -t->size().y-5.0f, 0.0f, TS_object);
     s->infoGL(t);
@@ -2073,7 +2094,7 @@ void SLSceneView::build2DInfoRT()
         sprintf(m+strlen(m), "Max. Tria./Voxel: %d", _stats.numVoxMaxTria);
     }
 
-    SLTexFont* f = SLTexFont::getFont(1.2f, _dpi);
+    SLTexFont* f = SLTexFont::getFont(1.2f, SL::dpi);
     SLText* t = new SLText(m, f, SLCol4f::WHITE, (SLfloat)_scrW, 1.0f);
     t->translate(10.0f, -t->size().y-5.0f, 0.0f, TS_object);
     s->infoRT(t);
@@ -2087,7 +2108,7 @@ void SLSceneView::build2DInfoLoading()
 {
     SLScene* s = SLScene::current;
     if (s->infoLoading()) return;
-    SLTexFont* f = SLTexFont::getFont(3, _dpi);
+    SLTexFont* f = SLTexFont::getFont(3, SL::dpi);
     SLText* t = new SLText("Loading Scene . . .", f, SLCol4f::WHITE, (SLfloat)_scrW, 1.0f);
     t->translate(10.0f, -t->size().y-5.0f, 0.0f, TS_object);
     t->translate(_scrW*0.5f - t->size().x*0.5f, -(_scrH*0.5f) + t->size().y, 0.0f, TS_object);
@@ -2100,7 +2121,7 @@ Builds the message buttons. They depend on screen width.
 void SLSceneView::build2DMsgBoxes()
 { 
     SLScene*    s = SLScene::current;
-    SLTexFont*  f = SLTexFont::getFont(1.7f, _dpi);
+    SLTexFont*  f = SLTexFont::getFont(1.7f, SL::dpi);
    
     // Help button
     if (s->btnHelp()) delete s->btnHelp();

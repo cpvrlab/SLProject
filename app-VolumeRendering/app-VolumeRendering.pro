@@ -37,6 +37,7 @@ SOURCES += VolumeRendering.cpp
 SOURCES += ../lib-SLProject/source/glUtils.cpp
 SOURCES += ../lib-SLProject/source/CV/SLCVImage.cpp
 SOURCES += ../lib-SLProject/source/SL/SL.cpp
+SOURCES += ../lib-SLProject/source/SL/SLFileSystem.cpp
 
 HEADERS += ../include/glUtils.h
 HEADERS += ../include/SLCV.h

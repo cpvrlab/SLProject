@@ -486,7 +486,7 @@ void NewNodeSceneView::updateInfoText()
     string title = _curObject->name() + " in " + mode + " mode in " + space;
     glfwSetWindowTitle(window, title.c_str());
     
-    SLTexFont* f = SLTexFont::getFont(1.2f, _dpi);
+    SLTexFont* f = SLTexFont::getFont(1.2f, SL::dpi);
     _infoText = new SLText(m, f, SLCol4f::BLACK, (SLfloat)_scrW, 1.0f);
     _infoText->translate(10.0f, -_infoText->size().y-5.0f, 0.0f, TS_object);
 

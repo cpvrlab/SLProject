@@ -264,12 +264,12 @@ template<class T> inline SLint SL_sizeOfVector(const T &vector)
 #define UNUSED_PARAMETER(r)  ((void)(x))
 
 //-----------------------------------------------------------------------------
-// Some debugging and error handling functions and macros 
+// Some debugging and error handling functions and macros
 #define SL_LOG(...)     SL::log(__VA_ARGS__)
 #define SL_EXIT_MSG(M)  SL::exitMsg((M), __LINE__, __FILE__)
 #define SL_WARN_MSG(M)  SL::warnMsg((M), __LINE__, __FILE__)
 //-----------------------------------------------------------------------------
-//! Class SL with some global static functions.
+//! Class SL with some global static functions and members.
 class SL
 {
     public:
@@ -288,6 +288,10 @@ class SL
                                                           testScene <= C_sceneRTTest;}
     static SLbool           allTestIsRunning    (){return testScene > C_sceneAll && 
                                                           testScene <= C_sceneRTTest;}
+    static void             loadConfig          ();
+    static void             saveConfig          ();
+    static SLfloat          dpmm                () {return (float)dpi/25.4f;}
+
     static SLCommand        testScene;          //!< Test scene command id
     static SLCommand        testSceneAll;       //!< Test scene command id for all tests
     static SLint            testDurationSec;    //!< Test time in seconds
@@ -297,6 +301,9 @@ class SL
     static const SLVstring  testSceneNames;     //!< Vector with scene names
     
     static SLstring         configPath;         //!< Default path for calibration files
+    static SLstring         configTime;         //!< Time of stored configuration 
+    static SLint            dpi;                //!< Current UI dot per inch resolution
+    static SLCommand        currentSceneID;     //!< ID of last loaded scene
 };
 //-----------------------------------------------------------------------------
 #endif
