@@ -24,7 +24,7 @@ using namespace cv;
 //-----------------------------------------------------------------------------
 SLCVTrackerChessboard::SLCVTrackerChessboard(SLNode* node) : SLCVTracker(node)
 {
-    SLCVCalibration& calib = SLScene::current->calibration();
+    SLCVCalibration& calib = SLScene::current->activeCalib();
     SLCVCalibration::calcBoardCorners3D(calib.boardSize(),
                                         calib.boardSquareM(),
                                         _boardPoints3D);

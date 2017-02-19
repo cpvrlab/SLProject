@@ -32,7 +32,7 @@ SLstring SLCVCalibration::calibIniPath = "../_data/calibrations/";
 SLCVCalibration::SLCVCalibration() :
     _cameraFovDeg(1.0f),
     _state(CS_uncalibrated),
-    _calibFileName("cam_calibration.xml"),
+    _calibFileName(""), // is set in load
     _calibParamsFileName("calib_in_params.yml"),
     _boardSize(0, 0),
     _boardSquareMM(0.0f),
@@ -54,19 +54,18 @@ void SLCVCalibration::clear()
 }
 //-----------------------------------------------------------------------------
 //! Loads the calibration information from the config file
-bool SLCVCalibration::loadCamParams()
+bool SLCVCalibration::load(SLstring calibFileName)
 {
+    _calibFileName = calibFileName;
+
     //load camera parameter
     FileStorage fs(SL::configPath + _calibFileName, FileStorage::READ);
 
     if (!fs.isOpened())
-    {
-        SL_LOG("Could not open the calibration file: ",
-               (SL::configPath + _calibFileName).c_str());
+    {   SL_LOG("Calibration     : %s\n", calibFileName.c_str());
+        SL_LOG("Calib. created  : No. Calib. will be estimated\n");
+        _calibrationTime = "";
         _state = CS_uncalibrated;
-        _calibrationTime = "n/a";
-
-        SL_LOG("Calib. loaded   : no calibration file\n");
         return false;
     }
 
@@ -78,7 +77,6 @@ bool SLCVCalibration::loadCamParams()
     fs["calibration_time"]        >> _calibrationTime;
     fs["nr_of_frames"]            >> _numCaptured;
 
-    //_state = _numCaptured ? CS_calibrated : CS_approximated;
     _state = CS_calibrated;
 
     // close the input file
@@ -87,7 +85,8 @@ bool SLCVCalibration::loadCamParams()
     //calculate projection matrix
     calcCameraFOV();
 
-    SL_LOG("Calib. loaded   : %s\n", _calibrationTime.c_str());
+    SL_LOG("Calibration     : %s\n", calibFileName.c_str());
+    SL_LOG("Calib. created  : %s\n", _calibrationTime.c_str());
     SL_LOG("Camera FOV      : %f\n", _cameraFovDeg);
 
     return true;
@@ -142,7 +141,7 @@ void SLCVCalibration::calcBoardCorners3D(SLCVSize boardSize,
                                                  0));
 }
 //-----------------------------------------------------------------------------
-//! Calculates the reprojecion error of the calibration
+//! Calculates the reprojection error of the calibration
 static double calcReprojectionErrors(const SLCVVVPoint3f& objectPoints,
                                      const SLCVVVPoint2f& imagePoints,
                                      const SLCVVMat& rvecs,
@@ -272,9 +271,9 @@ static void saveCameraParams(SLCVSize& imageSize,
     if (flag)
     {   sprintf(buf, "flags:%s%s%s%s",
                 flag & CALIB_USE_INTRINSIC_GUESS ? " +use_intrinsic_guess" : "",
-                flag & CALIB_FIX_ASPECT_RATIO ? " +fix_aspectRatio" : "",
+                flag & CALIB_FIX_ASPECT_RATIO ?    " +fix_aspectRatio"     : "",
                 flag & CALIB_FIX_PRINCIPAL_POINT ? " +fix_principal_point" : "",
-                flag & CALIB_ZERO_TANGENT_DIST ? " +zero_tangent_dist" : "");
+                flag & CALIB_ZERO_TANGENT_DIST ?   " +zero_tangent_dist"   : "");
         cvWriteComment(*fs, buf, 0);
     }
 
@@ -396,49 +395,34 @@ void SLCVCalibration::calculate()
     }
 }
 //-----------------------------------------------------------------------------
-//! Writes an approximated calibration with a standard FOV and no distortion
-void SLCVCalibration::writeApproximation(SLfloat horizontalViewAngleDEG, 
-                                         SLCVSize& imageSize)
+//! Calculates camera intrinsics from an estimated FOV angle
+void SLCVCalibration::estimate(SLint imageWidthPX, SLint imageHeightPX)
 {
-    SLstring fullPathAndFilename = SL::configPath + _calibFileName;
-    SL_LOG("Save approximated camera calibration: ", fullPathAndFilename.c_str());
-    
-    cv::FileStorage fs(fullPathAndFilename, FileStorage::WRITE);
-    
-    if (!fs.isOpened())
-    {   SL_EXIT_MSG("Failed to open file for writing!");
-        return;
-    }
-
-    // Build time string
-    time_t tm;
-    time(&tm);
-    struct tm *t2 = localtime(&tm);
-    char buf[1024];
-    strftime(buf, sizeof(buf), "%c", t2);
+    // vertical view angle in degrees
+    SLfloat fov = 42.0f;
 
     // Create standard camera matrix
-    SLfloat cx = (float)imageSize.width;
-    SLfloat cy = (float)imageSize.height;
-    SLfloat fx = cx / tanf(horizontalViewAngleDEG*SL_DEG2RAD);
-    SLfloat fy = fx;
+    // fx, fx, cx, cy are all in pixel values not mm
+    // We asume that we have an ideal image sensor with square pixels
+    // so that the focal length fx and fy are identical
+    // See the OpenCV documentation for more details:
+    // http://docs.opencv.org/3.1.0/dc/dbb/tutorial_py_calibration.html
 
-    SLCVMat cameraMatrix = (Mat_<float>(3,3) << fx,  0, cx, 
-                                                 0, fy, cy, 
-                                                 0,  0,  1);
+    SLfloat cx = (float)imageWidthPX * 0.5f;
+    SLfloat cy = (float)imageHeightPX * 0.5f;
+    SLfloat fy = cy / tanf(fov*0.5f*SL_DEG2RAD);
+    SLfloat fx = fy;
 
-    // Create distortion paramters for no distortion
-    SLCVMat distCoeffs = (Mat_<float>(5,1) << 0,0,0,0,0);
+    _imageSize.width = imageWidthPX;
+    _imageSize.height = imageHeightPX;
+    _intrinsics = (Mat_<double>(3,3) << fx,  0,  cx,
+                                         0, fy,  cy,
+                                         0,  0,   1);
+    // No distortion
+    _distortion = (Mat_<double>(5,1) << 0,0,0,0,0);
 
-    fs << "calibration_time"        << buf;
-    fs << "nr_of_frames"            << 0; // 0 = indicator for approximation
-    fs << "image_width"             << imageSize.width;
-    fs << "image_height"            << imageSize.height;
-    fs << "camera_matrix"           << cameraMatrix;
-    fs << "distortion_coefficients" << distCoeffs;
-    fs << "avg_reprojection_error"  << 0.0f;
-
-    // Release file stream
-    fs.release();
+    _cameraFovDeg = fov;
+    _calibrationTime = SLUtils::getLocalTimeString();
+    _state = CS_estimated;
 }
 //-----------------------------------------------------------------------------

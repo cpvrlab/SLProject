@@ -193,9 +193,9 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
                        SL::singleTestIsRunning() ? SL::testScene : SL::testSceneAll;
 
     // Reset calibration process at scene change
-    if (_calibration.state() != CS_calibrated && 
-        _calibration.state() != CS_uncalibrated)
-        _calibration.state(CS_uncalibrated);
+    if (_activeCalib.state() != CS_calibrated &&
+        _activeCalib.state() != CS_uncalibrated)
+        _activeCalib.state(CS_uncalibrated);
 
     if (SL::currentSceneID == C_sceneEmpty) //..........................................
     {   
@@ -1057,7 +1057,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         _root3D = scene;
     }
     else
-    if (SL::currentSceneID == C_sceneMassiveData) //..............................
+    if (SL::currentSceneID == C_sceneMassiveData) //....................................
     {  
         name("Massive Data Test");
         info(sv, "No data is shared on the GPU. Check Memory consumption.");
@@ -1119,7 +1119,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
     }
     else
     if (SL::currentSceneID == C_scenePerPixelBlinn ||
-        SL::currentSceneID == C_scenePerVertexBlinn) //...........................
+        SL::currentSceneID == C_scenePerVertexBlinn) //.................................
     {
          SLMaterial* m1;
 
@@ -1792,7 +1792,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         }
     }
     else
-    if (SL::currentSceneID == C_sceneAstroboyArmy) //................................
+    if (SL::currentSceneID == C_sceneAstroboyArmy) //...................................
     {
         info(sv, "Mass animation scene of identitcal Astroboy models");
         name("Astroboy army skinned on CPU");
@@ -1865,7 +1865,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         _root3D = scene;
     }
     else
-    if (SL::currentSceneID == C_sceneChristoffel) //..................... ..............
+    if (SL::currentSceneID == C_sceneChristoffel) //....................................
     {
         name("Christoffel Tower");
         info(sv, "Augmented Reality Christoffel Tower");
@@ -1907,7 +1907,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         sv->camera(cam1);
         _root3D = scene;
     }
-    if (SL::currentSceneID == C_sceneTextureVideo) //........................... .......
+    if (SL::currentSceneID == C_sceneTextureVideo) //...................................
     {
         // Set scene name and info string
         name("Live Video Texture Example");
@@ -1915,7 +1915,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
 
         // Back wall material with live video texture
         SLMaterial* m1 = new SLMaterial("mat3", &_videoTexture);
-        _videoType = VT_SCND;
+        videoType(VT_SCND);
 
         // Create a camera node
         SLCamera* cam1 = new SLCamera();
@@ -1951,22 +1951,39 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         sv->waitEvents(false);
     }
     else
-    if (SL::currentSceneID == C_sceneTrackChessboard)
+    if (SL::currentSceneID == C_sceneTrackChessboard ||
+        SL::currentSceneID == C_sceneCalibrateMain ||
+        SL::currentSceneID == C_sceneCalibrateScnd) //..................................
     {
-        name("Track Chessboard or Create Camera Calibration");
-        if (_calibration.state() == CS_calibrated)
-        {   stringstream ss; 
-            ss << "Camera calibration: fov: " << _calibration.cameraFovDeg() << 
-                  ", error: " << _calibration.reprojectionError();
+        // Set video type to request the correct camera on mobile devices
+        videoType(SL::currentSceneID == C_sceneCalibrateScnd ? VT_SCND : VT_MAIN);
+
+        // All calibration state changes are done in SLScene::onUpdate.
+        // Setup here only the requested scene.
+        if (SL::currentSceneID == C_sceneTrackChessboard)
+        {   name("Track Chessboard");
+            stringstream ss;
+            if (_activeCalib.state() == CS_calibrated)
+            {   ss << "Camera calibration: fov: " << _activeCalib.cameraFovDeg() <<
+                ", error: " << _activeCalib.reprojectionError();
+            } else ss << "The camera is not calibrated.";
             info(sv, ss.str());
         } else
-            info(sv, "Tap on the screen to create a calibration foto: ");
-        
+        if (SL::currentSceneID == C_sceneCalibrateMain ||
+            SL::currentSceneID == C_sceneCalibrateScnd)
+        {   if (SL::currentSceneID == C_sceneCalibrateMain)
+                 name("Calibrate Main Camera");
+            else name("Calibrate Face Camera");
+
+            if (_activeCalib.state() == CS_uncalibrated)
+               info(sv, "Tap on the screen to create a calibration photo: ");
+        }
+
         // Material
         SLMaterial* yellow = new SLMaterial("mY", SLCol4f(1,1,0,0.5f));
 
         // Get the edge length of a chessboard
-        SLfloat e1 = _calibration.boardSquareM();
+        SLfloat e1 = _activeCalib.boardSquareM();
         SLfloat e3 = e1 * 3.0f;
         SLfloat e9 = e3 * 3.0f;
 
@@ -1978,7 +1995,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         cam1->name("camera node");
         cam1->translation(0,0,5);
         cam1->lookAt(0, 0, 0);
-        cam1->fov(_calibration.cameraFovDeg());
+        cam1->fov(_activeCalib.cameraFovDeg());
         scene->addChild(cam1);
 
         // Create a light source node
@@ -2003,7 +2020,6 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
 
         // Set backround texture to the video texture and use it
         _background.texture(&_videoTexture, true);
-        _videoType = VT_MAIN;
         
         // pass the scene group as root node
         _root3D = scene;
@@ -2011,14 +2027,9 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         // Set active camera
         sv->camera(cam1);
         sv->waitEvents(false);
-
-        if (_calibration.state() == CS_uncalibrated)
-        {   menu2D(btnNoCalib());
-            _calibration.setCalibrationState();
-        }
     }
     else
-    if (SL::currentSceneID == C_sceneTrackAruco)
+    if (SL::currentSceneID == C_sceneTrackAruco) //.....................................
     {
         // Set scene name and info string
         name("AR Aruco Marker Tracking");
@@ -2036,7 +2047,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         cam1->name("camera node");
         cam1->translation(0,0,5);
         cam1->lookAt(0, 0, 0);
-        cam1->fov(_calibration.cameraFovDeg());
+        cam1->fov(_activeCalib.cameraFovDeg());
         scene->addChild(cam1);
 
         // Create a light source node
@@ -2076,7 +2087,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         
         // Set backround texture to the video texture and use it
         _background.texture(&_videoTexture, true);
-        _videoType = VT_MAIN;
+        videoType(VT_MAIN);
         
         // pass the scene group as root node
         _root3D = scene;
@@ -2088,7 +2099,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         sv->waitEvents(false);
     }
     else
-    if (SL::currentSceneID == C_sceneTrackFeatures2D)
+    if (SL::currentSceneID == C_sceneTrackFeatures2D) //................................
     {
         name("Track or Create 2D-Feature Marker");
 
@@ -2104,7 +2115,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         SLMaterial* yellow = new SLMaterial("mY", SLCol4f::YELLOW);
 
         // Get the edge length of a chessboard
-        SLfloat e1 = _calibration.boardSquareM();
+        SLfloat e1 = _activeCalib.boardSquareM();
         SLfloat e3 = e1 * 3.0f;
         SLfloat e9 = e3 * 3.0f;
 
@@ -2116,7 +2127,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         cam1->name("camera node");
         cam1->translation(0,0,5);
         cam1->lookAt(0, 0, 0);
-        cam1->fov(_calibration.cameraFovDeg());
+        cam1->fov(_activeCalib.cameraFovDeg());
         scene->addChild(cam1);
 
         // Create a light source node
@@ -2142,7 +2153,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
 
         // Set backround texture to the video texture and use it
         _background.texture(&_videoTexture, true);
-        _videoType = VT_MAIN;
+        videoType(VT_MAIN);
         
         // pass the scene group as root node
         _root3D = scene;

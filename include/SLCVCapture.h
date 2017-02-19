@@ -54,6 +54,7 @@ class SLCVCapture
     static  SLPixelFormat   format;             //!< SL pixel format
     static  SLCVSize        captureSize;        //!< size of captured fram
     static  SLfloat         startCaptureTimeMS; //!< start time of capturing in ms
+    static  SLbool          hasSecondaryCamera; //!< flag if device has secondary camera
 
     private:
     static  cv::VideoCapture _captureDevice;    //!< OpenCV capture device

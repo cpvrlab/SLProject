@@ -31,13 +31,13 @@ SLPixelFormat       SLCVCapture::format;
 cv::VideoCapture    SLCVCapture::_captureDevice;
 SLCVSize            SLCVCapture::captureSize;
 SLfloat             SLCVCapture::startCaptureTimeMS;
+SLbool              SLCVCapture::hasSecondaryCamera = true;
 //-----------------------------------------------------------------------------
 //! Opens the capture device and returns the frame size
 SLVec2i SLCVCapture::open(SLint deviceNum)
 {
     try
-    {
-        _captureDevice.open(deviceNum);
+    {   _captureDevice.open(deviceNum);
 
         if (!_captureDevice.isOpened())
             return SLVec2i::ZERO;
@@ -52,6 +52,8 @@ SLVec2i SLCVCapture::open(SLint deviceNum)
 
         _captureDevice.set(CV_CAP_PROP_FRAME_WIDTH, 640);
         _captureDevice.set(CV_CAP_PROP_FRAME_HEIGHT, 480);
+
+        hasSecondaryCamera = false;
 
         return SLVec2i(w, h);
     }
@@ -103,30 +105,27 @@ void SLCVCapture::adjustForSL()
         format = SLCVImage::cv2glPixelFormat(lastFrame.type());
 
         // Crop input image if it doesn't match the screens aspect ratio
-        if (s->usesVideoAsBckgrnd())
-        {
-            SLint width = 0;    // width in pixels of the destination image
-            SLint height = 0;   // height in pixels of the destination image
-            SLint cropH = 0;    // crop height in pixels of the source image
-            SLint cropW = 0;    // crop width in pixels of the source image
+        SLint width = 0;    // width in pixels of the destination image
+        SLint height = 0;   // height in pixels of the destination image
+        SLint cropH = 0;    // crop height in pixels of the source image
+        SLint cropW = 0;    // crop width in pixels of the source image
 
-            SLfloat inWdivH = (SLfloat)lastFrame.cols / (SLfloat)lastFrame.rows;
-            SLfloat outWdivH = s->sceneViews()[0]->scrWdivH();
+        SLfloat inWdivH = (SLfloat)lastFrame.cols / (SLfloat)lastFrame.rows;
+        SLfloat outWdivH = s->sceneViews()[0]->scrWdivH();
 
-            // Check for cropping
-            if (SL_abs(inWdivH - outWdivH) > 0.01f)
-            {   if (inWdivH > outWdivH) // crop input image left & right
-                {   width = (SLint)((SLfloat)lastFrame.rows * outWdivH);
-                    height = lastFrame.rows;
-                    cropW = (SLint)((SLfloat)(lastFrame.cols - width) * 0.5f);
-                } else // crop input image at top & bottom
-                {   width = lastFrame.cols;
-                    height = (SLint)((SLfloat)lastFrame.cols / outWdivH);
-                    cropH = (SLint)((SLfloat)(lastFrame.rows - height) * 0.5f);
-                }
-                lastFrame(SLCVRect(cropW, cropH, width, height)).copyTo(lastFrame);
-                //imwrite("AfterCropping.bmp", lastFrame);
+        // Check for cropping
+        if (SL_abs(inWdivH - outWdivH) > 0.01f)
+        {   if (inWdivH > outWdivH) // crop input image left & right
+            {   width = (SLint)((SLfloat)lastFrame.rows * outWdivH);
+                height = lastFrame.rows;
+                cropW = (SLint)((SLfloat)(lastFrame.cols - width) * 0.5f);
+            } else // crop input image at top & bottom
+            {   width = lastFrame.cols;
+                height = (SLint)((SLfloat)lastFrame.cols / outWdivH);
+                cropH = (SLint)((SLfloat)(lastFrame.rows - height) * 0.5f);
             }
+            lastFrame(SLCVRect(cropW, cropH, width, height)).copyTo(lastFrame);
+            //imwrite("AfterCropping.bmp", lastFrame);
         }
 
         // Create grayscale version in case of coloured lastFrame
@@ -151,13 +150,11 @@ void SLCVCapture::loadIntoLastFrame(const SLint width,
 {
     SLCVCapture::startCaptureTimeMS = SLScene::current->timeMilliSec();
 
-    // treat Android YUV to RGB conversion speacial
+    // treat Android YUV to RGB conversion special
     if (format == PF_yuv_420_888)
     {
         SLCVMat yuv(height + height / 2, width, CV_8UC1, (void*)data);
-        SLCVMat bgr(height, width, CV_8UC3);
-        cvtColor(yuv, bgr, CV_YUV2BGR_NV21);
-        SLCVCapture::lastFrame = bgr;
+        cvtColor(yuv, SLCVCapture::lastFrame, CV_YUV2BGR_NV21);
     }
     else
     {
@@ -179,10 +176,17 @@ void SLCVCapture::loadIntoLastFrame(const SLint width,
         {
             SLint bitsPerPixel = bpp * 8;
             SLint bpl = ((width * bitsPerPixel + 31) / 32) * 4;
-            stride = bpl - width * bpp;
+            stride = (size_t)(bpl - width * bpp);
         }
 
         SLCVCapture::lastFrame = SLCVMat(height, width, cvType, (void*)data, stride);
+    }
+
+    // Mirror for face facing cameras
+    if (SLScene::current->videoType() == VT_SCND)
+    {   SLCVMat horizontalMirrored;
+        cv::flip(SLCVCapture::lastFrame, horizontalMirrored, 1);
+        SLCVCapture::lastFrame = horizontalMirrored;
     }
     
     adjustForSL();

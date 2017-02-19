@@ -43,6 +43,12 @@ get deleted in the method unInit. A scene could have multiple scene views.
 A pointer of each is stored in the vector _sceneViews. 
 The onLoad method can build a of several built in test and demo scenes.
 You can access the current scene from everywhere with the static pointer _current.
+\n
+The SLScene instance has two video camera calibrations, one for a main camera
+(SLScene::_calibMainCam) and one for the selfie camera on mobile devices
+(SLScene::_calibScndCam). The member SLScene::_activeCalib references the active
+one and is set by the SLScene::videoType (VT_NONE, VT_MAIN, VT_SCND) during the
+scene assembly in SLScene::onLoad.
 */
 class SLScene: public SLObject    
 {  
@@ -65,8 +71,9 @@ class SLScene: public SLObject
             void            menuPT              (SLButton* b) {_menuPT = b;}
             void            btnAbout            (SLButton* b) {_btnAbout = b;}
             void            btnCredits          (SLButton* b) {_btnCredits = b;}
-            void            btnNoCalib          (SLButton* b) {_btnNoCalib = b;}
+            void            btnCalibration      (SLButton* b) {_btnCalibration = b;}
             void            btnHelp             (SLButton* b) {_btnHelp = b;}
+            void            videoType           (SLVideoType vt);
                            
             // Getters
             SLAnimManager&  animManager         () {return _animManager;}
@@ -87,11 +94,11 @@ class SLScene: public SLObject
             SLButton*       btnAbout            () {return _btnAbout;}
             SLButton*       btnHelp             () {return _btnHelp;}
             SLButton*       btnCredits          () {return _btnCredits;}
-            SLButton*       btnNoCalib          () {return _btnNoCalib;}
-            SLstring        infoAbout_en        () const {return _infoAbout_en;}
-            SLstring        infoCredits_en      () const {return _infoCredits_en;}
-            SLstring        infoHelp_en         () const {return _infoHelp_en;}
-            SLstring        infoNoCalib_en      () const {return _infoNoCalib_en;}
+            SLButton*       btnCalibration      () {return _btnCalibration;}
+            SLstring        infoAbout           () const {return _infoAbout;}
+            SLstring        infoCredits         () const {return _infoCredits;}
+            SLstring        infoHelp            () const {return _infoHelp;}
+            SLstring        infoCalibration     () const {return _infoCalibrate;}
             SLText*         info                (SLSceneView* sv);
             SLText*         info                () {return _info;}
             SLText*         infoGL              () {return _infoGL;}
@@ -119,11 +126,11 @@ class SLScene: public SLObject
             SLGLOculus*     oculus              () {return &_oculus;}
 
             // Video and OpenCV stuff
-            SLVideoType     videoType           () {return _videoType;}
-            SLbool          usesVideoAsBckgrnd  () {return _background.texture() == &_videoTexture;}
-            SLGLTexture*    videoTexture        () {return &_videoTexture;}
-            SLCVCalibration& calibration        () {return _calibration;}
-            SLVCVTracker&   trackers            () {return _trackers;}
+            SLVideoType         videoType           () {return _videoType;}
+            SLbool              usesVideoAsBckgrnd  () {return _background.texture() == &_videoTexture;}
+            SLGLTexture*        videoTexture        () {return &_videoTexture;}
+            SLCVCalibration&    activeCalib         () {return _activeCalib;}
+            SLVCVTracker&       trackers            () {return _trackers;}
             
             // Misc.
    virtual  void            onLoad              (SLSceneView* sv, 
@@ -131,7 +138,7 @@ class SLScene: public SLObject
    virtual  void            onLoadAsset         (SLstring assetFile, 
                                                  SLuint processFlags);
    virtual  void            onAfterLoad         ();
-            bool            onUpdate();
+            bool            onUpdate            ();
             void            init                ();
             void            unInit              ();
             void            deleteAllMenus      ();
@@ -171,11 +178,10 @@ class SLScene: public SLObject
             SLText*         _infoGL;            //!< Root text node for 2D GL stats infos
             SLText*         _infoRT;            //!< Root text node for 2D RT stats infos
             SLText*         _infoLoading;       //!< Root text node for 2D loading text
-            SLstring        _infoAbout_en;      //!< About info text
-            SLstring        _infoCredits_en;    //!< Credits info text
-            SLstring        _infoHelp_en;       //!< Help info text
-            SLstring        _infoNoCalib_en;    //!< No calibration info text
-            SLstring        _infoCalibInstr_en; //!< Calibration instruction info text
+            SLstring        _infoAbout;         //!< About info text
+            SLstring        _infoCredits;       //!< Credits info text
+            SLstring        _infoHelp;          //!< Help info text
+            SLstring        _infoCalibrate;     //!< No calibration info text
 
             SLButton*       _menu2D;            //!< Root button node for 2D GUI
             SLButton*       _menuGL;            //!< Root button node for OpenGL menu
@@ -184,7 +190,7 @@ class SLScene: public SLObject
             SLButton*       _btnAbout;          //!< About button
             SLButton*       _btnHelp;           //!< Help button
             SLButton*       _btnCredits;        //!< Credits button
-            SLButton*       _btnNoCalib;        //!< No calibration infos
+            SLButton*       _btnCalibration;    //!< No calibration infos
             SLGLTexture*    _texCursor;         //!< Texture for the virtual cursor
             
             SLfloat         _elapsedTimeMS;     //!< Last frame time in ms
@@ -202,11 +208,13 @@ class SLScene: public SLObject
             
             SLGLOculus      _oculus;            //!< Oculus Rift interface
             
-            // Augmented Reality stuff
-            SLVideoType     _videoType;         //!< Flag for using the live video image
-            SLGLTexture     _videoTexture;      //!< Texture for live video image
-            SLCVCalibration _calibration;       //!< OpenCV calibration manager
-            SLVCVTracker    _trackers;          //!< Vector of all AR trackers
+            // Video stuff
+            SLVideoType         _videoType;     //!< Flag for using the live video image
+            SLGLTexture         _videoTexture;  //!< Texture for live video image
+            SLCVCalibration&    _activeCalib;   //!< Referance to the active calibration
+            SLCVCalibration     _calibMainCam;  //!< OpenCV calibration for main camera
+            SLCVCalibration     _calibScndCam;  //!< OpenCV calibration for secondary camera
+            SLVCVTracker        _trackers;      //!< Vector of all AR trackers
 };
 //-----------------------------------------------------------------------------
 #endif

@@ -104,6 +104,8 @@ enum SLCommand
     C_sceneNodeAnimation,
     C_sceneAstroboyArmy,
 
+    C_sceneCalibrateMain,
+    C_sceneCalibrateScnd,
     C_sceneTrackChessboard,
     C_sceneTrackAruco,
     C_sceneTrackFeatures2D,
@@ -119,10 +121,9 @@ enum SLCommand
     C_aboutToggle,
     C_helpToggle,
     C_creditsToggle,
-    C_noCalibToggle,
+    C_removeInfoCalib,
     C_sceneInfoToggle,
     C_quit,
-    C_clearCalibration,
 
     C_multiSampleToggle,// Toggles multisampling
     C_depthTestToggle,  // Toggles the depth test flag
@@ -360,7 +361,7 @@ enum SLCVCalibState
     CS_calibrateGrab,   //!< The calibration is running and an image should be grabbed
     CS_startCalculating,//!< The calibration starts during the next frame
     CS_calibrated,      //!< The camera is calibrated 
-    CS_approximated     //!< The camera intrinsics where approximated
+    CS_estimated        //!< The camera intrinsics where estimated from FOV
 };
 //-----------------------------------------------------------------------------
 //! OpenCV feature type
@@ -373,8 +374,8 @@ enum SLCVFeatureType
 //! Video type if multiple exist on mobile devices
 enum SLVideoType
 {   VT_NONE =  0,  //!< No camera needed
-    VT_MAIN =  1,  //!< Back facing camera on mobile devices
-    VT_SCND =  2,  //!< Front facing camera on mobile devices
+    VT_MAIN =  1,  //!< Main camera on all on all all devices
+    VT_SCND =  2,  //!< Selfie camera on mobile devices
 };
 //-----------------------------------------------------------------------------
 #endif

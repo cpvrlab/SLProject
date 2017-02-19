@@ -26,7 +26,7 @@ using namespace std;
 
 //-----------------------------------------------------------------------------
 //! Live video camera calibration class with OpenCV an OpenCV calibration.
-/* For the calibration internals see the OpenCV documentation:
+/*! For the calibration internals see the OpenCV documentation:
 http://docs.opencv.org/3.1.0/dc/dbb/tutorial_py_calibration.html
 After a successufull calibration the parameters are stored in a config file on
 the SLCVCalibration::defaultPath. If it exists, it is loaded from there at
@@ -40,18 +40,26 @@ The different calibration states are handled within SLScene::onUpdate:
 \nCS_calibrateGrab:    The calibration is running and an image should be grabbed
 \nCS_startCalculating: The calibration starts during the next frame
 \nCS_calibrated:       The camera is calibrated
-\nCS_approximated:     The camera intrinsics are approximated
+\nCS_estimate:         The camera intrinsics are set from an estimated FOV angle
 \n
+A simple calibration can be approximated from standard field of view angle.
+For a good calibration we have to make 15-20 images from a chessboard pattern.
 The chessboard pattern can be printed from the CalibrationChessboard_8x5_A4.pdf
 in the folder _data/calibration. It is important that one side has an odd number
 of inner corners. Like this it is unambiguous and can be rotated in any direction.
+\n
+The SLScene instance has two video camera calibrations, one for a main camera
+(SLScene::_calibMainCam) and one for the selfie camera on mobile devices
+(SLScene::_calibScndCam). The member SLScene::_activeCalib references the active
+one and is set by the SLScene::videoType (VT_NONE, VT_MAIN, VT_SCND) during the
+scene assembly in SLScene::onLoad.
 */
 class SLCVCalibration
 {
 public:
                     SLCVCalibration     ();
 
-    bool            loadCamParams       ();
+    bool            load                (SLstring calibFileName);
     bool            loadCalibParams     ();
     void            setCalibrationState ();
     void            calculate           ();
@@ -60,14 +68,12 @@ public:
     bool            findChessboard      (SLCVMat imageColor,
                                          SLCVMat imageGray,
                                          bool drawCorners = true);
-    void            writeApproximation  (SLfloat horizontalViewAngleDEG,
-                                         SLCVSize& imageSize);
+    void            estimate            (SLint imageWidthPX, SLint imageHeightPX);
 
     static SLstring calibIniPath;       //!< calibration init parameters file path
     static void     calcBoardCorners3D  (SLCVSize boardSize, 
                                          SLfloat squareSize, 
                                          SLCVVPoint3f& objectPoints3D);
-
     // Setters
     void            state               (SLCVCalibState s) {_state = s;}
 
@@ -81,6 +87,11 @@ public:
     SLfloat         fy                  () {return _intrinsics.cols==3 && _intrinsics.rows==3 ? (SLfloat)_intrinsics.at<double>(1,1) : 0.0f;}
     SLfloat         cx                  () {return _intrinsics.cols==3 && _intrinsics.rows==3 ? (SLfloat)_intrinsics.at<double>(0,2) : 0.0f;}
     SLfloat         cy                  () {return _intrinsics.cols==3 && _intrinsics.rows==3 ? (SLfloat)_intrinsics.at<double>(1,2) : 0.0f;}
+    SLfloat         k1                  () {return _distortion.rows==5 ? _distortion.at<double>(0,0) : 0.0f;}
+    SLfloat         k2                  () {return _distortion.rows==5 ? _distortion.at<double>(0,1) : 0.0f;}
+    SLfloat         p1                  () {return _distortion.rows==5 ? _distortion.at<double>(0,2) : 0.0f;}
+    SLfloat         p2                  () {return _distortion.rows==5 ? _distortion.at<double>(0,3) : 0.0f;}
+    SLfloat         k3                  () {return _distortion.rows==5 ? _distortion.at<double>(0,4) : 0.0f;}
     SLCVCalibState  state               () {return _state;}
     SLint           numImgsToCapture    () {return _numOfImgsToCapture;}
     SLint           numCapturedImgs     () {return _numCaptured;}
@@ -90,13 +101,27 @@ public:
     SLfloat         boardSquareMM       () {return _boardSquareMM;}
     SLfloat         boardSquareM        () {return _boardSquareMM * 0.001f;}
     SLstring        calibrationTime     () {return _calibrationTime;}
+    SLstring        stateStr            ()
+    {   switch(_state)
+        {   case CS_uncalibrated:       return "CS_uncalibrated";
+            case CS_calibrated:         return "CS_calibrated";
+            case CS_estimated:          return "CS_estimated";
+            case CS_calibrateStream:    return "CS_calibrateStream";
+            case CS_calibrateGrab:      return "CS_calibrateGrab";
+            case CS_startCalculating:   return "CS_startCalculating";
+            default:                    return "unknown";
+        }
+    }
 
 private:
     void            calcCameraFOV       ();
 
+    //////////////////////////////////////////////////////////////////////////////////
     SLCVMat         _intrinsics;            //!< Matrix with intrisic camera paramters           
     SLCVMat         _distortion;            //!< Matrix with distortion parameters
-    SLfloat         _cameraFovDeg;          //!< Field of view in degrees
+    //////////////////////////////////////////////////////////////////////////////////
+
+    SLfloat         _cameraFovDeg;          //!< Vertical field of view in degrees
     SLCVCalibState  _state;                 //!< calibration state enumeration 
     string          _calibFileName;         //!< name for calibration file
     string          _calibParamsFileName;   //!< name of calibration paramters file

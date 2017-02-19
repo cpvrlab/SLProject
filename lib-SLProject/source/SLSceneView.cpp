@@ -1024,8 +1024,8 @@ SLbool SLSceneView::onMouseDown(SLMouseButton button,
     } 
     
     // Grab image during calibration if calibration stream is running
-    if (s->calibration().state() == CS_calibrateStream)
-        s->calibration().state(CS_calibrateGrab);
+    if (s->activeCalib().state() == CS_calibrateStream)
+        s->activeCalib().state(CS_calibrateGrab);
 
     return result;
 }  
@@ -1422,11 +1422,9 @@ SLbool SLSceneView::onCommand(SLCommand cmd)
                 return true;
             }
             else return false;
-        case C_noCalibToggle:
+        case C_removeInfoCalib:
             if (s->menu2D())
-            {   if (SL::currentSceneID != C_sceneTrackChessboard)
-                    s->onLoad(this, (SLCommand)C_sceneEmpty); 
-                s->menu2D(s->menuGL());
+            {   s->menu2D(s->menuGL());
                 return true;
             }
             else return false;
@@ -1472,13 +1470,15 @@ SLbool SLSceneView::onCommand(SLCommand cmd)
         case C_sceneTrackChessboard:
         case C_sceneTrackAruco:
         case C_sceneTrackFeatures2D:
+        case C_sceneCalibrateMain:
+        case C_sceneCalibrateScnd:
 
         case C_sceneRTSpheres:
         case C_sceneRTMuttenzerBox:
         case C_sceneRTSoftShadows:
         case C_sceneRTDoF:
         case C_sceneRTTest:
-        case C_sceneRTLens:        s->onLoad(this, (SLCommand)cmd); return false;
+        case C_sceneRTLens:        s->onLoad(this, cmd); return false;
 
         case C_useSceneViewCamera: switchToSceneViewCamera(); return true;
 
@@ -1507,8 +1507,6 @@ SLbool SLSceneView::onCommand(SLCommand cmd)
         case C_textureToggle:      _drawBits.toggle(SL_DB_TEXOFF);   return true;
 
         case C_animationToggle:     s->stopAnimations(!s->stopAnimations()); return true;
-        case C_clearCalibration:    s->calibration().state(CS_uncalibrated); 
-                                    s->onLoad(this, C_sceneTrackChessboard); return false;
         case C_renderOpenGL:
             _renderType = RT_gl;
             s->menu2D(s->menuGL());
@@ -1711,8 +1709,12 @@ void SLSceneView::build2DMenus()
             mn3 = new SLButton(this, "Using Video >", f); mn2->addChild(mn3);
             //mn3->addChild(new SLButton(this, "Track or Create 2D-Feature Marker", f, C_sceneTrackFeatures2D, true, curS==C_sceneTrackFeatures2D, mn2));
             mn3->addChild(new SLButton(this, "Track ArUco Marker", f, C_sceneTrackAruco, true, curS==C_sceneTrackAruco, mn2));
-            mn3->addChild(new SLButton(this, "Track Chessboard or Calibrate Camera", f, C_sceneTrackChessboard, true, curS==C_sceneTrackChessboard, mn2));
-            mn3->addChild(new SLButton(this, "Clear Camera Calibration", f, C_clearCalibration, false, false, mn2));
+            mn3->addChild(new SLButton(this, "Track Chessboard", f, C_sceneTrackChessboard, true, curS==C_sceneTrackChessboard, mn2));
+            if (SLCVCapture::hasSecondaryCamera)
+            {   mn3->addChild(new SLButton(this, "Calibrate Main Camera", f, C_sceneCalibrateMain, true, curS==C_sceneCalibrateMain, mn2));
+                mn3->addChild(new SLButton(this, "Calibrate Face Camera", f, C_sceneCalibrateScnd, true, curS==C_sceneCalibrateScnd, mn2));
+            } else
+            mn3->addChild(new SLButton(this, "Calibrate Camera", f, C_sceneCalibrateMain, true, curS==C_sceneCalibrateMain, mn2));
             mn3->addChild(new SLButton(this, "Christoffel Tower", f, C_sceneChristoffel, true, curS == C_sceneChristoffel, mn2));
             mn3->addChild(new SLButton(this, "Texture from live video", f, C_sceneTextureVideo, true, curS==C_sceneTextureVideo, mn2));
    
@@ -1977,7 +1979,7 @@ void SLSceneView::build2DInfoGL()
 
     if (_showStatsVideo)
     {
-        SLCVCalibration& cal = s->calibration();
+        SLCVCalibration& cal = s->activeCalib();
         SLCVSize capSize = SLCVCapture::captureSize;
         SLVideoType vt = s->videoType();
 
@@ -1987,8 +1989,9 @@ void SLSceneView::build2DInfoGL()
         sprintf(m+strlen(m), "Capture size: %d x %d\\n", capSize.width, capSize.height);
         sprintf(m+strlen(m), "Field of view (deg.): %4.1f\\n", cal.cameraFovDeg());
         sprintf(m+strlen(m), "fx, fy, cx, cy: %4.1f,%4.1f,%4.1f,%4.1f\\n", cal.fx(),cal.fy(),cal.cx(),cal.cy());
-        sprintf(m+strlen(m), "fx/Width: %4.2f\\n", cal.fx()/cal.imageSize().width);
+        sprintf(m+strlen(m), "k1, k2, p1, p2: %4.1f,%4.1f,%4.1f,%4.1f\\n", cal.k1(),cal.k2(),cal.p1(),cal.p2());
         sprintf(m+strlen(m), "Calibration time: %s\\n", cal.calibrationTime().c_str());
+        sprintf(m+strlen(m), "Calibration state: %s\\n", cal.stateStr().c_str());
     }
 
     SLTexFont* f = SLTexFont::getFont(1.2f, SL::dpi);
@@ -2125,7 +2128,7 @@ void SLSceneView::build2DMsgBoxes()
    
     // Help button
     if (s->btnHelp()) delete s->btnHelp();
-    s->btnHelp(new SLButton(this, s->infoHelp_en(), f,
+    s->btnHelp(new SLButton(this, s->infoHelp(), f,
                             C_aboutToggle, false, false, 0, true,
                             _scrW - 2*SLButton::minMenuPos.x, 0.0f,
                             SLCol3f::COLBFH, 0.8f, TA_centerCenter));
@@ -2138,7 +2141,7 @@ void SLSceneView::build2DMsgBoxes()
    
     // About button
     if (s->btnAbout()) delete s->btnAbout();
-    s->btnAbout(new SLButton(this, s->infoAbout_en(), f,
+    s->btnAbout(new SLButton(this, s->infoAbout(), f,
                              C_aboutToggle, false, false, 0, true,
                              _scrW - 2*SLButton::minMenuPos.x, 0.0f,
                              SLCol3f::COLBFH, 0.8f, TA_centerCenter));
@@ -2151,7 +2154,7 @@ void SLSceneView::build2DMsgBoxes()
    
     // Credits button
     if (s->btnCredits()) delete s->btnCredits();
-    s->btnCredits(new SLButton(this, s->infoCredits_en(), f,
+    s->btnCredits(new SLButton(this, s->infoCredits(), f,
                                C_aboutToggle, false, false, 0, true,
                                _scrW - 2*SLButton::minMenuPos.x, 0.0f,
                                SLCol3f::COLBFH, 0.8f, TA_centerCenter));
@@ -2163,17 +2166,17 @@ void SLSceneView::build2DMsgBoxes()
     s->btnCredits()->updateAABBRec();
    
     // No calibration button
-    if (s->btnNoCalib()) delete s->btnNoCalib();
-    s->btnNoCalib(new SLButton(this, s->infoNoCalib_en(), f,
-                               C_noCalibToggle, false, false, 0, true,
-                               _scrW - 2*SLButton::minMenuPos.x, 0.0f,
-                               SLCol3f::COLBFH, 0.8f, TA_centerCenter));
+    if (s->btnCalibration()) delete s->btnCalibration();
+    s->btnCalibration(new SLButton(this, s->infoCalibration(), f,
+                                   C_removeInfoCalib, false, false, 0, true,
+                                   _scrW - 2*SLButton::minMenuPos.x, 0.0f,
+                                   SLCol3f::COLBFH, 0.8f, TA_centerCenter));
 
     _stateGL->modelViewMatrix.identity();
-    s->btnNoCalib()->drawBits()->off(SL_DB_HIDDEN);
-    s->btnNoCalib()->setSizeRec();
-    s->btnNoCalib()->setPosRec(SLButton::minMenuPos.x, SLButton::minMenuPos.y);
-    s->btnNoCalib()->updateAABBRec();
+    s->btnCalibration()->drawBits()->off(SL_DB_HIDDEN);
+    s->btnCalibration()->setSizeRec();
+    s->btnCalibration()->setPosRec(SLButton::minMenuPos.x, SLButton::minMenuPos.y);
+    s->btnCalibration()->updateAABBRec();
 }
 //-----------------------------------------------------------------------------
 
