@@ -88,8 +88,6 @@ void slCreateScene(SLVstring& cmdLineArgs,
     SL_LOG("------------------------------------------------------------------\n");
 
     SLScene::current = new SLScene("");
-
-    SL::loadConfig();
 }
 //-----------------------------------------------------------------------------
 /*! Global creation function for a SLSceneview instance returning the index of 
@@ -126,15 +124,19 @@ int slCreateSceneView(int screenWidth,
     SLuint index = newSVCallback();
     SLSceneView* sv = SLScene::current->sv(index);
 
-    if (!SL::dpi)
-        SL::dpi = dotsPerInch;
-
     sv->init("SceneView",
              screenWidth, 
              screenHeight, 
              onWndUpdateCallback,
              onSelectNodeMeshCallback,
              onShowSystemCursorCallback);
+
+    // Load configuration after the first sceneview creation
+    if (index==0)
+        SL::loadConfig(sv);
+
+    if (!SL::dpi)
+        SL::dpi = dotsPerInch;
 
     // Set active sceneview and load scene. This is done for the first sceneview
     if (!SLScene::current->root3D())

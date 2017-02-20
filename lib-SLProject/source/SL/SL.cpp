@@ -12,8 +12,8 @@
 #ifdef SL_MEMLEAKDETECT       // set in SL.h for debug config only
 #include <debug_new.h>        // memory leak detector
 #endif
-#include <cstdarg>
 #include <SLCV.h>
+#include <SLSceneView.h>
 
 //-----------------------------------------------------------------------------
 //! Default values for static fields
@@ -154,7 +154,7 @@ void SL::parseCmdLineArgs(SLVstring& cmdLineArgs)
 }
 //-----------------------------------------------------------------------------
 //! Loads the configuration from readable path
-void SL::loadConfig()
+void SL::loadConfig(SLSceneView* sv)
 {
     SLstring fullPathAndFilename = SL::configPath + "SLProject.yml";
 
@@ -168,18 +168,23 @@ void SL::loadConfig()
         return;
     }
 
-    SLint currentScene;
+    SLint i; SLbool b;
     fs["configTime"]        >> SL::configTime;
     fs["dpi"]               >> SL::dpi;
-    fs["currentSceneID"]    >> currentScene; 
-    SL::currentSceneID = (SLCommand)currentScene;
+    fs["currentSceneID"]    >> i; SL::currentSceneID = (SLCommand)i;
+    fs["showStatsTiming"]   >> b; sv->showStatsTiming(b);
+    fs["showStatsOpenGL"]   >> b; sv->showStatsRenderer(b);
+    fs["showStatsMemory"]   >> b; sv->showStatsScene(b);
+    fs["showStatsCamera"]   >> b; sv->showStatsCamera(b);
+    fs["showStatsVideo"]    >> b; sv->showStatsVideo(b);
+    fs["drawBits"]          >> i; sv->drawBits()->bits((SLuint)i);
 
     fs.release();
     SL_LOG("Config. loaded  : %s\n", fullPathAndFilename.c_str());
 }
 //-----------------------------------------------------------------------------
 //! Saves the configuration to a writable path
-void SL::saveConfig()
+void SL::saveConfig(SLSceneView* sv)
 { 
     SLstring fullPathAndFilename = SL::configPath + "SLProject.yml";
     SLCVFileStorage fs(fullPathAndFilename, SLCVFileStorage::WRITE);
@@ -192,6 +197,12 @@ void SL::saveConfig()
     fs << "configTime"      << SLUtils::getLocalTimeString();
     fs << "dpi"             << SL::dpi;
     fs << "currentSceneID"  << (SLint)SL::currentSceneID;
+    fs << "showStatsTiming" << sv->showStatsTiming();
+    fs << "showStatsOpenGL" << sv->showStatsRenderer();
+    fs << "showStatsMemory" << sv->showStatsScene();
+    fs << "showStatsCamera" << sv->showStatsCamera();
+    fs << "showStatsVideo"  << sv->showStatsVideo();
+    fs << "drawBits"        << (SLint)sv->drawBits()->bits();
 
     fs.release();
     SL_LOG("Config. saved   : %s\n", fullPathAndFilename.c_str());

@@ -2554,8 +2554,8 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         sv->showInfo(false);
         sv->showMenu(false);
         sv->showStatsTiming(false);
-        sv->showStatsRender(false);
-        sv->showStatsMemory(false);
+        sv->showStatsRenderer(false);
+        sv->showStatsScene(false);
         sv->showStatsCamera(false);
         sv->showStatsVideo(false);
         sv->waitEvents(false);

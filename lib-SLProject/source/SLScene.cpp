@@ -137,7 +137,8 @@ Click to close and use the menu to choose different scenes and view settings. \
 For more information please visit: https://github.com/cpvrlab/SLProject";
 
     _infoCredits =
-"Contributors since 2005 in alphabetic order: Manuel Frischknecht, Michael Goettlicher, Timo Tschanz, Marc Wacker, Pascal Zingg \\n\\n\
+"Contributors since 2005 in alphabetic order: Martin Christen, Manuel Frischknecht, Michael \
+Goettlicher, Timo Tschanz, Marc Wacker, Pascal Zingg \\n\\n\
 Credits for external libraries: \\n\
 - assimp: assimp.sourceforge.net \\n\
 - glew: glew.sourceforge.net \\n\
@@ -175,6 +176,9 @@ The destructor is called in slTerminate.
 */
 SLScene::~SLScene()
 {
+    // Save configuration befor destruction
+    SL::saveConfig(_sceneViews[0]);
+
     // Delete all remaining sceneviews
     for (auto sv : _sceneViews)
         if (sv != nullptr)
@@ -221,8 +225,6 @@ SLScene::~SLScene()
     // release the capture device
     SLCVCapture::release();
     #endif
-
-    SL::saveConfig();
 
     SL_LOG("Destructor      : ~SLScene\n");
     SL_LOG("------------------------------------------------------------------\n");

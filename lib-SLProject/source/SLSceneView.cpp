@@ -113,7 +113,7 @@ void SLSceneView::init(SLstring name,
     _showMenu = true;
     _showStatsTiming = false;
     _showStatsRenderer = false;
-    _showStatsMemory = false;
+    _showStatsScene = false;
     _showStatsCamera = false;
     _showStatsVideo = false;
     _showInfo = true;
@@ -729,7 +729,7 @@ void SLSceneView::draw2DGL()
         !_showInfo &&
         !_showLoading &&
         !(_showStatsTiming || _showStatsRenderer ||
-          _showStatsCamera || _showStatsMemory || _showStatsVideo) &&
+          _showStatsCamera || _showStatsScene || _showStatsVideo) &&
         _touchDowns==0 &&
         !_mouseDownL &&
         !_mouseDownM)
@@ -872,7 +872,7 @@ void SLSceneView::draw2DGLAll()
 
     // Draw statistics for GL
     if (!_showLoading &&
-        (_showStatsTiming || _showStatsRenderer || _showStatsCamera || _showStatsMemory || _showStatsVideo) &&
+        (_showStatsTiming || _showStatsRenderer || _showStatsCamera || _showStatsScene || _showStatsVideo) &&
         (s->menu2D()==s->menuGL() || s->menu2D()==s->btnAbout()))
     {   build2DInfoGL();
         if (s->infoGL())
@@ -887,7 +887,7 @@ void SLSceneView::draw2DGLAll()
    
     // Draw statistics for RT
     if (!_showLoading &&
-       (_showStatsTiming || _showStatsRenderer || _showStatsCamera || _showStatsMemory || _showStatsVideo) &&
+       (_showStatsTiming || _showStatsRenderer || _showStatsCamera || _showStatsScene || _showStatsVideo) &&
         (s->menu2D()==s->menuRT()))
     {   build2DInfoRT();
         if (s->infoRT()) 
@@ -1484,7 +1484,7 @@ SLbool SLSceneView::onCommand(SLCommand cmd)
 
         case C_statsTimingToggle:  _showStatsTiming = !_showStatsTiming; return true;
         case C_statsRendererToggle:_showStatsRenderer = !_showStatsRenderer; return true;
-        case C_statsMemoryToggle:  _showStatsMemory = !_showStatsMemory; return true;
+        case C_statsMemoryToggle:  _showStatsScene = !_showStatsScene; return true;
         case C_statsCameraToggle:  _showStatsCamera = !_showStatsCamera; return true;
         case C_statsVideoToggle:   _showStatsVideo = !_showStatsVideo; return true;
 
@@ -1710,11 +1710,6 @@ void SLSceneView::build2DMenus()
             //mn3->addChild(new SLButton(this, "Track or Create 2D-Feature Marker", f, C_sceneTrackFeatures2D, true, curS==C_sceneTrackFeatures2D, mn2));
             mn3->addChild(new SLButton(this, "Track ArUco Marker", f, C_sceneTrackAruco, true, curS==C_sceneTrackAruco, mn2));
             mn3->addChild(new SLButton(this, "Track Chessboard", f, C_sceneTrackChessboard, true, curS==C_sceneTrackChessboard, mn2));
-            if (SLCVCapture::hasSecondaryCamera)
-            {   mn3->addChild(new SLButton(this, "Calibrate Main Camera", f, C_sceneCalibrateMain, true, curS==C_sceneCalibrateMain, mn2));
-                mn3->addChild(new SLButton(this, "Calibrate Face Camera", f, C_sceneCalibrateScnd, true, curS==C_sceneCalibrateScnd, mn2));
-            } else
-            mn3->addChild(new SLButton(this, "Calibrate Camera", f, C_sceneCalibrateMain, true, curS==C_sceneCalibrateMain, mn2));
             mn3->addChild(new SLButton(this, "Christoffel Tower", f, C_sceneChristoffel, true, curS == C_sceneChristoffel, mn2));
             mn3->addChild(new SLButton(this, "Texture from live video", f, C_sceneTextureVideo, true, curS==C_sceneTextureVideo, mn2));
    
@@ -1732,11 +1727,6 @@ void SLSceneView::build2DMenus()
         mn2 = new SLButton(this, "Camera >", f); mn1->addChild(mn2);
         mn2->addChild(new SLButton(this, "Reset", f, C_camReset));
 
-            stringstream ss;  ss << "UI-Resolution (DPI: " << SL::dpi << ") >";
-            mn3 = new SLButton(this, ss.str(), f); mn2->addChild(mn3);
-            mn3->addChild(new SLButton(this, "+10%", f, C_dpiInc));
-            mn3->addChild(new SLButton(this, "-10%", f, C_dpiDec));
-    
             mn3 = new SLButton(this, "Projection >", f); mn2->addChild(mn3);
             for (SLint p=P_monoPerspective; p<=P_monoOrthographic; ++p)
             {   mn3->addChild(new SLButton(this, SLCamera::projectionToStr((SLProjection)p), f,
@@ -1773,13 +1763,27 @@ void SLSceneView::build2DMenus()
 
         mn2->addChild(new SLButton(this, "Use Device Rotation", f, C_camDeviceRotToggle, true, useDeviceRot, 0, false));
 
-        mn2 = new SLButton(this, "Render States >", f); mn1->addChild(mn2);
-        mn2->addChild(new SLButton(this, "Slowdown on Idle", f, C_waitEventsToggle, true, _waitEvents, 0, false));
-        if (_stateGL->hasMultiSampling())
-            mn2->addChild(new SLButton(this, "Do Multi Sampling", f, C_multiSampleToggle, true, _doMultiSampling, 0, false));
-        mn2->addChild(new SLButton(this, "Do Frustum Culling", f, C_frustCullToggle, true, _doFrustumCulling, 0, false));
-        mn2->addChild(new SLButton(this, "Do Depth Test", f, C_depthTestToggle, true, _doDepthTest, 0, false));
-        mn2->addChild(new SLButton(this, "Animation off", f, C_animationToggle, true, false, 0, false));
+        mn2 = new SLButton(this, "Preferences >", f); mn1->addChild(mn2);
+
+            mn3 = new SLButton(this, "Rendering >", f); mn2->addChild(mn3);
+            mn3->addChild(new SLButton(this, "Slowdown on Idle", f, C_waitEventsToggle, true, _waitEvents, 0, false));
+            if (_stateGL->hasMultiSampling())
+                mn3->addChild(new SLButton(this, "Do Multi Sampling", f, C_multiSampleToggle, true, _doMultiSampling, 0, false));
+            mn3->addChild(new SLButton(this, "Do Frustum Culling", f, C_frustCullToggle, true, _doFrustumCulling, 0, false));
+            mn3->addChild(new SLButton(this, "Do Depth Test", f, C_depthTestToggle, true, _doDepthTest, 0, false));
+            mn3->addChild(new SLButton(this, "Animation off", f, C_animationToggle, true, false, 0, false));
+
+            stringstream ss;  ss << "UI-DPI: " << SL::dpi << " >";
+            mn3 = new SLButton(this, ss.str(), f); mn2->addChild(mn3);
+            mn3->addChild(new SLButton(this, "+10%", f, C_dpiInc));
+            mn3->addChild(new SLButton(this, "-10%", f, C_dpiDec));
+
+            mn3 = new SLButton(this, "Video >", f); mn2->addChild(mn3);
+            if (SLCVCapture::hasSecondaryCamera)
+            {   mn3->addChild(new SLButton(this, "Calibrate Main Camera", f, C_sceneCalibrateMain, true, curS==C_sceneCalibrateMain, mn2));
+                mn3->addChild(new SLButton(this, "Calibrate Face Camera", f, C_sceneCalibrateScnd, true, curS==C_sceneCalibrateScnd, mn2));
+            } else
+            mn3->addChild(new SLButton(this, "Calibrate Camera", f, C_sceneCalibrateMain, true, curS==C_sceneCalibrateMain, mn2));
 
         mn2 = new SLButton(this, "Render Flags >", f); mn1->addChild(mn2);
         mn2->addChild(new SLButton(this, "Textures off", f, C_textureToggle, true, false, 0, false));
@@ -1797,7 +1801,7 @@ void SLSceneView::build2DMenus()
 
             mn3 = new SLButton(this, "Statistics >", f); mn2->addChild(mn3);
             mn3->addChild(new SLButton(this, "Video",  f, C_statsVideoToggle,  true, _showStatsVideo, 0, false));
-            mn3->addChild(new SLButton(this, "Memory", f, C_statsMemoryToggle, true, _showStatsMemory, 0, false));
+            mn3->addChild(new SLButton(this, "Scene", f, C_statsMemoryToggle, true, _showStatsScene, 0, false));
             mn3->addChild(new SLButton(this, "Camera", f, C_statsCameraToggle, true, _showStatsCamera, 0, false));
             mn3->addChild(new SLButton(this, "Renderer", f, C_statsRendererToggle, true, _showStatsRenderer, 0, false));
             mn3->addChild(new SLButton(this, "Timing", f, C_statsTimingToggle, true, _showStatsTiming, 0, false));
@@ -1813,7 +1817,7 @@ void SLSceneView::build2DMenus()
         mn2->addChild(new SLButton(this, "Path tracing", f, C_pt1, false, false, 0, true));
         #endif
 
-        mn2 = new SLButton(this, "Quit", f, C_quit); mn1->addChild(mn2);
+        mn2 = new SLButton(this, "Quit & Save", f, C_quit); mn1->addChild(mn2);
 
     // Init OpenGL menu
     _stateGL->modelViewMatrix.identity();
@@ -1904,7 +1908,6 @@ void SLSceneView::build2DInfoGL()
         SLfloat captureTimePC   = s->captureTimesMS().average()   / s->frameTimesMS().average()*100.0f;
 
         sprintf(m+strlen(m), "Timing -------------------------------------\\n");
-        sprintf(m+strlen(m), "Scene: %s\\n", s->name().c_str());
         sprintf(m+strlen(m), "FPS: %4.1f  (Size: %d x %d, DPI: %d)\\n", s->fps(), _scrW, _scrH, SL::dpi);
         sprintf(m+strlen(m), "Frame Time : %4.1f ms (100%%)\\n", s->frameTimesMS().average());
         sprintf(m+strlen(m), "Update Time : %4.1f ms (%0.0f%%)\\n", s->updateTimesMS().average(), updateTimePC);
@@ -1944,7 +1947,7 @@ void SLSceneView::build2DInfoGL()
         sprintf(m+strlen(m), "Projection size: %4.2f x %4.2f\\n", cam->focalDistScrW(), cam->focalDistScrH());
     }
 
-    if (_showStatsMemory)
+    if (_showStatsScene)
     {
         // Calculate voxel contents
         SLfloat vox = (SLfloat)_stats.numVoxels;
@@ -1961,20 +1964,30 @@ void SLSceneView::build2DInfoGL()
                 cpuTexMemoryBytes += i->bytesPerImage();
 
         sprintf(m+strlen(m), "Memory -------------------------------------\\n");
-        sprintf(m+strlen(m), "No. of Group/Leaf Nodes: %d / %d\\n", _stats.numGroupNodes,  _stats.numLeafNodes);
+        sprintf(m+strlen(m), "Scene Name: %s\\n", s->name().c_str());
+        sprintf(m+strlen(m), "No. of Group/Leaf/Light-Nodes: %d / %d / %d\\n",
+                              _stats.numGroupNodes,
+                              _stats.numLeafNodes,
+                              _stats.numLights);
+        sprintf(m+strlen(m), "No. of Meshes/Triangles: %u / %u\\n",
+                              _stats.numMeshes,
+                              _stats.numTriangles);
         sprintf(m+strlen(m), "Nodes in Frustum: %d (%d%%)\\n", cam->numRendered(), numRenderedPC);
-        sprintf(m+strlen(m), "Lights: %d\\n", _stats.numLights);
-        sprintf(m+strlen(m), "CPU MB in Tex.: %3.2f\\n", (SLfloat)cpuTexMemoryBytes / 1E6f);
-        sprintf(m+strlen(m), "CPU MB in Meshes: %3.2f\\n", (SLfloat)_stats.numBytes / 1E6f);
-        sprintf(m+strlen(m), "CPU MB in Voxel.: %3.2f\\n", (SLfloat)_stats.numBytesAccel / 1E6f);
-        sprintf(m+strlen(m), "CPU MB in Total: %3.2f\\n", (SLfloat)(cpuTexMemoryBytes + _stats.numBytes + _stats.numBytesAccel) / 1E6f);
-        sprintf(m+strlen(m), "GPU MB in VBO: %4.2f\\n", (SLfloat)SLGLVertexBuffer::totalBufferSize / 1E6f);
-        sprintf(m+strlen(m), "GPU MB in Tex.: %4.2f\\n", (SLfloat)SLGLTexture::numBytesInTextures / 1E6f);
-        sprintf(m+strlen(m), "GPU MB in Total: %3.2f\\n", (SLfloat)(SLGLVertexBuffer::totalBufferSize + SLGLTexture::numBytesInTextures) / 1E6f);
-        sprintf(m+strlen(m), "No. of Voxels/empty: %d / %4.1f%%\\n", _stats.numVoxels, voxelsEmpty);
-        sprintf(m+strlen(m), "Avg. & Max. Tria/Voxel: %4.1f / %d\\n", avgTriPerVox, _stats.numVoxMaxTria);
-        sprintf(m+strlen(m), "Group & Leaf Nodes: %u / %u\\n", _stats.numGroupNodes, _stats.numLeafNodes);
-        sprintf(m+strlen(m), "Meshes & Triangles: %u / %u\\n", _stats.numMeshes, _stats.numTriangles);
+        sprintf(m+strlen(m), "CPU MB in Tex/Mesh/Voxel/Total: %3.2f / %3.2f / %3.2f / %3.2f\\n",
+                              (SLfloat)cpuTexMemoryBytes / 1E6f,
+                              (SLfloat)_stats.numBytes / 1E6f,
+                              (SLfloat)_stats.numBytesAccel / 1E6f,
+                              (SLfloat)(cpuTexMemoryBytes + _stats.numBytes + _stats.numBytesAccel) / 1E6f);
+        sprintf(m+strlen(m), "GPU MB in Tex/VBO/Total: %4.2f / %4.2f / %4.2f\\n",
+                             (SLfloat)SLGLTexture::numBytesInTextures / 1E6f,
+                             (SLfloat)SLGLVertexBuffer::totalBufferSize / 1E6f,
+                             (SLfloat)(SLGLVertexBuffer::totalBufferSize + SLGLTexture::numBytesInTextures) / 1E6f);
+        sprintf(m+strlen(m), "No. of Voxels/empty: %d / %4.1f%%\\n",
+                             _stats.numVoxels,
+                             voxelsEmpty);
+        sprintf(m+strlen(m), "Avg. & Max. Tria/Voxel: %4.1f / %d\\n",
+                             avgTriPerVox,
+                             _stats.numVoxMaxTria);
     }
 
     if (_showStatsVideo)
@@ -2021,6 +2034,7 @@ void SLSceneView::build2DInfoRT()
     SLfloat numRTTria = (SLfloat)_stats.numTriangles;
     SLfloat avgTriPerVox = vox ? numRTTria / (vox-voxEmpty) : 0.0f;
     SLfloat rpms = rt->renderSec() ? total/rt->renderSec()/1000.0f : 0.0f;
+    SLint numRenderedPC = (SLint)((SLfloat)cam->numRendered()/(SLfloat)_stats.numLeafNodes * 100.0f);
    
     SLchar m[2550];   // message character array
     m[0]=0;           // set zero length
@@ -2074,7 +2088,7 @@ void SLSceneView::build2DInfoRT()
         sprintf(m+strlen(m), "Projection size: %4.2f x %4.2f\\n", cam->focalDistScrW(), cam->focalDistScrH());
     }
 
-    if (_showStatsMemory)
+    if (_showStatsScene)
     {
         // Calculate total size of texture bytes on CPU
         SLuint cpuTexMemoryBytes = 0;
@@ -2083,18 +2097,30 @@ void SLSceneView::build2DInfoRT()
                 cpuTexMemoryBytes += i->bytesPerImage();
 
         sprintf(m+strlen(m), "Memory -------------------------------------\\n");
-        sprintf(m+strlen(m), "Group Nodes: %d\\n", _stats.numGroupNodes);
-        sprintf(m+strlen(m), "Leaf Nodes: %d\\n", _stats.numLeafNodes);
-        sprintf(m+strlen(m), "Lights: %d\\n", _stats.numLights);
-        sprintf(m+strlen(m), "CPU MB in Textures: %f\\n", (SLfloat)cpuTexMemoryBytes / 1000000.0f);
-        sprintf(m+strlen(m), "CPU MB in Meshes: %f\\n", (SLfloat)_stats.numBytes / 1000000.0f);
-        sprintf(m+strlen(m), "CPU MB in Voxel.: %f\\n", (SLfloat)_stats.numBytesAccel / 1000000.0f);
-        sprintf(m+strlen(m), "CPU MB in Total: %f\\n", (SLfloat)(cpuTexMemoryBytes + _stats.numBytes + _stats.numBytesAccel) / 1000000.0f);
-        sprintf(m+strlen(m), "Triangles: %d\\n", _stats.numTriangles);
-        sprintf(m+strlen(m), "Voxels: %d\\n", _stats.numVoxels);
-        sprintf(m+strlen(m), "Voxels empty: %4.1f%%\\n", voxelsEmpty);
-        sprintf(m+strlen(m), "Avg. Tria./Voxel: %4.1f\\n", avgTriPerVox);
-        sprintf(m+strlen(m), "Max. Tria./Voxel: %d", _stats.numVoxMaxTria);
+        sprintf(m+strlen(m), "Scene Name: %s\\n", s->name().c_str());
+        sprintf(m+strlen(m), "No. of Group/Leaf/Light-Nodes: %d / %d / %d\\n",
+                              _stats.numGroupNodes,
+                              _stats.numLeafNodes,
+                              _stats.numLights);
+        sprintf(m+strlen(m), "No. of Meshes/Triangles: %u / %u\\n",
+                              _stats.numMeshes,
+                              _stats.numTriangles);
+        sprintf(m+strlen(m), "Nodes in Frustum: %d (%d%%)\\n", cam->numRendered(), numRenderedPC);
+        sprintf(m+strlen(m), "CPU MB in Tex/Mesh/Voxel/Total: %3.2f / %3.2f / %3.2f / %3.2f\\n",
+                              (SLfloat)cpuTexMemoryBytes / 1E6f,
+                              (SLfloat)_stats.numBytes / 1E6f,
+                              (SLfloat)_stats.numBytesAccel / 1E6f,
+                              (SLfloat)(cpuTexMemoryBytes + _stats.numBytes + _stats.numBytesAccel) / 1E6f);
+        sprintf(m+strlen(m), "GPU MB in Tex/VBO/Total: %4.2f / %4.2f / %4.2f\\n",
+                             (SLfloat)SLGLTexture::numBytesInTextures / 1E6f,
+                             (SLfloat)SLGLVertexBuffer::totalBufferSize / 1E6f,
+                             (SLfloat)(SLGLVertexBuffer::totalBufferSize + SLGLTexture::numBytesInTextures) / 1E6f);
+        sprintf(m+strlen(m), "No. of Voxels/empty: %d / %4.1f%%\\n",
+                             _stats.numVoxels,
+                             voxelsEmpty);
+        sprintf(m+strlen(m), "Avg. & Max. Tria/Voxel: %4.1f / %d\\n",
+                             avgTriPerVox,
+                             _stats.numVoxMaxTria);
     }
 
     SLTexFont* f = SLTexFont::getFont(1.2f, SL::dpi);

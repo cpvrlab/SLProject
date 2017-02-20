@@ -28,6 +28,7 @@
 #include <atomic>
 #include <functional>
 #include <random>
+#include <cstdarg>
 
 //-----------------------------------------------------------------------------
 // Include standard C libraries
@@ -270,6 +271,7 @@ template<class T> inline SLint SL_sizeOfVector(const T &vector)
 #define SL_WARN_MSG(M)  SL::warnMsg((M), __LINE__, __FILE__)
 //-----------------------------------------------------------------------------
 //! Class SL with some global static functions and members.
+class SLSceneView;
 class SL
 {
     public:
@@ -288,8 +290,8 @@ class SL
                                                           testScene <= C_sceneRTTest;}
     static SLbool           allTestIsRunning    (){return testScene > C_sceneAll && 
                                                           testScene <= C_sceneRTTest;}
-    static void             loadConfig          ();
-    static void             saveConfig          ();
+    static void             loadConfig          (SLSceneView* sv);
+    static void             saveConfig          (SLSceneView* sv);
     static SLfloat          dpmm                () {return (float)dpi/25.4f;}
 
     static SLCommand        testScene;          //!< Test scene command id

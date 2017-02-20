@@ -1615,7 +1615,7 @@ void qtMainWindow::on_actionDelete_active_view_triggered()
 void qtMainWindow::on_actionAbout_SLProject_triggered()
 {
     QMessageBox::information(this, "About SLProject",
-                             QString::fromStdString(SLScene::current->infoAbout_en()));
+                             QString::fromStdString(SLScene::current->infoAbout()));
 }
 void qtMainWindow::on_actionVisit_SLProject_on_Github_triggered()
 {
@@ -1630,7 +1630,7 @@ void qtMainWindow::on_actionVisit_cpvrLab_homepage_triggered()
 void qtMainWindow::on_actionCredits_triggered()
 {
     QMessageBox::information(this, "About External Libraries",
-                             QString::fromStdString(SLScene::current->infoCredits_en()).replace("\\n","\n"));
+                             QString::fromStdString(SLScene::current->infoCredits()).replace("\\n","\n"));
 }
 void qtMainWindow::on_actionAbout_Qt_triggered()
 {

@@ -62,6 +62,9 @@ class SLDrawBits
             //! Returns the all bits
             SLuint      bits    () {return _bits;}
 
+            //! Set all bits
+            void        bits    (SLuint b) {_bits = b;}
+
    private:            
             SLuint      _bits; //!< Drawing flags as a unsigned 32-bit register
 };
