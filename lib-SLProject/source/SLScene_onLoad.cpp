@@ -193,7 +193,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
                        SL::singleTestIsRunning() ? SL::testScene : SL::testSceneAll;
 
     // Reset calibration process at scene change
-    if (_activeCalib.state() != CS_calibrated &&
+    if (_activeCalib.state() != CS_calibrated && 
         _activeCalib.state() != CS_uncalibrated)
         _activeCalib.state(CS_uncalibrated);
 
@@ -250,6 +250,9 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
 
         // Set active camera
         sv->camera(cam1);
+
+        // Save energy
+        sv->waitEvents(true);
     }
     else
     if (SL::currentSceneID == C_sceneFigure) //.........................................
@@ -1982,8 +1985,8 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         // Material
         SLMaterial* yellow = new SLMaterial("mY", SLCol4f(1,1,0,0.5f));
 
-        // Get the edge length of a chessboard
-        SLfloat e1 = _activeCalib.boardSquareM();
+        // set the edge length of a chessboard square
+        SLfloat e1 = 0.028f;
         SLfloat e3 = e1 * 3.0f;
         SLfloat e9 = e3 * 3.0f;
 
@@ -2161,27 +2164,21 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         // Set active camera
         sv->camera(cam1);
         sv->waitEvents(false);
-
-        //if (_calibration.state() == CS_uncalibrated)
-        //{   menu2D(btnNoCalib());
-        //    _calibration.setCalibrationState();
-        //}
     }
     else
     if (SL::currentSceneID == C_sceneRTMuttenzerBox) //.................................
     {
         name("Muttenzer Box (RT)");
-        info(sv, "Muttenzer Box with environment mapped reflective sphere and transparenz refractive glass sphere. Try ray tracing for real reflections and soft shadows.",
-            SLCol4f::GRAY);
+        info(sv, "Muttenzer Box with environment mapped reflective sphere and transparenz refractive glass sphere. Try ray tracing for real reflections and soft shadows.");
       
         // Create reflection & glass shaders
         SLGLProgram* sp1 = new SLGLGenericProgram("Reflect.vert", "Reflect.frag");
         SLGLProgram* sp2 = new SLGLGenericProgram("RefractReflect.vert", "RefractReflect.frag");
    
         // Create cube mapping texture
-        SLGLTexture* tex1 = new SLGLTexture("MuttenzerBox+X0512_C.png", "MuttenzerBox-X0512_C.png"
-                                            ,"MuttenzerBox+Y0512_C.png", "MuttenzerBox-Y0512_C.png"
-                                            ,"MuttenzerBox+Z0512_C.png", "MuttenzerBox-Z0512_C.png");
+        SLGLTexture* tex1 = new SLGLTexture("MuttenzerBox+X0512_C.png", "MuttenzerBox-X0512_C.png",
+                                            "MuttenzerBox+Y0512_C.png", "MuttenzerBox-Y0512_C.png",
+                                            "MuttenzerBox+Z0512_C.png", "MuttenzerBox-Z0512_C.png");
       
         SLCol4f  lightEmisRGB(7.0f, 7.0f, 7.0f);
         SLCol4f  grayRGB  (0.75f, 0.75f, 0.75f);
@@ -2374,7 +2371,6 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
     if (SL::currentSceneID == C_sceneRTDoF) //..........................................
     {
         name("Ray tracing: Depth of Field");
-        info(sv, "Ray tracing with depth of field blur. Each pixel is sampled 100x from a lens. Be patient on mobile devices.");
 
         // Create textures and materials
         SLGLTexture* texC = new SLGLTexture("Checkerboard0512_C.png");
@@ -2386,11 +2382,16 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         SLMaterial* mG = new SLMaterial("mG", SLCol4f::GREEN);
         SLMaterial* mM = new SLMaterial("mM", SLCol4f::MAGENTA);
 
-        #ifndef SL_GLES2
+        #ifndef SL_GLES
         SLint numSamples = 10*SL::testFactor;
         #else
-        SLint numSamples = 6;
+        SLint numSamples = 4;
         #endif
+
+        stringstream ss;
+        ss << "Ray tracing with depth of field blur. Each pixel is sampled " <<
+                numSamples*numSamples << "x from a lens. Be patient on mobile devices.";
+        info(sv, ss.str());
 
         SLCamera* cam1 = new SLCamera;
         cam1->translation(0, 2, 7);

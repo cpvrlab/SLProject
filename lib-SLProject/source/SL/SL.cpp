@@ -193,7 +193,7 @@ void SL::saveConfig(SLSceneView* sv)
     {   SL_EXIT_MSG("Failed to open file for writing!");
         return;
     }
-
+     
     fs << "configTime"      << SLUtils::getLocalTimeString();
     fs << "dpi"             << SL::dpi;
     fs << "currentSceneID"  << (SLint)SL::currentSceneID;

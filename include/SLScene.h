@@ -130,6 +130,8 @@ class SLScene: public SLObject
             SLbool              usesVideoAsBckgrnd  () {return _background.texture() == &_videoTexture;}
             SLGLTexture*        videoTexture        () {return &_videoTexture;}
             SLCVCalibration&    activeCalib         () {return _activeCalib;}
+            SLCVCalibration&    calibMainCam        () {return _calibMainCam;}
+            SLCVCalibration&    calibScndCam        () {return _calibScndCam;}
             SLVCVTracker&       trackers            () {return _trackers;}
             
             // Misc.

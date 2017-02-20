@@ -181,6 +181,10 @@ enum SLCommand
     C_dpiInc,           // Increase DPI 10%
     C_dpiDec,           // Decrease DPI 10%
 
+    C_undistortVideoToggle,   // Undistort video 
+    C_mirrorMainVideoToggle,  // Mirror video image from main camera
+    C_mirrorScndVideoToggle,  // Mirror video image from secondary camera
+
     C_renderOpenGL,     // Render with GL
     C_rtContinuously,   // Do ray tracing continuously
     C_rtDistributed,    // Do ray tracing distributed

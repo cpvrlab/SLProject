@@ -19,6 +19,12 @@
 /*! Before OpenCV was integrated we used the class SLImage to load images.
 It used the PNG and JPEG library to load these formats. Since the integration
 of OpenCV we kept the interface and migrated the methods to work with OpenCV.
+\n
+The core object is the OpenCV matrix _cvMat. Be aware the OpenCV accesses its
+matrix of type mat often by row and columns. In that order it corresponds to
+the y and x coordiantes and not x and y as we are used to! 
+See the OpenCV docs for more information: 
+http://docs.opencv.org/2.4.10/modules/core/doc/basic_structures.html#mat
 */
 class SLCVImage : public SLObject
 {

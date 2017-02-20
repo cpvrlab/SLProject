@@ -47,6 +47,7 @@ HEADERS += \
 SOURCES += \
     ../../lib-SLProject/source/glUtils.cpp \
     ../../lib-SLProject/source/SL/SL.cpp \
+    ../../lib-SLProject/source/SL/SLFileSystem.cpp \
     ../../lib-SLProject/source/CV/SLCVImage.cpp \
     ColorCube.cpp
 

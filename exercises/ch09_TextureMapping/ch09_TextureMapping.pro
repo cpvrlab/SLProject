@@ -47,6 +47,7 @@ SOURCES += \
     TextureMapping.cpp \
     ../../lib-SLProject/source/glUtils.cpp \
     ../../lib-SLProject/source/CV/SLCVImage.cpp \
+    ../../lib-SLProject/source/SL/SLFileSystem.cpp \
     ../../lib-SLProject/source/SL/SL.cpp
 
 OTHER_FILES += \

@@ -5,25 +5,28 @@
 Next Steps:
 
 Prio 1:
-- Update libpng to be compatible again with Google App Store.
-- Integrate CV tracking classes. Implement Test scenes for marker tracking in demo applications
-- Build mobile demo versions with AR tracking examples.
-  If no camera calibration exists, the demo app automatically starts the camera of mobile devices
-  in the calibarion mode.
-- Save scene as Collada dae file.
+- mh: Preferemces > Video > Show undistort
+- mh: Preferemces > Video > Show grayscale
+- mh: Programm bei Android Pause richtig beenden.
+- mh: Programm unter iOS richtig beenden.
+- mh: Secondary Camera on iOS implementiern
+- mh: Computergrafikskript anpassen an Version 2.0
 
 Prio 2:
+- Save scene as Collada dae file.
 - Fix multi SceneView problems in app-Viewer-Qt or shall we drop the Qt projects?
 - LongTouch Menu Öffnung fertig machen
 - Creating bump map material if files contain normal map materials
 - mh: Skybox würde mit wenig Aufwand Attraktivität erhöhen
-- Billboards
 - mh: Im continuous RT haben gewisse AABB Aussetzer
+- Billboards
 - Implement RenderQueue and RenderPriorityGroups.
 - Edit & update transforms with decompose and compose transforms
 - Edit Shaderprogs by choosing alternative progs from a dropdown list
 - Integrate RackNet into lib-SLExternal
 - Solve recursive OpenGL repaints during RT and loading screens
+
+Prio 3:
 - Path Tracer fixen.
 - 3DConnexion integrieren
 - Console Log window

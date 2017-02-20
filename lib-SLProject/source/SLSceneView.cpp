@@ -1470,8 +1470,6 @@ SLbool SLSceneView::onCommand(SLCommand cmd)
         case C_sceneTrackChessboard:
         case C_sceneTrackAruco:
         case C_sceneTrackFeatures2D:
-        case C_sceneCalibrateMain:
-        case C_sceneCalibrateScnd:
 
         case C_sceneRTSpheres:
         case C_sceneRTMuttenzerBox:
@@ -1479,6 +1477,17 @@ SLbool SLSceneView::onCommand(SLCommand cmd)
         case C_sceneRTDoF:
         case C_sceneRTTest:
         case C_sceneRTLens:        s->onLoad(this, cmd); return false;
+        
+        case C_sceneCalibrateMain:
+            s->calibMainCam().setCalibrationState();
+            s->onLoad(this, cmd); return false;
+        case C_sceneCalibrateScnd:
+            s->calibScndCam().setCalibrationState();
+            s->onLoad(this, cmd); return false;
+
+        case C_mirrorMainVideoToggle: s->calibMainCam().isMirrored(!s->calibMainCam().isMirrored()); return true;
+        case C_mirrorScndVideoToggle: s->calibScndCam().isMirrored(!s->calibScndCam().isMirrored()); return true;
+        case C_undistortVideoToggle:  s->activeCalib().showUndistorted(!s->activeCalib().showUndistorted()); return true;
 
         case C_useSceneViewCamera: switchToSceneViewCamera(); return true;
 
@@ -1707,7 +1716,6 @@ void SLSceneView::build2DMenus()
             mn3->addChild(new SLButton(this, "Node Animation", f, C_sceneNodeAnimation, true, curS==C_sceneNodeAnimation, mn2));
     
             mn3 = new SLButton(this, "Using Video >", f); mn2->addChild(mn3);
-            //mn3->addChild(new SLButton(this, "Track or Create 2D-Feature Marker", f, C_sceneTrackFeatures2D, true, curS==C_sceneTrackFeatures2D, mn2));
             mn3->addChild(new SLButton(this, "Track ArUco Marker", f, C_sceneTrackAruco, true, curS==C_sceneTrackAruco, mn2));
             mn3->addChild(new SLButton(this, "Track Chessboard", f, C_sceneTrackChessboard, true, curS==C_sceneTrackChessboard, mn2));
             mn3->addChild(new SLButton(this, "Christoffel Tower", f, C_sceneChristoffel, true, curS == C_sceneChristoffel, mn2));
@@ -1724,7 +1732,7 @@ void SLSceneView::build2DMenus()
             mn3 = new SLButton(this, "Path tracing >", f); mn2->addChild(mn3);
             mn3->addChild(new SLButton(this, "Muttenzer Box", f, C_sceneRTMuttenzerBox, true, curS==C_sceneRTMuttenzerBox, mn2));
 
-        mn2 = new SLButton(this, "Camera >", f); mn1->addChild(mn2);
+        mn2 = new SLButton(this, "Scene Camera >", f); mn1->addChild(mn2);
         mn2->addChild(new SLButton(this, "Reset", f, C_camReset));
 
             mn3 = new SLButton(this, "Projection >", f); mn2->addChild(mn3);
@@ -1779,21 +1787,26 @@ void SLSceneView::build2DMenus()
             mn3->addChild(new SLButton(this, "-10%", f, C_dpiDec));
 
             mn3 = new SLButton(this, "Video >", f); mn2->addChild(mn3);
+          //mn3->addChild(new SLButton(this, "Undistort", f, C_undistortVideoToggle, true, s->activeCalib().showUndistorted(), 0, false));
             if (SLCVCapture::hasSecondaryCamera)
-            {   mn3->addChild(new SLButton(this, "Calibrate Main Camera", f, C_sceneCalibrateMain, true, curS==C_sceneCalibrateMain, mn2));
-                mn3->addChild(new SLButton(this, "Calibrate Face Camera", f, C_sceneCalibrateScnd, true, curS==C_sceneCalibrateScnd, mn2));
+            {   mn3->addChild(new SLButton(this, "Mirror Main Camera", f, C_mirrorMainVideoToggle, true, s->calibMainCam().isMirrored(), 0, false));
+                mn3->addChild(new SLButton(this, "Mirror Face Camera", f, C_mirrorScndVideoToggle, true, s->calibScndCam().isMirrored(), 0, false));
+                mn3->addChild(new SLButton(this, "Calibrate Main Camera", f, C_sceneCalibrateMain, false, curS==C_sceneCalibrateMain));
+                mn3->addChild(new SLButton(this, "Calibrate Face Camera", f, C_sceneCalibrateScnd, false, curS==C_sceneCalibrateScnd));
             } else
-            mn3->addChild(new SLButton(this, "Calibrate Camera", f, C_sceneCalibrateMain, true, curS==C_sceneCalibrateMain, mn2));
+            {   mn3->addChild(new SLButton(this, "Mirror Camera", f, C_mirrorMainVideoToggle, true, s->activeCalib().isMirrored(), 0, false));
+                mn3->addChild(new SLButton(this, "Calibrate Camera", f, C_sceneCalibrateMain, false, curS==C_sceneCalibrateMain));
+            }
 
         mn2 = new SLButton(this, "Render Flags >", f); mn1->addChild(mn2);
-        mn2->addChild(new SLButton(this, "Textures off", f, C_textureToggle, true, false, 0, false));
-        mn2->addChild(new SLButton(this, "Back Faces", f, C_faceCullToggle, true, false, 0, false));
-        mn2->addChild(new SLButton(this, "Skeleton", f, C_skeletonToggle, true, false, 0, false));
-        mn2->addChild(new SLButton(this, "AABB", f, C_bBoxToggle, true, false, 0, false));
-        mn2->addChild(new SLButton(this, "Axis", f, C_axisToggle, true, false, 0, false));
-        mn2->addChild(new SLButton(this, "Voxels", f, C_voxelsToggle, true, false, 0, false));
-        mn2->addChild(new SLButton(this, "Normals", f, C_normalsToggle, true, false, 0, false));
-        mn2->addChild(new SLButton(this, "Wired mesh", f, C_wireMeshToggle, true, false, 0, false));
+        mn2->addChild(new SLButton(this, "Textures off", f, C_textureToggle, true, _drawBits.get(SL_DB_TEXOFF), 0, false));
+        mn2->addChild(new SLButton(this, "Back Faces", f, C_faceCullToggle, true, _drawBits.get(SL_DB_CULLOFF), 0, false));
+        mn2->addChild(new SLButton(this, "Skeleton", f, C_skeletonToggle, true, _drawBits.get(SL_DB_SKELETON), 0, false));
+        mn2->addChild(new SLButton(this, "AABB", f, C_bBoxToggle, true, _drawBits.get(SL_DB_BBOX), 0, false));
+        mn2->addChild(new SLButton(this, "Axis", f, C_axisToggle, true, _drawBits.get(SL_DB_AXIS), 0, false));
+        mn2->addChild(new SLButton(this, "Voxels", f, C_voxelsToggle, true, _drawBits.get(SL_DB_VOXELS), 0, false));
+        mn2->addChild(new SLButton(this, "Normals", f, C_normalsToggle, true, _drawBits.get(SL_DB_NORMALS), 0, false));
+        mn2->addChild(new SLButton(this, "Wired mesh", f, C_wireMeshToggle, true, _drawBits.get(SL_DB_WIREMESH), 0, false));
    
         mn2 = new SLButton(this, "Infos >", f); mn1->addChild(mn2);
         mn2->addChild(new SLButton(this, "About", f, C_aboutToggle));
@@ -1900,12 +1913,12 @@ void SLSceneView::build2DInfoGL()
 
     if (_showStatsTiming)
     {
-        SLfloat updateTimePC    = s->updateTimesMS().average()    / s->frameTimesMS().average()*100.0f;
-        SLfloat trackingTimePC  = s->trackingTimesMS().average()  / s->frameTimesMS().average()*100.0f;
-        SLfloat cullTimePC      = s->cullTimesMS().average()      / s->frameTimesMS().average()*100.0f;
-        SLfloat draw3DTimePC    = s->draw3DTimesMS().average()    / s->frameTimesMS().average()*100.0f;
-        SLfloat draw2DTimePC    = s->draw2DTimesMS().average()    / s->frameTimesMS().average()*100.0f;
-        SLfloat captureTimePC   = s->captureTimesMS().average()   / s->frameTimesMS().average()*100.0f;
+        SLfloat updateTimePC    = SL_clamp(s->updateTimesMS().average()   / s->frameTimesMS().average()*100.0f, 0.0f,100.0f);
+        SLfloat trackingTimePC  = SL_clamp(s->trackingTimesMS().average() / s->frameTimesMS().average()*100.0f, 0.0f,100.0f);
+        SLfloat cullTimePC      = SL_clamp(s->cullTimesMS().average()     / s->frameTimesMS().average()*100.0f, 0.0f,100.0f);
+        SLfloat draw3DTimePC    = SL_clamp(s->draw3DTimesMS().average()   / s->frameTimesMS().average()*100.0f, 0.0f,100.0f);
+        SLfloat draw2DTimePC    = SL_clamp(s->draw2DTimesMS().average()   / s->frameTimesMS().average()*100.0f, 0.0f,100.0f);
+        SLfloat captureTimePC   = SL_clamp(s->captureTimesMS().average()  / s->frameTimesMS().average()*100.0f, 0.0f,100.0f);
 
         sprintf(m+strlen(m), "Timing -------------------------------------\\n");
         sprintf(m+strlen(m), "FPS: %4.1f  (Size: %d x %d, DPI: %d)\\n", s->fps(), _scrW, _scrH, SL::dpi);
@@ -1992,19 +2005,19 @@ void SLSceneView::build2DInfoGL()
 
     if (_showStatsVideo)
     {
-        SLCVCalibration& cal = s->activeCalib();
+        SLCVCalibration& c = s->activeCalib();
         SLCVSize capSize = SLCVCapture::captureSize;
         SLVideoType vt = s->videoType();
 
         sprintf(m+strlen(m), "Video --------------------------------------\\n");
         sprintf(m+strlen(m), "Video Type: %s\\n", vt==0 ? "None" : vt==1 ? "Main Camera" : "Secondary Camera");
-        sprintf(m+strlen(m), "Display size: %d x %d\\n", cal.imageSize().width, cal.imageSize().height);
+        sprintf(m+strlen(m), "Display size: %d x %d %s\\n", c.imageSize().width, c.imageSize().height, c.isMirrored()?"mirrored":"");
         sprintf(m+strlen(m), "Capture size: %d x %d\\n", capSize.width, capSize.height);
-        sprintf(m+strlen(m), "Field of view (deg.): %4.1f\\n", cal.cameraFovDeg());
-        sprintf(m+strlen(m), "fx, fy, cx, cy: %4.1f,%4.1f,%4.1f,%4.1f\\n", cal.fx(),cal.fy(),cal.cx(),cal.cy());
-        sprintf(m+strlen(m), "k1, k2, p1, p2: %4.1f,%4.1f,%4.1f,%4.1f\\n", cal.k1(),cal.k2(),cal.p1(),cal.p2());
-        sprintf(m+strlen(m), "Calibration time: %s\\n", cal.calibrationTime().c_str());
-        sprintf(m+strlen(m), "Calibration state: %s\\n", cal.stateStr().c_str());
+        sprintf(m+strlen(m), "Field of view (deg.): %4.1f\\n", c.cameraFovDeg());
+        sprintf(m+strlen(m), "fx, fy, cx, cy: %4.1f, %4.1f, %4.1f, %4.1f\\n", c.fx(),c.fy(),c.cx(),c.cy());
+        sprintf(m+strlen(m), "k1, k2, p1, p2: %4.2f, %4.2f, %4.2f, %4.2f\\n", c.k1(),c.k2(),c.p1(),c.p2());
+        sprintf(m+strlen(m), "Calibration time: %s\\n", c.calibrationTime().c_str());
+        sprintf(m+strlen(m), "Calibration state: %s\\n", c.stateStr().c_str());
     }
 
     SLTexFont* f = SLTexFont::getFont(1.2f, SL::dpi);
@@ -2258,7 +2271,7 @@ void SLSceneView::startRaytracing(SLint maxDepth)
     _renderType = RT_rt;
     _stopRT = false;
     _raytracer.maxDepth(maxDepth);
-    _raytracer.aaSamples(_doMultiSampling?3:1);
+    _raytracer.aaSamples(_doMultiSampling && SL::dpi<200 ? 3 : 1);
     s->menu2D(s->menuRT());
 }
 //-----------------------------------------------------------------------------

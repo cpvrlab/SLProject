@@ -54,9 +54,10 @@ void SLCVCalibration::clear()
 }
 //-----------------------------------------------------------------------------
 //! Loads the calibration information from the config file
-bool SLCVCalibration::load(SLstring calibFileName)
+bool SLCVCalibration::load(SLstring calibFileName, SLbool mirror)
 {
     _calibFileName = calibFileName;
+    _isMirrored = mirror;
 
     //load camera parameter
     FileStorage fs(SL::configPath + _calibFileName, FileStorage::READ);
@@ -291,6 +292,13 @@ bool SLCVCalibration::findChessboard(SLCVMat imageColor,
                                      SLCVMat imageGray,
                                      bool drawCorners)
 {   
+    assert(!imageGray.empty() && 
+           "SLCVCalibration::findChessboard: imageGray is empty!");
+    assert(!imageColor.empty() && 
+           "SLCVCalibration::findChessboard: imageColor is empty!");
+    assert(_boardSize.width && _boardSize.height && 
+           "SLCVCalibration::findChessboard: _boardSize is not set!");
+
     _imageSize = imageColor.size();
 
     SLCVVPoint2f corners2D;
@@ -344,7 +352,7 @@ void SLCVCalibration::setCalibrationState()
 }
 //-----------------------------------------------------------------------------
 //! Initiates the final calculation
-void SLCVCalibration::calculate()
+bool SLCVCalibration::calculate()
 {
     _state = CS_startCalculating;
 
@@ -393,6 +401,7 @@ void SLCVCalibration::calculate()
         _reprojectionError = (float)totalAvgErr;
         _state = CS_calibrated;
     }
+    return ok;
 }
 //-----------------------------------------------------------------------------
 //! Calculates camera intrinsics from an estimated FOV angle

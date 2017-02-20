@@ -112,15 +112,17 @@ SLScene::SLScene(SLstring name) : SLObject(name), _activeCalib(_calibMainCam)
     videoType(VT_NONE);
 
     // load opencv camera calibration for main and secondary camera
-    #ifdef SL_USES_CVCAPTURE
-    _calibMainCam.load("cam_calibration_main.xml");
+    #if defined(SL_USES_CVCAPTURE) || defined(SL_OS_MACIOS)
+    _calibMainCam.load("cam_calibration_main.xml", true);
     _calibMainCam.loadCalibParams();
+    _activeCalib = _calibMainCam;
     SLCVCapture::hasSecondaryCamera = false;
     #else
-    _calibMainCam.load("cam_calibration_main.xml");
+    _calibMainCam.load("cam_calibration_main.xml", false);
     _calibMainCam.loadCalibParams();
-    _calibScndCam.load("cam_calibration_scnd.xml");
+    _calibScndCam.load("cam_calibration_scnd.xml", true);
     _calibScndCam.loadCalibParams();
+    _activeCalib = _calibMainCam;
     SLCVCapture::hasSecondaryCamera = true;
     #endif
 
@@ -456,8 +458,11 @@ bool SLScene::onUpdate()
         } else //..............................................................
         if (_activeCalib.state() == CS_startCalculating)
         {
-            _activeCalib.calculate();
-            _sceneViews[0]->camera()->fov(_activeCalib.cameraFovDeg());
+            if (_activeCalib.calculate())
+            {   _sceneViews[0]->camera()->fov(_activeCalib.cameraFovDeg());
+                onLoad(_sceneViews[0], C_sceneTrackChessboard);
+            }
+
         } else
         if (_activeCalib.state() == CS_calibrated ||
             _activeCalib.state() == CS_estimated)
@@ -481,14 +486,15 @@ bool SLScene::onUpdate()
         } //...................................................................
 
         //copy image to video texture
+        /* @todo Correct undistortion not yet implemented
         if(_activeCalib.state() == CS_calibrated && _activeCalib.showUndistorted())
         {
             SLCVMat undistorted;
 
-            undistort(SLCVCapture::lastFrame,
-                      undistorted,
-                      _activeCalib.intrinsics(),
-                      _activeCalib.distortion());
+            cv::undistort(SLCVCapture::lastFrame,
+                          undistorted,
+                          _activeCalib.intrinsics(),
+                          _activeCalib.distortion());
 
             _videoTexture.copyVideoImage(undistorted.cols,
                                          undistorted.rows,
@@ -496,7 +502,7 @@ bool SLScene::onUpdate()
                                          undistorted.data,
                                          undistorted.isContinuous(),
                                          true);
-        } else
+        } else */
         {   _videoTexture.copyVideoImage(SLCVCapture::lastFrame.cols,
                                          SLCVCapture::lastFrame.rows,
                                          SLCVCapture::format,
@@ -702,7 +708,16 @@ scene assembly in SLScene::onLoad.
 */
 void SLScene::videoType(SLVideoType vt)
 {
-    _videoType = vt;
-    _activeCalib = vt==VT_SCND ? _calibScndCam : _calibMainCam;
+    if (SLCVCapture::hasSecondaryCamera && vt==VT_SCND)
+    {   _videoType = VT_SCND;
+        _activeCalib = _calibScndCam;
+        return;
+    }
+
+    if (vt==VT_SCND)
+         _videoType = VT_MAIN;
+    else _videoType = vt;
+
+    _activeCalib = _calibMainCam;
 }
 //-----------------------------------------------------------------------------

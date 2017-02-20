@@ -99,47 +99,45 @@ void SLCVCapture::adjustForSL()
 {
     SLScene* s = SLScene::current;
     captureSize = lastFrame.size();
+    format = SLCVImage::cv2glPixelFormat(lastFrame.type());
 
-    try
-    {   
-        format = SLCVImage::cv2glPixelFormat(lastFrame.type());
+    // Crop input image if it doesn't match the screens aspect ratio
+    SLfloat inWdivH = (SLfloat)lastFrame.cols / (SLfloat)lastFrame.rows;
+    SLfloat outWdivH = s->sceneViews()[0]->scrWdivH();
 
-        // Crop input image if it doesn't match the screens aspect ratio
-        SLint width = 0;    // width in pixels of the destination image
+    // Check for cropping
+    if (SL_abs(inWdivH - outWdivH) > 0.01f)
+    {   SLint width = 0;    // width in pixels of the destination image
         SLint height = 0;   // height in pixels of the destination image
         SLint cropH = 0;    // crop height in pixels of the source image
         SLint cropW = 0;    // crop width in pixels of the source image
-
-        SLfloat inWdivH = (SLfloat)lastFrame.cols / (SLfloat)lastFrame.rows;
-        SLfloat outWdivH = s->sceneViews()[0]->scrWdivH();
-
-        // Check for cropping
-        if (SL_abs(inWdivH - outWdivH) > 0.01f)
-        {   if (inWdivH > outWdivH) // crop input image left & right
-            {   width = (SLint)((SLfloat)lastFrame.rows * outWdivH);
-                height = lastFrame.rows;
-                cropW = (SLint)((SLfloat)(lastFrame.cols - width) * 0.5f);
-            } else // crop input image at top & bottom
-            {   width = lastFrame.cols;
-                height = (SLint)((SLfloat)lastFrame.cols / outWdivH);
-                cropH = (SLint)((SLfloat)(lastFrame.rows - height) * 0.5f);
-            }
-            lastFrame(SLCVRect(cropW, cropH, width, height)).copyTo(lastFrame);
-            //imwrite("AfterCropping.bmp", lastFrame);
+        
+        if (inWdivH > outWdivH) // crop input image left & right
+        {   width = (SLint)((SLfloat)lastFrame.rows * outWdivH);
+            height = lastFrame.rows;
+            cropW = (SLint)((SLfloat)(lastFrame.cols - width) * 0.5f);
+        } else // crop input image at top & bottom
+        {   width = lastFrame.cols;
+            height = (SLint)((SLfloat)lastFrame.cols / outWdivH);
+            cropH = (SLint)((SLfloat)(lastFrame.rows - height) * 0.5f);
         }
-
-        // Create grayscale version in case of coloured lastFrame
-        cv::cvtColor(lastFrame, lastFrameGray, cv::COLOR_BGR2GRAY);
-
-        // Do not copy into the video texture here.
-        // It is done in SLScene:onUpdate
-
-        s->captureTimesMS().set(s->timeMilliSec() - SLCVCapture::startCaptureTimeMS);
+        lastFrame(SLCVRect(cropW, cropH, width, height)).copyTo(lastFrame);
+        //imwrite("AfterCropping.bmp", lastFrame);
     }
-    catch (exception e)
-    {
-        SL_LOG("Exception in SLCVCapture::adjustForSL: %s\n", e.what());
+
+    // Horizontal mirror for face facing cameras
+    if (SLScene::current->activeCalib().isMirrored())
+    {   SLCVMat horizontalMirrored;
+        cv::flip(SLCVCapture::lastFrame, horizontalMirrored, 1);
+        SLCVCapture::lastFrame = horizontalMirrored;
     }
+
+    // Create grayscale version in case of coloured lastFrame
+    cv::cvtColor(lastFrame, lastFrameGray, cv::COLOR_BGR2GRAY);
+
+    // Do not copy into the video texture here. It is done in SLScene:onUpdate
+
+    s->captureTimesMS().set(s->timeMilliSec() - SLCVCapture::startCaptureTimeMS);
 }
 //-----------------------------------------------------------------------------
 void SLCVCapture::loadIntoLastFrame(const SLint width,
@@ -180,13 +178,6 @@ void SLCVCapture::loadIntoLastFrame(const SLint width,
         }
 
         SLCVCapture::lastFrame = SLCVMat(height, width, cvType, (void*)data, stride);
-    }
-
-    // Mirror for face facing cameras
-    if (SLScene::current->videoType() == VT_SCND)
-    {   SLCVMat horizontalMirrored;
-        cv::flip(SLCVCapture::lastFrame, horizontalMirrored, 1);
-        SLCVCapture::lastFrame = horizontalMirrored;
     }
     
     adjustForSL();

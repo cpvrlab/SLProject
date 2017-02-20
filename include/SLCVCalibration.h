@@ -59,12 +59,11 @@ class SLCVCalibration
 public:
                     SLCVCalibration     ();
 
-    bool            load                (SLstring calibFileName);
+    bool            load                (SLstring calibFileName, SLbool mirror);
     bool            loadCalibParams     ();
     void            setCalibrationState ();
-    void            calculate           ();
+    bool            calculate           ();
     void            clear               ();
-    void            showUndistorted     (bool su) {_showUndistorted = su;}
     bool            findChessboard      (SLCVMat imageColor,
                                          SLCVMat imageGray,
                                          bool drawCorners = true);
@@ -76,6 +75,8 @@ public:
                                          SLCVVPoint3f& objectPoints3D);
     // Setters
     void            state               (SLCVCalibState s) {_state = s;}
+    void            isMirrored          (SLbool iM) {_isMirrored = iM;}
+    void            showUndistorted     (SLbool sU) {_showUndistorted = sU;}
 
     // Getters
     SLCVSize        imageSize           () {return _imageSize;}
@@ -83,15 +84,15 @@ public:
     SLCVMat&        intrinsics          () {return _intrinsics;}
     SLCVMat&        distortion          () {return _distortion;}
     SLfloat         cameraFovDeg        () {return _cameraFovDeg;}
+    SLbool          isMirrored          () {return _isMirrored;}
     SLfloat         fx                  () {return _intrinsics.cols==3 && _intrinsics.rows==3 ? (SLfloat)_intrinsics.at<double>(0,0) : 0.0f;}
     SLfloat         fy                  () {return _intrinsics.cols==3 && _intrinsics.rows==3 ? (SLfloat)_intrinsics.at<double>(1,1) : 0.0f;}
     SLfloat         cx                  () {return _intrinsics.cols==3 && _intrinsics.rows==3 ? (SLfloat)_intrinsics.at<double>(0,2) : 0.0f;}
     SLfloat         cy                  () {return _intrinsics.cols==3 && _intrinsics.rows==3 ? (SLfloat)_intrinsics.at<double>(1,2) : 0.0f;}
-    SLfloat         k1                  () {return _distortion.rows==5 ? _distortion.at<double>(0,0) : 0.0f;}
-    SLfloat         k2                  () {return _distortion.rows==5 ? _distortion.at<double>(0,1) : 0.0f;}
-    SLfloat         p1                  () {return _distortion.rows==5 ? _distortion.at<double>(0,2) : 0.0f;}
-    SLfloat         p2                  () {return _distortion.rows==5 ? _distortion.at<double>(0,3) : 0.0f;}
-    SLfloat         k3                  () {return _distortion.rows==5 ? _distortion.at<double>(0,4) : 0.0f;}
+    SLfloat         k1                  () {return _distortion.rows>=4 ? (SLfloat)_distortion.at<double>(0,0) : 0.0f;}
+    SLfloat         k2                  () {return _distortion.rows>=4 ? (SLfloat)_distortion.at<double>(1,0) : 0.0f;}
+    SLfloat         p1                  () {return _distortion.rows>=4 ? (SLfloat)_distortion.at<double>(2,0) : 0.0f;}
+    SLfloat         p2                  () {return _distortion.rows>=4 ? (SLfloat)_distortion.at<double>(3,0) : 0.0f;}
     SLCVCalibState  state               () {return _state;}
     SLint           numImgsToCapture    () {return _numOfImgsToCapture;}
     SLint           numCapturedImgs     () {return _numCaptured;}
@@ -117,14 +118,15 @@ private:
     void            calcCameraFOV       ();
 
     //////////////////////////////////////////////////////////////////////////////////
-    SLCVMat         _intrinsics;            //!< Matrix with intrisic camera paramters           
-    SLCVMat         _distortion;            //!< Matrix with distortion parameters
+    SLCVMat         _intrinsics;            //!< 3x3 Matrix with intrisic camera paramters           
+    SLCVMat         _distortion;            //!< 5x1 Matrix with distortion parameters
     //////////////////////////////////////////////////////////////////////////////////
 
     SLfloat         _cameraFovDeg;          //!< Vertical field of view in degrees
     SLCVCalibState  _state;                 //!< calibration state enumeration 
-    string          _calibFileName;         //!< name for calibration file
-    string          _calibParamsFileName;   //!< name of calibration paramters file
+    SLstring        _calibFileName;         //!< name for calibration file
+    SLstring        _calibParamsFileName;   //!< name of calibration paramters file
+    SLbool          _isMirrored;            //!< Flag if input image must be mirrored
     SLCVSize        _boardSize;             //!< NO. of inner chessboard corners.
     SLfloat         _boardSquareMM;         //!< Size of chessboard square in mm
     SLint           _numOfImgsToCapture;    //!< NO. of images to capture
