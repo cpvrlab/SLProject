@@ -5,6 +5,7 @@
 Next Steps:
 
 Prio 1:
+- mh: Check Scene Node Statistics
 - mh: Preferemces > Video > Show undistort
 - mh: Preferemces > Video > Show grayscale
 - mh: Programm bei Android Pause richtig beenden.

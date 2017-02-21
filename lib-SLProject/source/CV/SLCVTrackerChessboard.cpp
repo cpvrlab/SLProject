@@ -37,7 +37,7 @@ bool SLCVTrackerChessboard::track(SLCVMat imageGray,
                                   SLSceneView* sv)
 {
     assert(!imageGray.empty() && "Image is empty");
-    assert(!calib.intrinsics().empty() && "Calibration is empty");
+    assert(!calib.cameraMat().empty() && "Calibration is empty");
     assert(_node && "Node pointer is null");
     assert(sv && "No sceneview pointer passed");
     assert(sv->camera() && "No active camera in sceneview");
@@ -56,7 +56,7 @@ bool SLCVTrackerChessboard::track(SLCVMat imageGray,
         //find the camera extrinsic parameters (rVec & tVec)
         _solved = solvePnP(SLCVMat(_boardPoints3D),
                            SLCVMat(corners2D),
-                           calib.intrinsics(),
+                           calib.cameraMat(),
                            calib.distortion(),
                            _rVec,
                            _tVec,

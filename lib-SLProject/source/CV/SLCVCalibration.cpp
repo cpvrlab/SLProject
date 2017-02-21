@@ -11,7 +11,7 @@
 #include <stdafx.h>         // precompiled headers
 
 /*
-The OpenCV library version 3.1 with extra module must be present.
+The OpenCV library version 3.1 or above with extra module must be present.
 If the application captures the live video stream with OpenCV you have
 to define in addition the constant SL_USES_CVCAPTURE.
 All classes that use OpenCV begin with SLCV.
@@ -70,7 +70,7 @@ bool SLCVCalibration::load(SLstring calibFileName, SLbool mirror)
         return false;
     }
 
-    fs["camera_matrix"]           >> _intrinsics;
+    fs["camera_matrix"]           >> _cameraMat;
     fs["distortion_coefficients"] >> _distortion;
     fs["avg_reprojection_error"]  >> _reprojectionError;
     fs["image_width"]             >> _imageSize.width;
@@ -117,12 +117,12 @@ bool SLCVCalibration::loadCalibParams()
 //! Calculates the vertical field of view angle in degrees
 void SLCVCalibration::calcCameraFOV()
 {
-    if (_intrinsics.rows!=3||_intrinsics.cols!=3)
+    if (_cameraMat.rows!=3||_cameraMat.cols!=3)
         SL_EXIT_MSG("SLCVCalibration::calcCameraFOV: No intrinsic parameter available");
 
     //calculate vertical field of view
-    SLfloat fy = (SLfloat)_intrinsics.at<double>(1,1);
-    SLfloat cy = (SLfloat)_intrinsics.at<double>(1,2);
+    SLfloat fy = (SLfloat)_cameraMat.at<double>(1,1);
+    SLfloat cy = (SLfloat)_cameraMat.at<double>(1,2);
     SLfloat fovRad = 2 * (SLfloat)atan2(cy, fy);
     _cameraFovDeg = fovRad * SL_RAD2DEG;
 }
@@ -366,7 +366,7 @@ bool SLCVCalibration::calculate()
     flag |= CALIB_FIX_ASPECT_RATIO;
 
     bool ok = calcCalibration(_imageSize, 
-                              _intrinsics, 
+                              _cameraMat,
                               _distortion, 
                               _imagePoints, 
                               rvecs, 
@@ -381,11 +381,11 @@ bool SLCVCalibration::calculate()
          << ". avg re projection error = " << totalAvgErr << endl;
 
     if (ok)
-    {   cout << "intrinsics" << _intrinsics << endl;
+    {   cout << "intrinsics" << _cameraMat << endl;
         cout << "distortion" << _distortion << endl;
 
         saveCameraParams(_imageSize, 
-                         _intrinsics, 
+                         _cameraMat,
                          _distortion, 
                          rvecs, 
                          tvecs, 
@@ -405,6 +405,12 @@ bool SLCVCalibration::calculate()
 }
 //-----------------------------------------------------------------------------
 //! Calculates camera intrinsics from an estimated FOV angle
+/* Most laptop-, webcam- or mobile camera have a vertical view angle or
+socalled field of view (FOV) of around 40-44 degrees. From this parameter we
+can calculate the most important intrinsic parameter the focal length. All
+other parameters are set as if the lens would be perfect: No lens distortion
+and the view axis goes through the center of the image.
+*/
 void SLCVCalibration::estimate(SLint imageWidthPX, SLint imageHeightPX)
 {
     // vertical view angle in degrees
@@ -424,7 +430,7 @@ void SLCVCalibration::estimate(SLint imageWidthPX, SLint imageHeightPX)
 
     _imageSize.width = imageWidthPX;
     _imageSize.height = imageHeightPX;
-    _intrinsics = (Mat_<double>(3,3) << fx,  0,  cx,
+    _cameraMat = (Mat_<double>(3,3) << fx,  0,  cx,
                                          0, fy,  cy,
                                          0,  0,   1);
     // No distortion

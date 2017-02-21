@@ -14,7 +14,7 @@
 #define SLCVCAPTURE_H
 
 /*
-The OpenCV library version 3.1 with extra module must be present.
+The OpenCV library version 3.1 or above with extra module must be present.
 If the application captures the live video stream with OpenCV you have
 to define in addition the constant SL_USES_CVCAPTURE.
 All classes that use OpenCV begin with SLCV.
@@ -27,9 +27,10 @@ for a good top down information.
 #include <opencv2/opencv.hpp>
 
 //-----------------------------------------------------------------------------
-//! Encapsulation of the OpenCV Capture Device
+//! Encapsulation of the OpenCV Capture Device and holder of the last frame.
 /*! It holds a static image for the last captured color frame and a grayscale
-version as well as a single static instance of the OpenCV capture device. The
+version as well as a single static instance of the OpenCV capture device.
+\n
 The live video image grabbing is not mandatory and can be replaced by the the
 top level application with its own video grabbing functionality. This is e.g.
 used in the iOS or Android examples. 

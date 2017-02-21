@@ -12,7 +12,7 @@
 #define SLCVCALIBRATION_H
 
 /*
-The OpenCV library version 3.1 with extra module must be present.
+The OpenCV library version 3.1 or above with extra module must be present.
 If the application captures the live video stream with OpenCV you have
 to define in addition the constant SL_USES_CVCAPTURE.
 All classes that use OpenCV begin with SLCV.
@@ -26,27 +26,31 @@ using namespace std;
 
 //-----------------------------------------------------------------------------
 //! Live video camera calibration class with OpenCV an OpenCV calibration.
-/*! For the calibration internals see the OpenCV documentation:
-http://docs.opencv.org/3.1.0/dc/dbb/tutorial_py_calibration.html
-After a successufull calibration the parameters are stored in a config file on
-the SLCVCalibration::defaultPath. If it exists, it is loaded from there at
-startup. If doesn't exist a calibration can be done with the calibration scene 
-(Load Scene > Using Video > Calibrate Camera).\n
+/*! The camera calibration can determine the inner or intrinsic parameters such
+as the focal length and the lens distortion and external or extrinsic parameter
+such as the camera pose towards a known geometry.
+\n
+For a good calibration we have to make 15-20 images from a chessboard pattern.
+The chessboard pattern can be printed from the CalibrationChessboard_8x5_A4.pdf
+in the folder _data/calibration. It is important that one side has an odd number
+of inner corners. Like this it is unambiguous and can be rotated in any direction.
 \n
 The different calibration states are handled within SLScene::onUpdate:
 \n
-\nCS_uncalibrated:     The camera is not calibrated (no or invalid calibration found)
+\nCS_uncalibrated:     The camera is not calibrated (no calibration found found)
 \nCS_calibrateStream:  The calibration is running with live video stream
 \nCS_calibrateGrab:    The calibration is running and an image should be grabbed
 \nCS_startCalculating: The calibration starts during the next frame
 \nCS_calibrated:       The camera is calibrated
 \nCS_estimate:         The camera intrinsics are set from an estimated FOV angle
 \n
-A simple calibration can be approximated from standard field of view angle.
-For a good calibration we have to make 15-20 images from a chessboard pattern.
-The chessboard pattern can be printed from the CalibrationChessboard_8x5_A4.pdf
-in the folder _data/calibration. It is important that one side has an odd number
-of inner corners. Like this it is unambiguous and can be rotated in any direction.
+The core of the intrinsic calibration is stored in the members _cameraMat and
+_distortion. For the calibration internals see the OpenCV documentation:
+http://docs.opencv.org/3.1.0/dc/dbb/tutorial_py_calibration.html
+After a successufull calibration the parameters are stored in a config file on
+the SL::configPath. If it exists, it is loaded from there at startup.
+If doesn't exist a simple calibration from a default field of view angle is
+estimated.
 \n
 The SLScene instance has two video camera calibrations, one for a main camera
 (SLScene::_calibMainCam) and one for the selfie camera on mobile devices
@@ -81,14 +85,14 @@ public:
     // Getters
     SLCVSize        imageSize           () {return _imageSize;}
     SLfloat         imageAspectRatio    () {return (float)_imageSize.width/(float)_imageSize.height;}
-    SLCVMat&        intrinsics          () {return _intrinsics;}
+    SLCVMat&        cameraMat           () {return _cameraMat;}
     SLCVMat&        distortion          () {return _distortion;}
     SLfloat         cameraFovDeg        () {return _cameraFovDeg;}
     SLbool          isMirrored          () {return _isMirrored;}
-    SLfloat         fx                  () {return _intrinsics.cols==3 && _intrinsics.rows==3 ? (SLfloat)_intrinsics.at<double>(0,0) : 0.0f;}
-    SLfloat         fy                  () {return _intrinsics.cols==3 && _intrinsics.rows==3 ? (SLfloat)_intrinsics.at<double>(1,1) : 0.0f;}
-    SLfloat         cx                  () {return _intrinsics.cols==3 && _intrinsics.rows==3 ? (SLfloat)_intrinsics.at<double>(0,2) : 0.0f;}
-    SLfloat         cy                  () {return _intrinsics.cols==3 && _intrinsics.rows==3 ? (SLfloat)_intrinsics.at<double>(1,2) : 0.0f;}
+    SLfloat         fx                  () {return _cameraMat.cols==3 && _cameraMat.rows==3 ? (SLfloat)_cameraMat.at<double>(0,0) : 0.0f;}
+    SLfloat         fy                  () {return _cameraMat.cols==3 && _cameraMat.rows==3 ? (SLfloat)_cameraMat.at<double>(1,1) : 0.0f;}
+    SLfloat         cx                  () {return _cameraMat.cols==3 && _cameraMat.rows==3 ? (SLfloat)_cameraMat.at<double>(0,2) : 0.0f;}
+    SLfloat         cy                  () {return _cameraMat.cols==3 && _cameraMat.rows==3 ? (SLfloat)_cameraMat.at<double>(1,2) : 0.0f;}
     SLfloat         k1                  () {return _distortion.rows>=4 ? (SLfloat)_distortion.at<double>(0,0) : 0.0f;}
     SLfloat         k2                  () {return _distortion.rows>=4 ? (SLfloat)_distortion.at<double>(1,0) : 0.0f;}
     SLfloat         p1                  () {return _distortion.rows>=4 ? (SLfloat)_distortion.at<double>(2,0) : 0.0f;}
@@ -118,8 +122,8 @@ private:
     void            calcCameraFOV       ();
 
     //////////////////////////////////////////////////////////////////////////////////
-    SLCVMat         _intrinsics;            //!< 3x3 Matrix with intrisic camera paramters           
-    SLCVMat         _distortion;            //!< 5x1 Matrix with distortion parameters
+    SLCVMat         _cameraMat;             //!< 3x3 Matrix for intrinsic camera matrix
+    SLCVMat         _distortion;            //!< 5x1 Matrix for intrinsic distortion
     //////////////////////////////////////////////////////////////////////////////////
 
     SLfloat         _cameraFovDeg;          //!< Vertical field of view in degrees

@@ -94,18 +94,34 @@ void SLCVCapture::grabAndAdjustForSL()
     }
 }
 //-----------------------------------------------------------------------------
-//! Crops the last captured frame and copies it to the SLScene video texture
+//! Does all adjustments needed for the SLScene::_videoTexture
+/*! SLCVCapture::adjustForSL processes the following adjustments for all input
+image no matter with what the where captured:
+\n
+1) Crops the input image if it doesn't match the screens aspect ratio. The
+input image mostly does't fit the aspect of the output screen aspect. If the
+input image is too high we crop it on top and bottom, if it is too wide we
+crop it on the sides.
+\n
+2) Some cameras toward a face mirror the image and some do not. If a input
+image should be mirrord or not is stored in SLCVCalibration::_isMirrored.
+\n
+3) Many of the further processing steps are faster done on grayscale images.
+We therefore create a copy that is grayscale converted.
+*/
 void SLCVCapture::adjustForSL()
 {
     SLScene* s = SLScene::current;
     captureSize = lastFrame.size();
     format = SLCVImage::cv2glPixelFormat(lastFrame.type());
 
-    // Crop input image if it doesn't match the screens aspect ratio
+    /////////////////
+    // 1) Cropping //
+    /////////////////
+
     SLfloat inWdivH = (SLfloat)lastFrame.cols / (SLfloat)lastFrame.rows;
     SLfloat outWdivH = s->sceneViews()[0]->scrWdivH();
 
-    // Check for cropping
     if (SL_abs(inWdivH - outWdivH) > 0.01f)
     {   SLint width = 0;    // width in pixels of the destination image
         SLint height = 0;   // height in pixels of the destination image
@@ -125,14 +141,20 @@ void SLCVCapture::adjustForSL()
         //imwrite("AfterCropping.bmp", lastFrame);
     }
 
-    // Horizontal mirror for face facing cameras
+    //////////////////////////
+    // 2) Horizontal mirror //
+    //////////////////////////
+
     if (SLScene::current->activeCalib().isMirrored())
     {   SLCVMat horizontalMirrored;
         cv::flip(SLCVCapture::lastFrame, horizontalMirrored, 1);
         SLCVCapture::lastFrame = horizontalMirrored;
     }
 
-    // Create grayscale version in case of coloured lastFrame
+    /////////////////////////
+    // 3) Create grayscale //
+    /////////////////////////
+
     cv::cvtColor(lastFrame, lastFrameGray, cv::COLOR_BGR2GRAY);
 
     // Do not copy into the video texture here. It is done in SLScene:onUpdate
@@ -140,6 +162,10 @@ void SLCVCapture::adjustForSL()
     s->captureTimesMS().set(s->timeMilliSec() - SLCVCapture::startCaptureTimeMS);
 }
 //-----------------------------------------------------------------------------
+/*! This method is called by iOS and Android projects that capture their video
+cameras on their own. We only adjust the color space. See the app-Demo-iOS and
+app-Demo-Android projects for the usage.
+*/
 void SLCVCapture::loadIntoLastFrame(const SLint width,
                                     const SLint height,
                                     const SLPixelFormat format,
