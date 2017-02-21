@@ -217,7 +217,7 @@ bool AR2DTracker::track(cv::Mat image,
         //solvePnP(_mapPts, _scenePts, _intrinsics, _distortion, _rVec, _tVec, false, SOLVEPNP_ITERATIVE);
         solvePnPRansac(_mapPts, 
                        _scenePts, 
-                       calib.intrinsics(), 
+                       calib.cameraMat(), 
                        calib.distortion(), 
                        rVec, 
                        tVec, 

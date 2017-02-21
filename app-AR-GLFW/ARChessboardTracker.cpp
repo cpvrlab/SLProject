@@ -45,7 +45,7 @@ bool ARChessboardTracker::track(cv::Mat image,
 {
     bool found = false;
 
-    if(!image.empty() && !calib.intrinsics().empty())
+    if(!image.empty() && !calib.cameraMat().empty())
     {
         //make a gray copy of the webcam image
         //cvtColor(_image, _grayImg, CV_RGB2GRAY);
@@ -66,7 +66,7 @@ bool ARChessboardTracker::track(cv::Mat image,
             //find the camera extrinsic parameters
             bool result = solvePnP(Mat(_boardPoints3D), 
                                    Mat(corners), 
-                                   calib.intrinsics(), 
+                                   calib.cameraMat(), 
                                    calib.distortion(), 
                                    rVec, 
                                    tVec, 

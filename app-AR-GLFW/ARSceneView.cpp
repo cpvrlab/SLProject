@@ -130,7 +130,7 @@ void ARSceneView::preDraw()
         {   Mat undistorted;
             undistort(SLCVCapture::lastFrame,
                       undistorted,
-                      s->activeCalib().intrinsics(),
+                      s->activeCalib().cameraMat(),
                       s->activeCalib().distortion());
             setCVImageToTexture(undistorted);
         }
@@ -177,7 +177,7 @@ void ARSceneView::preDraw()
         Mat undistorted;
         undistort(SLCVCapture::lastFrame, 
                   undistorted, 
-                  s->activeCalib().intrinsics(),
+                  s->activeCalib().cameraMat(),
                   s->activeCalib().distortion());
 
         if(_mapper2D.stateIsLineInput())

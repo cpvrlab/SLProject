@@ -39,7 +39,7 @@ bool ARArucoTracker::track(cv::Mat image,
     _arucoOVMs.clear(); 
 
     if(!image.empty() && 
-       !calib.intrinsics().empty() && 
+       !calib.cameraMat().empty() && 
        !_params.arucoParams.empty() && 
        !_params.dictionary.empty())
     {
@@ -51,7 +51,7 @@ bool ARArucoTracker::track(cv::Mat image,
 
             aruco::estimatePoseSingleMarkers(corners, 
                                              _params.edgeLength, 
-                                             calib.intrinsics(), 
+                                             calib.cameraMat(), 
                                              calib.distortion(), 
                                              rvecs,
                                              tvecs);

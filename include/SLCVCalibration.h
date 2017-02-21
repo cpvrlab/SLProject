@@ -37,12 +37,12 @@ of inner corners. Like this it is unambiguous and can be rotated in any directio
 \n
 The different calibration states are handled within SLScene::onUpdate:
 \n
-\nCS_uncalibrated:     The camera is not calibrated (no calibration found found)
-\nCS_calibrateStream:  The calibration is running with live video stream
-\nCS_calibrateGrab:    The calibration is running and an image should be grabbed
-\nCS_startCalculating: The calibration starts during the next frame
-\nCS_calibrated:       The camera is calibrated
-\nCS_estimate:         The camera intrinsics are set from an estimated FOV angle
+- CS_uncalibrated:     The camera is not calibrated (no calibration found found)
+- CS_calibrateStream:  The calibration is running with live video stream
+- CS_calibrateGrab:    The calibration is running and an image should be grabbed
+- CS_startCalculating: The calibration starts during the next frame
+- CS_calibrated:       The camera is calibrated
+- CS_estimate:         The camera intrinsics are set from an estimated FOV angle
 \n
 The core of the intrinsic calibration is stored in the members _cameraMat and
 _distortion. For the calibration internals see the OpenCV documentation:
