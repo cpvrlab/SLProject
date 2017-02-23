@@ -178,7 +178,7 @@ void SLCVCapture::loadIntoLastFrame(const SLint width,
     if (format == PF_yuv_420_888)
     {
         SLCVMat yuv(height + height / 2, width, CV_8UC1, (void*)data);
-        cvtColor(yuv, SLCVCapture::lastFrame, CV_YUV2BGR_NV21);
+        cvtColor(yuv, SLCVCapture::lastFrame, CV_YUV2RGB_NV21, 3);
     }
     else
     {

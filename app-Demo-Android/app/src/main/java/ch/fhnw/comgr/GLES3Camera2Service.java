@@ -73,7 +73,7 @@ public class GLES3Camera2Service extends Service {
                 if (cOrientation == videoType)
                     return cameraId;
             }
-        } catch (CameraAccessException e){
+        } catch (CameraAccessException e) {
             e.printStackTrace();
         }
         return null;
@@ -107,13 +107,14 @@ public class GLES3Camera2Service extends Service {
                 session.setRepeatingRequest(createCaptureRequest(), null, null);
                 isTransitioning = false;
                 isRunning = true;
-            } catch (CameraAccessException e){
+            } catch (CameraAccessException e) {
                 Log.e(TAG, e.getMessage());
             }
         }
 
         @Override
-        public void onConfigureFailed(@NonNull CameraCaptureSession session) {}
+        public void onConfigureFailed(@NonNull CameraCaptureSession session) {
+        }
     };
 
     protected ImageReader.OnImageAvailableListener onImageAvailableListener = new ImageReader.OnImageAvailableListener() {
@@ -138,8 +139,22 @@ public class GLES3Camera2Service extends Service {
 
                     Image.Plane[] planes = img.getPlanes();
 
+                    Image.Plane Y = planes[0];
+                    Image.Plane U = planes[1];
+                    Image.Plane V = planes[2];
+
+                    int Yb = Y.getBuffer().remaining();
+                    int Ub = U.getBuffer().remaining();
+                    int Vb = V.getBuffer().remaining();
+
+                    byte[] data = new byte[Yb + Ub + Vb];
+
+                    Y.getBuffer().get(data, 0, Yb);
+                    U.getBuffer().get(data, Yb, Ub);
+                    V.getBuffer().get(data, Yb + Ub, Vb);
+
                     ////////////////////////////////////////////////////////////////////////////////
-                    GLES3Lib.copyVideoImage(img.getWidth(), img.getHeight(), planes[0].getBuffer());
+                    GLES3Lib.copyVideoImage(img.getWidth(), img.getHeight(), data);
                     ////////////////////////////////////////////////////////////////////////////////
 
                     img.close();
@@ -149,11 +164,10 @@ public class GLES3Camera2Service extends Service {
     };
 
 
-    public void actOnReadyCameraDevice()
-    {
+    public void actOnReadyCameraDevice() {
         try {
             cameraDevice.createCaptureSession(Arrays.asList(imageReader.getSurface()), sessionStateCallback, null);
-        } catch (CameraAccessException e){
+        } catch (CameraAccessException e) {
             Log.e(TAG, e.getMessage());
         }
     }
@@ -163,7 +177,7 @@ public class GLES3Camera2Service extends Service {
         Log.i(TAG, "GLES3Camera2Service.onDestroy");
         try {
             captureSession.abortCaptures();
-        } catch (CameraAccessException e){
+        } catch (CameraAccessException e) {
             Log.e(TAG, e.getMessage());
         }
         captureSession.close();

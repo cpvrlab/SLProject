@@ -20,7 +20,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.nio.ByteBuffer;
+
 import javax.microedition.khronos.egl.EGL10;
 import javax.microedition.khronos.egl.EGLContext;
 
@@ -54,7 +54,7 @@ public class GLES3Lib {
     public static native boolean shouldClose        ();
     public static native boolean usesRotation       ();
     public static native int     getVideoType       ();
-    public static native void    copyVideoImage     (int imgWidth, int imgHeight, ByteBuffer imgBuffer);
+    public static native void    copyVideoImage     (int imgWidth, int imgHeight, byte[] imgBuffer);
 
     /**
      * The RaytracingCallback function is used to repaint the ray tracing image during the
