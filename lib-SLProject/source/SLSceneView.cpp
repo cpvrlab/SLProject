@@ -923,7 +923,7 @@ void SLSceneView::draw2DGLAll()
     }   
    
     // 2D finger touch points  
-    #ifndef SL_GLES2
+    #ifndef SL_GLES
     if (_touchDowns)
     {   _stateGL->multiSample(true);
         _stateGL->pushModelViewMatrix();  
@@ -945,13 +945,12 @@ void SLSceneView::draw2DGLAll()
         _vaoTouch.drawArrayAsColored(PT_points, yelloAlpha, 21);
         _stateGL->popModelViewMatrix();
     }
-    #endif
 
     // Draw turntable rotation point
     if ((_mouseDownL || _mouseDownM) && _touchDowns==0)
     {   if (_camera->camAnim()==CA_turntableYUp || _camera->camAnim()==CA_turntableZUp)
         {   _stateGL->multiSample(true);
-            _stateGL->pushModelViewMatrix();  
+            _stateGL->pushModelViewMatrix();
             _stateGL->modelViewMatrix.translate(0, 0, depth);
             SLVVec3f cross = {{0,0,0}};
             _vaoTouch.generateVertexPos(&cross);
@@ -960,6 +959,7 @@ void SLSceneView::draw2DGLAll()
             _stateGL->popModelViewMatrix();
         }
     }
+    #endif
 
     // Draw virtual mouse cursor if we're in HMD stereo mode
     if (_camera->projection() == P_stereoSideBySideD)
