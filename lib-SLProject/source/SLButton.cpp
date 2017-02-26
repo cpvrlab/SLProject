@@ -18,7 +18,7 @@
 //-----------------------------------------------------------------------------
 const SLfloat BTN_TXT2BTN_H_FACTOR = 1.0f;  // Button height factor from text hight
 const SLfloat BTN_BORDER_W_MM = 3.0f;       // Horizontal border in mm
-const SLfloat BTN_GAP_W_MM = 0.7f;          // Horizontal gap in mm
+const SLfloat BTN_GAP_W_MM = 1.0f;          // Horizontal gap in mm
 const SLfloat BTN_GAP_H_MM = 0.7f;          // vertical gap in mm
 //-----------------------------------------------------------------------------
 SLButton* SLButton::buttonDown = 0;
@@ -120,7 +120,7 @@ void SLButton::drawRec(SLSceneView* sv)
    
         // Draw check mark
         if (_isChecked)
-            _vao.drawArrayAs(PT_lines, 24, 4);  
+            _vao.drawArrayAs(PT_triangleStrip, 24, 4);
       
         // Set start position at bottom left corner of the text
         SLfloat x = (SLfloat)_minX; 
@@ -163,8 +163,9 @@ void SLButton::buildBuffers()
     SLfloat   y = _minY;
     SLfloat   w = _btnW;
     SLfloat   h = _btnH;
-    SLfloat   mx = x + 2*SL::dpmm()*BTN_GAP_W_MM; // center x of check mark
-    SLfloat   my = y + h*0.5f; // center y of check mark
+    SLfloat   mx = x + 2*SL::dpmm()*BTN_GAP_W_MM;   // center x of check mark
+    SLfloat   my = y + h*0.5f;                      // center y of check mark
+    SLfloat   hc = h * 0.15f;   // half size of checkbox
     SLfloat   diff1 = 0.3f;    // button color difference upper to lower border
     SLfloat   diff2 = 0.6f;    // border color difference upper to lower border  
     SLint     nP = 0;
@@ -221,20 +222,20 @@ void SLButton::buildBuffers()
     C.push_back(SLCol4f(_btnCol.r+diff2, _btnCol.g+diff2, _btnCol.b+diff2, 1.0f));
       
     // White check box
-    P.push_back(SLVec2f(mx-5, my-5));    // 1st point of check box rect
-    P.push_back(SLVec2f(mx+5, my-5));    // 2nd point of check box rect
-    P.push_back(SLVec2f(mx+5, my+5));    // 3rd point of check box rect
-    P.push_back(SLVec2f(mx-5, my+5));    // 4th point of check box rect
+    P.push_back(SLVec2f(mx-hc, my-hc));    // 1st point of check box rect
+    P.push_back(SLVec2f(mx+hc, my-hc));    // 2nd point of check box rect
+    P.push_back(SLVec2f(mx+hc, my+hc));    // 3rd point of check box rect
+    P.push_back(SLVec2f(mx-hc, my+hc));    // 4th point of check box rect
     C.push_back(SLCol4f(_btnCol.r-diff2, _btnCol.g-diff2, _btnCol.b-diff2, 1.0f));
     C.push_back(SLCol4f(_btnCol.r-diff2, _btnCol.g-diff2, _btnCol.b-diff2, 1.0f));
     C.push_back(SLCol4f(_btnCol.r-diff2, _btnCol.g-diff2, _btnCol.b-diff2, 1.0f));
     C.push_back(SLCol4f(_btnCol.r-diff2, _btnCol.g-diff2, _btnCol.b-diff2, 1.0f));
 
     // White check mark
-    P.push_back(SLVec2f(mx-4, my+4));    // 1st point of check mark
-    P.push_back(SLVec2f(mx+4, my-4));    // 2nd point of check mark
-    P.push_back(SLVec2f(mx-4, my-4));    // 3rd point of check mark
-    P.push_back(SLVec2f(mx+4, my+4));    // 4th point of check mark
+    P.push_back(SLVec2f(mx-(hc-1), my+(hc-1))); // button top left corner
+    P.push_back(SLVec2f(mx-(hc-1), my-(hc-1))); // button bottom left corner
+    P.push_back(SLVec2f(mx+(hc-1), my+(hc-1))); // button top right corner
+    P.push_back(SLVec2f(mx+(hc-1), my-(hc-1))); // button bottom right corner
     C.push_back(SLCol4f(1,1,1,0.8f));
     C.push_back(SLCol4f(1,1,1,0.8f));
     C.push_back(SLCol4f(1,1,1,0.8f));
