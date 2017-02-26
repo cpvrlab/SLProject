@@ -81,39 +81,34 @@ public class GLES3Activity extends Activity implements View.OnTouchListener, Sen
         // Init Camera (the camera is started by cameraStart from within the view renderer)
         Log.i(TAG, "Request camera permission ...");
         //If we are on android 5.1 or lower the permission was granted during installation.
-        //On android 6.0 or higher it requests a dangerous permission during runtime.
+        //On Android 6 or higher it requests a dangerous permission during runtime.
+        //On Android 7 there could be problems that permissions where not granted
+        //(Huawei Honor 8 must enable soecial log setting by dialing *#*#2846579#*#*)
         if( ActivityCompat.checkSelfPermission(GLES3Activity.this, Manifest.permission.CAMERA) ==
-                PackageManager.PERMISSION_GRANTED ) {
+                PackageManager.PERMISSION_GRANTED )
             cameraPermissionGranted=true;
-        }
-        else {
+        else
             ActivityCompat.requestPermissions(GLES3Activity.this, new String[]{Manifest.permission.CAMERA}, 1);
-        }
     }
 
     @Override
     protected void onPause() {
         Log.i(TAG, "GLES3Activity.onPause");
+        myView.queueEvent(new Runnable() {public void run() {GLES3Lib.onClose();}});
+        cameraStop();
+        finishAndRemoveTask();
         super.onPause();
-        myView.onPause();
     }
 
     @Override
-    protected void onResume() {
-        Log.i(TAG, "GLES3Activity.onResume");
-        super.onResume();
-        myView.onResume();
-
-        if (mSensorManager != null)
-            mSensorManager.registerListener(this,
-                                            mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER),
-                                            SensorManager.SENSOR_DELAY_FASTEST);
+    protected void onStop() {
+        Log.i(TAG, "GLES3Activity.onStop");
+        super.onStop();
     }
 
     @Override
     protected void onDestroy() {
         Log.i(TAG, "GLES3Activity.onDestroy");
-        cameraStop();
         super.onDestroy();
     }
 

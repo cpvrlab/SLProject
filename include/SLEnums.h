@@ -106,9 +106,12 @@ enum SLCommand
 
     C_sceneCalibrateMain,
     C_sceneCalibrateScnd,
-    C_sceneTrackChessboard,
-    C_sceneTrackAruco,
-    C_sceneTrackFeatures2D,
+    C_sceneTrackChessMain,
+    C_sceneTrackChessScnd,
+    C_sceneTrackArucoMain,
+    C_sceneTrackArucoScnd,
+    C_sceneTrackFeat2DMain,
+    C_sceneTrackFeat2DScnd,
 
     C_sceneRTMuttenzerBox,
     C_sceneRTSpheres,
@@ -116,6 +119,7 @@ enum SLCommand
     C_sceneRTDoF,
     C_sceneRTLens,
     C_sceneRTTest,
+    C_sceneMaximal,
     
     C_menu,
     C_aboutToggle,
@@ -181,9 +185,14 @@ enum SLCommand
     C_dpiInc,           // Increase DPI 10%
     C_dpiDec,           // Decrease DPI 10%
 
-    C_undistortVideoToggle,   // Undistort video 
-    C_mirrorMainVideoToggle,  // Mirror video image from main camera
-    C_mirrorScndVideoToggle,  // Mirror video image from secondary camera
+    C_undistortVideoToggle,
+    C_calibFixPrincipPointalToggle,
+    C_calibFixAspectRatioToggle,
+    C_calibZeroTangentDistToggle,
+    C_mirrorHMainVideoToggle,       // Mirror video image from main camera horizontally
+    C_mirrorVMainVideoToggle,       // Mirror video image from main camera vertically
+    C_mirrorHScndVideoToggle,       // Mirror video image from secondary camera horizontally
+    C_mirrorVScndVideoToggle,       // Mirror video image from secondary camera vertically
 
     C_renderOpenGL,     // Render with GL
     C_rtContinuously,   // Do ray tracing continuously
@@ -365,7 +374,7 @@ enum SLCVCalibState
     CS_calibrateGrab,   //!< The calibration is running and an image should be grabbed
     CS_startCalculating,//!< The calibration starts during the next frame
     CS_calibrated,      //!< The camera is calibrated 
-    CS_estimated        //!< The camera intrinsics where estimated from FOV
+    CS_guessed        //!< The camera intrinsics where estimated from FOV
 };
 //-----------------------------------------------------------------------------
 //! OpenCV feature type

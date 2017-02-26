@@ -163,6 +163,11 @@ JNIEXPORT void JNICALL Java_ch_fhnw_comgr_GLES3Lib_onClose(JNIEnv *env, jobject 
     exit(0);
 }
 //-----------------------------------------------------------------------------
+JNIEXPORT void JNICALL Java_ch_fhnw_comgr_GLES3Lib_shouldClose(JNIEnv *env, jobject obj, jboolean doClose)
+{
+    slShouldClose(doClose);
+}
+//-----------------------------------------------------------------------------
 JNIEXPORT bool JNICALL Java_ch_fhnw_comgr_GLES3Lib_shouldClose(JNIEnv *env, jobject obj)
 {
     return slShouldClose();

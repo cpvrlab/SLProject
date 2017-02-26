@@ -99,7 +99,7 @@ class SLCVTrackerAruco : public SLCVTracker
                ~SLCVTrackerAruco    () {;}
 
         SLbool  track               (SLCVMat imageGray,
-                                     SLCVCalibration& calib,
+                                     SLCVCalibration* calib,
                                      SLSceneView* sv);
 
         //! Helper function to draw and save an aruco marker board image

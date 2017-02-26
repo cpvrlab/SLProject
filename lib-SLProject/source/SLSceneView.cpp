@@ -1024,8 +1024,8 @@ SLbool SLSceneView::onMouseDown(SLMouseButton button,
     } 
     
     // Grab image during calibration if calibration stream is running
-    if (s->activeCalib().state() == CS_calibrateStream)
-        s->activeCalib().state(CS_calibrateGrab);
+    if (s->activeCalib()->state() == CS_calibrateStream)
+        s->activeCalib()->state(CS_calibrateGrab);
 
     return result;
 }  
@@ -1392,6 +1392,84 @@ SLbool SLSceneView::onCommand(SLCommand cmd)
 {
     SLScene* s = SLScene::current;
 
+    // Handle scene changes (inkl. calibration start)
+    if (cmd >= C_sceneMinimal && cmd < C_sceneMaximal)
+    {   s->onLoad(this, cmd);
+        return true;
+    }
+
+    // Handle all camera commands
+    if (_camera)
+    {
+        SLProjection prevProjection = _camera->projection();
+        SLbool perspectiveChanged = prevProjection != (SLProjection)(cmd - C_projPersp);
+
+        switch (cmd)
+        {
+            case C_projPersp:
+                _camera->projection(P_monoPerspective);
+                if (_renderType == RT_rt && !_raytracer.continuous() &&
+                    _raytracer.state() == rtFinished)
+                    _raytracer.state(rtReady);
+                break;
+            case C_projOrtho:
+                _camera->projection(P_monoOrthographic);
+                if (_renderType == RT_rt && !_raytracer.continuous() &&
+                    _raytracer.state() == rtFinished)
+                    _raytracer.state(rtReady);
+                break;
+            case C_projSideBySide:    _camera->projection(P_stereoSideBySide); break;
+            case C_projSideBySideP:   _camera->projection(P_stereoSideBySideP); break;
+            case C_projSideBySideD:   _camera->projection(P_stereoSideBySideD); break;
+            case C_projLineByLine:    _camera->projection(P_stereoLineByLine); break;
+            case C_projColumnByColumn:_camera->projection(P_stereoColumnByColumn); break;
+            case C_projPixelByPixel:  _camera->projection(P_stereoPixelByPixel); break;
+            case C_projColorRC:       _camera->projection(P_stereoColorRC); break;
+            case C_projColorRG:       _camera->projection(P_stereoColorRG); break;
+            case C_projColorRB:       _camera->projection(P_stereoColorRB); break;
+            case C_projColorYB:       _camera->projection(P_stereoColorYB); break;
+
+            case C_camSpeedLimitInc:  _camera->maxSpeed(_camera->maxSpeed()*1.2f); return true;
+            case C_camSpeedLimitDec:  _camera->maxSpeed(_camera->maxSpeed()*0.8f); return true;
+            case C_camEyeSepInc:      _camera->onMouseWheel(1, K_ctrl); return true;
+            case C_camEyeSepDec:      _camera->onMouseWheel(-1, K_ctrl); return true;
+            case C_camFocalDistInc:   _camera->onMouseWheel(1, K_shift); return true;
+            case C_camFocalDistDec:   _camera->onMouseWheel(-1, K_shift); return true;
+            case C_camFOVInc:         _camera->onMouseWheel(1, K_alt); return true;
+            case C_camFOVDec:         _camera->onMouseWheel(-1, K_alt); return true;
+            case C_camAnimTurnYUp:    _camera->camAnim(CA_turntableYUp); return true;
+            case C_camAnimTurnZUp:    _camera->camAnim(CA_turntableZUp); return true;
+            case C_camAnimWalkYUp:    _camera->camAnim(CA_walkingYUp); return true;
+            case C_camAnimWalkZUp:    _camera->camAnim(CA_walkingZUp); return true;
+            case C_camDeviceRotOn:    _camera->useDeviceRot(true); return true;
+            case C_camDeviceRotOff:   _camera->useDeviceRot(false); return true;
+            case C_camDeviceRotToggle:_camera->useDeviceRot(!_camera->useDeviceRot()); return true;
+            case C_camReset:          _camera->resetToInitialState(); return true;
+            default: break;
+        }
+
+        // special treatment for the menu position in side-by-side projection
+        if (perspectiveChanged)
+        {   if (cmd == C_projSideBySideD)
+            {   _vrMode = true;
+                SL::dpi *= 2;
+                SLButton::minMenuPos.set(_scrW*0.25f + 100.0f, _scrH*0.5f - 150.0f);
+                rebuild2DMenus();
+                if (onShowSysCursor)
+                    onShowSysCursor(false);
+            }
+            else if (prevProjection == P_stereoSideBySideD)
+            {   _vrMode = false;
+                SL::dpi /= 2;
+                SLButton::minMenuPos.set(10.0f, 10.0f);
+                rebuild2DMenus();
+                if (onShowSysCursor)
+                    onShowSysCursor(true);
+            }
+        }
+    }
+
+    // Handle all other commands
     switch (cmd)
     {
         case C_quit:
@@ -1441,53 +1519,14 @@ SLbool SLSceneView::onCommand(SLCommand cmd)
                 return true;
             } else return false;
 
-        case C_sceneMinimal:
-        case C_sceneFigure:
-        case C_sceneLargeModel:
-        case C_sceneMeshLoad:
-        case C_sceneVRSizeTest:
-        case C_sceneChristoffel:
-        case C_sceneRevolver:
-        case C_sceneTextureBlend:
-        case C_sceneTextureFilter:
-        case C_sceneTextureVideo:
-        case C_sceneFrustumCull:
-        case C_sceneMassiveData:
-
-        case C_scenePerVertexBlinn:
-        case C_scenePerPixelBlinn:
-        case C_scenePerVertexWave:
-        case C_sceneWater:
-        case C_sceneBumpNormal:
-        case C_sceneBumpParallax:
-        case C_sceneEarth:
-
-        case C_sceneMassAnimation:
-        case C_sceneNodeAnimation:
-        case C_sceneSkeletalAnimation:
-        case C_sceneAstroboyArmy:
-
-        case C_sceneTrackChessboard:
-        case C_sceneTrackAruco:
-        case C_sceneTrackFeatures2D:
-
-        case C_sceneRTSpheres:
-        case C_sceneRTMuttenzerBox:
-        case C_sceneRTSoftShadows:
-        case C_sceneRTDoF:
-        case C_sceneRTTest:
-        case C_sceneRTLens:        s->onLoad(this, cmd); return false;
-        
-        case C_sceneCalibrateMain:
-            s->calibMainCam().setCalibrationState();
-            s->onLoad(this, cmd); return false;
-        case C_sceneCalibrateScnd:
-            s->calibScndCam().setCalibrationState();
-            s->onLoad(this, cmd); return false;
-
-        case C_mirrorMainVideoToggle: s->calibMainCam().isMirrored(!s->calibMainCam().isMirrored()); return true;
-        case C_mirrorScndVideoToggle: s->calibScndCam().isMirrored(!s->calibScndCam().isMirrored()); return true;
-        case C_undistortVideoToggle:  s->activeCalib().showUndistorted(!s->activeCalib().showUndistorted()); return true;
+        case C_mirrorHMainVideoToggle:      s->calibMainCam()->toggleMirrorH(); return true;
+        case C_mirrorVMainVideoToggle:      s->calibMainCam()->toggleMirrorV(); return true;
+        case C_mirrorHScndVideoToggle:      s->calibScndCam()->toggleMirrorH(); return true;
+        case C_mirrorVScndVideoToggle:      s->calibScndCam()->toggleMirrorV(); return true;
+        case C_calibFixAspectRatioToggle:   s->activeCalib()->toggleFixAspectRatio(); return true;
+        case C_calibFixPrincipPointalToggle:s->activeCalib()->toggleFixPrincipalPoint(); return true;
+        case C_calibZeroTangentDistToggle:  s->activeCalib()->toggleZeroTangentDist(); return true;
+        case C_undistortVideoToggle:        s->activeCalib()->showUndistorted(!s->activeCalib()->showUndistorted()); return true;
 
         case C_useSceneViewCamera: switchToSceneViewCamera(); return true;
 
@@ -1550,76 +1589,6 @@ SLbool SLSceneView::onCommand(SLCommand cmd)
         case C_ptSaveImage: _pathtracer.saveImage(); return true;
 
         default: break;
-    }
-
-    if (_camera)
-    {
-        SLProjection prevProjection = _camera->projection();
-        SLbool perspectiveChanged = prevProjection != (SLProjection)(cmd - C_projPersp);
-
-        switch (cmd)
-        {
-            case C_projPersp:
-                _camera->projection(P_monoPerspective);
-                if (_renderType == RT_rt && !_raytracer.continuous() &&
-                    _raytracer.state() == rtFinished)
-                    _raytracer.state(rtReady);
-                break;
-            case C_projOrtho:
-                _camera->projection(P_monoOrthographic);
-                if (_renderType == RT_rt && !_raytracer.continuous() &&
-                    _raytracer.state() == rtFinished)
-                    _raytracer.state(rtReady);
-                break;
-            case C_projSideBySide:    _camera->projection(P_stereoSideBySide); break;
-            case C_projSideBySideP:   _camera->projection(P_stereoSideBySideP); break;
-            case C_projSideBySideD:   _camera->projection(P_stereoSideBySideD); break;
-            case C_projLineByLine:    _camera->projection(P_stereoLineByLine); break;
-            case C_projColumnByColumn:_camera->projection(P_stereoColumnByColumn); break;
-            case C_projPixelByPixel:  _camera->projection(P_stereoPixelByPixel); break;
-            case C_projColorRC:       _camera->projection(P_stereoColorRC); break;
-            case C_projColorRG:       _camera->projection(P_stereoColorRG); break;
-            case C_projColorRB:       _camera->projection(P_stereoColorRB); break;
-            case C_projColorYB:       _camera->projection(P_stereoColorYB); break;
-
-            case C_camSpeedLimitInc:  _camera->maxSpeed(_camera->maxSpeed()*1.2f); return true;
-            case C_camSpeedLimitDec:  _camera->maxSpeed(_camera->maxSpeed()*0.8f); return true;
-            case C_camEyeSepInc:      _camera->onMouseWheel(1, K_ctrl); return true;
-            case C_camEyeSepDec:      _camera->onMouseWheel(-1, K_ctrl); return true;
-            case C_camFocalDistInc:   _camera->onMouseWheel(1, K_shift); return true;
-            case C_camFocalDistDec:   _camera->onMouseWheel(-1, K_shift); return true;
-            case C_camFOVInc:         _camera->onMouseWheel(1, K_alt); return true;
-            case C_camFOVDec:         _camera->onMouseWheel(-1, K_alt); return true;
-            case C_camAnimTurnYUp:    _camera->camAnim(CA_turntableYUp); return true;
-            case C_camAnimTurnZUp:    _camera->camAnim(CA_turntableZUp); return true;
-            case C_camAnimWalkYUp:    _camera->camAnim(CA_walkingYUp); return true;
-            case C_camAnimWalkZUp:    _camera->camAnim(CA_walkingZUp); return true;
-            case C_camDeviceRotOn:    _camera->useDeviceRot(true); return true;
-            case C_camDeviceRotOff:   _camera->useDeviceRot(false); return true;
-            case C_camDeviceRotToggle:_camera->useDeviceRot(!_camera->useDeviceRot()); return true;
-            case C_camReset:          _camera->resetToInitialState(); return true;
-            default: break;
-        }
-
-        // special treatment for the menu position in side-by-side projection
-        if (perspectiveChanged)
-        {   if (cmd == C_projSideBySideD)
-            {   _vrMode = true;
-                SL::dpi *= 2;
-                SLButton::minMenuPos.set(_scrW*0.25f + 100.0f, _scrH*0.5f - 150.0f);
-                rebuild2DMenus();
-                if (onShowSysCursor)
-                    onShowSysCursor(false);
-            }
-            else if (prevProjection == P_stereoSideBySideD)
-            {   _vrMode = false;
-                SL::dpi /= 2;               
-                SLButton::minMenuPos.set(10.0f, 10.0f);
-                rebuild2DMenus();
-                if (onShowSysCursor)
-                    onShowSysCursor(true);
-            }
-        }
     }
 
     return false;
@@ -1716,8 +1685,12 @@ void SLSceneView::build2DMenus()
             mn3->addChild(new SLButton(this, "Node Animation", f, C_sceneNodeAnimation, true, curS==C_sceneNodeAnimation, mn2));
     
             mn3 = new SLButton(this, "Using Video >", f); mn2->addChild(mn3);
-            mn3->addChild(new SLButton(this, "Track ArUco Marker", f, C_sceneTrackAruco, true, curS==C_sceneTrackAruco, mn2));
-            mn3->addChild(new SLButton(this, "Track Chessboard", f, C_sceneTrackChessboard, true, curS==C_sceneTrackChessboard, mn2));
+            if (SLCVCapture::hasSecondaryCamera)
+                mn3->addChild(new SLButton(this, "Track ArUco Marker (Scnd)", f, C_sceneTrackArucoScnd, true, curS==C_sceneTrackArucoScnd, mn2));
+            mn3->addChild(new SLButton(this, "Track ArUco Marker (Main)", f, C_sceneTrackArucoMain, true, curS==C_sceneTrackArucoMain, mn2));
+            if (SLCVCapture::hasSecondaryCamera)
+                mn3->addChild(new SLButton(this, "Track Chessboard (Scnd)", f, C_sceneTrackChessScnd, true, curS==C_sceneTrackChessScnd, mn2));
+            mn3->addChild(new SLButton(this, "Track Chessboard (Main)", f, C_sceneTrackChessMain, true, curS==C_sceneTrackChessMain, mn2));
             mn3->addChild(new SLButton(this, "Christoffel Tower", f, C_sceneChristoffel, true, curS == C_sceneChristoffel, mn2));
             mn3->addChild(new SLButton(this, "Texture from live video", f, C_sceneTextureVideo, true, curS==C_sceneTextureVideo, mn2));
    
@@ -1781,22 +1754,31 @@ void SLSceneView::build2DMenus()
             mn3->addChild(new SLButton(this, "Do Depth Test", f, C_depthTestToggle, true, _doDepthTest, 0, false));
             mn3->addChild(new SLButton(this, "Animation off", f, C_animationToggle, true, false, 0, false));
 
+            mn3 = new SLButton(this, "Video >", f); mn2->addChild(mn3);
+          //mn3->addChild(new SLButton(this, "Undistort", f, C_undistortVideoToggle, true, s->activeCalib().showUndistorted(), 0, false));
+
+            mn4 = new SLButton(this, "Calibration Flags >", f); mn3->addChild(mn4);
+                mn4->addChild(new SLButton(this, "Zero Tangent Distortion", f, C_calibZeroTangentDistToggle, true, s->activeCalib()->calibZeroTangentDist(), 0, false));
+                mn4->addChild(new SLButton(this, "Fix Aspect Ratio", f, C_calibFixAspectRatioToggle, true, s->activeCalib()->calibFixAspectRatio(), 0, false));
+                mn4->addChild(new SLButton(this, "Fix Principal Point", f, C_calibFixPrincipPointalToggle, true, s->activeCalib()->calibFixPrincipalPoint(), 0, false));
+
+            if (SLCVCapture::hasSecondaryCamera)
+            {   mn3->addChild(new SLButton(this, "Mirror scnd. Cam. horiz.", f, C_mirrorHScndVideoToggle, true, s->calibScndCam()->isMirroredH(), 0, false));
+                mn3->addChild(new SLButton(this, "Mirror scnd. Cam. vert.",  f, C_mirrorVScndVideoToggle, true, s->calibScndCam()->isMirroredV(), 0, false));
+                mn3->addChild(new SLButton(this, "Mirror main Cam. horiz.", f, C_mirrorHMainVideoToggle, true, s->calibMainCam()->isMirroredH(), 0, false));
+                mn3->addChild(new SLButton(this, "Mirror main Cam. vert.",  f, C_mirrorVMainVideoToggle, true, s->calibMainCam()->isMirroredV(), 0, false));
+                mn3->addChild(new SLButton(this, "Start scnd. Cam. Calibration", f, C_sceneCalibrateScnd, false, curS==C_sceneCalibrateScnd));
+                mn3->addChild(new SLButton(this, "Start main Cam. Calibration", f, C_sceneCalibrateMain, false, curS==C_sceneCalibrateMain));
+            } else
+            {   mn3->addChild(new SLButton(this, "Mirror horizontally", f, C_mirrorHMainVideoToggle, true, s->activeCalib()->isMirroredH(), 0, false));
+                mn3->addChild(new SLButton(this, "Mirror vertically", f, C_mirrorVMainVideoToggle, true, s->activeCalib()->isMirroredV(), 0, false));
+                mn3->addChild(new SLButton(this, "Start Calibration", f, C_sceneCalibrateMain, false, curS==C_sceneCalibrateMain));
+            }
+
             stringstream ss;  ss << "UI-DPI: " << SL::dpi << " >";
             mn3 = new SLButton(this, ss.str(), f); mn2->addChild(mn3);
             mn3->addChild(new SLButton(this, "+10%", f, C_dpiInc));
             mn3->addChild(new SLButton(this, "-10%", f, C_dpiDec));
-
-            mn3 = new SLButton(this, "Video >", f); mn2->addChild(mn3);
-          //mn3->addChild(new SLButton(this, "Undistort", f, C_undistortVideoToggle, true, s->activeCalib().showUndistorted(), 0, false));
-            if (SLCVCapture::hasSecondaryCamera)
-            {   mn3->addChild(new SLButton(this, "Mirror Main Camera", f, C_mirrorMainVideoToggle, true, s->calibMainCam().isMirrored(), 0, false));
-                mn3->addChild(new SLButton(this, "Mirror Face Camera", f, C_mirrorScndVideoToggle, true, s->calibScndCam().isMirrored(), 0, false));
-                mn3->addChild(new SLButton(this, "Calibrate Main Camera", f, C_sceneCalibrateMain, false, curS==C_sceneCalibrateMain));
-                mn3->addChild(new SLButton(this, "Calibrate Face Camera", f, C_sceneCalibrateScnd, false, curS==C_sceneCalibrateScnd));
-            } else
-            {   mn3->addChild(new SLButton(this, "Mirror Camera", f, C_mirrorMainVideoToggle, true, s->activeCalib().isMirrored(), 0, false));
-                mn3->addChild(new SLButton(this, "Calibrate Camera", f, C_sceneCalibrateMain, false, curS==C_sceneCalibrateMain));
-            }
 
         mn2 = new SLButton(this, "Render Flags >", f); mn1->addChild(mn2);
         mn2->addChild(new SLButton(this, "Textures off", f, C_textureToggle, true, _drawBits.get(SL_DB_TEXOFF), 0, false));
@@ -2005,19 +1987,25 @@ void SLSceneView::build2DInfoGL()
 
     if (_showStatsVideo)
     {
-        SLCVCalibration& c = s->activeCalib();
+        SLCVCalibration* c = s->activeCalib();
         SLCVSize capSize = SLCVCapture::captureSize;
         SLVideoType vt = s->videoType();
+        SLstring mirrored = "None";
+        if (c->isMirroredH() && c->isMirroredV()) mirrored = "horizontally & vertically"; else
+        if (c->isMirroredH()) mirrored = "horizontally"; else
+        if (c->isMirroredV()) mirrored = "vertically.";
 
         sprintf(m+strlen(m), "Video --------------------------------------\\n");
         sprintf(m+strlen(m), "Video Type: %s\\n", vt==0 ? "None" : vt==1 ? "Main Camera" : "Secondary Camera");
-        sprintf(m+strlen(m), "Display size: %d x %d %s\\n", c.imageSize().width, c.imageSize().height, c.isMirrored()?"mirrored":"");
+        sprintf(m+strlen(m), "Display size: %d x %d\\n", c->imageSize().width, c->imageSize().height);
         sprintf(m+strlen(m), "Capture size: %d x %d\\n", capSize.width, capSize.height);
-        sprintf(m+strlen(m), "Field of view (deg.): %4.1f\\n", c.cameraFovDeg());
-        sprintf(m+strlen(m), "fx, fy, cx, cy: %4.1f, %4.1f, %4.1f, %4.1f\\n", c.fx(),c.fy(),c.cx(),c.cy());
-        sprintf(m+strlen(m), "k1, k2, p1, p2: %4.2f, %4.2f, %4.2f, %4.2f\\n", c.k1(),c.k2(),c.p1(),c.p2());
-        sprintf(m+strlen(m), "Calibration time: %s\\n", c.calibrationTime().c_str());
-        sprintf(m+strlen(m), "Calibration state: %s\\n", c.stateStr().c_str());
+        sprintf(m+strlen(m), "Mirrored: %s\\n", mirrored.c_str());
+        sprintf(m+strlen(m), "Field of view (deg.): %4.1f\\n", c->cameraFovDeg());
+        sprintf(m+strlen(m), "fx, fy, cx, cy: %4.1f, %4.1f, %4.1f, %4.1f\\n", c->fx(),c->fy(),c->cx(),c->cy());
+        sprintf(m+strlen(m), "k1, k2, p1, p2: %4.2f, %4.2f, %4.2f, %4.2f\\n", c->k1(),c->k2(),c->p1(),c->p2());
+        sprintf(m+strlen(m), "Calibration time: %s\\n", c->calibrationTime().c_str());
+        sprintf(m+strlen(m), "Calibration file: %s\\n", c->calibFileName().c_str());
+        sprintf(m+strlen(m), "Calibration state: %s\\n", c->stateStr().c_str());
     }
 
     SLTexFont* f = SLTexFont::getFont(1.2f, SL::dpi);

@@ -193,9 +193,9 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
                        SL::singleTestIsRunning() ? SL::testScene : SL::testSceneAll;
 
     // Reset calibration process at scene change
-    if (_activeCalib.state() != CS_calibrated && 
-        _activeCalib.state() != CS_uncalibrated)
-        _activeCalib.state(CS_uncalibrated);
+    if (_activeCalib->state() != CS_calibrated &&
+        _activeCalib->state() != CS_uncalibrated)
+        _activeCalib->state(CS_uncalibrated);
 
     if (SL::currentSceneID == C_sceneEmpty) //..........................................
     {   
@@ -1954,32 +1954,32 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         sv->waitEvents(false);
     }
     else
-    if (SL::currentSceneID == C_sceneTrackChessboard ||
+    if (SL::currentSceneID == C_sceneTrackChessMain ||
+        SL::currentSceneID == C_sceneTrackChessScnd ||
         SL::currentSceneID == C_sceneCalibrateMain ||
         SL::currentSceneID == C_sceneCalibrateScnd) //..................................
     {
-        // Set video type to request the correct camera on mobile devices
-        videoType(SL::currentSceneID == C_sceneCalibrateScnd ? VT_SCND : VT_MAIN);
-
         // All calibration state changes are done in SLScene::onUpdate.
         // Setup here only the requested scene.
-        if (SL::currentSceneID == C_sceneTrackChessboard)
-        {   name("Track Chessboard");
-            stringstream ss;
-            if (_activeCalib.state() == CS_calibrated)
-            {   ss << "Camera calibration: fov: " << _activeCalib.cameraFovDeg() <<
-                ", error: " << _activeCalib.reprojectionError();
-            } else ss << "The camera is not calibrated.";
-            info(sv, ss.str());
+        if (SL::currentSceneID == C_sceneTrackChessMain ||
+            SL::currentSceneID == C_sceneTrackChessScnd)
+        {   if (SL::currentSceneID == C_sceneTrackChessMain)
+            {   videoType(VT_MAIN);
+                name("Track Chessboard with main camera");
+            } else
+            {   videoType(VT_SCND);
+                name("Track Chessboard with secondary camera");
+            }
         } else
-        if (SL::currentSceneID == C_sceneCalibrateMain ||
-            SL::currentSceneID == C_sceneCalibrateScnd)
-        {   if (SL::currentSceneID == C_sceneCalibrateMain)
-                 name("Calibrate Main Camera");
-            else name("Calibrate Face Camera");
-
-            if (_activeCalib.state() == CS_uncalibrated)
-               info(sv, "Tap on the screen to create a calibration photo: ");
+        if (SL::currentSceneID == C_sceneCalibrateMain)
+        {   videoType(VT_MAIN);
+            _activeCalib->clear();
+            name("Calibrate Main Camera");
+        } else
+        if (SL::currentSceneID == C_sceneCalibrateScnd)
+        {   videoType(VT_SCND);
+            _activeCalib->clear();
+            name("Calibrate Secondary Camera");
         }
 
         // Material
@@ -1998,7 +1998,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         cam1->name("camera node");
         cam1->translation(0,0,5);
         cam1->lookAt(0, 0, 0);
-        cam1->fov(_activeCalib.cameraFovDeg());
+        cam1->fov(_activeCalib->cameraFovDeg());
         scene->addChild(cam1);
 
         // Create a light source node
@@ -2007,16 +2007,18 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         light1->name("light node");
         scene->addChild(light1);
         
-        // Build mesh & node that will be tracked by the camera marker  
-        SLBox* box = new SLBox(0.0f, 0.0f, 0.0f, e3, e3, e3, "Box", yellow);
-        SLNode* boxNode = new SLNode(box, "Box Node");
-        boxNode->setDrawBitsRec(SL_DB_CULLOFF, true);
-        SLNode* axisNode = new SLNode(new SLCoordAxis(),"Axis Node");
-        axisNode->setDrawBitsRec(SL_DB_WIREMESH, false);
-        axisNode->scale(e3);
-        boxNode->addChild(axisNode);
-
-        scene->addChild(boxNode);
+        // Build mesh & node
+        if (SL::currentSceneID == C_sceneTrackChessMain ||
+            SL::currentSceneID == C_sceneTrackChessScnd)
+        {   SLBox *box = new SLBox(0.0f, 0.0f, 0.0f, e3, e3, e3, "Box", yellow);
+            SLNode *boxNode = new SLNode(box, "Box Node");
+            boxNode->setDrawBitsRec(SL_DB_CULLOFF, true);
+            SLNode *axisNode = new SLNode(new SLCoordAxis(), "Axis Node");
+            axisNode->setDrawBitsRec(SL_DB_WIREMESH, false);
+            axisNode->scale(e3);
+            boxNode->addChild(axisNode);
+            scene->addChild(boxNode);
+        }
 
         // Create OpenCV Tracker for the box node
         _trackers.push_back(new SLCVTrackerChessboard(cam1));
@@ -2032,12 +2034,19 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         sv->waitEvents(false);
     }
     else
-    if (SL::currentSceneID == C_sceneTrackAruco) //.....................................
+    if (SL::currentSceneID == C_sceneTrackArucoMain ||
+        SL::currentSceneID == C_sceneTrackArucoScnd) //.................................
     {
-        // Set scene name and info string
-        name("AR Aruco Marker Tracking");
-        info(sv, "Hold Aruco Marker 0 and/or 1 into the field of view of the camera.");
-        
+        if (SL::currentSceneID == C_sceneTrackArucoMain)
+        {   videoType(VT_MAIN);
+            name("Track Aruco Marker on main camera");
+            info(sv, "Hold Aruco Marker 0 and/or 1 into the field of view of the secondary camera.");
+        } else
+        {   videoType(VT_SCND);
+            name("Track Aruco Marker on secondary camera");
+            info(sv, "Hold Aruco Marker 0 and/or 1 into the field of view of the secondary camera.");
+        }
+
         // Material
         SLMaterial* yellow = new SLMaterial("mY", SLCol4f(1,1,0,0.5f));
         SLMaterial* cyan   = new SLMaterial("mY", SLCol4f(0,1,1,0.5f));
@@ -2050,7 +2059,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         cam1->name("camera node");
         cam1->translation(0,0,5);
         cam1->lookAt(0, 0, 0);
-        cam1->fov(_activeCalib.cameraFovDeg());
+        cam1->fov(_activeCalib->cameraFovDeg());
         scene->addChild(cam1);
 
         // Create a light source node
@@ -2090,7 +2099,6 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         
         // Set backround texture to the video texture and use it
         _background.texture(&_videoTexture, true);
-        videoType(VT_MAIN);
         
         // pass the scene group as root node
         _root3D = scene;
@@ -2102,7 +2110,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         sv->waitEvents(false);
     }
     else
-    if (SL::currentSceneID == C_sceneTrackFeatures2D) //................................
+    if (SL::currentSceneID == C_sceneTrackFeat2DMain) //................................
     {
         name("Track or Create 2D-Feature Marker");
 
@@ -2118,7 +2126,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         SLMaterial* yellow = new SLMaterial("mY", SLCol4f::YELLOW);
 
         // Get the edge length of a chessboard
-        SLfloat e1 = _activeCalib.boardSquareM();
+        SLfloat e1 = _activeCalib->boardSquareM();
         SLfloat e3 = e1 * 3.0f;
         SLfloat e9 = e3 * 3.0f;
 
@@ -2130,7 +2138,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         cam1->name("camera node");
         cam1->translation(0,0,5);
         cam1->lookAt(0, 0, 0);
-        cam1->fov(_activeCalib.cameraFovDeg());
+        cam1->fov(_activeCalib->cameraFovDeg());
         scene->addChild(cam1);
 
         // Create a light source node

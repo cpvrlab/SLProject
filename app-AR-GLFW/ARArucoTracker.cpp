@@ -1,9 +1,9 @@
 //#############################################################################
 //  File:      ARTracker.cpp
-//  Author:    Michael Göttlicher
+//  Author:    Michael G?ttlicher
 //  Date:      Spring 2016
 //  Codestyle: https://github.com/cpvrlab/SLProject/wiki/Coding-Style-Guidelines
-//  Copyright: Marcus Hudritsch, Michael Göttlicher
+//  Copyright: Marcus Hudritsch, Michael G?ttlicher
 //             This software is provide under the GNU General Public License
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
@@ -28,19 +28,19 @@ bool ARArucoTracker::init()
     return _params.loadFromFile();
 }
 //-----------------------------------------------------------------------------
-bool ARArucoTracker::track(cv::Mat image, 
-                           SLCVCalibration& calib)
+bool ARArucoTracker::track(cv::Mat image,
+                           SLCVCalibration* calib)
 {
     vector<int> ids;
     vector<vector<Point2f>> corners, rejected;
     vector<Vec3d> rvecs, tvecs;
-    
-    //clear detected oject view matrices from last frame
-    _arucoOVMs.clear(); 
 
-    if(!image.empty() && 
-       !calib.cameraMat().empty() && 
-       !_params.arucoParams.empty() && 
+    //clear detected oject view matrices from last frame
+    _arucoOVMs.clear();
+
+    if(!image.empty() &&
+       !calib->cameraMat().empty() &&
+       !_params.arucoParams.empty() &&
        !_params.dictionary.empty())
     {
         aruco::detectMarkers(image, _params.dictionary, corners, ids, _params.arucoParams, rejected);
@@ -49,10 +49,10 @@ bool ARArucoTracker::track(cv::Mat image,
         {
             cout << "Aruco IdS: " << ids.size() << " : ";
 
-            aruco::estimatePoseSingleMarkers(corners, 
-                                             _params.edgeLength, 
-                                             calib.cameraMat(), 
-                                             calib.distortion(), 
+            aruco::estimatePoseSingleMarkers(corners,
+                                             _params.edgeLength,
+                                             calib->cameraMat(),
+                                             calib->distortion(),
                                              rvecs,
                                              tvecs);
 
@@ -104,10 +104,10 @@ w    w     c
  T  = T  *  T   = Transformation of object with respect to world
   o    c     o    coordinate system (object matrix)
 */
-static void calcObjectMatrix(const SLMat4f& cameraObjectMat, 
-                             const SLMat4f& objectViewMat, 
+static void calcObjectMatrix(const SLMat4f& cameraObjectMat,
+                             const SLMat4f& objectViewMat,
                              SLMat4f& objectMat)
-{   
+{
     // new object matrix = camera object matrix * object-view matrix
     objectMat = cameraObjectMat * objectViewMat;
 }
@@ -157,12 +157,12 @@ void ARArucoTracker::updateSceneView(ARSceneView* sv)
             stringstream ss; ss << "Box" << key;
             SLNode* box = new SLNode(ss.str());
 
-            box->addMesh(new SLBox(-_params.edgeLength/2, 
-                                    -_params.edgeLength/2, 
-                                    0.0f, 
-                                    _params.edgeLength/2, 
-                                    _params.edgeLength/2, 
-                                    _params.edgeLength, 
+            box->addMesh(new SLBox(-_params.edgeLength/2,
+                                    -_params.edgeLength/2,
+                                    0.0f,
+                                    _params.edgeLength/2,
+                                    _params.edgeLength/2,
+                                    _params.edgeLength,
                                     "Box", rMat));
 
             //set object transformation matrix
@@ -216,12 +216,12 @@ void ARArucoTracker::unloadSGObjects()
 //-----------------------------------------------------------------------------
 void ARArucoTracker::drawArucoMarkerBoard(int dictionaryId,
                                           int numMarkersX,
-                                          int numMarkersY, 
-                                          int markerEdgePX, 
+                                          int numMarkersY,
+                                          int markerEdgePX,
                                           int markerSepaPX,
-                                          string imgName, 
-                                          bool showImage, 
-                                          int borderBits, 
+                                          string imgName,
+                                          bool showImage,
+                                          int borderBits,
                                           int marginsSize)
 {
     if(marginsSize == 0)
@@ -234,17 +234,17 @@ void ARArucoTracker::drawArucoMarkerBoard(int dictionaryId,
     Ptr<aruco::Dictionary> dictionary =
         aruco::getPredefinedDictionary(aruco::PREDEFINED_DICTIONARY_NAME(dictionaryId));
 
-    Ptr<aruco::GridBoard> board = aruco::GridBoard::create(numMarkersX, 
-                                                           numMarkersY, 
+    Ptr<aruco::GridBoard> board = aruco::GridBoard::create(numMarkersX,
+                                                           numMarkersY,
                                                            float(markerEdgePX),
-                                                           float(markerSepaPX), 
+                                                           float(markerSepaPX),
                                                            dictionary);
 
     // show created board
     Mat boardImage;
     board->draw(imageSize, boardImage, marginsSize, borderBits);
 
-    if(showImage) 
+    if(showImage)
     {   imshow("board", boardImage);
         waitKey(0);
     }
@@ -272,10 +272,10 @@ void ARArucoTracker::drawArucoMarker(int dictionaryId,
     for (int i=minMarkerId; i<maxMarkerId; ++i)
     {   drawMarker(dict, i, markerSizePX, markerImg, 1);
         char name[255];
-        sprintf(name, 
-                "ArucoMarker_Dict%d_%dpx_Id%d.png", 
-                dictionaryId, 
-                markerSizePX, 
+        sprintf(name,
+                "ArucoMarker_Dict%d_%dpx_Id%d.png",
+                dictionaryId,
+                markerSizePX,
                 i);
 
         imwrite(name, markerImg);

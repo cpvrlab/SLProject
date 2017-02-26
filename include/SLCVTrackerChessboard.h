@@ -35,7 +35,7 @@ class SLCVTrackerChessboard : public SLCVTracker
                 SLCVTrackerChessboard   (SLNode* node);
                ~SLCVTrackerChessboard   () {;}
         bool    track                   (SLCVMat imageGray,
-                                         SLCVCalibration& calib,
+                                         SLCVCalibration* calib,
                                          SLSceneView* sv);
     private:
         SLfloat         _edgeLengthM;   //<! Length of chessboard square in meters

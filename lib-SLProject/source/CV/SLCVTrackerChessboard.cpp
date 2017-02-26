@@ -1,9 +1,9 @@
 //#############################################################################
 //  File:      SLCVTrackerChessboard.cpp
-//  Author:    Michael Göttlicher, Marcus Hudritsch
+//  Author:    Michael Gï¿½ttlicher, Marcus Hudritsch
 //  Date:      Winter 2016
 //  Codestyle: https://github.com/cpvrlab/SLProject/wiki/Coding-Style-Guidelines
-//  Copyright: Marcus Hudritsch, Michael Göttlicher
+//  Copyright: Marcus Hudritsch, Michael Gï¿½ttlicher
 //             This software is provide under the GNU General Public License
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
@@ -24,20 +24,20 @@ using namespace cv;
 //-----------------------------------------------------------------------------
 SLCVTrackerChessboard::SLCVTrackerChessboard(SLNode* node) : SLCVTracker(node)
 {
-    SLCVCalibration& calib = SLScene::current->activeCalib();
-    SLCVCalibration::calcBoardCorners3D(calib.boardSize(),
-                                        calib.boardSquareM(),
+    SLCVCalibration* calib = SLScene::current->activeCalib();
+    SLCVCalibration::calcBoardCorners3D(calib->boardSize(),
+                                        calib->boardSquareM(),
                                         _boardPoints3D);
     _solved = false;
 }
 //-----------------------------------------------------------------------------
 //! Tracks the chessboard image in the given image for the first sceneview
 bool SLCVTrackerChessboard::track(SLCVMat imageGray,
-                                  SLCVCalibration& calib,
+                                  SLCVCalibration* calib,
                                   SLSceneView* sv)
 {
     assert(!imageGray.empty() && "Image is empty");
-    assert(!calib.cameraMat().empty() && "Calibration is empty");
+    assert(!calib->cameraMat().empty() && "Calibration is empty");
     assert(_node && "Node pointer is null");
     assert(sv && "No sceneview pointer passed");
     assert(sv->camera() && "No active camera in sceneview");
@@ -49,15 +49,15 @@ bool SLCVTrackerChessboard::track(SLCVMat imageGray,
 
     SLCVVPoint2f corners2D;
 
-    _isVisible = cv::findChessboardCorners(imageGray, calib.boardSize(), corners2D, flags);
+    _isVisible = cv::findChessboardCorners(imageGray, calib->boardSize(), corners2D, flags);
 
     if(_isVisible)
     {
         //find the camera extrinsic parameters (rVec & tVec)
         _solved = solvePnP(SLCVMat(_boardPoints3D),
                            SLCVMat(corners2D),
-                           calib.cameraMat(),
-                           calib.distortion(),
+                           calib->cameraMat(),
+                           calib->distortion(),
                            _rVec,
                            _tVec,
                            _solved,

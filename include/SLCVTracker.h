@@ -46,7 +46,7 @@ class SLCVTracker
         virtual     ~SLCVTracker    (){;}
 
         virtual SLbool track        (SLCVMat imageGray,
-                                     SLCVCalibration& calib,
+                                     SLCVCalibration* calib,
                                      SLSceneView* sv) = 0;
 
         SLMat4f     createGLMatrix  (const SLCVMat& tVec, 

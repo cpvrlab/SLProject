@@ -104,7 +104,8 @@ input image is too high we crop it on top and bottom, if it is too wide we
 crop it on the sides.
 \n
 2) Some cameras toward a face mirror the image and some do not. If a input
-image should be mirrord or not is stored in SLCVCalibration::_isMirrored.
+image should be mirrored or not is stored in SLCVCalibration::_isMirroredH
+(H for horizontal) and SLCVCalibration::_isMirroredV (V for vertical).
 \n
 3) Many of the further processing steps are faster done on grayscale images.
 We therefore create a copy that is grayscale converted.
@@ -141,14 +142,23 @@ void SLCVCapture::adjustForSL()
         //imwrite("AfterCropping.bmp", lastFrame);
     }
 
-    //////////////////////////
-    // 2) Horizontal mirror //
-    //////////////////////////
+    //////////////////
+    // 2) Mirroring //
+    //////////////////
 
-    if (SLScene::current->activeCalib().isMirrored())
-    {   SLCVMat horizontalMirrored;
-        cv::flip(SLCVCapture::lastFrame, horizontalMirrored, 1);
-        SLCVCapture::lastFrame = horizontalMirrored;
+    if (SLScene::current->activeCalib()->isMirroredH())
+    {   SLCVMat mirrored;
+        if (SLScene::current->activeCalib()->isMirroredV())
+             cv::flip(SLCVCapture::lastFrame, mirrored,-1);
+        else cv::flip(SLCVCapture::lastFrame, mirrored, 1);
+        SLCVCapture::lastFrame = mirrored;
+    } else
+    if (SLScene::current->activeCalib()->isMirroredV())
+    {   SLCVMat mirrored;
+        if (SLScene::current->activeCalib()->isMirroredH())
+             cv::flip(SLCVCapture::lastFrame, mirrored,-1);
+        else cv::flip(SLCVCapture::lastFrame, mirrored, 0);
+        SLCVCapture::lastFrame = mirrored;
     }
 
     /////////////////////////

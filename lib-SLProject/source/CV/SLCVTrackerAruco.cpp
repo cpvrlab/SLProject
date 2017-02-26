@@ -48,11 +48,11 @@ SLCVTrackerAruco::SLCVTrackerAruco(SLNode* node, SLint arucoID) :
 markers are used for different SLNode.
 */
 SLbool SLCVTrackerAruco::track(SLCVMat imageGray,
-                               SLCVCalibration& calib,
+                               SLCVCalibration* calib,
                                SLSceneView* sv)
 {
     assert(!imageGray.empty() && "Image is empty");
-    assert(!calib.cameraMat().empty() && "Calibration is empty");
+    assert(!calib->cameraMat().empty() && "Calibration is empty");
     assert(_node && "Node pointer is null");
     assert(sv && "No sceneview pointer passed");
     assert(sv->camera() && "No active camera in sceneview");
@@ -88,8 +88,8 @@ SLbool SLCVTrackerAruco::track(SLCVMat imageGray,
             SLCVVPoint3d rVecs, tVecs;
             aruco::estimatePoseSingleMarkers(corners, 
                                              params.edgeLength, 
-                                             calib.cameraMat(), 
-                                             calib.distortion(), 
+                                             calib->cameraMat(),
+                                             calib->distortion(),
                                              rVecs,
                                              tVecs);
 

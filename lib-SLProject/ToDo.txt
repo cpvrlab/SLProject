@@ -2,32 +2,5 @@
 //  To do for SLProject  //
 ///////////////////////////
 
-Next Steps:
-
-Prio 1:
-- mh: Check Scene Node Statistics
-- mh: Preferemces > Video > Show undistort
-- mh: Preferemces > Video > Show grayscale
-- mh: Programm bei Android Pause richtig beenden.
-- mh: Programm unter iOS richtig beenden.
-- mh: Secondary Camera on iOS implementiern
-- mh: Computergrafikskript anpassen an Version 2.0
-
-Prio 2:
-- Save scene as Collada dae file.
-- Fix multi SceneView problems in app-Viewer-Qt or shall we drop the Qt projects?
-- LongTouch Menu Öffnung fertig machen
-- Creating bump map material if files contain normal map materials
-- mh: Skybox würde mit wenig Aufwand Attraktivität erhöhen
-- mh: Im continuous RT haben gewisse AABB Aussetzer
-- Billboards
-- Implement RenderQueue and RenderPriorityGroups.
-- Edit & update transforms with decompose and compose transforms
-- Edit Shaderprogs by choosing alternative progs from a dropdown list
-- Integrate RackNet into lib-SLExternal
-- Solve recursive OpenGL repaints during RT and loading screens
-
-Prio 3:
-- Path Tracer fixen.
-- 3DConnexion integrieren
-- Console Log window
+All todo issues are listed in:
+https://github.com/cpvrlab/SLProject/issues

@@ -59,7 +59,7 @@ As examples you can see it in:
   - app-Demo-Android: Java_ch_fhnw_comgRT_glES2Lib_onInit()
   - app-Demo-iOS: ViewController.m in method viewDidLoad()
 */
-SLScene::SLScene(SLstring name) : SLObject(name), _activeCalib(_calibMainCam)
+SLScene::SLScene(SLstring name) : SLObject(name)
 {  
     current = this;
 
@@ -75,9 +75,11 @@ SLScene::SLScene(SLstring name) : SLObject(name), _activeCalib(_calibMainCam)
     _btnHelp        = nullptr;
     _btnAbout       = nullptr;
     _btnCredits     = nullptr;
-    _btnCalibration     = nullptr;
+    _btnCalibration = nullptr;
     _selectedMesh   = nullptr;
     _selectedNode   = nullptr;
+    _activeCalib    = nullptr;
+
     _stopAnimations = false;
 
     _fps = 0;
@@ -113,16 +115,16 @@ SLScene::SLScene(SLstring name) : SLObject(name), _activeCalib(_calibMainCam)
 
     // load opencv camera calibration for main and secondary camera
     #if defined(SL_USES_CVCAPTURE) || defined(SL_OS_MACIOS)
-    _calibMainCam.load("cam_calibration_main.xml", true);
+    _calibMainCam.load("cam_calibration_main.xml", true, false);
     _calibMainCam.loadCalibParams();
-    _activeCalib = _calibMainCam;
+    _activeCalib = &_calibMainCam;
     SLCVCapture::hasSecondaryCamera = false;
     #else
-    _calibMainCam.load("cam_calibration_main.xml", false);
+    _calibMainCam.load("cam_calibration_main.xml", false, false);
     _calibMainCam.loadCalibParams();
-    _calibScndCam.load("cam_calibration_scnd.xml", true);
+    _calibScndCam.load("cam_calibration_scnd.xml", true, false);
     _calibScndCam.loadCalibParams();
-    _activeCalib = _calibMainCam;
+    _activeCalib = &_calibMainCam;
     SLCVCapture::hasSecondaryCamera = true;
     #endif
 
@@ -180,6 +182,14 @@ SLScene::~SLScene()
 {
     // Save configuration befor destruction
     SL::saveConfig(_sceneViews[0]);
+
+    // load opencv camera calibration for main and secondary camera
+    #if defined(SL_USES_CVCAPTURE) || defined(SL_OS_MACIOS)
+    _calibMainCam.save();
+    #else
+    _calibMainCam.save();
+    _calibScndCam.save();
+    #endif
 
     // Delete all remaining sceneviews
     for (auto sv : _sceneViews)
@@ -415,36 +425,36 @@ bool SLScene::onUpdate()
         SLfloat trackingTimeStartMS = timeMilliSec();
 
         // Invalidate calibration if camera input aspect doesn't match output
-        SLfloat calibWdivH = _activeCalib.imageAspectRatio();
+        SLfloat calibWdivH = _activeCalib->imageAspectRatio();
         SLbool aspectRatioDoesNotMatch = SL_abs(_sceneViews[0]->scrWdivH() - calibWdivH) > 0.01f;
-        if (aspectRatioDoesNotMatch && _activeCalib.state() == CS_calibrated)
-        {   _activeCalib.clear();
+        if (aspectRatioDoesNotMatch && _activeCalib->state() == CS_calibrated)
+        {   _activeCalib->clear();
         }
 
         stringstream ss; // info line text
 
         //.....................................................................
-        if (_activeCalib.state() == CS_uncalibrated)
+        if (_activeCalib->state() == CS_uncalibrated)
         {
             if (SL::currentSceneID == C_sceneCalibrateMain ||
                 SL::currentSceneID == C_sceneCalibrateScnd)
             {   menu2D(btnCalibration());
-                _activeCalib.state(CS_calibrateStream);
+                _activeCalib->state(CS_calibrateStream);
             } else
-            {   // Changes the state to CS_estimated
-                _activeCalib.estimate(SLCVCapture::lastFrame.cols,
-                                      SLCVCapture::lastFrame.rows);
-                _sceneViews[0]->camera()->fov(_activeCalib.cameraFovDeg());
+            {   // Changes the state to CS_guessed
+                _activeCalib->createFromGuessedFOV(SLCVCapture::lastFrame.cols,
+                                                   SLCVCapture::lastFrame.rows);
+                _sceneViews[0]->camera()->fov(_activeCalib->cameraFovDeg());
             }
         } else //..............................................................
-        if (_activeCalib.state() == CS_calibrateStream ||
-            _activeCalib.state() == CS_calibrateGrab)
+        if (_activeCalib->state() == CS_calibrateStream ||
+            _activeCalib->state() == CS_calibrateGrab)
         {
-            _activeCalib.findChessboard(SLCVCapture::lastFrame,
-                                        SLCVCapture::lastFrameGray,
-                                        true);
-            int imgsToCap = _activeCalib.numImgsToCapture();
-            int imgsCaped = _activeCalib.numCapturedImgs();
+            _activeCalib->findChessboard(SLCVCapture::lastFrame,
+                                         SLCVCapture::lastFrameGray,
+                                         true);
+            int imgsToCap = _activeCalib->numImgsToCapture();
+            int imgsCaped = _activeCalib->numCapturedImgs();
 
             //update info line
             if(imgsCaped < imgsToCap)
@@ -452,20 +462,21 @@ bool SLScene::onUpdate()
                    << imgsCaped << " of " << imgsToCap;
             else
             {   ss << "Calculating, please wait ...";
-                _activeCalib.state(CS_startCalculating);
+                _activeCalib->state(CS_startCalculating);
             }
             info(_sceneViews[0], ss.str());
         } else //..............................................................
-        if (_activeCalib.state() == CS_startCalculating)
+        if (_activeCalib->state() == CS_startCalculating)
         {
-            if (_activeCalib.calculate())
-            {   _sceneViews[0]->camera()->fov(_activeCalib.cameraFovDeg());
-                onLoad(_sceneViews[0], C_sceneTrackChessboard);
+            if (_activeCalib->calculate())
+            {   _sceneViews[0]->camera()->fov(_activeCalib->cameraFovDeg());
+                if (SL::currentSceneID == C_sceneCalibrateMain)
+                     onLoad(_sceneViews[0], C_sceneTrackChessMain);
+                else onLoad(_sceneViews[0], C_sceneTrackChessScnd);
             }
-
         } else
-        if (_activeCalib.state() == CS_calibrated ||
-            _activeCalib.state() == CS_estimated)
+        if (_activeCalib->state() == CS_calibrated ||
+            _activeCalib->state() == CS_guessed) //............................
         {
             SLCVTrackerAruco::trackAllOnce = true;
         
@@ -475,14 +486,20 @@ bool SLScene::onUpdate()
                                _activeCalib,
                                _sceneViews[0]);
 
-            if (_activeCalib.state() == CS_calibrated)
-            {   ss << "Camera calibration: fov: " << _activeCalib.cameraFovDeg() <<
-                      ", error: " << _activeCalib.reprojectionError();
-            } else 
-            {   ss << "The camera is not calibrated. A FOV is estimated of: " <<
-                _activeCalib.cameraFovDeg() << " degrees.";
+            // Update info text only for chessboard scene
+            if (SL::currentSceneID == C_sceneCalibrateMain ||
+                SL::currentSceneID == C_sceneCalibrateScnd ||
+                SL::currentSceneID == C_sceneTrackChessMain ||
+                SL::currentSceneID == C_sceneTrackChessScnd)
+            {
+                SLfloat fov = _activeCalib->cameraFovDeg();
+                SLfloat err = _activeCalib->reprojectionError();
+                ss << "Tracking " << (_videoType==VT_MAIN ? "main " : "scnd. ") << "camera. ";
+                if (_activeCalib->state() == CS_calibrated)
+                     ss << "FOV: " << fov << ", error: " << err;
+                else ss << "Camera is not calibrated. A FOV is guessed of: " << fov << " degrees.";
+                info(_sceneViews[0], ss.str());
             }
-            info(_sceneViews[0], ss.str());
         } //...................................................................
 
         //copy image to video texture
@@ -710,7 +727,7 @@ void SLScene::videoType(SLVideoType vt)
 {
     if (SLCVCapture::hasSecondaryCamera && vt==VT_SCND)
     {   _videoType = VT_SCND;
-        _activeCalib = _calibScndCam;
+        _activeCalib = &_calibScndCam;
         return;
     }
 
@@ -718,6 +735,6 @@ void SLScene::videoType(SLVideoType vt)
          _videoType = VT_MAIN;
     else _videoType = vt;
 
-    _activeCalib = _calibMainCam;
+    _activeCalib = &_calibMainCam;
 }
 //-----------------------------------------------------------------------------

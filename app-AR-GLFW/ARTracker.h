@@ -32,7 +32,7 @@ class ARTracker
         //new functions
         virtual bool init           () = 0;
         virtual bool track          (cv::Mat image, 
-                                     SLCVCalibration& calib) = 0;
+                                     SLCVCalibration* calib) = 0;
         virtual void updateSceneView(ARSceneView* sv) = 0;
         virtual void unloadSGObjects() = 0;
 
