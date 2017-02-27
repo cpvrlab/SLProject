@@ -149,28 +149,23 @@ Credits for external libraries: \\n\
 - glfw: www.glfw.org \\n\
 - OpenCV: opencv.org \\n\
 - OpenGL: opengl.org \\n\
-- Qt: www.qt-project.org"
-;
+- Qt: www.qt-project.org";
 
     _infoHelp =
 "Help for mouse or finger control: \\n\
 - Use mouse or your finger to rotate the scene \\n\
 - Use mouse-wheel or pinch 2 fingers to go forward/backward \\n\
 - Use CTRL-mouse or 2 fingers to move sidewards/up-down \\n\
-- Double click or double tap to select object \\n\
-- Screenshot: Use a screenshot tool,\\n\
-on iOS: Quick hold down home & power button, \\n\
-on Android: Quick hold down back & home button \\n\
-on desktop: Use a screenshot tool";
+- Double click or double tap to select object";
 
     _infoCalibrate =
 "The calibration process requires a chessboard image to be printed \\n\
 and glued on a flat board. You can find the PDF with the chessboard image on: \\n\
-https://github.com/cpvrlab/SLProject_data/tree/master/ \\n\
-calibrations/CalibrationChessboard_8x5_A4.pdf \\n\\n\
-For a calibration you have to take 20 images with detected inner \\n\
-chessboard corners. To take an image you have to click with the mouse \\n\
-or tap with finger into the screen. \\n\
+https://github.com/cpvrlab/SLProject/tree/master/_data/calibrations/ \\n\\n\
+For a calibration you have to take 20 images with detected inner \
+chessboard corners. To take an image you have to click with the mouse \
+or tap with finger into the screen. You can mirror the video image under \
+Preferences > Video. \\n\
 After calibration the yellow wireframe cube should stick on the chessboard.";
 
 }

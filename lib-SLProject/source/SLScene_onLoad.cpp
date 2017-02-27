@@ -1959,7 +1959,17 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         SL::currentSceneID == C_sceneCalibrateMain ||
         SL::currentSceneID == C_sceneCalibrateScnd) //..................................
     {
-        // All calibration state changes are done in SLScene::onUpdate.
+        /*
+        The tracking of markers is done in SLScene::onUpdate by calling the specific
+        SLCVTracker::track method. If a marker was found it overwrites the linked nodes
+        object matrix (SLNode::_om). If the linked node is the active camera the found
+        transform is additionally inversed. This would be the standard augmented realtiy
+        use case.
+        The chessboard marker used in these scenes is also used for the camera
+        calibration. The different calibration state changes are also handled in
+        SLScene::onUpdate.
+        */
+
         // Setup here only the requested scene.
         if (SL::currentSceneID == C_sceneTrackChessMain ||
             SL::currentSceneID == C_sceneTrackChessScnd)
@@ -2037,6 +2047,14 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
     if (SL::currentSceneID == C_sceneTrackArucoMain ||
         SL::currentSceneID == C_sceneTrackArucoScnd) //.................................
     {
+        /*
+        The tracking of markers is done in SLScene::onUpdate by calling the specific
+        SLCVTracker::track method. If a marker was found it overwrites the linked nodes
+        object matrix (SLNode::_om). If the linked node is the active camera the found
+        transform is additionally inversed. This would be the standard augmented realtiy
+        use case.
+        */
+
         if (SL::currentSceneID == C_sceneTrackArucoMain)
         {   videoType(VT_MAIN);
             name("Track Aruco Marker on main camera");
@@ -2112,6 +2130,14 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
     else
     if (SL::currentSceneID == C_sceneTrackFeat2DMain) //................................
     {
+        /*
+        The tracking of markers is done in SLScene::onUpdate by calling the specific
+        SLCVTracker::track method. If a marker was found it overwrites the linked nodes
+        object matrix (SLNode::_om). If the linked node is the active camera the found
+        transform is additionally inversed. This would be the standard augmented realtiy
+        use case.
+        */
+
         name("Track or Create 2D-Feature Marker");
 
         //if (_calibration.state() == CS_calibrated)
@@ -2570,7 +2596,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         sv->waitEvents(false);
     }
 
-    // call onInitialize on all scene views
+    // call onInitialize on all scene views to initialize the scenegraph and stats
     for (auto sv : _sceneViews)
     {   if (sv != nullptr)
         {   sv->onInitialize();

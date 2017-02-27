@@ -88,7 +88,6 @@ class SLCamera: public SLNode
                                                                   currentAnimation = ca;}
             void            clipNear        (const SLfloat cNear){_clipNear = cNear;}
             void            clipFar         (const SLfloat cFar) {_clipFar = cFar;}
-            void            numRendered     (const SLuint numR)  {_numRendered = numR;}
             void            maxSpeed        (const SLfloat ms)   {_maxSpeed = ms;}
             void            moveAccel       (const SLfloat accel){_moveAccel = accel;}
             void            brakeAccel      (const SLfloat accel){_brakeAccel = accel;}
@@ -112,7 +111,6 @@ class SLCamera: public SLNode
             SLfloat         clipFar         () const {return _clipFar;}
             SLCamAnim       camAnim         () const {return _camAnim;}
             SLstring        animationStr    () const;
-            SLuint          numRendered     () const {return _numRendered;}
             SLfloat         focalDist       () const {return _focalDist;} 
             SLfloat         lensDiameter    () const {return _lensDiameter;}
             SLSamples2D*    lensSamples     () {return &_lensSamples;} 
@@ -146,7 +144,6 @@ class SLCamera: public SLNode
             SLfloat         _clipNear;          //!< Dist. to the near clipping plane
             SLfloat         _clipFar;           //!< Dist. to the far clipping plane
             SLPlane         _plane[6];          //!< 6 frustum planes (t, b, l, r, n, f)
-            SLuint          _numRendered;       //!< num. of shapes in frustum
             enum {T=0,B,L,R,N,F};               //!< enumeration for frustum planes
 
             SLGLVertexArrayExt _vao;            //!< OpenGL Vertex array for rendering

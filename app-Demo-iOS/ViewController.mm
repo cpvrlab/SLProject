@@ -147,6 +147,8 @@ float GetSeconds()
 //-----------------------------------------------------------------------------
 - (void)viewDidUnload
 {
+    printf("viewDidUnload\n");
+    
     [super viewDidUnload];
    
     slTerminate();
@@ -155,7 +157,7 @@ float GetSeconds()
     {   [EAGLContext setCurrentContext:nil];
     }
     self.context = nil;
-}   
+}
 //-----------------------------------------------------------------------------
 - (void)didReceiveMemoryWarning
 {
@@ -191,6 +193,11 @@ float GetSeconds()
     
     slUpdateAndPaint(svIndex);
     m_lastVideoImageIsConsumed = true;
+    
+    if (slShouldClose())
+    {   slTerminate();
+        exit(0);
+    }
 }
 //-----------------------------------------------------------------------------
 // touchesBegan receives the finger thouch down events

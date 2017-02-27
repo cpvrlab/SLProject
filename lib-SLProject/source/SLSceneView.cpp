@@ -109,7 +109,7 @@ void SLSceneView::init(SLstring name,
     _usesRotation = false;
     _drawBits.allOff();
        
-    _stats.clear();
+    _stats3D.clear();
     _showMenu = true;
     _showStatsTiming = false;
     _showStatsRenderer = false;
@@ -303,11 +303,12 @@ void SLSceneView::onInitialize()
                    (SLfloat)(clock()-t)/(SLfloat)CLOCKS_PER_SEC);
         
         // Collect node statistics
-        _stats.clear();
-        s->root3D()->statsRec(_stats);
-        if (s->menuGL()) s->menuGL()->statsRec(_stats);
-        if (s->menuRT()) s->menuRT()->statsRec(_stats);
-        if (s->menuPT()) s->menuPT()->statsRec(_stats);
+        _stats3D.clear();
+        _stats2D.clear();
+        s->root3D()->statsRec(_stats3D);
+        if (s->menuGL()) s->menuGL()->statsRec(_stats2D);
+        if (s->menuRT()) s->menuRT()->statsRec(_stats2D);
+        if (s->menuPT()) s->menuPT()->statsRec(_stats2D);
 
         // Warn if there are no light in scene
         if (s->lights().size() == 0)
@@ -494,6 +495,7 @@ SLbool SLSceneView::draw3DGL(SLfloat elapsedTimeMS)
     //////////////////////////////
     // 3. Set Projection & View //
     //////////////////////////////
+
     // Set projection and viewport
     if (_camera->projection() > P_monoOrthographic)
          _camera->setProjection(this, ET_left);
@@ -1945,12 +1947,13 @@ void SLSceneView::build2DInfoGL()
     if (_showStatsScene)
     {
         // Calculate voxel contents
-        SLfloat vox = (SLfloat)_stats.numVoxels;
-        SLfloat voxEmpty = (SLfloat)_stats.numVoxEmpty;
+        SLfloat vox = (SLfloat)_stats3D.numVoxels;
+        SLfloat voxEmpty = (SLfloat)_stats3D.numVoxEmpty;
         SLfloat voxelsEmpty  = vox ? voxEmpty / vox*100.0f : 0.0f;
-        SLfloat numRTTria = (SLfloat)_stats.numTriangles;
+        SLfloat numRTTria = (SLfloat)_stats3D.numTriangles;
         SLfloat avgTriPerVox = vox ? numRTTria / (vox-voxEmpty) : 0.0f;
-        SLint numRenderedPC = (SLint)((SLfloat)cam->numRendered()/(SLfloat)_stats.numLeafNodes * 100.0f);
+        SLint opaqueAndBlendedNodes = _visibleNodes.size() + _blendNodes.size();
+        SLint numRenderedPC = (SLint)((SLfloat)opaqueAndBlendedNodes/(SLfloat)_stats3D.numNodes * 100.0f);
 
         // Calculate total size of texture bytes on CPU
         SLuint cpuTexMemoryBytes = 0;
@@ -1960,29 +1963,37 @@ void SLSceneView::build2DInfoGL()
 
         sprintf(m+strlen(m), "Memory -------------------------------------\\n");
         sprintf(m+strlen(m), "Scene Name: %s\\n", s->name().c_str());
-        sprintf(m+strlen(m), "No. of Group/Leaf/Light-Nodes: %d / %d / %d\\n",
-                              _stats.numGroupNodes,
-                              _stats.numLeafNodes,
-                              _stats.numLights);
+        sprintf(m+strlen(m), "No. of Nodes: %d\\n",
+                              _stats3D.numNodes);
+        sprintf(m+strlen(m), "No. of Group / Leaf / Light Nodes: %d / %d / %d\\n",
+                              _stats3D.numGroupNodes,
+                              _stats3D.numLeafNodes,
+                              _stats3D.numLights);
+        sprintf(m+strlen(m), "No. of Opaque /Blended / Visible Nodes: %d / %d / %d\\n", 
+                              _visibleNodes.size(), 
+                              _blendNodes.size(), 
+                              opaqueAndBlendedNodes);
+        sprintf(m+strlen(m), "No. of Visible Nodes: %d (%d%%)\\n", 
+                              opaqueAndBlendedNodes, 
+                              numRenderedPC);
         sprintf(m+strlen(m), "No. of Meshes/Triangles: %u / %u\\n",
-                              _stats.numMeshes,
-                              _stats.numTriangles);
-        sprintf(m+strlen(m), "Nodes in Frustum: %d (%d%%)\\n", cam->numRendered(), numRenderedPC);
+                              _stats3D.numMeshes,
+                              _stats3D.numTriangles);
         sprintf(m+strlen(m), "CPU MB in Tex/Mesh/Voxel/Total: %3.2f / %3.2f / %3.2f / %3.2f\\n",
                               (SLfloat)cpuTexMemoryBytes / 1E6f,
-                              (SLfloat)_stats.numBytes / 1E6f,
-                              (SLfloat)_stats.numBytesAccel / 1E6f,
-                              (SLfloat)(cpuTexMemoryBytes + _stats.numBytes + _stats.numBytesAccel) / 1E6f);
+                              (SLfloat)_stats3D.numBytes / 1E6f,
+                              (SLfloat)_stats3D.numBytesAccel / 1E6f,
+                              (SLfloat)(cpuTexMemoryBytes + _stats3D.numBytes + _stats3D.numBytesAccel) / 1E6f);
         sprintf(m+strlen(m), "GPU MB in Tex/VBO/Total: %4.2f / %4.2f / %4.2f\\n",
                              (SLfloat)SLGLTexture::numBytesInTextures / 1E6f,
                              (SLfloat)SLGLVertexBuffer::totalBufferSize / 1E6f,
                              (SLfloat)(SLGLVertexBuffer::totalBufferSize + SLGLTexture::numBytesInTextures) / 1E6f);
         sprintf(m+strlen(m), "No. of Voxels/empty: %d / %4.1f%%\\n",
-                             _stats.numVoxels,
+                             _stats3D.numVoxels,
                              voxelsEmpty);
         sprintf(m+strlen(m), "Avg. & Max. Tria/Voxel: %4.1f / %d\\n",
                              avgTriPerVox,
-                             _stats.numVoxMaxTria);
+                             _stats3D.numVoxMaxTria);
     }
 
     if (_showStatsVideo)
@@ -2029,14 +2040,15 @@ void SLSceneView::build2DInfoRT()
     SLRaytracer* rt = &_raytracer;
     SLint  primaries = _scrW * _scrH;
     SLuint total = primaries + SLRay::reflectedRays + SLRay::subsampledRays + SLRay::refractedRays + SLRay::shadowRays;
-    SLfloat vox = (SLfloat)_stats.numVoxels;
-    SLfloat voxEmpty = (SLfloat)_stats.numVoxEmpty;
+    SLfloat vox = (SLfloat)_stats3D.numVoxels;
+    SLfloat voxEmpty = (SLfloat)_stats3D.numVoxEmpty;
     SLfloat voxelsEmpty  = vox ? voxEmpty / vox*100.0f : 0.0f;
-    SLfloat numRTTria = (SLfloat)_stats.numTriangles;
+    SLfloat numRTTria = (SLfloat)_stats3D.numTriangles;
     SLfloat avgTriPerVox = vox ? numRTTria / (vox-voxEmpty) : 0.0f;
     SLfloat rpms = rt->renderSec() ? total/rt->renderSec()/1000.0f : 0.0f;
-    SLint numRenderedPC = (SLint)((SLfloat)cam->numRendered()/(SLfloat)_stats.numLeafNodes * 100.0f);
-   
+    SLint opaqueAndBlendedNodes = _visibleNodes.size() + _blendNodes.size();
+    SLint numRenderedPC = (SLint)((SLfloat)opaqueAndBlendedNodes/(SLfloat)_stats3D.numNodes * 100.0f);
+
     SLchar m[2550];   // message character array
     m[0]=0;           // set zero length
 
@@ -2099,29 +2111,29 @@ void SLSceneView::build2DInfoRT()
 
         sprintf(m+strlen(m), "Memory -------------------------------------\\n");
         sprintf(m+strlen(m), "Scene Name: %s\\n", s->name().c_str());
-        sprintf(m+strlen(m), "No. of Group/Leaf/Light-Nodes: %d / %d / %d\\n",
-                              _stats.numGroupNodes,
-                              _stats.numLeafNodes,
-                              _stats.numLights);
+        sprintf(m+strlen(m), "No. of Group / Leaf / Light Nodes: %d / %d / %d\\n",
+                              _stats3D.numGroupNodes,
+                              _stats3D.numLeafNodes,
+                              _stats3D.numLights);
         sprintf(m+strlen(m), "No. of Meshes/Triangles: %u / %u\\n",
-                              _stats.numMeshes,
-                              _stats.numTriangles);
-        sprintf(m+strlen(m), "Nodes in Frustum: %d (%d%%)\\n", cam->numRendered(), numRenderedPC);
+                              _stats3D.numMeshes,
+                              _stats3D.numTriangles);
+        sprintf(m+strlen(m), "Nodes in Frustum: %d (%d%%)\\n", opaqueAndBlendedNodes, numRenderedPC);
         sprintf(m+strlen(m), "CPU MB in Tex/Mesh/Voxel/Total: %3.2f / %3.2f / %3.2f / %3.2f\\n",
                               (SLfloat)cpuTexMemoryBytes / 1E6f,
-                              (SLfloat)_stats.numBytes / 1E6f,
-                              (SLfloat)_stats.numBytesAccel / 1E6f,
-                              (SLfloat)(cpuTexMemoryBytes + _stats.numBytes + _stats.numBytesAccel) / 1E6f);
+                              (SLfloat)_stats3D.numBytes / 1E6f,
+                              (SLfloat)_stats3D.numBytesAccel / 1E6f,
+                              (SLfloat)(cpuTexMemoryBytes + _stats3D.numBytes + _stats3D.numBytesAccel) / 1E6f);
         sprintf(m+strlen(m), "GPU MB in Tex/VBO/Total: %4.2f / %4.2f / %4.2f\\n",
                              (SLfloat)SLGLTexture::numBytesInTextures / 1E6f,
                              (SLfloat)SLGLVertexBuffer::totalBufferSize / 1E6f,
                              (SLfloat)(SLGLVertexBuffer::totalBufferSize + SLGLTexture::numBytesInTextures) / 1E6f);
         sprintf(m+strlen(m), "No. of Voxels/empty: %d / %4.1f%%\\n",
-                             _stats.numVoxels,
+                             _stats3D.numVoxels,
                              voxelsEmpty);
         sprintf(m+strlen(m), "Avg. & Max. Tria/Voxel: %4.1f / %d\\n",
                              avgTriPerVox,
-                             _stats.numVoxMaxTria);
+                             _stats3D.numVoxMaxTria);
     }
 
     SLTexFont* f = SLTexFont::getFont(1.2f, SL::dpi);
@@ -2239,13 +2251,14 @@ SLstring SLSceneView::windowTitle()
                 _pathtracer.pcRendered(), 
                 _pathtracer.numThreads());
     } else
-    {   SLuint nr = _camera->numRendered() ? _camera->numRendered() : _stats.numNodes;
+    {   
+        SLuint nr = _visibleNodes.size() + _blendNodes.size();
         if (s->fps() > 5)
             sprintf(title, "%s (fps: %4.0f, %u nodes of %u rendered)",
-                    s->name().c_str(), s->fps(), nr, _stats.numNodes);
+                    s->name().c_str(), s->fps(), nr, _stats3D.numNodes);
         else
             sprintf(title, "%s (fps: %4.1f, %u nodes of %u rendered)",
-                    s->name().c_str(), s->fps(), nr, _stats.numNodes);
+                    s->name().c_str(), s->fps(), nr, _stats3D.numNodes);
     }
     return SLstring(title);
 }

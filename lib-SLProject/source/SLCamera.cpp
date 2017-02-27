@@ -1020,7 +1020,6 @@ void SLCamera::setFrustumPlanes()
 				               A.m(10) + A.m(11), A.m(14) + A.m(15));
     _plane[F].setCoefficients(-A.m( 2) + A.m( 3),-A.m( 6) + A.m( 7),
 				              -A.m(10) + A.m(11),-A.m(14) + A.m(15));
-    _numRendered = 0;
 }
 //-----------------------------------------------------------------------------
 //! eyeToPixelRay returns the a ray from the eye to the center of a pixel.
@@ -1109,7 +1108,6 @@ SLbool SLCamera::isInFrustum(SLAABBox* aabb)
 	    }
     }
     aabb->isVisible(true);
-    _numRendered++;
 	
     // Calculate squared dist. from AABB's center to viewer for blend sorting.
     SLVec3f viewToCenter(_wm.translation()-aabb->centerWS());
