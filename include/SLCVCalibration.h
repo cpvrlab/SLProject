@@ -57,7 +57,8 @@ The SLScene instance has two video camera calibrations, one for a main camera
 (SLScene::_calibMainCam) and one for the selfie camera on mobile devices
 (SLScene::_calibScndCam). The member SLScene::_activeCalib references the active
 one and is set by the SLScene::videoType (VT_NONE, VT_MAIN, VT_SCND) during the
-scene assembly in SLScene::onLoad.
+scene assembly in SLScene::onLoad. On mobile devices the front camera is the
+selfie camera (our secondary) and the back camera is the our main camera.
 */
 class SLCVCalibration
 {
@@ -78,7 +79,11 @@ public:
     bool            findChessboard          (SLCVMat imageColor,
                                              SLCVMat imageGray,
                                              bool drawCorners = true);
-    void            createFromGuessedFOV    (SLint imageWidthPX, SLint imageHeightPX);
+    void            buildUndistortionMaps   ();
+    void            remap                   (SLCVMat &inDistorted,
+                                             SLCVMat &outUndistorted);
+    void            createFromGuessedFOV    (SLint imageWidthPX,
+                                             SLint imageHeightPX);
 
     static SLstring calibIniPath;           //!< calibration init parameters file path
     static void     calcBoardCorners3D      (SLCVSize boardSize,
@@ -142,8 +147,8 @@ private:
     SLCVMat         _distortion;            //!< 4x1 Matrix for intrinsic distortion
     ///////////////////////////////////////////////////////////////////////////////////
 
+    SLCVCalibState  _state;                 //!< calibration state enumeration
     SLfloat         _cameraFovDeg;          //!< Vertical field of view in degrees
-    SLCVCalibState  _state;                 //!< calibration state enumeration 
     SLstring        _calibFileName;         //!< name for calibration file
     SLstring        _calibParamsFileName;   //!< name of calibration paramters file
     SLint           _calibFlags;            //!< OpenCV calibration flags
@@ -160,6 +165,9 @@ private:
     SLCVVVPoint2f   _imagePoints;           //!< 2D vector of corner points in chessboard
     SLCVSize        _imageSize;             //!< Input image size in pixels
     SLbool          _showUndistorted;       //!< Flag if image should be undistorted
+    SLCVMat         _undistortMapX;         //!< Undistortion float map in x-direction 
+    SLCVMat         _undistortMapY;         //!< Undistortion float map in y-direction
+    SLCVMat         _cameraMatUndistorted;  //!< Camera matrix for undistorted image
     SLstring        _calibrationTime;       //!< Time stamp string of calibration
 
     static const SLint _CALIBFILEVERSION;   //!< Global const file format version

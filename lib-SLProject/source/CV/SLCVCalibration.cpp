@@ -19,6 +19,7 @@ See also the class docs for SLCVCapture, SLCVCalibration and SLCVTracker
 for a good top down information.
 */
 #include <SLCVCalibration.h>
+#include <SLCVCapture.h>
 
 using namespace cv;
 using namespace std;
@@ -56,6 +57,8 @@ void SLCVCalibration::clear()
     _imagePoints.clear();
     _cameraFovDeg = 1.0f;
     _calibrationTime = "-";
+    _undistortMapX.release();
+    _undistortMapY.release();
     _state = CS_uncalibrated;
 }
 //-----------------------------------------------------------------------------
@@ -120,9 +123,11 @@ bool SLCVCalibration::load(SLstring calibFileName,
     // close the input file
     fs.release();
 
-    //calculate projection matrix
+    //calculate FOV and undistortion maps
     if (_state == CS_calibrated)
-        _cameraFovDeg = calcCameraFOV();
+    {   _cameraFovDeg = calcCameraFOV();
+        buildUndistortionMaps();
+    }
 
     SL_LOG("Calib. loaded   : %s\n", fullPathAndFilename.c_str());
     SL_LOG("Calib. created  : %s\n", _calibrationTime.c_str());
@@ -428,15 +433,17 @@ bool SLCVCalibration::calculate()
                               _reprojectionError,
                               _boardSize,
                               _boardSquareMM,
-                              _calibFlags
-                              );
+                              _calibFlags);
 
     if(!rvecs.empty() || !reprojErrs.empty())
          _numCaptured = (int)std::max(rvecs.size(), reprojErrs.size());
     else _numCaptured = 0;
 
     if (ok)
-    {   _cameraFovDeg = calcCameraFOV();
+    {
+        buildUndistortionMaps();
+
+        _cameraFovDeg = calcCameraFOV();
         _calibrationTime = SLUtils::getLocalTimeString();
         _state = CS_calibrated;
         save();
@@ -447,10 +454,61 @@ bool SLCVCalibration::calculate()
     } else
     {   _cameraFovDeg = 1.0f;
         _calibrationTime = "-";
+        _undistortMapX.release();
+        _undistortMapY.release();
         _state = CS_uncalibrated;
         cout << "Calibration failed." << endl;
     }
     return ok;
+}
+//-----------------------------------------------------------------------------
+//! Builds undistortion maps after calibration or loading
+void SLCVCalibration::buildUndistortionMaps()
+{
+    // An alpha of 0 leads to no black borders
+    // An alpha of 1 leads to black borders
+    double alpha = 0.5; 
+    
+    // Create optimal camera matrix for undistorted image
+    _cameraMatUndistorted = cv::getOptimalNewCameraMatrix(_cameraMat,
+                                                          _distortion,
+                                                          _imageSize,
+                                                          alpha,
+                                                          _imageSize,
+                                                          0,
+                                                          true);
+    // Create undistortion maps
+    _undistortMapX.release();
+    _undistortMapY.release();
+
+    cv::initUndistortRectifyMap(_cameraMat,
+                                _distortion,
+                                cv::Mat(),   // Identity matrix R
+                                _cameraMatUndistorted,
+                                _imageSize,
+                                CV_32FC1,
+                                _undistortMapX,
+                                _undistortMapY);
+
+    if (_undistortMapX.empty() || _undistortMapY.empty())
+        SL_EXIT_MSG("SLCVCalibration::buildUndistortionMaps failed.");
+}
+//-----------------------------------------------------------------------------
+//! Undistorts the inDistorted image into the outUndistorted
+void SLCVCalibration::remap(SLCVMat &inDistorted, SLCVMat &outUndistorted)
+{
+    assert(!inDistorted.empty() &&
+           "Input image is empty!");
+
+    assert(!_undistortMapX.empty() &&
+           !_undistortMapY.empty() &&
+            "Undistortion Maps are empty!");
+    
+    cv::remap(inDistorted,
+              outUndistorted,
+              _undistortMapX,
+              _undistortMapY,
+              CV_INTER_LINEAR);
 }
 //-----------------------------------------------------------------------------
 //! Calculates camera intrinsics from a guessed FOV angle

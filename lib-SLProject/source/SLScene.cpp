@@ -159,7 +159,7 @@ Credits for external libraries: \\n\
 - Double click or double tap to select object";
 
     _infoCalibrate =
-"The calibration process requires a chessboard image to be printed \\n\
+"The calibration process requires a chessboard image to be printed \
 and glued on a flat board. You can find the PDF with the chessboard image on: \\n\
 https://github.com/cpvrlab/SLProject/tree/master/_data/calibrations/ \\n\\n\
 For a calibration you have to take 20 images with detected inner \
@@ -498,15 +498,10 @@ bool SLScene::onUpdate()
         } //...................................................................
 
         //copy image to video texture
-        /* @todo Correct undistortion not yet implemented
-        if(_activeCalib.state() == CS_calibrated && _activeCalib.showUndistorted())
+        if(_activeCalib->state() == CS_calibrated && _activeCalib->showUndistorted())
         {
             SLCVMat undistorted;
-
-            cv::undistort(SLCVCapture::lastFrame,
-                          undistorted,
-                          _activeCalib.intrinsics(),
-                          _activeCalib.distortion());
+            _activeCalib->remap(SLCVCapture::lastFrame, undistorted);
 
             _videoTexture.copyVideoImage(undistorted.cols,
                                          undistorted.rows,
@@ -514,7 +509,7 @@ bool SLScene::onUpdate()
                                          undistorted.data,
                                          undistorted.isContinuous(),
                                          true);
-        } else */
+        } else
         {   _videoTexture.copyVideoImage(SLCVCapture::lastFrame.cols,
                                          SLCVCapture::lastFrame.rows,
                                          SLCVCapture::format,

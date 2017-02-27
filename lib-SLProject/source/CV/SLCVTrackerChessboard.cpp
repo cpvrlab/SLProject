@@ -49,7 +49,10 @@ bool SLCVTrackerChessboard::track(SLCVMat imageGray,
 
     SLCVVPoint2f corners2D;
 
-    _isVisible = cv::findChessboardCorners(imageGray, calib->boardSize(), corners2D, flags);
+    _isVisible = cv::findChessboardCorners(imageGray,
+                                           calib->boardSize(),
+                                           corners2D,
+                                           flags);
 
     if(_isVisible)
     {

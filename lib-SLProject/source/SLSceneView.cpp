@@ -1757,23 +1757,23 @@ void SLSceneView::build2DMenus()
             mn3->addChild(new SLButton(this, "Animation off", f, C_animationToggle, true, false, 0, false));
 
             mn3 = new SLButton(this, "Video >", f); mn2->addChild(mn3);
-          //mn3->addChild(new SLButton(this, "Undistort", f, C_undistortVideoToggle, true, s->activeCalib().showUndistorted(), 0, false));
-
+            SLCVCalibration* ac = s->activeCalib();
+            mn3->addChild(new SLButton(this, "Undistort image", f, C_undistortVideoToggle, true, ac->showUndistorted(), 0, false));
             mn4 = new SLButton(this, "Calibration Flags >", f); mn3->addChild(mn4);
-                mn4->addChild(new SLButton(this, "Zero Tangent Distortion", f, C_calibZeroTangentDistToggle, true, s->activeCalib()->calibZeroTangentDist(), 0, false));
-                mn4->addChild(new SLButton(this, "Fix Aspect Ratio", f, C_calibFixAspectRatioToggle, true, s->activeCalib()->calibFixAspectRatio(), 0, false));
-                mn4->addChild(new SLButton(this, "Fix Principal Point", f, C_calibFixPrincipPointalToggle, true, s->activeCalib()->calibFixPrincipalPoint(), 0, false));
+                mn4->addChild(new SLButton(this, "Zero Tangent Distortion", f, C_calibZeroTangentDistToggle, true, ac->calibZeroTangentDist(), 0, false));
+                mn4->addChild(new SLButton(this, "Fix Aspect Ratio", f, C_calibFixAspectRatioToggle, true, ac->calibFixAspectRatio(), 0, false));
+                mn4->addChild(new SLButton(this, "Fix Principal Point", f, C_calibFixPrincipPointalToggle, true, ac->calibFixPrincipalPoint(), 0, false));
 
             if (SLCVCapture::hasSecondaryCamera)
-            {   mn3->addChild(new SLButton(this, "Mirror scnd. Cam. horiz.", f, C_mirrorHScndVideoToggle, true, s->calibScndCam()->isMirroredH(), 0, false));
-                mn3->addChild(new SLButton(this, "Mirror scnd. Cam. vert.",  f, C_mirrorVScndVideoToggle, true, s->calibScndCam()->isMirroredV(), 0, false));
-                mn3->addChild(new SLButton(this, "Mirror main Cam. horiz.", f, C_mirrorHMainVideoToggle, true, s->calibMainCam()->isMirroredH(), 0, false));
-                mn3->addChild(new SLButton(this, "Mirror main Cam. vert.",  f, C_mirrorVMainVideoToggle, true, s->calibMainCam()->isMirroredV(), 0, false));
+            {   mn3->addChild(new SLButton(this, "Mirror scnd. Cam. horiz.", f, C_mirrorHScndVideoToggle, true, ac->isMirroredH(), 0, false));
+                mn3->addChild(new SLButton(this, "Mirror scnd. Cam. vert.",  f, C_mirrorVScndVideoToggle, true, ac->isMirroredV(), 0, false));
+                mn3->addChild(new SLButton(this, "Mirror main Cam. horiz.", f, C_mirrorHMainVideoToggle, true, ac->isMirroredH(), 0, false));
+                mn3->addChild(new SLButton(this, "Mirror main Cam. vert.",  f, C_mirrorVMainVideoToggle, true, ac->isMirroredV(), 0, false));
                 mn3->addChild(new SLButton(this, "Start scnd. Cam. Calibration", f, C_sceneCalibrateScnd, false, curS==C_sceneCalibrateScnd));
                 mn3->addChild(new SLButton(this, "Start main Cam. Calibration", f, C_sceneCalibrateMain, false, curS==C_sceneCalibrateMain));
             } else
-            {   mn3->addChild(new SLButton(this, "Mirror horizontally", f, C_mirrorHMainVideoToggle, true, s->activeCalib()->isMirroredH(), 0, false));
-                mn3->addChild(new SLButton(this, "Mirror vertically", f, C_mirrorVMainVideoToggle, true, s->activeCalib()->isMirroredV(), 0, false));
+            {   mn3->addChild(new SLButton(this, "Mirror horizontally", f, C_mirrorHMainVideoToggle, true, ac->isMirroredH(), 0, false));
+                mn3->addChild(new SLButton(this, "Mirror vertically", f, C_mirrorVMainVideoToggle, true, ac->isMirroredV(), 0, false));
                 mn3->addChild(new SLButton(this, "Start Calibration", f, C_sceneCalibrateMain, false, curS==C_sceneCalibrateMain));
             }
 
@@ -2011,6 +2011,7 @@ void SLSceneView::build2DInfoGL()
         sprintf(m+strlen(m), "Display size: %d x %d\\n", c->imageSize().width, c->imageSize().height);
         sprintf(m+strlen(m), "Capture size: %d x %d\\n", capSize.width, capSize.height);
         sprintf(m+strlen(m), "Mirrored: %s\\n", mirrored.c_str());
+        sprintf(m+strlen(m), "Undistorted: %s\\n", c->showUndistorted()&&c->state()==CS_calibrated?"Yes":"No");
         sprintf(m+strlen(m), "Field of view (deg.): %4.1f\\n", c->cameraFovDeg());
         sprintf(m+strlen(m), "fx, fy, cx, cy: %4.1f, %4.1f, %4.1f, %4.1f\\n", c->fx(),c->fy(),c->cx(),c->cy());
         sprintf(m+strlen(m), "k1, k2, p1, p2: %4.2f, %4.2f, %4.2f, %4.2f\\n", c->k1(),c->k2(),c->p1(),c->p2());
