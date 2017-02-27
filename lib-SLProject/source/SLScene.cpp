@@ -114,7 +114,7 @@ SLScene::SLScene(SLstring name) : SLObject(name)
     videoType(VT_NONE);
 
     // load opencv camera calibration for main and secondary camera
-    #if defined(SL_USES_CVCAPTURE) || defined(SL_OS_MACIOS)
+    #if defined(SL_USES_CVCAPTURE)
     _calibMainCam.load("cam_calibration_main.xml", true, false);
     _calibMainCam.loadCalibParams();
     _activeCalib = &_calibMainCam;
@@ -179,7 +179,7 @@ SLScene::~SLScene()
     SL::saveConfig(_sceneViews[0]);
 
     // load opencv camera calibration for main and secondary camera
-    #if defined(SL_USES_CVCAPTURE) || defined(SL_OS_MACIOS)
+    #if defined(SL_USES_CVCAPTURE)
     _calibMainCam.save();
     #else
     _calibMainCam.save();

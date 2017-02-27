@@ -1903,7 +1903,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
 
         // Set backround texture to the video texture and use it
         _background.texture(&_videoTexture, true);
-        _videoType = VT_MAIN;
+        videoType(VT_MAIN);
 
         sv->waitEvents(false); // for constant video feed
         //sv->usesRotation(true);

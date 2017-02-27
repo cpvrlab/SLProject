@@ -64,6 +64,7 @@ float GetSeconds()
     AVCaptureSession*   m_avSession;            //!< Audio video session
     NSString*           m_avSessionPreset;      //!< Session name
     bool                m_lastVideoImageIsConsumed;
+    int                 m_lastVideoType;        //! VT_NONE=0,VT_MAIN=1,VT_SCND=2
 }
 @property (strong, nonatomic) EAGLContext *context;
 @property (strong, nonatomic) CMMotionManager *motionManager;
@@ -142,7 +143,7 @@ float GetSeconds()
     ///////////////////////////////////////////////////////////////////////
     
     [self setMotionInterval:1.0/60.0];
-    [self setupVideoCapture];
+    //[self setupVideo:false];
 }
 //-----------------------------------------------------------------------------
 - (void)viewDidUnload
@@ -182,14 +183,7 @@ float GetSeconds()
 //-----------------------------------------------------------------------------
 - (void)glkView:(GLKView *)view drawInRect:(CGRect)rect
 {
-    
-    if (slGetVideoType() != VT_NONE)
-    {   if (![m_avSession isRunning])
-            [m_avSession startRunning];
-    } else
-    {   if ([m_avSession isRunning])
-            [m_avSession stopRunning];
-    }
+    [self setVideoType:slGetVideoType()];
     
     slUpdateAndPaint(svIndex);
     m_lastVideoImageIsConsumed = true;
@@ -374,7 +368,7 @@ float GetSeconds()
 }
 //-----------------------------------------------------------------------------
 //! Prepares the video capture (taken from the GLCameraRipple example)
-- (void)setupVideoCapture
+- (void)setupVideo: (bool)useFaceCamera
 {
     if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad)
          m_avSessionPreset = AVCaptureSessionPreset640x480;
@@ -388,7 +382,16 @@ float GetSeconds()
     [m_avSession setSessionPreset:m_avSessionPreset];
     
     //-- Creata a video device and input from that Device.  Add the input to the capture session.
-    AVCaptureDevice * videoDevice = [AVCaptureDevice defaultDeviceWithMediaType:AVMediaTypeVideo];
+    //AVCaptureDevice* videoDevice = [AVCaptureDevice defaultDeviceWithMediaType:AVMediaTypeVideo];
+    AVCaptureDevice* videoDevice = nil;
+    if (useFaceCamera)
+        videoDevice = [AVCaptureDevice defaultDeviceWithDeviceType:AVCaptureDeviceTypeBuiltInWideAngleCamera
+                                       mediaType:AVMediaTypeVideo
+                                       position:AVCaptureDevicePositionFront];
+    else
+        videoDevice = [AVCaptureDevice defaultDeviceWithDeviceType:AVCaptureDeviceTypeBuiltInWideAngleCamera
+                                       mediaType:AVMediaTypeVideo
+                                       position:AVCaptureDevicePositionBack];
     if(videoDevice == nil)
         assert(0);
     
@@ -419,6 +422,86 @@ float GetSeconds()
     [m_avSession commitConfiguration];
     
     m_lastVideoImageIsConsumed = true;
+}
+//-----------------------------------------------------------------------------
+//! Sets the video according to the passed type (0=NONE, 1=Main, 2=Secondary)
+/* The main camera on iOS is the back camera and the the secondary is the front
+ camera that faces the face.
+*/
+- (void) setVideoType:(int)videoType
+{
+    if (videoType == 0) // VT_NONE (No video needed. Turn off any video)
+    {
+        if (m_avSession != nil && ![m_avSession isRunning])
+        {
+            printf("Stopping AV Session\n");
+            [m_avSession stopRunning];
+        }
+    }
+    else if (videoType == 1) // VT_MAIN (Main video needed)
+    {
+        if (m_avSession == nil)
+        {
+            printf("Creating AV Session for Front Camera\n");
+            [self setupVideo:false];
+            printf("Starting AV Session\n");
+            [m_avSession startRunning];
+        }
+        else if (m_lastVideoType == videoType)
+        {
+            if (![m_avSession isRunning])
+            {
+                printf("Starting AV Session\n");
+                [m_avSession startRunning];
+            }
+        }
+        else
+        {
+            if ([m_avSession isRunning])
+            {
+                printf("Deleting AV Session\n");
+                [m_avSession stopRunning];
+                m_avSession = nil;
+            }
+            printf("Creating AV Session for Front Camera\n");
+            [self setupVideo:false];
+            printf("Starting AV Session\n");
+            [m_avSession startRunning];
+        }
+    }
+    else if (videoType == 2) // VT_SCND (Secondary video from selfie camera)
+    {
+        if (m_avSession == nil)
+        {
+            printf("Creating AV Session for Back Camera\n");
+            [self setupVideo:true];
+            printf("Starting AV Session\n");
+            [m_avSession startRunning];
+        }
+        else if (m_lastVideoType == videoType)
+        {
+            if (![m_avSession isRunning])
+            {
+                printf("Starting AV Session\n");
+                [m_avSession startRunning];
+            }
+        }
+        else
+        {
+            if ([m_avSession isRunning])
+            {
+                printf("Deleting AV Session\n");
+                [m_avSession stopRunning];
+                m_avSession = nil;
+            }
+            printf("Creating AV Session for Back Camera\n");
+            [self setupVideo:true];
+            printf("Starting AV Session\n");
+            [m_avSession startRunning];
+        }
+    }
+    
+    m_lastVideoType = videoType;
 }
 //-----------------------------------------------------------------------------
 //! Starts the acceleronometer update if the interval time > 0 else it stops
