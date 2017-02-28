@@ -1,9 +1,9 @@
 //#############################################################################
 //  File:      AR2DTracker.h
-//  Author:    Michael Göttlicher
+//  Author:    Michael Goettlicher
 //  Date:      Spring 2016
 //  Codestyle: https://github.com/cpvrlab/SLProject/wiki/Coding-Style-Guidelines
-//  Copyright: Marcus Hudritsch, Michael Göttlicher
+//  Copyright: Marcus Hudritsch, Michael Goettlicher
 //             This software is provide under the GNU General Public License
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
@@ -24,7 +24,7 @@ class AR2DTracker : public ARTracker
 
         bool    init            () override;
         bool    track           (cv::Mat image, 
-                                 SLCVCalibration& calib) override;
+                                 SLCVCalibration* calib) override;
         void    updateSceneView (ARSceneView* sv) override;
         void    unloadSGObjects () override;
 

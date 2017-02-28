@@ -17,40 +17,22 @@
 		413B2B9D195A9A170071AC6A /* ranrotw.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 413B2B93195A9A170071AC6A /* ranrotw.cpp */; };
 		413B2B9E195A9A170071AC6A /* sobol.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 413B2B94195A9A170071AC6A /* sobol.cpp */; };
 		413B2C62195A9D260071AC6A /* ai_assert.h in Headers */ = {isa = PBXBuildFile; fileRef = 413B2C37195A9D260071AC6A /* ai_assert.h */; };
-		413B2C63195A9D260071AC6A /* anim.h in Headers */ = {isa = PBXBuildFile; fileRef = 413B2C38195A9D260071AC6A /* anim.h */; };
-		413B2C64195A9D260071AC6A /* camera.h in Headers */ = {isa = PBXBuildFile; fileRef = 413B2C39195A9D260071AC6A /* camera.h */; };
 		413B2C65195A9D260071AC6A /* cexport.h in Headers */ = {isa = PBXBuildFile; fileRef = 413B2C3A195A9D260071AC6A /* cexport.h */; };
 		413B2C66195A9D260071AC6A /* cfileio.h in Headers */ = {isa = PBXBuildFile; fileRef = 413B2C3B195A9D260071AC6A /* cfileio.h */; };
 		413B2C67195A9D260071AC6A /* cimport.h in Headers */ = {isa = PBXBuildFile; fileRef = 413B2C3C195A9D260071AC6A /* cimport.h */; };
-		413B2C68195A9D260071AC6A /* color4.h in Headers */ = {isa = PBXBuildFile; fileRef = 413B2C3D195A9D260071AC6A /* color4.h */; };
-		413B2C69195A9D260071AC6A /* poppack1.h in Headers */ = {isa = PBXBuildFile; fileRef = 413B2C40195A9D260071AC6A /* poppack1.h */; };
 		413B2C6A195A9D260071AC6A /* pushpack1.h in Headers */ = {isa = PBXBuildFile; fileRef = 413B2C41195A9D260071AC6A /* pushpack1.h */; };
-		413B2C6B195A9D260071AC6A /* config.h in Headers */ = {isa = PBXBuildFile; fileRef = 413B2C42195A9D260071AC6A /* config.h */; };
-		413B2C6C195A9D260071AC6A /* DefaultLogger.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 413B2C43195A9D260071AC6A /* DefaultLogger.hpp */; };
 		413B2C6D195A9D260071AC6A /* defs.h in Headers */ = {isa = PBXBuildFile; fileRef = 413B2C44195A9D260071AC6A /* defs.h */; };
-		413B2C6E195A9D260071AC6A /* Exporter.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 413B2C45195A9D260071AC6A /* Exporter.hpp */; };
-		413B2C6F195A9D260071AC6A /* Importer.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 413B2C46195A9D260071AC6A /* Importer.hpp */; };
 		413B2C70195A9D260071AC6A /* importerdesc.h in Headers */ = {isa = PBXBuildFile; fileRef = 413B2C47195A9D260071AC6A /* importerdesc.h */; };
 		413B2C71195A9D260071AC6A /* IOStream.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 413B2C48195A9D260071AC6A /* IOStream.hpp */; };
-		413B2C72195A9D260071AC6A /* IOSystem.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 413B2C49195A9D260071AC6A /* IOSystem.hpp */; };
 		413B2C73195A9D260071AC6A /* light.h in Headers */ = {isa = PBXBuildFile; fileRef = 413B2C4A195A9D260071AC6A /* light.h */; };
 		413B2C74195A9D260071AC6A /* Logger.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 413B2C4B195A9D260071AC6A /* Logger.hpp */; };
 		413B2C75195A9D260071AC6A /* LogStream.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 413B2C4C195A9D260071AC6A /* LogStream.hpp */; };
 		413B2C76195A9D260071AC6A /* material.h in Headers */ = {isa = PBXBuildFile; fileRef = 413B2C4D195A9D260071AC6A /* material.h */; };
-		413B2C77195A9D260071AC6A /* matrix3x3.h in Headers */ = {isa = PBXBuildFile; fileRef = 413B2C4F195A9D260071AC6A /* matrix3x3.h */; };
-		413B2C78195A9D260071AC6A /* matrix4x4.h in Headers */ = {isa = PBXBuildFile; fileRef = 413B2C51195A9D260071AC6A /* matrix4x4.h */; };
 		413B2C79195A9D260071AC6A /* mesh.h in Headers */ = {isa = PBXBuildFile; fileRef = 413B2C53195A9D260071AC6A /* mesh.h */; };
-		413B2C7A195A9D260071AC6A /* metadata.h in Headers */ = {isa = PBXBuildFile; fileRef = 413B2C54195A9D260071AC6A /* metadata.h */; };
-		413B2C7B195A9D260071AC6A /* NullLogger.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 413B2C55195A9D260071AC6A /* NullLogger.hpp */; };
 		413B2C7C195A9D260071AC6A /* postprocess.h in Headers */ = {isa = PBXBuildFile; fileRef = 413B2C56195A9D260071AC6A /* postprocess.h */; };
-		413B2C7D195A9D260071AC6A /* ProgressHandler.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 413B2C57195A9D260071AC6A /* ProgressHandler.hpp */; };
 		413B2C7E195A9D260071AC6A /* quaternion.h in Headers */ = {isa = PBXBuildFile; fileRef = 413B2C58195A9D260071AC6A /* quaternion.h */; };
 		413B2C7F195A9D260071AC6A /* scene.h in Headers */ = {isa = PBXBuildFile; fileRef = 413B2C5A195A9D260071AC6A /* scene.h */; };
-		413B2C80195A9D260071AC6A /* texture.h in Headers */ = {isa = PBXBuildFile; fileRef = 413B2C5B195A9D260071AC6A /* texture.h */; };
-		413B2C81195A9D260071AC6A /* types.h in Headers */ = {isa = PBXBuildFile; fileRef = 413B2C5C195A9D260071AC6A /* types.h */; };
 		413B2C82195A9D260071AC6A /* vector2.h in Headers */ = {isa = PBXBuildFile; fileRef = 413B2C5D195A9D260071AC6A /* vector2.h */; };
-		413B2C83195A9D260071AC6A /* vector3.h in Headers */ = {isa = PBXBuildFile; fileRef = 413B2C5F195A9D260071AC6A /* vector3.h */; };
-		413B2C84195A9D260071AC6A /* version.h in Headers */ = {isa = PBXBuildFile; fileRef = 413B2C61195A9D260071AC6A /* version.h */; };
 		41FE0DD61959CB3F00486424 /* 3DSConverter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 41FE0B0F1959CB3E00486424 /* 3DSConverter.cpp */; };
 		41FE0DD71959CB3F00486424 /* 3DSHelper.h in Headers */ = {isa = PBXBuildFile; fileRef = 41FE0B101959CB3E00486424 /* 3DSHelper.h */; };
 		41FE0DD81959CB3F00486424 /* 3DSLoader.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 41FE0B111959CB3E00486424 /* 3DSLoader.cpp */; };
@@ -405,39 +387,22 @@
 		41FE0FB91959CB3F00486424 /* ioapi.h in Headers */ = {isa = PBXBuildFile; fileRef = 41FE0D7B1959CB3F00486424 /* ioapi.h */; };
 		41FE0FBA1959CB3F00486424 /* unzip.c in Sources */ = {isa = PBXBuildFile; fileRef = 41FE0D7C1959CB3F00486424 /* unzip.c */; };
 		41FE0FBB1959CB3F00486424 /* unzip.h in Headers */ = {isa = PBXBuildFile; fileRef = 41FE0D7D1959CB3F00486424 /* unzip.h */; };
-		41FE0FD71959CB3F00486424 /* ai_assert.h in Headers */ = {isa = PBXBuildFile; fileRef = 41FE0DAB1959CB3F00486424 /* ai_assert.h */; };
 		41FE0FD81959CB3F00486424 /* anim.h in Headers */ = {isa = PBXBuildFile; fileRef = 41FE0DAC1959CB3F00486424 /* anim.h */; };
 		41FE0FD91959CB3F00486424 /* camera.h in Headers */ = {isa = PBXBuildFile; fileRef = 41FE0DAD1959CB3F00486424 /* camera.h */; };
-		41FE0FDA1959CB3F00486424 /* cexport.h in Headers */ = {isa = PBXBuildFile; fileRef = 41FE0DAE1959CB3F00486424 /* cexport.h */; };
-		41FE0FDB1959CB3F00486424 /* cfileio.h in Headers */ = {isa = PBXBuildFile; fileRef = 41FE0DAF1959CB3F00486424 /* cfileio.h */; };
-		41FE0FDC1959CB3F00486424 /* cimport.h in Headers */ = {isa = PBXBuildFile; fileRef = 41FE0DB01959CB3F00486424 /* cimport.h */; };
 		41FE0FDD1959CB3F00486424 /* color4.h in Headers */ = {isa = PBXBuildFile; fileRef = 41FE0DB11959CB3F00486424 /* color4.h */; };
 		41FE0FDE1959CB3F00486424 /* poppack1.h in Headers */ = {isa = PBXBuildFile; fileRef = 41FE0DB41959CB3F00486424 /* poppack1.h */; };
-		41FE0FDF1959CB3F00486424 /* pushpack1.h in Headers */ = {isa = PBXBuildFile; fileRef = 41FE0DB51959CB3F00486424 /* pushpack1.h */; };
 		41FE0FE01959CB3F00486424 /* config.h in Headers */ = {isa = PBXBuildFile; fileRef = 41FE0DB61959CB3F00486424 /* config.h */; };
 		41FE0FE11959CB3F00486424 /* DefaultLogger.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 41FE0DB71959CB3F00486424 /* DefaultLogger.hpp */; };
-		41FE0FE21959CB3F00486424 /* defs.h in Headers */ = {isa = PBXBuildFile; fileRef = 41FE0DB81959CB3F00486424 /* defs.h */; };
 		41FE0FE31959CB3F00486424 /* Exporter.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 41FE0DB91959CB3F00486424 /* Exporter.hpp */; };
 		41FE0FE41959CB3F00486424 /* Importer.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 41FE0DBA1959CB3F00486424 /* Importer.hpp */; };
-		41FE0FE51959CB3F00486424 /* importerdesc.h in Headers */ = {isa = PBXBuildFile; fileRef = 41FE0DBB1959CB3F00486424 /* importerdesc.h */; };
-		41FE0FE61959CB3F00486424 /* IOStream.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 41FE0DBC1959CB3F00486424 /* IOStream.hpp */; };
 		41FE0FE71959CB3F00486424 /* IOSystem.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 41FE0DBD1959CB3F00486424 /* IOSystem.hpp */; };
-		41FE0FE81959CB3F00486424 /* light.h in Headers */ = {isa = PBXBuildFile; fileRef = 41FE0DBE1959CB3F00486424 /* light.h */; };
-		41FE0FE91959CB3F00486424 /* Logger.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 41FE0DBF1959CB3F00486424 /* Logger.hpp */; };
-		41FE0FEA1959CB3F00486424 /* LogStream.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 41FE0DC01959CB3F00486424 /* LogStream.hpp */; };
-		41FE0FEB1959CB3F00486424 /* material.h in Headers */ = {isa = PBXBuildFile; fileRef = 41FE0DC11959CB3F00486424 /* material.h */; };
 		41FE0FEC1959CB3F00486424 /* matrix3x3.h in Headers */ = {isa = PBXBuildFile; fileRef = 41FE0DC31959CB3F00486424 /* matrix3x3.h */; };
 		41FE0FED1959CB3F00486424 /* matrix4x4.h in Headers */ = {isa = PBXBuildFile; fileRef = 41FE0DC51959CB3F00486424 /* matrix4x4.h */; };
-		41FE0FEE1959CB3F00486424 /* mesh.h in Headers */ = {isa = PBXBuildFile; fileRef = 41FE0DC71959CB3F00486424 /* mesh.h */; };
 		41FE0FEF1959CB3F00486424 /* metadata.h in Headers */ = {isa = PBXBuildFile; fileRef = 41FE0DC81959CB3F00486424 /* metadata.h */; };
 		41FE0FF01959CB3F00486424 /* NullLogger.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 41FE0DC91959CB3F00486424 /* NullLogger.hpp */; };
-		41FE0FF11959CB3F00486424 /* postprocess.h in Headers */ = {isa = PBXBuildFile; fileRef = 41FE0DCA1959CB3F00486424 /* postprocess.h */; };
 		41FE0FF21959CB3F00486424 /* ProgressHandler.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 41FE0DCB1959CB3F00486424 /* ProgressHandler.hpp */; };
-		41FE0FF31959CB3F00486424 /* quaternion.h in Headers */ = {isa = PBXBuildFile; fileRef = 41FE0DCC1959CB3F00486424 /* quaternion.h */; };
-		41FE0FF41959CB3F00486424 /* scene.h in Headers */ = {isa = PBXBuildFile; fileRef = 41FE0DCE1959CB3F00486424 /* scene.h */; };
 		41FE0FF51959CB3F00486424 /* texture.h in Headers */ = {isa = PBXBuildFile; fileRef = 41FE0DCF1959CB3F00486424 /* texture.h */; };
 		41FE0FF61959CB3F00486424 /* types.h in Headers */ = {isa = PBXBuildFile; fileRef = 41FE0DD01959CB3F00486424 /* types.h */; };
-		41FE0FF71959CB3F00486424 /* vector2.h in Headers */ = {isa = PBXBuildFile; fileRef = 41FE0DD11959CB3F00486424 /* vector2.h */; };
 		41FE0FF81959CB3F00486424 /* vector3.h in Headers */ = {isa = PBXBuildFile; fileRef = 41FE0DD31959CB3F00486424 /* vector3.h */; };
 		41FE0FF91959CB3F00486424 /* version.h in Headers */ = {isa = PBXBuildFile; fileRef = 41FE0DD51959CB3F00486424 /* version.h */; };
 /* End PBXBuildFile section */
@@ -1636,7 +1601,6 @@
 				41FE0EB81959CB3F00486424 /* OgreStructs.h in Headers */,
 				41FE0E961959CB3F00486424 /* MDCNormalTable.h in Headers */,
 				41FE0EEC1959CB3F00486424 /* SmoothingGroups.h in Headers */,
-				413B2C69195A9D260071AC6A /* poppack1.h in Headers */,
 				41FE0FE41959CB3F00486424 /* Importer.hpp in Headers */,
 				41FE0DD91959CB3F00486424 /* 3DSLoader.h in Headers */,
 				41FE0F0F1959CB3F00486424 /* UnrealLoader.h in Headers */,
@@ -1646,9 +1610,7 @@
 				41FE0E1F1959CB3F00486424 /* CSMLoader.h in Headers */,
 				41FE0FE01959CB3F00486424 /* config.h in Headers */,
 				413B2C67195A9D260071AC6A /* cimport.h in Headers */,
-				41FE0FDC1959CB3F00486424 /* cimport.h in Headers */,
 				41FE0EC61959CB3F00486424 /* PolyTools.h in Headers */,
-				413B2C6C195A9D260071AC6A /* DefaultLogger.hpp in Headers */,
 				41FE0E4E1959CB3F00486424 /* FindInvalidDataProcess.h in Headers */,
 				41FE0E9E1959CB3F00486424 /* MS3DLoader.h in Headers */,
 				41FE0FB41959CB3F00486424 /* sweep.h in Headers */,
@@ -1667,10 +1629,8 @@
 				41FE0E041959CB3F00486424 /* scoped_ptr.hpp in Headers */,
 				41FE0EA21959CB3F00486424 /* NFFLoader.h in Headers */,
 				41FE0FAE1959CB3F00486424 /* poly2tri.h in Headers */,
-				413B2C81195A9D260071AC6A /* types.h in Headers */,
 				413B2C6D195A9D260071AC6A /* defs.h in Headers */,
 				41FE0DFB1959CB3F00486424 /* BlobIOSystem.h in Headers */,
-				413B2C84195A9D260071AC6A /* version.h in Headers */,
 				41FE0E931959CB3F00486424 /* MDCFileData.h in Headers */,
 				41FE0F151959CB3F00486424 /* Win32DebugLogStream.h in Headers */,
 				41FE0FEC1959CB3F00486424 /* matrix3x3.h in Headers */,
@@ -1689,7 +1649,6 @@
 				413B2C82195A9D260071AC6A /* vector2.h in Headers */,
 				41FE0E371959CB3F00486424 /* FBXDocumentUtil.h in Headers */,
 				41FE0DF31959CB3F00486424 /* BlenderLoader.h in Headers */,
-				41FE0FE51959CB3F00486424 /* importerdesc.h in Headers */,
 				41FE0E211959CB3F00486424 /* DeboneProcess.h in Headers */,
 				41FE0F0A1959CB3F00486424 /* TextureTransform.h in Headers */,
 				41FE0DDD1959CB3F00486424 /* ASELoader.h in Headers */,
@@ -1708,9 +1667,7 @@
 				41FE0E971959CB3F00486424 /* MDLDefaultColorMap.h in Headers */,
 				41FE0ECB1959CB3F00486424 /* ProcessHelper.h in Headers */,
 				413B2C79195A9D260071AC6A /* mesh.h in Headers */,
-				41FE0FF31959CB3F00486424 /* quaternion.h in Headers */,
 				41FE0EEE1959CB3F00486424 /* SortByPTypeProcess.h in Headers */,
-				41FE0FF71959CB3F00486424 /* vector2.h in Headers */,
 				41FE0F1A1959CB3F00486424 /* XFileParser.h in Headers */,
 				41FE0FD91959CB3F00486424 /* camera.h in Headers */,
 				41FE0DE01959CB3F00486424 /* assbin_chunks.h in Headers */,
@@ -1718,15 +1675,12 @@
 				413B2C74195A9D260071AC6A /* Logger.hpp in Headers */,
 				41FE0DD71959CB3F00486424 /* 3DSHelper.h in Headers */,
 				41FE0FB21959CB3F00486424 /* cdt.h in Headers */,
-				41FE0FE21959CB3F00486424 /* defs.h in Headers */,
-				413B2C6B195A9D260071AC6A /* config.h in Headers */,
 				413B2C73195A9D260071AC6A /* light.h in Headers */,
 				41FE0ED01959CB3F00486424 /* Q3BSPFileImporter.h in Headers */,
 				41FE0E501959CB3F00486424 /* FixNormalsStep.h in Headers */,
 				41FE0FE31959CB3F00486424 /* Exporter.hpp in Headers */,
 				41FE0E951959CB3F00486424 /* MDCLoader.h in Headers */,
 				41FE0E271959CB3F00486424 /* DefaultProgressHandler.h in Headers */,
-				413B2C63195A9D260071AC6A /* anim.h in Headers */,
 				41FE0F111959CB3F00486424 /* ValidateDataStructure.h in Headers */,
 				41FE0FB01959CB3F00486424 /* advancing_front.h in Headers */,
 				41FE0E2D1959CB3F00486424 /* fast_atof.h in Headers */,
@@ -1740,29 +1694,22 @@
 				41FE0F0B1959CB3F00486424 /* TinyFormatter.h in Headers */,
 				41FE0EF61959CB3F00486424 /* StandardShapes.h in Headers */,
 				41FE0DEA1959CB3F00486424 /* BaseProcess.h in Headers */,
-				413B2C64195A9D260071AC6A /* camera.h in Headers */,
 				41FE0EF21959CB3F00486424 /* SplitByBoneCountProcess.h in Headers */,
 				41FE0DE41959CB3F00486424 /* AssimpPCH.h in Headers */,
 				41FE0F161959CB3F00486424 /* XFileHelper.h in Headers */,
 				41FE0EE41959CB3F00486424 /* ScenePreprocessor.h in Headers */,
 				41FE0EC91959CB3F00486424 /* PretransformVertices.h in Headers */,
 				41FE0E8A1959CB3F00486424 /* MD2NormalTable.h in Headers */,
-				413B2C80195A9D260071AC6A /* texture.h in Headers */,
 				41FE0F081959CB3F00486424 /* TerragenLoader.h in Headers */,
 				41FE0E0C1959CB3F00486424 /* ByteSwap.h in Headers */,
-				413B2C83195A9D260071AC6A /* vector3.h in Headers */,
 				41FE0EE71959CB3F00486424 /* SGSpatialSort.h in Headers */,
 				41FE0FA51959CB3F00486424 /* heapsort.h in Headers */,
 				41FE0DF71959CB3F00486424 /* BlenderScene.h in Headers */,
-				41FE0FD71959CB3F00486424 /* ai_assert.h in Headers */,
 				413B2C75195A9D260071AC6A /* LogStream.hpp in Headers */,
 				41FE0E171959CB3F00486424 /* ColladaLoader.h in Headers */,
 				41FE0E1D1959CB3F00486424 /* ConvertToLHProcess.h in Headers */,
-				413B2C7D195A9D260071AC6A /* ProgressHandler.hpp in Headers */,
 				41FE0DFD1959CB3F00486424 /* format.hpp in Headers */,
-				41FE0FEA1959CB3F00486424 /* LogStream.hpp in Headers */,
 				41FE0E751959CB3F00486424 /* JoinVerticesProcess.h in Headers */,
-				41FE0FEB1959CB3F00486424 /* material.h in Headers */,
 				41FE0EF41959CB3F00486424 /* SplitLargeMeshes.h in Headers */,
 				413B2C7C195A9D260071AC6A /* postprocess.h in Headers */,
 				41FE0EBF1959CB3F00486424 /* ParsingUtils.h in Headers */,
@@ -1770,10 +1717,8 @@
 				41FE0E231959CB3F00486424 /* DefaultIOStream.h in Headers */,
 				41FE0E7D1959CB3F00486424 /* LWOFileData.h in Headers */,
 				41FE0E581959CB3F00486424 /* HMPFileData.h in Headers */,
-				413B2C78195A9D260071AC6A /* matrix4x4.h in Headers */,
 				41FE0E091959CB3F00486424 /* tuple.hpp in Headers */,
 				413B2B9A195A9A170071AC6A /* random.h in Headers */,
-				41FE0FE91959CB3F00486424 /* Logger.hpp in Headers */,
 				41FE0E661959CB3F00486424 /* IFCUtil.h in Headers */,
 				41FE0E781959CB3F00486424 /* LineSplitter.h in Headers */,
 				41FE0EBE1959CB3F00486424 /* OptimizeMeshes.h in Headers */,
@@ -1788,30 +1733,20 @@
 				41FE0ED61959CB3F00486424 /* Q3DLoader.h in Headers */,
 				41FE0F121959CB3F00486424 /* Vertex.h in Headers */,
 				41FE0DDB1959CB3F00486424 /* ACLoader.h in Headers */,
-				413B2C6E195A9D260071AC6A /* Exporter.hpp in Headers */,
 				41FE0E5A1959CB3F00486424 /* HMPLoader.h in Headers */,
-				41FE0FF11959CB3F00486424 /* postprocess.h in Headers */,
 				41FE0E481959CB3F00486424 /* FileSystemFilter.h in Headers */,
 				41FE0EF01959CB3F00486424 /* SpatialSort.h in Headers */,
-				41FE0FEE1959CB3F00486424 /* mesh.h in Headers */,
 				41FE0E421959CB3F00486424 /* FBXProperties.h in Headers */,
-				41FE0FDF1959CB3F00486424 /* pushpack1.h in Headers */,
-				41FE0FDA1959CB3F00486424 /* cexport.h in Headers */,
 				41FE0F1C1959CB3F00486424 /* XGLLoader.h in Headers */,
 				41FE0E2B1959CB3F00486424 /* Exceptional.h in Headers */,
-				413B2C77195A9D260071AC6A /* matrix3x3.h in Headers */,
 				41FE0E771959CB3F00486424 /* LimitBoneWeightsProcess.h in Headers */,
-				41FE0FDB1959CB3F00486424 /* cfileio.h in Headers */,
 				41FE0E4C1959CB3F00486424 /* FindInstancesProcess.h in Headers */,
 				41FE0F061959CB3F00486424 /* TargetAnimation.h in Headers */,
 				41FE0E871959CB3F00486424 /* MD2FileData.h in Headers */,
 				41FE0EF71959CB3F00486424 /* StdOStreamLogStream.h in Headers */,
 				41FE0E9C1959CB3F00486424 /* MemoryIOWrapper.h in Headers */,
 				41FE0EC11959CB3F00486424 /* PlyExporter.h in Headers */,
-				41FE0FE81959CB3F00486424 /* light.h in Headers */,
 				41FE0EF81959CB3F00486424 /* STEPFile.h in Headers */,
-				41FE0FF41959CB3F00486424 /* scene.h in Headers */,
-				41FE0FE61959CB3F00486424 /* IOStream.hpp in Headers */,
 				41FE0E981959CB3F00486424 /* MDLFileData.h in Headers */,
 				41FE0DF81959CB3F00486424 /* BlenderSceneGen.h in Headers */,
 				41FE0FA41959CB3F00486424 /* CXMLReaderImpl.h in Headers */,
@@ -1821,26 +1756,21 @@
 				41FE0E151959CB3F00486424 /* ColladaHelper.h in Headers */,
 				41FE0E9A1959CB3F00486424 /* MDLLoader.h in Headers */,
 				41FE0F011959CB3F00486424 /* StreamReader.h in Headers */,
-				413B2C68195A9D260071AC6A /* color4.h in Headers */,
 				41FE0E1B1959CB3F00486424 /* ComputeUVMappingProcess.h in Headers */,
 				41FE0EB21959CB3F00486424 /* OgreImporter.h in Headers */,
-				413B2C7A195A9D260071AC6A /* metadata.h in Headers */,
 				41FE0EC31959CB3F00486424 /* PlyLoader.h in Headers */,
 				41FE0E121959CB3F00486424 /* COBScene.h in Headers */,
 				41FE0E011959CB3F00486424 /* noncopyable.hpp in Headers */,
 				41FE0DEE1959CB3F00486424 /* BlenderBMesh.h in Headers */,
 				41FE0DF01959CB3F00486424 /* BlenderDNA.h in Headers */,
-				413B2C6F195A9D260071AC6A /* Importer.hpp in Headers */,
 				41FE0ED21959CB3F00486424 /* Q3BSPFileParser.h in Headers */,
 				41FE0E0F1959CB3F00486424 /* CInterfaceIOWrapper.h in Headers */,
 				41FE0E0E1959CB3F00486424 /* CalcTangentsProcess.h in Headers */,
 				41FE0E671959CB3F00486424 /* IFF.h in Headers */,
 				41FE0ECC1959CB3F00486424 /* Profiler.h in Headers */,
-				413B2C72195A9D260071AC6A /* IOSystem.hpp in Headers */,
 				41FE0E441959CB3F00486424 /* FBXTokenizer.h in Headers */,
 				41FE0EDB1959CB3F00486424 /* RemoveComments.h in Headers */,
 				41FE0FB91959CB3F00486424 /* ioapi.h in Headers */,
-				413B2C7B195A9D260071AC6A /* NullLogger.hpp in Headers */,
 				41FE0E721959CB3F00486424 /* IRRShared.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1871,7 +1801,7 @@
 		418EB3601959C85400812238 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastUpgradeCheck = 0510;
+				LastUpgradeCheck = 0820;
 				ORGANIZATIONNAME = "Marcus Hudritsch";
 			};
 			buildConfigurationList = 418EB3631959C85400812238 /* Build configuration list for PBXProject "lib-SLExternal" */;
@@ -2074,13 +2004,19 @@
 				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
 				CLANG_WARN_EMPTY_BODY = YES;
 				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
 				CLANG_WARN_INT_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
+				GCC_NO_COMMON_BLOCKS = YES;
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"DEBUG=1",
@@ -2112,14 +2048,19 @@
 				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
 				CLANG_WARN_EMPTY_BODY = YES;
 				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
 				CLANG_WARN_INT_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
+				GCC_NO_COMMON_BLOCKS = YES;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
 				GCC_WARN_UNDECLARED_SELECTOR = YES;

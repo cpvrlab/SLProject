@@ -82,33 +82,37 @@ enum SLCommand
     C_sceneMeshLoad,
     C_sceneVRSizeTest,
     C_sceneLargeModel,
-    C_sceneChristoffel,
     C_sceneRevolver,
+
     C_sceneTextureFilter,
     C_sceneTextureBlend,
-    C_sceneTextureVideo,
     C_sceneFrustumCull,
     C_sceneMassiveData,
 
-    C_scenePerVertexBlinn,
-    C_scenePerPixelBlinn,
-    C_scenePerVertexWave,
-    C_sceneWater,
-    C_sceneBumpNormal,
-    C_sceneBumpParallax,
-    C_sceneEarth,
-    C_sceneMassAnimation,
+    C_sceneShaderPerVertexBlinn,
+    C_sceneShaderPerPixelBlinn,
+    C_sceneShaderPerVertexWave,
+    C_sceneShaderWater,
+    C_sceneShaderBumpNormal,
+    C_sceneShaderBumpParallax,
+    C_sceneShaderEarth,
     C_sceneTerrain,
 
-    C_sceneSkeletalAnimation,
-    C_sceneNodeAnimation,
-    C_sceneAstroboyArmy,
+    C_sceneAnimationMass,
+    C_sceneAnimationSkeletal,
+    C_sceneAnimationNode,
+    C_sceneAnimationArmy,
 
-    C_sceneCalibrateMain,
-    C_sceneCalibrateScnd,
-    C_sceneTrackChessboard,
-    C_sceneTrackAruco,
-    C_sceneTrackFeatures2D,
+    C_sceneVideoTexture,
+    C_sceneVideoChristoffel,
+    C_sceneVideoCalibrateMain,
+    C_sceneVideoCalibrateScnd,
+    C_sceneVideoTrackChessMain,
+    C_sceneVideoTrackChessScnd,
+    C_sceneVideoTrackArucoMain,
+    C_sceneVideoTrackArucoScnd,
+    C_sceneVideoTrackFeat2DMain,
+    C_sceneVideoTrackFeat2DScnd,
 
     C_sceneRTMuttenzerBox,
     C_sceneRTSpheres,
@@ -116,6 +120,7 @@ enum SLCommand
     C_sceneRTDoF,
     C_sceneRTLens,
     C_sceneRTTest,
+    C_sceneMaximal,
     
     C_menu,
     C_aboutToggle,
@@ -181,9 +186,14 @@ enum SLCommand
     C_dpiInc,           // Increase DPI 10%
     C_dpiDec,           // Decrease DPI 10%
 
-    C_undistortVideoToggle,   // Undistort video 
-    C_mirrorMainVideoToggle,  // Mirror video image from main camera
-    C_mirrorScndVideoToggle,  // Mirror video image from secondary camera
+    C_undistortVideoToggle,
+    C_calibFixPrincipPointalToggle,
+    C_calibFixAspectRatioToggle,
+    C_calibZeroTangentDistToggle,
+    C_mirrorHMainVideoToggle,       // Mirror video image from main camera horizontally
+    C_mirrorVMainVideoToggle,       // Mirror video image from main camera vertically
+    C_mirrorHScndVideoToggle,       // Mirror video image from secondary camera horizontally
+    C_mirrorVScndVideoToggle,       // Mirror video image from secondary camera vertically
 
     C_renderOpenGL,     // Render with GL
     C_rtContinuously,   // Do ray tracing continuously
@@ -365,7 +375,7 @@ enum SLCVCalibState
     CS_calibrateGrab,   //!< The calibration is running and an image should be grabbed
     CS_startCalculating,//!< The calibration starts during the next frame
     CS_calibrated,      //!< The camera is calibrated 
-    CS_estimated        //!< The camera intrinsics where estimated from FOV
+    CS_guessed        //!< The camera intrinsics where estimated from FOV
 };
 //-----------------------------------------------------------------------------
 //! OpenCV feature type

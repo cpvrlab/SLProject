@@ -315,9 +315,9 @@ void ObjFileParser::getFace(aiPrimitiveType type)
 	std::vector<unsigned int> *pNormalID = new std::vector<unsigned int>;
 	bool hasNormal = false;
 
-	const int vSize = m_pModel->m_Vertices.size();
-	const int vtSize = m_pModel->m_TextureCoord.size();
-	const int vnSize = m_pModel->m_Normals.size();
+	const int vSize  = (int)m_pModel->m_Vertices.size();
+	const int vtSize = (int)m_pModel->m_TextureCoord.size();
+	const int vnSize = (int)m_pModel->m_Normals.size();
 
 	const bool vt = (!m_pModel->m_TextureCoord.empty());
 	const bool vn = (!m_pModel->m_Normals.empty());
@@ -711,7 +711,7 @@ void ObjFileParser::createMesh()
 	ai_assert( NULL != m_pModel );
 	m_pModel->m_pCurrentMesh = new ObjFile::Mesh;
 	m_pModel->m_Meshes.push_back( m_pModel->m_pCurrentMesh );
-	unsigned int meshId = m_pModel->m_Meshes.size()-1;
+	unsigned int meshId = (unsigned int)m_pModel->m_Meshes.size()-1;
 	if ( NULL != m_pModel->m_pCurrent )
 	{
 		m_pModel->m_pCurrent->m_Meshes.push_back( meshId );

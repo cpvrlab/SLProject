@@ -70,7 +70,7 @@ private:
 	void getFileSize()
 	{
 		fseek(File, 0, SEEK_END);
-		Size = ftell(File);
+		Size = (int)ftell(File);
 		fseek(File, 0, SEEK_SET);
 	}
 

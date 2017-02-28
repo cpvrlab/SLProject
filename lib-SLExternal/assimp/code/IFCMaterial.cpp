@@ -164,7 +164,7 @@ unsigned int ProcessMaterials(const IFC::IfcRepresentationItem& item, Conversion
 						FillMaterial(mat.get(),surf,conv);
 
 						conv.materials.push_back(mat.release());
-						return conv.materials.size()-1;
+						return (unsigned int)conv.materials.size()-1;
 					}
 				}
 			}

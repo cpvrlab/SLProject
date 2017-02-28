@@ -292,7 +292,7 @@ bool Q3BSPZipArchive::mapArchive() {
 						if(unzOpenCurrentFile(m_ZipFileHandle) == UNZ_OK) {
 							std::pair<std::map<std::string, ZipFile*>::iterator, bool> result = m_ArchiveMap.insert(std::make_pair(filename, new ZipFile(fileInfo.uncompressed_size)));
 
-							if(unzReadCurrentFile(m_ZipFileHandle, result.first->second->m_Buffer, fileInfo.uncompressed_size) == (long int) fileInfo.uncompressed_size) {
+							if(unzReadCurrentFile(m_ZipFileHandle, result.first->second->m_Buffer, (unsigned int)fileInfo.uncompressed_size) == (long int) fileInfo.uncompressed_size) {
 								if(unzCloseCurrentFile(m_ZipFileHandle) == UNZ_OK) {
 									// Nothing to do anymore...
 								}

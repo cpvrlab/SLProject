@@ -205,7 +205,7 @@ void IRRImporter::BuildSkybox(std::vector<aiMesh*>& meshes, std::vector<aiMateri
 		SkyboxVertex( l,-l,-l,  0, 0, 1,   0.f,1.f),
 		SkyboxVertex( l, l,-l,  0, 0, 1,   0.f,0.f),
 		SkyboxVertex(-l, l,-l,  0, 0, 1,   1.f,0.f)) );
-	meshes.back()->mMaterialIndex = materials.size()-6u;
+	meshes.back()->mMaterialIndex = (unsigned int)materials.size()-6u;
 
 	// LEFT SIDE
 	meshes.push_back( BuildSingleQuadMesh( 
@@ -213,7 +213,7 @@ void IRRImporter::BuildSkybox(std::vector<aiMesh*>& meshes, std::vector<aiMateri
 		SkyboxVertex( l,-l, l,  -1, 0, 0,   0.f,1.f),
 		SkyboxVertex( l, l, l,  -1, 0, 0,   0.f,0.f),
 		SkyboxVertex( l, l,-l,  -1, 0, 0,   1.f,0.f)) );
-	meshes.back()->mMaterialIndex = materials.size()-5u;
+	meshes.back()->mMaterialIndex = (unsigned int)materials.size()-5u;
 
 	// BACK SIDE
 	meshes.push_back( BuildSingleQuadMesh( 
@@ -221,7 +221,7 @@ void IRRImporter::BuildSkybox(std::vector<aiMesh*>& meshes, std::vector<aiMateri
 		SkyboxVertex(-l,-l, l,  0, 0, -1,   0.f,1.f),
 		SkyboxVertex(-l, l, l,  0, 0, -1,   0.f,0.f),
 		SkyboxVertex( l, l, l,  0, 0, -1,   1.f,0.f)) );
-	meshes.back()->mMaterialIndex = materials.size()-4u;
+	meshes.back()->mMaterialIndex = (unsigned int)materials.size()-4u;
 
 	// RIGHT SIDE
 	meshes.push_back( BuildSingleQuadMesh( 
@@ -229,7 +229,7 @@ void IRRImporter::BuildSkybox(std::vector<aiMesh*>& meshes, std::vector<aiMateri
 		SkyboxVertex(-l,-l,-l,  1, 0, 0,   0.f,1.f),
 		SkyboxVertex(-l, l,-l,  1, 0, 0,   0.f,0.f),
 		SkyboxVertex(-l, l, l,  1, 0, 0,   1.f,0.f)) );
-	meshes.back()->mMaterialIndex = materials.size()-3u;
+	meshes.back()->mMaterialIndex = (unsigned int)materials.size()-3u;
 
 	// TOP SIDE
 	meshes.push_back( BuildSingleQuadMesh( 
@@ -237,7 +237,7 @@ void IRRImporter::BuildSkybox(std::vector<aiMesh*>& meshes, std::vector<aiMateri
 		SkyboxVertex( l, l, l,  0, -1, 0,   0.f,1.f),
 		SkyboxVertex(-l, l, l,  0, -1, 0,   0.f,0.f),
 		SkyboxVertex(-l, l,-l,  0, -1, 0,   1.f,0.f)) );
-	meshes.back()->mMaterialIndex = materials.size()-2u;
+	meshes.back()->mMaterialIndex = (unsigned int)materials.size()-2u;
 
 	// BOTTOM SIDE
 	meshes.push_back( BuildSingleQuadMesh( 
@@ -245,7 +245,7 @@ void IRRImporter::BuildSkybox(std::vector<aiMesh*>& meshes, std::vector<aiMateri
 		SkyboxVertex( l,-l,-l,  0,  1, 0,   1.f,0.f),
 		SkyboxVertex(-l,-l,-l,  0,  1, 0,   1.f,1.f),
 		SkyboxVertex(-l,-l, l,  0,  1, 0,   0.f,1.f)) );
-	meshes.back()->mMaterialIndex = materials.size()-1u;
+	meshes.back()->mMaterialIndex = (unsigned int)materials.size()-1u;
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -631,7 +631,7 @@ void SetupMapping (aiMaterial* mat, aiTextureMapping mode, const aiVector3D& axi
 		delete[] mat->mProperties;
 		mat->mProperties = new aiMaterialProperty*[p.size()*2];
 
-		mat->mNumAllocated = p.size()*2;
+		mat->mNumAllocated = (unsigned int)p.size()*2;
 	}
 	mat->mNumProperties = (unsigned int)p.size();
 	::memcpy(mat->mProperties,&p[0],sizeof(void*)*mat->mNumProperties);

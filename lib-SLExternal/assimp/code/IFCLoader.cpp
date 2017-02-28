@@ -204,7 +204,7 @@ void IFCImporter::InternReadFile( const std::string& pFile,
 				uint8_t* buff = new uint8_t[fileInfo.uncompressed_size];
 				LogInfo("Decompressing IFCZIP file");
 				unzOpenCurrentFile( zip  );
-				const int ret = unzReadCurrentFile( zip, buff, fileInfo.uncompressed_size);
+				const int ret = unzReadCurrentFile( zip, buff, (unsigned int)fileInfo.uncompressed_size);
 				size_t filesize = fileInfo.uncompressed_size;
 				if ( ret < 0 || size_t(ret) != filesize )
 				{
@@ -710,7 +710,7 @@ aiNode* ProcessSpatialStructure(aiNode* parent, const IfcProduct& el, Conversion
 
 		if (!properties.empty()) {
 			aiMetadata* data = new aiMetadata();
-			data->mNumProperties = properties.size();
+			data->mNumProperties = (unsigned int)properties.size();
 			data->mKeys = new aiString[data->mNumProperties]();
 			data->mValues = new aiMetadataEntry[data->mNumProperties]();
 

@@ -109,7 +109,7 @@ void SLSceneView::init(SLstring name,
     _usesRotation = false;
     _drawBits.allOff();
        
-    _stats.clear();
+    _stats3D.clear();
     _showMenu = true;
     _showStatsTiming = false;
     _showStatsRenderer = false;
@@ -303,11 +303,12 @@ void SLSceneView::onInitialize()
                    (SLfloat)(clock()-t)/(SLfloat)CLOCKS_PER_SEC);
         
         // Collect node statistics
-        _stats.clear();
-        s->root3D()->statsRec(_stats);
-        if (s->menuGL()) s->menuGL()->statsRec(_stats);
-        if (s->menuRT()) s->menuRT()->statsRec(_stats);
-        if (s->menuPT()) s->menuPT()->statsRec(_stats);
+        _stats3D.clear();
+        _stats2D.clear();
+        s->root3D()->statsRec(_stats3D);
+        if (s->menuGL()) s->menuGL()->statsRec(_stats2D);
+        if (s->menuRT()) s->menuRT()->statsRec(_stats2D);
+        if (s->menuPT()) s->menuPT()->statsRec(_stats2D);
 
         // Warn if there are no light in scene
         if (s->lights().size() == 0)
@@ -494,6 +495,7 @@ SLbool SLSceneView::draw3DGL(SLfloat elapsedTimeMS)
     //////////////////////////////
     // 3. Set Projection & View //
     //////////////////////////////
+
     // Set projection and viewport
     if (_camera->projection() > P_monoOrthographic)
          _camera->setProjection(this, ET_left);
@@ -923,7 +925,7 @@ void SLSceneView::draw2DGLAll()
     }   
    
     // 2D finger touch points  
-    #ifndef SL_GLES2
+    #ifndef SL_GLES
     if (_touchDowns)
     {   _stateGL->multiSample(true);
         _stateGL->pushModelViewMatrix();  
@@ -945,13 +947,12 @@ void SLSceneView::draw2DGLAll()
         _vaoTouch.drawArrayAsColored(PT_points, yelloAlpha, 21);
         _stateGL->popModelViewMatrix();
     }
-    #endif
 
     // Draw turntable rotation point
     if ((_mouseDownL || _mouseDownM) && _touchDowns==0)
     {   if (_camera->camAnim()==CA_turntableYUp || _camera->camAnim()==CA_turntableZUp)
         {   _stateGL->multiSample(true);
-            _stateGL->pushModelViewMatrix();  
+            _stateGL->pushModelViewMatrix();
             _stateGL->modelViewMatrix.translate(0, 0, depth);
             SLVVec3f cross = {{0,0,0}};
             _vaoTouch.generateVertexPos(&cross);
@@ -960,6 +961,7 @@ void SLSceneView::draw2DGLAll()
             _stateGL->popModelViewMatrix();
         }
     }
+    #endif
 
     // Draw virtual mouse cursor if we're in HMD stereo mode
     if (_camera->projection() == P_stereoSideBySideD)
@@ -1024,8 +1026,8 @@ SLbool SLSceneView::onMouseDown(SLMouseButton button,
     } 
     
     // Grab image during calibration if calibration stream is running
-    if (s->activeCalib().state() == CS_calibrateStream)
-        s->activeCalib().state(CS_calibrateGrab);
+    if (s->activeCalib()->state() == CS_calibrateStream)
+        s->activeCalib()->state(CS_calibrateGrab);
 
     return result;
 }  
@@ -1392,6 +1394,85 @@ SLbool SLSceneView::onCommand(SLCommand cmd)
 {
     SLScene* s = SLScene::current;
 
+    // Handle scene changes (inkl. calibration start)
+    if (cmd >= C_sceneMinimal && cmd < C_sceneMaximal)
+    {   s->onLoad(this, cmd);
+        rebuild2DMenus(false);
+        return true;
+    }
+
+    // Handle all camera commands
+    if (_camera)
+    {
+        SLProjection prevProjection = _camera->projection();
+        SLbool perspectiveChanged = prevProjection != (SLProjection)(cmd - C_projPersp);
+
+        switch (cmd)
+        {
+            case C_projPersp:
+                _camera->projection(P_monoPerspective);
+                if (_renderType == RT_rt && !_raytracer.continuous() &&
+                    _raytracer.state() == rtFinished)
+                    _raytracer.state(rtReady);
+                break;
+            case C_projOrtho:
+                _camera->projection(P_monoOrthographic);
+                if (_renderType == RT_rt && !_raytracer.continuous() &&
+                    _raytracer.state() == rtFinished)
+                    _raytracer.state(rtReady);
+                break;
+            case C_projSideBySide:    _camera->projection(P_stereoSideBySide); break;
+            case C_projSideBySideP:   _camera->projection(P_stereoSideBySideP); break;
+            case C_projSideBySideD:   _camera->projection(P_stereoSideBySideD); break;
+            case C_projLineByLine:    _camera->projection(P_stereoLineByLine); break;
+            case C_projColumnByColumn:_camera->projection(P_stereoColumnByColumn); break;
+            case C_projPixelByPixel:  _camera->projection(P_stereoPixelByPixel); break;
+            case C_projColorRC:       _camera->projection(P_stereoColorRC); break;
+            case C_projColorRG:       _camera->projection(P_stereoColorRG); break;
+            case C_projColorRB:       _camera->projection(P_stereoColorRB); break;
+            case C_projColorYB:       _camera->projection(P_stereoColorYB); break;
+
+            case C_camSpeedLimitInc:  _camera->maxSpeed(_camera->maxSpeed()*1.2f); return true;
+            case C_camSpeedLimitDec:  _camera->maxSpeed(_camera->maxSpeed()*0.8f); return true;
+            case C_camEyeSepInc:      _camera->onMouseWheel(1, K_ctrl); return true;
+            case C_camEyeSepDec:      _camera->onMouseWheel(-1, K_ctrl); return true;
+            case C_camFocalDistInc:   _camera->onMouseWheel(1, K_shift); return true;
+            case C_camFocalDistDec:   _camera->onMouseWheel(-1, K_shift); return true;
+            case C_camFOVInc:         _camera->onMouseWheel(1, K_alt); return true;
+            case C_camFOVDec:         _camera->onMouseWheel(-1, K_alt); return true;
+            case C_camAnimTurnYUp:    _camera->camAnim(CA_turntableYUp); return true;
+            case C_camAnimTurnZUp:    _camera->camAnim(CA_turntableZUp); return true;
+            case C_camAnimWalkYUp:    _camera->camAnim(CA_walkingYUp); return true;
+            case C_camAnimWalkZUp:    _camera->camAnim(CA_walkingZUp); return true;
+            case C_camDeviceRotOn:    _camera->useDeviceRot(true); return true;
+            case C_camDeviceRotOff:   _camera->useDeviceRot(false); return true;
+            case C_camDeviceRotToggle:_camera->useDeviceRot(!_camera->useDeviceRot()); return true;
+            case C_camReset:          _camera->resetToInitialState(); return true;
+            default: break;
+        }
+
+        // special treatment for the menu position in side-by-side projection
+        if (perspectiveChanged)
+        {   if (cmd == C_projSideBySideD)
+            {   _vrMode = true;
+                SL::dpi *= 2;
+                SLButton::minMenuPos.set(_scrW*0.25f + 100.0f, _scrH*0.5f - 150.0f);
+                rebuild2DMenus();
+                if (onShowSysCursor)
+                    onShowSysCursor(false);
+            }
+            else if (prevProjection == P_stereoSideBySideD)
+            {   _vrMode = false;
+                SL::dpi /= 2;
+                SLButton::minMenuPos.set(10.0f, 10.0f);
+                rebuild2DMenus();
+                if (onShowSysCursor)
+                    onShowSysCursor(true);
+            }
+        }
+    }
+
+    // Handle all other commands
     switch (cmd)
     {
         case C_quit:
@@ -1441,53 +1522,14 @@ SLbool SLSceneView::onCommand(SLCommand cmd)
                 return true;
             } else return false;
 
-        case C_sceneMinimal:
-        case C_sceneFigure:
-        case C_sceneLargeModel:
-        case C_sceneMeshLoad:
-        case C_sceneVRSizeTest:
-        case C_sceneChristoffel:
-        case C_sceneRevolver:
-        case C_sceneTextureBlend:
-        case C_sceneTextureFilter:
-        case C_sceneTextureVideo:
-        case C_sceneFrustumCull:
-        case C_sceneMassiveData:
-
-        case C_scenePerVertexBlinn:
-        case C_scenePerPixelBlinn:
-        case C_scenePerVertexWave:
-        case C_sceneWater:
-        case C_sceneBumpNormal:
-        case C_sceneBumpParallax:
-        case C_sceneEarth:
-
-        case C_sceneMassAnimation:
-        case C_sceneNodeAnimation:
-        case C_sceneSkeletalAnimation:
-        case C_sceneAstroboyArmy:
-
-        case C_sceneTrackChessboard:
-        case C_sceneTrackAruco:
-        case C_sceneTrackFeatures2D:
-
-        case C_sceneRTSpheres:
-        case C_sceneRTMuttenzerBox:
-        case C_sceneRTSoftShadows:
-        case C_sceneRTDoF:
-        case C_sceneRTTest:
-        case C_sceneRTLens:        s->onLoad(this, cmd); return false;
-        
-        case C_sceneCalibrateMain:
-            s->calibMainCam().setCalibrationState();
-            s->onLoad(this, cmd); return false;
-        case C_sceneCalibrateScnd:
-            s->calibScndCam().setCalibrationState();
-            s->onLoad(this, cmd); return false;
-
-        case C_mirrorMainVideoToggle: s->calibMainCam().isMirrored(!s->calibMainCam().isMirrored()); return true;
-        case C_mirrorScndVideoToggle: s->calibScndCam().isMirrored(!s->calibScndCam().isMirrored()); return true;
-        case C_undistortVideoToggle:  s->activeCalib().showUndistorted(!s->activeCalib().showUndistorted()); return true;
+        case C_mirrorHMainVideoToggle:      s->calibMainCam()->toggleMirrorH(); return true;
+        case C_mirrorVMainVideoToggle:      s->calibMainCam()->toggleMirrorV(); return true;
+        case C_mirrorHScndVideoToggle:      s->calibScndCam()->toggleMirrorH(); return true;
+        case C_mirrorVScndVideoToggle:      s->calibScndCam()->toggleMirrorV(); return true;
+        case C_calibFixAspectRatioToggle:   s->activeCalib()->toggleFixAspectRatio(); return true;
+        case C_calibFixPrincipPointalToggle:s->activeCalib()->toggleFixPrincipalPoint(); return true;
+        case C_calibZeroTangentDistToggle:  s->activeCalib()->toggleZeroTangentDist(); return true;
+        case C_undistortVideoToggle:        s->activeCalib()->showUndistorted(!s->activeCalib()->showUndistorted()); return true;
 
         case C_useSceneViewCamera: switchToSceneViewCamera(); return true;
 
@@ -1552,76 +1594,6 @@ SLbool SLSceneView::onCommand(SLCommand cmd)
         default: break;
     }
 
-    if (_camera)
-    {
-        SLProjection prevProjection = _camera->projection();
-        SLbool perspectiveChanged = prevProjection != (SLProjection)(cmd - C_projPersp);
-
-        switch (cmd)
-        {
-            case C_projPersp:
-                _camera->projection(P_monoPerspective);
-                if (_renderType == RT_rt && !_raytracer.continuous() &&
-                    _raytracer.state() == rtFinished)
-                    _raytracer.state(rtReady);
-                break;
-            case C_projOrtho:
-                _camera->projection(P_monoOrthographic);
-                if (_renderType == RT_rt && !_raytracer.continuous() &&
-                    _raytracer.state() == rtFinished)
-                    _raytracer.state(rtReady);
-                break;
-            case C_projSideBySide:    _camera->projection(P_stereoSideBySide); break;
-            case C_projSideBySideP:   _camera->projection(P_stereoSideBySideP); break;
-            case C_projSideBySideD:   _camera->projection(P_stereoSideBySideD); break;
-            case C_projLineByLine:    _camera->projection(P_stereoLineByLine); break;
-            case C_projColumnByColumn:_camera->projection(P_stereoColumnByColumn); break;
-            case C_projPixelByPixel:  _camera->projection(P_stereoPixelByPixel); break;
-            case C_projColorRC:       _camera->projection(P_stereoColorRC); break;
-            case C_projColorRG:       _camera->projection(P_stereoColorRG); break;
-            case C_projColorRB:       _camera->projection(P_stereoColorRB); break;
-            case C_projColorYB:       _camera->projection(P_stereoColorYB); break;
-
-            case C_camSpeedLimitInc:  _camera->maxSpeed(_camera->maxSpeed()*1.2f); return true;
-            case C_camSpeedLimitDec:  _camera->maxSpeed(_camera->maxSpeed()*0.8f); return true;
-            case C_camEyeSepInc:      _camera->onMouseWheel(1, K_ctrl); return true;
-            case C_camEyeSepDec:      _camera->onMouseWheel(-1, K_ctrl); return true;
-            case C_camFocalDistInc:   _camera->onMouseWheel(1, K_shift); return true;
-            case C_camFocalDistDec:   _camera->onMouseWheel(-1, K_shift); return true;
-            case C_camFOVInc:         _camera->onMouseWheel(1, K_alt); return true;
-            case C_camFOVDec:         _camera->onMouseWheel(-1, K_alt); return true;
-            case C_camAnimTurnYUp:    _camera->camAnim(CA_turntableYUp); return true;
-            case C_camAnimTurnZUp:    _camera->camAnim(CA_turntableZUp); return true;
-            case C_camAnimWalkYUp:    _camera->camAnim(CA_walkingYUp); return true;
-            case C_camAnimWalkZUp:    _camera->camAnim(CA_walkingZUp); return true;
-            case C_camDeviceRotOn:    _camera->useDeviceRot(true); return true;
-            case C_camDeviceRotOff:   _camera->useDeviceRot(false); return true;
-            case C_camDeviceRotToggle:_camera->useDeviceRot(!_camera->useDeviceRot()); return true;
-            case C_camReset:          _camera->resetToInitialState(); return true;
-            default: break;
-        }
-
-        // special treatment for the menu position in side-by-side projection
-        if (perspectiveChanged)
-        {   if (cmd == C_projSideBySideD)
-            {   _vrMode = true;
-                SL::dpi *= 2;
-                SLButton::minMenuPos.set(_scrW*0.25f + 100.0f, _scrH*0.5f - 150.0f);
-                rebuild2DMenus();
-                if (onShowSysCursor)
-                    onShowSysCursor(false);
-            }
-            else if (prevProjection == P_stereoSideBySideD)
-            {   _vrMode = false;
-                SL::dpi /= 2;               
-                SLButton::minMenuPos.set(10.0f, 10.0f);
-                rebuild2DMenus();
-                if (onShowSysCursor)
-                    onShowSysCursor(true);
-            }
-        }
-    }
-
     return false;
 }
 //-----------------------------------------------------------------------------
@@ -1635,8 +1607,6 @@ SLbool SLSceneView::onCommand(SLCommand cmd)
 /*! 
 SLSceneView::rebuild2DMenus force a rebuild of all 2d elements, might be needed
 if dpi or other screenspace related parameters changed.
-@todo the menu is still contained in the scene which partly breaks this behavior
-      for multiview applications.
 */
 void SLSceneView::rebuild2DMenus(SLbool showAboutFirst)
 {
@@ -1700,26 +1670,30 @@ void SLSceneView::build2DMenus()
             mn3->addChild(new SLButton(this, "Massive Data Scene", f, C_sceneMassiveData, true, curS==C_sceneMassiveData, mn2));
 
             mn3 = new SLButton(this, "Shader >", f); mn2->addChild(mn3);
-            mn3->addChild(new SLButton(this, "Per Vertex Lighting", f, C_scenePerVertexBlinn, true, curS==C_scenePerVertexBlinn, mn2));
-            mn3->addChild(new SLButton(this, "Per Pixel Lighting", f, C_scenePerPixelBlinn, true, curS==C_scenePerPixelBlinn, mn2));
-            mn3->addChild(new SLButton(this, "Per Vertex Wave", f, C_scenePerVertexWave, true, curS==C_scenePerVertexWave, mn2));
-            mn3->addChild(new SLButton(this, "Water", f, C_sceneWater, true, curS==C_sceneWater, mn2));
-            mn3->addChild(new SLButton(this, "Bump Mapping", f, C_sceneBumpNormal, true, curS==C_sceneBumpNormal, mn2, true));
-            mn3->addChild(new SLButton(this, "Parallax Mapping", f, C_sceneBumpParallax, true, curS==C_sceneBumpParallax, mn2));
+            mn3->addChild(new SLButton(this, "Per Vertex Lighting", f, C_sceneShaderPerVertexBlinn, true, curS==C_sceneShaderPerVertexBlinn, mn2));
+            mn3->addChild(new SLButton(this, "Per Pixel Lighting", f, C_sceneShaderPerPixelBlinn, true, curS==C_sceneShaderPerPixelBlinn, mn2));
+            mn3->addChild(new SLButton(this, "Per Vertex Wave", f, C_sceneShaderPerVertexWave, true, curS==C_sceneShaderPerVertexWave, mn2));
+            mn3->addChild(new SLButton(this, "Water", f, C_sceneShaderWater, true, curS==C_sceneShaderWater, mn2));
+            mn3->addChild(new SLButton(this, "Bump Mapping", f, C_sceneShaderBumpNormal, true, curS==C_sceneShaderBumpNormal, mn2, true));
+            mn3->addChild(new SLButton(this, "Parallax Mapping", f, C_sceneShaderBumpParallax, true, curS==C_sceneShaderBumpParallax, mn2));
             mn3->addChild(new SLButton(this, "Glass Shader", f, C_sceneRevolver, true, curS==C_sceneRevolver, mn2));
-            mn3->addChild(new SLButton(this, "Earth Shader", f, C_sceneEarth, true, curS==C_sceneEarth, mn2));
+            mn3->addChild(new SLButton(this, "Earth Shader", f, C_sceneShaderEarth, true, curS==C_sceneShaderEarth, mn2));
 
             mn3 = new SLButton(this, "Animation >", f); mn2->addChild(mn3);
-            mn3->addChild(new SLButton(this, "Mass Animation", f, C_sceneMassAnimation, true, curS==C_sceneMassAnimation, mn2));
-            mn3->addChild(new SLButton(this, "Astroboy Army", f, C_sceneAstroboyArmy, true, curS==C_sceneAstroboyArmy, mn2));
-            mn3->addChild(new SLButton(this, "Skeletal Animation", f, C_sceneSkeletalAnimation, true, curS==C_sceneSkeletalAnimation, mn2));
-            mn3->addChild(new SLButton(this, "Node Animation", f, C_sceneNodeAnimation, true, curS==C_sceneNodeAnimation, mn2));
+            mn3->addChild(new SLButton(this, "Mass Animation", f, C_sceneAnimationMass, true, curS==C_sceneAnimationMass, mn2));
+            mn3->addChild(new SLButton(this, "Astroboy Army", f, C_sceneAnimationArmy, true, curS==C_sceneAnimationArmy, mn2));
+            mn3->addChild(new SLButton(this, "Skeletal Animation", f, C_sceneAnimationSkeletal, true, curS==C_sceneAnimationSkeletal, mn2));
+            mn3->addChild(new SLButton(this, "Node Animation", f, C_sceneAnimationNode, true, curS==C_sceneAnimationNode, mn2));
     
             mn3 = new SLButton(this, "Using Video >", f); mn2->addChild(mn3);
-            mn3->addChild(new SLButton(this, "Track ArUco Marker", f, C_sceneTrackAruco, true, curS==C_sceneTrackAruco, mn2));
-            mn3->addChild(new SLButton(this, "Track Chessboard", f, C_sceneTrackChessboard, true, curS==C_sceneTrackChessboard, mn2));
-            mn3->addChild(new SLButton(this, "Christoffel Tower", f, C_sceneChristoffel, true, curS == C_sceneChristoffel, mn2));
-            mn3->addChild(new SLButton(this, "Texture from live video", f, C_sceneTextureVideo, true, curS==C_sceneTextureVideo, mn2));
+            if (SLCVCapture::hasSecondaryCamera)
+                mn3->addChild(new SLButton(this, "Track ArUco Marker (Scnd)", f, C_sceneVideoTrackArucoScnd, true, curS==C_sceneVideoTrackArucoScnd, mn2));
+            mn3->addChild(new SLButton(this, "Track ArUco Marker (Main)", f, C_sceneVideoTrackArucoMain, true, curS==C_sceneVideoTrackArucoMain, mn2));
+            if (SLCVCapture::hasSecondaryCamera)
+                mn3->addChild(new SLButton(this, "Track Chessboard (Scnd)", f, C_sceneVideoTrackChessScnd, true, curS==C_sceneVideoTrackChessScnd, mn2));
+            mn3->addChild(new SLButton(this, "Track Chessboard (Main)", f, C_sceneVideoTrackChessMain, true, curS==C_sceneVideoTrackChessMain, mn2));
+            mn3->addChild(new SLButton(this, "Christoffel Tower", f, C_sceneVideoChristoffel, true, curS == C_sceneVideoChristoffel, mn2));
+            mn3->addChild(new SLButton(this, "Texture from live video", f, C_sceneVideoTexture, true, curS==C_sceneVideoTexture, mn2));
    
             mn3 = new SLButton(this, "Ray tracing >", f); mn2->addChild(mn3);
             mn3->addChild(new SLButton(this, "Spheres", f, C_sceneRTSpheres, true, curS==C_sceneRTSpheres, mn2));
@@ -1780,23 +1754,36 @@ void SLSceneView::build2DMenus()
             mn3->addChild(new SLButton(this, "Do Frustum Culling", f, C_frustCullToggle, true, _doFrustumCulling, 0, false));
             mn3->addChild(new SLButton(this, "Do Depth Test", f, C_depthTestToggle, true, _doDepthTest, 0, false));
             mn3->addChild(new SLButton(this, "Animation off", f, C_animationToggle, true, false, 0, false));
+    
+            if (s->videoType()!=VT_NONE)
+            {
+                mn3 = new SLButton(this, "Video >", f); mn2->addChild(mn3);
+                SLCVCalibration* ac = s->activeCalib();
+                if (ac->state()==CS_calibrated)
+                    mn3->addChild(new SLButton(this, "Undistort image", f, C_undistortVideoToggle, true, ac->showUndistorted(), 0, false));
+                mn4 = new SLButton(this, "Calibration Flags >", f); mn3->addChild(mn4);
+                mn4->addChild(new SLButton(this, "Zero Tangent Distortion", f, C_calibZeroTangentDistToggle, true, ac->calibZeroTangentDist(), 0, false));
+                mn4->addChild(new SLButton(this, "Fix Aspect Ratio", f, C_calibFixAspectRatioToggle, true, ac->calibFixAspectRatio(), 0, false));
+                mn4->addChild(new SLButton(this, "Fix Principal Point", f, C_calibFixPrincipPointalToggle, true, ac->calibFixPrincipalPoint(), 0, false));
+                
+                if (SLCVCapture::hasSecondaryCamera)
+                {   mn3->addChild(new SLButton(this, "Mirror scnd. Cam. horiz.", f, C_mirrorHScndVideoToggle, true, ac->isMirroredH(), 0, false));
+                    mn3->addChild(new SLButton(this, "Mirror scnd. Cam. vert.",  f, C_mirrorVScndVideoToggle, true, ac->isMirroredV(), 0, false));
+                    mn3->addChild(new SLButton(this, "Mirror main Cam. horiz.", f, C_mirrorHMainVideoToggle, true, ac->isMirroredH(), 0, false));
+                    mn3->addChild(new SLButton(this, "Mirror main Cam. vert.",  f, C_mirrorVMainVideoToggle, true, ac->isMirroredV(), 0, false));
+                    mn3->addChild(new SLButton(this, "Start scnd. Cam. Calibration", f, C_sceneVideoCalibrateScnd, false, curS==C_sceneVideoCalibrateScnd));
+                    mn3->addChild(new SLButton(this, "Start main Cam. Calibration", f, C_sceneVideoCalibrateMain, false, curS==C_sceneVideoCalibrateMain));
+                } else
+                {   mn3->addChild(new SLButton(this, "Mirror horizontally", f, C_mirrorHMainVideoToggle, true, ac->isMirroredH(), 0, false));
+                    mn3->addChild(new SLButton(this, "Mirror vertically", f, C_mirrorVMainVideoToggle, true, ac->isMirroredV(), 0, false));
+                    mn3->addChild(new SLButton(this, "Start Calibration", f, C_sceneVideoCalibrateMain, false, curS==C_sceneVideoCalibrateMain));
+                }
+            }
 
             stringstream ss;  ss << "UI-DPI: " << SL::dpi << " >";
             mn3 = new SLButton(this, ss.str(), f); mn2->addChild(mn3);
             mn3->addChild(new SLButton(this, "+10%", f, C_dpiInc));
             mn3->addChild(new SLButton(this, "-10%", f, C_dpiDec));
-
-            mn3 = new SLButton(this, "Video >", f); mn2->addChild(mn3);
-          //mn3->addChild(new SLButton(this, "Undistort", f, C_undistortVideoToggle, true, s->activeCalib().showUndistorted(), 0, false));
-            if (SLCVCapture::hasSecondaryCamera)
-            {   mn3->addChild(new SLButton(this, "Mirror Main Camera", f, C_mirrorMainVideoToggle, true, s->calibMainCam().isMirrored(), 0, false));
-                mn3->addChild(new SLButton(this, "Mirror Face Camera", f, C_mirrorScndVideoToggle, true, s->calibScndCam().isMirrored(), 0, false));
-                mn3->addChild(new SLButton(this, "Calibrate Main Camera", f, C_sceneCalibrateMain, false, curS==C_sceneCalibrateMain));
-                mn3->addChild(new SLButton(this, "Calibrate Face Camera", f, C_sceneCalibrateScnd, false, curS==C_sceneCalibrateScnd));
-            } else
-            {   mn3->addChild(new SLButton(this, "Mirror Camera", f, C_mirrorMainVideoToggle, true, s->activeCalib().isMirrored(), 0, false));
-                mn3->addChild(new SLButton(this, "Calibrate Camera", f, C_sceneCalibrateMain, false, curS==C_sceneCalibrateMain));
-            }
 
         mn2 = new SLButton(this, "Render Flags >", f); mn1->addChild(mn2);
         mn2->addChild(new SLButton(this, "Textures off", f, C_textureToggle, true, _drawBits.get(SL_DB_TEXOFF), 0, false));
@@ -1963,12 +1950,13 @@ void SLSceneView::build2DInfoGL()
     if (_showStatsScene)
     {
         // Calculate voxel contents
-        SLfloat vox = (SLfloat)_stats.numVoxels;
-        SLfloat voxEmpty = (SLfloat)_stats.numVoxEmpty;
+        SLfloat vox = (SLfloat)_stats3D.numVoxels;
+        SLfloat voxEmpty = (SLfloat)_stats3D.numVoxEmpty;
         SLfloat voxelsEmpty  = vox ? voxEmpty / vox*100.0f : 0.0f;
-        SLfloat numRTTria = (SLfloat)_stats.numTriangles;
+        SLfloat numRTTria = (SLfloat)_stats3D.numTriangles;
         SLfloat avgTriPerVox = vox ? numRTTria / (vox-voxEmpty) : 0.0f;
-        SLint numRenderedPC = (SLint)((SLfloat)cam->numRendered()/(SLfloat)_stats.numLeafNodes * 100.0f);
+        SLint opaqueAndBlendedNodes = (int)_visibleNodes.size() + (int)_blendNodes.size();
+        SLint numRenderedPC = (SLint)((SLfloat)opaqueAndBlendedNodes/(SLfloat)_stats3D.numNodes * 100.0f);
 
         // Calculate total size of texture bytes on CPU
         SLuint cpuTexMemoryBytes = 0;
@@ -1978,46 +1966,61 @@ void SLSceneView::build2DInfoGL()
 
         sprintf(m+strlen(m), "Memory -------------------------------------\\n");
         sprintf(m+strlen(m), "Scene Name: %s\\n", s->name().c_str());
-        sprintf(m+strlen(m), "No. of Group/Leaf/Light-Nodes: %d / %d / %d\\n",
-                              _stats.numGroupNodes,
-                              _stats.numLeafNodes,
-                              _stats.numLights);
+        sprintf(m+strlen(m), "No. of Nodes: %d\\n",
+                              _stats3D.numNodes);
+        sprintf(m+strlen(m), "No. of Group / Leaf / Light Nodes: %d / %d / %d\\n",
+                              _stats3D.numGroupNodes,
+                              _stats3D.numLeafNodes,
+                              _stats3D.numLights);
+        sprintf(m+strlen(m), "No. of Opaque /Blended / Visible Nodes: %d / %d / %d\\n", 
+                              (SLint)_visibleNodes.size(), 
+                              (SLint)_blendNodes.size(), 
+                              opaqueAndBlendedNodes);
+        sprintf(m+strlen(m), "No. of Visible Nodes: %d (%d%%)\\n", 
+                              opaqueAndBlendedNodes, 
+                              numRenderedPC);
         sprintf(m+strlen(m), "No. of Meshes/Triangles: %u / %u\\n",
-                              _stats.numMeshes,
-                              _stats.numTriangles);
-        sprintf(m+strlen(m), "Nodes in Frustum: %d (%d%%)\\n", cam->numRendered(), numRenderedPC);
+                              _stats3D.numMeshes,
+                              _stats3D.numTriangles);
         sprintf(m+strlen(m), "CPU MB in Tex/Mesh/Voxel/Total: %3.2f / %3.2f / %3.2f / %3.2f\\n",
                               (SLfloat)cpuTexMemoryBytes / 1E6f,
-                              (SLfloat)_stats.numBytes / 1E6f,
-                              (SLfloat)_stats.numBytesAccel / 1E6f,
-                              (SLfloat)(cpuTexMemoryBytes + _stats.numBytes + _stats.numBytesAccel) / 1E6f);
+                              (SLfloat)_stats3D.numBytes / 1E6f,
+                              (SLfloat)_stats3D.numBytesAccel / 1E6f,
+                              (SLfloat)(cpuTexMemoryBytes + _stats3D.numBytes + _stats3D.numBytesAccel) / 1E6f);
         sprintf(m+strlen(m), "GPU MB in Tex/VBO/Total: %4.2f / %4.2f / %4.2f\\n",
                              (SLfloat)SLGLTexture::numBytesInTextures / 1E6f,
                              (SLfloat)SLGLVertexBuffer::totalBufferSize / 1E6f,
                              (SLfloat)(SLGLVertexBuffer::totalBufferSize + SLGLTexture::numBytesInTextures) / 1E6f);
         sprintf(m+strlen(m), "No. of Voxels/empty: %d / %4.1f%%\\n",
-                             _stats.numVoxels,
+                             _stats3D.numVoxels,
                              voxelsEmpty);
         sprintf(m+strlen(m), "Avg. & Max. Tria/Voxel: %4.1f / %d\\n",
                              avgTriPerVox,
-                             _stats.numVoxMaxTria);
+                             _stats3D.numVoxMaxTria);
     }
 
     if (_showStatsVideo)
     {
-        SLCVCalibration& c = s->activeCalib();
+        SLCVCalibration* c = s->activeCalib();
         SLCVSize capSize = SLCVCapture::captureSize;
         SLVideoType vt = s->videoType();
+        SLstring mirrored = "None";
+        if (c->isMirroredH() && c->isMirroredV()) mirrored = "horizontally & vertically"; else
+        if (c->isMirroredH()) mirrored = "horizontally"; else
+        if (c->isMirroredV()) mirrored = "vertically";
 
         sprintf(m+strlen(m), "Video --------------------------------------\\n");
         sprintf(m+strlen(m), "Video Type: %s\\n", vt==0 ? "None" : vt==1 ? "Main Camera" : "Secondary Camera");
-        sprintf(m+strlen(m), "Display size: %d x %d %s\\n", c.imageSize().width, c.imageSize().height, c.isMirrored()?"mirrored":"");
+        sprintf(m+strlen(m), "Display size: %d x %d\\n", c->imageSize().width, c->imageSize().height);
         sprintf(m+strlen(m), "Capture size: %d x %d\\n", capSize.width, capSize.height);
-        sprintf(m+strlen(m), "Field of view (deg.): %4.1f\\n", c.cameraFovDeg());
-        sprintf(m+strlen(m), "fx, fy, cx, cy: %4.1f, %4.1f, %4.1f, %4.1f\\n", c.fx(),c.fy(),c.cx(),c.cy());
-        sprintf(m+strlen(m), "k1, k2, p1, p2: %4.2f, %4.2f, %4.2f, %4.2f\\n", c.k1(),c.k2(),c.p1(),c.p2());
-        sprintf(m+strlen(m), "Calibration time: %s\\n", c.calibrationTime().c_str());
-        sprintf(m+strlen(m), "Calibration state: %s\\n", c.stateStr().c_str());
+        sprintf(m+strlen(m), "Mirrored: %s\\n", mirrored.c_str());
+        sprintf(m+strlen(m), "Undistorted: %s\\n", c->showUndistorted()&&c->state()==CS_calibrated?"Yes":"No");
+        sprintf(m+strlen(m), "Field of view (deg.): %4.1f\\n", c->cameraFovDeg());
+        sprintf(m+strlen(m), "fx, fy, cx, cy: %4.1f, %4.1f, %4.1f, %4.1f\\n", c->fx(),c->fy(),c->cx(),c->cy());
+        sprintf(m+strlen(m), "k1, k2, p1, p2: %4.2f, %4.2f, %4.2f, %4.2f\\n", c->k1(),c->k2(),c->p1(),c->p2());
+        sprintf(m+strlen(m), "Calibration time: %s\\n", c->calibrationTime().c_str());
+        sprintf(m+strlen(m), "Calibration file: %s\\n", c->calibFileName().c_str());
+        sprintf(m+strlen(m), "Calibration state: %s\\n", c->stateStr().c_str());
     }
 
     SLTexFont* f = SLTexFont::getFont(1.2f, SL::dpi);
@@ -2041,14 +2044,15 @@ void SLSceneView::build2DInfoRT()
     SLRaytracer* rt = &_raytracer;
     SLint  primaries = _scrW * _scrH;
     SLuint total = primaries + SLRay::reflectedRays + SLRay::subsampledRays + SLRay::refractedRays + SLRay::shadowRays;
-    SLfloat vox = (SLfloat)_stats.numVoxels;
-    SLfloat voxEmpty = (SLfloat)_stats.numVoxEmpty;
+    SLfloat vox = (SLfloat)_stats3D.numVoxels;
+    SLfloat voxEmpty = (SLfloat)_stats3D.numVoxEmpty;
     SLfloat voxelsEmpty  = vox ? voxEmpty / vox*100.0f : 0.0f;
-    SLfloat numRTTria = (SLfloat)_stats.numTriangles;
+    SLfloat numRTTria = (SLfloat)_stats3D.numTriangles;
     SLfloat avgTriPerVox = vox ? numRTTria / (vox-voxEmpty) : 0.0f;
     SLfloat rpms = rt->renderSec() ? total/rt->renderSec()/1000.0f : 0.0f;
-    SLint numRenderedPC = (SLint)((SLfloat)cam->numRendered()/(SLfloat)_stats.numLeafNodes * 100.0f);
-   
+    SLint opaqueAndBlendedNodes = (SLint)(_visibleNodes.size() + _blendNodes.size());
+    SLint numRenderedPC = (SLint)((SLfloat)opaqueAndBlendedNodes/(SLfloat)_stats3D.numNodes * 100.0f);
+
     SLchar m[2550];   // message character array
     m[0]=0;           // set zero length
 
@@ -2111,29 +2115,29 @@ void SLSceneView::build2DInfoRT()
 
         sprintf(m+strlen(m), "Memory -------------------------------------\\n");
         sprintf(m+strlen(m), "Scene Name: %s\\n", s->name().c_str());
-        sprintf(m+strlen(m), "No. of Group/Leaf/Light-Nodes: %d / %d / %d\\n",
-                              _stats.numGroupNodes,
-                              _stats.numLeafNodes,
-                              _stats.numLights);
+        sprintf(m+strlen(m), "No. of Group / Leaf / Light Nodes: %d / %d / %d\\n",
+                              _stats3D.numGroupNodes,
+                              _stats3D.numLeafNodes,
+                              _stats3D.numLights);
         sprintf(m+strlen(m), "No. of Meshes/Triangles: %u / %u\\n",
-                              _stats.numMeshes,
-                              _stats.numTriangles);
-        sprintf(m+strlen(m), "Nodes in Frustum: %d (%d%%)\\n", cam->numRendered(), numRenderedPC);
+                              _stats3D.numMeshes,
+                              _stats3D.numTriangles);
+        sprintf(m+strlen(m), "Nodes in Frustum: %d (%d%%)\\n", opaqueAndBlendedNodes, numRenderedPC);
         sprintf(m+strlen(m), "CPU MB in Tex/Mesh/Voxel/Total: %3.2f / %3.2f / %3.2f / %3.2f\\n",
                               (SLfloat)cpuTexMemoryBytes / 1E6f,
-                              (SLfloat)_stats.numBytes / 1E6f,
-                              (SLfloat)_stats.numBytesAccel / 1E6f,
-                              (SLfloat)(cpuTexMemoryBytes + _stats.numBytes + _stats.numBytesAccel) / 1E6f);
+                              (SLfloat)_stats3D.numBytes / 1E6f,
+                              (SLfloat)_stats3D.numBytesAccel / 1E6f,
+                              (SLfloat)(cpuTexMemoryBytes + _stats3D.numBytes + _stats3D.numBytesAccel) / 1E6f);
         sprintf(m+strlen(m), "GPU MB in Tex/VBO/Total: %4.2f / %4.2f / %4.2f\\n",
                              (SLfloat)SLGLTexture::numBytesInTextures / 1E6f,
                              (SLfloat)SLGLVertexBuffer::totalBufferSize / 1E6f,
                              (SLfloat)(SLGLVertexBuffer::totalBufferSize + SLGLTexture::numBytesInTextures) / 1E6f);
         sprintf(m+strlen(m), "No. of Voxels/empty: %d / %4.1f%%\\n",
-                             _stats.numVoxels,
+                             _stats3D.numVoxels,
                              voxelsEmpty);
         sprintf(m+strlen(m), "Avg. & Max. Tria/Voxel: %4.1f / %d\\n",
                              avgTriPerVox,
-                             _stats.numVoxMaxTria);
+                             _stats3D.numVoxMaxTria);
     }
 
     SLTexFont* f = SLTexFont::getFont(1.2f, SL::dpi);
@@ -2251,13 +2255,14 @@ SLstring SLSceneView::windowTitle()
                 _pathtracer.pcRendered(), 
                 _pathtracer.numThreads());
     } else
-    {   SLuint nr = _camera->numRendered() ? _camera->numRendered() : _stats.numNodes;
+    {   
+        SLuint nr = (uint)_visibleNodes.size() + (uint)_blendNodes.size();
         if (s->fps() > 5)
             sprintf(title, "%s (fps: %4.0f, %u nodes of %u rendered)",
-                    s->name().c_str(), s->fps(), nr, _stats.numNodes);
+                    s->name().c_str(), s->fps(), nr, _stats3D.numNodes);
         else
             sprintf(title, "%s (fps: %4.1f, %u nodes of %u rendered)",
-                    s->name().c_str(), s->fps(), nr, _stats.numNodes);
+                    s->name().c_str(), s->fps(), nr, _stats3D.numNodes);
     }
     return SLstring(title);
 }

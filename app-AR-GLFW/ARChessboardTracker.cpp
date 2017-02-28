@@ -1,9 +1,9 @@
 //#############################################################################
 //  File:      ARTracker.cpp
-//  Author:    Michael Göttlicher
+//  Author:    Michael Goettlicher
 //  Date:      Spring 2016
 //  Codestyle: https://github.com/cpvrlab/SLProject/wiki/Coding-Style-Guidelines
-//  Copyright: Marcus Hudritsch, Michael Göttlicher
+//  Copyright: Marcus Hudritsch, Michael Goettlicher
 //             This software is provide under the GNU General Public License
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
@@ -41,11 +41,11 @@ bool ARChessboardTracker::init()
 }
 //-----------------------------------------------------------------------------
 bool ARChessboardTracker::track(cv::Mat image, 
-                                SLCVCalibration& calib)
+                                SLCVCalibration* calib)
 {
     bool found = false;
 
-    if(!image.empty() && !calib.cameraMat().empty())
+    if(!image.empty() && !calib->cameraMat().empty())
     {
         //make a gray copy of the webcam image
         //cvtColor(_image, _grayImg, CV_RGB2GRAY);
@@ -66,8 +66,8 @@ bool ARChessboardTracker::track(cv::Mat image,
             //find the camera extrinsic parameters
             bool result = solvePnP(Mat(_boardPoints3D), 
                                    Mat(corners), 
-                                   calib.cameraMat(), 
-                                   calib.distortion(), 
+                                   calib->cameraMat(),
+                                   calib->distortion(),
                                    rVec, 
                                    tVec, 
                                    false, 

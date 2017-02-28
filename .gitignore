@@ -1,7 +1,5 @@
 # Ignored files
 
-
-
 *.suo
 *.vsp
 *.user
@@ -11,7 +9,6 @@
 *.pdb
 *.obj
 *.md5
-*.pdf
 *.dll
 *.lib
 *.exe

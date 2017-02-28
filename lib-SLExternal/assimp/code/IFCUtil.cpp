@@ -223,7 +223,7 @@ IfcVector3 TempMesh::ComputeLastPolygonNormal(bool normalize) const
 		temp[cnt++] = v.z;
 	}
 	IfcVector3 nor;
-	NewellNormal<3,3,3>(nor,total,&temp[0],&temp[1],&temp[2]);
+	NewellNormal<3,3,3>(nor,(unsigned int)total,&temp[0],&temp[1],&temp[2]);
 	return normalize ? nor.Normalize() : nor;
 }
 
@@ -419,7 +419,7 @@ void ConvertCartesianPoint(IfcVector3& out, const IfcCartesianPoint& in)
 {
 	out = IfcVector3();
 	for(size_t i = 0; i < in.Coordinates.size(); ++i) {
-		out[i] = in.Coordinates[i];
+		out[(unsigned int)i] = in.Coordinates[i];
 	}
 }
 
@@ -435,7 +435,7 @@ void ConvertDirection(IfcVector3& out, const IfcDirection& in)
 {
 	out = IfcVector3();
 	for(size_t i = 0; i < in.DirectionRatios.size(); ++i) {
-		out[i] = in.DirectionRatios[i];
+		out[(unsigned int)i] = in.DirectionRatios[i];
 	}
 	const IfcFloat len = out.Length();
 	if (len<1e-6) {
