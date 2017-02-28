@@ -203,19 +203,19 @@ void qtMainWindow::setMenuState()
     ui->actionTexture_Filtering->setChecked(SL::currentSceneID==C_sceneTextureFilter);
     ui->actionFrustum_Culling->setChecked(SL::currentSceneID==C_sceneFrustumCull);
 
-    ui->actionPer_Vertex_Lighting->setChecked(SL::currentSceneID==C_scenePerVertexBlinn);
-    ui->actionPer_Pixel_Lighting->setChecked(SL::currentSceneID==C_scenePerPixelBlinn);
-    ui->actionPer_Vertex_Wave->setChecked(SL::currentSceneID==C_scenePerVertexWave);
-    ui->actionWater->setChecked(SL::currentSceneID==C_sceneWater);
-    ui->actionBump_Mapping->setChecked(SL::currentSceneID==C_sceneBumpNormal);
-    ui->actionParallax_Mapping->setChecked(SL::currentSceneID==C_sceneBumpParallax);
+    ui->actionPer_Vertex_Lighting->setChecked(SL::currentSceneID==C_sceneShaderPerVertexBlinn);
+    ui->actionPer_Pixel_Lighting->setChecked(SL::currentSceneID==C_sceneShaderPerPixelBlinn);
+    ui->actionPer_Vertex_Wave->setChecked(SL::currentSceneID==C_sceneShaderPerVertexWave);
+    ui->actionWater->setChecked(SL::currentSceneID==C_sceneShaderWater);
+    ui->actionBump_Mapping->setChecked(SL::currentSceneID==C_sceneShaderBumpNormal);
+    ui->actionParallax_Mapping->setChecked(SL::currentSceneID==C_sceneShaderBumpParallax);
     ui->actionGlass_Shader->setChecked(SL::currentSceneID==C_sceneRevolver);
-    ui->actionEarth_Shader->setChecked(SL::currentSceneID==C_sceneEarth);
+    ui->actionEarth_Shader->setChecked(SL::currentSceneID==C_sceneShaderEarth);
 
-    ui->actionNode_Animation->setChecked(SL::currentSceneID==C_sceneNodeAnimation);
-    ui->actionSkeletal_Animation->setChecked(SL::currentSceneID==C_sceneSkeletalAnimation);
-    ui->actionAstroboy_Army_CPU->setChecked(SL::currentSceneID==C_sceneAstroboyArmy);
-    ui->actionMass_Animation->setChecked(SL::currentSceneID==C_sceneMassAnimation);
+    ui->actionNode_Animation->setChecked(SL::currentSceneID==C_sceneAnimationNode);
+    ui->actionSkeletal_Animation->setChecked(SL::currentSceneID==C_sceneAnimationSkeletal);
+    ui->actionAstroboy_Army_CPU->setChecked(SL::currentSceneID==C_sceneAnimationArmy);
+    ui->actionMass_Animation->setChecked(SL::currentSceneID==C_sceneAnimationMass);
 
     ui->actionRT_Spheres->setChecked(SL::currentSceneID==C_sceneRTSpheres);
     ui->actionRT_Muttenzer_Box->setChecked(SL::currentSceneID==C_sceneRTMuttenzerBox);
@@ -997,42 +997,42 @@ void qtMainWindow::on_actionPer_Vertex_Lighting_triggered()
 {
     SLScene::current->init(); // calls first uninit
     beforeSceneLoad();
-    _activeGLWidget->sv()->onCommand(C_scenePerVertexBlinn);
+    _activeGLWidget->sv()->onCommand(C_sceneShaderPerVertexBlinn);
     afterSceneLoad();
 }
 void qtMainWindow::on_actionPer_Pixel_Lighting_triggered()
 {
     SLScene::current->init(); // calls first uninit
     beforeSceneLoad();
-    _activeGLWidget->sv()->onCommand(C_scenePerPixelBlinn);
+    _activeGLWidget->sv()->onCommand(C_sceneShaderPerPixelBlinn);
     afterSceneLoad();
 }
 void qtMainWindow::on_actionPer_Vertex_Wave_triggered()
 {
     SLScene::current->init(); // calls first uninit
     beforeSceneLoad();
-    _activeGLWidget->sv()->onCommand(C_scenePerVertexWave);
+    _activeGLWidget->sv()->onCommand(C_sceneShaderPerVertexWave);
     afterSceneLoad();
 }
 void qtMainWindow::on_actionWater_triggered()
 {
     SLScene::current->init(); // calls first uninit
     beforeSceneLoad();
-    _activeGLWidget->sv()->onCommand(C_sceneWater);
+    _activeGLWidget->sv()->onCommand(C_sceneShaderWater);
     afterSceneLoad();
 }
 void qtMainWindow::on_actionBump_Mapping_triggered()
 {
     SLScene::current->init(); // calls first uninit
     beforeSceneLoad();
-    _activeGLWidget->sv()->onCommand(C_sceneBumpNormal);
+    _activeGLWidget->sv()->onCommand(C_sceneShaderBumpNormal);
     afterSceneLoad();
 }
 void qtMainWindow::on_actionParallax_Mapping_triggered()
 {
     SLScene::current->init(); // calls first uninit
     beforeSceneLoad();
-    _activeGLWidget->sv()->onCommand(C_sceneBumpParallax);
+    _activeGLWidget->sv()->onCommand(C_sceneShaderBumpParallax);
     afterSceneLoad();
 }
 void qtMainWindow::on_actionGlass_Shader_triggered()
@@ -1046,7 +1046,7 @@ void qtMainWindow::on_actionEarth_Shader_triggered()
 {
     SLScene::current->init(); // calls first uninit
     beforeSceneLoad();
-    _activeGLWidget->sv()->onCommand(C_sceneEarth);
+    _activeGLWidget->sv()->onCommand(C_sceneShaderEarth);
     afterSceneLoad();
 }
 
@@ -1054,28 +1054,28 @@ void qtMainWindow::on_actionNode_Animation_triggered()
 {
     SLScene::current->init(); // calls first uninit
     beforeSceneLoad();
-    _activeGLWidget->sv()->onCommand(C_sceneNodeAnimation);
+    _activeGLWidget->sv()->onCommand(C_sceneAnimationNode);
     afterSceneLoad();
 }
 void qtMainWindow::on_actionSkeletal_Animation_triggered()
 {
     SLScene::current->init(); // calls first uninit
     beforeSceneLoad();
-    _activeGLWidget->sv()->onCommand(C_sceneSkeletalAnimation);
+    _activeGLWidget->sv()->onCommand(C_sceneAnimationSkeletal);
     afterSceneLoad();
 }
 void qtMainWindow::on_actionAstroboy_Army_triggered()
 {
     SLScene::current->init(); // calls first uninit
     beforeSceneLoad();
-    _activeGLWidget->sv()->onCommand(C_sceneAstroboyArmy);
+    _activeGLWidget->sv()->onCommand(C_sceneAnimationArmy);
     afterSceneLoad();
 }
 void qtMainWindow::on_actionMass_Animation_triggered()
 {
     SLScene::current->init(); // calls first uninit
     beforeSceneLoad();
-    _activeGLWidget->sv()->onCommand(C_sceneMassAnimation);
+    _activeGLWidget->sv()->onCommand(C_sceneAnimationMass);
     afterSceneLoad();
 }
 

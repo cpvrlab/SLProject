@@ -1397,6 +1397,7 @@ SLbool SLSceneView::onCommand(SLCommand cmd)
     // Handle scene changes (inkl. calibration start)
     if (cmd >= C_sceneMinimal && cmd < C_sceneMaximal)
     {   s->onLoad(this, cmd);
+        rebuild2DMenus(false);
         return true;
     }
 
@@ -1606,8 +1607,6 @@ SLbool SLSceneView::onCommand(SLCommand cmd)
 /*! 
 SLSceneView::rebuild2DMenus force a rebuild of all 2d elements, might be needed
 if dpi or other screenspace related parameters changed.
-@todo the menu is still contained in the scene which partly breaks this behavior
-      for multiview applications.
 */
 void SLSceneView::rebuild2DMenus(SLbool showAboutFirst)
 {
@@ -1671,30 +1670,30 @@ void SLSceneView::build2DMenus()
             mn3->addChild(new SLButton(this, "Massive Data Scene", f, C_sceneMassiveData, true, curS==C_sceneMassiveData, mn2));
 
             mn3 = new SLButton(this, "Shader >", f); mn2->addChild(mn3);
-            mn3->addChild(new SLButton(this, "Per Vertex Lighting", f, C_scenePerVertexBlinn, true, curS==C_scenePerVertexBlinn, mn2));
-            mn3->addChild(new SLButton(this, "Per Pixel Lighting", f, C_scenePerPixelBlinn, true, curS==C_scenePerPixelBlinn, mn2));
-            mn3->addChild(new SLButton(this, "Per Vertex Wave", f, C_scenePerVertexWave, true, curS==C_scenePerVertexWave, mn2));
-            mn3->addChild(new SLButton(this, "Water", f, C_sceneWater, true, curS==C_sceneWater, mn2));
-            mn3->addChild(new SLButton(this, "Bump Mapping", f, C_sceneBumpNormal, true, curS==C_sceneBumpNormal, mn2, true));
-            mn3->addChild(new SLButton(this, "Parallax Mapping", f, C_sceneBumpParallax, true, curS==C_sceneBumpParallax, mn2));
+            mn3->addChild(new SLButton(this, "Per Vertex Lighting", f, C_sceneShaderPerVertexBlinn, true, curS==C_sceneShaderPerVertexBlinn, mn2));
+            mn3->addChild(new SLButton(this, "Per Pixel Lighting", f, C_sceneShaderPerPixelBlinn, true, curS==C_sceneShaderPerPixelBlinn, mn2));
+            mn3->addChild(new SLButton(this, "Per Vertex Wave", f, C_sceneShaderPerVertexWave, true, curS==C_sceneShaderPerVertexWave, mn2));
+            mn3->addChild(new SLButton(this, "Water", f, C_sceneShaderWater, true, curS==C_sceneShaderWater, mn2));
+            mn3->addChild(new SLButton(this, "Bump Mapping", f, C_sceneShaderBumpNormal, true, curS==C_sceneShaderBumpNormal, mn2, true));
+            mn3->addChild(new SLButton(this, "Parallax Mapping", f, C_sceneShaderBumpParallax, true, curS==C_sceneShaderBumpParallax, mn2));
             mn3->addChild(new SLButton(this, "Glass Shader", f, C_sceneRevolver, true, curS==C_sceneRevolver, mn2));
-            mn3->addChild(new SLButton(this, "Earth Shader", f, C_sceneEarth, true, curS==C_sceneEarth, mn2));
+            mn3->addChild(new SLButton(this, "Earth Shader", f, C_sceneShaderEarth, true, curS==C_sceneShaderEarth, mn2));
 
             mn3 = new SLButton(this, "Animation >", f); mn2->addChild(mn3);
-            mn3->addChild(new SLButton(this, "Mass Animation", f, C_sceneMassAnimation, true, curS==C_sceneMassAnimation, mn2));
-            mn3->addChild(new SLButton(this, "Astroboy Army", f, C_sceneAstroboyArmy, true, curS==C_sceneAstroboyArmy, mn2));
-            mn3->addChild(new SLButton(this, "Skeletal Animation", f, C_sceneSkeletalAnimation, true, curS==C_sceneSkeletalAnimation, mn2));
-            mn3->addChild(new SLButton(this, "Node Animation", f, C_sceneNodeAnimation, true, curS==C_sceneNodeAnimation, mn2));
+            mn3->addChild(new SLButton(this, "Mass Animation", f, C_sceneAnimationMass, true, curS==C_sceneAnimationMass, mn2));
+            mn3->addChild(new SLButton(this, "Astroboy Army", f, C_sceneAnimationArmy, true, curS==C_sceneAnimationArmy, mn2));
+            mn3->addChild(new SLButton(this, "Skeletal Animation", f, C_sceneAnimationSkeletal, true, curS==C_sceneAnimationSkeletal, mn2));
+            mn3->addChild(new SLButton(this, "Node Animation", f, C_sceneAnimationNode, true, curS==C_sceneAnimationNode, mn2));
     
             mn3 = new SLButton(this, "Using Video >", f); mn2->addChild(mn3);
             if (SLCVCapture::hasSecondaryCamera)
-                mn3->addChild(new SLButton(this, "Track ArUco Marker (Scnd)", f, C_sceneTrackArucoScnd, true, curS==C_sceneTrackArucoScnd, mn2));
-            mn3->addChild(new SLButton(this, "Track ArUco Marker (Main)", f, C_sceneTrackArucoMain, true, curS==C_sceneTrackArucoMain, mn2));
+                mn3->addChild(new SLButton(this, "Track ArUco Marker (Scnd)", f, C_sceneVideoTrackArucoScnd, true, curS==C_sceneVideoTrackArucoScnd, mn2));
+            mn3->addChild(new SLButton(this, "Track ArUco Marker (Main)", f, C_sceneVideoTrackArucoMain, true, curS==C_sceneVideoTrackArucoMain, mn2));
             if (SLCVCapture::hasSecondaryCamera)
-                mn3->addChild(new SLButton(this, "Track Chessboard (Scnd)", f, C_sceneTrackChessScnd, true, curS==C_sceneTrackChessScnd, mn2));
-            mn3->addChild(new SLButton(this, "Track Chessboard (Main)", f, C_sceneTrackChessMain, true, curS==C_sceneTrackChessMain, mn2));
-            mn3->addChild(new SLButton(this, "Christoffel Tower", f, C_sceneChristoffel, true, curS == C_sceneChristoffel, mn2));
-            mn3->addChild(new SLButton(this, "Texture from live video", f, C_sceneTextureVideo, true, curS==C_sceneTextureVideo, mn2));
+                mn3->addChild(new SLButton(this, "Track Chessboard (Scnd)", f, C_sceneVideoTrackChessScnd, true, curS==C_sceneVideoTrackChessScnd, mn2));
+            mn3->addChild(new SLButton(this, "Track Chessboard (Main)", f, C_sceneVideoTrackChessMain, true, curS==C_sceneVideoTrackChessMain, mn2));
+            mn3->addChild(new SLButton(this, "Christoffel Tower", f, C_sceneVideoChristoffel, true, curS == C_sceneVideoChristoffel, mn2));
+            mn3->addChild(new SLButton(this, "Texture from live video", f, C_sceneVideoTexture, true, curS==C_sceneVideoTexture, mn2));
    
             mn3 = new SLButton(this, "Ray tracing >", f); mn2->addChild(mn3);
             mn3->addChild(new SLButton(this, "Spheres", f, C_sceneRTSpheres, true, curS==C_sceneRTSpheres, mn2));
@@ -1755,26 +1754,30 @@ void SLSceneView::build2DMenus()
             mn3->addChild(new SLButton(this, "Do Frustum Culling", f, C_frustCullToggle, true, _doFrustumCulling, 0, false));
             mn3->addChild(new SLButton(this, "Do Depth Test", f, C_depthTestToggle, true, _doDepthTest, 0, false));
             mn3->addChild(new SLButton(this, "Animation off", f, C_animationToggle, true, false, 0, false));
-
-            mn3 = new SLButton(this, "Video >", f); mn2->addChild(mn3);
-            SLCVCalibration* ac = s->activeCalib();
-            mn3->addChild(new SLButton(this, "Undistort image", f, C_undistortVideoToggle, true, ac->showUndistorted(), 0, false));
-            mn4 = new SLButton(this, "Calibration Flags >", f); mn3->addChild(mn4);
+    
+            if (s->videoType()!=VT_NONE)
+            {
+                mn3 = new SLButton(this, "Video >", f); mn2->addChild(mn3);
+                SLCVCalibration* ac = s->activeCalib();
+                if (ac->state()==CS_calibrated)
+                    mn3->addChild(new SLButton(this, "Undistort image", f, C_undistortVideoToggle, true, ac->showUndistorted(), 0, false));
+                mn4 = new SLButton(this, "Calibration Flags >", f); mn3->addChild(mn4);
                 mn4->addChild(new SLButton(this, "Zero Tangent Distortion", f, C_calibZeroTangentDistToggle, true, ac->calibZeroTangentDist(), 0, false));
                 mn4->addChild(new SLButton(this, "Fix Aspect Ratio", f, C_calibFixAspectRatioToggle, true, ac->calibFixAspectRatio(), 0, false));
                 mn4->addChild(new SLButton(this, "Fix Principal Point", f, C_calibFixPrincipPointalToggle, true, ac->calibFixPrincipalPoint(), 0, false));
-
-            if (SLCVCapture::hasSecondaryCamera)
-            {   mn3->addChild(new SLButton(this, "Mirror scnd. Cam. horiz.", f, C_mirrorHScndVideoToggle, true, ac->isMirroredH(), 0, false));
-                mn3->addChild(new SLButton(this, "Mirror scnd. Cam. vert.",  f, C_mirrorVScndVideoToggle, true, ac->isMirroredV(), 0, false));
-                mn3->addChild(new SLButton(this, "Mirror main Cam. horiz.", f, C_mirrorHMainVideoToggle, true, ac->isMirroredH(), 0, false));
-                mn3->addChild(new SLButton(this, "Mirror main Cam. vert.",  f, C_mirrorVMainVideoToggle, true, ac->isMirroredV(), 0, false));
-                mn3->addChild(new SLButton(this, "Start scnd. Cam. Calibration", f, C_sceneCalibrateScnd, false, curS==C_sceneCalibrateScnd));
-                mn3->addChild(new SLButton(this, "Start main Cam. Calibration", f, C_sceneCalibrateMain, false, curS==C_sceneCalibrateMain));
-            } else
-            {   mn3->addChild(new SLButton(this, "Mirror horizontally", f, C_mirrorHMainVideoToggle, true, ac->isMirroredH(), 0, false));
-                mn3->addChild(new SLButton(this, "Mirror vertically", f, C_mirrorVMainVideoToggle, true, ac->isMirroredV(), 0, false));
-                mn3->addChild(new SLButton(this, "Start Calibration", f, C_sceneCalibrateMain, false, curS==C_sceneCalibrateMain));
+                
+                if (SLCVCapture::hasSecondaryCamera)
+                {   mn3->addChild(new SLButton(this, "Mirror scnd. Cam. horiz.", f, C_mirrorHScndVideoToggle, true, ac->isMirroredH(), 0, false));
+                    mn3->addChild(new SLButton(this, "Mirror scnd. Cam. vert.",  f, C_mirrorVScndVideoToggle, true, ac->isMirroredV(), 0, false));
+                    mn3->addChild(new SLButton(this, "Mirror main Cam. horiz.", f, C_mirrorHMainVideoToggle, true, ac->isMirroredH(), 0, false));
+                    mn3->addChild(new SLButton(this, "Mirror main Cam. vert.",  f, C_mirrorVMainVideoToggle, true, ac->isMirroredV(), 0, false));
+                    mn3->addChild(new SLButton(this, "Start scnd. Cam. Calibration", f, C_sceneVideoCalibrateScnd, false, curS==C_sceneVideoCalibrateScnd));
+                    mn3->addChild(new SLButton(this, "Start main Cam. Calibration", f, C_sceneVideoCalibrateMain, false, curS==C_sceneVideoCalibrateMain));
+                } else
+                {   mn3->addChild(new SLButton(this, "Mirror horizontally", f, C_mirrorHMainVideoToggle, true, ac->isMirroredH(), 0, false));
+                    mn3->addChild(new SLButton(this, "Mirror vertically", f, C_mirrorVMainVideoToggle, true, ac->isMirroredV(), 0, false));
+                    mn3->addChild(new SLButton(this, "Start Calibration", f, C_sceneVideoCalibrateMain, false, curS==C_sceneVideoCalibrateMain));
+                }
             }
 
             stringstream ss;  ss << "UI-DPI: " << SL::dpi << " >";
@@ -1970,8 +1973,8 @@ void SLSceneView::build2DInfoGL()
                               _stats3D.numLeafNodes,
                               _stats3D.numLights);
         sprintf(m+strlen(m), "No. of Opaque /Blended / Visible Nodes: %d / %d / %d\\n", 
-                              _visibleNodes.size(), 
-                              _blendNodes.size(), 
+                              (SLint)_visibleNodes.size(), 
+                              (SLint)_blendNodes.size(), 
                               opaqueAndBlendedNodes);
         sprintf(m+strlen(m), "No. of Visible Nodes: %d (%d%%)\\n", 
                               opaqueAndBlendedNodes, 
@@ -2004,7 +2007,7 @@ void SLSceneView::build2DInfoGL()
         SLstring mirrored = "None";
         if (c->isMirroredH() && c->isMirroredV()) mirrored = "horizontally & vertically"; else
         if (c->isMirroredH()) mirrored = "horizontally"; else
-        if (c->isMirroredV()) mirrored = "vertically.";
+        if (c->isMirroredV()) mirrored = "vertically";
 
         sprintf(m+strlen(m), "Video --------------------------------------\\n");
         sprintf(m+strlen(m), "Video Type: %s\\n", vt==0 ? "None" : vt==1 ? "Main Camera" : "Secondary Camera");

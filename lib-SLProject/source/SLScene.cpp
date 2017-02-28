@@ -131,7 +131,7 @@ SLScene::SLScene(SLstring name) : SLObject(name)
     _oculus.init();
 
     _infoAbout =
-"Welcome to the SLProject demo app (v2.0). It is developed at the \
+"Welcome to the SLProject demo app (v2.0.019). It is developed at the \
 Computer Science Department of the Bern University of Applied Sciences. \
 The app shows what you can learn in one semester about 3D computer graphics \
 in real time rendering and ray tracing. The framework is developed \
@@ -431,8 +431,8 @@ bool SLScene::onUpdate()
         //.....................................................................
         if (_activeCalib->state() == CS_uncalibrated)
         {
-            if (SL::currentSceneID == C_sceneCalibrateMain ||
-                SL::currentSceneID == C_sceneCalibrateScnd)
+            if (SL::currentSceneID == C_sceneVideoCalibrateMain ||
+                SL::currentSceneID == C_sceneVideoCalibrateScnd)
             {   menu2D(btnCalibration());
                 _activeCalib->state(CS_calibrateStream);
             } else
@@ -465,9 +465,9 @@ bool SLScene::onUpdate()
         {
             if (_activeCalib->calculate())
             {   _sceneViews[0]->camera()->fov(_activeCalib->cameraFovDeg());
-                if (SL::currentSceneID == C_sceneCalibrateMain)
-                     onLoad(_sceneViews[0], C_sceneTrackChessMain);
-                else onLoad(_sceneViews[0], C_sceneTrackChessScnd);
+                if (SL::currentSceneID == C_sceneVideoCalibrateMain)
+                     onLoad(_sceneViews[0], C_sceneVideoTrackChessMain);
+                else onLoad(_sceneViews[0], C_sceneVideoTrackChessScnd);
             }
         } else
         if (_activeCalib->state() == CS_calibrated ||
@@ -482,10 +482,10 @@ bool SLScene::onUpdate()
                                _sceneViews[0]);
 
             // Update info text only for chessboard scene
-            if (SL::currentSceneID == C_sceneCalibrateMain ||
-                SL::currentSceneID == C_sceneCalibrateScnd ||
-                SL::currentSceneID == C_sceneTrackChessMain ||
-                SL::currentSceneID == C_sceneTrackChessScnd)
+            if (SL::currentSceneID == C_sceneVideoCalibrateMain ||
+                SL::currentSceneID == C_sceneVideoCalibrateScnd ||
+                SL::currentSceneID == C_sceneVideoTrackChessMain ||
+                SL::currentSceneID == C_sceneVideoTrackChessScnd)
             {
                 SLfloat fov = _activeCalib->cameraFovDeg();
                 SLfloat err = _activeCalib->reprojectionError();
