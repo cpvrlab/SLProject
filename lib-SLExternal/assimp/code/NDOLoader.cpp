@@ -254,7 +254,7 @@ void NDOImporter::InternReadFile( const std::string& pFile,
 		}
 
 		aiMesh* mesh = new aiMesh();
-		aiFace* faces = mesh->mFaces = new aiFace[mesh->mNumFaces=face_table.size()];
+		aiFace* faces = mesh->mFaces = new aiFace[mesh->mNumFaces=(unsigned int)face_table.size()];
 
 		vertices.clear();
 		vertices.reserve(4 * face_table.size()); // arbitrarily choosen 
@@ -275,7 +275,7 @@ void NDOImporter::InternReadFile( const std::string& pFile,
 					next_edge = obj.edges[cur_edge].edge[4];
 					next_vert = obj.edges[cur_edge].edge[0];
 				}
-				indices.push_back( vertices.size() );
+				indices.push_back( (unsigned int)vertices.size() );
 				vertices.push_back(obj.vertices[ next_vert ].val);
 
 				cur_edge = next_edge;
@@ -284,11 +284,11 @@ void NDOImporter::InternReadFile( const std::string& pFile,
 				}
 			}
 			
-			f.mIndices = new unsigned int[f.mNumIndices = indices.size()];
+			f.mIndices = new unsigned int[f.mNumIndices = (unsigned int)indices.size()];
 			std::copy(indices.begin(),indices.end(),f.mIndices);
 		}
 
-		mesh->mVertices = new aiVector3D[mesh->mNumVertices = vertices.size()];
+		mesh->mVertices = new aiVector3D[mesh->mNumVertices = (unsigned int)vertices.size()];
 		std::copy(vertices.begin(),vertices.end(),mesh->mVertices);
 
 		if (mesh->mNumVertices) {

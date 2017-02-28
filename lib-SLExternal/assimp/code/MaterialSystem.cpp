@@ -509,7 +509,7 @@ aiReturn aiMaterial::AddProperty (const aiString* pInput,
 		s[1] = static_cast<uint32_t>(pInput->length);
 
 		return AddBinaryProperty(s+1,
-			pInput->length+1+4,
+			(unsigned int)pInput->length+1+4,
 			pKey,
 			type,
 			index, 

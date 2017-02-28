@@ -164,7 +164,7 @@ void FBXImporter::InternReadFile( const std::string& pFile,
 		bool is_binary = false;
 		if (!strncmp(begin,"Kaydara FBX Binary",18)) {
 			is_binary = true;
-			TokenizeBinary(tokens,begin,contents.size());
+			TokenizeBinary(tokens,begin,(unsigned int)contents.size());
 		}
 		else {
 			Tokenize(tokens,begin);

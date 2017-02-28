@@ -699,7 +699,7 @@ unsigned int XGLImporter::ResolveMaterialRef(TempScope& scope)
 	const std::string& s = GetElementName();
 	if (s == "mat") {
 		ReadMaterial(scope);
-		return scope.materials_linear.size()-1;
+		return (unsigned int)scope.materials_linear.size()-1;
 	}
 
 	const int id = ReadIndexFromText();

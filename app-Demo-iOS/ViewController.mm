@@ -370,9 +370,7 @@ float GetSeconds()
 //! Prepares the video capture (taken from the GLCameraRipple example)
 - (void)setupVideo: (bool)useFaceCamera
 {
-    if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad)
-         m_avSessionPreset = AVCaptureSessionPreset640x480;
-    else m_avSessionPreset = AVCaptureSessionPreset1280x720;
+    m_avSessionPreset = AVCaptureSessionPreset640x480;
     
     //-- Setup Capture Session.
     m_avSession = [[AVCaptureSession alloc] init];

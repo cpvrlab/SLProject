@@ -43,7 +43,7 @@ JNIEXPORT void JNICALL Java_ch_fhnw_comgr_GLES3Lib_onClose(JNIEnv *env, jobject 
 JNIEXPORT bool JNICALL Java_ch_fhnw_comgr_GLES3Lib_shouldClose(JNIEnv *env, jobject obj);
 JNIEXPORT bool JNICALL Java_ch_fhnw_comgr_GLES3Lib_usesRotation(JNIEnv *env, jobject obj);
 JNIEXPORT jint JNICALL Java_ch_fhnw_comgr_GLES3Lib_getVideoType(JNIEnv *env, jobject obj);
-JNIEXPORT void JNICALL Java_ch_fhnw_comgr_GLES3Lib_copyVideoImage(JNIEnv *env, jobject obj, jint srcWidth, jint srcHeight, jbyteArray srcBuffer);
+JNIEXPORT void JNICALL Java_ch_fhnw_comgr_GLES3Lib_copyVideoImage(JNIEnv *env, jobject obj, jint imgWidth, jint imgHeight, jbyteArray srcBuffer);
 };
 
 //-----------------------------------------------------------------------------

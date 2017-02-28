@@ -134,7 +134,7 @@ void SplitByBoneCountProcess::Execute( aiScene* pScene)
 	}
 
 	// rebuild the scene's mesh array
-	pScene->mNumMeshes = meshes.size();
+	pScene->mNumMeshes = (unsigned int)meshes.size();
 	delete [] pScene->mMeshes;
 	pScene->mMeshes = new aiMesh*[pScene->mNumMeshes];
 	std::copy( meshes.begin(), meshes.end(), pScene->mMeshes);
@@ -239,8 +239,8 @@ void SplitByBoneCountProcess::SplitMesh( const aiMesh* pMesh, std::vector<aiMesh
 		poNewMeshes.push_back( newMesh);
 
 		// create all the arrays for this mesh if the old mesh contained them
-		newMesh->mNumVertices = numSubMeshVertices;
-		newMesh->mNumFaces = subMeshFaces.size();
+		newMesh->mNumVertices = (unsigned int)numSubMeshVertices;
+		newMesh->mNumFaces = (unsigned int)subMeshFaces.size();
 		newMesh->mVertices = new aiVector3D[newMesh->mNumVertices];
 		if( pMesh->HasNormals() )
 			newMesh->mNormals = new aiVector3D[newMesh->mNumVertices];
@@ -251,13 +251,13 @@ void SplitByBoneCountProcess::SplitMesh( const aiMesh* pMesh, std::vector<aiMesh
 		}
 		for( size_t a = 0; a < AI_MAX_NUMBER_OF_TEXTURECOORDS; ++a )
 		{
-			if( pMesh->HasTextureCoords( a) )
+			if( pMesh->HasTextureCoords((unsigned int)a) )
 				newMesh->mTextureCoords[a] = new aiVector3D[newMesh->mNumVertices];
 			newMesh->mNumUVComponents[a] = pMesh->mNumUVComponents[a];
 		}
 		for( size_t a = 0; a < AI_MAX_NUMBER_OF_COLOR_SETS; ++a )
 		{
-			if( pMesh->HasVertexColors( a) )
+			if( pMesh->HasVertexColors((unsigned int)a) )
 				newMesh->mColors[a] = new aiColor4D[newMesh->mNumVertices];
 		}
 
@@ -276,7 +276,7 @@ void SplitByBoneCountProcess::SplitMesh( const aiMesh* pMesh, std::vector<aiMesh
 			for( size_t b = 0; b < dstFace.mNumIndices; ++b )
 			{
 				size_t srcIndex = srcFace.mIndices[b];
-				dstFace.mIndices[b] = nvi;
+				dstFace.mIndices[b] = (unsigned int)nvi;
 				previousVertexIndices[nvi] = srcIndex;
 
 				newMesh->mVertices[nvi] = pMesh->mVertices[srcIndex];
@@ -289,12 +289,12 @@ void SplitByBoneCountProcess::SplitMesh( const aiMesh* pMesh, std::vector<aiMesh
 				}
 				for( size_t c = 0; c < AI_MAX_NUMBER_OF_TEXTURECOORDS; ++c )
 				{
-					if( pMesh->HasTextureCoords( c) )
+					if( pMesh->HasTextureCoords((unsigned int)c) )
 						newMesh->mTextureCoords[c][nvi] = pMesh->mTextureCoords[c][srcIndex];
 				}
 				for( size_t c = 0; c < AI_MAX_NUMBER_OF_COLOR_SETS; ++c )
 				{
-					if( pMesh->HasVertexColors( c) )
+					if( pMesh->HasVertexColors((unsigned int)c) )
 						newMesh->mColors[c][nvi] = pMesh->mColors[c][srcIndex];
 				}
 
@@ -365,7 +365,7 @@ void SplitByBoneCountProcess::SplitMesh( const aiMesh* pMesh, std::vector<aiMesh
 				aiVertexWeight* dstWeight = newMesh->mBones[newBoneIndex]->mWeights + newMesh->mBones[newBoneIndex]->mNumWeights;
 				newMesh->mBones[newBoneIndex]->mNumWeights++;
 
-				dstWeight->mVertexId = a;
+				dstWeight->mVertexId = (unsigned int)a;
 				dstWeight->mWeight = bonesOnThisVertex[b].second;
 			}
 		}
@@ -390,7 +390,7 @@ void SplitByBoneCountProcess::UpdateNode( aiNode* pNode) const
 		}
 
 		delete pNode->mMeshes;
-		pNode->mNumMeshes = newMeshList.size();
+		pNode->mNumMeshes = (unsigned int)newMeshList.size();
 		pNode->mMeshes = new unsigned int[pNode->mNumMeshes];
 		std::copy( newMeshList.begin(), newMeshList.end(), pNode->mMeshes);
 	}

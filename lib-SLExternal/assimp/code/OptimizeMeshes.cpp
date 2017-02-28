@@ -135,7 +135,7 @@ void OptimizeMeshesProcess::Execute( aiScene* pScene)
 	meshes.clear();
 	ai_assert(output.size() <= num_old);
 
-	mScene->mNumMeshes = output.size();
+	mScene->mNumMeshes = (unsigned int)output.size();
 	std::copy(output.begin(),output.end(),mScene->mMeshes);
 
 	if (output.size() != num_old) {
@@ -188,7 +188,7 @@ void OptimizeMeshesProcess::ProcessNode( aiNode* pNode)
 			else {
 				output.push_back(mScene->mMeshes[im]);
 			}
-			im = output.size()-1;
+			im = (unsigned int)output.size()-1;
 		}
 	}
 

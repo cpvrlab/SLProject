@@ -146,7 +146,7 @@ void BaseImporter::GetExtensionList(std::set<std::string>& extensions)
 		boost::scoped_array<char> _buffer (new char[searchBytes+1 /* for the '\0' */]);
 		char* buffer = _buffer.get();
 
-		const unsigned int read = pStream->Read(buffer,1,searchBytes);
+		const unsigned int read = (unsigned int)pStream->Read(buffer,1,searchBytes);
 		if (!read)
 			return false;
 
@@ -383,7 +383,7 @@ void BaseImporter::ConvertToUTF8(std::vector<char>& data)
 // Convert to UTF8 data to ISO-8859-1
 void BaseImporter::ConvertUTF8toISO8859_1(std::string& data)
 {
-	unsigned int size = data.size();
+	unsigned int size = (unsigned int)data.size();
 	unsigned int i = 0, j = 0;
 
 	while(i < size) {

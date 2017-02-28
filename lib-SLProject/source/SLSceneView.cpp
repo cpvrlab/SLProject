@@ -1955,7 +1955,7 @@ void SLSceneView::build2DInfoGL()
         SLfloat voxelsEmpty  = vox ? voxEmpty / vox*100.0f : 0.0f;
         SLfloat numRTTria = (SLfloat)_stats3D.numTriangles;
         SLfloat avgTriPerVox = vox ? numRTTria / (vox-voxEmpty) : 0.0f;
-        SLint opaqueAndBlendedNodes = _visibleNodes.size() + _blendNodes.size();
+        SLint opaqueAndBlendedNodes = (int)_visibleNodes.size() + (int)_blendNodes.size();
         SLint numRenderedPC = (SLint)((SLfloat)opaqueAndBlendedNodes/(SLfloat)_stats3D.numNodes * 100.0f);
 
         // Calculate total size of texture bytes on CPU
@@ -2050,7 +2050,7 @@ void SLSceneView::build2DInfoRT()
     SLfloat numRTTria = (SLfloat)_stats3D.numTriangles;
     SLfloat avgTriPerVox = vox ? numRTTria / (vox-voxEmpty) : 0.0f;
     SLfloat rpms = rt->renderSec() ? total/rt->renderSec()/1000.0f : 0.0f;
-    SLint opaqueAndBlendedNodes = _visibleNodes.size() + _blendNodes.size();
+    SLint opaqueAndBlendedNodes = (SLint)(_visibleNodes.size() + _blendNodes.size());
     SLint numRenderedPC = (SLint)((SLfloat)opaqueAndBlendedNodes/(SLfloat)_stats3D.numNodes * 100.0f);
 
     SLchar m[2550];   // message character array
@@ -2256,7 +2256,7 @@ SLstring SLSceneView::windowTitle()
                 _pathtracer.numThreads());
     } else
     {   
-        SLuint nr = _visibleNodes.size() + _blendNodes.size();
+        SLuint nr = (uint)_visibleNodes.size() + (uint)_blendNodes.size();
         if (s->fps() > 5)
             sprintf(title, "%s (fps: %4.0f, %u nodes of %u rendered)",
                     s->name().c_str(), s->fps(), nr, _stats3D.numNodes);

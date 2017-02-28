@@ -892,7 +892,7 @@ void LWSImporter::InternReadFile( const std::string& pFile, aiScene* pScene,
 		anim->mTicksPerSecond = fps;
 		anim->mDuration = last-(first-1); /* fixme ... zero or one-based?*/
 
-		anim->mChannels = new aiNodeAnim*[anim->mNumChannels = anims.size()];
+		anim->mChannels = new aiNodeAnim*[anim->mNumChannels = (unsigned int)anims.size()];
 		std::copy(anims.begin(),anims.end(),anim->mChannels);
 	}
 
