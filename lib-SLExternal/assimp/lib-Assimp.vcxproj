@@ -1,10 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
-    <ProjectConfiguration Include="Debug|Android">
-      <Configuration>Debug</Configuration>
-      <Platform>Android</Platform>
-    </ProjectConfiguration>
     <ProjectConfiguration Include="Debug|Win32">
       <Configuration>Debug</Configuration>
       <Platform>Win32</Platform>
@@ -12,10 +8,6 @@
     <ProjectConfiguration Include="Debug|x64">
       <Configuration>Debug</Configuration>
       <Platform>x64</Platform>
-    </ProjectConfiguration>
-    <ProjectConfiguration Include="Release|Android">
-      <Configuration>Release</Configuration>
-      <Platform>Android</Platform>
     </ProjectConfiguration>
     <ProjectConfiguration Include="Release|Win32">
       <Configuration>Release</Configuration>
@@ -39,13 +31,6 @@
     <PlatformToolset>v140</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Android'" Label="Configuration">
-    <ConfigurationType>StaticLibrary</ConfigurationType>
-    <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>arm-linux-androideabi-4.9</PlatformToolset>
-    <CharacterSet>Unicode</CharacterSet>
-    <AndroidAPILevel>android-12</AndroidAPILevel>
-  </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
@@ -58,14 +43,6 @@
     <PlatformToolset>v140</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Android'" Label="Configuration">
-    <ConfigurationType>Application</ConfigurationType>
-    <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>arm-linux-androideabi-4.9</PlatformToolset>
-    <WholeProgramOptimization>true</WholeProgramOptimization>
-    <CharacterSet>Unicode</CharacterSet>
-    <AndroidAPILevel>android-12</AndroidAPILevel>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
@@ -80,16 +57,10 @@
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
-  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Android'" Label="PropertySheets">
-    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-  </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-  </ImportGroup>
-  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|Android'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="PropertySheets">
@@ -101,22 +72,12 @@
     <OutDir>$(SolutionDir)_lib\$(Configuration)\$(Platform)\</OutDir>
     <IntDir>$(SolutionDir)intermediate\$(ProjectName)\$(Configuration)\$(Platform)\</IntDir>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Android'">
-    <LinkIncremental>true</LinkIncremental>
-    <OutDir>$(SolutionDir)_lib\$(Configuration)\$(Platform)\</OutDir>
-    <IntDir>$(SolutionDir)intermediate\$(ProjectName)\$(Configuration)\$(Platform)\</IntDir>
-  </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
     <OutDir>$(SolutionDir)_lib\$(Configuration)\$(Platform)\</OutDir>
     <IntDir>$(SolutionDir)intermediate\$(ProjectName)\$(Configuration)\$(Platform)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <LinkIncremental>false</LinkIncremental>
-    <OutDir>$(SolutionDir)_lib\$(Configuration)\$(Platform)\</OutDir>
-    <IntDir>$(SolutionDir)intermediate\$(ProjectName)\$(Configuration)\$(Platform)\</IntDir>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Android'">
     <LinkIncremental>false</LinkIncremental>
     <OutDir>$(SolutionDir)_lib\$(Configuration)\$(Platform)\</OutDir>
     <IntDir>$(SolutionDir)intermediate\$(ProjectName)\$(Configuration)\$(Platform)\</IntDir>
@@ -136,26 +97,6 @@
       <SDLCheck>true</SDLCheck>
       <AdditionalIncludeDirectories>code\BoostWorkaround;contrib\;contrib\zlib\;include\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalOptions>-D_SCL_SECURE_NO_WARNINGS %(AdditionalOptions)</AdditionalOptions>
-    </ClCompile>
-    <Link>
-      <SubSystem>Console</SubSystem>
-      <GenerateDebugInformation>true</GenerateDebugInformation>
-    </Link>
-  </ItemDefinitionGroup>
-  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Android'">
-    <ClCompile>
-      <PrecompiledHeader>
-      </PrecompiledHeader>
-      <WarningLevel>Level3</WarningLevel>
-      <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>_DEBUG;_LIB;_CRT_SECURE_NO_WARNINGS;ASSIMP_BUILD_BOOST_WORKAROUND;ASSIMP_BUILD_NO_OWN_ZLIB;ASSIMP_BUILD_NO_MD3_IMPORTER;ASSIMP_BUILD_NO_MDL_IMPORTER;ASSIMP_BUILD_NO_MD2_IMPORTER;ASSIMP_BUILD_NO_ASE_IMPORTER;ASSIMP_BUILD_NO_HMP_IMPORTER;ASSIMP_BUILD_NO_SMD_IMPORTER;ASSIMP_BUILD_NO_MDC_IMPORTER;ASSIMP_BUILD_NO_MD5_IMPORTER;ASSIMP_BUILD_NO_LWO_IMPORTER;ASSIMP_BUILD_NO_NFF_IMPORTER;ASSIMP_BUILD_NO_RAW_IMPORTER;ASSIMP_BUILD_NO_OFF_IMPORTER;ASSIMP_BUILD_NO_AC_IMPORTER;ASSIMP_BUILD_NO_BVH_IMPORTER;ASSIMP_BUILD_NO_IRRMESH_IMPORTER;ASSIMP_BUILD_NO_IRR_IMPORTER;ASSIMP_BUILD_NO_Q3D_IMPORTER;ASSIMP_BUILD_NO_B3D_IMPORTER;ASSIMP_BUILD_NO_TERRAGEN_IMPORTER;ASSIMP_BUILD_NO_CSM_IMPORTER;ASSIMP_BUILD_NO_3D_IMPORTER;ASSIMP_BUILD_NO_LWS_IMPORTER;ASSIMP_BUILD_NO_OGRE_IMPORTER;ASSIMP_BUILD_NO_MS3D_IMPORTER;ASSIMP_BUILD_NO_COB_IMPORTER;ASSIMP_BUILD_NO_Q3BSP_IMPORTER;ASSIMP_BUILD_NO_NDO_IMPORTER;ASSIMP_BUILD_NO_IFC_IMPORTER;ASSIMP_BUILD_NO_XGL_IMPORTER;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>code\BoostWorkaround;contrib\;contrib\zlib\;include\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <AdditionalOptions>-D_SCL_SECURE_NO_WARNINGS %(AdditionalOptions)</AdditionalOptions>
-      <GccExceptionHandling>true</GccExceptionHandling>
-      <GenerateDebugInformation>false</GenerateDebugInformation>
-      <OptimizationLevel>O3</OptimizationLevel>
-      <RuntimeTypeInfo>true</RuntimeTypeInfo>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -190,26 +131,6 @@
       <SDLCheck>true</SDLCheck>
       <AdditionalIncludeDirectories>code\BoostWorkaround;contrib\;contrib\zlib\;include\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalOptions>-D_SCL_SECURE_NO_WARNINGS %(AdditionalOptions)</AdditionalOptions>
-    </ClCompile>
-    <Link>
-      <SubSystem>Console</SubSystem>
-      <GenerateDebugInformation>true</GenerateDebugInformation>
-      <EnableCOMDATFolding>true</EnableCOMDATFolding>
-      <OptimizeReferences>true</OptimizeReferences>
-    </Link>
-  </ItemDefinitionGroup>
-  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Android'">
-    <ClCompile>
-      <WarningLevel>Level3</WarningLevel>
-      <PrecompiledHeader>
-      </PrecompiledHeader>
-      <Optimization>MaxSpeed</Optimization>
-      <PreprocessorDefinitions>_DEBUG;_LIB;_CRT_SECURE_NO_WARNINGS;ASSIMP_BUILD_BOOST_WORKAROUND;ASSIMP_BUILD_NO_OWN_ZLIB;ASSIMP_BUILD_NO_MD3_IMPORTER;ASSIMP_BUILD_NO_MDL_IMPORTER;ASSIMP_BUILD_NO_MD2_IMPORTER;ASSIMP_BUILD_NO_ASE_IMPORTER;ASSIMP_BUILD_NO_HMP_IMPORTER;ASSIMP_BUILD_NO_SMD_IMPORTER;ASSIMP_BUILD_NO_MDC_IMPORTER;ASSIMP_BUILD_NO_MD5_IMPORTER;ASSIMP_BUILD_NO_LWO_IMPORTER;ASSIMP_BUILD_NO_NFF_IMPORTER;ASSIMP_BUILD_NO_RAW_IMPORTER;ASSIMP_BUILD_NO_OFF_IMPORTER;ASSIMP_BUILD_NO_AC_IMPORTER;ASSIMP_BUILD_NO_BVH_IMPORTER;ASSIMP_BUILD_NO_IRRMESH_IMPORTER;ASSIMP_BUILD_NO_IRR_IMPORTER;ASSIMP_BUILD_NO_Q3D_IMPORTER;ASSIMP_BUILD_NO_B3D_IMPORTER;ASSIMP_BUILD_NO_TERRAGEN_IMPORTER;ASSIMP_BUILD_NO_CSM_IMPORTER;ASSIMP_BUILD_NO_3D_IMPORTER;ASSIMP_BUILD_NO_LWS_IMPORTER;ASSIMP_BUILD_NO_OGRE_IMPORTER;ASSIMP_BUILD_NO_MS3D_IMPORTER;ASSIMP_BUILD_NO_COB_IMPORTER;ASSIMP_BUILD_NO_Q3BSP_IMPORTER;ASSIMP_BUILD_NO_NDO_IMPORTER;ASSIMP_BUILD_NO_IFC_IMPORTER;ASSIMP_BUILD_NO_XGL_IMPORTER;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>code\BoostWorkaround;contrib\;contrib\zlib\;include\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <AdditionalOptions>-D_SCL_SECURE_NO_WARNINGS %(AdditionalOptions)</AdditionalOptions>
-      <GccExceptionHandling>true</GccExceptionHandling>
-      <RuntimeTypeInfo>true</RuntimeTypeInfo>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
