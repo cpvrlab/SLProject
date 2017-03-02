@@ -33,6 +33,7 @@ SLCVTrackerChessboard::SLCVTrackerChessboard(SLNode* node) : SLCVTracker(node)
 //-----------------------------------------------------------------------------
 //! Tracks the chessboard image in the given image for the first sceneview
 bool SLCVTrackerChessboard::track(SLCVMat imageGray,
+                                  SLCVMat imageRgb,
                                   SLCVCalibration* calib,
                                   SLSceneView* sv)
 {

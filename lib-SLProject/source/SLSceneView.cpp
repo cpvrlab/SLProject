@@ -1705,6 +1705,7 @@ void SLSceneView::build2DMenus()
                 mn3->addChild(new SLButton(this, "Track Chessboard (Scnd)", f, C_sceneVideoTrackChessScnd, true, curS==C_sceneVideoTrackChessScnd, mn2));
             mn3->addChild(new SLButton(this, "Track Chessboard (Main)", f, C_sceneVideoTrackChessMain, true, curS==C_sceneVideoTrackChessMain, mn2));
             mn3->addChild(new SLButton(this, "Christoffel Tower", f, C_sceneVideoChristoffel, true, curS == C_sceneVideoChristoffel, mn2));
+            mn3->addChild(new SLButton(this, "Feature Tracking", f, C_sceneVideoFeaturetracking, true, curS == C_sceneVideoFeaturetracking, mn2));
             mn3->addChild(new SLButton(this, "Texture from live video", f, C_sceneVideoTexture, true, curS==C_sceneVideoTexture, mn2));
    
             mn3 = new SLButton(this, "Ray tracing >", f); mn2->addChild(mn3);
@@ -1931,6 +1932,7 @@ void SLSceneView::build2DInfoGL()
     {
         SLfloat updateTimePC    = SL_clamp(s->updateTimesMS().average()   / s->frameTimesMS().average()*100.0f, 0.0f,100.0f);
         SLfloat trackingTimePC  = SL_clamp(s->trackingTimesMS().average() / s->frameTimesMS().average()*100.0f, 0.0f,100.0f);
+        SLfloat featureTimePC   = SL_clamp(s->featureTimesMS().average() / s->frameTimesMS().average()*100.0f, 0.0f,100.0f);
         SLfloat cullTimePC      = SL_clamp(s->cullTimesMS().average()     / s->frameTimesMS().average()*100.0f, 0.0f,100.0f);
         SLfloat draw3DTimePC    = SL_clamp(s->draw3DTimesMS().average()   / s->frameTimesMS().average()*100.0f, 0.0f,100.0f);
         SLfloat draw2DTimePC    = SL_clamp(s->draw2DTimesMS().average()   / s->frameTimesMS().average()*100.0f, 0.0f,100.0f);
@@ -1941,6 +1943,7 @@ void SLSceneView::build2DInfoGL()
         sprintf(m+strlen(m), "Frame Time : %4.1f ms (100%%)\\n", s->frameTimesMS().average());
         sprintf(m+strlen(m), "Update Time : %4.1f ms (%0.0f%%)\\n", s->updateTimesMS().average(), updateTimePC);
         sprintf(m+strlen(m), "> Tracking Time: %4.1f ms (%0.0f%%)\\n", s->trackingTimesMS().average(), trackingTimePC);
+        sprintf(m+strlen(m), "> Feature Tracking Time: %4.1f ms (%0.0f%%)\\n", s->featureTimesMS().average(), featureTimePC);
         sprintf(m+strlen(m), "Culling Time : %4.1f ms (%0.0f%%)\\n", s->cullTimesMS().average(), cullTimePC);
         sprintf(m+strlen(m), "Draw Time 3D: %4.1f ms (%0.0f%%)\\n", s->draw3DTimesMS().average(), draw3DTimePC);
         sprintf(m+strlen(m), "Draw Time 2D: %4.1f ms (%0.0f%%)\\n", s->draw2DTimesMS().average(), draw2DTimePC);

@@ -99,6 +99,7 @@ class SLCVTrackerAruco : public SLCVTracker
                ~SLCVTrackerAruco    () {;}
 
         SLbool  track               (SLCVMat imageGray,
+                                     SLCVMat imageRgb,
                                      SLCVCalibration* calib,
                                      SLSceneView* sv);
 

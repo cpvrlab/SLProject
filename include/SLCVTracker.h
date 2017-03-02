@@ -45,7 +45,8 @@ class SLCVTracker
                                          _node(node), _isVisible(false){;}
         virtual     ~SLCVTracker        (){;}
 
-        virtual SLbool track            (SLCVMat imageGray,
+        virtual     SLbool track        (SLCVMat imageGray,
+                                         SLCVMat imageRgb,
                                          SLCVCalibration* calib,
                                          SLSceneView* sv) = 0;
 

@@ -48,6 +48,7 @@ SLCVTrackerAruco::SLCVTrackerAruco(SLNode* node, SLint arucoID) :
 markers are used for different SLNode.
 */
 SLbool SLCVTrackerAruco::track(SLCVMat imageGray,
+                               SLCVMat imageRgb,
                                SLCVCalibration* calib,
                                SLSceneView* sv)
 {
