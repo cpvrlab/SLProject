@@ -477,6 +477,7 @@ bool SLScene::onUpdate()
             // track all trackers in the first sceneview
             for (auto tracker : _trackers)
                 tracker->track(SLCVCapture::lastFrameGray,
+                               SLCVCapture::lastFrame,
                                _activeCalib,
                                _sceneViews[0]);
 

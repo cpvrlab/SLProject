@@ -105,6 +105,7 @@ enum SLCommand
 
     C_sceneVideoTexture,
     C_sceneVideoChristoffel,
+    C_sceneVideoFeaturetracking,
     C_sceneVideoCalibrateMain,
     C_sceneVideoCalibrateScnd,
     C_sceneVideoTrackChessMain,

@@ -35,6 +35,7 @@ class SLCVTrackerChessboard : public SLCVTracker
                 SLCVTrackerChessboard   (SLNode* node);
                ~SLCVTrackerChessboard   () {;}
         bool    track                   (SLCVMat imageGray,
+                                         SLCVMat imageRgb,
                                          SLCVCalibration* calib,
                                          SLSceneView* sv);
     private:
