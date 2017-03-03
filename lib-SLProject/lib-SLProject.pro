@@ -70,6 +70,7 @@ HEADERS += \
 ../include/SLCVTracker.h \
 ../include/SLCVTrackerAruco.h \
 ../include/SLCVTrackerChessboard.h \
+../include/SLCVTrackerFeatures.h \
 ../include/SLDisk.h \
 ../include/SLDrawBits.h \
 ../include/SLEnums.h \
@@ -161,6 +162,7 @@ source/CV/SLCVFeatureMapper2D.cpp \
 source/CV/SLCVImage.cpp \
 source/CV/SLCVTrackerAruco.cpp \
 source/CV/SLCVTrackerChessboard.cpp \
+source/CV/SLCVTrackerFeatures.cpp \
 source/SLAABBox.cpp \
 source/SLAnimation.cpp \
 source/SLAnimManager.cpp \
