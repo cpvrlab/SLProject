@@ -24,7 +24,7 @@ using namespace cv;
 //-----------------------------------------------------------------------------
 bool ARChessboardTracker::init()
 {
-    SLstring filename = "chessboard_detector_params.yml";
+    SLstring filename = "calib_in_params.yml";
     cv::FileStorage fs(SLCVCalibration::calibIniPath + filename, 
                        cv::FileStorage::READ);
     if(!fs.isOpened())
@@ -32,9 +32,9 @@ bool ARChessboardTracker::init()
         cout << "Tried " << SLCVCalibration::calibIniPath + filename << endl;
         return false;
     }
-    fs["boardWidth"]  >> _boardSize.width;
-    fs["boardHeight"] >> _boardSize.height;
-    fs["edgeLengthM"] >> _edgeLengthM;
+    fs["numInnerCornersWidth"]  >> _boardSize.width;
+    fs["numInnerCornersHeight"] >> _boardSize.height;
+    fs["squareSizeMM"] >> _edgeLengthM;
 
     SLCVCalibration::calcBoardCorners3D(_boardSize, _edgeLengthM, _boardPoints3D);
     return true;
