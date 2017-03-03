@@ -49,6 +49,13 @@ class SLCVCapture
                                                  const SLPixelFormat srcPixelFormat,
                                                  const SLuchar* data,
                                                  const SLbool isContinuous);
+    static  void            copyYUVPlanes       (int srcW, int srcH,
+                                                 SLuchar* y, int ySize,
+                                                 int yPixStride, int yLineStride,
+                                                 SLuchar* u, int uSize,
+                                                 int uPixStride, int uLineStride,
+                                                 SLuchar* v, int vSize,
+                                                 int vPixStride, int vLineStride);
 
     static  SLCVMat         lastFrame;          //!< last frame grabbed
     static  SLCVMat         lastFrameGray;      //!< last frame in grayscale
