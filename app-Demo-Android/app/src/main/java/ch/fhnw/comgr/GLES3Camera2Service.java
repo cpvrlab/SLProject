@@ -143,29 +143,35 @@ public class GLES3Camera2Service extends Service {
                     Image.Plane U = planes[1];
                     Image.Plane V = planes[2];
 
-                    int Yb = Y.getBuffer().remaining();
-                    int Ub = U.getBuffer().remaining();
-                    int Vb = V.getBuffer().remaining();
+                    int ySize = Y.getBuffer().remaining();
+                    int uSize = U.getBuffer().remaining();
+                    int vSize = V.getBuffer().remaining();
 
-                    /*
-                    int yPixstride = Y.getPixelStride();
-                    int uPixstride = Y.getPixelStride();
-                    int vPixstride = Y.getPixelStride();
+                    byte[] data = new byte[ySize + uSize + vSize];
 
-                    int yRowstride = Y.getRowStride();
-                    int uRowstride = Y.getRowStride();
-                    int vRowstride = Y.getRowStride();
-                    */
-
-                    byte[] data = new byte[Yb + Ub + Vb];
-
-                    Y.getBuffer().get(data, 0, Yb);
-                    U.getBuffer().get(data, Yb, Ub);
-                    V.getBuffer().get(data, Yb + Ub, Vb);
+                    Y.getBuffer().get(data, 0, ySize);
+                    U.getBuffer().get(data, ySize, uSize);
+                    V.getBuffer().get(data, ySize + uSize, vSize);
 
                     ///////////////////////////////////////////////////////////////
                     GLES3Lib.copyVideoImage(img.getWidth(), img.getHeight(), data);
                     ///////////////////////////////////////////////////////////////
+
+                    /*
+                    // For future call of GLES3Lib.copyVideoYUVPlanes
+                    int yPixStride = Y.getPixelStride();
+                    int uPixStride = Y.getPixelStride();
+                    int vPixStride = Y.getPixelStride();
+
+                    int yRowStride = Y.getRowStride();
+                    int uRowStride = Y.getRowStride();
+                    int vRowStride = Y.getRowStride();
+
+                    GLES3Lib.copyVideoYUVPlanes(img.getWidth(), img.getHeight(),
+                                                Y.getBuffer().array(), ySize, yPixStride, yRowStride,
+                                                U.getBuffer().array(), uSize, uPixStride, uRowStride,
+                                                V.getBuffer().array(), vSize, vPixStride, vRowStride);
+                    */
 
                     img.close();
                 }

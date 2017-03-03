@@ -252,7 +252,18 @@ image should be mirrored or not is stored in SLCVCalibration::_isMirroredH
 (H for horizontal) and SLCVCalibration::_isMirroredV (V for vertical).
 \n
 3) The most expensive part of course is the color space conversion from the
-YUV to RGB conversion.
+YUV to RGB conversion. According to Wikipedia the conversion is defined as:
+\n
+- C = 1.164*(Y-16); D = U-128; E = V-128
+- R = clip(round(C + 1.596*E))
+- G = clip(round(C - 0.391*D - 0.813*E))
+- B = clip(round(C + 2.018*D))
+\n
+A faster integer version with bit shifting is:\n
+- C = 298*(Y-16)+128; D = U-128; E = V-128
+- R = clip((C + 409*E) >> 8)
+- G = clip((C - 100*D - 208*E) >> 8)
+- B = clip((C + 516*D) >> 8)
 \n
 4) Many of the image processing tasks are faster done on grayscale images.
 We therefore create a copy of the y-channel into SLCVCapture::lastFrameGray.
@@ -260,7 +271,7 @@ We therefore create a copy of the y-channel into SLCVCapture::lastFrameGray.
 \param srcW         Source image width in pixel
 \param srcH         Source image height in pixel
 \param y            Pointer to first byte of the top left pixel of the y-plane
-\param ySize        Size in bytes of the y-plane
+\param ySize        Size in bytes of the y-plane (must be srcW x srcH)
 \param yPixStride   Offest in bytes to the next pixel in the y-plane
 \param yLineStride  Offest in bytes to the next line in the y-plane
 \param u            Pointer to first byte of the top left pixel of the u-plane

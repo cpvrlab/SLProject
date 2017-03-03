@@ -56,6 +56,10 @@ public class GLES3Lib {
     public static native boolean usesRotation       ();
     public static native int     getVideoType       ();
     public static native void    copyVideoImage     (int imgWidth, int imgHeight, byte[] imgBuffer);
+    public static native void    copyVideoYUVPlanes (int srcW, int srcH,
+                                                     byte[] y, int ySize, int yPixStride, int yLineStride,
+                                                     byte[] u, int uSize, int uPixStride, int uLineStride,
+                                                     byte[] v, int vSize, int vPixStride, int vLineStride);
 
     /**
      * The RaytracingCallback function is used to repaint the ray tracing image during the

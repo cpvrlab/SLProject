@@ -44,6 +44,10 @@ JNIEXPORT bool JNICALL Java_ch_fhnw_comgr_GLES3Lib_shouldClose(JNIEnv *env, jobj
 JNIEXPORT bool JNICALL Java_ch_fhnw_comgr_GLES3Lib_usesRotation(JNIEnv *env, jobject obj);
 JNIEXPORT jint JNICALL Java_ch_fhnw_comgr_GLES3Lib_getVideoType(JNIEnv *env, jobject obj);
 JNIEXPORT void JNICALL Java_ch_fhnw_comgr_GLES3Lib_copyVideoImage(JNIEnv *env, jobject obj, jint imgWidth, jint imgHeight, jbyteArray srcBuffer);
+JNIEXPORT void JNICALL Java_ch_fhnw_comgr_GLES3Lib_copyVideoYUVPlanes(JNIEnv *env, jobject obj, jint  srcW, jint srcH,
+                                                                      jbyteArray yBuf, jint ySize, jint yPixStride, jint yLineStride,
+                                                                      jbyteArray uBuf, jint uSize, jint uPixStride, jint uLineStride,
+                                                                      jbyteArray vBuf, jint vSize, jint vPixStride, jint vLineStride);
 };
 
 //-----------------------------------------------------------------------------
@@ -191,5 +195,26 @@ JNIEXPORT void JNICALL Java_ch_fhnw_comgr_GLES3Lib_copyVideoImage(JNIEnv *env, j
         SL_EXIT_MSG("copyVideoImage: No image data pointer passed!");
 
     slCopyVideoImage(imgWidth, imgHeight, PF_yuv_420_888, srcLumaPtr, true);
+}
+//-----------------------------------------------------------------------------
+
+JNIEXPORT void JNICALL Java_ch_fhnw_comgr_GLES3Lib_copyVideoYUVPlanes(JNIEnv *env, jobject obj, jint  srcW, jint srcH,
+                                                                      jbyteArray yBuf, jint ySize, jint yPixStride, jint yLineStride,
+                                                                      jbyteArray uBuf, jint uSize, jint uPixStride, jint uLineStride,
+                                                                      jbyteArray vBuf, jint vSize, jint vPixStride, jint vLineStride)
+{
+    // Cast jbyteArray to unsigned char pointer
+    SLuchar* y = reinterpret_cast<SLuchar*>(env->GetByteArrayElements(yBuf, 0));
+    SLuchar* u = reinterpret_cast<SLuchar*>(env->GetByteArrayElements(uBuf, 0));
+    SLuchar* v = reinterpret_cast<SLuchar*>(env->GetByteArrayElements(vBuf, 0));
+
+    if (y == nullptr) SL_EXIT_MSG("copyVideoYUVPlanes: No pointer for y-buffer passed!");
+    if (u == nullptr) SL_EXIT_MSG("copyVideoYUVPlanes: No pointer for u-buffer passed!");
+    if (v == nullptr) SL_EXIT_MSG("copyVideoYUVPlanes: No pointer for v-buffer passed!");
+
+    slCopyVideoYUVPlanes(srcW, srcH,
+                         y, ySize, yPixStride, yLineStride,
+                         u, uSize, uPixStride, uLineStride,
+                         v, vSize, vPixStride, vLineStride);
 }
 //-----------------------------------------------------------------------------
