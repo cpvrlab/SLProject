@@ -73,7 +73,7 @@ public class GLES3Camera2Service extends Service {
                 if (cOrientation == videoType)
                     return cameraId;
             }
-        } catch (CameraAccessException e){
+        } catch (CameraAccessException e) {
             e.printStackTrace();
         }
         return null;
@@ -107,13 +107,14 @@ public class GLES3Camera2Service extends Service {
                 session.setRepeatingRequest(createCaptureRequest(), null, null);
                 isTransitioning = false;
                 isRunning = true;
-            } catch (CameraAccessException e){
+            } catch (CameraAccessException e) {
                 Log.e(TAG, e.getMessage());
             }
         }
 
         @Override
-        public void onConfigureFailed(@NonNull CameraCaptureSession session) {}
+        public void onConfigureFailed(@NonNull CameraCaptureSession session) {
+        }
     };
 
     protected ImageReader.OnImageAvailableListener onImageAvailableListener = new ImageReader.OnImageAvailableListener() {
@@ -138,9 +139,39 @@ public class GLES3Camera2Service extends Service {
 
                     Image.Plane[] planes = img.getPlanes();
 
-                    ////////////////////////////////////////////////////////////////////////////////
-                    GLES3Lib.copyVideoImage(img.getWidth(), img.getHeight(), planes[0].getBuffer());
-                    ////////////////////////////////////////////////////////////////////////////////
+                    Image.Plane Y = planes[0];
+                    Image.Plane U = planes[1];
+                    Image.Plane V = planes[2];
+
+                    int ySize = Y.getBuffer().remaining();
+                    int uSize = U.getBuffer().remaining();
+                    int vSize = V.getBuffer().remaining();
+
+                    byte[] data = new byte[ySize + uSize + vSize];
+
+                    Y.getBuffer().get(data, 0, ySize);
+                    U.getBuffer().get(data, ySize, uSize);
+                    V.getBuffer().get(data, ySize + uSize, vSize);
+
+                    ///////////////////////////////////////////////////////////////
+                    GLES3Lib.copyVideoImage(img.getWidth(), img.getHeight(), data);
+                    ///////////////////////////////////////////////////////////////
+
+                    /*
+                    // For future call of GLES3Lib.copyVideoYUVPlanes
+                    int yPixStride = Y.getPixelStride();
+                    int uPixStride = Y.getPixelStride();
+                    int vPixStride = Y.getPixelStride();
+
+                    int yRowStride = Y.getRowStride();
+                    int uRowStride = Y.getRowStride();
+                    int vRowStride = Y.getRowStride();
+
+                    GLES3Lib.copyVideoYUVPlanes(img.getWidth(), img.getHeight(),
+                                                Y.getBuffer().array(), ySize, yPixStride, yRowStride,
+                                                U.getBuffer().array(), uSize, uPixStride, uRowStride,
+                                                V.getBuffer().array(), vSize, vPixStride, vRowStride);
+                    */
 
                     img.close();
                 }
@@ -149,11 +180,10 @@ public class GLES3Camera2Service extends Service {
     };
 
 
-    public void actOnReadyCameraDevice()
-    {
+    public void actOnReadyCameraDevice() {
         try {
             cameraDevice.createCaptureSession(Arrays.asList(imageReader.getSurface()), sessionStateCallback, null);
-        } catch (CameraAccessException e){
+        } catch (CameraAccessException e) {
             Log.e(TAG, e.getMessage());
         }
     }
@@ -163,7 +193,7 @@ public class GLES3Camera2Service extends Service {
         Log.i(TAG, "GLES3Camera2Service.onDestroy");
         try {
             captureSession.abortCaptures();
-        } catch (CameraAccessException e){
+        } catch (CameraAccessException e) {
             Log.e(TAG, e.getMessage());
         }
         captureSession.close();

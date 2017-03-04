@@ -83,7 +83,7 @@ void SceneCombiner::AddNodeHashes(aiNode* node, std::set<unsigned int>& hashes)
 	// Add node name to hashing set if it is non-empty - empty nodes are allowed 
 	// and they can't have any anims assigned so its absolutely safe to duplicate them.
 	if (node->mName.length) {
-		hashes.insert( SuperFastHash(node->mName.data,node->mName.length) );
+		hashes.insert( SuperFastHash(node->mName.data,(unsigned int)node->mName.length) );
 	}
 
 	// Process all children recursively
@@ -107,7 +107,7 @@ void SceneCombiner::AddNodePrefixes(aiNode* node, const char* prefix, unsigned i
 // Search for matching names
 bool SceneCombiner::FindNameMatch(const aiString& name, std::vector<SceneHelper>& input, unsigned int cur)
 {
-	const unsigned int hash = SuperFastHash(name.data, name.length);
+	const unsigned int hash = SuperFastHash(name.data, (unsigned int)name.length);
 
 	// Check whether we find a positive match in one of the given sets
 	for (unsigned int i = 0; i < input.size(); ++i) {
@@ -125,7 +125,7 @@ void SceneCombiner::AddNodePrefixesChecked(aiNode* node, const char* prefix, uns
 	std::vector<SceneHelper>& input, unsigned int cur)
 {
 	ai_assert(NULL != prefix);
-	const unsigned int hash = SuperFastHash(node->mName.data,node->mName.length);
+	const unsigned int hash = SuperFastHash(node->mName.data,(unsigned int)node->mName.length);
 
 	// Check whether we find a positive match in one of the given sets
 	for (unsigned int i = 0; i < input.size(); ++i) {
@@ -316,7 +316,7 @@ void SceneCombiner::MergeScenes(aiScene** _dest, aiScene* master,
 
 				for (unsigned int a = 0; a < src[i]->mNumAnimations;++a) {
 					aiAnimation* anim = src[i]->mAnimations[a];
-					src[i].hashes.insert(SuperFastHash(anim->mName.data,anim->mName.length));
+					src[i].hashes.insert(SuperFastHash(anim->mName.data,(unsigned int)anim->mName.length));
 				}
 			}
 		}
@@ -478,7 +478,7 @@ void SceneCombiner::MergeScenes(aiScene** _dest, aiScene* master,
 	aiAnimation** ppAnims = dest->mAnimations = (dest->mNumAnimations 
 		? new aiAnimation*[dest->mNumAnimations] : NULL);
 
-	for ( int n = src.size()-1; n >= 0 ;--n ) /* !!! important !!! */
+	for ( int n = (int)src.size()-1; n >= 0 ;--n ) /* !!! important !!! */
 	{
 		SceneHelper* cur = &src[n];
 		aiNode* node;

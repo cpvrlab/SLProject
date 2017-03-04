@@ -129,9 +129,9 @@ class SLScene: public SLObject
             SLVideoType         videoType           () {return _videoType;}
             SLbool              usesVideoAsBckgrnd  () {return _background.texture() == &_videoTexture;}
             SLGLTexture*        videoTexture        () {return &_videoTexture;}
-            SLCVCalibration&    activeCalib         () {return _activeCalib;}
-            SLCVCalibration&    calibMainCam        () {return _calibMainCam;}
-            SLCVCalibration&    calibScndCam        () {return _calibScndCam;}
+            SLCVCalibration*    activeCalib         () {return _activeCalib;}
+            SLCVCalibration*    calibMainCam        () {return &_calibMainCam;}
+            SLCVCalibration*    calibScndCam        () {return &_calibScndCam;}
             SLVCVTracker&       trackers            () {return _trackers;}
             
             // Misc.
@@ -213,7 +213,7 @@ class SLScene: public SLObject
             // Video stuff
             SLVideoType         _videoType;     //!< Flag for using the live video image
             SLGLTexture         _videoTexture;  //!< Texture for live video image
-            SLCVCalibration&    _activeCalib;   //!< Referance to the active calibration
+            SLCVCalibration*    _activeCalib;   //!< Pointer to the active calibration
             SLCVCalibration     _calibMainCam;  //!< OpenCV calibration for main camera
             SLCVCalibration     _calibScndCam;  //!< OpenCV calibration for secondary camera
             SLVCVTracker        _trackers;      //!< Vector of all AR trackers

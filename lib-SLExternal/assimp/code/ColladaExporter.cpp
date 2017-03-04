@@ -317,7 +317,7 @@ void ColladaExporter::ReadMaterialSurface( Surface& poSurface, const aiMaterial*
   } else
   {
     if( pKey )
-      poSurface.exist = pSrcMat->Get( pKey, pType, pIndex, poSurface.color) == aiReturn_SUCCESS;
+      poSurface.exist = pSrcMat->Get( pKey, (unsigned int)pType, (unsigned int)pIndex, poSurface.color) == aiReturn_SUCCESS;
   }
 }
 
@@ -596,7 +596,7 @@ void ColladaExporter::WriteGeometry( size_t pIndex)
 	// texture coords
 	for( size_t a = 0; a < AI_MAX_NUMBER_OF_TEXTURECOORDS; ++a)
 	{
-		if( mesh->HasTextureCoords( a) )
+		if( mesh->HasTextureCoords((unsigned int)a) )
 		{
 			WriteFloatArray( idstr + "-tex" + boost::lexical_cast<std::string> (a), mesh->mNumUVComponents[a] == 3 ? FloatType_TexCoord3 : FloatType_TexCoord2,
 				(float*) mesh->mTextureCoords[a], mesh->mNumVertices);
@@ -606,7 +606,7 @@ void ColladaExporter::WriteGeometry( size_t pIndex)
 	// vertex colors
 	for( size_t a = 0; a < AI_MAX_NUMBER_OF_TEXTURECOORDS; ++a)
 	{
-		if( mesh->HasVertexColors( a) )
+		if( mesh->HasVertexColors((unsigned int)a) )
 			WriteFloatArray( idstr + "-color" + boost::lexical_cast<std::string> (a), FloatType_Color, (float*) mesh->mColors[a], mesh->mNumVertices);
 	}
 
@@ -618,12 +618,12 @@ void ColladaExporter::WriteGeometry( size_t pIndex)
 		mOutput << startstr << "<input semantic=\"NORMAL\" source=\"#" << idstr << "-normals\" />" << endstr;
 	for( size_t a = 0; a < AI_MAX_NUMBER_OF_TEXTURECOORDS; ++a )
 	{
-		if( mesh->HasTextureCoords( a) )
+		if( mesh->HasTextureCoords((unsigned int)a) )
 			mOutput << startstr << "<input semantic=\"TEXCOORD\" source=\"#" << idstr << "-tex" << a << "\" " /*<< "set=\"" << a << "\"" */ << " />" << endstr;
 	}
 	for( size_t a = 0; a < AI_MAX_NUMBER_OF_COLOR_SETS; ++a )
 	{
-		if( mesh->HasVertexColors( a) )
+		if( mesh->HasVertexColors((unsigned int)a) )
 			mOutput << startstr << "<input semantic=\"COLOR\" source=\"#" << idstr << "-color" << a << "\" " /*<< set=\"" << a << "\"" */ << " />" << endstr;
 	}
 	

@@ -161,7 +161,7 @@ void DeboneProcess::Execute( aiScene* pScene)
 		}	
 			
 		// rebuild the scene's mesh array
-		pScene->mNumMeshes = meshes.size();
+		pScene->mNumMeshes = (unsigned int)meshes.size();
 		delete [] pScene->mMeshes;
 		pScene->mMeshes = new aiMesh*[pScene->mNumMeshes];
 		std::copy( meshes.begin(), meshes.end(), pScene->mMeshes);
@@ -381,7 +381,7 @@ void DeboneProcess::UpdateNode(aiNode* pNode) const
 
 	// this will require two passes
 
-	unsigned int m = pNode->mNumMeshes, n = mSubMeshIndices.size();
+	unsigned int m = pNode->mNumMeshes, n = (unsigned int)mSubMeshIndices.size();
 	
 	// first pass, look for meshes which have not moved
 
@@ -389,7 +389,7 @@ void DeboneProcess::UpdateNode(aiNode* pNode) const
 
 		unsigned int srcIndex = pNode->mMeshes[a];
 		const std::vector< std::pair< unsigned int,aiNode* > > &subMeshes = mSubMeshIndices[srcIndex];
-		unsigned int nSubmeshes = subMeshes.size();
+		unsigned int nSubmeshes = (unsigned int)subMeshes.size();
 
 		for(unsigned int b=0;b<nSubmeshes;b++) {
 			if(!subMeshes[b].second) {
@@ -403,7 +403,7 @@ void DeboneProcess::UpdateNode(aiNode* pNode) const
 	for(unsigned int a=0;a<n;a++)
 	{
 		const std::vector< std::pair< unsigned int,aiNode* > > &subMeshes = mSubMeshIndices[a];
-		unsigned int nSubmeshes = subMeshes.size();
+		unsigned int nSubmeshes = (unsigned int)subMeshes.size();
 
 		for(unsigned int b=0;b<nSubmeshes;b++) {
 			if(subMeshes[b].second == pNode)	{
@@ -416,7 +416,7 @@ void DeboneProcess::UpdateNode(aiNode* pNode) const
 		delete [] pNode->mMeshes; pNode->mMeshes = NULL;
 	}
 
-	pNode->mNumMeshes = newMeshList.size();
+	pNode->mNumMeshes = (unsigned int)newMeshList.size();
 
 	if(pNode->mNumMeshes)	{
 		pNode->mMeshes = new unsigned int[pNode->mNumMeshes];

@@ -702,7 +702,7 @@ void DXFImporter::ParsePolyLine(DXF::LineReader& reader, DXF::FileData& output)
 
 		// closed polyline?
 		if (line.flags & DXF_POLYLINE_FLAG_CLOSED) {
-			line.indices.push_back(line.positions.size()-1);
+			line.indices.push_back((unsigned int)line.positions.size()-1);
 			line.indices.push_back(0);
 			line.counts.push_back(2);
 		}
@@ -903,7 +903,7 @@ void DXFImporter::Parse3DFace(DXF::LineReader& reader, DXF::FileData& output)
 	line.counts.push_back(cnt);
 
 	for (unsigned int i = 0; i < cnt; ++i) {
-		line.indices.push_back(line.positions.size());
+		line.indices.push_back((unsigned int)line.positions.size());
 		line.positions.push_back(vip[i]);
 		line.colors.push_back(clr);
 	}

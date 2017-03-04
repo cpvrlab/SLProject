@@ -417,7 +417,7 @@ void MS3DImporter::InternReadFile( const std::string& pFile,
 		for (unsigned int i = 0; i < groups.size(); ++i) {
 			TempGroup& g = groups[i];
 			if (g.mat == UINT_MAX) {
-				g.mat = materials.size()-1;
+				g.mat = (unsigned int)materials.size()-1;
 			}
 		}
 	}
@@ -477,7 +477,7 @@ void MS3DImporter::InternReadFile( const std::string& pFile,
 		m->mMaterialIndex  = g.mat;
 		m->mPrimitiveTypes = aiPrimitiveType_TRIANGLE; 
 
-		m->mFaces = new aiFace[m->mNumFaces = g.triangles.size()];
+		m->mFaces = new aiFace[m->mNumFaces = (unsigned int)g.triangles.size()];
 		m->mNumVertices = m->mNumFaces*3;
 
 		// storage for vertices - verbose format, as requested by the postprocessing pipeline

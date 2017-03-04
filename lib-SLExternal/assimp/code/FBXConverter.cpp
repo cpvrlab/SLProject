@@ -759,7 +759,7 @@ private:
 		// create metadata on node
 		std::size_t numStaticMetaData = 2;
 		aiMetadata* data = new aiMetadata();
-		data->mNumProperties = unparsedProperties.size() + numStaticMetaData;
+		data->mNumProperties = (unsigned int)unparsedProperties.size() + (unsigned int)numStaticMetaData;
 		data->mKeys = new aiString[data->mNumProperties]();
 		data->mValues = new aiMetadataEntry[data->mNumProperties]();
 		nd.mMetaData = data;

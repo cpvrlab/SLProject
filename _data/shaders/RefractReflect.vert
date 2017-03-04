@@ -8,6 +8,10 @@
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //##############################################################################
 
+#ifdef GL_ES
+precision mediump float;
+#endif
+
 attribute vec4 a_position;          // Vertex position attribute
 attribute vec3 a_normal;            // Vertex normal attribute
 

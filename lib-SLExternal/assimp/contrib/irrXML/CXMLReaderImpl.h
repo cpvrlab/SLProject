@@ -426,7 +426,7 @@ private:
 			++P;
 
     // remove trailing whitespace, if any
-    while( isspace( P[-1]))
+    while( isspace((int)P[-1]))
       --P;
 
 		NodeName = core::string<char_type>(pBeginClose, (int)(P - pBeginClose));

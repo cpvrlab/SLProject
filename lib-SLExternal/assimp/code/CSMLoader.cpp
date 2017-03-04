@@ -172,7 +172,7 @@ void CSMImporter::InternReadFile( const std::string& pFile,
 					nda->mNodeName.length = (size_t)(ot-nda->mNodeName.data);
 				}
 
-				anim->mNumChannels = anims_temp.size();
+				anim->mNumChannels = (unsigned int)anims_temp.size();
 				if (!anim->mNumChannels)
 					throw DeadlyImportError("CSM: Empty $order section");
 

@@ -48,11 +48,11 @@ SLCVTrackerAruco::SLCVTrackerAruco(SLNode* node, SLint arucoID) :
 markers are used for different SLNode.
 */
 SLbool SLCVTrackerAruco::track(SLCVMat imageGray,
-                               SLCVCalibration& calib,
+                               SLCVCalibration* calib,
                                SLSceneView* sv)
 {
     assert(!imageGray.empty() && "Image is empty");
-    assert(!calib.cameraMat().empty() && "Calibration is empty");
+    assert(!calib->cameraMat().empty() && "Calibration is empty");
     assert(_node && "Node pointer is null");
     assert(sv && "No sceneview pointer passed");
     assert(sv->camera() && "No active camera in sceneview");
@@ -70,7 +70,8 @@ SLbool SLCVTrackerAruco::track(SLCVMat imageGray,
 
     // Track all Aruco markers only once per frame
     if (trackAllOnce)
-    {   arucoIDs.clear();
+    {
+        arucoIDs.clear();
         objectViewMats.clear();
         SLCVVVPoint2f corners, rejected;
 
@@ -82,14 +83,15 @@ SLbool SLCVTrackerAruco::track(SLCVMat imageGray,
                              rejected);
 
         if(arucoIDs.size() > 0)
-        {   cout << "Aruco IdS: " << arucoIDs.size() << " : ";
+        {
+            //cout << "Aruco IdS: " << arucoIDs.size() << " : ";
 
             //find the camera extrinsic parameters (rVec & tVec)
             SLCVVPoint3d rVecs, tVecs;
             aruco::estimatePoseSingleMarkers(corners, 
                                              params.edgeLength, 
-                                             calib.cameraMat(), 
-                                             calib.distortion(), 
+                                             calib->cameraMat(),
+                                             calib->distortion(),
                                              rVecs,
                                              tVecs);
 
@@ -99,7 +101,7 @@ SLbool SLCVTrackerAruco::track(SLCVMat imageGray,
                 SLMat4f ovm = createGLMatrix(cv::Mat(tVecs[i]), cv::Mat(rVecs[i]));
                 objectViewMats.push_back(ovm);
             }
-            cout << endl;
+            //cout << endl;
         }
         trackAllOnce = false;
     }

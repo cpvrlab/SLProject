@@ -41,23 +41,23 @@ example implementations.
 class SLCVTracker
 {
     public:
-                     SLCVTracker    (SLNode* node = nullptr): 
-                                     _node(node), _isVisible(false){;}
-        virtual     ~SLCVTracker    (){;}
+                     SLCVTracker        (SLNode* node = nullptr):
+                                         _node(node), _isVisible(false){;}
+        virtual     ~SLCVTracker        (){;}
 
-        virtual SLbool track        (SLCVMat imageGray,
-                                     SLCVCalibration& calib,
-                                     SLSceneView* sv) = 0;
+        virtual SLbool track            (SLCVMat imageGray,
+                                         SLCVCalibration* calib,
+                                         SLSceneView* sv) = 0;
 
-        SLMat4f     createGLMatrix  (const SLCVMat& tVec, 
-                                     const SLCVMat& rVec);
-        SLMat4f     calcObjectMatrix(const SLMat4f& cameraObjectMat, 
-                                     const SLMat4f& objectViewMat);
+        SLMat4f     createGLMatrix      (const SLCVMat& tVec,
+                                         const SLCVMat& rVec);
+        SLMat4f     calcObjectMatrix    (const SLMat4f& cameraObjectMat,
+                                         const SLMat4f& objectViewMat);
 
     protected:
-        SLNode*     _node;          //!< Connected node
-        SLbool      _isVisible;     //!< Flag if marker is visible
-        SLMat4f     _objectViewMat; //!< view transformation matrix
+        SLNode*     _node;              //!< Connected node
+        SLbool      _isVisible;         //!< Flag if marker is visible
+        SLMat4f     _objectViewMat;     //!< view transformation matrix
 };
 //-----------------------------------------------------------------------------
 #endif

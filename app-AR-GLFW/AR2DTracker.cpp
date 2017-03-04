@@ -1,9 +1,9 @@
 //#############################################################################
 //  File:      AR2DTracker.cpp
-//  Author:    Michael Göttlicher
+//  Author:    Michael Goettlicher
 //  Date:      Spring 2016
 //  Codestyle: https://github.com/cpvrlab/SLProject/wiki/Coding-Style-Guidelines
-//  Copyright: Marcus Hudritsch, Michael Göttlicher
+//  Copyright: Marcus Hudritsch, Michael Goettlicher
 //             This software is provide under the GNU General Public License
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
@@ -97,7 +97,7 @@ bool AR2DTracker::init()
 }
 //-----------------------------------------------------------------------------
 bool AR2DTracker::track(cv::Mat image, 
-                        SLCVCalibration& calib)
+                        SLCVCalibration* calib)
 {
     //reset flag
     _posValid = false;
@@ -217,8 +217,8 @@ bool AR2DTracker::track(cv::Mat image,
         //solvePnP(_mapPts, _scenePts, _intrinsics, _distortion, _rVec, _tVec, false, SOLVEPNP_ITERATIVE);
         solvePnPRansac(_mapPts, 
                        _scenePts, 
-                       calib.intrinsics(), 
-                       calib.distortion(), 
+                       calib->cameraMat(),
+                       calib->distortion(),
                        rVec, 
                        tVec, 
                        true, 

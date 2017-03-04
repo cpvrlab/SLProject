@@ -35,14 +35,16 @@ import java.io.IOException;
 
 public class GLES3Activity extends Activity implements View.OnTouchListener, SensorEventListener
 {
-    GLES3View myView;               // OpenGL view
-    static int pointersDown = 0;    // NO. of fingers down
-    static long lastTouchMS = 0;    // Time of last touch in ms
-    private SensorManager mSensorManager;
+    GLES3View                   myView;             // OpenGL view
+    static int                  pointersDown = 0;   // NO. of fingers down
+    static long                 lastTouchMS = 0;    // Time of last touch in ms
 
     private static final String TAG = "SLProject";
-    private int currentVideoType;
-    private boolean cameraPermissionGranted;
+    private SensorManager       _sensorManager;
+    private int                 _currentVideoType;
+    private boolean             _cameraPermissionGranted;
+    private boolean             _permissionRequestIsOpen;
+
 
 
     @Override
@@ -76,17 +78,18 @@ public class GLES3Activity extends Activity implements View.OnTouchListener, Sen
         Log.i(TAG, "DisplayMetrics: " + dpi);
 
         // Init Sensor
-        mSensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
+        _sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
 
         // Init Camera (the camera is started by cameraStart from within the view renderer)
         Log.i(TAG, "Request camera permission ...");
         //If we are on android 5.1 or lower the permission was granted during installation.
-        //On android 6.0 or higher it requests a dangerous permission during runtime.
-        if( ActivityCompat.checkSelfPermission(GLES3Activity.this, Manifest.permission.CAMERA) ==
-                PackageManager.PERMISSION_GRANTED ) {
-            cameraPermissionGranted=true;
-        }
+        //On Android 6 or higher it requests a dangerous permission during runtime.
+        //On Android 7 there could be problems that permissions where not granted
+        //(Huawei Honor 8 must enable soecial log setting by dialing *#*#2846579#*#*)
+        if( ActivityCompat.checkSelfPermission(GLES3Activity.this, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED)
+            _cameraPermissionGranted =true;
         else {
+            _permissionRequestIsOpen = true;
             ActivityCompat.requestPermissions(GLES3Activity.this, new String[]{Manifest.permission.CAMERA}, 1);
         }
     }
@@ -94,26 +97,26 @@ public class GLES3Activity extends Activity implements View.OnTouchListener, Sen
     @Override
     protected void onPause() {
         Log.i(TAG, "GLES3Activity.onPause");
+
+        // The ActivityCompat.requestPermissions calls also onPause
+        if (!_permissionRequestIsOpen) {
+            myView.queueEvent(new Runnable() {public void run() {GLES3Lib.onClose();}});
+            cameraStop();
+            finishAndRemoveTask();
+        }
+
         super.onPause();
-        myView.onPause();
     }
 
     @Override
-    protected void onResume() {
-        Log.i(TAG, "GLES3Activity.onResume");
-        super.onResume();
-        myView.onResume();
-
-        if (mSensorManager != null)
-            mSensorManager.registerListener(this,
-                                            mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER),
-                                            SensorManager.SENSOR_DELAY_FASTEST);
+    protected void onStop() {
+        Log.i(TAG, "GLES3Activity.onStop");
+        super.onStop();
     }
 
     @Override
     protected void onDestroy() {
         Log.i(TAG, "GLES3Activity.onDestroy");
-        cameraStop();
         super.onDestroy();
     }
 
@@ -220,11 +223,12 @@ public class GLES3Activity extends Activity implements View.OnTouchListener, Sen
                 // If request is cancelled, the result arrays are empty.
                 if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     Log.i(TAG, String.format("onRequestPermissionsResult: CAMERA permission granted."));
-                    cameraPermissionGranted = true;
+                    _cameraPermissionGranted = true;
                 } else {
                     Log.i(TAG, String.format("onRequestPermissionsResult: CAMERA permission refused."));
-                    cameraPermissionGranted = false;
+                    _cameraPermissionGranted = false;
                 }
+                _permissionRequestIsOpen = false;
                 return;
             }
         }
@@ -377,7 +381,7 @@ public class GLES3Activity extends Activity implements View.OnTouchListener, Sen
      * While the service is starting no other calls to startService are allowed.
      */
     public void cameraStart(int requestedVideoType) {
-        if (!cameraPermissionGranted) return;
+        if (!_cameraPermissionGranted) return;
         if (!GLES3Camera2Service.isTransitioning) {
             if (!GLES3Camera2Service.isRunning) {
 
@@ -394,10 +398,10 @@ public class GLES3Activity extends Activity implements View.OnTouchListener, Sen
                 startService(new Intent(getBaseContext(), GLES3Camera2Service.class));
                 //////////////////////////////////////////////////////////////////////
 
-                currentVideoType = requestedVideoType;
+                _currentVideoType = requestedVideoType;
             } else {
                 // if the camera is running the camera type is different we first stop the camera
-                if (requestedVideoType != currentVideoType) {
+                if (requestedVideoType != _currentVideoType) {
                     GLES3Camera2Service.isTransitioning = true;
                     Log.i(TAG, "Going to stop camera service to change type ...");
                     stopService(new Intent(getBaseContext(), GLES3Camera2Service.class));
@@ -412,7 +416,7 @@ public class GLES3Activity extends Activity implements View.OnTouchListener, Sen
      * While the service is stopping no other calls to stopService are allowed.
      */
     public void cameraStop() {
-        if (!cameraPermissionGranted) return;
+        if (!_cameraPermissionGranted) return;
         if (!GLES3Camera2Service.isTransitioning) {
             if (GLES3Camera2Service.isRunning) {
                 GLES3Camera2Service.isTransitioning = true;

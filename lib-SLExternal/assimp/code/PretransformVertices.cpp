@@ -396,7 +396,7 @@ void PretransformVertices::BuildWCSMeshes(std::vector<aiMesh*>& out, aiMesh** in
 
 				out.push_back(ntz);
 
-				node->mMeshes[i] = numIn + out.size() - 1;
+				node->mMeshes[i] = numIn + (unsigned int)out.size() - 1;
 			}
 		}
 	}

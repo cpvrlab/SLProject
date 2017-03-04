@@ -221,7 +221,7 @@ aiNode* ColladaLoader::BuildHierarchy( const ColladaParser& pParser, const Colla
 	ResolveNodeInstances(pParser,pNode,instances);
 
 	// add children. first the *real* ones
-	node->mNumChildren = pNode->mChildren.size()+instances.size();
+	node->mNumChildren = (unsigned int)pNode->mChildren.size()+(unsigned int)instances.size();
 	node->mChildren = new aiNode*[node->mNumChildren];
 
 	for( size_t a = 0; a < pNode->mChildren.size(); a++)
@@ -484,7 +484,7 @@ void ColladaLoader::BuildMeshesForNode( const ColladaParser& pParser, const Coll
 			std::map<std::string, size_t>::const_iterator matIt = mMaterialIndexByName.find( meshMaterial);
 			unsigned int matIdx;
 			if( matIt != mMaterialIndexByName.end())
-				matIdx = matIt->second;
+				matIdx = (unsigned int)matIt->second;
 			else
 				matIdx = 0;
 
@@ -531,7 +531,7 @@ void ColladaLoader::BuildMeshesForNode( const ColladaParser& pParser, const Coll
 	}
 
 	// now place all mesh references we gathered in the target node
-	pTarget->mNumMeshes = newMeshRefs.size();
+	pTarget->mNumMeshes = (unsigned int)newMeshRefs.size();
 	if( newMeshRefs.size())
 	{
 		pTarget->mMeshes = new unsigned int[pTarget->mNumMeshes];
@@ -553,7 +553,7 @@ aiMesh* ColladaLoader::CreateMesh( const ColladaParser& pParser, const Collada::
 		pSrcMesh->mFaceSize.begin() + pStartFace + pSubMesh.mNumFaces, 0);
 
 	// copy positions
-	dstMesh->mNumVertices = numVertices;
+	dstMesh->mNumVertices = (unsigned int)numVertices;
 	dstMesh->mVertices = new aiVector3D[numVertices];
 	std::copy( pSrcMesh->mPositions.begin() + pStartVertex, pSrcMesh->mPositions.begin() + 
 		pStartVertex + numVertices, dstMesh->mVertices);
@@ -612,16 +612,16 @@ aiMesh* ColladaLoader::CreateMesh( const ColladaParser& pParser, const Collada::
 
 	// create faces. Due to the fact that each face uses unique vertices, we can simply count up on each vertex
 	size_t vertex = 0;
-	dstMesh->mNumFaces = pSubMesh.mNumFaces;
+	dstMesh->mNumFaces = (unsigned int)pSubMesh.mNumFaces;
 	dstMesh->mFaces = new aiFace[dstMesh->mNumFaces];
 	for( size_t a = 0; a < dstMesh->mNumFaces; ++a)
 	{
 		size_t s = pSrcMesh->mFaceSize[ pStartFace + a];
 		aiFace& face = dstMesh->mFaces[a];
-		face.mNumIndices = s;
+		face.mNumIndices = (unsigned int)s;
 		face.mIndices = new unsigned int[s];
 		for( size_t b = 0; b < s; ++b)
-			face.mIndices[b] = vertex++;
+			face.mIndices[b] = (unsigned int)vertex++;
 	}
 
 	// create bones if given
@@ -688,7 +688,7 @@ aiMesh* ColladaLoader::CreateMesh( const ColladaParser& pParser, const Collada::
 				if( weight > 0.0f)
 				{
 					aiVertexWeight w;
-					w.mVertexId = a - pStartVertex;
+					w.mVertexId = (unsigned int)a - (unsigned int)pStartVertex;
 					w.mWeight = weight;
 					dstBones[jointIndex].push_back( w);
 				}
@@ -702,7 +702,7 @@ aiMesh* ColladaLoader::CreateMesh( const ColladaParser& pParser, const Collada::
 				numRemainingBones++;
 
 		// create bone array and copy bone weights one by one
-		dstMesh->mNumBones = numRemainingBones;
+		dstMesh->mNumBones = (unsigned int)numRemainingBones;
 		dstMesh->mBones = new aiBone*[numRemainingBones];
 		size_t boneCount = 0;
 		for( size_t a = 0; a < numBones; ++a)
@@ -726,7 +726,7 @@ aiMesh* ColladaLoader::CreateMesh( const ColladaParser& pParser, const Collada::
 			bone->mOffsetMatrix.c2 = ReadFloat( jointMatrixAcc, jointMatrices, a, 9);
 			bone->mOffsetMatrix.c3 = ReadFloat( jointMatrixAcc, jointMatrices, a, 10);
 			bone->mOffsetMatrix.c4 = ReadFloat( jointMatrixAcc, jointMatrices, a, 11);
-			bone->mNumWeights = dstBones[a].size();
+			bone->mNumWeights = (unsigned int)dstBones[a].size();
 			bone->mWeights = new aiVertexWeight[bone->mNumWeights];
 			std::copy( dstBones[a].begin(), dstBones[a].end(), bone->mWeights);
 
@@ -776,7 +776,7 @@ aiMesh* ColladaLoader::CreateMesh( const ColladaParser& pParser, const Collada::
 // Stores all meshes in the given scene
 void ColladaLoader::StoreSceneMeshes( aiScene* pScene)
 {
-	pScene->mNumMeshes = mMeshes.size();
+	pScene->mNumMeshes = (unsigned int)mMeshes.size();
 	if( mMeshes.size() > 0)
 	{
 		pScene->mMeshes = new aiMesh*[mMeshes.size()];
@@ -789,7 +789,7 @@ void ColladaLoader::StoreSceneMeshes( aiScene* pScene)
 // Stores all cameras in the given scene
 void ColladaLoader::StoreSceneCameras( aiScene* pScene)
 {
-	pScene->mNumCameras = mCameras.size();
+	pScene->mNumCameras = (unsigned int)mCameras.size();
 	if( mCameras.size() > 0)
 	{
 		pScene->mCameras = new aiCamera*[mCameras.size()];
@@ -802,7 +802,7 @@ void ColladaLoader::StoreSceneCameras( aiScene* pScene)
 // Stores all lights in the given scene
 void ColladaLoader::StoreSceneLights( aiScene* pScene)
 {
-	pScene->mNumLights = mLights.size();
+	pScene->mNumLights = (unsigned int)mLights.size();
 	if( mLights.size() > 0)
 	{
 		pScene->mLights = new aiLight*[mLights.size()];
@@ -815,7 +815,7 @@ void ColladaLoader::StoreSceneLights( aiScene* pScene)
 // Stores all textures in the given scene
 void ColladaLoader::StoreSceneTextures( aiScene* pScene)
 {
-	pScene->mNumTextures = mTextures.size();
+	pScene->mNumTextures = (unsigned int)mTextures.size();
 	if( mTextures.size() > 0)
 	{
 		pScene->mTextures = new aiTexture*[mTextures.size()];
@@ -828,7 +828,7 @@ void ColladaLoader::StoreSceneTextures( aiScene* pScene)
 // Stores all materials in the given scene
 void ColladaLoader::StoreSceneMaterials( aiScene* pScene)
 {
-	pScene->mNumMaterials = newMats.size();
+	pScene->mNumMaterials = (unsigned int)newMats.size();
 
 	if (newMats.size() > 0) {
 		pScene->mMaterials = new aiMaterial*[newMats.size()];
@@ -869,7 +869,7 @@ void ColladaLoader::StoreAnimations( aiScene* pScene, const ColladaParser& pPars
 				combinedAnim->mName = aiString( std::string( "combinedAnim_") + char( '0' + a));
 				combinedAnim->mDuration = templateAnim->mDuration;
 				combinedAnim->mTicksPerSecond = templateAnim->mTicksPerSecond;
-				combinedAnim->mNumChannels = collectedAnimIndices.size() + 1;
+				combinedAnim->mNumChannels = (unsigned int)collectedAnimIndices.size() + 1;
 				combinedAnim->mChannels = new aiNodeAnim*[combinedAnim->mNumChannels];
 				// add the template anim as first channel by moving its aiNodeAnim to the combined animation
 				combinedAnim->mChannels[0] = templateAnim->mChannels[0];
@@ -901,7 +901,7 @@ void ColladaLoader::StoreAnimations( aiScene* pScene, const ColladaParser& pPars
 	// now store all anims in the scene
 	if( !mAnims.empty())
 	{
-		pScene->mNumAnimations = mAnims.size();
+		pScene->mNumAnimations = (unsigned int)mAnims.size();
 		pScene->mAnimations = new aiAnimation*[mAnims.size()];
 		std::copy( mAnims.begin(), mAnims.end(), pScene->mAnimations);
 	}
@@ -1125,9 +1125,9 @@ void ColladaLoader::CreateAnimation( aiScene* pScene, const ColladaParser& pPars
     {
 		  aiNodeAnim* dstAnim = new aiNodeAnim;
 		  dstAnim->mNodeName = nodeName;
-		  dstAnim->mNumPositionKeys = resultTrafos.size();
-		  dstAnim->mNumRotationKeys= resultTrafos.size();
-		  dstAnim->mNumScalingKeys = resultTrafos.size();
+		  dstAnim->mNumPositionKeys = (unsigned int)resultTrafos.size();
+		  dstAnim->mNumRotationKeys= (unsigned int)resultTrafos.size();
+		  dstAnim->mNumScalingKeys = (unsigned int)resultTrafos.size();
 		  dstAnim->mPositionKeys = new aiVectorKey[resultTrafos.size()];
 		  dstAnim->mRotationKeys = new aiQuatKey[resultTrafos.size()];
 		  dstAnim->mScalingKeys = new aiVectorKey[resultTrafos.size()];
@@ -1155,7 +1155,7 @@ void ColladaLoader::CreateAnimation( aiScene* pScene, const ColladaParser& pPars
 	{
 		aiAnimation* anim = new aiAnimation;
 		anim->mName.Set( pName);
-		anim->mNumChannels = anims.size();
+		anim->mNumChannels = (unsigned int)anims.size();
 		anim->mChannels = new aiNodeAnim*[anims.size()];
 		std::copy( anims.begin(), anims.end(), anim->mChannels);
 		anim->mDuration = 0.0f;
@@ -1417,13 +1417,13 @@ aiString ColladaLoader::FindFilenameForEffectTexture( const ColladaParser& pPars
 
 		// and copy texture data
 		tex->mHeight = 0;
-		tex->mWidth = imIt->second.mImageData.size();
+		tex->mWidth = (unsigned int)imIt->second.mImageData.size();
 		tex->pcData = (aiTexel*)new char[tex->mWidth];
 		memcpy(tex->pcData,&imIt->second.mImageData[0],tex->mWidth);
 
 		// setup texture reference string
 		result.data[0] = '*';
-		result.length = 1 + ASSIMP_itoa10(result.data+1,MAXLEN-1,mTextures.size());
+		result.length = 1 + ASSIMP_itoa10(result.data+1,MAXLEN-1,(unsigned int)mTextures.size());
 
 		// and add this texture to the list
 		mTextures.push_back(tex);

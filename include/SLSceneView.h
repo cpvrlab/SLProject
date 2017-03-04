@@ -138,7 +138,7 @@ class SLSceneView: public SLObject
             SLstring        windowTitle         ();
             void            startRaytracing     (SLint maxDepth);
             void            startPathtracing    (SLint maxDepth, SLint samples);
-            void            printStats          () {_stats.print();}
+            void            printStats          () {_stats3D.print();}
             SLbool          testRunIsFinished   ();
 
             // Callback routines
@@ -206,7 +206,8 @@ class SLSceneView: public SLObject
             SLGLState*      _stateGL;           //!< Pointer to the global SLGLState instance
             SLCamera*       _camera;            //!< Pointer to the _active camera
             SLCamera        _sceneViewCamera;   //!< Default camera for this SceneView (default cam not in scenegraph)
-            SLNodeStats     _stats;             //!< Statistic numbers
+            SLNodeStats     _stats2D;           //!< Statistic numbers for 2D nodes
+            SLNodeStats     _stats3D;           //!< Statistic numbers for 3D nodes
             SLbool          _gotPainted;        //!< flag if this sceneview got painted
 
             SLRenderType    _renderType;        //!< rendering type (GL,RT,PT)

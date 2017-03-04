@@ -51,7 +51,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand cmd)
 
     float fov = 1.0f;
     if(ARSceneView* arSV = dynamic_cast<ARSceneView*>(sv))
-        fov = _activeCalib.cameraFovDeg();
+        fov = _activeCalib->cameraFovDeg();
 
     cam1->fov(fov);
     cam1->clipNear(0.01f);
@@ -126,26 +126,26 @@ void ARSceneView::preDraw()
         }
 
         //show undistorted image
-        if(s->activeCalib().showUndistorted())
+        if(s->activeCalib()->showUndistorted())
         {   Mat undistorted;
             undistort(SLCVCapture::lastFrame,
                       undistorted,
-                      s->activeCalib().intrinsics(),
-                      s->activeCalib().distortion());
+                      s->activeCalib()->cameraMat(),
+                      s->activeCalib()->distortion());
             setCVImageToTexture(undistorted);
         }
     }
     else if(_currMode == CalibrationMode)
     {
-        if (s->activeCalib().state() == CS_calibrateStream ||
-            s->activeCalib().state() == CS_calibrateGrab)
+        if (s->activeCalib()->state() == CS_calibrateStream ||
+            s->activeCalib()->state() == CS_calibrateGrab)
         {               
-            s->activeCalib().findChessboard(SLCVCapture::lastFrame,
-                                            SLCVCapture::lastFrameGray,
-                                            true);
+            s->activeCalib()->findChessboard(SLCVCapture::lastFrame,
+                                             SLCVCapture::lastFrameGray,
+                                             true);
 
-            int imgsToCap = s->activeCalib().numImgsToCapture();
-            int imgsCaped = s->activeCalib().numCapturedImgs();
+            int imgsToCap = s->activeCalib()->numImgsToCapture();
+            int imgsCaped = s->activeCalib()->numCapturedImgs();
 
             //update Info line
             stringstream ss;
@@ -154,17 +154,17 @@ void ARSceneView::preDraw()
                    << imgsCaped << " of " << imgsToCap;
             else
             {   ss << "Calculating, please wait ...";
-                s->activeCalib().calculate();
+                s->activeCalib()->calculate();
             }
 
             setInfoLineText(ss.str());
 
             setCVImageToTexture(SLCVCapture::lastFrame);
         }
-        else if(s->activeCalib().state() == CS_calibrated)
+        else if(s->activeCalib()->state() == CS_calibrated)
         {
-            float reprojError = s->activeCalib().reprojectionError();
-            this->camera()->fov(s->activeCalib().cameraFovDeg());
+            float reprojError = s->activeCalib()->reprojectionError();
+            this->camera()->fov(s->activeCalib()->cameraFovDeg());
             //update Info line
             std::stringstream ss;
             ss << "Calibrated: Reprojection error: " << reprojError;
@@ -177,8 +177,8 @@ void ARSceneView::preDraw()
         Mat undistorted;
         undistort(SLCVCapture::lastFrame, 
                   undistorted, 
-                  s->activeCalib().intrinsics(),
-                  s->activeCalib().distortion());
+                  s->activeCalib()->cameraMat(),
+                  s->activeCalib()->distortion());
 
         if(_mapper2D.stateIsLineInput())
         {
@@ -337,13 +337,15 @@ void ARSceneView::processModeChange()
 
             case ARSceneViewMode::CalibrationMode:
                 //execute calibration
-                if(s->activeCalib().loadCalibParams())
-                     s->activeCalib().setCalibrationState();
+                if(s->activeCalib()->loadCalibParams())
+                {   s->activeCalib()->clear();
+                    s->activeCalib()->state(CS_calibrateStream);
+                }
                 else setInfoLineText("Info: Could not load calibration parameter file.");
                 break;
 
             case ARSceneViewMode::ChessboardMode:
-                if(s->activeCalib().state() == CS_uncalibrated)
+                if(s->activeCalib()->state() == CS_uncalibrated)
                 {   setInfoLineText("Info: System uncalibrated. Perform camera calibration.");
                     break;
                 }
@@ -354,7 +356,7 @@ void ARSceneView::processModeChange()
                 break;
 
             case ARSceneViewMode::ArucoMode:
-                if(s->activeCalib().state() == CS_uncalibrated)
+                if(s->activeCalib()->state() == CS_uncalibrated)
                 {   setInfoLineText("Info: System uncalibrated. Perform camera calibration.");
                     break;
                 }
@@ -365,7 +367,7 @@ void ARSceneView::processModeChange()
                 break;
 
             case ARSceneViewMode::Tracker2D:
-                if(s->activeCalib().state() == CS_uncalibrated)
+                if(s->activeCalib()->state() == CS_uncalibrated)
                 {   setInfoLineText("Info: System uncalibrated. Perform camera calibration.");
                     break;
                 }
@@ -376,7 +378,7 @@ void ARSceneView::processModeChange()
                 break;
 
             case ARSceneViewMode::Mapper2D:
-                if(s->activeCalib().state() == CS_uncalibrated)
+                if(s->activeCalib()->state() == CS_uncalibrated)
                     setInfoLineText("Info: System uncalibrated. Perform camera calibration.");
                 break;
         }
@@ -419,7 +421,7 @@ SLbool ARSceneView::onKeyPress(const SLKey key, const SLKey mod)
                       _mapper2D.clear();
                       _mapper2D.state(AR2DMapper::LINE_INPUT); break;
             case 'L': _mapper2D.state(AR2DMapper::CAPTURE); break;
-            case 'U': s->activeCalib().showUndistorted(!s->activeCalib().showUndistorted()); break;
+            case 'U': s->activeCalib()->showUndistorted(!s->activeCalib()->showUndistorted()); break;
         }
     }
 

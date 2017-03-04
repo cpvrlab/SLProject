@@ -84,7 +84,7 @@ SkeletonMeshBuilder::SkeletonMeshBuilder( aiScene* pScene, aiNode* root, bool bK
 void SkeletonMeshBuilder::CreateGeometry( const aiNode* pNode)
 {
 	// add a joint entry for the node. 
-	const unsigned int vertexStartIndex = mVertices.size();
+	const unsigned int vertexStartIndex = (unsigned int)mVertices.size();
 
 	// now build the geometry. 
 	if( pNode->mNumChildren > 0 && !mKnobsOnly)
@@ -107,7 +107,7 @@ void SkeletonMeshBuilder::CreateGeometry( const aiNode* pNode)
 			aiVector3D front = (up ^ orth).Normalize();
 			aiVector3D side = (front ^ up).Normalize();
 
-			unsigned int localVertexStart = mVertices.size();
+			unsigned int localVertexStart = (unsigned int)mVertices.size();
 			mVertices.push_back( -front * distanceToChild * 0.1f);
 			mVertices.push_back( childpos);
 			mVertices.push_back( -side * distanceToChild * 0.1f);
@@ -169,7 +169,7 @@ void SkeletonMeshBuilder::CreateGeometry( const aiNode* pNode)
 		mFaces.push_back( Face( vertexStartIndex + 21, vertexStartIndex + 22, vertexStartIndex + 23));
 	}
 
-	unsigned int numVertices = mVertices.size() - vertexStartIndex;
+	unsigned int numVertices = (unsigned int)mVertices.size() - vertexStartIndex;
 	if( numVertices > 0)
 	{
 		// create a bone affecting all the newly created vertices
@@ -207,14 +207,14 @@ aiMesh* SkeletonMeshBuilder::CreateMesh()
 	aiMesh* mesh = new aiMesh();
 
 	// add points
-	mesh->mNumVertices = mVertices.size();
+	mesh->mNumVertices = (unsigned int)mVertices.size();
 	mesh->mVertices = new aiVector3D[mesh->mNumVertices];
 	std::copy( mVertices.begin(), mVertices.end(), mesh->mVertices);
 
 	mesh->mNormals = new aiVector3D[mesh->mNumVertices];
 
 	// add faces
-	mesh->mNumFaces = mFaces.size();
+	mesh->mNumFaces = (unsigned int)mFaces.size();
 	mesh->mFaces = new aiFace[mesh->mNumFaces];
 	for( unsigned int a = 0; a < mesh->mNumFaces; a++)
 	{
@@ -239,7 +239,7 @@ aiMesh* SkeletonMeshBuilder::CreateMesh()
 	}
 
 	// add the bones
-	mesh->mNumBones = mBones.size();
+	mesh->mNumBones = (unsigned int)mBones.size();
 	mesh->mBones = new aiBone*[mesh->mNumBones];
 	std::copy( mBones.begin(), mBones.end(), mesh->mBones);
 

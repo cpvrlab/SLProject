@@ -287,19 +287,19 @@ void ObjFileMtlImporter::getTexture() {
 	int clampIndex = -1;
 
 	const char *pPtr( &(*m_DataIt) );
-	if ( !ASSIMP_strincmp( pPtr, DiffuseTexture.c_str(), DiffuseTexture.size() ) ) {
+	if ( !ASSIMP_strincmp( pPtr, DiffuseTexture.c_str(), (unsigned int)DiffuseTexture.size() ) ) {
 		// Diffuse texture
 		out = & m_pModel->m_pCurrentMaterial->texture;
 		clampIndex = ObjFile::Material::TextureDiffuseType;
-	} else if ( !ASSIMP_strincmp( pPtr,AmbientTexture.c_str(),AmbientTexture.size() ) ) {
+	} else if ( !ASSIMP_strincmp( pPtr,AmbientTexture.c_str(),(unsigned int)AmbientTexture.size() ) ) {
 		// Ambient texture
 		out = & m_pModel->m_pCurrentMaterial->textureAmbient;
 		clampIndex = ObjFile::Material::TextureAmbientType;
-	} else if (!ASSIMP_strincmp( pPtr, SpecularTexture.c_str(), SpecularTexture.size())) {
+	} else if (!ASSIMP_strincmp( pPtr, SpecularTexture.c_str(), (unsigned int)SpecularTexture.size())) {
 		// Specular texture
 		out = & m_pModel->m_pCurrentMaterial->textureSpecular;
 		clampIndex = ObjFile::Material::TextureSpecularType;
-	} else if ( !ASSIMP_strincmp( pPtr, OpacityTexture.c_str(), OpacityTexture.size() ) ) {
+	} else if ( !ASSIMP_strincmp( pPtr, OpacityTexture.c_str(), (unsigned int)OpacityTexture.size() ) ) {
 		// Opacity texture
 		out = & m_pModel->m_pCurrentMaterial->textureOpacity;
 		clampIndex = ObjFile::Material::TextureOpacityType;
@@ -311,21 +311,21 @@ void ObjFileMtlImporter::getTexture() {
 		// Emissive texture
 		out = & m_pModel->m_pCurrentMaterial->textureEmissive;
 		clampIndex = ObjFile::Material::TextureEmissiveType;
-	} else if ( !ASSIMP_strincmp( pPtr, BumpTexture1.c_str(), BumpTexture1.size() ) ||
-		        !ASSIMP_strincmp( pPtr, BumpTexture2.c_str(), BumpTexture2.size() ) || 
-		        !ASSIMP_strincmp( pPtr, BumpTexture3.c_str(), BumpTexture3.size() ) ) {
+	} else if ( !ASSIMP_strincmp( pPtr, BumpTexture1.c_str(), (unsigned int)BumpTexture1.size() ) ||
+		        !ASSIMP_strincmp( pPtr, BumpTexture2.c_str(), (unsigned int)BumpTexture2.size() ) ||
+		        !ASSIMP_strincmp( pPtr, BumpTexture3.c_str(), (unsigned int)BumpTexture3.size() ) ) {
 		// Bump texture 
 		out = & m_pModel->m_pCurrentMaterial->textureBump;
 		clampIndex = ObjFile::Material::TextureBumpType;
-	} else if (!ASSIMP_strincmp( pPtr,NormalTexture.c_str(), NormalTexture.size())) { 
+	} else if (!ASSIMP_strincmp( pPtr,NormalTexture.c_str(), (unsigned int)NormalTexture.size())) {
 		// Normal map
 		out = & m_pModel->m_pCurrentMaterial->textureNormal;
 		clampIndex = ObjFile::Material::TextureNormalType;
-	} else if (!ASSIMP_strincmp( pPtr, DisplacementTexture.c_str(), DisplacementTexture.size() ) ) {
+	} else if (!ASSIMP_strincmp( pPtr, DisplacementTexture.c_str(), (unsigned int)DisplacementTexture.size() ) ) {
 		// Displacement texture
 		out = &m_pModel->m_pCurrentMaterial->textureDisp;
 		clampIndex = ObjFile::Material::TextureDispType;
-	} else if (!ASSIMP_strincmp( pPtr, SpecularityTexture.c_str(),SpecularityTexture.size() ) ) {
+	} else if (!ASSIMP_strincmp( pPtr, SpecularityTexture.c_str(),(unsigned int)SpecularityTexture.size() ) ) {
 		// Specularity scaling (glossiness)
 		out = & m_pModel->m_pCurrentMaterial->textureSpecularity;
 		clampIndex = ObjFile::Material::TextureSpecularityType;
@@ -369,7 +369,7 @@ void ObjFileMtlImporter::getTextureOption(bool &clamp)
 		//skip option key and value
 		int skipToken = 1;
 
-		if (!ASSIMP_strincmp(pPtr, ClampOption.c_str(), ClampOption.size()))
+		if (!ASSIMP_strincmp(pPtr, ClampOption.c_str(), (unsigned int)ClampOption.size()))
 		{
 			DataArrayIt it = getNextToken<DataArrayIt>(m_DataIt, m_DataItEnd);
 			char value[3];
@@ -381,23 +381,23 @@ void ObjFileMtlImporter::getTextureOption(bool &clamp)
 
 			skipToken = 2;
 		}
-		else if (  !ASSIMP_strincmp(pPtr, BlendUOption.c_str(), BlendUOption.size())
-				|| !ASSIMP_strincmp(pPtr, BlendVOption.c_str(), BlendVOption.size())
-				|| !ASSIMP_strincmp(pPtr, BoostOption.c_str(), BoostOption.size())
-				|| !ASSIMP_strincmp(pPtr, ResolutionOption.c_str(), ResolutionOption.size())
-				|| !ASSIMP_strincmp(pPtr, BumpOption.c_str(), BumpOption.size())
-				|| !ASSIMP_strincmp(pPtr, ChannelOption.c_str(), ChannelOption.size())
-				|| !ASSIMP_strincmp(pPtr, TypeOption.c_str(), TypeOption.size()) )
+		else if (  !ASSIMP_strincmp(pPtr, BlendUOption.c_str(), (unsigned int)BlendUOption.size())
+				|| !ASSIMP_strincmp(pPtr, BlendVOption.c_str(), (unsigned int)BlendVOption.size())
+				|| !ASSIMP_strincmp(pPtr, BoostOption.c_str(), (unsigned int)BoostOption.size())
+				|| !ASSIMP_strincmp(pPtr, ResolutionOption.c_str(), (unsigned int)ResolutionOption.size())
+				|| !ASSIMP_strincmp(pPtr, BumpOption.c_str(), (unsigned int)BumpOption.size())
+				|| !ASSIMP_strincmp(pPtr, ChannelOption.c_str(), (unsigned int)ChannelOption.size())
+				|| !ASSIMP_strincmp(pPtr, TypeOption.c_str(), (unsigned int)TypeOption.size()) )
 		{
 			skipToken = 2;
 		}
-		else if (!ASSIMP_strincmp(pPtr, ModifyMapOption.c_str(), ModifyMapOption.size()))
+		else if (!ASSIMP_strincmp(pPtr, ModifyMapOption.c_str(), (unsigned int)ModifyMapOption.size()))
 		{
 			skipToken = 3;
 		}
-		else if (  !ASSIMP_strincmp(pPtr, OffsetOption.c_str(), OffsetOption.size())
-				|| !ASSIMP_strincmp(pPtr, ScaleOption.c_str(), ScaleOption.size())
-				|| !ASSIMP_strincmp(pPtr, TurbulenceOption.c_str(), TurbulenceOption.size())
+		else if (  !ASSIMP_strincmp(pPtr, OffsetOption.c_str(), (unsigned int)OffsetOption.size())
+				|| !ASSIMP_strincmp(pPtr, ScaleOption.c_str(), (unsigned int)ScaleOption.size())
+				|| !ASSIMP_strincmp(pPtr, TurbulenceOption.c_str(), (unsigned int)TurbulenceOption.size())
 				)
 		{
 			skipToken = 4;

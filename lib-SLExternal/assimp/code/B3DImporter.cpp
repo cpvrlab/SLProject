@@ -322,7 +322,7 @@ void B3DImporter::ReadVRTS(){
 	int sz=12+(_vflags&1?12:0)+(_vflags&2?16:0)+(_tcsets*_tcsize*4);
 	int n_verts=ChunkSize()/sz;
 
-	int v0=_vertices.size();
+	int v0=(int)_vertices.size();
 	_vertices.resize( v0+n_verts );
 
 	for( int i=0;i<n_verts;++i ){
@@ -395,7 +395,7 @@ void B3DImporter::ReadTRIS( int v0 ){
 void B3DImporter::ReadMESH(){
 	/*int matid=*/ReadInt();
 
-	int v0=_vertices.size();
+	int v0=(int)_vertices.size();
 
 	while( ChunkSize() ){
 		string t=ReadChunk();
@@ -453,17 +453,17 @@ void B3DImporter::ReadKEYS( aiNodeAnim *nodeAnim ){
 	}
 
 	if( flags & 1 ){
-		nodeAnim->mNumPositionKeys=trans.size();
+		nodeAnim->mNumPositionKeys=(unsigned int)trans.size();
 		nodeAnim->mPositionKeys=to_array( trans );
 	}
 
 	if( flags & 2 ){
-		nodeAnim->mNumScalingKeys=scale.size();
+		nodeAnim->mNumScalingKeys=(unsigned int)scale.size();
 		nodeAnim->mScalingKeys=to_array( scale );
 	}
 
 	if( flags & 4 ){
-		nodeAnim->mNumRotationKeys=rot.size();
+		nodeAnim->mNumRotationKeys=(unsigned int)rot.size();
 		nodeAnim->mRotationKeys=to_array( rot );
 	}
 }
@@ -497,7 +497,7 @@ aiNode *B3DImporter::ReadNODE( aiNode *parent ){
 
 	aiMatrix4x4 tform=trans * rot * scale;
 
-	int nodeid=_nodes.size();
+	int nodeid=(int)_nodes.size();
 
 	aiNode *node=new aiNode( name );
 	_nodes.push_back( node );
@@ -512,7 +512,7 @@ aiNode *B3DImporter::ReadNODE( aiNode *parent ){
 	while( ChunkSize() ){
 		string t=ReadChunk();
 		if( t=="MESH" ){
-			int n=_meshes.size();
+			int n=(int)_meshes.size();
 			ReadMESH();
 			for( int i=n;i<(int)_meshes.size();++i ){
 				meshes.push_back( i );
@@ -535,10 +535,10 @@ aiNode *B3DImporter::ReadNODE( aiNode *parent ){
 		ExitChunk();
 	}
 
-	node->mNumMeshes=meshes.size();
+	node->mNumMeshes=(unsigned int)meshes.size();
 	node->mMeshes=to_array( meshes );
 
-	node->mNumChildren=children.size();
+	node->mNumChildren=(unsigned int)children.size();
 	node->mChildren=to_array( children );
 
 	return node;
@@ -636,7 +636,7 @@ void B3DImporter::ReadBB3D( aiScene *scene ){
 				aiNode *bnode=_nodes[i];
 
 				bone->mName=bnode->mName;
-				bone->mNumWeights=weights.size();
+				bone->mNumWeights=(unsigned int)weights.size();
 				bone->mWeights=to_array( weights );
 
 				aiMatrix4x4 mat=bnode->mTransformation;
@@ -646,7 +646,7 @@ void B3DImporter::ReadBB3D( aiScene *scene ){
 				}
 				bone->mOffsetMatrix=mat.Inverse();
 			}
-			mesh->mNumBones=bones.size();
+			mesh->mNumBones=(unsigned int)bones.size();
 			mesh->mBones=to_array( bones );
 		}
 	}
@@ -658,21 +658,21 @@ void B3DImporter::ReadBB3D( aiScene *scene ){
 	if( !_materials.size() ){
 		_materials.push_back( new aiMaterial );
 	}
-	scene->mNumMaterials=_materials.size();
+	scene->mNumMaterials=(unsigned int)_materials.size();
 	scene->mMaterials=to_array( _materials );
 	
 	//meshes
-	scene->mNumMeshes=_meshes.size();
+	scene->mNumMeshes=(unsigned int)_meshes.size();
 	scene->mMeshes=to_array( _meshes );
 
 	//animations
 	if( _animations.size()==1 && _nodeAnims.size() ){
 
 		aiAnimation *anim=_animations.back();
-		anim->mNumChannels=_nodeAnims.size();
+		anim->mNumChannels=(unsigned int)_nodeAnims.size();
 		anim->mChannels=to_array( _nodeAnims );
 
-		scene->mNumAnimations=_animations.size();
+		scene->mNumAnimations=(unsigned int)_animations.size();
 		scene->mAnimations=to_array( _animations );
 	}
 

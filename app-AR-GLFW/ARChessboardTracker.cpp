@@ -1,9 +1,9 @@
 //#############################################################################
 //  File:      ARTracker.cpp
-//  Author:    Michael Göttlicher
+//  Author:    Michael Goettlicher
 //  Date:      Spring 2016
 //  Codestyle: https://github.com/cpvrlab/SLProject/wiki/Coding-Style-Guidelines
-//  Copyright: Marcus Hudritsch, Michael Göttlicher
+//  Copyright: Marcus Hudritsch, Michael Goettlicher
 //             This software is provide under the GNU General Public License
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
@@ -24,7 +24,7 @@ using namespace cv;
 //-----------------------------------------------------------------------------
 bool ARChessboardTracker::init()
 {
-    SLstring filename = "chessboard_detector_params.yml";
+    SLstring filename = "calib_in_params.yml";
     cv::FileStorage fs(SLCVCalibration::calibIniPath + filename, 
                        cv::FileStorage::READ);
     if(!fs.isOpened())
@@ -32,20 +32,20 @@ bool ARChessboardTracker::init()
         cout << "Tried " << SLCVCalibration::calibIniPath + filename << endl;
         return false;
     }
-    fs["boardWidth"]  >> _boardSize.width;
-    fs["boardHeight"] >> _boardSize.height;
-    fs["edgeLengthM"] >> _edgeLengthM;
+    fs["numInnerCornersWidth"]  >> _boardSize.width;
+    fs["numInnerCornersHeight"] >> _boardSize.height;
+    fs["squareSizeMM"] >> _edgeLengthM;
 
     SLCVCalibration::calcBoardCorners3D(_boardSize, _edgeLengthM, _boardPoints3D);
     return true;
 }
 //-----------------------------------------------------------------------------
 bool ARChessboardTracker::track(cv::Mat image, 
-                                SLCVCalibration& calib)
+                                SLCVCalibration* calib)
 {
     bool found = false;
 
-    if(!image.empty() && !calib.intrinsics().empty())
+    if(!image.empty() && !calib->cameraMat().empty())
     {
         //make a gray copy of the webcam image
         //cvtColor(_image, _grayImg, CV_RGB2GRAY);
@@ -66,8 +66,8 @@ bool ARChessboardTracker::track(cv::Mat image,
             //find the camera extrinsic parameters
             bool result = solvePnP(Mat(_boardPoints3D), 
                                    Mat(corners), 
-                                   calib.intrinsics(), 
-                                   calib.distortion(), 
+                                   calib->cameraMat(),
+                                   calib->distortion(),
                                    rVec, 
                                    tVec, 
                                    false, 

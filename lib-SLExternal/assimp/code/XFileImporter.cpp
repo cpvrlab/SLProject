@@ -272,7 +272,7 @@ void XFileImporter::CreateMeshes( aiScene* pScene, aiNode* pNode, const std::vec
 			// or referenced material, it should already have a valid index
 			if( sourceMesh->mFaceMaterials.size() > 0)
 			{
-        mesh->mMaterialIndex = sourceMesh->mMaterials[b].sceneIndex;
+        mesh->mMaterialIndex = (unsigned int)sourceMesh->mMaterials[b].sceneIndex;
 			} else
 			{
 				mesh->mMaterialIndex = 0;
