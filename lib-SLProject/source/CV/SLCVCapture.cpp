@@ -324,7 +324,7 @@ void SLCVCapture::copyYUVPlanes(int srcW, int srcH,
     bool mirrorV = s->activeCalib()->isMirroredV();
 
     // Now do if possible only one loop over the source image to fill up the
-    // RGB image in SLCVCapture::lastFrame and the grayscael image in
+    // RGB image in SLCVCapture::lastFrame and the grayscale image in
     // SLCVCapture::lastFrameGray.
 
     // ???
