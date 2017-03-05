@@ -64,6 +64,7 @@ void    slRotationPYR           (int sceneViewIndex, float pitchRAD, float yawRA
 void    slRotationQUAT          (int sceneViewIndex, float angleRAD, float axisX, float axisY, float axisZ);
 string  slGetWindowTitle        (int sceneViewIndex);
 int     slGetVideoType          ();
+int     slGetVideoSizeIndex     ();
 void    slCopyVideoImage        (int srcW, int srcH, SLPixelFormat glFormat, SLuchar* data, bool isContinuous);
 void    slCopyVideoYUVPlanes    (int srcW, int srcH,
                                  SLuchar* y, int ySize, int yPixStride, int yLineStride,

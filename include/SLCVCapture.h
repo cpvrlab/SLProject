@@ -60,11 +60,20 @@ class SLCVCapture
     static  SLCVMat         lastFrame;          //!< last frame grabbed
     static  SLCVMat         lastFrameGray;      //!< last frame in grayscale
     static  SLPixelFormat   format;             //!< SL pixel format
-    static  SLCVSize        captureSize;        //!< size of captured fram
+    static  SLCVSize        captureSize;        //!< size of captured frame
     static  SLfloat         startCaptureTimeMS; //!< start time of capturing in ms
     static  SLbool          hasSecondaryCamera; //!< flag if device has secondary camera
 
-    private:
+    /*! A requestedSizeIndex of 0 returns on Android the default size of 640x480.
+    If this size is not available the median element of the available sizes array is returned.
+    An index of -n return the n-th smaller one. \n
+    An index of +n return the n-th bigger one.\n
+    This requestedSizeIndex has only an influence right now on Android.
+    On desktop systen OpenCV gets the max. available resolution.
+    On iOS the resolution is hardcoded to 640 x 480.*/
+    static  SLint           requestedSizeIndex;
+
+private:
     static  cv::VideoCapture _captureDevice;    //!< OpenCV capture device
 };
 //-----------------------------------------------------------------------------

@@ -183,8 +183,12 @@ enum SLCommand
     C_statsVideoToggle,
     C_statsCameraToggle,
 
-    C_dpiInc,           // Increase DPI 10%
-    C_dpiDec,           // Decrease DPI 10%
+    C_dpiInc,               // Increase DPI 10%
+    C_dpiDec,               // Decrease DPI 10%
+
+    C_videoSizeIndexInc,    // tries to increase the video resolution
+    C_videoSizeIndexDec,    // tries to decrease the video resolution
+    C_videoSizeIndexDefault,// sets the default video resolution
 
     C_undistortVideoToggle,
     C_calibFixPrincipPointalToggle,

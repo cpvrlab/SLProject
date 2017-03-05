@@ -32,6 +32,7 @@ cv::VideoCapture    SLCVCapture::_captureDevice;
 SLCVSize            SLCVCapture::captureSize;
 SLfloat             SLCVCapture::startCaptureTimeMS;
 SLbool              SLCVCapture::hasSecondaryCamera = true;
+SLint               SLCVCapture::requestedSizeIndex = 0;
 //-----------------------------------------------------------------------------
 //! Opens the capture device and returns the frame size
 SLVec2i SLCVCapture::open(SLint deviceNum)
@@ -50,8 +51,8 @@ SLVec2i SLCVCapture::open(SLint deviceNum)
         cout << "CV_CAP_PROP_FRAME_WIDTH : " << w << endl;
         cout << "CV_CAP_PROP_FRAME_HEIGHT: " << h << endl;
 
-        _captureDevice.set(CV_CAP_PROP_FRAME_WIDTH, 640);
-        _captureDevice.set(CV_CAP_PROP_FRAME_HEIGHT, 480);
+        //_captureDevice.set(CV_CAP_PROP_FRAME_WIDTH, 640);
+        //_captureDevice.set(CV_CAP_PROP_FRAME_HEIGHT, 480);
 
         hasSecondaryCamera = false;
 
@@ -113,8 +114,10 @@ We therefore create a copy that is grayscale converted.
 void SLCVCapture::adjustForSL()
 {
     SLScene* s = SLScene::current;
-    captureSize = lastFrame.size();
     format = SLCVImage::cv2glPixelFormat(lastFrame.type());
+
+    // Set capture size before cropping
+    captureSize = lastFrame.size();
 
     /////////////////
     // 1) Cropping //

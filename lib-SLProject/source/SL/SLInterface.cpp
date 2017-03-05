@@ -435,11 +435,22 @@ string slGetWindowTitle(int sceneViewIndex)
     return sv->windowTitle();
 }
 //-----------------------------------------------------------------------------
-/*! Global function returns the type of video camera wanted
+/*! Global function that returns the type of video camera wanted
 */
 int slGetVideoType()
 {
     return (int)SLScene::current->videoType();
+}
+//-----------------------------------------------------------------------------
+/*! Global function that returns the size index offset of the requested video.
+An index offset of 0 returns the default size of 640x480. If this size is not
+available the median element of the available sizes array is returned.
+An index of -n return the n-th smaller one. \n
+An index of +n return the n-th bigger one. \n
+*/
+int slGetVideoSizeIndex()
+{
+    return SLCVCapture::requestedSizeIndex;
 }
 //-----------------------------------------------------------------------------
 /*! Global function to copy a new video image to the SLScene::_videoTexture.

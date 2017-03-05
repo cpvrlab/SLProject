@@ -143,7 +143,6 @@ float GetSeconds()
     ///////////////////////////////////////////////////////////////////////
     
     [self setMotionInterval:1.0/60.0];
-    //[self setupVideo:false];
 }
 //-----------------------------------------------------------------------------
 - (void)viewDidUnload
@@ -392,6 +391,12 @@ float GetSeconds()
                                        position:AVCaptureDevicePositionBack];
     if(videoDevice == nil)
         assert(0);
+    
+    /*
+    for (AVCaptureDeviceFormat *format in [videoDevice formats] ) {
+        CMFormatDescriptionRef description = format.formatDescription;
+    }
+    */
     
     //-- Add the device to the session.
     NSError *error;
