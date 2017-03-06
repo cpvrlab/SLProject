@@ -145,37 +145,38 @@ enum SLCommand
     C_textureToggle,    // Texture drawing bit toggle
     C_voxelsToggle,     // Voxel drawing bit toggle
    
-    C_projPersp,        // Perspective projection
-    C_projOrtho,        // Orthographic projection
-    C_projSideBySide,   // side-by-side
-    C_projSideBySideP,  // side-by-side proportional
-    C_projSideBySideD,  // Oculus Rift stereo mode
-    C_projLineByLine,   // line-by-line
-    C_projColumnByColumn,// column-by-column
-    C_projPixelByPixel, // checkerboard pattern (DLP3D)
-    C_projColorRC,      // color masking for red-cyan anaglyphs
-    C_projColorRG,      // color masking for red-green anaglyphs
-    C_projColorRB,      // color masking for red-blue anaglyphs
-    C_projColorYB,      // color masking for yellow-blue anaglyphs (ColorCode 3D)
+    C_projPersp,            // Perspective projection
+    C_projOrtho,            // Orthographic projection
+    C_projSideBySide,       // side-by-side
+    C_projSideBySideP,      // side-by-side proportional
+    C_projSideBySideD,      // Oculus Rift stereo mode
+    C_projLineByLine,       // line-by-line
+    C_projColumnByColumn,   // column-by-column
+    C_projPixelByPixel,     // checkerboard pattern (DLP3D)
+    C_projColorRC,          // color masking for red-cyan anaglyphs
+    C_projColorRG,          // color masking for red-green anaglyphs
+    C_projColorRB,          // color masking for red-blue anaglyphs
+    C_projColorYB,          // color masking for yellow-blue anaglyphs (ColorCode 3D)
    
-    C_camReset,         // Resets to the initial camera view
-    C_useSceneViewCamera,  // make the editor camera active
-    C_camDeviceRotOn,   // Use devices rotation (mobile or Oculus Rift) for camera view
-    C_camDeviceRotOff,  // Don't use devices rotation (mobile or Oculus Rift) for camera view
-    C_camDeviceRotToggle, // Toggle devices rotation (mobile or Oculus Rift) for camera view
-    C_camEyeSepInc,     // Cameras eye separation distance increase
-    C_camEyeSepDec,     // Cameras eye separation distance decrease
-    C_camFocalDistInc,  // Cameras focal distance increase
-    C_camFocalDistDec,  // Cameras focal distance decrease
-    C_camFOVInc,        // Cameras field of view increase
-    C_camFOVDec,        // Cameras field of view decrease
-    C_camAnimTurnYUp,   // Sets turntable camera animation w. Y axis up
-    C_camAnimTurnZUp,   // Sets turntable camera animation w. Z axis up
-    C_camAnimWalkYUp,   // Sets 1st person walking camera animation w. Y axis up
-    C_camAnimWalkZUp,   // Sets 1st person walking camera animation w. Z axis up
-    C_camAnimFly1stP,   // Sets 1st person flying camera animation
-    C_camSpeedLimitInc, // Increments the speed limit by 10%
-    C_camSpeedLimitDec, // Decrements the speed limit by 10%
+    C_camReset,             // Resets to the initial camera view
+    C_camSetNextInScene,    // Switches to the next camera
+    C_camSetSceneViewCamera,// make the editor camera active
+    C_camDeviceRotOn,       // Use devices rotation (mobile or Oculus Rift) for camera view
+    C_camDeviceRotOff,      // Don't use devices rotation (mobile or Oculus Rift) for camera view
+    C_camDeviceRotToggle,   // Toggle devices rotation (mobile or Oculus Rift) for camera view
+    C_camEyeSepInc,         // Cameras eye separation distance increase
+    C_camEyeSepDec,         // Cameras eye separation distance decrease
+    C_camFocalDistInc,      // Cameras focal distance increase
+    C_camFocalDistDec,      // Cameras focal distance decrease
+    C_camFOVInc,            // Cameras field of view increase
+    C_camFOVDec,            // Cameras field of view decrease
+    C_camAnimTurnYUp,       // Sets turntable camera animation w. Y axis up
+    C_camAnimTurnZUp,       // Sets turntable camera animation w. Z axis up
+    C_camAnimWalkYUp,       // Sets 1st person walking camera animation w. Y axis up
+    C_camAnimWalkZUp,       // Sets 1st person walking camera animation w. Z axis up
+    C_camAnimFly1stP,       // Sets 1st person flying camera animation
+    C_camSpeedLimitInc,     // Increments the speed limit by 10%
+    C_camSpeedLimitDec,     // Decrements the speed limit by 10%
 
     C_statsTimingToggle,
     C_statsRendererToggle,

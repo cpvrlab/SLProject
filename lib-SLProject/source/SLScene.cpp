@@ -728,3 +728,37 @@ void SLScene::videoType(SLVideoType vt)
     _activeCalib = &_calibMainCam;
 }
 //-----------------------------------------------------------------------------
+//! Returns the number of camera nodes in the scene
+SLint SLScene::numSceneCameras()
+{
+    if (!_root3D) return 0;
+    vector<SLCamera*> cams = _root3D->findChildren<SLCamera>();
+    return (SLint)cams.size();
+}
+//-----------------------------------------------------------------------------
+//! Returns the next camera in the scene if there is one
+SLCamera* SLScene::nextCameraInScene(SLSceneView* activeSV)
+{
+    if (!_root3D) return nullptr;
+
+    vector<SLCamera*> cams = _root3D->findChildren<SLCamera>();
+
+    if (cams.size()==0) return nullptr;
+    if (cams.size()==1) return cams[0];
+
+    SLuint activeIndex = 0;
+    for (SLuint i=0; i<cams.size(); ++i)
+    {   if (cams[i] == activeSV->camera())
+        {   activeIndex = i;
+            break;
+        }
+    }
+
+    // return next if not last else return first
+    if (activeIndex < cams.size()-1)
+        return cams[activeIndex+1];
+    else 
+        return cams[0];
+
+}
+//-----------------------------------------------------------------------------

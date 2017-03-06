@@ -242,17 +242,15 @@ void SLSceneView::initSceneViewCamera(const SLVec3f& dir, SLProjection proj)
 //-----------------------------------------------------------------------------
 /*!
 SLSceneView::switchToSceneViewCamera the general idea for this function is
-to switch to the editor camera from a scene camera. It could provide functionality
-to stay at the position of the previous camera, or to be reset to the init position etc..
+to switch to the editor camera from a scene camera. It could provide
+functionality to stay at the position of the previous camera, or to be reset
+to the init position etc..
 */
 void SLSceneView::switchToSceneViewCamera()
 {
-    // if we have an active camera, use its position and orientation for the editor cam
-    // @todo This is just placeholder code, doing the stuff below can be done in a much
-    //       more elegant way.
-    if(_camera) 
-    {
-        SLMat4f currentWM = _camera->updateAndGetWM();
+    // if we have an active camera, use its position and orientation
+    if(_camera)
+    {   SLMat4f currentWM = _camera->updateAndGetWM();
         SLVec3f position = currentWM.translation();
         SLVec3f forward(-currentWM.m(8), -currentWM.m(9), -currentWM.m(10));
         _sceneViewCamera.translation(position);
@@ -261,7 +259,6 @@ void SLSceneView::switchToSceneViewCamera()
     
     _camera = &_sceneViewCamera;
 }
-
 //-----------------------------------------------------------------------------
 /*!
 SLSceneView::onInitialize is called by the window system before the first 
@@ -1292,6 +1289,8 @@ SLbool SLSceneView::onKeyPress(SLKey key, SLKey mod)
     if (key=='F') return onCommand(C_frustCullToggle);
     if (key=='B') return onCommand(C_bBoxToggle);
 
+    if (key==K_tab) return onCommand(C_camSetNextInScene);
+
     if (key==K_esc)
     {   if(_renderType == RT_rt)
         {  _stopRT = true;
@@ -1447,7 +1446,17 @@ SLbool SLSceneView::onCommand(SLCommand cmd)
             case C_camDeviceRotOn:    _camera->useDeviceRot(true); return true;
             case C_camDeviceRotOff:   _camera->useDeviceRot(false); return true;
             case C_camDeviceRotToggle:_camera->useDeviceRot(!_camera->useDeviceRot()); return true;
+            
             case C_camReset:          _camera->resetToInitialState(); return true;
+            case C_camSetNextInScene:
+            {   SLCamera* nextCam = s->nextCameraInScene(this);
+                if (nextCam != nullptr && nextCam != _camera)
+                {    _camera = nextCam;
+                     return true;
+                } else return false;
+                break;
+            }
+            case C_camSetSceneViewCamera: switchToSceneViewCamera(); return true;
             default: break;
         }
 
@@ -1534,7 +1543,7 @@ SLbool SLSceneView::onCommand(SLCommand cmd)
         case C_videoSizeIndexDec:           SLCVCapture::requestedSizeIndex -= 1; rebuild2DMenus(false); return true;
         case C_videoSizeIndexDefault:       SLCVCapture::requestedSizeIndex  = 0; rebuild2DMenus(false); return true;
 
-        case C_useSceneViewCamera: switchToSceneViewCamera(); return true;
+        case C_camSetSceneViewCamera: switchToSceneViewCamera(); return true;
 
         case C_statsTimingToggle:  _showStatsTiming = !_showStatsTiming; return true;
         case C_statsRendererToggle:_showStatsRenderer = !_showStatsRenderer; return true;
@@ -1711,7 +1720,10 @@ void SLSceneView::build2DMenus()
 
         mn2 = new SLButton(this, "Scene Camera >", f); mn1->addChild(mn2);
         mn2->addChild(new SLButton(this, "Reset", f, C_camReset));
-
+        if (s->numSceneCameras())
+        {   mn2->addChild(new SLButton(this, "Set next in Scene", f, C_camSetNextInScene));
+            mn2->addChild(new SLButton(this, "Set SceneView Camera", f, C_camSetSceneViewCamera));
+        }
             mn3 = new SLButton(this, "Projection >", f); mn2->addChild(mn3);
             for (SLint p=P_monoPerspective; p<=P_monoOrthographic; ++p)
             {   mn3->addChild(new SLButton(this, SLCamera::projectionToStr((SLProjection)p), f,

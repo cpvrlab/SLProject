@@ -221,12 +221,12 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         SLNode* scene = new SLNode("scene node");
 
         // Create a camera node
-        SLCamera* cam1 = new SLCamera();
-        cam1->name("camera node");
-        cam1->translation(0,0,20);
-        cam1->lookAt(0, 0, 0);
-        cam1->setInitialState();
-        scene->addChild(cam1);
+        //SLCamera* cam1 = new SLCamera();
+        //cam1->name("camera node");
+        //cam1->translation(0,0,20);
+        //cam1->lookAt(0, 0, 0);
+        //cam1->setInitialState();
+        //scene->addChild(cam1);
 
         // Create a light source node
         SLLightSpot* light1 = new SLLightSpot(0.3f);
@@ -249,7 +249,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         _root3D = scene;
 
         // Set active camera
-        sv->camera(cam1);
+        //sv->camera(cam1);
 
         // Save energy
         sv->waitEvents(true);
@@ -1674,6 +1674,11 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         cam2->lookAt(0, 0, 0);
         cam2->focalDist(5);
         cam2->setInitialState();
+        SLCamera* cam3 = new SLCamera;
+        cam3->translation(-5, -2, 0);
+        cam3->lookAt(0, 0, 0);
+        cam3->focalDist(5);
+        cam3->setInitialState();
 
         SLLightSpot* light1 = new SLLightSpot(0, 2, 0, 0.5f);
         light1->ambient (SLCol4f(0.2f,0.2f,0.2f));
@@ -1706,6 +1711,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         scene->addChild(light2);
         scene->addChild(cam1);
         scene->addChild(cam2);
+        scene->addChild(cam3);
         scene->addChild(floorRect);
         scene->addChild(ball1);
         scene->addChild(ball2);
@@ -2072,13 +2078,20 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         // Create a scene group node
         SLNode* scene = new SLNode("scene node");
 
-        // Create a camera node
+        // Create a camera node 1 
         SLCamera* cam1 = new SLCamera();
         cam1->name("camera node");
         cam1->translation(0,0,5);
         cam1->lookAt(0, 0, 0);
         cam1->fov(_activeCalib->cameraFovDeg());
         scene->addChild(cam1);
+
+        // Create a camera node 2 
+        SLCamera* cam2 = new SLCamera();
+        cam1->name("camera node");
+        cam1->translation(5,0,0);
+        cam1->lookAt(0, 0, 0);
+        scene->addChild(cam2);
 
         // Create a light source node
         SLLightSpot* light1 = new SLLightSpot(0.02f);

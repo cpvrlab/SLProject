@@ -294,8 +294,7 @@ class SLNode: public SLObject, public SLEventHandler
 
 //-----------------------------------------------------------------------------
 /*!
-SLNode::findChild<T> searches a node tree including the node this function has been called on
-for a name.
+SLNode::findChild<T> searches a node tree including the node by a given name.
 */
 template<typename T>
 T* SLNode::find(const SLstring& name, SLbool findRecursive)
@@ -308,7 +307,6 @@ T* SLNode::find(const SLstring& name, SLbool findRecursive)
 //-----------------------------------------------------------------------------
 /*!
 SLNode::findChild<T> finds the first child that is of type T or a subclass of T.
-@todo Add regex functionality to the name search
 */
 template<typename T>
 T* SLNode::findChild(const SLstring& name, SLbool findRecursive)
@@ -337,7 +335,6 @@ T* SLNode::findChild(const SLstring& name, SLbool findRecursive)
 /*!
 SLNode::findChildren<T> finds a list of all children that are of type T or
 subclasses of T. If a name is specified only nodes with that name are included.
-@todo Add regex functionality to the name search
 */
 template<typename T>
 vector<T*> SLNode::findChildren(const SLstring& name, SLbool findRecursive)
@@ -351,7 +348,6 @@ vector<T*> SLNode::findChildren(const SLstring& name, SLbool findRecursive)
 /*!
 SLNode::findChildrenHelper<T> is the helper function for findChildren<T>. It appends
 all newly found children to 'list'.
-@todo Add regex functionality to the name search
 */
 template<typename T>
 void SLNode::findChildrenHelper(const SLstring& name, vector<T*>& list, 

@@ -124,6 +124,8 @@ class SLScene: public SLObject
             SLMesh*         selectedMesh        () {return _selectedMesh;}
             SLbool          stopAnimations      () const {return _stopAnimations;}
             SLGLOculus*     oculus              () {return &_oculus;}
+            SLint           numSceneCameras     ();
+            SLCamera*       nextCameraInScene   (SLSceneView* activeSV);
 
             // Video and OpenCV stuff
             SLVideoType         videoType           () {return _videoType;}
@@ -214,8 +216,8 @@ class SLScene: public SLObject
             SLVideoType         _videoType;     //!< Flag for using the live video image
             SLGLTexture         _videoTexture;  //!< Texture for live video image
             SLCVCalibration*    _activeCalib;   //!< Pointer to the active calibration
-            SLCVCalibration     _calibMainCam;  //!< OpenCV calibration for main camera
-            SLCVCalibration     _calibScndCam;  //!< OpenCV calibration for secondary camera
+            SLCVCalibration     _calibMainCam;  //!< OpenCV calibration for main video camera
+            SLCVCalibration     _calibScndCam;  //!< OpenCV calibration for secondary video camera
             SLVCVTracker        _trackers;      //!< Vector of all AR trackers
 };
 //-----------------------------------------------------------------------------
