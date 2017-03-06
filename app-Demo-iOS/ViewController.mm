@@ -395,6 +395,8 @@ float GetSeconds()
     /*
     for (AVCaptureDeviceFormat *format in [videoDevice formats] ) {
         CMFormatDescriptionRef description = format.formatDescription;
+        CMVideoDimensions dimensions = CMVideoFormatDescriptionGetDimensions(description);
+        SL_LOG("%s: %d x %d\n", format.description.UTF8String, dimensions.width, dimensions.height);
     }
     */
     
