@@ -213,7 +213,6 @@ SLbool SLGLTexture::copyVideoImage(SLint camWidth,
                                          data,
                                          isContinuous,
                                          isTopLeft);
-    //_images[0]->savePNG("Test.png");
 
     // OpenGL ES 2 only can resize non-power-of-two texture with clamp to edge
     _wrap_s = GL_CLAMP_TO_EDGE;
@@ -443,7 +442,8 @@ void SLGLTexture::bindActive(SLint texID)
         if (this == s->videoTexture() &&
             s->videoType()!=VT_NONE &&
             _needsUpdate)
-        {   fullUpdate();
+        {   
+            fullUpdate();
             _needsUpdate = false;
         }
     }

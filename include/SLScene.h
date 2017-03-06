@@ -12,7 +12,6 @@
 #define SLSCENE_H
 
 #include <stdafx.h>
-#include <SLBackground.h>
 #include <SLMaterial.h>
 #include <SLEventHandler.h>
 #include <SLLight.h>
@@ -80,7 +79,6 @@ class SLScene: public SLObject
             SLSceneView*    sv                  (SLuint index) {return _sceneViews[index];}
             SLVSceneView&   sceneViews          () {return _sceneViews;}
             SLNode*         root3D              () {return _root3D;}
-            SLBackground&   background          () {return _background;}
             void            timerStart          () {_timer.start();}
             SLfloat         timeSec             () {return (SLfloat)_timer.getElapsedTimeInSec();}
             SLfloat         timeMilliSec        () {return (SLfloat)_timer.getElapsedTimeInMilliSec();}
@@ -128,13 +126,12 @@ class SLScene: public SLObject
             SLCamera*       nextCameraInScene   (SLSceneView* activeSV);
 
             // Video and OpenCV stuff
-            SLVideoType         videoType           () {return _videoType;}
-            SLbool              usesVideoAsBckgrnd  () {return _background.texture() == &_videoTexture;}
-            SLGLTexture*        videoTexture        () {return &_videoTexture;}
-            SLCVCalibration*    activeCalib         () {return _activeCalib;}
-            SLCVCalibration*    calibMainCam        () {return &_calibMainCam;}
-            SLCVCalibration*    calibScndCam        () {return &_calibScndCam;}
-            SLVCVTracker&       trackers            () {return _trackers;}
+            SLVideoType         videoType       () {return _videoType;}
+            SLGLTexture*        videoTexture    () {return &_videoTexture;}
+            SLCVCalibration*    activeCalib     () {return _activeCalib;}
+            SLCVCalibration*    calibMainCam    () {return &_calibMainCam;}
+            SLCVCalibration*    calibScndCam    () {return &_calibScndCam;}
+            SLVCVTracker&       trackers        () {return _trackers;}
             
             // Misc.
    virtual  void            onLoad              (SLSceneView* sv, 
@@ -173,7 +170,6 @@ class SLScene: public SLObject
             SLMesh*         _selectedMesh;      //!< Pointer to the selected mesh
 
             SLTimer         _timer;             //!< high precision timer
-            SLBackground    _background;        //!< Background colors or texture
             SLCol4f         _globalAmbiLight;   //!< global ambient light intensity
             SLbool          _rootInitialized;   //!< Flag if scene is initialized
             SLint           _numProgsPreload;   //!< No. of preloaded shaderProgs

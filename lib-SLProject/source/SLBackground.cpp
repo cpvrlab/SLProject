@@ -28,7 +28,6 @@ SLBackground::SLBackground() : SLObject("Background")
     _colors.push_back(SLCol4f::BLACK); // top left
     _isUniform  = true;
     _texture = nullptr;
-    _updateTex = false;
     _resX = -1;
     _resY = -1;
 }
@@ -75,11 +74,9 @@ void SLBackground::colors(SLCol4f topLeftColor,  SLCol4f bottomLeftColor,
 }
 //-----------------------------------------------------------------------------
 //! Sets the background texture
-void SLBackground::texture(SLGLTexture* backgroundTexture,
-                           SLbool updatePerFrame)
+void SLBackground::texture(SLGLTexture* backgroundTexture)
 {
     _texture = backgroundTexture;
-    _updateTex = updatePerFrame;
     _isUniform = false;
     _vao.clearAttribs();
 }
@@ -129,7 +126,7 @@ void SLBackground::render(SLint widthPX, SLint heightPX)
     sp->uniformMatrix4fv("u_mvpMatrix", 1, (SLfloat*)&mvp);
 
     // Create or update buffer for vertex position and indices
-    if (_resX != widthPX || _resY != heightPX || !_vao.id())
+    if (!_vao.id() || _resX != widthPX || _resY != heightPX)
     {
         _resX = widthPX;
         _resY = heightPX;
@@ -158,6 +155,65 @@ void SLBackground::render(SLint widthPX, SLint heightPX)
             _vao.setAttrib(AT_color, sp->getAttribLocation("a_color"), &C);
             _vao.generate(4);
         }
+    }
+
+    // draw a textured or colored quad
+    if(_texture)
+    {   _texture->bindActive(0);
+        sp->uniform1i("u_texture0", 0);
+    }
+
+    ///////////////////////////////////////
+    _vao.drawElementsAs(PT_triangleStrip);
+    ///////////////////////////////////////
+}
+//-----------------------------------------------------------------------------
+//! Draws the background as a quad on the far clipping plane
+/*! We render the quad as a triangle strip: <br>
+     LT       RT
+       +-----+
+       |    /|
+       |   / |
+       |  /  |
+       | /   |
+       |/    |
+       +-----+
+     LB       RB
+*/
+void SLBackground::renderInScene(SLVec3f LT, SLVec3f LB, SLVec3f RT, SLVec3f RB)
+{
+    SLGLState* stateGL = SLGLState::getInstance();
+    SLScene* s = SLScene::current;
+
+    // Get shader program
+    SLGLProgram* sp = _texture ? s->programs(SP_TextureOnly) : s->programs(SP_colorAttribute);
+    sp->useProgram();
+    sp->uniformMatrix4fv("u_mvpMatrix", 1, (SLfloat*)stateGL->mvpMatrix());
+
+    // Create or update buffer for vertex position and indices
+    _vao.clearAttribs();
+
+    // Float array with vertices
+    SLVVec3f P = {LT, LB, RT, RB}; 
+    _vao.setAttrib(AT_position, sp->getAttribLocation("a_position"), &P);
+        
+    // Indexes for a triangle strip
+    SLVushort I = {0,1,2,3};
+    _vao.setIndices(&I);
+
+    if(_texture)
+    {   // Float array of texture coordinates
+        SLVVec2f T = {{0.0f, 1.0f}, {0.0f, 0.0f}, {1.0f, 1.0f}, {1.0f, 0.0f}};
+        _vao.setAttrib(AT_texCoord, sp->getAttribLocation("a_texCoord"), &T);
+        _vao.generate(4);
+    } else
+    {   // Float array of colors of corners
+        SLVVec3f C = {{_colors[0].r, _colors[0].g, _colors[0].b},
+                      {_colors[1].r, _colors[1].g, _colors[1].b},
+                      {_colors[2].r, _colors[2].g, _colors[2].b},
+                      {_colors[3].r, _colors[3].g, _colors[3].b}};            
+        _vao.setAttrib(AT_color, sp->getAttribLocation("a_color"), &C);
+        _vao.generate(4);
     }
 
     // draw a textured or colored quad

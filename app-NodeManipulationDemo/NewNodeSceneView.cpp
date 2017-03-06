@@ -102,13 +102,12 @@ void drawXZGrid(const SLMat4f& mat)
 void SLScene::onLoad(SLSceneView* sv, SLCommand cmd)
 {
     init();
-    
-    _background.colors(SLCol4f(0.8f,0.8f,0.8f));
 
     SLCamera* cam1 = new SLCamera;
     cam1->translation(2, 3, 5);
     cam1->lookAt(-2, -1.0, 1);
     cam1->focalDist(6);
+    cam1->background().colors(SLCol4f(0.8f,0.8f,0.8f));
 
     SLLightSpot* light1 = new SLLightSpot(0.3f);
     light1->translation(10,10,10);

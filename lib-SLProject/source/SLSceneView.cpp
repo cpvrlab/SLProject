@@ -136,7 +136,7 @@ OpenGL function.
 void SLSceneView::initSceneViewCamera(const SLVec3f& dir, SLProjection proj)
 {             
     _sceneViewCamera.camAnim(CA_turntableYUp);
-    _sceneViewCamera.name("SceneViewCamera");
+    _sceneViewCamera.name("SceneView Camera");
     _sceneViewCamera.clipNear(.1f);
     _sceneViewCamera.clipFar(2000.0f);
     _sceneViewCamera.maxSpeed(40);
@@ -273,7 +273,7 @@ void SLSceneView::onInitialize()
     
     SLScene* s = SLScene::current;
     _stateGL = SLGLState::getInstance();
-    _stateGL->onInitialize(s->background().colors()[0]);
+    _stateGL->onInitialize(_camera->background().colors()[0]);
     
     _blendNodes.clear();
     _visibleNodes.clear();
@@ -336,8 +336,7 @@ void SLSceneView::onResize(SLint width, SLint height)
         _scrHdiv2 = _scrH>>1;  // height / 2
         _scrWdivH = (SLfloat)_scrW/(SLfloat)_scrH;
 
-        //@todo move this code to SLGLOculus (problem with that comes when 
-        // using multiple views with different resolutions)
+        // Resize Oculus framebuffer
         if (_camera && _camera->projection() == P_stereoSideBySideD)
         {
             _oculusFB.updateSize((SLint)(s->oculus()->resolutionScale()*(SLfloat)_scrW), 
@@ -465,9 +464,9 @@ SLbool SLSceneView::draw3DGL(SLfloat elapsedTimeMS)
     SLbool camUpdated = _camera->camUpdate(elapsedTimeMS);
 
    
-    //////////////////////
-    // 2. Clear Buffers //
-    //////////////////////
+    ///////////////////////////////////////
+    // 2. Clear Buffers & set Background //
+    ///////////////////////////////////////
     
     // Render into framebuffer if Oculus stereo projection is used
     if (_camera->projection() == P_stereoSideBySideD)
@@ -477,12 +476,12 @@ SLbool SLSceneView::draw3DGL(SLfloat elapsedTimeMS)
     }
 
     // Clear buffers
-    _stateGL->clearColor(s->background().colors()[0]);
+    _stateGL->clearColor(_camera->background().colors()[0]);
     _stateGL->clearColorDepthBuffer();
 
     // render gradient or textured background
-    if (!s->background().isUniform())
-        s->background().render(_scrW, _scrH);
+    if (!_camera->background().isUniform())
+         _camera->background().render(_scrW, _scrH);
 
     // Change state (only when changed)
     _stateGL->multiSample(_doMultiSampling);
@@ -1450,11 +1449,12 @@ SLbool SLSceneView::onCommand(SLCommand cmd)
             case C_camReset:          _camera->resetToInitialState(); return true;
             case C_camSetNextInScene:
             {   SLCamera* nextCam = s->nextCameraInScene(this);
-                if (nextCam != nullptr && nextCam != _camera)
-                {    _camera = nextCam;
-                     return true;
-                } else return false;
-                break;
+                if (nextCam == nullptr) return false;
+                if (nextCam != _camera)
+                     _camera = nextCam;
+                else _camera = &_sceneViewCamera;
+                _camera->background().rebuild();
+                return true;
             }
             case C_camSetSceneViewCamera: switchToSceneViewCamera(); return true;
             default: break;
@@ -1964,6 +1964,7 @@ void SLSceneView::build2DInfoGL()
     if (_showStatsCamera)
     {
         sprintf(m+strlen(m), "Camera -------------------------------------\\n");
+        sprintf(m+strlen(m), "Name: %s\\n", cam->name().c_str());
         sprintf(m+strlen(m), "Projection: %s\\n", cam->projectionStr().c_str());
         sprintf(m+strlen(m), "Animation: %s\\n", cam->animationStr().c_str());
         sprintf(m+strlen(m), "Max speed: %4.1f/sec.\\n", cam->maxSpeed());
@@ -2415,7 +2416,7 @@ void SLSceneView::showLoading(SLbool showLoading)
         {   // This can happen if show loading is called before a new scene is set
             SLScene* s = SLScene::current;
             _stateGL = SLGLState::getInstance();
-            _stateGL->onInitialize(s->background().colors()[0]);
+            _stateGL->onInitialize(_camera->background().colors()[0]);
         }
         _stateGL->clearColor(SLCol4f::GRAY);
         _stateGL->clearColorDepthBuffer();

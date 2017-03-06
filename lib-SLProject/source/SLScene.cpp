@@ -243,7 +243,6 @@ void SLScene::init()
 {     
     unInit();
    
-    _background.colors(SLCol4f(0.6f,0.6f,0.6f), SLCol4f(0.3f,0.3f,0.3f));
     _globalAmbiLight.set(0.2f,0.2f,0.2f,0.0f);
     _selectedNode = 0;
 
@@ -322,8 +321,8 @@ void SLScene::unInit()
     SLGLState::getInstance()->initAll();
 }
 //-----------------------------------------------------------------------------
-//! Updates all animations in the scene after all views got painted.
-/*! Updates different important updates in the scene after all views got painted:
+//! Updates all animations, AR trackers and AABBs
+/*! Updates different updatables in the scene after all views got painted:
 \n
 \n 1) Calculate frame time
 \n 2) Update all animations
