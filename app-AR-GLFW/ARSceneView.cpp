@@ -189,7 +189,8 @@ void ARSceneView::preDraw()
         else if(_mapper2D.stateIsCapture())
         {
             //simulate a snapshot
-            cv::bitwise_not(undistorted, undistorted);
+			//Problem: bitwise not is good for visual feedback but we dont want to use it to create the map
+            //cv::bitwise_not(undistorted, undistorted);
 
             //use image to generate a new mapping
             _mapper2D.createMap(undistorted, 0.0f, 0.0f, "map2d", AR2DMap::AR_ORB);

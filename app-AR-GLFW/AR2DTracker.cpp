@@ -84,7 +84,7 @@ bool AR2DTracker::init()
         (the score is written to KeyPoint::score and is used to retain best nfeatures features);
         FAST_SCORE is alternative value of the parameter that produces slightly less stable keypoints,
         but it is a little faster to compute.*/
-        int scoreType = ORB::HARRIS_SCORE;
+        int scoreType = ORB::FAST_SCORE;
         /*size of the patch used by the oriented BRIEF descriptor. Of course, on smaller
         pyramid layers the perceived image area covered by a feature will be larger.*/
         int patchSize = 31;
@@ -110,7 +110,7 @@ bool AR2DTracker::track(cv::Mat image,
 
     #if AR_SAVE_DEBUG_IMAGES
     Mat sceneKeyPtsImg;
-    cv::drawKeypoints(_image, _sceneKeypoints, sceneKeyPtsImg);
+    cv::drawKeypoints(image, _sceneKeypoints, sceneKeyPtsImg);
     cv::imwrite("sceneKeyPtsImg.bmp", sceneKeyPtsImg);
 
     Mat mapKeyPtsImg;
@@ -175,7 +175,7 @@ bool AR2DTracker::track(cv::Mat image,
 
         #if AR_SAVE_DEBUG_IMAGES
         Mat imgMatches;
-        drawMatches(_image, _sceneKeypoints, _map.image, _map.keypoints,
+        drawMatches(image, _sceneKeypoints, _map.image, _map.keypoints,
                      goodMatches, imgMatches, Scalar::all(-1), Scalar::all(-1),
                      std::vector<char>(), DrawMatchesFlags::NOT_DRAW_SINGLE_POINTS);
 
@@ -199,7 +199,7 @@ bool AR2DTracker::track(cv::Mat image,
         Mat H = findHomography(_mapPts, _scenePts, RANSAC);
         //cout << "H: " << H << endl;
         std::vector<cv::Mat> Rs, Ts, Ns;
-        cv::decomposeHomographyMat(H, _intrinsics, Rs, Ts, Ns);
+        cv::decomposeHomographyMat(H, calib->cameraMat(), Rs, Ts, Ns);
         for(size_t i=0; i < Rs.size(); ++i)
         {
             cout << "Homography Rs:" << Rs[i] << endl;
@@ -238,7 +238,7 @@ bool AR2DTracker::track(cv::Mat image,
 
         #if AR_SAVE_DEBUG_IMAGES
         Mat imgMatches;
-        drawMatches(_image, _sceneKeypoints, _map.image, _map.keypoints,
+        drawMatches(image, _sceneKeypoints, _map.image, _map.keypoints,
                      realGoodMatches, imgMatches, Scalar::all(-1), Scalar::all(-1),
                      std::vector<char>(), DrawMatchesFlags::NOT_DRAW_SINGLE_POINTS);
         imwrite("Real_Good_matches.png", imgMatches);
@@ -255,7 +255,7 @@ bool AR2DTracker::track(cv::Mat image,
             _posValid = true;
 
             // Convert cv translation & rotation to OpenGL transform matrix
-            SLMat4f ovm = createGLMatrix(tVec, rVec);
+			_viewMat = createGLMatrix(tVec, rVec);
         }
     }
     return true; //???
@@ -275,7 +275,7 @@ void AR2DTracker::updateSceneView(ARSceneView* sv)
         axesNode->scale(0.3f);
         _node->addChild(axesNode);
 
-        float edgeLength = 0.16f / 2;
+        float edgeLength = 100.f;
         _node->addMesh(new SLBox(0.0f, 0.0f, 0.0f, edgeLength, edgeLength, edgeLength, "Box", rMat));
 
         SLScene::current->root3D()->addChild(_node);
@@ -288,6 +288,8 @@ void AR2DTracker::updateSceneView(ARSceneView* sv)
         SLMat4f camOm = _viewMat.inverse();
         //update camera with calculated view matrix:
         sv->camera()->om(camOm);
+		sv->camera()->clipFar(1000);
+		sv->camera()->clipNear(0.1f);
         //set node visible
         _node->setDrawBitsRec(SL_DB_HIDDEN, false);
     }

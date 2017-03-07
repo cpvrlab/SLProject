@@ -74,7 +74,8 @@ bool SLCVTrackerChessboard::track(SLCVMat imageGray,
             if (_node == sv->camera())
                 _node->om(_objectViewMat.inverse());
             else
-            {   _node->om(calcObjectMatrix(sv->camera()->om(), _objectViewMat));
+            {   
+				_node->om(calcObjectMatrix(sv->camera()->om(), _objectViewMat));
                 _node->setDrawBitsRec(SL_DB_HIDDEN, false);
             }
             return true;
