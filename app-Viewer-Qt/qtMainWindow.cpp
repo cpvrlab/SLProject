@@ -1191,7 +1191,7 @@ void qtMainWindow::on_actionReset_triggered()
 }
 void qtMainWindow::on_actionUse_SceneView_Camera_triggered()
 {
-    applyCommandOnSV(C_useSceneViewCamera);
+    applyCommandOnSV(C_camSetSceneViewCamera);
 }
 void qtMainWindow::on_actionPerspective_triggered()
 {

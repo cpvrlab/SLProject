@@ -37,6 +37,10 @@ public class GLES3Lib {
     public static int dpi;
     public static boolean RTIsRunning = false;
 
+    public static final int VIDEO_TYPE_NONE = 0;
+    public static final int VIDEO_TYPE_MAIN = 1;    // Maps to Androids back facing camera
+    public static final int VIDEO_TYPE_SCND = 2;    // Maps to Androids front facing camera
+
     public static native void    onInit             (int width, int height, int dotsPerInch, String FilePath);
     public static native boolean onUpdateAndPaint   ();
     public static native void    onResize           (int width, int height);
@@ -55,6 +59,7 @@ public class GLES3Lib {
     public static native void    shouldClose        (boolean doClose);
     public static native boolean usesRotation       ();
     public static native int     getVideoType       ();
+    public static native int     getVideoSizeIndex  ();
     public static native void    copyVideoImage     (int imgWidth, int imgHeight, byte[] imgBuffer);
     public static native void    copyVideoYUVPlanes (int srcW, int srcH,
                                                      byte[] y, int ySize, int yPixStride, int yLineStride,

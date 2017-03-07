@@ -136,7 +136,7 @@ OpenGL function.
 void SLSceneView::initSceneViewCamera(const SLVec3f& dir, SLProjection proj)
 {             
     _sceneViewCamera.camAnim(CA_turntableYUp);
-    _sceneViewCamera.name("SceneViewCamera");
+    _sceneViewCamera.name("SceneView Camera");
     _sceneViewCamera.clipNear(.1f);
     _sceneViewCamera.clipFar(2000.0f);
     _sceneViewCamera.maxSpeed(40);
@@ -242,17 +242,15 @@ void SLSceneView::initSceneViewCamera(const SLVec3f& dir, SLProjection proj)
 //-----------------------------------------------------------------------------
 /*!
 SLSceneView::switchToSceneViewCamera the general idea for this function is
-to switch to the editor camera from a scene camera. It could provide functionality
-to stay at the position of the previous camera, or to be reset to the init position etc..
+to switch to the editor camera from a scene camera. It could provide
+functionality to stay at the position of the previous camera, or to be reset
+to the init position etc..
 */
 void SLSceneView::switchToSceneViewCamera()
 {
-    // if we have an active camera, use its position and orientation for the editor cam
-    // @todo This is just placeholder code, doing the stuff below can be done in a much
-    //       more elegant way.
-    if(_camera) 
-    {
-        SLMat4f currentWM = _camera->updateAndGetWM();
+    // if we have an active camera, use its position and orientation
+    if(_camera)
+    {   SLMat4f currentWM = _camera->updateAndGetWM();
         SLVec3f position = currentWM.translation();
         SLVec3f forward(-currentWM.m(8), -currentWM.m(9), -currentWM.m(10));
         _sceneViewCamera.translation(position);
@@ -261,7 +259,6 @@ void SLSceneView::switchToSceneViewCamera()
     
     _camera = &_sceneViewCamera;
 }
-
 //-----------------------------------------------------------------------------
 /*!
 SLSceneView::onInitialize is called by the window system before the first 
@@ -276,7 +273,7 @@ void SLSceneView::onInitialize()
     
     SLScene* s = SLScene::current;
     _stateGL = SLGLState::getInstance();
-    _stateGL->onInitialize(s->background().colors()[0]);
+    _stateGL->onInitialize(_camera->background().colors()[0]);
     
     _blendNodes.clear();
     _visibleNodes.clear();
@@ -339,8 +336,7 @@ void SLSceneView::onResize(SLint width, SLint height)
         _scrHdiv2 = _scrH>>1;  // height / 2
         _scrWdivH = (SLfloat)_scrW/(SLfloat)_scrH;
 
-        //@todo move this code to SLGLOculus (problem with that comes when 
-        // using multiple views with different resolutions)
+        // Resize Oculus framebuffer
         if (_camera && _camera->projection() == P_stereoSideBySideD)
         {
             _oculusFB.updateSize((SLint)(s->oculus()->resolutionScale()*(SLfloat)_scrW), 
@@ -468,9 +464,9 @@ SLbool SLSceneView::draw3DGL(SLfloat elapsedTimeMS)
     SLbool camUpdated = _camera->camUpdate(elapsedTimeMS);
 
    
-    //////////////////////
-    // 2. Clear Buffers //
-    //////////////////////
+    ///////////////////////////////////////
+    // 2. Clear Buffers & set Background //
+    ///////////////////////////////////////
     
     // Render into framebuffer if Oculus stereo projection is used
     if (_camera->projection() == P_stereoSideBySideD)
@@ -480,12 +476,12 @@ SLbool SLSceneView::draw3DGL(SLfloat elapsedTimeMS)
     }
 
     // Clear buffers
-    _stateGL->clearColor(s->background().colors()[0]);
+    _stateGL->clearColor(_camera->background().colors()[0]);
     _stateGL->clearColorDepthBuffer();
 
     // render gradient or textured background
-    if (!s->background().isUniform())
-        s->background().render(_scrW, _scrH);
+    if (!_camera->background().isUniform())
+         _camera->background().render(_scrW, _scrH);
 
     // Change state (only when changed)
     _stateGL->multiSample(_doMultiSampling);
@@ -1292,6 +1288,8 @@ SLbool SLSceneView::onKeyPress(SLKey key, SLKey mod)
     if (key=='F') return onCommand(C_frustCullToggle);
     if (key=='B') return onCommand(C_bBoxToggle);
 
+    if (key==K_tab) return onCommand(C_camSetNextInScene);
+
     if (key==K_esc)
     {   if(_renderType == RT_rt)
         {  _stopRT = true;
@@ -1447,7 +1445,18 @@ SLbool SLSceneView::onCommand(SLCommand cmd)
             case C_camDeviceRotOn:    _camera->useDeviceRot(true); return true;
             case C_camDeviceRotOff:   _camera->useDeviceRot(false); return true;
             case C_camDeviceRotToggle:_camera->useDeviceRot(!_camera->useDeviceRot()); return true;
+            
             case C_camReset:          _camera->resetToInitialState(); return true;
+            case C_camSetNextInScene:
+            {   SLCamera* nextCam = s->nextCameraInScene(this);
+                if (nextCam == nullptr) return false;
+                if (nextCam != _camera)
+                     _camera = nextCam;
+                else _camera = &_sceneViewCamera;
+                _camera->background().rebuild();
+                return true;
+            }
+            case C_camSetSceneViewCamera: switchToSceneViewCamera(); return true;
             default: break;
         }
 
@@ -1530,8 +1539,11 @@ SLbool SLSceneView::onCommand(SLCommand cmd)
         case C_calibFixPrincipPointalToggle:s->activeCalib()->toggleFixPrincipalPoint(); return true;
         case C_calibZeroTangentDistToggle:  s->activeCalib()->toggleZeroTangentDist(); return true;
         case C_undistortVideoToggle:        s->activeCalib()->showUndistorted(!s->activeCalib()->showUndistorted()); return true;
+        case C_videoSizeIndexInc:           SLCVCapture::requestedSizeIndex += 1; rebuild2DMenus(false); return true;
+        case C_videoSizeIndexDec:           SLCVCapture::requestedSizeIndex -= 1; rebuild2DMenus(false); return true;
+        case C_videoSizeIndexDefault:       SLCVCapture::requestedSizeIndex  = 0; rebuild2DMenus(false); return true;
 
-        case C_useSceneViewCamera: switchToSceneViewCamera(); return true;
+        case C_camSetSceneViewCamera: switchToSceneViewCamera(); return true;
 
         case C_statsTimingToggle:  _showStatsTiming = !_showStatsTiming; return true;
         case C_statsRendererToggle:_showStatsRenderer = !_showStatsRenderer; return true;
@@ -1708,7 +1720,10 @@ void SLSceneView::build2DMenus()
 
         mn2 = new SLButton(this, "Scene Camera >", f); mn1->addChild(mn2);
         mn2->addChild(new SLButton(this, "Reset", f, C_camReset));
-
+        if (s->numSceneCameras())
+        {   mn2->addChild(new SLButton(this, "Set next in Scene", f, C_camSetNextInScene));
+            mn2->addChild(new SLButton(this, "Set SceneView Camera", f, C_camSetSceneViewCamera));
+        }
             mn3 = new SLButton(this, "Projection >", f); mn2->addChild(mn3);
             for (SLint p=P_monoPerspective; p<=P_monoOrthographic; ++p)
             {   mn3->addChild(new SLButton(this, SLCamera::projectionToStr((SLProjection)p), f,
@@ -1758,26 +1773,40 @@ void SLSceneView::build2DMenus()
             if (s->videoType()!=VT_NONE)
             {
                 mn3 = new SLButton(this, "Video >", f); mn2->addChild(mn3);
+
+                #ifdef SL_OS_ANDROID
+                mn4 = new SLButton(this, "Resolution >", f); mn3->addChild(mn4);
+                mn4->addChild(new SLButton(this, "Try next higher Resolution", f, C_videoSizeIndexInc));
+                mn4->addChild(new SLButton(this, "Try next lower Resolution", f, C_videoSizeIndexDec));
+                mn4->addChild(new SLButton(this, "Set default Resolution", f, C_videoSizeIndexDefault));
+                #endif
+
                 SLCVCalibration* ac = s->activeCalib();
+                SLCVCalibration* mc = s->calibMainCam();
+                SLCVCalibration* sc = s->calibScndCam();
                 if (ac->state()==CS_calibrated)
-                    mn3->addChild(new SLButton(this, "Undistort image", f, C_undistortVideoToggle, true, ac->showUndistorted(), 0, false));
-                mn4 = new SLButton(this, "Calibration Flags >", f); mn3->addChild(mn4);
-                mn4->addChild(new SLButton(this, "Zero Tangent Distortion", f, C_calibZeroTangentDistToggle, true, ac->calibZeroTangentDist(), 0, false));
-                mn4->addChild(new SLButton(this, "Fix Aspect Ratio", f, C_calibFixAspectRatioToggle, true, ac->calibFixAspectRatio(), 0, false));
-                mn4->addChild(new SLButton(this, "Fix Principal Point", f, C_calibFixPrincipPointalToggle, true, ac->calibFixPrincipalPoint(), 0, false));
+                    mn3->addChild(new SLButton(this, "Undistort Image", f, C_undistortVideoToggle, true, ac->showUndistorted(), 0, false));
                 
                 if (SLCVCapture::hasSecondaryCamera)
-                {   mn3->addChild(new SLButton(this, "Mirror scnd. Cam. horiz.", f, C_mirrorHScndVideoToggle, true, ac->isMirroredH(), 0, false));
-                    mn3->addChild(new SLButton(this, "Mirror scnd. Cam. vert.",  f, C_mirrorVScndVideoToggle, true, ac->isMirroredV(), 0, false));
-                    mn3->addChild(new SLButton(this, "Mirror main Cam. horiz.", f, C_mirrorHMainVideoToggle, true, ac->isMirroredH(), 0, false));
-                    mn3->addChild(new SLButton(this, "Mirror main Cam. vert.",  f, C_mirrorVMainVideoToggle, true, ac->isMirroredV(), 0, false));
-                    mn3->addChild(new SLButton(this, "Start scnd. Cam. Calibration", f, C_sceneVideoCalibrateScnd, false, curS==C_sceneVideoCalibrateScnd));
-                    mn3->addChild(new SLButton(this, "Start main Cam. Calibration", f, C_sceneVideoCalibrateMain, false, curS==C_sceneVideoCalibrateMain));
+                {   mn4 = new SLButton(this, "Mirror horizontally >", f); mn3->addChild(mn4);
+                    mn4->addChild(new SLButton(this, "on scnd. Camera", f, C_mirrorHScndVideoToggle, true, sc->isMirroredH(), 0, false));
+                    mn4->addChild(new SLButton(this, "on main Camera",  f, C_mirrorHMainVideoToggle, true, mc->isMirroredH(), 0, false));
+                    mn4 = new SLButton(this, "Mirror vertically >", f); mn3->addChild(mn4);
+                    mn4->addChild(new SLButton(this, "on scnd. Camera", f, C_mirrorVScndVideoToggle, true, sc->isMirroredV(), 0, false));
+                    mn4->addChild(new SLButton(this, "on main Camera",  f, C_mirrorVMainVideoToggle, true, mc->isMirroredV(), 0, false));
+                    mn4 = new SLButton(this, "Start Calibration >", f); mn3->addChild(mn4);
+                    mn4->addChild(new SLButton(this, "on scnd. Camera", f, C_sceneVideoCalibrateScnd, false, curS==C_sceneVideoCalibrateScnd));
+                    mn4->addChild(new SLButton(this, "on main Camera",  f, C_sceneVideoCalibrateMain, false, curS==C_sceneVideoCalibrateMain));
                 } else
                 {   mn3->addChild(new SLButton(this, "Mirror horizontally", f, C_mirrorHMainVideoToggle, true, ac->isMirroredH(), 0, false));
                     mn3->addChild(new SLButton(this, "Mirror vertically", f, C_mirrorVMainVideoToggle, true, ac->isMirroredV(), 0, false));
                     mn3->addChild(new SLButton(this, "Start Calibration", f, C_sceneVideoCalibrateMain, false, curS==C_sceneVideoCalibrateMain));
                 }
+
+                mn4 = new SLButton(this, "Calibration Flags >", f); mn3->addChild(mn4);
+                mn4->addChild(new SLButton(this, "Zero Tangent Distortion", f, C_calibZeroTangentDistToggle, true, ac->calibZeroTangentDist(), 0, false));
+                mn4->addChild(new SLButton(this, "Fix Aspect Ratio", f, C_calibFixAspectRatioToggle, true, ac->calibFixAspectRatio(), 0, false));
+                mn4->addChild(new SLButton(this, "Fix Principal Point", f, C_calibFixPrincipPointalToggle, true, ac->calibFixPrincipalPoint(), 0, false));
             }
 
             stringstream ss;  ss << "UI-DPI: " << SL::dpi << " >";
@@ -1935,6 +1964,7 @@ void SLSceneView::build2DInfoGL()
     if (_showStatsCamera)
     {
         sprintf(m+strlen(m), "Camera -------------------------------------\\n");
+        sprintf(m+strlen(m), "Name: %s\\n", cam->name().c_str());
         sprintf(m+strlen(m), "Projection: %s\\n", cam->projectionStr().c_str());
         sprintf(m+strlen(m), "Animation: %s\\n", cam->animationStr().c_str());
         sprintf(m+strlen(m), "Max speed: %4.1f/sec.\\n", cam->maxSpeed());
@@ -2011,8 +2041,9 @@ void SLSceneView::build2DInfoGL()
 
         sprintf(m+strlen(m), "Video --------------------------------------\\n");
         sprintf(m+strlen(m), "Video Type: %s\\n", vt==0 ? "None" : vt==1 ? "Main Camera" : "Secondary Camera");
-        sprintf(m+strlen(m), "Display size: %d x %d\\n", c->imageSize().width, c->imageSize().height);
+        sprintf(m+strlen(m), "Display size: %d x %d\\n", SLCVCapture::lastFrame.cols, SLCVCapture::lastFrame.rows);
         sprintf(m+strlen(m), "Capture size: %d x %d\\n", capSize.width, capSize.height);
+        sprintf(m+strlen(m), "Requested size index: %d\\n", SLCVCapture::requestedSizeIndex);
         sprintf(m+strlen(m), "Mirrored: %s\\n", mirrored.c_str());
         sprintf(m+strlen(m), "Undistorted: %s\\n", c->showUndistorted()&&c->state()==CS_calibrated?"Yes":"No");
         sprintf(m+strlen(m), "Field of view (deg.): %4.1f\\n", c->cameraFovDeg());
@@ -2385,7 +2416,7 @@ void SLSceneView::showLoading(SLbool showLoading)
         {   // This can happen if show loading is called before a new scene is set
             SLScene* s = SLScene::current;
             _stateGL = SLGLState::getInstance();
-            _stateGL->onInitialize(s->background().colors()[0]);
+            _stateGL->onInitialize(_camera->background().colors()[0]);
         }
         _stateGL->clearColor(SLCol4f::GRAY);
         _stateGL->clearColorDepthBuffer();
