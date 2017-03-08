@@ -40,7 +40,7 @@ SLCVTrackerFeatures::SLCVTrackerFeatures(SLNode* node) :
 //-----------------------------------------------------------------------------
 SLbool SLCVTrackerFeatures::track(SLCVMat imageGray,
                                   SLCVMat image,
-                                  SLCVCalibration *calib,
+                                  SLCVCalibration *calib,git git s
                                   SLSceneView *sv) {
     assert(!image.empty() && "Image is empty");
     assert(!calib->cameraMat().empty() && "Calibration is empty");
