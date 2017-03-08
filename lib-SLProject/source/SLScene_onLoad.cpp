@@ -1916,33 +1916,29 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         name("Feature Tracking");
         info(sv, "Augmented Reality Feature Tracking");
 
-        SLCamera *cam1 = new SLCamera();
-        cam1->name("cam1");
-        cam1->translation(0, 2, 60);
-        cam1->lookAt(15, 15, 0);
+        SLCamera* cam1 = new SLCamera("Camera 1");
+        cam1->translation(0,2,60);
+        cam1->lookAt(15,15,0);
         cam1->clipNear(0.1f);
         cam1->clipFar(500.0f);
         cam1->setInitialState();
-        cam1->camAnim(CA_walkingYUp);
+        cam1->background().texture(&_videoTexture);
+        videoType(VT_MAIN);
 
-        SLLightSpot *light1 = new SLLightSpot(120, 120, 120, 1);
-        light1->ambient(SLCol4f(1, 1, 1));
-        light1->diffuse(SLCol4f(1, 1, 1));
-        light1->specular(SLCol4f(1, 1, 1));
-        light1->attenuation(1, 0, 0);
+        SLLightSpot* light1 = new SLLightSpot(120,120,120, 1);
+        light1->ambient(SLCol4f(1,1,1));
+        light1->diffuse(SLCol4f(1,1,1));
+        light1->specular(SLCol4f(1,1,1));
+        light1->attenuation(1,0,0);
 
-        SLNode *scene = new SLNode("Scene");
+        SLNode* scene = new SLNode("Scene");
         scene->addChild(light1);
         scene->addChild(cam1);
 
         _trackers.push_back(new SLCVTrackerFeatures(cam1));
 
-        // Set backround texture to the video texture and use it
-        _background.texture(&_videoTexture, true);
-        videoType(VT_MAIN);
-
         sv->waitEvents(false); // for constant video feed
-        //sv->usesRotation(true);2
+        //sv->usesRotation(true);
         sv->camera(cam1);
         _root3D = scene;
     }

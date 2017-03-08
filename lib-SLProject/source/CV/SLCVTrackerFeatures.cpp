@@ -25,44 +25,44 @@ for a good top down information.
 using namespace cv;
 
 //-----------------------------------------------------------------------------
-SLCVTrackerFeatures::SLCVTrackerFeatures(SLNode* node) :
-                  SLCVTracker(node)
-{}
+SLCVTrackerFeatures::SLCVTrackerFeatures(SLNode *node) :
+        SLCVTracker(node) {}
+
 //-----------------------------------------------------------------------------
-//! Tracks the all ArUco markers in the given image for the first sceneview
-/* The tracking of all aruco markers is done only once even if multiple aruco 
-markers are used for different SLNode.
-*/
 SLbool SLCVTrackerFeatures::track(SLCVMat imageGray,
                                   SLCVMat image,
-                                  SLCVCalibration* calib,
-                                  SLSceneView* sv)
-{
+                                  SLCVCalibration *calib,
+                                  SLSceneView *sv) {
     assert(!image.empty() && "Image is empty");
     assert(!calib->cameraMat().empty() && "Calibration is empty");
     assert(_node && "Node pointer is null");
     assert(sv && "No sceneview pointer passed");
     assert(sv->camera() && "No active camera in sceneview");
 
+
     SLScene *scene = SLScene::current;
 
     SLfloat startTimeMillis = scene->timeMilliSec();
 
     // ORB feature extraction -------------------------------------------------
-    cv::Ptr<cv::ORB> detector = cv::ORB::create();
+    cv::Ptr<cv::ORB> detector = cv::ORB::create(/* int nfeatures */ 80,
+            /* float scaleFactor */ 1,
+            /* int nlevels */ 1,
+            /* int edgeThreshold */ 31,
+            /* int firstLevel */ 0,
+            /* int WTA_K */ 2,
+            /* int scoreType */ ORB::HARRIS_SCORE,
+            /* int patchSize */ 31,
+            /* int fastThreshold */ 20);
     SLCVVKeyPoint keypoints;
-    detector->detect(image, keypoints);
-
     cv::Mat descriptors;
-    detector->compute(image, keypoints, descriptors);
 
-    cv::Mat rgb;
-    cv::cvtColor(image, rgb, CV_BGR2RGB);
-    cv::drawKeypoints(rgb, keypoints, rgb);
-    cv::cvtColor(rgb, image, CV_RGB2BGR);
+    detector->detect(imageGray, keypoints);
+    detector->compute(imageGray, keypoints, descriptors);
+    cv::drawKeypoints(imageGray, keypoints, image, Scalar(0, 0, 255));
     // ------------------------------------------------------------------------
 
-    scene->setFeatureTimesMS(scene->timeMilliSec()-startTimeMillis);
+    scene->setFeatureTimesMS(scene->timeMilliSec() - startTimeMillis);
 
     return false;
 }
