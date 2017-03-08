@@ -23,6 +23,7 @@ for a good top down information.
 #include <SLCV.h>
 #include <SLCVTracker.h>
 #include <SLNode.h>
+using namespace cv;
 
 
 class SLCVTrackerFeatures : public SLCVTracker
@@ -38,6 +39,9 @@ class SLCVTrackerFeatures : public SLCVTracker
 
     private:
         static SLVMat4f         objectViewMats; //!< object view matrices
+        Ptr<ORB>                _detector;
+        Ptr<DescriptorMatcher>  _matcher;
+        Mat                     _lastFrameDescriptors;
 };
 //-----------------------------------------------------------------------------
 #endif // SLCVTrackerFeatures_H
