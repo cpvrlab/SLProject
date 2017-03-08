@@ -74,6 +74,7 @@ class SLScene: public SLObject
             void            btnHelp             (SLButton* b) {_btnHelp = b;}
             void            videoType           (SLVideoType vt);
             void            setFeatureTimesMS   (SLfloat time) { _featureTimesMS.set(time); };
+            void            setDetectionTimesMS (SLfloat time) { _detectionTimesMS.set(time); };
             // Getters
             SLAnimManager&  animManager         () {return _animManager;}
             SLSceneView*    sv                  (SLuint index) {return _sceneViews[index];}
@@ -110,6 +111,7 @@ class SLScene: public SLObject
             SLAvgFloat&     updateTimesMS       () {return _updateTimesMS;}
             SLAvgFloat&     trackingTimesMS     () {return _trackingTimesMS;}
             SLAvgFloat&     featureTimesMS      () {return _featureTimesMS;}
+            SLAvgFloat&     detectionTimesMS    () {return _detectionTimesMS;}
             SLAvgFloat&     cullTimesMS         () {return _cullTimesMS;}
             SLAvgFloat&     draw2DTimesMS       () {return _draw2DTimesMS;}
             SLAvgFloat&     draw3DTimesMS       () {return _draw3DTimesMS;}
@@ -200,6 +202,7 @@ class SLScene: public SLObject
             SLAvgFloat      _updateTimesMS;     //!< Averaged time for update in ms
             SLAvgFloat      _trackingTimesMS;   //!< Averaged time for video tracking in ms
             SLAvgFloat      _featureTimesMS;    //!< Averaged time for video feature tracking in ms
+            SLAvgFloat      _detectionTimesMS;  //!< Averaged time for video feature detection in ms
             SLAvgFloat      _frameTimesMS;      //!< Averaged time per frame in ms
             SLAvgFloat      _cullTimesMS;       //!< Averaged time for culling in ms
             SLAvgFloat      _draw3DTimesMS;     //!< Averaged time for 3D drawing in ms

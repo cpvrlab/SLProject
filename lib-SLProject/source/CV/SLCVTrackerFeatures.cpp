@@ -24,10 +24,19 @@ for a good top down information.
 
 using namespace cv;
 
+//cv::Ptr<cv::FastFeatureDetector> detector;
+cv::Ptr<cv::xfeatures2d::BriefDescriptorExtractor> descriptor;
+cv::Ptr<cv::ORB> detector;
 //-----------------------------------------------------------------------------
-SLCVTrackerFeatures::SLCVTrackerFeatures(SLNode *node) :
-        SLCVTracker(node) {}
-
+SLCVTrackerFeatures::SLCVTrackerFeatures(SLNode* node) :
+                  SLCVTracker(node)
+{
+//    detector = cv::FastFeatureDetector::create(30);
+    descriptor = cv::xfeatures2d::BriefDescriptorExtractor::create();
+    detector = cv::ORB::create(1000,1.44f,5,31,0,2,ORB::HARRIS_SCORE,31,20);
+//    detector = cv::BRISK::create(50, 3, 1.0f);
+//    detector = cv::FastFeatureDetector::create(30);
+}
 //-----------------------------------------------------------------------------
 SLbool SLCVTrackerFeatures::track(SLCVMat imageGray,
                                   SLCVMat image,
@@ -42,27 +51,19 @@ SLbool SLCVTrackerFeatures::track(SLCVMat imageGray,
 
     SLScene *scene = SLScene::current;
 
-    SLfloat startTimeMillis = scene->timeMilliSec();
 
     // ORB feature extraction -------------------------------------------------
-    cv::Ptr<cv::ORB> detector = cv::ORB::create(/* int nfeatures */ 80,
-            /* float scaleFactor */ 1,
-            /* int nlevels */ 1,
-            /* int edgeThreshold */ 31,
-            /* int firstLevel */ 0,
-            /* int WTA_K */ 2,
-            /* int scoreType */ ORB::HARRIS_SCORE,
-            /* int patchSize */ 31,
-            /* int fastThreshold */ 20);
     SLCVVKeyPoint keypoints;
     cv::Mat descriptors;
-
+    SLfloat detectTimeMillis = scene->timeMilliSec();
     detector->detect(imageGray, keypoints);
+    scene->setDetectionTimesMS(scene->timeMilliSec()-detectTimeMillis);
+    SLfloat startTimeMillis = scene->timeMilliSec();
     detector->compute(imageGray, keypoints, descriptors);
-    cv::drawKeypoints(imageGray, keypoints, image, Scalar(0, 0, 255));
-    // ------------------------------------------------------------------------
+    scene->setFeatureTimesMS(scene->timeMilliSec()-startTimeMillis);
+    cv::drawKeypoints(imageGray, keypoints, image, Scalar(0,0,255));
 
-    scene->setFeatureTimesMS(scene->timeMilliSec() - startTimeMillis);
+    // ------------------------------------------------------------------------
 
     return false;
 }

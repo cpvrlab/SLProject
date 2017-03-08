@@ -1933,6 +1933,7 @@ void SLSceneView::build2DInfoGL()
         SLfloat updateTimePC    = SL_clamp(s->updateTimesMS().average()   / s->frameTimesMS().average()*100.0f, 0.0f,100.0f);
         SLfloat trackingTimePC  = SL_clamp(s->trackingTimesMS().average() / s->frameTimesMS().average()*100.0f, 0.0f,100.0f);
         SLfloat featureTimePC   = SL_clamp(s->featureTimesMS().average() / s->frameTimesMS().average()*100.0f, 0.0f,100.0f);
+        SLfloat detectionTimePC = SL_clamp(s->detectionTimesMS().average() / s->frameTimesMS().average()*100.0f, 0.0f,100.0f);
         SLfloat cullTimePC      = SL_clamp(s->cullTimesMS().average()     / s->frameTimesMS().average()*100.0f, 0.0f,100.0f);
         SLfloat draw3DTimePC    = SL_clamp(s->draw3DTimesMS().average()   / s->frameTimesMS().average()*100.0f, 0.0f,100.0f);
         SLfloat draw2DTimePC    = SL_clamp(s->draw2DTimesMS().average()   / s->frameTimesMS().average()*100.0f, 0.0f,100.0f);
@@ -1943,7 +1944,8 @@ void SLSceneView::build2DInfoGL()
         sprintf(m+strlen(m), "Frame Time : %4.1f ms (100%%)\\n", s->frameTimesMS().average());
         sprintf(m+strlen(m), "Update Time : %4.1f ms (%0.0f%%)\\n", s->updateTimesMS().average(), updateTimePC);
         sprintf(m+strlen(m), "> Tracking Time: %4.1f ms (%0.0f%%)\\n", s->trackingTimesMS().average(), trackingTimePC);
-        sprintf(m+strlen(m), "> Feature Tracking Time: %4.1f ms (%0.0f%%)\\n", s->featureTimesMS().average(), featureTimePC);
+        sprintf(m+strlen(m), ">> Feature Detection Time: %4.1f ms (%0.0f%%)\\n", s->detectionTimesMS().average(), detectionTimePC);
+        sprintf(m+strlen(m), ">> Feature Tracking Time: %4.1f ms (%0.0f%%)\\n", s->featureTimesMS().average(), featureTimePC);
         sprintf(m+strlen(m), "Culling Time : %4.1f ms (%0.0f%%)\\n", s->cullTimesMS().average(), cullTimePC);
         sprintf(m+strlen(m), "Draw Time 3D: %4.1f ms (%0.0f%%)\\n", s->draw3DTimesMS().average(), draw3DTimePC);
         sprintf(m+strlen(m), "Draw Time 2D: %4.1f ms (%0.0f%%)\\n", s->draw2DTimesMS().average(), draw2DTimePC);

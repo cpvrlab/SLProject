@@ -68,6 +68,7 @@ HEADERS += \
 ../include/SLCVFeatureMapper2D.h \
 ../include/SLCVImage.h \
 ../include/SLCVTracker.h \
+../include/SLCVTrackerFeatures.h \
 ../include/SLCVTrackerAruco.h \
 ../include/SLCVTrackerChessboard.h \
 ../include/SLCVTrackerFeatures.h \
@@ -158,6 +159,7 @@ source/GL/SLGLVertexBuffer.cpp \
 source/CV/SLCVCapture.cpp \
 source/CV/SLCVCalibration.cpp \
 source/CV/SLCVTracker.cpp \
+source/CV/SLCVTrackerFeatures.cpp \
 source/CV/SLCVFeatureMapper2D.cpp \
 source/CV/SLCVImage.cpp \
 source/CV/SLCVTrackerAruco.cpp \
