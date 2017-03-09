@@ -41,7 +41,10 @@ class SLCVTrackerFeatures : public SLCVTracker
         static SLVMat4f         objectViewMats; //!< object view matrices
         Ptr<ORB>                _detector;
         Ptr<DescriptorMatcher>  _matcher;
+        // TODO: Strct-like aggregation?
         Mat                     _lastFrameDescriptors;
+        SLCVMat                 _lastFrameGray;
+        SLCVVKeyPoint           _lastFrameKeypoints;
 };
 //-----------------------------------------------------------------------------
 #endif // SLCVTrackerFeatures_H
