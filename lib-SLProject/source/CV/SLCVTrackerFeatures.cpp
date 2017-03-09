@@ -38,7 +38,7 @@ SLCVTrackerFeatures::SLCVTrackerFeatures(SLNode *node) :
             /* int fastThreshold */ 20);
 
     _matcher = DescriptorMatcher::create("BruteForce-Hamming");
-    //_lastFrameDescriptors =
+
 }
 
 //-----------------------------------------------------------------------------
@@ -57,7 +57,6 @@ SLbool SLCVTrackerFeatures::track(SLCVMat imageGray,
     // ORB feature detection -------------------------------------------------
     SLCVVKeyPoint keypoints;
     Mat descriptors;
-
     SLfloat detectTimeMillis = scene->timeMilliSec();
     _detector->detect(imageGray, keypoints);
     scene->setDetectionTimesMS(scene->timeMilliSec() - detectTimeMillis);
@@ -73,11 +72,11 @@ SLbool SLCVTrackerFeatures::track(SLCVMat imageGray,
     // Matching ---------------------------------------------------------------
     vector<vector<DMatch>> matches;
     SLfloat matchTimeMillis = scene->timeMilliSec();
-    //_matcher->knnMatch(descriptors, _lastFrameDescriptors, matches, 3);
+    _matcher->knnMatch(descriptors, _lastFrameDescriptors, matches, 3);
+    //drawMatches(lastFrame, old_keypoints, imageGray, keypoints, matches, image,Scalar(0,0,255),Scalar(255,0,0));
     scene->setMatchTimesMS(scene->timeMilliSec() - matchTimeMillis);
     //_lastFrameDescriptors = descriptors;
     // ------------------------------------------------------------------------
-    scene->setFeatureTimesMS(scene->timeMilliSec() - computeTimeMillis);
 
     return false;
 }
