@@ -70,11 +70,12 @@ bool SLCVTrackerChessboard::track(SLCVMat imageGray,
             _objectViewMat = createGLMatrix(_tVec, _rVec);
 
             // set the object matrix depending if the
-            // tracked node is the active camera or not
-            if (_node == sv->camera())
+            // tracked node is attached to a camera or not
+            if (typeid(*_node)==typeid(SLCamera))
                 _node->om(_objectViewMat.inverse());
             else
-            {   _node->om(calcObjectMatrix(sv->camera()->om(), _objectViewMat));
+            {   
+				_node->om(calcObjectMatrix(sv->camera()->om(), _objectViewMat));
                 _node->setDrawBitsRec(SL_DB_HIDDEN, false);
             }
             return true;

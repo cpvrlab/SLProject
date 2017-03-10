@@ -14,6 +14,7 @@
 #endif
 #include <SLCV.h>
 #include <SLSceneView.h>
+#include <SLCVCapture.h>
 
 //-----------------------------------------------------------------------------
 //! Default values for static fields
@@ -169,15 +170,15 @@ void SL::loadConfig(SLSceneView* sv)
     }
 
     SLint i; SLbool b;
-    fs["configTime"]        >> SL::configTime;
-    fs["dpi"]               >> SL::dpi;
-    fs["currentSceneID"]    >> i; SL::currentSceneID = (SLCommand)i;
-    fs["showStatsTiming"]   >> b; sv->showStatsTiming(b);
-    fs["showStatsOpenGL"]   >> b; sv->showStatsRenderer(b);
-    fs["showStatsMemory"]   >> b; sv->showStatsScene(b);
-    fs["showStatsCamera"]   >> b; sv->showStatsCamera(b);
-    fs["showStatsVideo"]    >> b; sv->showStatsVideo(b);
-    fs["drawBits"]          >> i; sv->drawBits()->bits((SLuint)i);
+    fs["configTime"]                >> SL::configTime;
+    fs["dpi"]                       >> SL::dpi;
+    fs["currentSceneID"]            >> i; SL::currentSceneID = (SLCommand)i;
+    fs["showStatsTiming"]           >> b; sv->showStatsTiming(b);
+    fs["showStatsOpenGL"]           >> b; sv->showStatsRenderer(b);
+    fs["showStatsMemory"]           >> b; sv->showStatsScene(b);
+    fs["showStatsCamera"]           >> b; sv->showStatsCamera(b);
+    fs["showStatsVideo"]            >> b; sv->showStatsVideo(b);
+    fs["drawBits"]                  >> i; sv->drawBits()->bits((SLuint)i);
 
     fs.release();
     SL_LOG("Config. loaded  : %s\n", fullPathAndFilename.c_str());
@@ -194,15 +195,15 @@ void SL::saveConfig(SLSceneView* sv)
         return;
     }
      
-    fs << "configTime"      << SLUtils::getLocalTimeString();
-    fs << "dpi"             << SL::dpi;
-    fs << "currentSceneID"  << (SLint)SL::currentSceneID;
-    fs << "showStatsTiming" << sv->showStatsTiming();
-    fs << "showStatsOpenGL" << sv->showStatsRenderer();
-    fs << "showStatsMemory" << sv->showStatsScene();
-    fs << "showStatsCamera" << sv->showStatsCamera();
-    fs << "showStatsVideo"  << sv->showStatsVideo();
-    fs << "drawBits"        << (SLint)sv->drawBits()->bits();
+    fs << "configTime"              << SLUtils::getLocalTimeString();
+    fs << "dpi"                     << SL::dpi;
+    fs << "currentSceneID"          << (SLint)SL::currentSceneID;
+    fs << "showStatsTiming"         << sv->showStatsTiming();
+    fs << "showStatsOpenGL"         << sv->showStatsRenderer();
+    fs << "showStatsMemory"         << sv->showStatsScene();
+    fs << "showStatsCamera"         << sv->showStatsCamera();
+    fs << "showStatsVideo"          << sv->showStatsVideo();
+    fs << "drawBits"                << (SLint)sv->drawBits()->bits();
 
     fs.release();
     SL_LOG("Config. saved   : %s\n", fullPathAndFilename.c_str());

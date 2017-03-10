@@ -97,7 +97,7 @@ SLbool SLCVTrackerAruco::track(SLCVMat imageGray,
 
             // Get the object view matrix for all aruco markers
             for(size_t i=0; i < arucoIDs.size(); ++i)
-            {   cout << arucoIDs[i] << ",";
+            {   //cout << arucoIDs[i] << ",";
                 SLMat4f ovm = createGLMatrix(cv::Mat(tVecs[i]), cv::Mat(rVecs[i]));
                 objectViewMats.push_back(ovm);
             }
@@ -113,8 +113,8 @@ SLbool SLCVTrackerAruco::track(SLCVMat imageGray,
         {   if (arucoIDs[i] == _arucoID)
             {
                 // set the object matrix depending if the
-                // tracked node is the active camera or not
-                if (_node == sv->camera())
+                // tracked node is attached to a camera or not
+                if (typeid(*_node)==typeid(SLCamera))
                     _node->om(objectViewMats[i].inverse());
                 else
                 {   _node->om(calcObjectMatrix(sv->camera()->om(),
@@ -127,8 +127,8 @@ SLbool SLCVTrackerAruco::track(SLCVMat imageGray,
     } else
     {
         // Hide tracked node if not visible
-        if (_node != sv->camera())
-            _node->setDrawBitsRec(SL_DB_HIDDEN, true);
+        //if (_node != sv->camera())
+            //_node->setDrawBitsRec(SL_DB_HIDDEN, true);
     }
 
     return false;

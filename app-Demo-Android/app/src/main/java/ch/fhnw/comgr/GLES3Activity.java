@@ -379,14 +379,19 @@ public class GLES3Activity extends Activity implements View.OnTouchListener, Sen
      * Starts the camera service if not running.
      * It is called from the GL view renderer thread.
      * While the service is starting no other calls to startService are allowed.
+     *
+     * @param requestedVideoType (0 = GLES3Lib.VIDEO_TYPE_NONE, 1 = *_MAIN, 2 = *_SCND)
+     * @param requestedVideoSizeIndex (0 = 640x480, -1 = the next smaller, +1 = the next bigger)
      */
-    public void cameraStart(int requestedVideoType) {
+    public void cameraStart(int requestedVideoType, int requestedVideoSizeIndex) {
         if (!_cameraPermissionGranted) return;
+
         if (!GLES3Camera2Service.isTransitioning) {
             if (!GLES3Camera2Service.isRunning) {
-
                 GLES3Camera2Service.isTransitioning = true;
-                if (requestedVideoType == 1) {
+                GLES3Camera2Service.requestedVideoSizeIndex = requestedVideoSizeIndex;
+
+                if (requestedVideoType == GLES3Lib.VIDEO_TYPE_MAIN) {
                     GLES3Camera2Service.videoType = CameraCharacteristics.LENS_FACING_BACK;
                     Log.i(TAG, "Going to start main back camera service ...");
                 } else {
@@ -400,8 +405,9 @@ public class GLES3Activity extends Activity implements View.OnTouchListener, Sen
 
                 _currentVideoType = requestedVideoType;
             } else {
-                // if the camera is running the camera type is different we first stop the camera
-                if (requestedVideoType != _currentVideoType) {
+                // if the camera is running the type or size is different we first stop the camera
+                if (requestedVideoType != _currentVideoType ||
+                    requestedVideoSizeIndex != GLES3Camera2Service.requestedVideoSizeIndex) {
                     GLES3Camera2Service.isTransitioning = true;
                     Log.i(TAG, "Going to stop camera service to change type ...");
                     stopService(new Intent(getBaseContext(), GLES3Camera2Service.class));
@@ -417,6 +423,7 @@ public class GLES3Activity extends Activity implements View.OnTouchListener, Sen
      */
     public void cameraStop() {
         if (!_cameraPermissionGranted) return;
+
         if (!GLES3Camera2Service.isTransitioning) {
             if (GLES3Camera2Service.isRunning) {
                 GLES3Camera2Service.isTransitioning = true;

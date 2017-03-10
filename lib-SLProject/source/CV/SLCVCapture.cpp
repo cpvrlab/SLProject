@@ -32,6 +32,7 @@ cv::VideoCapture    SLCVCapture::_captureDevice;
 SLCVSize            SLCVCapture::captureSize;
 SLfloat             SLCVCapture::startCaptureTimeMS;
 SLbool              SLCVCapture::hasSecondaryCamera = true;
+SLint               SLCVCapture::requestedSizeIndex = 0;
 //-----------------------------------------------------------------------------
 //! Opens the capture device and returns the frame size
 SLVec2i SLCVCapture::open(SLint deviceNum)
@@ -50,8 +51,8 @@ SLVec2i SLCVCapture::open(SLint deviceNum)
         cout << "CV_CAP_PROP_FRAME_WIDTH : " << w << endl;
         cout << "CV_CAP_PROP_FRAME_HEIGHT: " << h << endl;
 
-        _captureDevice.set(CV_CAP_PROP_FRAME_WIDTH, 640);
-        _captureDevice.set(CV_CAP_PROP_FRAME_HEIGHT, 480);
+        //_captureDevice.set(CV_CAP_PROP_FRAME_WIDTH, 640);
+        //_captureDevice.set(CV_CAP_PROP_FRAME_HEIGHT, 480);
 
         hasSecondaryCamera = false;
 
@@ -113,8 +114,10 @@ We therefore create a copy that is grayscale converted.
 void SLCVCapture::adjustForSL()
 {
     SLScene* s = SLScene::current;
-    captureSize = lastFrame.size();
     format = SLCVImage::cv2glPixelFormat(lastFrame.type());
+
+    // Set capture size before cropping
+    captureSize = lastFrame.size();
 
     /////////////////
     // 1) Cropping //
@@ -323,9 +326,40 @@ void SLCVCapture::copyYUVPlanes(int srcW, int srcH,
     bool mirrorH = s->activeCalib()->isMirroredH();
     bool mirrorV = s->activeCalib()->isMirroredV();
 
-    // Now do if possible only one loop over the source image to fill up the
-    // RGB image in SLCVCapture::lastFrame and the grayscale image in
-    // SLCVCapture::lastFrameGray.
+    /*
+    Now do if possible only one loop over the source image to fill up the
+    RGB image in SLCVCapture::lastFrame and the grayscale image in
+    SLCVCapture::lastFrameGray.
+
+    In the OpenCV docs:
+    http://docs.opencv.org/3.1.0/db/da5/tutorial_how_to_scan_images.html
+    the fasted way to iterate over an image matrix is in plain old C:
+
+    Mat& ScanImageAndReduceC(Mat& I, const uchar* const table)
+    {
+        // accept only char type matrices
+        CV_Assert(I.depth() == CV_8U);
+        int channels = I.channels();
+        int nRows = I.rows;
+        int nCols = I.cols * channels;
+        if (I.isContinuous())
+        {
+            nCols *= nRows;
+            nRows = 1;
+        }
+        int i,j;
+        uchar* p;
+        for( i = 0; i < nRows; ++i)
+        {
+            p = I.ptr<uchar>(i);
+            for ( j = 0; j < nCols; ++j)
+            {
+                p[j] = table[p[j]];
+            }
+        }
+        return I;
+    }
+    */
 
     // ???
 

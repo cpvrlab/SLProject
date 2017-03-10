@@ -110,6 +110,8 @@ void ARChessboardTracker::updateSceneView(ARSceneView* sv)
 
         //update camera with calculated view matrix:
         sv->camera()->om(camOm);
+		sv->camera()->clipFar(1000);
+		sv->camera()->clipNear(0.1f);
 
         //set node visible
         _node->setDrawBitsRec(SL_DB_HIDDEN, false);

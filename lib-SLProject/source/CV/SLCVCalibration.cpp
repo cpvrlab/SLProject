@@ -84,6 +84,7 @@ bool SLCVCalibration::load(SLstring calibFileName,
         _reprojectionError = 0;
         _calibrationTime = "-";
         _state = CS_uncalibrated;
+        SLCVCapture::requestedSizeIndex = 0;
         return false;
     }
 
@@ -102,21 +103,23 @@ bool SLCVCalibration::load(SLstring calibFileName,
         _reprojectionError      = -1;
         _calibrationTime        = "-";
         _state                  = CS_uncalibrated;
+        SLCVCapture::requestedSizeIndex = 0;
 
     } else
     {
-        fs["imageSizeWidth"]        >> _imageSize.width;
-        fs["imageSizeHeight"]       >> _imageSize.height;
-        fs["numCaptured"]           >> _numCaptured;
-        fs["isMirroredH"]           >> _isMirroredH;
-        fs["isMirroredV"]           >> _isMirroredV;
-        fs["calibFixAspectRatio"]   >> _calibFixAspectRatio;
-        fs["calibFixPrincipalPoint"]>> _calibFixPrincipalPoint;
-        fs["calibZeroTangentDist"]  >> _calibZeroTangentDist;
-        fs["cameraMat"]             >> _cameraMat;
-        fs["distortion"]            >> _distortion;
-        fs["reprojectionError"]     >> _reprojectionError;
-        fs["calibrationTime"]       >> _calibrationTime;
+        fs["imageSizeWidth"]            >> _imageSize.width;
+        fs["imageSizeHeight"]           >> _imageSize.height;
+        fs["numCaptured"]               >> _numCaptured;
+        fs["isMirroredH"]               >> _isMirroredH;
+        fs["isMirroredV"]               >> _isMirroredV;
+        fs["calibFixAspectRatio"]       >> _calibFixAspectRatio;
+        fs["calibFixPrincipalPoint"]    >> _calibFixPrincipalPoint;
+        fs["calibZeroTangentDist"]      >> _calibZeroTangentDist;
+        fs["cameraMat"]                 >> _cameraMat;
+        fs["distortion"]                >> _distortion;
+        fs["reprojectionError"]         >> _reprojectionError;
+        fs["calibrationTime"]           >> _calibrationTime;
+        fs["requestedVideoSizeIndex"]   >> SLCVCapture::requestedSizeIndex;
         _state = _numCaptured ? CS_calibrated : CS_uncalibrated;
     }
 
@@ -176,6 +179,7 @@ void SLCVCalibration::save()
     fs << "reprojectionError"       << _reprojectionError;
     fs << "cameraFovDeg"            << _cameraFovDeg;
     fs << "calibrationTime"         << _calibrationTime;
+    fs << "requestedVideoSizeIndex" << SLCVCapture::requestedSizeIndex;
 
     // close file
     fs.release();

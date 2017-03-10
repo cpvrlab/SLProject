@@ -318,8 +318,9 @@ public class GLES3View extends GLSurfaceView
 
         public void onDrawFrame(GL10 gl) {
             int videoType = GLES3Lib.getVideoType();
+            int sizeIndex = GLES3Lib.getVideoSizeIndex();
             if (videoType!=VT_NONE)
-                 mainLoop.post(new Runnable() {@Override public void run() {GLES3Lib.activity.cameraStart(videoType);}});
+                 mainLoop.post(new Runnable() {@Override public void run() {GLES3Lib.activity.cameraStart(videoType, sizeIndex);}});
             else mainLoop.post(new Runnable() {@Override public void run() {GLES3Lib.activity.cameraStop();}});
 
             if (GLES3Lib.onUpdateAndPaint())

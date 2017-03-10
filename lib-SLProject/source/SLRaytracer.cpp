@@ -278,7 +278,7 @@ void SLRaytracer::renderSlicesMS(const bool isMainThread)
                         SLVec3f lensPos(_EYE + discPos.x*lensRadiusX + discPos.y*lensRadiusY);
                         SLVec3f lensToFP(FP-lensPos);
                         lensToFP.normalize();
-                        SLCol4f backColor = SLScene::current->background().colorAtPos((SLfloat)x,(SLfloat)y);
+                        SLCol4f backColor = _cam->background().colorAtPos((SLfloat)x,(SLfloat)y);
                         SLRay primaryRay(lensPos, lensToFP, (SLfloat)x, (SLfloat)y, backColor);
                   
                         ////////////////////////////
@@ -372,11 +372,12 @@ SLCol4f SLRaytracer::trace(SLRay* ray)
 }
 //-----------------------------------------------------------------------------
 //! Set the parameters of a primary ray for a pixel position at x, y.
-void SLRaytracer::setPrimaryRay(SLfloat x, SLfloat y, SLRay* primaryRay)
+void SLRaytracer::setPrimaryRay(SLfloat x, SLfloat y, 
+                                SLRay* primaryRay)
 {   
     primaryRay->x = x;
     primaryRay->y = y;
-    primaryRay->backgroundColor = SLScene::current->background().colorAtPos(x,y);
+    primaryRay->backgroundColor = _sv->camera()->background().colorAtPos(x,y);
 
     // calculate ray from eye to pixel (See also prepareImage())
     if (_cam->projection() == P_monoOrthographic)

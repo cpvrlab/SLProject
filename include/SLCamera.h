@@ -16,6 +16,7 @@
 #include <SLNode.h>
 #include <SLGLState.h>
 #include <SLSamples2D.h>
+#include <SLBackground.h>
 #include <SLRay.h>
 #include <SLGLVertexArrayExt.h>
 
@@ -29,20 +30,21 @@ node with camera body and its view frustum. The position and orientation
 of the active camera is set in the setView method by loading the view matrix _vm
 into the OpenGL modelview matrix. The view matrix _vm is simply the inverse of
 the shapes world matrix _wm. Every SLSceneView instance has a pointer _camera
-to its active camera.
+to its active camera.\n
 Because the SLNode class is inherited from the abstract SLEventHandler class a
 camera can handle mouse & keyboard event. All camera animations are handled in
-these event handlers.
+these event handlers.\n
+Every camera has an instance of SLBackground that defines the views background
+if the camera is the active one. If the camera is inactive the background gets
+drawn on the far clipping plane of the visualized view frustum.
 */ 
 class SLCamera: public SLNode
 {  
     public:
-                            SLCamera        ();
+                            SLCamera        (SLstring name = "Camera");
                            ~SLCamera        ();
 
-          //SLbool          hitRec          (SLRay* ray);
             void            statsRec        (SLNodeStats &stats);
-          //SLAABBox&       updateAABBRec   ();
 
             void            drawMeshes      (SLSceneView* sv);
     virtual SLbool          camUpdate       (SLfloat timeMS);
@@ -99,32 +101,30 @@ class SLCamera: public SLNode
             void            useDeviceRot    (const SLbool use)   {_useDeviceRot = use;}
                
             // Getters
-            const SLMat4f&  updateAndGetVM  () const {return updateAndGetWMI();}
-            SLProjection    projection      () const {return _projection;}
-            SLstring        projectionStr   () const {return projectionToStr(_projection);}
-            
-            SLfloat         unitScaling     () {return _unitScaling;}     
-
-            SLfloat         fov             () const {return _fov;}
-            SLfloat         aspect          () const {return _aspect;}
-            SLfloat         clipNear        () const {return _clipNear;}
-            SLfloat         clipFar         () const {return _clipFar;}
-            SLCamAnim       camAnim         () const {return _camAnim;}
-            SLstring        animationStr    () const;
-            SLfloat         focalDist       () const {return _focalDist;} 
-            SLfloat         lensDiameter    () const {return _lensDiameter;}
-            SLSamples2D*    lensSamples     () {return &_lensSamples;} 
-            SLfloat         eyeSeparation   () const {return _eyeSeparation;}
-            SLfloat         focalDistScrW   () const;
-            SLfloat         focalDistScrH   () const;
-            SLRay*          lookAtRay       () {return &_lookAtRay;}
-            SLfloat         maxSpeed        () const {return _maxSpeed;}
-            SLfloat         moveAccel       () const {return _moveAccel;}
-            SLfloat         brakeAccel      () const {return _brakeAccel;}
-            SLfloat         drag            () const {return _drag;}
-            SLbool          useDeviceRot    () const {return _useDeviceRot;}
-            SLstring        toString        () const;
-   
+            const SLMat4f&  updateAndGetVM      () const {return updateAndGetWMI();}
+            SLProjection    projection          () const {return _projection;}
+            SLstring        projectionStr       () const {return projectionToStr(_projection);}
+            SLfloat         unitScaling         () {return _unitScaling;}
+            SLfloat         fov                 () const {return _fov;}
+            SLfloat         aspect              () const {return _aspect;}
+            SLfloat         clipNear            () const {return _clipNear;}
+            SLfloat         clipFar             () const {return _clipFar;}
+            SLCamAnim       camAnim             () const {return _camAnim;}
+            SLstring        animationStr        () const;
+            SLfloat         focalDist           () const {return _focalDist;} 
+            SLfloat         lensDiameter        () const {return _lensDiameter;}
+            SLSamples2D*    lensSamples         () {return &_lensSamples;} 
+            SLfloat         eyeSeparation       () const {return _eyeSeparation;}
+            SLfloat         focalDistScrW       () const;
+            SLfloat         focalDistScrH       () const;
+            SLBackground&   background          () {return _background;}
+            SLRay*          lookAtRay           () {return &_lookAtRay;}
+            SLfloat         maxSpeed            () const {return _maxSpeed;}
+            SLfloat         moveAccel           () const {return _moveAccel;}
+            SLfloat         brakeAccel          () const {return _brakeAccel;}
+            SLfloat         drag                () const {return _drag;}
+            SLbool          useDeviceRot        () const {return _useDeviceRot;}
+            SLstring        toString            () const;
 
     // Static global default parameters for new cameras
     static  SLCamAnim       currentAnimation;
@@ -145,6 +145,7 @@ class SLCamera: public SLNode
             SLfloat         _clipFar;           //!< Dist. to the far clipping plane
             SLPlane         _plane[6];          //!< 6 frustum planes (t, b, l, r, n, f)
             enum {T=0,B,L,R,N,F};               //!< enumeration for frustum planes
+            SLBackground    _background;        //!< Colors or texture displayed in the background
 
             SLGLVertexArrayExt _vao;            //!< OpenGL Vertex array for rendering
                
