@@ -435,14 +435,25 @@ string slGetWindowTitle(int sceneViewIndex)
     return sv->windowTitle();
 }
 //-----------------------------------------------------------------------------
-/*! Global function returns the type of video camera wanted
+/*! Global function that returns the type of video camera wanted
 */
 int slGetVideoType()
 {
     return (int)SLScene::current->videoType();
 }
 //-----------------------------------------------------------------------------
-/*! Global function to copy a new camera image to the SLScene::_videoTexture.
+/*! Global function that returns the size index offset of the requested video.
+An index offset of 0 returns the default size of 640x480. If this size is not
+available the median element of the available sizes array is returned.
+An index of -n return the n-th smaller one. \n
+An index of +n return the n-th bigger one. \n
+*/
+int slGetVideoSizeIndex()
+{
+    return SLCVCapture::requestedSizeIndex;
+}
+//-----------------------------------------------------------------------------
+/*! Global function to copy a new video image to the SLScene::_videoTexture.
 An application can grab the live video image with OpenCV via slGrabCopyVideoImage
 or with another OS dependent framework.
 */
@@ -457,6 +468,21 @@ void slCopyVideoImage(SLint width,
                                    format,
                                    data,
                                    isContinuous);
+}
+//-----------------------------------------------------------------------------
+/*! Global function to copy a new video image in the YUV_420 format plane by
+plane to the SLCVCapture::lastFrame. This should mainly used by mobile platforms
+to efficiently copy the video frame to the SLCVCapture::lastFrame.
+*/
+void slCopyVideoYUVPlanes(int srcW, int srcH,
+                          SLuchar* y, int ySize, int yPixStride, int yLineStride,
+                          SLuchar* u, int uSize, int uPixStride, int uLineStride,
+                          SLuchar* v, int vSize, int vPixStride, int vLineStride)
+{
+    SLCVCapture::copyYUVPlanes(srcW, srcH,
+                               y, ySize, yPixStride, yLineStride,
+                               u, uSize, uPixStride, uLineStride,
+                               v, vSize, vPixStride, vLineStride);
 }
 //-----------------------------------------------------------------------------
 

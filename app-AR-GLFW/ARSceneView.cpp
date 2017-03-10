@@ -1,10 +1,10 @@
 //#############################################################################
 //  File:      ARSceneView.h
 //  Purpose:   Augmented Reality Demo
-//  Author:    Michael Göttlicher
+//  Author:    Michael Goettlicher
 //  Date:      Spring 2016
 //  Codestyle: https://github.com/cpvrlab/SLProject/wiki/Coding-Style-Guidelines
-//  Copyright: Marcus Hudritsch, Michael Göttlicher
+//  Copyright: Marcus Hudritsch, Michael Goettlicher
 //             This software is provide under the GNU General Public License
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
@@ -61,7 +61,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand cmd)
     cam1->translate(0,0,0.5f);
 
     //set video image as background texture
-    _background.texture(&_videoTexture, true);
+    cam1->background().texture(&_videoTexture);
     _videoType = VT_MAIN;
 
     SLLightSpot* light1 = new SLLightSpot(0.3f);
@@ -189,7 +189,8 @@ void ARSceneView::preDraw()
         else if(_mapper2D.stateIsCapture())
         {
             //simulate a snapshot
-            cv::bitwise_not(undistorted, undistorted);
+			//Problem: bitwise not is good for visual feedback but we dont want to use it to create the map
+            //cv::bitwise_not(undistorted, undistorted);
 
             //use image to generate a new mapping
             _mapper2D.createMap(undistorted, 0.0f, 0.0f, "map2d", AR2DMap::AR_ORB);

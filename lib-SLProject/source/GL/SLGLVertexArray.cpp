@@ -61,7 +61,7 @@ void SLGLVertexArray::deleteGL()
 SLint SLGLVertexArray::id()
 {
     #ifndef SL_GLES2
-    return _hasGL3orGreater?_idVAO:_VBOf.id();
+    return _hasGL3orGreater ? _idVAO : _VBOf.id();
     #else
     return _VBOf.id();
     #endif

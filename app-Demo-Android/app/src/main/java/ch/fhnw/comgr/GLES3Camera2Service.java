@@ -21,11 +21,13 @@ import android.hardware.camera2.CameraCharacteristics;
 import android.hardware.camera2.CameraDevice;
 import android.hardware.camera2.CameraManager;
 import android.hardware.camera2.CaptureRequest;
+import android.hardware.camera2.params.StreamConfigurationMap;
 import android.media.Image;
 import android.media.ImageReader;
 import android.os.IBinder;
 import android.support.annotation.NonNull;
 import android.util.Log;
+import android.util.Size;
 
 import java.util.Arrays;
 
@@ -40,6 +42,7 @@ import java.util.Arrays;
 public class GLES3Camera2Service extends Service {
     protected static final String TAG = "SLProject";
     public static int videoType = CameraCharacteristics.LENS_FACING_BACK;
+    public static int requestedVideoSizeIndex = 0; // see getRequestedSize
     public static boolean isTransitioning = false;
     public static boolean isRunning = false;
     protected CameraDevice cameraDevice;
@@ -52,9 +55,10 @@ public class GLES3Camera2Service extends Service {
 
         CameraManager manager = (CameraManager) getSystemService(CAMERA_SERVICE);
         try {
-            String pickedCamera = getCamera(manager);
+            String pickedCamera = getCamera(manager, videoType);
             manager.openCamera(pickedCamera, cameraStateCallback, null);
-            imageReader = ImageReader.newInstance(640, 480, ImageFormat.YUV_420_888, 2);
+            Size videoSize = getRequestedSize(manager, videoType, requestedVideoSizeIndex);
+            imageReader = ImageReader.newInstance(videoSize.getWidth(), videoSize.getHeight(), ImageFormat.YUV_420_888, 2);
             imageReader.setOnImageAvailableListener(onImageAvailableListener, null);
             Log.i(TAG, "imageReader created");
         } catch (CameraAccessException e) {
@@ -64,14 +68,77 @@ public class GLES3Camera2Service extends Service {
         return super.onStartCommand(intent, flags, startId);
     }
 
-    // Return the Camera Id which matches the field videoType
-    public String getCamera(CameraManager manager) {
+    /**
+     * Returns the Camera Id which matches the field lensFacing
+     * @param manager The manager got by getSystemService(CAMERA_SERVICE)
+     * @param lensFacing LENS_FACING_BACK or LENS_FACING_FRONT
+     */
+    public String getCamera(CameraManager manager, int lensFacing) {
         try {
             for (String cameraId : manager.getCameraIdList()) {
                 CameraCharacteristics characteristics = manager.getCameraCharacteristics(cameraId);
                 int cOrientation = characteristics.get(CameraCharacteristics.LENS_FACING);
-                if (cOrientation == videoType)
+                if (cOrientation == lensFacing)
                     return cameraId;
+            }
+        } catch (CameraAccessException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+
+    /**
+     * Returns the requested video size in pixel
+     * @param manager The manager got by getSystemService(CAMERA_SERVICE)
+     * @param lensFacing LENS_FACING_BACK or LENS_FACING_FRONT
+     * @param requestedSizeIndex An index of 0 returns the default size of 640x480
+     *                           If this size is not available the median size is returned.
+     *                           An index of -1 return the next smaller one
+     *                           An index of +1 return the next bigger one
+     */
+    private Size getRequestedSize(CameraManager manager,
+                                  int lensFacing,
+                                  int requestedSizeIndex) {
+
+        Size[] availableSizes = getOutputSizes(manager, lensFacing);
+
+        // set default size index to a size in the middle of the array
+        int defaultSizeIndex = availableSizes.length / 2;
+
+        // get the index of the 640x480 resolution
+        for (int i=0; i< availableSizes.length; ++i) {
+            int w = availableSizes[i].getWidth();
+            int h = availableSizes[i].getHeight();
+            if (w == 640 && h == 480) {
+                defaultSizeIndex = i;
+                break;
+            }
+        }
+
+        if (defaultSizeIndex - requestedSizeIndex < 0)
+            return availableSizes[0];
+        else if (defaultSizeIndex - requestedSizeIndex >= availableSizes.length)
+            return availableSizes[availableSizes.length-1];
+        else
+            return availableSizes[defaultSizeIndex - requestedSizeIndex];
+    }
+
+    /**
+     * Returns an array of output sizes for the requested camera (front or back)
+     * @param manager The manager got by getSystemService(CAMERA_SERVICE)
+     * @param lensFacing LENS_FACING_BACK or LENS_FACING_FRONT
+     */
+    private Size[] getOutputSizes(CameraManager manager, int lensFacing) {
+        try {
+            for (String cameraId : manager.getCameraIdList()) {
+                CameraCharacteristics characteristics = manager.getCameraCharacteristics(cameraId);
+                int cOrientation = characteristics.get(CameraCharacteristics.LENS_FACING);
+                if (cOrientation == lensFacing) {
+                    StreamConfigurationMap streamConfigurationMap = characteristics.get(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP);
+                    Size[] sizes = streamConfigurationMap.getOutputSizes(ImageReader.class);
+                    return sizes;
+                }
             }
         } catch (CameraAccessException e) {
             e.printStackTrace();
@@ -143,29 +210,35 @@ public class GLES3Camera2Service extends Service {
                     Image.Plane U = planes[1];
                     Image.Plane V = planes[2];
 
-                    int Yb = Y.getBuffer().remaining();
-                    int Ub = U.getBuffer().remaining();
-                    int Vb = V.getBuffer().remaining();
+                    int ySize = Y.getBuffer().remaining();
+                    int uSize = U.getBuffer().remaining();
+                    int vSize = V.getBuffer().remaining();
 
-                    /*
-                    int yPixstride = Y.getPixelStride();
-                    int uPixstride = Y.getPixelStride();
-                    int vPixstride = Y.getPixelStride();
+                    int yPixStride = Y.getPixelStride();
+                    int uPixStride = Y.getPixelStride();
+                    int vPixStride = Y.getPixelStride();
 
-                    int yRowstride = Y.getRowStride();
-                    int uRowstride = Y.getRowStride();
-                    int vRowstride = Y.getRowStride();
-                    */
+                    int yRowStride = Y.getRowStride();
+                    int uRowStride = Y.getRowStride();
+                    int vRowStride = Y.getRowStride();
 
-                    byte[] data = new byte[Yb + Ub + Vb];
+                    byte[] data = new byte[ySize + uSize + vSize];
 
-                    Y.getBuffer().get(data, 0, Yb);
-                    U.getBuffer().get(data, Yb, Ub);
-                    V.getBuffer().get(data, Yb + Ub, Vb);
+                    Y.getBuffer().get(data, 0, ySize);
+                    U.getBuffer().get(data, ySize, uSize);
+                    V.getBuffer().get(data, ySize + uSize, vSize);
 
                     ///////////////////////////////////////////////////////////////
                     GLES3Lib.copyVideoImage(img.getWidth(), img.getHeight(), data);
                     ///////////////////////////////////////////////////////////////
+
+                    /*
+                    // For future call of GLES3Lib.copyVideoYUVPlanes
+                    GLES3Lib.copyVideoYUVPlanes(img.getWidth(), img.getHeight(),
+                                                Y.getBuffer().array(), ySize, yPixStride, yRowStride,
+                                                U.getBuffer().array(), uSize, uPixStride, uRowStride,
+                                                V.getBuffer().array(), vSize, vPixStride, vRowStride);
+                    */
 
                     img.close();
                 }

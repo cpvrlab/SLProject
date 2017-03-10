@@ -22,8 +22,7 @@ SLProjection SLCamera::currentProjection   = P_monoPerspective;
 SLfloat      SLCamera::currentFOV          = 45.0f;
 SLint        SLCamera::currentDevRotation  = 0;
 //-----------------------------------------------------------------------------
-SLCamera::SLCamera() 
-    : SLNode("Camera Node"), 
+SLCamera::SLCamera(SLstring name) : SLNode(name), 
       _maxSpeed(2.0f), 
       _velocity(0.0f, 0.0f, 0.0f),
       _drag(0.05f),
@@ -47,8 +46,9 @@ SLCamera::SLCamera()
     _lensDiameter = 0.3f;
     _lensSamples.samples(1,1); // e.g. 10,10 > 10x10=100 lenssamples
     _focalDist = 5;
-   
     _eyeSeparation = _focalDist / 30.0f;
+
+    _background.colors(SLCol4f(0.6f,0.6f,0.6f), SLCol4f(0.3f,0.3f,0.3f));
 }
 //-----------------------------------------------------------------------------
 //! Destructor: Be sure to delete the OpenGL display list.
@@ -211,6 +211,9 @@ void SLCamera::drawMeshes(SLSceneView* sv)
 {  
     if (sv->camera()!=this)
     {
+        // Vertices of the far plane
+        SLVec3f farRT, farRB, farLT, farLB;
+        
         if (_projection == P_monoOrthographic)
         {
             const SLMat4f& vm = updateAndGetWMI();
@@ -225,16 +228,18 @@ void SLCamera::drawMeshes(SLSceneView* sv)
             P.push_back(SLVec3f(0,0,0)); P.push_back(SLVec3f(0,0,_clipNear*4));
 
             // frustum pyramid lines
-            P.push_back(SLVec3f(r,t,_clipNear)); P.push_back(SLVec3f(r,t,-_clipFar));
-            P.push_back(SLVec3f(l,t,_clipNear)); P.push_back(SLVec3f(l,t,-_clipFar));
-            P.push_back(SLVec3f(l,b,_clipNear)); P.push_back(SLVec3f(l,b,-_clipFar));
-            P.push_back(SLVec3f(r,b,_clipNear)); P.push_back(SLVec3f(r,b,-_clipFar));
-
+            farRT.set(r,t,-_clipFar); farRB.set(r,b,-_clipFar);
+            farLT.set(l,t,-_clipFar); farLB.set(l,b,-_clipFar);
+            P.push_back(SLVec3f(r,t,_clipNear)); P.push_back(farRT);
+            P.push_back(SLVec3f(l,t,_clipNear)); P.push_back(farLT);
+            P.push_back(SLVec3f(l,b,_clipNear)); P.push_back(farLB);
+            P.push_back(SLVec3f(r,b,_clipNear)); P.push_back(farRB);
+            
             // around far clipping plane
-            P.push_back(SLVec3f(r,t,-_clipFar)); P.push_back(SLVec3f(r,b,-_clipFar));
-            P.push_back(SLVec3f(r,b,-_clipFar)); P.push_back(SLVec3f(l,b,-_clipFar));
-            P.push_back(SLVec3f(l,b,-_clipFar)); P.push_back(SLVec3f(l,t,-_clipFar));
-            P.push_back(SLVec3f(l,t,-_clipFar)); P.push_back(SLVec3f(r,t,-_clipFar));
+            P.push_back(farRT); P.push_back(farRB);
+            P.push_back(farRB); P.push_back(farLB);
+            P.push_back(farLB); P.push_back(farLT);
+            P.push_back(farLT); P.push_back(farRT);
 
             // around projection plane at focal distance
             P.push_back(SLVec3f(r,t,-_focalDist)); P.push_back(SLVec3f(r,b,-_focalDist));
@@ -269,16 +274,18 @@ void SLCamera::drawMeshes(SLSceneView* sv)
             P.push_back(SLVec3f(0,0,0)); P.push_back(SLVec3f(0,0,_clipNear*4));
 
             // frustum pyramid lines
-            P.push_back(SLVec3f(0,0,0)); P.push_back(SLVec3f(rF, tF,-_clipFar));
-            P.push_back(SLVec3f(0,0,0)); P.push_back(SLVec3f(lF, tF,-_clipFar));
-            P.push_back(SLVec3f(0,0,0)); P.push_back(SLVec3f(lF,-tF,-_clipFar));
-            P.push_back(SLVec3f(0,0,0)); P.push_back(SLVec3f(rF,-tF,-_clipFar));
+            farRT.set(rF, tF,-_clipFar); farRB.set(rF,-tF,-_clipFar);
+            farLT.set(lF, tF,-_clipFar); farLB.set(lF,-tF,-_clipFar);
+            P.push_back(SLVec3f(0,0,0)); P.push_back(farRT);
+            P.push_back(SLVec3f(0,0,0)); P.push_back(farLT);
+            P.push_back(SLVec3f(0,0,0)); P.push_back(farLB);
+            P.push_back(SLVec3f(0,0,0)); P.push_back(farRB);
 
             // around far clipping plane
-            P.push_back(SLVec3f(rF, tF,-_clipFar)); P.push_back(SLVec3f(rF,-tF,-_clipFar));
-            P.push_back(SLVec3f(rF,-tF,-_clipFar)); P.push_back(SLVec3f(lF,-tF,-_clipFar));
-            P.push_back(SLVec3f(lF,-tF,-_clipFar)); P.push_back(SLVec3f(lF, tF,-_clipFar));
-            P.push_back(SLVec3f(lF, tF,-_clipFar)); P.push_back(SLVec3f(rF, tF,-_clipFar));
+            P.push_back(farRT); P.push_back(farRB);
+            P.push_back(farRB); P.push_back(farLB);
+            P.push_back(farLB); P.push_back(farLT);
+            P.push_back(farLT); P.push_back(farRT);
 
             // around projection plane at focal distance
             P.push_back(SLVec3f(rP, tP,-_focalDist)); P.push_back(SLVec3f(rP,-tP,-_focalDist));
@@ -296,6 +303,7 @@ void SLCamera::drawMeshes(SLSceneView* sv)
         }
       
         _vao.drawArrayAsColored(PT_lines, SLCol4f::WHITE*0.7f);
+        _background.renderInScene(farLT, farLB, farRT, farRB);
     }
 }
 //-----------------------------------------------------------------------------
@@ -306,21 +314,6 @@ void SLCamera::statsRec(SLNodeStats &stats)
     stats.numBytes += sizeof(SLCamera);
     SLNode::statsRec(stats);
 }
-//-----------------------------------------------------------------------------
-///*!
-//SLCamera::updateAABBRec builds and returns the axis-aligned bounding box.
-//*/
-//SLAABBox& SLCamera::updateAABBRec()
-//{
-//    // calculate min & max in object space
-//    //if (SLScene::current->)
-//    SLVec3f minOS, maxOS;
-//    calcMinMax(minOS, maxOS);
-//
-//    // apply world matrix
-//    _aabb.fromOStoWS(minOS, maxOS, _wm);
-//    return _aabb;
-//}
 //-----------------------------------------------------------------------------
 /*!
 SLCamera::calcMinMax calculates the axis alligned minimum and maximum point of
@@ -1127,6 +1120,6 @@ SLstring SLCamera::toString() const
     ss << "Animation: " << animationStr()  << endl;
     ss << vm.toString() << endl;
     return ss.str();
-}
+}       
 //-----------------------------------------------------------------------------
 
