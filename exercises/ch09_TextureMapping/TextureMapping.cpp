@@ -85,7 +85,7 @@ GLint    _mvMatrixLoc;      //!< uniform location for modelview matrix
 GLint    _nMatrixLoc;       //!< uniform location for normal matrix
 GLint    _globalAmbiLoc;    //!< uniform location for global ambient intensity
 GLint    _lightPosVSLoc;    //!< uniform location for light position in VS
-GLint    _lightSpotDirVSLoc;    //!< uniform location for light direction in VS
+GLint    _lightSpotDirVSLoc;//!< uniform location for light direction in VS
 GLint    _lightAmbientLoc;  //!< uniform location for ambient light intensity
 GLint    _lightDiffuseLoc;  //!< uniform location for diffuse light intensity
 GLint    _lightSpecularLoc; //!< uniform location for specular light intensity
