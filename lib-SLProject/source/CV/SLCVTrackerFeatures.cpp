@@ -29,6 +29,7 @@ using namespace cv;
 
 #define DEBUG 1
 //#define SAVE_SNAPSHOTS_OUTPUT "/tmp/cv_tracking/"
+
 #define FLANN_BASED 0
 
 // RANSAC configuration
@@ -39,16 +40,6 @@ const double confidence = 0.85;
 //-----------------------------------------------------------------------------
 SLCVTrackerFeatures::SLCVTrackerFeatures(SLNode *node) :
         SLCVTracker(node) {
-    _detector = ORB::create(
-            /* int nfeatures */ 500,
-            /* float scaleFactor */ 1.2f,
-            /* int nlevels */ 8,
-            /* int edgeThreshold */ 31,
-            /* int firstLevel */ 0,
-            /* int WTA_K */ 2,
-            /* int scoreType */ ORB::FAST_SCORE,
-            /* int patchSize */ 31,
-            /* int fastThreshold */ 20);
 
     #if FLANN_BASED
     _matcher = new FlannBasedMatcher();
@@ -69,9 +60,9 @@ SLCVTrackerFeatures::SLCVTrackerFeatures(SLNode *node) :
 void SLCVTrackerFeatures::load2dReferenceFeatures() {
     Mat planartracking = imread("../_data/images/textures/planartracking.jpg");
     cvtColor(planartracking, _map.frameGray, CV_RGB2GRAY);
-
-    _detector->detect(_map.frameGray, _map.keypoints);
-    _detector->compute(_map.frameGray, _map.keypoints, _map.descriptors);
+    SLScene *scene = SLScene::current;
+    scene->_detector->detect(_map.frameGray, _map.keypoints);
+    scene->_descriptor->compute(_map.frameGray, _map.keypoints, _map.descriptors);
 
     // Calculate 3D-Points
     const SLfloat lengthMM = 8.0;
@@ -172,7 +163,8 @@ SLbool SLCVTrackerFeatures::track(SLCVMat imageGray,
 inline SLCVVKeyPoint SLCVTrackerFeatures::detectFeatures(const Mat &imageGray) {
     SLCVVKeyPoint keypoints;
     SLfloat detectTimeMillis = SLScene::current->timeMilliSec();
-    _detector->detect(imageGray, keypoints);
+    SLScene *scene = SLScene::current;
+    scene->_detector->detect(imageGray, keypoints);
     SLScene::current->setDetectionTimesMS(SLScene::current->timeMilliSec() - detectTimeMillis);
     return keypoints;
 }
@@ -181,7 +173,8 @@ inline SLCVVKeyPoint SLCVTrackerFeatures::detectFeatures(const Mat &imageGray) {
 inline Mat SLCVTrackerFeatures::describeFeatures(const Mat &imageGray, SLCVVKeyPoint &keypoints) {
     Mat descriptors;
     SLfloat computeTimeMillis = SLScene::current->timeMilliSec();
-    _detector->compute(imageGray, keypoints, descriptors);
+    SLScene *scene = SLScene::current;
+    scene->_descriptor->compute(imageGray, keypoints, descriptors);
     SLScene::current->setFeatureTimesMS(SLScene::current->timeMilliSec() - computeTimeMillis);
     return descriptors;
 }

@@ -224,7 +224,23 @@ enum SLCommand
     C_pt1000,           // Do pathtracing 1000 Rays
     C_pt5000,           // Do pathtracing 5000 Rays
     C_pt10000,          // Do pathtracing 10000 Rays
-    C_ptSaveImage       // Save the ray tracing image
+    C_ptSaveImage,       // Save the ray tracing image
+
+    C_DetectorFast,
+    C_DetectorBrisk,
+    C_DetectorKaze,
+    C_DetectorAgast,
+    C_DetectorOrb,
+    C_DetectorSift,
+    C_DetectorSurf,
+
+    C_DescriptorOrb,
+    C_DescriptorBrief,
+    C_DescriptorBrisk,
+    C_DescriptorFreak,
+    C_DescriptorKaze,
+    C_DescriptorSift,
+    C_DescriptorSurf
 };
 //-----------------------------------------------------------------------------
 //! Mouse button codes
@@ -398,4 +414,26 @@ enum SLVideoType
     VT_SCND =  2,  //!< Selfie camera on mobile devices
 };
 //-----------------------------------------------------------------------------
+
+enum SLCVDetectorType
+{
+    DT_FAST,
+    DT_BRISK,
+    DT_KAZE,
+    DT_AGAST,
+    DT_ORB,
+    DT_SIFT,
+    DT_SURF
+};
+
+enum SLCVDescriptorType
+{
+    DESC_BRIEF,
+    DESC_ORB,
+    DESC_FREAK,
+    DESC_KAZE,
+    DESC_BRISK,
+    DESC_SIFT,
+    DESC_SURF
+};
 #endif

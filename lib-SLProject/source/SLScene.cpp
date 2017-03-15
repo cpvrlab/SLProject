@@ -23,6 +23,8 @@
 #include <SLLightDirect.h>
 #include <SLCVTracker.h>
 #include <SLCVTrackerAruco.h>
+#include <SLCVDetector.h>
+#include <SLCVDescriptor.h>
 
 //-----------------------------------------------------------------------------
 /*! Global static scene pointer that can be used throughout the entire library
@@ -79,7 +81,6 @@ SLScene::SLScene(SLstring name) : SLObject(name)
     _selectedMesh   = nullptr;
     _selectedNode   = nullptr;
     _activeCalib    = nullptr;
-
     _stopAnimations = false;
 
     _fps = 0;
@@ -142,7 +143,7 @@ For more information please visit: https://github.com/cpvrlab/SLProject";
 
     _infoCredits =
 "Contributors since 2005 in alphabetic order: Martin Christen, Manuel Frischknecht, Michael \
-Goettlicher, Timo Tschanz, Marc Wacker, Pascal Zingg \\n\\n\
+Goettlicher, Timon Tschanz, Marc Wacker, Pascal Zingg \\n\\n\
 Credits for external libraries: \\n\
 - assimp: assimp.sourceforge.net \\n\
 - glew: glew.sourceforge.net \\n\
@@ -167,6 +168,9 @@ chessboard corners. To take an image you have to click with the mouse \
 or tap with finger into the screen. You can mirror the video image under \
 Preferences > Video. \\n\
 After calibration the yellow wireframe cube should stick on the chessboard.";
+
+   _detector = new SLCVDetector(DT_ORB, true);
+   _descriptor = new SLCVDescriptor(DESC_ORB);
 
 }
 //-----------------------------------------------------------------------------
@@ -761,4 +765,13 @@ SLCamera* SLScene::nextCameraInScene(SLSceneView* activeSV)
         return cams[0];
 
 }
+
+SLbool SLScene::isDetector(SLCVDetectorType type){
+    return _detector->type == type;
+}
+
+SLbool SLScene::isDescriptor(SLCVDescriptorType type){
+    return _descriptor->type == type;
+}
+
 //-----------------------------------------------------------------------------

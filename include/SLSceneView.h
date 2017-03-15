@@ -138,6 +138,8 @@ class SLSceneView: public SLObject
             SLstring        windowTitle         ();
             void            startRaytracing     (SLint maxDepth);
             void            startPathtracing    (SLint maxDepth, SLint samples);
+            void            setDetector         (SLCVDetectorType detector, SLbool forced = false);
+            void            setDescriptor       (SLCVDescriptorType descriptor);
             void            printStats          () {_stats3D.print();}
             SLbool          testRunIsFinished   ();
 
