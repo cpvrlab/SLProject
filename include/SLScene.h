@@ -21,7 +21,8 @@
 #include <SLAnimManager.h>
 #include <SLAverage.h>
 #include <SLCVCalibration.h>
-
+#include <SLCVDescriptor.h>
+#include <SLCVDetector.h>
 class SLSceneView;
 class SLCVTracker;
 class SLButton;
@@ -158,8 +159,11 @@ class SLScene: public SLObject
                                                  SLuchar* data,
                                                  SLbool isContinuous,
                                                  SLbool isTopLeft);
-
+            SLbool          isDetector          (SLCVDetectorType type);
+            SLbool          isDescriptor        (SLCVDescriptorType type);
      static SLScene*        current;            //!< global static scene pointer
+            SLCVDetector*    _detector;      //!<FeatureDetector used for feature detection
+            SLCVDescriptor*  _descriptor;
 
    protected:
             SLVSceneView    _sceneViews;        //!< Vector of all sceneview pointers

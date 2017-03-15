@@ -1,0 +1,17 @@
+#ifndef SLCVDESCRIPTOR_H
+#define SLCVDESCRIPTOR_H
+
+#include <SLCV.h>
+#include <opencv2/xfeatures2d.hpp>
+
+class SLCVDescriptor
+{
+private:
+    cv::Ptr<cv::DescriptorExtractor> _descriptor;
+public:
+    SLCVDescriptor(SLCVDescriptorType type);
+    void compute(cv::InputArray image, std::vector<cv::KeyPoint> &keypoints, cv::OutputArray descriptors);
+    SLCVDescriptorType type;
+};
+
+#endif // SLCVDESCRIPTOR_H

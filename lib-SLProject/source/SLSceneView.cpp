@@ -1603,6 +1603,19 @@ SLbool SLSceneView::onCommand(SLCommand cmd)
         case C_pt10000: startPathtracing(5, 100000); return true;
         case C_ptSaveImage: _pathtracer.saveImage(); return true;
 
+        case C_DetectorFast: setDetector(DT_FAST); return true;
+        case C_DetectorAgast: setDetector(DT_AGAST); return true;
+        case C_DetectorBrisk: setDetector(DT_BRISK); return true;
+        case C_DetectorKaze: setDetector(DT_KAZE); return true;
+        case C_DetectorOrb: setDetector(DT_ORB); return true;
+
+        case C_DescriptorBrief: setDescriptor(DESC_BRIEF); return true;
+        case C_DescriptorBrisk: setDescriptor(DESC_BRISK); return true;
+        case C_DescriptorFreak: setDescriptor(DESC_FREAK); return true;
+        case C_DescriptorKaze: setDescriptor(DESC_KAZE); return true;
+        case C_DescriptorOrb: setDescriptor(DESC_ORB); return true;
+        case C_DescriptorSift: setDescriptor(DESC_SIFT); return true;
+        case C_DescriptorSurf: setDescriptor(DESC_SURF); return true;
         default: break;
     }
 
@@ -1808,6 +1821,28 @@ void SLSceneView::build2DMenus()
                 mn4->addChild(new SLButton(this, "Zero Tangent Distortion", f, C_calibZeroTangentDistToggle, true, ac->calibZeroTangentDist(), 0, false));
                 mn4->addChild(new SLButton(this, "Fix Aspect Ratio", f, C_calibFixAspectRatioToggle, true, ac->calibFixAspectRatio(), 0, false));
                 mn4->addChild(new SLButton(this, "Fix Principal Point", f, C_calibFixPrincipPointalToggle, true, ac->calibFixPrincipalPoint(), 0, false));
+
+                if (SL::currentSceneID == C_sceneVideoFeaturetracking){
+
+                    mn5 = new SLButton(this, "Detectors >", f); mn3->addChild(mn5);
+                    mn5->addChild(new SLButton(this, "FAST",f,C_DetectorFast, true, s->isDetector(DT_FAST), mn5, false));
+                    mn5->addChild(new SLButton(this, "BRISK",f,C_DetectorBrisk, true, s->isDetector(DT_BRISK), mn5, false));
+                    mn5->addChild(new SLButton(this, "AKAZE",f,C_DetectorKaze, true, s->isDetector(DT_KAZE), mn5, false));
+                    mn5->addChild(new SLButton(this, "AGAST",f,C_DetectorAgast, true, s->isDetector(DT_AGAST), mn5, false));
+                    mn5->addChild(new SLButton(this, "ORB",f,C_DetectorOrb, true, s->isDetector(DT_ORB), mn5, false));
+                    mn5->addChild(new SLButton(this, "SIFT",f,C_DetectorSift, true, s->isDetector(DT_SIFT), mn5, false));
+                    mn5->addChild(new SLButton(this, "SURF",f,C_DetectorSurf, true, s->isDetector(DT_SURF), mn5, false));
+
+                    mn5 = new SLButton(this, "Descriptors >", f); mn3->addChild(mn5);
+                    mn5->addChild(new SLButton(this, "ORB",f,C_DescriptorOrb, true, s->isDescriptor(DESC_ORB), mn5, false));
+                    mn5->addChild(new SLButton(this, "BRIEF",f,C_DescriptorBrief, true, s->isDescriptor(DESC_BRIEF), mn5, false));
+                    mn5->addChild(new SLButton(this, "BRISK",f,C_DescriptorBrisk, true, s->isDescriptor(DESC_BRISK), mn5, false));
+                    mn5->addChild(new SLButton(this, "FREAK",f,C_DescriptorFreak, true, s->isDescriptor(DESC_FREAK), mn5, false));
+                    mn5->addChild(new SLButton(this, "AKAZE",f,C_DescriptorKaze, true, s->isDescriptor(DESC_KAZE), mn5, false));
+                    mn5->addChild(new SLButton(this, "SIFT",f,C_DescriptorSift, true, s->isDescriptor(DESC_SIFT), mn5, false));
+                    mn5->addChild(new SLButton(this, "SURF",f,C_DescriptorSurf, true, s->isDescriptor(DESC_SURF), mn5, false));
+
+                }
             }
 
             stringstream ss;  ss << "UI-DPI: " << SL::dpi << " >";
@@ -2469,5 +2504,30 @@ SLbool SLSceneView::testRunIsFinished()
     SL::testFrameCounter++;
 
     return false;
+}
+
+void SLSceneView::setDetector(SLCVDetectorType detector, SLbool forced)
+{
+    SLScene* s = SLScene::current;
+    if (forced == false && s->_detector->forced == true){
+        return;
+    }
+    delete s->_detector;
+    s->_detector = new SLCVDetector(detector, forced);
+}
+
+
+void SLSceneView::setDescriptor(SLCVDescriptorType descriptor)
+{
+    SLScene* s = SLScene::current;
+    switch (descriptor){
+        case DESC_ORB: setDetector(DT_ORB, true);break;
+        case DESC_SIFT: setDetector(DT_SIFT, true);break;
+        case DESC_KAZE: setDetector(DT_KAZE, true);break;
+        case DESC_SURF: setDetector(DT_SURF, true);break;
+        default: s->_detector->forced = false;break;
+    }
+    delete s->_descriptor;
+    s->_descriptor = new SLCVDescriptor(descriptor);
 }
 //------------------------------------------------------------------------------
