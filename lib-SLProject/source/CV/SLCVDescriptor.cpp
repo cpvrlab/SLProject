@@ -30,13 +30,13 @@ SLCVDescriptor::SLCVDescriptor(SLCVDescriptorType descriptorType)
 {
     type = descriptorType;
     switch(descriptorType){
-    case DESC_BRIEF:    _descriptor = xfeatures2d::BriefDescriptorExtractor::create(); return;
-    case DESC_ORB:      _descriptor = ORB::create(); return;
-    case DESC_FREAK:    _descriptor = xfeatures2d::FREAK::create(); return;
-    case DESC_KAZE:     _descriptor = AKAZE::create(); return;
-    case DESC_BRISK:    _descriptor = BRISK::create(); return;
-    case DESC_SIFT:     _descriptor = xfeatures2d::SiftDescriptorExtractor::create();return;
-    case DESC_SURF:     _descriptor = xfeatures2d::SurfFeatureDetector::create();return;
+    case DESC_BRIEF:    _descriptor = xfeatures2d::BriefDescriptorExtractor::create(32, true); return;
+    case DESC_ORB:      _descriptor = ORB::create(300,1.44f, 5, 31, 0, 2, ORB::HARRIS_SCORE, 31, 30); return;
+    case DESC_FREAK:    _descriptor = xfeatures2d::FREAK::create(true, true, 22.0f, 2); return;
+    case DESC_KAZE:     _descriptor = AKAZE::create(AKAZE::DESCRIPTOR_MLDB, 0, 3, 0.01f, 2, 2 ,KAZE::DIFF_PM_G2); return;
+    case DESC_BRISK:    _descriptor = BRISK::create(30, 2, 1.0f); return;
+    case DESC_SIFT:     _descriptor = xfeatures2d::SiftDescriptorExtractor::create(300, 2, 0.04, 10, 1.6);return;
+    case DESC_SURF:     _descriptor = xfeatures2d::SurfFeatureDetector::create(100, 2, 2, false, false);return;
     default: break;
     }
 }
