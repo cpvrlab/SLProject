@@ -44,15 +44,21 @@ class SLCVTrackerFeatures : public SLCVTracker
         SLCVMat                 _lastFrameGray;
         SLCVVKeyPoint           _lastFrameKeypoints;
         SLCVVPoint3f            _points3d_model;
-        double                  fx, fy, cx, cy;
+        SLfloat                 _fx, _fy, _cx, _cy;
+        Mat                     _cam, _distortion;
+        Mat                     _rMatrix, _tMatrix, _pMatrix;
+        vector<Point3f>         _model;
 
         void load2dReferenceFeatures();
-        void draw2DPoints(cv::Mat image, std::vector<cv::Point2f> &list_points, cv::Scalar color);
-        void drawPose(cv::Mat rotVec, cv::Mat transVec, cv::Mat K, cv::Mat dist, cv::Mat image);
-        inline SLCVVKeyPoint extractFeatures(Mat &imageGray);
-        inline Mat describeFeatures(Mat &imageGray, SLCVVKeyPoint &keypoints);
-        inline vector<DMatch> matchFeatures(Mat &descriptors);
-        inline vector<Point2f> trackFeatures(SLCVVKeyPoint& keypoints, vector<DMatch> &matches);
+        inline SLCVVKeyPoint extractFeatures(const Mat &imageGray);
+        inline Mat describeFeatures(const Mat &imageGray, SLCVVKeyPoint &keypoints);
+        inline vector<DMatch> matchFeatures(const Mat &descriptors);
+        inline vector<Point2f> trackFeatures(const SLCVVKeyPoint &keypoints, const vector<DMatch> &matches);
+        inline void draw2DPoints(Mat image, const vector<Point2f> &list_points, Scalar color);
+        inline void initCameraMat(SLCVCalibration *calib);
+        inline void drawObject(const Mat &image);
+        inline Point2f backproject3DPoint(const Point3f &point3d);
+        inline void calcPMatrix();
 };
 //-----------------------------------------------------------------------------
 #endif // SLCVTrackerFeatures_H
