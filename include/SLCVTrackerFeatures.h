@@ -46,14 +46,14 @@ class SLCVTrackerFeatures : public SLCVTracker
         SLCVVPoint3f            _points3d_model;
         SLfloat                 _fx, _fy, _cx, _cy;
         Mat                     _cam, _distortion;
-        Mat                     _rMatrix, _tMatrix, _pMatrix;
+        Mat                     _rMatrix, _tMatrix, _eMatrix;
         vector<Point3f>         _model;
 
         void load2dReferenceFeatures();
-        inline SLCVVKeyPoint extractFeatures(const Mat &imageGray);
+        inline SLCVVKeyPoint detectFeatures(const Mat &imageGray);
         inline Mat describeFeatures(const Mat &imageGray, SLCVVKeyPoint &keypoints);
         inline vector<DMatch> matchFeatures(const Mat &descriptors);
-        inline vector<Point2f> trackFeatures(const SLCVVKeyPoint &keypoints, const vector<DMatch> &matches);
+        inline vector<Point2f> calculatePose(const SLCVVKeyPoint &keypoints, const vector<DMatch> &matches);
         inline void draw2DPoints(Mat image, const vector<Point2f> &list_points, Scalar color);
         inline void initCameraMat(SLCVCalibration *calib);
         inline void drawObject(const Mat &image);
