@@ -31,7 +31,6 @@ class SLCVTrackerFeatures : public SLCVTracker
     public:
         SLCVTrackerFeatures         (SLNode* node);
         ~SLCVTrackerFeatures        () {;}
-
         SLbool  track               (SLCVMat imageGray,
                                      SLCVMat image,
                                      SLCVCalibration* calib,
@@ -41,10 +40,19 @@ class SLCVTrackerFeatures : public SLCVTracker
         static SLVMat4f         objectViewMats; //!< object view matrices
         Ptr<ORB>                _detector;
         Ptr<DescriptorMatcher>  _matcher;
-        // TODO: Strct-like aggregation?
         Mat                     _lastFrameDescriptors;
         SLCVMat                 _lastFrameGray;
         SLCVVKeyPoint           _lastFrameKeypoints;
+        SLCVVPoint3f            _points3d_model;
+        double                  fx, fy, cx, cy;
+
+        void load2dReferenceFeatures();
+        void draw2DPoints(cv::Mat image, std::vector<cv::Point2f> &list_points, cv::Scalar color);
+        void drawPose(cv::Mat rotVec, cv::Mat transVec, cv::Mat K, cv::Mat dist, cv::Mat image);
+        inline SLCVVKeyPoint extractFeatures(Mat &imageGray);
+        inline Mat describeFeatures(Mat &imageGray, SLCVVKeyPoint &keypoints);
+        inline vector<DMatch> matchFeatures(Mat &descriptors);
+        inline vector<Point2f> trackFeatures(SLCVVKeyPoint& keypoints, vector<DMatch> &matches);
 };
 //-----------------------------------------------------------------------------
 #endif // SLCVTrackerFeatures_H
