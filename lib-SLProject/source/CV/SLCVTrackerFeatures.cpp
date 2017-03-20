@@ -34,7 +34,7 @@ using namespace cv;
 // RANSAC configuration
 const int iterations = 500;
 const int reprojection_error = 2.0;
-const double confidence = 0.95;
+const double confidence = 0.85;
 
 //-----------------------------------------------------------------------------
 SLCVTrackerFeatures::SLCVTrackerFeatures(SLNode *node) :
@@ -96,6 +96,7 @@ void SLCVTrackerFeatures::load2dReferenceFeatures() {
           A                     B
     */
 
+    //TODO: Convert to pixels
     _model.push_back(Point3f(0,     0, 0)); // A
     _model.push_back(Point3f(297,   0, 0)); // B
     _model.push_back(Point3f(297, 210, 0)); // C
@@ -120,7 +121,7 @@ inline void SLCVTrackerFeatures::initCameraMat(SLCVCalibration *calib) {
     _distortion = Mat::zeros(4, 1, CV_64F);      // Distortion parameters
     _rMatrix = cv::Mat::zeros(3, 3, CV_64FC1);   // rotation matrix
     _tMatrix = cv::Mat::zeros(3, 1, CV_64FC1);   // translation matrix
-    _pMatrix = cv::Mat::zeros(3, 4, CV_64FC1);   // rotation-translation matrix
+    _eMatrix = cv::Mat::zeros(3, 4, CV_64FC1);   // rotation-translation matrix
 
     load2dReferenceFeatures();
 }
@@ -139,15 +140,19 @@ SLbool SLCVTrackerFeatures::track(SLCVMat imageGray,
     // TODO: Really necessary to put this check here (instead of constructor)?
     if (_cam.empty()) initCameraMat(calib);
 
-    SLCVVKeyPoint keypoints = extractFeatures(imageGray);
+
+    //  Main part: Detect, describe, match and track features #############################################################
+    SLCVVKeyPoint keypoints = detectFeatures(imageGray);
     Mat descriptors = describeFeatures(imageGray , keypoints);
     vector<DMatch> matches = matchFeatures(descriptors);
 
-    if(matches.size() >= 4)  {
-        vector<Point2f> inliers = trackFeatures(keypoints, matches);
+    if(matches.size() >= 4)  { // RANSAC crashes if there are 0 points and we need at least 4 points to determine planarity
+        vector<Point2f> inliers = calculatePose(keypoints, matches);
         calcPMatrix();
-        drawObject(image);
     }
+
+    // ####################################################################################################################
+    drawObject(image);
 
     #if DEBUG
     //draw2DPoints(image, inliers, Scalar(0, 0, 255));
@@ -172,7 +177,7 @@ SLbool SLCVTrackerFeatures::track(SLCVMat imageGray,
 }
 
 //-----------------------------------------------------------------------------
-inline SLCVVKeyPoint SLCVTrackerFeatures::extractFeatures(const Mat &imageGray) {
+inline SLCVVKeyPoint SLCVTrackerFeatures::detectFeatures(const Mat &imageGray) {
     SLCVVKeyPoint keypoints;
     SLfloat detectTimeMillis = SLScene::current->timeMilliSec();
     _detector->detect(imageGray, keypoints);
@@ -220,7 +225,7 @@ inline vector<DMatch> SLCVTrackerFeatures::matchFeatures(const Mat &descriptors)
 }
 
 //-----------------------------------------------------------------------------
-inline vector<Point2f> SLCVTrackerFeatures::trackFeatures(const SLCVVKeyPoint &keypoints, const vector<DMatch> &matches) {
+inline vector<Point2f> SLCVTrackerFeatures::calculatePose(const SLCVVKeyPoint &keypoints, const vector<DMatch> &matches) {
     vector<Point3f> points_model(matches.size());
     vector<Point2f> points_scene(matches.size());
 
@@ -255,27 +260,28 @@ inline vector<Point2f> SLCVTrackerFeatures::trackFeatures(const SLCVVKeyPoint &k
     printf("We got %d inliers and %d matches overall \n", inliers.size(), matches.size());
     #endif
 
+    //TODO: Return necessery?
     return inliers;
 }
 
 //-----------------------------------------------------------------------------
 inline void SLCVTrackerFeatures::draw2DPoints(Mat image, const vector<Point2f> &list_points, Scalar color) {
-  for( size_t i = 0; i < list_points.size(); i++)
-  {
-    Point2f point_2d = list_points[i];
+    for( size_t i = 0; i < list_points.size(); i++) {
+        Point2f point_2d = list_points[i];
 
-    // Draw Selected points
-    circle(image, point_2d, 4, color, -1, 8);
-  }
+        // Draw Selected points
+        circle(image, point_2d, 4, color, -1, 8);
+    }
 }
 
 //-----------------------------------------------------------------------------
 inline void SLCVTrackerFeatures::drawObject(const Mat &image)
 {
-   Point2f a = backproject3DPoint(_model[0]);
-   Point2f b = backproject3DPoint(_model[1]);
-   Point2f c = backproject3DPoint(_model[2]);
-   Point2f d = backproject3DPoint(_model[3]);
+    // FIXME: This isn't correct atm. Only for testing around
+    Point2f a = backproject3DPoint(_model[0]);
+    Point2f b = backproject3DPoint(_model[1]);
+    Point2f c = backproject3DPoint(_model[2]);
+    Point2f d = backproject3DPoint(_model[3]);
 
     rectangle(image, a, c, cv::Scalar(0, 0, 255));
 }
@@ -283,38 +289,37 @@ inline void SLCVTrackerFeatures::drawObject(const Mat &image)
 //-----------------------------------------------------------------------------
 inline Point2f SLCVTrackerFeatures::backproject3DPoint(const Point3f &point3d)
 {
-  // 3D point vector [x y z 1]'
-  cv::Mat point3d_vec = cv::Mat(4, 1, CV_64FC1);
-  point3d_vec.at<double>(0) = point3d.x;
-  point3d_vec.at<double>(1) = point3d.y;
-  point3d_vec.at<double>(2) = point3d.z;
-  point3d_vec.at<double>(3) = 1;
+    // 3D point vector [x y z 1]'
+    cv::Mat point3d_vec = cv::Mat(4, 1, CV_64FC1);
+    point3d_vec.at<double>(0) = point3d.x;
+    point3d_vec.at<double>(1) = point3d.y;
+    point3d_vec.at<double>(2) = point3d.z;
+    point3d_vec.at<double>(3) = 1;
 
-  // 2D point vector [u v 1]'
-  cv::Mat point2d_vec = cv::Mat(4, 1, CV_64FC1);
-  point2d_vec = _cam * _pMatrix * point3d_vec;
+    // 2D point vector [u v 1]'
+    cv::Mat point2d_vec = cv::Mat(4, 1, CV_64FC1);
+    point2d_vec = _cam * _eMatrix * point3d_vec;
 
-  // Normalization of [u v]'
-  Point2f point2d;
-  point2d.x = (float)(point2d_vec.at<double>(0) / point2d_vec.at<double>(2));
-  point2d.y = (float)(point2d_vec.at<double>(1) / point2d_vec.at<double>(2));
+    // Normalization of [u v]'
+    Point2f point2d;
+    point2d.x = (float)(point2d_vec.at<double>(0) / point2d_vec.at<double>(2));
+    point2d.y = (float)(point2d_vec.at<double>(1) / point2d_vec.at<double>(2));
 
-  return point2d;
+    return point2d;
 }
 
-inline void SLCVTrackerFeatures::calcPMatrix()
-{
+inline void SLCVTrackerFeatures::calcPMatrix() {
     // Rotation-Translation Matrix Definition
-    _pMatrix.at<double>(0,0) = _rMatrix.at<double>(0,0);
-    _pMatrix.at<double>(0,1) = _rMatrix.at<double>(0,1);
-    _pMatrix.at<double>(0,2) = _rMatrix.at<double>(0,2);
-    _pMatrix.at<double>(1,0) = _rMatrix.at<double>(1,0);
-    _pMatrix.at<double>(1,1) = _rMatrix.at<double>(1,1);
-    _pMatrix.at<double>(1,2) = _rMatrix.at<double>(1,2);
-    _pMatrix.at<double>(2,0) = _rMatrix.at<double>(2,0);
-    _pMatrix.at<double>(2,1) = _rMatrix.at<double>(2,1);
-    _pMatrix.at<double>(2,2) = _rMatrix.at<double>(2,2);
-    _pMatrix.at<double>(0,3) = _tMatrix.at<double>(0);
-    _pMatrix.at<double>(1,3) = _tMatrix.at<double>(1);
-    _pMatrix.at<double>(2,3) = _tMatrix.at<double>(2);
+    _eMatrix.at<double>(0,0) = _rMatrix.at<double>(0,0);
+    _eMatrix.at<double>(0,1) = _rMatrix.at<double>(0,1);
+    _eMatrix.at<double>(0,2) = _rMatrix.at<double>(0,2);
+    _eMatrix.at<double>(1,0) = _rMatrix.at<double>(1,0);
+    _eMatrix.at<double>(1,1) = _rMatrix.at<double>(1,1);
+    _eMatrix.at<double>(1,2) = _rMatrix.at<double>(1,2);
+    _eMatrix.at<double>(2,0) = _rMatrix.at<double>(2,0);
+    _eMatrix.at<double>(2,1) = _rMatrix.at<double>(2,1);
+    _eMatrix.at<double>(2,2) = _rMatrix.at<double>(2,2);
+    _eMatrix.at<double>(0,3) = _tMatrix.at<double>(0);
+    _eMatrix.at<double>(1,3) = _tMatrix.at<double>(1);
+    _eMatrix.at<double>(2,3) = _tMatrix.at<double>(2);
 }
