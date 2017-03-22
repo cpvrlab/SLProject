@@ -1931,11 +1931,22 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         light1->specular(SLCol4f(1,1,1));
         light1->attenuation(1,0,0);
 
+        // Christoffel tower ------------------------------------------------------------
+        SLAssimpImporter importer;
+        #if defined(SL_OS_IOS) || defined(SL_OS_ANDROID)
+        SLNode* tower = importer.load("christoffelturm.obj");
+        #else
+        SLNode* tower = importer.load("Wavefront-OBJ/Christoffelturm/christoffelturm.obj");
+        #endif
+        tower->rotate(90, -1,0,0);
+
+        // Scene structure --------------------------------------------------------------
         SLNode* scene = new SLNode("Scene");
         scene->addChild(light1);
+        if (tower) scene->addChild(tower);
         scene->addChild(cam1);
 
-        _trackers.push_back(new SLCVTrackerFeatures(cam1));
+        _trackers.push_back(new SLCVTrackerFeatures(cam1, tower));
 
         sv->waitEvents(false); // for constant video feed
         //sv->usesRotation(true);

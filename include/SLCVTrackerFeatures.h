@@ -30,6 +30,7 @@ class SLCVTrackerFeatures : public SLCVTracker
 {
     public:
         SLCVTrackerFeatures         (SLNode* node);
+        SLCVTrackerFeatures         (SLNode* node, SLNode* tower): SLCVTrackerFeatures(node) {_tower = tower; }
         ~SLCVTrackerFeatures        () {;}
         SLbool  track               (SLCVMat imageGray,
                                      SLCVMat image,
@@ -37,28 +38,33 @@ class SLCVTrackerFeatures : public SLCVTracker
                                      SLSceneView* sv);
 
     private:
+        SLNode*                 _tower;
         static SLVMat4f         objectViewMats; //!< object view matrices
         Ptr<ORB>                _detector;
         Ptr<DescriptorMatcher>  _matcher;
-        Mat                     _lastFrameDescriptors;
-        SLCVMat                 _lastFrameGray;
-        SLCVVKeyPoint           _lastFrameKeypoints;
-        SLCVVPoint3f            _points3d_model;
         SLfloat                 _fx, _fy, _cx, _cy;
-        Mat                     _cam, _distortion;
-        Mat                     _rMatrix, _tMatrix, _eMatrix;
+        Mat                     _intrinsics, _distortion;
+        SLMat4f                 _extrinsics;
         vector<Point3f>         _model;
+
+        struct map {
+            SLCVMat                 frameGray;
+            SLCVVKeyPoint           keypoints;
+            Mat                     descriptors;
+        } _map;
 
         void load2dReferenceFeatures();
         inline SLCVVKeyPoint detectFeatures(const Mat &imageGray);
         inline Mat describeFeatures(const Mat &imageGray, SLCVVKeyPoint &keypoints);
         inline vector<DMatch> matchFeatures(const Mat &descriptors);
-        inline vector<Point2f> calculatePose(const SLCVVKeyPoint &keypoints, const vector<DMatch> &matches);
+        inline vector<Point2f> calculatePose(const SLCVVKeyPoint &keypoints, const vector<DMatch> &matches, Mat &rvec, Mat &tvec);
         inline void draw2DPoints(Mat image, const vector<Point2f> &list_points, Scalar color);
         inline void initCameraMat(SLCVCalibration *calib);
         inline void drawObject(const Mat &image);
         inline Point2f backproject3DPoint(const Point3f &point3d);
-        inline void calcPMatrix();
+        inline Mat calculateExtrinsicMatrix(Mat &rvec, Mat &tvec);
+
+
 };
 //-----------------------------------------------------------------------------
 #endif // SLCVTrackerFeatures_H

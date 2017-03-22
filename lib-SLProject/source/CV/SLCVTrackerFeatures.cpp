@@ -68,39 +68,21 @@ SLCVTrackerFeatures::SLCVTrackerFeatures(SLNode *node) :
 //------------------------------------------------------------------------------
 void SLCVTrackerFeatures::load2dReferenceFeatures() {
     Mat planartracking = imread("../_data/images/textures/planartracking.jpg");
-    cvtColor(planartracking, _lastFrameGray, CV_RGB2GRAY);
+    cvtColor(planartracking, _map.frameGray, CV_RGB2GRAY);
 
-    _detector->detect(_lastFrameGray, _lastFrameKeypoints);
-    _detector->compute(_lastFrameGray, _lastFrameKeypoints, _lastFrameDescriptors);
+    _detector->detect(_map.frameGray, _map.keypoints);
+    _detector->compute(_map.frameGray, _map.keypoints, _map.descriptors);
 
     // Calculate 3D-Points
-    const SLfloat heightAboveObject = 8.0;
-    for (unsigned int i = 0; i<_lastFrameKeypoints.size(); i++) {
-        float x = _lastFrameKeypoints[i].pt.x;	// 2D location in image
-        float y = _lastFrameKeypoints[i].pt.y;
-        float X = (heightAboveObject / _fx)*(x - _cx);
-        float Y = (heightAboveObject / _fy)*(y - _cy);
+    const SLfloat lengthMM = 8.0;
+    for (unsigned int i = 0; i< _map.keypoints.size(); i++) {
+        float x = _map.keypoints[i].pt.x;	// 2D location in image
+        float y = _map.keypoints[i].pt.y;
+        float X = (lengthMM / _fx) * (x - _cx);
+        float Y = (lengthMM / _fy) * (y - _cy);
         float Z = 0;
-        _points3d_model.push_back(cv::Point3f(X, Y, Z));
+        _model.push_back(Point3f(X, Y, Z));
     }
-
-    /*
-          D                     C
-            -------------------
-            |                 |
-            |                 |
-            |       A4        |
-            | (210mm × 297mm) |
-            |                 |
-            -------------------
-          A                     B
-    */
-
-    //TODO: Convert to pixels
-    _model.push_back(Point3f(0,     0, 0)); // A
-    _model.push_back(Point3f(297,   0, 0)); // B
-    _model.push_back(Point3f(297, 210, 0)); // C
-    _model.push_back(Point3f(0,   210, 0)); // D
 }
 
 //------------------------------------------------------------------------------
@@ -111,17 +93,14 @@ inline void SLCVTrackerFeatures::initCameraMat(SLCVCalibration *calib) {
     _cx = calib->cx();
     _cy = calib->cy();
 
-    _cam = cv::Mat::zeros(3, 3, CV_64FC1);   // intrinsic camera parameters
-    _cam.at<double>(0, 0) = _fx;                  //  [ fx   0  cx ]
-    _cam.at<double>(1, 1) = _fy;                  //  [  0  fy  cy ]
-    _cam.at<double>(0, 2) = _cx;                  //  [  0   0   1 ]
-    _cam.at<double>(1, 2) = _cy;
-    _cam.at<double>(2, 2) = 1;
+    _intrinsics = cv::Mat::zeros(3, 3, CV_64FC1);   // intrinsic camera parameters
+    _intrinsics.at<double>(0, 0) = _fx;                  //  [ fx   0  cx ]
+    _intrinsics.at<double>(1, 1) = _fy;                  //  [  0  fy  cy ]
+    _intrinsics.at<double>(0, 2) = _cx;                  //  [  0   0   1 ]
+    _intrinsics.at<double>(1, 2) = _cy;
+    _intrinsics.at<double>(2, 2) = 1;
 
-    _distortion = Mat::zeros(4, 1, CV_64F);      // Distortion parameters
-    _rMatrix = cv::Mat::zeros(3, 3, CV_64FC1);   // rotation matrix
-    _tMatrix = cv::Mat::zeros(3, 1, CV_64FC1);   // translation matrix
-    _eMatrix = cv::Mat::zeros(3, 4, CV_64FC1);   // rotation-translation matrix
+    _distortion = Mat::zeros(4, 1, CV_64F);         // Distortion parameters
 
     load2dReferenceFeatures();
 }
@@ -138,7 +117,7 @@ SLbool SLCVTrackerFeatures::track(SLCVMat imageGray,
     assert(sv->camera() && "No active camera in sceneview");
 
     // TODO: Really necessary to put this check here (instead of constructor)?
-    if (_cam.empty()) initCameraMat(calib);
+    if (_intrinsics.empty()) initCameraMat(calib);
 
 
     //  Main part: Detect, describe, match and track features #############################################################
@@ -147,18 +126,31 @@ SLbool SLCVTrackerFeatures::track(SLCVMat imageGray,
     vector<DMatch> matches = matchFeatures(descriptors);
 
     if(matches.size() >= 4)  { // RANSAC crashes if there are 0 points and we need at least 4 points to determine planarity
-        vector<Point2f> inliers = calculatePose(keypoints, matches);
-        calcPMatrix();
+        Mat rvec = cv::Mat::zeros(3, 3, CV_64FC1);      // rotation matrix
+        Mat tvec = cv::Mat::zeros(3, 1, CV_64FC1);      // translation matrix
+        vector<Point2f> inliers = calculatePose(keypoints, matches, rvec, tvec);
+        //_extrinsics = calculateExtrinsicMatrix(rvec, tvec);
+        _extrinsics = createGLMatrix(tvec, rvec);
+
+        // Update Scene Graph camera to display model correctly (positioning cam relative to world coordinates)
+        sv->camera()->om(_extrinsics.inverse());
+
+        //set node visible
+        sv->camera()->setDrawBitsRec(SL_DB_HIDDEN, false);
+
+        SLMat4f omTower = sv->camera()->om() * _extrinsics;
+        _tower->om(omTower);
+        sv->camera()->setDrawBitsRec(SL_DB_HIDDEN, false);
     }
 
     // ####################################################################################################################
-    drawObject(image);
+    //drawObject(image);
 
     #if DEBUG
     //draw2DPoints(image, inliers, Scalar(0, 0, 255));
 
     Mat imgMatches;
-    drawMatches(imageGray, keypoints, _lastFrameGray, _lastFrameKeypoints, matches, imgMatches);
+    drawMatches(imageGray, keypoints, _map.frameGray, _map.keypoints, matches, imgMatches);
 
     #ifdef SAVE_SNAPSHOTS_OUTPUT
     time_t rawtime;
@@ -208,7 +200,7 @@ inline vector<DMatch> SLCVTrackerFeatures::matchFeatures(const Mat &descriptors)
     #else
     int k = 2;
     vector<vector<DMatch>> matches;
-    _matcher->knnMatch(descriptors, _lastFrameDescriptors, matches, k);
+    _matcher->knnMatch(descriptors, _map.descriptors, matches, k);
 
     float ratio = 0.7f;
     vector<DMatch> good_matches;
@@ -225,29 +217,27 @@ inline vector<DMatch> SLCVTrackerFeatures::matchFeatures(const Mat &descriptors)
 }
 
 //-----------------------------------------------------------------------------
-inline vector<Point2f> SLCVTrackerFeatures::calculatePose(const SLCVVKeyPoint &keypoints, const vector<DMatch> &matches) {
+inline vector<Point2f> SLCVTrackerFeatures::calculatePose(const SLCVVKeyPoint &keypoints, const vector<DMatch> &matches, Mat &rvec, Mat &tvec) {
     vector<Point3f> points_model(matches.size());
     vector<Point2f> points_scene(matches.size());
 
     for (size_t i = 0; i < matches.size(); i++) {
-        points_model[i] = _points3d_model[matches[i].trainIdx];
-        points_scene[i] =       keypoints[matches[i].queryIdx].pt;
+        points_model[i] =    _model[matches[i].trainIdx];
+        points_scene[i] = keypoints[matches[i].queryIdx].pt;
     }
 
-    Mat inliersIndex, rvec;
+    Mat inliersIndex;
     cv::solvePnPRansac(points_model,
                        points_scene,
-                       _cam,
+                       _intrinsics,
                        _distortion,
-                       rvec, _tMatrix,
+                       rvec, tvec,
                        false,
                        iterations,
                        reprojection_error,
                        confidence,
                        inliersIndex,
                        cv::SOLVEPNP_ITERATIVE);
-
-    cv::Rodrigues(rvec, _rMatrix);
 
     // Convert inliers from index matrix back to points
     vector<Point2f> inliers;
@@ -274,52 +264,28 @@ inline void SLCVTrackerFeatures::draw2DPoints(Mat image, const vector<Point2f> &
     }
 }
 
-//-----------------------------------------------------------------------------
-inline void SLCVTrackerFeatures::drawObject(const Mat &image)
-{
-    // FIXME: This isn't correct atm. Only for testing around
-    Point2f a = backproject3DPoint(_model[0]);
-    Point2f b = backproject3DPoint(_model[1]);
-    Point2f c = backproject3DPoint(_model[2]);
-    Point2f d = backproject3DPoint(_model[3]);
+inline Mat SLCVTrackerFeatures::calculateExtrinsicMatrix(Mat &rvec, Mat &tvec) {
+    /*
+        Rotation-Translation Matrix Definition
 
-    rectangle(image, a, c, cv::Scalar(0, 0, 255));
-}
+        [ r11 r12 r13 t1
+          r21 r22 r23 t2
+          r31 r32 r33 t3 ]
 
-//-----------------------------------------------------------------------------
-inline Point2f SLCVTrackerFeatures::backproject3DPoint(const Point3f &point3d)
-{
-    // 3D point vector [x y z 1]'
-    cv::Mat point3d_vec = cv::Mat(4, 1, CV_64FC1);
-    point3d_vec.at<double>(0) = point3d.x;
-    point3d_vec.at<double>(1) = point3d.y;
-    point3d_vec.at<double>(2) = point3d.z;
-    point3d_vec.at<double>(3) = 1;
+    */
+    Mat extrinsics = Mat::zeros(3, 4, CV_64FC1);
+    extrinsics.at<double>(0,0) = rvec.at<double>(0,0);
+    extrinsics.at<double>(0,1) = rvec.at<double>(0,1);
+    extrinsics.at<double>(0,2) = rvec.at<double>(0,2);
+    extrinsics.at<double>(1,0) = rvec.at<double>(1,0);
+    extrinsics.at<double>(1,1) = rvec.at<double>(1,1);
+    extrinsics.at<double>(1,2) = rvec.at<double>(1,2);
+    extrinsics.at<double>(2,0) = rvec.at<double>(2,0);
+    extrinsics.at<double>(2,1) = rvec.at<double>(2,1);
+    extrinsics.at<double>(2,2) = rvec.at<double>(2,2);
+    extrinsics.at<double>(0,3) = tvec.at<double>(0);
+    extrinsics.at<double>(1,3) = tvec.at<double>(1);
+    extrinsics.at<double>(2,3) = tvec.at<double>(2);
 
-    // 2D point vector [u v 1]'
-    cv::Mat point2d_vec = cv::Mat(4, 1, CV_64FC1);
-    point2d_vec = _cam * _eMatrix * point3d_vec;
-
-    // Normalization of [u v]'
-    Point2f point2d;
-    point2d.x = (float)(point2d_vec.at<double>(0) / point2d_vec.at<double>(2));
-    point2d.y = (float)(point2d_vec.at<double>(1) / point2d_vec.at<double>(2));
-
-    return point2d;
-}
-
-inline void SLCVTrackerFeatures::calcPMatrix() {
-    // Rotation-Translation Matrix Definition
-    _eMatrix.at<double>(0,0) = _rMatrix.at<double>(0,0);
-    _eMatrix.at<double>(0,1) = _rMatrix.at<double>(0,1);
-    _eMatrix.at<double>(0,2) = _rMatrix.at<double>(0,2);
-    _eMatrix.at<double>(1,0) = _rMatrix.at<double>(1,0);
-    _eMatrix.at<double>(1,1) = _rMatrix.at<double>(1,1);
-    _eMatrix.at<double>(1,2) = _rMatrix.at<double>(1,2);
-    _eMatrix.at<double>(2,0) = _rMatrix.at<double>(2,0);
-    _eMatrix.at<double>(2,1) = _rMatrix.at<double>(2,1);
-    _eMatrix.at<double>(2,2) = _rMatrix.at<double>(2,2);
-    _eMatrix.at<double>(0,3) = _tMatrix.at<double>(0);
-    _eMatrix.at<double>(1,3) = _tMatrix.at<double>(1);
-    _eMatrix.at<double>(2,3) = _tMatrix.at<double>(2);
+    return extrinsics;
 }
