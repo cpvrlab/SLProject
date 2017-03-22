@@ -20,7 +20,7 @@ See also the class docs for SLCVCapture, SLCVCalibration and SLCVTracker
 for a good top down information.
 */
 
-#include "slcvdetector.h"
+#include "SLCVDetector.h"
 #include <SLScene.h>
 #include <SLSceneView.h>
 #include <SLCVRaulMurOrb.h>
