@@ -137,7 +137,9 @@ HEADERS += \
 ../include/SLVec4.h \
 ../include/SLVector.h \
 ../include/stdafx.h \
-../include/TriangleBoxIntersect.h
+../include/TriangleBoxIntersect.h \
+../include/SLCVRaulMurOrb.h \
+../include/SLCVRaulMurExtractorNode.h
 
 SOURCES += \
 source/math/SLCurveBezier.cpp \
@@ -208,7 +210,9 @@ source/SLSceneView.cpp \
 source/SLScene_onLoad.cpp \
 source/SLSkeleton.cpp \
 source/SLSpheric.cpp \
-source/SLText.cpp
+source/SLText.cpp \
+source/CV/SLCVRaulMurOrb.cpp \
+source/CV/SLCVRaulMurExtractorNode.cpp
 
 OTHER_FILES += \
 ../_data/shaders/*.vert \

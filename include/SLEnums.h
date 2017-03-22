@@ -233,6 +233,7 @@ enum SLCommand
     C_DetectorOrb,
     C_DetectorSift,
     C_DetectorSurf,
+    C_DetectorRaul,
 
     C_DescriptorOrb,
     C_DescriptorBrief,
@@ -240,7 +241,8 @@ enum SLCommand
     C_DescriptorFreak,
     C_DescriptorKaze,
     C_DescriptorSift,
-    C_DescriptorSurf
+    C_DescriptorSurf,
+    C_DescriptorRaul
 };
 //-----------------------------------------------------------------------------
 //! Mouse button codes
@@ -423,7 +425,8 @@ enum SLCVDetectorType
     DT_AGAST,
     DT_ORB,
     DT_SIFT,
-    DT_SURF
+    DT_SURF,
+    DT_RAUL
 };
 
 enum SLCVDescriptorType
@@ -434,6 +437,7 @@ enum SLCVDescriptorType
     DESC_KAZE,
     DESC_BRISK,
     DESC_SIFT,
-    DESC_SURF
+    DESC_SURF,
+    DESC_RAUL
 };
 #endif

@@ -23,6 +23,7 @@ for a good top down information.
 #include <SLCV.h>
 #include <SLCVTracker.h>
 #include <SLNode.h>
+#include <SLCVRaulMurOrb.h>
 using namespace cv;
 
 

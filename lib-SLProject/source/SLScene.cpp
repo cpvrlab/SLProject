@@ -169,8 +169,8 @@ or tap with finger into the screen. You can mirror the video image under \
 Preferences > Video. \\n\
 After calibration the yellow wireframe cube should stick on the chessboard.";
 
-   _detector = new SLCVDetector(DT_ORB, true);
-   _descriptor = new SLCVDescriptor(DESC_ORB);
+   _detector = new SLCVDetector(DT_RAUL, true);
+   _descriptor = new SLCVDescriptor(DESC_RAUL);
 
 }
 //-----------------------------------------------------------------------------
