@@ -21,6 +21,7 @@ for a good top down information.
 #include <SLSceneView.h>
 #include <SLCVTrackerFeatures.h>
 #include <SLCVCapture.h>
+#include <SLCVRaulMurOrb.h>
 #include <time.h>
 #include <sys/types.h>
 #include <sys/stat.h>

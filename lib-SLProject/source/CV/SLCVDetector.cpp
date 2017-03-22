@@ -23,7 +23,7 @@ for a good top down information.
 #include "slcvdetector.h"
 #include <SLScene.h>
 #include <SLSceneView.h>
-
+#include <SLCVRaulMurOrb.h>
 using namespace cv;
 
 SLCVDetector::SLCVDetector(SLCVDetectorType DetectorType, SLbool forced)
@@ -36,9 +36,10 @@ SLCVDetector::SLCVDetector(SLCVDetectorType DetectorType, SLbool forced)
         case DT_AGAST:  _detector = AgastFeatureDetector::create(30, true, AgastFeatureDetector::OAST_9_16); return;
         case DT_BRISK:  _detector = BRISK::create(30, 2, 1.0f); return;
         case DT_KAZE:   _detector = AKAZE::create(AKAZE::DESCRIPTOR_MLDB, 0, 3, 0.001f, 2, 2, KAZE::DIFF_PM_G2); return;
-        case DT_ORB:    _detector = ORB::create(300, 1.44f, 5, 31, 0, 2, ORB::HARRIS_SCORE, 31, 30); return;
+        case DT_ORB:    _detector = ORB::create(200, 1.44f, 3, 31, 0, 2, ORB::HARRIS_SCORE, 31, 30); return;
         case DT_SIFT:   _detector = xfeatures2d::SIFT::create(300, 2, 0.04, 10, 1.6); return;
         case DT_SURF:   _detector = xfeatures2d::SURF::create(100, 2, 2, false, false); return;
+        case DT_RAUL:   _detector = new SLCVRaulMurOrb(200, 1.44f, 3, 30, 20); return;
         break;
     }
 }

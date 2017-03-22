@@ -1608,6 +1608,7 @@ SLbool SLSceneView::onCommand(SLCommand cmd)
         case C_DetectorBrisk: setDetector(DT_BRISK); return true;
         case C_DetectorKaze: setDetector(DT_KAZE); return true;
         case C_DetectorOrb: setDetector(DT_ORB); return true;
+        case C_DetectorRaul: setDetector(DT_RAUL); return true;
 
         case C_DescriptorBrief: setDescriptor(DESC_BRIEF); return true;
         case C_DescriptorBrisk: setDescriptor(DESC_BRISK); return true;
@@ -1616,6 +1617,7 @@ SLbool SLSceneView::onCommand(SLCommand cmd)
         case C_DescriptorOrb: setDescriptor(DESC_ORB); return true;
         case C_DescriptorSift: setDescriptor(DESC_SIFT); return true;
         case C_DescriptorSurf: setDescriptor(DESC_SURF); return true;
+        case C_DescriptorRaul: setDescriptor(DESC_RAUL); return true;
         default: break;
     }
 
@@ -1832,6 +1834,7 @@ void SLSceneView::build2DMenus()
                     mn5->addChild(new SLButton(this, "ORB",f,C_DetectorOrb, true, s->isDetector(DT_ORB), mn5, false));
                     mn5->addChild(new SLButton(this, "SIFT",f,C_DetectorSift, true, s->isDetector(DT_SIFT), mn5, false));
                     mn5->addChild(new SLButton(this, "SURF",f,C_DetectorSurf, true, s->isDetector(DT_SURF), mn5, false));
+                    mn5->addChild(new SLButton(this, "ORB_SLAM",f,C_DetectorRaul, true, s->isDetector(DT_RAUL), mn5, false));
 
                     mn5 = new SLButton(this, "Descriptors >", f); mn3->addChild(mn5);
                     mn5->addChild(new SLButton(this, "ORB",f,C_DescriptorOrb, true, s->isDescriptor(DESC_ORB), mn5, false));
@@ -1841,6 +1844,7 @@ void SLSceneView::build2DMenus()
                     mn5->addChild(new SLButton(this, "AKAZE",f,C_DescriptorKaze, true, s->isDescriptor(DESC_KAZE), mn5, false));
                     mn5->addChild(new SLButton(this, "SIFT",f,C_DescriptorSift, true, s->isDescriptor(DESC_SIFT), mn5, false));
                     mn5->addChild(new SLButton(this, "SURF",f,C_DescriptorSurf, true, s->isDescriptor(DESC_SURF), mn5, false));
+                    mn5->addChild(new SLButton(this, "ORB_SLAM",f,C_DescriptorRaul, true, s->isDescriptor(DESC_RAUL), mn5, false));
 
                 }
             }
