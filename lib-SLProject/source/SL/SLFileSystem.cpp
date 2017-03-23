@@ -74,7 +74,7 @@ SLstring SLFileSystem::getAppsWritableDir()
     #elif defined(SL_OS_LINUX)
         // @todo Where is the app data path on Linux?
         SLstring home = getenv("HOME");
-        SLstring configDir = home +"/AppData/SLProject";
+        SLstring configDir = home + "/.SLProject";
         if (!dirExists(configDir))
             mkdir(configDir.c_str(), S_IRWXU | S_IRWXG | S_IRWXO);
         return configDir + "/";
