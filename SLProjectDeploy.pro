@@ -179,6 +179,8 @@ calibrations.files = \
   ../_data/calibrations/calib_in_params.yml \
   ../_data/calibrations/aruco_detector_params.yml \
 
+videos.files = \
+  ../_data/videos/testvid.mp4 \
 
 # Copies the given files to the destination directory
 defineTest(copyToDestdir) {
@@ -248,6 +250,7 @@ macx: {
     textures.path = Contents/_data/images/textures
     fonts.path = Contents/_data/images/fonts
     shaders.path = Contents/_data/shaders
+    videos.path = Contents/_data/videos
     models_3DS_Halloween.path = Contents/_data/models/3DS/Halloween
     models_DAE_AstroBoy.path = Contents/_data/models/DAE/AstroBoy
     models_DAE_Sintel.path = Contents/_data/models/DAE/Sintel
@@ -261,6 +264,7 @@ macx: {
     cvlibs.path = Contents/Frameworks
 
     QMAKE_BUNDLE_DATA += textures
+    QMAKE_BUNDLE_DATA += videos
     QMAKE_BUNDLE_DATA += fonts
     QMAKE_BUNDLE_DATA += shaders
     QMAKE_BUNDLE_DATA += models_3DS_Halloween

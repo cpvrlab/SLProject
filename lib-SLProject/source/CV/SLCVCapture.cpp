@@ -64,6 +64,37 @@ SLVec2i SLCVCapture::open(SLint deviceNum)
     }
     return SLVec2i::ZERO;
 }
+
+SLVec2i SLCVCapture::open(SLstring filePath)
+{
+    try
+    {   _captureDevice.open(filePath);
+
+        if (!_captureDevice.isOpened())
+            return SLVec2i::ZERO;
+
+        if (SL::noTestIsRunning())
+            SL_LOG("Capture devices created.\n");
+
+        SLint w = (int)_captureDevice.get(CV_CAP_PROP_FRAME_WIDTH);
+        SLint h = (int)_captureDevice.get(CV_CAP_PROP_FRAME_HEIGHT);
+        cout << "CV_CAP_PROP_FRAME_WIDTH : " << w << endl;
+        cout << "CV_CAP_PROP_FRAME_HEIGHT: " << h << endl;
+
+        //_captureDevice.set(CV_CAP_PROP_FRAME_WIDTH, 640);
+        //_captureDevice.set(CV_CAP_PROP_FRAME_HEIGHT, 480);
+
+        hasSecondaryCamera = false;
+
+        return SLVec2i(w, h);
+    }
+    catch (exception e)
+    {
+        SL_LOG("Exception during OpenCV video capture creation\n");
+    }
+    return SLVec2i::ZERO;
+}
+
 //-----------------------------------------------------------------------------
 /*! Grabs a new frame from the OpenCV capture device and adjusts it for SL
 */
