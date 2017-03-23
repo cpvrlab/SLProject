@@ -29,13 +29,17 @@ for a good top down information.
 using namespace cv;
 
 #define DEBUG 1
+#define HOFF_EXAMPLE 0
 //#define SAVE_SNAPSHOTS_OUTPUT "/tmp/cv_tracking/"
 
 #define FLANN_BASED 0
 
+// Matching configuration
+const float minRatio = 0.75f;
+
 // RANSAC configuration
 const int iterations = 500;
-const int reprojection_error = 2.0;
+const float reprojectionError = 5.0;
 const double confidence = 0.85;
 
 //-----------------------------------------------------------------------------
@@ -58,26 +62,6 @@ SLCVTrackerFeatures::SLCVTrackerFeatures(SLNode *node) :
 }
 
 //------------------------------------------------------------------------------
-void SLCVTrackerFeatures::load2dReferenceFeatures() {
-    Mat planartracking = imread("../_data/images/textures/planartracking.jpg");
-    cvtColor(planartracking, _map.frameGray, CV_RGB2GRAY);
-    SLScene *scene = SLScene::current;
-    scene->_detector->detect(_map.frameGray, _map.keypoints);
-    scene->_descriptor->compute(_map.frameGray, _map.keypoints, _map.descriptors);
-
-    // Calculate 3D-Points
-    const SLfloat lengthMM = 8.0;
-    for (unsigned int i = 0; i< _map.keypoints.size(); i++) {
-        float x = _map.keypoints[i].pt.x;	// 2D location in image
-        float y = _map.keypoints[i].pt.y;
-        float X = (lengthMM / _fx) * (x - _cx);
-        float Y = (lengthMM / _fy) * (y - _cy);
-        float Z = 0;
-        _model.push_back(Point3f(X, Y, Z));
-    }
-}
-
-//------------------------------------------------------------------------------
 inline void SLCVTrackerFeatures::initCameraMat(SLCVCalibration *calib) {
     _fx = calib->fx();
     _fy = calib->fy();
@@ -86,15 +70,36 @@ inline void SLCVTrackerFeatures::initCameraMat(SLCVCalibration *calib) {
     _cy = calib->cy();
 
     _intrinsics = cv::Mat::zeros(3, 3, CV_64FC1);   // intrinsic camera parameters
-    _intrinsics.at<double>(0, 0) = _fx;                  //  [ fx   0  cx ]
-    _intrinsics.at<double>(1, 1) = _fy;                  //  [  0  fy  cy ]
-    _intrinsics.at<double>(0, 2) = _cx;                  //  [  0   0   1 ]
+    _intrinsics.at<double>(0, 0) = _fx;             //  [ fx   0  cx ]
+    _intrinsics.at<double>(1, 1) = _fy;             //  [  0  fy  cy ]
+    _intrinsics.at<double>(0, 2) = _cx;             //  [  0   0   1 ]
     _intrinsics.at<double>(1, 2) = _cy;
     _intrinsics.at<double>(2, 2) = 1;
 
     _distortion = Mat::zeros(4, 1, CV_64F);         // Distortion parameters
 
-    load2dReferenceFeatures();
+    loadModelPoints();
+}
+
+//------------------------------------------------------------------------------
+void SLCVTrackerFeatures::loadModelPoints() {
+    Mat planartracking = imread("../_data/images/textures/planartracking.jpg");
+    cvtColor(planartracking, _map.frameGray, CV_RGB2GRAY);
+    SLScene *scene = SLScene::current;
+    scene->_detector->detect(_map.frameGray, _map.keypoints);
+    scene->_descriptor->compute(_map.frameGray, _map.keypoints, _map.descriptors);
+
+    // Calculate 3D-Points based on the detected features
+    // FIXME: Use correct 3D points!!!!! (Pointcloud)
+    const SLfloat heightMM = 8.0;
+    for (unsigned int i = 0; i< _map.keypoints.size(); i++) {
+        float x = _map.keypoints[i].pt.x;	// 2D location in image
+        float y = _map.keypoints[i].pt.y;   // 2D location in image
+        float X = (heightMM / _fx) * (x - _cx);
+        float Y = (heightMM / _fy) * (y - _cy);
+        float Z = 0;
+        _model.push_back(Point3f(X, Y, Z));
+    }
 }
 
 //------------------------------------------------------------------------------
@@ -111,16 +116,16 @@ SLbool SLCVTrackerFeatures::track(SLCVMat imageGray,
     // TODO: Really necessary to put this check here (instead of constructor)?
     if (_intrinsics.empty()) initCameraMat(calib);
 
-
     //  Main part: Detect, describe, match and track features #############################################################
     SLCVVKeyPoint keypoints = detectFeatures(imageGray);
     Mat descriptors = describeFeatures(imageGray , keypoints);
     vector<DMatch> matches = matchFeatures(descriptors);
 
-    if(matches.size() >= 4)  { // RANSAC crashes if there are 0 points and we need at least 4 points to determine planarity
-        Mat rvec = cv::Mat::zeros(3, 3, CV_64FC1);      // rotation matrix
-        Mat tvec = cv::Mat::zeros(3, 1, CV_64FC1);      // translation matrix
-        vector<Point2f> inliers = calculatePose(keypoints, matches, rvec, tvec);
+    Mat rvec = cv::Mat::zeros(3, 3, CV_64FC1);      // rotation matrix
+    Mat tvec = cv::Mat::zeros(3, 1, CV_64FC1);      // translation matrix
+    bool foundPose = calculatePose(image, keypoints, matches, rvec, tvec);
+
+    if (foundPose) {
         //_extrinsics = calculateExtrinsicMatrix(rvec, tvec);
         _extrinsics = createGLMatrix(tvec, rvec);
 
@@ -129,22 +134,13 @@ SLbool SLCVTrackerFeatures::track(SLCVMat imageGray,
 
         //set node visible
         sv->camera()->setDrawBitsRec(SL_DB_HIDDEN, false);
-
-        SLMat4f omTower = sv->camera()->om() * _extrinsics;
-        _tower->om(omTower);
-        sv->camera()->setDrawBitsRec(SL_DB_HIDDEN, false);
     }
 
     // ####################################################################################################################
-    //drawObject(image);
-
-    #if DEBUG
-    //draw2DPoints(image, inliers, Scalar(0, 0, 255));
-
-    Mat imgMatches;
-    drawMatches(imageGray, keypoints, _map.frameGray, _map.keypoints, matches, imgMatches);
 
     #ifdef SAVE_SNAPSHOTS_OUTPUT
+    Mat imgMatches;
+    drawMatches(imageGray, keypoints, _map.frameGray, _map.keypoints, matches, imgMatches);
     time_t rawtime;
     struct tm * timeinfo;
     char buffer [80];
@@ -155,8 +151,6 @@ SLbool SLCVTrackerFeatures::track(SLCVMat imageGray,
     strftime(buffer ,80, "%I%M%S", timeinfo);
     imwrite(SAVE_SNAPSHOTS_OUTPUT + string(buffer) + ".png", imgMatches);
     #endif
-    #endif
-
     return false;
 }
 
@@ -196,56 +190,157 @@ inline vector<DMatch> SLCVTrackerFeatures::matchFeatures(const Mat &descriptors)
     vector<vector<DMatch>> matches;
     _matcher->knnMatch(descriptors, _map.descriptors, matches, k);
 
-    float ratio = 0.7f;
-    vector<DMatch> good_matches;
+    vector<DMatch> goodMatches;
     for(size_t i = 0; i < matches.size(); i++) {
         const DMatch &match1 = matches[i][0];
-        const DMatch& match2 = matches[i][1];
-        float inverse_ratio = match1.distance / match2.distance;
-        if (inverse_ratio < ratio) good_matches.push_back(match1);
+        const DMatch &match2 = matches[i][1];
+        float inverseRatio = match1.distance / match2.distance;
+        if (inverseRatio < minRatio) goodMatches.push_back(match1);
     }
     #endif
 
     SLScene::current->setMatchTimesMS(SLScene::current->timeMilliSec() - matchTimeMillis);
-    return good_matches;
+    return goodMatches;
 }
 
 //-----------------------------------------------------------------------------
-inline vector<Point2f> SLCVTrackerFeatures::calculatePose(const SLCVVKeyPoint &keypoints, const vector<DMatch> &matches, Mat &rvec, Mat &tvec) {
-    vector<Point3f> points_model(matches.size());
-    vector<Point2f> points_scene(matches.size());
+inline bool SLCVTrackerFeatures::calculatePose(const Mat &image, const SLCVVKeyPoint &keypoints, const vector<DMatch> &matches, Mat &rvec, Mat &tvec) {
+    bool foundPose = 0;
 
+    #if HOFF_EXAMPLE
+    // For homography caluculations there must be at least 4 points
+    if(matches.size() < 4) return 0;
+
+    vector<Point2f> pts1(matches.size());	// Points from ref image
+    vector<Point2f> pts2(matches.size());	// Points from new image
     for (size_t i = 0; i < matches.size(); i++) {
-        points_model[i] =    _model[matches[i].trainIdx];
-        points_scene[i] = keypoints[matches[i].queryIdx].pt;
+        pts1[i] = _map.keypoints[matches[i].trainIdx].pt;
+        pts2[i] =      keypoints[matches[i].queryIdx].pt;
     }
 
-    Mat inliersIndex;
-    cv::solvePnPRansac(points_model,
-                       points_scene,
+
+    /* The following determines if there is a perspective transformation between
+     * the two point features (2D).
+     *
+     * See http://docs.opencv.org/2.4/modules/calib3d/doc/camera_calibration_and_3d_reconstruction.html?highlight=findhomography
+     *
+     */
+    vector<unsigned char> inliersMask(pts1.size());
+    Mat homography = cv::findHomography(
+        pts1, pts2,
+        cv::FM_RANSAC,
+        reprojectionError,    // Allowed reprojection error in pixels (default=3)
+        inliersMask);
+
+    /*
+     * Convert inliers back to points. The inliersIndex matrix contais the frame location point
+     */
+    vector<DMatch> inliers;
+    for (int i = 0; i < inliersMask.size(); i++) {
+        if (inliersMask[i])
+           inliers.push_back(matches[i]);
+    }
+
+    /* Find 2D/3D correspondences
+     *
+     *  At the moment we are using only the two correspondences like this:
+     *  KeypointsOriginal <-> KeypointsActualscene
+     *
+     *  Train index --> "Point" in the model image
+     *  Query index --> "Point" in the actual frame
+     */
+    vector<Point3f> modelPoints(matches.size());
+    vector<Point2f> framePoints(matches.size());
+    for (size_t i = 0; i < inliers.size(); i++) {
+        modelPoints[i] =    _model[inliers[i].trainIdx];
+        framePoints[i] = keypoints[inliers[i].queryIdx].pt;
+    }
+
+    if (inliers.size() < 5) return 0;
+
+    foundPose = cv::solvePnP(
+        modelPoints, framePoints,
+        _intrinsics,                    // intrinsic camera parameter matrix
+        cv::Mat::zeros(5, 1, CV_64F),	// distortion coefficients
+        rvec, tvec);                    // output rotation and translation
+
+    #else
+    if (matches.size() == 0) return 0; // RANSAC crashes if 0 points are given
+
+    /* Find 2D/3D correspondences
+     *
+     *  At the moment we are using only the two correspondences like this:
+     *  KeypointsOriginal <-> KeypointsActualscene
+     *
+     *  Train index --> "Point" in the model image
+     *  Query index --> "Point" in the actual frame
+     */
+    vector<Point3f> modelPoints(matches.size());
+    vector<Point2f> framePoints(matches.size());
+    for (size_t i = 0; i < matches.size(); i++) {
+        modelPoints[i] =    _model[matches[i].trainIdx];
+        framePoints[i] = keypoints[matches[i].queryIdx].pt;
+    }
+
+    /* We execute first RANSAC to eliminate wrong feature correspondences (outliers) and only use
+     * the correct ones (inliers) for PnP solving.
+     *
+     * RANSAC --------------------------
+     * The RANdom Sample Consensus algorithm is called to remove "wrong" point correspondences
+     *  which makes the solvePnP more robust. The so called inliers are used for calculation,
+     *  wrong correspondences (outliers) will be ignored. Therefore the method below will first
+     *  run a solvePnP with the EPNP method and returns the reprojection error.
+     *
+     * PnP ----------------------------- (https://en.wikipedia.org/wiki/Perspective-n-Point)
+     * General problem: We have a calibrated cam and sets of corresponding 2D/3D points.
+     *  We will calculate the rotation and translation in respect to world coordinates.
+     *
+     * Methods
+     *
+     * P3P: If we have 3 Points given, we have the minimal form of the PnP problem. We can
+     *  treat the points as a triangle definition ABC. We have 3 corner points and 3 angles.
+     *  Because we get many soulutions for the equation, there will be a fourth point which
+     *  removes the ambiguity. Therefore the OpenCV implementation requires 4 points to use
+     *  this method.
+     *
+     * EPNP: This method is used if there are n >= 4 points. The reference points are expressed
+     *  as 4 virtual control points. The coordinates of these points are the unknowns for the
+     *  equtation.
+     *
+     * ITERATIVE: Calculates pose using the DLT (Direct Linear Transform) method and
+     *  makes a Levenberg-Marquardt optimization. The latter helps to decrease the reprojection
+     *  error which describes how good the calculated POSE applies to the point sets.
+     */
+    vector<unsigned char> inliersMask(modelPoints.size());
+    cv::solvePnPRansac(modelPoints,
+                       framePoints,
                        _intrinsics,
                        _distortion,
                        rvec, tvec,
                        false,
                        iterations,
-                       reprojection_error,
+                       reprojectionError,
                        confidence,
-                       inliersIndex,
+                       inliersMask,
                        cv::SOLVEPNP_ITERATIVE);
 
-    // Convert inliers from index matrix back to points
-    vector<Point2f> inliers;
-    for (int i = 0; i < inliersIndex.rows; i++) {
-        int idx = inliersIndex.at<int>(i);
-        inliers.push_back(points_scene[idx]);
-    }
-
-    #if DEBUG
-    printf("We got %d inliers and %d matches overall \n", inliers.size(), matches.size());
     #endif
 
-    //TODO: Return necessery?
-    return inliers;
+    #if DEBUG
+    /*
+     * Convert inliers back to points. The inliersIndex matrix contais the frame location point
+     */
+    vector<Point2f> inlierPoints;
+    for (int i = 0; i < inliersMask.size(); i++) {
+        int idx = inliersMask[i];
+        inlierPoints.push_back(framePoints[idx]);
+    }
+
+    draw2DPoints(image, inlierPoints, Scalar(255, 0, 0));
+    printf("Found pose: %d \n", foundPose);
+    #endif
+
+    return foundPose;
 }
 
 //-----------------------------------------------------------------------------

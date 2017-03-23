@@ -1943,10 +1943,10 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         // Scene structure --------------------------------------------------------------
         SLNode* scene = new SLNode("Scene");
         scene->addChild(light1);
-        if (tower) scene->addChild(tower);
+        //if (tower) scene->addChild(tower);
         scene->addChild(cam1);
 
-        _trackers.push_back(new SLCVTrackerFeatures(cam1, tower));
+        _trackers.push_back(new SLCVTrackerFeatures(cam1));
 
         sv->waitEvents(false); // for constant video feed
         //sv->usesRotation(true);
