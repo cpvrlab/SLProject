@@ -40,6 +40,7 @@ hand used in all applications as the buffer for the last captured image.
 class SLCVCapture
 {   public:
     static  SLVec2i         open                (SLint deviceNum);
+    static  SLVec2i         open                (SLstring filePath);
     static  void            grabAndAdjustForSL  ();
     static  void            adjustForSL         ();
     static  SLbool          isOpened            () {return _captureDevice.isOpened();}

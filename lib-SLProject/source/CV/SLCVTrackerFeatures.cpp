@@ -41,7 +41,16 @@ const float minRatio = 0.75f;
 const int iterations = 500;
 const float reprojectionError = 5.0;
 const double confidence = 0.85;
+#ifdef SL_VIDEO_DEBUG
+int frame_count;
+float low_detection_milis = 1000.0f;
+float avg_detection_milis;
+float high_detection_milis;
 
+float low_compute_milis = 1000.0f;
+float avg_compute_milis;
+float high_compute_milis;
+#endif
 //-----------------------------------------------------------------------------
 SLCVTrackerFeatures::SLCVTrackerFeatures(SLNode *node) :
         SLCVTracker(node) {
@@ -68,7 +77,6 @@ inline void SLCVTrackerFeatures::initCameraMat(SLCVCalibration *calib) {
 
     _cx = calib->cx();
     _cy = calib->cy();
-
     _intrinsics = cv::Mat::zeros(3, 3, CV_64FC1);   // intrinsic camera parameters
     _intrinsics.at<double>(0, 0) = _fx;             //  [ fx   0  cx ]
     _intrinsics.at<double>(1, 1) = _fy;             //  [  0  fy  cy ]
@@ -107,6 +115,20 @@ SLbool SLCVTrackerFeatures::track(SLCVMat imageGray,
                                   SLCVMat image,
                                   SLCVCalibration *calib,
                                   SLSceneView *sv) {
+    #ifdef SL_VIDEO_DEBUG
+    if (frame_count == 700){
+           ofstream myfile;
+           myfile.open ("/tmp/tracker_stats.txt");
+           myfile << "Min Detection Time (Ms) " << low_detection_milis << "\n";
+           myfile << "Avg Detection Time (Ms) " << avg_detection_milis << "\n";
+           myfile << "High Detection Time (Ms) " << high_detection_milis << "\n";
+
+           myfile << "Min Compute Time (Ms) " << low_compute_milis << "\n";
+           myfile << "Avg Compute Time (Ms) " << avg_compute_milis << "\n";
+           myfile << "High Compute Time (Ms) " << high_compute_milis << "\n";
+           myfile.close();
+    }
+    #endif
     assert(!image.empty() && "Image is empty");
     assert(!calib->cameraMat().empty() && "Calibration is empty");
     assert(_node && "Node pointer is null");
@@ -151,6 +173,9 @@ SLbool SLCVTrackerFeatures::track(SLCVMat imageGray,
     strftime(buffer ,80, "%I%M%S", timeinfo);
     imwrite(SAVE_SNAPSHOTS_OUTPUT + string(buffer) + ".png", imgMatches);
     #endif
+    #ifdef SL_VIDEO_DEBUG
+    frame_count++;
+    #endif
     return false;
 }
 
@@ -160,6 +185,20 @@ inline SLCVVKeyPoint SLCVTrackerFeatures::detectFeatures(const Mat &imageGray) {
     SLfloat detectTimeMillis = SLScene::current->timeMilliSec();
     SLScene *scene = SLScene::current;
     scene->_detector->detect(imageGray, keypoints);
+
+    #ifdef SL_VIDEO_DEBUG
+    SLfloat time = SLScene::current->timeMilliSec() - detectTimeMillis;
+    if (time != 0){
+        if (time < low_detection_milis){
+            low_detection_milis = time;
+        }
+        else if (time > high_detection_milis){
+            high_detection_milis = time;
+        }
+        if (frame_count > 0)
+        avg_detection_milis = (frame_count*avg_detection_milis + time)/(1+frame_count);
+    }
+    #endif
     SLScene::current->setDetectionTimesMS(SLScene::current->timeMilliSec() - detectTimeMillis);
     return keypoints;
 }
@@ -170,6 +209,23 @@ inline Mat SLCVTrackerFeatures::describeFeatures(const Mat &imageGray, SLCVVKeyP
     SLfloat computeTimeMillis = SLScene::current->timeMilliSec();
     SLScene *scene = SLScene::current;
     scene->_descriptor->compute(imageGray, keypoints, descriptors);
+    #ifdef SL_VIDEO_DEBUG
+    SLfloat time = SLScene::current->timeMilliSec() - computeTimeMillis;
+    if (time != 0.0f){
+        if (time < low_compute_milis){
+            low_compute_milis = time;
+        }
+        else if (time > high_compute_milis){
+            high_compute_milis = time;
+        }
+        if (frame_count > 0){
+            avg_compute_milis = (avg_compute_milis*frame_count + time)/(1+frame_count);
+        }
+        else {
+            avg_compute_milis = time;
+        }
+    }
+    #endif
     SLScene::current->setFeatureTimesMS(SLScene::current->timeMilliSec() - computeTimeMillis);
     return descriptors;
 }

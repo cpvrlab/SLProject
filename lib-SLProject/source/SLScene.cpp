@@ -547,7 +547,11 @@ void SLScene::onAfterLoad()
     #ifdef SL_USES_CVCAPTURE
     if (_videoType!=VT_NONE)
     {   if (!SLCVCapture::isOpened())
+        #ifdef SL_VIDEO_DEBUG
+            SLCVCapture::open("../_data/videos/testvid.mp4");
+        #else
             SLCVCapture::open(0);
+        #endif
     }
     #endif
 }
