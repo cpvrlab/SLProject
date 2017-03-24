@@ -30,16 +30,16 @@ using namespace cv;
 
 #define DEBUG 1
 #define HOFF_EXAMPLE 0
-//#define SAVE_SNAPSHOTS_OUTPUT "/tmp/cv_tracking/"
+#define SAVE_SNAPSHOTS_OUTPUT "/tmp/cv_tracking/"
 
 #define FLANN_BASED 0
 
 // Matching configuration
-const float minRatio = 0.75f;
+const float minRatio = 0.9f;
 
 // RANSAC configuration
 const int iterations = 500;
-const float reprojectionError = 5.0;
+const float reprojectionError = 2.0;
 const double confidence = 0.85;
 #ifdef SL_VIDEO_DEBUG
 int frame_count;
@@ -70,43 +70,30 @@ SLCVTrackerFeatures::SLCVTrackerFeatures(SLNode *node) :
     #endif
 }
 
-//------------------------------------------------------------------------------
-inline void SLCVTrackerFeatures::initCameraMat(SLCVCalibration *calib) {
-    _fx = calib->fx();
-    _fy = calib->fy();
-
-    _cx = calib->cx();
-    _cy = calib->cy();
-    _intrinsics = cv::Mat::zeros(3, 3, CV_64FC1);   // intrinsic camera parameters
-    _intrinsics.at<double>(0, 0) = _fx;             //  [ fx   0  cx ]
-    _intrinsics.at<double>(1, 1) = _fy;             //  [  0  fy  cy ]
-    _intrinsics.at<double>(0, 2) = _cx;             //  [  0   0   1 ]
-    _intrinsics.at<double>(1, 2) = _cy;
-    _intrinsics.at<double>(2, 2) = 1;
-
-    _distortion = Mat::zeros(4, 1, CV_64F);         // Distortion parameters
-
-    loadModelPoints();
-}
 
 //------------------------------------------------------------------------------
 void SLCVTrackerFeatures::loadModelPoints() {
+    // Read marker
     Mat planartracking = imread("../_data/images/textures/planartracking.jpg");
     cvtColor(planartracking, _map.frameGray, CV_RGB2GRAY);
-    SLScene *scene = SLScene::current;
-    scene->_detector->detect(_map.frameGray, _map.keypoints);
-    scene->_descriptor->compute(_map.frameGray, _map.keypoints, _map.descriptors);
+
+    // Detect and compute features in marker image
+    SLScene::current->_detector->detect(_map.frameGray, _map.keypoints);
+    SLScene::current->_descriptor->compute(_map.frameGray, _map.keypoints, _map.descriptors);
+
+    // Calculates proprtion of MM and Pixel of the given tracker (planartracking.jpg)
+    const SLfloat lengthMM = 297.0;
+    const SLfloat lengthPX = 640.0;
+    float pixelPerMM = lengthPX / lengthMM;
 
     // Calculate 3D-Points based on the detected features
     // FIXME: Use correct 3D points!!!!! (Pointcloud)
     const SLfloat heightMM = 8.0;
     for (unsigned int i = 0; i< _map.keypoints.size(); i++) {
-        float x = _map.keypoints[i].pt.x;	// 2D location in image
-        float y = _map.keypoints[i].pt.y;   // 2D location in image
-        float X = (heightMM / _fx) * (x - _cx);
-        float Y = (heightMM / _fy) * (y - _cy);
-        float Z = 0;
-        _model.push_back(Point3f(X, Y, Z));
+        Point2f refImageKeypoint = _map.keypoints[i].pt; // 2D location in image
+        refImageKeypoint /= pixelPerMM;                  // Point scaling
+        float Z = 0;                                     // Here we can use 0 because we expect a planar object
+        _map.model.push_back(Point3f(refImageKeypoint.x, refImageKeypoint.y, Z));
     }
 }
 
@@ -135,27 +122,37 @@ SLbool SLCVTrackerFeatures::track(SLCVMat imageGray,
     assert(sv && "No sceneview pointer passed");
     assert(sv->camera() && "No active camera in sceneview");
 
-    // TODO: Really necessary to put this check here (instead of constructor)?
-    if (_intrinsics.empty()) initCameraMat(calib);
+    if (_map.model.empty()) {
+        loadModelPoints();
+        _calib = calib;
+    }
 
     //  Main part: Detect, describe, match and track features #############################################################
-    SLCVVKeyPoint keypoints = detectFeatures(imageGray);
+    SLCVVKeyPoint keypoints = detectFeatures(imageGray);        //TODO: Terminologie
     Mat descriptors = describeFeatures(imageGray , keypoints);
     vector<DMatch> matches = matchFeatures(descriptors);
 
     Mat rvec = cv::Mat::zeros(3, 3, CV_64FC1);      // rotation matrix
     Mat tvec = cv::Mat::zeros(3, 1, CV_64FC1);      // translation matrix
+
+    // POSE calculation ####################################################
     bool foundPose = calculatePose(image, keypoints, matches, rvec, tvec);
+    // #####################################################################
+
+
+    // Feature tracking ####################################################
+
+    // #####################################################################
 
     if (foundPose) {
-        //_extrinsics = calculateExtrinsicMatrix(rvec, tvec);
-        _extrinsics = createGLMatrix(tvec, rvec);
+        // Converts calulated extrinsic camera components (translation & rotation) to OpenGL camera matrix
+        _pose = createGLMatrix(tvec, rvec);
 
         // Update Scene Graph camera to display model correctly (positioning cam relative to world coordinates)
-        sv->camera()->om(_extrinsics.inverse());
+        sv->camera()->om(_pose.inverse());
 
         //set node visible
-        sv->camera()->setDrawBitsRec(SL_DB_HIDDEN, false);
+        //sv->camera()->setDrawBitsRec(SL_DB_HIDDEN, false);
     }
 
     // ####################################################################################################################
@@ -250,10 +247,12 @@ inline vector<DMatch> SLCVTrackerFeatures::matchFeatures(const Mat &descriptors)
     for(size_t i = 0; i < matches.size(); i++) {
         const DMatch &match1 = matches[i][0];
         const DMatch &match2 = matches[i][1];
-        float inverseRatio = match1.distance / match2.distance;
+        float inverseRatio = match1.distance / match2.distance; //TODO: div 0
         if (inverseRatio < minRatio) goodMatches.push_back(match1);
     }
     #endif
+
+    // TODO: Symmetrie-Test
 
     SLScene::current->setMatchTimesMS(SLScene::current->timeMilliSec() - matchTimeMillis);
     return goodMatches;
@@ -316,8 +315,8 @@ inline bool SLCVTrackerFeatures::calculatePose(const Mat &image, const SLCVVKeyP
 
     foundPose = cv::solvePnP(
         modelPoints, framePoints,
-        _intrinsics,                    // intrinsic camera parameter matrix
-        cv::Mat::zeros(5, 1, CV_64F),	// distortion coefficients
+        _calib->cameraMat(),            // intrinsic camera parameter matrix
+        _calib->distortion(),           // distortion coefficients
         rvec, tvec);                    // output rotation and translation
 
     #else
@@ -328,14 +327,14 @@ inline bool SLCVTrackerFeatures::calculatePose(const Mat &image, const SLCVVKeyP
      *  At the moment we are using only the two correspondences like this:
      *  KeypointsOriginal <-> KeypointsActualscene
      *
-     *  Train index --> "Point" in the model image
+     *  Train index --> "Point" in the model
      *  Query index --> "Point" in the actual frame
      */
     vector<Point3f> modelPoints(matches.size());
     vector<Point2f> framePoints(matches.size());
     for (size_t i = 0; i < matches.size(); i++) {
-        modelPoints[i] =    _model[matches[i].trainIdx];
-        framePoints[i] = keypoints[matches[i].queryIdx].pt;
+        modelPoints[i] = _map.model[matches[i].trainIdx];
+        framePoints[i] =  keypoints[matches[i].queryIdx].pt;
     }
 
     /* We execute first RANSAC to eliminate wrong feature correspondences (outliers) and only use
@@ -363,17 +362,23 @@ inline bool SLCVTrackerFeatures::calculatePose(const Mat &image, const SLCVVKeyP
      *  as 4 virtual control points. The coordinates of these points are the unknowns for the
      *  equtation.
      *
-     * ITERATIVE: Calculates pose using the DLT (Direct Linear Transform) method and
-     *  makes a Levenberg-Marquardt optimization. The latter helps to decrease the reprojection
-     *  error which describes how good the calculated POSE applies to the point sets.
+     * ITERATIVE: Calculates pose using the DLT (Direct Linear Transform) method. If there is
+     *  a homography will be much easier and no DLT will be used. Otherwise we are using the DLT
+     *  and make a Levenberg-Marquardt optimization. The latter helps to decrease the reprojection
+     *  error which is the sum of the squared distances between the image and object points.
+     *
      */
+
+    //TODO: Split up
     vector<unsigned char> inliersMask(modelPoints.size());
-    cv::solvePnPRansac(modelPoints,
+    foundPose = cv::solvePnPRansac(modelPoints,
                        framePoints,
-                       _intrinsics,
-                       _distortion,
+                       _calib->cameraMat(),
+                       _calib->distortion(),
                        rvec, tvec,
-                       false,
+                       false,        // Use extrinsic guess: We don't know the pose at the moment.
+                                     // But it's possible to give the known pose to the method as
+                                     // rvec and tvec. This will be used for tracking.
                        iterations,
                        reprojectionError,
                        confidence,
@@ -393,7 +398,11 @@ inline bool SLCVTrackerFeatures::calculatePose(const Mat &image, const SLCVVKeyP
     }
 
     draw2DPoints(image, inlierPoints, Scalar(255, 0, 0));
-    printf("Found pose: %d \n", foundPose);
+    if (foundPose) {
+        Mat out;
+        Rodrigues(rvec, out);
+        cout << "Found pose. Rotation=" << out << "\nTranslation=" << tvec << endl;
+    }
     #endif
 
     return foundPose;
@@ -407,30 +416,4 @@ inline void SLCVTrackerFeatures::draw2DPoints(Mat image, const vector<Point2f> &
         // Draw Selected points
         circle(image, point_2d, 4, color, -1, 8);
     }
-}
-
-inline Mat SLCVTrackerFeatures::calculateExtrinsicMatrix(Mat &rvec, Mat &tvec) {
-    /*
-        Rotation-Translation Matrix Definition
-
-        [ r11 r12 r13 t1
-          r21 r22 r23 t2
-          r31 r32 r33 t3 ]
-
-    */
-    Mat extrinsics = Mat::zeros(3, 4, CV_64FC1);
-    extrinsics.at<double>(0,0) = rvec.at<double>(0,0);
-    extrinsics.at<double>(0,1) = rvec.at<double>(0,1);
-    extrinsics.at<double>(0,2) = rvec.at<double>(0,2);
-    extrinsics.at<double>(1,0) = rvec.at<double>(1,0);
-    extrinsics.at<double>(1,1) = rvec.at<double>(1,1);
-    extrinsics.at<double>(1,2) = rvec.at<double>(1,2);
-    extrinsics.at<double>(2,0) = rvec.at<double>(2,0);
-    extrinsics.at<double>(2,1) = rvec.at<double>(2,1);
-    extrinsics.at<double>(2,2) = rvec.at<double>(2,2);
-    extrinsics.at<double>(0,3) = tvec.at<double>(0);
-    extrinsics.at<double>(1,3) = tvec.at<double>(1);
-    extrinsics.at<double>(2,3) = tvec.at<double>(2);
-
-    return extrinsics;
 }

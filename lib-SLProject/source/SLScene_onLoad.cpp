@@ -1938,12 +1938,12 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         #else
         SLNode* tower = importer.load("Wavefront-OBJ/Christoffelturm/christoffelturm.obj");
         #endif
-        tower->rotate(90, -1,0,0);
+        tower->rotate(90, 1,0,0);
 
         // Scene structure --------------------------------------------------------------
         SLNode* scene = new SLNode("Scene");
         scene->addChild(light1);
-        //if (tower) scene->addChild(tower);
+        if (tower) scene->addChild(tower);
         scene->addChild(cam1);
 
         _trackers.push_back(new SLCVTrackerFeatures(cam1));
