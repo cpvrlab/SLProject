@@ -36,33 +36,27 @@ class SLCVTrackerFeatures : public SLCVTracker
                                      SLCVMat image,
                                      SLCVCalibration* calib,
                                      SLSceneView* sv);
-
     private:
         static SLVMat4f         objectViewMats; //!< object view matrices
         Ptr<DescriptorMatcher>  _matcher;
         SLfloat                 _fx, _fy, _cx, _cy;
-        Mat                     _intrinsics, _distortion;
-        SLMat4f                 _extrinsics;
-        vector<Point3f>         _model;
+        SLMat4f                 _pose;
+        SLCVCalibration         *_calib;
 
         struct map {
+            vector<Point3f>         model;
             SLCVMat                 frameGray;
             SLCVVKeyPoint           keypoints;
             Mat                     descriptors;
         } _map;
 
-        void loadModelPoints();
+        inline void loadModelPoints();
         inline SLCVVKeyPoint detectFeatures(const Mat &imageGray);
         inline Mat describeFeatures(const Mat &imageGray, SLCVVKeyPoint &keypoints);
         inline vector<DMatch> matchFeatures(const Mat &descriptors);
         inline bool calculatePose(const Mat &image, const SLCVVKeyPoint &keypoints, const vector<DMatch> &matches, Mat &rvec, Mat &tvec);
         inline void draw2DPoints(Mat image, const vector<Point2f> &list_points, Scalar color);
-        inline void initCameraMat(SLCVCalibration *calib);
-        inline void drawObject(const Mat &image);
         inline Point2f backproject3DPoint(const Point3f &point3d);
-        inline Mat calculateExtrinsicMatrix(Mat &rvec, Mat &tvec);
-
-
 };
 //-----------------------------------------------------------------------------
 #endif // SLCVTrackerFeatures_H

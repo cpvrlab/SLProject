@@ -170,7 +170,7 @@ Preferences > Video. \\n\
 After calibration the yellow wireframe cube should stick on the chessboard.";
 
    _detector = new SLCVDetector(DT_RAUL, true);
-   _descriptor = new SLCVDescriptor(DESC_RAUL);
+   _descriptor = new SLCVDescriptor(DESC_ORB);
 
 }
 //-----------------------------------------------------------------------------
