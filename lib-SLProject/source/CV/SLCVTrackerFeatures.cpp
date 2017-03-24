@@ -29,6 +29,7 @@ for a good top down information.
 using namespace cv;
 
 #define DEBUG 1
+#define SL_VIDEO_DEBUG 0
 #define HOFF_EXAMPLE 0
 #define SAVE_SNAPSHOTS_OUTPUT "/tmp/cv_tracking/"
 
@@ -41,8 +42,11 @@ const float minRatio = 0.9f;
 const int iterations = 500;
 const float reprojectionError = 2.0;
 const double confidence = 0.85;
-#ifdef SL_VIDEO_DEBUG
+
+#if(SL_VIDEO_DEBUG || defined SAVE_SNAPSHOTS_OUTPUT)
 int frame_count;
+#endif
+#if SL_VIDEO_DEBUG
 float low_detection_milis = 1000.0f;
 float avg_detection_milis;
 float high_detection_milis;
@@ -81,14 +85,12 @@ void SLCVTrackerFeatures::loadModelPoints() {
     SLScene::current->_detector->detect(_map.frameGray, _map.keypoints);
     SLScene::current->_descriptor->compute(_map.frameGray, _map.keypoints, _map.descriptors);
 
-    // Calculates proprtion of MM and Pixel of the given tracker (planartracking.jpg)
+    // Calculates proprtion of MM and Pixel (sample measuring)
     const SLfloat lengthMM = 297.0;
-    const SLfloat lengthPX = 640.0;
+    const SLfloat lengthPX = 2 * _calib->cx();
     float pixelPerMM = lengthPX / lengthMM;
 
     // Calculate 3D-Points based on the detected features
-    // FIXME: Use correct 3D points!!!!! (Pointcloud)
-    const SLfloat heightMM = 8.0;
     for (unsigned int i = 0; i< _map.keypoints.size(); i++) {
         Point2f refImageKeypoint = _map.keypoints[i].pt; // 2D location in image
         refImageKeypoint /= pixelPerMM;                  // Point scaling
@@ -102,7 +104,7 @@ SLbool SLCVTrackerFeatures::track(SLCVMat imageGray,
                                   SLCVMat image,
                                   SLCVCalibration *calib,
                                   SLSceneView *sv) {
-    #ifdef SL_VIDEO_DEBUG
+    #if SL_VIDEO_DEBUG
     if (frame_count == 700){
            ofstream myfile;
            myfile.open ("/tmp/tracker_stats.txt");
@@ -123,13 +125,13 @@ SLbool SLCVTrackerFeatures::track(SLCVMat imageGray,
     assert(sv->camera() && "No active camera in sceneview");
 
     if (_map.model.empty()) {
-        loadModelPoints();
         _calib = calib;
+        loadModelPoints();
     }
 
     //  Main part: Detect, describe, match and track features #############################################################
-    SLCVVKeyPoint keypoints = detectFeatures(imageGray);        //TODO: Terminologie
-    Mat descriptors = describeFeatures(imageGray , keypoints);
+    SLCVVKeyPoint keypoints = detectFeatures(imageGray);        //TODO: Terminology
+    Mat descriptors = describeFeatures(imageGray , keypoints);  //TODO: Hows the structure of Keypoints and Dmatches and descriptors?
     vector<DMatch> matches = matchFeatures(descriptors);
 
     Mat rvec = cv::Mat::zeros(3, 3, CV_64FC1);      // rotation matrix
@@ -150,9 +152,6 @@ SLbool SLCVTrackerFeatures::track(SLCVMat imageGray,
 
         // Update Scene Graph camera to display model correctly (positioning cam relative to world coordinates)
         sv->camera()->om(_pose.inverse());
-
-        //set node visible
-        //sv->camera()->setDrawBitsRec(SL_DB_HIDDEN, false);
     }
 
     // ####################################################################################################################
@@ -160,17 +159,9 @@ SLbool SLCVTrackerFeatures::track(SLCVMat imageGray,
     #ifdef SAVE_SNAPSHOTS_OUTPUT
     Mat imgMatches;
     drawMatches(imageGray, keypoints, _map.frameGray, _map.keypoints, matches, imgMatches);
-    time_t rawtime;
-    struct tm * timeinfo;
-    char buffer [80];
-
-    time (&rawtime);
-    timeinfo = localtime (&rawtime);
-
-    strftime(buffer ,80, "%I%M%S", timeinfo);
-    imwrite(SAVE_SNAPSHOTS_OUTPUT + string(buffer) + ".png", imgMatches);
+    imwrite(SAVE_SNAPSHOTS_OUTPUT + to_string(frame_count) + ".png", imgMatches);
     #endif
-    #ifdef SL_VIDEO_DEBUG
+    #if(SL_VIDEO_DEBUG || defined SAVE_SNAPSHOTS_OUTPUT)
     frame_count++;
     #endif
     return false;
@@ -183,7 +174,7 @@ inline SLCVVKeyPoint SLCVTrackerFeatures::detectFeatures(const Mat &imageGray) {
     SLScene *scene = SLScene::current;
     scene->_detector->detect(imageGray, keypoints);
 
-    #ifdef SL_VIDEO_DEBUG
+    #if SL_VIDEO_DEBUG
     SLfloat time = SLScene::current->timeMilliSec() - detectTimeMillis;
     if (time != 0){
         if (time < low_detection_milis){
@@ -206,7 +197,7 @@ inline Mat SLCVTrackerFeatures::describeFeatures(const Mat &imageGray, SLCVVKeyP
     SLfloat computeTimeMillis = SLScene::current->timeMilliSec();
     SLScene *scene = SLScene::current;
     scene->_descriptor->compute(imageGray, keypoints, descriptors);
-    #ifdef SL_VIDEO_DEBUG
+    #if SL_VIDEO_DEBUG
     SLfloat time = SLScene::current->timeMilliSec() - computeTimeMillis;
     if (time != 0.0f){
         if (time < low_compute_milis){
@@ -397,8 +388,15 @@ inline bool SLCVTrackerFeatures::calculatePose(const Mat &image, const SLCVVKeyP
         inlierPoints.push_back(framePoints[idx]);
     }
 
-    draw2DPoints(image, inlierPoints, Scalar(255, 0, 0));
     if (foundPose) {
+        draw2DPoints(image, inlierPoints, Scalar(255, 0, 0));
+
+        #ifdef SAVE_SNAPSHOTS_OUTPUT
+        Mat imgMatches;
+        drawMatches(image, keypoints, _map.frameGray, _map.keypoints, matches, imgMatches);
+        imwrite(SAVE_SNAPSHOTS_OUTPUT + to_string(frame_count) + ".png", imgMatches);
+        #endif
+
         Mat out;
         Rodrigues(rvec, out);
         cout << "Found pose. Rotation=" << out << "\nTranslation=" << tvec << endl;
