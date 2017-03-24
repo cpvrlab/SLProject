@@ -1938,7 +1938,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         #else
         SLNode* tower = importer.load("Wavefront-OBJ/Christoffelturm/christoffelturm.obj");
         #endif
-        tower->rotate(90, 1,0,0);
+        tower->rotate(180, 1,0,0);
 
         // Scene structure --------------------------------------------------------------
         SLNode* scene = new SLNode("Scene");
