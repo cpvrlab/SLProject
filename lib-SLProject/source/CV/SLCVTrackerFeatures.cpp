@@ -156,11 +156,11 @@ SLbool SLCVTrackerFeatures::track(SLCVMat imageGray,
 
     // ####################################################################################################################
 
-    #ifdef SAVE_SNAPSHOTS_OUTPUT
+    /*#ifdef SAVE_SNAPSHOTS_OUTPUT
     Mat imgMatches;
     drawMatches(imageGray, keypoints, _map.frameGray, _map.keypoints, matches, imgMatches);
     imwrite(SAVE_SNAPSHOTS_OUTPUT + to_string(frame_count) + ".png", imgMatches);
-    #endif
+    #endif*/
     #if(SL_VIDEO_DEBUG || defined SAVE_SNAPSHOTS_OUTPUT)
     frame_count++;
     #endif
@@ -375,7 +375,6 @@ inline bool SLCVTrackerFeatures::calculatePose(const Mat &image, const SLCVVKeyP
                        confidence,
                        inliersMask,
                        cv::SOLVEPNP_ITERATIVE);
-
     #endif
 
     #if DEBUG
@@ -383,17 +382,23 @@ inline bool SLCVTrackerFeatures::calculatePose(const Mat &image, const SLCVVKeyP
      * Convert inliers back to points. The inliersIndex matrix contais the frame location point
      */
     vector<Point2f> inlierPoints;
+    vector<DMatch> ransacMatches;
     for (int i = 0; i < inliersMask.size(); i++) {
         int idx = inliersMask[i];
         inlierPoints.push_back(framePoints[idx]);
+
+        // idx == matches[i].queryIdx
+        ransacMatches.push_back(matches[idx]);
     }
 
     if (foundPose) {
         draw2DPoints(image, inlierPoints, Scalar(255, 0, 0));
 
         #ifdef SAVE_SNAPSHOTS_OUTPUT
+
+
         Mat imgMatches;
-        drawMatches(image, keypoints, _map.frameGray, _map.keypoints, matches, imgMatches);
+        drawMatches(image, keypoints, _map.frameGray, _map.keypoints, ransacMatches, imgMatches);
         imwrite(SAVE_SNAPSHOTS_OUTPUT + to_string(frame_count) + ".png", imgMatches);
         #endif
 
