@@ -36,7 +36,7 @@ using namespace cv;
 #define FLANN_BASED 0
 
 // Matching configuration
-const float minRatio = 0.9f;
+const float minRatio = 1.0f;
 
 // RANSAC configuration
 const int iterations = 500;
@@ -129,23 +129,46 @@ SLbool SLCVTrackerFeatures::track(SLCVMat imageGray,
         loadModelPoints();
     }
 
-    //  Main part: Detect, describe, match and track features #############################################################
-    SLCVVKeyPoint keypoints = detectFeatures(imageGray);        //TODO: Terminology
-    Mat descriptors = describeFeatures(imageGray , keypoints);  //TODO: Hows the structure of Keypoints and Dmatches and descriptors?
-    vector<DMatch> matches = matchFeatures(descriptors);
+    // Detect keypoints ####################################################
+    SLCVVKeyPoint keypoints = getFeatures(imageGray);
+    // #####################################################################
 
-    Mat rvec = cv::Mat::zeros(3, 3, CV_64FC1);      // rotation matrix
-    Mat tvec = cv::Mat::zeros(3, 1, CV_64FC1);      // translation matrix
+
+    // Extract descriptors from keypoints ##################################
+    Mat descriptors = getDescriptors(imageGray , keypoints);
+    // #####################################################################
+
+
+    // Feature matching ####################################################
+    vector<DMatch> matches = matchFeatures(descriptors);
+    // #####################################################################
+
 
     // POSE calculation ####################################################
-    bool foundPose = calculatePose(image, keypoints, matches, rvec, tvec);
+    Mat rvec = cv::Mat::zeros(3, 3, CV_64FC1);      // rotation matrix
+    Mat tvec = cv::Mat::zeros(3, 1, CV_64FC1);      // translation matrix
+    vector<DMatch> inliers;
+    bool foundPose = calculatePose(keypoints, matches, inliers, rvec, tvec);
+
+    #ifdef SAVE_SNAPSHOTS_OUTPUT
+    if (foundPose) {
+        Mat imgMatches;
+        drawMatches(image, keypoints, _map.frameGray, _map.keypoints, inliers, imgMatches);
+        imwrite(SAVE_SNAPSHOTS_OUTPUT + to_string(frame_count) + ".png", imgMatches);
+
+        Mat out; Rodrigues(rvec, out);
+        cout << "Found pose. Rotation=" << out << "\nTranslation=" << tvec << endl;
+    }
+    #endif
     // #####################################################################
 
 
     // Feature tracking ####################################################
-
+    //trackPose()
     // #####################################################################
 
+
+    // Update camera object matrix  ########################################
     if (foundPose) {
         // Converts calulated extrinsic camera components (translation & rotation) to OpenGL camera matrix
         _pose = createGLMatrix(tvec, rvec);
@@ -153,22 +176,19 @@ SLbool SLCVTrackerFeatures::track(SLCVMat imageGray,
         // Update Scene Graph camera to display model correctly (positioning cam relative to world coordinates)
         sv->camera()->om(_pose.inverse());
     }
+    // #####################################################################
 
-    // ####################################################################################################################
-
-    /*#ifdef SAVE_SNAPSHOTS_OUTPUT
-    Mat imgMatches;
-    drawMatches(imageGray, keypoints, _map.frameGray, _map.keypoints, matches, imgMatches);
-    imwrite(SAVE_SNAPSHOTS_OUTPUT + to_string(frame_count) + ".png", imgMatches);
-    #endif*/
     #if(SL_VIDEO_DEBUG || defined SAVE_SNAPSHOTS_OUTPUT)
     frame_count++;
     #endif
+
+    _prev.image = image;
+    _prev.imageGray = imageGray;
     return false;
 }
 
 //-----------------------------------------------------------------------------
-inline SLCVVKeyPoint SLCVTrackerFeatures::detectFeatures(const Mat &imageGray) {
+inline SLCVVKeyPoint SLCVTrackerFeatures::getFeatures(const Mat &imageGray) {
     SLCVVKeyPoint keypoints;
     SLfloat detectTimeMillis = SLScene::current->timeMilliSec();
     SLScene *scene = SLScene::current;
@@ -192,7 +212,7 @@ inline SLCVVKeyPoint SLCVTrackerFeatures::detectFeatures(const Mat &imageGray) {
 }
 
 //-----------------------------------------------------------------------------
-inline Mat SLCVTrackerFeatures::describeFeatures(const Mat &imageGray, SLCVVKeyPoint &keypoints) {
+inline Mat SLCVTrackerFeatures::getDescriptors(const Mat &imageGray, SLCVVKeyPoint &keypoints) {
     Mat descriptors;
     SLfloat computeTimeMillis = SLScene::current->timeMilliSec();
     SLScene *scene = SLScene::current;
@@ -234,84 +254,28 @@ inline vector<DMatch> SLCVTrackerFeatures::matchFeatures(const Mat &descriptors)
     vector<vector<DMatch>> matches;
     _matcher->knnMatch(descriptors, _map.descriptors, matches, k);
 
+    /* Perform ratio test which determines if k matches from the knn matcher are not too similar.
+     *  If the ratio of the the distance of the two matches is toward 1, the matches are near identically.
+     */
     vector<DMatch> goodMatches;
     for(size_t i = 0; i < matches.size(); i++) {
         const DMatch &match1 = matches[i][0];
         const DMatch &match2 = matches[i][1];
-        float inverseRatio = match1.distance / match2.distance; //TODO: div 0
-        if (inverseRatio < minRatio) goodMatches.push_back(match1);
+        if (match2.distance == 0.0f || ( match1.distance / match2.distance) < minRatio)
+            goodMatches.push_back(match1);
     }
     #endif
-
-    // TODO: Symmetrie-Test
 
     SLScene::current->setMatchTimesMS(SLScene::current->timeMilliSec() - matchTimeMillis);
     return goodMatches;
 }
 
 //-----------------------------------------------------------------------------
-inline bool SLCVTrackerFeatures::calculatePose(const Mat &image, const SLCVVKeyPoint &keypoints, const vector<DMatch> &matches, Mat &rvec, Mat &tvec) {
+inline bool SLCVTrackerFeatures::calculatePose(const SLCVVKeyPoint &keypoints, const vector<DMatch> &matches, vector<DMatch> &inliers, Mat &rvec, Mat &tvec) {
+
+    // RANSAC crashes if 0 points are given
+    if (matches.size() == 0) return 0;
     bool foundPose = 0;
-
-    #if HOFF_EXAMPLE
-    // For homography caluculations there must be at least 4 points
-    if(matches.size() < 4) return 0;
-
-    vector<Point2f> pts1(matches.size());	// Points from ref image
-    vector<Point2f> pts2(matches.size());	// Points from new image
-    for (size_t i = 0; i < matches.size(); i++) {
-        pts1[i] = _map.keypoints[matches[i].trainIdx].pt;
-        pts2[i] =      keypoints[matches[i].queryIdx].pt;
-    }
-
-
-    /* The following determines if there is a perspective transformation between
-     * the two point features (2D).
-     *
-     * See http://docs.opencv.org/2.4/modules/calib3d/doc/camera_calibration_and_3d_reconstruction.html?highlight=findhomography
-     *
-     */
-    vector<unsigned char> inliersMask(pts1.size());
-    Mat homography = cv::findHomography(
-        pts1, pts2,
-        cv::FM_RANSAC,
-        reprojectionError,    // Allowed reprojection error in pixels (default=3)
-        inliersMask);
-
-    /*
-     * Convert inliers back to points. The inliersIndex matrix contais the frame location point
-     */
-    vector<DMatch> inliers;
-    for (int i = 0; i < inliersMask.size(); i++) {
-        if (inliersMask[i])
-           inliers.push_back(matches[i]);
-    }
-
-    /* Find 2D/3D correspondences
-     *
-     *  At the moment we are using only the two correspondences like this:
-     *  KeypointsOriginal <-> KeypointsActualscene
-     *
-     *  Train index --> "Point" in the model image
-     *  Query index --> "Point" in the actual frame
-     */
-    vector<Point3f> modelPoints(matches.size());
-    vector<Point2f> framePoints(matches.size());
-    for (size_t i = 0; i < inliers.size(); i++) {
-        modelPoints[i] =    _model[inliers[i].trainIdx];
-        framePoints[i] = keypoints[inliers[i].queryIdx].pt;
-    }
-
-    if (inliers.size() < 5) return 0;
-
-    foundPose = cv::solvePnP(
-        modelPoints, framePoints,
-        _calib->cameraMat(),            // intrinsic camera parameter matrix
-        _calib->distortion(),           // distortion coefficients
-        rvec, tvec);                    // output rotation and translation
-
-    #else
-    if (matches.size() == 0) return 0; // RANSAC crashes if 0 points are given
 
     /* Find 2D/3D correspondences
      *
@@ -375,48 +339,21 @@ inline bool SLCVTrackerFeatures::calculatePose(const Mat &image, const SLCVVKeyP
                        confidence,
                        inliersMask,
                        cv::SOLVEPNP_ITERATIVE);
-    #endif
+
+    /* TODO: Levenberg-Marquardt optimization
+     *
+     */
+
+
 
     #if DEBUG
     /*
      * Convert inliers back to points. The inliersIndex matrix contais the frame location point
      */
-    vector<Point2f> inlierPoints;
-    vector<DMatch> ransacMatches;
     for (int i = 0; i < inliersMask.size(); i++) {
-        int idx = inliersMask[i];
-        inlierPoints.push_back(framePoints[idx]);
-
-        // idx == matches[i].queryIdx
-        ransacMatches.push_back(matches[idx]);
-    }
-
-    if (foundPose) {
-        draw2DPoints(image, inlierPoints, Scalar(255, 0, 0));
-
-        #ifdef SAVE_SNAPSHOTS_OUTPUT
-
-
-        Mat imgMatches;
-        drawMatches(image, keypoints, _map.frameGray, _map.keypoints, ransacMatches, imgMatches);
-        imwrite(SAVE_SNAPSHOTS_OUTPUT + to_string(frame_count) + ".png", imgMatches);
-        #endif
-
-        Mat out;
-        Rodrigues(rvec, out);
-        cout << "Found pose. Rotation=" << out << "\nTranslation=" << tvec << endl;
+        inliers.push_back(matches[inliersMask[i]]);
     }
     #endif
 
     return foundPose;
-}
-
-//-----------------------------------------------------------------------------
-inline void SLCVTrackerFeatures::draw2DPoints(Mat image, const vector<Point2f> &list_points, Scalar color) {
-    for( size_t i = 0; i < list_points.size(); i++) {
-        Point2f point_2d = list_points[i];
-
-        // Draw Selected points
-        circle(image, point_2d, 4, color, -1, 8);
-    }
 }

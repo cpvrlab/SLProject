@@ -43,20 +43,23 @@ class SLCVTrackerFeatures : public SLCVTracker
         SLMat4f                 _pose;
         SLCVCalibration         *_calib;
 
+        struct prev {
+            SLCVMat             image;
+            SLCVMat             imageGray;
+        } _prev;
+
         struct map {
-            vector<Point3f>         model;
-            SLCVMat                 frameGray;
-            SLCVVKeyPoint           keypoints;
-            Mat                     descriptors;
+            vector<Point3f>     model;
+            SLCVMat             frameGray;
+            SLCVVKeyPoint       keypoints;
+            Mat                 descriptors;
         } _map;
 
-        inline void loadModelPoints();
-        inline SLCVVKeyPoint detectFeatures(const Mat &imageGray);
-        inline Mat describeFeatures(const Mat &imageGray, SLCVVKeyPoint &keypoints);
-        inline vector<DMatch> matchFeatures(const Mat &descriptors);
-        inline bool calculatePose(const Mat &image, const SLCVVKeyPoint &keypoints, const vector<DMatch> &matches, Mat &rvec, Mat &tvec);
-        inline void draw2DPoints(Mat image, const vector<Point2f> &list_points, Scalar color);
-        inline Point2f backproject3DPoint(const Point3f &point3d);
+        void loadModelPoints();
+        SLCVVKeyPoint getFeatures(const Mat &imageGray);
+        Mat getDescriptors(const Mat &imageGray, SLCVVKeyPoint &keypoints);
+        vector<DMatch> matchFeatures(const Mat &descriptors);
+        bool calculatePose(const SLCVVKeyPoint &keypoints, const vector<DMatch> &matches, vector<DMatch> &inliers, Mat &rvec, Mat &tvec);
 };
 //-----------------------------------------------------------------------------
 #endif // SLCVTrackerFeatures_H
