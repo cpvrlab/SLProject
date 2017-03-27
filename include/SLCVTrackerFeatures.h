@@ -49,7 +49,7 @@ private:
         struct prev {
             SLCVMat             image;
             SLCVMat             imageGray;
-            vector<Point2f>     points;
+            vector<Point2f>     points2D;
         } _prev;
 
         struct map {
@@ -60,12 +60,12 @@ private:
         } _map;
 
         void loadModelPoints();
-        SLCVVKeyPoint getFeatures(const Mat &imageGray);
+        SLCVVKeyPoint getKeypoints(const Mat &imageGray);
         Mat getDescriptors(const Mat &imageGray, SLCVVKeyPoint &keypoints);
-        vector<DMatch> matchFeatures(const Mat &descriptors);
+        vector<DMatch> getFeatureMatches(const Mat &descriptors);
         bool calculatePose(const SLCVVKeyPoint &keypoints, const vector<DMatch> &matches, vector<DMatch> &inliers, vector<Point2f> &points, Mat &rvec, Mat &tvec);
         bool trackPose(SLCVMat &previousFrame, vector<Point2f> &previousPoints, SLCVMat &actualFrame, vector<Point2f> &tmpPoints, Mat &rvec, Mat &tvec);
-        bool solvePnP(vector<Point3f> &modelPoints, vector<Point2f> &framePoints, Mat &rvec, Mat &tvec, vector<unsigned char> &inliersMask);
+        bool solvePnP(vector<Point3f> &modelPoints, vector<Point2f> &framePoints, bool guessExtrinsic, Mat &rvec, Mat &tvec, vector<unsigned char> &inliersMask);
 };
 //-----------------------------------------------------------------------------
 #endif // SLCVTrackerFeatures_H
