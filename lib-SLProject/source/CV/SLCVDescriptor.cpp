@@ -37,7 +37,7 @@ SLCVDescriptor::SLCVDescriptor(SLCVDescriptorType descriptorType)
     case DESC_BRISK:    _descriptor = BRISK::create(30, 2, 1.0f); return;
     case DESC_SIFT:     _descriptor = xfeatures2d::SiftDescriptorExtractor::create(300, 2, 0.04, 10, 1.6);return;
     case DESC_SURF:     _descriptor = xfeatures2d::SurfFeatureDetector::create(100, 2, 2, false, false);return;
-    case DESC_RAUL:     _descriptor = new SLCVRaulMurOrb(1000, 1.44f, 4, 30, 20); return;
+    case DESC_RAUL:     _descriptor = new SLCVRaulMurOrb(800, 1.44f, 4, 30, 20); return;
     default: break;
     }
 }

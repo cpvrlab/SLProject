@@ -36,16 +36,20 @@ class SLCVTrackerFeatures : public SLCVTracker
                                      SLCVMat image,
                                      SLCVCalibration* calib,
                                      SLSceneView* sv);
-    private:
+
+private:
         static SLVMat4f         objectViewMats; //!< object view matrices
         Ptr<DescriptorMatcher>  _matcher;
         SLfloat                 _fx, _fy, _cx, _cy;
         SLMat4f                 _pose;
         SLCVCalibration         *_calib;
+        int                     frameCount;
+        bool                    foundPose;
 
         struct prev {
             SLCVMat             image;
             SLCVMat             imageGray;
+            vector<Point2f>     points;
         } _prev;
 
         struct map {
@@ -59,7 +63,9 @@ class SLCVTrackerFeatures : public SLCVTracker
         SLCVVKeyPoint getFeatures(const Mat &imageGray);
         Mat getDescriptors(const Mat &imageGray, SLCVVKeyPoint &keypoints);
         vector<DMatch> matchFeatures(const Mat &descriptors);
-        bool calculatePose(const SLCVVKeyPoint &keypoints, const vector<DMatch> &matches, vector<DMatch> &inliers, Mat &rvec, Mat &tvec);
+        bool calculatePose(const SLCVVKeyPoint &keypoints, const vector<DMatch> &matches, vector<DMatch> &inliers, vector<Point2f> &points, Mat &rvec, Mat &tvec);
+        bool trackPose(SLCVMat &previousFrame, vector<Point2f> &previousPoints, SLCVMat &actualFrame, vector<Point2f> &tmpPoints, Mat &rvec, Mat &tvec);
+        bool solvePnP(vector<Point3f> &modelPoints, vector<Point2f> &framePoints, Mat &rvec, Mat &tvec, vector<unsigned char> &inliersMask);
 };
 //-----------------------------------------------------------------------------
 #endif // SLCVTrackerFeatures_H
