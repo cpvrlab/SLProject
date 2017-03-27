@@ -39,7 +39,7 @@ SLCVDetector::SLCVDetector(SLCVDetectorType DetectorType, SLbool forced)
         case DT_ORB:    _detector = ORB::create(200, 1.44f, 3, 31, 0, 2, ORB::HARRIS_SCORE, 31, 30); return;
         case DT_SIFT:   _detector = xfeatures2d::SIFT::create(300, 2, 0.04, 10, 1.6); return;
         case DT_SURF:   _detector = xfeatures2d::SURF::create(100, 2, 2, false, false); return;
-        case DT_RAUL:   _detector = new SLCVRaulMurOrb(1000, 1.44f, 4, 30, 20); return;
+        case DT_RAUL:   _detector = new SLCVRaulMurOrb(800, 1.44f, 4, 30, 20); return;
         break;
     }
 }
