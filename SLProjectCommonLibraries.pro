@@ -8,6 +8,8 @@
 #             WITHOUT ANY WARRANTIES WHETHER EXPRESSED OR IMPLIED.
 ##############################################################################
 
+#CONFIG += customOpenCV
+
 win32 {
     # windows only
     LIBS += -lOpenGL32
@@ -74,19 +76,54 @@ unix:!macx:!android {
     LIBS += -lpthread   #libpthread
     LIBS += -lpng
     LIBS += -lz
-    LIBS += /usr/local/lib/libopencv_core.so
-    LIBS += /usr/local/lib/libopencv_imgproc.so
-    LIBS += /usr/local/lib/libopencv_imgcodecs.so
-    LIBS += /usr/local/lib/libopencv_video.so
-    LIBS += /usr/local/lib/libopencv_videoio.so
-    LIBS += /usr/local/lib/libopencv_aruco.so
-    LIBS += /usr/local/lib/libopencv_features2d.so
-    LIBS += /usr/local/lib/libopencv_xfeatures2d.so
-    LIBS += /usr/local/lib/libopencv_calib3d.so
-    LIBS += /usr/local/lib/libopencv_flann.so
-    LIBS += /usr/local/lib/libopencv_highgui.so
+
     INCLUDEPATH += /usr/local/include
     QMAKE_CXXFLAGS += -std=c++11
     QMAKE_CXXFLAGS += -Wunused-parameter
     QMAKE_CXXFLAGS += -Wno-unused-parameter
+
+    customOpenCV {
+	# Specify your custom OpenCV build directory here
+	OPENCV_DIR = /home/zinggpa/libs/opencv
+
+	CONFIG(debug, debug|release) {
+	    OPENCV_LIB_DIR = $$OPENCV_DIR/debug/lib
+	    OPENCV_INCLUDE_DIR = $$OPENCV_DIR/debug/include
+	}
+	CONFIG(release, debug|release) {
+	    OPENCV_LIB_DIR = $$OPENCV_DIR/release/lib
+	    OPENCV_INCLUDE_DIR = $$OPENCV_DIR/release/include
+	}
+
+	LIBS += -L$$OPENCV_LIB_DIR \
+	    -lopencv_core \
+	    -lopencv_imgproc \
+	    -lopencv_imgcodecs \
+	    -lopencv_video \
+	    -lopencv_videoio \
+	    -lopencv_aruco \
+	    -lopencv_tracking \
+	    -lopencv_features2d \
+	    -lopencv_xfeatures2d \
+	    -lopencv_calib3d \
+	    -lopencv_flann \
+	    -lopencv_highgui
+
+	INCLUDEPATH += $$OPENCV_INCLUDE_DIR
+
+    } else {
+
+	LIBS += /usr/local/lib/libopencv_core.so
+	LIBS += /usr/local/lib/libopencv_imgproc.so
+	LIBS += /usr/local/lib/libopencv_imgcodecs.so
+	LIBS += /usr/local/lib/libopencv_video.so
+	LIBS += /usr/local/lib/libopencv_videoio.so
+	LIBS += /usr/local/lib/libopencv_aruco.so
+	LIBS += /usr/local/lib/libopencv_tracking.so
+	LIBS += /usr/local/lib/libopencv_features2d.so
+	LIBS += /usr/local/lib/libopencv_xfeatures2d.so
+	LIBS += /usr/local/lib/libopencv_calib3d.so
+	LIBS += /usr/local/lib/libopencv_flann.so
+	LIBS += /usr/local/lib/libopencv_highgui.so
+    }
 }
