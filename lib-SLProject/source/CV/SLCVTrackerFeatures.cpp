@@ -29,20 +29,22 @@ for a good top down information.
 
 using namespace cv;
 
-#define DEBUG 0
-#define TRACKING_MEASUREMENT 0
-// #define SAVE_SNAPSHOTS_OUTPUT "/tmp/cv_tracking/"
+#define DEBUG 1
+#define DETECT_ONLY 0
+#define SAVE_SNAPSHOTS_OUTPUT "/tmp/cv_tracking/"
 
-// Matching configuration
-#define FLANN_BASED 0
+// Feature detection and extraction
+const int nFeatures = 200;
 const float minRatio = 0.9f;
-const int maxMatches = 200;
+#define FLANN_BASED 0
 
 // RANSAC parameters
 const int iterations = 200;
 const float reprojectionError = 5.0f;
 const double confidence = 0.95;
 
+// Benchmarking
+#define TRACKING_MEASUREMENT 0
 #if TRACKING_MEASUREMENT
 float low_detection_milis = 1000.0f;
 float avg_detection_milis;
@@ -57,8 +59,8 @@ SLCVTrackerFeatures::SLCVTrackerFeatures(SLNode *node) :
         SLCVTracker(node) {
 
     // TODO tschanzt: Make switchable, moved it again to control parameters
-    _detector = new SLCVRaulMurOrb(maxMatches, 1.44f, 4, 30, 20);
-    _descriptor = ORB::create(maxMatches, 1.44f, 3, 31, 0, 2, ORB::HARRIS_SCORE, 31, 30);
+    _detector = new SLCVRaulMurOrb(nFeatures, 1.44f, 4, 30, 20);
+    _descriptor = ORB::create(nFeatures, 1.44f, 3, 31, 0, 2, ORB::HARRIS_SCORE, 31, 30);
 
     #if FLANN_BASED
     _matcher = new FlannBasedMatcher();
@@ -74,12 +76,8 @@ SLCVTrackerFeatures::SLCVTrackerFeatures(SLNode *node) :
     #endif
     #endif
 
-    // Set up tracker.
-    // Instead of MIL, you can also use
-    // BOOSTING, KCF, TLD, MEDIANFLOW or GOTURN
-    Ptr<Tracker> tracker = Tracker::create( "MIL" );
-
     frameCount = 0;
+    lastNmatchedKeypoints = nFeatures;
 }
 
 //------------------------------------------------------------------------------
@@ -140,10 +138,16 @@ SLbool SLCVTrackerFeatures::track(SLCVMat imageGray,
     Mat tvec = cv::Mat::zeros(3, 1, CV_64FC1);      // translation matrix
 
 #if DEBUG
-    cout << "Processing frame #" << currentFrame << endl;
+    cout << "--------------------------------------------------" << endl << "Processing frame #" << frameCount << "..." << endl;
+    cout << "Actual average of 2D points: " << setprecision(3) << lastNmatchedKeypoints << endl;
 #endif
 
-    if (true) {// (maxMatches * 0.9f > _prev.points2D.size()) { // Do new POSE calculation every X frames
+    // Handle detecting || tracking correctly!
+    if (DETECT_ONLY || frameCount % 20 == 0 || lastNmatchedKeypoints * 0.6f > _prev.points2D.size()) {
+        #if DEBUG
+        cout << "Going to detect keypoints and match them with model..." << endl;
+        #endif
+
        // Detect and describe keypoints on model ###############################
         if (frameCount == 0) { // Load reference points at start
             _calib = calib;
@@ -169,19 +173,19 @@ SLbool SLCVTrackerFeatures::track(SLCVMat imageGray,
 
         // POSE calculation ####################################################
         foundPose = calculatePose(keypoints, matches, inlierMatches, points2D, rvec, tvec);
+        if (foundPose) lastNmatchedKeypoints = points2D.size(); // Write actual detected points amount
         // #####################################################################
 
         #if DEBUG
         cout << "Got " << inlierMatches.size() << " matches" << endl;
         #endif
     } else {
+        #if DEBUG
+        cout << "Going to track previous feature points..." << endl;
+        #endif
         // Feature tracking ####################################################
-        if (!_prev.points2D.empty()) {
-            foundPose = trackWithOptFlow(_prev.image, _prev.points2D, image, points2D, rvec, tvec);
-            #if DEBUG
-            cout << "Tracking pose..." << endl;
-            #endif
-        }
+        // points2D should be empty, this feature points are the calculated points with optical flow
+        trackWithOptFlow(_prev.image, _prev.points2D, image, points2D, rvec, tvec);
         // #####################################################################
     }
 
@@ -205,7 +209,7 @@ SLbool SLCVTrackerFeatures::track(SLCVMat imageGray,
         imwrite(SAVE_SNAPSHOTS_OUTPUT + to_string(frameCount) + "-matching.png", imgMatches);
     }
 
-    /*if (foundPose && _prev.points2D.size() == points2D.size()) {
+    if (foundPose && _prev.points2D.size() == points2D.size()) {
         Mat optFlow, rgb;
         imageGray.copyTo(optFlow);
         cvtColor(optFlow, rgb, CV_GRAY2BGR);
@@ -213,7 +217,7 @@ SLbool SLCVTrackerFeatures::track(SLCVMat imageGray,
             cv::line(rgb, _prev.points2D[i], points2D[i], Scalar(255, 0, 0));
         }
         imwrite(SAVE_SNAPSHOTS_OUTPUT + to_string(frameCount) + "-optflow.png", rgb);
-    }*/
+    }
     #endif
 
 
@@ -230,7 +234,7 @@ SLbool SLCVTrackerFeatures::track(SLCVMat imageGray,
 }
 
 //-----------------------------------------------------------------------------
-inline SLCVVKeyPoint SLCVTrackerFeatures::getKeypoints(const Mat &imageGray) {
+SLCVVKeyPoint SLCVTrackerFeatures::getKeypoints(const Mat &imageGray) {
     SLCVVKeyPoint keypoints;
     SLfloat detectTimeMillis = SLScene::current->timeMilliSec();
     _detector->detect(imageGray, keypoints);
@@ -253,7 +257,7 @@ inline SLCVVKeyPoint SLCVTrackerFeatures::getKeypoints(const Mat &imageGray) {
 }
 
 //-----------------------------------------------------------------------------
-inline Mat SLCVTrackerFeatures::getDescriptors(const Mat &imageGray, SLCVVKeyPoint &keypoints) {
+Mat SLCVTrackerFeatures::getDescriptors(const Mat &imageGray, SLCVVKeyPoint &keypoints) {
     Mat descriptors;
     SLfloat computeTimeMillis = SLScene::current->timeMilliSec();
     _descriptor->compute(imageGray, keypoints, descriptors);
@@ -279,7 +283,7 @@ inline Mat SLCVTrackerFeatures::getDescriptors(const Mat &imageGray, SLCVVKeyPoi
 }
 
 //-----------------------------------------------------------------------------
-inline vector<DMatch> SLCVTrackerFeatures::getFeatureMatches(const Mat &descriptors) {
+vector<DMatch> SLCVTrackerFeatures::getFeatureMatches(const Mat &descriptors) {
     SLfloat matchTimeMillis = SLScene::current->timeMilliSec();
 
     // 1. Get matches with FLANN or KNN algorithm ######################################################################################
@@ -311,7 +315,7 @@ inline vector<DMatch> SLCVTrackerFeatures::getFeatureMatches(const Mat &descript
 }
 
 //-----------------------------------------------------------------------------
-inline bool SLCVTrackerFeatures::calculatePose(const SLCVVKeyPoint &keypoints, const vector<DMatch> &matches, vector<DMatch> &inliers, vector<Point2f> &points, Mat &rvec, Mat &tvec) {
+bool SLCVTrackerFeatures::calculatePose(const SLCVVKeyPoint &keypoints, const vector<DMatch> &matches, vector<DMatch> &inliers, vector<Point2f> &points, Mat &rvec, Mat &tvec) {
 
     // RANSAC crashes if 0 points are given
     if (matches.size() == 0) return 0;
@@ -344,7 +348,10 @@ inline bool SLCVTrackerFeatures::calculatePose(const SLCVVKeyPoint &keypoints, c
     return foundPose;
 }
 
-inline bool SLCVTrackerFeatures::trackWithOptFlow(SLCVMat &previousFrame, vector<Point2f> &previousPoints, SLCVMat &currentFrame, vector<Point2f> &tmpPoints, Mat &rvec, Mat &tvec) {
+//-----------------------------------------------------------------------------
+bool SLCVTrackerFeatures::trackWithOptFlow(SLCVMat &previousFrame, vector<Point2f> &previousPoints, SLCVMat &currentFrame, vector<Point2f> &predPoints, Mat &rvec, Mat &tvec) {
+    if (previousPoints.size() == 0) return false;
+
     std::vector<unsigned char> status;
     std::vector<float> err;
     cv::Size winSize(21, 21);
@@ -356,7 +363,7 @@ inline bool SLCVTrackerFeatures::trackWithOptFlow(SLCVMat &previousFrame, vector
     // Find next possible feature points based on optical flow
     cv::calcOpticalFlowPyrLK(
                 previousFrame, currentFrame, // Previous and current frame
-                previousPoints, tmpPoints,   // Previous and current keypoints coordinates.The latter will be
+                previousPoints, predPoints,  // Previous and current keypoints coordinates.The latter will be
                                              // expanded if there are more good coordinates detected during OptFlow algorithm
                 status,                      // Output vector for keypoint correspondences (1 = match found)
                 err,                         // Errors
@@ -367,11 +374,12 @@ inline bool SLCVTrackerFeatures::trackWithOptFlow(SLCVMat &previousFrame, vector
                 0.001                        // Minimal Eigen threshold
     );
 
+
     // Solve PnP with new points (see William Hoff example 20b-TrackingPlanarObject)
     if (previousPoints.size() < 4) return false; // We need at least 4 points for homography
 
     vector<unsigned char> inliersMask(_map.model.size());
-    cv::findHomography(previousPoints, tmpPoints,
+    cv::findHomography(previousPoints, predPoints,
                    cv::FM_RANSAC,
                    3,		// Allowed reprojection error in pixels (default=3)
                    inliersMask);
@@ -385,18 +393,24 @@ inline bool SLCVTrackerFeatures::trackWithOptFlow(SLCVMat &previousFrame, vector
     // Keep only the inliers 2D/3D points
     for (size_t i = 0; i < inliersMask.size(); i++)
         if (inliersMask[i]) {
-            previousPoints.push_back(tmpPoints[i]);
+            previousPoints.push_back(predPoints[i]);
             _map.model.push_back(tmpModel[i]);
         }
 
     // Execute PnP solver with the calculated points from optical flow
     bool foundPose = false;
-    if (previousPoints.size() > 0)
-        foundPose = solvePnP(_map.model, previousPoints, true, rvec, tvec, inliersMask);
+
+
+    // RANSAC crashes if 0 points are given
+    if (previousPoints.size() == 0) return 0;
+
+    foundPose = solvePnP(_map.model, previousPoints, true, rvec, tvec, inliersMask);
+
     return foundPose;
 }
 
-inline bool SLCVTrackerFeatures::solvePnP(vector<Point3f> &modelPoints, vector<Point2f> &framePoints, bool guessExtrinsic, Mat &rvec, Mat &tvec, vector<unsigned char> &inliersMask) {
+//-----------------------------------------------------------------------------
+bool SLCVTrackerFeatures::solvePnP(vector<Point3f> &modelPoints, vector<Point2f> &framePoints, bool guessExtrinsic, Mat &rvec, Mat &tvec, vector<unsigned char> &inliersMask) {
     /* We execute first RANSAC to eliminate wrong feature correspondences (outliers) and only use
      * the correct ones (inliers) for PnP solving (https://en.wikipedia.org/wiki/Perspective-n-Point).
      *
