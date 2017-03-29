@@ -25,12 +25,13 @@ for a good top down information.
 #include <time.h>
 #include <sys/types.h>
 #include <sys/stat.h>
+#include <opencv2/tracking.hpp>
 
 using namespace cv;
 
-#define DEBUG 1
-#define TRACKING_MEASUREMENT 0 //TODO: Naming
-#define SAVE_SNAPSHOTS_OUTPUT "/tmp/cv_tracking/"
+#define DEBUG 0
+#define TRACKING_MEASUREMENT 0
+// #define SAVE_SNAPSHOTS_OUTPUT "/tmp/cv_tracking/"
 
 // Matching configuration
 #define FLANN_BASED 0
@@ -38,8 +39,8 @@ const float minRatio = 0.9f;
 const int maxMatches = 200;
 
 // RANSAC parameters
-const int iterations = 500;
-const float reprojectionError = 2.0f;
+const int iterations = 200;
+const float reprojectionError = 5.0f;
 const double confidence = 0.95;
 
 #if TRACKING_MEASUREMENT
@@ -55,6 +56,10 @@ float high_compute_milis;
 SLCVTrackerFeatures::SLCVTrackerFeatures(SLNode *node) :
         SLCVTracker(node) {
 
+    // TODO tschanzt: Make switchable, moved it again to control parameters
+    _detector = new SLCVRaulMurOrb(maxMatches, 1.44f, 4, 30, 20);
+    _descriptor = ORB::create(maxMatches, 1.44f, 3, 31, 0, 2, ORB::HARRIS_SCORE, 31, 30);
+
     #if FLANN_BASED
     _matcher = new FlannBasedMatcher();
     #else
@@ -69,18 +74,24 @@ SLCVTrackerFeatures::SLCVTrackerFeatures(SLNode *node) :
     #endif
     #endif
 
+    // Set up tracker.
+    // Instead of MIL, you can also use
+    // BOOSTING, KCF, TLD, MEDIANFLOW or GOTURN
+    Ptr<Tracker> tracker = Tracker::create( "MIL" );
+
     frameCount = 0;
 }
 
 //------------------------------------------------------------------------------
 void SLCVTrackerFeatures::loadModelPoints() {
     // Read marker
+    //TODO: Loading for Android
     Mat planartracking = imread("../_data/images/textures/planartracking.jpg");
     cvtColor(planartracking, _map.frameGray, CV_RGB2GRAY);
 
     // Detect and compute features in marker image
-    SLScene::current->_detector->detect(_map.frameGray, _map.keypoints);
-    SLScene::current->_descriptor->compute(_map.frameGray, _map.keypoints, _map.descriptors);
+    _detector->detect(_map.frameGray, _map.keypoints);
+    _descriptor->compute(_map.frameGray, _map.keypoints, _map.descriptors);
 
     // Calculates proprtion of MM and Pixel (sample measuring)
     const SLfloat lengthMM = 297.0;
@@ -128,9 +139,13 @@ SLbool SLCVTrackerFeatures::track(SLCVMat imageGray,
     Mat rvec = cv::Mat::zeros(3, 3, CV_64FC1);      // rotation matrix
     Mat tvec = cv::Mat::zeros(3, 1, CV_64FC1);      // translation matrix
 
+#if DEBUG
+    cout << "Processing frame #" << currentFrame << endl;
+#endif
+
     if (true) {// (maxMatches * 0.9f > _prev.points2D.size()) { // Do new POSE calculation every X frames
        // Detect and describe keypoints on model ###############################
-        if (frameCount % 20 == 0) { // Reload reference features
+        if (frameCount == 0) { // Load reference points at start
             _calib = calib;
             loadModelPoints();
         }
@@ -162,7 +177,7 @@ SLbool SLCVTrackerFeatures::track(SLCVMat imageGray,
     } else {
         // Feature tracking ####################################################
         if (!_prev.points2D.empty()) {
-            foundPose = trackPose(_prev.image, _prev.points2D, image, points2D, rvec, tvec);
+            foundPose = trackWithOptFlow(_prev.image, _prev.points2D, image, points2D, rvec, tvec);
             #if DEBUG
             cout << "Tracking pose..." << endl;
             #endif
@@ -218,8 +233,7 @@ SLbool SLCVTrackerFeatures::track(SLCVMat imageGray,
 inline SLCVVKeyPoint SLCVTrackerFeatures::getKeypoints(const Mat &imageGray) {
     SLCVVKeyPoint keypoints;
     SLfloat detectTimeMillis = SLScene::current->timeMilliSec();
-    SLScene *scene = SLScene::current;
-    scene->_detector->detect(imageGray, keypoints);
+    _detector->detect(imageGray, keypoints);
 
     #if TRACKING_MEASUREMENT
     SLfloat time = SLScene::current->timeMilliSec() - detectTimeMillis;
@@ -242,8 +256,7 @@ inline SLCVVKeyPoint SLCVTrackerFeatures::getKeypoints(const Mat &imageGray) {
 inline Mat SLCVTrackerFeatures::getDescriptors(const Mat &imageGray, SLCVVKeyPoint &keypoints) {
     Mat descriptors;
     SLfloat computeTimeMillis = SLScene::current->timeMilliSec();
-    SLScene *scene = SLScene::current;
-    scene->_descriptor->compute(imageGray, keypoints, descriptors);
+    _descriptor->compute(imageGray, keypoints, descriptors);
     #if TRACKING_MEASUREMENT
     SLfloat time = SLScene::current->timeMilliSec() - computeTimeMillis;
     if (time != 0.0f){
@@ -331,7 +344,7 @@ inline bool SLCVTrackerFeatures::calculatePose(const SLCVVKeyPoint &keypoints, c
     return foundPose;
 }
 
-inline bool SLCVTrackerFeatures::trackPose(SLCVMat &previousFrame, vector<Point2f> &previousPoints, SLCVMat &currentFrame, vector<Point2f> &tmpPoints, Mat &rvec, Mat &tvec) {
+inline bool SLCVTrackerFeatures::trackWithOptFlow(SLCVMat &previousFrame, vector<Point2f> &previousPoints, SLCVMat &currentFrame, vector<Point2f> &tmpPoints, Mat &rvec, Mat &tvec) {
     std::vector<unsigned char> status;
     std::vector<float> err;
     cv::Size winSize(21, 21);
@@ -385,19 +398,9 @@ inline bool SLCVTrackerFeatures::trackPose(SLCVMat &previousFrame, vector<Point2
 
 inline bool SLCVTrackerFeatures::solvePnP(vector<Point3f> &modelPoints, vector<Point2f> &framePoints, bool guessExtrinsic, Mat &rvec, Mat &tvec, vector<unsigned char> &inliersMask) {
     /* We execute first RANSAC to eliminate wrong feature correspondences (outliers) and only use
-     * the correct ones (inliers) for PnP solving.
+     * the correct ones (inliers) for PnP solving (https://en.wikipedia.org/wiki/Perspective-n-Point).
      *
-     * RANSAC --------------------------
-     * The RANdom Sample Consensus algorithm is called to remove "wrong" point correspondences
-     *  which makes the solvePnP more robust. The so called inliers are used for calculation,
-     *  wrong correspondences (outliers) will be ignored. Therefore the method below will first
-     *  run a solvePnP with the EPNP method and returns the reprojection error.
-     *
-     * PnP ----------------------------- (https://en.wikipedia.org/wiki/Perspective-n-Point)
-     * General problem: We have a calibrated cam and sets of corresponding 2D/3D points.
-     *  We will calculate the rotation and translation in respect to world coordinates.
-     *
-     * Methods
+     * Methods of solvePnP
      *
      * P3P: If we have 3 Points given, we have the minimal form of the PnP problem. We can
      *  treat the points as a triangle definition ABC. We have 3 corner points and 3 angles.
@@ -414,7 +417,26 @@ inline bool SLCVTrackerFeatures::solvePnP(vector<Point3f> &modelPoints, vector<P
      *  and make a Levenberg-Marquardt optimization. The latter helps to decrease the reprojection
      *  error which is the sum of the squared distances between the image and object points.
      *
-     * Levenberg-Marquardt Optimization --------------------
+     *
+     * 1.) Call RANSAC with EPNP ----------------------------
+     * The RANdom Sample Consensus algorithm is called to remove "wrong" point correspondences
+     *  which makes the solvePnP more robust. The so called inliers are used for calculation,
+     *  wrong correspondences (outliers) will be ignored. Therefore the method below will first
+     *  run a solvePnP with the EPNP method and returns the reprojection error. EPNP works like
+     *  the following:
+     *  1. Choose the 4 control pints: C0 as centroid of reference points, C1, C2 and C3 from PCA
+     *      of the reference points
+     *  2. Compute barycentric coordinates with the control points
+     *  3. Derivate the image reference points with the above
+     *  .... ???
+     *
+     * 2.) Call PnP ITERATIVE -------------------------------
+     * General problem: We have a calibrated cam and sets of corresponding 2D/3D points.
+     *  We will calculate the rotation and translation in respect to world coordinates.
+     *
+     *  1. If for no extrinsic guess, begin with computation
+     *  2. If planarity is detected, find homography, otherwise use DLT method
+     *  3. After sucessful determination of a pose, optimize it with Levenberg-Marquardt (iterative part)
      *
      */
 
