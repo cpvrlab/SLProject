@@ -53,6 +53,7 @@ private:
             SLCVMat             image;
             SLCVMat             imageGray;
             vector<Point2f>     points2D;
+            vector<DMatch>      matches;
         } _prev;
 
         struct map {

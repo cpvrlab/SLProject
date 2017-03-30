@@ -70,6 +70,7 @@ SLCVTrackerFeatures::SLCVTrackerFeatures(SLNode *node) :
 
     #ifdef SAVE_SNAPSHOTS_OUTPUT
     #if defined(SL_OS_LINUX) || defined(SL_OS_MACOS) || defined(SL_OS_MACIOS)
+    //TODO: Cleanup before start
     mkdir(SAVE_SNAPSHOTS_OUTPUT, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
     #elif defined(SL_OS_WINDOWS)
     mkdir(SAVE_SNAPSHOTS_OUTPUT);
@@ -209,12 +210,12 @@ SLbool SLCVTrackerFeatures::track(SLCVMat imageGray,
         imwrite(SAVE_SNAPSHOTS_OUTPUT + to_string(frameCount) + "-matching.png", imgMatches);
     }
 
-    if (foundPose && _prev.points2D.size() == points2D.size()) {
+    if (/*foundPose &&*/ _prev.points2D.size() == points2D.size() && points2D.size() > 0) {
         Mat optFlow, rgb;
         imageGray.copyTo(optFlow);
         cvtColor(optFlow, rgb, CV_GRAY2BGR);
         for (size_t i=0; i < points2D.size(); i++) {
-            cv::line(rgb, _prev.points2D[i], points2D[i], Scalar(255, 0, 0));
+            cv::arrowedLine(rgb, _prev.points2D[i], points2D[i], Scalar(0, 255, 0), 1, LINE_8, 0, 0.2);
         }
         imwrite(SAVE_SNAPSHOTS_OUTPUT + to_string(frameCount) + "-optflow.png", rgb);
     }
@@ -354,11 +355,11 @@ bool SLCVTrackerFeatures::trackWithOptFlow(SLCVMat &previousFrame, vector<Point2
 
     std::vector<unsigned char> status;
     std::vector<float> err;
-    cv::Size winSize(21, 21);
+    cv::Size winSize(15, 15);
     cv::TermCriteria criteria(
     cv::TermCriteria::COUNT | cv::TermCriteria::EPS,
-        30,    // terminate after this many iterations, or
-        0.01); // when the search window moves by less than this
+        10,    // terminate after this many iterations, or
+        0.03); // when the search window moves by less than this
 
     // Find next possible feature points based on optical flow
     cv::calcOpticalFlowPyrLK(
@@ -369,42 +370,34 @@ bool SLCVTrackerFeatures::trackWithOptFlow(SLCVMat &previousFrame, vector<Point2
                 err,                         // Errors
                 winSize,                     // Search window for each pyramid level
                 3,                           // Max levels of pyramid creation
-                criteria,                    // ???
+                criteria,                    // Configuration from above
                 0,                           // Additional flags
                 0.001                        // Minimal Eigen threshold
     );
 
-
-    // Solve PnP with new points (see William Hoff example 20b-TrackingPlanarObject)
-    if (previousPoints.size() < 4) return false; // We need at least 4 points for homography
-
-    vector<unsigned char> inliersMask(_map.model.size());
-    cv::findHomography(previousPoints, predPoints,
-                   cv::FM_RANSAC,
-                   3,		// Allowed reprojection error in pixels (default=3)
-                   inliersMask);
-
-    // Copy 3D points to temp
-    vector<Point3f> tmpModel;
-    for (size_t i=0; i < _map.model.size(); i++) tmpModel.push_back(_map.model[i]);
-    previousPoints.clear();
-    _map.model.clear();
-
-    // Keep only the inliers 2D/3D points
-    for (size_t i = 0; i < inliersMask.size(); i++)
-        if (inliersMask[i]) {
-            previousPoints.push_back(predPoints[i]);
-            _map.model.push_back(tmpModel[i]);
+    // Only use points which are not wrong in any way (???) during the optical flow calculation
+    for (size_t i = 0; i < status.size(); i++) {
+        if (!status[i]) {
+            previousPoints.erase(previousPoints.begin() + i);
+            predPoints.erase(predPoints.begin() + i);
         }
-
-    // Execute PnP solver with the calculated points from optical flow
-    bool foundPose = false;
-
+    }
 
     // RANSAC crashes if 0 points are given
-    if (previousPoints.size() == 0) return 0;
+    if (previousPoints.size() == 0) return false;
 
-    foundPose = solvePnP(_map.model, previousPoints, true, rvec, tvec, inliersMask);
+    // Call solvePnP to get the pose from the previous known camera pose and the 3D correspondences and the predicted keypoints
+    /*
+    vector<Point3f> modelPoints(_prev.matches.size());
+    vector<Point2f> framePoints(_prev.matches.size());
+    for (size_t i = 0; i < _prev.matches.size(); i++) {
+        modelPoints[i] =  _map.model[_prev.matches[i].trainIdx];
+        framePoints[i] =  predPoints[_prev.matches[i].queryIdx].pt;
+    }
+
+    vector<unsigned char> inliersMask(previousPoints.size());
+    foundPose = solvePnP(_map.model, predPoints, true, rvec, tvec, inliersMask);
+    */
 
     return foundPose;
 }
@@ -466,6 +459,4 @@ bool SLCVTrackerFeatures::solvePnP(vector<Point3f> &modelPoints, vector<Point2f>
                        confidence,
                        inliersMask,
                        cv::SOLVEPNP_ITERATIVE);
-
-
 }
