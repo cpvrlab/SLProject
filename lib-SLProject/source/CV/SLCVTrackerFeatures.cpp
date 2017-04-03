@@ -1,7 +1,7 @@
 //#############################################################################
-//  File:      SLCVTrackerAruco.cpp
-//  Author:    Michael Goettlicher, Marcus Hudritsch
-//  Date:      Winter 2016
+//  File:      SLCVTrackerFeatures.cpp
+//  Author:    Pascal Zingg, Timon Tschanz
+//  Date:      Spring 2017
 //  Codestyle: https://github.com/cpvrlab/SLProject/wiki/Coding-Style-Guidelines
 //  Copyright: Marcus Hudritsch, Michael Goettlicher
 //             This softwareis provide under the GNU General Public License
