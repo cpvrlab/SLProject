@@ -30,18 +30,18 @@ for a good top down information.
 using namespace cv;
 
 #define DEBUG 0
-#define DETECT_ONLY 0
-//#define SAVE_SNAPSHOTS_OUTPUT "/tmp/cv_tracking/"
+#define FORCE_DETECT 0
+// #define SAVE_SNAPSHOTS_OUTPUT "/tmp/cv_tracking/"
 
 // Feature detection and extraction
 const int nFeatures = 200;
-const float minRatio = 0.9f;
+const float minRatio = 0.7f;
 #define FLANN_BASED 0
 
 // RANSAC parameters
-const int iterations = 200;
-const float reprojectionError = 3.0f;
-const double confidence = 0.95;
+const int iterations = 500;
+const float reprojectionError = 2.0f;
+const double confidence = 0.9;
 
 // Benchmarking
 #define TRACKING_MEASUREMENT 0
@@ -57,7 +57,7 @@ float high_compute_milis;
 //-----------------------------------------------------------------------------
 SLCVTrackerFeatures::SLCVTrackerFeatures(SLNode *node) :
         SLCVTracker(node) {
-    SLScene::current->_detector->setDetector(new SLCVRaulMurOrb(nFeatures, 1.44f, 4, 30, 20));
+    SLScene::current->_detector->setDetector(new SLCVRaulMurOrb(nFeatures, 1.44f, 3, 30, 20));
     SLScene::current->_descriptor->setDescriptor(ORB::create(nFeatures, 1.44f, 3, 31, 0, 2, ORB::HARRIS_SCORE, 31, 30));
 
     #if FLANN_BASED
@@ -142,7 +142,7 @@ SLbool SLCVTrackerFeatures::track(SLCVMat imageGray,
 #endif
 
     // Handle detecting || tracking correctly!
-    if (DETECT_ONLY || frameCount % 20 == 0 || lastNmatchedKeypoints * 0.6f > _prev.points2D.size()) {
+    if (FORCE_DETECT || frameCount % 20 == 0 || lastNmatchedKeypoints * 0.6f > _prev.points2D.size()) {
         #if DEBUG
         cout << "Going to detect keypoints and match them with model..." << endl;
         #endif
@@ -224,17 +224,14 @@ SLbool SLCVTrackerFeatures::track(SLCVMat imageGray,
     }
     #endif
 
-
-    #if(TRACKING_MEASUREMENT || defined SAVE_SNAPSHOTS_OUTPUT)
-    frameCount++;
-    #endif
-
     // Copy actual frame data to _prev struct for next frame
     _prev.imageGray = imageGray;
     _prev.image = image;
     _prev.points2D = points2D;
     _prev.rvec = rvec;
     _prev.tvec = tvec;
+
+    frameCount++;
 
     return false;
 }
