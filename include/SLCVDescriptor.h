@@ -12,6 +12,8 @@ public:
     SLCVDescriptor(SLCVDescriptorType type);
     void compute(cv::InputArray image, std::vector<cv::KeyPoint> &keypoints, cv::OutputArray descriptors);
     SLCVDescriptorType type;
+
+    void setDescriptor(cv::Ptr<cv::DescriptorExtractor> descriptor) { _descriptor = descriptor; }
 };
 
 #endif // SLCVDESCRIPTOR_H

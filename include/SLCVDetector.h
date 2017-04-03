@@ -12,6 +12,8 @@ public:
     SLbool forced;
     SLCVDetectorType type;
     void detect(cv::InputArray image, std::vector<cv::KeyPoint> &keypoints, cv::InputArray mask = cv::noArray());
+
+    void setDetector(cv::Ptr<cv::FeatureDetector> detector) { _detector = detector; }
 };
 
 #endif // SLCVDETECTOR_H
