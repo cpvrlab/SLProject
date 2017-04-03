@@ -29,9 +29,9 @@ for a good top down information.
 
 using namespace cv;
 
-#define DEBUG 1
+#define DEBUG 0
 #define DETECT_ONLY 0
-#define SAVE_SNAPSHOTS_OUTPUT "/tmp/cv_tracking/"
+//#define SAVE_SNAPSHOTS_OUTPUT "/tmp/cv_tracking/"
 
 // Feature detection and extraction
 const int nFeatures = 200;
@@ -40,7 +40,7 @@ const float minRatio = 0.9f;
 
 // RANSAC parameters
 const int iterations = 200;
-const float reprojectionError = 5.0f;
+const float reprojectionError = 3.0f;
 const double confidence = 0.95;
 
 // Benchmarking
@@ -57,10 +57,8 @@ float high_compute_milis;
 //-----------------------------------------------------------------------------
 SLCVTrackerFeatures::SLCVTrackerFeatures(SLNode *node) :
         SLCVTracker(node) {
-
-    // TODO tschanzt: Make switchable, moved it again to control parameters
-    _detector = new SLCVRaulMurOrb(nFeatures, 1.44f, 4, 30, 20);
-    _descriptor = ORB::create(nFeatures, 1.44f, 3, 31, 0, 2, ORB::HARRIS_SCORE, 31, 30);
+    SLScene::current->_detector->setDetector(new SLCVRaulMurOrb(nFeatures, 1.44f, 4, 30, 20));
+    SLScene::current->_descriptor->setDescriptor(ORB::create(nFeatures, 1.44f, 3, 31, 0, 2, ORB::HARRIS_SCORE, 31, 30));
 
     #if FLANN_BASED
     _matcher = new FlannBasedMatcher();
@@ -89,8 +87,8 @@ void SLCVTrackerFeatures::loadModelPoints() {
     cvtColor(planartracking, _map.frameGray, CV_RGB2GRAY);
 
     // Detect and compute features in marker image
-    _detector->detect(_map.frameGray, _map.keypoints);
-    _descriptor->compute(_map.frameGray, _map.keypoints, _map.descriptors);
+     SLScene::current->_detector->detect(_map.frameGray, _map.keypoints);
+     SLScene::current->_descriptor->compute(_map.frameGray, _map.keypoints, _map.descriptors);
 
     // Calculates proprtion of MM and Pixel (sample measuring)
     const SLfloat lengthMM = 297.0;
@@ -173,7 +171,7 @@ SLbool SLCVTrackerFeatures::track(SLCVMat imageGray,
 
 
         // POSE calculation ####################################################
-        foundPose = calculatePose(keypoints, matches, inlierMatches, points2D, rvec, tvec);
+        foundPose = calculatePose(imageGray, keypoints, matches, inlierMatches, points2D, rvec, tvec);
         if (foundPose) lastNmatchedKeypoints = points2D.size(); // Write actual detected points amount
         // #####################################################################
 
@@ -185,16 +183,19 @@ SLbool SLCVTrackerFeatures::track(SLCVMat imageGray,
         cout << "Going to track previous feature points..." << endl;
         #endif
         // Feature tracking ####################################################
+        rvec = _prev.rvec;
+        tvec = _prev.tvec;
+        foundPose = calculatePose(imageGray, keypoints, _prev.matches, inlierMatches, points2D, rvec, tvec, true);
+        if (foundPose) lastNmatchedKeypoints = points2D.size(); // Write actual detected points amount
         // points2D should be empty, this feature points are the calculated points with optical flow
-        trackWithOptFlow(_prev.image, _prev.points2D, image, points2D, rvec, tvec);
+        //trackWithOptFlow(_prev.image, _prev.points2D, image, points2D, rvec, tvec);
         // #####################################################################
     }
 
     // Update camera object matrix  ########################################
     if (foundPose) {
         #if DEBUG
-        Mat out; Rodrigues(rvec, out);
-        //cout << "Found pose: \nRotation=" << out << "\nTranslation=" << tvec << endl;
+        // cout << "Found pose: \nRotation=" << rvec << "\nTranslation=" << tvec << endl;
         #endif
         // Converts calulated extrinsic camera components (translation & rotation) to OpenGL camera matrix
         _pose = createGLMatrix(tvec, rvec);
@@ -204,12 +205,14 @@ SLbool SLCVTrackerFeatures::track(SLCVMat imageGray,
     }
 
     #if defined(SAVE_SNAPSHOTS_OUTPUT) && (defined(SL_OS_LINUX) || defined(SL_OS_MACOS) || defined(SL_OS_MACIOS) || defined(SL_OS_WINDOWS))
+    // Draw matches
     if (foundPose && !inlierMatches.empty()) {
         Mat imgMatches;
         drawMatches(imageGray, keypoints, _map.frameGray, _map.keypoints, inlierMatches, imgMatches);
         imwrite(SAVE_SNAPSHOTS_OUTPUT + to_string(frameCount) + "-matching.png", imgMatches);
     }
 
+    // Draw optical flow
     if (/*foundPose &&*/ _prev.points2D.size() == points2D.size() && points2D.size() > 0) {
         Mat optFlow, rgb;
         imageGray.copyTo(optFlow);
@@ -230,6 +233,8 @@ SLbool SLCVTrackerFeatures::track(SLCVMat imageGray,
     _prev.imageGray = imageGray;
     _prev.image = image;
     _prev.points2D = points2D;
+    _prev.rvec = rvec;
+    _prev.tvec = tvec;
 
     return false;
 }
@@ -238,7 +243,7 @@ SLbool SLCVTrackerFeatures::track(SLCVMat imageGray,
 SLCVVKeyPoint SLCVTrackerFeatures::getKeypoints(const Mat &imageGray) {
     SLCVVKeyPoint keypoints;
     SLfloat detectTimeMillis = SLScene::current->timeMilliSec();
-    _detector->detect(imageGray, keypoints);
+    SLScene::current->_detector->detect(imageGray, keypoints);
 
     #if TRACKING_MEASUREMENT
     SLfloat time = SLScene::current->timeMilliSec() - detectTimeMillis;
@@ -261,7 +266,7 @@ SLCVVKeyPoint SLCVTrackerFeatures::getKeypoints(const Mat &imageGray) {
 Mat SLCVTrackerFeatures::getDescriptors(const Mat &imageGray, SLCVVKeyPoint &keypoints) {
     Mat descriptors;
     SLfloat computeTimeMillis = SLScene::current->timeMilliSec();
-    _descriptor->compute(imageGray, keypoints, descriptors);
+    SLScene::current->_descriptor->compute(imageGray, keypoints, descriptors);
     #if TRACKING_MEASUREMENT
     SLfloat time = SLScene::current->timeMilliSec() - computeTimeMillis;
     if (time != 0.0f){
@@ -316,7 +321,7 @@ vector<DMatch> SLCVTrackerFeatures::getFeatureMatches(const Mat &descriptors) {
 }
 
 //-----------------------------------------------------------------------------
-bool SLCVTrackerFeatures::calculatePose(const SLCVVKeyPoint &keypoints, const vector<DMatch> &matches, vector<DMatch> &inliers, vector<Point2f> &points, Mat &rvec, Mat &tvec) {
+bool SLCVTrackerFeatures::calculatePose(const Mat &imageGray, const SLCVVKeyPoint &keypoints, const vector<DMatch> &matches, vector<DMatch> &inliers, vector<Point2f> &inlierPoints, Mat &rvec, Mat &tvec, bool extrinsicGuess) {
 
     // RANSAC crashes if 0 points are given
     if (matches.size() == 0) return 0;
@@ -338,13 +343,40 @@ bool SLCVTrackerFeatures::calculatePose(const SLCVVKeyPoint &keypoints, const ve
 
     // Finding PnP solution
     vector<unsigned char> inliersMask(modelPoints.size());
-    bool foundPose = solvePnP(modelPoints, framePoints, false, rvec, tvec, inliersMask);
+    bool foundPose = solvePnP(modelPoints, framePoints, extrinsicGuess, rvec, tvec, inliersMask);
 
     for (size_t i = 0; i < inliersMask.size(); i++) {
         size_t idx = inliersMask[i];
         inliers.push_back(matches[idx]);
-        points.push_back(framePoints[idx]);
+        inlierPoints.push_back(framePoints[idx]);
     }
+
+    //TODO: Move to other image write location
+    #if defined(SAVE_SNAPSHOTS_OUTPUT) && (defined(SL_OS_LINUX) || defined(SL_OS_MACOS) || defined(SL_OS_MACIOS) || defined(SL_OS_WINDOWS))
+    // Draw reprojection --------------------------------
+    if (foundPose) {
+        Mat imgReprojection;
+        imageGray.copyTo(imgReprojection);
+        cvtColor(imgReprojection, imgReprojection, CV_GRAY2BGR);
+
+        vector<Point2f> projectedInlierPoints(inliers.size()), projectedModelPoints(modelPoints.size());
+        cv::projectPoints(modelPoints, rvec, tvec, _calib->cameraMat(), _calib->distortion(), projectedModelPoints);
+
+        double sum = 0.;
+        for (size_t i = 0; i < inliers.size(); i++)
+           //sum += cv::norm(inliers[i]-projectedInlierPoints[i]);
+
+        std::cout << "sum=" << sum << std::endl;
+
+        for(Point2f it : framePoints) circle(imgReprojection, it, 1, Scalar(0, 0, 255), 1, FILLED);
+        for(Point2f it : inlierPoints) circle(imgReprojection, it, 1, Scalar(255, 0, 0), 1, FILLED);
+        for(Point2f it : projectedModelPoints) {
+            circle(imgReprojection, it, 10, Scalar(0, 255, 0), 1, FILLED);
+        }
+
+        imwrite(SAVE_SNAPSHOTS_OUTPUT + to_string(frameCount) + "-reprojection.png", imgReprojection);
+    }
+    #endif
 
     return foundPose;
 }
@@ -447,6 +479,13 @@ bool SLCVTrackerFeatures::solvePnP(vector<Point3f> &modelPoints, vector<Point2f>
      *
      */
 
+    int type;
+    if (guessExtrinsic) {
+        type = cv::SOLVEPNP_ITERATIVE;
+    } else {
+        type = cv::SOLVEPNP_EPNP;
+    }
+
     //TODO: Split up
     return cv::solvePnPRansac(modelPoints,
                        framePoints,
@@ -458,5 +497,6 @@ bool SLCVTrackerFeatures::solvePnP(vector<Point3f> &modelPoints, vector<Point2f>
                        reprojectionError,
                        confidence,
                        inliersMask,
-                       cv::SOLVEPNP_ITERATIVE);
+                       type
+    );
 }
