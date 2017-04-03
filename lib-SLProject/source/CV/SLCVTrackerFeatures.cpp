@@ -31,17 +31,17 @@ using namespace cv;
 
 #define DEBUG 0
 #define FORCE_DETECT 0
-// #define SAVE_SNAPSHOTS_OUTPUT "/tmp/cv_tracking/"
+//#define SAVE_SNAPSHOTS_OUTPUT "/tmp/cv_tracking/"
 
 // Feature detection and extraction
-const int nFeatures = 200;
+const int nFeatures = 1000;
 const float minRatio = 0.7f;
 #define FLANN_BASED 0
 
 // RANSAC parameters
 const int iterations = 500;
 const float reprojectionError = 2.0f;
-const double confidence = 0.9;
+const double confidence = 0.95;
 
 // Benchmarking
 #define TRACKING_MEASUREMENT 0
@@ -194,9 +194,6 @@ SLbool SLCVTrackerFeatures::track(SLCVMat imageGray,
 
     // Update camera object matrix  ########################################
     if (foundPose) {
-        #if DEBUG
-        // cout << "Found pose: \nRotation=" << rvec << "\nTranslation=" << tvec << endl;
-        #endif
         // Converts calulated extrinsic camera components (translation & rotation) to OpenGL camera matrix
         _pose = createGLMatrix(tvec, rvec);
 
@@ -363,7 +360,7 @@ bool SLCVTrackerFeatures::calculatePose(const Mat &imageGray, const SLCVVKeyPoin
         for (size_t i = 0; i < inliers.size(); i++)
            //sum += cv::norm(inliers[i]-projectedInlierPoints[i]);
 
-        std::cout << "sum=" << sum << std::endl;
+        if(sum > 0) std::cout << "sum=" << sum << std::endl;
 
         for(Point2f it : framePoints) circle(imgReprojection, it, 1, Scalar(0, 0, 255), 1, FILLED);
         for(Point2f it : inlierPoints) circle(imgReprojection, it, 1, Scalar(255, 0, 0), 1, FILLED);
