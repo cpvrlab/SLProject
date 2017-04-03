@@ -81,10 +81,10 @@ SLCVTrackerFeatures::SLCVTrackerFeatures(SLNode *node) :
 
 //------------------------------------------------------------------------------
 void SLCVTrackerFeatures::loadModelPoints() {
-    // Read marker
-    //TODO: Loading for Android
-    Mat planartracking = imread("../_data/images/textures/planartracking.jpg");
-    cvtColor(planartracking, _map.frameGray, CV_RGB2GRAY);
+    // Read reference marker
+    SLGLTexture trackerTexture("stones.jpg");
+    SLCVImage* img = trackerTexture.images()[0];
+    cvtColor(img->cvMat(), _map.frameGray, CV_RGB2GRAY);
 
     // Detect and compute features in marker image
      SLScene::current->_detector->detect(_map.frameGray, _map.keypoints);
