@@ -353,19 +353,28 @@ bool SLCVTrackerFeatures::calculatePose(const Mat &imageGray, const SLCVVKeyPoin
         imageGray.copyTo(imgReprojection);
         cvtColor(imgReprojection, imgReprojection, CV_GRAY2BGR);
 
-        vector<Point2f> projectedInlierPoints(inliers.size()), projectedModelPoints(modelPoints.size());
+        // Reproject the model points with the calculated POSE
+        vector<Point2f> projectedModelPoints(modelPoints.size());
         cv::projectPoints(modelPoints, rvec, tvec, _calib->cameraMat(), _calib->distortion(), projectedModelPoints);
 
+        // Calculate the sum of euclidean distances
         double sum = 0.;
-        for (size_t i = 0; i < inliers.size(); i++)
-           //sum += cv::norm(inliers[i]-projectedInlierPoints[i]);
+        for (size_t i = 0; i < inliers.size(); i++) {
+           Point2f imgPoint = inlierPoints[i];
+           Point2f refPoint(modelPoints[i].x, modelPoints[i].y);
+           sum += norm(Mat(imgPoint), Mat(refPoint));
+        }
 
-        if(sum > 0) std::cout << "sum=" << sum << std::endl;
+        // Calculate the average of the sum of euclidean distances and print out
+        if(sum > 0) std::cout << "Average euclidean distance=" << sum << std::endl;
 
+        // Draw the reprojection
         for(Point2f it : framePoints) circle(imgReprojection, it, 1, Scalar(0, 0, 255), 1, FILLED);
         for(Point2f it : inlierPoints) circle(imgReprojection, it, 1, Scalar(255, 0, 0), 1, FILLED);
-        for(Point2f it : projectedModelPoints) {
-            circle(imgReprojection, it, 10, Scalar(0, 255, 0), 1, FILLED);
+        for(size_t i = 0; i < projectedModelPoints.size(); i++) {
+            circle(imgReprojection, projectedModelPoints[i], 10, Scalar(0, 255, 0), 1, FILLED);
+            putText(imgReprojection, "bp" + to_string(i), Point2f(projectedModelPoints[i].x - 10, projectedModelPoints[i].y -10),
+                    FONT_HERSHEY_SIMPLEX, 0.3, CV_RGB(0,255,0), 1.0);
         }
 
         imwrite(SAVE_SNAPSHOTS_OUTPUT + to_string(frameCount) + "-reprojection.png", imgReprojection);
