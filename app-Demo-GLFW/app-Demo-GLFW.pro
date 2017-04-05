@@ -19,7 +19,6 @@ CONFIG += glfw
 CONFIG += warn_off
 
 DEFINES += "SL_STARTSCENE=C_sceneVideoFeaturetracking"
-
 include(../SLProjectCommon.pro)
 
 DESTDIR     = ../_bin-$$CONFIGURATION-$$PLATFORM
