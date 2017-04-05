@@ -110,7 +110,7 @@ SLbool SLCVTrackerFeatures::track(SLCVMat imageGray,
                                   SLCVCalibration *calib,
                                   SLSceneView *sv) {
     #if TRACKING_MEASUREMENT
-    if (frame_count == 700){
+    if (frameCount == 700){
            ofstream myfile;
            myfile.open ("/tmp/tracker_stats.txt");
            myfile << "Min Detection Time (Ms) " << low_detection_milis << "\n";
@@ -248,8 +248,8 @@ SLCVVKeyPoint SLCVTrackerFeatures::getKeypoints(const Mat &imageGray) {
         else if (time > high_detection_milis){
             high_detection_milis = time;
         }
-        if (frame_count > 0)
-        avg_detection_milis = (frame_count*avg_detection_milis + time)/(1+frame_count);
+        if (frameCount > 0)
+        avg_detection_milis = (frameCount*avg_detection_milis + time)/(1+frameCount);
     }
     #endif
     SLScene::current->setDetectionTimesMS(SLScene::current->timeMilliSec() - detectTimeMillis);
@@ -270,8 +270,8 @@ Mat SLCVTrackerFeatures::getDescriptors(const Mat &imageGray, SLCVVKeyPoint &key
         else if (time > high_compute_milis){
             high_compute_milis = time;
         }
-        if (frame_count > 0){
-            avg_compute_milis = (avg_compute_milis*frame_count + time)/(1+frame_count);
+        if (frameCount > 0){
+            avg_compute_milis = (avg_compute_milis*frameCount + time)/(1+frameCount);
         }
         else {
             avg_compute_milis = time;
