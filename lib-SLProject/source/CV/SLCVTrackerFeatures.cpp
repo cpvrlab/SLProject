@@ -30,7 +30,7 @@ for a good top down information.
 using namespace cv;
 
 #define DEBUG 1
-#define FORCE_DETECT 0
+#define FORCE_REPOSE 1
 #define SAVE_SNAPSHOTS_OUTPUT "/tmp/cv_tracking/"
 
 // Feature detection and extraction
@@ -76,7 +76,8 @@ SLCVTrackerFeatures::SLCVTrackerFeatures(SLNode *node) :
     #endif
 
     frameCount = 0;
-    lastNmatchedKeypoints = nFeatures;
+    _prev.points2D = SLCVVPoint2f(nFeatures);
+    _prev.foundPose = false;
 }
 
 //------------------------------------------------------------------------------
@@ -129,18 +130,17 @@ SLbool SLCVTrackerFeatures::track(SLCVMat imageGray,
     assert(sv && "No sceneview pointer passed");
     assert(sv->camera() && "No active camera in sceneview");
 
-    foundPose = false;
     vector<DMatch> inlierMatches;
     vector<Point2f> points2D;
     SLCVVKeyPoint keypoints;
     Mat rvec = cv::Mat::zeros(3, 3, CV_64FC1);      // rotation matrix
     Mat tvec = cv::Mat::zeros(3, 1, CV_64FC1);      // translation matrix
+    bool foundPose = false;
 
 #if DEBUG
     cout << "--------------------------------------------------" << endl << "Processing frame #" << frameCount << "..." << endl;
-    cout << "Actual average amount of 2D points: " << setprecision(3) << lastNmatchedKeypoints << endl;
+    //cout << "Actual average amount of 2D points: " << setprecision(3) <<  _prev.points2D.size() << endl;
 #endif
-
 
     // Detect and describe keypoints on model ###############################
      if (frameCount == 0) { // Load reference points at start
@@ -149,15 +149,13 @@ SLbool SLCVTrackerFeatures::track(SLCVMat imageGray,
      }
      // #####################################################################
 
-     // Detect keypoints ####################################################
-     keypoints = getKeypoints(imageGray);
-     // #####################################################################
+    // TODO: Handle detecting || tracking correctly!
+    if (FORCE_REPOSE || frameCount % 20 == 0) { // || lastNmatchedKeypoints * 0.6f > _prev.points2D.size()) {
 
-    // Handle detecting || tracking correctly!
-    if (FORCE_DETECT || frameCount % 20 == 0 || lastNmatchedKeypoints * 0.6f > _prev.points2D.size()) {
-        #if DEBUG
-        cout << "Going to detect keypoints and match them with model..." << endl;
-        #endif
+        // Detect keypoints ####################################################
+        keypoints = getKeypoints(imageGray);
+        // #####################################################################
+
 
         // Extract descriptors from keypoints ##################################
         Mat descriptors = getDescriptors(imageGray , keypoints);
@@ -170,24 +168,26 @@ SLbool SLCVTrackerFeatures::track(SLCVMat imageGray,
 
 
         // POSE calculation ####################################################
-        foundPose = calculatePose(imageGray, keypoints, matches, inlierMatches, points2D, rvec, tvec);
-        if (foundPose) lastNmatchedKeypoints = points2D.size(); // Write actual detected points amount
+        bool useExtrinsicGuess = false;
+        if (_prev.foundPose) {
+            useExtrinsicGuess = true;
+            rvec = _prev.rvec;
+            tvec = _prev.tvec;
+        }
+        foundPose = calculatePose(imageGray, keypoints, matches, inlierMatches, points2D, rvec, tvec, useExtrinsicGuess);
         // #####################################################################
 
         #if DEBUG
-        cout << "Got " << inlierMatches.size() << " matches" << endl;
+        cout << "RePOSE with help of " << inlierMatches.size() << " keypoints (RANSAC inliers)" << endl;
         #endif
     } else {
         #if DEBUG
         cout << "Going to track previous feature points..." << endl;
         #endif
         // Feature tracking ####################################################
-        rvec = _prev.rvec;
-        tvec = _prev.tvec;
-        foundPose = calculatePose(imageGray, keypoints, _prev.matches, inlierMatches, points2D, rvec, tvec, true);
-        if (foundPose) lastNmatchedKeypoints = points2D.size(); // Write actual detected points amount
         // points2D should be empty, this feature points are the calculated points with optical flow
         //trackWithOptFlow(_prev.image, _prev.points2D, image, points2D, rvec, tvec);
+        //if (foundPose) lastNmatchedKeypoints = points2D.size(); // Write actual detected points amount
         // #####################################################################
     }
 
@@ -226,6 +226,7 @@ SLbool SLCVTrackerFeatures::track(SLCVMat imageGray,
     _prev.points2D = points2D;
     _prev.rvec = rvec;
     _prev.tvec = tvec;
+    _prev.foundPose = foundPose;
 
     frameCount++;
 
@@ -492,7 +493,7 @@ bool SLCVTrackerFeatures::trackWithOptFlow(SLCVMat &previousFrame, vector<Point2
     foundPose = solvePnP(_map.model, predPoints, true, rvec, tvec, inliersMask);
     */
 
-    return foundPose;
+    return false; // foundPose;
 }
 
 //-----------------------------------------------------------------------------

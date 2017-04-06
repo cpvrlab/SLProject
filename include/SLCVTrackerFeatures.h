@@ -46,8 +46,6 @@ private:
         SLMat4f                 _pose;
         SLCVCalibration         *_calib;
         int                     frameCount;
-        float                   lastNmatchedKeypoints;
-        bool                    foundPose;
 
         struct prev {
             SLCVMat             image;
@@ -56,6 +54,7 @@ private:
             vector<DMatch>      matches;
             Mat                 rvec;
             Mat                 tvec;
+            bool                foundPose;
         } _prev;
 
         struct map {
