@@ -82,8 +82,8 @@ SLCVTrackerFeatures::SLCVTrackerFeatures(SLNode *node) :
 //------------------------------------------------------------------------------
 void SLCVTrackerFeatures::loadModelPoints() {
     // Read reference marker
-    SLGLTexture trackerTexture("stones.jpg");
-    SLCVImage* img = trackerTexture.images()[0];
+    SLGLTexture* trackerTexture = new SLGLTexture("stones.jpg");
+    SLCVImage* img = trackerTexture->images()[0];
     cvtColor(img->cvMat(), _map.frameGray, CV_RGB2GRAY);
 
     // Detect and compute features in marker image
