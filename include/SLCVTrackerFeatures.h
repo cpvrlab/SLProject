@@ -65,12 +65,16 @@ private:
         } _map;
 
         void loadModelPoints();
+
         SLCVVKeyPoint getKeypoints(const Mat &imageGray);
         Mat getDescriptors(const Mat &imageGray, SLCVVKeyPoint &keypoints);
         vector<DMatch> getFeatureMatches(const Mat &descriptors);
+
         bool calculatePose(const Mat &imageGray, const SLCVVKeyPoint &keypoints, vector<DMatch> &matches, vector<DMatch> &inliers, vector<Point2f> &inlierPoints, Mat &rvec, Mat &tvec, bool extrinsicGuess=false);
-        bool trackWithOptFlow(SLCVMat &previousFrame, vector<Point2f> &previousPoints, SLCVMat &actualFrame, vector<Point2f> &predPoints, Mat &rvec, Mat &tvec);
+        bool optimizePose(const SLCVVKeyPoint &keypoints, vector<DMatch> &matches, Mat &rvec, Mat &tvec);
         bool solvePnP(vector<Point3f> &modelPoints, vector<Point2f> &framePoints, bool guessExtrinsic, Mat &rvec, Mat &tvec, vector<unsigned char> &inliersMask);
+
+        bool trackWithOptFlow(SLCVMat &previousFrame, vector<Point2f> &previousPoints, SLCVMat &actualFrame, vector<Point2f> &predPoints, Mat &rvec, Mat &tvec);
 };
 //-----------------------------------------------------------------------------
 #endif // SLCVTrackerFeatures_H

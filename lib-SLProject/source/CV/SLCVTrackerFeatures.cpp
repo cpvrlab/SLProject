@@ -315,7 +315,7 @@ vector<DMatch> SLCVTrackerFeatures::getFeatureMatches(const Mat &descriptors) {
 }
 
 //-----------------------------------------------------------------------------
-bool SLCVTrackerFeatures::calculatePose(const Mat &imageGray, const SLCVVKeyPoint &keypoints, vector<DMatch> &matches, vector<DMatch> &inliers, vector<Point2f> &inlierPoints, Mat &rvec, Mat &tvec, bool extrinsicGuess) {
+bool SLCVTrackerFeatures::calculatePose(const Mat &imageGray, const vector<KeyPoint> &keypoints, vector<DMatch> &matches, vector<DMatch> &inliers, vector<Point2f> &inlierPoints, Mat &rvec, Mat &tvec, bool extrinsicGuess) {
 
     // RANSAC crashes if 0 points are given
     if (matches.size() == 0) return 0;
@@ -381,67 +381,13 @@ bool SLCVTrackerFeatures::calculatePose(const Mat &imageGray, const SLCVVKeyPoin
     }
     #endif
 
+    // Pose optimization
+//    if (foundPose && _map.keypoints.size() > 0)
+//        optimizePose(keypoints, matches, rvec, tvec);
 
-    /*
-     * Optimize camera position
-     *
-     */
-/*    if (foundPose && _map.keypoints.size() > 0) {
-        // 1. Reproject the model points with the calculated POSE
-        vector<Point2f> projectedModelKeypoints(_map.keypoints.size());
-        cv::projectPoints(_map.model, rvec, tvec, _calib->cameraMat(), _calib->distortion(), projectedModelKeypoints);
-
-        // 2. Select only before calculated Keypoints within patch with projected "positioning" keypoint as center ( Current runtime is O(n^2), to improve... )
-        int patchSize = 20;
-        vector<KeyPoint> selectedKeypoints;
-        for (size_t i = 0; i < projectedModelKeypoints.size(); i++) {
-            Point2f projectedModelKeypoint = projectedModelKeypoints[i];
-
-            // OpenCV: Top-left origin
-            int xTopLeft = projectedModelKeypoint.x - patchSize / 2;
-            int yTopLeft = projectedModelKeypoint.y - patchSize / 2;
-            int xDownRight = xTopLeft + patchSize;
-            int yDownRight = yTopLeft + patchSize;
-
-            // Select only keypoints within the patch
-            for (size_t j = 0; j < keypoints.size(); j++) {
-                // 3. Adds match if inside patch (rectangle)
-                if (keypoints[j].pt.x > xTopLeft &&
-                    keypoints[j].pt.x < xDownRight &&
-                    keypoints[j].pt.y > yTopLeft &&
-                    keypoints[j].pt.y < yDownRight) {
-                    selectedKeypoints.push_back(keypoints[j]);
-                    DMatch guessedMatch(i, j, 0);
-                    matches.push_back(guessedMatch);
-                }
-            }
-        }
-
-        // 4. Finding PnP solution - again
-        modelPoints.clear();
-        framePoints.clear();
-        for (size_t i = 0; i < matches.size(); i++) {
-            modelPoints[i] = _map.model[matches[i].trainIdx];
-            framePoints[i] =  keypoints[matches[i].queryIdx].pt;
-        }
-
-        vector<unsigned char> inliersMask(modelPoints.size());
-        foundPose = solvePnP(modelPoints, framePoints, extrinsicGuess, rvec, tvec, inliersMask);
-
-        #if DEBUG
-        size_t inliersSizeBefore = inliers.size();
-        #endif
-
-        inliers.clear();
-        for (size_t i = 0; i < inliersMask.size(); i++) inliers.push_back(matches[inliersMask[i]]);
-
-        #if DEBUG
-        cout << "Got " << (inliers.size() - inliersSizeBefore) << " new matches with reprojection" << endl;
-        #endif
-    }
-*/
     return foundPose;
 }
+
 
 //-----------------------------------------------------------------------------
 bool SLCVTrackerFeatures::trackWithOptFlow(SLCVMat &previousFrame, vector<Point2f> &previousPoints, SLCVMat &currentFrame, vector<Point2f> &predPoints, Mat &rvec, Mat &tvec) {
@@ -561,4 +507,43 @@ bool SLCVTrackerFeatures::solvePnP(vector<Point3f> &modelPoints, vector<Point2f>
                        inliersMask,
                        type
     );
+}
+
+//-----------------------------------------------------------------------------
+bool SLCVTrackerFeatures::optimizePose(const vector<KeyPoint> &keypoints, vector<DMatch> &matches, Mat &rvec, Mat &tvec) {
+
+    // 1. Reproject the model points with the calculated POSE
+    vector<Point2f> projectedModelKeypoints(_map.keypoints.size());
+    cv::projectPoints(_map.model, rvec, tvec, _calib->cameraMat(), _calib->distortion(), projectedModelKeypoints);
+
+    // 2. Select only before calculated Keypoints within patch with projected "positioning" keypoint as center ( Current runtime is O(n^2), to improve... )
+    int patchSize = 20;
+    vector<KeyPoint> selectedKeypoints;
+    for (size_t i = 0; i < projectedModelKeypoints.size(); i++) {
+        Point2f projectedModelKeypoint = projectedModelKeypoints[i];
+
+        // OpenCV: Top-left origin
+        int xTopLeft = projectedModelKeypoint.x - patchSize / 2;
+        int yTopLeft = projectedModelKeypoint.y - patchSize / 2;
+        int xDownRight = xTopLeft + patchSize;
+        int yDownRight = yTopLeft + patchSize;
+
+        // Select only keypoints within the patch
+        for (size_t j = 0; j < keypoints.size(); j++) {
+            // 3. Adds match if inside patch (rectangle)
+            if (keypoints[j].pt.x > xTopLeft &&
+                keypoints[j].pt.x < xDownRight &&
+                keypoints[j].pt.y > yTopLeft &&
+                keypoints[j].pt.y < yDownRight) {
+                selectedKeypoints.push_back(keypoints[j]);
+                DMatch guessedMatch(i, j, 0);
+                matches.push_back(guessedMatch);
+            }
+        }
+    }
+
+    // 4. Finding PnP solution - again
+
+    return 0;
+
 }
