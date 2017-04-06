@@ -29,19 +29,19 @@ for a good top down information.
 
 using namespace cv;
 
-#define DEBUG 0
+#define DEBUG 1
 #define FORCE_DETECT 0
-//#define SAVE_SNAPSHOTS_OUTPUT "/tmp/cv_tracking/"
+#define SAVE_SNAPSHOTS_OUTPUT "/tmp/cv_tracking/"
 
 // Feature detection and extraction
-const int nFeatures = 1000;
+const int nFeatures = 800;
 const float minRatio = 0.7f;
 #define FLANN_BASED 0
 
 // RANSAC parameters
 const int iterations = 500;
 const float reprojectionError = 2.0f;
-const double confidence = 0.95;
+const double confidence = 0.9;
 
 // Benchmarking
 #define TRACKING_MEASUREMENT 0
@@ -138,27 +138,26 @@ SLbool SLCVTrackerFeatures::track(SLCVMat imageGray,
 
 #if DEBUG
     cout << "--------------------------------------------------" << endl << "Processing frame #" << frameCount << "..." << endl;
-    cout << "Actual average of 2D points: " << setprecision(3) << lastNmatchedKeypoints << endl;
+    cout << "Actual average amount of 2D points: " << setprecision(3) << lastNmatchedKeypoints << endl;
 #endif
+
+
+    // Detect and describe keypoints on model ###############################
+     if (frameCount == 0) { // Load reference points at start
+         _calib = calib;
+         loadModelPoints();
+     }
+     // #####################################################################
+
+     // Detect keypoints ####################################################
+     keypoints = getKeypoints(imageGray);
+     // #####################################################################
 
     // Handle detecting || tracking correctly!
     if (FORCE_DETECT || frameCount % 20 == 0 || lastNmatchedKeypoints * 0.6f > _prev.points2D.size()) {
         #if DEBUG
         cout << "Going to detect keypoints and match them with model..." << endl;
         #endif
-
-       // Detect and describe keypoints on model ###############################
-        if (frameCount == 0) { // Load reference points at start
-            _calib = calib;
-            loadModelPoints();
-        }
-        // #####################################################################
-
-
-        // Detect keypoints ####################################################
-        keypoints = getKeypoints(imageGray);
-        // #####################################################################
-
 
         // Extract descriptors from keypoints ##################################
         Mat descriptors = getDescriptors(imageGray , keypoints);
@@ -315,7 +314,7 @@ vector<DMatch> SLCVTrackerFeatures::getFeatureMatches(const Mat &descriptors) {
 }
 
 //-----------------------------------------------------------------------------
-bool SLCVTrackerFeatures::calculatePose(const Mat &imageGray, const SLCVVKeyPoint &keypoints, const vector<DMatch> &matches, vector<DMatch> &inliers, vector<Point2f> &inlierPoints, Mat &rvec, Mat &tvec, bool extrinsicGuess) {
+bool SLCVTrackerFeatures::calculatePose(const Mat &imageGray, const SLCVVKeyPoint &keypoints, vector<DMatch> &matches, vector<DMatch> &inliers, vector<Point2f> &inlierPoints, Mat &rvec, Mat &tvec, bool extrinsicGuess) {
 
     // RANSAC crashes if 0 points are given
     if (matches.size() == 0) return 0;
@@ -354,8 +353,8 @@ bool SLCVTrackerFeatures::calculatePose(const Mat &imageGray, const SLCVVKeyPoin
         cvtColor(imgReprojection, imgReprojection, CV_GRAY2BGR);
 
         // Reproject the model points with the calculated POSE
-        vector<Point2f> projectedModelPoints(modelPoints.size());
-        cv::projectPoints(modelPoints, rvec, tvec, _calib->cameraMat(), _calib->distortion(), projectedModelPoints);
+        vector<Point2f> projectedPositioningKeypoints(modelPoints.size());
+        cv::projectPoints(modelPoints, rvec, tvec, _calib->cameraMat(), _calib->distortion(), projectedPositioningKeypoints);
 
         // Calculate the sum of euclidean distances
         double sum = 0.;
@@ -369,11 +368,11 @@ bool SLCVTrackerFeatures::calculatePose(const Mat &imageGray, const SLCVVKeyPoin
         if(sum > 0) std::cout << "Average euclidean distance=" << sum << std::endl;
 
         // Draw the reprojection
-        for(Point2f it : framePoints) circle(imgReprojection, it, 1, Scalar(0, 0, 255), 1, FILLED);
-        for(Point2f it : inlierPoints) circle(imgReprojection, it, 1, Scalar(255, 0, 0), 1, FILLED);
-        for(size_t i = 0; i < projectedModelPoints.size(); i++) {
-            circle(imgReprojection, projectedModelPoints[i], 10, Scalar(0, 255, 0), 1, FILLED);
-            putText(imgReprojection, "bp" + to_string(i), Point2f(projectedModelPoints[i].x - 10, projectedModelPoints[i].y -10),
+        for(Point2f it : framePoints) circle(imgReprojection, it, 1, Scalar(0, 0, 255), 1, FILLED);     // Outliers (in- and outliers)
+        for(Point2f it : inlierPoints) circle(imgReprojection, it, 1, Scalar(255, 0, 0), 1, FILLED);    // Inliers
+        for(size_t i = 0; i < projectedPositioningKeypoints.size(); i++) {
+            circle(imgReprojection, projectedPositioningKeypoints[i], 10, Scalar(0, 255, 0), 1, FILLED);         // Model points
+            putText(imgReprojection, "bp" + to_string(i), Point2f(projectedPositioningKeypoints[i].x - 12, projectedPositioningKeypoints[i].y -12),
                     FONT_HERSHEY_SIMPLEX, 0.3, CV_RGB(0,255,0), 1.0);
         }
 
@@ -381,6 +380,65 @@ bool SLCVTrackerFeatures::calculatePose(const Mat &imageGray, const SLCVVKeyPoin
     }
     #endif
 
+
+    /*
+     * Optimize camera position
+     *
+     */
+/*    if (foundPose && _map.keypoints.size() > 0) {
+        // 1. Reproject the model points with the calculated POSE
+        vector<Point2f> projectedModelKeypoints(_map.keypoints.size());
+        cv::projectPoints(_map.model, rvec, tvec, _calib->cameraMat(), _calib->distortion(), projectedModelKeypoints);
+
+        // 2. Select only before calculated Keypoints within patch with projected "positioning" keypoint as center ( Current runtime is O(n^2), to improve... )
+        int patchSize = 20;
+        vector<KeyPoint> selectedKeypoints;
+        for (size_t i = 0; i < projectedModelKeypoints.size(); i++) {
+            Point2f projectedModelKeypoint = projectedModelKeypoints[i];
+
+            // OpenCV: Top-left origin
+            int xTopLeft = projectedModelKeypoint.x - patchSize / 2;
+            int yTopLeft = projectedModelKeypoint.y - patchSize / 2;
+            int xDownRight = xTopLeft + patchSize;
+            int yDownRight = yTopLeft + patchSize;
+
+            // Select only keypoints within the patch
+            for (size_t j = 0; j < keypoints.size(); j++) {
+                // 3. Adds match if inside patch (rectangle)
+                if (keypoints[j].pt.x > xTopLeft &&
+                    keypoints[j].pt.x < xDownRight &&
+                    keypoints[j].pt.y > yTopLeft &&
+                    keypoints[j].pt.y < yDownRight) {
+                    selectedKeypoints.push_back(keypoints[j]);
+                    DMatch guessedMatch(i, j, 0);
+                    matches.push_back(guessedMatch);
+                }
+            }
+        }
+
+        // 4. Finding PnP solution - again
+        modelPoints.clear();
+        framePoints.clear();
+        for (size_t i = 0; i < matches.size(); i++) {
+            modelPoints[i] = _map.model[matches[i].trainIdx];
+            framePoints[i] =  keypoints[matches[i].queryIdx].pt;
+        }
+
+        vector<unsigned char> inliersMask(modelPoints.size());
+        foundPose = solvePnP(modelPoints, framePoints, extrinsicGuess, rvec, tvec, inliersMask);
+
+        #if DEBUG
+        size_t inliersSizeBefore = inliers.size();
+        #endif
+
+        inliers.clear();
+        for (size_t i = 0; i < inliersMask.size(); i++) inliers.push_back(matches[inliersMask[i]]);
+
+        #if DEBUG
+        cout << "Got " << (inliers.size() - inliersSizeBefore) << " new matches with reprojection" << endl;
+        #endif
+    }
+*/
     return foundPose;
 }
 
