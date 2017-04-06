@@ -29,19 +29,19 @@ for a good top down information.
 
 using namespace cv;
 
-#define DEBUG 1
+#define DEBUG 0
 #define FORCE_REPOSE 1
-#define SAVE_SNAPSHOTS_OUTPUT "/tmp/cv_tracking/"
+// #define SAVE_SNAPSHOTS_OUTPUT "/tmp/cv_tracking/"
 
 // Feature detection and extraction
 const int nFeatures = 800;
-const float minRatio = 0.7f;
+const float minRatio = 0.8f;
 #define FLANN_BASED 0
 
 // RANSAC parameters
-const int iterations = 500;
-const float reprojectionError = 2.0f;
-const double confidence = 0.9;
+const int iterations = 400;
+const float reprojectionError = 3.0f;
+const double confidence = 0.95;
 
 // Benchmarking
 #define TRACKING_MEASUREMENT 0
