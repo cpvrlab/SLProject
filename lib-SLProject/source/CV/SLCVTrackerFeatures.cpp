@@ -29,9 +29,8 @@ for a good top down information.
 using namespace cv;
 
 #define DEBUG 1
-//#define SAVE_SNAPSHOTS_OUTPUT "/tmp/cv_tracking/"
-
 #define FLANN_BASED 0
+#define SAVE_SNAPSHOTS_OUTPUT "/tmp/cv_tracking/"
 
 // RANSAC configuration
 const int iterations = 500;
@@ -49,52 +48,25 @@ SLCVTrackerFeatures::SLCVTrackerFeatures(SLNode *node) :
     #endif
 
     #ifdef SAVE_SNAPSHOTS_OUTPUT
-    #if defined(unix)
+    #if defined(SL_OS_LINUX) || defined(SL_OS_MACOS) || defined(SL_OS_MACIOS)
     mkdir(SAVE_SNAPSHOTS_OUTPUT, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
-    #else
+    #elif defined(SL_OS_WINDOWS)
     mkdir(SAVE_SNAPSHOTS_OUTPUT);
     #endif
     #endif
+
+    _frameCount = 0;
 }
 
 //------------------------------------------------------------------------------
-void SLCVTrackerFeatures::load2dReferenceFeatures() {
-    Mat planartracking = imread("../_data/images/textures/planartracking.jpg");
-    cvtColor(planartracking, _map.frameGray, CV_RGB2GRAY);
-    SLScene *scene = SLScene::current;
-    scene->_detector->detect(_map.frameGray, _map.keypoints);
-    scene->_descriptor->compute(_map.frameGray, _map.keypoints, _map.descriptors);
+void SLCVTrackerFeatures::loadModelPoints() {
+    SLGLTexture* trackerTexture = new SLGLTexture("planartracking.jpg");
+    SLCVImage* img = trackerTexture->images()[0];
+    cvtColor(img->cvMat(), _map.frameGray, CV_RGB2GRAY);
 
-    // Calculate 3D-Points
-    const SLfloat lengthMM = 8.0;
-    for (unsigned int i = 0; i< _map.keypoints.size(); i++) {
-        float x = _map.keypoints[i].pt.x;	// 2D location in image
-        float y = _map.keypoints[i].pt.y;
-        float X = (lengthMM / _fx) * (x - _cx);
-        float Y = (lengthMM / _fy) * (y - _cy);
-        float Z = 0;
-        _model.push_back(Point3f(X, Y, Z));
-    }
-}
-
-//------------------------------------------------------------------------------
-inline void SLCVTrackerFeatures::initCameraMat(SLCVCalibration *calib) {
-    _fx = calib->fx();
-    _fy = calib->fy();
-
-    _cx = calib->cx();
-    _cy = calib->cy();
-
-    _intrinsics = cv::Mat::zeros(3, 3, CV_64FC1);   // intrinsic camera parameters
-    _intrinsics.at<double>(0, 0) = _fx;                  //  [ fx   0  cx ]
-    _intrinsics.at<double>(1, 1) = _fy;                  //  [  0  fy  cy ]
-    _intrinsics.at<double>(0, 2) = _cx;                  //  [  0   0   1 ]
-    _intrinsics.at<double>(1, 2) = _cy;
-    _intrinsics.at<double>(2, 2) = 1;
-
-    _distortion = Mat::zeros(4, 1, CV_64F);         // Distortion parameters
-
-    load2dReferenceFeatures();
+    // Detect and compute features in marker image
+     SLScene::current->_detector->detect(_map.frameGray, _map.keypoints);
+     SLScene::current->_descriptor->compute(_map.frameGray, _map.keypoints, _map.descriptors);
 }
 
 //------------------------------------------------------------------------------
@@ -108,55 +80,26 @@ SLbool SLCVTrackerFeatures::track(SLCVMat imageGray,
     assert(sv && "No sceneview pointer passed");
     assert(sv->camera() && "No active camera in sceneview");
 
-    // TODO: Really necessary to put this check here (instead of constructor)?
-    if (_intrinsics.empty()) initCameraMat(calib);
-
+    // Read reference marker ##############################################################################################
+    if (_frameCount == 0) loadModelPoints();
 
     //  Main part: Detect, describe, match and track features #############################################################
     SLCVVKeyPoint keypoints = detectFeatures(imageGray);
     Mat descriptors = describeFeatures(imageGray , keypoints);
     vector<DMatch> matches = matchFeatures(descriptors);
-
-    if(matches.size() >= 4)  { // RANSAC crashes if there are 0 points and we need at least 4 points to determine planarity
-        Mat rvec = cv::Mat::zeros(3, 3, CV_64FC1);      // rotation matrix
-        Mat tvec = cv::Mat::zeros(3, 1, CV_64FC1);      // translation matrix
-        vector<Point2f> inliers = calculatePose(keypoints, matches, rvec, tvec);
-        //_extrinsics = calculateExtrinsicMatrix(rvec, tvec);
-        _extrinsics = createGLMatrix(tvec, rvec);
-
-        // Update Scene Graph camera to display model correctly (positioning cam relative to world coordinates)
-        sv->camera()->om(_extrinsics.inverse());
-
-        //set node visible
-        sv->camera()->setDrawBitsRec(SL_DB_HIDDEN, false);
-
-        SLMat4f omTower = sv->camera()->om() * _extrinsics;
-        _tower->om(omTower);
-        sv->camera()->setDrawBitsRec(SL_DB_HIDDEN, false);
-    }
-
     // ####################################################################################################################
-    //drawObject(image);
 
-    #if DEBUG
-    //draw2DPoints(image, inliers, Scalar(0, 0, 255));
+    #ifdef SAVE_SNAPSHOTS_OUTPUT
+    Mat imgKeypoints;
+    drawKeypoints(imageGray, keypoints, imgKeypoints);
+    imwrite(SAVE_SNAPSHOTS_OUTPUT + to_string(_frameCount) + "-keypoints.png", imgKeypoints);
 
     Mat imgMatches;
     drawMatches(imageGray, keypoints, _map.frameGray, _map.keypoints, matches, imgMatches);
-
-    #ifdef SAVE_SNAPSHOTS_OUTPUT
-    time_t rawtime;
-    struct tm * timeinfo;
-    char buffer [80];
-
-    time (&rawtime);
-    timeinfo = localtime (&rawtime);
-
-    strftime(buffer ,80, "%I%M%S", timeinfo);
-    imwrite(SAVE_SNAPSHOTS_OUTPUT + string(buffer) + ".png", imgMatches);
-    #endif
+    imwrite(SAVE_SNAPSHOTS_OUTPUT + to_string(_frameCount) + "-matches.png", imgMatches);
     #endif
 
+    _frameCount++;
     return false;
 }
 
@@ -196,7 +139,7 @@ inline vector<DMatch> SLCVTrackerFeatures::matchFeatures(const Mat &descriptors)
     vector<vector<DMatch>> matches;
     _matcher->knnMatch(descriptors, _map.descriptors, matches, k);
 
-    float ratio = 0.7f;
+    float ratio = 0.8f;
     vector<DMatch> good_matches;
     for(size_t i = 0; i < matches.size(); i++) {
         const DMatch &match1 = matches[i][0];
@@ -210,76 +153,3 @@ inline vector<DMatch> SLCVTrackerFeatures::matchFeatures(const Mat &descriptors)
     return good_matches;
 }
 
-//-----------------------------------------------------------------------------
-inline vector<Point2f> SLCVTrackerFeatures::calculatePose(const SLCVVKeyPoint &keypoints, const vector<DMatch> &matches, Mat &rvec, Mat &tvec) {
-    vector<Point3f> points_model(matches.size());
-    vector<Point2f> points_scene(matches.size());
-
-    for (size_t i = 0; i < matches.size(); i++) {
-        points_model[i] =    _model[matches[i].trainIdx];
-        points_scene[i] = keypoints[matches[i].queryIdx].pt;
-    }
-
-    Mat inliersIndex;
-    cv::solvePnPRansac(points_model,
-                       points_scene,
-                       _intrinsics,
-                       _distortion,
-                       rvec, tvec,
-                       false,
-                       iterations,
-                       reprojection_error,
-                       confidence,
-                       inliersIndex,
-                       cv::SOLVEPNP_ITERATIVE);
-
-    // Convert inliers from index matrix back to points
-    vector<Point2f> inliers;
-    for (int i = 0; i < inliersIndex.rows; i++) {
-        int idx = inliersIndex.at<int>(i);
-        inliers.push_back(points_scene[idx]);
-    }
-
-    #if DEBUG
-    printf("We got %d inliers and %d matches overall \n", inliers.size(), matches.size());
-    #endif
-
-    //TODO: Return necessery?
-    return inliers;
-}
-
-//-----------------------------------------------------------------------------
-inline void SLCVTrackerFeatures::draw2DPoints(Mat image, const vector<Point2f> &list_points, Scalar color) {
-    for( size_t i = 0; i < list_points.size(); i++) {
-        Point2f point_2d = list_points[i];
-
-        // Draw Selected points
-        circle(image, point_2d, 4, color, -1, 8);
-    }
-}
-
-inline Mat SLCVTrackerFeatures::calculateExtrinsicMatrix(Mat &rvec, Mat &tvec) {
-    /*
-        Rotation-Translation Matrix Definition
-
-        [ r11 r12 r13 t1
-          r21 r22 r23 t2
-          r31 r32 r33 t3 ]
-
-    */
-    Mat extrinsics = Mat::zeros(3, 4, CV_64FC1);
-    extrinsics.at<double>(0,0) = rvec.at<double>(0,0);
-    extrinsics.at<double>(0,1) = rvec.at<double>(0,1);
-    extrinsics.at<double>(0,2) = rvec.at<double>(0,2);
-    extrinsics.at<double>(1,0) = rvec.at<double>(1,0);
-    extrinsics.at<double>(1,1) = rvec.at<double>(1,1);
-    extrinsics.at<double>(1,2) = rvec.at<double>(1,2);
-    extrinsics.at<double>(2,0) = rvec.at<double>(2,0);
-    extrinsics.at<double>(2,1) = rvec.at<double>(2,1);
-    extrinsics.at<double>(2,2) = rvec.at<double>(2,2);
-    extrinsics.at<double>(0,3) = tvec.at<double>(0);
-    extrinsics.at<double>(1,3) = tvec.at<double>(1);
-    extrinsics.at<double>(2,3) = tvec.at<double>(2);
-
-    return extrinsics;
-}
