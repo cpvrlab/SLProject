@@ -11,6 +11,8 @@ private:
 public:
     SLCVDescriptor(SLCVDescriptorType type);
     void compute(cv::InputArray image, std::vector<cv::KeyPoint> &keypoints, cv::OutputArray descriptors);
+    void detectAndCompute(cv::InputArray image, std::vector<cv::KeyPoint> &keypoints, cv::OutputArray descriptors, cv::InputArray mask=cv::noArray());
+
     SLCVDescriptorType type;
 
     void setDescriptor(cv::Ptr<cv::DescriptorExtractor> descriptor) { _descriptor = descriptor; }

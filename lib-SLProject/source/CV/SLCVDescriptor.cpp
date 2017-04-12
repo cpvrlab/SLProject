@@ -46,3 +46,7 @@ void SLCVDescriptor::compute(InputArray image, std::vector<KeyPoint> &keypoints,
 {
     _descriptor->compute(image, keypoints, descriptors);
 }
+
+void SLCVDescriptor::detectAndCompute(InputArray image, std::vector<KeyPoint> &keypoints, OutputArray descriptors,InputArray mask){
+    _descriptor->detectAndCompute(image, mask, keypoints, descriptors);
+}

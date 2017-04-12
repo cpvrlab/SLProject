@@ -3,6 +3,7 @@
 
 #include <opencv2/core/hal/interface.h>
 #include <opencv2/core.hpp>
+#include <iostream>
 
 class SLCVRaulMurOrb: public cv::Feature2D
 {

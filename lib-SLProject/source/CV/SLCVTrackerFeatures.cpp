@@ -68,10 +68,12 @@ float high_compute_milis;
 #endif
 //-----------------------------------------------------------------------------
 SLCVTrackerFeatures::SLCVTrackerFeatures(SLNode *node) :
-        SLCVTracker(node)
-{
-    SLScene::current->_detector->setDetector(new SLCVRaulMurOrb(nFeatures, 1.44f, 3, 30, 20));
-    SLScene::current->_descriptor->setDescriptor(ORB::create(nFeatures, 1.44f, 3, 31, 0, 2, ORB::HARRIS_SCORE, 31, 30));
+        SLCVTracker(node) {
+    SLCVRaulMurOrb* _blubb = new SLCVRaulMurOrb(nFeatures, 1.44f, 3, 30, 20);
+
+    SLScene::current->_detector->setDetector(_blubb);
+    SLScene::current->_descriptor->setDescriptor(_blubb);
+
     _matcher =  BFMatcher::create(BFMatcher::BRUTEFORCE_HAMMING, false);
 
 #ifdef SAVE_SNAPSHOTS_OUTPUT
@@ -98,9 +100,7 @@ void SLCVTrackerFeatures::loadModelPoints()
     cvtColor(img->cvMat(), _map.frameGray, CV_RGB2GRAY);
 
     // Detect and compute features in marker image
-     SLScene::current->_detector->detect(_map.frameGray, _map.keypoints);
-     SLScene::current->_descriptor->compute(_map.frameGray, _map.keypoints, _map.descriptors);
-
+     SLScene::current->_descriptor->detectAndCompute(_map.frameGray, _map.keypoints, _map.descriptors);
     // Calculates proprtion of MM and Pixel (sample measuring)
     const SLfloat lengthMM = 297.0;
     const SLfloat lengthPX = 2 * _calib->cx();
@@ -168,6 +168,8 @@ SLbool SLCVTrackerFeatures::track(SLCVMat imageGray,
     vector<DMatch> inlierMatches;
     vector<Point2f> points2D;
     SLCVVKeyPoint keypoints;
+
+
     SLCVMat rvec = cv::Mat::zeros(3, 3, CV_64FC1);      // rotation SLCVMatrix
     SLCVMat tvec = cv::Mat::zeros(3, 1, CV_64FC1);      // translation SLCVMatrix
     bool foundPose = false;
@@ -187,6 +189,7 @@ SLbool SLCVTrackerFeatures::track(SLCVMat imageGray,
     // TODO: Handle detecting || tracking correctly!
     if (FORCE_REPOSE || frameCount % 20 == 0) { // || lastNmatchedKeypoints * 0.6f > _prev.points2D.size()) {
 
+#if DEBUG
         // Detect keypoints ####################################################
         keypoints = getKeypoints(imageGray);
         // #####################################################################
@@ -196,7 +199,9 @@ SLbool SLCVTrackerFeatures::track(SLCVMat imageGray,
         SLCVMat descriptors = getDescriptors(imageGray , keypoints);
         // #####################################################################
 
-
+#else
+        SLScene::current->_descriptor->detectAndCompute(imageGray, keypoints, descriptors);
+#endif
         // Feature SLCVMatching ####################################################
         vector<DMatch> SLCVMatches = getFeatureMatches(descriptors);
         // #####################################################################
