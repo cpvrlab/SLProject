@@ -548,7 +548,7 @@ void SLScene::onAfterLoad()
     if (_videoType!=VT_NONE)
     {   if (!SLCVCapture::isOpened())
         #ifdef SL_VIDEO_DEBUG
-            SLCVCapture::open("../_data/videos/testvid.mp4");
+            SLCVCapture::open("../_data/videos/testvid_stones.mp4");
         #else
             SLCVCapture::open(0);
         #endif

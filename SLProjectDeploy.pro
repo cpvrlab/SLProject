@@ -181,7 +181,7 @@ calibrations.files = \
 
 videos.files = \
   ../_data/videos/testvid.mp4 \
-
+  ../_data/videos/testvid_stones.mp4
 # Copies the given files to the destination directory
 defineTest(copyToDestdir) {
     files = $$1
