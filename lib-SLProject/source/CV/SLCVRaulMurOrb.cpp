@@ -1,7 +1,7 @@
 /**
 * This File is based on the ORB Implementation of ORB_SLAM"
 */
-
+#include <stdafx.h>
 #include <opencv2/core/core.hpp>
 #include <opencv2/core.hpp>
 #include <opencv2/core/hal/interface.h>
@@ -10,6 +10,7 @@
 #include <opencv2/imgproc/imgproc.hpp>
 #include <SLCVRaulMurExtractorNode.h>
 #include <vector>
+#include <iterator>
 #include "SLCVRaulMurOrb.h"
 
 using namespace cv;

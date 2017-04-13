@@ -527,6 +527,21 @@
     <ClCompile Include="source\CV\SLCVImage.cpp">
       <Filter>CV</Filter>
     </ClCompile>
+    <ClCompile Include="source\CV\SLCVDescriptor.cpp">
+      <Filter>CV</Filter>
+    </ClCompile>
+    <ClCompile Include="source\CV\SLCVDetector.cpp">
+      <Filter>CV</Filter>
+    </ClCompile>
+    <ClCompile Include="source\CV\SLCVTrackerFeatures.cpp">
+      <Filter>CV</Filter>
+    </ClCompile>
+    <ClCompile Include="source\CV\SLCVRaulMurExtractorNode.cpp">
+      <Filter>CV</Filter>
+    </ClCompile>
+    <ClCompile Include="source\CV\SLCVRaulMurOrb.cpp">
+      <Filter>CV</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\_data\shaders\ADS.frag">

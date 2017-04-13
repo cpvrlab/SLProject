@@ -27,6 +27,10 @@ for a good top down information.
 #include <sys/stat.h>
 #include <opencv2/tracking.hpp>
 
+#if defined(SL_OS_WINDOWS)
+#include <direct.h>
+#endif
+
 using namespace cv;
 
 #define DEBUG 0
@@ -71,7 +75,7 @@ SLCVTrackerFeatures::SLCVTrackerFeatures(SLNode *node) :
     //TODO: Cleanup before start
     mkdir(SAVE_SNAPSHOTS_OUTPUT, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
     #elif defined(SL_OS_WINDOWS)
-    mkdir(SAVE_SNAPSHOTS_OUTPUT);
+    _mkdir(SAVE_SNAPSHOTS_OUTPUT);
     #endif
     #endif
 

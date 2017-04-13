@@ -364,13 +364,18 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\lib-SLExternal\nvwa\debug_new.cpp" />
+    <ClCompile Include="source\CV\SLCVDescriptor.cpp" />
+    <ClCompile Include="source\CV\SLCVDetector.cpp" />
     <ClCompile Include="source\CV\SLCVFeatureMapper2D.cpp" />
     <ClCompile Include="source\CV\SLCVImage.cpp" />
+    <ClCompile Include="source\CV\SLCVRaulMurExtractorNode.cpp" />
+    <ClCompile Include="source\CV\SLCVRaulMurOrb.cpp" />
     <ClCompile Include="source\CV\SLCVTracker.cpp" />
     <ClCompile Include="source\CV\SLCVTrackerAruco.cpp" />
     <ClCompile Include="source\CV\SLCVCalibration.cpp" />
     <ClCompile Include="source\CV\SLCVCapture.cpp" />
     <ClCompile Include="source\CV\SLCVTrackerChessboard.cpp" />
+    <ClCompile Include="source\CV\SLCVTrackerFeatures.cpp" />
     <ClCompile Include="source\GL\SLGLOculus.cpp" />
     <ClCompile Include="source\GL\SLGLOculusFB.cpp" />
     <ClCompile Include="source\GL\SLGLProgram.cpp" />
