@@ -71,8 +71,11 @@ private:
         Mat getDescriptors(const Mat &imageGray, SLCVVKeyPoint &keypoints);
         vector<DMatch> getFeatureMatches(const Mat &descriptors);
 
-        bool calculatePose(const Mat &imageGray, vector<KeyPoint> &keypoints, vector<DMatch> &matches, vector<DMatch> &inliers, vector<Point2f> &inlierPoints, Mat &rvec, Mat &tvec, bool extrinsicGuess);
-        bool optimizePose(const Mat &imageGray, vector<KeyPoint> &keypoints, vector<DMatch> &matches, const Mat &rvec, const Mat &tvec);
+        bool calculatePose(const Mat &imageGray, const Mat &imageVideo,
+			vector<KeyPoint> &keypoints, vector<DMatch> &matches,
+			vector<DMatch> &inliers, vector<Point2f> &inlierPoints,
+			Mat &rvec, Mat &tvec, bool extrinsicGuess, const Mat& descriptors);
+        bool optimizePose(const Mat &imageGray, const Mat &imageVideo, vector<KeyPoint> &keypoints, vector<DMatch> &matches, Mat &rvec, Mat &tvec, const Mat& descriptors);
         bool solvePnP(vector<Point3f> &modelPoints, vector<Point2f> &framePoints, bool guessExtrinsic, Mat &rvec, Mat &tvec, vector<unsigned char> &inliersMask);
 
         bool trackWithOptFlow(SLCVMat &previousFrame, vector<Point2f> &previousPoints, SLCVMat &actualFrame, vector<Point2f> &predPoints, Mat &rvec, Mat &tvec);
