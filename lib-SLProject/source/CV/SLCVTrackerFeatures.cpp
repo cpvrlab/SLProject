@@ -31,7 +31,7 @@ using namespace cv;
 
 #define DEBUG 0
 #define FORCE_REPOSE 1
-// #define SAVE_SNAPSHOTS_OUTPUT "/tmp/cv_tracking/"
+#define SAVE_SNAPSHOTS_OUTPUT "/tmp/cv_tracking/"
 
 // Feature detection and extraction
 const int nFeatures = 800;
@@ -137,10 +137,10 @@ SLbool SLCVTrackerFeatures::track(SLCVMat imageGray,
     Mat tvec = cv::Mat::zeros(3, 1, CV_64FC1);      // translation matrix
     bool foundPose = false;
 
-#if DEBUG
+    #if DEBUG
     cout << "--------------------------------------------------" << endl << "Processing frame #" << frameCount << "..." << endl;
     //cout << "Actual average amount of 2D points: " << setprecision(3) <<  _prev.points2D.size() << endl;
-#endif
+    #endif
 
     // Detect and describe keypoints on model ###############################
      if (frameCount == 0) { // Load reference points at start
@@ -315,7 +315,7 @@ vector<DMatch> SLCVTrackerFeatures::getFeatureMatches(const Mat &descriptors) {
 }
 
 //-----------------------------------------------------------------------------
-bool SLCVTrackerFeatures::calculatePose(const Mat &imageGray, const vector<KeyPoint> &keypoints, vector<DMatch> &matches, vector<DMatch> &inliers, vector<Point2f> &inlierPoints, Mat &rvec, Mat &tvec, bool extrinsicGuess) {
+bool SLCVTrackerFeatures::calculatePose(const Mat &imageGray, vector<KeyPoint> &keypoints, vector<DMatch> &matches, vector<DMatch> &inliers, vector<Point2f> &inlierPoints, Mat &rvec, Mat &tvec, bool extrinsicGuess) {
 
     // RANSAC crashes if 0 points are given
     if (matches.size() == 0) return 0;
@@ -369,10 +369,10 @@ bool SLCVTrackerFeatures::calculatePose(const Mat &imageGray, const vector<KeyPo
         if(sum > 0) std::cout << "Average euclidean distance=" << sum << std::endl;
 
         // Draw the reprojection
-        for(Point2f it : framePoints) circle(imgReprojection, it, 1, Scalar(0, 0, 255), 1, FILLED);     // Outliers (in- and outliers)
-        for(Point2f it : inlierPoints) circle(imgReprojection, it, 1, Scalar(255, 0, 0), 1, FILLED);    // Inliers
+        // for(Point2f it : framePoints) circle(imgReprojection, it, 1, Scalar(0, 0, 255), 1, FILLED);             // Outliers (in- and outliers)
+        for(Point2f it : inlierPoints) circle(imgReprojection, it, 1, Scalar(255, 0, 0), 1, FILLED);            // Inliers
         for(size_t i = 0; i < projectedPositioningKeypoints.size(); i++) {
-            circle(imgReprojection, projectedPositioningKeypoints[i], 10, Scalar(0, 255, 0), 1, FILLED);         // Model points
+            circle(imgReprojection, projectedPositioningKeypoints[i], 10, Scalar(0, 255, 0), 1, FILLED);        // Model points
             putText(imgReprojection, "bp" + to_string(i), Point2f(projectedPositioningKeypoints[i].x - 12, projectedPositioningKeypoints[i].y -12),
                     FONT_HERSHEY_SIMPLEX, 0.3, CV_RGB(0,255,0), 1.0);
         }
@@ -382,12 +382,11 @@ bool SLCVTrackerFeatures::calculatePose(const Mat &imageGray, const vector<KeyPo
     #endif
 
     // Pose optimization
-//    if (foundPose && _map.keypoints.size() > 0)
-//        optimizePose(keypoints, matches, rvec, tvec);
+    if (foundPose && _map.keypoints.size() > 0)
+        optimizePose(imageGray, keypoints, matches, rvec, tvec);
 
     return foundPose;
 }
-
 
 //-----------------------------------------------------------------------------
 bool SLCVTrackerFeatures::trackWithOptFlow(SLCVMat &previousFrame, vector<Point2f> &previousPoints, SLCVMat &currentFrame, vector<Point2f> &predPoints, Mat &rvec, Mat &tvec) {
@@ -510,40 +509,145 @@ bool SLCVTrackerFeatures::solvePnP(vector<Point3f> &modelPoints, vector<Point2f>
 }
 
 //-----------------------------------------------------------------------------
-bool SLCVTrackerFeatures::optimizePose(const vector<KeyPoint> &keypoints, vector<DMatch> &matches, Mat &rvec, Mat &tvec) {
+bool SLCVTrackerFeatures::optimizePose(const Mat &imageGray, vector<KeyPoint> &keypoints, vector<DMatch> &matches, const Mat &rvec, const Mat &tvec) {
 
-    // 1. Reproject the model points with the calculated POSE
-    vector<Point2f> projectedModelKeypoints(_map.keypoints.size());
-    cv::projectPoints(_map.model, rvec, tvec, _calib->cameraMat(), _calib->distortion(), projectedModelKeypoints);
+    int patchSize = 30;
+    vector<KeyPoint> bboxModelKeypoints, bboxFrameKeypoints;
 
-    // 2. Select only before calculated Keypoints within patch with projected "positioning" keypoint as center ( Current runtime is O(n^2), to improve... )
-    int patchSize = 20;
-    vector<KeyPoint> selectedKeypoints;
-    for (size_t i = 0; i < projectedModelKeypoints.size(); i++) {
-        Point2f projectedModelKeypoint = projectedModelKeypoints[i];
+    for (size_t i = 0; i < _map.model.size(); i++) {
 
+        // 1. Reproject the model points with the calculated POSE
+        Point3f originalModelPoint = _map.model[i];
+        Point2f projectedModelPoint = backprojectPoint(originalModelPoint, rvec, tvec); // projectedModelPoints[i];
+
+
+        // 2. Select only before calculated Keypoints within patch with projected "positioning" keypoint as center
         // OpenCV: Top-left origin
-        int xTopLeft = projectedModelKeypoint.x - patchSize / 2;
-        int yTopLeft = projectedModelKeypoint.y - patchSize / 2;
+        int xTopLeft = projectedModelPoint.x - patchSize / 2;
+        int yTopLeft = projectedModelPoint.y - patchSize / 2;
         int xDownRight = xTopLeft + patchSize;
         int yDownRight = yTopLeft + patchSize;
 
-        // Select only keypoints within the patch
+        // 3. Select only the image-plane keypoints within the defined patch
         for (size_t j = 0; j < keypoints.size(); j++) {
-            // 3. Adds match if inside patch (rectangle)
+            // bbox check
             if (keypoints[j].pt.x > xTopLeft &&
-                keypoints[j].pt.x < xDownRight &&
-                keypoints[j].pt.y > yTopLeft &&
-                keypoints[j].pt.y < yDownRight) {
-                selectedKeypoints.push_back(keypoints[j]);
-                DMatch guessedMatch(i, j, 0);
-                matches.push_back(guessedMatch);
+                    keypoints[j].pt.x < xDownRight &&
+                    keypoints[j].pt.y > yTopLeft &&
+                    keypoints[j].pt.y < yDownRight) {
+                bboxFrameKeypoints.push_back(keypoints[j]);
             }
         }
+
+        // OpenCV: Top-left origin
+        xTopLeft = originalModelPoint.x - patchSize / 2;
+        yTopLeft = originalModelPoint.y - patchSize / 2;
+        xDownRight = xTopLeft + patchSize;
+        yDownRight = yTopLeft + patchSize;
+        for (size_t j = 0; j < _map.keypoints.size(); j++) {
+            // bbox check
+            if (_map.keypoints[j].pt.x > xTopLeft &&
+                    _map.keypoints[j].pt.x < xDownRight &&
+                    _map.keypoints[j].pt.y > yTopLeft &&
+                    _map.keypoints[j].pt.y < yDownRight) {
+                bboxModelKeypoints.push_back(_map.keypoints[j]);
+            }
+        }
+
+        #if defined(SAVE_SNAPSHOTS_OUTPUT) && (defined(SL_OS_LINUX) || defined(SL_OS_MACOS) || defined(SL_OS_MACIOS) || defined(SL_OS_WINDOWS))
+
+        int patchHalf = patchSize / 2;
+
+        // Draw the bbox in frame
+        Mat imgPoseOptimizationFrame;
+        imageGray.copyTo(imgPoseOptimizationFrame);
+        cvtColor(imgPoseOptimizationFrame, imgPoseOptimizationFrame, CV_GRAY2BGR);
+
+        circle(imgPoseOptimizationFrame, projectedModelPoint, 1, Scalar(0, 0, 255), 1, FILLED);
+        rectangle(imgPoseOptimizationFrame,
+                  Point2f(projectedModelPoint.x - patchHalf, projectedModelPoint.y - patchHalf),
+                  Point2f(projectedModelPoint.x + patchHalf, projectedModelPoint.y + patchHalf),
+                  Scalar(0, 255, 0));
+
+        // Draw the bbox in model
+        Mat imgPoseOptimizationModel;
+        _map.frameGray.copyTo(imgPoseOptimizationModel);
+        cvtColor(imgPoseOptimizationModel, imgPoseOptimizationModel, CV_GRAY2BGR);
+
+        circle(imgPoseOptimizationModel, Point2f(originalModelPoint.x, originalModelPoint.y), 1, Scalar(0, 0, 255), 1, FILLED);
+        rectangle(imgPoseOptimizationModel,
+                  Point2f(originalModelPoint.x - patchHalf, originalModelPoint.y - patchHalf),
+                  Point2f(originalModelPoint.x + patchHalf, originalModelPoint.y + patchHalf),
+                  Scalar(0, 255, 0));
+
+
+        // Perform the rematching
+        Mat bboxFrameDescriptors = getDescriptors(imageGray, bboxFrameKeypoints);
+        Mat bboxModelDescriptors = getDescriptors(imageGray, bboxModelKeypoints);
+        vector<DMatch> newMatches;
+        //_matcher->match(bboxFrameDescriptors, bboxModelDescriptors, newMatches);
+
+        // Draw the bbox matching output
+        Mat imgMatches;
+        drawMatches(imgPoseOptimizationFrame, bboxFrameKeypoints, imgPoseOptimizationModel, bboxModelKeypoints, newMatches, imgMatches);
+        imwrite(SAVE_SNAPSHOTS_OUTPUT + to_string(frameCount) + "-poseoptimization.png", imgMatches);
+
+        #endif
+
+        // Only first reprojection is considered for testing
+        break;
+
+        bboxModelKeypoints.clear();
+        bboxFrameKeypoints.clear();
     }
+
 
     // 4. Finding PnP solution - again
 
     return 0;
+}
 
+Mat getRtMatrix( const cv::Mat &rvec, const cv::Mat &tvec)
+{
+    Mat rvecMat = cv::Mat::zeros(3, 3, CV_64FC1);
+    Rodrigues(rvec, rvecMat);
+
+    // Rotation-Translation Matrix Definition
+    Mat rtMatrix = cv::Mat::zeros(3, 4, CV_64FC1);
+    rtMatrix.at<double>(0,0) = rvecMat.at<double>(0,0);
+    rtMatrix.at<double>(0,1) = rvecMat.at<double>(0,1);
+    rtMatrix.at<double>(0,2) = rvecMat.at<double>(0,2);
+    rtMatrix.at<double>(1,0) = rvecMat.at<double>(1,0);
+    rtMatrix.at<double>(1,1) = rvecMat.at<double>(1,1);
+    rtMatrix.at<double>(1,2) = rvecMat.at<double>(1,2);
+    rtMatrix.at<double>(2,0) = rvecMat.at<double>(2,0);
+    rtMatrix.at<double>(2,1) = rvecMat.at<double>(2,1);
+    rtMatrix.at<double>(2,2) = rvecMat.at<double>(2,2);
+    rtMatrix.at<double>(0,3) = tvec.at<double>(0);
+    rtMatrix.at<double>(1,3) = tvec.at<double>(1);
+    rtMatrix.at<double>(2,3) = tvec.at<double>(2);
+
+    return rtMatrix;
+}
+
+
+//-----------------------------------------------------------------------------
+Point2f SLCVTrackerFeatures::backprojectPoint(Point3f pointToProject, const Mat &rvec, const Mat &tvec) {
+    // 3D point vector [x y z 1]'
+    cv::Mat point3d_vec = cv::Mat(4, 1, CV_64FC1);
+    point3d_vec.at<double>(0) = pointToProject.x;
+    point3d_vec.at<double>(1) = pointToProject.y;
+    point3d_vec.at<double>(2) = pointToProject.z;
+    point3d_vec.at<double>(3) = 1;
+
+    // 2D point vector [u v 1]'
+    cv::Mat point2d_vec = cv::Mat(4, 1, CV_64FC1);
+    point2d_vec = _calib->cameraMat() * getRtMatrix(rvec, tvec) * point3d_vec;
+
+    // Normalization of [u v]'
+    cv::Point2f point2d;
+    point2d.x = (float)(point2d_vec.at<double>(0) / point2d_vec.at<double>(2));
+    point2d.y = (float)(point2d_vec.at<double>(1) / point2d_vec.at<double>(2));
+
+    return point2d;
 }
