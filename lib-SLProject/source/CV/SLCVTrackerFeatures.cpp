@@ -526,30 +526,30 @@ bool SLCVTrackerFeatures::solvePnP(vector<Point3f> &modelPoints, vector<Point2f>
 
 //-----------------------------------------------------------------------------
 bool SLCVTrackerFeatures::optimizePose(const Mat &imageGray, const Mat &imageVideo,
-	vector<KeyPoint> &keypoints, vector<DMatch> &matches, Mat &rvec, Mat &tvec, const Mat& descriptors)
+    vector<KeyPoint> &keypoints, vector<DMatch> &matches, Mat &rvec, Mat &tvec, const Mat& descriptors)
 {
 
     int patchSize = 30;
-	int patchHalf = patchSize / 2;
+    int patchHalf = patchSize / 2;
 
     vector<KeyPoint> bboxModelKeypoints, bboxFrameKeypoints;
-	vector<size_t> frameIndicesInsideRect;
+    vector<size_t> frameIndicesInsideRect;
 
     for (size_t i = 0; i < _map.model.size(); i++)
-	{
-		//only every tenth
-		if (i % 10)
-			continue;
+    {
+        //only every tenth
+        if (i % 10)
+            continue;
 
         // 1. Reproject the model points with the calculated POSE
         Point3f originalModelPoint = _map.model[i];
         Point2f projectedModelPoint = backprojectPoint(originalModelPoint, rvec, tvec); // projectedModelPoints[i];
 
 #if DRAW_ALL_MAP_PTS_ON_VIDEO
-		//draw all projected map features on video stream
-		circle(imageVideo, projectedModelPoint, 1, CV_RGB(255, 0, 0), 1, FILLED);
-		putText(imageVideo, to_string(i), Point2f(projectedModelPoint.x - 1, projectedModelPoint.y - 1),
-			FONT_HERSHEY_SIMPLEX, 0.25, CV_RGB(255, 0, 0), 1.0);
+        //draw all projected map features on video stream
+        circle(imageVideo, projectedModelPoint, 1, CV_RGB(255, 0, 0), 1, FILLED);
+        putText(imageVideo, to_string(i), Point2f(projectedModelPoint.x - 1, projectedModelPoint.y - 1),
+            FONT_HERSHEY_SIMPLEX, 0.25, CV_RGB(255, 0, 0), 1.0);
 #endif
 
         // 2. Select only before calculated Keypoints within patch with projected "positioning" keypoint as center
@@ -566,13 +566,13 @@ bool SLCVTrackerFeatures::optimizePose(const Mat &imageGray, const Mat &imageVid
                     keypoints[j].pt.x < xDownRight &&
                     keypoints[j].pt.y > yTopLeft &&
                     keypoints[j].pt.y < yDownRight)
-			{
+            {
                 bboxFrameKeypoints.push_back(keypoints[j]);
-				frameIndicesInsideRect.push_back(j);
+                frameIndicesInsideRect.push_back(j);
             }
         }
 
-		//Was soll das???????
+        //Was soll das???????
 
         //// OpenCV: Top-left origin
         //xTopLeft = originalModelPoint.x - patchSize / 2;
@@ -590,14 +590,14 @@ bool SLCVTrackerFeatures::optimizePose(const Mat &imageGray, const Mat &imageVid
         //}
 
 #if	FIND_AND_DRAW_KPTS_IN_ROI
-		//draw green rectangle around every map point
-		rectangle(imageVideo,
-			Point2f(projectedModelPoint.x - patchHalf, projectedModelPoint.y - patchHalf),
-			Point2f(projectedModelPoint.x + patchHalf, projectedModelPoint.y + patchHalf),
-			CV_RGB(0, 255, 0));
-		//draw key points, that lie inside this rectangle
-		for( auto kPt : bboxFrameKeypoints)
-			circle(imageVideo, kPt.pt, 1, CV_RGB(0, 0, 255), 1, FILLED);
+        //draw green rectangle around every map point
+        rectangle(imageVideo,
+            Point2f(projectedModelPoint.x - patchHalf, projectedModelPoint.y - patchHalf),
+            Point2f(projectedModelPoint.x + patchHalf, projectedModelPoint.y + patchHalf),
+            CV_RGB(0, 255, 0));
+        //draw key points, that lie inside this rectangle
+        for (auto kPt : bboxFrameKeypoints)
+            circle(imageVideo, kPt.pt, 1, CV_RGB(0, 0, 255), 1, FILLED);
 #endif
 
 //#if defined(SAVE_SNAPSHOTS_OUTPUT) && (defined(SL_OS_LINUX) || defined(SL_OS_MACOS) || defined(SL_OS_MACIOS) || defined(SL_OS_WINDOWS))
@@ -638,38 +638,39 @@ bool SLCVTrackerFeatures::optimizePose(const Mat &imageGray, const Mat &imageVid
 //
 //#endif
 
-		//4. Match the descriptors of the keypoints inside the rectangle around the projected map point
-		//with the descritor of the projected map point.
-		//(du musst versuchen den einzelnen descriptor des projizierten map point und die descriptoren
-		// der keypoints im aktuellen frame aus den cv::Mat's zu extrahieren und einzeln an knnMatch zu übergeben.
-		// Vllt. kann man auch diesen parameter "mask" in der Methode knnmatch verwenden... Weiss ich auch nicht...)
-		//todo...
-		//nur symbolisch, diese descriptoren müssen wir matchen
-		//descriptors[i]  => descriptor des map points
-		//for( size_t j : frameIndicesInsideRect )
-		//	_map.descriptors[frameIndicesInsideRect[j]]
-		// => descriptoren der keypoints im rechteck
+        //4. Match the descriptors of the keypoints inside the rectangle around the projected map point
+        //with the descritor of the projected map point.
+        //(du musst versuchen den einzelnen descriptor des projizierten map point und die descriptoren
+        // der keypoints im aktuellen frame aus den cv::Mat's zu extrahieren und einzeln an knnMatch zu übergeben.
+        // Vllt. kann man auch diesen parameter "mask" in der Methode knnmatch verwenden... Weiss ich auch nicht...)
+        //todo...
+        //nur symbolisch, diese descriptoren müssen wir matchen
+        //descriptors[i]  => descriptor des map points
+        //for( size_t j : frameIndicesInsideRect )
+        //	_map.descriptors[frameIndicesInsideRect[j]]
+        // => descriptoren der keypoints im rechteck
 
-		//5. Add the found match to the already found matches
-		//todo...
-		// matches.push_back( ... all new ones );
+        //5. Add the found match to the already found matches
+        //todo...
+        // matches.push_back( ... all new ones );
 
         bboxModelKeypoints.clear();
         bboxFrameKeypoints.clear();
-		frameIndicesInsideRect.clear();
+        frameIndicesInsideRect.clear();
     }
 
-	//6. draw all matches with cv::drawMatches as before in line 217
+    //6. draw all matches with cv::drawMatches as before in line 217. If everything worked as expected, there should be many more matches now...
+    //todo
 
     //7. Finding PnP solution - again
-	//vector<Point3f> modelPoints(matches.size());
-	//vector<Point2f> framePoints(matches.size());
-	//for (size_t i = 0; i < matches.size(); i++) {
-	//	modelPoints[i] = _map.model[matches[i].trainIdx];
-	//	framePoints[i] = keypoints[matches[i].queryIdx].pt;
-	//}
-	//cv::solvePnP(modelPoints, framePoints, _calib->cameraMat(),
-	//	_calib->distortion(), rvec, tvec, true, cv::SOLVEPNP_ITERATIVE);
+    vector<Point3f> modelPoints(matches.size());
+    vector<Point2f> framePoints(matches.size());
+    for (size_t i = 0; i < matches.size(); i++) {
+        modelPoints[i] = _map.model[matches[i].trainIdx];
+        framePoints[i] = keypoints[matches[i].queryIdx].pt;
+    }
+    cv::solvePnP(modelPoints, framePoints, _calib->cameraMat(),
+        _calib->distortion(), rvec, tvec, true, cv::SOLVEPNP_ITERATIVE);
 
     return 0;
 }
