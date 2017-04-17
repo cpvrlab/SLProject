@@ -38,7 +38,7 @@ class SLCVTrackerFeatures : public SLCVTracker
                                      SLSceneView* sv);
 
 private:
-        static SLVMat4f         objectViewMats; //!< object view matrices
+        static SLVMat4f         objectViewMats; //!< object view SLCVMatrices
         SLCVRaulMurOrb*         _detector;
         Ptr<ORB>                _descriptor;
         Ptr<DescriptorMatcher>  _matcher;
@@ -51,9 +51,9 @@ private:
             SLCVMat             image;
             SLCVMat             imageGray;
             vector<Point2f>     points2D;
-            vector<DMatch>      matches;
-            Mat                 rvec;
-            Mat                 tvec;
+            vector<DMatch>      SLCVMatches;
+            SLCVMat             rvec;
+            SLCVMat             tvec;
             bool                foundPose;
         } _prev;
 
@@ -62,25 +62,32 @@ private:
             SLCVMat             frameGray;
             SLCVMat             imgDrawing;
             SLCVVKeyPoint       keypoints;
-            Mat                 descriptors;
+            SLCVMat             descriptors;
             SLCVVKeyPoint       bboxModelKeypoints;
         } _map;
 
         void loadModelPoints();
 
-        SLCVVKeyPoint getKeypoints(const Mat &imageGray);
-        Mat getDescriptors(const Mat &imageGray, SLCVVKeyPoint &keypoints);
-        vector<DMatch> getFeatureMatches(const Mat &descriptors);
+        SLCVVKeyPoint getKeypoints(const SLCVMat &imageGray);
 
-        bool calculatePose(const Mat &imageGray, const Mat &imageVideo,
-			vector<KeyPoint> &keypoints, vector<DMatch> &matches,
+        SLCVMat getDescriptors(const SLCVMat &imageGray, SLCVVKeyPoint &keypoints);
+
+        vector<DMatch> getFeatureMatches(const SLCVMat &descriptors);
+
+        bool calculatePose(const SLCVMat &imageVideo, vector<KeyPoint> &keypoints, vector<DMatch> &matches,
 			vector<DMatch> &inliers, vector<Point2f> &inlierPoints,
-			Mat &rvec, Mat &tvec, bool extrinsicGuess, const Mat& descriptors);
-        bool optimizePose(const Mat &imageGray, const Mat &imageVideo, vector<KeyPoint> &keypoints, vector<DMatch> &matches, Mat &rvec, Mat &tvec, const Mat& descriptors);
-        bool solvePnP(vector<Point3f> &modelPoints, vector<Point2f> &framePoints, bool guessExtrinsic, Mat &rvec, Mat &tvec, vector<unsigned char> &inliersMask);
+            Mat &rvec, SLCVMat &tvec, bool extrinsicGuess, const SLCVMat& descriptors);
 
-        bool trackWithOptFlow(SLCVMat &previousFrame, vector<Point2f> &previousPoints, SLCVMat &actualFrame, vector<Point2f> &predPoints, Mat &rvec, Mat &tvec);
-        Point2f backprojectPoint(Point3f pointToProject, const Mat &rvec, const Mat &tvec);
+        bool optimizePose(const SLCVMat &imageVideo, vector<KeyPoint> &keypoints, vector<DMatch> &matches,
+            SLCVMat &rvec, SLCVMat &tvec, const SLCVMat& descriptors);
+
+        bool solvePnP(vector<Point3f> &modelPoints, vector<Point2f> &framePoints, bool guessExtrinsic,
+            SLCVMat &rvec, SLCVMat &tvec, vector<unsigned char> &inliersMask);
+
+        bool trackWithOptFlow(SLCVMat &previousFrame, vector<Point2f> &previousPoints, SLCVMat &actualFrame,
+            vector<Point2f> &predPoints);
+
+        Point2f backprojectPoint(Point3f pointToProject, const SLCVMat &rvec, const SLCVMat &tvec);
 };
 //-----------------------------------------------------------------------------
 #endif // SLCVTrackerFeatures_H
