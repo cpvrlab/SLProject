@@ -44,7 +44,6 @@ using namespace cv;
 // Feature detection and extraction
 const int nFeatures = 800;
 const float minRatio = 0.8f;
-#define FLANN_BASED 0
 
 // RANSAC parameters
 const int iterations = 400;
@@ -73,12 +72,7 @@ SLCVTrackerFeatures::SLCVTrackerFeatures(SLNode *node) :
 {
     SLScene::current->_detector->setDetector(new SLCVRaulMurOrb(nFeatures, 1.44f, 3, 30, 20));
     SLScene::current->_descriptor->setDescriptor(ORB::create(nFeatures, 1.44f, 3, 31, 0, 2, ORB::HARRIS_SCORE, 31, 30));
-
-#if FLANN_BASED
-    _matcher = new FlannBasedMatcher();
-#else
     _matcher =  BFMatcher::create(BFMatcher::BRUTEFORCE_HAMMING, false);
-#endif
 
 #ifdef SAVE_SNAPSHOTS_OUTPUT
 #if defined(SL_OS_LINUX) || defined(SL_OS_MACOS) || defined(SL_OS_MACIOS)
@@ -330,14 +324,7 @@ vector<DMatch> SLCVTrackerFeatures::getFeatureMatches(const SLCVMat &descriptors
 {
     SLfloat SLCVMatchTimeMillis = SLScene::current->timeMilliSec();
 
-    // 1. Get SLCVMatches with FLANN or KNN algorithm ######################################################################################
-#if FLANN_BASED
-    if(descriptors.type() != CV_32F) descriptors.convertTo(descriptors, CV_32F);
-    if(_map.descriptors.type() != CV_32F) _map.descriptors.convertTo(_map.descriptors, CV_32F);
-
-    vector<DMatch> goodMatches;
-    _matcher->match(descriptors, _map.descriptors, goodMatches);
-#else
+    // 1. Get SLCVMatches with KNN algorithm ######################################################################################
     int k = 2;
     vector<vector<DMatch>> SLCVMatches;
     _matcher->knnMatch(descriptors, _map.descriptors, SLCVMatches, k);
@@ -352,7 +339,6 @@ vector<DMatch> SLCVTrackerFeatures::getFeatureMatches(const SLCVMat &descriptors
         if (match2.distance == 0.0f || ( match1.distance / match2.distance) < minRatio)
             goodMatches.push_back(match1);
     }
-#endif
 
     SLScene::current->setMatchTimesMS(SLScene::current->timeMilliSec() - SLCVMatchTimeMillis);
     return goodMatches;
