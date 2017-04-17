@@ -360,12 +360,14 @@ vector<DMatch> SLCVTrackerFeatures::getFeatureMatches(const SLCVMat &descriptors
 
 //-----------------------------------------------------------------------------
 bool SLCVTrackerFeatures::calculatePose(const SLCVMat &imageVideo, vector<KeyPoint> &keypoints,
-    vector<DMatch> &matches, vector<DMatch> &inliers, vector<Point2f> &inlierPoints, SLCVMat &rvec, SLCVMat &tvec,
-    bool extrinsicGuess, const SLCVMat& descriptors)
+    vector<DMatch> &allMatches, vector<DMatch> &inlierMatches, vector<Point2f> &inlierPoints, SLCVMat &rvec, SLCVMat &tvec,
+    bool extrinsicGuess, const SLCVMat& descriptors, int iteration)
 {
 
+    cout << "iteration "<< iteration <<endl;
+
     // RANSAC crashes if 0 points are given
-    if (matches.size() == 0) return 0;
+    if (allMatches.size() == 0) return 0;
 
     /* Find 2D/3D correspondences
      *
@@ -375,11 +377,11 @@ bool SLCVTrackerFeatures::calculatePose(const SLCVMat &imageVideo, vector<KeyPoi
      *  Train index --> "Point" in the model
      *  Query index --> "Point" in the actual frame
      */
-    vector<Point3f> modelPoints(matches.size());
-    vector<Point2f> framePoints(matches.size());
-    for (size_t i = 0; i < matches.size(); i++) {
-        modelPoints[i] = _map.model[matches[i].trainIdx];
-        framePoints[i] =  keypoints[matches[i].queryIdx].pt;
+    vector<Point3f> modelPoints(allMatches.size());
+    vector<Point2f> framePoints(allMatches.size());
+    for (size_t i = 0; i < allMatches.size(); i++) {
+        modelPoints[i] = _map.model[allMatches[i].trainIdx];
+        framePoints[i] =  keypoints[allMatches[i].queryIdx].pt;
     }
 
     // Finding PnP solution
@@ -388,13 +390,16 @@ bool SLCVTrackerFeatures::calculatePose(const SLCVMat &imageVideo, vector<KeyPoi
 
     for (size_t i = 0; i < inliersMask.size(); i++) {
         size_t idx = inliersMask[i];
-        inliers.push_back(matches[idx]);
+        inlierMatches.push_back(allMatches[idx]);
         inlierPoints.push_back(framePoints[idx]);
     }
 
     // Pose optimization
-    if (foundPose && _map.keypoints.size() > 0)
-        optimizePose(imageVideo, keypoints, inliers, rvec, tvec, descriptors);
+    if (foundPose) {
+        if (iteration == 1) return foundPose;
+        optimizePose(imageVideo, keypoints, inlierMatches, rvec, tvec, descriptors);
+        calculatePose(imageVideo, keypoints, allMatches, inlierMatches, inlierPoints, rvec, tvec, extrinsicGuess, descriptors, ++iteration);
+    }
 
     return foundPose;
 }
@@ -549,7 +554,6 @@ bool SLCVTrackerFeatures::optimizePose(const SLCVMat &imageVideo, vector<KeyPoin
         int xDownRight = xTopLeft + patchSize;
         int yDownRight = yTopLeft + patchSize;
 
-        // 3. Select only the image-plane keypoints within the defined patch
         for (size_t j = 0; j < keypoints.size(); j++) {
             // bbox check
             if (keypoints[j].pt.x > xTopLeft &&
@@ -581,7 +585,7 @@ bool SLCVTrackerFeatures::optimizePose(const SLCVMat &imageVideo, vector<KeyPoin
             circle(imageVideo, kPt.pt, 1, CV_RGB(0, 0, 255), 1, FILLED);
 #endif
 
-        //4. SLCVMatch the descriptors of the keypoints inside the rectangle around the projected map point
+        //3. SLCVMatch the descriptors of the keypoints inside the rectangle around the projected map point
         //with the descritor of the projected map point.
         //(du musst versuchen den einzelnen descriptor des projizierten map point und die descriptoren
         // der keypoints im aktuellen frame aus den cv::Mat's zu extrahieren und einzeln an knnMatch zu übergeben.
@@ -604,36 +608,27 @@ bool SLCVTrackerFeatures::optimizePose(const SLCVMat &imageVideo, vector<KeyPoin
             bboxPointsDescriptors.push_back(descriptorInsideRectangle);
         }
 
-        //5. Add the found SLCVMatch to the already found SLCVMatches
-        // TODO: Remove equal SLCVMatches
+        //4. Match the frame keypoints inside the rectangle with the projected model point
         vector<DMatch> newMatches;
         _matcher->match(bboxPointsDescriptors, modelPointDescriptor, newMatches);
+
+        //5. Append the new matches to the already found matches
         matches.insert(matches.end(), newMatches.begin(), newMatches.end());
+
+#if DEBUG
+        // cout << "Newly added matches: " << matches.size() - newMatches.size() << endl;
+#endif
 
         bboxFrameKeypoints.clear();
         frameIndicesInsideRect.clear();
     }
 
 #if defined(SAVE_SNAPSHOTS_OUTPUT)
-    // Abuse of the drawMatches method to simply draw the two image side by side.
+    // Abuse of the drawMatches method to simply draw the two image side by side
     SLCVMat imgOut;
     drawMatches(imageVideo, vector<KeyPoint>(), _map.imgDrawing, vector<KeyPoint>(), vector<DMatch>(), imgOut);
     imwrite(SAVE_SNAPSHOTS_OUTPUT + to_string(frameCount) + "-poseoptimization.png", imgOut);
 #endif
 
-    //6. draw all SLCVMatches with cv::drawMatches as before in line 217. If everything worked as expected, there should be many more SLCVMatches now...
-    //todo
-
-    //7. Finding PnP solution - again
-    /*
-    vector<Point3f> modelPoints(matches.size());
-    vector<Point2f> framePoints(matches.size());
-    for (size_t i = 0; i < SLCVMatches.size(); i++) {
-        modelPoints[i] = _map.model[matches[i].trainIdx];
-        framePoints[i] = keypoints[matches[i].queryIdx].pt;
-    }
-    cv::solvePnP(modelPoints, framePoints, _calib->cameraMat(),
-        _calib->distortion(), rvec, tvec, true, cv::SOLVEPNP_ITERATIVE);
-    */
     return 0;
 }

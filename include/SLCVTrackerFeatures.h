@@ -75,8 +75,8 @@ private:
         vector<DMatch> getFeatureMatches(const SLCVMat &descriptors);
 
         bool calculatePose(const SLCVMat &imageVideo, vector<KeyPoint> &keypoints, vector<DMatch> &matches,
-			vector<DMatch> &inliers, vector<Point2f> &inlierPoints,
-            Mat &rvec, SLCVMat &tvec, bool extrinsicGuess, const SLCVMat& descriptors);
+            vector<DMatch> &inliers, vector<Point2f> &inlierPoints, Mat &rvec, SLCVMat &tvec, bool extrinsicGuess,
+                           const SLCVMat& descriptors, int iteration=0);
 
         bool optimizePose(const SLCVMat &imageVideo, vector<KeyPoint> &keypoints, vector<DMatch> &matches,
             SLCVMat &rvec, SLCVMat &tvec, const SLCVMat& descriptors);
