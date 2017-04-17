@@ -60,6 +60,7 @@ private:
         struct map {
             vector<Point3f>     model;
             SLCVMat             frameGray;
+            SLCVMat             imgDrawing;
             SLCVVKeyPoint       keypoints;
             Mat                 descriptors;
             SLCVVKeyPoint       bboxModelKeypoints;
