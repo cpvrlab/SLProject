@@ -35,6 +35,8 @@ using namespace cv;
 
 #define DEBUG 0
 #define FORCE_REPOSE 1
+#define OPTIMIZE_POSE 1
+#define DRAW_REPROJECTION 0
 
 #if defined(SL_OS_LINUX) || defined(SL_OS_MACOS) || defined(SL_OS_MACIOS)
 #define SAVE_SNAPSHOTS_OUTPUT "/tmp/cv_tracking/"
@@ -51,7 +53,7 @@ const float reprojectionError = 3.0f;
 const double confidence = 0.95;
 
 // Repose patch size (TODO: Adjust automatically)
-const int patchSize = 30;
+const int patchSize = 20;
 const int patchHalf = patchSize / 2;
 const int reposeFrequency = 20;
 
@@ -168,7 +170,7 @@ SLbool SLCVTrackerFeatures::track(SLCVMat imageGray,
     vector<DMatch> inlierMatches;
     vector<Point2f> points2D;
     SLCVVKeyPoint keypoints;
-
+    SLCVMat descriptors;
 
     SLCVMat rvec = cv::Mat::zeros(3, 3, CV_64FC1);      // rotation SLCVMatrix
     SLCVMat tvec = cv::Mat::zeros(3, 1, CV_64FC1);      // translation SLCVMatrix
@@ -189,6 +191,7 @@ SLbool SLCVTrackerFeatures::track(SLCVMat imageGray,
     // TODO: Handle detecting || tracking correctly!
     if (FORCE_REPOSE || frameCount % 20 == 0) { // || lastNmatchedKeypoints * 0.6f > _prev.points2D.size()) {
 
+
 #if DEBUG
         // Detect keypoints ####################################################
         keypoints = getKeypoints(imageGray);
@@ -196,7 +199,7 @@ SLbool SLCVTrackerFeatures::track(SLCVMat imageGray,
 
 
         // Extract descriptors from keypoints ##################################
-        SLCVMat descriptors = getDescriptors(imageGray , keypoints);
+        descriptors = getDescriptors(imageGray , keypoints);
         // #####################################################################
 
 #else
@@ -383,6 +386,7 @@ bool SLCVTrackerFeatures::calculatePose(const SLCVMat &imageVideo, vector<KeyPoi
     }
 
     // Pose optimization
+#if OPTIMIZE_POSE
     if (foundPose) {
         // We only perform one optimization after the initial pose calculation
         if (iteration == 1) return foundPose;
@@ -391,6 +395,7 @@ bool SLCVTrackerFeatures::calculatePose(const SLCVMat &imageVideo, vector<KeyPoi
         inlierMatches.clear();
         calculatePose(imageVideo, keypoints, allMatches, inlierMatches, inlierPoints, rvec, tvec, extrinsicGuess, descriptors, ++iteration);
     }
+#endif
 
     return foundPose;
 }
@@ -585,12 +590,36 @@ bool SLCVTrackerFeatures::optimizePose(const SLCVMat &imageVideo, vector<KeyPoin
         _matcher->match(bboxPointsDescriptors, modelPointDescriptor, newMatches);
 
         //5. Append the new matches to the already found matches
-        //matches.insert(matches.end(), newMatches.begin(), newMatches.end());
-        for (auto newMatch : newMatches)
-            matches.push_back(newMatch);
+        matches.insert(matches.end(), newMatches.begin(), newMatches.end());
 
 #if DEBUG
         cout << "Newly added matches: " << newMatches.size() << endl;
+#endif
+
+#if DRAW_REPROJECTION
+        Mat imgReprojection = imageVideo;
+#else
+        Mat imgReprojection;
+        imageVideo.copyTo(imgReprojection);
+#endif
+
+#if DRAW_REPROJECTION || defined(SAVE_SNAPSHOTS_OUTPUT)
+        /*
+         * Draw the projected points and keypoints into the current FRAME
+         */
+        //draw all projected map features on video stream
+        circle(imgReprojection, projectedModelPoint, 1, CV_RGB(255, 0, 0), 1, FILLED);
+        putText(imgReprojection, to_string(i), Point2f(projectedModelPoint.x - 1, projectedModelPoint.y - 1),
+            FONT_HERSHEY_SIMPLEX, 0.25, CV_RGB(255, 0, 0), 1.0);
+
+        //draw green rectangle around every map point
+        rectangle(imgReprojection,
+            Point2f(projectedModelPoint.x - patchHalf, projectedModelPoint.y - patchHalf),
+            Point2f(projectedModelPoint.x + patchHalf, projectedModelPoint.y + patchHalf),
+            CV_RGB(0, 255, 0));
+        //draw key points, that lie inside this rectangle
+        for (auto kPt : bboxFrameKeypoints)
+            circle(imgReprojection, kPt.pt, 1, CV_RGB(0, 0, 255), 1, FILLED);
 #endif
 
 #if defined(SAVE_SNAPSHOTS_OUTPUT)
@@ -600,23 +629,6 @@ bool SLCVTrackerFeatures::optimizePose(const SLCVMat &imageVideo, vector<KeyPoin
             drawMatches(imageVideo, bboxFrameKeypoints, _map.frameGray, _map.keypoints, newMatches, imgOut);
             imwrite(SAVE_SNAPSHOTS_OUTPUT + to_string(frameCount) + "-poseoptimization-matches-p1.png", imgOut);
         }
-
-        /*
-         * Draw the projected points and keypoints into the current FRAME
-         */
-        //draw all projected map features on video stream
-        circle(imageVideo, projectedModelPoint, 1, CV_RGB(255, 0, 0), 1, FILLED);
-        putText(imageVideo, to_string(i), Point2f(projectedModelPoint.x - 1, projectedModelPoint.y - 1),
-            FONT_HERSHEY_SIMPLEX, 0.25, CV_RGB(255, 0, 0), 1.0);
-
-        //draw green rectangle around every map point
-        rectangle(imageVideo,
-            Point2f(projectedModelPoint.x - patchHalf, projectedModelPoint.y - patchHalf),
-            Point2f(projectedModelPoint.x + patchHalf, projectedModelPoint.y + patchHalf),
-            CV_RGB(0, 255, 0));
-        //draw key points, that lie inside this rectangle
-        for (auto kPt : bboxFrameKeypoints)
-            circle(imageVideo, kPt.pt, 1, CV_RGB(0, 0, 255), 1, FILLED);
 #endif
 
         bboxFrameKeypoints.clear();
