@@ -36,7 +36,7 @@ using namespace cv;
 #define DEBUG 0
 #define FORCE_REPOSE 1
 #define OPTIMIZE_POSE 1
-#define DRAW_REPROJECTION 0
+#define DRAW_REPROJECTION 1
 
 #if defined(SL_OS_LINUX) || defined(SL_OS_MACOS) || defined(SL_OS_MACIOS)
 #define SAVE_SNAPSHOTS_OUTPUT "/tmp/cv_tracking/"
@@ -45,15 +45,15 @@ using namespace cv;
 #endif
 // Feature detection and extraction
 const int nFeatures = 800;
-const float minRatio = 0.8f;
+const float minRatio = 0.9f;
 
 // RANSAC parameters
-const int iterations = 400;
-const float reprojectionError = 3.0f;
+const int iterations = 600;
+const float reprojectionError = 2.0f;
 const double confidence = 0.95;
 
 // Repose patch size (TODO: Adjust automatically)
-const int patchSize = 20;
+const int patchSize = 40;
 const int patchHalf = patchSize / 2;
 const int reposeFrequency = 20;
 
@@ -71,10 +71,9 @@ float high_compute_milis;
 //-----------------------------------------------------------------------------
 SLCVTrackerFeatures::SLCVTrackerFeatures(SLNode *node) :
         SLCVTracker(node) {
-    SLCVRaulMurOrb* _blubb = new SLCVRaulMurOrb(nFeatures, 1.44f, 3, 30, 20);
-
-    SLScene::current->_detector->setDetector(_blubb);
-    SLScene::current->_descriptor->setDescriptor(_blubb);
+    SLCVRaulMurOrb* orbSlamMatcherAndDescriptor = new SLCVRaulMurOrb(nFeatures, 1.44f, 3, 100, 80);
+    SLScene::current->_detector->setDetector(orbSlamMatcherAndDescriptor);
+    SLScene::current->_descriptor->setDescriptor(orbSlamMatcherAndDescriptor);
 
     _matcher =  BFMatcher::create(BFMatcher::BRUTEFORCE_HAMMING, false);
 
@@ -192,7 +191,7 @@ SLbool SLCVTrackerFeatures::track(SLCVMat imageGray,
     if (FORCE_REPOSE || frameCount % 20 == 0) { // || lastNmatchedKeypoints * 0.6f > _prev.points2D.size()) {
 
 
-#if DEBUG
+#if TRACKING_MEASUREMENT
         // Detect keypoints ####################################################
         keypoints = getKeypoints(imageGray);
         // #####################################################################
@@ -201,7 +200,6 @@ SLbool SLCVTrackerFeatures::track(SLCVMat imageGray,
         // Extract descriptors from keypoints ##################################
         descriptors = getDescriptors(imageGray , keypoints);
         // #####################################################################
-
 #else
         SLScene::current->_descriptor->detectAndCompute(imageGray, keypoints, descriptors);
 #endif
@@ -391,7 +389,6 @@ bool SLCVTrackerFeatures::calculatePose(const SLCVMat &imageVideo, vector<KeyPoi
         // We only perform one optimization after the initial pose calculation
         if (iteration == 1) return foundPose;
         optimizePose(imageVideo, keypoints, inlierMatches, rvec, tvec, descriptors);
-        allMatches = inlierMatches;
         inlierMatches.clear();
         calculatePose(imageVideo, keypoints, allMatches, inlierMatches, inlierPoints, rvec, tvec, extrinsicGuess, descriptors, ++iteration);
     }
@@ -541,6 +538,7 @@ bool SLCVTrackerFeatures::optimizePose(const SLCVMat &imageVideo, vector<KeyPoin
         if (i % reposeFrequency)
             continue;
 
+        // Get the corresponding projected point of the actual (i) modelpoint
         Point2f projectedModelPoint = projectedPoints[i];
 
         // 2. Select only before calculated Keypoints within patch with projected "positioning" keypoint as center
