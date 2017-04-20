@@ -42,7 +42,7 @@ using namespace cv;
 #define DRAW_REPROJECTION 1
 
 #if defined(SL_OS_LINUX) || defined(SL_OS_MACOS) || defined(SL_OS_MACIOS)
-#define SAVE_SNAPSHOTS_OUTPUT "/tmp/cv_tracking/"
+//#define SAVE_SNAPSHOTS_OUTPUT "/tmp/cv_tracking/"
 #elif defined(SL_OS_WINDOWS)
 #define SAVE_SNAPSHOTS_OUTPUT "cv_tracking/"
 #endif
@@ -192,8 +192,6 @@ SLbool SLCVTrackerFeatures::track(SLCVMat imageGray,
 
     // TODO: Handle detecting || tracking correctly!
     if (FORCE_REPOSE || frameCount % 20 == 0) { // || lastNmatchedKeypoints * 0.6f > _prev.points2D.size()) {
-
-
 #if TRACKING_MEASUREMENT
         // Detect keypoints ####################################################
         keypoints = getKeypoints(imageGray);
@@ -206,8 +204,8 @@ SLbool SLCVTrackerFeatures::track(SLCVMat imageGray,
 #else
         SLScene::current->_descriptor->detectAndCompute(imageGray, keypoints, descriptors);
 #endif
-        // Feature SLCVMatching ####################################################
-        vector<DMatch> SLCVMatches = getFeatureMatches(descriptors);
+        // Feature Matching ####################################################
+        vector<DMatch> matches = getFeatureMatches(descriptors);
         // #####################################################################
 
 
@@ -218,7 +216,7 @@ SLbool SLCVTrackerFeatures::track(SLCVMat imageGray,
             rvec = _prev.rvec;
             tvec = _prev.tvec;
         }
-        foundPose = calculatePose(image, keypoints, SLCVMatches, inlierMatches, points2D, rvec, tvec, useExtrinsicGuess, descriptors );
+        foundPose = calculatePose(image, keypoints, matches, inlierMatches, points2D, rvec, tvec, useExtrinsicGuess, descriptors );
         // #####################################################################
 
 #if DEBUG
