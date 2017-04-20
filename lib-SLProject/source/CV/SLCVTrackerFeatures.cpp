@@ -36,6 +36,9 @@ using namespace cv;
 #define DEBUG 0
 #define FORCE_REPOSE 1
 #define OPTIMIZE_POSE 1
+
+// Settings for drawing things into current camera frame
+#define DRAW_KEYPOINTS 0
 #define DRAW_REPROJECTION 1
 
 #if defined(SL_OS_LINUX) || defined(SL_OS_MACOS) || defined(SL_OS_MACIOS)
@@ -240,6 +243,12 @@ SLbool SLCVTrackerFeatures::track(SLCVMat imageGray,
         // Update Scene Graph camera to display model correctly (positioning cam relative to world coordinates)
         sv->camera()->om(_pose.inverse());
     }
+
+#if DRAW_KEYPOINTS
+    if (!keypoints.empty()) {
+        drawKeypoints(image, keypoints, image);
+    }
+#endif
 
 #if defined(SAVE_SNAPSHOTS_OUTPUT)
     // Draw SLCVMatches
