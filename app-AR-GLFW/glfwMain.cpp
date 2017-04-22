@@ -367,10 +367,11 @@ SLuint createARSceneView()
 //-----------------------------------------------------------------------------
 /*!
 The C main procedure running the GLFW GUI application.
+See SL::parseCmdLineArgs for the purpose of all command line arguments.
 */
 int main(int argc, char *argv[])
 {
-    // set command line arguments
+    // copy command line arguments (see SL::parseCmdLineArgs for purpose)
     SLVstring cmdLineArgs;
     for(int i = 0; i < argc; i++)
 	    cmdLineArgs.push_back(argv[i]);

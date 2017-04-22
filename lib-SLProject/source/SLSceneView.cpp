@@ -2424,7 +2424,9 @@ void SLSceneView::showLoading(SLbool showLoading)
     _showLoading = showLoading;
 }
 //------------------------------------------------------------------------------
-//! Handles the test setting
+//! Handles the test setting and returns true if the current test scene is over.
+/*! See SL::parseCmdLineArgs for the purpose of all scene test variables.
+*/
 SLbool SLSceneView::testRunIsFinished()
 {
     if (SL::testFrameCounter == 0)
@@ -2433,7 +2435,7 @@ SLbool SLSceneView::testRunIsFinished()
     if (SLScene::current->timeSec() > SL::testDurationSec)
     {   
         if (SL::testScene==C_sceneAll)
-        {   if (SL::testSceneAll < C_sceneRTTest)
+        {   if (SL::testSceneAll < C_sceneMaximal)
             {   
                 SLfloat fps = (SLfloat)SL::testFrameCounter / (SLfloat)SL::testDurationSec;
                 SL_LOG("%s: Frames: %5u, FPS=%6.1f\n", 
@@ -2449,13 +2451,19 @@ SLbool SLSceneView::testRunIsFinished()
                 onCommand(SL::testSceneAll);
                 SLScene::current->timerStart();
             } else
-            {   
-                SL_LOG("------------------------------------------------------------------\n");
+            {   SL_LOG("------------------------------------------------------------------\n");
                 onCommand(C_quit);
                 return true;
             }
         } else
-        {   onCommand(C_quit);
+        {   SLfloat fps = (SLfloat)SL::testFrameCounter / (SLfloat)SL::testDurationSec;
+            SL_LOG("------------------------------------------------------------------\n");
+            SL_LOG("%s: Frames: %5u, FPS=%6.1f\n",
+                   SL::testSceneNames[SL::testSceneAll].c_str(),
+                   SL::testFrameCounter,
+                   fps);
+            SL_LOG("------------------------------------------------------------------\n");
+            onCommand(C_quit);
             return true;
         }
     }
