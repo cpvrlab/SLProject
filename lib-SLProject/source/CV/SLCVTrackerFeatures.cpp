@@ -33,9 +33,10 @@ for a good top down information.
 
 using namespace cv;
 
-#define DEBUG 0
+#define DEBUG_OUTPUT 0
 #define FORCE_REPOSE 1
 #define OPTIMIZE_POSE 1
+#define DISTINGUISH_FEATURE_DETECT_COMPUTE 0
 
 // Settings for drawing things into current camera frame
 #define DRAW_KEYPOINTS 0
@@ -47,34 +48,43 @@ using namespace cv;
 #define SAVE_SNAPSHOTS_OUTPUT "cv_tracking/"
 #endif
 // Feature detection and extraction
-const int nFeatures = 800;
-const float minRatio = 0.9f;
+const int nFeatures = 2000;
+const float minRatio = 0.7f;
 
 // RANSAC parameters
-const int iterations = 300;
-const float reprojectionError = 1.5f;
+const int iterations = 500;
+const float reprojectionError = 2.0f;
 const double confidence = 0.95;
 
 // Repose patch size (TODO: Adjust automatically)
-const int patchSize = 30;
+const int patchSize = 20;
 const int patchHalf = patchSize / 2;
 const int reposeFrequency = 10;
 
 // Benchmarking
-#define TRACKING_MEASUREMENT 0
+#define TRACKING_MEASUREMENT 1
 #if TRACKING_MEASUREMENT
 float low_detection_milis = 1000.0f;
-float avg_detection_milis;
+float sum_detection_millis;
 float high_detection_milis;
 
 float low_compute_milis = 1000.0f;
-float avg_compute_milis;
+float sum_compute_millis;
 float high_compute_milis;
+
+float low_detectcompute_milis = 1000.0f;
+float sum_detectcompute_millis;
+float high_detectcompute_milis;
+
+float sum_allmatches_to_inliers = 0.0f;
+float sum_reprojection_error = 0.0f;
+float sum_poseopt_difference = 0.0f;
 #endif
+
 //-----------------------------------------------------------------------------
 SLCVTrackerFeatures::SLCVTrackerFeatures(SLNode *node) :
         SLCVTracker(node) {
-    SLCVRaulMurOrb* orbSlamMatcherAndDescriptor = new SLCVRaulMurOrb(nFeatures, 1.44f, 5, 20, 10);
+    SLCVRaulMurOrb* orbSlamMatcherAndDescriptor = new SLCVRaulMurOrb(nFeatures, 1.44f, 6, 20, 10);
     SLScene::current->_detector->setDetector(orbSlamMatcherAndDescriptor);
     SLScene::current->_descriptor->setDescriptor(orbSlamMatcherAndDescriptor);
 
@@ -95,6 +105,34 @@ SLCVTrackerFeatures::SLCVTrackerFeatures(SLNode *node) :
     _prev.foundPose = false;
 }
 
+SLCVTrackerFeatures::~SLCVTrackerFeatures() {
+#if TRACKING_MEASUREMENT
+    int firstColWidth = 40;
+#if DISTINGUISH_FEATURE_DETECT_COMPUTE
+    cout << endl << endl << "Detection: -------------------------------------------------------" << endl;
+    cout << setw(firstColWidth) << "Min detection Time (ms): " << low_detection_milis << endl;
+    cout << setw(firstColWidth) << "Avg detection Time (ms): " << sum_detection_millis / frameCount << endl;
+    cout << setw(firstColWidth) << "High detection Time (ms): " << high_detection_milis << endl << endl;
+
+    cout << "Extraction: ------------------------------------------------------" << endl;
+    cout << setw(firstColWidth) << "Min compute Time (ms): " << low_compute_milis << endl;
+    cout << setw(firstColWidth) << "Avg compute Time (ms): " << sum_compute_millis / frameCount << endl;
+    cout << setw(firstColWidth) << "High compute Time (ms): " << high_compute_milis << endl << endl;
+#else
+    cout << endl << endl << "Detect and compute: -------------------------------------------------------" << endl;
+    cout << setw(firstColWidth) << "Min detect & compute Time (ms): " << low_detectcompute_milis << endl;
+    cout << setw(firstColWidth) << "Avg detect & compute Time (ms): " << sum_detectcompute_millis / frameCount << endl;
+    cout << setw(firstColWidth) << "High detect & compute Time (ms): " << high_detectcompute_milis << endl;
+#endif
+    cout << "POSE calculation: -------------------------------------------------------" << endl;
+    cout << setw(firstColWidth) << "Avg allmatches to inliers proposition: " << sum_allmatches_to_inliers / frameCount << endl ;
+    cout << setw(firstColWidth) << "Avg reprojection error: " << sum_reprojection_error / frameCount << endl;
+    cout << setw(firstColWidth) << "Avg match boost factor: " << sum_poseopt_difference / frameCount << endl;
+
+    cout << endl;
+#endif
+}
+
 //------------------------------------------------------------------------------
 void SLCVTrackerFeatures::loadModelPoints()
 {
@@ -107,7 +145,7 @@ void SLCVTrackerFeatures::loadModelPoints()
      SLScene::current->_descriptor->detectAndCompute(_map.frameGray, _map.keypoints, _map.descriptors);
     // Calculates proprtion of MM and Pixel (sample measuring)
     const SLfloat lengthMM = 297.0;
-    const SLfloat lengthPX = 2 * _calib->cx();
+    const SLfloat lengthPX = img->width();
     float pixelPerMM = lengthPX / lengthMM;
 
     // Calculate 3D-Points based on the detected features
@@ -143,20 +181,6 @@ SLbool SLCVTrackerFeatures::track(SLCVMat imageGray,
                                   SLCVCalibration *calib,
                                   SLSceneView *sv)
 {
-#if TRACKING_MEASUREMENT
-    if (frameCount == 700){
-           ofstream myfile;
-           myfile.open ("/tmp/tracker_stats.txt");
-           myfile << "Min Detection Time (Ms) " << low_detection_milis << "\n";
-           myfile << "Avg Detection Time (Ms) " << avg_detection_milis << "\n";
-           myfile << "High Detection Time (Ms) " << high_detection_milis << "\n";
-
-           myfile << "Min Compute Time (Ms) " << low_compute_milis << "\n";
-           myfile << "Avg Compute Time (Ms) " << avg_compute_milis << "\n";
-           myfile << "High Compute Time (Ms) " << high_compute_milis << "\n";
-           myfile.close();
-    }
-#endif
     assert(!image.empty() && "Image is empty");
     assert(!calib->cameraMat().empty() && "Calibration is empty");
     assert(_node && "Node pointer is null");
@@ -172,7 +196,7 @@ SLbool SLCVTrackerFeatures::track(SLCVMat imageGray,
     SLCVMat tvec = cv::Mat::zeros(3, 1, CV_64FC1);      // translation matrix
     bool foundPose = false;
 
-#if DEBUG
+#if DEBUG_OUTPUT
     cout << "--------------------------------------------------" << endl << "Processing frame #" << frameCount << "..." << endl;
     //cout << "Actual average amount of 2D points: " << setprecision(3) <<  _prev.points2D.size() << endl;
 #endif
@@ -186,7 +210,7 @@ SLbool SLCVTrackerFeatures::track(SLCVMat imageGray,
 
     // TODO: Handle detecting || tracking correctly!
     if (FORCE_REPOSE || frameCount % 20 == 0) { // || lastNmatchedKeypoints * 0.6f > _prev.points2D.size()) {
-#if TRACKING_MEASUREMENT
+#if DISTINGUISH_FEATURE_DETECT_COMPUTE
         // Detect keypoints ####################################################
         keypoints = getKeypoints(imageGray);
         // #####################################################################
@@ -196,7 +220,7 @@ SLbool SLCVTrackerFeatures::track(SLCVMat imageGray,
         descriptors = getDescriptors(imageGray , keypoints);
         // #####################################################################
 #else
-        SLScene::current->_descriptor->detectAndCompute(imageGray, keypoints, descriptors);
+        getKeypointsAndDescriptors(imageGray, keypoints, descriptors);
 #endif
         // Feature Matching ####################################################
         vector<DMatch> matches = getFeatureMatches(descriptors);
@@ -276,20 +300,21 @@ SLCVVKeyPoint SLCVTrackerFeatures::getKeypoints(const SLCVMat &imageGray)
     SLfloat detectTimeMillis = SLScene::current->timeMilliSec();
     SLScene::current->_detector->detect(imageGray, keypoints);
 
+    SLfloat detectionDifference = SLScene::current->timeMilliSec() - detectTimeMillis;
+    SLScene::current->setDetectionTimesMS(detectionDifference);
+
 #if TRACKING_MEASUREMENT
-    SLfloat time = SLScene::current->timeMilliSec() - detectTimeMillis;
-    if (time != 0){
-        if (time < low_detection_milis){
-            low_detection_milis = time;
-        }
-        else if (time > high_detection_milis){
-            high_detection_milis = time;
-        }
+    if (detectionDifference > 0) {
+        if (detectionDifference < low_detection_milis)
+            low_detection_milis = detectionDifference;
+        else if (detectionDifference > high_detection_milis)
+            high_detection_milis = detectionDifference;
+
         if (frameCount > 0)
-        avg_detection_milis = (frameCount*avg_detection_milis + time)/(1+frameCount);
+            sum_detection_millis += detectionDifference;
     }
 #endif
-    SLScene::current->setDetectionTimesMS(SLScene::current->timeMilliSec() - detectTimeMillis);
+
     return keypoints;
 }
 
@@ -299,25 +324,44 @@ Mat SLCVTrackerFeatures::getDescriptors(const SLCVMat &imageGray, SLCVVKeyPoint 
     SLCVMat descriptors;
     SLfloat computeTimeMillis = SLScene::current->timeMilliSec();
     SLScene::current->_descriptor->compute(imageGray, keypoints, descriptors);
+
+    SLfloat computeDifference = SLScene::current->timeMilliSec() - computeTimeMillis;
+    SLScene::current->setFeatureTimesMS(computeDifference);
+
 #if TRACKING_MEASUREMENT
-    SLfloat time = SLScene::current->timeMilliSec() - computeTimeMillis;
-    if (time != 0.0f){
-        if (time < low_compute_milis){
-            low_compute_milis = time;
-        }
-        else if (time > high_compute_milis){
-            high_compute_milis = time;
-        }
-        if (frameCount > 0){
-            avg_compute_milis = (avg_compute_milis*frameCount + time)/(1+frameCount);
-        }
-        else {
-            avg_compute_milis = time;
-        }
+    if (computeDifference > 0) {
+        if (computeDifference < low_compute_milis)
+            low_compute_milis = computeDifference;
+        else if (computeDifference > high_compute_milis)
+            high_compute_milis = computeDifference;
+
+        if (frameCount > 0)
+            sum_compute_millis += computeDifference;
     }
 #endif
-    SLScene::current->setFeatureTimesMS(SLScene::current->timeMilliSec() - computeTimeMillis);
+
     return descriptors;
+}
+
+//-----------------------------------------------------------------------------
+void SLCVTrackerFeatures::getKeypointsAndDescriptors(const SLCVMat &imageGray, SLCVVKeyPoint &keypoints, SLCVMat &descriptors)
+{
+    SLfloat detectComputeTimeMillis = SLScene::current->timeMilliSec();
+    SLScene::current->_descriptor->detectAndCompute(imageGray, keypoints, descriptors);
+    SLfloat detectComputeDifference = SLScene::current->timeMilliSec() - detectComputeTimeMillis;
+    SLScene::current->setFeatureTimesMS(detectComputeDifference);
+
+#if TRACKING_MEASUREMENT
+    if (detectComputeDifference > 0) {
+        if (detectComputeDifference < low_detectcompute_milis)
+            low_detectcompute_milis = detectComputeDifference;
+        else if (detectComputeDifference > high_detectcompute_milis)
+            high_detectcompute_milis = detectComputeDifference;
+
+        if (frameCount > 0)
+            sum_detectcompute_millis += detectComputeDifference;
+    }
+#endif
 }
 
 //-----------------------------------------------------------------------------
@@ -378,10 +422,12 @@ bool SLCVTrackerFeatures::calculatePose(const SLCVMat &imageVideo, vector<KeyPoi
         inlierPoints.push_back(framePoints[idx]);
     }
 
-    //TODO: Calculate allmatches/inliers
+#if TRACKING_MEASUREMENT
+    sum_allmatches_to_inliers += inlierMatches.size() / allMatches.size();
+#endif
 
-    // Pose optimization
 #if OPTIMIZE_POSE
+    // Pose optimization
     if (foundPose) {
         int matchesBefore = inlierMatches.size();
         optimizePose(imageVideo, keypoints, inlierMatches, rvec, tvec, descriptors);
@@ -393,7 +439,6 @@ bool SLCVTrackerFeatures::calculatePose(const SLCVMat &imageVideo, vector<KeyPoi
             framePoints[i] =  keypoints[inlierMatches[i].queryIdx].pt;
         }
 
-        int matchesDifference = inlierMatches.size() - matchesBefore;
 
         foundPose = cv::solvePnP(modelPoints,
                                  framePoints,
@@ -404,8 +449,12 @@ bool SLCVTrackerFeatures::calculatePose(const SLCVMat &imageVideo, vector<KeyPoi
                                  SOLVEPNP_ITERATIVE
         );
 
-#if DEBUG
-        cout << setw(20) << "Match boost:" << matchesDifference << endl;
+#if DEBUG_OUTPUT
+        cout << "Optimize pose: " << inlierMatches.size() - matchesBefore << " more matches found" << endl;
+#endif
+
+#if TRACKING_MEASUREMENT
+        sum_poseopt_difference += inlierMatches.size() / matchesBefore;
 #endif
     }
 #endif
@@ -531,8 +580,7 @@ bool SLCVTrackerFeatures::solvePnP(vector<Point3f> &modelPoints, vector<Point2f>
                               iterations,
                               reprojectionError,
                               confidence,
-                              inliersMask,
-                              type
+                              inliersMask //, type
     );
 }
 
@@ -642,7 +690,7 @@ bool SLCVTrackerFeatures::optimizePose(const SLCVMat &imageVideo, vector<KeyPoin
         Point2f originalModelPoint = _map.keypoints[i].pt;
         double reprojectionError = norm(Mat(projectedModelPoint), Mat(originalModelPoint));
 
-        putText(imgReprojection, to_string(reprojectionError), Point2f(projectedModelPoint.x + 1, projectedModelPoint.y - 1),
+        putText(imgReprojection, to_string(reprojectionError), Point2f(projectedModelPoint.x - 10, projectedModelPoint.y - 1),
             FONT_HERSHEY_SIMPLEX, 0.25, CV_RGB(255, 0, 0), 1.0);
 
         //draw green rectangle around every map point
@@ -658,6 +706,8 @@ bool SLCVTrackerFeatures::optimizePose(const SLCVMat &imageVideo, vector<KeyPoin
         bboxFrameKeypoints.clear();
         frameIndicesInsideRect.clear();
     }
+
+    sum_reprojection_error += reprojectionError;
 
 #if defined(SAVE_SNAPSHOTS_OUTPUT)
     // Abuse of the drawMatches method to simply draw the two image side by side

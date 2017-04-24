@@ -31,7 +31,7 @@ class SLCVTrackerFeatures : public SLCVTracker
 {
     public:
         SLCVTrackerFeatures         (SLNode* node);
-        ~SLCVTrackerFeatures        () {;}
+        ~SLCVTrackerFeatures        ();
         SLbool  track               (SLCVMat imageGray,
                                      SLCVMat image,
                                      SLCVCalibration* calib,
@@ -72,6 +72,8 @@ private:
 
         SLCVMat getDescriptors(const SLCVMat &imageGray, SLCVVKeyPoint &keypoints);
 
+        void getKeypointsAndDescriptors(const SLCVMat &imageGray, SLCVVKeyPoint &keypoints, SLCVMat &descriptors);
+
         vector<DMatch> getFeatureMatches(const SLCVMat &descriptors);
 
         bool calculatePose(const SLCVMat &imageVideo, vector<KeyPoint> &keypoints, vector<DMatch> &matches,
@@ -85,7 +87,7 @@ private:
             SLCVMat &rvec, SLCVMat &tvec, vector<unsigned char> &inliersMask);
 
         bool trackWithOptFlow(SLCVMat &previousFrame, vector<Point2f> &previousPoints, SLCVMat &actualFrame,
-            vector<Point2f> &predPoints);
+                              vector<Point2f> &predPoints);
 };
 //-----------------------------------------------------------------------------
 #endif // SLCVTrackerFeatures_H
