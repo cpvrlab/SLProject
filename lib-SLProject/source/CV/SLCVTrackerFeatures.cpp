@@ -42,10 +42,12 @@ using namespace cv;
 #define DRAW_KEYPOINTS 0
 #define DRAW_REPROJECTION 1
 
-#if defined(SL_OS_LINUX) || defined(SL_OS_MACOS) || defined(SL_OS_MACIOS)
-#define SAVE_SNAPSHOTS_OUTPUT "/tmp/cv_tracking/"
-#elif defined(SL_OS_WINDOWS)
-#define SAVE_SNAPSHOTS_OUTPUT "cv_tracking/"
+#ifdef SL_SAVE_DEBUG_OUTPUT
+    #if defined(SL_OS_LINUX) || defined(SL_OS_MACOS) || defined(SL_OS_MACIOS)
+    #define SAVE_SNAPSHOTS_OUTPUT "/tmp/cv_tracking/"
+    #elif defined(SL_OS_WINDOWS)
+    #define SAVE_SNAPSHOTS_OUTPUT "cv_tracking/"
+    #endif
 #endif
 // Feature detection and extraction
 const int nFeatures = 2000;
@@ -140,6 +142,7 @@ void SLCVTrackerFeatures::loadModelPoints()
     SLGLTexture* trackerTexture = new SLGLTexture(std::string(SL_TRACKER_IMAGE_NAME) + std::string(".png"));
     SLCVImage* img = trackerTexture->images()[0];
     cvtColor(img->cvMat(), _map.frameGray, CV_RGB2GRAY);
+    cv::rotate(_map.frameGray, _map.frameGray, ROTATE_180);
 
     // Detect and compute features in marker image
      SLScene::current->_descriptor->detectAndCompute(_map.frameGray, _map.keypoints, _map.descriptors);
