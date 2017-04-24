@@ -137,7 +137,7 @@ SLuint SL::maxThreads()
 - testFactor:      test int factor used for scaling in SLScene::onLoad.\n
 \n
 Example:\
-app_Demo.exe testScene=1 testDuration=5 testFactor=1\n
+app_Demo.exe testScene=1 testDurationSec=5 testFactor=1\n
 \n
 Starts the app with scene 1 (=sceneMinimal) and runs for 5 sec. with testFactor 1.
 If the testScene is 0 (=sceneAll) all scenes are tested one after the other.\n
