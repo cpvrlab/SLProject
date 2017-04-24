@@ -76,7 +76,7 @@ private:
 
         bool calculatePose(const SLCVMat &imageVideo, vector<KeyPoint> &keypoints, vector<DMatch> &matches,
             vector<DMatch> &inliers, vector<Point2f> &inlierPoints, Mat &rvec, SLCVMat &tvec, bool extrinsicGuess,
-                           const SLCVMat& descriptors, int iteration=0);
+                           const SLCVMat& descriptors);
 
         bool optimizePose(const SLCVMat &imageVideo, vector<KeyPoint> &keypoints, vector<DMatch> &matches,
             SLCVMat &rvec, SLCVMat &tvec, const SLCVMat& descriptors);
@@ -86,8 +86,6 @@ private:
 
         bool trackWithOptFlow(SLCVMat &previousFrame, vector<Point2f> &previousPoints, SLCVMat &actualFrame,
             vector<Point2f> &predPoints);
-
-        Point2f backprojectPoint(Point3f pointToProject, const SLCVMat &rvec, const SLCVMat &tvec);
 };
 //-----------------------------------------------------------------------------
 #endif // SLCVTrackerFeatures_H
