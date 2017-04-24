@@ -42,7 +42,7 @@ using namespace cv;
 #define DRAW_REPROJECTION 1
 
 #if defined(SL_OS_LINUX) || defined(SL_OS_MACOS) || defined(SL_OS_MACIOS)
-//#define SAVE_SNAPSHOTS_OUTPUT "/tmp/cv_tracking/"
+#define SAVE_SNAPSHOTS_OUTPUT "/tmp/cv_tracking/"
 #elif defined(SL_OS_WINDOWS)
 #define SAVE_SNAPSHOTS_OUTPUT "cv_tracking/"
 #endif
@@ -99,7 +99,7 @@ SLCVTrackerFeatures::SLCVTrackerFeatures(SLNode *node) :
 void SLCVTrackerFeatures::loadModelPoints()
 {
     // Read reference marker
-    SLGLTexture* trackerTexture = new SLGLTexture("stones.jpg");
+    SLGLTexture* trackerTexture = new SLGLTexture(std::string(SL_TRACKER_IMAGE_NAME) + std::string(".png"));
     SLCVImage* img = trackerTexture->images()[0];
     cvtColor(img->cvMat(), _map.frameGray, CV_RGB2GRAY);
 
