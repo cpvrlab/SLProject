@@ -35,12 +35,12 @@ using namespace cv;
 
 #define DEBUG_OUTPUT 0
 #define FORCE_REPOSE 1
-#define OPTIMIZE_POSE 1
 #define DISTINGUISH_FEATURE_DETECT_COMPUTE 0
 
 // Settings for drawing things into current camera frame
 #define DRAW_KEYPOINTS 0
 #define DRAW_REPROJECTION 1
+#define DRAW_REPOSE_INFO 1
 
 #ifdef SL_SAVE_DEBUG_OUTPUT
     #if defined(SL_OS_LINUX) || defined(SL_OS_MACOS) || defined(SL_OS_MACIOS)
@@ -79,7 +79,7 @@ float sum_detectcompute_millis;
 float high_detectcompute_milis;
 
 float sum_allmatches_to_inliers = 0.0f;
-float sum_reprojection_error = 0.0f;
+double sum_reprojection_error = 0.0f;
 float sum_poseopt_difference = 0.0f;
 #endif
 
@@ -143,6 +143,7 @@ void SLCVTrackerFeatures::loadModelPoints()
     SLCVImage* img = trackerTexture->images()[0];
     cvtColor(img->cvMat(), _map.frameGray, CV_RGB2GRAY);
     cv::rotate(_map.frameGray, _map.frameGray, ROTATE_180);
+    cv::flip(_map.frameGray, _map.frameGray, 1);
 
     // Detect and compute features in marker image
      SLScene::current->_descriptor->detectAndCompute(_map.frameGray, _map.keypoints, _map.descriptors);
@@ -259,7 +260,9 @@ SLbool SLCVTrackerFeatures::track(SLCVMat imageGray,
 
 #if DRAW_KEYPOINTS
     if (!keypoints.empty()) {
-        drawKeypoints(image, keypoints, image);
+        SLCVMat imgKeypoints;
+        drawKeypoints(image, keypoints, imgKeypoints);
+        imwrite(SAVE_SNAPSHOTS_OUTPUT + to_string(frameCount) + "-keypoints.png", imgKeypoints);
     }
 #endif
 
@@ -429,7 +432,6 @@ bool SLCVTrackerFeatures::calculatePose(const SLCVMat &imageVideo, vector<KeyPoi
     sum_allmatches_to_inliers += inlierMatches.size() / allMatches.size();
 #endif
 
-#if OPTIMIZE_POSE
     // Pose optimization
     if (foundPose) {
         int matchesBefore = inlierMatches.size();
@@ -460,7 +462,6 @@ bool SLCVTrackerFeatures::calculatePose(const SLCVMat &imageVideo, vector<KeyPoi
         sum_poseopt_difference += inlierMatches.size() / matchesBefore;
 #endif
     }
-#endif
 
     return foundPose;
 }
@@ -566,14 +567,6 @@ bool SLCVTrackerFeatures::solvePnP(vector<Point3f> &modelPoints, vector<Point2f>
      *  3. After sucessful determination of a pose, optimize it with Levenberg-Marquardt (iterative part)
      *
      */
-
-    int type;
-    if (guessExtrinsic) {
-        type = cv::SOLVEPNP_ITERATIVE;
-    } else {
-        type = cv::SOLVEPNP_EPNP;
-    }
-
     return cv::solvePnPRansac(modelPoints,
                               framePoints,
                               _calib->cameraMat(),
@@ -583,7 +576,7 @@ bool SLCVTrackerFeatures::solvePnP(vector<Point3f> &modelPoints, vector<Point2f>
                               iterations,
                               reprojectionError,
                               confidence,
-                              inliersMask //, type
+                              inliersMask
     );
 }
 
@@ -593,6 +586,7 @@ bool SLCVTrackerFeatures::optimizePose(const SLCVMat &imageVideo, vector<KeyPoin
 {
     vector<KeyPoint> bboxFrameKeypoints;
     vector<size_t> frameIndicesInsideRect;
+    double localReprojectionErrorSum = 0;
 
     //matches.clear();
 
@@ -692,10 +686,9 @@ bool SLCVTrackerFeatures::optimizePose(const SLCVMat &imageVideo, vector<KeyPoin
 
         Point2f originalModelPoint = _map.keypoints[i].pt;
         double reprojectionError = norm(Mat(projectedModelPoint), Mat(originalModelPoint));
+        localReprojectionErrorSum += reprojectionError;
 
-        putText(imgReprojection, to_string(reprojectionError), Point2f(projectedModelPoint.x - 10, projectedModelPoint.y - 1),
-            FONT_HERSHEY_SIMPLEX, 0.25, CV_RGB(255, 0, 0), 1.0);
-
+#if DRAW_REPOSE_INFO
         //draw green rectangle around every map point
         rectangle(imgReprojection,
             Point2f(projectedModelPoint.x - patchHalf, projectedModelPoint.y - patchHalf),
@@ -705,12 +698,19 @@ bool SLCVTrackerFeatures::optimizePose(const SLCVMat &imageVideo, vector<KeyPoin
         for (auto kPt : bboxFrameKeypoints)
             circle(imgReprojection, kPt.pt, 1, CV_RGB(0, 0, 255), 1, FILLED);
 #endif
+#endif
 
         bboxFrameKeypoints.clear();
         frameIndicesInsideRect.clear();
     }
 
-    sum_reprojection_error += reprojectionError;
+    sum_reprojection_error += localReprojectionErrorSum / _map.model.size();
+
+#if DRAW_REPOSE_INFO
+    double reprojectionErrorAvg = localReprojectionErrorSum / _map.model.size();
+    putText(imageVideo, "Reprojection error: " + to_string(reprojectionErrorAvg), Point2f(20, 20),
+            FONT_HERSHEY_SIMPLEX, 0.5, CV_RGB(255, 0, 0), 2.0);
+#endif
 
 #if defined(SAVE_SNAPSHOTS_OUTPUT)
     // Abuse of the drawMatches method to simply draw the two image side by side
