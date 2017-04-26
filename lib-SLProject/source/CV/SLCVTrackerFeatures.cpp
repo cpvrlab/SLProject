@@ -683,8 +683,8 @@ bool SLCVTrackerFeatures::optimizePose(const SLCVMat &imageVideo, vector<KeyPoin
         //draw the point index and reprojection error
         putText(imgReprojection, to_string(i), Point2f(projectedModelPoint.x - 1, projectedModelPoint.y - 1),
             FONT_HERSHEY_SIMPLEX, 0.25, CV_RGB(255, 0, 0), 1.0);
-
-        Point2f originalModelPoint = _map.keypoints[i].pt;
+        int index = matches[matches.size() -1].queryIdx;
+        Point2f originalModelPoint = keypoints[index].pt;
         double reprojectionError = norm(Mat(projectedModelPoint), Mat(originalModelPoint));
         localReprojectionErrorSum += reprojectionError;
 
