@@ -81,6 +81,8 @@ float high_detectcompute_milis;
 float sum_allmatches_to_inliers = 0.0f;
 double sum_reprojection_error = 0.0f;
 float sum_poseopt_difference = 0.0f;
+double translationError = 0;
+double rotationError = 0;
 #endif
 
 //-----------------------------------------------------------------------------
@@ -130,7 +132,8 @@ SLCVTrackerFeatures::~SLCVTrackerFeatures() {
     cout << setw(firstColWidth) << "Avg allmatches to inliers proposition: " << sum_allmatches_to_inliers / frameCount << endl ;
     cout << setw(firstColWidth) << "Avg reprojection error: " << sum_reprojection_error / frameCount << endl;
     cout << setw(firstColWidth) << "Avg match boost factor: " << sum_poseopt_difference / frameCount << endl;
-
+    cout << setw(firstColWidth) << "Average Rotation error: " << rotationError / frameCount << endl;
+    cout << setw(firstColWidth) << "Average Translation error: " << translationError / frameCount << endl;
     cout << endl;
 #endif
 }
@@ -270,7 +273,7 @@ SLbool SLCVTrackerFeatures::track(SLCVMat imageGray,
     // Draw matches
     if (!inlierMatches.empty()) {
         SLCVMat imgMatches;
-        drawMatches(imageGray, keypoints, _map.frameGray, _map.keypoints, inlierMatches, imgMatches);
+        drawMatches(imageGray, keypoints, _map.frameGray, _map.keypoints, inlierMatches, imgMatches,CV_RGB(255,0,0), CV_RGB(255,0,0));
         imwrite(SAVE_SNAPSHOTS_OUTPUT + to_string(frameCount) + "-matching.png", imgMatches);
     }
 
@@ -587,7 +590,6 @@ bool SLCVTrackerFeatures::optimizePose(const SLCVMat &imageVideo, vector<KeyPoin
     vector<KeyPoint> bboxFrameKeypoints;
     vector<size_t> frameIndicesInsideRect;
     double localReprojectionErrorSum = 0;
-
     //matches.clear();
 
     // 1. Reproject the model points with the calculated POSE
@@ -711,11 +713,18 @@ bool SLCVTrackerFeatures::optimizePose(const SLCVMat &imageVideo, vector<KeyPoin
     putText(imageVideo, "Reprojection error: " + to_string(reprojectionErrorAvg), Point2f(20, 20),
             FONT_HERSHEY_SIMPLEX, 0.5, CV_RGB(255, 0, 0), 2.0);
 #endif
-
+    Mat prevRmat, currRmat;
+    if(_prev.foundPose){
+        Rodrigues(_prev.rvec, prevRmat);
+        Rodrigues(rvec, currRmat);
+        double rotationError_rad = acos((trace(prevRmat * currRmat).val[0] - 1.0)/2.0);
+        rotationError += rotationError_rad*180/3.14;
+        translationError += cv::norm(_prev.tvec, tvec);
+    }
 #if defined(SAVE_SNAPSHOTS_OUTPUT)
     // Abuse of the drawMatches method to simply draw the two image side by side
     SLCVMat imgOut;
-    drawMatches(imageVideo, vector<KeyPoint>(), _map.imgDrawing, vector<KeyPoint>(), vector<DMatch>(), imgOut);
+    drawMatches(imageVideo, vector<KeyPoint>(), _map.imgDrawing, vector<KeyPoint>(), vector<DMatch>(), imgOut, CV_RGB(255,0,0), CV_RGB(255,0,0));
     imwrite(SAVE_SNAPSHOTS_OUTPUT + to_string(frameCount) + "-poseoptimization.png", imgOut);
 #endif
 
