@@ -57,10 +57,10 @@ const float minRatio = 0.7f;
 // RANSAC parameters
 const int iterations = 500;
 const float reprojectionError = 2.0f;
-const double confidence = 0.95;
+const double confidence = 0.98;
 
-// Repose patch size (TODO: Adjust automatically)
-const int reposeFrequency = 5;
+// Repose patch size
+const int reposeFrequency = 10;
 
 // Benchmarking
 #define TRACKING_MEASUREMENT 1
@@ -198,7 +198,7 @@ SLbool SLCVTrackerFeatures::track(SLCVMat imageGray,
     SLCVVKeyPoint keypoints;
     SLCVMat descriptors;
 
-    SLCVMat rvec = cv::Mat::zeros(3, 3, CV_64FC1);      // rotation matrix
+    SLCVMat rvec = cv::Mat::zeros(3, 1, CV_64FC1);      // rotation matrix
     SLCVMat tvec = cv::Mat::zeros(3, 1, CV_64FC1);      // translation matrix
     bool foundPose = false;
 
@@ -214,8 +214,15 @@ SLbool SLCVTrackerFeatures::track(SLCVMat imageGray,
      }
      // #####################################################################
 
+     bool useExtrinsicGuess = false;
+     if (_prev.foundPose) {
+         useExtrinsicGuess = true;
+         rvec = _prev.rvec;
+         tvec = _prev.tvec;
+     }
+
     // TODO: Handle detecting || tracking correctly!
-    if (FORCE_REPOSE || frameCount % 20 == 0) { // || lastNmatchedKeypoints * 0.6f > _prev.points2D.size()) {
+    if (FORCE_REPOSE || frameCount % 10 == 0 || !_prev.foundPose) { // || lastNmatchedKeypoints * 0.6f > _prev.points2D.size()) {
 #if DISTINGUISH_FEATURE_DETECT_COMPUTE
         // Detect keypoints ####################################################
         keypoints = getKeypoints(imageGray);
@@ -234,20 +241,37 @@ SLbool SLCVTrackerFeatures::track(SLCVMat imageGray,
 
 
         // POSE calculation ####################################################
-        bool useExtrinsicGuess = false;
-        if (_prev.foundPose) {
-            useExtrinsicGuess = true;
-            rvec = _prev.rvec;
-            tvec = _prev.tvec;
-        }
         foundPose = calculatePose(image, keypoints, matches, inlierMatches, points2D, rvec, tvec, useExtrinsicGuess, descriptors);
         // #####################################################################
 
     } else {
         // Feature tracking ####################################################
-        // points2D should be empty, this feature points are the calculated points with optical flow
-        //trackWithOptFlow(_prev.image, _prev.points2D, image, points2D, rvec, tvec);
-        //if (foundPose) lastNmatchedKeypoints = points2D.size(); // Write actual detected points amount
+        getKeypointsAndDescriptors(imageGray, keypoints, descriptors);
+        optimizePose(image, keypoints, descriptors, inlierMatches, rvec, tvec, true);
+
+        vector<Point3f> modelPoints(inlierMatches.size());
+        vector<Point2f> framePoints(inlierMatches.size());
+        for (size_t i = 0; i < inlierMatches.size(); i++) {
+            modelPoints[i] = _map.model[inlierMatches[i].trainIdx];
+            framePoints[i] =  keypoints[inlierMatches[i].queryIdx].pt;
+        }
+
+        //if (modelPoints.size() > 0) {
+            foundPose = cv::solvePnPRansac(modelPoints,
+                                     framePoints,
+                                     _calib->cameraMat(),
+                                     _calib->distortion(),
+                                     rvec, tvec,
+                                     true,
+                                     iterations,
+                                     reprojectionError,
+                                     confidence,
+                                     noArray(),
+                                     SOLVEPNP_ITERATIVE
+            );
+//        } else {
+//            foundPose = false;
+//        }
         // #####################################################################
     }
 
@@ -446,7 +470,6 @@ bool SLCVTrackerFeatures::calculatePose(const SLCVMat &imageVideo, vector<KeyPoi
             framePoints[i] =  keypoints[inlierMatches[i].queryIdx].pt;
         }
 
-
         foundPose = cv::solvePnP(modelPoints,
                                  framePoints,
                                  _calib->cameraMat(),
@@ -467,6 +490,7 @@ bool SLCVTrackerFeatures::calculatePose(const SLCVMat &imageVideo, vector<KeyPoi
 
     return foundPose;
 }
+
 
 //-----------------------------------------------------------------------------
 bool SLCVTrackerFeatures::trackWithOptFlow(SLCVMat &previousFrame, vector<Point2f> &previousPoints,
@@ -584,7 +608,7 @@ bool SLCVTrackerFeatures::solvePnP(vector<Point3f> &modelPoints, vector<Point2f>
 
 //-----------------------------------------------------------------------------
 bool SLCVTrackerFeatures::optimizePose(const SLCVMat &imageVideo, vector<KeyPoint> &keypoints, const SLCVMat& descriptors,
-                                       vector<DMatch> &matches, SLCVMat &rvec, SLCVMat &tvec)
+                                       vector<DMatch> &matches, SLCVMat &rvec, SLCVMat &tvec, bool tracking)
 {
     double localReprojectionErrorSum = 0;
 
@@ -601,8 +625,10 @@ bool SLCVTrackerFeatures::optimizePose(const SLCVMat &imageVideo, vector<KeyPoin
         if (i % reposeFrequency)
             continue;
 
-        for (int j = 0; j < matches.size(); j++) {
-            if (matches[j].trainIdx == i) matches.erase(matches.begin() + j);
+        if (!tracking) {
+            for (int j = 0; j < matches.size(); j++) {
+                if (matches[j].trainIdx == i) matches.erase(matches.begin() + j);
+            }
         }
 
         // Get the corresponding projected point of the actual (i) modelpoint
@@ -610,7 +636,7 @@ bool SLCVTrackerFeatures::optimizePose(const SLCVMat &imageVideo, vector<KeyPoin
         vector<DMatch> newMatches;
 
         int patchSize = 2;
-        int maxPatchSize = 40;
+        int maxPatchSize = 100;
 
         while (newMatches.size() == 0 && patchSize <= maxPatchSize)
         {
@@ -672,6 +698,8 @@ bool SLCVTrackerFeatures::optimizePose(const SLCVMat &imageVideo, vector<KeyPoin
 
             //5. Only add the best new match to matches vector
             matches.push_back(bestNewMatch);
+        } else {
+            return false;
         }
 
 #if DRAW_REPROJECTION
