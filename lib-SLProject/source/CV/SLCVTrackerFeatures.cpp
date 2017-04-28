@@ -42,6 +42,7 @@ using namespace cv;
 #define DRAW_REPROJECTION 1
 #define DRAW_REPOSE_INFO 1
 
+//#define SL_SAVE_DEBUG_OUTPUT
 #ifdef SL_SAVE_DEBUG_OUTPUT
     #if defined(SL_OS_LINUX) || defined(SL_OS_MACOS) || defined(SL_OS_MACIOS)
     #define SAVE_SNAPSHOTS_OUTPUT "/tmp/cv_tracking/"
@@ -59,9 +60,7 @@ const float reprojectionError = 2.0f;
 const double confidence = 0.95;
 
 // Repose patch size (TODO: Adjust automatically)
-const int patchSize = 20;
-const int patchHalf = patchSize / 2;
-const int reposeFrequency = 10;
+const int reposeFrequency = 5;
 
 // Benchmarking
 #define TRACKING_MEASUREMENT 1
@@ -438,7 +437,7 @@ bool SLCVTrackerFeatures::calculatePose(const SLCVMat &imageVideo, vector<KeyPoi
     // Pose optimization
     if (foundPose) {
         int matchesBefore = inlierMatches.size();
-        optimizePose(imageVideo, keypoints, inlierMatches, rvec, tvec, descriptors);
+        optimizePose(imageVideo, keypoints, descriptors, inlierMatches, rvec, tvec);
 
         modelPoints = vector<Point3f>(inlierMatches.size());
         framePoints = vector<Point2f>(inlierMatches.size());
@@ -584,17 +583,17 @@ bool SLCVTrackerFeatures::solvePnP(vector<Point3f> &modelPoints, vector<Point2f>
 }
 
 //-----------------------------------------------------------------------------
-bool SLCVTrackerFeatures::optimizePose(const SLCVMat &imageVideo, vector<KeyPoint> &keypoints, vector<DMatch> &matches,
-                                       SLCVMat &rvec, SLCVMat &tvec, const SLCVMat& descriptors)
+bool SLCVTrackerFeatures::optimizePose(const SLCVMat &imageVideo, vector<KeyPoint> &keypoints, const SLCVMat& descriptors,
+                                       vector<DMatch> &matches, SLCVMat &rvec, SLCVMat &tvec)
 {
-    vector<KeyPoint> bboxFrameKeypoints;
-    vector<size_t> frameIndicesInsideRect;
     double localReprojectionErrorSum = 0;
-    //matches.clear();
 
     // 1. Reproject the model points with the calculated POSE
     vector<Point2f> projectedPoints(_map.model.size());
     cv::projectPoints(_map.model, rvec, tvec, _calib->cameraMat(), _calib->distortion(), projectedPoints);
+
+    vector<KeyPoint> bboxFrameKeypoints;
+    vector<size_t> frameIndicesInsideRect;
 
     for (size_t i = 0; i < _map.model.size(); i++)
     {
@@ -602,69 +601,76 @@ bool SLCVTrackerFeatures::optimizePose(const SLCVMat &imageVideo, vector<KeyPoin
         if (i % reposeFrequency)
             continue;
 
+        for (int j = 0; j < matches.size(); j++) {
+            if (matches[j].trainIdx == i) matches.erase(matches.begin() + j);
+        }
+
         // Get the corresponding projected point of the actual (i) modelpoint
         Point2f projectedModelPoint = projectedPoints[i];
-
-        // 2. Select only before calculated Keypoints within patch with projected "positioning" keypoint as center
-        // OpenCV: Top-left origin
-        int xTopLeft = projectedModelPoint.x - patchSize / 2;
-        int yTopLeft = projectedModelPoint.y - patchSize / 2;
-        int xDownRight = xTopLeft + patchSize;
-        int yDownRight = yTopLeft + patchSize;
-
-        for (size_t j = 0; j < keypoints.size(); j++) {
-            // bbox check
-            if (keypoints[j].pt.x > xTopLeft &&
-                    keypoints[j].pt.x < xDownRight &&
-                    keypoints[j].pt.y > yTopLeft &&
-                    keypoints[j].pt.y < yDownRight)
-            {
-                bboxFrameKeypoints.push_back(keypoints[j]);
-                frameIndicesInsideRect.push_back(j);
-            }
-        }
-
-        //3. SLCVMatch the descriptors of the keypoints inside the rectangle around the projected map point
-        //with the descritor of the projected map point.
-        //(du musst versuchen den einzelnen descriptor des projizierten map point und die descriptoren
-        // der keypoints im aktuellen frame aus den cv::Mat's zu extrahieren und einzeln an knnMatch zu übergeben.
-        // Vllt. kann man auch diesen parameter "mask" in der Methode knnmatch verwenden... Weiss ich auch nicht...)
-        //todo...
-        //nur symbolisch, diese descriptoren müssen wir SLCVMatchen
-        //descriptors[i]  => descriptor des map points
-        //for( size_t j : frameIndicesInsideRect )
-        //	_map.descriptors[frameIndicesInsideRect[j]]
-        // => descriptoren der keypoints im rechteck
-
-        // This is our descriptor for the model point i
-        Mat modelPointDescriptor = _map.descriptors.row(i);
-
-        // We extract the descriptors which belong to the keypoints inside the rectangle around the projected
-        // map point
-        Mat bboxPointsDescriptors; //(frameIndicesInsideRect.size(), descriptors.cols, descriptors.type());
-        for (size_t j : frameIndicesInsideRect) {
-            bboxPointsDescriptors.push_back(descriptors.row(j));
-        }
-
-        //4. Match the frame keypoints inside the rectangle with the projected model point
         vector<DMatch> newMatches;
-        _matcher->match(bboxPointsDescriptors, modelPointDescriptor, newMatches);
 
-        int k = 0;
-        for (size_t j : frameIndicesInsideRect) {
-            newMatches[k].trainIdx = i;
-            newMatches[k].queryIdx = j;
-            k++;
+        int patchSize = 2;
+        int maxPatchSize = 40;
+
+        while (newMatches.size() == 0 && patchSize <= maxPatchSize)
+        {
+            patchSize += 2;
+            newMatches.clear();
+            bboxFrameKeypoints.clear();
+            frameIndicesInsideRect.clear();
+
+            // 2. Select only before calculated Keypoints within patch with projected "positioning" keypoint as center
+            // OpenCV: Top-left origin
+            int xTopLeft = projectedModelPoint.x - patchSize / 2;
+            int yTopLeft = projectedModelPoint.y - patchSize / 2;
+            int xDownRight = xTopLeft + patchSize;
+            int yDownRight = yTopLeft + patchSize;
+
+            for (size_t j = 0; j < keypoints.size(); j++) {
+                // bbox check
+                if (keypoints[j].pt.x > xTopLeft &&
+                        keypoints[j].pt.x < xDownRight &&
+                        keypoints[j].pt.y > yTopLeft &&
+                        keypoints[j].pt.y < yDownRight)
+                {
+                    bboxFrameKeypoints.push_back(keypoints[j]);
+                    frameIndicesInsideRect.push_back(j);
+                }
+            }
+
+            //3. SLCVMatch the descriptors of the keypoints inside the rectangle around the projected map point
+            //with the descritor of the projected map point.
+
+            // This is our descriptor for the model point i
+            Mat modelPointDescriptor = _map.descriptors.row(i);
+
+            // We extract the descriptors which belong to the keypoints inside the rectangle around the projected
+            // map point
+            Mat bboxPointsDescriptors;
+            for (size_t j : frameIndicesInsideRect) {
+                bboxPointsDescriptors.push_back(descriptors.row(j));
+            }
+
+            //4. Match the frame keypoints inside the rectangle with the projected model point
+            _matcher->match(bboxPointsDescriptors, modelPointDescriptor, newMatches);
         }
 
+#if DEBUG_OUTPUT
+        cout << "Matches inside patch: " << newMatches.size() << endl;
+#endif
         if (newMatches.size() > 0) {
+            for (size_t j = 0; j < frameIndicesInsideRect.size(); j++) {
+                newMatches[j].trainIdx = i;
+                newMatches[j].queryIdx = frameIndicesInsideRect[j];
+            }
+
             //5. Only add the best new match to matches vector
             DMatch bestNewMatch; bestNewMatch.distance = 0;
             for (DMatch newMatch : newMatches) {
                 if (bestNewMatch.distance < newMatch.distance) bestNewMatch = newMatch;
             }
 
-            //bestNewMatch.trainIdx = i;
+            //5. Only add the best new match to matches vector
             matches.push_back(bestNewMatch);
         }
 
@@ -676,41 +682,40 @@ bool SLCVTrackerFeatures::optimizePose(const SLCVMat &imageVideo, vector<KeyPoin
 #endif
 
 #if DRAW_REPROJECTION || defined(SAVE_SNAPSHOTS_OUTPUT)
-        /*
-         * Draw the projected points and keypoints into the current FRAME
-         */
-        //draw all projected map features on video stream
-        circle(imgReprojection, projectedModelPoint, 1, CV_RGB(255, 0, 0), 1, FILLED);
-
-        //draw the point index and reprojection error
-        putText(imgReprojection, to_string(i), Point2f(projectedModelPoint.x - 1, projectedModelPoint.y - 1),
-            FONT_HERSHEY_SIMPLEX, 0.25, CV_RGB(255, 0, 0), 1.0);
-        int index = matches[matches.size() -1].queryIdx;
-        Point2f originalModelPoint = keypoints[index].pt;
-        double reprojectionError = norm(Mat(projectedModelPoint), Mat(originalModelPoint));
-        localReprojectionErrorSum += reprojectionError;
-
 #if DRAW_REPOSE_INFO
         //draw green rectangle around every map point
         rectangle(imgReprojection,
-            Point2f(projectedModelPoint.x - patchHalf, projectedModelPoint.y - patchHalf),
-            Point2f(projectedModelPoint.x + patchHalf, projectedModelPoint.y + patchHalf),
+            Point2f(projectedModelPoint.x - patchSize / 2, projectedModelPoint.y - patchSize / 2),
+            Point2f(projectedModelPoint.x + patchSize / 2, projectedModelPoint.y + patchSize / 2),
             CV_RGB(0, 255, 0));
         //draw key points, that lie inside this rectangle
         for (auto kPt : bboxFrameKeypoints)
             circle(imgReprojection, kPt.pt, 1, CV_RGB(0, 0, 255), 1, FILLED);
 #endif
-#endif
+        /*
+         * Draw the projected points and keypoints into the current FRAME
+         */
+        // Get the keypoint which was used for pose estimation
+        Point2f keypointForPoseEstimation = keypoints[matches.back().queryIdx].pt;
 
-        bboxFrameKeypoints.clear();
-        frameIndicesInsideRect.clear();
+        //draw all projected map features and the original keypoint on video stream
+        circle(imgReprojection, projectedModelPoint, 2, CV_RGB(255, 0, 0), 1, FILLED);
+        circle(imgReprojection, keypointForPoseEstimation, 5, CV_RGB(0, 0, 255), 1, FILLED);
+
+        //draw the point index and reprojection error
+        putText(imgReprojection, to_string(i), Point2f(projectedModelPoint.x - 2, projectedModelPoint.y - 5),
+            FONT_HERSHEY_SIMPLEX, 0.3, CV_RGB(255, 0, 0), 1.0);
+
+        double reprojectionError = norm(Mat(projectedModelPoint), Mat(keypointForPoseEstimation));
+        localReprojectionErrorSum += reprojectionError;
+#endif
     }
 
     sum_reprojection_error += localReprojectionErrorSum / _map.model.size();
 
-#if DRAW_REPOSE_INFO
-    double reprojectionErrorAvg = localReprojectionErrorSum / _map.model.size();
-    putText(imageVideo, "Reprojection error: " + to_string(reprojectionErrorAvg), Point2f(20, 20),
+#if DRAW_REPROJECTION
+    // Draw the projection error for the current frame
+    putText(imageVideo, "Reprojection error: " + to_string(localReprojectionErrorSum / _map.model.size()), Point2f(20, 20),
             FONT_HERSHEY_SIMPLEX, 0.5, CV_RGB(255, 0, 0), 2.0);
 #endif
     Mat prevRmat, currRmat;
