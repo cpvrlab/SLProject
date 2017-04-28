@@ -222,8 +222,8 @@ public class GLES3Camera2Service extends Service {
                     int uRowStride = Y.getRowStride();
                     int vRowStride = Y.getRowStride();
 
+                    /*
                     byte[] data = new byte[ySize + uSize + vSize];
-
                     Y.getBuffer().get(data, 0, ySize);
                     U.getBuffer().get(data, ySize, uSize);
                     V.getBuffer().get(data, ySize + uSize, vSize);
@@ -231,14 +231,23 @@ public class GLES3Camera2Service extends Service {
                     ///////////////////////////////////////////////////////////////
                     GLES3Lib.copyVideoImage(img.getWidth(), img.getHeight(), data);
                     ///////////////////////////////////////////////////////////////
+                    */
 
-                    /*
+
+                    byte[] bufY = new byte[ySize];
+                    byte[] bufU = new byte[uSize];
+                    byte[] bufV = new byte[vSize];
+
+                    Y.getBuffer().get(bufY, 0, ySize);
+                    U.getBuffer().get(bufU, 0, uSize);
+                    V.getBuffer().get(bufV, 0, vSize);
+
                     // For future call of GLES3Lib.copyVideoYUVPlanes
                     GLES3Lib.copyVideoYUVPlanes(img.getWidth(), img.getHeight(),
-                                                Y.getBuffer().array(), ySize, yPixStride, yRowStride,
-                                                U.getBuffer().array(), uSize, uPixStride, uRowStride,
-                                                V.getBuffer().array(), vSize, vPixStride, vRowStride);
-                    */
+                                                bufY, ySize, yPixStride, yRowStride,
+                                                bufU, uSize, uPixStride, uRowStride,
+                                                bufV, vSize, vPixStride, vRowStride);
+
 
                     img.close();
                 }
