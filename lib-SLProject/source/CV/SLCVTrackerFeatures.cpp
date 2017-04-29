@@ -39,10 +39,14 @@ using namespace cv;
 
 // Settings for drawing things into current camera frame
 #define DRAW_KEYPOINTS 0
-#define DRAW_REPROJECTION 1
-#define DRAW_REPOSE_INFO 1
+#define DRAW_REPROJECTION 0
+#define DRAW_REPOSE_INFO 0
 
+// Redefine Qt build parameters for Android build
+#define SL_VIDEO_DEBUG
+#define SL_TRACKER_IMAGE_NAME "stones"
 //#define SL_SAVE_DEBUG_OUTPUT
+
 #ifdef SL_SAVE_DEBUG_OUTPUT
     #if defined(SL_OS_LINUX) || defined(SL_OS_MACOS) || defined(SL_OS_MACIOS)
     #define SAVE_SNAPSHOTS_OUTPUT "/tmp/cv_tracking/"
@@ -86,7 +90,8 @@ double rotationError = 0;
 
 //-----------------------------------------------------------------------------
 SLCVTrackerFeatures::SLCVTrackerFeatures(SLNode *node) :
-        SLCVTracker(node) {
+    SLCVTracker(node)
+{
     SLCVRaulMurOrb* orbSlamMatcherAndDescriptor = new SLCVRaulMurOrb(nFeatures, 1.44f, 6, 20, 10);
     SLScene::current->_detector->setDetector(orbSlamMatcherAndDescriptor);
     SLScene::current->_descriptor->setDescriptor(orbSlamMatcherAndDescriptor);
@@ -108,7 +113,8 @@ SLCVTrackerFeatures::SLCVTrackerFeatures(SLNode *node) :
     _prev.foundPose = false;
 }
 
-SLCVTrackerFeatures::~SLCVTrackerFeatures() {
+SLCVTrackerFeatures::~SLCVTrackerFeatures()
+{
 #if TRACKING_MEASUREMENT
     int firstColWidth = 40;
 #if DISTINGUISH_FEATURE_DETECT_COMPUTE
@@ -176,8 +182,8 @@ void SLCVTrackerFeatures::loadModelPoints()
 
         //draw all projected map features on video stream
         circle(_map.imgDrawing, originalModelPoint, 1, CV_RGB(255, 0, 0), 1, FILLED);
-        putText(_map.imgDrawing, to_string(i), Point2f(originalModelPoint.x - 1, originalModelPoint.y - 1),
-            FONT_HERSHEY_SIMPLEX, 0.25, CV_RGB(255, 0, 0), 1.0);
+        //putText(_map.imgDrawing, to_string(i), Point2f(originalModelPoint.x - 1, originalModelPoint.y - 1),
+        //    FONT_HERSHEY_SIMPLEX, 0.25, CV_RGB(255, 0, 0), 1.0);
     }
 }
 
@@ -256,7 +262,7 @@ SLbool SLCVTrackerFeatures::track(SLCVMat imageGray,
             framePoints[i] =  keypoints[inlierMatches[i].queryIdx].pt;
         }
 
-        //if (modelPoints.size() > 0) {
+        if (modelPoints.size() > 0) {
             foundPose = cv::solvePnPRansac(modelPoints,
                                      framePoints,
                                      _calib->cameraMat(),
@@ -269,9 +275,9 @@ SLbool SLCVTrackerFeatures::track(SLCVMat imageGray,
                                      noArray(),
                                      SOLVEPNP_ITERATIVE
             );
-//        } else {
-//            foundPose = false;
-//        }
+        } else {
+            foundPose = false;
+        }
         // #####################################################################
     }
 
@@ -491,10 +497,9 @@ bool SLCVTrackerFeatures::calculatePose(const SLCVMat &imageVideo, vector<KeyPoi
     return foundPose;
 }
 
-
 //-----------------------------------------------------------------------------
 bool SLCVTrackerFeatures::trackWithOptFlow(SLCVMat &previousFrame, vector<Point2f> &previousPoints,
-                                           SLCVMat &currentFrame, vector<Point2f> &predPoints)
+    SLCVMat &currentFrame, vector<Point2f> &predPoints)
 {
     if (previousPoints.size() == 0) return false;
 
@@ -549,7 +554,7 @@ bool SLCVTrackerFeatures::trackWithOptFlow(SLCVMat &previousFrame, vector<Point2
 
 //-----------------------------------------------------------------------------
 bool SLCVTrackerFeatures::solvePnP(vector<Point3f> &modelPoints, vector<Point2f> &framePoints, bool guessExtrinsic,
-                                   SLCVMat &rvec, SLCVMat &tvec, vector<unsigned char> &inliersMask)
+    SLCVMat &rvec, SLCVMat &tvec, vector<unsigned char> &inliersMask)
 {
     /* We execute first RANSAC to eliminate wrong feature correspondences (outliers) and only use
      * the correct ones (inliers) for PnP solving (https://en.wikipedia.org/wiki/Perspective-n-Point).
@@ -608,7 +613,7 @@ bool SLCVTrackerFeatures::solvePnP(vector<Point3f> &modelPoints, vector<Point2f>
 
 //-----------------------------------------------------------------------------
 bool SLCVTrackerFeatures::optimizePose(const SLCVMat &imageVideo, vector<KeyPoint> &keypoints, const SLCVMat& descriptors,
-                                       vector<DMatch> &matches, SLCVMat &rvec, SLCVMat &tvec, bool tracking)
+    vector<DMatch> &matches, SLCVMat &rvec, SLCVMat &tvec, bool tracking)
 {
     double localReprojectionErrorSum = 0;
 
