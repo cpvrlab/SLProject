@@ -22,6 +22,7 @@ for a good top down information.
 #include <SLScene.h>
 #include <SLSceneView.h>
 #include <SLCVCapture.h>
+#include <pthread.h>
 
 //-----------------------------------------------------------------------------
 // Global static variables
@@ -74,10 +75,10 @@ void SLCVCapture::grabAndAdjustForSL()
     try
     {   if (_captureDevice.isOpened())
         {
-           if (!_captureDevice.read(lastFrame))
+            if (!_captureDevice.read(lastFrame))
                 return;
 
-           adjustForSL();
+            adjustForSL();
         }
         else
         {   static bool logOnce = true;
@@ -134,7 +135,7 @@ void SLCVCapture::adjustForSL()
         SLint height = 0;   // height in pixels of the destination image
         SLint cropH = 0;    // crop height in pixels of the source image
         SLint cropW = 0;    // crop width in pixels of the source image
-        
+
         if (inWdivH > outWdivH) // crop input image left & right
         {   width = (SLint)((SLfloat)lastFrame.rows * outWdivH);
             height = lastFrame.rows;
@@ -158,14 +159,14 @@ void SLCVCapture::adjustForSL()
     if (SLScene::current->activeCalib()->isMirroredH())
     {   SLCVMat mirrored;
         if (SLScene::current->activeCalib()->isMirroredV())
-             cv::flip(SLCVCapture::lastFrame, mirrored,-1);
+            cv::flip(SLCVCapture::lastFrame, mirrored,-1);
         else cv::flip(SLCVCapture::lastFrame, mirrored, 1);
         SLCVCapture::lastFrame = mirrored;
     } else
     if (SLScene::current->activeCalib()->isMirroredV())
     {   SLCVMat mirrored;
         if (SLScene::current->activeCalib()->isMirroredH())
-             cv::flip(SLCVCapture::lastFrame, mirrored,-1);
+            cv::flip(SLCVCapture::lastFrame, mirrored,-1);
         else cv::flip(SLCVCapture::lastFrame, mirrored, 0);
         SLCVCapture::lastFrame = mirrored;
     }
@@ -219,20 +220,165 @@ void SLCVCapture::loadIntoLastFrame(const SLint width,
             default: SL_EXIT_MSG("Pixel format not supported");
         }
 
-        // calculate padding NO. of stride bytes (= step in OpenCV terminology)
-        size_t stride = 0;
+        // calculate padding NO. of destStride bytes (= step in OpenCV terminology)
+        size_t destStride = 0;
         if (!isContinuous)
         {
             SLint bitsPerPixel = bpp * 8;
             SLint bpl = ((width * bitsPerPixel + 31) / 32) * 4;
-            stride = (size_t)(bpl - width * bpp);
+            destStride = (size_t)(bpl - width * bpp);
         }
 
-        SLCVCapture::lastFrame = SLCVMat(height, width, cvType, (void*)data, stride);
+        SLCVCapture::lastFrame = SLCVMat(height, width, cvType, (void*)data, destStride);
     }
-    
+
     adjustForSL();
 }
+
+
+inline void yuv2rbg(SLubyte y, SLubyte u, SLubyte v,
+                    SLubyte& r, SLubyte& g, SLubyte& b)
+{
+    // Conversion from:
+    // https://de.wikipedia.org/wiki/YUV-Farbmodell
+    //float c = 1.164f*(float)(yVal-16);
+    //float d = (float)(uVal-128);
+    //float e = (float)(vVal-128);
+    //r = clipFToUInt8(c + 1.596f*e);
+    //g = clipFToUInt8(c - 0.391f*d - 0.813f*e);
+    //b = clipFToUInt8(c + 2.018f*d);
+
+    // Conversion from:
+    // http://www.wordsaretoys.com/2013/10/18/making-yuv-conversion-a-little-faster
+    // I've multiplied each floating point constant by 1024 and truncated it.
+    // Now I can add/subtract the scaled integers, and apply a bit shift right to
+    // divide each result by 1024
+    int e = v - 128;
+    int d = u - 128;
+    int a0 = 1192 * (y - 16);
+    int a1 = 1634 * e;
+    int a2 = 832 * e;
+    int a3 = 400 * d;
+    int a4 = 2066 * d;
+    r = (SLubyte)SL_clamp(     (a0 + a1) >> 10, 0, 255);
+    g = (SLubyte)SL_clamp((a0 - a2 - a3) >> 10, 0, 255);
+    b = (SLubyte)SL_clamp(     (a0 + a4) >> 10, 0, 255);
+
+    // Similar as above with multiplication and division by 2^8
+    //int c = 298*(yVal - 16) + 128;
+    //int d = uVal - 128;
+    //int e = vVal - 128;
+    //r = (SLubyte)SL_clamp(        (c + 409*e) >> 8, 0, 255);
+    //g = (SLubyte)SL_clamp((c - 100*d - 208*e) >> 8, 0, 255);
+    //b = (SLubyte)SL_clamp(        (c + 516*d) >> 8, 0, 255);
+
+    //r = clipFToUInt8(yVal + 1.40f*(vVal-128));
+    //g = clipFToUInt8(yVal - 0.34f*(uVal-128) - 0.71f*(vVal-128));
+    //b = clipFToUInt8(yVal + 1.77f*(uVal-128));
+}
+
+inline SLubyte clipFToUInt8(float val)
+{
+    float result = val;
+
+    if (result > 255.0f)
+        result = 255.0f;
+
+    if (result < 0.0f)
+        result = 0.0f;
+
+    return(SLubyte)result;
+}
+
+struct jd_color
+{
+    SLubyte b, g, r;
+};
+
+struct jd_threadInfoHeader
+{
+    int destPixSize;
+    int grayPixSize;
+    int yPixSize;
+    int uPixSize;
+    int vPixSize;
+    int destStride;
+    int grayStride;
+    int yStride;
+    int uStride;
+    int vStride;
+};
+
+struct jd_threadInfo
+{
+    jd_threadInfoHeader *header;
+    int rowCount;
+    int colCount;
+    SLubyte *destRow;
+    SLubyte *grayRow;
+    SLubyte *yRow;
+    SLubyte *uRow;
+    SLubyte *vRow;
+};
+
+void* copyToBuffer(void *arg)
+{
+    jd_threadInfo *info = (jd_threadInfo *)arg;
+
+    int rowCount = info->rowCount;
+    int colCount = info->colCount;
+
+    jd_threadInfoHeader *header = info->header;
+    int destPixSize = header->destPixSize;
+    int grayPixSize = header->grayPixSize;
+    int yPixSize = header->yPixSize;
+    int uPixSize = header->uPixSize;
+    int vPixSize = header->vPixSize;
+    int destStride = header->destStride;
+    int grayStride = header->grayStride;
+    int yStride = header->yStride;
+    int uStride = header->uStride;
+    int vStride = header->vStride;
+
+    for (int row = 0; row < rowCount; ++row)
+    {
+        jd_color* pixel = (jd_color *)info->destRow;
+        SLubyte* grayPix = info->grayRow;
+        SLubyte* yPix = info->yRow;
+        SLubyte* uPix = info->uRow;
+        SLubyte* vPix = info->vRow;
+
+        for (int col = 0; col < colCount; ++col)
+        {
+            yuv2rbg(*yPix, *uPix, *vPix, pixel->r,pixel->g, pixel->b);
+            *grayPix = *yPix;
+
+            pixel += destPixSize;
+            grayPix += grayPixSize;
+            yPix += yPixSize;
+
+            //if (col % 2) {
+            if (col & 1) {
+                uPix += uPixSize;
+                vPix += vPixSize;
+            }
+        }
+
+        info->destRow += destStride;
+        info->grayRow += grayStride;
+
+        info->yRow += yStride;
+
+        //if (row % 2) {
+        if (row & 1) {
+            info->uRow += uStride;
+            info->vRow += vStride;
+        }
+    }
+
+    return 0;
+}
+
 //------------------------------------------------------------------------------
 //! Copies and converts the video image in YUV_420 format to RGB and Grayscale
 /*! SLCVCapture::copyYUVPlanes copies and converts the video image in YUV_420
@@ -275,16 +421,16 @@ We therefore create a copy of the y-channel into SLCVCapture::lastFrameGray.
 \param srcH         Source image height in pixel
 \param y            Pointer to first byte of the top left pixel of the y-plane
 \param ySize        Size in bytes of the y-plane (must be srcW x srcH)
-\param yPixStride   Offest in bytes to the next pixel in the y-plane
-\param yLineStride  Offest in bytes to the next line in the y-plane
+\param yPixStride   Offset in bytes to the next pixel in the y-plane
+\param yLineStride  Offset in bytes to the next line in the y-plane
 \param u            Pointer to first byte of the top left pixel of the u-plane
 \param uSize        Size in bytes of the u-plane
-\param uPixStride   Offest in bytes to the next pixel in the u-plane
-\param uLineStride  Offest in bytes to the next line in the u-plane
+\param uPixStride   Offset in bytes to the next pixel in the u-plane
+\param uLineStride  Offset in bytes to the next line in the u-plane
 \param v            Pointer to first byte of the top left pixel of the v-plane
 \param vSize        Size in bytes of the v-plane
-\param vPixStride   Offest in bytes to the next pixel in the v-plane
-\param vLineStride  Offest in bytes to the next line in the v-plane
+\param vPixStride   Offset in bytes to the next pixel in the v-plane
+\param vLineStride  Offset in bytes to the next line in the v-plane
 */
 void SLCVCapture::copyYUVPlanes(int srcW, int srcH,
                                 SLuchar* y, int ySize, int yPixStride, int yLineStride,
@@ -310,12 +456,12 @@ void SLCVCapture::copyYUVPlanes(int srcW, int srcH,
 
     // Crop image if source and destination aspect is not the same
     if (SL_abs(srcWdivH - dstWdivH) > 0.01f)
-    {
-        if (srcWdivH > dstWdivH) // crop input image left & right
+    {   if (srcWdivH > dstWdivH) // crop input image left & right
         {   dstW  = (SLint)((SLfloat)srcH * dstWdivH);
             dstH  = srcH;
             cropW = (SLint)((SLfloat)(srcW - dstW) * 0.5f);
-        } else // crop input image at top & bottom
+        }
+        else // crop input image at top & bottom
         {   dstW  = srcW;
             dstH  = (SLint)((SLfloat)srcW / dstWdivH);
             cropH = (SLint)((SLfloat)(srcH - dstH) * 0.5f);
@@ -326,42 +472,109 @@ void SLCVCapture::copyYUVPlanes(int srcW, int srcH,
     bool mirrorH = s->activeCalib()->isMirroredH();
     bool mirrorV = s->activeCalib()->isMirroredV();
 
-    /*
-    Now do if possible only one loop over the source image to fill up the
-    RGB image in SLCVCapture::lastFrame and the grayscale image in
-    SLCVCapture::lastFrameGray.
+    // Create output color and grayscale images
+    lastFrame = SLCVMat(dstH, dstW, CV_8UC(3));
+    lastFrameGray = SLCVMat(dstH, dstW, CV_8UC(1));
+    format = SLCVImage::cv2glPixelFormat(lastFrame.type());
 
-    In the OpenCV docs:
-    http://docs.opencv.org/3.1.0/db/da5/tutorial_how_to_scan_images.html
-    the fasted way to iterate over an image matrix is in plain old C:
-
-    Mat& ScanImageAndReduceC(Mat& I, const uchar* const table)
-    {
-        // accept only char type matrices
-        CV_Assert(I.depth() == CV_8U);
-        int channels = I.channels();
-        int nRows = I.rows;
-        int nCols = I.cols * channels;
-        if (I.isContinuous())
-        {
-            nCols *= nRows;
-            nRows = 1;
-        }
-        int i,j;
-        uchar* p;
-        for( i = 0; i < nRows; ++i)
-        {
-            p = I.ptr<uchar>(i);
-            for ( j = 0; j < nCols; ++j)
-            {
-                p[j] = table[p[j]];
-            }
-        }
-        return I;
+    // Bugfix on some devices with wrong pixel strides
+    if (yLineStride==uLineStride && uPixStride==1)
+    {   uPixStride = 2;
+        vPixStride = 2;
     }
-    */
 
-    // ???
+    SLubyte* destRow = lastFrame.data;
+    SLubyte* grayRow = lastFrameGray.data;
+
+    int destPixSize = 3;
+    int destStride = dstW * destPixSize;
+    int grayPixSize = 1;
+    int grayStride = dstW * grayPixSize;
+
+    int destRowStride = dstW * destPixSize;
+    int grayRowStride = dstW;
+    if (mirrorH) {
+        destRow += (dstH - 1) * destStride;
+        grayRow += (dstH - 1) * grayStride;
+        destRowStride *= -1;
+        grayRowStride *= -1;
+    }
+
+    int destColStride = 1;
+    int grayColStride = grayPixSize;
+    if (mirrorV) {
+        destRow += (destStride - destPixSize);
+        grayRow += (grayStride - grayPixSize);
+        destColStride *= -1;
+        grayColStride *= -1;
+    }
+
+    int halfCropH = cropH/2;
+    int halfCropW = cropW/2;
+
+    SLubyte* yRow = y +     cropH*yLineStride +     cropW*yPixStride;
+    SLubyte* uRow = u + halfCropH*uLineStride + halfCropW*uPixStride;
+    SLubyte* vRow = v + halfCropH*vLineStride + halfCropW*vPixStride;
+
+    jd_threadInfoHeader tHeader;
+    tHeader.destPixSize = destColStride;
+    tHeader.grayPixSize = grayColStride;
+    tHeader.yPixSize    = yPixStride;
+    tHeader.uPixSize    = uPixStride;
+    tHeader.vPixSize    = vPixStride;
+    tHeader.destStride  = destRowStride;
+    tHeader.grayStride  = grayRowStride;
+    tHeader.yStride     = yLineStride;
+    tHeader.uStride     = uLineStride;
+    tHeader.vStride     = vLineStride;
+
+    int threadNum = 4;
+    pthread_t threads[threadNum];
+    jd_threadInfo threadInfos[threadNum];
+    int rowsPerThread = dstH / (threadNum + 1);
+    int halfRowsPerThread = (int)(rowsPerThread*0.5f);
+    int rowsHandled = 0;
+
+    for(int i = 0; i < threadNum; i++)
+    {
+        jd_threadInfo* info = threadInfos + i;
+        info->header   = &tHeader;
+        info->destRow  = destRow;
+        info->grayRow  = grayRow;
+        info->yRow     = yRow;
+        info->uRow     = uRow;
+        info->vRow     = vRow;
+        info->rowCount = rowsPerThread;
+        info->colCount = dstW;
+
+        pthread_t* t = threads + i;
+        pthread_create(t, NULL, copyToBuffer, info);
+        rowsHandled += rowsPerThread;
+
+        destRow += destRowStride *     rowsPerThread;
+        grayRow += grayRowStride *     rowsPerThread;
+        yRow    += yLineStride   *     rowsPerThread;
+        uRow    += uLineStride   * halfRowsPerThread;
+        vRow    += vLineStride   * halfRowsPerThread;
+    }
+
+    jd_threadInfo infoMain;
+    infoMain.header   = &tHeader;
+    infoMain.destRow  = destRow;
+    infoMain.grayRow  = grayRow;
+    infoMain.yRow     = yRow;
+    infoMain.uRow     = uRow;
+    infoMain.vRow     = vRow;
+    infoMain.rowCount = (dstH - rowsHandled);
+    infoMain.colCount = dstW;
+
+    copyToBuffer(&infoMain);
+
+    // Join all threads to continue single threaded
+    for(int i = 0; i < threadNum; i++)
+    {   pthread_t *t = threads + i;
+        pthread_join(*t, NULL);
+    }
 
     // Stop the capture time displayed in the statistics info
     s->captureTimesMS().set(s->timeMilliSec() - SLCVCapture::startCaptureTimeMS);
