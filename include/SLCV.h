@@ -24,6 +24,7 @@ for a good top down information.
 #include <opencv/cv.h>
 #include <opencv2/core.hpp>
 #include <opencv2/opencv.hpp>
+#include <opencv2/core/ocl.hpp>
 //-----------------------------------------------------------------------------
 typedef cv::Mat                     SLCVMat;
 typedef cv::Rect                    SLCVRect;

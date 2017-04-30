@@ -498,7 +498,7 @@ void SLCVCapture::copyYUVPlanes(int srcW, int srcH,
     imageInfo.vRowOffest    = vRowOffset;
 
     // Prepare the threads (hyperthreads seam to be unefficient on ARM)
-    int threadNum = 4; //SL_max(thread::hardware_concurrency(), 1U);
+    const int threadNum = 4; //SL_max(thread::hardware_concurrency(), 1U);
     vector<thread> threads;
     YUV2RGB_BlockInfo threadInfos[threadNum];
     int rowsPerThread = dstH / (threadNum + 1);
@@ -517,7 +517,9 @@ void SLCVCapture::copyYUVPlanes(int srcW, int srcH,
         info->rowCount  = rowsPerThread;
         info->colCount  = dstW;
 
+        ////////////////////////////////////////////////
         threads.push_back(thread(convertYUV2RGB, info));
+        ////////////////////////////////////////////////
 
         rowsHandled += rowsPerThread;
 
