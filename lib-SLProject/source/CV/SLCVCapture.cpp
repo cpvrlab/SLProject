@@ -22,7 +22,6 @@ for a good top down information.
 #include <SLScene.h>
 #include <SLSceneView.h>
 #include <SLCVCapture.h>
-#include <pthread.h>
 
 //-----------------------------------------------------------------------------
 // Global static variables
@@ -220,7 +219,7 @@ void SLCVCapture::loadIntoLastFrame(const SLint width,
             default: SL_EXIT_MSG("Pixel format not supported");
         }
 
-        // calculate padding NO. of destStride bytes (= step in OpenCV terminology)
+        // calculate padding NO. of bgrRowOffset bytes (= step in OpenCV terminology)
         size_t destStride = 0;
         if (!isContinuous)
         {
@@ -234,8 +233,8 @@ void SLCVCapture::loadIntoLastFrame(const SLint width,
 
     adjustForSL();
 }
-
-
+//-----------------------------------------------------------------------------
+//! YUV to RGB image infos. Offset value can be negative for mirrored copy.
 inline void yuv2rbg(SLubyte y, SLubyte u, SLubyte v,
                     SLubyte& r, SLubyte& g, SLubyte& b)
 {
@@ -263,116 +262,85 @@ inline void yuv2rbg(SLubyte y, SLubyte u, SLubyte v,
     r = (SLubyte)SL_clamp(     (a0 + a1) >> 10, 0, 255);
     g = (SLubyte)SL_clamp((a0 - a2 - a3) >> 10, 0, 255);
     b = (SLubyte)SL_clamp(     (a0 + a4) >> 10, 0, 255);
-
-    // Similar as above with multiplication and division by 2^8
-    //int c = 298*(yVal - 16) + 128;
-    //int d = uVal - 128;
-    //int e = vVal - 128;
-    //r = (SLubyte)SL_clamp(        (c + 409*e) >> 8, 0, 255);
-    //g = (SLubyte)SL_clamp((c - 100*d - 208*e) >> 8, 0, 255);
-    //b = (SLubyte)SL_clamp(        (c + 516*d) >> 8, 0, 255);
-
-    //r = clipFToUInt8(yVal + 1.40f*(vVal-128));
-    //g = clipFToUInt8(yVal - 0.34f*(uVal-128) - 0.71f*(vVal-128));
-    //b = clipFToUInt8(yVal + 1.77f*(uVal-128));
 }
-
-inline SLubyte clipFToUInt8(float val)
-{
-    float result = val;
-
-    if (result > 255.0f)
-        result = 255.0f;
-
-    if (result < 0.0f)
-        result = 0.0f;
-
-    return(SLubyte)result;
-}
-
-struct jd_color
+//-----------------------------------------------------------------------------
+//! YUV to RGB image infos. Offset value can be negative for mirrored copy.
+struct colorBGR
 {
     SLubyte b, g, r;
 };
-
-struct jd_threadInfoHeader
+//-----------------------------------------------------------------------------
+//! YUV to RGB image infos. Offset value can be negative for mirrored copy.
+struct YUV2RGB_ImageInfo
 {
-    int destPixSize;
-    int grayPixSize;
-    int yPixSize;
-    int uPixSize;
-    int vPixSize;
-    int destStride;
-    int grayStride;
-    int yStride;
-    int uStride;
-    int vStride;
+    int bgrColOffest;   //!< offset in bytes to the next bgr pixel (column)
+    int grayColOffest;  //!< offset in bytes to the next gray pixel (column)
+    int yColOffest;     //!< offset in bytes to the next y pixel (column)
+    int uColOffest;     //!< offset in bytes to the next u pixel (column)
+    int vColOffset;     //!< offset in bytes to the next v pixel (column)
+    int bgrRowOffset;   //!< offset in bytes to the next bgr row
+    int grayRowOffset;  //!< offset in bytes to the next grayscale row
+    int yRowOffset;     //!< offset in bytes to the y value of the next row
+    int uRowOffset;     //!< offset in bytes to the u value of the next row
+    int vRowOffest;     //!< offset in bytes to the v value of the next row
 };
-
-struct jd_threadInfo
+//-----------------------------------------------------------------------------
+//! YUV to RGB image block infos
+struct YUV2RGB_BlockInfo
 {
-    jd_threadInfoHeader *header;
-    int rowCount;
-    int colCount;
-    SLubyte *destRow;
-    SLubyte *grayRow;
-    SLubyte *yRow;
-    SLubyte *uRow;
-    SLubyte *vRow;
+    YUV2RGB_ImageInfo *imageInfo;   //!< Pointer to the image info
+    int     rowCount;   //!< Num. of rows in block
+    int     colCount;   //!< Num. of columns in block
+    SLubyte* bgrRow;    //!< Pointer to the bgr row
+    SLubyte* grayRow;   //!< Pointer to the grayscale row
+    SLubyte* yRow;      //!< Pointer to the y value row
+    SLubyte* uRow;      //!< Pointer to the u value row
+    SLubyte* vRow;      //!< Pointer to the v value row
 };
-
-void* copyToBuffer(void *arg)
+//-----------------------------------------------------------------------------
+//! YUV to RGB conversion function called by multiple threads
+void* convertYUV2RGB(void *arg)
 {
-    jd_threadInfo *info = (jd_threadInfo *)arg;
+    YUV2RGB_BlockInfo* block = (YUV2RGB_BlockInfo *)arg;
+    YUV2RGB_ImageInfo* image = block->imageInfo;
 
-    int rowCount = info->rowCount;
-    int colCount = info->colCount;
-
-    jd_threadInfoHeader *header = info->header;
-    int destPixSize = header->destPixSize;
-    int grayPixSize = header->grayPixSize;
-    int yPixSize = header->yPixSize;
-    int uPixSize = header->uPixSize;
-    int vPixSize = header->vPixSize;
-    int destStride = header->destStride;
-    int grayStride = header->grayStride;
-    int yStride = header->yStride;
-    int uStride = header->uStride;
-    int vStride = header->vStride;
-
-    for (int row = 0; row < rowCount; ++row)
+    for (int row = 0; row < block->rowCount; ++row)
     {
-        jd_color* pixel = (jd_color *)info->destRow;
-        SLubyte* grayPix = info->grayRow;
-        SLubyte* yPix = info->yRow;
-        SLubyte* uPix = info->uRow;
-        SLubyte* vPix = info->vRow;
+        colorBGR* bgrCol = (colorBGR *)block->bgrRow;
+        SLubyte* grayCol = block->grayRow;
+        SLubyte* yCol    = block->yRow;
+        SLubyte* uCol    = block->uRow;
+        SLubyte* vCol    = block->vRow;
 
-        for (int col = 0; col < colCount; ++col)
+        // convert 2 pixels in the inner loop
+        for (int col = 0; col < block->colCount; col+=2)
         {
-            yuv2rbg(*yPix, *uPix, *vPix, pixel->r,pixel->g, pixel->b);
-            *grayPix = *yPix;
+            yuv2rbg(*yCol, *uCol, *vCol, bgrCol->r,bgrCol->g, bgrCol->b);
+            *grayCol = *yCol;
 
-            pixel += destPixSize;
-            grayPix += grayPixSize;
-            yPix += yPixSize;
+            bgrCol  += image->bgrColOffest;
+            grayCol += image->grayColOffest;
+            yCol    += image->yColOffest;
 
-            //if (col % 2) {
-            if (col & 1) {
-                uPix += uPixSize;
-                vPix += vPixSize;
-            }
+            yuv2rbg(*yCol, *uCol, *vCol, bgrCol->r,bgrCol->g, bgrCol->b);
+            *grayCol = *yCol;
+
+            bgrCol  += image->bgrColOffest;
+            grayCol += image->grayColOffest;
+            yCol    += image->yColOffest;
+
+            uCol    += image->uColOffest;
+            vCol    += image->vColOffset;
         }
 
-        info->destRow += destStride;
-        info->grayRow += grayStride;
+        block->bgrRow  += image->bgrRowOffset;
+        block->grayRow += image->grayRowOffset;
+        block->yRow    += image->yRowOffset;
 
-        info->yRow += yStride;
-
-        //if (row % 2) {
-        if (row & 1) {
-            info->uRow += uStride;
-            info->vRow += vStride;
+        // if odd row
+        if (row & 1)
+        {   block->uRow += image->uRowOffset;
+            block->vRow += image->vRowOffest;
         }
     }
 
@@ -417,25 +385,25 @@ A faster integer version with bit shifting is:\n
 4) Many of the image processing tasks are faster done on grayscale images.
 We therefore create a copy of the y-channel into SLCVCapture::lastFrameGray.
 \n
-\param srcW         Source image width in pixel
-\param srcH         Source image height in pixel
-\param y            Pointer to first byte of the top left pixel of the y-plane
-\param ySize        Size in bytes of the y-plane (must be srcW x srcH)
-\param yPixStride   Offset in bytes to the next pixel in the y-plane
-\param yLineStride  Offset in bytes to the next line in the y-plane
-\param u            Pointer to first byte of the top left pixel of the u-plane
-\param uSize        Size in bytes of the u-plane
-\param uPixStride   Offset in bytes to the next pixel in the u-plane
-\param uLineStride  Offset in bytes to the next line in the u-plane
-\param v            Pointer to first byte of the top left pixel of the v-plane
-\param vSize        Size in bytes of the v-plane
-\param vPixStride   Offset in bytes to the next pixel in the v-plane
-\param vLineStride  Offset in bytes to the next line in the v-plane
+\param srcW        Source image width in pixel
+\param srcH        Source image height in pixel
+\param y           Pointer to first byte of the top left pixel of the y-plane
+\param yBytes      Size in bytes of the y-plane (must be srcW x srcH)
+\param yColOffset  Offset in bytes to the next pixel in the y-plane
+\param yRowOffset  Offset in bytes to the next line in the y-plane
+\param u           Pointer to first byte of the top left pixel of the u-plane
+\param uBytes      Size in bytes of the u-plane
+\param uColOffset  Offset in bytes to the next pixel in the u-plane
+\param uRowOffset  Offset in bytes to the next line in the u-plane
+\param v           Pointer to first byte of the top left pixel of the v-plane
+\param vBytes      Size in bytes of the v-plane
+\param vColOffset  Offset in bytes to the next pixel in the v-plane
+\param vRowOffset  Offset in bytes to the next line in the v-plane
 */
 void SLCVCapture::copyYUVPlanes(int srcW, int srcH,
-                                SLuchar* y, int ySize, int yPixStride, int yLineStride,
-                                SLuchar* u, int uSize, int uPixStride, int uLineStride,
-                                SLuchar* v, int vSize, int vPixStride, int vLineStride)
+                                SLuchar* y, int yBytes, int yColOffset, int yRowOffset,
+                                SLuchar* u, int uBytes, int uColOffset, int uRowOffset,
+                                SLuchar* v, int vBytes, int vColOffset, int vRowOffset)
 {
     // pointer to the active scene
     SLScene* s = SLScene::current;
@@ -472,109 +440,108 @@ void SLCVCapture::copyYUVPlanes(int srcW, int srcH,
     bool mirrorH = s->activeCalib()->isMirroredH();
     bool mirrorV = s->activeCalib()->isMirroredV();
 
-    // Create output color and grayscale images
-    lastFrame = SLCVMat(dstH, dstW, CV_8UC(3));
+    // Create output color (BGR) and grayscale images
+    lastFrame     = SLCVMat(dstH, dstW, CV_8UC(3));
     lastFrameGray = SLCVMat(dstH, dstW, CV_8UC(1));
-    format = SLCVImage::cv2glPixelFormat(lastFrame.type());
+    format        = SLCVImage::cv2glPixelFormat(lastFrame.type());
 
-    // Bugfix on some devices with wrong pixel strides
-    if (yLineStride==uLineStride && uPixStride==1)
-    {   uPixStride = 2;
-        vPixStride = 2;
+    // Bugfix on some devices with wrong pixel offsets
+    if (yRowOffset==uRowOffset && uColOffset==1)
+    {   uColOffset = 2;
+        vColOffset = 2;
     }
 
-    SLubyte* destRow = lastFrame.data;
+    SLubyte* bgrRow  = lastFrame.data;
     SLubyte* grayRow = lastFrameGray.data;
 
-    int destPixSize = 3;
-    int destStride = dstW * destPixSize;
-    int grayPixSize = 1;
-    int grayStride = dstW * grayPixSize;
+    int bgrColBytes  = 3;
+    int bgrRowBytes  = dstW * bgrColBytes;
+    int grayColBytes = 1;
+    int grayRowBytes = dstW * grayColBytes;
 
-    int destRowStride = dstW * destPixSize;
-    int grayRowStride = dstW;
+    int bgrRowOffset  = dstW * bgrColBytes;
+    int grayRowOffset = dstW;
     if (mirrorH) {
-        destRow += (dstH - 1) * destStride;
-        grayRow += (dstH - 1) * grayStride;
-        destRowStride *= -1;
-        grayRowStride *= -1;
+        bgrRow  += (dstH - 1) * bgrRowBytes;
+        grayRow += (dstH - 1) * grayRowBytes;
+        bgrRowOffset  *= -1;
+        grayRowOffset *= -1;
     }
 
-    int destColStride = 1;
-    int grayColStride = grayPixSize;
+    int bgrColOffset = 1;
+    int grayColOffset = grayColBytes;
     if (mirrorV) {
-        destRow += (destStride - destPixSize);
-        grayRow += (grayStride - grayPixSize);
-        destColStride *= -1;
-        grayColStride *= -1;
+        bgrRow  += (bgrRowBytes - bgrColBytes);
+        grayRow += (grayRowBytes - grayColBytes);
+        bgrColOffset  *= -1;
+        grayColOffset *= -1;
     }
 
     int halfCropH = cropH/2;
     int halfCropW = cropW/2;
 
-    SLubyte* yRow = y +     cropH*yLineStride +     cropW*yPixStride;
-    SLubyte* uRow = u + halfCropH*uLineStride + halfCropW*uPixStride;
-    SLubyte* vRow = v + halfCropH*vLineStride + halfCropW*vPixStride;
+    // set source pointers
+    SLubyte* yRow = y +     cropH*yRowOffset +     cropW*yColOffset;
+    SLubyte* uRow = u + halfCropH*uRowOffset + halfCropW*uColOffset;
+    SLubyte* vRow = v + halfCropH*vRowOffset + halfCropW*vColOffset;
 
-    jd_threadInfoHeader tHeader;
-    tHeader.destPixSize = destColStride;
-    tHeader.grayPixSize = grayColStride;
-    tHeader.yPixSize    = yPixStride;
-    tHeader.uPixSize    = uPixStride;
-    tHeader.vPixSize    = vPixStride;
-    tHeader.destStride  = destRowStride;
-    tHeader.grayStride  = grayRowStride;
-    tHeader.yStride     = yLineStride;
-    tHeader.uStride     = uLineStride;
-    tHeader.vStride     = vLineStride;
+    YUV2RGB_ImageInfo imageInfo;
+    imageInfo.bgrColOffest  = bgrColOffset;
+    imageInfo.grayColOffest = grayColOffset;
+    imageInfo.yColOffest    = yColOffset;
+    imageInfo.uColOffest    = uColOffset;
+    imageInfo.vColOffset    = vColOffset;
+    imageInfo.bgrRowOffset  = bgrRowOffset;
+    imageInfo.grayRowOffset = grayRowOffset;
+    imageInfo.yRowOffset    = yRowOffset;
+    imageInfo.uRowOffset    = uRowOffset;
+    imageInfo.vRowOffest    = vRowOffset;
 
-    int threadNum = 4;
-    pthread_t threads[threadNum];
-    jd_threadInfo threadInfos[threadNum];
+    // Prepare the threads (hyperthreads seam to be unefficient on ARM)
+    int threadNum = 4; //SL_max(thread::hardware_concurrency(), 1U);
+    vector<thread> threads;
+    YUV2RGB_BlockInfo threadInfos[threadNum];
     int rowsPerThread = dstH / (threadNum + 1);
     int halfRowsPerThread = (int)(rowsPerThread*0.5f);
     int rowsHandled = 0;
 
-    for(int i = 0; i < threadNum; i++)
+    for(int i = 0; i < threadNum-1; i++)
     {
-        jd_threadInfo* info = threadInfos + i;
-        info->header   = &tHeader;
-        info->destRow  = destRow;
-        info->grayRow  = grayRow;
-        info->yRow     = yRow;
-        info->uRow     = uRow;
-        info->vRow     = vRow;
-        info->rowCount = rowsPerThread;
-        info->colCount = dstW;
+        YUV2RGB_BlockInfo* info = threadInfos + i;
+        info->imageInfo = &imageInfo;
+        info->bgrRow    = bgrRow;
+        info->grayRow   = grayRow;
+        info->yRow      = yRow;
+        info->uRow      = uRow;
+        info->vRow      = vRow;
+        info->rowCount  = rowsPerThread;
+        info->colCount  = dstW;
 
-        pthread_t* t = threads + i;
-        pthread_create(t, NULL, copyToBuffer, info);
+        threads.push_back(thread(convertYUV2RGB, info));
+
         rowsHandled += rowsPerThread;
 
-        destRow += destRowStride *     rowsPerThread;
-        grayRow += grayRowStride *     rowsPerThread;
-        yRow    += yLineStride   *     rowsPerThread;
-        uRow    += uLineStride   * halfRowsPerThread;
-        vRow    += vLineStride   * halfRowsPerThread;
+        bgrRow  += bgrRowOffset  *     rowsPerThread;
+        grayRow += grayRowOffset *     rowsPerThread;
+        yRow    += yRowOffset    *     rowsPerThread;
+        uRow    += uRowOffset    * halfRowsPerThread;
+        vRow    += vRowOffset    * halfRowsPerThread;
     }
 
-    jd_threadInfo infoMain;
-    infoMain.header   = &tHeader;
-    infoMain.destRow  = destRow;
-    infoMain.grayRow  = grayRow;
-    infoMain.yRow     = yRow;
-    infoMain.uRow     = uRow;
-    infoMain.vRow     = vRow;
-    infoMain.rowCount = (dstH - rowsHandled);
-    infoMain.colCount = dstW;
+    YUV2RGB_BlockInfo infoMain;
+    infoMain.imageInfo = &imageInfo;
+    infoMain.bgrRow    = bgrRow;
+    infoMain.grayRow   = grayRow;
+    infoMain.yRow      = yRow;
+    infoMain.uRow      = uRow;
+    infoMain.vRow      = vRow;
+    infoMain.rowCount  = (dstH - rowsHandled);
+    infoMain.colCount  = dstW;
 
-    copyToBuffer(&infoMain);
+    convertYUV2RGB(&infoMain);
 
     // Join all threads to continue single threaded
-    for(int i = 0; i < threadNum; i++)
-    {   pthread_t *t = threads + i;
-        pthread_join(*t, NULL);
-    }
+    for(auto& thread : threads) thread.join();
 
     // Stop the capture time displayed in the statistics info
     s->captureTimesMS().set(s->timeMilliSec() - SLCVCapture::startCaptureTimeMS);
