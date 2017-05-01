@@ -1,7 +1,7 @@
 //#############################################################################
 //  File:      SLCVCapture.cpp
 //  Purpose:   OpenCV Capture Device
-//  Author:    Michael Goettlicher, Marcus Hudritsch
+//  Authors:   Michael Goettlicher, Marcus Hudritsch, Jan Dellsperger
 //  Date:      Winter 2016
 //  Codestyle: https://github.com/cpvrlab/SLProject/wiki/Coding-Style-Guidelines
 //  Copyright: Marcus Hudritsch
@@ -285,7 +285,7 @@ struct YUV2RGB_ImageInfo
     int vRowOffest;     //!< offset in bytes to the v value of the next row
 };
 //-----------------------------------------------------------------------------
-//! YUV to RGB image block infos
+//! YUV to RGB image block infos that are different per thread
 struct YUV2RGB_BlockInfo
 {
     YUV2RGB_ImageInfo *imageInfo;   //!< Pointer to the image info
@@ -299,9 +299,11 @@ struct YUV2RGB_BlockInfo
 };
 //-----------------------------------------------------------------------------
 //! YUV to RGB conversion function called by multiple threads
-void* convertYUV2RGB(void *arg)
+/*!
+/param info image block information struct with thread specific information
+*/
+void* convertYUV2RGB(YUV2RGB_BlockInfo* block)
 {
-    YUV2RGB_BlockInfo* block = (YUV2RGB_BlockInfo *)arg;
     YUV2RGB_ImageInfo* image = block->imageInfo;
 
     for (int row = 0; row < block->rowCount; ++row)
@@ -459,6 +461,7 @@ void SLCVCapture::copyYUVPlanes(int srcW, int srcH,
     int grayColBytes = 1;
     int grayRowBytes = dstW * grayColBytes;
 
+    // Adjust the offsets depending on the horizontal mirroring
     int bgrRowOffset  = dstW * bgrColBytes;
     int grayRowOffset = dstW;
     if (mirrorH) {
@@ -468,6 +471,7 @@ void SLCVCapture::copyYUVPlanes(int srcW, int srcH,
         grayRowOffset *= -1;
     }
 
+    // Adjust the offsets depending on the vertical mirroring
     int bgrColOffset = 1;
     int grayColOffset = grayColBytes;
     if (mirrorV) {
@@ -477,14 +481,14 @@ void SLCVCapture::copyYUVPlanes(int srcW, int srcH,
         grayColOffset *= -1;
     }
 
+    // Set source buffer pointers
     int halfCropH = cropH/2;
     int halfCropW = cropW/2;
-
-    // set source pointers
     SLubyte* yRow = y +     cropH*yRowOffset +     cropW*yColOffset;
     SLubyte* uRow = u + halfCropH*uRowOffset + halfCropW*uColOffset;
     SLubyte* vRow = v + halfCropH*vRowOffset + halfCropW*vColOffset;
 
+    // Set the information common for all thread blocks
     YUV2RGB_ImageInfo imageInfo;
     imageInfo.bgrColOffest  = bgrColOffset;
     imageInfo.grayColOffest = grayColOffset;
@@ -505,6 +509,7 @@ void SLCVCapture::copyYUVPlanes(int srcW, int srcH,
     int halfRowsPerThread = (int)(rowsPerThread*0.5f);
     int rowsHandled = 0;
 
+    // Launch threadNum-1 threads on different blocks of the image
     for(int i = 0; i < threadNum-1; i++)
     {
         YUV2RGB_BlockInfo* info = threadInfos + i;
@@ -530,6 +535,7 @@ void SLCVCapture::copyYUVPlanes(int srcW, int srcH,
         vRow    += vRowOffset    * halfRowsPerThread;
     }
 
+    // Launch the last block on the main thread
     YUV2RGB_BlockInfo infoMain;
     infoMain.imageInfo = &imageInfo;
     infoMain.bgrRow    = bgrRow;
