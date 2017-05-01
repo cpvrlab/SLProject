@@ -43,8 +43,8 @@ using namespace cv;
 #define DRAW_REPOSE_INFO 0
 
 // Redefine Qt build parameters for Android build
-//#define SL_VIDEO_DEBUG
 #define SL_TRACKER_IMAGE_NAME "stones"
+//#define SL_VIDEO_DEBUG
 //#define SL_SAVE_DEBUG_OUTPUT
 
 #ifdef SL_SAVE_DEBUG_OUTPUT
@@ -171,6 +171,7 @@ void SLCVTrackerFeatures::loadModelPoints()
     /*
      * Draw the projected points and keypoints into the MODEL
      */
+#if DRAW_REPOSE_INFO
     _map.frameGray.copyTo(_map.imgDrawing);
     cvtColor(_map.imgDrawing, _map.imgDrawing, CV_GRAY2BGR);
 
@@ -182,9 +183,10 @@ void SLCVTrackerFeatures::loadModelPoints()
 
         //draw all projected map features on video stream
         circle(_map.imgDrawing, originalModelPoint, 1, CV_RGB(255, 0, 0), 1, FILLED);
-        //putText(_map.imgDrawing, to_string(i), Point2f(originalModelPoint.x - 1, originalModelPoint.y - 1),
-        //    FONT_HERSHEY_SIMPLEX, 0.25, CV_RGB(255, 0, 0), 1.0);
+        putText(_map.imgDrawing, std::to_string(i), Point2f(originalModelPoint.x - 1, originalModelPoint.y - 1),
+            FONT_HERSHEY_SIMPLEX, 0.25, CV_RGB(255, 0, 0), 1.0);
     }
+#endif
 }
 
 //------------------------------------------------------------------------------
