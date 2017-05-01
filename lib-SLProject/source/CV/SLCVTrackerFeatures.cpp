@@ -43,7 +43,7 @@ using namespace cv;
 #define DRAW_REPOSE_INFO 0
 
 // Redefine Qt build parameters for Android build
-#define SL_VIDEO_DEBUG
+//#define SL_VIDEO_DEBUG
 #define SL_TRACKER_IMAGE_NAME "stones"
 //#define SL_SAVE_DEBUG_OUTPUT
 

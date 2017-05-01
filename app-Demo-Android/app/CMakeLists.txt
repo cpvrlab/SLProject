@@ -180,7 +180,6 @@ set(OPENGL_LIB_v3 GLESv3)
 
 target_link_libraries(  native-lib
                         lib_opencv
-                        #${OPENGL_LIB_v2}
                         ${OPENGL_LIB_v3}
                         ${log-lib}
                      )
