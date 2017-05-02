@@ -60,7 +60,7 @@ const float minRatio = 0.7f;
 
 // RANSAC parameters
 const int iterations = 500;
-const float reprojectionError = 2.0f;
+const float reprojection_error = 2.0f;
 const double confidence = 0.98;
 
 // Repose patch size
@@ -205,6 +205,7 @@ SLbool SLCVTrackerFeatures::track(SLCVMat imageGray,
     vector<Point2f> points2D;
     SLCVVKeyPoint keypoints;
     SLCVMat descriptors;
+    float reprojectionError = 0;
 
     SLCVMat rvec = cv::Mat::zeros(3, 1, CV_64FC1);      // rotation matrix
     SLCVMat tvec = cv::Mat::zeros(3, 1, CV_64FC1);      // translation matrix
@@ -230,7 +231,13 @@ SLbool SLCVTrackerFeatures::track(SLCVMat imageGray,
      }
 
     // TODO: Handle detecting || tracking correctly!
-    if (FORCE_REPOSE || frameCount % 10 == 0 || !_prev.foundPose) { // || lastNmatchedKeypoints * 0.6f > _prev.points2D.size()) {
+    if (FORCE_REPOSE ||
+            frameCount % 10 == 0 ||
+            !_prev.foundPose ||
+            _prev.points2D.size() < 0.8 * _map.keypoints.size() ||
+            _prev.reprojectionError > 3 * reprojectionError
+            )
+    {
 #if DISTINGUISH_FEATURE_DETECT_COMPUTE
         // Detect keypoints ####################################################
         keypoints = getKeypoints(imageGray);
@@ -255,31 +262,7 @@ SLbool SLCVTrackerFeatures::track(SLCVMat imageGray,
     } else {
         // Feature tracking ####################################################
         getKeypointsAndDescriptors(imageGray, keypoints, descriptors);
-        optimizePose(image, keypoints, descriptors, inlierMatches, rvec, tvec, true);
-
-        vector<Point3f> modelPoints(inlierMatches.size());
-        vector<Point2f> framePoints(inlierMatches.size());
-        for (size_t i = 0; i < inlierMatches.size(); i++) {
-            modelPoints[i] = _map.model[inlierMatches[i].trainIdx];
-            framePoints[i] =  keypoints[inlierMatches[i].queryIdx].pt;
-        }
-
-        if (modelPoints.size() > 0) {
-            foundPose = cv::solvePnPRansac(modelPoints,
-                                     framePoints,
-                                     _calib->cameraMat(),
-                                     _calib->distortion(),
-                                     rvec, tvec,
-                                     true,
-                                     iterations,
-                                     reprojectionError,
-                                     confidence,
-                                     noArray(),
-                                     SOLVEPNP_ITERATIVE
-            );
-        } else {
-            foundPose = false;
-        }
+        foundPose = optimizePose(image, keypoints, descriptors, inlierMatches, rvec, tvec, reprojectionError, true);
         // #####################################################################
     }
 
@@ -322,6 +305,7 @@ SLbool SLCVTrackerFeatures::track(SLCVMat imageGray,
 
     // Copy actual frame data to _prev struct for next frame
     _prev.imageGray = imageGray;
+    _prev.reprojectionError = reprojectionError;
     _prev.image = image;
     _prev.points2D = points2D;
     _prev.rvec = rvec;
@@ -452,10 +436,63 @@ bool SLCVTrackerFeatures::calculatePose(const SLCVMat &imageVideo, vector<KeyPoi
         framePoints[i] =  keypoints[allMatches[i].queryIdx].pt;
     }
 
-    // Finding PnP solution
-    vector<unsigned char> inliersMask(modelPoints.size());
-    bool foundPose = solvePnP(modelPoints, framePoints, extrinsicGuess, rvec, tvec, inliersMask);
 
+    /* We execute first RANSAC to eliminate wrong feature correspondences (outliers) and only use
+     * the correct ones (inliers) for PnP solving (https://en.wikipedia.org/wiki/Perspective-n-Point).
+     *
+     * Methods of solvePnP
+     *
+     * P3P: If we have 3 Points given, we have the minimal form of the PnP problem. We can
+     *  treat the points as a triangle definition ABC. We have 3 corner points and 3 angles.
+     *  Because we get many soulutions for the equation, there will be a fourth point which
+     *  removes the ambiguity. Therefore the OpenCV implementation requires 4 points to use
+     *  this method.
+     *
+     * EPNP: This method is used if there are n >= 4 points. The reference points are expressed
+     *  as 4 virtual control points. The coordinates of these points are the unknowns for the
+     *  equtation.
+     *
+     * ITERATIVE: Calculates pose using the DLT (Direct Linear Transform) method. If there is
+     *  a homography will be much easier and no DLT will be used. Otherwise we are using the DLT
+     *  and make a Levenberg-Marquardt optimization. The latter helps to decrease the reprojection
+     *  error which is the sum of the squared distances between the image and object points.
+     *
+     *
+     * 1.) Call RANSAC with EPNP ----------------------------
+     * The RANdom Sample Consensus algorithm is called to remove "wrong" point correspondences
+     *  which makes the solvePnP more robust. The so called inliers are used for calculation,
+     *  wrong correspondences (outliers) will be ignored. Therefore the method below will first
+     *  run a solvePnP with the EPNP method and returns the reprojection error. EPNP works like
+     *  the following:
+     *  1. Choose the 4 control pints: C0 as centroid of reference points, C1, C2 and C3 from PCA
+     *      of the reference points
+     *  2. Compute barycentric coordinates with the control points
+     *  3. Derivate the image reference points with the above
+     *  .... ???
+     *
+     * 2.) Call PnP ITERATIVE -------------------------------
+     * General problem: We have a calibrated cam and sets of corresponding 2D/3D points.
+     *  We will calculate the rotation and translation in respect to world coordinates.
+     *
+     *  1. If for no extrinsic guess, begin with computation
+     *  2. If planarity is detected, find homography, otherwise use DLT method
+     *  3. After sucessful determination of a pose, optimize it with Levenberg-Marquardt (iterative part)
+     *
+     */
+    vector<unsigned char> inliersMask(modelPoints.size());
+    bool foundPose =  cv::solvePnPRansac(modelPoints,
+                              framePoints,
+                              _calib->cameraMat(),
+                              _calib->distortion(),
+                              rvec, tvec,
+                              extrinsicGuess,
+                              iterations,
+                              reprojection_error,
+                              confidence,
+                              inliersMask
+    );
+
+    // Get matches with help of inlier indices
     for (size_t i = 0; i < inliersMask.size(); i++) {
         size_t idx = inliersMask[i];
         inlierMatches.push_back(allMatches[idx]);
@@ -469,23 +506,7 @@ bool SLCVTrackerFeatures::calculatePose(const SLCVMat &imageVideo, vector<KeyPoi
     // Pose optimization
     if (foundPose) {
         int matchesBefore = inlierMatches.size();
-        optimizePose(imageVideo, keypoints, descriptors, inlierMatches, rvec, tvec);
-
-        modelPoints = vector<Point3f>(inlierMatches.size());
-        framePoints = vector<Point2f>(inlierMatches.size());
-        for (size_t i = 0; i < inlierMatches.size(); i++) {
-            modelPoints[i] = _map.model[inlierMatches[i].trainIdx];
-            framePoints[i] =  keypoints[inlierMatches[i].queryIdx].pt;
-        }
-
-        foundPose = cv::solvePnP(modelPoints,
-                                 framePoints,
-                                 _calib->cameraMat(),
-                                 _calib->distortion(),
-                                 rvec, tvec,
-                                 true,
-                                 SOLVEPNP_ITERATIVE
-        );
+        foundPose = optimizePose(imageVideo, keypoints, descriptors, inlierMatches, rvec, tvec);
 
 #if DEBUG_OUTPUT
         cout << "Optimize pose: " << inlierMatches.size() - matchesBefore << " more matches found" << endl;
@@ -555,69 +576,9 @@ bool SLCVTrackerFeatures::trackWithOptFlow(SLCVMat &previousFrame, vector<Point2
 }
 
 //-----------------------------------------------------------------------------
-bool SLCVTrackerFeatures::solvePnP(vector<Point3f> &modelPoints, vector<Point2f> &framePoints, bool guessExtrinsic,
-    SLCVMat &rvec, SLCVMat &tvec, vector<unsigned char> &inliersMask)
-{
-    /* We execute first RANSAC to eliminate wrong feature correspondences (outliers) and only use
-     * the correct ones (inliers) for PnP solving (https://en.wikipedia.org/wiki/Perspective-n-Point).
-     *
-     * Methods of solvePnP
-     *
-     * P3P: If we have 3 Points given, we have the minimal form of the PnP problem. We can
-     *  treat the points as a triangle definition ABC. We have 3 corner points and 3 angles.
-     *  Because we get many soulutions for the equation, there will be a fourth point which
-     *  removes the ambiguity. Therefore the OpenCV implementation requires 4 points to use
-     *  this method.
-     *
-     * EPNP: This method is used if there are n >= 4 points. The reference points are expressed
-     *  as 4 virtual control points. The coordinates of these points are the unknowns for the
-     *  equtation.
-     *
-     * ITERATIVE: Calculates pose using the DLT (Direct Linear Transform) method. If there is
-     *  a homography will be much easier and no DLT will be used. Otherwise we are using the DLT
-     *  and make a Levenberg-Marquardt optimization. The latter helps to decrease the reprojection
-     *  error which is the sum of the squared distances between the image and object points.
-     *
-     *
-     * 1.) Call RANSAC with EPNP ----------------------------
-     * The RANdom Sample Consensus algorithm is called to remove "wrong" point correspondences
-     *  which makes the solvePnP more robust. The so called inliers are used for calculation,
-     *  wrong correspondences (outliers) will be ignored. Therefore the method below will first
-     *  run a solvePnP with the EPNP method and returns the reprojection error. EPNP works like
-     *  the following:
-     *  1. Choose the 4 control pints: C0 as centroid of reference points, C1, C2 and C3 from PCA
-     *      of the reference points
-     *  2. Compute barycentric coordinates with the control points
-     *  3. Derivate the image reference points with the above
-     *  .... ???
-     *
-     * 2.) Call PnP ITERATIVE -------------------------------
-     * General problem: We have a calibrated cam and sets of corresponding 2D/3D points.
-     *  We will calculate the rotation and translation in respect to world coordinates.
-     *
-     *  1. If for no extrinsic guess, begin with computation
-     *  2. If planarity is detected, find homography, otherwise use DLT method
-     *  3. After sucessful determination of a pose, optimize it with Levenberg-Marquardt (iterative part)
-     *
-     */
-    return cv::solvePnPRansac(modelPoints,
-                              framePoints,
-                              _calib->cameraMat(),
-                              _calib->distortion(),
-                              rvec, tvec,
-                              guessExtrinsic,
-                              iterations,
-                              reprojectionError,
-                              confidence,
-                              inliersMask
-    );
-}
-
-//-----------------------------------------------------------------------------
 bool SLCVTrackerFeatures::optimizePose(const SLCVMat &imageVideo, vector<KeyPoint> &keypoints, const SLCVMat& descriptors,
-    vector<DMatch> &matches, SLCVMat &rvec, SLCVMat &tvec, bool tracking)
+    vector<DMatch> &matches, SLCVMat &rvec, SLCVMat &tvec, float reprojectionError, bool tracking)
 {
-    double localReprojectionErrorSum = 0;
 
     // 1. Reproject the model points with the calculated POSE
     vector<Point2f> projectedPoints(_map.model.size());
@@ -633,6 +594,10 @@ bool SLCVTrackerFeatures::optimizePose(const SLCVMat &imageVideo, vector<KeyPoin
             continue;
 
         if (!tracking) {
+            matches.clear();
+        } else {
+            // Hack to remove actual match from already matched keypoints. If we don't remove them,
+            // it's possible to add duplicated matches later
             for (int j = 0; j < matches.size(); j++) {
                 if (matches[j].trainIdx == i) matches.erase(matches.begin() + j);
             }
@@ -643,10 +608,11 @@ bool SLCVTrackerFeatures::optimizePose(const SLCVMat &imageVideo, vector<KeyPoin
         vector<DMatch> newMatches;
 
         int patchSize = 2;
-        int maxPatchSize = 100;
+        int maxPatchSize = 30;
 
         while (newMatches.size() == 0 && patchSize <= maxPatchSize)
         {
+            // Increase matches by even number
             patchSize += 2;
             newMatches.clear();
             bboxFrameKeypoints.clear();
@@ -709,6 +675,11 @@ bool SLCVTrackerFeatures::optimizePose(const SLCVMat &imageVideo, vector<KeyPoin
             return false;
         }
 
+        // Get the keypoint which was used for pose estimation
+        Point2f keypointForPoseEstimation = keypoints[matches.back().queryIdx].pt;
+        double tmpReprojectionError = norm(Mat(projectedModelPoint), Mat(keypointForPoseEstimation));
+        reprojectionError += tmpReprojectionError;
+
 #if DRAW_REPROJECTION
         Mat imgReprojection = imageVideo;
 #else
@@ -730,9 +701,6 @@ bool SLCVTrackerFeatures::optimizePose(const SLCVMat &imageVideo, vector<KeyPoin
         /*
          * Draw the projected points and keypoints into the current FRAME
          */
-        // Get the keypoint which was used for pose estimation
-        Point2f keypointForPoseEstimation = keypoints[matches.back().queryIdx].pt;
-
         //draw all projected map features and the original keypoint on video stream
         circle(imgReprojection, projectedModelPoint, 2, CV_RGB(255, 0, 0), 1, FILLED);
         circle(imgReprojection, keypointForPoseEstimation, 5, CV_RGB(0, 0, 255), 1, FILLED);
@@ -741,12 +709,10 @@ bool SLCVTrackerFeatures::optimizePose(const SLCVMat &imageVideo, vector<KeyPoin
         putText(imgReprojection, to_string(i), Point2f(projectedModelPoint.x - 2, projectedModelPoint.y - 5),
             FONT_HERSHEY_SIMPLEX, 0.3, CV_RGB(255, 0, 0), 1.0);
 
-        double reprojectionError = norm(Mat(projectedModelPoint), Mat(keypointForPoseEstimation));
-        localReprojectionErrorSum += reprojectionError;
 #endif
     }
 
-    sum_reprojection_error += localReprojectionErrorSum / _map.model.size();
+    sum_reprojection_error += reprojectionError / _map.model.size();
 
 #if DRAW_REPROJECTION
     // Draw the projection error for the current frame
@@ -768,5 +734,22 @@ bool SLCVTrackerFeatures::optimizePose(const SLCVMat &imageVideo, vector<KeyPoin
     imwrite(SAVE_SNAPSHOTS_OUTPUT + to_string(frameCount) + "-poseoptimization.png", imgOut);
 #endif
 
-    return 0;
+
+    // Optimize POSE
+    vector<Point3f> modelPoints = vector<Point3f>(matches.size());
+    vector<Point2f> framePoints = vector<Point2f>(matches.size());
+    for (size_t i = 0; i < matches.size(); i++) {
+        modelPoints[i] = _map.model[matches[i].trainIdx];
+        framePoints[i] =  keypoints[matches[i].queryIdx].pt;
+    }
+
+    if (modelPoints.size() == 0) return false;
+    return cv::solvePnP(modelPoints,
+                             framePoints,
+                             _calib->cameraMat(),
+                             _calib->distortion(),
+                             rvec, tvec,
+                             true,
+                             SOLVEPNP_ITERATIVE
+    );
 }
