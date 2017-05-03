@@ -16,9 +16,12 @@ CONFIG -= qt
 CONFIG += warn_off
 
 DEFINES += "SL_STARTSCENE=C_sceneMeshLoad"
+
+# Christoffel project parameters
 #DEFINES += SL_VIDEO_DEBUG
 #DEFINES += SL_SAVE_DEBUG_OUTPUT
-DEFINES += "SL_TRACKER_IMAGE_NAME=\\\"stones\\\""
+#DEFINES += "SL_TRACKER_IMAGE_NAME=\\\"stones\\\""
+
 #define platform variable for folder name
 win32 {contains(QMAKE_TARGET.arch, x86_64) {PLATFORM = x64} else {PLATFORM = Win32}}
 macx {PLATFORM = macx}

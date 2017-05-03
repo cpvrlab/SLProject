@@ -42,8 +42,10 @@ using namespace cv;
 #define DRAW_REPROJECTION 0
 #define DRAW_REPOSE_INFO 0
 
-// Redefine Qt build parameters for Android build
-#define SL_TRACKER_IMAGE_NAME "stones"
+// Redefine Qt build parameters for Android build and testing purpose
+#ifndef SL_TRACKER_IMAGE_NAME
+    #define SL_TRACKER_IMAGE_NAME "stones"
+#endif
 //#define SL_VIDEO_DEBUG
 //#define SL_SAVE_DEBUG_OUTPUT
 
@@ -171,7 +173,7 @@ void SLCVTrackerFeatures::loadModelPoints()
     /*
      * Draw the projected points and keypoints into the MODEL
      */
-#if DRAW_REPOSE_INFO
+#if defined(SAVE_SNAPSHOTS_OUTPUT) || defined(DRAW_REPOSE_INFO)
     _map.frameGray.copyTo(_map.imgDrawing);
     cvtColor(_map.imgDrawing, _map.imgDrawing, CV_GRAY2BGR);
 
@@ -205,6 +207,7 @@ SLbool SLCVTrackerFeatures::track(SLCVMat imageGray,
     vector<Point2f> points2D;
     SLCVVKeyPoint keypoints;
     SLCVMat descriptors;
+    vector<DMatch> matches;
     float reprojectionError = 0;
 
     SLCVMat rvec = cv::Mat::zeros(3, 1, CV_64FC1);      // rotation matrix
@@ -236,7 +239,7 @@ SLbool SLCVTrackerFeatures::track(SLCVMat imageGray,
             !_prev.foundPose ||
             _prev.points2D.size() < 0.8 * _map.keypoints.size() ||
             _prev.reprojectionError > 3 * reprojectionError
-            )
+       )
     {
 #if DISTINGUISH_FEATURE_DETECT_COMPUTE
         // Detect keypoints ####################################################
@@ -251,9 +254,8 @@ SLbool SLCVTrackerFeatures::track(SLCVMat imageGray,
         getKeypointsAndDescriptors(imageGray, keypoints, descriptors);
 #endif
         // Feature Matching ####################################################
-        vector<DMatch> matches = getFeatureMatches(descriptors);
+        matches = getFeatureMatches(descriptors);
         // #####################################################################
-
 
         // POSE calculation ####################################################
         foundPose = calculatePose(image, keypoints, matches, inlierMatches, points2D, rvec, tvec, useExtrinsicGuess, descriptors);
@@ -261,8 +263,8 @@ SLbool SLCVTrackerFeatures::track(SLCVMat imageGray,
 
     } else {
         // Feature tracking ####################################################
-        getKeypointsAndDescriptors(imageGray, keypoints, descriptors);
-        foundPose = optimizePose(image, keypoints, descriptors, inlierMatches, rvec, tvec, reprojectionError, true);
+        vector<Point2f> predPoints(_prev.points2D.size());
+        trackWithOptFlow(_prev.imageGray, _prev.points2D, imageGray, predPoints);
         // #####################################################################
     }
 
@@ -286,20 +288,9 @@ SLbool SLCVTrackerFeatures::track(SLCVMat imageGray,
 #if defined(SAVE_SNAPSHOTS_OUTPUT)
     // Draw matches
     if (!inlierMatches.empty()) {
-        SLCVMat imgMatches;
-        drawMatches(imageGray, keypoints, _map.frameGray, _map.keypoints, inlierMatches, imgMatches,CV_RGB(255,0,0), CV_RGB(255,0,0));
-        imwrite(SAVE_SNAPSHOTS_OUTPUT + to_string(frameCount) + "-matching.png", imgMatches);
-    }
-
-    // Draw optical flow
-    if (/*foundPose &&*/ _prev.points2D.size() == points2D.size() && points2D.size() > 0) {
-        SLCVMat optFlow, rgb;
-        imageGray.copyTo(optFlow);
-        cvtColor(optFlow, rgb, CV_GRAY2BGR);
-        for (size_t i=0; i < points2D.size(); i++) {
-            cv::arrowedLine(rgb, _prev.points2D[i], points2D[i], Scalar(0, 255, 0), 1, LINE_8, 0, 0.2);
-        }
-        imwrite(SAVE_SNAPSHOTS_OUTPUT + to_string(frameCount) + "-optflow.png", rgb);
+//        SLCVMat imgMatches;
+//        drawMatches(imageGray, keypoints, _map.frameGray, _map.keypoints, inlierMatches, imgMatches,CV_RGB(255,0,0), CV_RGB(255,0,0));
+//        imwrite(SAVE_SNAPSHOTS_OUTPUT + to_string(frameCount) + "-matching.png", imgMatches);
     }
 #endif
 
@@ -555,24 +546,6 @@ bool SLCVTrackerFeatures::trackWithOptFlow(SLCVMat &previousFrame, vector<Point2
             predPoints.erase(predPoints.begin() + i);
         }
     }
-
-    // RANSAC crashes if 0 points are given
-    if (previousPoints.size() == 0) return false;
-
-    // Call solvePnP to get the pose from the previous known camera pose and the 3D correspondences and the predicted keypoints
-    /*
-    vector<Point3f> modelPoints(_prev.matches.size());
-    vector<Point2f> framePoints(_prev.matches.size());
-    for (size_t i = 0; i < _prev.matches.size(); i++) {
-        modelPoints[i] =  _map.model[_prev.matches[i].trainIdx];
-        framePoints[i] =  predPoints[_prev.matches[i].queryIdx].pt;
-    }
-
-    vector<unsigned char> inliersMask(previousPoints.size());
-    foundPose = solvePnP(_map.model, predPoints, true, rvec, tvec, inliersMask);
-    */
-
-    return false; // foundPose;
 }
 
 //-----------------------------------------------------------------------------
@@ -733,7 +706,6 @@ bool SLCVTrackerFeatures::optimizePose(const SLCVMat &imageVideo, vector<KeyPoin
     drawMatches(imageVideo, vector<KeyPoint>(), _map.imgDrawing, vector<KeyPoint>(), vector<DMatch>(), imgOut, CV_RGB(255,0,0), CV_RGB(255,0,0));
     imwrite(SAVE_SNAPSHOTS_OUTPUT + to_string(frameCount) + "-poseoptimization.png", imgOut);
 #endif
-
 
     // Optimize POSE
     vector<Point3f> modelPoints = vector<Point3f>(matches.size());
