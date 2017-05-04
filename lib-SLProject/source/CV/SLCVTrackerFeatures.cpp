@@ -25,7 +25,7 @@ for a good top down information.
 #include <time.h>
 #include <sys/types.h>
 #include <sys/stat.h>
-#include <opencv2/tracking.hpp>
+//#include <opencv2/tracking.hpp>
 
 #if defined(SL_OS_WINDOWS)
 #include <direct.h>
@@ -42,13 +42,12 @@ using namespace cv;
 #define DRAW_REPROJECTION 1
 #define DRAW_REPOSE_INFO 0
 
-// Redefine Qt build parameters for Android build and testing purpose
+// Set stones Tracker as default reference image
 #ifndef SL_TRACKER_IMAGE_NAME
     #define SL_TRACKER_IMAGE_NAME "stones"
 #endif
-//#define SL_VIDEO_DEBUG
-//#define SL_SAVE_DEBUG_OUTPUT
 
+//#define SL_SAVE_DEBUG_OUTPUT
 #ifdef SL_SAVE_DEBUG_OUTPUT
     #if defined(SL_OS_LINUX) || defined(SL_OS_MACOS) || defined(SL_OS_MACIOS)
     #define SAVE_SNAPSHOTS_OUTPUT "/tmp/cv_tracking/"
@@ -63,12 +62,12 @@ const float minRatio = 0.7f;
 // RANSAC parameters
 const int iterations = 500;
 const float reprojection_error = 2.0f;
-const double confidence = 0.98;
+const double confidence = 0.95;
 
 // Repose patch size
 const int reposeFrequency = 10;
 const int initialPatchSize = 2;
-const int maxPatchSize = 30;
+const int maxPatchSize = 60;
 
 // Benchmarking
 #define TRACKING_MEASUREMENT 1
@@ -132,49 +131,50 @@ SLCVTrackerFeatures::SLCVTrackerFeatures(SLNode *node) :
 SLCVTrackerFeatures::~SLCVTrackerFeatures()
 {
 #if TRACKING_MEASUREMENT
-    int firstColWidth = 48;
-
-    cout << endl << endl << endl;
-    cout << "------------------------------------------------------------------" << endl;
-    cout << "SLCVTrackerFeatures statistics" << endl;
-    cout << "------------------------------------------------------------------" << endl;
-
-    cout << endl << "Settings for Pose estimation: ------------------------------------" << endl;
-    cout << setw(firstColWidth) << "Features: " << nFeatures << endl;
-    cout << setw(firstColWidth) << "Minimal ratio for 2 best matches: " << minRatio << endl;
-    cout << setw(firstColWidth) << "RANSAC iterations: " << iterations << endl;
-    cout << setw(firstColWidth) << "RANSAC mean reprojection error: " << reprojection_error << endl;
-    cout << setw(firstColWidth) << "RANSAC confidence: " << confidence << endl;
-    cout << setw(firstColWidth) << "Repose frequency: " << "Each " << reposeFrequency << " point" << endl;
-    cout << setw(firstColWidth) << "Initial patch size for Pose optimization: " << initialPatchSize << endl;
-    cout << setw(firstColWidth) << "Maximal patch size for Pose optimization: " << maxPatchSize << endl;
-
+    SL_LOG(" \n");
+    SL_LOG(" \n");
+    SL_LOG("------------------------------------------------------------------\n");
+    SL_LOG("SLCVTrackerFeatures statistics \n");
+    SL_LOG("------------------------------------------------------------------\n");
+    SL_LOG("Avg calculation time per frame                   : %d\n", SLScene::current->trackingTimesMS().average());
+    SL_LOG(" \n");
+    SL_LOG("Settings for Pose estimation: ------------------------------------\n");
+    SL_LOG("Features                                         : %d\n", nFeatures);
+    SL_LOG("Minimal ratio for 2 best matches                 : %d\n", minRatio);
+    SL_LOG("RANSAC iterations                                : %d\n", iterations);
+    SL_LOG("RANSAC mean reprojection error                   : %d\n", reprojection_error);
+    SL_LOG("RANSAC confidence                                : %d\n",confidence );
+    SL_LOG("Repose frequency                                 : Each %d point\n", reposeFrequency);
+    SL_LOG("Initial patch size for Pose optimization         : %d\n", initialPatchSize);
+    SL_LOG("Maximal patch size for Pose optimization         : %d\n", maxPatchSize);
+    SL_LOG(" \n");
 #if DISTINGUISH_FEATURE_DETECT_COMPUTE
-    cout << endl << endl << "Detection: -------------------------------------------------------" << endl;
-    cout << setw(firstColWidth) << "Min detection Time (ms): " << low_detection_milis << endl;
-    cout << setw(firstColWidth) << "Avg detection Time (ms): " << sum_detection_millis / frameCount << endl;
-    cout << setw(firstColWidth) << "High detection Time (ms): " << high_detection_milis << endl << endl;
-
-    cout << "Extraction: ------------------------------------------------------" << endl;
-    cout << setw(firstColWidth) << "Min compute Time (ms): " << low_compute_milis << endl;
-    cout << setw(firstColWidth) << "Avg compute Time (ms): " << sum_compute_millis / frameCount << endl;
-    cout << setw(firstColWidth) << "High compute Time (ms): " << high_compute_milis << endl << endl;
+    SL_LOG("\nDetection: -------------------------------------------------------\n");
+    SL_LOG("Min detection Time (ms)                          : %d\n", low_detection_milis);
+    SL_LOG("Avg detection Time (ms)                          : %d\n", sum_detection_millis / frameCount);
+    SL_LOG("High detection Time (ms)                         : %d\n", high_detection_milis);
+    SL_LOG(" \n");
+    SL_LOG("\nExtraction: ------------------------------------------------------\n");
+    SL_LOG("Min compute Time (ms)                            : %d\n", low_compute_milis);
+    SL_LOG("Avg compute Time (ms)                            : %d\n", sum_compute_millis / frameCount);
+    SL_LOG("High compute Time (ms)                           : %d\n", high_compute_milis);
 #else
-    cout << endl << endl << "Feature detection and description: -------------------------------" << endl;
-    cout << setw(firstColWidth) << "Min detect & compute Time (ms): " << low_detectcompute_milis << endl;
-    cout << setw(firstColWidth) << "Avg detect & compute Time (ms): " << sum_detectcompute_millis / frameCount << endl;
-    cout << setw(firstColWidth) << "High detect & compute Time (ms): " << high_detectcompute_milis << endl;
+    SL_LOG("Feature detection and description: -------------------------------\n");
+    SL_LOG("Min detect & compute Time (ms)                   : %d\n", low_detectcompute_milis);
+    SL_LOG("Avg detect & compute Time (ms)                   : %d\n", sum_detectcompute_millis / frameCount);
+    SL_LOG("High detect & compute Time (ms)                  : %d\n", high_detectcompute_milis);
 #endif
-    cout << endl << endl << "Pose information: ------------------------------------------------" << endl;
-    cout << setw(firstColWidth) << "Avg allmatches to inliers proposition: " << sum_allmatches_to_inliers / frameCount << endl ;
-    cout << setw(firstColWidth) << "Avg reprojection error (only if POSE): " << sum_reprojection_error / frames_with_pose << endl;
-    cout << setw(firstColWidth) << "Pose found: " << frames_with_pose << " of " << frameCount << " frames" << endl;
-    cout << setw(firstColWidth) << "Avg matches: " << sum_matches / frames_with_pose << endl;
-    cout << setw(firstColWidth) << "Avg inlier matches: " << sum_inlier_matches / frames_with_pose << endl;
-    cout << setw(firstColWidth) << "Avg more matches with Pose optimization: " << sum_poseopt_difference / frames_with_pose << endl;
-    cout << setw(firstColWidth) << "Avg Rotation error: " << rotationError / frames_with_pose << endl;
-    cout << setw(firstColWidth) << "Avg Translation error: " << translationError / frames_with_pose << endl;
-    cout << endl;
+    SL_LOG(" \n");
+    SL_LOG("Pose information: ------------------------------------------------\n");
+    SL_LOG("Avg allmatches to inliers proposition            : %d\n", sum_allmatches_to_inliers / frameCount);
+    SL_LOG("Avg reprojection error (only if POSE)            : %d\n", sum_reprojection_error / frames_with_pose);
+    SL_LOG("Pose found                                       : %d of %d frames\n", frames_with_pose, frameCount);
+    SL_LOG("Avg matches                                      : %d\n", sum_matches / frames_with_pose);
+    SL_LOG("Avg inlier matches                               : %d\n", sum_inlier_matches / frames_with_pose);
+    SL_LOG("Avg more matches with Pose optimization          : %d\n", sum_poseopt_difference / frames_with_pose);
+    SL_LOG("Avg Rotation error                               : %d\n", rotationError / frames_with_pose);
+    SL_LOG("Avg Translation error                            : %d\n", translationError / frames_with_pose);
+
 #endif
 }
 
@@ -300,12 +300,12 @@ SLbool SLCVTrackerFeatures::track(SLCVMat imageGray,
         // relative Pose or try to match the inlier features locally.
 
         // Optical Flow approach
-        // vector<Point2f> predPoints(_prev.points2D.size());
-        // trackWithOptFlow(_prev.imageGray, _prev.points2D, imageGray, predPoints);
+        vector<Point2f> predPoints(_prev.points2D.size());
+        foundPose = trackWithOptFlow(_prev.imageGray, _prev.points2D, imageGray, predPoints, rvec, tvec);
 
         // Track features with local matching (make use of already used function optimizePose)
-        getKeypointsAndDescriptors(imageGray, keypoints, descriptors);
-        optimizePose(image, keypoints, descriptors, matches, rvec, tvec, reprojectionError, true);
+        // getKeypointsAndDescriptors(imageGray, keypoints, descriptors);
+        // optimizePose(image, keypoints, descriptors, matches, rvec, tvec, reprojectionError, true);
         // #####################################################################
     }
 
@@ -553,7 +553,7 @@ bool SLCVTrackerFeatures::calculatePose(const SLCVMat &imageVideo, vector<KeyPoi
 
 //-----------------------------------------------------------------------------
 bool SLCVTrackerFeatures::trackWithOptFlow(SLCVMat &previousFrame, vector<Point2f> &previousPoints,
-    SLCVMat &currentFrame, vector<Point2f> &predPoints)
+    SLCVMat &currentFrame, vector<Point2f> &predPoints, Mat &rvec, Mat &tvec)
 {
     if (previousPoints.size() == 0) return false;
 
@@ -586,6 +586,14 @@ bool SLCVTrackerFeatures::trackWithOptFlow(SLCVMat &previousFrame, vector<Point2
             predPoints.erase(predPoints.begin() + i);
         }
     }
+
+    return false; /*cv::solvePnP(modelPoints,
+                        framePoints,
+                        _calib->cameraMat(),
+                        _calib->distortion(),
+                        rvec, tvec,
+                        true
+    );*/
 }
 
 //-----------------------------------------------------------------------------

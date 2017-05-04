@@ -88,7 +88,7 @@ private:
             SLCVMat &rvec, SLCVMat &tvec, vector<unsigned char> &inliersMask);
 
         bool trackWithOptFlow(SLCVMat &previousFrame, vector<Point2f> &previousPoints, SLCVMat &actualFrame,
-            vector<Point2f> &predPoints);
+            vector<Point2f> &predPoints, Mat &rvec, Mat &tvec);
 };
 //-----------------------------------------------------------------------------
 #endif // SLCVTrackerFeatures_H
