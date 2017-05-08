@@ -42,6 +42,8 @@ private:
         SLCVRaulMurOrb*         _detector;
         Ptr<ORB>                _descriptor;
         Ptr<DescriptorMatcher>  _matcher;
+        vector<Point2f>         _inlierPoints2D;
+        vector<Point3f>         _inlierPoints3D;
         SLfloat                 _fx, _fy, _cx, _cy;
         SLMat4f                 _pose;
         SLCVCalibration         *_calib;
@@ -51,11 +53,13 @@ private:
             SLCVMat             image;
             SLCVMat             imageGray;
             vector<Point2f>     points2D;
+            vector<Point3f>     points3D;
             vector<DMatch>      SLCVMatches;
             SLCVMat             rvec;
             SLCVMat             tvec;
             bool                foundPose;
             float               reprojectionError;
+            float               points3DSize;
         } _prev;
 
         struct map {
@@ -78,8 +82,7 @@ private:
         vector<DMatch> getFeatureMatches(const SLCVMat &descriptors);
 
         bool calculatePose(const SLCVMat &imageVideo, vector<KeyPoint> &keypoints, vector<DMatch> &matches,
-            vector<DMatch> &inliers, vector<Point2f> &inlierPoints, Mat &rvec, SLCVMat &tvec, bool extrinsicGuess,
-            const SLCVMat& descriptors);
+            vector<DMatch> &inliers, Mat &rvec, SLCVMat &tvec, bool extrinsicGuess, const SLCVMat& descriptors);
 
         bool optimizePose(const SLCVMat &imageVideo, vector<KeyPoint> &keypoints, const SLCVMat &descriptors,
             vector<DMatch> &matches, SLCVMat &rvec, SLCVMat &tvec, float reprojectionError=0, bool tracking=false);
@@ -87,8 +90,8 @@ private:
         bool solvePnP(vector<Point3f> &modelPoints, vector<Point2f> &framePoints, bool guessExtrinsic,
             SLCVMat &rvec, SLCVMat &tvec, vector<unsigned char> &inliersMask);
 
-        bool trackWithOptFlow(SLCVMat &previousFrame, vector<Point2f> &previousPoints, SLCVMat &actualFrame,
-            vector<Point2f> &predPoints, Mat &rvec, Mat &tvec);
+        bool trackWithOptFlow(Mat &previousFrame, vector<Point2f> &previousPoints, Mat &actualFrame,
+            Mat &rvec, Mat &tvec, SLCVMat &frame);
 };
 //-----------------------------------------------------------------------------
 #endif // SLCVTrackerFeatures_H
