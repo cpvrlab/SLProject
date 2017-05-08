@@ -59,7 +59,6 @@ private:
             SLCVMat             tvec;
             bool                foundPose;
             float               reprojectionError;
-            float               points3DSize;
         } _prev;
 
         struct map {

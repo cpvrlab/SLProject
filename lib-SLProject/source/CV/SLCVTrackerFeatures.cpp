@@ -56,7 +56,7 @@ using namespace cv;
     #endif
 #endif
 // Feature detection and extraction
-const int nFeatures = 2000;
+const int nFeatures = 600;
 const float minRatio = 0.7f;
 
 // RANSAC parameters
@@ -267,13 +267,13 @@ SLbool SLCVTrackerFeatures::track(SLCVMat imageGray,
 
     // TODO: Handle detecting || tracking correctly!
     if (FORCE_REPOSE
-            || frameCount % 10 == 0
+            || frameCount % 30 == 0
             || !_prev.foundPose
-            || _prev.points2D.size() < 0.5 * _prev.points3DSize
-//            ||  _prev.reprojectionError > 3 * reprojectionError
+            || _prev.points2D.size() < 0.8 * _inlierPoints3D.size()
+            || _prev.reprojectionError > 3 * reprojectionError
        )
     {
-        cout << "Relocalisation (only " << _prev.points2D.size() << " of " << _prev.points3DSize << " model points available) ..." << endl;
+        cout << "Relocalisation (only " << _prev.points2D.size() << " of " << _inlierPoints3D.size() << " model points available) ..." << endl;
 #if DISTINGUISH_FEATURE_DETECT_COMPUTE
         // Detect keypoints ####################################################
         keypoints = getKeypoints(imageGray);
