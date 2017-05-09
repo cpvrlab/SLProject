@@ -40,7 +40,7 @@ using namespace cv;
 // Settings for drawing things into current camera frame
 #define DRAW_KEYPOINTS 1
 #define DRAW_REPROJECTION 1
-#define DRAW_REPOSE_INFO 0
+#define DRAW_REPOSE_INFO 1
 
 // Set stones Tracker as default reference image
 #ifndef SL_TRACKER_IMAGE_NAME
@@ -55,8 +55,9 @@ using namespace cv;
     #define SAVE_SNAPSHOTS_OUTPUT "cv_tracking/"
     #endif
 #endif
+
 // Feature detection and extraction
-const int nFeatures = 600;
+const int nFeatures = 2000;
 const float minRatio = 0.7f;
 
 // RANSAC parameters
@@ -67,7 +68,7 @@ const double confidence = 0.95;
 // Repose patch size
 const int reposeFrequency = 10;
 const int initialPatchSize = 2;
-const int maxPatchSize = 60;
+const int maxPatchSize = 80;
 
 // Benchmarking
 #define TRACKING_MEASUREMENT 1
@@ -100,7 +101,7 @@ std::string to_string(T value)
 {
     std::ostringstream os ;
     os << value ;
-    return os.str() ;
+    return os.str();
 }
 
 //-----------------------------------------------------------------------------
@@ -136,17 +137,17 @@ SLCVTrackerFeatures::~SLCVTrackerFeatures()
     SL_LOG("------------------------------------------------------------------\n");
     SL_LOG("SLCVTrackerFeatures statistics \n");
     SL_LOG("------------------------------------------------------------------\n");
-    SL_LOG("Avg calculation time per frame                   : %d\n", SLScene::current->trackingTimesMS().average());
+    SL_LOG("Avg calculation time per frame                   : %f ms\n", SLScene::current->trackingTimesMS().average());
     SL_LOG(" \n");
     SL_LOG("Settings for Pose estimation: ------------------------------------\n");
     SL_LOG("Features                                         : %d\n", nFeatures);
-    SL_LOG("Minimal ratio for 2 best matches                 : %d\n", minRatio);
+    SL_LOG("Minimal ratio for 2 best matches                 : %f\n", minRatio);
     SL_LOG("RANSAC iterations                                : %d\n", iterations);
-    SL_LOG("RANSAC mean reprojection error                   : %d\n", reprojection_error);
+    SL_LOG("RANSAC mean reprojection error                   : %f\n", reprojection_error);
     SL_LOG("RANSAC confidence                                : %d\n",confidence );
     SL_LOG("Repose frequency                                 : Each %d point\n", reposeFrequency);
-    SL_LOG("Initial patch size for Pose optimization         : %d\n", initialPatchSize);
-    SL_LOG("Maximal patch size for Pose optimization         : %d\n", maxPatchSize);
+    SL_LOG("Initial patch size for Pose optimization         : %d pixels\n", initialPatchSize);
+    SL_LOG("Maximal patch size for Pose optimization         : %d pixels\n", maxPatchSize);
     SL_LOG(" \n");
 #if DISTINGUISH_FEATURE_DETECT_COMPUTE
     SL_LOG("\nDetection: -------------------------------------------------------\n");
@@ -160,20 +161,20 @@ SLCVTrackerFeatures::~SLCVTrackerFeatures()
     SL_LOG("High compute Time (ms)                           : %d\n", high_compute_milis);
 #else
     SL_LOG("Feature detection and description: -------------------------------\n");
-    SL_LOG("Min detect & compute Time (ms)                   : %d\n", low_detectcompute_milis);
-    SL_LOG("Avg detect & compute Time (ms)                   : %d\n", sum_detectcompute_millis / frameCount);
-    SL_LOG("High detect & compute Time (ms)                  : %d\n", high_detectcompute_milis);
+    SL_LOG("Min detect & compute Time                        : %f ms\n", low_detectcompute_milis);
+    SL_LOG("Avg detect & compute Time                        : %f ms\n", sum_detectcompute_millis / frameCount);
+    SL_LOG("High detect & compute Time                       : %f ms\n", high_detectcompute_milis);
 #endif
     SL_LOG(" \n");
     SL_LOG("Pose information: ------------------------------------------------\n");
-    SL_LOG("Avg allmatches to inliers proposition            : %d\n", sum_allmatches_to_inliers / frameCount);
-    SL_LOG("Avg reprojection error (only if POSE)            : %d\n", sum_reprojection_error / frames_with_pose);
+    SL_LOG("Avg allmatches to inliers proposition            : %f\n", sum_allmatches_to_inliers / frameCount);
+    SL_LOG("Avg reprojection error (only if POSE)            : %f\n", sum_reprojection_error / frames_with_pose);
     SL_LOG("Pose found                                       : %d of %d frames\n", frames_with_pose, frameCount);
-    SL_LOG("Avg matches                                      : %d\n", sum_matches / frames_with_pose);
-    SL_LOG("Avg inlier matches                               : %d\n", sum_inlier_matches / frames_with_pose);
-    SL_LOG("Avg more matches with Pose optimization          : %d\n", sum_poseopt_difference / frames_with_pose);
-    SL_LOG("Avg Rotation error                               : %d\n", rotationError / frames_with_pose);
-    SL_LOG("Avg Translation error                            : %d\n", translationError / frames_with_pose);
+    SL_LOG("Avg matches                                      : %f\n", sum_matches / frames_with_pose);
+    SL_LOG("Avg inlier matches                               : %f\n", sum_inlier_matches / frames_with_pose);
+    SL_LOG("Avg more matches with Pose optimization          : %f\n", sum_poseopt_difference / frames_with_pose);
+    SL_LOG("Avg Rotation error                               : %f\n", rotationError / frames_with_pose);
+    SL_LOG("Avg Translation error                            : %f\n", translationError / frames_with_pose);
 
 #endif
 }
@@ -267,11 +268,10 @@ SLbool SLCVTrackerFeatures::track(SLCVMat imageGray,
 
     // TODO: Handle detecting || tracking correctly!
     if (FORCE_REPOSE
-            || frameCount % 30 == 0
-            || !_prev.foundPose
-            || _prev.points2D.size() < 0.8 * _inlierPoints3D.size()
-            || _prev.reprojectionError > 3 * reprojectionError
-       )
+        || frameCount % 30 == 0
+        || !_prev.foundPose
+        || _prev.points2D.size() < 0.8 * _inlierPoints3D.size()
+        || _prev.reprojectionError > 3 * reprojectionError)
     {
         cout << "Relocalisation (only " << _prev.points2D.size() << " of " << _inlierPoints3D.size() << " model points available) ..." << endl;
 #if DISTINGUISH_FEATURE_DETECT_COMPUTE
@@ -297,14 +297,13 @@ SLbool SLCVTrackerFeatures::track(SLCVMat imageGray,
 
     } else {
         // Feature tracking ####################################################
-        cout << "Tracking... ";
+        cout << "Tracking... " << endl;
         // Two ways possible: Eighter track the existing keypoints with Optical Flow and calculate the
         // relative Pose or try to match the inlier features locally.
 
         // Optical Flow approach
         foundPose = trackWithOptFlow(_prev.imageGray, _prev.points2D, imageGray, rvec, tvec, image);
 
-        cout << "Pose found=" << foundPose << endl;
         // Track features with local matching (make use of already used function optimizePose)
         // getKeypointsAndDescriptors(imageGray, keypoints, descriptors);
         // optimizePose(image, keypoints, descriptors, matches, rvec, tvec, reprojectionError, true);
@@ -451,8 +450,7 @@ vector<DMatch> SLCVTrackerFeatures::getFeatureMatches(const SLCVMat &descriptors
 
 //-----------------------------------------------------------------------------
 bool SLCVTrackerFeatures::calculatePose(const SLCVMat &imageVideo, vector<KeyPoint> &keypoints, vector<DMatch> &allMatches,
-    vector<DMatch> &inlierMatches, SLCVMat &rvec, SLCVMat &tvec, bool extrinsicGuess,
-    const SLCVMat& descriptors)
+    vector<DMatch> &inlierMatches, SLCVMat &rvec, SLCVMat &tvec, bool extrinsicGuess, const SLCVMat& descriptors)
 {
     // RANSAC crashes if 0 points are given
     if (allMatches.size() == 0) return 0;
@@ -559,8 +557,8 @@ bool SLCVTrackerFeatures::calculatePose(const SLCVMat &imageVideo, vector<KeyPoi
 }
 
 //-----------------------------------------------------------------------------
-bool SLCVTrackerFeatures::trackWithOptFlow(Mat &previousFrame, vector<Point2f> &prev2DPoints,
-    Mat &currentFrame, Mat &rvec, Mat &tvec, SLCVMat &frame)
+bool SLCVTrackerFeatures::trackWithOptFlow(Mat &previousFrame, vector<Point2f> &prev2DPoints, Mat &currentFrame,
+    Mat &rvec, Mat &tvec, SLCVMat &frame)
 {
     if (prev2DPoints.size() < 4) return false;
 
@@ -625,7 +623,7 @@ bool SLCVTrackerFeatures::trackWithOptFlow(Mat &previousFrame, vector<Point2f> &
 
 //-----------------------------------------------------------------------------
 bool SLCVTrackerFeatures::optimizePose(const SLCVMat &imageVideo, vector<KeyPoint> &keypoints, const SLCVMat& descriptors,
-    vector<DMatch> &matches, SLCVMat &rvec, SLCVMat &tvec, float reprojectionError, bool tracking)
+    vector<DMatch> &matches, SLCVMat &rvec, SLCVMat &tvec, float reprojectionError)
 {
 
     // 1. Reproject the model points with the calculated POSE
@@ -641,14 +639,10 @@ bool SLCVTrackerFeatures::optimizePose(const SLCVMat &imageVideo, vector<KeyPoin
         if (i % reposeFrequency)
             continue;
 
-        if (tracking) {
-            matches.clear();
-        } else {
-            // Hack to remove actual match from already matched keypoints. If we don't remove them,
-            // it's possible to add duplicated matches later
-            for (int j = 0; j < matches.size(); j++) {
-                if (matches[j].trainIdx == i) matches.erase(matches.begin() + j);
-            }
+        // Hack to remove actual match from already matched keypoints. If we don't remove them,
+        // it's possible to add duplicated matches later
+        for (int j = 0; j < matches.size(); j++) {
+            if (matches[j].trainIdx == i) matches.erase(matches.begin() + j);
         }
 
         // Get the corresponding projected point of the actual (i) modelpoint

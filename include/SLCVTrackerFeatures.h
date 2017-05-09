@@ -84,7 +84,7 @@ private:
             vector<DMatch> &inliers, Mat &rvec, SLCVMat &tvec, bool extrinsicGuess, const SLCVMat& descriptors);
 
         bool optimizePose(const SLCVMat &imageVideo, vector<KeyPoint> &keypoints, const SLCVMat &descriptors,
-            vector<DMatch> &matches, SLCVMat &rvec, SLCVMat &tvec, float reprojectionError=0, bool tracking=false);
+            vector<DMatch> &matches, SLCVMat &rvec, SLCVMat &tvec, float reprojectionError=0);
 
         bool solvePnP(vector<Point3f> &modelPoints, vector<Point2f> &framePoints, bool guessExtrinsic,
             SLCVMat &rvec, SLCVMat &tvec, vector<unsigned char> &inliersMask);
