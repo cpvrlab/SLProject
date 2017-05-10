@@ -138,6 +138,7 @@ SLCVTrackerFeatures::~SLCVTrackerFeatures()
     SL_LOG("------------------------------------------------------------------\n");
     SL_LOG("SLCVTrackerFeatures statistics \n");
     SL_LOG("------------------------------------------------------------------\n");
+    SL_LOG("Avg frame rate                                   : %f FPS\n", SLScene::current->frameTimesMS().average());
     SL_LOG("Avg calculation time per frame                   : %f ms\n", SLScene::current->trackingTimesMS().average());
     SL_LOG(" \n");
     SL_LOG("Settings for Pose estimation: ------------------------------------\n");
