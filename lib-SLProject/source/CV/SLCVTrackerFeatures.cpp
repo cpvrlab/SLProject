@@ -639,11 +639,13 @@ bool SLCVTrackerFeatures::optimizePose(const SLCVMat &imageVideo, vector<KeyPoin
         if (i % reposeFrequency)
             continue;
 
-        // Hack to remove actual match from already matched keypoints. If we don't remove them,
-        // it's possible to add duplicated matches later
-        for (int j = 0; j < matches.size(); j++) {
-            if (matches[j].trainIdx == i) matches.erase(matches.begin() + j);
+        // Check if this point has already a match inside matches, continue if so
+        int alreadyMatched = 0;
+        for (size_t j = 0; j < matches.size(); j++) {
+            if (matches[j].trainIdx == i) alreadyMatched++;
         }
+
+        if (alreadyMatched > 0) continue;
 
         // Get the corresponding projected point of the actual (i) modelpoint
         Point2f projectedModelPoint = projectedPoints[i];
@@ -651,6 +653,7 @@ bool SLCVTrackerFeatures::optimizePose(const SLCVMat &imageVideo, vector<KeyPoin
 
         int patchSize = initialPatchSize;
 
+        // Adaptive patch size
         while (newMatches.size() == 0 && patchSize <= maxPatchSize)
         {
             // Increase matches by even number
@@ -697,7 +700,8 @@ bool SLCVTrackerFeatures::optimizePose(const SLCVMat &imageVideo, vector<KeyPoin
 
 #if DEBUG_OUTPUT
         cout << "Matches inside patch: " << newMatches.size() << endl;
-#endif
+#endif // DEBUG_OUTPUT
+
         if (newMatches.size() > 0) {
             for (size_t j = 0; j < frameIndicesInsideRect.size(); j++) {
                 newMatches[j].trainIdx = i;
@@ -712,8 +716,6 @@ bool SLCVTrackerFeatures::optimizePose(const SLCVMat &imageVideo, vector<KeyPoin
 
             //5. Only add the best new match to matches vector
             matches.push_back(bestNewMatch);
-        } else {
-            return false;
         }
 
         // Get the keypoint which was used for pose estimation
