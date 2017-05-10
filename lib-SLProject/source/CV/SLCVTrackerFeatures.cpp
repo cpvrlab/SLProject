@@ -35,6 +35,7 @@ using namespace cv;
 
 #define DEBUG_OUTPUT 0
 #define FORCE_REPOSE 0
+#define OPTIMIZE_POSE 1
 #define DISTINGUISH_FEATURE_DETECT_COMPUTE 0
 
 // Settings for drawing things into current camera frame
@@ -273,7 +274,6 @@ SLbool SLCVTrackerFeatures::track(SLCVMat imageGray,
         || _prev.points2D.size() < 0.8 * _inlierPoints3D.size()
         || _prev.reprojectionError > 3 * reprojectionError)
     {
-        cout << "Relocalisation (only " << _prev.points2D.size() << " of " << _inlierPoints3D.size() << " model points available) ..." << endl;
 #if DISTINGUISH_FEATURE_DETECT_COMPUTE
         // Detect keypoints ####################################################
         keypoints = getKeypoints(imageGray);
@@ -293,11 +293,11 @@ SLbool SLCVTrackerFeatures::track(SLCVMat imageGray,
         // POSE calculation ####################################################
         foundPose = calculatePose(image, keypoints, matches, inlierMatches, rvec, tvec, useExtrinsicGuess, descriptors);
         // #####################################################################
+        cout << "Relocalisation with " << _inlierPoints2D.size() << " points ..." << endl;
         _prev.points2D = _inlierPoints2D;
 
     } else {
         // Feature tracking ####################################################
-        cout << "Tracking... " << endl;
         // Two ways possible: Eighter track the existing keypoints with Optical Flow and calculate the
         // relative Pose or try to match the inlier features locally.
 
@@ -536,90 +536,31 @@ bool SLCVTrackerFeatures::calculatePose(const SLCVMat &imageVideo, vector<KeyPoi
         _inlierPoints3D.push_back(modelPoints[idx]);
     }
 
+
     // Pose optimization
     if (foundPose) {
+#if OPTIMIZE_POSE
         float matchesBefore = inlierMatches.size();
         foundPose = optimizePose(imageVideo, keypoints, descriptors, inlierMatches, rvec, tvec);
 
 #if DEBUG_OUTPUT
         cout << "Optimize pose: " << inlierMatches.size() - matchesBefore << " more matches found" << endl;
-#endif
+#endif // DEBUG_OUTPUT
+#endif // OPTIMIZE_POSE
 
 #if TRACKING_MEASUREMENT
         sum_matches += allMatches.size();
         sum_inlier_matches += inlierMatches.size();
         sum_allmatches_to_inliers += inlierMatches.size() / allMatches.size();
+#if OPTIMIZE_POSE
         sum_poseopt_difference += inlierMatches.size() / matchesBefore;
-#endif
+#endif // OPTIMIZE_POSE
+#endif // TRACKING_MEASUREMENT
     }
 
     return foundPose;
 }
 
-//-----------------------------------------------------------------------------
-bool SLCVTrackerFeatures::trackWithOptFlow(Mat &previousFrame, vector<Point2f> &prev2DPoints, Mat &currentFrame,
-    Mat &rvec, Mat &tvec, SLCVMat &frame)
-{
-    if (prev2DPoints.size() < 4) return false;
-
-    std::vector<unsigned char> status;
-    std::vector<float> err;
-    cv::Size winSize(15, 15);
-    cv::TermCriteria criteria(
-    cv::TermCriteria::COUNT | cv::TermCriteria::EPS,
-        10,    // terminate after this many iterations, or
-        0.03); // when the search window moves by less than this
-
-    // Find next possible feature points based on optical flow
-    vector<Point2f> pred2DPoints(prev2DPoints.size());
-    cv::calcOpticalFlowPyrLK(
-                previousFrame,               // Previous and current frame
-                currentFrame,
-                prev2DPoints,                // Previous and current keypoints coordinates.The latter will be
-                pred2DPoints,                // expanded if there are more good coordinates detected during OptFlow algorithm
-                status,                      // Output vector for keypoint correspondences (1 = Match found)
-                err,                         // Errors
-                winSize,                     // Search window for each pyramid level
-                3,                           // Max levels of pyramid creation
-                criteria,                    // Configuration from above
-                0,                           // Additional flags
-                0.001                        // Minimal Eigen threshold
-    );
-
-    // Only use points which are not wrong in any way (???) during the optical flow calculation
-    vector<Point2f> frame2DPoints;
-    vector<Point3f> model3DPoints;
-    for (size_t i = 0; i < status.size(); i++) {
-        if (status[i]) {
-            frame2DPoints.push_back(pred2DPoints[i]);
-            model3DPoints.push_back(_inlierPoints3D[i]);
-        }
-    }
-
-#if defined(SAVE_SNAPSHOTS_OUTPUT)
-    // Draw optical flow
-    SLCVMat optFlow, rgb;
-    currentFrame.copyTo(optFlow);
-    cvtColor(optFlow, rgb, CV_GRAY2BGR);
-    for (size_t i=0; i < prev2DPoints.size(); i++)
-        cv::arrowedLine(rgb, prev2DPoints[i], pred2DPoints[i], Scalar(0, 255, 0), 1, LINE_8, 0, 0.2);
-
-    imwrite(SAVE_SNAPSHOTS_OUTPUT + to_string(frameCount) + "-optflow.png", rgb);
-#endif
-
-#if defined(DRAW_KEYPOINTS)
-    for (size_t i=0; i < frame2DPoints.size(); i++)
-        circle(frame, frame2DPoints[i], 2, Scalar(0, 255, 0));
-#endif
-    _prev.points2D = frame2DPoints;
-    return cv::solvePnP(model3DPoints,
-                        frame2DPoints,
-                        _calib->cameraMat(),
-                        _calib->distortion(),
-                        rvec, tvec,
-                        true
-    );
-}
 
 //-----------------------------------------------------------------------------
 bool SLCVTrackerFeatures::optimizePose(const SLCVMat &imageVideo, vector<KeyPoint> &keypoints, const SLCVMat& descriptors,
@@ -792,5 +733,70 @@ bool SLCVTrackerFeatures::optimizePose(const SLCVMat &imageVideo, vector<KeyPoin
                              rvec, tvec,
                              true,
                              SOLVEPNP_ITERATIVE
+    );
+}
+
+//-----------------------------------------------------------------------------
+bool SLCVTrackerFeatures::trackWithOptFlow(Mat &previousFrame, vector<Point2f> &prev2DPoints, Mat &currentFrame,
+    Mat &rvec, Mat &tvec, SLCVMat &frame)
+{
+    if (prev2DPoints.size() < 4) return false;
+
+    std::vector<unsigned char> status;
+    std::vector<float> err;
+    cv::Size winSize(15, 15);
+    cv::TermCriteria criteria(
+    cv::TermCriteria::COUNT | cv::TermCriteria::EPS,
+        10,    // terminate after this many iterations, or
+        0.03); // when the search window moves by less than this
+
+    // Find next possible feature points based on optical flow
+    vector<Point2f> pred2DPoints(prev2DPoints.size());
+    cv::calcOpticalFlowPyrLK(
+                previousFrame,               // Previous and current frame
+                currentFrame,
+                prev2DPoints,                // Previous and current keypoints coordinates.The latter will be
+                pred2DPoints,                // expanded if there are more good coordinates detected during OptFlow algorithm
+                status,                      // Output vector for keypoint correspondences (1 = Match found)
+                err,                         // Errors
+                winSize,                     // Search window for each pyramid level
+                3,                           // Max levels of pyramid creation
+                criteria,                    // Configuration from above
+                0,                           // Additional flags
+                0.001                        // Minimal Eigen threshold
+    );
+
+    // Only use points which are not wrong in any way (???) during the optical flow calculation
+    vector<Point2f> frame2DPoints;
+    vector<Point3f> model3DPoints;
+    for (size_t i = 0; i < status.size(); i++) {
+        if (status[i]) {
+            frame2DPoints.push_back(pred2DPoints[i]);
+            model3DPoints.push_back(_inlierPoints3D[i]);
+        }
+    }
+
+#if defined(SAVE_SNAPSHOTS_OUTPUT)
+    // Draw optical flow
+    SLCVMat optFlow, rgb;
+    currentFrame.copyTo(optFlow);
+    cvtColor(optFlow, rgb, CV_GRAY2BGR);
+    for (size_t i=0; i < prev2DPoints.size(); i++)
+        cv::arrowedLine(rgb, prev2DPoints[i], pred2DPoints[i], Scalar(0, 255, 0), 1, LINE_8, 0, 0.2);
+
+    imwrite(SAVE_SNAPSHOTS_OUTPUT + to_string(frameCount) + "-optflow.png", rgb);
+#endif
+
+#if defined(DRAW_KEYPOINTS)
+    for (size_t i=0; i < frame2DPoints.size(); i++)
+        circle(frame, frame2DPoints[i], 2, Scalar(0, 255, 0));
+#endif
+    _prev.points2D = frame2DPoints;
+    return cv::solvePnP(model3DPoints,
+                        frame2DPoints,
+                        _calib->cameraMat(),
+                        _calib->distortion(),
+                        rvec, tvec,
+                        true
     );
 }

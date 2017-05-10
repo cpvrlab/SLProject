@@ -29,7 +29,7 @@ using namespace cv;
 
 class SLCVTrackerFeatures : public SLCVTracker
 {
-    public:
+public:
         SLCVTrackerFeatures         (SLNode* node);
         ~SLCVTrackerFeatures        ();
         SLbool  track               (SLCVMat imageGray,
@@ -83,11 +83,11 @@ private:
         bool calculatePose(const SLCVMat &imageVideo, vector<KeyPoint> &keypoints, vector<DMatch> &matches,
             vector<DMatch> &inliers, Mat &rvec, SLCVMat &tvec, bool extrinsicGuess, const SLCVMat& descriptors);
 
-        bool optimizePose(const SLCVMat &imageVideo, vector<KeyPoint> &keypoints, const SLCVMat &descriptors,
-            vector<DMatch> &matches, SLCVMat &rvec, SLCVMat &tvec, float reprojectionError=0);
-
         bool solvePnP(vector<Point3f> &modelPoints, vector<Point2f> &framePoints, bool guessExtrinsic,
             SLCVMat &rvec, SLCVMat &tvec, vector<unsigned char> &inliersMask);
+
+        bool optimizePose(const SLCVMat &imageVideo, vector<KeyPoint> &keypoints, const SLCVMat &descriptors,
+            vector<DMatch> &matches, SLCVMat &rvec, SLCVMat &tvec, float reprojectionError=0);
 
         bool trackWithOptFlow(Mat &previousFrame, vector<Point2f> &previousPoints, Mat &actualFrame,
             Mat &rvec, Mat &tvec, SLCVMat &frame);
