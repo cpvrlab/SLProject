@@ -1920,7 +1920,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         cam1->translation(0,2,60);
         cam1->lookAt(15,15,0);
         cam1->clipNear(0.1f);
-        cam1->clipFar(500.0f);
+        cam1->clipFar(1000.0f); // Increase to infinity?
         cam1->setInitialState();
         cam1->background().texture(&_videoTexture);
         videoType(VT_MAIN);
