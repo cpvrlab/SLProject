@@ -29,7 +29,6 @@ using namespace cv;
 
 #define DEBUG_OUTPUT 0
 #define FORCE_REPOSE 0
-#define OPTIMIZE_POSE 1
 #define DISTINGUISH_FEATURE_DETECT_COMPUTE 0
 #define TRACKING_MEASUREMENT 1
 
@@ -129,7 +128,7 @@ private:
         vector<DMatch>          getFeatureMatches();
         bool                    calculatePose();
         bool                    solvePnP();
-        bool                    optimizePose(float reprojectionError=0);
+        void                    optimizeMatches(float reprojectionError=0);
         bool                    trackWithOptFlow(Mat rvec, Mat tvec);
 };
 //-----------------------------------------------------------------------------

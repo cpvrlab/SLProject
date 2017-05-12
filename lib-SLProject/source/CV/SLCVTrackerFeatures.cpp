@@ -212,7 +212,7 @@ SLbool SLCVTrackerFeatures::track(SLCVMat imageGray,
     _current.imageGray = imageGray;
 
     // Determine if relocation or feature tracking should be performed
-    if (FORCE_REPOSE || !_prev.foundPose) {
+    if (FORCE_REPOSE || !_prev.foundPose || _prev.inlierMatches.size() < 20) {
         relocate();
     } else
         tracking();
@@ -328,9 +328,9 @@ void SLCVTrackerFeatures::transferFrameData()
     _prev.foundPose = _current.foundPose;
     _prev.inlierPoints3D = _current.inlierPoints3D;
     _prev.inlierPoints2D = _current.inlierPoints2D;
+    if (_current.inlierMatches.size() > 0) _prev.inlierMatches = _current.inlierMatches;
 
     _current.keypoints.clear();
-    _current.inlierMatches.clear();
     _current.matches.clear();
     _current.inlierMatches.clear();
     _current.inlierPoints2D.clear();
@@ -338,7 +338,8 @@ void SLCVTrackerFeatures::transferFrameData()
     _current.reprojectionError = 0;
 
     _current.useExtrinsicGuess = _prev.foundPose;
-    if (_current.useExtrinsicGuess) {
+
+    if (_prev.foundPose) {
         _current.rvec = _prev.rvec;
         _current.tvec = _prev.tvec;
     } else {
@@ -521,8 +522,6 @@ bool SLCVTrackerFeatures::calculatePose()
     );
 
     // Get matches with help of inlier indices
-    _current.inlierPoints2D.clear();
-    _current.inlierPoints3D.clear();
     for (size_t i = 0; i < inliersMask.size(); i++) {
         size_t idx = inliersMask[i];
         _current.inlierMatches.push_back(_current.matches[idx]);
@@ -532,14 +531,19 @@ bool SLCVTrackerFeatures::calculatePose()
 
     // Pose optimization
     if (foundPose) {
-#if OPTIMIZE_POSE
         float matchesBefore = _current.inlierMatches.size();
-        foundPose = optimizePose();
+        foundPose = cv::solvePnP(_current.inlierPoints3D,
+                     _current.inlierPoints2D,
+                     _calib->cameraMat(),
+                     _calib->distortion(),
+                     _current.rvec, _current.tvec,
+                     true,
+                     SOLVEPNP_ITERATIVE
+        );
 
 #if DEBUG_OUTPUT
         cout << "Optimize pose: " << inlierMatches.size() - matchesBefore << " more matches found" << endl;
-#endif // DEBUG_OUTPUT
-#endif // OPTIMIZE_POSE
+#endif
 
 #if TRACKING_MEASUREMENT
         sum_matches += _current.matches.size();
@@ -555,9 +559,8 @@ bool SLCVTrackerFeatures::calculatePose()
 }
 
 //-----------------------------------------------------------------------------
-bool SLCVTrackerFeatures::optimizePose(float reprojectionError)
+void SLCVTrackerFeatures::optimizeMatches(float reprojectionError)
 {
-
     // 1. Reproject the model points with the calculated POSE
     vector<Point2f> projectedPoints(_map.model.size());
     cv::projectPoints(_map.model,
@@ -578,8 +581,8 @@ bool SLCVTrackerFeatures::optimizePose(float reprojectionError)
 
         // Check if this point has already a match inside matches, continue if so
         int alreadyMatched = 0;
-        for (size_t j = 0; j < _current.matches.size(); j++) {
-            if (_current.matches[j].trainIdx == i) alreadyMatched++;
+        for (size_t j = 0; j < _current.inlierMatches.size(); j++) {
+            if (_current.inlierMatches[j].trainIdx == i) alreadyMatched++;
         }
 
         if (alreadyMatched > 0) continue;
@@ -652,11 +655,11 @@ bool SLCVTrackerFeatures::optimizePose(float reprojectionError)
             }
 
             //5. Only add the best new match to matches vector
-            _current.matches.push_back(bestNewMatch);
+            _current.inlierMatches.push_back(bestNewMatch);
         }
 
         // Get the keypoint which was used for pose estimation
-        Point2f keypointForPoseEstimation = _current.keypoints[_current.matches.back().queryIdx].pt;
+        Point2f keypointForPoseEstimation = _current.keypoints[_current.inlierMatches.back().queryIdx].pt;
         reprojectionError += norm(Mat(projectedModelPoint), Mat(keypointForPoseEstimation));
 
 #if DRAW_REPROJECTION
@@ -715,25 +718,16 @@ bool SLCVTrackerFeatures::optimizePose(float reprojectionError)
 #endif
 
     // Optimize POSE
-    vector<Point3f> modelPoints = vector<Point3f>(_current.matches.size());
-    vector<Point2f> framePoints = vector<Point2f>(_current.matches.size());
-    for (size_t i = 0; i < _current.matches.size(); i++) {
-        modelPoints[i] =          _map.model[_current.matches[i].trainIdx];
-        framePoints[i] =  _current.keypoints[_current.matches[i].queryIdx].pt;
+    vector<Point3f> modelPoints = vector<Point3f>(_current.inlierMatches.size());
+    vector<Point2f> framePoints = vector<Point2f>(_current.inlierMatches.size());
+    for (size_t i = 0; i < _current.inlierMatches.size(); i++) {
+        modelPoints[i] =          _map.model[_current.inlierMatches[i].trainIdx];
+        framePoints[i] =  _current.keypoints[_current.inlierMatches[i].queryIdx].pt;
     }
 
-    if (modelPoints.size() == 0) return false;
-
+    if (modelPoints.size() == 0) return;
     _current.inlierPoints3D = modelPoints;
     _current.inlierPoints2D = framePoints;
-    return cv::solvePnP(modelPoints,
-                             framePoints,
-                             _calib->cameraMat(),
-                             _calib->distortion(),
-                             _current.rvec, _current.tvec,
-                             true,
-                             SOLVEPNP_ITERATIVE
-    );
 }
 
 //-----------------------------------------------------------------------------
