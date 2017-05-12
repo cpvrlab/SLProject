@@ -279,7 +279,7 @@ void SLCVTrackerFeatures::saveImageOutput()
     // Draw keypoints
     if (!_current.keypoints.empty()) {
         SLCVMat imgKeypoints;
-        drawKeypoints(_current.image, _current.keypoints, imgKeypoints);
+        drawKeypoints(_current.imageGray, _current.keypoints, imgKeypoints);
         imwrite(SAVE_SNAPSHOTS_OUTPUT + to_string(frameCount) + "-keypoints.png", imgKeypoints);
     }
 
@@ -292,10 +292,10 @@ void SLCVTrackerFeatures::saveImageOutput()
 
     // Draw optical flow
     SLCVMat optFlow, rgb;
-    currentFrame.copyTo(optFlow);
+    _current.imageGray.copyTo(optFlow);
     cvtColor(optFlow, rgb, CV_GRAY2BGR);
-    for (size_t i=0; i < prev2DPoints.size(); i++)
-        cv::arrowedLine(rgb, prev2DPoints[i], pred2DPoints[i], Scalar(0, 255, 0), 1, LINE_8, 0, 0.2);
+    for (size_t i = 0; i < _current.inlierPoints2D.size(); i++)
+        cv::arrowedLine(rgb, _prev.inlierPoints2D[i], _current.inlierPoints2D[i], Scalar(0, 255, 0), 1, LINE_8, 0, 0.2);
 
     imwrite(SAVE_SNAPSHOTS_OUTPUT + to_string(frameCount) + "-optflow.png", rgb);
 #endif

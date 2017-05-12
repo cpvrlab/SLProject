@@ -38,7 +38,6 @@ using namespace cv;
     #define SL_TRACKER_IMAGE_NAME "stones"
 #endif
 
-//#define SL_SAVE_DEBUG_OUTPUT
 #ifdef SL_SAVE_DEBUG_OUTPUT
     #if defined(SL_OS_LINUX) || defined(SL_OS_MACOS) || defined(SL_OS_MACIOS)
     #define SAVE_SNAPSHOTS_OUTPUT "/tmp/cv_tracking/"
