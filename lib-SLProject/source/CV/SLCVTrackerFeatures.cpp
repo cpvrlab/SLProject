@@ -243,33 +243,21 @@ void SLCVTrackerFeatures::relocate()
     descriptors = getDescriptors(imageGray , keypoints);
     // #####################################################################
 #else
-    getKeypointsAndDescriptors(_current.imageGray, _current.keypoints, _current.descriptors);
+    getKeypointsAndDescriptors();
 #endif
     // Feature Matching ####################################################
-    _current.matches = getFeatureMatches(_current.descriptors);
+    _current.matches = getFeatureMatches();
     // #####################################################################
 
     // POSE calculation ####################################################
-    _current.foundPose = calculatePose(_current.image,
-                                       _current.keypoints,
-                                       _current.matches,
-                                       _current.inlierMatches,
-                                       _current.rvec,
-                                       _current.tvec,
-                                       _current.useExtrinsicGuess,
-                                       _current.descriptors);
+    _current.foundPose = calculatePose();
     // #####################################################################
 }
 
 //-----------------------------------------------------------------------------
 void SLCVTrackerFeatures::tracking()
 {
-    _current.foundPose = trackWithOptFlow(_prev.imageGray,
-                                          _prev.inlierPoints2D,
-                                          _current.imageGray,
-                                          _current.rvec,
-                                          _current.tvec,
-                                          _current.image);
+    _current.foundPose = trackWithOptFlow(_prev.rvec, _prev.tvec);
 }
 
 //-----------------------------------------------------------------------------
@@ -360,11 +348,11 @@ void SLCVTrackerFeatures::transferFrameData()
 }
 
 //-----------------------------------------------------------------------------
-SLCVVKeyPoint SLCVTrackerFeatures::getKeypoints(const SLCVMat &imageGray)
+SLCVVKeyPoint SLCVTrackerFeatures::getKeypoints()
 {
     SLCVVKeyPoint keypoints;
     SLfloat detectTimeMillis = SLScene::current->timeMilliSec();
-    SLScene::current->_detector->detect(imageGray, keypoints);
+    SLScene::current->_detector->detect(_current.imageGray, keypoints);
 
     SLfloat detectionDifference = SLScene::current->timeMilliSec() - detectTimeMillis;
     SLScene::current->setDetectionTimesMS(detectionDifference);
@@ -385,11 +373,11 @@ SLCVVKeyPoint SLCVTrackerFeatures::getKeypoints(const SLCVMat &imageGray)
 }
 
 //-----------------------------------------------------------------------------
-Mat SLCVTrackerFeatures::getDescriptors(const SLCVMat &imageGray, SLCVVKeyPoint &keypoints)
+Mat SLCVTrackerFeatures::getDescriptors()
 {
     SLCVMat descriptors;
     SLfloat computeTimeMillis = SLScene::current->timeMilliSec();
-    SLScene::current->_descriptor->compute(imageGray, keypoints, descriptors);
+    SLScene::current->_descriptor->compute(_current.imageGray, _current.keypoints, descriptors);
 
     SLfloat computeDifference = SLScene::current->timeMilliSec() - computeTimeMillis;
     SLScene::current->setFeatureTimesMS(computeDifference);
@@ -410,10 +398,10 @@ Mat SLCVTrackerFeatures::getDescriptors(const SLCVMat &imageGray, SLCVVKeyPoint 
 }
 
 //-----------------------------------------------------------------------------
-void SLCVTrackerFeatures::getKeypointsAndDescriptors(const SLCVMat &imageGray, SLCVVKeyPoint &keypoints, SLCVMat &descriptors)
+void SLCVTrackerFeatures::getKeypointsAndDescriptors()
 {
     SLfloat detectComputeTimeMillis = SLScene::current->timeMilliSec();
-    SLScene::current->_descriptor->detectAndCompute(imageGray, keypoints, descriptors);
+    SLScene::current->_descriptor->detectAndCompute(_current.imageGray, _current.keypoints, _current.descriptors);
     SLfloat detectComputeDifference = SLScene::current->timeMilliSec() - detectComputeTimeMillis;
     SLScene::current->setFeatureTimesMS(detectComputeDifference);
 
@@ -431,22 +419,22 @@ void SLCVTrackerFeatures::getKeypointsAndDescriptors(const SLCVMat &imageGray, S
 }
 
 //-----------------------------------------------------------------------------
-vector<DMatch> SLCVTrackerFeatures::getFeatureMatches(const SLCVMat &descriptors)
+vector<DMatch> SLCVTrackerFeatures::getFeatureMatches()
 {
     SLfloat SLCVMatchTimeMillis = SLScene::current->timeMilliSec();
 
     // 1. Get SLCVMatches with KNN algorithm ######################################################################################
     int k = 2;
-    vector<vector<DMatch>> SLCVMatches;
-    _matcher->knnMatch(descriptors, _map.descriptors, SLCVMatches, k);
+    vector<vector<DMatch>> matches;
+    _matcher->knnMatch(_current.descriptors, _map.descriptors, matches, k);
 
     /* Perform ratio test which determines if k SLCVMatches from the knn SLCVMatcher are not too similar.
      *  If the ratio of the the distance of the two SLCVMatches is toward 1, the SLCVMatches are near identically.
      */
     vector<DMatch> goodMatches;
-    for(size_t i = 0; i < SLCVMatches.size(); i++) {
-        const DMatch &match1 = SLCVMatches[i][0];
-        const DMatch &match2 = SLCVMatches[i][1];
+    for(size_t i = 0; i < matches.size(); i++) {
+        const DMatch &match1 = matches[i][0];
+        const DMatch &match2 = matches[i][1];
         if (match2.distance == 0.0f || ( match1.distance / match2.distance) < minRatio)
             goodMatches.push_back(match1);
     }
@@ -456,11 +444,10 @@ vector<DMatch> SLCVTrackerFeatures::getFeatureMatches(const SLCVMat &descriptors
 }
 
 //-----------------------------------------------------------------------------
-bool SLCVTrackerFeatures::calculatePose(const SLCVMat &imageVideo, vector<KeyPoint> &keypoints, vector<DMatch> &allMatches,
-    vector<DMatch> &inlierMatches, SLCVMat &rvec, SLCVMat &tvec, bool extrinsicGuess, const SLCVMat& descriptors)
+bool SLCVTrackerFeatures::calculatePose()
 {
     // RANSAC crashes if 0 points are given
-    if (allMatches.size() == 0) return 0;
+    if (_current.matches.size() == 0) return 0;
 
     /* Find 2D/3D correspondences
      *
@@ -470,11 +457,11 @@ bool SLCVTrackerFeatures::calculatePose(const SLCVMat &imageVideo, vector<KeyPoi
      *  Train index --> "Point" in the model
      *  Query index --> "Point" in the actual frame
      */
-    vector<Point3f> modelPoints(allMatches.size());
-    vector<Point2f> framePoints(allMatches.size());
-    for (size_t i = 0; i < allMatches.size(); i++) {
-        modelPoints[i] = _map.model[allMatches[i].trainIdx];
-        framePoints[i] =  keypoints[allMatches[i].queryIdx].pt;
+    vector<Point3f> modelPoints(_current.matches.size());
+    vector<Point2f> framePoints(_current.matches.size());
+    for (size_t i = 0; i < _current.matches.size(); i++) {
+        modelPoints[i] =          _map.model[_current.matches[i].trainIdx];
+        framePoints[i] =  _current.keypoints[_current.matches[i].queryIdx].pt;
     }
 
 
@@ -525,8 +512,8 @@ bool SLCVTrackerFeatures::calculatePose(const SLCVMat &imageVideo, vector<KeyPoi
                               framePoints,
                               _calib->cameraMat(),
                               _calib->distortion(),
-                              rvec, tvec,
-                              extrinsicGuess,
+                              _current.rvec, _current.tvec,
+                              _current.useExtrinsicGuess,
                               iterations,
                               reprojection_error,
                               confidence,
@@ -538,7 +525,7 @@ bool SLCVTrackerFeatures::calculatePose(const SLCVMat &imageVideo, vector<KeyPoi
     _current.inlierPoints3D.clear();
     for (size_t i = 0; i < inliersMask.size(); i++) {
         size_t idx = inliersMask[i];
-        inlierMatches.push_back(allMatches[idx]);
+        _current.inlierMatches.push_back(_current.matches[idx]);
         _current.inlierPoints2D.push_back(framePoints[idx]);
         _current.inlierPoints3D.push_back(modelPoints[idx]);
     }
@@ -546,8 +533,8 @@ bool SLCVTrackerFeatures::calculatePose(const SLCVMat &imageVideo, vector<KeyPoi
     // Pose optimization
     if (foundPose) {
 #if OPTIMIZE_POSE
-        float matchesBefore = inlierMatches.size();
-        foundPose = optimizePose(imageVideo, keypoints, descriptors, inlierMatches, rvec, tvec);
+        float matchesBefore = _current.inlierMatches.size();
+        foundPose = optimizePose();
 
 #if DEBUG_OUTPUT
         cout << "Optimize pose: " << inlierMatches.size() - matchesBefore << " more matches found" << endl;
@@ -555,11 +542,11 @@ bool SLCVTrackerFeatures::calculatePose(const SLCVMat &imageVideo, vector<KeyPoi
 #endif // OPTIMIZE_POSE
 
 #if TRACKING_MEASUREMENT
-        sum_matches += allMatches.size();
-        sum_inlier_matches += inlierMatches.size();
-        sum_allmatches_to_inliers += inlierMatches.size() / allMatches.size();
+        sum_matches += _current.matches.size();
+        sum_inlier_matches += _current.inlierMatches.size();
+        sum_allmatches_to_inliers += _current.inlierMatches.size() / _current.matches.size();
 #if OPTIMIZE_POSE
-        sum_poseopt_difference += inlierMatches.size() / matchesBefore;
+        sum_poseopt_difference += _current.inlierMatches.size() / matchesBefore;
 #endif // OPTIMIZE_POSE
 #endif // TRACKING_MEASUREMENT
     }
@@ -568,13 +555,17 @@ bool SLCVTrackerFeatures::calculatePose(const SLCVMat &imageVideo, vector<KeyPoi
 }
 
 //-----------------------------------------------------------------------------
-bool SLCVTrackerFeatures::optimizePose(const SLCVMat &imageVideo, vector<KeyPoint> &keypoints, const SLCVMat& descriptors,
-    vector<DMatch> &matches, SLCVMat &rvec, SLCVMat &tvec, float reprojectionError)
+bool SLCVTrackerFeatures::optimizePose(float reprojectionError)
 {
 
     // 1. Reproject the model points with the calculated POSE
     vector<Point2f> projectedPoints(_map.model.size());
-    cv::projectPoints(_map.model, rvec, tvec, _calib->cameraMat(), _calib->distortion(), projectedPoints);
+    cv::projectPoints(_map.model,
+                      _current.rvec,
+                      _current.tvec,
+                      _calib->cameraMat(),
+                      _calib->distortion(),
+                      projectedPoints);
 
     vector<KeyPoint> bboxFrameKeypoints;
     vector<size_t> frameIndicesInsideRect;
@@ -587,8 +578,8 @@ bool SLCVTrackerFeatures::optimizePose(const SLCVMat &imageVideo, vector<KeyPoin
 
         // Check if this point has already a match inside matches, continue if so
         int alreadyMatched = 0;
-        for (size_t j = 0; j < matches.size(); j++) {
-            if (matches[j].trainIdx == i) alreadyMatched++;
+        for (size_t j = 0; j < _current.matches.size(); j++) {
+            if (_current.matches[j].trainIdx == i) alreadyMatched++;
         }
 
         if (alreadyMatched > 0) continue;
@@ -615,14 +606,14 @@ bool SLCVTrackerFeatures::optimizePose(const SLCVMat &imageVideo, vector<KeyPoin
             int xDownRight = xTopLeft + patchSize;
             int yDownRight = yTopLeft + patchSize;
 
-            for (size_t j = 0; j < keypoints.size(); j++) {
+            for (size_t j = 0; j < _current.keypoints.size(); j++) {
                 // bbox check
-                if (keypoints[j].pt.x > xTopLeft &&
-                        keypoints[j].pt.x < xDownRight &&
-                        keypoints[j].pt.y > yTopLeft &&
-                        keypoints[j].pt.y < yDownRight)
+                if (_current.keypoints[j].pt.x > xTopLeft &&
+                        _current.keypoints[j].pt.x < xDownRight &&
+                        _current.keypoints[j].pt.y > yTopLeft &&
+                        _current.keypoints[j].pt.y < yDownRight)
                 {
-                    bboxFrameKeypoints.push_back(keypoints[j]);
+                    bboxFrameKeypoints.push_back(_current.keypoints[j]);
                     frameIndicesInsideRect.push_back(j);
                 }
             }
@@ -637,7 +628,7 @@ bool SLCVTrackerFeatures::optimizePose(const SLCVMat &imageVideo, vector<KeyPoin
             // map point
             Mat bboxPointsDescriptors;
             for (size_t j : frameIndicesInsideRect) {
-                bboxPointsDescriptors.push_back(descriptors.row(j));
+                bboxPointsDescriptors.push_back(_current.descriptors.row(j));
             }
 
             //4. Match the frame keypoints inside the rectangle with the projected model point
@@ -661,15 +652,15 @@ bool SLCVTrackerFeatures::optimizePose(const SLCVMat &imageVideo, vector<KeyPoin
             }
 
             //5. Only add the best new match to matches vector
-            matches.push_back(bestNewMatch);
+            _current.matches.push_back(bestNewMatch);
         }
 
         // Get the keypoint which was used for pose estimation
-        Point2f keypointForPoseEstimation = keypoints[matches.back().queryIdx].pt;
+        Point2f keypointForPoseEstimation = _current.keypoints[_current.matches.back().queryIdx].pt;
         reprojectionError += norm(Mat(projectedModelPoint), Mat(keypointForPoseEstimation));
 
 #if DRAW_REPROJECTION
-        Mat imgReprojection = imageVideo;
+        Mat imgReprojection = _current.image;
 #else
         Mat imgReprojection;
         imageVideo.copyTo(imgReprojection);
@@ -704,31 +695,31 @@ bool SLCVTrackerFeatures::optimizePose(const SLCVMat &imageVideo, vector<KeyPoin
 
 #if DRAW_REPROJECTION
     // Draw the projection error for the current frame
-    putText(imageVideo, "Reprojection error: " + to_string(reprojectionError / _map.model.size()), Point2f(20, 20),
+    putText(_current.image, "Reprojection error: " + to_string(reprojectionError / _map.model.size()), Point2f(20, 20),
             FONT_HERSHEY_SIMPLEX, 0.5, CV_RGB(255, 0, 0), 2.0);
 #endif
     Mat prevRmat, currRmat;
     if (_prev.foundPose)
     {
         Rodrigues(_prev.rvec, prevRmat);
-        Rodrigues(rvec, currRmat);
+        Rodrigues(_current.rvec, currRmat);
         double rotationError_rad = acos((trace(prevRmat * currRmat).val[0] - 1.0)/2.0);
         rotationError += rotationError_rad*180/3.14;
-        translationError += cv::norm(_prev.tvec, tvec);
+        translationError += cv::norm(_prev.tvec, _current.tvec);
     }
 #if defined(SAVE_SNAPSHOTS_OUTPUT)
     // Abuse of the drawMatches method to simply draw the two image side by side
     SLCVMat imgOut;
-    drawMatches(imageVideo, vector<KeyPoint>(), _map.imgDrawing, vector<KeyPoint>(), vector<DMatch>(), imgOut, CV_RGB(255,0,0), CV_RGB(255,0,0));
+    drawMatches(_current.image, vector<KeyPoint>(), _map.imgDrawing, vector<KeyPoint>(), vector<DMatch>(), imgOut, CV_RGB(255,0,0), CV_RGB(255,0,0));
     imwrite(SAVE_SNAPSHOTS_OUTPUT + to_string(frameCount) + "-poseoptimization.png", imgOut);
 #endif
 
     // Optimize POSE
-    vector<Point3f> modelPoints = vector<Point3f>(matches.size());
-    vector<Point2f> framePoints = vector<Point2f>(matches.size());
-    for (size_t i = 0; i < matches.size(); i++) {
-        modelPoints[i] = _map.model[matches[i].trainIdx];
-        framePoints[i] =  keypoints[matches[i].queryIdx].pt;
+    vector<Point3f> modelPoints = vector<Point3f>(_current.matches.size());
+    vector<Point2f> framePoints = vector<Point2f>(_current.matches.size());
+    for (size_t i = 0; i < _current.matches.size(); i++) {
+        modelPoints[i] =          _map.model[_current.matches[i].trainIdx];
+        framePoints[i] =  _current.keypoints[_current.matches[i].queryIdx].pt;
     }
 
     if (modelPoints.size() == 0) return false;
@@ -739,17 +730,16 @@ bool SLCVTrackerFeatures::optimizePose(const SLCVMat &imageVideo, vector<KeyPoin
                              framePoints,
                              _calib->cameraMat(),
                              _calib->distortion(),
-                             rvec, tvec,
+                             _current.rvec, _current.tvec,
                              true,
                              SOLVEPNP_ITERATIVE
     );
 }
 
 //-----------------------------------------------------------------------------
-bool SLCVTrackerFeatures::trackWithOptFlow(Mat &previousFrame, vector<Point2f> &prev2DPoints, Mat &currentFrame,
-    Mat rvec, Mat tvec, SLCVMat &frame)
+bool SLCVTrackerFeatures::trackWithOptFlow(Mat rvec, Mat tvec)
 {
-    if (prev2DPoints.size() < 4) return false;
+    if (_prev.inlierPoints2D.size() < 4) return false;
 
     std::vector<unsigned char> status;
     std::vector<float> err;
@@ -760,11 +750,11 @@ bool SLCVTrackerFeatures::trackWithOptFlow(Mat &previousFrame, vector<Point2f> &
         0.03); // when the search window moves by less than this
 
     // Find next possible feature points based on optical flow
-    vector<Point2f> pred2DPoints(prev2DPoints.size());
+    vector<Point2f> pred2DPoints(_prev.inlierPoints2D.size());
     cv::calcOpticalFlowPyrLK(
-                previousFrame,               // Previous and current frame
-                currentFrame,
-                prev2DPoints,                // Previous and current keypoints coordinates.The latter will be
+                _prev.imageGray,             // Previous and current frame
+                _current.imageGray,
+                _prev.inlierPoints2D,        // Previous and current keypoints coordinates.The latter will be
                 pred2DPoints,                // expanded if there are more good coordinates detected during OptFlow algorithm
                 status,                      // Output vector for keypoint correspondences (1 = Match found)
                 err,                         // Errors??
@@ -791,7 +781,7 @@ bool SLCVTrackerFeatures::trackWithOptFlow(Mat &previousFrame, vector<Point2f> &
 
 #if defined(DRAW_KEYPOINTS)
     for (size_t i=0; i < frame2DPoints.size(); i++)
-        circle(frame, frame2DPoints[i], 2, Scalar(0, 255, 0));
+        circle(_current.image, frame2DPoints[i], 2, Scalar(0, 255, 0));
 #endif
 
     bool foundPose = cv::solvePnP(model3DPoints,

@@ -69,12 +69,12 @@ const int maxPatchSize = 60;
 class SLCVTrackerFeatures : public SLCVTracker
 {
 public:
-        SLCVTrackerFeatures         (SLNode* node);
-        ~SLCVTrackerFeatures        ();
-        SLbool  track               (SLCVMat imageGray,
-                                     SLCVMat image,
-                                     SLCVCalibration* calib,
-                                     SLSceneView* sv);
+        SLCVTrackerFeatures     (SLNode* node);
+        ~SLCVTrackerFeatures    ();
+        SLbool  track           (SLCVMat imageGray,
+                                SLCVMat image,
+                                SLCVCalibration* calib,
+                                SLSceneView* sv);
 
 private:
         static SLVMat4f         objectViewMats; //!< object view SLCVMatrices
@@ -86,8 +86,16 @@ private:
         SLCVCalibration         *_calib;
         int                     frameCount = 0, reposePatchSize;
 
-        // TODO: Merge structs? Class representation?
-        struct current {
+        struct map {
+            vector<Point3f>     model;
+            SLCVMat             frameGray;
+            SLCVMat             imgDrawing;
+            SLCVVKeyPoint       keypoints;
+            SLCVMat             descriptors;
+            SLCVVKeyPoint       bboxModelKeypoints;
+        } _map;
+
+        struct FrameData {
             SLCVMat             image;
             SLCVMat             imageGray;
 
@@ -105,59 +113,24 @@ private:
             bool                foundPose;
             float               reprojectionError;
             bool                useExtrinsicGuess;
-        } _current;
+        };
 
-        struct prev {
-            SLCVMat             image;
-            SLCVMat             imageGray;
+        FrameData               _current, _prev;
 
-            vector<Point2f>     inlierPoints2D;
-            vector<Point3f>     inlierPoints3D;
-
-            vector<DMatch>      inlierMatches;
-
-            SLCVMat             rvec;
-            SLCVMat             tvec;
-
-            bool                foundPose;
-            float               reprojectionError;
-        } _prev;
-
-        struct map {
-            vector<Point3f>     model;
-            SLCVMat             frameGray;
-            SLCVMat             imgDrawing;
-            SLCVVKeyPoint       keypoints;
-            SLCVMat             descriptors;
-            SLCVVKeyPoint       bboxModelKeypoints;
-        } _map;
-
-        void initModel();
-        void relocate();
-        void tracking();
-        void saveImageOutput();
-        void updateSceneCam(SLSceneView* sv);
-        void transferFrameData();
-
-        SLCVVKeyPoint getKeypoints(const SLCVMat &imageGray);
-
-        SLCVMat getDescriptors(const SLCVMat &imageGray, SLCVVKeyPoint &keypoints);
-
-        void getKeypointsAndDescriptors(const SLCVMat &imageGray, SLCVVKeyPoint &keypoints, SLCVMat &descriptors);
-
-        vector<DMatch> getFeatureMatches(const SLCVMat &descriptors);
-
-        bool calculatePose(const SLCVMat &imageVideo, vector<KeyPoint> &keypoints, vector<DMatch> &matches,
-            vector<DMatch> &inliers, Mat &rvec, SLCVMat &tvec, bool extrinsicGuess, const SLCVMat& descriptors);
-
-        bool solvePnP(vector<Point3f> &modelPoints, vector<Point2f> &framePoints, bool guessExtrinsic,
-            SLCVMat &rvec, SLCVMat &tvec, vector<unsigned char> &inliersMask);
-
-        bool optimizePose(const SLCVMat &imageVideo, vector<KeyPoint> &keypoints, const SLCVMat &descriptors,
-            vector<DMatch> &matches, SLCVMat &rvec, SLCVMat &tvec, float reprojectionError=0);
-
-        bool trackWithOptFlow(Mat &previousFrame, vector<Point2f> &previousPoints, Mat &actualFrame,
-                              Mat rvec, Mat tvec, SLCVMat &frame);
+        void                    initModel();
+        void                    relocate();
+        void                    tracking();
+        void                    saveImageOutput();
+        void                    updateSceneCam(SLSceneView* sv);
+        void                    transferFrameData();
+        SLCVVKeyPoint           getKeypoints();
+        SLCVMat                 getDescriptors();
+        void                    getKeypointsAndDescriptors();
+        vector<DMatch>          getFeatureMatches();
+        bool                    calculatePose();
+        bool                    solvePnP();
+        bool                    optimizePose(float reprojectionError=0);
+        bool                    trackWithOptFlow(Mat rvec, Mat tvec);
 };
 //-----------------------------------------------------------------------------
 #endif // SLCVTrackerFeatures_H
