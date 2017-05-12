@@ -64,7 +64,7 @@ const double confidence = 0.95;
 // Repose patch size
 const int reposeFrequency = 10;
 const int initialPatchSize = 2;
-const int maxPatchSize = 80;
+const int maxPatchSize = 60;
 
 
 class SLCVTrackerFeatures : public SLCVTracker
@@ -114,6 +114,8 @@ private:
 
             vector<Point2f>     inlierPoints2D;
             vector<Point3f>     inlierPoints3D;
+
+            vector<DMatch>      inlierMatches;
 
             SLCVMat             rvec;
             SLCVMat             tvec;

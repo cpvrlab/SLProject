@@ -25,7 +25,6 @@ for a good top down information.
 #include <time.h>
 #include <sys/types.h>
 #include <sys/stat.h>
-//#include <opencv2/tracking.hpp>
 
 #if defined(SL_OS_WINDOWS)
 #include <direct.h>
@@ -167,7 +166,6 @@ void SLCVTrackerFeatures::initModel()
         refImageKeypoint /= pixelPerMM;                  // Point scaling
         float Z = 0;                                     // Here we can use 0 because we expect a planar object
         _map.model.push_back(Point3f(refImageKeypoint.x, refImageKeypoint.y, Z));
-        //SL_LOG("%f %f %f 4.2108e+06\n", refImageKeypoint.x, refImageKeypoint.y, Z);
     }
 
     /*
