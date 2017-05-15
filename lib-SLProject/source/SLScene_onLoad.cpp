@@ -1925,7 +1925,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         cam1->background().texture(&_videoTexture);
         videoType(VT_MAIN);
 
-        SLLightSpot* light1 = new SLLightSpot(120,120,120, 1);
+        SLLightSpot* light1 = new SLLightSpot(420,420,420, 1);
         light1->ambient(SLCol4f(1,1,1));
         light1->diffuse(SLCol4f(1,1,1));
         light1->specular(SLCol4f(1,1,1));
@@ -1940,7 +1940,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         #endif
         tower->rotate(180, 1,0,0);
         tower->translate(80, -80, 0);
-        tower->scale(2);
+        tower->scale(4);
 
         // Scene structure --------------------------------------------------------------
         SLNode* scene = new SLNode("Scene");
