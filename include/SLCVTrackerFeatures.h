@@ -33,7 +33,7 @@ using namespace cv;
 
 // Settings for drawing things into current camera frame
 #define DRAW_INLIERMATCHES 0
-#define DRAW_REPROJECTION_POINTS 1
+#define DRAW_REPROJECTION_POINTS 0
 #define DRAW_REPROJECTION_ERROR 0
 #define DRAW_PATCHES 0
 
@@ -119,11 +119,11 @@ private:
         Map                     _map;
         FrameData               _current, _prev;
 
-        void                    initModel();
+        void                    initializeReference(string trackerName);
         void                    relocate();
         void                    tracking();
         void                    drawDebugInformation();
-        void                    updateSceneCam(SLSceneView* sv);
+        void                    updateSceneCamera(SLSceneView* sv);
         void                    transferFrameData();
         SLCVVKeyPoint           getKeypoints();
         SLCVMat                 getDescriptors();
@@ -131,7 +131,7 @@ private:
         vector<DMatch>          getFeatureMatches();
         bool                    calculatePose();
         bool                    solvePnP();
-        void                    optimizeMatches(float reprojectionError=0);
+        void                    optimizeMatches();
         bool                    trackWithOptFlow(Mat rvec,
                                                  Mat tvec);
 };
