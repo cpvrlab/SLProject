@@ -26,11 +26,17 @@ for a good top down information.
 
 using namespace cv;
 
-
 #define DEBUG_OUTPUT 0
 #define FORCE_REPOSE 0
 #define DISTINGUISH_FEATURE_DETECT_COMPUTE 0
-#define TRACKING_MEASUREMENT 1
+#define BENCHMARKING 1
+
+// Settings for drawing things into current camera frame
+#define DRAW_INLIERMATCHES 0
+#define DRAW_REPROJECTION_POINTS 1
+#define DRAW_REPROJECTION_ERROR 0
+#define DRAW_PATCHES 0
+
 
 // Set stones Tracker as default reference image
 #ifndef SL_TRACKER_IMAGE_NAME
@@ -44,11 +50,6 @@ using namespace cv;
     #define SAVE_SNAPSHOTS_OUTPUT "cv_tracking/"
     #endif
 #endif
-
-// Settings for drawing things into current camera frame
-#define DRAW_KEYPOINTS 1
-#define DRAW_REPROJECTION 1
-#define DRAW_REPOSE_INFO 1
 
 // Feature detection and extraction
 const int nFeatures = 2000;
@@ -84,15 +85,16 @@ private:
         SLMat4f                 _pose;
         SLCVCalibration         *_calib;
         int                     frameCount = 0, reposePatchSize;
+        bool                    isRelocated;
 
-        struct map {
+        struct Map {
             vector<Point3f>     model;
             SLCVMat             frameGray;
             SLCVMat             imgDrawing;
             SLCVVKeyPoint       keypoints;
             SLCVMat             descriptors;
             SLCVVKeyPoint       bboxModelKeypoints;
-        } _map;
+        };
 
         struct FrameData {
             SLCVMat             image;
@@ -114,12 +116,13 @@ private:
             bool                useExtrinsicGuess;
         };
 
+        Map                     _map;
         FrameData               _current, _prev;
 
         void                    initModel();
         void                    relocate();
         void                    tracking();
-        void                    saveImageOutput();
+        void                    drawDebugInformation();
         void                    updateSceneCam(SLSceneView* sv);
         void                    transferFrameData();
         SLCVVKeyPoint           getKeypoints();
@@ -129,7 +132,8 @@ private:
         bool                    calculatePose();
         bool                    solvePnP();
         void                    optimizeMatches(float reprojectionError=0);
-        bool                    trackWithOptFlow(Mat rvec, Mat tvec);
+        bool                    trackWithOptFlow(Mat rvec,
+                                                 Mat tvec);
 };
 //-----------------------------------------------------------------------------
 #endif // SLCVTrackerFeatures_H
