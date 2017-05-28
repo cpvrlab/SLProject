@@ -190,7 +190,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
 
     // Override input scene if test scene is required
     SL::currentSceneID = (SL::noTestIsRunning()) ? sceneName :
-                       SL::singleTestIsRunning() ? SL::testScene : SL::testSceneAll;
+                          SL::singleTestIsRunning() ? SL::testScene : SL::testSceneAll;
 
     // Reset calibration process at scene change
     if (_activeCalib->state() != CS_calibrated &&

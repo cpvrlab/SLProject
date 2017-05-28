@@ -294,7 +294,7 @@ class SL
     static void             saveConfig          (SLSceneView* sv);
     static SLfloat          dpmm                () {return (float)dpi/25.4f;}
 
-    static SLCommand        testScene;          //!< Test scene command id
+    static SLCommand        testScene;          //!< Test scene command id (-1 for no test)
     static SLCommand        testSceneAll;       //!< Test scene command id for all tests
     static SLint            testDurationSec;    //!< Test time in seconds
     static SLint            testFactor;         //!< Test factor for scene construction

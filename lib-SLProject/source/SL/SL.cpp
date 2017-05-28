@@ -18,48 +18,60 @@
 
 //-----------------------------------------------------------------------------
 //! Default values for static fields
-SLstring    SL::configPath      = "../_data/config/";
-SLstring    SL::configTime      = "-";
-SLint       SL::dpi             = 0;
-SLCommand   SL::currentSceneID  = C_sceneEmpty;
-SLint       SL::testDurationSec = 0;
-SLint       SL::testFactor      = 1;
-SLCommand   SL::testScene       = (SLCommand)-1;
-SLCommand   SL::testSceneAll    = C_sceneMinimal;
-SLLogVerbosity SL::testLogVerbosity = LV_quiet;
-SLuint      SL::testFrameCounter = 0;
+SLstring        SL::configPath      = "../_data/config/";
+SLstring        SL::configTime      = "-";
+SLint           SL::dpi             = 0;
+SLCommand       SL::currentSceneID  = C_sceneEmpty;
+SLint           SL::testDurationSec = 0;
+SLint           SL::testFactor      = 1;
+SLCommand       SL::testScene       = (SLCommand)-1;
+SLCommand       SL::testSceneAll    = C_sceneMinimal;
+SLLogVerbosity  SL::testLogVerbosity = LV_quiet;
+SLuint          SL::testFrameCounter = 0;
+
+//! Scene name string vector. Make sure they corrspond to the enum SLCommand
 const SLVstring SL::testSceneNames = 
-{   "SceneAll               ",
-    "SceneMinimal           ",
-    "SceneFigure            ", 
-    "SceneMeshLoad          ",
-    "SceneVRSizeTest        ",
-    "SceneLargeModel        ",
-    "SceneChristoffel       ",
-    "SceneRevolver          ",
-    "SceneTextureFilter     ",
-    "SceneTextureBlend      ",
-    "SceneTextureVideo      ",
-    "SceneFrustumCull1      ",
-    "ScenePerVertexBlinn    ",
-    "ScenePerPixelBlinn     ",
-    "ScenePerVertexWave     ",
-    "SceneWater             ",
-    "SceneBumpNormal        ",
-    "SceneBumpParallax      ",
-    "SceneEarth             ",
-    "SceneMassAnimation     ",
-    "SceneTerrain           ",
-    "SceneSkeletalAnimation ",
-    "SceneNodeAnimation     ",
-    "SceneAstroboyArmyGPU   ",
-    "SceneAstroboyArmyCPU   ",
-    "SceneRTMuttenzerBox    ",
-    "SceneRTSpheres         ",
-    "SceneRTSoftShadows     ",
-    "SceneRTDoF             ",
-    "SceneRTLens            ",
-    "SceneRTTest            "
+{
+    "sceneAll                   ",
+    "sceneMinimal               ",
+    "sceneFigure                ",
+    "sceneMeshLoad              ",
+    "sceneVRSizeTest            ",
+    "sceneLargeModel            ",
+    "sceneRevolver              ",
+    "sceneTextureFilter         ",
+    "sceneTextureBlend          ",
+    "sceneFrustumCull           ",
+    "sceneMassiveData           ",
+    "sceneShaderPerVertexBlinn  ",
+    "sceneShaderPerPixelBlinn   ",
+    "sceneShaderPerVertexWave   ",
+    "sceneShaderWater           ",
+    "sceneShaderBumpNormal      ",
+    "sceneShaderBumpParallax    ",
+    "sceneShaderEarth           ",
+    "sceneTerrain               ",
+    "sceneAnimationMass         ",
+    "sceneAnimationSkeletal     ",
+    "sceneAnimationNode         ",
+    "sceneAnimationArmy         ",
+    "sceneVideoTexture          ",
+    "sceneVideoChristoffel      ",
+    "sceneVideoCalibrateMain    ",
+    "sceneVideoCalibrateScnd    ",
+    "sceneVideoTrackChessMain   ",
+    "sceneVideoTrackChessScnd   ",
+    "sceneVideoTrackArucoMain   ",
+    "sceneVideoTrackArucoScnd   ",
+    "sceneVideoTrackFeat2DMain  ",
+    "sceneVideoTrackFeat2DScnd  ",
+    "sceneRTMuttenzerBox        ",
+    "sceneRTSpheres             ",
+    "sceneRTSoftShadows         ",
+    "sceneRTDoF                 ",
+    "sceneRTLens                ",
+    "sceneRTTest                ",
+    "sceneMaximal               "
 };
 //-----------------------------------------------------------------------------
 //! SL::log
@@ -118,7 +130,22 @@ SLuint SL::maxThreads()
     #endif
 }
 //------------------------------------------------------------------------------
-//! Parses the command line arguments
+//! Parses the command line arguments and sets the according scene test variable.
+/*! The following command line arguments can be passed:\n
+- testScene:       scene int ID defined in the enum SLCommand (0=sceneAll)\n
+- testDurationSec: test duration in int sec.\n
+- testFactor:      test int factor used for scaling in SLScene::onLoad.\n
+\n
+Example:\
+app_Demo.exe testScene=1 testDurationSec=5 testFactor=1\n
+\n
+Starts the app with scene 1 (=sceneMinimal) and runs for 5 sec. with testFactor 1.
+If the testScene is 0 (=sceneAll) all scenes are tested one after the other.\n
+The scenes are changed and logged in SLSceneView::testRunIsFinished() that is
+called in SLSceneView::onPaint().
+
+\param cmdLineArgs A string vector with all command line arguments.
+*/
 void SL::parseCmdLineArgs(SLVstring& cmdLineArgs)
 {   // Default values
     SL::testScene = (SLCommand)-1;
@@ -129,7 +156,7 @@ void SL::parseCmdLineArgs(SLVstring& cmdLineArgs)
     {
         SLUtils::split(arg, '=', argComponents);
         if (argComponents.size()==2)
-        {   
+        {
             if(argComponents[0] ==  "testScene")
             {   SLint iScene = atoi(argComponents[1].c_str());
                 if (iScene >= C_sceneAll && iScene <= C_sceneRTTest)
@@ -141,10 +168,12 @@ void SL::parseCmdLineArgs(SLVstring& cmdLineArgs)
                         SL::testDurationSec = 5;
                 }
             }
-            if(argComponents[0] ==  "durationSec")
+
+            if(argComponents[0] ==  "testDurationSec")
             {   SLint sec = atoi(argComponents[1].c_str());
                 if (sec > 0) SL::testDurationSec = sec;
             }
+
             if(argComponents[0] ==  "testFactor")
             {   SLint factor = atoi(argComponents[1].c_str());
                 if (factor > 0) SL::testFactor = factor;

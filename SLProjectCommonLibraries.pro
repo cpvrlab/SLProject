@@ -41,6 +41,7 @@ macx {
     QMAKE_MAC_SDK = macosx10.12
     CONFIG += c++11
     DEFINES += GLEW_NO_GLU
+    QMAKE_RPATHDIR += -L$$PWD/_lib/prebuilt/OpenCV/macx
     LIBS += -framework Cocoa
     LIBS += -framework IOKit
     LIBS += -framework OpenGL

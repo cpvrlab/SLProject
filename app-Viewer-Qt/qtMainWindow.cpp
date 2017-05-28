@@ -324,8 +324,9 @@ void qtMainWindow::addNodeTreeItem(SLNode* node,
     if (parent) item = new qtNodeTreeItem(node, parent);
     else item = new qtNodeTreeItem(node, tree);
 
-    for (auto m : node->meshes())
-        qtNodeTreeItem* mesh = new qtNodeTreeItem(m, item);
+    qtNodeTreeItem* meshItem;
+    for(auto m : node->meshes())
+        meshItem = new qtNodeTreeItem(m,item);
 
     for (auto child : node->children())
         addNodeTreeItem(child, tree, item);

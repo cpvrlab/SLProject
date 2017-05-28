@@ -253,7 +253,7 @@ void SLScene::init()
     _draw3DTimesMS.init();
     _draw2DTimesMS.init();
     _trackingTimesMS.init();
-    _captureTimesMS.init();
+    _captureTimesMS.init(200);
 
     // load virtual cursor texture
     _texCursor = new SLGLTexture("cursor.png");

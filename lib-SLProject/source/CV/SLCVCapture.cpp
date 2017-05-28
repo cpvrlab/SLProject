@@ -1,7 +1,7 @@
 //#############################################################################
 //  File:      SLCVCapture.cpp
 //  Purpose:   OpenCV Capture Device
-//  Author:    Michael Goettlicher, Marcus Hudritsch
+//  Authors:   Michael Goettlicher, Marcus Hudritsch, Jan Dellsperger
 //  Date:      Winter 2016
 //  Codestyle: https://github.com/cpvrlab/SLProject/wiki/Coding-Style-Guidelines
 //  Copyright: Marcus Hudritsch
@@ -74,10 +74,10 @@ void SLCVCapture::grabAndAdjustForSL()
     try
     {   if (_captureDevice.isOpened())
         {
-           if (!_captureDevice.read(lastFrame))
+            if (!_captureDevice.read(lastFrame))
                 return;
 
-           adjustForSL();
+            adjustForSL();
         }
         else
         {   static bool logOnce = true;
@@ -134,7 +134,7 @@ void SLCVCapture::adjustForSL()
         SLint height = 0;   // height in pixels of the destination image
         SLint cropH = 0;    // crop height in pixels of the source image
         SLint cropW = 0;    // crop width in pixels of the source image
-        
+
         if (inWdivH > outWdivH) // crop input image left & right
         {   width = (SLint)((SLfloat)lastFrame.rows * outWdivH);
             height = lastFrame.rows;
@@ -158,14 +158,14 @@ void SLCVCapture::adjustForSL()
     if (SLScene::current->activeCalib()->isMirroredH())
     {   SLCVMat mirrored;
         if (SLScene::current->activeCalib()->isMirroredV())
-             cv::flip(SLCVCapture::lastFrame, mirrored,-1);
+            cv::flip(SLCVCapture::lastFrame, mirrored,-1);
         else cv::flip(SLCVCapture::lastFrame, mirrored, 1);
         SLCVCapture::lastFrame = mirrored;
     } else
     if (SLScene::current->activeCalib()->isMirroredV())
     {   SLCVMat mirrored;
         if (SLScene::current->activeCalib()->isMirroredH())
-             cv::flip(SLCVCapture::lastFrame, mirrored,-1);
+            cv::flip(SLCVCapture::lastFrame, mirrored,-1);
         else cv::flip(SLCVCapture::lastFrame, mirrored, 0);
         SLCVCapture::lastFrame = mirrored;
     }
@@ -219,20 +219,136 @@ void SLCVCapture::loadIntoLastFrame(const SLint width,
             default: SL_EXIT_MSG("Pixel format not supported");
         }
 
-        // calculate padding NO. of stride bytes (= step in OpenCV terminology)
-        size_t stride = 0;
+        // calculate padding NO. of bgrRowOffset bytes (= step in OpenCV terminology)
+        size_t destStride = 0;
         if (!isContinuous)
         {
             SLint bitsPerPixel = bpp * 8;
             SLint bpl = ((width * bitsPerPixel + 31) / 32) * 4;
-            stride = (size_t)(bpl - width * bpp);
+            destStride = (size_t)(bpl - width * bpp);
         }
 
-        SLCVCapture::lastFrame = SLCVMat(height, width, cvType, (void*)data, stride);
+        SLCVCapture::lastFrame = SLCVMat(height, width, cvType, (void*)data, destStride);
     }
-    
+
     adjustForSL();
 }
+//-----------------------------------------------------------------------------
+//! YUV to RGB image infos. Offset value can be negative for mirrored copy.
+inline void yuv2rbg(SLubyte y, SLubyte u, SLubyte v,
+                    SLubyte& r, SLubyte& g, SLubyte& b)
+{
+    // Conversion from:
+    // https://de.wikipedia.org/wiki/YUV-Farbmodell
+    //float c = 1.164f*(float)(yVal-16);
+    //float d = (float)(uVal-128);
+    //float e = (float)(vVal-128);
+    //r = clipFToUInt8(c + 1.596f*e);
+    //g = clipFToUInt8(c - 0.391f*d - 0.813f*e);
+    //b = clipFToUInt8(c + 2.018f*d);
+
+    // Conversion from:
+    // http://www.wordsaretoys.com/2013/10/18/making-yuv-conversion-a-little-faster
+    // I've multiplied each floating point constant by 1024 and truncated it.
+    // Now I can add/subtract the scaled integers, and apply a bit shift right to
+    // divide each result by 1024
+    int e = v - 128;
+    int d = u - 128;
+    int a0 = 1192 * (y - 16);
+    int a1 = 1634 * e;
+    int a2 = 832 * e;
+    int a3 = 400 * d;
+    int a4 = 2066 * d;
+    r = (SLubyte)SL_clamp(     (a0 + a1) >> 10, 0, 255);
+    g = (SLubyte)SL_clamp((a0 - a2 - a3) >> 10, 0, 255);
+    b = (SLubyte)SL_clamp(     (a0 + a4) >> 10, 0, 255);
+}
+//-----------------------------------------------------------------------------
+//! YUV to RGB image infos. Offset value can be negative for mirrored copy.
+struct colorBGR
+{
+    SLubyte b, g, r;
+};
+//-----------------------------------------------------------------------------
+//! YUV to RGB image infos. Offset value can be negative for mirrored copy.
+struct YUV2RGB_ImageInfo
+{
+    int bgrColOffest;   //!< offset in bytes to the next bgr pixel (column)
+    int grayColOffest;  //!< offset in bytes to the next gray pixel (column)
+    int yColOffest;     //!< offset in bytes to the next y pixel (column)
+    int uColOffest;     //!< offset in bytes to the next u pixel (column)
+    int vColOffset;     //!< offset in bytes to the next v pixel (column)
+    int bgrRowOffset;   //!< offset in bytes to the next bgr row
+    int grayRowOffset;  //!< offset in bytes to the next grayscale row
+    int yRowOffset;     //!< offset in bytes to the y value of the next row
+    int uRowOffset;     //!< offset in bytes to the u value of the next row
+    int vRowOffest;     //!< offset in bytes to the v value of the next row
+};
+//-----------------------------------------------------------------------------
+//! YUV to RGB image block infos that are different per thread
+struct YUV2RGB_BlockInfo
+{
+    YUV2RGB_ImageInfo *imageInfo;   //!< Pointer to the image info
+    int     rowCount;   //!< Num. of rows in block
+    int     colCount;   //!< Num. of columns in block
+    SLubyte* bgrRow;    //!< Pointer to the bgr row
+    SLubyte* grayRow;   //!< Pointer to the grayscale row
+    SLubyte* yRow;      //!< Pointer to the y value row
+    SLubyte* uRow;      //!< Pointer to the u value row
+    SLubyte* vRow;      //!< Pointer to the v value row
+};
+//-----------------------------------------------------------------------------
+//! YUV to RGB conversion function called by multiple threads
+/*!
+/param info image block information struct with thread specific information
+*/
+void* convertYUV2RGB(YUV2RGB_BlockInfo* block)
+{
+    YUV2RGB_ImageInfo* image = block->imageInfo;
+
+    for (int row = 0; row < block->rowCount; ++row)
+    {
+        colorBGR* bgrCol = (colorBGR *)block->bgrRow;
+        SLubyte* grayCol = block->grayRow;
+        SLubyte* yCol    = block->yRow;
+        SLubyte* uCol    = block->uRow;
+        SLubyte* vCol    = block->vRow;
+
+        // convert 2 pixels in the inner loop
+        for (int col = 0; col < block->colCount; col+=2)
+        {
+            yuv2rbg(*yCol, *uCol, *vCol, bgrCol->r,bgrCol->g, bgrCol->b);
+            *grayCol = *yCol;
+
+            bgrCol  += image->bgrColOffest;
+            grayCol += image->grayColOffest;
+            yCol    += image->yColOffest;
+
+            yuv2rbg(*yCol, *uCol, *vCol, bgrCol->r,bgrCol->g, bgrCol->b);
+            *grayCol = *yCol;
+
+            bgrCol  += image->bgrColOffest;
+            grayCol += image->grayColOffest;
+            yCol    += image->yColOffest;
+
+            uCol    += image->uColOffest;
+            vCol    += image->vColOffset;
+        }
+
+        block->bgrRow  += image->bgrRowOffset;
+        block->grayRow += image->grayRowOffset;
+        block->yRow    += image->yRowOffset;
+
+        // if odd row
+        if (row & 1)
+        {   block->uRow += image->uRowOffset;
+            block->vRow += image->vRowOffest;
+        }
+    }
+
+    return 0;
+}
+
 //------------------------------------------------------------------------------
 //! Copies and converts the video image in YUV_420 format to RGB and Grayscale
 /*! SLCVCapture::copyYUVPlanes copies and converts the video image in YUV_420
@@ -271,25 +387,25 @@ A faster integer version with bit shifting is:\n
 4) Many of the image processing tasks are faster done on grayscale images.
 We therefore create a copy of the y-channel into SLCVCapture::lastFrameGray.
 \n
-\param srcW         Source image width in pixel
-\param srcH         Source image height in pixel
-\param y            Pointer to first byte of the top left pixel of the y-plane
-\param ySize        Size in bytes of the y-plane (must be srcW x srcH)
-\param yPixStride   Offest in bytes to the next pixel in the y-plane
-\param yLineStride  Offest in bytes to the next line in the y-plane
-\param u            Pointer to first byte of the top left pixel of the u-plane
-\param uSize        Size in bytes of the u-plane
-\param uPixStride   Offest in bytes to the next pixel in the u-plane
-\param uLineStride  Offest in bytes to the next line in the u-plane
-\param v            Pointer to first byte of the top left pixel of the v-plane
-\param vSize        Size in bytes of the v-plane
-\param vPixStride   Offest in bytes to the next pixel in the v-plane
-\param vLineStride  Offest in bytes to the next line in the v-plane
+\param srcW        Source image width in pixel
+\param srcH        Source image height in pixel
+\param y           Pointer to first byte of the top left pixel of the y-plane
+\param yBytes      Size in bytes of the y-plane (must be srcW x srcH)
+\param yColOffset  Offset in bytes to the next pixel in the y-plane
+\param yRowOffset  Offset in bytes to the next line in the y-plane
+\param u           Pointer to first byte of the top left pixel of the u-plane
+\param uBytes      Size in bytes of the u-plane
+\param uColOffset  Offset in bytes to the next pixel in the u-plane
+\param uRowOffset  Offset in bytes to the next line in the u-plane
+\param v           Pointer to first byte of the top left pixel of the v-plane
+\param vBytes      Size in bytes of the v-plane
+\param vColOffset  Offset in bytes to the next pixel in the v-plane
+\param vRowOffset  Offset in bytes to the next line in the v-plane
 */
 void SLCVCapture::copyYUVPlanes(int srcW, int srcH,
-                                SLuchar* y, int ySize, int yPixStride, int yLineStride,
-                                SLuchar* u, int uSize, int uPixStride, int uLineStride,
-                                SLuchar* v, int vSize, int vPixStride, int vLineStride)
+                                SLuchar* y, int yBytes, int yColOffset, int yRowOffset,
+                                SLuchar* u, int uBytes, int uColOffset, int uRowOffset,
+                                SLuchar* v, int vBytes, int vColOffset, int vRowOffset)
 {
     // pointer to the active scene
     SLScene* s = SLScene::current;
@@ -310,12 +426,12 @@ void SLCVCapture::copyYUVPlanes(int srcW, int srcH,
 
     // Crop image if source and destination aspect is not the same
     if (SL_abs(srcWdivH - dstWdivH) > 0.01f)
-    {
-        if (srcWdivH > dstWdivH) // crop input image left & right
+    {   if (srcWdivH > dstWdivH) // crop input image left & right
         {   dstW  = (SLint)((SLfloat)srcH * dstWdivH);
             dstH  = srcH;
             cropW = (SLint)((SLfloat)(srcW - dstW) * 0.5f);
-        } else // crop input image at top & bottom
+        }
+        else // crop input image at top & bottom
         {   dstW  = srcW;
             dstH  = (SLint)((SLfloat)srcW / dstWdivH);
             cropH = (SLint)((SLfloat)(srcH - dstH) * 0.5f);
@@ -326,42 +442,114 @@ void SLCVCapture::copyYUVPlanes(int srcW, int srcH,
     bool mirrorH = s->activeCalib()->isMirroredH();
     bool mirrorV = s->activeCalib()->isMirroredV();
 
-    /*
-    Now do if possible only one loop over the source image to fill up the
-    RGB image in SLCVCapture::lastFrame and the grayscale image in
-    SLCVCapture::lastFrameGray.
+    // Create output color (BGR) and grayscale images
+    lastFrame     = SLCVMat(dstH, dstW, CV_8UC(3));
+    lastFrameGray = SLCVMat(dstH, dstW, CV_8UC(1));
+    format        = SLCVImage::cv2glPixelFormat(lastFrame.type());
 
-    In the OpenCV docs:
-    http://docs.opencv.org/3.1.0/db/da5/tutorial_how_to_scan_images.html
-    the fasted way to iterate over an image matrix is in plain old C:
-
-    Mat& ScanImageAndReduceC(Mat& I, const uchar* const table)
-    {
-        // accept only char type matrices
-        CV_Assert(I.depth() == CV_8U);
-        int channels = I.channels();
-        int nRows = I.rows;
-        int nCols = I.cols * channels;
-        if (I.isContinuous())
-        {
-            nCols *= nRows;
-            nRows = 1;
-        }
-        int i,j;
-        uchar* p;
-        for( i = 0; i < nRows; ++i)
-        {
-            p = I.ptr<uchar>(i);
-            for ( j = 0; j < nCols; ++j)
-            {
-                p[j] = table[p[j]];
-            }
-        }
-        return I;
+    // Bugfix on some devices with wrong pixel offsets
+    if (yRowOffset==uRowOffset && uColOffset==1)
+    {   uColOffset = 2;
+        vColOffset = 2;
     }
-    */
 
-    // ???
+    SLubyte* bgrRow  = lastFrame.data;
+    SLubyte* grayRow = lastFrameGray.data;
+
+    int bgrColBytes  = 3;
+    int bgrRowBytes  = dstW * bgrColBytes;
+    int grayColBytes = 1;
+    int grayRowBytes = dstW * grayColBytes;
+
+    // Adjust the offsets depending on the horizontal mirroring
+    int bgrRowOffset  = dstW * bgrColBytes;
+    int grayRowOffset = dstW;
+    if (mirrorH) {
+        bgrRow  += (dstH - 1) * bgrRowBytes;
+        grayRow += (dstH - 1) * grayRowBytes;
+        bgrRowOffset  *= -1;
+        grayRowOffset *= -1;
+    }
+
+    // Adjust the offsets depending on the vertical mirroring
+    int bgrColOffset = 1;
+    int grayColOffset = grayColBytes;
+    if (mirrorV) {
+        bgrRow  += (bgrRowBytes - bgrColBytes);
+        grayRow += (grayRowBytes - grayColBytes);
+        bgrColOffset  *= -1;
+        grayColOffset *= -1;
+    }
+
+    // Set source buffer pointers
+    int halfCropH = cropH/2;
+    int halfCropW = cropW/2;
+    SLubyte* yRow = y +     cropH*yRowOffset +     cropW*yColOffset;
+    SLubyte* uRow = u + halfCropH*uRowOffset + halfCropW*uColOffset;
+    SLubyte* vRow = v + halfCropH*vRowOffset + halfCropW*vColOffset;
+
+    // Set the information common for all thread blocks
+    YUV2RGB_ImageInfo imageInfo;
+    imageInfo.bgrColOffest  = bgrColOffset;
+    imageInfo.grayColOffest = grayColOffset;
+    imageInfo.yColOffest    = yColOffset;
+    imageInfo.uColOffest    = uColOffset;
+    imageInfo.vColOffset    = vColOffset;
+    imageInfo.bgrRowOffset  = bgrRowOffset;
+    imageInfo.grayRowOffset = grayRowOffset;
+    imageInfo.yRowOffset    = yRowOffset;
+    imageInfo.uRowOffset    = uRowOffset;
+    imageInfo.vRowOffest    = vRowOffset;
+
+    // Prepare the threads (hyperthreads seam to be unefficient on ARM)
+    const int threadNum = 4; //SL_max(thread::hardware_concurrency(), 1U);
+    vector<thread> threads;
+    YUV2RGB_BlockInfo threadInfos[threadNum];
+    int rowsPerThread = dstH / (threadNum + 1);
+    int halfRowsPerThread = (int)(rowsPerThread*0.5f);
+    int rowsHandled = 0;
+
+    // Launch threadNum-1 threads on different blocks of the image
+    for(int i = 0; i < threadNum-1; i++)
+    {
+        YUV2RGB_BlockInfo* info = threadInfos + i;
+        info->imageInfo = &imageInfo;
+        info->bgrRow    = bgrRow;
+        info->grayRow   = grayRow;
+        info->yRow      = yRow;
+        info->uRow      = uRow;
+        info->vRow      = vRow;
+        info->rowCount  = rowsPerThread;
+        info->colCount  = dstW;
+
+        ////////////////////////////////////////////////
+        threads.push_back(thread(convertYUV2RGB, info));
+        ////////////////////////////////////////////////
+
+        rowsHandled += rowsPerThread;
+
+        bgrRow  += bgrRowOffset  *     rowsPerThread;
+        grayRow += grayRowOffset *     rowsPerThread;
+        yRow    += yRowOffset    *     rowsPerThread;
+        uRow    += uRowOffset    * halfRowsPerThread;
+        vRow    += vRowOffset    * halfRowsPerThread;
+    }
+
+    // Launch the last block on the main thread
+    YUV2RGB_BlockInfo infoMain;
+    infoMain.imageInfo = &imageInfo;
+    infoMain.bgrRow    = bgrRow;
+    infoMain.grayRow   = grayRow;
+    infoMain.yRow      = yRow;
+    infoMain.uRow      = uRow;
+    infoMain.vRow      = vRow;
+    infoMain.rowCount  = (dstH - rowsHandled);
+    infoMain.colCount  = dstW;
+
+    convertYUV2RGB(&infoMain);
+
+    // Join all threads to continue single threaded
+    for(auto& thread : threads) thread.join();
 
     // Stop the capture time displayed in the statistics info
     s->captureTimesMS().set(s->timeMilliSec() - SLCVCapture::startCaptureTimeMS);

@@ -80,6 +80,7 @@ void slCreateScene(SLVstring& cmdLineArgs,
     SL_LOG("OpenCV Version  : %d.%d.%d\n", CV_MAJOR_VERSION,
                                            CV_MINOR_VERSION,
                                            CV_VERSION_REVISION);
+    SL_LOG("CV has OpenCL   : %s\n", cv::ocl::haveOpenCL() ? "yes":"no");
     SL_LOG("OpenGL Version  : %s\n", stateGL->glVersion().c_str());
     SL_LOG("Vendor          : %s\n", stateGL->glVendor().c_str());
     SL_LOG("Renderer        : %s\n", stateGL->glRenderer().c_str());
