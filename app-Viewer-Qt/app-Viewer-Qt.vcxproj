@@ -358,10 +358,10 @@ xcopy $(SolutionDir)_lib\prebuilt\OpenCV\x64\vc14\bin\opencv_flann*.dll $(Soluti
       <FileType>Document</FileType>
       <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">#$(QTDIR)\bin\rcc.exe -o %(Filename).qrc -o qrc_%(Filename).cpp %(FullPath)</Command>
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">RCC %(Filename).qrc</Message>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">%(Filename).cpp</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">qrc_%(Filename).cpp</Outputs>
       <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(QTDIR)\bin\rcc.exe -o %(Filename).qrc -o qrc_%(Filename).cpp %(FullPath)</Command>
       <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">RCC %(Filename).qrc</Message>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">%(Filename).cpp</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">qrc_%(Filename).cpp</Outputs>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </CustomBuild>
