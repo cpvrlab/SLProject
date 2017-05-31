@@ -103,9 +103,7 @@ void main()
 {
     vec3 N = normalize(v_N_VS);  // A varying normal has not anymore unit length
     vec3 V = normalize(-v_P_VS); // Vector from p to the viewer
-
-    // Determine Frenel reflection at 90 deg. (0 to N)
-    vec3 F0 = vec3(0.04);
+    vec3 F0 = vec3(0.04);        // Init Frenel reflection at 90 deg. (0 to N)
     F0 = mix(F0, u_matDiffuse, u_matMetallic);
 
     // Get the reflection from all lights into Lo
