@@ -43,10 +43,10 @@ float sum_detectcompute_millis;
 float high_detectcompute_milis;
 
 int frames_with_pose = 0;
-int sum_matches = 0;
-int sum_inlier_matches = 0;
+float sum_matches = 0;
+float sum_inlier_matches = 0;
 float sum_allmatches_to_inliers = 0.0f;
-double sum_reprojection_error = 0.0f;
+double sum_reprojection_error = 0.0;
 float sum_poseopt_difference = 0.0f;
 double translationError = 0;
 double rotationError = 0;
@@ -144,8 +144,8 @@ SLCVTrackerFeatures::~SLCVTrackerFeatures() {
     SL_LOG("Avg matches                                      : %f\n", sum_matches / frames_with_pose);
     SL_LOG("Avg inlier matches                               : %f\n", sum_inlier_matches / frames_with_pose);
     SL_LOG("Avg more matches with Pose optimization          : %f\n", sum_poseopt_difference / frames_with_pose);
-    SL_LOG("Avg Rotation error                               : %f\n", rotationError / frames_with_pose);
-    SL_LOG("Avg Translation error                            : %f\n", translationError / frames_with_pose);
+    SL_LOG("Avg Rotation error                               : %f deg\n", rotationError / frames_with_pose);
+    SL_LOG("Avg Translation error                            : %f px\n", translationError / frames_with_pose);
 
 #endif //BENCHMARKING
 }
