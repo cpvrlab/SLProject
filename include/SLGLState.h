@@ -68,7 +68,9 @@ class SLGLState
         SLCol4f  matDiffuse;                      //!< diffuse color reflection (kd)
         SLCol4f  matSpecular;                     //!< specular color reflection (ks)
         SLCol4f  matEmissive;                     //!< emissive color (ke)
-        SLfloat  matShininess;                    //!< shininess exponent
+        SLfloat  matShininess;                    //!< shininess exponent for Blinn-Phong lighting
+        SLfloat  matRoughness;                    //!< roughness for Cook-Torrance lighting
+        SLfloat  matMetallic;                     //!< metallic for Cook-Torrance lighing
 
         // fog
         SLbool   fogIsOn;                         //!< Flag if fog blending is enabled

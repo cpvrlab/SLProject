@@ -37,6 +37,8 @@ SLMaterial::SLMaterial(const SLchar* name,
     _specular = spec;
     _emission.set(0,0,0,0);
     _shininess = shininess;
+    _roughness = 0.5f;
+    _metallic = 0.0f;
     _program = 0;
    
     _kr = kr;
@@ -64,6 +66,8 @@ SLMaterial::SLMaterial(const SLchar* name,
     _specular.set(1,1,1);
     _emission.set(0,0,0,0);
     _shininess = 125;
+    _roughness = 0.5f;
+    _metallic = 0.0f;
    
     if (texture1) _textures.push_back(texture1);
     if (texture2) _textures.push_back(texture2);
@@ -80,7 +84,28 @@ SLMaterial::SLMaterial(const SLchar* name,
     // Add pointer to the global resource vectors for deallocation
     SLScene::current->materials().push_back(this);
 }
+//-----------------------------------------------------------------------------
+// Ctor for Cook-Torrance shading
+SLMaterial::SLMaterial(const SLchar* name,
+                       SLCol4f diffuse,
+                       SLfloat roughness,
+                       SLfloat metallic)
+{
+    _ambient.set(0,0,0);    // not used in Cook-Torrance
+    _diffuse = diffuse;
+    _specular.set(0,0,0);   // not used in Cook-Torrance
+    _emission.set(0,0,0,0); // not used in Cook-Torrance
+    _shininess = 125;       // not used in Cook-Torrance
+    _roughness = roughness;
+    _metallic = metallic;
+    _kr = 0.0f;
+    _kt = 0.0f;
+    _kn = 1.0f;
+    _program = SLScene::current->programs(SP_perPixCookTorrance);
 
+    // Add pointer to the global resource vectors for deallocation
+    SLScene::current->materials().push_back(this);
+}
 //-----------------------------------------------------------------------------
 // Ctor for uniform color material without lighting
 SLMaterial::SLMaterial(SLCol4f uniformColor, const SLchar* name)
@@ -90,6 +115,8 @@ SLMaterial::SLMaterial(SLCol4f uniformColor, const SLchar* name)
     _specular.set(0,0,0);
     _emission.set(0,0,0,0);
     _shininess = 125;
+    _roughness = 0.5f;
+    _metallic = 0.0f;
    
     _program = SLScene::current->programs(SP_colorUniform);
    
@@ -143,6 +170,8 @@ void SLMaterial::activate(SLGLState* state, SLDrawBits drawBits)
     state->matSpecular   = _specular;
     state->matEmissive   = _emission;
     state->matShininess  = _shininess;
+    state->matRoughness  = _roughness;
+    state->matMetallic   = _metallic;
    
     // Determine use of shaders & textures
     SLbool useTexture = !drawBits.get(SL_DB_TEXOFF);

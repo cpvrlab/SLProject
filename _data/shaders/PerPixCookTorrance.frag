@@ -1,5 +1,5 @@
 //#############################################################################
-//  File:      CookTorrance.frag
+//  File:      PerPixCookTorrance.frag
 //  Purpose:   GLSL fragment shader for Cook-Torrance physical based rendering
 //  Author:    Marcus Hudritsch
 //  Date:      July 2017
@@ -23,7 +23,6 @@ uniform vec4   u_lightDiffuse[8];   //!< diffuse light intensity (Id)
 uniform vec4   u_matDiffuse;        //!< diffuse color reflection coefficient (kd)
 uniform float  u_matRoughness;      //!< Cook-Torrance material roughness 0-1
 uniform float  u_matMetallic;       //!< Cook-Torrance material metallic 0-1
-uniform float  u_matAO;             //!< Cook-Torrance material ambient occlusion
 
 const float PI = 3.14159265359;
 //-----------------------------------------------------------------------------
@@ -74,12 +73,12 @@ void PointLight (in    int  i,      // Light number
                  in    vec3 F0,     // Frenel reflection at 90 deg. (0 to N)
                  inout vec3 Lo)     // reflected intensity
 {
-    vec3 L = u_lightPosVS[i].xyz - v_P_VS;  // Vector from v_P_VS to the light in VS
-    float distance = length(L);             // distance to light
-    L /= distance;                          // normalize light vector
-    vec3 H = normalize(V + L);              // Normalized halfvector between eye and light vector
-    float att = 1.0 / (distance*distance);  // quadratic light attenuation
-    vec3 radiance = u_lightDiffuse[i]*att;  // per light radiance
+    vec3 L = u_lightPosVS[i].xyz - v_P_VS;      // Vector from v_P_VS to the light in VS
+    float distance = length(L);                 // distance to light
+    L /= distance;                              // normalize light vector
+    vec3 H = normalize(V + L);                  // Normalized halfvector between eye and light vector
+    float att = 1.0 / (distance*distance);      // quadratic light attenuation
+    vec3 radiance = u_lightDiffuse[i].rgb * att;// per light radiance
 
      // cook-torrance brdf
      float NDF = DistributionGGX(N, H, u_matRoughness);
@@ -96,7 +95,8 @@ void PointLight (in    int  i,      // Light number
 
      // add to outgoing radiance Lo
      float NdotL = max(dot(N, L), 0.0);
-     Lo += (kD * u_matDiffuse / PI + specular) * radiance * NdotL;
+
+     Lo += (kD * u_matDiffuse.rgb / PI + specular) * radiance * NdotL;
 }
 //-----------------------------------------------------------------------------
 void main()
@@ -104,7 +104,7 @@ void main()
     vec3 N = normalize(v_N_VS);  // A varying normal has not anymore unit length
     vec3 V = normalize(-v_P_VS); // Vector from p to the viewer
     vec3 F0 = vec3(0.04);        // Init Frenel reflection at 90 deg. (0 to N)
-    F0 = mix(F0, u_matDiffuse, u_matMetallic);
+    F0 = mix(F0, u_matDiffuse.rgb, u_matMetallic);
 
     // Get the reflection from all lights into Lo
     vec3 Lo = vec3(0.0);
@@ -117,7 +117,7 @@ void main()
     if (u_lightIsOn[6]) {PointLight(6, v_P_VS, N, V, F0, Lo);}
     if (u_lightIsOn[7]) {PointLight(7, v_P_VS, N, V, F0, Lo);}
 
-    vec3 ambient = vec3(0.03) * u_matDiffuse * u_matAO;
+    vec3 ambient = vec3(0.03) * u_matDiffuse.rgb * 1.0f;
     vec3 color = ambient + Lo;
 
     color = color / (color + vec3(1.0));

@@ -25,7 +25,7 @@ SLstring SLGLProgram::defaultPath = "../_data/shaders";
 // Error Strings defined in SLGLShader.h
 extern char* aGLSLErrorString[];
 //-----------------------------------------------------------------------------
-//! Ctor with a vertex and a fragment shader filename
+//! Ctor with a vertex and a fragment shader filename.
 SLGLProgram::SLGLProgram(SLstring vertShaderFile,
                          SLstring fragShaderFile) : SLObject("")
 {  
@@ -210,6 +210,8 @@ void SLGLProgram::beginUse(SLMaterial* mat)
             loc = uniform4fv("u_matSpecular",    1,  (SLfloat*)&_stateGL->matSpecular);
             loc = uniform4fv("u_matEmissive",    1,  (SLfloat*)&_stateGL->matEmissive);
             loc = uniform1f ("u_matShininess",                  _stateGL->matShininess);
+            loc = uniform1f ("u_matRoughness",                  _stateGL->matRoughness);
+            loc = uniform1f ("u_matMetallic",                   _stateGL->matMetallic);
         }
         
         // 2b: Set stereo states

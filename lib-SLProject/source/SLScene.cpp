@@ -43,6 +43,7 @@ The following standard shaders are preloaded:
   - TextureOnly.vert, TextureOnly.frag
   - PerPixBlinn.vert, PerPixBlinn.frag
   - PerPixBlinnTex.vert, PerPixBlinnTex.frag
+  - PerPixCookTorance.vert, PerPixCookTorance.frag
   - BumpNormal.vert, BumpNormal.frag
   - BumpNormal.vert, BumpNormalParallax.frag
   - FontTex.vert, FontTex.frag
@@ -86,8 +87,9 @@ SLScene::SLScene(SLstring name) : SLObject(name)
     _elapsedTimeMS = 0;
     _lastUpdateTimeMS = 0;
      
-    // Load std. shader programs in order as defined in SLStdShaderProgs enum
+    // Load std. shader programs in order as defined in SLShaderProgs enum in SLenum
     // In the constructor they are added the _shaderProgs vector
+    // If you add a new shader here you have to update the SLShaderProgs enum accordingly.
     SLGLProgram* p;
     p = new SLGLGenericProgram("ColorAttribute.vert","Color.frag");
     p = new SLGLGenericProgram("ColorUniform.vert","Color.frag");
@@ -97,6 +99,7 @@ SLScene::SLScene(SLstring name) : SLObject(name)
     p = new SLGLGenericProgram("TextureOnly.vert","TextureOnly.frag");
     p = new SLGLGenericProgram("PerPixBlinn.vert","PerPixBlinn.frag");
     p = new SLGLGenericProgram("PerPixBlinnTex.vert","PerPixBlinnTex.frag");
+    p = new SLGLGenericProgram("PerPixCookTorrance.vert","PerPixCookTorrance.frag");
     p = new SLGLGenericProgram("BumpNormal.vert","BumpNormal.frag");
     p = new SLGLGenericProgram("BumpNormal.vert","BumpNormalParallax.frag");
     p = new SLGLGenericProgram("FontTex.vert","FontTex.frag");

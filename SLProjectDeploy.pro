@@ -94,6 +94,8 @@ shaders.files = \
   ../_data/shaders/PerPixBlinnTex.frag \
   ../_data/shaders/PerPixBlinnTex.vert \
   ../_data/shaders/PerPixBlinnTexSkinned.vert \
+  ../_data/shaders/PerPixCookTorrance.frag \
+  ../_data/shaders/PerPixCookTorrance.vert \
   ../_data/shaders/PerVrtBlinn.frag \
   ../_data/shaders/PerVrtBlinn.vert \
   ../_data/shaders/PerVrtBlinnSkinned.vert \

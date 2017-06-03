@@ -1682,8 +1682,9 @@ void SLSceneView::build2DMenus()
             mn3->addChild(new SLButton(this, "Massive Data Scene", f, C_sceneMassiveData, true, curS==C_sceneMassiveData, mn2));
 
             mn3 = new SLButton(this, "Shader >", f); mn2->addChild(mn3);
-            mn3->addChild(new SLButton(this, "Per Vertex Lighting", f, C_sceneShaderPerVertexBlinn, true, curS==C_sceneShaderPerVertexBlinn, mn2));
-            mn3->addChild(new SLButton(this, "Per Pixel Lighting", f, C_sceneShaderPerPixelBlinn, true, curS==C_sceneShaderPerPixelBlinn, mn2));
+            mn3->addChild(new SLButton(this, "Per Vertex Blinn-Phong Lighting", f, C_sceneShaderPerVertexBlinn, true, curS==C_sceneShaderPerVertexBlinn, mn2));
+            mn3->addChild(new SLButton(this, "Per Pixel Blinn-Phing Lighting", f, C_sceneShaderPerPixelBlinn, true, curS==C_sceneShaderPerPixelBlinn, mn2));
+            mn3->addChild(new SLButton(this, "Per Pixel Cook-Torrance Lighting", f, C_sceneShaderPerPixelCookTorrance, true, curS==C_sceneShaderPerPixelCookTorrance, mn2));
             mn3->addChild(new SLButton(this, "Per Vertex Wave", f, C_sceneShaderPerVertexWave, true, curS==C_sceneShaderPerVertexWave, mn2));
             mn3->addChild(new SLButton(this, "Water", f, C_sceneShaderWater, true, curS==C_sceneShaderWater, mn2));
             mn3->addChild(new SLButton(this, "Bump Mapping", f, C_sceneShaderBumpNormal, true, curS==C_sceneShaderBumpNormal, mn2, true));

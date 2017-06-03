@@ -1,5 +1,5 @@
 //#############################################################################
-//  File:      CookTorrance.vert
+//  File:      PerPixCookTorrance.vert
 //  Purpose:   GLSL vertex shader for Cook-Torrance physical based rendering
 //  Author:    Marcus Hudritsch
 //  Date:      July 2014

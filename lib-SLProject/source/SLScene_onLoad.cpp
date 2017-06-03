@@ -1120,7 +1120,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
     if (SL::currentSceneID == C_sceneShaderPerPixelBlinn ||
         SL::currentSceneID == C_sceneShaderPerVertexBlinn) //...........................
     {
-         SLMaterial* m1;
+        SLMaterial* m1;
 
         if (SL::currentSceneID == C_sceneShaderPerPixelBlinn)
         {   name("Blinn-Phong per pixel lighting");
@@ -1207,6 +1207,62 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         // Add some meshes to be lighted
         scene->addChild(new SLNode(new SLSpheric(1.0f, 0.0f, 180.0f, 20, 20, "Sphere", m1)));
         scene->addChild(new SLNode(new SLBox(1,-1,-1, 2,1,1, "Box", m1)));
+
+        sv->camera(cam1);
+        _root3D = scene;
+    }
+    else
+    if (SL::currentSceneID == C_sceneShaderPerPixelCookTorrance) //.....................
+    {
+        name("Cook-Torrance per pixel lighting");
+        info(sv, "Cook-Torrance light model. Left-Right: roughness 0.05-1, Top-Down: metallic: 1-0");
+
+        // Base root group node for the scene
+        SLNode* scene = new SLNode;
+
+        SLCamera* cam1 = new SLCamera("Camera 1");
+        cam1->translation(0,0,22);
+        cam1->lookAt(0,0,0);
+        cam1->background().colors(SLCol4f(0.2f,0.2f,0.2f));
+        cam1->setInitialState();
+        scene->addChild(cam1);
+
+        // Create spheres and materials with roughness & metallic values between 0 and 1
+        SLint   nrRows = 7;
+        SLint   nrCols = 7;
+        SLfloat spacing = 2.5f;
+        SLfloat maxX = (nrCols / 2) * spacing;
+        SLfloat maxY = (nrRows / 2) * spacing;
+        SLfloat deltaR = 1.0f / (float)(nrRows-1);
+        SLfloat deltaM = 1.0f / (float)(nrCols-1);
+
+        SLMaterial* mat[nrRows * nrCols];
+        SLint i=0;
+        SLfloat y = -maxY;
+        for (SLint m=0; m<nrRows; ++m)
+        {
+            SLfloat x = -maxX;
+            for (SLint r=0; r<nrCols; ++r)
+            {
+                mat[i] = new SLMaterial("CookTorranceMat", SLCol4f::RED*0.5f, SL_clamp((float)r*deltaR, 0.05f, 1.0f), (float)m*deltaM);
+                SLNode* node = new SLNode(new SLSpheric(1.0f, 0.0f, 180.0f, 32, 32, "Sphere", mat[i]));
+                node->translate(x,y,0);
+                scene->addChild(node);
+                x += spacing;
+                i++;
+            }
+            y += spacing;
+        }
+
+        // Add 4 point light
+        SLLightSpot* light1 = new SLLightSpot(-maxX, maxY, maxY, 0.1f, 180.0f, 0.0f, 300, 300); light1->attenuation(0,0,1);
+        SLLightSpot* light2 = new SLLightSpot( maxX, maxY, maxY, 0.1f, 180.0f, 0.0f, 300, 300); light2->attenuation(0,0,1);
+        SLLightSpot* light3 = new SLLightSpot(-maxX,-maxY, maxY, 0.1f, 180.0f, 0.0f, 300, 300); light3->attenuation(0,0,1);
+        SLLightSpot* light4 = new SLLightSpot( maxX,-maxY, maxY, 0.1f, 180.0f, 0.0f, 300, 300); light4->attenuation(0,0,1);
+        scene->addChild(light1);
+        scene->addChild(light2);
+        scene->addChild(light3);
+        scene->addChild(light4);
 
         sv->camera(cam1);
         _root3D = scene;

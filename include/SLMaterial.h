@@ -47,6 +47,12 @@ class SLMaterial : public SLObject
                                        SLGLTexture* texture4=0,
                                        SLGLProgram* program=0);
 
+                            //! Ctor for Cook-Torrance shading
+                            SLMaterial(const SLchar* name,
+                                       SLCol4f diffuse,
+                                       SLfloat roughness,
+                                       SLfloat metallic);
+
                             //! Ctor for uniform color material without lighting
                             SLMaterial(SLCol4f uniformColor, 
                                        const SLchar* name=(SLchar*)"Uniform color");
@@ -85,8 +91,9 @@ class SLMaterial : public SLObject
             void            emission        (SLCol4f emis)    {_emission = emis;}
             void            transmission    (SLCol4f transm)  {_transmission = transm;}
             void            translucency    (SLfloat transl)  {_translucency = transl;}
-            void            shininess       (SLfloat shin)    {if(shin<0.0f) shin=0.0;
-                                                              _shininess = shin;}
+            void            shininess       (SLfloat shin)    {if(shin<0.0f) shin=0.0; _shininess = shin;}
+            void            roughness       (SLfloat r)       {_roughness = SL_clamp(r, 0.0f, 1.0f);}
+            void            metallic        (SLfloat m)       {_metallic = SL_clamp(m, 0.0f, 1.0f);}
             void            kr              (SLfloat kr)      {if(kr<0.0f) kr=0.0f;
                                                                if(kr>1.0f) kr=1.0f;
                                                               _kr = kr;}
@@ -107,6 +114,8 @@ class SLMaterial : public SLObject
             SLCol4f         transmission    () {return _transmission;}
             SLCol4f         emission        () {return _emission;}
             SLfloat         shininess       () {return _shininess;}
+            SLfloat         roughness       () {return _roughness;}
+            SLfloat         metallic        () {return _metallic;}
             SLfloat         translucency    () {return _translucency;}
             SLfloat         kr              () {return _kr;}
             SLfloat         kt              () {return _kt;}
@@ -131,7 +140,9 @@ class SLMaterial : public SLObject
             SLCol4f         _specular;      //!< specular color (RGB reflection coefficients)
             SLCol4f         _transmission;  //!< PM: transmissive color (RGB reflection coefficients)
             SLCol4f         _emission;      //!< emissive color coefficients
-            SLfloat         _shininess;     //!< shininess exponent for light reflections
+            SLfloat         _shininess;     //!< shininess exponent in Blinn model
+            SLfloat         _roughness;     //!< roughness property (0-1) in Cook-Torrance model
+            SLfloat         _metallic;      //!< metallic property (0-1) in Cook-Torrance model
             SLfloat         _translucency;  //!< PM: translucency exponent for light refraction
             SLfloat         _kr;            //!< reflection coefficient 0.0 - 1.0
             SLfloat         _kt;            //!< transmission coefficient 0.0 - 1.0
