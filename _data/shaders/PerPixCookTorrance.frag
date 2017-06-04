@@ -1,6 +1,8 @@
 //#############################################################################
 //  File:      PerPixCookTorrance.frag
-//  Purpose:   GLSL fragment shader for Cook-Torrance physical based rendering
+//  Purpose:   GLSL fragment shader for Cook-Torrance physical based rendering.
+//             Based on the physically based rendering (PBR) tutorial with GLSL
+//             from Joey de Vries on https://learnopengl.com/#!PBR/Theory
 //  Author:    Marcus Hudritsch
 //  Date:      July 2017
 //  Copyright: Marcus Hudritsch
