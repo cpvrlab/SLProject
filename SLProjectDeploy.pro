@@ -46,6 +46,10 @@ textures.files = \
   ../_data/images/textures/Pool-X0512_C.png \
   ../_data/images/textures/Pool-Y0512_C.png \
   ../_data/images/textures/Pool-Z0512_C.png \
+  ../_data/images/textures/rusty-metal_2048C.png \
+  ../_data/images/textures/rusty-metal_2048N.png \
+  ../_data/images/textures/rusty-metal_2048M.png \
+  ../_data/images/textures/rusty-metal_2048R.png \
   ../_data/images/textures/Testmap_0512_C.png \
   ../_data/images/textures/tile1_0256_C.jpg \
   ../_data/images/textures/tree1_1024_C.png \
@@ -96,6 +100,8 @@ shaders.files = \
   ../_data/shaders/PerPixBlinnTexSkinned.vert \
   ../_data/shaders/PerPixCookTorrance.frag \
   ../_data/shaders/PerPixCookTorrance.vert \
+  ../_data/shaders/PerPixCookTorranceTex.frag \
+  ../_data/shaders/PerPixCookTorranceTex.vert \
   ../_data/shaders/PerVrtBlinn.frag \
   ../_data/shaders/PerVrtBlinn.vert \
   ../_data/shaders/PerVrtBlinnSkinned.vert \

@@ -1215,7 +1215,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
     if (SL::currentSceneID == C_sceneShaderPerPixelCookTorrance) //.....................
     {
         name("Cook-Torrance per pixel lighting");
-        info(sv, "Cook-Torrance light model. Left-Right: roughness 0.05-1, Top-Down: metallic: 1-0");
+        info(sv, "Cook-Torrance light model. Left-Right: roughness 0.05-1, Top-Down: metallic: 1-0. The center sphere has roughness and metallic encoded in textures.");
 
         // Base root group node for the scene
         SLNode* scene = new SLNode;
@@ -1244,7 +1244,24 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
             SLfloat x = -maxX;
             for (SLint r=0; r<nrCols; ++r)
             {
-                mat[i] = new SLMaterial("CookTorranceMat", SLCol4f::RED*0.5f, SL_clamp((float)r*deltaR, 0.05f, 1.0f), (float)m*deltaM);
+                if (m == nrRows/2 && r == nrCols/2)
+                {
+                    // The center sphere has roughness and metallic encoded in textures
+                    mat[i] = new SLMaterial("CookTorranceMatTex",
+                                            new SLGLTexture("rusty-metal_2048C.png"),
+                                            new SLGLTexture("rusty-metal_2048N.png"),
+                                            new SLGLTexture("rusty-metal_2048M.png"),
+                                            new SLGLTexture("rusty-metal_2048R.png"),
+                                            _programs[SP_perPixCookTorranceTex]);
+                } else
+                {
+                    // Cook-Torrance material without textures
+                    mat[i] = new SLMaterial("CookTorranceMat",
+                                            SLCol4f::RED*0.5f,
+                                            SL_clamp((float)r*deltaR, 0.05f, 1.0f),
+                                            (float)m*deltaM);
+                }
+
                 SLNode* node = new SLNode(new SLSpheric(1.0f, 0.0f, 180.0f, 32, 32, "Sphere", mat[i]));
                 node->translate(x,y,0);
                 scene->addChild(node);

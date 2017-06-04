@@ -24,9 +24,18 @@ class SLNode;
 //! Defines a standard CG material with textures and a shader program
 /*!      
 The SLMatrial class defines a material with properties for ambient, diffuse, 
-specular and emissive light RGBA-reflection. In addition it has coeffitients
-for reflectivity (kr), transparency (kt) and refraction index (kn) that can be
-used in special shaders and ray tracing.
+specular and emissive light RGBA-reflection. For classic Blinn-Phong shading
+the shininess parameter can be used as shininess exponent.
+For Cook-Torrance shading the parameters roughness and metallic are provided.
+In addition it has coeffitients for reflectivity (kr), transparency (kt) and
+refraction index (kn) that can be used in special shaders and ray tracing.
+A material can have multiple texture in the std::vector _textures.
+The shading has to be implemented in the GLSL program (SLGLProgram) with a
+vertex and fragment shader.
+All parameters get synced into their corresponding parameter in SLGLState
+when a the material gets activated by the method activate.
+Light and material paramters get passed to their corresponding shader
+variables in SLGLProgram::beginUse.
 */
 class SLMaterial : public SLObject
 {  public:

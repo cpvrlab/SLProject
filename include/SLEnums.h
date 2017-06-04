@@ -349,6 +349,7 @@ enum SLShaderProg
     SP_perPixBlinn,
     SP_perPixBlinnTex,
     SP_perPixCookTorrance,
+    SP_perPixCookTorranceTex,
     SP_bumpNormal,
     SP_bumpNormalParallax,
     SP_fontTex,
