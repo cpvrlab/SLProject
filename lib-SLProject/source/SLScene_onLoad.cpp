@@ -2268,7 +2268,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
     if (SL::currentSceneID == C_sceneRTMuttenzerBox) //.................................
     {
         name("Muttenzer Box (RT)");
-        info(sv, "Muttenzer Box with environment mapped reflective sphere and transparenz refractive glass sphere. Try ray tracing for real reflections and soft shadows.");
+        info(sv, "Muttenzer Box with environment mapped reflective sphere and transparenz refractive glass sphere. Try ray tracing for real reflections and soft shadows.", SLCol4f::BLACK);
       
         // Create reflection & glass shaders
         SLGLProgram* sp1 = new SLGLGenericProgram("Reflect.vert", "Reflect.frag");
@@ -2289,6 +2289,10 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         SLMaterial* cream = new SLMaterial("cream", grayRGB,  SLCol4f::BLACK, 0);
         SLMaterial* red   = new SLMaterial("red",   redRGB ,  SLCol4f::BLACK, 0);
         SLMaterial* blue  = new SLMaterial("blue",  blueRGB,  SLCol4f::BLACK, 0);
+        SLMaterial* gray  = new SLMaterial("gray",  SLCol4f::WHITE*0.3f, SLCol4f::WHITE*10, 250, 0);
+        SLMaterial* black = new SLMaterial("black",  SLCol4f::WHITE*0.2f, SLCol4f::WHITE*10, 250, 0);
+        //black->diffuse(SLCol4f(0.1f,0.1f,0.1f, 0.1f));
+
 
         // Material for mirror sphere
         SLMaterial* refl=new SLMaterial("refl", blackRGB, SLCol4f::WHITE, 1000, 1.0f);
@@ -2318,10 +2322,13 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         lightRect->translate(0.0f, -0.25f, 1.18f, TS_object);
         lightRect->spotCutOffDEG(90);
         lightRect->spotExponent(1.0);
+        lightRect->ambient(SLCol4f::BLACK);
         lightRect->diffuse(lightEmisRGB);
+        //lightRect->specular(SLCol4f::BLACK);
         lightRect->attenuation(0,0,1);
         lightRect->samplesXY(11, 7);
 
+        //_globalAmbiLight.set(SLCol4f::BLACK);
         _globalAmbiLight.set(lightEmisRGB*0.05f);
 
         // create camera
