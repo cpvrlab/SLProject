@@ -193,6 +193,7 @@ file(GLOB_RECURSE TEXTURES      ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/images/t
                                 ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/images/textures/grass0512_C.jpg
                                 ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/images/textures/gray_0256_C.jpg
                                 ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/images/textures/MuttenzerBox*.png
+                                ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/images/textures/rusty-metal_2048*.png
                                 ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/images/textures/Pool*.png
                                 ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/images/textures/Testmap_0512_C.png
                                 ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/images/textures/tile1_0256_C.jpg

@@ -11,7 +11,7 @@
 //#############################################################################
 
 #ifdef GL_ES
-precision mediump float;
+precision highp float;
 #endif
 
 varying vec3   v_P_VS;              //!< Interpol. point of illum. in view space (VS)
@@ -96,13 +96,13 @@ void PointLight (in    int   i,         // Light number
      kD *= 1.0 - metallic;
 
      vec3  nominator   = NDF * G * F;
-     float denominator = 4 * max(dot(N, V), 0.0) * max(dot(N, L), 0.0) + 0.001;
+     float denominator = 4.0 * max(dot(N, V), 0.0) * max(dot(N, L), 0.0) + 0.001;
      vec3  specular    = nominator / denominator;
 
      // add to outgoing radiance Lo
      float NdotL = max(dot(N, L), 0.0);
 
-     Lo += (kD * diffuse / PI + specular) * radiance * NdotL;
+     Lo += (kD*diffuse/PI + specular) * radiance * NdotL;
 }
 //-----------------------------------------------------------------------------
 void main()
@@ -132,7 +132,7 @@ void main()
     color = color / (color + vec3(1.0));
 
     // gamma correct
-    color = pow(color, vec3(1.0/2.2));
+    color = clamp(pow(color, vec3(1.0/2.2)), 0.0, 1.0);
 
     // set the fragment color with opaque alpha
     gl_FragColor = vec4(color, 1.0);

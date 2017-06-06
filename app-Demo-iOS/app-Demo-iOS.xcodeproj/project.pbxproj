@@ -34,6 +34,14 @@
 		41486AB815165E2A00102F27 /* CompileError.png in Resources */ = {isa = PBXBuildFile; fileRef = 41486AB715165E2A00102F27 /* CompileError.png */; };
 		414B3FEB148AAE520074D939 /* Default.png in Resources */ = {isa = PBXBuildFile; fileRef = 414B3FE8148AAE520074D939 /* Default.png */; };
 		414B3FED148AAE520074D939 /* Icon.png in Resources */ = {isa = PBXBuildFile; fileRef = 414B3FEA148AAE520074D939 /* Icon.png */; };
+		414D37EC1EE6A72C009DB259 /* PerPixCookTorrance.frag in Resources */ = {isa = PBXBuildFile; fileRef = 414D37E81EE6A72C009DB259 /* PerPixCookTorrance.frag */; };
+		414D37ED1EE6A72C009DB259 /* PerPixCookTorrance.vert in Resources */ = {isa = PBXBuildFile; fileRef = 414D37E91EE6A72C009DB259 /* PerPixCookTorrance.vert */; };
+		414D37EE1EE6A72C009DB259 /* PerPixCookTorranceTex.frag in Resources */ = {isa = PBXBuildFile; fileRef = 414D37EA1EE6A72C009DB259 /* PerPixCookTorranceTex.frag */; };
+		414D37EF1EE6A72C009DB259 /* PerPixCookTorranceTex.vert in Resources */ = {isa = PBXBuildFile; fileRef = 414D37EB1EE6A72C009DB259 /* PerPixCookTorranceTex.vert */; };
+		414D37F51EE6A7DC009DB259 /* rusty-metal_2048C.png in Resources */ = {isa = PBXBuildFile; fileRef = 414D37F11EE6A7DC009DB259 /* rusty-metal_2048C.png */; };
+		414D37F61EE6A7DC009DB259 /* rusty-metal_2048M.png in Resources */ = {isa = PBXBuildFile; fileRef = 414D37F21EE6A7DC009DB259 /* rusty-metal_2048M.png */; };
+		414D37F71EE6A7DC009DB259 /* rusty-metal_2048N.png in Resources */ = {isa = PBXBuildFile; fileRef = 414D37F31EE6A7DC009DB259 /* rusty-metal_2048N.png */; };
+		414D37F81EE6A7DC009DB259 /* rusty-metal_2048R.png in Resources */ = {isa = PBXBuildFile; fileRef = 414D37F41EE6A7DC009DB259 /* rusty-metal_2048R.png */; };
 		414DC77D1501076F00B959B9 /* SLAABBox.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 414DC77C1501076F00B959B9 /* SLAABBox.cpp */; };
 		4153D4F018D43FF000F47146 /* Default-568h@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 4153D4EF18D43FF000F47146 /* Default-568h@2x.png */; };
 		4155FAF11C3EC3C30094BF61 /* SLGLVertexArray.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4155FAF01C3EC3C30094BF61 /* SLGLVertexArray.cpp */; };
@@ -423,6 +431,14 @@
 		41486AB715165E2A00102F27 /* CompileError.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = CompileError.png; path = ../_data/images/textures/CompileError.png; sourceTree = "<group>"; };
 		414B3FE8148AAE520074D939 /* Default.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = Default.png; path = images/Default.png; sourceTree = SOURCE_ROOT; };
 		414B3FEA148AAE520074D939 /* Icon.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = Icon.png; path = images/Icon.png; sourceTree = SOURCE_ROOT; };
+		414D37E81EE6A72C009DB259 /* PerPixCookTorrance.frag */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = PerPixCookTorrance.frag; path = ../_data/shaders/PerPixCookTorrance.frag; sourceTree = SOURCE_ROOT; };
+		414D37E91EE6A72C009DB259 /* PerPixCookTorrance.vert */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = PerPixCookTorrance.vert; path = ../_data/shaders/PerPixCookTorrance.vert; sourceTree = SOURCE_ROOT; };
+		414D37EA1EE6A72C009DB259 /* PerPixCookTorranceTex.frag */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = PerPixCookTorranceTex.frag; path = ../_data/shaders/PerPixCookTorranceTex.frag; sourceTree = SOURCE_ROOT; };
+		414D37EB1EE6A72C009DB259 /* PerPixCookTorranceTex.vert */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = PerPixCookTorranceTex.vert; path = ../_data/shaders/PerPixCookTorranceTex.vert; sourceTree = SOURCE_ROOT; };
+		414D37F11EE6A7DC009DB259 /* rusty-metal_2048C.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "rusty-metal_2048C.png"; path = "../_data/images/textures/rusty-metal_2048C.png"; sourceTree = "<group>"; };
+		414D37F21EE6A7DC009DB259 /* rusty-metal_2048M.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "rusty-metal_2048M.png"; path = "../_data/images/textures/rusty-metal_2048M.png"; sourceTree = "<group>"; };
+		414D37F31EE6A7DC009DB259 /* rusty-metal_2048N.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "rusty-metal_2048N.png"; path = "../_data/images/textures/rusty-metal_2048N.png"; sourceTree = "<group>"; };
+		414D37F41EE6A7DC009DB259 /* rusty-metal_2048R.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "rusty-metal_2048R.png"; path = "../_data/images/textures/rusty-metal_2048R.png"; sourceTree = "<group>"; };
 		414DC77C1501076F00B959B9 /* SLAABBox.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SLAABBox.cpp; path = "../lib-SLProject/source/SLAABBox.cpp"; sourceTree = SOURCE_ROOT; };
 		4153D4EF18D43FF000F47146 /* Default-568h@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "Default-568h@2x.png"; path = "images/Default-568h@2x.png"; sourceTree = SOURCE_ROOT; };
 		4155FAEF1C3EC36E0094BF61 /* SLGLVertexArray.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SLGLVertexArray.h; path = ../include/SLGLVertexArray.h; sourceTree = SOURCE_ROOT; };
@@ -1165,6 +1181,10 @@
 				418BF4251B8B0D4F0049E387 /* PerPixBlinnTex.frag */,
 				418BF4261B8B0D4F0049E387 /* PerPixBlinnTex.vert */,
 				418BF4271B8B0D4F0049E387 /* PerPixBlinnTexSkinned.vert */,
+				414D37E81EE6A72C009DB259 /* PerPixCookTorrance.frag */,
+				414D37E91EE6A72C009DB259 /* PerPixCookTorrance.vert */,
+				414D37EA1EE6A72C009DB259 /* PerPixCookTorranceTex.frag */,
+				414D37EB1EE6A72C009DB259 /* PerPixCookTorranceTex.vert */,
 				418BF4281B8B0D4F0049E387 /* PerVrtBlinn.frag */,
 				418BF4291B8B0D4F0049E387 /* PerVrtBlinn.vert */,
 				CF3F571C1DE592F200928DDD /* PerVrtBlinnColorAttrib.vert */,
@@ -1209,6 +1229,24 @@
 		417E0E99148A6F910015B5B0 /* Textures */ = {
 			isa = PBXGroup;
 			children = (
+				417E0E9A148A70DE0015B5B0 /* brick0512_C.png */,
+				417E0E9B148A70DE0015B5B0 /* bricks1_0256_C.jpg */,
+				417E0E9C148A70DE0015B5B0 /* bricks1_0512_C.jpg */,
+				417E0E9D148A70DE0015B5B0 /* brickwall0512_C.jpg */,
+				417E0E9E148A70DE0015B5B0 /* brickwall0512_G.jpg */,
+				417E0E9F148A70DE0015B5B0 /* brickwall0512_H.jpg */,
+				417E0EA0148A70DE0015B5B0 /* brickwall0512_N.jpg */,
+				417E0EA1148A70DE0015B5B0 /* Checkerboard0512_C.png */,
+				417E0EA2148A70DE0015B5B0 /* Chess0256_C.bmp */,
+				41486AB715165E2A00102F27 /* CompileError.png */,
+				41B7BDDC1E49B4BC007B8B39 /* cursor.png */,
+				417E0EA3148A70DE0015B5B0 /* earth1024_C.jpg */,
+				417E0EA4148A70DE0015B5B0 /* earth1024_G.jpg */,
+				417E0EA5148A70DE0015B5B0 /* earth1024_H.jpg */,
+				417E0EA6148A70DE0015B5B0 /* earth1024_N.jpg */,
+				417E0EA7148A70DE0015B5B0 /* earthCloud1024_A.jpg */,
+				417E0EA8148A70DE0015B5B0 /* earthCloud1024_C.jpg */,
+				417E0EA9148A70DE0015B5B0 /* earthNight1024_C.jpg */,
 				41FD9D061E523AD70063A1B7 /* Font07.png */,
 				41FD9D071E523AD70063A1B7 /* Font08.png */,
 				41FD9D081E523AD70063A1B7 /* Font09.png */,
@@ -1220,39 +1258,25 @@
 				41FD9D0E1E523AD70063A1B7 /* Font20.png */,
 				41FD9D0F1E523AD70063A1B7 /* Font22.png */,
 				41FD9D101E523AD70063A1B7 /* Font24.png */,
+				417E0EAA148A70DE0015B5B0 /* grass0512_C.jpg */,
+				417E0EAB148A70DE0015B5B0 /* gray_0256_C.jpg */,
 				419E11A91B74B02000203E70 /* LiveVideoError.png */,
-				41B7BDDC1E49B4BC007B8B39 /* cursor.png */,
-				41486AB715165E2A00102F27 /* CompileError.png */,
+				417E0EAC148A70DE0015B5B0 /* MuttenzerBox-X0512_C.png */,
+				417E0EAD148A70DE0015B5B0 /* MuttenzerBox-Y0512_C.png */,
+				417E0EAE148A70DE0015B5B0 /* MuttenzerBox-Z0512_C.png */,
+				417E0EAF148A70DE0015B5B0 /* MuttenzerBox+X0512_C.png */,
+				417E0EB0148A70DE0015B5B0 /* MuttenzerBox+Y0512_C.png */,
+				417E0EB1148A70DE0015B5B0 /* MuttenzerBox+Z0512_C.png */,
 				417E0ED8148A71220015B5B0 /* Pool-X0512_C.png */,
 				417E0ED9148A71220015B5B0 /* Pool-Y0512_C.png */,
 				417E0EDA148A71220015B5B0 /* Pool-Z0512_C.png */,
 				417E0EDB148A71220015B5B0 /* Pool+X0512_C.png */,
 				417E0EDC148A71220015B5B0 /* Pool+Y0512_C.png */,
 				417E0EDD148A71220015B5B0 /* Pool+Z0512_C.png */,
-				417E0E9A148A70DE0015B5B0 /* brick0512_C.png */,
-				417E0E9B148A70DE0015B5B0 /* bricks1_0256_C.jpg */,
-				417E0E9C148A70DE0015B5B0 /* bricks1_0512_C.jpg */,
-				417E0E9D148A70DE0015B5B0 /* brickwall0512_C.jpg */,
-				417E0E9E148A70DE0015B5B0 /* brickwall0512_G.jpg */,
-				417E0E9F148A70DE0015B5B0 /* brickwall0512_H.jpg */,
-				417E0EA0148A70DE0015B5B0 /* brickwall0512_N.jpg */,
-				417E0EA1148A70DE0015B5B0 /* Checkerboard0512_C.png */,
-				417E0EA2148A70DE0015B5B0 /* Chess0256_C.bmp */,
-				417E0EA3148A70DE0015B5B0 /* earth1024_C.jpg */,
-				417E0EA4148A70DE0015B5B0 /* earth1024_G.jpg */,
-				417E0EA5148A70DE0015B5B0 /* earth1024_H.jpg */,
-				417E0EA6148A70DE0015B5B0 /* earth1024_N.jpg */,
-				417E0EA7148A70DE0015B5B0 /* earthCloud1024_A.jpg */,
-				417E0EA8148A70DE0015B5B0 /* earthCloud1024_C.jpg */,
-				417E0EA9148A70DE0015B5B0 /* earthNight1024_C.jpg */,
-				417E0EAA148A70DE0015B5B0 /* grass0512_C.jpg */,
-				417E0EAB148A70DE0015B5B0 /* gray_0256_C.jpg */,
-				417E0EAF148A70DE0015B5B0 /* MuttenzerBox+X0512_C.png */,
-				417E0EB0148A70DE0015B5B0 /* MuttenzerBox+Y0512_C.png */,
-				417E0EB1148A70DE0015B5B0 /* MuttenzerBox+Z0512_C.png */,
-				417E0EAC148A70DE0015B5B0 /* MuttenzerBox-X0512_C.png */,
-				417E0EAD148A70DE0015B5B0 /* MuttenzerBox-Y0512_C.png */,
-				417E0EAE148A70DE0015B5B0 /* MuttenzerBox-Z0512_C.png */,
+				414D37F11EE6A7DC009DB259 /* rusty-metal_2048C.png */,
+				414D37F21EE6A7DC009DB259 /* rusty-metal_2048M.png */,
+				414D37F31EE6A7DC009DB259 /* rusty-metal_2048N.png */,
+				414D37F41EE6A7DC009DB259 /* rusty-metal_2048R.png */,
 				417E0EB2148A70DE0015B5B0 /* Testmap_0512_C.png */,
 				417E0EB3148A70DE0015B5B0 /* tile1_0256_C.jpg */,
 				417E0EB4148A70DE0015B5B0 /* tree1_1024_C.png */,
@@ -1910,6 +1934,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				414D37F51EE6A7DC009DB259 /* rusty-metal_2048C.png in Resources */,
 				419BEFC71DE5EE9300C3E171 /* aruco_detector_params.yml in Resources */,
 				41B7BDE01E49B553007B8B39 /* Images.xcassets in Resources */,
 				418BF4601B8B0D500049E387 /* RefractReflectDisp.vert in Resources */,
@@ -1918,6 +1943,7 @@
 				41901CFA1959C5AC006795A8 /* DAE in Resources */,
 				419E11AA1B74B02000203E70 /* LiveVideoError.png in Resources */,
 				411BA72918C0716700F10475 /* Icon_76.png in Resources */,
+				414D37F61EE6A7DC009DB259 /* rusty-metal_2048M.png in Resources */,
 				418BF4681B8B0D500049E387 /* TextureOnly.vert in Resources */,
 				418BF44C1B8B0D500049E387 /* ErrorTex.vert in Resources */,
 				411BA72D18C072BC00F10475 /* Default~iphone.png in Resources */,
@@ -1948,8 +1974,12 @@
 				417E0EBE148A70DE0015B5B0 /* brickwall0512_H.jpg in Resources */,
 				417E0EBF148A70DE0015B5B0 /* brickwall0512_N.jpg in Resources */,
 				418BF4571B8B0D500049E387 /* PerVrtBlinnSkinned.vert in Resources */,
+				414D37F81EE6A7DC009DB259 /* rusty-metal_2048R.png in Resources */,
 				41C99E7A18D4316A0045FD2D /* Icon_144.png in Resources */,
+				414D37F71EE6A7DC009DB259 /* rusty-metal_2048N.png in Resources */,
 				417E0EC0148A70DE0015B5B0 /* Checkerboard0512_C.png in Resources */,
+				414D37ED1EE6A72C009DB259 /* PerPixCookTorrance.vert in Resources */,
+				414D37EC1EE6A72C009DB259 /* PerPixCookTorrance.frag in Resources */,
 				417E0EC1148A70DE0015B5B0 /* Chess0256_C.bmp in Resources */,
 				41B7BDDD1E49B4BC007B8B39 /* cursor.png in Resources */,
 				41FD9D181E523AD70063A1B7 /* Font18.png in Resources */,
@@ -1994,9 +2024,11 @@
 				419808691959BA670048085E /* BlenderDNA.inl in Resources */,
 				417E0ED6148A70DE0015B5B0 /* wood2_0256_C.jpg in Resources */,
 				417E0ED7148A70DE0015B5B0 /* wood2_0512_C.jpg in Resources */,
+				414D37EF1EE6A72C009DB259 /* PerPixCookTorranceTex.vert in Resources */,
 				418BF45F1B8B0D500049E387 /* RefractReflectDisp.frag in Resources */,
 				418BF46D1B8B0D500049E387 /* WaveRefractReflect.vert in Resources */,
 				418BF4551B8B0D500049E387 /* PerVrtBlinn.frag in Resources */,
+				414D37EE1EE6A72C009DB259 /* PerPixCookTorranceTex.frag in Resources */,
 				417E0EDE148A71220015B5B0 /* Pool-X0512_C.png in Resources */,
 				417E0EDF148A71220015B5B0 /* Pool-Y0512_C.png in Resources */,
 				417E0EE0148A71220015B5B0 /* Pool-Z0512_C.png in Resources */,
