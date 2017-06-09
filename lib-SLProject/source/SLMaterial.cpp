@@ -91,11 +91,11 @@ SLMaterial::SLMaterial(const SLchar* name,
                        SLfloat roughness,
                        SLfloat metallic)
 {
-    _ambient.set(0,0,0);    // not used in Cook-Torrance
+    _ambient.set(0,0,0);                // not used in Cook-Torrance
     _diffuse = diffuse;
-    _specular.set(0,0,0);   // not used in Cook-Torrance
-    _emission.set(0,0,0,0); // not used in Cook-Torrance
-    _shininess = 125;       // not used in Cook-Torrance
+    _specular.set(1,1,1);               // not used in Cook-Torrance
+    _emission.set(0,0,0,0);             // not used in Cook-Torrance
+    _shininess = (1.0f - roughness) * 500.0f; // not used in Cook-Torrance
     _roughness = roughness;
     _metallic = metallic;
     _kr = 0.0f;
