@@ -638,7 +638,8 @@ bool SLCVTrackerFeatures::calculatePose() {
                                         iterations,
                                         reprojection_error,
                                         confidence,
-                                        inliersMask
+                                        inliersMask,
+                                        SOLVEPNP_EPNP
     );
 
     // Get matches with help of inlier indices
@@ -855,7 +856,7 @@ bool SLCVTrackerFeatures::trackWithOptFlow(Mat rvec, Mat tvec) {
             _prev.inlierPoints2D,        // Previous and current keypoints coordinates.The latter will be
             pred2DPoints,                // expanded if there are more good coordinates detected during OptFlow algorithm
             status,                      // Output vector for keypoint correspondences (1 = Match found)
-            err,                         // Errors??
+            err,                         // Error size for each flow
             winSize,                     // Search window for each pyramid level
             3,                           // Max levels of pyramid creation
             criteria,                    // Configuration from above
