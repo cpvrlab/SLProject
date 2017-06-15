@@ -8,7 +8,7 @@
 #             WITHOUT ANY WARRANTIES WHETHER EXPRESSED OR IMPLIED.
 ##############################################################################
 
-CONFIG += customOpenCV
+#CONFIG += customOpenCV  #neede for custom cv builds
 
 win32 {
     # windows only
@@ -40,7 +40,7 @@ win32 {
 }
 macx {
     # mac only
-    QMAKE_MAC_SDK = macosx10.11
+    QMAKE_MAC_SDK = macosx10.12
     CONFIG += c++11
     DEFINES += GLEW_NO_GLU
     LIBS += -framework Cocoa
@@ -48,10 +48,9 @@ macx {
     LIBS += -framework OpenGL
     LIBS += -framework QuartzCore
     LIBS += -stdlib=libc++
-    INCLUDEPATH += /usr/include
 
     customOpenCV {
-	OPENCV_DIR = /Users/tschanzt/projects/opencv-android
+        OPENCV_DIR = /Users/tschanzt/projects/opencv-android
 
 	CONFIG(debug, debug|release) {
 	    OPENCV_LIB_DIR = $$OPENCV_DIR/install/lib
@@ -60,7 +59,24 @@ macx {
 	CONFIG(release, debug|release) {
 	    OPENCV_LIB_DIR = $$OPENCV_DIR/install/lib
 	    OPENCV_INCLUDE_DIR = $$OPENCV_DIR/install/include
-	}
+        }
+
+        LIBS += -L$$OPENCV_LIB_DIR \
+            -lopencv_core \
+            -lopencv_imgproc \
+            -lopencv_imgcodecs \
+            -lopencv_video \
+            -lopencv_videoio \
+            -lopencv_aruco \
+            -lopencv_tracking \
+            -lopencv_features2d \
+            -lopencv_xfeatures2d \
+            -lopencv_calib3d \
+            -lopencv_flann \
+            -lopencv_highgui
+
+        INCLUDEPATH += $$OPENCV_INCLUDE_DIR
+
     } else {
 	LIBS += -L$$PWD/_lib/prebuilt/OpenCV/macx -lopencv_core
 	LIBS += -L$$PWD/_lib/prebuilt/OpenCV/macx -lopencv_imgproc
@@ -75,20 +91,7 @@ macx {
 	LIBS += -L$$PWD/_lib/prebuilt/OpenCV/macx -lopencv_flann
     }
 
-    LIBS += -L$$OPENCV_LIB_DIR \
-    -lopencv_core \
-    -lopencv_imgproc \
-    -lopencv_imgcodecs \
-    -lopencv_video \
-    -lopencv_videoio \
-    -lopencv_aruco \
-    -lopencv_tracking \
-    -lopencv_features2d \
-    -lopencv_xfeatures2d \
-    -lopencv_calib3d \
-    -lopencv_flann \
-    -lopencv_highgui
-    INCLUDEPATH += OPENCV_INCLUDE_DIR
+    INCLUDEPATH += /usr/include
 }
 unix:!macx:!android {
     # Setup the linux system as described in:

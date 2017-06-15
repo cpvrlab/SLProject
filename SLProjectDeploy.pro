@@ -60,7 +60,7 @@ textures.files = \
   ../_data/images/textures/LiveVideoError.png \
   ../_data/images/textures/stones.png \
   ../_data/images/textures/road.png \
-  ../_data/images/textures/abstract_marker.png
+  ../_data/images/textures/abstract.png
 
 fonts.files =  \
   ../_data/images/fonts/Font07.png \
@@ -214,36 +214,36 @@ win32 {
 }
 macx {
     cvlibs.files += \
-        ~/projects/opencv-android/install/lib/libopencv_core.3.2.0.dylib \
-        ~/projects/opencv-android/install/lib/libopencv_core.3.2.dylib \
-        ~/projects/opencv-android/install/lib/libopencv_core.dylib \
-        ~/projects/opencv-android/install/lib/libopencv_imgproc.3.2.0.dylib \
-        ~/projects/opencv-android/install/lib/libopencv_imgproc.3.2.dylib \
-        ~/projects/opencv-android/install/lib/libopencv_imgproc.dylib \
-        ~/projects/opencv-android/install/lib/libopencv_video.3.2.0.dylib \
-        ~/projects/opencv-android/install/lib/libopencv_video.3.2.dylib \
-        ~/projects/opencv-android/install/lib/libopencv_video.dylib \
-        ~/projects/opencv-android/install/lib/libopencv_videoio.3.2.0.dylib \
-        ~/projects/opencv-android/install/lib/libopencv_videoio.3.2.dylib \
-        ~/projects/opencv-android/install/lib/libopencv_videoio.dylib \
-        ~/projects/opencv-android/install/lib/libopencv_imgcodecs.3.2.0.dylib \
-        ~/projects/opencv-android/install/lib/libopencv_imgcodecs.3.2.dylib \
-        ~/projects/opencv-android/install/lib/libopencv_imgcodecs.dylib \
-        ~/projects/opencv-android/install/lib/libopencv_calib3d.3.2.0.dylib \
-        ~/projects/opencv-android/install/lib/libopencv_calib3d.3.2.dylib \
-        ~/projects/opencv-android/install/lib/libopencv_calib3d.dylib \
-        ~/projects/opencv-android/install/lib/libopencv_aruco.3.2.0.dylib \
-        ~/projects/opencv-android/install/lib/libopencv_aruco.3.2.dylib \
-        ~/projects/opencv-android/install/lib/libopencv_aruco.dylib \
-        ~/projects/opencv-android/install/lib/libopencv_features2d.3.2.0.dylib \
-        ~/projects/opencv-android/install/lib/libopencv_features2d.3.2.dylib \
-        ~/projects/opencv-android/install/lib/libopencv_features2d.dylib \
-        ~/projects/opencv-android/install/lib/libopencv_xfeatures2d.3.2.0.dylib \
-        ~/projects/opencv-android/install/lib/libopencv_xfeatures2d.3.2.dylib \
-        ~/projects/opencv-android/install/lib/libopencv_xfeatures2d.dylib \
-        ~/projects/opencv-android/install/lib/libopencv_flann.3.2.0.dylib \
-        ~/projects/opencv-android/install/lib/libopencv_flann.3.2.dylib \
-        ~/projects/opencv-android/install/lib/libopencv_flann.dylib
+        ../_lib/prebuilt/OpenCV/macx/libopencv_core.3.2.0.dylib \
+        ../_lib/prebuilt/OpenCV/macx/libopencv_core.3.2.dylib \
+        ../_lib/prebuilt/OpenCV/macx/libopencv_core.dylib \
+        ../_lib/prebuilt/OpenCV/macx/libopencv_imgproc.3.2.0.dylib \
+        ../_lib/prebuilt/OpenCV/macx/libopencv_imgproc.3.2.dylib \
+        ../_lib/prebuilt/OpenCV/macx/libopencv_imgproc.dylib \
+        ../_lib/prebuilt/OpenCV/macx/libopencv_video.3.2.0.dylib \
+        ../_lib/prebuilt/OpenCV/macx/libopencv_video.3.2.dylib \
+        ../_lib/prebuilt/OpenCV/macx/libopencv_video.dylib \
+        ../_lib/prebuilt/OpenCV/macx/libopencv_videoio.3.2.0.dylib \
+        ../_lib/prebuilt/OpenCV/macx/libopencv_videoio.3.2.dylib \
+        ../_lib/prebuilt/OpenCV/macx/libopencv_videoio.dylib \
+        ../_lib/prebuilt/OpenCV/macx/libopencv_imgcodecs.3.2.0.dylib \
+        ../_lib/prebuilt/OpenCV/macx/libopencv_imgcodecs.3.2.dylib \
+        ../_lib/prebuilt/OpenCV/macx/libopencv_imgcodecs.dylib \
+        ../_lib/prebuilt/OpenCV/macx/libopencv_calib3d.3.2.0.dylib \
+        ../_lib/prebuilt/OpenCV/macx/libopencv_calib3d.3.2.dylib \
+        ../_lib/prebuilt/OpenCV/macx/libopencv_calib3d.dylib \
+        ../_lib/prebuilt/OpenCV/macx/libopencv_aruco.3.2.0.dylib \
+        ../_lib/prebuilt/OpenCV/macx/libopencv_aruco.3.2.dylib \
+        ../_lib/prebuilt/OpenCV/macx/libopencv_aruco.dylib \
+        ../_lib/prebuilt/OpenCV/macx/libopencv_features2d.3.2.0.dylib \
+        ../_lib/prebuilt/OpenCV/macx/libopencv_features2d.3.2.dylib \
+        ../_lib/prebuilt/OpenCV/macx/libopencv_features2d.dylib \
+        ../_lib/prebuilt/OpenCV/macx/libopencv_xfeatures2d.3.2.0.dylib \
+        ../_lib/prebuilt/OpenCV/macx/libopencv_xfeatures2d.3.2.dylib \
+        ../_lib/prebuilt/OpenCV/macx/libopencv_xfeatures2d.dylib \
+        ../_lib/prebuilt/OpenCV/macx/libopencv_flann.3.2.0.dylib \
+        ../_lib/prebuilt/OpenCV/macx/libopencv_flann.3.2.dylib \
+        ../_lib/prebuilt/OpenCV/macx/libopencv_flann.dylib
 }
 unix:!macx:!android {
     # linux only
