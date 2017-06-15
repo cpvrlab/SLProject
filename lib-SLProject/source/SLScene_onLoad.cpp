@@ -1931,6 +1931,18 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         light1->specular(SLCol4f(1,1,1));
         light1->attenuation(1,0,0);
 
+        SLLightSpot* light2 = new SLLightSpot(-450,-340,420, 1);
+        light2->ambient(SLCol4f(1,1,1));
+        light2->diffuse(SLCol4f(1,1,1));
+        light2->specular(SLCol4f(1,1,1));
+        light2->attenuation(1,0,0);
+
+        SLLightSpot* light3 = new SLLightSpot(450,-370,0, 1);
+        light3->ambient(SLCol4f(1,1,1));
+        light3->diffuse(SLCol4f(1,1,1));
+        light3->specular(SLCol4f(1,1,1));
+        light3->attenuation(1,0,0);
+
         // Christoffel tower ------------------------------------------------------------
         SLAssimpImporter importer;
         #if defined(SL_OS_IOS) || defined(SL_OS_ANDROID)
@@ -1945,6 +1957,8 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         // Scene structure --------------------------------------------------------------
         SLNode* scene = new SLNode("Scene");
         scene->addChild(light1);
+        scene->addChild(light2);
+        scene->addChild(light3);
         if (tower) scene->addChild(tower);
         scene->addChild(cam1);
 
