@@ -8,7 +8,7 @@
 #             WITHOUT ANY WARRANTIES WHETHER EXPRESSED OR IMPLIED.
 ##############################################################################
 
-#CONFIG += customOpenCV
+CONFIG += customOpenCV
 
 win32 {
     # windows only
@@ -48,44 +48,47 @@ macx {
     LIBS += -framework OpenGL
     LIBS += -framework QuartzCore
     LIBS += -stdlib=libc++
-#    LIBS += -L$$PWD/_lib/prebuilt/OpenCV/macx -lopencv_core
-#    LIBS += -L$$PWD/_lib/prebuilt/OpenCV/macx -lopencv_imgproc
-#    LIBS += -L$$PWD/_lib/prebuilt/OpenCV/macx -lopencv_imgcodecs
-#    LIBS += -L$$PWD/_lib/prebuilt/OpenCV/macx -lopencv_video
-#    LIBS += -L$$PWD/_lib/prebuilt/OpenCV/macx -lopencv_videoio
-#    LIBS += -L$$PWD/_lib/prebuilt/OpenCV/macx -lopencv_aruco
-#    LIBS += -L$$PWD/_lib/prebuilt/OpenCV/macx -lopencv_features2d
-#    LIBS += -L$$PWD/_lib/prebuilt/OpenCV/macx -lopencv_xfeatures2d
-#    LIBS += -L$$PWD/_lib/prebuilt/OpenCV/macx -lopencv_calib3d
-#    LIBS += -L$$PWD/_lib/prebuilt/OpenCV/macx -lopencv_highgui
-#    LIBS += -L$$PWD/_lib/prebuilt/OpenCV/macx -lopencv_flann
     INCLUDEPATH += /usr/include
 
-OPENCV_DIR = /Users/tschanzt/projects/opencv-android
+    customOpenCV {
+	OPENCV_DIR = /Users/tschanzt/projects/opencv-android
 
-CONFIG(debug, debug|release) {
-OPENCV_LIB_DIR = $$OPENCV_DIR/install/lib
-OPENCV_INCLUDE_DIR = $$OPENCV_DIR/install/include
-}
-CONFIG(release, debug|release) {
-OPENCV_LIB_DIR = $$OPENCV_DIR/install/lib
-OPENCV_INCLUDE_DIR = $$OPENCV_DIR/install/include
-}
+	CONFIG(debug, debug|release) {
+	    OPENCV_LIB_DIR = $$OPENCV_DIR/install/lib
+	    OPENCV_INCLUDE_DIR = $$OPENCV_DIR/install/include
+	}
+	CONFIG(release, debug|release) {
+	    OPENCV_LIB_DIR = $$OPENCV_DIR/install/lib
+	    OPENCV_INCLUDE_DIR = $$OPENCV_DIR/install/include
+	}
+    } else {
+	LIBS += -L$$PWD/_lib/prebuilt/OpenCV/macx -lopencv_core
+	LIBS += -L$$PWD/_lib/prebuilt/OpenCV/macx -lopencv_imgproc
+	LIBS += -L$$PWD/_lib/prebuilt/OpenCV/macx -lopencv_imgcodecs
+	LIBS += -L$$PWD/_lib/prebuilt/OpenCV/macx -lopencv_video
+	LIBS += -L$$PWD/_lib/prebuilt/OpenCV/macx -lopencv_videoio
+	LIBS += -L$$PWD/_lib/prebuilt/OpenCV/macx -lopencv_aruco
+	LIBS += -L$$PWD/_lib/prebuilt/OpenCV/macx -lopencv_features2d
+	LIBS += -L$$PWD/_lib/prebuilt/OpenCV/macx -lopencv_xfeatures2d
+	LIBS += -L$$PWD/_lib/prebuilt/OpenCV/macx -lopencv_calib3d
+	LIBS += -L$$PWD/_lib/prebuilt/OpenCV/macx -lopencv_highgui
+	LIBS += -L$$PWD/_lib/prebuilt/OpenCV/macx -lopencv_flann
+    }
 
-LIBS += -L$$OPENCV_LIB_DIR \
--lopencv_core \
--lopencv_imgproc \
--lopencv_imgcodecs \
--lopencv_video \
--lopencv_videoio \
--lopencv_aruco \
--lopencv_tracking \
--lopencv_features2d \
--lopencv_xfeatures2d \
--lopencv_calib3d \
--lopencv_flann \
--lopencv_highgui
-INCLUDEPATH += OPENCV_INCLUDE_DIR
+    LIBS += -L$$OPENCV_LIB_DIR \
+    -lopencv_core \
+    -lopencv_imgproc \
+    -lopencv_imgcodecs \
+    -lopencv_video \
+    -lopencv_videoio \
+    -lopencv_aruco \
+    -lopencv_tracking \
+    -lopencv_features2d \
+    -lopencv_xfeatures2d \
+    -lopencv_calib3d \
+    -lopencv_flann \
+    -lopencv_highgui
+    INCLUDEPATH += OPENCV_INCLUDE_DIR
 }
 unix:!macx:!android {
     # Setup the linux system as described in:
@@ -110,7 +113,7 @@ unix:!macx:!android {
 
     customOpenCV {
 	# Specify your custom OpenCV build directory here
-	OPENCV_DIR = /home/zinggpa/libs/opencv
+	OPENCV_DIR = /home/zinggpa/libs/opencv/build
 
 	CONFIG(debug, debug|release) {
 	    OPENCV_LIB_DIR = $$OPENCV_DIR/debug/lib
