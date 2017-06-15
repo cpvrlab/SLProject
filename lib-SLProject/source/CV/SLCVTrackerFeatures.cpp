@@ -144,8 +144,10 @@ SLCVTrackerFeatures::~SLCVTrackerFeatures() {
     SL_LOG("Avg matches                                      : %f\n", sum_matches / frames_with_pose);
     SL_LOG("Avg inlier matches                               : %f\n", sum_inlier_matches / frames_with_pose);
     SL_LOG("Avg more matches with Pose optimization          : %f\n", sum_poseopt_difference / frames_with_pose);
-    SL_LOG("Avg Rotation error                               : %f deg\n", rotationError / frames_with_pose);
-    SL_LOG("Avg Translation error                            : %f px\n", translationError / frames_with_pose);
+
+    // Only used for testing with slight movements
+    //SL_LOG("Avg Rotation error                               : %f deg\n", rotationError / frames_with_pose);
+    //SL_LOG("Avg Translation error                            : %f px\n", translationError / frames_with_pose);
 
 #endif //BENCHMARKING
 }
