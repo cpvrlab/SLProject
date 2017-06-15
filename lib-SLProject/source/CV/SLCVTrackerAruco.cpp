@@ -134,35 +134,44 @@ SLbool SLCVTrackerAruco::track(SLCVMat imageGray,
     return false;
 }
 //-----------------------------------------------------------------------------
+/*! SLCVTrackerAruco::drawArucoMarkerBoard draws and saves an aruco board
+into an image.
+\param dictionaryId integer id of the dictionary
+\param numMarkersX NO. of markers in x-direction
+\param numMarkersY NO. of markers in y-direction
+\param markerEdgeM Length of one marker in meters
+\param markerSepaM Separation between markers in meters
+\param imgName Image filename inklusive format extension
+\param dpi Dots per inch (default 256)
+\param showImage Shows image in window (default false)
+*/
 void SLCVTrackerAruco::drawArucoMarkerBoard(SLint dictionaryId,
                                             SLint numMarkersX,
                                             SLint numMarkersY, 
-                                            SLint markerEdgePX, 
-                                            SLint markerSepaPX,
-                                            SLstring imgName, 
-                                            SLbool showImage, 
-                                            SLint borderBits, 
-                                            SLint marginsSize)
+                                            SLfloat markerEdgeM,
+                                            SLfloat markerSepaM,
+                                            SLstring imgName,
+                                            SLfloat dpi,
+                                            SLbool showImage)
 {
-    if(marginsSize == 0)
-        marginsSize = markerSepaPX;
-
-    SLCVSize imageSize;
-    imageSize.width  = numMarkersX * (markerEdgePX + markerSepaPX) - markerSepaPX + 2 * marginsSize;
-    imageSize.height = numMarkersY * (markerEdgePX + markerSepaPX) - markerSepaPX + 2 * marginsSize;
-
     Ptr<aruco::Dictionary> dictionary =
         aruco::getPredefinedDictionary(aruco::PREDEFINED_DICTIONARY_NAME(dictionaryId));
 
     Ptr<aruco::GridBoard> board = aruco::GridBoard::create(numMarkersX, 
                                                            numMarkersY, 
-                                                           SLfloat(markerEdgePX),
-                                                           SLfloat(markerSepaPX), 
+                                                           markerEdgeM,
+                                                           markerSepaM,
                                                            dictionary);
+    SLCVSize imageSize;
+    imageSize.width  = (markerEdgeM + markerSepaM) * 100.0f / 2.54f * dpi * numMarkersX;
+    imageSize.height = (markerEdgeM + markerSepaM) * 100.0f / 2.54f * dpi * numMarkersY;
+
+    imageSize.width  -= (imageSize.width%4);  
+    imageSize.height -= (imageSize.height%4);  
 
     // show created board
     SLCVMat boardImage;
-    board->draw(imageSize, boardImage, marginsSize, borderBits);
+    board->draw(imageSize, boardImage, 0, 1);
 
     if(showImage) 
     {   imshow("board", boardImage);

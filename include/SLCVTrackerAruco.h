@@ -103,15 +103,14 @@ class SLCVTrackerAruco : public SLCVTracker
                                      SLSceneView* sv);
 
         //! Helper function to draw and save an aruco marker board image
-        static void drawArucoMarkerBoard(SLint numMarkersX,
+        static void drawArucoMarkerBoard(SLint dictionaryId,
+                                         SLint numMarkersX,
                                          SLint numMarkersY,
-                                         SLint markerEdgeLengthPix,
-                                         SLint markerSepaPix,
-                                         SLint dictionaryId,
+                                         SLfloat markerEdgeLengthM,
+                                         SLfloat markerSepaM,
                                          SLstring imgName,
-                                         SLbool showImage = false,
-                                         SLint borderBits = 1,
-                                         SLint marginsSize = 0);
+                                         SLfloat dpi = 254.0f,
+                                         SLbool showImage = false);
  
         //! Helper function to draw and save an aruco marker set
         static void drawArucoMarker(SLint dictionaryId,

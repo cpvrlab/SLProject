@@ -20,6 +20,7 @@
 #include <SLSceneView.h>
 #include <SLEnums.h>
 #include <SLCVCapture.h>
+#include <SLCVTrackerAruco.h>
 
 //-----------------------------------------------------------------------------
 // GLobal application variables
