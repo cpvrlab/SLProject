@@ -78,6 +78,7 @@ macx {
         INCLUDEPATH += $$OPENCV_INCLUDE_DIR
 
     } else {
+        QMAKE_RPATHDIR += -L$$PWD/_lib/prebuilt/OpenCV/macx
 	LIBS += -L$$PWD/_lib/prebuilt/OpenCV/macx -lopencv_core
 	LIBS += -L$$PWD/_lib/prebuilt/OpenCV/macx -lopencv_imgproc
 	LIBS += -L$$PWD/_lib/prebuilt/OpenCV/macx -lopencv_imgcodecs

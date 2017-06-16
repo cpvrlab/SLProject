@@ -237,6 +237,12 @@ SLScene::~SLScene()
     SLCVCapture::release();
     #endif
 
+    // Delete feature matching stuff
+    if (_descriptor)
+        delete _descriptor;
+    if (_detector)
+        delete _detector;
+
     SL_LOG("Destructor      : ~SLScene\n");
     SL_LOG("------------------------------------------------------------------\n");
 }
@@ -769,13 +775,4 @@ SLCamera* SLScene::nextCameraInScene(SLSceneView* activeSV)
         return cams[0];
 
 }
-
-SLbool SLScene::isDetector(SLCVDetectorType type){
-    return _detector->type == type;
-}
-
-SLbool SLScene::isDescriptor(SLCVDescriptorType type){
-    return _descriptor->type == type;
-}
-
 //-----------------------------------------------------------------------------

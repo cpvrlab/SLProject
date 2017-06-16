@@ -74,9 +74,11 @@ class SLScene: public SLObject
             void            btnCalibration      (SLButton* b) {_btnCalibration = b;}
             void            btnHelp             (SLButton* b) {_btnHelp = b;}
             void            videoType           (SLVideoType vt);
-            void            setFeatureTimesMS   (SLfloat time) { _featureTimesMS.set(time); };
-            void            setDetectionTimesMS (SLfloat time) { _detectionTimesMS.set(time); };
-            void            setMatchTimesMS     (SLfloat time) { _matchTimesMS.set(time); };
+            void            setFeatureTimesMS   (SLfloat t) {_featureTimesMS.set(t);};
+            void            setDetectionTimesMS (SLfloat t) {_detectionTimesMS.set(t);};
+            void            setMatchTimesMS     (SLfloat t) {_matchTimesMS.set(t);};
+            void            detector            (SLCVDetector* d) {_detector = d;}
+            void            descriptor          (SLCVDescriptor* d) {_descriptor = d;}
 
             // Getters
             SLAnimManager&  animManager         () {return _animManager;}
@@ -139,6 +141,8 @@ class SLScene: public SLObject
             SLCVCalibration*    calibMainCam    () {return &_calibMainCam;}
             SLCVCalibration*    calibScndCam    () {return &_calibScndCam;}
             SLVCVTracker&       trackers        () {return _trackers;}
+            SLCVDetector*       detector        () {return _detector;}
+            SLCVDescriptor*     descriptor      () {return _descriptor;}
             
             // Misc.
    virtual  void            onLoad              (SLSceneView* sv, 
@@ -159,11 +163,10 @@ class SLScene: public SLObject
                                                  SLuchar* data,
                                                  SLbool isContinuous,
                                                  SLbool isTopLeft);
-            SLbool          isDetector          (SLCVDetectorType type);
-            SLbool          isDescriptor        (SLCVDescriptorType type);
+            SLbool          isDetector          (SLCVDetectorType type){return _detector->type == type;}
+            SLbool          isDescriptor        (SLCVDescriptorType type){return _descriptor->type == type;}
+
      static SLScene*        current;            //!< global static scene pointer
-            SLCVDetector*    _detector;      //!<FeatureDetector used for feature detection
-            SLCVDescriptor*  _descriptor;
 
    protected:
             SLVSceneView    _sceneViews;        //!< Vector of all sceneview pointers
@@ -228,6 +231,8 @@ class SLScene: public SLObject
             SLCVCalibration     _calibMainCam;  //!< OpenCV calibration for main video camera
             SLCVCalibration     _calibScndCam;  //!< OpenCV calibration for secondary video camera
             SLVCVTracker        _trackers;      //!< Vector of all AR trackers
+            SLCVDetector*       _detector;      //!< Feature detector used for feature detection
+            SLCVDescriptor*     _descriptor;    //!< Feature descriptor used for feature description
 };
 //-----------------------------------------------------------------------------
 #endif

@@ -65,7 +65,7 @@ const int reposeFrequency = 10;
 const int initialPatchSize = 2;
 const int maxPatchSize = 60;
 
-
+//-----------------------------------------------------------------------------
 class SLCVTrackerFeatures : public SLCVTracker
 {
 public:
@@ -77,63 +77,57 @@ public:
                                 SLSceneView* sv);
 
 private:
-        static SLVMat4f         objectViewMats; //!< object view SLCVMatrices
-        SLCVRaulMurOrb*         _detector;
-        Ptr<ORB>                _descriptor;
         Ptr<DescriptorMatcher>  _matcher;
+        SLCVCalibration*        _calib;
+        SLint                   _frameCount = 0;
+        bool                    _isRelocated;
 
-        SLMat4f                 _pose;
-        SLCVCalibration         *_calib;
-        int                     frameCount = 0, reposePatchSize;
-        bool                    isRelocated;
-
-        struct Map {
-            vector<Point3f>     model;
-            SLCVMat             frameGray;
-            SLCVMat             imgDrawing;
-            SLCVVKeyPoint       keypoints;
-            SLCVMat             descriptors;
-            SLCVVKeyPoint       bboxModelKeypoints;
+        struct Map  // Is Marker2D not more precise
+        {   SLCVVPoint3f    model;      //!< 3D map feature points in mm ??? Is keypoints3D not more precise
+            SLCVMat         frameGray;
+            SLCVMat         imgDrawing;
+            SLCVVKeyPoint   keypoints;  //!< 2D map keypoints in pixels ??? Is keypoints2D not more precise
+            SLCVMat         descriptors;
+            SLCVVKeyPoint   bboxModelKeypoints; // Is bboxKeypoints2D not more precise ???
         };
 
-        struct FrameData {
-            SLCVMat             image;
-            SLCVMat             imageGray;
+        struct FrameData
+        {   SLCVMat         image;
+            SLCVMat         imageGray;
 
-            vector<Point2f>     inlierPoints2D;
-            vector<Point3f>     inlierPoints3D;
+            SLCVVPoint2f    inlierPoints2D;
+            SLCVVPoint3f    inlierPoints3D;
 
-            SLCVVKeyPoint       keypoints;
-            SLCVMat             descriptors;
-            vector<DMatch>      matches;
-            vector<DMatch>      inlierMatches;
+            SLCVVKeyPoint   keypoints;
+            SLCVMat         descriptors;
+            SLCVVDMatch     matches;
+            SLCVVDMatch     inlierMatches;
 
-            SLCVMat             rvec;
-            SLCVMat             tvec;
+            SLCVMat         rvec;
+            SLCVMat         tvec;
 
-            bool                foundPose;
-            float               reprojectionError;
-            bool                useExtrinsicGuess;
+            SLbool          foundPose;
+            SLfloat         reprojectionError;
+            SLbool          useExtrinsicGuess;
         };
 
-        Map                     _map;
-        FrameData               _current, _prev;
+        Map                 _map;
+        FrameData           _current, _prev;
 
-        void                    initializeReference(string trackerName);
-        void                    relocate();
-        void                    tracking();
-        void                    drawDebugInformation();
-        void                    updateSceneCamera(SLSceneView* sv);
-        void                    transferFrameData();
-        SLCVVKeyPoint           getKeypoints();
-        SLCVMat                 getDescriptors();
-        void                    getKeypointsAndDescriptors();
-        vector<DMatch>          getFeatureMatches();
-        bool                    calculatePose();
-        bool                    solvePnP();
-        void                    optimizeMatches();
-        bool                    trackWithOptFlow(Mat rvec,
-                                                 Mat tvec);
+        void                initializeReference(string trackerName);
+        void                relocate();
+        void                tracking();
+        void                drawDebugInformation();
+        void                updateSceneCamera(SLSceneView* sv);
+        void                transferFrameData();
+        SLCVVKeyPoint       getKeypoints();
+        SLCVMat             getDescriptors();
+        void                getKeypointsAndDescriptors();
+        SLCVVDMatch         getFeatureMatches();
+        bool                calculatePose();
+        bool                solvePnP();
+        void                optimizeMatches();
+        bool                trackWithOptFlow(SLCVMat rvec, SLCVMat tvec);
 };
 //-----------------------------------------------------------------------------
 #endif // SLCVTrackerFeatures_H

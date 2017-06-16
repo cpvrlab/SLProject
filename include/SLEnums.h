@@ -226,23 +226,23 @@ enum SLCommand
     C_pt10000,          // Do pathtracing 10000 Rays
     C_ptSaveImage,       // Save the ray tracing image
 
-    C_DetectorFast,
-    C_DetectorBrisk,
-    C_DetectorKaze,
-    C_DetectorAgast,
-    C_DetectorOrb,
-    C_DetectorSift,
-    C_DetectorSurf,
-    C_DetectorRaul,
+    C_detectorFast,
+    C_detectorBrisk,
+    C_detectorKaze,
+    C_detectorAgast,
+    C_detectorOrb,
+    C_detectorSift,
+    C_detectorSurf,
+    C_detectorRaul,
 
-    C_DescriptorOrb,
-    C_DescriptorBrief,
-    C_DescriptorBrisk,
-    C_DescriptorFreak,
-    C_DescriptorKaze,
-    C_DescriptorSift,
-    C_DescriptorSurf,
-    C_DescriptorRaul
+    C_descriptorOrb,
+    C_descriptorBrief,
+    C_descriptorBrisk,
+    C_descriptorFreak,
+    C_descriptorKaze,
+    C_descriptorSift,
+    C_descriptorSurf,
+    C_descriptorRaul
 };
 //-----------------------------------------------------------------------------
 //! Mouse button codes
@@ -416,10 +416,9 @@ enum SLVideoType
     VT_SCND =  2,  //!< Selfie camera on mobile devices
 };
 //-----------------------------------------------------------------------------
-
+//! Feature detector types
 enum SLCVDetectorType
-{
-    DT_FAST,
+{   DT_FAST,
     DT_BRISK,
     DT_KAZE,
     DT_AGAST,
@@ -428,10 +427,10 @@ enum SLCVDetectorType
     DT_SURF,
     DT_RAUL
 };
-
+//-----------------------------------------------------------------------------
+//! Feature descriptor types
 enum SLCVDescriptorType
-{
-    DESC_BRIEF,
+{   DESC_BRIEF,
     DESC_ORB,
     DESC_FREAK,
     DESC_KAZE,
@@ -440,4 +439,5 @@ enum SLCVDescriptorType
     DESC_SURF,
     DESC_RAUL
 };
+//-----------------------------------------------------------------------------
 #endif

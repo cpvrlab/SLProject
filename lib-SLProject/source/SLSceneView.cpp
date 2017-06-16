@@ -1384,8 +1384,7 @@ void SLSceneView::onRotationQUAT(SLfloat quatX,
 }
 
 //-----------------------------------------------------------------------------
-/*!
-SLSceneView::onCommand: Event handler for commands. Most key press or menu
+/*! SLSceneView::onCommand: Event handler for commands. Most key press or menu
 commands are collected and dispatched here.
 */
 SLbool SLSceneView::onCommand(SLCommand cmd)
@@ -1603,21 +1602,21 @@ SLbool SLSceneView::onCommand(SLCommand cmd)
         case C_pt10000: startPathtracing(5, 100000); return true;
         case C_ptSaveImage: _pathtracer.saveImage(); return true;
 
-        case C_DetectorFast: setDetector(DT_FAST); return true;
-        case C_DetectorAgast: setDetector(DT_AGAST); return true;
-        case C_DetectorBrisk: setDetector(DT_BRISK); return true;
-        case C_DetectorKaze: setDetector(DT_KAZE); return true;
-        case C_DetectorOrb: setDetector(DT_ORB); return true;
-        case C_DetectorRaul: setDetector(DT_RAUL); return true;
+        case C_detectorFast:  setDetector(DT_FAST); return true;
+        case C_detectorAgast: setDetector(DT_AGAST); return true;
+        case C_detectorBrisk: setDetector(DT_BRISK); return true;
+        case C_detectorKaze:  setDetector(DT_KAZE); return true;
+        case C_detectorOrb:   setDetector(DT_ORB); return true;
+        case C_detectorRaul:  setDetector(DT_RAUL); return true;
 
-        case C_DescriptorBrief: setDescriptor(DESC_BRIEF); return true;
-        case C_DescriptorBrisk: setDescriptor(DESC_BRISK); return true;
-        case C_DescriptorFreak: setDescriptor(DESC_FREAK); return true;
-        case C_DescriptorKaze: setDescriptor(DESC_KAZE); return true;
-        case C_DescriptorOrb: setDescriptor(DESC_ORB); return true;
-        case C_DescriptorSift: setDescriptor(DESC_SIFT); return true;
-        case C_DescriptorSurf: setDescriptor(DESC_SURF); return true;
-        case C_DescriptorRaul: setDescriptor(DESC_RAUL); return true;
+        case C_descriptorBrief: setDescriptor(DESC_BRIEF); return true;
+        case C_descriptorBrisk: setDescriptor(DESC_BRISK); return true;
+        case C_descriptorFreak: setDescriptor(DESC_FREAK); return true;
+        case C_descriptorKaze:  setDescriptor(DESC_KAZE); return true;
+        case C_descriptorOrb:   setDescriptor(DESC_ORB); return true;
+        case C_descriptorSift:  setDescriptor(DESC_SIFT); return true;
+        case C_descriptorSurf:  setDescriptor(DESC_SURF); return true;
+        case C_descriptorRaul:  setDescriptor(DESC_RAUL); return true;
         default: break;
     }
 
@@ -1827,25 +1826,24 @@ void SLSceneView::build2DMenus()
                 if (SL::currentSceneID == C_sceneVideoFeaturetracking){
 
                     mn5 = new SLButton(this, "Detectors >", f); mn3->addChild(mn5);
-                    mn5->addChild(new SLButton(this, "FAST",f,C_DetectorFast, true, s->isDetector(DT_FAST), mn5, false));
-                    mn5->addChild(new SLButton(this, "BRISK",f,C_DetectorBrisk, true, s->isDetector(DT_BRISK), mn5, false));
-                    mn5->addChild(new SLButton(this, "AKAZE",f,C_DetectorKaze, true, s->isDetector(DT_KAZE), mn5, false));
-                    mn5->addChild(new SLButton(this, "AGAST",f,C_DetectorAgast, true, s->isDetector(DT_AGAST), mn5, false));
-                    mn5->addChild(new SLButton(this, "ORB",f,C_DetectorOrb, true, s->isDetector(DT_ORB), mn5, false));
-                    mn5->addChild(new SLButton(this, "SIFT",f,C_DetectorSift, true, s->isDetector(DT_SIFT), mn5, false));
-                    mn5->addChild(new SLButton(this, "SURF",f,C_DetectorSurf, true, s->isDetector(DT_SURF), mn5, false));
-                    mn5->addChild(new SLButton(this, "ORB_SLAM",f,C_DetectorRaul, true, s->isDetector(DT_RAUL), mn5, false));
+                    mn5->addChild(new SLButton(this, "FAST",f,C_detectorFast, true, s->isDetector(DT_FAST), mn5, false));
+                    mn5->addChild(new SLButton(this, "BRISK",f,C_detectorBrisk, true, s->isDetector(DT_BRISK), mn5, false));
+                    mn5->addChild(new SLButton(this, "AKAZE",f,C_detectorKaze, true, s->isDetector(DT_KAZE), mn5, false));
+                    mn5->addChild(new SLButton(this, "AGAST",f,C_detectorAgast, true, s->isDetector(DT_AGAST), mn5, false));
+                    mn5->addChild(new SLButton(this, "ORB",f,C_detectorOrb, true, s->isDetector(DT_ORB), mn5, false));
+                    mn5->addChild(new SLButton(this, "SIFT",f,C_detectorSift, true, s->isDetector(DT_SIFT), mn5, false));
+                    mn5->addChild(new SLButton(this, "SURF",f,C_detectorSurf, true, s->isDetector(DT_SURF), mn5, false));
+                    mn5->addChild(new SLButton(this, "ORB_SLAM",f,C_detectorRaul, true, s->isDetector(DT_RAUL), mn5, false));
 
                     mn5 = new SLButton(this, "Descriptors >", f); mn3->addChild(mn5);
-                    mn5->addChild(new SLButton(this, "ORB",f,C_DescriptorOrb, true, s->isDescriptor(DESC_ORB), mn5, false));
-                    mn5->addChild(new SLButton(this, "BRIEF",f,C_DescriptorBrief, true, s->isDescriptor(DESC_BRIEF), mn5, false));
-                    mn5->addChild(new SLButton(this, "BRISK",f,C_DescriptorBrisk, true, s->isDescriptor(DESC_BRISK), mn5, false));
-                    mn5->addChild(new SLButton(this, "FREAK",f,C_DescriptorFreak, true, s->isDescriptor(DESC_FREAK), mn5, false));
-                    mn5->addChild(new SLButton(this, "AKAZE",f,C_DescriptorKaze, true, s->isDescriptor(DESC_KAZE), mn5, false));
-                    mn5->addChild(new SLButton(this, "SIFT",f,C_DescriptorSift, true, s->isDescriptor(DESC_SIFT), mn5, false));
-                    mn5->addChild(new SLButton(this, "SURF",f,C_DescriptorSurf, true, s->isDescriptor(DESC_SURF), mn5, false));
-                    mn5->addChild(new SLButton(this, "ORB_SLAM",f,C_DescriptorRaul, true, s->isDescriptor(DESC_RAUL), mn5, false));
-
+                    mn5->addChild(new SLButton(this, "ORB",f,C_descriptorOrb, true, s->isDescriptor(DESC_ORB), mn5, false));
+                    mn5->addChild(new SLButton(this, "BRIEF",f,C_descriptorBrief, true, s->isDescriptor(DESC_BRIEF), mn5, false));
+                    mn5->addChild(new SLButton(this, "BRISK",f,C_descriptorBrisk, true, s->isDescriptor(DESC_BRISK), mn5, false));
+                    mn5->addChild(new SLButton(this, "FREAK",f,C_descriptorFreak, true, s->isDescriptor(DESC_FREAK), mn5, false));
+                    mn5->addChild(new SLButton(this, "AKAZE",f,C_descriptorKaze, true, s->isDescriptor(DESC_KAZE), mn5, false));
+                    mn5->addChild(new SLButton(this, "SIFT",f,C_descriptorSift, true, s->isDescriptor(DESC_SIFT), mn5, false));
+                    mn5->addChild(new SLButton(this, "SURF",f,C_descriptorSurf, true, s->isDescriptor(DESC_SURF), mn5, false));
+                    mn5->addChild(new SLButton(this, "ORB_SLAM",f,C_descriptorRaul, true, s->isDescriptor(DESC_RAUL), mn5, false));
                 }
             }
 
@@ -1971,9 +1969,9 @@ void SLSceneView::build2DInfoGL()
     {
         SLfloat updateTimePC    = SL_clamp(s->updateTimesMS().average()   / s->frameTimesMS().average()*100.0f, 0.0f,100.0f);
         SLfloat trackingTimePC  = SL_clamp(s->trackingTimesMS().average() / s->frameTimesMS().average()*100.0f, 0.0f,100.0f);
-        SLfloat featureTimePC   = SL_clamp(s->featureTimesMS().average() / s->frameTimesMS().average()*100.0f, 0.0f,100.0f);
-        SLfloat detectionTimePC = SL_clamp(s->detectionTimesMS().average() / s->frameTimesMS().average()*100.0f, 0.0f,100.0f);
-        SLfloat featureTrTimePC = SL_clamp(s->matchTimesMS().average() / s->frameTimesMS().average()*100.0f, 0.0f,100.0f);
+        SLfloat featureTimePC   = SL_clamp(s->featureTimesMS().average()  / s->frameTimesMS().average()*100.0f, 0.0f,100.0f);
+        SLfloat detectionTimePC = SL_clamp(s->detectionTimesMS().average()/ s->frameTimesMS().average()*100.0f, 0.0f,100.0f);
+        SLfloat featureTrTimePC = SL_clamp(s->matchTimesMS().average()    / s->frameTimesMS().average()*100.0f, 0.0f,100.0f);
         SLfloat cullTimePC      = SL_clamp(s->cullTimesMS().average()     / s->frameTimesMS().average()*100.0f, 0.0f,100.0f);
         SLfloat draw3DTimePC    = SL_clamp(s->draw3DTimesMS().average()   / s->frameTimesMS().average()*100.0f, 0.0f,100.0f);
         SLfloat draw2DTimePC    = SL_clamp(s->draw2DTimesMS().average()   / s->frameTimesMS().average()*100.0f, 0.0f,100.0f);
@@ -2517,29 +2515,29 @@ SLbool SLSceneView::testRunIsFinished()
 
     return false;
 }
-
+//-----------------------------------------------------------------------------
+//! Deletes the old and sets a new feature detector
 void SLSceneView::setDetector(SLCVDetectorType detector, SLbool forced)
 {
     SLScene* s = SLScene::current;
-    if (forced == false && s->_detector->forced == true){
+    if (!forced && s->detector()->forced)
         return;
-    }
-    delete s->_detector;
-    s->_detector = new SLCVDetector(detector, forced);
+    delete s->detector();
+    s->detector(new SLCVDetector(detector, forced));
 }
-
-
+//-----------------------------------------------------------------------------
+//! Deletes the old and sets a new feature descriptor
 void SLSceneView::setDescriptor(SLCVDescriptorType descriptor)
 {
     SLScene* s = SLScene::current;
-    switch (descriptor){
-        case DESC_ORB: setDetector(DT_ORB, true);break;
-        case DESC_SIFT: setDetector(DT_SIFT, true);break;
-        case DESC_KAZE: setDetector(DT_KAZE, true);break;
-        case DESC_SURF: setDetector(DT_SURF, true);break;
-        default: s->_detector->forced = false;break;
+    switch (descriptor)
+    {   case DESC_ORB:  setDetector(DT_ORB,  true); break;
+        case DESC_SIFT: setDetector(DT_SIFT, true); break;
+        case DESC_KAZE: setDetector(DT_KAZE, true); break;
+        case DESC_SURF: setDetector(DT_SURF, true); break;
+        default: s->detector()->forced = false; break;
     }
-    delete s->_descriptor;
-    s->_descriptor = new SLCVDescriptor(descriptor);
+    delete s->descriptor();
+    s->descriptor(new SLCVDescriptor(descriptor));
 }
 //------------------------------------------------------------------------------

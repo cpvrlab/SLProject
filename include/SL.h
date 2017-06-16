@@ -233,6 +233,7 @@ typedef std::vector<SLshort>  SLVshort;
 typedef std::vector<SLushort> SLVushort;
 typedef std::vector<SLint>    SLVint;
 typedef std::vector<SLuint>   SLVuint;
+typedef std::vector<size_t>   SLVsize_t;
 typedef std::vector<SLlong>   SLVlong;
 typedef std::vector<SLulong>  SLVulong;
 typedef std::vector<SLfloat>  SLVfloat;
