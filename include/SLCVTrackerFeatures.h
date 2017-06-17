@@ -8,8 +8,8 @@
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
 
-#ifndef SLCVTrackerFeatures_H
-#define SLCVTrackerFeatures_H
+#ifndef SLCVTRACKERFEATURES_H
+#define SLCVTRACKERFEATURES_H
 
 /*
 The OpenCV library version 3.1 with extra module must be present.
@@ -82,37 +82,36 @@ private:
         SLint                   _frameCount = 0;
         bool                    _isRelocated;
 
-        struct Map  // Is Marker2D not more precise
-        {   SLCVVPoint3f    model;      //!< 3D map feature points in mm ??? Is keypoints3D not more precise
-            SLCVMat         frameGray;
-            SLCVMat         imgDrawing;
-            SLCVVKeyPoint   keypoints;  //!< 2D map keypoints in pixels ??? Is keypoints2D not more precise
-            SLCVMat         descriptors;
-            SLCVVKeyPoint   bboxModelKeypoints; // Is bboxKeypoints2D not more precise ???
+        //! Data of a 2D marker image. Is Marker2D not more precise ???
+        struct Map
+        {   SLCVVPoint3f    model;              //!< 3D map feature points in mm ??? Is keypoints3D not more precise
+            SLCVMat         frameGray;          //!< ??? I would call this imageGray. A frame is part of a sequence
+            SLCVMat         imgDrawing;         //!< ???
+            SLCVVKeyPoint   keypoints;          //!< 2D map keypoints in pixels ??? Is keypoints2D not more precise
+            SLCVMat         descriptors;        //!< Descriptors of the 2D keypoints
+            SLCVVKeyPoint   bboxModelKeypoints; //!< Is bboxKeypoints2D not more precise ???
         };
 
+        //! Feature date for a video frame
         struct FrameData
-        {   SLCVMat         image;
-            SLCVMat         imageGray;
-
-            SLCVVPoint2f    inlierPoints2D;
-            SLCVVPoint3f    inlierPoints3D;
-
-            SLCVVKeyPoint   keypoints;
-            SLCVMat         descriptors;
-            SLCVVDMatch     matches;
-            SLCVVDMatch     inlierMatches;
-
-            SLCVMat         rvec;
-            SLCVMat         tvec;
-
-            SLbool          foundPose;
-            SLfloat         reprojectionError;
-            SLbool          useExtrinsicGuess;
+        {   SLCVMat         image;              //!< Reference to color video frame
+            SLCVMat         imageGray;          //!< Reference to grayscale video frame
+            SLCVVPoint2f    inlierPoints2D;     //!< ???
+            SLCVVPoint3f    inlierPoints3D;     //!< ???
+            SLCVVKeyPoint   keypoints;          //!< 2D keypoints detected in video frame
+            SLCVMat         descriptors;        //!< Descriptors of keypoints
+            SLCVVDMatch     matches;            //!< matches between video decriptors and marker descriptors
+            SLCVVDMatch     inlierMatches;      //!< matches that lead to correct transform ???
+            SLCVMat         rvec;               //!< Rotation of the camera pose
+            SLCVMat         tvec;               //!< Translation of the camera pose
+            SLbool          foundPose;          //!< ???
+            SLfloat         reprojectionError;  //!< Reprojection error of the pose
+            SLbool          useExtrinsicGuess;  //!< flag if extrinsic gues should be used ???
         };
 
-        Map                 _map;
-        FrameData           _current, _prev;
+        Map                 _map;               //!< 2D marker data
+        FrameData           _current;           //!< The current video frame date
+        FrameData           _prev;              //!< The previous video frame date
 
         void                initializeReference(string trackerName);
         void                relocate();
@@ -125,7 +124,6 @@ private:
         void                getKeypointsAndDescriptors();
         SLCVVDMatch         getFeatureMatches();
         bool                calculatePose();
-        bool                solvePnP();
         void                optimizeMatches();
         bool                trackWithOptFlow(SLCVMat rvec, SLCVMat tvec);
 };

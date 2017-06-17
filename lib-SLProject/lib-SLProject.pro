@@ -66,19 +66,19 @@ HEADERS += \
 ../include/SLCurve.h \
 ../include/SLCurveBezier.h \
 ../include/SLCylinder.h \
-../include/SLCVCapture.h \
 ../include/SLCV.h \
 ../include/SLCVCalibration.h \
-../include/SLCVFeatureMap2D.h \
-../include/SLCVFeatureMapper2D.h \
+../include/SLCVCapture.h \
+../include/SLCVDetector.h \
+../include/SLCVDescriptor.h \
 ../include/SLCVImage.h \
 ../include/SLCVTracker.h \
 ../include/SLCVTrackerFeatures.h \
 ../include/SLCVTrackerAruco.h \
 ../include/SLCVTrackerChessboard.h \
 ../include/SLCVTrackerFeatures.h \
-../include/SLCVDetector.h \
-../include/SLCVDescriptor.h \
+../include/SLCVRaulMurOrb.h \
+../include/SLCVRaulMurExtractorNode.h \
 ../include/SLDisk.h \
 ../include/SLDrawBits.h \
 ../include/SLEnums.h \
@@ -143,8 +143,6 @@ HEADERS += \
 ../include/SLVector.h \
 ../include/stdafx.h \
 ../include/TriangleBoxIntersect.h \
-../include/SLCVRaulMurOrb.h \
-../include/SLCVRaulMurExtractorNode.h
 
 SOURCES += \
 source/math/SLCurveBezier.cpp \
@@ -167,15 +165,15 @@ source/GL/SLGLVertexArrayExt.cpp \
 source/GL/SLGLVertexBuffer.cpp \
 source/CV/SLCVCapture.cpp \
 source/CV/SLCVCalibration.cpp \
-source/CV/SLCVTracker.cpp \
-source/CV/SLCVTrackerFeatures.cpp \
-source/CV/SLCVFeatureMapper2D.cpp \
+source/CV/SLCVDetector.cpp \
+source/CV/SLCVDescriptor.cpp \
 source/CV/SLCVImage.cpp \
+source/CV/SLCVRaulMurOrb.cpp \
+source/CV/SLCVRaulMurExtractorNode.cpp \
+source/CV/SLCVTracker.cpp \
 source/CV/SLCVTrackerAruco.cpp \
 source/CV/SLCVTrackerChessboard.cpp \
 source/CV/SLCVTrackerFeatures.cpp \
-source/CV/SLCVDetector.cpp \
-source/CV/SLCVDescriptor.cpp \
 source/SLAABBox.cpp \
 source/SLAnimation.cpp \
 source/SLAnimManager.cpp \
@@ -216,8 +214,6 @@ source/SLScene_onLoad.cpp \
 source/SLSkeleton.cpp \
 source/SLSpheric.cpp \
 source/SLText.cpp \
-source/CV/SLCVRaulMurOrb.cpp \
-source/CV/SLCVRaulMurExtractorNode.cpp
 
 OTHER_FILES += \
 ../_data/shaders/*.vert \

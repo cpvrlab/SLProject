@@ -47,7 +47,7 @@ win32 {
 }
 macx {
     # mac only
-    QMAKE_MAC_SDK = macosx10.11
+    QMAKE_MAC_SDK = macosx10.12
     DEFINES += GLEW_STATIC
     DEFINES += _GLFW_COCOA
     DEFINES += _GLFW_NSGL

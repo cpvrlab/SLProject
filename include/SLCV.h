@@ -49,9 +49,10 @@ typedef vector<cv::KeyPoint>        SLCVVKeyPoint;
 typedef vector<cv::DMatch>          SLCVVDMatch;
 
 // 2D STL vectors 
-typedef vector<vector<cv::Point>>   SLCVVVPoint;
-typedef vector<vector<cv::Point2f>> SLCVVVPoint2f;
-typedef vector<vector<cv::Point3f>> SLCVVVPoint3f;
-typedef vector<vector<cv::DMatch>>  SLCVVVDMatch;
+typedef vector<vector<cv::Point>>    SLCVVVPoint;
+typedef vector<vector<cv::Point2f>>  SLCVVVPoint2f;
+typedef vector<vector<cv::Point3f>>  SLCVVVPoint3f;
+typedef vector<vector<cv::DMatch>>   SLCVVVDMatch;
+typedef vector<vector<cv::KeyPoint>> SLCVVVKeyPoint;
 //-----------------------------------------------------------------------------
 #endif // SL_CV_H
