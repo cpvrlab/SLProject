@@ -199,8 +199,11 @@ returned true a new frame should be drawn.
 bool slUpdateAndPaint(int sceneViewIndex)
 {  
     SLSceneView* sv = SLScene::current->sv(sceneViewIndex);
+
     bool sceneGotUpdated = SLScene::current->onUpdate();
+    
     bool viewNeedsUpdate =  sv->onPaint();
+    
     return sceneGotUpdated || viewNeedsUpdate;
 }
 //-----------------------------------------------------------------------------
@@ -213,7 +216,6 @@ void slResize(int sceneViewIndex, int width, int height)
     e->svIndex = sceneViewIndex;
     e->width = width;
     e->height = height;
-
     SLInputManager::instance().queueEvent(e);
 }
 //-----------------------------------------------------------------------------
@@ -228,7 +230,6 @@ void slMouseDown(int sceneViewIndex, SLMouseButton button,
     e->x = xpos;
     e->y = ypos;
     e->modifier = modifier;
-
     SLInputManager::instance().queueEvent(e);
 }
 //-----------------------------------------------------------------------------
@@ -240,7 +241,6 @@ void slMouseMove(int sceneViewIndex, int x, int y)
     e->svIndex = sceneViewIndex;
     e->x = x;
     e->y = y;
-
     SLInputManager::instance().queueEvent(e);
 }
 //-----------------------------------------------------------------------------
@@ -255,7 +255,6 @@ void slMouseUp(int sceneViewIndex, SLMouseButton button,
     e->x = xpos;
     e->y = ypos;
     e->modifier = modifier;
-
     SLInputManager::instance().queueEvent(e);
 }
 //-----------------------------------------------------------------------------
@@ -270,7 +269,6 @@ void slDoubleClick(int sceneViewIndex, SLMouseButton button,
     e->x = xpos;
     e->y = ypos;
     e->modifier = modifier;
-
     SLInputManager::instance().queueEvent(e);
 }
 //-----------------------------------------------------------------------------
@@ -282,7 +280,6 @@ void slLongTouch(int sceneViewIndex, int xpos, int ypos)
     e->svIndex = sceneViewIndex;
     e->x = xpos;
     e->y = ypos;
-
     SLInputManager::instance().queueEvent(e);
 }
 //-----------------------------------------------------------------------------
@@ -311,7 +308,6 @@ void slTouch2Move(int sceneViewIndex, int xpos1, int ypos1, int xpos2, int ypos2
     e->y1 = ypos1;
     e->x2 = xpos2;
     e->y2 = ypos2;
-
     SLInputManager::instance().queueEvent(e);
 }
 //-----------------------------------------------------------------------------
@@ -326,7 +322,6 @@ void slTouch2Up(int sceneViewIndex, int xpos1, int ypos1, int xpos2, int ypos2)
     e->y1 = ypos1;
     e->x2 = xpos2;
     e->y2 = ypos2;
-
     SLInputManager::instance().queueEvent(e);
 }
 //-----------------------------------------------------------------------------
@@ -338,7 +333,6 @@ void slMouseWheel(int sceneViewIndex, int pos, SLKey modifier)
     e->svIndex = sceneViewIndex;
     e->y = pos;
     e->modifier = modifier;
-
     SLInputManager::instance().queueEvent(e);
 }
 //-----------------------------------------------------------------------------
@@ -350,7 +344,6 @@ void slKeyPress(int sceneViewIndex, SLKey key, SLKey modifier)
     e->svIndex = sceneViewIndex;
     e->key = key;
     e->modifier = modifier;
-
     SLInputManager::instance().queueEvent(e);
 }
 //-----------------------------------------------------------------------------
@@ -362,7 +355,6 @@ void slKeyRelease(int sceneViewIndex, SLKey key, SLKey modifier)
     e->svIndex = sceneViewIndex;
     e->key = key;
     e->modifier = modifier;
-
     SLInputManager::instance().queueEvent(e);
 }
 
@@ -374,7 +366,6 @@ void slCharInput(int sceneViewIndex, unsigned int character)
     SLCharInputEvent* e = new SLCharInputEvent();
     e->svIndex = sceneViewIndex;
     e->character = character;
-
     SLInputManager::instance().queueEvent(e);
 }
 //-----------------------------------------------------------------------------
@@ -385,7 +376,6 @@ void slCommand(int sceneViewIndex, SLCommand command)
     SLCommandEvent* e = new SLCommandEvent;
     e->svIndex = sceneViewIndex;
     e->cmd = command;
-    
     SLInputManager::instance().queueEvent(e);
 }
 //-----------------------------------------------------------------------------
@@ -408,7 +398,6 @@ void slRotationPYR(int sceneViewIndex,
     e->y = yawRAD;
     e->z = rollRAD;
     e->w = 3.0f;
-
     SLInputManager::instance().queueEvent(e);
 }
 //-----------------------------------------------------------------------------
@@ -423,7 +412,6 @@ void slRotationQUAT(int sceneViewIndex,
     e->y = quatY;
     e->z = quatZ;
     e->w = quatW;
-
     SLInputManager::instance().queueEvent(e);
 }
 //-----------------------------------------------------------------------------

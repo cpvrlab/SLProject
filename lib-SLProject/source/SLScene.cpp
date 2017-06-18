@@ -326,13 +326,14 @@ void SLScene::unInit()
     SLGLState::getInstance()->initAll();
 }
 //-----------------------------------------------------------------------------
-//! Updates all animations, AR trackers and AABBs
+//! Processes all queued events and updates animations, AR trackers and AABBs
 /*! Updates different updatables in the scene after all views got painted:
 \n
 \n 1) Calculate frame time
-\n 2) Update all animations
-\n 3) Augmented Reality (AR) Tracking with the live camera
-\n 4) Update AABBs
+\n 2) Process queued events
+\n 3) Update all animations
+\n 4) Augmented Reality (AR) Tracking with the live camera
+\n 5) Update AABBs
 \n
 A scene can be displayed in multiple views as demonstrated in the app-Viewer-Qt 
 example. AR tracking is only handled on the first scene view.
@@ -386,27 +387,32 @@ bool SLScene::onUpdate()
     _fps = 1 / _frameTimesMS.average() * 1000.0f;
     if (_fps < 0.0f) _fps = 0.0f;
 
-
-    //////////////////////////////
-    // 2) Update all animations //
-    //////////////////////////////
-
     SLfloat startUpdateMS = timeMilliSec();
+
+
+    //////////////////////////////
+    // 2) Process queued events //
+    //////////////////////////////
+
+    // Process queued up system events and poll custom input devices
+    SLbool sceneHasChanged = SLInputManager::instance().pollAndProcessEvents();
+
+
+    //////////////////////////////
+    // 3) Update all animations //
+    //////////////////////////////
 
     // reset the dirty flag on all skeletons
     for(auto skeleton : _animManager.skeletons())
         skeleton->changed(false);
 
-    // Process queued up system events and poll custom input devices
-    SLbool animatedOrChanged = SLInputManager::instance().pollEvents();
-
-    animatedOrChanged |= !_stopAnimations && _animManager.update(elapsedTimeSec());
+    sceneHasChanged |= !_stopAnimations && _animManager.update(elapsedTimeSec());
     
     // Do software skinning on all changed skeletons
     for (auto mesh : _meshes) 
     {   if (mesh->skeleton() && mesh->skeleton()->changed())
         {   mesh->transformSkin();
-            animatedOrChanged = true;
+            sceneHasChanged = true;
         }
 
         // update any out of date acceleration structure for RT or if they're being rendered.
@@ -416,7 +422,7 @@ bool SLScene::onUpdate()
     
 
     ////////////////////
-    // 3) AR Tracking //
+    // 4) AR Tracking //
     ////////////////////
     
     if (_videoType!=VT_NONE && !SLCVCapture::lastFrame.empty())
@@ -527,7 +533,7 @@ bool SLScene::onUpdate()
 
 
     /////////////////////
-    // 4) Update AABBs //
+    // 5) Update AABBs //
     /////////////////////
 
     // The updateAABBRec call won't generate any overhead if nothing changed
@@ -538,7 +544,7 @@ bool SLScene::onUpdate()
 
     _updateTimesMS.set(timeMilliSec()-startUpdateMS);
     
-    return animatedOrChanged;
+    return sceneHasChanged;
 }
 //-----------------------------------------------------------------------------
 //! SLScene::onAfterLoad gets called after onLoad
