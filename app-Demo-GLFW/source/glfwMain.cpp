@@ -20,6 +20,7 @@
 #include <SLSceneView.h>
 #include <SLEnums.h>
 #include <SLCVCapture.h>
+#include <SLDemoGui.h>
 
 //-----------------------------------------------------------------------------
 // GLobal application variables
@@ -501,6 +502,8 @@ int main(int argc, char *argv[])
                                 0,
                                 0,
                                 (void*)&onShowCursor);
+
+    SLScene::current->gui().build = SLDemoGui::buildDemoGui;
 
     // Set GLFW callback functions
     glfwSetKeyCallback(window, onKeyAction);

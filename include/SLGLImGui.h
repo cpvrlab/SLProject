@@ -49,8 +49,11 @@ class SLGLImGui
         // Static C-function for render callback
         static void imgui_renderFunction    (ImDrawData* draw_data);
         
-        // gui build function
-        void        (*build)                (SLScene* s, SLSceneView* sv);   
+        // gui build function pattern
+        void        (*build)                (SLScene* s, SLSceneView* sv);
+
+        // empty default gui build function
+        static void noGuiBuilt              (SLScene* s, SLSceneView* sv);
 
     private:
         SLfloat     _timeSec;               //!< Time in seconds

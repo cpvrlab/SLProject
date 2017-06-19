@@ -324,6 +324,9 @@
     <ClInclude Include="..\include\SLGLImGui.h">
       <Filter>GL</Filter>
     </ClInclude>
+    <ClInclude Include="..\include\SLDemoGui.h">
+      <Filter>SL</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="source\SLAABBox.cpp">
@@ -532,6 +535,9 @@
     </ClCompile>
     <ClCompile Include="source\GL\SLGLImGui.cpp">
       <Filter>GL</Filter>
+    </ClCompile>
+    <ClCompile Include="source\SLDemoGui.cpp">
+      <Filter>SL</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

@@ -20,19 +20,7 @@
 
 //-----------------------------------------------------------------------------
 //! Static global instance for render callback
-SLGLImGui* SLGLImGui::globalInstance = 0; 
-//-----------------------------------------------------------------------------
-//! Function called whan no GUI build function is provided
-void noGuiBuilt(SLScene* s, SLSceneView* sv)
-{
-    static SLbool showOnce = true;
-    if (showOnce)
-    {   ImGui::SetNextWindowSize(ImVec2(200,80), ImGuiSetCond_FirstUseEver);
-        ImGui::Begin("Error", &showOnce);
-        ImGui::Text("There is no GUI build function\nprovided for SLGLImGui::build.");
-        ImGui::End();
-    }
-}
+SLGLImGui* SLGLImGui::globalInstance = 0;
 //-----------------------------------------------------------------------------
 //! Initializes OpenGL handles to zero and sets the ImGui key map
 void SLGLImGui::init(SLint scrW, SLint scrH, SLint fbW, SLint fbH)
@@ -485,5 +473,17 @@ void SLGLImGui::onClose()
 {
     deleteOpenGLObjects();
     ImGui::Shutdown();
+}
+//-----------------------------------------------------------------------------
+//! Function called whan no GUI build function is provided
+void SLGLImGui::noGuiBuilt(SLScene* s, SLSceneView* sv)
+{
+    static SLbool showOnce = true;
+    if (showOnce)
+    {   ImGui::SetNextWindowSize(ImVec2(200,80), ImGuiSetCond_FirstUseEver);
+        ImGui::Begin("Error", &showOnce);
+        ImGui::Text("There is no GUI build function\nprovided for SLGLImGui::build.");
+        ImGui::End();
+    }
 }
 //-----------------------------------------------------------------------------

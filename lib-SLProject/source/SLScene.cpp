@@ -173,6 +173,7 @@ or tap with finger into the screen. You can mirror the video image under \
 Preferences > Video. \\n\
 After calibration the yellow wireframe cube should stick on the chessboard.";
 
+   _gui.init();
 }
 //-----------------------------------------------------------------------------
 /*! The destructor does the final total deallocation of all global resources.
@@ -261,7 +262,6 @@ void SLScene::init()
     _trackingTimesMS.init();
     _captureTimesMS.init(200);
     _texCursor = new SLGLTexture("cursor.png");
-    _gui.init();
 }
 //-----------------------------------------------------------------------------
 /*! The scene uninitializing clears the scenegraph (_root3D) and all global
