@@ -13,15 +13,17 @@
 #include <stdafx.h>
 #include <imgui.h>
 
-
 #ifndef SLGLIMGUI_H
 #define SLGLIMGUI_H
+
+class SLScene;
+class SLSceneView;
 
 //-----------------------------------------------------------------------------
 class SLGLImGui
 {
     public:
-                    SLGLImGui               (){init();}
+                    SLGLImGui               (){;}
 
         void        init                    (SLint scrW=0, 
                                              SLint scrH=0, 
@@ -45,7 +47,10 @@ class SLGLImGui
         static SLGLImGui* globalInstance; 
 
         // Static C-function for render callback
-        static void imgui_renderFunction   (ImDrawData* draw_data);    
+        static void imgui_renderFunction    (ImDrawData* draw_data);
+        
+        // gui build function
+        void        (*build)                (SLScene* s, SLSceneView* sv);   
 
     private:
         SLfloat     _timeSec;               //!< Time in seconds

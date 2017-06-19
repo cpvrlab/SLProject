@@ -313,6 +313,8 @@ void SLSceneView::onInitialize()
     }
 
     initSceneViewCamera();
+
+    s->gui().onResize(_scrW, _scrH);
    
     build2DMenus();
 }
@@ -335,6 +337,8 @@ void SLSceneView::onResize(SLint width, SLint height)
         _scrWdiv2 = _scrW>>1;  // width / 2
         _scrHdiv2 = _scrH>>1;  // height / 2
         _scrWdivH = (SLfloat)_scrW/(SLfloat)_scrH;
+
+        s->gui().onResize(width, height);
 
         // Resize Oculus framebuffer
         if (_camera && _camera->projection() == P_stereoSideBySideD)
@@ -373,6 +377,10 @@ SLbool SLSceneView::onPaint()
         if (testRunIsFinished())
             return false;
     
+    // Init and build GUI
+    s->gui().onInitNewFrame();
+    s->gui().build(s, this);
+
     if (_camera)
     {   // Render the 3D scenegraph by by raytracing, pathtracing or OpenGL
         switch (_renderType)
@@ -384,6 +392,8 @@ SLbool SLSceneView::onPaint()
 
     // Render the 2D GUI (menu etc.)
     draw2DGL();
+
+    ImGui::Render();
 
     _stateGL->unbindAnythingAndFlush();
 
@@ -998,6 +1008,11 @@ SLbool SLSceneView::onMouseDown(SLMouseButton button,
                                 SLint x, SLint y, SLKey mod)
 {
     SLScene* s = SLScene::current;
+
+    if (ImGui::GetIO().WantCaptureMouse)
+    {   s->gui().onMouseDown(button);
+        return false;
+    }
    
     // Check first if mouse down was on a button    
     if (s->menu2D() && s->menu2D()->onMouseDown(button, x, y, mod))
@@ -1040,7 +1055,12 @@ SLbool SLSceneView::onMouseUp(SLMouseButton button,
     if (_raytracer.state()==rtMoveGL)
     {   _renderType = RT_rt;
         _raytracer.state(rtReady);
-    }   
+    }
+
+    if (ImGui::GetIO().WantCaptureMouse)
+    {   s->gui().onMouseUp(button);
+        return false;
+    }
    
     // Check first if mouse up was on a button    
     if (s->menu2D() && s->menu2D()->onMouseUp(button, x, y, mod))
@@ -1067,8 +1087,11 @@ SLbool SLSceneView::onMouseUp(SLMouseButton button,
 SLSceneView::onMouseMove gets called whenever the mouse is moved.
 */
 SLbool SLSceneView::onMouseMove(SLint x, SLint y)
-{     
+{
     SLScene* s = SLScene::current;
+
+    s->gui().onMouseMove(x, y);
+
     if (!s->root3D()) return false;
 
     // save cursor position
@@ -1127,6 +1150,11 @@ SLbool SLSceneView::onMouseWheel(SLint delta, SLKey mod)
 {
     SLScene* s = SLScene::current;
     if (!s->root3D()) return false;
+
+    if (ImGui::GetIO().WantCaptureMouse)
+    {   s->gui().onMouseWheel((SLfloat)delta);
+        return true;
+    }
 
     // Handle mouse wheel in RT mode
     if (_renderType == RT_rt && !_raytracer.continuous() && 
@@ -1274,6 +1302,11 @@ SLbool SLSceneView::onKeyPress(SLKey key, SLKey mod)
 {  
     SLScene* s = SLScene::current;
     if (!s->root3D()) return false;
+
+    if (ImGui::GetIO().WantCaptureKeyboard)
+    {   s->gui().onKeyPress(key, mod);
+        return true;
+    }
     
     if (key == '5') { _camera->unitScaling(_camera->unitScaling()+0.1f); SL_LOG("New unit scaling: %f", _camera->unitScaling()); return true; }
     if (key == '6') { _camera->unitScaling(_camera->unitScaling()-0.1f); SL_LOG("New unit scaling: %f", _camera->unitScaling()); return true; }
@@ -1319,6 +1352,12 @@ SLSceneView::onKeyRelease get called whenever a key is released.
 SLbool SLSceneView::onKeyRelease(SLKey key, SLKey mod)
 {  
     SLScene* s = SLScene::current;
+
+    if (ImGui::GetIO().WantCaptureKeyboard)
+    {   s->gui().onKeyRelease(key, mod);
+        return true;
+    }
+
     if (!s->root3D()) return false;
 
     SLbool result = false;

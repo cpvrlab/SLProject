@@ -50,7 +50,9 @@ SLbool SLFileSystem::fileExists(SLstring& pathfilename)
 {  
     struct stat info;
     if (stat(pathfilename.c_str(), &info) == 0)
+    {
         return true;
+    }
     return false;
 }
 //-----------------------------------------------------------------------------

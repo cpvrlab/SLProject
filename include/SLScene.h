@@ -21,6 +21,7 @@
 #include <SLAnimManager.h>
 #include <SLAverage.h>
 #include <SLCVCalibration.h>
+#include <SLGLImGui.h>
 
 class SLSceneView;
 class SLCVTracker;
@@ -85,6 +86,7 @@ class SLScene: public SLObject
             SLfloat         elapsedTimeMS       () {return _elapsedTimeMS;}
             SLfloat         elapsedTimeSec      () {return _elapsedTimeMS * 0.001f;}
             SLVEventHandler& eventHandlers      () {return _eventHandlers;}
+            SLGLImGui&      gui                 () {return _gui;}
             SLButton*       menu2D              () {return _menu2D;}
             SLButton*       menuGL              () {return _menuGL;}
             SLButton*       menuRT              () {return _menuRT;}
@@ -173,7 +175,8 @@ class SLScene: public SLObject
             SLCol4f         _globalAmbiLight;   //!< global ambient light intensity
             SLbool          _rootInitialized;   //!< Flag if scene is initialized
             SLint           _numProgsPreload;   //!< No. of preloaded shaderProgs
-            
+
+            SLGLImGui       _gui;               //!< ImGui instance
             SLText*         _info;              //!< Text node for scene info
             SLText*         _infoGL;            //!< Root text node for 2D GL stats infos
             SLText*         _infoRT;            //!< Root text node for 2D RT stats infos

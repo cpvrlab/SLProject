@@ -232,11 +232,12 @@ SLScene::~SLScene()
    
     current = nullptr;
 
-
     #ifdef SL_USES_CVCAPTURE
     // release the capture device
     SLCVCapture::release();
     #endif
+
+    _gui.deleteOpenGLObjects();
 
     SL_LOG("Destructor      : ~SLScene\n");
     SL_LOG("------------------------------------------------------------------\n");
@@ -259,9 +260,8 @@ void SLScene::init()
     _draw2DTimesMS.init();
     _trackingTimesMS.init();
     _captureTimesMS.init(200);
-
-    // load virtual cursor texture
     _texCursor = new SLGLTexture("cursor.png");
+    _gui.init();
 }
 //-----------------------------------------------------------------------------
 /*! The scene uninitializing clears the scenegraph (_root3D) and all global
@@ -316,8 +316,7 @@ void SLScene::unInit()
         _trackers.clear();
 
     _videoType = VT_NONE;
-   
-    // clear eventHandlers
+
     _eventHandlers.clear();
 
     _animManager.clear();

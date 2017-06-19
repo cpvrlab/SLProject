@@ -91,6 +91,7 @@ INCLUDEPATH += \
     nvwa \
     randomc \
     zlib \
+    imgui \
 
 HEADERS += \
     glew/include/GL/glew.h \
@@ -103,6 +104,12 @@ HEADERS += \
     Shoemake/Decompose.h \
     Shoemake/EulerAngles.h \
     Shoemake/TypeDefs.h \
+    imgui/imconfig.h \
+    imgui/imgui_internal.h \
+    imgui/imgui.h \
+    imgui/stb_rect_pack.h \
+    imgui/stb_textedit.h \
+    imgui/stb_truetype.h
 
 SOURCES += \
     glew/src/glew.c \
@@ -119,6 +126,9 @@ SOURCES += \
     randomc/mersenne.cpp \
     Shoemake/EulerAngles.cpp \
     Shoemake/Decompose.cpp \
+    imgui/imgui_demo.cpp \
+    imgui/imgui_draw.cpp \
+    imgui/imgui.cpp
 
 macx {
 #Mac OSX only --------------------------------------

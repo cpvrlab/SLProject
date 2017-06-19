@@ -22,6 +22,18 @@
 //! Static global instance for render callback
 SLGLImGui* SLGLImGui::globalInstance = 0; 
 //-----------------------------------------------------------------------------
+//! Function called whan no GUI build function is provided
+void noGuiBuilt(SLScene* s, SLSceneView* sv)
+{
+    static SLbool showOnce = true;
+    if (showOnce)
+    {   ImGui::SetNextWindowSize(ImVec2(200,80), ImGuiSetCond_FirstUseEver);
+        ImGui::Begin("Error", &showOnce);
+        ImGui::Text("There is no GUI build function\nprovided for SLGLImGui::build.");
+        ImGui::End();
+    }
+}
+//-----------------------------------------------------------------------------
 //! Initializes OpenGL handles to zero and sets the ImGui key map
 void SLGLImGui::init(SLint scrW, SLint scrH, SLint fbW, SLint fbH)
 {
@@ -66,15 +78,26 @@ void SLGLImGui::init(SLint scrW, SLint scrH, SLint fbW, SLint fbH)
     io.KeyMap[ImGuiKey_Y]           = 'Y';
     io.KeyMap[ImGuiKey_Z]           = 'Z';
 
+    // The screen size is set again in onResize
     io.DisplaySize = ImVec2((SLfloat)scrW, (SLfloat)scrH);
-    io.DisplayFramebufferScale = ImVec2(fbW > 0 ? ((SLfloat)fbW / scrW) : 0, 
-                                        fbW > 0 ? ((SLfloat)fbH / scrH) : 0);
+    io.DisplayFramebufferScale = ImVec2(1,1);
 
+    // Load different default font
+    SLstring fontFilename = SLGLTexture::defaultPathFonts + "DroidSans.ttf";
+    if (SLFileSystem::fileExists(fontFilename))
+        io.Fonts->AddFontFromFileTTF(fontFilename.c_str(), 16.0f);
+    else SL_LOG("\n*** Error ***: \nFont doesn't exist: %s\n\n",
+                fontFilename.c_str());
+
+    // Pass C render function to ImGui
     io.RenderDrawListsFn = SLGLImGui::imgui_renderFunction;
 
-    //io.Fonts->AddFontFromFileTTF("../../extra_fonts/DroidSans.ttf", 16.0f);
+    // Provide default build function
+    // The build function must be afterwards reassigned
+    build = noGuiBuilt;
 }
 //-----------------------------------------------------------------------------
+//! Static C function the that is provided to ImGui::GetIO().RenderDrawListsFn
 void SLGLImGui::imgui_renderFunction(ImDrawData* draw_data)
 {
     globalInstance->onPaint(draw_data);
@@ -88,6 +111,7 @@ void SLGLImGui::createOpenGLObjects()
     glGetIntegerv(GL_TEXTURE_BINDING_2D, &last_texture);
     glGetIntegerv(GL_ARRAY_BUFFER_BINDING, &last_array_buffer);
     glGetIntegerv(GL_VERTEX_ARRAY_BINDING, &last_vertex_array);
+
     /*
     const GLchar *vertex_shader =
         "uniform mat4 ProjMtx;\n"
@@ -112,6 +136,7 @@ void SLGLImGui::createOpenGLObjects()
         "	gl_FragColor = Frag_Color * texture(Texture, Frag_UV.st);\n"
         "}\n";
     */
+
     const GLchar *vertex_shader =
         "#version 330\n"
         "uniform mat4 ProjMtx;\n"
@@ -261,6 +286,7 @@ void SLGLImGui::onInitNewFrame()
     ImGui::NewFrame();
 }
 //-----------------------------------------------------------------------------
+//! Callback if window got resized
 void SLGLImGui::onResize(SLint scrW, SLint scrH)
 {
     ImGuiIO& io = ImGui::GetIO();

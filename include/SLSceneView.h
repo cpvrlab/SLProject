@@ -164,7 +164,7 @@ class SLSceneView: public SLObject
             void            gotPainted          (SLbool val) {_gotPainted = val;}
 
             // Getters
-            SLuint          index               () const {return _index;}
+    inline  SLuint          index               () const {return _index;}
     inline  SLCamera*       camera              () {return _camera;}
     inline  SLCamera*       sceneViewCamera     () {return &_sceneViewCamera;}
     inline  SLint           scrW                () const {return _scrW;}
@@ -173,31 +173,31 @@ class SLSceneView: public SLObject
     inline  SLint           scrHdiv2            () const {return _scrHdiv2;}
     inline  SLfloat         scrWdivH            () const {return _scrWdivH;}
     inline  SLQuat4f        deviceRotation      () const {return _deviceRotation;}
-            SLbool          gotPainted          () const {return _gotPainted;}
-            SLbool          doFrustumCulling    () const {return _doFrustumCulling;}
-            SLbool          hasMultiSampling    () const {return _stateGL->hasMultiSampling();}
-            SLbool          doMultiSampling     () const {return _doMultiSampling;}
-            SLbool          doDepthTest         () const {return _doDepthTest;}
-            SLbool          usesRotation        () const {return _usesRotation;}
-            SLbool          waitEvents          () const {return _waitEvents;}
-            SLbool          showStatsTiming     () const {return _showStatsTiming;}
-            SLbool          showStatsRenderer   () const {return _showStatsRenderer;}
-            SLbool          showStatsScene      () const {return _showStatsScene;}
-            SLbool          showStatsCamera     () const {return _showStatsCamera;}
-            SLbool          showStatsVideo      () const {return _showStatsVideo;}
-            SLbool          showInfo            () const {return _showInfo;}
-            SLbool          showMenu            () const {return _showMenu;}
-            SLVNode*        visibleNodes        () {return &_visibleNodes;}
-            SLVNode*        blendNodes          () {return &_blendNodes;}
-            SLRaytracer*    raytracer           () {return &_raytracer;}
-            SLPathtracer*   pathtracer          () {return &_pathtracer;}
-            SLRenderType    renderType          () const {return _renderType;}
-            SLGLOculusFB*   oculusFB            () {return &_oculusFB;}
-            SLDrawBits*     drawBits            () {return &_drawBits;}
-            SLbool          drawBit             (SLuint bit) {return _drawBits.get(bit);}
-            SLfloat         cullTimeMS          () const {return _cullTimeMS;}
-            SLfloat         draw3DTimeMS        () const {return _draw3DTimeMS;}
-            SLfloat         draw2DTimeMS        () const {return _draw2DTimeMS;}
+    inline  SLbool          gotPainted          () const {return _gotPainted;}
+    inline  SLbool          doFrustumCulling    () const {return _doFrustumCulling;}
+    inline  SLbool          hasMultiSampling    () const {return _stateGL->hasMultiSampling();}
+    inline  SLbool          doMultiSampling     () const {return _doMultiSampling;}
+    inline  SLbool          doDepthTest         () const {return _doDepthTest;}
+    inline  SLbool          usesRotation        () const {return _usesRotation;}
+    inline  SLbool          waitEvents          () const {return _waitEvents;}
+    inline  SLbool          showStatsTiming     () const {return _showStatsTiming;}
+    inline  SLbool          showStatsRenderer   () const {return _showStatsRenderer;}
+    inline  SLbool          showStatsScene      () const {return _showStatsScene;}
+    inline  SLbool          showStatsCamera     () const {return _showStatsCamera;}
+    inline  SLbool          showStatsVideo      () const {return _showStatsVideo;}
+    inline  SLbool          showInfo            () const {return _showInfo;}
+    inline  SLbool          showMenu            () const {return _showMenu;}
+    inline  SLVNode*        visibleNodes        () {return &_visibleNodes;}
+    inline  SLVNode*        blendNodes          () {return &_blendNodes;}
+    inline  SLRaytracer*    raytracer           () {return &_raytracer;}
+    inline  SLPathtracer*   pathtracer          () {return &_pathtracer;}
+    inline  SLRenderType    renderType          () const {return _renderType;}
+    inline  SLGLOculusFB*   oculusFB            () {return &_oculusFB;}
+    inline  SLDrawBits*     drawBits            () {return &_drawBits;}
+    inline  SLbool          drawBit             (SLuint bit) {return _drawBits.get(bit);}
+    inline  SLfloat         cullTimeMS          () const {return _cullTimeMS;}
+    inline  SLfloat         draw3DTimeMS        () const {return _draw3DTimeMS;}
+    inline  SLfloat         draw2DTimeMS        () const {return _draw2DTimeMS;}
 
     static const SLint      LONGTOUCH_MS;       //!< Milliseconds duration of a long touch event
 
