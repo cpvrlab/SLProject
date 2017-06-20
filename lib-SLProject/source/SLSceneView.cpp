@@ -2242,7 +2242,7 @@ void SLSceneView::build2DMsgBoxes()
    
     // Help button
     if (s->btnHelp()) delete s->btnHelp();
-    s->btnHelp(new SLButton(this, s->infoHelp(), f,
+    s->btnHelp(new SLButton(this, SL::infoHelp, f,
                             C_aboutToggle, false, false, 0, true,
                             _scrW - 2*SLButton::minMenuPos.x, 0.0f,
                             SLCol3f::COLBFH, 0.8f, TA_centerCenter));
@@ -2255,7 +2255,7 @@ void SLSceneView::build2DMsgBoxes()
    
     // About button
     if (s->btnAbout()) delete s->btnAbout();
-    s->btnAbout(new SLButton(this, s->infoAbout(), f,
+    s->btnAbout(new SLButton(this, SL::infoAbout, f,
                              C_aboutToggle, false, false, 0, true,
                              _scrW - 2*SLButton::minMenuPos.x, 0.0f,
                              SLCol3f::COLBFH, 0.8f, TA_centerCenter));
@@ -2268,7 +2268,7 @@ void SLSceneView::build2DMsgBoxes()
    
     // Credits button
     if (s->btnCredits()) delete s->btnCredits();
-    s->btnCredits(new SLButton(this, s->infoCredits(), f,
+    s->btnCredits(new SLButton(this, SL::infoCredits, f,
                                C_aboutToggle, false, false, 0, true,
                                _scrW - 2*SLButton::minMenuPos.x, 0.0f,
                                SLCol3f::COLBFH, 0.8f, TA_centerCenter));
@@ -2281,7 +2281,7 @@ void SLSceneView::build2DMsgBoxes()
    
     // No calibration button
     if (s->btnCalibration()) delete s->btnCalibration();
-    s->btnCalibration(new SLButton(this, s->infoCalibration(), f,
+    s->btnCalibration(new SLButton(this, SL::infoCalibrate, f,
                                    C_removeInfoCalib, false, false, 0, true,
                                    _scrW - 2*SLButton::minMenuPos.x, 0.0f,
                                    SLCol3f::COLBFH, 0.8f, TA_centerCenter));

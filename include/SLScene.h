@@ -95,10 +95,6 @@ class SLScene: public SLObject
             SLButton*       btnHelp             () {return _btnHelp;}
             SLButton*       btnCredits          () {return _btnCredits;}
             SLButton*       btnCalibration      () {return _btnCalibration;}
-            SLstring        infoAbout           () const {return _infoAbout;}
-            SLstring        infoCredits         () const {return _infoCredits;}
-            SLstring        infoHelp            () const {return _infoHelp;}
-            SLstring        infoCalibration     () const {return _infoCalibrate;}
             SLText*         info                (SLSceneView* sv);
             SLText*         info                () {return _info;}
             SLText*         infoGL              () {return _infoGL;}
@@ -181,10 +177,6 @@ class SLScene: public SLObject
             SLText*         _infoGL;            //!< Root text node for 2D GL stats infos
             SLText*         _infoRT;            //!< Root text node for 2D RT stats infos
             SLText*         _infoLoading;       //!< Root text node for 2D loading text
-            SLstring        _infoAbout;         //!< About info text
-            SLstring        _infoCredits;       //!< Credits info text
-            SLstring        _infoHelp;          //!< Help info text
-            SLstring        _infoCalibrate;     //!< No calibration info text
 
             SLButton*       _menu2D;            //!< Root button node for 2D GUI
             SLButton*       _menuGL;            //!< Root button node for OpenGL menu

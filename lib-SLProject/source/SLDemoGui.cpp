@@ -22,9 +22,42 @@
 #include <imgui.h>
 
 //-----------------------------------------------------------------------------
+SLbool SLDemoGui::showAbout = false;
+SLbool SLDemoGui::showHelp = false;
+SLbool SLDemoGui::showHelpCalibration = false;
+SLbool SLDemoGui::showCredits = false;
+//-----------------------------------------------------------------------------
 void SLDemoGui::buildDemoGui(SLScene* s, SLSceneView* sv)
 {
     buildMenuBar(s, sv);
+    buildStatsWnd(s, sv);
+
+    if (showAbout)
+    {
+        ImGui::Begin("About SLProject", &showAbout, ImVec2(400,0));
+        ImGui::Text("Version %s", SL::version.c_str());
+        ImGui::Separator();
+        ImGui::TextWrapped(SL::infoAbout.c_str());
+        ImGui::End();
+    }
+    if (showHelp)
+    {
+        ImGui::Begin("About SLProject Interaction", &showHelp, ImVec2(400,0));
+        ImGui::TextWrapped(SL::infoHelp.c_str());
+        ImGui::End();
+    }
+    if (showHelpCalibration)
+    {
+        ImGui::Begin("About Camera Calibration", &showHelpCalibration, ImVec2(400,0));
+        ImGui::TextWrapped(SL::infoCalibrate.c_str());
+        ImGui::End();
+    }
+    if (showCredits)
+    {
+        ImGui::Begin("Credits for all Helpers", &showCredits, ImVec2(400,0));
+        ImGui::TextWrapped(SL::infoCredits.c_str());
+        ImGui::End();
+    }
 }
 
 //-----------------------------------------------------------------------------
@@ -423,12 +456,26 @@ void SLDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
 
         if (ImGui::BeginMenu("Help"))
         {
-
+            ImGui::MenuItem("About SLProject", 0, &showAbout);
+            ImGui::MenuItem("Help on Interaction", 0, &showHelp);
+            ImGui::MenuItem("Help on Calibration", 0, &showHelpCalibration);
+            ImGui::MenuItem("Credits", 0, &showCredits);
 
             ImGui::EndMenu();
         }
 
         ImGui::EndMainMenuBar();
     }
+}
+//-----------------------------------------------------------------------------
+void SLDemoGui::buildStatsWnd(SLScene* s, SLSceneView* sv)
+{
+    if(!showStatsCamera &&
+       !showStatsRenderer &&
+       !showStatsScene &&
+       !showStatsTiming &&
+       !showStatsVideo) return;
+
+
 }
 //-----------------------------------------------------------------------------

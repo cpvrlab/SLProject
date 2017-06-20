@@ -135,45 +135,7 @@ SLScene::SLScene(SLstring name) : SLObject(name)
 
     _oculus.init();
 
-    _infoAbout =
-"Welcome to the SLProject demo app (v2.0.019). It is developed at the \
-Computer Science Department of the Bern University of Applied Sciences. \
-The app shows what you can learn in one semester about 3D computer graphics \
-in real time rendering and ray tracing. The framework is developed \
-in C++ with OpenGL ES so that it can run also on mobile devices. \
-Ray tracing provides in addition high quality transparencies, reflections and soft shadows. \
-Click to close and use the menu to choose different scenes and view settings. \
-For more information please visit: https://github.com/cpvrlab/SLProject";
-
-    _infoCredits =
-"Contributors since 2005 in alphabetic order: Martin Christen, Manuel Frischknecht, Michael \
-Goettlicher, Timo Tschanz, Marc Wacker, Pascal Zingg \\n\\n\
-Credits for external libraries: \\n\
-- assimp: assimp.sourceforge.net \\n\
-- glew: glew.sourceforge.net \\n\
-- glfw: www.glfw.org \\n\
-- OpenCV: opencv.org \\n\
-- OpenGL: opengl.org \\n\
-- Qt: www.qt-project.org";
-
-    _infoHelp =
-"Help for mouse or finger control: \\n\
-- Use mouse or your finger to rotate the scene \\n\
-- Use mouse-wheel or pinch 2 fingers to go forward/backward \\n\
-- Use CTRL-mouse or 2 fingers to move sidewards/up-down \\n\
-- Double click or double tap to select object";
-
-    _infoCalibrate =
-"The calibration process requires a chessboard image to be printed \
-and glued on a flat board. You can find the PDF with the chessboard image on: \\n\
-https://github.com/cpvrlab/SLProject/tree/master/_data/calibrations/ \\n\\n\
-For a calibration you have to take 20 images with detected inner \
-chessboard corners. To take an image you have to click with the mouse \
-or tap with finger into the screen. You can mirror the video image under \
-Preferences > Video. \\n\
-After calibration the yellow wireframe cube should stick on the chessboard.";
-
-   _gui.init();
+    _gui.init();
 }
 //-----------------------------------------------------------------------------
 /*! The destructor does the final total deallocation of all global resources.
