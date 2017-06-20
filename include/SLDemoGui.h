@@ -20,19 +20,18 @@ class SLSceneView;
 class SLDemoGui
 {
     public:
-    static void buildDemoGui(SLScene* s, SLSceneView* sv);
-    static void buildMenuBar(SLScene* s, SLSceneView* sv);
-    static void buildStatsWnd(SLScene* s, SLSceneView* sv);
+    static void     buildDemoGui        (SLScene* s, SLSceneView* sv);
+    static void     buildMenuBar        (SLScene* s, SLSceneView* sv);
 
-    static SLbool showAbout;
-    static SLbool showHelp;
-    static SLbool showHelpCalibration;
-    static SLbool showCredits;
-    static SLbool showStatsTiming;
-    static SLbool showStatsRenderer;
-    static SLbool showStatsCamera;
-    static SLbool showStatsScene;
-    static SLbool showStatsVideo;
+    static SLbool   showAbout;
+    static SLbool   showHelp;
+    static SLbool   showHelpCalibration;
+    static SLbool   showCredits;
+    static SLbool   showStatsTiming;
+    static SLbool   showStatsRenderer;
+    static SLbool   showStatsCamera;
+    static SLbool   showStatsScene;
+    static SLbool   showStatsVideo;
 };
 //-----------------------------------------------------------------------------
 #endif

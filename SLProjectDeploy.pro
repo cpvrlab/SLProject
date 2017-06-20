@@ -76,6 +76,7 @@ fonts.files =  \
   ../_data/images/fonts/Font22.png \
   ../_data/images/fonts/Font24.png \
   ../_data/images/fonts/DroidSans.ttf \
+  ../_data/images/fonts/ProggyClean.ttf \
 
 shaders.files = \
   ../_data/shaders/BumpNormal.frag \

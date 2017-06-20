@@ -26,11 +26,14 @@ SLbool SLDemoGui::showAbout = false;
 SLbool SLDemoGui::showHelp = false;
 SLbool SLDemoGui::showHelpCalibration = false;
 SLbool SLDemoGui::showCredits = false;
+SLbool SLDemoGui::showStatsTiming = false;
+SLbool SLDemoGui::showStatsRenderer = false;
+SLbool SLDemoGui::showStatsScene = false;
+SLbool SLDemoGui::showStatsVideo = false;
 //-----------------------------------------------------------------------------
 void SLDemoGui::buildDemoGui(SLScene* s, SLSceneView* sv)
 {
     buildMenuBar(s, sv);
-    buildStatsWnd(s, sv);
 
     if (showAbout)
     {
@@ -40,31 +43,87 @@ void SLDemoGui::buildDemoGui(SLScene* s, SLSceneView* sv)
         ImGui::TextWrapped(SL::infoAbout.c_str());
         ImGui::End();
     }
+
     if (showHelp)
     {
         ImGui::Begin("About SLProject Interaction", &showHelp, ImVec2(400,0));
         ImGui::TextWrapped(SL::infoHelp.c_str());
         ImGui::End();
     }
+
     if (showHelpCalibration)
     {
         ImGui::Begin("About Camera Calibration", &showHelpCalibration, ImVec2(400,0));
         ImGui::TextWrapped(SL::infoCalibrate.c_str());
         ImGui::End();
     }
+
     if (showCredits)
     {
         ImGui::Begin("Credits for all Helpers", &showCredits, ImVec2(400,0));
         ImGui::TextWrapped(SL::infoCredits.c_str());
         ImGui::End();
     }
-}
 
+    if (showStatsTiming)
+    {
+        SLRenderType rType = sv->renderType();
+        SLCamera* cam = sv->camera();
+        SLfloat ft = s->frameTimesMS().average()*100.0f;
+        SLchar m[2550];   // message character array
+        m[0]=0;           // set zero length
+
+        if (rType == RT_gl)
+        {
+            SLfloat updateTimePC    = SL_clamp(s->updateTimesMS().average()   / ft, 0.0f,100.0f);
+            SLfloat trackingTimePC  = SL_clamp(s->trackingTimesMS().average() / ft, 0.0f,100.0f);
+            SLfloat cullTimePC      = SL_clamp(s->cullTimesMS().average()     / ft, 0.0f,100.0f);
+            SLfloat draw3DTimePC    = SL_clamp(s->draw3DTimesMS().average()   / ft, 0.0f,100.0f);
+            SLfloat draw2DTimePC    = SL_clamp(s->draw2DTimesMS().average()   / ft, 0.0f,100.0f);
+            SLfloat captureTimePC   = SL_clamp(s->captureTimesMS().average()  / ft, 0.0f,100.0f);
+
+            sprintf(m+strlen(m), "FPS: %4.1f  (Size: %d x %d, DPI: %d)\n", s->fps(), sv->scrW(), sv->scrH(), SL::dpi);
+            sprintf(m+strlen(m), "Frame Time : %4.1f ms (100%%)\n", s->frameTimesMS().average());
+            sprintf(m+strlen(m), "Update Time : %4.1f ms (%0.0f%%)\n", s->updateTimesMS().average(), updateTimePC);
+            sprintf(m+strlen(m), "> Tracking Time: %4.1f ms (%0.0f%%)\n", s->trackingTimesMS().average(), trackingTimePC);
+            sprintf(m+strlen(m), "Culling Time : %4.1f ms (%0.0f%%)\n", s->cullTimesMS().average(), cullTimePC);
+            sprintf(m+strlen(m), "Draw Time 3D: %4.1f ms (%0.0f%%)\n", s->draw3DTimesMS().average(), draw3DTimePC);
+            sprintf(m+strlen(m), "Draw Time 2D: %4.1f ms (%0.0f%%)\n", s->draw2DTimesMS().average(), draw2DTimePC);
+            #ifdef SL_GLSL
+            sprintf(m+strlen(m), "Capture Time: %4.1f ms\n", s->captureTimesMS().average());
+            #else
+            sprintf(m+strlen(m), "Capture Time: %4.1f ms (%0.0f%%)\n", s->captureTimesMS().average(), captureTimePC);
+            #endif
+            sprintf(m+strlen(m), "NO. of drawcalls: %d\n", SLGLVertexArray::totalDrawCalls);
+
+            ImGui::Begin("Timing for OpenGL Renderer", &showStatsTiming, ImVec2(400,0));
+            ImGui::TextWrapped(m);
+            ImGui::End();
+
+        } else
+        if (rType == RT_rt)
+        {
+            SLRaytracer* rt = sv->raytracer();
+            SLint primaries = sv->scrW() * sv->scrH();
+            SLuint total = primaries + SLRay::reflectedRays + SLRay::subsampledRays + SLRay::refractedRays + SLRay::shadowRays;
+            SLfloat rpms = rt->renderSec() ? total/rt->renderSec()/1000.0f : 0.0f;
+            sprintf(m+strlen(m), "Timing -------------------------------------\\n");
+            sprintf(m+strlen(m), "Scene: %s\\n", s->name().c_str());
+            sprintf(m+strlen(m), "Time per frame: %4.2f sec.  (Size: %d x %d)\\n", rt->renderSec(), sv->scrW(), sv->scrH());
+            sprintf(m+strlen(m), "fov: %4.2f\\n", cam->fov());
+            sprintf(m+strlen(m), "Focal dist. (f): %4.2f\\n", cam->focalDist());
+            sprintf(m+strlen(m), "Rays per millisecond: %6.0f\\n", rpms);
+            sprintf(m+strlen(m), "Threads: %d\\n", rt->numThreads());
+        }
+    }
+
+
+}
 //-----------------------------------------------------------------------------
 void SLDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
 {
     SLCommand curS = SL::currentSceneID;
-    SLRenderType type = sv->renderType();
+    SLRenderType rType = sv->renderType();
 
     if (ImGui::BeginMainMenuBar())
     {
@@ -222,19 +281,19 @@ void SLDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
 
         if (ImGui::BeginMenu("Renderer"))
         {
-            if (ImGui::MenuItem("OpenGL", 0, type==RT_gl))
+            if (ImGui::MenuItem("OpenGL", 0, rType==RT_gl))
                 sv->onCommand(C_renderOpenGL);
 
-            if (ImGui::MenuItem("Ray Tracing", 0, type==RT_rt))
+            if (ImGui::MenuItem("Ray Tracing", 0, rType==RT_rt))
                 sv->onCommand(C_rt5);
 
-            if (ImGui::MenuItem("Path Tracing", 0, type==RT_pt))
+            if (ImGui::MenuItem("Path Tracing", 0, rType==RT_pt))
                 sv->onCommand(C_pt10);
 
             ImGui::EndMenu();
         }
 
-        if (type == RT_gl)
+        if (rType == RT_gl)
         {
             if (ImGui::BeginMenu("Render Flags"))
             {
@@ -280,7 +339,7 @@ void SLDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
                 ImGui::EndMenu();
             }
         }
-        else if (type == RT_rt)
+        else if (rType == RT_rt)
         {
             if (ImGui::BeginMenu("RT Settings"))
             {
@@ -330,7 +389,7 @@ void SLDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
                 ImGui::EndMenu();
             }
         }
-        else if (type == RT_pt)
+        else if (rType == RT_pt)
         {
             if (ImGui::BeginMenu("PT Settings"))
             {
@@ -454,11 +513,12 @@ void SLDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
             ImGui::EndMenu();
         }
 
-        if (ImGui::BeginMenu("Help"))
+        if (ImGui::BeginMenu("Infos"))
         {
-            ImGui::MenuItem("About SLProject", 0, &showAbout);
+            ImGui::MenuItem("Stats on Timing", 0, &showStatsTiming);
             ImGui::MenuItem("Help on Interaction", 0, &showHelp);
             ImGui::MenuItem("Help on Calibration", 0, &showHelpCalibration);
+            ImGui::MenuItem("About SLProject", 0, &showAbout);
             ImGui::MenuItem("Credits", 0, &showCredits);
 
             ImGui::EndMenu();
@@ -466,16 +526,5 @@ void SLDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
 
         ImGui::EndMainMenuBar();
     }
-}
-//-----------------------------------------------------------------------------
-void SLDemoGui::buildStatsWnd(SLScene* s, SLSceneView* sv)
-{
-    if(!showStatsCamera &&
-       !showStatsRenderer &&
-       !showStatsScene &&
-       !showStatsTiming &&
-       !showStatsVideo) return;
-
-
 }
 //-----------------------------------------------------------------------------
