@@ -74,14 +74,12 @@ void SLGLImGui::init(SLint scrW, SLint scrH, SLint fbW, SLint fbH)
     SLstring DroidSans = SLGLTexture::defaultPathFonts + "DroidSans.ttf";
     if (SLFileSystem::fileExists(DroidSans))
         io.Fonts->AddFontFromFileTTF(DroidSans.c_str(), 16.0f);
-    else SL_LOG("\n*** Error ***: \nFont doesn't exist: %s\n\n",
-                DroidSans.c_str());
+    else SL_LOG("\n*** Error ***: \nFont doesn't exist: %s\n\n", DroidSans.c_str());
 
     SLstring ProggyClean = SLGLTexture::defaultPathFonts + "ProggyClean.ttf";
     if (SLFileSystem::fileExists(ProggyClean))
-        io.Fonts->AddFontFromFileTTF(ProggyClean.c_str(), 16.0f);
-    else SL_LOG("\n*** Error ***: \nFont doesn't exist: %s\n\n",
-                ProggyClean.c_str());
+        io.Fonts->AddFontFromFileTTF(ProggyClean.c_str(), 13.0f);
+    else SL_LOG("\n*** Error ***: \nFont doesn't exist: %s\n\n", ProggyClean.c_str());
 
     // Pass C render function to ImGui
     io.RenderDrawListsFn = SLGLImGui::imgui_renderFunction;

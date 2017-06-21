@@ -20,6 +20,17 @@ class SLScene;
 class SLSceneView;
 
 //-----------------------------------------------------------------------------
+//! ImGui Interface class for forwarding all events to the ImGui Handlers
+/*! ImGui is a super easy GUI library for the rendering of a UI with OpenGL.
+For more information see: https://github.com/ocornut/imgui\n
+\n
+This class provides only the interface into ImGui. In the event handlers of
+SLSceneView the according callback in ImGui is called.\n
+There is no UI drawn with this class. It must be defined in another class
+that provides the build function. For the Demo apps this is done in the class
+SLDemoGui and the build function is passed e.g. in glfwMain function of the
+app-Demo-GLFW project.
+*/
 class SLGLImGui
 {
     public:

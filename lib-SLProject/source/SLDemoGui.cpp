@@ -25,6 +25,7 @@
 SLbool SLDemoGui::showAbout = false;
 SLbool SLDemoGui::showHelp = false;
 SLbool SLDemoGui::showHelpCalibration = false;
+SLbool SLDemoGui::showStatsCamera = false;
 SLbool SLDemoGui::showCredits = false;
 SLbool SLDemoGui::showStatsTiming = false;
 SLbool SLDemoGui::showStatsRenderer = false;
@@ -73,30 +74,33 @@ void SLDemoGui::buildDemoGui(SLScene* s, SLSceneView* sv)
         SLchar m[2550];   // message character array
         m[0]=0;           // set zero length
 
+        // Switch to fixed font
+        ImGui::PushFont(ImGui::GetIO().Fonts->Fonts[1]);
+
         if (rType == RT_gl)
         {
             SLfloat updateTimePC    = SL_clamp(s->updateTimesMS().average()   / ft, 0.0f,100.0f);
             SLfloat trackingTimePC  = SL_clamp(s->trackingTimesMS().average() / ft, 0.0f,100.0f);
             SLfloat cullTimePC      = SL_clamp(s->cullTimesMS().average()     / ft, 0.0f,100.0f);
             SLfloat draw3DTimePC    = SL_clamp(s->draw3DTimesMS().average()   / ft, 0.0f,100.0f);
-            SLfloat draw2DTimePC    = SL_clamp(s->draw2DTimesMS().average()   / ft, 0.0f,100.0f);
             SLfloat captureTimePC   = SL_clamp(s->captureTimesMS().average()  / ft, 0.0f,100.0f);
 
-            sprintf(m+strlen(m), "FPS: %4.1f  (Size: %d x %d, DPI: %d)\n", s->fps(), sv->scrW(), sv->scrH(), SL::dpi);
-            sprintf(m+strlen(m), "Frame Time : %4.1f ms (100%%)\n", s->frameTimesMS().average());
-            sprintf(m+strlen(m), "Update Time : %4.1f ms (%0.0f%%)\n", s->updateTimesMS().average(), updateTimePC);
-            sprintf(m+strlen(m), "> Tracking Time: %4.1f ms (%0.0f%%)\n", s->trackingTimesMS().average(), trackingTimePC);
-            sprintf(m+strlen(m), "Culling Time : %4.1f ms (%0.0f%%)\n", s->cullTimesMS().average(), cullTimePC);
-            sprintf(m+strlen(m), "Draw Time 3D: %4.1f ms (%0.0f%%)\n", s->draw3DTimesMS().average(), draw3DTimePC);
-            sprintf(m+strlen(m), "Draw Time 2D: %4.1f ms (%0.0f%%)\n", s->draw2DTimesMS().average(), draw2DTimePC);
+            sprintf(m+strlen(m), "Renderer      : OpenGL\n");
+            sprintf(m+strlen(m), "Frame size/DPI: %d x %d / %d\n", sv->scrW(), sv->scrH(), SL::dpi);
+            sprintf(m+strlen(m), "Frames per s. : %4.1f\n", s->fps());
+            sprintf(m+strlen(m), "Frame time    : %4.1f ms (100%)\n", s->frameTimesMS().average());
+            sprintf(m+strlen(m), "- Update      : %4.1f ms (%d)\n", s->updateTimesMS().average(), (SLint)updateTimePC);
+            sprintf(m+strlen(m), "- Tracking    : %4.1f ms (%d)\n", s->trackingTimesMS().average(), (SLint)trackingTimePC);
+            sprintf(m+strlen(m), "- Culling     : %4.1f ms (%d)\n", s->cullTimesMS().average(), (SLint)cullTimePC);
+            sprintf(m+strlen(m), "- Drawing     : %4.1f ms (%d)\n", s->draw3DTimesMS().average(), (SLint)draw3DTimePC);
             #ifdef SL_GLSL
-            sprintf(m+strlen(m), "Capture Time: %4.1f ms\n", s->captureTimesMS().average());
+            sprintf(m+strlen(m), "- Capture     : %4.1f ms\n", s->captureTimesMS().average());
             #else
-            sprintf(m+strlen(m), "Capture Time: %4.1f ms (%0.0f%%)\n", s->captureTimesMS().average(), captureTimePC);
+            sprintf(m+strlen(m), "- Capture     : %4.1f ms (%0.0f%%)\n", s->captureTimesMS().average(), captureTimePC);
             #endif
-            sprintf(m+strlen(m), "NO. of drawcalls: %d\n", SLGLVertexArray::totalDrawCalls);
+            sprintf(m+strlen(m), "NO. drawcalls : %d\n", SLGLVertexArray::totalDrawCalls);
 
-            ImGui::Begin("Timing for OpenGL Renderer", &showStatsTiming, ImVec2(400,0));
+            ImGui::Begin("Timing", &showStatsTiming, ImVec2(300,0));
             ImGui::TextWrapped(m);
             ImGui::End();
 
@@ -107,16 +111,20 @@ void SLDemoGui::buildDemoGui(SLScene* s, SLSceneView* sv)
             SLint primaries = sv->scrW() * sv->scrH();
             SLuint total = primaries + SLRay::reflectedRays + SLRay::subsampledRays + SLRay::refractedRays + SLRay::shadowRays;
             SLfloat rpms = rt->renderSec() ? total/rt->renderSec()/1000.0f : 0.0f;
-            sprintf(m+strlen(m), "Timing -------------------------------------\\n");
-            sprintf(m+strlen(m), "Scene: %s\\n", s->name().c_str());
-            sprintf(m+strlen(m), "Time per frame: %4.2f sec.  (Size: %d x %d)\\n", rt->renderSec(), sv->scrW(), sv->scrH());
-            sprintf(m+strlen(m), "fov: %4.2f\\n", cam->fov());
-            sprintf(m+strlen(m), "Focal dist. (f): %4.2f\\n", cam->focalDist());
-            sprintf(m+strlen(m), "Rays per millisecond: %6.0f\\n", rpms);
-            sprintf(m+strlen(m), "Threads: %d\\n", rt->numThreads());
-        }
-    }
+            sprintf(m+strlen(m), "Renderer      : Ray Tracer\n");
+            sprintf(m+strlen(m), "Frame size/DPI: %d x %d / %d\n", sv->scrW(), sv->scrH(), SL::dpi);
+            sprintf(m+strlen(m), "Frames per s. : %4.1f\n", s->fps());
+            sprintf(m+strlen(m), "Frame Time    : %4.2f sec.  (Size: %d x %d)\n", rt->renderSec(), sv->scrW(), sv->scrH());
+            sprintf(m+strlen(m), "Rays per ms   : %6.0f\n", rpms);
+            sprintf(m+strlen(m), "Threads       : %d\n", rt->numThreads());
 
+            ImGui::Begin("Timing", &showStatsTiming, ImVec2(300,0));
+            ImGui::TextWrapped(m);
+            ImGui::End();
+        }
+
+        ImGui::PopFont();
+    }
 
 }
 //-----------------------------------------------------------------------------
@@ -250,10 +258,10 @@ void SLDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
                 if (ImGui::BeginMenu("Rendering"))
                 {
                     if (ImGui::MenuItem("Slow down on Idle", 0, sv->waitEvents()))
-                        sv->onCommand(C_multiSampleToggle);
+                        sv->onCommand(C_waitEventsToggle);
 
                     if (ImGui::MenuItem("Do Multi Sampling", 0, sv->doMultiSampling()))
-                        sv->onCommand(C_waitEventsToggle);
+                        sv->onCommand(C_multiSampleToggle);
 
                     if (ImGui::MenuItem("Do Frustum Culling", 0, sv->doFrustumCulling()))
                         sv->onCommand(C_frustCullToggle);
@@ -321,7 +329,7 @@ void SLDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
                 if (ImGui::MenuItem("Textures off", 0, sv->drawBits()->get(SL_DB_TEXOFF)))
                     sv->onCommand(C_textureToggle);
 
-                if (ImGui::MenuItem("All Off"))
+                if (ImGui::MenuItem("All off"))
                     sv->drawBits()->allOff();
 
                 if (ImGui::MenuItem("All on"))

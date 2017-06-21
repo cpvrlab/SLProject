@@ -182,12 +182,6 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
     // Initialize all preloaded stuff from SLScene
     init();
 
-    // Show once the empty loading screen without scene
-    // @todo review this, we still pass in the active scene view with sv. Is it necessary?
-    for (auto sv : _sceneViews)
-        if (sv != nullptr)
-            sv->showLoading(true);
-
     // Override input scene if test scene is required
     SL::currentSceneID = (SL::noTestIsRunning()) ? sceneName :
                           SL::singleTestIsRunning() ? SL::testScene : SL::testSceneAll;
@@ -2657,12 +2651,6 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
     if (!SL::noTestIsRunning())
     {
         sv->showInfo(false);
-        sv->showMenu(false);
-        sv->showStatsTiming(false);
-        sv->showStatsRenderer(false);
-        sv->showStatsScene(false);
-        sv->showStatsCamera(false);
-        sv->showStatsVideo(false);
         sv->waitEvents(false);
     }
 
@@ -2670,7 +2658,6 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
     for (auto sv : _sceneViews)
     {   if (sv != nullptr)
         {   sv->onInitialize();
-            sv->showLoading(false);
         }
     }
 

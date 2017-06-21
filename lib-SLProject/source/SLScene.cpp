@@ -672,7 +672,6 @@ void SLScene::onLoadAsset(SLstring assetFile,
     for (auto sv : _sceneViews)
     {   if (sv != nullptr)
         {   sv->onInitialize();
-            sv->showLoading(false);
         }
     }
 }

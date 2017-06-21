@@ -129,12 +129,6 @@ class SLSceneView: public SLObject
             SLbool          isSceneViewCameraActive() {return _camera == &_sceneViewCamera;}
 
             // Misc.
-            void            rebuild2DMenus      (SLbool showAboutFirst=false);
-            void            build2DMenus        ();
-            void            build2DInfoGL       ();
-            void            build2DInfoRT       ();
-            void            build2DInfoLoading  ();
-            void            build2DMsgBoxes     ();
             SLstring        windowTitle         ();
             void            startRaytracing     (SLint maxDepth);
             void            startPathtracing    (SLint maxDepth, SLint samples);
@@ -153,14 +147,7 @@ class SLSceneView: public SLObject
             void            waitEvents          (SLbool wait){_waitEvents = wait;}
             void            usesRotation        (SLbool use){_usesRotation = use;}
             void            showLoading         (SLbool showLoading);
-            void            showMenu            (SLbool show){_showMenu = show;
-                                                              SLScene::current->menu2D(SLScene::current->menuGL());}
             void            showInfo            (SLbool show) {_showInfo = show;}
-            void            showStatsTiming     (SLbool show) {_showStatsTiming = show;}
-            void            showStatsRenderer   (SLbool show) {_showStatsRenderer = show;}
-            void            showStatsScene      (SLbool show) {_showStatsScene = show;}
-            void            showStatsCamera     (SLbool show) {_showStatsCamera = show;}
-            void            showStatsVideo      (SLbool show) {_showStatsVideo = show;}
             void            gotPainted          (SLbool val) {_gotPainted = val;}
 
             // Getters
@@ -180,13 +167,7 @@ class SLSceneView: public SLObject
     inline  SLbool          doDepthTest         () const {return _doDepthTest;}
     inline  SLbool          usesRotation        () const {return _usesRotation;}
     inline  SLbool          waitEvents          () const {return _waitEvents;}
-    inline  SLbool          showStatsTiming     () const {return _showStatsTiming;}
-    inline  SLbool          showStatsRenderer   () const {return _showStatsRenderer;}
-    inline  SLbool          showStatsScene      () const {return _showStatsScene;}
-    inline  SLbool          showStatsCamera     () const {return _showStatsCamera;}
-    inline  SLbool          showStatsVideo      () const {return _showStatsVideo;}
     inline  SLbool          showInfo            () const {return _showInfo;}
-    inline  SLbool          showMenu            () const {return _showMenu;}
     inline  SLVNode*        visibleNodes        () {return &_visibleNodes;}
     inline  SLVNode*        blendNodes          () {return &_blendNodes;}
     inline  SLRaytracer*    raytracer           () {return &_raytracer;}
@@ -220,14 +201,7 @@ class SLSceneView: public SLObject
             SLbool          _usesRotation;      //!< Flag if device rotation is used
             SLDrawBits      _drawBits;          //!< Sceneview level drawing flags
 
-            SLbool          _showStatsTiming;   //!< Flag if timing stats should be displayed
-            SLbool          _showStatsRenderer; //!< Flag if GL or RT stats should be displayed
-            SLbool          _showStatsCamera;   //!< Flag if camera stats should be displayed
-            SLbool          _showStatsScene;   //!< Flag if memory stats should be displayed
-            SLbool          _showStatsVideo;    //!< Flag if video stats should be displayed
-            SLbool          _showMenu;          //!< Flag if menu should be displayed
             SLbool          _showInfo;          //!< Flag if help should be displayed
-            SLbool          _showLoading;       //!< Flag if loading should be displayed
 
             SLfloat         _cullTimeMS;        //!< time for culling in ms
             SLfloat         _draw3DTimeMS;      //!< time for 3D drawing in ms

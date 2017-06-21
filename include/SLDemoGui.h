@@ -16,7 +16,10 @@ class SLScene;
 class SLSceneView;
 
 //-----------------------------------------------------------------------------
-//!
+//! ImGui UI class for the UI of the demo applications
+/*!
+
+*/
 class SLDemoGui
 {
     public:

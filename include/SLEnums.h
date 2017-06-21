@@ -122,12 +122,8 @@ enum SLCommand
     C_sceneRTLens,
     C_sceneRTTest,
     C_sceneMaximal,
-    
+
     C_menu,
-    C_aboutToggle,
-    C_helpToggle,
-    C_creditsToggle,
-    C_removeInfoCalib,
     C_sceneInfoToggle,
     C_quit,
 

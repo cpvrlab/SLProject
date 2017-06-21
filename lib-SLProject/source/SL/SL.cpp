@@ -15,6 +15,7 @@
 #include <SLCV.h>
 #include <SLSceneView.h>
 #include <SLCVCapture.h>
+#include <SLDemoGui.h>
 
 //-----------------------------------------------------------------------------
 //! Default values for static fields
@@ -243,11 +244,11 @@ void SL::loadConfig(SLSceneView* sv)
     fs["configTime"]                >> SL::configTime;
     fs["dpi"]                       >> SL::dpi;
     fs["currentSceneID"]            >> i; SL::currentSceneID = (SLCommand)i;
-    fs["showStatsTiming"]           >> b; sv->showStatsTiming(b);
-    fs["showStatsOpenGL"]           >> b; sv->showStatsRenderer(b);
-    fs["showStatsMemory"]           >> b; sv->showStatsScene(b);
-    fs["showStatsCamera"]           >> b; sv->showStatsCamera(b);
-    fs["showStatsVideo"]            >> b; sv->showStatsVideo(b);
+    fs["showStatsTiming"]           >> b; SLDemoGui::showStatsTiming = b;
+    fs["showStatsOpenGL"]           >> b; SLDemoGui::showStatsRenderer = b;
+    fs["showStatsMemory"]           >> b; SLDemoGui::showStatsScene = b;
+    fs["showStatsCamera"]           >> b; SLDemoGui::showStatsCamera = b;
+    fs["showStatsVideo"]            >> b; SLDemoGui::showStatsVideo = b;
     fs["drawBits"]                  >> i; sv->drawBits()->bits((SLuint)i);
 
     fs.release();
@@ -268,11 +269,11 @@ void SL::saveConfig(SLSceneView* sv)
     fs << "configTime"              << SLUtils::getLocalTimeString();
     fs << "dpi"                     << SL::dpi;
     fs << "currentSceneID"          << (SLint)SL::currentSceneID;
-    fs << "showStatsTiming"         << sv->showStatsTiming();
-    fs << "showStatsOpenGL"         << sv->showStatsRenderer();
-    fs << "showStatsMemory"         << sv->showStatsScene();
-    fs << "showStatsCamera"         << sv->showStatsCamera();
-    fs << "showStatsVideo"          << sv->showStatsVideo();
+    fs << "showStatsTiming"         << SLDemoGui::showStatsTiming;
+    fs << "showStatsOpenGL"         << SLDemoGui::showStatsRenderer;
+    fs << "showStatsMemory"         << SLDemoGui::showStatsScene;
+    fs << "showStatsCamera"         << SLDemoGui::showStatsCamera;
+    fs << "showStatsVideo"          << SLDemoGui::showStatsVideo;
     fs << "drawBits"                << (SLint)sv->drawBits()->bits();
 
     fs.release();
