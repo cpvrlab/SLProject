@@ -44,8 +44,6 @@ SLbool SLPathtracer::render(SLSceneView* sv)
     _stateGL = SLGLState::getInstance();// OpenGL state shortcut
     _renderSec = 0.0f;                  // reset time
     _pcRendered = 0;                    // % rendered
-    _infoText  = SLScene::current->info(_sv)->text();  // keep original info string
-    _infoColor = SLScene::current->info(_sv)->color(); // keep original info color
 
     prepareImage();
 

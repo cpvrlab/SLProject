@@ -261,7 +261,7 @@ void SLGLImGui::deleteOpenGLObjects()
 }
 //-----------------------------------------------------------------------------
 //! Inits a new frame for the ImGui system
-void SLGLImGui::onInitNewFrame()
+void SLGLImGui::onInitNewFrame(SLScene* s, SLSceneView* sv)
 {
     if (!_fontTexture)
         createOpenGLObjects();
@@ -276,6 +276,13 @@ void SLGLImGui::onInitNewFrame()
 
     // Start the frame
     ImGui::NewFrame();
+
+    // Call the build function. The whole UI is constructed here
+    // This function is provided by the top-level project.
+    // For the SLProject demo apps this build function is implemented in the
+    // class SLDemoGui.
+
+    build(s, sv);
 }
 //-----------------------------------------------------------------------------
 //! Callback if window got resized

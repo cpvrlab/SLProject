@@ -48,9 +48,6 @@
     <ClInclude Include="..\include\SLAABBox.h">
       <Filter>Nodes\AABB &amp; Animation</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\SLButton.h">
-      <Filter>Nodes</Filter>
-    </ClInclude>
     <ClInclude Include="..\include\SLCamera.h">
       <Filter>Nodes</Filter>
     </ClInclude>
@@ -363,9 +360,6 @@
       <Filter>Nodes</Filter>
     </ClCompile>
     <ClCompile Include="source\SLCamera.cpp">
-      <Filter>Nodes</Filter>
-    </ClCompile>
-    <ClCompile Include="source\SLButton.cpp">
       <Filter>Nodes</Filter>
     </ClCompile>
     <ClCompile Include="source\SLBox.cpp">

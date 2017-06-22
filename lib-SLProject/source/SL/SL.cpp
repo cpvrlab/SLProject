@@ -245,10 +245,10 @@ void SL::loadConfig(SLSceneView* sv)
     fs["dpi"]                       >> SL::dpi;
     fs["currentSceneID"]            >> i; SL::currentSceneID = (SLCommand)i;
     fs["showStatsTiming"]           >> b; SLDemoGui::showStatsTiming = b;
-    fs["showStatsOpenGL"]           >> b; SLDemoGui::showStatsRenderer = b;
     fs["showStatsMemory"]           >> b; SLDemoGui::showStatsScene = b;
-    fs["showStatsCamera"]           >> b; SLDemoGui::showStatsCamera = b;
     fs["showStatsVideo"]            >> b; SLDemoGui::showStatsVideo = b;
+    fs["showInfosFrameworks"]       >> b; SLDemoGui::showInfosFrameworks = b;
+    fs["showInfosScene"]            >> b; SLDemoGui::showInfosScene = b;
     fs["drawBits"]                  >> i; sv->drawBits()->bits((SLuint)i);
 
     fs.release();
@@ -270,10 +270,10 @@ void SL::saveConfig(SLSceneView* sv)
     fs << "dpi"                     << SL::dpi;
     fs << "currentSceneID"          << (SLint)SL::currentSceneID;
     fs << "showStatsTiming"         << SLDemoGui::showStatsTiming;
-    fs << "showStatsOpenGL"         << SLDemoGui::showStatsRenderer;
     fs << "showStatsMemory"         << SLDemoGui::showStatsScene;
-    fs << "showStatsCamera"         << SLDemoGui::showStatsCamera;
     fs << "showStatsVideo"          << SLDemoGui::showStatsVideo;
+    fs << "showInfosFrameworks"     << SLDemoGui::showInfosFrameworks;
+    fs << "showInfosScene"          << SLDemoGui::showInfosScene;
     fs << "drawBits"                << (SLint)sv->drawBits()->bits();
 
     fs.release();

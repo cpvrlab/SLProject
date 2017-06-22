@@ -31,10 +31,10 @@ class SLDemoGui
     static SLbool   showHelpCalibration;
     static SLbool   showCredits;
     static SLbool   showStatsTiming;
-    static SLbool   showStatsRenderer;
-    static SLbool   showStatsCamera;
     static SLbool   showStatsScene;
     static SLbool   showStatsVideo;
+    static SLbool   showInfosFrameworks;
+    static SLbool   showInfosScene;
 };
 //-----------------------------------------------------------------------------
 #endif

@@ -146,8 +146,6 @@ class SLSceneView: public SLObject
             void            scrH                (SLint  scrH){_scrH = scrH;}
             void            waitEvents          (SLbool wait){_waitEvents = wait;}
             void            usesRotation        (SLbool use){_usesRotation = use;}
-            void            showLoading         (SLbool showLoading);
-            void            showInfo            (SLbool show) {_showInfo = show;}
             void            gotPainted          (SLbool val) {_gotPainted = val;}
 
             // Getters
@@ -167,7 +165,6 @@ class SLSceneView: public SLObject
     inline  SLbool          doDepthTest         () const {return _doDepthTest;}
     inline  SLbool          usesRotation        () const {return _usesRotation;}
     inline  SLbool          waitEvents          () const {return _waitEvents;}
-    inline  SLbool          showInfo            () const {return _showInfo;}
     inline  SLVNode*        visibleNodes        () {return &_visibleNodes;}
     inline  SLVNode*        blendNodes          () {return &_blendNodes;}
     inline  SLRaytracer*    raytracer           () {return &_raytracer;}
@@ -179,6 +176,8 @@ class SLSceneView: public SLObject
     inline  SLfloat         cullTimeMS          () const {return _cullTimeMS;}
     inline  SLfloat         draw3DTimeMS        () const {return _draw3DTimeMS;}
     inline  SLfloat         draw2DTimeMS        () const {return _draw2DTimeMS;}
+    inline  SLNodeStats&    stats2D             () {return _stats2D;}
+    inline  SLNodeStats&    stats3D             () {return _stats3D;}
 
     static const SLint      LONGTOUCH_MS;       //!< Milliseconds duration of a long touch event
 
@@ -200,8 +199,6 @@ class SLSceneView: public SLObject
             SLbool          _isFirstFrame;      //!< Flag if it is the first frame rendering
             SLbool          _usesRotation;      //!< Flag if device rotation is used
             SLDrawBits      _drawBits;          //!< Sceneview level drawing flags
-
-            SLbool          _showInfo;          //!< Flag if help should be displayed
 
             SLfloat         _cullTimeMS;        //!< time for culling in ms
             SLfloat         _draw3DTimeMS;      //!< time for 3D drawing in ms

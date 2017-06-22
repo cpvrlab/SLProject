@@ -16,7 +16,6 @@
 #include <SLScene.h>
 #include <SLSceneView.h>
 #include <SLText.h>
-#include <SLButton.h>
 #include <SLInputManager.h>
 #include <SLCVCapture.h>
 #include <SLAssimpImporter.h>
@@ -53,7 +52,7 @@ The following standard shaders are preloaded:
 
 There will be only one scene for an application and it gets constructed in
 the C-interface function slCreateScene in SLInterface.cpp that is called by the
-platform and GUI-toolkit dependent window initialization.
+platform and UI-toolkit dependent window initialization.
 As examples you can see it in:
   - app-Demo-GLFW: glfwMain.cpp in function main()
   - app-Demo-Qt: qtGLWidget::initializeGL()
@@ -66,18 +65,7 @@ SLScene::SLScene(SLstring name) : SLObject(name)
     current = this;
 
     _root3D         = nullptr;
-    _menu2D         = nullptr;
-    _menuGL         = nullptr;
-    _menuRT         = nullptr;
-    _menuPT         = nullptr;
-    _info           = nullptr;
-    _infoGL         = nullptr;
-    _infoRT         = nullptr;
-    _infoLoading    = nullptr;
-    _btnHelp        = nullptr;
-    _btnAbout       = nullptr;
-    _btnCredits     = nullptr;
-    _btnCalibration = nullptr;
+    _info           = "";
     _selectedMesh   = nullptr;
     _selectedNode   = nullptr;
     _activeCalib    = nullptr;
@@ -190,9 +178,6 @@ SLScene::~SLScene()
     // delete fonts   
     SLTexFont::deleteFonts();
    
-    // delete menus & statistic texts
-    deleteAllMenus();
-   
     current = nullptr;
 
     #ifdef SL_USES_CVCAPTURE
@@ -223,7 +208,6 @@ void SLScene::init()
     _draw2DTimesMS.init();
     _trackingTimesMS.init();
     _captureTimesMS.init(200);
-    _texCursor = new SLGLTexture("cursor.png");
 }
 //-----------------------------------------------------------------------------
 /*! The scene uninitializing clears the scenegraph (_root3D) and all global
@@ -404,8 +388,7 @@ bool SLScene::onUpdate()
         {
             if (SL::currentSceneID == C_sceneVideoCalibrateMain ||
                 SL::currentSceneID == C_sceneVideoCalibrateScnd)
-            {   menu2D(btnCalibration());
-                _activeCalib->state(CS_calibrateStream);
+            {   _activeCalib->state(CS_calibrateStream);
             } else
             {   // Changes the state to CS_guessed
                 _activeCalib->createFromGuessedFOV(SLCVCapture::lastFrame.cols,
@@ -430,7 +413,7 @@ bool SLScene::onUpdate()
             {   ss << "Calculating, please wait ...";
                 _activeCalib->state(CS_startCalculating);
             }
-            info(_sceneViews[0], ss.str());
+            _info = ss.str();
         } else //..............................................................
         if (_activeCalib->state() == CS_startCalculating)
         {
@@ -464,7 +447,7 @@ bool SLScene::onUpdate()
                 if (_activeCalib->state() == CS_calibrated)
                      ss << "FOV: " << fov << ", error: " << err;
                 else ss << "Camera is not calibrated. A FOV is guessed of: " << fov << " degrees.";
-                info(_sceneViews[0], ss.str());
+                _info = ss.str();
             }
         } //...................................................................
 
@@ -517,33 +500,6 @@ void SLScene::onAfterLoad()
             SLCVCapture::open(0);
     }
     #endif
-}
-//-----------------------------------------------------------------------------
-/*!
-SLScene::info deletes previous info text and sets new one with a max. width 
-*/
-void SLScene::info(SLSceneView* sv, SLstring infoText, SLCol4f color)
-{  
-    delete _info;
-   
-    // Set font size depending on DPI
-    SLTexFont* f = SLTexFont::getFont(1.5f, SL::dpi);
-
-    SLfloat minX = 11 * SL::dpmm();
-    _info = new SLText(infoText, f, color, 
-                       sv->scrW()-minX-5.0f,
-                       1.2f);
-
-    _info->translate(minX, SLButton::minMenuPos.y, 0, TS_object);
-}
-//-----------------------------------------------------------------------------
-/*! 
-SLScene::info returns the info text. If null it creates an empty one
-*/
-SLText* SLScene::info(SLSceneView* sv)
-{
-    if (_info == nullptr) info(sv, "", SLCol4f::WHITE);
-    return _info;
 }
 //-----------------------------------------------------------------------------
 //! Sets the _selectedNode to the passed Node and flags it as selected
@@ -608,21 +564,6 @@ void SLScene::copyVideoImage(SLint width,
                                  data, 
                                  isContinuous,
                                  isTopLeft);
-}
-//-----------------------------------------------------------------------------
-//! Deletes all menus and buttons objects
-void SLScene::deleteAllMenus()
-{                           _menu2D     = nullptr;
-    delete _menuGL;         _menuGL     = nullptr;
-    delete _menuRT;         _menuRT     = nullptr;
-    delete _menuPT;         _menuPT     = nullptr;
-    delete _info;           _info       = nullptr;
-    delete _infoGL;         _infoGL     = nullptr;
-    delete _infoRT;         _infoRT     = nullptr;
-    delete _btnAbout;       _btnAbout   = nullptr;
-    delete _btnHelp;        _btnHelp    = nullptr;
-    delete _btnCredits;     _btnCredits = nullptr;
-    delete _btnCalibration;     _btnCalibration = nullptr;
 }
 //-----------------------------------------------------------------------------
 void SLScene::onLoadAsset(SLstring assetFile, 

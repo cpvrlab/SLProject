@@ -99,8 +99,6 @@ class SLRaytracer: public SLGLTexture, public SLEventHandler
             SLbool      _distributed;   //!< Flag for parallel distributed RT
             SLint       _pcRendered;    //!< % rendered
             SLfloat     _renderSec;     //!< Rendering time in seconds
-            SLstring    _infoText;      //!< Original info string
-            SLCol4f     _infoColor;     //!< Original info string color
 
             SLfloat     _pxSize;        //!< Pixel size
             SLVec3f     _EYE;           //!< Camera position

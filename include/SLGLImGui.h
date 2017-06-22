@@ -29,7 +29,20 @@ SLSceneView the according callback in ImGui is called.\n
 There is no UI drawn with this class. It must be defined in another class
 that provides the build function. For the Demo apps this is done in the class
 SLDemoGui and the build function is passed e.g. in glfwMain function of the
-app-Demo-GLFW project.
+app-Demo-GLFW project.\n
+\n
+The full call stack for rendering one frame is:\n
+- The top-level onPaint of the app (Win, Linux, MacOS, Android or iOS)
+  - slUpdateAndPaint: C-Interface function of SLProject
+    - SLSceneView::onPaint: Main onPaint function of a sceneview
+      - SLGLImGui::onInitNewFrame: Initializes a new GUI frame
+        - ImGui::NewFrame()
+        - SLGLImGui::build: The UI build function
+      - ... normal scene rendering of SLProject
+      - ImGui::Render:
+        - SLGLImGui::imgui_renderFunction
+          - SLGLImGui::onPaint
+            - SLDemoGui::buildDemoGui: Builds the full UI
 */
 class SLGLImGui
 {
@@ -43,7 +56,7 @@ class SLGLImGui
         void        createOpenGLObjects     ();
         void        deleteOpenGLObjects     ();
 
-        void        onInitNewFrame          ();
+        void        onInitNewFrame          (SLScene* s, SLSceneView* sv);
         void        onResize                (SLint scrW, SLint scrH);
         void        onPaint                 (ImDrawData* draw_data);
         void        onMouseDown             (SLMouseButton button);  

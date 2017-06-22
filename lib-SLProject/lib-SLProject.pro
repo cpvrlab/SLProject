@@ -53,7 +53,6 @@ HEADERS += \
 ../include/SLAverage.h \
 ../include/SLBackground.h \
 ../include/SLBox.h \
-../include/SLButton.h \
 ../include/SLCamera.h \
 ../include/SLCone.h \
 ../include/SLCompactGrid.h \
@@ -171,7 +170,6 @@ source/SLAnimPlayback.cpp \
 source/SLAnimTrack.cpp \
 source/SLBackground.cpp \
 source/SLBox.cpp \
-source/SLButton.cpp \
 source/SLCamera.cpp \
 source/SLCone.cpp \
 source/SLCompactGrid.cpp \

@@ -25,13 +25,19 @@
 SLbool SLDemoGui::showAbout = false;
 SLbool SLDemoGui::showHelp = false;
 SLbool SLDemoGui::showHelpCalibration = false;
-SLbool SLDemoGui::showStatsCamera = false;
 SLbool SLDemoGui::showCredits = false;
 SLbool SLDemoGui::showStatsTiming = false;
-SLbool SLDemoGui::showStatsRenderer = false;
 SLbool SLDemoGui::showStatsScene = false;
 SLbool SLDemoGui::showStatsVideo = false;
+SLbool SLDemoGui::showInfosFrameworks = false;
+SLbool SLDemoGui::showInfosScene = false;
 //-----------------------------------------------------------------------------
+//! This is the mail building function for the GUI of the Demo apps
+/*! Is is passed to the SLGLGImGui::build function in main of the app-Demo-GLFW
+ app. This function will be called once per frame roughly at the end of
+ SLSceneView::onPaint by calling ImGui::Render.\n
+ See also the comments on SLGLImGui.
+ */
 void SLDemoGui::buildDemoGui(SLScene* s, SLSceneView* sv)
 {
     buildMenuBar(s, sv);
@@ -70,7 +76,7 @@ void SLDemoGui::buildDemoGui(SLScene* s, SLSceneView* sv)
     {
         SLRenderType rType = sv->renderType();
         SLCamera* cam = sv->camera();
-        SLfloat ft = s->frameTimesMS().average()*100.0f;
+        SLfloat ft = s->frameTimesMS().average();
         SLchar m[2550];   // message character array
         m[0]=0;           // set zero length
 
@@ -79,29 +85,29 @@ void SLDemoGui::buildDemoGui(SLScene* s, SLSceneView* sv)
 
         if (rType == RT_gl)
         {
-            SLfloat updateTimePC    = SL_clamp(s->updateTimesMS().average()   / ft, 0.0f,100.0f);
-            SLfloat trackingTimePC  = SL_clamp(s->trackingTimesMS().average() / ft, 0.0f,100.0f);
-            SLfloat cullTimePC      = SL_clamp(s->cullTimesMS().average()     / ft, 0.0f,100.0f);
-            SLfloat draw3DTimePC    = SL_clamp(s->draw3DTimesMS().average()   / ft, 0.0f,100.0f);
-            SLfloat captureTimePC   = SL_clamp(s->captureTimesMS().average()  / ft, 0.0f,100.0f);
+            SLfloat updateTimePC    = SL_clamp(s->updateTimesMS().average()   / ft * 100.0f, 0.0f,100.0f);
+            SLfloat trackingTimePC  = SL_clamp(s->trackingTimesMS().average() / ft * 100.0f, 0.0f,100.0f);
+            SLfloat cullTimePC      = SL_clamp(s->cullTimesMS().average()     / ft * 100.0f, 0.0f,100.0f);
+            SLfloat draw3DTimePC    = SL_clamp(s->draw3DTimesMS().average()   / ft * 100.0f, 0.0f,100.0f);
+            SLfloat captureTimePC   = SL_clamp(s->captureTimesMS().average()  / ft * 100.0f, 0.0f,100.0f);
 
             sprintf(m+strlen(m), "Renderer      : OpenGL\n");
-            sprintf(m+strlen(m), "Frame size/DPI: %d x %d / %d\n", sv->scrW(), sv->scrH(), SL::dpi);
+            sprintf(m+strlen(m), "Frame size    : %d x %d\n", sv->scrW(), sv->scrH());
             sprintf(m+strlen(m), "Frames per s. : %4.1f\n", s->fps());
-            sprintf(m+strlen(m), "Frame time    : %4.1f ms (100%)\n", s->frameTimesMS().average());
-            sprintf(m+strlen(m), "- Update      : %4.1f ms (%d)\n", s->updateTimesMS().average(), (SLint)updateTimePC);
-            sprintf(m+strlen(m), "- Tracking    : %4.1f ms (%d)\n", s->trackingTimesMS().average(), (SLint)trackingTimePC);
-            sprintf(m+strlen(m), "- Culling     : %4.1f ms (%d)\n", s->cullTimesMS().average(), (SLint)cullTimePC);
-            sprintf(m+strlen(m), "- Drawing     : %4.1f ms (%d)\n", s->draw3DTimesMS().average(), (SLint)draw3DTimePC);
+            sprintf(m+strlen(m), "Frame time    : %4.1f ms (100%%)\n", s->frameTimesMS().average());
+            sprintf(m+strlen(m), "- Update      : %4.1f ms (%3d%%)\n", s->updateTimesMS().average(), (SLint)updateTimePC);
+            sprintf(m+strlen(m), "- Tracking    : %4.1f ms (%3d%%)\n", s->trackingTimesMS().average(), (SLint)trackingTimePC);
+            sprintf(m+strlen(m), "- Culling     : %4.1f ms (%3d%%)\n", s->cullTimesMS().average(), (SLint)cullTimePC);
+            sprintf(m+strlen(m), "- Drawing     : %4.1f ms (%3d%%)\n", s->draw3DTimesMS().average(), (SLint)draw3DTimePC);
             #ifdef SL_GLSL
             sprintf(m+strlen(m), "- Capture     : %4.1f ms\n", s->captureTimesMS().average());
             #else
-            sprintf(m+strlen(m), "- Capture     : %4.1f ms (%0.0f%%)\n", s->captureTimesMS().average(), captureTimePC);
+            sprintf(m+strlen(m), "- Capture     : %4.1f ms (%3d%%)\n", s->captureTimesMS().average(), (SLint)captureTimePC);
             #endif
             sprintf(m+strlen(m), "NO. drawcalls : %d\n", SLGLVertexArray::totalDrawCalls);
 
             ImGui::Begin("Timing", &showStatsTiming, ImVec2(300,0));
-            ImGui::TextWrapped(m);
+            ImGui::TextUnformatted(m);
             ImGui::End();
 
         } else
@@ -112,9 +118,9 @@ void SLDemoGui::buildDemoGui(SLScene* s, SLSceneView* sv)
             SLuint total = primaries + SLRay::reflectedRays + SLRay::subsampledRays + SLRay::refractedRays + SLRay::shadowRays;
             SLfloat rpms = rt->renderSec() ? total/rt->renderSec()/1000.0f : 0.0f;
             sprintf(m+strlen(m), "Renderer      : Ray Tracer\n");
-            sprintf(m+strlen(m), "Frame size/DPI: %d x %d / %d\n", sv->scrW(), sv->scrH(), SL::dpi);
+            sprintf(m+strlen(m), "Frame size    : %d x %d\n", sv->scrW(), sv->scrH());
             sprintf(m+strlen(m), "Frames per s. : %4.1f\n", s->fps());
-            sprintf(m+strlen(m), "Frame Time    : %4.2f sec.  (Size: %d x %d)\n", rt->renderSec(), sv->scrW(), sv->scrH());
+            sprintf(m+strlen(m), "Frame Time    : %4.2f sec.\n", rt->renderSec());
             sprintf(m+strlen(m), "Rays per ms   : %6.0f\n", rpms);
             sprintf(m+strlen(m), "Threads       : %d\n", rt->numThreads());
 
@@ -126,6 +132,140 @@ void SLDemoGui::buildDemoGui(SLScene* s, SLSceneView* sv)
         ImGui::PopFont();
     }
 
+    if (showStatsScene)
+    {
+        SLchar m[2550];   // message character array
+        m[0]=0;           // set zero length
+
+        SLNodeStats& stats2D  = sv->stats2D();
+        SLNodeStats& stats3D  = sv->stats3D();
+        SLfloat vox           = (SLfloat)stats3D.numVoxels;
+        SLfloat voxEmpty      = (SLfloat)stats3D.numVoxEmpty;
+        SLfloat voxelsEmpty   = vox ? voxEmpty / vox*100.0f : 0.0f;
+        SLfloat numRTTria     = (SLfloat)stats3D.numTriangles;
+        SLfloat avgTriPerVox  = vox ? numRTTria / (vox-voxEmpty) : 0.0f;
+        SLint numOpaqueNodes  = (int)sv->visibleNodes()->size();
+        SLint numBlendedNodes = (int)sv->blendNodes()->size();
+        SLint numVisibleNodes =  numOpaqueNodes + numBlendedNodes;
+        SLint numGroupPC      = (SLint)((SLfloat)stats3D.numGroupNodes/(SLfloat)stats3D.numNodes * 100.0f);
+        SLint numLeafPC       = (SLint)((SLfloat)stats3D.numLeafNodes/(SLfloat)stats3D.numNodes * 100.0f);
+        SLint numLightsPC     = (SLint)((SLfloat)stats3D.numLights/(SLfloat)stats3D.numNodes * 100.0f);
+        SLint numOpaquePC     = (SLint)((SLfloat)numOpaqueNodes/(SLfloat)stats3D.numNodes * 100.0f);
+        SLint numBlendedPC    = (SLint)((SLfloat)numBlendedNodes/(SLfloat)stats3D.numNodes * 100.0f);
+        SLint numVisiblePC    = (SLint)((SLfloat)numVisibleNodes/(SLfloat)stats3D.numNodes * 100.0f);
+
+        // Calculate total size of texture bytes on CPU
+        SLfloat cpuMBTexture = 0;
+        for (auto t : s->textures())
+            for (auto i : t->images())
+                cpuMBTexture += i->bytesPerImage();
+        cpuMBTexture  = cpuMBTexture / 1E6f;
+
+        SLfloat cpuMBMeshes    = (SLfloat)stats3D.numBytes / 1E6f;
+        SLfloat cpuMBVoxels    = (SLfloat)stats3D.numBytesAccel / 1E6f;
+        SLfloat cpuMBTotal     = cpuMBTexture + cpuMBMeshes + cpuMBVoxels;
+        SLint   cpuMBTexturePC = (SLint)(cpuMBTexture / cpuMBTotal * 100.0f);
+        SLint   cpuMBMeshesPC  = (SLint)(cpuMBMeshes  / cpuMBTotal * 100.0f);
+        SLint   cpuMBVoxelsPC  = (SLint)(cpuMBVoxels  / cpuMBTotal * 100.0f);
+        SLfloat gpuMBTexture   = (SLfloat)SLGLTexture::numBytesInTextures / 1E6f;
+        SLfloat gpuMBVbo       = (SLfloat)SLGLVertexBuffer::totalBufferSize / 1E6f;
+        SLfloat gpuMBTotal     = gpuMBTexture + gpuMBVbo;
+        SLint   gpuMBTexturePC = (SLint)(gpuMBTexture / gpuMBTotal * 100.0f);
+        SLint   gpuMBVboPC     = (SLint)(gpuMBVbo / gpuMBTotal * 100.0f);
+
+        sprintf(m+strlen(m), "Scene Name      : %s\n", s->name().c_str());
+        sprintf(m+strlen(m), "No. of Nodes    : %5d (100%%)\n", stats3D.numNodes);
+        sprintf(m+strlen(m), "- Group Nodes   : %5d (%3d%%)\n", stats3D.numGroupNodes, numGroupPC);
+        sprintf(m+strlen(m), "- Leaf  Nodes   : %5d (%3d%%)\n", stats3D.numLeafNodes, numLeafPC);
+        sprintf(m+strlen(m), "- Light Nodes   : %5d (%3d%%)\n", stats3D.numLights, numLightsPC);
+        sprintf(m+strlen(m), "- Opaque Nodes  : %5d (%3d%%)\n", numOpaqueNodes, numOpaquePC);
+        sprintf(m+strlen(m), "- Blended Nodes : %5d (%3d%%)\n", numBlendedNodes, numBlendedPC);
+        sprintf(m+strlen(m), "- Visible Nodes : %5d (%3d%%)\n", numVisibleNodes, numVisiblePC);
+        sprintf(m+strlen(m), "No. of Meshes   : %u\n", stats3D.numMeshes);
+        sprintf(m+strlen(m), "No. of Triangles: %u\n", stats3D.numTriangles);
+        sprintf(m+strlen(m), "CPU MB in Total : %6.2f (100%%)\n", cpuMBTotal);
+        sprintf(m+strlen(m), "-   MB in Tex.  : %6.2f (%3d%%)\n", cpuMBTexture, cpuMBTexturePC);
+        sprintf(m+strlen(m), "-   MB in Meshes: %6.2f (%3d%%)\n", cpuMBMeshes, cpuMBMeshesPC);
+        sprintf(m+strlen(m), "-   MB in Voxels: %6.2f (%3d%%)\n", cpuMBVoxels, cpuMBVoxelsPC);
+        sprintf(m+strlen(m), "GPU MB in Total : %6.2f (100%%)\n", gpuMBTotal);
+        sprintf(m+strlen(m), "-   MB in Tex.  : %6.2f (%3d%%)\n", gpuMBTexture, gpuMBTexturePC);
+        sprintf(m+strlen(m), "-   MB in VBO   : %6.2f (%3d%%)\n", gpuMBVbo, gpuMBVboPC);
+
+        sprintf(m+strlen(m), "No. of Voxels   : %d\n", stats3D.numVoxels);
+        sprintf(m+strlen(m), "- empty Voxels  : %4.1f%%\n", voxelsEmpty);
+        sprintf(m+strlen(m), "Avg. Tria/Voxel : %4.1F\n", avgTriPerVox);
+        sprintf(m+strlen(m), "Max. Tria/Voxel : %d\n", stats3D.numVoxMaxTria);
+
+        // Switch to fixed font
+        ImGui::PushFont(ImGui::GetIO().Fonts->Fonts[1]);
+        ImGui::Begin("Scene Statistics", &showStatsScene, ImVec2(300,0));
+        ImGui::TextUnformatted(m);
+        ImGui::End();
+        ImGui::PopFont();
+    }
+
+    if (showStatsVideo)
+    {
+
+        SLchar m[2550];   // message character array
+        m[0]=0;           // set zero length
+
+        SLCVCalibration* c = s->activeCalib();
+        SLCVSize capSize = SLCVCapture::captureSize;
+        SLVideoType vt = s->videoType();
+        SLstring mirrored = "None";
+        if (c->isMirroredH() && c->isMirroredV()) mirrored = "horizontally & vertically"; else
+        if (c->isMirroredH()) mirrored = "horizontally"; else
+        if (c->isMirroredV()) mirrored = "vertically";
+
+        sprintf(m+strlen(m), "Video Type    : %s\n", vt==0 ? "None" : vt==1 ? "Main Camera" : "Secondary Camera");
+        sprintf(m+strlen(m), "Display size  : %d x %d\n", SLCVCapture::lastFrame.cols, SLCVCapture::lastFrame.rows);
+        sprintf(m+strlen(m), "Capture size  : %d x %d\n", capSize.width, capSize.height);
+        sprintf(m+strlen(m), "Requested size: %d\n", SLCVCapture::requestedSizeIndex);
+        sprintf(m+strlen(m), "Mirrored      : %s\n", mirrored.c_str());
+        sprintf(m+strlen(m), "Undistorted   : %s\n", c->showUndistorted()&&c->state()==CS_calibrated?"Yes":"No");
+        sprintf(m+strlen(m), "FOV (deg.)    : %4.1f\n", c->cameraFovDeg());
+        sprintf(m+strlen(m), "fx,fy,cx,cy   : %4.1f,%4.1f,%4.1f,%4.1f\n", c->fx(),c->fy(),c->cx(),c->cy());
+        sprintf(m+strlen(m), "k1,k2,p1,p2   : %4.2f,%4.2f,%4.2f,%4.2f\n", c->k1(),c->k2(),c->p1(),c->p2());
+        sprintf(m+strlen(m), "Calib. time   : %s\n", c->calibrationTime().c_str());
+        sprintf(m+strlen(m), "Calib. file   : %s\n", c->calibFileName().c_str());
+        sprintf(m+strlen(m), "Calib. state  : %s\n", c->stateStr().c_str());
+
+        // Switch to fixed font
+        ImGui::PushFont(ImGui::GetIO().Fonts->Fonts[1]);
+        ImGui::Begin("Video", &showStatsVideo, ImVec2(300,0));
+        ImGui::TextUnformatted(m);
+        ImGui::End();
+        ImGui::PopFont();
+    }
+
+    if (showInfosScene)
+    {
+        ImGui::Begin("Scene Information", &showInfosScene, ImVec2(300,0));
+        ImGui::TextWrapped(s->info().c_str());
+        ImGui::End();
+    }
+
+    if (showInfosFrameworks)
+    {
+        SLGLState* stateGL = SLGLState::getInstance();
+        SLchar m[2550];   // message character array
+        m[0]=0;           // set zero length
+        sprintf(m+strlen(m), "OpenGL Verion  : %s\n", stateGL->glVersionNO().c_str());
+        sprintf(m+strlen(m), "OpenGL Vendor  : %s\n", stateGL->glVendor().c_str());
+        sprintf(m+strlen(m), "OpenGL Renderer: %s\n", stateGL->glRenderer().c_str());
+        sprintf(m+strlen(m), "OpenGL GLSL    : %s\n", stateGL->glSLVersionNO().c_str());
+        sprintf(m+strlen(m), "OpenCV Version : %d.%d.%d\n", CV_MAJOR_VERSION, CV_MINOR_VERSION, CV_VERSION_REVISION);
+        sprintf(m+strlen(m), "CV has OpenCL  : %s\n", cv::ocl::haveOpenCL() ? "yes":"no");
+        sprintf(m+strlen(m), "ImGui Version  : %s\n", ImGui::GetVersion());
+
+        // Switch to fixed font
+        ImGui::PushFont(ImGui::GetIO().Fonts->Fonts[1]);
+        ImGui::Begin("Framework Informations", &showInfosFrameworks, ImVec2(300,0));
+        ImGui::TextUnformatted(m);
+        ImGui::End();
+        ImGui::PopFont();
+    }
 }
 //-----------------------------------------------------------------------------
 void SLDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
@@ -523,11 +663,15 @@ void SLDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
 
         if (ImGui::BeginMenu("Infos"))
         {
-            ImGui::MenuItem("Stats on Timing", 0, &showStatsTiming);
+            ImGui::MenuItem("Stats on Timing"    , 0, &showStatsTiming);
+            ImGui::MenuItem("Stats on Scene"     , 0, &showStatsScene);
+            ImGui::MenuItem("Stats on Video"     , 0, &showStatsVideo);
+            ImGui::MenuItem("Infos on Scene",      0, &showInfosScene);
+            ImGui::MenuItem("Infos on Frameworks", 0, &showInfosFrameworks);
             ImGui::MenuItem("Help on Interaction", 0, &showHelp);
             ImGui::MenuItem("Help on Calibration", 0, &showHelpCalibration);
-            ImGui::MenuItem("About SLProject", 0, &showAbout);
-            ImGui::MenuItem("Credits", 0, &showCredits);
+            ImGui::MenuItem("About SLProject"    , 0, &showAbout);
+            ImGui::MenuItem("Credits"            , 0, &showCredits);
 
             ImGui::EndMenu();
         }

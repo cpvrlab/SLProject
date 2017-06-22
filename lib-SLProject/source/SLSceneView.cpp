@@ -13,6 +13,7 @@
 #include <debug_new.h>        // memory leak detector
 #endif
 
+#include <SLSceneView.h>
 #include <SLInterface.h>
 #include <SLLight.h>
 #include <SLCamera.h>
@@ -21,7 +22,6 @@
 #include <SLLightSpot.h>
 #include <SLLightRect.h>
 #include <SLTexFont.h>
-#include <SLButton.h>
 #include <SLImporter.h>
 #include <SLCVCapture.h>
 
@@ -110,7 +110,6 @@ void SLSceneView::init(SLstring name,
     _drawBits.allOff();
        
     _stats3D.clear();
-    _showInfo = true;
 
     _scrWdiv2 = _scrW>>1;
     _scrHdiv2 = _scrH>>1;
@@ -294,9 +293,6 @@ void SLSceneView::onInitialize()
         _stats3D.clear();
         _stats2D.clear();
         s->root3D()->statsRec(_stats3D);
-        if (s->menuGL()) s->menuGL()->statsRec(_stats2D);
-        if (s->menuRT()) s->menuRT()->statsRec(_stats2D);
-        if (s->menuPT()) s->menuPT()->statsRec(_stats2D);
 
         // Warn if there are no light in scene
         if (s->lights().size() == 0)
@@ -341,9 +337,6 @@ void SLSceneView::onResize(SLint width, SLint height)
         if (_renderType != RT_gl)
         {   _renderType = RT_gl;
             _raytracer.continuous(false);
-            s->menu2D(s->menuGL());
-            s->menu2D()->hideAndReleaseRec();
-            s->menu2D()->drawBits()->off(SL_DB_HIDDEN);
         }
     }
 }
@@ -367,8 +360,7 @@ SLbool SLSceneView::onPaint()
             return false;
     
     // Init and build GUI
-    s->gui().onInitNewFrame();
-    s->gui().build(s, this);
+    s->gui().onInitNewFrame(s, this);
 
     if (_camera)
     {   // Render the 3D scenegraph by by raytracing, pathtracing or OpenGL
@@ -379,9 +371,10 @@ SLbool SLSceneView::onPaint()
         }
     };
 
-    // Render the 2D GUI (menu etc.)
+    // Render the own 2D stuff
     draw2DGL();
 
+    // Render the ImGui UI
     ImGui::Render();
 
     _stateGL->unbindAnythingAndFlush();
@@ -714,28 +707,18 @@ void SLSceneView::draw3DGLLinesOverlay(SLVNode &nodes)
 }
 //-----------------------------------------------------------------------------
 /*!
-SLSceneView::draw2DGL draws GUI tree in ortho projection. So far no
+SLSceneView::draw2DGL draws all 2D stuff in ortho projection. So far no
 update is done to the 2D scenegraph.
 */
 void SLSceneView::draw2DGL()
 {
     SLScene* s = SLScene::current;
     SLfloat startMS = s->timeMilliSec();
-
-    if (!_showInfo &&
-        _touchDowns==0 &&
-        !_mouseDownL &&
-        !_mouseDownM)
-    {
-        _draw2DTimeMS = s->timeMilliSec() - startMS;
-        return;
-    }
     
     SLfloat w2 = (SLfloat)_scrWdiv2;
     SLfloat h2 = (SLfloat)_scrHdiv2;
    
     // Set orthographic projection with 0,0,0 in the screen center
-    // for now we just have one special GUI case for side by side HMD stereo rendering
     if (_camera && _camera->projection() != P_stereoSideBySideD)
     {        
         // @todo this doesn't need to be done every frame, we can save the current ortho matrix and update on resize
@@ -760,69 +743,14 @@ void SLSceneView::draw2DGL()
         _stateGL->viewport(_oculusFB.halfWidth(), 0, _oculusFB.halfWidth(), _oculusFB.height());
         
         draw2DGLAll();
-        
-        // temp visualization of the texture above
-        /*
-        glClear(GL_COLOR_BUFFER_BIT);
-        static SLGLGenericProgram tmpShader("StereoOculus.vert", "StereoOculus.frag");
-
-        static GLuint screenQuad = 0;
-        if (!screenQuad) 
-        {   GLfloat quadVerts[] = {-1, -1,
-                                    1, -1,
-                                   -1,  1,
-                                    1,  1};
-            glGenBuffers(1, &screenQuad);
-            glBindBuffer(GL_ARRAY_BUFFER, screenQuad);
-            glBufferData(GL_ARRAY_BUFFER, sizeof(quadVerts), quadVerts, GL_STATIC_DRAW);
-            glBindBuffer(GL_ARRAY_BUFFER, 0);
-        }
-                                 
-        glDisable(GL_DEPTH_TEST);
-        glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, _oculusFB.texID());
-
-        tmpShader.beginUse(); //bind the rift shader
-
-        glEnableVertexAttribArray(0);
-        glBindBuffer(GL_ARRAY_BUFFER, screenQuad);
-        glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, 0);
-        glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
-        glDisableVertexAttribArray(0);
-        glEnable(GL_DEPTH_TEST);
-        */
     }
-    
-    // below is the normal menu to test interaction with the default mouse
-    /*
-    _stateGL->projectionMatrix.ortho(-w2, w2,-h2, h2, 1.0f, -1.0f);
-    _stateGL->viewport(0, 0, _scrW, _scrH);
-
    
-    _stateGL->depthMask(false);         // Freeze depth buffer for blending
-    _stateGL->depthTest(false);         // Disable depth testing
-    _stateGL->blend(true);              // Enable blending
-    _stateGL->polygonLine(false);       // Only filled polygons
-
-    // Draw menu buttons tree
-    if (!_showLoading && _showMenu && s->menu2D())
-    {  _stateGL->modelViewMatrix.identity();
-        _stateGL->modelViewMatrix.translate(-w2, -h2, 0);
-        s->menu2D()->drawRec(this);
-    }   
-    _stateGL->blend(false);       // turn off blending
-    _stateGL->depthMask(true);    // enable depth buffer writing
-    _stateGL->depthTest(true);    // enable depth testing
-    GET_GL_ERROR;                 // check if any OGL errors occured
-    */
-    
-
    _draw2DTimeMS = s->timeMilliSec() - startMS;
    return;
 }
 //-----------------------------------------------------------------------------
 /*!
-SLSceneView::draw2DGLAll draws GUI tree in ortho projection.
+SLSceneView::draw2DGLAll draws 2D stuff in ortho projection.
 */
 void SLSceneView::draw2DGLAll()
 {
@@ -850,17 +778,6 @@ void SLSceneView::draw2DGLAll()
     _stateGL->depthTest(false);         // Disable depth testing
     _stateGL->blend(true);              // Enable blending
     _stateGL->polygonLine(false);       // Only filled polygons
-
-    // Draw scene info text if menuGL or menuRT is closed
-    if (_showInfo && s->info() && !s->info()->text().empty() &&
-        _camera->projection()<=P_monoOrthographic)
-    {
-        _stateGL->pushModelViewMatrix();  
-        _stateGL->modelViewMatrix.translate(-w2, -h2, depth);
-        _stateGL->modelViewMatrix.multiply(s->info()->om());
-        s->info()->drawRec(this);
-        _stateGL->popModelViewMatrix();
-    }  
    
     // 2D finger touch points  
     #ifndef SL_GLES
@@ -901,19 +818,6 @@ void SLSceneView::draw2DGLAll()
     }
     #endif
 
-    // Draw virtual mouse cursor if we're in HMD stereo mode
-    if (_camera->projection() == P_stereoSideBySideD)
-    {
-        SLfloat hCur = (SLfloat)s->texCursor()->height();
-        _stateGL->multiSample(true);
-        _stateGL->pushModelViewMatrix();  
-        _stateGL->modelViewMatrix.translate(-w2, -h2, 0);
-        _stateGL->modelViewMatrix.translate((SLfloat)_posCursor.x, 
-                                            (_scrH-_posCursor.y-hCur), 0);
-        s->texCursor()->drawSprite();
-        _stateGL->popModelViewMatrix();
-    }
-
     _stateGL->popModelViewMatrix();        
 
     _stateGL->blend(false);       // turn off blending
@@ -945,14 +849,6 @@ SLbool SLSceneView::onMouseDown(SLMouseButton button,
     {   s->gui().onMouseDown(button);
         return false;
     }
-   
-    // Check first if mouse down was on a button    
-    if (s->menu2D() && s->menu2D()->onMouseDown(button, x, y, mod))
-        return true;
-
-    // if menu is open close it
-    if (SLButton::buttonParent && s->menu2D())
-        s->menu2D()->closeAll();
    
     _mouseDownL = (button == MB_left);
     _mouseDownR = (button == MB_right);
@@ -993,11 +889,7 @@ SLbool SLSceneView::onMouseUp(SLMouseButton button,
     {   s->gui().onMouseUp(button);
         return false;
     }
-   
-    // Check first if mouse up was on a button    
-    if (s->menu2D() && s->menu2D()->onMouseUp(button, x, y, mod))
-        return true;
-           
+
     _mouseDownL = false;
     _mouseDownR = false;
     _mouseDownM = false;
@@ -1042,9 +934,6 @@ SLbool SLSceneView::onMouseMove(SLint x, SLint y)
                 _raytracer.state(rtMoveGL);
             else
             {   _raytracer.continuous(false);
-                s->menu2D(s->menuGL());
-                s->menu2D()->hideAndReleaseRec();
-                s->menu2D()->drawBits()->off(SL_DB_HIDDEN);
             }
             _renderType = RT_gl;
         }
@@ -1113,10 +1002,6 @@ SLbool SLSceneView::onDoubleClick(SLMouseButton button,
 {  
     SLScene* s = SLScene::current;
     if (!s->root3D()) return false;
-   
-    // Check first if mouse down was on a button    
-    if (s->menu2D() && s->menu2D()->onDoubleClick(button, x, y, mod))
-        return true;
 
     SLbool result = false;
    
@@ -1475,7 +1360,6 @@ SLbool SLSceneView::onCommand(SLCommand cmd)
 
         case C_camSetSceneViewCamera: switchToSceneViewCamera(); return true;
 
-        case C_sceneInfoToggle:    _showInfo = !_showInfo; return true;
         case C_waitEventsToggle:   _waitEvents = !_waitEvents; return true;
         case C_multiSampleToggle:
             _doMultiSampling = !_doMultiSampling;
@@ -1496,7 +1380,6 @@ SLbool SLSceneView::onCommand(SLCommand cmd)
         case C_animationToggle:     s->stopAnimations(!s->stopAnimations()); return true;
         case C_renderOpenGL:
             _renderType = RT_gl;
-            s->menu2D(s->menuGL());
             return true;
         case C_rtContinuously:
             _raytracer.continuous(!_raytracer.continuous());
@@ -1594,7 +1477,6 @@ void SLSceneView::startRaytracing(SLint maxDepth)
     _stopRT = false;
     _raytracer.maxDepth(maxDepth);
     _raytracer.aaSamples(_doMultiSampling && SL::dpi<200 ? 3 : 1);
-    s->menu2D(s->menuRT());
 }
 //-----------------------------------------------------------------------------
 /*!
@@ -1632,8 +1514,6 @@ SLbool SLSceneView::draw3DRT()
     if(_stopRT)
     {   _renderType = RT_gl;
         SLScene* s = SLScene::current;
-        s->menu2D(s->menuGL());
-        s->menu2D()->closeAll();
         updated = true;
     }
 
@@ -1650,7 +1530,6 @@ void SLSceneView::startPathtracing(SLint maxDepth, SLint samples)
     _stopPT = false;
     _pathtracer.maxDepth(maxDepth);
     _pathtracer.aaSamples(samples);
-    s->menu2D(s->menuPT());
 }
 //-----------------------------------------------------------------------------
 /*!
@@ -1685,8 +1564,6 @@ SLbool SLSceneView::draw3DPT()
     if(_stopPT)
     {   _renderType = RT_gl;
         SLScene* s = SLScene::current;
-        s->menu2D(s->menuGL());
-        s->menu2D()->closeAll();
         updated = true;
     }
 

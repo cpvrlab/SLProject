@@ -503,6 +503,7 @@ int main(int argc, char *argv[])
                                 0,
                                 (void*)&onShowCursor);
 
+    // Attach the GUI building function for the ImGui UI
     SLScene::current->gui().build = SLDemoGui::buildDemoGui;
 
     // Set GLFW callback functions
