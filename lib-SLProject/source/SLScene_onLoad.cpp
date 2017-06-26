@@ -1215,7 +1215,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         SLNode* scene = new SLNode;
 
         SLCamera* cam1 = new SLCamera("Camera 1");
-        cam1->translation(0,0,22);
+        cam1->translation(0,0,24);
         cam1->lookAt(0,0,0);
         cam1->background().colors(SLCol4f(0.2f,0.2f,0.2f));
         cam1->setInitialState();

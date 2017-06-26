@@ -23,7 +23,16 @@ SLchar* aGLSLErrorString[] = {(SLchar*)"(e0000) GLSL not enabled",
                               (SLchar*)"(e0002) not a valid object",
                               (SLchar*)"(e0003) out of memory",
                               (SLchar*)"(e0004) unknown compiler error"};
-                              
+
+//-----------------------------------------------------------------------------
+//! Default constructor
+SLGLShader::SLGLShader()
+{
+    _type = ST_none;
+    _code = "";
+    _objectGL = 0;
+    _file = "";
+}
 //----------------------------------------------------------------------------- 
 //! Ctor with shader filename & shader type
 SLGLShader::SLGLShader(SLstring filename, SLShaderType shaderType) 

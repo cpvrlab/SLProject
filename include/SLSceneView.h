@@ -22,6 +22,7 @@
 #include <SLDrawBits.h>
 #include <SLGLOculusFB.h>
 #include <SLGLVertexArrayExt.h>
+#include <SLGLImGui.h>
 
 //-----------------------------------------------------------------------------
 class SLCamera;
@@ -43,6 +44,9 @@ typedef void (SL_STDCALL *cbOnSelectNodeMesh)(SLNode*, SLMesh*);
 
 //! Callback function typedef for showing and hiding the system cursor
 typedef void(SL_STDCALL *cbOnShowSysCursor)(bool);
+
+//! Callback function typedef for ImGui build function
+typedef void(SL_STDCALL *cbOnBuildImGui)(SLScene* s, SLSceneView* sv);
 
 //-----------------------------------------------------------------------------
 //! SceneView class represents a dynamic real time 3D view onto the scene.
@@ -71,7 +75,8 @@ class SLSceneView: public SLObject
                                              SLint screenHeight,
                                              void* onWndUpdateCallback,
                                              void* onSelectNodeMeshCallback,
-                                             void* onToggleSystemCursorCallback);
+                                             void* onToggleSystemCursorCallback,
+                                             void* onBuildImGui);
 
 		      // virtual hooks for subclasses of SLSceneView
    virtual  void            onStartup       () { }
@@ -157,6 +162,7 @@ class SLSceneView: public SLObject
     inline  SLint           scrWdiv2            () const {return _scrWdiv2;}
     inline  SLint           scrHdiv2            () const {return _scrHdiv2;}
     inline  SLfloat         scrWdivH            () const {return _scrWdivH;}
+    inline  SLGLImGui&      gui                 () {return _gui;}
     inline  SLQuat4f        deviceRotation      () const {return _deviceRotation;}
     inline  SLbool          gotPainted          () const {return _gotPainted;}
     inline  SLbool          doFrustumCulling    () const {return _doFrustumCulling;}
@@ -185,7 +191,9 @@ class SLSceneView: public SLObject
             SLuint          _index;             //!< index of this pointer in SLScene::sceneView vector
             SLGLState*      _stateGL;           //!< Pointer to the global SLGLState instance
             SLCamera*       _camera;            //!< Pointer to the _active camera
-            SLCamera        _sceneViewCamera;   //!< Default camera for this SceneView (default cam not in scenegraph)
+            SLCamera        _sceneViewCamera;   //!< Default camera for this SceneView (default cam not in scenegraph)         
+            SLGLImGui       _gui;               //!< ImGui instance
+
             SLNodeStats     _stats2D;           //!< Statistic numbers for 2D nodes
             SLNodeStats     _stats3D;           //!< Statistic numbers for 3D nodes
             SLbool          _gotPainted;        //!< flag if this sceneview got painted

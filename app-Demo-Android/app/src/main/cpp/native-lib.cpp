@@ -13,6 +13,7 @@
 #include <stdafx.h>
 #include <SLInterface.h>
 #include <SLScene.h>
+#include <SLDemoGui.h>
 
 //-----------------------------------------------------------------------------
 // Some global variable for the JNI interface
@@ -95,7 +96,11 @@ JNIEXPORT void JNICALL Java_ch_fhnw_comgr_GLES3Lib_onInit(JNIEnv *env, jobject o
                                 (int) height,
                                 (int) dpi,
                                 C_sceneRevolver,
-                                (void *) &Java_renderRaytracingCallback);
+                                (void *) &Java_renderRaytracingCallback,
+                                0,
+                                0,
+                                0,
+                                (void*)SLDemoGui::buildDemoGui);
     delete cmdLineArgs;
 }
 //-----------------------------------------------------------------------------

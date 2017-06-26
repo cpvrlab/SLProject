@@ -306,6 +306,8 @@ class SL
     static SLstring         configPath;         //!< Default path for calibration files
     static SLstring         configTime;         //!< Time of stored configuration 
     static SLint            dpi;                //!< Current UI dot per inch resolution
+    static SLfloat          fontPropDots;       //!< Font size of proportional font
+    static SLfloat          fontFixedDots;      //!< Font size of fixed size font
     static SLCommand        currentSceneID;     //!< ID of last loaded scene
     static SLstring         infoAbout;          //!< About info string
     static SLstring         infoCredits;        //!< Credits info string

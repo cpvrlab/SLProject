@@ -111,7 +111,8 @@ int slCreateSceneView(int screenWidth,
                       void* onWndUpdateCallback,
                       void* onSelectNodeMeshCallback,
                       void* onNewSceneViewCallback,
-                      void* onShowSystemCursorCallback)
+                      void* onShowSystemCursorCallback,
+                      void* onBuildImGui)
 {
     assert(SLScene::current && "No SLScene::current!");
 
@@ -130,14 +131,20 @@ int slCreateSceneView(int screenWidth,
              screenHeight, 
              onWndUpdateCallback,
              onSelectNodeMeshCallback,
-             onShowSystemCursorCallback);
+             onShowSystemCursorCallback,
+             onBuildImGui);
 
     // Load configuration after the first sceneview creation
     if (index==0)
         SL::loadConfig(sv);
 
-    if (!SL::dpi)
-        SL::dpi = dotsPerInch;
+    // Set default font sizes depending on the dpi
+    if (!SL::dpi) SL::dpi = dotsPerInch;
+    if (!SL::fontPropDots) SL::fontPropDots = dotsPerInch * (16.0f / 142.0f);
+    if (!SL::fontFixedDots) SL::fontFixedDots = dotsPerInch * (13.0f / 142.0f);
+
+    // Load GUI fonts depending on the resolution
+    sv->gui().loadFonts(SL::fontPropDots, SL::fontFixedDots);
 
     // Set active sceneview and load scene. This is done for the first sceneview
     if (!SLScene::current->root3D())

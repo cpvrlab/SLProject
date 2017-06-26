@@ -19,14 +19,9 @@
 #include <SLScene.h>
 
 //-----------------------------------------------------------------------------
-//! Static global instance for render callback
-SLGLImGui* SLGLImGui::globalInstance = 0;
-//-----------------------------------------------------------------------------
 //! Initializes OpenGL handles to zero and sets the ImGui key map
-void SLGLImGui::init(SLint scrW, SLint scrH, SLint fbW, SLint fbH)
+void SLGLImGui::init()
 {
-    SLGLImGui::globalInstance = this;
-
     _fontTexture = 0;
     _progHandle = 0;
     _vertHandle = 0;
@@ -39,6 +34,8 @@ void SLGLImGui::init(SLint scrW, SLint scrH, SLint fbW, SLint fbH)
     _vboHandle = 0;
     _vaoHandle = 0;
     _elementsHandle = 0;
+    _fontPropDots = 13.0f;
+    _fontFixedDots = 16.0f;
 
     _mouseWheel = 0.0f;
     _mousePressed[0] = false;
@@ -46,6 +43,9 @@ void SLGLImGui::init(SLint scrW, SLint scrH, SLint fbW, SLint fbH)
     _mousePressed[2] = false;
 
     ImGuiIO& io = ImGui::GetIO();
+    static const SLstring inifile = SL::configPath + "imgui.ini";
+    io.IniFilename = inifile.c_str();
+
     io.KeyMap[ImGuiKey_Tab]         = K_tab;
     io.KeyMap[ImGuiKey_LeftArrow]   = K_left;
     io.KeyMap[ImGuiKey_RightArrow]  = K_right;
@@ -67,32 +67,34 @@ void SLGLImGui::init(SLint scrW, SLint scrH, SLint fbW, SLint fbH)
     io.KeyMap[ImGuiKey_Z]           = 'Z';
 
     // The screen size is set again in onResize
-    io.DisplaySize = ImVec2((SLfloat)scrW, (SLfloat)scrH);
+    io.DisplaySize = ImVec2(0, 0);
     io.DisplayFramebufferScale = ImVec2(1,1);
-
-    // Load fonts
-    SLstring DroidSans = SLGLTexture::defaultPathFonts + "DroidSans.ttf";
-    if (SLFileSystem::fileExists(DroidSans))
-        io.Fonts->AddFontFromFileTTF(DroidSans.c_str(), 16.0f);
-    else SL_LOG("\n*** Error ***: \nFont doesn't exist: %s\n\n", DroidSans.c_str());
-
-    SLstring ProggyClean = SLGLTexture::defaultPathFonts + "ProggyClean.ttf";
-    if (SLFileSystem::fileExists(ProggyClean))
-        io.Fonts->AddFontFromFileTTF(ProggyClean.c_str(), 13.0f);
-    else SL_LOG("\n*** Error ***: \nFont doesn't exist: %s\n\n", ProggyClean.c_str());
-
-    // Pass C render function to ImGui
-    io.RenderDrawListsFn = SLGLImGui::imgui_renderFunction;
-
-    // Provide default build function
-    // The build function must be afterwards reassigned
-    build = noGuiBuilt;
 }
 //-----------------------------------------------------------------------------
-//! Static C function the that is provided to ImGui::GetIO().RenderDrawListsFn
-void SLGLImGui::imgui_renderFunction(ImDrawData* draw_data)
+//! Loads the proportional and fixed size font depending on the passed DPI
+void SLGLImGui::loadFonts(SLfloat fontPropDots, SLfloat fontFixedDots)
 {
-    globalInstance->onPaint(draw_data);
+
+    _fontPropDots = fontPropDots;
+    _fontFixedDots = fontFixedDots;
+
+    ImGuiIO& io = ImGui::GetIO();
+    io.Fonts->Clear();
+
+    // Load proportional font for menue and text displays
+    SLstring DroidSans = SLGLTexture::defaultPathFonts + "DroidSans.ttf";
+    if (SLFileSystem::fileExists(DroidSans))
+        io.Fonts->AddFontFromFileTTF(DroidSans.c_str(), fontPropDots);
+    else SL_LOG("\n*** Error ***: \nFont doesn't exist: %s\n\n", DroidSans.c_str());
+
+    // Load fixed size font for statistics windows
+    SLstring ProggyClean = SLGLTexture::defaultPathFonts + "ProggyClean.ttf";
+    if (SLFileSystem::fileExists(ProggyClean))
+        io.Fonts->AddFontFromFileTTF(ProggyClean.c_str(), fontFixedDots);
+    else SL_LOG("\n*** Error ***: \nFont doesn't exist: %s\n\n", ProggyClean.c_str());
+
+    deleteOpenGLObjects();
+    createOpenGLObjects();
 }
 //-----------------------------------------------------------------------------
 //! Creates all OpenGL objects for drawing the imGui
@@ -106,6 +108,9 @@ void SLGLImGui::createOpenGLObjects()
 
     /*
     const GLchar *vertex_shader =
+        "#ifdef GL_ES\n"
+        "precision mediump float;\n"
+        "#endif\n"
         "uniform mat4 ProjMtx;\n"
         "attribute vec2 Position;\n"
         "attribute vec2 UV;\n"
@@ -120,6 +125,9 @@ void SLGLImGui::createOpenGLObjects()
         "}\n";
 
     const GLchar* fragment_shader =
+        "#ifdef GL_ES\n"
+        "precision mediump float;\n"
+        "#endif\n"
         "uniform sampler2D Texture;\n"
         "varying vec2 Frag_UV;\n"
         "varying vec4 Frag_Color;\n"
@@ -129,43 +137,71 @@ void SLGLImGui::createOpenGLObjects()
         "}\n";
     */
 
-    const GLchar *vertex_shader =
-        "#version 330\n"
-        "uniform mat4 ProjMtx;\n"
-        "in vec2 Position;\n"
-        "in vec2 UV;\n"
-        "in vec4 Color;\n"
-        "out vec2 Frag_UV;\n"
-        "out vec4 Frag_Color;\n"
-        "void main()\n"
-        "{\n"
-        "	Frag_UV = UV;\n"
-        "	Frag_Color = Color;\n"
-        "	gl_Position = ProjMtx * vec4(Position.xy,0,1);\n"
-        "}\n";
+    // Build version string as the first statement
+    SLGLState* state = SLGLState::getInstance();
+    SLstring verGLSL = state->glSLVersionNO();
+    SLstring vertex_shader = "#version " + verGLSL;
+    if (state->glIsES3()) vertex_shader += " es";
+    vertex_shader +=
+            "\n"
+            "#ifdef GL_ES\n"
+            "precision mediump float;\n"
+            "#endif\n"
+            "\n"
+            "uniform mat4 ProjMtx;\n"
+            "in vec2 Position;\n"
+            "in vec2 UV;\n"
+            "in vec4 Color;\n"
+            "out vec2 Frag_UV;\n"
+            "out vec4 Frag_Color;\n"
+            "void main()\n"
+            "{\n"
+            "	Frag_UV = UV;\n"
+            "	Frag_Color = Color;\n"
+            "	gl_Position = ProjMtx * vec4(Position.xy,0,1);\n"
+            "}\n";
 
-    const GLchar* fragment_shader =
-        "#version 330\n"
-        "uniform sampler2D Texture;\n"
-        "in vec2 Frag_UV;\n"
-        "in vec4 Frag_Color;\n"
-        "out vec4 Out_Color;\n"
-        "void main()\n"
-        "{\n"
-        "	Out_Color = Frag_Color * texture( Texture, Frag_UV.st);\n"
-        "}\n";
-    
+    SLstring fragment_shader = "#version " + verGLSL;
+    if (state->glIsES3()) fragment_shader += " es";
+    fragment_shader +=
+            "\n"
+            "#ifdef GL_ES\n"
+            "precision mediump float;\n"
+            "#endif\n"
+            "\n"
+            "uniform sampler2D Texture;\n"
+            "in vec2 Frag_UV;\n"
+            "in vec4 Frag_Color;\n"
+            "out vec4 Out_Color;\n"
+            "void main()\n"
+            "{\n"
+            "	Out_Color = Frag_Color * texture( Texture, Frag_UV.st);\n"
+            "}\n";
 
-    _progHandle = glCreateProgram();
+
+
     _vertHandle = glCreateShader(GL_VERTEX_SHADER);
     _fragHandle = glCreateShader(GL_FRAGMENT_SHADER);
-    glShaderSource(_vertHandle, 1, &vertex_shader, 0);
-    glShaderSource(_fragHandle, 1, &fragment_shader, 0);
+    const char* srcVert = vertex_shader.c_str();
+    const char* srcFrag = fragment_shader.c_str();
+    glShaderSource(_vertHandle, 1, &srcVert, 0);
+    glShaderSource(_fragHandle, 1, &srcFrag, 0);
     glCompileShader(_vertHandle);
+    printCompileErrors(_vertHandle, srcVert);
     glCompileShader(_fragHandle);
+    printCompileErrors(_fragHandle, srcFrag);
+
+
+
+
+
+
+
+    _progHandle = glCreateProgram();
     glAttachShader(_progHandle, _vertHandle);
     glAttachShader(_progHandle, _fragHandle);
     glLinkProgram(_progHandle);
+
 
     GET_GL_ERROR;
 
@@ -260,9 +296,30 @@ void SLGLImGui::deleteOpenGLObjects()
     }
 }
 //-----------------------------------------------------------------------------
+//! Prints the compile errors in case of a GLSL compile failure
+void SLGLImGui::printCompileErrors(SLint shaderHandle, const SLchar* src)
+{
+    // Check compiler log
+    SLint compileSuccess = 0;
+    glGetShaderiv(shaderHandle, GL_COMPILE_STATUS, &compileSuccess);
+    if (compileSuccess == GL_FALSE)
+    {   GLchar log[512];
+        glGetShaderInfoLog(shaderHandle, sizeof(log), 0, &log[0]);
+        SL_LOG("*** COMPILER ERROR ***\n");
+        SL_LOG("%s\n---\n", log);
+        SL_LOG("%s\n", src);
+    }
+}
+//-----------------------------------------------------------------------------
 //! Inits a new frame for the ImGui system
 void SLGLImGui::onInitNewFrame(SLScene* s, SLSceneView* sv)
 {
+    assert(build && "No ImGui build function available");
+
+    if ((SLint)SL::fontPropDots != (SLint)_fontPropDots ||
+        (SLint)SL::fontFixedDots != (SLint)_fontFixedDots)
+        loadFonts(SL::fontPropDots, SL::fontFixedDots);
+
     if (!_fontTexture)
         createOpenGLObjects();
 
@@ -432,6 +489,7 @@ void SLGLImGui::onPaint(ImDrawData* draw_data)
 void SLGLImGui::onMouseMove(SLint xPos, SLint yPos)
 {
     ImGui::GetIO().MousePos = ImVec2((SLfloat)xPos, (SLfloat)yPos);
+    //SL_LOG("M");
 }
 //-----------------------------------------------------------------------------
 //! Callback for the mouse scroll movement
@@ -442,21 +500,23 @@ void SLGLImGui::onMouseWheel(SLfloat yoffset)
 }
 //-----------------------------------------------------------------------------
 //! Callback on mouse button down event
-void SLGLImGui::onMouseDown(SLMouseButton button)
+void SLGLImGui::onMouseDown(SLMouseButton button, SLint x, SLint y)
 {
     ImGuiIO& io = ImGui::GetIO();
     if (button == MB_left)   io.MouseDown[0] = true;
     if (button == MB_middle) io.MouseDown[1] = true;
     if (button == MB_right)  io.MouseDown[2] = true;
+    //SL_LOG("D");
 }
 //-----------------------------------------------------------------------------
 //! Callback on mouse button up event
-void SLGLImGui::onMouseUp(SLMouseButton button)
+void SLGLImGui::onMouseUp(SLMouseButton button, SLint x, SLint y)
 {
     ImGuiIO& io = ImGui::GetIO();
     if (button == MB_left)   io.MouseDown[0] = false;
     if (button == MB_middle) io.MouseDown[1] = false;
     if (button == MB_right)  io.MouseDown[2] = false;
+    //SL_LOG("U");
 }
 //-----------------------------------------------------------------------------
 //! Callback on key press event
@@ -484,17 +544,5 @@ void SLGLImGui::onClose()
 {
     deleteOpenGLObjects();
     ImGui::Shutdown();
-}
-//-----------------------------------------------------------------------------
-//! Function called whan no GUI build function is provided
-void SLGLImGui::noGuiBuilt(SLScene* s, SLSceneView* sv)
-{
-    static SLbool showOnce = true;
-    if (showOnce)
-    {   ImGui::SetNextWindowSize(ImVec2(200,80), ImGuiSetCond_FirstUseEver);
-        ImGui::Begin("Error", &showOnce);
-        ImGui::Text("There is no GUI build function\nprovided for SLGLImGui::build.");
-        ImGui::End();
-    }
 }
 //-----------------------------------------------------------------------------

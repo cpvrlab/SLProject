@@ -40,44 +40,35 @@ The full call stack for rendering one frame is:\n
         - SLGLImGui::build: The UI build function
       - ... normal scene rendering of SLProject
       - ImGui::Render:
-        - SLGLImGui::imgui_renderFunction
-          - SLGLImGui::onPaint
-            - SLDemoGui::buildDemoGui: Builds the full UI
+      - SLGLImGui::onPaint(ImGui::GetDrawData())
+        - SLDemoGui::buildDemoGui: Builds the full UI
 */
 class SLGLImGui
 {
     public:
                     SLGLImGui               (){;}
 
-        void        init                    (SLint scrW=0, 
-                                             SLint scrH=0, 
-                                             SLint fbW=0, 
-                                             SLint fbH=0);
+        void        init                    ();
+        void        loadFonts               (SLfloat fontPropDots,
+                                             SLfloat fontFixedDots);
         void        createOpenGLObjects     ();
         void        deleteOpenGLObjects     ();
+        void        printCompileErrors      (SLint shaderHandle,
+                                             const SLchar* src);
 
         void        onInitNewFrame          (SLScene* s, SLSceneView* sv);
         void        onResize                (SLint scrW, SLint scrH);
         void        onPaint                 (ImDrawData* draw_data);
-        void        onMouseDown             (SLMouseButton button);  
-        void        onMouseUp               (SLMouseButton button); 
+        void        onMouseDown             (SLMouseButton button, SLint x, SLint y);
+        void        onMouseUp               (SLMouseButton button, SLint x, SLint y);
         void        onMouseMove             (SLint xPos, SLint yPos);
         void        onMouseWheel            (SLfloat yoffset);
         void        onKeyPress              (SLKey key, SLKey mod);
         void        onKeyRelease            (SLKey key, SLKey mod);
         void        onClose                 ();
-
-        // Static global instance for render callback
-        static SLGLImGui* globalInstance; 
-
-        // Static C-function for render callback
-        static void imgui_renderFunction    (ImDrawData* draw_data);
         
         // gui build function pattern
         void        (*build)                (SLScene* s, SLSceneView* sv);
-
-        // empty default gui build function
-        static void noGuiBuilt              (SLScene* s, SLSceneView* sv);
 
     private:
         SLfloat     _timeSec;               //!< Time in seconds
@@ -96,6 +87,8 @@ class SLGLImGui
         SLuint      _vboHandle;             //!< OpenGL handle for vertex buffer object
         SLuint      _vaoHandle;             //!< OpenGL vertex array object handle
         SLuint      _elementsHandle;        //!< OpenGL handle for vertex indexes
+        SLfloat     _fontPropDots;          //!< Font size of proportional font
+        SLfloat     _fontFixedDots;         //!< Font size of fixed size font
 };
 //-----------------------------------------------------------------------------
 #endif

@@ -501,10 +501,8 @@ int main(int argc, char *argv[])
                                 (void*)&onPaint, 
                                 0,
                                 0,
-                                (void*)&onShowCursor);
-
-    // Attach the GUI building function for the ImGui UI
-    SLScene::current->gui().build = SLDemoGui::buildDemoGui;
+                                (void*)&onShowCursor,
+                                (void*)SLDemoGui::buildDemoGui);
 
     // Set GLFW callback functions
     glfwSetKeyCallback(window, onKeyAction);

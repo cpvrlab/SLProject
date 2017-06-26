@@ -59,18 +59,28 @@ SLSceneView::~SLSceneView()
     // Set pointer in SLScene::sceneViews vector to zero but leave it.
     // The remaining sceneviews must keep their index in the vector
     SLScene::current->sceneViews()[_index] = 0;
+
+    _gui.deleteOpenGLObjects();
+
     SL_LOG("Destructor      : ~SLSceneView\n");
 }
 //-----------------------------------------------------------------------------
-/*!
-SLSceneView::init initializes default values for an empty scene
+/*! SLSceneView::init initializes default values for an empty scene
+\param name Name of the sceneview
+\param screenWidth Width of the OpenGL frame buffer.
+\param screenHeight Height of the OpenGL frame buffer.
+\param onWndUpdateCallback Callback for ray tracing update
+\param onSelectNodeMeshCallback Callback on node and mesh selection
+\param onShowSystemCursorCallback Callback to show or hide the system cursor
+\param onBuildImGui Callback for the external ImGui build function
 */
 void SLSceneView::init(SLstring name, 
                        SLint screenWidth, 
                        SLint screenHeight,
                        void* onWndUpdateCallback,
                        void* onSelectNodeMeshCallback,
-                       void* onShowSystemCursorCallback)
+                       void* onShowSystemCursorCallback,
+                       void* onBuildImGui)
 {  
     _name = name;
     _scrW = screenWidth;
@@ -78,19 +88,22 @@ void SLSceneView::init(SLstring name,
 	_vrMode = false;
     _gotPainted = true;
 
-    /* The window update callback function is used to refresh the ray tracing 
-    image during the rendering process. The ray tracing image is drawn by OpenGL 
-    as a texture on a single quad.*/
+    // The window update callback function is used to refresh the ray tracing
+    // image during the rendering process. The ray tracing image is drawn by OpenGL
+    // as a texture on a single quad.
     onWndUpdate = (cbOnWndUpdate)onWndUpdateCallback;
 
-    /* The on select node callback is called when a node got selected on double
-    click, so that the UI can react on it.*/
+    // The on select node callback is called when a node got selected on double
+    // click, so that the UI can react on it.
     onSelectedNodeMesh = (cbOnSelectNodeMesh)onSelectNodeMeshCallback;
 
-    /* We need access to the system specific cursor and be able to hide it
-    if we need to draw our own. 
-    @todo could be simplified if we implemented our own SLWindow class */
+    // We need access to the system specific cursor and be able to hide it
+    // if we need to draw our own.
+    // @todo could be simplified if we implemented our own SLApp class
     onShowSysCursor = (cbOnShowSysCursor)onShowSystemCursorCallback;
+
+    // Set the ImGui build function. Every sceneview could have it's own GUI.
+    _gui.build = (cbOnBuildImGui)onBuildImGui;
 
     _stateGL = 0;
    
@@ -116,6 +129,8 @@ void SLSceneView::init(SLstring name,
     _scrWdivH = (SLfloat)_scrW / (SLfloat)_scrH;
       
     _renderType = RT_gl;
+
+    _gui.init();
 
     onStartup(); 
 }
@@ -301,7 +316,7 @@ void SLSceneView::onInitialize()
 
     initSceneViewCamera();
 
-    s->gui().onResize(_scrW, _scrH);
+    _gui.onResize(_scrW, _scrH);
 }
 //-----------------------------------------------------------------------------
 /*!
@@ -323,7 +338,7 @@ void SLSceneView::onResize(SLint width, SLint height)
         _scrHdiv2 = _scrH>>1;  // height / 2
         _scrWdivH = (SLfloat)_scrW/(SLfloat)_scrH;
 
-        s->gui().onResize(width, height);
+        _gui.onResize(width, height);
 
         // Resize Oculus framebuffer
         if (_camera && _camera->projection() == P_stereoSideBySideD)
@@ -360,7 +375,7 @@ SLbool SLSceneView::onPaint()
             return false;
     
     // Init and build GUI
-    s->gui().onInitNewFrame(s, this);
+    _gui.onInitNewFrame(s, this);
 
     if (_camera)
     {   // Render the 3D scenegraph by by raytracing, pathtracing or OpenGL
@@ -376,6 +391,7 @@ SLbool SLSceneView::onPaint()
 
     // Render the ImGui UI
     ImGui::Render();
+    _gui.onPaint(ImGui::GetDrawData());
 
     _stateGL->unbindAnythingAndFlush();
 
@@ -844,10 +860,11 @@ SLbool SLSceneView::onMouseDown(SLMouseButton button,
                                 SLint x, SLint y, SLKey mod)
 {
     SLScene* s = SLScene::current;
-
+    
+    ImGui::GetIO().MousePos = ImVec2((SLfloat)x, (SLfloat)y);
     if (ImGui::GetIO().WantCaptureMouse)
-    {   s->gui().onMouseDown(button);
-        return false;
+    {   _gui.onMouseDown(button, x, y);
+        return true;
     }
    
     _mouseDownL = (button == MB_left);
@@ -885,10 +902,8 @@ SLbool SLSceneView::onMouseUp(SLMouseButton button,
         _raytracer.state(rtReady);
     }
 
-    if (ImGui::GetIO().WantCaptureMouse)
-    {   s->gui().onMouseUp(button);
-        return false;
-    }
+    ImGui::GetIO().MousePos = ImVec2((SLfloat)x, (SLfloat)y);
+    _gui.onMouseUp(button, x, y);
 
     _mouseDownL = false;
     _mouseDownR = false;
@@ -914,7 +929,9 @@ SLbool SLSceneView::onMouseMove(SLint x, SLint y)
 {
     SLScene* s = SLScene::current;
 
-    s->gui().onMouseMove(x, y);
+    _gui.onMouseMove(x, y);
+    if (ImGui::GetIO().WantCaptureMouse)
+        return true;
 
     if (!s->root3D()) return false;
 
@@ -973,7 +990,7 @@ SLbool SLSceneView::onMouseWheel(SLint delta, SLKey mod)
     if (!s->root3D()) return false;
 
     if (ImGui::GetIO().WantCaptureMouse)
-    {   s->gui().onMouseWheel((SLfloat)delta);
+    {   _gui.onMouseWheel((SLfloat)delta);
         return true;
     }
 
@@ -1121,7 +1138,7 @@ SLbool SLSceneView::onKeyPress(SLKey key, SLKey mod)
     if (!s->root3D()) return false;
 
     if (ImGui::GetIO().WantCaptureKeyboard)
-    {   s->gui().onKeyPress(key, mod);
+    {   _gui.onKeyPress(key, mod);
         return true;
     }
     
@@ -1171,7 +1188,7 @@ SLbool SLSceneView::onKeyRelease(SLKey key, SLKey mod)
     SLScene* s = SLScene::current;
 
     if (ImGui::GetIO().WantCaptureKeyboard)
-    {   s->gui().onKeyRelease(key, mod);
+    {   _gui.onKeyRelease(key, mod);
         return true;
     }
 

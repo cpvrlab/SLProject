@@ -179,7 +179,6 @@
     <ClCompile Include="glfw3\src\window.c" />
     <ClCompile Include="glfw3\src\winmm_joystick.c" />
     <ClCompile Include="imgui\imgui.cpp" />
-    <ClCompile Include="imgui\imgui_demo.cpp" />
     <ClCompile Include="imgui\imgui_draw.cpp" />
     <ClCompile Include="ktx\lib\checkheader.c" />
     <ClCompile Include="ktx\lib\errstr.c" />

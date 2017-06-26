@@ -584,13 +584,13 @@ SLTextureType SLGLTexture::detectType(SLstring filename)
 {
     SLstring name = SLUtils::getFileNameWOExt(filename);
     SLstring appendix = name.substr(name.length()-2, 2);
-    if (appendix=="C") return TT_color;
-    if (appendix=="N") return TT_normal;
-    if (appendix=="H") return TT_height;
-    if (appendix=="G") return TT_gloss;
-    if (appendix=="R") return TT_roughness;
-    if (appendix=="M") return TT_metallic;
-    if (appendix=="F") return TT_font;
+    if (appendix=="_C") return TT_color;
+    if (appendix=="_N") return TT_normal;
+    if (appendix=="_H") return TT_height;
+    if (appendix=="_G") return TT_gloss;
+    if (appendix=="_R") return TT_roughness;
+    if (appendix=="_M") return TT_metallic;
+    if (appendix=="_F") return TT_font;
     return TT_color;
 }
 //-----------------------------------------------------------------------------

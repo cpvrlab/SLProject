@@ -122,8 +122,6 @@ SLScene::SLScene(SLstring name) : SLObject(name)
     #endif
 
     _oculus.init();
-
-    _gui.init();
 }
 //-----------------------------------------------------------------------------
 /*! The destructor does the final total deallocation of all global resources.
@@ -184,8 +182,6 @@ SLScene::~SLScene()
     // release the capture device
     SLCVCapture::release();
     #endif
-
-    _gui.deleteOpenGLObjects();
 
     SL_LOG("Destructor      : ~SLScene\n");
     SL_LOG("------------------------------------------------------------------\n");

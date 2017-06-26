@@ -395,26 +395,26 @@ void SLDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
 
             if (ImGui::BeginMenu("Preferences"))
             {
-                if (ImGui::BeginMenu("Rendering"))
-                {
-                    if (ImGui::MenuItem("Slow down on Idle", 0, sv->waitEvents()))
-                        sv->onCommand(C_waitEventsToggle);
+                if (ImGui::MenuItem("Slow down on Idle", 0, sv->waitEvents()))
+                    sv->onCommand(C_waitEventsToggle);
 
-                    if (ImGui::MenuItem("Do Multi Sampling", 0, sv->doMultiSampling()))
-                        sv->onCommand(C_multiSampleToggle);
+                if (ImGui::MenuItem("Do Multi Sampling", 0, sv->doMultiSampling()))
+                    sv->onCommand(C_multiSampleToggle);
 
-                    if (ImGui::MenuItem("Do Frustum Culling", 0, sv->doFrustumCulling()))
-                        sv->onCommand(C_frustCullToggle);
+                if (ImGui::MenuItem("Do Frustum Culling", 0, sv->doFrustumCulling()))
+                    sv->onCommand(C_frustCullToggle);
 
-                    if (ImGui::MenuItem("Do Depth Test", 0, sv->doDepthTest()))
-                        sv->onCommand(C_depthTestToggle);
+                if (ImGui::MenuItem("Do Depth Test", 0, sv->doDepthTest()))
+                    sv->onCommand(C_depthTestToggle);
 
-                    if (ImGui::MenuItem("Animation off", 0, s->stopAnimations()))
-                        sv->onCommand(C_animationToggle);
+                if (ImGui::MenuItem("Animation off", 0, s->stopAnimations()))
+                    sv->onCommand(C_animationToggle);
 
-                    ImGui::EndMenu();
-                }
+                ImGui::Separator();
 
+                ImGui::SliderFloat("Prop. Font Size", &SL::fontPropDots, 16.f, 60.f,"%0.0f");
+
+                ImGui::SliderFloat("Fixed Font Size", &SL::fontFixedDots, 13.f, 60.f,"%0.0f");
 
                 ImGui::EndMenu();
             }
@@ -443,7 +443,7 @@ void SLDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
 
         if (rType == RT_gl)
         {
-            if (ImGui::BeginMenu("Render Flags"))
+            if (ImGui::BeginMenu("Setting"))
             {
                 if (ImGui::MenuItem("Wired Mesh", 0, sv->drawBits()->get(SL_DB_WIREMESH)))
                     sv->onCommand(C_wireMeshToggle);
@@ -489,7 +489,7 @@ void SLDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
         }
         else if (rType == RT_rt)
         {
-            if (ImGui::BeginMenu("RT Settings"))
+            if (ImGui::BeginMenu("Settings"))
             {
                 SLRaytracer* rt = sv->raytracer();
 
@@ -539,7 +539,7 @@ void SLDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
         }
         else if (rType == RT_pt)
         {
-            if (ImGui::BeginMenu("PT Settings"))
+            if (ImGui::BeginMenu("Settings"))
             {
                 SLPathtracer* pt = sv->pathtracer();
 

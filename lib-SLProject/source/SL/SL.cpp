@@ -23,6 +23,8 @@ SLstring        SL::version         = "2.1.000";
 SLstring        SL::configPath      = "../_data/config/";
 SLstring        SL::configTime      = "-";
 SLint           SL::dpi             = 0;
+SLfloat         SL::fontPropDots    = 0.0f;
+SLfloat         SL::fontFixedDots   = 0.0f;
 SLCommand       SL::currentSceneID  = C_sceneEmpty;
 SLint           SL::testDurationSec = 0;
 SLint           SL::testFactor      = 1;
@@ -30,6 +32,7 @@ SLCommand       SL::testScene       = (SLCommand)-1;
 SLCommand       SL::testSceneAll    = C_sceneMinimal;
 SLLogVerbosity  SL::testLogVerbosity = LV_quiet;
 SLuint          SL::testFrameCounter = 0;
+
 SLstring        SL::infoAbout =
 "Welcome to the SLProject demo app. It is developed at the \
 Computer Science Department of the Bern University of Applied Sciences. \
@@ -243,6 +246,8 @@ void SL::loadConfig(SLSceneView* sv)
     SLint i; SLbool b;
     fs["configTime"]                >> SL::configTime;
     fs["dpi"]                       >> SL::dpi;
+    fs["fontPropDots"]              >> SL::fontPropDots;
+    fs["fontFixedDots"]             >> SL::fontFixedDots;
     fs["currentSceneID"]            >> i; SL::currentSceneID = (SLCommand)i;
     fs["showStatsTiming"]           >> b; SLDemoGui::showStatsTiming = b;
     fs["showStatsMemory"]           >> b; SLDemoGui::showStatsScene = b;
@@ -268,6 +273,8 @@ void SL::saveConfig(SLSceneView* sv)
      
     fs << "configTime"              << SLUtils::getLocalTimeString();
     fs << "dpi"                     << SL::dpi;
+    fs << "fontPropDots"            << SL::fontPropDots;
+    fs << "fontFixedDots"           << SL::fontFixedDots;
     fs << "currentSceneID"          << (SLint)SL::currentSceneID;
     fs << "showStatsTiming"         << SLDemoGui::showStatsTiming;
     fs << "showStatsMemory"         << SLDemoGui::showStatsScene;

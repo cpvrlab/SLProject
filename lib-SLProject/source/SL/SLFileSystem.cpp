@@ -61,6 +61,7 @@ SLstring SLFileSystem::getAppsWritableDir()
     #ifdef SL_OS_WINDOWS
         SLstring appData = getenv("APPDATA");
         SLstring configDir = appData + "/SLProject";
+        SLUtils::replaceString(configDir, "\\", "/");
         if (!dirExists(configDir))
             _mkdir(configDir.c_str());
         return configDir + "/";

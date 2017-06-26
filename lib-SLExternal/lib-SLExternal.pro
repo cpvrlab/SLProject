@@ -126,7 +126,6 @@ SOURCES += \
     randomc/mersenne.cpp \
     Shoemake/EulerAngles.cpp \
     Shoemake/Decompose.cpp \
-    imgui/imgui_demo.cpp \
     imgui/imgui_draw.cpp \
     imgui/imgui.cpp
 
