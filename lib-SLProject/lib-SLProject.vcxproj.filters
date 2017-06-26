@@ -48,9 +48,6 @@
     <ClInclude Include="..\include\SLAABBox.h">
       <Filter>Nodes\AABB &amp; Animation</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\SLButton.h">
-      <Filter>Nodes</Filter>
-    </ClInclude>
     <ClInclude Include="..\include\SLCamera.h">
       <Filter>Nodes</Filter>
     </ClInclude>
@@ -321,6 +318,12 @@
     <ClInclude Include="..\include\SLCVImage.h">
       <Filter>CV</Filter>
     </ClInclude>
+    <ClInclude Include="..\include\SLGLImGui.h">
+      <Filter>GL</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\SLDemoGui.h">
+      <Filter>SL</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="source\SLAABBox.cpp">
@@ -357,9 +360,6 @@
       <Filter>Nodes</Filter>
     </ClCompile>
     <ClCompile Include="source\SLCamera.cpp">
-      <Filter>Nodes</Filter>
-    </ClCompile>
-    <ClCompile Include="source\SLButton.cpp">
       <Filter>Nodes</Filter>
     </ClCompile>
     <ClCompile Include="source\SLBox.cpp">
@@ -526,6 +526,12 @@
     </ClCompile>
     <ClCompile Include="source\CV\SLCVImage.cpp">
       <Filter>CV</Filter>
+    </ClCompile>
+    <ClCompile Include="source\GL\SLGLImGui.cpp">
+      <Filter>GL</Filter>
+    </ClCompile>
+    <ClCompile Include="source\SLDemoGui.cpp">
+      <Filter>SL</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

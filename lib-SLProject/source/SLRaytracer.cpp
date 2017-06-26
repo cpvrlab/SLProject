@@ -60,8 +60,6 @@ SLbool SLRaytracer::renderClassic(SLSceneView* sv)
     _stateGL = SLGLState::getInstance();// OpenGL state shortcut
     _pcRendered = 0;                    // % rendered
     _renderSec = 0.0f;                  // reset time
-    _infoText  = SLScene::current->info(_sv)->text();  // keep original info string
-    _infoColor = SLScene::current->info(_sv)->color(); // keep original info color
 
     initStats(_maxDepth);               // init statistics
     prepareImage();                     // Setup image & precalculations
@@ -121,8 +119,6 @@ SLbool SLRaytracer::renderDistrib(SLSceneView* sv)
     _stateGL = SLGLState::getInstance();// OpenGL state shortcut
     _pcRendered = 0;                    // % rendered
     _renderSec = 0.0f;                  // reset time
-    _infoText  = SLScene::current->info(_sv)->text();  // keep original info string
-    _infoColor = SLScene::current->info(_sv)->color(); // keep original info color
 
     initStats(_maxDepth);               // init statistics
     prepareImage();                     // Setup image & precalculations
@@ -770,14 +766,6 @@ void SLRaytracer::renderImage()
     _stateGL->polygonLine(false);
 
     drawSprite(true);
-   
-    // Write progress into info text
-    if (_pcRendered < 100)
-    {  SLchar str[255];  
-        sprintf(str,"%s Tracing: Threads: %d, Progress: %d%%", 
-                _infoText.c_str(), SL::maxThreads(), _pcRendered);
-        SLScene::current->info(_sv, str, _infoColor);
-    } else SLScene::current->info(_sv, _infoText.c_str(), _infoColor);
 
     _stateGL->depthTest(true);
     GET_GL_ERROR;

@@ -24,8 +24,6 @@
 
 class SLSceneView;
 class SLCVTracker;
-class SLButton;
-class SLText;
 
 //-----------------------------------------------------------------------------
 typedef vector<SLSceneView*> SLVSceneView; //!< Vector of SceneView pointers
@@ -58,20 +56,7 @@ class SLScene: public SLObject
             // Setters
             void            root3D              (SLNode* root3D){_root3D = root3D;}
             void            globalAmbiLight     (SLCol4f gloAmbi){_globalAmbiLight=gloAmbi;}
-            void            info                (SLSceneView* sv, SLstring infoText, 
-                                                 SLCol4f color=SLCol4f::WHITE);
             void            stopAnimations      (SLbool stop) {_stopAnimations = stop;}
-            void            infoGL              (SLText* t) {_infoGL = t;}
-            void            infoRT              (SLText* t) {_infoRT = t;}
-            void            infoLoading         (SLText* t) {_infoLoading = t;}
-            void            menu2D              (SLButton* b) {_menu2D = b;}
-            void            menuGL              (SLButton* b) {_menuGL = b;}
-            void            menuRT              (SLButton* b) {_menuRT = b;}
-            void            menuPT              (SLButton* b) {_menuPT = b;}
-            void            btnAbout            (SLButton* b) {_btnAbout = b;}
-            void            btnCredits          (SLButton* b) {_btnCredits = b;}
-            void            btnCalibration      (SLButton* b) {_btnCalibration = b;}
-            void            btnHelp             (SLButton* b) {_btnHelp = b;}
             void            videoType           (SLVideoType vt);
                            
             // Getters
@@ -79,30 +64,14 @@ class SLScene: public SLObject
             SLSceneView*    sv                  (SLuint index) {return _sceneViews[index];}
             SLVSceneView&   sceneViews          () {return _sceneViews;}
             SLNode*         root3D              () {return _root3D;}
+            SLstring&       info                () {return _info;}
             void            timerStart          () {_timer.start();}
             SLfloat         timeSec             () {return (SLfloat)_timer.getElapsedTimeInSec();}
             SLfloat         timeMilliSec        () {return (SLfloat)_timer.getElapsedTimeInMilliSec();}
             SLfloat         elapsedTimeMS       () {return _elapsedTimeMS;}
             SLfloat         elapsedTimeSec      () {return _elapsedTimeMS * 0.001f;}
             SLVEventHandler& eventHandlers      () {return _eventHandlers;}
-            SLButton*       menu2D              () {return _menu2D;}
-            SLButton*       menuGL              () {return _menuGL;}
-            SLButton*       menuRT              () {return _menuRT;}
-            SLButton*       menuPT              () {return _menuPT;}
-            SLButton*       btnAbout            () {return _btnAbout;}
-            SLButton*       btnHelp             () {return _btnHelp;}
-            SLButton*       btnCredits          () {return _btnCredits;}
-            SLButton*       btnCalibration      () {return _btnCalibration;}
-            SLstring        infoAbout           () const {return _infoAbout;}
-            SLstring        infoCredits         () const {return _infoCredits;}
-            SLstring        infoHelp            () const {return _infoHelp;}
-            SLstring        infoCalibration     () const {return _infoCalibrate;}
-            SLText*         info                (SLSceneView* sv);
-            SLText*         info                () {return _info;}
-            SLText*         infoGL              () {return _infoGL;}
-            SLText*         infoRT              () {return _infoRT;}
-            SLText*         infoLoading         () {return _infoLoading;}
-            SLGLTexture*    texCursor           () {return _texCursor;}
+
             SLCol4f         globalAmbiLight     () const {return _globalAmbiLight;}
             SLVLight&       lights              () {return _lights;}
             SLfloat         fps                 () {return _fps;}
@@ -142,7 +111,6 @@ class SLScene: public SLObject
             bool            onUpdate            ();
             void            init                ();
             void            unInit              ();
-            void            deleteAllMenus      ();
             SLbool          onCommandAllSV      (const SLCommand cmd);
             void            selectNode          (SLNode* nodeToSelect);
             void            selectNodeMesh      (SLNode* nodeToSelect, SLMesh* meshToSelect);
@@ -166,6 +134,7 @@ class SLScene: public SLObject
             SLAnimManager   _animManager;       //!< Animation manager instance
             
             SLNode*         _root3D;            //!< Root node for 3D scene
+            SLstring        _info;              //!< scene info string
             SLNode*         _selectedNode;      //!< Pointer to the selected node
             SLMesh*         _selectedMesh;      //!< Pointer to the selected mesh
 
@@ -173,25 +142,6 @@ class SLScene: public SLObject
             SLCol4f         _globalAmbiLight;   //!< global ambient light intensity
             SLbool          _rootInitialized;   //!< Flag if scene is initialized
             SLint           _numProgsPreload;   //!< No. of preloaded shaderProgs
-            
-            SLText*         _info;              //!< Text node for scene info
-            SLText*         _infoGL;            //!< Root text node for 2D GL stats infos
-            SLText*         _infoRT;            //!< Root text node for 2D RT stats infos
-            SLText*         _infoLoading;       //!< Root text node for 2D loading text
-            SLstring        _infoAbout;         //!< About info text
-            SLstring        _infoCredits;       //!< Credits info text
-            SLstring        _infoHelp;          //!< Help info text
-            SLstring        _infoCalibrate;     //!< No calibration info text
-
-            SLButton*       _menu2D;            //!< Root button node for 2D GUI
-            SLButton*       _menuGL;            //!< Root button node for OpenGL menu
-            SLButton*       _menuRT;            //!< Root button node for RT menu
-            SLButton*       _menuPT;            //!< Root button node for PT menu
-            SLButton*       _btnAbout;          //!< About button
-            SLButton*       _btnHelp;           //!< Help button
-            SLButton*       _btnCredits;        //!< Credits button
-            SLButton*       _btnCalibration;    //!< No calibration infos
-            SLGLTexture*    _texCursor;         //!< Texture for the virtual cursor
             
             SLfloat         _elapsedTimeMS;     //!< Last frame time in ms
             SLfloat         _lastUpdateTimeMS;  //!< Last time after update in ms

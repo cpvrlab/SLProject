@@ -33,7 +33,7 @@ friend class SLInputDevice;
 public:
     static  SLInputManager& instance        ();
 
-            SLbool          pollEvents      ();
+            SLbool          pollAndProcessEvents      ();
             void            queueEvent      (const SLInputEvent* e);
 
 private:

@@ -178,6 +178,8 @@
     <ClCompile Include="glfw3\src\win32_window.c" />
     <ClCompile Include="glfw3\src\window.c" />
     <ClCompile Include="glfw3\src\winmm_joystick.c" />
+    <ClCompile Include="imgui\imgui.cpp" />
+    <ClCompile Include="imgui\imgui_draw.cpp" />
     <ClCompile Include="ktx\lib\checkheader.c" />
     <ClCompile Include="ktx\lib\errstr.c" />
     <ClCompile Include="ktx\lib\etcdec.cxx" />
@@ -228,6 +230,12 @@
     <ClInclude Include="glfw3\src\win32_platform.h" />
     <ClInclude Include="glfw3\src\win32_tls.h" />
     <ClInclude Include="glfw3\src\winmm_joystick.h" />
+    <ClInclude Include="imgui\imconfig.h" />
+    <ClInclude Include="imgui\imgui.h" />
+    <ClInclude Include="imgui\imgui_internal.h" />
+    <ClInclude Include="imgui\stb_rect_pack.h" />
+    <ClInclude Include="imgui\stb_textedit.h" />
+    <ClInclude Include="imgui\stb_truetype.h" />
     <ClInclude Include="ktx\include\ktx.h" />
     <ClInclude Include="ktx\lib\gles1_funcptrs.h" />
     <ClInclude Include="ktx\lib\gles2_funcptrs.h" />

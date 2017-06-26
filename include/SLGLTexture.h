@@ -35,13 +35,13 @@
 //! Texture type enumeration & their filename appendix for auto type detection
 enum SLTextureType 
 {   TT_unknown,     // will be handled as color maps
-    TT_color,       //*C.{ext}
-    TT_normal,      //*N.{ext}
-    TT_height,      //*H.{ext}
-    TT_gloss,       //*G.{ext}
-    TT_roughness,   //*R.{ext} Cook-Torrance roughness 0-1
-    TT_metallic,    //*M.{ext} Cook-Torrance metallic 0-1
-    TT_font         //*_F.glf
+    TT_color,       //*_C.{ext}
+    TT_normal,      //*_N.{ext}
+    TT_height,      //*_H.{ext}
+    TT_gloss,       //*_G.{ext}
+    TT_roughness,   //*_R.{ext} Cook-Torrance roughness 0-1
+    TT_metallic,    //*_M.{ext} Cook-Torrance metallic 0-1
+    TT_font         //*_F.{ext}
 };
 //-----------------------------------------------------------------------------
 //! Texture object for OpenGL texturing

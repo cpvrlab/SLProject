@@ -145,7 +145,6 @@
 		418E0C1C148927D700C6274F /* SLSceneView.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 418E0C1A148927D700C6274F /* SLSceneView.cpp */; };
 		418E0C1E148927F200C6274F /* SLScene_onLoad.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 418E0C1D148927F200C6274F /* SLScene_onLoad.cpp */; };
 		418E0C3F148929C800C6274F /* SLBox.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 418E0C27148929C800C6274F /* SLBox.cpp */; };
-		418E0C40148929C800C6274F /* SLButton.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 418E0C28148929C800C6274F /* SLButton.cpp */; };
 		418E0C41148929C800C6274F /* SLCamera.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 418E0C29148929C800C6274F /* SLCamera.cpp */; };
 		418E0C42148929C800C6274F /* SLCone.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 418E0C2A148929C800C6274F /* SLCone.cpp */; };
 		418E0C43148929C800C6274F /* SLCylinder.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 418E0C2B148929C800C6274F /* SLCylinder.cpp */; };
@@ -341,6 +340,16 @@
 		41BEFC071B78F84F009EF31F /* AVFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 41BEFC061B78F84F009EF31F /* AVFoundation.framework */; };
 		41BEFC0A1B78F85A009EF31F /* CoreMedia.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 41BEFC091B78F85A009EF31F /* CoreMedia.framework */; };
 		41BEFC0C1B78F866009EF31F /* CoreVideo.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 41BEFC0B1B78F865009EF31F /* CoreVideo.framework */; };
+		41C48E8B1F0124750059B48C /* SLGLImGui.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 41C48E8A1F0124750059B48C /* SLGLImGui.cpp */; };
+		41C48E921F01250E0059B48C /* imgui_draw.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 41C48E8F1F01250E0059B48C /* imgui_draw.cpp */; };
+		41C48E931F01250E0059B48C /* imgui.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 41C48E901F01250E0059B48C /* imgui.cpp */; };
+		41C48E9A1F01254A0059B48C /* Cousine-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 41C48E941F01254A0059B48C /* Cousine-Regular.ttf */; };
+		41C48E9B1F01254A0059B48C /* DroidSans.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 41C48E951F01254A0059B48C /* DroidSans.ttf */; };
+		41C48E9C1F01254A0059B48C /* Karla-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 41C48E961F01254A0059B48C /* Karla-Regular.ttf */; };
+		41C48E9D1F01254A0059B48C /* ProggyClean.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 41C48E971F01254A0059B48C /* ProggyClean.ttf */; };
+		41C48E9E1F01254A0059B48C /* ProggyTiny.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 41C48E981F01254A0059B48C /* ProggyTiny.ttf */; };
+		41C48E9F1F01254A0059B48C /* Roboto-Medium.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 41C48E991F01254A0059B48C /* Roboto-Medium.ttf */; };
+		41C48EA11F0128130059B48C /* SLDemoGui.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 41C48EA01F0128130059B48C /* SLDemoGui.cpp */; };
 		41C99E7818D4316A0045FD2D /* Icon_57.png in Resources */ = {isa = PBXBuildFile; fileRef = 41C99E7518D4316A0045FD2D /* Icon_57.png */; };
 		41C99E7918D4316A0045FD2D /* Icon_114.png in Resources */ = {isa = PBXBuildFile; fileRef = 41C99E7618D4316A0045FD2D /* Icon_114.png */; };
 		41C99E7A18D4316A0045FD2D /* Icon_144.png in Resources */ = {isa = PBXBuildFile; fileRef = 41C99E7718D4316A0045FD2D /* Icon_144.png */; };
@@ -568,7 +577,6 @@
 		418E0C1A148927D700C6274F /* SLSceneView.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SLSceneView.cpp; path = "../lib-SLProject/source/SLSceneView.cpp"; sourceTree = SOURCE_ROOT; };
 		418E0C1D148927F200C6274F /* SLScene_onLoad.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SLScene_onLoad.cpp; path = "../lib-SLProject/source/SLScene_onLoad.cpp"; sourceTree = SOURCE_ROOT; };
 		418E0C27148929C800C6274F /* SLBox.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SLBox.cpp; path = "../lib-SLProject/source/SLBox.cpp"; sourceTree = SOURCE_ROOT; };
-		418E0C28148929C800C6274F /* SLButton.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SLButton.cpp; path = "../lib-SLProject/source/SLButton.cpp"; sourceTree = SOURCE_ROOT; };
 		418E0C29148929C800C6274F /* SLCamera.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SLCamera.cpp; path = "../lib-SLProject/source/SLCamera.cpp"; sourceTree = SOURCE_ROOT; };
 		418E0C2A148929C800C6274F /* SLCone.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SLCone.cpp; path = "../lib-SLProject/source/SLCone.cpp"; sourceTree = SOURCE_ROOT; };
 		418E0C2B148929C800C6274F /* SLCylinder.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SLCylinder.cpp; path = "../lib-SLProject/source/SLCylinder.cpp"; sourceTree = SOURCE_ROOT; };
@@ -585,7 +593,6 @@
 		418E0C3C148929C800C6274F /* SLText.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SLText.cpp; path = "../lib-SLProject/source/SLText.cpp"; sourceTree = SOURCE_ROOT; };
 		418E0C5A14892AC000C6274F /* SLAABBox.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SLAABBox.h; path = ../include/SLAABBox.h; sourceTree = SOURCE_ROOT; };
 		418E0C5C14892AC000C6274F /* SLBox.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SLBox.h; path = ../include/SLBox.h; sourceTree = SOURCE_ROOT; };
-		418E0C5D14892AC000C6274F /* SLButton.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SLButton.h; path = ../include/SLButton.h; sourceTree = SOURCE_ROOT; };
 		418E0C5E14892AC000C6274F /* SLCamera.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SLCamera.h; path = ../include/SLCamera.h; sourceTree = SOURCE_ROOT; };
 		418E0C5F14892AC000C6274F /* SLCone.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SLCone.h; path = ../include/SLCone.h; sourceTree = SOURCE_ROOT; };
 		418E0C6014892AC000C6274F /* SLCylinder.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SLCylinder.h; path = ../include/SLCylinder.h; sourceTree = SOURCE_ROOT; };
@@ -971,6 +978,19 @@
 		41BEFC061B78F84F009EF31F /* AVFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AVFoundation.framework; path = System/Library/Frameworks/AVFoundation.framework; sourceTree = SDKROOT; };
 		41BEFC091B78F85A009EF31F /* CoreMedia.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreMedia.framework; path = System/Library/Frameworks/CoreMedia.framework; sourceTree = SDKROOT; };
 		41BEFC0B1B78F865009EF31F /* CoreVideo.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreVideo.framework; path = System/Library/Frameworks/CoreVideo.framework; sourceTree = SDKROOT; };
+		41C48E8A1F0124750059B48C /* SLGLImGui.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SLGLImGui.cpp; path = "../lib-SLProject/source/GL/SLGLImGui.cpp"; sourceTree = SOURCE_ROOT; };
+		41C48E8D1F0124AE0059B48C /* SLDemoGui.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SLDemoGui.h; path = ../include/SLDemoGui.h; sourceTree = SOURCE_ROOT; };
+		41C48E8E1F0124AE0059B48C /* SLGLImGui.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SLGLImGui.h; path = ../include/SLGLImGui.h; sourceTree = SOURCE_ROOT; };
+		41C48E8F1F01250E0059B48C /* imgui_draw.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = imgui_draw.cpp; path = "../lib-SLExternal/imgui/imgui_draw.cpp"; sourceTree = SOURCE_ROOT; };
+		41C48E901F01250E0059B48C /* imgui.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = imgui.cpp; path = "../lib-SLExternal/imgui/imgui.cpp"; sourceTree = SOURCE_ROOT; };
+		41C48E911F01250E0059B48C /* imgui.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = imgui.h; path = "../lib-SLExternal/imgui/imgui.h"; sourceTree = SOURCE_ROOT; };
+		41C48E941F01254A0059B48C /* Cousine-Regular.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "Cousine-Regular.ttf"; path = "../_data/images/fonts/Cousine-Regular.ttf"; sourceTree = "<group>"; };
+		41C48E951F01254A0059B48C /* DroidSans.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = DroidSans.ttf; path = ../_data/images/fonts/DroidSans.ttf; sourceTree = "<group>"; };
+		41C48E961F01254A0059B48C /* Karla-Regular.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "Karla-Regular.ttf"; path = "../_data/images/fonts/Karla-Regular.ttf"; sourceTree = "<group>"; };
+		41C48E971F01254A0059B48C /* ProggyClean.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = ProggyClean.ttf; path = ../_data/images/fonts/ProggyClean.ttf; sourceTree = "<group>"; };
+		41C48E981F01254A0059B48C /* ProggyTiny.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = ProggyTiny.ttf; path = ../_data/images/fonts/ProggyTiny.ttf; sourceTree = "<group>"; };
+		41C48E991F01254A0059B48C /* Roboto-Medium.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "Roboto-Medium.ttf"; path = "../_data/images/fonts/Roboto-Medium.ttf"; sourceTree = "<group>"; };
+		41C48EA01F0128130059B48C /* SLDemoGui.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SLDemoGui.cpp; path = "../lib-SLProject/source/SLDemoGui.cpp"; sourceTree = "<group>"; };
 		41C5EEE0175B1A340005A588 /* SLParallel.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = SLParallel.h; path = ../include/SLParallel.h; sourceTree = SOURCE_ROOT; };
 		41C99E7518D4316A0045FD2D /* Icon_57.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = Icon_57.png; path = images/Icon_57.png; sourceTree = SOURCE_ROOT; };
 		41C99E7618D4316A0045FD2D /* Icon_114.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = Icon_114.png; path = images/Icon_114.png; sourceTree = SOURCE_ROOT; };
@@ -1042,6 +1062,9 @@
 		4124F2A116D4FD4B004379A0 /* lib-SLExternal */ = {
 			isa = PBXGroup;
 			children = (
+				41C48E8F1F01250E0059B48C /* imgui_draw.cpp */,
+				41C48E901F01250E0059B48C /* imgui.cpp */,
+				41C48E911F01250E0059B48C /* imgui.h */,
 				419807101959B9910048085E /* assimp */,
 			);
 			name = "lib-SLExternal";
@@ -1065,11 +1088,13 @@
 				414333781DE03D590027E1C3 /* SLCVTrackerChessboard.cpp */,
 			);
 			name = CV;
-			sourceTree = "<group>";
+			sourceTree = SOURCE_ROOT;
 		};
 		414ABBEC148A629B0061231A /* GL */ = {
 			isa = PBXGroup;
 			children = (
+				41C48E8E1F0124AE0059B48C /* SLGLImGui.h */,
+				41C48E8A1F0124750059B48C /* SLGLImGui.cpp */,
 				41B86C5C1C4FE23A00BB409D /* SLGLVertexBuffer.h */,
 				41B86C5D1C4FE23A00BB409D /* SLGLEnums.h */,
 				41B86C591C4FE21400BB409D /* SLGLVertexBuffer.cpp */,
@@ -1096,6 +1121,8 @@
 		41627E8D15CA8CA90023B936 /* SL */ = {
 			isa = PBXGroup;
 			children = (
+				41C48EA01F0128130059B48C /* SLDemoGui.cpp */,
+				41C48E8D1F0124AE0059B48C /* SLDemoGui.h */,
 				41627E9015CA8CE70023B936 /* SL.h */,
 				41627E8F15CA8CE70023B936 /* SL.cpp */,
 				4198070E1959B91C0048085E /* SLEnums.h */,
@@ -1124,7 +1151,7 @@
 				41C5EEE0175B1A340005A588 /* SLParallel.h */,
 			);
 			name = SL;
-			sourceTree = "<group>";
+			sourceTree = SOURCE_ROOT;
 		};
 		41654BCC14866F540003DF5E /* math */ = {
 			isa = PBXGroup;
@@ -1229,6 +1256,12 @@
 		417E0E99148A6F910015B5B0 /* Textures */ = {
 			isa = PBXGroup;
 			children = (
+				41C48E941F01254A0059B48C /* Cousine-Regular.ttf */,
+				41C48E951F01254A0059B48C /* DroidSans.ttf */,
+				41C48E961F01254A0059B48C /* Karla-Regular.ttf */,
+				41C48E971F01254A0059B48C /* ProggyClean.ttf */,
+				41C48E981F01254A0059B48C /* ProggyTiny.ttf */,
+				41C48E991F01254A0059B48C /* Roboto-Medium.ttf */,
 				417E0E9A148A70DE0015B5B0 /* brick0512_C.png */,
 				417E0E9B148A70DE0015B5B0 /* bricks1_0256_C.jpg */,
 				417E0E9C148A70DE0015B5B0 /* bricks1_0512_C.jpg */,
@@ -1293,8 +1326,6 @@
 			children = (
 				418E0C5914892A7A00C6274F /* Accelerator & Animation */,
 				418E0C5814892A3D00C6274F /* Meshes */,
-				418E0C28148929C800C6274F /* SLButton.cpp */,
-				418E0C5D14892AC000C6274F /* SLButton.h */,
 				418E0C29148929C800C6274F /* SLCamera.cpp */,
 				418E0C5E14892AC000C6274F /* SLCamera.h */,
 				418015131959B51200D3226D /* SLNode.cpp */,
@@ -1941,6 +1972,8 @@
 				418BF4491B8B0D4F0049E387 /* Diffuse.vert in Resources */,
 				41C99E7918D4316A0045FD2D /* Icon_114.png in Resources */,
 				41901CFA1959C5AC006795A8 /* DAE in Resources */,
+				41C48E9A1F01254A0059B48C /* Cousine-Regular.ttf in Resources */,
+				41C48E9B1F01254A0059B48C /* DroidSans.ttf in Resources */,
 				419E11AA1B74B02000203E70 /* LiveVideoError.png in Resources */,
 				411BA72918C0716700F10475 /* Icon_76.png in Resources */,
 				414D37F61EE6A7DC009DB259 /* rusty-metal_2048M.png in Resources */,
@@ -1975,6 +2008,7 @@
 				417E0EBF148A70DE0015B5B0 /* brickwall0512_N.jpg in Resources */,
 				418BF4571B8B0D500049E387 /* PerVrtBlinnSkinned.vert in Resources */,
 				414D37F81EE6A7DC009DB259 /* rusty-metal_2048R.png in Resources */,
+				41C48E9C1F01254A0059B48C /* Karla-Regular.ttf in Resources */,
 				41C99E7A18D4316A0045FD2D /* Icon_144.png in Resources */,
 				414D37F71EE6A7DC009DB259 /* rusty-metal_2048N.png in Resources */,
 				417E0EC0148A70DE0015B5B0 /* Checkerboard0512_C.png in Resources */,
@@ -2011,6 +2045,7 @@
 				417E0ED2148A70DE0015B5B0 /* tile1_0256_C.jpg in Resources */,
 				418BF4431B8B0D4F0049E387 /* BumpNormalEarth.frag in Resources */,
 				418BF4481B8B0D4F0049E387 /* Diffuse.frag in Resources */,
+				41C48E9F1F01254A0059B48C /* Roboto-Medium.ttf in Resources */,
 				418BF46C1B8B0D500049E387 /* Wave.vert in Resources */,
 				417E0ED3148A70DE0015B5B0 /* tree1_1024_C.png in Resources */,
 				41FD158E1E5455FB00BA1B7A /* Wavefront-OBJ in Resources */,
@@ -2041,6 +2076,7 @@
 				418BF4611B8B0D500049E387 /* ShadowMapping.frag in Resources */,
 				418BF4561B8B0D500049E387 /* PerVrtBlinn.vert in Resources */,
 				417E0EE3148A71220015B5B0 /* Pool+Z0512_C.png in Resources */,
+				41C48E9D1F01254A0059B48C /* ProggyClean.ttf in Resources */,
 				418BF45B1B8B0D500049E387 /* Reflect.frag in Resources */,
 				41FD9D1B1E523AD70063A1B7 /* Font24.png in Resources */,
 				41C99E7C18D431B50045FD2D /* Icon_72.png in Resources */,
@@ -2062,6 +2098,7 @@
 				418BF4641B8B0D500049E387 /* StereoOculus.vert in Resources */,
 				418BF44A1B8B0D4F0049E387 /* Earth.frag in Resources */,
 				41486AB815165E2A00102F27 /* CompileError.png in Resources */,
+				41C48E9E1F01254A0059B48C /* ProggyTiny.ttf in Resources */,
 				41FD9D191E523AD70063A1B7 /* Font20.png in Resources */,
 				411BA72F18C075E500F10475 /* Default~ipad.png in Resources */,
 				41FD9D161E523AD70063A1B7 /* Font14.png in Resources */,
@@ -2085,6 +2122,7 @@
 				41FC947B19F7D6410026919B /* SLGLOculus.cpp in Sources */,
 				419808B31959BA670048085E /* UnrealLoader.cpp in Sources */,
 				4198087E1959BA670048085E /* FindDegenerates.cpp in Sources */,
+				41C48EA11F0128130059B48C /* SLDemoGui.cpp in Sources */,
 				419808671959BA670048085E /* Bitmap.cpp in Sources */,
 				41654BD914866F6B0003DF5E /* SLPlane.cpp in Sources */,
 				419808B91959BA670048085E /* DeboneProcess.cpp in Sources */,
@@ -2101,7 +2139,6 @@
 				418E0C3F148929C800C6274F /* SLBox.cpp in Sources */,
 				419808EA1959BA670048085E /* SkeletonMeshBuilder.cpp in Sources */,
 				419808E41959BA670048085E /* OgreStructs.cpp in Sources */,
-				418E0C40148929C800C6274F /* SLButton.cpp in Sources */,
 				419808651959BA670048085E /* AssimpPCH.cpp in Sources */,
 				4198086F1959BA670048085E /* ColladaLoader.cpp in Sources */,
 				418E0C41148929C800C6274F /* SLCamera.cpp in Sources */,
@@ -2159,6 +2196,7 @@
 				419808A11959BA670048085E /* PlyParser.cpp in Sources */,
 				419F43431959C072009D9E2E /* ioapi.c in Sources */,
 				419808D41959BA670048085E /* IFCOpenings.cpp in Sources */,
+				41C48E8B1F0124750059B48C /* SLGLImGui.cpp in Sources */,
 				41FC948019F7D6410026919B /* SLGLTexture.cpp in Sources */,
 				419808AC1959BA670048085E /* SpatialSort.cpp in Sources */,
 				419808951959BA670048085E /* ObjExporter.cpp in Sources */,
@@ -2194,6 +2232,7 @@
 				419808E81959BA670048085E /* RawLoader.cpp in Sources */,
 				419808A31959BA670048085E /* ProcessHelper.cpp in Sources */,
 				41EDCB591B67B47B00DDC945 /* SLCompactGrid.cpp in Sources */,
+				41C48E931F01250E0059B48C /* imgui.cpp in Sources */,
 				4198088A1959BA670048085E /* IRRLoader.cpp in Sources */,
 				419808811959BA670048085E /* GenFaceNormalsProcess.cpp in Sources */,
 				41FC947D19F7D6410026919B /* SLGLShader.cpp in Sources */,
@@ -2222,6 +2261,7 @@
 				4198086C1959BA670048085E /* CalcTangentsProcess.cpp in Sources */,
 				419808A21959BA670048085E /* PretransformVertices.cpp in Sources */,
 				41FC947F19F7D6410026919B /* SLGLState.cpp in Sources */,
+				41C48E921F01250E0059B48C /* imgui_draw.cpp in Sources */,
 				419808F01959BA670048085E /* Subdivision.cpp in Sources */,
 				419808A41959BA670048085E /* Q3BSPZipArchive.cpp in Sources */,
 				41FC8AA61959BF9F004A9E57 /* clipper.cpp in Sources */,
@@ -2410,9 +2450,11 @@
 				GCC_WARN_UNUSED_FUNCTION = NO;
 				GCC_WARN_UNUSED_VARIABLE = NO;
 				HEADER_SEARCH_PATHS = (
-					"../include/**",
-					"lib-SLExternal",
+					"include/**",
+					"lib-SLExternal/**",
+					"lib-SLExternal/ingui/**",
 				);
+				"HEADER_SEARCH_PATHS[arch=*]" = "";
 				INFOPLIST_FILE = "SceneLib-Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				ONLY_ACTIVE_ARCH = YES;
@@ -2492,9 +2534,11 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES;
 				GCC_WARN_UNUSED_FUNCTION = NO;
 				GCC_WARN_UNUSED_VARIABLE = NO;
-				HEADER_SEARCH_PATHS = (
-					"../include/**",
-					"lib-SLExternal",
+				HEADER_SEARCH_PATHS = "";
+				"HEADER_SEARCH_PATHS[arch=*]" = (
+					"include/**",
+					"lib-SLExternal/**",
+					"lib-SLExternal/ingui/**",
 				);
 				INFOPLIST_FILE = "SceneLib-Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;

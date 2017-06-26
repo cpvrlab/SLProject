@@ -48,15 +48,19 @@ class SLGLShader : public SLObject
 {  
     friend class SLGLProgram;
     public:
+                            SLGLShader      ();
                             SLGLShader      (SLstring filename, 
-                                              SLShaderType shaderType);
-                           ~SLGLShader  ();
+                                             SLShaderType type);
+                           ~SLGLShader      ();
                        
             void            load            (SLstring filename);
             void            loadFromMemory  (SLstring program);
             SLbool          createAndCompile();
             SLstring        removeComments  (SLstring src);
-            SLShaderType    shaderType      () {return _type;}
+
+            // Getters
+            SLShaderType    type            () {return _type;}
+            SLuint          objectGL        () {return _objectGL;}
 
     protected:         
             SLShaderType    _type;      //!< Shader type enumeration

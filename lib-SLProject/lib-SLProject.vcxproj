@@ -140,7 +140,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>$(ProjectDir);..\include;..\lib-SLExternal;..\lib-SLExternal\zlib;..\lib-SLExternal\glew\include;..\lib-SLExternal\glfw3\include;..\lib-SLExternal\randomc;..\lib-SLExternal\Shoemake;..\lib-SLExternal\oculus\LibOVR\Include\;..\lib-SLExternal\nvwa;..\lib-SLExternal\assimp\include;..\lib-SLExternal\assimp\code;..\lib-SLExternal\dirent;..\lib-SLExternal\opencv\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir);..\include;..\lib-SLExternal;..\lib-SLExternal\zlib;..\lib-SLExternal\glew\include;..\lib-SLExternal\glfw3\include;..\lib-SLExternal\randomc;..\lib-SLExternal\Shoemake;..\lib-SLExternal\oculus\LibOVR\Include\;..\lib-SLExternal\nvwa;..\lib-SLExternal\assimp\include;..\lib-SLExternal\assimp\code;..\lib-SLExternal\dirent;..\lib-SLExternal\opencv\include;..\lib-SLExternal\imgui</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>SL_STARTSCENE#C_sceneRTMuttenzerBox;SL_HAS_OPENCV;SL_USES_CVCAPTURE;GLEW_STATIC;_DEBUG;UNICODE;WIN32;_WINDOWS;_CRT_SECURE_NO_WARNING</PreprocessorDefinitions>
       <TreatWChar_tAsBuiltInType>false</TreatWChar_tAsBuiltInType>
       <OpenMPSupport>false</OpenMPSupport>
@@ -229,7 +229,7 @@
       <AdditionalOptions>/wd4996 %(AdditionalOptions)</AdditionalOptions>
       <Optimization>Full</Optimization>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <AdditionalIncludeDirectories>$(ProjectDir);..\include;..\lib-SLExternal;..\lib-SLExternal\zlib;..\lib-SLExternal\glew\include;..\lib-SLExternal\glfw3\include;..\lib-SLExternal\randomc;..\lib-SLExternal\Shoemake;..\lib-SLExternal\oculus\LibOVR\Include\;..\lib-SLExternal\nvwa;..\lib-SLExternal\assimp\include;..\lib-SLExternal\assimp\code;..\lib-SLExternal\dirent;..\lib-SLExternal\opencv\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir);..\include;..\lib-SLExternal;..\lib-SLExternal\zlib;..\lib-SLExternal\glew\include;..\lib-SLExternal\glfw3\include;..\lib-SLExternal\randomc;..\lib-SLExternal\Shoemake;..\lib-SLExternal\oculus\LibOVR\Include\;..\lib-SLExternal\nvwa;..\lib-SLExternal\assimp\include;..\lib-SLExternal\assimp\code;..\lib-SLExternal\dirent;..\lib-SLExternal\opencv\include;..\lib-SLExternal\imgui</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>SL_HAS_OPENCV;SL_USES_CVCAPTURE;SL_STARTSCENE#C_sceneRevolver;GLEW_STATIC;UNICODE;WIN32;_WINDOWS</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <BufferSecurityCheck>true</BufferSecurityCheck>
@@ -290,8 +290,10 @@
     <ClInclude Include="..\include\SLCVCapture.h" />
     <ClInclude Include="..\include\SLCVTrackerChessboard.h" />
     <ClInclude Include="..\include\SLCVTracker.h" />
+    <ClInclude Include="..\include\SLDemoGui.h" />
     <ClInclude Include="..\include\SLDisk.h" />
     <ClInclude Include="..\include\SLGLEnums.h" />
+    <ClInclude Include="..\include\SLGLImGui.h" />
     <ClInclude Include="..\include\SLGLVertexArray.h" />
     <ClInclude Include="..\include\SLGLVertexArrayExt.h" />
     <ClInclude Include="..\include\SLGLVertexBuffer.h" />
@@ -339,7 +341,6 @@
     <ClInclude Include="..\include\stdafx.h" />
     <ClInclude Include="..\include\TriangleBoxIntersect.h" />
     <ClInclude Include="..\include\SLBox.h" />
-    <ClInclude Include="..\include\SLButton.h" />
     <ClInclude Include="..\include\SLCamera.h" />
     <ClInclude Include="..\include\SLCone.h" />
     <ClInclude Include="..\include\SLCylinder.h" />
@@ -371,6 +372,7 @@
     <ClCompile Include="source\CV\SLCVCalibration.cpp" />
     <ClCompile Include="source\CV\SLCVCapture.cpp" />
     <ClCompile Include="source\CV\SLCVTrackerChessboard.cpp" />
+    <ClCompile Include="source\GL\SLGLImGui.cpp" />
     <ClCompile Include="source\GL\SLGLOculus.cpp" />
     <ClCompile Include="source\GL\SLGLOculusFB.cpp" />
     <ClCompile Include="source\GL\SLGLProgram.cpp" />
@@ -389,12 +391,12 @@
     <ClCompile Include="source\SLCoordAxis.cpp" />
     <ClCompile Include="source\SLBackground.cpp" />
     <ClCompile Include="source\SLCompactGrid.cpp" />
+    <ClCompile Include="source\SLDemoGui.cpp" />
     <ClCompile Include="source\SLDisk.cpp" />
     <ClCompile Include="source\SLInputDevice.cpp" />
     <ClCompile Include="source\SLInputManager.cpp" />
     <ClCompile Include="source\SLJoint.cpp" />
     <ClCompile Include="source\SLBox.cpp" />
-    <ClCompile Include="source\SLButton.cpp" />
     <ClCompile Include="source\SLCamera.cpp" />
     <ClCompile Include="source\SLCone.cpp" />
     <ClCompile Include="source\SLCylinder.cpp" />

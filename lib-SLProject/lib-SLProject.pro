@@ -53,7 +53,6 @@ HEADERS += \
 ../include/SLAverage.h \
 ../include/SLBackground.h \
 ../include/SLBox.h \
-../include/SLButton.h \
 ../include/SLCamera.h \
 ../include/SLCone.h \
 ../include/SLCompactGrid.h \
@@ -76,6 +75,7 @@ HEADERS += \
 ../include/SLEventHandler.h \
 ../include/SLFileSystem.h \
 ../include/SLGLEnums.h \
+../include/SLGLImGui.h \
 ../include/SLGLGenericProgram.h \
 ../include/SLGLOculus.h \
 ../include/SLGLOculus.h \
@@ -133,7 +133,8 @@ HEADERS += \
 ../include/SLVec4.h \
 ../include/SLVector.h \
 ../include/stdafx.h \
-../include/TriangleBoxIntersect.h
+../include/TriangleBoxIntersect.h \
+    ../include/SLDemoGui.h
 
 SOURCES += \
 source/math/SLCurveBezier.cpp \
@@ -145,6 +146,7 @@ source/SL/SLImporter.cpp \
 source/SL/SLInterface.cpp \
 source/SL/SLTexFont.cpp \
 source/SL/SLTimer.cpp \
+source/GL/SLGLImGui.cpp \
 source/GL/SLGLOculus.cpp \
 source/GL/SLGLOculusFB.cpp \
 source/GL/SLGLProgram.cpp \
@@ -168,7 +170,6 @@ source/SLAnimPlayback.cpp \
 source/SLAnimTrack.cpp \
 source/SLBackground.cpp \
 source/SLBox.cpp \
-source/SLButton.cpp \
 source/SLCamera.cpp \
 source/SLCone.cpp \
 source/SLCompactGrid.cpp \
@@ -200,7 +201,8 @@ source/SLSceneView.cpp \
 source/SLScene_onLoad.cpp \
 source/SLSkeleton.cpp \
 source/SLSpheric.cpp \
-source/SLText.cpp
+source/SLText.cpp \
+    source/SLDemoGui.cpp
 
 OTHER_FILES += \
 ../_data/shaders/*.vert \

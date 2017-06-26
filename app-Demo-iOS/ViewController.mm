@@ -14,6 +14,7 @@
 #include <SLInterface.h>
 #include <SLImage.h>
 #include <SLCVCapture.h>
+#include <SLDemoGui.h>
 #include <mach/mach_time.h>
 
 //-----------------------------------------------------------------------------
@@ -139,7 +140,8 @@ float GetSeconds()
                                 (void*)&onPaintRTGL,
                                 0,
                                 0,
-                                0);
+                                0,
+                                (void*)SLDemoGui::buildDemoGui);
     ///////////////////////////////////////////////////////////////////////
     
     [self setMotionInterval:1.0/60.0];

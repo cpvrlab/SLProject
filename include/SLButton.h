@@ -36,7 +36,7 @@ class SLButton: public SLNode
                         SLButton        (SLSceneView* sv,
                                          SLstring     text,
                                          SLTexFont*   txtFont,
-                                         SLCommand        cmd = C_menu,
+                                         SLCommand    cmd = C_menu,
                                          SLbool       isCheckable = false,
                                          SLbool       isChecked = false,
                                          SLButton*    radioParent = 0,

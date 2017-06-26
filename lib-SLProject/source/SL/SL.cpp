@@ -15,12 +15,16 @@
 #include <SLCV.h>
 #include <SLSceneView.h>
 #include <SLCVCapture.h>
+#include <SLDemoGui.h>
 
 //-----------------------------------------------------------------------------
 //! Default values for static fields
+SLstring        SL::version         = "2.1.000";
 SLstring        SL::configPath      = "../_data/config/";
 SLstring        SL::configTime      = "-";
 SLint           SL::dpi             = 0;
+SLfloat         SL::fontPropDots    = 0.0f;
+SLfloat         SL::fontFixedDots   = 0.0f;
 SLCommand       SL::currentSceneID  = C_sceneEmpty;
 SLint           SL::testDurationSec = 0;
 SLint           SL::testFactor      = 1;
@@ -28,6 +32,47 @@ SLCommand       SL::testScene       = (SLCommand)-1;
 SLCommand       SL::testSceneAll    = C_sceneMinimal;
 SLLogVerbosity  SL::testLogVerbosity = LV_quiet;
 SLuint          SL::testFrameCounter = 0;
+
+SLstring        SL::infoAbout =
+"Welcome to the SLProject demo app. It is developed at the \
+Computer Science Department of the Bern University of Applied Sciences. \
+The app shows what you can learn in one semester about 3D computer graphics \
+in real time rendering and ray tracing. The framework is developed \
+in C++ with OpenGL ES so that it can run also on mobile devices. \
+Ray tracing provides in addition high quality transparencies, reflections and soft shadows. \
+Click to close and use the menu to choose different scenes and view settings. \
+For more information please visit: https://github.com/cpvrlab/SLProject";
+
+SLstring SL::infoCredits =
+"Contributors since 2005 in alphabetic order: Martin Christen, Manuel Frischknecht, Michael \
+Goettlicher, Timo Tschanz, Marc Wacker, Pascal Zingg \n\n\
+Credits for external libraries:\n\
+- assimp: assimp.sourceforge.net\n\
+- imgui: github.com/ocornut/imgui\n\
+- glew: glew.sourceforge.net\n\
+- glfw: glfw.org\n\
+- OpenCV: opencv.org\n\
+- OpenGL: opengl.org\n\
+- Qt: qt-project.org";
+
+SLstring SL::infoHelp =
+"Help for mouse or finger control:\n\
+- Use mouse or your finger to rotate the scene\n\
+- Use mouse-wheel or pinch 2 fingers to go forward/backward\n\
+- Use CTRL-mouse or 2 fingers to move sidewards/up-down\n\
+- Double click or double tap to select object";
+
+SLstring SL::infoCalibrate =
+"The calibration process requires a chessboard image to be printed \
+and glued on a flat board. You can find the PDF with the chessboard image on: \n\
+https://github.com/cpvrlab/SLProject/tree/master/_data/calibrations/ \n\n\
+For a calibration you have to take 20 images with detected inner \
+chessboard corners. To take an image you have to click with the mouse \
+or tap with finger into the screen. You can mirror the video image under \
+Preferences > Video. \n\
+After calibration the yellow wireframe cube should stick on the chessboard.";
+
+
 
 //! Scene name string vector. Make sure they corrspond to the enum SLCommand
 const SLVstring SL::testSceneNames = 
@@ -201,12 +246,14 @@ void SL::loadConfig(SLSceneView* sv)
     SLint i; SLbool b;
     fs["configTime"]                >> SL::configTime;
     fs["dpi"]                       >> SL::dpi;
+    fs["fontPropDots"]              >> SL::fontPropDots;
+    fs["fontFixedDots"]             >> SL::fontFixedDots;
     fs["currentSceneID"]            >> i; SL::currentSceneID = (SLCommand)i;
-    fs["showStatsTiming"]           >> b; sv->showStatsTiming(b);
-    fs["showStatsOpenGL"]           >> b; sv->showStatsRenderer(b);
-    fs["showStatsMemory"]           >> b; sv->showStatsScene(b);
-    fs["showStatsCamera"]           >> b; sv->showStatsCamera(b);
-    fs["showStatsVideo"]            >> b; sv->showStatsVideo(b);
+    fs["showStatsTiming"]           >> b; SLDemoGui::showStatsTiming = b;
+    fs["showStatsMemory"]           >> b; SLDemoGui::showStatsScene = b;
+    fs["showStatsVideo"]            >> b; SLDemoGui::showStatsVideo = b;
+    fs["showInfosFrameworks"]       >> b; SLDemoGui::showInfosFrameworks = b;
+    fs["showInfosScene"]            >> b; SLDemoGui::showInfosScene = b;
     fs["drawBits"]                  >> i; sv->drawBits()->bits((SLuint)i);
 
     fs.release();
@@ -226,12 +273,14 @@ void SL::saveConfig(SLSceneView* sv)
      
     fs << "configTime"              << SLUtils::getLocalTimeString();
     fs << "dpi"                     << SL::dpi;
+    fs << "fontPropDots"            << SL::fontPropDots;
+    fs << "fontFixedDots"           << SL::fontFixedDots;
     fs << "currentSceneID"          << (SLint)SL::currentSceneID;
-    fs << "showStatsTiming"         << sv->showStatsTiming();
-    fs << "showStatsOpenGL"         << sv->showStatsRenderer();
-    fs << "showStatsMemory"         << sv->showStatsScene();
-    fs << "showStatsCamera"         << sv->showStatsCamera();
-    fs << "showStatsVideo"          << sv->showStatsVideo();
+    fs << "showStatsTiming"         << SLDemoGui::showStatsTiming;
+    fs << "showStatsMemory"         << SLDemoGui::showStatsScene;
+    fs << "showStatsVideo"          << SLDemoGui::showStatsVideo;
+    fs << "showInfosFrameworks"     << SLDemoGui::showInfosFrameworks;
+    fs << "showInfosScene"          << SLDemoGui::showInfosScene;
     fs << "drawBits"                << (SLint)sv->drawBits()->bits();
 
     fs.release();
