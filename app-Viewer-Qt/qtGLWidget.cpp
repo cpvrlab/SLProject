@@ -158,8 +158,8 @@ void qtGLWidget::initializeGL()
     _sv = s->sv(_svIndex);
 
     // We don't want the OpenGL menu
-    _sv->showInfo(false);
-    _sv->showMenu(false);
+    SL::showInfosScene = false;
+    SL::showMenu = false;
 
     // Build the nodeTree only once for the first QGLWidget
     if (qtGLWidget::mainWindow)

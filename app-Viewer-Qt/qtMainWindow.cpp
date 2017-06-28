@@ -236,9 +236,9 @@ void qtMainWindow::setMenuState()
     ui->actionShow_Animation_Controler->setChecked(ui->dockAnimation->isVisible());
     ui->actionShow_Toolbar->setChecked(ui->toolBar->isVisible());
     ui->actionShow_Statusbar->setChecked(ui->statusBar->isVisible());
-    ui->actionShow_Statistics->setChecked(sv->showStatsTiming());
-    ui->actionShow_Scene_Info->setChecked(sv->showInfo());
-    ui->actionShow_Menu->setChecked(sv->showMenu());
+    ui->actionShow_Statistics->setChecked(SL::showStatsTiming);
+    ui->actionShow_Scene_Info->setChecked(SL::showInfosScene);
+    ui->actionShow_Menu->setChecked(SL::showMenu);
 
     // Menu Camera states
     ui->actionUse_SceneView_Camera->setChecked(sv->isSceneViewCameraActive());
@@ -609,13 +609,13 @@ void qtMainWindow::buildPropertyTree()
 
                 SLVGLShader& shaders = prog->shaders();
                 for (auto shader : shaders)
-                {   if(shader->shaderType() ==ST_vertex)
+                {   if(shader->type() ==ST_vertex)
                     {   level3 = new qtProperty("Vertex Shader:", "", onDblClickFile);
                         level3->getNameAndURL(bind((const string&(SLGLShader::*)(void)const)&SLGLShader::name, shader),
                                               bind((const string&(SLGLShader::*)(void)const)&SLGLShader::url, shader));
                         level2->addChild(level3);
                     } else
-                    if(shader->shaderType()==ST_fragment)
+                    if(shader->type()==ST_fragment)
                     {   level3 = new qtProperty("Fragment Shader:", "", onDblClickFile);
                         level3->getNameAndURL(bind((const string&(SLGLShader::*)(void)const)&SLGLShader::name, shader),
                                               bind((const string&(SLGLShader::*)(void)const)&SLGLShader::url, shader));
@@ -1181,7 +1181,7 @@ void qtMainWindow::on_actionShow_Scene_Info_triggered()
 void qtMainWindow::on_actionShow_Menu_triggered()
 {
     SLSceneView* sv = _activeGLWidget->sv();
-    sv->showMenu(!sv->showMenu());
+    SL::showMenu = !SL::showMenu;
     setMenuState();
 }
 
@@ -1616,7 +1616,7 @@ void qtMainWindow::on_actionDelete_active_view_triggered()
 void qtMainWindow::on_actionAbout_SLProject_triggered()
 {
     QMessageBox::information(this, "About SLProject",
-                             QString::fromStdString(SLScene::current->infoAbout()));
+                             QString::fromStdString(SL::infoAbout));
 }
 void qtMainWindow::on_actionVisit_SLProject_on_Github_triggered()
 {
@@ -1631,7 +1631,7 @@ void qtMainWindow::on_actionVisit_cpvrLab_homepage_triggered()
 void qtMainWindow::on_actionCredits_triggered()
 {
     QMessageBox::information(this, "About External Libraries",
-                             QString::fromStdString(SLScene::current->infoCredits()).replace("\\n","\n"));
+                             QString::fromStdString(SL::infoCredits).replace("\\n","\n"));
 }
 void qtMainWindow::on_actionAbout_Qt_triggered()
 {

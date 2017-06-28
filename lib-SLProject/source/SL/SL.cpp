@@ -32,6 +32,7 @@ SLCommand       SL::testScene           = (SLCommand)-1;
 SLCommand       SL::testSceneAll        = C_sceneMinimal;
 SLLogVerbosity  SL::testLogVerbosity    = LV_quiet;
 SLuint          SL::testFrameCounter    = 0;
+SLbool          SL::showMenu            = true;
 SLbool          SL::showAbout           = false;
 SLbool          SL::showHelp            = false;
 SLbool          SL::showHelpCalibration = false;
@@ -253,17 +254,18 @@ void SL::loadConfig(SLSceneView* sv)
     }
 
     SLint i; SLbool b;
-    fs["configTime"]                >> SL::configTime;
-    fs["dpi"]                       >> SL::dpi;
-    fs["fontPropDots"]              >> SL::fontPropDots;
-    fs["fontFixedDots"]             >> SL::fontFixedDots;
-    fs["currentSceneID"]            >> i; SL::currentSceneID = (SLCommand)i;
-    fs["showStatsTiming"]           >> b; SL::showStatsTiming = b;
-    fs["showStatsMemory"]           >> b; SL::showStatsScene = b;
-    fs["showStatsVideo"]            >> b; SL::showStatsVideo = b;
-    fs["showInfosFrameworks"]       >> b; SL::showInfosFrameworks = b;
-    fs["showInfosScene"]            >> b; SL::showInfosScene = b;
-    fs["drawBits"]                  >> i; sv->drawBits()->bits((SLuint)i);
+    fs["configTime"]            >> SL::configTime;
+    fs["dpi"]                   >> SL::dpi;
+    fs["fontPropDots"]          >> SL::fontPropDots;
+    fs["fontFixedDots"]         >> SL::fontFixedDots;
+    fs["currentSceneID"]        >> i; SL::currentSceneID = (SLCommand)i;
+    fs["showMenu"]              >> b; SL::showMenu = b;
+    fs["showStatsTiming"]       >> b; SL::showStatsTiming = b;
+    fs["showStatsMemory"]       >> b; SL::showStatsScene = b;
+    fs["showStatsVideo"]        >> b; SL::showStatsVideo = b;
+    fs["showInfosFrameworks"]   >> b; SL::showInfosFrameworks = b;
+    fs["showInfosScene"]        >> b; SL::showInfosScene = b;
+    fs["drawBits"]              >> i; sv->drawBits()->bits((SLuint)i);
 
     fs.release();
     SL_LOG("Config. loaded  : %s\n", fullPathAndFilename.c_str());
@@ -285,6 +287,7 @@ void SL::saveConfig(SLSceneView* sv)
     fs << "fontPropDots"            << SL::fontPropDots;
     fs << "fontFixedDots"           << SL::fontFixedDots;
     fs << "currentSceneID"          << (SLint)SL::currentSceneID;
+    fs << "showMenu"                << SL::showMenu;
     fs << "showStatsTiming"         << SL::showStatsTiming;
     fs << "showStatsMemory"         << SL::showStatsScene;
     fs << "showStatsVideo"          << SL::showStatsVideo;

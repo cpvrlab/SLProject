@@ -30,7 +30,10 @@
  */
 void SLDemoGui::buildDemoGui(SLScene* s, SLSceneView* sv)
 {
-    buildMenuBar(s, sv);
+    if (SL::showMenu) 
+    {   
+        buildMenuBar(s, sv);
+    }
 
     if (SL::showAbout)
     {
@@ -401,6 +404,8 @@ void SLDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
                     sv->onCommand(C_animationToggle);
 
                 ImGui::Separator();
+
+                ImGui::MenuItem("Show Menu", 0, &SL::showMenu);
 
                 ImGui::SliderFloat("Prop. Font Size", &SL::fontPropDots, 16.f, 60.f,"%0.0f");
 

@@ -337,7 +337,10 @@ static void onKeyAction(GLFWwindow* window, int GLFWKey, int scancode, int actio
         {   fullscreen = !fullscreen;
             glfwSetWindowSize(window, scrWidth, scrHeight);
             glfwSetWindowPos(window, 10, 30);   
-        } else 
+        } else
+        if (!SL::showMenu)
+        {   SL::showMenu = true;
+        } else
         {   slKeyPress(svIndex, key, modifiers);
             onClose(window);
             glfwSetWindowShouldClose(window, GL_TRUE);

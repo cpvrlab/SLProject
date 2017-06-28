@@ -313,6 +313,7 @@ class SL
     static SLstring         infoCredits;        //!< Credits info string
     static SLstring         infoHelp;           //!< Help info string
     static SLstring         infoCalibrate;      //!< Calibration info string   
+    static SLbool           showMenu;           //!< Flag if menu bar should be shown
     static SLbool           showAbout;          //!< Flag if about info should be shown
     static SLbool           showHelp;           //!< Flag if help info should be shown
     static SLbool           showHelpCalibration;//!< Flag if calibration info should be shown

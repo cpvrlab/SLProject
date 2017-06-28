@@ -119,7 +119,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand cmd)
     _root3D = scene;
 
     sv->camera(cam1);
-    sv->showMenu(false);
+    SL::showMenu = false;
     sv->waitEvents(false);
     sv->onInitialize();
 }
@@ -139,7 +139,6 @@ NewNodeSceneView::NewNodeSceneView(): _infoText(NULL),
 //-----------------------------------------------------------------------------
 NewNodeSceneView::~NewNodeSceneView()
 {
-    if(_infoText) delete _infoText; _infoText = 0;
 }
 //-----------------------------------------------------------------------------
 void NewNodeSceneView::postSceneLoad()
@@ -198,12 +197,6 @@ void NewNodeSceneView::preDraw()
     {   updateInfoText();
         updateCurOrigin();
     }
-}
-//-----------------------------------------------------------------------------
-void NewNodeSceneView::postDraw()
-{
-    drawXZGrid(_camera->updateAndGetVM() * _curOrigin);
-    renderText();
 }
 //-----------------------------------------------------------------------------
 void NewNodeSceneView::reset()
@@ -406,8 +399,6 @@ void NewNodeSceneView::updateCurOrigin()
 //-----------------------------------------------------------------------------
 void NewNodeSceneView::updateInfoText()
 {
-    if (_infoText) delete _infoText;
-
     SLchar m[2550];   // message character array
     m[0]=0;           // set zero length
 
@@ -486,40 +477,6 @@ void NewNodeSceneView::updateInfoText()
     glfwSetWindowTitle(window, title.c_str());
     
     SLTexFont* f = SLTexFont::getFont(1.2f, SL::dpi);
-    _infoText = new SLText(m, f, SLCol4f::BLACK, (SLfloat)_scrW, 1.0f);
-    _infoText->translate(10.0f, -_infoText->size().y-5.0f, 0.0f, TS_object);
-
-}
-//-----------------------------------------------------------------------------
-void NewNodeSceneView::renderText()
-{
-    if (!_infoText)
-        return;
-
-    SLScene* s = SLScene::current;
-    SLfloat w2 = (SLfloat)_scrWdiv2;
-    SLfloat h2 = (SLfloat)_scrHdiv2;
-    SLfloat depth = 0.9f;               // Render depth between -1 & 1
-
-    _stateGL->depthMask(false);         // Freeze depth buffer for blending
-    _stateGL->depthTest(false);         // Disable depth testing
-    _stateGL->blend(true);              // Enable blending
-    _stateGL->polygonLine(false);       // Only filled polygons
-   
-    // Set orthographic projection with 0,0,0 in the screen center
-    _stateGL->projectionMatrix.ortho(-w2, w2,-h2, h2, 1.0f, -1.0f);
-   
-    // Set viewport over entire screen
-    _stateGL->viewport(0, 0, _scrW, _scrH);
-   
-    _stateGL->modelViewMatrix.identity();
-    _stateGL->modelViewMatrix.translate(-w2, h2, depth);
-    _stateGL->modelViewMatrix.multiply(_infoText->om());
-    _infoText->drawRec(this);
-
-    _stateGL->blend(false);       // turn off blending
-    _stateGL->depthMask(true);    // enable depth buffer writing
-    _stateGL->depthTest(true);    // enable depth testing
-    GET_GL_ERROR;                 // check if any OGL errors occured
+    _infoText = m;
 }
 //-----------------------------------------------------------------------------

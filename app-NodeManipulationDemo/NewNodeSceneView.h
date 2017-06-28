@@ -33,7 +33,6 @@ class NewNodeSceneView : public SLSceneView
 
         // From SLSceneView overwritten
         void                preDraw();
-        void                postDraw();
         void                postSceneLoad();
         SLbool              onKeyPress(const SLKey key, const SLKey mod);
         SLbool              onKeyRelease(const SLKey key, const SLKey mod);
@@ -49,7 +48,6 @@ class NewNodeSceneView : public SLSceneView
         SLbool              update();
         void                updateCurOrigin();
         void                updateInfoText();
-        void                renderText();
 
         SLMat4f             _curOrigin;     //!< current origin of relative space (orientation and position of axes)
 
@@ -57,7 +55,7 @@ class NewNodeSceneView : public SLSceneView
         SLNode*             _moveBoxChild;  //!< little child cube
         SLVec3f             _pivotPos;      //!< position of the pivot point
         SLNode*             _axesNode;      //!< node for axis mesh
-        SLText*             _infoText;      //!< node for all text display
+        SLstring            _infoText;      //!< string for info display
 
         bool                _keyStates[65536];  //!< key press states of all keys
         SLKey               _modifiers;         //!< pressed modifier keys
