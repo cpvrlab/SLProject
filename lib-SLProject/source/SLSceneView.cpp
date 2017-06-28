@@ -389,10 +389,12 @@ SLbool SLSceneView::onPaint()
     // Render the own 2D stuff
     draw2DGL();
 
-    // Render the ImGui UI
-    ImGui::Render();
-    _gui.onPaint(ImGui::GetDrawData());
-
+    // If ImGui build function exists render the ImGui
+    if (_gui.build)
+    {   ImGui::Render();
+        _gui.onPaint(ImGui::GetDrawData());
+    }
+     
     _stateGL->unbindAnythingAndFlush();
 
     // Finish Oculus framebuffer

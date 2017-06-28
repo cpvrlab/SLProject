@@ -19,21 +19,31 @@
 
 //-----------------------------------------------------------------------------
 //! Default values for static fields
-SLstring        SL::version         = "2.1.000";
-SLstring        SL::configPath      = "../_data/config/";
-SLstring        SL::configTime      = "-";
-SLint           SL::dpi             = 0;
-SLfloat         SL::fontPropDots    = 0.0f;
-SLfloat         SL::fontFixedDots   = 0.0f;
-SLCommand       SL::currentSceneID  = C_sceneEmpty;
-SLint           SL::testDurationSec = 0;
-SLint           SL::testFactor      = 1;
-SLCommand       SL::testScene       = (SLCommand)-1;
-SLCommand       SL::testSceneAll    = C_sceneMinimal;
-SLLogVerbosity  SL::testLogVerbosity = LV_quiet;
-SLuint          SL::testFrameCounter = 0;
+SLstring        SL::version             = "2.1.000";
+SLstring        SL::configPath          = "../_data/config/";
+SLstring        SL::configTime          = "-";
+SLint           SL::dpi                 = 0;
+SLfloat         SL::fontPropDots        = 0.0f;
+SLfloat         SL::fontFixedDots       = 0.0f;
+SLCommand       SL::currentSceneID      = C_sceneEmpty;
+SLint           SL::testDurationSec     = 0;
+SLint           SL::testFactor          = 1;
+SLCommand       SL::testScene           = (SLCommand)-1;
+SLCommand       SL::testSceneAll        = C_sceneMinimal;
+SLLogVerbosity  SL::testLogVerbosity    = LV_quiet;
+SLuint          SL::testFrameCounter    = 0;
+SLbool          SL::showMenu            = true;
+SLbool          SL::showAbout           = false;
+SLbool          SL::showHelp            = false;
+SLbool          SL::showHelpCalibration = false;
+SLbool          SL::showCredits         = false;
+SLbool          SL::showStatsTiming     = false;
+SLbool          SL::showStatsScene      = false;
+SLbool          SL::showStatsVideo      = false;
+SLbool          SL::showInfosFrameworks = false;
+SLbool          SL::showInfosScene      = false;
 
-SLstring        SL::infoAbout =
+SLstring SL::infoAbout =
 "Welcome to the SLProject demo app. It is developed at the \
 Computer Science Department of the Bern University of Applied Sciences. \
 The app shows what you can learn in one semester about 3D computer graphics \
@@ -244,17 +254,18 @@ void SL::loadConfig(SLSceneView* sv)
     }
 
     SLint i; SLbool b;
-    fs["configTime"]                >> SL::configTime;
-    fs["dpi"]                       >> SL::dpi;
-    fs["fontPropDots"]              >> SL::fontPropDots;
-    fs["fontFixedDots"]             >> SL::fontFixedDots;
-    fs["currentSceneID"]            >> i; SL::currentSceneID = (SLCommand)i;
-    fs["showStatsTiming"]           >> b; SLDemoGui::showStatsTiming = b;
-    fs["showStatsMemory"]           >> b; SLDemoGui::showStatsScene = b;
-    fs["showStatsVideo"]            >> b; SLDemoGui::showStatsVideo = b;
-    fs["showInfosFrameworks"]       >> b; SLDemoGui::showInfosFrameworks = b;
-    fs["showInfosScene"]            >> b; SLDemoGui::showInfosScene = b;
-    fs["drawBits"]                  >> i; sv->drawBits()->bits((SLuint)i);
+    fs["configTime"]            >> SL::configTime;
+    fs["dpi"]                   >> SL::dpi;
+    fs["fontPropDots"]          >> SL::fontPropDots;
+    fs["fontFixedDots"]         >> SL::fontFixedDots;
+    fs["currentSceneID"]        >> i; SL::currentSceneID = (SLCommand)i;
+    fs["showMenu"]              >> b; SL::showMenu = b;
+    fs["showStatsTiming"]       >> b; SL::showStatsTiming = b;
+    fs["showStatsMemory"]       >> b; SL::showStatsScene = b;
+    fs["showStatsVideo"]        >> b; SL::showStatsVideo = b;
+    fs["showInfosFrameworks"]   >> b; SL::showInfosFrameworks = b;
+    fs["showInfosScene"]        >> b; SL::showInfosScene = b;
+    fs["drawBits"]              >> i; sv->drawBits()->bits((SLuint)i);
 
     fs.release();
     SL_LOG("Config. loaded  : %s\n", fullPathAndFilename.c_str());
@@ -276,11 +287,12 @@ void SL::saveConfig(SLSceneView* sv)
     fs << "fontPropDots"            << SL::fontPropDots;
     fs << "fontFixedDots"           << SL::fontFixedDots;
     fs << "currentSceneID"          << (SLint)SL::currentSceneID;
-    fs << "showStatsTiming"         << SLDemoGui::showStatsTiming;
-    fs << "showStatsMemory"         << SLDemoGui::showStatsScene;
-    fs << "showStatsVideo"          << SLDemoGui::showStatsVideo;
-    fs << "showInfosFrameworks"     << SLDemoGui::showInfosFrameworks;
-    fs << "showInfosScene"          << SLDemoGui::showInfosScene;
+    fs << "showMenu"                << SL::showMenu;
+    fs << "showStatsTiming"         << SL::showStatsTiming;
+    fs << "showStatsMemory"         << SL::showStatsScene;
+    fs << "showStatsVideo"          << SL::showStatsVideo;
+    fs << "showInfosFrameworks"     << SL::showInfosFrameworks;
+    fs << "showInfosScene"          << SL::showInfosScene;
     fs << "drawBits"                << (SLint)sv->drawBits()->bits();
 
     fs.release();

@@ -341,7 +341,10 @@ static void onKeyAction(GLFWwindow* window, int GLFWKey, int scancode, int actio
         {   fullscreen = !fullscreen;
             glfwSetWindowSize(window, scrWidth, scrHeight);
             glfwSetWindowPos(window, 10, 30);   
-        } else 
+        } else
+        if (!SL::showMenu)
+        {   SL::showMenu = true;
+        } else
         {   slKeyPress(svIndex, key, modifiers);
             onClose(window);
             glfwSetWindowShouldClose(window, GL_TRUE);
@@ -410,20 +413,10 @@ int main(int argc, char *argv[])
     glfwWindowHint(GLFW_SAMPLES, 4);
 
     //You can enable or restrict newer OpenGL context here (read the GLFW documentation)
-    #ifdef SL_OS_MACOS
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 2);
     glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-    #else
-    //glfwWindowHint(GLFW_CLIENT_API, GLFW_OPENGL_API);
-    //glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-    //glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-    //glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-    #endif
 
     scrWidth = 640;
     scrHeight = 480;

@@ -1,5 +1,5 @@
 //#############################################################################
-//  File:      SLDemoGui.h
+//  File:      NewNodeGui.cpp
 //  Author:    Marcus Hudritsch
 //  Date:      Summer 2017
 //  Codestyle: https://github.com/cpvrlab/SLProject/wiki/Coding-Style-Guidelines
@@ -8,20 +8,22 @@
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
 
-#ifndef SLGUIDEMO_H
-#define SLGUIDEMO_H
+
 
 #include <stdafx.h>
-class SLScene;
-class SLSceneView;
+#include <SLScene.h>
+#include <SLSceneView.h>
+#include "NewNodeGui.h"
+#include "NewNodeSceneView.h"
 
 //-----------------------------------------------------------------------------
-//! ImGui UI class for the UI of the demo applications
-class SLDemoGui
-{
-    public:
-    static void     buildDemoGui        (SLScene* s, SLSceneView* sv);
-    static void     buildMenuBar        (SLScene* s, SLSceneView* sv);
-};
+SLstring NewNodeGui::infoText = "";
 //-----------------------------------------------------------------------------
-#endif
+void NewNodeGui::buildDemoGui(SLScene* s, SLSceneView* sv)
+{
+    ImGui::Begin("Scene Information");
+    ImGui::TextWrapped(infoText.c_str());
+    ImGui::End();
+}
+//-----------------------------------------------------------------------------
+

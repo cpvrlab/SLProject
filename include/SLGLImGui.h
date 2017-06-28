@@ -46,7 +46,7 @@ The full call stack for rendering one frame is:\n
 class SLGLImGui
 {
     public:
-                    SLGLImGui               (){;}
+                    SLGLImGui               ();
 
         void        init                    ();
         void        loadFonts               (SLfloat fontPropDots,

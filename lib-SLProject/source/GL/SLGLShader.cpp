@@ -53,7 +53,7 @@ void SLGLShader::load(SLstring filename)
     fstream shaderFile(filename.c_str(), ios::in);
     
     if (!shaderFile.is_open())
-    {   SL_LOG("File open failed: %s\n", filename.c_str());
+    {   SL_LOG("File open failed in SLGLShader::load: %s\n", filename.c_str());
         exit(1);
     }
    

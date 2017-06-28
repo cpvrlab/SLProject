@@ -19,6 +19,12 @@
 #include <SLScene.h>
 
 //-----------------------------------------------------------------------------
+SLGLImGui::SLGLImGui()
+{
+    // init build function pointer to zero
+    build = 0;
+}
+//-----------------------------------------------------------------------------
 //! Initializes OpenGL handles to zero and sets the ImGui key map
 void SLGLImGui::init()
 {
@@ -105,37 +111,6 @@ void SLGLImGui::createOpenGLObjects()
     glGetIntegerv(GL_TEXTURE_BINDING_2D, &last_texture);
     glGetIntegerv(GL_ARRAY_BUFFER_BINDING, &last_array_buffer);
     glGetIntegerv(GL_VERTEX_ARRAY_BINDING, &last_vertex_array);
-
-    /*
-    const GLchar *vertex_shader =
-        "#ifdef GL_ES\n"
-        "precision mediump float;\n"
-        "#endif\n"
-        "uniform mat4 ProjMtx;\n"
-        "attribute vec2 Position;\n"
-        "attribute vec2 UV;\n"
-        "attribute vec4 Color;\n"
-        "varying vec2 Frag_UV;\n"
-        "varying vec4 Frag_Color;\n"
-        "void main()\n"
-        "{\n"
-        "	Frag_UV = UV;\n"
-        "	Frag_Color = Color;\n"
-        "	gl_Position = ProjMtx * vec4(Position.xy,0,1);\n"
-        "}\n";
-
-    const GLchar* fragment_shader =
-        "#ifdef GL_ES\n"
-        "precision mediump float;\n"
-        "#endif\n"
-        "uniform sampler2D Texture;\n"
-        "varying vec2 Frag_UV;\n"
-        "varying vec4 Frag_Color;\n"
-        "void main()\n"
-        "{\n"
-        "	gl_FragColor = Frag_Color * texture(Texture, Frag_UV.st);\n"
-        "}\n";
-    */
 
     // Build version string as the first statement
     SLGLState* state = SLGLState::getInstance();
@@ -314,7 +289,8 @@ void SLGLImGui::printCompileErrors(SLint shaderHandle, const SLchar* src)
 //! Inits a new frame for the ImGui system
 void SLGLImGui::onInitNewFrame(SLScene* s, SLSceneView* sv)
 {
-    assert(build && "No ImGui build function available");
+    // If no build function is provided there is no ImGui
+    if (!build) return;
 
     if ((SLint)SL::fontPropDots != (SLint)_fontPropDots ||
         (SLint)SL::fontFixedDots != (SLint)_fontFixedDots)
@@ -338,8 +314,8 @@ void SLGLImGui::onInitNewFrame(SLScene* s, SLSceneView* sv)
     // This function is provided by the top-level project.
     // For the SLProject demo apps this build function is implemented in the
     // class SLDemoGui.
-
-    build(s, sv);
+    if (build)
+        build(s, sv);
 }
 //-----------------------------------------------------------------------------
 //! Callback if window got resized

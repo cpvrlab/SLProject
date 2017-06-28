@@ -22,16 +22,6 @@
 #include <imgui.h>
 
 //-----------------------------------------------------------------------------
-SLbool SLDemoGui::showAbout = false;
-SLbool SLDemoGui::showHelp = false;
-SLbool SLDemoGui::showHelpCalibration = false;
-SLbool SLDemoGui::showCredits = false;
-SLbool SLDemoGui::showStatsTiming = false;
-SLbool SLDemoGui::showStatsScene = false;
-SLbool SLDemoGui::showStatsVideo = false;
-SLbool SLDemoGui::showInfosFrameworks = false;
-SLbool SLDemoGui::showInfosScene = false;
-//-----------------------------------------------------------------------------
 //! This is the mail building function for the GUI of the Demo apps
 /*! Is is passed to the SLGLGImGui::build function in main of the app-Demo-GLFW
  app. This function will be called once per frame roughly at the end of
@@ -40,39 +30,42 @@ SLbool SLDemoGui::showInfosScene = false;
  */
 void SLDemoGui::buildDemoGui(SLScene* s, SLSceneView* sv)
 {
-    buildMenuBar(s, sv);
+    if (SL::showMenu) 
+    {   
+        buildMenuBar(s, sv);
+    }
 
-    if (showAbout)
+    if (SL::showAbout)
     {
-        ImGui::Begin("About SLProject", &showAbout, ImVec2(400,0));
+        ImGui::Begin("About SLProject", &SL::showAbout, ImVec2(400,0));
         ImGui::Text("Version %s", SL::version.c_str());
         ImGui::Separator();
         ImGui::TextWrapped(SL::infoAbout.c_str());
         ImGui::End();
     }
 
-    if (showHelp)
+    if (SL::showHelp)
     {
-        ImGui::Begin("About SLProject Interaction", &showHelp, ImVec2(400,0));
+        ImGui::Begin("About SLProject Interaction", &SL::showHelp, ImVec2(400,0));
         ImGui::TextWrapped(SL::infoHelp.c_str());
         ImGui::End();
     }
 
-    if (showHelpCalibration)
+    if (SL::showHelpCalibration)
     {
-        ImGui::Begin("About Camera Calibration", &showHelpCalibration, ImVec2(400,0));
+        ImGui::Begin("About Camera Calibration", &SL::showHelpCalibration, ImVec2(400,0));
         ImGui::TextWrapped(SL::infoCalibrate.c_str());
         ImGui::End();
     }
 
-    if (showCredits)
+    if (SL::showCredits)
     {
-        ImGui::Begin("Credits for all Helpers", &showCredits, ImVec2(400,0));
+        ImGui::Begin("Credits for all Helpers", &SL::showCredits, ImVec2(400,0));
         ImGui::TextWrapped(SL::infoCredits.c_str());
         ImGui::End();
     }
 
-    if (showStatsTiming)
+    if (SL::showStatsTiming)
     {
         SLRenderType rType = sv->renderType();
         SLCamera* cam = sv->camera();
@@ -106,7 +99,7 @@ void SLDemoGui::buildDemoGui(SLScene* s, SLSceneView* sv)
             #endif
             sprintf(m+strlen(m), "NO. drawcalls : %d\n", SLGLVertexArray::totalDrawCalls);
 
-            ImGui::Begin("Timing", &showStatsTiming, ImVec2(300,0));
+            ImGui::Begin("Timing", &SL::showStatsTiming, ImVec2(300,0));
             ImGui::TextUnformatted(m);
             ImGui::End();
 
@@ -124,7 +117,7 @@ void SLDemoGui::buildDemoGui(SLScene* s, SLSceneView* sv)
             sprintf(m+strlen(m), "Rays per ms   : %6.0f\n", rpms);
             sprintf(m+strlen(m), "Threads       : %d\n", rt->numThreads());
 
-            ImGui::Begin("Timing", &showStatsTiming, ImVec2(300,0));
+            ImGui::Begin("Timing", &SL::showStatsTiming, ImVec2(300,0));
             ImGui::TextWrapped(m);
             ImGui::End();
         }
@@ -132,7 +125,7 @@ void SLDemoGui::buildDemoGui(SLScene* s, SLSceneView* sv)
         ImGui::PopFont();
     }
 
-    if (showStatsScene)
+    if (SL::showStatsScene)
     {
         SLchar m[2550];   // message character array
         m[0]=0;           // set zero length
@@ -198,13 +191,13 @@ void SLDemoGui::buildDemoGui(SLScene* s, SLSceneView* sv)
 
         // Switch to fixed font
         ImGui::PushFont(ImGui::GetIO().Fonts->Fonts[1]);
-        ImGui::Begin("Scene Statistics", &showStatsScene, ImVec2(300,0));
+        ImGui::Begin("Scene Statistics", &SL::showStatsScene, ImVec2(300,0));
         ImGui::TextUnformatted(m);
         ImGui::End();
         ImGui::PopFont();
     }
 
-    if (showStatsVideo)
+    if (SL::showStatsVideo)
     {
 
         SLchar m[2550];   // message character array
@@ -233,20 +226,20 @@ void SLDemoGui::buildDemoGui(SLScene* s, SLSceneView* sv)
 
         // Switch to fixed font
         ImGui::PushFont(ImGui::GetIO().Fonts->Fonts[1]);
-        ImGui::Begin("Video", &showStatsVideo, ImVec2(300,0));
+        ImGui::Begin("Video", &SL::showStatsVideo, ImVec2(300,0));
         ImGui::TextUnformatted(m);
         ImGui::End();
         ImGui::PopFont();
     }
 
-    if (showInfosScene)
+    if (SL::showInfosScene)
     {
-        ImGui::Begin("Scene Information", &showInfosScene, ImVec2(300,0));
+        ImGui::Begin("Scene Information", &SL::showInfosScene, ImVec2(300,0));
         ImGui::TextWrapped(s->info().c_str());
         ImGui::End();
     }
 
-    if (showInfosFrameworks)
+    if (SL::showInfosFrameworks)
     {
         SLGLState* stateGL = SLGLState::getInstance();
         SLchar m[2550];   // message character array
@@ -261,7 +254,7 @@ void SLDemoGui::buildDemoGui(SLScene* s, SLSceneView* sv)
 
         // Switch to fixed font
         ImGui::PushFont(ImGui::GetIO().Fonts->Fonts[1]);
-        ImGui::Begin("Framework Informations", &showInfosFrameworks, ImVec2(300,0));
+        ImGui::Begin("Framework Informations", &SL::showInfosFrameworks, ImVec2(300,0));
         ImGui::TextUnformatted(m);
         ImGui::End();
         ImGui::PopFont();
@@ -411,6 +404,8 @@ void SLDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
                     sv->onCommand(C_animationToggle);
 
                 ImGui::Separator();
+
+                ImGui::MenuItem("Show Menu", 0, &SL::showMenu);
 
                 ImGui::SliderFloat("Prop. Font Size", &SL::fontPropDots, 16.f, 60.f,"%0.0f");
 
@@ -663,15 +658,15 @@ void SLDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
 
         if (ImGui::BeginMenu("Infos"))
         {
-            ImGui::MenuItem("Stats on Timing"    , 0, &showStatsTiming);
-            ImGui::MenuItem("Stats on Scene"     , 0, &showStatsScene);
-            ImGui::MenuItem("Stats on Video"     , 0, &showStatsVideo);
-            ImGui::MenuItem("Infos on Scene",      0, &showInfosScene);
-            ImGui::MenuItem("Infos on Frameworks", 0, &showInfosFrameworks);
-            ImGui::MenuItem("Help on Interaction", 0, &showHelp);
-            ImGui::MenuItem("Help on Calibration", 0, &showHelpCalibration);
-            ImGui::MenuItem("About SLProject"    , 0, &showAbout);
-            ImGui::MenuItem("Credits"            , 0, &showCredits);
+            ImGui::MenuItem("Stats on Timing"    , 0, &SL::showStatsTiming);
+            ImGui::MenuItem("Stats on Scene"     , 0, &SL::showStatsScene);
+            ImGui::MenuItem("Stats on Video"     , 0, &SL::showStatsVideo);
+            ImGui::MenuItem("Infos on Scene",      0, &SL::showInfosScene);
+            ImGui::MenuItem("Infos on Frameworks", 0, &SL::showInfosFrameworks);
+            ImGui::MenuItem("Help on Interaction", 0, &SL::showHelp);
+            ImGui::MenuItem("Help on Calibration", 0, &SL::showHelpCalibration);
+            ImGui::MenuItem("About SLProject"    , 0, &SL::showAbout);
+            ImGui::MenuItem("Credits"            , 0, &SL::showCredits);
 
             ImGui::EndMenu();
         }

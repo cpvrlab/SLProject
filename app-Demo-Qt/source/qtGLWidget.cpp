@@ -14,6 +14,7 @@
 #include <SLSceneView.h>
 #include <SLNode.h>
 #include <SLCVCapture.h>
+#include <SLDemoGui.h>
 
 #include <qtGLWidget.h>
 #include <QApplication>
@@ -140,7 +141,11 @@ void qtGLWidget::initializeGL()
                                  this->height() * (int)GETDEVICEPIXELRATIO(),
                                  dpi, 
                                  (SLCommand)SL_STARTSCENE,
-                                 (void*)&onUpdateWidget);
+                                 (void*)&onUpdateWidget,
+                                 0,
+                                 0,
+                                 0,
+                                 (void*)SLDemoGui::buildDemoGui);
 
     // Get the SLSceneView pointer
     SLScene* s = SLScene::current;

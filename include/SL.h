@@ -312,7 +312,17 @@ class SL
     static SLstring         infoAbout;          //!< About info string
     static SLstring         infoCredits;        //!< Credits info string
     static SLstring         infoHelp;           //!< Help info string
-    static SLstring         infoCalibrate;      //!< Calibration info string
+    static SLstring         infoCalibrate;      //!< Calibration info string   
+    static SLbool           showMenu;           //!< Flag if menu bar should be shown
+    static SLbool           showAbout;          //!< Flag if about info should be shown
+    static SLbool           showHelp;           //!< Flag if help info should be shown
+    static SLbool           showHelpCalibration;//!< Flag if calibration info should be shown
+    static SLbool           showCredits;        //!< Flag if credits info should be shown
+    static SLbool           showStatsTiming;    //!< Flag if timing info should be shown
+    static SLbool           showStatsScene;     //!< Flag if scene info should be shown
+    static SLbool           showStatsVideo;     //!< Flag if video info should be shown
+    static SLbool           showInfosFrameworks;//!< Flag if frameworks info should be shown
+    static SLbool           showInfosScene;     //!< Flag if scene info should be shown
 };
 //-----------------------------------------------------------------------------
 #endif
