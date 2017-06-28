@@ -1170,7 +1170,7 @@ int main()
 
     // Load and build 3D texture from multiple images of the same size
     _voxelScaling = { 1.0f, 1.0f, 1.0f };
-    SLstring  path = "../_data/images/textures/3d/volumes/mri_head_front_to_back/";
+    SLstring path = "../_data/images/textures/3d/volumes/mri_head_front_to_back/";
     std::vector<std::string> files = glUtils::getFileNamesInDir(path);
     _volumeTexture = glUtils::build3DTexture(files,
                                              _volumeWidth,

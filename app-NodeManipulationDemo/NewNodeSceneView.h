@@ -55,7 +55,6 @@ class NewNodeSceneView : public SLSceneView
         SLNode*             _moveBoxChild;  //!< little child cube
         SLVec3f             _pivotPos;      //!< position of the pivot point
         SLNode*             _axesNode;      //!< node for axis mesh
-        SLstring            _infoText;      //!< string for info display
 
         bool                _keyStates[65536];  //!< key press states of all keys
         SLKey               _modifiers;         //!< pressed modifier keys

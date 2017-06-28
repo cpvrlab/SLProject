@@ -1,5 +1,5 @@
 //#############################################################################
-//  File:      SLDemoGui.h
+//  File:      NewNodeGui.h
 //  Author:    Marcus Hudritsch
 //  Date:      Summer 2017
 //  Codestyle: https://github.com/cpvrlab/SLProject/wiki/Coding-Style-Guidelines
@@ -8,8 +8,8 @@
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
 
-#ifndef SLGUIDEMO_H
-#define SLGUIDEMO_H
+#ifndef NEWNODEGUI_H
+#define NEWNODEGUI_H
 
 #include <stdafx.h>
 class SLScene;
@@ -17,11 +17,11 @@ class SLSceneView;
 
 //-----------------------------------------------------------------------------
 //! ImGui UI class for the UI of the demo applications
-class SLDemoGui
+class NewNodeGui
 {
     public:
-    static void     buildDemoGui        (SLScene* s, SLSceneView* sv);
-    static void     buildMenuBar        (SLScene* s, SLSceneView* sv);
+    static void buildDemoGui(SLScene* s, SLSceneView* sv);
+    static SLstring infoText;
 };
 //-----------------------------------------------------------------------------
 #endif

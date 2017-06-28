@@ -68,9 +68,9 @@ qtMainWindow::qtMainWindow(QWidget *parent, SLVstring cmdLineArgs) :
 
     // on Mac OSX the sample buffers must be turned on for antialiasing
     QGLFormat format;
-    format.defaultFormat();
     format.setSampleBuffers(true);
     format.setProfile(QGLFormat::CoreProfile);
+    format.setVersion(3,3);
     format.setSwapInterval(1);
 
     // The composition of widget is as follows:
