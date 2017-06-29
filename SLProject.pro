@@ -5,6 +5,7 @@ SUBDIRS += lib-SLExternal
 SUBDIRS += lib-SLExternal/assimp
 SUBDIRS += lib-SLProject
 SUBDIRS += app-Demo-GLFW
+SUBDIRS += app-Viewer-Qt
 SUBDIRS += app-NodeManipulationDemo
 SUBDIRS += app-VolumeRendering
 SUBDIRS += exercises/ch04_HelloCube_Qt

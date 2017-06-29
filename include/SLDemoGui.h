@@ -14,6 +14,7 @@
 #include <stdafx.h>
 class SLScene;
 class SLSceneView;
+class SLNode;
 
 //-----------------------------------------------------------------------------
 //! ImGui UI class for the UI of the demo applications
@@ -22,6 +23,9 @@ class SLDemoGui
     public:
     static void     buildDemoGui        (SLScene* s, SLSceneView* sv);
     static void     buildMenuBar        (SLScene* s, SLSceneView* sv);
+    static void     buildSceneGraph     (SLScene* s);
+    static void     addSceneGraphNode   (SLScene* s, SLNode* node);
+    static void     buildProperties     (SLScene* s);
 };
 //-----------------------------------------------------------------------------
 #endif

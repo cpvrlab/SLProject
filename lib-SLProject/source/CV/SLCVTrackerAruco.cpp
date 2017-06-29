@@ -163,8 +163,8 @@ void SLCVTrackerAruco::drawArucoMarkerBoard(SLint dictionaryId,
                                                            markerSepaM,
                                                            dictionary);
     SLCVSize imageSize;
-    imageSize.width  = (markerEdgeM + markerSepaM) * 100.0f / 2.54f * dpi * numMarkersX;
-    imageSize.height = (markerEdgeM + markerSepaM) * 100.0f / 2.54f * dpi * numMarkersY;
+    imageSize.width  = (SLint)((markerEdgeM + markerSepaM) * 100.0f / 2.54f * dpi * numMarkersX);
+    imageSize.height = (SLint)((markerEdgeM + markerSepaM) * 100.0f / 2.54f * dpi * numMarkersY);
 
     imageSize.width  -= (imageSize.width%4);  
     imageSize.height -= (imageSize.height%4);  

@@ -17,6 +17,8 @@
 #include <SLScene.h>
 #include <SLSceneView.h>
 #include <SLInterface.h>
+#include <SLNode.h>
+#include <SLMesh.h>
 #include <SLImporter.h>
 #include <SLCVCapture.h>
 #include <imgui.h>
@@ -258,6 +260,16 @@ void SLDemoGui::buildDemoGui(SLScene* s, SLSceneView* sv)
         ImGui::TextUnformatted(m);
         ImGui::End();
         ImGui::PopFont();
+    }
+
+    if (SL::showSceneGraph)
+    {
+        buildSceneGraph(s);
+    }
+
+    if (SL::showProperties)
+    {
+        //buildProperties(s);
     }
 }
 //-----------------------------------------------------------------------------
@@ -662,6 +674,8 @@ void SLDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
             ImGui::MenuItem("Stats on Scene"     , 0, &SL::showStatsScene);
             ImGui::MenuItem("Stats on Video"     , 0, &SL::showStatsVideo);
             ImGui::MenuItem("Infos on Scene",      0, &SL::showInfosScene);
+            ImGui::MenuItem("Show Scenegraph",     0, &SL::showSceneGraph);
+          //ImGui::MenuItem("Show Properties",     0, &SL::showProperties);
             ImGui::MenuItem("Infos on Frameworks", 0, &SL::showInfosFrameworks);
             ImGui::MenuItem("Help on Interaction", 0, &SL::showHelp);
             ImGui::MenuItem("Help on Calibration", 0, &SL::showHelpCalibration);
@@ -673,5 +687,63 @@ void SLDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
 
         ImGui::EndMainMenuBar();
     }
+}
+//-----------------------------------------------------------------------------
+void SLDemoGui::buildSceneGraph(SLScene* s)
+{
+    ImGui::Begin("Scenegraph", &SL::showSceneGraph);
+
+    if (s->root3D())
+        addSceneGraphNode(s, s->root3D());
+
+    ImGui::End();
+}
+//-----------------------------------------------------------------------------
+void SLDemoGui::addSceneGraphNode(SLScene* s, SLNode* node)
+{
+    SLbool isSelectedNode = s->selectedNode()==node;
+    SLbool isLeafNode = node->children().size()==0 && node->meshes().size()==0;
+
+    ImGuiTreeNodeFlags nodeFlags = 0;
+    if (isLeafNode)
+         nodeFlags |= ImGuiTreeNodeFlags_Leaf;
+    else nodeFlags |= ImGuiTreeNodeFlags_OpenOnArrow;
+
+    if (isSelectedNode)
+        nodeFlags |= ImGuiTreeNodeFlags_Selected;
+
+    bool nodeIsOpen = ImGui::TreeNodeEx(node->name().c_str(), nodeFlags);
+
+    if (ImGui::IsItemClicked())
+        s->selectNodeMesh(node, 0);
+
+    if (nodeIsOpen)
+    {
+        for(auto mesh : node->meshes())
+        {
+            ImGui::PushStyleColor(ImGuiCol_Text, ImColor(0.7f,0.0f,0.0f));
+
+            ImGuiTreeNodeFlags meshFlags = ImGuiTreeNodeFlags_Leaf;
+            if (s->selectedMesh()==mesh)
+                meshFlags |= ImGuiTreeNodeFlags_Selected;
+            ImGui::TreeNodeEx(mesh->name().c_str(), meshFlags);
+
+            if (ImGui::IsItemClicked())
+                s->selectNodeMesh(node, mesh);
+
+            ImGui::TreePop();
+            ImGui::PopStyleColor();
+        }
+
+        for (auto child : node->children())
+            addSceneGraphNode(s, child);
+
+        ImGui::TreePop();
+    }
+}
+//-----------------------------------------------------------------------------
+void SLDemoGui::buildProperties(SLScene* s)
+{
+
 }
 //-----------------------------------------------------------------------------

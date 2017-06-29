@@ -42,6 +42,8 @@ SLbool          SL::showStatsScene      = false;
 SLbool          SL::showStatsVideo      = false;
 SLbool          SL::showInfosFrameworks = false;
 SLbool          SL::showInfosScene      = false;
+SLbool          SL::showSceneGraph      = false;
+SLbool          SL::showProperties      = false;
 
 SLstring SL::infoAbout =
 "Welcome to the SLProject demo app. It is developed at the \
@@ -62,8 +64,7 @@ Credits for external libraries:\n\
 - glew: glew.sourceforge.net\n\
 - glfw: glfw.org\n\
 - OpenCV: opencv.org\n\
-- OpenGL: opengl.org\n\
-- Qt: qt-project.org";
+- OpenGL: opengl.org";
 
 SLstring SL::infoHelp =
 "Help for mouse or finger control:\n\

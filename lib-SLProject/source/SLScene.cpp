@@ -512,6 +512,7 @@ void SLScene::selectNode(SLNode* nodeToSelect)
             _selectedNode->drawBits()->on(SL_DB_SELECTED);
         }
     } else _selectedNode = 0;
+    _selectedMesh = 0;
 }
 //-----------------------------------------------------------------------------
 //! Sets the _selectedNode and _selectedMesh and flags it as selected

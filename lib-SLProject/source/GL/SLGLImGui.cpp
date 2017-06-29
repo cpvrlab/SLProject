@@ -307,6 +307,9 @@ void SLGLImGui::onInitNewFrame(SLScene* s, SLSceneView* sv)
     if (io.DeltaTime < 0) io.DeltaTime = 1.0f/60.0f;
     _timeSec = nowSec;
 
+    io.MouseWheel = _mouseWheel;
+    _mouseWheel = 0.0f;
+
     // Start the frame
     ImGui::NewFrame();
 
