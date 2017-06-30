@@ -266,6 +266,8 @@ void SL::loadConfig(SLSceneView* sv)
     fs["showStatsVideo"]        >> b; SL::showStatsVideo = b;
     fs["showInfosFrameworks"]   >> b; SL::showInfosFrameworks = b;
     fs["showInfosScene"]        >> b; SL::showInfosScene = b;
+    fs["showSceneGraph"]        >> b; SL::showSceneGraph = b;
+    fs["showProperties"]        >> b; SL::showProperties = b;
     fs["drawBits"]              >> i; sv->drawBits()->bits((SLuint)i);
 
     fs.release();
@@ -294,6 +296,8 @@ void SL::saveConfig(SLSceneView* sv)
     fs << "showStatsVideo"          << SL::showStatsVideo;
     fs << "showInfosFrameworks"     << SL::showInfosFrameworks;
     fs << "showInfosScene"          << SL::showInfosScene;
+    fs << "showSceneGraph"          << SL::showSceneGraph;
+    fs << "showProperties"          << SL::showProperties;
     fs << "drawBits"                << (SLint)sv->drawBits()->bits();
 
     fs.release();

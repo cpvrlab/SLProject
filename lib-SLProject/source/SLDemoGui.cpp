@@ -269,7 +269,7 @@ void SLDemoGui::buildDemoGui(SLScene* s, SLSceneView* sv)
 
     if (SL::showProperties)
     {
-        //buildProperties(s);
+        buildProperties(s);
     }
 }
 //-----------------------------------------------------------------------------
@@ -675,7 +675,7 @@ void SLDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
             ImGui::MenuItem("Stats on Video"     , 0, &SL::showStatsVideo);
             ImGui::MenuItem("Infos on Scene",      0, &SL::showInfosScene);
             ImGui::MenuItem("Show Scenegraph",     0, &SL::showSceneGraph);
-          //ImGui::MenuItem("Show Properties",     0, &SL::showProperties);
+            ImGui::MenuItem("Show Properties",     0, &SL::showProperties);
             ImGui::MenuItem("Infos on Frameworks", 0, &SL::showInfosFrameworks);
             ImGui::MenuItem("Help on Interaction", 0, &SL::showHelp);
             ImGui::MenuItem("Help on Calibration", 0, &SL::showHelpCalibration);
@@ -721,12 +721,13 @@ void SLDemoGui::addSceneGraphNode(SLScene* s, SLNode* node)
     {
         for(auto mesh : node->meshes())
         {
-            ImGui::PushStyleColor(ImGuiCol_Text, ImColor(0.7f,0.0f,0.0f));
+            ImGui::PushStyleColor(ImGuiCol_Text, ImColor(1.0f,1.0f,0.0f));
 
             ImGuiTreeNodeFlags meshFlags = ImGuiTreeNodeFlags_Leaf;
             if (s->selectedMesh()==mesh)
                 meshFlags |= ImGuiTreeNodeFlags_Selected;
-            ImGui::TreeNodeEx(mesh->name().c_str(), meshFlags);
+          //ImGui::TreeNodeEx(mesh->name().c_str(), meshFlags);
+            ImGui::TreeNodeEx(mesh, meshFlags, mesh->name().c_str());
 
             if (ImGui::IsItemClicked())
                 s->selectNodeMesh(node, mesh);
@@ -744,6 +745,105 @@ void SLDemoGui::addSceneGraphNode(SLScene* s, SLNode* node)
 //-----------------------------------------------------------------------------
 void SLDemoGui::buildProperties(SLScene* s)
 {
+    SLNode* node = s->selectedNode();
+    SLMesh* mesh = s->selectedMesh();
 
+    ImGui::Begin("Properties", &SL::showProperties);
+    ImGui::Text("Node Properties");
+    ImGui::Separator();
+
+    if (node)
+    {   SLuint c = node->children().size();
+        SLuint m = node->meshes().size();
+
+        ImGui::Columns(2);
+        ImGui::Text("Name:");                       ImGui::NextColumn();
+        ImGui::Text(node->name().c_str());          ImGui::NextColumn();
+        ImGui::Text("children / meshes:");          ImGui::NextColumn();
+        ImGui::Text("%u / %u", c, m);               ImGui::NextColumn();
+
+        ImGui::Columns(1);
+        if (ImGui::TreeNode("Drawing Flags"))
+        {
+            SLbool db;
+            db = node->drawBit(SL_DB_HIDDEN);
+            if (ImGui::Checkbox("Hide", &db))
+                node->drawBits()->set(SL_DB_HIDDEN, db);
+
+            db = node->drawBit(SL_DB_WIREMESH);
+            if (ImGui::Checkbox("Show wireframe", &db))
+                node->drawBits()->set(SL_DB_WIREMESH, db);
+
+            db = node->drawBit(SL_DB_NORMALS);
+            if (ImGui::Checkbox("Show normals", &db))
+                node->drawBits()->set(SL_DB_NORMALS, db);
+
+            db = node->drawBit(SL_DB_VOXELS);
+            if (ImGui::Checkbox("Show voxels", &db))
+                node->drawBits()->set(SL_DB_VOXELS, db);
+
+            db = node->drawBit(SL_DB_BBOX);
+            if (ImGui::Checkbox("Show bounding boxes", &db))
+                node->drawBits()->set(SL_DB_BBOX, db);
+
+            db = node->drawBit(SL_DB_AXIS);
+            if (ImGui::Checkbox("Show axis", &db))
+                node->drawBits()->set(SL_DB_AXIS, db);
+
+            db = node->drawBit(SL_DB_CULLOFF);
+            if (ImGui::Checkbox("Show back faces", &db))
+                node->drawBits()->set(SL_DB_CULLOFF, db);
+
+            db = node->drawBit(SL_DB_TEXOFF);
+            if (ImGui::Checkbox("No textures", &db))
+                node->drawBits()->set(SL_DB_TEXOFF, db);
+
+            ImGui::TreePop();
+        }
+
+        if (ImGui::TreeNode("Local Transform"))
+        {
+            SLMat4f om(node->om());
+            SLVec3f t, r, s;
+            om.decompose(t, r, s);
+            r *= SL_RAD2DEG;
+
+            ImGui::Columns(2);
+            ImGui::Text("Translation:");            ImGui::NextColumn();
+            ImGui::Text(t.toString().c_str());      ImGui::NextColumn();
+            ImGui::Text("Rotation:");               ImGui::NextColumn();
+            ImGui::Text(r.toString().c_str());      ImGui::NextColumn();
+            ImGui::Text("Scaling:");                ImGui::NextColumn();
+            ImGui::Text(s.toString().c_str());      ImGui::NextColumn();
+            ImGui::TreePop();
+        }
+
+    } else
+    {
+        ImGui::Text("No node selected.");
+    }
+
+    ImGui::PushStyleColor(ImGuiCol_Text, ImColor(1.0f,1.0f,0.0f));
+    ImGui::Columns(1);
+    ImGui::Separator();
+    ImGui::Text("Mesh Properties");
+    ImGui::Separator();
+
+    if (mesh)
+    {   SLuint v = mesh->P.size();
+        SLuint t = mesh->I16.size() ? mesh->I16.size() : mesh->I32.size();
+        ImGui::Columns(2);
+        ImGui::Text("Name:");                       ImGui::NextColumn();
+        ImGui::Text(mesh->name().c_str());          ImGui::NextColumn();
+        ImGui::Text("Vertices / Triangles:");       ImGui::NextColumn();
+        ImGui::Text("%u / %u", v, t);               ImGui::NextColumn();
+
+    } else
+    {
+        ImGui::Text("No mesh selected.");
+    }
+
+    ImGui::PopStyleColor();
+    ImGui::End();
 }
 //-----------------------------------------------------------------------------
