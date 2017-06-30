@@ -1,74 +1,72 @@
+//#############################################################################
+//  File:      SLCVRaulMurOrb.h
+//  Author:    Pascal Zingg, Timon Tschanz
+//  Date:      Spring 2017
+//  Codestyle: https://github.com/cpvrlab/SLProject/wiki/Coding-Style-Guidelines
+//  Copyright: Marcus Hudritsch, Michael Goettlicher
+//             This softwareis provide under the GNU General Public License
+//             Please visit: http://opensource.org/licenses/GPL-3.0
+//#############################################################################
+
 #ifndef SLCVRAULMURORB_H
 #define SLCVRAULMURORB_H
 
-#include <opencv2/core/hal/interface.h>
-#include <opencv2/core.hpp>
-#include <iostream>
+#include <SLCV.h>
 
+//-----------------------------------------------------------------------------
+//!???
+/*!???
+*/
 class SLCVRaulMurOrb: public cv::Feature2D
 {
 public:
     enum {HARRIS_SCORE=0, FAST_SCORE=1 };
 
-    SLCVRaulMurOrb(int nfeatures, float scaleFactor, int nlevels,
-                 int iniThFAST, int minThFAST);
+                    SLCVRaulMurOrb(int nfeatures, float scaleFactor, int nlevels,
+                                   int iniThFAST, int minThFAST);
 
-    ~SLCVRaulMurOrb(){}
+                    ~SLCVRaulMurOrb(){}
 
     // Compute the ORB features and descriptors on an image.
     // ORB are dispersed on the image using an octree.
     // Mask is ignored in the current implementation.
 
-    void detectAndCompute( cv::InputArray image, cv::InputArray mask,
-                           std::vector<cv::KeyPoint>& keypoints,
-                           cv::OutputArray descriptors, bool useProvidedKeypoints);
+    void            detectAndCompute    (SLCVInputArray image, SLCVInputArray mask,
+                                         SLCVVKeyPoint& keypoints,
+                                         SLCVOutputArray descriptors, 
+                                         bool useProvidedKeypoints);
 
-    int inline GetLevels(){
-        return nlevels;}
+    int inline      GetLevels(){return nlevels;}
+    float inline    GetScaleFactor(){return (float)scaleFactor;}
+    SLVfloat inline GetScaleFactors(){return mvScaleFactor;}
+    SLVfloat inline GetInverseScaleFactors(){return mvInvScaleFactor;}
+    SLVfloat inline GetScaleSigmaSquares(){return mvLevelSigma2;}
+    SLVfloat inline GetInverseScaleSigmaSquares(){return mvInvLevelSigma2;}
 
-    float inline GetScaleFactor(){
-        return scaleFactor;}
-
-    std::vector<float> inline GetScaleFactors(){
-        return mvScaleFactor;
-    }
-
-    std::vector<float> inline GetInverseScaleFactors(){
-        return mvInvScaleFactor;
-    }
-
-    std::vector<float> inline GetScaleSigmaSquares(){
-        return mvLevelSigma2;
-    }
-
-    std::vector<float> inline GetInverseScaleSigmaSquares(){
-        return mvInvLevelSigma2;
-    }
-
-    std::vector<cv::Mat> mvImagePyramid;
+    SLCVVMat        mvImagePyramid;
 
 protected:
-    void ComputePyramid(cv::Mat image);
-    void ComputeKeyPointsOctTree(std::vector<std::vector<cv::KeyPoint> >& allKeypoints);
-    std::vector<cv::KeyPoint> DistributeOctTree(const std::vector<cv::KeyPoint>& vToDistributeKeys, const int &minX,
-                                           const int &maxX, const int &minY, const int &maxY, const int &nFeatures, const int &level);
-    std::vector<cv::Point> pattern;
-
-    int nfeatures;
-    double scaleFactor;
-    int nlevels;
-    int iniThFAST;
-    int minThFAST;
-
-    std::vector<int> mnFeaturesPerLevel;
-
-    std::vector<int> umax;
-
-    std::vector<float> mvScaleFactor;
-    std::vector<float> mvInvScaleFactor;
-    std::vector<float> mvLevelSigma2;
-    std::vector<float> mvInvLevelSigma2;
+    void            ComputePyramid          (SLCVMat image);
+    void            ComputeKeyPointsOctTree (SLCVVVKeyPoint& allKeypoints);
+    SLCVVKeyPoint   DistributeOctTree       (const SLCVVKeyPoint& vToDistributeKeys, 
+                                             const int &minX,
+                                             const int &maxX, 
+                                             const int &minY, 
+                                             const int &maxY, 
+                                             const int &nFeatures, 
+                                             const int &level);
+    SLCVVPoint      pattern;
+    int             nfeatures;
+    double          scaleFactor;
+    int             nlevels;
+    int             iniThFAST;
+    int             minThFAST;
+    SLVint          mnFeaturesPerLevel;
+    SLVint          umax;
+    SLVfloat        mvScaleFactor;
+    SLVfloat        mvInvScaleFactor;
+    SLVfloat        mvLevelSigma2;
+    SLVfloat        mvInvLevelSigma2;
 };
-
-
+//----------------------------------------------------------------------------
 #endif // SLCVRAULMURORB_H

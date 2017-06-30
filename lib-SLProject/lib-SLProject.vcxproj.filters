@@ -312,13 +312,16 @@
     <ClInclude Include="..\include\SLCV.h">
       <Filter>CV</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\SLCVFeatureMap2D.h">
-      <Filter>CV</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\SLCVFeatureMapper2D.h">
-      <Filter>CV</Filter>
-    </ClInclude>
     <ClInclude Include="..\include\SLCVImage.h">
+      <Filter>CV</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\SLCVRaulMurExtractorNode.h">
+      <Filter>CV</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\SLCVRaulMurOrb.h">
+      <Filter>CV</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\SLCVTrackerFeatures.h">
       <Filter>CV</Filter>
     </ClInclude>
   </ItemGroup>
@@ -519,9 +522,6 @@
       <Filter>CV</Filter>
     </ClCompile>
     <ClCompile Include="source\CV\SLCVTracker.cpp">
-      <Filter>CV</Filter>
-    </ClCompile>
-    <ClCompile Include="source\CV\SLCVFeatureMapper2D.cpp">
       <Filter>CV</Filter>
     </ClCompile>
     <ClCompile Include="source\CV\SLCVImage.cpp">

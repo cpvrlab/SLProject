@@ -66,6 +66,9 @@ const int initialPatchSize = 2;
 const int maxPatchSize = 60;
 
 //-----------------------------------------------------------------------------
+//!???
+/*!???
+*/
 class SLCVTrackerFeatures : public SLCVTracker
 {
 public:
@@ -77,55 +80,55 @@ public:
                                 SLSceneView* sv);
 
 private:
-        Ptr<DescriptorMatcher>  _matcher;
-        SLCVCalibration*        _calib;
-        SLint                   _frameCount = 0;
-        bool                    _isRelocated;
+        void                initializeReference (string trackerName);
+        void                relocate            ();
+        void                tracking            ();
+        void                drawDebugInformation();
+        void                updateSceneCamera   (SLSceneView* sv);
+        void                transferFrameData   ();
+        SLCVVKeyPoint       detectKeypoints     ();
+        SLCVMat             computeDescriptors  ();
+        void                getKeypointsAndDescriptors();
+        SLCVVDMatch         getFeatureMatches   ();
+        bool                calculatePose       ();
+        void                optimizeMatches     ();
+        bool                trackWithOptFlow    (SLCVMat rvec, SLCVMat tvec);
 
-        //! Data of a 2D marker image. Is Marker2D not more precise ???
-        struct Map
-        {   SLCVVPoint3f    model;              //!< 3D map feature points in mm ??? Is keypoints3D not more precise
-            SLCVMat         frameGray;          //!< ??? I would call this imageGray. A frame is part of a sequence
-            SLCVMat         imgDrawing;         //!< ???
-            SLCVVKeyPoint   keypoints;          //!< 2D map keypoints in pixels ??? Is keypoints2D not more precise
+        Ptr<DescriptorMatcher>  _matcher;       //!< Descriptor matching algorithm
+        SLCVCalibration*        _calib;         //!< Current calibration in use
+        SLint                   _frameCount=0;  //!< NO. of frames since process start
+        bool                    _isTracking;    //!< True if tracking
+
+        //! Data of a 2D marker image
+        struct FeatureMarker2D
+        {   SLCVVPoint3f    keypoints3D;        //!< 3D feature points in mm
+            SLCVMat         imageGray;          //!< Grayscale image of the marker
+            SLCVMat         imageDrawing;       //!< Color debug image
+            SLCVVKeyPoint   keypoints2D;        //!< 2D keypoints in pixels
             SLCVMat         descriptors;        //!< Descriptors of the 2D keypoints
-            SLCVVKeyPoint   bboxModelKeypoints; //!< Is bboxKeypoints2D not more precise ???
+            SLCVVKeyPoint   bboxKeypoints2D;    //!< bounding boxes of 2D keypoints
         };
 
         //! Feature date for a video frame
         struct FrameData
         {   SLCVMat         image;              //!< Reference to color video frame
             SLCVMat         imageGray;          //!< Reference to grayscale video frame
-            SLCVVPoint2f    inlierPoints2D;     //!< ???
-            SLCVVPoint3f    inlierPoints3D;     //!< ???
+            SLCVVPoint2f    inlierPoints2D;     //!< Inlier 2D points after RANSAC
+            SLCVVPoint3f    inlierPoints3D;     //!< Inlier 3D points after RANSAC on the marker
             SLCVVKeyPoint   keypoints;          //!< 2D keypoints detected in video frame
             SLCVMat         descriptors;        //!< Descriptors of keypoints
             SLCVVDMatch     matches;            //!< matches between video decriptors and marker descriptors
-            SLCVVDMatch     inlierMatches;      //!< matches that lead to correct transform ???
+            SLCVVDMatch     inlierMatches;      //!< matches that lead to correct transform
             SLCVMat         rvec;               //!< Rotation of the camera pose
             SLCVMat         tvec;               //!< Translation of the camera pose
-            SLbool          foundPose;          //!< ???
+            SLbool          foundPose;          //!< True if pose was found
             SLfloat         reprojectionError;  //!< Reprojection error of the pose
-            SLbool          useExtrinsicGuess;  //!< flag if extrinsic gues should be used ???
+            SLbool          useExtrinsicGuess;  //!< flag if extrinsic gues should be used
         };
 
-        Map                 _map;               //!< 2D marker data
+        FeatureMarker2D     _marker;            //!< 2D marker data
         FrameData           _current;           //!< The current video frame date
         FrameData           _prev;              //!< The previous video frame date
-
-        void                initializeReference(string trackerName);
-        void                relocate();
-        void                tracking();
-        void                drawDebugInformation();
-        void                updateSceneCamera(SLSceneView* sv);
-        void                transferFrameData();
-        SLCVVKeyPoint       getKeypoints();
-        SLCVMat             getDescriptors();
-        void                getKeypointsAndDescriptors();
-        SLCVVDMatch         getFeatureMatches();
-        bool                calculatePose();
-        void                optimizeMatches();
-        bool                trackWithOptFlow(SLCVMat rvec, SLCVMat tvec);
 };
 //-----------------------------------------------------------------------------
 #endif // SLCVTrackerFeatures_H

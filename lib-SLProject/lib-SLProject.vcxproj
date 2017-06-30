@@ -282,14 +282,15 @@
     <ClInclude Include="..\include\SLBackground.h" />
     <ClInclude Include="..\include\SLCompactGrid.h" />
     <ClInclude Include="..\include\SLCV.h" />
-    <ClInclude Include="..\include\SLCVFeatureMap2D.h" />
-    <ClInclude Include="..\include\SLCVFeatureMapper2D.h" />
     <ClInclude Include="..\include\SLCVImage.h" />
+    <ClInclude Include="..\include\SLCVRaulMurExtractorNode.h" />
+    <ClInclude Include="..\include\SLCVRaulMurOrb.h" />
     <ClInclude Include="..\include\SLCVTrackerAruco.h" />
     <ClInclude Include="..\include\SLCVCalibration.h" />
     <ClInclude Include="..\include\SLCVCapture.h" />
     <ClInclude Include="..\include\SLCVTrackerChessboard.h" />
     <ClInclude Include="..\include\SLCVTracker.h" />
+    <ClInclude Include="..\include\SLCVTrackerFeatures.h" />
     <ClInclude Include="..\include\SLDisk.h" />
     <ClInclude Include="..\include\SLGLEnums.h" />
     <ClInclude Include="..\include\SLGLVertexArray.h" />
@@ -366,7 +367,6 @@
     <ClCompile Include="..\lib-SLExternal\nvwa\debug_new.cpp" />
     <ClCompile Include="source\CV\SLCVDescriptor.cpp" />
     <ClCompile Include="source\CV\SLCVDetector.cpp" />
-    <ClCompile Include="source\CV\SLCVFeatureMapper2D.cpp" />
     <ClCompile Include="source\CV\SLCVImage.cpp" />
     <ClCompile Include="source\CV\SLCVRaulMurExtractorNode.cpp" />
     <ClCompile Include="source\CV\SLCVRaulMurOrb.cpp" />

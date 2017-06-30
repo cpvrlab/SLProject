@@ -25,11 +25,13 @@ for a good top down information.
 #include <opencv2/core.hpp>
 #include <opencv2/opencv.hpp>
 #include <opencv2/core/ocl.hpp>
+#include <opencv2/core/hal/interface.h>
 //-----------------------------------------------------------------------------
 typedef cv::Mat                     SLCVMat;
 typedef cv::Rect                    SLCVRect;
 typedef cv::Rect2f                  SLCVRect2f;
 typedef cv::Point                   SLCVPoint;
+typedef cv::Point2i                 SLCVPoint2i;
 typedef cv::Point2f                 SLCVPoint2f;
 typedef cv::Point3f                 SLCVPoint3f;
 typedef cv::Size                    SLCVSize;
@@ -37,6 +39,8 @@ typedef cv::Size2f                  SLCVSize2f;
 typedef cv::KeyPoint                SLCVKeyPoint;
 typedef cv::FileStorage             SLCVFileStorage;
 typedef cv::DMatch                  SLCVDMatch;
+typedef cv::InputArray              SLCVInputArray;
+typedef cv::OutputArray             SLCVOutputArray;
 
 // 1D STL vectors
 typedef vector<cv::Mat>             SLCVVMat;

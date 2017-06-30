@@ -1,39 +1,48 @@
-#include <stdafx.h>
-#include <opencv2/core/core.hpp>
-#include <opencv2/highgui/highgui.hpp>
-#include <opencv2/features2d/features2d.hpp>
-#include <opencv2/imgproc/imgproc.hpp>
-#include <vector>
-#include "SLCVRaulMurExtractorNode.h"
+//#############################################################################
+//  File:      SLCVRaulMurExtractorNode.h
+//  Author:    Pascal Zingg, Timon Tschanz
+//  Date:      Spring 2017
+//  Codestyle: https://github.com/cpvrlab/SLProject/wiki/Coding-Style-Guidelines
+//  Copyright: Marcus Hudritsch, Michael Goettlicher
+//             This softwareis provide under the GNU General Public License
+//             Please visit: http://opensource.org/licenses/GPL-3.0
+//#############################################################################
 
-using namespace cv;
+#include <stdafx.h>
+#include <SLCV.h>
+#include <SLCVRaulMurExtractorNode.h>
 
 const int PATCH_SIZE = 31;
 const int HALF_PATCH_SIZE = 15;
 const int EDGE_THRESHOLD = 19;
 
-void SLCVRaulMurExtractorNode::DivideNode(SLCVRaulMurExtractorNode &n1, SLCVRaulMurExtractorNode &n2, SLCVRaulMurExtractorNode &n3, SLCVRaulMurExtractorNode &n4)
+//-----------------------------------------------------------------------------
+//!???
+void SLCVRaulMurExtractorNode::DivideNode(SLCVRaulMurExtractorNode &n1, 
+                                          SLCVRaulMurExtractorNode &n2, 
+                                          SLCVRaulMurExtractorNode &n3, 
+                                          SLCVRaulMurExtractorNode &n4)
 {
-    const int halfX = ceil(static_cast<float>(UR.x-UL.x)/2);
-    const int halfY = ceil(static_cast<float>(BR.y-UL.y)/2);
+    const int halfX = (int)(ceil(static_cast<float>(UR.x-UL.x)/2));
+    const int halfY = (int)(ceil(static_cast<float>(BR.y-UL.y)/2));
 
     //Define boundaries of childs
     n1.UL = UL;
-    n1.UR = cv::Point2i(UL.x+halfX,UL.y);
-    n1.BL = cv::Point2i(UL.x,UL.y+halfY);
-    n1.BR = cv::Point2i(UL.x+halfX,UL.y+halfY);
+    n1.UR = SLCVPoint2i(UL.x+halfX,UL.y);
+    n1.BL = SLCVPoint2i(UL.x,UL.y+halfY);
+    n1.BR = SLCVPoint2i(UL.x+halfX,UL.y+halfY);
     n1.vKeys.reserve(vKeys.size());
 
     n2.UL = n1.UR;
     n2.UR = UR;
     n2.BL = n1.BR;
-    n2.BR = cv::Point2i(UR.x,UL.y+halfY);
+    n2.BR = SLCVPoint2i(UR.x,UL.y+halfY);
     n2.vKeys.reserve(vKeys.size());
 
     n3.UL = n1.BL;
     n3.UR = n1.BR;
     n3.BL = BL;
-    n3.BR = cv::Point2i(n1.BR.x,BL.y);
+    n3.BR = SLCVPoint2i(n1.BR.x,BL.y);
     n3.vKeys.reserve(vKeys.size());
 
     n4.UL = n3.UR;
@@ -45,7 +54,7 @@ void SLCVRaulMurExtractorNode::DivideNode(SLCVRaulMurExtractorNode &n1, SLCVRaul
     //Associate points to childs
     for(size_t i=0;i<vKeys.size();i++)
     {
-        const cv::KeyPoint &kp = vKeys[i];
+        const SLCVKeyPoint &kp = vKeys[i];
         if(kp.pt.x<n1.UR.x)
         {
             if(kp.pt.y<n1.BR.y)
@@ -67,5 +76,5 @@ void SLCVRaulMurExtractorNode::DivideNode(SLCVRaulMurExtractorNode &n1, SLCVRaul
         n3.bNoMore = true;
     if(n4.vKeys.size()==1)
         n4.bNoMore = true;
-
 }
+//-----------------------------------------------------------------------------

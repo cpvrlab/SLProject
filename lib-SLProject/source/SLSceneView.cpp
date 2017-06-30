@@ -1821,7 +1821,7 @@ void SLSceneView::build2DMenus()
                 mn4 = new SLButton(this, "Calibration Flags >", f); mn3->addChild(mn4);
                 mn4->addChild(new SLButton(this, "Zero Tangent Distortion", f, C_calibZeroTangentDistToggle, true, ac->calibZeroTangentDist(), 0, false));
                 mn4->addChild(new SLButton(this, "Fix Aspect Ratio", f, C_calibFixAspectRatioToggle, true, ac->calibFixAspectRatio(), 0, false));
-                mn4->addChild(new SLButton(this, "Fix Principal Point", f, C_calibFixPrincipPointalToggle, true, ac->calibFixPrincipalPoint(), 0, false));
+                mn4->addChild(new SLButton(this, "Fix Principal SLCVPoint", f, C_calibFixPrincipPointalToggle, true, ac->calibFixPrincipalPoint(), 0, false));
 
                 if (SL::currentSceneID == C_sceneVideoFeaturetracking){
 

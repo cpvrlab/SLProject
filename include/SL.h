@@ -18,6 +18,8 @@
 #include <sstream>
 #include <fstream>
 #include <vector>
+#include <iterator>
+#include <list>
 #include <queue>
 #include <typeinfo>
 #include <string>

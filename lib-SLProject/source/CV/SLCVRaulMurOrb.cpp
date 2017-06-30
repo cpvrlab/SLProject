@@ -1,17 +1,17 @@
-/**
-* This File is based on the ORB Implementation of ORB_SLAM"
-*/
+//#############################################################################
+//  File:      SLCVRaulMurOrb.cpp
+//  Purpose:   This File is based on the ORB Implementation of ORB_SLAM"
+//  Author:    Pascal Zingg, Timon Tschanz
+//  Date:      Spring 2017
+//  Codestyle: https://github.com/cpvrlab/SLProject/wiki/Coding-Style-Guidelines
+//  Copyright: Marcus Hudritsch, Michael Goettlicher
+//             This softwareis provide under the GNU General Public License
+//             Please visit: http://opensource.org/licenses/GPL-3.0
+//#############################################################################
+
 #include <stdafx.h>
-#include <opencv2/core/core.hpp>
-#include <opencv2/core.hpp>
-#include <opencv2/core/hal/interface.h>
-#include <opencv2/highgui/highgui.hpp>
-#include <opencv2/features2d/features2d.hpp>
-#include <opencv2/imgproc/imgproc.hpp>
 #include <SLCVRaulMurExtractorNode.h>
-#include <vector>
-#include <iterator>
-#include "SLCVRaulMurOrb.h"
+#include <SLCVRaulMurOrb.h>
 
 using namespace cv;
 using namespace std;
@@ -20,11 +20,14 @@ const int PATCH_SIZE = 31;
 const int HALF_PATCH_SIZE = 15;
 const int EDGE_THRESHOLD = 19;
 
-static float IC_Angle(const Mat& image, Point2f pt,  const vector<int> & u_max)
+//-----------------------------------------------------------------------------
+static float IC_Angle(const SLCVMat& image, 
+                      SLCVPoint2f pt,  
+                      const SLVint & u_max)
 {
     int m_01 = 0, m_10 = 0;
 
-    const uchar* center = &image.at<uchar> (cvRound(pt.y), cvRound(pt.x));
+    const SLuchar* center = &image.at<SLuchar> (cvRound(pt.y), cvRound(pt.x));
 
     // Treat the center line differently, v=0
     for (int u = -HALF_PATCH_SIZE; u <= HALF_PATCH_SIZE; ++u)
@@ -48,16 +51,19 @@ static float IC_Angle(const Mat& image, Point2f pt,  const vector<int> & u_max)
 
     return fastAtan2((float)m_01, (float)m_10);
 }
+//-----------------------------------------------------------------------------
 const float factorPI = (float)(CV_PI/180.f);
 
-static void computeOrbDescriptor(const KeyPoint& kpt,
-                                 const Mat& img, const Point* pattern,
-                                 uchar* desc)
+//-----------------------------------------------------------------------------
+static void computeOrbDescriptor(const SLCVKeyPoint& kpt,
+                                 const SLCVMat& img, 
+                                 const SLCVPoint* pattern,
+                                 SLuchar* desc)
 {
     float angle = (float)kpt.angle*factorPI;
     float a = (float)cos(angle), b = (float)sin(angle);
 
-    const uchar* center = &img.at<uchar>(cvRound(kpt.pt.y), cvRound(kpt.pt.x));
+    const SLuchar* center = &img.at<SLuchar>(cvRound(kpt.pt.y), cvRound(kpt.pt.x));
     const int step = (int)img.step;
 
     #define GET_VALUE(idx) \
@@ -85,12 +91,12 @@ static void computeOrbDescriptor(const KeyPoint& kpt,
         t0 = GET_VALUE(14); t1 = GET_VALUE(15);
         val |= (t0 < t1) << 7;
 
-        desc[i] = (uchar)val;
+        desc[i] = (SLuchar)val;
     }
 
     #undef GET_VALUE
 }
-
+//-----------------------------------------------------------------------------
 static int bit_pattern_31_[256*4] =
 {
     8,-3, 9,5/*mean (0), correlation (0)*/,
@@ -351,9 +357,12 @@ static int bit_pattern_31_[256*4] =
     -1,-6, 0,-11/*mean (0.127148), correlation (0.547401)*/
 };
 
-
-SLCVRaulMurOrb::SLCVRaulMurOrb(int _nfeatures, float _scaleFactor, int _nlevels,
-                                                   int _iniThFAST, int _minThFAST):
+//-----------------------------------------------------------------------------
+SLCVRaulMurOrb::SLCVRaulMurOrb(int _nfeatures, 
+                               float _scaleFactor, 
+                               int _nlevels,
+                               int _iniThFAST, 
+                               int _minThFAST):
     nfeatures(_nfeatures), scaleFactor(_scaleFactor), nlevels(_nlevels),
     iniThFAST(_iniThFAST), minThFAST(_minThFAST)
 
@@ -364,7 +373,7 @@ SLCVRaulMurOrb::SLCVRaulMurOrb(int _nfeatures, float _scaleFactor, int _nlevels,
     mvLevelSigma2[0]=1.0f;
     for(int i=1; i<nlevels; i++)
     {
-        mvScaleFactor[i]=mvScaleFactor[i-1]*scaleFactor;
+        mvScaleFactor[i]=mvScaleFactor[i-1]*(float)scaleFactor;
         mvLevelSigma2[i]=mvScaleFactor[i]*mvScaleFactor[i];
     }
 
@@ -379,7 +388,7 @@ SLCVRaulMurOrb::SLCVRaulMurOrb(int _nfeatures, float _scaleFactor, int _nlevels,
     mvImagePyramid.resize(nlevels);
 
     mnFeaturesPerLevel.resize(nlevels);
-    float factor = 1.0f / scaleFactor;
+    float factor = 1.0f / (float)scaleFactor;
     float nDesiredFeaturesPerScale = nfeatures*(1 - factor)/(1 - (float)pow((double)factor, (double)nlevels));
 
     int sumFeatures = 0;
@@ -392,7 +401,7 @@ SLCVRaulMurOrb::SLCVRaulMurOrb(int _nfeatures, float _scaleFactor, int _nlevels,
     mnFeaturesPerLevel[nlevels-1] = std::max(nfeatures - sumFeatures, 0);
 
     const int npoints = 512;
-    const Point* pattern0 = (const Point*)bit_pattern_31_;
+    const SLCVPoint* pattern0 = (const SLCVPoint*)bit_pattern_31_;
     std::copy(pattern0, pattern0 + npoints, std::back_inserter(pattern));
 
     //This is for orientation
@@ -414,21 +423,28 @@ SLCVRaulMurOrb::SLCVRaulMurOrb(int _nfeatures, float _scaleFactor, int _nlevels,
         ++v0;
     }
 }
-
-static void computeOrientation(const Mat& image, vector<KeyPoint>& keypoints, const vector<int>& umax)
+//-----------------------------------------------------------------------------
+static void computeOrientation(const SLCVMat& image, 
+                               SLCVVKeyPoint& keypoints, 
+                               const SLVint& umax)
 {
-    for (vector<KeyPoint>::iterator keypoint = keypoints.begin(),
+    for (SLCVVKeyPoint::iterator keypoint = keypoints.begin(),
          keypointEnd = keypoints.end(); keypoint != keypointEnd; ++keypoint)
     {
         keypoint->angle = IC_Angle(image, keypoint->pt, umax);
     }
 }
-
-vector<cv::KeyPoint> SLCVRaulMurOrb::DistributeOctTree(const vector<cv::KeyPoint>& vToDistributeKeys, const int &minX,
-                                       const int &maxX, const int &minY, const int &maxY, const int &N, const int &level)
+//-----------------------------------------------------------------------------
+SLCVVKeyPoint SLCVRaulMurOrb::DistributeOctTree(const SLCVVKeyPoint& vToDistributeKeys, 
+                                                const int &minX,
+                                                const int &maxX, 
+                                                const int &minY, 
+                                                const int &maxY, 
+                                                const int &N, 
+                                                const int &level)
 {
     // Compute how many initial nodes
-    const int nIni = round(static_cast<float>(maxX-minX)/(maxY-minY));
+    const int nIni = (int)round(static_cast<float>(maxX-minX)/(maxY-minY));
 
     const float hX = static_cast<float>(maxX-minX)/nIni;
 
@@ -441,13 +457,13 @@ vector<cv::KeyPoint> SLCVRaulMurOrb::DistributeOctTree(const vector<cv::KeyPoint
     {
         SLCVRaulMurExtractorNode ni;
         //upperleft
-        ni.UL = cv::Point2i(hX*static_cast<float>(i),0);
+        ni.UL = SLCVPoint2i((int)(hX*(float)(i)),0);
         //upperright
-        ni.UR = cv::Point2i(hX*static_cast<float>(i+1),0);
+        ni.UR = SLCVPoint2i((int)(hX*(float)(i+1)),0);
         //bottomleft
-        ni.BL = cv::Point2i(ni.UL.x,maxY-minY);
+        ni.BL = SLCVPoint2i(ni.UL.x,maxY-minY);
         //bottomright
-        ni.BR = cv::Point2i(ni.UR.x,maxY-minY);
+        ni.BR = SLCVPoint2i(ni.UR.x,maxY-minY);
         ni.vKeys.reserve(vToDistributeKeys.size());
 
         lNodes.push_back(ni);
@@ -457,8 +473,8 @@ vector<cv::KeyPoint> SLCVRaulMurOrb::DistributeOctTree(const vector<cv::KeyPoint
     //Associate points to childs
     for(size_t i=0;i<vToDistributeKeys.size();i++)
     {
-        const cv::KeyPoint &kp = vToDistributeKeys[i];
-        vpIniNodes[kp.pt.x/hX]->vKeys.push_back(kp);
+        const SLCVKeyPoint &kp = vToDistributeKeys[i];
+        vpIniNodes[(SLuint)(kp.pt.x/hX)]->vKeys.push_back(kp);
     }
 
     list<SLCVRaulMurExtractorNode>::iterator lit = lNodes.begin();
@@ -487,7 +503,7 @@ vector<cv::KeyPoint> SLCVRaulMurOrb::DistributeOctTree(const vector<cv::KeyPoint
     {
         iteration++;
 
-        int prevSize = lNodes.size();
+        int prevSize = (int)lNodes.size();
 
         lit = lNodes.begin();
 
@@ -568,13 +584,13 @@ vector<cv::KeyPoint> SLCVRaulMurOrb::DistributeOctTree(const vector<cv::KeyPoint
             while(!bFinish)
             {
 
-                prevSize = lNodes.size();
+                prevSize = (int)lNodes.size();
 
                 vector<pair<int,SLCVRaulMurExtractorNode*> > vPrevSizeAndPointerToNode = vSizeAndPointerToNode;
                 vSizeAndPointerToNode.clear();
 
                 sort(vPrevSizeAndPointerToNode.begin(),vPrevSizeAndPointerToNode.end());
-                for(int j=vPrevSizeAndPointerToNode.size()-1;j>=0;j--)
+                for(int j=(int)vPrevSizeAndPointerToNode.size()-1; j>=0; j--)
                 {
                     SLCVRaulMurExtractorNode n1,n2,n3,n4;
                     vPrevSizeAndPointerToNode[j].second->DivideNode(n1,n2,n3,n4);
@@ -631,12 +647,12 @@ vector<cv::KeyPoint> SLCVRaulMurOrb::DistributeOctTree(const vector<cv::KeyPoint
     }
 
     // Retain the best point in each node
-    vector<cv::KeyPoint> vResultKeys;
+    SLCVVKeyPoint vResultKeys;
     vResultKeys.reserve(nfeatures);
     for(list<SLCVRaulMurExtractorNode>::iterator lit=lNodes.begin(); lit!=lNodes.end(); lit++)
     {
-        vector<cv::KeyPoint> &vNodeKeys = lit->vKeys;
-        cv::KeyPoint* pKP = &vNodeKeys[0];
+        SLCVVKeyPoint &vNodeKeys = lit->vKeys;
+        SLCVKeyPoint* pKP = &vNodeKeys[0];
         float maxResponse = pKP->response;
 
         for(size_t k=1;k<vNodeKeys.size();k++)
@@ -653,10 +669,9 @@ vector<cv::KeyPoint> SLCVRaulMurOrb::DistributeOctTree(const vector<cv::KeyPoint
 
     return vResultKeys;
 }
-
-void SLCVRaulMurOrb::ComputeKeyPointsOctTree(vector<vector<KeyPoint> >& allKeypoints)
+//-----------------------------------------------------------------------------
+void SLCVRaulMurOrb::ComputeKeyPointsOctTree(SLCVVVKeyPoint& allKeypoints)
 {
-
     const float W = 30;
 
     for (int level = 0; level < nlevels; ++level)
@@ -666,50 +681,50 @@ void SLCVRaulMurOrb::ComputeKeyPointsOctTree(vector<vector<KeyPoint> >& allKeypo
         const int maxBorderX = mvImagePyramid[level].cols-EDGE_THRESHOLD+3;
         const int maxBorderY = mvImagePyramid[level].rows-EDGE_THRESHOLD+3;
 
-        vector<cv::KeyPoint> vToDistributeKeys;
+        SLCVVKeyPoint vToDistributeKeys;
         vToDistributeKeys.reserve(nfeatures*10);
 
-        const float width = (maxBorderX-minBorderX);
-        const float height = (maxBorderY-minBorderY);
+        const float width  = (float)(maxBorderX-minBorderX);
+        const float height = (float)(maxBorderY-minBorderY);
 
         //generate the Cells to look for features in
-        const int nCols = width/W;
-        const int nRows = height/W;
-        const int wCell = ceil(width/nCols);
-        const int hCell = ceil(height/nRows);
+        const int nCols = (int)(width/W);
+        const int nRows = (int)(height/W);
+        const int wCell = (int)(ceil(width/nCols));
+        const int hCell = (int)(ceil(height/nRows));
 
         for(int i=0; i<nRows; i++)
         {
-            const float iniY =minBorderY+i*hCell;
+            const float iniY = (float)(minBorderY+i*hCell);
             float maxY = iniY+hCell+6;
 
             if(iniY>=maxBorderY-3)
                 continue;
             if(maxY>maxBorderY)
-                maxY = maxBorderY;
+                maxY = (float)maxBorderY;
 
             for(int j=0; j<nCols; j++)
             {
-                const float iniX =minBorderX+j*wCell;
+                const float iniX = (float)(minBorderX+j*wCell);
                 float maxX = iniX+wCell+6;
                 if(iniX>=maxBorderX-6)
                     continue;
                 if(maxX>maxBorderX)
-                    maxX = maxBorderX;
+                    maxX = (float)maxBorderX;
 
-                vector<cv::KeyPoint> vKeysCell;
-                FAST(mvImagePyramid[level].rowRange(iniY,maxY).colRange(iniX,maxX),
+                SLCVVKeyPoint vKeysCell;
+                FAST(mvImagePyramid[level].rowRange((int)iniY,(int)maxY).colRange((int)iniX,(int)maxX),
                      vKeysCell,iniThFAST,true);
 
                 if(vKeysCell.empty())
                 {
-                    FAST(mvImagePyramid[level].rowRange(iniY,maxY).colRange(iniX,maxX),
+                    FAST(mvImagePyramid[level].rowRange((int)iniY,(int)maxY).colRange((int)iniX,(int)maxX),
                          vKeysCell,minThFAST,true);
                 }
 
                 if(!vKeysCell.empty())
                 {
-                    for(vector<cv::KeyPoint>::iterator vit=vKeysCell.begin(); vit!=vKeysCell.end();vit++)
+                    for(SLCVVKeyPoint::iterator vit=vKeysCell.begin(); vit!=vKeysCell.end();vit++)
                     {
                         (*vit).pt.x+=j*wCell;
                         (*vit).pt.y+=i*hCell;
@@ -720,22 +735,22 @@ void SLCVRaulMurOrb::ComputeKeyPointsOctTree(vector<vector<KeyPoint> >& allKeypo
             }
         }
 
-        vector<KeyPoint> & keypoints = allKeypoints[level];
+        SLCVVKeyPoint & keypoints = allKeypoints[level];
         keypoints.reserve(nfeatures);
 
         keypoints = DistributeOctTree(vToDistributeKeys, minBorderX, maxBorderX,
                                       minBorderY, maxBorderY,mnFeaturesPerLevel[level], level);
 
-        const int scaledPatchSize = PATCH_SIZE*mvScaleFactor[level];
+        const int scaledPatchSize = (int)(PATCH_SIZE*mvScaleFactor[level]);
 
         // Add border to coordinates and scale information
-        const int nkps = keypoints.size();
+        const int nkps = (int)keypoints.size();
         for(int i=0; i<nkps ; i++)
         {
             keypoints[i].pt.x+=minBorderX;
             keypoints[i].pt.y+=minBorderY;
             keypoints[i].octave=level;
-            keypoints[i].size = scaledPatchSize;
+            keypoints[i].size = (float)scaledPatchSize;
         }
     }
 
@@ -744,28 +759,37 @@ void SLCVRaulMurOrb::ComputeKeyPointsOctTree(vector<vector<KeyPoint> >& allKeypo
         computeOrientation(mvImagePyramid[level], allKeypoints[level], umax);
 }
 
-static void computeDescriptors(const Mat& image, vector<KeyPoint>& keypoints, Mat& descriptors,
-                               const vector<Point>& pattern)
+//-----------------------------------------------------------------------------
+static void computeDescriptors(const SLCVMat& image, 
+                               SLCVVKeyPoint& keypoints, SLCVMat& descriptors,
+                               SLCVVPoint& pattern)
 {
-    descriptors = Mat::zeros((int)keypoints.size(), 32, CV_8UC1);
+    descriptors = SLCVMat::zeros((int)keypoints.size(), 32, CV_8UC1);
 
     for (size_t i = 0; i < keypoints.size(); i++)
-        computeOrbDescriptor(keypoints[i], image, &pattern[0], descriptors.ptr((int)i));
+        computeOrbDescriptor(keypoints[i], 
+                             image, 
+                             &pattern[0], 
+                             descriptors.ptr((int)i));
 }
 
-void SLCVRaulMurOrb::detectAndCompute( InputArray _image, InputArray _mask, vector<KeyPoint>& _keypoints,
-                      OutputArray _descriptors, bool useProvidedKeypoints)
+//-----------------------------------------------------------------------------
+void SLCVRaulMurOrb::detectAndCompute(SLCVInputArray _image, 
+                                      SLCVInputArray _mask, 
+                                      SLCVVKeyPoint& _keypoints,
+                                      SLCVOutputArray _descriptors, 
+                                      bool useProvidedKeypoints)
 {
     if(_image.empty())
         return;
 
-    Mat image = _image.getMat();
+    SLCVMat image = _image.getMat();
     assert(image.type() == CV_8UC1 );
 
     // Pre-compute the scale pyramid
     ComputePyramid(image);
-    Mat descriptors;
-    vector < vector<KeyPoint> > allKeypoints;
+    SLCVMat descriptors;
+    SLCVVVKeyPoint allKeypoints;
     allKeypoints.resize(nlevels);
     int nkeypoints = 0;
     if(!useProvidedKeypoints){
@@ -778,7 +802,7 @@ void SLCVRaulMurOrb::detectAndCompute( InputArray _image, InputArray _mask, vect
     }
     else {
         KeyPointsFilter::runByImageBorder(_keypoints, _image.size(), 31);
-        nkeypoints = _keypoints.size();
+        nkeypoints = (int)_keypoints.size();
         int last_index = 0;
         int last_level = 0;
         for (int index = 0; index < _keypoints.size(); index++){
@@ -802,18 +826,18 @@ void SLCVRaulMurOrb::detectAndCompute( InputArray _image, InputArray _mask, vect
     int offset = 0;
     for (int level = 0; level < nlevels; ++level)
     {
-        vector<KeyPoint>& keypoints = allKeypoints[level];
+        SLCVVKeyPoint& keypoints = allKeypoints[level];
         int nkeypointsLevel = (int)keypoints.size();
 
         if(nkeypointsLevel==0)
             continue;
         if (_descriptors.needed()){
         // preprocess the resized image
-        Mat workingMat = mvImagePyramid[level].clone();
+        SLCVMat workingMat = mvImagePyramid[level].clone();
         GaussianBlur(workingMat, workingMat, Size(7, 7), 2, 2, BORDER_REFLECT_101);
 
         // Compute the descriptors
-        Mat desc = descriptors.rowRange(offset, offset + nkeypointsLevel);
+        SLCVMat desc = descriptors.rowRange(offset, offset + nkeypointsLevel);
 
         computeDescriptors(workingMat, keypoints, desc, pattern);
         }
@@ -823,7 +847,7 @@ void SLCVRaulMurOrb::detectAndCompute( InputArray _image, InputArray _mask, vect
         if (level != 0)
         {
             float scale = mvScaleFactor[level]; //getScale(level, firstLevel, scaleFactor);
-            for (vector<KeyPoint>::iterator keypoint = keypoints.begin(),
+            for (SLCVVKeyPoint::iterator keypoint = keypoints.begin(),
                  keypointEnd = keypoints.end(); keypoint != keypointEnd; ++keypoint)
                 keypoint->pt *= scale;
         }
@@ -833,15 +857,15 @@ void SLCVRaulMurOrb::detectAndCompute( InputArray _image, InputArray _mask, vect
         }
    }
 }
-
-void SLCVRaulMurOrb::ComputePyramid(cv::Mat image)
+//-----------------------------------------------------------------------------
+void SLCVRaulMurOrb::ComputePyramid(SLCVMat image)
 {
     for (int level = 0; level < nlevels; ++level)
     {
         float scale = mvInvScaleFactor[level];
         Size sz(cvRound((float)image.cols*scale), cvRound((float)image.rows*scale));
         Size wholeSize(sz.width + EDGE_THRESHOLD*2, sz.height + EDGE_THRESHOLD*2);
-        Mat temp(wholeSize, image.type()), masktemp;
+        SLCVMat temp(wholeSize, image.type()), masktemp;
         mvImagePyramid[level] = temp(Rect(EDGE_THRESHOLD, EDGE_THRESHOLD, sz.width, sz.height));
 
         // Compute the resized image
@@ -860,3 +884,4 @@ void SLCVRaulMurOrb::ComputePyramid(cv::Mat image)
     }
 
 }
+//-----------------------------------------------------------------------------

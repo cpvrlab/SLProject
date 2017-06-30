@@ -1,11 +1,23 @@
+//#############################################################################
+//  File:      SLCVRaulMurExtractorNode.h
+//  Author:    Pascal Zingg, Timon Tschanz
+//  Date:      Spring 2017
+//  Codestyle: https://github.com/cpvrlab/SLProject/wiki/Coding-Style-Guidelines
+//  Copyright: Marcus Hudritsch, Michael Goettlicher
+//             This softwareis provide under the GNU General Public License
+//             Please visit: http://opensource.org/licenses/GPL-3.0
+//#############################################################################
+
 #ifndef SLCVRAULMUREXTRACTORNODE_H
 #define SLCVRAULMUREXTRACTORNODE_H
 
-#include <vector>
-#include <list>
-#include <opencv/cv.h>
+#include <SLCV.h>
 #include <SLCVRaulMurExtractorNode.h>
 
+//-----------------------------------------------------------------------------
+//!???
+/*!???
+*/
 class SLCVRaulMurExtractorNode
 {
 public:
@@ -13,9 +25,10 @@ public:
 
     void DivideNode(SLCVRaulMurExtractorNode &n1, SLCVRaulMurExtractorNode &n2, SLCVRaulMurExtractorNode &n3, SLCVRaulMurExtractorNode &n4);
 
-    std::vector<cv::KeyPoint> vKeys;
-    cv::Point2i UL, UR, BL, BR;
+    SLCVVKeyPoint   vKeys;
+    SLCVPoint2i     UL, UR, BL, BR;
     std::list<SLCVRaulMurExtractorNode>::iterator lit;
     bool bNoMore;
 };
+//-----------------------------------------------------------------------------
 #endif // SLCVRAULMUREXTRACTORNODE_H
