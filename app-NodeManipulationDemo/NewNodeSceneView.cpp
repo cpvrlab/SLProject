@@ -120,7 +120,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand cmd)
     _root3D = scene;
 
     sv->camera(cam1);
-    SL::showMenu = false;
+    SLDemoGui::showMenu = false;
     sv->waitEvents(false);
     sv->onInitialize();
 }

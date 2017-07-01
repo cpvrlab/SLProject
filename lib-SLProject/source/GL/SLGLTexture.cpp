@@ -673,6 +673,8 @@ SLstring SLGLTexture::typeName()
         case TT_normal:  return "normal map"; break;
         case TT_height:  return "hight map"; break;
         case TT_gloss:   return "gloss map"; break;
+        case TT_roughness:   //*_R.{ext} Cook-Torrance roughness 0-1
+        case TT_metallic:    //*_M.{ext} Cook-Torrance metallic 0-1
         case TT_font:    return "font map"; break;
         default: return "Unknown type";
     }

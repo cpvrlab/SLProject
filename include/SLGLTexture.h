@@ -99,6 +99,7 @@ class SLGLTexture : public SLObject
             // Getters
             SLCVVImage&     images          (){return _images;}
             SLenum          target          (){return _target;}
+            SLuint          texName         (){return _texName;}
             SLTextureType   texType         (){return _texType;}
             SLfloat         bumpScale       (){return _bumpScale;}
             SLCol4f         getTexelf       (SLfloat s, SLfloat t);

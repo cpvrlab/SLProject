@@ -16,6 +16,7 @@
 #include <SLAssimpImporter.h>
 #include <SLInputManager.h>
 #include <SLCVCapture.h>
+#include <SLDemoGui.h>
 
 //! \file SLInterface.cpp SLProject C-functions interface implementation.
 /*! \file SLInterface.cpp
@@ -136,21 +137,21 @@ int slCreateSceneView(int screenWidth,
 
     // Load configuration after the first sceneview creation
     if (index==0)
-        SL::loadConfig(sv);
+        SLDemoGui::loadConfig();
 
     // Set default font sizes depending on the dpi
     if (!SL::dpi) SL::dpi = dotsPerInch;
-    if (!SL::fontPropDots) SL::fontPropDots = dotsPerInch * (16.0f / 142.0f);
-    if (!SL::fontFixedDots) SL::fontFixedDots = dotsPerInch * (13.0f / 142.0f);
+    if (!SLGLImGui::fontPropDots)  SLGLImGui::fontPropDots  = dotsPerInch * (16.0f / 142.0f);
+    if (!SLGLImGui::fontFixedDots) SLGLImGui::fontFixedDots = dotsPerInch * (13.0f / 142.0f);
 
     // Load GUI fonts depending on the resolution
-    sv->gui().loadFonts(SL::fontPropDots, SL::fontFixedDots);
+    sv->gui().loadFonts(SLGLImGui::fontPropDots, SLGLImGui::fontFixedDots);
 
     // Set active sceneview and load scene. This is done for the first sceneview
     if (!SLScene::current->root3D())
     {   if (SL::currentSceneID == C_sceneEmpty)
              SLScene::current->onLoad(sv, initScene);
-        else SLScene::current->onLoad(sv, SL::currentSceneID); 
+        else SLScene::current->onLoad(sv, SL::currentSceneID);
     } else
         sv->onInitialize();
    
@@ -191,7 +192,7 @@ All the scenegraph deallocation is started from here and has to be done before
 the GUI app terminates.
 */
 void slTerminate()
-{    
+{
     // Deletes all remaining sceneviews the current scene instance  
     delete SLScene::current;
     SLScene::current = 0;

@@ -57,10 +57,12 @@ class SLGLShader : public SLObject
             void            loadFromMemory  (SLstring program);
             SLbool          createAndCompile();
             SLstring        removeComments  (SLstring src);
+            SLstring        typeName        ();
 
             // Getters
             SLShaderType    type            () {return _type;}
             SLuint          objectGL        () {return _objectGL;}
+            SLstring        code            () {return _code;}
 
     protected:         
             SLShaderType    _type;      //!< Shader type enumeration

@@ -36,6 +36,7 @@
 #include <SLLightDirect.h>
 #include <SLAnimPlayback.h>
 #include <SLImporter.h>
+#include <SLDemoGui.h>
 
 using namespace std::placeholders;
 
@@ -236,9 +237,9 @@ void qtMainWindow::setMenuState()
     ui->actionShow_Animation_Controler->setChecked(ui->dockAnimation->isVisible());
     ui->actionShow_Toolbar->setChecked(ui->toolBar->isVisible());
     ui->actionShow_Statusbar->setChecked(ui->statusBar->isVisible());
-    ui->actionShow_Statistics->setChecked(SL::showStatsTiming);
-    ui->actionShow_Scene_Info->setChecked(SL::showInfosScene);
-    ui->actionShow_Menu->setChecked(SL::showMenu);
+    ui->actionShow_Statistics->setChecked(SLDemoGui::showStatsTiming);
+    ui->actionShow_Scene_Info->setChecked(SLDemoGui::showInfosScene);
+    ui->actionShow_Menu->setChecked(SLDemoGui::showMenu);
 
     // Menu Camera states
     ui->actionUse_SceneView_Camera->setChecked(sv->isSceneViewCameraActive());
@@ -577,8 +578,8 @@ void qtMainWindow::buildPropertyTree()
             level1->addChild(level2);
 
             level2 = new qtProperty("Emissive Color:", "", onDblClickPick);
-            level2->setGetVec4f(bind((SLCol4f(SLMaterial::*)(void))&SLMaterial::emission, mat),
-                                bind((void(SLMaterial::*)(SLCol4f))&SLMaterial::emission, mat, _1));
+            level2->setGetVec4f(bind((SLCol4f(SLMaterial::*)(void))&SLMaterial::emissive, mat),
+                                bind((void(SLMaterial::*)(SLCol4f))&SLMaterial::emissive, mat, _1));
             level1->addChild(level2);
 
             level2 = new qtProperty("Shininess:", "", onDblClickEdit);
@@ -1181,7 +1182,7 @@ void qtMainWindow::on_actionShow_Scene_Info_triggered()
 void qtMainWindow::on_actionShow_Menu_triggered()
 {
     SLSceneView* sv = _activeGLWidget->sv();
-    SL::showMenu = !SL::showMenu;
+    SLDemoGui::showMenu = !SLDemoGui::showMenu;
     setMenuState();
 }
 
@@ -1616,7 +1617,7 @@ void qtMainWindow::on_actionDelete_active_view_triggered()
 void qtMainWindow::on_actionAbout_SLProject_triggered()
 {
     QMessageBox::information(this, "About SLProject",
-                             QString::fromStdString(SL::infoAbout));
+                             QString::fromStdString(SLDemoGui::infoAbout));
 }
 void qtMainWindow::on_actionVisit_SLProject_on_Github_triggered()
 {
@@ -1631,7 +1632,7 @@ void qtMainWindow::on_actionVisit_cpvrLab_homepage_triggered()
 void qtMainWindow::on_actionCredits_triggered()
 {
     QMessageBox::information(this, "About External Libraries",
-                             QString::fromStdString(SL::infoCredits).replace("\\n","\n"));
+                             QString::fromStdString(SLDemoGui::infoCredits).replace("\\n","\n"));
 }
 void qtMainWindow::on_actionAbout_Qt_triggered()
 {

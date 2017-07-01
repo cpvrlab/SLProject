@@ -338,8 +338,8 @@ static void onKeyAction(GLFWwindow* window, int GLFWKey, int scancode, int actio
             glfwSetWindowSize(window, scrWidth, scrHeight);
             glfwSetWindowPos(window, 10, 30);   
         } else
-        if (!SL::showMenu)
-        {   SL::showMenu = true;
+        if (!SLDemoGui::showMenu)
+        {   SLDemoGui::showMenu = true;
         } else
         {   slKeyPress(svIndex, key, modifiers);
             onClose(window);
@@ -524,6 +524,7 @@ int main(int argc, char *argv[])
         else glfwPollEvents();
     }
    
+    SLDemoGui::saveConfig();
     slTerminate();
     glfwDestroyWindow(window);
     glfwTerminate();

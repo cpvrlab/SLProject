@@ -407,7 +407,7 @@ SLCol4f SLRaytracer::shade(SLRay* ray)
     SLCol4f     amdi, spec;
     SLCol4f     localSpec(0,0,0,1);
 
-    localColor = mat->emission() + (mat->ambient()&s->globalAmbiLight());
+    localColor = mat->emissive() + (mat->ambient()&s->globalAmbiLight());
     
     ray->hitMesh->preShade(ray);
       

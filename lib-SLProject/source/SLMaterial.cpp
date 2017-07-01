@@ -35,10 +35,10 @@ SLMaterial::SLMaterial(const SLchar* name,
 {
     _ambient = _diffuse = amdi;
     _specular = spec;
-    _emission.set(0,0,0,0);
+    _emissive.set(0,0,0,0);
     _shininess = shininess;
     _roughness = 0.5f;
-    _metallic = 0.0f;
+    _metalness = 0.0f;
     _program = 0;
    
     _kr = kr;
@@ -64,10 +64,10 @@ SLMaterial::SLMaterial(const SLchar* name,
     _ambient.set(1,1,1);
     _diffuse.set(1,1,1);
     _specular.set(1,1,1);
-    _emission.set(0,0,0,0);
+    _emissive.set(0,0,0,0);
     _shininess = 125;
     _roughness = 0.5f;
-    _metallic = 0.0f;
+    _metalness = 0.0f;
    
     if (texture1) _textures.push_back(texture1);
     if (texture2) _textures.push_back(texture2);
@@ -89,15 +89,15 @@ SLMaterial::SLMaterial(const SLchar* name,
 SLMaterial::SLMaterial(const SLchar* name,
                        SLCol4f diffuse,
                        SLfloat roughness,
-                       SLfloat metallic)
+                       SLfloat metalness)
 {
     _ambient.set(0,0,0);                // not used in Cook-Torrance
     _diffuse = diffuse;
     _specular.set(1,1,1);               // not used in Cook-Torrance
-    _emission.set(0,0,0,0);             // not used in Cook-Torrance
+    _emissive.set(0,0,0,0);             // not used in Cook-Torrance
     _shininess = (1.0f - roughness) * 500.0f; // not used in Cook-Torrance
     _roughness = roughness;
-    _metallic = metallic;
+    _metalness = metalness;
     _kr = 0.0f;
     _kt = 0.0f;
     _kn = 1.0f;
@@ -113,10 +113,10 @@ SLMaterial::SLMaterial(SLCol4f uniformColor, const SLchar* name)
     _ambient.set(0,0,0);
     _diffuse = uniformColor;
     _specular.set(0,0,0);
-    _emission.set(0,0,0,0);
+    _emissive.set(0,0,0,0);
     _shininess = 125;
     _roughness = 0.5f;
-    _metallic = 0.0f;
+    _metalness = 0.0f;
    
     _program = SLScene::current->programs(SP_colorUniform);
    
@@ -168,17 +168,17 @@ void SLMaterial::activate(SLGLState* state, SLDrawBits drawBits)
     state->matAmbient    = _ambient;
     state->matDiffuse    = _diffuse;
     state->matSpecular   = _specular;
-    state->matEmissive   = _emission;
+    state->matEmissive   = _emissive;
     state->matShininess  = _shininess;
     state->matRoughness  = _roughness;
-    state->matMetallic   = _metallic;
+    state->matMetallic   = _metalness;
    
     // Determine use of shaders & textures
     SLbool useTexture = !drawBits.get(SL_DB_TEXOFF);
                             
     // Enable or disable texturing
     if (useTexture && _textures.size()>0)
-    {  for (SLuint i=0; i<_textures.size(); ++i)
+    {   for (SLuint i=0; i<_textures.size(); ++i)
             _textures[i]->bindActive(i);
     }
 

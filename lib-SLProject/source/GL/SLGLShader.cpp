@@ -208,4 +208,18 @@ SLstring SLGLShader::removeComments(SLstring src)
     //cout << dst << "|" << endl;
     return dst;
 }
+//-----------------------------------------------------------------------------
+//! Returns the shader type as string
+SLstring SLGLShader::typeName()
+{
+    switch(_type)
+    {
+        case ST_vertex:      return "Vertex"; break;
+        case ST_fragment:    return "Fragment"; break;
+        case ST_geometry:    return "Geometry"; break;
+        case ST_tesselation: return "Tesselation"; break;
+        default: return "Unknown";
+    }
+}
 // ----------------------------------------------------------------------------
+

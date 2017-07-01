@@ -512,7 +512,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         anim->createSimpleTranslationNodeTrack(light5, SLVec3f(0.0f, 2.0f, 0.0f));
 
         SLMaterial* whiteMat = new SLMaterial("mat", SLCol4f::WHITE, SLCol4f::WHITE, 1.0f, 1.0, 0.0f, 0.0f);
-        whiteMat->emission(SLCol4f::WHITE);
+        whiteMat->emissive(SLCol4f::WHITE);
         SLRectangle* plane0 = new SLRectangle(SLVec2f(-0.01f, 0.0f), SLVec2f(0.01f, 1.0f), 1, 1, "sizeIndicator0", whiteMat);
         SLRectangle* plane1 = new SLRectangle(SLVec2f(0.005f, 0.0f), SLVec2f(-0.005f, 1.0f), 1, 1, "sizeIndicator1", whiteMat);
 
@@ -2296,7 +2296,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         // Material for glass sphere
         SLMaterial* refr=new SLMaterial("refr", blackRGB, blackRGB, 100, 0.05f, 0.95f, 1.5f);
         refr->translucency(1000);
-        refr->transmission(SLCol4f::WHITE);
+        refr->transmissiv(SLCol4f::WHITE);
         refr->textures().push_back(tex1);
         refr->program(sp2);
    

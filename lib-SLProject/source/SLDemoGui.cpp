@@ -19,9 +19,72 @@
 #include <SLInterface.h>
 #include <SLNode.h>
 #include <SLMesh.h>
+#include <SLMaterial.h>
+#include <SLGLTexture.h>
+#include <SLGLProgram.h>
+#include <SLGLShader.h>
+#include <SLLightSpot.h>
+#include <SLLightRect.h>
+#include <SLLightDirect.h>
 #include <SLImporter.h>
 #include <SLCVCapture.h>
+#include <SLCVImage.h>
 #include <imgui.h>
+
+
+#define IM_ARRAYSIZE(_ARR)  ((int)(sizeof(_ARR)/sizeof(*_ARR)))
+
+SLstring    SLDemoGui::configTime          = "-";
+SLbool      SLDemoGui::showMenu            = true;
+SLbool      SLDemoGui::showAbout           = false;
+SLbool      SLDemoGui::showHelp            = false;
+SLbool      SLDemoGui::showHelpCalibration = false;
+SLbool      SLDemoGui::showCredits         = false;
+SLbool      SLDemoGui::showStatsTiming     = false;
+SLbool      SLDemoGui::showStatsScene      = false;
+SLbool      SLDemoGui::showStatsVideo      = false;
+SLbool      SLDemoGui::showInfosFrameworks = false;
+SLbool      SLDemoGui::showInfosScene      = false;
+SLbool      SLDemoGui::showSceneGraph      = false;
+SLbool      SLDemoGui::showProperties      = false;
+
+SLstring SLDemoGui::infoAbout =
+"Welcome to the SLProject demo app. It is developed at the \
+Computer Science Department of the Bern University of Applied Sciences. \
+The app shows what you can learn in one semester about 3D computer graphics \
+in real time rendering and ray tracing. The framework is developed \
+in C++ with OpenGL ES so that it can run also on mobile devices. \
+Ray tracing provides in addition high quality transparencies, reflections and soft shadows. \
+Click to close and use the menu to choose different scenes and view settings. \
+For more information please visit: https://github.com/cpvrlab/SLProject";
+
+SLstring SLDemoGui::infoCredits =
+"Contributors since 2005 in alphabetic order: Martin Christen, Manuel Frischknecht, Michael \
+Goettlicher, Timo Tschanz, Marc Wacker, Pascal Zingg \n\n\
+Credits for external libraries:\n\
+- assimp: assimp.sourceforge.net\n\
+- imgui: github.com/ocornut/imgui\n\
+- glew: glew.sourceforge.net\n\
+- glfw: glfw.org\n\
+- OpenCV: opencv.org\n\
+- OpenGL: opengl.org";
+
+SLstring SLDemoGui::infoHelp =
+"Help for mouse or finger control:\n\
+- Use mouse or your finger to rotate the scene\n\
+- Use mouse-wheel or pinch 2 fingers to go forward/backward\n\
+- Use CTRL-mouse or 2 fingers to move sidewards/up-down\n\
+- Double click or double tap to select object";
+
+SLstring SLDemoGui::infoCalibrate =
+"The calibration process requires a chessboard image to be printed \
+and glued on a flat board. You can find the PDF with the chessboard image on: \n\
+https://github.com/cpvrlab/SLProject/tree/master/_data/calibrations/ \n\n\
+For a calibration you have to take 20 images with detected inner \
+chessboard corners. To take an image you have to click with the mouse \
+or tap with finger into the screen. You can mirror the video image under \
+Preferences > Video. \n\
+After calibration the yellow wireframe cube should stick on the chessboard.";
 
 //-----------------------------------------------------------------------------
 //! This is the mail building function for the GUI of the Demo apps
@@ -32,51 +95,48 @@
  */
 void SLDemoGui::buildDemoGui(SLScene* s, SLSceneView* sv)
 {
-    if (SL::showMenu) 
+    if (showMenu)
     {   
         buildMenuBar(s, sv);
     }
 
-    if (SL::showAbout)
+    if (showAbout)
     {
-        ImGui::Begin("About SLProject", &SL::showAbout, ImVec2(400,0));
+        ImGui::Begin("About SLProject", &showAbout, ImVec2(400,0));
         ImGui::Text("Version %s", SL::version.c_str());
         ImGui::Separator();
-        ImGui::TextWrapped(SL::infoAbout.c_str());
+        ImGui::TextWrapped(infoAbout.c_str());
         ImGui::End();
     }
 
-    if (SL::showHelp)
+    if (showHelp)
     {
-        ImGui::Begin("About SLProject Interaction", &SL::showHelp, ImVec2(400,0));
-        ImGui::TextWrapped(SL::infoHelp.c_str());
+        ImGui::Begin("About SLProject Interaction", &showHelp, ImVec2(400,0));
+        ImGui::TextWrapped(infoHelp.c_str());
         ImGui::End();
     }
 
-    if (SL::showHelpCalibration)
+    if (showHelpCalibration)
     {
-        ImGui::Begin("About Camera Calibration", &SL::showHelpCalibration, ImVec2(400,0));
-        ImGui::TextWrapped(SL::infoCalibrate.c_str());
+        ImGui::Begin("About Camera Calibration", &showHelpCalibration, ImVec2(400,0));
+        ImGui::TextWrapped(infoCalibrate.c_str());
         ImGui::End();
     }
 
-    if (SL::showCredits)
+    if (showCredits)
     {
-        ImGui::Begin("Credits for all Helpers", &SL::showCredits, ImVec2(400,0));
-        ImGui::TextWrapped(SL::infoCredits.c_str());
+        ImGui::Begin("Credits for all Helpers", &showCredits, ImVec2(400,0));
+        ImGui::TextWrapped(infoCredits.c_str());
         ImGui::End();
     }
 
-    if (SL::showStatsTiming)
+    if (showStatsTiming)
     {
         SLRenderType rType = sv->renderType();
         SLCamera* cam = sv->camera();
         SLfloat ft = s->frameTimesMS().average();
         SLchar m[2550];   // message character array
         m[0]=0;           // set zero length
-
-        // Switch to fixed font
-        ImGui::PushFont(ImGui::GetIO().Fonts->Fonts[1]);
 
         if (rType == RT_gl)
         {
@@ -101,10 +161,6 @@ void SLDemoGui::buildDemoGui(SLScene* s, SLSceneView* sv)
             #endif
             sprintf(m+strlen(m), "NO. drawcalls : %d\n", SLGLVertexArray::totalDrawCalls);
 
-            ImGui::Begin("Timing", &SL::showStatsTiming, ImVec2(300,0));
-            ImGui::TextUnformatted(m);
-            ImGui::End();
-
         } else
         if (rType == RT_rt)
         {
@@ -118,16 +174,16 @@ void SLDemoGui::buildDemoGui(SLScene* s, SLSceneView* sv)
             sprintf(m+strlen(m), "Frame Time    : %4.2f sec.\n", rt->renderSec());
             sprintf(m+strlen(m), "Rays per ms   : %6.0f\n", rpms);
             sprintf(m+strlen(m), "Threads       : %d\n", rt->numThreads());
-
-            ImGui::Begin("Timing", &SL::showStatsTiming, ImVec2(300,0));
-            ImGui::TextWrapped(m);
-            ImGui::End();
         }
 
+        ImGui::PushFont(ImGui::GetIO().Fonts->Fonts[1]);
+        ImGui::Begin("Timing", &showStatsTiming, ImVec2(300,0));
+        ImGui::TextWrapped(m);
+        ImGui::End();
         ImGui::PopFont();
     }
 
-    if (SL::showStatsScene)
+    if (showStatsScene)
     {
         SLchar m[2550];   // message character array
         m[0]=0;           // set zero length
@@ -193,13 +249,13 @@ void SLDemoGui::buildDemoGui(SLScene* s, SLSceneView* sv)
 
         // Switch to fixed font
         ImGui::PushFont(ImGui::GetIO().Fonts->Fonts[1]);
-        ImGui::Begin("Scene Statistics", &SL::showStatsScene, ImVec2(300,0));
+        ImGui::Begin("Scene Statistics", &showStatsScene, ImVec2(300,0));
         ImGui::TextUnformatted(m);
         ImGui::End();
         ImGui::PopFont();
     }
 
-    if (SL::showStatsVideo)
+    if (showStatsVideo)
     {
 
         SLchar m[2550];   // message character array
@@ -228,20 +284,20 @@ void SLDemoGui::buildDemoGui(SLScene* s, SLSceneView* sv)
 
         // Switch to fixed font
         ImGui::PushFont(ImGui::GetIO().Fonts->Fonts[1]);
-        ImGui::Begin("Video", &SL::showStatsVideo, ImVec2(300,0));
+        ImGui::Begin("Video", &showStatsVideo, ImVec2(300,0));
         ImGui::TextUnformatted(m);
         ImGui::End();
         ImGui::PopFont();
     }
 
-    if (SL::showInfosScene)
+    if (showInfosScene)
     {
-        ImGui::Begin("Scene Information", &SL::showInfosScene, ImVec2(300,0));
+        ImGui::Begin("Scene Information", &showInfosScene, ImVec2(300,0));
         ImGui::TextWrapped(s->info().c_str());
         ImGui::End();
     }
 
-    if (SL::showInfosFrameworks)
+    if (showInfosFrameworks)
     {
         SLGLState* stateGL = SLGLState::getInstance();
         SLchar m[2550];   // message character array
@@ -256,18 +312,18 @@ void SLDemoGui::buildDemoGui(SLScene* s, SLSceneView* sv)
 
         // Switch to fixed font
         ImGui::PushFont(ImGui::GetIO().Fonts->Fonts[1]);
-        ImGui::Begin("Framework Informations", &SL::showInfosFrameworks, ImVec2(300,0));
+        ImGui::Begin("Framework Informations", &showInfosFrameworks, ImVec2(300,0));
         ImGui::TextUnformatted(m);
         ImGui::End();
         ImGui::PopFont();
     }
 
-    if (SL::showSceneGraph)
+    if (showSceneGraph)
     {
         buildSceneGraph(s);
     }
 
-    if (SL::showProperties)
+    if (showProperties)
     {
         buildProperties(s);
     }
@@ -417,11 +473,11 @@ void SLDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
 
                 ImGui::Separator();
 
-                ImGui::MenuItem("Show Menu", 0, &SL::showMenu);
+                ImGui::MenuItem("Show Menu", 0, &showMenu);
 
-                ImGui::SliderFloat("Prop. Font Size", &SL::fontPropDots, 16.f, 60.f,"%0.0f");
+                ImGui::SliderFloat("Prop. Font Size", &SLGLImGui::fontPropDots, 16.f, 60.f,"%0.0f");
 
-                ImGui::SliderFloat("Fixed Font Size", &SL::fontFixedDots, 13.f, 60.f,"%0.0f");
+                ImGui::SliderFloat("Fixed Font Size", &SLGLImGui::fontFixedDots, 13.f, 60.f,"%0.0f");
 
                 ImGui::EndMenu();
             }
@@ -670,17 +726,17 @@ void SLDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
 
         if (ImGui::BeginMenu("Infos"))
         {
-            ImGui::MenuItem("Stats on Timing"    , 0, &SL::showStatsTiming);
-            ImGui::MenuItem("Stats on Scene"     , 0, &SL::showStatsScene);
-            ImGui::MenuItem("Stats on Video"     , 0, &SL::showStatsVideo);
-            ImGui::MenuItem("Infos on Scene",      0, &SL::showInfosScene);
-            ImGui::MenuItem("Show Scenegraph",     0, &SL::showSceneGraph);
-            ImGui::MenuItem("Show Properties",     0, &SL::showProperties);
-            ImGui::MenuItem("Infos on Frameworks", 0, &SL::showInfosFrameworks);
-            ImGui::MenuItem("Help on Interaction", 0, &SL::showHelp);
-            ImGui::MenuItem("Help on Calibration", 0, &SL::showHelpCalibration);
-            ImGui::MenuItem("About SLProject"    , 0, &SL::showAbout);
-            ImGui::MenuItem("Credits"            , 0, &SL::showCredits);
+            ImGui::MenuItem("Stats on Timing"    , 0, &showStatsTiming);
+            ImGui::MenuItem("Stats on Scene"     , 0, &showStatsScene);
+            ImGui::MenuItem("Stats on Video"     , 0, &showStatsVideo);
+            ImGui::MenuItem("Infos on Scene",      0, &showInfosScene);
+            ImGui::MenuItem("Show Scenegraph",     0, &showSceneGraph);
+            ImGui::MenuItem("Show Properties",     0, &showProperties);
+            ImGui::MenuItem("Infos on Frameworks", 0, &showInfosFrameworks);
+            ImGui::MenuItem("Help on Interaction", 0, &showHelp);
+            ImGui::MenuItem("Help on Calibration", 0, &showHelpCalibration);
+            ImGui::MenuItem("About SLProject"    , 0, &showAbout);
+            ImGui::MenuItem("Credits"            , 0, &showCredits);
 
             ImGui::EndMenu();
         }
@@ -691,7 +747,7 @@ void SLDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
 //-----------------------------------------------------------------------------
 void SLDemoGui::buildSceneGraph(SLScene* s)
 {
-    ImGui::Begin("Scenegraph", &SL::showSceneGraph);
+    ImGui::Begin("Scenegraph", &showSceneGraph);
 
     if (s->root3D())
         addSceneGraphNode(s, s->root3D());
@@ -747,103 +803,351 @@ void SLDemoGui::buildProperties(SLScene* s)
 {
     SLNode* node = s->selectedNode();
     SLMesh* mesh = s->selectedMesh();
+    ImGuiColorEditFlags colFlags = ImGuiColorEditFlags_NoSliders;
 
-    ImGui::Begin("Properties", &SL::showProperties);
-    ImGui::Text("Node Properties");
-    ImGui::Separator();
+    ImGui::PushFont(ImGui::GetIO().Fonts->Fonts[1]);
+    ImGui::Begin("Properties", &showProperties);
 
-    if (node)
-    {   SLuint c = node->children().size();
-        SLuint m = node->meshes().size();
-
-        ImGui::Columns(2);
-        ImGui::Text("Name:");                       ImGui::NextColumn();
-        ImGui::Text(node->name().c_str());          ImGui::NextColumn();
-        ImGui::Text("children / meshes:");          ImGui::NextColumn();
-        ImGui::Text("%u / %u", c, m);               ImGui::NextColumn();
-
-        ImGui::Columns(1);
-        if (ImGui::TreeNode("Drawing Flags"))
-        {
-            SLbool db;
-            db = node->drawBit(SL_DB_HIDDEN);
-            if (ImGui::Checkbox("Hide", &db))
-                node->drawBits()->set(SL_DB_HIDDEN, db);
-
-            db = node->drawBit(SL_DB_WIREMESH);
-            if (ImGui::Checkbox("Show wireframe", &db))
-                node->drawBits()->set(SL_DB_WIREMESH, db);
-
-            db = node->drawBit(SL_DB_NORMALS);
-            if (ImGui::Checkbox("Show normals", &db))
-                node->drawBits()->set(SL_DB_NORMALS, db);
-
-            db = node->drawBit(SL_DB_VOXELS);
-            if (ImGui::Checkbox("Show voxels", &db))
-                node->drawBits()->set(SL_DB_VOXELS, db);
-
-            db = node->drawBit(SL_DB_BBOX);
-            if (ImGui::Checkbox("Show bounding boxes", &db))
-                node->drawBits()->set(SL_DB_BBOX, db);
-
-            db = node->drawBit(SL_DB_AXIS);
-            if (ImGui::Checkbox("Show axis", &db))
-                node->drawBits()->set(SL_DB_AXIS, db);
-
-            db = node->drawBit(SL_DB_CULLOFF);
-            if (ImGui::Checkbox("Show back faces", &db))
-                node->drawBits()->set(SL_DB_CULLOFF, db);
-
-            db = node->drawBit(SL_DB_TEXOFF);
-            if (ImGui::Checkbox("No textures", &db))
-                node->drawBits()->set(SL_DB_TEXOFF, db);
-
-            ImGui::TreePop();
-        }
-
-        if (ImGui::TreeNode("Local Transform"))
-        {
-            SLMat4f om(node->om());
-            SLVec3f t, r, s;
-            om.decompose(t, r, s);
-            r *= SL_RAD2DEG;
-
-            ImGui::Columns(2);
-            ImGui::Text("Translation:");            ImGui::NextColumn();
-            ImGui::Text(t.toString().c_str());      ImGui::NextColumn();
-            ImGui::Text("Rotation:");               ImGui::NextColumn();
-            ImGui::Text(r.toString().c_str());      ImGui::NextColumn();
-            ImGui::Text("Scaling:");                ImGui::NextColumn();
-            ImGui::Text(s.toString().c_str());      ImGui::NextColumn();
-            ImGui::TreePop();
-        }
-
-    } else
+    if (ImGui::TreeNode("Node Properties"))
     {
-        ImGui::Text("No node selected.");
+        if (node)
+        {   SLuint c = (SLuint)node->children().size();
+            SLuint m = (SLuint)node->meshes().size();
+
+            ImGui::Text("Node Name       : %s", node->name().c_str());
+            ImGui::Text("No. of children : %u", c);
+            ImGui::Text("No. of meshes   : %u", m);
+            if (ImGui::TreeNode("Drawing Flags"))
+            {
+                SLbool db;
+                db = node->drawBit(SL_DB_HIDDEN);
+                if (ImGui::Checkbox("Hide", &db))
+                    node->drawBits()->set(SL_DB_HIDDEN, db);
+
+                db = node->drawBit(SL_DB_WIREMESH);
+                if (ImGui::Checkbox("Show wireframe", &db))
+                    node->drawBits()->set(SL_DB_WIREMESH, db);
+
+                db = node->drawBit(SL_DB_NORMALS);
+                if (ImGui::Checkbox("Show normals", &db))
+                    node->drawBits()->set(SL_DB_NORMALS, db);
+
+                db = node->drawBit(SL_DB_VOXELS);
+                if (ImGui::Checkbox("Show voxels", &db))
+                    node->drawBits()->set(SL_DB_VOXELS, db);
+
+                db = node->drawBit(SL_DB_BBOX);
+                if (ImGui::Checkbox("Show bounding boxes", &db))
+                    node->drawBits()->set(SL_DB_BBOX, db);
+
+                db = node->drawBit(SL_DB_AXIS);
+                if (ImGui::Checkbox("Show axis", &db))
+                    node->drawBits()->set(SL_DB_AXIS, db);
+
+                db = node->drawBit(SL_DB_CULLOFF);
+                if (ImGui::Checkbox("Show back faces", &db))
+                    node->drawBits()->set(SL_DB_CULLOFF, db);
+
+                db = node->drawBit(SL_DB_TEXOFF);
+                if (ImGui::Checkbox("No textures", &db))
+                    node->drawBits()->set(SL_DB_TEXOFF, db);
+
+                ImGui::TreePop();
+            }
+
+            if (ImGui::TreeNode("Local Transform"))
+            {
+                SLMat4f om(node->om());
+                SLVec3f t, r, s;
+                om.decompose(t, r, s);
+                r *= SL_RAD2DEG;
+
+                ImGui::Text("Translation  : %s", t.toString().c_str());
+                ImGui::Text("Rotation     : %s", r.toString().c_str());
+                ImGui::Text("Scaling      : %s", s.toString().c_str());
+                ImGui::TreePop();
+            }
+
+            // Show special camera properties
+            if (typeid(*node)==typeid(SLCamera))
+            {
+                SLCamera* cam = (SLCamera*)node;
+
+                if (ImGui::TreeNode("Camera"))
+                {
+                    SLfloat clipN = cam->clipNear();
+                    SLfloat clipF = cam->clipFar();
+                    SLfloat focalDist = cam->focalDist();
+                    SLfloat fov = cam->fov();
+
+                    const char* projections[] = {"Mono Perspective",
+                                                 "Mono Orthographic",
+                                                 "Stereo Side By Side",
+                                                 "Stereo Side By Side Prop.",
+                                                 "Stereo Side By Side Dist.",
+                                                 "Stereo Line By Line",
+                                                 "Stereo Column By Column",
+                                                 "Stereo Pixel By Pixel",
+                                                 "Stereo Color Red Cyan",
+                                                 "Stereo Color Red Green",
+                                                 "Stereo Color Red Blue",
+                                                 "Stereo Color Yelle Blue" };
+
+                    int proj = cam->projection();
+                    if (ImGui::Combo("Projection", &proj, projections, IM_ARRAYSIZE(projections)));
+                        cam->projection((SLProjection)proj);
+
+                    if (cam->projection() > P_monoOrthographic)
+                    {
+                        SLfloat eyeSepar = cam->eyeSeparation();
+                        if (ImGui::SliderFloat("Eye Sep.", &eyeSepar, 0.0f, focalDist/10.f))
+                            cam->eyeSeparation(eyeSepar);
+                    }
+
+                    if (ImGui::SliderFloat("FOV", &fov, 1.f, 179.f))
+                        cam->fov(fov);
+
+                    if (ImGui::SliderFloat("Near Clip", &clipN, 0.001f, 10.f))
+                        cam->clipNear(clipN);
+
+                    if (ImGui::SliderFloat("Far Clip",  &clipF, clipN, SL_min(clipF*1.1f,1000000.f)))
+                        cam->clipFar(clipF);
+
+                    if (ImGui::SliderFloat("Focal Dist.", &focalDist, clipN, clipF))
+                        cam->focalDist(focalDist);
+
+                    ImGui::TreePop();
+                }
+            }
+
+            // Show special light properties
+            if (typeid(*node)==typeid(SLLightSpot) ||
+                typeid(*node)==typeid(SLLightRect) ||
+                typeid(*node)==typeid(SLLightDirect))
+            {
+                SLLight* light;
+                SLstring typeName;
+                if (typeid(*node)==typeid(SLLightSpot))
+                {   light = (SLLight*)(SLLightSpot*)node;
+                    typeName = "Light (spot):";
+                }
+                if (typeid(*node)==typeid(SLLightRect))
+                {   light = (SLLight*)(SLLightRect*)node;
+                    typeName = "Light (rectangular):";
+                }
+                if (typeid(*node)==typeid(SLLightDirect))
+                {   light = (SLLight*)(SLLightDirect*)node;
+                    typeName = "Light (directional):";
+                }
+
+//                if (ImGui::TreeNode("Light"))
+//                {
+//                    static SLCol4f a = light->ambient();
+//                    if (ImGui::InputFloat3("Ambient", (float*)&a))
+//                        light->ambient(a);
+
+//                    SLCol4f d = light->diffuse();
+//                    if (ImGui::InputFloat3("Diffuse", (float*)&d))
+//                        light->diffuse(d);
+
+//                    ImGui::TreePop();
+//                }
+
+            }
+
+        } else
+        {
+            ImGui::Text("No node selected.");
+        }
+        ImGui::TreePop();
     }
 
     ImGui::PushStyleColor(ImGuiCol_Text, ImColor(1.0f,1.0f,0.0f));
-    ImGui::Columns(1);
     ImGui::Separator();
-    ImGui::Text("Mesh Properties");
-    ImGui::Separator();
-
-    if (mesh)
-    {   SLuint v = mesh->P.size();
-        SLuint t = mesh->I16.size() ? mesh->I16.size() : mesh->I32.size();
-        ImGui::Columns(2);
-        ImGui::Text("Name:");                       ImGui::NextColumn();
-        ImGui::Text(mesh->name().c_str());          ImGui::NextColumn();
-        ImGui::Text("Vertices / Triangles:");       ImGui::NextColumn();
-        ImGui::Text("%u / %u", v, t);               ImGui::NextColumn();
-
-    } else
+    if (ImGui::TreeNode("Mesh Properties"))
     {
-        ImGui::Text("No mesh selected.");
+        if (mesh)
+        {   SLuint v = (SLuint)mesh->P.size();
+            SLuint t = (SLuint)(mesh->I16.size() ? mesh->I16.size() : mesh->I32.size());
+            SLMaterial* m = mesh->mat;
+            ImGui::Text("Mesh Name       : %s", mesh->name().c_str());
+            ImGui::Text("No. of Vertices : %u", v);
+            ImGui::Text("No. of Triangles: %u", t);
+
+            if (m && ImGui::TreeNode("Material"))
+            {
+                ImGui::Text("Material Name: %s", m->name().c_str());
+
+                if (ImGui::TreeNode("Reflection colors"))
+                {
+                    SLCol4f ac = m->ambient();
+                    if (ImGui::ColorEdit3("Ambient color",  (float*)&ac, colFlags))
+                        m->ambient(ac);
+
+                    SLCol4f dc = m->diffuse();
+                    if (ImGui::ColorEdit3("Diffuse color",  (float*)&dc, colFlags))
+                        m->diffuse(dc);
+
+                    SLCol4f sc = m->specular();
+                    if (ImGui::ColorEdit3("Specular color",  (float*)&sc, colFlags))
+                        m->specular(sc);
+
+                    SLCol4f ec = m->emissive();
+                    if (ImGui::ColorEdit3("Emissive color",  (float*)&ec, colFlags))
+                        m->emissive(ec);
+
+                    ImGui::TreePop();
+                }
+
+                if (ImGui::TreeNode("Other variables"))
+                {
+                    ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.5f);
+
+                    SLfloat shine = m->shininess();
+                    if (ImGui::SliderFloat("Shininess", &shine, 0.0f, 1000.0f))
+                        m->shininess(shine);
+
+                    SLfloat rough = m->roughness();
+                    if (ImGui::SliderFloat("Roughness", &rough, 0.0f, 1.0f))
+                        m->roughness(rough);
+
+                    SLfloat metal = m->metalness();
+                    if (ImGui::SliderFloat("Metalness", &metal, 0.0f, 1.0f))
+                        m->metalness(metal);
+
+                    SLfloat kr = m->kr();
+                    if (ImGui::SliderFloat("kr", &kr, 0.0f, 1.0f))
+                        m->kr(kr);
+
+                    SLfloat kt = m->kt();
+                    if (ImGui::SliderFloat("kt", &kt, 0.0f, 1.0f))
+                        m->kt(kt);
+
+                    SLfloat kn = m->kn();
+                    if (ImGui::SliderFloat("kn", &kn, 0.0f, 2.5f))
+                        m->kn(kn);
+
+                    ImGui::PopItemWidth();
+                    ImGui::TreePop();
+                }
+
+                if (m->textures().size() && ImGui::TreeNode("Textures"))
+                {
+                    ImGui::Text("No. of textures: %u", m->textures().size());
+                    ImGui::Separator();
+                    SLfloat lineH = ImGui::GetTextLineHeightWithSpacing();
+                    SLfloat texW = ImGui::GetWindowWidth() - 4*lineH;
+
+                    for (SLint i=0; i<m->textures().size(); ++i)
+                    {
+                        SLGLTexture* t = m->textures()[i];
+                        void* tid = (void*)t->texName();
+                        SLfloat w = (SLfloat)t->width();
+                        SLfloat h = (SLfloat)t->height();
+                        SLfloat h_to_w = h / w;
+                        ImGui::Text("Filename: %s", t->name().c_str());
+                        ImGui::Text("Size: %d x %d", t->width(), t->height());
+                        ImGui::Text("Type: %s", t->typeName().c_str());
+                        ImGui::Image(tid, ImVec2(texW, texW * h_to_w), ImVec2(0,1), ImVec2(1,0));
+                        ImGui::Separator();
+                    }
+
+                    ImGui::TreePop();
+                }
+
+                if (ImGui::TreeNode("GLSL Program"))
+                {
+                    for (SLint i=0; i<m->program()->shaders().size(); ++i)
+                    {
+                        SLGLShader* s = m->program()->shaders()[i];
+                        SLfloat lineH = ImGui::GetTextLineHeight();
+
+                        if (ImGui::TreeNode(s->name().c_str()))
+                        {
+                            SLchar text[1024*16];
+                            strcpy(text, s->code().c_str());
+                            ImGui::InputTextMultiline(s->name().c_str(), text, IM_ARRAYSIZE(text), ImVec2(-1.0f, lineH * 16));
+                            ImGui::TreePop();
+                        }
+                    }
+
+                    ImGui::TreePop();
+                }
+
+                ImGui::TreePop();
+            }
+
+        } else
+        {
+            ImGui::Text("No mesh selected.");
+        }
+
+        ImGui::TreePop();
     }
 
     ImGui::PopStyleColor();
     ImGui::End();
+    ImGui::PopFont();
+}
+//-----------------------------------------------------------------------------
+//! Loads the configuration from readable path
+void SLDemoGui::loadConfig()
+{
+    SLstring fullPathAndFilename = SL::configPath + "DemoGui.yml";
+
+    if (!SLFileSystem::fileExists(fullPathAndFilename))
+        return;
+
+    SLCVFileStorage fs(fullPathAndFilename, SLCVFileStorage::READ);
+
+    if (!fs.isOpened())
+    {   SL_LOG("Failed to open file for reading!");
+        return;
+    }
+
+    SLint i; SLbool b;
+    fs["configTime"]            >> SLDemoGui::configTime;
+    fs["fontPropDots"]          >> SLGLImGui::fontPropDots;
+    fs["fontFixedDots"]         >> SLGLImGui::fontFixedDots;
+    fs["currentSceneID"]        >> i; SL::currentSceneID = (SLCommand)i;
+    fs["showMenu"]              >> b; SLDemoGui::showMenu = b;
+    fs["showStatsTiming"]       >> b; SLDemoGui::showStatsTiming = b;
+    fs["showStatsMemory"]       >> b; SLDemoGui::showStatsScene = b;
+    fs["showStatsVideo"]        >> b; SLDemoGui::showStatsVideo = b;
+    fs["showInfosFrameworks"]   >> b; SLDemoGui::showInfosFrameworks = b;
+    fs["showInfosScene"]        >> b; SLDemoGui::showInfosScene = b;
+    fs["showSceneGraph"]        >> b; SLDemoGui::showSceneGraph = b;
+    fs["showProperties"]        >> b; SLDemoGui::showProperties = b;
+
+    fs.release();
+    SL_LOG("Config. loaded  : %s\n", fullPathAndFilename.c_str());
+}
+//-----------------------------------------------------------------------------
+//! Saves the configuration to a writable path
+void SLDemoGui::saveConfig()
+{
+    SLstring fullPathAndFilename = SL::configPath + "DemoGui.yml";
+    SLCVFileStorage fs(fullPathAndFilename, SLCVFileStorage::WRITE);
+
+    if (!fs.isOpened())
+    {   SL_EXIT_MSG("Failed to open file for writing!");
+        return;
+    }
+
+    fs << "configTime"              << SLUtils::getLocalTimeString();
+    fs << "fontPropDots"            << SLGLImGui::fontPropDots;
+    fs << "fontFixedDots"           << SLGLImGui::fontFixedDots;
+    fs << "currentSceneID"          << (SLint)SL::currentSceneID;
+    fs << "showMenu"                << SLDemoGui::showMenu;
+    fs << "showStatsTiming"         << SLDemoGui::showStatsTiming;
+    fs << "showStatsMemory"         << SLDemoGui::showStatsScene;
+    fs << "showStatsVideo"          << SLDemoGui::showStatsVideo;
+    fs << "showInfosFrameworks"     << SLDemoGui::showInfosFrameworks;
+    fs << "showInfosScene"          << SLDemoGui::showInfosScene;
+    fs << "showSceneGraph"          << SLDemoGui::showSceneGraph;
+    fs << "showProperties"          << SLDemoGui::showProperties;
+
+    fs.release();
+    SL_LOG("Config. saved   : %s\n", fullPathAndFilename.c_str());
 }
 //-----------------------------------------------------------------------------

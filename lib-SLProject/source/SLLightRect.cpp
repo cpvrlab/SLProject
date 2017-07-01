@@ -70,7 +70,7 @@ void SLLightRect::init()
     // Set emissive light material to the lights diffuse color
     if (_meshes.size() > 0)
         if (_meshes[0]->mat)
-            _meshes[0]->mat->emission(_isOn ? diffuse() : SLCol4f::BLACK);   
+            _meshes[0]->mat->emissive(_isOn ? diffuse() : SLCol4f::BLACK);   
 }
 //-----------------------------------------------------------------------------
 /*!
@@ -88,7 +88,7 @@ void SLLightRect::drawRec(SLSceneView* sv)
         // Set emissive light material to the lights diffuse color
         if (_meshes.size() > 0)
             if (_meshes[0]->mat)
-                _meshes[0]->mat->emission(_isOn ? diffuse() : SLCol4f::BLACK);   
+                _meshes[0]->mat->emissive(_isOn ? diffuse() : SLCol4f::BLACK);   
    
         // now draw the inherited object
         SLNode::drawRec(sv);
@@ -132,7 +132,7 @@ void SLLightRect::drawMeshes(SLSceneView* sv)
         // Set emissive light material to the lights diffuse color
         if (_meshes.size() > 0)
         {   if (_meshes[0]->mat)
-            _meshes[0]->mat->emission(_isOn ? diffuse() : SLCol4f::BLACK);   
+            _meshes[0]->mat->emissive(_isOn ? diffuse() : SLCol4f::BLACK);   
         }
    
         // now draw the meshes of the node

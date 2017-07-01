@@ -290,8 +290,6 @@ class SL
                                                           testScene <= C_sceneRTTest;}
     static SLbool           allTestIsRunning    (){return testScene > C_sceneAll && 
                                                           testScene <= C_sceneRTTest;}
-    static void             loadConfig          (SLSceneView* sv);
-    static void             saveConfig          (SLSceneView* sv);
     static SLfloat          dpmm                () {return (float)dpi/25.4f;}
 
     static SLCommand        testScene;          //!< Test scene command id (-1 for no test)
@@ -303,28 +301,9 @@ class SL
     static const SLVstring  testSceneNames;     //!< Vector with scene names
 
     static SLstring         version;            //!< SLProject version string
-    static SLstring         configPath;         //!< Default path for calibration files
-    static SLstring         configTime;         //!< Time of stored configuration 
     static SLint            dpi;                //!< Current UI dot per inch resolution
-    static SLfloat          fontPropDots;       //!< Font size of proportional font
-    static SLfloat          fontFixedDots;      //!< Font size of fixed size font
+    static SLstring         configPath;         //!< Default path for calibration files
     static SLCommand        currentSceneID;     //!< ID of last loaded scene
-    static SLstring         infoAbout;          //!< About info string
-    static SLstring         infoCredits;        //!< Credits info string
-    static SLstring         infoHelp;           //!< Help info string
-    static SLstring         infoCalibrate;      //!< Calibration info string   
-    static SLbool           showMenu;           //!< Flag if menu bar should be shown
-    static SLbool           showAbout;          //!< Flag if about info should be shown
-    static SLbool           showHelp;           //!< Flag if help info should be shown
-    static SLbool           showHelpCalibration;//!< Flag if calibration info should be shown
-    static SLbool           showCredits;        //!< Flag if credits info should be shown
-    static SLbool           showStatsTiming;    //!< Flag if timing info should be shown
-    static SLbool           showStatsScene;     //!< Flag if scene info should be shown
-    static SLbool           showStatsVideo;     //!< Flag if video info should be shown
-    static SLbool           showInfosFrameworks;//!< Flag if frameworks info should be shown
-    static SLbool           showInfosScene;     //!< Flag if scene info should be shown
-    static SLbool           showSceneGraph;     //!< Flag if scene graph should be shown
-    static SLbool           showProperties;     //!< Flag if properties should be shown
 };
 //-----------------------------------------------------------------------------
 #endif

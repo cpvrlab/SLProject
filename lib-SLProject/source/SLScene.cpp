@@ -129,9 +129,6 @@ The destructor is called in slTerminate.
 */
 SLScene::~SLScene()
 {
-    // Save configuration befor destruction
-    SL::saveConfig(_sceneViews[0]);
-
     // load opencv camera calibration for main and secondary camera
     #if defined(SL_USES_CVCAPTURE)
     _calibMainCam.save();

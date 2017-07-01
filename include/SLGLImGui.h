@@ -70,6 +70,10 @@ class SLGLImGui
         // gui build function pattern
         void        (*build)                (SLScene* s, SLSceneView* sv);
 
+        // Default font dots
+        static SLfloat fontPropDots;       //!< Default font size of proportional font
+        static SLfloat fontFixedDots;      //!< Default font size of fixed size font
+
     private:
         SLfloat     _timeSec;               //!< Time in seconds
         SLVec2f     _mousePosPX;            //!< Mouse cursor position
@@ -87,8 +91,8 @@ class SLGLImGui
         SLuint      _vboHandle;             //!< OpenGL handle for vertex buffer object
         SLuint      _vaoHandle;             //!< OpenGL vertex array object handle
         SLuint      _elementsHandle;        //!< OpenGL handle for vertex indexes
-        SLfloat     _fontPropDots;          //!< Font size of proportional font
-        SLfloat     _fontFixedDots;         //!< Font size of fixed size font
+        SLfloat     _fontPropDots;          //!< Active font size of proportional font
+        SLfloat     _fontFixedDots;         //!< Active font size of fixed size font
 };
 //-----------------------------------------------------------------------------
 #endif

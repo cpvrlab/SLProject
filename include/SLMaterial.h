@@ -60,7 +60,7 @@ class SLMaterial : public SLObject
                             SLMaterial(const SLchar* name,
                                        SLCol4f diffuse,
                                        SLfloat roughness,
-                                       SLfloat metallic);
+                                       SLfloat metalness);
 
                             //! Ctor for uniform color material without lighting
                             SLMaterial(SLCol4f uniformColor, 
@@ -97,12 +97,12 @@ class SLMaterial : public SLObject
             void            diffuse         (SLCol4f diff)    {_diffuse = diff;}
             void            ambientDiffuse  (SLCol4f am_di)   {_ambient = _diffuse = am_di;}
             void            specular        (SLCol4f spec)    {_specular = spec;}
-            void            emission        (SLCol4f emis)    {_emission = emis;}
-            void            transmission    (SLCol4f transm)  {_transmission = transm;}
+            void            emissive        (SLCol4f emis)    {_emissive = emis;}
+            void            transmissiv     (SLCol4f transm)  {_transmissive = transm;}
             void            translucency    (SLfloat transl)  {_translucency = transl;}
             void            shininess       (SLfloat shin)    {if(shin<0.0f) shin=0.0; _shininess = shin;}
             void            roughness       (SLfloat r)       {_roughness = SL_clamp(r, 0.0f, 1.0f);}
-            void            metallic        (SLfloat m)       {_metallic = SL_clamp(m, 0.0f, 1.0f);}
+            void            metalness       (SLfloat m)       {_metalness = SL_clamp(m, 0.0f, 1.0f);}
             void            kr              (SLfloat kr)      {if(kr<0.0f) kr=0.0f;
                                                                if(kr>1.0f) kr=1.0f;
                                                               _kr = kr;}
@@ -120,11 +120,11 @@ class SLMaterial : public SLObject
             SLCol4f         ambient         () {return _ambient;}
             SLCol4f         diffuse         () {return _diffuse;}
             SLCol4f         specular        () {return _specular;}
-            SLCol4f         transmission    () {return _transmission;}
-            SLCol4f         emission        () {return _emission;}
+            SLCol4f         transmissiv     () {return _transmissive;}
+            SLCol4f         emissive        () {return _emissive;}
             SLfloat         shininess       () {return _shininess;}
             SLfloat         roughness       () {return _roughness;}
-            SLfloat         metallic        () {return _metallic;}
+            SLfloat         metalness       () {return _metalness;}
             SLfloat         translucency    () {return _translucency;}
             SLfloat         kr              () {return _kr;}
             SLfloat         kt              () {return _kt;}
@@ -147,11 +147,11 @@ class SLMaterial : public SLObject
             SLCol4f         _ambient;       //!< ambient color (RGB reflection coefficients)
             SLCol4f         _diffuse;       //!< diffuse color (RGB reflection coefficients)
             SLCol4f         _specular;      //!< specular color (RGB reflection coefficients)
-            SLCol4f         _transmission;  //!< PM: transmissive color (RGB reflection coefficients)
-            SLCol4f         _emission;      //!< emissive color coefficients
+            SLCol4f         _transmissive;  //!< PM: transmissive color (RGB reflection coefficients)
+            SLCol4f         _emissive;      //!< emissive color coefficients
             SLfloat         _shininess;     //!< shininess exponent in Blinn model
             SLfloat         _roughness;     //!< roughness property (0-1) in Cook-Torrance model
-            SLfloat         _metallic;      //!< metallic property (0-1) in Cook-Torrance model
+            SLfloat         _metalness;     //!< metallic property (0-1) in Cook-Torrance model
             SLfloat         _translucency;  //!< PM: translucency exponent for light refraction
             SLfloat         _kr;            //!< reflection coefficient 0.0 - 1.0
             SLfloat         _kt;            //!< transmission coefficient 0.0 - 1.0

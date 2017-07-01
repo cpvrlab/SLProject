@@ -14,6 +14,7 @@
 #include <SLSceneView.h>
 #include <SLNode.h>
 #include <SLCVCapture.h>
+#include <SLDemoGui.h>
 
 #include "qtGLWidget.h"
 #include "qtMainWindow.h"
@@ -158,8 +159,8 @@ void qtGLWidget::initializeGL()
     _sv = s->sv(_svIndex);
 
     // We don't want the OpenGL menu
-    SL::showInfosScene = false;
-    SL::showMenu = false;
+    SLDemoGui::showInfosScene = false;
+    SLDemoGui::showMenu = false;
 
     // Build the nodeTree only once for the first QGLWidget
     if (qtGLWidget::mainWindow)

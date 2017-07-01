@@ -675,7 +675,7 @@ SLMaterial* SLAssimpImporter::loadMaterial(SLint index,
     mat->ambient(SLCol4f(ambient.r, ambient.g, ambient.b));
     mat->diffuse(SLCol4f(diffuse.r, diffuse.g, diffuse.b));
     mat->specular(SLCol4f(specular.r, specular.g, specular.b));
-    mat->emission(SLCol4f(emissive.r, emissive.g, emissive.b));
+    mat->emissive(SLCol4f(emissive.r, emissive.g, emissive.b));
     mat->shininess(shininess);
     //mat->kr(reflectivity);
     //mat->kt(1.0f-opacity);

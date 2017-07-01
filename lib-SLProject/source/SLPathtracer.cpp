@@ -185,13 +185,13 @@ SLCol4f SLPathtracer::trace(SLRay* ray, SLbool em)
     SLMaterial* mat = ray->hitMesh->mat;
     ray->hitMesh->preShade(ray);
 
-    SLCol4f objectEmission = mat->emission();
+    SLCol4f objectEmission = mat->emissive();
     SLCol4f objectColor    = SLCol4f::BLACK;
 
     // get base color of object
     if (ray->hitMatIsDiffuse())           objectColor = mat->diffuse();
     else if (ray->hitMatIsReflective())   objectColor = mat->specular();
-    else if (ray->hitMatIsTransparent())  objectColor = mat->transmission();
+    else if (ray->hitMatIsTransparent())  objectColor = mat->transmissiv();
 
     SLfloat maxEmission = objectEmission.r > objectEmission.g && 
                           objectEmission.r > objectEmission.b ? objectEmission.r : 
@@ -201,8 +201,8 @@ SLCol4f SLPathtracer::trace(SLRay* ray, SLbool em)
     // stop recursion if light source is hit
     if (maxEmission > 0)
     {   if (ray->depth == 1)
-             return mat->emission() * absorbtion;
-        else return mat->emission() * absorbtion * em;
+             return mat->emissive() * absorbtion;
+        else return mat->emissive() * absorbtion * em;
     }
 
     // add absorbtion to base color from Participating Media

@@ -19,6 +19,9 @@
 #include <SLScene.h>
 
 //-----------------------------------------------------------------------------
+SLfloat     SLGLImGui::fontPropDots        = 0.0f;
+SLfloat     SLGLImGui::fontFixedDots       = 0.0f;
+//-----------------------------------------------------------------------------
 SLGLImGui::SLGLImGui()
 {
     // init build function pointer to zero
@@ -166,12 +169,6 @@ void SLGLImGui::createOpenGLObjects()
     glCompileShader(_fragHandle);
     printCompileErrors(_fragHandle, srcFrag);
 
-
-
-
-
-
-
     _progHandle = glCreateProgram();
     glAttachShader(_progHandle, _vertHandle);
     glAttachShader(_progHandle, _fragHandle);
@@ -292,9 +289,9 @@ void SLGLImGui::onInitNewFrame(SLScene* s, SLSceneView* sv)
     // If no build function is provided there is no ImGui
     if (!build) return;
 
-    if ((SLint)SL::fontPropDots != (SLint)_fontPropDots ||
-        (SLint)SL::fontFixedDots != (SLint)_fontFixedDots)
-        loadFonts(SL::fontPropDots, SL::fontFixedDots);
+    if ((SLint)SLGLImGui::fontPropDots != (SLint)_fontPropDots ||
+        (SLint)SLGLImGui::fontFixedDots != (SLint)_fontFixedDots)
+        loadFonts(SLGLImGui::fontPropDots, SLGLImGui::fontFixedDots);
 
     if (!_fontTexture)
         createOpenGLObjects();

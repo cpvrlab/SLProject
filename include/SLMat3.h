@@ -568,7 +568,7 @@ void SLMat3<T>::toEulerAnglesZYX(T& zRotRAD, T& yRotRAD, T& xRotRAD)
     // normal case
     if (SL_abs(Cy) > FLT_EPSILON)
     {
-        T factor = 1.0 / Cy;
+        T factor = (T)1.0 / Cy;
         Sx = -_m[7]*factor;
         Cx =  _m[8]*factor;
         Sz = -_m[3]*factor;
