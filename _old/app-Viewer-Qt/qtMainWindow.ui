@@ -274,11 +274,6 @@
     </property>
     <addaction name="actionFullscreen"/>
     <addaction name="separator"/>
-    <addaction name="actionSplit_active_view_horizontally"/>
-    <addaction name="actionSplit_active_view_vertically"/>
-    <addaction name="actionSplit_into_4_views"/>
-    <addaction name="actionDelete_active_view"/>
-    <addaction name="actionSingle_view"/>
     <addaction name="actionUse_dark_ui"/>
    </widget>
    <widget class="QMenu" name="menuHelp">
@@ -451,12 +446,6 @@
    <addaction name="actionTextures_off"/>
    <addaction name="separator"/>
    <addaction name="actionAnimation_off"/>
-   <addaction name="separator"/>
-   <addaction name="actionSplit_active_view_vertically"/>
-   <addaction name="actionSplit_active_view_horizontally"/>
-   <addaction name="actionSplit_into_4_views"/>
-   <addaction name="actionDelete_active_view"/>
-   <addaction name="actionSingle_view"/>
   </widget>
   <widget class="QDockWidget" name="dockProperties">
    <property name="minimumSize">

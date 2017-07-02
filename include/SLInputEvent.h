@@ -42,7 +42,7 @@ public:
         Resize,
         DeviceRotationPYR,
         DeviceRotationQUAT,
-        CharacterInput,
+        CharInput,
         NumEvents
     } type;         //!< concrete type of the event
     SLint svIndex;  //!< index of the receiving scene view for this event
@@ -131,7 +131,7 @@ class SLCharInputEvent : public SLInputEvent
 public:
     SLuint character;
 
-    SLCharInputEvent() : SLInputEvent(CharacterInput) { }
+    SLCharInputEvent() : SLInputEvent(CharInput) { }
 };
 
 //-----------------------------------------------------------------------------

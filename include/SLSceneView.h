@@ -104,6 +104,7 @@ class SLSceneView: public SLObject
             SLbool          onLongTouch     (SLint x, SLint y);
     virtual SLbool          onKeyPress      (SLKey key, SLKey mod);
     virtual SLbool          onKeyRelease    (SLKey key, SLKey mod);
+    virtual SLbool          onCharInput     (SLuint c);
             void            onRotationPYR   (SLfloat pitchRAD, 
                                              SLfloat yawRAD, 
                                              SLfloat rollRAD,

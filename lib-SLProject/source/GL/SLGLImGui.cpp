@@ -515,6 +515,14 @@ void SLGLImGui::onKeyRelease(SLKey key, SLKey mod)
     io.KeyAlt   = mod & K_alt ? true : false;
 }
 //-----------------------------------------------------------------------------
+//! Callback on character input
+void SLGLImGui::onCharInput(SLuint c)
+{
+    ImGuiIO& io = ImGui::GetIO();
+    if (c > 0 && c < 0x10000)
+        io.AddInputCharacter((unsigned short)c);
+}
+//-----------------------------------------------------------------------------
 //! Callback on closing the application
 void SLGLImGui::onClose()
 {

@@ -16,7 +16,6 @@
 #include "qtProperty.h"
 #include <qstylefactory.h>
 #include <QMessageBox>
-#include <QSplitter>
 #include <QIcon>
 #include <QFileDialog>
 #include <QDesktopServices>
@@ -74,46 +73,10 @@ qtMainWindow::qtMainWindow(QWidget *parent, SLVstring cmdLineArgs) :
     format.setVersion(3,3);
     format.setSwapInterval(1);
 
-    // The composition of widget is as follows:
-    //
-    // +------------------------------------------------------------------+
-    // |  QMainWindow with a QSplitter a central widget                   |
-    // |  +-------------------------------------------------------------+ |
-    // |  |  QSplitter1                                                 | |
-    // |  |  ########################################################## | |
-    // |  |  #  QWidget1 for frame                                    # | |
-    // |  |  #  +---------------------------------------------------+ # | |
-    // |  |  #  |  QGLWidget1 for OpenGL rendering                  | # | |
-    // |  |  #  |                                                   | # | |
-    // |  |  #  |                                                   | # | |
-    // |  |  #  |                                                   | # | |
-    // |  |  #  |                                                   | # | |
-    // |  |  #  |                                                   | # | |
-    // |  |  #  +---------------------------------------------------+ # | |
-    // |  |  ########################################################## | |
-    // |  +-------------------------------------------------------------+ |
-    // +------------------------------------------------------------------+
-    //
-    // The reason is the possibility for adding new QWidgets to the
-    // QSplitter1. See qtGLWidget::split
-
-    // Create splitter & sourrounding frame widget
-    QSplitter *splitter  = new QSplitter(Qt::Horizontal);
-    QWidget* borderWidget = new QWidget(splitter);
-    borderWidget->setLayout(new QHBoxLayout);
-    borderWidget->layout()->setMargin(2);
-    borderWidget->setStyleSheet("border:2px solid red;");
 
     // create OpenGL widget. 
-    _activeGLWidget = new qtGLWidget(format, borderWidget, "/data/data/ch.fhwn.comgr/files", cmdLineArgs);
-
-    // add glWidget to border and border to splitter and splitter to main window
-    borderWidget->layout()->addWidget(_activeGLWidget);
-    splitter->addWidget(borderWidget);
-    setCentralWidget(splitter);
-
-    splitter->show();
-    borderWidget->show();
+    _activeGLWidget = new qtGLWidget(format, parent, "/data/data/ch.fhwn.comgr/files", cmdLineArgs);
+    setCentralWidget(_activeGLWidget);
     _activeGLWidget->show();
 
     loadSettings();
@@ -294,15 +257,9 @@ void qtMainWindow::setMenuState()
 
     // Menu Window
     ui->actionFullscreen->setChecked(this->isFullScreen());
-    bool singleView = (!_activeGLWidget ||
-                       !_activeGLWidget->parentWidget() ||
-                       !_activeGLWidget->parentWidget()->parentWidget() ||
-                        _activeGLWidget->parentWidget()->parentWidget()->parentWidget()==this);
-    ui->actionSingle_view->setEnabled(!singleView);
-    ui->actionDelete_active_view->setEnabled(!singleView);
 
     update();
-    updateAllGLWidgets();
+    _activeGLWidget->update();
 
 //   cout << "--------------------" << endl;
 //   this->centralWidget()->dumpObjectTree();
@@ -705,7 +662,7 @@ void qtMainWindow::selectAnimFromNode(SLNode* node)
             ui->animAnimatedObjectSelect->setCurrentIndex(1);
 
             // find and select correct animation
-            SLAnimPlayback* play = SLScene::current->animManager().getNodeAnimPlayack(kv.second->name());
+            SLAnimPlayback* play = SLScene::current->animManager().nodeAnimPlayback(kv.second->name());
             QVariant variant;
             variant.setValue<SLAnimPlayback*>(play);
             SLint index = ui->animAnimationSelect->findData(variant);
@@ -785,17 +742,11 @@ void qtMainWindow::selectNodeOrMeshItem(SLNode* selectedNode, SLMesh* selectedMe
             ui->nodeTree->scrollToItem(item);
             ui->nodeTree->update();
             buildPropertyTree();
-            updateAllGLWidgets();
+            _activeGLWidget->update();
             return;
         }
         ++it;
     }
-}
-//-----------------------------------------------------------------------------
-void qtMainWindow::updateAllGLWidgets()
-{
-    for (auto widget : _allGLWidgets) widget->update();
-    updateAnimTimeline();
 }
 //-----------------------------------------------------------------------------
 void qtMainWindow::applyCommandOnSV(const SLCommand cmd)
@@ -806,34 +757,6 @@ void qtMainWindow::applyCommandOnSV(const SLCommand cmd)
     setMenuState();
 }
 
-//-----------------------------------------------------------------------------
-//! Returns the other QGLWidget in the same splitter
-qtGLWidget* qtMainWindow::getOtherGLWidgetInSplitter()
-{
-    if (!_activeGLWidget || 
-        !_activeGLWidget->parentWidget() ||
-        !_activeGLWidget->parentWidget()->parentWidget() ||
-        _activeGLWidget->parentWidget()->parentWidget()->parentWidget()==this)
-    {   return 0;
-    }
-
-    QSplitter* parentSplitter = (QSplitter*)_activeGLWidget->parentWidget()->parentWidget()->parentWidget();
-    QSplitter* activeSplitter = (QSplitter*)_activeGLWidget->parentWidget()->parentWidget();
-    QSplitter* otherSplitter;
-
-    // Get other splitter
-    for (int i=0; i < parentSplitter->count(); ++i)
-    {   if (parentSplitter->widget(i) != activeSplitter)
-        {  if (typeid(*parentSplitter->widget(i)) == typeid(QSplitter))
-            {  otherSplitter = (QSplitter*)parentSplitter->widget(i);
-            }
-        }
-    }
-
-    // Set the next active GLWidget within the otherSplitter
-    qtGLWidget* otherGLWidget = (qtGLWidget*)otherSplitter->findChild<QGLWidget*>();
-    return otherGLWidget;
-}
 
 // Overwritten Event Handlers
 //-----------------------------------------------------------------------------
@@ -1122,7 +1045,7 @@ void qtMainWindow::on_actionOpenGL_triggered()
 {
     _activeGLWidget->sv()->onCommand(C_renderOpenGL);
     setMenuState();
-    updateAllGLWidgets();
+    _activeGLWidget->update();
 }
 void qtMainWindow::on_actionRay_Tracer_triggered()
 {
@@ -1405,213 +1328,6 @@ void qtMainWindow::on_actionFullscreen_triggered()
          setWindowState(Qt::WindowNoState);
     else setWindowState(Qt::WindowFullScreen);
 }
-void qtMainWindow::on_actionSplit_active_view_horizontally_triggered()
-{
-    qtGLWidget* newWidget = _activeGLWidget->splitActive(Qt::Horizontal);
-    setMenuState();
-}
-void qtMainWindow::on_actionSplit_active_view_vertically_triggered()
-{
-    qtGLWidget* newWidget = _activeGLWidget->splitActive(Qt::Vertical);
-    setMenuState();
-}
-void qtMainWindow::on_actionSplit_into_4_views_triggered()
-{
-    // top right view views scene from top
-    qtGLWidget* topRight = _activeGLWidget->splitActive(Qt::Horizontal);
-    qtGLWidget* bottomLeft = _activeGLWidget->splitActive(Qt::Vertical);
-    qtGLWidget* bottomRight = topRight->splitActive(Qt::Vertical);
-
-    // manually call init to set the correct scene view camera positions
-    topRight->sv()->initSceneViewCamera(-SLVec3f::AXISY, P_monoOrthographic);
-    bottomLeft->sv()->initSceneViewCamera(-SLVec3f::AXISZ, P_monoOrthographic);
-    bottomRight->sv()->initSceneViewCamera(-SLVec3f::AXISX, P_monoOrthographic);
-
-    setMenuState();
-}
-void qtMainWindow::on_actionSingle_view_triggered()
-{
-    // keep the active widget
-    qtGLWidget* oldActiveGLWidget = _activeGLWidget;
-    _activeGLWidget = getOtherGLWidgetInSplitter();
-
-    // delete the other until only the former active remains
-    while (_activeGLWidget)
-    {
-        on_actionDelete_active_view_triggered();
-        _activeGLWidget = getOtherGLWidgetInSplitter();
-        if (_activeGLWidget==oldActiveGLWidget)
-            _activeGLWidget = getOtherGLWidgetInSplitter();
-    }
-    _activeGLWidget = oldActiveGLWidget;
-}
-void qtMainWindow::on_actionDelete_active_view_triggered()
-{
-    // Example1: The composition of widgets before the delete:
-    //
-    // +--------------------------------------------------------------------+
-    // | parentSplitter                                                     |
-    // | +---------------------------+   +--------------------------------+ |
-    // | | activeSplitter            |   | ohterSplitter                  | |
-    // | | ######################### |   | ############################## | |
-    // | | # borderWidget1         # |   | # borderWidget2              # | |
-    // | | # +-------------------+ # |   | # +------------------------+ # | |
-    // | | # | activeGLWidget1   | # |   | # | QGLWidget2             | # | |  
-    // | | # |                   | # |   | # |                        | # | |  
-    // | | # |                   | # | O | # |                        | # | |  
-    // | | # |                   | # |   | # |                        | # | |  
-    // | | # |                   | # |   | # |                        | # | |  
-    // | | # +-------------------+ # |   | # +------------------------+ # | |  
-    // | | ######################### |   | ############################## | |
-    // | +---------------------------+   +--------------------------------+ |
-    // +--------------------------------------------------------------------+
-    //
-    // The composition of after the delete:
-    //
-    // +--------------------------------------------------------------------+
-    // | parentSplitter                                                     |
-    // | ################################################################## |
-    // | # borderWidget2 for frame                                        # |
-    // | # +------------------------------------------------------------+ # |
-    // | # | activeGLWidget2                                            | # |
-    // | # |                                                            | # |
-    // | # |                                                            | # |
-    // | # |                                                            | # |
-    // | # |                                                            | # |
-    // | # |                                                            | # |
-    // | # +------------------------------------------------------------+ # |
-    // | ################################################################## |
-    // +--------------------------------------------------------------------+
-    //
-    //
-    // Example2: The composition of widgets before the delete:
-    //
-    // +--------------------------------------------------------------------+
-    // | parentSplitter                                                     |
-    // | +---------------------------+   +--------------------------------+ |
-    // | | otherSplitter             |   | activeSplitter                 | |
-    // | | +-----------------------+ |   | ############################## | |
-    // | | | splitter3             | |   | # borderWidget               # | |
-    // | | | ##################### | |   | # +------------------------+ # | |
-    // | | | # borderWidget3     # | |   | # | activeGLWidget         | # | |   
-    // | | | # +---------------+ # | |   | # |                        | # | |  
-    // | | | # | GLWidget1     | # | |   | # |                        | # | |  
-    // | | | # |               | # | |   | # |                        | # | |  
-    // | | | # |               | # | |   | # |                        | # | | 
-    // | | | # +---------------+ # | |   | # |                        | # | |  
-    // | | | ##################### | |   | # |                        | # | |  
-    // | | +-----------------------+ |   | # |                        | # | |  
-    // | |             O             | O | # |                        | # | |  
-    // | | +-----------------------+ |   | # |                        | # | |
-    // | | | splitter4             | |   | # |                        | # | |  
-    // | | | ##################### | |   | # |                        | # | |  
-    // | | | # borderWidget4     # | |   | # |                        | # | |  
-    // | | | # +---------------+ # | |   | # |                        | # | |  
-    // | | | # | GLWidget4     | # | |   | # |                        | # | |  
-    // | | | # |               | # | |   | # |                        | # | |  
-    // | | | # |               | # | |   | # |                        | # | |
-    // | | | # +---------------+ # | |   | # |                        | # | |
-    // | | | ##################### | |   | # +------------------------+ # | |
-    // | | +-----------------------+ |   | ############################## | |
-    // | +---------------------------+   +--------------------------------+ |
-    // +--------------------------------------------------------------------+
-    //
-    // The composition of after the delete:
-    //
-    // +--------------------------------------------------------------------+
-    // | parentSplitter                                                     |
-    // | +----------------------------------------------------------------+ |
-    // | | splitter3                                                      | |
-    // | | ############################################################## | |
-    // | | # borderWidget3                                              # | |   
-    // | | # +--------------------------------------------------------+ # | |  
-    // | | # | GLWidget1                                              | # | |  
-    // | | # |                                                        | # | |  
-    // | | # |                                                        | # | | 
-    // | | # +--------------------------------------------------------+ # | |  
-    // | | ############################################################## | |  
-    // | +----------------------------------------------------------------+ |  
-    // |                                   O                                |  
-    // | +----------------------------------------------------------------+ |
-    // | | splitter4                                                      | |  
-    // | | ############################################################## | |  
-    // | | # borderWidget4                                              # | |  
-    // | | # +--------------------------------------------------------+ # | |  
-    // | | # | GLWidget4                                              | # | |  
-    // | | # |                                                        | # | |  
-    // | | # |                                                        | # | |
-    // | | # +--------------------------------------------------------+ # | |
-    // | | ############################################################## | |
-    // | +----------------------------------------------------------------+ |
-    // +--------------------------------------------------------------------+
-
-    if (!_activeGLWidget || 
-        !_activeGLWidget->parentWidget() ||
-        !_activeGLWidget->parentWidget()->parentWidget() ||
-        _activeGLWidget->parentWidget()->parentWidget()->parentWidget()==this)
-    {   SL_LOG("deleteActive: Can't delete the first GLWidget\n");
-        return;
-    }
-
-    QSplitter* parentSplitter = (QSplitter*)_activeGLWidget->parentWidget()->parentWidget()->parentWidget();
-    QSplitter* activeSplitter = (QSplitter*)_activeGLWidget->parentWidget()->parentWidget();
-    QSplitter* otherSplitter;   
-
-    // Delete splitter widget of activeGLWidget
-    activeSplitter->setParent(0);
-    delete _activeGLWidget->sv();
-    delete activeSplitter;
-    _allGLWidgets.erase(std::remove(_allGLWidgets.begin(), _allGLWidgets.end(), _activeGLWidget), _allGLWidgets.end());
-
-    // Get other widget
-    for (int i=0; i < parentSplitter->count(); ++i)
-    {   if (parentSplitter->widget(i) != activeSplitter)
-        {  if (typeid(*parentSplitter->widget(i)) == typeid(QSplitter))
-            {  otherSplitter = (QSplitter*)parentSplitter->widget(i);
-            }
-        }
-    }
-
-    // Set the next active GLWidget within the otherSplitter
-    _activeGLWidget = (qtGLWidget*)otherSplitter->findChild<QGLWidget*>();
-
-    // Set active SceneView and make active border red
-    if (_activeGLWidget)
-    {   if (_activeGLWidget->parent()->isWidgetType())
-        {  QWidget* borderWidget = (QWidget*)_activeGLWidget->parent();
-            borderWidget->setStyleSheet("border:2px solid red;");
-        }
-    } else return;
-            
-    // Get all children of the otherSplitter into a vector
-    int numOtherChildren = otherSplitter->count();
-    std::vector<QWidget*> otherWidgets;
-    Qt::Orientation otherOrientation =  otherSplitter->orientation();
-    for (int i=0; i < otherSplitter->count(); ++i)
-        otherWidgets.push_back(otherSplitter->widget(i));
-
-    // remove widgets from other splitter by setting the parent to 0
-    for (auto ow : otherWidgets) ow->setParent(0);
-   
-    // must be 0 now.
-    numOtherChildren = otherSplitter->count();
-
-    // Delete the obsolete other splitter
-    otherSplitter->setParent(0); 
-    delete otherSplitter;
-   
-    // must be 0 now.
-    int numParentChildren = parentSplitter->count();
-
-    // Reattach other widgets to the parent
-    for (auto ow : otherWidgets) 
-        parentSplitter->addWidget(ow);
-
-    // Take over the otherSplitters layout direction
-    parentSplitter->setOrientation(otherOrientation);
-
-    setMenuState();
-}
 
 // Help window
 void qtMainWindow::on_actionAbout_SLProject_triggered()
@@ -1656,7 +1372,7 @@ void qtMainWindow::on_nodeTree_itemClicked(QTreeWidgetItem *item, int column)
         s->selectNodeMesh(0, 0);
     }
     buildPropertyTree();
-    updateAllGLWidgets();
+    _activeGLWidget->update();
 }
 void qtMainWindow::on_nodeTree_itemDoubleClicked(QTreeWidgetItem *item, int column)
 {
@@ -1666,8 +1382,8 @@ void qtMainWindow::on_nodeTree_itemDoubleClicked(QTreeWidgetItem *item, int colu
     // Set active Camera
     if (typeid(*node)==typeid(SLCamera))
         sv->camera((SLCamera*)node);
-
-    updateAllGLWidgets();
+        
+    _activeGLWidget->update();
     
     // we need to set the menu state because the scene camera might not be active anymore
     setMenuState();
@@ -1676,7 +1392,7 @@ void qtMainWindow::on_propertyTree_itemChanged(QTreeWidgetItem *item, int column
 {
     ((qtProperty*)item)->onItemChanged(column);
     ui->propertyTree->update();
-    updateAllGLWidgets();
+    _activeGLWidget->update();
 }
 void qtMainWindow::on_propertyTree_itemDoubleClicked(QTreeWidgetItem *item, int column)
 {   
@@ -1685,7 +1401,7 @@ void qtMainWindow::on_propertyTree_itemDoubleClicked(QTreeWidgetItem *item, int 
 
     ((qtProperty*)item)->onItemDblClicked(column);
     ui->propertyTree->update();
-    updateAllGLWidgets();
+    _activeGLWidget->update();
 }
 void qtMainWindow::on_dockScenegraph_visibilityChanged(bool visible)
 {
@@ -1715,7 +1431,7 @@ void qtMainWindow::on_animAnimatedObjectSelect_currentIndexChanged(int index)
     {
         for (auto& kv : SLScene::current->animManager().animations())
         {
-            SLAnimPlayback* play = SLScene::current->animManager().getNodeAnimPlayack(kv.second->name());
+            SLAnimPlayback* play = SLScene::current->animManager().nodeAnimPlayback(kv.second->name());
             QVariant variant;
             variant.setValue<SLAnimPlayback*>(play);
             ui->animAnimationSelect->addItem(kv.second->name().c_str(), variant);
@@ -1729,7 +1445,7 @@ void qtMainWindow::on_animAnimatedObjectSelect_currentIndexChanged(int index)
         
         for (auto& kv : skeleton->animations())
         {
-            SLAnimPlayback* play = skeleton->getAnimPlayback(kv.second->name());
+            SLAnimPlayback* play = skeleton->animPlayback(kv.second->name());
             QVariant variant;
             variant.setValue<SLAnimPlayback*>(play);
             ui->animAnimationSelect->addItem(kv.second->name().c_str(), variant);
@@ -1757,7 +1473,7 @@ void qtMainWindow::on_animSkipStartButton_clicked()
         return;
 
     _selectedAnim->skipToStart();
-    updateAllGLWidgets();
+    _activeGLWidget->update();
 }
 void qtMainWindow::on_animSkipEndButton_clicked()
 {
@@ -1765,7 +1481,7 @@ void qtMainWindow::on_animSkipEndButton_clicked()
         return;
 
     _selectedAnim->skipToEnd();
-    updateAllGLWidgets();
+    _activeGLWidget->update();
 }
 void qtMainWindow::on_animPrevKeyframeButton_clicked()
 {
@@ -1773,7 +1489,7 @@ void qtMainWindow::on_animPrevKeyframeButton_clicked()
         return;
 
     _selectedAnim->skipToPrevKeyframe();
-    updateAllGLWidgets();
+    _activeGLWidget->update();
 }
 void qtMainWindow::on_animNextKeyframeButton_clicked()
 {
@@ -1781,7 +1497,7 @@ void qtMainWindow::on_animNextKeyframeButton_clicked()
         return;
 
     _selectedAnim->skipToNextKeyframe();
-    updateAllGLWidgets();
+    _activeGLWidget->update();
 }
 void qtMainWindow::on_animPlayForwardButton_clicked()
 {
@@ -1789,7 +1505,7 @@ void qtMainWindow::on_animPlayForwardButton_clicked()
         return;
 
     _selectedAnim->playForward();
-    updateAllGLWidgets();
+    _activeGLWidget->update();
 }
 void qtMainWindow::on_animPlayBackwardButton_clicked()
 {
@@ -1797,7 +1513,7 @@ void qtMainWindow::on_animPlayBackwardButton_clicked()
         return;
 
     _selectedAnim->playBackward();
-    updateAllGLWidgets();
+    _activeGLWidget->update();
 }
 void qtMainWindow::on_animPauseButton_clicked()
 {
@@ -1805,7 +1521,7 @@ void qtMainWindow::on_animPauseButton_clicked()
         return;
 
     _selectedAnim->pause();
-    updateAllGLWidgets();
+    _activeGLWidget->update();
 }
 void qtMainWindow::on_animStopButton_clicked()
 {
@@ -1829,7 +1545,7 @@ void qtMainWindow::on_animLoopingSelect_currentIndexChanged(int index)
         return;
 
     _selectedAnim->loop((SLAnimLooping)(index));
-    updateAllGLWidgets();
+    _activeGLWidget->update();
 }
 void qtMainWindow::on_animTimelineSlider_valueChanged(int value)
 {
@@ -1837,7 +1553,7 @@ void qtMainWindow::on_animTimelineSlider_valueChanged(int value)
         return;
     
     _selectedAnim->localTime(ui->animTimelineSlider->getNormalizedValue() * _selectedAnim->parentAnimation()->lengthSec());
-    updateAllGLWidgets();
+    _activeGLWidget->update();
 }
 void qtMainWindow::on_animWeightInput_valueChanged(double d)
 {
@@ -1845,7 +1561,7 @@ void qtMainWindow::on_animWeightInput_valueChanged(double d)
         return;
 
     _selectedAnim->weight(d);
-    updateAllGLWidgets();
+    _activeGLWidget->update();
 }
 void qtMainWindow::on_animSpeedInput_valueChanged(double d)
 {
@@ -1853,5 +1569,5 @@ void qtMainWindow::on_animSpeedInput_valueChanged(double d)
         return;
 
     _selectedAnim->playbackRate(d);
-    updateAllGLWidgets();
+    _activeGLWidget->update();
 }

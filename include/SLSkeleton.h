@@ -70,7 +70,7 @@ public:
             void        reset           ();
 
             // Getters
-    SLAnimPlayback*     getAnimPlayback (const SLstring& name);
+    SLAnimPlayback*     animPlayback    (const SLstring& name);
     SLMAnimation        animations      () {return _animations;}
             SLint       numAnimations   () const { return (SLint)_animations.size();}
             SLJoint*    getJoint        (SLuint id);

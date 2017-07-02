@@ -343,7 +343,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         #endif
 
         // Start animation
-        SLAnimPlayback* charAnim = importer.skeleton()->getAnimPlayback("unnamed_anim_0");
+        SLAnimPlayback* charAnim = _animManager.lastAnimPlayback();
         charAnim->playForward();
         charAnim->playbackRate(0.8f);
 
@@ -455,7 +455,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         // big astroboy
         // Start animation
         SLNode* astroboyBig = importer.load("DAE/AstroBoy/AstroBoy.dae");
-        SLAnimPlayback* charAnim = importer.skeleton()->getAnimPlayback("unnamed_anim_0");
+        SLAnimPlayback* charAnim = _animManager.lastAnimPlayback();
         charAnim->playForward();
         charAnim->playbackRate(0.8f);
 
@@ -465,7 +465,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
 
         // small astroboy on table
         SLNode* astroboySmall = importer.load("DAE/AstroBoy/AstroBoy.dae");
-        charAnim = importer.skeleton()->getAnimPlayback("unnamed_anim_0");
+        charAnim = _animManager.lastAnimPlayback();
         charAnim->playForward();
         charAnim->playbackRate(2.0f);
         
@@ -1618,7 +1618,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         SLNode* char1 = importer.load("DAE/AstroBoy/AstroBoy.dae");
         #endif
         char1->translate(-1,0,0);
-        SLAnimPlayback* char1Anim = importer.skeleton()->getAnimPlayback("unnamed_anim_0");
+        SLAnimPlayback* char1Anim = _animManager.lastAnimPlayback();
         char1Anim->playForward();
         scene->addChild(char1);
         
@@ -1637,7 +1637,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
                                         );
         #endif
         char2->translate(1,0,0);
-        SLAnimPlayback* char2Anim = importer.skeleton()->getAnimPlayback("unnamed_anim_0");
+        SLAnimPlayback* char2Anim = _animManager.lastAnimPlayback();
         char2Anim->playForward();
         scene->addChild(char2);
 
@@ -1648,7 +1648,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         SLNode* cube1 = importer.load("DAE/SkinnedCube/skinnedcube2.dae");
         #endif
         cube1->translate(3, 0, 0);
-        SLAnimPlayback* cube1Anim = importer.skeleton()->getAnimPlayback("unnamed_anim_0");
+        SLAnimPlayback* cube1Anim = _animManager.lastAnimPlayback();
         cube1Anim->easing(EC_inOutSine);
         cube1Anim->playForward();
         scene->addChild(cube1);
@@ -1660,7 +1660,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         SLNode* cube2 = importer.load("DAE/SkinnedCube/skinnedcube4.dae");
         #endif
         cube2->translate(-3, 0, 0);
-        SLAnimPlayback* cube2Anim = importer.skeleton()->getAnimPlayback("unnamed_anim_0");
+        SLAnimPlayback* cube2Anim = _animManager.lastAnimPlayback();
         cube2Anim->easing(EC_inOutSine);
         cube2Anim->playForward();
         scene->addChild(cube2);
@@ -1672,7 +1672,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         SLNode* cube3 = importer.load("DAE/SkinnedCube/skinnedcube5.dae");
         #endif
         cube3->translate(0, 3, 0);
-        SLAnimPlayback* cube3Anim = importer.skeleton()->getAnimPlayback("unnamed_anim_0");
+        SLAnimPlayback* cube3Anim = _animManager.lastAnimPlayback();
         cube3Anim->loop(AL_pingPongLoop);
         cube3Anim->easing(EC_inOutCubic);
         cube3Anim->playForward();
@@ -1903,7 +1903,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         SLNode* center = importer.load("DAE/AstroBoy/AstroBoy.dae");
         #endif
         //center->scale(100);
-        importer.skeleton()->getAnimPlayback("unnamed_anim_0")->playForward();
+        _animManager.lastAnimPlayback()->playForward();
 
 
         // Assemble scene

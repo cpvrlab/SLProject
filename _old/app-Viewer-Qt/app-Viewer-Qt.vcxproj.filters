@@ -7,10 +7,10 @@
     <ClCompile Include="debug\moc_qtMainWindow.cpp">
       <Filter>Generated</Filter>
     </ClCompile>
-    <ClCompile Include="qrc_resources.cpp">
+    <ClCompile Include="qtProperty.cpp" />
+    <ClCompile Include="debug\qrc_resources.cpp">
       <Filter>Generated</Filter>
     </ClCompile>
-    <ClCompile Include="qtProperty.cpp" />
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="qtMainWindow.h" />

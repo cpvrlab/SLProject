@@ -12,7 +12,6 @@
 #define QTMAINWINDOW_H
 
 #include <QMainWindow>
-#include <QSplitter>
 #include <QSettings>
 #include <SL.h>
 #include <SLNode.h>
@@ -50,9 +49,7 @@ class qtMainWindow : public QMainWindow
 							             qtNodeTreeItem* parent);
         void        selectNodeOrMeshItem(SLNode* selectedNode,
                                          SLMesh* selectedMesh);
-        void        updateAllGLWidgets  ();
         void        applyCommandOnSV    (const SLCommand cmd);
-        qtGLWidget* getOtherGLWidgetInSplitter();
 
         // Overwritten Event Handlers
         void        resizeEvent         (QResizeEvent* event);
@@ -171,11 +168,6 @@ class qtMainWindow : public QMainWindow
         void on_action10000_Samples_triggered();
 
         void on_actionFullscreen_triggered();
-        void on_actionSplit_active_view_horizontally_triggered();
-        void on_actionSplit_active_view_vertically_triggered();
-        void on_actionSplit_into_4_views_triggered();
-        void on_actionDelete_active_view_triggered();
-        void on_actionSingle_view_triggered();
 
         void on_actionAbout_SLProject_triggered();
         void on_actionVisit_SLProject_on_Github_triggered();
@@ -212,7 +204,6 @@ class qtMainWindow : public QMainWindow
 private:
         QSettings         _settings;
         Ui::qtMainWindow*  ui;
-        std::vector<qtGLWidget*> _allGLWidgets;
         qtGLWidget*       _activeGLWidget;
         qtNodeTreeItem*   _selectedNodeItem;
         QMenu*            _menuFile;

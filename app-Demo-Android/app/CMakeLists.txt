@@ -129,6 +129,11 @@ file(GLOB_RECURSE SLEXTERNAL_SOURCES    ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SL
                                         ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLExternal/randomc/mersenne.cpp
                                         ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLExternal/imgui/imgui.cpp
                                         ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLExternal/imgui/imgui_draw.cpp
+                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLExternal/Shoemake/Decompose.cpp
+                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLExternal/Shoemake/Decompose.h
+                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLExternal/Shoemake/EulerAngles.cpp
+                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLExternal/Shoemake/EulerAngles.h
+                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLExternal/Shoemake/TypeDefs.h
                                         )
 
 list(REMOVE_ITEM SLEXTERNAL_SOURCES     ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLExternal/assimp/code/OgreMesh.cpp

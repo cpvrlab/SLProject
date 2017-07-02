@@ -354,6 +354,8 @@
 		41C99E7918D4316A0045FD2D /* Icon_114.png in Resources */ = {isa = PBXBuildFile; fileRef = 41C99E7618D4316A0045FD2D /* Icon_114.png */; };
 		41C99E7A18D4316A0045FD2D /* Icon_144.png in Resources */ = {isa = PBXBuildFile; fileRef = 41C99E7718D4316A0045FD2D /* Icon_144.png */; };
 		41C99E7C18D431B50045FD2D /* Icon_72.png in Resources */ = {isa = PBXBuildFile; fileRef = 41C99E7B18D431B50045FD2D /* Icon_72.png */; };
+		41CF01DC1F096ABB00CA36C9 /* Decompose.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 41CF01D61F096ABB00CA36C9 /* Decompose.cpp */; };
+		41CF01DD1F096ABB00CA36C9 /* EulerAngles.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 41CF01D81F096ABB00CA36C9 /* EulerAngles.cpp */; };
 		41E46000176C8F6800AB4653 /* SLTimer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 41E45FFE176C8F6800AB4653 /* SLTimer.cpp */; };
 		41E9843A1E3BABB1003D5CCF /* SLCVImage.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 41E984391E3BABB1003D5CCF /* SLCVImage.cpp */; };
 		41EBB5E31C44D99500C9BAA5 /* SLGLVertexArrayExt.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 41EBB5E21C44D99500C9BAA5 /* SLGLVertexArrayExt.cpp */; };
@@ -996,6 +998,11 @@
 		41C99E7618D4316A0045FD2D /* Icon_114.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = Icon_114.png; path = images/Icon_114.png; sourceTree = SOURCE_ROOT; };
 		41C99E7718D4316A0045FD2D /* Icon_144.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = Icon_144.png; path = images/Icon_144.png; sourceTree = SOURCE_ROOT; };
 		41C99E7B18D431B50045FD2D /* Icon_72.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = Icon_72.png; path = images/Icon_72.png; sourceTree = SOURCE_ROOT; };
+		41CF01D61F096ABB00CA36C9 /* Decompose.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Decompose.cpp; path = "../lib-SLExternal/Shoemake/Decompose.cpp"; sourceTree = SOURCE_ROOT; };
+		41CF01D71F096ABB00CA36C9 /* Decompose.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Decompose.h; path = "../lib-SLExternal/Shoemake/Decompose.h"; sourceTree = SOURCE_ROOT; };
+		41CF01D81F096ABB00CA36C9 /* EulerAngles.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = EulerAngles.cpp; path = "../lib-SLExternal/Shoemake/EulerAngles.cpp"; sourceTree = SOURCE_ROOT; };
+		41CF01D91F096ABB00CA36C9 /* EulerAngles.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = EulerAngles.h; path = "../lib-SLExternal/Shoemake/EulerAngles.h"; sourceTree = SOURCE_ROOT; };
+		41CF01DA1F096ABB00CA36C9 /* TypeDefs.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TypeDefs.h; path = "../lib-SLExternal/Shoemake/TypeDefs.h"; sourceTree = SOURCE_ROOT; };
 		41E45FFE176C8F6800AB4653 /* SLTimer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SLTimer.cpp; path = "../lib-SLProject/source/SL/SLTimer.cpp"; sourceTree = SOURCE_ROOT; };
 		41E45FFF176C8F6800AB4653 /* SLTimer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SLTimer.h; path = ../include/SLTimer.h; sourceTree = SOURCE_ROOT; };
 		41E984371E3BAB68003D5CCF /* SLCV.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SLCV.h; path = ../include/SLCV.h; sourceTree = SOURCE_ROOT; };
@@ -1062,6 +1069,7 @@
 		4124F2A116D4FD4B004379A0 /* lib-SLExternal */ = {
 			isa = PBXGroup;
 			children = (
+				41CF01DB1F096ABB00CA36C9 /* Shoemake */,
 				41C48E8F1F01250E0059B48C /* imgui_draw.cpp */,
 				41C48E901F01250E0059B48C /* imgui.cpp */,
 				41C48E911F01250E0059B48C /* imgui.h */,
@@ -1885,6 +1893,19 @@
 			path = comgr;
 			sourceTree = "<group>";
 		};
+		41CF01DB1F096ABB00CA36C9 /* Shoemake */ = {
+			isa = PBXGroup;
+			children = (
+				41CF01D61F096ABB00CA36C9 /* Decompose.cpp */,
+				41CF01D71F096ABB00CA36C9 /* Decompose.h */,
+				41CF01D81F096ABB00CA36C9 /* EulerAngles.cpp */,
+				41CF01D91F096ABB00CA36C9 /* EulerAngles.h */,
+				41CF01DA1F096ABB00CA36C9 /* TypeDefs.h */,
+			);
+			name = Shoemake;
+			path = "../lib-SLExternal";
+			sourceTree = "<group>";
+		};
 		41FE0B051959C9DA00486424 /* Products */ = {
 			isa = PBXGroup;
 			children = (
@@ -2138,6 +2159,7 @@
 				419808B41959BA670048085E /* XFileImporter.cpp in Sources */,
 				418E0C3F148929C800C6274F /* SLBox.cpp in Sources */,
 				419808EA1959BA670048085E /* SkeletonMeshBuilder.cpp in Sources */,
+				41CF01DD1F096ABB00CA36C9 /* EulerAngles.cpp in Sources */,
 				419808E41959BA670048085E /* OgreStructs.cpp in Sources */,
 				419808651959BA670048085E /* AssimpPCH.cpp in Sources */,
 				4198086F1959BA670048085E /* ColladaLoader.cpp in Sources */,
@@ -2172,6 +2194,7 @@
 				418E0C4A148929C800C6274F /* SLPolygon.cpp in Sources */,
 				41E9843A1E3BABB1003D5CCF /* SLCVImage.cpp in Sources */,
 				418E0C4B148929C800C6274F /* SLRay.cpp in Sources */,
+				41CF01DC1F096ABB00CA36C9 /* Decompose.cpp in Sources */,
 				418E0C4C148929C800C6274F /* SLRaytracer.cpp in Sources */,
 				418E0C4D148929C800C6274F /* SLRectangle.cpp in Sources */,
 				41483533182CBE2700312D36 /* SLPathtracer.cpp in Sources */,

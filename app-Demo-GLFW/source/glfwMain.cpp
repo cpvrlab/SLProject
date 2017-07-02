@@ -308,10 +308,10 @@ static void onMouseWheel(GLFWwindow* window, double xscroll, double yscroll)
 
 //-----------------------------------------------------------------------------
 /*!
-Key action event handler sets the modifier key state & forwards the event to
+Key event handler sets the modifier key state & forwards the event to
 the slKeyPress function.
 */
-static void onKeyAction(GLFWwindow* window, int GLFWKey, int scancode, int action, int mods)
+static void onKeyPress(GLFWwindow* window, int GLFWKey, int scancode, int action, int mods)
 {     
     SLKey key = mapKeyToSLKey(GLFWKey);
     
@@ -367,6 +367,12 @@ static void onKeyAction(GLFWwindow* window, int GLFWKey, int scancode, int actio
         else if (action==GLFW_RELEASE)
             slKeyRelease(svIndex, key, modifiers);
     }
+}
+//-----------------------------------------------------------------------------
+//! Event handler for GLFW character input
+void onCharInput(GLFWwindow*, SLuint c)
+{
+    slCharInput(svIndex, c);
 }
 //-----------------------------------------------------------------------------
 /*!
@@ -498,7 +504,8 @@ int main(int argc, char *argv[])
                                 (void*)SLDemoGui::buildDemoGui);
 
     // Set GLFW callback functions
-    glfwSetKeyCallback(window, onKeyAction);
+    glfwSetKeyCallback(window, onKeyPress);
+    glfwSetCharCallback(window, onCharInput);
     glfwSetWindowSizeCallback(window, onResize);
     glfwSetMouseButtonCallback(window, onMouseButton);
     glfwSetCursorPosCallback(window, onMouseMove);

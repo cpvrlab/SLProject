@@ -554,6 +554,7 @@ void SLAssimpImporter::loadSkeleton(SLJoint* parent, aiNode* node)
 
     SLJoint* joint;
     SLstring name = node->mName.C_Str();
+
     if (!parent)
     {
 	    logMessage(LV_normal, "Loading skeleton skeleton.\n");
@@ -965,10 +966,8 @@ SLAssimpImporter::loadAnimation loads the scene graph node tree recursively.
 */
 SLAnimation* SLAssimpImporter::loadAnimation(aiAnimation* anim)
 {
-    int animCount = 0;
-    if (_skeleton) animCount = _skeleton->numAnimations();
     ostringstream oss;
-    oss << "unnamed_anim_" << animCount;
+    oss << "unnamed_anim_" << SLScene::current->animManager().allAnimNames().size();
     SLstring animName = oss.str();
     SLfloat animTicksPerSec = (anim->mTicksPerSecond == 0) ? 30.0f : (SLfloat)anim->mTicksPerSecond;
     SLfloat animDuration = (SLfloat)anim->mDuration / animTicksPerSec;

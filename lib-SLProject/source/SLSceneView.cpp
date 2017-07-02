@@ -278,7 +278,10 @@ void SLSceneView::onInitialize()
     
     SLScene* s = SLScene::current;
     _stateGL = SLGLState::getInstance();
-    _stateGL->onInitialize(_camera->background().colors()[0]);
+
+    if (_camera)
+         _stateGL->onInitialize(_camera->background().colors()[0]);
+    else _stateGL->onInitialize(SLCol4f::GRAY);
     
     _blendNodes.clear();
     _visibleNodes.clear();
@@ -1206,6 +1209,18 @@ SLbool SLSceneView::onKeyRelease(SLKey key, SLKey mod)
         }
     }
     return result;
+}
+//-----------------------------------------------------------------------------
+/*!
+SLSceneView::onCharInput get called whenever a new charcter comes in
+*/
+SLbool SLSceneView::onCharInput(SLuint c)
+{
+    if (ImGui::GetIO().WantCaptureKeyboard)
+    {   _gui.onCharInput(c);
+        return true;
+    }
+    return false;
 }
 //-----------------------------------------------------------------------------
 /*!

@@ -22,7 +22,6 @@
 #include <QMouseEvent>
 #include <QApplication>
 #include <QDir>
-#include <QSplitter>
 #include <QPalette>
 #include <QHBoxLayout>
 
@@ -69,7 +68,7 @@ qtGLWidget::qtGLWidget(QGLFormat &format,
     _svIndex = 0;
     _touch2.set(-1,-1);
     _touchDelta.set(-1,-1);
-    mainWindow->_allGLWidgets.push_back(this);
+    mainWindow->_activeGLWidget = this;
 }
 //-----------------------------------------------------------------------------
 /*!
@@ -85,7 +84,7 @@ qtGLWidget::qtGLWidget(QWidget* parent,
     _sv = 0;
     _touch2.set(-1,-1);
     _touchDelta.set(-1,-1);
-    mainWindow->_allGLWidgets.push_back(this);
+    mainWindow->_activeGLWidget = this;
 }
 
 //-----------------------------------------------------------------------------
@@ -210,7 +209,7 @@ void qtGLWidget::paintGL()
 
         // Simply call update for constant repaint. Never call paintGL directly
         if (viewNeedsRepaint)
-            mainWindow->updateAllGLWidgets();
+            update();
     }
 }
 //-----------------------------------------------------------------------------
@@ -267,7 +266,7 @@ void qtGLWidget::mousePressEvent(QMouseEvent *e)
         }
     }
     
-    mainWindow->updateAllGLWidgets();
+    update();
 }
 //-----------------------------------------------------------------------------
 /*!
@@ -294,7 +293,7 @@ void qtGLWidget::mouseReleaseEvent(QMouseEvent *e)
     {  slMouseUp(_svIndex, MB_middle, x, y, modifiers);
     }
 
-    mainWindow->updateAllGLWidgets();
+    update();
 }
 //-----------------------------------------------------------------------------
 /*!
@@ -321,7 +320,7 @@ void qtGLWidget::mouseDoubleClickEvent(QMouseEvent *e)
     {   slDoubleClick(_svIndex, MB_middle, x, y, modifiers);
     }
     
-    mainWindow->updateAllGLWidgets();
+    update();
 }
 //-----------------------------------------------------------------------------
 /*!
@@ -356,7 +355,7 @@ void qtGLWidget::mouseMoveEvent(QMouseEvent *e)
     {   slMouseMove(_svIndex, x, y);
     }
 
-    mainWindow->updateAllGLWidgets();
+    update();
 }
 //-----------------------------------------------------------------------------
 /*!
@@ -372,7 +371,7 @@ void qtGLWidget::wheelEvent(QWheelEvent *e)
 
     slMouseWheel(_svIndex, e->delta(), modifiers);
 
-    mainWindow->updateAllGLWidgets();
+    update();
 } 
 //-----------------------------------------------------------------------------
 /*!
@@ -419,7 +418,7 @@ void qtGLWidget::keyPressEvent(QKeyEvent* e)
    
     slKeyPress(_svIndex, key, modifiers);
     
-    mainWindow->updateAllGLWidgets();
+    update();
 }
 //-----------------------------------------------------------------------------
 /*!
@@ -463,74 +462,6 @@ void qtGLWidget::keyReleaseEvent(QKeyEvent* e)
 
     slKeyRelease(_svIndex, key, modifiers);
     
-    mainWindow->updateAllGLWidgets();
-}
-//-----------------------------------------------------------------------------
-//! Splits the current QGLWidget in two the old and new QGLWidget
-/*!
- * \brief qtGLWidget::splitActive
- * \param direction
- * \return
- */
-qtGLWidget* qtGLWidget::splitActive(Qt::Orientation orientation)
-{
-    // The composition of widgets before the split:
-    // The parent splitter is the central widget of the main window.
-    //
-    // +--------------------------------------------------------------------+
-    // | parentSplitter                                                     |
-    // | ################################################################## |
-    // | # borderWidget1 for frame                                        # |
-    // | # +------------------------------------------------------------+ # |
-    // | # | this QGLWidget1                                            | # |
-    // | # |                                                            | # |
-    // | # |                                                            | # |
-    // | # |                                                            | # |
-    // | # |                                                            | # |
-    // | # |                                                            | # |
-    // | # +------------------------------------------------------------+ # |
-    // | ################################################################## |
-    // +--------------------------------------------------------------------+
-    //
-    // The composition of after the split:
-    //
-    // +--------------------------------------------------------------------+
-    // | parentSplitter                                                     |
-    // | +---------------------------+   +--------------------------------+ |
-    // | | new splitter1             |   | new splitter2                  | |
-    // | | ######################### |   | ############################## | |
-    // | | # borderWidget1         # |   | # new borderWidget2          # | |
-    // | | # +-------------------+ # |   | # +------------------------+ # | |
-    // | | # | this QGLWidget1   | # |   | # | new QGLWidget2         | # | |  
-    // | | # |                   | # |   | # |                        | # | |  
-    // | | # |                   | # | O | # |                        | # | |  
-    // | | # |                   | # |   | # |                        | # | |  
-    // | | # |                   | # |   | # |                        | # | |  
-    // | | # +-------------------+ # |   | # +------------------------+ # | |  
-    // | | ######################### |   | ############################## | |
-    // | +---------------------------+   +--------------------------------+ |
-    // +--------------------------------------------------------------------+
-
-    QSplitter *parentSplitter = (QSplitter*)parentWidget()->parentWidget();
-    parentSplitter->setOrientation(orientation);
-   
-    QSplitter* splitter1 = new QSplitter();
-    splitter1->addWidget(parentWidget());
-    parentWidget()->setParent(splitter1);
-
-    QSplitter *splitter2  = new QSplitter();
-    QWidget* borderWidget = new QWidget(splitter2);
-    borderWidget->setLayout(new QHBoxLayout);
-    borderWidget->layout()->setMargin(2);
-    qtGLWidget* newGLWidget = new qtGLWidget(borderWidget, this);
-    
-    borderWidget->layout()->addWidget(newGLWidget);
-    borderWidget->setStyleSheet("border:2px solid black;");
-    splitter2->addWidget(borderWidget);
-
-    parentSplitter->addWidget(splitter1);
-    parentSplitter->addWidget(splitter2);
-    
-    return newGLWidget;
+    update();
 }
 //-----------------------------------------------------------------------------

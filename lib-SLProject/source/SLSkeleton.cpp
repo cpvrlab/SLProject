@@ -51,14 +51,14 @@ SLJoint* SLSkeleton::createJoint(SLuint id)
 SLJoint* SLSkeleton::createJoint(const SLstring& name, SLuint id)
 {
     SLJoint* result = new SLJoint(name, id, this);
-    
+
     assert((id >= _joints.size() ||
            (id < _joints.size() && _joints[id] == nullptr)) &&
           "Trying to create a joint with an already existing id.");
 
     if (_joints.size() <= id)
         _joints.resize(id+1);
-    
+
     _joints[id] = result;
     return result;
 }
@@ -67,16 +67,11 @@ SLJoint* SLSkeleton::createJoint(const SLstring& name, SLuint id)
 //-----------------------------------------------------------------------------
 /*! Returns an animation state by name.
 */
-SLAnimPlayback* SLSkeleton::getAnimPlayback(const SLstring& name)
+SLAnimPlayback* SLSkeleton::animPlayback(const SLstring& name)
 {
     if (_animPlaybacks.find(name) != _animPlaybacks.end())
         return _animPlaybacks[name];
-    else if (_animations.find(name) != _animations.end())
-    {
-        _animPlaybacks[name] = new SLAnimPlayback(_animations[name]);
-        return _animPlaybacks[name];
-    }
-
+    SL_WARN_MSG("*** Playback found in SLSkeleton::getNodeAnimPlayack ***");
     return nullptr;
 }
 
@@ -126,8 +121,18 @@ SLAnimation* SLSkeleton::createAnimation(const SLstring& name, SLfloat duration)
 {
     assert(_animations.find(name) == _animations.end() &&
            "animation with same name already exists!");
+
     SLAnimation* anim = new SLAnimation(name, duration);
     _animations[name] = anim;
+
+    SLAnimPlayback* play = new SLAnimPlayback(anim);
+    _animPlaybacks[name] = play;
+
+    // Add node animation to the combined vector
+    SLAnimManager& aniMan = SLScene::current->animManager();
+    aniMan.allAnimNames().push_back(name);
+    aniMan.allAnimPlaybacks().push_back(play);
+
     return anim;
 }
 
@@ -180,7 +185,7 @@ const SLVec3f& SLSkeleton::minOS()
 {
     if (_minMaxOutOfDate)
         updateMinMax();
-    
+
     return _minOS;
 }
 
@@ -200,7 +205,7 @@ const SLVec3f& SLSkeleton::maxOS()
 radii.
 */
 void SLSkeleton::updateMinMax()
-{    
+{
     // recalculate the new min and max os based on bone radius
     SLbool firstSet = false;
     for (auto joint : _joints)
@@ -214,7 +219,7 @@ void SLSkeleton::updateMinMax()
         SLVec3f jointPos = joint->updateAndGetWM().translation();
         SLVec3f curMin = jointPos - SLVec3f(r, r, r);
         SLVec3f curMax = jointPos + SLVec3f(r, r, r);
-        
+
         if (!firstSet)
         {   _minOS = curMin;
             _maxOS = curMax;

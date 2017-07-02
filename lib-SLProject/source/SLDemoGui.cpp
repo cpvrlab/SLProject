@@ -26,27 +26,62 @@
 #include <SLLightSpot.h>
 #include <SLLightRect.h>
 #include <SLLightDirect.h>
+#include <SLAnimPlayback.h>
 #include <SLImporter.h>
 #include <SLCVCapture.h>
 #include <SLCVImage.h>
 #include <imgui.h>
 
+//-----------------------------------------------------------------------------
+// Adappter for combo and listbox with std::vector<std::string>
+static auto vector_getter = [](void* vec, int idx, const char** out_text)
+{
+    auto& vector = *static_cast<std::vector<std::string>*>(vec);
+    if (idx < 0 || idx >= static_cast<int>(vector.size()))
+        return false;
+    *out_text = vector.at(idx).c_str();
+    return true;
+};
+
+bool myCombo(const char* label, int* currIndex, std::vector<std::string>& values)
+{
+    if (values.empty())
+        return false;
+
+    return ImGui::Combo(label,
+                        currIndex, vector_getter,
+                        static_cast<void*>(&values),
+                        (int)values.size());
+}
+
+bool myListBox(const char* label, int* currIndex, std::vector<std::string>& values)
+{
+    if (values.empty())
+        return false;
+    return ImGui::ListBox(label,
+                          currIndex,
+                          vector_getter,
+                          static_cast<void*>(&values),
+                          (int)values.size());
+}
+//-----------------------------------------------------------------------------
+
 
 #define IM_ARRAYSIZE(_ARR)  ((int)(sizeof(_ARR)/sizeof(*_ARR)))
 
-SLstring    SLDemoGui::configTime          = "-";
-SLbool      SLDemoGui::showMenu            = true;
-SLbool      SLDemoGui::showAbout           = false;
-SLbool      SLDemoGui::showHelp            = false;
-SLbool      SLDemoGui::showHelpCalibration = false;
-SLbool      SLDemoGui::showCredits         = false;
-SLbool      SLDemoGui::showStatsTiming     = false;
-SLbool      SLDemoGui::showStatsScene      = false;
-SLbool      SLDemoGui::showStatsVideo      = false;
-SLbool      SLDemoGui::showInfosFrameworks = false;
-SLbool      SLDemoGui::showInfosScene      = false;
-SLbool      SLDemoGui::showSceneGraph      = false;
-SLbool      SLDemoGui::showProperties      = false;
+SLstring        SLDemoGui::configTime          = "-";
+SLbool          SLDemoGui::showMenu            = true;
+SLbool          SLDemoGui::showAbout           = false;
+SLbool          SLDemoGui::showHelp            = false;
+SLbool          SLDemoGui::showHelpCalibration = false;
+SLbool          SLDemoGui::showCredits         = false;
+SLbool          SLDemoGui::showStatsTiming     = false;
+SLbool          SLDemoGui::showStatsScene      = false;
+SLbool          SLDemoGui::showStatsVideo      = false;
+SLbool          SLDemoGui::showInfosFrameworks = false;
+SLbool          SLDemoGui::showInfosScene      = false;
+SLbool          SLDemoGui::showSceneGraph      = false;
+SLbool          SLDemoGui::showProperties      = false;
 
 SLstring SLDemoGui::infoAbout =
 "Welcome to the SLProject demo app. It is developed at the \
@@ -333,12 +368,15 @@ void SLDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
 {
     SLCommand curS = SL::currentSceneID;
     SLRenderType rType = sv->renderType();
+    SLbool hasAnimations = (s->animManager().allAnimNames().size() > 0);
+    static SLint curAnimIx = -1;
+    if (!hasAnimations) curAnimIx = -1;
 
     if (ImGui::BeginMainMenuBar())
     {
         if (ImGui::BeginMenu("File"))
         {
-            if (ImGui::BeginMenu("Load Scene"))
+            if (ImGui::BeginMenu("Load Test Scene"))
             {
                 if (ImGui::BeginMenu("General Scenes"))
                 {
@@ -629,7 +667,7 @@ void SLDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
             }
         }
 
-        if (ImGui::BeginMenu("View"))
+        if (ImGui::BeginMenu("Camera"))
         {
             SLCamera* cam = sv->camera();
             SLProjection proj = cam->projection();
@@ -720,6 +758,61 @@ void SLDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
 
                 ImGui::EndMenu();
             }
+
+            ImGui::EndMenu();
+        }
+
+        if (ImGui::BeginMenu("Animation", hasAnimations))
+        {
+            SLVstring animations = s->animManager().allAnimNames();
+            if (curAnimIx == -1) curAnimIx = 0;
+            SLAnimPlayback* anim = s->animManager().allAnimPlayback(curAnimIx);
+
+            if (myCombo("", &curAnimIx, animations))
+                anim = s->animManager().allAnimPlayback(curAnimIx);
+
+            if (ImGui::MenuItem("Play forward", 0, anim->isPlayingForward()))
+                anim->playForward();
+
+            if (ImGui::MenuItem("Play backward", 0, anim->isPlayingBackward()))
+                anim->playBackward();
+
+            if (ImGui::MenuItem("Pause", 0, anim->isPaused()))
+                anim->pause();
+
+            if (ImGui::MenuItem("Stop", 0, anim->isStopped()))
+                anim->enabled(false);
+
+            if (ImGui::MenuItem("Skip to next keyframe", 0, false))
+                anim->skipToNextKeyframe();
+
+            if (ImGui::MenuItem("Skip to previous keyframe", 0, false))
+                anim->skipToPrevKeyframe();
+
+            if (ImGui::MenuItem("Skip to start", 0, false))
+                anim->skipToStart();
+
+            if (ImGui::MenuItem("Skip to end", 0, false))
+                anim->skipToEnd();
+
+            SLfloat speed = anim->playbackRate();
+            if (ImGui::SliderFloat("Speed", &speed, 0.f, 4.f))
+                anim->playbackRate(speed);
+
+            SLfloat lenSec = anim->parentAnimation()->lengthSec();
+            SLfloat localTimeSec = anim->localTime();
+            if (ImGui::SliderFloat("Time", &localTimeSec, 0.f, lenSec))
+                anim->localTime(localTimeSec);
+
+            SLint curEasing = (SLint)anim->easing();
+            const char* easings[] = { "linear",
+                                      "in quad",  "out quad",  "in out quad",  "out in quad",
+                                      "in cubic", "out cubic", "in out cubic", "out in cubic",
+                                      "in quart", "out quart", "in out quart", "out in quart",
+                                      "in quint", "out quint", "in out quint", "out in quint",
+                                      "in sine",  "out sine",  "in out sine",  "out in sine"};
+            if (ImGui::Combo("Easing", &curEasing, easings,  IM_ARRAYSIZE(easings)))
+                anim->easing((SLEasingCurve)curEasing);
 
             ImGui::EndMenu();
         }
@@ -894,7 +987,7 @@ void SLDemoGui::buildProperties(SLScene* s)
                                                  "Stereo Color Yelle Blue" };
 
                     int proj = cam->projection();
-                    if (ImGui::Combo("Projection", &proj, projections, IM_ARRAYSIZE(projections)));
+                    if (ImGui::Combo("Projection", &proj, projections, IM_ARRAYSIZE(projections)))
                         cam->projection((SLProjection)proj);
 
                     if (cam->projection() > P_monoOrthographic)
@@ -940,21 +1033,44 @@ void SLDemoGui::buildProperties(SLScene* s)
                     typeName = "Light (directional):";
                 }
 
-//                if (ImGui::TreeNode("Light"))
-//                {
-//                    static SLCol4f a = light->ambient();
-//                    if (ImGui::InputFloat3("Ambient", (float*)&a))
-//                        light->ambient(a);
+                if (ImGui::TreeNode(typeName.c_str()))
+                {
+                    SLbool on = light->isOn();
+                    if (ImGui::Checkbox("Is on", &on))
+                        light->isOn(on);
 
-//                    SLCol4f d = light->diffuse();
-//                    if (ImGui::InputFloat3("Diffuse", (float*)&d))
-//                        light->diffuse(d);
+                    ImGuiInputTextFlags flags = ImGuiInputTextFlags_EnterReturnsTrue;
+                    SLCol4f a = light->ambient();
+                    if (ImGui::InputFloat3("Ambient", (float*)&a, 1, flags))
+                        light->ambient(a);
 
-//                    ImGui::TreePop();
-//                }
+                    SLCol4f d = light->diffuse();
+                    if (ImGui::InputFloat3("Diffuse", (float*)&d, 1, flags))
+                        light->diffuse(d);
 
+                    SLCol4f s = light->specular();
+                    if (ImGui::InputFloat3("Specular", (float*)&s, 1, flags))
+                        light->specular(s);
+
+                    float cutoff = light->spotCutOffDEG();
+                    if (ImGui::SliderFloat("Spot cut off angle", &cutoff, 0.0f, 180.0f))
+                        light->spotCutOffDEG(cutoff);
+
+                    float kc = light->kc();
+                    if (ImGui::SliderFloat("Constant attenutation", &kc, 0.0f, 1.0f))
+                        light->kc(kc);
+
+                    float kl = light->kl();
+                    if (ImGui::SliderFloat("Linear attenutation", &kl, 0.0f, 1.0f))
+                        light->kl(kl);
+
+                    float kq = light->kq();
+                    if (ImGui::SliderFloat("Quadradic attenutation", &kq, 0.0f, 1.0f))
+                        light->kq(kq);
+
+                    ImGui::TreePop();
+                }
             }
-
         } else
         {
             ImGui::Text("No node selected.");
@@ -1090,7 +1206,6 @@ void SLDemoGui::buildProperties(SLScene* s)
     ImGui::PopFont();
 }
 //-----------------------------------------------------------------------------
-//! Loads the configuration from readable path
 void SLDemoGui::loadConfig()
 {
     SLstring fullPathAndFilename = SL::configPath + "DemoGui.yml";
@@ -1123,7 +1238,6 @@ void SLDemoGui::loadConfig()
     SL_LOG("Config. loaded  : %s\n", fullPathAndFilename.c_str());
 }
 //-----------------------------------------------------------------------------
-//! Saves the configuration to a writable path
 void SLDemoGui::saveConfig()
 {
     SLstring fullPathAndFilename = SL::configPath + "DemoGui.yml";

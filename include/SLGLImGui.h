@@ -65,6 +65,7 @@ class SLGLImGui
         void        onMouseWheel            (SLfloat yoffset);
         void        onKeyPress              (SLKey key, SLKey mod);
         void        onKeyRelease            (SLKey key, SLKey mod);
+        void        onCharInput             (SLuint c);
         void        onClose                 ();
         
         // gui build function pattern
