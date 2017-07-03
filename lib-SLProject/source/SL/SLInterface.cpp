@@ -135,11 +135,11 @@ int slCreateSceneView(int screenWidth,
              onShowSystemCursorCallback,
              onBuildImGui);
 
-    // Load configuration after the first sceneview creation
+    // Load configuration no matter if ImGui is used
     if (index==0)
         SLDemoGui::loadConfig();
 
-    // Set default font sizes depending on the dpi
+    // Set default font sizes depending on the dpi no matter if ImGui is used
     if (!SL::dpi) SL::dpi = dotsPerInch;
     if (!SLGLImGui::fontPropDots)  SLGLImGui::fontPropDots  = dotsPerInch * (16.0f / 142.0f);
     if (!SLGLImGui::fontFixedDots) SLGLImGui::fontFixedDots = dotsPerInch * (13.0f / 142.0f);
@@ -193,6 +193,9 @@ the GUI app terminates.
 */
 void slTerminate()
 {
+    // Save UI configuration no matter if ImGui is used
+    SLDemoGui::saveConfig();
+
     // Deletes all remaining sceneviews the current scene instance  
     delete SLScene::current;
     SLScene::current = 0;
@@ -231,7 +234,7 @@ void slResize(int sceneViewIndex, int width, int height)
 */
 void slMouseDown(int sceneViewIndex, SLMouseButton button, 
                  int xpos, int ypos, SLKey modifier) 
-{  
+{
     SLMouseEvent* e = new SLMouseEvent(SLInputEvent::MouseDown);
     e->svIndex = sceneViewIndex;
     e->button = button;

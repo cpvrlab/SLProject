@@ -530,8 +530,7 @@ int main(int argc, char *argv[])
              glfwWaitEvents();
         else glfwPollEvents();
     }
-   
-    SLDemoGui::saveConfig();
+
     slTerminate();
     glfwDestroyWindow(window);
     glfwTerminate();

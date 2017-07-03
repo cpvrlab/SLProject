@@ -517,6 +517,12 @@ void SLDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
 
                 ImGui::SliderFloat("Fixed Font Size", &SLGLImGui::fontFixedDots, 13.f, 60.f,"%0.0f");
 
+                ImGuiStyle& style = ImGui::GetStyle();
+                if (ImGui::SliderFloat2("Frame Padding", (float*)&style.FramePadding, 0.0f, 20.0f, "%.0f"))
+                    style.WindowPadding.x = style.FramePadding.x;
+                if (ImGui::SliderFloat2("Item Spacing", (float*)&style.ItemSpacing, 0.0f, 20.0f, "%.0f"))
+                    style.ItemInnerSpacing.x = style.ItemSpacing.y;
+
                 ImGui::EndMenu();
             }
 
@@ -741,7 +747,7 @@ void SLDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
                     sv->onCommand(C_camAnimTurnZUp);
 
                 if (ImGui::MenuItem("Turntable Y up", 0, ca==CA_turntableYUp))
-                    sv->onCommand(C_camAnimTurnZUp);
+                    sv->onCommand(C_camAnimTurnYUp);
 
                 if (ImGui::MenuItem("Walk Z up", 0, ca==CA_walkingZUp))
                     sv->onCommand(C_camAnimWalkZUp);
@@ -1208,22 +1214,36 @@ void SLDemoGui::buildProperties(SLScene* s)
 //-----------------------------------------------------------------------------
 void SLDemoGui::loadConfig()
 {
+    
+    ImGuiStyle& style = ImGui::GetStyle();
     SLstring fullPathAndFilename = SL::configPath + "DemoGui.yml";
 
     if (!SLFileSystem::fileExists(fullPathAndFilename))
         return;
 
-    SLCVFileStorage fs(fullPathAndFilename, SLCVFileStorage::READ);
-
-    if (!fs.isOpened())
-    {   SL_LOG("Failed to open file for reading!");
+    SLCVFileStorage fs;
+    try
+    {   fs.open(fullPathAndFilename, SLCVFileStorage::READ);
+        if (!fs.isOpened())
+        {   SL_LOG("Failed to open file for reading!");
+            return;
+        }
+    } 
+    catch(...)
+    {   SL_LOG("Parsing of file failed: %s", fullPathAndFilename.c_str());
         return;
     }
 
+    
+
     SLint i; SLbool b;
     fs["configTime"]            >> SLDemoGui::configTime;
-    fs["fontPropDots"]          >> SLGLImGui::fontPropDots;
-    fs["fontFixedDots"]         >> SLGLImGui::fontFixedDots;
+    fs["fontPropDots"]          >> i; SLGLImGui::fontPropDots = (SLfloat)i;
+    fs["fontFixedDots"]         >> i; SLGLImGui::fontFixedDots = (SLfloat)i;
+    fs["FramePaddingX"]         >> i; style.FramePadding.x = (SLfloat)i; style.WindowPadding.x = style.FramePadding.x;
+    fs["FramePaddingY"]         >> i; style.FramePadding.y = (SLfloat)i;
+    fs["ItemSpacingX"]          >> i; style.ItemSpacing.x = (SLfloat)i;
+    fs["ItemSpacingY"]          >> i; style.ItemSpacing.y = (SLfloat)i; style.ItemInnerSpacing.x = style.ItemSpacing.y;
     fs["currentSceneID"]        >> i; SL::currentSceneID = (SLCommand)i;
     fs["showMenu"]              >> b; SLDemoGui::showMenu = b;
     fs["showStatsTiming"]       >> b; SLDemoGui::showStatsTiming = b;
@@ -1240,6 +1260,7 @@ void SLDemoGui::loadConfig()
 //-----------------------------------------------------------------------------
 void SLDemoGui::saveConfig()
 {
+    ImGuiStyle& style = ImGui::GetStyle();
     SLstring fullPathAndFilename = SL::configPath + "DemoGui.yml";
     SLCVFileStorage fs(fullPathAndFilename, SLCVFileStorage::WRITE);
 
@@ -1249,9 +1270,13 @@ void SLDemoGui::saveConfig()
     }
 
     fs << "configTime"              << SLUtils::getLocalTimeString();
-    fs << "fontPropDots"            << SLGLImGui::fontPropDots;
-    fs << "fontFixedDots"           << SLGLImGui::fontFixedDots;
+    fs << "fontPropDots"            << (SLint)SLGLImGui::fontPropDots;
+    fs << "fontFixedDots"           << (SLint)SLGLImGui::fontFixedDots;
     fs << "currentSceneID"          << (SLint)SL::currentSceneID;
+    fs << "FramePaddingX"           << (SLint)style.FramePadding.x;
+    fs << "FramePaddingY"           << (SLint)style.FramePadding.y;
+    fs << "ItemSpacingX"            << (SLint)style.ItemSpacing.x;
+    fs << "ItemSpacingY"            << (SLint)style.ItemSpacing.y;
     fs << "showMenu"                << SLDemoGui::showMenu;
     fs << "showStatsTiming"         << SLDemoGui::showStatsTiming;
     fs << "showStatsMemory"         << SLDemoGui::showStatsScene;

@@ -67,6 +67,8 @@ class SLGLImGui
         void        onKeyRelease            (SLKey key, SLKey mod);
         void        onCharInput             (SLuint c);
         void        onClose                 ();
+        void        renderExtraFrame        (SLScene* s, SLSceneView* sv,
+                                             SLint mouseX, SLint mouseY);
         
         // gui build function pattern
         void        (*build)                (SLScene* s, SLSceneView* sv);

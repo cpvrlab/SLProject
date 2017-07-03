@@ -239,6 +239,7 @@ void SLSceneView::initSceneViewCamera(const SLVec3f& dir, SLProjection proj)
 
     _stateGL->modelViewMatrix.identity();
     _sceneViewCamera.updateAABBRec();
+    _sceneViewCamera.setInitialState();
 
 	// if no camera exists or in VR mode use the sceneViewCamera
 	if(_camera == nullptr || _vrMode)
@@ -866,7 +867,14 @@ SLbool SLSceneView::onMouseDown(SLMouseButton button,
 {
     SLScene* s = SLScene::current;
     
-    ImGui::GetIO().MousePos = ImVec2((SLfloat)x, (SLfloat)y);
+    #ifdef SL_GLES
+    // Touch devices on iOS or Android have no mouse move event when the
+    // finger isn't touching the screen. Therefore imgui can not detect hovering
+    // over an imgui window. Without this extra frame you would have to touch
+    // the display twice to open e.g. a menu.
+    _gui.renderExtraFrame(s, this, x, y);
+    #endif
+    
     if (ImGui::GetIO().WantCaptureMouse)
     {   _gui.onMouseDown(button, x, y);
         return true;
@@ -875,7 +883,7 @@ SLbool SLSceneView::onMouseDown(SLMouseButton button,
     _mouseDownL = (button == MB_left);
     _mouseDownR = (button == MB_right);
     _mouseDownM = (button == MB_middle);
-    _mouseMod = mod;
+    _mouseMod   = mod;
    
     SLbool result = false;
     if (_camera && s->root3D())
