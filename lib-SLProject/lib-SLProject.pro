@@ -70,6 +70,7 @@ HEADERS += \
 ../include/SLCVTrackerAruco.h \
 ../include/SLCVTrackerChessboard.h \
 ../include/SLDisk.h \
+../include/SLDemoGui.h \
 ../include/SLDrawBits.h \
 ../include/SLEnums.h \
 ../include/SLEventHandler.h \
@@ -134,7 +135,6 @@ HEADERS += \
 ../include/SLVector.h \
 ../include/stdafx.h \
 ../include/TriangleBoxIntersect.h \
-    ../include/SLDemoGui.h
 
 SOURCES += \
 source/math/SLCurveBezier.cpp \
@@ -176,6 +176,7 @@ source/SLCompactGrid.cpp \
 source/SLCoordAxis.cpp \
 source/SLCylinder.cpp \
 source/SLDisk.cpp \
+source/SLDemoGui.cpp \
 source/SLGrid.cpp \
 source/SLInputDevice.cpp \
 source/SLInputManager.cpp \
@@ -202,7 +203,6 @@ source/SLScene_onLoad.cpp \
 source/SLSkeleton.cpp \
 source/SLSpheric.cpp \
 source/SLText.cpp \
-    source/SLDemoGui.cpp
 
 OTHER_FILES += \
 ../_data/shaders/*.vert \
