@@ -62,6 +62,7 @@ textures.files = \
   ../_data/images/textures/wood2_0256_C.jpg \
   ../_data/images/textures/wood2_0512_C.jpg \
   ../_data/images/textures/LiveVideoError.png \
+  ../_data/images/textures/LogoCPVR_256L.png \
 
 fonts.files =  \
   ../_data/images/fonts/Font07.png \

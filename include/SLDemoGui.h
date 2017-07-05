@@ -15,6 +15,7 @@
 class SLScene;
 class SLSceneView;
 class SLNode;
+class SLGLTexture;
 
 //-----------------------------------------------------------------------------
 //! ImGui UI class for the UI of the demo applications
@@ -38,7 +39,7 @@ class SLDemoGui
     static void             saveConfig          ();
 
 
-
+    static SLGLTexture*     cpvrLogo;           //!< cpvr logo texture image
     static SLstring         configTime;         //!< Time of stored configuration
     static SLstring         infoAbout;          //!< About info string
     static SLstring         infoCredits;        //!< Credits info string

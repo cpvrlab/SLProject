@@ -30,10 +30,12 @@
 #include <SLImporter.h>
 #include <SLCVCapture.h>
 #include <SLCVImage.h>
+#include <SLGLTexture.h>
+
 #include <imgui.h>
 
 //-----------------------------------------------------------------------------
-// Adappter for combo and listbox with std::vector<std::string>
+//! Vector getter callback for combo and listbox with std::vector<std::string>
 static auto vector_getter = [](void* vec, int idx, const char** out_text)
 {
     auto& vector = *static_cast<std::vector<std::string>*>(vec);
@@ -42,8 +44,9 @@ static auto vector_getter = [](void* vec, int idx, const char** out_text)
     *out_text = vector.at(idx).c_str();
     return true;
 };
-
-bool myCombo(const char* label, int* currIndex, std::vector<std::string>& values)
+//-----------------------------------------------------------------------------
+//! Combobox that allows to pass the items as a string vector
+bool myComboBox(const char* label, int* currIndex, std::vector<std::string>& values)
 {
     if (values.empty())
         return false;
@@ -53,7 +56,8 @@ bool myCombo(const char* label, int* currIndex, std::vector<std::string>& values
                         static_cast<void*>(&values),
                         (int)values.size());
 }
-
+//-----------------------------------------------------------------------------
+//! Listbox that allows to pass the items as a string vector
 bool myListBox(const char* label, int* currIndex, std::vector<std::string>& values)
 {
     if (values.empty())
@@ -69,6 +73,7 @@ bool myListBox(const char* label, int* currIndex, std::vector<std::string>& valu
 
 #define IM_ARRAYSIZE(_ARR)  ((int)(sizeof(_ARR)/sizeof(*_ARR)))
 
+SLGLTexture*    SLDemoGui::cpvrLogo            = nullptr;
 SLstring        SLDemoGui::configTime          = "-";
 SLbool          SLDemoGui::showMenu            = true;
 SLbool          SLDemoGui::showAbout           = false;
@@ -86,7 +91,7 @@ SLbool          SLDemoGui::showProperties      = false;
 SLstring SLDemoGui::infoAbout =
 "Welcome to the SLProject demo app. It is developed at the \
 Computer Science Department of the Bern University of Applied Sciences. \
-The app shows what you can learn in one semester about 3D computer graphics \
+The app shows what you can learn in two semesters about 3D computer graphics \
 in real time rendering and ray tracing. The framework is developed \
 in C++ with OpenGL ES so that it can run also on mobile devices. \
 Ray tracing provides in addition high quality transparencies, reflections and soft shadows. \
@@ -137,7 +142,17 @@ void SLDemoGui::buildDemoGui(SLScene* s, SLSceneView* sv)
 
     if (showAbout)
     {
+        if (cpvrLogo == nullptr)
+        {
+            // The texture resources get deleted by the SLScene destructor
+            cpvrLogo = new SLGLTexture("LogoCPVR_256L.png");
+            if (cpvrLogo != nullptr)
+                cpvrLogo->bindActive();
+        } else  cpvrLogo->bindActive();
+
         ImGui::Begin("About SLProject", &showAbout, ImVec2(400,0));
+        ImGui::Image((void*)cpvrLogo->texName(), ImVec2(100,100), ImVec2(0,1), ImVec2(1,0));
+        ImGui::SameLine();
         ImGui::Text("Version %s", SL::version.c_str());
         ImGui::Separator();
         ImGui::TextWrapped(infoAbout.c_str());
@@ -147,6 +162,8 @@ void SLDemoGui::buildDemoGui(SLScene* s, SLSceneView* sv)
     if (showHelp)
     {
         ImGui::Begin("About SLProject Interaction", &showHelp, ImVec2(400,0));
+        ImGui::Separator();
+
         ImGui::TextWrapped(infoHelp.c_str());
         ImGui::End();
     }
@@ -774,7 +791,7 @@ void SLDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
             if (curAnimIx == -1) curAnimIx = 0;
             SLAnimPlayback* anim = s->animManager().allAnimPlayback(curAnimIx);
 
-            if (myCombo("", &curAnimIx, animations))
+            if (myComboBox("", &curAnimIx, animations))
                 anim = s->animManager().allAnimPlayback(curAnimIx);
 
             if (ImGui::MenuItem("Play forward", 0, anim->isPlayingForward()))
@@ -829,13 +846,16 @@ void SLDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
             ImGui::MenuItem("Stats on Scene"     , 0, &showStatsScene);
             ImGui::MenuItem("Stats on Video"     , 0, &showStatsVideo);
             ImGui::MenuItem("Infos on Scene",      0, &showInfosScene);
+            ImGui::Separator();
             ImGui::MenuItem("Show Scenegraph",     0, &showSceneGraph);
             ImGui::MenuItem("Show Properties",     0, &showProperties);
+            ImGui::Separator();
             ImGui::MenuItem("Infos on Frameworks", 0, &showInfosFrameworks);
             ImGui::MenuItem("Help on Interaction", 0, &showHelp);
             ImGui::MenuItem("Help on Calibration", 0, &showHelpCalibration);
-            ImGui::MenuItem("About SLProject"    , 0, &showAbout);
+            ImGui::Separator();
             ImGui::MenuItem("Credits"            , 0, &showCredits);
+            ImGui::MenuItem("About SLProject"    , 0, &showAbout);
 
             ImGui::EndMenu();
         }
