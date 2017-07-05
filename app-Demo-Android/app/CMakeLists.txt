@@ -208,7 +208,8 @@ file(GLOB_RECURSE TEXTURES      ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/images/t
                                 ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/images/textures/wood*.jpg
                                 ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/images/textures/cursor.png
                                 ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/images/textures/Vision*.png
-                                ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/images/textures/LiveVideoError.png)
+                                ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/images/textures/LiveVideoError.png
+                                ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/images/textures/LogoCPVR_256L.png)
 
 file(GLOB_RECURSE FONTS         ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/images/fonts/*.png
                                 ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/images/fonts/*.ttf)

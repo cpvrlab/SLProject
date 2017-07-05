@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		411949C51F0CBCB7009C8A9F /* LogoCPVR_256L.png in Resources */ = {isa = PBXBuildFile; fileRef = 411949C41F0CBCB7009C8A9F /* LogoCPVR_256L.png */; };
 		411BA72718C0702600F10475 /* Icon_120.png in Resources */ = {isa = PBXBuildFile; fileRef = 411BA72618C0702600F10475 /* Icon_120.png */; };
 		411BA72918C0716700F10475 /* Icon_76.png in Resources */ = {isa = PBXBuildFile; fileRef = 411BA72818C0716700F10475 /* Icon_76.png */; };
 		411BA72B18C071CA00F10475 /* Icon_152.png in Resources */ = {isa = PBXBuildFile; fileRef = 411BA72A18C071CA00F10475 /* Icon_152.png */; };
@@ -396,6 +397,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		411949C41F0CBCB7009C8A9F /* LogoCPVR_256L.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = LogoCPVR_256L.png; path = ../_data/images/textures/LogoCPVR_256L.png; sourceTree = SOURCE_ROOT; };
 		411BA72618C0702600F10475 /* Icon_120.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = Icon_120.png; path = images/Icon_120.png; sourceTree = SOURCE_ROOT; };
 		411BA72818C0716700F10475 /* Icon_76.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = Icon_76.png; path = images/Icon_76.png; sourceTree = SOURCE_ROOT; };
 		411BA72A18C071CA00F10475 /* Icon_152.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = Icon_152.png; path = images/Icon_152.png; sourceTree = SOURCE_ROOT; };
@@ -1264,6 +1266,7 @@
 		417E0E99148A6F910015B5B0 /* Textures */ = {
 			isa = PBXGroup;
 			children = (
+				411949C41F0CBCB7009C8A9F /* LogoCPVR_256L.png */,
 				41C48E941F01254A0059B48C /* Cousine-Regular.ttf */,
 				41C48E951F01254A0059B48C /* DroidSans.ttf */,
 				41C48E961F01254A0059B48C /* Karla-Regular.ttf */,
@@ -1940,7 +1943,7 @@
 		419BCD2E14865C0800D576F1 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastUpgradeCheck = 0810;
+				LastUpgradeCheck = 0830;
 				TargetAttributes = {
 					419BCD3614865C0800D576F1 = {
 						DevelopmentTeam = 858Y9EWZ4B;
@@ -1992,6 +1995,7 @@
 				418BF4601B8B0D500049E387 /* RefractReflectDisp.vert in Resources */,
 				418BF4491B8B0D4F0049E387 /* Diffuse.vert in Resources */,
 				41C99E7918D4316A0045FD2D /* Icon_114.png in Resources */,
+				411949C51F0CBCB7009C8A9F /* LogoCPVR_256L.png in Resources */,
 				41901CFA1959C5AC006795A8 /* DAE in Resources */,
 				41C48E9A1F01254A0059B48C /* Cousine-Regular.ttf in Resources */,
 				41C48E9B1F01254A0059B48C /* DroidSans.ttf in Resources */,
@@ -2402,7 +2406,6 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = YES;
-				ARCHS = arm64;
 				CLANG_CXX_LANGUAGE_STANDARD = "c++0x";
 				CLANG_CXX_LIBRARY = "libc++";
 				CLANG_WARN_BOOL_CONVERSION = YES;
@@ -2492,7 +2495,6 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = YES;
-				ARCHS = arm64;
 				CLANG_CXX_LANGUAGE_STANDARD = "c++0x";
 				CLANG_CXX_LIBRARY = "libc++";
 				CLANG_WARN_BOOL_CONVERSION = YES;
