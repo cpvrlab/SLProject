@@ -211,6 +211,8 @@ file(GLOB_RECURSE TEXTURES      ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/images/t
                                 ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/images/textures/LiveVideoError.png
                                 ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/images/textures/LogoCPVR_256L.png)
 
+file(GLOB_RECURSE VOLUMEDATA    ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/images/textures/3d/volumes/mri_head_front_to_back/*.png)
+
 file(GLOB_RECURSE FONTS         ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/images/fonts/*.png
                                 ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/images/fonts/*.ttf)
 
@@ -228,6 +230,9 @@ set(APK_ASSETS                  ${CMAKE_CURRENT_SOURCE_DIR}/src/main/assets)
 
 file(MAKE_DIRECTORY             ${APK_ASSETS}/fonts
                                 ${APK_ASSETS}/textures
+                                ${APK_ASSETS}/textures/3d
+                                ${APK_ASSETS}/textures/3d/volumes
+                                ${APK_ASSETS}/textures/3d/volumes/mri_head_front_to_back
                                 ${APK_ASSETS}/models
                                 ${APK_ASSETS}/shaders
                                 ${APK_ASSETS}/calibrations
@@ -235,6 +240,7 @@ file(MAKE_DIRECTORY             ${APK_ASSETS}/fonts
 
 file(COPY ${FONTS}          DESTINATION ${APK_ASSETS}/fonts)
 file(COPY ${TEXTURES}       DESTINATION ${APK_ASSETS}/textures)
+file(COPY ${VOLUMEDATA}     DESTINATION ${APK_ASSETS}/textures/3d/volumes/mri_head_front_to_back)
 file(COPY ${MODELS}         DESTINATION ${APK_ASSETS}/models)
 file(COPY ${SHADERS}        DESTINATION ${APK_ASSETS}/shaders)
 file(COPY ${CALIBRATIONS}   DESTINATION ${APK_ASSETS}/calibrations)

@@ -188,7 +188,7 @@ class SLVec4
                 T a = SL_clamp(hsva.w, 0.0f, 1.0f);
 
                 T c = v * s;
-                T x = c * (1.0f - fabs(fmod(h*3.0f / M_PI, 2.0f) - 1.0f));
+                T x = c * (1.0f - (T)fabs((T)fmod(h*3.0f / M_PI, 2.0f) - 1.0f));
                 T m = v - c;
 
                 switch (SLint(floor(h*3.0f / SL_PI)))

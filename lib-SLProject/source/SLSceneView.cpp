@@ -370,7 +370,6 @@ the 2D or 3D graph was updated or waitEvents is false.
 SLbool SLSceneView::onPaint()
 {  
     SLScene* s = SLScene::current;
-    SLGLVertexArray::totalDrawCalls = 0;
     SLbool camUpdated = false;
 
     // Check time for test scenes
@@ -381,6 +380,9 @@ SLbool SLSceneView::onPaint()
     // Init and build GUI
     _gui.onInitNewFrame(s, this);
 
+    // Clear NO. of draw calls afer UI creation
+    SLGLVertexArray::totalDrawCalls = 0;
+
     if (_camera)
     {   // Render the 3D scenegraph by by raytracing, pathtracing or OpenGL
         switch (_renderType)
@@ -390,23 +392,14 @@ SLbool SLSceneView::onPaint()
         }
     };
 
-    // Render the own 2D stuff
+    // Render the 2D stuff inclusive the ImGui
     draw2DGL();
-
-    // If ImGui build function exists render the ImGui
-    if (_gui.build)
-    {   ImGui::Render();
-        _gui.onPaint(ImGui::GetDrawData());
-    }
      
     _stateGL->unbindAnythingAndFlush();
 
     // Finish Oculus framebuffer
     if (_camera && _camera->projection() == P_stereoSideBySideD)
         s->oculus()->endFrame(_scrW, _scrH, _oculusFB.texID());
-
-    // Reset drawcalls
-    SLGLVertexArray::totalDrawCalls = 0;
 
     // Set gotPainted only to true if RT is not busy
     _gotPainted = _renderType==RT_gl || raytracer()->state()!=rtBusy;
@@ -749,11 +742,18 @@ void SLSceneView::draw2DGL()
         _stateGL->viewport(0, 0, _scrW, _scrH);
 
         draw2DGLAll();
+
+        // If ImGui build function exists render the ImGui
+        if (_gui.build)
+        {   ImGui::Render();
+            _gui.onPaint(ImGui::GetDrawData());
+        }
     }
     else
     {
         // left eye
         _stateGL->projectionMatrix.setMatrix(s->oculus()->orthoProjection(ET_left));
+
         // Set viewport over entire screen
         _stateGL->viewport(0, 0, _oculusFB.halfWidth(), _oculusFB.height());
         

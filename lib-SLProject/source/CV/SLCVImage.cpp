@@ -43,6 +43,35 @@ SLCVImage::SLCVImage(SLCVImage &src) : SLObject(src.name(), src.url())
     src.cvMat().copyTo(_cvMat);
 }
 //-----------------------------------------------------------------------------
+//! Creates a 1D image from a SLCol3f vector
+SLCVImage::SLCVImage(const SLVCol3f &colors)
+{
+    allocate((SLint)colors.size(), 1, PF_rgb);
+
+    SLuint x=0;
+    for (auto color : colors)
+    {
+        _cvMat.at<cv::Vec3b>(0, x++) = cv::Vec3b((SLuchar)(color.r * 255.0f),
+                                                 (SLuchar)(color.g * 255.0f),
+                                                 (SLuchar)(color.b * 255.0f));
+    }
+}
+//-----------------------------------------------------------------------------
+//! Creates a 1D image from a SLCol4f vector
+SLCVImage::SLCVImage(const SLVCol4f &colors)
+{
+    allocate((SLint)colors.size(), 1, PF_rgba);
+
+    SLuint x=0;
+    for (auto color : colors)
+    {
+        _cvMat.at<cv::Vec4b>(0, x++) = cv::Vec4b((SLuchar)(color.r * 255.0f),
+                                                 (SLuchar)(color.g * 255.0f),
+                                                 (SLuchar)(color.b * 255.0f),
+                                                 (SLuchar)(color.a * 255.0f));
+    }
+}
+//-----------------------------------------------------------------------------
 SLCVImage::~SLCVImage()
 {
     //SL_LOG("~SLCVImage(%s)\n", name().c_str());

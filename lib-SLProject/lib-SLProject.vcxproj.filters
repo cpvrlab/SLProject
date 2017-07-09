@@ -719,6 +719,12 @@
       <Filter>GLSL</Filter>
     </None>
     <None Include="ClassDiagram.cd" />
+    <None Include="..\_data\shaders\VolumeRenderingRayCast.frag">
+      <Filter>GLSL</Filter>
+    </None>
+    <None Include="..\_data\shaders\VolumeRenderingRayCast.vert">
+      <Filter>GLSL</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Text Include="ToDo.txt" />

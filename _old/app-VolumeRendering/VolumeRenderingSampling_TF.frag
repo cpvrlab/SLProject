@@ -17,9 +17,8 @@ precision mediump float;
 varying     vec3       v_raySource;      //The source coordinate of the view ray (model coordinates)
 
 uniform     vec3       u_voxelScale;     //Voxel scaling coefficients
-uniform     vec3       u_eyePosition;    //The position of the camera (model coordinates)
 uniform     vec3       u_textureSize;    //size of 3D texture
-
+uniform     mat4       u_invMvMatrix;    // inverse modelView matrix = view matrix
 uniform     sampler3D  u_volume;         //The volume texture
 uniform     sampler1D  u_TfLut;          //A LUT for the transform function
 
@@ -56,11 +55,12 @@ vec3 findRayDestination(vec3 raySource, vec3 rayDirection)
 
 void main()
 {
+    vec4 eye = u_invMvMatrix * vec4(0.0, 0.0, 0.0, 1.0);
     vec3 source = v_raySource;
-    vec3 direction = normalize(source - u_eyePosition);
-    vec3 destination = findRayDestination(source,direction);
+    vec3 direction = normalize(source - eye.xyz);
+    vec3 destination = findRayDestination(source, direction);
 
-    vec3 size = u_textureSize*u_voxelScale;
+    vec3 size = u_textureSize * u_voxelScale;
     float maxLength = max(max(size.x, size.y), size.z);
 
     //'cuboidScaling' is used to scale the texture-space coordinates for non-cubic textures
@@ -89,6 +89,7 @@ void main()
 
         //Transform the read pixel with the transform function lookup table
         voxel = texture1D(u_TfLut, voxel.r);
+
         //Scale the color addend by it's alpha value
         voxel.rgb *= voxel.a;
 

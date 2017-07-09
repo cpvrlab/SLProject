@@ -16,9 +16,9 @@
 
 #include "SL.h"        // Basic SL type definitions
 #include "glUtils.h"   // Basics for OpenGL shaders, buffers & textures
-#include "SLImage.h"   // Image class for image loading
 #include "SLVec3.h"    // 3D vector class
 #include "SLMat4.h"    // 4x4 matrix class
+#include "SLCVImage.h"
 
 #include "../lib-SLExternal/glew/include/GL/glew.h"     // OpenGL headers
 #include "../lib-SLExternal/glfw3/include/GLFW/glfw3.h" // GLFW GUI library
@@ -102,6 +102,7 @@ GLuint   _tfSamplingFragShader = 0;
 GLuint   _tfSamplingProgram = 0;
 
 GLint    _tfSamplingPos = 0;
+GLint    _tfSamplingInvMV = 0;
 GLint    _tfSamplingMVP = 0;
 GLint    _tfSamplingEyePos = 0;
 GLint    _tfSamplingVolume = 0;
@@ -202,6 +203,7 @@ void compilePrograms()
     _mipSamplingTextureSize= glGetUniformLocation(_mipSamplingProgram, "u_textureSize");
 
     _tfSamplingPos         = glGetAttribLocation (_tfSamplingProgram, "a_position");
+    _tfSamplingInvMV       = glGetUniformLocation(_tfSamplingProgram, "u_invMvMatrix");
     _tfSamplingMVP         = glGetUniformLocation(_tfSamplingProgram, "u_mvpMatrix");
     _tfSamplingEyePos      = glGetUniformLocation(_tfSamplingProgram, "u_eyePosition");
     _tfSamplingVolume      = glGetUniformLocation(_tfSamplingProgram, "u_volume");
@@ -393,10 +395,12 @@ void drawSamplingTF()
 	_modelViewMatrix.multiply(_volumeRotationMatrix);
 
 	SLMat4f mvp(_projectionMatrix);
-	mvp.multiply(_modelViewMatrix);
+    mvp.multiply(_modelViewMatrix);
 
-	SLVec4f eye = _modelViewMatrix.inverse()*SLVec4f(0.0f, 0.0f, 0.0f, 1.0f);
+    SLMat4f invMV = _modelViewMatrix.inverse();
+    SLVec4f eye = invMV*SLVec4f(0.0f, 0.0f, 0.0f, 1.0f);
 
+    // init default states
 	glEnable(GL_CULL_FACE);
 	glFrontFace(GL_CCW);
 	glCullFace(GL_BACK);
@@ -409,22 +413,24 @@ void drawSamplingTF()
 	glClearColor(0.0, 0.0, 0.0, 0.0);
 	glClear(GL_COLOR_BUFFER_BIT);
 
+    // set volume texture
 	glEnable(GL_TEXTURE_3D);
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_3D, _volumeTexture);
 	glUniform1i(_tfSamplingVolume, 0);
 	glDisable(GL_TEXTURE_3D);
 
+    // set lut texture
 	glEnable(GL_TEXTURE_1D);
 	glActiveTexture(GL_TEXTURE0 + 1);
 	glBindTexture(GL_TEXTURE_1D, _tfLutTexture);
 	glUniform1i(_tfSamplingTfLut, 1);
 	glDisable(GL_TEXTURE_1D);
 
-	glUniformMatrix4fv(_tfSamplingMVP, 1, 0, (float*)&mvp);
-    glUniform3fv(_tfSamplingEyePos, 1, (float*)&eye);
+    // set uniform variables
+    glUniformMatrix4fv(_tfSamplingInvMV, 1, 0, (float*)&invMV);
+    glUniformMatrix4fv(_tfSamplingMVP, 1, 0, (float*)&mvp);
     glUniform3fv(_tfSamplingVoxelScale, 1, (float*)&_voxelScaling);
-
     SLVec3f size((float)_volumeWidth, (float)_volumeHeight, (float)_volumeDepth);
     glUniform3fv(_tfSamplingTextureSize, 1, (float*)&size);
 
@@ -773,6 +779,11 @@ void buildDefaultLut()
         color.a = 0.6f*pow(2.5f, 10.0f*t - 10.0f);
 	}
 
+    //SLVCol4f lut;
+    //for (auto &color : _tfLutBuffer)
+    //    lut.push_back(color);
+    //SLCVImage img(lut);
+
 	applyLut();
 }
 
@@ -1114,6 +1125,7 @@ int main()
     //glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 2);
     //glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
     //glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+
 
     _scrWidth = 640;
     _scrHeight = 480;

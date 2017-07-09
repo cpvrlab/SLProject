@@ -1546,6 +1546,89 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         _root3D = scene;
     }
     else
+    if (SL::currentSceneID == C_sceneShaderVolumeRayCaster) //..........................
+    {
+        name("Volume Ray Casting");
+
+        _info = "Volume Rendering of an angiographic MRI scan";
+
+        // Load volume data into 3D texture
+        SLstring path = SLGLTexture::defaultPath + "3d/volumes/mri_head_front_to_back/";
+        SLVstring mriImages;
+        for (SLint i=0; i<207; ++i)
+            mriImages.push_back(path + SLUtils::formatString("i%04u_0000b.png", i));
+
+        SLGLTexture* texMRI = new SLGLTexture(mriImages,
+                                              GL_LINEAR,
+                                              GL_LINEAR,
+                                              GL_CLAMP_TO_EDGE,
+                                              GL_CLAMP_TO_EDGE,
+                                              "mri_head_front_to_back");
+
+        // Create transfer LUT 1D texture
+        SLVCol4f tfLut; tfLut.resize(256);
+        SLint i = 0;
+        for (auto &color : tfLut)
+        {
+            SLfloat t = float(i) / tfLut.size();
+
+            //Gradually move from blue to red (heatmap-like)
+            float hue = (SLfloat)fmod((4.0f*M_PI / 3.0f) //240 deg
+                                        * (1.0f - t)
+                                        + 2.0f*M_PI,     // + 360 deg
+                                        2.0f*M_PI);      //mod 360 deg
+                        
+            color.hsva2rgba({hue, 0.5f, 1.0f, float(i) / tfLut.size()});
+
+            // Set transfer function in alpha channel
+            color.a = 0.6f*pow(2.5f, 10.0f*t - 10.0f);
+            i++;
+        }
+        SLGLTexture* texLUT = new SLGLTexture(tfLut,
+                                              GL_NEAREST,
+                                              GL_NEAREST,
+                                              GL_CLAMP_TO_EDGE,
+                                              "transferLUT1D");
+
+        // Load shader and uniforms for volume size
+        SLGLProgram* sp = new SLGLGenericProgram("VolumeRenderingRayCast.vert",
+                                                 "VolumeRenderingRayCast.frag");
+        SLGLUniform1f* volX = new SLGLUniform1f(UT_const, "u_volumeX", (SLfloat)texMRI->images()[0]->width());
+        SLGLUniform1f* volY = new SLGLUniform1f(UT_const, "u_volumeY", (SLfloat)texMRI->images()[0]->height());
+        SLGLUniform1f* volZ = new SLGLUniform1f(UT_const, "u_volumeZ", (SLfloat)mriImages.size());
+        sp->addUniform1f(volX);
+        sp->addUniform1f(volY);
+        sp->addUniform1f(volZ);
+
+        // Create volume rendering material
+        SLMaterial* matVR = new SLMaterial("matVR", texMRI, texLUT, 0, 0, sp);
+
+        // Create camera
+        SLCamera* cam1 = new SLCamera("Camera 1");
+        cam1->translation(0,0,3);
+        cam1->lookAt(0, 0, 0);
+        cam1->focalDist(3);
+        cam1->background().colors(SLCol4f(0,0,0));
+        cam1->setInitialState();
+
+        // Set light
+        SLLightSpot* light1 = new SLLightSpot(0.3f);
+        light1->ambient(SLCol4f(0.1f, 0.1f, 0.1f));
+        light1->diffuse(SLCol4f(1, 1, 1));
+        light1->specular(SLCol4f(1, 1, 1));
+        light1->attenuation(1,0,0);
+        light1->translation(5,5,5);
+
+        // Assemble scene with box node
+        SLNode* scene = new SLNode("Scene");
+        scene->addChild(light1);
+        scene->addChild(new SLNode(new SLBox(-1,-1,-1, 1,1,1, "Box", matVR)));
+        scene->addChild(cam1);
+
+        sv->camera(cam1);
+        _root3D = scene;
+    }
+    else
     if (SL::currentSceneID == C_sceneAnimationSkeletal) //..............................
     {
         name("Skeletal Animation Test");

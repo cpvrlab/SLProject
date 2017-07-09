@@ -59,29 +59,39 @@ class SLGLTexture : public SLObject
     public:        
                             //! Default constructor for fonts
                             SLGLTexture     ();
-                         
+
+                            //! ctor for 1D texture with internal image allocation
+                            SLGLTexture     (SLVCol4f       colors,
+                                             SLint          min_filter = GL_LINEAR,
+                                             SLint          mag_filter = GL_LINEAR,
+                                             SLint          wrapS = GL_REPEAT,
+                                             SLstring       name = "1D-Texture");
+
                             //! ctor for 2D textures with internal image allocation
-                            SLGLTexture     (SLstring   imageFilename,
-                                             SLint      min_filte = GL_LINEAR_MIPMAP_LINEAR,
-                                             SLint      mag_filte = GL_LINEAR,
+                            SLGLTexture     (SLstring       imageFilename,
+                                             SLint          min_filte = GL_LINEAR_MIPMAP_LINEAR,
+                                             SLint          mag_filte = GL_LINEAR,
                                              SLTextureType  type = TT_unknown,
-                                             SLint      wrapS = GL_REPEAT,
-                                             SLint      wrapT = GL_REPEAT);
+                                             SLint          wrapS = GL_REPEAT,
+                                             SLint          wrapT = GL_REPEAT);
 
                             //! ctor for 3D texture with internal image allocation
-                            SLGLTexture     (SLVstring  imageFilenames,
-                                             SLint      min_filte = GL_LINEAR,
-                                             SLint      mag_filte = GL_LINEAR);
+                            SLGLTexture     (SLVstring      imageFilenames,
+                                             SLint          min_filte = GL_LINEAR,
+                                             SLint          mag_filte = GL_LINEAR,
+                                             SLint          wrapS = GL_REPEAT,
+                                             SLint          wrapT = GL_REPEAT,
+                                             SLstring       name = "3D-Texture");
                   
                             //! ctor for cube mapping with internal image allocation
-                            SLGLTexture     (SLstring   imageFilenameXPos,
-                                             SLstring   imageFilenameXNeg,
-                                             SLstring   imageFilenameYPos,
-                                             SLstring   imageFilenameYNeg,
-                                             SLstring   imageFilenameZPos,
-                                             SLstring   imageFilenameZNeg,
-                                             SLint      min_filter = GL_LINEAR,
-                                             SLint      mag_filter = GL_LINEAR,
+                            SLGLTexture     (SLstring       imageFilenameXPos,
+                                             SLstring       imageFilenameXNeg,
+                                             SLstring       imageFilenameYPos,
+                                             SLstring       imageFilenameYNeg,
+                                             SLstring       imageFilenameZPos,
+                                             SLstring       imageFilenameZNeg,
+                                             SLint          min_filter = GL_LINEAR,
+                                             SLint          mag_filter = GL_LINEAR,
                                              SLTextureType  type = TT_unknown);      
                   
     virtual                ~SLGLTexture     ();
@@ -138,6 +148,7 @@ class SLGLTexture : public SLObject
     protected:
             // loading the image files
             void            load            (SLstring filename);
+            void            load            (const SLVCol4f& colors);
                                
             SLGLState*      _stateGL;        //!< Pointer to global SLGLState instance
             SLCVVImage      _images;         //!< vector of SLCVImage pointers

@@ -36,6 +36,8 @@ class SLCVImage : public SLObject
                             SLCVImage       (const SLstring imageFilename, 
                                              bool flipVertical = true);
                             SLCVImage       (SLCVImage &srcImage);
+                            SLCVImage       (const SLVCol3f& colors);
+                            SLCVImage       (const SLVCol4f& colors);
                            ~SLCVImage       ();
             // Misc                         
             void            clearData       ();

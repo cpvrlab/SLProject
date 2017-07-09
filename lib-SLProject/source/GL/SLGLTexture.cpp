@@ -76,9 +76,13 @@ SLGLTexture::SLGLTexture(SLstring  filename,
 //! ctor for 3D texture
 SLGLTexture::SLGLTexture(SLVstring files,
                          SLint     min_filter,
-                         SLint     mag_filter)
+                         SLint     mag_filter,
+                         SLint     wrapS,
+                         SLint     wrapT,
+                         SLstring  name) : SLObject(name)
 {
     assert(files.size() > 1);
+
     _stateGL = SLGLState::getInstance();
     _texType = TT_color;
 
@@ -87,13 +91,45 @@ SLGLTexture::SLGLTexture(SLVstring files,
 
     _min_filter   = min_filter;
     _mag_filter   = mag_filter;
-    _wrap_s       = GL_REPEAT;
-    _wrap_t       = GL_REPEAT;
-    #ifdef SL_GLES2
+    _wrap_s       = wrapS;
+    _wrap_t       = wrapT;
+    _target       = GL_TEXTURE_3D;
+    _texName      = 0;
+    _bumpScale    = 1.0f;
+    _resizeToPow2 = false;
+    _autoCalcTM3D = true;
+    _needsUpdate  = false;
+    _bytesOnGPU   = 0;
+
+    // Add pointer to the global resource vectors for deallocation
+    SLScene::current->textures().push_back(this);
+}
+//-----------------------------------------------------------------------------
+//! ctor for 1D texture
+SLGLTexture::SLGLTexture(SLVCol4f  colors,
+                         SLint     min_filter,
+                         SLint     mag_filter,
+                         SLint     wrapS,
+                         SLstring  name) : SLObject(name)
+{
+    assert(colors.size() > 1);
+
+    _stateGL = SLGLState::getInstance();
+    _texType = TT_color;
+
+    load(colors);
+
+    _min_filter   = min_filter;
+    _mag_filter   = mag_filter;
+    _wrap_s       = wrapS;
+    _wrap_t       = wrapS;
+
+    #ifdef SL_GLES
     _target       = GL_TEXTURE_2D;
     #else
-    _target       = GL_TEXTURE_3D;
+    _target       = GL_TEXTURE_1D;
     #endif
+
     _texName      = 0;
     _bumpScale    = 1.0f;
     _resizeToPow2 = false;
@@ -179,6 +215,14 @@ void SLGLTexture::load(SLstring filename)
     _images.push_back(new SLCVImage(filename));
 }
 //-----------------------------------------------------------------------------
+//! Loads the 1D color data into an image of height 1
+void SLGLTexture::load(const SLVCol4f& colors)
+{
+    assert(colors.size() > 1);
+
+    _images.push_back(new SLCVImage(colors));
+}
+//-----------------------------------------------------------------------------
 void SLGLTexture::setVideoImage(SLstring videoImageFile)
 {
      load(videoImageFile);
@@ -258,6 +302,14 @@ void SLGLTexture::build(SLint texID)
             _images[0]->resize(w2, h2);
     }
     
+    // check 1D size
+    #ifndef SL_GLES
+    if (_target == GL_TEXTURE_1D)
+    {   if (_images[0]->width()  > (SLuint)texMaxSize)
+            SL_EXIT_MSG("SLGLTexture::build: Texture width is too big.");
+    }
+    #endif
+
     // check 2D size
     if (_target == GL_TEXTURE_2D)
     {   if (_images[0]->width()  > (SLuint)texMaxSize)
@@ -265,8 +317,7 @@ void SLGLTexture::build(SLint texID)
         if (_images[0]->height() > (SLuint)texMaxSize)
             SL_EXIT_MSG("SLGLTexture::build: Texture height is too big.");
     }
-    
-    #ifndef SL_GLES2
+
     // check 3D size
     if (_target == GL_TEXTURE_3D)
     {   SLint texMax3DSize=0;
@@ -281,7 +332,6 @@ void SLGLTexture::build(SLint texID)
                 SL_EXIT_MSG("SLGLTexture::build: Not all images of the 3D texture have the same size.");
         }
     }
-    #endif
       
     // check cube mapping capability & max. cube map size
     if (_target==GL_TEXTURE_CUBE_MAP)
@@ -327,8 +377,27 @@ void SLGLTexture::build(SLint texID)
     // apply texture wrapping modes
     glTexParameteri(_target, GL_TEXTURE_WRAP_S, _wrap_s);
     glTexParameteri(_target, GL_TEXTURE_WRAP_T, _wrap_t);
+    glTexParameteri(_target, GL_TEXTURE_WRAP_R, _wrap_t);
       
     // Build textures
+    #ifndef SL_GLES
+    if (_target == GL_TEXTURE_1D)
+    {
+        //////////////////////////////////////////
+        glTexImage1D(GL_TEXTURE_1D,
+                     0,
+                     _images[0]->format(),
+                     _images[0]->width(),
+                     0,
+                     _images[0]->format(),
+                     GL_UNSIGNED_BYTE,
+                     (GLvoid*)_images[0]->data());
+        //////////////////////////////////////////
+
+        _bytesOnGPU += _images[0]->bytesPerImage();
+        numBytesInTextures += _bytesOnGPU;
+    } else
+    #endif
     if (_target == GL_TEXTURE_2D)
     {
         //////////////////////////////////////////
@@ -358,37 +427,8 @@ void SLGLTexture::build(SLint texID)
         }
 
         numBytesInTextures += _bytesOnGPU;
-    } 
-    else if (_target == GL_TEXTURE_CUBE_MAP)
-    {
-        for (SLint i=0; i<6; i++)
-        {
-            //////////////////////////////////////////////
-            glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X+i,
-                         0, 
-                         _images[i]->format(),
-                         _images[i]->width(),
-                         _images[i]->height(),
-                         0,
-                         _images[i]->format(),
-                         GL_UNSIGNED_BYTE,
-                         (GLvoid*)_images[i]->data());
-            //////////////////////////////////////////////
-
-            _bytesOnGPU += _images[0]->bytesPerImage();
-        }
-
-        numBytesInTextures += _bytesOnGPU;
-        if (_min_filter>=GL_NEAREST_MIPMAP_NEAREST)
-        {
-            glGenerateMipmap(GL_TEXTURE_2D);
-
-            // Mipmaps use 1/3 more memory on GPU
-            _bytesOnGPU = (SLuint)((SLfloat)_bytesOnGPU * 1.333333333f);
-        }
-    }
-    #ifndef SL_GLES2
-    else if (_target == GL_TEXTURE_3D)
+    } else
+    if (_target == GL_TEXTURE_3D)
     {
         // temporary buffer for 3D image data
         SLVuchar buffer(_images[0]->bytesPerImage() * _images.size());
@@ -415,8 +455,35 @@ void SLGLTexture::build(SLint texID)
         /////////////////////////////////////////////////////
         
         numBytesInTextures += _bytesOnGPU;
+    } else
+    if (_target == GL_TEXTURE_CUBE_MAP)
+    {
+        for (SLint i=0; i<6; i++)
+        {
+            //////////////////////////////////////////////
+            glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X+i,
+                         0,
+                         _images[i]->format(),
+                         _images[i]->width(),
+                         _images[i]->height(),
+                         0,
+                         _images[i]->format(),
+                         GL_UNSIGNED_BYTE,
+                         (GLvoid*)_images[i]->data());
+            //////////////////////////////////////////////
+
+            _bytesOnGPU += _images[0]->bytesPerImage();
+        }
+
+        numBytesInTextures += _bytesOnGPU;
+        if (_min_filter>=GL_NEAREST_MIPMAP_NEAREST)
+        {
+            glGenerateMipmap(GL_TEXTURE_2D);
+
+            // Mipmaps use 1/3 more memory on GPU
+            _bytesOnGPU = (SLuint)((SLfloat)_bytesOnGPU * 1.333333333f);
+        }
     }
-    #endif
 
     GET_GL_ERROR;
 }

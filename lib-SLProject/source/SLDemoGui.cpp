@@ -34,45 +34,50 @@
 
 #include <imgui.h>
 
+
+#define IM_ARRAYSIZE(_ARR)  ((int)(sizeof(_ARR)/sizeof(*_ARR)))
+
 //-----------------------------------------------------------------------------
 //! Vector getter callback for combo and listbox with std::vector<std::string>
-static auto vector_getter = [](void* vec, int idx, const char** out_text)
+static auto vectorGetter = [](void* vec, int idx, const char** out_text)
 {
-    auto& vector = *static_cast<std::vector<std::string>*>(vec);
-    if (idx < 0 || idx >= static_cast<int>(vector.size()))
+    auto& vector = *(SLVstring*)vec;
+    if (idx < 0 || idx >= (int)vector.size())
         return false;
+
     *out_text = vector.at(idx).c_str();
     return true;
 };
 //-----------------------------------------------------------------------------
 //! Combobox that allows to pass the items as a string vector
-bool myComboBox(const char* label, int* currIndex, std::vector<std::string>& values)
+bool myComboBox(const char* label, int* currIndex, SLVstring& values)
 {
     if (values.empty())
         return false;
 
     return ImGui::Combo(label,
-                        currIndex, vector_getter,
-                        static_cast<void*>(&values),
+                        currIndex,
+                        vectorGetter,
+                        (void*)&values,
                         (int)values.size());
 }
 //-----------------------------------------------------------------------------
 //! Listbox that allows to pass the items as a string vector
-bool myListBox(const char* label, int* currIndex, std::vector<std::string>& values)
+bool myListBox(const char* label, int* currIndex, SLVstring& values)
 {
     if (values.empty())
         return false;
+
     return ImGui::ListBox(label,
                           currIndex,
-                          vector_getter,
-                          static_cast<void*>(&values),
+                          vectorGetter,
+                          (void*)&values,
                           (int)values.size());
 }
 //-----------------------------------------------------------------------------
 
-
-#define IM_ARRAYSIZE(_ARR)  ((int)(sizeof(_ARR)/sizeof(*_ARR)))
-
+//-----------------------------------------------------------------------------
+// Init global static variables
 SLGLTexture*    SLDemoGui::cpvrLogo            = nullptr;
 SLstring        SLDemoGui::configTime          = "-";
 SLbool          SLDemoGui::showMenu            = true;
@@ -114,7 +119,8 @@ SLstring SLDemoGui::infoHelp =
 - Use mouse or your finger to rotate the scene\n\
 - Use mouse-wheel or pinch 2 fingers to go forward/backward\n\
 - Use CTRL-mouse or 2 fingers to move sidewards/up-down\n\
-- Double click or double tap to select object";
+- Double click or double tap to select object\n\
+- If no menu is visible press ESC";
 
 SLstring SLDemoGui::infoCalibrate =
 "The calibration process requires a chessboard image to be printed \
@@ -192,26 +198,32 @@ void SLDemoGui::buildDemoGui(SLScene* s, SLSceneView* sv)
 
         if (rType == RT_gl)
         {
-            SLfloat updateTimePC    = SL_clamp(s->updateTimesMS().average()   / ft * 100.0f, 0.0f,100.0f);
-            SLfloat trackingTimePC  = SL_clamp(s->trackingTimesMS().average() / ft * 100.0f, 0.0f,100.0f);
-            SLfloat cullTimePC      = SL_clamp(s->cullTimesMS().average()     / ft * 100.0f, 0.0f,100.0f);
-            SLfloat draw3DTimePC    = SL_clamp(s->draw3DTimesMS().average()   / ft * 100.0f, 0.0f,100.0f);
-            SLfloat captureTimePC   = SL_clamp(s->captureTimesMS().average()  / ft * 100.0f, 0.0f,100.0f);
+            ImGui::PushFont(ImGui::GetIO().Fonts->Fonts[1]);
+            ImGui::Begin("Timing", &showStatsTiming, ImVec2(300,0));
+            ImGui::Text("Renderer      : OpenGL");
+            ImGui::Text("Frame size    : %d x %d", sv->scrW(), sv->scrH());
+            ImGui::Text("NO. drawcalls : %d\n", SLGLVertexArray::totalDrawCalls);
+            ImGui::Text("Frames per s. : %4.1f", s->fps());
+            if (ImGui::TreeNode("FrameTime", "Frame time   : %4.1f ms (100%%)", s->frameTimesMS().average()))
+            {
+                SLfloat updateTimePC    = SL_clamp(s->updateTimesMS().average()   / ft * 100.0f, 0.0f,100.0f);
+                SLfloat trackingTimePC  = SL_clamp(s->trackingTimesMS().average() / ft * 100.0f, 0.0f,100.0f);
+                SLfloat cullTimePC      = SL_clamp(s->cullTimesMS().average()     / ft * 100.0f, 0.0f,100.0f);
+                SLfloat draw3DTimePC    = SL_clamp(s->draw3DTimesMS().average()   / ft * 100.0f, 0.0f,100.0f);
+                SLfloat draw2DTimePC    = SL_clamp(s->draw2DTimesMS().average()   / ft * 100.0f, 0.0f,100.0f);
+                SLfloat captureTimePC   = SL_clamp(s->captureTimesMS().average()  / ft * 100.0f, 0.0f,100.0f);
 
-            sprintf(m+strlen(m), "Renderer      : OpenGL\n");
-            sprintf(m+strlen(m), "Frame size    : %d x %d\n", sv->scrW(), sv->scrH());
-            sprintf(m+strlen(m), "Frames per s. : %4.1f\n", s->fps());
-            sprintf(m+strlen(m), "Frame time    : %4.1f ms (100%%)\n", s->frameTimesMS().average());
-            sprintf(m+strlen(m), "- Update      : %4.1f ms (%3d%%)\n", s->updateTimesMS().average(), (SLint)updateTimePC);
-            sprintf(m+strlen(m), "- Tracking    : %4.1f ms (%3d%%)\n", s->trackingTimesMS().average(), (SLint)trackingTimePC);
-            sprintf(m+strlen(m), "- Culling     : %4.1f ms (%3d%%)\n", s->cullTimesMS().average(), (SLint)cullTimePC);
-            sprintf(m+strlen(m), "- Drawing     : %4.1f ms (%3d%%)\n", s->draw3DTimesMS().average(), (SLint)draw3DTimePC);
-            #ifdef SL_GLSL
-            sprintf(m+strlen(m), "- Capture     : %4.1f ms\n", s->captureTimesMS().average());
-            #else
-            sprintf(m+strlen(m), "- Capture     : %4.1f ms (%3d%%)\n", s->captureTimesMS().average(), (SLint)captureTimePC);
-            #endif
-            sprintf(m+strlen(m), "NO. drawcalls : %d\n", SLGLVertexArray::totalDrawCalls);
+                ImGui::Text(" Update       : %4.1f ms (%3d%%)", s->updateTimesMS().average(),   (SLint)updateTimePC);
+                ImGui::Text(" Capture      : %4.1f ms (%3d%%)", s->captureTimesMS().average(),  (SLint)captureTimePC);
+                ImGui::Text(" Tracking     : %4.1f ms (%3d%%)", s->trackingTimesMS().average(), (SLint)trackingTimePC);
+                ImGui::Text(" Culling      : %4.1f ms (%3d%%)", s->cullTimesMS().average(),     (SLint)cullTimePC);
+                ImGui::Text(" Drawing 3D   : %4.1f ms (%3d%%)", s->draw3DTimesMS().average(),   (SLint)draw3DTimePC);
+                ImGui::Text(" Drawing 2D   : %4.1f ms (%3d%%)", s->draw2DTimesMS().average(),   (SLint)draw2DTimePC);
+                ImGui::TreePop();
+            }
+
+            ImGui::End();
+            ImGui::PopFont();
 
         } else
         if (rType == RT_rt)
@@ -226,13 +238,13 @@ void SLDemoGui::buildDemoGui(SLScene* s, SLSceneView* sv)
             sprintf(m+strlen(m), "Frame Time    : %4.2f sec.\n", rt->renderSec());
             sprintf(m+strlen(m), "Rays per ms   : %6.0f\n", rpms);
             sprintf(m+strlen(m), "Threads       : %d\n", rt->numThreads());
-        }
 
-        ImGui::PushFont(ImGui::GetIO().Fonts->Fonts[1]);
-        ImGui::Begin("Timing", &showStatsTiming, ImVec2(300,0));
-        ImGui::TextWrapped(m);
-        ImGui::End();
-        ImGui::PopFont();
+            ImGui::PushFont(ImGui::GetIO().Fonts->Fonts[1]);
+            ImGui::Begin("Timing", &showStatsTiming, ImVec2(300,0));
+            ImGui::TextWrapped(m);
+            ImGui::End();
+            ImGui::PopFont();
+        }
     }
 
     if (showStatsScene)
@@ -444,6 +456,8 @@ void SLDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
                         sv->onCommand(C_sceneRevolver);
                     if (ImGui::MenuItem("Earth Shader", 0, curS==C_sceneShaderEarth))
                         sv->onCommand(C_sceneShaderEarth);
+                    if (ImGui::MenuItem("Volume Ray Caster", 0, curS==C_sceneShaderVolumeRayCaster))
+                        sv->onCommand(C_sceneShaderVolumeRayCaster);
 
                     ImGui::EndMenu();
                 }
