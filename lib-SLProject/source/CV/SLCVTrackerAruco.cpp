@@ -200,14 +200,8 @@ void SLCVTrackerAruco::drawArucoMarker(SLint dictionaryId,
 
     for (SLint i=minMarkerId; i<maxMarkerId; ++i)
     {   drawMarker(dict, i, markerSizePX, markerImg, 1);
-        SLchar name[255];
-        sprintf(name, 
-                "ArucoMarker_Dict%d_%dpx_Id%d.png", 
-                dictionaryId, 
-                markerSizePX, 
-                i);
-
-        imwrite(name, markerImg);
+        imwrite(SLUtils::formatString("ArucoMarker_Dict%d_%dpx_Id%d.png", 
+                                      dictionaryId, markerSizePX, i), markerImg);
     }
 }
 //-----------------------------------------------------------------------------

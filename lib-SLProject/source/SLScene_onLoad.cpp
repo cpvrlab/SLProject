@@ -1553,10 +1553,9 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         _info = "Volume Rendering of an angiographic MRI scan";
 
         // Load volume data into 3D texture
-        SLstring path = SLGLTexture::defaultPath + "3d/volumes/mri_head_front_to_back/";
         SLVstring mriImages;
         for (SLint i=0; i<207; ++i)
-            mriImages.push_back(path + SLUtils::formatString("i%04u_0000b.png", i));
+            mriImages.push_back(SLUtils::formatString("i%04u_0000b.png", i));
 
         SLGLTexture* texMRI = new SLGLTexture(mriImages,
                                               GL_LINEAR,

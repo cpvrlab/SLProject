@@ -124,11 +124,8 @@ SLGLTexture::SLGLTexture(SLVCol4f  colors,
     _wrap_s       = wrapS;
     _wrap_t       = wrapS;
 
-    #ifdef SL_GLES
+    // OpenGL ES doesn't define 1D textures. We just make a 1 pixel high 2D texture
     _target       = GL_TEXTURE_2D;
-    #else
-    _target       = GL_TEXTURE_1D;
-    #endif
 
     _texName      = 0;
     _bumpScale    = 1.0f;
@@ -301,14 +298,6 @@ void SLGLTexture::build(SLint texID)
         if (w2!=_images[0]->width() || h2!=_images[0]->height())
             _images[0]->resize(w2, h2);
     }
-    
-    // check 1D size
-    #ifndef SL_GLES
-    if (_target == GL_TEXTURE_1D)
-    {   if (_images[0]->width()  > (SLuint)texMaxSize)
-            SL_EXIT_MSG("SLGLTexture::build: Texture width is too big.");
-    }
-    #endif
 
     // check 2D size
     if (_target == GL_TEXTURE_2D)
@@ -380,24 +369,6 @@ void SLGLTexture::build(SLint texID)
     glTexParameteri(_target, GL_TEXTURE_WRAP_R, _wrap_t);
       
     // Build textures
-    #ifndef SL_GLES
-    if (_target == GL_TEXTURE_1D)
-    {
-        //////////////////////////////////////////
-        glTexImage1D(GL_TEXTURE_1D,
-                     0,
-                     _images[0]->format(),
-                     _images[0]->width(),
-                     0,
-                     _images[0]->format(),
-                     GL_UNSIGNED_BYTE,
-                     (GLvoid*)_images[0]->data());
-        //////////////////////////////////////////
-
-        _bytesOnGPU += _images[0]->bytesPerImage();
-        numBytesInTextures += _bytesOnGPU;
-    } else
-    #endif
     if (_target == GL_TEXTURE_2D)
     {
         //////////////////////////////////////////

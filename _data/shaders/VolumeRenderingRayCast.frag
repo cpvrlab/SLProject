@@ -1,5 +1,5 @@
 //#############################################################################
-//  File:      VolumeRenderingSampling_TF.frag
+//  File:      VolumeRenderingRayCast.frag
 //  Purpose:   GLSL fragment shader performing volume rendering using a simple
 //             sampling method along the view ray. The resulting color is
 //             calculated using a transfer function (via a lookup table).
@@ -21,8 +21,8 @@ uniform     float      u_volumeX;       // 3D texture width
 uniform     float      u_volumeY;       // 3D texture height
 uniform     float      u_volumeZ;       // 3D texture depth
 
-uniform     sampler3D  u_texture0;      // The volume texture
-uniform     sampler1D  u_texture1;      // A LUT for the transform function
+uniform     sampler3D  u_texture0;      // The 3D volume texture
+uniform     sampler2D  u_texture1;      // The 1D LUT for the transform function
 
 vec3 findRayDestination(vec3 raySource, vec3 rayDirection)
 {
@@ -90,8 +90,8 @@ void main()
         //The voxel can be read directly from there assuming we're using GL_NEAREST as interpolation method
         vec4 voxel = texture3D(u_texture0, position);
 
-        //Transform the read pixel with the transform function lookup table
-        voxel = texture1D(u_texture1, voxel.r);
+        //Transform the read pixel with the 1D transform function lookup table
+        voxel = texture2D(u_texture1, vec2(voxel.r, 0.0));
 
         //Scale the color addend by it's alpha value
         voxel.rgb *= voxel.a;
