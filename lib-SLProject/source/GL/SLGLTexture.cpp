@@ -43,12 +43,12 @@ SLGLTexture::SLGLTexture()
 }
 //-----------------------------------------------------------------------------
 //! ctor 2D textures with internal image allocation
-SLGLTexture::SLGLTexture(SLstring  filename,
-                         SLint     min_filter,
-                         SLint     mag_filter,
-                         SLTextureType type,
-                         SLint     wrapS,
-                         SLint     wrapT) : 
+SLGLTexture::SLGLTexture(SLstring       filename,
+                         SLint          min_filter,
+                         SLint          mag_filter,
+                         SLTextureType  type,
+                         SLint          wrapS,
+                         SLint          wrapT) :
             SLObject(SLUtils::getFileName(filename), filename)
 {  
     assert(filename!="");

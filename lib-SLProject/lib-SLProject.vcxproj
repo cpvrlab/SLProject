@@ -333,6 +333,7 @@
     <ClInclude Include="..\include\SLSphere.h" />
     <ClInclude Include="..\include\SLTexFont.h" />
     <ClInclude Include="..\include\SLTimer.h" />
+    <ClInclude Include="..\include\SLTransferFunction.h" />
     <ClInclude Include="..\include\SLTriangle.h" />
     <ClInclude Include="..\include\SLUtils.h" />
     <ClInclude Include="..\include\SLVec2.h" />
@@ -424,6 +425,7 @@
     <ClCompile Include="source\SLLight.cpp" />
     <ClCompile Include="source\SLMaterial.cpp" />
     <ClCompile Include="source\SLMesh.cpp" />
+    <ClCompile Include="source\SLTransferFunction.cpp" />
     <ClCompile Include="source\SLTriangle.cpp" />
     <ClCompile Include="source\SL\SL.cpp" />
     <ClCompile Include="source\SL\SLAssimpImporter.cpp" />

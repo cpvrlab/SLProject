@@ -11,7 +11,9 @@
 //#############################################################################
 
 #ifdef GL_FRAGMENT_PRECISION_HIGH
-precision mediump float;
+precision highp float;
+precision highp sampler2D;
+precision highp sampler3D;
 #endif
 
 varying     vec3       v_raySource;     // The source coordinate of the view ray (model coordinates)

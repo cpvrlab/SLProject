@@ -128,6 +128,7 @@ HEADERS += \
 ../include/SLTexFont.h \
 ../include/SLText.h \
 ../include/SLTimer.h \
+../include/SLTransferFunction.h \
 ../include/SLUtils.h \
 ../include/SLVec2.h \
 ../include/SLVec3.h \
@@ -203,6 +204,7 @@ source/SLScene_onLoad.cpp \
 source/SLSkeleton.cpp \
 source/SLSpheric.cpp \
 source/SLText.cpp \
+source/SLTransferFunction.cpp \
 
 OTHER_FILES += \
 ../_data/shaders/*.vert \

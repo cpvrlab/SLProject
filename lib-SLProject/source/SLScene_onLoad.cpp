@@ -1557,11 +1557,13 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         for (SLint i=0; i<207; ++i)
             mriImages.push_back(SLUtils::formatString("i%04u_0000b.png", i));
 
+        SLint clamping3D = GL_CLAMP_TO_EDGE;
+        if (SLGLState::getInstance()->getSLVersionNO() > "320")
+            clamping3D = 0x812D; // GL_CLAMP_TO_BORDER
+
         SLGLTexture* texMRI = new SLGLTexture(mriImages,
-                                              GL_LINEAR,
-                                              GL_LINEAR,
-                                              GL_CLAMP_TO_EDGE,
-                                              GL_CLAMP_TO_EDGE,
+                                              GL_LINEAR, GL_LINEAR,
+                                              clamping3D, clamping3D,
                                               "mri_head_front_to_back");
 
         // Create transfer LUT 1D texture
