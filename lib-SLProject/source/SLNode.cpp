@@ -279,7 +279,7 @@ Deletes the last child in the child vector.
 bool SLNode::deleteChild()
 {
     if (_children.size() > 0)
-    {   delete _children[_children.size()-1];
+    {   delete _children.back();
         _children.pop_back();
         _isAABBUpToDate = false;
         return true;

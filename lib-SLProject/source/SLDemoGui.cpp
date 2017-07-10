@@ -31,6 +31,7 @@
 #include <SLCVCapture.h>
 #include <SLCVImage.h>
 #include <SLGLTexture.h>
+#include <SLTransferFunction.h>
 
 #include <imgui.h>
 
@@ -1192,7 +1193,7 @@ void SLDemoGui::buildProperties(SLScene* s)
                     ImGui::Text("No. of textures: %u", m->textures().size());
                     ImGui::Separator();
                     SLfloat lineH = ImGui::GetTextLineHeightWithSpacing();
-                    SLfloat texW = ImGui::GetWindowWidth() - 4*lineH;
+                    SLfloat texW  = ImGui::GetWindowWidth() - 4*lineH;
 
                     for (SLint i=0; i<m->textures().size(); ++i)
                     {
@@ -1202,9 +1203,39 @@ void SLDemoGui::buildProperties(SLScene* s)
                         SLfloat h = (SLfloat)t->height();
                         SLfloat h_to_w = h / w;
                         ImGui::Text("Filename: %s", t->name().c_str());
-                        ImGui::Text("Size: %d x %d", t->width(), t->height());
-                        ImGui::Text("Type: %s", t->typeName().c_str());
-                        ImGui::Image(tid, ImVec2(texW, texW * h_to_w), ImVec2(0,1), ImVec2(1,0));
+                        ImGui::Text("Size    : %d x %d x %d", t->width(), t->height(), t->depth());
+                        ImGui::Text("Type    : %s", t->typeName().c_str());
+
+                        if (typeid(*t)==typeid(SLTransferFunction))
+                        {
+                            SLTransferFunction* tf = (SLTransferFunction*)m->textures()[i];
+                            if (ImGui::TreeNode("Colors in TF"))
+                            {
+                                SLint c = 0;
+                                for (auto tfc : tf->colors())
+                                {
+                                    SLCol3f color = tfc.color;
+                                    if (ImGui::ColorEdit3("Color",  (float*)&color, colFlags));
+                                        tf->colors()[c].color = color;
+
+                                        ImGui::SameLine();
+
+                                    SLfloat pos = tfc.pos;
+                                    if (ImGui::SliderFloat("Pos.", &pos, 0.0f, 1.0f))
+                                        tf->colors()[c].pos = pos;
+
+                                    c++;
+                                }
+
+                                ImGui::TreePop();
+                            }
+
+                            ImGui::Image(tid, ImVec2(texW, texW * 0.25f), ImVec2(0,1), ImVec2(1,0));
+
+                        } else
+                        {
+                            ImGui::Image(tid, ImVec2(texW, texW * h_to_w), ImVec2(0,1), ImVec2(1,0));
+                        }
                         ImGui::Separator();
                     }
 

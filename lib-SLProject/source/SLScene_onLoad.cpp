@@ -33,6 +33,7 @@
 #include <SLCoordAxis.h>
 #include <SLCVTrackerAruco.h>
 #include <SLCVTrackerChessboard.h>
+#include <SLTransferFunction.h>
 
 SLNode* SphereGroup(SLint, SLfloat, SLfloat, SLfloat, SLfloat, SLint, SLMaterial*, SLMaterial*);
 //-----------------------------------------------------------------------------
@@ -1590,6 +1591,11 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
                                               GL_NEAREST,
                                               GL_CLAMP_TO_EDGE,
                                               "transferLUT1D");
+        
+        SLVTransferAlpha tfAlphas = {SLTransferAlpha(0.0f, 0.0f), 
+                                     SLTransferAlpha(0.0f, 0.6f),
+                                     SLTransferAlpha(1.0f, 1.0f)};
+        SLTransferFunction* tf = new SLTransferFunction(tfAlphas, CLUT_BCGYR);
 
         // Load shader and uniforms for volume size
         SLGLProgram* sp = new SLGLGenericProgram("VolumeRenderingRayCast.vert",
@@ -1602,7 +1608,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         sp->addUniform1f(volZ);
 
         // Create volume rendering material
-        SLMaterial* matVR = new SLMaterial("matVR", texMRI, texLUT, 0, 0, sp);
+        SLMaterial* matVR = new SLMaterial("matVR", texMRI, tf, 0, 0, sp);
 
         // Create camera
         SLCamera* cam1 = new SLCamera("Camera 1");

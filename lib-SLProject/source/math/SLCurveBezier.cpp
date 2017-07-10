@@ -118,7 +118,7 @@ void SLCurveBezier::draw(const SLMat4f &wm)
         }
    
         // add last point to the curve vector
-        renderPoints.push_back(wm.multVec(_points[_points.size()-1].vec3()));
+        renderPoints.push_back(wm.multVec(_points.back().vec3()));
 
         // add inputs points
         for (SLuint i = 0; i < _points.size(); ++i)
@@ -190,7 +190,7 @@ SLVec3f SLCurveBezier::evaluate(const SLfloat t)
 
     // handle boundary conditions
     if (t <= _points[0].w) return _points[0].vec3(); else 
-    if (t >= _points[_points.size()-1].w) return _points[_points.size()-1].vec3();
+    if (t >= _points.back().w) return _points.back().vec3();
 
     // find segment and parameter
     unsigned int i;
@@ -228,8 +228,8 @@ SLVec3f SLCurveBezier::velocity(SLfloat t)
     // handle boundary conditions
     if (t <= _points[0].w)
         return _points[0].vec3();
-    else if (t >= _points[_points.size()-1].w)
-        return _points[_points.size()-1].vec3();
+    else if (t >= _points.back().w)
+        return _points.back().vec3();
 
     // find segment and parameter
     unsigned int i;
@@ -267,8 +267,8 @@ SLVec3f SLCurveBezier::acceleration(SLfloat t)
     // handle boundary conditions
     if (t <= _points[0].w)
         return _points[0].vec3();
-    else if (t >= _points[_points.size()-1].w)
-        return _points[_points.size()-1].vec3();
+    else if (t >= _points.back().w)
+        return _points.back().vec3();
 
     // find segment and parameter
     unsigned int i;
@@ -299,11 +299,11 @@ Returns max SLfloat if can't find it.
 SLfloat SLCurveBezier::findParamByDist(SLfloat t1, SLfloat s)
 {
     // ensure that we remain within valid parameter space
-    if (s > arcLength(t1, _points[_points.size()-1].w))
-        return _points[_points.size()-1].w;
+    if (s > arcLength(t1, _points.back().w))
+        return _points.back().w;
 
     // make first guess
-    SLfloat p = t1 + s*(_points[_points.size()-1].w-_points[0].w)/_totalLength;
+    SLfloat p = t1 + s*(_points.back().w-_points[0].w)/_totalLength;
     for (SLuint i = 0; i < 32; ++i)
     {
         // compute function value and test against zero
@@ -327,7 +327,7 @@ SLfloat SLCurveBezier::arcLength(SLfloat t1, SLfloat t2)
 {
     if (t2 <= t1) return 0.0f;
     if (t1 < _points[0].w) t1 = _points[0].w;
-    if (t2 > _points[_points.size()-1].w) t2 = _points[_points.size()-1].w;
+    if (t2 > _points.back().w) t2 = _points.back().w;
 
     // find segment and parameter
     unsigned int seg1;
@@ -440,7 +440,7 @@ void SLCurveBezier::subdivideRender(SLVVec3f &renderPoints,
     // add first point transformed by wm if not already in the list
     if (renderPoints.size()==0)
         renderPoints.push_back(wm.multVec(P0));
-    else if (P0 != renderPoints[renderPoints.size()-1])
+    else if (P0 != renderPoints.back())
         renderPoints.push_back(wm.multVec(P0));
    
     // check to see if basically straight

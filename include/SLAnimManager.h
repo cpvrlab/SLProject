@@ -38,7 +38,7 @@ public:
     SLbool              hasNodeAnimations   () { return (_nodeAnimations.size() > 0);}
     SLAnimPlayback*     nodeAnimPlayback    (const SLstring& name);
     SLAnimPlayback*     allAnimPlayback     (SLuint ix) {return _allAnimPlaybacks[ix];}
-    SLAnimPlayback*     lastAnimPlayback    (){return _allAnimPlaybacks[_allAnimPlaybacks.size()-1];}
+    SLAnimPlayback*     lastAnimPlayback    (){return _allAnimPlaybacks.back();}
 
     SLAnimation*        createNodeAnimation (SLfloat duration);
     SLAnimation*        createNodeAnimation (const SLstring& name, SLfloat duration);
