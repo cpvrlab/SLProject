@@ -1567,34 +1567,10 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
                                               clamping3D, clamping3D,
                                               "mri_head_front_to_back");
 
-        // Create transfer LUT 1D texture
-        SLVCol4f tfLut; tfLut.resize(256);
-        SLint i = 0;
-        for (auto &color : tfLut)
-        {
-            SLfloat t = float(i) / tfLut.size();
-
-            //Gradually move from blue to red (heatmap-like)
-            float hue = (SLfloat)fmod((4.0f*M_PI / 3.0f) //240 deg
-                                        * (1.0f - t)
-                                        + 2.0f*M_PI,     // + 360 deg
-                                        2.0f*M_PI);      //mod 360 deg
-                        
-            color.hsva2rgba({hue, 0.5f, 1.0f, float(i) / tfLut.size()});
-
-            // Set transfer function in alpha channel
-            color.a = 0.6f*pow(2.5f, 10.0f*t - 10.0f);
-            i++;
-        }
-        SLGLTexture* texLUT = new SLGLTexture(tfLut,
-                                              GL_NEAREST,
-                                              GL_NEAREST,
-                                              GL_CLAMP_TO_EDGE,
-                                              "transferLUT1D");
-        
-        SLVTransferAlpha tfAlphas = {SLTransferAlpha(0.0f, 0.0f), 
-                                     SLTransferAlpha(0.0f, 0.6f),
-                                     SLTransferAlpha(1.0f, 1.0f)};
+        // Create transfer LUT 1D texture       
+        SLVTransferAlpha tfAlphas = {SLTransferAlpha(0.00f, 0.00f),
+                                     SLTransferAlpha(0.01f, 0.75f),
+                                     SLTransferAlpha(1.00f, 1.00f)};
         SLTransferFunction* tf = new SLTransferFunction(tfAlphas, CLUT_BCGYR);
 
         // Load shader and uniforms for volume size

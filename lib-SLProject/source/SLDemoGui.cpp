@@ -1191,9 +1191,10 @@ void SLDemoGui::buildProperties(SLScene* s)
                 if (m->textures().size() && ImGui::TreeNode("Textures"))
                 {
                     ImGui::Text("No. of textures: %u", m->textures().size());
-                    ImGui::Separator();
+
                     SLfloat lineH = ImGui::GetTextLineHeightWithSpacing();
-                    SLfloat texW  = ImGui::GetWindowWidth() - 4*lineH;
+                    SLfloat texW  = ImGui::GetWindowWidth() - 4*ImGui::GetTreeNodeToLabelSpacing() - 10;
+
 
                     for (SLint i=0; i<m->textures().size(); ++i)
                     {
@@ -1202,41 +1203,88 @@ void SLDemoGui::buildProperties(SLScene* s)
                         SLfloat w = (SLfloat)t->width();
                         SLfloat h = (SLfloat)t->height();
                         SLfloat h_to_w = h / w;
-                        ImGui::Text("Filename: %s", t->name().c_str());
-                        ImGui::Text("Size    : %d x %d x %d", t->width(), t->height(), t->depth());
-                        ImGui::Text("Type    : %s", t->typeName().c_str());
 
-                        if (typeid(*t)==typeid(SLTransferFunction))
+                        if (ImGui::TreeNode(t->name().c_str()))
                         {
-                            SLTransferFunction* tf = (SLTransferFunction*)m->textures()[i];
-                            if (ImGui::TreeNode("Colors in TF"))
-                            {
-                                SLint c = 0;
-                                for (auto tfc : tf->colors())
+                            ImGui::Text("Size    : %d x %d x %d", t->width(), t->height(), t->depth());
+                            ImGui::Text("Type    : %s", t->typeName().c_str());
+
+                            if (t->depth() > 1)
+                                ImGui::Text("3D textures can not be displayed.");
+                            else
+                            {   if (typeid(*t)==typeid(SLTransferFunction))
                                 {
-                                    SLCol3f color = tfc.color;
-                                    if (ImGui::ColorEdit3("Color",  (float*)&color, colFlags));
-                                        tf->colors()[c].color = color;
+                                    SLTransferFunction* tf = (SLTransferFunction*)m->textures()[i];
+                                    if (ImGui::TreeNode("Color Points in Transfer Function"))
+                                    {
+                                        for (SLint c = 0; c < tf->colors().size(); ++c)
+                                        {
+                                            SLCol3f color = tf->colors()[c].color;
+                                            SLchar label[20]; sprintf(label, "Color %u", c);
+                                            if (ImGui::ColorEdit3(label, (float*)&color, colFlags))
+                                            {   tf->colors()[c].color = color;
+                                                tf->generateTexture();
+                                            }
+                                            ImGui::SameLine();
+                                            ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.5f);
+                                            sprintf(label, "Pos. %u", c);
+                                            SLfloat pos = tf->colors()[c].pos;
+                                            if (c > 0 && c < tf->colors().size()-1)
+                                            {   SLfloat min = tf->colors()[c-1].pos + 2.0f/(SLfloat)tf->length();
+                                                SLfloat max = tf->colors()[c+1].pos - 2.0f/(SLfloat)tf->length();
+                                                if (ImGui::SliderFloat(label, &pos, min, max, "%3.2f"))
+                                                {   tf->colors()[c].pos = pos;
+                                                    tf->generateTexture();
+                                                }
+                                            } else ImGui::Text("%3.2f Pos. %u", pos, c);
+                                            ImGui::PopItemWidth();
+                                        }
 
-                                        ImGui::SameLine();
+                                        ImGui::TreePop();
+                                    }
 
-                                    SLfloat pos = tfc.pos;
-                                    if (ImGui::SliderFloat("Pos.", &pos, 0.0f, 1.0f))
-                                        tf->colors()[c].pos = pos;
+                                    if (ImGui::TreeNode("Alpha Points in Transfer Function"))
+                                    {
+                                        for (SLint a = 0; a < tf->alphas().size(); ++a)
+                                        {
+                                            ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.25f);
+                                            SLfloat alpha = tf->alphas()[a].alpha;
+                                            SLchar label[20]; sprintf(label, "Alpha %u", a);
+                                            if (ImGui::SliderFloat(label, &alpha, 0.0f, 1.0f, "%3.2f"))
+                                            {   tf->alphas()[a].alpha = alpha;
+                                                tf->generateTexture();
+                                            }
+                                            ImGui::SameLine();
+                                            sprintf(label, "Pos. %u", a);
+                                            SLfloat pos = tf->alphas()[a].pos;
+                                            if (a > 0 && a < tf->alphas().size()-1)
+                                            {   SLfloat min = tf->alphas()[a-1].pos + 2.0f/(SLfloat)tf->length();
+                                                SLfloat max = tf->alphas()[a+1].pos - 2.0f/(SLfloat)tf->length();
+                                                if (ImGui::SliderFloat(label, &pos, min, max, "%3.2f"))
+                                                {   tf->alphas()[a].pos = pos;
+                                                    tf->generateTexture();
+                                                }
+                                            } else ImGui::Text("%3.2f Pos. %u", pos, a);
 
-                                    c++;
+                                            ImGui::PopItemWidth();
+                                        }
+
+                                        ImGui::TreePop();
+                                    }
+
+                                    ImGui::Image(tid, ImVec2(texW, texW * 0.25f), ImVec2(0,1), ImVec2(1,0), ImVec4(1,1,1,1), ImVec4(1,1,1,1));
+
+                                    SLVfloat allAlpha = tf->allAlphas();
+                                    ImGui::PlotLines("", allAlpha.data(), allAlpha.size(), 0, 0, 0.0f, 1.0f, ImVec2(texW, texW * 0.25f));
+
+                                } else
+                                {
+                                    ImGui::Image(tid, ImVec2(texW, texW * h_to_w), ImVec2(0,1), ImVec2(1,0), ImVec4(1,1,1,1), ImVec4(1,1,1,1));
                                 }
-
-                                ImGui::TreePop();
                             }
 
-                            ImGui::Image(tid, ImVec2(texW, texW * 0.25f), ImVec2(0,1), ImVec2(1,0));
-
-                        } else
-                        {
-                            ImGui::Image(tid, ImVec2(texW, texW * h_to_w), ImVec2(0,1), ImVec2(1,0));
+                            ImGui::TreePop();
                         }
-                        ImGui::Separator();
                     }
 
                     ImGui::TreePop();

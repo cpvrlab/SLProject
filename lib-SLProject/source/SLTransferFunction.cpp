@@ -61,6 +61,12 @@ SLTransferFunction::SLTransferFunction(SLVTransferAlpha alphaValues,
     SLScene::current->textures().push_back(this);
 }
 //-----------------------------------------------------------------------------
+SLTransferFunction::~SLTransferFunction()
+{
+    _colors.clear();
+    _alphas.clear();
+}
+//-----------------------------------------------------------------------------
 //! Colors setter function by predefined color LUT
 void SLTransferFunction::colors(SLColorLUT lut)
 {
@@ -226,6 +232,8 @@ void SLTransferFunction::generateTexture()
     {
         tf[i].a = SL_lerp(posA, _alphas[a].alpha, _alphas[a+1].alpha);
 
+        //_allAlphas[i] = tf[i].a;
+
         pos  += delta;
         posA += deltaA;
 
@@ -236,7 +244,18 @@ void SLTransferFunction::generateTexture()
         }
     }
 
-    // Create 1xlenght sized image from SLCol4f values
+    // Create 1 x lenght sized image from SLCol4f values
     load(tf);
+}
+//-----------------------------------------------------------------------------
+SLVfloat SLTransferFunction::allAlphas()
+{
+    SLVfloat allA;
+    allA.resize(_length);
+
+    for (SLint i=0; i<_length; ++i)
+        allA[i] = _images[0]->getPixeli(i, 0).a;
+    
+    return allA;
 }
 //-----------------------------------------------------------------------------

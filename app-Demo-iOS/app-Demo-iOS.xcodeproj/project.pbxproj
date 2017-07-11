@@ -44,6 +44,7 @@
 		414D37F71EE6A7DC009DB259 /* rusty-metal_2048N.png in Resources */ = {isa = PBXBuildFile; fileRef = 414D37F31EE6A7DC009DB259 /* rusty-metal_2048N.png */; };
 		414D37F81EE6A7DC009DB259 /* rusty-metal_2048R.png in Resources */ = {isa = PBXBuildFile; fileRef = 414D37F41EE6A7DC009DB259 /* rusty-metal_2048R.png */; };
 		414DC77D1501076F00B959B9 /* SLAABBox.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 414DC77C1501076F00B959B9 /* SLAABBox.cpp */; };
+		414FE8F11F1506BC00F2FD4D /* SLTransferFunction.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 414FE8F01F1506BC00F2FD4D /* SLTransferFunction.cpp */; };
 		4153D4F018D43FF000F47146 /* Default-568h@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 4153D4EF18D43FF000F47146 /* Default-568h@2x.png */; };
 		4155FAF11C3EC3C30094BF61 /* SLGLVertexArray.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4155FAF01C3EC3C30094BF61 /* SLGLVertexArray.cpp */; };
 		4156500C148AA62400A3CAA6 /* ViewController_iPad.xib in Resources */ = {isa = PBXBuildFile; fileRef = 41565008148AA62400A3CAA6 /* ViewController_iPad.xib */; };
@@ -662,6 +663,8 @@
 		414D37F31EE6A7DC009DB259 /* rusty-metal_2048N.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "rusty-metal_2048N.png"; path = "../_data/images/textures/rusty-metal_2048N.png"; sourceTree = "<group>"; };
 		414D37F41EE6A7DC009DB259 /* rusty-metal_2048R.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "rusty-metal_2048R.png"; path = "../_data/images/textures/rusty-metal_2048R.png"; sourceTree = "<group>"; };
 		414DC77C1501076F00B959B9 /* SLAABBox.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SLAABBox.cpp; path = "../lib-SLProject/source/SLAABBox.cpp"; sourceTree = SOURCE_ROOT; };
+		414FE8F01F1506BC00F2FD4D /* SLTransferFunction.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SLTransferFunction.cpp; path = "../lib-SLProject/source/SLTransferFunction.cpp"; sourceTree = SOURCE_ROOT; };
+		414FE8F31F1506CF00F2FD4D /* SLTransferFunction.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SLTransferFunction.h; path = ../include/SLTransferFunction.h; sourceTree = SOURCE_ROOT; };
 		4153D4EF18D43FF000F47146 /* Default-568h@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "Default-568h@2x.png"; path = "images/Default-568h@2x.png"; sourceTree = SOURCE_ROOT; };
 		4155FAEF1C3EC36E0094BF61 /* SLGLVertexArray.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SLGLVertexArray.h; path = ../include/SLGLVertexArray.h; sourceTree = SOURCE_ROOT; };
 		4155FAF01C3EC3C30094BF61 /* SLGLVertexArray.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SLGLVertexArray.cpp; path = "../lib-SLProject/source/GL/SLGLVertexArray.cpp"; sourceTree = SOURCE_ROOT; };
@@ -1549,6 +1552,8 @@
 		41627E8D15CA8CA90023B936 /* SL */ = {
 			isa = PBXGroup;
 			children = (
+				414FE8F31F1506CF00F2FD4D /* SLTransferFunction.h */,
+				414FE8F01F1506BC00F2FD4D /* SLTransferFunction.cpp */,
 				41C48EA01F0128130059B48C /* SLDemoGui.cpp */,
 				41C48E8D1F0124AE0059B48C /* SLDemoGui.h */,
 				41627E9015CA8CE70023B936 /* SL.h */,
@@ -3190,6 +3195,7 @@
 				419808BA1959BA670048085E /* IRRMeshLoader.cpp in Sources */,
 				4198088D1959BA670048085E /* LWOLoader.cpp in Sources */,
 				4124EC121959C137003AA059 /* advancing_front.cc in Sources */,
+				414FE8F11F1506BC00F2FD4D /* SLTransferFunction.cpp in Sources */,
 				419808E61959BA670048085E /* Q3BSPFileImporter.cpp in Sources */,
 				41627EA615CA8CE70023B936 /* SLTexFont.cpp in Sources */,
 				41A355041A7E63E100791841 /* SLJoint.cpp in Sources */,

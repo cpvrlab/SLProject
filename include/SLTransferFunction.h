@@ -71,7 +71,7 @@ class SLTransferFunction: public SLGLTexture, public SLEventHandler
                                                  SLint length = 256);
 
                    // Don't forget destructor to be virtual for texture deallocation
-                   virtual ~SLTransferFunction  (){;}
+                   virtual ~SLTransferFunction  ();
 
         void                generateTexture     ();
 
@@ -79,8 +79,10 @@ class SLTransferFunction: public SLGLTexture, public SLEventHandler
         void                colors              (SLColorLUT lut);
 
         // Getters
+        SLint               length              () {return _length;}
         SLVTransferColor&   colors              () {return _colors;}
         SLVTransferAlpha&   alphas              () {return _alphas;}
+        SLVfloat            allAlphas           ();
 
     private:
         SLint               _length;    //! Length of transfer function (default 256)
