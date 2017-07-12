@@ -367,6 +367,11 @@ void SLGLTexture::build(SLint texID)
     glTexParameteri(_target, GL_TEXTURE_WRAP_S, _wrap_s);
     glTexParameteri(_target, GL_TEXTURE_WRAP_T, _wrap_t);
     glTexParameteri(_target, GL_TEXTURE_WRAP_R, _wrap_t);
+
+    // Handle special stupid case on iOS
+    SLint internalFormat = _images[0]->format();
+    if (internalFormat==PF_red)
+        internalFormat = GL_R8;
       
     // Build textures
     if (_target == GL_TEXTURE_2D)
@@ -374,7 +379,7 @@ void SLGLTexture::build(SLint texID)
         //////////////////////////////////////////
         glTexImage2D(GL_TEXTURE_2D,
                      0, 
-                     _images[0]->format(),
+                     internalFormat,
                      _images[0]->width(),
                      _images[0]->height(),
                      0,
@@ -382,6 +387,8 @@ void SLGLTexture::build(SLint texID)
                      GL_UNSIGNED_BYTE, 
                      (GLvoid*)_images[0]->data());
         //////////////////////////////////////////
+        
+        GET_GL_ERROR;
 
         _bytesOnGPU += _images[0]->bytesPerImage();
         
@@ -415,7 +422,7 @@ void SLGLTexture::build(SLint texID)
         /////////////////////////////////////////////////////
         glTexImage3D(GL_TEXTURE_3D,
                      0,                     //Mipmap level,
-                     _images[0]->format(),  //Internal format
+                     internalFormat,        //Internal format
                      _images[0]->width(),
                      _images[0]->height(),
                      (SLsizei)_images.size(),
@@ -434,7 +441,7 @@ void SLGLTexture::build(SLint texID)
             //////////////////////////////////////////////
             glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X+i,
                          0,
-                         _images[i]->format(),
+                         internalFormat,
                          _images[i]->width(),
                          _images[i]->height(),
                          0,
