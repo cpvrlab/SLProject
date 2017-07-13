@@ -158,7 +158,7 @@ void SLDemoGui::buildDemoGui(SLScene* s, SLSceneView* sv)
         } else  cpvrLogo->bindActive();
 
         ImGui::Begin("About SLProject", &showAbout, ImVec2(400,0));
-        ImGui::Image((void*)cpvrLogo->texName(), ImVec2(100,100), ImVec2(0,1), ImVec2(1,0));
+        ImGui::Image((ImTextureID)cpvrLogo->texName(), ImVec2(100,100), ImVec2(0,1), ImVec2(1,0));
         ImGui::SameLine();
         ImGui::Text("Version %s", SL::version.c_str());
         ImGui::Separator();
@@ -1199,7 +1199,7 @@ void SLDemoGui::buildProperties(SLScene* s)
                     for (SLint i=0; i<m->textures().size(); ++i)
                     {
                         SLGLTexture* t = m->textures()[i];
-                        void* tid = (void*)t->texName();
+                        void* tid = (ImTextureID)t->texName();
                         SLfloat w = (SLfloat)t->width();
                         SLfloat h = (SLfloat)t->height();
                         SLfloat h_to_w = h / w;
@@ -1275,7 +1275,7 @@ void SLDemoGui::buildProperties(SLScene* s)
                                     ImGui::Image(tid, ImVec2(texW, texW * 0.25f), ImVec2(0,1), ImVec2(1,0), ImVec4(1,1,1,1), ImVec4(1,1,1,1));
 
                                     SLVfloat allAlpha = tf->allAlphas();
-                                    ImGui::PlotLines("", allAlpha.data(), allAlpha.size(), 0, 0, 0.0f, 1.0f, ImVec2(texW, texW * 0.25f));
+                                    ImGui::PlotLines("", allAlpha.data(), (SLint)allAlpha.size(), 0, 0, 0.0f, 1.0f, ImVec2(texW, texW * 0.25f));
 
                                 } else
                                 {

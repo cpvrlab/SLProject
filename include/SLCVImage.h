@@ -34,7 +34,8 @@ class SLCVImage : public SLObject
                                              SLint height,
                                              SLPixelFormat format);
                             SLCVImage       (const SLstring imageFilename, 
-                                             bool flipVertical = true);
+                                             SLbool flipVertical = true,
+                                             SLbool loadGrayscaleIntoAlpha = false);
                             SLCVImage       (SLCVImage &srcImage);
                             SLCVImage       (const SLVCol3f& colors);
                             SLCVImage       (const SLVCol4f& colors);
@@ -46,7 +47,8 @@ class SLCVImage : public SLObject
                                              SLPixelFormat format,
                                              SLbool isContinuous = true);
             void            load            (const SLstring filename, 
-                                             bool flipVertical = true);
+                                             SLbool flipVertical = true,
+                                             SLbool loadGrayscaleIntoAlpha = false);
             SLbool          load            (SLint inWidth,
                                              SLint inHeight,
                                              SLPixelFormat srcFormat,

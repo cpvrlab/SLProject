@@ -81,7 +81,8 @@ class SLGLTexture : public SLObject
                                              SLint          mag_filte = GL_LINEAR,
                                              SLint          wrapS = GL_REPEAT,
                                              SLint          wrapT = GL_REPEAT,
-                                             SLstring       name = "3D-Texture");
+                                             SLstring       name = "3D-Texture", 
+                                             SLbool         loadGrayscaleIntoAlpha = false);
                   
                             //! ctor for cube mapping with internal image allocation
                             SLGLTexture     (SLstring       imageFilenameXPos,
@@ -137,6 +138,8 @@ class SLGLTexture : public SLObject
                                              SLuchar* data, 
                                              SLbool isContinuous,
                                              SLbool isTopLeft);
+            void            calc3DGradients ();
+
             // Bumpmap methods
             SLVec2f         dsdt            (SLfloat s, SLfloat t); //! Returns the derivation as [s,t]
   
@@ -148,7 +151,9 @@ class SLGLTexture : public SLObject
 
     protected:
             // loading the image files
-            void            load            (SLstring filename);
+            void            load            (SLstring filename,
+                                             SLbool flipVertical = true,
+                                             SLbool loadGrayscaleIntoAlpha = false);
             void            load            (const SLVCol4f& colors);
                                
             SLGLState*      _stateGL;        //!< Pointer to global SLGLState instance

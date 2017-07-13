@@ -900,7 +900,7 @@ void SLMesh::preShade(SLRay* ray)
    
     // calculate interpolated texture coordinates
     SLVGLTexture& textures = ray->hitMesh->mat->textures();
-    if (textures.size() > 0)
+    if (textures.size() > 0 && Tc.size() > 0)
     {   SLVec2f Tu(Tc[iB] - Tc[iA]);
         SLVec2f Tv(Tc[iC] - Tc[iA]);
         SLVec2f tc(Tc[iA] + ray->hitU*Tu + ray->hitV*Tv);

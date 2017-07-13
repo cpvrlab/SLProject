@@ -79,7 +79,8 @@ SLGLTexture::SLGLTexture(SLVstring files,
                          SLint     mag_filter,
                          SLint     wrapS,
                          SLint     wrapT,
-                         SLstring  name) : SLObject(name)
+                         SLstring  name, 
+                         SLbool    loadGrayscaleIntoAlpha) : SLObject(name)
 {
     assert(files.size() > 1);
 
@@ -87,7 +88,7 @@ SLGLTexture::SLGLTexture(SLVstring files,
     _texType = TT_color;
 
     for (auto filename : files)
-        load(filename);
+        load(filename, true, loadGrayscaleIntoAlpha);
 
     _min_filter   = min_filter;
     _mag_filter   = mag_filter;
@@ -197,8 +198,10 @@ void SLGLTexture::clearData()
     _vaoSprite.clearAttribs();
 }
 //-----------------------------------------------------------------------------
-//! Loads the texture, converts color depth & applies the mirroring
-void SLGLTexture::load(SLstring filename)
+//! Loads the texture, converts color depth & applies vertical mirroring
+void SLGLTexture::load(SLstring filename, 
+                       SLbool flipVertical, 
+                       SLbool loadGrayscaleIntoAlpha)
 {
     // Load the file directly
     if (!SLFileSystem::fileExists(filename))
@@ -209,7 +212,9 @@ void SLGLTexture::load(SLstring filename)
         }
     }
     
-    _images.push_back(new SLCVImage(filename));
+    _images.push_back(new SLCVImage(filename, 
+                                    flipVertical, 
+                                    loadGrayscaleIntoAlpha));
 }
 //-----------------------------------------------------------------------------
 //! Loads the 1D color data into an image of height 1
@@ -723,5 +728,15 @@ SLstring SLGLTexture::typeName()
         case TT_font:    return "font map"; break;
         default: return "Unknown type";
     }
+}
+//-----------------------------------------------------------------------------
+void SLGLTexture::calc3DGradients()
+{
+    SLint volX = _images[0]->width();
+    SLint volY = _images[0]->height();
+    SLint volZ = (SLint)_images.size();
+
+
+
 }
 //-----------------------------------------------------------------------------

@@ -23,7 +23,9 @@ SLCVImage::SLCVImage(SLint width, SLint height, SLPixelFormat format) : SLObject
 }
 //-----------------------------------------------------------------------------
 //! Contructor for image from file
-SLCVImage::SLCVImage(const SLstring  filename, bool flipVertical) :
+SLCVImage::SLCVImage(const SLstring  filename, 
+                     SLbool flipVertical, 
+                     SLbool loadGrayscaleIntoAlpha) :
            SLObject(SLUtils::getFileName(filename), filename)
 {
     assert(filename!="");
@@ -339,7 +341,9 @@ SLbool SLCVImage::load(SLint width,
 }
 //-----------------------------------------------------------------------------
 //! Loads the image with the appropriate image loader
-void SLCVImage::load(const SLstring filename, bool flipVertical)
+void SLCVImage::load(const SLstring filename, 
+                     SLbool flipVertical, 
+                     SLbool loadGrayscaleIntoAlpha)
 {    
     SLstring ext = SLUtils::getFileExt(filename);
     _name = SLUtils::getFileName(filename);
