@@ -66,8 +66,14 @@ const int initialPatchSize = 2;
 const int maxPatchSize = 60;
 
 //-----------------------------------------------------------------------------
-//!???
-/*!???
+//! SLCVTrackerFeatures is the main part of the AR Christoffelturm scene
+/*! The implementation tries to find a valid pose based on feature points in real-
+ * time. The feature matching algorithm checks the points of the current camera
+ * frame with against a reference. There are two important parts of this procedure:
+ * The relocalisation, which will be called if we have to find the pose with no hint
+ * where the camera could be. The other one is called feature tracking: If a pose
+ * was found, the implementation tries to track them and update the pose respectively.
+ *
 */
 class SLCVTrackerFeatures : public SLCVTracker
 {
