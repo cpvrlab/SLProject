@@ -502,6 +502,7 @@
     <None Include="..\_data\shaders\TextureOnly3D.vert" />
     <None Include="..\_data\shaders\VolumeRenderingRayCast.frag" />
     <None Include="..\_data\shaders\VolumeRenderingRayCast.vert" />
+    <None Include="..\_data\shaders\VolumeRenderingRayCastLighted.frag" />
     <None Include="..\_data\shaders\Wave.frag" />
     <None Include="..\_data\shaders\Wave.vert" />
     <None Include="..\_data\shaders\WaveRefractReflect.vert" />

@@ -730,13 +730,110 @@ SLstring SLGLTexture::typeName()
     }
 }
 //-----------------------------------------------------------------------------
-void SLGLTexture::calc3DGradients()
+/*! SLGLTexture::calc3DGradients calculates the normals based on the 3D
+gradient of all images and stores them in the RGB components.
+\param sampleRadius Distance from center to calculate the gradient
+*/
+void SLGLTexture::calc3DGradients(SLint sampleRadius)
 {
+    SLint r    = sampleRadius;
     SLint volX = _images[0]->width();
     SLint volY = _images[0]->height();
     SLint volZ = (SLint)_images.size();
+    SLfloat oneOver255 = 1.0f / 255.0f;
+
+    // check that all images in depth have the same size
+    for (auto img : _images)
+        if (img->width() != volX || img->height() != volY || img->format()!= PF_rgba)
+            SL_EXIT_MSG("SLGLTexture::calc3DGradients: Not all images have the same size!");
 
 
+    for (int z = r; z < volZ-r; ++z)
+    {
+        for (int y = r; y < volY-r; ++y)
+        {
+            for (int x = r; x < volX-r; ++x)
+            {
+                // Calculate the min & max vectors
+                SLVec3f min, max;
+                min.x = (SLfloat)_images[z  ]->cvMat().at<cv::Vec4b>(y  , x-r)[3] * oneOver255;
+                max.x = (SLfloat)_images[z  ]->cvMat().at<cv::Vec4b>(y  , x+r)[3] * oneOver255;
+                min.y = (SLfloat)_images[z  ]->cvMat().at<cv::Vec4b>(y-r, x  )[3] * oneOver255;
+                max.y = (SLfloat)_images[z  ]->cvMat().at<cv::Vec4b>(y+r, x  )[3] * oneOver255;
+                min.z = (SLfloat)_images[z-r]->cvMat().at<cv::Vec4b>(y  , x  )[3] * oneOver255;
+                max.z = (SLfloat)_images[z+r]->cvMat().at<cv::Vec4b>(y  , x  )[3] * oneOver255;
 
+                // Calculate normal as the difference between max & min
+                SLVec3f normal = max - min;
+                SLfloat length = normal.length();
+                if (length > 0.0001f)
+                     normal /= length;
+                else normal.set(0,0,0);
+
+                // Store normal in the rgb channels
+                _images[z]->cvMat().at<cv::Vec4b>(y,x)[0] = (SLuchar)(normal.x * 255.0f);
+                _images[z]->cvMat().at<cv::Vec4b>(y,x)[1] = (SLuchar)(normal.y * 255.0f);
+                _images[z]->cvMat().at<cv::Vec4b>(y,x)[2] = (SLuchar)(normal.z * 255.0f);
+            }
+        }
+    }
+
+    smooth3DGradients(1);
+
+    // Debug check
+    //for (auto img : _images)
+    //   img->savePNG(img->path() + "Normals_" + img->name());
+}
+//-----------------------------------------------------------------------------
+/*! SLGLTexture::smooth3DGradients smooths the 3D gradients in the RGB channels
+of all images.
+\param sampleRadius Soothing radius
+*/
+void SLGLTexture::smooth3DGradients(SLint smoothRadius)
+{
+    SLint r    = smoothRadius;
+    SLint volX = _images[0]->width();
+    SLint volY = _images[0]->height();
+    SLint volZ = (SLint)_images.size();
+    SLfloat oneOver255 = 1.0f / 255.0f;
+
+    // check that all images in depth have the same size
+    for (auto img : _images)
+        if (img->width() != volX || img->height() != volY || img->format()!= PF_rgba)
+            SL_EXIT_MSG("SLGLTexture::calc3DGradients: Not all images have the same size!");
+
+
+    for (int z = r; z < volZ-r; ++z)
+    {
+        for (int y = r; y < volY-r; ++y)
+        {
+            for (int x = r; x < volX-r; ++x)
+            {
+                SLVec3f average(0,0,0);
+                SLint  num = 0;
+
+                for (int fz = z - r; fz <= z + r; ++fz)
+                {
+                    for (int fy = y - r; fy <= y + r; ++fy)
+                    {
+                        for (int fx = x - r; fx <= x + r; ++fx)
+                        {
+                            average += SLVec3f((SLfloat)_images[fz]->cvMat().at<cv::Vec4b>(fy,fx)[0] * oneOver255,
+                                               (SLfloat)_images[fz]->cvMat().at<cv::Vec4b>(fy,fx)[1] * oneOver255,
+                                               (SLfloat)_images[fz]->cvMat().at<cv::Vec4b>(fy,fx)[2] * oneOver255);
+                            num++;
+                        }
+                    }
+                }
+
+                average /= (SLfloat)num;
+
+                // Store normal in the rgb channels
+                _images[z]->cvMat().at<cv::Vec4b>(y,x)[0] = (SLuchar)(average.x * 255.0f);
+                _images[z]->cvMat().at<cv::Vec4b>(y,x)[1] = (SLuchar)(average.y * 255.0f);
+                _images[z]->cvMat().at<cv::Vec4b>(y,x)[2] = (SLuchar)(average.z * 255.0f);
+            }
+        }
+    }
 }
 //-----------------------------------------------------------------------------

@@ -731,6 +731,9 @@
     <None Include="..\_data\shaders\VolumeRenderingRayCast.vert">
       <Filter>GLSL</Filter>
     </None>
+    <None Include="..\_data\shaders\VolumeRenderingRayCastLighted.frag">
+      <Filter>GLSL</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Text Include="ToDo.txt" />

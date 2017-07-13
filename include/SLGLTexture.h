@@ -58,90 +58,91 @@ class SLGLTexture : public SLObject
 {
     public:        
                             //! Default constructor for fonts
-                            SLGLTexture     ();
+                            SLGLTexture         ();
 
                             //! ctor for 1D texture with internal image allocation
-                            SLGLTexture     (SLVCol4f       colors,
-                                             SLint          min_filter = GL_LINEAR,
-                                             SLint          mag_filter = GL_LINEAR,
-                                             SLint          wrapS = GL_REPEAT,
-                                             SLstring       name = "1D-Texture");
+                            SLGLTexture         (SLVCol4f       colors,
+                                                 SLint          min_filter = GL_LINEAR,
+                                                 SLint          mag_filter = GL_LINEAR,
+                                                 SLint          wrapS = GL_REPEAT,
+                                                 SLstring       name = "1D-Texture");
 
                             //! ctor for 2D textures with internal image allocation
-                            SLGLTexture     (SLstring       imageFilename,
-                                             SLint          min_filte = GL_LINEAR_MIPMAP_LINEAR,
-                                             SLint          mag_filte = GL_LINEAR,
-                                             SLTextureType  type = TT_unknown,
-                                             SLint          wrapS = GL_REPEAT,
-                                             SLint          wrapT = GL_REPEAT);
+                            SLGLTexture         (SLstring       imageFilename,
+                                                 SLint          min_filte = GL_LINEAR_MIPMAP_LINEAR,
+                                                 SLint          mag_filte = GL_LINEAR,
+                                                 SLTextureType  type = TT_unknown,
+                                                 SLint          wrapS = GL_REPEAT,
+                                                 SLint          wrapT = GL_REPEAT);
 
                             //! ctor for 3D texture with internal image allocation
-                            SLGLTexture     (SLVstring      imageFilenames,
-                                             SLint          min_filte = GL_LINEAR,
-                                             SLint          mag_filte = GL_LINEAR,
-                                             SLint          wrapS = GL_REPEAT,
-                                             SLint          wrapT = GL_REPEAT,
-                                             SLstring       name = "3D-Texture", 
-                                             SLbool         loadGrayscaleIntoAlpha = false);
+                            SLGLTexture         (SLVstring      imageFilenames,
+                                                 SLint          min_filte = GL_LINEAR,
+                                                 SLint          mag_filte = GL_LINEAR,
+                                                 SLint          wrapS = GL_REPEAT,
+                                                 SLint          wrapT = GL_REPEAT,
+                                                 SLstring       name = "3D-Texture",
+                                                 SLbool         loadGrayscaleIntoAlpha = false);
                   
                             //! ctor for cube mapping with internal image allocation
-                            SLGLTexture     (SLstring       imageFilenameXPos,
-                                             SLstring       imageFilenameXNeg,
-                                             SLstring       imageFilenameYPos,
-                                             SLstring       imageFilenameYNeg,
-                                             SLstring       imageFilenameZPos,
-                                             SLstring       imageFilenameZNeg,
-                                             SLint          min_filter = GL_LINEAR,
-                                             SLint          mag_filter = GL_LINEAR,
-                                             SLTextureType  type = TT_unknown);      
-                  
-    virtual                ~SLGLTexture     ();
+                            SLGLTexture         (SLstring       imageFilenameXPos,
+                                                 SLstring       imageFilenameXNeg,
+                                                 SLstring       imageFilenameYPos,
+                                                 SLstring       imageFilenameYNeg,
+                                                 SLstring       imageFilenameZPos,
+                                                 SLstring       imageFilenameZNeg,
+                                                 SLint          min_filter = GL_LINEAR,
+                                                 SLint          mag_filter = GL_LINEAR,
+                                                 SLTextureType  type = TT_unknown);
 
-            void            clearData       ();
-            void            build           (SLint texID=0);
-            void            bindActive      (SLint texID=0);
-            void            fullUpdate      ();
-            void            drawSprite      (SLbool doUpdate = false);
-      
+    virtual                ~SLGLTexture         ();
+
+            void            clearData           ();
+            void            build               (SLint texID=0);
+            void            bindActive          (SLint texID=0);
+            void            fullUpdate          ();
+            void            drawSprite          (SLbool doUpdate = false);
+
             // Setters
-            void            texType         (SLTextureType bt)  {_texType = bt;}
-            void            bumpScale       (SLfloat bs)    {_bumpScale = bs;}
-      
+            void            texType             (SLTextureType bt)  {_texType = bt;}
+            void            bumpScale           (SLfloat bs)    {_bumpScale = bs;}
+
             // Getters
-            SLCVVImage&     images          (){return _images;}
-            SLenum          target          (){return _target;}
-            SLuint          texName         (){return _texName;}
-            SLTextureType   texType         (){return _texType;}
-            SLfloat         bumpScale       (){return _bumpScale;}
-            SLCol4f         getTexelf       (SLfloat s, SLfloat t);
-            SLbool          hasAlpha        (){return (_images.size() &&
-                                                      ((_images[0]->format()==PF_rgba  ||
-                                                        _images[0]->format()==PF_bgra) ||
-                                                       _texType==TT_font));}
-            SLint           width           (){return _images[0]->width();}
-            SLint           height          (){return _images[0]->height();}
-            SLint           depth           (){return (SLint)_images.size();}
-            SLMat4f         tm              (){return _tm;}
-            SLbool          autoCalcTM3D    (){return _autoCalcTM3D;}
-            SLbool          needsUpdate     (){return _needsUpdate;}
-            SLstring        typeName        ();
-      
-            // Misc     
-            SLTextureType   detectType      (SLstring filename);  
-            SLuint          closestPowerOf2 (SLuint num); 
-            SLuint          nextPowerOf2    (SLuint num);
-            void            build2DMipmaps  (SLint target, SLuint index);
-            void            setVideoImage   (SLstring videoImageFile);
-            SLbool          copyVideoImage  (SLint camWidth, 
-                                             SLint camHeight,
-                                             SLPixelFormat glFormat, 
-                                             SLuchar* data, 
-                                             SLbool isContinuous,
-                                             SLbool isTopLeft);
-            void            calc3DGradients ();
+            SLCVVImage&     images              (){return _images;}
+            SLenum          target              (){return _target;}
+            SLuint          texName             (){return _texName;}
+            SLTextureType   texType             (){return _texType;}
+            SLfloat         bumpScale           (){return _bumpScale;}
+            SLCol4f         getTexelf           (SLfloat s, SLfloat t);
+            SLbool          hasAlpha            (){return (_images.size() &&
+                                                          ((_images[0]->format()==PF_rgba  ||
+                                                            _images[0]->format()==PF_bgra) ||
+                                                           _texType==TT_font));}
+            SLint           width               (){return _images[0]->width();}
+            SLint           height              (){return _images[0]->height();}
+            SLint           depth               (){return (SLint)_images.size();}
+            SLMat4f         tm                  (){return _tm;}
+            SLbool          autoCalcTM3D        (){return _autoCalcTM3D;}
+            SLbool          needsUpdate         (){return _needsUpdate;}
+            SLstring        typeName            ();
+
+            // Misc
+            SLTextureType   detectType          (SLstring filename);
+            SLuint          closestPowerOf2     (SLuint num);
+            SLuint          nextPowerOf2        (SLuint num);
+            void            build2DMipmaps      (SLint target, SLuint index);
+            void            setVideoImage       (SLstring videoImageFile);
+            SLbool          copyVideoImage      (SLint camWidth,
+                                                 SLint camHeight,
+                                                 SLPixelFormat glFormat,
+                                                 SLuchar* data,
+                                                 SLbool isContinuous,
+                                                 SLbool isTopLeft);
+            void            calc3DGradients     (SLint sampleRadius);
+            void            smooth3DGradients   (SLint smoothRadius);
 
             // Bumpmap methods
-            SLVec2f         dsdt            (SLfloat s, SLfloat t); //! Returns the derivation as [s,t]
+            SLVec2f         dsdt                (SLfloat s, SLfloat t); //! Returns the derivation as [s,t]
   
     // Statics
     static  SLstring        defaultPath;        //!< Default path for textures

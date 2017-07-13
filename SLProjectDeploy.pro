@@ -337,6 +337,7 @@ shaders.files = \
   ../_data/shaders/TextureOnly3D.frag \
   ../_data/shaders/TextureOnly3D.vert \
   ../_data/shaders/VolumeRenderingRayCast.frag \
+  ../_data/shaders/VolumeRenderingRayCastLighted.frag \
   ../_data/shaders/VolumeRenderingRayCast.vert \
   ../_data/shaders/Wave.frag \
   ../_data/shaders/Wave.vert \

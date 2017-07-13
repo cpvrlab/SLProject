@@ -30,7 +30,7 @@ SLCVImage::SLCVImage(const SLstring  filename,
 {
     assert(filename!="");
     clearData();
-    load(filename, flipVertical);
+    load(filename, flipVertical, loadGrayscaleIntoAlpha);
 }
 //-----------------------------------------------------------------------------
 //! Copy contructor from a source image
@@ -368,10 +368,39 @@ void SLCVImage::load(const SLstring filename,
     if (_format == PF_bgr) 
     {   cv::cvtColor(_cvMat, _cvMat, CV_BGR2RGB);
         _format = PF_rgb;
-    }
+    } else
     if (_format == PF_bgra)
     {   cv::cvtColor(_cvMat, _cvMat, CV_BGRA2RGBA);
         _format = PF_rgba;
+    } else
+    if (_format == PF_red && loadGrayscaleIntoAlpha)
+    {
+        SLCVMat rgbaImg;
+        rgbaImg.create(_cvMat.rows, _cvMat.cols, CV_8UC4);
+
+        // Copy grayscale into alpha channel
+        for (int y = 0; y < rgbaImg.rows; ++y)
+        {
+            SLuchar* dst = rgbaImg.ptr<SLuchar>(y);
+            SLuchar* src = _cvMat.ptr<SLuchar>(y);
+
+            for (int x = 0; x < rgbaImg.cols; ++x)
+            {
+                *dst++ = 0;        // B
+                *dst++ = 0;        // G
+                *dst++ = 0;        // R
+                *dst++ = *src++;   // A
+            }
+        }
+
+        _cvMat = rgbaImg;
+        cv::cvtColor(_cvMat, _cvMat, CV_BGRA2RGBA);
+        _format = PF_rgba;
+
+        // for debug check
+        //SLstring pathfilename = _path + name();
+        //SLstring filename = SLUtils::getFileNameWOExt(pathfilename);
+        //savePNG(_path + filename + "_InAlpha.png");
     }
     
     _bytesPerLine  = bytesPerLine(_cvMat.cols, _format, _cvMat.isContinuous());

@@ -97,8 +97,8 @@ enum SLCommand
     C_sceneShaderBumpNormal,
     C_sceneShaderBumpParallax,
     C_sceneShaderEarth,
-    C_sceneShaderVolumeRayCaster,
-    C_sceneShaderVolumeRayCasterLighted,
+    C_sceneVolumeRayCastHeadMRI,
+    C_sceneVolumeRayCastLightedMRIHead,
     C_sceneTerrain,
 
     C_sceneAnimationMass,

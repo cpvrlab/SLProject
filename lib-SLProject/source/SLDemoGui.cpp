@@ -457,8 +457,6 @@ void SLDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
                         sv->onCommand(C_sceneRevolver);
                     if (ImGui::MenuItem("Earth Shader", 0, curS==C_sceneShaderEarth))
                         sv->onCommand(C_sceneShaderEarth);
-                    if (ImGui::MenuItem("Volume Ray Caster", 0, curS==C_sceneShaderVolumeRayCaster))
-                        sv->onCommand(C_sceneShaderVolumeRayCaster);
 
                     ImGui::EndMenu();
                 }
@@ -489,6 +487,19 @@ void SLDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
                         sv->onCommand(C_sceneVideoTrackChessScnd);
                     if (ImGui::MenuItem("Texture from live video", 0, curS==C_sceneVideoTexture))
                         sv->onCommand(C_sceneVideoTexture);
+
+                    ImGui::EndMenu();
+                }
+
+                if (ImGui::BeginMenu("Volume Rendering"))
+                {
+                    if (ImGui::MenuItem("Head MRI Ray Cast", 0, curS==C_sceneVolumeRayCastHeadMRI))
+                        sv->onCommand(C_sceneVolumeRayCastHeadMRI);
+
+                    #ifndef SL_GLES
+                    if (ImGui::MenuItem("Head MRI Ray Cast Lighted", 0, curS==C_sceneVolumeRayCastLightedMRIHead))
+                        sv->onCommand(C_sceneVolumeRayCastLightedMRIHead);
+                    #endif
 
                     ImGui::EndMenu();
                 }

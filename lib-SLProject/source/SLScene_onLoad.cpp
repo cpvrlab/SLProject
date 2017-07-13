@@ -1547,9 +1547,9 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         _root3D = scene;
     }
     else
-    if (SL::currentSceneID == C_sceneShaderVolumeRayCaster) //.....................................
+    if (SL::currentSceneID == C_sceneVolumeRayCastHeadMRI) //......................................
     {
-        name("Volume Ray Casting");
+        name("Volume Ray Cast Head MRI");
 
         _info = "Volume Rendering of an angiographic MRI scan";
 
@@ -1612,9 +1612,9 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         _root3D = scene;
     }
     else
-    if (SL::currentSceneID == C_sceneShaderVolumeRayCasterLighted) //..............................
+    if (SL::currentSceneID == C_sceneVolumeRayCastLightedMRIHead) //...............................
     {
-        name("Volume Ray Casting Lighted");
+        name("Volume Ray Cast Lighted Head MRI");
 
         _info = "Volume Rendering of an angiographic MRI scan with lighting";
 
@@ -1630,7 +1630,9 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         SLGLTexture* texMRI = new SLGLTexture(mriImages,
                                               GL_LINEAR, GL_LINEAR,
                                               clamping3D, clamping3D,
-                                              "mri_head_front_to_back");
+                                              "mri_head_front_to_back",
+                                              true);
+        texMRI->calc3DGradients(1);
 
         // Create transfer LUT 1D texture       
         SLVTransferAlpha tfAlphas = {SLTransferAlpha(0.00f, 0.00f),
@@ -1640,7 +1642,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
 
         // Load shader and uniforms for volume size
         SLGLProgram* sp = new SLGLGenericProgram("VolumeRenderingRayCast.vert",
-                                                 "VolumeRenderingRayCast.frag");
+                                                 "VolumeRenderingRayCastLighted.frag");
         SLGLUniform1f* volX = new SLGLUniform1f(UT_const, "u_volumeX", (SLfloat)texMRI->images()[0]->width());
         SLGLUniform1f* volY = new SLGLUniform1f(UT_const, "u_volumeY", (SLfloat)texMRI->images()[0]->height());
         SLGLUniform1f* volZ = new SLGLUniform1f(UT_const, "u_volumeZ", (SLfloat)mriImages.size());
