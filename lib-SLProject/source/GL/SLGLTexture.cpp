@@ -770,10 +770,11 @@ void SLGLTexture::calc3DGradients(SLint sampleRadius)
                      normal /= length;
                 else normal.set(0,0,0);
 
-                // Store normal in the rgb channels
-                _images[z]->cvMat().at<cv::Vec4b>(y,x)[0] = (SLuchar)(normal.x * 255.0f);
-                _images[z]->cvMat().at<cv::Vec4b>(y,x)[1] = (SLuchar)(normal.y * 255.0f);
-                _images[z]->cvMat().at<cv::Vec4b>(y,x)[2] = (SLuchar)(normal.z * 255.0f);
+                // Store normal in the rgb channels. Scale range from -1 - 1 to 0 - 1 to 0 - 255
+                normal += 1.0f;
+                _images[z]->cvMat().at<cv::Vec4b>(y,x)[0] = (SLuchar)(normal.x * 0.5f * 255.0f);
+                _images[z]->cvMat().at<cv::Vec4b>(y,x)[1] = (SLuchar)(normal.y * 0.5f * 255.0f);
+                _images[z]->cvMat().at<cv::Vec4b>(y,x)[2] = (SLuchar)(normal.z * 0.5f * 255.0f);
             }
         }
     }
@@ -800,38 +801,36 @@ void SLGLTexture::smooth3DGradients(SLint smoothRadius)
     // check that all images in depth have the same size
     for (auto img : _images)
         if (img->width() != volX || img->height() != volY || img->format()!= PF_rgba)
-            SL_EXIT_MSG("SLGLTexture::calc3DGradients: Not all images have the same size!");
+            SL_EXIT_MSG("SLGLTexture::calc3DGradients: Not all images have the same size3@!");
 
-
+    //@todo This is very slow and should be implemented as separable filter
     for (int z = r; z < volZ-r; ++z)
     {
         for (int y = r; y < volY-r; ++y)
         {
             for (int x = r; x < volX-r; ++x)
             {
-                SLVec3f average(0,0,0);
-                SLint  num = 0;
+                SLVec3f filtered(0,0,0);
 
+                // box filter (= average)
+                SLint  num = 0;
                 for (int fz = z - r; fz <= z + r; ++fz)
-                {
-                    for (int fy = y - r; fy <= y + r; ++fy)
-                    {
-                        for (int fx = x - r; fx <= x + r; ++fx)
-                        {
-                            average += SLVec3f((SLfloat)_images[fz]->cvMat().at<cv::Vec4b>(fy,fx)[0] * oneOver255,
-                                               (SLfloat)_images[fz]->cvMat().at<cv::Vec4b>(fy,fx)[1] * oneOver255,
-                                               (SLfloat)_images[fz]->cvMat().at<cv::Vec4b>(fy,fx)[2] * oneOver255);
+                {   for (int fy = y - r; fy <= y + r; ++fy)
+                    {   for (int fx = x - r; fx <= x + r; ++fx)
+                        {   filtered += SLVec3f((SLfloat)_images[fz]->cvMat().at<cv::Vec4b>(fy,fx)[0] * oneOver255 * 2.0f - 1.0f,
+                                                (SLfloat)_images[fz]->cvMat().at<cv::Vec4b>(fy,fx)[1] * oneOver255 * 2.0f - 1.0f,
+                                                (SLfloat)_images[fz]->cvMat().at<cv::Vec4b>(fy,fx)[2] * oneOver255 * 2.0f - 1.0f);
                             num++;
                         }
                     }
                 }
+                filtered /= (SLfloat)num;
 
-                average /= (SLfloat)num;
-
-                // Store normal in the rgb channels
-                _images[z]->cvMat().at<cv::Vec4b>(y,x)[0] = (SLuchar)(average.x * 255.0f);
-                _images[z]->cvMat().at<cv::Vec4b>(y,x)[1] = (SLuchar)(average.y * 255.0f);
-                _images[z]->cvMat().at<cv::Vec4b>(y,x)[2] = (SLuchar)(average.z * 255.0f);
+                // Store normal in the rgb channels. Scale range from -1 - 1 to 0 - 1 to 0 - 255
+                filtered += 1.0f;
+                _images[z]->cvMat().at<cv::Vec4b>(y,x)[0] = (SLuchar)(filtered.x * 0.5f * 255.0f);
+                _images[z]->cvMat().at<cv::Vec4b>(y,x)[1] = (SLuchar)(filtered.y * 0.5f * 255.0f);
+                _images[z]->cvMat().at<cv::Vec4b>(y,x)[2] = (SLuchar)(filtered.z * 0.5f * 255.0f);
             }
         }
     }

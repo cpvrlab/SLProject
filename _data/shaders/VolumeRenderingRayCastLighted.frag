@@ -61,7 +61,7 @@ void main()
 {
     vec3 source  = v_raySource;
     vec4 eyeWS   = u_invMvMatrix * vec4(0.0, 0.0, 0.0, 1.0); // eye in world space
-    //vec4 lightWS = u_invMvMatrix * vec4(1.0, 1.0, 0.0, 1.0); // eye in world space
+    //vec4 lightWS = u_invMvMatrix * vec4(1.0, 1.0, 0.0, 1.0); // light in world space
     vec3 direction = normalize(source - eyeWS.xyz);
     vec3 destination = findRayDestination(source,direction);
 
@@ -94,16 +94,16 @@ void main()
     {
         //The voxel can be read directly from there assuming we're using GL_NEAREST as interpolation method
         vec4 voxel = texture3D(u_texture0, position);
-        vec3 N = voxel.xyz;
+        vec3 N = voxel.xyz * 2.0f - 1.0f;
 
         //Transform the read pixel with the 1D transform function lookup table
         vec4 src = texture2D(u_texture1, vec2(voxel.a, 0.0));
 
         // Diffuse factor from the cos(angle) between N & L
-        float diffuseFactor = dot(N, lightWS);
+        float diffuseFactor = dot(-N, lightWS.xyz);
 
         // Diffuse Lightig with faked ambient part
-        src.rgb = diffuseFactor * src.rgb + 0.1f * src.rgb;
+        src.rgb = diffuseFactor * src.rgb + 0.4f * src.rgb;
 
         //Scale the color addend by it's alpha value
         src.rgb *= src.a;
