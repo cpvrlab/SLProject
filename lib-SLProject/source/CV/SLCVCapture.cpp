@@ -64,7 +64,7 @@ SLVec2i SLCVCapture::open(SLint deviceNum)
     }
     return SLVec2i::ZERO;
 }
-
+//! Takes a filepath to a Videofile and opens it instead of a camerafeed.
 SLVec2i SLCVCapture::open(SLstring filePath)
 {
     try

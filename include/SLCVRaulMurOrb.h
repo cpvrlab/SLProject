@@ -14,9 +14,7 @@
 #include <SLCV.h>
 
 //-----------------------------------------------------------------------------
-//!???
-/*!???
-*/
+//! Orb detector and descriptor with distributen
 class SLCVRaulMurOrb: public cv::Feature2D
 {
 public:

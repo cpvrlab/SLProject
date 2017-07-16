@@ -15,9 +15,8 @@
 #include <SLCVRaulMurExtractorNode.h>
 
 //-----------------------------------------------------------------------------
-//!???
-/*!???
-*/
+//!Datastructure used to subdivide the Image with keypoints into segments.
+
 class SLCVRaulMurExtractorNode
 {
 public:

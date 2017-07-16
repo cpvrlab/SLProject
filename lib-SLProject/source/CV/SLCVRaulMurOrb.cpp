@@ -21,6 +21,7 @@ const int HALF_PATCH_SIZE = 15;
 const int EDGE_THRESHOLD = 19;
 
 //-----------------------------------------------------------------------------
+//! Returns the Angle of the Imagepatch around a keypoint based on the center of gravity.
 static float IC_Angle(const SLCVMat& image, 
                       SLCVPoint2f pt,  
                       const SLVint & u_max)
@@ -55,22 +56,25 @@ static float IC_Angle(const SLCVMat& image,
 const float factorPI = (float)(CV_PI/180.f);
 
 //-----------------------------------------------------------------------------
+//! Calculate the Orb Descriptor for a Keypoint.
 static void computeOrbDescriptor(const SLCVKeyPoint& kpt,
                                  const SLCVMat& img, 
                                  const SLCVPoint* pattern,
                                  SLuchar* desc)
 {
+
     float angle = (float)kpt.angle*factorPI;
     float a = (float)cos(angle), b = (float)sin(angle);
 
+
     const SLuchar* center = &img.at<SLuchar>(cvRound(kpt.pt.y), cvRound(kpt.pt.x));
     const int step = (int)img.step;
-
+    // Define a rotation invariant get_value function which gets the correct pixel for the comparison
     #define GET_VALUE(idx) \
         center[cvRound(pattern[idx].x*b + pattern[idx].y*a)*step + \
                cvRound(pattern[idx].x*a - pattern[idx].y*b)]
 
-
+    // Do the actual comparisons
     for (int i = 0; i < 32; ++i, pattern += 16)
     {
         int t0, t1, val;
@@ -97,6 +101,7 @@ static void computeOrbDescriptor(const SLCVKeyPoint& kpt,
     #undef GET_VALUE
 }
 //-----------------------------------------------------------------------------
+//! This is the hardcoded Comparison pattern which the creators of ORB have found to give the best results.
 static int bit_pattern_31_[256*4] =
 {
     8,-3, 9,5/*mean (0), correlation (0)*/,
@@ -424,6 +429,7 @@ SLCVRaulMurOrb::SLCVRaulMurOrb(int _nfeatures,
     }
 }
 //-----------------------------------------------------------------------------
+//! Compute the Angle for a Keypoint and save it.
 static void computeOrientation(const SLCVMat& image, 
                                SLCVVKeyPoint& keypoints, 
                                const SLVint& umax)
@@ -435,6 +441,7 @@ static void computeOrientation(const SLCVMat& image,
     }
 }
 //-----------------------------------------------------------------------------
+//! Create The Tree and distribute it.
 SLCVVKeyPoint SLCVRaulMurOrb::DistributeOctTree(const SLCVVKeyPoint& vToDistributeKeys, 
                                                 const int &minX,
                                                 const int &maxX, 
@@ -478,7 +485,7 @@ SLCVVKeyPoint SLCVRaulMurOrb::DistributeOctTree(const SLCVVKeyPoint& vToDistribu
     }
 
     list<SLCVRaulMurExtractorNode>::iterator lit = lNodes.begin();
-
+    //! Check if the nodes are empty and erase them if not
     while(lit!=lNodes.end())
     {
         if(lit->vKeys.size()==1)
@@ -670,6 +677,7 @@ SLCVVKeyPoint SLCVRaulMurOrb::DistributeOctTree(const SLCVVKeyPoint& vToDistribu
     return vResultKeys;
 }
 //-----------------------------------------------------------------------------
+//! Get the Keypoints and distribute them.
 void SLCVRaulMurOrb::ComputeKeyPointsOctTree(SLCVVVKeyPoint& allKeypoints)
 {
     const float W = 30;
@@ -713,9 +721,12 @@ void SLCVRaulMurOrb::ComputeKeyPointsOctTree(SLCVVVKeyPoint& allKeypoints)
                     maxX = (float)maxBorderX;
 
                 SLCVVKeyPoint vKeysCell;
+
+                // Try to get Keypoints with initial Threshold
                 FAST(mvImagePyramid[level].rowRange((int)iniY,(int)maxY).colRange((int)iniX,(int)maxX),
                      vKeysCell,iniThFAST,true);
 
+                // If no Keypoints are found try again with a lower Threshold
                 if(vKeysCell.empty())
                 {
                     FAST(mvImagePyramid[level].rowRange((int)iniY,(int)maxY).colRange((int)iniX,(int)maxX),
@@ -774,6 +785,8 @@ static void computeDescriptors(const SLCVMat& image,
 }
 
 //-----------------------------------------------------------------------------
+//! Main Detection function. Can be seperated if predefined keypoints are given
+//! or no descriptor array is given.
 void SLCVRaulMurOrb::detectAndCompute(SLCVInputArray _image, 
                                       SLCVInputArray _mask, 
                                       SLCVVKeyPoint& _keypoints,
@@ -801,6 +814,8 @@ void SLCVRaulMurOrb::detectAndCompute(SLCVInputArray _image,
         _keypoints.reserve(nkeypoints);
     }
     else {
+        //! Remove Points from image border. Ensures that ORB_SLAM and ORB
+        //! generate the same descriptors from the same keypoints.
         KeyPointsFilter::runByImageBorder(_keypoints, _image.size(), 31);
         nkeypoints = (int)_keypoints.size();
         int last_index = 0;

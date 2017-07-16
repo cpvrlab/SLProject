@@ -12,12 +12,9 @@
 #include <SLCV.h>
 #include <SLCVRaulMurExtractorNode.h>
 
-const int PATCH_SIZE = 31;
-const int HALF_PATCH_SIZE = 15;
-const int EDGE_THRESHOLD = 19;
-
 //-----------------------------------------------------------------------------
-//!???
+//! Divides the current ExtractorNode into four ExtractorNodes.
+//! The Keypoints are also divided between the four ExtractorNodes by space.
 void SLCVRaulMurExtractorNode::DivideNode(SLCVRaulMurExtractorNode &n1, 
                                           SLCVRaulMurExtractorNode &n2, 
                                           SLCVRaulMurExtractorNode &n3, 
