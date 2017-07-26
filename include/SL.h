@@ -18,6 +18,7 @@
 #include <sstream>
 #include <fstream>
 #include <vector>
+#include <list>
 #include <queue>
 #include <typeinfo>
 #include <string>
@@ -237,6 +238,7 @@ typedef std::vector<SLlong>   SLVlong;
 typedef std::vector<SLulong>  SLVulong;
 typedef std::vector<SLfloat>  SLVfloat;
 typedef std::vector<SLstring> SLVstring;
+typedef std::vector<size_t>   SLVsize_t;
 
 // All 2D vectors begin with SLVV*
 typedef std::vector<vector<SLfloat>>    SLVVfloat;

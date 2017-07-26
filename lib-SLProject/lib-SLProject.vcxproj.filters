@@ -309,12 +309,6 @@
     <ClInclude Include="..\include\SLCV.h">
       <Filter>CV</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\SLCVFeatureMap2D.h">
-      <Filter>CV</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\SLCVFeatureMapper2D.h">
-      <Filter>CV</Filter>
-    </ClInclude>
     <ClInclude Include="..\include\SLCVImage.h">
       <Filter>CV</Filter>
     </ClInclude>
@@ -326,6 +320,21 @@
     </ClInclude>
     <ClInclude Include="..\include\SLTransferFunction.h">
       <Filter>SL</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\SLCVDescriptor.h">
+      <Filter>CV</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\SLCVDetector.h">
+      <Filter>CV</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\SLCVRaulMurExtractorNode.h">
+      <Filter>CV</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\SLCVRaulMurOrb.h">
+      <Filter>CV</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\SLCVTrackerFeatures.h">
+      <Filter>CV</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -524,9 +533,6 @@
     <ClCompile Include="source\CV\SLCVTracker.cpp">
       <Filter>CV</Filter>
     </ClCompile>
-    <ClCompile Include="source\CV\SLCVFeatureMapper2D.cpp">
-      <Filter>CV</Filter>
-    </ClCompile>
     <ClCompile Include="source\CV\SLCVImage.cpp">
       <Filter>CV</Filter>
     </ClCompile>
@@ -538,6 +544,21 @@
     </ClCompile>
     <ClCompile Include="source\SLTransferFunction.cpp">
       <Filter>SL</Filter>
+    </ClCompile>
+    <ClCompile Include="source\CV\SLCVDescriptor.cpp">
+      <Filter>CV</Filter>
+    </ClCompile>
+    <ClCompile Include="source\CV\SLCVDetector.cpp">
+      <Filter>CV</Filter>
+    </ClCompile>
+    <ClCompile Include="source\CV\SLCVRaulMurExtractorNode.cpp">
+      <Filter>CV</Filter>
+    </ClCompile>
+    <ClCompile Include="source\CV\SLCVRaulMurOrb.cpp">
+      <Filter>CV</Filter>
+    </ClCompile>
+    <ClCompile Include="source\CV\SLCVTrackerFeatures.cpp">
+      <Filter>CV</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

@@ -33,6 +33,7 @@
 #include <SLCoordAxis.h>
 #include <SLCVTrackerAruco.h>
 #include <SLCVTrackerChessboard.h>
+#include <SLCVTrackerFeatures.h>
 #include <SLTransferFunction.h>
 
 SLNode* SphereGroup(SLint, SLfloat, SLfloat, SLfloat, SLfloat, SLint, SLMaterial*, SLMaterial*);
@@ -2292,7 +2293,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         sv->waitEvents(false);
     }
     else
-    if (SL::currentSceneID == C_sceneVideoTrackFeat2DMain) //......................................
+    if (SL::currentSceneID == C_sceneVideoTrackFeature2DMain) //...................................
     {
         /*
         The tracking of markers is done in SLScene::onUpdate by calling the specific
@@ -2302,64 +2303,61 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         use case.
         */
 
-        name("Track or Create 2D-Feature Marker");
+        name("2D Feature Tracking");
+        _info = "Augmented Reality Feature Tracking";
 
-        //if (_calibration.state() == CS_calibrated)
-        //{   stringstream ss; 
-        //    ss << "Camera calibration: fov: " << _calibration.cameraFovDeg() << 
-        //          ", error: " << _calibration.reprojectionError();
-        //    info(sv, ss.str());
-        //} else
-        //    info(sv, "Tap on the screen to create a calibration foto: ");
-        
-        // Material
-        SLMaterial* yellow = new SLMaterial("mY", SLCol4f::YELLOW);
-
-        // Get the edge length of a chessboard
-        SLfloat e1 = _activeCalib->boardSquareM();
-        SLfloat e3 = e1 * 3.0f;
-        SLfloat e9 = e3 * 3.0f;
-
-        // Create a scene group node
-        SLNode* scene = new SLNode("scene node");
-
-        // Create a camera node
         SLCamera* cam1 = new SLCamera("Camera 1");
-        cam1->translation(0,0,5);
-        cam1->lookAt(0, 0, 0);
-        cam1->fov(_activeCalib->cameraFovDeg());
-        cam1->background().texture(&_videoTexture);
+        cam1->translation(0,2,60);
+        cam1->lookAt(15,15,0);
+        cam1->clipNear(0.1f);
+        cam1->clipFar(1000.0f); // Increase to infinity?
         cam1->setInitialState();
+        cam1->background().texture(&_videoTexture);
         videoType(VT_MAIN);
+
+        SLLightSpot* light1 = new SLLightSpot(420,420,420, 1);
+        light1->ambient(SLCol4f(1,1,1));
+        light1->diffuse(SLCol4f(1,1,1));
+        light1->specular(SLCol4f(1,1,1));
+        light1->attenuation(1,0,0);
+
+        SLLightSpot* light2 = new SLLightSpot(-450,-340,420, 1);
+        light2->ambient(SLCol4f(1,1,1));
+        light2->diffuse(SLCol4f(1,1,1));
+        light2->specular(SLCol4f(1,1,1));
+        light2->attenuation(1,0,0);
+
+        SLLightSpot* light3 = new SLLightSpot(450,-370,0, 1);
+        light3->ambient(SLCol4f(1,1,1));
+        light3->diffuse(SLCol4f(1,1,1));
+        light3->specular(SLCol4f(1,1,1));
+        light3->attenuation(1,0,0);
+
+        // Christoffel tower ------------------------------------------------------------
+        SLAssimpImporter importer;
+        #if defined(SL_OS_IOS) || defined(SL_OS_ANDROID)
+        SLNode* tower = importer.load("christoffelturm.obj");
+        #else
+        SLNode* tower = importer.load("Wavefront-OBJ/Christoffelturm/christoffelturm.obj");
+        #endif
+        tower->rotate(180, 1,0,0);
+        tower->translate(80, -80, 0);
+        tower->scale(4);
+
+        // Scene structure --------------------------------------------------------------
+        SLNode* scene = new SLNode("Scene");
+        scene->addChild(light1);
+        scene->addChild(light2);
+        scene->addChild(light3);
+        if (tower) scene->addChild(tower);
         scene->addChild(cam1);
 
-        // Create a light source node
-        SLLightSpot* light1 = new SLLightSpot(e1*0.5f);
-        light1->translate(e9,e9,e9);
-        light1->name("light node");
-        scene->addChild(light1);
-        
-        // Build mesh & node that will be tracked by the camera marker  
-        SLBox* box = new SLBox(0.0f, 0.0f, 0.0f, e3, e3, e3, "Box", yellow);
-        SLNode* boxNode = new SLNode(box, "Box Node");
-        boxNode->setDrawBitsRec(SL_DB_WIREMESH, true);
-        boxNode->setDrawBitsRec(SL_DB_CULLOFF, true);
-        SLNode* axisNode = new SLNode(new SLCoordAxis(),"Axis Node");
-        axisNode->setDrawBitsRec(SL_DB_WIREMESH, false);
-        axisNode->scale(e3);
-        boxNode->addChild(axisNode);
+        _trackers.push_back(new SLCVTrackerFeatures(cam1));
 
-        scene->addChild(boxNode);
-
-        // Create OpenCV Tracker for the box node
-        //_trackers.push_back(new SLCVTrackerChessboard(cam1));
-        
-        // pass the scene group as root node
-        _root3D = scene;
-
-        // Set active camera
+        sv->waitEvents(false); // for constant video feed
+        //sv->usesRotation(true);
         sv->camera(cam1);
-        sv->waitEvents(false);
+        _root3D = scene;
     }
     else
     if (SL::currentSceneID == C_sceneRTMuttenzerBox) //............................................

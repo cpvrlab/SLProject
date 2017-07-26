@@ -26,6 +26,7 @@ for a good top down information.
 #include <SLCV.h>
 #include <SLCVCalibration.h>
 #include <opencv2/aruco.hpp>
+#include <opencv2/xfeatures2d.hpp>
 
 //-----------------------------------------------------------------------------
 //! SLCVTracker is the pure virtual base class for tracking features in video.
@@ -46,6 +47,7 @@ class SLCVTracker
         virtual     ~SLCVTracker        (){;}
 
         virtual SLbool track            (SLCVMat imageGray,
+                                         SLCVMat imageRgb,
                                          SLCVCalibration* calib,
                                          SLSceneView* sv) = 0;
 

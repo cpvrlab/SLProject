@@ -121,6 +121,12 @@ SLScene::SLScene(SLstring name) : SLObject(name)
     SLCVCapture::hasSecondaryCamera = true;
     #endif
 
+    // Delete feature matching stuff
+    if (_descriptor)
+        delete _descriptor;
+    if (_detector)
+        delete _detector;
+
     _oculus.init();
 }
 //-----------------------------------------------------------------------------
@@ -425,6 +431,7 @@ bool SLScene::onUpdate()
             // track all trackers in the first sceneview
             for (auto tracker : _trackers)
                 tracker->track(SLCVCapture::lastFrameGray,
+                               SLCVCapture::lastFrame,
                                _activeCalib,
                                _sceneViews[0]);
 
@@ -490,7 +497,11 @@ void SLScene::onAfterLoad()
     #ifdef SL_USES_CVCAPTURE
     if (_videoType!=VT_NONE)
     {   if (!SLCVCapture::isOpened())
-            SLCVCapture::open(0);
+        #ifdef SL_VIDEO_DEBUG
+        SLCVCapture::open("../_data/videos/testvid_" + string(SL_TRACKER_IMAGE_NAME) +".mp4");
+        #else
+        SLCVCapture::open(0);
+        #endif
     }
     #endif
 }

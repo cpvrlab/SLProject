@@ -114,8 +114,8 @@ enum SLCommand
     C_sceneVideoTrackChessScnd,
     C_sceneVideoTrackArucoMain,
     C_sceneVideoTrackArucoScnd,
-    C_sceneVideoTrackFeat2DMain,
-    C_sceneVideoTrackFeat2DScnd,
+    C_sceneVideoTrackFeature2DMain,
+    C_sceneVideoTrackFeature2DScnd,
 
     C_sceneRTMuttenzerBox,
     C_sceneRTSpheres,
@@ -396,6 +396,30 @@ enum SLVideoType
 {   VT_NONE =  0,  //!< No camera needed
     VT_MAIN =  1,  //!< Main camera on all on all all devices
     VT_SCND =  2,  //!< Selfie camera on mobile devices
+};
+//-----------------------------------------------------------------------------
+//! Feature detector types
+enum SLCVDetectorType
+{   DT_FAST,
+    DT_BRISK,
+    DT_KAZE,
+    DT_AGAST,
+    DT_ORB,
+    DT_SIFT,
+    DT_SURF,
+    DT_RAUL
+};
+//-----------------------------------------------------------------------------
+//! Feature descriptor types
+enum SLCVDescriptorType
+{   DESC_BRIEF,
+    DESC_ORB,
+    DESC_FREAK,
+    DESC_KAZE,
+    DESC_BRISK,
+    DESC_SIFT,
+    DESC_SURF,
+    DESC_RAUL
 };
 //-----------------------------------------------------------------------------
 #endif
