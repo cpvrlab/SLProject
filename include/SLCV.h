@@ -16,7 +16,7 @@ The OpenCV library version 3.1 with extra module must be present.
 If the application captures the live video stream with OpenCV you have
 to define in addition the constant SL_USES_CVCAPTURE.
 All classes that use OpenCV begin with SLCV.
-See also the class docs for SLCVCapture, SLCVCalibration and SLCVTracker
+See also the class docs for SLCVCapture, SLCVCalibration and SLCVTracked
 for a good top down information.
 */
 
@@ -43,6 +43,8 @@ typedef cv::FileStorage             SLCVFileStorage;
 typedef cv::DMatch                  SLCVDMatch;
 typedef cv::InputArray              SLCVInputArray;
 typedef cv::OutputArray             SLCVOutputArray;
+typedef cv::FeatureDetector         SLCVFeatureDetector;
+typedef cv::DescriptorExtractor     SLCVDescriptorExtractor;
 
 // 1D STL vectors
 typedef vector<cv::Mat>             SLCVVMat;

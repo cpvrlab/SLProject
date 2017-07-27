@@ -1,5 +1,5 @@
 //#############################################################################
-//  File:      SLCVTrackerAruco.cpp
+//  File:      SLCVTrackedAruco.cpp
 //  Author:    Michael Goettlicher, Marcus Hudritsch
 //  Date:      Winter 2016
 //  Codestyle: https://github.com/cpvrlab/SLProject/wiki/Coding-Style-Guidelines
@@ -15,11 +15,11 @@ The OpenCV library version 3.1 with extra module must be present.
 If the application captures the live video stream with OpenCV you have
 to define in addition the constant SL_USES_CVCAPTURE.
 All classes that use OpenCV begin with SLCV.
-See also the class docs for SLCVCapture, SLCVCalibration and SLCVTracker
+See also the class docs for SLCVCapture, SLCVCalibration and SLCVTracked
 for a good top down information.
 */
 #include <SLSceneView.h>
-#include <SLCVTrackerAruco.h>
+#include <SLCVTrackedAruco.h>
 
 #include <opencv2/core/core.hpp>
 #include <opencv2/core/utility.hpp>
@@ -31,14 +31,14 @@ for a good top down information.
 using namespace cv;
 //-----------------------------------------------------------------------------
 // Initialize static variables
-bool            SLCVTrackerAruco::trackAllOnce = true;
-bool            SLCVTrackerAruco::paramsLoaded = false;
-SLVint          SLCVTrackerAruco::arucoIDs;
-SLVMat4f        SLCVTrackerAruco::objectViewMats;
-SLCVArucoParams SLCVTrackerAruco::params;
+bool            SLCVTrackedAruco::trackAllOnce = true;
+bool            SLCVTrackedAruco::paramsLoaded = false;
+SLVint          SLCVTrackedAruco::arucoIDs;
+SLVMat4f        SLCVTrackedAruco::objectViewMats;
+SLCVArucoParams SLCVTrackedAruco::params;
 //-----------------------------------------------------------------------------
-SLCVTrackerAruco::SLCVTrackerAruco(SLNode* node, SLint arucoID) : 
-                  SLCVTracker(node) 
+SLCVTrackedAruco::SLCVTrackedAruco(SLNode* node, SLint arucoID) : 
+                  SLCVTracked(node) 
 {
     _arucoID = arucoID;
 }
@@ -47,7 +47,7 @@ SLCVTrackerAruco::SLCVTrackerAruco(SLNode* node, SLint arucoID) :
 /* The tracking of all aruco markers is done only once even if multiple aruco 
 markers are used for different SLNode.
 */
-SLbool SLCVTrackerAruco::track(SLCVMat imageGray,
+SLbool SLCVTrackedAruco::track(SLCVMat imageGray,
                                SLCVMat imageRgb,
                                SLCVCalibration* calib,
                                SLSceneView* sv)
@@ -62,10 +62,10 @@ SLbool SLCVTrackerAruco::track(SLCVMat imageGray,
     if (!paramsLoaded)
     {   paramsLoaded = params.loadFromFile();
         if (!paramsLoaded)
-            SL_EXIT_MSG("SLCVTrackerAruco::track: Failed to load Aruco parameters.");
+            SL_EXIT_MSG("SLCVTrackedAruco::track: Failed to load Aruco parameters.");
     }
     if(params.arucoParams.empty() || params.dictionary.empty())
-    {   SL_WARN_MSG("SLCVTrackerAruco::track: Aruco paramters are empty.");
+    {   SL_WARN_MSG("SLCVTrackedAruco::track: Aruco paramters are empty.");
         return false;
     }
 
@@ -135,7 +135,7 @@ SLbool SLCVTrackerAruco::track(SLCVMat imageGray,
     return false;
 }
 //-----------------------------------------------------------------------------
-/*! SLCVTrackerAruco::drawArucoMarkerBoard draws and saves an aruco board
+/*! SLCVTrackedAruco::drawArucoMarkerBoard draws and saves an aruco board
 into an image.
 \param dictionaryId integer id of the dictionary
 \param numMarkersX NO. of markers in x-direction
@@ -146,7 +146,7 @@ into an image.
 \param dpi Dots per inch (default 256)
 \param showImage Shows image in window (default false)
 */
-void SLCVTrackerAruco::drawArucoMarkerBoard(SLint dictionaryId,
+void SLCVTrackedAruco::drawArucoMarkerBoard(SLint dictionaryId,
                                             SLint numMarkersX,
                                             SLint numMarkersY, 
                                             SLfloat markerEdgeM,
@@ -182,7 +182,7 @@ void SLCVTrackerAruco::drawArucoMarkerBoard(SLint dictionaryId,
     imwrite(imgName, boardImage);
 }
 //-----------------------------------------------------------------------------
-void SLCVTrackerAruco::drawArucoMarker(SLint dictionaryId,
+void SLCVTrackedAruco::drawArucoMarker(SLint dictionaryId,
                                        SLint minMarkerId,
                                        SLint maxMarkerId,
                                        SLint markerSizePX)

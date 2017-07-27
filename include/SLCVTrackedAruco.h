@@ -1,5 +1,5 @@
 //#############################################################################
-//  File:      SLCVTrackerAruco.cpp
+//  File:      SLCVTrackedAruco.cpp
 //  Author:    Michael Goettlicher, Marcus Hudritsch
 //  Date:      Winter 2016
 //  Codestyle: https://github.com/cpvrlab/SLProject/wiki/Coding-Style-Guidelines
@@ -8,20 +8,20 @@
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
 
-#ifndef SLCVTrackerAruco_H
-#define SLCVTrackerAruco_H
+#ifndef SLCVTrackedAruco_H
+#define SLCVTrackedAruco_H
 
 /*
 The OpenCV library version 3.1 with extra module must be present.
 If the application captures the live video stream with OpenCV you have
 to define in addition the constant SL_USES_CVCAPTURE.
 All classes that use OpenCV begin with SLCV.
-See also the class docs for SLCVCapture, SLCVCalibration and SLCVTracker
+See also the class docs for SLCVCapture, SLCVCalibration and SLCVTracked
 for a good top down information.
 */
 
 #include <SLCV.h>
-#include <SLCVTracker.h>
+#include <SLCVTracked.h>
 #include <SLNode.h>
 #include <opencv2/aruco.hpp>
 
@@ -84,19 +84,19 @@ public:
 };
 
 //-----------------------------------------------------------------------------
-//! OpenCV ArUco marker tracker class derived from SLCVTracker
+//! OpenCV ArUco marker tracker class derived from SLCVTracked
 /*! Tracking class for ArUco markers tracking. See the official OpenCV docs on
 ArUco markers: http://docs.opencv.org/3.1.0/d5/dae/tutorial_aruco_detection.html
 The aruco marker used in the SLProject are printed in a PDF stored in the
 _data/Calibration folder. They use the dictionary 0 and where generated with the
-functions SLCVTrackerAruco::drawArucoMarkerBoard and 
-SLCVTrackerAruco::drawArucoMarker.
+functions SLCVTrackedAruco::drawArucoMarkerBoard and 
+SLCVTrackedAruco::drawArucoMarker.
 */
-class SLCVTrackerAruco : public SLCVTracker
+class SLCVTrackedAruco : public SLCVTracked
 {
     public:
-                SLCVTrackerAruco    (SLNode* node, SLint arucoID);
-               ~SLCVTrackerAruco    () {;}
+                SLCVTrackedAruco    (SLNode* node, SLint arucoID);
+               ~SLCVTrackedAruco    () {;}
 
         SLbool  track               (SLCVMat imageGray,
                                      SLCVMat imageRgb,
@@ -130,4 +130,4 @@ class SLCVTrackerAruco : public SLCVTracker
                SLint            _arucoID;       //!< Aruco Marker ID for this node
 };
 //-----------------------------------------------------------------------------
-#endif // SLCVTrackerAruco_H
+#endif // SLCVTrackedAruco_H

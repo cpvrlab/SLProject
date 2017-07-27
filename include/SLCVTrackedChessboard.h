@@ -1,5 +1,5 @@
 //#############################################################################
-//  File:      SLCVTracker.cpp
+//  File:      SLCVTracked.cpp
 //  Author:    Michael Goettlicher, Marcus Hudritsch
 //  Date:      Winter 2016
 //  Codestyle: https://github.com/cpvrlab/SLProject/wiki/Coding-Style-Guidelines
@@ -16,24 +16,24 @@ The OpenCV library version 3.1 with extra module must be present.
 If the application captures the live video stream with OpenCV you have
 to define in addition the constant SL_USES_CVCAPTURE.
 All classes that use OpenCV begin with SLCV.
-See also the class docs for SLCVCapture, SLCVCalibration and SLCVTracker
+See also the class docs for SLCVCapture, SLCVCalibration and SLCVTracked
 for a good top down information.
 */
 
 #include <SLCV.h>
-#include <SLCVTracker.h>
+#include <SLCVTracked.h>
 
 //-----------------------------------------------------------------------------
-//! OpenCV chessboard tracker class derived from SLCVTracker
+//! OpenCV chessboard tracker class derived from SLCVTracked
 /*! The chessboard tracker uses the same chessboard pattern as the calibration
-class defined in SLCVCalibration. See SLCVTrackerChessboard::track for the
+class defined in SLCVCalibration. See SLCVTrackedChessboard::track for the
 core tracking implementation.
 */
-class SLCVTrackerChessboard : public SLCVTracker
+class SLCVTrackedChessboard : public SLCVTracked
 {
     public:
-                SLCVTrackerChessboard   (SLNode* node);
-               ~SLCVTrackerChessboard   () {;}
+                SLCVTrackedChessboard   (SLNode* node);
+               ~SLCVTrackedChessboard   () {;}
 
         bool    track                   (SLCVMat imageGray,
                                          SLCVMat imageRgb,

@@ -19,7 +19,7 @@
 #include <SLLightSpot.h>
 #include <SLLightRect.h>
 #include <SLLightDirect.h>
-#include <SLCVTracker.h>
+#include <SLCVTracked.h>
 
 //-----------------------------------------------------------------------------
 /*! 

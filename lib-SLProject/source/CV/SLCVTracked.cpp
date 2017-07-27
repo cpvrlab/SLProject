@@ -1,5 +1,5 @@
 //#############################################################################
-//  File:      SLCVTracker.cpp
+//  File:      SLCVTracked.cpp
 //  Author:    Michael Goettlicher, Marcus Hudritsch
 //  Date:      Winter 2016
 //  Codestyle: https://github.com/cpvrlab/SLProject/wiki/Coding-Style-Guidelines
@@ -15,17 +15,17 @@ The OpenCV library version 3.1 with extra module must be present.
 If the application captures the live video stream with OpenCV you have
 to define in addition the constant SL_USES_CVCAPTURE.
 All classes that use OpenCV begin with SLCV.
-See also the class docs for SLCVCapture, SLCVCalibration and SLCVTracker
+See also the class docs for SLCVCapture, SLCVCalibration and SLCVTracked
 for a good top down information.
 */
-#include <SLCVTracker.h>
+#include <SLCVTracked.h>
 
 using namespace cv;
 using namespace std;
 
 //-----------------------------------------------------------------------------
 //! Create an OpenGL 4x4 matrix from an OpenCV translation & rotation vector
-SLMat4f SLCVTracker::createGLMatrix(const SLCVMat& tVec, const SLCVMat& rVec)
+SLMat4f SLCVTracked::createGLMatrix(const SLCVMat& tVec, const SLCVMat& rVec)
 {
     // 1) convert the passed rotation vector to a rotation matrix
     SLCVMat rMat;
@@ -82,7 +82,7 @@ w    w     c
  T  = T  *  T   = Transformation of object with respect to world
   o    c     o    coordinate system (object matrix)
 */
-SLMat4f SLCVTracker::calcObjectMatrix(const SLMat4f& cameraObjectMat, 
+SLMat4f SLCVTracked::calcObjectMatrix(const SLMat4f& cameraObjectMat, 
                                       const SLMat4f& objectViewMat)
 {   
     // new object matrix = camera object matrix * object-view matrix

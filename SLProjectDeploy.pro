@@ -32,6 +32,9 @@ textures.files = \
   ../_data/images/textures/earthNight2048_C.jpg \
   ../_data/images/textures/earthCloud1024_A.jpg \
   ../_data/images/textures/earthCloud1024_C.jpg \
+  ../_data/images/textures/features_abstract.png \
+  ../_data/images/textures/features_road.png \
+  ../_data/images/textures/features_stones.png \
   ../_data/images/textures/grass0512_C.jpg \
   ../_data/images/textures/gray_0256_C.jpg \
   ../_data/images/textures/MuttenzerBox+X0512_C.png \

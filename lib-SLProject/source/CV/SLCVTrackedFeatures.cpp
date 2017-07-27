@@ -1,5 +1,5 @@
 //#############################################################################
-//  File:      SLCVTrackerFeatures.cpp
+//  File:      SLCVTrackedFeatures.cpp
 //  Author:    Pascal Zingg, Timon Tschanz
 //  Date:      Spring 2017
 //  Codestyle: https://github.com/cpvrlab/SLProject/wiki/Coding-Style-Guidelines
@@ -15,12 +15,13 @@ The OpenCV library version 3.1 with extra module must be present.
 If the application captures the live video stream with OpenCV you have
 to define in addition the constant SL_USES_CVCAPTURE.
 All classes that use OpenCV begin with SLCV.
-See also the class docs for SLCVCapture, SLCVCalibration and SLCVTracker
+See also the class docs for SLCVCapture, SLCVCalibration and SLCVTracked
 for a good top down information.
 */
 
 #include <SLSceneView.h>
-#include <SLCVTrackerFeatures.h>
+#include <SLCVFeatureManager.h>
+#include <SLCVTrackedFeatures.h>
 
 #if defined(SL_OS_WINDOWS)
 #include <direct.h>
@@ -65,12 +66,13 @@ std::string to_string(T value) {
 }
 
 //-----------------------------------------------------------------------------
-SLCVTrackerFeatures::SLCVTrackerFeatures(SLNode *node) : SLCVTracker(node)
+SLCVTrackedFeatures::SLCVTrackedFeatures(SLNode *node) : SLCVTracked(node)
 {
     // Use ORB-SLAM2 feature detector and descriptor (https://github.com/raulmur/ORB_SLAM2/)
-    SLCVRaulMurOrb *orbSlamMatcherAndDescriptor = new SLCVRaulMurOrb(nFeatures, 1.44f, 6, 20, 10);
-    SLScene::current->detector()->setDetector(orbSlamMatcherAndDescriptor);
-    SLScene::current->descriptor()->setDescriptor(orbSlamMatcherAndDescriptor);
+    SLCVRaulMurOrb* raulMurORB = new SLCVRaulMurOrb(nFeatures, 1.44f, 6, 20, 10);
+
+    SLCVFeatureManager* fm = SLScene::current->featureManager();
+    fm->detectorDescriptor(DDT_RAUL_RAUL, raulMurORB, raulMurORB);
 
     // To match the binary features, we are matching each descriptor in reference with each
     // descriptor in the current frame. The smaller the hamming distance the better the match
@@ -97,13 +99,13 @@ SLCVTrackerFeatures::SLCVTrackerFeatures(SLNode *node) : SLCVTracker(node)
 
 //-----------------------------------------------------------------------------
 //! Show statistics if program terminates
-SLCVTrackerFeatures::~SLCVTrackerFeatures()
+SLCVTrackedFeatures::~SLCVTrackedFeatures()
 {
     #if BENCHMARKING
     SL_LOG(" \n");
     SL_LOG(" \n");
     SL_LOG("------------------------------------------------------------------\n");
-    SL_LOG("SLCVTrackerFeatures statistics \n");
+    SL_LOG("SLCVTrackedFeatures statistics \n");
     SL_LOG("------------------------------------------------------------------\n");
     SL_LOG("Avg frame rate                                   : %f FPS\n", SLScene::current->frameTimesMS().average());
     SL_LOG("Avg calculation time per frame                   : %f ms\n", SLScene::current->trackingTimesMS().average());
@@ -151,16 +153,16 @@ SLCVTrackerFeatures::~SLCVTrackerFeatures()
 
 //-----------------------------------------------------------------------------
 /*! Prepares the reference tracker:
-1. Read the tracker from FS
+1. Read the marker image file from FS
 2. Detect and describe the keypoints on the reference image
 3. Set up 3D points with predefined scaling
 4. Perform optional drawing operations on image
 */
-void SLCVTrackerFeatures::initializeReference(string trackerName)
+void SLCVTrackedFeatures::initializeMarker(string markerFilename)
 {
     // Read reference marker
-    SLGLTexture* trackerTexture = new SLGLTexture(trackerName+".png");
-    SLCVImage* img = trackerTexture->images()[0];
+    SLGLTexture* markerTexture = new SLGLTexture(markerFilename);
+    SLCVImage* img = markerTexture->images()[0];
 
     cvtColor(img->cvMat(), _marker.imageGray, CV_RGB2GRAY);
 
@@ -168,9 +170,13 @@ void SLCVTrackerFeatures::initializeReference(string trackerName)
     cv::flip(_marker.imageGray, _marker.imageGray, 1);
 
     // Detect and compute features in marker image
-    SLScene::current->descriptor()->detectAndCompute(_marker.imageGray,
-                                                     _marker.keypoints2D,
-                                                     _marker.descriptors);
+    SLScene::current->featureManager()->detectAndDescribe(_marker.imageGray,
+                                                          _marker.keypoints2D,
+                                                          _marker.descriptors);
+//    SLScene::current->descriptor()->detectAndCompute(_marker.imageGray,
+//                                                     _marker.keypoints2D,
+//                                                     _marker.descriptors);
+
     // Scaling factor for the 3D point.
     // Width of image is A4 size in image, 297mm is the real A4 height
     float pixelPerMM = img->width() / 297.0f;
@@ -231,7 +237,7 @@ void SLCVTrackerFeatures::initializeReference(string trackerName)
 @param sv        The current scene view
 @return          So far allways false
 */
-SLbool SLCVTrackerFeatures::track(SLCVMat imageGray,
+SLbool SLCVTrackedFeatures::track(SLCVMat imageGray,
                                   SLCVMat image,
                                   SLCVCalibration *calib,
                                   SLSceneView *sv)
@@ -245,7 +251,7 @@ SLbool SLCVTrackerFeatures::track(SLCVMat imageGray,
     // Initialize reference points if program just started
     if (_frameCount == 0)
     {   _calib = calib;
-        initializeReference(SL_TRACKER_IMAGE_NAME);
+        initializeMarker(SL_MARKER_IMAGE_NAME);
     }
 
     // Copy image matrix into current frame data
@@ -267,7 +273,7 @@ SLbool SLCVTrackerFeatures::track(SLCVMat imageGray,
     // Update the camera according to the new Pose
     updateSceneCamera(sv);
 
-    // Perform OpenCV drawning if flags are set (see SLCVTrackerFeatures.h)
+    // Perform OpenCV drawning if flags are set (see SLCVTrackedFeatures.h)
     drawDebugInformation();
 
     // Prepare next frame and transfer necessary data
@@ -285,15 +291,10 @@ SLbool SLCVTrackerFeatures::track(SLCVMat imageGray,
 3. Match keypoints in current frame and the reference tracker
 4. Try to calculate new Pose with Perspective-n-SLCVPoint algorithm
 */
-void SLCVTrackerFeatures::relocate()
+void SLCVTrackedFeatures::relocate()
 {
     _isTracking = false;
-    #if DISTINGUISH_FEATURE_DETECT_COMPUTE
-    keypoints = getKeypoints(imageGray);
-    descriptors = getDescriptors(imageGray , keypoints);
-    #else
-    getKeypointsAndDescriptors();
-    #endif
+    detectKeypointsAndDescriptors();
     _current.matches = getFeatureMatches();
     _current.foundPose = calculatePose();
 }
@@ -302,7 +303,7 @@ void SLCVTrackerFeatures::relocate()
 /*! To track the already detected keypoints after a sucessful pose estimation,
 we track the features with optical flow
 */
-void SLCVTrackerFeatures::tracking()
+void SLCVTrackedFeatures::tracking()
 {
     _isTracking = true;
     _current.foundPose = trackWithOptFlow(_prev.rvec, _prev.tvec);
@@ -315,7 +316,7 @@ void SLCVTrackerFeatures::tracking()
 - Optical Flow (Small arrows that show how keypoints moved between frames)
 - Reprojection with the calculated Pose
 */
-void SLCVTrackerFeatures::drawDebugInformation()
+void SLCVTrackedFeatures::drawDebugInformation()
 {
     #if DRAW_REPROJECTION_POINTS
     SLCVMat imgReprojection = _current.image;
@@ -433,7 +434,7 @@ void SLCVTrackerFeatures::drawDebugInformation()
 
 //-----------------------------------------------------------------------------
 //! Updates the scenegraph camera with the new pose
-void SLCVTrackerFeatures::updateSceneCamera(SLSceneView *sv)
+void SLCVTrackedFeatures::updateSceneCamera(SLSceneView *sv)
 {
     if (_current.foundPose)
     {
@@ -462,7 +463,7 @@ void SLCVTrackerFeatures::updateSceneCamera(SLSceneView *sv)
 next frame handling.
 TODO: more elegant way to do this whole copy action
 */
-void SLCVTrackerFeatures::transferFrameData()
+void SLCVTrackedFeatures::transferFrameData()
 {
     _current.imageGray.copyTo(_prev.imageGray);
     _current.image.copyTo(_prev.image);
@@ -496,85 +497,21 @@ void SLCVTrackerFeatures::transferFrameData()
 }
 
 //-----------------------------------------------------------------------------
-//! Returns the found keypoints with the predefined keypoint detector
-SLCVVKeyPoint SLCVTrackerFeatures::detectKeypoints()
-{
-    SLScene* s = SLScene::current;
-    SLCVVKeyPoint keypoints;
-    SLfloat detectTimeMillis = s->timeMilliSec();
-    s->detector()->detect(_current.imageGray, keypoints);
-
-    SLfloat detectionDifference = s->timeMilliSec() - detectTimeMillis;
-    s->setDetectionTimesMS(detectionDifference);
-
-    #if BENCHMARKING
-    if (detectionDifference > 0)
-    {   if (detectionDifference < low_detection_milis)
-            low_detection_milis = detectionDifference;
-        else if (detectionDifference > high_detection_milis)
-            high_detection_milis = detectionDifference;
-        if (_frameCount > 0)
-            sum_detection_millis += detectionDifference;
-    }
-    #endif
-
-    return keypoints;
-}
-
-//-----------------------------------------------------------------------------
-//! Returns the keypoint descriptors of the current frame
-SLCVMat SLCVTrackerFeatures::computeDescriptors()
-{
-    SLScene* s = SLScene::current;
-    SLCVMat descriptors;
-    SLfloat computeTimeMillis = s->timeMilliSec();
-    s->descriptor()->compute(_current.imageGray, _current.keypoints, descriptors);
-
-    SLfloat computeDifference = s->timeMilliSec() - computeTimeMillis;
-    s->setFeatureTimesMS(computeDifference);
-
-    #if BENCHMARKING
-    if (computeDifference > 0)
-    {   if (computeDifference < low_compute_milis)
-            low_compute_milis = computeDifference;
-        else if (computeDifference > high_compute_milis)
-            high_compute_milis = computeDifference;
-
-        if (_frameCount > 0)
-            sum_compute_millis += computeDifference;
-    }
-    #endif
-
-    return descriptors;
-}
-
-//-----------------------------------------------------------------------------
 /*! Get keypoints and descriptors in one step. This is a more efficient way
 since we have to build the scaling pyramide only once. If we detect and
 describe seperatly, it will lead in two scaling pyramids and is therefore less
 meaningful.
 */
-void SLCVTrackerFeatures::getKeypointsAndDescriptors()
+void SLCVTrackedFeatures::detectKeypointsAndDescriptors()
 {
     SLScene* s = SLScene::current;
-    SLfloat detectComputeTimeMillis = s->timeMilliSec();
-    s->descriptor()->detectAndCompute(_current.imageGray,
-                                      _current.keypoints,
-                                      _current.descriptors);
-    SLfloat detectComputeDifference = s->timeMilliSec() - detectComputeTimeMillis;
-    s->setFeatureTimesMS(detectComputeDifference);
+    SLfloat startMS = s->timeMilliSec();
 
-    #if BENCHMARKING
-    if (detectComputeDifference > 0)
-    {   if (detectComputeDifference < low_detectcompute_milis)
-            low_detectcompute_milis = detectComputeDifference;
-        else if (detectComputeDifference > high_detectcompute_milis)
-            high_detectcompute_milis = detectComputeDifference;
+    s->featureManager()->detectAndDescribe(_current.imageGray,
+                                           _current.keypoints,
+                                           _current.descriptors);
 
-        if (_frameCount > 0)
-            sum_detectcompute_millis += detectComputeDifference;
-    }
-    #endif
+    s->featureTimesMS().set(s->timeMilliSec()-startMS);
 }
 
 //-----------------------------------------------------------------------------
@@ -583,10 +520,10 @@ the k-next-neighbour matcher, we check if the best and second best match are
 not too identical with the so called ratio test.
 @return Vector of found matches
 */
-vector<DMatch> SLCVTrackerFeatures::getFeatureMatches()
+SLCVVDMatch SLCVTrackedFeatures::getFeatureMatches()
 {
     SLScene* s = SLScene::current;
-    SLfloat SLCVMatchTimeMillis = s->timeMilliSec();
+    SLfloat startMS = s->timeMilliSec();
 
     int k = 2;
     SLCVVVDMatch matches;
@@ -604,7 +541,7 @@ vector<DMatch> SLCVTrackerFeatures::getFeatureMatches()
             goodMatches.push_back(match1);
     }
 
-    s->setMatchTimesMS(s->timeMilliSec() - SLCVMatchTimeMillis);
+    s->matchTimesMS().set(s->timeMilliSec() - startMS);
     return goodMatches;
 }
 
@@ -651,7 +588,7 @@ respect to world coordinates.
 
 @return True if the pose was found.
  */
-bool SLCVTrackerFeatures::calculatePose()
+bool SLCVTrackedFeatures::calculatePose()
 {
     // RANSAC crashes if 0 points are given
     if (_current.matches.size() == 0) return 0;
@@ -740,7 +677,7 @@ points to our current frame. Within a predefined patch, we try to rematch not
 matched features with the reprojected point. If not possible, we increase the
 patch size until we found a match for the point or we reach a threshold.
 */
-void SLCVTrackerFeatures::optimizeMatches()
+void SLCVTrackedFeatures::optimizeMatches()
 {
     SLfloat reprojectionError = 0;
 
@@ -810,13 +747,13 @@ void SLCVTrackerFeatures::optimizeMatches()
             // with the descritor of the projected map point.
 
             // This is our descriptor for the model point i
-            SLCVMat modelPointDescriptor = _marker.descriptors.row(i);
+            SLCVMat modelPointDescriptor = _marker.descriptors.row((SLint)i);
 
             // We extract the descriptors which belong to the keypoints
             // inside the rectangle around the projected map point
             SLCVMat bboxPointsDescriptors;
             for (size_t j : frameIndicesInsideRect)
-                bboxPointsDescriptors.push_back(_current.descriptors.row(j));
+                bboxPointsDescriptors.push_back(_current.descriptors.row((SLint)j));
 
             // 4. Match the frame keypoints inside the rectangle with the projected model point
             _matcher->match(bboxPointsDescriptors, modelPointDescriptor, newMatches);
@@ -911,7 +848,7 @@ Pose).
 @param tvec  Translation vector (will be used for extrinsic guess)
 @return      True if Pose found, false otherwise
 */
-bool SLCVTrackerFeatures::trackWithOptFlow(SLCVMat rvec, SLCVMat tvec)
+bool SLCVTrackedFeatures::trackWithOptFlow(SLCVMat rvec, SLCVMat tvec)
 {
     if (_prev.inlierPoints2D.size() < 4) return false;
 

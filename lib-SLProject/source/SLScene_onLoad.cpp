@@ -31,9 +31,9 @@
 #include <SLGrid.h>
 #include <SLLens.h>
 #include <SLCoordAxis.h>
-#include <SLCVTrackerAruco.h>
-#include <SLCVTrackerChessboard.h>
-#include <SLCVTrackerFeatures.h>
+#include <SLCVTrackedAruco.h>
+#include <SLCVTrackedChessboard.h>
+#include <SLCVTrackedFeatures.h>
 #include <SLTransferFunction.h>
 
 SLNode* SphereGroup(SLint, SLfloat, SLfloat, SLfloat, SLfloat, SLint, SLMaterial*, SLMaterial*);
@@ -2127,7 +2127,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
     {
         /*
         The tracking of markers is done in SLScene::onUpdate by calling the specific
-        SLCVTracker::track method. If a marker was found it overwrites the linked nodes
+        SLCVTracked::track method. If a marker was found it overwrites the linked nodes
         object matrix (SLNode::_om). If the linked node is the active camera the found
         transform is additionally inversed. This would be the standard augmented realtiy
         use case.
@@ -2201,7 +2201,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         }
 
         // Create OpenCV Tracker for the box node
-        _trackers.push_back(new SLCVTrackerChessboard(cam1));
+        _trackers.push_back(new SLCVTrackedChessboard(cam1));
         
         // pass the scene group as root node
         _root3D = scene;
@@ -2216,7 +2216,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
     {
         /*
         The tracking of markers is done in SLScene::onUpdate by calling the specific
-        SLCVTracker::track method. If a marker was found it overwrites the linked nodes
+        SLCVTracked::track method. If a marker was found it overwrites the linked nodes
         object matrix (SLNode::_om). If the linked node is the active camera the found
         transform is additionally inversed. This would be the standard augmented realtiy
         use case.
@@ -2255,7 +2255,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         scene->addChild(light1);
 
         // Get the half edge length of the aruco marker
-        SLfloat edgeLen = SLCVTrackerAruco::params.edgeLength;
+        SLfloat edgeLen = SLCVTrackedAruco::params.edgeLength;
         SLfloat he = edgeLen * 0.5f;
         
         // Build mesh & node that will be tracked by the 1st marker (camera)  
@@ -2280,8 +2280,8 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         scene->addChild(boxNode2);
 
         // Create OpenCV Tracker for the camera & the 2nd box node
-        _trackers.push_back(new SLCVTrackerAruco(cam1, 0));
-        _trackers.push_back(new SLCVTrackerAruco(boxNode2, 1));
+        _trackers.push_back(new SLCVTrackedAruco(cam1, 0));
+        _trackers.push_back(new SLCVTrackedAruco(boxNode2, 1));
         
         // pass the scene group as root node
         _root3D = scene;
@@ -2297,7 +2297,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
     {
         /*
         The tracking of markers is done in SLScene::onUpdate by calling the specific
-        SLCVTracker::track method. If a marker was found it overwrites the linked nodes
+        SLCVTracked::track method. If a marker was found it overwrites the linked nodes
         object matrix (SLNode::_om). If the linked node is the active camera the found
         transform is additionally inversed. This would be the standard augmented realtiy
         use case.
@@ -2333,7 +2333,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         light3->specular(SLCol4f(1,1,1));
         light3->attenuation(1,0,0);
 
-        // Christoffel tower ------------------------------------------------------------
+        // Christoffel tower
         SLAssimpImporter importer;
         #if defined(SL_OS_IOS) || defined(SL_OS_ANDROID)
         SLNode* tower = importer.load("christoffelturm.obj");
@@ -2344,7 +2344,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         tower->translate(80, -80, 0);
         tower->scale(4);
 
-        // Scene structure --------------------------------------------------------------
+        // Scene structure
         SLNode* scene = new SLNode("Scene");
         scene->addChild(light1);
         scene->addChild(light2);
@@ -2352,7 +2352,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         if (tower) scene->addChild(tower);
         scene->addChild(cam1);
 
-        _trackers.push_back(new SLCVTrackerFeatures(cam1));
+        _trackers.push_back(new SLCVTrackedFeatures(cam1));
 
         sv->waitEvents(false); // for constant video feed
         //sv->usesRotation(true);

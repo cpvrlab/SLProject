@@ -1,5 +1,5 @@
 //#############################################################################
-//  File:      SLCVTrackerFeatures.h
+//  File:      SLCVTrackedFeatures.h
 //  Author:    Pascal Zingg, Timon Tschanz
 //  Date:      Spring 2017
 //  Codestyle: https://github.com/cpvrlab/SLProject/wiki/Coding-Style-Guidelines
@@ -16,11 +16,11 @@ The OpenCV library version 3.1 with extra module must be present.
 If the application captures the live video stream with OpenCV you have
 to define in addition the constant SL_USES_CVCAPTURE.
 All classes that use OpenCV begin with SLCV.
-See also the class docs for SLCVCapture, SLCVCalibration and SLCVTracker
+See also the class docs for SLCVCapture, SLCVCalibration and SLCVTracked
 for a good top down information.
 */
 #include <SLCV.h>
-#include <SLCVTracker.h>
+#include <SLCVTracked.h>
 #include <SLNode.h>
 #include <SLCVRaulMurOrb.h>
 
@@ -39,8 +39,8 @@ using namespace cv;
 
 
 // Set stones Tracker as default reference image
-#ifndef SL_TRACKER_IMAGE_NAME
-    #define SL_TRACKER_IMAGE_NAME "stones"
+#ifndef SL_MARKER_IMAGE_NAME
+    #define SL_MARKER_IMAGE_NAME "features_stones.png"
 #endif
 
 #ifdef SL_SAVE_DEBUG_OUTPUT
@@ -66,7 +66,7 @@ const int initialPatchSize = 2;
 const int maxPatchSize = 60;
 
 //-----------------------------------------------------------------------------
-//! SLCVTrackerFeatures is the main part of the AR Christoffelturm scene
+//! SLCVTrackedFeatures is the main part of the AR Christoffelturm scene
 /*! The implementation tries to find a valid pose based on feature points in
 realtime. The feature matching algorithm checks the points of the current camera
 frame with against a reference. There are two important parts of this procedure:
@@ -74,26 +74,24 @@ The relocalisation, which will be called if we have to find the pose with no hin
 where the camera could be. The other one is called feature tracking: If a pose
 was found, the implementation tries to track them and update the pose respectively.
 */
-class SLCVTrackerFeatures : public SLCVTracker
+class SLCVTrackedFeatures : public SLCVTracked
 {
 public:
-        SLCVTrackerFeatures     (SLNode* node);
-        ~SLCVTrackerFeatures    ();
+        SLCVTrackedFeatures     (SLNode* node);
+        ~SLCVTrackedFeatures    ();
         SLbool  track           (SLCVMat imageGray,
                                 SLCVMat image,
                                 SLCVCalibration* calib,
                                 SLSceneView* sv);
 
 private:
-        void                initializeReference (string trackerName);
+        void                initializeMarker    (string markerFilename);
         void                relocate            ();
         void                tracking            ();
         void                drawDebugInformation();
         void                updateSceneCamera   (SLSceneView* sv);
         void                transferFrameData   ();
-        SLCVVKeyPoint       detectKeypoints     ();
-        SLCVMat             computeDescriptors  ();
-        void                getKeypointsAndDescriptors();
+        void                detectKeypointsAndDescriptors();
         SLCVVDMatch         getFeatureMatches   ();
         bool                calculatePose       ();
         void                optimizeMatches     ();
@@ -136,4 +134,4 @@ private:
         FrameData           _prev;              //!< The previous video frame date
 };
 //-----------------------------------------------------------------------------
-#endif // SLCVTrackerFeatures_H
+#endif // SLCVTrackedFeatures_H

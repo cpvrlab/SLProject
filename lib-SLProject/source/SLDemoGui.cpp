@@ -485,6 +485,8 @@ void SLDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
                         sv->onCommand(C_sceneVideoTrackChessMain);
                     if (ImGui::MenuItem("Track Chessboard (Scnd)", 0, curS==C_sceneVideoTrackChessScnd, SLCVCapture::hasSecondaryCamera))
                         sv->onCommand(C_sceneVideoTrackChessScnd);
+                    if (ImGui::MenuItem("Track Features (Main)", 0, curS==C_sceneVideoTrackFeature2DMain))
+                        sv->onCommand(C_sceneVideoTrackFeature2DMain);
                     if (ImGui::MenuItem("Texture from live video", 0, curS==C_sceneVideoTexture))
                         sv->onCommand(C_sceneVideoTexture);
 

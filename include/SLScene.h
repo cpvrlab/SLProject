@@ -21,15 +21,14 @@
 #include <SLAnimManager.h>
 #include <SLAverage.h>
 #include <SLCVCalibration.h>
-#include <SLCVDetector.h>
-#include <SLCVDescriptor.h>
+#include <SLCVFeatureManager.h>
 
 class SLSceneView;
-class SLCVTracker;
+class SLCVTracked;
 
 //-----------------------------------------------------------------------------
 typedef vector<SLSceneView*> SLVSceneView; //!< Vector of SceneView pointers
-typedef vector<SLCVTracker*> SLVCVTracker; //!< Vector of CV tracker pointers
+typedef vector<SLCVTracked*> SLVCVTracker; //!< Vector of CV tracker pointers
 //-----------------------------------------------------------------------------
 //! The SLScene class represents the top level instance holding the scene structure
 /*!      
@@ -60,11 +59,7 @@ class SLScene: public SLObject
             void            globalAmbiLight     (SLCol4f gloAmbi){_globalAmbiLight=gloAmbi;}
             void            stopAnimations      (SLbool stop) {_stopAnimations = stop;}
             void            videoType           (SLVideoType vt);
-            void            setFeatureTimesMS   (SLfloat t) {_featureTimesMS.set(t);}
-            void            setDetectionTimesMS (SLfloat t) {_detectionTimesMS.set(t);}
-            void            setMatchTimesMS     (SLfloat t) {_matchTimesMS.set(t);}
-            void            detector            (SLCVDetector* d) {_detector = d;}
-            void            descriptor          (SLCVDescriptor* d) {_descriptor = d;}
+            void            featureManager      (SLCVFeatureManager* fm) {_featureManager = fm;}
                            
             // Getters
             SLAnimManager&  animManager         () {return _animManager;}
@@ -86,7 +81,6 @@ class SLScene: public SLObject
             SLAvgFloat&     updateTimesMS       () {return _updateTimesMS;}
             SLAvgFloat&     trackingTimesMS     () {return _trackingTimesMS;}
             SLAvgFloat&     featureTimesMS      () {return _featureTimesMS;}
-            SLAvgFloat&     detectionTimesMS    () {return _detectionTimesMS;}
             SLAvgFloat&     matchTimesMS        () {return _matchTimesMS;}
             SLAvgFloat&     cullTimesMS         () {return _cullTimesMS;}
             SLAvgFloat&     draw2DTimesMS       () {return _draw2DTimesMS;}
@@ -111,8 +105,7 @@ class SLScene: public SLObject
             SLCVCalibration*    calibMainCam    () {return &_calibMainCam;}
             SLCVCalibration*    calibScndCam    () {return &_calibScndCam;}
             SLVCVTracker&       trackers        () {return _trackers;}
-            SLCVDetector*       detector        () {return _detector;}
-            SLCVDescriptor*     descriptor      () {return _descriptor;}
+            SLCVFeatureManager* featureManager  () {return _featureManager;}
             
             // Misc.
    virtual  void            onLoad              (SLSceneView* sv, 
@@ -132,8 +125,6 @@ class SLScene: public SLObject
                                                  SLuchar* data,
                                                  SLbool isContinuous,
                                                  SLbool isTopLeft);
-            SLbool          isDetector          (SLCVDetectorType type){return _detector->type == type;}
-            SLbool          isDescriptor        (SLCVDescriptorType type){return _descriptor->type == type;}
 
      static SLScene*        current;            //!< global static scene pointer
 
@@ -163,7 +154,6 @@ class SLScene: public SLObject
             SLAvgFloat      _updateTimesMS;     //!< Averaged time for update in ms
             SLAvgFloat      _trackingTimesMS;   //!< Averaged time for video tracking in ms
             SLAvgFloat      _featureTimesMS;    //!< Averaged time for video feature tracking in ms
-            SLAvgFloat      _detectionTimesMS;  //!< Averaged time for video feature detection in ms
             SLAvgFloat      _matchTimesMS;      //!< Averaged time for video feature matching in ms
             SLAvgFloat      _frameTimesMS;      //!< Averaged time per frame in ms
             SLAvgFloat      _cullTimesMS;       //!< Averaged time for culling in ms
@@ -182,8 +172,7 @@ class SLScene: public SLObject
             SLCVCalibration     _calibMainCam;  //!< OpenCV calibration for main video camera
             SLCVCalibration     _calibScndCam;  //!< OpenCV calibration for secondary video camera
             SLVCVTracker        _trackers;      //!< Vector of all AR trackers
-            SLCVDetector*       _detector;      //!< Feature detector used for feature detection
-            SLCVDescriptor*     _descriptor;    //!< Feature descriptor used for feature description
+            SLCVFeatureManager* _featureManager;//!< Feature detector-descriptor
 };
 //-----------------------------------------------------------------------------
 #endif

@@ -20,8 +20,8 @@
 #include <SLCVCapture.h>
 #include <SLAssimpImporter.h>
 #include <SLLightDirect.h>
-#include <SLCVTracker.h>
-#include <SLCVTrackerAruco.h>
+#include <SLCVTracked.h>
+#include <SLCVTrackedAruco.h>
 
 //-----------------------------------------------------------------------------
 /*! Global static scene pointer that can be used throughout the entire library
@@ -121,11 +121,8 @@ SLScene::SLScene(SLstring name) : SLObject(name)
     SLCVCapture::hasSecondaryCamera = true;
     #endif
 
-    // Delete feature matching stuff
-    if (_descriptor)
-        delete _descriptor;
-    if (_detector)
-        delete _detector;
+    // Init feature descriptor and detector
+    _featureManager = new SLCVFeatureManager(DDT_RAUL_RAUL);
 
     _oculus.init();
 }
@@ -185,6 +182,10 @@ SLScene::~SLScene()
     // release the capture device
     SLCVCapture::release();
     #endif
+
+    // Delete feature matching stuff
+    if (_featureManager)
+        delete _featureManager;
 
     SL_LOG("Destructor      : ~SLScene\n");
     SL_LOG("------------------------------------------------------------------\n");
@@ -426,7 +427,7 @@ bool SLScene::onUpdate()
         if (_activeCalib->state() == CS_calibrated ||
             _activeCalib->state() == CS_guessed) //............................
         {
-            SLCVTrackerAruco::trackAllOnce = true;
+            SLCVTrackedAruco::trackAllOnce = true;
         
             // track all trackers in the first sceneview
             for (auto tracker : _trackers)

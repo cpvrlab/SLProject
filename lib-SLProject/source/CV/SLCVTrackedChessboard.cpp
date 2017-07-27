@@ -1,5 +1,5 @@
 //#############################################################################
-//  File:      SLCVTrackerChessboard.cpp
+//  File:      SLCVTrackedChessboard.cpp
 //  Author:    Michael G�ttlicher, Marcus Hudritsch
 //  Date:      Winter 2016
 //  Codestyle: https://github.com/cpvrlab/SLProject/wiki/Coding-Style-Guidelines
@@ -15,14 +15,14 @@ The OpenCV library version 3.1 with extra module must be present.
 If the application captures the live video stream with OpenCV you have
 to define in addition the constant SL_USES_CVCAPTURE.
 All classes that use OpenCV begin with SLCV.
-See also the class docs for SLCVCapture, SLCVCalibration and SLCVTracker
+See also the class docs for SLCVCapture, SLCVCalibration and SLCVTracked
 for a good top down information.
 */
-#include <SLCVTrackerChessboard.h>
+#include <SLCVTrackedChessboard.h>
 
 using namespace cv;
 //-----------------------------------------------------------------------------
-SLCVTrackerChessboard::SLCVTrackerChessboard(SLNode* node) : SLCVTracker(node)
+SLCVTrackedChessboard::SLCVTrackedChessboard(SLNode* node) : SLCVTracked(node)
 {
     SLCVCalibration* calib = SLScene::current->activeCalib();
     SLCVCalibration::calcBoardCorners3D(calib->boardSize(),
@@ -32,7 +32,7 @@ SLCVTrackerChessboard::SLCVTrackerChessboard(SLNode* node) : SLCVTracker(node)
 }
 //-----------------------------------------------------------------------------
 //! Tracks the chessboard image in the given image for the first sceneview
-bool SLCVTrackerChessboard::track(SLCVMat imageGray,
+bool SLCVTrackedChessboard::track(SLCVMat imageGray,
                                   SLCVMat imageRgb,
                                   SLCVCalibration* calib,
                                   SLSceneView* sv)
