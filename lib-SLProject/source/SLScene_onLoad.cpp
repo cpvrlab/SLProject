@@ -2150,6 +2150,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         if (SL::currentSceneID == C_sceneVideoCalibrateMain)
         {   videoType(VT_MAIN);
             _activeCalib->clear();
+
             name("Calibrate Main Camera");
         } else
         if (SL::currentSceneID == C_sceneVideoCalibrateScnd)

@@ -131,7 +131,8 @@ For a calibration you have to take 20 images with detected inner \
 chessboard corners. To take an image you have to click with the mouse \
 or tap with finger into the screen. You can mirror the video image under \
 Preferences > Video. \n\
-After calibration the yellow wireframe cube should stick on the chessboard.";
+After calibration the yellow wireframe cube should stick on the chessboard.\n\n\
+Please close first this info dialog.";
 
 //-----------------------------------------------------------------------------
 //! This is the mail building function for the GUI of the Demo apps
@@ -168,7 +169,7 @@ void SLDemoGui::buildDemoGui(SLScene* s, SLSceneView* sv)
 
     if (showHelp)
     {
-        ImGui::Begin("About SLProject Interaction", &showHelp, ImVec2(400,0));
+        ImGui::Begin("Help on Interaction", &showHelp, ImVec2(400,0));
         ImGui::Separator();
 
         ImGui::TextWrapped(infoHelp.c_str());
@@ -177,7 +178,7 @@ void SLDemoGui::buildDemoGui(SLScene* s, SLSceneView* sv)
 
     if (showHelpCalibration)
     {
-        ImGui::Begin("About Camera Calibration", &showHelpCalibration, ImVec2(400,0));
+        ImGui::Begin("Help on Camera Calibration", &showHelpCalibration, ImVec2(400,0));
         ImGui::TextWrapped(infoCalibrate.c_str());
         ImGui::End();
     }
@@ -357,8 +358,18 @@ void SLDemoGui::buildDemoGui(SLScene* s, SLSceneView* sv)
 
     if (showInfosScene)
     {
-        ImGui::Begin("Scene Information", &showInfosScene, ImVec2(300,0));
-        ImGui::TextWrapped(s->info().c_str());
+        ImGuiWindowFlags window_flags = 0;
+        window_flags |= ImGuiWindowFlags_NoTitleBar;
+        window_flags |= ImGuiWindowFlags_NoResize;
+        SLint w = sv->scrW();
+        ImVec2 size = ImGui::CalcTextSize(s->info().c_str(), 0, true, w);
+        SLint h = size.y + SLGLImGui::fontPropDots * 1.2f;
+        SLstring info = "Scene Info: " + s->info();
+
+        ImGui::SetNextWindowPos(ImVec2(0,sv->scrH()-h));
+        ImGui::SetNextWindowSize(ImVec2(w,h));
+        ImGui::Begin("Scene Information", &showInfosScene, window_flags);
+        ImGui::TextWrapped(info.c_str());
         ImGui::End();
     }
 
@@ -556,17 +567,86 @@ void SLDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
 
                 ImGui::Separator();
 
-                ImGui::MenuItem("Show Menu", 0, &showMenu);
+                if (ImGui::BeginMenu("Video"))
+                {
+                    SLCVCalibration* ac = s->activeCalib();
+                    SLCVCalibration* mc = s->calibMainCam();
+                    SLCVCalibration* sc = s->calibScndCam();
 
-                ImGui::SliderFloat("Prop. Font Size", &SLGLImGui::fontPropDots, 16.f, 60.f,"%0.0f");
+                    if (ImGui::BeginMenu("Mirror Main Camera"))
+                    {
+                        if (ImGui::MenuItem("Horizontally", 0, mc->isMirroredH()))
+                            sv->onCommand(C_mirrorHMainVideoToggle);
 
-                ImGui::SliderFloat("Fixed Font Size", &SLGLImGui::fontFixedDots, 13.f, 60.f,"%0.0f");
+                        if (ImGui::MenuItem("Vertically", 0, mc->isMirroredV()))
+                            sv->onCommand(C_mirrorVMainVideoToggle);
 
-                ImGuiStyle& style = ImGui::GetStyle();
-                if (ImGui::SliderFloat2("Frame Padding", (float*)&style.FramePadding, 0.0f, 20.0f, "%.0f"))
-                    style.WindowPadding.x = style.FramePadding.x;
-                if (ImGui::SliderFloat2("Item Spacing", (float*)&style.ItemSpacing, 0.0f, 20.0f, "%.0f"))
-                    style.ItemInnerSpacing.x = style.ItemSpacing.y;
+                        ImGui::EndMenu();
+                    }
+
+                    if (ImGui::BeginMenu("Mirror Scnd. Camera", SLCVCapture::hasSecondaryCamera))
+                    {
+                        if (ImGui::MenuItem("Horizontally", 0, sc->isMirroredH()))
+                            sv->onCommand(C_mirrorHScndVideoToggle);
+
+                        if (ImGui::MenuItem("Vertically", 0, sc->isMirroredV()))
+                            sv->onCommand(C_mirrorVScndVideoToggle);
+
+                        ImGui::EndMenu();
+                    }
+
+                    if (ImGui::BeginMenu("Calibration"))
+                    {
+                        if (ImGui::MenuItem("Start Calibration on Main Camera"))
+                        {
+                            sv->onCommand(C_sceneVideoCalibrateMain);
+                            showHelpCalibration = true;
+                            showInfosScene = true;
+                        }
+
+                        if (ImGui::MenuItem("Start Calibration on Scnd. Camera", 0, false, SLCVCapture::hasSecondaryCamera))
+                        {
+                            sv->onCommand(C_sceneVideoCalibrateScnd);
+                            showHelpCalibration = true;
+                            showInfosScene = true;
+                        }
+
+                        if (ImGui::MenuItem("Undistort Image", 0, ac->showUndistorted(), ac->state()==CS_calibrated))
+                            sv->onCommand(C_undistortVideoToggle);
+
+                        if (ImGui::MenuItem("Zero Tangent Distortion", 0, ac->calibZeroTangentDist()))
+                            sv->onCommand(C_calibZeroTangentDistToggle);
+
+                        if (ImGui::MenuItem("Fix Aspect Ratio", 0, ac->calibFixAspectRatio()))
+                            sv->onCommand(C_calibFixAspectRatioToggle);
+
+                        if (ImGui::MenuItem("Fix Prinicpal Point", 0, ac->calibFixPrincipalPoint()))
+                            sv->onCommand(C_calibFixPrincipPointalToggle);
+
+                        ImGui::EndMenu();
+                    }
+
+                    ImGui::EndMenu();
+                }
+
+                ImGui::Separator();
+
+                if (ImGui::BeginMenu("User Interface"))
+                {
+                    ImGui::MenuItem("Show Menu", 0, &showMenu);
+
+                    ImGui::SliderFloat("Prop. Font Size", &SLGLImGui::fontPropDots, 16.f, 60.f,"%0.0f");
+
+                    ImGui::SliderFloat("Fixed Font Size", &SLGLImGui::fontFixedDots, 13.f, 60.f,"%0.0f");
+
+                    ImGuiStyle& style = ImGui::GetStyle();
+                    if (ImGui::SliderFloat2("Frame Padding", (float*)&style.FramePadding, 0.0f, 20.0f, "%.0f"))
+                        style.WindowPadding.x = style.FramePadding.x;
+                    if (ImGui::SliderFloat2("Item Spacing", (float*)&style.ItemSpacing, 0.0f, 20.0f, "%.0f"))
+                        style.ItemInnerSpacing.x = style.ItemSpacing.y;
+
+                    ImGui::EndMenu();
+                }
 
                 ImGui::EndMenu();
             }
@@ -870,10 +950,10 @@ void SLDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
 
         if (ImGui::BeginMenu("Infos"))
         {
+            ImGui::MenuItem("Infos on Scene",      0, &showInfosScene);
             ImGui::MenuItem("Stats on Timing"    , 0, &showStatsTiming);
             ImGui::MenuItem("Stats on Scene"     , 0, &showStatsScene);
             ImGui::MenuItem("Stats on Video"     , 0, &showStatsVideo);
-            ImGui::MenuItem("Infos on Scene",      0, &showInfosScene);
             ImGui::Separator();
             ImGui::MenuItem("Show Scenegraph",     0, &showSceneGraph);
             ImGui::MenuItem("Show Properties",     0, &showProperties);
