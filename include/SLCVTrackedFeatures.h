@@ -26,16 +26,14 @@ for a good top down information.
 
 using namespace cv;
 
-#define DEBUG_OUTPUT 0
-#define FORCE_REPOSE 0
-#define DISTINGUISH_FEATURE_DETECT_COMPUTE 0
-#define BENCHMARKING 1
+#define SL_FORCE_RELOCATION 0
+#define SL_SPLIT_DETECT_COMPUTE 0
+#define SL_DO_FEATURE_BENCHMARKING 1
 
 // Settings for drawing things into current camera frame
-#define DRAW_INLIERMATCHES 0
-#define DRAW_REPROJECTION_POINTS 0
-#define DRAW_REPROJECTION_ERROR 0
-#define DRAW_PATCHES 0
+#define SL_DRAW_REPROJECTION_POINTS 0
+#define SL_DRAW_REPROJECTION_ERROR 0
+#define SL_DRAW_PATCHES 0
 
 
 // Set stones Tracker as default reference image
@@ -45,9 +43,9 @@ using namespace cv;
 
 #ifdef SL_SAVE_DEBUG_OUTPUT
     #if defined(SL_OS_LINUX) || defined(SL_OS_MACOS) || defined(SL_OS_MACIOS)
-    #define SAVE_SNAPSHOTS_OUTPUT "/tmp/cv_tracking/"
+    #define SL_SAVE_SNAPSHOTS_OUTPUT "/tmp/cv_tracking/"
     #elif defined(SL_OS_WINDOWS)
-    #define SAVE_SNAPSHOTS_OUTPUT "cv_tracking/"
+    #define SL_SAVE_SNAPSHOTS_OUTPUT "cv_tracking/"
     #endif
 #endif
 
@@ -76,15 +74,14 @@ was found, the implementation tries to track them and update the pose respective
 */
 class SLCVTrackedFeatures : public SLCVTracked
 {
-public:
-        SLCVTrackedFeatures     (SLNode* node);
-        ~SLCVTrackedFeatures    ();
-        SLbool  track           (SLCVMat imageGray,
-                                SLCVMat image,
-                                SLCVCalibration* calib,
-                                SLSceneView* sv);
-
-private:
+    public:
+                            SLCVTrackedFeatures (SLNode* node);
+                           ~SLCVTrackedFeatures ();
+        SLbool              track               (SLCVMat imageGray,
+                                                 SLCVMat image,
+                                                 SLCVCalibration* calib,
+                                                 SLSceneView* sv);
+    private:
         void                initializeMarker    (string markerFilename);
         void                relocate            ();
         void                tracking            ();
@@ -103,17 +100,17 @@ private:
         bool                    _isTracking;    //!< True if tracking
 
         //! Data of a 2D marker image
-        struct FeatureMarker2D
-        {   SLCVVPoint3f    keypoints3D;        //!< 3D feature points in mm
-            SLCVMat         imageGray;          //!< Grayscale image of the marker
+        struct SLFeatureMarker2D
+        {   SLCVMat         imageGray;          //!< Grayscale image of the marker
             SLCVMat         imageDrawing;       //!< Color debug image
             SLCVVKeyPoint   keypoints2D;        //!< 2D keypoints in pixels
+            SLCVVPoint3f    keypoints3D;        //!< 3D feature points in mm
             SLCVMat         descriptors;        //!< Descriptors of the 2D keypoints
             SLCVVKeyPoint   bboxKeypoints2D;    //!< bounding boxes of 2D keypoints
         };
 
         //! Feature date for a video frame
-        struct FrameData
+        struct SLFrameData
         {   SLCVMat         image;              //!< Reference to color video frame
             SLCVMat         imageGray;          //!< Reference to grayscale video frame
             SLCVVPoint2f    inlierPoints2D;     //!< Inlier 2D points after RANSAC
@@ -129,9 +126,9 @@ private:
             SLbool          useExtrinsicGuess;  //!< flag if extrinsic gues should be used
         };
 
-        FeatureMarker2D     _marker;            //!< 2D marker data
-        FrameData           _current;           //!< The current video frame date
-        FrameData           _prev;              //!< The previous video frame date
+        SLFeatureMarker2D   _marker;            //!< 2D marker data
+        SLFrameData         _currentFrame;      //!< The current video frame data
+        SLFrameData         _prevFrame;         //!< The previous video frame data
 };
 //-----------------------------------------------------------------------------
 #endif // SLCVTrackedFeatures_H

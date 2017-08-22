@@ -72,6 +72,9 @@ SLbool SLCVTrackedAruco::track(SLCVMat imageGray,
     // Track all Aruco markers only once per frame
     if (trackAllOnce)
     {
+        SLScene* s = SLScene::current;
+        SLfloat startMS = s->timeMilliSec();
+
         arucoIDs.clear();
         objectViewMats.clear();
         SLCVVVPoint2f corners, rejected;
@@ -82,6 +85,8 @@ SLbool SLCVTrackedAruco::track(SLCVMat imageGray,
                              arucoIDs, 
                              params.arucoParams, 
                              rejected);
+
+        s->detectTimesMS().set(s->timeMilliSec()-startMS);
 
         if(arucoIDs.size() > 0)
         {

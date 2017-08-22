@@ -358,12 +358,13 @@ void SLDemoGui::buildDemoGui(SLScene* s, SLSceneView* sv)
 
     if (showInfosScene)
     {
+        // Calculate window position for dynamic status bar at the bottom of the main window
         ImGuiWindowFlags window_flags = 0;
         window_flags |= ImGuiWindowFlags_NoTitleBar;
         window_flags |= ImGuiWindowFlags_NoResize;
-        SLint w = sv->scrW();
+        SLfloat w = (SLfloat)sv->scrW();
         ImVec2 size = ImGui::CalcTextSize(s->info().c_str(), 0, true, w);
-        SLint h = size.y + SLGLImGui::fontPropDots * 1.2f;
+        SLfloat h = size.y + SLGLImGui::fontPropDots * 1.2f;
         SLstring info = "Scene Info: " + s->info();
 
         ImGui::SetNextWindowPos(ImVec2(0,sv->scrH()-h));

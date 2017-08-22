@@ -207,6 +207,9 @@ void SLScene::init()
     _draw3DTimesMS.init();
     _draw2DTimesMS.init();
     _trackingTimesMS.init();
+    _detectTimesMS.init();
+    _matchTimesMS.init();
+    _poseTimesMS.init();
     _captureTimesMS.init(200);
 }
 //-----------------------------------------------------------------------------

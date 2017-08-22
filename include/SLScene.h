@@ -80,8 +80,9 @@ class SLScene: public SLObject
             SLAvgFloat&     frameTimesMS        () {return _frameTimesMS;}
             SLAvgFloat&     updateTimesMS       () {return _updateTimesMS;}
             SLAvgFloat&     trackingTimesMS     () {return _trackingTimesMS;}
-            SLAvgFloat&     featureTimesMS      () {return _featureTimesMS;}
+            SLAvgFloat&     detectTimesMS       () {return _detectTimesMS;}
             SLAvgFloat&     matchTimesMS        () {return _matchTimesMS;}
+            SLAvgFloat&     poseTimesMS         () {return _matchTimesMS;}
             SLAvgFloat&     cullTimesMS         () {return _cullTimesMS;}
             SLAvgFloat&     draw2DTimesMS       () {return _draw2DTimesMS;}
             SLAvgFloat&     draw3DTimesMS       () {return _draw3DTimesMS;}
@@ -153,8 +154,9 @@ class SLScene: public SLObject
             SLfloat         _fps;               //!< Averaged no. of frames per second
             SLAvgFloat      _updateTimesMS;     //!< Averaged time for update in ms
             SLAvgFloat      _trackingTimesMS;   //!< Averaged time for video tracking in ms
-            SLAvgFloat      _featureTimesMS;    //!< Averaged time for video feature tracking in ms
+            SLAvgFloat      _detectTimesMS;     //!< Averaged time for video feature detection & description in ms
             SLAvgFloat      _matchTimesMS;      //!< Averaged time for video feature matching in ms
+            SLAvgFloat      _poseTimesMS;       //!< Averaged time for video feature pose estimation in ms
             SLAvgFloat      _frameTimesMS;      //!< Averaged time per frame in ms
             SLAvgFloat      _cullTimesMS;       //!< Averaged time for culling in ms
             SLAvgFloat      _draw3DTimesMS;     //!< Averaged time for 3D drawing in ms
