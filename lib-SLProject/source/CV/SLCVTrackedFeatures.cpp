@@ -68,12 +68,6 @@ std::string to_string(T value) {
 //-----------------------------------------------------------------------------
 SLCVTrackedFeatures::SLCVTrackedFeatures(SLNode *node) : SLCVTracked(node)
 {
-    // Use ORB-SLAM2 feature detector and descriptor (https://github.com/raulmur/ORB_SLAM2/)
-    SLCVRaulMurOrb* raulMurORB = new SLCVRaulMurOrb(nFeatures, 1.44f, 6, 20, 10);
-
-    SLCVFeatureManager* fm = SLScene::current->featureManager();
-    fm->detectorDescriptor(DDT_RAUL_RAUL, raulMurORB, raulMurORB);
-
     // To match the binary features, we are matching each descriptor in reference with each
     // descriptor in the current frame. The smaller the hamming distance the better the match
     // Hamming distance <-> XOR sum
@@ -85,6 +79,7 @@ SLCVTrackedFeatures::SLCVTrackedFeatures(SLNode *node) : SLCVTracked(node)
     _currentFrame.reprojectionError = 0.0f;
     _prevFrame.inlierPoints2D = SLCVVPoint2f(nFeatures);
     _forceRelocation = false;
+    _frameCount = 0;
 
     // Create directory for debug output if flag is set
     #ifdef SL_SAVE_SNAPSHOTS_OUTPUT
@@ -171,9 +166,9 @@ void SLCVTrackedFeatures::initializeMarker(string markerFilename)
     cv::flip(_marker.imageGray, _marker.imageGray, 1);
 
     // Detect and compute features in marker image
-    SLScene::current->featureManager()->detectAndDescribe(_marker.imageGray,
-                                                          _marker.keypoints2D,
-                                                          _marker.descriptors);
+    _featureManager.detectAndDescribe(_marker.imageGray,
+                                      _marker.keypoints2D,
+                                      _marker.descriptors);
     // Scaling factor for the 3D point.
     // Width of image is A4 size in image, 297mm is the real A4 height
     float pixelPerMM = img->width() / 297.0f;
@@ -226,6 +221,18 @@ void SLCVTrackedFeatures::initializeMarker(string markerFilename)
     #endif
 }
 
+//-----------------------------------------------------------------------------
+//! Setter of the feature detector & descriptor type
+void SLCVTrackedFeatures::type(SLCVDetectDescribeType ddType)
+{
+    _featureManager.createDetectorDescriptor(ddType);
+
+    _currentFrame.foundPose = false;
+    _prevFrame.foundPose = false;
+    _currentFrame.reprojectionError = 0.0f;
+    _forceRelocation = false;
+    _frameCount = 0;
+}
 //-----------------------------------------------------------------------------
 /*! The main part of this tracker is to calculate a correct Pose.
 @param imageGray Current grayscale frame
@@ -294,6 +301,10 @@ void SLCVTrackedFeatures::relocate()
     detectKeypointsAndDescriptors();
     _currentFrame.matches = getFeatureMatches();
     _currentFrame.foundPose = calculatePose();
+
+    // Zero time keeping on the tracking branch
+    SLScene* s = SLScene::current;
+    s->optFlowTimesMS().set(0);
 }
 
 //-----------------------------------------------------------------------------
@@ -304,6 +315,11 @@ void SLCVTrackedFeatures::tracking()
 {
     _isTracking = true;
     _currentFrame.foundPose = trackWithOptFlow(_prevFrame.rvec, _prevFrame.tvec);
+
+    // Zero time keeping on the relocation branch
+    SLScene* s = SLScene::current;
+    s->detectTimesMS().set(0);
+    s->matchTimesMS().set(0);
 }
 
 //-----------------------------------------------------------------------------
@@ -504,9 +520,9 @@ void SLCVTrackedFeatures::detectKeypointsAndDescriptors()
     SLScene* s = SLScene::current;
     SLfloat startMS = s->timeMilliSec();
 
-    s->featureManager()->detectAndDescribe(_currentFrame.imageGray,
-                                           _currentFrame.keypoints,
-                                           _currentFrame.descriptors);
+    _featureManager.detectAndDescribe(_currentFrame.imageGray,
+                                      _currentFrame.keypoints,
+                                      _currentFrame.descriptors);
 
     s->detectTimesMS().set(s->timeMilliSec()-startMS);
 }
@@ -856,6 +872,9 @@ bool SLCVTrackedFeatures::trackWithOptFlow(SLCVMat rvec, SLCVMat tvec)
 {
     if (_prevFrame.inlierPoints2D.size() < 4) return false;
 
+    SLScene* s = SLScene::current;
+    SLfloat startMS = s->timeMilliSec();
+
     SLVuchar status;
     SLVfloat err;
     SLCVSize winSize(15, 15);
@@ -890,10 +909,19 @@ bool SLCVTrackedFeatures::trackWithOptFlow(SLCVMat rvec, SLCVMat tvec)
         }
     }
 
+    s->optFlowTimesMS().set(s->timeMilliSec() - startMS);
+
+
     _currentFrame.inlierPoints2D = frame2DPoints;
     _currentFrame.inlierPoints3D = model3DPoints;
     if (_currentFrame.inlierPoints2D.size() < _prevFrame.inlierPoints2D.size() * 0.75)
         return false;
+
+    /////////////////////
+    // Pose Estimation //
+    /////////////////////
+
+    startMS = s->timeMilliSec();
 
     bool foundPose = cv::solvePnP(model3DPoints,
                                   frame2DPoints,
@@ -922,6 +950,8 @@ bool SLCVTrackedFeatures::trackWithOptFlow(SLCVMat rvec, SLCVMat tvec)
     {   rvec.copyTo(_currentFrame.rvec);
         tvec.copyTo(_currentFrame.tvec);
     }
+
+    s->poseTimesMS().set(s->timeMilliSec() - startMS);
 
     return foundPose && poseValid;
 }

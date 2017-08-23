@@ -202,48 +202,47 @@ void SLDemoGui::buildDemoGui(SLScene* s, SLSceneView* sv)
 
         if (rType == RT_gl)
         {
+            // Get averages from average variables (see SLAverage)
+            SLfloat captureTime     = s->captureTimesMS().average();
+            SLfloat updateTime      = s->updateTimesMS().average();
+            SLfloat trackingTime    = s->trackingTimesMS().average();
+            SLfloat detectTime      = s->detectTimesMS().average();
+            SLfloat matchTime       = s->matchTimesMS().average();
+            SLfloat optFlowTime     = s->optFlowTimesMS().average();
+            SLfloat poseTime        = s->poseTimesMS().average();
+            SLfloat draw3DTime      = s->draw3DTimesMS().average();
+            SLfloat draw2DTime      = s->draw2DTimesMS().average();
+            SLfloat cullTime        = s->cullTimesMS().average();
+
+            // Calculate percentage from frame time
+            SLfloat captureTimePC   = SL_clamp(captureTime  / ft * 100.0f, 0.0f,100.0f);
+            SLfloat updateTimePC    = SL_clamp(updateTime   / ft * 100.0f, 0.0f,100.0f);
+            SLfloat trackingTimePC  = SL_clamp(trackingTime / ft * 100.0f, 0.0f,100.0f);
+            SLfloat detectTimePC    = SL_clamp(detectTime   / ft * 100.0f, 0.0f,100.0f);
+            SLfloat matchTimePC     = SL_clamp(matchTime    / ft * 100.0f, 0.0f,100.0f);
+            SLfloat optFlowTimePC   = SL_clamp(optFlowTime  / ft * 100.0f, 0.0f,100.0f);
+            SLfloat poseTimePC      = SL_clamp(poseTime     / ft * 100.0f, 0.0f,100.0f);
+            SLfloat draw3DTimePC    = SL_clamp(draw3DTime   / ft * 100.0f, 0.0f,100.0f);
+            SLfloat draw2DTimePC    = SL_clamp(draw2DTime   / ft * 100.0f, 0.0f,100.0f);
+            SLfloat cullTimePC      = SL_clamp(cullTime     / ft * 100.0f, 0.0f,100.0f);
+
             ImGui::PushFont(ImGui::GetIO().Fonts->Fonts[1]);
             ImGui::Begin("Timing", &showStatsTiming, ImVec2(300,0));
             ImGui::Text("Renderer      : OpenGL");
             ImGui::Text("Frame size    : %d x %d", sv->scrW(), sv->scrH());
             ImGui::Text("NO. drawcalls : %d\n", SLGLVertexArray::totalDrawCalls);
             ImGui::Text("Frames per s. : %4.1f", s->fps());
-
-            if (ImGui::TreeNode("FrameTime", "Frame time   : %4.1f ms (100%%)", ft))
-            {
-                // Get averages from average variables (see SLAverage)
-                SLfloat captureTime     = s->captureTimesMS().average();
-                SLfloat updateTime      = s->updateTimesMS().average();
-                SLfloat trackingTime    = s->trackingTimesMS().average();
-                SLfloat detectTime      = s->detectTimesMS().average();
-                SLfloat matchTime       = s->matchTimesMS().average();
-                SLfloat poseTime        = s->poseTimesMS().average();
-                SLfloat cullTime        = s->cullTimesMS().average();
-                SLfloat draw3DTime      = s->draw3DTimesMS().average();
-                SLfloat draw2DTime      = s->draw2DTimesMS().average();
-
-                // Calculate percentage from frame time
-                SLfloat captureTimePC   = SL_clamp(captureTime  / ft * 100.0f, 0.0f,100.0f);
-                SLfloat updateTimePC    = SL_clamp(updateTime   / ft * 100.0f, 0.0f,100.0f);
-                SLfloat trackingTimePC  = SL_clamp(trackingTime / ft * 100.0f, 0.0f,100.0f);
-                SLfloat detectTimePC    = SL_clamp(detectTime   / ft * 100.0f, 0.0f,100.0f);
-                SLfloat matchTimePC     = SL_clamp(matchTime    / ft * 100.0f, 0.0f,100.0f);
-                SLfloat poseTimePC      = SL_clamp(poseTime     / ft * 100.0f, 0.0f,100.0f);
-                SLfloat cullTimePC      = SL_clamp(cullTime     / ft * 100.0f, 0.0f,100.0f);
-                SLfloat draw3DTimePC    = SL_clamp(draw3DTime   / ft * 100.0f, 0.0f,100.0f);
-                SLfloat draw2DTimePC    = SL_clamp(draw2DTime   / ft * 100.0f, 0.0f,100.0f);
-
-                ImGui::Text(" Capture      : %4.1f ms (%3d%%)", captureTime,  (SLint)captureTimePC);
-                ImGui::Text(" Update       : %4.1f ms (%3d%%)", updateTime,   (SLint)updateTimePC);
-                ImGui::Text("   Tracking   : %4.1f ms (%3d%%)", trackingTime, (SLint)trackingTimePC);
-                ImGui::Text("     Detect   : %4.1f ms (%3d%%)", detectTime,   (SLint)detectTimePC);
-                ImGui::Text("     Match    : %4.1f ms (%3d%%)", matchTime,    (SLint)matchTimePC);
-                ImGui::Text("     Pose     : %4.1f ms (%3d%%)", poseTime,     (SLint)poseTimePC);
-                ImGui::Text(" Culling      : %4.1f ms (%3d%%)", cullTime,     (SLint)cullTimePC);
-                ImGui::Text(" Drawing 3D   : %4.1f ms (%3d%%)", draw3DTime,   (SLint)draw3DTimePC);
-                ImGui::Text(" Drawing 2D   : %4.1f ms (%3d%%)", draw2DTime,   (SLint)draw2DTimePC);
-                ImGui::TreePop();
-            }
+            ImGui::Text("Frame time    : %4.1f ms (100%%)", ft);
+            ImGui::Text("  Capture     : %4.1f ms (%3d%%)", captureTime,  (SLint)captureTimePC);
+            ImGui::Text("  Update      : %4.1f ms (%3d%%)", updateTime,   (SLint)updateTimePC);
+            ImGui::Text("    Tracking  : %4.1f ms (%3d%%)", trackingTime, (SLint)trackingTimePC);
+            ImGui::Text("      Detect  : %4.1f ms (%3d%%)", detectTime,   (SLint)detectTimePC);
+            ImGui::Text("      Match   : %4.1f ms (%3d%%)", matchTime,    (SLint)matchTimePC);
+            ImGui::Text("      Opt.Flow: %4.1f ms (%3d%%)", optFlowTime,  (SLint)optFlowTimePC);
+            ImGui::Text("      Pose    : %4.1f ms (%3d%%)", poseTime,     (SLint)poseTimePC);
+            ImGui::Text("  Culling     : %4.1f ms (%3d%%)", cullTime,     (SLint)cullTimePC);
+            ImGui::Text("  Drawing 3D  : %4.1f ms (%3d%%)", draw3DTime,   (SLint)draw3DTimePC);
+            ImGui::Text("  Drawing 2D  : %4.1f ms (%3d%%)", draw2DTime,   (SLint)draw2DTimePC);
 
             ImGui::End();
             ImGui::PopFont();
@@ -594,11 +593,10 @@ void SLDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
                     SLCVCalibration*        ac = s->activeCalib();
                     SLCVCalibration*        mc = s->calibMainCam();
                     SLCVCalibration*        sc = s->calibScndCam();
-                    SLCVFeatureManager*     fm = s->featureManager();
 
                     SLCVTrackedFeatures* featureTracker = nullptr;
                     for (auto tracker : s->trackers())
-                    {   if (typeid(tracker)==typeid(SLCVTrackedFeatures))
+                    {   if (typeid(*tracker)==typeid(SLCVTrackedFeatures))
                         {   featureTracker = (SLCVTrackedFeatures*)tracker;
                             break;
                         }
@@ -657,10 +655,28 @@ void SLDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
                         ImGui::EndMenu();
                     }
 
-                    if (ImGui::BeginMenu("Feature Tracking", featureTracker != nullptr))
+                    if (ImGui::BeginMenu("Feature Tracking", featureTracker!=nullptr))
                     {
                         if (ImGui::MenuItem("Force Relocation", 0, featureTracker->forceRelocation()))
                             featureTracker->forceRelocation(!featureTracker->forceRelocation());
+
+                        ImGui::EndMenu();
+                    }
+
+                    if (ImGui::BeginMenu("Feature Detector/Descriptor", featureTracker!=nullptr))
+                    {
+                        SLCVDetectDescribeType type = featureTracker->type();
+
+                        if (ImGui::MenuItem("RAUL/RAUL", 0, type == DDT_RAUL_RAUL))
+                            featureTracker->type(DDT_RAUL_RAUL);
+                        if (ImGui::MenuItem("ORB/ORB", 0, type == DDT_ORB_ORB))
+                            featureTracker->type(DDT_ORB_ORB);
+                        if (ImGui::MenuItem("FAST/BRIEF", 0, type == DDT_FAST_BRIEF))
+                            featureTracker->type(DDT_FAST_BRIEF);
+                        if (ImGui::MenuItem("SURF/SURF", 0, type == DDT_SURF_SURF))
+                            featureTracker->type(DDT_SURF_SURF);
+                        if (ImGui::MenuItem("SIFT/SIFT", 0, type == DDT_SIFT_SIFT))
+                            featureTracker->type(DDT_SIFT_SIFT);
 
                         ImGui::EndMenu();
                     }

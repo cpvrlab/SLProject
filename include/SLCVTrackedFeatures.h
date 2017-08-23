@@ -23,6 +23,7 @@ for a good top down information.
 #include <SLCVTracked.h>
 #include <SLNode.h>
 #include <SLCVRaulMurOrb.h>
+#include <SLCVFeatureManager.h>
 
 using namespace cv;
 
@@ -82,9 +83,11 @@ class SLCVTrackedFeatures : public SLCVTracked
                                                  SLSceneView* sv);
         // Getters
         SLbool              forceRelocation     () {return _forceRelocation;}
+        SLCVDetectDescribeType type             () {return _featureManager.type();}
 
         // Setters
         void                forceRelocation     (SLbool fR) {_forceRelocation = fR;}
+        void                type                (SLCVDetectDescribeType ddType);
 
     private:
         void                initializeMarker    (string markerFilename);
@@ -101,7 +104,7 @@ class SLCVTrackedFeatures : public SLCVTracked
 
         Ptr<DescriptorMatcher>  _matcher;       //!< Descriptor matching algorithm
         SLCVCalibration*        _calib;         //!< Current calibration in use
-        SLint                   _frameCount=0;  //!< NO. of frames since process start
+        SLint                   _frameCount;    //!< NO. of frames since process start
         bool                    _isTracking;    //!< True if tracking
 
         //! Data of a 2D marker image
@@ -135,6 +138,7 @@ class SLCVTrackedFeatures : public SLCVTracked
         SLFrameData         _currentFrame;      //!< The current video frame data
         SLFrameData         _prevFrame;         //!< The previous video frame data
         SLbool              _forceRelocation;   //!< Force relocation every frame (no opt. flow tracking)
+        SLCVFeatureManager  _featureManager;    //!< Feature detector-descriptor wrapper instance
 };
 //-----------------------------------------------------------------------------
 #endif // SLCVTrackedFeatures_H

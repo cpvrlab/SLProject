@@ -27,35 +27,11 @@ for a good top down information.
 using namespace cv;
 
 //-----------------------------------------------------------------------------
-SLCVFeatureManager::SLCVFeatureManager(SLCVDetectDescribeType detectDescribeType)
+SLCVFeatureManager::SLCVFeatureManager()
 {
-    _type = detectDescribeType;
-
-    switch(detectDescribeType)
-    {
-        case DDT_FAST_BRIEF:
-            _detector = FastFeatureDetector::create(30, true, FastFeatureDetector::TYPE_9_16);
-            _descriptor = xfeatures2d::BriefDescriptorExtractor::create(32, true); return; 
-            return;
-        case DDT_ORB_ORB:
-            _detector = ORB::create(200, 1.44f, 3, 31, 0, 2, ORB::HARRIS_SCORE, 31, 30);
-            _descriptor = _detector; 
-            return;
-        case DDT_RAUL_RAUL:
-            _detector = new SLCVRaulMurOrb(1500, 1.44f, 4, 30, 20);
-            _descriptor = _detector; 
-            return;
-        case DDT_SURF_SURF:
-            _detector = xfeatures2d::SURF::create(100, 2, 2, false, false);
-            _descriptor = _detector; 
-            return;
-        case DDT_SIFT_SIFT:
-            _detector = xfeatures2d::SIFT::create(300, 2, 0.04, 10, 1.6);;
-            _descriptor = _detector; 
-            return;
-        default: 
-            SL_EXIT_MSG("Unknown detector-descriptor type.");
-    }
+    _detector = nullptr;
+    _descriptor = nullptr;
+    createDetectorDescriptor(DDT_RAUL_RAUL);
 }
 //-----------------------------------------------------------------------------
 SLCVFeatureManager::~SLCVFeatureManager()
@@ -88,12 +64,47 @@ void SLCVFeatureManager::deleteAll()
     }
 }
 //-----------------------------------------------------------------------------
-void SLCVFeatureManager::detectorDescriptor(SLCVDetectDescribeType detectDescribeType,
-                                            SLCVFeatureDetector* detector,
-                                            SLCVDescriptorExtractor* descriptor)
+//! Creates a detector and decriptor to the passed type
+void SLCVFeatureManager::createDetectorDescriptor(SLCVDetectDescribeType type)
 {
     deleteAll();
-    _type = detectDescribeType;
+
+    switch(type)
+    {
+        case DDT_FAST_BRIEF:
+            _detector = FastFeatureDetector::create(30, true, FastFeatureDetector::TYPE_9_16);
+            _descriptor = xfeatures2d::BriefDescriptorExtractor::create(32, true);
+            break;
+        case DDT_ORB_ORB:
+            _detector = ORB::create(200, 1.44f, 3, 31, 0, 2, ORB::HARRIS_SCORE, 31, 30);
+            _descriptor = _detector;
+            break;
+        case DDT_RAUL_RAUL:
+            _detector = new SLCVRaulMurOrb(1500, 1.44f, 4, 30, 20);
+            _descriptor = _detector;
+            break;
+        case DDT_SURF_SURF:
+            _detector = xfeatures2d::SURF::create(100, 2, 2, false, false);
+            _descriptor = _detector;
+            break;
+        case DDT_SIFT_SIFT:
+            _detector = xfeatures2d::SIFT::create(300, 2, 0.04, 10, 1.6);;
+            _descriptor = _detector;
+            break;
+        default:
+            SL_EXIT_MSG("Unknown detector-descriptor type.");
+    }
+
+    _type = type;
+}
+//-----------------------------------------------------------------------------
+//! Sets the detector and decriptor to the passed ones
+void SLCVFeatureManager::setDetectorDescriptor(SLCVDetectDescribeType type,
+                                               SLCVFeatureDetector* detector,
+                                               SLCVDescriptorExtractor* descriptor)
+{
+    deleteAll();
+    _type = type;
     _detector = detector;
     _descriptor = descriptor;
 }

@@ -121,9 +121,6 @@ SLScene::SLScene(SLstring name) : SLObject(name)
     SLCVCapture::hasSecondaryCamera = true;
     #endif
 
-    // Init feature descriptor and detector
-    _featureManager = new SLCVFeatureManager(DDT_RAUL_RAUL);
-
     _oculus.init();
 }
 //-----------------------------------------------------------------------------
@@ -183,10 +180,6 @@ SLScene::~SLScene()
     SLCVCapture::release();
     #endif
 
-    // Delete feature matching stuff
-    if (_featureManager)
-        delete _featureManager;
-
     SL_LOG("Destructor      : ~SLScene\n");
     SL_LOG("------------------------------------------------------------------\n");
 }
@@ -209,6 +202,7 @@ void SLScene::init()
     _trackingTimesMS.init();
     _detectTimesMS.init();
     _matchTimesMS.init();
+    _optFlowTimesMS.init();
     _poseTimesMS.init();
     _captureTimesMS.init(200);
 }

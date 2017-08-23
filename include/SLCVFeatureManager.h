@@ -1,5 +1,5 @@
 //#############################################################################
-//  File:      SLCVDetectorDescriptor.h
+//  File:      SLCVFeatureManager.h
 //  Author:    Marcus Hudritsch
 //  Date:      Autumn 2016
 //  Codestyle: https://github.com/cpvrlab/SLProject/wiki/Coding-Style-Guidelines
@@ -18,27 +18,31 @@
 class SLCVFeatureManager
 {
     public:
-                    SLCVFeatureManager  (SLCVDetectDescribeType detectDescripType);
-                   ~SLCVFeatureManager  ();
+                    SLCVFeatureManager      ();
+                   ~SLCVFeatureManager      ();
 
-        void        deleteAll           ();
+        void        deleteAll               ();
 
-        void        detect              (SLCVInputArray image,
-                                         SLCVVKeyPoint &keypoints,
-                                         SLCVInputArray mask = cv::noArray());
+        void        detect                  (SLCVInputArray image,
+                                             SLCVVKeyPoint &keypoints,
+                                             SLCVInputArray mask = cv::noArray());
 
-        void        describe            (SLCVInputArray  image,
-                                         SLCVVKeyPoint&  keypoints,
-                                         SLCVOutputArray descriptors);
+        void        describe                (SLCVInputArray  image,
+                                             SLCVVKeyPoint&  keypoints,
+                                             SLCVOutputArray descriptors);
 
-        void        detectAndDescribe   (SLCVInputArray  image,
-                                         SLCVVKeyPoint&  keypoints,
-                                         SLCVOutputArray descriptors,
-                                         SLCVInputArray  mask=cv::noArray());
+        void        detectAndDescribe       (SLCVInputArray  image,
+                                             SLCVVKeyPoint&  keypoints,
+                                             SLCVOutputArray descriptors,
+                                             SLCVInputArray  mask=cv::noArray());
 
-        void        detectorDescriptor  (SLCVDetectDescribeType detectDescribeType,
-                                         SLCVFeatureDetector* detector,
-                                         SLCVDescriptorExtractor* descriptor);
+        void        createDetectorDescriptor(SLCVDetectDescribeType detectDescribeType);
+
+        void        setDetectorDescriptor   (SLCVDetectDescribeType detectDescribeType,
+                                             SLCVFeatureDetector* detector,
+                                             SLCVDescriptorExtractor* descriptor);
+        // Getter
+        SLCVDetectDescribeType type         () {return _type;}
 
     private:
         SLCVDetectDescribeType      _type;          //!< Type of detector-descriptor pair
