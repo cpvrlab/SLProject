@@ -26,7 +26,6 @@ for a good top down information.
 
 using namespace cv;
 
-#define SL_FORCE_RELOCATION 0
 #define SL_SPLIT_DETECT_COMPUTE 0
 #define SL_DO_FEATURE_BENCHMARKING 1
 
@@ -81,6 +80,12 @@ class SLCVTrackedFeatures : public SLCVTracked
                                                  SLCVMat image,
                                                  SLCVCalibration* calib,
                                                  SLSceneView* sv);
+        // Getters
+        SLbool              forceRelocation     () {return _forceRelocation;}
+
+        // Setters
+        void                forceRelocation     (SLbool fR) {_forceRelocation = fR;}
+
     private:
         void                initializeMarker    (string markerFilename);
         void                relocate            ();
@@ -129,6 +134,7 @@ class SLCVTrackedFeatures : public SLCVTracked
         SLFeatureMarker2D   _marker;            //!< 2D marker data
         SLFrameData         _currentFrame;      //!< The current video frame data
         SLFrameData         _prevFrame;         //!< The previous video frame data
+        SLbool              _forceRelocation;   //!< Force relocation every frame (no opt. flow tracking)
 };
 //-----------------------------------------------------------------------------
 #endif // SLCVTrackedFeatures_H

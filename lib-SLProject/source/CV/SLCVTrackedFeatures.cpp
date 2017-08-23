@@ -84,6 +84,7 @@ SLCVTrackedFeatures::SLCVTrackedFeatures(SLNode *node) : SLCVTracked(node)
     _prevFrame.foundPose = false;
     _currentFrame.reprojectionError = 0.0f;
     _prevFrame.inlierPoints2D = SLCVVPoint2f(nFeatures);
+    _forceRelocation = false;
 
     // Create directory for debug output if flag is set
     #ifdef SL_SAVE_SNAPSHOTS_OUTPUT
@@ -255,7 +256,7 @@ SLbool SLCVTrackedFeatures::track(SLCVMat imageGray,
     _currentFrame.imageGray = imageGray;
 
     // Determine if relocation or feature tracking should be performed
-    bool relocationNeeded = SL_FORCE_RELOCATION
+    bool relocationNeeded = _forceRelocation
                             || !_prevFrame.foundPose
                             || _prevFrame.inlierMatches.size() < 100
                             || frames_since_posefound < 3;

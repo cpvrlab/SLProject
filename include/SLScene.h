@@ -82,7 +82,7 @@ class SLScene: public SLObject
             SLAvgFloat&     trackingTimesMS     () {return _trackingTimesMS;}
             SLAvgFloat&     detectTimesMS       () {return _detectTimesMS;}
             SLAvgFloat&     matchTimesMS        () {return _matchTimesMS;}
-            SLAvgFloat&     poseTimesMS         () {return _matchTimesMS;}
+            SLAvgFloat&     poseTimesMS         () {return _poseTimesMS;}
             SLAvgFloat&     cullTimesMS         () {return _cullTimesMS;}
             SLAvgFloat&     draw2DTimesMS       () {return _draw2DTimesMS;}
             SLAvgFloat&     draw3DTimesMS       () {return _draw3DTimesMS;}

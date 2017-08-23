@@ -1,5 +1,6 @@
 //#############################################################################
 //  File:      SLDemoGui.cpp
+//  Purpose:   UI with the ImGUI framework fully rendered in OpenGL 3+
 //  Author:    Marcus Hudritsch
 //  Date:      Summer 2017
 //  Codestyle: https://github.com/cpvrlab/SLProject/wiki/Coding-Style-Guidelines
@@ -32,6 +33,7 @@
 #include <SLCVImage.h>
 #include <SLGLTexture.h>
 #include <SLTransferFunction.h>
+#include <SLCVTrackedFeatures.h>
 
 #include <imgui.h>
 
@@ -206,21 +208,40 @@ void SLDemoGui::buildDemoGui(SLScene* s, SLSceneView* sv)
             ImGui::Text("Frame size    : %d x %d", sv->scrW(), sv->scrH());
             ImGui::Text("NO. drawcalls : %d\n", SLGLVertexArray::totalDrawCalls);
             ImGui::Text("Frames per s. : %4.1f", s->fps());
-            if (ImGui::TreeNode("FrameTime", "Frame time   : %4.1f ms (100%%)", s->frameTimesMS().average()))
-            {
-                SLfloat updateTimePC    = SL_clamp(s->updateTimesMS().average()   / ft * 100.0f, 0.0f,100.0f);
-                SLfloat trackingTimePC  = SL_clamp(s->trackingTimesMS().average() / ft * 100.0f, 0.0f,100.0f);
-                SLfloat cullTimePC      = SL_clamp(s->cullTimesMS().average()     / ft * 100.0f, 0.0f,100.0f);
-                SLfloat draw3DTimePC    = SL_clamp(s->draw3DTimesMS().average()   / ft * 100.0f, 0.0f,100.0f);
-                SLfloat draw2DTimePC    = SL_clamp(s->draw2DTimesMS().average()   / ft * 100.0f, 0.0f,100.0f);
-                SLfloat captureTimePC   = SL_clamp(s->captureTimesMS().average()  / ft * 100.0f, 0.0f,100.0f);
 
-                ImGui::Text(" Update       : %4.1f ms (%3d%%)", s->updateTimesMS().average(),   (SLint)updateTimePC);
-                ImGui::Text(" Capture      : %4.1f ms (%3d%%)", s->captureTimesMS().average(),  (SLint)captureTimePC);
-                ImGui::Text(" Tracking     : %4.1f ms (%3d%%)", s->trackingTimesMS().average(), (SLint)trackingTimePC);
-                ImGui::Text(" Culling      : %4.1f ms (%3d%%)", s->cullTimesMS().average(),     (SLint)cullTimePC);
-                ImGui::Text(" Drawing 3D   : %4.1f ms (%3d%%)", s->draw3DTimesMS().average(),   (SLint)draw3DTimePC);
-                ImGui::Text(" Drawing 2D   : %4.1f ms (%3d%%)", s->draw2DTimesMS().average(),   (SLint)draw2DTimePC);
+            if (ImGui::TreeNode("FrameTime", "Frame time   : %4.1f ms (100%%)", ft))
+            {
+                // Get averages from average variables (see SLAverage)
+                SLfloat captureTime     = s->captureTimesMS().average();
+                SLfloat updateTime      = s->updateTimesMS().average();
+                SLfloat trackingTime    = s->trackingTimesMS().average();
+                SLfloat detectTime      = s->detectTimesMS().average();
+                SLfloat matchTime       = s->matchTimesMS().average();
+                SLfloat poseTime        = s->poseTimesMS().average();
+                SLfloat cullTime        = s->cullTimesMS().average();
+                SLfloat draw3DTime      = s->draw3DTimesMS().average();
+                SLfloat draw2DTime      = s->draw2DTimesMS().average();
+
+                // Calculate percentage from frame time
+                SLfloat captureTimePC   = SL_clamp(captureTime  / ft * 100.0f, 0.0f,100.0f);
+                SLfloat updateTimePC    = SL_clamp(updateTime   / ft * 100.0f, 0.0f,100.0f);
+                SLfloat trackingTimePC  = SL_clamp(trackingTime / ft * 100.0f, 0.0f,100.0f);
+                SLfloat detectTimePC    = SL_clamp(detectTime   / ft * 100.0f, 0.0f,100.0f);
+                SLfloat matchTimePC     = SL_clamp(matchTime    / ft * 100.0f, 0.0f,100.0f);
+                SLfloat poseTimePC      = SL_clamp(poseTime     / ft * 100.0f, 0.0f,100.0f);
+                SLfloat cullTimePC      = SL_clamp(cullTime     / ft * 100.0f, 0.0f,100.0f);
+                SLfloat draw3DTimePC    = SL_clamp(draw3DTime   / ft * 100.0f, 0.0f,100.0f);
+                SLfloat draw2DTimePC    = SL_clamp(draw2DTime   / ft * 100.0f, 0.0f,100.0f);
+
+                ImGui::Text(" Capture      : %4.1f ms (%3d%%)", captureTime,  (SLint)captureTimePC);
+                ImGui::Text(" Update       : %4.1f ms (%3d%%)", updateTime,   (SLint)updateTimePC);
+                ImGui::Text("   Tracking   : %4.1f ms (%3d%%)", trackingTime, (SLint)trackingTimePC);
+                ImGui::Text("     Detect   : %4.1f ms (%3d%%)", detectTime,   (SLint)detectTimePC);
+                ImGui::Text("     Match    : %4.1f ms (%3d%%)", matchTime,    (SLint)matchTimePC);
+                ImGui::Text("     Pose     : %4.1f ms (%3d%%)", poseTime,     (SLint)poseTimePC);
+                ImGui::Text(" Culling      : %4.1f ms (%3d%%)", cullTime,     (SLint)cullTimePC);
+                ImGui::Text(" Drawing 3D   : %4.1f ms (%3d%%)", draw3DTime,   (SLint)draw3DTimePC);
+                ImGui::Text(" Drawing 2D   : %4.1f ms (%3d%%)", draw2DTime,   (SLint)draw2DTimePC);
                 ImGui::TreePop();
             }
 
@@ -570,9 +591,18 @@ void SLDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
 
                 if (ImGui::BeginMenu("Video"))
                 {
-                    SLCVCalibration* ac = s->activeCalib();
-                    SLCVCalibration* mc = s->calibMainCam();
-                    SLCVCalibration* sc = s->calibScndCam();
+                    SLCVCalibration*        ac = s->activeCalib();
+                    SLCVCalibration*        mc = s->calibMainCam();
+                    SLCVCalibration*        sc = s->calibScndCam();
+                    SLCVFeatureManager*     fm = s->featureManager();
+
+                    SLCVTrackedFeatures* featureTracker = nullptr;
+                    for (auto tracker : s->trackers())
+                    {   if (typeid(tracker)==typeid(SLCVTrackedFeatures))
+                        {   featureTracker = (SLCVTrackedFeatures*)tracker;
+                            break;
+                        }
+                    }
 
                     if (ImGui::BeginMenu("Mirror Main Camera"))
                     {
@@ -623,6 +653,14 @@ void SLDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
 
                         if (ImGui::MenuItem("Fix Prinicpal Point", 0, ac->calibFixPrincipalPoint()))
                             sv->onCommand(C_calibFixPrincipPointalToggle);
+
+                        ImGui::EndMenu();
+                    }
+
+                    if (ImGui::BeginMenu("Feature Tracking", featureTracker != nullptr))
+                    {
+                        if (ImGui::MenuItem("Force Relocation", 0, featureTracker->forceRelocation()))
+                            featureTracker->forceRelocation(!featureTracker->forceRelocation());
 
                         ImGui::EndMenu();
                     }

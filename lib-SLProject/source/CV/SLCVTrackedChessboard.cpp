@@ -43,6 +43,13 @@ bool SLCVTrackedChessboard::track(SLCVMat imageGray,
     assert(sv && "No sceneview pointer passed");
     assert(sv->camera() && "No active camera in sceneview");
 
+    ////////////
+    // Detect //
+    ////////////
+
+    SLScene* s = SLScene::current;
+    SLfloat startMS = s->timeMilliSec();
+
     //detect chessboard corners
     SLint flags = //CALIB_CB_ADAPTIVE_THRESH |
                   CALIB_CB_NORMALIZE_IMAGE |
@@ -55,8 +62,16 @@ bool SLCVTrackedChessboard::track(SLCVMat imageGray,
                                            corners2D,
                                            flags);
 
+    s->detectTimesMS().set(s->timeMilliSec()-startMS);
+
     if(_isVisible)
     {
+        /////////////////////
+        // Pose Estimation //
+        /////////////////////
+
+        startMS = s->timeMilliSec();
+
         //find the camera extrinsic parameters (rVec & tVec)
         _solved = solvePnP(SLCVMat(_boardPoints3D),
                            SLCVMat(corners2D),
@@ -66,6 +81,9 @@ bool SLCVTrackedChessboard::track(SLCVMat imageGray,
                            _tVec,
                            _solved,
                            cv::SOLVEPNP_ITERATIVE);
+
+        s->poseTimesMS().set(s->timeMilliSec() - startMS);
+
         if (_solved)
         {
             _objectViewMat = createGLMatrix(_tVec, _rVec);

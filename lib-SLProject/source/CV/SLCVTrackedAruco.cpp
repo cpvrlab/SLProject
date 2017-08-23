@@ -72,6 +72,10 @@ SLbool SLCVTrackedAruco::track(SLCVMat imageGray,
     // Track all Aruco markers only once per frame
     if (trackAllOnce)
     {
+        ////////////
+        // Detect //
+        ////////////
+
         SLScene* s = SLScene::current;
         SLfloat startMS = s->timeMilliSec();
 
@@ -90,6 +94,12 @@ SLbool SLCVTrackedAruco::track(SLCVMat imageGray,
 
         if(arucoIDs.size() > 0)
         {
+            /////////////////////
+            // Pose Estimation //
+            /////////////////////
+
+            startMS = s->timeMilliSec();
+
             //cout << "Aruco IdS: " << arucoIDs.size() << " : ";
 
             //find the camera extrinsic parameters (rVec & tVec)
@@ -100,6 +110,8 @@ SLbool SLCVTrackedAruco::track(SLCVMat imageGray,
                                              calib->distortion(),
                                              rVecs,
                                              tVecs);
+
+            s->poseTimesMS().set(s->timeMilliSec() - startMS);
 
             // Get the object view matrix for all aruco markers
             for(size_t i=0; i < arucoIDs.size(); ++i)

@@ -103,7 +103,7 @@ void SLCVFeatureManager::detectAndDescribe(SLCVInputArray image,
                                            SLCVOutputArray descriptors,
                                            SLCVInputArray mask)
 {
-    assert(_detector && "SLCVFeatureManager::detectAndDescribe: No detector!");
+    assert(_detector   && "SLCVFeatureManager::detectAndDescribe: No detector!");
     assert(_descriptor && "SLCVFeatureManager::detectAndDescribe: No descriptor!");
 
     if (_detector == _descriptor)

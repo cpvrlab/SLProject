@@ -19,11 +19,11 @@ class SLGLTexture;
 
 //-----------------------------------------------------------------------------
 //! ImGui UI class for the UI of the demo applications
-/* The ImGui is completely build within this class by calling build function
+/* The UI is completely build within this class by calling build function
 SLDemoGui::buildDemoGui. This build function is passed in the
 SLInterface::slCreateSceneView and it is called in SLSceneView::onPaint in
-every frame. The entire UI is configured and built in every frame. That is why
-it is called "Im" for immediate. See also the SLGLImGui class so see how it
+every frame. The entire UI is configured and built on every frame. That is why
+it is called "Im" for immediate. See also the SLGLImGui class to see how it
 minimaly integrated in the SLProject.
 */
 class SLDemoGui
