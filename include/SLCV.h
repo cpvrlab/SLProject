@@ -43,8 +43,7 @@ typedef cv::FileStorage             SLCVFileStorage;
 typedef cv::DMatch                  SLCVDMatch;
 typedef cv::InputArray              SLCVInputArray;
 typedef cv::OutputArray             SLCVOutputArray;
-typedef cv::FeatureDetector         SLCVFeatureDetector;
-typedef cv::DescriptorExtractor     SLCVDescriptorExtractor;
+typedef cv::Feature2D               SLCVFeature2D;
 
 // 1D STL vectors
 typedef vector<cv::Mat>             SLCVVMat;

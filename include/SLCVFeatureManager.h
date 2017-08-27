@@ -21,8 +21,6 @@ class SLCVFeatureManager
                     SLCVFeatureManager      ();
                    ~SLCVFeatureManager      ();
 
-        void        deleteAll               ();
-
         void        detect                  (SLCVInputArray image,
                                              SLCVVKeyPoint &keypoints,
                                              SLCVInputArray mask = cv::noArray());
@@ -39,15 +37,15 @@ class SLCVFeatureManager
         void        createDetectorDescriptor(SLCVDetectDescribeType detectDescribeType);
 
         void        setDetectorDescriptor   (SLCVDetectDescribeType detectDescribeType,
-                                             SLCVFeatureDetector* detector,
-                                             SLCVDescriptorExtractor* descriptor);
+                                             cv::Ptr<SLCVFeature2D> detector,
+                                             cv::Ptr<SLCVFeature2D> descriptor);
         // Getter
-        SLCVDetectDescribeType type         () {return _type;}
+        SLCVDetectDescribeType  type         () {return _type;}
 
     private:
-        SLCVDetectDescribeType      _type;          //!< Type of detector-descriptor pair
-        SLCVFeatureDetector*        _detector;      //!< Pointer to the OpenCV feature detector
-        SLCVDescriptorExtractor*    _descriptor;    //!< Pointer to the OpenCV descriptor extractor
+        SLCVDetectDescribeType  _type;          //!< Type of detector-descriptor pair
+        cv::Ptr<SLCVFeature2D>  _detector;      //!< CV smart pointer to the OpenCV feature detector
+        cv::Ptr<SLCVFeature2D>  _descriptor;    //!< CV smart pointer to the OpenCV descriptor extractor
 };
 //-----------------------------------------------------------------------------
 #endif // SLCVDETECTOR_H

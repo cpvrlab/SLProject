@@ -29,46 +29,16 @@ using namespace cv;
 //-----------------------------------------------------------------------------
 SLCVFeatureManager::SLCVFeatureManager()
 {
-    _detector = nullptr;
-    _descriptor = nullptr;
     createDetectorDescriptor(DDT_RAUL_RAUL);
 }
 //-----------------------------------------------------------------------------
 SLCVFeatureManager::~SLCVFeatureManager()
 {
-    deleteAll();
-}
-//-----------------------------------------------------------------------------
-void SLCVFeatureManager::deleteAll()
-{
-    if (!_detector && !_descriptor)
-        return;
-
-    if (_detector == _descriptor)
-    {   delete _detector;
-        _detector = nullptr;
-        _descriptor = nullptr;
-        return;
-    }
-
-    if (_detector)
-    {   delete _detector;
-        _detector = nullptr;
-        return;
-    }
-
-    if (_descriptor)
-    {   delete _descriptor;
-        _descriptor = nullptr;
-        return;
-    }
 }
 //-----------------------------------------------------------------------------
 //! Creates a detector and decriptor to the passed type
 void SLCVFeatureManager::createDetectorDescriptor(SLCVDetectDescribeType type)
 {
-    deleteAll();
-
     switch(type)
     {
         case DDT_FAST_BRIEF:
@@ -100,10 +70,9 @@ void SLCVFeatureManager::createDetectorDescriptor(SLCVDetectDescribeType type)
 //-----------------------------------------------------------------------------
 //! Sets the detector and decriptor to the passed ones
 void SLCVFeatureManager::setDetectorDescriptor(SLCVDetectDescribeType type,
-                                               SLCVFeatureDetector* detector,
-                                               SLCVDescriptorExtractor* descriptor)
+                                               cv::Ptr<SLCVFeature2D> detector,
+                                               cv::Ptr<SLCVFeature2D> descriptor)
 {
-    deleteAll();
     _type = type;
     _detector = detector;
     _descriptor = descriptor;

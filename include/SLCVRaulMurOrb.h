@@ -23,19 +23,22 @@ class SLCVRaulMurOrb: public cv::Feature2D
 public:
     enum {HARRIS_SCORE=0, FAST_SCORE=1 };
 
-                    SLCVRaulMurOrb(int nfeatures, float scaleFactor, int nlevels,
-                                   int iniThFAST, int minThFAST);
+                    SLCVRaulMurOrb              (int nfeatures, 
+                                                 float scaleFactor, 
+                                                 int nlevels,
+                                                 int iniThFAST, 
+                                                 int minThFAST);
 
-                    ~SLCVRaulMurOrb(){}
+                    ~SLCVRaulMurOrb             (){}
 
     // Compute the ORB features and descriptors on an image.
     // ORB are dispersed on the image using an octree.
     // Mask is ignored in the current implementation.
-
-    void            detectAndCompute    (SLCVInputArray image, SLCVInputArray mask,
-                                         SLCVVKeyPoint& keypoints,
-                                         SLCVOutputArray descriptors, 
-                                         bool useProvidedKeypoints);
+    void            detectAndCompute            (SLCVInputArray image, 
+                                                 SLCVInputArray mask,
+                                                 SLCVVKeyPoint& keypoints,
+                                                 SLCVOutputArray descriptors, 
+                                                 bool useProvidedKeypoints);
 
     int inline      GetLevels                   (){return nlevels;}
     float inline    GetScaleFactor              (){return (float)scaleFactor;}

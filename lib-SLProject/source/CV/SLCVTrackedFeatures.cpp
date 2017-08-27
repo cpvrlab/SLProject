@@ -1,10 +1,10 @@
 //#############################################################################
 //  File:      SLCVTrackedFeatures.cpp
-//  Author:    Pascal Zingg, Timon Tschanz
+//  Author:    Pascal Zingg, Timon Tschanz, Marcus Hudritsch
 //  Date:      Spring 2017
 //  Codestyle: https://github.com/cpvrlab/SLProject/wiki/Coding-Style-Guidelines
 //  Copyright: Marcus Hudritsch, Michael Goettlicher
-//             This softwareis provide under the GNU General Public License
+//             This software is provide under the GNU General Public License
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
 
@@ -245,7 +245,6 @@ void SLCVTrackedFeatures::type(SLCVDetectDescribeType ddType)
     _currentFrame.foundPose = false;
     _prevFrame.foundPose = false;
     _currentFrame.reprojectionError = 0.0f;
-    _forceRelocation = false;
 
     // Set the frame counter to 0 to reinitialize in track
     _frameCount = 0;
@@ -289,8 +288,9 @@ SLbool SLCVTrackedFeatures::track(SLCVMat imageGray,
     // If relocation condition meets, calculate the Pose with feature detection, otherwise
     // track the previous determined features
     if (relocationNeeded)
-         relocate();
-    else tracking();
+        relocate();
+    else 
+        tracking();
 
     // Update the camera according to the new Pose
     updateSceneCamera(sv);
@@ -901,13 +901,13 @@ bool SLCVTrackedFeatures::trackWithOptFlow(SLCVMat rvec, SLCVMat tvec)
                               10,    // terminate after this many iterations, or
                               0.03); // when the search window moves by less than this
 
-    // Find next possible feature points based on optical flow
+    // Find closest possible feature points based on optical flow
     SLCVVPoint2f pred2DPoints(_prevFrame.inlierPoints2D.size());
 
     cv::calcOpticalFlowPyrLK(
-        _prevFrame.imageGray,        // Previous frame
-        _currentFrame.imageGray,     // Current frame
-        _prevFrame.inlierPoints2D,   // Previous and current keypoints coordinates.The latter will be
+        _prevFrame.imageGray,   // Previous frame
+        _currentFrame.imageGray,// Current frame
+        _prevFrame.inlierPoints2D,// Previous and current keypoints coordinates.The latter will be
         pred2DPoints,           // expanded if more good coordinates are detected during OptFlow
         status,                 // Output vector for keypoint correspondences (1 = match found)
         err,                    // Error size for each flow
@@ -923,15 +923,15 @@ bool SLCVTrackedFeatures::trackWithOptFlow(SLCVMat rvec, SLCVMat tvec)
     for (size_t i = 0; i < status.size(); i++)
     {   if (status[i])
         {   frame2DPoints.push_back(pred2DPoints[i]);
-            model3DPoints.push_back(_currentFrame.inlierPoints3D[i]);
+            model3DPoints.push_back(_prevFrame.inlierPoints3D[i]);
         }
     }
 
     s->optFlowTimesMS().set(s->timeMilliSec() - startMS);
 
-
     _currentFrame.inlierPoints2D = frame2DPoints;
     _currentFrame.inlierPoints3D = model3DPoints;
+
     if (_currentFrame.inlierPoints2D.size() < _prevFrame.inlierPoints2D.size() * 0.75)
         return false;
 
