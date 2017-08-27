@@ -2353,7 +2353,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         if (tower) scene->addChild(tower);
         scene->addChild(cam1);
 
-        _trackers.push_back(new SLCVTrackedFeatures(cam1));
+        _trackers.push_back(new SLCVTrackedFeatures(cam1, "features_stones.png"));
 
         sv->waitEvents(false); // for constant video feed
         //sv->usesRotation(true);

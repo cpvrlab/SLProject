@@ -59,14 +59,17 @@ int frames_since_posefound = 0;
 to_string method manually.
 */
 template<typename T>
-std::string to_string(T value) {
+std::string to_string(T value)
+{
     std::ostringstream os;
     os << value;
     return os.str();
 }
 
 //-----------------------------------------------------------------------------
-SLCVTrackedFeatures::SLCVTrackedFeatures(SLNode *node) : SLCVTracked(node)
+SLCVTrackedFeatures::SLCVTrackedFeatures(SLNode *node,
+                                         SLstring markerFilename) :
+                     SLCVTracked(node)
 {
     // To match the binary features, we are matching each descriptor in reference with each
     // descriptor in the current frame. The smaller the hamming distance the better the match
@@ -80,6 +83,8 @@ SLCVTrackedFeatures::SLCVTrackedFeatures(SLNode *node) : SLCVTracked(node)
     _prevFrame.inlierPoints2D = SLCVVPoint2f(nFeatures);
     _forceRelocation = false;
     _frameCount = 0;
+
+    loadMarker(markerFilename);
 
     // Create directory for debug output if flag is set
     #ifdef SL_SAVE_SNAPSHOTS_OUTPUT
@@ -148,15 +153,11 @@ SLCVTrackedFeatures::~SLCVTrackedFeatures()
 }
 
 //-----------------------------------------------------------------------------
-/*! Prepares the reference tracker:
-1. Read the marker image file from FS
-2. Detect and describe the keypoints on the reference image
-3. Set up 3D points with predefined scaling
-4. Perform optional drawing operations on image
-*/
-void SLCVTrackedFeatures::initializeMarker(string markerFilename)
+//! Loads the marker image form the filesystem
+void SLCVTrackedFeatures::loadMarker(string markerFilename)
 {
     // Read reference marker
+    // (The images source is deallocated by SLScene::unInit)
     SLGLTexture* markerTexture = new SLGLTexture(markerFilename);
     SLCVImage* img = markerTexture->images()[0];
 
@@ -164,6 +165,21 @@ void SLCVTrackedFeatures::initializeMarker(string markerFilename)
 
     cv::rotate(_marker.imageGray, _marker.imageGray, ROTATE_180);
     cv::flip(_marker.imageGray, _marker.imageGray, 1);
+}
+//-----------------------------------------------------------------------------
+/*! Prepares the reference tracker:
+1. Detect and describe the keypoints on the reference image
+2. Set up 3D points with predefined scaling
+3. Perform optional drawing operations on image
+*/
+void SLCVTrackedFeatures::initFeaturesOnMarker()
+{
+    assert(!_marker.imageGray.empty() && "Grayscale image is empty!");
+
+    // Clear previous initializations
+    _marker.keypoints2D.clear();
+    _marker.keypoints3D.clear();
+    _marker.descriptors.release();
 
     // Detect and compute features in marker image
     _featureManager.detectAndDescribe(_marker.imageGray,
@@ -171,7 +187,7 @@ void SLCVTrackedFeatures::initializeMarker(string markerFilename)
                                       _marker.descriptors);
     // Scaling factor for the 3D point.
     // Width of image is A4 size in image, 297mm is the real A4 height
-    float pixelPerMM = img->width() / 297.0f;
+    SLfloat pixelPerMM = (SLfloat)_marker.imageGray.cols / 297.0f;
 
     // Calculate 3D-Points based on the detected features
     for (unsigned int i = 0; i < _marker.keypoints2D.size(); i++)
@@ -183,16 +199,15 @@ void SLCVTrackedFeatures::initializeMarker(string markerFilename)
         refImageKeypoint /= pixelPerMM;
 
         // Here we can use Z=0 because the tracker is planar
-        SLfloat Z = 0;
         _marker.keypoints3D.push_back(Point3f(refImageKeypoint.x,
-                                     refImageKeypoint.y,
-                                     Z));
+                                              refImageKeypoint.y,
+                                              0.0f));
     }
 
     // Draw points and indices which should be reprojected later.
     // Only a few (defined with reposeFrequency)
     // points are used for the reprojection.
-    #if defined(SL_SAVE_SNAPSHOTS_OUTPUT) || defined(SL_DRAW_REPROJECTION_ERROR)
+    #if defined(SL_SAVE_SNAPSHOTS_OUTPUT) || SL_DRAW_REPROJECTION_ERROR
     _marker.imageGray.copyTo(_marker.imageDrawing);
     cvtColor(_marker.imageDrawing, _marker.imageDrawing, CV_GRAY2BGR);
 
@@ -231,6 +246,8 @@ void SLCVTrackedFeatures::type(SLCVDetectDescribeType ddType)
     _prevFrame.foundPose = false;
     _currentFrame.reprojectionError = 0.0f;
     _forceRelocation = false;
+
+    // Set the frame counter to 0 to reinitialize in track
     _frameCount = 0;
 }
 //-----------------------------------------------------------------------------
@@ -248,6 +265,7 @@ SLbool SLCVTrackedFeatures::track(SLCVMat imageGray,
 {
     assert(!image.empty() && "Image is empty");
     assert(!calib->cameraMat().empty() && "Calibration is empty");
+    assert(!_marker.imageGray.empty());
     assert(_node && "Node pointer is null");
     assert(sv && "No sceneview pointer passed");
     assert(sv->camera() && "No active camera in sceneview");
@@ -255,7 +273,7 @@ SLbool SLCVTrackedFeatures::track(SLCVMat imageGray,
     // Initialize reference points if program just started
     if (_frameCount == 0)
     {   _calib = calib;
-        initializeMarker(SL_MARKER_IMAGE_NAME);
+        initFeaturesOnMarker();
     }
 
     // Copy image matrix into current frame data

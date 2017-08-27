@@ -103,7 +103,7 @@
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "150"
             endingLineNumber = "150"
-            landmarkName = "SLCVCapture::loadIntoLastFrame(const SLint width, const SLint height, const SLPixelFormat format, const SLuchar* data, const SLbool isContinuous)"
+            landmarkName = "SLCVCapture::adjustForSL()"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
@@ -119,7 +119,7 @@
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "160"
             endingLineNumber = "160"
-            landmarkName = "SLCVCapture::loadIntoLastFrame(const SLint width, const SLint height, const SLPixelFormat format, const SLuchar* data, const SLbool isContinuous)"
+            landmarkName = "SLCVCapture::adjustForSL()"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
@@ -135,7 +135,7 @@
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "149"
             endingLineNumber = "149"
-            landmarkName = "SLCVCapture::loadIntoLastFrame(const SLint width, const SLint height, const SLPixelFormat format, const SLuchar* data, const SLbool isContinuous)"
+            landmarkName = "SLCVCapture::adjustForSL()"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
@@ -151,7 +151,7 @@
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "153"
             endingLineNumber = "153"
-            landmarkName = "SLCVCapture::loadIntoLastFrame(const SLint width, const SLint height, const SLPixelFormat format, const SLuchar* data, const SLbool isContinuous)"
+            landmarkName = "SLCVCapture::adjustForSL()"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
@@ -167,8 +167,8 @@
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "232"
             endingLineNumber = "232"
-            landmarkName = "saveCameraParams(SLCVSize&amp; imageSize, SLCVMat&amp; cameraMatrix, Mat&amp; distCoeffs, const SLCVVMat&amp; rvecs, const SLCVVMat&amp; tvecs, const SLVfloat&amp; reprojErrs, const SLCVVVPoint2f&amp; imagePoints, double totalAvgErr, SLint flag, SLstring filename, SLCVSize&amp; boardSize, SLfloat squareSize)"
-            landmarkType = "9">
+            landmarkName = "SLCVCalibration::calcBoardCorners3D(SLCVSize boardSize, SLfloat squareSize, SLCVVPoint3f&amp; objectPoints3D)"
+            landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy

@@ -70,10 +70,14 @@ file(GLOB_RECURSE SLPROJECT_SOURCES     ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SL
                                         ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/GL/SLGLVertexBuffer.cpp 
                                         ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/CV/SLCVCapture.cpp
                                         ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/CV/SLCVCalibration.cpp
+                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/CV/SLCVFeatureManager.cpp
                                         ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/CV/SLCVImage.cpp
-                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/CV/SLCVTracker.cpp
-                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/CV/SLCVTrackerAruco.cpp 
-                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/CV/SLCVTrackerChessboard.cpp
+                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/CV/SLCVRaulMurExtractorNode.cpp
+                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/CV/SLCVRaulMurOrb.cpp
+                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/CV/SLCVTracked.cpp
+                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/CV/SLCVTrackedAruco.cpp
+                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/CV/SLCVTrackedChessboard.cpp
+                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/CV/SLCVTrackedFeatures.cpp
                                         ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/SLAABBox.cpp 
                                         ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/SLAnimation.cpp 
                                         ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/SLAnimManager.cpp 

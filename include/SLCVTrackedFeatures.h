@@ -1,6 +1,6 @@
 //#############################################################################
 //  File:      SLCVTrackedFeatures.h
-//  Author:    Pascal Zingg, Timon Tschanz
+//  Author:    Pascal Zingg, Timon Tschanz, Marcus Hudritsch
 //  Date:      Spring 2017
 //  Codestyle: https://github.com/cpvrlab/SLProject/wiki/Coding-Style-Guidelines
 //  Copyright: Marcus Hudritsch, Michael Goettlicher
@@ -34,12 +34,6 @@ using namespace cv;
 #define SL_DRAW_REPROJECTION_POINTS 0
 #define SL_DRAW_REPROJECTION_ERROR 0
 #define SL_DRAW_PATCHES 0
-
-
-// Set stones Tracker as default reference image
-#ifndef SL_MARKER_IMAGE_NAME
-    #define SL_MARKER_IMAGE_NAME "features_stones.png"
-#endif
 
 #ifdef SL_SAVE_DEBUG_OUTPUT
     #if defined(SL_OS_LINUX) || defined(SL_OS_MACOS) || defined(SL_OS_MACIOS)
@@ -75,7 +69,8 @@ was found, the implementation tries to track them and update the pose respective
 class SLCVTrackedFeatures : public SLCVTracked
 {
     public:
-                            SLCVTrackedFeatures (SLNode* node);
+                            SLCVTrackedFeatures (SLNode* node,
+                                                 SLstring markerFilename);
                            ~SLCVTrackedFeatures ();
         SLbool              track               (SLCVMat imageGray,
                                                  SLCVMat image,
@@ -90,7 +85,8 @@ class SLCVTrackedFeatures : public SLCVTracked
         void                type                (SLCVDetectDescribeType ddType);
 
     private:
-        void                initializeMarker    (string markerFilename);
+        void                loadMarker          (string markerFilename);
+        void                initFeaturesOnMarker ();
         void                relocate            ();
         void                tracking            ();
         void                drawDebugInformation();
@@ -114,7 +110,6 @@ class SLCVTrackedFeatures : public SLCVTracked
             SLCVVKeyPoint   keypoints2D;        //!< 2D keypoints in pixels
             SLCVVPoint3f    keypoints3D;        //!< 3D feature points in mm
             SLCVMat         descriptors;        //!< Descriptors of the 2D keypoints
-            SLCVVKeyPoint   bboxKeypoints2D;    //!< bounding boxes of 2D keypoints
         };
 
         //! Feature date for a video frame
