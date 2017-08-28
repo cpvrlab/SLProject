@@ -50,9 +50,11 @@ markers are used for different SLNode.
 SLbool SLCVTrackedAruco::track(SLCVMat imageGray,
                                SLCVMat imageRgb,
                                SLCVCalibration* calib,
+                               SLbool drawDetection,
                                SLSceneView* sv)
 {
-    assert(!imageGray.empty() && "Image is empty");
+    assert(!imageGray.empty() && "ImageGray is empty");
+    assert(!imageRgb.empty() && "ImageRGB is empty");
     assert(!calib->cameraMat().empty() && "Calibration is empty");
     assert(_node && "Node pointer is null");
     assert(sv && "No sceneview pointer passed");
@@ -94,6 +96,11 @@ SLbool SLCVTrackedAruco::track(SLCVMat imageGray,
 
         if(arucoIDs.size() > 0)
         {
+            if (drawDetection)
+            {
+                aruco::drawDetectedMarkers(imageRgb, corners, arucoIDs, Scalar(0,0,255));
+            }
+
             /////////////////////
             // Pose Estimation //
             /////////////////////

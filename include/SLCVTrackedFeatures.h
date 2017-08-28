@@ -28,18 +28,19 @@ for a good top down information.
 using namespace cv;
 
 #define SL_SPLIT_DETECT_COMPUTE 0
-#define SL_DO_FEATURE_BENCHMARKING 1
+#define SL_DO_FEATURE_BENCHMARKING 0
 
 // Settings for drawing things into current camera frame
 #define SL_DRAW_REPROJECTION_POINTS 0
 #define SL_DRAW_REPROJECTION_ERROR 0
 #define SL_DRAW_PATCHES 0
 
+//#define SL_SAVE_DEBUG_OUTPUT
 #ifdef SL_SAVE_DEBUG_OUTPUT
     #if defined(SL_OS_LINUX) || defined(SL_OS_MACOS) || defined(SL_OS_MACIOS)
-    #define SL_SAVE_SNAPSHOTS_OUTPUT "/tmp/cv_tracking/"
+    #define SL_DEBUG_OUTPUT_PATH "/tmp/cv_tracking/"
     #elif defined(SL_OS_WINDOWS)
-    #define SL_SAVE_SNAPSHOTS_OUTPUT "cv_tracking/"
+    #define SL_DEBUG_OUTPUT_PATH "cv_tracking/"
     #endif
 #endif
 
@@ -75,6 +76,7 @@ class SLCVTrackedFeatures : public SLCVTracked
         SLbool              track               (SLCVMat imageGray,
                                                  SLCVMat image,
                                                  SLCVCalibration* calib,
+                                                 SLbool drawDetection,
                                                  SLSceneView* sv);
         // Getters
         SLbool              forceRelocation     () {return _forceRelocation;}
@@ -89,7 +91,7 @@ class SLCVTrackedFeatures : public SLCVTracked
         void                initFeaturesOnMarker ();
         void                relocate            ();
         void                tracking            ();
-        void                drawDebugInformation();
+        void                drawDebugInformation(SLbool drawDetection);
         void                updateSceneCamera   (SLSceneView* sv);
         void                transferFrameData   ();
         void                detectKeypointsAndDescriptors();

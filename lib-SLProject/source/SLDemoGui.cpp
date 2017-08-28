@@ -569,101 +569,107 @@ void SLDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
 
             ImGui::Separator();
 
-            if (ImGui::BeginMenu("Preferences"))
+            if (ImGui::MenuItem("Quit & Save"))
+                sv->onCommand(C_quit);
+
+            ImGui::EndMenu();
+        }
+
+        if (ImGui::BeginMenu("Preferences"))
+        {
+            if (ImGui::MenuItem("Slow down on Idle", 0, sv->waitEvents()))
+                sv->onCommand(C_waitEventsToggle);
+
+            if (ImGui::MenuItem("Do Multi Sampling", 0, sv->doMultiSampling()))
+                sv->onCommand(C_multiSampleToggle);
+
+            if (ImGui::MenuItem("Do Frustum Culling", 0, sv->doFrustumCulling()))
+                sv->onCommand(C_frustCullToggle);
+
+            if (ImGui::MenuItem("Do Depth Test", 0, sv->doDepthTest()))
+                sv->onCommand(C_depthTestToggle);
+
+            if (ImGui::MenuItem("Animation off", 0, s->stopAnimations()))
+                sv->onCommand(C_animationToggle);
+
+            ImGui::Separator();
+
+            if (ImGui::BeginMenu("Video"))
             {
-                if (ImGui::MenuItem("Slow down on Idle", 0, sv->waitEvents()))
-                    sv->onCommand(C_waitEventsToggle);
+                SLCVCalibration*        ac = s->activeCalib();
+                SLCVCalibration*        mc = s->calibMainCam();
+                SLCVCalibration*        sc = s->calibScndCam();
 
-                if (ImGui::MenuItem("Do Multi Sampling", 0, sv->doMultiSampling()))
-                    sv->onCommand(C_multiSampleToggle);
+                SLCVTrackedFeatures* featureTracker = nullptr;
+                for (auto tracker : s->trackers())
+                {   if (typeid(*tracker)==typeid(SLCVTrackedFeatures))
+                    {   featureTracker = (SLCVTrackedFeatures*)tracker;
+                        break;
+                    }
+                }
 
-                if (ImGui::MenuItem("Do Frustum Culling", 0, sv->doFrustumCulling()))
-                    sv->onCommand(C_frustCullToggle);
-
-                if (ImGui::MenuItem("Do Depth Test", 0, sv->doDepthTest()))
-                    sv->onCommand(C_depthTestToggle);
-
-                if (ImGui::MenuItem("Animation off", 0, s->stopAnimations()))
-                    sv->onCommand(C_animationToggle);
-
-                ImGui::Separator();
-
-                if (ImGui::BeginMenu("Video"))
+                if (ImGui::BeginMenu("Mirror Main Camera"))
                 {
-                    SLCVCalibration*        ac = s->activeCalib();
-                    SLCVCalibration*        mc = s->calibMainCam();
-                    SLCVCalibration*        sc = s->calibScndCam();
+                    if (ImGui::MenuItem("Horizontally", 0, mc->isMirroredH()))
+                        sv->onCommand(C_mirrorHMainVideoToggle);
 
-                    SLCVTrackedFeatures* featureTracker = nullptr;
-                    for (auto tracker : s->trackers())
-                    {   if (typeid(*tracker)==typeid(SLCVTrackedFeatures))
-                        {   featureTracker = (SLCVTrackedFeatures*)tracker;
-                            break;
-                        }
-                    }
+                    if (ImGui::MenuItem("Vertically", 0, mc->isMirroredV()))
+                        sv->onCommand(C_mirrorVMainVideoToggle);
 
-                    if (ImGui::BeginMenu("Mirror Main Camera"))
+                    ImGui::EndMenu();
+                }
+
+                if (ImGui::BeginMenu("Mirror Scnd. Camera", SLCVCapture::hasSecondaryCamera))
+                {
+                    if (ImGui::MenuItem("Horizontally", 0, sc->isMirroredH()))
+                        sv->onCommand(C_mirrorHScndVideoToggle);
+
+                    if (ImGui::MenuItem("Vertically", 0, sc->isMirroredV()))
+                        sv->onCommand(C_mirrorVScndVideoToggle);
+
+                    ImGui::EndMenu();
+                }
+
+                if (ImGui::BeginMenu("Calibration"))
+                {
+                    if (ImGui::MenuItem("Start Calibration on Main Camera"))
                     {
-                        if (ImGui::MenuItem("Horizontally", 0, mc->isMirroredH()))
-                            sv->onCommand(C_mirrorHMainVideoToggle);
-
-                        if (ImGui::MenuItem("Vertically", 0, mc->isMirroredV()))
-                            sv->onCommand(C_mirrorVMainVideoToggle);
-
-                        ImGui::EndMenu();
+                        sv->onCommand(C_sceneVideoCalibrateMain);
+                        showHelpCalibration = true;
+                        showInfosScene = true;
                     }
 
-                    if (ImGui::BeginMenu("Mirror Scnd. Camera", SLCVCapture::hasSecondaryCamera))
+                    if (ImGui::MenuItem("Start Calibration on Scnd. Camera", 0, false, SLCVCapture::hasSecondaryCamera))
                     {
-                        if (ImGui::MenuItem("Horizontally", 0, sc->isMirroredH()))
-                            sv->onCommand(C_mirrorHScndVideoToggle);
-
-                        if (ImGui::MenuItem("Vertically", 0, sc->isMirroredV()))
-                            sv->onCommand(C_mirrorVScndVideoToggle);
-
-                        ImGui::EndMenu();
+                        sv->onCommand(C_sceneVideoCalibrateScnd);
+                        showHelpCalibration = true;
+                        showInfosScene = true;
                     }
 
-                    if (ImGui::BeginMenu("Calibration"))
-                    {
-                        if (ImGui::MenuItem("Start Calibration on Main Camera"))
-                        {
-                            sv->onCommand(C_sceneVideoCalibrateMain);
-                            showHelpCalibration = true;
-                            showInfosScene = true;
-                        }
+                    if (ImGui::MenuItem("Undistort Image", 0, ac->showUndistorted(), ac->state()==CS_calibrated))
+                        sv->onCommand(C_undistortVideoToggle);
 
-                        if (ImGui::MenuItem("Start Calibration on Scnd. Camera", 0, false, SLCVCapture::hasSecondaryCamera))
-                        {
-                            sv->onCommand(C_sceneVideoCalibrateScnd);
-                            showHelpCalibration = true;
-                            showInfosScene = true;
-                        }
+                    if (ImGui::MenuItem("Zero Tangent Distortion", 0, ac->calibZeroTangentDist()))
+                        sv->onCommand(C_calibZeroTangentDistToggle);
 
-                        if (ImGui::MenuItem("Undistort Image", 0, ac->showUndistorted(), ac->state()==CS_calibrated))
-                            sv->onCommand(C_undistortVideoToggle);
+                    if (ImGui::MenuItem("Fix Aspect Ratio", 0, ac->calibFixAspectRatio()))
+                        sv->onCommand(C_calibFixAspectRatioToggle);
 
-                        if (ImGui::MenuItem("Zero Tangent Distortion", 0, ac->calibZeroTangentDist()))
-                            sv->onCommand(C_calibZeroTangentDistToggle);
+                    if (ImGui::MenuItem("Fix Prinicpal Point", 0, ac->calibFixPrincipalPoint()))
+                        sv->onCommand(C_calibFixPrincipPointalToggle);
 
-                        if (ImGui::MenuItem("Fix Aspect Ratio", 0, ac->calibFixAspectRatio()))
-                            sv->onCommand(C_calibFixAspectRatioToggle);
+                    ImGui::EndMenu();
+                }
 
-                        if (ImGui::MenuItem("Fix Prinicpal Point", 0, ac->calibFixPrincipalPoint()))
-                            sv->onCommand(C_calibFixPrincipPointalToggle);
+                if (ImGui::MenuItem("Show Tracking Detection", 0, s->showDetection()))
+                    s->showDetection(!s->showDetection());
 
-                        ImGui::EndMenu();
-                    }
+                if (ImGui::BeginMenu("Feature Tracking", featureTracker!=nullptr))
+                {
+                    if (ImGui::MenuItem("Force Relocation", 0, featureTracker->forceRelocation()))
+                        featureTracker->forceRelocation(!featureTracker->forceRelocation());
 
-                    if (ImGui::BeginMenu("Feature Tracking", featureTracker!=nullptr))
-                    {
-                        if (ImGui::MenuItem("Force Relocation", 0, featureTracker->forceRelocation()))
-                            featureTracker->forceRelocation(!featureTracker->forceRelocation());
-
-                        ImGui::EndMenu();
-                    }
-
-                    if (ImGui::BeginMenu("Feature Detector/Descriptor", featureTracker!=nullptr))
+                    if (ImGui::BeginMenu("Detector/Descriptor", featureTracker!=nullptr))
                     {
                         SLCVDetectDescribeType type = featureTracker->type();
 
@@ -684,32 +690,27 @@ void SLDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
                     ImGui::EndMenu();
                 }
 
-                ImGui::Separator();
-
-                if (ImGui::BeginMenu("User Interface"))
-                {
-                    ImGui::MenuItem("Show Menu", 0, &showMenu);
-
-                    ImGui::SliderFloat("Prop. Font Size", &SLGLImGui::fontPropDots, 16.f, 60.f,"%0.0f");
-
-                    ImGui::SliderFloat("Fixed Font Size", &SLGLImGui::fontFixedDots, 13.f, 60.f,"%0.0f");
-
-                    ImGuiStyle& style = ImGui::GetStyle();
-                    if (ImGui::SliderFloat2("Frame Padding", (float*)&style.FramePadding, 0.0f, 20.0f, "%.0f"))
-                        style.WindowPadding.x = style.FramePadding.x;
-                    if (ImGui::SliderFloat2("Item Spacing", (float*)&style.ItemSpacing, 0.0f, 20.0f, "%.0f"))
-                        style.ItemInnerSpacing.x = style.ItemSpacing.y;
-
-                    ImGui::EndMenu();
-                }
-
                 ImGui::EndMenu();
             }
 
             ImGui::Separator();
 
-            if (ImGui::MenuItem("Quit & Save"))
-                sv->onCommand(C_quit);
+            if (ImGui::BeginMenu("User Interface"))
+            {
+                ImGui::MenuItem("Show Menu", 0, &showMenu);
+
+                ImGui::SliderFloat("Prop. Font Size", &SLGLImGui::fontPropDots, 16.f, 60.f,"%0.0f");
+
+                ImGui::SliderFloat("Fixed Font Size", &SLGLImGui::fontFixedDots, 13.f, 60.f,"%0.0f");
+
+                ImGuiStyle& style = ImGui::GetStyle();
+                if (ImGui::SliderFloat2("Frame Padding", (float*)&style.FramePadding, 0.0f, 20.0f, "%.0f"))
+                    style.WindowPadding.x = style.FramePadding.x;
+                if (ImGui::SliderFloat2("Item Spacing", (float*)&style.ItemSpacing, 0.0f, 20.0f, "%.0f"))
+                    style.ItemInnerSpacing.x = style.ItemSpacing.y;
+
+                ImGui::EndMenu();
+            }
 
             ImGui::EndMenu();
         }
@@ -1495,8 +1496,6 @@ void SLDemoGui::loadConfig()
         return;
     }
 
-    
-
     SLint i; SLbool b;
     fs["configTime"]            >> SLDemoGui::configTime;
     fs["fontPropDots"]          >> i; SLGLImGui::fontPropDots = (SLfloat)i;
@@ -1514,6 +1513,7 @@ void SLDemoGui::loadConfig()
     fs["showInfosScene"]        >> b; SLDemoGui::showInfosScene = b;
     fs["showSceneGraph"]        >> b; SLDemoGui::showSceneGraph = b;
     fs["showProperties"]        >> b; SLDemoGui::showProperties = b;
+    fs["showDetection"]         >> b; SLScene::current->showDetection(b);
 
     fs.release();
     SL_LOG("Config. loaded  : %s\n", fullPathAndFilename.c_str());
@@ -1546,6 +1546,7 @@ void SLDemoGui::saveConfig()
     fs << "showInfosScene"          << SLDemoGui::showInfosScene;
     fs << "showSceneGraph"          << SLDemoGui::showSceneGraph;
     fs << "showProperties"          << SLDemoGui::showProperties;
+    fs << "showDetection"           << SLScene::current->showDetection();
 
     fs.release();
     SL_LOG("Config. saved   : %s\n", fullPathAndFilename.c_str());

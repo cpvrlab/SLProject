@@ -101,6 +101,7 @@ class SLCVTrackedAruco : public SLCVTracked
         SLbool  track               (SLCVMat imageGray,
                                      SLCVMat imageRgb,
                                      SLCVCalibration* calib,
+                                     SLbool drawDetection,
                                      SLSceneView* sv);
 
         //! Helper function to draw and save an aruco marker board image

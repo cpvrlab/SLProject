@@ -121,6 +121,8 @@ SLScene::SLScene(SLstring name) : SLObject(name)
     SLCVCapture::hasSecondaryCamera = true;
     #endif
 
+    _showDetection = false;
+
     _oculus.init();
 }
 //-----------------------------------------------------------------------------
@@ -431,6 +433,7 @@ bool SLScene::onUpdate()
                 tracker->track(SLCVCapture::lastFrameGray,
                                SLCVCapture::lastFrame,
                                _activeCalib,
+                               _showDetection,
                                _sceneViews[0]);
 
             // Update info text only for chessboard scene

@@ -58,6 +58,7 @@ class SLScene: public SLObject
             void            globalAmbiLight     (SLCol4f gloAmbi){_globalAmbiLight=gloAmbi;}
             void            stopAnimations      (SLbool stop) {_stopAnimations = stop;}
             void            videoType           (SLVideoType vt);
+            void            showDetection       (SLbool st) {_showDetection = st;}
                            
             // Getters
             SLAnimManager&  animManager         () {return _animManager;}
@@ -105,6 +106,7 @@ class SLScene: public SLObject
             SLCVCalibration*    calibMainCam    () {return &_calibMainCam;}
             SLCVCalibration*    calibScndCam    () {return &_calibScndCam;}
             SLVCVTracker&       trackers        () {return _trackers;}
+            SLbool              showDetection   () {return _showDetection;}
             
             // Misc.
    virtual  void            onLoad              (SLSceneView* sv, 
@@ -173,6 +175,7 @@ class SLScene: public SLObject
             SLCVCalibration     _calibMainCam;  //!< OpenCV calibration for main video camera
             SLCVCalibration     _calibScndCam;  //!< OpenCV calibration for secondary video camera
             SLVCVTracker        _trackers;      //!< Vector of all AR trackers
+            SLbool              _showDetection; //!< Flag if detection should be visualized
 };
 //-----------------------------------------------------------------------------
 #endif

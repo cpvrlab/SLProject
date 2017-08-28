@@ -38,6 +38,7 @@ class SLCVTrackedChessboard : public SLCVTracked
         bool    track                   (SLCVMat imageGray,
                                          SLCVMat imageRgb,
                                          SLCVCalibration* calib,
+                                         SLbool drawDetection,
                                          SLSceneView* sv);
     private:
         SLfloat         _edgeLengthM;   //<! Length of chessboard square in meters

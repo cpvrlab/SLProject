@@ -35,9 +35,11 @@ SLCVTrackedChessboard::SLCVTrackedChessboard(SLNode* node) : SLCVTracked(node)
 bool SLCVTrackedChessboard::track(SLCVMat imageGray,
                                   SLCVMat imageRgb,
                                   SLCVCalibration* calib,
+                                  SLbool drawDetection,
                                   SLSceneView* sv)
 {
-    assert(!imageGray.empty() && "Image is empty");
+    assert(!imageGray.empty() && "ImageGray is empty");
+    assert(!imageRgb.empty() && "ImageRGB is empty");
     assert(!calib->cameraMat().empty() && "Calibration is empty");
     assert(_node && "Node pointer is null");
     assert(sv && "No sceneview pointer passed");
@@ -66,6 +68,12 @@ bool SLCVTrackedChessboard::track(SLCVMat imageGray,
 
     if(_isVisible)
     {
+
+        if (drawDetection)
+        {
+            cv::drawChessboardCorners(imageRgb, calib->boardSize(), corners2D, true);
+        }
+
         /////////////////////
         // Pose Estimation //
         /////////////////////
