@@ -83,7 +83,6 @@ bool myListBox(const char* label, int* currIndex, SLVstring& values)
 // Init global static variables
 SLGLTexture*    SLDemoGui::cpvrLogo            = nullptr;
 SLstring        SLDemoGui::configTime          = "-";
-SLbool          SLDemoGui::showMenu            = true;
 SLbool          SLDemoGui::showAbout           = false;
 SLbool          SLDemoGui::showHelp            = false;
 SLbool          SLDemoGui::showHelpCalibration = false;
@@ -145,10 +144,7 @@ Please close first this info dialog.";
  */
 void SLDemoGui::buildDemoGui(SLScene* s, SLSceneView* sv)
 {
-    if (showMenu)
-    {   
-        buildMenuBar(s, sv);
-    }
+    buildMenuBar(s, sv);
 
     if (showAbout)
     {
@@ -697,8 +693,6 @@ void SLDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
 
             if (ImGui::BeginMenu("User Interface"))
             {
-                ImGui::MenuItem("Show Menu", 0, &showMenu);
-
                 ImGui::SliderFloat("Prop. Font Size", &SLGLImGui::fontPropDots, 16.f, 60.f,"%0.0f");
 
                 ImGui::SliderFloat("Fixed Font Size", &SLGLImGui::fontFixedDots, 13.f, 60.f,"%0.0f");
@@ -1505,7 +1499,6 @@ void SLDemoGui::loadConfig()
     fs["ItemSpacingX"]          >> i; style.ItemSpacing.x = (SLfloat)i;
     fs["ItemSpacingY"]          >> i; style.ItemSpacing.y = (SLfloat)i; style.ItemInnerSpacing.x = style.ItemSpacing.y;
     fs["currentSceneID"]        >> i; SL::currentSceneID = (SLCommand)i;
-    fs["showMenu"]              >> b; SLDemoGui::showMenu = b;
     fs["showStatsTiming"]       >> b; SLDemoGui::showStatsTiming = b;
     fs["showStatsMemory"]       >> b; SLDemoGui::showStatsScene = b;
     fs["showStatsVideo"]        >> b; SLDemoGui::showStatsVideo = b;
@@ -1538,7 +1531,6 @@ void SLDemoGui::saveConfig()
     fs << "FramePaddingY"           << (SLint)style.FramePadding.y;
     fs << "ItemSpacingX"            << (SLint)style.ItemSpacing.x;
     fs << "ItemSpacingY"            << (SLint)style.ItemSpacing.y;
-    fs << "showMenu"                << SLDemoGui::showMenu;
     fs << "showStatsTiming"         << SLDemoGui::showStatsTiming;
     fs << "showStatsMemory"         << SLDemoGui::showStatsScene;
     fs << "showStatsVideo"          << SLDemoGui::showStatsVideo;

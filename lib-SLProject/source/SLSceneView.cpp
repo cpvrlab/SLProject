@@ -1245,7 +1245,7 @@ void SLSceneView::onRotationPYR(SLfloat pitchRAD,
     SLScene* s = SLScene::current;
     if (!s->root3D()) return;
 
-    SL_LOG("onRotation: pitch: %3.1f, yaw: %3.1f, roll: %3.1f\n",
+    SL_LOG("onRotationPYR1: pitch: %3.1f, yaw: %3.1f, roll: %3.1f\n",
            pitchRAD * SL_RAD2DEG,
            yawRAD   * SL_RAD2DEG,
            rollRAD  * SL_RAD2DEG);
@@ -1255,15 +1255,23 @@ void SLSceneView::onRotationPYR(SLfloat pitchRAD,
     static SLAvgFloat initialYaw(60);
 
     if (zeroYawAfterSec == 0.0f)
-    {   _deviceRotation.fromEulerAngles(pitchRAD,yawRAD,rollRAD);
+    {   _deviceRotation.fromEulerAngles(pitchRAD, yawRAD, rollRAD);
     } else 
     if (SLScene::current->timeSec() < zeroYawAfterSec)
     {   initialYaw.set(yawRAD);
-        _deviceRotation.fromEulerAngles(pitchRAD,yawRAD,rollRAD);
+        _deviceRotation.fromEulerAngles(pitchRAD, yawRAD, rollRAD);
     } else
-    {  _deviceRotation.fromEulerAngles(pitchRAD,yawRAD-initialYaw.average(),rollRAD);
+    {  _deviceRotation.fromEulerAngles(pitchRAD, yawRAD-initialYaw.average(), rollRAD);
     }
-    _camera->rotation(_deviceRotation);
+
+    //SLfloat pitch, yaw, roll;
+    //_deviceRotation.toEulerAngles(pitch, yaw, roll);
+    //
+    //SL_LOG("onRotationPYR2: pitch: %3.1f, yaw: %3.1f, roll: %3.1f\n",
+    //       pitch * SL_RAD2DEG,
+    //       yaw   * SL_RAD2DEG,
+    //       roll  * SL_RAD2DEG);
+    //_camera->rotation(_deviceRotation);
 }
 //-----------------------------------------------------------------------------
 /*!

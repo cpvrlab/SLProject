@@ -573,6 +573,7 @@
 		41CF01DD1F096ABB00CA36C9 /* EulerAngles.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 41CF01D81F096ABB00CA36C9 /* EulerAngles.cpp */; };
 		41E46000176C8F6800AB4653 /* SLTimer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 41E45FFE176C8F6800AB4653 /* SLTimer.cpp */; };
 		41E9843A1E3BABB1003D5CCF /* SLCVImage.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 41E984391E3BABB1003D5CCF /* SLCVImage.cpp */; };
+		41EA2F4D1F558DDF00C34BC7 /* features_stones.png in Resources */ = {isa = PBXBuildFile; fileRef = 41EA2F4C1F558DDF00C34BC7 /* features_stones.png */; };
 		41EBB5E31C44D99500C9BAA5 /* SLGLVertexArrayExt.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 41EBB5E21C44D99500C9BAA5 /* SLGLVertexArrayExt.cpp */; };
 		41EDCB591B67B47B00DDC945 /* SLCompactGrid.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 41EDCB571B67B47B00DDC945 /* SLCompactGrid.cpp */; };
 		41FC8AA61959BF9F004A9E57 /* clipper.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 41FC8AA41959BF9F004A9E57 /* clipper.cpp */; };
@@ -1404,7 +1405,7 @@
 		41A355001A7E63E100791841 /* SLSkeleton.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SLSkeleton.cpp; path = "../lib-SLProject/source/SLSkeleton.cpp"; sourceTree = SOURCE_ROOT; };
 		41A355081A7E676800791841 /* SLInputDevice.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SLInputDevice.cpp; path = "../lib-SLProject/source/SLInputDevice.cpp"; sourceTree = SOURCE_ROOT; };
 		41A355091A7E676800791841 /* SLInputManager.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SLInputManager.cpp; path = "../lib-SLProject/source/SLInputManager.cpp"; sourceTree = SOURCE_ROOT; };
-		41ABC8BE1B875C1E009F6C37 /* opencv2.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = opencv2.framework; path = ../_lib/prebuilt/OpenCV/ios/opencv2.framework; sourceTree = "<group>"; };
+		41ABC8BE1B875C1E009F6C37 /* opencv2.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = opencv2.framework; path = ../_lib/prebuilt/OpenCV/ios/opencv2.framework; sourceTree = SOURCE_ROOT; };
 		41B3821E18D593D1000F37CC /* SLAverage.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SLAverage.h; path = ../include/SLAverage.h; sourceTree = SOURCE_ROOT; };
 		41B7BDDC1E49B4BC007B8B39 /* cursor.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = cursor.png; path = ../_data/images/textures/cursor.png; sourceTree = "<group>"; };
 		41B7BDDF1E49B553007B8B39 /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Images.xcassets; path = SLProject/Images.xcassets; sourceTree = SOURCE_ROOT; };
@@ -1443,6 +1444,7 @@
 		41E984371E3BAB68003D5CCF /* SLCV.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SLCV.h; path = ../include/SLCV.h; sourceTree = SOURCE_ROOT; };
 		41E984381E3BAB7D003D5CCF /* SLCVImage.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SLCVImage.h; path = ../include/SLCVImage.h; sourceTree = SOURCE_ROOT; };
 		41E984391E3BABB1003D5CCF /* SLCVImage.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SLCVImage.cpp; path = "../lib-SLProject/source/CV/SLCVImage.cpp"; sourceTree = SOURCE_ROOT; };
+		41EA2F4C1F558DDF00C34BC7 /* features_stones.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = features_stones.png; path = ../_data/images/textures/features_stones.png; sourceTree = SOURCE_ROOT; };
 		41EBB5E01C44D96900C9BAA5 /* SLGLVertexArrayExt.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SLGLVertexArrayExt.h; path = ../include/SLGLVertexArrayExt.h; sourceTree = SOURCE_ROOT; };
 		41EBB5E21C44D99500C9BAA5 /* SLGLVertexArrayExt.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SLGLVertexArrayExt.cpp; path = "../lib-SLProject/source/GL/SLGLVertexArrayExt.cpp"; sourceTree = SOURCE_ROOT; };
 		41EDCB571B67B47B00DDC945 /* SLCompactGrid.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SLCompactGrid.cpp; path = "../lib-SLProject/source/SLCompactGrid.cpp"; sourceTree = SOURCE_ROOT; };
@@ -1711,6 +1713,7 @@
 		417E0E99148A6F910015B5B0 /* Textures */ = {
 			isa = PBXGroup;
 			children = (
+				41EA2F4C1F558DDF00C34BC7 /* features_stones.png */,
 				417980451F13832F00EB5315 /* i0000_0000b.png */,
 				417980461F13832F00EB5315 /* i0001_0000b.png */,
 				417980471F13832F00EB5315 /* i0002_0000b.png */,
@@ -2684,6 +2687,7 @@
 				417981961F13833000EB5315 /* i0130_0000b.png in Resources */,
 				417981171F13833000EB5315 /* i0003_0000b.png in Resources */,
 				417981901F13833000EB5315 /* i0124_0000b.png in Resources */,
+				41EA2F4D1F558DDF00C34BC7 /* features_stones.png in Resources */,
 				417981B11F13833000EB5315 /* i0157_0000b.png in Resources */,
 				41FD9D171E523AD70063A1B7 /* Font16.png in Resources */,
 				418BF44D1B8B0D500049E387 /* FontTex.frag in Resources */,

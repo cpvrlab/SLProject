@@ -2359,6 +2359,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         //sv->usesRotation(true);
         sv->camera(cam1);
         _root3D = scene;
+        sv->usesRotation(true);
     }
     else
     if (SL::currentSceneID == C_sceneRTMuttenzerBox) //............................................

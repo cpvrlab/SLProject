@@ -362,8 +362,6 @@ float GetSeconds()
 {
     if (slUsesRotation(svIndex))
     {
-        //SLVec3f att(attitude.roll,attitude.pitch,attitude.yaw);
-        //att.print("att:");
         slRotationPYR(svIndex, attitude.roll, attitude.yaw, attitude.pitch);
     }
 }

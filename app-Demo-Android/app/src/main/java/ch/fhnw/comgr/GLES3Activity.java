@@ -148,17 +148,6 @@ public class GLES3Activity extends Activity implements View.OnTouchListener, Sen
     }
 
     @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        Log.i(TAG, "onCreateOptionsMenu");
-        myView.queueEvent(new Runnable() {
-            public void run() {
-                GLES3Lib.onMenuButton();
-            }
-        });
-        return false;
-    }
-
-    @Override
     public void onAccuracyChanged(Sensor sensor, int accuracy) {
         Log.i(TAG, String.format("onAccuracyChanged"));
     }
@@ -191,18 +180,14 @@ public class GLES3Activity extends Activity implements View.OnTouchListener, Sen
                 final float y = YPR[0] * -1.0f;
                 final float r = YPR[2] * -1.0f;
                 myView.queueEvent(new Runnable() {
-                    public void run() {
-                        GLES3Lib.onRotationPYR(p, y, r);
-                    }
+                    public void run() {GLES3Lib.onRotationPYR(p, y, r);}
                 });
             } else {    // Map pitch, yaw and roll to landscape display orientation for Oculus Rift conformance
                 final float p = YPR[2] * -1.0f - (float) Math.PI * 0.5f;
                 final float y = YPR[0] * -1.0f;
                 final float r = YPR[1];
                 myView.queueEvent(new Runnable() {
-                    public void run() {
-                        GLES3Lib.onRotationPYR(p, y, r);
-                    }
+                    public void run() {GLES3Lib.onRotationPYR(p, y, r);}
                 });
             }
 

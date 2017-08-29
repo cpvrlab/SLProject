@@ -26,62 +26,63 @@ Quaternions can be interpolated at low cost with the method lerp or slerp.
 template <class T>
 class SLQuat4 
 {  
-    public:         SLQuat4        ();
-                    SLQuat4        (T x, T y, T z, T w);
-                    SLQuat4        (const SLMat3<T>& m);
-                    SLQuat4        (const T angleDEG, const SLVec3<T>& axis);
-                    SLQuat4        (const SLVec3<T>& v0, const SLVec3<T>& v1);
-                    SLQuat4        (const T pitchRAD, const T yawRAD, const T rollRAD);
+    public:         SLQuat4         ();
+                    SLQuat4         (T x, T y, T z, T w);
+                    SLQuat4         (const SLMat3<T>& m);
+                    SLQuat4         (const T angleDEG, const SLVec3<T>& axis);
+                    SLQuat4         (const SLVec3<T>& v0, const SLVec3<T>& v1);
+                    SLQuat4         (const T pitchRAD, const T yawRAD, const T rollRAD);
       
-        T           x              () const { return _x; }
-        T           y              () const { return _y; }
-        T           z              () const { return _z; }
-        T           w              () const { return _w; }
+        T           x               () const { return _x; }
+        T           y               () const { return _y; }
+        T           z               () const { return _z; }
+        T           w               () const { return _w; }
 
-        void        set            (T x, T y, T z, T w);
-        void        fromMat3       (const SLMat3<T>& m);
-        void        fromAngleAxis  (const T angleRAD, 
-                                    const T axisX, const T axisY, const T axisZ);
-        void        fromEulerAngles(const T pitchRAD, const T yawRAD, const T rollRAD);
-        void        fromVec3       (const SLVec3<T>& v0, const SLVec3<T>& v1);
+        void        set             (T x, T y, T z, T w);
+        void        fromMat3        (const SLMat3<T>& m);
+        void        fromAngleAxis   (const T angleRAD,
+                                     const T axisX, const T axisY, const T axisZ);
+        void        fromEulerAngles (const T pitchRAD, const T yawRAD, const T rollRAD);
+        void        fromVec3        (const SLVec3<T>& v0, const SLVec3<T>& v1);
 
  static SLQuat4<T>  fromLookRotation(const SLVec3<T>& forward, const SLVec3<T>& up);
 
-        SLMat3<T>   toMat3         () const;
-        SLMat4<T>   toMat4         () const;
-        SLVec4<T>   toVec4         () const;
-        void        toAngleAxis    (T& angleDEG, SLVec3<T>& axis) const;
+        SLMat3<T>   toMat3          () const;
+        SLMat4<T>   toMat4          () const;
+        SLVec4<T>   toVec4          () const;
+        void        toAngleAxis     (T& angleDEG, SLVec3<T>& axis) const;
+        void        toEulerAngles   (T& pitchRAD, T& yawRAD, T& rollRAD) const;
       
-        T           dot         (const SLQuat4<T>& q) const;
-        T           length      () const;
-        SLQuat4<T>  normalized  () const;
-        T           normalize   ();
-        SLQuat4<T>  inverted    () const;
-        void        invert      ();
-        SLQuat4<T>  conjugated  () const;
-        void        conjugate   ();
-        SLQuat4<T>  rotated     (const SLQuat4<T>& b) const;
-        void        rotate      (const SLQuat4<T>& q);
-        SLVec3<T>   rotate      (const SLVec3<T>& vec) const;
-        SLQuat4<T>  scaled      (T scale) const;
-        void        scale       (T scale);
-        SLQuat4<T>  lerp        (const SLQuat4<T>& q2, const T t) const;
-        void        lerp        (const SLQuat4<T>& q1, 
-                                const SLQuat4<T>& q2, const T t);
-        SLQuat4<T>  slerp       (const SLQuat4<T>& q2, const T t) const;
-        void        slerp       (const SLQuat4<T>& q1, 
-                                const SLQuat4<T>& q2, const T t);
-           
-        SLQuat4<T>& operator=   (const SLQuat4<T> q);
-        SLQuat4<T>  operator-   (const SLQuat4<T>& q) const;
-        SLQuat4<T>  operator+   (const SLQuat4<T>& q) const;
-        SLQuat4<T>  operator*   (const SLQuat4<T>& q) const;
-        SLQuat4<T>  operator*   (const T s) const;
-        SLVec3<T>   operator*   (const SLVec3<T>& v) const;
-        SLbool      operator==  (const SLQuat4<T>& q) const;
-        SLbool      operator!=  (const SLQuat4<T>& q) const;
-        SLQuat4<T>& operator*=  (const SLQuat4<T>& q2);
-        SLQuat4<T>& operator*=  (const T s);
+        T           dot             (const SLQuat4<T>& q) const;
+        T           length          () const;
+        SLQuat4<T>  normalized      () const;
+        T           normalize       ();
+        SLQuat4<T>  inverted        () const;
+        void        invert          ();
+        SLQuat4<T>  conjugated      () const;
+        void        conjugate       ();
+        SLQuat4<T>  rotated         (const SLQuat4<T>& b) const;
+        void        rotate          (const SLQuat4<T>& q);
+        SLVec3<T>   rotate          (const SLVec3<T>& vec) const;
+        SLQuat4<T>  scaled          (T scale) const;
+        void        scale           (T scale);
+        SLQuat4<T>  lerp            (const SLQuat4<T>& q2, const T t) const;
+        void        lerp            (const SLQuat4<T>& q1,
+                                    const SLQuat4<T>& q2, const T t);
+        SLQuat4<T>  slerp           (const SLQuat4<T>& q2, const T t) const;
+        void        slerp           (const SLQuat4<T>& q1,
+                                    const SLQuat4<T>& q2, const T t);
+
+        SLQuat4<T>& operator=       (const SLQuat4<T> q);
+        SLQuat4<T>  operator-       (const SLQuat4<T>& q) const;
+        SLQuat4<T>  operator+       (const SLQuat4<T>& q) const;
+        SLQuat4<T>  operator*       (const SLQuat4<T>& q) const;
+        SLQuat4<T>  operator*       (const T s) const;
+        SLVec3<T>   operator*       (const SLVec3<T>& v) const;
+        SLbool      operator==      (const SLQuat4<T>& q) const;
+        SLbool      operator!=      (const SLQuat4<T>& q) const;
+        SLQuat4<T>& operator*=      (const SLQuat4<T>& q2);
+        SLQuat4<T>& operator*=      (const T s);
         
     static SLQuat4 IDENTITY;
 
@@ -282,7 +283,7 @@ void SLQuat4<T>::fromAngleAxis(const T angleRAD,
 //-----------------------------------------------------------------------------
 /*! Sets the quaternion from 3 Euler angles in radians
 Source: Essential Mathematics for Games and Interactive Applications
-A Programmer’s Guide 2nd edition by James M. Van Verth and Lars M. Bishop
+A Programmer's Guide 2nd edition by James M. Van Verth and Lars M. Bishop
 */
 template <class T>
 void SLQuat4<T>::fromEulerAngles(const T pitchRAD, const T yawRAD, const T rollRAD)
@@ -377,6 +378,27 @@ void SLQuat4<T>::toAngleAxis (T& angleDEG, SLVec3<T>& axis) const
         axis.y   = (T)0;
         axis.z   = (T)0;
     }
+}
+//-----------------------------------------------------------------------------
+template <typename T>
+void SLQuat4<T>::toEulerAngles (T& pitchRAD, T& yawRAD, T& rollRAD) const
+{
+    // roll (x-axis rotation)
+    double sinr = +2.0 * (_w * _x + _y * _z);
+    double cosr = +1.0 - 2.0 * (_x * _x + _y * _y);
+    rollRAD = atan2(sinr, cosr);
+
+    // pitch (y-axis rotation)
+    double sinp = +2.0 * (_w *_y - _z*_x);
+    if (fabs(sinp) >= 1)
+        pitchRAD = copysign(M_PI / 2, sinp); // use 90 degrees if out of range
+    else
+        pitchRAD = asin(sinp);
+
+    // yaw (z-axis rotation)
+    double siny = +2.0 * (_w * _z + _x * _y);
+    double cosy = +1.0 - 2.0 * (_y*_y + _z*_z);
+    yawRAD = atan2(siny, cosy);
 }
 
 //-----------------------------------------------------------------------------

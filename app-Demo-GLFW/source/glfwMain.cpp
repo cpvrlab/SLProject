@@ -338,9 +338,6 @@ static void onKeyPress(GLFWwindow* window, int GLFWKey, int scancode, int action
             glfwSetWindowSize(window, scrWidth, scrHeight);
             glfwSetWindowPos(window, 10, 30);   
         } else
-        if (!SLDemoGui::showMenu)
-        {   SLDemoGui::showMenu = true;
-        } else
         {   slKeyPress(svIndex, key, modifiers);
             onClose(window);
             glfwSetWindowShouldClose(window, GL_TRUE);
