@@ -360,9 +360,12 @@ float GetSeconds()
 //-----------------------------------------------------------------------------
 -(void)onMotionData:(CMAttitude*)attitude
 {
-    if (slUsesRotation(svIndex))
+    if (slUsesRotation())
     {
-        slRotationPYR(svIndex, attitude.roll, attitude.yaw, attitude.pitch);
+        float pitch = attitude.roll * -1.0f - SL_HALFPI;
+        float yaw   = attitude.yaw;
+        float roll  = attitude.pitch * -1.0f;
+        slRotationPYR(pitch, yaw, roll);
     }
 }
 //-----------------------------------------------------------------------------

@@ -119,7 +119,6 @@ void SLSceneView::init(SLstring name,
     _doMultiSampling = true;    // true=OpenGL multisampling is turned on
     _doFrustumCulling = true;   // true=enables view frustum culling
     _waitEvents = true;
-    _usesRotation = false;
     _drawBits.allOff();
        
     _stats3D.clear();
@@ -1230,65 +1229,6 @@ SLbool SLSceneView::onCharInput(SLuint c)
     }
     return false;
 }
-//-----------------------------------------------------------------------------
-/*!
-SLSceneView::onRotation: Event handler for rotation change of a mobile
-device with Euler angles for pitch, yaw and roll. 
-With the parameter zeroYawAfterSec sets the time in seconds after
-which the yaw angle is set to zero by subtracting the average yaw in this time.
-*/
-void SLSceneView::onRotationPYR(SLfloat pitchRAD, 
-                                SLfloat yawRAD, 
-                                SLfloat rollRAD,
-                                SLfloat zeroYawAfterSec)
-{
-    SLScene* s = SLScene::current;
-    if (!s->root3D()) return;
-
-    SL_LOG("onRotationPYR1: pitch: %3.1f, yaw: %3.1f, roll: %3.1f\n",
-           pitchRAD * SL_RAD2DEG,
-           yawRAD   * SL_RAD2DEG,
-           rollRAD  * SL_RAD2DEG);
-
-    // Set the yaw to zero by subtracting the averaged yaw after the passed NO. of sec.
-    // Array of 60 yaw values for averaging
-    static SLAvgFloat initialYaw(60);
-
-    if (zeroYawAfterSec == 0.0f)
-    {   _deviceRotation.fromEulerAngles(pitchRAD, yawRAD, rollRAD);
-    } else 
-    if (SLScene::current->timeSec() < zeroYawAfterSec)
-    {   initialYaw.set(yawRAD);
-        _deviceRotation.fromEulerAngles(pitchRAD, yawRAD, rollRAD);
-    } else
-    {  _deviceRotation.fromEulerAngles(pitchRAD, yawRAD-initialYaw.average(), rollRAD);
-    }
-
-    //SLfloat pitch, yaw, roll;
-    //_deviceRotation.toEulerAngles(pitch, yaw, roll);
-    //
-    //SL_LOG("onRotationPYR2: pitch: %3.1f, yaw: %3.1f, roll: %3.1f\n",
-    //       pitch * SL_RAD2DEG,
-    //       yaw   * SL_RAD2DEG,
-    //       roll  * SL_RAD2DEG);
-    //_camera->rotation(_deviceRotation);
-}
-//-----------------------------------------------------------------------------
-/*!
-SLSceneView::onRotation: Event handler for rotation change of a mobile
-device with rotation quaternion.
-*/
-void SLSceneView::onRotationQUAT(SLfloat quatX, 
-                                 SLfloat quatY, 
-                                 SLfloat quatZ, 
-                                 SLfloat quatW)
-{
-    SLScene* s = SLScene::current;
-    if (!s->root3D()) return;
-
-    _deviceRotation.set(quatX, quatY, quatZ, quatW);
-}
-
 //-----------------------------------------------------------------------------
 /*!
 SLSceneView::onCommand: Event handler for commands. Most key press or menu

@@ -105,14 +105,6 @@ class SLSceneView: public SLObject
     virtual SLbool          onKeyPress      (SLKey key, SLKey mod);
     virtual SLbool          onKeyRelease    (SLKey key, SLKey mod);
     virtual SLbool          onCharInput     (SLuint c);
-            void            onRotationPYR   (SLfloat pitchRAD, 
-                                             SLfloat yawRAD, 
-                                             SLfloat rollRAD,
-                                             SLfloat zeroYawAfterSec);
-            void            onRotationQUAT  (SLfloat quatX, 
-                                             SLfloat quatY, 
-                                             SLfloat quatZ, 
-                                             SLfloat quatW);
             SLbool          onCommand       (SLCommand cmd);
             
             // Drawing subroutines
@@ -151,7 +143,6 @@ class SLSceneView: public SLObject
             void            scrW                (SLint  scrW){_scrW = scrW;}
             void            scrH                (SLint  scrH){_scrH = scrH;}
             void            waitEvents          (SLbool wait){_waitEvents = wait;}
-            void            usesRotation        (SLbool use) {_usesRotation = use;}
             void            gotPainted          (SLbool val) {_gotPainted = val;}
 
             // Getters
@@ -164,13 +155,11 @@ class SLSceneView: public SLObject
     inline  SLint           scrHdiv2            () const {return _scrHdiv2;}
     inline  SLfloat         scrWdivH            () const {return _scrWdivH;}
     inline  SLGLImGui&      gui                 () {return _gui;}
-    inline  SLQuat4f        deviceRotation      () const {return _deviceRotation;}
     inline  SLbool          gotPainted          () const {return _gotPainted;}
     inline  SLbool          doFrustumCulling    () const {return _doFrustumCulling;}
     inline  SLbool          hasMultiSampling    () const {return _stateGL->hasMultiSampling();}
     inline  SLbool          doMultiSampling     () const {return _doMultiSampling;}
     inline  SLbool          doDepthTest         () const {return _doDepthTest;}
-    inline  SLbool          usesRotation        () const {return _usesRotation;}
     inline  SLbool          waitEvents          () const {return _waitEvents;}
     inline  SLVNode*        visibleNodes        () {return &_visibleNodes;}
     inline  SLVNode*        blendNodes          () {return &_blendNodes;}
@@ -206,7 +195,6 @@ class SLSceneView: public SLObject
             SLbool          _doFrustumCulling;  //!< Flag if view frustum culling is on
             SLbool          _waitEvents;        //!< Flag for Event waiting
             SLbool          _isFirstFrame;      //!< Flag if it is the first frame rendering
-            SLbool          _usesRotation;      //!< Flag if device rotation is used
             SLDrawBits      _drawBits;          //!< Sceneview level drawing flags
 
             SLfloat         _cullTimeMS;        //!< time for culling in ms
@@ -228,7 +216,6 @@ class SLSceneView: public SLObject
             SLint           _scrWdiv2;          //!< Screen half width in pixels
             SLint           _scrHdiv2;          //!< Screen half height in pixels
             SLfloat         _scrWdivH;          //!< Screen side aspect ratio
-            SLQuat4f        _deviceRotation;    //!< Mobile device rotation as quaternion
 
             SLGLOculusFB    _oculusFB;          //!< Oculus framebuffer
 			SLbool			_vrMode;			//!< Flag if we're in VR mode (forces camera to stereoD)

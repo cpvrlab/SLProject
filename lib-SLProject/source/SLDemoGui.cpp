@@ -37,7 +37,6 @@
 
 #include <imgui.h>
 
-
 #define IM_ARRAYSIZE(_ARR)  ((int)(sizeof(_ARR)/sizeof(*_ARR)))
 
 //-----------------------------------------------------------------------------
@@ -92,6 +91,7 @@ SLbool          SLDemoGui::showStatsScene      = false;
 SLbool          SLDemoGui::showStatsVideo      = false;
 SLbool          SLDemoGui::showInfosFrameworks = false;
 SLbool          SLDemoGui::showInfosScene      = false;
+SLbool          SLDemoGui::showInfosSensors    = false;
 SLbool          SLDemoGui::showSceneGraph      = false;
 SLbool          SLDemoGui::showProperties      = false;
 
@@ -406,6 +406,25 @@ void SLDemoGui::buildDemoGui(SLScene* s, SLSceneView* sv)
         // Switch to fixed font
         ImGui::PushFont(ImGui::GetIO().Fonts->Fonts[1]);
         ImGui::Begin("Framework Informations", &showInfosFrameworks, ImVec2(300,0));
+        ImGui::TextUnformatted(m);
+        ImGui::End();
+        ImGui::PopFont();
+    }
+
+    if (showInfosSensors)
+    {
+        SLGLState* stateGL = SLGLState::getInstance();
+        SLchar m[2550];   // message character array
+        m[0]=0;           // set zero length
+        sprintf(m+strlen(m), "Uses Rotation       : %s\n",    s->usesRotation() ? "yes" : "no");
+        sprintf(m+strlen(m), "Orientation Pitch   : %1.0f\n", s->devicePitchRAD()*SL_RAD2DEG);
+        sprintf(m+strlen(m), "Orientation Yaw     : %1.0f\n", s->deviceYawRAD()  *SL_RAD2DEG);
+        sprintf(m+strlen(m), "Orientation Roll    : %1.0f\n", s->deviceRollRAD() *SL_RAD2DEG);
+        sprintf(m+strlen(m), "Zero Yaw after (sec): %1.0f\n", s->zeroYawAfterSec());
+
+        // Switch to fixed font
+        ImGui::PushFont(ImGui::GetIO().Fonts->Fonts[1]);
+        ImGui::Begin("Sensor Informations", &showInfosSensors, ImVec2(300,0));
         ImGui::TextUnformatted(m);
         ImGui::End();
         ImGui::PopFont();
@@ -1008,7 +1027,9 @@ void SLDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
             ImGui::MenuItem("Show Scenegraph",     0, &showSceneGraph);
             ImGui::MenuItem("Show Properties",     0, &showProperties);
             ImGui::Separator();
+            ImGui::MenuItem("Infos on Sensors",    0, &showInfosSensors);
             ImGui::MenuItem("Infos on Frameworks", 0, &showInfosFrameworks);
+            ImGui::Separator();
             ImGui::MenuItem("Help on Interaction", 0, &showHelp);
             ImGui::MenuItem("Help on Calibration", 0, &showHelpCalibration);
             ImGui::Separator();
@@ -1504,6 +1525,7 @@ void SLDemoGui::loadConfig()
     fs["showStatsVideo"]        >> b; SLDemoGui::showStatsVideo = b;
     fs["showInfosFrameworks"]   >> b; SLDemoGui::showInfosFrameworks = b;
     fs["showInfosScene"]        >> b; SLDemoGui::showInfosScene = b;
+    fs["showInfosSensors"]      >> b; SLDemoGui::showInfosSensors = b;
     fs["showSceneGraph"]        >> b; SLDemoGui::showSceneGraph = b;
     fs["showProperties"]        >> b; SLDemoGui::showProperties = b;
     fs["showDetection"]         >> b; SLScene::current->showDetection(b);
@@ -1536,6 +1558,7 @@ void SLDemoGui::saveConfig()
     fs << "showStatsVideo"          << SLDemoGui::showStatsVideo;
     fs << "showInfosFrameworks"     << SLDemoGui::showInfosFrameworks;
     fs << "showInfosScene"          << SLDemoGui::showInfosScene;
+    fs << "showInfosSensors"        << SLDemoGui::showInfosSensors;
     fs << "showSceneGraph"          << SLDemoGui::showSceneGraph;
     fs << "showProperties"          << SLDemoGui::showProperties;
     fs << "showDetection"           << SLScene::current->showDetection();

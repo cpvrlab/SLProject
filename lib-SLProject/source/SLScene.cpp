@@ -69,11 +69,10 @@ SLScene::SLScene(SLstring name) : SLObject(name)
     _selectedMesh   = nullptr;
     _selectedNode   = nullptr;
     _activeCalib    = nullptr;
-
     _stopAnimations = false;
-
-    _fps = 0;
-    _elapsedTimeMS = 0;
+    _usesRotation   = false;
+    _fps            = 0;
+    _elapsedTimeMS  = 0;
     _lastUpdateTimeMS = 0;
      
     // Load std. shader programs in order as defined in SLShaderProgs enum in SLenum
@@ -207,6 +206,12 @@ void SLScene::init()
     _optFlowTimesMS.init();
     _poseTimesMS.init();
     _captureTimesMS.init(200);
+
+    _deviceRotation  = SLQuat4f::IDENTITY;
+    _devicePitchRAD  = 0.0f;
+    _deviceYawRAD    = 0.0f;
+    _deviceRollRAD   = 0.0f;
+    _zeroYawAfterSec = 0.0f;
 }
 //-----------------------------------------------------------------------------
 /*! The scene uninitializing clears the scenegraph (_root3D) and all global
@@ -506,6 +511,47 @@ void SLScene::onAfterLoad()
     }
     #endif
 }
+//-----------------------------------------------------------------------------
+/*!
+SLScene::onRotationPYR: Event handler for rotation change of a mobile device
+with Euler angles for pitch, yaw and roll.
+With the parameter zeroYawAfterSec sets the time in seconds after which the
+yaw angle is set to zero by subtracting the average yaw in this time.
+*/
+void SLScene::onRotationPYR(SLfloat pitchRAD,
+                            SLfloat yawRAD,
+                            SLfloat rollRAD)
+{
+    _devicePitchRAD = pitchRAD;
+    _deviceYawRAD   = yawRAD;
+    _deviceRollRAD  = rollRAD;
+
+    // Set the yaw to zero by subtracting the averaged yaw after the passed NO. of sec.
+    // Array of 60 yaw values for averaging
+    static SLAvgFloat initialYaw(60);
+
+    if (_zeroYawAfterSec == 0.0f)
+    {   _deviceRotation.fromEulerAngles(pitchRAD, yawRAD, rollRAD);
+    } else
+    if (SLScene::current->timeSec() < _zeroYawAfterSec)
+    {   initialYaw.set(yawRAD);
+        _deviceRotation.fromEulerAngles(pitchRAD, yawRAD, rollRAD);
+    } else
+    {  _deviceRotation.fromEulerAngles(pitchRAD, yawRAD-initialYaw.average(), rollRAD);
+    }
+}
+//-----------------------------------------------------------------------------
+/*! SLScene::onRotationQUAT: Event handler for rotation change of a mobile
+device with rotation quaternion.
+*/
+void SLScene::onRotationQUAT(SLfloat quatX,
+                             SLfloat quatY,
+                             SLfloat quatZ,
+                             SLfloat quatW)
+{
+    _deviceRotation.set(quatX, quatY, quatZ, quatW);
+}
+
 //-----------------------------------------------------------------------------
 //! Sets the _selectedNode to the passed Node and flags it as selected
 void SLScene::selectNode(SLNode* nodeToSelect)

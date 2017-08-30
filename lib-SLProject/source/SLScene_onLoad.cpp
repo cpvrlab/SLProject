@@ -193,6 +193,9 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         _activeCalib->state() != CS_uncalibrated)
         _activeCalib->state(CS_uncalibrated);
 
+    // Deactivate in general the rotation sensor
+    _usesRotation = false;
+
     if (SL::currentSceneID == C_sceneEmpty) //.....................................................
     {   
         name("No Scene loaded.");
@@ -2356,10 +2359,10 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         _trackers.push_back(new SLCVTrackedFeatures(cam1, "features_stones.png"));
 
         sv->waitEvents(false); // for constant video feed
-        //sv->usesRotation(true);
         sv->camera(cam1);
+
         _root3D = scene;
-        sv->usesRotation(true);
+        _usesRotation = true;
     }
     else
     if (SL::currentSceneID == C_sceneRTMuttenzerBox) //............................................

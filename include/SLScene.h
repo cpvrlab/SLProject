@@ -59,6 +59,8 @@ class SLScene: public SLObject
             void            stopAnimations      (SLbool stop) {_stopAnimations = stop;}
             void            videoType           (SLVideoType vt);
             void            showDetection       (SLbool st) {_showDetection = st;}
+            void            usesRotation        (SLbool use) {_usesRotation = use;}
+            void            zeroYawAfterSec     (SLfloat sec) {_zeroYawAfterSec = sec;}
                            
             // Getters
             SLAnimManager&  animManager         () {return _animManager;}
@@ -98,6 +100,7 @@ class SLScene: public SLObject
             SLGLOculus*     oculus              () {return &_oculus;}
             SLint           numSceneCameras     ();
             SLCamera*       nextCameraInScene   (SLSceneView* activeSV);
+            SLbool          usesRotation        () const {return _usesRotation;}
 
             // Video and OpenCV stuff
             SLVideoType         videoType       () {return _videoType;}
@@ -107,6 +110,12 @@ class SLScene: public SLObject
             SLCVCalibration*    calibScndCam    () {return &_calibScndCam;}
             SLVCVTracker&       trackers        () {return _trackers;}
             SLbool              showDetection   () {return _showDetection;}
+
+            SLQuat4f            deviceRotation  () const {return _deviceRotation;}
+            SLfloat             devicePitchRAD  () const {return _devicePitchRAD;}
+            SLfloat             deviceYawRAD    () const {return _deviceYawRAD;}
+            SLfloat             deviceRollRAD   () const {return _deviceRollRAD;}
+            SLfloat             zeroYawAfterSec () const {return _zeroYawAfterSec;}
             
             // Misc.
    virtual  void            onLoad              (SLSceneView* sv, 
@@ -115,6 +124,13 @@ class SLScene: public SLObject
                                                  SLuint processFlags);
    virtual  void            onAfterLoad         ();
             bool            onUpdate            ();
+            void            onRotationPYR       (SLfloat pitchRAD,
+                                                 SLfloat yawRAD,
+                                                 SLfloat rollRAD);
+            void            onRotationQUAT      (SLfloat quatX,
+                                                 SLfloat quatY,
+                                                 SLfloat quatZ,
+                                                 SLfloat quatW);
             void            init                ();
             void            unInit              ();
             SLbool          onCommandAllSV      (const SLCommand cmd);
@@ -169,13 +185,21 @@ class SLScene: public SLObject
             SLGLOculus      _oculus;            //!< Oculus Rift interface
             
             // Video stuff
-            SLVideoType         _videoType;     //!< Flag for using the live video image
-            SLGLTexture         _videoTexture;  //!< Texture for live video image
-            SLCVCalibration*    _activeCalib;   //!< Pointer to the active calibration
-            SLCVCalibration     _calibMainCam;  //!< OpenCV calibration for main video camera
-            SLCVCalibration     _calibScndCam;  //!< OpenCV calibration for secondary video camera
-            SLVCVTracker        _trackers;      //!< Vector of all AR trackers
-            SLbool              _showDetection; //!< Flag if detection should be visualized
+            SLVideoType         _videoType;         //!< Flag for using the live video image
+            SLGLTexture         _videoTexture;      //!< Texture for live video image
+            SLCVCalibration*    _activeCalib;       //!< Pointer to the active calibration
+            SLCVCalibration     _calibMainCam;      //!< OpenCV calibration for main video camera
+            SLCVCalibration     _calibScndCam;      //!< OpenCV calibration for secondary video camera
+            SLVCVTracker        _trackers;          //!< Vector of all AR trackers
+            SLbool              _showDetection;     //!< Flag if detection should be visualized
+
+            // Sensor stuff
+            SLbool              _usesRotation;      //!< Flag if device rotation is used
+            SLfloat             _devicePitchRAD;    //!< Device pitch angle in radians
+            SLfloat             _deviceYawRAD;      //!< Device yaw angle in radians
+            SLfloat             _deviceRollRAD;     //!< Device roll angle in radians
+            SLQuat4f            _deviceRotation;    //!< Mobile device rotation as quaternion
+            SLfloat             _zeroYawAfterSec;   //!< Zero yaw angle after a certain seconds
 };
 //-----------------------------------------------------------------------------
 #endif

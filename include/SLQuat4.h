@@ -91,7 +91,7 @@ class SLQuat4
 };
 
 //-----------------------------------------------------------------------------
-template<class T> SLQuat4<T> SLQuat4<T>::IDENTITY   = SLQuat4<T>(0.0f, 0.0f, 0.0f, 1.0f);
+template<class T> SLQuat4<T> SLQuat4<T>::IDENTITY = SLQuat4<T>(0.0f, 0.0f, 0.0f, 1.0f);
 
 //-----------------------------------------------------------------------------
 template <class T>
