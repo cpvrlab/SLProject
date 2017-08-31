@@ -137,12 +137,10 @@ int slCreateSceneView(int screenWidth,
 
     // Load configuration no matter if ImGui is used
     if (index==0)
-        SLDemoGui::loadConfig();
+        SLDemoGui::loadConfig(dotsPerInch);
 
     // Set default font sizes depending on the dpi no matter if ImGui is used
     if (!SL::dpi) SL::dpi = dotsPerInch;
-    if (!SLGLImGui::fontPropDots)  SLGLImGui::fontPropDots  = dotsPerInch * (16.0f / 142.0f);
-    if (!SLGLImGui::fontFixedDots) SLGLImGui::fontFixedDots = dotsPerInch * (13.0f / 142.0f);
 
     // Load GUI fonts depending on the resolution
     sv->gui().loadFonts(SLGLImGui::fontPropDots, SLGLImGui::fontFixedDots);

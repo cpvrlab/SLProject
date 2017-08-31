@@ -2229,11 +2229,11 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         if (SL::currentSceneID == C_sceneVideoTrackArucoMain)
         {   videoType(VT_MAIN);
             name("Track Aruco Marker on main camera");
-            _info = "Hold Aruco Marker 0 and/or 1 into the field of view of the secondary camera.";
+            _info = "Hold Aruco Marker 0 and/or 1 into the field of view of the main camera. You can find the Aruco markers in the file _data/Calibrations/ArucoMarkersDict0_Marker0-9.pdf";
         } else
         {   videoType(VT_SCND);
             name("Track Aruco Marker on secondary camera");
-            _info = "Hold Aruco Marker 0 and/or 1 into the field of view of the secondary camera.";
+            _info = "Hold Aruco Marker 0 and/or 1 into the field of view of the secondary camera. You can find the Aruco markers in the file _data/Calibrations/ArucoMarkersDict0_Marker0-9.pdf";
         }
 
         // Material
@@ -2308,7 +2308,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         */
 
         name("2D Feature Tracking");
-        _info = "Augmented Reality Feature Tracking";
+        _info = "Augmented Reality 2D Feature Tracking: You need to print out the stones image target from the file _data/calibrations/vuforia_markers.pdf";
 
         SLCamera* cam1 = new SLCamera("Camera 1");
         cam1->translation(0,2,60);

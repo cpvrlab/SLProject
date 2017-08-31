@@ -136,7 +136,7 @@ float GetSeconds()
     svIndex = slCreateSceneView(self.view.bounds.size.height * screenScale,
                                 self.view.bounds.size.width * screenScale,
                                 dpi,
-                                C_sceneMeshLoad,
+                                C_sceneRevolver,
                                 (void*)&onPaintRTGL,
                                 0,
                                 0,

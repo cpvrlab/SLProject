@@ -29,6 +29,7 @@ for a good top down information.
 
 using namespace cv;
 
+//-----------------------------------------------------------------------------
 // Globals for benchmarking
 int     frames_with_pose = 0;
 float   sum_matches = 0;
@@ -39,18 +40,6 @@ float   sum_poseopt_difference = 0.0f;
 double  translationError = 0;
 double  rotationError = 0;
 int     frames_since_posefound = 0;
-
-//-----------------------------------------------------------------------------
-/*! Since Android does not support full C++11 support, we have to override the
-to_string method manually.
-*/
-template<typename T>
-std::string to_string(T value)
-{
-    std::ostringstream os;
-    os << value;
-    return os.str();
-}
 
 //-----------------------------------------------------------------------------
 SLCVTrackedFeatures::SLCVTrackedFeatures(SLNode *node,
@@ -808,14 +797,14 @@ void SLCVTrackedFeatures::optimizeMatches()
 
         #if SL_DRAW_PATCHES
         //draw green rectangle around every map point
-        rectangle(_current.image,
+        rectangle(_currentFrame.image,
                   Point2f(projectedModelPoint.x - patchSize / 2, projectedModelPoint.y - patchSize / 2),
                   Point2f(projectedModelPoint.x + patchSize / 2, projectedModelPoint.y + patchSize / 2),
                   CV_RGB(0, 255, 0));
 
         //draw key points, that lie inside this rectangle
         for (auto kPt : bboxFrameKeypoints)
-            circle(_current.image,
+            circle(_currentFrame.image,
                    kPt.pt,
                    1,
                    CV_RGB(0, 0, 255),
@@ -840,8 +829,8 @@ void SLCVTrackedFeatures::optimizeMatches()
 
     #if SL_DRAW_REPROJECTION_ERROR
     // Draw the projection error for the current frame
-    putText(_current.image,
-            "Reprojection error: " + to_string(reprojectionError / _map.model.size()),
+    putText(_currentFrame.image,
+            "Reprojection error: " + to_string(reprojectionError / _marker.keypoints3D.size()),
             Point2f(20, 20),
             FONT_HERSHEY_SIMPLEX,
             0.5,
@@ -909,6 +898,8 @@ bool SLCVTrackedFeatures::trackWithOptFlow(SLCVMat rvec, SLCVMat tvec)
     for (size_t i = 0; i < status.size(); i++)
     {   if (status[i])
         {   frame2DPoints.push_back(pred2DPoints[i]);
+            //Original code from Zingg/Tschanz got zero size vector
+            //model3DPoints.push_back(_currentFrameFrame.inlierPoints3D[i]);
             model3DPoints.push_back(_prevFrame.inlierPoints3D[i]);
         }
     }

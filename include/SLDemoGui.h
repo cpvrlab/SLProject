@@ -35,7 +35,7 @@ class SLDemoGui
     static void             buildSceneGraph     (SLScene* s);
     static void             addSceneGraphNode   (SLScene* s, SLNode* node);
     static void             buildProperties     (SLScene* s);
-    static void             loadConfig          ();
+    static void             loadConfig          (SLint dotsPerInch);
     static void             saveConfig          ();
 
     static SLGLTexture*     cpvrLogo;           //!< cpvr logo texture image

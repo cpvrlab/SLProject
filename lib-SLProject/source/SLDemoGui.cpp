@@ -77,7 +77,14 @@ bool myListBox(const char* label, int* currIndex, SLVstring& values)
                           (int)values.size());
 }
 //-----------------------------------------------------------------------------
-
+//! Centers the next ImGui window in the parent
+void centerNextWindow(SLSceneView* sv, SLfloat widthPC=0.9f, SLfloat heightPC=0.7f)
+{
+    SLint width = (SLint)(sv->scrW()*widthPC);
+    SLint height = (SLint)(sv->scrH()*heightPC);
+    ImGui::SetNextWindowSize(ImVec2(width, height), ImGuiSetCond_Always);
+    ImGui::SetNextWindowPosCenter(ImGuiSetCond_Always);
+}
 //-----------------------------------------------------------------------------
 // Init global static variables
 SLGLTexture*    SLDemoGui::cpvrLogo            = nullptr;
@@ -156,7 +163,8 @@ void SLDemoGui::buildDemoGui(SLScene* s, SLSceneView* sv)
                 cpvrLogo->bindActive();
         } else  cpvrLogo->bindActive();
 
-        ImGui::Begin("About SLProject", &showAbout, ImVec2(400,0));
+        centerNextWindow(sv);
+        ImGui::Begin("About SLProject", &showAbout);
         ImGui::Image((ImTextureID)cpvrLogo->texName(), ImVec2(100,100), ImVec2(0,1), ImVec2(1,0));
         ImGui::SameLine();
         ImGui::Text("Version %s", SL::version.c_str());
@@ -167,7 +175,8 @@ void SLDemoGui::buildDemoGui(SLScene* s, SLSceneView* sv)
 
     if (showHelp)
     {
-        ImGui::Begin("Help on Interaction", &showHelp, ImVec2(400,0));
+        centerNextWindow(sv);
+        ImGui::Begin("Help on Interaction", &showHelp);
         ImGui::Separator();
 
         ImGui::TextWrapped(infoHelp.c_str());
@@ -176,6 +185,7 @@ void SLDemoGui::buildDemoGui(SLScene* s, SLSceneView* sv)
 
     if (showHelpCalibration)
     {
+        centerNextWindow(sv);
         ImGui::Begin("Help on Camera Calibration", &showHelpCalibration, ImVec2(400,0));
         ImGui::TextWrapped(infoCalibrate.c_str());
         ImGui::End();
@@ -183,7 +193,8 @@ void SLDemoGui::buildDemoGui(SLScene* s, SLSceneView* sv)
 
     if (showCredits)
     {
-        ImGui::Begin("Credits for all Helpers", &showCredits, ImVec2(400,0));
+        centerNextWindow(sv);
+        ImGui::Begin("Credits for all Contributors and external Libraries", &showCredits);
         ImGui::TextWrapped(infoCredits.c_str());
         ImGui::End();
     }
@@ -721,6 +732,15 @@ void SLDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
                     style.WindowPadding.x = style.FramePadding.x;
                 if (ImGui::SliderFloat2("Item Spacing", (float*)&style.ItemSpacing, 0.0f, 20.0f, "%.0f"))
                     style.ItemInnerSpacing.x = style.ItemSpacing.y;
+
+                ImGui::Separator();
+
+                if (ImGui::MenuItem("Reset User Interface"))
+                {
+                    SLstring fullPathFilename = SL::configPath + "DemoGui.yml";
+                    SLFileSystem::deleteFile(fullPathFilename);
+                    loadConfig(SL::dpi);
+                }
 
                 ImGui::EndMenu();
             }
@@ -1489,14 +1509,33 @@ void SLDemoGui::buildProperties(SLScene* s)
     ImGui::PopFont();
 }
 //-----------------------------------------------------------------------------
-void SLDemoGui::loadConfig()
+void SLDemoGui::loadConfig(SLint dotsPerInch)
 {
-    
     ImGuiStyle& style = ImGui::GetStyle();
     SLstring fullPathAndFilename = SL::configPath + "DemoGui.yml";
 
     if (!SLFileSystem::fileExists(fullPathAndFilename))
+    {
+        // Default settings for the first time
+        SLGLImGui::fontPropDots  = dotsPerInch * (16.0f / 142.0f);
+        SLGLImGui::fontFixedDots = dotsPerInch * (13.0f / 142.0f);
+        SLDemoGui::showAbout = true;
+        SLDemoGui::showInfosScene = true;
+        SLDemoGui::showStatsTiming = false;
+        SLDemoGui::showStatsScene = false;
+        SLDemoGui::showStatsVideo = false;
+        SLDemoGui::showInfosFrameworks = false;
+        SLDemoGui::showInfosSensors = false;
+        SLDemoGui::showSceneGraph = false;
+        SLDemoGui::showProperties = false;
+        style.FramePadding.x = 8.0f;
+        style.WindowPadding.x = style.FramePadding.x;
+        style.FramePadding.y = 3.0f;
+        style.ItemSpacing.x = 8.0f;
+        style.ItemSpacing.y = 3.0f;
+        style.ItemInnerSpacing.x = style.ItemSpacing.y;
         return;
+    }
 
     SLCVFileStorage fs;
     try
@@ -1515,16 +1554,18 @@ void SLDemoGui::loadConfig()
     fs["configTime"]            >> SLDemoGui::configTime;
     fs["fontPropDots"]          >> i; SLGLImGui::fontPropDots = (SLfloat)i;
     fs["fontFixedDots"]         >> i; SLGLImGui::fontFixedDots = (SLfloat)i;
-    fs["FramePaddingX"]         >> i; style.FramePadding.x = (SLfloat)i; style.WindowPadding.x = style.FramePadding.x;
+    fs["FramePaddingX"]         >> i; style.FramePadding.x = (SLfloat)i;
+                                      style.WindowPadding.x = style.FramePadding.x;
     fs["FramePaddingY"]         >> i; style.FramePadding.y = (SLfloat)i;
     fs["ItemSpacingX"]          >> i; style.ItemSpacing.x = (SLfloat)i;
-    fs["ItemSpacingY"]          >> i; style.ItemSpacing.y = (SLfloat)i; style.ItemInnerSpacing.x = style.ItemSpacing.y;
+    fs["ItemSpacingY"]          >> i; style.ItemSpacing.y = (SLfloat)i;
+                                      style.ItemInnerSpacing.x = style.ItemSpacing.y;
     fs["currentSceneID"]        >> i; SL::currentSceneID = (SLCommand)i;
+    fs["showInfosScene"]        >> b; SLDemoGui::showInfosScene = b;
     fs["showStatsTiming"]       >> b; SLDemoGui::showStatsTiming = b;
     fs["showStatsMemory"]       >> b; SLDemoGui::showStatsScene = b;
     fs["showStatsVideo"]        >> b; SLDemoGui::showStatsVideo = b;
     fs["showInfosFrameworks"]   >> b; SLDemoGui::showInfosFrameworks = b;
-    fs["showInfosScene"]        >> b; SLDemoGui::showInfosScene = b;
     fs["showInfosSensors"]      >> b; SLDemoGui::showInfosSensors = b;
     fs["showSceneGraph"]        >> b; SLDemoGui::showSceneGraph = b;
     fs["showProperties"]        >> b; SLDemoGui::showProperties = b;
