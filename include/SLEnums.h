@@ -88,6 +88,7 @@ enum SLCommand
     C_sceneTextureBlend,
     C_sceneFrustumCull,
     C_sceneMassiveData,
+    C_scene2Dand3DText,
 
     C_sceneShaderPerVertexBlinn,
     C_sceneShaderPerPixelBlinn,

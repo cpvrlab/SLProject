@@ -1018,8 +1018,90 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         _root3D = scene;
     }
     else
-    if (SL::currentSceneID == C_sceneMassiveData) //...............................................
+    if (SL::currentSceneID == C_scene2Dand3DText) //...............................................
     {  
+        name("2D and 3D Text Test");
+        _info = "All 3D objects are in the _root3D scene and the center text is in the _root2D scene and rendered in orthographic projection in screen space.";
+
+        SLMaterial* m1 = new SLMaterial("m1", SLCol4f::RED);
+
+        SLCamera* cam1 = new SLCamera("Camera 1");
+        cam1->clipNear(0.1f);
+        cam1->clipFar(100);
+        cam1->translation(0,0,5);
+        cam1->lookAt(0, 0, 0);
+        cam1->focalDist(5);
+        cam1->background().colors(SLCol4f(0.1f,0.1f,0.1f));
+        cam1->setInitialState();
+
+        SLLightSpot* light1 = new SLLightSpot(10, 10, 10, 0.3f);
+        light1->ambient(SLCol4f(0.2f, 0.2f, 0.2f));
+        light1->diffuse(SLCol4f(0.8f, 0.8f, 0.8f));
+        light1->specular(SLCol4f(1, 1, 1));
+        light1->attenuation(1,0,0);
+
+        // Because all text objects get their sizes in pixels we have to scale them down
+        SLfloat scale = 0.01f;
+        SLstring txt = "This is text in 3D with font07";
+        SLVec2f size = SLTexFont::font07->calcTextSize(txt);
+        SLNode* t07 = new SLText(txt, SLTexFont::font07);
+        t07->translate(-size.x*0.5f * scale, 1.0f, 0);
+        t07->scale(scale);
+
+        txt = "This is text in 3D with font09";
+        size = SLTexFont::font09->calcTextSize(txt);
+        SLNode* t09 = new SLText(txt, SLTexFont::font09);
+        t09->translate(-size.x*0.5f * scale, 0.8f, 0);
+        t09->scale(scale);
+
+        txt = "This is text in 3D with font12";
+        size = SLTexFont::font12->calcTextSize(txt);
+        SLNode* t12 = new SLText(txt, SLTexFont::font12);
+        t12->translate(-size.x*0.5f * scale, 0.6f, 0);
+        t12->scale(scale);
+
+        txt = "This is text in 3D with font20";
+        size = SLTexFont::font20->calcTextSize(txt);
+        SLNode* t20 = new SLText(txt, SLTexFont::font20);
+        t20->translate(-size.x*0.5f * scale, -0.8f, 0);
+        t20->scale(scale);
+
+        txt = "This is text in 3D with font22";
+        size = SLTexFont::font22->calcTextSize(txt);
+        SLNode* t22 = new SLText(txt, SLTexFont::font22);
+        t22->translate(-size.x*0.5f * scale, -1.2f, 0);
+        t22->scale(scale);
+
+        // Now create 2D text but don't scale it (all sizes in pixels)
+        txt = "This is text in 2D with font16";
+        size = SLTexFont::font16->calcTextSize(txt);
+        SLNode* t2D16 = new SLText(txt, SLTexFont::font16);
+        t2D16->translate(-size.x*0.5f, 0, 0);
+
+        // Assemble 3D scene as usual with camera and light
+        SLNode* scene3D = new SLNode("root3D");
+        scene3D->addChild(cam1);
+        scene3D->addChild(light1);
+        scene3D->addChild(new SLNode(new SLSphere(0.5f,32,32,"Sphere",m1)));
+        scene3D->addChild(t07);
+        scene3D->addChild(t09);
+        scene3D->addChild(t12);
+        scene3D->addChild(t20);
+        scene3D->addChild(t22);
+
+        // Assemble 2D scene
+        SLNode* scene2D = new SLNode("root2D");;
+        scene2D->addChild(t2D16);
+
+        sv->camera(cam1);
+        sv->waitEvents(true);
+
+        _root3D = scene3D;
+        _root2D = scene2D;
+    }
+    else
+    if (SL::currentSceneID == C_sceneMassiveData) //...............................................
+    {
         name("Massive Data Test");
         _info = "No data is shared on the GPU. Check Memory consumption.";
 
@@ -1050,7 +1132,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         _eventHandlers.push_back(offset);
         sp->addUniform1f(scale);
         sp->addUniform1f(offset);
-        
+
         // create new materials for every sphere
         SLGLTexture* texC = new SLGLTexture("earth2048_C.jpg"); // color map
         SLGLTexture* texN = new SLGLTexture("earth2048_N.jpg"); // normal map
@@ -1062,7 +1144,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         for (SLint iZ=-size; iZ<=size; ++iZ)
         {   for (SLint iY=-size; iY<=size; ++iY)
             {   for (SLint iX=-size; iX<=size; ++iX)
-                {   
+                {
                     // add one single sphere in the center
                     SLint res = 30 * SL::testFactor;
                     SLSphere* earth = new SLSphere(0.3f, res, res, "earth", mat);

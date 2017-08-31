@@ -105,7 +105,9 @@ class SLGLTexture : public SLObject
 
             // Setters
             void            texType             (SLTextureType bt)  {_texType = bt;}
-            void            bumpScale           (SLfloat bs)    {_bumpScale = bs;}
+            void            bumpScale           (SLfloat bs) {_bumpScale = bs;}
+            void            minFiler            (SLint minF) {_min_filter = minF;} // must be called befor build
+            void            magFiler            (SLint magF) {_mag_filter = magF;} // must be called befor build
 
             // Getters
             SLCVVImage&     images              (){return _images;}

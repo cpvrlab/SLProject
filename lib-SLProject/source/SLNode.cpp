@@ -347,13 +347,13 @@ void SLNode::findChildrenHelper(const SLMesh* mesh,
 
 //-----------------------------------------------------------------------------
 /*!
-Does the view frustum culling by checking whether the AABB is 
-inside the view frustum. The check is done in world space. If a AABB is visible
+Does the view frustum culling by checking whether the AABB is inside the 3D
+cameras view frustum. The check is done in world space. If a AABB is visible
 the nodes children are checked recursively.
 If a node containes meshes with alpha blended materials it is added to the 
 _blendedNodes vector. See also SLSceneView::draw3DGLAll for more details.
 */
-void SLNode::cullRec(SLSceneView* sv)  
+void SLNode::cull3DRec(SLSceneView* sv)  
 {     
     // Do frustum culling for all shapes except cameras & lights
     if (sv->doFrustumCulling() &&
@@ -368,7 +368,7 @@ void SLNode::cullRec(SLSceneView* sv)
     if (_aabb.isVisible())
     {  
         for (auto child : _children)
-            child->cullRec(sv);
+            child->cull3DRec(sv);
       
         // for leaf nodes add them to the blended vector
         if (_aabb.hasAlpha())
@@ -378,6 +378,21 @@ void SLNode::cullRec(SLSceneView* sv)
         // A node that has alpha meshes still can have opaque meshes  
         sv->visibleNodes()->push_back(this);
     }
+}//-----------------------------------------------------------------------------
+/*!
+Adds all 2D Nodes to the visible nodes vector
+*/
+void SLNode::cull2DRec(SLSceneView* sv)  
+{     
+    _aabb.isVisible(true);
+
+    // Cull the group nodes recursively
+    for (auto child : _children)
+        child->cull2DRec(sv);
+        
+    // Add all nodes to the opaque list
+    // A node that has alpha meshes still can have opaque meshes  
+    sv->visibleNodes()->push_back(this);
 }
 //-----------------------------------------------------------------------------
 /*!

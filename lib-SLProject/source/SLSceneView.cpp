@@ -317,6 +317,18 @@ void SLSceneView::onInitialize()
             SL_LOG("\n**** No Lights found in scene! ****\n");
     }
 
+    // init 2D scene with initial depth 1
+    if (s->root2D() && s->root2D()->aabb()->radiusOS()==0)
+    {
+        // build axis aligned bounding box hierarchy after init
+        clock_t t = clock();
+        s->root2D()->updateAABBRec();
+
+        // Collect node statistics
+        _stats2D.clear();
+        s->root2D()->statsRec(_stats2D);
+    }
+
     initSceneViewCamera();
 
     _gui.onResize(_scrW, _scrH);
@@ -493,7 +505,6 @@ SLbool SLSceneView::draw3DGL(SLfloat elapsedTimeMS)
     _stateGL->multiSample(_doMultiSampling);
     _stateGL->depthTest(_doDepthTest);
     
-
     //////////////////////////////
     // 3. Set Projection & View //
     //////////////////////////////
@@ -512,14 +523,13 @@ SLbool SLSceneView::draw3DGL(SLfloat elapsedTimeMS)
     // 4. Frustum Culling //
     ////////////////////////
    
-    _camera->setFrustumPlanes(); 
+    _camera->setFrustumPlanes();
     _blendNodes.clear();
     _visibleNodes.clear();     
     if (s->root3D())
-        s->root3D()->cullRec(this);
+        s->root3D()->cull3DRec(this);
    
     _cullTimeMS = s->timeMilliSec() - startMS;
-
 
     ////////////////////////////////////
     // 5. Draw Opaque & Blended Nodes //
@@ -734,36 +744,36 @@ void SLSceneView::draw2DGL()
    
     // Set orthographic projection with 0,0,0 in the screen center
     if (_camera && _camera->projection() != P_stereoSideBySideD)
-    {        
-        // @todo this doesn't need to be done every frame, we can save the current ortho matrix and update on resize
+    {
+        //////////////////////////////
+        // 1. Set Projection & View //
+        //////////////////////////////
+
         _stateGL->projectionMatrix.ortho(-w2, w2,-h2, h2, 1.0f, -1.0f);
-        // Set viewport over entire screen
-        _stateGL->viewport(0, 0, _scrW, _scrH);
+        _stateGL->viewport(0, 0, _scrW, _scrH);   
+
+        //////////////////////////////////
+        // 2. Pseudo 2D Frustum Culling //
+        //////////////////////////////////
+
+        _visibleNodes.clear();     
+        if (s->root2D())
+            s->root2D()->cull2DRec(this);
+
+        /////////////////////////////////
+        // 3. Draw all 2D nodes opaque //
+        /////////////////////////////////
 
         draw2DGLAll();
 
-        // If ImGui build function exists render the ImGui
+        //////////////////////
+        // 4. Draw ImGui UI //
+        //////////////////////
+
         if (_gui.build)
         {   ImGui::Render();
             _gui.onPaint(ImGui::GetDrawData());
         }
-    }
-    else
-    {
-        // left eye
-        _stateGL->projectionMatrix.setMatrix(s->oculus()->orthoProjection(ET_left));
-
-        // Set viewport over entire screen
-        _stateGL->viewport(0, 0, _oculusFB.halfWidth(), _oculusFB.height());
-        
-        draw2DGLAll();
-
-        // left eye
-        _stateGL->projectionMatrix.setMatrix(s->oculus()->orthoProjection(ET_right));
-        // Set viewport over entire screen
-        _stateGL->viewport(_oculusFB.halfWidth(), 0, _oculusFB.halfWidth(), _oculusFB.height());
-        
-        draw2DGLAll();
     }
    
    _draw2DTimeMS = s->timeMilliSec() - startMS;
@@ -782,25 +792,23 @@ void SLSceneView::draw2DGLAll()
 
     _stateGL->pushModelViewMatrix();
     _stateGL->modelViewMatrix.identity();
-
-    if (_camera->projection() == P_stereoSideBySideD)
-    {
-        //@todo the line below will squish the menu. It is the best solution we have currently
-        //       that requires no changes to other portions of the menu building. 
-        //       but it should be addressed in the future.
-        _stateGL->modelViewMatrix.scale(0.5f, 1, 1);
-        //w2 *= 0.5f; // we could also just half the with again and comment out the squish above
-
-        // for the time being we simply upscale the UI by the factor of the HMD
-        _stateGL->modelViewMatrix.scale(s->oculus()->resolutionScale());
-    }
-
     _stateGL->depthMask(false);         // Freeze depth buffer for blending
     _stateGL->depthTest(false);         // Disable depth testing
     _stateGL->blend(true);              // Enable blending
     _stateGL->polygonLine(false);       // Only filled polygons
+
+    // Draw all 2D nodes blended (mostly text font textures)
+    // draw the shapes directly with their wm transform
+    for(auto node : _visibleNodes)
+    {
+        // Apply world transform
+        _stateGL->modelViewMatrix.multiply(node->updateAndGetWM().m());
+
+        // Finally the nodes meshes
+        node->drawMeshes(this);
+    }
    
-    // 2D finger touch points  
+    // 2D finger touch points on desktop OS
     #ifndef SL_GLES
     if (_touchDowns)
     {   _stateGL->multiSample(true);
@@ -1537,7 +1545,8 @@ SLbool SLSceneView::draw3DPT()
         SLScene* s = SLScene::current;
 
         // Update transforms and AABBs
-        s->root3D()->needUpdate();
+        // @Todo: causes multithreading bug in RT
+        //s->root3D()->needUpdate();
 
         // Do software skinning on all changed skeletons
         for (auto mesh : s->meshes())

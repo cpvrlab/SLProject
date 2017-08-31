@@ -80,8 +80,8 @@ bool myListBox(const char* label, int* currIndex, SLVstring& values)
 //! Centers the next ImGui window in the parent
 void centerNextWindow(SLSceneView* sv, SLfloat widthPC=0.9f, SLfloat heightPC=0.7f)
 {
-    SLint width = (SLint)(sv->scrW()*widthPC);
-    SLint height = (SLint)(sv->scrH()*heightPC);
+    SLfloat width  = (SLfloat)sv->scrW()*widthPC;
+    SLfloat height = (SLfloat)sv->scrH()*heightPC;
     ImGui::SetNextWindowSize(ImVec2(width, height), ImGuiSetCond_Always);
     ImGui::SetNextWindowPosCenter(ImGuiSetCond_Always);
 }
@@ -491,6 +491,8 @@ void SLDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
                         sv->onCommand(C_sceneFrustumCull);
                     if (ImGui::MenuItem("Massive Data Scene", 0, curS==C_sceneMassiveData))
                         sv->onCommand(C_sceneMassiveData);
+                    if (ImGui::MenuItem("2D and 3D Text", 0, curS==C_scene2Dand3DText))
+                        sv->onCommand(C_scene2Dand3DText);
 
                     ImGui::EndMenu();
                 }

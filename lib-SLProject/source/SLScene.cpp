@@ -65,6 +65,7 @@ SLScene::SLScene(SLstring name) : SLObject(name)
     current = this;
 
     _root3D         = nullptr;
+    _root2D         = nullptr;
     _info           = "";
     _selectedMesh   = nullptr;
     _selectedNode   = nullptr;
@@ -232,6 +233,8 @@ void SLScene::unInit()
     // delete entire scene graph
     delete _root3D;
     _root3D = nullptr;
+    delete _root2D;
+    _root2D = nullptr;
 
     // clear light pointers
     _lights.clear();
@@ -490,6 +493,8 @@ bool SLScene::onUpdate()
     SLGLState::getInstance()->modelViewMatrix.identity();
     if (_root3D)
         _root3D->updateAABBRec();
+    if (_root2D)
+        _root2D->updateAABBRec();
 
 
     _updateTimesMS.set(timeMilliSec()-startUpdateMS);

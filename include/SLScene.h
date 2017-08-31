@@ -32,12 +32,13 @@ typedef vector<SLCVTracked*> SLVCVTracker; //!< Vector of CV tracker pointers
 //! The SLScene class represents the top level instance holding the scene structure
 /*!      
 The SLScene class holds everything that is common for all scene views such as 
-the root pointer (_root3D) to the scene, the background color, an array of
-lights as well as the global resources (_meshes (SLMesh), _materials (SLMaterial), 
-_textures (SLGLTexture) and _shaderProgs (SLGLProgram)).
+the root pointer (_root3D) to the scene, an array of lights as well as the
+global resources (_meshes (SLMesh), _materials (SLMaterial), _textures
+(SLGLTexture) and _shaderProgs (SLGLProgram)).
 All these resources and the scene with all nodes to which _root3D pointer points
-get deleted in the method unInit. A scene could have multiple scene views. 
-A pointer of each is stored in the vector _sceneViews. 
+get deleted in the method unInit. \n
+A scene could have multiple scene views. A pointer of each is stored in the
+vector _sceneViews. \n
 The onLoad method can build a of several built in test and demo scenes.
 You can access the current scene from everywhere with the static pointer _current.
 \n
@@ -55,6 +56,7 @@ class SLScene: public SLObject
                            ~SLScene             ();
             // Setters
             void            root3D              (SLNode* root3D){_root3D = root3D;}
+            void            root2D              (SLNode* root2D){_root2D = root2D;}
             void            globalAmbiLight     (SLCol4f gloAmbi){_globalAmbiLight=gloAmbi;}
             void            stopAnimations      (SLbool stop) {_stopAnimations = stop;}
             void            videoType           (SLVideoType vt);
@@ -67,6 +69,7 @@ class SLScene: public SLObject
             SLSceneView*    sv                  (SLuint index) {return _sceneViews[index];}
             SLVSceneView&   sceneViews          () {return _sceneViews;}
             SLNode*         root3D              () {return _root3D;}
+            SLNode*         root2D              () {return _root2D;}
             SLstring&       info                () {return _info;}
             void            timerStart          () {_timer.start();}
             SLfloat         timeSec             () {return (SLfloat)_timer.getElapsedTimeInSec();}
@@ -156,6 +159,7 @@ class SLScene: public SLObject
             SLAnimManager   _animManager;       //!< Animation manager instance
             
             SLNode*         _root3D;            //!< Root node for 3D scene
+            SLNode*         _root2D;            //!< Root node for 2D scene displayed in ortho projection
             SLstring        _info;              //!< scene info string
             SLNode*         _selectedNode;      //!< Pointer to the selected node
             SLMesh*         _selectedMesh;      //!< Pointer to the selected mesh

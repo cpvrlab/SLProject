@@ -139,7 +139,8 @@ class SLNode: public SLObject, public SLEventHandler
     virtual                ~SLNode              ();
          
             // Recursive scene traversal methods (see impl. for details)
-    virtual void            cullRec             (SLSceneView* sv);
+    virtual void            cull3DRec           (SLSceneView* sv);
+    virtual void            cull2DRec           (SLSceneView* sv);
     virtual void            drawRec             (SLSceneView* sv);
     virtual bool            hitRec              (SLRay* ray);
     virtual void            statsRec            (SLNodeStats& stats);
