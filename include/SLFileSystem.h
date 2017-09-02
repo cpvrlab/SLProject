@@ -30,6 +30,9 @@ class SLFileSystem
     
     //! Returns the working directory
     static SLstring getCurrentWorkingDir();
+
+    //! Deletes a file on the filesystem
+    static SLbool deleteFile(SLstring& pathfilename);
 };
 //-----------------------------------------------------------------------------
 #endif

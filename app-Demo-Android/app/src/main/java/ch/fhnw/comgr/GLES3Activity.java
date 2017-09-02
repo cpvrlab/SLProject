@@ -26,7 +26,6 @@ import android.support.v4.app.ActivityCompat;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Display;
-import android.view.Menu;
 import android.view.MotionEvent;
 import android.view.View;
 
@@ -40,10 +39,10 @@ public class GLES3Activity extends Activity implements View.OnTouchListener, Sen
     static long                 lastTouchMS = 0;    // Time of last touch in ms
 
     private static final String TAG = "SLProject";
-    private SensorManager       _sensorManager;
     private int                 _currentVideoType;
     private boolean             _cameraPermissionGranted;
     private boolean             _permissionRequestIsOpen;
+    private boolean _rotationSensorIsRunning = false;
 
 
 
@@ -76,9 +75,6 @@ public class GLES3Activity extends Activity implements View.OnTouchListener, Sen
         int dpi = (int) (((float) metrics.xdpi + (float) metrics.ydpi) * 0.5);
         GLES3Lib.dpi = dpi;
         Log.i(TAG, "DisplayMetrics: " + dpi);
-
-        // Init Sensor
-        _sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
 
         // Init Camera (the camera is started by cameraStart from within the view renderer)
         Log.i(TAG, "Request camera permission ...");
@@ -148,24 +144,13 @@ public class GLES3Activity extends Activity implements View.OnTouchListener, Sen
     }
 
     @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        Log.i(TAG, "onCreateOptionsMenu");
-        myView.queueEvent(new Runnable() {
-            public void run() {
-                GLES3Lib.onMenuButton();
-            }
-        });
-        return false;
-    }
-
-    @Override
     public void onAccuracyChanged(Sensor sensor, int accuracy) {
         Log.i(TAG, String.format("onAccuracyChanged"));
     }
 
     @Override
     public void onSensorChanged(SensorEvent event) {
-        if (event.sensor.getType() == Sensor.TYPE_ROTATION_VECTOR && GLES3Lib.usesRotation()) {
+        if (event.sensor.getType() == Sensor.TYPE_ROTATION_VECTOR && _rotationSensorIsRunning) {
             // The ROTATION_VECTOR sensor is a virtual fusion sensor
             // The quality strongly depends on the underlying algorithm and on
             // the sensor manufacturer. (See also chapter 7 in the book:
@@ -183,35 +168,27 @@ public class GLES3Activity extends Activity implements View.OnTouchListener, Sen
             Display display = getWindowManager().getDefaultDisplay();
             DisplayMetrics displaymetrics = new DisplayMetrics();
             display.getMetrics(displaymetrics);
-            int screenWidth = displaymetrics.widthPixels;
+            int screenWidth  = displaymetrics.widthPixels;
             int screenHeight = displaymetrics.heightPixels;
 
             if (screenWidth < screenHeight) {    // Map pitch, yaw and roll to portrait display orientation
                 final float p = YPR[1] * -1.0f - (float) Math.PI * 0.5f;
                 final float y = YPR[0] * -1.0f;
                 final float r = YPR[2] * -1.0f;
-                myView.queueEvent(new Runnable() {
-                    public void run() {
-                        GLES3Lib.onRotationPYR(p, y, r);
-                    }
-                });
+                myView.queueEvent(new Runnable() {public void run() {GLES3Lib.onRotationPYR(p, y, r);}});
+                //Log.i(TAG, String.format("onSensorChanged: Pitch(%3.0f), Yaw(%3.0f), Roll(%3.0f)", p, y, r));
             } else {    // Map pitch, yaw and roll to landscape display orientation for Oculus Rift conformance
                 final float p = YPR[2] * -1.0f - (float) Math.PI * 0.5f;
                 final float y = YPR[0] * -1.0f;
                 final float r = YPR[1];
-                myView.queueEvent(new Runnable() {
-                    public void run() {
-                        GLES3Lib.onRotationPYR(p, y, r);
-                    }
-                });
+                myView.queueEvent(new Runnable() {public void run() {GLES3Lib.onRotationPYR(p, y, r);}});
+                //Log.i(TAG, String.format("onSensorChanged: Pitch(%3.0f), Yaw(%3.0f), Roll(%3.0f)", p, y, r));
             }
 
-			/*
             // Get the rotation quaternion from the XYZ-rotation vector (see docs)
-			final float Q[] = new float[4];
-			SensorManager.getQuaternionFromVector(Q, event.values);
-			myView.queueEvent(new Runnable() {public void run() {GLES3Lib.onRotationQUAT(Q[1],Q[2],Q[3],Q[0]);}});
-			*/
+			//final float Q[] = new float[4];
+			//SensorManager.getQuaternionFromVector(Q, event.values);
+			//myView.queueEvent(new Runnable() {public void run() {GLES3Lib.onRotationQUAT(Q[1],Q[2],Q[3],Q[0]);}});
         }
     }
 
@@ -269,28 +246,22 @@ public class GLES3Activity extends Activity implements View.OnTouchListener, Sen
             lastTouchMS = touchNowMS;
 
             if (touchDeltaMS < 250)
-                myView.queueEvent(new Runnable() {
-                    public void run() {
-                        GLES3Lib.onDoubleClick(1, x0, y0);
-                    }
-                });
+                myView.queueEvent(new Runnable() {public void run() {
+                    GLES3Lib.onDoubleClick(1, x0, y0);
+                }});
             else
-                myView.queueEvent(new Runnable() {
-                    public void run() {
-                        GLES3Lib.onMouseDown(1, x0, y0);
-                    }
-                });
+                myView.queueEvent(new Runnable() {public void run() {
+                    GLES3Lib.onMouseDown(1, x0, y0);
+                }});
         }
 
         // it's two fingers but one delayed (already executed mouse down
         else if (touchCount == 2 && pointersDown == 1) {
             final int x1 = (int) event.getX(1);
             final int y1 = (int) event.getY(1);
-            myView.queueEvent(new Runnable() {
-                public void run() {
+            myView.queueEvent(new Runnable() {public void run() {
                     GLES3Lib.onMouseUp(1, x0, y0);
-                }
-            });
+                }});
             myView.queueEvent(new Runnable() {
                 public void run() {
                     GLES3Lib.onTouch2Down(x0, y0, x1, y1);
@@ -433,6 +404,50 @@ public class GLES3Activity extends Activity implements View.OnTouchListener, Sen
                 stopService(new Intent(getBaseContext(), GLES3Camera2Service.class));
                 /////////////////////////////////////////////////////////////////////
             }
+        }
+    }
+
+    /**
+     * Registers the the rotation sensor listener
+     * It is called from the GL view renderer thread.
+     */
+    public void rotationSensorStart()
+    {
+        if (_rotationSensorIsRunning)
+            return;
+
+        // Init Sensor
+        try {
+            SensorManager sm = (SensorManager) getSystemService(SENSOR_SERVICE);
+            sm.registerListener(this,
+                                sm.getDefaultSensor(Sensor.TYPE_ROTATION_VECTOR),
+                                sm.SENSOR_DELAY_GAME);
+            _rotationSensorIsRunning = true;
+        }
+        catch (Exception e) {
+            Log.i(TAG, "Exception: " + e.getMessage());
+            _rotationSensorIsRunning = false;
+        }
+    }
+
+    /**
+     * Unregisters the the rotation sensor listener
+     * It is called from the GL view renderer thread.
+     */
+    public void rotationSensorStop()
+    {
+        if (!_rotationSensorIsRunning)
+            return;
+
+        // Init Sensor
+        try {
+            SensorManager sm = (SensorManager) getSystemService(SENSOR_SERVICE);
+            sm.unregisterListener(this, sm.getDefaultSensor(Sensor.TYPE_ROTATION_VECTOR));
+            _rotationSensorIsRunning = false;
+        }
+        catch (Exception e) {
+            Log.i(TAG, "Exception: " + e.getMessage());
+            _rotationSensorIsRunning = false;
         }
     }
 }

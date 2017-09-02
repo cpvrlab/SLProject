@@ -180,9 +180,9 @@ inline SLbool SLRay::hitMatIsTransparent() const
 {   
     if (!hitMesh) return false;
     SLMaterial* mat = hitMesh->mat;
-    return ((mat->transmission().r > 0.0f)||
-            (mat->transmission().g > 0.0f)||  
-            (mat->transmission().b > 0.0f));
+    return ((mat->transmissiv().r > 0.0f)||
+            (mat->transmissiv().g > 0.0f)||  
+            (mat->transmissiv().b > 0.0f));
 }
 //-----------------------------------------------------------------------------
 //! Returns true if the hit material diffuse color is not black

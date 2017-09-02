@@ -23,7 +23,16 @@ SLchar* aGLSLErrorString[] = {(SLchar*)"(e0000) GLSL not enabled",
                               (SLchar*)"(e0002) not a valid object",
                               (SLchar*)"(e0003) out of memory",
                               (SLchar*)"(e0004) unknown compiler error"};
-                              
+
+//-----------------------------------------------------------------------------
+//! Default constructor
+SLGLShader::SLGLShader()
+{
+    _type = ST_none;
+    _code = "";
+    _objectGL = 0;
+    _file = "";
+}
 //----------------------------------------------------------------------------- 
 //! Ctor with shader filename & shader type
 SLGLShader::SLGLShader(SLstring filename, SLShaderType shaderType) 
@@ -44,7 +53,7 @@ void SLGLShader::load(SLstring filename)
     fstream shaderFile(filename.c_str(), ios::in);
     
     if (!shaderFile.is_open())
-    {   SL_LOG("File open failed: %s\n", filename.c_str());
+    {   SL_LOG("File open failed in SLGLShader::load: %s\n", filename.c_str());
         exit(1);
     }
    
@@ -199,4 +208,18 @@ SLstring SLGLShader::removeComments(SLstring src)
     //cout << dst << "|" << endl;
     return dst;
 }
+//-----------------------------------------------------------------------------
+//! Returns the shader type as string
+SLstring SLGLShader::typeName()
+{
+    switch(_type)
+    {
+        case ST_vertex:      return "Vertex"; break;
+        case ST_fragment:    return "Fragment"; break;
+        case ST_geometry:    return "Geometry"; break;
+        case ST_tesselation: return "Tesselation"; break;
+        default: return "Unknown";
+    }
+}
 // ----------------------------------------------------------------------------
+

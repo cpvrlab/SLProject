@@ -107,6 +107,13 @@ SLstring SLFileSystem::getCurrentWorkingDir()
     return cwd + "/";
 }
 //-----------------------------------------------------------------------------
+SLbool SLFileSystem::deleteFile(SLstring& pathfilename)
+{
+    if (SLFileSystem::fileExists(pathfilename))
+        return remove(pathfilename.c_str()) != 0;
+    return false;
+}
+//-----------------------------------------------------------------------------
 
 
 

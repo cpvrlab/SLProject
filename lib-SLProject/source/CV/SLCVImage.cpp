@@ -23,12 +23,14 @@ SLCVImage::SLCVImage(SLint width, SLint height, SLPixelFormat format) : SLObject
 }
 //-----------------------------------------------------------------------------
 //! Contructor for image from file
-SLCVImage::SLCVImage(const SLstring  filename, bool flipVertical) :
+SLCVImage::SLCVImage(const SLstring  filename, 
+                     SLbool flipVertical, 
+                     SLbool loadGrayscaleIntoAlpha) :
            SLObject(SLUtils::getFileName(filename), filename)
 {
     assert(filename!="");
     clearData();
-    load(filename, flipVertical);
+    load(filename, flipVertical, loadGrayscaleIntoAlpha);
 }
 //-----------------------------------------------------------------------------
 //! Copy contructor from a source image
@@ -41,6 +43,35 @@ SLCVImage::SLCVImage(SLCVImage &src) : SLObject(src.name(), src.url())
     _bytesPerLine  = src.bytesPerLine();
     _bytesPerImage = src.bytesPerImage();
     src.cvMat().copyTo(_cvMat);
+}
+//-----------------------------------------------------------------------------
+//! Creates a 1D image from a SLCol3f vector
+SLCVImage::SLCVImage(const SLVCol3f &colors)
+{
+    allocate((SLint)colors.size(), 1, PF_rgb);
+
+    SLuint x=0;
+    for (auto color : colors)
+    {
+        _cvMat.at<cv::Vec3b>(0, x++) = cv::Vec3b((SLuchar)(color.r * 255.0f),
+                                                 (SLuchar)(color.g * 255.0f),
+                                                 (SLuchar)(color.b * 255.0f));
+    }
+}
+//-----------------------------------------------------------------------------
+//! Creates a 1D image from a SLCol4f vector
+SLCVImage::SLCVImage(const SLVCol4f &colors)
+{
+    allocate((SLint)colors.size(), 1, PF_rgba);
+
+    SLuint x=0;
+    for (auto color : colors)
+    {
+        _cvMat.at<cv::Vec4b>(0, x++) = cv::Vec4b((SLuchar)(color.r * 255.0f),
+                                                 (SLuchar)(color.g * 255.0f),
+                                                 (SLuchar)(color.b * 255.0f),
+                                                 (SLuchar)(color.a * 255.0f));
+    }
 }
 //-----------------------------------------------------------------------------
 SLCVImage::~SLCVImage()
@@ -310,7 +341,9 @@ SLbool SLCVImage::load(SLint width,
 }
 //-----------------------------------------------------------------------------
 //! Loads the image with the appropriate image loader
-void SLCVImage::load(const SLstring filename, bool flipVertical)
+void SLCVImage::load(const SLstring filename, 
+                     SLbool flipVertical, 
+                     SLbool loadGrayscaleIntoAlpha)
 {    
     SLstring ext = SLUtils::getFileExt(filename);
     _name = SLUtils::getFileName(filename);
@@ -335,10 +368,39 @@ void SLCVImage::load(const SLstring filename, bool flipVertical)
     if (_format == PF_bgr) 
     {   cv::cvtColor(_cvMat, _cvMat, CV_BGR2RGB);
         _format = PF_rgb;
-    }
+    } else
     if (_format == PF_bgra)
     {   cv::cvtColor(_cvMat, _cvMat, CV_BGRA2RGBA);
         _format = PF_rgba;
+    } else
+    if (_format == PF_red && loadGrayscaleIntoAlpha)
+    {
+        SLCVMat rgbaImg;
+        rgbaImg.create(_cvMat.rows, _cvMat.cols, CV_8UC4);
+
+        // Copy grayscale into alpha channel
+        for (int y = 0; y < rgbaImg.rows; ++y)
+        {
+            SLuchar* dst = rgbaImg.ptr<SLuchar>(y);
+            SLuchar* src = _cvMat.ptr<SLuchar>(y);
+
+            for (int x = 0; x < rgbaImg.cols; ++x)
+            {
+                *dst++ = 0;        // B
+                *dst++ = 0;        // G
+                *dst++ = 0;        // R
+                *dst++ = *src++;   // A
+            }
+        }
+
+        _cvMat = rgbaImg;
+        cv::cvtColor(_cvMat, _cvMat, CV_BGRA2RGBA);
+        _format = PF_rgba;
+
+        // for debug check
+        //SLstring pathfilename = _path + name();
+        //SLstring filename = SLUtils::getFileNameWOExt(pathfilename);
+        //savePNG(_path + filename + "_InAlpha.png");
     }
     
     _bytesPerLine  = bytesPerLine(_cvMat.cols, _format, _cvMat.isContinuous());

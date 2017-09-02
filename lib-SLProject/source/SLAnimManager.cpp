@@ -33,8 +33,16 @@ void SLAnimManager::clear()
 
     for (auto skeleton : _skeletons) delete skeleton;
     _skeletons.clear();
-}
 
+    _allAnimNames.clear();
+    _allAnimPlaybacks.clear();
+}
+//-----------------------------------------------------------------------------
+//! Add a skeleton to the skeleton vector
+void SLAnimManager::addSkeleton(SLSkeleton* skel)
+{
+    _skeletons.push_back(skel);
+}
 //-----------------------------------------------------------------------------
 /*! Creates a new node animation
     @param  duration    length of the animation
@@ -46,7 +54,7 @@ SLAnimation* SLAnimManager::createNodeAnimation(SLfloat duration)
 
     do
     {   oss.clear();
-        oss << "NodeAnimation_" << index;
+        oss << "Node_" << index;
         index++;
     }
     while (_nodeAnimations.find(oss.str()) != _nodeAnimations.end());
@@ -64,23 +72,28 @@ SLAnimation* SLAnimManager::createNodeAnimation(const SLstring& name,
 {
     assert(_nodeAnimations.find(name) == _nodeAnimations.end() &&
            "node animation with same name already exists!");
+
     SLAnimation* anim = new SLAnimation(name, duration);
     _nodeAnimations[name] = anim;
+
+    SLAnimPlayback* playback = new SLAnimPlayback(anim);
+    _nodeAnimPlaybacks[name] = playback;
+
+    // Add node animation to the combined vector
+    _allAnimNames.push_back(name);
+    _allAnimPlaybacks.push_back(playback);
+
     return anim;
 }
 
 //-----------------------------------------------------------------------------
 //! Returns the playback of a node animation by name if it exists.
-SLAnimPlayback* SLAnimManager::getNodeAnimPlayack(const SLstring& name)
+SLAnimPlayback* SLAnimManager::nodeAnimPlayback(const SLstring& name)
 {
     if (_nodeAnimPlaybacks.find(name) != _nodeAnimPlaybacks.end())
         return _nodeAnimPlaybacks[name];
-    else if (_nodeAnimations.find(name) != _nodeAnimations.end())
-    {
-        _nodeAnimPlaybacks[name] = new SLAnimPlayback(_nodeAnimations[name]);
-        return _nodeAnimPlaybacks[name];
-    }
 
+    SL_WARN_MSG("*** Playback found in SLAnimManager::getNodeAnimPlayack ***");
     return nullptr;
 }
 

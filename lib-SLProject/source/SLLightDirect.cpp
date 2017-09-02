@@ -94,7 +94,7 @@ void SLLightDirect::init()
     // Set emissive light material to the lights diffuse color
     if (_meshes.size() > 0)
         if (_meshes[0]->mat)
-            _meshes[0]->mat->emission(_isOn ? diffuse() : SLCol4f::BLACK);   
+            _meshes[0]->mat->emissive(_isOn ? diffuse() : SLCol4f::BLACK);   
 }
 //-----------------------------------------------------------------------------
 /*!
@@ -134,7 +134,7 @@ void SLLightDirect::drawMeshes(SLSceneView* sv)
         // Set emissive light material to the lights diffuse color
         if (_meshes.size() > 0)
             if (_meshes[0]->mat)
-                _meshes[0]->mat->emission(_isOn ? diffuse() : SLCol4f::BLACK);   
+                _meshes[0]->mat->emissive(_isOn ? diffuse() : SLCol4f::BLACK);   
    
         // now draw the meshes of the node
         SLNode::drawMeshes(sv);

@@ -43,8 +43,10 @@ void SLText::drawRec(SLSceneView* sv)
    
     // create buffer object for text once
     if (!_vao.id())
-        _font->buildTextBuffers(_vao, _text, _maxW, _lineH);
-   
+    {   _font->buildTextBuffers(_vao, _text, _maxW, _lineH);
+        _font->minFiler(SL_ANISOTROPY_MAX);
+        _font->magFiler(GL_LINEAR);
+    }
     // Enable & build font texture with active OpenGL context
     _font->bindActive();
 

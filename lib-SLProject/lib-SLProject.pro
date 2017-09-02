@@ -53,7 +53,6 @@ HEADERS += \
 ../include/SLAverage.h \
 ../include/SLBackground.h \
 ../include/SLBox.h \
-../include/SLButton.h \
 ../include/SLCamera.h \
 ../include/SLCone.h \
 ../include/SLCompactGrid.h \
@@ -63,32 +62,14 @@ HEADERS += \
 ../include/SLCylinder.h \
 ../include/SLCVCapture.h \
 ../include/SLCV.h \
-../include/SLCVCalibration.h \
-../include/SLCVFeatureMap2D.h \
-../include/SLCVFeatureMapper2D.h \
-../include/SLCVImage.h \
-../include/SLCVTracker.h \
-../include/SLCVTrackerAruco.h \
-../include/SLCVTrackerChessboard.h \
+../include/SLCV*.h \
 ../include/SLDisk.h \
+../include/SLDemoGui.h \
 ../include/SLDrawBits.h \
 ../include/SLEnums.h \
 ../include/SLEventHandler.h \
 ../include/SLFileSystem.h \
-../include/SLGLEnums.h \
-../include/SLGLGenericProgram.h \
-../include/SLGLOculus.h \
-../include/SLGLOculus.h \
-../include/SLGLOculusFB.h \
-../include/SLGLOVRWorkaround.h \
-../include/SLGLProgram.h \
-../include/SLGLShader.h \
-../include/SLGLState.h \
-../include/SLGLTexture.h \
-../include/SLGLUniform.h \
-../include/SLGLVertexArray.h \
-../include/SLGLVertexArrayExt.h \
-../include/SLGLVertexBuffer.h \
+../include/SLGL*.h \
 ../include/SLGrid.h \
 ../include/SLImporter.h \
 ../include/SLInputDevice.h \
@@ -127,13 +108,14 @@ HEADERS += \
 ../include/SLTexFont.h \
 ../include/SLText.h \
 ../include/SLTimer.h \
+../include/SLTransferFunction.h \
 ../include/SLUtils.h \
 ../include/SLVec2.h \
 ../include/SLVec3.h \
 ../include/SLVec4.h \
 ../include/SLVector.h \
 ../include/stdafx.h \
-../include/TriangleBoxIntersect.h
+../include/TriangleBoxIntersect.h \
 
 SOURCES += \
 source/math/SLCurveBezier.cpp \
@@ -145,22 +127,8 @@ source/SL/SLImporter.cpp \
 source/SL/SLInterface.cpp \
 source/SL/SLTexFont.cpp \
 source/SL/SLTimer.cpp \
-source/GL/SLGLOculus.cpp \
-source/GL/SLGLOculusFB.cpp \
-source/GL/SLGLProgram.cpp \
-source/GL/SLGLShader.cpp \
-source/GL/SLGLState.cpp \
-source/GL/SLGLTexture.cpp \
-source/GL/SLGLVertexArray.cpp \
-source/GL/SLGLVertexArrayExt.cpp \
-source/GL/SLGLVertexBuffer.cpp \
-source/CV/SLCVCapture.cpp \
-source/CV/SLCVCalibration.cpp \
-source/CV/SLCVTracker.cpp \
-source/CV/SLCVFeatureMapper2D.cpp \
-source/CV/SLCVImage.cpp \
-source/CV/SLCVTrackerAruco.cpp \
-source/CV/SLCVTrackerChessboard.cpp \
+source/GL/SLGL*.cpp \
+source/CV/SLCV*.cpp \
 source/SLAABBox.cpp \
 source/SLAnimation.cpp \
 source/SLAnimManager.cpp \
@@ -168,13 +136,13 @@ source/SLAnimPlayback.cpp \
 source/SLAnimTrack.cpp \
 source/SLBackground.cpp \
 source/SLBox.cpp \
-source/SLButton.cpp \
 source/SLCamera.cpp \
 source/SLCone.cpp \
 source/SLCompactGrid.cpp \
 source/SLCoordAxis.cpp \
 source/SLCylinder.cpp \
 source/SLDisk.cpp \
+source/SLDemoGui.cpp \
 source/SLGrid.cpp \
 source/SLInputDevice.cpp \
 source/SLInputManager.cpp \
@@ -200,7 +168,8 @@ source/SLSceneView.cpp \
 source/SLScene_onLoad.cpp \
 source/SLSkeleton.cpp \
 source/SLSpheric.cpp \
-source/SLText.cpp
+source/SLText.cpp \
+source/SLTransferFunction.cpp \
 
 OTHER_FILES += \
 ../_data/shaders/*.vert \

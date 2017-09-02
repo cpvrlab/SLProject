@@ -45,9 +45,9 @@ varying vec2   v_texCoord;          // texture coordinate at vertex
 void DirectLight(in    int  i,   // Light number
                  in    vec3 N,   // Normalized normal at P_VS
                  in    vec3 E,   // Normalized vector from P_VS to eye in VS
-                 inout vec4 Ia,  // Ambient light intesity
-                 inout vec4 Id,  // Diffuse light intesity
-                 inout vec4 Is)  // Specular light intesity
+                 inout vec4 Ia,  // Ambient light intensity
+                 inout vec4 Id,  // Diffuse light intensity
+                 inout vec4 Is)  // Specular light intensity
 {  
     // We use the spot light direction as the light direction vector
     vec3 L = normalize(-u_lightSpotDirVS[i].xyz);
@@ -71,9 +71,9 @@ void PointLight (in    int  i,   // OpenGL light number
                  in    vec3 P_VS,// Point of illumination in VS
                  in    vec3 N,   // Normalized normal at P_VS
                  in    vec3 E,   // Normalized vector from P_VS to view in VS
-                 inout vec4 Ia,  // Ambient light intesity
-                 inout vec4 Id,  // Diffuse light intesity
-                 inout vec4 Is)  // Specular light intesity
+                 inout vec4 Ia,  // Ambient light intensity
+                 inout vec4 Id,  // Diffuse light intensity
+                 inout vec4 Is)  // Specular light intensity
 {  
     // Vector from P_VS to the light in VS
     vec3 L = u_lightPosVS[i].xyz - P_VS;

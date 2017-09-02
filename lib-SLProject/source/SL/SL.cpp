@@ -15,19 +15,20 @@
 #include <SLCV.h>
 #include <SLSceneView.h>
 #include <SLCVCapture.h>
+#include <SLDemoGui.h>
 
 //-----------------------------------------------------------------------------
 //! Default values for static fields
-SLstring        SL::configPath      = "../_data/config/";
-SLstring        SL::configTime      = "-";
-SLint           SL::dpi             = 0;
-SLCommand       SL::currentSceneID  = C_sceneEmpty;
-SLint           SL::testDurationSec = 0;
-SLint           SL::testFactor      = 1;
-SLCommand       SL::testScene       = (SLCommand)-1;
-SLCommand       SL::testSceneAll    = C_sceneMinimal;
-SLLogVerbosity  SL::testLogVerbosity = LV_quiet;
-SLuint          SL::testFrameCounter = 0;
+SLstring        SL::version             = "2.1.000";
+SLint           SL::dpi                 = 0;
+SLint           SL::testDurationSec     = 0;
+SLint           SL::testFactor          = 1;
+SLCommand       SL::testScene           = (SLCommand)-1;
+SLCommand       SL::testSceneAll        = C_sceneMinimal;
+SLLogVerbosity  SL::testLogVerbosity    = LV_quiet;
+SLuint          SL::testFrameCounter    = 0;
+SLstring        SL::configPath          = "../_data/config/";
+SLCommand       SL::currentSceneID      = C_sceneEmpty;
 
 //! Scene name string vector. Make sure they corrspond to the enum SLCommand
 const SLVstring SL::testSceneNames = 
@@ -181,60 +182,5 @@ void SL::parseCmdLineArgs(SLVstring& cmdLineArgs)
         }
         argComponents.clear();
     }
-}
-//-----------------------------------------------------------------------------
-//! Loads the configuration from readable path
-void SL::loadConfig(SLSceneView* sv)
-{
-    SLstring fullPathAndFilename = SL::configPath + "SLProject.yml";
-
-    if (!SLFileSystem::fileExists(fullPathAndFilename))
-        return;
-        
-    SLCVFileStorage fs(fullPathAndFilename, SLCVFileStorage::READ);
-    
-    if (!fs.isOpened())
-    {   SL_LOG("Failed to open file for reading!");
-        return;
-    }
-
-    SLint i; SLbool b;
-    fs["configTime"]                >> SL::configTime;
-    fs["dpi"]                       >> SL::dpi;
-    fs["currentSceneID"]            >> i; SL::currentSceneID = (SLCommand)i;
-    fs["showStatsTiming"]           >> b; sv->showStatsTiming(b);
-    fs["showStatsOpenGL"]           >> b; sv->showStatsRenderer(b);
-    fs["showStatsMemory"]           >> b; sv->showStatsScene(b);
-    fs["showStatsCamera"]           >> b; sv->showStatsCamera(b);
-    fs["showStatsVideo"]            >> b; sv->showStatsVideo(b);
-    fs["drawBits"]                  >> i; sv->drawBits()->bits((SLuint)i);
-
-    fs.release();
-    SL_LOG("Config. loaded  : %s\n", fullPathAndFilename.c_str());
-}
-//-----------------------------------------------------------------------------
-//! Saves the configuration to a writable path
-void SL::saveConfig(SLSceneView* sv)
-{ 
-    SLstring fullPathAndFilename = SL::configPath + "SLProject.yml";
-    SLCVFileStorage fs(fullPathAndFilename, SLCVFileStorage::WRITE);
-    
-    if (!fs.isOpened())
-    {   SL_EXIT_MSG("Failed to open file for writing!");
-        return;
-    }
-     
-    fs << "configTime"              << SLUtils::getLocalTimeString();
-    fs << "dpi"                     << SL::dpi;
-    fs << "currentSceneID"          << (SLint)SL::currentSceneID;
-    fs << "showStatsTiming"         << sv->showStatsTiming();
-    fs << "showStatsOpenGL"         << sv->showStatsRenderer();
-    fs << "showStatsMemory"         << sv->showStatsScene();
-    fs << "showStatsCamera"         << sv->showStatsCamera();
-    fs << "showStatsVideo"          << sv->showStatsVideo();
-    fs << "drawBits"                << (SLint)sv->drawBits()->bits();
-
-    fs.release();
-    SL_LOG("Config. saved   : %s\n", fullPathAndFilename.c_str());
 }
 //-----------------------------------------------------------------------------

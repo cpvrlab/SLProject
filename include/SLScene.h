@@ -23,23 +23,22 @@
 #include <SLCVCalibration.h>
 
 class SLSceneView;
-class SLCVTracker;
-class SLButton;
-class SLText;
+class SLCVTracked;
 
 //-----------------------------------------------------------------------------
 typedef vector<SLSceneView*> SLVSceneView; //!< Vector of SceneView pointers
-typedef vector<SLCVTracker*> SLVCVTracker; //!< Vector of CV tracker pointers
+typedef vector<SLCVTracked*> SLVCVTracker; //!< Vector of CV tracker pointers
 //-----------------------------------------------------------------------------
 //! The SLScene class represents the top level instance holding the scene structure
 /*!      
 The SLScene class holds everything that is common for all scene views such as 
-the root pointer (_root3D) to the scene, the background color, an array of
-lights as well as the global resources (_meshes (SLMesh), _materials (SLMaterial), 
-_textures (SLGLTexture) and _shaderProgs (SLGLProgram)).
+the root pointer (_root3D) to the scene, an array of lights as well as the
+global resources (_meshes (SLMesh), _materials (SLMaterial), _textures
+(SLGLTexture) and _shaderProgs (SLGLProgram)).
 All these resources and the scene with all nodes to which _root3D pointer points
-get deleted in the method unInit. A scene could have multiple scene views. 
-A pointer of each is stored in the vector _sceneViews. 
+get deleted in the method unInit. \n
+A scene could have multiple scene views. A pointer of each is stored in the
+vector _sceneViews. \n
 The onLoad method can build a of several built in test and demo scenes.
 You can access the current scene from everywhere with the static pointer _current.
 \n
@@ -57,58 +56,38 @@ class SLScene: public SLObject
                            ~SLScene             ();
             // Setters
             void            root3D              (SLNode* root3D){_root3D = root3D;}
+            void            root2D              (SLNode* root2D){_root2D = root2D;}
             void            globalAmbiLight     (SLCol4f gloAmbi){_globalAmbiLight=gloAmbi;}
-            void            info                (SLSceneView* sv, SLstring infoText, 
-                                                 SLCol4f color=SLCol4f::WHITE);
             void            stopAnimations      (SLbool stop) {_stopAnimations = stop;}
-            void            infoGL              (SLText* t) {_infoGL = t;}
-            void            infoRT              (SLText* t) {_infoRT = t;}
-            void            infoLoading         (SLText* t) {_infoLoading = t;}
-            void            menu2D              (SLButton* b) {_menu2D = b;}
-            void            menuGL              (SLButton* b) {_menuGL = b;}
-            void            menuRT              (SLButton* b) {_menuRT = b;}
-            void            menuPT              (SLButton* b) {_menuPT = b;}
-            void            btnAbout            (SLButton* b) {_btnAbout = b;}
-            void            btnCredits          (SLButton* b) {_btnCredits = b;}
-            void            btnCalibration      (SLButton* b) {_btnCalibration = b;}
-            void            btnHelp             (SLButton* b) {_btnHelp = b;}
             void            videoType           (SLVideoType vt);
+            void            showDetection       (SLbool st) {_showDetection = st;}
+            void            usesRotation        (SLbool use) {_usesRotation = use;}
+            void            zeroYawAfterSec     (SLfloat sec) {_zeroYawAfterSec = sec;}
                            
             // Getters
             SLAnimManager&  animManager         () {return _animManager;}
             SLSceneView*    sv                  (SLuint index) {return _sceneViews[index];}
             SLVSceneView&   sceneViews          () {return _sceneViews;}
             SLNode*         root3D              () {return _root3D;}
+            SLNode*         root2D              () {return _root2D;}
+            SLstring&       info                () {return _info;}
             void            timerStart          () {_timer.start();}
             SLfloat         timeSec             () {return (SLfloat)_timer.getElapsedTimeInSec();}
             SLfloat         timeMilliSec        () {return (SLfloat)_timer.getElapsedTimeInMilliSec();}
             SLfloat         elapsedTimeMS       () {return _elapsedTimeMS;}
             SLfloat         elapsedTimeSec      () {return _elapsedTimeMS * 0.001f;}
             SLVEventHandler& eventHandlers      () {return _eventHandlers;}
-            SLButton*       menu2D              () {return _menu2D;}
-            SLButton*       menuGL              () {return _menuGL;}
-            SLButton*       menuRT              () {return _menuRT;}
-            SLButton*       menuPT              () {return _menuPT;}
-            SLButton*       btnAbout            () {return _btnAbout;}
-            SLButton*       btnHelp             () {return _btnHelp;}
-            SLButton*       btnCredits          () {return _btnCredits;}
-            SLButton*       btnCalibration      () {return _btnCalibration;}
-            SLstring        infoAbout           () const {return _infoAbout;}
-            SLstring        infoCredits         () const {return _infoCredits;}
-            SLstring        infoHelp            () const {return _infoHelp;}
-            SLstring        infoCalibration     () const {return _infoCalibrate;}
-            SLText*         info                (SLSceneView* sv);
-            SLText*         info                () {return _info;}
-            SLText*         infoGL              () {return _infoGL;}
-            SLText*         infoRT              () {return _infoRT;}
-            SLText*         infoLoading         () {return _infoLoading;}
-            SLGLTexture*    texCursor           () {return _texCursor;}
+
             SLCol4f         globalAmbiLight     () const {return _globalAmbiLight;}
             SLVLight&       lights              () {return _lights;}
             SLfloat         fps                 () {return _fps;}
             SLAvgFloat&     frameTimesMS        () {return _frameTimesMS;}
             SLAvgFloat&     updateTimesMS       () {return _updateTimesMS;}
             SLAvgFloat&     trackingTimesMS     () {return _trackingTimesMS;}
+            SLAvgFloat&     detectTimesMS       () {return _detectTimesMS;}
+            SLAvgFloat&     matchTimesMS        () {return _matchTimesMS;}
+            SLAvgFloat&     optFlowTimesMS         () {return _optFlowTimesMS;}
+            SLAvgFloat&     poseTimesMS         () {return _poseTimesMS;}
             SLAvgFloat&     cullTimesMS         () {return _cullTimesMS;}
             SLAvgFloat&     draw2DTimesMS       () {return _draw2DTimesMS;}
             SLAvgFloat&     draw3DTimesMS       () {return _draw3DTimesMS;}
@@ -124,6 +103,7 @@ class SLScene: public SLObject
             SLGLOculus*     oculus              () {return &_oculus;}
             SLint           numSceneCameras     ();
             SLCamera*       nextCameraInScene   (SLSceneView* activeSV);
+            SLbool          usesRotation        () const {return _usesRotation;}
 
             // Video and OpenCV stuff
             SLVideoType         videoType       () {return _videoType;}
@@ -132,6 +112,13 @@ class SLScene: public SLObject
             SLCVCalibration*    calibMainCam    () {return &_calibMainCam;}
             SLCVCalibration*    calibScndCam    () {return &_calibScndCam;}
             SLVCVTracker&       trackers        () {return _trackers;}
+            SLbool              showDetection   () {return _showDetection;}
+
+            SLQuat4f            deviceRotation  () const {return _deviceRotation;}
+            SLfloat             devicePitchRAD  () const {return _devicePitchRAD;}
+            SLfloat             deviceYawRAD    () const {return _deviceYawRAD;}
+            SLfloat             deviceRollRAD   () const {return _deviceRollRAD;}
+            SLfloat             zeroYawAfterSec () const {return _zeroYawAfterSec;}
             
             // Misc.
    virtual  void            onLoad              (SLSceneView* sv, 
@@ -140,9 +127,15 @@ class SLScene: public SLObject
                                                  SLuint processFlags);
    virtual  void            onAfterLoad         ();
             bool            onUpdate            ();
+            void            onRotationPYR       (SLfloat pitchRAD,
+                                                 SLfloat yawRAD,
+                                                 SLfloat rollRAD);
+            void            onRotationQUAT      (SLfloat quatX,
+                                                 SLfloat quatY,
+                                                 SLfloat quatZ,
+                                                 SLfloat quatW);
             void            init                ();
             void            unInit              ();
-            void            deleteAllMenus      ();
             SLbool          onCommandAllSV      (const SLCommand cmd);
             void            selectNode          (SLNode* nodeToSelect);
             void            selectNodeMesh      (SLNode* nodeToSelect, SLMesh* meshToSelect);
@@ -166,6 +159,8 @@ class SLScene: public SLObject
             SLAnimManager   _animManager;       //!< Animation manager instance
             
             SLNode*         _root3D;            //!< Root node for 3D scene
+            SLNode*         _root2D;            //!< Root node for 2D scene displayed in ortho projection
+            SLstring        _info;              //!< scene info string
             SLNode*         _selectedNode;      //!< Pointer to the selected node
             SLMesh*         _selectedMesh;      //!< Pointer to the selected mesh
 
@@ -174,30 +169,15 @@ class SLScene: public SLObject
             SLbool          _rootInitialized;   //!< Flag if scene is initialized
             SLint           _numProgsPreload;   //!< No. of preloaded shaderProgs
             
-            SLText*         _info;              //!< Text node for scene info
-            SLText*         _infoGL;            //!< Root text node for 2D GL stats infos
-            SLText*         _infoRT;            //!< Root text node for 2D RT stats infos
-            SLText*         _infoLoading;       //!< Root text node for 2D loading text
-            SLstring        _infoAbout;         //!< About info text
-            SLstring        _infoCredits;       //!< Credits info text
-            SLstring        _infoHelp;          //!< Help info text
-            SLstring        _infoCalibrate;     //!< No calibration info text
-
-            SLButton*       _menu2D;            //!< Root button node for 2D GUI
-            SLButton*       _menuGL;            //!< Root button node for OpenGL menu
-            SLButton*       _menuRT;            //!< Root button node for RT menu
-            SLButton*       _menuPT;            //!< Root button node for PT menu
-            SLButton*       _btnAbout;          //!< About button
-            SLButton*       _btnHelp;           //!< Help button
-            SLButton*       _btnCredits;        //!< Credits button
-            SLButton*       _btnCalibration;    //!< No calibration infos
-            SLGLTexture*    _texCursor;         //!< Texture for the virtual cursor
-            
             SLfloat         _elapsedTimeMS;     //!< Last frame time in ms
             SLfloat         _lastUpdateTimeMS;  //!< Last time after update in ms
             SLfloat         _fps;               //!< Averaged no. of frames per second
             SLAvgFloat      _updateTimesMS;     //!< Averaged time for update in ms
             SLAvgFloat      _trackingTimesMS;   //!< Averaged time for video tracking in ms
+            SLAvgFloat      _detectTimesMS;     //!< Averaged time for video feature detection & description in ms
+            SLAvgFloat      _matchTimesMS;      //!< Averaged time for video feature matching in ms
+            SLAvgFloat      _optFlowTimesMS;    //!< Averaged time for video feature optical flow tracking in ms
+            SLAvgFloat      _poseTimesMS;       //!< Averaged time for video feature pose estimation in ms
             SLAvgFloat      _frameTimesMS;      //!< Averaged time per frame in ms
             SLAvgFloat      _cullTimesMS;       //!< Averaged time for culling in ms
             SLAvgFloat      _draw3DTimesMS;     //!< Averaged time for 3D drawing in ms
@@ -209,12 +189,21 @@ class SLScene: public SLObject
             SLGLOculus      _oculus;            //!< Oculus Rift interface
             
             // Video stuff
-            SLVideoType         _videoType;     //!< Flag for using the live video image
-            SLGLTexture         _videoTexture;  //!< Texture for live video image
-            SLCVCalibration*    _activeCalib;   //!< Pointer to the active calibration
-            SLCVCalibration     _calibMainCam;  //!< OpenCV calibration for main video camera
-            SLCVCalibration     _calibScndCam;  //!< OpenCV calibration for secondary video camera
-            SLVCVTracker        _trackers;      //!< Vector of all AR trackers
+            SLVideoType         _videoType;         //!< Flag for using the live video image
+            SLGLTexture         _videoTexture;      //!< Texture for live video image
+            SLCVCalibration*    _activeCalib;       //!< Pointer to the active calibration
+            SLCVCalibration     _calibMainCam;      //!< OpenCV calibration for main video camera
+            SLCVCalibration     _calibScndCam;      //!< OpenCV calibration for secondary video camera
+            SLVCVTracker        _trackers;          //!< Vector of all AR trackers
+            SLbool              _showDetection;     //!< Flag if detection should be visualized
+
+            // Sensor stuff
+            SLbool              _usesRotation;      //!< Flag if device rotation is used
+            SLfloat             _devicePitchRAD;    //!< Device pitch angle in radians
+            SLfloat             _deviceYawRAD;      //!< Device yaw angle in radians
+            SLfloat             _deviceRollRAD;     //!< Device roll angle in radians
+            SLQuat4f            _deviceRotation;    //!< Mobile device rotation as quaternion
+            SLfloat             _zeroYawAfterSec;   //!< Zero yaw angle after a certain seconds
 };
 //-----------------------------------------------------------------------------
 #endif

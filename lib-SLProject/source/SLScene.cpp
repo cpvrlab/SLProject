@@ -16,13 +16,12 @@
 #include <SLScene.h>
 #include <SLSceneView.h>
 #include <SLText.h>
-#include <SLButton.h>
 #include <SLInputManager.h>
 #include <SLCVCapture.h>
 #include <SLAssimpImporter.h>
 #include <SLLightDirect.h>
-#include <SLCVTracker.h>
-#include <SLCVTrackerAruco.h>
+#include <SLCVTracked.h>
+#include <SLCVTrackedAruco.h>
 
 //-----------------------------------------------------------------------------
 /*! Global static scene pointer that can be used throughout the entire library
@@ -43,6 +42,8 @@ The following standard shaders are preloaded:
   - TextureOnly.vert, TextureOnly.frag
   - PerPixBlinn.vert, PerPixBlinn.frag
   - PerPixBlinnTex.vert, PerPixBlinnTex.frag
+  - PerPixCookTorance.vert, PerPixCookTorance.frag
+  - PerPixCookToranceTex.vert, PerPixCookToranceTex.frag
   - BumpNormal.vert, BumpNormal.frag
   - BumpNormal.vert, BumpNormalParallax.frag
   - FontTex.vert, FontTex.frag
@@ -51,7 +52,7 @@ The following standard shaders are preloaded:
 
 There will be only one scene for an application and it gets constructed in
 the C-interface function slCreateScene in SLInterface.cpp that is called by the
-platform and GUI-toolkit dependent window initialization.
+platform and UI-toolkit dependent window initialization.
 As examples you can see it in:
   - app-Demo-GLFW: glfwMain.cpp in function main()
   - app-Demo-Qt: qtGLWidget::initializeGL()
@@ -64,30 +65,20 @@ SLScene::SLScene(SLstring name) : SLObject(name)
     current = this;
 
     _root3D         = nullptr;
-    _menu2D         = nullptr;
-    _menuGL         = nullptr;
-    _menuRT         = nullptr;
-    _menuPT         = nullptr;
-    _info           = nullptr;
-    _infoGL         = nullptr;
-    _infoRT         = nullptr;
-    _infoLoading    = nullptr;
-    _btnHelp        = nullptr;
-    _btnAbout       = nullptr;
-    _btnCredits     = nullptr;
-    _btnCalibration = nullptr;
+    _root2D         = nullptr;
+    _info           = "";
     _selectedMesh   = nullptr;
     _selectedNode   = nullptr;
     _activeCalib    = nullptr;
-
     _stopAnimations = false;
-
-    _fps = 0;
-    _elapsedTimeMS = 0;
+    _usesRotation   = false;
+    _fps            = 0;
+    _elapsedTimeMS  = 0;
     _lastUpdateTimeMS = 0;
      
-    // Load std. shader programs in order as defined in SLStdShaderProgs enum
+    // Load std. shader programs in order as defined in SLShaderProgs enum in SLenum
     // In the constructor they are added the _shaderProgs vector
+    // If you add a new shader here you have to update the SLShaderProgs enum accordingly.
     SLGLProgram* p;
     p = new SLGLGenericProgram("ColorAttribute.vert","Color.frag");
     p = new SLGLGenericProgram("ColorUniform.vert","Color.frag");
@@ -97,6 +88,8 @@ SLScene::SLScene(SLstring name) : SLObject(name)
     p = new SLGLGenericProgram("TextureOnly.vert","TextureOnly.frag");
     p = new SLGLGenericProgram("PerPixBlinn.vert","PerPixBlinn.frag");
     p = new SLGLGenericProgram("PerPixBlinnTex.vert","PerPixBlinnTex.frag");
+    p = new SLGLGenericProgram("PerPixCookTorrance.vert","PerPixCookTorrance.frag");
+    p = new SLGLGenericProgram("PerPixCookTorranceTex.vert","PerPixCookTorranceTex.frag");
     p = new SLGLGenericProgram("BumpNormal.vert","BumpNormal.frag");
     p = new SLGLGenericProgram("BumpNormal.vert","BumpNormalParallax.frag");
     p = new SLGLGenericProgram("FontTex.vert","FontTex.frag");
@@ -128,46 +121,9 @@ SLScene::SLScene(SLstring name) : SLObject(name)
     SLCVCapture::hasSecondaryCamera = true;
     #endif
 
+    _showDetection = false;
+
     _oculus.init();
-
-    _infoAbout =
-"Welcome to the SLProject demo app (v2.0.019). It is developed at the \
-Computer Science Department of the Bern University of Applied Sciences. \
-The app shows what you can learn in one semester about 3D computer graphics \
-in real time rendering and ray tracing. The framework is developed \
-in C++ with OpenGL ES so that it can run also on mobile devices. \
-Ray tracing provides in addition high quality transparencies, reflections and soft shadows. \
-Click to close and use the menu to choose different scenes and view settings. \
-For more information please visit: https://github.com/cpvrlab/SLProject";
-
-    _infoCredits =
-"Contributors since 2005 in alphabetic order: Martin Christen, Manuel Frischknecht, Michael \
-Goettlicher, Timo Tschanz, Marc Wacker, Pascal Zingg \\n\\n\
-Credits for external libraries: \\n\
-- assimp: assimp.sourceforge.net \\n\
-- glew: glew.sourceforge.net \\n\
-- glfw: www.glfw.org \\n\
-- OpenCV: opencv.org \\n\
-- OpenGL: opengl.org \\n\
-- Qt: www.qt-project.org";
-
-    _infoHelp =
-"Help for mouse or finger control: \\n\
-- Use mouse or your finger to rotate the scene \\n\
-- Use mouse-wheel or pinch 2 fingers to go forward/backward \\n\
-- Use CTRL-mouse or 2 fingers to move sidewards/up-down \\n\
-- Double click or double tap to select object";
-
-    _infoCalibrate =
-"The calibration process requires a chessboard image to be printed \
-and glued on a flat board. You can find the PDF with the chessboard image on: \\n\
-https://github.com/cpvrlab/SLProject/tree/master/_data/calibrations/ \\n\\n\
-For a calibration you have to take 20 images with detected inner \
-chessboard corners. To take an image you have to click with the mouse \
-or tap with finger into the screen. You can mirror the video image under \
-Preferences > Video. \\n\
-After calibration the yellow wireframe cube should stick on the chessboard.";
-
 }
 //-----------------------------------------------------------------------------
 /*! The destructor does the final total deallocation of all global resources.
@@ -175,9 +131,6 @@ The destructor is called in slTerminate.
 */
 SLScene::~SLScene()
 {
-    // Save configuration befor destruction
-    SL::saveConfig(_sceneViews[0]);
-
     // load opencv camera calibration for main and secondary camera
     #if defined(SL_USES_CVCAPTURE)
     _calibMainCam.save();
@@ -222,11 +175,7 @@ SLScene::~SLScene()
     // delete fonts   
     SLTexFont::deleteFonts();
    
-    // delete menus & statistic texts
-    deleteAllMenus();
-   
     current = nullptr;
-
 
     #ifdef SL_USES_CVCAPTURE
     // release the capture device
@@ -253,10 +202,17 @@ void SLScene::init()
     _draw3DTimesMS.init();
     _draw2DTimesMS.init();
     _trackingTimesMS.init();
+    _detectTimesMS.init();
+    _matchTimesMS.init();
+    _optFlowTimesMS.init();
+    _poseTimesMS.init();
     _captureTimesMS.init(200);
 
-    // load virtual cursor texture
-    _texCursor = new SLGLTexture("cursor.png");
+    _deviceRotation  = SLQuat4f::IDENTITY;
+    _devicePitchRAD  = 0.0f;
+    _deviceYawRAD    = 0.0f;
+    _deviceRollRAD   = 0.0f;
+    _zeroYawAfterSec = 0.0f;
 }
 //-----------------------------------------------------------------------------
 /*! The scene uninitializing clears the scenegraph (_root3D) and all global
@@ -277,6 +233,8 @@ void SLScene::unInit()
     // delete entire scene graph
     delete _root3D;
     _root3D = nullptr;
+    delete _root2D;
+    _root2D = nullptr;
 
     // clear light pointers
     _lights.clear();
@@ -311,8 +269,7 @@ void SLScene::unInit()
         _trackers.clear();
 
     _videoType = VT_NONE;
-   
-    // clear eventHandlers
+
     _eventHandlers.clear();
 
     _animManager.clear();
@@ -321,13 +278,14 @@ void SLScene::unInit()
     SLGLState::getInstance()->initAll();
 }
 //-----------------------------------------------------------------------------
-//! Updates all animations, AR trackers and AABBs
+//! Processes all queued events and updates animations, AR trackers and AABBs
 /*! Updates different updatables in the scene after all views got painted:
 \n
 \n 1) Calculate frame time
-\n 2) Update all animations
-\n 3) Augmented Reality (AR) Tracking with the live camera
-\n 4) Update AABBs
+\n 2) Process queued events
+\n 3) Update all animations
+\n 4) Augmented Reality (AR) Tracking with the live camera
+\n 5) Update AABBs
 \n
 A scene can be displayed in multiple views as demonstrated in the app-Viewer-Qt 
 example. AR tracking is only handled on the first scene view.
@@ -381,27 +339,32 @@ bool SLScene::onUpdate()
     _fps = 1 / _frameTimesMS.average() * 1000.0f;
     if (_fps < 0.0f) _fps = 0.0f;
 
-
-    //////////////////////////////
-    // 2) Update all animations //
-    //////////////////////////////
-
     SLfloat startUpdateMS = timeMilliSec();
+
+
+    //////////////////////////////
+    // 2) Process queued events //
+    //////////////////////////////
+
+    // Process queued up system events and poll custom input devices
+    SLbool sceneHasChanged = SLInputManager::instance().pollAndProcessEvents();
+
+
+    //////////////////////////////
+    // 3) Update all animations //
+    //////////////////////////////
 
     // reset the dirty flag on all skeletons
     for(auto skeleton : _animManager.skeletons())
         skeleton->changed(false);
 
-    // Process queued up system events and poll custom input devices
-    SLbool animatedOrChanged = SLInputManager::instance().pollEvents();
-
-    animatedOrChanged |= !_stopAnimations && _animManager.update(elapsedTimeSec());
+    sceneHasChanged |= !_stopAnimations && _animManager.update(elapsedTimeSec());
     
     // Do software skinning on all changed skeletons
     for (auto mesh : _meshes) 
     {   if (mesh->skeleton() && mesh->skeleton()->changed())
         {   mesh->transformSkin();
-            animatedOrChanged = true;
+            sceneHasChanged = true;
         }
 
         // update any out of date acceleration structure for RT or if they're being rendered.
@@ -411,7 +374,7 @@ bool SLScene::onUpdate()
     
 
     ////////////////////
-    // 3) AR Tracking //
+    // 4) AR Tracking //
     ////////////////////
     
     if (_videoType!=VT_NONE && !SLCVCapture::lastFrame.empty())
@@ -432,8 +395,7 @@ bool SLScene::onUpdate()
         {
             if (SL::currentSceneID == C_sceneVideoCalibrateMain ||
                 SL::currentSceneID == C_sceneVideoCalibrateScnd)
-            {   menu2D(btnCalibration());
-                _activeCalib->state(CS_calibrateStream);
+            {   _activeCalib->state(CS_calibrateStream);
             } else
             {   // Changes the state to CS_guessed
                 _activeCalib->createFromGuessedFOV(SLCVCapture::lastFrame.cols,
@@ -458,7 +420,7 @@ bool SLScene::onUpdate()
             {   ss << "Calculating, please wait ...";
                 _activeCalib->state(CS_startCalculating);
             }
-            info(_sceneViews[0], ss.str());
+            _info = ss.str();
         } else //..............................................................
         if (_activeCalib->state() == CS_startCalculating)
         {
@@ -472,12 +434,14 @@ bool SLScene::onUpdate()
         if (_activeCalib->state() == CS_calibrated ||
             _activeCalib->state() == CS_guessed) //............................
         {
-            SLCVTrackerAruco::trackAllOnce = true;
+            SLCVTrackedAruco::trackAllOnce = true;
         
             // track all trackers in the first sceneview
             for (auto tracker : _trackers)
                 tracker->track(SLCVCapture::lastFrameGray,
+                               SLCVCapture::lastFrame,
                                _activeCalib,
+                               _showDetection,
                                _sceneViews[0]);
 
             // Update info text only for chessboard scene
@@ -492,7 +456,7 @@ bool SLScene::onUpdate()
                 if (_activeCalib->state() == CS_calibrated)
                      ss << "FOV: " << fov << ", error: " << err;
                 else ss << "Camera is not calibrated. A FOV is guessed of: " << fov << " degrees.";
-                info(_sceneViews[0], ss.str());
+                _info = ss.str();
             }
         } //...................................................................
 
@@ -522,18 +486,20 @@ bool SLScene::onUpdate()
 
 
     /////////////////////
-    // 4) Update AABBs //
+    // 5) Update AABBs //
     /////////////////////
 
     // The updateAABBRec call won't generate any overhead if nothing changed
     SLGLState::getInstance()->modelViewMatrix.identity();
     if (_root3D)
         _root3D->updateAABBRec();
+    if (_root2D)
+        _root2D->updateAABBRec();
 
 
     _updateTimesMS.set(timeMilliSec()-startUpdateMS);
     
-    return animatedOrChanged;
+    return sceneHasChanged;
 }
 //-----------------------------------------------------------------------------
 //! SLScene::onAfterLoad gets called after onLoad
@@ -542,37 +508,55 @@ void SLScene::onAfterLoad()
     #ifdef SL_USES_CVCAPTURE
     if (_videoType!=VT_NONE)
     {   if (!SLCVCapture::isOpened())
-            SLCVCapture::open(0);
+        #ifdef SL_VIDEO_DEBUG
+        SLCVCapture::open("../_data/videos/testvid_" + string(SL_TRACKER_IMAGE_NAME) +".mp4");
+        #else
+        SLCVCapture::open(0);
+        #endif
     }
     #endif
 }
 //-----------------------------------------------------------------------------
 /*!
-SLScene::info deletes previous info text and sets new one with a max. width 
+SLScene::onRotationPYR: Event handler for rotation change of a mobile device
+with Euler angles for pitch, yaw and roll.
+With the parameter zeroYawAfterSec sets the time in seconds after which the
+yaw angle is set to zero by subtracting the average yaw in this time.
 */
-void SLScene::info(SLSceneView* sv, SLstring infoText, SLCol4f color)
-{  
-    delete _info;
-   
-    // Set font size depending on DPI
-    SLTexFont* f = SLTexFont::getFont(1.5f, SL::dpi);
+void SLScene::onRotationPYR(SLfloat pitchRAD,
+                            SLfloat yawRAD,
+                            SLfloat rollRAD)
+{
+    _devicePitchRAD = pitchRAD;
+    _deviceYawRAD   = yawRAD;
+    _deviceRollRAD  = rollRAD;
 
-    SLfloat minX = 11 * SL::dpmm();
-    _info = new SLText(infoText, f, color, 
-                       sv->scrW()-minX-5.0f,
-                       1.2f);
+    // Set the yaw to zero by subtracting the averaged yaw after the passed NO. of sec.
+    // Array of 60 yaw values for averaging
+    static SLAvgFloat initialYaw(60);
 
-    _info->translate(minX, SLButton::minMenuPos.y, 0, TS_object);
+    if (_zeroYawAfterSec == 0.0f)
+    {   _deviceRotation.fromEulerAngles(pitchRAD, yawRAD, rollRAD);
+    } else
+    if (SLScene::current->timeSec() < _zeroYawAfterSec)
+    {   initialYaw.set(yawRAD);
+        _deviceRotation.fromEulerAngles(pitchRAD, yawRAD, rollRAD);
+    } else
+    {  _deviceRotation.fromEulerAngles(pitchRAD, yawRAD-initialYaw.average(), rollRAD);
+    }
 }
 //-----------------------------------------------------------------------------
-/*! 
-SLScene::info returns the info text. If null it creates an empty one
+/*! SLScene::onRotationQUAT: Event handler for rotation change of a mobile
+device with rotation quaternion.
 */
-SLText* SLScene::info(SLSceneView* sv)
+void SLScene::onRotationQUAT(SLfloat quatX,
+                             SLfloat quatY,
+                             SLfloat quatZ,
+                             SLfloat quatW)
 {
-    if (_info == nullptr) info(sv, "", SLCol4f::WHITE);
-    return _info;
+    _deviceRotation.set(quatX, quatY, quatZ, quatW);
 }
+
 //-----------------------------------------------------------------------------
 //! Sets the _selectedNode to the passed Node and flags it as selected
 void SLScene::selectNode(SLNode* nodeToSelect)
@@ -588,6 +572,7 @@ void SLScene::selectNode(SLNode* nodeToSelect)
             _selectedNode->drawBits()->on(SL_DB_SELECTED);
         }
     } else _selectedNode = 0;
+    _selectedMesh = 0;
 }
 //-----------------------------------------------------------------------------
 //! Sets the _selectedNode and _selectedMesh and flags it as selected
@@ -638,21 +623,6 @@ void SLScene::copyVideoImage(SLint width,
                                  isTopLeft);
 }
 //-----------------------------------------------------------------------------
-//! Deletes all menus and buttons objects
-void SLScene::deleteAllMenus()
-{                           _menu2D     = nullptr;
-    delete _menuGL;         _menuGL     = nullptr;
-    delete _menuRT;         _menuRT     = nullptr;
-    delete _menuPT;         _menuPT     = nullptr;
-    delete _info;           _info       = nullptr;
-    delete _infoGL;         _infoGL     = nullptr;
-    delete _infoRT;         _infoRT     = nullptr;
-    delete _btnAbout;       _btnAbout   = nullptr;
-    delete _btnHelp;        _btnHelp    = nullptr;
-    delete _btnCredits;     _btnCredits = nullptr;
-    delete _btnCalibration;     _btnCalibration = nullptr;
-}
-//-----------------------------------------------------------------------------
 void SLScene::onLoadAsset(SLstring assetFile, 
                           SLuint processFlags)
 {
@@ -700,7 +670,6 @@ void SLScene::onLoadAsset(SLstring assetFile,
     for (auto sv : _sceneViews)
     {   if (sv != nullptr)
         {   sv->onInitialize();
-            sv->showLoading(false);
         }
     }
 }

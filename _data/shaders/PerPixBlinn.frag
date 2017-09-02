@@ -69,9 +69,9 @@ void PointLight (in    int  i,      // Light number
                  in    vec3 P_VS,   // Point of illumination in VS
                  in    vec3 N,      // Normalized normal at v_P_VS
                  in    vec3 E,      // Normalized vector from v_P_VS to view in VS
-                 inout vec4 Ia,     // Ambient light intesity
-                 inout vec4 Id,     // Diffuse light intesity
-                 inout vec4 Is)     // Specular light intesity
+                 inout vec4 Ia,     // Ambient light intensity
+                 inout vec4 Id,     // Diffuse light intensity
+                 inout vec4 Is)     // Specular light intensity
 {  
     // Vector from v_P_VS to the light in VS
     vec3 L = u_lightPosVS[i].xyz - v_P_VS;
@@ -87,8 +87,8 @@ void PointLight (in    int  i,      // Light number
         L /= att_dist.y;               // = normalize(L)
     } else L = normalize(L);
    
-    // Normalized halfvector between N and L
-    vec3 H = normalize(L+E);
+    // Normalized halfvector between the eye and the light vector
+    vec3 H = normalize(E + L);
    
     // Calculate diffuse & specular factors
     float diffFactor = max(dot(N,L), 0.0);

@@ -123,16 +123,18 @@ class SLUtils
         }
 
         //! SLUtils::getFileNamesinDir returns a vector of storted filesname with path within a directory
-        static SLVstring getFileNamesInDir(SLstring dirName)
+        static SLVstring getFileNamesInDir(const SLstring dirName)
         {
             SLVstring fileNames;
             DIR* dir;
-            struct dirent *dirContent;
-            int i=0;
             dir = opendir(dirName.c_str());
 
             if (dir)
-            {   while ((dirContent = readdir(dir)) != NULL)
+            {
+                struct dirent *dirContent;
+                int i=0;
+
+                while ((dirContent = readdir(dir)) != NULL)
                 {   i++;
                     SLstring name(dirContent->d_name);
                     if(name != "." && name != "..")
@@ -196,6 +198,29 @@ class SLUtils
             char buf[1024];
             strftime(buf, sizeof(buf), "%c", t2);
             return SLstring(buf);
+        }
+
+        //! Returns a formatted string as sprintf
+        static SLstring formatString(const SLstring fmt_str, ...) 
+        {
+            // Reserve two times as much as the length of the fmt_str
+            int final_n, n = ((int)fmt_str.size()) * 2; 
+            std::string str;
+            std::unique_ptr<char[]> formatted;
+            va_list ap;
+            while(1) 
+            {
+                formatted.reset(new char[n]); /* Wrap the plain char array into the unique_ptr */
+                strcpy(&formatted[0], fmt_str.c_str());
+                va_start(ap, fmt_str);
+                final_n = vsnprintf(&formatted[0], n, fmt_str.c_str(), ap);
+                va_end(ap);
+                if (final_n < 0 || final_n >= n)
+                    n += abs(final_n - n + 1);
+                else
+                    break;
+            }
+            return SLstring(formatted.get());
         }
 };
 //-----------------------------------------------------------------------------

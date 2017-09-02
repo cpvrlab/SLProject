@@ -186,7 +186,7 @@ SLAnimation* SLAnimation::create(const SLstring& name,
                                  SLAnimLooping looping)
 {
     SLAnimation* anim = SLScene::current->animManager().createNodeAnimation(name, duration);
-    SLAnimPlayback* playback = SLScene::current->animManager().getNodeAnimPlayack(anim->name());
+    SLAnimPlayback* playback = SLScene::current->animManager().nodeAnimPlayback(anim->name());
     playback->enabled(enabled);
     playback->easing(easing);
     playback->loop(looping);

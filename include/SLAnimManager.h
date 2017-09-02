@@ -33,26 +33,31 @@ class SLAnimManager
 public:
     ~SLAnimManager();
     
-    void            addSkeleton         (SLSkeleton* skel) { _skeletons.push_back(skel); }
-    void            addNodeAnimation    (SLAnimation* anim);
-    SLbool          hasNodeAnimations   () { return (_nodeAnimations.size() > 0); }
-    SLAnimPlayback* getNodeAnimPlayack  (const SLstring& name);
+    void                addSkeleton         (SLSkeleton* skel);
+    void                addNodeAnimation    (SLAnimation* anim);
+    SLbool              hasNodeAnimations   () { return (_nodeAnimations.size() > 0);}
+    SLAnimPlayback*     nodeAnimPlayback    (const SLstring& name);
+    SLAnimPlayback*     allAnimPlayback     (SLuint ix) {return _allAnimPlaybacks[ix];}
+    SLAnimPlayback*     lastAnimPlayback    (){return _allAnimPlaybacks.back();}
 
-    SLAnimation*    createNodeAnimation (SLfloat duration);
-    SLAnimation*    createNodeAnimation (const SLstring& name, SLfloat duration);
+    SLAnimation*        createNodeAnimation (SLfloat duration);
+    SLAnimation*        createNodeAnimation (const SLstring& name, SLfloat duration);
 
-    // @todo find a better way to give access to the animation names to external stuff (like the gui)
-    SLMAnimation    animations          () { return _nodeAnimations; }
-    SLVSkeleton&    skeletons           () { return _skeletons; }
+    SLMAnimation&       animations          () {return _nodeAnimations;}
+    SLVSkeleton&        skeletons           () {return _skeletons;}
+    SLVstring&          allAnimNames        () {return _allAnimNames;}
+    SLVAnimPlayback&    allAnimPlaybacks    () {return _allAnimPlaybacks;}
 
-    SLbool          update              (SLfloat elapsedTimeSec);
-    void            drawVisuals         (SLSceneView* sv);
-    void            clear               ();
+    SLbool              update              (SLfloat elapsedTimeSec);
+    void                drawVisuals         (SLSceneView* sv);
+    void                clear               ();
 
 private:
-    SLVSkeleton     _skeletons;         //!< all skeleton instances
-    SLMAnimation    _nodeAnimations;    //!< node animations
-    SLMAnimPlayback _nodeAnimPlaybacks; //!< node animation playbacks
+    SLVSkeleton         _skeletons;         //!< all skeleton instances
+    SLMAnimation        _nodeAnimations;    //!< node animations
+    SLMAnimPlayback     _nodeAnimPlaybacks; //!< node animation playbacks
+    SLVstring           _allAnimNames;      //!< vector with all animation names
+    SLVAnimPlayback     _allAnimPlaybacks;  //!< vector with all animation playbacks
 };
 //-----------------------------------------------------------------------------
 #endif

@@ -88,14 +88,18 @@ enum SLCommand
     C_sceneTextureBlend,
     C_sceneFrustumCull,
     C_sceneMassiveData,
+    C_scene2Dand3DText,
 
     C_sceneShaderPerVertexBlinn,
     C_sceneShaderPerPixelBlinn,
     C_sceneShaderPerVertexWave,
+    C_sceneShaderPerPixelCookTorrance,
     C_sceneShaderWater,
     C_sceneShaderBumpNormal,
     C_sceneShaderBumpParallax,
     C_sceneShaderEarth,
+    C_sceneVolumeRayCastHeadMRI,
+    C_sceneVolumeRayCastLightedMRIHead,
     C_sceneTerrain,
 
     C_sceneAnimationMass,
@@ -111,8 +115,8 @@ enum SLCommand
     C_sceneVideoTrackChessScnd,
     C_sceneVideoTrackArucoMain,
     C_sceneVideoTrackArucoScnd,
-    C_sceneVideoTrackFeat2DMain,
-    C_sceneVideoTrackFeat2DScnd,
+    C_sceneVideoTrackFeature2DMain,
+    C_sceneVideoTrackFeature2DScnd,
 
     C_sceneRTMuttenzerBox,
     C_sceneRTSpheres,
@@ -121,12 +125,8 @@ enum SLCommand
     C_sceneRTLens,
     C_sceneRTTest,
     C_sceneMaximal,
-    
+
     C_menu,
-    C_aboutToggle,
-    C_helpToggle,
-    C_creditsToggle,
-    C_removeInfoCalib,
     C_sceneInfoToggle,
     C_quit,
 
@@ -347,6 +347,8 @@ enum SLShaderProg
     SP_TextureOnly,
     SP_perPixBlinn,
     SP_perPixBlinnTex,
+    SP_perPixCookTorrance,
+    SP_perPixCookTorranceTex,
     SP_bumpNormal,
     SP_bumpNormalParallax,
     SP_fontTex,
@@ -395,6 +397,16 @@ enum SLVideoType
 {   VT_NONE =  0,  //!< No camera needed
     VT_MAIN =  1,  //!< Main camera on all on all all devices
     VT_SCND =  2,  //!< Selfie camera on mobile devices
+};
+//-----------------------------------------------------------------------------
+//! Feature detector-decriptor types
+enum SLCVDetectDescribeType
+{  
+    DDT_FAST_BRIEF,
+    DDT_RAUL_RAUL,
+    DDT_ORB_ORB,
+    DDT_SURF_SURF,
+    DDT_SIFT_SIFT
 };
 //-----------------------------------------------------------------------------
 #endif

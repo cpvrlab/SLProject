@@ -12,8 +12,8 @@
 // The only C-interface to include for the SceneLibrary
 
 #include <SLInterface.h>
-#include <SLImage.h>
 #include <SLCVCapture.h>
+#include <SLDemoGui.h>
 #include <mach/mach_time.h>
 
 //-----------------------------------------------------------------------------
@@ -135,11 +135,12 @@ float GetSeconds()
     svIndex = slCreateSceneView(self.view.bounds.size.height * screenScale,
                                 self.view.bounds.size.width * screenScale,
                                 dpi,
-                                C_sceneMeshLoad,
+                                C_sceneRevolver,
                                 (void*)&onPaintRTGL,
                                 0,
                                 0,
-                                0);
+                                0,
+                                (void*)SLDemoGui::buildDemoGui);
     ///////////////////////////////////////////////////////////////////////
     
     [self setMotionInterval:1.0/60.0];
@@ -358,11 +359,12 @@ float GetSeconds()
 //-----------------------------------------------------------------------------
 -(void)onMotionData:(CMAttitude*)attitude
 {
-    if (slUsesRotation(svIndex))
+    if (slUsesRotation())
     {
-        //SLVec3f att(attitude.roll,attitude.pitch,attitude.yaw);
-        //att.print("att:");
-        slRotationPYR(svIndex, attitude.roll, attitude.yaw, attitude.pitch);
+        float pitch = attitude.roll * -1.0f - SL_HALFPI;
+        float yaw   = attitude.yaw;
+        float roll  = attitude.pitch * -1.0f;
+        slRotationPYR(pitch, yaw, roll);
     }
 }
 //-----------------------------------------------------------------------------

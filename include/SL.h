@@ -18,6 +18,7 @@
 #include <sstream>
 #include <fstream>
 #include <vector>
+#include <list>
 #include <queue>
 #include <typeinfo>
 #include <string>
@@ -237,6 +238,7 @@ typedef std::vector<SLlong>   SLVlong;
 typedef std::vector<SLulong>  SLVulong;
 typedef std::vector<SLfloat>  SLVfloat;
 typedef std::vector<SLstring> SLVstring;
+typedef std::vector<size_t>   SLVsize_t;
 
 // All 2D vectors begin with SLVV*
 typedef std::vector<vector<SLfloat>>    SLVVfloat;
@@ -270,6 +272,17 @@ template<class T> inline SLint SL_sizeOfVector(const T &vector)
 #define SL_EXIT_MSG(M)  SL::exitMsg((M), __LINE__, __FILE__)
 #define SL_WARN_MSG(M)  SL::warnMsg((M), __LINE__, __FILE__)
 //-----------------------------------------------------------------------------
+/*! Since Android does not support full C++11 support, we have to override the
+to_string method manually.
+*/
+template<typename T>
+std::string to_string(T value)
+{
+    std::ostringstream os;
+    os << value;
+    return os.str();
+}
+//-----------------------------------------------------------------------------
 //! Class SL with some global static functions and members.
 class SLSceneView;
 class SL
@@ -290,8 +303,6 @@ class SL
                                                           testScene <= C_sceneRTTest;}
     static SLbool           allTestIsRunning    (){return testScene > C_sceneAll && 
                                                           testScene <= C_sceneRTTest;}
-    static void             loadConfig          (SLSceneView* sv);
-    static void             saveConfig          (SLSceneView* sv);
     static SLfloat          dpmm                () {return (float)dpi/25.4f;}
 
     static SLCommand        testScene;          //!< Test scene command id (-1 for no test)
@@ -301,10 +312,10 @@ class SL
     static SLLogVerbosity   testLogVerbosity;   //!< Test logging verbosity
     static SLuint           testFrameCounter;   //!< Test frame counters
     static const SLVstring  testSceneNames;     //!< Vector with scene names
-    
-    static SLstring         configPath;         //!< Default path for calibration files
-    static SLstring         configTime;         //!< Time of stored configuration 
+
+    static SLstring         version;            //!< SLProject version string
     static SLint            dpi;                //!< Current UI dot per inch resolution
+    static SLstring         configPath;         //!< Default path for calibration files
     static SLCommand        currentSceneID;     //!< ID of last loaded scene
 };
 //-----------------------------------------------------------------------------

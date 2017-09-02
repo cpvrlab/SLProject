@@ -2126,9 +2126,9 @@ void Clipper::AddOutPt(TEdge *e, const IntPoint &pt)
       if (outRec->sides == esNeither && pt.Y == op->pt.Y)
         if (ToFront)
         {
-          if (pt.X == op->pt.X +1) return;    //ie wrong side of bottomPt
+          if (pt.X == (op->pt.X+1)) return;    //ie wrong side of bottomPt
         }
-        else if (pt.X == op->pt.X -1) return; //ie wrong side of bottomPt
+        else if (pt.X == (op->pt.X-1)) return; //ie wrong side of bottomPt
 
       outRec->sides = (EdgeSide)(outRec->sides | e->side);
       if (outRec->sides == esBoth)

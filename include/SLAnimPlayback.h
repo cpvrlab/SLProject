@@ -48,14 +48,18 @@ public:
     void            skipToEnd           ();
 
     // getters
-    SLfloat         localTime           () const { return _localTime; }
-    SLAnimation*    parentAnimation     () { return _animation; }
-    SLfloat         playbackRate        () const { return _playbackRate; }
-    SLfloat         weight              () const { return _weight; }
-    SLAnimLooping   loop                () const { return _loopingBehaviour; }
-    SLbool          enabled             () const { return _enabled; }
-    SLEasingCurve   easing              () const { return _easing; }
-    SLbool          changed             () const { return _gotChanged; }
+    SLfloat         localTime           () const {return _localTime;}
+    SLAnimation*    parentAnimation     () {return _animation;}
+    SLfloat         playbackRate        () const {return _playbackRate;}
+    SLfloat         weight              () const {return _weight;}
+    SLAnimLooping   loop                () const {return _loopingBehaviour;}
+    SLbool          enabled             () const {return _enabled;}
+    SLEasingCurve   easing              () const {return _easing;}
+    SLbool          changed             () const {return _gotChanged;}
+    SLbool          isPlayingForward    () const {return _enabled && _playbackDir ==  1;}
+    SLbool          isPlayingBackward   () const {return _enabled && _playbackDir == -1;}
+    SLbool          isPaused            () const {return _enabled && _playbackDir ==  0;}
+    SLbool          isStopped           () const {return !_enabled;}
 
     // setters
     void            localTime           (SLfloat time);
@@ -79,12 +83,12 @@ protected:
     SLshort         _playbackDir;       //!< the current playback direction
     SLbool          _enabled;           //!< is this animation running
     SLEasingCurve   _easing;            //!< easing modifier curve (to customize start and end point easing)
-    SLfloat         _linearLocalTime;   //!< linear local time used for _easing property
-
+    SLfloat         _linearLocalTime;   //!< linear local time used for _easing propert
     SLAnimLooping   _loopingBehaviour;  //!< We support different looping behaviours
     SLbool          _gotChanged;        //!< Did this playback change in the last frame
 };
 //-----------------------------------------------------------------------------
-typedef std::map<SLstring, SLAnimPlayback*> SLMAnimPlayback;
+typedef vector<SLAnimPlayback*>         SLVAnimPlayback;
+typedef map<SLstring, SLAnimPlayback*>  SLMAnimPlayback;
 //-----------------------------------------------------------------------------
 #endif

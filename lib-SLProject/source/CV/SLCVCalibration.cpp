@@ -15,7 +15,7 @@ The OpenCV library version 3.1 or above with extra module must be present.
 If the application captures the live video stream with OpenCV you have
 to define in addition the constant SL_USES_CVCAPTURE.
 All classes that use OpenCV begin with SLCV.
-See also the class docs for SLCVCapture, SLCVCalibration and SLCVTracker
+See also the class docs for SLCVCapture, SLCVCalibration and SLCVTracked
 for a good top down information.
 */
 #include <SLCVCalibration.h>

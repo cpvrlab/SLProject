@@ -554,6 +554,7 @@ void SLAssimpImporter::loadSkeleton(SLJoint* parent, aiNode* node)
 
     SLJoint* joint;
     SLstring name = node->mName.C_Str();
+
     if (!parent)
     {
 	    logMessage(LV_normal, "Loading skeleton skeleton.\n");
@@ -675,7 +676,7 @@ SLMaterial* SLAssimpImporter::loadMaterial(SLint index,
     mat->ambient(SLCol4f(ambient.r, ambient.g, ambient.b));
     mat->diffuse(SLCol4f(diffuse.r, diffuse.g, diffuse.b));
     mat->specular(SLCol4f(specular.r, specular.g, specular.b));
-    mat->emission(SLCol4f(emissive.r, emissive.g, emissive.b));
+    mat->emissive(SLCol4f(emissive.r, emissive.g, emissive.b));
     mat->shininess(shininess);
     //mat->kr(reflectivity);
     //mat->kt(1.0f-opacity);
@@ -965,10 +966,8 @@ SLAssimpImporter::loadAnimation loads the scene graph node tree recursively.
 */
 SLAnimation* SLAssimpImporter::loadAnimation(aiAnimation* anim)
 {
-    int animCount = 0;
-    if (_skeleton) animCount = _skeleton->numAnimations();
     ostringstream oss;
-    oss << "unnamed_anim_" << animCount;
+    oss << "unnamed_anim_" << SLScene::current->animManager().allAnimNames().size();
     SLstring animName = oss.str();
     SLfloat animTicksPerSec = (anim->mTicksPerSecond == 0) ? 30.0f : (SLfloat)anim->mTicksPerSecond;
     SLfloat animDuration = (SLfloat)anim->mDuration / animTicksPerSec;

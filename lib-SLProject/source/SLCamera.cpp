@@ -552,7 +552,7 @@ void SLCamera::setView(SLSceneView* sv, const SLEyeType eye)
                     rotation = s->oculus()->orientation(eye);
                     trackingPos.translate(-s->oculus()->position(eye));
                 }
-                else rotation = sv->deviceRotation();
+                else rotation = s->deviceRotation();
 
                 SLfloat rotX, rotY, rotZ;
                 rotation.toMat4().toEulerAnglesZYX(rotZ, rotY, rotX);

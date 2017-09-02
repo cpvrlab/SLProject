@@ -13,6 +13,7 @@
 #include <stdafx.h>
 #include <SLInterface.h>
 #include <SLScene.h>
+#include <SLDemoGui.h>
 
 //-----------------------------------------------------------------------------
 // Some global variable for the JNI interface
@@ -95,7 +96,11 @@ JNIEXPORT void JNICALL Java_ch_fhnw_comgr_GLES3Lib_onInit(JNIEnv *env, jobject o
                                 (int) height,
                                 (int) dpi,
                                 C_sceneRevolver,
-                                (void *) &Java_renderRaytracingCallback);
+                                (void *) &Java_renderRaytracingCallback,
+                                0,
+                                0,
+                                0,
+                                (void*)SLDemoGui::buildDemoGui);
     delete cmdLineArgs;
 }
 //-----------------------------------------------------------------------------
@@ -153,12 +158,12 @@ JNIEXPORT void JNICALL Java_ch_fhnw_comgr_GLES3Lib_onDoubleClick(JNIEnv *env, jo
 //-----------------------------------------------------------------------------
 JNIEXPORT void JNICALL Java_ch_fhnw_comgr_GLES3Lib_onRotationPYR(JNIEnv *env, jobject obj, jfloat pitchRAD, jfloat yawRAD, jfloat rollRAD)
 {
-    slRotationPYR(svIndex, pitchRAD, yawRAD, rollRAD);
+    slRotationPYR(pitchRAD, yawRAD, rollRAD);
 }
 //-----------------------------------------------------------------------------
 JNIEXPORT void JNICALL Java_ch_fhnw_comgr_GLES3Lib_onRotationQUAT(JNIEnv *env, jobject obj, jfloat quatX, jfloat quatY, jfloat quatZ, jfloat quatW)
 {
-    slRotationQUAT(svIndex, quatX, quatY, quatZ, quatW);
+    slRotationQUAT(quatX, quatY, quatZ, quatW);
 }
 //-----------------------------------------------------------------------------
 JNIEXPORT void JNICALL Java_ch_fhnw_comgr_GLES3Lib_onClose(JNIEnv *env, jobject obj)
@@ -180,7 +185,7 @@ JNIEXPORT bool JNICALL Java_ch_fhnw_comgr_GLES3Lib_shouldClose(JNIEnv *env, jobj
 //-----------------------------------------------------------------------------
 JNIEXPORT bool JNICALL Java_ch_fhnw_comgr_GLES3Lib_usesRotation(JNIEnv *env, jobject obj)
 {
-    return slUsesRotation(svIndex);
+    return slUsesRotation();
 }
 //-----------------------------------------------------------------------------
 JNIEXPORT jint JNICALL Java_ch_fhnw_comgr_GLES3Lib_getVideoType(JNIEnv *env, jobject obj)

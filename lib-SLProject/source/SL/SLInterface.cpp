@@ -16,6 +16,7 @@
 #include <SLAssimpImporter.h>
 #include <SLInputManager.h>
 #include <SLCVCapture.h>
+#include <SLDemoGui.h>
 
 //! \file SLInterface.cpp SLProject C-functions interface implementation.
 /*! \file SLInterface.cpp
@@ -111,7 +112,8 @@ int slCreateSceneView(int screenWidth,
                       void* onWndUpdateCallback,
                       void* onSelectNodeMeshCallback,
                       void* onNewSceneViewCallback,
-                      void* onShowSystemCursorCallback)
+                      void* onShowSystemCursorCallback,
+                      void* onBuildImGui)
 {
     assert(SLScene::current && "No SLScene::current!");
 
@@ -130,20 +132,24 @@ int slCreateSceneView(int screenWidth,
              screenHeight, 
              onWndUpdateCallback,
              onSelectNodeMeshCallback,
-             onShowSystemCursorCallback);
+             onShowSystemCursorCallback,
+             onBuildImGui);
 
-    // Load configuration after the first sceneview creation
+    // Load configuration no matter if ImGui is used
     if (index==0)
-        SL::loadConfig(sv);
+        SLDemoGui::loadConfig(dotsPerInch);
 
-    if (!SL::dpi)
-        SL::dpi = dotsPerInch;
+    // Set default font sizes depending on the dpi no matter if ImGui is used
+    if (!SL::dpi) SL::dpi = dotsPerInch;
+
+    // Load GUI fonts depending on the resolution
+    sv->gui().loadFonts(SLGLImGui::fontPropDots, SLGLImGui::fontFixedDots);
 
     // Set active sceneview and load scene. This is done for the first sceneview
     if (!SLScene::current->root3D())
     {   if (SL::currentSceneID == C_sceneEmpty)
              SLScene::current->onLoad(sv, initScene);
-        else SLScene::current->onLoad(sv, SL::currentSceneID); 
+        else SLScene::current->onLoad(sv, SL::currentSceneID);
     } else
         sv->onInitialize();
    
@@ -184,7 +190,10 @@ All the scenegraph deallocation is started from here and has to be done before
 the GUI app terminates.
 */
 void slTerminate()
-{    
+{
+    // Save UI configuration no matter if ImGui is used
+    SLDemoGui::saveConfig();
+
     // Deletes all remaining sceneviews the current scene instance  
     delete SLScene::current;
     SLScene::current = 0;
@@ -199,8 +208,11 @@ returned true a new frame should be drawn.
 bool slUpdateAndPaint(int sceneViewIndex)
 {  
     SLSceneView* sv = SLScene::current->sv(sceneViewIndex);
+
     bool sceneGotUpdated = SLScene::current->onUpdate();
+    
     bool viewNeedsUpdate =  sv->onPaint();
+    
     return sceneGotUpdated || viewNeedsUpdate;
 }
 //-----------------------------------------------------------------------------
@@ -213,7 +225,6 @@ void slResize(int sceneViewIndex, int width, int height)
     e->svIndex = sceneViewIndex;
     e->width = width;
     e->height = height;
-
     SLInputManager::instance().queueEvent(e);
 }
 //-----------------------------------------------------------------------------
@@ -221,14 +232,13 @@ void slResize(int sceneViewIndex, int width, int height)
 */
 void slMouseDown(int sceneViewIndex, SLMouseButton button, 
                  int xpos, int ypos, SLKey modifier) 
-{  
+{
     SLMouseEvent* e = new SLMouseEvent(SLInputEvent::MouseDown);
     e->svIndex = sceneViewIndex;
     e->button = button;
     e->x = xpos;
     e->y = ypos;
     e->modifier = modifier;
-
     SLInputManager::instance().queueEvent(e);
 }
 //-----------------------------------------------------------------------------
@@ -240,7 +250,6 @@ void slMouseMove(int sceneViewIndex, int x, int y)
     e->svIndex = sceneViewIndex;
     e->x = x;
     e->y = y;
-
     SLInputManager::instance().queueEvent(e);
 }
 //-----------------------------------------------------------------------------
@@ -255,7 +264,6 @@ void slMouseUp(int sceneViewIndex, SLMouseButton button,
     e->x = xpos;
     e->y = ypos;
     e->modifier = modifier;
-
     SLInputManager::instance().queueEvent(e);
 }
 //-----------------------------------------------------------------------------
@@ -270,7 +278,6 @@ void slDoubleClick(int sceneViewIndex, SLMouseButton button,
     e->x = xpos;
     e->y = ypos;
     e->modifier = modifier;
-
     SLInputManager::instance().queueEvent(e);
 }
 //-----------------------------------------------------------------------------
@@ -282,7 +289,6 @@ void slLongTouch(int sceneViewIndex, int xpos, int ypos)
     e->svIndex = sceneViewIndex;
     e->x = xpos;
     e->y = ypos;
-
     SLInputManager::instance().queueEvent(e);
 }
 //-----------------------------------------------------------------------------
@@ -311,7 +317,6 @@ void slTouch2Move(int sceneViewIndex, int xpos1, int ypos1, int xpos2, int ypos2
     e->y1 = ypos1;
     e->x2 = xpos2;
     e->y2 = ypos2;
-
     SLInputManager::instance().queueEvent(e);
 }
 //-----------------------------------------------------------------------------
@@ -326,7 +331,6 @@ void slTouch2Up(int sceneViewIndex, int xpos1, int ypos1, int xpos2, int ypos2)
     e->y1 = ypos1;
     e->x2 = xpos2;
     e->y2 = ypos2;
-
     SLInputManager::instance().queueEvent(e);
 }
 //-----------------------------------------------------------------------------
@@ -338,7 +342,6 @@ void slMouseWheel(int sceneViewIndex, int pos, SLKey modifier)
     e->svIndex = sceneViewIndex;
     e->y = pos;
     e->modifier = modifier;
-
     SLInputManager::instance().queueEvent(e);
 }
 //-----------------------------------------------------------------------------
@@ -350,7 +353,6 @@ void slKeyPress(int sceneViewIndex, SLKey key, SLKey modifier)
     e->svIndex = sceneViewIndex;
     e->key = key;
     e->modifier = modifier;
-
     SLInputManager::instance().queueEvent(e);
 }
 //-----------------------------------------------------------------------------
@@ -362,7 +364,6 @@ void slKeyRelease(int sceneViewIndex, SLKey key, SLKey modifier)
     e->svIndex = sceneViewIndex;
     e->key = key;
     e->modifier = modifier;
-
     SLInputManager::instance().queueEvent(e);
 }
 
@@ -374,7 +375,6 @@ void slCharInput(int sceneViewIndex, unsigned int character)
     SLCharInputEvent* e = new SLCharInputEvent();
     e->svIndex = sceneViewIndex;
     e->character = character;
-
     SLInputManager::instance().queueEvent(e);
 }
 //-----------------------------------------------------------------------------
@@ -385,46 +385,30 @@ void slCommand(int sceneViewIndex, SLCommand command)
     SLCommandEvent* e = new SLCommandEvent;
     e->svIndex = sceneViewIndex;
     e->cmd = command;
-    
     SLInputManager::instance().queueEvent(e);
 }
 //-----------------------------------------------------------------------------
-bool slUsesRotation(int sceneViewIndex)
+bool slUsesRotation()
 {
-    SLSceneView* sv = SLScene::current->sv(sceneViewIndex);
-    return sv->usesRotation();
+    if (SLScene::current)
+    {   return SLScene::current->usesRotation();
+    }
+    return false;
 }
 //-----------------------------------------------------------------------------
 /*! Global event handler for device rotation change with Euler angles pitch
-yaw and roll. With the parameter zeroYawAfterSec sets the time in seconds after
-which the yaw angle is set to zero by subtracting the average yaw in this time.
+yaw and roll.
 */
-void slRotationPYR(int sceneViewIndex, 
-                   float pitchRAD, float yawRAD, float rollRAD)
+void slRotationPYR(float pitchRAD, float yawRAD, float rollRAD)
 {
-    SLRotationEvent* e = new SLRotationEvent(SLInputEvent::DeviceRotationPYR);
-    e->svIndex = sceneViewIndex;
-    e->x = pitchRAD;
-    e->y = yawRAD;
-    e->z = rollRAD;
-    e->w = 3.0f;
-
-    SLInputManager::instance().queueEvent(e);
+    SLScene::current->onRotationPYR(pitchRAD, yawRAD, rollRAD);
 }
 //-----------------------------------------------------------------------------
 /*! Global event handler for device rotation change with angle & and axis. 
 */
-void slRotationQUAT(int sceneViewIndex, 
-                    float quatX, float quatY, float quatZ, float quatW)
+void slRotationQUAT(float quatX, float quatY, float quatZ, float quatW)
 {
-    SLRotationEvent* e = new SLRotationEvent(SLInputEvent::DeviceRotationPYR);
-    e->svIndex = sceneViewIndex;
-    e->x = quatX;
-    e->y = quatY;
-    e->z = quatZ;
-    e->w = quatW;
-
-    SLInputManager::instance().queueEvent(e);
+    SLScene::current->onRotationQUAT(quatX, quatY, quatZ, quatW);
 }
 //-----------------------------------------------------------------------------
 /*! Global function to retrieve a window title text generated by the scene

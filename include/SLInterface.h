@@ -39,7 +39,8 @@ int     slCreateSceneView       (int screenWidth,
                                  void* onWndUpdateCallback,
                                  void* onSelectNodeMeshCallback = 0,
                                  void* onNewSceneViewCallback = 0,
-                                 void* onShowSystemCursorCallback = 0);
+                                 void* onShowSystemCursorCallback = 0,
+                                 void* onBuildImGui = 0);
 int     slNewSceneView          ();
 bool    slShouldClose           ();
 void    slShouldClose           (bool val);
@@ -59,9 +60,9 @@ void    slKeyPress              (int sceneViewIndex, SLKey key, SLKey modifier);
 void    slKeyRelease            (int sceneViewIndex, SLKey key, SLKey modifier);
 void    slCharInput             (int sceneViewIndex, unsigned int character);
 void    slCommand               (int sceneViewIndex, SLCommand command);
-bool    slUsesRotation          (int sceneViewIndex);
-void    slRotationPYR           (int sceneViewIndex, float pitchRAD, float yawRAD, float rollRAD);
-void    slRotationQUAT          (int sceneViewIndex, float angleRAD, float axisX, float axisY, float axisZ);
+bool    slUsesRotation          ();
+void    slRotationPYR           (float pitchRAD, float yawRAD, float rollRAD);
+void    slRotationQUAT          (float angleRAD, float axisX, float axisY, float axisZ);
 string  slGetWindowTitle        (int sceneViewIndex);
 int     slGetVideoType          ();
 int     slGetVideoSizeIndex     ();

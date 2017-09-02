@@ -105,13 +105,13 @@ class SLGLUniform : public SLEventHandler
         }
       
     private:
-        SLstring    _name;      //!< Name of the variable
-        T           _value;     //!< Current value
-        T           _max;       //!< Max. value for IncInc, IncDec & random types
-        T           _min;       //!< Min. value for IncInc, IncDec & random types
-        T           _inc;       //!< Increment value for IncInc, IncDec & Inc types
+        SLstring        _name;      //!< Name of the variable
+        T               _value;     //!< Current value
+        T               _max;       //!< Max. value for IncInc, IncDec & random types
+        T               _min;       //!< Min. value for IncInc, IncDec & random types
+        T               _inc;       //!< Increment value for IncInc, IncDec & Inc types
         SLUniformType   _type;      //!< Uniform1f type
-        SLKey       _keyInc;    //!< keyboard key incrementing const values
+        SLKey           _keyInc;    //!< keyboard key incrementing const values
 };
 //-----------------------------------------------------------------------------
 typedef SLGLUniform<SLfloat> SLGLUniform1f;

@@ -31,8 +31,10 @@
 #include <SLGrid.h>
 #include <SLLens.h>
 #include <SLCoordAxis.h>
-#include <SLCVTrackerAruco.h>
-#include <SLCVTrackerChessboard.h>
+#include <SLCVTrackedAruco.h>
+#include <SLCVTrackedChessboard.h>
+#include <SLCVTrackedFeatures.h>
+#include <SLTransferFunction.h>
 
 SLNode* SphereGroup(SLint, SLfloat, SLfloat, SLfloat, SLfloat, SLint, SLMaterial*, SLMaterial*);
 //-----------------------------------------------------------------------------
@@ -182,12 +184,6 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
     // Initialize all preloaded stuff from SLScene
     init();
 
-    // Show once the empty loading screen without scene
-    // @todo review this, we still pass in the active scene view with sv. Is it necessary?
-    for (auto sv : _sceneViews)
-        if (sv != nullptr)
-            sv->showLoading(true);
-
     // Override input scene if test scene is required
     SL::currentSceneID = (SL::noTestIsRunning()) ? sceneName :
                           SL::singleTestIsRunning() ? SL::testScene : SL::testSceneAll;
@@ -197,10 +193,13 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         _activeCalib->state() != CS_uncalibrated)
         _activeCalib->state(CS_uncalibrated);
 
-    if (SL::currentSceneID == C_sceneEmpty) //..........................................
+    // Deactivate in general the rotation sensor
+    _usesRotation = false;
+
+    if (SL::currentSceneID == C_sceneEmpty) //.....................................................
     {   
         name("No Scene loaded.");
-        info(sv, "No Scene loaded.");
+        _info = "No Scene loaded.";
         _root3D = nullptr;
         sv->sceneViewCamera()->background().colors(SLCol4f(0.7f,0.7f,0.7f), 
                                                    SLCol4f(0.2f,0.2f,0.2f));
@@ -208,11 +207,11 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         sv->waitEvents(true);
     } 
     else
-    if (SL::currentSceneID == C_sceneMinimal) //........................................
+    if (SL::currentSceneID == C_sceneMinimal) //...................................................
     {
         // Set scene name and info string
         name("Minimal Texture Example");
-        info(sv, "Minimal texture mapping example with one light source.");
+        _info = "Minimal texture mapping example with one light source.";
 
         // Create textures and materials
         SLGLTexture* texC = new SLGLTexture("earth1024_C.jpg");
@@ -220,14 +219,6 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
 
         // Create a scene group node
         SLNode* scene = new SLNode("scene node");
-
-        // Create a camera node
-        //SLCamera* cam1 = new SLCamera();
-        //cam1->name("camera node");
-        //cam1->translation(0,0,20);
-        //cam1->lookAt(0, 0, 0);
-        //cam1->setInitialState();
-        //scene->addChild(cam1);
 
         // Create a light source node
         SLLightSpot* light1 = new SLLightSpot(0.3f);
@@ -249,17 +240,14 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         // pass the scene group as root node
         _root3D = scene;
 
-        // Set active camera
-        //sv->camera(cam1);
-
         // Save energy
         sv->waitEvents(true);
     }
     else
-    if (SL::currentSceneID == C_sceneFigure) //.........................................
+    if (SL::currentSceneID == C_sceneFigure) //....................................................
     {
         name("Hierarchical Figure Scene");
-        info(sv, "Hierarchical scenegraph with multiple subgroups.");
+        _info = "Hierarchical scenegraph with multiple subgroups.";
 
         // Create textures and materials
         SLMaterial* m1 = new SLMaterial("m1", SLCol4f::BLACK, SLCol4f::WHITE,128, 0.2f, 0.8f, 1.5f);
@@ -297,10 +285,10 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         _root3D = scene;
     }
     else
-    if (SL::currentSceneID == C_sceneMeshLoad) //.......................................
+    if (SL::currentSceneID == C_sceneMeshLoad) //..................................................
     {
         name("Mesh 3D Loader Test");
-        info(sv, "3D file import test for: 3DS, DAE & FBX");
+        _info = "3D file import test for: 3DS, DAE & FBX";
 
         SLMaterial* matBlu = new SLMaterial("Blue",  SLCol4f(0,0,0.2f),       SLCol4f(1,1,1), 100, 0.8f, 0);
         SLMaterial* matRed = new SLMaterial("Red",   SLCol4f(0.2f,0,0),       SLCol4f(1,1,1), 100, 0.8f, 0);
@@ -349,7 +337,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         #endif
 
         // Start animation
-        SLAnimPlayback* charAnim = importer.skeleton()->getAnimPlayback("unnamed_anim_0");
+        SLAnimPlayback* charAnim = _animManager.lastAnimPlayback();
         charAnim->playForward();
         charAnim->playbackRate(0.8f);
 
@@ -385,10 +373,10 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         _root3D = scene;
     }
     else
-    if (SL::currentSceneID == C_sceneVRSizeTest) //.....................................
+    if (SL::currentSceneID == C_sceneVRSizeTest) //................................................
     {
         name("Virtual Reality test scene");
-        info(sv, "Test scene for virtual reality size perception.");
+        _info = "Test scene for virtual reality size perception.";
         
 
         SLAssimpImporter importer;
@@ -436,7 +424,6 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         crate->translate(2.5f, 1, -1, TS_world);
         scene->addChild(crate);
 
-        
         crate = new SLNode(crateMesh);
         crate->rotate(60, 0, 1, 0);
         crate->translate(-4, 0, 1, TS_world);
@@ -457,11 +444,12 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         cam1->camAnim(CA_walkingYUp);
         cam1->background().colors(SLCol4f(0.0f,0.0f,0.0f));
         scene->addChild(cam1);
+        cam1->setInitialState();
 
         // big astroboy
         // Start animation
         SLNode* astroboyBig = importer.load("DAE/AstroBoy/AstroBoy.dae");
-        SLAnimPlayback* charAnim = importer.skeleton()->getAnimPlayback("unnamed_anim_0");
+        SLAnimPlayback* charAnim = _animManager.lastAnimPlayback();
         charAnim->playForward();
         charAnim->playbackRate(0.8f);
 
@@ -471,7 +459,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
 
         // small astroboy on table
         SLNode* astroboySmall = importer.load("DAE/AstroBoy/AstroBoy.dae");
-        charAnim = importer.skeleton()->getAnimPlayback("unnamed_anim_0");
+        charAnim = _animManager.lastAnimPlayback();
         charAnim->playForward();
         charAnim->playbackRate(2.0f);
         
@@ -518,7 +506,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         anim->createSimpleTranslationNodeTrack(light5, SLVec3f(0.0f, 2.0f, 0.0f));
 
         SLMaterial* whiteMat = new SLMaterial("mat", SLCol4f::WHITE, SLCol4f::WHITE, 1.0f, 1.0, 0.0f, 0.0f);
-        whiteMat->emission(SLCol4f::WHITE);
+        whiteMat->emissive(SLCol4f::WHITE);
         SLRectangle* plane0 = new SLRectangle(SLVec2f(-0.01f, 0.0f), SLVec2f(0.01f, 1.0f), 1, 1, "sizeIndicator0", whiteMat);
         SLRectangle* plane1 = new SLRectangle(SLVec2f(0.005f, 0.0f), SLVec2f(-0.005f, 1.0f), 1, 1, "sizeIndicator1", whiteMat);
 
@@ -572,10 +560,10 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         _root3D = scene;
     }
     else
-    if (SL::currentSceneID == C_sceneRevolver) //.......................................
+    if (SL::currentSceneID == C_sceneRevolver) //..................................................
     {
         name("Revolving Mesh Test w. glass shader");
-        info(sv, "Examples of revolving mesh objects constructed by rotating a 2D curve. The glass shader reflects and refracts the environment map. Try ray tracing.");
+        _info = "Examples of revolving mesh objects constructed by rotating a 2D curve. The glass shader reflects and refracts the environment map. Try ray tracing.";
 
         // Test map material
         SLGLTexture* tex1 = new SLGLTexture("Testmap_0512_C.png");
@@ -728,37 +716,10 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         _root3D = scene;
     }
     else
-    if (SL::currentSceneID == C_sceneLargeModel) //.....................................
+    if (SL::currentSceneID == C_sceneLargeModel) //................................................
     {
         name("Large Model Test");
-        info(sv, "Large Model with 7.2 mio. triangles.");
-        /*
-        SLCamera* cam1 = new SLCamera();
-        cam1->name("cam1");
-        cam1->translation(10,0,220);
-        cam1->lookAt(10,0,0);
-        cam1->clipNear(0.1f);
-        cam1->clipFar(500.0f);
-        cam1->setInitialState();
-
-        SLLightSpot* light1 = new SLLightSpot(120,120,120, 1);
-        light1->ambient(SLCol4f(1,1,1));
-        light1->diffuse(SLCol4f(1,1,1));
-        light1->specular(SLCol4f(1,1,1));
-        light1->attenuation(1,0,0);
-
-        SLAssimpImporter importer;
-        SLNode* largeModel = importer.load("PLY/xyzrgb_dragon.ply");
-
-        SLNode* scene = new SLNode("Scene");
-        scene->addChild(light1);
-        if (largeModel) scene->addChild(largeModel);
-        scene->addChild(cam1);
-
-        _backColor.set(0.5f,0.5f,0.5f);
-        sv->camera(cam1);
-        _root3D = scene;
-        */
+        _info = "Large Model with 7.2 mio. triangles.";
         
         SLCamera* cam1 = new SLCamera("Camera 1");
         cam1->translation(0,0,600000);
@@ -797,10 +758,10 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         
     }
     else
-    if (SL::currentSceneID == C_sceneTextureBlend) //............................. .....
+    if (SL::currentSceneID == C_sceneTextureBlend) //..............................................
     {
         name("Blending: Texture Transparency with sorting");
-        info(sv, "Texture map blending with depth sorting. Trees in view frustum are rendered back to front.");
+        _info = "Texture map blending with depth sorting. Trees in view frustum are rendered back to front.";
 
         SLGLTexture* t1 = new SLGLTexture("tree1_1024_C.png",
                                           GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR,
@@ -894,10 +855,10 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         _root3D = scene;
     }
     else
-    if (SL::currentSceneID == C_sceneTextureFilter) //......................... ........
+    if (SL::currentSceneID == C_sceneTextureFilter) //.............................................
     {
         name("Texturing: Filter Compare and 3D texture");
-        info(sv, "Texture filters: Bottom: nearest, left: linear, top: linear mipmap, right: anisotropic");
+        _info = "Texture filters: Bottom: nearest, left: linear, top: linear mipmap, right: anisotropic";
         
         // Create 4 textures with different filter modes
         SLGLTexture* texB = new SLGLTexture("brick0512_C.png"
@@ -1000,10 +961,10 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         _root3D = scene;
     }
     else
-    if (SL::currentSceneID == C_sceneFrustumCull) //............................ .......
+    if (SL::currentSceneID == C_sceneFrustumCull) //...............................................
     {  
         name("Frustum Culling Test");
-        info(sv, "View frustum culling: Only objects in view frustum are rendered. You can turn view culling off in the render flags.");
+        _info = "View frustum culling: Only objects in view frustum are rendered. You can turn view culling off in the render flags.";
 
         // create texture
         SLGLTexture* tex = new SLGLTexture("earth1024_C.jpg");
@@ -1057,10 +1018,92 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         _root3D = scene;
     }
     else
-    if (SL::currentSceneID == C_sceneMassiveData) //....................................
+    if (SL::currentSceneID == C_scene2Dand3DText) //...............................................
     {  
+        name("2D and 3D Text Test");
+        _info = "All 3D objects are in the _root3D scene and the center text is in the _root2D scene and rendered in orthographic projection in screen space.";
+
+        SLMaterial* m1 = new SLMaterial("m1", SLCol4f::RED);
+
+        SLCamera* cam1 = new SLCamera("Camera 1");
+        cam1->clipNear(0.1f);
+        cam1->clipFar(100);
+        cam1->translation(0,0,5);
+        cam1->lookAt(0, 0, 0);
+        cam1->focalDist(5);
+        cam1->background().colors(SLCol4f(0.1f,0.1f,0.1f));
+        cam1->setInitialState();
+
+        SLLightSpot* light1 = new SLLightSpot(10, 10, 10, 0.3f);
+        light1->ambient(SLCol4f(0.2f, 0.2f, 0.2f));
+        light1->diffuse(SLCol4f(0.8f, 0.8f, 0.8f));
+        light1->specular(SLCol4f(1, 1, 1));
+        light1->attenuation(1,0,0);
+
+        // Because all text objects get their sizes in pixels we have to scale them down
+        SLfloat scale = 0.01f;
+        SLstring txt = "This is text in 3D with font07";
+        SLVec2f size = SLTexFont::font07->calcTextSize(txt);
+        SLNode* t07 = new SLText(txt, SLTexFont::font07);
+        t07->translate(-size.x*0.5f * scale, 1.0f, 0);
+        t07->scale(scale);
+
+        txt = "This is text in 3D with font09";
+        size = SLTexFont::font09->calcTextSize(txt);
+        SLNode* t09 = new SLText(txt, SLTexFont::font09);
+        t09->translate(-size.x*0.5f * scale, 0.8f, 0);
+        t09->scale(scale);
+
+        txt = "This is text in 3D with font12";
+        size = SLTexFont::font12->calcTextSize(txt);
+        SLNode* t12 = new SLText(txt, SLTexFont::font12);
+        t12->translate(-size.x*0.5f * scale, 0.6f, 0);
+        t12->scale(scale);
+
+        txt = "This is text in 3D with font20";
+        size = SLTexFont::font20->calcTextSize(txt);
+        SLNode* t20 = new SLText(txt, SLTexFont::font20);
+        t20->translate(-size.x*0.5f * scale, -0.8f, 0);
+        t20->scale(scale);
+
+        txt = "This is text in 3D with font22";
+        size = SLTexFont::font22->calcTextSize(txt);
+        SLNode* t22 = new SLText(txt, SLTexFont::font22);
+        t22->translate(-size.x*0.5f * scale, -1.2f, 0);
+        t22->scale(scale);
+
+        // Now create 2D text but don't scale it (all sizes in pixels)
+        txt = "This is text in 2D with font16";
+        size = SLTexFont::font16->calcTextSize(txt);
+        SLNode* t2D16 = new SLText(txt, SLTexFont::font16);
+        t2D16->translate(-size.x*0.5f, 0, 0);
+
+        // Assemble 3D scene as usual with camera and light
+        SLNode* scene3D = new SLNode("root3D");
+        scene3D->addChild(cam1);
+        scene3D->addChild(light1);
+        scene3D->addChild(new SLNode(new SLSphere(0.5f,32,32,"Sphere",m1)));
+        scene3D->addChild(t07);
+        scene3D->addChild(t09);
+        scene3D->addChild(t12);
+        scene3D->addChild(t20);
+        scene3D->addChild(t22);
+
+        // Assemble 2D scene
+        SLNode* scene2D = new SLNode("root2D");;
+        scene2D->addChild(t2D16);
+
+        sv->camera(cam1);
+        sv->waitEvents(true);
+
+        _root3D = scene3D;
+        _root2D = scene2D;
+    }
+    else
+    if (SL::currentSceneID == C_sceneMassiveData) //...............................................
+    {
         name("Massive Data Test");
-        info(sv, "No data is shared on the GPU. Check Memory consumption.");
+        _info = "No data is shared on the GPU. Check Memory consumption.";
 
         SLCamera* cam1 = new SLCamera("Camera 1");
         cam1->clipNear(0.1f);
@@ -1089,7 +1132,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         _eventHandlers.push_back(offset);
         sp->addUniform1f(scale);
         sp->addUniform1f(offset);
-        
+
         // create new materials for every sphere
         SLGLTexture* texC = new SLGLTexture("earth2048_C.jpg"); // color map
         SLGLTexture* texN = new SLGLTexture("earth2048_N.jpg"); // normal map
@@ -1101,7 +1144,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         for (SLint iZ=-size; iZ<=size; ++iZ)
         {   for (SLint iY=-size; iY<=size; ++iY)
             {   for (SLint iX=-size; iX<=size; ++iX)
-                {   
+                {
                     // add one single sphere in the center
                     SLint res = 30 * SL::testFactor;
                     SLSphere* earth = new SLSphere(0.3f, res, res, "earth", mat);
@@ -1118,17 +1161,17 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
     }
     else
     if (SL::currentSceneID == C_sceneShaderPerPixelBlinn ||
-        SL::currentSceneID == C_sceneShaderPerVertexBlinn) //...........................
+        SL::currentSceneID == C_sceneShaderPerVertexBlinn) //......................................
     {
-         SLMaterial* m1;
+        SLMaterial* m1;
 
         if (SL::currentSceneID == C_sceneShaderPerPixelBlinn)
         {   name("Blinn-Phong per pixel lighting");
-            info(sv, "Per-pixel lighting with Blinn-Phong lightmodel. The reflection of 5 light sources is calculated per pixel.");
+            _info = "Per-pixel lighting with Blinn-Phong lightmodel. The reflection of 5 light sources is calculated per pixel.";
             m1 = new SLMaterial("m1", 0,0,0,0, _programs[SP_perPixBlinn]);
         } else
         {   name("Blinn-Phong per vertex lighting");
-            info(sv, "Per-vertex lighting with Blinn-Phong lightmodel. The reflection of 5 light sources is calculated per vertex.");
+            _info = "Per-vertex lighting with Blinn-Phong lightmodel. The reflection of 5 light sources is calculated per vertex.";
             m1 = new SLMaterial("m1", 0,0,0,0);
         }
 
@@ -1212,10 +1255,83 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         _root3D = scene;
     }
     else
-    if (SL::currentSceneID == C_sceneShaderPerVertexWave) //............................
+    if (SL::currentSceneID == C_sceneShaderPerPixelCookTorrance) //................................
+    {
+        name("Cook-Torrance per pixel lighting");
+       _info = "Cook-Torrance light model. Left-Right: roughness 0.05-1, Top-Down: metallic: 1-0. The center sphere has roughness and metallic encoded in textures.";
+
+        // Base root group node for the scene
+        SLNode* scene = new SLNode;
+
+        SLCamera* cam1 = new SLCamera("Camera 1");
+        cam1->translation(0,0,28);
+        cam1->lookAt(0,0,0);
+        cam1->background().colors(SLCol4f(0.2f,0.2f,0.2f));
+        cam1->setInitialState();
+        scene->addChild(cam1);
+
+        // Create spheres and materials with roughness & metallic values between 0 and 1
+        const SLint nrRows = 7;
+        const SLint nrCols = 7;
+        SLfloat spacing = 2.5f;
+        SLfloat maxX = (nrCols / 2) * spacing;
+        SLfloat maxY = (nrRows / 2) * spacing;
+        SLfloat deltaR = 1.0f / (float)(nrRows-1);
+        SLfloat deltaM = 1.0f / (float)(nrCols-1);
+
+        SLMaterial* mat[nrRows * nrCols];
+        SLint i=0;
+        SLfloat y = -maxY;
+        for (SLint m=0; m<nrRows; ++m)
+        {
+            SLfloat x = -maxX;
+            for (SLint r=0; r<nrCols; ++r)
+            {
+                if (m == nrRows/2 && r == nrCols/2)
+                {
+                    // The center sphere has roughness and metallic encoded in textures
+                    mat[i] = new SLMaterial("CookTorranceMatTex",
+                                            new SLGLTexture("rusty-metal_2048C.png"),
+                                            new SLGLTexture("rusty-metal_2048N.png"),
+                                            new SLGLTexture("rusty-metal_2048M.png"),
+                                            new SLGLTexture("rusty-metal_2048R.png"),
+                                            _programs[SP_perPixCookTorranceTex]);
+                } else
+                {
+                    // Cook-Torrance material without textures
+                    mat[i] = new SLMaterial("CookTorranceMat",
+                                            SLCol4f::RED*0.5f,
+                                            SL_clamp((float)r*deltaR, 0.05f, 1.0f),
+                                            (float)m*deltaM);
+                }
+
+                SLNode* node = new SLNode(new SLSpheric(1.0f, 0.0f, 180.0f, 32, 32, "Sphere", mat[i]));
+                node->translate(x,y,0);
+                scene->addChild(node);
+                x += spacing;
+                i++;
+            }
+            y += spacing;
+        }
+
+        // Add 4 point light
+        SLLightSpot* light1 = new SLLightSpot(-maxX, maxY, maxY, 0.1f, 180.0f, 0.0f, 300, 300); light1->attenuation(0,0,1);
+        SLLightSpot* light2 = new SLLightSpot( maxX, maxY, maxY, 0.1f, 180.0f, 0.0f, 300, 300); light2->attenuation(0,0,1);
+        SLLightSpot* light3 = new SLLightSpot(-maxX,-maxY, maxY, 0.1f, 180.0f, 0.0f, 300, 300); light3->attenuation(0,0,1);
+        SLLightSpot* light4 = new SLLightSpot( maxX,-maxY, maxY, 0.1f, 180.0f, 0.0f, 300, 300); light4->attenuation(0,0,1);
+        scene->addChild(light1);
+        scene->addChild(light2);
+        scene->addChild(light3);
+        scene->addChild(light4);
+
+        sv->camera(cam1);
+        _root3D = scene;
+    }
+    else
+    if (SL::currentSceneID == C_sceneShaderPerVertexWave) //.......................................
     {
         name("Wave Shader");
-        info(sv, "Vertex Shader with wave displacment.");
+        _info = "Vertex Shader with wave displacment.";
         if (SL::noTestIsRunning())
             SL_LOG("Use H-Key to increment (decrement w. shift) the wave height.\n\n");
 
@@ -1263,10 +1379,10 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         sv->waitEvents(false);
     }
     else
-    if (SL::currentSceneID == C_sceneShaderWater) //....................................
+    if (SL::currentSceneID == C_sceneShaderWater) //...............................................
     {
         name("Water Shader");
-        info(sv, "Water Shader with reflection & refraction mapping.");
+        _info = "Water Shader with reflection & refraction mapping.";
         if (SL::noTestIsRunning())
             SL_LOG("Use H-Key to increment (decrement w. shift) the wave height.\n\n");
 
@@ -1275,6 +1391,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         cam1->lookAt(0, 0, 0);
         cam1->focalDist(8);
         cam1->background().colors(SLCol4f(0.1f,0.4f,0.8f));
+        cam1->setInitialState();
 
         // create texture
         SLGLTexture* tex1 = new SLGLTexture("Pool+X0512_C.png","Pool-X0512_C.png"
@@ -1347,10 +1464,10 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         sv->waitEvents(false);
     }
     else
-    if (SL::currentSceneID == C_sceneShaderBumpNormal) //...............................
+    if (SL::currentSceneID == C_sceneShaderBumpNormal) //..........................................
     {
         name("Normal Map Bump Mapping");
-        info(sv, "Normal map bump mapping combined with a per pixel spot lighting.");
+        _info = "Normal map bump mapping combined with a per pixel spot lighting.";
 
         // Create textures
         SLGLTexture* texC = new SLGLTexture("brickwall0512_C.jpg");
@@ -1364,6 +1481,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         cam1->lookAt(0, 0, 0);
         cam1->focalDist(20);
         cam1->background().colors(SLCol4f(0.5f,0.5f,0.5f));
+        cam1->setInitialState();
 
         SLLightSpot* light1 = new SLLightSpot(0.3f);
         light1->ambient(SLCol4f(0.1f, 0.1f, 0.1f));
@@ -1386,7 +1504,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         _root3D = scene;
     }
     else
-    if (SL::currentSceneID == C_sceneShaderBumpParallax) //.............................
+    if (SL::currentSceneID == C_sceneShaderBumpParallax) //........................................
     {
         name("Parallax Bump Mapping");
         if (SL::noTestIsRunning())
@@ -1394,7 +1512,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
             SL_LOG("Use S-Key to increment (decrement w. shift) parallax scale.\n");
             SL_LOG("Use O-Key to increment (decrement w. shift) parallax offset.\n\n");
         }
-        info(sv, "Normal map parallax mapping.");
+        _info = "Normal map parallax mapping.";
 
         // Create shader program with 4 uniforms
         SLGLProgram* sp = new SLGLGenericProgram("BumpNormal.vert", "BumpNormalParallax.frag");
@@ -1418,6 +1536,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         cam1->lookAt(0, 0, 0);
         cam1->focalDist(20);
         cam1->background().colors(SLCol4f(0.5f,0.5f,0.5f));
+        cam1->setInitialState();
 
         SLLightSpot* light1 = new SLLightSpot(0.3f);
         light1->ambient(SLCol4f(0.1f, 0.1f, 0.1f));
@@ -1440,7 +1559,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         _root3D = scene;
     }
     else
-    if (SL::currentSceneID == C_sceneShaderEarth) //....................................
+    if (SL::currentSceneID == C_sceneShaderEarth) //...............................................
     {
         name("Earth Shader from Markus Knecht");
         if (SL::noTestIsRunning())
@@ -1449,7 +1568,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
             SL_LOG("Use (SHIFT) & key X to change bias of the parallax mapping\n");
             SL_LOG("Use (SHIFT) & key C to change cloud height\n");
         }
-        info(sv, "Complex earth shader with 7 textures: daycolor, nightcolor, normal, height & gloss map of earth, color & alphamap of clouds");
+        _info = "Complex earth shader with 7 textures: daycolor, nightcolor, normal, height & gloss map of earth, color & alphamap of clouds";
 
         // Create shader program with 4 uniforms
         SLGLProgram* sp = new SLGLGenericProgram("BumpNormal.vert", "BumpNormalEarth.frag");
@@ -1490,6 +1609,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         cam1->lookAt(0, 0, 0);
         cam1->focalDist(4);
         cam1->background().colors(SLCol4f(0,0,0));
+        cam1->setInitialState();
 
         SLLightSpot* sun = new SLLightSpot();
         sun->ambient(SLCol4f(0,0,0));
@@ -1513,10 +1633,142 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         _root3D = scene;
     }
     else
-    if (SL::currentSceneID == C_sceneAnimationSkeletal) //..............................
+    if (SL::currentSceneID == C_sceneVolumeRayCastHeadMRI) //......................................
+    {
+        name("Volume Ray Cast Head MRI");
+
+        _info = "Volume Rendering of an angiographic MRI scan";
+
+        // Load volume data into 3D texture
+        SLVstring mriImages;
+        for (SLint i=0; i<207; ++i)
+            mriImages.push_back(SLUtils::formatString("i%04u_0000b.png", i));
+
+        SLint clamping3D = GL_CLAMP_TO_EDGE;
+        if (SLGLState::getInstance()->getSLVersionNO() > "320")
+            clamping3D = 0x812D; // GL_CLAMP_TO_BORDER
+
+        SLGLTexture* texMRI = new SLGLTexture(mriImages,
+                                              GL_LINEAR, GL_LINEAR,
+                                              clamping3D, clamping3D,
+                                              "mri_head_front_to_back");
+
+        // Create transfer LUT 1D texture       
+        SLVTransferAlpha tfAlphas = {SLTransferAlpha(0.00f, 0.00f),
+                                     SLTransferAlpha(0.01f, 0.75f),
+                                     SLTransferAlpha(1.00f, 1.00f)};
+        SLTransferFunction* tf = new SLTransferFunction(tfAlphas, CLUT_BCGYR);
+
+        // Load shader and uniforms for volume size
+        SLGLProgram* sp = new SLGLGenericProgram("VolumeRenderingRayCast.vert",
+                                                 "VolumeRenderingRayCast.frag");
+        SLGLUniform1f* volX = new SLGLUniform1f(UT_const, "u_volumeX", (SLfloat)texMRI->images()[0]->width());
+        SLGLUniform1f* volY = new SLGLUniform1f(UT_const, "u_volumeY", (SLfloat)texMRI->images()[0]->height());
+        SLGLUniform1f* volZ = new SLGLUniform1f(UT_const, "u_volumeZ", (SLfloat)mriImages.size());
+        sp->addUniform1f(volX);
+        sp->addUniform1f(volY);
+        sp->addUniform1f(volZ);
+
+        // Create volume rendering material
+        SLMaterial* matVR = new SLMaterial("matVR", texMRI, tf, 0, 0, sp);
+
+        // Create camera
+        SLCamera* cam1 = new SLCamera("Camera 1");
+        cam1->translation(0,0,3);
+        cam1->lookAt(0, 0, 0);
+        cam1->focalDist(3);
+        cam1->background().colors(SLCol4f(0,0,0));
+        cam1->setInitialState();
+
+        // Set light
+        SLLightSpot* light1 = new SLLightSpot(0.3f);
+        light1->ambient(SLCol4f(0.1f, 0.1f, 0.1f));
+        light1->diffuse(SLCol4f(1, 1, 1));
+        light1->specular(SLCol4f(1, 1, 1));
+        light1->attenuation(1,0,0);
+        light1->translation(5,5,5);
+
+        // Assemble scene with box node
+        SLNode* scene = new SLNode("Scene");
+        scene->addChild(light1);
+        scene->addChild(new SLNode(new SLBox(-1,-1,-1, 1,1,1, "Box", matVR)));
+        scene->addChild(cam1);
+
+        sv->camera(cam1);
+        _root3D = scene;
+    }
+    else
+    if (SL::currentSceneID == C_sceneVolumeRayCastLightedMRIHead) //...............................
+    {
+        name("Volume Ray Cast Lighted Head MRI");
+
+        _info = "Volume Rendering of an angiographic MRI scan with lighting";
+
+        // Load volume data into 3D texture
+        SLVstring mriImages;
+        for (SLint i=0; i<207; ++i)
+            mriImages.push_back(SLUtils::formatString("i%04u_0000b.png", i));
+
+        SLint clamping3D = GL_CLAMP_TO_EDGE;
+        if (SLGLState::getInstance()->getSLVersionNO() > "320")
+            clamping3D = 0x812D; // GL_CLAMP_TO_BORDER
+
+        SLGLTexture* texMRI = new SLGLTexture(mriImages,
+                                              GL_LINEAR, GL_LINEAR,
+                                              clamping3D, clamping3D,
+                                              "mri_head_front_to_back",
+                                              true);
+        texMRI->calc3DGradients(1);
+
+        // Create transfer LUT 1D texture       
+        SLVTransferAlpha tfAlphas = {SLTransferAlpha(0.00f, 0.00f),
+                                     SLTransferAlpha(0.01f, 0.75f),
+                                     SLTransferAlpha(1.00f, 1.00f)};
+        SLTransferFunction* tf = new SLTransferFunction(tfAlphas, CLUT_BCGYR);
+
+        // Load shader and uniforms for volume size
+        SLGLProgram* sp = new SLGLGenericProgram("VolumeRenderingRayCast.vert",
+                                                 "VolumeRenderingRayCastLighted.frag");
+        SLGLUniform1f* volX = new SLGLUniform1f(UT_const, "u_volumeX", (SLfloat)texMRI->images()[0]->width());
+        SLGLUniform1f* volY = new SLGLUniform1f(UT_const, "u_volumeY", (SLfloat)texMRI->images()[0]->height());
+        SLGLUniform1f* volZ = new SLGLUniform1f(UT_const, "u_volumeZ", (SLfloat)mriImages.size());
+        sp->addUniform1f(volX);
+        sp->addUniform1f(volY);
+        sp->addUniform1f(volZ);
+
+        // Create volume rendering material
+        SLMaterial* matVR = new SLMaterial("matVR", texMRI, tf, 0, 0, sp);
+
+        // Create camera
+        SLCamera* cam1 = new SLCamera("Camera 1");
+        cam1->translation(0,0,3);
+        cam1->lookAt(0, 0, 0);
+        cam1->focalDist(3);
+        cam1->background().colors(SLCol4f(0,0,0));
+        cam1->setInitialState();
+
+        // Set light
+        SLLightSpot* light1 = new SLLightSpot(0.3f);
+        light1->ambient(SLCol4f(0.1f, 0.1f, 0.1f));
+        light1->diffuse(SLCol4f(1, 1, 1));
+        light1->specular(SLCol4f(1, 1, 1));
+        light1->attenuation(1,0,0);
+        light1->translation(5,5,5);
+
+        // Assemble scene with box node
+        SLNode* scene = new SLNode("Scene");
+        scene->addChild(light1);
+        scene->addChild(new SLNode(new SLBox(-1,-1,-1, 1,1,1, "Box", matVR)));
+        scene->addChild(cam1);
+
+        sv->camera(cam1);
+        _root3D = scene;
+    }
+    else
+    if (SL::currentSceneID == C_sceneAnimationSkeletal) //.........................................
     {
         name("Skeletal Animation Test");
-        info(sv, "Skeletal Animation Test Scene");
+        _info = "Skeletal Animation Test Scene";
 
         SLAssimpImporter importer;
         
@@ -1529,6 +1781,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         cam1->lookAt(0, 2, 0);
         cam1->setInitialState();
         cam1->background().colors(SLCol4f(0.1f,0.4f,0.8f));
+        cam1->setInitialState();
         scene->addChild(cam1);
 
         // light
@@ -1551,7 +1804,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         SLNode* char1 = importer.load("DAE/AstroBoy/AstroBoy.dae");
         #endif
         char1->translate(-1,0,0);
-        SLAnimPlayback* char1Anim = importer.skeleton()->getAnimPlayback("unnamed_anim_0");
+        SLAnimPlayback* char1Anim = _animManager.lastAnimPlayback();
         char1Anim->playForward();
         scene->addChild(char1);
         
@@ -1570,7 +1823,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
                                         );
         #endif
         char2->translate(1,0,0);
-        SLAnimPlayback* char2Anim = importer.skeleton()->getAnimPlayback("unnamed_anim_0");
+        SLAnimPlayback* char2Anim = _animManager.lastAnimPlayback();
         char2Anim->playForward();
         scene->addChild(char2);
 
@@ -1581,7 +1834,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         SLNode* cube1 = importer.load("DAE/SkinnedCube/skinnedcube2.dae");
         #endif
         cube1->translate(3, 0, 0);
-        SLAnimPlayback* cube1Anim = importer.skeleton()->getAnimPlayback("unnamed_anim_0");
+        SLAnimPlayback* cube1Anim = _animManager.lastAnimPlayback();
         cube1Anim->easing(EC_inOutSine);
         cube1Anim->playForward();
         scene->addChild(cube1);
@@ -1593,7 +1846,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         SLNode* cube2 = importer.load("DAE/SkinnedCube/skinnedcube4.dae");
         #endif
         cube2->translate(-3, 0, 0);
-        SLAnimPlayback* cube2Anim = importer.skeleton()->getAnimPlayback("unnamed_anim_0");
+        SLAnimPlayback* cube2Anim = _animManager.lastAnimPlayback();
         cube2Anim->easing(EC_inOutSine);
         cube2Anim->playForward();
         scene->addChild(cube2);
@@ -1605,7 +1858,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         SLNode* cube3 = importer.load("DAE/SkinnedCube/skinnedcube5.dae");
         #endif
         cube3->translate(0, 3, 0);
-        SLAnimPlayback* cube3Anim = importer.skeleton()->getAnimPlayback("unnamed_anim_0");
+        SLAnimPlayback* cube3Anim = _animManager.lastAnimPlayback();
         cube3Anim->loop(AL_pingPongLoop);
         cube3Anim->easing(EC_inOutCubic);
         cube3Anim->playForward();
@@ -1616,10 +1869,10 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         _root3D = scene;
     }
     else
-    if (SL::currentSceneID == C_sceneAnimationNode) //..................................
+    if (SL::currentSceneID == C_sceneAnimationNode) //.............................................
     {
         name("Node Animations");
-        info(sv, "Node animations with different easing curves.");
+        _info = "Node animations with different easing curves.";
 
         // Create textures and materials
         SLGLTexture* tex1 = new SLGLTexture("Checkerboard0512_C.png");
@@ -1724,10 +1977,10 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         _root3D = scene;
     }
     else
-    if (SL::currentSceneID == C_sceneAnimationMass) //..................................
+    if (SL::currentSceneID == C_sceneAnimationMass) //.............................................
     {
         name("Mass Animation");
-        info(sv, "Performance test for transform updates from many animations.");
+        _info = "Performance test for transform updates from many animations.";
 
         init();
 
@@ -1799,10 +2052,10 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         }
     }
     else
-    if (SL::currentSceneID == C_sceneAnimationArmy) //..................................
+    if (SL::currentSceneID == C_sceneAnimationArmy) //.............................................
     {
-        info(sv, "Mass animation scene of identitcal Astroboy models");
         name("Astroboy army skinned on CPU");
+        _info = "Mass animation scene of identitcal Astroboy models";
 
 
         // Create materials
@@ -1819,8 +2072,8 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         SLCamera* cam1 = new SLCamera;
         cam1->translation(0, 20, 20);
         cam1->lookAt(0, 0, 0);
-        cam1->setInitialState();
         cam1->background().colors(SLCol4f(0.1f,0.4f,0.8f));
+        cam1->setInitialState();
 
         // Floor rectangle
         SLNode* rect = new SLNode(new SLRectangle(SLVec2f(-20,-20),
@@ -1836,7 +2089,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         SLNode* center = importer.load("DAE/AstroBoy/AstroBoy.dae");
         #endif
         //center->scale(100);
-        importer.skeleton()->getAnimPlayback("unnamed_anim_0")->playForward();
+        _animManager.lastAnimPlayback()->playForward();
 
 
         // Assemble scene
@@ -1872,18 +2125,18 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         _root3D = scene;
     }
     else
-    if (SL::currentSceneID == C_sceneVideoChristoffel) //...............................
+    if (SL::currentSceneID == C_sceneVideoChristoffel) //..........................................
     {
         name("Christoffel Tower");
-        info(sv, "Augmented Reality Christoffel Tower");
+        _info = "Augmented Reality Christoffel Tower";
         
         SLCamera* cam1 = new SLCamera("Camera 1");
         cam1->translation(0,2,60);
         cam1->lookAt(15,15,0);
         cam1->clipNear(0.1f);
         cam1->clipFar(500.0f);
-        cam1->setInitialState();
         cam1->background().texture(&_videoTexture);
+        cam1->setInitialState();
         videoType(VT_MAIN);
 
         SLLightSpot* light1 = new SLLightSpot(120,120,120, 1);
@@ -1910,11 +2163,11 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         sv->camera(cam1);
         _root3D = scene;
     }
-    if (SL::currentSceneID == C_sceneVideoTexture) //...................................
+    if (SL::currentSceneID == C_sceneVideoTexture) //..............................................
     {
         // Set scene name and info string
         name("Live Video Texture Example");
-        info(sv, "Minimal texture mapping example with live video source.");
+        _info = "Minimal texture mapping example with live video source.";
 
         // Back wall material with live video texture
         SLMaterial* m1 = new SLMaterial("mat3", &_videoTexture);
@@ -1955,11 +2208,11 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
     if (SL::currentSceneID == C_sceneVideoTrackChessMain ||
         SL::currentSceneID == C_sceneVideoTrackChessScnd ||
         SL::currentSceneID == C_sceneVideoCalibrateMain ||
-        SL::currentSceneID == C_sceneVideoCalibrateScnd) //.............................
+        SL::currentSceneID == C_sceneVideoCalibrateScnd) //........................................
     {
         /*
         The tracking of markers is done in SLScene::onUpdate by calling the specific
-        SLCVTracker::track method. If a marker was found it overwrites the linked nodes
+        SLCVTracked::track method. If a marker was found it overwrites the linked nodes
         object matrix (SLNode::_om). If the linked node is the active camera the found
         transform is additionally inversed. This would be the standard augmented realtiy
         use case.
@@ -1982,6 +2235,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         if (SL::currentSceneID == C_sceneVideoCalibrateMain)
         {   videoType(VT_MAIN);
             _activeCalib->clear();
+
             name("Calibrate Main Camera");
         } else
         if (SL::currentSceneID == C_sceneVideoCalibrateScnd)
@@ -2010,6 +2264,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         cam1->clipFar(10);
         cam1->fov(_activeCalib->cameraFovDeg());
         cam1->background().texture(&_videoTexture);
+        cam1->setInitialState();
         scene->addChild(cam1);
 
         // Create a light source node
@@ -2032,7 +2287,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         }
 
         // Create OpenCV Tracker for the box node
-        _trackers.push_back(new SLCVTrackerChessboard(cam1));
+        _trackers.push_back(new SLCVTrackedChessboard(cam1));
         
         // pass the scene group as root node
         _root3D = scene;
@@ -2043,11 +2298,11 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
     }
     else
     if (SL::currentSceneID == C_sceneVideoTrackArucoMain ||
-        SL::currentSceneID == C_sceneVideoTrackArucoScnd) //............................
+        SL::currentSceneID == C_sceneVideoTrackArucoScnd) //.......................................
     {
         /*
         The tracking of markers is done in SLScene::onUpdate by calling the specific
-        SLCVTracker::track method. If a marker was found it overwrites the linked nodes
+        SLCVTracked::track method. If a marker was found it overwrites the linked nodes
         object matrix (SLNode::_om). If the linked node is the active camera the found
         transform is additionally inversed. This would be the standard augmented realtiy
         use case.
@@ -2056,11 +2311,11 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         if (SL::currentSceneID == C_sceneVideoTrackArucoMain)
         {   videoType(VT_MAIN);
             name("Track Aruco Marker on main camera");
-            info(sv, "Hold Aruco Marker 0 and/or 1 into the field of view of the secondary camera.");
+            _info = "Hold Aruco Marker 0 and/or 1 into the field of view of the main camera. You can find the Aruco markers in the file _data/Calibrations/ArucoMarkersDict0_Marker0-9.pdf";
         } else
         {   videoType(VT_SCND);
             name("Track Aruco Marker on secondary camera");
-            info(sv, "Hold Aruco Marker 0 and/or 1 into the field of view of the secondary camera.");
+            _info = "Hold Aruco Marker 0 and/or 1 into the field of view of the secondary camera. You can find the Aruco markers in the file _data/Calibrations/ArucoMarkersDict0_Marker0-9.pdf";
         }
 
         // Material
@@ -2076,6 +2331,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         cam1->lookAt(0, 0, 0);
         cam1->fov(_activeCalib->cameraFovDeg());
         cam1->background().texture(&_videoTexture);
+        cam1->setInitialState();
         scene->addChild(cam1);
 
         // Create a light source node
@@ -2085,7 +2341,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         scene->addChild(light1);
 
         // Get the half edge length of the aruco marker
-        SLfloat edgeLen = SLCVTrackerAruco::params.edgeLength;
+        SLfloat edgeLen = SLCVTrackedAruco::params.edgeLength;
         SLfloat he = edgeLen * 0.5f;
         
         // Build mesh & node that will be tracked by the 1st marker (camera)  
@@ -2110,8 +2366,8 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         scene->addChild(boxNode2);
 
         // Create OpenCV Tracker for the camera & the 2nd box node
-        _trackers.push_back(new SLCVTrackerAruco(cam1, 0));
-        _trackers.push_back(new SLCVTrackerAruco(boxNode2, 1));
+        _trackers.push_back(new SLCVTrackedAruco(cam1, 0));
+        _trackers.push_back(new SLCVTrackedAruco(boxNode2, 1));
         
         // pass the scene group as root node
         _root3D = scene;
@@ -2123,79 +2379,78 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         sv->waitEvents(false);
     }
     else
-    if (SL::currentSceneID == C_sceneVideoTrackFeat2DMain) //...........................
+    if (SL::currentSceneID == C_sceneVideoTrackFeature2DMain) //...................................
     {
         /*
         The tracking of markers is done in SLScene::onUpdate by calling the specific
-        SLCVTracker::track method. If a marker was found it overwrites the linked nodes
+        SLCVTracked::track method. If a marker was found it overwrites the linked nodes
         object matrix (SLNode::_om). If the linked node is the active camera the found
         transform is additionally inversed. This would be the standard augmented realtiy
         use case.
         */
 
-        name("Track or Create 2D-Feature Marker");
+        name("2D Feature Tracking");
+        _info = "Augmented Reality 2D Feature Tracking: You need to print out the stones image target from the file _data/calibrations/vuforia_markers.pdf";
 
-        //if (_calibration.state() == CS_calibrated)
-        //{   stringstream ss; 
-        //    ss << "Camera calibration: fov: " << _calibration.cameraFovDeg() << 
-        //          ", error: " << _calibration.reprojectionError();
-        //    info(sv, ss.str());
-        //} else
-        //    info(sv, "Tap on the screen to create a calibration foto: ");
-        
-        // Material
-        SLMaterial* yellow = new SLMaterial("mY", SLCol4f::YELLOW);
-
-        // Get the edge length of a chessboard
-        SLfloat e1 = _activeCalib->boardSquareM();
-        SLfloat e3 = e1 * 3.0f;
-        SLfloat e9 = e3 * 3.0f;
-
-        // Create a scene group node
-        SLNode* scene = new SLNode("scene node");
-
-        // Create a camera node
         SLCamera* cam1 = new SLCamera("Camera 1");
-        cam1->translation(0,0,5);
-        cam1->lookAt(0, 0, 0);
-        cam1->fov(_activeCalib->cameraFovDeg());
+        cam1->translation(0,2,60);
+        cam1->lookAt(15,15,0);
+        cam1->clipNear(0.1f);
+        cam1->clipFar(1000.0f); // Increase to infinity?
+        cam1->setInitialState();
         cam1->background().texture(&_videoTexture);
         videoType(VT_MAIN);
+
+        SLLightSpot* light1 = new SLLightSpot(420,420,420, 1);
+        light1->ambient(SLCol4f(1,1,1));
+        light1->diffuse(SLCol4f(1,1,1));
+        light1->specular(SLCol4f(1,1,1));
+        light1->attenuation(1,0,0);
+
+        SLLightSpot* light2 = new SLLightSpot(-450,-340,420, 1);
+        light2->ambient(SLCol4f(1,1,1));
+        light2->diffuse(SLCol4f(1,1,1));
+        light2->specular(SLCol4f(1,1,1));
+        light2->attenuation(1,0,0);
+
+        SLLightSpot* light3 = new SLLightSpot(450,-370,0, 1);
+        light3->ambient(SLCol4f(1,1,1));
+        light3->diffuse(SLCol4f(1,1,1));
+        light3->specular(SLCol4f(1,1,1));
+        light3->attenuation(1,0,0);
+
+        // Christoffel tower
+        SLAssimpImporter importer;
+        #if defined(SL_OS_IOS) || defined(SL_OS_ANDROID)
+        SLNode* tower = importer.load("christoffelturm.obj");
+        #else
+        SLNode* tower = importer.load("Wavefront-OBJ/Christoffelturm/christoffelturm.obj");
+        #endif
+        tower->rotate(180, 1,0,0);
+        tower->translate(80, -80, 0);
+        tower->scale(4);
+
+        // Scene structure
+        SLNode* scene = new SLNode("Scene");
+        scene->addChild(light1);
+        scene->addChild(light2);
+        scene->addChild(light3);
+        if (tower) scene->addChild(tower);
         scene->addChild(cam1);
 
-        // Create a light source node
-        SLLightSpot* light1 = new SLLightSpot(e1*0.5f);
-        light1->translate(e9,e9,e9);
-        light1->name("light node");
-        scene->addChild(light1);
-        
-        // Build mesh & node that will be tracked by the camera marker  
-        SLBox* box = new SLBox(0.0f, 0.0f, 0.0f, e3, e3, e3, "Box", yellow);
-        SLNode* boxNode = new SLNode(box, "Box Node");
-        boxNode->setDrawBitsRec(SL_DB_WIREMESH, true);
-        boxNode->setDrawBitsRec(SL_DB_CULLOFF, true);
-        SLNode* axisNode = new SLNode(new SLCoordAxis(),"Axis Node");
-        axisNode->setDrawBitsRec(SL_DB_WIREMESH, false);
-        axisNode->scale(e3);
-        boxNode->addChild(axisNode);
+        _trackers.push_back(new SLCVTrackedFeatures(cam1, "features_stones.png"));
 
-        scene->addChild(boxNode);
-
-        // Create OpenCV Tracker for the box node
-        //_trackers.push_back(new SLCVTrackerChessboard(cam1));
-        
-        // pass the scene group as root node
-        _root3D = scene;
-
-        // Set active camera
+        sv->waitEvents(false); // for constant video feed
         sv->camera(cam1);
-        sv->waitEvents(false);
+
+        _root3D = scene;
+        _usesRotation = true;
     }
     else
-    if (SL::currentSceneID == C_sceneRTMuttenzerBox) //.................................
+    if (SL::currentSceneID == C_sceneRTMuttenzerBox) //............................................
     {
         name("Muttenzer Box (RT)");
-        info(sv, "Muttenzer Box with environment mapped reflective sphere and transparenz refractive glass sphere. Try ray tracing for real reflections and soft shadows.");
+        _info = "Muttenzer Box with environment mapped reflective sphere and transparenz refractive glass sphere. Try ray tracing for real reflections and soft shadows.";
       
         // Create reflection & glass shaders
         SLGLProgram* sp1 = new SLGLGenericProgram("Reflect.vert", "Reflect.frag");
@@ -2216,6 +2471,10 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         SLMaterial* cream = new SLMaterial("cream", grayRGB,  SLCol4f::BLACK, 0);
         SLMaterial* red   = new SLMaterial("red",   redRGB ,  SLCol4f::BLACK, 0);
         SLMaterial* blue  = new SLMaterial("blue",  blueRGB,  SLCol4f::BLACK, 0);
+        SLMaterial* gray  = new SLMaterial("gray",  SLCol4f::WHITE*0.3f, SLCol4f::WHITE*10, 250, 0);
+        SLMaterial* black = new SLMaterial("black",  SLCol4f::WHITE*0.2f, SLCol4f::WHITE*10, 250, 0);
+        //black->diffuse(SLCol4f(0.1f,0.1f,0.1f, 0.1f));
+
 
         // Material for mirror sphere
         SLMaterial* refl=new SLMaterial("refl", blackRGB, SLCol4f::WHITE, 1000, 1.0f);
@@ -2225,7 +2484,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         // Material for glass sphere
         SLMaterial* refr=new SLMaterial("refr", blackRGB, blackRGB, 100, 0.05f, 0.95f, 1.5f);
         refr->translucency(1000);
-        refr->transmission(SLCol4f::WHITE);
+        refr->transmissiv(SLCol4f::WHITE);
         refr->textures().push_back(tex1);
         refr->program(sp2);
    
@@ -2245,10 +2504,13 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         lightRect->translate(0.0f, -0.25f, 1.18f, TS_object);
         lightRect->spotCutOffDEG(90);
         lightRect->spotExponent(1.0);
+        lightRect->ambient(SLCol4f::BLACK);
         lightRect->diffuse(lightEmisRGB);
+        //lightRect->specular(SLCol4f::BLACK);
         lightRect->attenuation(0,0,1);
         lightRect->samplesXY(11, 7);
 
+        //_globalAmbiLight.set(SLCol4f::BLACK);
         _globalAmbiLight.set(lightEmisRGB*0.05f);
 
         // create camera
@@ -2258,6 +2520,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         cam1->fov(27);
         cam1->focalDist(6.35f);
         cam1->background().colors(SLCol4f(0.0f,0.0f,0.0f));
+        cam1->setInitialState();
       
         // assemble scene
         SLNode* scene = new SLNode;
@@ -2295,10 +2558,10 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         _root3D = scene;
     }
     else
-    if (SL::currentSceneID == C_sceneRTSpheres) //......................................
+    if (SL::currentSceneID == C_sceneRTSpheres) //.................................................
     {
         name("Ray tracing Spheres");
-        info(sv, "Classic ray tracing scene with transparent and reflective spheres. Be patient on mobile devices.");
+        _info = "Classic ray tracing scene with transparent and reflective spheres. Be patient on mobile devices.";
 
         // define materials
         SLMaterial* matGla = new SLMaterial("Glass", SLCol4f(0.0f, 0.0f, 0.0f),
@@ -2316,6 +2579,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         cam1->lookAt(0, 0, 0);
         cam1->focalDist(4);
         cam1->background().colors(SLCol4f(0.1f,0.4f,0.8f));
+        cam1->setInitialState();
 
         SLNode *rect = new SLNode(new SLRectangle(SLVec2f(-3,-3), SLVec2f(5,4), 20*SL::testFactor, 20, "Floor", matYel));
         rect->rotate(90, -1,0,0);
@@ -2344,10 +2608,10 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         sv->camera(cam1);
     }
     else
-    if (SL::currentSceneID == C_sceneRTSoftShadows) //..................................
+    if (SL::currentSceneID == C_sceneRTSoftShadows) //.............................................
     {
         name("Ray tracing soft shadows");
-        info(sv, "Ray tracing with soft shadow light sampling. Each light source is sampled 64x per pixel. Be patient on mobile devices.");
+        _info = "Ray tracing with soft shadow light sampling. Each light source is sampled 64x per pixel. Be patient on mobile devices.";
 
         // define materials
         SLCol4f spec(0.8f, 0.8f, 0.8f);
@@ -2360,6 +2624,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         cam1->lookAt(0, 0, 0);
         cam1->focalDist(6);
         cam1->background().colors(SLCol4f(0.1f,0.4f,0.8f));
+        cam1->setInitialState();
         
         SLint res = 30 * SL::testFactor;
         SLNode* rect = new SLNode(new SLRectangle(SLVec2f(-3,-3), SLVec2f(5,4), res, res, "Rect", matYel));
@@ -2394,7 +2659,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         _root3D = scene;
     }
     else
-    if (SL::currentSceneID == C_sceneRTDoF) //..........................................
+    if (SL::currentSceneID == C_sceneRTDoF) //.....................................................
     {
         name("Ray tracing: Depth of Field");
 
@@ -2417,7 +2682,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         stringstream ss;
         ss << "Ray tracing with depth of field blur. Each pixel is sampled " <<
                 numSamples*numSamples << "x from a lens. Be patient on mobile devices.";
-        info(sv, ss.str());
+        _info =  ss.str();
 
         SLCamera* cam1 = new SLCamera("Camera 1");
         cam1->translation(0, 2, 7);
@@ -2425,8 +2690,8 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         cam1->focalDist(7);
         cam1->lensDiameter(0.4f);
         cam1->lensSamples()->samples(numSamples, numSamples);
-        cam1->setInitialState();
         cam1->background().colors(SLCol4f(0.1f,0.4f,0.8f));
+        cam1->setInitialState();
         
         SLint res = 30 * SL::testFactor;
         SLNode* rect = new SLNode(new SLRectangle(SLVec2f(-5,-5), SLVec2f(5,5), res, res, "Rect", mT));
@@ -2456,10 +2721,10 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         _root3D = scene;
     }
     else
-    if (SL::currentSceneID == C_sceneRTLens) //.........................................
+    if (SL::currentSceneID == C_sceneRTLens) //....................................................
 	{
         name("Ray tracing: Lens test");
-        info(sv,"Ray tracing lens test scene.");
+        _info = "Ray tracing lens test scene.";
 
         // Create textures and materials
         SLGLTexture* texC = new SLGLTexture("VisionExample.png");
@@ -2514,7 +2779,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
 
         // Lens with radius
         //SLNode* lensC = new SLNode(new SLLens(5.0, 4.0, 4.0f, 0.0f, 32, 32, "presbyopic", matLens));        // Weitsichtig
-        SLNode* lensD = new SLNode(new SLLens(-15.0f, -15.0f, 1.0f, 0.1f, res, res, "myopic", matLens));          // Kurzsichtig
+        SLNode* lensD = new SLNode(new SLLens(-15.0f, -15.0f, 1.0f, 0.1f, res, res, "myopic", matLens));      // Kurzsichtig
         //lensC->translate(-2, 1, 2, TS_Object);
         lensD->translate(0, 6, 0, TS_object);
 
@@ -2532,11 +2797,11 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         _root3D = scene;
     }
     else
-    if (SL::currentSceneID == C_sceneRTTest) //.........................................
+    if (SL::currentSceneID == C_sceneRTTest) //....................................................
     {
         // Set scene name and info string
         name("RT Test Scene");
-        info(sv, "RT Test Scene");
+        _info = "RT Test Scene";
 
         // Create a camera node
         SLCamera* cam1 = new SLCamera("Camera 1");
@@ -2576,13 +2841,6 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
     // More test settings
     if (!SL::noTestIsRunning())
     {
-        sv->showInfo(false);
-        sv->showMenu(false);
-        sv->showStatsTiming(false);
-        sv->showStatsRenderer(false);
-        sv->showStatsScene(false);
-        sv->showStatsCamera(false);
-        sv->showStatsVideo(false);
         sv->waitEvents(false);
     }
 
@@ -2590,7 +2848,6 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
     for (auto sv : _sceneViews)
     {   if (sv != nullptr)
         {   sv->onInitialize();
-            sv->showLoading(false);
         }
     }
 

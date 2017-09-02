@@ -43,12 +43,12 @@ SLGLTexture::SLGLTexture()
 }
 //-----------------------------------------------------------------------------
 //! ctor 2D textures with internal image allocation
-SLGLTexture::SLGLTexture(SLstring  filename,
-                         SLint     min_filter,
-                         SLint     mag_filter,
-                         SLTextureType type,
-                         SLint     wrapS,
-                         SLint     wrapT) : 
+SLGLTexture::SLGLTexture(SLstring       filename,
+                         SLint          min_filter,
+                         SLint          mag_filter,
+                         SLTextureType  type,
+                         SLint          wrapS,
+                         SLint          wrapT) :
             SLObject(SLUtils::getFileName(filename), filename)
 {  
     assert(filename!="");
@@ -76,24 +76,58 @@ SLGLTexture::SLGLTexture(SLstring  filename,
 //! ctor for 3D texture
 SLGLTexture::SLGLTexture(SLVstring files,
                          SLint     min_filter,
-                         SLint     mag_filter)
+                         SLint     mag_filter,
+                         SLint     wrapS,
+                         SLint     wrapT,
+                         SLstring  name, 
+                         SLbool    loadGrayscaleIntoAlpha) : SLObject(name)
 {
     assert(files.size() > 1);
+
     _stateGL = SLGLState::getInstance();
     _texType = TT_color;
 
     for (auto filename : files)
-        load(filename);
+        load(filename, true, loadGrayscaleIntoAlpha);
 
     _min_filter   = min_filter;
     _mag_filter   = mag_filter;
-    _wrap_s       = GL_REPEAT;
-    _wrap_t       = GL_REPEAT;
-    #ifdef SL_GLES2
-    _target       = GL_TEXTURE_2D;
-    #else
+    _wrap_s       = wrapS;
+    _wrap_t       = wrapT;
     _target       = GL_TEXTURE_3D;
-    #endif
+    _texName      = 0;
+    _bumpScale    = 1.0f;
+    _resizeToPow2 = false;
+    _autoCalcTM3D = true;
+    _needsUpdate  = false;
+    _bytesOnGPU   = 0;
+
+    // Add pointer to the global resource vectors for deallocation
+    SLScene::current->textures().push_back(this);
+}
+//-----------------------------------------------------------------------------
+//! ctor for 1D texture
+SLGLTexture::SLGLTexture(SLVCol4f  colors,
+                         SLint     min_filter,
+                         SLint     mag_filter,
+                         SLint     wrapS,
+                         SLstring  name) : SLObject(name)
+{
+    assert(colors.size() > 1);
+
+    _stateGL = SLGLState::getInstance();
+    _texType = TT_color;
+
+    load(colors);
+
+    _min_filter   = min_filter;
+    _mag_filter   = mag_filter;
+    _wrap_s       = wrapS;
+    _wrap_t       = wrapS;
+
+    // OpenGL ES doesn't define 1D textures. We just make a 1 pixel high 2D texture
+    _target       = GL_TEXTURE_2D;
+
     _texName      = 0;
     _bumpScale    = 1.0f;
     _resizeToPow2 = false;
@@ -164,8 +198,10 @@ void SLGLTexture::clearData()
     _vaoSprite.clearAttribs();
 }
 //-----------------------------------------------------------------------------
-//! Loads the texture, converts color depth & applies the mirroring
-void SLGLTexture::load(SLstring filename)
+//! Loads the texture, converts color depth & applies vertical mirroring
+void SLGLTexture::load(SLstring filename, 
+                       SLbool flipVertical, 
+                       SLbool loadGrayscaleIntoAlpha)
 {
     // Load the file directly
     if (!SLFileSystem::fileExists(filename))
@@ -176,7 +212,17 @@ void SLGLTexture::load(SLstring filename)
         }
     }
     
-    _images.push_back(new SLCVImage(filename));
+    _images.push_back(new SLCVImage(filename, 
+                                    flipVertical, 
+                                    loadGrayscaleIntoAlpha));
+}
+//-----------------------------------------------------------------------------
+//! Loads the 1D color data into an image of height 1
+void SLGLTexture::load(const SLVCol4f& colors)
+{
+    assert(colors.size() > 1);
+
+    _images.push_back(new SLCVImage(colors));
 }
 //-----------------------------------------------------------------------------
 void SLGLTexture::setVideoImage(SLstring videoImageFile)
@@ -194,6 +240,7 @@ void SLGLTexture::setVideoImage(SLstring videoImageFile)
 \param camHeight Height in pixels of the camera image
 \param srcFormat Pixel format according to the OpenGL pixel formats
 \param data Pointer to the first byte of the first pixel
+\param isContinuous Flag if the next line comes after the last byte of the prev. line
 \param isTopLeft Flag if the data pointer points to the top left pixel
 \return Returns true if the texture was rebuilt
 It is important that passed pixel format is either PF_LUMINANCE, RGB or RGBA.
@@ -257,7 +304,7 @@ void SLGLTexture::build(SLint texID)
         if (w2!=_images[0]->width() || h2!=_images[0]->height())
             _images[0]->resize(w2, h2);
     }
-    
+
     // check 2D size
     if (_target == GL_TEXTURE_2D)
     {   if (_images[0]->width()  > (SLuint)texMaxSize)
@@ -265,8 +312,7 @@ void SLGLTexture::build(SLint texID)
         if (_images[0]->height() > (SLuint)texMaxSize)
             SL_EXIT_MSG("SLGLTexture::build: Texture height is too big.");
     }
-    
-    #ifndef SL_GLES2
+
     // check 3D size
     if (_target == GL_TEXTURE_3D)
     {   SLint texMax3DSize=0;
@@ -281,7 +327,6 @@ void SLGLTexture::build(SLint texID)
                 SL_EXIT_MSG("SLGLTexture::build: Not all images of the 3D texture have the same size.");
         }
     }
-    #endif
       
     // check cube mapping capability & max. cube map size
     if (_target==GL_TEXTURE_CUBE_MAP)
@@ -327,6 +372,12 @@ void SLGLTexture::build(SLint texID)
     // apply texture wrapping modes
     glTexParameteri(_target, GL_TEXTURE_WRAP_S, _wrap_s);
     glTexParameteri(_target, GL_TEXTURE_WRAP_T, _wrap_t);
+    glTexParameteri(_target, GL_TEXTURE_WRAP_R, _wrap_t);
+
+    // Handle special stupid case on iOS
+    SLint internalFormat = _images[0]->format();
+    if (internalFormat==PF_red)
+        internalFormat = GL_R8;
       
     // Build textures
     if (_target == GL_TEXTURE_2D)
@@ -334,7 +385,7 @@ void SLGLTexture::build(SLint texID)
         //////////////////////////////////////////
         glTexImage2D(GL_TEXTURE_2D,
                      0, 
-                     _images[0]->format(),
+                     internalFormat,
                      _images[0]->width(),
                      _images[0]->height(),
                      0,
@@ -342,6 +393,8 @@ void SLGLTexture::build(SLint texID)
                      GL_UNSIGNED_BYTE, 
                      (GLvoid*)_images[0]->data());
         //////////////////////////////////////////
+        
+        GET_GL_ERROR;
 
         _bytesOnGPU += _images[0]->bytesPerImage();
         
@@ -358,15 +411,43 @@ void SLGLTexture::build(SLint texID)
         }
 
         numBytesInTextures += _bytesOnGPU;
-    } 
-    else if (_target == GL_TEXTURE_CUBE_MAP)
+    } else
+    if (_target == GL_TEXTURE_3D)
+    {
+        // temporary buffer for 3D image data
+        SLVuchar buffer(_images[0]->bytesPerImage() * _images.size());
+        SLuchar* imageData = &buffer[0];
+
+        // copy each image data into temp. buffer
+        for (SLCVImage* img : _images)
+        {   memcpy(imageData, img->data(), img->bytesPerImage());
+            imageData += img->bytesPerImage();
+            _bytesOnGPU += _images[0]->bytesPerImage();
+        }
+        
+        /////////////////////////////////////////////////////
+        glTexImage3D(GL_TEXTURE_3D,
+                     0,                     //Mipmap level,
+                     internalFormat,        //Internal format
+                     _images[0]->width(),
+                     _images[0]->height(),
+                     (SLsizei)_images.size(),
+                     0,                     //Border
+                     _images[0]->format(),  //Format
+                     GL_UNSIGNED_BYTE,      //Data type
+                     &buffer[0]);
+        /////////////////////////////////////////////////////
+        
+        numBytesInTextures += _bytesOnGPU;
+    } else
+    if (_target == GL_TEXTURE_CUBE_MAP)
     {
         for (SLint i=0; i<6; i++)
         {
             //////////////////////////////////////////////
             glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X+i,
-                         0, 
-                         _images[i]->format(),
+                         0,
+                         internalFormat,
                          _images[i]->width(),
                          _images[i]->height(),
                          0,
@@ -387,36 +468,6 @@ void SLGLTexture::build(SLint texID)
             _bytesOnGPU = (SLuint)((SLfloat)_bytesOnGPU * 1.333333333f);
         }
     }
-    #ifndef SL_GLES2
-    else if (_target == GL_TEXTURE_3D)
-    {
-        // temporary buffer for 3D image data
-        SLVuchar buffer(_images[0]->bytesPerImage() * _images.size());
-        SLuchar* imageData = &buffer[0];
-
-        // copy each image data into temp. buffer
-        for (SLCVImage* img : _images)
-        {   memcpy(imageData, img->data(), img->bytesPerImage());
-            imageData += img->bytesPerImage();
-            _bytesOnGPU += _images[0]->bytesPerImage();
-        }
-        
-        /////////////////////////////////////////////////////
-        glTexImage3D(GL_TEXTURE_3D,
-                     0,                     //Mipmap level,
-                     _images[0]->format(),  //Internal format
-                     _images[0]->width(),
-                     _images[0]->height(),
-                     (SLsizei)_images.size(),
-                     0,                     //Border
-                     _images[0]->format(),  //Format
-                     GL_UNSIGNED_BYTE,      //Data type
-                     &buffer[0]);
-        /////////////////////////////////////////////////////
-        
-        numBytesInTextures += _bytesOnGPU;
-    }
-    #endif
 
     GET_GL_ERROR;
 }
@@ -588,6 +639,9 @@ SLTextureType SLGLTexture::detectType(SLstring filename)
     if (appendix=="_N") return TT_normal;
     if (appendix=="_H") return TT_height;
     if (appendix=="_G") return TT_gloss;
+    if (appendix=="_R") return TT_roughness;
+    if (appendix=="_M") return TT_metallic;
+    if (appendix=="_F") return TT_font;
     return TT_color;
 }
 //-----------------------------------------------------------------------------
@@ -670,8 +724,116 @@ SLstring SLGLTexture::typeName()
         case TT_normal:  return "normal map"; break;
         case TT_height:  return "hight map"; break;
         case TT_gloss:   return "gloss map"; break;
+        case TT_roughness:   //*_R.{ext} Cook-Torrance roughness 0-1
+        case TT_metallic:    //*_M.{ext} Cook-Torrance metallic 0-1
         case TT_font:    return "font map"; break;
         default: return "Unknown type";
+    }
+}
+//-----------------------------------------------------------------------------
+/*! SLGLTexture::calc3DGradients calculates the normals based on the 3D
+gradient of all images and stores them in the RGB components.
+\param sampleRadius Distance from center to calculate the gradient
+*/
+void SLGLTexture::calc3DGradients(SLint sampleRadius)
+{
+    SLint r    = sampleRadius;
+    SLint volX = _images[0]->width();
+    SLint volY = _images[0]->height();
+    SLint volZ = (SLint)_images.size();
+    SLfloat oneOver255 = 1.0f / 255.0f;
+
+    // check that all images in depth have the same size
+    for (auto img : _images)
+        if (img->width() != volX || img->height() != volY || img->format()!= PF_rgba)
+            SL_EXIT_MSG("SLGLTexture::calc3DGradients: Not all images have the same size!");
+
+
+    for (int z = r; z < volZ-r; ++z)
+    {
+        for (int y = r; y < volY-r; ++y)
+        {
+            for (int x = r; x < volX-r; ++x)
+            {
+                // Calculate the min & max vectors
+                SLVec3f min, max;
+                min.x = (SLfloat)_images[z  ]->cvMat().at<cv::Vec4b>(y  , x-r)[3] * oneOver255;
+                max.x = (SLfloat)_images[z  ]->cvMat().at<cv::Vec4b>(y  , x+r)[3] * oneOver255;
+                min.y = (SLfloat)_images[z  ]->cvMat().at<cv::Vec4b>(y-r, x  )[3] * oneOver255;
+                max.y = (SLfloat)_images[z  ]->cvMat().at<cv::Vec4b>(y+r, x  )[3] * oneOver255;
+                min.z = (SLfloat)_images[z-r]->cvMat().at<cv::Vec4b>(y  , x  )[3] * oneOver255;
+                max.z = (SLfloat)_images[z+r]->cvMat().at<cv::Vec4b>(y  , x  )[3] * oneOver255;
+
+                // Calculate normal as the difference between max & min
+                SLVec3f normal = max - min;
+                SLfloat length = normal.length();
+                if (length > 0.0001f)
+                     normal /= length;
+                else normal.set(0,0,0);
+
+                // Store normal in the rgb channels. Scale range from -1 - 1 to 0 - 1 to 0 - 255
+                normal += 1.0f;
+                _images[z]->cvMat().at<cv::Vec4b>(y,x)[0] = (SLuchar)(normal.x * 0.5f * 255.0f);
+                _images[z]->cvMat().at<cv::Vec4b>(y,x)[1] = (SLuchar)(normal.y * 0.5f * 255.0f);
+                _images[z]->cvMat().at<cv::Vec4b>(y,x)[2] = (SLuchar)(normal.z * 0.5f * 255.0f);
+            }
+        }
+    }
+
+    smooth3DGradients(1);
+
+    // Debug check
+    //for (auto img : _images)
+    //   img->savePNG(img->path() + "Normals_" + img->name());
+}
+//-----------------------------------------------------------------------------
+/*! SLGLTexture::smooth3DGradients smooths the 3D gradients in the RGB channels
+of all images.
+\param smoothRadius Soothing radius
+*/
+void SLGLTexture::smooth3DGradients(SLint smoothRadius)
+{
+    SLint r    = smoothRadius;
+    SLint volX = _images[0]->width();
+    SLint volY = _images[0]->height();
+    SLint volZ = (SLint)_images.size();
+    SLfloat oneOver255 = 1.0f / 255.0f;
+
+    // check that all images in depth have the same size
+    for (auto img : _images)
+        if (img->width() != volX || img->height() != volY || img->format()!= PF_rgba)
+            SL_EXIT_MSG("SLGLTexture::calc3DGradients: Not all images have the same size3@!");
+
+    //@todo This is very slow and should be implemented as separable filter
+    for (int z = r; z < volZ-r; ++z)
+    {
+        for (int y = r; y < volY-r; ++y)
+        {
+            for (int x = r; x < volX-r; ++x)
+            {
+                SLVec3f filtered(0,0,0);
+
+                // box filter (= average)
+                SLint  num = 0;
+                for (int fz = z - r; fz <= z + r; ++fz)
+                {   for (int fy = y - r; fy <= y + r; ++fy)
+                    {   for (int fx = x - r; fx <= x + r; ++fx)
+                        {   filtered += SLVec3f((SLfloat)_images[fz]->cvMat().at<cv::Vec4b>(fy,fx)[0] * oneOver255 * 2.0f - 1.0f,
+                                                (SLfloat)_images[fz]->cvMat().at<cv::Vec4b>(fy,fx)[1] * oneOver255 * 2.0f - 1.0f,
+                                                (SLfloat)_images[fz]->cvMat().at<cv::Vec4b>(fy,fx)[2] * oneOver255 * 2.0f - 1.0f);
+                            num++;
+                        }
+                    }
+                }
+                filtered /= (SLfloat)num;
+
+                // Store normal in the rgb channels. Scale range from -1 - 1 to 0 - 1 to 0 - 255
+                filtered += 1.0f;
+                _images[z]->cvMat().at<cv::Vec4b>(y,x)[0] = (SLuchar)(filtered.x * 0.5f * 255.0f);
+                _images[z]->cvMat().at<cv::Vec4b>(y,x)[1] = (SLuchar)(filtered.y * 0.5f * 255.0f);
+                _images[z]->cvMat().at<cv::Vec4b>(y,x)[2] = (SLuchar)(filtered.z * 0.5f * 255.0f);
+            }
+        }
     }
 }
 //-----------------------------------------------------------------------------

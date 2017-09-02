@@ -1,0 +1,5 @@
+# Ignored files
+debug/
+release/
+ui_qtMainWindow.h
+moc_*.cpp

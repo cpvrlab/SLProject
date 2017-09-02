@@ -20,7 +20,6 @@
 *~
 
 moc_*.cpp
-qrc_*.cpp
 
 !christoffelturm.obj
 
