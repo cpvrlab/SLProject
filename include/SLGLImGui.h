@@ -39,9 +39,10 @@ The full call stack for rendering one frame is:\n
         - ImGui::NewFrame()
         - SLGLImGui::build: The UI build function
       - ... normal scene rendering of SLProject
-      - ImGui::Render:
-      - SLGLImGui::onPaint(ImGui::GetDrawData())
-        - SLDemoGui::buildDemoGui: Builds the full UI
+      - SLSceneView::draw2DGL:
+        - ImGui::Render
+          - SLGLImGui::onPaint(ImGui::GetDrawData())
+          - SLDemoGui::buildDemoGui: Builds the full UI
 */
 class SLGLImGui
 {

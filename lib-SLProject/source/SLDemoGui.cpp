@@ -143,10 +143,10 @@ After calibration the yellow wireframe cube should stick on the chessboard.\n\n\
 Please close first this info dialog.";
 
 //-----------------------------------------------------------------------------
-//! This is the mail building function for the GUI of the Demo apps
-/*! Is is passed to the SLGLGImGui::build function in main of the app-Demo-GLFW
+//! This is the main building function for the GUI of the Demo apps
+/*! Is is passed to the SLGLImGui::build function in main of the app-Demo-GLFW
  app. This function will be called once per frame roughly at the end of
- SLSceneView::onPaint by calling ImGui::Render.\n
+ SLSceneView::onPaint in SLSceneView::draw2DGL by calling ImGui::Render.\n
  See also the comments on SLGLImGui.
  */
 void SLDemoGui::buildDemoGui(SLScene* s, SLSceneView* sv)

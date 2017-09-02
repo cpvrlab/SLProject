@@ -745,31 +745,19 @@ void SLSceneView::draw2DGL()
     // Set orthographic projection with 0,0,0 in the screen center
     if (_camera && _camera->projection() != P_stereoSideBySideD)
     {
-        //////////////////////////////
-        // 1. Set Projection & View //
-        //////////////////////////////
-
+        // 1. Set Projection & View
         _stateGL->projectionMatrix.ortho(-w2, w2,-h2, h2, 1.0f, -1.0f);
         _stateGL->viewport(0, 0, _scrW, _scrH);   
 
-        //////////////////////////////////
-        // 2. Pseudo 2D Frustum Culling //
-        //////////////////////////////////
-
+        // 2. Pseudo 2D Frustum Culling
         _visibleNodes.clear();     
         if (s->root2D())
             s->root2D()->cull2DRec(this);
 
-        /////////////////////////////////
-        // 3. Draw all 2D nodes opaque //
-        /////////////////////////////////
-
+        // 3. Draw all 2D nodes opaque
         draw2DGLAll();
 
-        //////////////////////
-        // 4. Draw ImGui UI //
-        //////////////////////
-
+        // 4. Draw ImGui UI
         if (_gui.build)
         {   ImGui::Render();
             _gui.onPaint(ImGui::GetDrawData());
