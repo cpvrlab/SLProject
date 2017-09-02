@@ -12,7 +12,6 @@
 // The only C-interface to include for the SceneLibrary
 
 #include <SLInterface.h>
-#include <SLImage.h>
 #include <SLCVCapture.h>
 #include <SLDemoGui.h>
 #include <mach/mach_time.h>
