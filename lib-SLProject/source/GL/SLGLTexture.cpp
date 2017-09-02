@@ -240,6 +240,7 @@ void SLGLTexture::setVideoImage(SLstring videoImageFile)
 \param camHeight Height in pixels of the camera image
 \param srcFormat Pixel format according to the OpenGL pixel formats
 \param data Pointer to the first byte of the first pixel
+\param isContinuous Flag if the next line comes after the last byte of the prev. line
 \param isTopLeft Flag if the data pointer points to the top left pixel
 \return Returns true if the texture was rebuilt
 It is important that passed pixel format is either PF_LUMINANCE, RGB or RGBA.
@@ -788,7 +789,7 @@ void SLGLTexture::calc3DGradients(SLint sampleRadius)
 //-----------------------------------------------------------------------------
 /*! SLGLTexture::smooth3DGradients smooths the 3D gradients in the RGB channels
 of all images.
-\param sampleRadius Soothing radius
+\param smoothRadius Soothing radius
 */
 void SLGLTexture::smooth3DGradients(SLint smoothRadius)
 {

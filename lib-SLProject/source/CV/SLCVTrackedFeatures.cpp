@@ -210,10 +210,11 @@ void SLCVTrackedFeatures::type(SLCVDetectDescribeType ddType)
 //-----------------------------------------------------------------------------
 /*! The main part of this tracker is to calculate a correct Pose.
 @param imageGray Current grayscale frame
-@param image     Current RGB frame
-@param calib     Calibration information
-@param sv        The current scene view
-@return          So far allways false
+@param image Current RGB frame
+@param calib Calibration information
+@param drawDetection Flag if the detected features should be drawn
+@param sv The current scene view
+@return So far allways false
 */
 SLbool SLCVTrackedFeatures::track(SLCVMat imageGray,
                                   SLCVMat image,
