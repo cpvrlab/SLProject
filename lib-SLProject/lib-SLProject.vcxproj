@@ -476,6 +476,10 @@
     <None Include="..\_data\shaders\PerPixBlinnTex.frag" />
     <None Include="..\_data\shaders\PerPixBlinnTex.vert" />
     <None Include="..\_data\shaders\PerPixBlinnTexSkinned.vert" />
+    <None Include="..\_data\shaders\PerPixCookTorrance.frag" />
+    <None Include="..\_data\shaders\PerPixCookTorrance.vert" />
+    <None Include="..\_data\shaders\PerPixCookTorranceTex.frag" />
+    <None Include="..\_data\shaders\PerPixCookTorranceTex.vert" />
     <None Include="..\_data\shaders\PerVrtBlinn.frag" />
     <None Include="..\_data\shaders\PerVrtBlinn.vert" />
     <None Include="..\_data\shaders\PerVrtBlinnColorAttrib.vert" />
