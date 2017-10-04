@@ -151,7 +151,8 @@ Please close first this info dialog.";
  */
 void SLDemoGui::buildDemoGui(SLScene* s, SLSceneView* sv)
 {
-    buildMenuBar(s, sv);
+    if (!showAbout && !showCredits)
+        buildMenuBar(s, sv);
 
     if (showAbout)
     {
@@ -383,7 +384,7 @@ void SLDemoGui::buildDemoGui(SLScene* s, SLSceneView* sv)
         ImGui::PopFont();
     }
 
-    if (showInfosScene)
+    if (showInfosScene && !showAbout && !showCredits)
     {
         // Calculate window position for dynamic status bar at the bottom of the main window
         ImGuiWindowFlags window_flags = 0;
