@@ -372,7 +372,7 @@ void SLSceneView::onResize(SLint width, SLint height)
 }
 //-----------------------------------------------------------------------------
 /*!
-SLSceneView::onPaint is called by window system whenever the window therefore 
+SLSceneView::onPaint is called by window system whenever the window and therefore 
 the scene needs to be painted. Depending on the renderer it calls first
 SLSceneView::draw3DGL, SLSceneView::draw3DRT or SLSceneView::draw3DPT and
 then SLSceneView::draw2DGL for all UI in 2D. The method returns true if either
@@ -395,7 +395,7 @@ SLbool SLSceneView::onPaint()
     SLGLVertexArray::totalDrawCalls = 0;
 
     if (_camera)
-    {   // Render the 3D scenegraph by by raytracing, pathtracing or OpenGL
+    {   // Render the 3D scenegraph by raytracing, pathtracing or OpenGL
         switch (_renderType)
         {   case RT_gl: camUpdated = draw3DGL(s->elapsedTimeMS()); break;
             case RT_rt: camUpdated = draw3DRT(); break;
@@ -425,7 +425,7 @@ SLbool SLSceneView::onPaint()
 }
 //-----------------------------------------------------------------------------
 //! Draws the 3D scene with OpenGL
-/*! This is main routine for updating and drawing the 3D scene for one frame. 
+/*! This is the main routine for updating and drawing the 3D scene for one frame. 
 The following steps are processed:
 <ol>
 <li>

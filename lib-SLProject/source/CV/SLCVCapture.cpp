@@ -128,7 +128,7 @@ void SLCVCapture::grabAndAdjustForSL()
 //-----------------------------------------------------------------------------
 //! Does all adjustments needed for the SLScene::_videoTexture
 /*! SLCVCapture::adjustForSL processes the following adjustments for all input
-image no matter with what the where captured:
+images no matter with what they where captured:
 \n
 1) Crops the input image if it doesn't match the screens aspect ratio. The
 input image mostly does't fit the aspect of the output screen aspect. If the
@@ -154,7 +154,7 @@ void SLCVCapture::adjustForSL()
     // 1) Cropping //
     /////////////////
 
-    // Cropping is done almost always done.
+    // Cropping is done almost always.
     // So this is Android image copy loop #2
 
     SLfloat inWdivH = (SLfloat)lastFrame.cols / (SLfloat)lastFrame.rows;
@@ -186,16 +186,16 @@ void SLCVCapture::adjustForSL()
     // Mirroring is done for most selfie cameras.
     // So this is Android image copy loop #3
 
-    if (SLScene::current->activeCalib()->isMirroredH())
+    if (s->activeCalib()->isMirroredH())
     {   SLCVMat mirrored;
-        if (SLScene::current->activeCalib()->isMirroredV())
+        if (s->activeCalib()->isMirroredV())
             cv::flip(SLCVCapture::lastFrame, mirrored,-1);
         else cv::flip(SLCVCapture::lastFrame, mirrored, 1);
         SLCVCapture::lastFrame = mirrored;
     } else
-    if (SLScene::current->activeCalib()->isMirroredV())
+    if (s->activeCalib()->isMirroredV())
     {   SLCVMat mirrored;
-        if (SLScene::current->activeCalib()->isMirroredH())
+        if (s->activeCalib()->isMirroredH())
             cv::flip(SLCVCapture::lastFrame, mirrored,-1);
         else cv::flip(SLCVCapture::lastFrame, mirrored, 0);
         SLCVCapture::lastFrame = mirrored;

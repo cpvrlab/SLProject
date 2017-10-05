@@ -293,7 +293,9 @@ example. AR tracking is only handled on the first scene view.
 */
 bool SLScene::onUpdate()
 {
-    // Return if not all sceneview got repainted
+    // Return if not all sceneview got repainted: This check if necessary if
+    // this function is called for multiple SceneViews. In this way we only 
+    // update the geometric representations if all SceneViews got painted once.
     for (auto sv : _sceneViews)
         if (sv != nullptr && !sv->gotPainted())
             return false;
