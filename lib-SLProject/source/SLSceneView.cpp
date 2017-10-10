@@ -870,6 +870,7 @@ SLbool SLSceneView::onMouseDown(SLMouseButton button,
     _gui.renderExtraFrame(s, this, x, y);
     #endif
     
+    // Pass the event to imgui
     if (ImGui::GetIO().WantCaptureMouse)
     {   _gui.onMouseDown(button, x, y);
         return true;
@@ -910,6 +911,7 @@ SLbool SLSceneView::onMouseUp(SLMouseButton button,
         _raytracer.state(rtReady);
     }
 
+    // Pass the event to imgui
     ImGui::GetIO().MousePos = ImVec2((SLfloat)x, (SLfloat)y);
     _gui.onMouseUp(button, x, y);
 
@@ -937,6 +939,7 @@ SLbool SLSceneView::onMouseMove(SLint x, SLint y)
 {
     SLScene* s = SLScene::current;
 
+    // Pass the event to imgui
     _gui.onMouseMove(x, y);
     if (ImGui::GetIO().WantCaptureMouse)
         return true;
@@ -997,6 +1000,7 @@ SLbool SLSceneView::onMouseWheel(SLint delta, SLKey mod)
     SLScene* s = SLScene::current;
     if (!s->root3D()) return false;
 
+    // Pass the event to imgui
     if (ImGui::GetIO().WantCaptureMouse)
     {   _gui.onMouseWheel((SLfloat)delta);
         return true;
@@ -1145,6 +1149,7 @@ SLbool SLSceneView::onKeyPress(SLKey key, SLKey mod)
     SLScene* s = SLScene::current;
     if (!s->root3D()) return false;
 
+    // Pass the event to imgui
     if (ImGui::GetIO().WantCaptureKeyboard)
     {   _gui.onKeyPress(key, mod);
         return true;
@@ -1195,6 +1200,7 @@ SLbool SLSceneView::onKeyRelease(SLKey key, SLKey mod)
 {  
     SLScene* s = SLScene::current;
 
+    // Pass the event to imgui
     if (ImGui::GetIO().WantCaptureKeyboard)
     {   _gui.onKeyRelease(key, mod);
         return true;
