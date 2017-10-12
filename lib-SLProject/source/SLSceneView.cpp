@@ -1266,34 +1266,32 @@ SLbool SLSceneView::onCommand(SLCommand cmd)
                     _raytracer.state() == rtFinished)
                     _raytracer.state(rtReady);
                 break;
-            case C_projSideBySide:    _camera->projection(P_stereoSideBySide); break;
-            case C_projSideBySideP:   _camera->projection(P_stereoSideBySideP); break;
-            case C_projSideBySideD:   _camera->projection(P_stereoSideBySideD); break;
-            case C_projLineByLine:    _camera->projection(P_stereoLineByLine); break;
-            case C_projColumnByColumn:_camera->projection(P_stereoColumnByColumn); break;
-            case C_projPixelByPixel:  _camera->projection(P_stereoPixelByPixel); break;
-            case C_projColorRC:       _camera->projection(P_stereoColorRC); break;
-            case C_projColorRG:       _camera->projection(P_stereoColorRG); break;
-            case C_projColorRB:       _camera->projection(P_stereoColorRB); break;
-            case C_projColorYB:       _camera->projection(P_stereoColorYB); break;
+            case C_projSideBySide:      _camera->projection(P_stereoSideBySide); break;
+            case C_projSideBySideP:     _camera->projection(P_stereoSideBySideP); break;
+            case C_projSideBySideD:     _camera->projection(P_stereoSideBySideD); break;
+            case C_projLineByLine:      _camera->projection(P_stereoLineByLine); break;
+            case C_projColumnByColumn:  _camera->projection(P_stereoColumnByColumn); break;
+            case C_projPixelByPixel:    _camera->projection(P_stereoPixelByPixel); break;
+            case C_projColorRC:         _camera->projection(P_stereoColorRC); break;
+            case C_projColorRG:         _camera->projection(P_stereoColorRG); break;
+            case C_projColorRB:         _camera->projection(P_stereoColorRB); break;
+            case C_projColorYB:         _camera->projection(P_stereoColorYB); break;
 
-            case C_camSpeedLimitInc:  _camera->maxSpeed(_camera->maxSpeed()*1.2f); return true;
-            case C_camSpeedLimitDec:  _camera->maxSpeed(_camera->maxSpeed()*0.8f); return true;
-            case C_camEyeSepInc:      _camera->onMouseWheel(1, K_ctrl); return true;
-            case C_camEyeSepDec:      _camera->onMouseWheel(-1, K_ctrl); return true;
-            case C_camFocalDistInc:   _camera->onMouseWheel(1, K_shift); return true;
-            case C_camFocalDistDec:   _camera->onMouseWheel(-1, K_shift); return true;
-            case C_camFOVInc:         _camera->onMouseWheel(1, K_alt); return true;
-            case C_camFOVDec:         _camera->onMouseWheel(-1, K_alt); return true;
-            case C_camAnimTurnYUp:    _camera->camAnim(CA_turntableYUp); return true;
-            case C_camAnimTurnZUp:    _camera->camAnim(CA_turntableZUp); return true;
-            case C_camAnimWalkYUp:    _camera->camAnim(CA_walkingYUp); return true;
-            case C_camAnimWalkZUp:    _camera->camAnim(CA_walkingZUp); return true;
-            case C_camDeviceRotOn:    _camera->useDeviceRot(true); return true;
-            case C_camDeviceRotOff:   _camera->useDeviceRot(false); return true;
-            case C_camDeviceRotToggle:_camera->useDeviceRot(!_camera->useDeviceRot()); return true;
+            case C_camSpeedLimitInc:    _camera->maxSpeed(_camera->maxSpeed()*1.2f); return true;
+            case C_camSpeedLimitDec:    _camera->maxSpeed(_camera->maxSpeed()*0.8f); return true;
+            case C_camEyeSepInc:        _camera->onMouseWheel(1, K_ctrl); return true;
+            case C_camEyeSepDec:        _camera->onMouseWheel(-1, K_ctrl); return true;
+            case C_camFocalDistInc:     _camera->onMouseWheel(1, K_shift); return true;
+            case C_camFocalDistDec:     _camera->onMouseWheel(-1, K_shift); return true;
+            case C_camFOVInc:           _camera->onMouseWheel(1, K_alt); return true;
+            case C_camFOVDec:           _camera->onMouseWheel(-1, K_alt); return true;
+            case C_camAnimTurnYUp:      _camera->camAnim(CA_turntableYUp); return true;
+            case C_camAnimTurnZUp:      _camera->camAnim(CA_turntableZUp); return true;
+            case C_camAnimWalkYUp:      _camera->camAnim(CA_walkingYUp); return true;
+            case C_camAnimWalkZUp:      _camera->camAnim(CA_walkingZUp); return true;
+            case C_camAnimDeviceRotYUp: _camera->camAnim(CA_deviceRotYUp); return true;
             
-            case C_camReset:          _camera->resetToInitialState(); return true;
+            case C_camReset:            _camera->resetToInitialState(); return true;
             case C_camSetNextInScene:
             {   SLCamera* nextCam = s->nextCameraInScene(this);
                 if (nextCam == nullptr) return false;
@@ -1369,7 +1367,6 @@ SLbool SLSceneView::onCommand(SLCommand cmd)
         case C_faceCullToggle:     _drawBits.toggle(SL_DB_CULLOFF);  return true;
         case C_textureToggle:      _drawBits.toggle(SL_DB_TEXOFF);   return true;
 
-        case C_animationToggle:     s->stopAnimations(!s->stopAnimations()); return true;
         case C_renderOpenGL:
             _renderType = RT_gl;
             return true;

@@ -66,6 +66,7 @@ class SLMat4
                                  const T axis_y,
                                  const T axis_z);       //!< Sets rotation matrix
                     SLMat4      (const T scale_xyz);    //!< Sets scaling matrix
+                    SLMat4      (const SLVec3<T>& translationVec); //!< Sets translate matrix
                     SLMat4      (const SLVec3<T>& fromUnitVec,
                                  const SLVec3<T>& toUnitVec); //!< Sets rotation matrix
                     SLMat4      (const SLVec3<T>& translation,
@@ -270,6 +271,12 @@ template<class T>
 SLMat4<T>::SLMat4(const T tx, const T ty, const T tz) 
 {
     translation(tx, ty, tz, false);
+}
+//-----------------------------------------------------------------------------
+template<class T>
+SLMat4<T>::SLMat4(const SLVec3<T>& translationVec)
+{
+    translation(translationVec.x, translationVec.y, translationVec.z, false);
 }
 //-----------------------------------------------------------------------------
 template<class T>
@@ -877,6 +884,7 @@ void SLMat4<T>::translation(const T tx, const T ty, const T tz,
     _m[12]=tx;
     _m[13]=ty;
     _m[14]=tz;
+
     if (!keepLinear)
     {   _m[0]=1; _m[4]=0;  _m[8]=0;
         _m[1]=0; _m[5]=1;  _m[9]=0;  
@@ -1402,10 +1410,10 @@ template<class T>
 void SLMat4<T>::print(const SLchar* str) const
 {
     if (str) SL_LOG("%s\n",str);
-    SL_LOG("% 3.3f % 3.3f % 3.3f % 3.3f\n",  _m[0],_m[4],_m[ 8],_m[12]);
-    SL_LOG("% 3.3f % 3.3f % 3.3f % 3.3f\n",  _m[1],_m[5],_m[ 9],_m[13]);
-    SL_LOG("% 3.3f % 3.3f % 3.3f % 3.3f\n",  _m[2],_m[6],_m[10],_m[14]);
-    SL_LOG("% 3.3f % 3.3f % 3.3f % 3.3f\n",  _m[3],_m[7],_m[11],_m[15]);
+    SL_LOG("% 3.2f % 3.2f % 3.2f % 3.2f\n",  _m[0],_m[4],_m[ 8],_m[12]);
+    SL_LOG("% 3.2f % 3.2f % 3.2f % 3.2f\n",  _m[1],_m[5],_m[ 9],_m[13]);
+    SL_LOG("% 3.2f % 3.2f % 3.2f % 3.2f\n",  _m[2],_m[6],_m[10],_m[14]);
+    SL_LOG("% 3.2f % 3.2f % 3.2f % 3.2f\n",  _m[3],_m[7],_m[11],_m[15]);
 }
 //-----------------------------------------------------------------------------
 /*!

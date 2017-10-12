@@ -430,9 +430,10 @@ void SLDemoGui::buildDemoGui(SLScene* s, SLSceneView* sv)
         m[0]=0;           // set zero length
         sprintf(m+strlen(m), "Uses Rotation       : %s\n",    s->usesRotation() ? "yes" : "no");
         sprintf(m+strlen(m), "Orientation Pitch   : %1.0f\n", s->devicePitchRAD()*SL_RAD2DEG);
-        sprintf(m+strlen(m), "Orientation Yaw     : %1.0f\n", s->deviceYawRAD()  *SL_RAD2DEG);
-        sprintf(m+strlen(m), "Orientation Roll    : %1.0f\n", s->deviceRollRAD() *SL_RAD2DEG);
-        sprintf(m+strlen(m), "Zero Yaw after (sec): %1.0f\n", s->zeroYawAfterSec());
+        sprintf(m+strlen(m), "Orientation Yaw     : %1.0f\n", s->deviceYawRAD()*SL_RAD2DEG);
+        sprintf(m+strlen(m), "Orientation Roll    : %1.0f\n", s->deviceRollRAD()*SL_RAD2DEG);
+        sprintf(m+strlen(m), "Zero Yaw at Start   : %s\n",    s->zeroYawAtStart() ? "yes" : "no");
+        sprintf(m+strlen(m), "Start Yaw           : %1.0f\n", s->startYawRAD() * SL_RAD2DEG);
 
         // Switch to fixed font
         ImGui::PushFont(ImGui::GetIO().Fonts->Fonts[1]);
@@ -619,15 +620,31 @@ void SLDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
                 sv->onCommand(C_depthTestToggle);
 
             if (ImGui::MenuItem("Animation off", 0, s->stopAnimations()))
-                sv->onCommand(C_animationToggle);
+                s->stopAnimations(!s->stopAnimations());
+
+            ImGui::Separator();
+
+            if (ImGui::BeginMenu("Rotation Sensor"))
+            {
+                if (ImGui::MenuItem("Use Device Rotation", 0, s->usesRotation()))
+                    s->usesRotation(!s->usesRotation());
+
+                if (ImGui::MenuItem("Zero Yaw at Start", 0, s->zeroYawAtStart()))
+                    s->zeroYawAtStart(!s->zeroYawAtStart());
+
+                if (ImGui::MenuItem("Reset Zero Yaw"))
+                    s->deviceRotStarted(true);
+
+                ImGui::EndMenu();
+            }
 
             ImGui::Separator();
 
             if (ImGui::BeginMenu("Video"))
             {
-                SLCVCalibration*        ac = s->activeCalib();
-                SLCVCalibration*        mc = s->calibMainCam();
-                SLCVCalibration*        sc = s->calibScndCam();
+                SLCVCalibration* ac = s->activeCalib();
+                SLCVCalibration* mc = s->calibMainCam();
+                SLCVCalibration* sc = s->calibScndCam();
 
                 SLCVTrackedFeatures* featureTracker = nullptr;
                 for (auto tracker : s->trackers())
@@ -960,19 +977,23 @@ void SLDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
             if (ImGui::BeginMenu("Animation"))
             {
                 SLCamAnim ca = cam->camAnim();
-                if (ImGui::MenuItem("Turntable Z up", 0, ca==CA_turntableZUp))
-                    sv->onCommand(C_camAnimTurnZUp);
 
                 if (ImGui::MenuItem("Turntable Y up", 0, ca==CA_turntableYUp))
                     sv->onCommand(C_camAnimTurnYUp);
 
-                if (ImGui::MenuItem("Walk Z up", 0, ca==CA_walkingZUp))
-                    sv->onCommand(C_camAnimWalkZUp);
+                if (ImGui::MenuItem("Turntable Z up", 0, ca==CA_turntableZUp))
+                    sv->onCommand(C_camAnimTurnZUp);
 
                 if (ImGui::MenuItem("Walk Y up", 0, ca==CA_walkingYUp))
                     sv->onCommand(C_camAnimWalkYUp);
 
-                if (ca==CA_walkingZUp || ca==CA_walkingYUp)
+                if (ImGui::MenuItem("Walk Z up", 0, ca==CA_walkingZUp))
+                    sv->onCommand(C_camAnimWalkZUp);
+
+                if (ImGui::MenuItem("Device Rotated Y up", 0, ca==CA_deviceRotYUp))
+                    sv->onCommand(C_camAnimDeviceRotYUp);
+
+                if (ca==CA_walkingZUp || ca==CA_walkingYUp || ca==CA_deviceRotYUp)
                 {
                     static SLfloat ms = cam->maxSpeed();
                     if (ImGui::SliderFloat("Walk Speed",  &ms, 0.01f, SL_min(ms*1.1f,10000.f)))

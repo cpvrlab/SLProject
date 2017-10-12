@@ -40,18 +40,18 @@ class SLMat3
                     SLMat3      (const SLMat3& A);      //!< Sets mat by other SLMat3
                     SLMat3      (const T *M);           //!< Sets matrix by array
                     SLMat3      (const T M0, const T M3, const T M6,
-                                const T M1, const T M4, const T M7,
-                                const T M2, const T M5, const T M8);    //!< Sets matrix by components
+                                 const T M1, const T M4, const T M7,
+                                 const T M2, const T M5, const T M8);    //!< Sets matrix by components
                     SLMat3      (const T angleDEG, 
-                                const T axis_x, 
-                                const T axis_y, 
-                                const T axis_z);       //!< Sets rotate matrix from axis & angle
+                                 const T axis_x,
+                                 const T axis_y,
+                                 const T axis_z);       //!< Sets rotate matrix from axis & angle
                     SLMat3      (const T angleDEG, 
-                                const SLVec3<T> axis); //!< Sets rotate matrix
+                                 const SLVec3<T> axis); //!< Sets rotate matrix
                     SLMat3      (const T scale_xyz);    //!< Sets uniform scaling matrix
                     SLMat3      (const T angleZDEG,
-                                const T angleYDEG,
-                                const T angleXDEG);    //!< Sets rotation matrix from Euler angles
+                                 const T angleYDEG,
+                                 const T angleXDEG);    //!< Sets rotation matrix from Euler angles
       
         // Setters
         void        setMatrix   (const SLMat3& A);

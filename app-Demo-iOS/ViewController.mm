@@ -68,6 +68,7 @@ float GetSeconds()
 }
 @property (strong, nonatomic) EAGLContext *context;
 @property (strong, nonatomic) CMMotionManager *motionManager;
+@property (strong, nonatomic) NSTimer *motionTimer;
 @end
 //-----------------------------------------------------------------------------
 @implementation ViewController
@@ -143,7 +144,7 @@ float GetSeconds()
                                 (void*)SLDemoGui::buildDemoGui);
     ///////////////////////////////////////////////////////////////////////
     
-    [self setMotionInterval:1.0/60.0];
+    [self setMotionInterval:1.0/20.0];
 }
 //-----------------------------------------------------------------------------
 - (void)viewDidUnload
@@ -164,15 +165,6 @@ float GetSeconds()
 {
     [super didReceiveMemoryWarning];
     // Release any cached data, images, etc. that aren't in use.
-}
-//-----------------------------------------------------------------------------
-- (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation
-{
-    // Return YES for supported orientations
-    //if ([[UIDevice currentDevice] userInterfaceIdiom] == UIUserInterfaceIdiomPhone)
-    //     return (interfaceOrientation != UIInterfaceOrientationPortraitUpsideDown);
-    //else return YES;
-    return NO;
 }
 //-----------------------------------------------------------------------------
 - (void)update
@@ -361,10 +353,25 @@ float GetSeconds()
 {
     if (slUsesRotation())
     {
-        float pitch = attitude.roll * -1.0f - SL_HALFPI;
-        float yaw   = attitude.yaw;
-        float roll  = attitude.pitch * -1.0f;
-        slRotationPYR(pitch, yaw, roll);
+        if ([[UIDevice currentDevice] orientation] == UIDeviceOrientationLandscapeLeft)
+        {
+            NSLog(@"UIDeviceOrientationLandscapeLeft");
+        }
+        else if ([[UIDevice currentDevice] orientation ]== UIDeviceOrientationLandscapeRight)
+        {
+            float pitch = attitude.roll            - SL_HALFPI;
+            float yaw   = attitude.yaw             - SL_HALFPI;
+            float roll  = attitude.pitch;
+            SL_LOG("Pitch: %3.0f, Yaw: %3.0f, Roll: %3.0f\n", pitch*SL_RAD2DEG, yaw*SL_RAD2DEG, roll*SL_RAD2DEG); //slRotationPYR(pitch, yaw, roll);
+        }
+        else if([[UIDevice currentDevice] orientation] == UIDeviceOrientationPortrait)
+        {
+            NSLog(@"UIDeviceOrientationPortrait");
+        }
+        else if([[UIDevice currentDevice] orientation] == UIDeviceOrientationPortraitUpsideDown )
+        {
+            NSLog(@"UIDeviceOrientationPortraitUpsideDown");
+        }
     }
 }
 //-----------------------------------------------------------------------------
@@ -511,54 +518,42 @@ float GetSeconds()
     m_lastVideoType = videoType;
 }
 //-----------------------------------------------------------------------------
-//! Starts the acceleronometer update if the interval time > 0 else it stops
-- (void) setAccelerometerInterval:(double)intervalTimeSEC
-{
-    if ([self.motionManager isAccelerometerAvailable] == YES)
-    {
-        if ([self.motionManager isAccelerometerActive] == NO && intervalTimeSEC > 0)
-        {    self.motionManager.accelerometerUpdateInterval = intervalTimeSEC;
-            [self.motionManager startAccelerometerUpdatesToQueue:[NSOperationQueue currentQueue]
-                                    withHandler:^(CMAccelerometerData *accelerometerData, NSError *error)
-                                    {   [self onAccelerationData:accelerometerData.acceleration];
-                                        if(error){NSLog(@"%@", error);}
-                                    }
-            ];
-        } else [self.motionManager stopAccelerometerUpdates];
-    }
-}
-//-----------------------------------------------------------------------------
-//! Starts the gyroscope update if the interval time > 0 else it stops
-- (void) setGyroInterval:(double)intervalTimeSEC
-{
-    if ([self.motionManager isGyroAvailable] == YES)
-    {   
-        if ([self.motionManager isGyroActive] == NO && intervalTimeSEC > 0)
-        {    self.motionManager.gyroUpdateInterval = intervalTimeSEC;
-            [self.motionManager startGyroUpdatesToQueue:[NSOperationQueue currentQueue]
-                                    withHandler:^(CMGyroData *gyroData, NSError *error)
-                                    {   [self onGyroData:gyroData.rotationRate];
-                                        if(error){NSLog(@"%@", error);}
-                                    }
-            ];
-        } else [self.motionManager stopGyroUpdates];
-    }
-}
-//-----------------------------------------------------------------------------
 //! Starts the motion data update if the interval time > 0 else it stops
 - (void) setMotionInterval:(double)intervalTimeSEC
 {
     if ([self.motionManager isDeviceMotionAvailable] == YES)
     {
-        if ([self.motionManager isAccelerometerActive] == NO && intervalTimeSEC > 0)
-        {    self.motionManager.deviceMotionUpdateInterval = intervalTimeSEC;
-            [self.motionManager startDeviceMotionUpdatesToQueue:[NSOperationQueue currentQueue]
-                                    withHandler:^(CMDeviceMotion *deviceMotion, NSError *error)
-                                    {   [self onMotionData:deviceMotion.attitude];
-                                        if(error){NSLog(@"%@", error);}
-                                    }
-            ];
-        } else [self.motionManager stopDeviceMotionUpdates];
+        self.motionManager.deviceMotionUpdateInterval = intervalTimeSEC;
+        [self.motionManager startDeviceMotionUpdatesUsingReferenceFrame:CMAttitudeReferenceFrameXTrueNorthZVertical
+                                                                toQueue:[NSOperationQueue currentQueue]
+                                                            withHandler: ^(CMDeviceMotion *motion, NSError *error){
+                                                                [self performSelectorOnMainThread:@selector(onDeviceMotionUpdate:)
+                                                                                       withObject:motion waitUntilDone:YES];
+                                                            }];
+    } else [self.motionManager stopDeviceMotionUpdates];
+}
+//-----------------------------------------------------------------------------
+- (void)onDeviceMotionUpdate:(CMDeviceMotion*)motion
+{
+    if (slUsesRotation())
+    {
+        CMDeviceMotion *motionData = self.motionManager.deviceMotion;
+        CMAttitude *attitude = motionData.attitude;
+        
+        // Pitch from -halfpi (down)  to zero (horizontal) to +halfpi (up)
+        // Yaw   from -pi     (south) to zero (north)      to +pi     (south)
+        // Roll  from -halfpi (ccw)   to zero (horizontal) to +halfpi (clockwise)
+        float pitch = attitude.roll - SL_HALFPI;
+        float yaw   = attitude.yaw + SL_PI;
+        float roll  = attitude.pitch;
+        yaw = yaw > SL_PI ? fmod(yaw, SL_PI)-SL_PI : yaw;
+        
+        slRotationPYR(pitch, yaw, roll);
+        
+        /*
+        CMQuaternion q = attitude.quaternion;
+        slRotationQUAT(q.x, q.y, q.z, q.w)
+        */
     }
 }
 //-----------------------------------------------------------------------------
