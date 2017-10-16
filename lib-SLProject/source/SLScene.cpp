@@ -214,6 +214,9 @@ void SLScene::init()
     _deviceRollRAD   = 0.0f;
     _zeroYawAtStart  = true;
     _startYawRAD     = 0.0f;
+
+    _gpsLongitude    = 0.0;
+    _gpsLatitude     = 0.0;
 }
 //-----------------------------------------------------------------------------
 /*! The scene uninitializing clears the scenegraph (_root3D) and all global
@@ -741,11 +744,6 @@ SLCamera* SLScene::nextCameraInScene(SLSceneView* activeSV)
 
 }
 //-----------------------------------------------------------------------------
-void SLScene::onLocationGPS(double latitude, double longitude)
-{
-
-}
-//-----------------------------------------------------------------------------
 //! Setter that turns on the device rotation sensor
 void SLScene::usesRotation (SLbool use)
 {
@@ -753,5 +751,23 @@ void SLScene::usesRotation (SLbool use)
         _deviceRotStarted = true;
 
     _usesRotation = use;
+}
+//-----------------------------------------------------------------------------
+//! Setter that turns on the device rotation sensor
+void SLScene::usesLocation (SLbool use)
+{
+    if (!_usesLocation && use==true)
+        _deviceLocStarted = true;
+
+    _usesLocation = use;
+}
+//-----------------------------------------------------------------------------
+void SLScene::onLocationGPS(double latitude, double longitude, double altitude)
+{
+    _gpsLatitude = latitude;
+    _gpsLongitude = longitude;
+    _gpsAltitude = altitude;
+    SLVec3f loc = SLVec3f(latitude, longitude, altitude);
+    loc.lla2ecef(loc);
 }
 //-----------------------------------------------------------------------------

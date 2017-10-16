@@ -278,6 +278,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         _root3D = scene;
 
         _usesRotation = true;
+        _usesLocation = true;
 
         // Save energy
         sv->waitEvents(false);

@@ -435,6 +435,12 @@ void SLDemoGui::buildDemoGui(SLScene* s, SLSceneView* sv)
         sprintf(m+strlen(m), "Zero Yaw at Start   : %s\n",    s->zeroYawAtStart() ? "yes" : "no");
         sprintf(m+strlen(m), "Start Yaw           : %1.0f\n", s->startYawRAD() * SL_RAD2DEG);
 
+
+        sprintf(m+strlen(m), "Uses Location       : %s\n",    s->usesLocation() ? "yes" : "no");
+        sprintf(m+strlen(m), "Longitude           : %f\n",    s->gpsLongitude());
+        sprintf(m+strlen(m), "Latitude            : %f\n",    s->gpsLatitude());
+        sprintf(m+strlen(m), "Altitude            : %f\n",    s->gpsAltitude());
+
         // Switch to fixed font
         ImGui::PushFont(ImGui::GetIO().Fonts->Fonts[1]);
         ImGui::Begin("Sensor Informations", &showInfosSensors, ImVec2(300,0));
@@ -639,6 +645,9 @@ void SLDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
 
                 ImGui::EndMenu();
             }
+
+            if (ImGui::MenuItem("Use GPS Sensor", 0, s->usesLocation()))
+                s->usesLocation(!s->usesLocation());
 
             ImGui::Separator();
 
@@ -1570,7 +1579,7 @@ void SLDemoGui::loadConfig(SLint dotsPerInch)
         {   SL_LOG("Failed to open file for reading!");
             return;
         }
-    } 
+    }
     catch(...)
     {   SL_LOG("Parsing of file failed: %s", fullPathAndFilename.c_str());
         return;
