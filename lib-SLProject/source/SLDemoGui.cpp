@@ -477,6 +477,8 @@ void SLDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
 
                     if (ImGui::MenuItem("Minimal Scene", 0, curS==C_sceneMinimal))
                         sv->onCommand(C_sceneMinimal);
+                    if (ImGui::MenuItem("Sensor Test Scene", 0, curS==C_sceneSensorTest))
+                        sv->onCommand(C_sceneSensorTest);
                     if (ImGui::MenuItem("Figure Scene", 0, curS==C_sceneFigure))
                         sv->onCommand(C_sceneFigure);
                     if (ImGui::MenuItem("Large Model", 0, curS==C_sceneLargeModel, largeFileExists))

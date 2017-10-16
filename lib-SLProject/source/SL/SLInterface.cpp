@@ -470,4 +470,18 @@ void slCopyVideoYUVPlanes(int srcW, int srcH,
                                v, vSize, vPixStride, vLineStride);
 }
 //-----------------------------------------------------------------------------
-
+/*! Global event handler for device location change with longitude and latitude.
+*/
+void slLocationGPS(float latitude, float longitude)
+{
+    SLScene::current->onLocationGPS(latitude, longitude);
+}
+//-----------------------------------------------------------------------------
+bool slUsesLocation()
+{
+    if (SLScene::current)
+    {   return SLScene::current->usesRotation();
+    }
+    return false;
+}
+//-----------------------------------------------------------------------------

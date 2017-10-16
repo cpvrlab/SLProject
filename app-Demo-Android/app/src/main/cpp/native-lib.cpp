@@ -50,6 +50,8 @@ JNIEXPORT void JNICALL Java_ch_fhnw_comgr_GLES3Lib_copyVideoYUVPlanes(JNIEnv *en
                                                                       jbyteArray yBuf, jint ySize, jint yPixStride, jint yLineStride,
                                                                       jbyteArray uBuf, jint uSize, jint uPixStride, jint uLineStride,
                                                                       jbyteArray vBuf, jint vSize, jint vPixStride, jint vLineStride);
+JNIEXPORT void JNICALL Java_ch_fhnw_comgr_GLES3Lib_onLocationGPS(JNIEnv *env, jobject obj, jfloat longitude, jfloat latitude);
+JNIEXPORT bool JNICALL Java_ch_fhnw_comgr_GLES3Lib_usesLocation(JNIEnv *env, jobject obj);
 };
 
 //-----------------------------------------------------------------------------
@@ -227,5 +229,15 @@ JNIEXPORT void JNICALL Java_ch_fhnw_comgr_GLES3Lib_copyVideoYUVPlanes(JNIEnv *en
                          y, ySize, yPixStride, yLineStride,
                          u, uSize, uPixStride, uLineStride,
                          v, vSize, vPixStride, vLineStride);
+}
+//-----------------------------------------------------------------------------
+JNIEXPORT void JNICALL Java_ch_fhnw_comgr_GLES3Lib_onLocationGPS(JNIEnv *env, jobject obj, jfloat longitude, jfloat latitude)
+{
+    //slLocationGPS(longitude, latitude);
+}
+//-----------------------------------------------------------------------------
+JNIEXPORT bool JNICALL Java_ch_fhnw_comgr_GLES3Lib_usesLocation(JNIEnv *env, jobject obj)
+{
+    //return slUsesLocation();
 }
 //-----------------------------------------------------------------------------

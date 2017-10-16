@@ -65,6 +65,8 @@ public class GLES3Lib {
                                                      byte[] y, int ySize, int yPixStride, int yLineStride,
                                                      byte[] u, int uSize, int uPixStride, int uLineStride,
                                                      byte[] v, int vSize, int vPixStride, int vLineStride);
+    public static native boolean usesLocation       ();
+    public static native void    onLocationGPS      (double longitude, double latitude);
 
     /**
      * The RaytracingCallback function is used to repaint the ray tracing image during the
@@ -162,4 +164,5 @@ public class GLES3Lib {
         os.close();
         is.close();
     }
+
 }

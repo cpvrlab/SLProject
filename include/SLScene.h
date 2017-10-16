@@ -145,6 +145,8 @@ class SLScene: public SLObject
                                                  SLuchar* data,
                                                  SLbool isContinuous,
                                                  SLbool isTopLeft);
+            void            onLocationGPS       (SLfloat longitude,
+                                                SLfloat latitude);
 
      static SLScene*        current;            //!< global static scene pointer
 

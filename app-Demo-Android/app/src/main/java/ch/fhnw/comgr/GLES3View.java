@@ -88,6 +88,9 @@ public class GLES3View extends GLSurfaceView
             int videoType = GLES3Lib.getVideoType();
             int sizeIndex = GLES3Lib.getVideoSizeIndex();
             boolean usesRotation = GLES3Lib.usesRotation();
+            // TODO: create method uses GPS and call and set it
+//            boolean usesGPS = GLES3Lib.usesGPS();
+            boolean usesGPS = true;
 
             if (videoType!=VT_NONE)
                  mainLoop.post(new Runnable() {@Override public void run() {GLES3Lib.activity.cameraStart(videoType, sizeIndex);}});
@@ -96,6 +99,10 @@ public class GLES3View extends GLSurfaceView
             if (usesRotation)
                  mainLoop.post(new Runnable() {@Override public void run() {GLES3Lib.activity.rotationSensorStart();}});
             else mainLoop.post(new Runnable() {@Override public void run() {GLES3Lib.activity.rotationSensorStop();}});
+
+            if(usesGPS)
+                mainLoop.post(new Runnable() {@Override public void run() {GLES3Lib.activity.gpsSensorStart();}});
+            else mainLoop.post(new Runnable() {@Override public void run() {GLES3Lib.activity.gpsSensorStop();}});
 
             if (GLES3Lib.onUpdateAndPaint())
                 GLES3Lib.view.requestRender();

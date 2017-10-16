@@ -730,3 +730,9 @@ SLCamera* SLScene::nextCameraInScene(SLSceneView* activeSV)
 
 }
 //-----------------------------------------------------------------------------
+void SLScene::onLocationGPS(SLfloat latitude,
+                            SLfloat longitude)
+{
+
+}
+//-----------------------------------------------------------------------------
