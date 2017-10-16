@@ -46,7 +46,7 @@ enum SLTextureType
 //-----------------------------------------------------------------------------
 //! Texture object for OpenGL texturing
 /*!      
-The SLGLTexture class implements an OpenGL texture object that can is used by the 
+The SLGLTexture class implements an OpenGL texture object that can be used by the 
 SLMaterial class. A texture can have 1-n SLCVImages in the vector _images.
 A simple 2D texture has just a single texture image (_images[0]). For cube maps
 you will need 6 images (_images[0-5]). For 3D textures you can have as much
