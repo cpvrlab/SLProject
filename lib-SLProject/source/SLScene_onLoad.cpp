@@ -2198,7 +2198,6 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         scene->addChild(cam1);
 
         sv->waitEvents(false); // for constant video feed
-        //sv->usesRotation(true);
         sv->camera(cam1);
         _root3D = scene;
     }

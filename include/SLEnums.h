@@ -131,20 +131,19 @@ enum SLCommand
     C_sceneInfoToggle,
     C_quit,
 
-    C_multiSampleToggle,// Toggles multisampling
-    C_depthTestToggle,  // Toggles the depth test flag
-    C_frustCullToggle,  // Toggles frustum culling
-    C_waitEventsToggle, // Toggles the wait event flag
+    C_multiSampleToggle,    // Toggles multisampling
+    C_depthTestToggle,      // Toggles the depth test flag
+    C_frustCullToggle,      // Toggles frustum culling
+    C_waitEventsToggle,     // Toggles the wait event flag
 
-    C_skeletonToggle,   // Toggles skeleton drawing bit
-    C_bBoxToggle,       // Toggles bounding box drawing bit
-    C_axisToggle,       // Toggles axis drawing bit
-    C_faceCullToggle,   // Toggles face culling
-    C_wireMeshToggle,   // Toggles wireframe drawing bit
-    C_normalsToggle,    // Toggles normal drawing bit
-    C_animationToggle,  // Animation bit toggle
-    C_textureToggle,    // Texture drawing bit toggle
-    C_voxelsToggle,     // Voxel drawing bit toggle
+    C_skeletonToggle,       // Toggles skeleton drawing bit
+    C_bBoxToggle,           // Toggles bounding box drawing bit
+    C_axisToggle,           // Toggles axis drawing bit
+    C_faceCullToggle,       // Toggles face culling
+    C_wireMeshToggle,       // Toggles wireframe drawing bit
+    C_normalsToggle,        // Toggles normal drawing bit
+    C_textureToggle,        // Texture drawing bit toggle
+    C_voxelsToggle,         // Voxel drawing bit toggle
    
     C_projPersp,            // Perspective projection
     C_projOrtho,            // Orthographic projection
@@ -175,6 +174,8 @@ enum SLCommand
     C_camAnimTurnZUp,       // Sets turntable camera animation w. Z axis up
     C_camAnimWalkYUp,       // Sets 1st person walking camera animation w. Y axis up
     C_camAnimWalkZUp,       // Sets 1st person walking camera animation w. Z axis up
+    C_camAnimDeviceRotYUp,  // Sets 1st person walking camera animation w. Y axis up and device rotation
+    C_camAnimDeviceRotZUp,  // Sets 1st person walking camera animation w. Y axis up and device rotation
     C_camAnimFly1stP,       // Sets 1st person flying camera animation
     C_camSpeedLimitInc,     // Increments the speed limit by 10%
     C_camSpeedLimitDec,     // Decrements the speed limit by 10%
@@ -247,7 +248,8 @@ enum SLCamAnim
 {   CA_turntableYUp,
     CA_turntableZUp,
     CA_walkingYUp,
-    CA_walkingZUp
+    CA_walkingZUp,
+    CA_deviceRotYUp
 };
 //-----------------------------------------------------------------------------
 //! Enumeration for different camera projections

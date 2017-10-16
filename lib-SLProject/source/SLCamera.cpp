@@ -22,8 +22,8 @@ SLProjection SLCamera::currentProjection   = P_monoPerspective;
 SLfloat      SLCamera::currentFOV          = 45.0f;
 SLint        SLCamera::currentDevRotation  = 0;
 //-----------------------------------------------------------------------------
-SLCamera::SLCamera(SLstring name) : SLNode(name), 
-      _maxSpeed(2.0f), 
+SLCamera::SLCamera(SLstring name) : SLNode(name),
+      _maxSpeed(2.0f),
       _velocity(0.0f, 0.0f, 0.0f),
       _drag(0.05f),
       _brakeAccel(16.0f),
@@ -32,15 +32,14 @@ SLCamera::SLCamera(SLstring name) : SLNode(name),
       _acceleration(0, 0, 0),
       _unitScaling(1.0f),
       _movedLastFrame(false)
-{  
-    _fovInit      = 0;
-    _aspect       = 0;
-    _clipNear     = 0.1f;
-    _clipFar      = 300.0f;
-    _fov          = 45;                 //currentFOV;
-    _projection   = P_monoPerspective;  //currentProjection;
-    _camAnim      = CA_turntableYUp;    //currentAnimation
-    _useDeviceRot = true;
+{
+    _fovInit            = 0;
+    _aspect             = 0;
+    _clipNear           = 0.1f;
+    _clipFar            = 300.0f;
+    _fov                = 45;                 //currentFOV;
+    _projection         = P_monoPerspective;  //currentProjection;
+    _camAnim            = CA_turntableYUp;    //currentAnimation
 
     // depth of field parameters
     _lensDiameter = 0.3f;
@@ -52,8 +51,8 @@ SLCamera::SLCamera(SLstring name) : SLNode(name),
 }
 //-----------------------------------------------------------------------------
 //! Destructor: Be sure to delete the OpenGL display list.
-SLCamera::~SLCamera() 
-{  
+SLCamera::~SLCamera()
+{
 }
 //-----------------------------------------------------------------------------
 /*! SLCamera::camUpdate does the smooth transition for the walk animation. It
@@ -61,11 +60,11 @@ is called in every frame. It moves the camera after the key was released and
 smoothly stops the motion by decreasing the speed every frame.
 */
 SLbool SLCamera::camUpdate(SLfloat elapsedTimeMS)
-{  
+{
     if (_velocity == SLVec3f::ZERO && _moveDir == SLVec3f::ZERO) {
         return false;
     }
-    
+
     if (!_movedLastFrame) {
         _movedLastFrame = true;
         return true;
@@ -75,7 +74,7 @@ SLbool SLCamera::camUpdate(SLfloat elapsedTimeMS)
 
     SLbool braking = false;
     if (_moveDir != SLVec3f::ZERO)
-    {   
+    {
         // x and z movement direction vector should be projected on the x,z plane while
         // but still in local space
         // the y movement direction should alway be in world space
@@ -94,15 +93,15 @@ SLbool SLCamera::camUpdate(SLfloat elapsedTimeMS)
 
     } // accelerate in the opposite velocity to brake
     else
-    {  
+    {
         _acceleration = -_velocity.normalized() * _brakeAccel;
         braking = true;
     }
-    
+
     // accelerate
     SLfloat velMag = _velocity.length();
     SLVec3f increment = _acceleration * dtS; // all units in m/s, convert MS to S
-    
+
     // early out if we're braking and the velocity would fall < 0
     if (braking && increment.lengthSqr() > _velocity.lengthSqr())
     {
@@ -111,7 +110,7 @@ SLbool SLCamera::camUpdate(SLfloat elapsedTimeMS)
         return false;
     }
 
-    _velocity += increment - _drag * _velocity * dtS; 
+    _velocity += increment - _drag * _velocity * dtS;
     velMag = _velocity.length();
 
     // don't go over max speed
@@ -125,95 +124,24 @@ SLbool SLCamera::camUpdate(SLfloat elapsedTimeMS)
     delta *= _unitScaling;
 
     translate(delta, TS_world);
-    
+
     _movedLastFrame = true;
     return true;
-    
-    //SL_LOG("cs: %3.2f | %3.2f, %3.2f, %3.2f\n", _velocity.length(), _acceleration.x, _acceleration.y, _acceleration.z);
-
-    /* OLD CODE BELOW
-    // ToDo: The recursive update traversal is not yet implemented
-    if (_maxSpeed != SLVec3f::ZERO || _curSpeed != SLVec3f::ZERO)
-    {  
-        // delta speed during acceleration/slow down
-        SLfloat ds = _speedLimit / 20.0f;
-      
-        // Accelerate
-        if (_maxSpeed.x>0 && _curSpeed.x<_maxSpeed.x) _curSpeed.x += ds; else
-        if (_maxSpeed.x<0 && _curSpeed.x>_maxSpeed.x) _curSpeed.x -= ds;
-        if (_maxSpeed.y>0 && _curSpeed.y<_maxSpeed.y) _curSpeed.y += ds; else
-        if (_maxSpeed.y<0 && _curSpeed.y>_maxSpeed.y) _curSpeed.y -= ds;      
-        if (_maxSpeed.z>0 && _curSpeed.z<_maxSpeed.z) _curSpeed.z += ds; else
-        if (_maxSpeed.z<0 && _curSpeed.z>_maxSpeed.z) _curSpeed.z -= ds;
-      
-        if (_curSpeed.z == 0.0f) {
-            int i = 0;
-        }
-
-        // Slow down
-        if (_maxSpeed.z == 0)
-        {   if (_curSpeed.z > 0) 
-            {  _curSpeed.z -= ds;
-                if (_curSpeed.z < 0) _curSpeed.z = 0.0f;
-            } else
-            if (_curSpeed.z < 0) 
-            {  _curSpeed.z += ds;
-                if (_curSpeed.z > 0) _curSpeed.z = 0.0f;
-            }
-        }
-        if (_maxSpeed.x == 0)
-        {   if (_curSpeed.x < 0) 
-            {  _curSpeed.x += ds;
-                if (_curSpeed.x > 0) _curSpeed.x = 0.0f;
-            } else 
-            if (_curSpeed.x > 0) 
-            {  _curSpeed.x -= ds;
-                if (_curSpeed.x < 0) _curSpeed.x = 0.0f;
-            }
-        }
-        if (_maxSpeed.y == 0)
-        {   if (_curSpeed.y < 0) 
-            {  _curSpeed.y += ds;
-                if (_curSpeed.y > 0) _curSpeed.y = 0.0f;
-            } else 
-            if (_curSpeed.y > 0) 
-            {  _curSpeed.y -= ds;
-                if (_curSpeed.y < 0) _curSpeed.y = 0.0f;
-            }
-        }
-      
-        SL_LOG("cs: %3.1f, %3.1f, %3.1f\n", _curSpeed.x, _curSpeed.y, _curSpeed.z);
-        SLfloat temp = _curSpeed.length();
-
-        _curSpeed = updateAndGetWM().mat3() * _curSpeed;
-        _curSpeed.y = 0;
-        _curSpeed.normalize();
-        _curSpeed *= temp;
-
-        forward();
-
-        SLVec3f delta(_curSpeed * elapsedTimeMS / 1000.0f);
-
-        translate(delta, TS_World);
-      
-        return true;
-    }
-    return false;*/
 }
 
 //-----------------------------------------------------------------------------
 //! SLCamera::drawMeshes draws the cameras frustum lines
 /*!
-Only draws the frustum lines without lighting when the camera is not the 
+Only draws the frustum lines without lighting when the camera is not the
 active one. This means that it can be seen from the active view point.
 */
-void SLCamera::drawMeshes(SLSceneView* sv) 
-{  
+void SLCamera::drawMeshes(SLSceneView* sv)
+{
     if (sv->camera()!=this)
     {
         // Vertices of the far plane
         SLVec3f farRT, farRB, farLT, farLB;
-        
+
         if (_projection == P_monoOrthographic)
         {
             const SLMat4f& vm = updateAndGetWMI();
@@ -234,7 +162,7 @@ void SLCamera::drawMeshes(SLSceneView* sv)
             P.push_back(SLVec3f(l,t,_clipNear)); P.push_back(farLT);
             P.push_back(SLVec3f(l,b,_clipNear)); P.push_back(farLB);
             P.push_back(SLVec3f(r,b,_clipNear)); P.push_back(farRB);
-            
+
             // around far clipping plane
             P.push_back(farRT); P.push_back(farRB);
             P.push_back(farRB); P.push_back(farLB);
@@ -298,10 +226,10 @@ void SLCamera::drawMeshes(SLSceneView* sv)
             P.push_back(SLVec3f(rN,-tN,-_clipNear)); P.push_back(SLVec3f(lN,-tN,-_clipNear));
             P.push_back(SLVec3f(lN,-tN,-_clipNear)); P.push_back(SLVec3f(lN, tN,-_clipNear));
             P.push_back(SLVec3f(lN, tN,-_clipNear)); P.push_back(SLVec3f(rN, tN,-_clipNear));
-            
+
             _vao.generateVertexPos(&P);
         }
-      
+
         _vao.drawArrayAsColored(PT_lines, SLCol4f::WHITE*0.7f);
         _background.renderInScene(farLT, farLB, farRT, farRB);
     }
@@ -309,7 +237,7 @@ void SLCamera::drawMeshes(SLSceneView* sv)
 //-----------------------------------------------------------------------------
 //! SLCamera::statsRec updates the statistic parameters
 void SLCamera::statsRec(SLNodeStats &stats)
-{  
+{
     stats.numTriangles += 12;
     stats.numBytes += sizeof(SLCamera);
     SLNode::statsRec(stats);
@@ -352,7 +280,7 @@ void SLCamera::calcMinMax(SLVec3f &minV, SLVec3f &maxV)
 //-----------------------------------------------------------------------------
 //! Returns the projection type as string
 SLstring SLCamera::projectionToStr(SLProjection p)
-{  
+{
     switch (p)
     {   case P_monoPerspective:      return "Perspective";
         case P_monoOrthographic:     return "Orthographic";
@@ -370,21 +298,21 @@ SLstring SLCamera::projectionToStr(SLProjection p)
     }
 }
 //-----------------------------------------------------------------------------
-/*! 
+/*!
 Returns the height of the screen at focal distance. In stereo rendering this
 should correspond to the height of the projection plane.
 */
 SLfloat SLCamera::focalDistScrH() const
-{  
+{
    return tan(_fov*SL_DEG2RAD/2.0f) * _focalDist * 2.0f;
 }
 //-----------------------------------------------------------------------------
-/*! 
+/*!
 Returns the width of the screen at focal distance. In stereo rendering this
 should correspond to the width of the projection plane.
 */
 SLfloat SLCamera::focalDistScrW() const
-{  
+{
     return focalDistScrH() * _aspect;
 }
 //-----------------------------------------------------------------------------
@@ -392,10 +320,10 @@ SLfloat SLCamera::focalDistScrW() const
 Sets the projection transformation matrix, the viewport transformation and the
 drawing buffer. In case of a stereographic projection it additionally sets the
 stereo splitting parameters such as the color masks and the color filter matrix
-for stereo color anaglyph. 
+for stereo color anaglyph.
 */
 void SLCamera::setProjection(SLSceneView* sv, const SLEyeType eye)
-{  
+{
     ////////////////////
     // Set Projection //
     ////////////////////
@@ -404,15 +332,15 @@ void SLCamera::setProjection(SLSceneView* sv, const SLEyeType eye)
 
     _stateGL->stereoEye  = eye;
     _stateGL->projection = _projection;
-   
+
     SLVec3f pos(vm.translation());
     SLfloat top, bottom, left, right, d;   // frustum parameters
     _scrW = sv->scrW();
     _scrH = sv->scrH();
     _aspect = sv->scrWdivH();
-   
-    switch (_projection) 
-    {  
+
+    switch (_projection)
+    {
         case P_monoPerspective:
             _stateGL->projectionMatrix.perspective(_fov, sv->scrWdivH(), _clipNear, _clipFar);
             break;
@@ -434,7 +362,7 @@ void SLCamera::setProjection(SLSceneView* sv, const SLEyeType eye)
 
             break;
         // all other stereo projections
-        default: 
+        default:
             // asymmetric frustum shift d (see chapter stereo projection)
             d = (SLfloat)eye * 0.5f * _eyeSeparation * _clipNear / _focalDist;
             top    = tan(SL_DEG2RAD*_fov/2) * _clipNear;
@@ -447,47 +375,47 @@ void SLCamera::setProjection(SLSceneView* sv, const SLEyeType eye)
     //////////////////
     // Set Viewport //
     //////////////////
-   
+
     SLint w = sv->scrW();
     SLint h = sv->scrH();
     SLint w2 = sv->scrWdiv2();
     SLint h2 = sv->scrHdiv2();
     SLint h4 = h2 >> 1;
-   
+
     if (_projection == P_stereoSideBySideD)
     {   SLint fbW2 = sv->oculusFB()->halfWidth();
         SLint fbH  = sv->oculusFB()->height();
-        if (eye==ET_left) 
+        if (eye==ET_left)
              _stateGL->viewport(   0, 0, fbW2, fbH);
         else _stateGL->viewport(fbW2, 0, fbW2, fbH);
     } else
     if (_projection == P_stereoSideBySide)
-    {  
-        if (eye==ET_left) 
+    {
+        if (eye==ET_left)
              _stateGL->viewport( 0, 0, w2, h);
         else _stateGL->viewport(w2, 0, w2, h);
     } else
     if (_projection == P_stereoSideBySideP)
-    {  
-        if (eye==ET_left) 
+    {
+        if (eye==ET_left)
              _stateGL->viewport( 0, h4, w2, h2);
         else _stateGL->viewport(w2, h4, w2, h2);
-    } else  
+    } else
         _stateGL->viewport(0, 0, w, h);
 
     ///////////////////
     // Clear Buffers //
     ///////////////////
 
-    if (eye==ET_right) //&& _projection >= stereoColorRC) 
+    if (eye==ET_right) //&& _projection >= stereoColorRC)
         // Do not clear color on right eye because it contains the color of the
         // left eye. The right eye must be drawn after the left into the same buffer
         _stateGL->clearDepthBuffer();
-   
+
     //  Set Color Mask and Filter
     if (_projection >= P_stereoColorRC)
     {   if (eye==ET_left)
-        {  switch (_projection) 
+        {  switch (_projection)
             {   case P_stereoColorRC: _stateGL->colorMask(1, 0, 0, 1); break;
                 case P_stereoColorRB: _stateGL->colorMask(1, 0, 0, 1); break;
                 case P_stereoColorRG: _stateGL->colorMask(1, 0, 0, 1); break;
@@ -495,7 +423,7 @@ void SLCamera::setProjection(SLSceneView* sv, const SLEyeType eye)
                 default: break;
             }
         } else
-        {   switch (_projection) 
+        {   switch (_projection)
             {   case P_stereoColorRC: _stateGL->colorMask(0, 1, 1, 1); break;
                 case P_stereoColorRB: _stateGL->colorMask(0, 0, 1, 1); break;
                 case P_stereoColorRG: _stateGL->colorMask(0, 1, 0, 1); break;
@@ -503,9 +431,9 @@ void SLCamera::setProjection(SLSceneView* sv, const SLEyeType eye)
                 default: break;
             }
         }
-      
+
         // Set color filter matrix for red-cyan and yello-blue (ColorCode3D)
-        switch (_projection) 
+        switch (_projection)
         {   case P_stereoColorRC:
             _stateGL->stereoColorFilter.setMatrix(0.29f, 0.59f, 0.12f,
                                                   0.00f, 1.00f, 0.00f,
@@ -522,28 +450,48 @@ void SLCamera::setProjection(SLSceneView* sv, const SLEyeType eye)
 //-----------------------------------------------------------------------------
 /*!
 Applies the view transform to the modelview matrix depending on the eye:
-eye=-1 for left, eye=1 for right
+eye=-1 for the left and eye=1 for the right eye.
+The view matrix that projects all points from the world coordinate system to
+the camera coordinate system (that means relative to the camera) is the camera
+nodes inverse world matrix.
 */
 void SLCamera::setView(SLSceneView* sv, const SLEyeType eye)
-{  
+{
     SLScene* s = SLScene::current;
-   
+
+    // The view matrix is the camera nodes inverse world matrix
     SLMat4f vm = updateAndGetWMI();
 
+    // Initialize the modelview to identity
+    _stateGL->modelViewMatrix.identity();
+
+    // Single eye projection
     if (eye == ET_center)
-    {   _stateGL->modelViewMatrix.identity();
-        _stateGL->viewMatrix.setMatrix(vm);
-    } 
+    {
+        // The camera rotation comes from the mobile device
+        // See also SLScene::onRotationPYR where the sensor data arrive.
+        if (_camAnim==CA_deviceRotYUp)
+        {
+            SLMat4f rotMat(s->deviceRotation().inverted().toMat4());
+            SLMat4f posMat(this->translationOS());
+            SLMat4f vmEye(rotMat * posMat.inverse());
+            _stateGL->viewMatrix = vmEye;
+        }
+        else // Standard case: Just overwrite the view matrix
+        {
+            _stateGL->viewMatrix.setMatrix(vm);
+        }
+    }
     else // stereo viewing
     {
         if (_projection == P_stereoSideBySideD)
-        {  
-            // half interpupilar disqtance
+        {
+            // half interpupilar distance
             //_eyeSeparation = s->oculus()->interpupillaryDistance(); update old rift code
             SLfloat halfIPD = (SLfloat)eye * _eyeSeparation * -0.5f;
-            
+
             SLMat4f trackingPos;
-            if (_useDeviceRot)
+            if (_camAnim==CA_deviceRotYUp)
             {
                 // get the oculus or mobile device orientation
                 SLQuat4f rotation;
@@ -556,16 +504,16 @@ void SLCamera::setView(SLSceneView* sv, const SLEyeType eye)
 
                 SLfloat rotX, rotY, rotZ;
                 rotation.toMat4().toEulerAnglesZYX(rotZ, rotY, rotX);
-                //SL_LOG("rotx : %3.1f, roty: %3.1f, rotz: %3.1f\n", rotX*SL_RAD2DEG, rotY*SL_RAD2DEG, rotZ*SL_RAD2DEG);
+                //SL_LOG("rotx : %3.1f, roty: %3.1f, rotz: %3.1f\n", rotX*SL_RAD2DEG, rotY*SL_RAD2DEG, rotZ*SL_RAD2DEG);$
+
                 SLVec3f viewAdjust = s->oculus()->viewAdjust(eye) * _unitScaling;
+
                 SLMat4f vmEye(SLMat4f(viewAdjust.x, viewAdjust.y, viewAdjust.z) * rotation.inverted().toMat4() * trackingPos * vm);
-                _stateGL->modelViewMatrix = vmEye;
                 _stateGL->viewMatrix = vmEye;
-            } 
+            }
             else
-            {      
+            {
                 SLMat4f vmEye(SLMat4f(halfIPD, 0.0f, 0.f) * vm);
-                _stateGL->modelViewMatrix = vmEye;
                 _stateGL->viewMatrix = vmEye;
             }
         }
@@ -574,63 +522,63 @@ void SLCamera::setView(SLSceneView* sv, const SLEyeType eye)
             // Get central camera vectors eye, lookAt, lookUp out of the view matrix vm
             SLVec3f EYE, LA, LU, LR;
             vm.lookAt(&EYE, &LA, &LU, &LR);
-   
+
             // Shorten LR to half of the eye dist (eye=-1 for left, eye=1 for right)
             LR *= _eyeSeparation * 0.5f * (SLfloat)eye;
-      
+
             // Set the OpenGL view matrix for the left eye
             SLMat4f vmEye;
             vmEye.lookAt(EYE+LR, EYE + _focalDist*LA+LR, LU);
-            _stateGL->modelViewMatrix = vmEye;
             _stateGL->viewMatrix = vmEye;
         }
-    } 
+    }
 }
 //-----------------------------------------------------------------------------
 //! SLCamera::animationStr() returns the animation enum as string
 SLstring SLCamera::animationStr() const
-{  
+{
     switch (_camAnim)
-    {   case CA_turntableYUp: return "Turntable Y up";
-        case CA_turntableZUp: return "Turntable Z up";
-        case CA_walkingYUp:  return "Walking Y up";
-        case CA_walkingZUp:  return "Walking Z up";
+    {   case CA_turntableYUp:   return "Turntable Y up";
+        case CA_turntableZUp:   return "Turntable Z up";
+        case CA_walkingYUp:     return "Walking Y up";
+        case CA_walkingZUp:     return "Walking Z up";
+        case CA_deviceRotYUp:   return "Device Rotated Y up";
         default: return "unknown";
     }
 }
 
 //-----------------------------------------------------------------------------
-/* 
+/*
 Event Handlers: Because the SLNode class also inherits the SLEventHandler
 class a node can also act as a event handler. The camera class uses this to
 implement the camera animation.
 */
 //-----------------------------------------------------------------------------
 //! Gets called whenever a mouse button gets pressed.
-SLbool SLCamera::onMouseDown(const SLMouseButton button, 
+SLbool SLCamera::onMouseDown(const SLMouseButton button,
                              const SLint x, const SLint y, const SLKey mod)
-{  
+{
     SLScene* s = SLScene::current;
 
     // Determine the lookAt point by ray cast to the screen center
     eyeToPixelRay((SLfloat)(_scrW>>1), (SLfloat)(_scrH>>1), &_lookAtRay);
-   
+
     if (s->root3D())
         s->root3D()->hitRec(&_lookAtRay);
 
     // Init both position in case that the second finger came with delay
     _oldTouchPos1.set((SLfloat)x, (SLfloat)y);
     _oldTouchPos2.set((SLfloat)x, (SLfloat)y);
-   
+
     return false;
-}  
+}
 //-----------------------------------------------------------------------------
 //! Gets called whenever the mouse is moved.
-SLbool SLCamera::onMouseMove(const SLMouseButton button, 
+SLbool SLCamera::onMouseMove(const SLMouseButton button,
                              const SLint x, const SLint y, const SLKey mod)
-{  
+{
     if (button == MB_left) //==================================================
-    {   
+    {
         // new vars needed
         SLVec3f position = this->translationOS();
         SLVec3f forward =  this->forwardOS();
@@ -639,13 +587,13 @@ SLbool SLCamera::onMouseMove(const SLMouseButton button,
 
         // The lookAt point
         SLVec3f laP = position + _focalDist * forward;
-         
+
         // Determine rotation point as the center of the AABB of the hitNode
         SLVec3f rtP;
-        if (_lookAtRay.hitNode) //_lookAtRay.length < FLT_MAX && 
+        if (_lookAtRay.hitNode) //_lookAtRay.length < FLT_MAX &&
              rtP = _lookAtRay.hitNode->aabb()->centerWS();
         else rtP = laP;
-              
+
         // Determine rot angles around x- & y-axis
         SLfloat dY = (y-_oldTouchPos1.y) * _rotFactor;
         SLfloat dX = (x-_oldTouchPos1.x) * _rotFactor;
@@ -657,7 +605,7 @@ SLbool SLCamera::onMouseMove(const SLMouseButton button,
             rot.rotate(-dX, SLVec3f(0,1,0));
             rot.rotate(-dY, right);
             rot.translate(-rtP);
-			
+
             _om.setMatrix(rot * _om);
             needUpdate();
         }
@@ -668,15 +616,15 @@ SLbool SLCamera::onMouseMove(const SLMouseButton button,
             rot.rotate(dX, SLVec3f(0,0,1));
             rot.rotate(dY, right);
             rot.translate(-rtP);
-         
+
             _om.setMatrix(rot * _om);
             needWMUpdate();
         }
         else if (_camAnim==CA_walkingYUp) //...................................
         {
-            dY *= 0.5f; 
-            dX *= 0.5f; 
-            
+            dY *= 0.5f;
+            dX *= 0.5f;
+
             SLMat4f rot;
             rot.rotate(-dX, SLVec3f(0, 1, 0));
             rot.rotate(-dY, right);
@@ -686,9 +634,9 @@ SLbool SLCamera::onMouseMove(const SLMouseButton button,
         }
         else if (_camAnim==CA_walkingZUp) //...................................
         {
-            dY *= 0.5f; 
-            dX *= 0.5f; 
-            
+            dY *= 0.5f;
+            dX *= 0.5f;
+
             SLMat4f rot;
             rot.rotate(-dX, SLVec3f(0, 0, 1));
             rot.rotate(-dY, right);
@@ -696,18 +644,18 @@ SLbool SLCamera::onMouseMove(const SLMouseButton button,
             forward.set(rot.multVec(forward));
             lookAt(position + forward, SLVec3f(0, 0, 1));
         }
-        
+
         _oldTouchPos1.set((SLfloat)x,(SLfloat)y);
-    } 
+    }
     else
     if (button == MB_middle) //================================================
     {   if (_camAnim==CA_turntableYUp || _camAnim==CA_turntableZUp)
-        {  
+        {
             // Calculate the fraction delta of the mouse movement
             SLVec2f dMouse(x-_oldTouchPos1.x, _oldTouchPos1.y-y);
             dMouse.x /= (SLfloat)_scrW;
             dMouse.y /= (SLfloat)_scrH;
-         
+
             // Scale the mouse delta by the lookAt distance
             SLfloat lookAtDist;
             if (_lookAtRay.length < FLT_MAX)
@@ -720,7 +668,7 @@ SLbool SLCamera::onMouseMove(const SLMouseButton button,
 
             dMouse.x *= spaceW;
             dMouse.y *= spaceH;
-         
+
             if (mod==K_ctrl)
             {
                 translate(SLVec3f(-dMouse.x, 0, dMouse.y), TS_object);
@@ -736,17 +684,17 @@ SLbool SLCamera::onMouseMove(const SLMouseButton button,
 }
 //-----------------------------------------------------------------------------
 //! Gets called whenever the mouse button is released
-SLbool SLCamera::onMouseUp(const SLMouseButton button, 
+SLbool SLCamera::onMouseUp(const SLMouseButton button,
                            const SLint x, const SLint y, const SLKey mod)
 {
     // Stop any motion
     //_acceleration.set(0.0f, 0.0f, 0.0f);
-   
+
     //SL_LOG("onMouseUp\n");
     if (button == MB_left) //===============================================
     {   if (_camAnim==CA_turntableYUp) //.........................................
         {   return true;
-        } 
+        }
         else if (_camAnim==CA_walkingYUp) //......................................
         {  return true;
         }
@@ -757,34 +705,34 @@ SLbool SLCamera::onMouseUp(const SLMouseButton button,
     return false;
 }
 //-----------------------------------------------------------------------------
-/*! 
+/*!
 SLCamera::onMouseWheel event handler moves camera forwards or backwards
 */
 SLbool SLCamera::onMouseWheel(const SLint delta, const SLKey mod)
-{  
+{
     SLScene* s = SLScene::current;
     SLfloat sign = (SLfloat)SL_sign(delta);
-   
+
     if (_camAnim==CA_turntableYUp || _camAnim==CA_turntableZUp) //....................
     {   if (mod==K_none)
-        {  
+        {
             // Determine the lookAt point by ray cast
             eyeToPixelRay((SLfloat)(_scrW>>1),
                         (SLfloat)(_scrH>>1), &_lookAtRay);
 
-            if (s->root3D()) 
+            if (s->root3D())
                 s->root3D()->hitRec(&_lookAtRay);
 
-            if (_lookAtRay.length < FLT_MAX) 
-                _lookAtRay.hitPoint = _lookAtRay.origin + 
+            if (_lookAtRay.length < FLT_MAX)
+                _lookAtRay.hitPoint = _lookAtRay.origin +
                                       _lookAtRay.dir*_lookAtRay.length;
-         
+
             // Scale the mouse delta by the lookAt distance
             SLfloat lookAtDist;
             if (_lookAtRay.hitNode)
                  lookAtDist = _lookAtRay.length;
             else lookAtDist = _focalDist;
-                  
+
             translate(SLVec3f(0, 0, -sign*lookAtDist*_dPos), TS_object);
 
             _lookAtRay.length = FLT_MAX;
@@ -802,13 +750,13 @@ SLbool SLCamera::onMouseWheel(const SLint delta, const SLKey mod)
         return true;
     }
     else if (_camAnim==CA_walkingYUp || _camAnim==CA_walkingZUp) //...................
-    {  
+    {
         _maxSpeed *= (1.0f + sign*0.1f);
     }
     return false;
 }
 //-----------------------------------------------------------------------------
-/*! 
+/*!
 SLCamera::onDoubleTouch gets called whenever two fingers touch a handheld
 screen.
 */
@@ -816,20 +764,20 @@ SLbool SLCamera::onTouch2Down(const SLint x1, const SLint y1,
                               const SLint x2, const SLint y2)
 {
     SLScene* s = SLScene::current;
-   
+
     // Determine the lookAt point by ray cast
-    eyeToPixelRay((SLfloat)(_scrW>>1), 
+    eyeToPixelRay((SLfloat)(_scrW>>1),
                   (SLfloat)(_scrH>>1), &_lookAtRay);
 
     s->root3D()->hitRec(&_lookAtRay);
-   
+
     _oldTouchPos1.set((SLfloat)x1, (SLfloat)y1);
     _oldTouchPos2.set((SLfloat)x2, (SLfloat)y2);
     return true;
 }
 //-----------------------------------------------------------------------------
-/*! 
-SLCamera::onTouch2Move gets called whenever two fingers move on a handheld 
+/*!
+SLCamera::onTouch2Move gets called whenever two fingers move on a handheld
 screen.
 */
 SLbool SLCamera::onTouch2Move(const SLint x1, const SLint y1,
@@ -839,7 +787,7 @@ SLbool SLCamera::onTouch2Move(const SLint x1, const SLint y1,
     SLVec2f now2((SLfloat)x2, (SLfloat)y2);
     SLVec2f delta1(now1-_oldTouchPos1);
     SLVec2f delta2(now2-_oldTouchPos2);
-   
+
     // Average out the deltas over the last 4 events for correct 1 pixel moves
     static SLuint  cnt=0;
     static SLVec2f d1[4];
@@ -851,33 +799,33 @@ SLbool SLCamera::onTouch2Move(const SLint x1, const SLint y1,
     avgDelta1 /= 4.0f;
     avgDelta2 /= 4.0f;
     cnt++;
-      
+
     SLfloat r1, phi1, r2, phi2;
     avgDelta1.toPolar(r1, phi1);
     avgDelta2.toPolar(r2, phi2);
-    
+
     // Scale the mouse delta by the lookAt distance
     SLfloat lookAtDist;
     if (_lookAtRay.length < FLT_MAX)
         lookAtDist = _lookAtRay.length;
     else lookAtDist = _focalDist;
-         
+
     // scale factor depending on the space sice at focal dist
     SLfloat spaceH = tan(SL_DEG2RAD*_fov/2) * lookAtDist * 2.0f;
     SLfloat spaceW = spaceH * _aspect;
-   
+
     //SL_LOG("avgDelta1: (%05.2f,%05.2f), dPhi=%05.2f\n", avgDelta1.x, avgDelta1.y, SL_abs(phi1-phi2));
-   
+
     // if fingers move parallel slide camera vertically or horizontally
     if (SL_abs(phi1-phi2) < 0.2f)
-    {  
+    {
         // Calculate center between finger points
         SLVec2f nowCenter((now1+now2)*0.5f);
         SLVec2f oldCenter((_oldTouchPos1+_oldTouchPos2)*0.5f);
-      
+
         // For first move set oldCenter = nowCenter
         if (oldCenter == SLVec2f::ZERO) oldCenter = nowCenter;
-      
+
         SLVec2f delta(nowCenter - oldCenter);
 
         // scale to 0-1
@@ -887,12 +835,12 @@ SLbool SLCamera::onTouch2Move(const SLint x1, const SLint y1,
         // scale to space size
         delta.x *= spaceW;
         delta.y *= spaceH;
-      
+
         if (_camAnim==CA_turntableYUp || _camAnim==CA_turntableZUp)
-        {           
+        {
             // apply delta to x- and y-position
             translate(SLVec3f(-delta.x, delta.y, 0), TS_object);
-        } 
+        }
         else if (_camAnim == CA_walkingYUp || _camAnim == CA_walkingZUp)
         {
             //_moveDir.x = delta.x * 100.0f,
@@ -900,14 +848,14 @@ SLbool SLCamera::onTouch2Move(const SLint x1, const SLint y1,
         }
 
     } else // Two finger pinch
-    {  
+    {
         // Calculate vector between fingers
         SLVec2f nowDist(now2 - now1);
         SLVec2f oldDist(_oldTouchPos2-_oldTouchPos1);
-      
+
         // For first move set oldDist = nowDist
         if (oldDist == SLVec2f::ZERO) oldDist = nowDist;
-      
+
         SLfloat delta = oldDist.length() - nowDist.length();
 
         if (_camAnim==CA_turntableYUp)
@@ -916,13 +864,13 @@ SLbool SLCamera::onTouch2Move(const SLint x1, const SLint y1,
 
             // scale to space height
             delta *= spaceH*2;
-         
+
             // apply delta to the z-position
             translate(SLVec3f(0, 0, delta), TS_object);
 
-        } 
+        }
         else if (_camAnim == CA_walkingYUp)
-        {  
+        {
             // change field of view
             _fov += SL_sign(delta) * 0.5f;
             currentFOV = _fov;
@@ -934,7 +882,7 @@ SLbool SLCamera::onTouch2Move(const SLint x1, const SLint y1,
     return true;
 }
 //-----------------------------------------------------------------------------
-/*! 
+/*!
 SLCamera::onDoubleTouch gets called whenever two fingers touch a handheld
 screen.
 */
@@ -946,11 +894,11 @@ SLbool SLCamera::onTouch2Up(const SLint x1, const SLint y1,
 }
 //-----------------------------------------------------------------------------
 /*!
-SLCamera::onKeyPress applies the keyboard view navigation to the view matrix. 
+SLCamera::onKeyPress applies the keyboard view navigation to the view matrix.
 The key code constants are defined in SL.h
 */
-SLbool SLCamera::onKeyPress(const SLKey key, const SLKey mod)  
-{  
+SLbool SLCamera::onKeyPress(const SLKey key, const SLKey mod)
+{
     switch ((SLchar)key)
     {   case 'W': _moveDir.z -= 1.0f; return true;
         case 'S': _moveDir.z += 1.0f; return true;
@@ -966,7 +914,7 @@ SLbool SLCamera::onKeyPress(const SLKey key, const SLKey mod)
 
         case (SLchar)K_down: return onMouseWheel( 1, mod);
         case (SLchar)K_up:   return onMouseWheel(-1, mod);
-        
+
         default:  return false;
     }
 }
@@ -975,7 +923,7 @@ SLbool SLCamera::onKeyPress(const SLKey key, const SLKey mod)
 SLCamera::onKeyRelease gets called when a key is released
 */
 SLbool SLCamera::onKeyRelease(const SLKey key, const SLKey mod)
-{  
+{
     switch ((SLchar)key)
     {   case 'W': _moveDir.z += 1.0f; return true;
         case 'S': _moveDir.z -= 1.0f; return true;
@@ -989,7 +937,7 @@ SLbool SLCamera::onKeyRelease(const SLKey key, const SLKey mod)
 }
 //-----------------------------------------------------------------------------
 //! SLCamera::setFrustumPlanes set the 6 plane from the view frustum.
-/*! SLCamera::setFrustumPlanes set the 6 frustum planes by extracting the plane 
+/*! SLCamera::setFrustumPlanes set the 6 frustum planes by extracting the plane
 coefficients from the combined view and projection matrix.
 See the paper from Gribb and Hartmann:
 http://www2.ravensoft.com/users/ggribb/plane%20extraction.pdf
@@ -998,21 +946,21 @@ void SLCamera::setFrustumPlanes()
 {
     // build combined view projection matrix
     // SLCamera::setView should've been called before so viewMatrix contains the right value
-    SLMat4f A(_stateGL->projectionMatrix*_stateGL->viewMatrix); 
-	
+    SLMat4f A(_stateGL->projectionMatrix*_stateGL->viewMatrix);
+
     // set the A,B,C & D coeffitient for each plane
     _plane[T].setCoefficients(-A.m( 1) + A.m( 3),-A.m( 5) + A.m( 7),
-				              -A.m( 9) + A.m(11),-A.m(13) + A.m(15));
+                              -A.m( 9) + A.m(11),-A.m(13) + A.m(15));
     _plane[B].setCoefficients( A.m( 1) + A.m( 3), A.m( 5) + A.m( 7),
-				               A.m( 9) + A.m(11), A.m(13) + A.m(15));
+                               A.m( 9) + A.m(11), A.m(13) + A.m(15));
     _plane[L].setCoefficients( A.m( 0) + A.m( 3), A.m( 4) + A.m( 7),
-				               A.m( 8) + A.m(11), A.m(12) + A.m(15));
+                               A.m( 8) + A.m(11), A.m(12) + A.m(15));
     _plane[R].setCoefficients(-A.m( 0) + A.m( 3),-A.m( 4) + A.m( 7),
-				              -A.m( 8) + A.m(11),-A.m(12) + A.m(15));
+                              -A.m( 8) + A.m(11),-A.m(12) + A.m(15));
     _plane[N].setCoefficients( A.m( 2) + A.m( 3), A.m( 6) + A.m( 7),
-				               A.m(10) + A.m(11), A.m(14) + A.m(15));
+                               A.m(10) + A.m(11), A.m(14) + A.m(15));
     _plane[F].setCoefficients(-A.m( 2) + A.m( 3),-A.m( 6) + A.m( 7),
-				              -A.m(10) + A.m(11),-A.m(14) + A.m(15));
+                              -A.m(10) + A.m(11),-A.m(14) + A.m(15));
 }
 //-----------------------------------------------------------------------------
 //! eyeToPixelRay returns the a ray from the eye to the center of a pixel.
@@ -1071,10 +1019,10 @@ void SLCamera::eyeToPixelRay(SLfloat x, SLfloat y, SLRay* ray)
 
     ray->length = FLT_MAX;
     ray->depth = 1;
-    ray->contrib = 1.0f; 
+    ray->contrib = 1.0f;
     ray->type = PRIMARY;
     ray->x = x;
-    ray->y = y;  
+    ray->y = y;
     ray->hitTriangle = -1;
     ray->hitNormal.set(SLVec3f::ZERO);
     ray->hitPoint.set(SLVec3f::ZERO);
@@ -1084,27 +1032,27 @@ void SLCamera::eyeToPixelRay(SLfloat x, SLfloat y, SLRay* ray)
 }
 //-----------------------------------------------------------------------------
 //! SLCamera::isInFrustum does a simple and fast frustum culling test for AABBs
-/*! SLCamera::isInFrustum checks if the bounding sphere of an AABB is within 
+/*! SLCamera::isInFrustum checks if the bounding sphere of an AABB is within
 the view frustum defined by its 6 planes by simply testing the distance of the
 AABBs center minus its radius. This is faster than the AABB in frustum test but
 not as precise. Please refer to the nice tutorial on frustum culling on:
 http://www.lighthouse3d.com/opengl/viewfrustum/
 */
-SLbool SLCamera::isInFrustum(SLAABBox* aabb) 
-{	
+SLbool SLCamera::isInFrustum(SLAABBox* aabb)
+{
     // check the 6 planes of the frustum
-    for(SLint i=0; i < 6; ++i) 
+    for(SLint i=0; i < 6; ++i)
     {	SLfloat distance = _plane[i].distToPoint(aabb->centerWS());
-	    if (distance < -aabb->radiusWS()) 
-	    {   aabb->isVisible(false);
-		    return false;
-	    }
+        if (distance < -aabb->radiusWS())
+        {   aabb->isVisible(false);
+            return false;
+        }
     }
     aabb->isVisible(true);
-	
+
     // Calculate squared dist. from AABB's center to viewer for blend sorting.
     SLVec3f viewToCenter(_wm.translation()-aabb->centerWS());
-    aabb->sqrViewDist(viewToCenter.lengthSqr());    	   
+    aabb->sqrViewDist(viewToCenter.lengthSqr());
     return true;
 }
 //-----------------------------------------------------------------------------
@@ -1120,6 +1068,6 @@ SLstring SLCamera::toString() const
     ss << "Animation: " << animationStr()  << endl;
     ss << vm.toString() << endl;
     return ss.str();
-}       
+}
 //-----------------------------------------------------------------------------
 

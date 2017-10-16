@@ -203,7 +203,8 @@ public class GLES3Activity extends Activity implements View.OnTouchListener, Sen
                     }
                 });
                 //Log.i(TAG, String.format("onSensorChanged: Pitch(%3.0f), Yaw(%3.0f), Roll(%3.0f)", p, y, r));
-            } else {    // Map pitch, yaw and roll to landscape display orientation for Oculus Rift conformance
+            }
+            else {    // Map pitch, yaw and roll to landscape display orientation for Oculus Rift conformance
                 final float p = YPR[2] * -1.0f - (float) Math.PI * 0.5f;
                 final float y = YPR[0] * -1.0f - (float) Math.PI * 0.5f;
                 final float r = YPR[1];
@@ -215,10 +216,19 @@ public class GLES3Activity extends Activity implements View.OnTouchListener, Sen
                 //Log.i(TAG, String.format("onSensorChanged: Pitch(%3.0f), Yaw(%3.0f), Roll(%3.0f)", p, y, r));
             }
 
+            /*
             // Get the rotation quaternion from the XYZ-rotation vector (see docs)
+<<<<<<< HEAD
             //final float Q[] = new float[4];
             //SensorManager.getQuaternionFromVector(Q, event.values);
             //myView.queueEvent(new Runnable() {public void run() {GLES3Lib.onRotationQUAT(Q[1],Q[2],Q[3],Q[0]);}});
+=======
+            final float Q[] = new float[4];
+            SensorManager.getQuaternionFromVector(Q, event.values);
+            myView.queueEvent(new Runnable() {public void run() {GLES3Lib.onRotationQUAT(Q[1],Q[2],Q[3],Q[0]);}});
+            */
+
+>>>>>>> develop
         }
     }
 

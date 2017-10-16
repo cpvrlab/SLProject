@@ -404,7 +404,7 @@ void slRotationPYR(float pitchRAD, float yawRAD, float rollRAD)
     SLScene::current->onRotationPYR(pitchRAD, yawRAD, rollRAD);
 }
 //-----------------------------------------------------------------------------
-/*! Global event handler for device rotation change with angle & and axis. 
+/*! Global event handler for device rotation change with angle & and axis.
 */
 void slRotationQUAT(float quatX, float quatY, float quatZ, float quatW)
 {

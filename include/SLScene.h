@@ -61,8 +61,9 @@ class SLScene: public SLObject
             void            stopAnimations      (SLbool stop) {_stopAnimations = stop;}
             void            videoType           (SLVideoType vt);
             void            showDetection       (SLbool st) {_showDetection = st;}
-            void            usesRotation        (SLbool use) {_usesRotation = use;}
-            void            zeroYawAfterSec     (SLfloat sec) {_zeroYawAfterSec = sec;}
+            void            usesRotation        (SLbool use);
+            void            deviceRotStarted    (SLbool started) {_deviceRotStarted = started;}
+            void            zeroYawAtStart      (SLbool set) {_zeroYawAtStart = set;}
                            
             // Getters
             SLAnimManager&  animManager         () {return _animManager;}
@@ -86,7 +87,7 @@ class SLScene: public SLObject
             SLAvgFloat&     trackingTimesMS     () {return _trackingTimesMS;}
             SLAvgFloat&     detectTimesMS       () {return _detectTimesMS;}
             SLAvgFloat&     matchTimesMS        () {return _matchTimesMS;}
-            SLAvgFloat&     optFlowTimesMS         () {return _optFlowTimesMS;}
+            SLAvgFloat&     optFlowTimesMS      () {return _optFlowTimesMS;}
             SLAvgFloat&     poseTimesMS         () {return _poseTimesMS;}
             SLAvgFloat&     cullTimesMS         () {return _cullTimesMS;}
             SLAvgFloat&     draw2DTimesMS       () {return _draw2DTimesMS;}
@@ -103,7 +104,6 @@ class SLScene: public SLObject
             SLGLOculus*     oculus              () {return &_oculus;}
             SLint           numSceneCameras     ();
             SLCamera*       nextCameraInScene   (SLSceneView* activeSV);
-            SLbool          usesRotation        () const {return _usesRotation;}
 
             // Video and OpenCV stuff
             SLVideoType         videoType       () {return _videoType;}
@@ -114,11 +114,14 @@ class SLScene: public SLObject
             SLVCVTracker&       trackers        () {return _trackers;}
             SLbool              showDetection   () {return _showDetection;}
 
+            // Device rotation stuff
+            SLbool              usesRotation    () const {return _usesRotation;}
             SLQuat4f            deviceRotation  () const {return _deviceRotation;}
             SLfloat             devicePitchRAD  () const {return _devicePitchRAD;}
             SLfloat             deviceYawRAD    () const {return _deviceYawRAD;}
             SLfloat             deviceRollRAD   () const {return _deviceRollRAD;}
-            SLfloat             zeroYawAfterSec () const {return _zeroYawAfterSec;}
+            SLbool              zeroYawAtStart  () const {return _zeroYawAtStart;}
+            SLfloat             startYawRAD     () const {return _startYawRAD;}
             
             // Misc.
    virtual  void            onLoad              (SLSceneView* sv, 
@@ -205,7 +208,9 @@ class SLScene: public SLObject
             SLfloat             _deviceYawRAD;      //!< Device yaw angle in radians
             SLfloat             _deviceRollRAD;     //!< Device roll angle in radians
             SLQuat4f            _deviceRotation;    //!< Mobile device rotation as quaternion
-            SLfloat             _zeroYawAfterSec;   //!< Zero yaw angle after a certain seconds
+            SLbool              _deviceRotStarted;  //!< Flag for the first sensor values
+            SLbool              _zeroYawAtStart;    //!< Flag if yaw angle should be zeroed at sensor start
+            SLfloat             _startYawRAD;       //!< Initial yaw angle after _zeroYawAfterSec in radians
 };
 //-----------------------------------------------------------------------------
 #endif
