@@ -218,17 +218,10 @@ public class GLES3Activity extends Activity implements View.OnTouchListener, Sen
 
             /*
             // Get the rotation quaternion from the XYZ-rotation vector (see docs)
-<<<<<<< HEAD
-            //final float Q[] = new float[4];
-            //SensorManager.getQuaternionFromVector(Q, event.values);
-            //myView.queueEvent(new Runnable() {public void run() {GLES3Lib.onRotationQUAT(Q[1],Q[2],Q[3],Q[0]);}});
-=======
             final float Q[] = new float[4];
             SensorManager.getQuaternionFromVector(Q, event.values);
             myView.queueEvent(new Runnable() {public void run() {GLES3Lib.onRotationQUAT(Q[1],Q[2],Q[3],Q[0]);}});
             */
-
->>>>>>> develop
         }
     }
 

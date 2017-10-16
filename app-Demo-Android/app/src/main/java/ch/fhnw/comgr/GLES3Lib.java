@@ -58,6 +58,8 @@ public class GLES3Lib {
     public static native boolean shouldClose        ();
     public static native void    shouldClose        (boolean doClose);
     public static native boolean usesRotation       ();
+    public static native boolean usesLocation       ();
+    public static native void    onLocationGPS      (double longitude, double latitude);
     public static native int     getVideoType       ();
     public static native int     getVideoSizeIndex  ();
     public static native void    copyVideoImage     (int imgWidth, int imgHeight, byte[] imgBuffer);
@@ -65,8 +67,6 @@ public class GLES3Lib {
                                                      byte[] y, int ySize, int yPixStride, int yLineStride,
                                                      byte[] u, int uSize, int uPixStride, int uLineStride,
                                                      byte[] v, int vSize, int vPixStride, int vLineStride);
-    public static native boolean usesLocation       ();
-    public static native void    onLocationGPS      (double longitude, double latitude);
 
     /**
      * The RaytracingCallback function is used to repaint the ray tracing image during the

@@ -43,6 +43,8 @@ JNIEXPORT void JNICALL Java_ch_fhnw_comgr_GLES3Lib_onRotationQUAT(JNIEnv *env, j
 JNIEXPORT void JNICALL Java_ch_fhnw_comgr_GLES3Lib_onClose(JNIEnv *env, jobject obj);
 JNIEXPORT bool JNICALL Java_ch_fhnw_comgr_GLES3Lib_shouldClose(JNIEnv *env, jobject obj);
 JNIEXPORT bool JNICALL Java_ch_fhnw_comgr_GLES3Lib_usesRotation(JNIEnv *env, jobject obj);
+JNIEXPORT bool JNICALL Java_ch_fhnw_comgr_GLES3Lib_usesLocation(JNIEnv *env, jobject obj);
+JNIEXPORT void JNICALL Java_ch_fhnw_comgr_GLES3Lib_onLocationGPS(JNIEnv *env, jobject obj, jdouble longitude, jdouble latitude);
 JNIEXPORT jint JNICALL Java_ch_fhnw_comgr_GLES3Lib_getVideoType(JNIEnv *env, jobject obj);
 JNIEXPORT jint JNICALL Java_ch_fhnw_comgr_GLES3Lib_getVideoSizeIndex(JNIEnv *env, jobject obj);
 JNIEXPORT void JNICALL Java_ch_fhnw_comgr_GLES3Lib_copyVideoImage(JNIEnv *env, jobject obj, jint imgWidth, jint imgHeight, jbyteArray srcBuffer);
@@ -50,8 +52,6 @@ JNIEXPORT void JNICALL Java_ch_fhnw_comgr_GLES3Lib_copyVideoYUVPlanes(JNIEnv *en
                                                                       jbyteArray yBuf, jint ySize, jint yPixStride, jint yLineStride,
                                                                       jbyteArray uBuf, jint uSize, jint uPixStride, jint uLineStride,
                                                                       jbyteArray vBuf, jint vSize, jint vPixStride, jint vLineStride);
-JNIEXPORT void JNICALL Java_ch_fhnw_comgr_GLES3Lib_onLocationGPS(JNIEnv *env, jobject obj, jfloat longitude, jfloat latitude);
-JNIEXPORT bool JNICALL Java_ch_fhnw_comgr_GLES3Lib_usesLocation(JNIEnv *env, jobject obj);
 };
 
 //-----------------------------------------------------------------------------
@@ -231,13 +231,13 @@ JNIEXPORT void JNICALL Java_ch_fhnw_comgr_GLES3Lib_copyVideoYUVPlanes(JNIEnv *en
                          v, vSize, vPixStride, vLineStride);
 }
 //-----------------------------------------------------------------------------
-JNIEXPORT void JNICALL Java_ch_fhnw_comgr_GLES3Lib_onLocationGPS(JNIEnv *env, jobject obj, jfloat longitude, jfloat latitude)
+JNIEXPORT void JNICALL Java_ch_fhnw_comgr_GLES3Lib_onLocationGPS(JNIEnv *env, jobject obj, jdouble longitude, jdouble latitude)
 {
-    //slLocationGPS(longitude, latitude);
+    slLocationGPS(longitude, latitude);
 }
 //-----------------------------------------------------------------------------
 JNIEXPORT bool JNICALL Java_ch_fhnw_comgr_GLES3Lib_usesLocation(JNIEnv *env, jobject obj)
 {
-    //return slUsesLocation();
+    return slUsesLocation();
 }
 //-----------------------------------------------------------------------------

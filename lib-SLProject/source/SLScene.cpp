@@ -741,14 +741,11 @@ SLCamera* SLScene::nextCameraInScene(SLSceneView* activeSV)
 
 }
 //-----------------------------------------------------------------------------
-<<<<<<< HEAD
-void SLScene::onLocationGPS(SLfloat latitude,
-                            SLfloat longitude)
+void SLScene::onLocationGPS(double latitude, double longitude)
 {
 
 }
 //-----------------------------------------------------------------------------
-=======
 //! Setter that turns on the device rotation sensor
 void SLScene::usesRotation (SLbool use)
 {
@@ -758,4 +755,3 @@ void SLScene::usesRotation (SLbool use)
     _usesRotation = use;
 }
 //-----------------------------------------------------------------------------
->>>>>>> develop

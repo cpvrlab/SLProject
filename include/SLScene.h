@@ -122,6 +122,9 @@ class SLScene: public SLObject
             SLfloat             deviceRollRAD   () const {return _deviceRollRAD;}
             SLbool              zeroYawAtStart  () const {return _zeroYawAtStart;}
             SLfloat             startYawRAD     () const {return _startYawRAD;}
+
+            // Device GPS location stuff
+            SLbool              usesLocation    () const {return _usesLocation;}
             
             // Misc.
    virtual  void            onLoad              (SLSceneView* sv, 
@@ -148,8 +151,8 @@ class SLScene: public SLObject
                                                  SLuchar* data,
                                                  SLbool isContinuous,
                                                  SLbool isTopLeft);
-            void            onLocationGPS       (SLfloat longitude,
-                                                SLfloat latitude);
+            void            onLocationGPS       (double longitude,
+                                                 double latitude);
 
      static SLScene*        current;            //!< global static scene pointer
 
@@ -202,7 +205,7 @@ class SLScene: public SLObject
             SLVCVTracker        _trackers;          //!< Vector of all AR trackers
             SLbool              _showDetection;     //!< Flag if detection should be visualized
 
-            // Sensor stuff
+            // IMU Sensor stuff
             SLbool              _usesRotation;      //!< Flag if device rotation is used
             SLfloat             _devicePitchRAD;    //!< Device pitch angle in radians
             SLfloat             _deviceYawRAD;      //!< Device yaw angle in radians
@@ -211,6 +214,9 @@ class SLScene: public SLObject
             SLbool              _deviceRotStarted;  //!< Flag for the first sensor values
             SLbool              _zeroYawAtStart;    //!< Flag if yaw angle should be zeroed at sensor start
             SLfloat             _startYawRAD;       //!< Initial yaw angle after _zeroYawAfterSec in radians
+
+            // GPS Sensor stuff
+            SLbool              _usesLocation;      //!< Flag if GPS Sensor is used
 };
 //-----------------------------------------------------------------------------
 #endif

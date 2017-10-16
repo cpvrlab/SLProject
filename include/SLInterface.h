@@ -63,6 +63,8 @@ void    slCommand               (int sceneViewIndex, SLCommand command);
 bool    slUsesRotation          ();
 void    slRotationPYR           (float pitchRAD, float yawRAD, float rollRAD);
 void    slRotationQUAT          (float quatX, float quatY, float quatZ, float quatW);
+bool    slUsesLocation          ();
+void    slLocationGPS           (double longitude, double latitude);
 string  slGetWindowTitle        (int sceneViewIndex);
 int     slGetVideoType          ();
 int     slGetVideoSizeIndex     ();
