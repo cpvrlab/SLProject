@@ -908,9 +908,9 @@ void SLCVRaulMurOrb::ComputePyramid(SLCVMat image)
     }
 
     //save image pyriamid
-    for (int level = 0; level < nlevels; ++level) {
-        string filename = "D:/Development/SLProject/debug_ouput/imagePyriamid" + std::to_string(level) + ".jpg";
+    /*for (int level = 0; level < nlevels; ++level) {
+        string filename = "D:/Development/SLProject/debug_ouput/imagePyriamid" + to_string(level) + ".jpg";
         cv::imwrite(filename, mvImagePyramid[level]);
-    }
+    }*/
 }
 //-----------------------------------------------------------------------------
