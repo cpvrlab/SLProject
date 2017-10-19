@@ -41,15 +41,15 @@ drawn on the far clipping plane of the visualized view frustum.
 class SLCamera: public SLNode
 {  
     public:
-                            SLCamera        (SLstring name = "Camera");
-                           ~SLCamera        ();
+                            SLCamera            (SLstring name = "Camera");
+                           ~SLCamera            ();
 
-            void            statsRec        (SLNodeStats &stats);
+            void            statsRec            (SLNodeStats &stats);
 
-            void            drawMeshes      (SLSceneView* sv);
-    virtual SLbool          camUpdate       (SLfloat timeMS);
-            void            preShade        (SLRay* ray){(void)ray;}
-            void            calcMinMax      (SLVec3f &minV, SLVec3f &maxV);
+            void            drawMeshes          (SLSceneView* sv);
+    virtual SLbool          camUpdate           (SLfloat timeMS);
+            void            preShade            (SLRay* ray){(void)ray;}
+            void            calcMinMax          (SLVec3f &minV, SLVec3f &maxV);
 
             // Event handlers for camera animation
     virtual SLbool          onMouseDown     (const SLMouseButton button, 
@@ -71,34 +71,33 @@ class SLCamera: public SLNode
     virtual SLbool          onKeyPress      (const SLKey key, const SLKey mod);
     virtual SLbool          onKeyRelease    (const SLKey key, const SLKey mod);
                             
-            void            eyeToPixelRay   (SLfloat x, SLfloat y, SLRay* ray);  
-            SLbool          isInFrustum     (SLAABBox* aabb);
+            void            eyeToPixelRay       (SLfloat x, SLfloat y, SLRay* ray);
+            SLbool          isInFrustum         (SLAABBox* aabb);
                             
             // Apply projection, viewport and view transformations
-            void            setProjection   (SLSceneView* sv, const SLEyeType eye);
-            void            setView         (SLSceneView* sv, const SLEyeType eye);
-            void            setFrustumPlanes();
+            void            setProjection       (SLSceneView* sv, const SLEyeType eye);
+            void            setView             (SLSceneView* sv, const SLEyeType eye);
+            void            setFrustumPlanes    ();
 
             // Setters
-            void            unitScaling     (SLfloat s)          {_unitScaling = s; }
+            void            unitScaling         (SLfloat s)          {_unitScaling = s; }
 
-            void            projection      (SLProjection p)     {_projection = p;
+            void            projection          (SLProjection p)     {_projection = p;
                                                                   currentProjection = p;}
-            void            fov             (const SLfloat fov)  {_fov = fov;
+            void            fov                 (const SLfloat fov)  {_fov = fov;
                                                                   currentFOV = fov;}
-            void            camAnim         (SLCamAnim ca)       {_camAnim = ca;
+            void            camAnim             (SLCamAnim ca)       {_camAnim = ca;
                                                                   currentAnimation = ca;}
-            void            clipNear        (const SLfloat cNear){_clipNear = cNear;}
-            void            clipFar         (const SLfloat cFar) {_clipFar = cFar;}
-            void            maxSpeed        (const SLfloat ms)   {_maxSpeed = ms;}
-            void            moveAccel       (const SLfloat accel){_moveAccel = accel;}
-            void            brakeAccel      (const SLfloat accel){_brakeAccel = accel;}
-            void            drag            (const SLfloat drag) {_drag = drag;}
-            void            focalDist       (const SLfloat f)    {_focalDist = f;}
-            void            lensDiameter    (const SLfloat d)    {_lensDiameter = d;}
-            void            lensSamples     (SLint x, SLint y)   {_lensSamples.samples(x, y);}
-            void            eyeSeparation   (const SLfloat es)   {_eyeSeparation = es;}
-            void            useDeviceRot    (const SLbool use)   {_useDeviceRot = use;}
+            void            clipNear            (const SLfloat cNear){_clipNear = cNear;}
+            void            clipFar             (const SLfloat cFar) {_clipFar = cFar;}
+            void            maxSpeed            (const SLfloat ms)   {_maxSpeed = ms;}
+            void            moveAccel           (const SLfloat accel){_moveAccel = accel;}
+            void            brakeAccel          (const SLfloat accel){_brakeAccel = accel;}
+            void            drag                (const SLfloat drag) {_drag = drag;}
+            void            focalDist           (const SLfloat f)    {_focalDist = f;}
+            void            lensDiameter        (const SLfloat d)    {_lensDiameter = d;}
+            void            lensSamples         (SLint x, SLint y)   {_lensSamples.samples(x, y);}
+            void            eyeSeparation       (const SLfloat es)   {_eyeSeparation = es;}
                
             // Getters
             const SLMat4f&  updateAndGetVM      () const {return updateAndGetWMI();}
@@ -123,7 +122,6 @@ class SLCamera: public SLNode
             SLfloat         moveAccel           () const {return _moveAccel;}
             SLfloat         brakeAccel          () const {return _brakeAccel;}
             SLfloat         drag                () const {return _drag;}
-            SLbool          useDeviceRot        () const {return _useDeviceRot;}
             SLstring        toString            () const;
 
     // Static global default parameters for new cameras
@@ -162,8 +160,6 @@ class SLCamera: public SLNode
             SLVec3f         _acceleration;      //!< current acceleration vector
             SLfloat         _brakeAccel;        //!< brake acceleration
             SLfloat         _moveAccel;         //!< move acceleration
-            
-            SLbool          _useDeviceRot;      //!< Flag if mobile device or oculus Rift rotation should be used 
                
             // ray tracing parameters
             SLRay           _lookAtRay;         //!< Ray through the center of screen
