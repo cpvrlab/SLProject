@@ -38,8 +38,12 @@ JNIEXPORT void JNICALL Java_ch_fhnw_comgr_GLES3Lib_onTouch2Up(JNIEnv *env, jobje
 JNIEXPORT void JNICALL Java_ch_fhnw_comgr_GLES3Lib_onTouch2Down(JNIEnv *env, jobject obj, jint x1, jint y1, jint x2, jint y2);
 JNIEXPORT void JNICALL Java_ch_fhnw_comgr_GLES3Lib_onTouch2Move(JNIEnv *env, jobject obj, jint x1, jint y1, jint x2, jint y2);
 JNIEXPORT void JNICALL Java_ch_fhnw_comgr_GLES3Lib_onDoubleClick(JNIEnv *env, jobject obj, jint button, jint x, jint y);
-JNIEXPORT void JNICALL Java_ch_fhnw_comgr_GLES3Lib_onRotationPYR(JNIEnv *env, jobject obj, jfloat pitchRAD, jfloat yawRAD, jfloat rollRAD);
-JNIEXPORT void JNICALL Java_ch_fhnw_comgr_GLES3Lib_onRotationQUAT(JNIEnv *env, jobject obj, jfloat quatX, jfloat quatY, jfloat quatZ, jfloat quatW);
+JNIEXPORT void JNICALL Java_ch_fhnw_comgr_GLES3Lib_onRotationVec(JNIEnv *env, jobject obj, jfloat vecX, jfloat vecY, jfloat veZ);
+JNIEXPORT void JNICALL Java_ch_fhnw_comgr_GLES3Lib_onRotationMat(JNIEnv *env, jobject obj,
+                                                                 jfloat m0, jfloat m3, jfloat m6,
+                                                                 jfloat m1, jfloat m4, jfloat m7,
+                                                                 jfloat m2, jfloat m5, jfloat m8);
+JNIEXPORT void JNICALL Java_ch_fhnw_comgr_GLES3Lib_onRotationQuat(JNIEnv *env, jobject obj, jfloat quatX, jfloat quatY, jfloat quatZ, jfloat quatW);
 JNIEXPORT void JNICALL Java_ch_fhnw_comgr_GLES3Lib_onClose(JNIEnv *env, jobject obj);
 JNIEXPORT bool JNICALL Java_ch_fhnw_comgr_GLES3Lib_shouldClose(JNIEnv *env, jobject obj);
 JNIEXPORT bool JNICALL Java_ch_fhnw_comgr_GLES3Lib_usesRotation(JNIEnv *env, jobject obj);
@@ -156,14 +160,23 @@ JNIEXPORT void JNICALL Java_ch_fhnw_comgr_GLES3Lib_onDoubleClick(JNIEnv *env, jo
     slDoubleClick(svIndex, MB_left, x, y, K_none);
 }
 //-----------------------------------------------------------------------------
-JNIEXPORT void JNICALL Java_ch_fhnw_comgr_GLES3Lib_onRotationPYR(JNIEnv *env, jobject obj, jfloat pitchRAD, jfloat yawRAD, jfloat rollRAD)
+JNIEXPORT void JNICALL Java_ch_fhnw_comgr_GLES3Lib_onRotationVec(JNIEnv *env, jobject obj, jfloat v1, jfloat v2, jfloat v3)
 {
-    slRotationPYR(pitchRAD, yawRAD, rollRAD);
+    slRotationVec(v1, v2, v3);
+}
+//--------------------------------------------------------------------------------------------
+JNIEXPORT void JNICALL Java_ch_fhnw_comgr_GLES3Lib_onRotationMat(JNIEnv *env, jobject obj, jfloat m0, jfloat m3, jfloat m6,
+                                                                                           jfloat m1, jfloat m4, jfloat m7,
+                                                                                           jfloat m2, jfloat m5, jfloat m8)
+{
+    slRotationMat(m0, m3, m6,
+                  m1, m4, m7,
+                  m2, m5, m8);
 }
 //-----------------------------------------------------------------------------
-JNIEXPORT void JNICALL Java_ch_fhnw_comgr_GLES3Lib_onRotationQUAT(JNIEnv *env, jobject obj, jfloat quatX, jfloat quatY, jfloat quatZ, jfloat quatW)
+JNIEXPORT void JNICALL Java_ch_fhnw_comgr_GLES3Lib_onRotationQuat(JNIEnv *env, jobject obj, jfloat quatX, jfloat quatY, jfloat quatZ, jfloat quatW)
 {
-    slRotationQUAT(quatX, quatY, quatZ, quatW);
+    slRotationQuat(quatX, quatY, quatZ, quatW);
 }
 //-----------------------------------------------------------------------------
 JNIEXPORT void JNICALL Java_ch_fhnw_comgr_GLES3Lib_onClose(JNIEnv *env, jobject obj)

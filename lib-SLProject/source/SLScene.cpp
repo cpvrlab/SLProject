@@ -208,12 +208,12 @@ void SLScene::init()
     _poseTimesMS.init();
     _captureTimesMS.init(200);
 
-    _deviceRotation  = SLQuat4f::IDENTITY;
-    _devicePitchRAD  = 0.0f;
-    _deviceYawRAD    = 0.0f;
-    _deviceRollRAD   = 0.0f;
-    _zeroYawAtStart  = true;
-    _startYawRAD     = 0.0f;
+    _deviceRotMat.identity();
+    _deviceRotQuat = SLQuat4f::IDENTITY;
+    _deviceRotVec.set(0,0,0);
+    _startRotVec.set(0,0,0);
+    _zeroYawAtStart = true;
+    _isRotSensorStart = true;
 }
 //-----------------------------------------------------------------------------
 /*! The scene uninitializing clears the scenegraph (_root3D) and all global
@@ -519,9 +519,9 @@ void SLScene::onAfterLoad()
 }
 //-----------------------------------------------------------------------------
 /*!
-SLScene::onRotationPYR: Event handler for rotation change of a mobile device
+SLScene::onRotationVec: Event handler for rotation change of a mobile device
 with Euler angles for pitch, yaw and roll. This function will only be called
-in an Android or iOS project. See onRotationPYR in GLES3Activity.java in the
+in an Android or iOS project. See onRotationVec in GLES3Activity.java in the
 Android project.
 This handler is only called if the flag SLScene::_usesRotation is true. If so
 the mobile device turns on it's IMU sensor system. The device rotation is so
@@ -533,40 +533,33 @@ Pitch from -halfpi (down)  to zero (horizontal) to +halfpi (up)\n
 Yaw   from -pi     (south) to zero (north)      to +pi     (south)\n
 Roll  from -halfpi (ccw)   to zero (horizontal) to +halfpi (clockwise)\n
 */
-void SLScene::onRotationPYR(SLfloat pitchRAD,
-                            SLfloat yawRAD,
-                            SLfloat rollRAD)
+void SLScene::onRotationVec(SLVec3f deviceRotVec)
 {
-    _devicePitchRAD = pitchRAD;
-    _deviceYawRAD   = yawRAD;
-    _deviceRollRAD  = rollRAD;
+    _deviceRotVec = deviceRotVec;
 
-    // Build quaternion from euler angles
     if (_zeroYawAtStart)
     {
-        if (_deviceRotStarted)
-        {   _startYawRAD = yawRAD;
-            _deviceRotStarted = false;
+        if (_isRotSensorStart)
+        {   _startRotVec = deviceRotVec;
+            _isRotSensorStart = false;
         }
-        _deviceRotation.fromEulerAngles(pitchRAD, yawRAD-_startYawRAD, rollRAD);
-    }
-    else
-    {
-        _deviceRotation.fromEulerAngles(pitchRAD, yawRAD, rollRAD);
     }
 }
 //-----------------------------------------------------------------------------
-/*! SLScene::onRotationQUAT: Event handler for rotation change of a mobile
+/*! SLScene::onRotationMat event handler for device rotation change with column
+major 3x3 matrix
+*/
+void SLScene::onRotationMat(SLMat3f deviceRotMat)
+{
+    _deviceRotMat = deviceRotMat;
+}
+//-----------------------------------------------------------------------------
+/*! SLScene::onRotationQuat: Event handler for rotation change of a mobile
 device with rotation quaternion.
 */
-void SLScene::onRotationQUAT(SLfloat quatX,
-                             SLfloat quatY,
-                             SLfloat quatZ,
-                             SLfloat quatW)
+void SLScene::onRotationQuat(SLQuat4f deviceRotQuat)
 {
-    _deviceRotation.set(quatX, quatY, quatZ, quatW);
-    SLMat3f z90(-90, 0,0,1);
-    _deviceRotation.rotate(z90);
+    _deviceRotQuat = deviceRotQuat;
 }
 //-----------------------------------------------------------------------------
 //! Sets the _selectedNode to the passed Node and flags it as selected
@@ -744,8 +737,8 @@ SLCamera* SLScene::nextCameraInScene(SLSceneView* activeSV)
 //! Setter that turns on the device rotation sensor
 void SLScene::usesRotation (SLbool use)
 {
-    if (!_usesRotation && use==true)
-        _deviceRotStarted = true;
+    if (!_usesRotation && use==true && _zeroYawAtStart)
+        _isRotSensorStart = true;
 
     _usesRotation = use;
 }

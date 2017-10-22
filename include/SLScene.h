@@ -62,7 +62,7 @@ class SLScene: public SLObject
             void            videoType           (SLVideoType vt);
             void            showDetection       (SLbool st) {_showDetection = st;}
             void            usesRotation        (SLbool use);
-            void            deviceRotStarted    (SLbool started) {_deviceRotStarted = started;}
+            void            isRotSensorStart    (SLbool irst) {_isRotSensorStart = irst;}
             void            zeroYawAtStart      (SLbool set) {_zeroYawAtStart = set;}
                            
             // Getters
@@ -116,12 +116,11 @@ class SLScene: public SLObject
 
             // Device rotation stuff
             SLbool              usesRotation    () const {return _usesRotation;}
-            SLQuat4f            deviceRotation  () const {return _deviceRotation;}
-            SLfloat             devicePitchRAD  () const {return _devicePitchRAD;}
-            SLfloat             deviceYawRAD    () const {return _deviceYawRAD;}
-            SLfloat             deviceRollRAD   () const {return _deviceRollRAD;}
+            SLVec3f             deviceRotVec    () const {return _deviceRotVec;}
+            SLMat3f             deviceRotMat    () const {return _deviceRotMat;}
+            SLQuat4f            deviceRotQuat   () const {return _deviceRotQuat;}
             SLbool              zeroYawAtStart  () const {return _zeroYawAtStart;}
-            SLfloat             startYawRAD     () const {return _startYawRAD;}
+            SLVec3f             startRotVec     () const {return _startRotVec;}
             
             // Misc.
    virtual  void            onLoad              (SLSceneView* sv, 
@@ -130,13 +129,9 @@ class SLScene: public SLObject
                                                  SLuint processFlags);
    virtual  void            onAfterLoad         ();
             bool            onUpdate            ();
-            void            onRotationPYR       (SLfloat pitchRAD,
-                                                 SLfloat yawRAD,
-                                                 SLfloat rollRAD);
-            void            onRotationQUAT      (SLfloat quatX,
-                                                 SLfloat quatY,
-                                                 SLfloat quatZ,
-                                                 SLfloat quatW);
+            void            onRotationVec       (SLVec3f deviceRotVec);
+            void            onRotationMat       (SLMat3f deviceRotMat);
+            void            onRotationQuat      (SLQuat4f deviceRotQuat);
             void            init                ();
             void            unInit              ();
             SLbool          onCommandAllSV      (const SLCommand cmd);
@@ -202,13 +197,12 @@ class SLScene: public SLObject
 
             // Sensor stuff
             SLbool              _usesRotation;      //!< Flag if device rotation is used
-            SLfloat             _devicePitchRAD;    //!< Device pitch angle in radians
-            SLfloat             _deviceYawRAD;      //!< Device yaw angle in radians
-            SLfloat             _deviceRollRAD;     //!< Device roll angle in radians
-            SLQuat4f            _deviceRotation;    //!< Mobile device rotation as quaternion
-            SLbool              _deviceRotStarted;  //!< Flag for the first sensor values
+            SLVec3f             _deviceRotVec;      //!< Device rotation angles (pitch,yaw,roll) in radians
+            SLMat3f             _deviceRotMat;      //!< Mobile device rotation as 3x3 matrix
+            SLQuat4f            _deviceRotQuat;     //!< Mobile device rotation as quaternion
+            SLbool              _isRotSensorStart;  //!< Flag to capture zero yaw angle at sensor start
             SLbool              _zeroYawAtStart;    //!< Flag if yaw angle should be zeroed at sensor start
-            SLfloat             _startYawRAD;       //!< Initial yaw angle after _zeroYawAfterSec in radians
+            SLVec3f             _startRotVec;       //!< Initial PYR angle after _zeroYawAfterSec in radians
 };
 //-----------------------------------------------------------------------------
 #endif

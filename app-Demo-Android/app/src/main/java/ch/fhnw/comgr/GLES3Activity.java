@@ -151,19 +151,31 @@ public class GLES3Activity extends Activity implements View.OnTouchListener, Sen
     @Override
     public void onSensorChanged(SensorEvent event) {
         if (event.sensor.getType() == Sensor.TYPE_ROTATION_VECTOR && _rotationSensorIsRunning) {
-            // The ROTATION_VECTOR sensor is a virtual fusion sensor
-            // The quality strongly depends on the underlying algorithm and on
-            // the sensor manufacturer. (See also chapter 7 in the book:
-            // "Professional Sensor Programming (WROX Publishing)"
 
-            // Get 3x3 rotation matrix from XYZ-rotation vector (see docs)
-            float R[] = new float[9];
+            // Get 3x3 rotation matrix from XYZ-rotation vector
+            // The Android matrix is row major, where OpenGL and SLProject is column major
+            final float R[] = new float[9];
             SensorManager.getRotationMatrixFromVector(R, event.values);
 
             // Get yaw, pitch & roll rotation angles in radians from rotation matrix
-            float[] YPR = new float[3];
-            SensorManager.getOrientation(R, YPR);
+            final float V[] = new float[3];
+            SensorManager.getOrientation(R, V);
 
+            // Get the rotation quaternion from the XYZ-rotation vector (see docs)
+            final float Q[] = new float[4];
+            SensorManager.getQuaternionFromVector(Q, event.values);
+
+            // Send the euler angles
+            myView.queueEvent(new Runnable() {public void run() {GLES3Lib.onRotationVec(V[0], V[1], V[2]);}});
+
+            // Send the matrix
+            myView.queueEvent(new Runnable() {public void run() {GLES3Lib.onRotationMat(R[0], R[1], R[2],
+                                                                                        R[3], R[4], R[5],
+                                                                                        R[6], R[7], R[8]);}});
+            // Send the matrix
+            myView.queueEvent(new Runnable() {public void run() {GLES3Lib.onRotationQuat(Q[1],Q[2],Q[3],Q[0]);}});
+
+            /*
             // Check display orientation (a preset orientation is set in the AndroidManifext.xml)
             Display display = getWindowManager().getDefaultDisplay();
             DisplayMetrics displaymetrics = new DisplayMetrics();
@@ -185,14 +197,7 @@ public class GLES3Activity extends Activity implements View.OnTouchListener, Sen
                 myView.queueEvent(new Runnable() {public void run() {GLES3Lib.onRotationPYR(p, y, r);}});
                 //Log.i(TAG, String.format("onSensorChanged: Pitch(%3.0f), Yaw(%3.0f), Roll(%3.0f)", p, y, r));
             }
-
-            /*
-            // Get the rotation quaternion from the XYZ-rotation vector (see docs)
-            final float Q[] = new float[4];
-            SensorManager.getQuaternionFromVector(Q, event.values);
-            myView.queueEvent(new Runnable() {public void run() {GLES3Lib.onRotationQUAT(Q[1],Q[2],Q[3],Q[0]);}});
             */
-
         }
     }
 

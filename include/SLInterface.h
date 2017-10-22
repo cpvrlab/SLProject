@@ -61,8 +61,11 @@ void    slKeyRelease            (int sceneViewIndex, SLKey key, SLKey modifier);
 void    slCharInput             (int sceneViewIndex, unsigned int character);
 void    slCommand               (int sceneViewIndex, SLCommand command);
 bool    slUsesRotation          ();
-void    slRotationPYR           (float pitchRAD, float yawRAD, float rollRAD);
-void    slRotationQUAT          (float quatX, float quatY, float quatZ, float quatW);
+void    slRotationVec           (float v1, float v2, float v3);
+void    slRotationMat           (float m0, float m3, float m6,
+                                 float m1, float m4, float m7,
+                                 float m2, float m5, float m8);
+void    slRotationQuat          (float qX, float qY, float qZ, float qW);
 string  slGetWindowTitle        (int sceneViewIndex);
 int     slGetVideoType          ();
 int     slGetVideoSizeIndex     ();

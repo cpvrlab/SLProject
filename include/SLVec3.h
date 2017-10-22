@@ -31,6 +31,7 @@ class SLVec3
             union
             {   struct {T x, y, z;};
                 struct {T r, g, b;};
+                struct {T pitch, yaw, roll;};
                 struct {T comp[3];};
             };
             

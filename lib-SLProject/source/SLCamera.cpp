@@ -465,22 +465,40 @@ void SLCamera::setView(SLSceneView* sv, const SLEyeType eye)
     // Initialize the modelview to identity
     _stateGL->modelViewMatrix.identity();
 
+    // If the camera rotation comes from the mobile device overwrite the vm
+    if (_camAnim==CA_deviceRotYUp)
+    {
+
+        // Get the camera objects position inverted
+        SLMat4f posMat(this->translationOS()*-1.0f);
+
+        // Get the inverse device rotation
+        SLMat4f rotMat(s->deviceRotMat().inverse());
+
+        SLMat4f tmpMatrix2 = posMat * rotMat;
+
+        // Phone's Z faces up. We need it to face toward the user.
+        tmpMatrix2.rotate(90, 1,0,0);
+
+        // Add yaw offset rotation
+        if (s->zeroYawAtStart())
+            tmpMatrix2.rotate(-s->startRotVec().pitch * SL_RAD2DEG, 0,1,0);
+
+        // Overwrite the vm
+        vm.setMatrix(tmpMatrix2);
+
+        /*
+        SLMat4f rotMat(s->deviceRotation().inverted().toMat4());
+        SLMat4f posMat(this->translationOS());
+        SLMat4f vmEye(rotMat * posMat.inverse());
+        _stateGL->viewMatrix = vmEye;
+        */
+    }
+
     // Single eye projection
     if (eye == ET_center)
     {
-        // The camera rotation comes from the mobile device
-        // See also SLScene::onRotationPYR where the sensor data arrive.
-        if (_camAnim==CA_deviceRotYUp)
-        {
-            SLMat4f rotMat(s->deviceRotation().inverted().toMat4());
-            SLMat4f posMat(this->translationOS());
-            SLMat4f vmEye(rotMat * posMat.inverse());
-            _stateGL->viewMatrix = vmEye;
-        }
-        else // Standard case: Just overwrite the view matrix
-        {
-            _stateGL->viewMatrix.setMatrix(vm);
-        }
+         _stateGL->viewMatrix.setMatrix(vm);
     }
     else // stereo viewing
     {
@@ -500,7 +518,7 @@ void SLCamera::setView(SLSceneView* sv, const SLEyeType eye)
                     rotation = s->oculus()->orientation(eye);
                     trackingPos.translate(-s->oculus()->position(eye));
                 }
-                else rotation = s->deviceRotation();
+                else rotation = s->deviceRotQuat();
 
                 SLfloat rotX, rotY, rotZ;
                 rotation.toMat4().toEulerAnglesZYX(rotZ, rotY, rotX);

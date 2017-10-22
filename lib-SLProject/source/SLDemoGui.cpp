@@ -429,11 +429,11 @@ void SLDemoGui::buildDemoGui(SLScene* s, SLSceneView* sv)
         SLchar m[2550];   // message character array
         m[0]=0;           // set zero length
         sprintf(m+strlen(m), "Uses Rotation       : %s\n",    s->usesRotation() ? "yes" : "no");
-        sprintf(m+strlen(m), "Orientation Pitch   : %1.0f\n", s->devicePitchRAD()*SL_RAD2DEG);
-        sprintf(m+strlen(m), "Orientation Yaw     : %1.0f\n", s->deviceYawRAD()*SL_RAD2DEG);
-        sprintf(m+strlen(m), "Orientation Roll    : %1.0f\n", s->deviceRollRAD()*SL_RAD2DEG);
+        sprintf(m+strlen(m), "Orientation Pitch   : %1.0f\n", s->deviceRotVec().pitch*SL_RAD2DEG);
+        sprintf(m+strlen(m), "Orientation Yaw     : %1.0f\n", s->deviceRotVec().yaw*SL_RAD2DEG);
+        sprintf(m+strlen(m), "Orientation Roll    : %1.0f\n", s->deviceRotVec().roll*SL_RAD2DEG);
         sprintf(m+strlen(m), "Zero Yaw at Start   : %s\n",    s->zeroYawAtStart() ? "yes" : "no");
-        sprintf(m+strlen(m), "Start Yaw           : %1.0f\n", s->startYawRAD() * SL_RAD2DEG);
+        sprintf(m+strlen(m), "Start Yaw           : %1.0f\n", s->startRotVec().pitch * SL_RAD2DEG);
 
         // Switch to fixed font
         ImGui::PushFont(ImGui::GetIO().Fonts->Fonts[1]);
@@ -633,7 +633,7 @@ void SLDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
                     s->zeroYawAtStart(!s->zeroYawAtStart());
 
                 if (ImGui::MenuItem("Reset Zero Yaw"))
-                    s->deviceRotStarted(true);
+                    s->isRotSensorStart(true);
 
                 ImGui::EndMenu();
             }
