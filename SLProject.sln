@@ -47,6 +47,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Exercises", "Exercises", "{
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "cv01_ChangeBrightnessAndContrast", "exercises\cv01_ChangeBrightnessAndContrast\cv01_ChangeBrightnessAndContrast.vcxproj", "{0D63243A-A87C-48F6-8822-6DE3B67E2F3A}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "cv13_HeadPoseEstimation", "exercises\cv13_HeadPoseEstimation\cv13_HeadPoseEstimation.vcxproj", "{0D63243A-A87C-48F6-8822-6DE3C67E2F3A}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -142,6 +144,14 @@ Global
 		{0D63243A-A87C-48F6-8822-6DE3B67E2F3A}.Release|x64.Build.0 = Release|x64
 		{0D63243A-A87C-48F6-8822-6DE3B67E2F3A}.Release|x86.ActiveCfg = Release|Win32
 		{0D63243A-A87C-48F6-8822-6DE3B67E2F3A}.Release|x86.Build.0 = Release|Win32
+		{0D63243A-A87C-48F6-8822-6DE3C67E2F3A}.Debug|x64.ActiveCfg = Debug|x64
+		{0D63243A-A87C-48F6-8822-6DE3C67E2F3A}.Debug|x64.Build.0 = Debug|x64
+		{0D63243A-A87C-48F6-8822-6DE3C67E2F3A}.Debug|x86.ActiveCfg = Debug|Win32
+		{0D63243A-A87C-48F6-8822-6DE3C67E2F3A}.Debug|x86.Build.0 = Debug|Win32
+		{0D63243A-A87C-48F6-8822-6DE3C67E2F3A}.Release|x64.ActiveCfg = Release|x64
+		{0D63243A-A87C-48F6-8822-6DE3C67E2F3A}.Release|x64.Build.0 = Release|x64
+		{0D63243A-A87C-48F6-8822-6DE3C67E2F3A}.Release|x86.ActiveCfg = Release|Win32
+		{0D63243A-A87C-48F6-8822-6DE3C67E2F3A}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -155,5 +165,6 @@ Global
 		{E9A4D0F3-3B11-4912-A951-9F3307E3D66B} = {EF8C8461-B558-41D2-BAB7-CA33178E6E87}
 		{0146E7DF-20B2-413B-AB05-7DC1D8F0C5E9} = {EF8C8461-B558-41D2-BAB7-CA33178E6E87}
 		{0D63243A-A87C-48F6-8822-6DE3B67E2F3A} = {EF8C8461-B558-41D2-BAB7-CA33178E6E87}
+		{0D63243A-A87C-48F6-8822-6DE3C67E2F3A} = {EF8C8461-B558-41D2-BAB7-CA33178E6E87}
 	EndGlobalSection
 EndGlobal
