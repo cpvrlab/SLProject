@@ -168,11 +168,11 @@ public class GLES3Activity extends Activity implements View.OnTouchListener, Sen
             // Send the euler angles
             myView.queueEvent(new Runnable() {public void run() {GLES3Lib.onRotationVec(V[0], V[1], V[2]);}});
 
-            // Send the matrix
+            // Send the matrix transposed
             myView.queueEvent(new Runnable() {public void run() {GLES3Lib.onRotationMat(R[0], R[1], R[2],
                                                                                         R[3], R[4], R[5],
                                                                                         R[6], R[7], R[8]);}});
-            // Send the matrix
+            // Send the quaternion in the order x,y,z,w
             myView.queueEvent(new Runnable() {public void run() {GLES3Lib.onRotationQuat(Q[1],Q[2],Q[3],Q[0]);}});
 
             /*

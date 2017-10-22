@@ -468,12 +468,31 @@ void SLCamera::setView(SLSceneView* sv, const SLEyeType eye)
     // If the camera rotation comes from the mobile device overwrite the vm
     if (_camAnim==CA_deviceRotYUp)
     {
-
+        /*
         // Get the camera objects position inverted
         SLMat4f posMat(this->translationOS()*-1.0f);
 
         // Get the inverse device rotation
         SLMat4f rotMat(s->deviceRotMat().inverse());
+
+        // Phone's Z faces up. We need it to face toward the user.
+        //rotMat.rotate(90, 1,0,0);
+
+        // Add yaw offset rotation
+        //if (s->zeroYawAtStart())
+        //    rotMat.rotate(-s->startRotVec().pitch * SL_RAD2DEG, 0,1,0);
+
+        // Overwrite the vm
+        vm.setMatrix(rotMat * posMat);
+        */
+
+        /*
+        // Marcus thinks this is what GVR does in OrientationView.java
+        // Get the camera objects position inverted
+        SLMat4f posMat(this->translationOS()*-1.0f);
+
+        // Get the inverse device rotation
+        SLMat4f rotMat(s->deviceRotMat().inverted());
 
         SLMat4f tmpMatrix2 = posMat * rotMat;
 
@@ -486,13 +505,14 @@ void SLCamera::setView(SLSceneView* sv, const SLEyeType eye)
 
         // Overwrite the vm
         vm.setMatrix(tmpMatrix2);
-
-        /*
-        SLMat4f rotMat(s->deviceRotation().inverted().toMat4());
-        SLMat4f posMat(this->translationOS());
-        SLMat4f vmEye(rotMat * posMat.inverse());
-        _stateGL->viewMatrix = vmEye;
         */
+
+        // Old version from Marcus
+        //SLMat4f rotMat(s->deviceRotQuat().inverted().toMat4());
+        SLMat4f rotMat(s->deviceRotMat().inverted());
+        rotMat.rotate(90, 1,0,0);
+        SLMat4f posMat(this->translationOS()*-1.0f);
+        vm.setMatrix(rotMat * posMat);
     }
 
     // Single eye projection

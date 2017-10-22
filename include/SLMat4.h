@@ -53,6 +53,7 @@ class SLMat4
         // Constructors
                     SLMat4      ();                     //!< Sets identity matrix
                     SLMat4      (const SLMat4& A);      //!< Sets mat by other SLMat4
+                    SLMat4      (const SLMat3f& A);     //!< Sets mat by other SLMat3f
                     SLMat4      (const T* M);           //!< Sets mat by array
                     SLMat4      (const T M0, const T M4, const T M8,  const T M12,
                                  const T M1, const T M5, const T M9,  const T M13,
@@ -74,7 +75,8 @@ class SLMat4
                                  const SLVec3<T>& scale); //!< Set matrix by translation, rotation & scale
          
         // Setters
-        void        setMatrix   (const SLMat4& A);      //!< Set matrix by other matrix
+        void        setMatrix   (const SLMat4& A);      //!< Set matrix by other 4x4 matrix
+        void        setMatrix   (const SLMat3f A);      //!< Set matrix by other 3x3 float matrix
         void        setMatrix   (const SLMat4* A);      //!< Set matrix by other matrix pointer
         void        setMatrix   (const T* M);           //!< Set matrix by float[16] array
         void        setMatrix   (T M0, T M4, T M8 , T M12, 
@@ -247,6 +249,10 @@ SLMat4<T>::SLMat4()
 template<class T>
 SLMat4<T>::SLMat4(const SLMat4& A) 
 {  setMatrix(A);
+}//-----------------------------------------------------------------------------
+template<class T>
+SLMat4<T>::SLMat4(const SLMat3f& A)
+{  setMatrix(A);
 }
 //-----------------------------------------------------------------------------
 template<class T>
@@ -311,6 +317,15 @@ template<class T>
 void SLMat4<T>::setMatrix(const SLMat4& A)
 {
     for (int i=0; i<16; ++i) _m[i] = A._m[i];
+}
+//-----------------------------------------------------------------------------
+template<class T>
+void SLMat4<T>::setMatrix(const SLMat3f A)
+{
+    _m[0]=A._m[0]; _m[4]=A._m[3]; _m[ 8]=A._m[6];  _m[12]=0;
+    _m[1]=A._m[1]; _m[5]=A._m[4]; _m[ 9]=A._m[7];  _m[13]=0;
+    _m[2]=A._m[2]; _m[6]=A._m[5]; _m[10]=A._m[8];  _m[14]=0;
+    _m[3]=0;       _m[7]=0;       _m[11]=0;        _m[15]=1;
 }
 //-----------------------------------------------------------------------------
 template<class T>
