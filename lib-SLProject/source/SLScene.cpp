@@ -208,7 +208,8 @@ void SLScene::init()
     _poseTimesMS.init();
     _captureTimesMS.init(200);
 
-    _deviceRotation  = SLQuat4f::IDENTITY;
+//todo    _deviceRotation  = SLQuat4f::IDENTITY;
+    _deviceRotation.identity();
     _devicePitchRAD  = 0.0f;
     _deviceYawRAD    = 0.0f;
     _deviceRollRAD   = 0.0f;
@@ -539,10 +540,25 @@ void SLScene::onRotationPYR(SLfloat pitchRAD,
                             SLfloat yawRAD,
                             SLfloat rollRAD)
 {
-    _devicePitchRAD = pitchRAD;
-    _deviceYawRAD   = yawRAD;
-    _deviceRollRAD  = rollRAD;
+/*
+_devicePitchRAD = pitchRAD;
+_deviceYawRAD   = yawRAD;
+_deviceRollRAD  = rollRAD;
 
+
+if (_zeroYawAtStart)
+{
+    if (_deviceRotStarted)
+    {
+        //store initial rotation as offset
+        _rotationOffsetInv = _deviceRotation.inverted();
+        _deviceRotStarted = false;
+    }
+    _deviceRotation.rotate(_rotationOffsetInv);
+}
+ */
+
+    /*
     // Build quaternion from euler angles
     if (_zeroYawAtStart)
     {
@@ -556,6 +572,7 @@ void SLScene::onRotationPYR(SLfloat pitchRAD,
     {
         _deviceRotation.fromEulerAngles(pitchRAD, yawRAD, rollRAD);
     }
+     */
 }
 //-----------------------------------------------------------------------------
 /*! SLScene::onRotationQUAT: Event handler for rotation change of a mobile
@@ -566,9 +583,32 @@ void SLScene::onRotationQUAT(SLfloat quatX,
                              SLfloat quatZ,
                              SLfloat quatW)
 {
-    _deviceRotation.set(quatX, quatY, quatZ, quatW);
-    SLMat3f z90(-90, 0,0,1);
-    _deviceRotation.rotate(z90);
+    SLQuat4f quat(quatX, quatY, quatZ, quatW);
+    //_deviceRotation.set(quatX, quatY, quatZ, quatW);
+    //quat.toEulerAngles(_devicePitchRAD, _deviceYawRAD, _deviceRollRAD);
+
+    _deviceRotation = quat.toMat4();
+    _deviceRotation.toEulerAnglesZYX(_deviceYawRAD, _deviceRollRAD, _devicePitchRAD );
+    //_deviceRotation.identity();
+    //_deviceRotation.rotate( -90, 0, 0, 1);
+    //_deviceRotation *= quat.toMat4();
+
+
+    if (_zeroYawAtStart)
+    {
+        if (_deviceRotStarted)
+        {
+            //store initial rotation as offset
+            _rotationOffsetInv = _deviceRotation.inverse();
+            _deviceRotStarted = false;
+        }
+        //_deviceRotation.rotate(_rotationOffsetInv);
+        //_deviceRotation =  _rotationOffsetInv * _deviceRotation;
+    }
+
+    //add rotation about -90 degrees around z-axis because our scene camera is
+    //rotated like that with respect to the sensor coordinate system
+    //_deviceRotation.rotate( 90, 0, 0, 1);
 }
 //-----------------------------------------------------------------------------
 //! Sets the _selectedNode to the passed Node and flags it as selected

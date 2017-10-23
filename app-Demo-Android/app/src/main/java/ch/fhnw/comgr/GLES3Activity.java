@@ -156,9 +156,11 @@ public class GLES3Activity extends Activity implements View.OnTouchListener, Sen
             // the sensor manufacturer. (See also chapter 7 in the book:
             // "Professional Sensor Programming (WROX Publishing)"
 
+
             // Get 3x3 rotation matrix from XYZ-rotation vector (see docs)
             float R[] = new float[9];
             SensorManager.getRotationMatrixFromVector(R, event.values);
+
 
             // Get yaw, pitch & roll rotation angles in radians from rotation matrix
             float[] YPR = new float[3];
@@ -171,6 +173,14 @@ public class GLES3Activity extends Activity implements View.OnTouchListener, Sen
             int screenWidth  = displaymetrics.widthPixels;
             int screenHeight = displaymetrics.heightPixels;
 
+
+            final float y = YPR[0];
+            final float p = YPR[1];
+            final float r = YPR[2];
+            myView.queueEvent(new Runnable() {public void run() {GLES3Lib.onRotationPYR(p, y, r);}});
+
+
+            /*
             if (screenWidth < screenHeight) {    // Map pitch, yaw and roll to portrait display orientation
                 final float p = YPR[1] * -1.0f - (float) Math.PI * 0.5f;
                 final float y = YPR[0] * -1.0f;
@@ -185,13 +195,14 @@ public class GLES3Activity extends Activity implements View.OnTouchListener, Sen
                 myView.queueEvent(new Runnable() {public void run() {GLES3Lib.onRotationPYR(p, y, r);}});
                 //Log.i(TAG, String.format("onSensorChanged: Pitch(%3.0f), Yaw(%3.0f), Roll(%3.0f)", p, y, r));
             }
+            */
 
-            /*
+
             // Get the rotation quaternion from the XYZ-rotation vector (see docs)
             final float Q[] = new float[4];
             SensorManager.getQuaternionFromVector(Q, event.values);
             myView.queueEvent(new Runnable() {public void run() {GLES3Lib.onRotationQUAT(Q[1],Q[2],Q[3],Q[0]);}});
-            */
+
 
         }
     }

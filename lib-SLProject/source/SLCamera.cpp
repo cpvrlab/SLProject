@@ -459,6 +459,35 @@ void SLCamera::setView(SLSceneView* sv, const SLEyeType eye)
 {
     SLScene* s = SLScene::current;
 
+    if (_camAnim == CA_deviceRotYUp)
+    {
+        //add rotation offset from sensor
+        /*
+        SLMat4f newOm;
+        newOm.translate(_om.translation());
+        newOm.rotate(-90, 0,0,1);
+        newOm *= s->deviceRotation();
+        newOm.rotate(90, 0,0,1);
+         */
+
+        SLNode* node = s->root3D()->findChild<SLCamera>("cam1", true);
+        if(node) {
+
+            SLMat4f newOm;
+            SLMat4f t;
+            t.translate(_om.translation());
+            SLMat4f r1;
+            r1.rotate(-90, 0, 0, 1);
+            SLMat4f r2;
+            r2.rotate(90, 0, 0, 1);
+
+            newOm = r1 * s->rotationOffsetInv() * s->deviceRotation() * r2;
+            //_om.setMatrix(newOm.inverse());
+            node->om(newOm);
+            //needUpdate();
+        }
+    }
+
     // The view matrix is the camera nodes inverse world matrix
     SLMat4f vm = updateAndGetWMI();
 
@@ -468,19 +497,30 @@ void SLCamera::setView(SLSceneView* sv, const SLEyeType eye)
     // Single eye projection
     if (eye == ET_center)
     {
-        // The camera rotation comes from the mobile device
-        // See also SLScene::onRotationPYR where the sensor data arrive.
-        if (_camAnim==CA_deviceRotYUp)
-        {
-            SLMat4f rotMat(s->deviceRotation().inverted().toMat4());
-            SLMat4f posMat(this->translationOS());
-            SLMat4f vmEye(rotMat * posMat.inverse());
-            _stateGL->viewMatrix = vmEye;
-        }
-        else // Standard case: Just overwrite the view matrix
-        {
+        //// The camera rotation comes from the mobile device
+        //// See also SLScene::onRotationPYR where the sensor data arrive.
+        //if (_camAnim==CA_deviceRotYUp)
+        //{
+        //    /*
+        //    SLMat4f rotMat(s->deviceRotation().inverted().toMat4());
+        //    SLMat4f posMat(this->translationOS());
+        //    SLMat4f vmEye(rotMat * posMat.inverse());
+        //    _stateGL->viewMatrix = vmEye;
+        //     */
+
+        //    ////add additional rotation about device rotation
+        //    //SLMat4f wm = updateAndGetWM();
+        //    ////add rotation offset from sensor
+        //    //SLMat4f rotOffset = s->deviceRotation().toMat4();
+        //    //wm = wm * rotOffset;
+
+        //    //SLMat4f wmInv = wm.inverse();
+        //    //_stateGL->viewMatrix.setMatrix(wmInv);
+        //}
+        //else // Standard case: Just overwrite the view matrix
+        //{
             _stateGL->viewMatrix.setMatrix(vm);
-        }
+        //}
     }
     else // stereo viewing
     {
@@ -500,7 +540,7 @@ void SLCamera::setView(SLSceneView* sv, const SLEyeType eye)
                     rotation = s->oculus()->orientation(eye);
                     trackingPos.translate(-s->oculus()->position(eye));
                 }
-                else rotation = s->deviceRotation();
+ //todo               else rotation = s->deviceRotation();
 
                 SLfloat rotX, rotY, rotZ;
                 rotation.toMat4().toEulerAnglesZYX(rotZ, rotY, rotX);
