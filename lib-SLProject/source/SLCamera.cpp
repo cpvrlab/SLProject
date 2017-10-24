@@ -504,7 +504,7 @@ void SLCamera::setView(SLSceneView* sv, const SLEyeType eye)
         // See also SLScene::onRotationPYR where the sensor data arrive.
         if (_camAnim==CA_deviceRotYUp)
         {
-            /*
+/*
             //working version:
             //add additional rotation about device rotation
             SLMat4f wm = updateAndGetWM();
@@ -519,7 +519,7 @@ void SLCamera::setView(SLSceneView* sv, const SLEyeType eye)
 
             //Rotate about the cameras y-axis (which points up) to compensate for a yaw-offset
             SLMat4f rYaw;
-            rYaw.rotate(45, 0, 1, 0);
+            rYaw.rotate(s->initialYawDEG(), 0, 1, 0);
 
 
             SLMat4f r1;
@@ -535,7 +535,7 @@ void SLCamera::setView(SLSceneView* sv, const SLEyeType eye)
 
             SLMat4f wmInv = m.inverse();
             _stateGL->viewMatrix.setMatrix(wmInv);
-            */
+*/
 
 
             //add additional rotation about device rotation
@@ -556,11 +556,16 @@ void SLCamera::setView(SLSceneView* sv, const SLEyeType eye)
             SLMat4f r1;
             r1.rotate(-90, 1, 0, 0);
 
-            //yaw compensation in device ENU:
+            //device ENU w.r.t initial device ENU (yaw compensation in device ENU):
             //Rotate about the cameras z-axis (which points up now) to compensate for a yaw-offset.
             //With this operation we rotate the horizon back about the amount it was rotated at startup.
             SLMat4f rYaw;
-            rYaw.rotate(-180, 0, 0, 1);
+            SLfloat rotYawOffsetDEG = s->startYawRAD() * SL_RAD2DEG + 90;
+            if(rotYawOffsetDEG > 180 )
+                rotYawOffsetDEG -= 360;
+
+            //rYaw.rotate(s->startYawRAD() * SL_RAD2DEG, 0, 0, 1);
+            rYaw.rotate(rotYawOffsetDEG, 0, 0, 1);
 
             //sensor w.r.t. device ENU:
             //Now we rotate the device into the earth frame (ENU, East-North-Up: East corresponds with x-,
@@ -573,10 +578,12 @@ void SLCamera::setView(SLSceneView* sv, const SLEyeType eye)
             SLMat4f r2;
             r2.rotate(-90, 0, 0, 1);
 
+
             m = t * r1 * rYaw * rotOffset * r2;
 
             SLMat4f wmInv = m.inverse();
             _stateGL->viewMatrix.setMatrix(wmInv);
+
         }
         else // Standard case: Just overwrite the view matrix
         {

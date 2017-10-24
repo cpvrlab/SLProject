@@ -117,7 +117,6 @@ class SLScene: public SLObject
             // Device rotation stuff
             SLbool              usesRotation    () const {return _usesRotation;}
             SLMat4f             deviceRotation  () const {return _deviceRotation;}
-            SLMat4f             rotationOffsetInv()const {return _rotationOffsetInv;}
 
             SLfloat             devicePitchRAD  () const {return _devicePitchRAD;}
             SLfloat             deviceYawRAD    () const {return _deviceYawRAD;}
@@ -211,7 +210,6 @@ class SLScene: public SLObject
             SLbool              _deviceRotStarted;  //!< Flag for the first sensor values
             SLbool              _zeroYawAtStart;    //!< Flag if yaw angle should be zeroed at sensor start
             SLfloat             _startYawRAD;       //!< Initial yaw angle after _zeroYawAfterSec in radians
-            SLMat4f             _rotationOffsetInv; //!< Mobile device rotation offset as quaternion (inverted rotation at start of SensorRotation usage)
 };
 //-----------------------------------------------------------------------------
 #endif
