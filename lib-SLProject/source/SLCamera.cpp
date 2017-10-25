@@ -461,6 +461,22 @@ void SLCamera::setView(SLSceneView* sv, const SLEyeType eye)
 
     if (_camAnim == CA_deviceRotYUp)
     {
+
+        //
+        SLMat3f sRc;
+
+        SLMat3f enuRs;
+
+        SLMat3f wyRenu;
+
+        SLMat3f wRwy;
+
+        SLMat3f wRc = wRwy * wyRenu * enuRs * sRc;
+
+        SLVec3f wtc = updateAndGetWM().translation();
+
+        SLMat4f wTc;
+
         //add rotation offset from sensor
         /*
         SLMat4f newOm;
@@ -470,25 +486,61 @@ void SLCamera::setView(SLSceneView* sv, const SLEyeType eye)
         newOm.rotate(90, 0,0,1);
          */
 
-        /*
-        SLNode* node = s->root3D()->findChild<SLCamera>("cam1", true);
-        if(node) {
 
-            SLMat4f newOm;
+        //SLNode* node = s->root3D()->findChild<SLCamera>("cam1", true);
+        //if(node) {
+
+            //add additional rotation about device rotation
+            SLMat4f wm = updateAndGetWM();
+            SLMat4f m;
+            m.identity();
+
+            //WHAT COMES FIRST IS APPLIED LAST!!!!
+
+            //translation in scene:
+            //Translate away from origin to see scene object on origin (in positive z-direction: The
+            //z-axis of the scene camera is pointing in the opposite direction)
             SLMat4f t;
-            t.translate(_om.translation());
-            SLMat4f r1;
-            r1.rotate(-90, 0, 0, 1);
-            SLMat4f r2;
-            r2.rotate(90, 0, 0, 1);
+            t.translate(wm.translation());
 
-            //newOm = r1 * s->rotationOffsetInv() * s->deviceRotation() * r2;
-            newOm = t * s->deviceRotation();
-            //_om.setMatrix(newOm.inverse());
-            node->om(newOm);
+            //scene w.r.t. device ENU:
+            //Rotate coordinate system -90 deg about x-axis so it is aligned with the camera coordinate axes
+            SLMat4f r1;
+            r1.rotate(-90, 1, 0, 0);
+
+            //device ENU w.r.t initial device ENU (yaw compensation in device ENU):
+            //Rotate about the cameras z-axis (which points up now) to compensate for a yaw-offset.
+            //With this operation we rotate the horizon back about the amount it was rotated at startup.
+            SLMat4f rYaw;
+
+            //SLfloat rotYawOffsetDEG = s->startYawRAD() * SL_RAD2DEG + 90;
+            //SLfloat rotYawOffsetDEG = 90;
+            SLfloat rotYawOffsetDEG = s->startYawRAD() * SL_RAD2DEG;
+            if(rotYawOffsetDEG > 180 )
+                rotYawOffsetDEG -= 360;
+            rYaw.rotate(-rotYawOffsetDEG, 0, 0, 1);
+            //rYaw.rotate(s->startYawRAD() * SL_RAD2DEG, 0, 0, 1);
+
+            //sensor w.r.t. device ENU:
+            //Now we rotate the device into the earth frame (ENU, East-North-Up: East corresponds with x-,
+            //North with y- and Up with z-axis.
+            SLMat4f rotOffset = s->deviceRotation();
+
+            //camera w.r.t. sensor:
+            //Rotate the camera coordinate system to align with the sensor coordinate system. This means
+            //we rotate the camera with respect to the sensor.
+            SLMat4f r2;
+            r2.rotate(-90, 0, 0, 1);
+
+            m = t * r1 * rYaw * rotOffset * r2;
+            //m = t * r1 * rotOffset * r2;
+            //m = r1 * rotOffset * r2;
+
+            om(m);
+            //node->om(m);
             //needUpdate();
-        }
-         */
+        //}
+
     }
 
     // The view matrix is the camera nodes inverse world matrix
@@ -537,7 +589,7 @@ void SLCamera::setView(SLSceneView* sv, const SLEyeType eye)
             _stateGL->viewMatrix.setMatrix(wmInv);
 */
 
-
+/*
             //add additional rotation about device rotation
             SLMat4f wm = updateAndGetWM();
             SLMat4f m;
@@ -579,10 +631,15 @@ void SLCamera::setView(SLSceneView* sv, const SLEyeType eye)
             r2.rotate(-90, 0, 0, 1);
 
 
-            m = t * r1 * rYaw * rotOffset * r2;
+            //m = t * r1 * rYaw * rotOffset * r2;
+            m = t * r1 * rotOffset * r2;
 
             SLMat4f wmInv = m.inverse();
             _stateGL->viewMatrix.setMatrix(wmInv);
+            */
+
+
+            _stateGL->viewMatrix.setMatrix(vm);
 
         }
         else // Standard case: Just overwrite the view matrix
