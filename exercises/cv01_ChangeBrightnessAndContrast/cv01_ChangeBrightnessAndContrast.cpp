@@ -24,25 +24,27 @@ int main()
     // Do the operation new_image(i,j) = alpha * image(i,j) + beta
     // The following loop does the same as: 
     // image.convertTo(new_image, -1, alpha, beta);
-    
-    for( int y = 0; y < image.rows; y++ ) {
-        for( int x = 0; x < image.cols; x++ ) {
-            for( int c = 0; c < 3; c++ ) {
+    for( int y = 0; y < image.rows; y++ ) 
+    {
+        for( int x = 0; x < image.cols; x++ ) 
+        {
+            for( int c = 0; c < 3; c++ ) 
+            {
                 new_image.at<Vec3b>(y,x)[c] =
                 saturate_cast<uchar>( alpha*( image.at<Vec3b>(y,x)[c] ) + beta );
             }
         }
     }
 
-    /// Create Windows
+    // Create Windows
     namedWindow("Original Image", 1);
     namedWindow("New Image", 1);
 
-    /// Show stuff
+    // Show stuff
     imshow("Original Image", image);
     imshow("New Image", new_image);
 
-    /// Wait until user press some key
-    waitKey();
+    // Wait until user presses some key
+    waitKey(0);
     return 0;
 }

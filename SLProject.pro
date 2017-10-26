@@ -10,6 +10,7 @@ SUBDIRS += exercises/ch06_ColorCube
 SUBDIRS += exercises/ch07_DiffuseCube
 SUBDIRS += exercises/ch09_TextureMapping
 SUBDIRS += exercises/cv01_ChangeBrightnessAndContrast
+SUBDIRS += exercises/cv13_HeadPoseEstimation
 
 lib-SLProject.depends = lib-SLExternal
 lib-SLProject.depends = lib-SLExternal/assimp
