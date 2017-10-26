@@ -84,7 +84,8 @@ class SLMat4
         void        setMatrix   (const SLVec3<T>& translation,
                                  const SLMat3<T>& rotation,
                                  const SLVec3<T>& scale);   //!< Set matrix by translation, rotation & scale
-
+        void        setRotation (const SLMat3<T>& rotation); //!< Set 3x3 submatrix describing the rotational part
+        void        setTranslation (const SLVec3<T>& translation); //!< Set vector as submatrix describing the translational part
         // Getters
   const T*          m           () const        {return _m;}
         T           m           (int i) const   {assert(i>=0 && i<16); return _m[i];}
@@ -106,7 +107,6 @@ class SLMat4
         SLMat4<T>&  operator/=  (const T a);               //!< scalar division
         T&          operator    ()(int row, int col)      {return _m[4*col+row];}
   const T&          operator    ()(int row, int col)const {return _m[4*col+row];}
-            
         // Transformation corresponding to the equivalent gl* OpenGL function
         // They all set a transformation that is multiplied onto the matrix
         void        multiply    (const SLMat4& A);
@@ -346,6 +346,22 @@ void SLMat4<T>::setMatrix(const SLVec3<T>& translation,
               scale.x * rotation[1], scale.y * rotation[4], scale.z * rotation[7], translation.y,
               scale.x * rotation[2], scale.y * rotation[5], scale.z * rotation[8], translation.z,
               0                    , 0                    , 0                    , 1);
+}
+//-----------------------------------------------------------------------------
+template<class T>
+void SLMat4<T>::setRotation (const SLMat3<T>& rotation) //!< Set 3x3 submatrix describing the rotational part
+{
+    _m[0]=rotation[0]; _m[4]=rotation[3]; _m[8]=rotation[6];
+    _m[1]=rotation[1]; _m[5]=rotation[4]; _m[9]=rotation[7];
+    _m[2]=rotation[2]; _m[6]=rotation[5]; _m[10]=rotation[8];
+}
+//-----------------------------------------------------------------------------
+template<class T>
+void SLMat4<T>::setTranslation (const SLVec3<T>& translation) //!< Set vector as submatrix describing the translational part
+{
+    _m[12]=translation.x;
+    _m[13]=translation.y;
+    _m[14]=translation.z;
 }
 //-----------------------------------------------------------------------------
 // Operators

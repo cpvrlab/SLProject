@@ -461,86 +461,51 @@ void SLCamera::setView(SLSceneView* sv, const SLEyeType eye)
 
     if (_camAnim == CA_deviceRotYUp)
     {
+        ///////////////////////////////////////////////////////////////////////
+        // Build pose of camera in world frame (scene) using device rotation //
+        ///////////////////////////////////////////////////////////////////////
 
-        //
+        //rotations:
+        //camera w.r.t. sensor
         SLMat3f sRc;
-
+        sRc.rotation(-90, 0, 0, 1);
+        //sensor w.r.t. east-north-down
         SLMat3f enuRs;
-
+        enuRs.setMatrix(s->deviceRotation());
+        //east-north-down w.r.t. world-yaw
+        SLfloat rotYawOffsetDEG = s->startYawRAD() * SL_RAD2DEG + 90;
+        if(rotYawOffsetDEG > 180 )
+            rotYawOffsetDEG -= 360;
         SLMat3f wyRenu;
-
+        wyRenu.rotation(rotYawOffsetDEG, 0, 0, 1);
+        //world-yaw w.r.t. world
         SLMat3f wRwy;
-
+        wRwy.rotation(-90, 1, 0, 0);
+        //combiniation of partial rotations to orientation of camera w.r.t world
         SLMat3f wRc = wRwy * wyRenu * enuRs * sRc;
 
+        //translations:
         SLVec3f wtc = updateAndGetWM().translation();
 
+        //combination of rotation and translation:
         SLMat4f wTc;
+        wTc.setRotation(wRc);
+        wTc.setTranslation(wtc);
 
-        //add rotation offset from sensor
         /*
-        SLMat4f newOm;
-        newOm.translate(_om.translation());
-        newOm.rotate(-90, 0,0,1);
-        newOm *= s->deviceRotation();
-        newOm.rotate(90, 0,0,1);
-         */
+        //alternative concatenation of single transformations
+        SLMat4f wTc_2;
+        wTc_2.translate(updateAndGetWM().translation());
+        wTc_2.rotate(-90, 1, 0, 0);
+        wTc_2.rotate(rotYawOffsetDEG, 0, 0, 1);
+        SLMat4f enuTs;
+        enuTs.setRotation(s->deviceRotation());
+        wTc_2 *= enuTs;
+        wTc_2.rotate(-90, 0, 0, 1);
+        */
 
-
-        //SLNode* node = s->root3D()->findChild<SLCamera>("cam1", true);
-        //if(node) {
-
-            //add additional rotation about device rotation
-            SLMat4f wm = updateAndGetWM();
-            SLMat4f m;
-            m.identity();
-
-            //WHAT COMES FIRST IS APPLIED LAST!!!!
-
-            //translation in scene:
-            //Translate away from origin to see scene object on origin (in positive z-direction: The
-            //z-axis of the scene camera is pointing in the opposite direction)
-            SLMat4f t;
-            t.translate(wm.translation());
-
-            //scene w.r.t. device ENU:
-            //Rotate coordinate system -90 deg about x-axis so it is aligned with the camera coordinate axes
-            SLMat4f r1;
-            r1.rotate(-90, 1, 0, 0);
-
-            //device ENU w.r.t initial device ENU (yaw compensation in device ENU):
-            //Rotate about the cameras z-axis (which points up now) to compensate for a yaw-offset.
-            //With this operation we rotate the horizon back about the amount it was rotated at startup.
-            SLMat4f rYaw;
-
-            //SLfloat rotYawOffsetDEG = s->startYawRAD() * SL_RAD2DEG + 90;
-            //SLfloat rotYawOffsetDEG = 90;
-            SLfloat rotYawOffsetDEG = s->startYawRAD() * SL_RAD2DEG;
-            if(rotYawOffsetDEG > 180 )
-                rotYawOffsetDEG -= 360;
-            rYaw.rotate(-rotYawOffsetDEG, 0, 0, 1);
-            //rYaw.rotate(s->startYawRAD() * SL_RAD2DEG, 0, 0, 1);
-
-            //sensor w.r.t. device ENU:
-            //Now we rotate the device into the earth frame (ENU, East-North-Up: East corresponds with x-,
-            //North with y- and Up with z-axis.
-            SLMat4f rotOffset = s->deviceRotation();
-
-            //camera w.r.t. sensor:
-            //Rotate the camera coordinate system to align with the sensor coordinate system. This means
-            //we rotate the camera with respect to the sensor.
-            SLMat4f r2;
-            r2.rotate(-90, 0, 0, 1);
-
-            m = t * r1 * rYaw * rotOffset * r2;
-            //m = t * r1 * rotOffset * r2;
-            //m = r1 * rotOffset * r2;
-
-            om(m);
-            //node->om(m);
-            //needUpdate();
-        //}
-
+        //set camera pose
+        om(wTc);
     }
 
     // The view matrix is the camera nodes inverse world matrix
@@ -552,100 +517,8 @@ void SLCamera::setView(SLSceneView* sv, const SLEyeType eye)
     // Single eye projection
     if (eye == ET_center)
     {
-        // The camera rotation comes from the mobile device
-        // See also SLScene::onRotationPYR where the sensor data arrive.
-        if (_camAnim==CA_deviceRotYUp)
-        {
-/*
-            //working version:
-            //add additional rotation about device rotation
-            SLMat4f wm = updateAndGetWM();
-            SLMat4f m;
-            m.identity();
-
-            //WHAT COMES FIRST IS APPLIED LAST!!!!
-            //Translate away from origin to see scene object on origin (in positive z-direction: The
-            //z-axis of the scene camera is pointing in the opposite direction)
-            SLMat4f t;
-            t.translate(wm.translation());
-
-            //Rotate about the cameras y-axis (which points up) to compensate for a yaw-offset
-            SLMat4f rYaw;
-            rYaw.rotate(s->initialYawDEG(), 0, 1, 0);
-
-
-            SLMat4f r1;
-            r1.rotate(-90, 1, 0, 0);
-
-            //add rotation offset from sensor
-            SLMat4f rotOffset = s->deviceRotation();
-
-            SLMat4f r2;
-            r2.rotate(-90, 0, 0, 1);
-
-            m = t * rYaw * r1 * rotOffset * r2;
-
-            SLMat4f wmInv = m.inverse();
-            _stateGL->viewMatrix.setMatrix(wmInv);
-*/
-
-/*
-            //add additional rotation about device rotation
-            SLMat4f wm = updateAndGetWM();
-            SLMat4f m;
-            m.identity();
-
-            //WHAT COMES FIRST IS APPLIED LAST!!!!
-
-            //translation in scene:
-            //Translate away from origin to see scene object on origin (in positive z-direction: The
-            //z-axis of the scene camera is pointing in the opposite direction)
-            SLMat4f t;
-            t.translate(wm.translation());
-
-            //scene w.r.t. device ENU:
-            //Rotate coordinate system -90 deg about x-axis so it is aligned with the camera coordinate axes
-            SLMat4f r1;
-            r1.rotate(-90, 1, 0, 0);
-
-            //device ENU w.r.t initial device ENU (yaw compensation in device ENU):
-            //Rotate about the cameras z-axis (which points up now) to compensate for a yaw-offset.
-            //With this operation we rotate the horizon back about the amount it was rotated at startup.
-            SLMat4f rYaw;
-            SLfloat rotYawOffsetDEG = s->startYawRAD() * SL_RAD2DEG + 90;
-            if(rotYawOffsetDEG > 180 )
-                rotYawOffsetDEG -= 360;
-
-            //rYaw.rotate(s->startYawRAD() * SL_RAD2DEG, 0, 0, 1);
-            rYaw.rotate(rotYawOffsetDEG, 0, 0, 1);
-
-            //sensor w.r.t. device ENU:
-            //Now we rotate the device into the earth frame (ENU, East-North-Up: East corresponds with x-,
-            //North with y- and Up with z-axis.
-            SLMat4f rotOffset = s->deviceRotation();
-
-            //camera w.r.t. sensor:
-            //Rotate the camera coordinate system to align with the sensor coordinate system. This means
-            //we rotate the camera with respect to the sensor.
-            SLMat4f r2;
-            r2.rotate(-90, 0, 0, 1);
-
-
-            //m = t * r1 * rYaw * rotOffset * r2;
-            m = t * r1 * rotOffset * r2;
-
-            SLMat4f wmInv = m.inverse();
-            _stateGL->viewMatrix.setMatrix(wmInv);
-            */
-
-
-            _stateGL->viewMatrix.setMatrix(vm);
-
-        }
-        else // Standard case: Just overwrite the view matrix
-        {
-            _stateGL->viewMatrix.setMatrix(vm);
-        }
+        // Standard case: Just overwrite the view matrix
+        _stateGL->viewMatrix.setMatrix(vm);
     }
     else // stereo viewing
     {

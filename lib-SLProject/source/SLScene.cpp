@@ -540,40 +540,9 @@ void SLScene::onRotationPYR(SLfloat pitchRAD,
                             SLfloat yawRAD,
                             SLfloat rollRAD)
 {
-
-
-_devicePitchRAD = pitchRAD;
-_deviceYawRAD   = yawRAD;
-_deviceRollRAD  = rollRAD;
-
-    /*
-if (_zeroYawAtStart)
-{
-    if (_deviceRotStarted)
-    {
-        //store initial rotation as offset
-        _rotationOffsetInv = _deviceRotation.inverted();
-        _deviceRotStarted = false;
-    }
-    _deviceRotation.rotate(_rotationOffsetInv);
-}
- */
-
-    /*
-    // Build quaternion from euler angles
-    if (_zeroYawAtStart)
-    {
-        if (_deviceRotStarted)
-        {   _startYawRAD = yawRAD;
-            _deviceRotStarted = false;
-        }
-        _deviceRotation.fromEulerAngles(pitchRAD, yawRAD-_startYawRAD, rollRAD);
-    }
-    else
-    {
-        _deviceRotation.fromEulerAngles(pitchRAD, yawRAD, rollRAD);
-    }
-     */
+    _devicePitchRAD = pitchRAD;
+    _deviceYawRAD   = yawRAD;
+    _deviceRollRAD  = rollRAD;
 }
 //-----------------------------------------------------------------------------
 /*! SLScene::onRotationQUAT: Event handler for rotation change of a mobile
@@ -585,7 +554,7 @@ void SLScene::onRotationQUAT(SLfloat quatX,
                              SLfloat quatW)
 {
     SLQuat4f quat(quatX, quatY, quatZ, quatW);
-    _deviceRotation = quat.toMat4();
+    _deviceRotation = quat.toMat3();
     //_deviceRotation.toEulerAnglesZYX(_deviceYawRAD, _deviceRollRAD, _devicePitchRAD );
 
     if (_zeroYawAtStart)
