@@ -555,19 +555,15 @@ void SLScene::onRotationQUAT(SLfloat quatX,
 {
     SLQuat4f quat(quatX, quatY, quatZ, quatW);
     _deviceRotation = quat.toMat3();
-    //_deviceRotation.toEulerAnglesZYX(_deviceYawRAD, _deviceRollRAD, _devicePitchRAD );
 
     if (_zeroYawAtStart)
     {
-        //static int sensorStartupCounter = 0;
-        //if (_deviceRotStarted && sensorStartupCounter > 100 )
         if (_deviceRotStarted  )
         {
             //store initial rotation in yaw for referencing of initial alignment
             _startYawRAD = _deviceYawRAD;
             _deviceRotStarted = false;
         }
-        //else sensorStartupCounter++;
     }
 }
 //-----------------------------------------------------------------------------

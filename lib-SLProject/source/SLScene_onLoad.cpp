@@ -227,12 +227,6 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         light1->name("light node");
         scene->addChild(light1);
 
-        SLCamera* cam1 = new SLCamera("cam1");
-        cam1->translation(0, 0, 2);
-        cam1->lookAt(0, 0, 0);
-        //cam1->rotation(30, SLVec3f(1, 0, 0));
-        scene->addChild(cam1);
-
         // Create meshes and nodes
         SLMesh* rectMesh = new SLRectangle(SLVec2f(-5,-5),SLVec2f(5,5),1,1,"rectangle mesh",m1);
         SLNode* rectNode = new SLNode(rectMesh,"rectangle node");

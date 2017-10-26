@@ -42,8 +42,8 @@ public class GLES3Activity extends Activity implements View.OnTouchListener, Sen
     private int                 _currentVideoType;
     private boolean             _cameraPermissionGranted;
     private boolean             _permissionRequestIsOpen;
-    private boolean _rotationSensorIsRunning = false;
-
+    private boolean             _rotationSensorIsRunning = false;
+    private long                _rotationSensorStartTime = 0; //Time when rotation sensor was started
 
 
     @Override
@@ -156,54 +156,27 @@ public class GLES3Activity extends Activity implements View.OnTouchListener, Sen
             // the sensor manufacturer. (See also chapter 7 in the book:
             // "Professional Sensor Programming (WROX Publishing)"
 
+            //let some time pass until we process these values
+            if (System.currentTimeMillis() - _rotationSensorStartTime < 500 )
+                return;
 
             // Get 3x3 rotation matrix from XYZ-rotation vector (see docs)
             float R[] = new float[9];
             SensorManager.getRotationMatrixFromVector(R, event.values);
 
-
             // Get yaw, pitch & roll rotation angles in radians from rotation matrix
             float[] YPR = new float[3];
             SensorManager.getOrientation(R, YPR);
-
-            // Check display orientation (a preset orientation is set in the AndroidManifext.xml)
-            Display display = getWindowManager().getDefaultDisplay();
-            DisplayMetrics displaymetrics = new DisplayMetrics();
-            display.getMetrics(displaymetrics);
-            int screenWidth  = displaymetrics.widthPixels;
-            int screenHeight = displaymetrics.heightPixels;
-
 
             final float y = YPR[0];
             final float p = YPR[1];
             final float r = YPR[2];
             myView.queueEvent(new Runnable() {public void run() {GLES3Lib.onRotationPYR(p, y, r);}});
 
-
-            /*
-            if (screenWidth < screenHeight) {    // Map pitch, yaw and roll to portrait display orientation
-                final float p = YPR[1] * -1.0f - (float) Math.PI * 0.5f;
-                final float y = YPR[0] * -1.0f;
-                final float r = YPR[2] * -1.0f;
-                myView.queueEvent(new Runnable() {public void run() {GLES3Lib.onRotationPYR(p, y, r);}});
-                //Log.i(TAG, String.format("onSensorChanged: Pitch(%3.0f), Yaw(%3.0f), Roll(%3.0f)", p, y, r));
-            }
-            else {    // Map pitch, yaw and roll to landscape display orientation for Oculus Rift conformance
-                final float p = YPR[2] * -1.0f - (float) Math.PI * 0.5f;
-                final float y = YPR[0] * -1.0f - (float) Math.PI * 0.5f;
-                final float r = YPR[1];
-                myView.queueEvent(new Runnable() {public void run() {GLES3Lib.onRotationPYR(p, y, r);}});
-                //Log.i(TAG, String.format("onSensorChanged: Pitch(%3.0f), Yaw(%3.0f), Roll(%3.0f)", p, y, r));
-            }
-            */
-
-
             // Get the rotation quaternion from the XYZ-rotation vector (see docs)
             final float Q[] = new float[4];
             SensorManager.getQuaternionFromVector(Q, event.values);
             myView.queueEvent(new Runnable() {public void run() {GLES3Lib.onRotationQUAT(Q[1],Q[2],Q[3],Q[0]);}});
-
-
         }
     }
 
@@ -437,6 +410,7 @@ public class GLES3Activity extends Activity implements View.OnTouchListener, Sen
             sm.registerListener(this,
                                 sm.getDefaultSensor(Sensor.TYPE_ROTATION_VECTOR),
                                 sm.SENSOR_DELAY_GAME);
+            _rotationSensorStartTime = System.currentTimeMillis();
             _rotationSensorIsRunning = true;
         }
         catch (Exception e) {
