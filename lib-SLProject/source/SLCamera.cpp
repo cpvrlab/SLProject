@@ -484,13 +484,19 @@ void SLCamera::setView(SLSceneView* sv, const SLEyeType eye)
         //combiniation of partial rotations to orientation of camera w.r.t world
         SLMat3f wRc = wRwy * wyRenu * enuRs * sRc;
 
+        /*
         //translations:
-        SLVec3f wtc = updateAndGetWM().translation();
+        SLVec3f wtc = om().translation();
 
         //combination of rotation and translation:
         SLMat4f wTc;
         wTc.setRotation(wRc);
         wTc.setTranslation(wtc);
+        */
+
+        //set camera pose
+        _om.setRotation(wRc);
+        needUpdate();
 
         /*
         //alternative concatenation of single transformations
@@ -503,9 +509,6 @@ void SLCamera::setView(SLSceneView* sv, const SLEyeType eye)
         wTc_2 *= enuTs;
         wTc_2.rotate(-90, 0, 0, 1);
         */
-
-        //set camera pose
-        om(wTc);
     }
 
     // The view matrix is the camera nodes inverse world matrix
