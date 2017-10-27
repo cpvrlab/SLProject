@@ -914,7 +914,7 @@ void SLNode::rotate(const SLQuat4f& rot, SLTransformSpace relativeTo)
         rot.multiply(rotation);
         rot.translate(-updateAndGetWM().translation());
 
-        _om = _parent->_wm.inverse() * rot * updateAndGetWM();
+        _om = _parent->_wm.inverted() * rot * updateAndGetWM();
     }
     else // relativeTo == TS_Parent || relativeTo == TS_World && !_parent
     {

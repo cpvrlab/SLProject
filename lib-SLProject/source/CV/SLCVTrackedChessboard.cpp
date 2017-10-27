@@ -99,7 +99,7 @@ bool SLCVTrackedChessboard::track(SLCVMat imageGray,
             // set the object matrix depending if the
             // tracked node is attached to a camera or not
             if (typeid(*_node)==typeid(SLCamera))
-                _node->om(_objectViewMat.inverse());
+                _node->om(_objectViewMat.inverted());
             else
             {   
 				_node->om(calcObjectMatrix(sv->camera()->om(), _objectViewMat));

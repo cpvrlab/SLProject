@@ -465,26 +465,29 @@ void SLCamera::setView(SLSceneView* sv, const SLEyeType eye)
         // Build pose of camera in world frame (scene) using device rotation //
         ///////////////////////////////////////////////////////////////////////
 
-        //rotations:
-        //camera w.r.t. sensor
+        //camera rotation with respect to (w.r.t.) sensor
         SLMat3f sRc;
         sRc.rotation(-90, 0, 0, 1);
-        //sensor w.r.t. east-north-down
+
+        //sensor rotation w.r.t. east-north-down
         SLMat3f enuRs;
         enuRs.setMatrix(s->deviceRotation());
+
         //east-north-down w.r.t. world-yaw
         SLfloat rotYawOffsetDEG = s->startYawRAD() * SL_RAD2DEG + 90;
         if(rotYawOffsetDEG > 180 )
             rotYawOffsetDEG -= 360;
         SLMat3f wyRenu;
         wyRenu.rotation(rotYawOffsetDEG, 0, 0, 1);
-        //world-yaw w.r.t. world
+
+        //world-yaw rotation w.r.t. world
         SLMat3f wRwy;
         wRwy.rotation(-90, 1, 0, 0);
+
         //combiniation of partial rotations to orientation of camera w.r.t world
         SLMat3f wRc = wRwy * wyRenu * enuRs * sRc;
 
-        //translations:
+        //camera translations w.r.t world:
         SLVec3f wtc = updateAndGetWM().translation();
 
         //combination of rotation and translation:
@@ -504,7 +507,7 @@ void SLCamera::setView(SLSceneView* sv, const SLEyeType eye)
         wTc_2.rotate(-90, 0, 0, 1);
         */
 
-        //set camera pose
+        //set camera pose to the object matrix
         om(wTc);
     }
 

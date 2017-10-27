@@ -151,10 +151,6 @@ public class GLES3Activity extends Activity implements View.OnTouchListener, Sen
     @Override
     public void onSensorChanged(SensorEvent event) {
         if (event.sensor.getType() == Sensor.TYPE_ROTATION_VECTOR && _rotationSensorIsRunning) {
-            // The ROTATION_VECTOR sensor is a virtual fusion sensor
-            // The quality strongly depends on the underlying algorithm and on
-            // the sensor manufacturer. (See also chapter 7 in the book:
-            // "Professional Sensor Programming (WROX Publishing)"
 
             //let some time pass until we process these values
             if (System.currentTimeMillis() - _rotationSensorStartTime < 500 )
@@ -168,6 +164,7 @@ public class GLES3Activity extends Activity implements View.OnTouchListener, Sen
             float[] YPR = new float[3];
             SensorManager.getOrientation(R, YPR);
 
+            // Send the euler angles as pitch, yaw & roll to SLScene::onRotationPYR
             final float y = YPR[0];
             final float p = YPR[1];
             final float r = YPR[2];
@@ -176,7 +173,11 @@ public class GLES3Activity extends Activity implements View.OnTouchListener, Sen
             // Get the rotation quaternion from the XYZ-rotation vector (see docs)
             final float Q[] = new float[4];
             SensorManager.getQuaternionFromVector(Q, event.values);
+
+            // Send the quaternion as x,y,z & w to SLScene::onRotationQUAT
             myView.queueEvent(new Runnable() {public void run() {GLES3Lib.onRotationQUAT(Q[1],Q[2],Q[3],Q[0]);}});
+
+            // See SLCamera::setView how the device rotation is processed for the camera's view
         }
     }
 
