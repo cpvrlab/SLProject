@@ -1289,7 +1289,7 @@ SLbool SLSceneView::onCommand(SLCommand cmd)
             case C_camAnimTurnZUp:      _camera->camAnim(CA_turntableZUp); return true;
             case C_camAnimWalkYUp:      _camera->camAnim(CA_walkingYUp); return true;
             case C_camAnimWalkZUp:      _camera->camAnim(CA_walkingZUp); return true;
-            case C_camAnimDeviceRotYUp: _camera->camAnim(CA_deviceRotYUp); return true;
+            case C_camAnimDeviceRotYUp: _camera->resetToInitialState(); _camera->camAnim(CA_deviceRotYUp); return true;
             
             case C_camReset:            _camera->resetToInitialState(); return true;
             case C_camSetNextInScene:
