@@ -284,6 +284,8 @@
     <ClInclude Include="..\include\SLCV.h" />
     <ClInclude Include="..\include\SLCVFeatureManager.h" />
     <ClInclude Include="..\include\SLCVImage.h" />
+    <ClInclude Include="..\include\SLCVKeyFrame.h" />
+    <ClInclude Include="..\include\SLCVMapPoint.h" />
     <ClInclude Include="..\include\SLCVRaulMurExtractorNode.h" />
     <ClInclude Include="..\include\SLCVRaulMurOrb.h" />
     <ClInclude Include="..\include\SLCVTrackedAruco.h" />

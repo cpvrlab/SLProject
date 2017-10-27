@@ -35,6 +35,7 @@ const SLVstring SL::testSceneNames =
 {
     "sceneAll                   ",
     "sceneMinimal               ",
+    "sceneCamPoseGraphAndMap    ",
     "sceneFigure                ",
     "sceneMeshLoad              ",
     "sceneVRSizeTest            ",
