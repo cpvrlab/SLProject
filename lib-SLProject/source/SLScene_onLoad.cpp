@@ -231,6 +231,10 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         SLMesh* rectMesh = new SLRectangle(SLVec2f(-5,-5),SLVec2f(5,5),1,1,"rectangle mesh",m1);
         SLNode* rectNode = new SLNode(rectMesh,"rectangle node");
         scene->addChild(rectNode);
+
+        SLNode* boxNode = new SLNode(new SLBox(1,1,1, 0,0,0, "box", m1));
+        scene->addChild(boxNode);
+
         SLNode* axisNode = new SLNode(new SLCoordAxis(),"axis node");
         scene->addChild(axisNode);
 
