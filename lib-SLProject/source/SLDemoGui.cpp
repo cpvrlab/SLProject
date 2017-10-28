@@ -517,6 +517,8 @@ void SLDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
                         sv->onCommand(C_sceneShaderBumpParallax);
                     if (ImGui::MenuItem("Glass Shader", 0, curS==C_sceneRevolver))
                         sv->onCommand(C_sceneRevolver);
+                    if (ImGui::MenuItem("Skybox Shader", 0, curS==C_sceneShaderSkyBox))
+                        sv->onCommand(C_sceneShaderSkyBox);
                     if (ImGui::MenuItem("Earth Shader", 0, curS==C_sceneShaderEarth))
                         sv->onCommand(C_sceneShaderEarth);
 
