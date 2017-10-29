@@ -303,6 +303,7 @@ shaders.files = \
   ../_data/shaders/Color.frag \
   ../_data/shaders/ColorAttribute.vert \
   ../_data/shaders/ColorUniform.vert \
+  ../_data/shaders/ColorUniformPoint.vert \
   ../_data/shaders/Diffuse.frag \
   ../_data/shaders/Diffuse.vert \
   ../_data/shaders/Earth.frag \

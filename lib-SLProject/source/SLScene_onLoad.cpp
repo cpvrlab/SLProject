@@ -1182,15 +1182,16 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         light1->specular(SLCol4f(1, 1, 1));
         light1->attenuation(1,0,0);
 
-        SLMaterial* pcMat1 = new SLMaterial(SLCol4f::RED, "Red");
+        SLMaterial* pcMat1 = new SLMaterial("Red", SLCol4f::RED);
+        pcMat1->program(new SLGLGenericProgram("ColorUniformPoint.vert", "Color.frag"));
         pcMat1->program()->addUniform1f(new SLGLUniform1f(UT_const, "u_pointSize", 3.0f));
         SLRnd3fNormal rndN(SLVec3f(0,0,0), SLVec3f(5,2,1));
         SLNode* pc1 = new SLNode(new SLPoints(1000, rndN, "PC1", pcMat1));
         pc1->translate(-5,0,0);
 
-        SLMaterial* pcMat2 = new SLMaterial(SLCol4f::GREEN, "Green");
-        pcMat2->program()->addUniform1f(new SLGLUniform1f(UT_const, "u_pointSize", 4.0f));
-        SLRnd3fUniform rndU(SLVec3f(0,0,0), SLVec3f(5,2,1));
+        SLMaterial* pcMat2 = new SLMaterial("Green", SLCol4f::GREEN);
+        pcMat2->program(new SLGLGenericProgram("ColorUniform.vert", "Color.frag"));
+        SLRnd3fUniform rndU(SLVec3f(0,0,0), SLVec3f(2,3,5));
         SLNode* pc2 = new SLNode(new SLPoints(1000, rndU, "PC2", pcMat2));
         pc2->translate(5,0,0);
 
