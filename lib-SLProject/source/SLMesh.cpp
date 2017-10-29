@@ -87,39 +87,41 @@ void SLMesh::deleteData()
 //! SLMesh::shapeInit sets the transparency flag of the AABB
 void SLMesh::init(SLNode* node)
 {   
-    if (P.size() && (I16.size() || I32.size()))
-    {  
-        if (!N.size()) calcNormals();
+    // Check data
+    SLstring msg;
+    if (!P.size())
+        msg = "No vertex positions (P)\n";
+    if (_primitive!=PT_points && !I16.size() && !I32.size())
+        msg += "No vertex indices (I16 or I32)\n";
+    if (msg.length() > 0)
+        SL_EXIT_MSG((msg + "in SLMesh::init: " + _name).c_str());
 
-        // Set default materials if no materials are asigned
-        // If colors are available use diffuse color attribute shader
-        // otherwise use the default gray material
-        if (!mat) 
-        {   if (C.size())
-                 mat = SLMaterial::diffuseAttrib();
-            else mat = SLMaterial::defaultGray();
-        }
+    if (!N.size()) calcNormals();
 
-        // set transparent flag of the node if mesh contains alpha material
-        if (!node->aabb()->hasAlpha() && mat->hasAlpha()) 
-            node->aabb()->hasAlpha(true);
-         
-        // build tangents for bump mapping
-        if (mat->needsTangents() && Tc.size() && !T.size())
-            calcTangents();
+    // Set default materials if no materials are asigned
+    // If colors are available use diffuse color attribute shader
+    // otherwise use the default gray material
+    if (!mat)
+    {   if (C.size())
+             mat = SLMaterial::diffuseAttrib();
+        else mat = SLMaterial::defaultGray();
     }
-    else
-    {   SLstring msg;
-        if (!P.size()) msg = "No vertex positions (P)\n";
-        if (!I16.size() && !I32.size()) msg += "No vertex indices (I16 or I32)\n";
-        SL_EXIT_MSG((msg + "in mesh: " + _name).c_str());
-    }
+
+    // set transparent flag of the node if mesh contains alpha material
+    if (!node->aabb()->hasAlpha() && mat->hasAlpha())
+        node->aabb()->hasAlpha(true);
+
+    // build tangents for bump mapping
+    if (mat->needsTangents() && Tc.size() && !T.size())
+        calcTangents();
 }
 //-----------------------------------------------------------------------------
 /*! 
-SLMesh::draw does the OpenGL rendering of the mesh. The GL_TRIANGLES or 
-GL_LINES primitives are rendered normally with the vertex position vector P,
-the normal vector N, the vector Tc and the index vector I16 or I32. 
+SLMesh::draw does the OpenGL rendering of the mesh. The GL_TRIANGLES primitives
+are rendered normally with the vertex position vector P, the normal vector N,
+the vector Tc and the index vector I16 or I32. GL_LINES & GL_POINTS don't have
+normals and tex.coords. GL_POINTS don't have indexes (I16,I32) and are rendered
+with glDrawArrays instead glDrawElements.
 Optionally you can draw the normals and/or the uniform grid voxels.
 <p> The method performs the following steps:</p>
 <p>
@@ -139,218 +141,223 @@ Please view also the full process of rendering <a href="md_on_paint.html"><b>one
 */
 void SLMesh::draw(SLSceneView* sv, SLNode* node)
 {  
-    if (P.size() && (I16.size() || I32.size()))
-    {     
-        ////////////////////////
-        // 1) Apply Drawing Bits
-        ////////////////////////
-            
-        // Return if hidden
-        if (sv->drawBit(SL_DB_HIDDEN) || node->drawBit(SL_DB_HIDDEN)) 
-            return;
+    // Check data
+    SLstring msg;
+    if (!P.size())
+        msg = "No vertex positions (P)\n";
+    if (_primitive!=PT_points && !I16.size() && !I32.size())
+        msg += "No vertex indices (I16 or I32)\n";
+    if (msg.length() > 0)
+        SL_EXIT_MSG((msg + "in SLMesh::draw: " + _name).c_str());
 
-        SLGLPrimitiveType primitiveType = _primitive;
-              
-        // Set polygon mode
-        if (sv->drawBit(SL_DB_WIREMESH) || node->drawBit(SL_DB_WIREMESH))
+
+    ////////////////////////
+    // 1) Apply Drawing Bits
+    ////////////////////////
+
+    // Return if hidden
+    if (sv->drawBit(SL_DB_HIDDEN) || node->drawBit(SL_DB_HIDDEN))
+        return;
+
+    SLGLPrimitiveType primitiveType = _primitive;
+
+    // Set polygon mode
+    if (sv->drawBit(SL_DB_WIREMESH) || node->drawBit(SL_DB_WIREMESH))
+    {
+        #ifdef SL_GLES
+        primitiveType = PT_lineLoop; // There is no polygon line or point mode on ES2!
+        #else
+        _stateGL->polygonLine(true);
+        #endif
+    } else _stateGL->polygonLine(false);
+
+    // Set face culling
+    bool noFaceCulling = sv->drawBit(SL_DB_CULLOFF) || node->drawBit(SL_DB_CULLOFF);
+    _stateGL->cullFace(!noFaceCulling);
+
+    // check if texture exists
+    SLbool useTexture = Tc.size() && !sv->drawBit(SL_DB_TEXOFF) && !node->drawBit(SL_DB_TEXOFF);
+
+    // enable polygon offset if voxels are drawn to avoid stitching
+    if (sv->drawBit(SL_DB_VOXELS) || node->drawBit(SL_DB_VOXELS))
+        _stateGL->polygonOffset(true, 1.0f, 1.0f);
+
+
+    /////////////////////////////
+    // 2) Apply Uniform Variables
+    /////////////////////////////
+
+    // 2.a) Apply mesh material if exists & differs from current
+    if (mat != SLMaterial::current || SLMaterial::current->program()==nullptr)
+        mat->activate(_stateGL, *node->drawBits());
+
+    // 2.b) Pass the matrices to the shader program
+    SLGLProgram* sp = SLMaterial::current->program();
+    sp->uniformMatrix4fv("u_mvMatrix",    1, (SLfloat*)&_stateGL->modelViewMatrix);
+    sp->uniformMatrix4fv("u_mvpMatrix",   1, (SLfloat*)_stateGL->mvpMatrix());
+
+    // 2.c) Build & pass inverse, normal & texture matrix only if needed
+    SLint locIM = sp->getUniformLocation("u_invMvMatrix");
+    SLint locNM = sp->getUniformLocation("u_nMatrix");
+    SLint locTM = sp->getUniformLocation("u_tMatrix");
+
+    if (locIM>=0 && locNM>=0)
+    {   _stateGL->buildInverseAndNormalMatrix();
+        sp->uniformMatrix4fv(locIM, 1, (SLfloat*)_stateGL->invModelViewMatrix());
+        sp->uniformMatrix3fv(locNM, 1, (SLfloat*)_stateGL->normalMatrix());
+    } else
+    if (locIM>=0)
+    {   _stateGL->buildInverseMatrix();
+        sp->uniformMatrix4fv(locIM, 1, (SLfloat*)_stateGL->invModelViewMatrix());
+    } else
+    if (locNM>=0)
+    {   _stateGL->buildNormalMatrix();
+        sp->uniformMatrix3fv(locNM, 1, (SLfloat*)_stateGL->normalMatrix());
+    }
+    if (locTM>=0)
+    {   if (mat->has3DTexture() && mat->textures()[0]->autoCalcTM3D())
+             calcTex3DMatrix(node);
+        else _stateGL->textureMatrix = mat->textures()[0]->tm();
+        sp->uniformMatrix4fv(locTM, 1, (SLfloat*)&_stateGL->textureMatrix);
+    }
+
+    /* Depricated step for HW skinning on GPU
+    // 2.d) Do GPU skinning for animated meshes
+    if (_skeleton && Ji.size() && Jw.size() && _skinMethod == SM_hardware)
+    {
+        if (!_jointMatrices.size())
+        {   _jointMatrices.clear();
+            _jointMatrices.resize(_skeleton->numJoints());
+        }
+
+        if (_skeleton->changed())
         {
-            #ifdef SL_GLES
-            primitiveType = PT_lineLoop; // There is no polygon line or point mode on ES2!
-            #else
-            _stateGL->polygonLine(true);
-            #endif
-        } else _stateGL->polygonLine(false);
-
-        // Set face culling
-        bool noFaceCulling = sv->drawBit(SL_DB_CULLOFF) || node->drawBit(SL_DB_CULLOFF);
-        _stateGL->cullFace(!noFaceCulling);
-      
-        // check if texture exists
-        SLbool useTexture = Tc.size() && !sv->drawBit(SL_DB_TEXOFF) && !node->drawBit(SL_DB_TEXOFF);
-                                     
-        // enable polygon offset if voxels are drawn to avoid stitching
-        if (sv->drawBit(SL_DB_VOXELS) || node->drawBit(SL_DB_VOXELS))
-            _stateGL->polygonOffset(true, 1.0f, 1.0f);
-
-       
-        /////////////////////////////
-        // 2) Apply Uniform Variables
-        /////////////////////////////
-
-        // 2.a) Apply mesh material if exists & differs from current
-        if (mat != SLMaterial::current || SLMaterial::current->program()==nullptr)
-            mat->activate(_stateGL, *node->drawBits());
-            
-        // 2.b) Pass the matrices to the shader program
-        SLGLProgram* sp = SLMaterial::current->program();
-        sp->uniformMatrix4fv("u_mvMatrix",    1, (SLfloat*)&_stateGL->modelViewMatrix);
-        sp->uniformMatrix4fv("u_mvpMatrix",   1, (SLfloat*)_stateGL->mvpMatrix());
-
-        // 2.c) Build & pass inverse, normal & texture matrix only if needed
-        SLint locIM = sp->getUniformLocation("u_invMvMatrix");
-        SLint locNM = sp->getUniformLocation("u_nMatrix");
-        SLint locTM = sp->getUniformLocation("u_tMatrix");
-
-        if (locIM>=0 && locNM>=0) 
-        {   _stateGL->buildInverseAndNormalMatrix();
-            sp->uniformMatrix4fv(locIM, 1, (SLfloat*)_stateGL->invModelViewMatrix());
-            sp->uniformMatrix3fv(locNM, 1, (SLfloat*)_stateGL->normalMatrix());
-        } else 
-        if (locIM>=0) 
-        {   _stateGL->buildInverseMatrix();
-            sp->uniformMatrix4fv(locIM, 1, (SLfloat*)_stateGL->invModelViewMatrix());
-        } else
-        if (locNM>=0) 
-        {   _stateGL->buildNormalMatrix();
-            sp->uniformMatrix3fv(locNM, 1, (SLfloat*)_stateGL->normalMatrix());
-        }
-        if (locTM>=0)
-        {   if (mat->has3DTexture() && mat->textures()[0]->autoCalcTM3D())
-                 calcTex3DMatrix(node);
-            else _stateGL->textureMatrix = mat->textures()[0]->tm();
-            sp->uniformMatrix4fv(locTM, 1, (SLfloat*)&_stateGL->textureMatrix);
+            // update the joint matrix array
+            _skeleton->getJointMatrices(_jointMatrices);
+            // remove the changed flag from the skeleton since our joint matrices are up to date again
+            // @note    the skeleton referenced here would be the skeleton instance proposed in the documentation
+            //          of SLSkeleton. So the _jointMatrices array is the only thing that is concerned with the changed flag
+            //          however currently we don't have that and multiple meshes need to know if a skeleton changed this frame.
+            //          This is why we can't reset the skeleton changed flag at this point in time. If only one entity or mesh required
+            //          the information we wouldn't have a problem.
+            // notify all nodes that contain this mesh about the change
+            notifyParentNodesAABBUpdate();
         }
 
-        /* Depricated step for HW skinning on GPU
-        // 2.d) Do GPU skinning for animated meshes
-        if (_skeleton && Ji.size() && Jw.size() && _skinMethod == SM_hardware)
-        {
-            if (!_jointMatrices.size())
-            {   _jointMatrices.clear();
-                _jointMatrices.resize(_skeleton->numJoints());
+        // @todo    Secondly: It is a bad idea to keep the joint data in the mesh itself, this prevents us
+        //          from instantiating a single mesh with multiple animations. Needs to be addressed ASAP. (see also SLMesh class problems in SLMesh.h at the top)
+        //          In short, the solution would be an entity class which is an instance of a mesh (same mesh data) which can be animated. the original buffers
+        //          would be in the original mesh and the CPU skinned buffers in the entity. or if GPU skinned it would just be the joint matrices array that's in the entity.
+        SLint locBM = sp->getUniformLocation("u_jointMatrices");
+        sp->uniformMatrix4fv(locBM, _skeleton->numJoints(), (SLfloat*)&_jointMatrices[0], false);
+    }
+    */
+
+
+    ///////////////////////////////////////
+    // 3) Generate Vertex Array Object once
+    ///////////////////////////////////////
+
+    if (!_vao.id())
+    {                   _vao.setAttrib(AT_position,    sp->getAttribLocation("a_position"), _finalP);
+        if (N.size())   _vao.setAttrib(AT_normal,      sp->getAttribLocation("a_normal"), _finalN);
+        if (Tc.size())  _vao.setAttrib(AT_texCoord,    sp->getAttribLocation("a_texCoord"), &Tc);
+        if (C.size())   _vao.setAttrib(AT_color,       sp->getAttribLocation("a_color"), &C);
+        if (T.size())   _vao.setAttrib(AT_tangent,     sp->getAttribLocation("a_tangent"), &T);
+        if (I16.size()) _vao.setIndices(&I16);
+        if (I32.size()) _vao.setIndices(&I32);
+
+        // Depricated HW skinning on GPU
+        //if (Ji.size())  _vao.setAttrib(AT_jointIndex,  sp->getAttribLocation("a_jointIds"), &Ji, _useHalf);
+        //if (Jw.size())  _vao.setAttrib(AT_jointWeight, sp->getAttribLocation("a_jointWeights"), &Jw, _useHalf);
+
+        _vao.generate((SLuint)P.size(), Ji.size() ? BU_stream : BU_static, !Ji.size());
+    }
+
+    ///////////////////////////////
+    // 4): Finally do the draw call
+    ///////////////////////////////
+
+    if (_primitive == PT_points)
+         _vao.drawArrayAs(PT_points);
+    else _vao.drawElementsAs(primitiveType);
+
+
+    //////////////////////////////////////
+    // 5) Draw optional normals & tangents
+    //////////////////////////////////////
+
+    // All helper lines must be drawn without blending
+    SLbool blended = _stateGL->blend();
+    if (blended) _stateGL->blend(false);
+
+    if (N.size() && (sv->drawBit(SL_DB_NORMALS) || node->drawBit(SL_DB_NORMALS)))
+    {
+        // scale factor r 2% from scaled radius for normals & tangents
+        // build array between vertex and normal target point
+        float r = node->aabb()->radiusOS() * 0.02f;
+        SLVVec3f V2; V2.resize(P.size()*2);
+        for (SLuint i=0; i < P.size(); ++i)
+        {   V2[i<<1] = finalP(i);
+            V2[(i<<1)+1].set(finalP(i) + finalN(i)*r);
+        }
+
+        // Create or update VAO for normals
+        _vaoN.generateVertexPos(&V2);
+
+        if (T.size())
+        {   for (SLuint i=0; i < P.size(); ++i)
+            {  V2[(i<<1)+1].set(finalP(i).x+T[i].x*r,
+                                finalP(i).y+T[i].y*r,
+                                finalP(i).z+T[i].z*r);
             }
-        
-            if (_skeleton->changed())
-            {
-                // update the joint matrix array
-                _skeleton->getJointMatrices(_jointMatrices);
-                // remove the changed flag from the skeleton since our joint matrices are up to date again
-                // @note    the skeleton referenced here would be the skeleton instance proposed in the documentation
-                //          of SLSkeleton. So the _jointMatrices array is the only thing that is concerned with the changed flag
-                //          however currently we don't have that and multiple meshes need to know if a skeleton changed this frame.
-                //          This is why we can't reset the skeleton changed flag at this point in time. If only one entity or mesh required
-                //          the information we wouldn't have a problem.
-                // notify all nodes that contain this mesh about the change
-                notifyParentNodesAABBUpdate();
-            }
-        
-            // @todo    Secondly: It is a bad idea to keep the joint data in the mesh itself, this prevents us
-            //          from instantiating a single mesh with multiple animations. Needs to be addressed ASAP. (see also SLMesh class problems in SLMesh.h at the top)
-            //          In short, the solution would be an entity class which is an instance of a mesh (same mesh data) which can be animated. the original buffers
-            //          would be in the original mesh and the CPU skinned buffers in the entity. or if GPU skinned it would just be the joint matrices array that's in the entity.
-            SLint locBM = sp->getUniformLocation("u_jointMatrices");
-            sp->uniformMatrix4fv(locBM, _skeleton->numJoints(), (SLfloat*)&_jointMatrices[0], false);
-        }
-        */
-        
 
-        ///////////////////////////////////////
-        // 3) Generate Vertex Array Object once
-        ///////////////////////////////////////
-
-        if (!_vao.id())
-        {                   _vao.setAttrib(AT_position,    sp->getAttribLocation("a_position"), _finalP);
-            if (N.size())   _vao.setAttrib(AT_normal,      sp->getAttribLocation("a_normal"), _finalN);
-            if (Tc.size())  _vao.setAttrib(AT_texCoord,    sp->getAttribLocation("a_texCoord"), &Tc);
-            if (C.size())   _vao.setAttrib(AT_color,       sp->getAttribLocation("a_color"), &C);
-            if (T.size())   _vao.setAttrib(AT_tangent,     sp->getAttribLocation("a_tangent"), &T);
-            if (I16.size()) _vao.setIndices(&I16);
-            if (I32.size()) _vao.setIndices(&I32);
-            // Depricated HW skinning on GPU
-            //if (Ji.size())  _vao.setAttrib(AT_jointIndex,  sp->getAttribLocation("a_jointIds"), &Ji, _useHalf);
-            //if (Jw.size())  _vao.setAttrib(AT_jointWeight, sp->getAttribLocation("a_jointWeights"), &Jw, _useHalf);
-            _vao.generate((SLuint)P.size(), Ji.size() ? BU_stream : BU_static, !Ji.size());
+            // Create or update VAO for tangents
+            _vaoT.generateVertexPos(&V2);
         }
 
-        ///////////////////////////////
-        // 4): Finally do the draw call
-        ///////////////////////////////
-
-        _vao.drawElementsAs(primitiveType);
-
-
-        //////////////////////////////////////
-        // 5) Draw optional normals & tangents
-        //////////////////////////////////////
-
-        // All helper lines must be drawn without blending
-        SLbool blended = _stateGL->blend();
+        _vaoN.drawArrayAsColored(PT_lines, SLCol4f::BLUE);
+        if (T.size()) _vaoT.drawArrayAsColored(PT_lines, SLCol4f::RED);
         if (blended) _stateGL->blend(false);
-        
-        if (N.size() && (sv->drawBit(SL_DB_NORMALS) || node->drawBit(SL_DB_NORMALS)))
-        {  
-            // scale factor r 2% from scaled radius for normals & tangents
-            // build array between vertex and normal target point
-            float r = node->aabb()->radiusOS() * 0.02f;
-            SLVVec3f V2; V2.resize(P.size()*2);
-            for (SLuint i=0; i < P.size(); ++i)
-            {   V2[i<<1] = finalP(i);
-                V2[(i<<1)+1].set(finalP(i) + finalN(i)*r);
-            }
-
-            // Create or update VAO for normals
-            _vaoN.generateVertexPos(&V2);
-
-            if (T.size())
-            {   for (SLuint i=0; i < P.size(); ++i)
-                {  V2[(i<<1)+1].set(finalP(i).x+T[i].x*r,
-                                    finalP(i).y+T[i].y*r,
-                                    finalP(i).z+T[i].z*r);
-                }
-
-                // Create or update VAO for tangents
-                _vaoT.generateVertexPos(&V2);
-            }
-
-            _vaoN.drawArrayAsColored(PT_lines, SLCol4f::BLUE);
-            if (T.size()) _vaoT.drawArrayAsColored(PT_lines, SLCol4f::RED);
-            if (blended) _stateGL->blend(false);
-        } 
-        else
-        {   // release buffer objects for normal & tangent rendering
-            if (_vaoN.id()) _vaoN.deleteGL();
-            if (_vaoT.id()) _vaoT.deleteGL();
-        }
-        
-        //////////////////////////////////////////
-        // 6) Draw optional acceleration structure
-        //////////////////////////////////////////
-
-        if (_accelStruct) 
-        {   if (sv->drawBit(SL_DB_VOXELS) || node->drawBit(SL_DB_VOXELS))
-            {   _accelStruct->draw(sv);
-                _stateGL->polygonOffset(false);
-            } else
-            {  // Delete the visualization VBO if not rendered anymore
-                _accelStruct->disposeBuffers();
-            }
-        }
-
-        ////////////////////////////////////
-        // 7: Draw selected mesh with points
-        ////////////////////////////////////
-      
-        if (SLScene::current->selectedMesh())
-        {   _stateGL->polygonOffset(true, 1.0f, 1.0f);
-            if (SLScene::current->selectedMesh()==this)
-            {   _vaoS.generateVertexPos(_finalP);
-                _vaoS.drawArrayAsColored(PT_points, SLCol4f::YELLOW, 2);
-            }
-            _stateGL->polygonLine(false);
-            _stateGL->polygonOffset(false);
-        } else
-        {   if (_vaoS.id()) 
-                _vaoS.clearAttribs();
-        }
-
-        if (blended) _stateGL->blend(true);
     }
     else
-    {   SLstring msg;
-        if (!P.size()) msg = "No vertex positions (P)\n";
-        if (!I16.size() && !I32.size()) msg += "No vertex indices (I16 or I32)\n";
-        SL_EXIT_MSG((msg + "in mesh: " + _name).c_str());
+    {   // release buffer objects for normal & tangent rendering
+        if (_vaoN.id()) _vaoN.deleteGL();
+        if (_vaoT.id()) _vaoT.deleteGL();
     }
+
+    //////////////////////////////////////////
+    // 6) Draw optional acceleration structure
+    //////////////////////////////////////////
+
+    if (_accelStruct)
+    {   if (sv->drawBit(SL_DB_VOXELS) || node->drawBit(SL_DB_VOXELS))
+        {   _accelStruct->draw(sv);
+            _stateGL->polygonOffset(false);
+        } else
+        {  // Delete the visualization VBO if not rendered anymore
+            _accelStruct->disposeBuffers();
+        }
+    }
+
+    ////////////////////////////////////
+    // 7: Draw selected mesh with points
+    ////////////////////////////////////
+
+    if (SLScene::current->selectedMesh())
+    {   _stateGL->polygonOffset(true, 1.0f, 1.0f);
+        if (SLScene::current->selectedMesh()==this)
+        {   _vaoS.generateVertexPos(_finalP);
+            _vaoS.drawArrayAsColored(PT_points, SLCol4f::YELLOW, 2);
+        }
+        _stateGL->polygonLine(false);
+        _stateGL->polygonOffset(false);
+    } else
+    {   if (_vaoS.id())
+            _vaoS.clearAttribs();
+    }
+
+    if (blended) _stateGL->blend(true);
 }
 //-----------------------------------------------------------------------------
 /*!
@@ -359,9 +366,15 @@ structure is defined all triangles are tested in a brute force manner.
 */
 SLbool SLMesh::hit(SLRay* ray, SLNode* node)
 {  
+    // return true for point & line objects
     if (_primitive != PT_triangles)
-        return false;
-     
+    {   ray->hitNode = node;
+        ray->hitMesh = this;
+        SLVec3f OC = node->aabb()->centerWS() - ray->origin;
+        ray->length = OC.length();
+        return true;
+    }
+
     if (_accelStruct)
         return _accelStruct->intersect(ray, node);
     else
@@ -556,7 +569,10 @@ void SLMesh::updateAccelStruct()
     minP -= addon;
     maxP += addon;
 
-    if (_accelStruct == nullptr && _primitive == PT_triangles)
+    if (_primitive != PT_triangles)
+        return;
+
+    if (_accelStruct == nullptr)
         _accelStruct = new SLCompactGrid(this);
 
     if (_accelStruct && numI() > 15)
@@ -576,8 +592,6 @@ quality. At the end all vertex normals are normalized.
 */
 void SLMesh::calcNormals()
 {
-    assert(P.size() && (I16.size() || I32.size()));
-
     // Set vector for the normals & Zero out the normals vector
     N.clear();
 
@@ -870,7 +884,8 @@ shading when the final intersection point of the closest triangle was found.
 */
 void SLMesh::preShade(SLRay* ray)
 {
-    assert (_primitive == PT_triangles);
+    if (_primitive != PT_triangles)
+        return;
 
     // Get the triangle indices
     SLuint iA, iB, iC;
