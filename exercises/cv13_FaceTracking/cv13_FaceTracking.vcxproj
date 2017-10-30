@@ -19,13 +19,13 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="cv13_HeadPoseEstimation.cpp" />
+    <ClCompile Include="cv13_FaceTracking.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{0D63243A-A87C-48F6-8822-6DE3C67E2F3A}</ProjectGuid>
+    <ProjectGuid>{0D63243A-A87C-48F6-8822-7DE3C67E2F3A}</ProjectGuid>
     <RootNamespace>SceneLib</RootNamespace>
     <Keyword>Win32Proj</Keyword>
-    <ProjectName>cv13_HeadPoseEstimation</ProjectName>
+    <ProjectName>cv13_FaceTracking</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">

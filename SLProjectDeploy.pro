@@ -417,17 +417,18 @@ defineTest(copyToDestdir) {
 
 # OpenCV
 win32 {
-    copyToDestdir($$PWD\_lib\prebuilt\OpenCV\x64\vc12\bin\opencv_core320.lib)
-    copyToDestdir($$PWD\_lib\prebuilt\OpenCV\x64\vc12\bin\opencv_imgproc320.lib)
-    copyToDestdir($$PWD\_lib\prebuilt\OpenCV\x64\vc12\bin\opencv_imgcodecs320.lib)
-    copyToDestdir($$PWD\_lib\prebuilt\OpenCV\x64\vc12\bin\opencv_video320.lib)
-    copyToDestdir($$PWD\_lib\prebuilt\OpenCV\x64\vc12\bin\opencv_videoio320.lib)
     copyToDestdir($$PWD\_lib\prebuilt\OpenCV\x64\vc12\bin\opencv_aruco320.lib)
-    copyToDestdir($$PWD\_lib\prebuilt\OpenCV\x64\vc12\bin\opencv_features2d320.lib)
-    copyToDestdir($$PWD\_lib\prebuilt\OpenCV\x64\vc12\bin\opencv_xfeatures2d320.lib)
     copyToDestdir($$PWD\_lib\prebuilt\OpenCV\x64\vc12\bin\opencv_calib3d320.lib)
+    copyToDestdir($$PWD\_lib\prebuilt\OpenCV\x64\vc12\bin\opencv_core320.lib)
+    copyToDestdir($$PWD\_lib\prebuilt\OpenCV\x64\vc12\bin\opencv_features2d320.lib)
     copyToDestdir($$PWD\_lib\prebuilt\OpenCV\x64\vc12\bin\opencv_highgui320.lib)
     copyToDestdir($$PWD\_lib\prebuilt\OpenCV\x64\vc12\bin\opencv_flann320.lib)
+    copyToDestdir($$PWD\_lib\prebuilt\OpenCV\x64\vc12\bin\opencv_imgproc320.lib)
+    copyToDestdir($$PWD\_lib\prebuilt\OpenCV\x64\vc12\bin\opencv_imgcodecs320.lib)
+    copyToDestdir($$PWD\_lib\prebuilt\OpenCV\x64\vc12\bin\opencv_objdetect320.lib)
+    copyToDestdir($$PWD\_lib\prebuilt\OpenCV\x64\vc12\bin\opencv_video320.lib)
+    copyToDestdir($$PWD\_lib\prebuilt\OpenCV\x64\vc12\bin\opencv_videoio320.lib)
+    copyToDestdir($$PWD\_lib\prebuilt\OpenCV\x64\vc12\bin\opencv_xfeatures2d320.lib)
 }
 macx {
     cvlibs.files += \
@@ -458,6 +459,9 @@ macx {
         ../_lib/prebuilt/OpenCV/macx/libopencv_xfeatures2d.3.2.0.dylib \
         ../_lib/prebuilt/OpenCV/macx/libopencv_xfeatures2d.3.2.dylib \
         ../_lib/prebuilt/OpenCV/macx/libopencv_xfeatures2d.dylib \
+        ../_lib/prebuilt/OpenCV/macx/libopencv_objdetect.3.2.0.dylib \
+        ../_lib/prebuilt/OpenCV/macx/libopencv_objdetect.3.2.dylib \
+        ../_lib/prebuilt/OpenCV/macx/libopencv_objdetect.dylib \
         ../_lib/prebuilt/OpenCV/macx/libopencv_flann.3.2.0.dylib \
         ../_lib/prebuilt/OpenCV/macx/libopencv_flann.3.2.dylib \
         ../_lib/prebuilt/OpenCV/macx/libopencv_flann.dylib
