@@ -170,19 +170,30 @@
       <ResourceOutputFileName>$(IntDir)$(TargetFileName).manifest.res</ResourceOutputFileName>
     </ManifestResourceCompile>
     <PostBuildEvent>
-      <Command>xcopy "$(SolutionDir)_lib\prebuilt\OpenCV\x64\vc14\bin\opencv_core*.dll" "$(SolutionDir)_bin-$(Configuration)-$(Platform)" /s /d /Y 
+      <Command>xcopy "$(SolutionDir)_lib\prebuilt\OpenCV\x64\vc14\bin\opencv_objdetect*.dll" "$(SolutionDir)_bin-$(Configuration)-$(Platform)" /s /d /Y
+xcopy "$(SolutionDir)_lib\prebuilt\OpenCV\x64\vc14\bin\opencv_core*.dll" "$(SolutionDir)_bin-$(Configuration)-$(Platform)" /s /d /Y 
+
 xcopy "$(SolutionDir)_lib\prebuilt\OpenCV\x64\vc14\bin\opencv_imgproc*.dll" "$(SolutionDir)_bin-$(Configuration)-$(Platform)" /s /d /Y 
+
 xcopy "$(SolutionDir)_lib\prebuilt\OpenCV\x64\vc14\bin\opencv_imgcodecs*.dll" "$(SolutionDir)_bin-$(Configuration)-$(Platform)" /s /d /Y 
+
 xcopy "$(SolutionDir)_lib\prebuilt\OpenCV\x64\vc14\bin\opencv_video*.dll" "$(SolutionDir)_bin-$(Configuration)-$(Platform)" /s /d /Y
  
+
 xcopy "$(SolutionDir)_lib\prebuilt\OpenCV\x64\vc14\bin\opencv_videoio*.dll" "$(SolutionDir)_bin-$(Configuration)-$(Platform)" /s /d /Y 
+
 xcopy "$(SolutionDir)_lib\prebuilt\OpenCV\x64\vc14\bin\opencv_aruco*.dll" "$(SolutionDir)_bin-$(Configuration)-$(Platform)" /s /d /Y 
+
 xcopy "$(SolutionDir)_lib\prebuilt\OpenCV\x64\vc14\bin\opencv_features2d*.dll" "$(SolutionDir)_bin-$(Configuration)-$(Platform)" /s /d /Y 
 
+
 xcopy "$(SolutionDir)_lib\prebuilt\OpenCV\x64\vc14\bin\opencv_xfeatures2d*.dll" "$(SolutionDir)_bin-$(Configuration)-$(Platform)" /s /d /Y 
+
 xcopy "$(SolutionDir)_lib\prebuilt\OpenCV\x64\vc14\bin\opencv_calib3d*.dll" "$(SolutionDir)_bin-$(Configuration)-$(Platform)" /s /d /Y 
+
 xcopy "$(SolutionDir)_lib\prebuilt\OpenCV\x64\vc14\bin\opencv_highgui*.dll" "$(SolutionDir)_bin-$(Configuration)-$(Platform)" /s /d /Y 
-xcopy "$(SolutionDir)_lib\prebuilt\OpenCV\x64\vc14\bin\opencv_flann*.dll" "$(SolutionDir)_bin-$(Configuration)-$(Platform)" /s /d /Y</Command>
+
+xcopy "$(SolutionDir)_lib\prebuilt\OpenCV\x64\vc14\bin\opencv_flann*.dll" "$(SolutionDir)_bin-$(Configuration)-$(Platform)" /s /d /Y </Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -256,19 +267,30 @@ xcopy "$(SolutionDir)_lib\prebuilt\OpenCV\x64\vc14\bin\opencv_flann*.dll" "$(Sol
       <LargeAddressAware>true</LargeAddressAware>
     </Link>
     <PostBuildEvent>
-      <Command>xcopy "$(SolutionDir)_lib\prebuilt\OpenCV\x64\vc14\bin\opencv_core*.dll" "$(SolutionDir)_bin-$(Configuration)-$(Platform)" /s /d /Y 
+      <Command>xcopy "$(SolutionDir)_lib\prebuilt\OpenCV\x64\vc14\bin\opencv_objdetect*.dll" "$(SolutionDir)_bin-$(Configuration)-$(Platform)" /s /d /Y
+xcopy "$(SolutionDir)_lib\prebuilt\OpenCV\x64\vc14\bin\opencv_core*.dll" "$(SolutionDir)_bin-$(Configuration)-$(Platform)" /s /d /Y 
+
 xcopy "$(SolutionDir)_lib\prebuilt\OpenCV\x64\vc14\bin\opencv_imgproc*.dll" "$(SolutionDir)_bin-$(Configuration)-$(Platform)" /s /d /Y 
+
 xcopy "$(SolutionDir)_lib\prebuilt\OpenCV\x64\vc14\bin\opencv_imgcodecs*.dll" "$(SolutionDir)_bin-$(Configuration)-$(Platform)" /s /d /Y 
+
 xcopy "$(SolutionDir)_lib\prebuilt\OpenCV\x64\vc14\bin\opencv_video*.dll" "$(SolutionDir)_bin-$(Configuration)-$(Platform)" /s /d /Y
  
+
 xcopy "$(SolutionDir)_lib\prebuilt\OpenCV\x64\vc14\bin\opencv_videoio*.dll" "$(SolutionDir)_bin-$(Configuration)-$(Platform)" /s /d /Y 
+
 xcopy "$(SolutionDir)_lib\prebuilt\OpenCV\x64\vc14\bin\opencv_aruco*.dll" "$(SolutionDir)_bin-$(Configuration)-$(Platform)" /s /d /Y 
+
 xcopy "$(SolutionDir)_lib\prebuilt\OpenCV\x64\vc14\bin\opencv_features2d*.dll" "$(SolutionDir)_bin-$(Configuration)-$(Platform)" /s /d /Y 
 
+
 xcopy "$(SolutionDir)_lib\prebuilt\OpenCV\x64\vc14\bin\opencv_xfeatures2d*.dll" "$(SolutionDir)_bin-$(Configuration)-$(Platform)" /s /d /Y 
+
 xcopy "$(SolutionDir)_lib\prebuilt\OpenCV\x64\vc14\bin\opencv_calib3d*.dll" "$(SolutionDir)_bin-$(Configuration)-$(Platform)" /s /d /Y 
+
 xcopy "$(SolutionDir)_lib\prebuilt\OpenCV\x64\vc14\bin\opencv_highgui*.dll" "$(SolutionDir)_bin-$(Configuration)-$(Platform)" /s /d /Y 
-xcopy "$(SolutionDir)_lib\prebuilt\OpenCV\x64\vc14\bin\opencv_flann*.dll" "$(SolutionDir)_bin-$(Configuration)-$(Platform)" /s /d /Y</Command>
+
+xcopy "$(SolutionDir)_lib\prebuilt\OpenCV\x64\vc14\bin\opencv_flann*.dll" "$(SolutionDir)_bin-$(Configuration)-$(Platform)" /s /d /Y </Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
