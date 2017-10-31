@@ -249,35 +249,85 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         name("Pose Graph and Map Example");
         _info = "Example for loading an existing pose graph with map points.";
 
-        // Create textures and materials
-        SLGLTexture* texC = new SLGLTexture("earth1024_C.jpg");
-        SLMaterial* m1 = new SLMaterial("m1", texC);
 
-        // Create a scene group node
-        SLNode* scene = new SLNode("scene node");
+        // Save energy
+        sv->waitEvents(true);
+    }
+    else
+    if (SL::currentSceneID == C_sceneSensorTest) //...................................................
+    {
+        // Set scene name and info string
+        name("Sensor Test");
+        _info = "Minimal scene to test out the Sensors";
 
-        // Create a light source node
-        SLLightSpot* light1 = new SLLightSpot(0.3f);
-        light1->translation(0, 0, 5);
-        light1->lookAt(0, 0, 0);
-        light1->name("light node");
+        // Create a camera node 1
+        SLCamera* cam1 = new SLCamera("Camera 1");
+        cam1->translation(0, 0, 60);
+        cam1->lookAt(0, 0, 0);
+        cam1->fov(_activeCalib->cameraFovDeg());
+        cam1->clipNear(0.1f);
+        cam1->clipFar(1000.0f);
+        cam1->background().texture(&_videoTexture);
+        cam1->setInitialState();
+        videoType(VT_MAIN);
+
+        SLLightSpot* light1 = new SLLightSpot(120, 120, 120, 1);
+        light1->ambient(SLCol4f(1, 1, 1));
+        light1->diffuse(SLCol4f(1, 1, 1));
+        light1->specular(SLCol4f(1, 1, 1));
+        light1->attenuation(1, 0, 0);
+
+        SLLightSpot* light2 = new SLLightSpot(-120, 120, -120, 1);
+        light2->ambient(SLCol4f(1, 1, 1));
+        light2->diffuse(SLCol4f(1, 1, 1));
+        light2->specular(SLCol4f(1, 1, 1));
+        light2->attenuation(1, 0, 0);
+
+        SLAssimpImporter importer;
+#if defined(SL_OS_IOS) || defined(SL_OS_ANDROID)
+        SLNode* tower = importer.load("christoffelturm.obj");
+#else
+        SLNode* tower = importer.load("Wavefront-OBJ/Christoffelturm/christoffelturm.obj");
+#endif
+
+        ////shift tower to ecef position:
+        ////position in WGS84:
+        //double lat = 47.141328, lon = 7.244839, alt = 444;
+        ////calculate ecef position
+        //SLVec3f lla(lat, lon, alt);
+        //SLVec3f ecef_t_tower;
+        //ecef_t_tower.lla2ecef(lla);
+
+        tower->rotate(90, 0, 1, 0);
+        tower->rotate(-90, 1, 0, 0);
+
+        //SLNode* coordAxis = importer.load("FBX/Axes/axes_blender.fbx");
+        //coordAxis->scale(100.f);
+
+        SLNode* scene = new SLNode("Scene");
         scene->addChild(light1);
+        scene->addChild(light2);
+        if (tower)
+            scene->addChild(tower);
+        scene->addChild(cam1);
 
-        // Create meshes and nodes
-        SLMesh* rectMesh = new SLRectangle(SLVec2f(-5, -5), SLVec2f(5, 5), 1, 1, "rectangle mesh", m1);
-        SLNode* rectNode = new SLNode(rectMesh, "rectangle node");
-        scene->addChild(rectNode);
-        SLNode* axisNode = new SLNode(new SLCoordAxis(), "axis node");
-        scene->addChild(axisNode);
+        //if(coordAxis)
+        //    scene->addChild(coordAxis);
 
-        // Set background color and the root scene node
-        sv->sceneViewCamera()->background().colors(SLCol4f(0.7f, 0.7f, 0.7f), SLCol4f(0.2f, 0.2f, 0.2f));
+        sv->camera(cam1);
+
+
+
+
+
 
         // pass the scene group as root node
         _root3D = scene;
 
-        // Save energy
-        sv->waitEvents(true);
+        _usesRotation = true;
+        _usesLocation = true;
+
+        sv->waitEvents(false); // for constant video feed
     }
     else
     if (SL::currentSceneID == C_sceneFigure) //....................................................

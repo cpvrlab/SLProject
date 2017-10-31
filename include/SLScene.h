@@ -64,6 +64,7 @@ class SLScene: public SLObject
             void            usesRotation        (SLbool use);
             void            deviceRotStarted    (SLbool started) {_deviceRotStarted = started;}
             void            zeroYawAtStart      (SLbool set) {_zeroYawAtStart = set;}
+            void            usesLocation        (SLbool use);
                            
             // Getters
             SLAnimManager&  animManager         () {return _animManager;}
@@ -123,8 +124,14 @@ class SLScene: public SLObject
             SLfloat             deviceRollRAD   () const {return _deviceRollRAD;}
             SLbool              zeroYawAtStart  () const {return _zeroYawAtStart;}
             SLfloat             startYawRAD     () const {return _startYawRAD;}
-            
-            // Misc.
+
+            // Device GPS location stuff
+            SLbool              usesLocation    () const {return _usesLocation;}
+            double              gpsLongitude    () const {return _gpsLongitude;}
+            double              gpsLatitude     () const {return _gpsLatitude;}
+            double              gpsAltitude     () const {return _gpsAltitude;}
+
+    // Misc.
    virtual  void            onLoad              (SLSceneView* sv, 
                                                  SLCommand _currentID);
    virtual  void            onLoadAsset         (SLstring assetFile, 
@@ -149,6 +156,9 @@ class SLScene: public SLObject
                                                  SLuchar* data,
                                                  SLbool isContinuous,
                                                  SLbool isTopLeft);
+            void            onLocationGPS       (double longitude,
+                                                 double latitude,
+                                                 double altitude);
 
      static SLScene*        current;            //!< global static scene pointer
 
@@ -201,7 +211,7 @@ class SLScene: public SLObject
             SLVCVTracker        _trackers;          //!< Vector of all AR trackers
             SLbool              _showDetection;     //!< Flag if detection should be visualized
 
-            // Sensor stuff
+            // IMU Sensor stuff
             SLbool              _usesRotation;      //!< Flag if device rotation is used
             SLfloat             _devicePitchRAD;    //!< Device pitch angle in radians
             SLfloat             _deviceYawRAD;      //!< Device yaw angle in radians
@@ -210,6 +220,13 @@ class SLScene: public SLObject
             SLbool              _deviceRotStarted;  //!< Flag for the first sensor values
             SLbool              _zeroYawAtStart;    //!< Flag if yaw angle should be zeroed at sensor start
             SLfloat             _startYawRAD;       //!< Initial yaw angle after _zeroYawAfterSec in radians
+
+            // GPS Sensor stuff
+            SLbool              _usesLocation;      //!< Flag if GPS Sensor is used
+            SLbool              _deviceLocStarted;  //!< Flag for the first sensor values
+            double              _gpsLongitude;      //!< gps longitude value
+            double              _gpsLatitude;      //!< gps latitude value
+            double              _gpsAltitude;      //!< gps altitude value
 };
 //-----------------------------------------------------------------------------
 #endif

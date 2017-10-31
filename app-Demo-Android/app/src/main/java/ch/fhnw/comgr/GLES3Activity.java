@@ -14,6 +14,7 @@ package ch.fhnw.comgr;
 
 import android.Manifest;
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.hardware.Sensor;
@@ -21,6 +22,10 @@ import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.hardware.camera2.CameraCharacteristics;
+import android.location.GnssStatus;
+import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
 import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
 import android.util.DisplayMetrics;
@@ -30,7 +35,8 @@ import android.view.MotionEvent;
 import android.view.View;
 
 import java.io.IOException;
-
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 public class GLES3Activity extends Activity implements View.OnTouchListener, SensorEventListener
 {
@@ -41,10 +47,14 @@ public class GLES3Activity extends Activity implements View.OnTouchListener, Sen
     private static final String TAG = "SLProject";
     private int                 _currentVideoType;
     private boolean             _cameraPermissionGranted;
+    private boolean             _gpsPermissionGranted;
     private boolean             _permissionRequestIsOpen;
     private boolean             _rotationSensorIsRunning = false;
     private long                _rotationSensorStartTime = 0; //Time when rotation sensor was started
-
+    private boolean             _gpsSensorIsRunning = false;
+    protected LocationManager gpsLocationManager;
+    private GeneralLocationListener gpsLocationListener;
+    private static int MY_PERMISSION_ACCESS_COURSE_LOCATION = 0;
 
     @Override
     protected void onCreate(Bundle icicle)
@@ -87,6 +97,16 @@ public class GLES3Activity extends Activity implements View.OnTouchListener, Sen
         else {
             _permissionRequestIsOpen = true;
             ActivityCompat.requestPermissions(GLES3Activity.this, new String[]{Manifest.permission.CAMERA}, 1);
+        }
+
+        // Init GPS (the GPS is started by gpsSensorStart from within the view renderer)
+        Log.i(TAG, "Request GPS permission ...");
+        if (ActivityCompat.checkSelfPermission(GLES3Activity.this, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(GLES3Activity.this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED)
+            _gpsPermissionGranted = true;
+        else {
+            _permissionRequestIsOpen = true;
+            ActivityCompat.requestPermissions(GLES3Activity.this, new String[]{Manifest.permission.ACCESS_COARSE_LOCATION}, 1);
+            ActivityCompat.requestPermissions(GLES3Activity.this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 1);
         }
     }
 
@@ -438,5 +458,78 @@ public class GLES3Activity extends Activity implements View.OnTouchListener, Sen
             Log.i(TAG, "Exception: " + e.getMessage());
             _rotationSensorIsRunning = false;
         }
+    }
+
+    /**
+     * Starts the location manager.
+     */
+    @SuppressWarnings("ResourceType")
+    public void gpsSensorStart() {
+        // Create GPS manager and listener
+        if (_gpsSensorIsRunning)
+            return;
+
+        if (gpsLocationListener == null) {
+            gpsLocationListener = new GeneralLocationListener(this, "GPS");
+        }
+
+        gpsLocationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+
+        if (gpsLocationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+            Log.i(TAG, "Requesting GPS location updates");
+            gpsLocationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000, 0, gpsLocationListener);
+
+            _gpsSensorIsRunning = true;
+            Log.d(TAG, "State of GPS Sensor: "+ _gpsSensorIsRunning);
+        }
+
+        if (!_gpsSensorIsRunning) {
+            Log.i(TAG, "No provider available!");
+            _gpsSensorIsRunning = false;
+            return;
+        }
+    }
+
+    /**
+     * Stops the location managers
+     */
+    @SuppressWarnings("ResourceType")
+    public void gpsSensorStop() {
+        if (gpsLocationListener != null) {
+            Log.d(TAG, "Removing gpsLocationManager updates");
+            gpsLocationManager.removeUpdates(gpsLocationListener);
+        }
+    }
+
+    /**
+     * Stops location manager, then starts it.
+     */
+    void restartGpsManagers() {
+        Log.d(TAG, "Restarting location managers");
+        gpsSensorStop();
+        gpsSensorStart();
+    }
+
+    /**
+     * This event is raised when the GeneralLocationListener has a new location.
+     * This method in turn updates notification, writes to file, reobtains
+     * preferences, notifies main service client and resets location managers.
+     *
+     * @param loc Location object
+     */
+    void onLocationChanged(Location loc) {
+        long currentTimeStamp = System.currentTimeMillis();
+
+        if (!loc.hasAccuracy() || loc.getAccuracy() == 0) {
+            return;
+        }
+
+
+        Log.i(TAG, String.valueOf(loc.getLatitude()) + "," + String.valueOf(loc.getLongitude()));
+        myView.queueEvent(new Runnable() {
+            public void run() {
+                GLES3Lib.onLocationGPS(loc.getLongitude(), loc.getLatitude(), loc.getAltitude());
+            }
+        });
     }
 }

@@ -435,6 +435,12 @@ void SLDemoGui::buildDemoGui(SLScene* s, SLSceneView* sv)
         sprintf(m+strlen(m), "Zero Yaw at Start   : %s\n",    s->zeroYawAtStart() ? "yes" : "no");
         sprintf(m+strlen(m), "Start Yaw           : %1.0f\n", s->startYawRAD() * SL_RAD2DEG);
 
+
+        sprintf(m+strlen(m), "Uses Location       : %s\n",    s->usesLocation() ? "yes" : "no");
+        sprintf(m+strlen(m), "Longitude           : %f\n",    s->gpsLongitude());
+        sprintf(m+strlen(m), "Latitude            : %f\n",    s->gpsLatitude());
+        sprintf(m+strlen(m), "Altitude            : %f\n",    s->gpsAltitude());
+
         // Switch to fixed font
         ImGui::PushFont(ImGui::GetIO().Fonts->Fonts[1]);
         ImGui::Begin("Sensor Informations", &showInfosSensors, ImVec2(300,0));
@@ -481,6 +487,8 @@ void SLDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
                         sv->onCommand(C_sceneMinimal);
                     if (ImGui::MenuItem("Pose-Graph and Map Scene", 0, curS == C_sceneCamPoseGraphAndMap))
                         sv->onCommand(C_sceneCamPoseGraphAndMap);
+                    if (ImGui::MenuItem("Sensor Test Scene", 0, curS==C_sceneSensorTest))
+                        sv->onCommand(C_sceneSensorTest);
                     if (ImGui::MenuItem("Figure Scene", 0, curS==C_sceneFigure))
                         sv->onCommand(C_sceneFigure);
                     if (ImGui::MenuItem("Large Model", 0, curS==C_sceneLargeModel, largeFileExists))
@@ -639,6 +647,9 @@ void SLDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
 
                 ImGui::EndMenu();
             }
+
+            if (ImGui::MenuItem("Use GPS Sensor", 0, s->usesLocation()))
+                s->usesLocation(!s->usesLocation());
 
             ImGui::Separator();
 
@@ -1570,7 +1581,7 @@ void SLDemoGui::loadConfig(SLint dotsPerInch)
         {   SL_LOG("Failed to open file for reading!");
             return;
         }
-    } 
+    }
     catch(...)
     {   SL_LOG("Parsing of file failed: %s", fullPathAndFilename.c_str());
         return;

@@ -482,7 +482,8 @@ void SLCamera::setView(SLSceneView* sv, const SLEyeType eye)
         SLMat3f wRwy;
         wRwy.rotation(-90, 1, 0, 0);
         //combiniation of partial rotations to orientation of camera w.r.t world
-        SLMat3f wRc = wRwy * wyRenu * enuRs * sRc;
+        //SLMat3f wRc = wRwy * wyRenu * enuRs * sRc;
+        SLMat3f wRc = wRwy * enuRs * sRc;
 
         /*
         //translations:
@@ -494,8 +495,40 @@ void SLCamera::setView(SLSceneView* sv, const SLEyeType eye)
         wTc.setTranslation(wtc);
         */
 
+        //position of tower:
+        //in WGS84:
+        SLfloat phiDeg=47.141063f;  //phi == lattitude
+        SLfloat lamDeg=7.244938f; //lambda == longitude
+        SLfloat phiRad=47.141063f * SL_DEG2RAD;  //phi == lattitude
+        SLfloat lamRad=7.244938f * SL_DEG2RAD; //lambda == longitude
+        SLVec3f llaTower(phiDeg, lamDeg, 444.f); //altstadt
+
+        //calculate ecef position
+        SLVec3f ecef_t_tower;
+        ecef_t_tower.lla2ecef(llaTower);
+        //position of camera with current gps-fix:
+        //SLVec3f llaCam(s->gpsLatitude(), s->gpsLongitude(), s->gpsAltitude());
+        SLVec3f llaCam(47.142534, 7.243167, 521.f); //im büro
+        //SLVec3f llaCam(47.141063f, 7.244938f, 544.f); //test: rel. höhenverschiebung
+
+        //calculate ecef position
+        SLVec3f ecef_t_cam;
+        ecef_t_cam.lla2ecef(llaCam);
+        //difference vector
+        SLVec3f ecef_t_camtower =  ecef_t_cam - ecef_t_tower;
+
+        //rotation to world frame
+        SLMat3f enuRecef(              -sinf(lamRad),            cosf(lamRad),         0,
+                          -cosf(lamRad)*sinf(phiRad), -sinf(lamRad)*sinf(phiRad), cosf(phiRad),
+                           cosf(lamRad)*cosf(phiRad),  sinf(lamRad)*cosf(phiRad), sinf(phiRad));
+
+        SLMat3f wRenu = wRwy; //same as before
+        SLMat3f wRecef = wRenu * enuRecef;
+        SLVec3f wtc = wRecef * ecef_t_camtower;
+
         //set camera pose
         _om.setRotation(wRc);
+        _om.setTranslation(wtc);
         needUpdate();
 
         /*
@@ -1111,4 +1144,3 @@ SLstring SLCamera::toString() const
     return ss.str();
 }
 //-----------------------------------------------------------------------------
-

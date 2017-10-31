@@ -26,6 +26,7 @@
     <RootNamespace>SceneLib</RootNamespace>
     <Keyword>Win32Proj</Keyword>
     <ProjectName>cv13_HeadPoseEstimation</ProjectName>
+    <WindowsTargetPlatformVersion>8.1</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
