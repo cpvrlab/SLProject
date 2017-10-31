@@ -17,9 +17,12 @@ using namespace cv;
 
 
 //----------------------------------------------------------------------------
-// Globals
+// Globals    
+// Note for Visual Studio: You must set the Working Directory to $(TargetDir)
+// with: Right Click on Project > Properties > Debugging 
 String face_cascade_name = "../_data/opencv/haarcascades/haarcascade_frontalface_alt.xml";
 String eyes_cascade_name = "../_data/opencv/haarcascades/haarcascade_eye_tree_eyeglasses.xml";
+
 CascadeClassifier face_cascade;
 CascadeClassifier eyes_cascade;
 String window_name = "Capture - Face detection";
@@ -73,17 +76,17 @@ int main()
     VideoCapture capture;
     Mat frame;
 
-    //-- 1. Load the cascades
-    if(!face_cascade.load( face_cascade_name))
+    //1. Load the cascades
+    if(!face_cascade.load(face_cascade_name))
     {   printf("Error loading face cascade\n");
         return -1;
     };
-    if(!eyes_cascade.load( eyes_cascade_name))
+    if(!eyes_cascade.load(eyes_cascade_name))
     {   printf("Error loading eyes cascade\n");
         return -1;
     };
 
-    //-- 2. Read the video stream
+    //2. Read the video stream
     capture.open(0);
     if (!capture.isOpened())
     {   printf("Error opening video capture\n");
