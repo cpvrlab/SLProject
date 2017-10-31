@@ -539,21 +539,15 @@ float GetSeconds()
     {
         CMDeviceMotion *motionData = self.motionManager.deviceMotion;
         CMAttitude *attitude = motionData.attitude;
-        
-        // Pitch from -halfpi (down)  to zero (horizontal) to +halfpi (up)
-        // Yaw   from -pi     (south) to zero (north)      to +pi     (south)
-        // Roll  from -halfpi (ccw)   to zero (horizontal) to +halfpi (clockwise)
-        float pitch = attitude.roll - SL_HALFPI;
-        float yaw   = attitude.yaw + SL_PI;
-        float roll  = attitude.pitch;
-        yaw = yaw > SL_PI ? fmod(yaw, SL_PI)-SL_PI : yaw;
-        
-        slRotationPYR(pitch, yaw, roll);
-        
-        /*
         CMQuaternion q = attitude.quaternion;
-        slRotationQUAT(q.x, q.y, q.z, q.w)
-        */
+        
+        slRotationPYR(attitude.pitch, attitude.yaw, attitude.roll);
+        slRotationQUAT(q.x, q.y, q.z, q.w);
+        
+        // See the following routines how the rotation is used:
+        // SLScene::onRotationPYR just sets the private members for the euler angles
+        // SLScene::onRotationQUAT calculates the offset if _zeroYawAtStart is true
+        // SLCamera::setView how the device rotation is processed for the camera's view
     }
 }
 //-----------------------------------------------------------------------------

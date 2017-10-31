@@ -1544,9 +1544,11 @@ void SLDemoGui::loadConfig(SLint dotsPerInch)
 
     if (!SLFileSystem::fileExists(fullPathAndFilename))
     {
+        SLfloat dpiScale = dotsPerInch / 142.0f;
+
         // Default settings for the first time
-        SLGLImGui::fontPropDots  = dotsPerInch * (16.0f / 142.0f);
-        SLGLImGui::fontFixedDots = dotsPerInch * (13.0f / 142.0f);
+        SLGLImGui::fontPropDots  = SL_max(16.0f * dpiScale, 16.0f);
+        SLGLImGui::fontFixedDots = SL_max(13.0f * dpiScale, 13.0f);
         SLDemoGui::showAbout = true;
         SLDemoGui::showInfosScene = true;
         SLDemoGui::showStatsTiming = false;
@@ -1556,11 +1558,11 @@ void SLDemoGui::loadConfig(SLint dotsPerInch)
         SLDemoGui::showInfosSensors = false;
         SLDemoGui::showSceneGraph = false;
         SLDemoGui::showProperties = false;
-        style.FramePadding.x = 8.0f;
+        style.FramePadding.x = SL_max(8.0f * dpiScale, 8.0f);
         style.WindowPadding.x = style.FramePadding.x;
-        style.FramePadding.y = 3.0f;
-        style.ItemSpacing.x = 8.0f;
-        style.ItemSpacing.y = 3.0f;
+        style.FramePadding.y = SL_max(3.0f * dpiScale, 3.0f);
+        style.ItemSpacing.x = SL_max(8.0f * dpiScale, 8.0f);
+        style.ItemSpacing.y = SL_max(3.0f * dpiScale, 3.0f);
         style.ItemInnerSpacing.x = style.ItemSpacing.y;
         return;
     }
