@@ -494,7 +494,7 @@ void SLCamera::setView(SLSceneView* sv, const SLEyeType eye)
         wTc.setRotation(wRc);
         wTc.setTranslation(wtc);
         */
-
+/*
         //position of tower:
         //in WGS84:
         SLfloat phiDeg=47.141063f;  //phi == lattitude
@@ -529,6 +529,42 @@ void SLCamera::setView(SLSceneView* sv, const SLEyeType eye)
         //set camera pose
         _om.setRotation(wRc);
         _om.setTranslation(wtc);
+        needUpdate();
+*/
+
+        double phiDeg=47.141063;  //phi == lattitude
+        double lamDeg=7.244938; //lambda == longitude
+        double phiRad=47.141063 * SL_DEG2RAD;  //phi == lattitude
+        double lamRad=7.244938 * SL_DEG2RAD; //lambda == longitude
+        SLVec3d llaTower(phiDeg, lamDeg, 444); //altstadt
+
+        //calculate ecef position
+        SLVec3d ecef_t_tower;
+        ecef_t_tower.lla2ecef(llaTower);
+        //position of camera with current gps-fix:
+        //SLVec3f llaCam(s->gpsLatitude(), s->gpsLongitude(), s->gpsAltitude());
+        //SLVec3d llaCam(47.142534, 7.243167, 521.f); //im büro
+        SLVec3d llaCam(47.141063, 7.244938, 544); //test: rel. höhenverschiebung
+
+        //calculate ecef position
+        SLVec3d ecef_t_cam;
+        ecef_t_cam.lla2ecef(llaCam);
+        //difference vector
+        SLVec3d ecef_t_camtower =  ecef_t_cam - ecef_t_tower;
+
+        //rotation to world frame
+        SLMat3<double> enuRecef(              -sin(lamRad),            cos(lamRad),         0,
+                                       -cos(lamRad)*sin(phiRad), -sin(lamRad)*sin(phiRad), cos(phiRad),
+                                       cos(lamRad)*cos(phiRad),  sin(lamRad)*cos(phiRad), sin(phiRad));
+
+        SLMat3<double> wRenu; //same as before
+        wRenu.rotation(-90, 1, 0, 0);
+        SLMat3<double> wRecef = wRenu * enuRecef;
+        SLVec3d wtc = wRecef * ecef_t_camtower;
+
+        //set camera pose
+        _om.setRotation(wRc);
+        //_om.setTranslation(wtc);
         needUpdate();
 
         /*

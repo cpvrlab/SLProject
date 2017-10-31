@@ -289,20 +289,10 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
 #else
         SLNode* tower = importer.load("Wavefront-OBJ/Christoffelturm/christoffelturm.obj");
 #endif
-
-        ////shift tower to ecef position:
-        ////position in WGS84:
-        //double lat = 47.141328, lon = 7.244839, alt = 444;
-        ////calculate ecef position
-        //SLVec3f lla(lat, lon, alt);
-        //SLVec3f ecef_t_tower;
-        //ecef_t_tower.lla2ecef(lla);
-
-        tower->rotate(90, 0, 1, 0);
         tower->rotate(-90, 1, 0, 0);
 
-        //SLNode* coordAxis = importer.load("FBX/Axes/axes_blender.fbx");
-        //coordAxis->scale(100.f);
+        //initialize global reference position of this scene
+        initGlobalRefPos(47.141328, 7.244839, 444.0);
 
         SLNode* scene = new SLNode("Scene");
         scene->addChild(light1);
@@ -311,15 +301,8 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
             scene->addChild(tower);
         scene->addChild(cam1);
 
-        //if(coordAxis)
-        //    scene->addChild(coordAxis);
-
+        //set cam1 as active scene camera
         sv->camera(cam1);
-
-
-
-
-
 
         // pass the scene group as root node
         _root3D = scene;

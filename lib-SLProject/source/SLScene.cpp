@@ -75,6 +75,8 @@ SLScene::SLScene(SLstring name) : SLObject(name)
     _fps            = 0;
     _elapsedTimeMS  = 0;
     _lastUpdateTimeMS = 0;
+
+    _hasGlobalRefPos = false;
      
     // Load std. shader programs in order as defined in SLShaderProgs enum in SLenum
     // In the constructor they are added the _shaderProgs vector
@@ -765,7 +767,32 @@ void SLScene::onLocationGPS(double latitude, double longitude, double altitude)
     _gpsLatitude = latitude;
     _gpsLongitude = longitude;
     _gpsAltitude = altitude;
-    SLVec3f loc = SLVec3f(latitude, longitude, altitude);
+    SLVec3d loc = SLVec3d(latitude, longitude, altitude);
     loc.lla2ecef(loc);
 }
 //-----------------------------------------------------------------------------
+//! Initialize global reference position in latitude, longitude and altitude.
+//! The calculated values can be used for global camera positioning via gps sensor
+void SLScene::initGlobalRefPos(double latDeg, double lonDeg, double altM )
+{
+    SLVec3d globalRefLla = SLVec3d(latDeg, lonDeg, altM);
+    _globalRefPosEcef.lla2ecef(globalRefLla);
+    //calculation of ecef to world (scene) rotation matrix
+
+    //definition of rotation matrix for ecef to world frame rotation:
+    //world frame (scene) w.r.t. enu frame
+    double phiRad = latDeg * SL_DEG2RAD;  //phi == lattitude
+    double lamRad = lonDeg * SL_DEG2RAD;  //lambda == longitude
+    SLMat3<double> enuRecef( -sin(lamRad),                          cos(lamRad),           0,
+                             -cos(lamRad)*sin(phiRad), -sin(lamRad)*sin(phiRad), cos(phiRad),
+                              cos(lamRad)*cos(phiRad),  sin(lamRad)*cos(phiRad), sin(phiRad));
+    //world frame (scene) w.r.t. enu frame
+    SLMat3<double> wRenu; //same as before
+    wRenu.rotation(-90, 1, 0, 0);
+    //world frame (scene) w.r.t. ecef
+    _wRecef = wRenu * enuRecef;
+
+    //flag, that this scene has a valid global reference position. The values can
+    //be used for camera positioning
+    _hasGlobalRefPos = true;
+}
