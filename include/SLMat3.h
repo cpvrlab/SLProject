@@ -40,18 +40,18 @@ class SLMat3
                     SLMat3      (const SLMat3& A);      //!< Sets mat by other SLMat3
                     SLMat3      (const T *M);           //!< Sets matrix by array
                     SLMat3      (const T M0, const T M3, const T M6,
-                                const T M1, const T M4, const T M7,
-                                const T M2, const T M5, const T M8);    //!< Sets matrix by components
+                                 const T M1, const T M4, const T M7,
+                                 const T M2, const T M5, const T M8);    //!< Sets matrix by components
                     SLMat3      (const T angleDEG, 
-                                const T axis_x, 
-                                const T axis_y, 
-                                const T axis_z);       //!< Sets rotate matrix from axis & angle
+                                 const T axis_x,
+                                 const T axis_y,
+                                 const T axis_z);       //!< Sets rotate matrix from axis & angle
                     SLMat3      (const T angleDEG, 
-                                const SLVec3<T> axis); //!< Sets rotate matrix
+                                 const SLVec3<T> axis); //!< Sets rotate matrix
                     SLMat3      (const T scale_xyz);    //!< Sets uniform scaling matrix
                     SLMat3      (const T angleZDEG,
-                                const T angleYDEG,
-                                const T angleXDEG);    //!< Sets rotation matrix from Euler angles
+                                 const T angleYDEG,
+                                 const T angleXDEG);    //!< Sets rotation matrix from Euler angles
       
         // Setters
         void        setMatrix   (const SLMat3& A);
@@ -91,8 +91,9 @@ class SLMat3
         // Misc. methods
         void        identity    ();
         void        transpose   ();
+        SLMat3<T>   transposed  ();
         void        invert      ();
-        SLMat3<T>   inverse     (); 
+        SLMat3<T>   inverted    ();
         T           trace       () const;
         T           det         () const;
 
@@ -298,6 +299,7 @@ void SLMat3<T>::identity()
 }
 //-----------------------------------------------------------------------------
 template<class T>
+//! Transposes the matrix
 void SLMat3<T>::transpose()
 {
     swap(_m[1],_m[3]);
@@ -305,22 +307,32 @@ void SLMat3<T>::transpose()
     swap(_m[5],_m[7]);
 }
 //-----------------------------------------------------------------------------
+//! Returns the transposed of the matrix and leaves the itself unchanged
+template<class T>
+SLMat3<T> SLMat3<T>::transposed()
+{
+    SLMat3<T> t(_m[0],_m[1],_m[2],
+                _m[3],_m[4],_m[5],
+                _m[6],_m[7],_m[8]);
+    return t;
+}
+//-----------------------------------------------------------------------------
 //! Inverts the matrix
 template<class T>
 void SLMat3<T>::invert()
 {
-    setMatrix(inverse());
+    setMatrix(inverted());
 }
 //-----------------------------------------------------------------------------
-//! Returns the inverse of the matrix
+//! Returns the inverse of the matrix and leaves itself unchanged
 template<class T>
-SLMat3<T> SLMat3<T>::inverse()
+SLMat3<T> SLMat3<T>::inverted()
 {
     // Compute determinant as early as possible using these cofactors.      
     T d = det();
 
     if (fabs(d) < FLT_EPSILON) 
-    {  cout << "3x3-Matrix is singular. Inversion impossible." << endl;
+    {   cout << "3x3-Matrix is singular. Inversion impossible." << endl;
         exit(0);
     }
 

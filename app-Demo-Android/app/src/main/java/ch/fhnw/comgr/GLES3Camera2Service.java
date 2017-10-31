@@ -58,9 +58,13 @@ public class GLES3Camera2Service extends Service {
             String pickedCamera = getCamera(manager, videoType);
             manager.openCamera(pickedCamera, cameraStateCallback, null);
             Size videoSize = getRequestedSize(manager, videoType, requestedVideoSizeIndex);
-            imageReader = ImageReader.newInstance(videoSize.getWidth(), videoSize.getHeight(), ImageFormat.YUV_420_888, 2);
-            imageReader.setOnImageAvailableListener(onImageAvailableListener, null);
-            Log.i(TAG, "imageReader created");
+            if (videoSize.getWidth() > 0 && videoSize.getHeight() > 0) {
+                imageReader = ImageReader.newInstance(videoSize.getWidth(), videoSize.getHeight(), ImageFormat.YUV_420_888, 2);
+                imageReader.setOnImageAvailableListener(onImageAvailableListener, null);
+                Log.i(TAG, "imageReader created");
+            } else {
+                Log.i(TAG, "No imageReader created: videoSize is zero!");
+            }
         } catch (CameraAccessException e) {
             Log.e(TAG, e.getMessage());
         }
@@ -103,6 +107,10 @@ public class GLES3Camera2Service extends Service {
 
         Size[] availableSizes = getOutputSizes(manager, lensFacing);
 
+        // On certain old Androids getOutputSizes can return empty arrays
+        if (availableSizes.length == 0)
+            return new Size(0,0);
+
         // set default size index to a size in the middle of the array
         int defaultSizeIndex = availableSizes.length / 2;
 
@@ -136,7 +144,7 @@ public class GLES3Camera2Service extends Service {
                 int cOrientation = characteristics.get(CameraCharacteristics.LENS_FACING);
                 if (cOrientation == lensFacing) {
                     StreamConfigurationMap streamConfigurationMap = characteristics.get(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP);
-                    Size[] sizes = streamConfigurationMap.getOutputSizes(ImageReader.class);
+                    Size[] sizes = streamConfigurationMap.getOutputSizes(ImageFormat.YUV_420_888);
                     return sizes;
                 }
             }
