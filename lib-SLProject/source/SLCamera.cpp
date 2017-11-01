@@ -485,8 +485,8 @@ void SLCamera::setView(SLSceneView* sv, const SLEyeType eye)
             SLMat3f wRwy;
             wRwy.rotation(-90, 1, 0, 0);
             //combiniation of partial rotations to orientation of camera w.r.t world
-            //SLMat3f wRc = wRwy * wyRenu * enuRs * sRc;
-            SLMat3f wRc = wRwy * enuRs * sRc;
+            SLMat3f wRc = wRwy * wyRenu * enuRs * sRc;
+            //SLMat3f wRc = wRwy * enuRs * sRc;
 
             //set rotation of
             _om.setRotation(wRc);
@@ -503,8 +503,6 @@ void SLCamera::setView(SLSceneView* sv, const SLEyeType eye)
             wTc_2 *= enuTs;
             wTc_2.rotate(-90, 0, 0, 1);
             */
-
-
         }
     }
     else if(_camAnim == CA_deviceRotYUpPosGPS )
@@ -535,21 +533,7 @@ void SLCamera::setView(SLSceneView* sv, const SLEyeType eye)
             //set rotation of
             _om.setRotation(wRc);
             needUpdate();
-
-            /*
-            //alternative concatenation of single transformations
-            SLMat4f wTc_2;
-            wTc_2.translate(updateAndGetWM().translation());
-            wTc_2.rotate(-90, 1, 0, 0);
-            wTc_2.rotate(rotYawOffsetDEG, 0, 0, 1);
-            SLMat4f enuTs;
-            enuTs.setRotation(s->deviceRotation());
-            wTc_2 *= enuTs;
-            wTc_2.rotate(-90, 0, 0, 1);
-            */
         }
-
-
         //location sensor is turned on and the scene has a global reference position
         if( s->usesLocation() && s->hasGlobalRefPos()) {
 
