@@ -266,7 +266,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         cam1->lookAt(0, 0, 0);
         cam1->fov(_activeCalib->cameraFovDeg());
         cam1->clipNear(0.1f);
-        cam1->clipFar(1000.0f);
+        cam1->clipFar(10000.0f);
         cam1->background().texture(&_videoTexture);
         cam1->setInitialState();
         videoType(VT_MAIN);

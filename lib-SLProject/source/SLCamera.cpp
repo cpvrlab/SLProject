@@ -462,110 +462,91 @@ void SLCamera::setView(SLSceneView* sv, const SLEyeType eye)
     if (_camAnim == CA_deviceRotYUp)
     {
         ///////////////////////////////////////////////////////////////////////
-        // Build pose of camera in world frame (scene) using device rotation //
+        // Build pose of camera in world frame (scene) using device rotation
+        // and GPS (depending on flags)
         ///////////////////////////////////////////////////////////////////////
 
-        //rotations:
-        //camera w.r.t. sensor
-        SLMat3f sRc;
-        sRc.rotation(-90, 0, 0, 1);
-        //sensor w.r.t. east-north-down
-        SLMat3f enuRs;
-        enuRs.setMatrix(s->deviceRotation());
-        //east-north-down w.r.t. world-yaw
-        SLfloat rotYawOffsetDEG = s->startYawRAD() * SL_RAD2DEG + 90;
-        if(rotYawOffsetDEG > 180 )
-            rotYawOffsetDEG -= 360;
-        SLMat3f wyRenu;
-        wyRenu.rotation(rotYawOffsetDEG, 0, 0, 1);
-        //world-yaw w.r.t. world
-        SLMat3f wRwy;
-        wRwy.rotation(-90, 1, 0, 0);
-        //combiniation of partial rotations to orientation of camera w.r.t world
-        //SLMat3f wRc = wRwy * wyRenu * enuRs * sRc;
-        SLMat3f wRc = wRwy * enuRs * sRc;
+        if(s->usesRotation()) {
+            //rotations:
+            //camera w.r.t. sensor
+            SLMat3f sRc;
+            sRc.rotation(-90, 0, 0, 1);
+            //sensor w.r.t. east-north-down
+            SLMat3f enuRs;
+            enuRs.setMatrix(s->deviceRotation());
 
-        /*
-        //translations:
-        SLVec3f wtc = om().translation();
+            //east-north-down w.r.t. world-yaw
+            SLfloat rotYawOffsetDEG = s->startYawRAD() * SL_RAD2DEG + 90;
+            if (rotYawOffsetDEG > 180)
+                rotYawOffsetDEG -= 360;
+            SLMat3f wyRenu;
+            wyRenu.rotation(rotYawOffsetDEG, 0, 0, 1);
 
-        //combination of rotation and translation:
-        SLMat4f wTc;
-        wTc.setRotation(wRc);
-        wTc.setTranslation(wtc);
-        */
-/*
-        //position of tower:
-        //in WGS84:
-        SLfloat phiDeg=47.141063f;  //phi == lattitude
-        SLfloat lamDeg=7.244938f; //lambda == longitude
-        SLfloat phiRad=47.141063f * SL_DEG2RAD;  //phi == lattitude
-        SLfloat lamRad=7.244938f * SL_DEG2RAD; //lambda == longitude
-        SLVec3f llaTower(phiDeg, lamDeg, 444.f); //altstadt
+            //world-yaw w.r.t. world
+            SLMat3f wRwy;
+            wRwy.rotation(-90, 1, 0, 0);
+            //combiniation of partial rotations to orientation of camera w.r.t world
+            //SLMat3f wRc = wRwy * wyRenu * enuRs * sRc;
+            SLMat3f wRc = wRwy * enuRs * sRc;
 
-        //calculate ecef position
-        SLVec3f ecef_t_tower;
-        ecef_t_tower.lla2ecef(llaTower);
-        //position of camera with current gps-fix:
-        //SLVec3f llaCam(s->gpsLatitude(), s->gpsLongitude(), s->gpsAltitude());
-        SLVec3f llaCam(47.142534, 7.243167, 521.f); //im büro
-        //SLVec3f llaCam(47.141063f, 7.244938f, 544.f); //test: rel. höhenverschiebung
+            //set rotation of
+            _om.setRotation(wRc);
+            needUpdate();
+        }
 
-        //calculate ecef position
-        SLVec3f ecef_t_cam;
-        ecef_t_cam.lla2ecef(llaCam);
-        //difference vector
-        SLVec3f ecef_t_camtower =  ecef_t_cam - ecef_t_tower;
+        //location sensor is turned on and the scene has a global reference position
+        if( s->usesLocation() && s->hasGlobalRefPos()) {
 
-        //rotation to world frame
-        SLMat3f enuRecef(              -sinf(lamRad),            cosf(lamRad),         0,
-                          -cosf(lamRad)*sinf(phiRad), -sinf(lamRad)*sinf(phiRad), cosf(phiRad),
-                           cosf(lamRad)*cosf(phiRad),  sinf(lamRad)*cosf(phiRad), sinf(phiRad));
+            /*
+             * test calculation
+            double phiDeg = 47.141063;  //phi == lattitude
+            double lamDeg = 7.244938; //lambda == longitude
+            double phiRad = 47.141063 * SL_DEG2RAD;  //phi == lattitude
+            double lamRad = 7.244938 * SL_DEG2RAD; //lambda == longitude
+            SLVec3d llaTower(phiDeg, lamDeg, 444); //altstadt
 
-        SLMat3f wRenu = wRwy; //same as before
-        SLMat3f wRecef = wRenu * enuRecef;
-        SLVec3f wtc = wRecef * ecef_t_camtower;
+            //calculate ecef position
+            SLVec3d ecef_t_tower;
+            ecef_t_tower.lla2ecef(llaTower);
+            //position of camera with current gps-fix:
+            //SLVec3f llaCam(s->gpsLatitude(), s->gpsLongitude(), s->gpsAltitude());
+            //SLVec3d llaCam(47.142534, 7.243167, 521.f); //im büro
+            SLVec3d llaCam(47.141063, 7.244938, 544); //test: rel. höhenverschiebung
 
-        //set camera pose
-        _om.setRotation(wRc);
-        _om.setTranslation(wtc);
-        needUpdate();
-*/
+            //calculate ecef position
+            SLVec3d ecef_t_cam;
+            ecef_t_cam.lla2ecef(llaCam);
+            //difference vector
+            SLVec3d ecef_t_camtower = ecef_t_cam - ecef_t_tower;
 
-        double phiDeg=47.141063;  //phi == lattitude
-        double lamDeg=7.244938; //lambda == longitude
-        double phiRad=47.141063 * SL_DEG2RAD;  //phi == lattitude
-        double lamRad=7.244938 * SL_DEG2RAD; //lambda == longitude
-        SLVec3d llaTower(phiDeg, lamDeg, 444); //altstadt
+            //rotation to world frame
+            SLMat3<double> enuRecef(-sin(lamRad), cos(lamRad), 0,
+                                    -cos(lamRad) * sin(phiRad), -sin(lamRad) * sin(phiRad),
+                                    cos(phiRad),
+                                    cos(lamRad) * cos(phiRad), sin(lamRad) * cos(phiRad),
+                                    sin(phiRad));
 
-        //calculate ecef position
-        SLVec3d ecef_t_tower;
-        ecef_t_tower.lla2ecef(llaTower);
-        //position of camera with current gps-fix:
-        //SLVec3f llaCam(s->gpsLatitude(), s->gpsLongitude(), s->gpsAltitude());
-        //SLVec3d llaCam(47.142534, 7.243167, 521.f); //im büro
-        SLVec3d llaCam(47.141063, 7.244938, 544); //test: rel. höhenverschiebung
+            SLMat3<double> wRenu; //same as before
+            wRenu.rotation(-90, 1, 0, 0);
+            SLMat3<double> wRecef = wRenu * enuRecef;
+            SLVec3d wtc = wRecef * ecef_t_camtower;
+            */
 
-        //calculate ecef position
-        SLVec3d ecef_t_cam;
-        ecef_t_cam.lla2ecef(llaCam);
-        //difference vector
-        SLVec3d ecef_t_camtower =  ecef_t_cam - ecef_t_tower;
+            SLVec3d llaCam(s->gpsLatitude(), s->gpsLongitude(), s->gpsAltitude());
+            //calculate ecef position
+            SLVec3d ecef_t_cam;
+            ecef_t_cam.lla2ecef(llaCam);
+            //direction vector from world to camera origin in ecef frame
+            SLVec3d ecef_t_w2c = ecef_t_cam - s->globalRefPosEcef();
+            //representation of direction vector in world frame (scene)
+            SLVec3d wtc = s->wRecef() * ecef_t_w2c;
 
-        //rotation to world frame
-        SLMat3<double> enuRecef(              -sin(lamRad),            cos(lamRad),         0,
-                                       -cos(lamRad)*sin(phiRad), -sin(lamRad)*sin(phiRad), cos(phiRad),
-                                       cos(lamRad)*cos(phiRad),  sin(lamRad)*cos(phiRad), sin(phiRad));
-
-        SLMat3<double> wRenu; //same as before
-        wRenu.rotation(-90, 1, 0, 0);
-        SLMat3<double> wRecef = wRenu * enuRecef;
-        SLVec3d wtc = wRecef * ecef_t_camtower;
-
-        //set camera pose
-        _om.setRotation(wRc);
-        //_om.setTranslation(wtc);
-        needUpdate();
+            //set camera pose
+            //_om.setTranslation(SLVec3f(wtc.x, wtc.y, wtc.z ));
+            SLVec3f wtc_f(wtc.x, wtc.y, wtc.z );
+            _om.setTranslation(wtc_f);
+            needUpdate();
+        }
 
         /*
         //alternative concatenation of single transformations
