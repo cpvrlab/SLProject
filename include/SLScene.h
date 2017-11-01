@@ -133,7 +133,7 @@ class SLScene: public SLObject
 
             SLbool              hasGlobalRefPos () const {return _hasGlobalRefPos; }
             const SLVec3d&      globalRefPosEcef() const {return _globalRefPosEcef; }
-
+            const SLMat3<double>& wRecef        () const {return _wRecef; }
     // Misc.
    virtual  void            onLoad              (SLSceneView* sv, 
                                                  SLCommand _currentID);
@@ -159,9 +159,7 @@ class SLScene: public SLObject
                                                  SLuchar* data,
                                                  SLbool isContinuous,
                                                  SLbool isTopLeft);
-            void            onLocationGPS       (double longitude,
-                                                 double latitude,
-                                                 double altitude);
+            void            onLocationGPS       (double latitude, double longitude, double altitude);
 
      static SLScene*        current;            //!< global static scene pointer
 

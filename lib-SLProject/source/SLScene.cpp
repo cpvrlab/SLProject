@@ -767,8 +767,6 @@ void SLScene::onLocationGPS(double latitude, double longitude, double altitude)
     _gpsLatitude = latitude;
     _gpsLongitude = longitude;
     _gpsAltitude = altitude;
-    SLVec3d loc = SLVec3d(latitude, longitude, altitude);
-    loc.lla2ecef(loc);
 }
 //-----------------------------------------------------------------------------
 //! Initialize global reference position in latitude, longitude and altitude.
