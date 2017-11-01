@@ -459,13 +459,12 @@ void SLCamera::setView(SLSceneView* sv, const SLEyeType eye)
 {
     SLScene* s = SLScene::current;
 
+    ///////////////////////////////////////////////////////////////////////
+    // Build pose of camera in world frame (scene) using device rotation
+    // and GPS (depending on flags)
+    ///////////////////////////////////////////////////////////////////////
     if (_camAnim == CA_deviceRotYUp)
     {
-        ///////////////////////////////////////////////////////////////////////
-        // Build pose of camera in world frame (scene) using device rotation
-        // and GPS (depending on flags)
-        ///////////////////////////////////////////////////////////////////////
-
         if(s->usesRotation()) {
             //rotations:
             //camera w.r.t. sensor
@@ -492,13 +491,70 @@ void SLCamera::setView(SLSceneView* sv, const SLEyeType eye)
             //set rotation of
             _om.setRotation(wRc);
             needUpdate();
+
+            /*
+            //alternative concatenation of single transformations
+            SLMat4f wTc_2;
+            wTc_2.translate(updateAndGetWM().translation());
+            wTc_2.rotate(-90, 1, 0, 0);
+            wTc_2.rotate(rotYawOffsetDEG, 0, 0, 1);
+            SLMat4f enuTs;
+            enuTs.setRotation(s->deviceRotation());
+            wTc_2 *= enuTs;
+            wTc_2.rotate(-90, 0, 0, 1);
+            */
+
+
         }
+    }
+    else if(_camAnim == CA_deviceRotYUpPosGPS )
+    {
+        if(s->usesRotation()) {
+            //rotations:
+            //camera w.r.t. sensor
+            SLMat3f sRc;
+            sRc.rotation(-90, 0, 0, 1);
+            //sensor w.r.t. east-north-down
+            SLMat3f enuRs;
+            enuRs.setMatrix(s->deviceRotation());
+
+            //east-north-down w.r.t. world-yaw
+            SLfloat rotYawOffsetDEG = s->startYawRAD() * SL_RAD2DEG + 90;
+            if (rotYawOffsetDEG > 180)
+                rotYawOffsetDEG -= 360;
+            SLMat3f wyRenu;
+            wyRenu.rotation(rotYawOffsetDEG, 0, 0, 1);
+
+            //world-yaw w.r.t. world
+            SLMat3f wRwy;
+            wRwy.rotation(-90, 1, 0, 0);
+            //combiniation of partial rotations to orientation of camera w.r.t world
+            //SLMat3f wRc = wRwy * wyRenu * enuRs * sRc;
+            SLMat3f wRc = wRwy * enuRs * sRc;
+
+            //set rotation of
+            _om.setRotation(wRc);
+            needUpdate();
+
+            /*
+            //alternative concatenation of single transformations
+            SLMat4f wTc_2;
+            wTc_2.translate(updateAndGetWM().translation());
+            wTc_2.rotate(-90, 1, 0, 0);
+            wTc_2.rotate(rotYawOffsetDEG, 0, 0, 1);
+            SLMat4f enuTs;
+            enuTs.setRotation(s->deviceRotation());
+            wTc_2 *= enuTs;
+            wTc_2.rotate(-90, 0, 0, 1);
+            */
+        }
+
 
         //location sensor is turned on and the scene has a global reference position
         if( s->usesLocation() && s->hasGlobalRefPos()) {
 
             /*
-             * test calculation
+            //test calculation
             double phiDeg = 47.141063;  //phi == lattitude
             double lamDeg = 7.244938; //lambda == longitude
             double phiRad = 47.141063 * SL_DEG2RAD;  //phi == lattitude
@@ -510,8 +566,8 @@ void SLCamera::setView(SLSceneView* sv, const SLEyeType eye)
             ecef_t_tower.lla2ecef(llaTower);
             //position of camera with current gps-fix:
             //SLVec3f llaCam(s->gpsLatitude(), s->gpsLongitude(), s->gpsAltitude());
-            //SLVec3d llaCam(47.142534, 7.243167, 521.f); //im büro
-            SLVec3d llaCam(47.141063, 7.244938, 544); //test: rel. höhenverschiebung
+            SLVec3d llaCam(47.142534, 7.243167, 521.f); //im büro
+            //SLVec3d llaCam(47.141063, 7.244938, 544); //test: rel. höhenverschiebung
 
             //calculate ecef position
             SLVec3d ecef_t_cam;
@@ -548,17 +604,6 @@ void SLCamera::setView(SLSceneView* sv, const SLEyeType eye)
             needUpdate();
         }
 
-        /*
-        //alternative concatenation of single transformations
-        SLMat4f wTc_2;
-        wTc_2.translate(updateAndGetWM().translation());
-        wTc_2.rotate(-90, 1, 0, 0);
-        wTc_2.rotate(rotYawOffsetDEG, 0, 0, 1);
-        SLMat4f enuTs;
-        enuTs.setRotation(s->deviceRotation());
-        wTc_2 *= enuTs;
-        wTc_2.rotate(-90, 0, 0, 1);
-        */
     }
 
     // The view matrix is the camera nodes inverse world matrix
@@ -634,6 +679,7 @@ SLstring SLCamera::animationStr() const
         case CA_walkingYUp:     return "Walking Y up";
         case CA_walkingZUp:     return "Walking Z up";
         case CA_deviceRotYUp:   return "Device Rotated Y up";
+        case CA_deviceRotYUpPosGPS: return "Device Rotated Y up and GPS positioned";
         default: return "unknown";
     }
 }

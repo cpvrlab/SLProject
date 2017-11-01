@@ -263,7 +263,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         // Create a camera node 1
         SLCamera* cam1 = new SLCamera("Camera 1");
         cam1->translation(0, 0, 60);
-        cam1->lookAt(0, 0, 0);
+        cam1->lookAt(0, 0, 1000);
         cam1->fov(_activeCalib->cameraFovDeg());
         cam1->clipNear(0.1f);
         cam1->clipFar(10000.0f);
@@ -283,6 +283,12 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         light2->specular(SLCol4f(1, 1, 1));
         light2->attenuation(1, 0, 0);
 
+        SLNode *axisNode = new SLNode(new SLCoordAxis(), "Axis Node");
+        axisNode->setDrawBitsRec(SL_DB_WIREMESH, false);
+        axisNode->scale(100);
+        axisNode->rotate(-90, 1, 0, 0);
+
+
         SLAssimpImporter importer;
 #if defined(SL_OS_IOS) || defined(SL_OS_ANDROID)
         SLNode* tower = importer.load("christoffelturm.obj");
@@ -291,12 +297,10 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
 #endif
         tower->rotate(-90, 1, 0, 0);
 
-        //initialize global reference position of this scene
-        initGlobalRefPos(47.141328, 7.244839, 444.0);
-
         SLNode* scene = new SLNode("Scene");
         scene->addChild(light1);
         scene->addChild(light2);
+        scene->addChild(axisNode);
         if (tower)
             scene->addChild(tower);
         scene->addChild(cam1);
@@ -307,10 +311,21 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         // pass the scene group as root node
         _root3D = scene;
 
+        //Check on which platform we are: We suggest that ios and 
+        //android support sensors (rotation and gps)
+#if defined(SL_OS_MACIOS) || defined(SL_OS_ANDROID)
+        //initialize global reference position of this scene
+        initGlobalRefPos(47.141328, 7.244839, 444.0);
+
+        //activate rotation and gps sensor
         _usesRotation = true;
         _usesLocation = true;
-
-        sv->waitEvents(false); // for constant video feed
+        cam1->camAnim(SLCamAnim::CA_deviceRotYUp);
+#else
+        cam1->camAnim(SLCamAnim::CA_deviceRotYUp);
+#endif
+        
+        sv->waitEvents(false); // for constant video and sensors feed
     }
     else
     if (SL::currentSceneID == C_sceneFigure) //....................................................

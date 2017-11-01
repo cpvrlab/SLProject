@@ -176,7 +176,8 @@ enum SLCommand
     C_camAnimWalkYUp,       // Sets 1st person walking camera animation w. Y axis up
     C_camAnimWalkZUp,       // Sets 1st person walking camera animation w. Z axis up
     C_camAnimDeviceRotYUp,  // Sets 1st person walking camera animation w. Y axis up and device rotation
-    C_camAnimDeviceRotZUp,  // Sets 1st person walking camera animation w. Y axis up and device rotation
+    C_camAnimDeviceRotZUp,  // Sets 1st person walking camera animation w. Z axis up and device rotation
+    C_camAnimDeviceRotYUpPosGPS, // Sets 1st person walking camera animation w. Y axis up and device rotation. GPS coordinated are used for global positioning.
     C_camAnimFly1stP,       // Sets 1st person flying camera animation
     C_camSpeedLimitInc,     // Increments the speed limit by 10%
     C_camSpeedLimitDec,     // Decrements the speed limit by 10%
@@ -250,7 +251,8 @@ enum SLCamAnim
     CA_turntableZUp,
     CA_walkingYUp,
     CA_walkingZUp,
-    CA_deviceRotYUp
+    CA_deviceRotYUp,
+    CA_deviceRotYUpPosGPS
 };
 //-----------------------------------------------------------------------------
 //! Enumeration for different camera projections
