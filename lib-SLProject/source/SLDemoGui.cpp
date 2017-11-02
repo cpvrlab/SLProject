@@ -495,6 +495,8 @@ void SLDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
                         sv->onCommand(C_sceneMassiveData);
                     if (ImGui::MenuItem("2D and 3D Text", 0, curS==C_scene2Dand3DText))
                         sv->onCommand(C_scene2Dand3DText);
+                    if (ImGui::MenuItem("Point Clouds", 0, curS==C_scenePointClouds))
+                        sv->onCommand(C_scenePointClouds);
 
                     ImGui::EndMenu();
                 }
@@ -517,6 +519,8 @@ void SLDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
                         sv->onCommand(C_sceneShaderBumpParallax);
                     if (ImGui::MenuItem("Glass Shader", 0, curS==C_sceneRevolver))
                         sv->onCommand(C_sceneRevolver);
+                    if (ImGui::MenuItem("Skybox Shader", 0, curS==C_sceneShaderSkyBox))
+                        sv->onCommand(C_sceneShaderSkyBox);
                     if (ImGui::MenuItem("Earth Shader", 0, curS==C_sceneShaderEarth))
                         sv->onCommand(C_sceneShaderEarth);
 

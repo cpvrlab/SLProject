@@ -53,6 +53,12 @@ textures.files = \
   ../_data/images/textures/rusty-metal_2048N.png \
   ../_data/images/textures/rusty-metal_2048M.png \
   ../_data/images/textures/rusty-metal_2048R.png \
+  ../_data/images/textures/mountain_lake+X1024_C.jpg \
+  ../_data/images/textures/mountain_lake-X1024_C.jpg \
+  ../_data/images/textures/mountain_lake+Y1024_C.jpg \
+  ../_data/images/textures/mountain_lake-Y1024_C.jpg \
+  ../_data/images/textures/mountain_lake+Z1024_C.jpg \
+  ../_data/images/textures/mountain_lake-Z1024_C.jpg \
   ../_data/images/textures/Testmap_0512_C.png \
   ../_data/images/textures/tile1_0256_C.jpg \
   ../_data/images/textures/tree1_1024_C.png \
@@ -297,6 +303,7 @@ shaders.files = \
   ../_data/shaders/Color.frag \
   ../_data/shaders/ColorAttribute.vert \
   ../_data/shaders/ColorUniform.vert \
+  ../_data/shaders/ColorUniformPoint.vert \
   ../_data/shaders/Diffuse.frag \
   ../_data/shaders/Diffuse.vert \
   ../_data/shaders/Earth.frag \
@@ -331,6 +338,8 @@ shaders.files = \
   ../_data/shaders/SceneOculus.vert \
   ../_data/shaders/ShadowMapping.frag \
   ../_data/shaders/ShadowMapping.vert \
+  ../_data/shaders/SkyBox.frag \
+  ../_data/shaders/SkyBox.vert \
   ../_data/shaders/StereoOculus.frag \
   ../_data/shaders/StereoOculus.vert \
   ../_data/shaders/StereoOculusDistortionMesh.frag \

@@ -333,6 +333,12 @@
     <ClInclude Include="..\include\SLCVTrackedFeatures.h">
       <Filter>CV</Filter>
     </ClInclude>
+    <ClInclude Include="..\include\SLPoints.h">
+      <Filter>Nodes\Meshes</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\SLRnd3f.h">
+      <Filter>Math</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="source\SLAABBox.cpp">
@@ -553,6 +559,9 @@
     </ClCompile>
     <ClCompile Include="source\CV\SLCVTracked.cpp">
       <Filter>CV</Filter>
+    </ClCompile>
+    <ClCompile Include="source\SLPoints.cpp">
+      <Filter>Nodes\Meshes</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

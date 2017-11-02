@@ -92,6 +92,7 @@ HEADERS += \
 ../include/SLObject.h \
 ../include/SLPathtracer.h \
 ../include/SLPlane.h \
+../include/SLPoints.h \
 ../include/SLPolygon.h \
 ../include/SLPolyline.h \
 ../include/SLQuat4.h \
@@ -175,6 +176,7 @@ source/SLMaterial.cpp \
 source/SLMesh.cpp \
 source/SLNode.cpp \
 source/SLPathtracer.cpp \
+source/SLPoints.cpp \
 source/SLPolygon.cpp \
 source/SLRay.cpp \
 source/SLRaytracer.cpp \

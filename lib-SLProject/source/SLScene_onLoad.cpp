@@ -27,6 +27,7 @@
 #include <SLDisk.h>
 #include <SLSphere.h>
 #include <SLRectangle.h>
+#include <SLPoints.h>
 #include <SLText.h>
 #include <SLGrid.h>
 #include <SLLens.h>
@@ -231,6 +232,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         SLMesh* rectMesh = new SLRectangle(SLVec2f(-5,-5),SLVec2f(5,5),1,1,"rectangle mesh",m1);
         SLNode* rectNode = new SLNode(rectMesh,"rectangle node");
         scene->addChild(rectNode);
+
         SLNode* axisNode = new SLNode(new SLCoordAxis(),"axis node");
         scene->addChild(axisNode);
 
@@ -1160,6 +1162,50 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         _root3D = scene;
     }
     else
+    if (SL::currentSceneID == C_scenePointClouds) //...............................................
+    {
+        name("Point Clouds Test");
+        _info = "Point Clouds with normal and uniform distribution";
+
+        SLCamera* cam1 = new SLCamera("Camera 1");
+        cam1->clipNear(0.1f);
+        cam1->clipFar(100);
+        cam1->translation(0,0,15);
+        cam1->lookAt(0, 0, 0);
+        cam1->focalDist(5);
+        cam1->background().colors(SLCol4f(0.1f,0.1f,0.1f));
+        cam1->setInitialState();
+
+        SLLightSpot* light1 = new SLLightSpot(10, 10, 10, 0.3f);
+        light1->ambient(SLCol4f(0.2f, 0.2f, 0.2f));
+        light1->diffuse(SLCol4f(0.8f, 0.8f, 0.8f));
+        light1->specular(SLCol4f(1, 1, 1));
+        light1->attenuation(1,0,0);
+
+        SLMaterial* pcMat1 = new SLMaterial("Red", SLCol4f::RED);
+        pcMat1->program(new SLGLGenericProgram("ColorUniformPoint.vert", "Color.frag"));
+        pcMat1->program()->addUniform1f(new SLGLUniform1f(UT_const, "u_pointSize", 3.0f));
+        SLRnd3fNormal rndN(SLVec3f(0,0,0), SLVec3f(5,2,1));
+        SLNode* pc1 = new SLNode(new SLPoints(1000, rndN, "PC1", pcMat1));
+        pc1->translate(-5,0,0);
+
+        SLMaterial* pcMat2 = new SLMaterial("Green", SLCol4f::GREEN);
+        pcMat2->program(new SLGLGenericProgram("ColorUniform.vert", "Color.frag"));
+        SLRnd3fUniform rndU(SLVec3f(0,0,0), SLVec3f(2,3,5));
+        SLNode* pc2 = new SLNode(new SLPoints(1000, rndU, "PC2", pcMat2));
+        pc2->translate(5,0,0);
+
+        SLNode* scene = new SLNode("scene");
+        scene->addChild(cam1);
+        scene->addChild(light1);
+        scene->addChild(pc1);
+        scene->addChild(pc2);
+
+        sv->camera(cam1);
+        sv->waitEvents(false);
+        _root3D = scene;
+    }
+    else
     if (SL::currentSceneID == C_sceneShaderPerPixelBlinn ||
         SL::currentSceneID == C_sceneShaderPerVertexBlinn) //......................................
     {
@@ -1395,8 +1441,8 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
 
         // create texture
         SLGLTexture* tex1 = new SLGLTexture("Pool+X0512_C.png","Pool-X0512_C.png"
-                                            ,"Pool+Y0512_C.png","Pool-Y0512_C.png"
-                                            ,"Pool+Z0512_C.png","Pool-Z0512_C.png");
+                                           ,"Pool+Y0512_C.png","Pool-Y0512_C.png"
+                                           ,"Pool+Z0512_C.png","Pool-Z0512_C.png");
         SLGLTexture* tex2 = new SLGLTexture("tile1_0256_C.jpg");
 
         // Create generic shader program with 4 custom uniforms
@@ -1557,6 +1603,54 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
 
         sv->camera(cam1);
         _root3D = scene;
+    }
+    else
+    if (SL::currentSceneID == C_sceneShaderSkyBox) //..............................................
+    {
+        // Set scene name and info string
+        name("Sky Box Texture Example");
+        _info = "Sky box cube with cubemap skybox shader";
+
+        // Create textures and materials
+        SLGLTexture* cubeMap = new SLGLTexture("mountain_lake+X1024_C.jpg","mountain_lake-X1024_C.jpg"
+                                              ,"mountain_lake+Y1024_C.jpg","mountain_lake-Y1024_C.jpg"
+                                              ,"mountain_lake+Z1024_C.jpg","mountain_lake-Z1024_C.jpg");
+        SLMaterial* matCubeMap = new SLMaterial("matCubeMap");
+        matCubeMap->textures().push_back(cubeMap);
+        SLGLProgram* sp = new SLGLGenericProgram("SkyBox.vert", "SkyBox.frag");
+        sp->addUniform1f(new SLGLUniform1f(UT_const, "u_centerX", 0.0f));
+        sp->addUniform1f(new SLGLUniform1f(UT_const, "u_centerY", 0.0f));
+        sp->addUniform1f(new SLGLUniform1f(UT_const, "u_centerZ", 0.0f));
+        matCubeMap->program(sp);
+
+        // Create a scene group node
+        SLNode* scene = new SLNode("scene node");
+
+        // Create camera in the center
+        SLCamera* cam1 = new SLCamera("Camera 1");
+        cam1->translation(0,0,0);
+        cam1->lookAt(0, 0, -1);
+        cam1->background().colors(SLCol4f(0.5f,0.5f,0.5f));
+        cam1->setInitialState();
+        scene->addChild(cam1);
+
+        // Create a light source node
+        SLLightSpot* light1 = new SLLightSpot(0.3f);
+        light1->translation(0,0,5);
+        light1->lookAt(0,0,0);
+        light1->name("light node");
+        scene->addChild(light1);
+
+        SLNode* boxNode = new SLNode(new SLBox(10,10,10, -10,-10,-10, "box", matCubeMap));
+        scene->addChild(boxNode);
+
+        sv->camera(cam1);
+
+        // pass the scene group as root node
+        _root3D = scene;
+
+        // Save energy
+        sv->waitEvents(true);
     }
     else
     if (SL::currentSceneID == C_sceneShaderEarth) //...............................................

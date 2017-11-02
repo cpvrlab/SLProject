@@ -89,6 +89,7 @@ enum SLCommand
     C_sceneFrustumCull,
     C_sceneMassiveData,
     C_scene2Dand3DText,
+    C_scenePointClouds,
 
     C_sceneShaderPerVertexBlinn,
     C_sceneShaderPerPixelBlinn,
@@ -97,6 +98,7 @@ enum SLCommand
     C_sceneShaderWater,
     C_sceneShaderBumpNormal,
     C_sceneShaderBumpParallax,
+    C_sceneShaderSkyBox,
     C_sceneShaderEarth,
     C_sceneVolumeRayCastHeadMRI,
     C_sceneVolumeRayCastLightedMRIHead,
@@ -242,13 +244,13 @@ enum SLTextAlign
     TA_bottomLeft, TA_bottomCenter, TA_bottomRight
 };
 //-----------------------------------------------------------------------------
-//! Enumeration for possible camera animation types
+//! Enumeration for available camera animation types
 enum SLCamAnim
-{   CA_turntableYUp,
-    CA_turntableZUp,
-    CA_walkingYUp,
-    CA_walkingZUp,
-    CA_deviceRotYUp
+{   CA_turntableYUp,//!< Orbiting around central object w. turnrable rotation around y & right axis.
+    CA_turntableZUp,//!< Orbiting around central object w. turnrable rotation around z & right axis.
+    CA_walkingYUp,  //!< Walk translation with AWSD and look around rotation around y & right axis.
+    CA_walkingZUp,  //!< Walk translation with AWSD and look around rotation around z & right axis.
+    CA_deviceRotYUp //!< The device rotation controls the camera rotation.
 };
 //-----------------------------------------------------------------------------
 //! Enumeration for different camera projections
