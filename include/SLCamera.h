@@ -34,6 +34,13 @@ to its active camera.\n
 Because the SLNode class is inherited from the abstract SLEventHandler class a
 camera can handle mouse & keyboard event. All camera animations are handled in
 these event handlers.\n
+The following camera animations are available:\n
+   - SLCamAnim::CA_turntableYUp
+   - SLCamAnim::CA_turntableZUp
+   - SLCamAnim::CA_walkingYUp
+   - SLCamAnim::CA_walkingZUp
+   - SLCamAnim::CA_deviceRotYUp
+\n
 Every camera has an instance of SLBackground that defines the views background
 if the camera is the active one. If the camera is inactive the background gets
 drawn on the far clipping plane of the visualized view frustum.

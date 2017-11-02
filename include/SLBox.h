@@ -18,24 +18,25 @@
 //-----------------------------------------------------------------------------
 //! Axis aligned box mesh
 /*!      
-The SLBox node draws an axis aligned box from a minimal corner to a maximal 
-corner.
+The SLBox node draws an axis aligned box from a minimal corner to a maximal
+corner. If the minimal and maximal corner are swapped the normals will point
+inside.
 */
 class SLBox: public SLMesh
 {
     public:
                         SLBox       (SLfloat minx=0, 
-                                    SLfloat miny=0, 
-                                    SLfloat minz=0,
-                                    SLfloat maxx=1, 
-                                    SLfloat maxy=1, 
-                                    SLfloat maxz=1,
-                                    SLstring name = "box mesh",
-                                    SLMaterial* mat = 0);
+                                     SLfloat miny=0,
+                                     SLfloat minz=0,
+                                     SLfloat maxx=1,
+                                     SLfloat maxy=1,
+                                     SLfloat maxz=1,
+                                     SLstring name = "box mesh",
+                                     SLMaterial* mat = 0);
                         SLBox       (SLVec3f min, 
-                                    SLVec3f max,
-                                    SLstring name = "box mesh",
-                                    SLMaterial* mat = 0);
+                                     SLVec3f max,
+                                     SLstring name = "box mesh",
+                                     SLMaterial* mat = 0);
                
             void        buildMesh   (SLMaterial* mat);
    

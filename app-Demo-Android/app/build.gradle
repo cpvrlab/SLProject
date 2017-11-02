@@ -3,9 +3,6 @@ apply plugin: 'com.android.application'
 android {
     compileSdkVersion 24
     defaultConfig {
-        jackOptions {
-            enabled true
-        }
         applicationId "ch.fhnw.comgr"
         minSdkVersion 21
         targetSdkVersion 23

@@ -147,7 +147,11 @@ void SLGLState::initAll()
     a pixel alignment of 1:*/
     glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
     glPixelStorei(GL_PACK_ALIGNMENT, 1);
-    
+
+    #ifndef SL_GLES2
+    glEnable(GL_PROGRAM_POINT_SIZE);
+    #endif
+
     #ifdef _GLDEBUG
     GET_GL_ERROR;
     #endif

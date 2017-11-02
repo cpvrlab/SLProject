@@ -91,8 +91,9 @@ class SLMat3
         // Misc. methods
         void        identity    ();
         void        transpose   ();
+        SLMat3<T>   transposed  ();
         void        invert      ();
-        SLMat3<T>   inverse     (); 
+        SLMat3<T>   inverted    ();
         T           trace       () const;
         T           det         () const;
 
@@ -298,6 +299,7 @@ void SLMat3<T>::identity()
 }
 //-----------------------------------------------------------------------------
 template<class T>
+//! Transposes the matrix
 void SLMat3<T>::transpose()
 {
     swap(_m[1],_m[3]);
@@ -305,22 +307,32 @@ void SLMat3<T>::transpose()
     swap(_m[5],_m[7]);
 }
 //-----------------------------------------------------------------------------
+//! Returns the transposed of the matrix and leaves the itself unchanged
+template<class T>
+SLMat3<T> SLMat3<T>::transposed()
+{
+    SLMat3<T> t(_m[0],_m[1],_m[2],
+                _m[3],_m[4],_m[5],
+                _m[6],_m[7],_m[8]);
+    return t;
+}
+//-----------------------------------------------------------------------------
 //! Inverts the matrix
 template<class T>
 void SLMat3<T>::invert()
 {
-    setMatrix(inverse());
+    setMatrix(inverted());
 }
 //-----------------------------------------------------------------------------
-//! Returns the inverse of the matrix
+//! Returns the inverse of the matrix and leaves itself unchanged
 template<class T>
-SLMat3<T> SLMat3<T>::inverse()
+SLMat3<T> SLMat3<T>::inverted()
 {
     // Compute determinant as early as possible using these cofactors.      
     T d = det();
 
     if (fabs(d) < FLT_EPSILON) 
-    {  cout << "3x3-Matrix is singular. Inversion impossible." << endl;
+    {   cout << "3x3-Matrix is singular. Inversion impossible." << endl;
         exit(0);
     }
 

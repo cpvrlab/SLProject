@@ -448,7 +448,7 @@ void SLCVTrackedFeatures::updateSceneCamera(SLSceneView *sv)
 
         // Update Scene Graph camera to display model correctly
         // (positioning cam relative to world coordinates)
-        sv->camera()->om(_objectViewMat.inverse());
+        sv->camera()->om(_objectViewMat.inverted());
 
         frames_with_pose++;
     }

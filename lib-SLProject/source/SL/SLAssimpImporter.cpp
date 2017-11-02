@@ -590,9 +590,9 @@ void SLAssimpImporter::loadSkeleton(SLJoint* parent, aiNode* node)
     /*/
     // set the binding pose as initial state
     SLMat4f om;
-    om = joint->offsetMat().inverse();
+    om = joint->offsetMat().inverted();
     if (parent)
-        om = parent->updateAndGetWM().inverse() * om;
+        om = parent->updateAndGetWM().inverted() * om;
     joint->om(om);
     joint->setInitialState();
     /**/

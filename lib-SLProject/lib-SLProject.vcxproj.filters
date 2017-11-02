@@ -335,9 +335,13 @@
     </ClInclude>
     <ClInclude Include="..\include\SLCVKeyFrame.h">
       <Filter>CV</Filter>
+    <ClInclude Include="..\include\SLPoints.h">
+      <Filter>Nodes\Meshes</Filter>
     </ClInclude>
     <ClInclude Include="..\include\SLCVMapPoint.h">
       <Filter>CV</Filter>
+    <ClInclude Include="..\include\SLRnd3f.h">
+      <Filter>Math</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -559,6 +563,9 @@
     </ClCompile>
     <ClCompile Include="source\CV\SLCVTracked.cpp">
       <Filter>CV</Filter>
+    </ClCompile>
+    <ClCompile Include="source\SLPoints.cpp">
+      <Filter>Nodes\Meshes</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

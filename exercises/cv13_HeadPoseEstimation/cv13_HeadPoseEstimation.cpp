@@ -1,8 +1,8 @@
 //#############################################################################
 //  File:      cv13_HeadPoseEstimation.cpp
 //  Purpose:   Minimal OpenCV application that changes brightness and contrast
-//             Taken from Satya Mallic on:
-//             http://www.learnopencv.com/head-pose-estimation-using-opencv-and-dlib/
+//  Taken from Satya Mallic on:
+//  http://www.learnopencv.com/head-pose-estimation-using-opencv-and-dlib/
 //  Date:      Authumn 2017
 //#############################################################################
 
@@ -14,7 +14,14 @@ using namespace cv;
 int main(int argc, char **argv)
 {
     // Read input image
+    // Note for Visual Studio: You must set the Working Directory to $(TargetDir)
+    // with: Right Click on Project > Properties > Debugging 
     cv::Mat image = cv::imread("../_data/images/textures/headPose.jpg");
+
+    if (image.data == nullptr)
+    {   printf("Error: Could not load image!\n");
+        return -1;
+    };
 
     // 2D image points. If you change the image, you need to change vector
     std::vector<cv::Point2d> image_points;

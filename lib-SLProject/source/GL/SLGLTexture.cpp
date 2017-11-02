@@ -153,17 +153,17 @@ SLGLTexture::SLGLTexture(SLstring  filenameXPos,
     _stateGL = SLGLState::getInstance();
     _texType = type==TT_unknown ? detectType(filenameXPos) : type;
    
-    assert(filenameXPos!=""); load(filenameXPos);
-    assert(filenameXNeg!=""); load(filenameXNeg);
-    assert(filenameYPos!=""); load(filenameYPos);
-    assert(filenameYNeg!=""); load(filenameYNeg);
-    assert(filenameZPos!=""); load(filenameZPos);
-    assert(filenameZNeg!=""); load(filenameZNeg);
+    assert(filenameXPos!=""); load(filenameXPos, false);
+    assert(filenameXNeg!=""); load(filenameXNeg, false);
+    assert(filenameYPos!=""); load(filenameYPos, false);
+    assert(filenameYNeg!=""); load(filenameYNeg, false);
+    assert(filenameZPos!=""); load(filenameZPos, false);
+    assert(filenameZNeg!=""); load(filenameZNeg, false);
              
     _min_filter  = min_filter;
     _mag_filter  = mag_filter;
-    _wrap_s      = GL_REPEAT;
-    _wrap_t      = GL_REPEAT;
+    _wrap_s      = GL_CLAMP_TO_EDGE; // other you will see filter artefacts on the edges
+    _wrap_t      = GL_CLAMP_TO_EDGE; // other you will see filter artefacts on the edges
     _target      = GL_TEXTURE_CUBE_MAP;
     _texName     = 0;
     _bumpScale   = 1.0f;

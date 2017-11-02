@@ -471,6 +471,7 @@ void SLCamera::setView(SLSceneView* sv, const SLEyeType eye)
             SLMat3f sRc;
             sRc.rotation(-90, 0, 0, 1);
             //sensor w.r.t. east-north-down
+        //sensor rotation w.r.t. east-north-down
             SLMat3f enuRs;
             enuRs.setMatrix(s->deviceRotation());
 
@@ -484,6 +485,7 @@ void SLCamera::setView(SLSceneView* sv, const SLEyeType eye)
             //world-yaw w.r.t. world
             SLMat3f wRwy;
             wRwy.rotation(-90, 1, 0, 0);
+
             //combiniation of partial rotations to orientation of camera w.r.t world
             SLMat3f wRc = wRwy * wyRenu * enuRs * sRc;
             //SLMat3f wRc = wRwy * enuRs * sRc;
