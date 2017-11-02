@@ -31,13 +31,6 @@ public:
     SLPoints(SLfloat nPoints, SLRnd3f& rnd,
                 SLstring name = "normal point cloud",
                 SLMaterial* material=0);
-
-    //! Ctor for empty point cloud.
-    SLPoints(SLstring name = "normal point cloud",
-        SLMaterial* material = 0);
-
-    //! add point to mesh
-    void addPoint(const SLVec3f& pt);
 };
 //-----------------------------------------------------------------------------
 #endif

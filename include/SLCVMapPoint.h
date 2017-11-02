@@ -22,7 +22,7 @@ class SLCVMapPoint
 public:
     void id(int id) { _id = id; }
     void worldPos(const SLCVMat& pos) { _worldPos = pos; }
-
+    SLVec3f SLCVMapPoint::vec3f();
 private:
     int _id;
     SLCVMat _worldPos;

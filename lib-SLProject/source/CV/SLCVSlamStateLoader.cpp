@@ -77,13 +77,12 @@ void SLCVSlamStateLoader::loadMapPoints( SLCVVMapPoint& mapPts )
     //reserve space in mapPts
     mapPts.reserve(n.size());
 
-    int id = -1;
-    cv::Mat mWorldPos;
     for (auto it = n.begin(); it != n.end(); ++it)
     {
         SLCVMapPoint newPt;
         newPt.id( (int)(*it)["id"]);
-        (*it)["Twc"] >> mWorldPos;
+        cv::Mat mWorldPos;
+        (*it)["mWorldPos"] >> mWorldPos;
         newPt.worldPos(mWorldPos);
 
         mapPts.push_back(newPt);

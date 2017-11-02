@@ -10,3 +10,14 @@
 
 #include "stdafx.h"
 #include "SLCVMapPoint.h"
+
+//-----------------------------------------------------------------------------
+SLVec3f SLCVMapPoint::vec3f()
+{ 
+    SLVec3f vec;
+    vec.x = _worldPos.at<float>(0,0);
+    vec.y = _worldPos.at<float>(1,0);
+    vec.z = _worldPos.at<float>(2,0);
+    return vec;
+}
+//-----------------------------------------------------------------------------

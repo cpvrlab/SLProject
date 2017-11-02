@@ -15,6 +15,8 @@
 #include <string>
 #include <SLCVMapPoint.h>
 
+class SLPoints;
+
 using namespace std;
 
 //-----------------------------------------------------------------------------
@@ -25,17 +27,19 @@ class SLCVMap
 {
 public:
     SLCVMap(const string& name);
-    //! add map point
-    void addPoint(const SLCVMapPoint& mapPt);
+
     //! get reference to map points vector
     SLCVVMapPoint& mapPoints() { return _mapPoints; }
 
     //! get visual representation as SLPoints
+    SLPoints* getSceneObject();
 protected:
 
 
 private:
     SLCVVMapPoint _mapPoints;
+    //Pointer to visual representation object (ATTENTION: do not delete this object)
+    SLPoints* _sceneObject = NULL;
 };
 
 #endif // !SLCVMAP_H
