@@ -48,3 +48,21 @@ SLPoints::SLPoints(SLfloat nPoints, SLRnd3f& rnd, SLstring name,
     mat = material;
 }
 //-----------------------------------------------------------------------------
+//! Ctor for empty point cloud.
+SLPoints::SLPoints(SLstring name,  SLMaterial* material) : SLMesh(name)
+{
+    assert(name != "" && "No name provided in SLPoints!");
+
+    _primitive = PT_points;
+    mat = material;
+}
+//-----------------------------------------------------------------------------
+//! add point to mesh
+void SLPoints::addPoint(const SLVec3f& pt)
+{
+    if(P.size() > UINT_MAX)
+        SL_EXIT_MSG("SLPoints supports max. 2^32 vertices.");
+
+    P.push_back(pt);
+}
+//-----------------------------------------------------------------------------

@@ -285,9 +285,12 @@
     <ClInclude Include="..\include\SLCVFeatureManager.h" />
     <ClInclude Include="..\include\SLCVImage.h" />
     <ClInclude Include="..\include\SLCVKeyFrame.h" />
+    <ClInclude Include="..\include\SLCVKeyFrameDB.h" />
+    <ClInclude Include="..\include\SLCVMap.h" />
     <ClInclude Include="..\include\SLCVMapPoint.h" />
     <ClInclude Include="..\include\SLCVRaulMurExtractorNode.h" />
     <ClInclude Include="..\include\SLCVRaulMurOrb.h" />
+    <ClInclude Include="..\include\SLCVSlamStateLoader.h" />
     <ClInclude Include="..\include\SLCVTrackedAruco.h" />
     <ClInclude Include="..\include\SLCVCalibration.h" />
     <ClInclude Include="..\include\SLCVCapture.h" />
@@ -374,8 +377,13 @@
     <ClCompile Include="..\lib-SLExternal\nvwa\debug_new.cpp" />
     <ClCompile Include="source\CV\SLCVFeatureManager.cpp" />
     <ClCompile Include="source\CV\SLCVImage.cpp" />
+    <ClCompile Include="source\CV\SLCVKeyFrame.cpp" />
+    <ClCompile Include="source\CV\SLCVKeyFrameDB.cpp" />
+    <ClCompile Include="source\CV\SLCVMap.cpp" />
+    <ClCompile Include="source\CV\SLCVMapPoint.cpp" />
     <ClCompile Include="source\CV\SLCVRaulMurExtractorNode.cpp" />
     <ClCompile Include="source\CV\SLCVRaulMurOrb.cpp" />
+    <ClCompile Include="source\CV\SLCVSlamStateLoader.cpp" />
     <ClCompile Include="source\CV\SLCVTracked.cpp" />
     <ClCompile Include="source\CV\SLCVTrackedAruco.cpp" />
     <ClCompile Include="source\CV\SLCVCalibration.cpp" />

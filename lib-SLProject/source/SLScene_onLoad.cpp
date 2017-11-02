@@ -37,6 +37,10 @@
 #include <SLCVTrackedFeatures.h>
 #include <SLTransferFunction.h>
 
+#include <SLCVMapPoint.h>
+#include <SLCVMap.h>
+#include <SLCVSlamStateLoader.h>
+
 SLNode* SphereGroup(SLint, SLfloat, SLfloat, SLfloat, SLfloat, SLint, SLMaterial*, SLMaterial*);
 //-----------------------------------------------------------------------------
 //! Creates a recursive sphere group used for the ray tracing scenes
@@ -251,6 +255,20 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         name("Pose Graph and Map Example");
         _info = "Example for loading an existing pose graph with map points.";
 
+        //load map points and keyframes from json file
+        SLCVSlamStateLoader loader(".json");
+        loader.loadKeyFrames();
+        loader.loadMapPoints();
+
+        //instantiate SLCVMap and add vector of SLSVMapPoint from loader
+        SLCVMap* map = new SLCVMap("Map");
+
+
+        //set SLCVMap into SLNode and add to Scene graph
+
+        //instantiate SLCVKeyFrameDB
+
+        //load keyframes from json file and add to SLCVKeyFrameDB
 
         // Save energy
         sv->waitEvents(true);

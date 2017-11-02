@@ -335,15 +335,24 @@
     </ClInclude>
     <ClInclude Include="..\include\SLCVKeyFrame.h">
       <Filter>CV</Filter>
-	</ClInclude>
+    </ClInclude>
     <ClInclude Include="..\include\SLPoints.h">
       <Filter>Nodes\Meshes</Filter>
     </ClInclude>
     <ClInclude Include="..\include\SLCVMapPoint.h">
       <Filter>CV</Filter>
-	</ClInclude>
+    </ClInclude>
     <ClInclude Include="..\include\SLRnd3f.h">
       <Filter>Math</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\SLCVKeyFrameDB.h">
+      <Filter>CV</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\SLCVMap.h">
+      <Filter>CV</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\SLCVSlamStateLoader.h">
+      <Filter>CV</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -568,6 +577,21 @@
     </ClCompile>
     <ClCompile Include="source\SLPoints.cpp">
       <Filter>Nodes\Meshes</Filter>
+    </ClCompile>
+    <ClCompile Include="source\CV\SLCVKeyFrame.cpp">
+      <Filter>CV</Filter>
+    </ClCompile>
+    <ClCompile Include="source\CV\SLCVKeyFrameDB.cpp">
+      <Filter>CV</Filter>
+    </ClCompile>
+    <ClCompile Include="source\CV\SLCVMap.cpp">
+      <Filter>CV</Filter>
+    </ClCompile>
+    <ClCompile Include="source\CV\SLCVMapPoint.cpp">
+      <Filter>CV</Filter>
+    </ClCompile>
+    <ClCompile Include="source\CV\SLCVSlamStateLoader.cpp">
+      <Filter>CV</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
