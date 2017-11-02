@@ -335,11 +335,13 @@
     </ClInclude>
     <ClInclude Include="..\include\SLCVKeyFrame.h">
       <Filter>CV</Filter>
+	</ClInclude>
     <ClInclude Include="..\include\SLPoints.h">
       <Filter>Nodes\Meshes</Filter>
     </ClInclude>
     <ClInclude Include="..\include\SLCVMapPoint.h">
       <Filter>CV</Filter>
+	</ClInclude>
     <ClInclude Include="..\include\SLRnd3f.h">
       <Filter>Math</Filter>
     </ClInclude>
