@@ -263,7 +263,8 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         // Create a camera node 1
         SLCamera* cam1 = new SLCamera("Camera 1");
         cam1->translation(0, 0, 60);
-        cam1->lookAt(0, 0, 1000);
+        cam1->lookAt(0, 0, 1000); //test case for black background
+        //cam1->lookAt(0, 0, 0);
         cam1->fov(_activeCalib->cameraFovDeg());
         cam1->clipNear(0.1f);
         cam1->clipFar(10000.0f);
@@ -293,14 +294,15 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
 #if defined(SL_OS_IOS) || defined(SL_OS_ANDROID)
         SLNode* tower = importer.load("christoffelturm.obj");
 #else
-        SLNode* tower = importer.load("Wavefront-OBJ/Christoffelturm/christoffelturm.obj");
+        //SLNode* tower = importer.load("Wavefront-OBJ/Christoffelturm/christoffelturm.obj");
+        SLNode* tower = importer.load("FBX/Duck/duck.fbx");   
 #endif
         tower->rotate(-90, 1, 0, 0);
 
         SLNode* scene = new SLNode("Scene");
-        scene->addChild(light1);
-        scene->addChild(light2);
-        scene->addChild(axisNode);
+        //scene->addChild(light1);
+        //scene->addChild(light2);
+        //scene->addChild(axisNode);
         if (tower)
             scene->addChild(tower);
         scene->addChild(cam1);
@@ -320,9 +322,9 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         //activate rotation and gps sensor
         _usesRotation = true;
         _usesLocation = true;
-        cam1->camAnim(SLCamAnim::CA_deviceRotYUp);
+        cam1->camAnim(SLCamAnim::CA_deviceRotYUpPosGPS);
 #else
-        cam1->camAnim(SLCamAnim::CA_deviceRotYUp);
+        cam1->camAnim(SLCamAnim::CA_turntableYUp);
 #endif
         
         sv->waitEvents(false); // for constant video and sensors feed
