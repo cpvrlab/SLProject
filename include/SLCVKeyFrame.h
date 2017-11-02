@@ -11,6 +11,7 @@
 #ifndef SLCVKEYFRAME_H
 #define SLCVKEYFRAME_H
 
+#include <vector>
 #include <SLCamera.h>
 
 //-----------------------------------------------------------------------------
@@ -29,5 +30,7 @@ protected:
 
 private:
 };
+
+typedef std::vector<SLCVKeyFrame> SLCVVKeyFrame;
 
 #endif // !SLCVKEYFRAME_H

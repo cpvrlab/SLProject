@@ -28,7 +28,7 @@ SLCVSlamStateLoader::~SLCVSlamStateLoader()
 }
 //-----------------------------------------------------------------------------
 //! add map point
-void SLCVSlamStateLoader::load()
+void SLCVSlamStateLoader::load( SLCVVMapPoint& mapPts, SLCVVKeyFrame& kfs)
 {
     //load intrinsics (calibration parameters): only store once
     float fx, fy, cx, cy;
@@ -38,46 +38,55 @@ void SLCVSlamStateLoader::load()
     _fs["cy"] >> cy;
 
     //load keyframes
-    loadKeyFrames();
+    loadKeyFrames(kfs);
     //load map points
-    loadMapPoints();
+    loadMapPoints(mapPts);
 
-    _fs.release();
     cout << "Read Done." << endl;
 }
 //-----------------------------------------------------------------------------
-void SLCVSlamStateLoader::loadKeyFrames()
+void SLCVSlamStateLoader::loadKeyFrames( SLCVVKeyFrame& kfs )
 {
-    cv::FileNode kfs = _fs["KeyFrames"];
-    if (kfs.type() != cv::FileNode::SEQ)
+    cv::FileNode n = _fs["KeyFrames"];
+    if (n.type() != cv::FileNode::SEQ)
     {
         cerr << "strings is not a sequence! FAIL" << endl;
     }
 
+    //reserve space in kfs
+    kfs.reserve(n.size());
+
     // iterate through a sequence using FileNodeIterator
     int id = -1;
     cv::Mat Twc;
-    for (auto it = kfs.begin(); it != kfs.end(); ++it)
+    for (auto it = n.begin(); it != n.end(); ++it)
     {
         id = (int)(*it)["id"];
         (*it)["Twc"] >> Twc;
     }
 }
 //-----------------------------------------------------------------------------
-void SLCVSlamStateLoader::loadMapPoints()
+void SLCVSlamStateLoader::loadMapPoints( SLCVVMapPoint& mapPts )
 {
-    cv::FileNode mapPts = _fs["MapPoints"];
-    if (mapPts.type() != cv::FileNode::SEQ)
+    cv::FileNode n = _fs["MapPoints"];
+    if (n.type() != cv::FileNode::SEQ)
     {
         cerr << "strings is not a sequence! FAIL" << endl;
     }
 
+    //reserve space in mapPts
+    mapPts.reserve(n.size());
+
     int id = -1;
     cv::Mat mWorldPos;
-    for (auto it = mapPts.begin(); it != mapPts.end(); ++it)
+    for (auto it = n.begin(); it != n.end(); ++it)
     {
-        id = (int)(*it)["id"];
+        SLCVMapPoint newPt;
+        newPt.id( (int)(*it)["id"]);
         (*it)["Twc"] >> mWorldPos;
+        newPt.worldPos(mWorldPos);
+
+        mapPts.push_back(newPt);
     }
 }
 //-----------------------------------------------------------------------------

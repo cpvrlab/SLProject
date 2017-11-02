@@ -39,6 +39,7 @@
 
 #include <SLCVMapPoint.h>
 #include <SLCVMap.h>
+#include <SLCVKeyFrameDB.h>
 #include <SLCVSlamStateLoader.h>
 
 SLNode* SphereGroup(SLint, SLfloat, SLfloat, SLfloat, SLfloat, SLint, SLMaterial*, SLMaterial*);
@@ -255,20 +256,14 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         name("Pose Graph and Map Example");
         _info = "Example for loading an existing pose graph with map points.";
 
-        //load map points and keyframes from json file
-        SLCVSlamStateLoader loader(".json");
-        loader.loadKeyFrames();
-        loader.loadMapPoints();
-
-        //instantiate SLCVMap and add vector of SLSVMapPoint from loader
         SLCVMap* map = new SLCVMap("Map");
+        SLCVKeyFrameDB* kfDB = new SLCVKeyFrameDB();
 
+        //load map points and keyframes from json file
+        SLCVSlamStateLoader loader("D:/Development/ORB_SLAM2/BUILD/orb-slam-state.json");
+        loader.load(map->mapPoints(), kfDB->keyFrames());
 
-        //set SLCVMap into SLNode and add to Scene graph
-
-        //instantiate SLCVKeyFrameDB
-
-        //load keyframes from json file and add to SLCVKeyFrameDB
+        //add visual representations of map and keyFrame database to scene
 
         // Save energy
         sv->waitEvents(true);

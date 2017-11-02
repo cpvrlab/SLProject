@@ -11,8 +11,8 @@
 #ifndef SLCVMAPPOINT_H
 #define SLCVMAPPOINT_H
 
-
-
+#include <vector>
+#include <SLCV.h>
 //-----------------------------------------------------------------------------
 //! 
 /*! 
@@ -20,12 +20,14 @@
 class SLCVMapPoint
 {
 public:
-
-
-protected:
-
+    void id(int id) { _id = id; }
+    void worldPos(const SLCVMat& pos) { _worldPos = pos; }
 
 private:
+    int _id;
+    SLCVMat _worldPos;
 };
+
+typedef std::vector<SLCVMapPoint> SLCVVMapPoint;
 
 #endif // !SLCVMAPPOINT_H

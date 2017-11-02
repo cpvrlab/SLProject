@@ -28,16 +28,13 @@ public:
     SLCVSlamStateLoader(const string& filename);
     ~SLCVSlamStateLoader();
     //! execute loading procedure
-    void load();
+    void load( SLCVVMapPoint& mapPts, SLCVVKeyFrame& kfs);
 
 protected:
     
 private:
-    void loadKeyFrames();
-    void loadMapPoints();
-
-    std::vector<SLCVMapPoint> _mapPts;
-    std::vector<SLCVKeyFrame> _keyFrames;
+    void loadKeyFrames( SLCVVKeyFrame& kfs );
+    void loadMapPoints( SLCVVMapPoint& mapPts );
 
     cv::FileStorage _fs;
 };

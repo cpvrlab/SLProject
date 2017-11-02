@@ -27,14 +27,15 @@ public:
     SLCVMap(const string& name);
     //! add map point
     void addPoint(const SLCVMapPoint& mapPt);
+    //! get reference to map points vector
+    SLCVVMapPoint& mapPoints() { return _mapPoints; }
 
     //! get visual representation as SLPoints
 protected:
 
 
 private:
-    vector<SLCVMapPoint> _mapPoints;
-
+    SLCVVMapPoint _mapPoints;
 };
 
 #endif // !SLCVMAP_H
