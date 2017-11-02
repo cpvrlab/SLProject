@@ -944,6 +944,9 @@ void SLDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
                 static SLfloat focalDist = cam->focalDist();
                 static SLfloat fov = cam->fov();
 
+                // Keep menu with low so that they do not cover the parent menu
+                ImGui::PushItemWidth(150);
+
                 if (ImGui::MenuItem("Perspective", 0, proj==P_monoPerspective))
                     sv->onCommand(C_projPersp);
 
