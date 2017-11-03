@@ -273,12 +273,20 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         light1->attenuation(1, 0, 0);
 
         SLNode* scene = new SLNode("scene");
-        scene->addChild(pc1);
         scene->addChild(light1);
+
+        SLNode* mapNode = new SLNode("map");
+        //the map is rotated w.r.t world because ORB-SLAM uses x-axis right, 
+        //y-axis down and z-forward
+        mapNode->rotate(180, 1, 0, 0);
+        mapNode->translate(1, 0, 0);
+
+        scene->addChild(mapNode);
+        scene->addChild(pc1);
         //add keyFrames
         for (auto& kf : kfDB->keyFrames()) {
             SLCamera* cam = kf.getSceneObject();
-            scene->addChild(cam);
+            mapNode->addChild(cam);
         }
 
         // Save energy
