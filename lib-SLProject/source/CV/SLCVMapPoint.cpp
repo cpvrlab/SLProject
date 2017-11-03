@@ -12,7 +12,7 @@
 #include "SLCVMapPoint.h"
 
 //-----------------------------------------------------------------------------
-SLVec3f SLCVMapPoint::vec3f()
+SLVec3f SLCVMapPoint::worldPos()
 { 
     SLVec3f vec;
     vec.x = _worldPos.at<float>(0,0);

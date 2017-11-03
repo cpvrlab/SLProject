@@ -22,9 +22,11 @@ class SLCVMapPoint
 public:
     void id(int id) { _id = id; }
     void worldPos(const SLCVMat& pos) { _worldPos = pos; }
-    SLVec3f SLCVMapPoint::vec3f();
+    SLVec3f worldPos();
 private:
     int _id;
+    //open cv coordinate representation: z-axis points to principlal point,
+    // x-axis to the right and y-axis down
     SLCVMat _worldPos;
 };
 

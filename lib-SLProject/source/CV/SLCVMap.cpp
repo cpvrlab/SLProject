@@ -33,7 +33,7 @@ SLPoints* SLCVMap::getSceneObject()
         //get points as Vec3f
         SLVVec3f points;
         for (auto mapPt : _mapPoints)
-            points.push_back(mapPt.vec3f());
+            points.push_back(mapPt.worldPos());
 
         _sceneObject = new SLPoints(points, "MapPoints", pcMat1);
     }

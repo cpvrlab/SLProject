@@ -30,13 +30,6 @@ SLCVSlamStateLoader::~SLCVSlamStateLoader()
 //! add map point
 void SLCVSlamStateLoader::load( SLCVVMapPoint& mapPts, SLCVVKeyFrame& kfs)
 {
-    //load intrinsics (calibration parameters): only store once
-    float fx, fy, cx, cy;
-    _fs["fx"] >> fx;
-    _fs["fy"] >> fy;
-    _fs["cx"] >> cx;
-    _fs["cy"] >> cy;
-
     //load keyframes
     loadKeyFrames(kfs);
     //load map points
@@ -47,6 +40,13 @@ void SLCVSlamStateLoader::load( SLCVVMapPoint& mapPts, SLCVVKeyFrame& kfs)
 //-----------------------------------------------------------------------------
 void SLCVSlamStateLoader::loadKeyFrames( SLCVVKeyFrame& kfs )
 {
+    //load intrinsics (calibration parameters): only store once
+    float fx, fy, cx, cy;
+    _fs["fx"] >> fx;
+    _fs["fy"] >> fy;
+    _fs["cx"] >> cx;
+    _fs["cy"] >> cy;
+
     cv::FileNode n = _fs["KeyFrames"];
     if (n.type() != cv::FileNode::SEQ)
     {
@@ -55,14 +55,19 @@ void SLCVSlamStateLoader::loadKeyFrames( SLCVVKeyFrame& kfs )
 
     //reserve space in kfs
     kfs.reserve(n.size());
-
-    // iterate through a sequence using FileNodeIterator
-    int id = -1;
-    cv::Mat Twc;
     for (auto it = n.begin(); it != n.end(); ++it)
     {
-        id = (int)(*it)["id"];
+        SLCVKeyFrame newKf;
+
+        newKf.id((int)(*it)["id"]);
+
+        //! Infos about the pose: https://github.com/raulmur/ORB_SLAM2/issues/249
+        //! camera pose w.r.t. world -> wTc
+        cv::Mat Twc; //has to be here!
         (*it)["Twc"] >> Twc;
+        newKf.wTc(Twc);
+
+        kfs.push_back(newKf);
     }
 }
 //-----------------------------------------------------------------------------
@@ -76,12 +81,12 @@ void SLCVSlamStateLoader::loadMapPoints( SLCVVMapPoint& mapPts )
 
     //reserve space in mapPts
     mapPts.reserve(n.size());
-
+    //read and add map points
     for (auto it = n.begin(); it != n.end(); ++it)
     {
         SLCVMapPoint newPt;
         newPt.id( (int)(*it)["id"]);
-        cv::Mat mWorldPos;
+        cv::Mat mWorldPos; //has to be here!
         (*it)["mWorldPos"] >> mWorldPos;
         newPt.worldPos(mWorldPos);
 

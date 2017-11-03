@@ -260,20 +260,11 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         SLCVKeyFrameDB* kfDB = new SLCVKeyFrameDB();
 
         //load map points and keyframes from json file
-        SLCVSlamStateLoader loader("D:/Development/ORB_SLAM2/BUILD/orb-slam-state.json");
+        SLCVSlamStateLoader loader("../_data/calibrations/orb-slam-state.json");
         loader.load(map->mapPoints(), kfDB->keyFrames());
 
         //add visual representations of map and keyFrame database to scene
         SLNode* pc1 = new SLNode(map->getSceneObject());
-
-        //SLCamera* cam1 = new SLCamera("Camera 1");
-        //cam1->clipNear(0.1f);
-        //cam1->clipFar(100);
-        //cam1->translation(0, 0, 15);
-        //cam1->lookAt(0, 0, 0);
-        //cam1->focalDist(5);
-        //cam1->background().colors(SLCol4f(0.1f, 0.1f, 0.1f));
-        //cam1->setInitialState();
 
         SLLightSpot* light1 = new SLLightSpot(10, 10, 10, 0.3f);
         light1->ambient(SLCol4f(0.2f, 0.2f, 0.2f));
@@ -284,7 +275,11 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         SLNode* scene = new SLNode("scene");
         scene->addChild(pc1);
         scene->addChild(light1);
-
+        //add keyFrames
+        for (auto& kf : kfDB->keyFrames()) {
+            SLCamera* cam = kf.getSceneObject();
+            scene->addChild(cam);
+        }
 
         // Save energy
         sv->waitEvents(false);
