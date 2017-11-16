@@ -208,13 +208,16 @@ void SLScene::init()
     _poseTimesMS.init();
     _captureTimesMS.init(200);
 
-//todo    _deviceRotation  = SLQuat4f::IDENTITY;
     _deviceRotation.identity();
     _devicePitchRAD  = 0.0f;
     _deviceYawRAD    = 0.0f;
     _deviceRollRAD   = 0.0f;
     _zeroYawAtStart  = true;
     _startYawRAD     = 0.0f;
+
+    _lla.set(0,0,0);
+    _enu.set(0,0,0);
+    _wRecef.identity();
 }
 //-----------------------------------------------------------------------------
 /*! The scene uninitializing clears the scenegraph (_root3D) and all global
@@ -748,3 +751,51 @@ void SLScene::usesRotation (SLbool use)
     _usesRotation = use;
 }
 //-----------------------------------------------------------------------------
+//! Setter that turns on the device rotation sensor
+void SLScene::usesLocation (SLbool use)
+{
+    if (!_usesLocation && use==true)
+        _deviceLocStarted = true;
+
+    _usesLocation = use;
+}
+//-----------------------------------------------------------------------------
+void SLScene::onLocationLLA(double latitudeDEG,
+                            double longitudeDEG,
+                            double altitudeM)
+{
+    _lla.set(latitudeDEG, longitudeDEG, altitudeM);
+    SLVec3d locEcef;
+    locEcef.lla2ecef(_lla);
+    _enu = _wRecef * locEcef;
+}
+//-----------------------------------------------------------------------------
+//! Initialize global reference position in latitude, longitude and altitude.
+//! The calculated values can be used for global camera positioning via gps sensor
+void SLScene::initGlobalRefPos(double latDeg, double lonDeg, double altM )
+{
+    SLVec3d globalRefLla = SLVec3d(latDeg, lonDeg, altM);
+    _globalRefPosEcef.lla2ecef(globalRefLla);
+
+    //calculation of ecef to world (scene) rotation matrix
+    //definition of rotation matrix for ecef to world frame rotation:
+    //world frame (scene) w.r.t. enu frame
+    double phiRad = latDeg * SL_DEG2RAD;  //phi == lattitude
+    double lamRad = lonDeg * SL_DEG2RAD;  //lambda == longitude
+    SLMat3d enuRecef(-sin(lamRad),                          cos(lamRad),           0,
+                     -cos(lamRad)*sin(phiRad), -sin(lamRad)*sin(phiRad), cos(phiRad),
+                      cos(lamRad)*cos(phiRad),  sin(lamRad)*cos(phiRad), sin(phiRad));
+
+    //world frame (scene) w.r.t. enu frame
+    SLMat3d wRenu; //same as before
+    wRenu.rotation(-90, 1, 0, 0);
+
+    //world frame (scene) w.r.t. ecef
+    _wRecef = wRenu * enuRecef;
+    _enuOrigin = _wRecef * _globalRefPosEcef;
+
+    //flag, that this scene has a valid global reference position. The values can
+    //be used for camera positioning
+    _hasGlobalRefPos = true;
+}
+//------------------------------------------------------------------------------

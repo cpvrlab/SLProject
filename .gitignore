@@ -16,6 +16,7 @@
 *.psess
 *.db
 *.so
+*.bak
 *.xcuserstate
 *~
 

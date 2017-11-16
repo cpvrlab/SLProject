@@ -64,6 +64,7 @@ class SLScene: public SLObject
             void            usesRotation        (SLbool use);
             void            deviceRotStarted    (SLbool started) {_deviceRotStarted = started;}
             void            zeroYawAtStart      (SLbool set) {_zeroYawAtStart = set;}
+            void            usesLocation        (SLbool use);
                            
             // Getters
             SLAnimManager&  animManager         () {return _animManager;}
@@ -123,7 +124,19 @@ class SLScene: public SLObject
             SLfloat             deviceRollRAD   () const {return _deviceRollRAD;}
             SLbool              zeroYawAtStart  () const {return _zeroYawAtStart;}
             SLfloat             startYawRAD     () const {return _startYawRAD;}
-            
+
+            // Device GPS location stuff
+            SLbool              usesLocation    () const {return _usesLocation;}
+//            double              gpsLatitude     () const {return _gpsLatitude;}
+//            double              gpsLongitude    () const {return _gpsLongitude;}
+//            double              gpsAltitude     () const {return _gpsAltitude;}
+            SLVec3d             lla             () const {return _lla;}
+            SLVec3d             enu             () const {return _enu;}
+            SLVec3d             enuOrigin       () const {return _enuOrigin;}
+            SLbool              hasGlobalRefPos () const {return _hasGlobalRefPos;}
+            const SLVec3d&      globalRefPosEcef() const {return _globalRefPosEcef;}
+            const SLMat3d&      wRecef          () const {return _wRecef;}
+
             // Misc.
    virtual  void            onLoad              (SLSceneView* sv, 
                                                  SLCommand _currentID);
@@ -149,9 +162,14 @@ class SLScene: public SLObject
                                                  SLuchar* data,
                                                  SLbool isContinuous,
                                                  SLbool isTopLeft);
+            void            onLocationLLA       (double latitudeDEG,
+                                                 double longitudeDEG,
+                                                 double altitudeM);
+            void            initGlobalRefPos    (double latDeg, 
+                                                 double lonDeg, 
+                                                 double altM);
 
      static SLScene*        current;            //!< global static scene pointer
-
    protected:
             SLVSceneView    _sceneViews;        //!< Vector of all sceneview pointers
             SLVMesh         _meshes;            //!< Vector of all meshes
@@ -201,7 +219,7 @@ class SLScene: public SLObject
             SLVCVTracker        _trackers;          //!< Vector of all AR trackers
             SLbool              _showDetection;     //!< Flag if detection should be visualized
 
-            // Sensor stuff
+            // IMU Sensor stuff
             SLbool              _usesRotation;      //!< Flag if device rotation is used
             SLfloat             _devicePitchRAD;    //!< Device pitch angle in radians
             SLfloat             _deviceYawRAD;      //!< Device yaw angle in radians
@@ -210,6 +228,16 @@ class SLScene: public SLObject
             SLbool              _deviceRotStarted;  //!< Flag for the first sensor values
             SLbool              _zeroYawAtStart;    //!< Flag if yaw angle should be zeroed at sensor start
             SLfloat             _startYawRAD;       //!< Initial yaw angle after _zeroYawAfterSec in radians
+
+            // GPS Sensor stuff
+            SLbool              _usesLocation;      //!< Flag if GPS Sensor is used
+            SLbool              _deviceLocStarted;  //!< Flag for the first sensor values
+            SLVec3d             _lla;               //!< GPS location in latitudeDEG, longitudeDEG & AltitudeM
+            SLVec3d             _enu;               //!< gps in enu
+            SLVec3d             _enuOrigin;         //!< enu origin location
+            SLbool              _hasGlobalRefPos;   //!< Flag if this scene has a global reference position
+            SLVec3d             _globalRefPosEcef;  //!< Global ecef reference position of scene origin (world)
+            SLMat3d             _wRecef;            //!< ecef frame to world frame rotation: rotates a point defined in ecef 
 };
 //-----------------------------------------------------------------------------
 #endif

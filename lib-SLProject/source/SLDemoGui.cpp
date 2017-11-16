@@ -435,6 +435,10 @@ void SLDemoGui::buildDemoGui(SLScene* s, SLSceneView* sv)
         sprintf(m+strlen(m), "Zero Yaw at Start   : %s\n",    s->zeroYawAtStart() ? "yes" : "no");
         sprintf(m+strlen(m), "Start Yaw           : %1.0f\n", s->startYawRAD() * SL_RAD2DEG);
 
+        sprintf(m+strlen(m), "Uses Location       : %s\n",    s->usesLocation() ? "yes" : "no");
+        sprintf(m+strlen(m), "Latitude (deg)      : %f\n",    s->lla().x);
+        sprintf(m+strlen(m), "Longitude (deg)     : %f\n",    s->lla().y);
+        sprintf(m+strlen(m), "Altitude (m)        : %f\n",    s->lla().z);
         // Switch to fixed font
         ImGui::PushFont(ImGui::GetIO().Fonts->Fonts[1]);
         ImGui::Begin("Sensor Informations", &showInfosSensors, ImVec2(300,0));
@@ -479,6 +483,8 @@ void SLDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
 
                     if (ImGui::MenuItem("Minimal Scene", 0, curS==C_sceneMinimal))
                         sv->onCommand(C_sceneMinimal);
+                    if (ImGui::MenuItem("Sensor Test Scene", 0, curS==C_sceneSensorTest))
+                        sv->onCommand(C_sceneSensorTest);
                     if (ImGui::MenuItem("Figure Scene", 0, curS==C_sceneFigure))
                         sv->onCommand(C_sceneFigure);
                     if (ImGui::MenuItem("Large Model", 0, curS==C_sceneLargeModel, largeFileExists))
@@ -642,6 +648,8 @@ void SLDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
                 ImGui::EndMenu();
             }
 
+            if (ImGui::MenuItem("Use GPS Sensor", 0, s->usesLocation()))
+                s->usesLocation(!s->usesLocation());
             ImGui::Separator();
 
             if (ImGui::BeginMenu("Video"))
@@ -997,6 +1005,8 @@ void SLDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
                 if (ImGui::MenuItem("Device Rotated Y up", 0, ca==CA_deviceRotYUp))
                     sv->onCommand(C_camAnimDeviceRotYUp);
 
+                if (ImGui::MenuItem("Device Rotated Y up and GPS positioned", 0, ca == CA_deviceRotYUpPosGPS))
+                    sv->onCommand(C_camAnimDeviceRotYUpPosGPS);
                 if (ca==CA_walkingZUp || ca==CA_walkingYUp || ca==CA_deviceRotYUp)
                 {
                     static SLfloat ms = cam->maxSpeed();
@@ -1393,7 +1403,7 @@ void SLDemoGui::buildProperties(SLScene* s)
                         m->kt(kt);
 
                     SLfloat kn = m->kn();
-                    if (ImGui::SliderFloat("kn", &kn, 0.0f, 2.5f))
+                    if (ImGui::SliderFloat("kn", &kn, 1.0f, 2.5f))
                         m->kn(kn);
 
                     ImGui::PopItemWidth();
@@ -1571,7 +1581,7 @@ void SLDemoGui::loadConfig(SLint dotsPerInch)
     try
     {   fs.open(fullPathAndFilename, SLCVFileStorage::READ);
         if (!fs.isOpened())
-        {   SL_LOG("Failed to open file for reading!");
+        {   SL_LOG("Failed to open file for reading: %s", fullPathAndFilename.c_str());
             return;
         }
     } 
@@ -1612,7 +1622,8 @@ void SLDemoGui::saveConfig()
     SLCVFileStorage fs(fullPathAndFilename, SLCVFileStorage::WRITE);
 
     if (!fs.isOpened())
-    {   SL_EXIT_MSG("Failed to open file for writing!");
+    {   SL_LOG("Failed to open file for writing: %s", fullPathAndFilename.c_str());
+        SL_EXIT_MSG("Exit in SLDemoGui::saveConfig");
         return;
     }
 

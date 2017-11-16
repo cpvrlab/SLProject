@@ -246,6 +246,86 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         sv->waitEvents(true);
     }
     else
+    if (SL::currentSceneID == C_sceneSensorTest) //...................................................
+    {
+        // Set scene name and info string
+        name("Sensor Test");
+        _info = "Minimal scene to test out the Sensors";
+
+        SLCamera* cam1 = new SLCamera("Camera 1");
+        cam1->translation(0,0,60);
+        cam1->lookAt(0,0,0);
+        cam1->fov(_activeCalib->cameraFovDeg());
+        cam1->clipNear(0.1f);
+        cam1->clipFar(10000.0f); // Increase to infinity?
+        cam1->background().texture(&_videoTexture);
+        cam1->setInitialState();
+        videoType(VT_MAIN);
+
+        SLLightSpot* light1 = new SLLightSpot(420,420,420, 1);
+        light1->ambient(SLCol4f(1,1,1));
+        light1->diffuse(SLCol4f(1,1,1));
+        light1->specular(SLCol4f(1,1,1));
+        light1->attenuation(1,0,0);
+
+        SLLightSpot* light2 = new SLLightSpot(-450,-340,420, 1);
+        light2->ambient(SLCol4f(1,1,1));
+        light2->diffuse(SLCol4f(1,1,1));
+        light2->specular(SLCol4f(1,1,1));
+        light2->attenuation(1,0,0);
+
+        SLLightSpot* light3 = new SLLightSpot(450,-370,0, 1);
+        light3->ambient(SLCol4f(1,1,1));
+        light3->diffuse(SLCol4f(1,1,1));
+        light3->specular(SLCol4f(1,1,1));
+        light3->attenuation(1,0,0);
+
+        SLNode *axisNode = new SLNode(new SLCoordAxis(), "Axis Node");
+        axisNode->setDrawBitsRec(SL_DB_WIREMESH, false);
+        axisNode->scale(100);
+        axisNode->rotate(-90, 1, 0, 0);
+
+        // Christoffel tower
+        SLAssimpImporter importer;
+        #if defined(SL_OS_IOS) || defined(SL_OS_ANDROID)
+        SLNode* tower = importer.load("christoffelturm.obj");
+        #else
+        SLNode* tower = importer.load("Wavefront-OBJ/Christoffelturm/christoffelturm.obj");
+        #endif
+        tower->rotate(-90, 1, 0,0);
+
+        // Scene structure
+        SLNode* scene = new SLNode("Scene");
+        scene->addChild(light1);
+        scene->addChild(light2);
+        scene->addChild(light3);
+        scene->addChild(axisNode);
+        if (tower) scene->addChild(tower);
+        scene->addChild(cam1);
+
+        //_trackers.push_back(new SLCVTrackedFeatures(cam1, "features_stones.png"));
+
+        sv->camera(cam1);
+
+        _root3D = scene;
+
+        #if defined(SL_OS_MACIOS) || defined(SL_OS_ANDROID)
+        //initialize global reference position of this scene
+        initGlobalRefPos(47.140624, 7.247405, 442.0);
+
+
+        //activate rotation and gps sensor
+        _usesRotation = true;
+        _usesLocation = true;
+        cam1->camAnim(SLCamAnim::CA_deviceRotYUpPosGPS);
+        _zeroYawAtStart = false;
+        #else
+        cam1->camAnim(SLCamAnim::CA_turntableYUp);
+        #endif
+
+        sv->waitEvents(false); // for constant video feed
+    }
+    else
     if (SL::currentSceneID == C_sceneFigure) //....................................................
     {
         name("Hierarchical Figure Scene");

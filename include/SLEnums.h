@@ -78,6 +78,7 @@ enum SLCommand
     C_sceneEmpty = -1,      // No data in scene
     C_sceneAll = 0,         // Loads all scenes one after the other
     C_sceneMinimal,
+    C_sceneSensorTest,
     C_sceneFigure,
     C_sceneMeshLoad,
     C_sceneVRSizeTest,
@@ -177,6 +178,7 @@ enum SLCommand
     C_camAnimWalkZUp,       // Sets 1st person walking camera animation w. Z axis up
     C_camAnimDeviceRotYUp,  // Sets 1st person walking camera animation w. Y axis up and device rotation
     C_camAnimDeviceRotZUp,  // Sets 1st person walking camera animation w. Y axis up and device rotation
+    C_camAnimDeviceRotYUpPosGPS, // Sets 1st person walking camera animation w. Y axis up and device rotation. GPS coordinated
     C_camAnimFly1stP,       // Sets 1st person flying camera animation
     C_camSpeedLimitInc,     // Increments the speed limit by 10%
     C_camSpeedLimitDec,     // Decrements the speed limit by 10%
@@ -250,7 +252,8 @@ enum SLCamAnim
     CA_turntableZUp,//!< Orbiting around central object w. turnrable rotation around z & right axis.
     CA_walkingYUp,  //!< Walk translation with AWSD and look around rotation around y & right axis.
     CA_walkingZUp,  //!< Walk translation with AWSD and look around rotation around z & right axis.
-    CA_deviceRotYUp //!< The device rotation controls the camera rotation.
+    CA_deviceRotYUp, //!< The device rotation controls the camera rotation.
+    CA_deviceRotYUpPosGPS  //!< The device rotation controls the camera rotation and the GPS controls the Camera Translati
 };
 //-----------------------------------------------------------------------------
 //! Enumeration for different camera projections
