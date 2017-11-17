@@ -351,7 +351,6 @@ void SLDemoGui::buildDemoGui(SLScene* s, SLSceneView* sv)
 
     if (showStatsVideo)
     {
-
         SLchar m[2550];   // message character array
         m[0]=0;           // set zero length
 
@@ -434,11 +433,12 @@ void SLDemoGui::buildDemoGui(SLScene* s, SLSceneView* sv)
         sprintf(m+strlen(m), "Orientation Roll    : %1.0f\n", s->deviceRollRAD()*SL_RAD2DEG);
         sprintf(m+strlen(m), "Zero Yaw at Start   : %s\n",    s->zeroYawAtStart() ? "yes" : "no");
         sprintf(m+strlen(m), "Start Yaw           : %1.0f\n", s->startYawRAD() * SL_RAD2DEG);
-
+        sprintf(m+strlen(m), "--------------------:\n");
         sprintf(m+strlen(m), "Uses Location       : %s\n",    s->usesLocation() ? "yes" : "no");
         sprintf(m+strlen(m), "Latitude (deg)      : %f\n",    s->lla().x);
         sprintf(m+strlen(m), "Longitude (deg)     : %f\n",    s->lla().y);
         sprintf(m+strlen(m), "Altitude (m)        : %f\n",    s->lla().z);
+        sprintf(m+strlen(m), "Accuracy Radius (m) : %f\n",    s->accuracyM());
         // Switch to fixed font
         ImGui::PushFont(ImGui::GetIO().Fonts->Fonts[1]);
         ImGui::Begin("Sensor Informations", &showInfosSensors, ImVec2(300,0));

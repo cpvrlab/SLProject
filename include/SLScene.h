@@ -127,10 +127,8 @@ class SLScene: public SLObject
 
             // Device GPS location stuff
             SLbool              usesLocation    () const {return _usesLocation;}
-//            double              gpsLatitude     () const {return _gpsLatitude;}
-//            double              gpsLongitude    () const {return _gpsLongitude;}
-//            double              gpsAltitude     () const {return _gpsAltitude;}
             SLVec3d             lla             () const {return _lla;}
+            float               accuracyM       () const {return _accuracyM;}
             SLVec3d             enu             () const {return _enu;}
             SLVec3d             enuOrigin       () const {return _enuOrigin;}
             SLbool              hasGlobalRefPos () const {return _hasGlobalRefPos;}
@@ -164,7 +162,8 @@ class SLScene: public SLObject
                                                  SLbool isTopLeft);
             void            onLocationLLA       (double latitudeDEG,
                                                  double longitudeDEG,
-                                                 double altitudeM);
+                                                 double altitudeM,
+                                                 float accuracyM);
             void            initGlobalRefPos    (double latDeg, 
                                                  double lonDeg, 
                                                  double altM);
@@ -233,6 +232,7 @@ class SLScene: public SLObject
             SLbool              _usesLocation;      //!< Flag if GPS Sensor is used
             SLbool              _deviceLocStarted;  //!< Flag for the first sensor values
             SLVec3d             _lla;               //!< GPS location in latitudeDEG, longitudeDEG & AltitudeM
+            SLfloat             _accuracyM;         //!< Horizontal accuracy radius in m with 68% probability
             SLVec3d             _enu;               //!< gps in enu
             SLVec3d             _enuOrigin;         //!< enu origin location
             SLbool              _hasGlobalRefPos;   //!< Flag if this scene has a global reference position

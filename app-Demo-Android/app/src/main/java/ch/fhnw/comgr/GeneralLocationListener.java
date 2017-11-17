@@ -48,19 +48,16 @@ class GeneralLocationListener implements LocationListener {
      * Event raised when a new fix is received.
      */
     public void onLocationChanged(Location loc) {
-        Log.d(TAG, "onLocationChange:" +loc);
         if (loc != null) {
             _activity.onLocationChanged(loc);
         }
     }
 
     public void onProviderDisabled(String provider) {
-        Log.i(TAG, "Provider disabled: " + provider);
         _activity.locationSensorRestart();
     }
 
     public void onProviderEnabled(String provider) {
-        Log.i(TAG, "Provider enabled: " + provider);
         _activity.locationSensorRestart();
     }
 

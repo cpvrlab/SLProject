@@ -489,7 +489,10 @@ public class GLES3Activity extends Activity implements View.OnTouchListener, Sen
 
         if (_locationManager != null && _locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
             Log.i(TAG, "Requesting GPS location updates");
-            _locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000, 0, _locationListener);
+            _locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER,
+                                                    1000,
+                                                    0,
+                                                    _locationListener);
             _locationSensorIsRunning = true;
         } else {
             _locationSensorIsRunning = false;
@@ -535,7 +538,11 @@ public class GLES3Activity extends Activity implements View.OnTouchListener, Sen
         Log.i(TAG, String.valueOf(loc.getLatitude()) + "," + String.valueOf(loc.getLongitude()));
         myView.queueEvent(new Runnable() {
             public void run() {
-                GLES3Lib.onLocationLLA(loc.getLatitude(), loc.getLongitude(), loc.getAltitude());
+                GLES3Lib.onLocationLLA(
+                        loc.getLatitude(),
+                        loc.getLongitude(),
+                        loc.getAltitude(),
+                        loc.getAccuracy());
             }
         });
     }

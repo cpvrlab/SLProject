@@ -216,6 +216,7 @@ void SLScene::init()
     _startYawRAD     = 0.0f;
 
     _lla.set(0,0,0);
+    _accuracyM = 0.0f;
     _enu.set(0,0,0);
     _wRecef.identity();
 }
@@ -760,11 +761,18 @@ void SLScene::usesLocation (SLbool use)
     _usesLocation = use;
 }
 //-----------------------------------------------------------------------------
+/*! Global event handler for device GPS location with longitude and latitude in
+degrees and altitude in meters. This location uses the World Geodetic System
+1984 (WGS 84). The accuracy in meters is a radius in which the location is with
+a probability of 68% (2 sigma).
+*/
 void SLScene::onLocationLLA(double latitudeDEG,
                             double longitudeDEG,
-                            double altitudeM)
+                            double altitudeM,
+                            float  accuracyM)
 {
     _lla.set(latitudeDEG, longitudeDEG, altitudeM);
+    _accuracyM = accuracyM;
     SLVec3d locEcef;
     locEcef.lla2ecef(_lla);
     _enu = _wRecef * locEcef;

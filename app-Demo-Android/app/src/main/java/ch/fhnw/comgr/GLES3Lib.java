@@ -59,7 +59,7 @@ public class GLES3Lib {
     public static native void    shouldClose        (boolean doClose);
     public static native boolean usesRotation       ();
     public static native boolean usesLocation       ();
-    public static native void    onLocationLLA      (double latitudeDEG, double longitudeDEG, double altitudeM);
+    public static native void    onLocationLLA      (double latitudeDEG, double longitudeDEG, double altitudeM, float accuracyM);
     public static native int     getVideoType       ();
     public static native int     getVideoSizeIndex  ();
     public static native void    copyVideoImage     (int imgWidth, int imgHeight, byte[] imgBuffer);
