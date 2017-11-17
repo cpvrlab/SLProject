@@ -32,7 +32,7 @@ int main(int argc, char **argv)
     image_points.push_back( cv::Point2d(345, 465)); // Left Mouth corner
     image_points.push_back( cv::Point2d(453, 469)); // Right mouth corner
 
-    // 3D model points.
+    // 3D model points with a unknown scale factor in it
     std::vector<cv::Point3d> model_points;
     model_points.push_back(cv::Point3d(   0.0f,    0.0f,    0.0f)); // Nose tip
     model_points.push_back(cv::Point3d(   0.0f, -330.0f,  -65.0f)); // Chin
@@ -42,8 +42,8 @@ int main(int argc, char **argv)
     model_points.push_back(cv::Point3d( 150.0f, -150.0f, -125.0f)); // Right mouth corner
 
     // Camera intrinsic matrix
-    double  f = image.cols;                             // Approximate focal length.
-    Point2d c = cv::Point2d(image.cols/2,image.rows/2); // Imager center
+    double  f = image.cols;                             // Approximate focal length of fov of 60 deg.
+    Point2d c = cv::Point2d(image.cols/2,image.rows/2); // Approximate optical center = image center
     cv::Mat camera_matrix = (cv::Mat_<double>(3,3) << f, 0, c.x,
                                                       0, f, c.y,
                                                       0, 0, 1);
@@ -64,7 +64,9 @@ int main(int argc, char **argv)
                  camera_matrix,
                  dist_coeffs,
                  rotation_vector,
-                 translation_vector);
+                 translation_vector,
+                 false,  // No extrinsic guess
+                 SOLVEPNP_ITERATIVE);
 
     // Project a 3D point (0, 0, 1000.0) onto the image plane.
     // We use this to draw a line sticking out of the nose
