@@ -310,17 +310,16 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         _root3D = scene;
 
         #if defined(SL_OS_MACIOS) || defined(SL_OS_ANDROID)
-        //initialize global reference position of this scene
-        initGlobalRefPos(47.140624, 7.247405, 442.0);
+            //initialize global reference position of this scene
+            initGlobalRefPos(47.140624, 7.247405, 442.0);
 
-
-        //activate rotation and gps sensor
-        _usesRotation = true;
-        _usesLocation = true;
-        cam1->camAnim(SLCamAnim::CA_deviceRotYUpPosGPS);
-        _zeroYawAtStart = false;
+            //activate rotation and gps sensor
+            _usesRotation = true;
+            _usesLocation = true;
+            cam1->camAnim(SLCamAnim::CA_deviceRotYUpPosGPS);
+            _zeroYawAtStart = false;
         #else
-        cam1->camAnim(SLCamAnim::CA_turntableYUp);
+            cam1->camAnim(SLCamAnim::CA_turntableYUp);
         #endif
 
         sv->waitEvents(false); // for constant video feed

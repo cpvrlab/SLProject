@@ -128,7 +128,7 @@ class SLScene: public SLObject
             // Device GPS location stuff
             SLbool              usesLocation    () const {return _usesLocation;}
             SLVec3d             lla             () const {return _lla;}
-            float               accuracyM       () const {return _accuracyM;}
+            SLfloat             accuracyM       () const {return _accuracyM;}
             SLVec3d             enu             () const {return _enu;}
             SLVec3d             enuOrigin       () const {return _enuOrigin;}
             SLbool              hasGlobalRefPos () const {return _hasGlobalRefPos;}

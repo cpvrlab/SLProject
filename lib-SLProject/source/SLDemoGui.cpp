@@ -435,10 +435,11 @@ void SLDemoGui::buildDemoGui(SLScene* s, SLSceneView* sv)
         sprintf(m+strlen(m), "Start Yaw           : %1.0f\n", s->startYawRAD() * SL_RAD2DEG);
         sprintf(m+strlen(m), "--------------------:\n");
         sprintf(m+strlen(m), "Uses Location       : %s\n",    s->usesLocation() ? "yes" : "no");
-        sprintf(m+strlen(m), "Latitude (deg)      : %f\n",    s->lla().x);
-        sprintf(m+strlen(m), "Longitude (deg)     : %f\n",    s->lla().y);
-        sprintf(m+strlen(m), "Altitude (m)        : %f\n",    s->lla().z);
-        sprintf(m+strlen(m), "Accuracy Radius (m) : %f\n",    s->accuracyM());
+        sprintf(m+strlen(m), "Latitude (deg)      : %12.7f\n",s->lla().x);
+        sprintf(m+strlen(m), "Longitude (deg)     : %12.7f\n",s->lla().y);
+        sprintf(m+strlen(m), "Altitude (m)        : %12.7f\n",s->lla().z);
+        sprintf(m+strlen(m), "Accuracy Radius (m) : %12.7f\n",s->accuracyM());
+
         // Switch to fixed font
         ImGui::PushFont(ImGui::GetIO().Fonts->Fonts[1]);
         ImGui::Begin("Sensor Informations", &showInfosSensors, ImVec2(300,0));
