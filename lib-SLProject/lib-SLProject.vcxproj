@@ -293,6 +293,8 @@
     <ClInclude Include="..\include\SLCVTracked.h" />
     <ClInclude Include="..\include\SLCVTrackedFeatures.h" />
     <ClInclude Include="..\include\SLDemoGui.h" />
+    <ClInclude Include="..\include\SLDeviceLocation.h" />
+    <ClInclude Include="..\include\SLDeviceRotation.h" />
     <ClInclude Include="..\include\SLDisk.h" />
     <ClInclude Include="..\include\SLGLEnums.h" />
     <ClInclude Include="..\include\SLGLImGui.h" />
@@ -400,6 +402,8 @@
     <ClCompile Include="source\SLBackground.cpp" />
     <ClCompile Include="source\SLCompactGrid.cpp" />
     <ClCompile Include="source\SLDemoGui.cpp" />
+    <ClCompile Include="source\SLDeviceLocation.cpp" />
+    <ClCompile Include="source\SLDeviceRotation.cpp" />
     <ClCompile Include="source\SLDisk.cpp" />
     <ClCompile Include="source\SLInputDevice.cpp" />
     <ClCompile Include="source\SLInputManager.cpp" />

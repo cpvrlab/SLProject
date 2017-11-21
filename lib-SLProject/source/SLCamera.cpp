@@ -471,10 +471,10 @@ void SLCamera::setView(SLSceneView* sv, const SLEyeType eye)
 
         //sensor rotation w.r.t. east-north-down
         SLMat3f enuRs;
-        enuRs.setMatrix(s->deviceRotation());
+        enuRs.setMatrix(s->devRot().rotation());
 
         //east-north-down w.r.t. world-yaw
-        SLfloat rotYawOffsetDEG = s->startYawRAD() * SL_RAD2DEG + 90;
+        SLfloat rotYawOffsetDEG = s->devRot().startYawRAD() * SL_RAD2DEG + 90;
         if(rotYawOffsetDEG > 180 )
             rotYawOffsetDEG -= 360;
         SLMat3f wyRenu;
@@ -511,18 +511,18 @@ void SLCamera::setView(SLSceneView* sv, const SLEyeType eye)
         om(wTc);
     } else
     //location sensor is turned on and the scene has a global reference position
-    if(_camAnim == CA_deviceRotYUpPosGPS) {
-
-        if(s->usesRotation()) {
-            SLMat3f sRc;
+    if(_camAnim == CA_deviceRotLocYUp)
+    {
+        if(s->devRot().isUsed())
+        {   SLMat3f sRc;
             sRc.rotation(-90, 0, 0, 1);
 
             //sensor rotation w.r.t. east-north-down
             SLMat3f enuRs;
-            enuRs.setMatrix(s->deviceRotation());
+            enuRs.setMatrix(s->devRot().rotation());
 
             //east-north-down w.r.t. world-yaw
-            SLfloat rotYawOffsetDEG = s->startYawRAD() * SL_RAD2DEG + 90;
+            SLfloat rotYawOffsetDEG = s->devRot().startYawRAD() * SL_RAD2DEG + 90;
             if (rotYawOffsetDEG > 180)
                 rotYawOffsetDEG -= 360;
             SLMat3f wyRenu;
@@ -540,11 +540,10 @@ void SLCamera::setView(SLSceneView* sv, const SLEyeType eye)
         }
 
         //location sensor is turned on and the scene has a global reference position
-        if( s->usesLocation() && s->hasGlobalRefPos()) {
-
-
+        if( s->devLoc().isUsed() && s->devLoc().hasOrigin())
+        {
             //representation of direction vector in world frame (scene)
-            SLVec3d wtc = s->enu() - s->enuOrigin();
+            SLVec3d wtc = s->devLoc().locENU() - s->devLoc().originENU();
 
             //set camera pose
             SLVec3f wtc_f((SLfloat)wtc.x, (SLfloat)wtc.y, (SLfloat)wtc.z);

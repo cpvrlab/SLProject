@@ -89,9 +89,11 @@ file(GLOB_RECURSE SLPROJECT_SOURCES     ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SL
                                         ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/SLCone.cpp 
                                         ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/SLCompactGrid.cpp 
                                         ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/SLCoordAxis.cpp 
-                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/SLCylinder.cpp 
-                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/SLDisk.cpp
+                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/SLCylinder.cpp
                                         ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/SLDemoGui.cpp
+                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/SLDeviceRotation.cpp
+                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/SLDeviceLocation.cpp
+                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/SLDisk.cpp
                                         ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/SLGrid.cpp 
                                         ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/SLInputDevice.cpp 
                                         ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/SLInputManager.cpp 

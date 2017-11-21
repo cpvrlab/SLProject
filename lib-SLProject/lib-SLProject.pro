@@ -63,8 +63,10 @@ HEADERS += \
 ../include/SLCVCapture.h \
 ../include/SLCV.h \
 ../include/SLCV*.h \
-../include/SLDisk.h \
 ../include/SLDemoGui.h \
+../include/SLDeviceRotation.h \
+../include/SLDeviceLocation.h \
+../include/SLDisk.h \
 ../include/SLDrawBits.h \
 ../include/SLEnums.h \
 ../include/SLEventHandler.h \
@@ -160,8 +162,10 @@ source/SLCone.cpp \
 source/SLCompactGrid.cpp \
 source/SLCoordAxis.cpp \
 source/SLCylinder.cpp \
-source/SLDisk.cpp \
 source/SLDemoGui.cpp \
+source/SLDeviceRotation.cpp \
+source/SLDeviceLocation.cpp \
+source/SLDisk.cpp \
 source/SLGrid.cpp \
 source/SLInputDevice.cpp \
 source/SLInputManager.cpp \

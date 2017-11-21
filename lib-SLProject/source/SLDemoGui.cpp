@@ -427,18 +427,20 @@ void SLDemoGui::buildDemoGui(SLScene* s, SLSceneView* sv)
         SLGLState* stateGL = SLGLState::getInstance();
         SLchar m[2550];   // message character array
         m[0]=0;           // set zero length
-        sprintf(m+strlen(m), "Uses Rotation       : %s\n",    s->usesRotation() ? "yes" : "no");
-        sprintf(m+strlen(m), "Orientation Pitch   : %1.0f\n", s->devicePitchRAD()*SL_RAD2DEG);
-        sprintf(m+strlen(m), "Orientation Yaw     : %1.0f\n", s->deviceYawRAD()*SL_RAD2DEG);
-        sprintf(m+strlen(m), "Orientation Roll    : %1.0f\n", s->deviceRollRAD()*SL_RAD2DEG);
-        sprintf(m+strlen(m), "Zero Yaw at Start   : %s\n",    s->zeroYawAtStart() ? "yes" : "no");
-        sprintf(m+strlen(m), "Start Yaw           : %1.0f\n", s->startYawRAD() * SL_RAD2DEG);
+        SLVec3d offsetToOrigin = s->devLoc().originENU() - s->devLoc().locENU();
+        sprintf(m+strlen(m), "Uses Rotation       : %s\n",    s->devRot().isUsed() ? "yes" : "no");
+        sprintf(m+strlen(m), "Orientation Pitch   : %1.0f\n", s->devRot().pitchRAD()*SL_RAD2DEG);
+        sprintf(m+strlen(m), "Orientation Yaw     : %1.0f\n", s->devRot().yawRAD()*SL_RAD2DEG);
+        sprintf(m+strlen(m), "Orientation Roll    : %1.0f\n", s->devRot().rollRAD()*SL_RAD2DEG);
+        sprintf(m+strlen(m), "Zero Yaw at Start   : %s\n",    s->devRot().zeroYawAtStart() ? "yes" : "no");
+        sprintf(m+strlen(m), "Start Yaw           : %1.0f\n", s->devRot().startYawRAD() * SL_RAD2DEG);
         sprintf(m+strlen(m), "--------------------:\n");
-        sprintf(m+strlen(m), "Uses Location       : %s\n",    s->usesLocation() ? "yes" : "no");
-        sprintf(m+strlen(m), "Latitude (deg)      : %12.7f\n",s->lla().x);
-        sprintf(m+strlen(m), "Longitude (deg)     : %12.7f\n",s->lla().y);
-        sprintf(m+strlen(m), "Altitude (m)        : %12.7f\n",s->lla().z);
-        sprintf(m+strlen(m), "Accuracy Radius (m) : %12.7f\n",s->accuracyM());
+        sprintf(m+strlen(m), "Uses Location       : %s\n",    s->devLoc().isUsed() ? "yes" : "no");
+        sprintf(m+strlen(m), "Latitude (deg)      : %12.7f\n",s->devLoc().locLLA().x);
+        sprintf(m+strlen(m), "Longitude (deg)     : %12.7f\n",s->devLoc().locLLA().y);
+        sprintf(m+strlen(m), "Altitude (m)        : %12.7f\n",s->devLoc().locLLA().z);
+        sprintf(m+strlen(m), "Accuracy Radius (m) : %12.7f\n",s->devLoc().accuracyM());
+        sprintf(m+strlen(m), "Dist. to Origin (m) : %12.7f\n",offsetToOrigin.length());
 
         // Switch to fixed font
         ImGui::PushFont(ImGui::GetIO().Fonts->Fonts[1]);
@@ -484,8 +486,6 @@ void SLDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
 
                     if (ImGui::MenuItem("Minimal Scene", 0, curS==C_sceneMinimal))
                         sv->onCommand(C_sceneMinimal);
-                    if (ImGui::MenuItem("Sensor Test Scene", 0, curS==C_sceneSensorTest))
-                        sv->onCommand(C_sceneSensorTest);
                     if (ImGui::MenuItem("Figure Scene", 0, curS==C_sceneFigure))
                         sv->onCommand(C_sceneFigure);
                     if (ImGui::MenuItem("Large Model", 0, curS==C_sceneLargeModel, largeFileExists))
@@ -562,6 +562,8 @@ void SLDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
                         sv->onCommand(C_sceneVideoTrackFeature2DMain);
                     if (ImGui::MenuItem("Texture from live video", 0, curS==C_sceneVideoTexture))
                         sv->onCommand(C_sceneVideoTexture);
+                    if (ImGui::MenuItem("Sensor AR (Main)", 0, curS==C_sceneVideoSensorAR))
+                        sv->onCommand(C_sceneVideoSensorAR);
 
                     ImGui::EndMenu();
                 }
@@ -637,20 +639,32 @@ void SLDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
 
             if (ImGui::BeginMenu("Rotation Sensor"))
             {
-                if (ImGui::MenuItem("Use Device Rotation", 0, s->usesRotation()))
-                    s->usesRotation(!s->usesRotation());
+                if (ImGui::MenuItem("Use Device Rotation (IMU)", 0, s->devRot().isUsed()))
+                    s->devRot().isUsed(!s->devRot().isUsed());
 
-                if (ImGui::MenuItem("Zero Yaw at Start", 0, s->zeroYawAtStart()))
-                    s->zeroYawAtStart(!s->zeroYawAtStart());
+                if (ImGui::MenuItem("Zero Yaw at Start", 0, s->devRot().zeroYawAtStart()))
+                    s->devRot().zeroYawAtStart(!s->devRot().zeroYawAtStart());
 
                 if (ImGui::MenuItem("Reset Zero Yaw"))
-                    s->deviceRotStarted(true);
+                    s->devRot().hasStarted(true);
 
                 ImGui::EndMenu();
             }
 
-            if (ImGui::MenuItem("Use GPS Sensor", 0, s->usesLocation()))
-                s->usesLocation(!s->usesLocation());
+            if (ImGui::BeginMenu("Location Sensor"))
+            {
+                if (ImGui::MenuItem("Use Device Location (GPS)", 0, s->devLoc().isUsed()))
+                    s->devLoc().isUsed(!s->devLoc().isUsed());
+
+                if (ImGui::MenuItem("Use Origin Altitude", 0, s->devLoc().useOriginAltitude()))
+                    s->devLoc().useOriginAltitude(!s->devLoc().useOriginAltitude());
+
+                if (ImGui::MenuItem("Reset Origin to here"))
+                    s->devLoc().hasOrigin(false);
+
+                ImGui::EndMenu();
+            }
+
             ImGui::Separator();
 
             if (ImGui::BeginMenu("Video"))
@@ -992,25 +1006,31 @@ void SLDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
                 SLCamAnim ca = cam->camAnim();
 
                 if (ImGui::MenuItem("Turntable Y up", 0, ca==CA_turntableYUp))
-                    sv->onCommand(C_camAnimTurnYUp);
+                    sv->camera()->camAnim(CA_turntableYUp);
+                    //sv->onCommand(C_camAnimTurnYUp);
 
                 if (ImGui::MenuItem("Turntable Z up", 0, ca==CA_turntableZUp))
-                    sv->onCommand(C_camAnimTurnZUp);
+                    sv->camera()->camAnim(CA_turntableZUp);
+                    //sv->onCommand(C_camAnimTurnZUp);
 
                 if (ImGui::MenuItem("Walk Y up", 0, ca==CA_walkingYUp))
-                    sv->onCommand(C_camAnimWalkYUp);
+                    sv->camera()->camAnim(CA_walkingYUp);
+                    //sv->onCommand(C_camAnimWalkYUp);
 
                 if (ImGui::MenuItem("Walk Z up", 0, ca==CA_walkingZUp))
-                    sv->onCommand(C_camAnimWalkZUp);
+                    sv->camera()->camAnim(CA_walkingZUp);
+                    //sv->onCommand(C_camAnimWalkZUp);
 
                 if (ImGui::MenuItem("Device Rotated Y up", 0, ca==CA_deviceRotYUp))
-                    sv->onCommand(C_camAnimDeviceRotYUp);
+                    sv->camera()->camAnim(CA_deviceRotYUp);
+                    //sv->onCommand(C_camAnimDeviceRotYUp);
 
-                if (ImGui::MenuItem("Device Rotated Y up and GPS positioned", 0, ca == CA_deviceRotYUpPosGPS))
-                    sv->onCommand(C_camAnimDeviceRotYUpPosGPS);
+                if (ImGui::MenuItem("Device Rotated & Location Y up", 0, ca == CA_deviceRotLocYUp))
+                    sv->camera()->camAnim(CA_deviceRotLocYUp);
+                    //sv->onCommand(C_camAnimDeviceRotYUpPosGPS);
+
                 if (ca==CA_walkingZUp || ca==CA_walkingYUp || ca==CA_deviceRotYUp)
-                {
-                    static SLfloat ms = cam->maxSpeed();
+                {   static SLfloat ms = cam->maxSpeed();
                     if (ImGui::SliderFloat("Walk Speed",  &ms, 0.01f, SL_min(ms*1.1f,10000.f)))
                         cam->maxSpeed(ms);
                 }

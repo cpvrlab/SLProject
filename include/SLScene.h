@@ -21,6 +21,8 @@
 #include <SLAnimManager.h>
 #include <SLAverage.h>
 #include <SLCVCalibration.h>
+#include <SLDeviceRotation.h>
+#include <SLDeviceLocation.h>
 
 class SLSceneView;
 class SLCVTracked;
@@ -61,10 +63,6 @@ class SLScene: public SLObject
             void            stopAnimations      (SLbool stop) {_stopAnimations = stop;}
             void            videoType           (SLVideoType vt);
             void            showDetection       (SLbool st) {_showDetection = st;}
-            void            usesRotation        (SLbool use);
-            void            deviceRotStarted    (SLbool started) {_deviceRotStarted = started;}
-            void            zeroYawAtStart      (SLbool set) {_zeroYawAtStart = set;}
-            void            usesLocation        (SLbool use);
                            
             // Getters
             SLAnimManager&  animManager         () {return _animManager;}
@@ -106,7 +104,7 @@ class SLScene: public SLObject
             SLint           numSceneCameras     ();
             SLCamera*       nextCameraInScene   (SLSceneView* activeSV);
 
-            // Video and OpenCV stuff
+            // Video stuff
             SLVideoType         videoType       () {return _videoType;}
             SLGLTexture*        videoTexture    () {return &_videoTexture;}
             SLCVCalibration*    activeCalib     () {return _activeCalib;}
@@ -115,25 +113,9 @@ class SLScene: public SLObject
             SLVCVTracker&       trackers        () {return _trackers;}
             SLbool              showDetection   () {return _showDetection;}
 
-            // Device rotation stuff
-            SLbool              usesRotation    () const {return _usesRotation;}
-            SLMat3f             deviceRotation  () const {return _deviceRotation;}
-
-            SLfloat             devicePitchRAD  () const {return _devicePitchRAD;}
-            SLfloat             deviceYawRAD    () const {return _deviceYawRAD;}
-            SLfloat             deviceRollRAD   () const {return _deviceRollRAD;}
-            SLbool              zeroYawAtStart  () const {return _zeroYawAtStart;}
-            SLfloat             startYawRAD     () const {return _startYawRAD;}
-
-            // Device GPS location stuff
-            SLbool              usesLocation    () const {return _usesLocation;}
-            SLVec3d             lla             () const {return _lla;}
-            SLfloat             accuracyM       () const {return _accuracyM;}
-            SLVec3d             enu             () const {return _enu;}
-            SLVec3d             enuOrigin       () const {return _enuOrigin;}
-            SLbool              hasGlobalRefPos () const {return _hasGlobalRefPos;}
-            const SLVec3d&      globalRefPosEcef() const {return _globalRefPosEcef;}
-            const SLMat3d&      wRecef          () const {return _wRecef;}
+            // Device sensors stuff
+            SLDeviceRotation&   devRot          () {return _devRot;}
+            SLDeviceLocation&   devLoc          () {return _devLoc;}
 
             // Misc.
    virtual  void            onLoad              (SLSceneView* sv, 
@@ -142,13 +124,6 @@ class SLScene: public SLObject
                                                  SLuint processFlags);
    virtual  void            onAfterLoad         ();
             bool            onUpdate            ();
-            void            onRotationPYR       (SLfloat pitchRAD,
-                                                 SLfloat yawRAD,
-                                                 SLfloat rollRAD);
-            void            onRotationQUAT      (SLfloat quatX,
-                                                 SLfloat quatY,
-                                                 SLfloat quatZ,
-                                                 SLfloat quatW);
             void            init                ();
             void            unInit              ();
             SLbool          onCommandAllSV      (const SLCommand cmd);
@@ -160,15 +135,9 @@ class SLScene: public SLObject
                                                  SLuchar* data,
                                                  SLbool isContinuous,
                                                  SLbool isTopLeft);
-            void            onLocationLLA       (double latitudeDEG,
-                                                 double longitudeDEG,
-                                                 double altitudeM,
-                                                 float accuracyM);
-            void            initGlobalRefPos    (double latDeg, 
-                                                 double lonDeg, 
-                                                 double altM);
 
      static SLScene*        current;            //!< global static scene pointer
+
    protected:
             SLVSceneView    _sceneViews;        //!< Vector of all sceneview pointers
             SLVMesh         _meshes;            //!< Vector of all meshes
@@ -218,26 +187,9 @@ class SLScene: public SLObject
             SLVCVTracker        _trackers;          //!< Vector of all AR trackers
             SLbool              _showDetection;     //!< Flag if detection should be visualized
 
-            // IMU Sensor stuff
-            SLbool              _usesRotation;      //!< Flag if device rotation is used
-            SLfloat             _devicePitchRAD;    //!< Device pitch angle in radians
-            SLfloat             _deviceYawRAD;      //!< Device yaw angle in radians
-            SLfloat             _deviceRollRAD;     //!< Device roll angle in radians
-            SLMat3f             _deviceRotation;    //!< Mobile device rotation as quaternion
-            SLbool              _deviceRotStarted;  //!< Flag for the first sensor values
-            SLbool              _zeroYawAtStart;    //!< Flag if yaw angle should be zeroed at sensor start
-            SLfloat             _startYawRAD;       //!< Initial yaw angle after _zeroYawAfterSec in radians
-
-            // GPS Sensor stuff
-            SLbool              _usesLocation;      //!< Flag if GPS Sensor is used
-            SLbool              _deviceLocStarted;  //!< Flag for the first sensor values
-            SLVec3d             _lla;               //!< GPS location in latitudeDEG, longitudeDEG & AltitudeM
-            SLfloat             _accuracyM;         //!< Horizontal accuracy radius in m with 68% probability
-            SLVec3d             _enu;               //!< gps in enu
-            SLVec3d             _enuOrigin;         //!< enu origin location
-            SLbool              _hasGlobalRefPos;   //!< Flag if this scene has a global reference position
-            SLVec3d             _globalRefPosEcef;  //!< Global ecef reference position of scene origin (world)
-            SLMat3d             _wRecef;            //!< ecef frame to world frame rotation: rotates a point defined in ecef 
+            // Mobile device sensor data
+            SLDeviceRotation    _devRot;            //!< Mobile device rotation from IMU
+            SLDeviceLocation    _devLoc;            //!< Mobile device location from GPS
 };
 //-----------------------------------------------------------------------------
 #endif

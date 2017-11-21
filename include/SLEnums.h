@@ -78,7 +78,7 @@ enum SLCommand
     C_sceneEmpty = -1,      // No data in scene
     C_sceneAll = 0,         // Loads all scenes one after the other
     C_sceneMinimal,
-    C_sceneSensorTest,
+    C_sceneVideoSensorAR,
     C_sceneFigure,
     C_sceneMeshLoad,
     C_sceneVRSizeTest,
@@ -172,14 +172,6 @@ enum SLCommand
     C_camFocalDistDec,      // Cameras focal distance decrease
     C_camFOVInc,            // Cameras field of view increase
     C_camFOVDec,            // Cameras field of view decrease
-    C_camAnimTurnYUp,       // Sets turntable camera animation w. Y axis up
-    C_camAnimTurnZUp,       // Sets turntable camera animation w. Z axis up
-    C_camAnimWalkYUp,       // Sets 1st person walking camera animation w. Y axis up
-    C_camAnimWalkZUp,       // Sets 1st person walking camera animation w. Z axis up
-    C_camAnimDeviceRotYUp,  // Sets 1st person walking camera animation w. Y axis up and device rotation
-    C_camAnimDeviceRotZUp,  // Sets 1st person walking camera animation w. Y axis up and device rotation
-    C_camAnimDeviceRotYUpPosGPS, // Sets 1st person walking camera animation w. Y axis up and device rotation. GPS coordinated
-    C_camAnimFly1stP,       // Sets 1st person flying camera animation
     C_camSpeedLimitInc,     // Increments the speed limit by 10%
     C_camSpeedLimitDec,     // Decrements the speed limit by 10%
 
@@ -248,28 +240,28 @@ enum SLTextAlign
 //-----------------------------------------------------------------------------
 //! Enumeration for available camera animation types
 enum SLCamAnim
-{   CA_turntableYUp,//!< Orbiting around central object w. turnrable rotation around y & right axis.
-    CA_turntableZUp,//!< Orbiting around central object w. turnrable rotation around z & right axis.
-    CA_walkingYUp,  //!< Walk translation with AWSD and look around rotation around y & right axis.
-    CA_walkingZUp,  //!< Walk translation with AWSD and look around rotation around z & right axis.
-    CA_deviceRotYUp, //!< The device rotation controls the camera rotation.
-    CA_deviceRotYUpPosGPS  //!< The device rotation controls the camera rotation and the GPS controls the Camera Translati
+{   CA_turntableYUp,        //!< Orbiting around central object w. turnrable rotation around y & right axis.
+    CA_turntableZUp,        //!< Orbiting around central object w. turnrable rotation around z & right axis.
+    CA_walkingYUp,          //!< Walk translation with AWSD and look around rotation around y & right axis.
+    CA_walkingZUp,          //!< Walk translation with AWSD and look around rotation around z & right axis.
+    CA_deviceRotYUp,        //!< The device rotation controls the camera rotation.
+    CA_deviceRotLocYUp      //!< The device rotation controls the camera rotation and the GPS controls the Camera Translati
 };
 //-----------------------------------------------------------------------------
 //! Enumeration for different camera projections
 enum SLProjection
-{   P_monoPerspective,     //!< standard mono pinhole perspective projection
-    P_monoOrthographic,    //!< standard mono orthographic projection
-    P_stereoSideBySide,    //!< side-by-side
-    P_stereoSideBySideP,   //!< side-by-side proportional for mirror stereoscopes
-    P_stereoSideBySideD,   //!< side-by-side distorted for Oculus Rift like glasses
-    P_stereoLineByLine,    //!< line-by-line
-    P_stereoColumnByColumn,//!< column-by-column
-    P_stereoPixelByPixel,  //!< checkerboard pattern (DLP3D)
-    P_stereoColorRC,       //!< color masking for red-cyan anaglyphs
-    P_stereoColorRG,       //!< color masking for red-green anaglyphs
-    P_stereoColorRB,       //!< color masking for red-blue anaglyphs
-    P_stereoColorYB        //!< color masking for yellow-blue anaglyphs (ColorCode 3D)
+{   P_monoPerspective,      //!< standard mono pinhole perspective projection
+    P_monoOrthographic,     //!< standard mono orthographic projection
+    P_stereoSideBySide,     //!< side-by-side
+    P_stereoSideBySideP,    //!< side-by-side proportional for mirror stereoscopes
+    P_stereoSideBySideD,    //!< side-by-side distorted for Oculus Rift like glasses
+    P_stereoLineByLine,     //!< line-by-line
+    P_stereoColumnByColumn, //!< column-by-column
+    P_stereoPixelByPixel,   //!< checkerboard pattern (DLP3D)
+    P_stereoColorRC,        //!< color masking for red-cyan anaglyphs
+    P_stereoColorRG,        //!< color masking for red-green anaglyphs
+    P_stereoColorRB,        //!< color masking for red-blue anaglyphs
+    P_stereoColorYB         //!< color masking for yellow-blue anaglyphs (ColorCode 3D)
 };
 //-----------------------------------------------------------------------------
 //! Enumeration for stereo eye type used for camera projection

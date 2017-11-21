@@ -71,7 +71,6 @@ SLScene::SLScene(SLstring name) : SLObject(name)
     _selectedNode   = nullptr;
     _activeCalib    = nullptr;
     _stopAnimations = false;
-    _usesRotation   = false;
     _fps            = 0;
     _elapsedTimeMS  = 0;
     _lastUpdateTimeMS = 0;
@@ -207,18 +206,6 @@ void SLScene::init()
     _optFlowTimesMS.init();
     _poseTimesMS.init();
     _captureTimesMS.init(200);
-
-    _deviceRotation.identity();
-    _devicePitchRAD  = 0.0f;
-    _deviceYawRAD    = 0.0f;
-    _deviceRollRAD   = 0.0f;
-    _zeroYawAtStart  = true;
-    _startYawRAD     = 0.0f;
-
-    _lla.set(0,0,0);
-    _accuracyM = 0.0f;
-    _enu.set(0,0,0);
-    _wRecef.identity();
 }
 //-----------------------------------------------------------------------------
 /*! The scene uninitializing clears the scenegraph (_root3D) and all global
@@ -525,52 +512,6 @@ void SLScene::onAfterLoad()
     #endif
 }
 //-----------------------------------------------------------------------------
-/*!
-SLScene::onRotationPYR: Event handler for rotation change of a mobile device
-with Euler angles for pitch, yaw and roll. This function will only be called
-in an Android or iOS project. See onRotationPYR in GLES3Activity.java in the
-Android project.
-This handler is only called if the flag SLScene::_usesRotation is true. If so
-the mobile device turns on it's IMU sensor system. The device rotation is so
-far only used in SLCamera::setViev if the cameras animation is on CA_deciveRotYUp.
-If _zeroYawAfterStart is true the start yaw value is subtracted. This means
-that the magnetic north will be ignored.
-The angles should be:\n
-Pitch from -halfpi (down)  to zero (horizontal) to +halfpi (up)\n
-Yaw   from -pi     (south) to zero (north)      to +pi     (south)\n
-Roll  from -halfpi (ccw)   to zero (horizontal) to +halfpi (clockwise)\n
-*/
-void SLScene::onRotationPYR(SLfloat pitchRAD,
-                            SLfloat yawRAD,
-                            SLfloat rollRAD)
-{
-    _devicePitchRAD = pitchRAD;
-    _deviceYawRAD   = yawRAD;
-    _deviceRollRAD  = rollRAD;
-}
-//-----------------------------------------------------------------------------
-/*! SLScene::onRotationQUAT: Event handler for rotation change of a mobile
-device with rotation quaternion.
-*/
-void SLScene::onRotationQUAT(SLfloat quatX,
-                             SLfloat quatY,
-                             SLfloat quatZ,
-                             SLfloat quatW)
-{
-    SLQuat4f quat(quatX, quatY, quatZ, quatW);
-    _deviceRotation = quat.toMat3();
-
-    if (_zeroYawAtStart)
-    {
-        if (_deviceRotStarted  )
-        {
-            //store initial rotation in yaw for referencing of initial alignment
-            _startYawRAD = _deviceYawRAD;
-            _deviceRotStarted = false;
-        }
-    }
-}
-//-----------------------------------------------------------------------------
 //! Sets the _selectedNode to the passed Node and flags it as selected
 void SLScene::selectNode(SLNode* nodeToSelect)
 {
@@ -741,69 +682,5 @@ SLCamera* SLScene::nextCameraInScene(SLSceneView* activeSV)
     else 
         return cams[0];
 
-}
-//-----------------------------------------------------------------------------
-//! Setter that turns on the device rotation sensor
-void SLScene::usesRotation (SLbool use)
-{
-    if (!_usesRotation && use==true)
-        _deviceRotStarted = true;
-
-    _usesRotation = use;
-}
-//-----------------------------------------------------------------------------
-//! Setter that turns on the device rotation sensor
-void SLScene::usesLocation (SLbool use)
-{
-    if (!_usesLocation && use==true)
-        _deviceLocStarted = true;
-
-    _usesLocation = use;
-}
-//-----------------------------------------------------------------------------
-/*! Global event handler for device GPS location with longitude and latitude in
-degrees and altitude in meters. This location uses the World Geodetic System
-1984 (WGS 84). The accuracy in meters is a radius in which the location is with
-a probability of 68% (2 sigma).
-*/
-void SLScene::onLocationLLA(double latitudeDEG,
-                            double longitudeDEG,
-                            double altitudeM,
-                            float  accuracyM)
-{
-    _lla.set(latitudeDEG, longitudeDEG, altitudeM);
-    _accuracyM = accuracyM;
-    SLVec3d locEcef;
-    locEcef.lla2ecef(_lla);
-    _enu = _wRecef * locEcef;
-}
-//-----------------------------------------------------------------------------
-//! Initialize global reference position in latitude, longitude and altitude.
-//! The calculated values can be used for global camera positioning via gps sensor
-void SLScene::initGlobalRefPos(double latDeg, double lonDeg, double altM )
-{
-    SLVec3d globalRefLla = SLVec3d(latDeg, lonDeg, altM);
-    _globalRefPosEcef.lla2ecef(globalRefLla);
-
-    //calculation of ecef to world (scene) rotation matrix
-    //definition of rotation matrix for ecef to world frame rotation:
-    //world frame (scene) w.r.t. enu frame
-    double phiRad = latDeg * SL_DEG2RAD;  //phi == lattitude
-    double lamRad = lonDeg * SL_DEG2RAD;  //lambda == longitude
-    SLMat3d enuRecef(-sin(lamRad),                          cos(lamRad),           0,
-                     -cos(lamRad)*sin(phiRad), -sin(lamRad)*sin(phiRad), cos(phiRad),
-                      cos(lamRad)*cos(phiRad),  sin(lamRad)*cos(phiRad), sin(phiRad));
-
-    //world frame (scene) w.r.t. enu frame
-    SLMat3d wRenu; //same as before
-    wRenu.rotation(-90, 1, 0, 0);
-
-    //world frame (scene) w.r.t. ecef
-    _wRecef = wRenu * enuRecef;
-    _enuOrigin = _wRecef * _globalRefPosEcef;
-
-    //flag, that this scene has a valid global reference position. The values can
-    //be used for camera positioning
-    _hasGlobalRefPos = true;
 }
 //------------------------------------------------------------------------------
