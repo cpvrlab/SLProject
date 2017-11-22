@@ -40,7 +40,7 @@ class SLDeviceRotation
                                              SLfloat quatW);
             // Setters
             void        isUsed              (SLbool isUsed);
-            void        hasStarted          (SLbool started) {_hasStarted = started;}
+            void        hasStarted          (SLbool started) {_isFirstSensorValue = started;}
             void        zeroYawAtStart      (SLbool zeroYaw) {_zeroYawAtStart = zeroYaw;}
 
             // Getters
@@ -53,11 +53,11 @@ class SLDeviceRotation
             SLfloat     startYawRAD         () const {return _startYawRAD;}
    private:
             SLbool      _isUsed;            //!< Flag if device rotation is used
+            SLbool      _isFirstSensorValue;//!< Flag for the first sensor values
             SLfloat     _pitchRAD;          //!< Device pitch angle in radians
             SLfloat     _yawRAD;            //!< Device yaw angle in radians
             SLfloat     _rollRAD;           //!< Device roll angle in radians
             SLMat3f     _rotation;          //!< Mobile device rotation as quaternion
-            SLbool      _hasStarted;        //!< Flag for the first sensor values
             SLbool      _zeroYawAtStart;    //!< Flag if yaw angle should be zeroed at sensor start
             SLfloat     _startYawRAD;       //!< Initial yaw angle after _zeroYawAfterSec in radians
 };

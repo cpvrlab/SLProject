@@ -434,13 +434,14 @@ void SLDemoGui::buildDemoGui(SLScene* s, SLSceneView* sv)
         sprintf(m+strlen(m), "Orientation Roll    : %1.0f\n", s->devRot().rollRAD()*SL_RAD2DEG);
         sprintf(m+strlen(m), "Zero Yaw at Start   : %s\n",    s->devRot().zeroYawAtStart() ? "yes" : "no");
         sprintf(m+strlen(m), "Start Yaw           : %1.0f\n", s->devRot().startYawRAD() * SL_RAD2DEG);
-        sprintf(m+strlen(m), "--------------------:\n");
+        sprintf(m+strlen(m), "---------------------\n");
         sprintf(m+strlen(m), "Uses Location       : %s\n",    s->devLoc().isUsed() ? "yes" : "no");
         sprintf(m+strlen(m), "Latitude (deg)      : %12.7f\n",s->devLoc().locLLA().x);
         sprintf(m+strlen(m), "Longitude (deg)     : %12.7f\n",s->devLoc().locLLA().y);
         sprintf(m+strlen(m), "Altitude (m)        : %12.7f\n",s->devLoc().locLLA().z);
-        sprintf(m+strlen(m), "Accuracy Radius (m) : %12.7f\n",s->devLoc().accuracyM());
-        sprintf(m+strlen(m), "Dist. to Origin (m) : %12.7f\n",offsetToOrigin.length());
+        sprintf(m+strlen(m), "Accuracy Radius (m) : %12.7f\n",s->devLoc().locAccuracyM());
+        sprintf(m+strlen(m), "Dist. to Origin (m) : %6.1f\n" ,offsetToOrigin.length());
+        sprintf(m+strlen(m), "Origin improve time : %6.1f sec.\n",s->devLoc().improveTime());
 
         // Switch to fixed font
         ImGui::PushFont(ImGui::GetIO().Fonts->Fonts[1]);

@@ -2545,7 +2545,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
     {
         // Set scene name and info string
         name("Video Sensor Augmented Reality");
-        _info = "Minimal scene to test the devices IMU and GPS Sensors";
+        _info = "Minimal scene to test the devices IMU and GPS Sensors. See the sensor information. GPS needs a few sec. to improve the accuracy.";
 
         SLCamera* cam1 = new SLCamera("Camera 1");
         cam1->translation(0,0,60);
@@ -2569,9 +2569,9 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         axis->scale(2);
         axis->rotate(-90, 1, 0, 0);
 
-        // Yellow box
+        // Yellow center box
         SLMaterial* yellow = new SLMaterial("mY", SLCol4f(1,1,0,0.5f));
-        SLNode *box = new SLNode(new SLBox(0,0,0, 1,1,1, "Box", yellow), "Box Node");
+        SLNode *box = new SLNode(new SLBox(-.5f,-.5f,-.5f, .5f,.5f,.5f, "Box", yellow), "Box Node");
 
         // Scene structure
         SLNode* scene = new SLNode("Scene");

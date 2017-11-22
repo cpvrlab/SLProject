@@ -72,8 +72,8 @@ class SLScene: public SLObject
             SLNode*         root2D              () {return _root2D;}
             SLstring&       info                () {return _info;}
             void            timerStart          () {_timer.start();}
-            SLfloat         timeSec             () {return (SLfloat)_timer.getElapsedTimeInSec();}
-            SLfloat         timeMilliSec        () {return (SLfloat)_timer.getElapsedTimeInMilliSec();}
+            SLfloat         timeSec             () {return (SLfloat)_timer.elapsedTimeInSec();}
+            SLfloat         timeMilliSec        () {return (SLfloat)_timer.elapsedTimeInMilliSec();}
             SLfloat         elapsedTimeMS       () {return _elapsedTimeMS;}
             SLfloat         elapsedTimeSec      () {return _elapsedTimeMS * 0.001f;}
             SLVEventHandler& eventHandlers      () {return _eventHandlers;}

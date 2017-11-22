@@ -24,7 +24,7 @@ void SLDeviceRotation::init()
     _rollRAD = 0.0f;
     _zeroYawAtStart = true;
     _startYawRAD = 0.0f;
-    _hasStarted = false;
+    _isFirstSensorValue = false;
     _isUsed = false;
 }
 //-----------------------------------------------------------------------------
@@ -63,11 +63,11 @@ void SLDeviceRotation::onRotationQUAT(SLfloat quatX,
 
     if (_zeroYawAtStart)
     {
-        if (_hasStarted  )
+        if (_isFirstSensorValue)
         {
             //store initial rotation in yaw for referencing of initial alignment
             _startYawRAD = _yawRAD;
-            _hasStarted = false;
+            _isFirstSensorValue = false;
         }
     }
 }
@@ -76,7 +76,7 @@ void SLDeviceRotation::onRotationQUAT(SLfloat quatX,
 void SLDeviceRotation::isUsed (SLbool use)
 {
     if (!_isUsed && use==true)
-        _hasStarted = true;
+        _isFirstSensorValue = true;
 
     _isUsed = use;
 }

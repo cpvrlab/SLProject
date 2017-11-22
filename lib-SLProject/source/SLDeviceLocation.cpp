@@ -18,14 +18,31 @@
 //-----------------------------------------------------------------------------
 void SLDeviceLocation::init()
 {
+    _isUsed = false;
+    _isFirstSensorValue = false;
     _locLLA.set(0,0,0);
-    _accuracyM = 0.0f;
+    _locECEF.set(0,0,0);
     _locENU.set(0,0,0);
+    _locAccuracyM = 0.0f;
+    _originLLA.set(0,0,0);
+    _originECEF.set(0,0,0);
     _originENU.set(0,0,0);
+    _originAccuracyM = FLT_MAX;
     _wRecef.identity();
     _hasOrigin = false;
     _useOriginAltitude = true;
-    _isUsed = false;
+    _improveOrigin = true;
+    _improveTimeSEC = 8.0f;
+}
+//-----------------------------------------------------------------------------
+// Setter for hasOrigin flag.
+void SLDeviceLocation::hasOrigin(SLbool hasOrigin)
+{
+    if (hasOrigin == false)
+    {   _improveTimer.start();
+        _originAccuracyM = FLT_MAX;
+    }
+    _hasOrigin = hasOrigin;
 }
 //-----------------------------------------------------------------------------
 //! Event handler for mobile device location update.
@@ -41,13 +58,30 @@ void SLDeviceLocation::onLocationLLA(double latDEG,
                                      double altM,
                                      float  accuracyM)
 {
-    if (!_hasOrigin)
-        originLLA(latDEG, lonDEG, altM);
+    // Init origin if it is not set yet or if the origin should be improved
+    if (!_hasOrigin || _improveOrigin)
+    {
+        // The first sensor value can appear after a few seconds.
+        if (_isFirstSensorValue)
+        {   _improveTimer.start();
+            _isFirstSensorValue = false;
+        }
+
+        // Only improve if accuracy is higher and the improve time has not elapsed
+        if (accuracyM < _originAccuracyM || _improveTimer.elapsedTimeInSec() < _improveTimeSEC)
+        {   _originAccuracyM = accuracyM;
+            originLLA(latDEG, lonDEG, altM);
+        }
+    }
 
     _locLLA.set(latDEG, lonDEG, _useOriginAltitude ? _originLLA.alt : altM);
 
-    _accuracyM = accuracyM;
+    _locAccuracyM = accuracyM;
+
+    // Convert to cartesian ECEF coordinates
     _locECEF.lla2ecef(_locLLA);
+
+    // Transform to local east-north-up frame
     _locENU = _wRecef * _locECEF;
 }
 //-----------------------------------------------------------------------------
@@ -84,5 +118,15 @@ void SLDeviceLocation::originLLA(double latDeg, double lonDeg, double altM)
 
     //Indicate that origin is set. Otherwise it would be reset on each update
     _hasOrigin = true;
+}
+
+//-----------------------------------------------------------------------------
+//! Setter that turns on the device rotation sensor
+void SLDeviceLocation::isUsed (SLbool use)
+{
+    if (!_isUsed && use==true)
+        _isFirstSensorValue = true;
+
+    _isUsed = use;
 }
 //------------------------------------------------------------------------------
