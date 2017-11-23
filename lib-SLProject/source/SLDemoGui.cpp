@@ -436,10 +436,10 @@ void SLDemoGui::buildDemoGui(SLScene* s, SLSceneView* sv)
         sprintf(m+strlen(m), "Start Yaw           : %1.0f\n", s->devRot().startYawRAD() * SL_RAD2DEG);
         sprintf(m+strlen(m), "---------------------\n");
         sprintf(m+strlen(m), "Uses Location       : %s\n",    s->devLoc().isUsed() ? "yes" : "no");
-        sprintf(m+strlen(m), "Latitude (deg)      : %12.7f\n",s->devLoc().locLLA().x);
-        sprintf(m+strlen(m), "Longitude (deg)     : %12.7f\n",s->devLoc().locLLA().y);
-        sprintf(m+strlen(m), "Altitude (m)        : %12.7f\n",s->devLoc().locLLA().z);
-        sprintf(m+strlen(m), "Accuracy Radius (m) : %12.7f\n",s->devLoc().locAccuracyM());
+        sprintf(m+strlen(m), "Latitude (deg)      : %11.6f\n",s->devLoc().locLLA().x);
+        sprintf(m+strlen(m), "Longitude (deg)     : %11.6f\n",s->devLoc().locLLA().y);
+        sprintf(m+strlen(m), "Altitude (m)        : %11.6f\n",s->devLoc().locLLA().z);
+        sprintf(m+strlen(m), "Accuracy Radius (m) : %6.1f\n", s->devLoc().locAccuracyM());
         sprintf(m+strlen(m), "Dist. to Origin (m) : %6.1f\n" ,offsetToOrigin.length());
         sprintf(m+strlen(m), "Origin improve time : %6.1f sec.\n",s->devLoc().improveTime());
 
@@ -959,6 +959,8 @@ void SLDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
                 static SLfloat focalDist = cam->focalDist();
                 static SLfloat fov = cam->fov();
 
+                ImGui::PushItemWidth(100);
+
                 if (ImGui::MenuItem("Perspective", 0, proj==P_monoPerspective))
                     sv->onCommand(C_projPersp);
 
@@ -999,6 +1001,7 @@ void SLDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
                 if (ImGui::SliderFloat("Focal Dist.", &focalDist, clipN, clipF))
                     cam->focalDist(focalDist);
 
+                ImGui::PopItemWidth();
                 ImGui::EndMenu();
             }
 
@@ -1006,29 +1009,25 @@ void SLDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
             {
                 SLCamAnim ca = cam->camAnim();
 
+                ImGui::PushItemWidth(80);
+
                 if (ImGui::MenuItem("Turntable Y up", 0, ca==CA_turntableYUp))
                     sv->camera()->camAnim(CA_turntableYUp);
-                    //sv->onCommand(C_camAnimTurnYUp);
 
                 if (ImGui::MenuItem("Turntable Z up", 0, ca==CA_turntableZUp))
                     sv->camera()->camAnim(CA_turntableZUp);
-                    //sv->onCommand(C_camAnimTurnZUp);
 
                 if (ImGui::MenuItem("Walk Y up", 0, ca==CA_walkingYUp))
                     sv->camera()->camAnim(CA_walkingYUp);
-                    //sv->onCommand(C_camAnimWalkYUp);
 
                 if (ImGui::MenuItem("Walk Z up", 0, ca==CA_walkingZUp))
                     sv->camera()->camAnim(CA_walkingZUp);
-                    //sv->onCommand(C_camAnimWalkZUp);
 
-                if (ImGui::MenuItem("Device Rotated Y up", 0, ca==CA_deviceRotYUp))
+                if (ImGui::MenuItem("IMU rotated Y up", 0, ca==CA_deviceRotYUp))
                     sv->camera()->camAnim(CA_deviceRotYUp);
-                    //sv->onCommand(C_camAnimDeviceRotYUp);
 
-                if (ImGui::MenuItem("Device Rotated & Location Y up", 0, ca == CA_deviceRotLocYUp))
+                if (ImGui::MenuItem("IMU rotated & GPS located Y up", 0, ca == CA_deviceRotLocYUp))
                     sv->camera()->camAnim(CA_deviceRotLocYUp);
-                    //sv->onCommand(C_camAnimDeviceRotYUpPosGPS);
 
                 if (ca==CA_walkingZUp || ca==CA_walkingYUp || ca==CA_deviceRotYUp)
                 {   static SLfloat ms = cam->maxSpeed();
@@ -1036,6 +1035,7 @@ void SLDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
                         cam->maxSpeed(ms);
                 }
 
+                ImGui::PopItemWidth();
                 ImGui::EndMenu();
             }
 

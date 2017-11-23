@@ -60,6 +60,57 @@ void SLDeviceRotation::onRotationQUAT(SLfloat quatX,
 {
     SLQuat4f quat(quatX, quatY, quatZ, quatW);
     _rotation = quat.toMat3();
+    
+    //_rotation.print("Rotation:\n");
+
+    /*   Up   North
+         |  /                       Rotation Matrix:
+         | /
+         |/                       iOS           Android
+         +------ East        +- E  N  U -+   +-         -+
+        +-------------+      |  1  0  0  |   |  0 -1  0  |
+       / +-------+   /       |  0  1  0  |   |  1  0  0  |
+      / /       / 0 /        |  0  0  1  |   |  0  0  1  |
+     / +-------+   /         +-         -+   +-         -+
+    +-------------+
+
+        Up   North
+         |  /                       Rotation Matrix:
+         | /
+         |/                       iOS           Android
+         +------ East        +-         -+   +-         -+
+         +------------+      |  0  0 -1  |   |  0 -1  0  |
+         | +------+   |      |  0  1  0  |   |  0  0 -1  |
+         | |      | 0 |      |  1  0  0  |   |  1  0  0  |
+         | +------+   |      +-         -+   +-         -+
+         +------------+
+
+        Up   North
+         |  /                       Rotation Matrix:
+         | /
+         |/                       iOS           Android
+         +------ East        +-         -+   +-         -+
+        +---------+          |  0  1  0  |   |           |
+       / +-----+ /           | -1  0  0  |   |           |
+      / /     / /            |  0  0  1  |   |           |
+     / /     / /             +-         -+   +-         -+
+    / +-----+ /
+   /    0    /
+  +---------+
+
+        Up   North
+         |  /                       Rotation Matrix:
+         | /
+         |/                       iOS           Android
+         +------ East        +-         -+   +-         -+
+         +---------+         |  1  0  0  |   |           |
+         | +-----+ |         |  0  0 -1  |   |           |
+         | |     | |         |  0  1  0  |   |           |
+         | |     | |         +-         -+   +-         -+
+         | +-----+ |
+         |    0    |
+         +---------+
+     */
 
     if (_zeroYawAtStart)
     {

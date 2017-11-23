@@ -148,7 +148,7 @@ void SLGLState::initAll()
     glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
     glPixelStorei(GL_PACK_ALIGNMENT, 1);
 
-    #ifndef SL_GLES2
+    #ifndef SL_GLES
     glEnable(GL_PROGRAM_POINT_SIZE);
     #endif
 
