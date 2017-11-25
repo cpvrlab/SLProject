@@ -564,7 +564,9 @@ void SLDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
                     if (ImGui::MenuItem("Texture from live video", 0, curS==C_sceneVideoTexture))
                         sv->onCommand(C_sceneVideoTexture);
                     if (ImGui::MenuItem("Sensor AR (Main)", 0, curS==C_sceneVideoSensorAR))
-                        sv->onCommand(C_sceneVideoSensorAR);
+                        sv->onCommand(C_sceneVideoChristoffel);
+                    if (ImGui::MenuItem("Christoffel Tower AR (Main)", 0, curS==C_sceneVideoChristoffel))
+                        sv->onCommand(C_sceneVideoChristoffel);
 
                     ImGui::EndMenu();
                 }

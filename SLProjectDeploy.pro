@@ -400,6 +400,15 @@ models_FBX_Duck.files = \
 models_FBX_Axes.files = \
   ../_data/models/FBX/Axes/axes_blender.fbx \
 
+models_FBX_Christoffel.files = \
+  ../_data/models/FBX/Christoffel/Bern-Bahnhofsplatz.fbx \
+  ../_data/models/FBX/Christoffel/Christoffel.jpg \
+  ../_data/models/FBX/Christoffel/Holz1.jpg \
+  ../_data/models/FBX/Christoffel/texture1.jpg \
+  ../_data/models/FBX/Christoffel/texture2.jpg \
+  ../_data/models/FBX/Christoffel/Sandstein1.png \
+  ../_data/models/FBX/Christoffel/Ziegel1.png \
+
 models_OBJ_Christoffelturm.files = \
   ../_data/models/Wavefront-OBJ/Christoffelturm/christoffelturm.obj \
   ../_data/models/Wavefront-OBJ/Christoffelturm/christoffelturm.mtl \
@@ -492,6 +501,7 @@ macx: {
     models_DAE_Crate.path = Contents/_data/models/DAE/Crate
     models_FBX_Duck.path = Contents/_data/models/FBX/Duck
     models_FBX_Axes.path = Contents/_data/models/FBX/Axes
+    models_FBX_Christoffel.path = Contents/_data/models/FBX/Christoffel
     models_OBJ_Christoffelturm.path = Contents/_data/models/Wavefront-OBJ/Christoffelturm
     calibrations.path = Contents/_data/calibrations
     cvlibs.path = Contents/Frameworks
@@ -507,6 +517,7 @@ macx: {
     QMAKE_BUNDLE_DATA += models_DAE_Crate
     QMAKE_BUNDLE_DATA += models_FBX_Duck
     QMAKE_BUNDLE_DATA += models_FBX_Axes
+    QMAKE_BUNDLE_DATA += models_FBX_Christoffel
     QMAKE_BUNDLE_DATA += models_OBJ_Christoffelturm
     QMAKE_BUNDLE_DATA += calibrations
     QMAKE_BUNDLE_DATA += cvlibs

@@ -2220,43 +2220,6 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         _root3D = scene;
     }
     else
-    if (SL::currentSceneID == C_sceneVideoChristoffel) //..........................................
-    {
-        name("Christoffel Tower");
-        _info = "Augmented Reality Christoffel Tower";
-        
-        SLCamera* cam1 = new SLCamera("Camera 1");
-        cam1->translation(0,2,60);
-        cam1->lookAt(15,15,0);
-        cam1->clipNear(0.1f);
-        cam1->clipFar(500.0f);
-        cam1->background().texture(&_videoTexture);
-        cam1->setInitialState();
-        videoType(VT_MAIN);
-
-        SLLightSpot* light1 = new SLLightSpot(120,120,120, 1);
-        light1->ambient(SLCol4f(1,1,1));
-        light1->diffuse(SLCol4f(1,1,1));
-        light1->specular(SLCol4f(1,1,1));
-        light1->attenuation(1,0,0);
-
-        SLAssimpImporter importer;
-        #if defined(SL_OS_IOS) || defined(SL_OS_ANDROID)
-        SLNode* tower = importer.load("christoffelturm.obj");
-        #else
-        SLNode* tower = importer.load("Wavefront-OBJ/Christoffelturm/christoffelturm.obj");
-        #endif
-        tower->rotate(90, -1,0,0);
-
-        SLNode* scene = new SLNode("Scene");
-        scene->addChild(light1);
-        if (tower) scene->addChild(tower);
-        scene->addChild(cam1);
-
-        sv->waitEvents(false); // for constant video feed
-        sv->camera(cam1);
-        _root3D = scene;
-    }
     if (SL::currentSceneID == C_sceneVideoTexture) //..............................................
     {
         // Set scene name and info string
@@ -2601,6 +2564,67 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         #endif
 
         sv->waitEvents(false); // for constant video feed
+    }
+    else
+    if (SL::currentSceneID == C_sceneVideoChristoffel) //..........................................
+    {
+        name("Christoffel Tower");
+        _info = "Augmented Reality Christoffel Tower";
+
+        SLCamera* cam1 = new SLCamera("Camera 1");
+        cam1->translation(0,2,0);
+        cam1->lookAt(-10,2,0);
+        cam1->clipNear(0.1f);
+        cam1->clipFar(500.0f);
+        cam1->background().texture(&_videoTexture);
+        cam1->setInitialState();
+        videoType(VT_MAIN);
+
+        SLLightSpot* light1 = new SLLightSpot(120,120,120, 1);
+        light1->ambient(SLCol4f(1,1,1));
+        light1->diffuse(SLCol4f(1,1,1));
+        light1->specular(SLCol4f(1,1,1));
+        light1->attenuation(1,0,0);
+
+        SLAssimpImporter importer;
+        #if defined(SL_OS_IOS) || defined(SL_OS_ANDROID)
+        //SLNode* tower = importer.load("christoffelturm.obj");
+        SLNode* tower = importer.load("Bern-Bahnhofsplatz.fbx");
+        #else
+        SLNode* tower = importer.load("FBX/Christoffel/Bern-Bahnhofsplatz.fbx");
+        #endif
+
+        SLNode *axis = new SLNode(new SLCoordAxis(), "Axis Node");
+        axis->setDrawBitsRec(SL_DB_WIREMESH, false);
+        axis->scale(10);
+        axis->rotate(-90, 1, 0, 0);
+
+        SLNode* scene = new SLNode("Scene");
+        scene->addChild(light1);
+        scene->addChild(axis);
+        if (tower) scene->addChild(tower);
+        scene->addChild(cam1);
+
+        //initialize origin the Loeb Ecke and the camera to the station
+        _devLoc.originLLA(46.947629, 7.440754, 442.0);
+        _devLoc.onLocationLLA(46.948551, 7.440093, 442.0, 1.0f);
+        _devLoc.improveOrigin(false);
+        _devLoc.useOriginAltitude(true);
+        _devLoc.hasOrigin(true);
+        _devRot.isUsed(true);
+        _devRot.zeroYawAtStart(false);
+
+        #if defined(SL_OS_MACIOS) || defined(SL_OS_ANDROID)
+        _devLoc.isUsed(true);
+        cam1->camAnim(SLCamAnim::CA_deviceRotLocYUp);
+        #else
+        _devLoc.isUsed(false);
+        cam1->camAnim(SLCamAnim::CA_turntableYUp);
+        #endif
+
+        sv->waitEvents(false); // for constant video feed
+        sv->camera(cam1);
+        _root3D = scene;
     }
     else
     if (SL::currentSceneID == C_sceneRTMuttenzerBox) //............................................

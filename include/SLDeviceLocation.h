@@ -51,6 +51,7 @@ class SLDeviceLocation
             // Setters
             void        isUsed              (SLbool isUsed);
             void        useOriginAltitude   (SLbool useGLA) {_useOriginAltitude = useGLA;}
+            void        improveOrigin       (SLbool impO) {_improveOrigin = impO;}
             void        hasOrigin           (SLbool hasOL);
             void        originLLA           (double latDeg,
                                              double lonDeg,
