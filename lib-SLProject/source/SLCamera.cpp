@@ -542,21 +542,17 @@ void SLCamera::setView(SLSceneView* sv, const SLEyeType eye)
         //location sensor is turned on and the scene has a global reference position
         if( s->devLoc().isUsed() && s->devLoc().hasOrigin())
         {
-            //representation of direction vector in world frame (scene)
+            // Direction vector from camera to world origin
             SLVec3d wtc = s->devLoc().locENU() - s->devLoc().originENU();
 
-            //set camera pose
+            // Reset to default if device is too far away
+            if (wtc.length() > s->devLoc().locMaxDistanceM())
+                wtc = s->devLoc().defaultENU() - s->devLoc().originENU();
+
+            // Set the camera position
             SLVec3f wtc_f((SLfloat)wtc.x, (SLfloat)wtc.y, (SLfloat)wtc.z);
             _om.setTranslation(wtc_f);
             needUpdate();
-
-            //combination of rotation and translation:
-            //SLMat4f wTc;
-            //wTc.setRotation(wRc);
-            //wTc.setTranslation(wtc_f);
-
-            // set camera pose to the object matrix;
-            //om(wTc);
         }
     }
 

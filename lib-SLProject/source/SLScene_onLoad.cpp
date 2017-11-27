@@ -2580,11 +2580,13 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         cam1->setInitialState();
         videoType(VT_MAIN);
 
-        SLLightSpot* light1 = new SLLightSpot(120,120,120, 1);
-        light1->ambient(SLCol4f(1,1,1));
-        light1->diffuse(SLCol4f(1,1,1));
-        light1->specular(SLCol4f(1,1,1));
-        light1->attenuation(1,0,0);
+        SLLightDirect* light = new SLLightDirect();
+        light->ambient(SLCol4f(1,1,1));
+        light->diffuse(SLCol4f(1,1,1));
+        light->specular(SLCol4f(1,1,1));
+        light->translation(10.0f, 10.0f, 10.0f);
+        light->lookAt(0, 0, 0);
+        light->attenuation(1,0,0);
 
         SLAssimpImporter importer;
         #if defined(SL_OS_IOS) || defined(SL_OS_ANDROID)
@@ -2600,27 +2602,35 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         axis->rotate(-90, 1, 0, 0);
 
         SLNode* scene = new SLNode("Scene");
-        scene->addChild(light1);
+        scene->addChild(light);
         scene->addChild(axis);
         if (tower) scene->addChild(tower);
         scene->addChild(cam1);
 
-        //initialize origin the Loeb Ecke and the camera to the station
-        _devLoc.originLLA(46.947629, 7.440754, 442.0);
-        _devLoc.onLocationLLA(46.948551, 7.440093, 442.0, 1.0f);
-        _devLoc.improveOrigin(false);
+        //initialize sensor stuff
+        _devLoc.originLLA(46.947629, 7.440754, 442.0);          // Loeb Ecken
+        _devLoc.defaultLLA(46.948551, 7.440093, 442.0 + 1.7);   // Bahnhof Ausgang in Augenhöhe
+        _devLoc.locMaxDistanceM(1000.0f);               // Max. Distanz. zum Loeb Ecken
+        _devLoc.improveOrigin(false);                   // Keine autom. Verbesserung vom Origin
         _devLoc.useOriginAltitude(true);
         _devLoc.hasOrigin(true);
-        _devRot.isUsed(true);
         _devRot.zeroYawAtStart(false);
 
-        #if defined(SL_OS_MACIOS) || defined(SL_OS_ANDROID)
+        #if defined(SL_OS_IOS) || defined(SL_OS_ANDROID)
         _devLoc.isUsed(true);
+        _devRot.isUsed(true);
         cam1->camAnim(SLCamAnim::CA_deviceRotLocYUp);
         #else
         _devLoc.isUsed(false);
-        cam1->camAnim(SLCamAnim::CA_turntableYUp);
+        _devRot.isUsed(false);
+        SLVec3d pos_d = _devLoc.defaultENU() - _devLoc.originENU();;
+        SLVec3f pos_f ((SLfloat)pos_d.x, (SLfloat)pos_d.y, (SLfloat)pos_d.z);
+        cam1->translation(pos_f);
+        cam1->lookAt(SLVec3f::ZERO);
+        cam1->camAnim(SLCamAnim::CA_walkingYUp);
         #endif
+
+
 
         sv->waitEvents(false); // for constant video feed
         sv->camera(cam1);

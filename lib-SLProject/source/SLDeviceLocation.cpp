@@ -24,6 +24,9 @@ void SLDeviceLocation::init()
     _locECEF.set(0,0,0);
     _locENU.set(0,0,0);
     _locAccuracyM = 0.0f;
+    _locMaxDistanceM = 1000.0f;
+    _defaultLLA.set(0,0,0);
+    _defaultENU.set(0,0,0);
     _originLLA.set(0,0,0);
     _originECEF.set(0,0,0);
     _originENU.set(0,0,0);
@@ -71,6 +74,7 @@ void SLDeviceLocation::onLocationLLA(double latDEG,
         if (accuracyM < _originAccuracyM || _improveTimer.elapsedTimeInSec() < _improveTimeSEC)
         {   _originAccuracyM = accuracyM;
             originLLA(latDEG, lonDEG, altM);
+            defaultLLA(latDEG, lonDEG, altM);
         }
     }
 
@@ -85,20 +89,20 @@ void SLDeviceLocation::onLocationLLA(double latDEG,
     _locENU = _wRecef * _locECEF;
 }
 //-----------------------------------------------------------------------------
-//! Initialize global origin in latitude, longitude and altitude.
+//! Set global origin in latitude, longitude and altitude.
 /*! The calculated values can be used for global camera positioning via GPS
 sensor.
 */
-void SLDeviceLocation::originLLA(double latDeg, double lonDeg, double altM)
+void SLDeviceLocation::originLLA(double latDEG, double lonDEG, double altM)
 {
-    _originLLA = SLVec3d(latDeg, lonDeg, altM);
+    _originLLA = SLVec3d(latDEG, lonDEG, altM);
     _originECEF.lla2ecef(_originLLA);
 
     //calculation of ecef to world (scene) rotation matrix
     //definition of rotation matrix for ECEF to world frame rotation:
     //world frame (scene) w.r.t. ENU frame
-    double phiRad = latDeg * SL_DEG2RAD;  //   phi == latitude
-    double lamRad = lonDeg * SL_DEG2RAD;  //lambda == longitude
+    double phiRad = latDEG * SL_DEG2RAD;  //   phi == latitude
+    double lamRad = lonDEG * SL_DEG2RAD;  //lambda == longitude
     double sinPhi = sin(phiRad);
     double cosPhi = cos(phiRad);
     double sinLam = sin(lamRad);
@@ -119,7 +123,24 @@ void SLDeviceLocation::originLLA(double latDeg, double lonDeg, double altM)
     //Indicate that origin is set. Otherwise it would be reset on each update
     _hasOrigin = true;
 }
+//-----------------------------------------------------------------------------
+//! Sets the default location in latitude, longitude and altitude.
+/*! It must be called after setting the origin. If no origin is set with it
+will be automatically set in onLocationLLA. The default location is used by
+the camera in SLCamera::setView if the current distance between _locENU and
+_originENU is greater than _locMaxDistanceM.
+*/
+void SLDeviceLocation::defaultLLA(double latDEG, double lonDEG, double altM)
+{
+    _defaultLLA.set(latDEG, lonDEG, _useOriginAltitude ? _originLLA.alt : altM);
 
+    // Convert to cartesian ECEF coordinates
+    SLVec3d defaultECEF;
+    defaultECEF.lla2ecef(_defaultLLA);
+
+    // Transform to local east-north-up frame
+    _defaultENU = _wRecef * defaultECEF;
+}
 //-----------------------------------------------------------------------------
 //! Setter that turns on the device rotation sensor
 void SLDeviceLocation::isUsed (SLbool use)

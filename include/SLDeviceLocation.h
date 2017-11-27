@@ -53,15 +53,21 @@ class SLDeviceLocation
             void        useOriginAltitude   (SLbool useGLA) {_useOriginAltitude = useGLA;}
             void        improveOrigin       (SLbool impO) {_improveOrigin = impO;}
             void        hasOrigin           (SLbool hasOL);
-            void        originLLA           (double latDeg,
-                                             double lonDeg,
+            void        originLLA           (double latDEG,
+                                             double lonDEG,
                                              double altM);
+            void        defaultLLA          (double latDEG,
+                                             double lonDEG,
+                                             double altM);
+            void        locMaxDistanceM     (float maxDist) {_locMaxDistanceM = maxDist;}
             // Getters
             SLbool      isUsed              () const {return _isUsed;}
             SLVec3d     locLLA              () const {return _locLLA;}
             SLVec3d     locECEF             () const {return _locECEF;}
             SLVec3d     locENU              () const {return _locENU;}
             SLfloat     locAccuracyM        () const {return _locAccuracyM;}
+            SLfloat     locMaxDistanceM     () const {return _locMaxDistanceM;}
+            SLVec3d     defaultENU          () const {return _defaultENU;}
             SLVec3d     originLLA           () const {return _originLLA;}
             SLVec3d     originENU           () const {return _originENU;}
             SLVec3d     originECEF          () const {return _originECEF;}
@@ -77,6 +83,9 @@ class SLDeviceLocation
             SLVec3d     _locECEF;           //!< Cartesian location in ECEF
             SLVec3d     _locENU;            //!< Cartesian location in ENU frame
             SLfloat     _locAccuracyM;      //!< Horizontal accuracy radius in m with 68% probability
+            SLfloat     _locMaxDistanceM;   //!< Max. allowed distance from origin. If higher it is ignored.
+            SLVec3d     _defaultLLA;        //!< Default location of scene in LLA.
+            SLVec3d     _defaultENU;        //!< Default location in ENU frame used if real location is too far away from origin
             SLVec3d     _originLLA;         //!< Global origin location of scene in LLA
             SLVec3d     _originECEF;        //!< Global origin location of scene in ECEF (cartesian)
             SLVec3d     _originENU;         //!< Origin location in ENU frame

@@ -441,6 +441,7 @@ void SLDemoGui::buildDemoGui(SLScene* s, SLSceneView* sv)
         sprintf(m+strlen(m), "Altitude (m)        : %11.6f\n",s->devLoc().locLLA().z);
         sprintf(m+strlen(m), "Accuracy Radius (m) : %6.1f\n", s->devLoc().locAccuracyM());
         sprintf(m+strlen(m), "Dist. to Origin (m) : %6.1f\n" ,offsetToOrigin.length());
+        sprintf(m+strlen(m), "Max. Dist. (m)      : %6.1f\n" ,s->devLoc().locMaxDistanceM());
         sprintf(m+strlen(m), "Origin improve time : %6.1f sec.\n",s->devLoc().improveTime());
 
         // Switch to fixed font

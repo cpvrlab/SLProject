@@ -225,6 +225,7 @@ file(GLOB_RECURSE TEXTURES      ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/images/t
 file(GLOB_RECURSE FONTS         ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/images/fonts/*.png
                                 ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/images/fonts/*.ttf)
 
+# If you add new models you must delete ${CMAKE_CURRENT_SOURCE_DIR}/src/main/assets
 file(GLOB_RECURSE MODELS        ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/models/*)
 
 file(GLOB_RECURSE SHADERS       ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/shaders/*.vert
@@ -243,6 +244,8 @@ file(MAKE_DIRECTORY             ${APK_ASSETS}/fonts
                                 ${APK_ASSETS}/shaders
                                 ${APK_ASSETS}/calibrations
                                 ${APK_ASSETS}/config)
+
+message("${MODELS}: ********************************************************************************" ${MODELS})
 
 file(COPY ${FONTS}          DESTINATION ${APK_ASSETS}/fonts)
 file(COPY ${TEXTURES}       DESTINATION ${APK_ASSETS}/textures)
