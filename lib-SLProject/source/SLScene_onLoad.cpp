@@ -2590,12 +2590,36 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
 
         SLAssimpImporter importer;
         #if defined(SL_OS_IOS) || defined(SL_OS_ANDROID)
-        //SLNode* tower = importer.load("christoffelturm.obj");
-        SLNode* tower = importer.load("Bern-Bahnhofsplatz.fbx");
+        SLNode* bern = importer.load("Bern-Bahnhofsplatz.fbx");
         #else
-        SLNode* tower = importer.load("FBX/Christoffel/Bern-Bahnhofsplatz.fbx");
+        SLNode* bern = importer.load("FBX/Christoffel/Bern-Bahnhofsplatz.fbx");
         #endif
 
+        // Make city transparent
+        for (auto mesh : bern->findChild<SLNode>("Umgebung-Daecher")->meshes()) mesh->mat->kt(0.5f);
+        for (auto mesh : bern->findChild<SLNode>("Umgebung-Fassaden")->meshes()) mesh->mat->kt(0.5f);
+
+        // Hide some objects
+        //bern->findChild<SLNode>("Umgebung-Daecher")->drawBits()->set(SL_DB_HIDDEN, true);
+        //bern->findChild<SLNode>("Umgebung-Fassaden")->drawBits()->set(SL_DB_HIDDEN, true);
+        bern->findChild<SLNode>("Christoffel-Tor")->drawBits()->set(SL_DB_HIDDEN, true);
+        bern->findChild<SLNode>("Baldachin-Glas")->drawBits()->set(SL_DB_HIDDEN, true);
+        bern->findChild<SLNode>("Baldachin-Stahl")->drawBits()->set(SL_DB_HIDDEN, true);
+        bern->findChild<SLNode>("Mauer-Wand")->drawBits()->set(SL_DB_HIDDEN, true);
+        bern->findChild<SLNode>("Mauer-Turm")->drawBits()->set(SL_DB_HIDDEN, true);
+        bern->findChild<SLNode>("Mauer-Dach")->drawBits()->set(SL_DB_HIDDEN, true);
+        bern->findChild<SLNode>("Mauer-Weg")->drawBits()->set(SL_DB_HIDDEN, true);
+        bern->findChild<SLNode>("Boden")->drawBits()->set(SL_DB_HIDDEN, true);
+
+        // Set ambient on all child nodes and reinit meshes to reset the correct hasAlpha flag
+        for (auto node : bern->children())
+        {   for (auto mesh : node->meshes())
+            {   mesh->mat->ambient(SLCol4f(0.3f, 0.3f, 0.3f));
+                mesh->init(node);
+            }
+        }
+
+        // Add axis object a world origin (Loeb Ecke)
         SLNode *axis = new SLNode(new SLCoordAxis(), "Axis Node");
         axis->setDrawBitsRec(SL_DB_WIREMESH, false);
         axis->scale(10);
@@ -2604,7 +2628,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         SLNode* scene = new SLNode("Scene");
         scene->addChild(light);
         scene->addChild(axis);
-        if (tower) scene->addChild(tower);
+        if (bern) scene->addChild(bern);
         scene->addChild(cam1);
 
         //initialize sensor stuff
@@ -2627,10 +2651,8 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         SLVec3f pos_f ((SLfloat)pos_d.x, (SLfloat)pos_d.y, (SLfloat)pos_d.z);
         cam1->translation(pos_f);
         cam1->lookAt(SLVec3f::ZERO);
-        cam1->camAnim(SLCamAnim::CA_walkingYUp);
+        cam1->camAnim(SLCamAnim::CA_turntableYUp);
         #endif
-
-
 
         sv->waitEvents(false); // for constant video feed
         sv->camera(cam1);
