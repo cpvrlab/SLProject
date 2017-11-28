@@ -101,6 +101,25 @@ SLbool          SLDemoGui::showInfosScene      = false;
 SLbool          SLDemoGui::showInfosSensors    = false;
 SLbool          SLDemoGui::showSceneGraph      = false;
 SLbool          SLDemoGui::showProperties      = false;
+SLbool          SLDemoGui::showChristoffel     = false;
+
+// Scene node for Christoffel objects
+SLNode* bern        = nullptr;
+SLNode* umgeb_dach  = nullptr;
+SLNode* umgeb_fass  = nullptr;
+SLNode* boden       = nullptr;
+SLNode* balda_stahl = nullptr;
+SLNode* balda_glas  = nullptr;
+SLNode* mauer_wand  = nullptr;
+SLNode* mauer_dach  = nullptr;
+SLNode* mauer_turm  = nullptr;
+SLNode* mauer_weg   = nullptr;
+SLNode* grab_mauern = nullptr;
+SLNode* grab_brueck = nullptr;
+SLNode* grab_grass  = nullptr;
+SLNode* grab_t_dach = nullptr;
+SLNode* grab_t_fahn = nullptr;
+SLNode* grab_t_stein= nullptr;
 
 SLstring SLDemoGui::infoAbout =
 "Welcome to the SLProject demo app. It is developed at the \
@@ -460,6 +479,87 @@ void SLDemoGui::buildDemoGui(SLScene* s, SLSceneView* sv)
     if (showProperties)
     {
         buildProperties(s);
+    }
+
+    if (showChristoffel && SL::currentSceneID==C_sceneVideoChristoffel)
+    {
+        ImGui::Begin("Christoffel", &showChristoffel, ImVec2(300,0));
+
+        // Get scene nodes once
+        if (!bern)
+        {   bern        = s->root3D()->findChild<SLNode>("RootNode");
+            boden       = bern->findChild<SLNode>("Boden", false);
+            balda_stahl = bern->findChild<SLNode>("Baldachin-Stahl", false);
+            balda_glas  = bern->findChild<SLNode>("Baldachin-Glas", false);
+            umgeb_dach  = bern->findChild<SLNode>("Umgebung-Daecher", false);
+            umgeb_fass  = bern->findChild<SLNode>("Umgebung-Fassaden", false);
+            mauer_wand  = bern->findChild<SLNode>("Mauer-Wand", false);
+            mauer_dach  = bern->findChild<SLNode>("Mauer-Dach", false);
+            mauer_turm  = bern->findChild<SLNode>("Mauer-Turm", false);
+            mauer_weg   = bern->findChild<SLNode>("Mauer-Weg", false);
+            grab_mauern = bern->findChild<SLNode>("Graben-Mauern", false);
+            grab_brueck = bern->findChild<SLNode>("Graben-Bruecken", false);
+            grab_grass  = bern->findChild<SLNode>("Graben-Grass", false);
+            grab_t_dach = bern->findChild<SLNode>("Graben-Turm-Dach", false);
+            grab_t_fahn = bern->findChild<SLNode>("Graben-Turm-Fahne", false);
+            grab_t_stein= bern->findChild<SLNode>("Graben-Turm-Stein", false);
+        }
+
+        SLbool umgebung = !umgeb_fass->drawBits()->get(SL_DB_HIDDEN);
+        if (ImGui::Checkbox("Umgebung", &umgebung))
+        {   umgeb_fass->drawBits()->set(SL_DB_HIDDEN, !umgebung);
+            umgeb_dach->drawBits()->set(SL_DB_HIDDEN, !umgebung);
+        }
+
+        SLbool bodenBool = !boden->drawBits()->get(SL_DB_HIDDEN);
+        if (ImGui::Checkbox("Boden", &bodenBool))
+        {   boden->drawBits()->set(SL_DB_HIDDEN, !bodenBool);
+        }
+
+        SLbool baldachin = !balda_stahl->drawBits()->get(SL_DB_HIDDEN);
+        if (ImGui::Checkbox("Baldachin", &baldachin))
+        {   balda_stahl->drawBits()->set(SL_DB_HIDDEN, !baldachin);
+            balda_glas->drawBits()->set(SL_DB_HIDDEN, !baldachin);
+        }
+
+        SLbool mauer = !mauer_wand->drawBits()->get(SL_DB_HIDDEN);
+        if (ImGui::Checkbox("Mauer", &mauer))
+        {   mauer_wand->drawBits()->set(SL_DB_HIDDEN, !mauer);
+            mauer_dach->drawBits()->set(SL_DB_HIDDEN, !mauer);
+            mauer_turm->drawBits()->set(SL_DB_HIDDEN, !mauer);
+            mauer_weg->drawBits()->set(SL_DB_HIDDEN, !mauer);
+        }
+
+        SLbool graben = !grab_mauern->drawBits()->get(SL_DB_HIDDEN);
+        if (ImGui::Checkbox("Graben", &graben))
+        {   grab_mauern->drawBits()->set(SL_DB_HIDDEN, !graben);
+            grab_brueck->drawBits()->set(SL_DB_HIDDEN, !graben);
+            grab_grass->drawBits()->set(SL_DB_HIDDEN, !graben);
+            grab_t_dach->drawBits()->set(SL_DB_HIDDEN, !graben);
+            grab_t_fahn->drawBits()->set(SL_DB_HIDDEN, !graben);
+            grab_t_stein->drawBits()->set(SL_DB_HIDDEN, !graben);
+        }
+
+        ImGui::End();
+    } else
+    {
+        bern        = nullptr;
+        boden       = nullptr;
+        balda_stahl = nullptr;
+        balda_glas  = nullptr;
+        umgeb_dach  = nullptr;
+        umgeb_fass  = nullptr;
+        mauer_wand  = nullptr;
+        mauer_dach  = nullptr;
+        mauer_turm  = nullptr;
+        mauer_weg   = nullptr;
+        grab_mauern = nullptr;
+        grab_brueck = nullptr;
+        grab_grass  = nullptr;
+        grab_t_dach = nullptr;
+        grab_t_fahn = nullptr;
+        grab_t_stein= nullptr;
+
     }
 }
 //-----------------------------------------------------------------------------
@@ -1112,6 +1212,10 @@ void SLDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
             ImGui::Separator();
             ImGui::MenuItem("Infos on Sensors",    0, &showInfosSensors);
             ImGui::MenuItem("Infos on Frameworks", 0, &showInfosFrameworks);
+            if (SL::currentSceneID==C_sceneVideoChristoffel)
+            {   ImGui::Separator();
+                ImGui::MenuItem("Infos on Christoffel",0, &showChristoffel);
+            }
             ImGui::Separator();
             ImGui::MenuItem("Help on Interaction", 0, &showHelp);
             ImGui::MenuItem("Help on Calibration", 0, &showHelpCalibration);
@@ -1634,6 +1738,7 @@ void SLDemoGui::loadConfig(SLint dotsPerInch)
     fs["showInfosSensors"]      >> b; SLDemoGui::showInfosSensors = b;
     fs["showSceneGraph"]        >> b; SLDemoGui::showSceneGraph = b;
     fs["showProperties"]        >> b; SLDemoGui::showProperties = b;
+    fs["showChristoffel"]       >> b; SLDemoGui::showChristoffel = b;
     fs["showDetection"]         >> b; SLScene::current->showDetection(b);
 
     fs.release();
@@ -1668,6 +1773,7 @@ void SLDemoGui::saveConfig()
     fs << "showInfosSensors"        << SLDemoGui::showInfosSensors;
     fs << "showSceneGraph"          << SLDemoGui::showSceneGraph;
     fs << "showProperties"          << SLDemoGui::showProperties;
+    fs << "showChristoffel"         << SLDemoGui::showChristoffel;
     fs << "showDetection"           << SLScene::current->showDetection();
 
     fs.release();

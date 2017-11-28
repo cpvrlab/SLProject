@@ -2599,9 +2599,9 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         for (auto mesh : bern->findChild<SLNode>("Umgebung-Daecher")->meshes()) mesh->mat->kt(0.5f);
         for (auto mesh : bern->findChild<SLNode>("Umgebung-Fassaden")->meshes()) mesh->mat->kt(0.5f);
 
-        // Hide some objects
-        //bern->findChild<SLNode>("Umgebung-Daecher")->drawBits()->set(SL_DB_HIDDEN, true);
-        //bern->findChild<SLNode>("Umgebung-Fassaden")->drawBits()->set(SL_DB_HIDDEN, true);
+        /* Hide some objects
+        bern->findChild<SLNode>("Umgebung-Daecher")->drawBits()->set(SL_DB_HIDDEN, true);
+        bern->findChild<SLNode>("Umgebung-Fassaden")->drawBits()->set(SL_DB_HIDDEN, true);
         bern->findChild<SLNode>("Christoffel-Tor")->drawBits()->set(SL_DB_HIDDEN, true);
         bern->findChild<SLNode>("Baldachin-Glas")->drawBits()->set(SL_DB_HIDDEN, true);
         bern->findChild<SLNode>("Baldachin-Stahl")->drawBits()->set(SL_DB_HIDDEN, true);
@@ -2610,6 +2610,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         bern->findChild<SLNode>("Mauer-Dach")->drawBits()->set(SL_DB_HIDDEN, true);
         bern->findChild<SLNode>("Mauer-Weg")->drawBits()->set(SL_DB_HIDDEN, true);
         bern->findChild<SLNode>("Boden")->drawBits()->set(SL_DB_HIDDEN, true);
+        */
 
         // Set ambient on all child nodes and reinit meshes to reset the correct hasAlpha flag
         for (auto node : bern->children())

@@ -729,7 +729,7 @@ SLMesh* SLAssimpImporter::loadMesh(aiMesh *mesh)
     if ((numTriangles && (numLines || numPoints)) ||
         (numLines && (numTriangles || numPoints)) ||
         (numPoints && (numLines || numTriangles)))
-    {   SL_LOG("SLAssimpImporter::loadMesh:  Mesh contains multiple primitive types: %s\n", mesh->mName.C_Str());
+    {   SL_LOG("SLAssimpImporter::loadMesh:  Mesh contains multiple primitive types: %s, Lines: %d, Points: %d\n", mesh->mName.C_Str(), numLines, numPoints);
         
         // Prioritize triangles over lines over points
         if (numTriangles && numLines) numLines = 0;

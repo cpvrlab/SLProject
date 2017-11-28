@@ -222,6 +222,12 @@ class SLUtils
             }
             return SLstring(formatted.get());
         }
+
+        //! contains returns true if container contains the search string
+        static SLbool contains(const SLstring container, const SLstring search)
+        {
+            return (container.find(search) != string::npos);
+        }
 };
 //-----------------------------------------------------------------------------
 #endif
