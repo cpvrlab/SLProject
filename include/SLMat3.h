@@ -651,8 +651,6 @@ void SLMat3<T>::print(const SLchar* str) const
 }
 //-----------------------------------------------------------------------------
 typedef SLMat3<SLfloat>  SLMat3f;
-#ifdef SL_HAS_DOUBLE
 typedef SLMat3<SLdouble> SLMat3d;
-#endif
 //-----------------------------------------------------------------------------
 #endif

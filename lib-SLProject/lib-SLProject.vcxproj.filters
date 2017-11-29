@@ -339,6 +339,12 @@
     <ClInclude Include="..\include\SLRnd3f.h">
       <Filter>Math</Filter>
     </ClInclude>
+    <ClInclude Include="..\include\SLDeviceLocation.h">
+      <Filter>SL</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\SLDeviceRotation.h">
+      <Filter>SL</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="source\SLAABBox.cpp">
@@ -562,6 +568,12 @@
     </ClCompile>
     <ClCompile Include="source\SLPoints.cpp">
       <Filter>Nodes\Meshes</Filter>
+    </ClCompile>
+    <ClCompile Include="source\SLDeviceLocation.cpp">
+      <Filter>SL</Filter>
+    </ClCompile>
+    <ClCompile Include="source\SLDeviceRotation.cpp">
+      <Filter>SL</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

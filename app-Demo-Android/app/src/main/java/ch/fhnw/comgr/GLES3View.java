@@ -18,10 +18,7 @@ import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
 
-import javax.microedition.khronos.egl.EGL10;
 import javax.microedition.khronos.egl.EGLConfig;
-import javax.microedition.khronos.egl.EGLContext;
-import javax.microedition.khronos.egl.EGLDisplay;
 import javax.microedition.khronos.opengles.GL10;
 
 public class GLES3View extends GLSurfaceView
@@ -88,6 +85,7 @@ public class GLES3View extends GLSurfaceView
             int videoType = GLES3Lib.getVideoType();
             int sizeIndex = GLES3Lib.getVideoSizeIndex();
             boolean usesRotation = GLES3Lib.usesRotation();
+            boolean usesLocation = GLES3Lib.usesLocation();
 
             if (videoType!=VT_NONE)
                  mainLoop.post(new Runnable() {@Override public void run() {GLES3Lib.activity.cameraStart(videoType, sizeIndex);}});
@@ -96,6 +94,10 @@ public class GLES3View extends GLSurfaceView
             if (usesRotation)
                  mainLoop.post(new Runnable() {@Override public void run() {GLES3Lib.activity.rotationSensorStart();}});
             else mainLoop.post(new Runnable() {@Override public void run() {GLES3Lib.activity.rotationSensorStop();}});
+
+            if(usesLocation)
+                 mainLoop.post(new Runnable() {@Override public void run() {GLES3Lib.activity.locationSensorStart();}});
+            else mainLoop.post(new Runnable() {@Override public void run() {GLES3Lib.activity.locationSensorStop();}});
 
             if (GLES3Lib.onUpdateAndPaint())
                 GLES3Lib.view.requestRender();

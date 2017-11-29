@@ -194,8 +194,9 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         _activeCalib->state() != CS_uncalibrated)
         _activeCalib->state(CS_uncalibrated);
 
-    // Deactivate in general the rotation sensor
-    _usesRotation = false;
+    // Deactivate in general the device sensors
+    _devRot.isUsed(false);
+    _devLoc.isUsed(false);
 
     if (SL::currentSceneID == C_sceneEmpty) //.....................................................
     {   
@@ -2219,43 +2220,6 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         _root3D = scene;
     }
     else
-    if (SL::currentSceneID == C_sceneVideoChristoffel) //..........................................
-    {
-        name("Christoffel Tower");
-        _info = "Augmented Reality Christoffel Tower";
-        
-        SLCamera* cam1 = new SLCamera("Camera 1");
-        cam1->translation(0,2,60);
-        cam1->lookAt(15,15,0);
-        cam1->clipNear(0.1f);
-        cam1->clipFar(500.0f);
-        cam1->background().texture(&_videoTexture);
-        cam1->setInitialState();
-        videoType(VT_MAIN);
-
-        SLLightSpot* light1 = new SLLightSpot(120,120,120, 1);
-        light1->ambient(SLCol4f(1,1,1));
-        light1->diffuse(SLCol4f(1,1,1));
-        light1->specular(SLCol4f(1,1,1));
-        light1->attenuation(1,0,0);
-
-        SLAssimpImporter importer;
-        #if defined(SL_OS_IOS) || defined(SL_OS_ANDROID)
-        SLNode* tower = importer.load("christoffelturm.obj");
-        #else
-        SLNode* tower = importer.load("Wavefront-OBJ/Christoffelturm/christoffelturm.obj");
-        #endif
-        tower->rotate(90, -1,0,0);
-
-        SLNode* scene = new SLNode("Scene");
-        scene->addChild(light1);
-        if (tower) scene->addChild(tower);
-        scene->addChild(cam1);
-
-        sv->waitEvents(false); // for constant video feed
-        sv->camera(cam1);
-        _root3D = scene;
-    }
     if (SL::currentSceneID == C_sceneVideoTexture) //..............................................
     {
         // Set scene name and info string
@@ -2537,7 +2501,163 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         sv->camera(cam1);
 
         _root3D = scene;
-        _usesRotation = true;
+        _devRot.isUsed(true);
+    }
+    else
+    if (SL::currentSceneID == C_sceneVideoSensorAR) //.............................................
+    {
+        // Set scene name and info string
+        name("Video Sensor Augmented Reality");
+        _info = "Minimal scene to test the devices IMU and GPS Sensors. See the sensor information. GPS needs a few sec. to improve the accuracy.";
+
+        SLCamera* cam1 = new SLCamera("Camera 1");
+        cam1->translation(0,0,60);
+        cam1->lookAt(0,0,0);
+        cam1->fov(_activeCalib->cameraFovDeg());
+        cam1->clipNear(0.1f);
+        cam1->clipFar(10000.0f);
+        cam1->background().texture(&_videoTexture);
+        cam1->setInitialState();
+
+        videoType(VT_MAIN);
+
+        SLLightSpot* light1 = new SLLightSpot(2,2,2, .1f);
+        light1->ambient(SLCol4f(1,1,1));
+        light1->diffuse(SLCol4f(1,1,1));
+        light1->specular(SLCol4f(1,1,1));
+        light1->attenuation(1,0,0);
+
+        SLNode *axis = new SLNode(new SLCoordAxis(), "Axis Node");
+        axis->setDrawBitsRec(SL_DB_WIREMESH, false);
+        axis->scale(2);
+        axis->rotate(-90, 1, 0, 0);
+
+        // Yellow center box
+        SLMaterial* yellow = new SLMaterial("mY", SLCol4f(1,1,0,0.5f));
+        SLNode *box = new SLNode(new SLBox(-.5f,-.5f,-.5f, .5f,.5f,.5f, "Box", yellow), "Box Node");
+
+        // Scene structure
+        SLNode* scene = new SLNode("Scene");
+        scene->addChild(light1);
+        scene->addChild(cam1);
+        scene->addChild(box);
+        scene->addChild(axis);
+
+        sv->camera(cam1);
+
+        _root3D = scene;
+
+        #if defined(SL_OS_MACIOS) || defined(SL_OS_ANDROID)
+        //initialize global reference position of this scene
+        //_devLoc.originLla(47.140624, 7.247405, 442.0);
+
+        //activate rotation and gps sensor
+        _devRot.isUsed(true);
+        _devRot.zeroYawAtStart(false);
+        _devLoc.isUsed(true);
+        _devLoc.useOriginAltitude(true);
+        _devLoc.hasOrigin(false);
+        cam1->camAnim(SLCamAnim::CA_deviceRotLocYUp);
+        #else
+        cam1->camAnim(SLCamAnim::CA_turntableYUp);
+        _devRot.zeroYawAtStart(true);
+        #endif
+
+        sv->waitEvents(false); // for constant video feed
+    }
+    else
+    if (SL::currentSceneID == C_sceneVideoChristoffel) //..........................................
+    {
+        name("Christoffel Tower");
+        _info = "Augmented Reality Christoffel Tower";
+
+        SLCamera* cam1 = new SLCamera("Camera 1");
+        cam1->translation(0,2,0);
+        cam1->lookAt(-10,2,0);
+        cam1->clipNear(0.1f);
+        cam1->clipFar(500.0f);
+        cam1->background().texture(&_videoTexture);
+        cam1->setInitialState();
+        videoType(VT_MAIN);
+
+        SLLightDirect* light = new SLLightDirect();
+        light->ambient(SLCol4f(1,1,1));
+        light->diffuse(SLCol4f(1,1,1));
+        light->specular(SLCol4f(1,1,1));
+        light->translation(10.0f, 10.0f, 10.0f);
+        light->lookAt(0, 0, 0);
+        light->attenuation(1,0,0);
+
+        SLAssimpImporter importer;
+        #if defined(SL_OS_IOS) || defined(SL_OS_ANDROID)
+        SLNode* bern = importer.load("Bern-Bahnhofsplatz.fbx");
+        #else
+        SLNode* bern = importer.load("FBX/Christoffel/Bern-Bahnhofsplatz.fbx");
+        #endif
+
+        // Make city transparent
+        for (auto mesh : bern->findChild<SLNode>("Umgebung-Daecher")->meshes()) mesh->mat->kt(0.5f);
+        for (auto mesh : bern->findChild<SLNode>("Umgebung-Fassaden")->meshes()) mesh->mat->kt(0.5f);
+
+        /* Hide some objects
+        bern->findChild<SLNode>("Umgebung-Daecher")->drawBits()->set(SL_DB_HIDDEN, true);
+        bern->findChild<SLNode>("Umgebung-Fassaden")->drawBits()->set(SL_DB_HIDDEN, true);
+        bern->findChild<SLNode>("Christoffel-Tor")->drawBits()->set(SL_DB_HIDDEN, true);
+        bern->findChild<SLNode>("Baldachin-Glas")->drawBits()->set(SL_DB_HIDDEN, true);
+        bern->findChild<SLNode>("Baldachin-Stahl")->drawBits()->set(SL_DB_HIDDEN, true);
+        bern->findChild<SLNode>("Mauer-Wand")->drawBits()->set(SL_DB_HIDDEN, true);
+        bern->findChild<SLNode>("Mauer-Turm")->drawBits()->set(SL_DB_HIDDEN, true);
+        bern->findChild<SLNode>("Mauer-Dach")->drawBits()->set(SL_DB_HIDDEN, true);
+        bern->findChild<SLNode>("Mauer-Weg")->drawBits()->set(SL_DB_HIDDEN, true);
+        bern->findChild<SLNode>("Boden")->drawBits()->set(SL_DB_HIDDEN, true);
+        */
+
+        // Set ambient on all child nodes and reinit meshes to reset the correct hasAlpha flag
+        for (auto node : bern->children())
+        {   for (auto mesh : node->meshes())
+            {   mesh->mat->ambient(SLCol4f(0.3f, 0.3f, 0.3f));
+                mesh->init(node);
+            }
+        }
+
+        // Add axis object a world origin (Loeb Ecke)
+        SLNode *axis = new SLNode(new SLCoordAxis(), "Axis Node");
+        axis->setDrawBitsRec(SL_DB_WIREMESH, false);
+        axis->scale(10);
+        axis->rotate(-90, 1, 0, 0);
+
+        SLNode* scene = new SLNode("Scene");
+        scene->addChild(light);
+        scene->addChild(axis);
+        if (bern) scene->addChild(bern);
+        scene->addChild(cam1);
+
+        //initialize sensor stuff
+        _devLoc.originLLA(46.947629, 7.440754, 442.0);          // Loeb Ecken
+        _devLoc.defaultLLA(46.948551, 7.440093, 442.0 + 1.7);   // Bahnhof Ausgang in Augenhöhe
+        _devLoc.locMaxDistanceM(1000.0f);               // Max. Distanz. zum Loeb Ecken
+        _devLoc.improveOrigin(false);                   // Keine autom. Verbesserung vom Origin
+        _devLoc.useOriginAltitude(true);
+        _devLoc.hasOrigin(true);
+        _devRot.zeroYawAtStart(false);
+
+        #if defined(SL_OS_IOS) || defined(SL_OS_ANDROID)
+        _devLoc.isUsed(true);
+        _devRot.isUsed(true);
+        cam1->camAnim(SLCamAnim::CA_deviceRotLocYUp);
+        #else
+        _devLoc.isUsed(false);
+        _devRot.isUsed(false);
+        SLVec3d pos_d = _devLoc.defaultENU() - _devLoc.originENU();;
+        SLVec3f pos_f ((SLfloat)pos_d.x, (SLfloat)pos_d.y, (SLfloat)pos_d.z);
+        cam1->translation(pos_f);
+        cam1->lookAt(SLVec3f::ZERO);
+        cam1->camAnim(SLCamAnim::CA_turntableYUp);
+        #endif
+
+        sv->waitEvents(false); // for constant video feed
+        sv->camera(cam1);
+        _root3D = scene;
     }
     else
     if (SL::currentSceneID == C_sceneRTMuttenzerBox) //............................................

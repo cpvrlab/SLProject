@@ -71,7 +71,6 @@ SLScene::SLScene(SLstring name) : SLObject(name)
     _selectedNode   = nullptr;
     _activeCalib    = nullptr;
     _stopAnimations = false;
-    _usesRotation   = false;
     _fps            = 0;
     _elapsedTimeMS  = 0;
     _lastUpdateTimeMS = 0;
@@ -207,14 +206,6 @@ void SLScene::init()
     _optFlowTimesMS.init();
     _poseTimesMS.init();
     _captureTimesMS.init(200);
-
-//todo    _deviceRotation  = SLQuat4f::IDENTITY;
-    _deviceRotation.identity();
-    _devicePitchRAD  = 0.0f;
-    _deviceYawRAD    = 0.0f;
-    _deviceRollRAD   = 0.0f;
-    _zeroYawAtStart  = true;
-    _startYawRAD     = 0.0f;
 }
 //-----------------------------------------------------------------------------
 /*! The scene uninitializing clears the scenegraph (_root3D) and all global
@@ -521,52 +512,6 @@ void SLScene::onAfterLoad()
     #endif
 }
 //-----------------------------------------------------------------------------
-/*!
-SLScene::onRotationPYR: Event handler for rotation change of a mobile device
-with Euler angles for pitch, yaw and roll. This function will only be called
-in an Android or iOS project. See onRotationPYR in GLES3Activity.java in the
-Android project.
-This handler is only called if the flag SLScene::_usesRotation is true. If so
-the mobile device turns on it's IMU sensor system. The device rotation is so
-far only used in SLCamera::setViev if the cameras animation is on CA_deciveRotYUp.
-If _zeroYawAfterStart is true the start yaw value is subtracted. This means
-that the magnetic north will be ignored.
-The angles should be:\n
-Pitch from -halfpi (down)  to zero (horizontal) to +halfpi (up)\n
-Yaw   from -pi     (south) to zero (north)      to +pi     (south)\n
-Roll  from -halfpi (ccw)   to zero (horizontal) to +halfpi (clockwise)\n
-*/
-void SLScene::onRotationPYR(SLfloat pitchRAD,
-                            SLfloat yawRAD,
-                            SLfloat rollRAD)
-{
-    _devicePitchRAD = pitchRAD;
-    _deviceYawRAD   = yawRAD;
-    _deviceRollRAD  = rollRAD;
-}
-//-----------------------------------------------------------------------------
-/*! SLScene::onRotationQUAT: Event handler for rotation change of a mobile
-device with rotation quaternion.
-*/
-void SLScene::onRotationQUAT(SLfloat quatX,
-                             SLfloat quatY,
-                             SLfloat quatZ,
-                             SLfloat quatW)
-{
-    SLQuat4f quat(quatX, quatY, quatZ, quatW);
-    _deviceRotation = quat.toMat3();
-
-    if (_zeroYawAtStart)
-    {
-        if (_deviceRotStarted  )
-        {
-            //store initial rotation in yaw for referencing of initial alignment
-            _startYawRAD = _deviceYawRAD;
-            _deviceRotStarted = false;
-        }
-    }
-}
-//-----------------------------------------------------------------------------
 //! Sets the _selectedNode to the passed Node and flags it as selected
 void SLScene::selectNode(SLNode* nodeToSelect)
 {
@@ -738,13 +683,4 @@ SLCamera* SLScene::nextCameraInScene(SLSceneView* activeSV)
         return cams[0];
 
 }
-//-----------------------------------------------------------------------------
-//! Setter that turns on the device rotation sensor
-void SLScene::usesRotation (SLbool use)
-{
-    if (!_usesRotation && use==true)
-        _deviceRotStarted = true;
-
-    _usesRotation = use;
-}
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
