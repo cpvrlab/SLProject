@@ -533,6 +533,8 @@ float GetSeconds()
     if ([self.motionManager isDeviceMotionAvailable] == YES)
     {
         self.motionManager.deviceMotionUpdateInterval = intervalTimeSEC;
+        
+        // See also: https://developer.apple.com/documentation/coremotion/getting_processed_device_motion_data/understanding_reference_frames_and_device_attitude?language=objc
         [self.motionManager startDeviceMotionUpdatesUsingReferenceFrame:CMAttitudeReferenceFrameXMagneticNorthZVertical
                                                                 toQueue:[NSOperationQueue currentQueue]
                                                             withHandler: ^(CMDeviceMotion *motion, NSError *error){
