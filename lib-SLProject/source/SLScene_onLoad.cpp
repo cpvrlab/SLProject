@@ -252,6 +252,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
     }
     else if (SL::currentSceneID == C_sceneCamPoseGraphAndMap)
     {
+    /*
         // Set scene name and info string
         name("Pose Graph and Map Example");
         _info = "Example for loading an existing pose graph with map points.";
@@ -293,6 +294,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         sv->waitEvents(false);
 
         _root3D = scene;
+        */
     }
     else
     if (SL::currentSceneID == C_sceneSensorTest) //...................................................
