@@ -62,7 +62,7 @@ void SLDeviceRotation::onRotationQUAT(SLfloat quatX,
 {
     SLQuat4f quat(quatX, quatY, quatZ, quatW);
     _rotation = quat.toMat3();
-    quat.toEulerAnglesYPR(_pitchRAD, _yawRAD, _rollRAD);
+    quat.toEulerAnglesXYZ(_rollRAD, _pitchRAD, _yawRAD);
     //_rotation.print("Rotation:\n");
 
     /*   Up   North
