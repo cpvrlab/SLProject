@@ -45,9 +45,11 @@ void SLDeviceRotation::onRotationPYR(SLfloat pitchRAD,
                                      SLfloat yawRAD,
                                      SLfloat rollRAD)
 {
+    /*
     _pitchRAD = pitchRAD;
     _yawRAD   = yawRAD;
     _rollRAD  = rollRAD;
+    */
 }
 //-----------------------------------------------------------------------------
 /*! onRotationQUAT: Event handler for rotation change of a mobile device with
@@ -60,7 +62,7 @@ void SLDeviceRotation::onRotationQUAT(SLfloat quatX,
 {
     SLQuat4f quat(quatX, quatY, quatZ, quatW);
     _rotation = quat.toMat3();
-    
+    quat.toEulerAnglesYPR(_pitchRAD, _yawRAD, _rollRAD);
     //_rotation.print("Rotation:\n");
 
     /*   Up   North
