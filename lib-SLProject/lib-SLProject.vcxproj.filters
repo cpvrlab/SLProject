@@ -360,6 +360,15 @@
     <ClInclude Include="..\include\SLDeviceRotation.h">
       <Filter>SL</Filter>
     </ClInclude>
+    <ClInclude Include="..\include\SLCVTrackedRaulMur.h">
+      <Filter>CV</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\SLCVFrame.h">
+      <Filter>CV</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\ORBextractor.h">
+      <Filter>CV</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="source\SLAABBox.cpp">
@@ -604,6 +613,15 @@
     </ClCompile>
     <ClCompile Include="source\SLDeviceRotation.cpp">
       <Filter>SL</Filter>
+    </ClCompile>
+    <ClCompile Include="source\CV\SLCVTrackedRaulMur.cpp">
+      <Filter>CV</Filter>
+    </ClCompile>
+    <ClCompile Include="source\CV\SLCVFrame.cpp">
+      <Filter>CV</Filter>
+    </ClCompile>
+    <ClCompile Include="source\CV\ORBextractor.cpp">
+      <Filter>CV</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

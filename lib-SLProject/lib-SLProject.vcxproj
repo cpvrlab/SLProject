@@ -269,6 +269,7 @@
     </Lib>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="..\include\ORBextractor.h" />
     <ClInclude Include="..\include\SL.h" />
     <ClInclude Include="..\include\SLAccelStruct.h" />
     <ClInclude Include="..\include\SLAnimation.h" />
@@ -283,6 +284,7 @@
     <ClInclude Include="..\include\SLCompactGrid.h" />
     <ClInclude Include="..\include\SLCV.h" />
     <ClInclude Include="..\include\SLCVFeatureManager.h" />
+    <ClInclude Include="..\include\SLCVFrame.h" />
     <ClInclude Include="..\include\SLCVImage.h" />
     <ClInclude Include="..\include\SLCVKeyFrame.h" />
     <ClInclude Include="..\include\SLCVKeyFrameDB.h" />
@@ -297,6 +299,7 @@
     <ClInclude Include="..\include\SLCVTrackedChessboard.h" />
     <ClInclude Include="..\include\SLCVTracked.h" />
     <ClInclude Include="..\include\SLCVTrackedFeatures.h" />
+    <ClInclude Include="..\include\SLCVTrackedRaulMur.h" />
     <ClInclude Include="..\include\SLDemoGui.h" />
     <ClInclude Include="..\include\SLDeviceLocation.h" />
     <ClInclude Include="..\include\SLDeviceRotation.h" />
@@ -377,7 +380,12 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\lib-SLExternal\nvwa\debug_new.cpp" />
+    <ClCompile Include="source\CV\ORBextractor.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
+    </ClCompile>
     <ClCompile Include="source\CV\SLCVFeatureManager.cpp" />
+    <ClCompile Include="source\CV\SLCVFrame.cpp" />
     <ClCompile Include="source\CV\SLCVImage.cpp" />
     <ClCompile Include="source\CV\SLCVKeyFrame.cpp" />
     <ClCompile Include="source\CV\SLCVKeyFrameDB.cpp" />
@@ -392,6 +400,7 @@
     <ClCompile Include="source\CV\SLCVCapture.cpp" />
     <ClCompile Include="source\CV\SLCVTrackedChessboard.cpp" />
     <ClCompile Include="source\CV\SLCVTrackedFeatures.cpp" />
+    <ClCompile Include="source\CV\SLCVTrackedRaulMur.cpp" />
     <ClCompile Include="source\GL\SLGLImGui.cpp" />
     <ClCompile Include="source\GL\SLGLOculus.cpp" />
     <ClCompile Include="source\GL\SLGLOculusFB.cpp" />

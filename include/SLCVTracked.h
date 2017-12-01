@@ -43,8 +43,8 @@ class SLCVTracked
 {
     public:
                      SLCVTracked        (SLNode* node = nullptr):
-                                         _node(node), _isVisible(false){;}
-        virtual     ~SLCVTracked        (){;}
+                                         _node(node), _isVisible(false) {}
+        virtual     ~SLCVTracked        () {}
 
         virtual SLbool track            (SLCVMat imageGray,
                                          SLCVMat imageRgb,

@@ -35,6 +35,7 @@
 #include <SLCVTrackedAruco.h>
 #include <SLCVTrackedChessboard.h>
 #include <SLCVTrackedFeatures.h>
+#include <SLCVTrackedRaulMur.h>
 #include <SLTransferFunction.h>
 
 #include <SLCVMapPoint.h>
@@ -257,6 +258,15 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         name("Pose Graph and Map Example");
         _info = "Example for loading an existing pose graph with map points.";
 
+        SLCamera* cam1 = new SLCamera("Camera 1");
+        cam1->translation(0, 2, 60);
+        cam1->lookAt(15, 15, 0);
+        cam1->clipNear(0.1f);
+        cam1->clipFar(1000.0f); // Increase to infinity?
+        cam1->setInitialState();
+        cam1->background().texture(&_videoTexture);
+        videoType(VT_MAIN);
+
         SLCVMap* map = new SLCVMap("Map");
         SLCVKeyFrameDB* kfDB = new SLCVKeyFrameDB();
 
@@ -280,21 +290,24 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         //the map is rotated w.r.t world because ORB-SLAM uses x-axis right, 
         //y-axis down and z-forward
         mapNode->rotate(180, 1, 0, 0);
-        //mapNode->translate(1, 0, 0);
-
         scene->addChild(mapNode);
 
+        //add point cloud
         mapNode->addChild(pc1);
         //add keyFrames
         for (auto& kf : kfDB->keyFrames()) {
-
             SLCamera* cam = kf.getSceneObject();
-            //cam->rotate(180, 1, 0, 0, TS_object);
+            cam->clipNear(0.1);
+            cam->clipFar(0.11);
             mapNode->addChild(cam);
         }
+        scene->addChild(cam1);
+
+        _trackers.push_back( new SLCVTrackedRaulMur(cam1));
 
         // Save energy
-        sv->waitEvents(false);
+        sv->waitEvents(false); //for constant video feed
+        sv->camera(cam1);
 
         _root3D = scene;
     }
