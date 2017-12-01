@@ -173,28 +173,12 @@ public class GLES3Activity extends Activity implements View.OnTouchListener, Sen
             if (System.currentTimeMillis() - _rotationSensorStartTime < 500 )
                 return;
 
-            // Get 3x3 rotation matrix from XYZ-rotation vector (see docs)
-            float R[] = new float[9];
-            SensorManager.getRotationMatrixFromVector(R, event.values);
-
-            Log.d("Android: " , Arrays.toString(R));
-            // Get yaw, pitch & roll rotation angles in radians from rotation matrix
-            float[] YPR = new float[3];
-            SensorManager.getOrientation(R, YPR);
-
-            // Send the euler angles as pitch, yaw & roll to SLScene::onRotationPYR
-            final float y = YPR[0];
-            final float p = YPR[1];
-            final float r = YPR[2];
-            myView.queueEvent(new Runnable() {public void run() {GLES3Lib.onRotationPYR(p, y, r);}});
-
             // Get the rotation quaternion from the XYZ-rotation vector (see docs)
             final float Q[] = new float[4];
             SensorManager.getQuaternionFromVector(Q, event.values);
 
             // Send the quaternion as x,y,z & w to SLScene::onRotationQUAT
             // See the following routines how the rotation is used:
-            // SLScene::onRotationPYR just sets the private members for the euler angles
             // SLScene::onRotationQUAT calculates the offset if _zeroYawAtStart is true
             // SLCamera::setView how the device rotation is processed for the camera's view
             myView.queueEvent(new Runnable() {public void run() {GLES3Lib.onRotationQUAT(Q[1],Q[2],Q[3],Q[0]);}});

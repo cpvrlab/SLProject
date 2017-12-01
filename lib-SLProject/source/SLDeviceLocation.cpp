@@ -39,6 +39,7 @@ void SLDeviceLocation::init()
     _useOriginAltitude = true;
     _improveOrigin = true;
     _improveTimeSEC = 8.0f;
+    _sunLightNode = nullptr;
 }
 //-----------------------------------------------------------------------------
 // Setter for hasOrigin flag.
@@ -155,23 +156,29 @@ void SLDeviceLocation::isUsed (SLbool use)
 }
 //-----------------------------------------------------------------------------
 //! Calculates the solar angles at origin at local time
+/*! Calculates the zenit and azimut angle in deg. of the sun at the origin at
+the local time using the Solar Position Algorithm from:
+http://rredc.nrel.gov/solar/codesandalgorithms/spa that is part of the
+lib-SLExternal.
+*/
 SLbool SLDeviceLocation::calculateSolarAngles()
 {
     // leave default angles if origin has not been set
-    //if (!_hasOrigin) return;
+    if (!_hasOrigin) return false;
 
     std::time_t t = std::time(nullptr);
     tm ut; memcpy(&ut, std::gmtime(&t), sizeof(tm));
     tm lt; memcpy(&lt, std::localtime(&t), sizeof(tm));
 
-    cout << '\n';
-    cout << "Universal time  : " << put_time(&ut, "%c %Z") << '\n';
-    cout << "Local time      : " << put_time(&lt, "%c %Z") << '\n';
-    cout << "Timezone        : " << lt.tm_hour - ut.tm_hour << '\n';
+    printf("\n");
+    printf("Universal time  : %d.%d.%d %d:%d:%d\n", ut.tm_mday, ut.tm_mon, ut.tm_year,
+                                                    ut.tm_hour, ut.tm_min, ut.tm_sec);
+    printf("Local time      : %d.%d.%d %d:%d:%d\n", lt.tm_mday, lt.tm_mon, lt.tm_year,
+                                                    lt.tm_hour, lt.tm_min, lt.tm_sec);
+    printf("Timezone        : %d\n", lt.tm_hour - ut.tm_hour);
 
     spa_data spa;  //declare the SPA structure
-    int result;
-    float min, sec;
+    SLint result;
 
     //enter required input values into SPA structure
     spa.year            = lt.tm_year;
@@ -205,6 +212,7 @@ SLbool SLDeviceLocation::calculateSolarAngles()
         printf("Zenith          : %.6f degrees\n", _originSolarZenit);
         printf("Azimuth         : %.6f degrees\n", _originSolarAzimut);
 
+        SLfloat min, sec;
         min = 60.0*(spa.sunrise - (int)(spa.sunrise));
         sec = 60.0*(min - (int)min);
         printf("Sunrise         : %02d:%02d:%02d Local Time\n", (int)(spa.sunrise), (int)min, (int)sec);
@@ -213,9 +221,14 @@ SLbool SLDeviceLocation::calculateSolarAngles()
         sec = 60.0*(min - (int)min);
         printf("Sunset          : %02d:%02d:%02d Local Time\n", (int)(spa.sunset), (int)min, (int)sec);
         cout << '\n';
-
     }
     else printf("SPA Error Code: %d\n", result);
+
+    if (_sunLightNode)
+    {
+        _sunLightNode->rotation(_originSolarAzimut, SLVec3f::AXISY);
+        _sunLightNode->rotate(_originSolarZenit, SLVec3f::AXISX);
+    }
 
     return (result == 0);
 }

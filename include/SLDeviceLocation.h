@@ -13,6 +13,7 @@
 #define SLDEVICELOCATION_H
 
 #include <stdafx.h>
+#include <SLNode.h>
 
 //-----------------------------------------------------------------------------
 //! Encapsulation of a mobile device location set by the device's GPS sensor
@@ -102,6 +103,7 @@ class SLDeviceLocation
             SLfloat     _improveTimeSEC;    //!< Max. time in seconds for the origin improvement.
             SLTimer     _improveTimer;      //!< Timer to measure the improve time.
             SLMat3d     _wRecef;            //!< ECEF frame to world frame rotation: rotates a point defined in ecef
+            SLNode*     _sunLightNode;      //!< Pointer to directional light node to be changed if solar angles are calculated
 };
 //-----------------------------------------------------------------------------
 #endif

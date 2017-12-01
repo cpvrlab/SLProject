@@ -61,7 +61,6 @@ void    slKeyRelease            (int sceneViewIndex, SLKey key, SLKey modifier);
 void    slCharInput             (int sceneViewIndex, unsigned int character);
 void    slCommand               (int sceneViewIndex, SLCommand command);
 bool    slUsesRotation          ();
-void    slRotationPYR           (float pitchRAD, float yawRAD, float rollRAD);
 void    slRotationQUAT          (float quatX, float quatY, float quatZ, float quatW);
 bool    slUsesLocation          ();
 void    slLocationLLA           (double latitudeDEG, double longitudeDEG, double altitudeM, float accuracyM);

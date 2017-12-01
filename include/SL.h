@@ -31,7 +31,6 @@
 #include <random>
 #include <cstdarg>
 #include <ctime>
-#include <iomanip>
 
 //-----------------------------------------------------------------------------
 // Include standard C libraries
