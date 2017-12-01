@@ -215,6 +215,8 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         name("Minimal Texture Example");
         _info = "Minimal texture mapping example with one light source.";
 
+        _devLoc.calculateSolarAngles();
+
         // Create textures and materials
         SLGLTexture* texC = new SLGLTexture("earth1024_C.jpg");
         SLMaterial* m1 = new SLMaterial("m1", texC);

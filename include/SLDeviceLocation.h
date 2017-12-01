@@ -48,6 +48,9 @@ class SLDeviceLocation
                                              double lonDEG,
                                              double altM,
                                              float AccuracyM);
+
+            SLbool      calculateSolarAngles();
+
             // Setters
             void        isUsed              (SLbool isUsed);
             void        useOriginAltitude   (SLbool useGLA) {_useOriginAltitude = useGLA;}
@@ -60,6 +63,7 @@ class SLDeviceLocation
                                              double lonDEG,
                                              double altM);
             void        locMaxDistanceM     (float maxDist) {_locMaxDistanceM = maxDist;}
+
             // Getters
             SLbool      isUsed              () const {return _isUsed;}
             SLVec3d     locLLA              () const {return _locLLA;}
@@ -79,7 +83,7 @@ class SLDeviceLocation
    private:
             SLbool      _isUsed;            //!< Flag if the devices GPS Sensor is used
             SLbool      _isFirstSensorValue;//!< Flag for the first sensor values
-            SLVec3d     _locLLA;            //!< GPS location in latitudeDEG, longitudeDEG & AltitudeM
+            SLVec3d     _locLLA;            //!< Earth location in latitudeDEG, longitudeDEG & AltitudeM on WGS84 geoid
             SLVec3d     _locECEF;           //!< Cartesian location in ECEF
             SLVec3d     _locENU;            //!< Cartesian location in ENU frame
             SLfloat     _locAccuracyM;      //!< Horizontal accuracy radius in m with 68% probability
@@ -90,6 +94,8 @@ class SLDeviceLocation
             SLVec3d     _originECEF;        //!< Global origin location of scene in ECEF (cartesian)
             SLVec3d     _originENU;         //!< Origin location in ENU frame
             SLfloat     _originAccuracyM;   //!< Accuracy radius of origin point
+            SLfloat     _originSolarZenit;  //!< Zenit angle of the sun in deg. (from up dir.) at origin at local time
+            SLfloat     _originSolarAzimut; //!< Azimut angle of the sun in deg. (eastward from north) at origin at local time
             SLbool      _hasOrigin;         //!< Flag if this scene has a global reference location
             SLbool      _useOriginAltitude; //!< Flag if global reference altitude should be used
             SLbool      _improveOrigin;     //!< Flag if origin should be improved over time & accuracy
