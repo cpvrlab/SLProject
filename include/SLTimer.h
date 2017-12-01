@@ -31,9 +31,9 @@ class SLTimer
 
             void        start();                   
             void        stop();
-            SLfloat     getElapsedTimeInSec();
-            SLfloat     getElapsedTimeInMilliSec();
-            SLint64     getElapsedTimeInMicroSec();
+            SLfloat     elapsedTimeInSec();
+            SLfloat     elapsedTimeInMilliSec();
+            SLint64     elapsedTimeInMicroSec();
 
     static  void        callAfterSleep(SLint milliSec, 
                                        function<void(void)> callbackFunc);

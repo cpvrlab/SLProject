@@ -581,13 +581,13 @@ void SLAssimpImporter::loadSkeleton(SLJoint* parent, aiNode* node)
     // exported state
     
     // set the current node transform as the initial state
-    /**
+    /*
     SLMat4f om;
     memcpy(&om, &node->mTransformation, sizeof(SLMat4f));
     om.transpose();
     joint->om(om);
     joint->setInitialState();
-    /*/
+    */
     // set the binding pose as initial state
     SLMat4f om;
     om = joint->offsetMat().inverted();
@@ -595,8 +595,6 @@ void SLAssimpImporter::loadSkeleton(SLJoint* parent, aiNode* node)
         om = parent->updateAndGetWM().inverted() * om;
     joint->om(om);
     joint->setInitialState();
-    /**/
-
 
     for (SLuint i = 0; i < node->mNumChildren; i++)
         loadSkeleton(joint, node->mChildren[i]);
@@ -655,14 +653,14 @@ SLMaterial* SLAssimpImporter::loadMaterial(SLint index,
     // get color data
     aiColor3D ambient, diffuse, specular, emissive;
     SLfloat shininess, refracti, reflectivity, opacity;
-    material->Get(AI_MATKEY_COLOR_AMBIENT, ambient);
-    material->Get(AI_MATKEY_COLOR_DIFFUSE, diffuse);
+    material->Get(AI_MATKEY_COLOR_AMBIENT,  ambient);
+    material->Get(AI_MATKEY_COLOR_DIFFUSE,  diffuse);
     material->Get(AI_MATKEY_COLOR_SPECULAR, specular);
     material->Get(AI_MATKEY_COLOR_EMISSIVE, emissive);
-    material->Get(AI_MATKEY_SHININESS, shininess);
-    material->Get(AI_MATKEY_REFRACTI, refracti);
-    material->Get(AI_MATKEY_REFLECTIVITY, reflectivity);
-    material->Get(AI_MATKEY_OPACITY, opacity);
+    material->Get(AI_MATKEY_SHININESS,      shininess);
+    material->Get(AI_MATKEY_REFRACTI,       refracti);
+    material->Get(AI_MATKEY_REFLECTIVITY,   reflectivity);
+    material->Get(AI_MATKEY_OPACITY,        opacity);
 
     // increase shininess if specular color is not low.
     // The material will otherwise be to bright
@@ -731,7 +729,7 @@ SLMesh* SLAssimpImporter::loadMesh(aiMesh *mesh)
     if ((numTriangles && (numLines || numPoints)) ||
         (numLines && (numTriangles || numPoints)) ||
         (numPoints && (numLines || numTriangles)))
-    {   SL_LOG("SLAssimpImporter::loadMesh:  Mesh contains multiple primitive types: %s\n", mesh->mName.C_Str());
+    {   SL_LOG("SLAssimpImporter::loadMesh:  Mesh contains multiple primitive types: %s, Lines: %d, Points: %d\n", mesh->mName.C_Str(), numLines, numPoints);
         
         // Prioritize triangles over lines over points
         if (numTriangles && numLines) numLines = 0;

@@ -101,6 +101,25 @@ SLbool          SLDemoGui::showInfosScene      = false;
 SLbool          SLDemoGui::showInfosSensors    = false;
 SLbool          SLDemoGui::showSceneGraph      = false;
 SLbool          SLDemoGui::showProperties      = false;
+SLbool          SLDemoGui::showChristoffel     = false;
+
+// Scene node for Christoffel objects
+SLNode* bern        = nullptr;
+SLNode* umgeb_dach  = nullptr;
+SLNode* umgeb_fass  = nullptr;
+SLNode* boden       = nullptr;
+SLNode* balda_stahl = nullptr;
+SLNode* balda_glas  = nullptr;
+SLNode* mauer_wand  = nullptr;
+SLNode* mauer_dach  = nullptr;
+SLNode* mauer_turm  = nullptr;
+SLNode* mauer_weg   = nullptr;
+SLNode* grab_mauern = nullptr;
+SLNode* grab_brueck = nullptr;
+SLNode* grab_grass  = nullptr;
+SLNode* grab_t_dach = nullptr;
+SLNode* grab_t_fahn = nullptr;
+SLNode* grab_t_stein= nullptr;
 
 SLstring SLDemoGui::infoAbout =
 "Welcome to the SLProject demo app. It is developed at the \
@@ -351,7 +370,6 @@ void SLDemoGui::buildDemoGui(SLScene* s, SLSceneView* sv)
 
     if (showStatsVideo)
     {
-
         SLchar m[2550];   // message character array
         m[0]=0;           // set zero length
 
@@ -428,12 +446,22 @@ void SLDemoGui::buildDemoGui(SLScene* s, SLSceneView* sv)
         SLGLState* stateGL = SLGLState::getInstance();
         SLchar m[2550];   // message character array
         m[0]=0;           // set zero length
-        sprintf(m+strlen(m), "Uses Rotation       : %s\n",    s->usesRotation() ? "yes" : "no");
-        sprintf(m+strlen(m), "Orientation Pitch   : %1.0f\n", s->devicePitchRAD()*SL_RAD2DEG);
-        sprintf(m+strlen(m), "Orientation Yaw     : %1.0f\n", s->deviceYawRAD()*SL_RAD2DEG);
-        sprintf(m+strlen(m), "Orientation Roll    : %1.0f\n", s->deviceRollRAD()*SL_RAD2DEG);
-        sprintf(m+strlen(m), "Zero Yaw at Start   : %s\n",    s->zeroYawAtStart() ? "yes" : "no");
-        sprintf(m+strlen(m), "Start Yaw           : %1.0f\n", s->startYawRAD() * SL_RAD2DEG);
+        SLVec3d offsetToOrigin = s->devLoc().originENU() - s->devLoc().locENU();
+        sprintf(m+strlen(m), "Uses Rotation       : %s\n",    s->devRot().isUsed() ? "yes" : "no");
+        sprintf(m+strlen(m), "Orientation Pitch   : %1.0f\n", s->devRot().pitchRAD()*SL_RAD2DEG);
+        sprintf(m+strlen(m), "Orientation Yaw     : %1.0f\n", s->devRot().yawRAD()*SL_RAD2DEG);
+        sprintf(m+strlen(m), "Orientation Roll    : %1.0f\n", s->devRot().rollRAD()*SL_RAD2DEG);
+        sprintf(m+strlen(m), "Zero Yaw at Start   : %s\n",    s->devRot().zeroYawAtStart() ? "yes" : "no");
+        sprintf(m+strlen(m), "Start Yaw           : %1.0f\n", s->devRot().startYawRAD() * SL_RAD2DEG);
+        sprintf(m+strlen(m), "---------------------\n");
+        sprintf(m+strlen(m), "Uses Location       : %s\n",    s->devLoc().isUsed() ? "yes" : "no");
+        sprintf(m+strlen(m), "Latitude (deg)      : %11.6f\n",s->devLoc().locLLA().x);
+        sprintf(m+strlen(m), "Longitude (deg)     : %11.6f\n",s->devLoc().locLLA().y);
+        sprintf(m+strlen(m), "Altitude (m)        : %11.6f\n",s->devLoc().locLLA().z);
+        sprintf(m+strlen(m), "Accuracy Radius (m) : %6.1f\n", s->devLoc().locAccuracyM());
+        sprintf(m+strlen(m), "Dist. to Origin (m) : %6.1f\n" ,offsetToOrigin.length());
+        sprintf(m+strlen(m), "Max. Dist. (m)      : %6.1f\n" ,s->devLoc().locMaxDistanceM());
+        sprintf(m+strlen(m), "Origin improve time : %6.1f sec.\n",s->devLoc().improveTime());
 
 
         sprintf(m+strlen(m), "Uses Location       : %s\n",    s->usesLocation() ? "yes" : "no");
@@ -457,6 +485,87 @@ void SLDemoGui::buildDemoGui(SLScene* s, SLSceneView* sv)
     if (showProperties)
     {
         buildProperties(s);
+    }
+
+    if (showChristoffel && SL::currentSceneID==C_sceneVideoChristoffel)
+    {
+        ImGui::Begin("Christoffel", &showChristoffel, ImVec2(300,0));
+
+        // Get scene nodes once
+        if (!bern)
+        {   bern        = s->root3D()->findChild<SLNode>("RootNode");
+            boden       = bern->findChild<SLNode>("Boden", false);
+            balda_stahl = bern->findChild<SLNode>("Baldachin-Stahl", false);
+            balda_glas  = bern->findChild<SLNode>("Baldachin-Glas", false);
+            umgeb_dach  = bern->findChild<SLNode>("Umgebung-Daecher", false);
+            umgeb_fass  = bern->findChild<SLNode>("Umgebung-Fassaden", false);
+            mauer_wand  = bern->findChild<SLNode>("Mauer-Wand", false);
+            mauer_dach  = bern->findChild<SLNode>("Mauer-Dach", false);
+            mauer_turm  = bern->findChild<SLNode>("Mauer-Turm", false);
+            mauer_weg   = bern->findChild<SLNode>("Mauer-Weg", false);
+            grab_mauern = bern->findChild<SLNode>("Graben-Mauern", false);
+            grab_brueck = bern->findChild<SLNode>("Graben-Bruecken", false);
+            grab_grass  = bern->findChild<SLNode>("Graben-Grass", false);
+            grab_t_dach = bern->findChild<SLNode>("Graben-Turm-Dach", false);
+            grab_t_fahn = bern->findChild<SLNode>("Graben-Turm-Fahne", false);
+            grab_t_stein= bern->findChild<SLNode>("Graben-Turm-Stein", false);
+        }
+
+        SLbool umgebung = !umgeb_fass->drawBits()->get(SL_DB_HIDDEN);
+        if (ImGui::Checkbox("Umgebung", &umgebung))
+        {   umgeb_fass->drawBits()->set(SL_DB_HIDDEN, !umgebung);
+            umgeb_dach->drawBits()->set(SL_DB_HIDDEN, !umgebung);
+        }
+
+        SLbool bodenBool = !boden->drawBits()->get(SL_DB_HIDDEN);
+        if (ImGui::Checkbox("Boden", &bodenBool))
+        {   boden->drawBits()->set(SL_DB_HIDDEN, !bodenBool);
+        }
+
+        SLbool baldachin = !balda_stahl->drawBits()->get(SL_DB_HIDDEN);
+        if (ImGui::Checkbox("Baldachin", &baldachin))
+        {   balda_stahl->drawBits()->set(SL_DB_HIDDEN, !baldachin);
+            balda_glas->drawBits()->set(SL_DB_HIDDEN, !baldachin);
+        }
+
+        SLbool mauer = !mauer_wand->drawBits()->get(SL_DB_HIDDEN);
+        if (ImGui::Checkbox("Mauer", &mauer))
+        {   mauer_wand->drawBits()->set(SL_DB_HIDDEN, !mauer);
+            mauer_dach->drawBits()->set(SL_DB_HIDDEN, !mauer);
+            mauer_turm->drawBits()->set(SL_DB_HIDDEN, !mauer);
+            mauer_weg->drawBits()->set(SL_DB_HIDDEN, !mauer);
+        }
+
+        SLbool graben = !grab_mauern->drawBits()->get(SL_DB_HIDDEN);
+        if (ImGui::Checkbox("Graben", &graben))
+        {   grab_mauern->drawBits()->set(SL_DB_HIDDEN, !graben);
+            grab_brueck->drawBits()->set(SL_DB_HIDDEN, !graben);
+            grab_grass->drawBits()->set(SL_DB_HIDDEN, !graben);
+            grab_t_dach->drawBits()->set(SL_DB_HIDDEN, !graben);
+            grab_t_fahn->drawBits()->set(SL_DB_HIDDEN, !graben);
+            grab_t_stein->drawBits()->set(SL_DB_HIDDEN, !graben);
+        }
+
+        ImGui::End();
+    } else
+    {
+        bern        = nullptr;
+        boden       = nullptr;
+        balda_stahl = nullptr;
+        balda_glas  = nullptr;
+        umgeb_dach  = nullptr;
+        umgeb_fass  = nullptr;
+        mauer_wand  = nullptr;
+        mauer_dach  = nullptr;
+        mauer_turm  = nullptr;
+        mauer_weg   = nullptr;
+        grab_mauern = nullptr;
+        grab_brueck = nullptr;
+        grab_grass  = nullptr;
+        grab_t_dach = nullptr;
+        grab_t_fahn = nullptr;
+        grab_t_stein= nullptr;
+
     }
 }
 //-----------------------------------------------------------------------------
@@ -565,6 +674,10 @@ void SLDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
                         sv->onCommand(C_sceneVideoTrackFeature2DMain);
                     if (ImGui::MenuItem("Texture from live video", 0, curS==C_sceneVideoTexture))
                         sv->onCommand(C_sceneVideoTexture);
+                    if (ImGui::MenuItem("Sensor AR (Main)", 0, curS==C_sceneVideoSensorAR))
+                        sv->onCommand(C_sceneVideoChristoffel);
+                    if (ImGui::MenuItem("Christoffel Tower AR (Main)", 0, curS==C_sceneVideoChristoffel))
+                        sv->onCommand(C_sceneVideoChristoffel);
 
                     ImGui::EndMenu();
                 }
@@ -640,14 +753,28 @@ void SLDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
 
             if (ImGui::BeginMenu("Rotation Sensor"))
             {
-                if (ImGui::MenuItem("Use Device Rotation", 0, s->usesRotation()))
-                    s->usesRotation(!s->usesRotation());
+                if (ImGui::MenuItem("Use Device Rotation (IMU)", 0, s->devRot().isUsed()))
+                    s->devRot().isUsed(!s->devRot().isUsed());
 
-                if (ImGui::MenuItem("Zero Yaw at Start", 0, s->zeroYawAtStart()))
-                    s->zeroYawAtStart(!s->zeroYawAtStart());
+                if (ImGui::MenuItem("Zero Yaw at Start", 0, s->devRot().zeroYawAtStart()))
+                    s->devRot().zeroYawAtStart(!s->devRot().zeroYawAtStart());
 
                 if (ImGui::MenuItem("Reset Zero Yaw"))
-                    s->deviceRotStarted(true);
+                    s->devRot().hasStarted(true);
+
+                ImGui::EndMenu();
+            }
+
+            if (ImGui::BeginMenu("Location Sensor"))
+            {
+                if (ImGui::MenuItem("Use Device Location (GPS)", 0, s->devLoc().isUsed()))
+                    s->devLoc().isUsed(!s->devLoc().isUsed());
+
+                if (ImGui::MenuItem("Use Origin Altitude", 0, s->devLoc().useOriginAltitude()))
+                    s->devLoc().useOriginAltitude(!s->devLoc().useOriginAltitude());
+
+                if (ImGui::MenuItem("Reset Origin to here"))
+                    s->devLoc().hasOrigin(false);
 
                 ImGui::EndMenu();
             }
@@ -948,8 +1075,8 @@ void SLDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
                 static SLfloat focalDist = cam->focalDist();
                 static SLfloat fov = cam->fov();
 
-                // Keep menu with low so that they do not cover the parent menu
-                ImGui::PushItemWidth(150);
+                ImGui::PushItemWidth(100);
+
 
                 if (ImGui::MenuItem("Perspective", 0, proj==P_monoPerspective))
                     sv->onCommand(C_projPersp);
@@ -991,6 +1118,7 @@ void SLDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
                 if (ImGui::SliderFloat("Focal Dist.", &focalDist, clipN, clipF))
                     cam->focalDist(focalDist);
 
+                ImGui::PopItemWidth();
                 ImGui::EndMenu();
             }
 
@@ -998,23 +1126,25 @@ void SLDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
             {
                 SLCamAnim ca = cam->camAnim();
 
+                ImGui::PushItemWidth(80);
+
                 if (ImGui::MenuItem("Turntable Y up", 0, ca==CA_turntableYUp))
-                    sv->onCommand(C_camAnimTurnYUp);
+                    sv->camera()->camAnim(CA_turntableYUp);
 
                 if (ImGui::MenuItem("Turntable Z up", 0, ca==CA_turntableZUp))
-                    sv->onCommand(C_camAnimTurnZUp);
+                    sv->camera()->camAnim(CA_turntableZUp);
 
                 if (ImGui::MenuItem("Walk Y up", 0, ca==CA_walkingYUp))
-                    sv->onCommand(C_camAnimWalkYUp);
+                    sv->camera()->camAnim(CA_walkingYUp);
 
                 if (ImGui::MenuItem("Walk Z up", 0, ca==CA_walkingZUp))
-                    sv->onCommand(C_camAnimWalkZUp);
+                    sv->camera()->camAnim(CA_walkingZUp);
 
-                if (ImGui::MenuItem("Device Rotated Y up", 0, ca==CA_deviceRotYUp))
-                    sv->onCommand(C_camAnimDeviceRotYUp);
+                if (ImGui::MenuItem("IMU rotated Y up", 0, ca==CA_deviceRotYUp))
+                    sv->camera()->camAnim(CA_deviceRotYUp);
 
-                if (ImGui::MenuItem("Device Rotated Y up and GPS positioned", 0, ca == CA_deviceRotYUpPosGPS))
-                    sv->onCommand(C_camAnimDeviceRotYUpPosGPS);
+                if (ImGui::MenuItem("IMU rotated & GPS located Y up", 0, ca == CA_deviceRotLocYUp))
+                    sv->camera()->camAnim(CA_deviceRotLocYUp);
 
                 if (ca==CA_walkingZUp || ca==CA_walkingYUp )
                 {
@@ -1023,6 +1153,7 @@ void SLDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
                         cam->maxSpeed(ms);
                 }
 
+                ImGui::PopItemWidth();
                 ImGui::EndMenu();
             }
 
@@ -1096,6 +1227,10 @@ void SLDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
             ImGui::Separator();
             ImGui::MenuItem("Infos on Sensors",    0, &showInfosSensors);
             ImGui::MenuItem("Infos on Frameworks", 0, &showInfosFrameworks);
+            if (SL::currentSceneID==C_sceneVideoChristoffel)
+            {   ImGui::Separator();
+                ImGui::MenuItem("Infos on Christoffel",0, &showChristoffel);
+            }
             ImGui::Separator();
             ImGui::MenuItem("Help on Interaction", 0, &showHelp);
             ImGui::MenuItem("Help on Calibration", 0, &showHelpCalibration);
@@ -1412,7 +1547,7 @@ void SLDemoGui::buildProperties(SLScene* s)
                         m->kt(kt);
 
                     SLfloat kn = m->kn();
-                    if (ImGui::SliderFloat("kn", &kn, 0.0f, 2.5f))
+                    if (ImGui::SliderFloat("kn", &kn, 1.0f, 2.5f))
                         m->kn(kn);
 
                     ImGui::PopItemWidth();
@@ -1590,7 +1725,7 @@ void SLDemoGui::loadConfig(SLint dotsPerInch)
     try
     {   fs.open(fullPathAndFilename, SLCVFileStorage::READ);
         if (!fs.isOpened())
-        {   SL_LOG("Failed to open file for reading!");
+        {   SL_LOG("Failed to open file for reading: %s", fullPathAndFilename.c_str());
             return;
         }
     }
@@ -1618,6 +1753,7 @@ void SLDemoGui::loadConfig(SLint dotsPerInch)
     fs["showInfosSensors"]      >> b; SLDemoGui::showInfosSensors = b;
     fs["showSceneGraph"]        >> b; SLDemoGui::showSceneGraph = b;
     fs["showProperties"]        >> b; SLDemoGui::showProperties = b;
+    fs["showChristoffel"]       >> b; SLDemoGui::showChristoffel = b;
     fs["showDetection"]         >> b; SLScene::current->showDetection(b);
 
     fs.release();
@@ -1631,7 +1767,8 @@ void SLDemoGui::saveConfig()
     SLCVFileStorage fs(fullPathAndFilename, SLCVFileStorage::WRITE);
 
     if (!fs.isOpened())
-    {   SL_EXIT_MSG("Failed to open file for writing!");
+    {   SL_LOG("Failed to open file for writing: %s", fullPathAndFilename.c_str());
+        SL_EXIT_MSG("Exit in SLDemoGui::saveConfig");
         return;
     }
 
@@ -1651,6 +1788,7 @@ void SLDemoGui::saveConfig()
     fs << "showInfosSensors"        << SLDemoGui::showInfosSensors;
     fs << "showSceneGraph"          << SLDemoGui::showSceneGraph;
     fs << "showProperties"          << SLDemoGui::showProperties;
+    fs << "showChristoffel"         << SLDemoGui::showChristoffel;
     fs << "showDetection"           << SLScene::current->showDetection();
 
     fs.release();

@@ -56,6 +56,7 @@ class SLDemoGui
     static SLbool           showInfosScene;     //!< Flag if scene info should be shown
     static SLbool           showSceneGraph;     //!< Flag if scene graph should be shown
     static SLbool           showProperties;     //!< Flag if properties should be shown
+    static SLbool           showChristoffel;    //!< Flag if Christoffel infos should be shown
 };
 //-----------------------------------------------------------------------------
 #endif

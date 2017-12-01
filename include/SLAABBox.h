@@ -44,7 +44,7 @@ class SLAABBox
         void        maxOS       (SLVec3f maxC)  {_maxOS = maxC;}
                
         void        isVisible   (SLbool visible){_isVisible = visible;}
-        void        hasAlpha   (SLbool transp) {_hasTransp = transp;}   
+        void        hasAlpha    (SLbool transp) {_hasTransp = transp;}   
         void        sqrViewDist (SLfloat sqrVD) {_sqrViewDist = sqrVD;}    
 
         // Getters 

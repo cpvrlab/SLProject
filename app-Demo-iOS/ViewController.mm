@@ -1,16 +1,19 @@
-//
-//  ViewController.m
-//  comgr
-//
-//  Created by Marcus Hudritsch on 30.11.11.
-//  Copyright (c) 2011 __MyCompanyName__. All rights reserved.
-//
+//#############################################################################
+//  File:      ViewController.m
+//  Purpose:   Top level iOS view controller code that interfaces SLProject
+//  Author:    Marcus Hudritsch
+//  Date:      November 2017
+//  Codestyle: https://github.com/cpvrlab/SLProject/wiki/Coding-Style-Guidelines
+//  Copyright: Marcus Hudritsch
+//             This software is provide under the GNU General Public License
+//             Please visit: http://opensource.org/licenses/GPL-3.0
+//#############################################################################
 
+// Objective C imports
 #import "ViewController.h"
 #import <CoreMotion/CoreMotion.h>
 
-// The only C-interface to include for the SceneLibrary
-
+// C++ includes for the SceneLibrary
 #include <SLInterface.h>
 #include <SLCVCapture.h>
 #include <SLDemoGui.h>
@@ -33,8 +36,7 @@ float screenScale = 1.0f;
 //-----------------------------------------------------------------------------
 // C-Function used as C-function callback for raytracing update
 SLbool onPaintRTGL()
-{
-   [myView display];
+{  [myView display];
    return true;
 }
 //-----------------------------------------------------------------------------
@@ -65,14 +67,15 @@ float GetSeconds()
     NSString*           m_avSessionPreset;      //!< Session name
     bool                m_lastVideoImageIsConsumed;
     int                 m_lastVideoType;        //! VT_NONE=0,VT_MAIN=1,VT_SCND=2
+    bool                m_locationIsRunning;    //! GPS is running
 }
-@property (strong, nonatomic) EAGLContext *context;
-@property (strong, nonatomic) CMMotionManager *motionManager;
-@property (strong, nonatomic) NSTimer *motionTimer;
+@property (strong, nonatomic) EAGLContext       *context;
+@property (strong, nonatomic) CMMotionManager   *motionManager;
+@property (strong, nonatomic) NSTimer           *motionTimer;
+@property (strong, nonatomic) CLLocationManager *locationManager;
 @end
 //-----------------------------------------------------------------------------
 @implementation ViewController
-
 @synthesize context = _context;
 
 - (void)dealloc
@@ -105,9 +108,6 @@ float GetSeconds()
    
     //[self setupGL];
     [EAGLContext setCurrentContext:self.context];
-    
-    // Init motion manager
-    self.motionManager = [[CMMotionManager alloc] init];
     
     // determine device pixel ratio and dots per inch
     screenScale = [UIScreen mainScreen].scale;
@@ -144,7 +144,9 @@ float GetSeconds()
                                 (void*)SLDemoGui::buildDemoGui);
     ///////////////////////////////////////////////////////////////////////
     
-    [self setMotionInterval:1.0/20.0];
+    [self setupMotionManager: 1.0/20.0];
+    [self setupLocationManager];
+    
 }
 //-----------------------------------------------------------------------------
 - (void)viewDidUnload
@@ -176,6 +178,10 @@ float GetSeconds()
 - (void)glkView:(GLKView *)view drawInRect:(CGRect)rect
 {
     [self setVideoType:slGetVideoType()];
+    
+    if (slUsesLocation())
+         [self startLocationManager];
+    else [self stopLocationManager];
     
     slUpdateAndPaint(svIndex);
     m_lastVideoImageIsConsumed = true;
@@ -519,12 +525,17 @@ float GetSeconds()
 }
 //-----------------------------------------------------------------------------
 //! Starts the motion data update if the interval time > 0 else it stops
-- (void) setMotionInterval:(double)intervalTimeSEC
+- (void) setupMotionManager:(double)intervalTimeSEC
 {
+    // Init motion manager
+    self.motionManager = [[CMMotionManager alloc] init];
+    
     if ([self.motionManager isDeviceMotionAvailable] == YES)
     {
         self.motionManager.deviceMotionUpdateInterval = intervalTimeSEC;
-        [self.motionManager startDeviceMotionUpdatesUsingReferenceFrame:CMAttitudeReferenceFrameXTrueNorthZVertical
+        
+        // See also: https://developer.apple.com/documentation/coremotion/getting_processed_device_motion_data/understanding_reference_frames_and_device_attitude?language=objc
+        [self.motionManager startDeviceMotionUpdatesUsingReferenceFrame:CMAttitudeReferenceFrameXMagneticNorthZVertical
                                                                 toQueue:[NSOperationQueue currentQueue]
                                                             withHandler: ^(CMDeviceMotion *motion, NSError *error){
                                                                 [self performSelectorOnMainThread:@selector(onDeviceMotionUpdate:)
@@ -539,15 +550,76 @@ float GetSeconds()
     {
         CMDeviceMotion *motionData = self.motionManager.deviceMotion;
         CMAttitude *attitude = motionData.attitude;
-        CMQuaternion q = attitude.quaternion;
         
-        slRotationPYR(attitude.pitch, attitude.yaw, attitude.roll);
-        slRotationQUAT(q.x, q.y, q.z, q.w);
+        //Get sensor rotation as quaternion. This quaternion describes a rotation
+        //relative to NWU-frame
+        //(see: https://developer.apple.com/documentation/coremotion/getting_processed_device_motion_data/understanding_reference_frames_and_device_attitude)
+        CMQuaternion q = attitude.quaternion;
+        //add rotation of 90 degrees about z-axis to relate the sensor rotation to
+        //an ENU-frame (as in Android)
+        GLKQuaternion qNWU = GLKQuaternionMake(q.x, q.y, q.z, q.w);
+        GLKQuaternion qRot90Z =  GLKQuaternionMakeWithAngleAndAxis(GLKMathDegreesToRadians(90), 0, 0, 1);
+        GLKQuaternion qENU  =  GLKQuaternionMultiply(qRot90Z, qNWU);
+        
+        //slRotationPYR(attitude.pitch, attitude.yaw, attitude.roll);
+        slRotationQUAT(qENU.q[0], qENU.q[1], qENU.q[2], qENU.q[3]);
         
         // See the following routines how the rotation is used:
         // SLScene::onRotationPYR just sets the private members for the euler angles
         // SLScene::onRotationQUAT calculates the offset if _zeroYawAtStart is true
         // SLCamera::setView how the device rotation is processed for the camera's view
+    }
+}
+//-----------------------------------------------------------------------------
+//! Starts the location data update if the interval time > 0 else it stops
+- (void) setupLocationManager
+{
+    // Init location manager
+    self.locationManager = [[CLLocationManager alloc] init];
+    self.locationManager.desiredAccuracy = kCLLocationAccuracyBest;
+    self.locationManager.distanceFilter = 1;
+    self.locationManager.delegate = self;
+    
+    [self.locationManager requestWhenInUseAuthorization];
+    
+    m_locationIsRunning = false;
+}
+//-----------------------------------------------------------------------------
+//! Starts the location data update
+- (void) startLocationManager
+{
+    if (!m_locationIsRunning)
+    {
+        [self.locationManager startUpdatingLocation];
+        m_locationIsRunning = true;
+        printf("Starting Location Manager\n");
+    }
+}
+//-----------------------------------------------------------------------------
+//! Stops the location data update
+- (void) stopLocationManager
+{
+    if (m_locationIsRunning && [self.locationManager locationServicesEnabled] == YES)
+    {
+        [self.locationManager stopUpdatingLocation];
+        m_locationIsRunning = false;
+        printf("Stopping Location Manager\n");
+    }
+}
+//-----------------------------------------------------------------------------
+-(void)locationManager:(CLLocationManager *)manager didUpdateLocations:(NSArray *)locations
+{
+    CLLocation *loc = [locations lastObject];
+    
+    printf("horizontalAccuracy: %f\n", loc.horizontalAccuracy);
+    
+    // negative horizontal accuracy means no location fix
+    if (loc.horizontalAccuracy < 0.0)
+    {
+        slLocationLLA(loc.coordinate.latitude,
+                      loc.coordinate.longitude,
+                      loc.altitude,
+                      loc.horizontalAccuracy);
     }
 }
 //-----------------------------------------------------------------------------

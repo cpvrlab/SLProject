@@ -213,12 +213,7 @@ typedef int64_t         SLint64;
 typedef uint64_t        SLuint64;
 typedef GLsizei         SLsizei;
 typedef GLfloat         SLfloat;
-#ifdef SL_HAS_DOUBLE
-typedef GLdouble        SLdouble;
-typedef GLfloat         SLreal;
-#else
-typedef GLfloat         SLreal;
-#endif
+typedef double          SLdouble;
 typedef bool            SLbool; 
 typedef GLenum          SLenum;
 typedef GLbitfield      SLbitfield;

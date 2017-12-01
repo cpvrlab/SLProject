@@ -391,8 +391,7 @@ void slCommand(int sceneViewIndex, SLCommand command)
 bool slUsesRotation()
 {
     if (SLScene::current)
-    {   return SLScene::current->usesRotation();
-    }
+        return SLScene::current->devRot().isUsed();
     return false;
 }
 //-----------------------------------------------------------------------------
@@ -401,22 +400,40 @@ yaw and roll.
 */
 void slRotationPYR(float pitchRAD, float yawRAD, float rollRAD)
 {
-    SLScene::current->onRotationPYR(pitchRAD, yawRAD, rollRAD);
+    if (SLScene::current)
+        SLScene::current->devRot().onRotationPYR(pitchRAD, yawRAD, rollRAD);
 }
 //-----------------------------------------------------------------------------
 /*! Global event handler for device rotation change with angle & and axis.
 */
 void slRotationQUAT(float quatX, float quatY, float quatZ, float quatW)
 {
-    SLScene::current->onRotationQUAT(quatX, quatY, quatZ, quatW);
+    if (SLScene::current)
+        SLScene::current->devRot().onRotationQUAT(quatX, quatY, quatZ, quatW);
 }
 //-----------------------------------------------------------------------------
 bool slUsesLocation()
 {
     if (SLScene::current)
-    {   return SLScene::current->usesLocation();
-    }
+        return SLScene::current->devLoc().isUsed();
     return false;
+}
+//-----------------------------------------------------------------------------
+/*! Global event handler for device GPS location with longitude and latitude in
+degrees and altitude in meters. This location uses the World Geodetic System
+1984 (WGS 84). The accuracy in meters is a radius in which the location is with
+a probability of 68% (2 sigma).
+*/
+void slLocationLLA(double latitudeDEG,
+                   double longitudeDEG,
+                   double altitudeM,
+                   float  accuracyM)
+{
+    if (SLScene::current)
+        SLScene::current->devLoc().onLocationLLA(latitudeDEG,
+                                                 longitudeDEG,
+                                                 altitudeM,
+                                                 accuracyM);
 }
 //-----------------------------------------------------------------------------
 /*! Global event handler for device location change with longitude and latitude.

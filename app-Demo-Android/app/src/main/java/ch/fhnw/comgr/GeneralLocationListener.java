@@ -48,35 +48,31 @@ class GeneralLocationListener implements LocationListener {
      * Event raised when a new fix is received.
      */
     public void onLocationChanged(Location loc) {
-        Log.d(TAG, "onLocationChange:" +loc);
         if (loc != null) {
             _activity.onLocationChanged(loc);
         }
     }
 
     public void onProviderDisabled(String provider) {
-        Log.i(TAG, "Provider disabled: " + provider);
-        _activity.restartGpsManagers();
+        _activity.locationSensorRestart();
     }
 
     public void onProviderEnabled(String provider) {
-        Log.i(TAG, "Provider enabled: " + provider);
-        _activity.restartGpsManagers();
+        _activity.locationSensorRestart();
     }
 
     public void onStatusChanged(String provider, int status, Bundle extras) {
         if (status == LocationProvider.OUT_OF_SERVICE) {
             Log.i(TAG, provider + " is out of service");
-            _activity.gpsSensorStop();
+            _activity.locationSensorStop();
         }
 
         if (status == LocationProvider.AVAILABLE) {
-            Log.i(TAG, provider + " is available");
+            //Log.i(TAG, provider + " is available");
         }
 
         if (status == LocationProvider.TEMPORARILY_UNAVAILABLE) {
-            Log.i(TAG, provider + " is temporarily unavailable");
-            _activity.restartGpsManagers();
+            Log.i(TAG, "onStatusChanged:" + provider + " is temporarily unavailable");
         }
     }
 }

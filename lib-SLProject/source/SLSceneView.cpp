@@ -1279,18 +1279,12 @@ SLbool SLSceneView::onCommand(SLCommand cmd)
 
             case C_camSpeedLimitInc:    _camera->maxSpeed(_camera->maxSpeed()*1.2f); return true;
             case C_camSpeedLimitDec:    _camera->maxSpeed(_camera->maxSpeed()*0.8f); return true;
-            case C_camEyeSepInc:        _camera->onMouseWheel(1, K_ctrl); return true;
+            case C_camEyeSepInc:        _camera->onMouseWheel( 1, K_ctrl); return true;
             case C_camEyeSepDec:        _camera->onMouseWheel(-1, K_ctrl); return true;
-            case C_camFocalDistInc:     _camera->onMouseWheel(1, K_shift); return true;
+            case C_camFocalDistInc:     _camera->onMouseWheel( 1, K_shift); return true;
             case C_camFocalDistDec:     _camera->onMouseWheel(-1, K_shift); return true;
-            case C_camFOVInc:           _camera->onMouseWheel(1, K_alt); return true;
+            case C_camFOVInc:           _camera->onMouseWheel( 1, K_alt); return true;
             case C_camFOVDec:           _camera->onMouseWheel(-1, K_alt); return true;
-            case C_camAnimTurnYUp:      _camera->camAnim(CA_turntableYUp); return true;
-            case C_camAnimTurnZUp:      _camera->camAnim(CA_turntableZUp); return true;
-            case C_camAnimWalkYUp:      _camera->camAnim(CA_walkingYUp); return true;
-            case C_camAnimWalkZUp:      _camera->camAnim(CA_walkingZUp); return true;
-            case C_camAnimDeviceRotYUp: _camera->resetToInitialState(); _camera->camAnim(CA_deviceRotYUp); return true;
-            case C_camAnimDeviceRotYUpPosGPS: _camera->resetToInitialState(); _camera->camAnim(CA_deviceRotYUpPosGPS); return true;
             case C_camReset:            _camera->resetToInitialState(); return true;
             case C_camSetNextInScene:
             {   SLCamera* nextCam = s->nextCameraInScene(this);

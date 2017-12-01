@@ -9,7 +9,8 @@
 #import <UIKit/UIKit.h>
 #import <GLKit/GLKit.h>
 #import <AVFoundation/AVFoundation.h>
+#import <CoreLocation/CoreLocation.h>
 
-@interface ViewController : GLKViewController <AVCaptureVideoDataOutputSampleBufferDelegate>
+@interface ViewController : GLKViewController <AVCaptureVideoDataOutputSampleBufferDelegate, CLLocationManagerDelegate>
 
 @end

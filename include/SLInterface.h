@@ -64,7 +64,7 @@ bool    slUsesRotation          ();
 void    slRotationPYR           (float pitchRAD, float yawRAD, float rollRAD);
 void    slRotationQUAT          (float quatX, float quatY, float quatZ, float quatW);
 bool    slUsesLocation          ();
-void    slLocationGPS           (double latitude, double longitude, double altitude);
+void    slLocationLLA           (double latitudeDEG, double longitudeDEG, double altitudeM, float accuracyM);
 string  slGetWindowTitle        (int sceneViewIndex);
 int     slGetVideoType          ();
 int     slGetVideoSizeIndex     ();

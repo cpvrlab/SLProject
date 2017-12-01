@@ -29,8 +29,9 @@ class SLVec3
 {
     public:     
             union
-            {   struct {T x, y, z;};
-                struct {T r, g, b;};
+            {   struct {T x, y, z;};        // 3D cartesian coordinates
+                struct {T r, g, b;};        // Red, green & blue color components
+                struct {T lat, lon, alt;};  // WGS84 latitude (deg), longitude (deg) & altitude (m)
                 struct {T comp[3];};
             };
             
