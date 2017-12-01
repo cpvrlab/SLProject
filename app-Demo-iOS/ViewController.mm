@@ -550,10 +550,19 @@ float GetSeconds()
     {
         CMDeviceMotion *motionData = self.motionManager.deviceMotion;
         CMAttitude *attitude = motionData.attitude;
-        CMQuaternion q = attitude.quaternion;
         
-        slRotationPYR(attitude.pitch, attitude.yaw, attitude.roll);
-        slRotationQUAT(q.x, q.y, q.z, q.w);
+        //Get sensor rotation as quaternion. This quaternion describes a rotation
+        //relative to NWU-frame
+        //(see: https://developer.apple.com/documentation/coremotion/getting_processed_device_motion_data/understanding_reference_frames_and_device_attitude)
+        CMQuaternion q = attitude.quaternion;
+        //add rotation of 90 degrees about z-axis to relate the sensor rotation to
+        //an ENU-frame (as in Android)
+        GLKQuaternion qNWU = GLKQuaternionMake(q.x, q.y, q.z, q.w);
+        GLKQuaternion qRot90Z =  GLKQuaternionMakeWithAngleAndAxis(GLKMathDegreesToRadians(90), 0, 0, 1);
+        GLKQuaternion qENU  =  GLKQuaternionMultiply(qRot90Z, qNWU);
+        
+        //slRotationPYR(attitude.pitch, attitude.yaw, attitude.roll);
+        slRotationQUAT(qENU.q[0], qENU.q[1], qENU.q[2], qENU.q[3]);
         
         // See the following routines how the rotation is used:
         // SLScene::onRotationPYR just sets the private members for the euler angles

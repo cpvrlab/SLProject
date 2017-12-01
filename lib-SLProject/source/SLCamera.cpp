@@ -473,12 +473,14 @@ void SLCamera::setView(SLSceneView* sv, const SLEyeType eye)
         SLMat3f enuRs;
         enuRs.setMatrix(s->devRot().rotation());
 
-        //east-north-down w.r.t. world-yaw
-        SLfloat rotYawOffsetDEG = s->devRot().startYawRAD() * SL_RAD2DEG + 90;
-        if(rotYawOffsetDEG > 180 )
-            rotYawOffsetDEG -= 360;
         SLMat3f wyRenu;
-        wyRenu.rotation(rotYawOffsetDEG, 0, 0, 1);
+        if(s->devRot().zeroYawAtStart()) {
+            //east-north-down w.r.t. world-yaw
+            SLfloat rotYawOffsetDEG = -s->devRot().startYawRAD() * SL_RAD2DEG + 90;
+            if (rotYawOffsetDEG > 180)
+                rotYawOffsetDEG -= 360;
+            wyRenu.rotation(rotYawOffsetDEG, 0, 0, 1);
+        }
 
         //world-yaw rotation w.r.t. world
         SLMat3f wRwy;
@@ -522,11 +524,14 @@ void SLCamera::setView(SLSceneView* sv, const SLEyeType eye)
             enuRs.setMatrix(s->devRot().rotation());
 
             //east-north-down w.r.t. world-yaw
-            SLfloat rotYawOffsetDEG = s->devRot().startYawRAD() * SL_RAD2DEG + 90;
-            if (rotYawOffsetDEG > 180)
-                rotYawOffsetDEG -= 360;
             SLMat3f wyRenu;
-            wyRenu.rotation(rotYawOffsetDEG, 0, 0, 1);
+            if(s->devRot().zeroYawAtStart()) {
+                //east-north-down w.r.t. world-yaw
+                SLfloat rotYawOffsetDEG = -s->devRot().startYawRAD() * SL_RAD2DEG + 90;
+                if (rotYawOffsetDEG > 180)
+                    rotYawOffsetDEG -= 360;
+                wyRenu.rotation(rotYawOffsetDEG, 0, 0, 1);
+            }
 
             //world-yaw rotation w.r.t. world
             SLMat3f wRwy;

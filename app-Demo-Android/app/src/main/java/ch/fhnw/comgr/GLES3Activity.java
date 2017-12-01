@@ -33,6 +33,7 @@ import android.view.View;
 import android.support.annotation.NonNull;
 
 import java.io.IOException;
+import java.util.Arrays;
 
 
 public class GLES3Activity extends Activity implements View.OnTouchListener, SensorEventListener {
@@ -176,6 +177,7 @@ public class GLES3Activity extends Activity implements View.OnTouchListener, Sen
             float R[] = new float[9];
             SensorManager.getRotationMatrixFromVector(R, event.values);
 
+            Log.d("Android: " , Arrays.toString(R));
             // Get yaw, pitch & roll rotation angles in radians from rotation matrix
             float[] YPR = new float[3];
             SensorManager.getOrientation(R, YPR);
