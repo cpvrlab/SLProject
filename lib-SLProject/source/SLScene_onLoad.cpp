@@ -253,7 +253,6 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
     }
     else if (SL::currentSceneID == C_sceneCamPoseGraphAndMap)
     {
-    /*
         // Set scene name and info string
         name("Pose Graph and Map Example");
         _info = "Example for loading an existing pose graph with map points.";
@@ -281,13 +280,16 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         //the map is rotated w.r.t world because ORB-SLAM uses x-axis right, 
         //y-axis down and z-forward
         mapNode->rotate(180, 1, 0, 0);
-        mapNode->translate(1, 0, 0);
+        //mapNode->translate(1, 0, 0);
 
         scene->addChild(mapNode);
-        scene->addChild(pc1);
+
+        mapNode->addChild(pc1);
         //add keyFrames
         for (auto& kf : kfDB->keyFrames()) {
+
             SLCamera* cam = kf.getSceneObject();
+            //cam->rotate(180, 1, 0, 0, TS_object);
             mapNode->addChild(cam);
         }
 
@@ -295,7 +297,6 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         sv->waitEvents(false);
 
         _root3D = scene;
-        */
     }
     else
     if (SL::currentSceneID == C_sceneFigure) //....................................................
