@@ -34,6 +34,9 @@
     <Filter Include="imgui">
       <UniqueIdentifier>{b9ab6575-6ad1-4812-a084-b9c9d7fd3c0f}</UniqueIdentifier>
     </Filter>
+    <Filter Include="spa">
+      <UniqueIdentifier>{37cdd96d-9800-46db-a7e4-8d8cab537122}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="randomc\mersenne.cpp">
@@ -195,6 +198,9 @@
     <ClCompile Include="imgui\imgui_draw.cpp">
       <Filter>imgui</Filter>
     </ClCompile>
+    <ClCompile Include="spa\spa.cpp">
+      <Filter>spa</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="randomc\random.h">
@@ -334,6 +340,9 @@
     </ClInclude>
     <ClInclude Include="imgui\stb_truetype.h">
       <Filter>imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="spa\spa.h">
+      <Filter>spa</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

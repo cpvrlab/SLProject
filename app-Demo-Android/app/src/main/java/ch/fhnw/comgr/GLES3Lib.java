@@ -52,7 +52,6 @@ public class GLES3Lib {
     public static native boolean onTouch2Up         (int x1, int y1, int x2, int y2);
     public static native boolean onTouch2Move       (int x1, int y1, int x2, int y2);
     public static native boolean onDoubleClick      (int button, int x, int y);
-    public static native void    onRotationPYR      (float pitchRAD, float yawRAD, float rollRAD);
     public static native void    onRotationQUAT     (float quatX, float quatY, float quatZ, float quatW);
     public static native void    onClose            ();
     public static native boolean shouldClose        ();

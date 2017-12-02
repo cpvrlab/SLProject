@@ -49,4 +49,5 @@ INCLUDEPATH += \
     ../lib-SLExternal/oculus/LibOVR/Include \
     ../lib-SLExternal/opencv/include \
     ../lib-SLExternal/imgui \
+    ../lib-SLExternal/spa \
 

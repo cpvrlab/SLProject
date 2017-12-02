@@ -92,6 +92,7 @@ INCLUDEPATH += \
     randomc \
     zlib \
     imgui \
+    spa \
 
 HEADERS += \
     glew/include/GL/glew.h \
@@ -109,7 +110,8 @@ HEADERS += \
     imgui/imgui.h \
     imgui/stb_rect_pack.h \
     imgui/stb_textedit.h \
-    imgui/stb_truetype.h
+    imgui/stb_truetype.h \
+    spa/spa.h
 
 SOURCES += \
     glew/src/glew.c \
@@ -127,7 +129,8 @@ SOURCES += \
     Shoemake/EulerAngles.cpp \
     Shoemake/Decompose.cpp \
     imgui/imgui_draw.cpp \
-    imgui/imgui.cpp
+    imgui/imgui.cpp \
+    spa/spa.cpp
 
 macx {
 #Mac OSX only --------------------------------------

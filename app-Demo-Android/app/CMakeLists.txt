@@ -137,6 +137,8 @@ file(GLOB_RECURSE SLEXTERNAL_SOURCES    ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SL
                                         ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLExternal/randomc/mersenne.cpp
                                         ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLExternal/imgui/imgui.cpp
                                         ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLExternal/imgui/imgui_draw.cpp
+                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLExternal/spa/spa.cpp
+                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLExternal/spa/spa.h
                                         ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLExternal/Shoemake/Decompose.cpp
                                         ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLExternal/Shoemake/Decompose.h
                                         ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLExternal/Shoemake/EulerAngles.cpp
@@ -153,6 +155,7 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLExternal)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLExternal/imgui)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLExternal/randomc)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLExternal/nvwa)
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLExternal/spa)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLExternal/zlib)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLExternal/assimp/include)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLExternal/assimp/code)

@@ -2516,16 +2516,21 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         cam1->fov(_activeCalib->cameraFovDeg());
         cam1->clipNear(0.1f);
         cam1->clipFar(10000.0f);
-        cam1->background().texture(&_videoTexture);
         cam1->setInitialState();
 
+        // Turn on main video
+        cam1->background().texture(&_videoTexture);
         videoType(VT_MAIN);
 
-        SLLightSpot* light1 = new SLLightSpot(2,2,2, .1f);
-        light1->ambient(SLCol4f(1,1,1));
-        light1->diffuse(SLCol4f(1,1,1));
-        light1->specular(SLCol4f(1,1,1));
-        light1->attenuation(1,0,0);
+        // Create directional light for the sun light
+        SLLightDirect* light = new SLLightDirect(1.0f);
+        light->ambient(SLCol4f(1,1,1));
+        light->diffuse(SLCol4f(1,1,1));
+        light->specular(SLCol4f(1,1,1));
+        light->attenuation(1,0,0);
+
+        // Let the sun be rotated by time and location
+        _devLoc.sunLightNode(light);
 
         SLNode *axis = new SLNode(new SLCoordAxis(), "Axis Node");
         axis->setDrawBitsRec(SL_DB_WIREMESH, false);
@@ -2538,7 +2543,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
 
         // Scene structure
         SLNode* scene = new SLNode("Scene");
-        scene->addChild(light1);
+        scene->addChild(light);
         scene->addChild(cam1);
         scene->addChild(box);
         scene->addChild(axis);
@@ -2548,9 +2553,6 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         _root3D = scene;
 
         #if defined(SL_OS_MACIOS) || defined(SL_OS_ANDROID)
-        //initialize global reference position of this scene
-        //_devLoc.originLla(47.140624, 7.247405, 442.0);
-
         //activate rotation and gps sensor
         _devRot.isUsed(true);
         _devRot.zeroYawAtStart(false);
@@ -2576,17 +2578,21 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         cam1->lookAt(-10,2,0);
         cam1->clipNear(0.1f);
         cam1->clipFar(500.0f);
-        cam1->background().texture(&_videoTexture);
         cam1->setInitialState();
+
+        // Turn on main video
+        cam1->background().texture(&_videoTexture);
         videoType(VT_MAIN);
 
-        SLLightDirect* light = new SLLightDirect();
+        // Create directional light for the sun light
+        SLLightDirect* light = new SLLightDirect(5.0f);
         light->ambient(SLCol4f(1,1,1));
         light->diffuse(SLCol4f(1,1,1));
         light->specular(SLCol4f(1,1,1));
-        light->translation(10.0f, 10.0f, 10.0f);
-        light->lookAt(0, 0, 0);
         light->attenuation(1,0,0);
+
+        // Let the sun be rotated by time and location 
+        _devLoc.sunLightNode(light);
 
         SLAssimpImporter importer;
         #if defined(SL_OS_IOS) || defined(SL_OS_ANDROID)
@@ -2599,7 +2605,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         for (auto mesh : bern->findChild<SLNode>("Umgebung-Daecher")->meshes()) mesh->mat->kt(0.5f);
         for (auto mesh : bern->findChild<SLNode>("Umgebung-Fassaden")->meshes()) mesh->mat->kt(0.5f);
 
-        /* Hide some objects
+        // Hide some objects
         bern->findChild<SLNode>("Umgebung-Daecher")->drawBits()->set(SL_DB_HIDDEN, true);
         bern->findChild<SLNode>("Umgebung-Fassaden")->drawBits()->set(SL_DB_HIDDEN, true);
         bern->findChild<SLNode>("Christoffel-Tor")->drawBits()->set(SL_DB_HIDDEN, true);
@@ -2610,7 +2616,12 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         bern->findChild<SLNode>("Mauer-Dach")->drawBits()->set(SL_DB_HIDDEN, true);
         bern->findChild<SLNode>("Mauer-Weg")->drawBits()->set(SL_DB_HIDDEN, true);
         bern->findChild<SLNode>("Boden")->drawBits()->set(SL_DB_HIDDEN, true);
-        */
+        bern->findChild<SLNode>("Graben-Mauern")->drawBits()->set(SL_DB_HIDDEN, true);
+        bern->findChild<SLNode>("Graben-Bruecken")->drawBits()->set(SL_DB_HIDDEN, true);
+        bern->findChild<SLNode>("Graben-Grass")->drawBits()->set(SL_DB_HIDDEN, true);
+        bern->findChild<SLNode>("Graben-Turm-Dach")->drawBits()->set(SL_DB_HIDDEN, true);
+        bern->findChild<SLNode>("Graben-Turm-Fahne")->drawBits()->set(SL_DB_HIDDEN, true);
+        bern->findChild<SLNode>("Graben-Turm-Stein")->drawBits()->set(SL_DB_HIDDEN, true);
 
         // Set ambient on all child nodes and reinit meshes to reset the correct hasAlpha flag
         for (auto node : bern->children())

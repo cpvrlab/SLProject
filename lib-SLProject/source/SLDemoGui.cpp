@@ -462,6 +462,8 @@ void SLDemoGui::buildDemoGui(SLScene* s, SLSceneView* sv)
         sprintf(m+strlen(m), "Dist. to Origin (m) : %6.1f\n" ,offsetToOrigin.length());
         sprintf(m+strlen(m), "Max. Dist. (m)      : %6.1f\n" ,s->devLoc().locMaxDistanceM());
         sprintf(m+strlen(m), "Origin improve time : %6.1f sec.\n",s->devLoc().improveTime());
+        sprintf(m+strlen(m), "Sun Zenit (deg)     : %6.1f sec.\n",s->devLoc().originSolarZenit());
+        sprintf(m+strlen(m), "Sun Azimut (deg)    : %6.1f sec.\n",s->devLoc().originSolarAzimut());
 
         // Switch to fixed font
         ImGui::PushFont(ImGui::GetIO().Fonts->Fonts[1]);
@@ -541,7 +543,8 @@ void SLDemoGui::buildDemoGui(SLScene* s, SLSceneView* sv)
         }
 
         ImGui::End();
-    } else
+    } 
+    else
     {
         bern        = nullptr;
         boden       = nullptr;

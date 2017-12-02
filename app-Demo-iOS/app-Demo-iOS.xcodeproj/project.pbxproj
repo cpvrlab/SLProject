@@ -559,6 +559,7 @@
 		41BEFC071B78F84F009EF31F /* AVFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 41BEFC061B78F84F009EF31F /* AVFoundation.framework */; };
 		41BEFC0A1B78F85A009EF31F /* CoreMedia.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 41BEFC091B78F85A009EF31F /* CoreMedia.framework */; };
 		41BEFC0C1B78F866009EF31F /* CoreVideo.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 41BEFC0B1B78F865009EF31F /* CoreVideo.framework */; };
+		41C1FD621FD18EF800B1C190 /* spa.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 41C1FD601FD18EF800B1C190 /* spa.cpp */; };
 		41C48E8B1F0124750059B48C /* SLGLImGui.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 41C48E8A1F0124750059B48C /* SLGLImGui.cpp */; };
 		41C48E921F01250E0059B48C /* imgui_draw.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 41C48E8F1F01250E0059B48C /* imgui_draw.cpp */; };
 		41C48E931F01250E0059B48C /* imgui.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 41C48E901F01250E0059B48C /* imgui.cpp */; };
@@ -1426,6 +1427,8 @@
 		41BEFC061B78F84F009EF31F /* AVFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AVFoundation.framework; path = System/Library/Frameworks/AVFoundation.framework; sourceTree = SDKROOT; };
 		41BEFC091B78F85A009EF31F /* CoreMedia.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreMedia.framework; path = System/Library/Frameworks/CoreMedia.framework; sourceTree = SDKROOT; };
 		41BEFC0B1B78F865009EF31F /* CoreVideo.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreVideo.framework; path = System/Library/Frameworks/CoreVideo.framework; sourceTree = SDKROOT; };
+		41C1FD601FD18EF800B1C190 /* spa.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = spa.cpp; path = "../lib-SLExternal/spa/spa.cpp"; sourceTree = SOURCE_ROOT; };
+		41C1FD611FD18EF800B1C190 /* spa.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = spa.h; path = "../lib-SLExternal/spa/spa.h"; sourceTree = SOURCE_ROOT; };
 		41C48E8A1F0124750059B48C /* SLGLImGui.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SLGLImGui.cpp; path = "../lib-SLProject/source/GL/SLGLImGui.cpp"; sourceTree = SOURCE_ROOT; };
 		41C48E8D1F0124AE0059B48C /* SLDemoGui.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SLDemoGui.h; path = ../include/SLDemoGui.h; sourceTree = SOURCE_ROOT; };
 		41C48E8E1F0124AE0059B48C /* SLGLImGui.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SLGLImGui.h; path = ../include/SLGLImGui.h; sourceTree = SOURCE_ROOT; };
@@ -1516,6 +1519,7 @@
 		4124F2A116D4FD4B004379A0 /* lib-SLExternal */ = {
 			isa = PBXGroup;
 			children = (
+				41C1FD5E1FD18ED100B1C190 /* spa */,
 				41CF01DB1F096ABB00CA36C9 /* Shoemake */,
 				41C48E8F1F01250E0059B48C /* imgui_draw.cpp */,
 				41C48E901F01250E0059B48C /* imgui.cpp */,
@@ -2567,6 +2571,15 @@
 			path = comgr;
 			sourceTree = "<group>";
 		};
+		41C1FD5E1FD18ED100B1C190 /* spa */ = {
+			isa = PBXGroup;
+			children = (
+				41C1FD601FD18EF800B1C190 /* spa.cpp */,
+				41C1FD611FD18EF800B1C190 /* spa.h */,
+			);
+			path = spa;
+			sourceTree = "<group>";
+		};
 		41CF01DB1F096ABB00CA36C9 /* Shoemake */ = {
 			isa = PBXGroup;
 			children = (
@@ -3184,6 +3197,7 @@
 				4198087C1959BA670048085E /* FBXParser.cpp in Sources */,
 				419808B21959BA670048085E /* TriangulateProcess.cpp in Sources */,
 				419808641959BA670048085E /* AssimpCExport.cpp in Sources */,
+				41C1FD621FD18EF800B1C190 /* spa.cpp in Sources */,
 				419808721959BA670048085E /* DXFLoader.cpp in Sources */,
 				419808DE1959BA670048085E /* MDLMaterialLoader.cpp in Sources */,
 				41B86C5A1C4FE21400BB409D /* SLGLVertexBuffer.cpp in Sources */,
