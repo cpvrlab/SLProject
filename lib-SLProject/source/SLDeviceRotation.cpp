@@ -51,7 +51,7 @@ void SLDeviceRotation::onRotationQUAT(SLfloat quatX,
     quat.toEulerAnglesXYZ(_rollRAD, _pitchRAD, _yawRAD);
 
 
-    //_rotation.print("Rotation:\n");
+    _rotation.print("Rotation:\n");
 
     /*   Up   North
          |  /                       Rotation Matrix:
@@ -69,8 +69,8 @@ void SLDeviceRotation::onRotationQUAT(SLfloat quatX,
          | /
          |/                       iOS           Android
          +------ East        +-         -+   +-         -+
-         +------------+      |  0  0 -1  |   |  0 -1  0  |
-         | +------+   |      |  0  1  0  |   |  0  0 -1  |
+         +------------+      |  0  0 -1  |   |  0  0  1  |
+         | +------+   |      |  0  1  0  |   |  0 -1  0  |
          | |      | 0 |      |  1  0  0  |   |  1  0  0  |
          | +------+   |      +-         -+   +-         -+
          +------------+

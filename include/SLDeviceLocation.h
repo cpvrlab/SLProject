@@ -14,6 +14,7 @@
 
 #include <stdafx.h>
 #include <SLNode.h>
+#include <SLLightDirect.h>
 
 //-----------------------------------------------------------------------------
 //! Encapsulation of a mobile device location set by the device's GPS sensor
@@ -45,25 +46,28 @@ class SLDeviceLocation
 {
     public:             SLDeviceLocation    (){init();}
             void        init                ();
-            void        onLocationLLA       (double latDEG,
-                                             double lonDEG,
-                                             double altM,
-                                             float AccuracyM);
+            void        onLocationLLA       (SLdouble latDEG,
+                                             SLdouble lonDEG,
+                                             SLdouble altM,
+                                             SLfloat AccuracyM);
 
-            SLbool      calculateSolarAngles();
+            SLbool      calculateSolarAngles(SLdouble latDEG,
+                                             SLdouble lonDEG,
+                                             SLdouble altM);
 
             // Setters
             void        isUsed              (SLbool isUsed);
             void        useOriginAltitude   (SLbool useGLA) {_useOriginAltitude = useGLA;}
             void        improveOrigin       (SLbool impO) {_improveOrigin = impO;}
             void        hasOrigin           (SLbool hasOL);
-            void        originLLA           (double latDEG,
-                                             double lonDEG,
-                                             double altM);
-            void        defaultLLA          (double latDEG,
-                                             double lonDEG,
-                                             double altM);
-            void        locMaxDistanceM     (float maxDist) {_locMaxDistanceM = maxDist;}
+            void        originLLA           (SLdouble latDEG,
+                                             SLdouble lonDEG,
+                                             SLdouble altM);
+            void        defaultLLA          (SLdouble latDEG,
+                                             SLdouble lonDEG,
+                                             SLdouble altM);
+            void        locMaxDistanceM     (SLfloat maxDist) {_locMaxDistanceM = maxDist;}
+            void        sunLightNode        (SLLightDirect* sln) {_sunLightNode = sln;}
 
             // Getters
             SLbool      isUsed              () const {return _isUsed;}
@@ -80,6 +84,8 @@ class SLDeviceLocation
             SLbool      useOriginAltitude   () const {return _useOriginAltitude;}
             SLMat3d     wRecef              () const {return _wRecef;}
             SLfloat     improveTime         () {return SL_max(_improveTimeSEC - _improveTimer.elapsedTimeInSec(), 0.0f);}
+            SLfloat     originSolarZenit    () const {return _originSolarZenit;}
+            SLfloat     originSolarAzimut   () const {return _originSolarAzimut;}
 
    private:
             SLbool      _isUsed;            //!< Flag if the devices GPS Sensor is used

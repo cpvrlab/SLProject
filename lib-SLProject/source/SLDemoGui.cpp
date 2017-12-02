@@ -462,6 +462,8 @@ void SLDemoGui::buildDemoGui(SLScene* s, SLSceneView* sv)
         sprintf(m+strlen(m), "Dist. to Origin (m) : %6.1f\n" ,offsetToOrigin.length());
         sprintf(m+strlen(m), "Max. Dist. (m)      : %6.1f\n" ,s->devLoc().locMaxDistanceM());
         sprintf(m+strlen(m), "Origin improve time : %6.1f sec.\n",s->devLoc().improveTime());
+        sprintf(m+strlen(m), "Sun Zenit (deg)     : %6.1f sec.\n",s->devLoc().originSolarZenit());
+        sprintf(m+strlen(m), "Sun Azimut (deg)    : %6.1f sec.\n",s->devLoc().originSolarAzimut());
 
         // Switch to fixed font
         ImGui::PushFont(ImGui::GetIO().Fonts->Fonts[1]);
@@ -541,7 +543,8 @@ void SLDemoGui::buildDemoGui(SLScene* s, SLSceneView* sv)
         }
 
         ImGui::End();
-    } else
+    } 
+    else
     {
         bern        = nullptr;
         boden       = nullptr;
@@ -665,7 +668,7 @@ void SLDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
                     if (ImGui::MenuItem("Texture from live video", 0, curS==C_sceneVideoTexture))
                         sv->onCommand(C_sceneVideoTexture);
                     if (ImGui::MenuItem("Sensor AR (Main)", 0, curS==C_sceneVideoSensorAR))
-                        sv->onCommand(C_sceneVideoChristoffel);
+                        sv->onCommand(C_sceneVideoSensorAR);
                     if (ImGui::MenuItem("Christoffel Tower AR (Main)", 0, curS==C_sceneVideoChristoffel))
                         sv->onCommand(C_sceneVideoChristoffel);
 
