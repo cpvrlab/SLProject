@@ -327,7 +327,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         anim = SLAnimation::create("anim_light2_updown", 2.0f, true, EC_inOutQuint, AL_pingPongLoop);
         anim->createSimpleTranslationNodeTrack(light2, SLVec3f(0.0f, 5.0f, 0.0f));
 
-        #if defined(SL_OS_IOS) || defined(SL_OS_ANDROID)
+        #if defined(SL_OS_ANDROID)
         SLAssimpImporter importer;
         SLNode* mesh3DS = importer.load("jackolan.3ds");
         SLNode* meshFBX = importer.load("duck.fbx");
@@ -1893,7 +1893,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         scene->addChild(new SLNode(grid, "grid"));
 
         // Astro boy character
-        #if defined(SL_OS_IOS) || defined(SL_OS_ANDROID)
+        #if defined(SL_OS_ANDROID)
         SLNode* char1 = importer.load("AstroBoy.dae");
         #else
         SLNode* char1 = importer.load("DAE/AstroBoy/AstroBoy.dae");
@@ -1904,7 +1904,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         scene->addChild(char1);
         
         // Sintel character
-        #if defined(SL_OS_IOS) || defined(SL_OS_ANDROID)
+        #if defined(SL_OS_ANDROID)
         SLNode* char2 = importer.load("SintelLowResOwnRig.dae");
         #else
         SLNode* char2 = importer.load("DAE/Sintel/SintelLowResOwnRig.dae"
@@ -1923,7 +1923,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         scene->addChild(char2);
 
         // Skinned cube 1
-        #if defined(SL_OS_IOS) || defined(SL_OS_ANDROID)
+        #if defined(SL_OS_ANDROID)
         SLNode* cube1 = importer.load("skinnedcube2.dae");
         #else
         SLNode* cube1 = importer.load("DAE/SkinnedCube/skinnedcube2.dae");
@@ -1935,7 +1935,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         scene->addChild(cube1);
         
         // Skinned cube 2
-        #if defined(SL_OS_IOS) || defined(SL_OS_ANDROID)
+        #if defined(SL_OS_ANDROID)
         SLNode* cube2 = importer.load("skinnedcube4.dae");
         #else
         SLNode* cube2 = importer.load("DAE/SkinnedCube/skinnedcube4.dae");
@@ -1947,7 +1947,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         scene->addChild(cube2);
         
         // Skinned cube 3
-        #if defined(SL_OS_IOS) || defined(SL_OS_ANDROID)
+        #if defined(SL_OS_ANDROID)
         SLNode* cube3 = importer.load("skinnedcube5.dae");
         #else
         SLNode* cube3 = importer.load("DAE/SkinnedCube/skinnedcube5.dae");
@@ -2178,12 +2178,11 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         rect->rotate(90, -1,0,0);
 
         SLAssimpImporter importer;
-        #if defined(SL_OS_IOS) || defined(SL_OS_ANDROID)
+        #if defined(SL_OS_ANDROID)
         SLNode* center = importer.load("AstroBoy.dae");
         #else
         SLNode* center = importer.load("DAE/AstroBoy/AstroBoy.dae");
         #endif
-        //center->scale(100);
         _animManager.lastAnimPlayback()->playForward();
 
 
@@ -2478,7 +2477,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
 
         // Christoffel tower
         SLAssimpImporter importer;
-        #if defined(SL_OS_IOS) || defined(SL_OS_ANDROID)
+        #if defined(SL_OS_ANDROID)
         SLNode* tower = importer.load("christoffelturm.obj");
         #else
         SLNode* tower = importer.load("Wavefront-OBJ/Christoffelturm/christoffelturm.obj");
@@ -2595,7 +2594,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         _devLoc.sunLightNode(light);
 
         SLAssimpImporter importer;
-        #if defined(SL_OS_IOS) || defined(SL_OS_ANDROID)
+        #if defined(SL_OS_ANDROID)
         SLNode* bern = importer.load("Bern-Bahnhofsplatz.fbx");
         #else
         SLNode* bern = importer.load("FBX/Christoffel/Bern-Bahnhofsplatz.fbx");
@@ -2652,7 +2651,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         _devLoc.hasOrigin(true);
         _devRot.zeroYawAtStart(false);
 
-        #if defined(SL_OS_IOS) || defined(SL_OS_ANDROID)
+        #if defined(SL_OS_MACIOS) || defined(SL_OS_ANDROID)
         _devLoc.isUsed(true);
         _devRot.isUsed(true);
         cam1->camAnim(SLCamAnim::CA_deviceRotLocYUp);

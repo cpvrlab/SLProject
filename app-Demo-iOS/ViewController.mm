@@ -55,7 +55,7 @@ float GetSeconds()
     return (float)sec;
 }
 //-----------------------------------------------------------------------------
-@interface ViewController ()
+@interface ViewController () <CLLocationManagerDelegate>
 {
     SLfloat  m_lastFrameTimeSec;  //!< Timestamp for passing highres time
     SLfloat  m_lastTouchTimeSec;  //!< Frame time of the last touch event
@@ -146,7 +146,6 @@ float GetSeconds()
     
     [self setupMotionManager: 1.0/20.0];
     [self setupLocationManager];
-    
 }
 //-----------------------------------------------------------------------------
 - (void)viewDidUnload
@@ -368,7 +367,10 @@ float GetSeconds()
             float pitch = attitude.roll            - SL_HALFPI;
             float yaw   = attitude.yaw             - SL_HALFPI;
             float roll  = attitude.pitch;
-            SL_LOG("Pitch: %3.0f, Yaw: %3.0f, Roll: %3.0f\n", pitch*SL_RAD2DEG, yaw*SL_RAD2DEG, roll*SL_RAD2DEG); //slRotationPYR(pitch, yaw, roll);
+            SL_LOG("Pitch: %3.0f, Yaw: %3.0f, Roll: %3.0f\n",
+                   pitch*SL_RAD2DEG,
+                   yaw*SL_RAD2DEG,
+                   roll*SL_RAD2DEG);
         }
         else if([[UIDevice currentDevice] orientation] == UIDeviceOrientationPortrait)
         {
@@ -573,15 +575,30 @@ float GetSeconds()
 //! Starts the location data update if the interval time > 0 else it stops
 - (void) setupLocationManager
 {
-    // Init location manager
-    self.locationManager = [[CLLocationManager alloc] init];
-    self.locationManager.desiredAccuracy = kCLLocationAccuracyBest;
-    self.locationManager.distanceFilter = 1;
-    self.locationManager.delegate = self;
-    
-    [self.locationManager requestWhenInUseAuthorization];
+    if ([CLLocationManager locationServicesEnabled])
+    {
+        // Init location manager
+        self.locationManager = [[CLLocationManager alloc] init];
+        self.locationManager.delegate = self;
+        self.locationManager.desiredAccuracy = kCLLocationAccuracyBest;
+        //self.locationManager.distanceFilter = 1;
+        
+        // for iOS 8, specific user level permission is required,
+        // "when-in-use" authorization grants access to the user's location.
+        // important: be sure to include NSLocationWhenInUseUsageDescription along with its
+        // explanation string in your Info.plist or startUpdatingLocation will not work
+        if ([self.locationManager respondsToSelector:@selector(requestWhenInUseAuthorization)]) {
+            [self.locationManager requestWhenInUseAuthorization];
+        }
+    } else {
+        /* Location services are not enabled.
+         Take appropriate action: for instance, prompt the
+         user to enable the location services */
+        NSLog(@"Location services are not enabled");
+    }
     
     m_locationIsRunning = false;
+        
 }
 //-----------------------------------------------------------------------------
 //! Starts the location data update
@@ -598,7 +615,7 @@ float GetSeconds()
 //! Stops the location data update
 - (void) stopLocationManager
 {
-    if (m_locationIsRunning && [self.locationManager locationServicesEnabled] == YES)
+    if (m_locationIsRunning)
     {
         [self.locationManager stopUpdatingLocation];
         m_locationIsRunning = false;
@@ -606,19 +623,28 @@ float GetSeconds()
     }
 }
 //-----------------------------------------------------------------------------
--(void)locationManager:(CLLocationManager *)manager didUpdateLocations:(NSArray *)locations
+-(void)locationManager:(CLLocationManager *)manager didUpdateToLocation:(CLLocation *)newLocation fromLocation:(CLLocation *)oldLocation
 {
-    CLLocation *loc = [locations lastObject];
-    
-    printf("horizontalAccuracy: %f\n", loc.horizontalAccuracy);
+    printf("horizontalAccuracy: %f\n", newLocation.horizontalAccuracy);
     
     // negative horizontal accuracy means no location fix
-    if (loc.horizontalAccuracy < 0.0)
+    if (newLocation.horizontalAccuracy > 0.0)
     {
-        slLocationLLA(loc.coordinate.latitude,
-                      loc.coordinate.longitude,
-                      loc.altitude,
-                      loc.horizontalAccuracy);
+        slLocationLLA(newLocation.coordinate.latitude,
+                      newLocation.coordinate.longitude,
+                      newLocation.altitude,
+                      newLocation.horizontalAccuracy);
+    }
+}
+//-----------------------------------------------------------------------------
+- (void)locationManager:(CLLocationManager *)manager didFailWithError:(NSError *)error {
+    // The location "unknown" error simply means the manager is currently unable to get the location.
+    // We can ignore this error for the scenario of getting a single location fix, because we already have a
+    // timeout that will stop the location manager to save power.
+    //
+    if ([error code] != kCLErrorLocationUnknown) {
+        printf("**** locationManager didFailWithError ****\n");
+        [self stopLocationManager];
     }
 }
 //-----------------------------------------------------------------------------
