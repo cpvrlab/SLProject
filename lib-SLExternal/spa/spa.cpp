@@ -532,7 +532,7 @@ double deg2rad(double degrees)
 
 int integer(double value)
 {
-	return value;
+	return (int)value;
 }
 
 double limit_degrees(double degrees)
@@ -1069,8 +1069,11 @@ void calculate_eot_and_sun_rise_transit_set(spa_data *spa)
     m        = sun_mean_longitude(spa->jme);
     spa->eot = eot(m, spa->alpha, spa->del_psi, spa->epsilon);
 
-    sun_rts.hour = sun_rts.minute = sun_rts.second = 0;
-	sun_rts.delta_ut1 = sun_rts.timezone = 0.0;
+    sun_rts.hour = 0;
+    sun_rts.minute = 0;
+    sun_rts.second = 0.0;
+	sun_rts.delta_ut1 = 0.0; 
+    sun_rts.timezone = 0.0;
 
     sun_rts.jd = julian_day (sun_rts.year,   sun_rts.month,  sun_rts.day,       sun_rts.hour,
 		                     sun_rts.minute, sun_rts.second, sun_rts.delta_ut1, sun_rts.timezone);

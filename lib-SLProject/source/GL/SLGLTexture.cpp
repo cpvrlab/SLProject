@@ -265,8 +265,12 @@ SLbool SLGLTexture::copyVideoImage(SLint camWidth,
     _wrap_s = GL_CLAMP_TO_EDGE;
     _wrap_t = GL_CLAMP_TO_EDGE;
     
-    if (needsRebuild)
+    if (needsRebuild && _texName!=0)
+    {   _images[0]->name("LiveVideoImageFromMemory");
+        SL_LOG("SLGLTexture::copyVideoImage: Rebuild: %d, %s\n",
+               _texName, _images[0]->name().c_str());
         build();
+    }
     
     _needsUpdate = true;
     return needsRebuild;
@@ -287,8 +291,13 @@ void SLGLTexture::build(SLint texID)
   
     // delete texture name if it already exits
     if (_texName) 
-    {   glDeleteTextures(1, &_texName);
+    {   glBindTexture(_target, _texName);
+        glDeleteTextures(1, &_texName);
+        SL_LOG("SLGLTexture::build: Deleted: %d, %s\n",
+               _texName, _images[0]->name().c_str());
+        glBindTexture(_target, 0);
         _texName = 0;
+        numBytesInTextures -= _bytesOnGPU;
     }
     
     // get max texture size
@@ -469,6 +478,10 @@ void SLGLTexture::build(SLint texID)
         }
     }
 
+    if (glIsTexture(_texName))
+         SL_LOG("SLGLTexture::build: name: %u, unit-id: %u, Filename: %s\n", _texName, texID, _images[0]->name().c_str());
+    else SL_LOG("SLGLTexture::build: invalid name: %u, unit-id: %u, Filename: %s\n", _texName, texID, _images[0]->name().c_str());
+
     GET_GL_ERROR;
 }
 //-----------------------------------------------------------------------------
@@ -488,6 +501,13 @@ void SLGLTexture::bindActive(SLint texID)
     if (_texName)
     {   _stateGL->activeTexture(GL_TEXTURE0 + texID);
         _stateGL->bindTexture(_target, _texName);
+
+        if (!glIsTexture(_texName))
+        {   SL_LOG("\n\n****** SLGLTexture::bindActive: Invalid texName: %u, texID: %u, File: %s\n\n",
+                   _texName, texID, _images[0]->name().c_str());
+            //SL_EXIT_MSG(".");
+        }
+
         SLScene* s = SLScene::current;
         
         if (this == s->videoTexture() &&
