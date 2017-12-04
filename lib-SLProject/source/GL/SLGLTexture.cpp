@@ -227,7 +227,7 @@ void SLGLTexture::load(const SLVCol4f& colors)
 //-----------------------------------------------------------------------------
 void SLGLTexture::setVideoImage(SLstring videoImageFile)
 {
-     load(videoImageFile);
+    load(videoImageFile);
     _min_filter = GL_LINEAR;
     _mag_filter = GL_LINEAR;
     _needsUpdate = false;
@@ -253,7 +253,15 @@ SLbool SLGLTexture::copyVideoImage(SLint camWidth,
                                    SLbool isContinuous,
                                    SLbool isTopLeft)
 {                         
-    bool needsRebuild = _images[0]->load(camWidth,
+    // Add image for the first time
+    if (_images.size() == 0)
+         _images.push_back(new SLCVImage(camWidth, 
+                                         camHeight, 
+                                         PF_rgb,
+                                         "LiveVideoImageFromMemory"));
+    
+    // load returns true if size or format changes
+    bool needsBuild = _images[0]->load(camWidth,
                                          camHeight,
                                          srcFormat,
                                          PF_rgb,
@@ -265,11 +273,14 @@ SLbool SLGLTexture::copyVideoImage(SLint camWidth,
     _wrap_s = GL_CLAMP_TO_EDGE;
     _wrap_t = GL_CLAMP_TO_EDGE;
     
-    if (needsRebuild)
+    if (needsBuild || _texName == 0)
+    {   SL_LOG("SLGLTexture::copyVideoImage: Rebuild: %d, %s\n",
+               _texName, _images[0]->name().c_str());
         build();
+    }
     
     _needsUpdate = true;
-    return needsRebuild;
+    return needsBuild;
 }
 //-----------------------------------------------------------------------------
 /*! 
@@ -287,8 +298,13 @@ void SLGLTexture::build(SLint texID)
   
     // delete texture name if it already exits
     if (_texName) 
-    {   glDeleteTextures(1, &_texName);
+    {   glBindTexture(_target, _texName);
+        glDeleteTextures(1, &_texName);
+        SL_LOG("SLGLTexture::build: Deleted: %d, %s\n",
+               _texName, _images[0]->name().c_str());
+        glBindTexture(_target, 0);
         _texName = 0;
+        numBytesInTextures -= _bytesOnGPU;
     }
     
     // get max texture size
@@ -469,6 +485,11 @@ void SLGLTexture::build(SLint texID)
         }
     }
 
+    // Check if texture name is valid only for debug purpose
+    //if (glIsTexture(_texName))
+    //     SL_LOG("SLGLTexture::build: name: %u, unit-id: %u, Filename: %s\n", _texName, texID, _images[0]->name().c_str());
+    //else SL_LOG("SLGLTexture::build: invalid name: %u, unit-id: %u, Filename: %s\n", _texName, texID, _images[0]->name().c_str());
+
     GET_GL_ERROR;
 }
 //-----------------------------------------------------------------------------
@@ -483,11 +504,19 @@ void SLGLTexture::bindActive(SLint texID)
     assert(texID>=0 && texID<32);
    
     // if texture not exists build it
-    if (!_texName) build(texID);
+    if (!_texName)
+        build(texID);
    
     if (_texName)
     {   _stateGL->activeTexture(GL_TEXTURE0 + texID);
         _stateGL->bindTexture(_target, _texName);
+
+        // Check if texture name is valid only for debug purpose
+        //if (!glIsTexture(_texName))
+        //{   SL_LOG("\n\n****** SLGLTexture::bindActive: Invalid texName: %u, texID: %u, File: %s\n\n",
+        //           _texName, texID, _images[0]->name().c_str());
+        //}
+
         SLScene* s = SLScene::current;
         
         if (this == s->videoTexture() &&

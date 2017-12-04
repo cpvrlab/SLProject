@@ -2640,7 +2640,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         SLNode* scene = new SLNode("Scene");
         scene->addChild(light);
         scene->addChild(axis);
-        if (bern) scene->addChild(bern);
+        scene->addChild(bern);
         scene->addChild(cam1);
 
         //initialize sensor stuff
