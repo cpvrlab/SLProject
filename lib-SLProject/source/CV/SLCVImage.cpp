@@ -17,7 +17,10 @@
 
 //-----------------------------------------------------------------------------
 //! Constructor for empty image of a certain format and size
-SLCVImage::SLCVImage(SLint width, SLint height, SLPixelFormat format) : SLObject()
+SLCVImage::SLCVImage(SLint width, 
+                     SLint height, 
+                     SLPixelFormat format, 
+                     SLstring name) : SLObject(name)
 {
     allocate(width, height, format);
 }

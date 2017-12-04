@@ -32,7 +32,8 @@ class SLCVImage : public SLObject
                             SLCVImage       () {}
                             SLCVImage       (SLint width,
                                              SLint height,
-                                             SLPixelFormat format);
+                                             SLPixelFormat format,
+                                             SLstring name);
                             SLCVImage       (const SLstring imageFilename, 
                                              SLbool flipVertical = true,
                                              SLbool loadGrayscaleIntoAlpha = false);

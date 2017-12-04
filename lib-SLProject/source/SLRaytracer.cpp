@@ -728,7 +728,7 @@ void SLRaytracer::prepareImage()
 
     // Create the image for the first time
     if (_images.size()==0)
-        _images.push_back(new SLCVImage(_sv->scrW(), _sv->scrH(), PF_rgb));
+        _images.push_back(new SLCVImage(_sv->scrW(), _sv->scrH(), PF_rgb, "Raytracer"));
 
     // Allocate image of the inherited texture class 
     if (_sv->scrW() != _images[0]->width() || _sv->scrH() != _images[0]->height())

@@ -2594,15 +2594,6 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         // Let the sun be rotated by time and location 
         _devLoc.sunLightNode(light);
 
-
-        SLAssimpImporter importer;
-        #if defined(SL_OS_IOS) || defined(SL_OS_ANDROID)
-        SLNode* duck = importer.load("duck.fbx");
-        #else
-        SLNode* duck = importer.load("FBX/Duck/duck.fbx");
-        #endif
-
-        /*
         SLAssimpImporter importer;
         #if defined(SL_OS_IOS) || defined(SL_OS_ANDROID)
         SLNode* bern = importer.load("Bern-Bahnhofsplatz.fbx");
@@ -2639,7 +2630,6 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
                 mesh->init(node);
             }
         }
-        */
 
         // Add axis object a world origin (Loeb Ecke)
         SLNode *axis = new SLNode(new SLCoordAxis(), "Axis Node");
@@ -2650,8 +2640,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         SLNode* scene = new SLNode("Scene");
         scene->addChild(light);
         scene->addChild(axis);
-        //scene->addChild(bern);
-        scene->addChild(duck);
+        scene->addChild(bern);
         scene->addChild(cam1);
 
         //initialize sensor stuff
