@@ -41,12 +41,14 @@
 	<string>Used for Augmented Reality rendering</string>
 	<key>NSMotionUsageDescription</key>
 	<string>Used for Augmented Reality rendering</string>
-	<key>NSLocationWhenInUseUsageDescription
-
-NSLocationWhenInUseUsageDescription
-
-</key>
+	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
 	<string>Used for Augmented Reality rendering</string>
+	<key>NSLocationAlwaysUsageDescription</key>
+	<string>Used for Augmented Reality rendering</string>
+	<key>NSLocationUsageDescription</key>
+	<string>Used for Augmented Reality rendering</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string></string>
 	<key>UIApplicationExitsOnSuspend</key>
 	<true/>
 	<key>UILaunchStoryboardName</key>
