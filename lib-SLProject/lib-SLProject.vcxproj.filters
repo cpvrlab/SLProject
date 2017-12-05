@@ -43,6 +43,9 @@
     <Filter Include="Nodes\Lights">
       <UniqueIdentifier>{2d08b2c5-129c-472b-853a-539acb067534}</UniqueIdentifier>
     </Filter>
+    <Filter Include="CV\OrbSlam">
+      <UniqueIdentifier>{b72b86e1-1096-47ad-9092-880625583243}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\include\SLAABBox.h">
@@ -369,6 +372,9 @@
     <ClInclude Include="..\include\ORBextractor.h">
       <Filter>CV</Filter>
     </ClInclude>
+    <ClInclude Include="..\include\OrbSlam\Converter.h">
+      <Filter>CV\OrbSlam</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="source\SLAABBox.cpp">
@@ -622,6 +628,9 @@
     </ClCompile>
     <ClCompile Include="source\CV\ORBextractor.cpp">
       <Filter>CV</Filter>
+    </ClCompile>
+    <ClCompile Include="source\CV\OrbSlam\Converter.cpp">
+      <Filter>CV\OrbSlam</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

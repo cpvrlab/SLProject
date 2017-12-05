@@ -101,8 +101,8 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>glfw3/include;zlib;png;$(ProjectDir);glew/include;dirent;randomc;Shoemake;oculus\LibOVR\Include;oculus\3rdParty\glext;assimp\code\BoostWorkaround;ktx/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>KTX_OPENGL;_GLFW_USE_OPENGL;_GLFW_WIN32;_GLFW_WGL;GLEW_STATIC;_DEBUG;_LIB;_CRT_SECURE_NO_WARNINGS;ASSIMP_BUILD_BOOST_WORKAROUND;ASSIMP_BUILD_NO_OWN_ZLIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>glfw3/include;zlib;png;$(ProjectDir);glew/include;dirent;randomc;Shoemake;oculus\LibOVR\Include;oculus\3rdParty\glext;assimp\code\BoostWorkaround;ktx/include;opencv/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>KTX_OPENGL;_GLFW_USE_OPENGL;_GLFW_WIN32;_GLFW_WGL;GLEW_STATIC;_WINDOWS;_DEBUG;_LIB;_CRT_SECURE_NO_WARNINGS;ASSIMP_BUILD_BOOST_WORKAROUND;ASSIMP_BUILD_NO_OWN_ZLIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MinimalRebuild>false</MinimalRebuild>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
@@ -143,8 +143,8 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
-      <AdditionalIncludeDirectories>glfw3/include;zlib;png;$(ProjectDir);glew/include;dirent;randomc;Shoemake;oculus\LibOVR\Include;oculus\3rdParty\glext;assimp\code\BoostWorkaround;ktx/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>KTX_OPENGL;_GLFW_USE_OPENGL;_GLFW_WIN32;_GLFW_WGL;GLEW_STATIC;NDEBUG;_LIB;_CRT_SECURE_NO_WARNINGS;ASSIMP_BUILD_BOOST_WORKAROUND;ASSIMP_BUILD_NO_OWN_ZLIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>glfw3/include;zlib;png;$(ProjectDir);glew/include;dirent;randomc;Shoemake;oculus\LibOVR\Include;oculus\3rdParty\glext;assimp\code\BoostWorkaround;ktx/include;opencv/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>KTX_OPENGL;_GLFW_USE_OPENGL;_GLFW_WIN32;_GLFW_WGL;GLEW_STATIC;_WINDOWS;NDEBUG;_LIB;_CRT_SECURE_NO_WARNINGS;ASSIMP_BUILD_BOOST_WORKAROUND;ASSIMP_BUILD_NO_OWN_ZLIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <BufferSecurityCheck>false</BufferSecurityCheck>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
@@ -162,6 +162,12 @@
     </Lib>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="DBoW2\DBoW2\BowVector.cpp" />
+    <ClCompile Include="DBoW2\DBoW2\FeatureVector.cpp" />
+    <ClCompile Include="DBoW2\DBoW2\FORB.cpp" />
+    <ClCompile Include="DBoW2\DBoW2\ScoringObject.cpp" />
+    <ClCompile Include="DBoW2\DUtils\Random.cpp" />
+    <ClCompile Include="DBoW2\DUtils\Timestamp.cpp" />
     <ClCompile Include="dirent\dirent.c" />
     <ClCompile Include="glew\src\glew.c" />
     <ClCompile Include="glfw3\src\context.c" />
@@ -217,6 +223,14 @@
     <ClCompile Include="zlib\zutil.c" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="DBoW2\DBoW2\BowVector.h" />
+    <ClInclude Include="DBoW2\DBoW2\FClass.h" />
+    <ClInclude Include="DBoW2\DBoW2\FeatureVector.h" />
+    <ClInclude Include="DBoW2\DBoW2\FORB.h" />
+    <ClInclude Include="DBoW2\DBoW2\ScoringObject.h" />
+    <ClInclude Include="DBoW2\DBoW2\TemplatedVocabulary.h" />
+    <ClInclude Include="DBoW2\DUtils\Random.h" />
+    <ClInclude Include="DBoW2\DUtils\Timestamp.h" />
     <ClInclude Include="dirent\dirent.h" />
     <ClInclude Include="glew\include\GL\glew.h" />
     <ClInclude Include="glew\include\GL\wglew.h" />

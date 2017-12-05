@@ -268,10 +268,23 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         videoType(VT_MAIN);
 
         SLCVMap* map = new SLCVMap("Map");
-        SLCVKeyFrameDB* kfDB = new SLCVKeyFrameDB();
+
+
+        ORBVocabulary* vocabulary = new ORBVocabulary();
+        //string strVocFile = "D:/Development/ORB_SLAM2/Vocabulary/ORBvoc.txt";
+        //bool bVocLoad = vocabulary->loadFromTextFile(strVocFile);
+        //if (!bVocLoad)
+        //{
+        //    cerr << "Wrong path to vocabulary. " << endl;
+        //    cerr << "Failed to open at: " << strVocFile << endl;
+        //    exit(-1);
+        //}
+        //cout << "Vocabulary loaded!" << endl << endl;
+
+        SLCVKeyFrameDB* kfDB = new SLCVKeyFrameDB(*vocabulary);
 
         //load map points and keyframes from json file
-        SLCVSlamStateLoader loader("../_data/calibrations/orb-slam-state.json");
+        SLCVSlamStateLoader loader("../_data/calibrations/orb-slam-state.json", vocabulary);
         loader.load(map->mapPoints(), kfDB->keyFrames());
 
         //add visual representations of map and keyFrame database to scene
@@ -303,7 +316,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         }
         scene->addChild(cam1);
 
-        _trackers.push_back( new SLCVTrackedRaulMur(cam1));
+        _trackers.push_back( new SLCVTrackedRaulMur(cam1, vocabulary, kfDB));
 
         // Save energy
         sv->waitEvents(false); //for constant video feed

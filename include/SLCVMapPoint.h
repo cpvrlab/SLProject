@@ -12,7 +12,10 @@
 #define SLCVMAPPOINT_H
 
 #include <vector>
+#include <map>
 #include <SLCV.h>
+
+class SLCVKeyFrame;
 //-----------------------------------------------------------------------------
 //! 
 /*! 
@@ -23,11 +26,31 @@ public:
     void id(int id) { _id = id; }
     void worldPos(const SLCVMat& pos) { _worldPos = pos; }
     SLVec3f worldPos();
+
+    bool isBad() { return false; } //we have no bad systematic
+
+    void AddObservation(SLCVKeyFrame* pKF, size_t idx);
+    std::map<SLCVKeyFrame*, size_t> SLCVMapPoint::GetObservations() { return mObservations; }
+
 private:
-    int _id;
+    int _id=-1;
     //open cv coordinate representation: z-axis points to principlal point,
     // x-axis to the right and y-axis down
     SLCVMat _worldPos;
+
+    // Keyframes observing the point and associated index in keyframe
+    std::map<SLCVKeyFrame*, size_t> mObservations;
+
+    // Mean viewing direction
+    cv::Mat mNormalVector;
+
+    // Best descriptor to fast matching
+    cv::Mat mDescriptor;
+
+    // Reference KeyFrame
+    SLCVKeyFrame* mpRefKF;
+
+    int _nObs=0;
 };
 
 typedef std::vector<SLCVMapPoint> SLCVVMapPoint;

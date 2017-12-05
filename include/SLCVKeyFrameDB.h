@@ -1,6 +1,6 @@
 //#############################################################################
 //  File:      SLCVKeyframeDB.h
-//  Author:    Michael Göttlicher
+//  Author:    Raúl Mur-Artal, Michael Göttlicher
 //  Date:      October 2017
 //  Codestyle: https://github.com/cpvrlab/SLProject/wiki/Coding-Style-Guidelines
 //  Copyright: Marcus Hudritsch
@@ -12,6 +12,7 @@
 #define SLCVKEYFRAMEDB_H
 
 #include <SLCamera.h>
+#include <SLCVFrame.h>
 #include <SLCVKeyFrame.h>
 
 //-----------------------------------------------------------------------------
@@ -21,11 +22,20 @@
 class SLCVKeyFrameDB
 {
 public:
+    SLCVKeyFrameDB(const ORBVocabulary &voc);
 
     SLCVVKeyFrame& keyFrames() { return _keyFrames; }
 
-protected:
+    void add(SLCVKeyFrame* pKF);
 
+    // Relocalization
+    std::vector<SLCVKeyFrame*> DetectRelocalizationCandidates(SLCVFrame* F);
+
+protected:
+    // Associated vocabulary
+    const ORBVocabulary* mpVoc;
+    // Inverted file
+    std::vector<list<SLCVKeyFrame*> > mvInvertedFile;
 
 private:
     SLCVVKeyFrame _keyFrames;

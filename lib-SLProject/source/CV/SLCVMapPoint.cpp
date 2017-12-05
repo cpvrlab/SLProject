@@ -10,6 +10,7 @@
 
 #include "stdafx.h"
 #include "SLCVMapPoint.h"
+#include <SLCVKeyFrame.h>
 
 //-----------------------------------------------------------------------------
 SLVec3f SLCVMapPoint::worldPos()
@@ -21,3 +22,11 @@ SLVec3f SLCVMapPoint::worldPos()
     return vec;
 }
 //-----------------------------------------------------------------------------
+void SLCVMapPoint::AddObservation(SLCVKeyFrame* pKF, size_t idx)
+{
+    //unique_lock<mutex> lock(mMutexFeatures);
+    if (mObservations.count(pKF))
+        return;
+    mObservations[pKF] = idx;
+    _nObs++;
+}

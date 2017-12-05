@@ -270,6 +270,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="..\include\ORBextractor.h" />
+    <ClInclude Include="..\include\OrbSlam\Converter.h" />
     <ClInclude Include="..\include\SL.h" />
     <ClInclude Include="..\include\SLAccelStruct.h" />
     <ClInclude Include="..\include\SLAnimation.h" />
@@ -384,6 +385,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="source\CV\OrbSlam\Converter.cpp" />
     <ClCompile Include="source\CV\SLCVFeatureManager.cpp" />
     <ClCompile Include="source\CV\SLCVFrame.cpp" />
     <ClCompile Include="source\CV\SLCVImage.cpp" />

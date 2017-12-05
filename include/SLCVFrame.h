@@ -14,6 +14,9 @@
 #include <opencv2/opencv.hpp>
 #include <ORBextractor.h>
 #include <SLCVMapPoint.h>
+#include <DBoW2/DBoW2/BowVector.h>
+#include <DBoW2/DBoW2/FeatureVector.h>
+#include <OrbSlam/ORBVocabulary.h>
 
 #define FRAME_GRID_ROWS 48
 #define FRAME_GRID_COLS 64
@@ -27,6 +30,9 @@ public:
     SLCVFrame(const cv::Mat &imGray, const double &timeStamp, ORBextractor* extractor,
         cv::Mat &K, cv::Mat &distCoef);
 
+    // Compute Bag of Words representation.
+    void ComputeBoW();
+
     // Scale pyramid info.
     int mnScaleLevels;
     float mfScaleFactor;
@@ -35,6 +41,14 @@ public:
     vector<float> mvInvScaleFactors;
     vector<float> mvLevelSigma2;
     vector<float> mvInvLevelSigma2;
+
+    // Bag of Words Vector structures.
+    DBoW2::BowVector mBowVec;
+    DBoW2::FeatureVector mFeatVec;
+
+    // Current and Next Frame id.
+    static long unsigned int nNextId;
+    long unsigned int mnId;
 
 private:
     // Extract ORB on the image
@@ -54,6 +68,9 @@ private:
     // Compute the cell of a keypoint (return false if outside the grid)
     bool PosInGrid(const cv::KeyPoint &kp, int &posX, int &posY);
 
+    // Vocabulary used for relocalization.
+    ORBVocabulary* mpORBvocabulary;
+
     // Feature extractor. The right is used only in the stereo case.
     ORBextractor* mpORBextractorLeft;
 
@@ -68,7 +85,7 @@ private:
     static float cy;
     static float invfx;
     static float invfy;
-    cv::Mat mDistCoef;
+    SLCVMat mDistCoef;
 
     // Number of KeyPoints.
     int N;
@@ -97,10 +114,7 @@ private:
     // Camera pose.
     cv::Mat mTcw;
 
-    // Current and Next Frame id.
-    static long unsigned int nNextId;
-    long unsigned int mnId;
-
+public:
     // Undistorted Image Bounds (computed once).
     static float mnMinX;
     static float mnMaxX;

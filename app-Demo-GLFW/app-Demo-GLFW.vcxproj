@@ -260,7 +260,7 @@ xcopy "$(SolutionDir)_lib\prebuilt\OpenCV\x64\vc14\bin\opencv_flann*.dll" "$(Sol
       <AdditionalDependencies>ws2_32.lib;opengl32.lib;lib-SLExternal.lib;lib-SLProject.lib;lib-Assimp.lib;opencv_aruco320.lib;opencv_calib3d320.lib;opencv_core320.lib;opencv_features2d320.lib;opencv_highgui320.lib;opencv_flann320.lib;opencv_imgproc320.lib;opencv_imgcodecs320.lib;opencv_objdetect320.lib;opencv_video320.lib;opencv_videoio320.lib;opencv_xfeatures2d320.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
       <AdditionalLibraryDirectories>$(SolutionDir)_lib\$(Configuration)\$(Platform)\;$(SolutionDir)_lib\prebuilt\OpenCV\x64\vc14\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <GenerateDebugInformation>false</GenerateDebugInformation>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Console</SubSystem>
       <OptimizeReferences>true</OptimizeReferences>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>

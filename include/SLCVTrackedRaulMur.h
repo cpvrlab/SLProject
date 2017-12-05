@@ -23,6 +23,7 @@ for a good top down information.
 #include <SLCVTracked.h>
 #include <SLNode.h>
 #include <SLCVFrame.h>
+#include <SLCVKeyFrameDB.h>
 
 using namespace cv;
 
@@ -33,7 +34,8 @@ using namespace cv;
 class SLCVTrackedRaulMur : public SLCVTracked
 {
 public:
-    SLCVTrackedRaulMur(SLNode *node);
+    SLCVTrackedRaulMur(SLNode *node, ORBVocabulary* vocabulary,
+        SLCVKeyFrameDB* keyFrameDB);
     ~SLCVTrackedRaulMur();
     SLbool track(SLCVMat imageGray,
         SLCVMat image,
@@ -41,9 +43,21 @@ public:
         SLbool drawDetection,
         SLSceneView* sv);
 
+protected:
+    bool Relocalization();
+
 private:
+    // ORB vocabulary used for place recognition and feature matching.
+    ORBVocabulary* mpVocabulary;
+
+    // KeyFrame database for place recognition (relocalization and loop detection).
+    SLCVKeyFrameDB* mpKeyFrameDatabase;
+
     // Current Frame
     SLCVFrame mCurrentFrame;
+
+    //extractor instance
+    ORB_SLAM2::ORBextractor* _extractor = NULL;
 };
 //-----------------------------------------------------------------------------
 #endif //SLCVTRACKERRAULMUR_H

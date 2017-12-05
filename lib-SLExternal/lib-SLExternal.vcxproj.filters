@@ -34,6 +34,9 @@
     <Filter Include="imgui">
       <UniqueIdentifier>{b9ab6575-6ad1-4812-a084-b9c9d7fd3c0f}</UniqueIdentifier>
     </Filter>
+    <Filter Include="DBoW2">
+      <UniqueIdentifier>{b0e24e04-37a0-4aa2-8b43-d510a44f876b}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="randomc\mersenne.cpp">
@@ -195,6 +198,24 @@
     <ClCompile Include="imgui\imgui_draw.cpp">
       <Filter>imgui</Filter>
     </ClCompile>
+    <ClCompile Include="DBoW2\DUtils\Random.cpp">
+      <Filter>DBoW2</Filter>
+    </ClCompile>
+    <ClCompile Include="DBoW2\DUtils\Timestamp.cpp">
+      <Filter>DBoW2</Filter>
+    </ClCompile>
+    <ClCompile Include="DBoW2\DBoW2\BowVector.cpp">
+      <Filter>DBoW2</Filter>
+    </ClCompile>
+    <ClCompile Include="DBoW2\DBoW2\FeatureVector.cpp">
+      <Filter>DBoW2</Filter>
+    </ClCompile>
+    <ClCompile Include="DBoW2\DBoW2\FORB.cpp">
+      <Filter>DBoW2</Filter>
+    </ClCompile>
+    <ClCompile Include="DBoW2\DBoW2\ScoringObject.cpp">
+      <Filter>DBoW2</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="randomc\random.h">
@@ -334,6 +355,30 @@
     </ClInclude>
     <ClInclude Include="imgui\stb_truetype.h">
       <Filter>imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="DBoW2\DUtils\Random.h">
+      <Filter>DBoW2</Filter>
+    </ClInclude>
+    <ClInclude Include="DBoW2\DUtils\Timestamp.h">
+      <Filter>DBoW2</Filter>
+    </ClInclude>
+    <ClInclude Include="DBoW2\DBoW2\BowVector.h">
+      <Filter>DBoW2</Filter>
+    </ClInclude>
+    <ClInclude Include="DBoW2\DBoW2\FClass.h">
+      <Filter>DBoW2</Filter>
+    </ClInclude>
+    <ClInclude Include="DBoW2\DBoW2\FeatureVector.h">
+      <Filter>DBoW2</Filter>
+    </ClInclude>
+    <ClInclude Include="DBoW2\DBoW2\FORB.h">
+      <Filter>DBoW2</Filter>
+    </ClInclude>
+    <ClInclude Include="DBoW2\DBoW2\ScoringObject.h">
+      <Filter>DBoW2</Filter>
+    </ClInclude>
+    <ClInclude Include="DBoW2\DBoW2\TemplatedVocabulary.h">
+      <Filter>DBoW2</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
