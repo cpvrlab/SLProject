@@ -28,10 +28,12 @@ class SLCVFrame
 public:
     SLCVFrame();
     SLCVFrame(const cv::Mat &imGray, const double &timeStamp, ORBextractor* extractor,
-        cv::Mat &K, cv::Mat &distCoef);
+        cv::Mat &K, cv::Mat &distCoef, ORBVocabulary* orbVocabulary);
 
     // Compute Bag of Words representation.
     void ComputeBoW();
+
+    vector<size_t> GetFeaturesInArea(const float &x, const float  &y, const float  &r, const int minLevel = -1, const int maxLevel = -1) const;
 
     // Scale pyramid info.
     int mnScaleLevels;
@@ -48,9 +50,12 @@ public:
 
     // Current and Next Frame id.
     static long unsigned int nNextId;
-    long unsigned int mnId;
+    long unsigned int mnId = -1;
 
-private:
+    // MapPoints associated to keypoints, NULL pointer if no association.
+    std::vector<SLCVMapPoint*> mvpMapPoints;
+
+//public:
     // Extract ORB on the image
     void ExtractORB(const cv::Mat &im);
 
@@ -69,10 +74,10 @@ private:
     bool PosInGrid(const cv::KeyPoint &kp, int &posX, int &posY);
 
     // Vocabulary used for relocalization.
-    ORBVocabulary* mpORBvocabulary;
+    ORBVocabulary* mpORBvocabulary = NULL;
 
     // Feature extractor. The right is used only in the stereo case.
-    ORBextractor* mpORBextractorLeft;
+    ORBextractor* mpORBextractorLeft = NULL;
 
     // Frame timestamp.
     double mTimeStamp;
@@ -100,9 +105,6 @@ private:
     // ORB descriptor, each row associated to a keypoint.
     cv::Mat mDescriptors;
 
-    // MapPoints associated to keypoints, NULL pointer if no association.
-    std::vector<SLCVMapPoint*> mvpMapPoints;
-
     // Flag to identify outlier associations.
     std::vector<bool> mvbOutlier;
 
@@ -114,7 +116,7 @@ private:
     // Camera pose.
     cv::Mat mTcw;
 
-public:
+//public:
     // Undistorted Image Bounds (computed once).
     static float mnMinX;
     static float mnMaxX;

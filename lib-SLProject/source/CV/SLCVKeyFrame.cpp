@@ -18,6 +18,12 @@ SLCVKeyFrame::SLCVKeyFrame()
 {
 }
 //-----------------------------------------------------------------------------
+cv::Mat SLCVKeyFrame::GetCameraCenter()
+{
+    //unique_lock<mutex> lock(mMutexPose);
+    return Ow.clone();
+}
+//-----------------------------------------------------------------------------
 void SLCVKeyFrame::ComputeBoW(ORBVocabulary* orbVocabulary)
 {
     if (mBowVec.empty() || mFeatVec.empty())
@@ -41,10 +47,10 @@ SLCamera* SLCVKeyFrame::getSceneObject()
         //Because of that we have to apply a rotation of 180 deg about X axis, what is
         //equal to inverting the signs in colum 1 and 2.
         om.setMatrix(
-            _wTc.at<float>(0, 0), -_wTc.at<float>(0, 1), -_wTc.at<float>(0, 2), _wTc.at<float>(0, 3),
-            _wTc.at<float>(1, 0), -_wTc.at<float>(1, 1), -_wTc.at<float>(1, 2), _wTc.at<float>(1, 3),
-            _wTc.at<float>(2, 0), -_wTc.at<float>(2, 1), -_wTc.at<float>(2, 2), _wTc.at<float>(2, 3),
-            _wTc.at<float>(3, 0), -_wTc.at<float>(3, 1), -_wTc.at<float>(3, 2), _wTc.at<float>(3, 3));
+            _Twc.at<float>(0, 0), -_Twc.at<float>(0, 1), -_Twc.at<float>(0, 2), _Twc.at<float>(0, 3),
+            _Twc.at<float>(1, 0), -_Twc.at<float>(1, 1), -_Twc.at<float>(1, 2), _Twc.at<float>(1, 3),
+            _Twc.at<float>(2, 0), -_Twc.at<float>(2, 1), -_Twc.at<float>(2, 2), _Twc.at<float>(2, 3),
+            _Twc.at<float>(3, 0), -_Twc.at<float>(3, 1), -_Twc.at<float>(3, 2), _Twc.at<float>(3, 3));
         //om.rotate(180, 1, 0, 0);
 
         _camera->om(om);

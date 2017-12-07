@@ -58,6 +58,9 @@ private:
 
     //extractor instance
     ORB_SLAM2::ORBextractor* _extractor = NULL;
+
+    //Last Frame, KeyFrame and Relocalisation Info
+    unsigned int mnLastRelocFrameId = 0;
 };
 //-----------------------------------------------------------------------------
 #endif //SLCVTRACKERRAULMUR_H

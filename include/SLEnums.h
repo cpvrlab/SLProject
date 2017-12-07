@@ -398,6 +398,7 @@ enum SLVideoType
 {   VT_NONE =  0,  //!< No camera needed
     VT_MAIN =  1,  //!< Main camera on all on all all devices
     VT_SCND =  2,  //!< Selfie camera on mobile devices
+    VT_SEQU =  3,  //!< Image sequence from file
 };
 //-----------------------------------------------------------------------------
 //! Feature detector-decriptor types

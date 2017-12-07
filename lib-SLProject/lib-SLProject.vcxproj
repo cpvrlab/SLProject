@@ -271,6 +271,8 @@
   <ItemGroup>
     <ClInclude Include="..\include\ORBextractor.h" />
     <ClInclude Include="..\include\OrbSlam\Converter.h" />
+    <ClInclude Include="..\include\OrbSlam\ORBmatcher.h" />
+    <ClInclude Include="..\include\OrbSlam\PnPsolver.h" />
     <ClInclude Include="..\include\SL.h" />
     <ClInclude Include="..\include\SLAccelStruct.h" />
     <ClInclude Include="..\include\SLAnimation.h" />
@@ -386,6 +388,8 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="source\CV\OrbSlam\Converter.cpp" />
+    <ClCompile Include="source\CV\OrbSlam\ORBmatcher.cpp" />
+    <ClCompile Include="source\CV\OrbSlam\PnPsolver.cpp" />
     <ClCompile Include="source\CV\SLCVFeatureManager.cpp" />
     <ClCompile Include="source\CV\SLCVFrame.cpp" />
     <ClCompile Include="source\CV\SLCVImage.cpp" />

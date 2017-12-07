@@ -23,6 +23,8 @@
 #include <SLCVTracked.h>
 #include <SLCVTrackedAruco.h>
 
+#define SL_VIDEO_DEBUG 1;
+
 //-----------------------------------------------------------------------------
 /*! Global static scene pointer that can be used throughout the entire library
 to access the current scene and its sceneviews. 
@@ -509,7 +511,8 @@ void SLScene::onAfterLoad()
     if (_videoType!=VT_NONE)
     {   if (!SLCVCapture::isOpened())
         #ifdef SL_VIDEO_DEBUG
-        SLCVCapture::open("../_data/videos/testvid_" + string(SL_TRACKER_IMAGE_NAME) +".mp4");
+        //SLCVCapture::open("../_data/videos/testvid_" + string(SL_TRACKER_IMAGE_NAME) +".mp4");
+        SLCVCapture::open("../_data/images/sequences/rgbd_dataset_freiburg1_desk/rgb_renamed/image%03d.png");
         #else
         SLCVCapture::open(0);
         #endif

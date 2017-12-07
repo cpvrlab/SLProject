@@ -375,6 +375,12 @@
     <ClInclude Include="..\include\OrbSlam\Converter.h">
       <Filter>CV\OrbSlam</Filter>
     </ClInclude>
+    <ClInclude Include="..\include\OrbSlam\ORBmatcher.h">
+      <Filter>CV\OrbSlam</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\OrbSlam\PnPsolver.h">
+      <Filter>CV\OrbSlam</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="source\SLAABBox.cpp">
@@ -630,6 +636,12 @@
       <Filter>CV</Filter>
     </ClCompile>
     <ClCompile Include="source\CV\OrbSlam\Converter.cpp">
+      <Filter>CV\OrbSlam</Filter>
+    </ClCompile>
+    <ClCompile Include="source\CV\OrbSlam\ORBmatcher.cpp">
+      <Filter>CV\OrbSlam</Filter>
+    </ClCompile>
+    <ClCompile Include="source\CV\OrbSlam\PnPsolver.cpp">
       <Filter>CV\OrbSlam</Filter>
     </ClCompile>
   </ItemGroup>

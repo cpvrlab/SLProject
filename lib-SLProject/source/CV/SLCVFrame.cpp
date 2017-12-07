@@ -37,8 +37,9 @@ SLCVFrame::SLCVFrame()
 }
 //-----------------------------------------------------------------------------
 SLCVFrame::SLCVFrame(const cv::Mat &imGray, const double &timeStamp, ORBextractor* extractor, 
-    cv::Mat &K, cv::Mat &distCoef )
-    : mpORBextractorLeft(extractor), mTimeStamp(timeStamp), mK(K.clone()), mDistCoef(distCoef.clone())
+    cv::Mat &K, cv::Mat &distCoef, ORBVocabulary* orbVocabulary)
+    : mpORBextractorLeft(extractor), mTimeStamp(timeStamp), mK(K.clone()), mDistCoef(distCoef.clone()),
+    mpORBvocabulary(orbVocabulary)
 {
     // Frame ID
     mnId = nNextId++;
@@ -195,4 +196,59 @@ void SLCVFrame::ComputeBoW()
         vector<cv::Mat> vCurrentDesc = Converter::toDescriptorVector(mDescriptors);
         mpORBvocabulary->transform(vCurrentDesc, mBowVec, mFeatVec, 4);
     }
+}
+//-----------------------------------------------------------------------------
+vector<size_t> SLCVFrame::GetFeaturesInArea(const float &x, const float  &y, const float  &r, const int minLevel, const int maxLevel) const
+{
+    vector<size_t> vIndices;
+    vIndices.reserve(N);
+
+    const int nMinCellX = max(0, (int)floor((x - mnMinX - r)*mfGridElementWidthInv));
+    if (nMinCellX >= FRAME_GRID_COLS)
+        return vIndices;
+
+    const int nMaxCellX = min((int)FRAME_GRID_COLS - 1, (int)ceil((x - mnMinX + r)*mfGridElementWidthInv));
+    if (nMaxCellX<0)
+        return vIndices;
+
+    const int nMinCellY = max(0, (int)floor((y - mnMinY - r)*mfGridElementHeightInv));
+    if (nMinCellY >= FRAME_GRID_ROWS)
+        return vIndices;
+
+    const int nMaxCellY = min((int)FRAME_GRID_ROWS - 1, (int)ceil((y - mnMinY + r)*mfGridElementHeightInv));
+    if (nMaxCellY<0)
+        return vIndices;
+
+    const bool bCheckLevels = (minLevel>0) || (maxLevel >= 0);
+
+    for (int ix = nMinCellX; ix <= nMaxCellX; ix++)
+    {
+        for (int iy = nMinCellY; iy <= nMaxCellY; iy++)
+        {
+            const vector<size_t> vCell = mGrid[ix][iy];
+            if (vCell.empty())
+                continue;
+
+            for (size_t j = 0, jend = vCell.size(); j<jend; j++)
+            {
+                const cv::KeyPoint &kpUn = mvKeysUn[vCell[j]];
+                if (bCheckLevels)
+                {
+                    if (kpUn.octave<minLevel)
+                        continue;
+                    if (maxLevel >= 0)
+                        if (kpUn.octave>maxLevel)
+                            continue;
+                }
+
+                const float distx = kpUn.pt.x - x;
+                const float disty = kpUn.pt.y - y;
+
+                if (fabs(distx)<r && fabs(disty)<r)
+                    vIndices.push_back(vCell[j]);
+            }
+        }
+    }
+
+    return vIndices;
 }

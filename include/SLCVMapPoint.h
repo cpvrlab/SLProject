@@ -16,6 +16,7 @@
 #include <SLCV.h>
 
 class SLCVKeyFrame;
+class SLCVFrame;
 //-----------------------------------------------------------------------------
 //! 
 /*! 
@@ -25,12 +26,19 @@ class SLCVMapPoint
 public:
     void id(int id) { _id = id; }
     void worldPos(const SLCVMat& pos) { _worldPos = pos; }
-    SLVec3f worldPos();
-
+    SLCVMat worldPos() { return _worldPos; }
+    SLVec3f worldPosVec();
+    void refKf(SLCVKeyFrame* refKf) { mpRefKF = refKf; }
     bool isBad() { return false; } //we have no bad systematic
 
     void AddObservation(SLCVKeyFrame* pKF, size_t idx);
     std::map<SLCVKeyFrame*, size_t> SLCVMapPoint::GetObservations() { return mObservations; }
+
+    float GetMaxDistanceInvariance() { return 1.2f*mfMaxDistance; }
+    float GetMinDistanceInvariance() { return 0.8f*mfMinDistance; }
+    void UpdateNormalAndDepth();
+    int PredictScale(const float &currentDist, SLCVFrame* pF);
+    cv::Mat GetDescriptor() { return mDescriptor.clone();; }
 
 private:
     int _id=-1;
@@ -51,6 +59,10 @@ private:
     SLCVKeyFrame* mpRefKF;
 
     int _nObs=0;
+
+    // Scale invariance distances
+    float mfMinDistance;
+    float mfMaxDistance;
 };
 
 typedef std::vector<SLCVMapPoint> SLCVVMapPoint;
