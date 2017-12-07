@@ -88,9 +88,9 @@ public:
     bool isBad() { return false; }
 
     // Variables used by the keyframe database
-    long unsigned int mnRelocQuery;
-    int mnRelocWords;
-    float mRelocScore;
+    long unsigned int mnRelocQuery=0;
+    int mnRelocWords=0;
+    float mRelocScore= -1.0f;
 
     //undistorted keypoints
     std::vector<cv::KeyPoint> mvKeysUn;

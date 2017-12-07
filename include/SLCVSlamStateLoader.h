@@ -18,6 +18,7 @@
 #include <SLCVKeyFrame.h>
 #include <OrbSlam\ORBVocabulary.h>
 
+class SLCVKeyFrameDB;
 using namespace ORB_SLAM2;
 //-----------------------------------------------------------------------------
 //! 
@@ -30,7 +31,7 @@ public:
     SLCVSlamStateLoader(const string& filename, ORBVocabulary* orbVoc);
     ~SLCVSlamStateLoader();
     //! execute loading procedure
-    void load( SLCVVMapPoint& mapPts, SLCVVKeyFrame& kfs);
+    void load( SLCVVMapPoint& mapPts, SLCVKeyFrameDB& kfDB);
 
 protected:
     

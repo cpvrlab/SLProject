@@ -31,6 +31,7 @@ public:
     SLCVMat worldPos() { return _worldPos.clone(); }
     SLVec3f worldPosVec();
     void refKf(SLCVKeyFrame* refKf) { mpRefKF = refKf; }
+    void level(int level) { _level = level; }
     bool isBad() { return false; } //we have no bad systematic
 
     void AddObservation(SLCVKeyFrame* pKF, size_t idx);
@@ -67,6 +68,9 @@ private:
     // Scale invariance distances
     float mfMinDistance;
     float mfMaxDistance;
+
+    //keypoint octave (level)
+    int _level = -1;
 };
 
 typedef std::vector<SLCVMapPoint> SLCVVMapPoint;

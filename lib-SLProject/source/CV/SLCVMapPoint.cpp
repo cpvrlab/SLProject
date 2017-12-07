@@ -64,8 +64,9 @@ void SLCVMapPoint::UpdateNormalAndDepth()
 
     cv::Mat PC = Pos - pRefKF->GetCameraCenter();
     const float dist = cv::norm(PC);
-    const int level = pRefKF->mvKeysUn[observations[pRefKF]].octave;
-    const float levelScaleFactor = pRefKF->mvScaleFactors[level];
+    //const int level = pRefKF->mvKeysUn[observations[pRefKF]].octave;
+    //const float levelScaleFactor = pRefKF->mvScaleFactors[level];
+    const float levelScaleFactor = pRefKF->mvScaleFactors[_level];
     const int nLevels = pRefKF->mnScaleLevels;
 
     {

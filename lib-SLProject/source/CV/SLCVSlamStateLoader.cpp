@@ -10,6 +10,7 @@
 
 #include "stdafx.h"
 #include "SLCVSlamStateLoader.h"
+#include <SLCVKeyFrameDB.h>
 
 using namespace std;
 
@@ -29,15 +30,21 @@ SLCVSlamStateLoader::~SLCVSlamStateLoader()
 }
 //-----------------------------------------------------------------------------
 //! add map point
-void SLCVSlamStateLoader::load( SLCVVMapPoint& mapPts, SLCVVKeyFrame& kfs)
+void SLCVSlamStateLoader::load( SLCVVMapPoint& mapPts, SLCVKeyFrameDB& kfDB)
 {
+    SLCVVKeyFrame& kfs = kfDB.keyFrames();
+
     //load keyframes
     loadKeyFrames(kfs);
     //load map points
     loadMapPoints(mapPts);
 
     //compute resulting values for map keyframes
-    for (auto& kf : kfs) {
+    for (SLCVKeyFrame& kf : kfs) {
+        //compute bow
+        kf.ComputeBoW(_orbVoc);
+        //add keyframe to keyframe database
+        kfDB.add(&kf);
         // Update links in the Covisibility Graph
         kf.UpdateConnections();
     }
@@ -91,23 +98,22 @@ void SLCVSlamStateLoader::loadKeyFrames( SLCVVKeyFrame& kfs )
         cv::Mat featureDescriptors; //has to be here!
         (*it)["featureDescriptors"] >> featureDescriptors;
         newKf.descriptors(featureDescriptors);
-        newKf.ComputeBoW(_orbVoc);
 
         //load undistorted keypoints in frame
 //todo: braucht man diese wirklich oder kann man das umgehen, indem zusätzliche daten im MapPoint abgelegt werden (z.B. octave/level siehe UpdateNormalAndDepth)
         std::vector<cv::KeyPoint> keyPtsUndist;
-        (*it)["featureDescriptors"] >> keyPtsUndist;
+        (*it)["keyPtsUndist"] >> keyPtsUndist;
         newKf.mvKeysUn = keyPtsUndist;
 
-        //scale levels
-        (int)(*it)["scaleLevels"] >> newKf.mnScaleLevels;
         //scale factor
         float scaleFactor;
         (*it)["scaleFactor"] >> scaleFactor;
         newKf.mfScaleFactor = scaleFactor;
         newKf.mfLogScaleFactor = log(newKf.mfScaleFactor);
         //number of pyriamid scale levels
-        (int)(*it)["nScaleLevels"] >> newKf.mnScaleLevels;
+        int nScaleLevels = -1;
+        (*it)["nScaleLevels"] >> nScaleLevels;
+        newKf.mnScaleLevels = nScaleLevels;
         //vector of pyramid scale factors
         std::vector<float> scaleFactors;
         (*it)["scaleFactors"] >> scaleFactors;
@@ -139,6 +145,11 @@ void SLCVSlamStateLoader::loadMapPoints( SLCVVMapPoint& mapPts )
         (*it)["mWorldPos"] >> mWorldPos;
         newPt.worldPos(mWorldPos);
 
+        //level
+        int level;
+        (*it)["level"] >> level;
+        newPt.level(level);
+
         //get observing keyframes
         vector<int> observingKfIds;
         (*it)["observingKfIds"] >> observingKfIds;
@@ -165,6 +176,15 @@ void SLCVSlamStateLoader::loadMapPoints( SLCVVMapPoint& mapPts )
             //map reference key frame pointer
             if (_kfsMap.find(refKfId) != _kfsMap.end())
                 mapPt->refKf(_kfsMap[refKfId]);
+            else {
+                cout << "no reference keyframe found!" << endl;
+                if (observingKfIds.size()) {
+                    //we use the first of the observing keyframes
+                    int kfId = observingKfIds[0];
+                    if (_kfsMap.find(kfId) != _kfsMap.end())
+                        mapPt->refKf(_kfsMap[kfId]);
+                }
+            }
         }
     }
 }
