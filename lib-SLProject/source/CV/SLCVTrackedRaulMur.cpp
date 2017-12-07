@@ -22,6 +22,7 @@ for a good top down information.
 #include <SLCVFrame.h>
 #include <OrbSlam\ORBmatcher.h>
 #include <OrbSlam\PnPsolver.h>
+#include <OrbSlam\Optimizer.h>
 
 using namespace cv;
 using namespace ORB_SLAM2;

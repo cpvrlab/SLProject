@@ -94,9 +94,10 @@ void SLCVSlamStateLoader::loadKeyFrames( SLCVVKeyFrame& kfs )
         newKf.ComputeBoW(_orbVoc);
 
         //load undistorted keypoints in frame
+//todo: braucht man diese wirklich oder kann man das umgehen, indem zusätzliche daten im MapPoint abgelegt werden (z.B. octave/level siehe UpdateNormalAndDepth)
         std::vector<cv::KeyPoint> keyPtsUndist;
         (*it)["featureDescriptors"] >> keyPtsUndist;
-        
+        newKf.mvKeysUn = keyPtsUndist;
 
         //scale levels
         (int)(*it)["scaleLevels"] >> newKf.mnScaleLevels;

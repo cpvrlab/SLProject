@@ -92,3 +92,12 @@ int SLCVMapPoint::PredictScale(const float &currentDist, SLCVFrame* pF)
 
     return nScale;
 }
+//-----------------------------------------------------------------------------
+int SLCVMapPoint::GetIndexInKeyFrame(SLCVKeyFrame *pKF)
+{
+    //unique_lock<mutex> lock(mMutexFeatures);
+    if (mObservations.count(pKF))
+        return mObservations[pKF];
+    else
+        return -1;
+}

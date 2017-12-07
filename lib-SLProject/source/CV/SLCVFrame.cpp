@@ -198,6 +198,20 @@ void SLCVFrame::ComputeBoW()
     }
 }
 //-----------------------------------------------------------------------------
+void SLCVFrame::SetPose(cv::Mat Tcw)
+{
+    mTcw = Tcw.clone();
+    UpdatePoseMatrices();
+}
+//-----------------------------------------------------------------------------
+void SLCVFrame::UpdatePoseMatrices()
+{
+    mRcw = mTcw.rowRange(0, 3).colRange(0, 3);
+    mRwc = mRcw.t();
+    mtcw = mTcw.rowRange(0, 3).col(3);
+    mOw = -mRcw.t()*mtcw;
+}
+//-----------------------------------------------------------------------------
 vector<size_t> SLCVFrame::GetFeaturesInArea(const float &x, const float  &y, const float  &r, const int minLevel, const int maxLevel) const
 {
     vector<size_t> vIndices;

@@ -271,15 +271,15 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
 
 
         ORBVocabulary* vocabulary = new ORBVocabulary();
-        string strVocFile = "D:/Development/ORB_SLAM2/Vocabulary/ORBvoc.txt";
-        bool bVocLoad = vocabulary->loadFromTextFile(strVocFile);
-        if (!bVocLoad)
-        {
-            cerr << "Wrong path to vocabulary. " << endl;
-            cerr << "Failed to open at: " << strVocFile << endl;
-            exit(-1);
-        }
-        cout << "Vocabulary loaded!" << endl << endl;
+        //string strVocFile = "D:/Development/ORB_SLAM2/Vocabulary/ORBvoc.txt";
+        //bool bVocLoad = vocabulary->loadFromTextFile(strVocFile);
+        //if (!bVocLoad)
+        //{
+        //    cerr << "Wrong path to vocabulary. " << endl;
+        //    cerr << "Failed to open at: " << strVocFile << endl;
+        //    exit(-1);
+        //}
+        //cout << "Vocabulary loaded!" << endl << endl;
 
         SLCVKeyFrameDB* kfDB = new SLCVKeyFrameDB(*vocabulary);
 

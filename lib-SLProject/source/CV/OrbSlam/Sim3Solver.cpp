@@ -18,29 +18,29 @@
 * along with ORB-SLAM2. If not, see <http://www.gnu.org/licenses/>.
 */
 
-
-#include "Sim3Solver.h"
+#include <stdafx.h>
+#include <OrbSlam/Sim3Solver.h>
 
 #include <vector>
 #include <cmath>
 #include <opencv2/core/core.hpp>
 
-#include "KeyFrame.h"
-#include "ORBmatcher.h"
+#include "SLCVKeyFrame.h"
+#include <OrbSlam/ORBmatcher.h>
 
-#include "Thirdparty/DBoW2/DUtils/Random.h"
+#include <DBoW2/DUtils/Random.h>
 
 namespace ORB_SLAM2
 {
 
 
-Sim3Solver::Sim3Solver(KeyFrame *pKF1, KeyFrame *pKF2, const vector<MapPoint *> &vpMatched12, const bool bFixScale):
+Sim3Solver::Sim3Solver(SLCVKeyFrame *pKF1, SLCVKeyFrame *pKF2, const vector<SLCVMapPoint *> &vpMatched12, const bool bFixScale):
     mnIterations(0), mnBestInliers(0), mbFixScale(bFixScale)
 {
     mpKF1 = pKF1;
     mpKF2 = pKF2;
 
-    vector<MapPoint*> vpKeyFrameMP1 = pKF1->GetMapPointMatches();
+    vector<SLCVMapPoint*> vpKeyFrameMP1 = pKF1->GetMapPointMatches();
 
     mN1 = vpMatched12.size();
 
@@ -63,8 +63,8 @@ Sim3Solver::Sim3Solver(KeyFrame *pKF1, KeyFrame *pKF2, const vector<MapPoint *> 
     {
         if(vpMatched12[i1])
         {
-            MapPoint* pMP1 = vpKeyFrameMP1[i1];
-            MapPoint* pMP2 = vpMatched12[i1];
+            SLCVMapPoint* pMP1 = vpKeyFrameMP1[i1];
+            SLCVMapPoint* pMP2 = vpMatched12[i1];
 
             if(!pMP1)
                 continue;

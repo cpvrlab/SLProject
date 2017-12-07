@@ -140,7 +140,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>$(ProjectDir);..\include;..\lib-SLExternal;..\lib-SLExternal\zlib;..\lib-SLExternal\glew\include;..\lib-SLExternal\glfw3\include;..\lib-SLExternal\randomc;..\lib-SLExternal\Shoemake;..\lib-SLExternal\oculus\LibOVR\Include\;..\lib-SLExternal\nvwa;..\lib-SLExternal\assimp\include;..\lib-SLExternal\assimp\code;..\lib-SLExternal\dirent;..\lib-SLExternal\opencv\include;..\lib-SLExternal\imgui</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir);..\include;..\lib-SLExternal;..\lib-SLExternal\zlib;..\lib-SLExternal\glew\include;..\lib-SLExternal\glfw3\include;..\lib-SLExternal\randomc;..\lib-SLExternal\Shoemake;..\lib-SLExternal\oculus\LibOVR\Include\;..\lib-SLExternal\nvwa;..\lib-SLExternal\assimp\include;..\lib-SLExternal\assimp\code;..\lib-SLExternal\dirent;..\lib-SLExternal\opencv\include;..\lib-SLExternal\imgui;D:\Libraries\header_only\eigen-3.3.3;D:\Development\ORB_SLAM2;D:\Development\ORB_SLAM2\Thirdparty\g2o\BUILD;D:\Development\ORB_SLAM2\Thirdparty\g2o</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>SL_STARTSCENE#C_sceneRTMuttenzerBox;SL_HAS_OPENCV;SL_USES_CVCAPTURE;GLEW_STATIC;_DEBUG;UNICODE;WIN32;_WINDOWS;_CRT_SECURE_NO_WARNING</PreprocessorDefinitions>
       <TreatWChar_tAsBuiltInType>false</TreatWChar_tAsBuiltInType>
       <OpenMPSupport>false</OpenMPSupport>
@@ -229,7 +229,7 @@
       <AdditionalOptions>/wd4996 %(AdditionalOptions)</AdditionalOptions>
       <Optimization>Full</Optimization>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <AdditionalIncludeDirectories>$(ProjectDir);..\include;..\lib-SLExternal;..\lib-SLExternal\zlib;..\lib-SLExternal\glew\include;..\lib-SLExternal\glfw3\include;..\lib-SLExternal\randomc;..\lib-SLExternal\Shoemake;..\lib-SLExternal\oculus\LibOVR\Include\;..\lib-SLExternal\nvwa;..\lib-SLExternal\assimp\include;..\lib-SLExternal\assimp\code;..\lib-SLExternal\dirent;..\lib-SLExternal\opencv\include;..\lib-SLExternal\imgui</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir);..\include;..\lib-SLExternal;..\lib-SLExternal\zlib;..\lib-SLExternal\glew\include;..\lib-SLExternal\glfw3\include;..\lib-SLExternal\randomc;..\lib-SLExternal\Shoemake;..\lib-SLExternal\oculus\LibOVR\Include\;..\lib-SLExternal\nvwa;..\lib-SLExternal\assimp\include;..\lib-SLExternal\assimp\code;..\lib-SLExternal\dirent;..\lib-SLExternal\opencv\include;..\lib-SLExternal\imgui;D:\Libraries\header_only\eigen-3.3.3;D:\Development\ORB_SLAM2;D:\Development\ORB_SLAM2\Thirdparty\g2o\BUILD;D:\Development\ORB_SLAM2\Thirdparty\g2o</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>SL_HAS_OPENCV;SL_USES_CVCAPTURE;SL_STARTSCENE#C_sceneRevolver;GLEW_STATIC;UNICODE;WIN32;_WINDOWS</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <BufferSecurityCheck>true</BufferSecurityCheck>
@@ -271,6 +271,7 @@
   <ItemGroup>
     <ClInclude Include="..\include\ORBextractor.h" />
     <ClInclude Include="..\include\OrbSlam\Converter.h" />
+    <ClInclude Include="..\include\OrbSlam\Optimizer.h" />
     <ClInclude Include="..\include\OrbSlam\ORBmatcher.h" />
     <ClInclude Include="..\include\OrbSlam\PnPsolver.h" />
     <ClInclude Include="..\include\SL.h" />
@@ -388,6 +389,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="source\CV\OrbSlam\Converter.cpp" />
+    <ClCompile Include="source\CV\OrbSlam\Optimizer.cpp" />
     <ClCompile Include="source\CV\OrbSlam\ORBmatcher.cpp" />
     <ClCompile Include="source\CV\OrbSlam\PnPsolver.cpp" />
     <ClCompile Include="source\CV\SLCVFeatureManager.cpp" />

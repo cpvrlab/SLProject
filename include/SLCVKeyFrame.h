@@ -34,11 +34,12 @@ public:
 
     //getters
     int id() { return _id; }
-    vector<SLCVMapPoint*> GetMapPointMatches() {
-        //unique_lock<mutex> lock(mMutexFeatures);
-        return mvpMapPoints; }
+    vector<SLCVMapPoint*> GetMapPointMatches() { return mvpMapPoints; }
     const SLCVMat& descriptors() { return _descriptors; }
     cv::Mat GetCameraCenter();
+    cv::Mat GetRotation() { return _Tcw.rowRange(0, 3).colRange(0, 3).clone(); }
+    cv::Mat GetTranslation() { return _Tcw.rowRange(0, 3).col(3).clone(); }
+    cv::Mat GetPose() { return _Tcw.clone(); }
 
     //setters
     void id(int id) { _id = id; }
@@ -58,6 +59,7 @@ public:
         //cv::Mat center = (cv::Mat_<float>(4, 1) << mHalfBaseline, 0, 0, 1);
         //Cw = Twc*center;
     }
+
     void descriptors(const SLCVMat& descriptors) { _descriptors = descriptors; }
     //! get visual representation as SLPoints
     SLCamera* getSceneObject();

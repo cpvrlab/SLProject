@@ -33,6 +33,12 @@ public:
     // Compute Bag of Words representation.
     void ComputeBoW();
 
+    // Set the camera pose.
+    void SetPose(cv::Mat Tcw);
+
+    // Computes rotation, translation and camera center matrices from the camera pose.
+    void UpdatePoseMatrices();
+
     vector<size_t> GetFeaturesInArea(const float &x, const float  &y, const float  &r, const int minLevel = -1, const int maxLevel = -1) const;
 
     // Scale pyramid info.
@@ -124,6 +130,13 @@ public:
     static float mnMaxY;
 
     static bool mbInitialComputations;
+
+private:
+    // Rotation, translation and camera center
+    cv::Mat mRcw;
+    cv::Mat mtcw;
+    cv::Mat mRwc;
+    cv::Mat mOw; //==mtwc
 };
 
 #endif // SLCVFRAME_H

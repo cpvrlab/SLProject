@@ -24,15 +24,19 @@ class SLCVFrame;
 class SLCVMapPoint
 {
 public:
+    int id() { return _id; }
+
     void id(int id) { _id = id; }
     void worldPos(const SLCVMat& pos) { _worldPos = pos; }
-    SLCVMat worldPos() { return _worldPos; }
+    SLCVMat worldPos() { return _worldPos.clone(); }
     SLVec3f worldPosVec();
     void refKf(SLCVKeyFrame* refKf) { mpRefKF = refKf; }
     bool isBad() { return false; } //we have no bad systematic
 
     void AddObservation(SLCVKeyFrame* pKF, size_t idx);
     std::map<SLCVKeyFrame*, size_t> SLCVMapPoint::GetObservations() { return mObservations; }
+
+    int GetIndexInKeyFrame(SLCVKeyFrame* pKF);
 
     float GetMaxDistanceInvariance() { return 1.2f*mfMaxDistance; }
     float GetMinDistanceInvariance() { return 0.8f*mfMinDistance; }

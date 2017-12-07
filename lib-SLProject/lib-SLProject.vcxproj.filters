@@ -381,6 +381,9 @@
     <ClInclude Include="..\include\OrbSlam\PnPsolver.h">
       <Filter>CV\OrbSlam</Filter>
     </ClInclude>
+    <ClInclude Include="..\include\OrbSlam\Optimizer.h">
+      <Filter>CV\OrbSlam</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="source\SLAABBox.cpp">
@@ -642,6 +645,9 @@
       <Filter>CV\OrbSlam</Filter>
     </ClCompile>
     <ClCompile Include="source\CV\OrbSlam\PnPsolver.cpp">
+      <Filter>CV\OrbSlam</Filter>
+    </ClCompile>
+    <ClCompile Include="source\CV\OrbSlam\Optimizer.cpp">
       <Filter>CV\OrbSlam</Filter>
     </ClCompile>
   </ItemGroup>
