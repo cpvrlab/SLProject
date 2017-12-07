@@ -61,6 +61,22 @@ macx {
     INCLUDEPATH += /usr/include
 }
 unix:!macx:!android {
+    #Libraries like opencv are often packaged in /usr/lib,
+    #so we have to search there too for non-DYI Setups
+    librarySearchDirs += /usr/lib
+    librarySearchDirs += /usr/local/lib
+
+    defineReplace(findLibrary) {
+        library = $$1
+        result = $$system(find $$librarySearchDirs -maxdepth 1 \\( -type f -o -type l \\) -name $$library | head -1)
+
+        isEmpty(result) {
+            error("Unable to find library $$library in search directories ($$librarySearchDirs).")
+        }
+
+        return("$$result")
+    }
+
     # Setup the linux system as described in:
     # https://github.com/cpvrlab/SLProject/wiki/Setup-Ubuntu-for-SLProject
     LIBS += -ldl
@@ -75,18 +91,20 @@ unix:!macx:!android {
     LIBS += -lpthread   #libpthread
     LIBS += -lpng
     LIBS += -lz
-    LIBS += /usr/local/lib/libopencv_core.so
-    LIBS += /usr/local/lib/libopencv_imgproc.so
-    LIBS += /usr/local/lib/libopencv_imgcodecs.so
-    LIBS += /usr/local/lib/libopencv_video.so
-    LIBS += /usr/local/lib/libopencv_videoio.so
-    LIBS += /usr/local/lib/libopencv_aruco.so
-    LIBS += /usr/local/lib/libopencv_features2d.so
-    LIBS += /usr/local/lib/libopencv_xfeatures2d.so
-    LIBS += /usr/local/lib/libopencv_calib3d.so
-    LIBS += /usr/local/lib/libopencv_flann.so
-    LIBS += /usr/local/lib/libopencv_highgui.so
+    LIBS += $$findLibrary(libopencv_core.so)
+    LIBS += $$findLibrary(libopencv_imgproc.so)
+    LIBS += $$findLibrary(libopencv_imgcodecs.so)
+    LIBS += $$findLibrary(libopencv_video.so)
+    LIBS += $$findLibrary(libopencv_videoio.so)
+    LIBS += $$findLibrary(libopencv_aruco.so)
+    LIBS += $$findLibrary(libopencv_features2d.so)
+    LIBS += $$findLibrary(libopencv_xfeatures2d.so)
+    LIBS += $$findLibrary(libopencv_calib3d.so)
+    LIBS += $$findLibrary(libopencv_flann.so)
+    LIBS += $$findLibrary(libopencv_highgui.so)
+
     INCLUDEPATH += /usr/local/include
+
     QMAKE_CXXFLAGS += -std=c++11
     QMAKE_CXXFLAGS += -Wunused-parameter
     QMAKE_CXXFLAGS += -Wno-unused-parameter
