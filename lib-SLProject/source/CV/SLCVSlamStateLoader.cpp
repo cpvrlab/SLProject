@@ -50,7 +50,7 @@ void SLCVSlamStateLoader::load( SLCVVMapPoint& mapPts, SLCVKeyFrameDB& kfDB)
     }
 
     //compute resulting values for map points
-    for (auto mp : mapPts) {
+    for (auto& mp : mapPts) {
         //mean viewing direction and depth
         mp.UpdateNormalAndDepth();
     }
@@ -80,9 +80,7 @@ void SLCVSlamStateLoader::loadKeyFrames( SLCVVKeyFrame& kfs )
     kfs.reserve(n.size());
     for (auto it = n.begin(); it != n.end(); ++it)
     {
-        SLCVKeyFrame newKf;
-
-        newKf.id((int)(*it)["id"]);
+        int id = (*it)["id"];
 
         // Infos about the pose: https://github.com/raulmur/ORB_SLAM2/issues/249
         // camera pose w.r.t. world -> wTc
@@ -93,32 +91,36 @@ void SLCVSlamStateLoader::loadKeyFrames( SLCVVKeyFrame& kfs )
         // camera pose w.r.t. world -> wTc
         cv::Mat Tcw; //has to be here!
         (*it)["Tcw"] >> Tcw;
-        newKf.Tcw(Tcw);
 
         cv::Mat featureDescriptors; //has to be here!
         (*it)["featureDescriptors"] >> featureDescriptors;
-        newKf.descriptors(featureDescriptors);
 
         //load undistorted keypoints in frame
 //todo: braucht man diese wirklich oder kann man das umgehen, indem zusätzliche daten im MapPoint abgelegt werden (z.B. octave/level siehe UpdateNormalAndDepth)
         std::vector<cv::KeyPoint> keyPtsUndist;
         (*it)["keyPtsUndist"] >> keyPtsUndist;
-        newKf.mvKeysUn = keyPtsUndist;
 
         //scale factor
         float scaleFactor;
         (*it)["scaleFactor"] >> scaleFactor;
-        newKf.mfScaleFactor = scaleFactor;
-        newKf.mfLogScaleFactor = log(newKf.mfScaleFactor);
+
         //number of pyriamid scale levels
         int nScaleLevels = -1;
         (*it)["nScaleLevels"] >> nScaleLevels;
-        newKf.mnScaleLevels = nScaleLevels;
+
         //vector of pyramid scale factors
         std::vector<float> scaleFactors;
         (*it)["scaleFactors"] >> scaleFactors;
-        newKf.mvScaleFactors = scaleFactors;
 
+        SLCVKeyFrame newKf(keyPtsUndist.size());
+        newKf.id(id);
+        newKf.Tcw(Tcw);
+        newKf.descriptors(featureDescriptors);
+        newKf.mvKeysUn = keyPtsUndist;
+        newKf.mfScaleFactor = scaleFactor;
+        newKf.mfLogScaleFactor = log(newKf.mfScaleFactor);
+        newKf.mnScaleLevels = nScaleLevels;
+        newKf.mvScaleFactors = scaleFactors;
         kfs.push_back(newKf);
 
         //map pointer by id for look-up
@@ -153,6 +155,10 @@ void SLCVSlamStateLoader::loadMapPoints( SLCVVMapPoint& mapPts )
         //get observing keyframes
         vector<int> observingKfIds;
         (*it)["observingKfIds"] >> observingKfIds;
+        //get corresponding keypoint indices in observing keyframe
+        vector<int> corrKpIndices;
+        (*it)["corrKpIndices"] >> corrKpIndices;
+
         mapPts.push_back(newPt);
 
         //get reference keyframe id
@@ -161,12 +167,13 @@ void SLCVSlamStateLoader::loadMapPoints( SLCVVMapPoint& mapPts )
         //find and add pointers of observing keyframes to map point
         {
             SLCVMapPoint* mapPt = &mapPts.back();
-            for (int i : observingKfIds)
+            for (int i=0; i<observingKfIds.size(); ++i)
             {
-                if (_kfsMap.find(i) != _kfsMap.end()) {
-                    SLCVKeyFrame* kf = _kfsMap[i];
-                    mapPt->AddObservation(kf, 0);
-                    kf->AddMapPoint(mapPt, 0);
+                const int kfId = observingKfIds[i];
+                if (_kfsMap.find(kfId) != _kfsMap.end()) {
+                    SLCVKeyFrame* kf = _kfsMap[kfId];
+                    mapPt->AddObservation(kf, corrKpIndices[i]);
+                    kf->AddMapPoint(mapPt, corrKpIndices[i]);
                 }
                 else {
                     cout << "keyframe with id " << i << " not found!";

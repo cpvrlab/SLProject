@@ -30,7 +30,7 @@ keypoints.
 class SLCVKeyFrame
 {
 public:
-    SLCVKeyFrame();
+    SLCVKeyFrame(size_t N);
 
     //getters
     int id() { return _id; }

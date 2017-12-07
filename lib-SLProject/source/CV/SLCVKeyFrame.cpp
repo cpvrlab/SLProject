@@ -14,8 +14,9 @@
 #include <OrbSlam\Converter.h>
 
 //-----------------------------------------------------------------------------
-SLCVKeyFrame::SLCVKeyFrame()
+SLCVKeyFrame::SLCVKeyFrame(size_t N)
 {
+    mvpMapPoints = vector<SLCVMapPoint*>(N, static_cast<SLCVMapPoint*>(NULL));
 }
 //-----------------------------------------------------------------------------
 cv::Mat SLCVKeyFrame::GetCameraCenter()
@@ -71,10 +72,10 @@ vector<SLCVKeyFrame*> SLCVKeyFrame::GetBestCovisibilityKeyFrames(const int &N)
 void SLCVKeyFrame::AddMapPoint(SLCVMapPoint *pMP, size_t idx)
 {
     //unique_lock<mutex> lock(mMutexFeatures);
-    //mvpMapPoints[idx] = pMP;
+    mvpMapPoints[idx] = pMP;
 
     //because we do not have all keypoints we have to push back...
-    mvpMapPoints.push_back(pMP);
+    //mvpMapPoints.push_back(pMP);
 }
 //-----------------------------------------------------------------------------
 void SLCVKeyFrame::AddConnection(SLCVKeyFrame *pKF, int weight)

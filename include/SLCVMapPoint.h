@@ -27,8 +27,12 @@ public:
     int id() { return _id; }
 
     void id(int id) { _id = id; }
-    void worldPos(const SLCVMat& pos) { _worldPos = pos; }
-    SLCVMat worldPos() { return _worldPos.clone(); }
+    void worldPos(const SLCVMat& pos) { 
+        pos.copyTo(_worldPos); 
+    }
+    SLCVMat worldPos() { 
+        return _worldPos.clone(); 
+    }
     SLVec3f worldPosVec();
     void refKf(SLCVKeyFrame* refKf) { mpRefKF = refKf; }
     void level(int level) { _level = level; }
