@@ -29,7 +29,7 @@ void SLCVKeyFrame::ComputeBoW(ORBVocabulary* orbVocabulary)
 {
     if (mBowVec.empty() || mFeatVec.empty())
     {
-        vector<cv::Mat> vCurrentDesc = ORB_SLAM2::Converter::toDescriptorVector(_descriptors);
+        vector<cv::Mat> vCurrentDesc = ORB_SLAM2::Converter::toDescriptorVector(mDescriptors);
         // Feature vector associate features with nodes in the 4th level (from leaves up)
         // We assume the vocabulary tree has 6 levels, change the 4 otherwise
         orbVocabulary->transform(vCurrentDesc, mBowVec, mFeatVec, 4);

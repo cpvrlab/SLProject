@@ -201,7 +201,7 @@ int ORBmatcher::SearchByBoW(SLCVKeyFrame* pKF,SLCVFrame &F, vector<SLCVMapPoint*
                 if(pMP->isBad())
                     continue;                
 
-                const cv::Mat &dKF = pKF->descriptors().row(realIdxKF);
+                const cv::Mat &dKF = pKF->mDescriptors.row(realIdxKF);
 
                 int bestDist1=256;
                 int bestIdxF =-1 ;

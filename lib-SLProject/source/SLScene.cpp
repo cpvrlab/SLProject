@@ -134,13 +134,15 @@ The destructor is called in slTerminate.
 */
 SLScene::~SLScene()
 {
-    // load opencv camera calibration for main and secondary camera
-    #if defined(SL_USES_CVCAPTURE)
-    _calibMainCam.save();
-    #else
-    _calibMainCam.save();
-    _calibScndCam.save();
-    #endif
+    //this does not work because distortion and camera matrix are not the ones
+    //that were loaded anymore, but the default ones... I dont know why!
+    //// load opencv camera calibration for main and secondary camera
+    //#if defined(SL_USES_CVCAPTURE)
+    //_calibMainCam.save();
+    //#else
+    //_calibMainCam.save();
+    //_calibScndCam.save();
+    //#endif
 
     // Delete all remaining sceneviews
     for (auto sv : _sceneViews)
@@ -450,7 +452,8 @@ bool SLScene::onUpdate()
             if (SL::currentSceneID == C_sceneVideoCalibrateMain ||
                 SL::currentSceneID == C_sceneVideoCalibrateScnd ||
                 SL::currentSceneID == C_sceneVideoTrackChessMain ||
-                SL::currentSceneID == C_sceneVideoTrackChessScnd)
+                SL::currentSceneID == C_sceneVideoTrackChessScnd ||
+                SL::currentSceneID == C_sceneCamPoseGraphAndMap)
             {
                 SLfloat fov = _activeCalib->cameraFovDeg();
                 SLfloat err = _activeCalib->reprojectionError();

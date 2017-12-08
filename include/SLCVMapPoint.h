@@ -48,6 +48,7 @@ public:
     void UpdateNormalAndDepth();
     int PredictScale(const float &currentDist, SLCVFrame* pF);
     cv::Mat GetDescriptor() { return mDescriptor.clone();; }
+    void ComputeDistinctiveDescriptors();
 
 private:
     int _id=-1;

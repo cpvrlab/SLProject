@@ -128,7 +128,8 @@ bool SLCVCalibration::load(SLstring calibFileName,
 
     //calculate FOV and undistortion maps
     if (_state == CS_calibrated)
-    {   _cameraFovDeg = calcCameraFOV();
+    {   
+        _cameraFovDeg = calcCameraFOV();
         buildUndistortionMaps();
     }
 

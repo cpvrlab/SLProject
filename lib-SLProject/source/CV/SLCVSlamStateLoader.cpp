@@ -53,6 +53,7 @@ void SLCVSlamStateLoader::load( SLCVVMapPoint& mapPts, SLCVKeyFrameDB& kfDB)
     for (auto& mp : mapPts) {
         //mean viewing direction and depth
         mp.UpdateNormalAndDepth();
+        mp.ComputeDistinctiveDescriptors();
     }
 
     cout << "Read Done." << endl;

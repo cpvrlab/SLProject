@@ -35,7 +35,7 @@ public:
     //getters
     int id() { return _id; }
     vector<SLCVMapPoint*> GetMapPointMatches() { return mvpMapPoints; }
-    const SLCVMat& descriptors() { return _descriptors; }
+    //const SLCVMat& descriptors() { return _descriptors; }
     cv::Mat GetCameraCenter();
     cv::Mat GetRotation() { return _Tcw.rowRange(0, 3).colRange(0, 3).clone(); }
     cv::Mat GetTranslation() { return _Tcw.rowRange(0, 3).col(3).clone(); }
@@ -60,7 +60,7 @@ public:
         //Cw = Twc*center;
     }
 
-    void descriptors(const SLCVMat& descriptors) { _descriptors = descriptors; }
+    void descriptors(const SLCVMat& descriptors) { descriptors.copyTo(mDescriptors); }
     //! get visual representation as SLPoints
     SLCamera* getSceneObject();
 
@@ -101,6 +101,9 @@ public:
     float mfLogScaleFactor;
     std::vector<float> mvScaleFactors;
 
+    //image feature descriptors
+    SLCVMat mDescriptors;
+
 private:
     int _id = -1;
     //! opencv coordinate representation: z-axis points to principlal point,
@@ -131,8 +134,7 @@ private:
 
     // KeyPoints, stereo coordinate and descriptors (all associated by an index)
 
-    //image feature descriptors
-    SLCVMat _descriptors;
+
 };
 
 typedef std::vector<SLCVKeyFrame> SLCVVKeyFrame;

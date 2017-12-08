@@ -62,8 +62,34 @@ SLbool SLCVTrackedRaulMur::track(SLCVMat imageGray,
     /************************************************************/
     //Track():
     //if (no last pos)
-    Relocalization();
+    if (Relocalization()) {
 
+        cv::Mat Rwc(3, 3, CV_32F);
+        cv::Mat twc(3, 1, CV_32F);
+
+        //inversion
+        auto Tcw = mCurrentFrame.mTcw.clone();
+        Rwc = Tcw.rowRange(0, 3).colRange(0, 3).t();
+        twc = -Rwc*Tcw.rowRange(0, 3).col(3);
+
+        //conversion to SLMat4f
+        SLMat4f slMat(  (SLfloat)Rwc.at<float>(0, 0), (SLfloat)Rwc.at<float>(0, 1), (SLfloat)Rwc.at<float>(0, 2), (SLfloat)twc.at<float>(0, 0),
+                        (SLfloat)Rwc.at<float>(1, 0), (SLfloat)Rwc.at<float>(1, 1), (SLfloat)Rwc.at<float>(1, 2), (SLfloat)twc.at<float>(1, 0),
+                        (SLfloat)Rwc.at<float>(2, 0), (SLfloat)Rwc.at<float>(2, 1), (SLfloat)Rwc.at<float>(2, 2), (SLfloat)twc.at<float>(2, 0),
+                         0.0f, 0.0f, 0.0f, 1.0f);
+        slMat.rotate(180, 1, 0, 0);
+
+        // set the object matrix depending if the
+        // tracked node is attached to a camera or not
+        if (typeid(*_node) == typeid(SLCamera))
+            _node->om( slMat );
+        else
+        {
+            _node->om(calcObjectMatrix(sv->camera()->om(), _objectViewMat));
+            _node->setDrawBitsRec(SL_DB_HIDDEN, false);
+        }
+        return true;
+    }
     //else
     // TrackWithMotionModel()
     //{

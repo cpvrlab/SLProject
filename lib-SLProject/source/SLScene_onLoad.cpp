@@ -261,6 +261,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         SLCamera* cam1 = new SLCamera("Camera 1");
         cam1->translation(0, 2, 60);
         cam1->lookAt(15, 15, 0);
+        cam1->fov(_activeCalib->cameraFovDeg());
         cam1->clipNear(0.1f);
         cam1->clipFar(1000.0f); // Increase to infinity?
         cam1->setInitialState();
@@ -310,15 +311,17 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         //add keyFrames
         for (auto& kf : kfDB->keyFrames()) {
             SLCamera* cam = kf.getSceneObject();
+            cam->fov(_activeCalib->cameraFovDeg());
+            cam->focalDist(0.11);
             cam->clipNear(0.1);
             cam->clipFar(0.11);
             mapNode->addChild(cam);
         }
-        scene->addChild(cam1);
+        mapNode->addChild(cam1);
 
         _trackers.push_back( new SLCVTrackedRaulMur(cam1, vocabulary, kfDB));
 
-        // Save energy
+        // Save no energy
         sv->waitEvents(false); //for constant video feed
         sv->camera(cam1);
 
