@@ -85,11 +85,11 @@ SLbool SLCVTrackedRaulMur::track(SLCVMat imageGray,
                 bOK = TrackReferenceKeyFrame();
             }
         }
-        else {
-            mState = LOST;
-            bOK = false;
-        }
-/*        else // In last frame we tracked mainly "visual odometry" points.
+        //else {
+        //    mState = LOST;
+        //    bOK = false;
+        //}
+        else // In last frame we tracked mainly "visual odometry" points.
         {
             // We compute two camera poses, one from motion model and one doing relocalization.
             // If relocalization is sucessfull we choose that solution, otherwise we retain
@@ -133,7 +133,6 @@ SLbool SLCVTrackedRaulMur::track(SLCVMat imageGray,
 
             bOK = bOKReloc || bOKMM;
         }
-*/
     }
 
 

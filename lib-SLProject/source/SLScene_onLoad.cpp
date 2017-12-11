@@ -321,6 +321,16 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
 
         _trackers.push_back( new SLCVTrackedRaulMur(cam1, vocabulary, kfDB));
 
+        //add box:
+        // Material
+        SLMaterial* yellow = new SLMaterial("mY", SLCol4f(1, 1, 0, 0.5f));
+        SLfloat he = 0.25;
+        SLBox* box1 = new SLBox(-he, -he, 0.0f, he, he, 2 * he, "Box 1", yellow);
+        SLNode* boxNode = new SLNode(box1, "boxNode");
+        boxNode->rotate(35, 1, 0, 0);
+        boxNode->translate(0, 0, -1);
+        scene->addChild(boxNode);
+
         // Save no energy
         sv->waitEvents(false); //for constant video feed
         sv->camera(cam1);
@@ -2491,7 +2501,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         boxNode1->addChild(axisNode1);
         boxNode1->setDrawBitsRec(SL_DB_CULLOFF, true);
         scene->addChild(boxNode1);
-        
+
         // Build mesh & node that will be tracked by the 2nd marker  
         SLBox* box2 = new SLBox(-he,-he, 0.0f, he, he, 2*he, "Box 2", cyan);
         SLNode* boxNode2 = new SLNode(box2, "Box Node 2");
