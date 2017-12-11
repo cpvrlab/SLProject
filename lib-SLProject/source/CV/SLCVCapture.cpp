@@ -106,7 +106,13 @@ void SLCVCapture::grabAndAdjustForSL()
     {   if (_captureDevice.isOpened())
         {
             if (!_captureDevice.read(lastFrame))
+            {
+#if SL_VIDEO_DEBUG
+                //reset sequence
+                _captureDevice.set(CV_CAP_PROP_POS_FRAMES, 0);
+#endif
                 return;
+            }
 
             adjustForSL();
         }

@@ -231,7 +231,7 @@ void SLCamera::drawMeshes(SLSceneView* sv)
         }
 
         _vao.drawArrayAsColored(PT_lines, SLCol4f::WHITE*0.7f);
-        _background.renderInScene(farLT, farLB, farRT, farRB);
+        //_background.renderInScene(farLT, farLB, farRT, farRB);
     }
 }
 //-----------------------------------------------------------------------------

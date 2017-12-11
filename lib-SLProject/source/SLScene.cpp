@@ -23,8 +23,6 @@
 #include <SLCVTracked.h>
 #include <SLCVTrackedAruco.h>
 
-#define SL_VIDEO_DEBUG 1;
-
 //-----------------------------------------------------------------------------
 /*! Global static scene pointer that can be used throughout the entire library
 to access the current scene and its sceneviews. 

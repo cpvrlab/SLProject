@@ -85,6 +85,10 @@ SLbool SLCVTrackedRaulMur::track(SLCVMat imageGray,
                 bOK = TrackReferenceKeyFrame();
             }
         }
+        else {
+            mState = LOST;
+            bOK = false;
+        }
 /*        else // In last frame we tracked mainly "visual odometry" points.
         {
             // We compute two camera poses, one from motion model and one doing relocalization.
@@ -153,7 +157,8 @@ SLbool SLCVTrackedRaulMur::track(SLCVMat imageGray,
         {
             cv::Mat LastTwc = cv::Mat::eye(4, 4, CV_32F);
             mLastFrame.GetRotationInverse().copyTo(LastTwc.rowRange(0, 3).colRange(0, 3));
-            mLastFrame.GetCameraCenter().copyTo(LastTwc.rowRange(0, 3).col(3));
+            const auto& cc = mLastFrame.GetCameraCenter();
+            cc.copyTo(LastTwc.rowRange(0, 3).col(3));
             mVelocity = mCurrentFrame.mTcw*LastTwc;
         }
         else
