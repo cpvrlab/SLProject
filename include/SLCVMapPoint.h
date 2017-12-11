@@ -25,7 +25,7 @@ class SLCVMapPoint
 {
 public:
     int id() { return _id; }
-
+    int Observations() { return _nObs; }
     void id(int id) { _id = id; }
     void worldPos(const SLCVMat& pos) { 
         pos.copyTo(_worldPos); 
@@ -37,6 +37,7 @@ public:
     void refKf(SLCVKeyFrame* refKf) { mpRefKF = refKf; }
     void level(int level) { _level = level; }
     bool isBad() { return false; } //we have no bad systematic
+    cv::Mat GetNormal() { return mNormalVector.clone(); }
 
     void AddObservation(SLCVKeyFrame* pKF, size_t idx);
     std::map<SLCVKeyFrame*, size_t> SLCVMapPoint::GetObservations() { return mObservations; }
@@ -47,8 +48,21 @@ public:
     float GetMinDistanceInvariance() { return 0.8f*mfMinDistance; }
     void UpdateNormalAndDepth();
     int PredictScale(const float &currentDist, SLCVFrame* pF);
-    cv::Mat GetDescriptor() { return mDescriptor.clone();; }
+    cv::Mat GetDescriptor() { return mDescriptor.clone(); }
     void ComputeDistinctiveDescriptors();
+
+    void IncreaseFound(int n=1) { mnFound += n; }
+    void IncreaseVisible(int n=1) { mnVisible += n; }
+
+    // Variables used by the tracking
+    float mTrackProjX = 0.0f;
+    float mTrackProjY = 0.0f;
+    //float mTrackProjXR = 0.0f;
+    bool mbTrackInView = false;
+    int mnTrackScaleLevel = 0;
+    float mTrackViewCos = 0.0f;
+    long unsigned int mnLastFrameSeen = 0;
+    long unsigned int mnTrackReferenceForFrame = 0;
 
 private:
     int _id=-1;
@@ -71,11 +85,15 @@ private:
     int _nObs=0;
 
     // Scale invariance distances
-    float mfMinDistance;
-    float mfMaxDistance;
+    float mfMinDistance = 0.f;
+    float mfMaxDistance = 0.f;
 
     //keypoint octave (level)
     int _level = -1;
+
+    // Tracking counters
+    int mnVisible = 0;
+    int mnFound = 0;
 };
 
 typedef std::vector<SLCVMapPoint> SLCVVMapPoint;

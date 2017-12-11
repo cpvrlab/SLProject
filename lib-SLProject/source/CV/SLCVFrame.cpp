@@ -36,6 +36,28 @@ SLCVFrame::SLCVFrame()
 {
 }
 //-----------------------------------------------------------------------------
+//Copy Constructor
+SLCVFrame::SLCVFrame(const SLCVFrame &frame)
+    :mpORBvocabulary(frame.mpORBvocabulary), mpORBextractorLeft(frame.mpORBextractorLeft),
+    mTimeStamp(frame.mTimeStamp), mK(frame.mK.clone()), mDistCoef(frame.mDistCoef.clone()),
+    N(frame.N), mvKeys(frame.mvKeys),
+    mvKeysUn(frame.mvKeysUn), mvuRight(frame.mvuRight),
+    mvDepth(frame.mvDepth), mBowVec(frame.mBowVec), mFeatVec(frame.mFeatVec),
+    mDescriptors(frame.mDescriptors.clone()),
+    mvpMapPoints(frame.mvpMapPoints), mvbOutlier(frame.mvbOutlier), mnId(frame.mnId),
+    mpReferenceKF(frame.mpReferenceKF), mnScaleLevels(frame.mnScaleLevels),
+    mfScaleFactor(frame.mfScaleFactor), mfLogScaleFactor(frame.mfLogScaleFactor),
+    mvScaleFactors(frame.mvScaleFactors), mvInvScaleFactors(frame.mvInvScaleFactors),
+    mvLevelSigma2(frame.mvLevelSigma2), mvInvLevelSigma2(frame.mvInvLevelSigma2)
+{
+    for (int i = 0; i<FRAME_GRID_COLS; i++)
+        for (int j = 0; j<FRAME_GRID_ROWS; j++)
+            mGrid[i][j] = frame.mGrid[i][j];
+
+    if (!frame.mTcw.empty())
+        SetPose(frame.mTcw);
+}
+//-----------------------------------------------------------------------------
 SLCVFrame::SLCVFrame(const cv::Mat &imGray, const double &timeStamp, ORBextractor* extractor, 
     cv::Mat &K, cv::Mat &distCoef, ORBVocabulary* orbVocabulary)
     : mpORBextractorLeft(extractor), mTimeStamp(timeStamp), mK(K.clone()), mDistCoef(distCoef.clone()),
@@ -212,7 +234,8 @@ void SLCVFrame::UpdatePoseMatrices()
     mOw = -mRcw.t()*mtcw;
 }
 //-----------------------------------------------------------------------------
-vector<size_t> SLCVFrame::GetFeaturesInArea(const float &x, const float  &y, const float  &r, const int minLevel, const int maxLevel) const
+vector<size_t> SLCVFrame::GetFeaturesInArea(const float &x, const float  &y, 
+    const float  &r, const int minLevel, const int maxLevel) const
 {
     vector<size_t> vIndices;
     vIndices.reserve(N);
@@ -265,4 +288,62 @@ vector<size_t> SLCVFrame::GetFeaturesInArea(const float &x, const float  &y, con
     }
 
     return vIndices;
+}
+//-----------------------------------------------------------------------------
+bool SLCVFrame::isInFrustum(SLCVMapPoint *pMP, float viewingCosLimit)
+{
+    pMP->mbTrackInView = false;
+
+    // 3D in absolute coordinates
+    cv::Mat P = pMP->worldPos();
+
+    // 3D in camera coordinates
+    const cv::Mat Pc = mRcw*P + mtcw;
+    const float &PcX = Pc.at<float>(0);
+    const float &PcY = Pc.at<float>(1);
+    const float &PcZ = Pc.at<float>(2);
+
+    // Check positive depth
+    if (PcZ<0.0f)
+        return false;
+
+    // Project in image and check it is not outside
+    const float invz = 1.0f / PcZ;
+    const float u = fx*PcX*invz + cx;
+    const float v = fy*PcY*invz + cy;
+
+    if (u<mnMinX || u>mnMaxX)
+        return false;
+    if (v<mnMinY || v>mnMaxY)
+        return false;
+
+    // Check distance is in the scale invariance region of the SLCVMapPoint
+    const float maxDistance = pMP->GetMaxDistanceInvariance();
+    const float minDistance = pMP->GetMinDistanceInvariance();
+    const cv::Mat PO = P - mOw;
+    const float dist = cv::norm(PO);
+
+    if (dist<minDistance || dist>maxDistance)
+        return false;
+
+    // Check viewing angle
+    cv::Mat Pn = pMP->GetNormal();
+
+    const float viewCos = PO.dot(Pn) / dist;
+
+    if (viewCos<viewingCosLimit)
+        return false;
+
+    // Predict scale in the image
+    const int nPredictedLevel = pMP->PredictScale(dist, this);
+
+    // Data used by the tracking
+    pMP->mbTrackInView = true;
+    pMP->mTrackProjX = u;
+    //pMP->mTrackProjXR = u - mbf*invz;
+    pMP->mTrackProjY = v;
+    pMP->mnTrackScaleLevel = nPredictedLevel;
+    pMP->mTrackViewCos = viewCos;
+
+    return true;
 }

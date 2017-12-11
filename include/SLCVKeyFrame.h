@@ -40,6 +40,7 @@ public:
     cv::Mat GetRotation() { return _Tcw.rowRange(0, 3).colRange(0, 3).clone(); }
     cv::Mat GetTranslation() { return _Tcw.rowRange(0, 3).col(3).clone(); }
     cv::Mat GetPose() { return _Tcw.clone(); }
+    cv::Mat GetPoseInverse() { return _Twc.clone(); }
 
     //setters
     void id(int id) { _id = id; }
@@ -84,6 +85,8 @@ public:
 
     // Spanning tree functions
     void AddChild(SLCVKeyFrame* pKF);
+    std::set<SLCVKeyFrame*> GetChilds() { return mspChildrens; }
+    SLCVKeyFrame* GetParent() { return mpParent; }
 
     bool isBad() { return false; }
 
@@ -103,6 +106,9 @@ public:
 
     //image feature descriptors
     SLCVMat mDescriptors;
+
+    // Variables used by the tracking
+    long unsigned int mnTrackReferenceForFrame = 0;
 
 private:
     int _id = -1;

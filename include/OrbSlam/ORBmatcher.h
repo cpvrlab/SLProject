@@ -42,13 +42,13 @@ public:
     // Computes the Hamming distance between two ORB descriptors
     static int DescriptorDistance(const cv::Mat &a, const cv::Mat &b);
 
-    //// Search matches between Frame keypoints and projected MapPoints. Returns number of matches
-    //// Used to track the local map (Tracking)
-    //int SearchByProjection(SLCVFrame &F, const std::vector<SLCVMapPoint*> &vpMapPoints, const float th=3);
+    // Search matches between Frame keypoints and projected MapPoints. Returns number of matches
+    // Used to track the local map (Tracking)
+    int SearchByProjection(SLCVFrame &F, const std::vector<SLCVMapPoint*> &vpMapPoints, const float th=3);
 
-    //// Project MapPoints tracked in last frame into the current frame and search matches.
-    //// Used to track from previous frame (Tracking)
-    //int SearchByProjection(SLCVFrame &CurrentFrame, const SLCVFrame &LastFrame, const float th, const bool bMono);
+    // Project MapPoints tracked in last frame into the current frame and search matches.
+    // Used to track from previous frame (Tracking)
+    int SearchByProjection(SLCVFrame &CurrentFrame, const SLCVFrame &LastFrame, const float th, const bool bMono);
 
     // Project MapPoints seen in KeyFrame into the Frame and search matches.
     // Used in relocalisation (Tracking)
@@ -92,7 +92,7 @@ protected:
 
     //bool CheckDistEpipolarLine(const cv::KeyPoint &kp1, const cv::KeyPoint &kp2, const cv::Mat &F12, const SLCVKeyFrame *pKF);
 
-    //float RadiusByViewingCos(const float &viewCos);
+    float RadiusByViewingCos(const float &viewCos);
 
     void ComputeThreeMaxima(std::vector<int>* histo, const int L, int &ind1, int &ind2, int &ind3);
 

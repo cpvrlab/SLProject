@@ -27,6 +27,7 @@ class SLCVFrame
 {
 public:
     SLCVFrame();
+    SLCVFrame(const SLCVFrame &frame);
     SLCVFrame(const cv::Mat &imGray, const double &timeStamp, ORBextractor* extractor,
         cv::Mat &K, cv::Mat &distCoef, ORBVocabulary* orbVocabulary);
 
@@ -40,6 +41,20 @@ public:
     void UpdatePoseMatrices();
 
     vector<size_t> GetFeaturesInArea(const float &x, const float  &y, const float  &r, const int minLevel = -1, const int maxLevel = -1) const;
+
+    // Returns the camera center.
+    inline cv::Mat GetCameraCenter() {
+        return mOw.clone();
+    }
+
+    // Returns inverse of rotation
+    inline cv::Mat GetRotationInverse() {
+        return mRwc.clone();
+    }
+
+    // Check if a MapPoint is in the frustum of the camera
+    // and fill variables of the MapPoint to be used by the tracking
+    bool isInFrustum(SLCVMapPoint* pMP, float viewingCosLimit);
 
     // Scale pyramid info.
     int mnScaleLevels;
@@ -108,6 +123,11 @@ public:
     std::vector<cv::KeyPoint> mvKeys;
     std::vector<cv::KeyPoint> mvKeysUn;
 
+    // Corresponding stereo coordinate and depth for each keypoint.
+    // "Monocular" keypoints have a negative value.
+    std::vector<float> mvuRight;
+    std::vector<float> mvDepth;
+
     // ORB descriptor, each row associated to a keypoint.
     cv::Mat mDescriptors;
 
@@ -130,6 +150,9 @@ public:
     static float mnMaxY;
 
     static bool mbInitialComputations;
+
+    // Reference Keyframe.
+    SLCVKeyFrame* mpReferenceKF = NULL;
 
 private:
     // Rotation, translation and camera center

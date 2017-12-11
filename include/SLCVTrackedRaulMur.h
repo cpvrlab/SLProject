@@ -34,6 +34,18 @@ using namespace cv;
 class SLCVTrackedRaulMur : public SLCVTracked
 {
 public:
+    // Tracking states
+    enum eTrackingState {
+        SYSTEM_NOT_READY = -1,
+        NO_IMAGES_YET = 0,
+        NOT_INITIALIZED = 1,
+        OK = 2,
+        LOST = 3
+    };
+
+    eTrackingState mState;
+    eTrackingState mLastProcessedState;
+
     SLCVTrackedRaulMur(SLNode *node, ORBVocabulary* vocabulary,
         SLCVKeyFrameDB* keyFrameDB);
     ~SLCVTrackedRaulMur();
@@ -45,6 +57,24 @@ public:
 
 protected:
     bool Relocalization();
+    bool TrackWithMotionModel();
+    bool TrackLocalMap();
+    void SearchLocalPoints();
+    bool TrackReferenceKeyFrame();
+    void UpdateLastFrame();
+
+    void UpdateLocalMap();
+    void UpdateLocalPoints();
+    void UpdateLocalKeyFrames();
+
+    //Motion Model
+    cv::Mat mVelocity;
+
+    // In case of performing only localization, this flag is true when there are no matches to
+    // points in the map. Still tracking will continue if there are enough matches with temporal points.
+    // In that case we are doing visual odometry. The system will try to do relocalization to recover
+    // "zero-drift" localization to the map.
+    bool mbVO = false;
 
 private:
     // ORB vocabulary used for place recognition and feature matching.
@@ -61,6 +91,31 @@ private:
 
     //Last Frame, KeyFrame and Relocalisation Info
     unsigned int mnLastRelocFrameId = 0;
+
+    //Last Frame, KeyFrame and Relocalisation Info
+    SLCVFrame mLastFrame;
+    unsigned int mnLastKeyFrameId;
+
+    // Lists used to recover the full camera trajectory at the end of the execution.
+    // Basically we store the reference keyframe for each frame and its relative transformation
+    list<cv::Mat> mlRelativeFramePoses;
+    list<SLCVKeyFrame*> mlpReferences;
+    list<double> mlFrameTimes;
+    list<bool> mlbLost;
+
+    //Local Map 
+    //(maybe always the last inserted keyframe?)
+    SLCVKeyFrame* mpReferenceKF;
+    std::vector<SLCVMapPoint*> mvpLocalMapPoints;
+    std::vector<SLCVKeyFrame*> mvpLocalKeyFrames;
+
+    //New KeyFrame rules (according to fps)
+    // Max/Min Frames to insert keyframes and to check relocalisation
+    int mMinFrames = 0;
+    int mMaxFrames = 30; //= fps
+
+    //Current matches in frame
+    int mnMatchesInliers = 0;
 };
 //-----------------------------------------------------------------------------
 #endif //SLCVTRACKERRAULMUR_H
