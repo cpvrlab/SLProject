@@ -173,7 +173,6 @@ public class GLES3Activity extends Activity implements View.OnTouchListener, Sen
             if (System.currentTimeMillis() - _rotationSensorStartTime < 500 )
                 return;
 
-<<<<<<< HEAD
             /*
             // Get 3x3 rotation matrix from XYZ-rotation vector (see docs)
             float R[] = new float[9];
@@ -190,8 +189,6 @@ public class GLES3Activity extends Activity implements View.OnTouchListener, Sen
             myView.queueEvent(new Runnable() {public void run() {GLES3Lib.onRotationPYR(p, y, r);}});
             */
 
-=======
->>>>>>> marcus
             // Get the rotation quaternion from the XYZ-rotation vector (see docs)
             final float Q[] = new float[4];
             SensorManager.getQuaternionFromVector(Q, event.values);
