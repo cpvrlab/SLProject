@@ -509,15 +509,6 @@ int main(int argc, char *argv[])
     glfwSetScrollCallback(window, onMouseWheel);
     glfwSetWindowCloseCallback(window, onClose);
 
-    //initialize video capture
-
-    //std::string path = "D:/Development/ORB_SLAM2/data/test_tisch.mp4";
-    //cv::VideoCapture cap(path);
-    //if (!cap.isOpened()) {
-    //    std::cout << "Cannot open camera" << std::endl;
-    //    return 0;
-    //}
-
     // Event loop
     while (!slShouldClose())
     {
