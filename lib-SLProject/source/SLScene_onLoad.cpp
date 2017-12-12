@@ -272,24 +272,22 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
 
 
         ORBVocabulary* vocabulary = new ORBVocabulary();
-        string strVocFile = "D:/Development/ORB_SLAM2/Vocabulary/ORBvoc.txt";
-        bool bVocLoad = vocabulary->loadFromTextFile(strVocFile);
-        if (!bVocLoad)
-        {
-            cerr << "Wrong path to vocabulary. " << endl;
-            cerr << "Failed to open at: " << strVocFile << endl;
-            exit(-1);
-        }
-        cout << "Vocabulary loaded!" << endl << endl;
+        //string strVocFile = "D:/Development/ORB_SLAM2/Vocabulary/ORBvoc.txt";
+        //bool bVocLoad = vocabulary->loadFromTextFile(strVocFile);
+        //if (!bVocLoad)
+        //{
+        //    cerr << "Wrong path to vocabulary. " << endl;
+        //    cerr << "Failed to open at: " << strVocFile << endl;
+        //    exit(-1);
+        //}
+        //cout << "Vocabulary loaded!" << endl << endl;
 
         SLCVKeyFrameDB* kfDB = new SLCVKeyFrameDB(*vocabulary);
 
         //load map points and keyframes from json file
-        SLCVSlamStateLoader loader("../_data/calibrations/orb-slam-state.json", vocabulary);
+        //SLCVSlamStateLoader loader("../_data/calibrations/orb-slam-state-2.json", vocabulary);
+        SLCVSlamStateLoader loader("../_data/calibrations/orb-slam-state-buero1.json", vocabulary);
         loader.load(map->mapPoints(), *kfDB );
-
-        //add visual representations of map and keyFrame database to scene
-        SLNode* pc1 = new SLNode(map->getSceneObject());
 
         SLLightSpot* light1 = new SLLightSpot(10, 10, 10, 0.3f);
         light1->ambient(SLCol4f(0.2f, 0.2f, 0.2f));
@@ -305,30 +303,40 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         //y-axis down and z-forward
         mapNode->rotate(180, 1, 0, 0);
         scene->addChild(mapNode);
-
-        //add point cloud
-        mapNode->addChild(pc1);
-        //add keyFrames
-        for (auto& kf : kfDB->keyFrames()) {
-            SLCamera* cam = kf.getSceneObject();
-            cam->fov(_activeCalib->cameraFovDeg());
-            cam->focalDist(0.11);
-            cam->clipNear(0.1);
-            cam->clipFar(0.11);
-            mapNode->addChild(cam);
-        }
         mapNode->addChild(cam1);
 
+        //add visual representations of map and keyFrame database to scene
+        bool addVisualMap = true;
+        bool addVisualKFs = true;
+        if (addVisualMap)
+        {
+            SLNode* pc1 = new SLNode(map->getSceneObject());
+            mapNode->addChild(pc1);
+        }
+
+        if(addVisualKFs)
+        {
+            //add keyFrames
+            for (auto& kf : kfDB->keyFrames()) {
+                SLCamera* cam = kf.getSceneObject();
+                cam->fov(_activeCalib->cameraFovDeg());
+                cam->focalDist(0.11);
+                cam->clipNear(0.1);
+                cam->clipFar(0.11);
+                mapNode->addChild(cam);
+            }
+        }
+
+        //add tracker
         _trackers.push_back( new SLCVTrackedRaulMur(cam1, vocabulary, kfDB));
 
-        //add box:
-        // Material
+        //add yellow augmented box
         SLMaterial* yellow = new SLMaterial("mY", SLCol4f(1, 1, 0, 0.5f));
         SLfloat he = 0.25;
         SLBox* box1 = new SLBox(-he, -he, 0.0f, he, he, 2 * he, "Box 1", yellow);
         SLNode* boxNode = new SLNode(box1, "boxNode");
-        boxNode->rotate(35, 1, 0, 0);
-        boxNode->translate(0, 0, -1);
+        boxNode->rotate(40, 1, 0, 0);
+        boxNode->translate(0, -0.5, -1.5);
         scene->addChild(boxNode);
 
         // Save no energy

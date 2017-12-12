@@ -19,6 +19,9 @@
 *.bak
 *.xcuserstate
 *~
+_data/images/sequences/rgbd_dataset_freiburg1_desk
+_data/calibrations/orb-slam-state-*
+_data/videos
 
 moc_*.cpp
 

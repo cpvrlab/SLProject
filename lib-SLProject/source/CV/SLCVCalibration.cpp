@@ -440,6 +440,10 @@ bool SLCVCalibration::calculate()
                               _boardSquareMM,
                               _calibFlags);
 
+    cout << "ok: " << ok << endl;
+    cout << "_cameraMat: " << _cameraMat << endl;
+    cout << "_distortion: " << _distortion << endl;
+
     if(!rvecs.empty() || !reprojErrs.empty())
          _numCaptured = (int)std::max(rvecs.size(), reprojErrs.size());
     else _numCaptured = 0;

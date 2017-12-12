@@ -512,8 +512,10 @@ void SLScene::onAfterLoad()
     if (_videoType!=VT_NONE)
     {   if (!SLCVCapture::isOpened())
         #ifdef SL_VIDEO_DEBUG
+        //SLCVCapture::open("D:/Development/ORB_SLAM2/data/test_tisch.mp4");
         //SLCVCapture::open("../_data/videos/testvid_" + string(SL_TRACKER_IMAGE_NAME) +".mp4");
-        SLCVCapture::open("../_data/images/sequences/rgbd_dataset_freiburg1_desk/rgb_renamed/image%03d.png");
+        //SLCVCapture::open("../_data/images/sequences/rgbd_dataset_freiburg1_desk/rgb_renamed/image%03d.png");
+        SLCVCapture::open("../_data/videos/test_tisch.mp4");
         #else
         SLCVCapture::open(0);
         #endif

@@ -221,7 +221,7 @@ SLbool SLCVTrackedRaulMur::track(SLCVMat imageGray,
     mLastFrame = SLCVFrame(mCurrentFrame);
 
     // Store frame pose information to retrieve the complete camera trajectory afterwards.
-    if (!mCurrentFrame.mTcw.empty())
+    if (mCurrentFrame.mpReferenceKF && !mCurrentFrame.mTcw.empty())
     {
         cv::Mat Tcr = mCurrentFrame.mTcw*mCurrentFrame.mpReferenceKF->GetPoseInverse();
         mlRelativeFramePoses.push_back(Tcr);
