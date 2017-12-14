@@ -105,7 +105,7 @@ private:
 
     //Local Map 
     //(maybe always the last inserted keyframe?)
-    SLCVKeyFrame* mpReferenceKF;
+    SLCVKeyFrame* mpReferenceKF = NULL;
     std::vector<SLCVMapPoint*> mvpLocalMapPoints;
     std::vector<SLCVKeyFrame*> mvpLocalKeyFrames;
 

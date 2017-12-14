@@ -286,7 +286,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
 
         //load map points and keyframes from json file
         //SLCVSlamStateLoader loader("../_data/calibrations/orb-slam-state-2.json", vocabulary);
-        SLCVSlamStateLoader loader("../_data/calibrations/orb-slam-state-buero1.json", vocabulary);
+        SLCVSlamStateLoader loader("../_data/calibrations/orb-slam-state-buero3.json", vocabulary);
         loader.load(map->mapPoints(), *kfDB );
 
         SLLightSpot* light1 = new SLLightSpot(10, 10, 10, 0.3f);
@@ -307,7 +307,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
 
         //add visual representations of map and keyFrame database to scene
         bool addVisualMap = true;
-        bool addVisualKFs = true;
+        bool addVisualKFs = false;
         if (addVisualMap)
         {
             SLNode* pc1 = new SLNode(map->getSceneObject());

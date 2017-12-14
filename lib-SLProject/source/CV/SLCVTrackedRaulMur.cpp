@@ -56,6 +56,10 @@ SLbool SLCVTrackedRaulMur::track(SLCVMat imageGray,
     SLbool drawDetection,
     SLSceneView* sv)
 {
+    //SLCVMat imageGrayScaled;
+    //imageGray.copyTo(imageGrayScaled);
+    //cv::resize(imageGrayScaled, imageGrayScaled, 640.0, 480.0);
+
     /************************************************************/
     //Frame constructor call in ORB-SLAM:
     // Current Frame

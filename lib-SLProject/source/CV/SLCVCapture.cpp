@@ -109,7 +109,7 @@ void SLCVCapture::grabAndAdjustForSL()
             {
 //#if SL_VIDEO_DEBUG
                 //reset sequence
-//                _captureDevice.set(CV_CAP_PROP_POS_FRAMES, 0);
+                _captureDevice.set(CV_CAP_PROP_POS_FRAMES, 0);
 //#endif
                 return;
             }
@@ -184,6 +184,10 @@ void SLCVCapture::adjustForSL()
         lastFrame(SLCVRect(cropW, cropH, width, height)).copyTo(lastFrame);
         //imwrite("AfterCropping.bmp", lastFrame);
     }
+
+    //resize image
+    cv::resize(lastFrame, lastFrame, 
+        cv::Size( s->sceneViews()[0]->scrW(), s->sceneViews()[0]->scrH()));
 
     //////////////////
     // 2) Mirroring //

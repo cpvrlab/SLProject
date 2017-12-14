@@ -419,6 +419,9 @@ int main(int argc, char *argv[])
 
     scrWidth = 640;
     scrHeight = 480;
+    //scrWidth = 640;
+    //scrHeight = 360;
+
     touch2.set(-1,-1);
     touchDelta.set(-1,-1);
 
