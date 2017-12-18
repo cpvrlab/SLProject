@@ -49,6 +49,7 @@ ORBmatcher::ORBmatcher(float nnratio, bool checkOri): mfNNratio(nnratio), mbChec
 
 int ORBmatcher::SearchByProjection(SLCVFrame &F, const vector<SLCVMapPoint*> &vpMapPoints, const float th)
 {
+    //for every map point
     int nmatches=0;
 
     const bool bFactor = th!=1.0;

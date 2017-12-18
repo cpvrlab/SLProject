@@ -36,11 +36,11 @@ void SLCVKeyFrame::ComputeBoW(ORBVocabulary* orbVocabulary)
     }
 }
 //-----------------------------------------------------------------------------
-SLCamera* SLCVKeyFrame::getSceneObject()
+SLCVCamera* SLCVKeyFrame::getSceneObject()
 {
     if (!_camera)
     {
-        _camera = new SLCamera("KeyFrame" + _id);
+        _camera = new SLCVCamera("KeyFrame" + _id);
         //set camera position and orientation
         SLMat4f om;
 

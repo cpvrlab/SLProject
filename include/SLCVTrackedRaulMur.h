@@ -24,6 +24,7 @@ for a good top down information.
 #include <SLNode.h>
 #include <SLCVFrame.h>
 #include <SLCVKeyFrameDB.h>
+#include <SLCVMap.h>
 
 using namespace cv;
 
@@ -47,13 +48,16 @@ public:
     eTrackingState mLastProcessedState;
 
     SLCVTrackedRaulMur(SLNode *node, ORBVocabulary* vocabulary,
-        SLCVKeyFrameDB* keyFrameDB);
+        SLCVKeyFrameDB* keyFrameDB, SLCVMap* map);
     ~SLCVTrackedRaulMur();
     SLbool track(SLCVMat imageGray,
         SLCVMat image,
         SLCVCalibration* calib,
         SLbool drawDetection,
         SLSceneView* sv);
+
+    //getters
+    SLCVMap* getMap() { return _map; }
 
 protected:
     bool Relocalization();
@@ -82,6 +86,9 @@ private:
 
     // KeyFrame database for place recognition (relocalization and loop detection).
     SLCVKeyFrameDB* mpKeyFrameDatabase;
+
+    //map containing map points
+    SLCVMap* _map = NULL;
 
     // Current Frame
     SLCVFrame mCurrentFrame;

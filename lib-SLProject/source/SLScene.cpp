@@ -22,6 +22,7 @@
 #include <SLLightDirect.h>
 #include <SLCVTracked.h>
 #include <SLCVTrackedAruco.h>
+#include <SLCVCamera.h>
 
 //-----------------------------------------------------------------------------
 /*! Global static scene pointer that can be used throughout the entire library
@@ -451,7 +452,7 @@ bool SLScene::onUpdate()
                 SL::currentSceneID == C_sceneVideoCalibrateScnd ||
                 SL::currentSceneID == C_sceneVideoTrackChessMain ||
                 SL::currentSceneID == C_sceneVideoTrackChessScnd ||
-                SL::currentSceneID == C_sceneCamPoseGraphAndMap)
+                SL::currentSceneID == C_sceneVideoTrackKeyFrames)
             {
                 SLfloat fov = _activeCalib->cameraFovDeg();
                 SLfloat err = _activeCalib->reprojectionError();
@@ -519,11 +520,11 @@ void SLScene::onAfterLoad()
         //SLCVCapture::open("../_data/videos/testvid_" + string(SL_TRACKER_IMAGE_NAME) +".mp4");
         //SLCVCapture::open("../_data/images/sequences/rgbd_dataset_freiburg1_desk/rgb_renamed/image%03d.png");
         //SLCVCapture::open("../_data/videos/test_tisch.mp4");
-        //SLCVCapture::open("D:/Development/ORB_SLAM2/data/buero4.wmv");
+        SLCVCapture::open("D:/Development/ORB_SLAM2/data/buero4.wmv");
         //SLCVCapture::open("D:/Development/ORB_SLAM2/data/buero_handy_2.mp4");
         //SLCVCapture::open("D:/Development/ORB_SLAM2/data/buero_handy_calib.mp4");
         //SLCVCapture::open("D:/Development/ORB_SLAM2/data/buero_handy_calib_43.mp4");
-        SLCVCapture::open("D:/Development/ORB_SLAM2/data/buero_handy_3_43.mp4");
+        //SLCVCapture::open("D:/Development/ORB_SLAM2/data/buero_handy_3_43.mp4");
         #else
         SLCVCapture::open(0);
         #endif
@@ -695,12 +696,13 @@ SLCamera* SLScene::nextCameraInScene(SLSceneView* activeSV)
         }
     }
 
-    // return next if not last else return first
-    if (activeIndex < cams.size()-1)
-        return cams[activeIndex+1];
-    else 
-        return cams[0];
+    //find next camera, that is not ob type SLCVCamera
+    do {
+        activeIndex = activeIndex > cams.size()-2 ? 0 : ++activeIndex;
+    }
+    while ( dynamic_cast<SLCVCamera*>(cams[activeIndex]));
 
+    return cams[activeIndex];
 }
 //------------------------------------------------------------------------------
 //! Setter that turns on the device rotation sensor

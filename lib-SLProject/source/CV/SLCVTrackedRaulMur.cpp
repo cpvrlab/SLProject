@@ -29,10 +29,11 @@ using namespace ORB_SLAM2;
 
 //-----------------------------------------------------------------------------
 SLCVTrackedRaulMur::SLCVTrackedRaulMur(SLNode *node, ORBVocabulary* vocabulary, 
-    SLCVKeyFrameDB* keyFrameDB)
+    SLCVKeyFrameDB* keyFrameDB, SLCVMap* map)
     : SLCVTracked(node),
     mpVocabulary(vocabulary),
-    mpKeyFrameDatabase(keyFrameDB)
+    mpKeyFrameDatabase(keyFrameDB),
+    _map(map)
 {
     //Load ORB Vocabulary
     cout << endl << "Loading ORB Vocabulary. This could take a while..." << endl;
@@ -68,7 +69,6 @@ SLbool SLCVTrackedRaulMur::track(SLCVMat imageGray,
         calib->cameraMat(), calib->distortion(), mpVocabulary );
     /************************************************************/
 
-    //Track():
     // System is initialized. Track Frame.
     mLastProcessedState = mState;
     bool bOK;
@@ -80,19 +80,20 @@ SLbool SLCVTrackedRaulMur::track(SLCVMat imageGray,
     }
     else
     {
+        //if NOT visual odometry tracking
         if (!mbVO) // In last frame we tracked enough MapPoints from the Map
         {
             if (!mVelocity.empty()) { //we have a valid motion model
                 bOK = TrackWithMotionModel();
             }
             else { //we have NO valid motion model
+                // All keyframes that observe a map point are included in the local map.
+                // Every current frame gets a reference keyframe assigned which is the keyframe 
+                // from the local map that shares most matches with the current frames local map points matches.
+                // It is updated in UpdateLocalKeyFrames().
                 bOK = TrackReferenceKeyFrame();
             }
         }
-        //else {
-        //    mState = LOST;
-        //    bOK = false;
-        //}
         else // In last frame we tracked mainly "visual odometry" points.
         {
             // We compute two camera poses, one from motion model and one doing relocalization.
@@ -113,6 +114,7 @@ SLbool SLCVTrackedRaulMur::track(SLCVMat imageGray,
             }
             bOKReloc = Relocalization();
 
+            //relocalization method is not valid but the velocity model method
             if (bOKMM && !bOKReloc)
             {
                 mCurrentFrame.SetPose(TcwMM);
@@ -146,6 +148,15 @@ SLbool SLCVTrackedRaulMur::track(SLCVMat imageGray,
     if (bOK && !mbVO)
         bOK = TrackLocalMap();
 
+    //if (drawDetection)
+    //{
+    //    for (size_t i = 0; i < _currentFrame.inlierPoints2D.size(); i++)
+    //        cv::rectangle(image,)
+    //        circle(_currentFrame.image,
+    //            _currentFrame.inlierPoints2D[i],
+    //            3,
+    //            Scalar(0, 0, 255));
+    //}
 
     if (bOK)
         mState = OK;
@@ -159,8 +170,8 @@ SLbool SLCVTrackedRaulMur::track(SLCVMat imageGray,
         if (!mLastFrame.mTcw.empty())
         {
             cv::Mat LastTwc = cv::Mat::eye(4, 4, CV_32F);
-            mLastFrame.GetRotationInverse().copyTo(LastTwc.rowRange(0, 3).colRange(0, 3));
-            const auto& cc = mLastFrame.GetCameraCenter();
+            mLastFrame.GetRotationInverse().copyTo(LastTwc.rowRange(0, 3).colRange(0, 3)); //mRwc
+            const auto& cc = mLastFrame.GetCameraCenter(); //this is the translation w.r.t the world of the frame (warum dann Twc??)
             cc.copyTo(LastTwc.rowRange(0, 3).col(3));
             mVelocity = mCurrentFrame.mTcw*LastTwc;
         }
@@ -227,7 +238,8 @@ SLbool SLCVTrackedRaulMur::track(SLCVMat imageGray,
     // Store frame pose information to retrieve the complete camera trajectory afterwards.
     if (mCurrentFrame.mpReferenceKF && !mCurrentFrame.mTcw.empty())
     {
-        cv::Mat Tcr = mCurrentFrame.mTcw*mCurrentFrame.mpReferenceKF->GetPoseInverse();
+        cv::Mat Tcr = mCurrentFrame.mTcw*mCurrentFrame.mpReferenceKF->GetPoseInverse(); //Tcr = Tcw * Twr (current wrt reference = world wrt current * reference wrt world
+        //relative frame poses are used to refer a frame to reference frame
         mlRelativeFramePoses.push_back(Tcr);
         mlpReferences.push_back(mpReferenceKF);
         mlFrameTimes.push_back(mCurrentFrame.mTimeStamp);
@@ -247,6 +259,19 @@ SLbool SLCVTrackedRaulMur::track(SLCVMat imageGray,
 //-----------------------------------------------------------------------------
 bool SLCVTrackedRaulMur::Relocalization()
 {
+    //ghm1:
+    //The goal is to find a camera pose of the current frame with more than 50 matches of keypoints to mappoints
+    //1. search for relocalization candidates by querying the keyframe database (with similarity score)
+    //2. for every found candidate we search keypoint matches (from kf candidate) with orb in current frame (ORB that belong to the same vocabulary node (at a certain level))
+    //3. if more than 15 matches are found we use a PnPSolver with RANSAC to estimate an initial camera pose
+    //4. if the pose is valid (RANSAC has not reached max. iterations), pose and matches are inserted into current frame and the pose of the frame is optimized using optimizer
+    //5. if more less than 10 good matches remain continue with next candidate
+    //6. else if less than 50 good matched remained after optimization, mappoints associated with the keyframe candidate are projected in the current frame (which has an initial pose) and more matches are searched in a coarse window
+    //7. if we now have found more than 50 matches the pose of the current frame is optimized again using the additional found matches
+    //8. during the optimization matches may be rejected. so if after optimization more than 30 and less than 50 matches remain we search again by projection using a narrower search window
+    //9. if now more than 50 matches exist after search by projection the pose is optimized again (for the last time)
+    //10. if more than 50 good matches remain after optimization, relocalization was successful
+
     // Compute Bag of Words Vector
     mCurrentFrame.ComputeBoW();
 
@@ -336,7 +361,7 @@ bool SLCVTrackedRaulMur::Relocalization()
                 for (int j = 0; j<np; j++)
                 {
                     if (vbInliers[j])
-                    {
+                    {   
                         mCurrentFrame.mvpMapPoints[j] = vvpMapPointMatches[i][j];
                         sFound.insert(vvpMapPointMatches[i][j]);
                     }
@@ -353,7 +378,9 @@ bool SLCVTrackedRaulMur::Relocalization()
                     if (mCurrentFrame.mvbOutlier[io])
                         mCurrentFrame.mvpMapPoints[io] = static_cast<SLCVMapPoint*>(NULL);
 
-                // If few inliers, search by projection in a coarse window and optimize again
+                // If few inliers, search by projection in a coarse window and optimize again:
+                //ghm1: mappoints seen in the keyframe which was found as candidate via BoW-search are projected into
+                //the current frame using the position that was calculated using the matches from BoW matcher
                 if (nGood<50)
                 {
                     int nadditional = matcher2.SearchByProjection(mCurrentFrame, vpCandidateKFs[i], sFound, 10, 100);
@@ -409,6 +436,18 @@ bool SLCVTrackedRaulMur::Relocalization()
 
 bool SLCVTrackedRaulMur::TrackWithMotionModel()
 {
+    //This method is called if tracking is OK and we have a valid motion model
+    //1. UpdateLastFrame(): ...
+    //2. We set an initial pose into current frame, which is the pose of the last frame corrected by the motion model (expected motion since last frame)
+    //3. Reinitialization of the assotiated map points to key points in the current frame to NULL
+    //4. We search for matches with associated mappoints from lastframe by projection to the current frame. A narrow window is used.
+    //5. If we found less than 20 matches we search again as before but in a wider search window.
+    //6. If we have still less than 20 matches tracking with motion model was unsuccessful
+    //7. Else the pose is Optimized
+    //8. Matches classified as outliers by the optimization routine are updated in the mvpMapPoints vector in the current frame and the valid matches are counted
+    //9. If less than 10 matches to the local map remain the tracking with visual odometry is activated (mbVO = true) and that means no tracking with motion model or reference keyframe
+    //10. The tracking with motion model was successful, if we found more than 20 matches to map points
+
     ORBmatcher matcher(0.9, true);
 
     // Update last frame pose according to its reference keyframe
@@ -463,7 +502,7 @@ bool SLCVTrackedRaulMur::TrackWithMotionModel()
     return nmatches>20;
     //}
 
-    return nmatchesMap >= 10;
+    //return nmatchesMap >= 10;
 }
 
 
@@ -472,6 +511,17 @@ bool SLCVTrackedRaulMur::TrackLocalMap()
     // We have an estimation of the camera pose and some map points tracked in the frame.
     // We retrieve the local map and try to find matches to points in the local map.
 
+    //(UpdateLocalKeyFrames())
+    //1. For all matches to mappoints we search for the keyframes in which theses mappoints have been observed
+    //2. We set the keyframe with the most common matches to mappoints as reference keyframe. Simultaniously a list of localKeyFrames is maintained (mvpLocalKeyFrames)
+    //(UpdateLocalPoints())
+    //3. Pointers to map points are added to mvpLocalMapPoints and the id of the current frame is stored into mappoint instance (mnTrackReferenceForFrame).
+    //(SearchLocalPoints())
+    //4. The so found local map is searched for additional matches. We check if it is not matched already, if it is in frustum and then the ORBMatcher is used to search feature matches by projection.
+    //(ORBMatcher::searchByProjection())
+    //5.
+    //(this function)
+    //6. The Pose is optimized using the found additional matches and the already found pose as initial guess
     UpdateLocalMap();
 
     SearchLocalPoints();
@@ -559,6 +609,15 @@ void SLCVTrackedRaulMur::SearchLocalPoints()
 
 bool SLCVTrackedRaulMur::TrackReferenceKeyFrame()
 {
+    //This routine is called if current tracking state is OK but we have NO valid motion model
+    //1. Berechnung des BoW-Vectors für den current frame
+    //2. using BoW we search mappoint matches (from reference keyframe) with orb in current frame (ORB that belong to the same vocabulary node (at a certain level))
+    //3. if there are less than 15 matches return.
+    //4. we use the pose found for the last frame as initial pose for the current frame
+    //5. This pose is optimized using the matches to map points found by BoW search with reference frame
+    //6. Matches classified as outliers by the optimization routine are updated in the mvpMapPoints vector in the current frame and the valid matches are counted
+    //7. If there are more than 10 valid matches the reference frame tracking was successful.
+
     // Compute Bag of Words vector
     mCurrentFrame.ComputeBoW();
 
@@ -606,8 +665,14 @@ void SLCVTrackedRaulMur::UpdateLastFrame()
 {
     // Update pose according to reference keyframe
     SLCVKeyFrame* pRef = mLastFrame.mpReferenceKF;
+    //cout << "pRef pose: " << pRef->GetPose() << endl;
     cv::Mat Tlr = mlRelativeFramePoses.back();
-
+    //GHM1:
+    //l = last, w = world, r = reference
+    //Tlr is the relative transformation for the last frame wrt to reference frame
+    //(because the relative pose for the current frame is added at the end of tracking)
+    //Refer last frame pose to world: Tlw = Tlr * Trw
+    //So it seems, that the frames pose does not always refer to world frame...?
     mLastFrame.SetPose(Tlr*pRef->GetPose());
 }
 

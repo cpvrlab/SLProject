@@ -34,6 +34,7 @@
 #include <SLGLTexture.h>
 #include <SLTransferFunction.h>
 #include <SLCVTrackedFeatures.h>
+#include <SLCVTrackedRaulMur.h>
 
 #include <imgui.h>
 
@@ -101,7 +102,13 @@ SLbool          SLDemoGui::showInfosScene      = false;
 SLbool          SLDemoGui::showInfosSensors    = false;
 SLbool          SLDemoGui::showSceneGraph      = false;
 SLbool          SLDemoGui::showProperties      = false;
+SLbool          SLDemoGui::showInfosTracking   = false;
 SLbool          SLDemoGui::showChristoffel     = false;
+
+// SLCVTrackedRaulMur tracker pointer
+SLCVTrackedRaulMur* raulMurTracker = nullptr;
+SLNode* keyFrames   = nullptr;
+SLNode* mapPoints   = nullptr;
 
 // Scene node for Christoffel objects
 SLNode* bern        = nullptr;
@@ -487,6 +494,11 @@ void SLDemoGui::buildDemoGui(SLScene* s, SLSceneView* sv)
         buildProperties(s);
     }
 
+    if (showInfosTracking)
+    {
+        buildInfosTracking(s);
+    }
+
     if (showChristoffel && SL::currentSceneID==C_sceneVideoChristoffel)
     {
         ImGui::Begin("Christoffel", &showChristoffel, ImVec2(300,0));
@@ -594,8 +606,6 @@ void SLDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
 
                     if (ImGui::MenuItem("Minimal Scene", 0, curS==C_sceneMinimal))
                         sv->onCommand(C_sceneMinimal);
-                    if (ImGui::MenuItem("Pose-Graph and Map Scene", 0, curS == C_sceneCamPoseGraphAndMap))
-                        sv->onCommand(C_sceneCamPoseGraphAndMap);
                     if (ImGui::MenuItem("Sensor Test Scene", 0, curS==C_sceneSensorTest))
                         sv->onCommand(C_sceneSensorTest);
                     if (ImGui::MenuItem("Figure Scene", 0, curS==C_sceneFigure))
@@ -675,9 +685,11 @@ void SLDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
                     if (ImGui::MenuItem("Texture from live video", 0, curS==C_sceneVideoTexture))
                         sv->onCommand(C_sceneVideoTexture);
                     if (ImGui::MenuItem("Sensor AR (Main)", 0, curS==C_sceneVideoSensorAR))
-                        sv->onCommand(C_sceneVideoChristoffel);
+                        sv->onCommand(C_sceneVideoSensorAR);
                     if (ImGui::MenuItem("Christoffel Tower AR (Main)", 0, curS==C_sceneVideoChristoffel))
                         sv->onCommand(C_sceneVideoChristoffel);
+                    if (ImGui::MenuItem("Track Features from Keyframes", 0, curS == C_sceneVideoTrackKeyFrames))
+                        sv->onCommand(C_sceneVideoTrackKeyFrames);
 
                     ImGui::EndMenu();
                 }
@@ -1231,6 +1243,10 @@ void SLDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
             {   ImGui::Separator();
                 ImGui::MenuItem("Infos on Christoffel",0, &showChristoffel);
             }
+            if (SL::currentSceneID == C_sceneVideoTrackKeyFrames) {
+                ImGui::Separator();
+                ImGui::MenuItem("Infos on Tracking", 0, &showInfosTracking);
+            }
             ImGui::Separator();
             ImGui::MenuItem("Help on Interaction", 0, &showHelp);
             ImGui::MenuItem("Help on Calibration", 0, &showHelpCalibration);
@@ -1691,6 +1707,58 @@ void SLDemoGui::buildProperties(SLScene* s)
     ImGui::PopFont();
 }
 //-----------------------------------------------------------------------------
+void SLDemoGui::buildInfosTracking(SLScene* s)
+{
+    ImGui::Begin("Tracking Infos", &showInfosTracking, ImVec2(300, 0), -1.f, ImGuiWindowFlags_NoCollapse);
+
+    if(!keyFrames)
+        keyFrames = s->root3D()->findChild<SLNode>("KeyFrames", true);
+    if (!mapPoints)
+        mapPoints = s->root3D()->findChild<SLNode>("MapPoints", true);
+
+    if (keyFrames)
+    {
+        SLbool b = !keyFrames->drawBits()->get(SL_DB_HIDDEN);
+        if (ImGui::Checkbox("KeyFrames", &b))
+        {
+            keyFrames->drawBits()->set(SL_DB_HIDDEN, !b);
+            for (SLNode* child : keyFrames->children()) {
+                if(child)
+                    child->drawBits()->set(SL_DB_HIDDEN, !b);
+            }
+        }
+    }
+
+    if (mapPoints)
+    {
+        SLbool b = !mapPoints->drawBits()->get(SL_DB_HIDDEN);
+        if (ImGui::Checkbox("MapPoints", &b))
+        {
+            mapPoints->drawBits()->set(SL_DB_HIDDEN, !b);
+        }
+    }
+
+    //try to find SLCVTrackedRaulMur instance
+    for (SLCVTracked* tracker : s->trackers()) {
+        if (raulMurTracker = dynamic_cast<SLCVTrackedRaulMur*>(tracker))
+            break;
+    }
+
+    //add number of keyframes
+    if (keyFrames) {
+        ImGui::Text("Number of Keyframes : %d ", keyFrames->children().size());
+    }
+    //add number of map points
+    if (raulMurTracker)
+    {
+        auto cvMap = raulMurTracker->getMap();
+        if(cvMap)
+            ImGui::Text("Number of MapPoints : %d ", cvMap->mapPoints().size());
+    }
+
+    ImGui::End();
+}
+//-----------------------------------------------------------------------------
 void SLDemoGui::loadConfig(SLint dotsPerInch)
 {
     ImGuiStyle& style = ImGui::GetStyle();
@@ -1753,6 +1821,7 @@ void SLDemoGui::loadConfig(SLint dotsPerInch)
     fs["showInfosSensors"]      >> b; SLDemoGui::showInfosSensors = b;
     fs["showSceneGraph"]        >> b; SLDemoGui::showSceneGraph = b;
     fs["showProperties"]        >> b; SLDemoGui::showProperties = b;
+    fs["showInfosTracking"]     >> b; SLDemoGui::showInfosTracking = b;
     fs["showChristoffel"]       >> b; SLDemoGui::showChristoffel = b;
     fs["showDetection"]         >> b; SLScene::current->showDetection(b);
 
@@ -1788,6 +1857,7 @@ void SLDemoGui::saveConfig()
     fs << "showInfosSensors"        << SLDemoGui::showInfosSensors;
     fs << "showSceneGraph"          << SLDemoGui::showSceneGraph;
     fs << "showProperties"          << SLDemoGui::showProperties;
+    fs << "showInfosTracking"       << SLDemoGui::showInfosTracking;
     fs << "showChristoffel"         << SLDemoGui::showChristoffel;
     fs << "showDetection"           << SLScene::current->showDetection();
 

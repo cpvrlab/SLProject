@@ -139,6 +139,10 @@ void SLCamera::drawMeshes(SLSceneView* sv)
 {
     if (sv->camera() != this)
     {
+        // Return if hidden
+        if (sv->drawBit(SL_DB_HIDDEN) || this->drawBit(SL_DB_HIDDEN))
+            return;
+
         // Vertices of the far plane
         SLVec3f farRT, farRB, farLT, farLB;
 
@@ -231,7 +235,7 @@ void SLCamera::drawMeshes(SLSceneView* sv)
         }
 
         _vao.drawArrayAsColored(PT_lines, SLCol4f::WHITE*0.7f);
-        //_background.renderInScene(farLT, farLB, farRT, farRB);
+        _background.renderInScene(farLT, farLB, farRT, farRB);
     }
 }
 //-----------------------------------------------------------------------------

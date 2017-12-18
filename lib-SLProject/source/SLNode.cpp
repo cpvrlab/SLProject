@@ -20,6 +20,7 @@
 #include <SLLightRect.h>
 #include <SLLightDirect.h>
 #include <SLCVTracked.h>
+#include <SLCVCamera.h>
 
 //-----------------------------------------------------------------------------
 /*! 
@@ -358,6 +359,7 @@ void SLNode::cull3DRec(SLSceneView* sv)
     // Do frustum culling for all shapes except cameras & lights
     if (sv->doFrustumCulling() &&
         typeid(*this)!=typeid(SLCamera) &&
+        typeid(*this) != typeid(SLCVCamera) &&
         typeid(*this)!=typeid(SLLightRect) &&
         typeid(*this)!=typeid(SLLightSpot) &&
         typeid(*this)!=typeid(SLLightDirect))

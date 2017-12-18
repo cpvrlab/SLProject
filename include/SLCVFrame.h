@@ -34,7 +34,7 @@ public:
     // Compute Bag of Words representation.
     void ComputeBoW();
 
-    // Set the camera pose.
+    // Set the camera pose. (world wrt camera)
     void SetPose(cv::Mat Tcw);
 
     // Computes rotation, translation and camera center matrices from the camera pose.

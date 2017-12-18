@@ -12,7 +12,7 @@
 #define SLCVKEYFRAME_H
 
 #include <vector>
-#include <SLCamera.h>
+#include <SLCVCamera.h>
 //#include <SLCVMapPoint.h>
 #include <DBoW2/DBoW2/BowVector.h>
 #include <DBoW2/DBoW2/FeatureVector.h>
@@ -63,7 +63,7 @@ public:
 
     void descriptors(const SLCVMat& descriptors) { descriptors.copyTo(mDescriptors); }
     //! get visual representation as SLPoints
-    SLCamera* getSceneObject();
+    SLCVCamera* getSceneObject();
 
     // Covisibility graph functions
     vector<SLCVKeyFrame*> GetBestCovisibilityKeyFrames(const int &N);
@@ -115,8 +115,8 @@ private:
     //! opencv coordinate representation: z-axis points to principlal point,
     //! x-axis to the right and y-axis down
     //! Infos about the pose: https://github.com/raulmur/ORB_SLAM2/issues/249
-    SLCVMat _Twc;
-    SLCVMat _Tcw;
+    SLCVMat _Twc; //camera wrt world
+    SLCVMat _Tcw; //world wrt camera
     //! camera center
     SLCVMat Ow;
 
@@ -136,7 +136,7 @@ private:
 
     //Pointer to visual representation object (ATTENTION: do not delete this object)
     //We do not use inheritence, because the scene is responsible for all scene objects!
-    SLCamera* _camera = NULL;
+    SLCVCamera* _camera = NULL;
 
     // KeyPoints, stereo coordinate and descriptors (all associated by an index)
 

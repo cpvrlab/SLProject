@@ -79,7 +79,6 @@ enum SLCommand
     C_sceneAll = 0,         // Loads all scenes one after the other
     C_sceneMinimal,
     C_sceneVideoSensorAR,
-    C_sceneCamPoseGraphAndMap,
     C_sceneSensorTest,
     C_sceneFigure,
     C_sceneMeshLoad,
@@ -122,6 +121,7 @@ enum SLCommand
     C_sceneVideoTrackArucoScnd,
     C_sceneVideoTrackFeature2DMain,
     C_sceneVideoTrackFeature2DScnd,
+    C_sceneVideoTrackKeyFrames,
 
     C_sceneRTMuttenzerBox,
     C_sceneRTSpheres,

@@ -185,9 +185,40 @@ void SLCVCapture::adjustForSL()
         //imwrite("AfterCropping.bmp", lastFrame);
     }
 
+    //SLCVSize frameSize(640, 480);
+    //frameSize.width;
+    //frameSize.height;
+    //SLfloat inWdivH = (SLfloat)frameSize.width / (SLfloat)frameSize.height;
+    //SLfloat outWdivH = s->sceneViews()[0]->scrWdivH();
+
+    //if (SL_abs(inWdivH - outWdivH) > 0.01f)
+    //{
+    //    SLint width = 0;    // width in pixels of the destination image
+    //    SLint height = 0;   // height in pixels of the destination image
+    //    SLint cropH = 0;    // crop height in pixels of the source image
+    //    SLint cropW = 0;    // crop width in pixels of the source image
+
+    //    if (inWdivH > outWdivH) // crop input image left & right
+    //    {
+    //        width = (SLint)((SLfloat)frameSize.height * outWdivH);
+    //        height = frameSize.height;
+    //        cropW = (SLint)((SLfloat)(frameSize.width - width) * 0.5f);
+    //    }
+    //    else // crop input image at top & bottom
+    //    {
+    //        width = frameSize.width;
+    //        height = (SLint)((SLfloat)frameSize.width / outWdivH);
+    //        cropH = (SLint)((SLfloat)(frameSize.height - height) * 0.5f);
+    //    }
+    //    lastFrame(SLCVRect(cropW, cropH, width, height)).copyTo(lastFrame);
+    //    //imwrite("AfterCropping.bmp", lastFrame);
+    //}
+
     //resize image
-    cv::resize(lastFrame, lastFrame, 
-        cv::Size( s->sceneViews()[0]->scrW(), s->sceneViews()[0]->scrH()));
+    //cv::resize(lastFrame, lastFrame, 
+    //    cv::Size( s->sceneViews()[0]->scrW(), s->sceneViews()[0]->scrH()));
+    cv::resize(lastFrame, lastFrame,
+        cv::Size(640, 480));
 
     //////////////////
     // 2) Mirroring //

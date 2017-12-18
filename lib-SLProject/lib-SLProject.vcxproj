@@ -287,6 +287,7 @@
     <ClInclude Include="..\include\SLBackground.h" />
     <ClInclude Include="..\include\SLCompactGrid.h" />
     <ClInclude Include="..\include\SLCV.h" />
+    <ClInclude Include="..\include\SLCVCamera.h" />
     <ClInclude Include="..\include\SLCVFeatureManager.h" />
     <ClInclude Include="..\include\SLCVFrame.h" />
     <ClInclude Include="..\include\SLCVImage.h" />
@@ -392,6 +393,7 @@
     <ClCompile Include="source\CV\OrbSlam\Optimizer.cpp" />
     <ClCompile Include="source\CV\OrbSlam\ORBmatcher.cpp" />
     <ClCompile Include="source\CV\OrbSlam\PnPsolver.cpp" />
+    <ClCompile Include="source\CV\SLCVCamera.cpp" />
     <ClCompile Include="source\CV\SLCVFeatureManager.cpp" />
     <ClCompile Include="source\CV\SLCVFrame.cpp" />
     <ClCompile Include="source\CV\SLCVImage.cpp" />

@@ -53,7 +53,7 @@ class SLCamera: public SLNode
 
             void            statsRec            (SLNodeStats &stats);
 
-            void            drawMeshes          (SLSceneView* sv);
+    virtual void            drawMeshes          (SLSceneView* sv);
     virtual SLbool          camUpdate           (SLfloat timeMS);
             void            preShade            (SLRay* ray){(void)ray;}
             void            calcMinMax          (SLVec3f &minV, SLVec3f &maxV);

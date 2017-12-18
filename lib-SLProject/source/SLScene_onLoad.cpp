@@ -252,10 +252,10 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         // Save energy
         sv->waitEvents(true);
     }
-    else if (SL::currentSceneID == C_sceneCamPoseGraphAndMap)
+    else if (SL::currentSceneID == C_sceneVideoTrackKeyFrames)
     {
         // Set scene name and info string
-        name("Pose Graph and Map Example");
+        name("Track Keyframe based Features");
         _info = "Example for loading an existing pose graph with map points.";
 
         SLCamera* cam1 = new SLCamera("Camera 1");
@@ -287,6 +287,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         //load map points and keyframes from json file
         //SLCVSlamStateLoader loader("../_data/calibrations/orb-slam-state-2.json", vocabulary);
         SLCVSlamStateLoader loader("../_data/calibrations/orb-slam-state-buero3.json", vocabulary);
+        //SLCVSlamStateLoader loader("../_data/calibrations/orb-slam-state-buero1.json", vocabulary);
         loader.load(map->mapPoints(), *kfDB );
 
         SLLightSpot* light1 = new SLLightSpot(10, 10, 10, 0.3f);
@@ -307,28 +308,30 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
 
         //add visual representations of map and keyFrame database to scene
         bool addVisualMap = true;
-        bool addVisualKFs = false;
+        bool addVisualKFs = true;
         if (addVisualMap)
         {
-            SLNode* pc1 = new SLNode(map->getSceneObject());
+            SLNode* pc1 = new SLNode(map->getSceneObject(), "MapPoints");
             mapNode->addChild(pc1);
         }
 
         if(addVisualKFs)
         {
+            SLNode* keyFrames = new SLNode("KeyFrames");
             //add keyFrames
             for (auto& kf : kfDB->keyFrames()) {
-                SLCamera* cam = kf.getSceneObject();
+                SLCVCamera* cam = kf.getSceneObject();
                 cam->fov(_activeCalib->cameraFovDeg());
                 cam->focalDist(0.11);
                 cam->clipNear(0.1);
                 cam->clipFar(0.11);
-                mapNode->addChild(cam);
+                keyFrames->addChild(cam);
             }
+            mapNode->addChild(keyFrames);
         }
 
         //add tracker
-        _trackers.push_back( new SLCVTrackedRaulMur(cam1, vocabulary, kfDB));
+        _trackers.push_back( new SLCVTrackedRaulMur(cam1, vocabulary, kfDB, map));
 
         //add yellow augmented box
         SLMaterial* yellow = new SLMaterial("mY", SLCol4f(1, 1, 0, 0.5f));
@@ -2582,7 +2585,14 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         #else
         SLNode* tower = importer.load("Wavefront-OBJ/Christoffelturm/christoffelturm.obj");
         #endif
-        tower->rotate(180, 1,0,0);
+        //we we could not find the tower, load a Box
+        if (!tower) {
+            SLMaterial* yellow = new SLMaterial("mY", SLCol4f(1, 1, 0, 0.5f));
+            SLfloat s = 10.f;
+            tower = new SLNode(new SLBox(-s, -s, -s, s, s, s, "Box", yellow), "Box Node");
+        }
+
+        tower->rotate(180, 1, 0, 0);
         tower->translate(80, -80, 0);
         tower->scale(4);
 
