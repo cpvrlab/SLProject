@@ -20,6 +20,7 @@ for a good top down information.
 */
 #include <SLCVTrackedRaulMur.h>
 #include <SLCVFrame.h>
+#include <SLPoints.h>
 #include <OrbSlam\ORBmatcher.h>
 #include <OrbSlam\PnPsolver.h>
 #include <OrbSlam\Optimizer.h>
@@ -29,11 +30,15 @@ using namespace ORB_SLAM2;
 
 //-----------------------------------------------------------------------------
 SLCVTrackedRaulMur::SLCVTrackedRaulMur(SLNode *node, ORBVocabulary* vocabulary, 
-    SLCVKeyFrameDB* keyFrameDB, SLCVMap* map)
+    SLCVKeyFrameDB* keyFrameDB, SLCVMap* map, SLNode* mapPC, SLNode* mapMatchesPC, 
+    SLNode* mapLocalPC )
     : SLCVTracked(node),
     mpVocabulary(vocabulary),
     mpKeyFrameDatabase(keyFrameDB),
-    _map(map)
+    _map(map),
+    _mapPC(mapPC),
+    _mapMatchesPC(mapMatchesPC),
+    _mapLocalPC(mapLocalPC)
 {
     //Load ORB Vocabulary
     cout << endl << "Loading ORB Vocabulary. This could take a while..." << endl;
@@ -166,6 +171,70 @@ SLbool SLCVTrackedRaulMur::track(SLCVMat imageGray,
     // If tracking were good
     if (bOK)
     {
+        // Update scene object of local map if required
+        if (_showMatchesPC && _mapMatchesPC)
+        {
+            //find map point matches
+            std::vector<SLCVMapPoint*> mapPointMatches;
+
+            for (int i = 0; i < mCurrentFrame.N; i++)
+            {
+                if (mCurrentFrame.mvpMapPoints[i])
+                {
+                    if (!mCurrentFrame.mvbOutlier[i])
+                    {
+                        if (mCurrentFrame.mvpMapPoints[i]->Observations() > 0)
+                            mapPointMatches.push_back(mCurrentFrame.mvpMapPoints[i]);
+                    }
+                }
+            }
+
+            //update scene:
+            //make a new SLPoints object
+            SLMaterial* pcMat1 = new SLMaterial("Green", SLCol4f::GREEN);
+            pcMat1->program(new SLGLGenericProgram("ColorUniformPoint.vert", "Color.frag"));
+            pcMat1->program()->addUniform1f(new SLGLUniform1f(UT_const, "u_pointSize", 4.0f));
+
+            //get points as Vec3f
+            SLVVec3f points;
+            for (auto mapPt : mapPointMatches)
+                points.push_back(mapPt->worldPosVec());
+
+            SLPoints* mapMatchesMesh = new SLPoints(points, "MapPointsMatches", pcMat1);
+            //add to map node
+            _mapMatchesPC->removeMesh("MapPointsMatches");
+            _mapMatchesPC->addMesh(mapMatchesMesh);
+        }
+        else if(_mapMatchesPC)
+        {
+            _mapMatchesPC->removeMesh("MapPointsMatches");
+        }
+
+        if (_showLocalMapPC && _mapLocalPC)
+        {
+            mvpLocalMapPoints;
+
+            //update scene:
+            //make a new SLPoints object
+            SLMaterial* pcMat2 = new SLMaterial("Magenta", SLCol4f::MAGENTA);
+            pcMat2->program(new SLGLGenericProgram("ColorUniformPoint.vert", "Color.frag"));
+            pcMat2->program()->addUniform1f(new SLGLUniform1f(UT_const, "u_pointSize", 3.0f));
+
+            //get points as Vec3f
+            SLVVec3f points;
+            for (auto mapPt : mvpLocalMapPoints)
+                points.push_back(mapPt->worldPosVec());
+
+            SLPoints* mapLocalMesh = new SLPoints(points, "MapPointsLocal", pcMat2);
+            //add to map node
+            _mapLocalPC->removeMesh("MapPointsLocal");
+            _mapLocalPC->addMesh(mapLocalMesh);
+        }
+        else if (_mapLocalPC)
+        {
+            _mapLocalPC->removeMesh("MapPointsLocal");
+        }
+
         // Update motion model
         if (!mLastFrame.mTcw.empty())
         {

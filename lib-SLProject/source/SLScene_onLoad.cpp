@@ -309,10 +309,38 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         //add visual representations of map and keyFrame database to scene
         bool addVisualMap = true;
         bool addVisualKFs = true;
+        SLNode* mapPC=NULL; 
+        SLNode* mapMatchedPC = NULL;
+        SLNode* mapLocalPC = NULL;
         if (addVisualMap)
         {
-            SLNode* pc1 = new SLNode(map->getSceneObject(), "MapPoints");
-            mapNode->addChild(pc1);
+            mapPC = new SLNode(map->getSceneObject(), "MapPoints");
+            mapNode->addChild(mapPC);
+
+            //add additional empty point clouds for visualization of local map and map point matches:
+            //1. map point matches
+            //material
+            SLMaterial* pcMat1 = new SLMaterial("Green", SLCol4f::GREEN);
+            pcMat1->program(new SLGLGenericProgram("ColorUniformPoint.vert", "Color.frag"));
+            pcMat1->program()->addUniform1f(new SLGLUniform1f(UT_const, "u_pointSize", 4.0f));
+            //mesh
+            SLVVec3f points;
+            points.push_back(SLVec3f(0.f, 0.f, 0.f));
+            SLPoints* mapMatchesMesh = new SLPoints(points, "MapPointsMatches", pcMat1);
+            //node
+            mapMatchedPC = new SLNode(mapMatchesMesh, "MapMatchedPC");
+            mapNode->addChild(mapMatchedPC);
+
+            //2. local map points
+            //material
+            SLMaterial* pcMat2 = new SLMaterial("Magenta", SLCol4f::MAGENTA);
+            pcMat2->program(new SLGLGenericProgram("ColorUniformPoint.vert", "Color.frag"));
+            pcMat2->program()->addUniform1f(new SLGLUniform1f(UT_const, "u_pointSize", 3.0f));
+            //mesh
+            SLPoints* mapLocalMesh = new SLPoints(points, "MapPointsLocal", pcMat2);
+            //node
+            mapLocalPC = new SLNode(mapLocalMesh, "MapLocalPC");
+            mapNode->addChild(mapLocalPC);
         }
 
         if(addVisualKFs)
@@ -331,7 +359,8 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         }
 
         //add tracker
-        _trackers.push_back( new SLCVTrackedRaulMur(cam1, vocabulary, kfDB, map));
+        _trackers.push_back( new SLCVTrackedRaulMur(cam1, vocabulary, kfDB, map, 
+            mapPC, mapMatchedPC, mapLocalPC ));
 
         //add yellow augmented box
         SLMaterial* yellow = new SLMaterial("mY", SLCol4f(1, 1, 0, 0.5f));

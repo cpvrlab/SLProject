@@ -28,7 +28,7 @@ SLPoints* SLCVMap::getSceneObject()
         //make a new SLPoints object
         SLMaterial* pcMat1 = new SLMaterial("Red", SLCol4f::RED);
         pcMat1->program(new SLGLGenericProgram("ColorUniformPoint.vert", "Color.frag"));
-        pcMat1->program()->addUniform1f(new SLGLUniform1f(UT_const, "u_pointSize", 3.0f));
+        pcMat1->program()->addUniform1f(new SLGLUniform1f(UT_const, "u_pointSize", 2.0f));
 
         //get points as Vec3f
         SLVVec3f points;

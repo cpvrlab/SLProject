@@ -48,7 +48,8 @@ public:
     eTrackingState mLastProcessedState;
 
     SLCVTrackedRaulMur(SLNode *node, ORBVocabulary* vocabulary,
-        SLCVKeyFrameDB* keyFrameDB, SLCVMap* map);
+        SLCVKeyFrameDB* keyFrameDB, SLCVMap* map, SLNode* mapPC = NULL,
+        SLNode* mapMatchesPC = NULL, SLNode* mapLocalPC = NULL );
     ~SLCVTrackedRaulMur();
     SLbool track(SLCVMat imageGray,
         SLCVMat image,
@@ -56,10 +57,43 @@ public:
         SLbool drawDetection,
         SLSceneView* sv);
 
+    //setters
+    void showMatchesPC(bool s) { _showMatchesPC = s; }
+    void showLocalMapPC(bool s) { _showLocalMapPC = s; }
+
     //getters
     SLCVMap* getMap() { return _map; }
     SLCVKeyFrameDB* getKfDB() { return mpKeyFrameDatabase; }
+    int getNMapMatches() { return mnMatchesInliers; }
+    bool showMatchesPC() { return _showMatchesPC; }
+    bool showLocalMapPC() { return _showLocalMapPC; }
 
+    string getPrintableState() {
+        switch (mState)
+        {
+        case SYSTEM_NOT_READY:
+            return "SYSTEM_NOT_READY";
+        case NO_IMAGES_YET:
+            return "NO_IMAGES_YET";
+        case NOT_INITIALIZED:
+            return "NOT_INITIALIZED";
+        case OK:
+            if (!mbVO) {
+                if (!mVelocity.empty())
+                    return "OK_MM"; //motion model tracking
+                else
+                    return "OK_RF"; //reference frame tracking
+            }
+            else {
+                return "OK_VO";
+            }
+            return "OK";
+        case LOST:
+            return "LOST";
+
+        return "";
+        }
+    }
 protected:
     bool Relocalization();
     bool TrackWithMotionModel();
@@ -124,6 +158,15 @@ private:
 
     //Current matches in frame
     int mnMatchesInliers = 0;
+
+    //flags, if we have to update the scene object of the map point matches
+    bool _showMatchesPC = true;
+    bool _showLocalMapPC = true;
+
+    //scene nodes to point clouds:
+    SLNode* _mapPC=NULL;
+    SLNode* _mapMatchesPC = NULL;
+    SLNode* _mapLocalPC = NULL;
 };
 //-----------------------------------------------------------------------------
 #endif //SLCVTRACKERRAULMUR_H

@@ -1748,16 +1748,33 @@ void SLDemoGui::buildInfosTracking(SLScene* s)
     if (keyFrames) {
         ImGui::Text("Number of Keyframes : %d ", keyFrames->children().size());
     }
-    //add number of map points
-    if (raulMurTracker)
-    {
-        auto cvMap = raulMurTracker->getMap();
-        if(cvMap)
-            ImGui::Text("Number of MapPoints : %d ", cvMap->mapPoints().size());
-    }
 
     if (raulMurTracker)
     {
+        //add tracking state
+        ImGui::Text("State : %s ", raulMurTracker->getPrintableState());
+
+        //add number of matches map points in current frame
+        ImGui::Text("N Map Matches : %d ", raulMurTracker->getNMapMatches());
+
+        //add number of map points
+        auto cvMap = raulMurTracker->getMap();
+        if (cvMap)
+            ImGui::Text("Number of MapPoints : %d ", cvMap->mapPoints().size());
+
+        //show and update matches to mappoints
+        SLbool s = raulMurTracker->showMatchesPC();
+        if (ImGui::Checkbox("MapPoints Matches", &s))
+        {
+            raulMurTracker->showMatchesPC(s);
+        }
+        //show and update local map points
+        s = raulMurTracker->showLocalMapPC();
+        if (ImGui::Checkbox("MapPoints Local", &s))
+        {
+            raulMurTracker->showLocalMapPC(s);
+        }
+
         //get keyframe database
         if (SLCVKeyFrameDB* kfDB = raulMurTracker->getKfDB())
         {
