@@ -12,11 +12,26 @@
 #include "SLCVKeyframe.h"
 #include <SLCVMapPoint.h>
 #include <OrbSlam\Converter.h>
+#include <SLCVKeyFrameDB.h>
 
+//-----------------------------------------------------------------------------
+//SLCVKeyFrame::SLCVKeyFrame( const SLCVKeyFrame& other)
+//{
+//}
 //-----------------------------------------------------------------------------
 SLCVKeyFrame::SLCVKeyFrame(size_t N)
 {
     mvpMapPoints = vector<SLCVMapPoint*>(N, static_cast<SLCVMapPoint*>(NULL));
+}
+//-----------------------------------------------------------------------------
+SLCVKeyFrameDB* SLCVKeyFrame::getKeyFrameDB()
+{
+    return _kfDb;
+}
+//-----------------------------------------------------------------------------
+void SLCVKeyFrame::setKeyFrameDB(SLCVKeyFrameDB* kfDb)
+{
+    _kfDb = kfDb;
 }
 //-----------------------------------------------------------------------------
 cv::Mat SLCVKeyFrame::GetCameraCenter()
@@ -40,7 +55,7 @@ SLCVCamera* SLCVKeyFrame::getSceneObject()
 {
     if (!_camera)
     {
-        _camera = new SLCVCamera("KeyFrame" + _id);
+        _camera = new SLCVCamera(this, "KeyFrame" + _id);
         //set camera position and orientation
         SLMat4f om;
 
@@ -53,6 +68,11 @@ SLCVCamera* SLCVKeyFrame::getSceneObject()
             _Twc.at<float>(2, 0), -_Twc.at<float>(2, 1), -_Twc.at<float>(2, 2), _Twc.at<float>(2, 3),
             _Twc.at<float>(3, 0), -_Twc.at<float>(3, 1), -_Twc.at<float>(3, 2), _Twc.at<float>(3, 3));
         //om.rotate(180, 1, 0, 0);
+
+        //set background
+        //backgroundTexture.setVideoImage("LiveVideoError.png");
+        _camera->background().texture(&backgroundTexture);
+        //_camera->renderBackground(true);
 
         _camera->om(om);
     }

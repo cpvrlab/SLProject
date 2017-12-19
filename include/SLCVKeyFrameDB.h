@@ -23,6 +23,7 @@ class SLCVKeyFrameDB
 {
 public:
     SLCVKeyFrameDB(const ORBVocabulary &voc);
+    ~SLCVKeyFrameDB();
 
     SLCVVKeyFrame& keyFrames() { return _keyFrames; }
 
@@ -30,6 +31,15 @@ public:
 
     // Relocalization
     std::vector<SLCVKeyFrame*> DetectRelocalizationCandidates(SLCVFrame* F);
+
+    //getters
+    bool renderKfBackground() { 
+        return _renderKfBackground; 
+    }
+    //setters
+    void renderKfBackground(bool s) { 
+        _renderKfBackground = s; 
+    }
 
 protected:
     // Associated vocabulary
@@ -39,6 +49,8 @@ protected:
 
 private:
     SLCVVKeyFrame _keyFrames;
+    //! visualization/debugging help: is true, if all 
+    bool _renderKfBackground = false;
 };
 
 #endif // !SLCVKEYFRAMEDB_H

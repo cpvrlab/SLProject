@@ -13,13 +13,24 @@
 
 #include <SLCamera.h>
 
+class SLCVKeyFrame;
+
 class SLCVCamera : public SLCamera
 {
 public:
-    SLCVCamera(SLstring name = "Camera");
+    SLCVCamera(SLCVKeyFrame* kf, SLstring name = "Camera");
     virtual void drawMeshes(SLSceneView* sv);
 
+    ////setters
+    //void renderBackground(bool s) { _renderBackground = s; }
+    ////getters
+    //bool renderBackground() { return _renderBackground; }
+    bool renderBackground();
+
 private:
+    //bool _renderBackground=false;
+    //pointer to corresponding keyframe
+    SLCVKeyFrame* _kf = NULL;
 };
 
 #endif //SLCVCAMERA_H

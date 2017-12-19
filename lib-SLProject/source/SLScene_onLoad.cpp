@@ -286,7 +286,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
 
         //load map points and keyframes from json file
         //SLCVSlamStateLoader loader("../_data/calibrations/orb-slam-state-2.json", vocabulary);
-        SLCVSlamStateLoader loader("../_data/calibrations/orb-slam-state-buero3.json", vocabulary);
+        SLCVSlamStateLoader loader("../_data/calibrations/orb-slam-state-buero4.json", vocabulary);
         //SLCVSlamStateLoader loader("../_data/calibrations/orb-slam-state-buero1.json", vocabulary);
         loader.load(map->mapPoints(), *kfDB );
 
@@ -319,12 +319,12 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         {
             SLNode* keyFrames = new SLNode("KeyFrames");
             //add keyFrames
-            for (auto& kf : kfDB->keyFrames()) {
-                SLCVCamera* cam = kf.getSceneObject();
+            for (auto* kf : kfDB->keyFrames()) {
+                SLCVCamera* cam = kf->getSceneObject();
                 cam->fov(_activeCalib->cameraFovDeg());
                 cam->focalDist(0.11);
                 cam->clipNear(0.1);
-                cam->clipFar(0.11);
+                cam->clipFar(1000.0);
                 keyFrames->addChild(cam);
             }
             mapNode->addChild(keyFrames);

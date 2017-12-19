@@ -15,8 +15,10 @@
 using namespace std;
 
 //-----------------------------------------------------------------------------
-SLCVSlamStateLoader::SLCVSlamStateLoader(const string& filename, ORBVocabulary* orbVoc )
-    : _orbVoc(orbVoc)
+SLCVSlamStateLoader::SLCVSlamStateLoader(const string& filename, ORBVocabulary* orbVoc,
+    bool loadKfImgs)
+    : _orbVoc(orbVoc),
+    _loadKfImgs(loadKfImgs)
 {
     _fs.open(filename, cv::FileStorage::READ);
     if (!_fs.isOpened()) {
@@ -30,7 +32,7 @@ SLCVSlamStateLoader::~SLCVSlamStateLoader()
 }
 //-----------------------------------------------------------------------------
 //! add map point
-void SLCVSlamStateLoader::load( SLCVVMapPoint& mapPts, SLCVKeyFrameDB& kfDB)
+void SLCVSlamStateLoader::load( SLCVVMapPoint& mapPts, SLCVKeyFrameDB& kfDB )
 {
     SLCVVKeyFrame& kfs = kfDB.keyFrames();
 
@@ -40,13 +42,13 @@ void SLCVSlamStateLoader::load( SLCVVMapPoint& mapPts, SLCVKeyFrameDB& kfDB)
     loadMapPoints(mapPts);
 
     //compute resulting values for map keyframes
-    for (SLCVKeyFrame& kf : kfs) {
+    for (SLCVKeyFrame* kf : kfs) {
         //compute bow
-        kf.ComputeBoW(_orbVoc);
+        kf->ComputeBoW(_orbVoc);
         //add keyframe to keyframe database
-        kfDB.add(&kf);
+        kfDB.add(kf);
         // Update links in the Covisibility Graph
-        kf.UpdateConnections();
+        kf->UpdateConnections();
     }
 
     //compute resulting values for map points
@@ -113,19 +115,35 @@ void SLCVSlamStateLoader::loadKeyFrames( SLCVVKeyFrame& kfs )
         std::vector<float> scaleFactors;
         (*it)["scaleFactors"] >> scaleFactors;
 
-        SLCVKeyFrame newKf(keyPtsUndist.size());
-        newKf.id(id);
-        newKf.Tcw(Tcw);
-        newKf.descriptors(featureDescriptors);
-        newKf.mvKeysUn = keyPtsUndist;
-        newKf.mfScaleFactor = scaleFactor;
-        newKf.mfLogScaleFactor = log(newKf.mfScaleFactor);
-        newKf.mnScaleLevels = nScaleLevels;
-        newKf.mvScaleFactors = scaleFactors;
+        ////load keyframe imgs
+        //cv::Mat kfImg;
+        //if (_loadKfImgs) {
+        //    stringstream ss; 
+        //    ss << "D:/Development/SLProject/_data/calibrations/imgs/" << "kf" << id << ".jpg";
+        //    kfImg = cv::imread(ss.str());
+        //}
+
+        SLCVKeyFrame* newKf = new SLCVKeyFrame(keyPtsUndist.size());
+        newKf->id(id);
+        newKf->Tcw(Tcw);
+        newKf->descriptors(featureDescriptors);
+        newKf->mvKeysUn = keyPtsUndist;
+        newKf->mfScaleFactor = scaleFactor;
+        newKf->mfLogScaleFactor = log(newKf->mfScaleFactor);
+        newKf->mnScaleLevels = nScaleLevels;
+        newKf->mvScaleFactors = scaleFactors;
+        //if (!kfImg.empty()) {
+        if(_loadKfImgs)
+        {
+            stringstream ss;
+            ss << "D:/Development/SLProject/_data/calibrations/imgs/" << "kf" << id << ".jpg";
+            //newKf->imgGray = kfImg;
+            newKf->backgroundTexture.setVideoImage(ss.str());
+        }
         kfs.push_back(newKf);
 
         //map pointer by id for look-up
-        _kfsMap[newKf.id()] = &kfs.back();
+        _kfsMap[newKf->id()] = kfs.back();
     }
 }
 //-----------------------------------------------------------------------------

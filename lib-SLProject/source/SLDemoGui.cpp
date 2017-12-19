@@ -1756,6 +1756,19 @@ void SLDemoGui::buildInfosTracking(SLScene* s)
             ImGui::Text("Number of MapPoints : %d ", cvMap->mapPoints().size());
     }
 
+    if (raulMurTracker)
+    {
+        //get keyframe database and check if backgound rendering is active
+        if (SLCVKeyFrameDB* kfDB = raulMurTracker->getKfDB())
+        {
+            SLbool b = kfDB->renderKfBackground();
+            if (ImGui::Checkbox("Show Background", &b))
+            {
+                kfDB->renderKfBackground(b);
+            }
+        }
+    }
+
     ImGui::End();
 }
 //-----------------------------------------------------------------------------

@@ -17,12 +17,23 @@ SLCVKeyFrameDB::SLCVKeyFrameDB(const ORBVocabulary &voc) :
     mvInvertedFile.resize(voc.size());
 }
 //-----------------------------------------------------------------------------
+SLCVKeyFrameDB::~SLCVKeyFrameDB()
+{
+    for (SLCVKeyFrame* kf : _keyFrames) {
+        if (kf) 
+            delete kf;
+    }
+}
+//-----------------------------------------------------------------------------
 void SLCVKeyFrameDB::add(SLCVKeyFrame* pKF)
 {
     //unique_lock<mutex> lock(mMutex);
 
     for (DBoW2::BowVector::const_iterator vit = pKF->mBowVec.begin(), vend = pKF->mBowVec.end(); vit != vend; vit++)
         mvInvertedFile[vit->first].push_back(pKF);
+
+    //add pointer to keyframe db
+    pKF->setKeyFrameDB(this);
 }
 //-----------------------------------------------------------------------------
 vector<SLCVKeyFrame*> SLCVKeyFrameDB::DetectRelocalizationCandidates(SLCVFrame *F)

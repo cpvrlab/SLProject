@@ -28,7 +28,7 @@ class SLCVSlamStateLoader
 {
 public:
     //! Opens and parses file with opencvs FileStorage
-    SLCVSlamStateLoader(const string& filename, ORBVocabulary* orbVoc);
+    SLCVSlamStateLoader(const string& filename, ORBVocabulary* orbVoc, bool loadKfImgs=true);
     ~SLCVSlamStateLoader();
     //! execute loading procedure
     void load( SLCVVMapPoint& mapPts, SLCVKeyFrameDB& kfDB);
@@ -41,6 +41,9 @@ private:
 
     cv::FileStorage _fs;
     ORBVocabulary* _orbVoc;
+
+    //load keyframe images
+    bool _loadKfImgs = false;
 
     //mapping of keyframe pointer by their id (used during map points loading)
     map<int, SLCVKeyFrame*> _kfsMap;

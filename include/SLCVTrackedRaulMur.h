@@ -58,6 +58,7 @@ public:
 
     //getters
     SLCVMap* getMap() { return _map; }
+    SLCVKeyFrameDB* getKfDB() { return mpKeyFrameDatabase; }
 
 protected:
     bool Relocalization();

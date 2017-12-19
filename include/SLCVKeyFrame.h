@@ -17,10 +17,13 @@
 #include <DBoW2/DBoW2/BowVector.h>
 #include <DBoW2/DBoW2/FeatureVector.h>
 #include <OrbSlam\ORBVocabulary.h>
+#include <SLGLTexture.h>
 
 using namespace ORB_SLAM2;
 
 class SLCVMapPoint;
+class SLCVKeyFrameDB;
+
 //-----------------------------------------------------------------------------
 //! AR Keyframe node class
 /*! A Keyframe is a camera with a position and additional information about key-
@@ -30,6 +33,8 @@ keypoints.
 class SLCVKeyFrame
 {
 public:
+    //copy ctor
+    //SLCVKeyFrame(const SLCVKeyFrame& other);
     SLCVKeyFrame(size_t N);
 
     //getters
@@ -41,9 +46,11 @@ public:
     cv::Mat GetTranslation() { return _Tcw.rowRange(0, 3).col(3).clone(); }
     cv::Mat GetPose() { return _Tcw.clone(); }
     cv::Mat GetPoseInverse() { return _Twc.clone(); }
+    SLCVKeyFrameDB* getKeyFrameDB();
 
     //setters
     void id(int id) { _id = id; }
+    void setKeyFrameDB( SLCVKeyFrameDB* kfDb );
 
     void Tcw(const SLCVMat& Tcw) {
         //_wTc = wTc; 
@@ -110,6 +117,10 @@ public:
     // Variables used by the tracking
     long unsigned int mnTrackReferenceForFrame = 0;
 
+    //image
+    SLCVMat imgGray;
+    SLGLTexture backgroundTexture;
+
 private:
     int _id = -1;
     //! opencv coordinate representation: z-axis points to principlal point,
@@ -140,9 +151,10 @@ private:
 
     // KeyPoints, stereo coordinate and descriptors (all associated by an index)
 
-
+    //pointer to keyframe database
+    SLCVKeyFrameDB* _kfDb = NULL;
 };
 
-typedef std::vector<SLCVKeyFrame> SLCVVKeyFrame;
+typedef std::vector<SLCVKeyFrame*> SLCVVKeyFrame;
 
 #endif // !SLCVKEYFRAME_H
