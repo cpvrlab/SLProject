@@ -696,16 +696,13 @@ SLCamera* SLScene::nextCameraInScene(SLSceneView* activeSV)
         }
     }
 
-    //find next camera, that is not ob type SLCVCamera
+    //find next camera, that is not of type SLCVCamera if "allow SLCVCamera as
+    //active camera" is deactivated
     do {
         activeIndex = activeIndex > cams.size()-2 ? 0 : ++activeIndex;
     }
     while ( dynamic_cast<SLCVCamera*>(cams[activeIndex]) && 
-        !dynamic_cast<SLCVCamera*>(cams[activeIndex])->renderBackground());
-
-    if (SLCVCamera* cam = dynamic_cast<SLCVCamera*>(cams[activeIndex]))
-    {
-    }
+        !dynamic_cast<SLCVCamera*>(cams[activeIndex])->allowAsActiveCam());
 
     return cams[activeIndex];
 }

@@ -36,11 +36,17 @@ public:
     bool renderKfBackground() { 
         return _renderKfBackground; 
     }
+    bool allowAsActiveCam() {
+        return _allowAsActiveCam;
+    }
+    
     //setters
     void renderKfBackground(bool s) { 
         _renderKfBackground = s; 
     }
-
+    void allowAsActiveCam(bool s) {
+        _allowAsActiveCam = s;
+    }
 protected:
     // Associated vocabulary
     const ORBVocabulary* mpVoc;
@@ -49,8 +55,12 @@ protected:
 
 private:
     SLCVVKeyFrame _keyFrames;
-    //! visualization/debugging help: is true, if all 
+
+    //if backgound rendering is active kf images will be rendered on 
+    //near clipping plane if kf is not the active camera
     bool _renderKfBackground = false;
+    //allow SLCVCameras as active camera so that we can look through it
+    bool _allowAsActiveCam = false;
 };
 
 #endif // !SLCVKEYFRAMEDB_H

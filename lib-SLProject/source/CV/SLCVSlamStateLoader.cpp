@@ -138,7 +138,7 @@ void SLCVSlamStateLoader::loadKeyFrames( SLCVVKeyFrame& kfs )
             stringstream ss;
             ss << "D:/Development/SLProject/_data/calibrations/imgs/" << "kf" << id << ".jpg";
             //newKf->imgGray = kfImg;
-            newKf->backgroundTexture.setVideoImage(ss.str());
+            newKf->setTexturePath(ss.str());
         }
         kfs.push_back(newKf);
 

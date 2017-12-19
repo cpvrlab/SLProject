@@ -1758,13 +1758,22 @@ void SLDemoGui::buildInfosTracking(SLScene* s)
 
     if (raulMurTracker)
     {
-        //get keyframe database and check if backgound rendering is active
+        //get keyframe database
         if (SLCVKeyFrameDB* kfDB = raulMurTracker->getKfDB())
         {
+            //if backgound rendering is active kf images will be rendered on 
+            //near clipping plane if kf is not the active camera
             SLbool b = kfDB->renderKfBackground();
             if (ImGui::Checkbox("Show Background", &b))
             {
                 kfDB->renderKfBackground(b);
+            }
+
+            //allow SLCVCameras as active camera so that we can look through it
+            b = kfDB->allowAsActiveCam();
+            if (ImGui::Checkbox("Allow Kf see through", &b))
+            {
+                kfDB->allowAsActiveCam(b);
             }
         }
     }

@@ -15,13 +15,13 @@
 #include <SLCVKeyFrameDB.h>
 
 //-----------------------------------------------------------------------------
-//SLCVKeyFrame::SLCVKeyFrame( const SLCVKeyFrame& other)
-//{
-//}
-//-----------------------------------------------------------------------------
 SLCVKeyFrame::SLCVKeyFrame(size_t N)
 {
     mvpMapPoints = vector<SLCVMapPoint*>(N, static_cast<SLCVMapPoint*>(NULL));
+}
+//-----------------------------------------------------------------------------
+SLCVKeyFrame::~SLCVKeyFrame()
+{
 }
 //-----------------------------------------------------------------------------
 SLCVKeyFrameDB* SLCVKeyFrame::getKeyFrameDB()
@@ -70,9 +70,11 @@ SLCVCamera* SLCVKeyFrame::getSceneObject()
         //om.rotate(180, 1, 0, 0);
 
         //set background
-        //backgroundTexture.setVideoImage("LiveVideoError.png");
-        _camera->background().texture(&backgroundTexture);
-        //_camera->renderBackground(true);
+        if (_pathToTexture.size()) 
+        {
+            SLGLTexture* texture = new SLGLTexture(_pathToTexture);
+            _camera->background().texture(texture);
+        }
 
         _camera->om(om);
     }

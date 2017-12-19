@@ -33,9 +33,8 @@ keypoints.
 class SLCVKeyFrame
 {
 public:
-    //copy ctor
-    //SLCVKeyFrame(const SLCVKeyFrame& other);
     SLCVKeyFrame(size_t N);
+    ~SLCVKeyFrame();
 
     //getters
     int id() { return _id; }
@@ -67,6 +66,8 @@ public:
         //cv::Mat center = (cv::Mat_<float>(4, 1) << mHalfBaseline, 0, 0, 1);
         //Cw = Twc*center;
     }
+    //set path to texture image
+    void setTexturePath(const string& path) { _pathToTexture = path; }
 
     void descriptors(const SLCVMat& descriptors) { descriptors.copyTo(mDescriptors); }
     //! get visual representation as SLPoints
@@ -117,9 +118,8 @@ public:
     // Variables used by the tracking
     long unsigned int mnTrackReferenceForFrame = 0;
 
-    //image
-    SLCVMat imgGray;
-    SLGLTexture backgroundTexture;
+    //instantiate and add texture
+    void addBackgroundTexture(string pathToImg);
 
 private:
     int _id = -1;
@@ -153,6 +153,9 @@ private:
 
     //pointer to keyframe database
     SLCVKeyFrameDB* _kfDb = NULL;
+
+    //path to background texture image
+    string _pathToTexture;
 };
 
 typedef std::vector<SLCVKeyFrame*> SLCVVKeyFrame;

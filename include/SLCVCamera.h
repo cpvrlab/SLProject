@@ -21,11 +21,8 @@ public:
     SLCVCamera(SLCVKeyFrame* kf, SLstring name = "Camera");
     virtual void drawMeshes(SLSceneView* sv);
 
-    ////setters
-    //void renderBackground(bool s) { _renderBackground = s; }
-    ////getters
-    //bool renderBackground() { return _renderBackground; }
     bool renderBackground();
+    bool allowAsActiveCam();
 
 private:
     //bool _renderBackground=false;
