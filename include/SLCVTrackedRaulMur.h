@@ -57,16 +57,24 @@ public:
         SLbool drawDetection,
         SLSceneView* sv);
 
+    //add map points to scene and keypoints to video image
+    void decorateSceneAndVideo(cv::Mat& image);
+
     //setters
     void showMatchesPC(bool s) { _showMatchesPC = s; }
     void showLocalMapPC(bool s) { _showLocalMapPC = s; }
-
+    void showKeyPoints(bool s) { _showKeyPoints = s; }
+    void showKeyPointsMatched(bool s) { _showKeyPointsMatched = s; }
     //getters
     SLCVMap* getMap() { return _map; }
     SLCVKeyFrameDB* getKfDB() { return mpKeyFrameDatabase; }
     int getNMapMatches() { return mnMatchesInliers; }
     bool showMatchesPC() { return _showMatchesPC; }
     bool showLocalMapPC() { return _showLocalMapPC; }
+    bool showKeyPoints() { return _showKeyPoints; }
+    bool showKeyPointsMatched() { return _showKeyPointsMatched; }
+    double poseDifference() { return _poseDifference; }
+    double meanReprojectionError() { return _meanReprojectionError; }
 
     string getPrintableState() {
         switch (mState)
@@ -162,11 +170,20 @@ private:
     //flags, if we have to update the scene object of the map point matches
     bool _showMatchesPC = true;
     bool _showLocalMapPC = true;
+    bool _showKeyPoints = true;
+    bool _showKeyPointsMatched = true;
+
+    //mean reprojection error
+    double _meanReprojectionError = -1.0;
+    //L2 norm of the difference between the last and the current camera pose
+    double _poseDifference = -1.0;
 
     //scene nodes to point clouds:
     SLNode* _mapPC=NULL;
     SLNode* _mapMatchesPC = NULL;
     SLNode* _mapLocalPC = NULL;
+
+    cv::Mat _image;
 };
 //-----------------------------------------------------------------------------
 #endif //SLCVTRACKERRAULMUR_H

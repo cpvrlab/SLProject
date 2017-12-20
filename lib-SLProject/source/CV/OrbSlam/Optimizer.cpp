@@ -239,6 +239,7 @@ namespace ORB_SLAM2
 
 int Optimizer::PoseOptimization(SLCVFrame *pFrame)
 {
+    //ghm1: Attention, we add every map point assotiated to a keypoint to the optimizer
     g2o::SparseOptimizer optimizer;
     g2o::BlockSolver_6_3::LinearSolverType * linearSolver;
 

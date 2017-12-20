@@ -62,6 +62,7 @@ SLbool SLCVTrackedRaulMur::track(SLCVMat imageGray,
     SLbool drawDetection,
     SLSceneView* sv)
 {
+    _image = image;
     //SLCVMat imageGrayScaled;
     //imageGray.copyTo(imageGrayScaled);
     //cv::resize(imageGrayScaled, imageGrayScaled, 640.0, 480.0);
@@ -73,6 +74,9 @@ SLbool SLCVTrackedRaulMur::track(SLCVMat imageGray,
     mCurrentFrame = SLCVFrame(imageGray, timestamp, _extractor, 
         calib->cameraMat(), calib->distortion(), mpVocabulary );
     /************************************************************/
+
+    //undistort color video image
+    //calib->remap(image, image);
 
     // System is initialized. Track Frame.
     mLastProcessedState = mState;
@@ -153,88 +157,17 @@ SLbool SLCVTrackedRaulMur::track(SLCVMat imageGray,
     if (bOK && !mbVO)
         bOK = TrackLocalMap();
 
-    //if (drawDetection)
-    //{
-    //    for (size_t i = 0; i < _currentFrame.inlierPoints2D.size(); i++)
-    //        cv::rectangle(image,)
-    //        circle(_currentFrame.image,
-    //            _currentFrame.inlierPoints2D[i],
-    //            3,
-    //            Scalar(0, 0, 255));
-    //}
-
     if (bOK)
         mState = OK;
     else
         mState = LOST;
 
+    //add map points to scene and keypoints to video image
+    decorateSceneAndVideo(image);
+
     // If tracking were good
     if (bOK)
     {
-        // Update scene object of local map if required
-        if (_showMatchesPC && _mapMatchesPC)
-        {
-            //find map point matches
-            std::vector<SLCVMapPoint*> mapPointMatches;
-
-            for (int i = 0; i < mCurrentFrame.N; i++)
-            {
-                if (mCurrentFrame.mvpMapPoints[i])
-                {
-                    if (!mCurrentFrame.mvbOutlier[i])
-                    {
-                        if (mCurrentFrame.mvpMapPoints[i]->Observations() > 0)
-                            mapPointMatches.push_back(mCurrentFrame.mvpMapPoints[i]);
-                    }
-                }
-            }
-
-            //update scene:
-            //make a new SLPoints object
-            SLMaterial* pcMat1 = new SLMaterial("Green", SLCol4f::GREEN);
-            pcMat1->program(new SLGLGenericProgram("ColorUniformPoint.vert", "Color.frag"));
-            pcMat1->program()->addUniform1f(new SLGLUniform1f(UT_const, "u_pointSize", 4.0f));
-
-            //get points as Vec3f
-            SLVVec3f points;
-            for (auto mapPt : mapPointMatches)
-                points.push_back(mapPt->worldPosVec());
-
-            SLPoints* mapMatchesMesh = new SLPoints(points, "MapPointsMatches", pcMat1);
-            //add to map node
-            _mapMatchesPC->removeMesh("MapPointsMatches");
-            _mapMatchesPC->addMesh(mapMatchesMesh);
-        }
-        else if(_mapMatchesPC)
-        {
-            _mapMatchesPC->removeMesh("MapPointsMatches");
-        }
-
-        if (_showLocalMapPC && _mapLocalPC)
-        {
-            mvpLocalMapPoints;
-
-            //update scene:
-            //make a new SLPoints object
-            SLMaterial* pcMat2 = new SLMaterial("Magenta", SLCol4f::MAGENTA);
-            pcMat2->program(new SLGLGenericProgram("ColorUniformPoint.vert", "Color.frag"));
-            pcMat2->program()->addUniform1f(new SLGLUniform1f(UT_const, "u_pointSize", 3.0f));
-
-            //get points as Vec3f
-            SLVVec3f points;
-            for (auto mapPt : mvpLocalMapPoints)
-                points.push_back(mapPt->worldPosVec());
-
-            SLPoints* mapLocalMesh = new SLPoints(points, "MapPointsLocal", pcMat2);
-            //add to map node
-            _mapLocalPC->removeMesh("MapPointsLocal");
-            _mapLocalPC->addMesh(mapLocalMesh);
-        }
-        else if (_mapLocalPC)
-        {
-            _mapLocalPC->removeMesh("MapPointsLocal");
-        }
-
         // Update motion model
         if (!mLastFrame.mTcw.empty())
         {
@@ -264,15 +197,8 @@ SLbool SLCVTrackedRaulMur::track(SLCVMat imageGray,
                 0.0f, 0.0f, 0.0f, 1.0f);
             slMat.rotate(180, 1, 0, 0);
 
-            // set the object matrix depending if the
-            // tracked node is attached to a camera or not
-            if (typeid(*_node) == typeid(SLCamera))
-                _node->om(slMat);
-            else
-            {
-                _node->om(calcObjectMatrix(sv->camera()->om(), _objectViewMat));
-                _node->setDrawBitsRec(SL_DB_HIDDEN, false);
-            }
+            // set the object matrix of this object (its a SLCamera)
+            _node->om(slMat);
         }
 
         // Clean VO matches
@@ -324,6 +250,202 @@ SLbool SLCVTrackedRaulMur::track(SLCVMat imageGray,
     }
     
     return false;
+}
+//-----------------------------------------------------------------------------
+void SLCVTrackedRaulMur::decorateSceneAndVideo(cv::Mat& image )
+{
+    //calculation of mean reprojection error
+    double reprojectionError=0.0;
+    int n = 0;
+
+    //// 3D in absolute coordinates
+    //cv::Mat P = pMP->worldPos();
+
+    //// 3D in camera coordinates
+    //const cv::Mat Pc = mRcw*P + mtcw;
+    //const float &PcX = Pc.at<float>(0);
+    //const float &PcY = Pc.at<float>(1);
+    //const float &PcZ = Pc.at<float>(2);
+
+    //// Check positive depth
+    //if (PcZ<0.0f)
+    //    return false;
+
+    //// Project in image and check it is not outside
+    //const float invz = 1.0f / PcZ;
+    //const float u = fx*PcX*invz + cx;
+    //const float v = fy*PcY*invz + cy;
+
+    //current frame extrinsic
+    const cv::Mat Rcw = mCurrentFrame.GetRotationCW();
+    const cv::Mat tcw = mCurrentFrame.GetTranslationCW();
+    //const cv::Mat Rcw = mCurrentFrame.mRcw;
+    //const cv::Mat tcw = mCurrentFrame.mtcw;
+
+    const float fx = mCurrentFrame.fx;
+    const float fy = mCurrentFrame.fy;
+    const float cx = mCurrentFrame.cx;
+    const float cy = mCurrentFrame.cy;
+
+    for (size_t i = 0; i < mCurrentFrame.N; i++)
+    {
+        if (mCurrentFrame.mvpMapPoints[i])
+        {
+            if (!mCurrentFrame.mvbOutlier[i])
+            {
+                if (mCurrentFrame.mvpMapPoints[i]->Observations() > 0)
+                {
+                    // 3D in absolute coordinates
+                    cv::Mat Pw = mCurrentFrame.mvpMapPoints[i]->worldPos();
+                    // 3D in camera coordinates
+                    const cv::Mat Pc = Rcw*Pw + tcw;
+                    const float &PcX = Pc.at<float>(0);
+                    const float &PcY = Pc.at<float>(1);
+                    const float &PcZ = Pc.at<float>(2);
+
+                    // Check positive depth
+                    if (PcZ<0.0f)
+                        continue;
+
+                    // Project in image and check it is not outside
+                    const float invz = 1.0f / PcZ;
+                    const float u = fx*PcX*invz + cx;
+                    const float v = fy*PcY*invz + cy;
+
+                    SLCVPoint2f ptProj(u, v);
+                    //Use distorted points because we have to undistort the image later
+                    const auto& ptImg = mCurrentFrame.mvKeysUn[i].pt;
+
+                    ////draw projected point
+                    //cv::rectangle(image,
+                    //    cv::Rect(ptProj.x - 3, ptProj.y - 3, 7, 7),
+                    //    Scalar(255, 0, 0));
+
+                    reprojectionError += norm(SLCVMat(ptImg), SLCVMat(ptProj));
+                    n++;
+                }
+            }
+        }
+    }
+
+    if (n > 0)
+        _meanReprojectionError = reprojectionError / n;
+    else
+        _meanReprojectionError = -1;
+
+
+    //calculation of L2 norm of the difference between the last and the current camera pose
+    if (!mLastFrame.mTcw.empty() && !mCurrentFrame.mTcw.empty())
+        _poseDifference = norm(mLastFrame.mTcw - mCurrentFrame.mTcw);
+    else
+        _poseDifference = -1.0;
+
+
+    //show rectangle for all keypoints in current image
+    if (_showKeyPoints)
+    {
+        for (size_t i = 0; i < mCurrentFrame.N; i++)
+        {
+            //Use distorted points because we have to undistort the image later
+            const auto& pt = mCurrentFrame.mvKeys[i].pt;
+            cv::rectangle(image,
+                cv::Rect(pt.x - 3, pt.y - 3, 7, 7),
+                cv::Scalar(0, 0, 255));
+        }
+    }
+
+    //show rectangle for key points in video that where matched to map points
+    if (_showKeyPointsMatched)
+    {
+        for (size_t i = 0; i < mCurrentFrame.N; i++)
+        {
+            if (mCurrentFrame.mvpMapPoints[i])
+            {
+                if (!mCurrentFrame.mvbOutlier[i])
+                {
+                    if (mCurrentFrame.mvpMapPoints[i]->Observations() > 0)
+                    {
+                        //Use distorted points because we have to undistort the image later
+                        const auto& pt = mCurrentFrame.mvKeys[i].pt;
+                        cv::rectangle(image,
+                            cv::Rect(pt.x - 3, pt.y - 3, 7, 7),
+                            Scalar(0, 255, 0));
+                    }
+                }
+            }
+        }
+    }
+
+
+    //decorate scene with mappoints that were matched to keypoints in current frame
+    if (_mapMatchesPC)
+    {
+        if (mState == OK && _showMatchesPC)
+        {
+            //find map point matches
+            std::vector<SLCVMapPoint*> mapPointMatches;
+
+            for (int i = 0; i < mCurrentFrame.N; i++)
+            {
+                if (mCurrentFrame.mvpMapPoints[i])
+                {
+                    if (!mCurrentFrame.mvbOutlier[i])
+                    {
+                        if (mCurrentFrame.mvpMapPoints[i]->Observations() > 0)
+                            mapPointMatches.push_back(mCurrentFrame.mvpMapPoints[i]);
+                    }
+                }
+            }
+
+            //update scene:
+            //make a new SLPoints object
+            SLMaterial* pcMat1 = new SLMaterial("Green", SLCol4f::GREEN);
+            pcMat1->program(new SLGLGenericProgram("ColorUniformPoint.vert", "Color.frag"));
+            pcMat1->program()->addUniform1f(new SLGLUniform1f(UT_const, "u_pointSize", 3.0f));
+
+            //get points as Vec3f
+            SLVVec3f points;
+            for (auto mapPt : mapPointMatches)
+                points.push_back(mapPt->worldPosVec());
+
+            SLPoints* mapMatchesMesh = new SLPoints(points, "MapPointsMatches", pcMat1);
+            //add to map node
+            _mapMatchesPC->removeMesh("MapPointsMatches");
+            _mapMatchesPC->addMesh(mapMatchesMesh);
+        }
+        else
+        {
+            //remove point cloud
+            _mapMatchesPC->removeMesh("MapPointsMatches");
+        }
+    }
+
+    //decorate scene with mappoints of local map
+    if (_mapLocalPC)
+    {
+        if (mState == OK && _showLocalMapPC)
+        {
+            //update scene:
+            //make a new SLPoints object
+            SLMaterial* pcMat2 = new SLMaterial("Magenta", SLCol4f::MAGENTA);
+            pcMat2->program(new SLGLGenericProgram("ColorUniformPoint.vert", "Color.frag"));
+            pcMat2->program()->addUniform1f(new SLGLUniform1f(UT_const, "u_pointSize", 4.0f));
+
+            //get points as Vec3f
+            SLVVec3f points;
+            for (auto mapPt : mvpLocalMapPoints)
+                points.push_back(mapPt->worldPosVec());
+
+            SLPoints* mapLocalMesh = new SLPoints(points, "MapPointsLocal", pcMat2);
+            //add to map node
+            _mapLocalPC->removeMesh("MapPointsLocal");
+            _mapLocalPC->addMesh(mapLocalMesh);
+        }
+        else
+        {
+            _mapLocalPC->removeMesh("MapPointsLocal");
+        }
+    }
 }
 //-----------------------------------------------------------------------------
 bool SLCVTrackedRaulMur::Relocalization()
@@ -660,6 +782,14 @@ void SLCVTrackedRaulMur::SearchLocalPoints()
         // Project (this fills SLCVMapPoint variables for matching)
         if (mCurrentFrame.isInFrustum(pMP, 0.5))
         {
+            //ghm1 test:
+            //if (!_image.empty())
+            //{
+            //    SLCVPoint2f ptProj(pMP->mTrackProjX, pMP->mTrackProjY);
+            //    cv::rectangle(_image,
+            //        cv::Rect(ptProj.x - 3, ptProj.y - 3, 7, 7),
+            //        Scalar(0, 0, 255));
+            //}
             pMP->IncreaseVisible();
             nToMatch++;
         }

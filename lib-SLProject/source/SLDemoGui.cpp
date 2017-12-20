@@ -1755,7 +1755,13 @@ void SLDemoGui::buildInfosTracking(SLScene* s)
         ImGui::Text("State : %s ", raulMurTracker->getPrintableState());
 
         //add number of matches map points in current frame
-        ImGui::Text("N Map Matches : %d ", raulMurTracker->getNMapMatches());
+        ImGui::Text("Num Map Matches : %d ", raulMurTracker->getNMapMatches());
+
+        //mean reprojection error
+        ImGui::Text("Mean reproj. error : %f ", raulMurTracker->meanReprojectionError());
+
+        //mean reprojection error
+        ImGui::Text("Pose difference : %f ", raulMurTracker->poseDifference());
 
         //add number of map points
         auto cvMap = raulMurTracker->getMap();
@@ -1773,6 +1779,20 @@ void SLDemoGui::buildInfosTracking(SLScene* s)
         if (ImGui::Checkbox("MapPoints Local", &s))
         {
             raulMurTracker->showLocalMapPC(s);
+        }
+
+        //show 2D key points in video image
+        s = raulMurTracker->showKeyPoints();
+        if (ImGui::Checkbox("KeyPts", &s))
+        {
+            raulMurTracker->showKeyPoints(s);
+        }
+
+        //show matched 2D key points in video image
+        s = raulMurTracker->showKeyPointsMatched();
+        if (ImGui::Checkbox("KeyPts Matched", &s))
+        {
+            raulMurTracker->showKeyPointsMatched(s);
         }
 
         //get keyframe database

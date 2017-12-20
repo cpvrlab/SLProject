@@ -52,6 +52,14 @@ public:
         return mRwc.clone();
     }
 
+    inline cv::Mat GetTranslationCW() {
+        return mtcw.clone();
+    }
+
+    inline cv::Mat GetRotationCW() {
+        return mRcw.clone();
+    }
+
     // Check if a MapPoint is in the frustum of the camera
     // and fill variables of the MapPoint to be used by the tracking
     bool isInFrustum(SLCVMapPoint* pMP, float viewingCosLimit);

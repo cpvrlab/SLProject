@@ -55,9 +55,11 @@ public:
     void IncreaseVisible(int n=1) { mnVisible += n; }
 
     // Variables used by the tracking
+    //ghm1: projection point
     float mTrackProjX = 0.0f;
     float mTrackProjY = 0.0f;
     //float mTrackProjXR = 0.0f;
+    //ghm1: flags, if the map point is in frustum of the current frame
     bool mbTrackInView = false;
     int mnTrackScaleLevel = 0;
     float mTrackViewCos = 0.0f;

@@ -322,7 +322,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
             //material
             SLMaterial* pcMat1 = new SLMaterial("Green", SLCol4f::GREEN);
             pcMat1->program(new SLGLGenericProgram("ColorUniformPoint.vert", "Color.frag"));
-            pcMat1->program()->addUniform1f(new SLGLUniform1f(UT_const, "u_pointSize", 4.0f));
+            pcMat1->program()->addUniform1f(new SLGLUniform1f(UT_const, "u_pointSize", 3.0f));
             //mesh
             SLVVec3f points;
             points.push_back(SLVec3f(0.f, 0.f, 0.f));
@@ -335,7 +335,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
             //material
             SLMaterial* pcMat2 = new SLMaterial("Magenta", SLCol4f::MAGENTA);
             pcMat2->program(new SLGLGenericProgram("ColorUniformPoint.vert", "Color.frag"));
-            pcMat2->program()->addUniform1f(new SLGLUniform1f(UT_const, "u_pointSize", 3.0f));
+            pcMat2->program()->addUniform1f(new SLGLUniform1f(UT_const, "u_pointSize", 4.0f));
             //mesh
             SLPoints* mapLocalMesh = new SLPoints(points, "MapPointsLocal", pcMat2);
             //node
