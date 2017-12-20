@@ -258,30 +258,10 @@ void SLCVTrackedRaulMur::decorateSceneAndVideo(cv::Mat& image )
     double reprojectionError=0.0;
     int n = 0;
 
-    //// 3D in absolute coordinates
-    //cv::Mat P = pMP->worldPos();
-
-    //// 3D in camera coordinates
-    //const cv::Mat Pc = mRcw*P + mtcw;
-    //const float &PcX = Pc.at<float>(0);
-    //const float &PcY = Pc.at<float>(1);
-    //const float &PcZ = Pc.at<float>(2);
-
-    //// Check positive depth
-    //if (PcZ<0.0f)
-    //    return false;
-
-    //// Project in image and check it is not outside
-    //const float invz = 1.0f / PcZ;
-    //const float u = fx*PcX*invz + cx;
-    //const float v = fy*PcY*invz + cy;
-
     //current frame extrinsic
     const cv::Mat Rcw = mCurrentFrame.GetRotationCW();
     const cv::Mat tcw = mCurrentFrame.GetTranslationCW();
-    //const cv::Mat Rcw = mCurrentFrame.mRcw;
-    //const cv::Mat tcw = mCurrentFrame.mtcw;
-
+    //current frame intrinsics
     const float fx = mCurrentFrame.fx;
     const float fy = mCurrentFrame.fy;
     const float cx = mCurrentFrame.cx;
@@ -333,6 +313,7 @@ void SLCVTrackedRaulMur::decorateSceneAndVideo(cv::Mat& image )
     else
         _meanReprojectionError = -1;
 
+    //-------------------------------------------------------------------------
 
     //calculation of L2 norm of the difference between the last and the current camera pose
     if (!mLastFrame.mTcw.empty() && !mCurrentFrame.mTcw.empty())
@@ -340,7 +321,7 @@ void SLCVTrackedRaulMur::decorateSceneAndVideo(cv::Mat& image )
     else
         _poseDifference = -1.0;
 
-
+    //-------------------------------------------------------------------------
     //show rectangle for all keypoints in current image
     if (_showKeyPoints)
     {
@@ -354,6 +335,7 @@ void SLCVTrackedRaulMur::decorateSceneAndVideo(cv::Mat& image )
         }
     }
 
+    //-------------------------------------------------------------------------
     //show rectangle for key points in video that where matched to map points
     if (_showKeyPointsMatched)
     {
@@ -376,7 +358,7 @@ void SLCVTrackedRaulMur::decorateSceneAndVideo(cv::Mat& image )
         }
     }
 
-
+    //-------------------------------------------------------------------------
     //decorate scene with mappoints that were matched to keypoints in current frame
     if (_mapMatchesPC)
     {
@@ -404,14 +386,17 @@ void SLCVTrackedRaulMur::decorateSceneAndVideo(cv::Mat& image )
             pcMat1->program()->addUniform1f(new SLGLUniform1f(UT_const, "u_pointSize", 3.0f));
 
             //get points as Vec3f
-            SLVVec3f points;
-            for (auto mapPt : mapPointMatches)
+            SLVVec3f points, normals;
+            for (auto mapPt : mapPointMatches) {
                 points.push_back(mapPt->worldPosVec());
+                normals.push_back(mapPt->normalVec());
+            }
 
-            SLPoints* mapMatchesMesh = new SLPoints(points, "MapPointsMatches", pcMat1);
+            SLPoints* mapMatchesMesh = new SLPoints(points, normals, "MapPointsMatches", pcMat1);
             //add to map node
             _mapMatchesPC->removeMesh("MapPointsMatches");
             _mapMatchesPC->addMesh(mapMatchesMesh);
+            _mapMatchesPC->updateAABBRec();
         }
         else
         {
@@ -420,6 +405,7 @@ void SLCVTrackedRaulMur::decorateSceneAndVideo(cv::Mat& image )
         }
     }
 
+    //-------------------------------------------------------------------------
     //decorate scene with mappoints of local map
     if (_mapLocalPC)
     {
@@ -432,14 +418,17 @@ void SLCVTrackedRaulMur::decorateSceneAndVideo(cv::Mat& image )
             pcMat2->program()->addUniform1f(new SLGLUniform1f(UT_const, "u_pointSize", 4.0f));
 
             //get points as Vec3f
-            SLVVec3f points;
-            for (auto mapPt : mvpLocalMapPoints)
+            SLVVec3f points, normals;
+            for (auto mapPt : mvpLocalMapPoints) {
                 points.push_back(mapPt->worldPosVec());
+                normals.push_back(mapPt->normalVec());
+            }
 
-            SLPoints* mapLocalMesh = new SLPoints(points, "MapPointsLocal", pcMat2);
+            SLPoints* mapLocalMesh = new SLPoints(points, normals, "MapPointsLocal", pcMat2);
             //add to map node
             _mapLocalPC->removeMesh("MapPointsLocal");
             _mapLocalPC->addMesh(mapLocalMesh);
+            _mapLocalPC->updateAABBRec();
         }
         else
         {

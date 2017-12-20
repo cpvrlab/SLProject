@@ -30,12 +30,15 @@ SLPoints* SLCVMap::getSceneObject()
         pcMat1->program(new SLGLGenericProgram("ColorUniformPoint.vert", "Color.frag"));
         pcMat1->program()->addUniform1f(new SLGLUniform1f(UT_const, "u_pointSize", 2.0f));
 
-        //get points as Vec3f
-        SLVVec3f points;
-        for (auto mapPt : _mapPoints)
+        //get points as Vec3f and collect normals
+        SLVVec3f points, normals;
+        for (auto mapPt : _mapPoints) {
             points.push_back(mapPt.worldPosVec());
+            normals.push_back(mapPt.normalVec());
+        }
 
-        _sceneObject = new SLPoints(points, "MapPoints", pcMat1);
+        //vectos must habe the same size
+        _sceneObject = new SLPoints(points, normals, "MapPoints", pcMat1);
     }
     else
     {

@@ -33,7 +33,10 @@ public:
     SLCVMat worldPos() { 
         return _worldPos.clone(); 
     }
+
     SLVec3f worldPosVec();
+    SLVec3f normalVec();
+
     void refKf(SLCVKeyFrame* refKf) { mpRefKF = refKf; }
     void level(int level) { _level = level; }
     bool isBad() { return false; } //we have no bad systematic

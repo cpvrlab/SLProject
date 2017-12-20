@@ -496,7 +496,7 @@ void SLDemoGui::buildDemoGui(SLScene* s, SLSceneView* sv)
 
     if (showInfosTracking)
     {
-        buildInfosTracking(s);
+        buildInfosTracking(s, sv);
     }
 
     if (showChristoffel && SL::currentSceneID==C_sceneVideoChristoffel)
@@ -1707,111 +1707,133 @@ void SLDemoGui::buildProperties(SLScene* s)
     ImGui::PopFont();
 }
 //-----------------------------------------------------------------------------
-void SLDemoGui::buildInfosTracking(SLScene* s)
+void SLDemoGui::buildInfosTracking(SLScene* s, SLSceneView* sv)
 {
     ImGui::Begin("Tracking Infos", &showInfosTracking, ImVec2(300, 0), -1.f, ImGuiWindowFlags_NoCollapse);
 
-    if(!keyFrames)
+    //try to find SLCVTrackedRaulMur instance
+    if (!raulMurTracker)
+    {
+        for (SLCVTracked* tracker : s->trackers()) {
+            if (raulMurTracker = dynamic_cast<SLCVTrackedRaulMur*>(tracker))
+                break;
+        }
+
+        if (!raulMurTracker)
+            return;
+    }
+
+    if (!keyFrames)
         keyFrames = s->root3D()->findChild<SLNode>("KeyFrames", true);
     if (!mapPoints)
         mapPoints = s->root3D()->findChild<SLNode>("MapPoints", true);
+    
+    //-------------------------------------------------------------------------
+    //numbers
+    //add tracking state
+    ImGui::Text("Tracking State : %s ", raulMurTracker->getPrintableState());
+    //mean reprojection error
+    ImGui::Text("Mean Reproj. Error : %f ", raulMurTracker->meanReprojectionError());
+    //add number of matches map points in current frame
+    ImGui::Text("Num Map Matches : %d ", raulMurTracker->getNMapMatches());
+    //L2 norm of the difference between the last and the current camera pose
+    ImGui::Text("Pose Difference : %f ", raulMurTracker->poseDifference());
+    ImGui::Separator();
 
+    //-------------------------------------------------------------------------
+    //keypoints infos
+    ImGui::Text("KeyPoints");
+
+    //show 2D key points in video image
+    SLbool b = raulMurTracker->showKeyPoints();
+    if (ImGui::Checkbox("KeyPts", &b))
+    {
+        raulMurTracker->showKeyPoints(b);
+    }
+
+    //show matched 2D key points in video image
+    b = raulMurTracker->showKeyPointsMatched();
+    if (ImGui::Checkbox("KeyPts Matched", &b))
+    {
+        raulMurTracker->showKeyPointsMatched(b);
+    }
+
+    //undistort image
+    SLCVCalibration* ac = s->activeCalib();
+    b = (ac->showUndistorted() && ac->state() == CS_calibrated);
+    if (ImGui::Checkbox("Undistort Image", &b))
+    {
+        ac->showUndistorted(b);
+    }
+
+    ImGui::Separator();
+
+    //-------------------------------------------------------------------------
+    //mappoints infos
+    ImGui::Text("MapPoints");
+    //number of map points
+    ImGui::Text("Count : %d ", raulMurTracker->mapPointsCount());
+    //show mappoints scene objects
+    if (mapPoints)
+    {
+        b = !mapPoints->drawBits()->get(SL_DB_HIDDEN);
+        if (ImGui::Checkbox("Show All", &b))
+        {
+            mapPoints->drawBits()->set(SL_DB_HIDDEN, !b);
+        }
+    }
+    //show and update matches to mappoints
+    b = raulMurTracker->showMatchesPC();
+    if (ImGui::Checkbox("Show Matches to Map", &b))
+    {
+        raulMurTracker->showMatchesPC(b);
+    }
+    //show and update local map points
+    b = raulMurTracker->showLocalMapPC();
+    if (ImGui::Checkbox("Show Local Map", &b))
+    {
+        raulMurTracker->showLocalMapPC(b);
+    }
+
+    ImGui::Separator();
+
+    //-------------------------------------------------------------------------
+    //keyframe infos
+    ImGui::Text("KeyFrames");
+    //add number of keyframes
+    if (keyFrames) {
+        ImGui::Text("Number of Keyframes : %d ", keyFrames->children().size());
+    }
+    //show keyframe scene objects
     if (keyFrames)
     {
-        SLbool b = !keyFrames->drawBits()->get(SL_DB_HIDDEN);
-        if (ImGui::Checkbox("KeyFrames", &b))
+        b = !keyFrames->drawBits()->get(SL_DB_HIDDEN);
+        if (ImGui::Checkbox("Show", &b))
         {
             keyFrames->drawBits()->set(SL_DB_HIDDEN, !b);
             for (SLNode* child : keyFrames->children()) {
-                if(child)
+                if (child)
                     child->drawBits()->set(SL_DB_HIDDEN, !b);
             }
         }
     }
 
-    if (mapPoints)
+    //get keyframe database
+    if (SLCVKeyFrameDB* kfDB = raulMurTracker->getKfDB())
     {
-        SLbool b = !mapPoints->drawBits()->get(SL_DB_HIDDEN);
-        if (ImGui::Checkbox("MapPoints", &b))
+        //if backgound rendering is active kf images will be rendered on 
+        //near clipping plane if kf is not the active camera
+        b = kfDB->renderKfBackground();
+        if (ImGui::Checkbox("Show Image", &b))
         {
-            mapPoints->drawBits()->set(SL_DB_HIDDEN, !b);
-        }
-    }
-
-    //try to find SLCVTrackedRaulMur instance
-    for (SLCVTracked* tracker : s->trackers()) {
-        if (raulMurTracker = dynamic_cast<SLCVTrackedRaulMur*>(tracker))
-            break;
-    }
-
-    //add number of keyframes
-    if (keyFrames) {
-        ImGui::Text("Number of Keyframes : %d ", keyFrames->children().size());
-    }
-
-    if (raulMurTracker)
-    {
-        //add tracking state
-        ImGui::Text("State : %s ", raulMurTracker->getPrintableState());
-
-        //add number of matches map points in current frame
-        ImGui::Text("Num Map Matches : %d ", raulMurTracker->getNMapMatches());
-
-        //mean reprojection error
-        ImGui::Text("Mean reproj. error : %f ", raulMurTracker->meanReprojectionError());
-
-        //mean reprojection error
-        ImGui::Text("Pose difference : %f ", raulMurTracker->poseDifference());
-
-        //add number of map points
-        auto cvMap = raulMurTracker->getMap();
-        if (cvMap)
-            ImGui::Text("Number of MapPoints : %d ", cvMap->mapPoints().size());
-
-        //show and update matches to mappoints
-        SLbool s = raulMurTracker->showMatchesPC();
-        if (ImGui::Checkbox("MapPoints Matches", &s))
-        {
-            raulMurTracker->showMatchesPC(s);
-        }
-        //show and update local map points
-        s = raulMurTracker->showLocalMapPC();
-        if (ImGui::Checkbox("MapPoints Local", &s))
-        {
-            raulMurTracker->showLocalMapPC(s);
+            kfDB->renderKfBackground(b);
         }
 
-        //show 2D key points in video image
-        s = raulMurTracker->showKeyPoints();
-        if (ImGui::Checkbox("KeyPts", &s))
+        //allow SLCVCameras as active camera so that we can look through it
+        b = kfDB->allowAsActiveCam();
+        if (ImGui::Checkbox("Allow as Active Cam", &b))
         {
-            raulMurTracker->showKeyPoints(s);
-        }
-
-        //show matched 2D key points in video image
-        s = raulMurTracker->showKeyPointsMatched();
-        if (ImGui::Checkbox("KeyPts Matched", &s))
-        {
-            raulMurTracker->showKeyPointsMatched(s);
-        }
-
-        //get keyframe database
-        if (SLCVKeyFrameDB* kfDB = raulMurTracker->getKfDB())
-        {
-            //if backgound rendering is active kf images will be rendered on 
-            //near clipping plane if kf is not the active camera
-            SLbool b = kfDB->renderKfBackground();
-            if (ImGui::Checkbox("Show Background", &b))
-            {
-                kfDB->renderKfBackground(b);
-            }
-
-            //allow SLCVCameras as active camera so that we can look through it
-            b = kfDB->allowAsActiveCam();
-            if (ImGui::Checkbox("Allow Kf see through", &b))
-            {
-                kfDB->allowAsActiveCam(b);
-            }
+            kfDB->allowAsActiveCam(b);
         }
     }
 

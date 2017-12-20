@@ -286,7 +286,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
 
         //load map points and keyframes from json file
         //SLCVSlamStateLoader loader("../_data/calibrations/orb-slam-state-2.json", vocabulary);
-        SLCVSlamStateLoader loader("../_data/calibrations/orb-slam-state-buero4.json", vocabulary);
+        SLCVSlamStateLoader loader("../_data/calibrations/orb-slam-state-buero3.json", vocabulary, false);
         //SLCVSlamStateLoader loader("../_data/calibrations/orb-slam-state-buero1.json", vocabulary);
         loader.load(map->mapPoints(), *kfDB );
 
@@ -324,9 +324,10 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
             pcMat1->program(new SLGLGenericProgram("ColorUniformPoint.vert", "Color.frag"));
             pcMat1->program()->addUniform1f(new SLGLUniform1f(UT_const, "u_pointSize", 3.0f));
             //mesh
-            SLVVec3f points;
+            SLVVec3f points, normals;
             points.push_back(SLVec3f(0.f, 0.f, 0.f));
-            SLPoints* mapMatchesMesh = new SLPoints(points, "MapPointsMatches", pcMat1);
+            normals.push_back(SLVec3f(0.0001f, 0.0001f, 0.0001f));
+            SLPoints* mapMatchesMesh = new SLPoints(points, normals, "MapPointsMatches", pcMat1);
             //node
             mapMatchedPC = new SLNode(mapMatchesMesh, "MapMatchedPC");
             mapNode->addChild(mapMatchedPC);
@@ -337,7 +338,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
             pcMat2->program(new SLGLGenericProgram("ColorUniformPoint.vert", "Color.frag"));
             pcMat2->program()->addUniform1f(new SLGLUniform1f(UT_const, "u_pointSize", 4.0f));
             //mesh
-            SLPoints* mapLocalMesh = new SLPoints(points, "MapPointsLocal", pcMat2);
+            SLPoints* mapLocalMesh = new SLPoints(points, normals, "MapPointsLocal", pcMat2);
             //node
             mapLocalPC = new SLNode(mapLocalMesh, "MapLocalPC");
             mapNode->addChild(mapLocalPC);

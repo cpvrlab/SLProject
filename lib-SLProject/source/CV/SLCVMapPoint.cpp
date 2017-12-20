@@ -23,6 +23,18 @@ SLVec3f SLCVMapPoint::worldPosVec()
     return vec;
 }
 //-----------------------------------------------------------------------------
+SLVec3f SLCVMapPoint::normalVec()
+{
+    SLVec3f vec(0.f,0.f,0.f);
+
+    if (!mNormalVector.empty()) {
+        vec.x = mNormalVector.at<float>(0, 0);
+        vec.y = mNormalVector.at<float>(1, 0);
+        vec.z = mNormalVector.at<float>(2, 0);
+    }
+    return vec;
+}
+//-----------------------------------------------------------------------------
 void SLCVMapPoint::AddObservation(SLCVKeyFrame* pKF, size_t idx)
 {
     //unique_lock<mutex> lock(mMutexFeatures);

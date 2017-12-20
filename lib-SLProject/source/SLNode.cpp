@@ -98,6 +98,7 @@ void SLNode::addMesh(SLMesh* mesh)
     if (_name == "Node" && mesh->name() != "Mesh")
         _name = mesh->name() + "-Node";
 
+    _isAABBUpToDate = false;
     _meshes.push_back(mesh);
     mesh->init(this);
 }

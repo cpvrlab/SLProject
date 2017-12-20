@@ -75,7 +75,12 @@ public:
     bool showKeyPointsMatched() { return _showKeyPointsMatched; }
     double poseDifference() { return _poseDifference; }
     double meanReprojectionError() { return _meanReprojectionError; }
-
+    int mapPointsCount() {
+        if (_map)
+            return _map->mapPoints().size();
+        else
+            return 0;
+    }
     string getPrintableState() {
         switch (mState)
         {
