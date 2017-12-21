@@ -378,14 +378,15 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
             SLNode* keyFrames = new SLNode("KeyFrames");
             //add keyFrames
             for (auto* kf : kfDB->keyFrames()) {
-                if (!kf->id() == 0)
-                    continue;
-                SLCVCamera* cam = kf->getSceneObject();
-                cam->fov(_activeCalib->cameraFovDeg());
-                cam->focalDist(0.11);
-                cam->clipNear(0.1);
-                cam->clipFar(1000.0);
-                keyFrames->addChild(cam);
+                if (kf->id() != 0 /*|| kf->id() == 1*/)
+                {
+                    SLCVCamera* cam = kf->getSceneObject();
+                    cam->fov(_activeCalib->cameraFovDeg());
+                    cam->focalDist(0.11);
+                    cam->clipNear(0.1);
+                    cam->clipFar(1000.0);
+                    keyFrames->addChild(cam);
+                }
             }
             mapNode->addChild(keyFrames);
         }

@@ -36,11 +36,24 @@ void SLCVSlamStateLoader::load( SLCVVMapPoint& mapPts, SLCVKeyFrameDB& kfDB )
 {
     SLCVVKeyFrame& kfs = kfDB.keyFrames();
 
+    //set up translation
     _t = cv::Mat(3, 1, CV_32F);
+    //_t.at<float>(0, 0) = -0.125f;
+    //_t.at<float>(1, 0) = -0.125f;
+    //_t.at<float>(2, 0) = -0.125f;
     _t.at<float>(0, 0) = -0.125f;
     _t.at<float>(1, 0) = -0.125f;
     _t.at<float>(2, 0) = -0.125f;
-    //cout << "t: " << _t << endl;
+
+    cout << "t: " << _t << endl;
+
+    //set up rotation
+    _rot = cv::Mat::zeros(4, 4, CV_32F);
+    _rot.at<float>(0, 0) = 1;
+    _rot.at<float>(2, 1) = -1;
+    _rot.at<float>(1, 2) = 1;
+    _rot.at<float>(3, 3) = 1;
+    cout << "_rot: " << _rot << endl;
 
     //load keyframes
     loadKeyFrames(kfs);
@@ -82,11 +95,6 @@ void SLCVSlamStateLoader::loadKeyFrames( SLCVVKeyFrame& kfs )
         cerr << "strings is not a sequence! FAIL" << endl;
     }
 
-    //cv::Mat scale = cv::Mat::eye(4, 4, CV_32F);
-    //scale.at<double>(0, 0) = _s;
-    //scale.at<double>(1, 1) = _s;
-    //scale.at<double>(2, 2) = _s;
-
     //mapping of keyframe pointer by their id (used during map points loading)
     _kfsMap.clear();
 
@@ -113,21 +121,23 @@ void SLCVSlamStateLoader::loadKeyFrames( SLCVVKeyFrame& kfs )
         //Tcw.rowRange(0, 3).col(3) *= _s;
         //cout << "Tcw: " << Tcw << endl;
 
-        if(id==0)
-            Tcw.rowRange(0, 3).col(3) += _t;
-        Tcw.rowRange(0, 3).col(3) *= _s;
+        //get inverse
+        cv::Mat Twc = Tcw.inv();
+        Twc.rowRange(0, 3).col(3) += _t;
+        Tcw = Twc.inv();
 
-        //cout << "Tcw: " << Tcw << endl; 
-
-        //cout << "Tcw: " << Tcw << endl;
-        //cv::Mat scale = cv::Mat::eye(4, 4, Tcw.type()); //CV_32F
-        //scale.at<float>(0, 0) = _s;
-        //scale.at<float>(1, 1) = _s;
-        //scale.at<float>(2, 2) = _s;
-        //Tcw = scale * Tcw;
-        //cout << "Tcw: " << Tcw << endl;
-        //cv::normalize(Tcw.rowRange(0, 3).colRange(0, 3), Tcw.rowRange(0, 3).colRange(0, 3));
-        //cout << "Tcw: " << Tcw << endl;
+        if (id != 0 /*|| id == 1 */) {
+            //rotate
+            //cout << "Tcw: " << Tcw << endl;
+            //Tcw = _rot * Tcw;
+            //cout << "Tcw: " << Tcw << endl;
+            //translate
+            //cout << "Tcw: " << Tcw << endl;
+            //Tcw.rowRange(0, 3).col(3) += _t;
+            //cout << "Tcw: " << Tcw << endl;
+        }
+        //scale
+        //Tcw.rowRange(0, 3).col(3) *= _s;
 
         cv::Mat featureDescriptors; //has to be here!
         (*it)["featureDescriptors"] >> featureDescriptors;
@@ -148,14 +158,6 @@ void SLCVSlamStateLoader::loadKeyFrames( SLCVVKeyFrame& kfs )
         //vector of pyramid scale factors
         std::vector<float> scaleFactors;
         (*it)["scaleFactors"] >> scaleFactors;
-
-        ////load keyframe imgs
-        //cv::Mat kfImg;
-        //if (_loadKfImgs) {
-        //    stringstream ss; 
-        //    ss << "D:/Development/SLProject/_data/calibrations/imgs/" << "kf" << id << ".jpg";
-        //    kfImg = cv::imread(ss.str());
-        //}
 
         SLCVKeyFrame* newKf = new SLCVKeyFrame(keyPtsUndist.size());
         newKf->id(id);
@@ -199,12 +201,9 @@ void SLCVSlamStateLoader::loadMapPoints( SLCVVMapPoint& mapPts )
         cv::Mat mWorldPos; //has to be here!
         (*it)["mWorldPos"] >> mWorldPos;
         //scale pos
-        //cout << "mWorldPos before: " << mWorldPos << endl;
-        mWorldPos = _s * mWorldPos;
-        //cout << "mWorldPos before: " << mWorldPos << endl;
-        //mWorldPos = _t + mWorldPos;
-        //cout << "mWorldPos before: " << mWorldPos << endl;
+        //mWorldPos = _s * mWorldPos;
 
+        mWorldPos += _t;
         newPt.worldPos(mWorldPos);
 
         //level

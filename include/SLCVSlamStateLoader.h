@@ -50,6 +50,7 @@ private:
 
     float _s=2.f;
     cv::Mat _t;
+    cv::Mat _rot;
 };
 
 #endif // !SLCV_SLAMSTATELOADER_H
