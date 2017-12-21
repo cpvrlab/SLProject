@@ -47,6 +47,9 @@ private:
 
     //mapping of keyframe pointer by their id (used during map points loading)
     map<int, SLCVKeyFrame*> _kfsMap;
+
+    float _s=2.f;
+    cv::Mat _t;
 };
 
 #endif // !SLCV_SLAMSTATELOADER_H
