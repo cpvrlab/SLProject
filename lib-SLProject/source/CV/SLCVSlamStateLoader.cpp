@@ -38,9 +38,6 @@ void SLCVSlamStateLoader::load( SLCVVMapPoint& mapPts, SLCVKeyFrameDB& kfDB )
 
     //set up translation
     _t = cv::Mat(3, 1, CV_32F);
-    //_t.at<float>(0, 0) = -0.125f;
-    //_t.at<float>(1, 0) = -0.125f;
-    //_t.at<float>(2, 0) = -0.125f;
     _t.at<float>(0, 0) = 10.f;
     _t.at<float>(1, 0) = 20.f;
     _t.at<float>(2, 0) = 30.f;
@@ -82,13 +79,6 @@ void SLCVSlamStateLoader::load( SLCVVMapPoint& mapPts, SLCVKeyFrameDB& kfDB )
 //-----------------------------------------------------------------------------
 void SLCVSlamStateLoader::loadKeyFrames( SLCVVKeyFrame& kfs )
 {
-    //Scale mat
-    cv::Mat scaleM = cv::Mat::eye(4, 4, CV_32F);
-    scaleM.at<float>(0, 0) = _s;
-    scaleM.at<float>(1, 1) = _s;
-    scaleM.at<float>(2, 2) = _s;
-    cout << scaleM << scaleM << endl;
-
     //load intrinsics (calibration parameters): only store once
     float fx, fy, cx, cy;
     _fs["fx"] >> fx;
@@ -115,38 +105,17 @@ void SLCVSlamStateLoader::loadKeyFrames( SLCVVKeyFrame& kfs )
         int id = (*it)["id"];
 
         // Infos about the pose: https://github.com/raulmur/ORB_SLAM2/issues/249
-        // camera pose w.r.t. world -> wTc
-        //cv::Mat Twc; //has to be here!
-        //(*it)["Twc"] >> Twc;
-        //newKf.wTc(Twc);
-
-        // camera pose w.r.t. world -> wTc
+        // world w.r.t. camera pose -> wTc
         cv::Mat Tcw; //has to be here!
         (*it)["Tcw"] >> Tcw;
-        //apply scale
-        //cout << "Tcw: " << Tcw << endl;
-        //Tcw.rowRange(0, 3).col(3) *= _s;
-        //cout << "Tcw: " << Tcw << endl;
 
         //get inverse
         cv::Mat Twc = Tcw.inv();
         Twc.rowRange(0, 3).col(3) += _t;
-        //Twc = Twc * scaleM;
+        Twc = _rot * Twc;
         Tcw = Twc.inv();
+        //apply scale
         Tcw.rowRange(0, 3).col(3) *= _s; //scheint gut aber bei s=200 irgendwie komisch
-
-        if (id != 0 /*|| id == 1 */) {
-            //rotate
-            //cout << "Tcw: " << Tcw << endl;
-            //Tcw = _rot * Tcw;
-            //cout << "Tcw: " << Tcw << endl;
-            //translate
-            //cout << "Tcw: " << Tcw << endl;
-            //Tcw.rowRange(0, 3).col(3) += _t;
-            //cout << "Tcw: " << Tcw << endl;
-        }
-        //scale
-        //Tcw.rowRange(0, 3).col(3) *= _s;
 
         cv::Mat featureDescriptors; //has to be here!
         (*it)["featureDescriptors"] >> featureDescriptors;
@@ -211,6 +180,7 @@ void SLCVSlamStateLoader::loadMapPoints( SLCVVMapPoint& mapPts )
         (*it)["mWorldPos"] >> mWorldPos;
         //scale pos
         mWorldPos += _t;
+        mWorldPos = _rot.rowRange(0, 3).colRange(0,3) * mWorldPos;
         mWorldPos *= _s;
         newPt.worldPos(mWorldPos);
 
