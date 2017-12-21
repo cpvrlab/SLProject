@@ -331,7 +331,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         SLNode* mapNode = new SLNode("map");
         //the map is rotated w.r.t world because ORB-SLAM uses x-axis right, 
         //y-axis down and z-forward
-        //mapNode->rotate(180, 1, 0, 0);
+        mapNode->rotate(180, 1, 0, 0);
         scene->addChild(mapNode);
         mapNode->addChild(cam1);
 
@@ -383,7 +383,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
                     SLCVCamera* cam = kf->getSceneObject();
                     cam->fov(_activeCalib->cameraFovDeg());
                     cam->focalDist(0.11);
-                    cam->clipNear(0.1);
+                    cam->clipNear(10);
                     cam->clipFar(1000.0);
                     keyFrames->addChild(cam);
                 }
@@ -397,7 +397,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
 
         //add yellow augmented box
         SLMaterial* yellow = new SLMaterial("mY", SLCol4f(1, 1, 0, 0.5f));
-        SLfloat he = 0.25;
+        SLfloat he = 25.;
         SLBox* box1 = new SLBox(-he, -he, 0.0f, he, he, 2 * he, "Box 1", yellow);
         SLNode* boxNode = new SLNode(box1, "boxNode");
         //boxNode->rotate(40, 1, 0, 0);

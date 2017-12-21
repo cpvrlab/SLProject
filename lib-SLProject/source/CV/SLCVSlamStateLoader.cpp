@@ -41,9 +41,9 @@ void SLCVSlamStateLoader::load( SLCVVMapPoint& mapPts, SLCVKeyFrameDB& kfDB )
     //_t.at<float>(0, 0) = -0.125f;
     //_t.at<float>(1, 0) = -0.125f;
     //_t.at<float>(2, 0) = -0.125f;
-    _t.at<float>(0, 0) = -0.125f;
-    _t.at<float>(1, 0) = -0.125f;
-    _t.at<float>(2, 0) = -0.125f;
+    _t.at<float>(0, 0) = 10.f;
+    _t.at<float>(1, 0) = 20.f;
+    _t.at<float>(2, 0) = 30.f;
 
     cout << "t: " << _t << endl;
 
@@ -82,6 +82,13 @@ void SLCVSlamStateLoader::load( SLCVVMapPoint& mapPts, SLCVKeyFrameDB& kfDB )
 //-----------------------------------------------------------------------------
 void SLCVSlamStateLoader::loadKeyFrames( SLCVVKeyFrame& kfs )
 {
+    //Scale mat
+    cv::Mat scaleM = cv::Mat::eye(4, 4, CV_32F);
+    scaleM.at<float>(0, 0) = _s;
+    scaleM.at<float>(1, 1) = _s;
+    scaleM.at<float>(2, 2) = _s;
+    cout << scaleM << scaleM << endl;
+
     //load intrinsics (calibration parameters): only store once
     float fx, fy, cx, cy;
     _fs["fx"] >> fx;
@@ -124,7 +131,9 @@ void SLCVSlamStateLoader::loadKeyFrames( SLCVVKeyFrame& kfs )
         //get inverse
         cv::Mat Twc = Tcw.inv();
         Twc.rowRange(0, 3).col(3) += _t;
+        //Twc = Twc * scaleM;
         Tcw = Twc.inv();
+        Tcw.rowRange(0, 3).col(3) *= _s; //scheint gut aber bei s=200 irgendwie komisch
 
         if (id != 0 /*|| id == 1 */) {
             //rotate
@@ -201,9 +210,8 @@ void SLCVSlamStateLoader::loadMapPoints( SLCVVMapPoint& mapPts )
         cv::Mat mWorldPos; //has to be here!
         (*it)["mWorldPos"] >> mWorldPos;
         //scale pos
-        //mWorldPos = _s * mWorldPos;
-
         mWorldPos += _t;
+        mWorldPos *= _s;
         newPt.worldPos(mWorldPos);
 
         //level
