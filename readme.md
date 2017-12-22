@@ -3,6 +3,8 @@
 The SLProject is hosted at GitHub as a GIT repository.
 [GIT](http://git-scm.com/) is a distributed versioning control system.
 
+**Please do not download the ZIP-file!** You won't be able to build the project because the zip file misses the submodules.
+
 The SLProject contains some GIT submodules. 
 To clone all at once you need to clone recursively.
 You can clone recursively either with the GitHub GUI-Tool or with the following command in the console:

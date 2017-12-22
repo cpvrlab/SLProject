@@ -278,6 +278,11 @@ bool SLCVCalibration::findChessboard(SLCVMat imageColor,
     assert(_boardSize.width && _boardSize.height && 
            "SLCVCalibration::findChessboard: _boardSize is not set!");
 
+    //debug save image
+    //stringstream ss;
+    //ss << "imageIn_" << _numCaptured << ".png";
+    //cv::imwrite(ss.str(), imageColor);
+
     _imageSize = imageColor.size();
 
     SLCVVPoint2f corners2D;
@@ -305,11 +310,6 @@ bool SLCVCalibration::findChessboard(SLCVMat imageColor,
                          TermCriteria(TermCriteria::EPS+TermCriteria::COUNT, 
                          30, 
                          0.1));
-
-        //debug save image
-        //stringstream ss;
-        //ss << "imageIn_" << _numCaptured << ".png";
-        //cv::imwrite(ss.str(), image);
 
         //add detected points
         _imagePoints.push_back(corners2D);
