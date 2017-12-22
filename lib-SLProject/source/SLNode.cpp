@@ -164,6 +164,30 @@ bool SLNode::removeMesh(SLstring name)
     return false;
 }
 //-----------------------------------------------------------------------------
+/*!
+Returns true if the node contains the provided mesh. Removes and deletes the
+mesh. The mesh is also removed from scene
+*/
+SLbool SLNode::deleteMesh(SLMesh* mesh)
+{
+    assert(mesh);
+    for (SLint i = 0; i<_meshes.size(); ++i)
+    {
+        if (_meshes[i] == mesh)
+        {
+            _meshes.erase(_meshes.begin() + i);
+
+            //also delete mesh from scene
+            SLScene::current->removeMesh(mesh);
+            delete mesh;
+            mesh = NULL;
+
+            return true;
+        }
+    }
+    return false;
+}
+//-----------------------------------------------------------------------------
 /*! 
 SLNode::findMesh finds the specified mesh by name.
 */
@@ -183,7 +207,6 @@ SLbool SLNode::containsMesh(const SLMesh* mesh)
     for (auto m : _meshes)
         if (m == mesh)
             return true;
-
     return false;
 }
 //-----------------------------------------------------------------------------

@@ -25,20 +25,7 @@ SLPoints* SLCVMap::getSceneObject()
 {
     if (!_sceneObject)
     {
-        //make a new SLPoints object
-        SLMaterial* pcMat1 = new SLMaterial("Red", SLCol4f::RED);
-        pcMat1->program(new SLGLGenericProgram("ColorUniformPoint.vert", "Color.frag"));
-        pcMat1->program()->addUniform1f(new SLGLUniform1f(UT_const, "u_pointSize", 2.0f));
-
-        //get points as Vec3f and collect normals
-        SLVVec3f points, normals;
-        for (auto mapPt : _mapPoints) {
-            points.push_back(mapPt.worldPosVec());
-            normals.push_back(mapPt.normalVec());
-        }
-
-        //vectos must habe the same size
-        _sceneObject = new SLPoints(points, normals, "MapPoints", pcMat1);
+        _sceneObject = getNewSceneObject();
     }
     else
     {
@@ -48,3 +35,22 @@ SLPoints* SLCVMap::getSceneObject()
     return _sceneObject;
 }
 //-----------------------------------------------------------------------------
+//! get visual representation as SLPoints
+SLPoints* SLCVMap::getNewSceneObject()
+{
+    //make a new SLPoints object
+    SLMaterial* pcMat1 = new SLMaterial("Red", SLCol4f::RED);
+    pcMat1->program(new SLGLGenericProgram("ColorUniformPoint.vert", "Color.frag"));
+    pcMat1->program()->addUniform1f(new SLGLUniform1f(UT_const, "u_pointSize", 2.0f));
+
+    //get points as Vec3f and collect normals
+    SLVVec3f points, normals;
+    for (auto mapPt : _mapPoints) {
+        points.push_back(mapPt.worldPosVec());
+        normals.push_back(mapPt.normalVec());
+    }
+
+    _sceneObject = new SLPoints(points, normals, "MapPoints", pcMat1);
+    //vectos must habe the same size
+    return _sceneObject;
+}

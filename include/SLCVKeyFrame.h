@@ -72,6 +72,7 @@ public:
     void descriptors(const SLCVMat& descriptors) { descriptors.copyTo(mDescriptors); }
     //! get visual representation as SLPoints
     SLCVCamera* getSceneObject();
+    SLCVCamera* getNewSceneObject();
 
     // Covisibility graph functions
     vector<SLCVKeyFrame*> GetBestCovisibilityKeyFrames(const int &N);

@@ -33,6 +33,7 @@ public:
 
     //! get visual representation as SLPoints
     SLPoints* getSceneObject();
+    SLPoints* getNewSceneObject();
 
 private:
     SLCVVMapPoint _mapPoints;

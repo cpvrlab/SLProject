@@ -49,7 +49,7 @@ public:
 
     SLCVTrackedRaulMur(SLNode *node, ORBVocabulary* vocabulary,
         SLCVKeyFrameDB* keyFrameDB, SLCVMap* map, SLNode* mapPC = NULL,
-        SLNode* mapMatchesPC = NULL, SLNode* mapLocalPC = NULL );
+        SLNode* mapMatchesPC = NULL, SLNode* mapLocalPC = NULL, SLNode* _keyframes = NULL);
     ~SLCVTrackedRaulMur();
     SLbool track(SLCVMat imageGray,
         SLCVMat image,
@@ -107,6 +107,19 @@ public:
         return "";
         }
     }
+
+    enum TransformType {
+        ROT_X=0, ROT_Y, ROT_Z, TRANS_X, TRANS_Y, TRANS_Z, SCALE
+    };
+
+    // Build rotation matrix
+    Mat buildRotMat(float &valDeg, int type);
+    Mat buildTransMat(float &val, int type);
+    void rotate(float value, int type);
+    void translate(float value, int type);
+    void scale(float value);
+    void applyTransformation(double value, TransformType type);
+
 protected:
     bool Relocalization();
     bool TrackWithMotionModel();
@@ -187,8 +200,11 @@ private:
     SLNode* _mapPC=NULL;
     SLNode* _mapMatchesPC = NULL;
     SLNode* _mapLocalPC = NULL;
+    SLNode* _keyFrames = NULL;
 
-    cv::Mat _image;
+    //cv::Mat _image;
+    SLCVCalibration*        _calib = NULL;         //!< Current calibration in use
+    SLint                   _frameCount=0;    //!< NO. of frames since process start
 };
 //-----------------------------------------------------------------------------
 #endif //SLCVTRACKERRAULMUR_H

@@ -55,30 +55,36 @@ SLCVCamera* SLCVKeyFrame::getSceneObject()
 {
     if (!_camera)
     {
-        _camera = new SLCVCamera(this, "KeyFrame" + _id);
-        //set camera position and orientation
-        SLMat4f om;
-
-        //The camera frame in ORB-SLAM is oriented differently: x right, y down and z forward.
-        //Because of that we have to apply a rotation of 180 deg about X axis, what is
-        //equal to inverting the signs in colum 1 and 2.
-        om.setMatrix(
-            _Twc.at<float>(0, 0), -_Twc.at<float>(0, 1), -_Twc.at<float>(0, 2), _Twc.at<float>(0, 3),
-            _Twc.at<float>(1, 0), -_Twc.at<float>(1, 1), -_Twc.at<float>(1, 2), _Twc.at<float>(1, 3),
-            _Twc.at<float>(2, 0), -_Twc.at<float>(2, 1), -_Twc.at<float>(2, 2), _Twc.at<float>(2, 3),
-            _Twc.at<float>(3, 0), -_Twc.at<float>(3, 1), -_Twc.at<float>(3, 2), _Twc.at<float>(3, 3));
-        //om.rotate(180, 1, 0, 0);
-
-        //set background
-        if (_pathToTexture.size()) 
-        {
-            SLGLTexture* texture = new SLGLTexture(_pathToTexture);
-            _camera->background().texture(texture);
-        }
-
-        _camera->om(om);
+        getNewSceneObject();
     }
 
+    return _camera;
+}
+//-----------------------------------------------------------------------------
+SLCVCamera* SLCVKeyFrame::getNewSceneObject()
+{
+    _camera = new SLCVCamera(this, "KeyFrame" + _id);
+    //set camera position and orientation
+    SLMat4f om;
+
+    //The camera frame in ORB-SLAM is oriented differently: x right, y down and z forward.
+    //Because of that we have to apply a rotation of 180 deg about X axis, what is
+    //equal to inverting the signs in colum 1 and 2.
+    om.setMatrix(
+        _Twc.at<float>(0, 0), -_Twc.at<float>(0, 1), -_Twc.at<float>(0, 2), _Twc.at<float>(0, 3),
+        _Twc.at<float>(1, 0), -_Twc.at<float>(1, 1), -_Twc.at<float>(1, 2), _Twc.at<float>(1, 3),
+        _Twc.at<float>(2, 0), -_Twc.at<float>(2, 1), -_Twc.at<float>(2, 2), _Twc.at<float>(2, 3),
+        _Twc.at<float>(3, 0), -_Twc.at<float>(3, 1), -_Twc.at<float>(3, 2), _Twc.at<float>(3, 3));
+    //om.rotate(180, 1, 0, 0);
+
+    //set background
+    if (_pathToTexture.size())
+    {
+        SLGLTexture* texture = new SLGLTexture(_pathToTexture);
+        _camera->background().texture(texture);
+    }
+
+    _camera->om(om);
     return _camera;
 }
 //-----------------------------------------------------------------------------

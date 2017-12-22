@@ -151,6 +151,9 @@ class SLScene: public SLObject
 
             void            initGlobalRefPos    (double latDeg, double lonDeg, double altM);
 
+            //vectors manipulation
+            bool            removeMesh          (SLMesh* mesh);
+
    protected:
             SLVSceneView    _sceneViews;        //!< Vector of all sceneview pointers
             SLVMesh         _meshes;            //!< Vector of all meshes

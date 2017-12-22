@@ -158,6 +158,7 @@ class SLNode: public SLObject, public SLEventHandler
             bool            removeMesh          ();
             bool            removeMesh          (SLMesh* mesh);
             bool            removeMesh          (SLstring name);
+            bool            deleteMesh          (SLMesh* mesh);
             SLMesh*         findMesh            (SLstring name);
             SLbool          containsMesh        (const SLMesh* mesh);
     virtual void            drawMeshes          (SLSceneView* sv);

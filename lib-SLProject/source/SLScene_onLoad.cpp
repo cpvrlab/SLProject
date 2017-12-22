@@ -373,32 +373,36 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
             mapNode->addChild(mapLocalPC);
         }
 
+        SLNode* keyFrames = NULL;
         if(addVisualKFs)
         {
-            SLNode* keyFrames = new SLNode("KeyFrames");
+            keyFrames = new SLNode("KeyFrames");
             //add keyFrames
             for (auto* kf : kfDB->keyFrames()) {
-                if (kf->id() != 0 /*|| kf->id() == 1*/)
-                {
+                //if (kf->id() != 0 /*|| kf->id() == 1*/)
+                //{
                     SLCVCamera* cam = kf->getSceneObject();
                     cam->fov(_activeCalib->cameraFovDeg());
                     cam->focalDist(0.11);
-                    cam->clipNear(10);
+                    cam->clipNear(0.1);
                     cam->clipFar(1000.0);
                     keyFrames->addChild(cam);
-                }
+                //}
             }
             mapNode->addChild(keyFrames);
         }
 
         //add tracker
         _trackers.push_back( new SLCVTrackedRaulMur(cam1, vocabulary, kfDB, map, 
-            mapPC, mapMatchedPC, mapLocalPC ));
+            mapPC, mapMatchedPC, mapLocalPC, keyFrames));
 
         //add yellow augmented box
         SLMaterial* yellow = new SLMaterial("mY", SLCol4f(1, 1, 0, 0.5f));
-        SLfloat he = 25.;
-        SLBox* box1 = new SLBox(-he, -he, 0.0f, he, he, 2 * he, "Box 1", yellow);
+        //SLfloat he = 25.;
+        //SLBox* box1 = new SLBox(-he, -he, 0.0f, he, he, 2 * he, "Box 1", yellow);
+        SLfloat l = 1.75, b = 0.75, h = 0.74;
+        SLBox* box1 = new SLBox(0.0f, 0.0f, 0.0f, l, h, b, "Box 1", yellow);
+
         SLNode* boxNode = new SLNode(box1, "boxNode");
         //boxNode->rotate(40, 1, 0, 0);
         //boxNode->translate(0, -0.5, -1.5);

@@ -36,21 +36,21 @@ void SLCVSlamStateLoader::load( SLCVVMapPoint& mapPts, SLCVKeyFrameDB& kfDB )
 {
     SLCVVKeyFrame& kfs = kfDB.keyFrames();
 
-    //set up translation
-    _t = cv::Mat(3, 1, CV_32F);
-    _t.at<float>(0, 0) = 10.f;
-    _t.at<float>(1, 0) = 20.f;
-    _t.at<float>(2, 0) = 30.f;
+    ////set up translation
+    //_t = cv::Mat(3, 1, CV_32F);
+    //_t.at<float>(0, 0) = 10.f;
+    //_t.at<float>(1, 0) = 20.f;
+    //_t.at<float>(2, 0) = 30.f;
 
-    cout << "t: " << _t << endl;
+    //cout << "t: " << _t << endl;
 
-    //set up rotation
-    _rot = cv::Mat::zeros(4, 4, CV_32F);
-    _rot.at<float>(0, 0) = 1;
-    _rot.at<float>(2, 1) = -1;
-    _rot.at<float>(1, 2) = 1;
-    _rot.at<float>(3, 3) = 1;
-    cout << "_rot: " << _rot << endl;
+    ////set up rotation
+    //_rot = cv::Mat::zeros(4, 4, CV_32F);
+    //_rot.at<float>(0, 0) = 1;
+    //_rot.at<float>(2, 1) = -1;
+    //_rot.at<float>(1, 2) = 1;
+    //_rot.at<float>(3, 3) = 1;
+    //cout << "_rot: " << _rot << endl;
 
     //load keyframes
     loadKeyFrames(kfs);
@@ -109,13 +109,13 @@ void SLCVSlamStateLoader::loadKeyFrames( SLCVVKeyFrame& kfs )
         cv::Mat Tcw; //has to be here!
         (*it)["Tcw"] >> Tcw;
 
-        //get inverse
-        cv::Mat Twc = Tcw.inv();
-        Twc.rowRange(0, 3).col(3) += _t;
-        Twc = _rot * Twc;
-        Tcw = Twc.inv();
-        //apply scale
-        Tcw.rowRange(0, 3).col(3) *= _s; //scheint gut aber bei s=200 irgendwie komisch
+        ////get inverse
+        //cv::Mat Twc = Tcw.inv();
+        //Twc.rowRange(0, 3).col(3) += _t;
+        //Twc = _rot * Twc;
+        //Tcw = Twc.inv();
+        ////apply scale
+        //Tcw.rowRange(0, 3).col(3) *= _s; //scheint gut aber bei s=200 irgendwie komisch
 
         cv::Mat featureDescriptors; //has to be here!
         (*it)["featureDescriptors"] >> featureDescriptors;
@@ -179,9 +179,9 @@ void SLCVSlamStateLoader::loadMapPoints( SLCVVMapPoint& mapPts )
         cv::Mat mWorldPos; //has to be here!
         (*it)["mWorldPos"] >> mWorldPos;
         //scale pos
-        mWorldPos += _t;
-        mWorldPos = _rot.rowRange(0, 3).colRange(0,3) * mWorldPos;
-        mWorldPos *= _s;
+        //mWorldPos += _t;
+        //mWorldPos = _rot.rowRange(0, 3).colRange(0,3) * mWorldPos;
+        //mWorldPos *= _s;
         newPt.worldPos(mWorldPos);
 
         //level

@@ -748,3 +748,20 @@ void SLScene::initGlobalRefPos(double latDeg, double lonDeg, double altM )
     //be used for camera positioning
     _hasGlobalRefPos = true;
 }
+//-----------------------------------------------------------------------------
+/*!
+Removes the specified mesh from the vector.
+*/
+bool SLScene::removeMesh(SLMesh* mesh)
+{
+    assert(mesh);
+    for (SLint i = 0; i<_meshes.size(); ++i)
+    {
+        if (_meshes[i] == mesh)
+        {
+            _meshes.erase(_meshes.begin() + i);
+            return true;
+        }
+    }
+    return false;
+}

@@ -1836,6 +1836,40 @@ void SLDemoGui::buildInfosTracking(SLScene* s, SLSceneView* sv)
             kfDB->allowAsActiveCam(b);
         }
     }
+    ImGui::Separator();
+
+    //-------------------------------------------------------------------------
+    ImGui::Text("Alignment");
+    //slider to adjust transformation value
+    ImGui::SliderFloat("Value", &SLGLImGui::transformationValue, -10.f, 10.f, "%5.2f");
+    //ImGui::SliderFloat2("Value", &SLGLImGui::transformationValue, -10.f, 10.f, "%0.0f", 0.01f);
+    //ImGui::InputFloat("Value", &SLGLImGui::transformationValue, 0.1f, 1.f);
+    //ImGui::InputFloat("Value", &SLGLImGui::transformationValue, 0.1f, 1.f);
+
+    //Buttons for transformations
+    if (ImGui::Button("RotX" )) {
+        raulMurTracker->applyTransformation(SLGLImGui::transformationValue, SLCVTrackedRaulMur::ROT_X);
+    } ImGui::SameLine();
+    if (ImGui::Button("RotY")) {
+        raulMurTracker->applyTransformation(SLGLImGui::transformationValue, SLCVTrackedRaulMur::ROT_Y);
+    } ImGui::SameLine();
+    if (ImGui::Button("RotZ")) {
+        raulMurTracker->applyTransformation(SLGLImGui::transformationValue, SLCVTrackedRaulMur::ROT_Z);
+    }
+
+    if (ImGui::Button("TransX")) {
+        raulMurTracker->applyTransformation(SLGLImGui::transformationValue, SLCVTrackedRaulMur::TRANS_X);
+    } ImGui::SameLine();
+    if (ImGui::Button("TransY")) {
+        raulMurTracker->applyTransformation(SLGLImGui::transformationValue, SLCVTrackedRaulMur::TRANS_Y);
+    } ImGui::SameLine(); 
+    if (ImGui::Button("TransZ")) {
+        raulMurTracker->applyTransformation(SLGLImGui::transformationValue, SLCVTrackedRaulMur::TRANS_Z);
+    } 
+
+    if (ImGui::Button("Scale")) {
+        raulMurTracker->applyTransformation(SLGLImGui::transformationValue, SLCVTrackedRaulMur::SCALE);
+    } ImGui::PushItemWidth(2);
 
     ImGui::End();
 }
