@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>IDESourceControlProjectFavoriteDictionaryKey</key>
+	<false/>
+	<key>IDESourceControlProjectIdentifier</key>
+	<string>29FBF414-AEAC-439B-A065-F1B21F4EF52C</string>
+	<key>IDESourceControlProjectName</key>
+	<string>lib-SLExternal</string>
+	<key>IDESourceControlProjectOriginsDictionary</key>
+	<dict>
+		<key>8B91E0C6-E55B-470B-8E04-C7E48EAE628C</key>
+		<string>https://slproject.googlecode.com/svn</string>
+	</dict>
+	<key>IDESourceControlProjectPath</key>
+	<string>branches/UpdateChange/lib-SLExternal/lib-SLExternal/lib-SLExternal.xcodeproj/project.xcworkspace</string>
+	<key>IDESourceControlProjectRelativeInstallPathDictionary</key>
+	<dict>
+		<key>8B91E0C6-E55B-470B-8E04-C7E48EAE628C</key>
+		<string>../../../../../..</string>
+	</dict>
+	<key>IDESourceControlProjectRepositoryRootDictionary</key>
+	<dict>
+		<key>8B91E0C6-E55B-470B-8E04-C7E48EAE628C</key>
+		<string>https://slproject.googlecode.com/svn</string>
+	</dict>
+	<key>IDESourceControlProjectURL</key>
+	<string>https://slproject.googlecode.com/svn/branches/UpdateChange/lib-SLExternal/lib-SLExternal/lib-SLExternal.xcodeproj</string>
+	<key>IDESourceControlProjectVersion</key>
+	<integer>110</integer>
+	<key>IDESourceControlProjectWCCIdentifier</key>
+	<string>8B91E0C6-E55B-470B-8E04-C7E48EAE628C</string>
+	<key>IDESourceControlProjectWCConfigurations</key>
+	<array>
+		<dict>
+			<key>IDESourceControlRepositoryBranchesRelativeLocationKey</key>
+			<string>branches</string>
+			<key>IDESourceControlRepositoryExtensionIdentifierKey</key>
+			<string>public.vcs.subversion</string>
+			<key>IDESourceControlRepositoryTagsRelativeLocationKey</key>
+			<string>tags</string>
+			<key>IDESourceControlRepositoryTrunkRelativeLocationKey</key>
+			<string>trunk</string>
+			<key>IDESourceControlWCCIdentifierKey</key>
+			<string>8B91E0C6-E55B-470B-8E04-C7E48EAE628C</string>
+			<key>IDESourceControlWCCName</key>
+			<string>SLProject</string>
+		</dict>
+	</array>
+</dict>
+</plist>

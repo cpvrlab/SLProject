@@ -4,15 +4,15 @@
 <dict>
 	<key>SchemeUserState</key>
 	<dict>
-		<key>SLProject.xcscheme</key>
+		<key>lib-SLExternal.xcscheme</key>
 		<dict>
 			<key>orderHint</key>
-			<integer>2</integer>
+			<integer>1</integer>
 		</dict>
 	</dict>
 	<key>SuppressBuildableAutocreation</key>
 	<dict>
-		<key>419BCD3614865C0800D576F1</key>
+		<key>418EB3671959C85400812238</key>
 		<dict>
 			<key>primary</key>
 			<true/>

@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 46;
+	objectVersion = 48;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -606,9 +606,9 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
-		41FE0B081959C9DA00486424 /* PBXContainerItemProxy */ = {
+		41B657711FED32DE002819FE /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
-			containerPortal = 41FE0B041959C9DA00486424 /* lib-SLExternal.xcodeproj */;
+			containerPortal = 41B6576D1FED32DE002819FE /* lib-SLExternal-ios.xcodeproj */;
 			proxyType = 2;
 			remoteGlobalIDString = 418EB3681959C85400812238;
 			remoteInfo = "lib-SLExternal";
@@ -1418,6 +1418,7 @@
 		41A355091A7E676800791841 /* SLInputManager.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SLInputManager.cpp; path = "../lib-SLProject/source/SLInputManager.cpp"; sourceTree = SOURCE_ROOT; };
 		41ABC8BE1B875C1E009F6C37 /* opencv2.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = opencv2.framework; path = ../_lib/prebuilt/OpenCV/ios/opencv2.framework; sourceTree = SOURCE_ROOT; };
 		41B3821E18D593D1000F37CC /* SLAverage.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SLAverage.h; path = ../include/SLAverage.h; sourceTree = SOURCE_ROOT; };
+		41B6576D1FED32DE002819FE /* lib-SLExternal-ios.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = "lib-SLExternal-ios.xcodeproj"; path = "../lib-SLExternal/lib-SLExternal-ios.xcodeproj"; sourceTree = "<group>"; };
 		41B7BDDC1E49B4BC007B8B39 /* cursor.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = cursor.png; path = ../_data/images/textures/cursor.png; sourceTree = "<group>"; };
 		41B7BDDF1E49B553007B8B39 /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Images.xcassets; path = SLProject/Images.xcassets; sourceTree = SOURCE_ROOT; };
 		41B86C591C4FE21400BB409D /* SLGLVertexBuffer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SLGLVertexBuffer.cpp; path = "../lib-SLProject/source/GL/SLGLVertexBuffer.cpp"; sourceTree = SOURCE_ROOT; };
@@ -1486,7 +1487,6 @@
 		41FD9D0E1E523AD70063A1B7 /* Font20.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = Font20.png; path = ../_data/images/fonts/Font20.png; sourceTree = "<group>"; };
 		41FD9D0F1E523AD70063A1B7 /* Font22.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = Font22.png; path = ../_data/images/fonts/Font22.png; sourceTree = "<group>"; };
 		41FD9D101E523AD70063A1B7 /* Font24.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = Font24.png; path = ../_data/images/fonts/Font24.png; sourceTree = "<group>"; };
-		41FE0B041959C9DA00486424 /* lib-SLExternal.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = "lib-SLExternal.xcodeproj"; path = "../lib-SLExternal/lib-SLExternal.xcodeproj"; sourceTree = "<group>"; };
 		CF3F57191DE5906C00928DDD /* SLCVTracked.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = SLCVTracked.cpp; path = "../lib-SLProject/source/CV/SLCVTracked.cpp"; sourceTree = SOURCE_ROOT; };
 		CF3F571C1DE592F200928DDD /* PerVrtBlinnColorAttrib.vert */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = PerVrtBlinnColorAttrib.vert; path = ../_data/shaders/PerVrtBlinnColorAttrib.vert; sourceTree = "<group>"; };
 		CF3F57211DE5945F00928DDD /* calib_in_params.yml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = calib_in_params.yml; path = ../_data/calibrations/calib_in_params.yml; sourceTree = "<group>"; };
@@ -2486,8 +2486,8 @@
 		419BCD3A14865C0800D576F1 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				41B6576D1FED32DE002819FE /* lib-SLExternal-ios.xcodeproj */,
 				4181782D1FC70F6E00200D02 /* CoreLocation.framework */,
-				41FE0B041959C9DA00486424 /* lib-SLExternal.xcodeproj */,
 				41BEFC0B1B78F865009EF31F /* CoreVideo.framework */,
 				41BEFC091B78F85A009EF31F /* CoreMedia.framework */,
 				41BEFC061B78F84F009EF31F /* AVFoundation.framework */,
@@ -2535,6 +2535,14 @@
 				41A355001A7E63E100791841 /* SLSkeleton.cpp */,
 			);
 			name = Animation;
+			sourceTree = "<group>";
+		};
+		41B6576E1FED32DE002819FE /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				41B657721FED32DE002819FE /* liblib-SLExternal.a */,
+			);
+			name = Products;
 			sourceTree = "<group>";
 		};
 		41B7BDDA1E49AE4C007B8B39 /* Calibrations */ = {
@@ -2593,14 +2601,6 @@
 			path = "../lib-SLExternal";
 			sourceTree = "<group>";
 		};
-		41FE0B051959C9DA00486424 /* Products */ = {
-			isa = PBXGroup;
-			children = (
-				41FE0B091959C9DA00486424 /* liblib-SLExternal.a */,
-			);
-			name = Products;
-			sourceTree = "<group>";
-		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -2636,7 +2636,7 @@
 				};
 			};
 			buildConfigurationList = 419BCD3114865C0800D576F1 /* Build configuration list for PBXProject "app-Demo-iOS" */;
-			compatibilityVersion = "Xcode 3.2";
+			compatibilityVersion = "Xcode 8.0";
 			developmentRegion = English;
 			hasScannedForEncodings = 0;
 			knownRegions = (
@@ -2647,8 +2647,8 @@
 			projectDirPath = "";
 			projectReferences = (
 				{
-					ProductGroup = 41FE0B051959C9DA00486424 /* Products */;
-					ProjectRef = 41FE0B041959C9DA00486424 /* lib-SLExternal.xcodeproj */;
+					ProductGroup = 41B6576E1FED32DE002819FE /* Products */;
+					ProjectRef = 41B6576D1FED32DE002819FE /* lib-SLExternal-ios.xcodeproj */;
 				},
 			);
 			projectRoot = "";
@@ -2659,11 +2659,11 @@
 /* End PBXProject section */
 
 /* Begin PBXReferenceProxy section */
-		41FE0B091959C9DA00486424 /* liblib-SLExternal.a */ = {
+		41B657721FED32DE002819FE /* liblib-SLExternal.a */ = {
 			isa = PBXReferenceProxy;
 			fileType = archive.ar;
 			path = "liblib-SLExternal.a";
-			remoteRef = 41FE0B081959C9DA00486424 /* PBXContainerItemProxy */;
+			remoteRef = 41B657711FED32DE002819FE /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
 /* End PBXReferenceProxy section */

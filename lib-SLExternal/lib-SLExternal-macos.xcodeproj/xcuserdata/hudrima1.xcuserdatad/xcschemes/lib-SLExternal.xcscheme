@@ -14,10 +14,10 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "419BCD3614865C0800D576F1"
-               BuildableName = "SLProject.app"
-               BlueprintName = "SLProject"
-               ReferencedContainer = "container:app-Demo-iOS.xcodeproj">
+               BlueprintIdentifier = "418EB3671959C85400812238"
+               BuildableName = "liblib-SLExternal.a"
+               BlueprintName = "lib-SLExternal"
+               ReferencedContainer = "container:lib-SLExternal.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>
@@ -30,15 +30,6 @@
       shouldUseLaunchSchemeArgsEnv = "YES">
       <Testables>
       </Testables>
-      <MacroExpansion>
-         <BuildableReference
-            BuildableIdentifier = "primary"
-            BlueprintIdentifier = "419BCD3614865C0800D576F1"
-            BuildableName = "SLProject.app"
-            BlueprintName = "SLProject"
-            ReferencedContainer = "container:app-Demo-iOS.xcodeproj">
-         </BuildableReference>
-      </MacroExpansion>
       <AdditionalOptions>
       </AdditionalOptions>
    </TestAction>
@@ -53,16 +44,15 @@
       debugDocumentVersioning = "YES"
       debugServiceExtension = "internal"
       allowLocationSimulation = "YES">
-      <BuildableProductRunnable
-         runnableDebuggingMode = "0">
+      <MacroExpansion>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "419BCD3614865C0800D576F1"
-            BuildableName = "SLProject.app"
-            BlueprintName = "SLProject"
-            ReferencedContainer = "container:app-Demo-iOS.xcodeproj">
+            BlueprintIdentifier = "418EB3671959C85400812238"
+            BuildableName = "liblib-SLExternal.a"
+            BlueprintName = "lib-SLExternal"
+            ReferencedContainer = "container:lib-SLExternal.xcodeproj">
          </BuildableReference>
-      </BuildableProductRunnable>
+      </MacroExpansion>
       <AdditionalOptions>
       </AdditionalOptions>
    </LaunchAction>
@@ -72,16 +62,6 @@
       savedToolIdentifier = ""
       useCustomWorkingDirectory = "NO"
       debugDocumentVersioning = "YES">
-      <BuildableProductRunnable
-         runnableDebuggingMode = "0">
-         <BuildableReference
-            BuildableIdentifier = "primary"
-            BlueprintIdentifier = "419BCD3614865C0800D576F1"
-            BuildableName = "SLProject.app"
-            BlueprintName = "SLProject"
-            ReferencedContainer = "container:app-Demo-iOS.xcodeproj">
-         </BuildableReference>
-      </BuildableProductRunnable>
    </ProfileAction>
    <AnalyzeAction
       buildConfiguration = "Debug">

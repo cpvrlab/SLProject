@@ -176,7 +176,7 @@ void SLMesh::draw(SLSceneView* sv, SLNode* node)
     _stateGL->cullFace(!noFaceCulling);
 
     // check if texture exists
-    SLbool useTexture = Tc.size() && !sv->drawBit(SL_DB_TEXOFF) && !node->drawBit(SL_DB_TEXOFF);
+    //SLbool useTexture = Tc.size() && !sv->drawBit(SL_DB_TEXOFF) && !node->drawBit(SL_DB_TEXOFF);
 
     // enable polygon offset if voxels are drawn to avoid stitching
     if (sv->drawBit(SL_DB_VOXELS) || node->drawBit(SL_DB_VOXELS))
@@ -731,7 +731,6 @@ the texture volume surrounds the AABB centrically.
 */
 void SLMesh::calcTex3DMatrix(SLNode* node)
 {
-    SLVec3f min = node->aabb()->minOS();
     SLVec3f max = node->aabb()->maxOS();
     SLVec3f ctr = node->aabb()->centerOS();
     SLVec3f ext = max - ctr;

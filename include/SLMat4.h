@@ -837,10 +837,10 @@ void SLMat4<T>::frustum(const T l, const T r, const T b, const T t,
 /*!
 This method is equivalent to the OpenGL function gluPerspective except that
 instead of the window aspect the window width and height have to be passed.
-\param fov: Vertical field of view angle (zoom angle)
-\param aspect: aspect ratio of of the viewport = width / height
-\param n: Distance from the eye to near clipping plane of the view frustum.
-\param f: Distance from the eye to far clipping plane of the view frustum.  
+\param fov Vertical field of view angle (zoom angle)
+\param aspect aspect ratio of of the viewport = width / height
+\param n Distance from the eye to near clipping plane of the view frustum.
+\param f Distance from the eye to far clipping plane of the view frustum.
 */
 template<class T>
 void SLMat4<T>::perspective(const T fov, const T aspect, 
@@ -875,12 +875,12 @@ void SLMat4<T>::ortho(const T l, const T r, const T b, const T t,
 //---------------------------------------------------------------------------
 //! Defines a viewport matrix as it is defined by glViewport
 /*!
-\param x: left window coord. in px.
-\param y: top window coord. in px.
-\param ww: window width in px.
-\param wh: window height in px.
-\param n: near depth range (default 0)
-\param f: far depth range (default 1)
+\param x left window coord. in px.
+\param y top window coord. in px.
+\param ww window width in px.
+\param wh window height in px.
+\param n near depth range (default 0)
+\param f far depth range (default 1)
 */
 template<class T>
 void SLMat4<T>::viewport(const T x, const T y, const T ww, const T wh, 

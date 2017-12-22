@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Workspace
+   version = "1.0">
+   <FileRef
+      location = "group:lib-SLExternal/lib-SLExternal-macos.xcodeproj">
+   </FileRef>
+   <FileRef
+      location = "group:app-Demo-GLFW/app-Demo-GLFW.xcodeproj">
+   </FileRef>
+   <FileRef
+      location = "group:app-Demo-iOS/app-Demo-iOS.xcodeproj">
+   </FileRef>
+   <FileRef
+      location = "group:lib-SLProject/lib-SLProject.xcodeproj">
+   </FileRef>
+</Workspace>

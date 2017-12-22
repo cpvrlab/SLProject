@@ -198,7 +198,6 @@ void SLCompactGrid::draw (SLSceneView* sv)
             SLint    x, y, z;
             SLuint   curVoxel = 0;
             SLVec3f  v;
-            SLuint   numP = 12 * 2 * _voxelCnt;
             SLVVec3f P;
 
             // Loop through voxels

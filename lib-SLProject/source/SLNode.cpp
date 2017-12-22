@@ -899,9 +899,7 @@ Rotates the node around its local origin relative to the space expressed by 'rel
 */
 void SLNode::rotate(const SLQuat4f& rot, SLTransformSpace relativeTo)
 {
-    SLQuat4f norm = rot.normalized();
     SLMat4f rotation = rot.toMat4();
-
 
     if (relativeTo == TS_object)
     {
