@@ -1871,6 +1871,10 @@ void SLDemoGui::buildInfosTracking(SLScene* s, SLSceneView* sv)
         raulMurTracker->applyTransformation(SLGLImGui::transformationValue, SLCVTrackedRaulMur::SCALE);
     } ImGui::PushItemWidth(2);
 
+    if (ImGui::Button("Save State")) {
+        raulMurTracker->saveState();
+    } ImGui::PushItemWidth(2);
+
     ImGui::End();
 }
 //-----------------------------------------------------------------------------

@@ -119,6 +119,7 @@ public:
     void translate(float value, int type);
     void scale(float value);
     void applyTransformation(double value, TransformType type);
+    void saveState();
 
 protected:
     bool Relocalization();

@@ -37,7 +37,7 @@ public:
     ~SLCVKeyFrame();
 
     //getters
-    int id() { return _id; }
+    int id() const { return _id; }
     vector<SLCVMapPoint*> GetMapPointMatches() { return mvpMapPoints; }
     //const SLCVMat& descriptors() { return _descriptors; }
     cv::Mat GetCameraCenter();

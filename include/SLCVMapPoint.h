@@ -24,13 +24,13 @@ class SLCVFrame;
 class SLCVMapPoint
 {
 public:
-    int id() { return _id; }
+    int id() const { return _id; }
     int Observations() { return _nObs; }
     void id(int id) { _id = id; }
     void worldPos(const SLCVMat& pos) { 
         pos.copyTo(_worldPos); 
     }
-    SLCVMat worldPos() { 
+    SLCVMat worldPos() const { 
         return _worldPos.clone(); 
     }
 
@@ -39,11 +39,12 @@ public:
 
     void refKf(SLCVKeyFrame* refKf) { mpRefKF = refKf; }
     void level(int level) { _level = level; }
-    bool isBad() { return false; } //we have no bad systematic
+    bool isBad() const { return false; } //we have no bad systematic
     cv::Mat GetNormal() { return mNormalVector.clone(); }
+    SLCVKeyFrame* refKf() const { return mpRefKF; }
 
     void AddObservation(SLCVKeyFrame* pKF, size_t idx);
-    std::map<SLCVKeyFrame*, size_t> SLCVMapPoint::GetObservations() { return mObservations; }
+    std::map<SLCVKeyFrame*, size_t> SLCVMapPoint::GetObservations() const { return mObservations; }
 
     int GetIndexInKeyFrame(SLCVKeyFrame* pKF);
 
@@ -69,23 +70,22 @@ public:
     long unsigned int mnLastFrameSeen = 0;
     long unsigned int mnTrackReferenceForFrame = 0;
 
+    // Keyframes observing the point and associated index in keyframe
+    std::map<SLCVKeyFrame*, size_t> mObservations;
+    // Reference KeyFrame
+    SLCVKeyFrame* mpRefKF;
+
 private:
     int _id=-1;
     //open cv coordinate representation: z-axis points to principlal point,
     // x-axis to the right and y-axis down
     SLCVMat _worldPos;
 
-    // Keyframes observing the point and associated index in keyframe
-    std::map<SLCVKeyFrame*, size_t> mObservations;
-
     // Mean viewing direction
     cv::Mat mNormalVector;
 
     // Best descriptor to fast matching
     cv::Mat mDescriptor;
-
-    // Reference KeyFrame
-    SLCVKeyFrame* mpRefKF;
 
     int _nObs=0;
 
