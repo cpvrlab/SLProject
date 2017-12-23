@@ -2486,18 +2486,18 @@
 		419BCD3A14865C0800D576F1 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				41B6576D1FED32DE002819FE /* lib-SLExternal-ios.xcodeproj */,
-				4181782D1FC70F6E00200D02 /* CoreLocation.framework */,
-				41BEFC0B1B78F865009EF31F /* CoreVideo.framework */,
-				41BEFC091B78F85A009EF31F /* CoreMedia.framework */,
 				41BEFC061B78F84F009EF31F /* AVFoundation.framework */,
-				419BCD3B14865C0800D576F1 /* UIKit.framework */,
-				419BCD3D14865C0800D576F1 /* Foundation.framework */,
 				419BCD3F14865C0800D576F1 /* CoreGraphics.framework */,
-				419BCD4114865C0800D576F1 /* GLKit.framework */,
-				419BCD4314865C0800D576F1 /* OpenGLES.framework */,
+				4181782D1FC70F6E00200D02 /* CoreLocation.framework */,
+				41BEFC091B78F85A009EF31F /* CoreMedia.framework */,
 				41A16C3B1B836835001EA07E /* CoreMotion.framework */,
+				41BEFC0B1B78F865009EF31F /* CoreVideo.framework */,
+				419BCD3D14865C0800D576F1 /* Foundation.framework */,
+				419BCD4114865C0800D576F1 /* GLKit.framework */,
+				41B6576D1FED32DE002819FE /* lib-SLExternal-ios.xcodeproj */,
 				41ABC8BE1B875C1E009F6C37 /* opencv2.framework */,
+				419BCD4314865C0800D576F1 /* OpenGLES.framework */,
+				419BCD3B14865C0800D576F1 /* UIKit.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";

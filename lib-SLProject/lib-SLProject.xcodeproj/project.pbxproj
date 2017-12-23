@@ -185,16 +185,6 @@
 		41030CFC1FED49E2005CFF1A /* SLSpheric.h in Headers */ = {isa = PBXBuildFile; fileRef = 41030CBB1FED49E1005CFF1A /* SLSpheric.h */; };
 /* End PBXBuildFile section */
 
-/* Begin PBXContainerItemProxy section */
-		41030D021FED4BE1005CFF1A /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 41030CFE1FED4BE1005CFF1A /* lib-SLExternal-macos.xcodeproj */;
-			proxyType = 2;
-			remoteGlobalIDString = 418EB3681959C85400812238;
-			remoteInfo = "lib-SLExternal";
-		};
-/* End PBXContainerItemProxy section */
-
 /* Begin PBXFileReference section */
 		41030B971FED46FF005CFF1A /* SLGrid.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SLGrid.cpp; path = source/SLGrid.cpp; sourceTree = "<group>"; };
 		41030B981FED46FF005CFF1A /* SLLightRect.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SLLightRect.cpp; path = source/SLLightRect.cpp; sourceTree = "<group>"; };
@@ -372,7 +362,6 @@
 		41030CB91FED49E1005CFF1A /* SLTimer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SLTimer.h; path = ../include/SLTimer.h; sourceTree = "<group>"; };
 		41030CBA1FED49E1005CFF1A /* SLDrawBits.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SLDrawBits.h; path = ../include/SLDrawBits.h; sourceTree = "<group>"; };
 		41030CBB1FED49E1005CFF1A /* SLSpheric.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SLSpheric.h; path = ../include/SLSpheric.h; sourceTree = "<group>"; };
-		41030CFE1FED4BE1005CFF1A /* lib-SLExternal-macos.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = "lib-SLExternal-macos.xcodeproj"; path = "../lib-SLExternal/lib-SLExternal-macos.xcodeproj"; sourceTree = "<group>"; };
 		4168FDE01FED45EA007C56B3 /* liblib-SLProject.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "liblib-SLProject.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
@@ -629,17 +618,8 @@
 		41030CFD1FED4BC7005CFF1A /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				41030CFE1FED4BE1005CFF1A /* lib-SLExternal-macos.xcodeproj */,
 			);
 			name = Frameworks;
-			sourceTree = "<group>";
-		};
-		41030CFF1FED4BE1005CFF1A /* Products */ = {
-			isa = PBXGroup;
-			children = (
-				41030D031FED4BE1005CFF1A /* liblib-SLExternal.a */,
-			);
-			name = Products;
 			sourceTree = "<group>";
 		};
 		4168FDD71FED45EA007C56B3 = {
@@ -824,28 +804,12 @@
 			mainGroup = 4168FDD71FED45EA007C56B3;
 			productRefGroup = 4168FDE11FED45EA007C56B3 /* Products */;
 			projectDirPath = "";
-			projectReferences = (
-				{
-					ProductGroup = 41030CFF1FED4BE1005CFF1A /* Products */;
-					ProjectRef = 41030CFE1FED4BE1005CFF1A /* lib-SLExternal-macos.xcodeproj */;
-				},
-			);
 			projectRoot = "";
 			targets = (
 				4168FDDF1FED45EA007C56B3 /* lib-SLProject */,
 			);
 		};
 /* End PBXProject section */
-
-/* Begin PBXReferenceProxy section */
-		41030D031FED4BE1005CFF1A /* liblib-SLExternal.a */ = {
-			isa = PBXReferenceProxy;
-			fileType = archive.ar;
-			path = "liblib-SLExternal.a";
-			remoteRef = 41030D021FED4BE1005CFF1A /* PBXContainerItemProxy */;
-			sourceTree = BUILT_PRODUCTS_DIR;
-		};
-/* End PBXReferenceProxy section */
 
 /* Begin PBXSourcesBuildPhase section */
 		4168FDDC1FED45EA007C56B3 /* Sources */ = {
@@ -1039,13 +1003,17 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
+				CONFIGURATION_TEMP_DIR = "../intermediate/lib-SLProject/$(CONFIGURATION)/macxcode/";
 				EXECUTABLE_PREFIX = lib;
 				HEADER_SEARCH_PATHS = (
 					"../include/**",
 					"../lib-SLExternal/**",
 					"source/**",
 				);
+				INSTALL_PATH = "../_lib/$(CONFIGURATION)/macxcode";
+				OBJROOT = "../intermediate/lib-SLProject/$(CONFIGURATION)/macxcode/";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SYMROOT = "../_lib/$(CONFIGURATION)/macxcode";
 			};
 			name = Debug;
 		};
@@ -1053,13 +1021,17 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
+				CONFIGURATION_TEMP_DIR = "../intermediate/lib-SLProject/$(CONFIGURATION)/macxcode/";
 				EXECUTABLE_PREFIX = lib;
 				HEADER_SEARCH_PATHS = (
 					"../include/**",
 					"../lib-SLExternal/**",
 					"source/**",
 				);
+				INSTALL_PATH = "../_lib/$(CONFIGURATION)/macxcode";
+				OBJROOT = "../intermediate/lib-SLProject/$(CONFIGURATION)/macxcode/";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SYMROOT = "../_lib/$(CONFIGURATION)/macxcode";
 			};
 			name = Release;
 		};

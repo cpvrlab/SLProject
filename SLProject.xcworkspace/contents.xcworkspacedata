@@ -2,7 +2,7 @@
 <Workspace
    version = "1.0">
    <FileRef
-      location = "group:lib-SLExternal/lib-SLExternal-macos.xcodeproj">
+      location = "group:lib-SLExternal/lib-SLExternal-macx.xcodeproj">
    </FileRef>
    <FileRef
       location = "group:app-Demo-GLFW/app-Demo-GLFW.xcodeproj">

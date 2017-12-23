@@ -9,15 +9,17 @@
 /* Begin PBXBuildFile section */
 		41030D081FED58EC005CFF1A /* glfwMain.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 41030D071FED58EC005CFF1A /* glfwMain.cpp */; };
 		41030D111FED595B005CFF1A /* OpenGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 41030D101FED595B005CFF1A /* OpenGL.framework */; };
+		41C559FE1FEEE38100CB951B /* liblib-SLExternal-macx.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 41C559FF1FEEE38100CB951B /* liblib-SLExternal-macx.a */; };
+		41C55A011FEEE38100CB951B /* liblib-SLProject.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 41261FEE1FEE7DC5008632F6 /* liblib-SLProject.a */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
-		41030D0E1FED594B005CFF1A /* PBXContainerItemProxy */ = {
+		41261FED1FEE7DC5008632F6 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
-			containerPortal = 41030D0A1FED594B005CFF1A /* lib-SLExternal-macos.xcodeproj */;
+			containerPortal = 41261FE81FEE7DC5008632F6 /* lib-SLProject.xcodeproj */;
 			proxyType = 2;
-			remoteGlobalIDString = 418EB3681959C85400812238;
-			remoteInfo = "lib-SLExternal";
+			remoteGlobalIDString = 4168FDE01FED45EA007C56B3;
+			remoteInfo = "lib-SLProject";
 		};
 /* End PBXContainerItemProxy section */
 
@@ -35,9 +37,10 @@
 
 /* Begin PBXFileReference section */
 		41030D071FED58EC005CFF1A /* glfwMain.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = glfwMain.cpp; path = source/glfwMain.cpp; sourceTree = "<group>"; };
-		41030D0A1FED594B005CFF1A /* lib-SLExternal-macos.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = "lib-SLExternal-macos.xcodeproj"; path = "../lib-SLExternal/lib-SLExternal-macos.xcodeproj"; sourceTree = "<group>"; };
 		41030D101FED595B005CFF1A /* OpenGL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGL.framework; path = System/Library/Frameworks/OpenGL.framework; sourceTree = SDKROOT; };
+		41261FE81FEE7DC5008632F6 /* lib-SLProject.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = "lib-SLProject.xcodeproj"; path = "../lib-SLProject/lib-SLProject.xcodeproj"; sourceTree = "<group>"; };
 		41A062931FED08E3000AC2C1 /* app-Demo-GLFW */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = "app-Demo-GLFW"; sourceTree = BUILT_PRODUCTS_DIR; };
+		41C559FF1FEEE38100CB951B /* liblib-SLExternal-macx.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; path = "liblib-SLExternal-macx.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -45,6 +48,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				41C559FE1FEEE38100CB951B /* liblib-SLExternal-macx.a in Frameworks */,
+				41C55A011FEEE38100CB951B /* liblib-SLProject.a in Frameworks */,
 				41030D111FED595B005CFF1A /* OpenGL.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -55,16 +60,17 @@
 		41030D091FED5923005CFF1A /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				41C559FF1FEEE38100CB951B /* liblib-SLExternal-macx.a */,
 				41030D101FED595B005CFF1A /* OpenGL.framework */,
-				41030D0A1FED594B005CFF1A /* lib-SLExternal-macos.xcodeproj */,
+				41261FE81FEE7DC5008632F6 /* lib-SLProject.xcodeproj */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
 		};
-		41030D0B1FED594B005CFF1A /* Products */ = {
+		41261FE91FEE7DC5008632F6 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				41030D0F1FED594B005CFF1A /* liblib-SLExternal.a */,
+				41261FEE1FEE7DC5008632F6 /* liblib-SLProject.a */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -133,8 +139,8 @@
 			projectDirPath = "";
 			projectReferences = (
 				{
-					ProductGroup = 41030D0B1FED594B005CFF1A /* Products */;
-					ProjectRef = 41030D0A1FED594B005CFF1A /* lib-SLExternal-macos.xcodeproj */;
+					ProductGroup = 41261FE91FEE7DC5008632F6 /* Products */;
+					ProjectRef = 41261FE81FEE7DC5008632F6 /* lib-SLProject.xcodeproj */;
 				},
 			);
 			projectRoot = "";
@@ -145,11 +151,11 @@
 /* End PBXProject section */
 
 /* Begin PBXReferenceProxy section */
-		41030D0F1FED594B005CFF1A /* liblib-SLExternal.a */ = {
+		41261FEE1FEE7DC5008632F6 /* liblib-SLProject.a */ = {
 			isa = PBXReferenceProxy;
 			fileType = archive.ar;
-			path = "liblib-SLExternal.a";
-			remoteRef = 41030D0E1FED594B005CFF1A /* PBXContainerItemProxy */;
+			path = "liblib-SLProject.a";
+			remoteRef = 41261FED1FEE7DC5008632F6 /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
 /* End PBXReferenceProxy section */
@@ -275,6 +281,11 @@
 				CODE_SIGN_STYLE = Automatic;
 				CONFIGURATION_BUILD_DIR = "../_bin-$(CONFIGURATION)-macos";
 				CONFIGURATION_TEMP_DIR = "../intermediate/app-Demo-GLFW/macxcode/$(CONFIGURATION)";
+				GCC_PREPROCESSOR_DEFINITIONS = "SL_STARTSCENE=C_sceneMinimal";
+				HEADER_SEARCH_PATHS = (
+					"../include/**",
+					"../lib-SLExternal/**",
+				);
 				INSTALL_PATH = "../_bin-Debug-macos";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SYMROOT = "../_bin-$(CONFIGURATION)-macxcode";
@@ -287,6 +298,11 @@
 				CODE_SIGN_STYLE = Automatic;
 				CONFIGURATION_BUILD_DIR = "../_bin-$(CONFIGURATION)-macos";
 				CONFIGURATION_TEMP_DIR = "../intermediate/app-Demo-GLFW/macxcode/$(CONFIGURATION)";
+				GCC_PREPROCESSOR_DEFINITIONS = "SL_STARTSCENE=C_sceneMinimal";
+				HEADER_SEARCH_PATHS = (
+					"../include/**",
+					"../lib-SLExternal/**",
+				);
 				INSTALL_PATH = "../_bin-Release-macos";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SYMROOT = "../_bin-$(CONFIGURATION)-macxcode";

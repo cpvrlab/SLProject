@@ -979,9 +979,9 @@
 		41FE0B0B1959CA7000486424 /* assimp */ = {
 			isa = PBXGroup;
 			children = (
-				413B2C35195A9D260071AC6A /* include */,
 				41FE0B0E1959CB3E00486424 /* code */,
 				41FE0C621959CB3F00486424 /* contrib */,
+				413B2C35195A9D260071AC6A /* include */,
 				41FE0DA91959CB3F00486424 /* include */,
 			);
 			name = assimp;
@@ -1804,7 +1804,7 @@
 				LastUpgradeCheck = 0910;
 				ORGANIZATIONNAME = "Marcus Hudritsch";
 			};
-			buildConfigurationList = 418EB3631959C85400812238 /* Build configuration list for PBXProject "lib-SLExternal" */;
+			buildConfigurationList = 418EB3631959C85400812238 /* Build configuration list for PBXProject "lib-SLExternal-ios" */;
 			compatibilityVersion = "Xcode 3.2";
 			developmentRegion = English;
 			hasScannedForEncodings = 0;
@@ -2121,7 +2121,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		418EB3631959C85400812238 /* Build configuration list for PBXProject "lib-SLExternal" */ = {
+		418EB3631959C85400812238 /* Build configuration list for PBXProject "lib-SLExternal-ios" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				418EB36A1959C85400812238 /* Debug */,

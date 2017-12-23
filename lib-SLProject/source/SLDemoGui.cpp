@@ -414,7 +414,7 @@ void SLDemoGui::buildDemoGui(SLScene* s, SLSceneView* sv)
         ImGui::SetNextWindowPos(ImVec2(0,sv->scrH()-h));
         ImGui::SetNextWindowSize(ImVec2(w,h));
         ImGui::Begin("Scene Information", &showInfosScene, window_flags);
-        ImGui::TextWrapped(info.c_str());
+        ImGui::TextWrapped("%s", info.c_str());
         ImGui::End();
     }
 
