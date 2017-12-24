@@ -1268,7 +1268,7 @@ void SLDemoGui::addSceneGraphNode(SLScene* s, SLNode* node)
             if (s->selectedMesh()==mesh)
                 meshFlags |= ImGuiTreeNodeFlags_Selected;
           //ImGui::TreeNodeEx(mesh->name().c_str(), meshFlags);
-            ImGui::TreeNodeEx(mesh, meshFlags, mesh->name().c_str());
+            ImGui::TreeNodeEx(mesh, meshFlags, "%s", mesh->name().c_str());
 
             if (ImGui::IsItemClicked())
                 s->selectNodeMesh(node, mesh);

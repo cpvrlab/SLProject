@@ -1003,17 +1003,20 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
-				CONFIGURATION_TEMP_DIR = "../intermediate/lib-SLProject/$(CONFIGURATION)/macxcode/";
+				CONFIGURATION_BUILD_DIR = "$(BUILD_DIR)";
+				CONFIGURATION_TEMP_DIR = "$(PROJECT_TEMP_DIR)/$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)";
 				EXECUTABLE_PREFIX = lib;
 				HEADER_SEARCH_PATHS = (
 					"../include/**",
 					"../lib-SLExternal/**",
 					"source/**",
 				);
-				INSTALL_PATH = "../_lib/$(CONFIGURATION)/macxcode";
-				OBJROOT = "../intermediate/lib-SLProject/$(CONFIGURATION)/macxcode/";
+				INSTALL_PATH = /usr/local/lib;
+				LIBRARY_SEARCH_PATHS = "";
+				OBJROOT = "$(BUILD_DIR)/$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SYMROOT = "../_lib/$(CONFIGURATION)/macxcode";
+				SKIP_INSTALL = NO;
+				SYMROOT = build;
 			};
 			name = Debug;
 		};
@@ -1021,17 +1024,20 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
-				CONFIGURATION_TEMP_DIR = "../intermediate/lib-SLProject/$(CONFIGURATION)/macxcode/";
+				CONFIGURATION_BUILD_DIR = "$(BUILD_DIR)";
+				CONFIGURATION_TEMP_DIR = "$(PROJECT_TEMP_DIR)/$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)";
 				EXECUTABLE_PREFIX = lib;
 				HEADER_SEARCH_PATHS = (
 					"../include/**",
 					"../lib-SLExternal/**",
 					"source/**",
 				);
-				INSTALL_PATH = "../_lib/$(CONFIGURATION)/macxcode";
-				OBJROOT = "../intermediate/lib-SLProject/$(CONFIGURATION)/macxcode/";
+				INSTALL_PATH = /usr/local/lib;
+				LIBRARY_SEARCH_PATHS = "";
+				OBJROOT = "$(BUILD_DIR)/$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SYMROOT = "../_lib/$(CONFIGURATION)/macxcode";
+				SKIP_INSTALL = NO;
+				SYMROOT = build;
 			};
 			name = Release;
 		};

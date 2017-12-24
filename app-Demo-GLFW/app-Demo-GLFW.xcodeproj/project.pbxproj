@@ -9,19 +9,9 @@
 /* Begin PBXBuildFile section */
 		41030D081FED58EC005CFF1A /* glfwMain.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 41030D071FED58EC005CFF1A /* glfwMain.cpp */; };
 		41030D111FED595B005CFF1A /* OpenGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 41030D101FED595B005CFF1A /* OpenGL.framework */; };
-		41C559FE1FEEE38100CB951B /* liblib-SLExternal-macx.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 41C559FF1FEEE38100CB951B /* liblib-SLExternal-macx.a */; };
-		41C55A011FEEE38100CB951B /* liblib-SLProject.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 41261FEE1FEE7DC5008632F6 /* liblib-SLProject.a */; };
+		41466E961FEF9E9700D51790 /* liblib-SLExternal-macx.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 41466E941FEF9E9700D51790 /* liblib-SLExternal-macx.a */; };
+		41466E971FEF9E9700D51790 /* liblib-SLProject.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 41466E951FEF9E9700D51790 /* liblib-SLProject.a */; };
 /* End PBXBuildFile section */
-
-/* Begin PBXContainerItemProxy section */
-		41261FED1FEE7DC5008632F6 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 41261FE81FEE7DC5008632F6 /* lib-SLProject.xcodeproj */;
-			proxyType = 2;
-			remoteGlobalIDString = 4168FDE01FED45EA007C56B3;
-			remoteInfo = "lib-SLProject";
-		};
-/* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
 		41A062911FED08E3000AC2C1 /* CopyFiles */ = {
@@ -38,9 +28,9 @@
 /* Begin PBXFileReference section */
 		41030D071FED58EC005CFF1A /* glfwMain.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = glfwMain.cpp; path = source/glfwMain.cpp; sourceTree = "<group>"; };
 		41030D101FED595B005CFF1A /* OpenGL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGL.framework; path = System/Library/Frameworks/OpenGL.framework; sourceTree = SDKROOT; };
-		41261FE81FEE7DC5008632F6 /* lib-SLProject.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = "lib-SLProject.xcodeproj"; path = "../lib-SLProject/lib-SLProject.xcodeproj"; sourceTree = "<group>"; };
+		41466E941FEF9E9700D51790 /* liblib-SLExternal-macx.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = "liblib-SLExternal-macx.a"; path = "../../../../Library/Developer/Xcode/DerivedData/SLProject-bjnzatotkttcaydbgjvusuifjssl/Build/Products/liblib-SLExternal-macx.a"; sourceTree = "<group>"; };
+		41466E951FEF9E9700D51790 /* liblib-SLProject.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = "liblib-SLProject.a"; path = "../../../../Library/Developer/Xcode/DerivedData/SLProject-bjnzatotkttcaydbgjvusuifjssl/Build/Products/liblib-SLProject.a"; sourceTree = "<group>"; };
 		41A062931FED08E3000AC2C1 /* app-Demo-GLFW */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = "app-Demo-GLFW"; sourceTree = BUILT_PRODUCTS_DIR; };
-		41C559FF1FEEE38100CB951B /* liblib-SLExternal-macx.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; path = "liblib-SLExternal-macx.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -48,8 +38,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				41C559FE1FEEE38100CB951B /* liblib-SLExternal-macx.a in Frameworks */,
-				41C55A011FEEE38100CB951B /* liblib-SLProject.a in Frameworks */,
+				41466E961FEF9E9700D51790 /* liblib-SLExternal-macx.a in Frameworks */,
+				41466E971FEF9E9700D51790 /* liblib-SLProject.a in Frameworks */,
 				41030D111FED595B005CFF1A /* OpenGL.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -60,19 +50,11 @@
 		41030D091FED5923005CFF1A /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				41C559FF1FEEE38100CB951B /* liblib-SLExternal-macx.a */,
+				41466E941FEF9E9700D51790 /* liblib-SLExternal-macx.a */,
+				41466E951FEF9E9700D51790 /* liblib-SLProject.a */,
 				41030D101FED595B005CFF1A /* OpenGL.framework */,
-				41261FE81FEE7DC5008632F6 /* lib-SLProject.xcodeproj */,
 			);
 			name = Frameworks;
-			sourceTree = "<group>";
-		};
-		41261FE91FEE7DC5008632F6 /* Products */ = {
-			isa = PBXGroup;
-			children = (
-				41261FEE1FEE7DC5008632F6 /* liblib-SLProject.a */,
-			);
-			name = Products;
 			sourceTree = "<group>";
 		};
 		41A0628A1FED08E3000AC2C1 = {
@@ -137,28 +119,12 @@
 			mainGroup = 41A0628A1FED08E3000AC2C1;
 			productRefGroup = 41A062941FED08E3000AC2C1 /* Products */;
 			projectDirPath = "";
-			projectReferences = (
-				{
-					ProductGroup = 41261FE91FEE7DC5008632F6 /* Products */;
-					ProjectRef = 41261FE81FEE7DC5008632F6 /* lib-SLProject.xcodeproj */;
-				},
-			);
 			projectRoot = "";
 			targets = (
 				41A062921FED08E3000AC2C1 /* app-Demo-GLFW */,
 			);
 		};
 /* End PBXProject section */
-
-/* Begin PBXReferenceProxy section */
-		41261FEE1FEE7DC5008632F6 /* liblib-SLProject.a */ = {
-			isa = PBXReferenceProxy;
-			fileType = archive.ar;
-			path = "liblib-SLProject.a";
-			remoteRef = 41261FED1FEE7DC5008632F6 /* PBXContainerItemProxy */;
-			sourceTree = BUILT_PRODUCTS_DIR;
-		};
-/* End PBXReferenceProxy section */
 
 /* Begin PBXSourcesBuildPhase section */
 		41A0628F1FED08E3000AC2C1 /* Sources */ = {
