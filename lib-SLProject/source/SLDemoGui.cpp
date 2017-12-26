@@ -1541,9 +1541,9 @@ void SLDemoGui::buildProperties(SLScene* s)
 
                 if (m->textures().size() && ImGui::TreeNode("Textures"))
                 {
-                    ImGui::Text("No. of textures: %u", m->textures().size());
+                    ImGui::Text("No. of textures: %lu", m->textures().size());
 
-                    SLfloat lineH = ImGui::GetTextLineHeightWithSpacing();
+                    //SLfloat lineH = ImGui::GetTextLineHeightWithSpacing();
                     SLfloat texW  = ImGui::GetWindowWidth() - 4*ImGui::GetTreeNodeToLabelSpacing() - 10;
 
 

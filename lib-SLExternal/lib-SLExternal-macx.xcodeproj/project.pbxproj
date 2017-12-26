@@ -21,6 +21,16 @@
 		412079A81FEEB32400C81B0E /* glfw3.h in Headers */ = {isa = PBXBuildFile; fileRef = 412079A61FEEB32400C81B0E /* glfw3.h */; };
 		412079A91FEEB32400C81B0E /* glfw3native.h in Headers */ = {isa = PBXBuildFile; fileRef = 412079A71FEEB32400C81B0E /* glfw3native.h */; };
 		412079AC1FEEB33A00C81B0E /* internal.h in Headers */ = {isa = PBXBuildFile; fileRef = 412079AA1FEEB33A00C81B0E /* internal.h */; };
+		41C841EF1FF26E2B00E1A99F /* stb_truetype.h in Headers */ = {isa = PBXBuildFile; fileRef = 41C841E71FF26E2A00E1A99F /* stb_truetype.h */; };
+		41C841F01FF26E2B00E1A99F /* stb_textedit.h in Headers */ = {isa = PBXBuildFile; fileRef = 41C841E81FF26E2A00E1A99F /* stb_textedit.h */; };
+		41C841F11FF26E2B00E1A99F /* stb_rect_pack.h in Headers */ = {isa = PBXBuildFile; fileRef = 41C841E91FF26E2A00E1A99F /* stb_rect_pack.h */; };
+		41C841F21FF26E2B00E1A99F /* imconfig.h in Headers */ = {isa = PBXBuildFile; fileRef = 41C841EA1FF26E2A00E1A99F /* imconfig.h */; };
+		41C841F31FF26E2B00E1A99F /* imgui_internal.h in Headers */ = {isa = PBXBuildFile; fileRef = 41C841EB1FF26E2A00E1A99F /* imgui_internal.h */; };
+		41C841F41FF26E2B00E1A99F /* imgui_draw.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 41C841EC1FF26E2A00E1A99F /* imgui_draw.cpp */; };
+		41C841F51FF26E2B00E1A99F /* imgui.h in Headers */ = {isa = PBXBuildFile; fileRef = 41C841ED1FF26E2A00E1A99F /* imgui.h */; };
+		41C841F61FF26E2B00E1A99F /* imgui.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 41C841EE1FF26E2A00E1A99F /* imgui.cpp */; };
+		41C841FA1FF270AF00E1A99F /* spa.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 41C841F81FF270AF00E1A99F /* spa.cpp */; };
+		41C841FB1FF270AF00E1A99F /* spa.h in Headers */ = {isa = PBXBuildFile; fileRef = 41C841F91FF270AF00E1A99F /* spa.h */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -39,6 +49,16 @@
 		412079A71FEEB32400C81B0E /* glfw3native.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = glfw3native.h; path = glfw3/include/GLFW/glfw3native.h; sourceTree = "<group>"; };
 		412079AA1FEEB33A00C81B0E /* internal.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = internal.h; path = glfw3/src/internal.h; sourceTree = "<group>"; };
 		4126203F1FEE92C8008632F6 /* liblib-SLExternal-macx.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "liblib-SLExternal-macx.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		41C841E71FF26E2A00E1A99F /* stb_truetype.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = stb_truetype.h; path = imgui/stb_truetype.h; sourceTree = "<group>"; };
+		41C841E81FF26E2A00E1A99F /* stb_textedit.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = stb_textedit.h; path = imgui/stb_textedit.h; sourceTree = "<group>"; };
+		41C841E91FF26E2A00E1A99F /* stb_rect_pack.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = stb_rect_pack.h; path = imgui/stb_rect_pack.h; sourceTree = "<group>"; };
+		41C841EA1FF26E2A00E1A99F /* imconfig.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = imconfig.h; path = imgui/imconfig.h; sourceTree = "<group>"; };
+		41C841EB1FF26E2A00E1A99F /* imgui_internal.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = imgui_internal.h; path = imgui/imgui_internal.h; sourceTree = "<group>"; };
+		41C841EC1FF26E2A00E1A99F /* imgui_draw.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = imgui_draw.cpp; path = imgui/imgui_draw.cpp; sourceTree = "<group>"; };
+		41C841ED1FF26E2A00E1A99F /* imgui.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = imgui.h; path = imgui/imgui.h; sourceTree = "<group>"; };
+		41C841EE1FF26E2A00E1A99F /* imgui.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = imgui.cpp; path = imgui/imgui.cpp; sourceTree = "<group>"; };
+		41C841F81FF270AF00E1A99F /* spa.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = spa.cpp; path = spa/spa.cpp; sourceTree = "<group>"; };
+		41C841F91FF270AF00E1A99F /* spa.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = spa.h; path = spa/spa.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -97,6 +117,8 @@
 				4120798D1FEEB0F100C81B0E /* Frameworks */,
 				412079A11FEEB2B700C81B0E /* GLEW */,
 				4120794C1FEEAFBE00C81B0E /* GLFW */,
+				41C841E61FF26DBE00E1A99F /* imgui */,
+				41C841F71FF2708B00E1A99F /* spa */,
 				412620401FEE92C8008632F6 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -109,6 +131,30 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
+		41C841E61FF26DBE00E1A99F /* imgui */ = {
+			isa = PBXGroup;
+			children = (
+				41C841EA1FF26E2A00E1A99F /* imconfig.h */,
+				41C841EC1FF26E2A00E1A99F /* imgui_draw.cpp */,
+				41C841EB1FF26E2A00E1A99F /* imgui_internal.h */,
+				41C841EE1FF26E2A00E1A99F /* imgui.cpp */,
+				41C841ED1FF26E2A00E1A99F /* imgui.h */,
+				41C841E91FF26E2A00E1A99F /* stb_rect_pack.h */,
+				41C841E81FF26E2A00E1A99F /* stb_textedit.h */,
+				41C841E71FF26E2A00E1A99F /* stb_truetype.h */,
+			);
+			name = imgui;
+			sourceTree = "<group>";
+		};
+		41C841F71FF2708B00E1A99F /* spa */ = {
+			isa = PBXGroup;
+			children = (
+				41C841F81FF270AF00E1A99F /* spa.cpp */,
+				41C841F91FF270AF00E1A99F /* spa.h */,
+			);
+			name = spa;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXHeadersBuildPhase section */
@@ -116,10 +162,17 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				41C841FB1FF270AF00E1A99F /* spa.h in Headers */,
+				41C841EF1FF26E2B00E1A99F /* stb_truetype.h in Headers */,
 				412079A81FEEB32400C81B0E /* glfw3.h in Headers */,
+				41C841F51FF26E2B00E1A99F /* imgui.h in Headers */,
 				412079AC1FEEB33A00C81B0E /* internal.h in Headers */,
+				41C841F01FF26E2B00E1A99F /* stb_textedit.h in Headers */,
+				41C841F21FF26E2B00E1A99F /* imconfig.h in Headers */,
+				41C841F31FF26E2B00E1A99F /* imgui_internal.h in Headers */,
 				412079A91FEEB32400C81B0E /* glfw3native.h in Headers */,
 				412079A41FEEB2E500C81B0E /* glew.h in Headers */,
+				41C841F11FF26E2B00E1A99F /* stb_rect_pack.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -180,10 +233,13 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				41C841FA1FF270AF00E1A99F /* spa.cpp in Sources */,
 				412079A01FEEB27C00C81B0E /* init.c in Sources */,
+				41C841F41FF26E2B00E1A99F /* imgui_draw.cpp in Sources */,
 				4120799E1FEEB27C00C81B0E /* context.c in Sources */,
 				412079A51FEEB2E500C81B0E /* glew.c in Sources */,
 				4120799F1FEEB27C00C81B0E /* window.c in Sources */,
+				41C841F61FF26E2B00E1A99F /* imgui.cpp in Sources */,
 				4120799D1FEEB27C00C81B0E /* monitor.c in Sources */,
 				4120799C1FEEB27C00C81B0E /* input.c in Sources */,
 			);
@@ -299,9 +355,22 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CLANG_ENABLE_MODULES = NO;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = NO;
+				CLANG_WARN_BOOL_CONVERSION = NO;
+				CLANG_WARN_COMMA = NO;
+				CLANG_WARN_CONSTANT_CONVERSION = NO;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = NO;
+				CLANG_WARN_EMPTY_BODY = NO;
+				CLANG_WARN_ENUM_CONVERSION = NO;
+				CLANG_WARN_INFINITE_RECURSION = NO;
+				CLANG_WARN_INT_CONVERSION = NO;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = NO;
+				CLANG_WARN_STRICT_PROTOTYPES = NO;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = NO;
+				CLANG_WARN_UNREACHABLE_CODE = NO;
 				CODE_SIGN_STYLE = Automatic;
 				CONFIGURATION_BUILD_DIR = "$(BUILD_DIR)";
-				CONFIGURATION_TEMP_DIR = "$(PROJECT_TEMP_DIR)/$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)";
+				CONFIGURATION_TEMP_DIR = "$(PROJECT_DIR)/../intermediate/$(PROJECT_NAME)/$(CONFIGURATION)";
 				EXECUTABLE_PREFIX = lib;
 				GCC_ENABLE_CPP_EXCEPTIONS = YES;
 				GCC_ENABLE_CPP_RTTI = YES;
@@ -311,13 +380,25 @@
 					_GLFW_COCOA,
 					GLEW_STATIC,
 				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = NO;
+				GCC_WARN_ABOUT_DEPRECATED_FUNCTIONS = NO;
+				GCC_WARN_ABOUT_POINTER_SIGNEDNESS = NO;
+				GCC_WARN_ABOUT_RETURN_TYPE = NO;
+				GCC_WARN_CHECK_SWITCH_STATEMENTS = NO;
+				GCC_WARN_MISSING_PARENTHESES = NO;
+				GCC_WARN_TYPECHECK_CALLS_TO_PRINTF = NO;
+				GCC_WARN_UNINITIALIZED_AUTOS = NO;
+				GCC_WARN_UNUSED_FUNCTION = NO;
+				GCC_WARN_UNUSED_VALUE = NO;
+				GCC_WARN_UNUSED_VARIABLE = NO;
 				HEADER_SEARCH_PATHS = (
 					"../include/**",
 					"../lib-SLExternal/**",
 				);
-				OBJROOT = "$(BUILD_DIR)/$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)";
+				OBJROOT = "$(PROJECT_DIR)/../intermediate/$(PROJECT_NAME)/$(CONFIGURATION)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SYMROOT = build;
+				SHARED_PRECOMPS_DIR = "$(PROJECT_DIR)/../intermediate/$(PROJECT_NAME)/$(CONFIGURATION)";
+				SYMROOT = "$(PROJECT_DIR)/../_bin-$(CONFIGURATION)-macxcode";
 			};
 			name = Debug;
 		};
@@ -325,9 +406,22 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CLANG_ENABLE_MODULES = NO;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = NO;
+				CLANG_WARN_BOOL_CONVERSION = NO;
+				CLANG_WARN_COMMA = NO;
+				CLANG_WARN_CONSTANT_CONVERSION = NO;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = NO;
+				CLANG_WARN_EMPTY_BODY = NO;
+				CLANG_WARN_ENUM_CONVERSION = NO;
+				CLANG_WARN_INFINITE_RECURSION = NO;
+				CLANG_WARN_INT_CONVERSION = NO;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = NO;
+				CLANG_WARN_STRICT_PROTOTYPES = NO;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = NO;
+				CLANG_WARN_UNREACHABLE_CODE = NO;
 				CODE_SIGN_STYLE = Automatic;
 				CONFIGURATION_BUILD_DIR = "$(BUILD_DIR)";
-				CONFIGURATION_TEMP_DIR = "$(PROJECT_TEMP_DIR)/$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)";
+				CONFIGURATION_TEMP_DIR = "$(PROJECT_DIR)/../intermediate/$(PROJECT_NAME)/$(CONFIGURATION)";
 				EXECUTABLE_PREFIX = lib;
 				GCC_ENABLE_CPP_EXCEPTIONS = YES;
 				GCC_ENABLE_CPP_RTTI = YES;
@@ -337,13 +431,25 @@
 					_GLFW_COCOA,
 					GLEW_STATIC,
 				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = NO;
+				GCC_WARN_ABOUT_DEPRECATED_FUNCTIONS = NO;
+				GCC_WARN_ABOUT_POINTER_SIGNEDNESS = NO;
+				GCC_WARN_ABOUT_RETURN_TYPE = NO;
+				GCC_WARN_CHECK_SWITCH_STATEMENTS = NO;
+				GCC_WARN_MISSING_PARENTHESES = NO;
+				GCC_WARN_TYPECHECK_CALLS_TO_PRINTF = NO;
+				GCC_WARN_UNINITIALIZED_AUTOS = NO;
+				GCC_WARN_UNUSED_FUNCTION = NO;
+				GCC_WARN_UNUSED_VALUE = NO;
+				GCC_WARN_UNUSED_VARIABLE = NO;
 				HEADER_SEARCH_PATHS = (
 					"../include/**",
 					"../lib-SLExternal/**",
 				);
-				OBJROOT = "$(BUILD_DIR)/$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)";
+				OBJROOT = "$(PROJECT_DIR)/../intermediate/$(PROJECT_NAME)/$(CONFIGURATION)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SYMROOT = build;
+				SHARED_PRECOMPS_DIR = "$(PROJECT_DIR)/../intermediate/$(PROJECT_NAME)/$(CONFIGURATION)";
+				SYMROOT = "$(PROJECT_DIR)/../_bin-$(CONFIGURATION)-macxcode";
 			};
 			name = Release;
 		};

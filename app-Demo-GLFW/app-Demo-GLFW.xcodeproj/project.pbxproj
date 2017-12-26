@@ -9,8 +9,21 @@
 /* Begin PBXBuildFile section */
 		41030D081FED58EC005CFF1A /* glfwMain.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 41030D071FED58EC005CFF1A /* glfwMain.cpp */; };
 		41030D111FED595B005CFF1A /* OpenGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 41030D101FED595B005CFF1A /* OpenGL.framework */; };
-		41466E961FEF9E9700D51790 /* liblib-SLExternal-macx.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 41466E941FEF9E9700D51790 /* liblib-SLExternal-macx.a */; };
-		41466E971FEF9E9700D51790 /* liblib-SLProject.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 41466E951FEF9E9700D51790 /* liblib-SLProject.a */; };
+		41C841CC1FF26BB000E1A99F /* liblib-SLExternal-macx.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 41C841CA1FF26BB000E1A99F /* liblib-SLExternal-macx.a */; };
+		41C841CD1FF26BB000E1A99F /* liblib-SLProject.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 41C841CB1FF26BB000E1A99F /* liblib-SLProject.a */; };
+		41C841DA1FF26D0200E1A99F /* libopencv_imgcodecs.3.2.0.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 41C841CE1FF26D0100E1A99F /* libopencv_imgcodecs.3.2.0.dylib */; };
+		41C841DB1FF26D0200E1A99F /* libopencv_aruco.3.2.0.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 41C841CF1FF26D0100E1A99F /* libopencv_aruco.3.2.0.dylib */; };
+		41C841DC1FF26D0200E1A99F /* libopencv_xfeatures2d.3.2.0.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 41C841D01FF26D0100E1A99F /* libopencv_xfeatures2d.3.2.0.dylib */; };
+		41C841DD1FF26D0200E1A99F /* libopencv_highgui.3.2.0.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 41C841D11FF26D0200E1A99F /* libopencv_highgui.3.2.0.dylib */; };
+		41C841DE1FF26D0200E1A99F /* libopencv_video.3.2.0.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 41C841D21FF26D0200E1A99F /* libopencv_video.3.2.0.dylib */; };
+		41C841DF1FF26D0200E1A99F /* libopencv_features2d.3.2.0.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 41C841D31FF26D0200E1A99F /* libopencv_features2d.3.2.0.dylib */; };
+		41C841E01FF26D0200E1A99F /* libopencv_ccalib.3.2.0.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 41C841D41FF26D0200E1A99F /* libopencv_ccalib.3.2.0.dylib */; };
+		41C841E11FF26D0200E1A99F /* libopencv_objdetect.3.2.0.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 41C841D51FF26D0200E1A99F /* libopencv_objdetect.3.2.0.dylib */; };
+		41C841E21FF26D0200E1A99F /* libopencv_videoio.3.2.0.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 41C841D61FF26D0200E1A99F /* libopencv_videoio.3.2.0.dylib */; };
+		41C841E31FF26D0200E1A99F /* libopencv_imgproc.3.2.0.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 41C841D71FF26D0200E1A99F /* libopencv_imgproc.3.2.0.dylib */; };
+		41C841E41FF26D0200E1A99F /* libopencv_core.3.2.0.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 41C841D81FF26D0200E1A99F /* libopencv_core.3.2.0.dylib */; };
+		41C841E51FF26D0200E1A99F /* libopencv_flann.3.2.0.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 41C841D91FF26D0200E1A99F /* libopencv_flann.3.2.0.dylib */; };
+		41C841FD1FF2711B00E1A99F /* libopencv_calib3d.3.2.0.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 41C841FC1FF2711B00E1A99F /* libopencv_calib3d.3.2.0.dylib */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -28,9 +41,22 @@
 /* Begin PBXFileReference section */
 		41030D071FED58EC005CFF1A /* glfwMain.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = glfwMain.cpp; path = source/glfwMain.cpp; sourceTree = "<group>"; };
 		41030D101FED595B005CFF1A /* OpenGL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGL.framework; path = System/Library/Frameworks/OpenGL.framework; sourceTree = SDKROOT; };
-		41466E941FEF9E9700D51790 /* liblib-SLExternal-macx.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = "liblib-SLExternal-macx.a"; path = "../../../../Library/Developer/Xcode/DerivedData/SLProject-bjnzatotkttcaydbgjvusuifjssl/Build/Products/liblib-SLExternal-macx.a"; sourceTree = "<group>"; };
-		41466E951FEF9E9700D51790 /* liblib-SLProject.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = "liblib-SLProject.a"; path = "../../../../Library/Developer/Xcode/DerivedData/SLProject-bjnzatotkttcaydbgjvusuifjssl/Build/Products/liblib-SLProject.a"; sourceTree = "<group>"; };
 		41A062931FED08E3000AC2C1 /* app-Demo-GLFW */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = "app-Demo-GLFW"; sourceTree = BUILT_PRODUCTS_DIR; };
+		41C841CA1FF26BB000E1A99F /* liblib-SLExternal-macx.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = "liblib-SLExternal-macx.a"; path = "../_bin-Debug-macxcode/liblib-SLExternal-macx.a"; sourceTree = "<group>"; };
+		41C841CB1FF26BB000E1A99F /* liblib-SLProject.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = "liblib-SLProject.a"; path = "../_bin-Debug-macxcode/liblib-SLProject.a"; sourceTree = "<group>"; };
+		41C841CE1FF26D0100E1A99F /* libopencv_imgcodecs.3.2.0.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libopencv_imgcodecs.3.2.0.dylib; path = ../_lib/prebuilt/OpenCV/macx/libopencv_imgcodecs.3.2.0.dylib; sourceTree = "<group>"; };
+		41C841CF1FF26D0100E1A99F /* libopencv_aruco.3.2.0.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libopencv_aruco.3.2.0.dylib; path = ../_lib/prebuilt/OpenCV/macx/libopencv_aruco.3.2.0.dylib; sourceTree = "<group>"; };
+		41C841D01FF26D0100E1A99F /* libopencv_xfeatures2d.3.2.0.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libopencv_xfeatures2d.3.2.0.dylib; path = ../_lib/prebuilt/OpenCV/macx/libopencv_xfeatures2d.3.2.0.dylib; sourceTree = "<group>"; };
+		41C841D11FF26D0200E1A99F /* libopencv_highgui.3.2.0.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libopencv_highgui.3.2.0.dylib; path = ../_lib/prebuilt/OpenCV/macx/libopencv_highgui.3.2.0.dylib; sourceTree = "<group>"; };
+		41C841D21FF26D0200E1A99F /* libopencv_video.3.2.0.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libopencv_video.3.2.0.dylib; path = ../_lib/prebuilt/OpenCV/macx/libopencv_video.3.2.0.dylib; sourceTree = "<group>"; };
+		41C841D31FF26D0200E1A99F /* libopencv_features2d.3.2.0.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libopencv_features2d.3.2.0.dylib; path = ../_lib/prebuilt/OpenCV/macx/libopencv_features2d.3.2.0.dylib; sourceTree = "<group>"; };
+		41C841D41FF26D0200E1A99F /* libopencv_ccalib.3.2.0.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libopencv_ccalib.3.2.0.dylib; path = ../_lib/prebuilt/OpenCV/macx/libopencv_ccalib.3.2.0.dylib; sourceTree = "<group>"; };
+		41C841D51FF26D0200E1A99F /* libopencv_objdetect.3.2.0.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libopencv_objdetect.3.2.0.dylib; path = ../_lib/prebuilt/OpenCV/macx/libopencv_objdetect.3.2.0.dylib; sourceTree = "<group>"; };
+		41C841D61FF26D0200E1A99F /* libopencv_videoio.3.2.0.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libopencv_videoio.3.2.0.dylib; path = ../_lib/prebuilt/OpenCV/macx/libopencv_videoio.3.2.0.dylib; sourceTree = "<group>"; };
+		41C841D71FF26D0200E1A99F /* libopencv_imgproc.3.2.0.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libopencv_imgproc.3.2.0.dylib; path = ../_lib/prebuilt/OpenCV/macx/libopencv_imgproc.3.2.0.dylib; sourceTree = "<group>"; };
+		41C841D81FF26D0200E1A99F /* libopencv_core.3.2.0.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libopencv_core.3.2.0.dylib; path = ../_lib/prebuilt/OpenCV/macx/libopencv_core.3.2.0.dylib; sourceTree = "<group>"; };
+		41C841D91FF26D0200E1A99F /* libopencv_flann.3.2.0.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libopencv_flann.3.2.0.dylib; path = ../_lib/prebuilt/OpenCV/macx/libopencv_flann.3.2.0.dylib; sourceTree = "<group>"; };
+		41C841FC1FF2711B00E1A99F /* libopencv_calib3d.3.2.0.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libopencv_calib3d.3.2.0.dylib; path = ../_lib/prebuilt/OpenCV/macx/libopencv_calib3d.3.2.0.dylib; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -38,8 +64,21 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				41466E961FEF9E9700D51790 /* liblib-SLExternal-macx.a in Frameworks */,
-				41466E971FEF9E9700D51790 /* liblib-SLProject.a in Frameworks */,
+				41C841FD1FF2711B00E1A99F /* libopencv_calib3d.3.2.0.dylib in Frameworks */,
+				41C841DA1FF26D0200E1A99F /* libopencv_imgcodecs.3.2.0.dylib in Frameworks */,
+				41C841DB1FF26D0200E1A99F /* libopencv_aruco.3.2.0.dylib in Frameworks */,
+				41C841DC1FF26D0200E1A99F /* libopencv_xfeatures2d.3.2.0.dylib in Frameworks */,
+				41C841DD1FF26D0200E1A99F /* libopencv_highgui.3.2.0.dylib in Frameworks */,
+				41C841DE1FF26D0200E1A99F /* libopencv_video.3.2.0.dylib in Frameworks */,
+				41C841DF1FF26D0200E1A99F /* libopencv_features2d.3.2.0.dylib in Frameworks */,
+				41C841E01FF26D0200E1A99F /* libopencv_ccalib.3.2.0.dylib in Frameworks */,
+				41C841E11FF26D0200E1A99F /* libopencv_objdetect.3.2.0.dylib in Frameworks */,
+				41C841E21FF26D0200E1A99F /* libopencv_videoio.3.2.0.dylib in Frameworks */,
+				41C841E31FF26D0200E1A99F /* libopencv_imgproc.3.2.0.dylib in Frameworks */,
+				41C841E41FF26D0200E1A99F /* libopencv_core.3.2.0.dylib in Frameworks */,
+				41C841E51FF26D0200E1A99F /* libopencv_flann.3.2.0.dylib in Frameworks */,
+				41C841CC1FF26BB000E1A99F /* liblib-SLExternal-macx.a in Frameworks */,
+				41C841CD1FF26BB000E1A99F /* liblib-SLProject.a in Frameworks */,
 				41030D111FED595B005CFF1A /* OpenGL.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -50,8 +89,21 @@
 		41030D091FED5923005CFF1A /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				41466E941FEF9E9700D51790 /* liblib-SLExternal-macx.a */,
-				41466E951FEF9E9700D51790 /* liblib-SLProject.a */,
+				41C841FC1FF2711B00E1A99F /* libopencv_calib3d.3.2.0.dylib */,
+				41C841CF1FF26D0100E1A99F /* libopencv_aruco.3.2.0.dylib */,
+				41C841D41FF26D0200E1A99F /* libopencv_ccalib.3.2.0.dylib */,
+				41C841D81FF26D0200E1A99F /* libopencv_core.3.2.0.dylib */,
+				41C841D31FF26D0200E1A99F /* libopencv_features2d.3.2.0.dylib */,
+				41C841D91FF26D0200E1A99F /* libopencv_flann.3.2.0.dylib */,
+				41C841D11FF26D0200E1A99F /* libopencv_highgui.3.2.0.dylib */,
+				41C841CE1FF26D0100E1A99F /* libopencv_imgcodecs.3.2.0.dylib */,
+				41C841D71FF26D0200E1A99F /* libopencv_imgproc.3.2.0.dylib */,
+				41C841D51FF26D0200E1A99F /* libopencv_objdetect.3.2.0.dylib */,
+				41C841D21FF26D0200E1A99F /* libopencv_video.3.2.0.dylib */,
+				41C841D61FF26D0200E1A99F /* libopencv_videoio.3.2.0.dylib */,
+				41C841D01FF26D0100E1A99F /* libopencv_xfeatures2d.3.2.0.dylib */,
+				41C841CA1FF26BB000E1A99F /* liblib-SLExternal-macx.a */,
+				41C841CB1FF26BB000E1A99F /* liblib-SLProject.a */,
 				41030D101FED595B005CFF1A /* OpenGL.framework */,
 			);
 			name = Frameworks;
@@ -247,12 +299,17 @@
 				CODE_SIGN_STYLE = Automatic;
 				CONFIGURATION_BUILD_DIR = "../_bin-$(CONFIGURATION)-macos";
 				CONFIGURATION_TEMP_DIR = "../intermediate/app-Demo-GLFW/macxcode/$(CONFIGURATION)";
+				FRAMEWORK_SEARCH_PATHS = "$(PROJECT_DIR)/../_bin-$(CONFIGURATION)-macxcode";
 				GCC_PREPROCESSOR_DEFINITIONS = "SL_STARTSCENE=C_sceneMinimal";
 				HEADER_SEARCH_PATHS = (
 					"../include/**",
 					"../lib-SLExternal/**",
 				);
 				INSTALL_PATH = "../_bin-Debug-macos";
+				LIBRARY_SEARCH_PATHS = (
+					"$(PROJECT_DIR)/../_lib/prebuilt/OpenCV/macx",
+					"$(PROJECT_DIR)/../_bin-$(CONFIGURATION)-macxcode",
+				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SYMROOT = "../_bin-$(CONFIGURATION)-macxcode";
 			};
@@ -264,12 +321,17 @@
 				CODE_SIGN_STYLE = Automatic;
 				CONFIGURATION_BUILD_DIR = "../_bin-$(CONFIGURATION)-macos";
 				CONFIGURATION_TEMP_DIR = "../intermediate/app-Demo-GLFW/macxcode/$(CONFIGURATION)";
+				FRAMEWORK_SEARCH_PATHS = "$(PROJECT_DIR)/../_bin-$(CONFIGURATION)-macxcode";
 				GCC_PREPROCESSOR_DEFINITIONS = "SL_STARTSCENE=C_sceneMinimal";
 				HEADER_SEARCH_PATHS = (
 					"../include/**",
 					"../lib-SLExternal/**",
 				);
 				INSTALL_PATH = "../_bin-Release-macos";
+				LIBRARY_SEARCH_PATHS = (
+					"$(PROJECT_DIR)/../_lib/prebuilt/OpenCV/macx",
+					"$(PROJECT_DIR)/../_bin-$(CONFIGURATION)-macxcode",
+				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SYMROOT = "../_bin-$(CONFIGURATION)-macxcode";
 			};
