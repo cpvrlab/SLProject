@@ -39,16 +39,6 @@
 	<true/>
 	<key>NSCameraUsageDescription</key>
 	<string>Used for Augmented Reality rendering</string>
-	<key>NSMotionUsageDescription</key>
-	<string>Used for Augmented Reality rendering</string>
-	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
-	<string>Used for Augmented Reality rendering</string>
-	<key>NSLocationAlwaysUsageDescription</key>
-	<string>Used for Augmented Reality rendering</string>
-	<key>NSLocationUsageDescription</key>
-	<string>Used for Augmented Reality rendering</string>
-	<key>NSLocationWhenInUseUsageDescription</key>
-	<string></string>
 	<key>UIApplicationExitsOnSuspend</key>
 	<true/>
 	<key>UILaunchStoryboardName</key>
@@ -61,15 +51,13 @@
 	<true/>
 	<key>UIStatusBarHidden</key>
 	<true/>
-	<key>UIStatusBarHidden~ipad</key>
-	<true/>
 	<key>UISupportedInterfaceOrientations</key>
 	<array>
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
 	<key>UISupportedInterfaceOrientations~ipad</key>
 	<array>
-		<string>UIInterfaceOrientationLandscapeRight</string>
+		<string>UIInterfaceOrientationLandscapeLeft</string>
 	</array>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<false/>

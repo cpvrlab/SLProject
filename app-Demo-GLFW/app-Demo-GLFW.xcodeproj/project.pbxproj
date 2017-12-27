@@ -9,6 +9,11 @@
 /* Begin PBXBuildFile section */
 		41030D081FED58EC005CFF1A /* glfwMain.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 41030D071FED58EC005CFF1A /* glfwMain.cpp */; };
 		41030D111FED595B005CFF1A /* OpenGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 41030D101FED595B005CFF1A /* OpenGL.framework */; };
+		412F12941FF280B30003687F /* IOKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 412F12931FF280B30003687F /* IOKit.framework */; };
+		412F12961FF280D40003687F /* CoreFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 412F12951FF280D40003687F /* CoreFoundation.framework */; };
+		412F12981FF281240003687F /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 412F12971FF281240003687F /* QuartzCore.framework */; };
+		412F129A1FF281390003687F /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 412F12991FF281390003687F /* CoreGraphics.framework */; };
+		412F129C1FF2815A0003687F /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 412F129B1FF2815A0003687F /* Cocoa.framework */; };
 		41C841CC1FF26BB000E1A99F /* liblib-SLExternal-macx.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 41C841CA1FF26BB000E1A99F /* liblib-SLExternal-macx.a */; };
 		41C841CD1FF26BB000E1A99F /* liblib-SLProject.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 41C841CB1FF26BB000E1A99F /* liblib-SLProject.a */; };
 		41C841DA1FF26D0200E1A99F /* libopencv_imgcodecs.3.2.0.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 41C841CE1FF26D0100E1A99F /* libopencv_imgcodecs.3.2.0.dylib */; };
@@ -41,6 +46,11 @@
 /* Begin PBXFileReference section */
 		41030D071FED58EC005CFF1A /* glfwMain.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = glfwMain.cpp; path = source/glfwMain.cpp; sourceTree = "<group>"; };
 		41030D101FED595B005CFF1A /* OpenGL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGL.framework; path = System/Library/Frameworks/OpenGL.framework; sourceTree = SDKROOT; };
+		412F12931FF280B30003687F /* IOKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = IOKit.framework; path = System/Library/Frameworks/IOKit.framework; sourceTree = SDKROOT; };
+		412F12951FF280D40003687F /* CoreFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreFoundation.framework; path = System/Library/Frameworks/CoreFoundation.framework; sourceTree = SDKROOT; };
+		412F12971FF281240003687F /* QuartzCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuartzCore.framework; path = System/Library/Frameworks/QuartzCore.framework; sourceTree = SDKROOT; };
+		412F12991FF281390003687F /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
+		412F129B1FF2815A0003687F /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
 		41A062931FED08E3000AC2C1 /* app-Demo-GLFW */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = "app-Demo-GLFW"; sourceTree = BUILT_PRODUCTS_DIR; };
 		41C841CA1FF26BB000E1A99F /* liblib-SLExternal-macx.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = "liblib-SLExternal-macx.a"; path = "../_bin-Debug-macxcode/liblib-SLExternal-macx.a"; sourceTree = "<group>"; };
 		41C841CB1FF26BB000E1A99F /* liblib-SLProject.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = "liblib-SLProject.a"; path = "../_bin-Debug-macxcode/liblib-SLProject.a"; sourceTree = "<group>"; };
@@ -64,6 +74,12 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				412F129C1FF2815A0003687F /* Cocoa.framework in Frameworks */,
+				412F129A1FF281390003687F /* CoreGraphics.framework in Frameworks */,
+				412F12981FF281240003687F /* QuartzCore.framework in Frameworks */,
+				412F12961FF280D40003687F /* CoreFoundation.framework in Frameworks */,
+				412F12941FF280B30003687F /* IOKit.framework in Frameworks */,
+				41030D111FED595B005CFF1A /* OpenGL.framework in Frameworks */,
 				41C841FD1FF2711B00E1A99F /* libopencv_calib3d.3.2.0.dylib in Frameworks */,
 				41C841DA1FF26D0200E1A99F /* libopencv_imgcodecs.3.2.0.dylib in Frameworks */,
 				41C841DB1FF26D0200E1A99F /* libopencv_aruco.3.2.0.dylib in Frameworks */,
@@ -79,7 +95,6 @@
 				41C841E51FF26D0200E1A99F /* libopencv_flann.3.2.0.dylib in Frameworks */,
 				41C841CC1FF26BB000E1A99F /* liblib-SLExternal-macx.a in Frameworks */,
 				41C841CD1FF26BB000E1A99F /* liblib-SLProject.a in Frameworks */,
-				41030D111FED595B005CFF1A /* OpenGL.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -89,6 +104,11 @@
 		41030D091FED5923005CFF1A /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				412F129B1FF2815A0003687F /* Cocoa.framework */,
+				412F12991FF281390003687F /* CoreGraphics.framework */,
+				412F12971FF281240003687F /* QuartzCore.framework */,
+				412F12951FF280D40003687F /* CoreFoundation.framework */,
+				412F12931FF280B30003687F /* IOKit.framework */,
 				41C841FC1FF2711B00E1A99F /* libopencv_calib3d.3.2.0.dylib */,
 				41C841CF1FF26D0100E1A99F /* libopencv_aruco.3.2.0.dylib */,
 				41C841D41FF26D0200E1A99F /* libopencv_ccalib.3.2.0.dylib */,
@@ -220,6 +240,7 @@
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				CODE_SIGN_IDENTITY = "-";
+				CONFIGURATION_TEMP_DIR = "$(PROJECT_DIR)/../intermediate/$(PROJECT_NAME)/$(CONFIGURATION)";
 				COPY_PHASE_STRIP = NO;
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
@@ -238,10 +259,13 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				MACOSX_DEPLOYMENT_TARGET = 10.13;
+				MACOSX_DEPLOYMENT_TARGET = 10.12;
 				MTL_ENABLE_DEBUG_INFO = YES;
+				OBJROOT = "$(PROJECT_DIR)/../intermediate/$(PROJECT_NAME)/$(CONFIGURATION)";
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = macosx;
+				SHARED_PRECOMPS_DIR = "$(PROJECT_DIR)/../intermediate/$(PROJECT_NAME)/$(CONFIGURATION)";
+				SYMROOT = "$(PROJECT_DIR)/../_bin-$(CONFIGURATION)-macxcode";
 			};
 			name = Debug;
 		};
@@ -275,6 +299,7 @@
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				CODE_SIGN_IDENTITY = "-";
+				CONFIGURATION_TEMP_DIR = "$(PROJECT_DIR)/../intermediate/$(PROJECT_NAME)/$(CONFIGURATION)";
 				COPY_PHASE_STRIP = NO;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				ENABLE_NS_ASSERTIONS = NO;
@@ -287,53 +312,60 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				MACOSX_DEPLOYMENT_TARGET = 10.13;
+				MACOSX_DEPLOYMENT_TARGET = 10.12;
 				MTL_ENABLE_DEBUG_INFO = NO;
+				OBJROOT = "$(PROJECT_DIR)/../intermediate/$(PROJECT_NAME)/$(CONFIGURATION)";
 				SDKROOT = macosx;
+				SHARED_PRECOMPS_DIR = "$(PROJECT_DIR)/../intermediate/$(PROJECT_NAME)/$(CONFIGURATION)";
+				SYMROOT = "$(PROJECT_DIR)/../_bin-$(CONFIGURATION)-macxcode";
 			};
 			name = Release;
 		};
 		41A0629B1FED08E3000AC2C1 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CLANG_WARN_DOCUMENTATION_COMMENTS = NO;
 				CODE_SIGN_STYLE = Automatic;
-				CONFIGURATION_BUILD_DIR = "../_bin-$(CONFIGURATION)-macos";
-				CONFIGURATION_TEMP_DIR = "../intermediate/app-Demo-GLFW/macxcode/$(CONFIGURATION)";
+				CONFIGURATION_BUILD_DIR = "$(PROJECT_DIR)/../_bin-$(CONFIGURATION)-macxcode";
+				CONFIGURATION_TEMP_DIR = "$(PROJECT_DIR)/../intermediate/$(PROJECT_NAME)/$(CONFIGURATION)";
 				FRAMEWORK_SEARCH_PATHS = "$(PROJECT_DIR)/../_bin-$(CONFIGURATION)-macxcode";
 				GCC_PREPROCESSOR_DEFINITIONS = "SL_STARTSCENE=C_sceneMinimal";
 				HEADER_SEARCH_PATHS = (
 					"../include/**",
 					"../lib-SLExternal/**",
 				);
-				INSTALL_PATH = "../_bin-Debug-macos";
+				INSTALL_PATH = "$(PROJECT_DIR)/../_bin-$(CONFIGURATION)-macxcode";
 				LIBRARY_SEARCH_PATHS = (
 					"$(PROJECT_DIR)/../_lib/prebuilt/OpenCV/macx",
 					"$(PROJECT_DIR)/../_bin-$(CONFIGURATION)-macxcode",
 				);
+				MACOSX_DEPLOYMENT_TARGET = 10.12;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SYMROOT = "../_bin-$(CONFIGURATION)-macxcode";
+				SYMROOT = "$(PROJECT_DIR)/../_bin-$(CONFIGURATION)-macxcode";
 			};
 			name = Debug;
 		};
 		41A0629C1FED08E3000AC2C1 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CLANG_WARN_DOCUMENTATION_COMMENTS = NO;
 				CODE_SIGN_STYLE = Automatic;
-				CONFIGURATION_BUILD_DIR = "../_bin-$(CONFIGURATION)-macos";
-				CONFIGURATION_TEMP_DIR = "../intermediate/app-Demo-GLFW/macxcode/$(CONFIGURATION)";
+				CONFIGURATION_BUILD_DIR = "$(PROJECT_DIR)/../_bin-$(CONFIGURATION)-macxcode";
+				CONFIGURATION_TEMP_DIR = "$(PROJECT_DIR)/../intermediate/$(PROJECT_NAME)/$(CONFIGURATION)";
 				FRAMEWORK_SEARCH_PATHS = "$(PROJECT_DIR)/../_bin-$(CONFIGURATION)-macxcode";
 				GCC_PREPROCESSOR_DEFINITIONS = "SL_STARTSCENE=C_sceneMinimal";
 				HEADER_SEARCH_PATHS = (
 					"../include/**",
 					"../lib-SLExternal/**",
 				);
-				INSTALL_PATH = "../_bin-Release-macos";
+				INSTALL_PATH = "$(PROJECT_DIR)/../_bin-$(CONFIGURATION)-macxcode";
 				LIBRARY_SEARCH_PATHS = (
 					"$(PROJECT_DIR)/../_lib/prebuilt/OpenCV/macx",
 					"$(PROJECT_DIR)/../_bin-$(CONFIGURATION)-macxcode",
 				);
+				MACOSX_DEPLOYMENT_TARGET = 10.12;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SYMROOT = "../_bin-$(CONFIGURATION)-macxcode";
+				SYMROOT = "$(PROJECT_DIR)/../_bin-$(CONFIGURATION)-macxcode";
 			};
 			name = Release;
 		};

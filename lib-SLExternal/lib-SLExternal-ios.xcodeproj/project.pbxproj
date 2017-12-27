@@ -387,24 +387,6 @@
 		41FE0FB91959CB3F00486424 /* ioapi.h in Headers */ = {isa = PBXBuildFile; fileRef = 41FE0D7B1959CB3F00486424 /* ioapi.h */; };
 		41FE0FBA1959CB3F00486424 /* unzip.c in Sources */ = {isa = PBXBuildFile; fileRef = 41FE0D7C1959CB3F00486424 /* unzip.c */; };
 		41FE0FBB1959CB3F00486424 /* unzip.h in Headers */ = {isa = PBXBuildFile; fileRef = 41FE0D7D1959CB3F00486424 /* unzip.h */; };
-		41FE0FD81959CB3F00486424 /* anim.h in Headers */ = {isa = PBXBuildFile; fileRef = 41FE0DAC1959CB3F00486424 /* anim.h */; };
-		41FE0FD91959CB3F00486424 /* camera.h in Headers */ = {isa = PBXBuildFile; fileRef = 41FE0DAD1959CB3F00486424 /* camera.h */; };
-		41FE0FDD1959CB3F00486424 /* color4.h in Headers */ = {isa = PBXBuildFile; fileRef = 41FE0DB11959CB3F00486424 /* color4.h */; };
-		41FE0FDE1959CB3F00486424 /* poppack1.h in Headers */ = {isa = PBXBuildFile; fileRef = 41FE0DB41959CB3F00486424 /* poppack1.h */; };
-		41FE0FE01959CB3F00486424 /* config.h in Headers */ = {isa = PBXBuildFile; fileRef = 41FE0DB61959CB3F00486424 /* config.h */; };
-		41FE0FE11959CB3F00486424 /* DefaultLogger.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 41FE0DB71959CB3F00486424 /* DefaultLogger.hpp */; };
-		41FE0FE31959CB3F00486424 /* Exporter.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 41FE0DB91959CB3F00486424 /* Exporter.hpp */; };
-		41FE0FE41959CB3F00486424 /* Importer.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 41FE0DBA1959CB3F00486424 /* Importer.hpp */; };
-		41FE0FE71959CB3F00486424 /* IOSystem.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 41FE0DBD1959CB3F00486424 /* IOSystem.hpp */; };
-		41FE0FEC1959CB3F00486424 /* matrix3x3.h in Headers */ = {isa = PBXBuildFile; fileRef = 41FE0DC31959CB3F00486424 /* matrix3x3.h */; };
-		41FE0FED1959CB3F00486424 /* matrix4x4.h in Headers */ = {isa = PBXBuildFile; fileRef = 41FE0DC51959CB3F00486424 /* matrix4x4.h */; };
-		41FE0FEF1959CB3F00486424 /* metadata.h in Headers */ = {isa = PBXBuildFile; fileRef = 41FE0DC81959CB3F00486424 /* metadata.h */; };
-		41FE0FF01959CB3F00486424 /* NullLogger.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 41FE0DC91959CB3F00486424 /* NullLogger.hpp */; };
-		41FE0FF21959CB3F00486424 /* ProgressHandler.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 41FE0DCB1959CB3F00486424 /* ProgressHandler.hpp */; };
-		41FE0FF51959CB3F00486424 /* texture.h in Headers */ = {isa = PBXBuildFile; fileRef = 41FE0DCF1959CB3F00486424 /* texture.h */; };
-		41FE0FF61959CB3F00486424 /* types.h in Headers */ = {isa = PBXBuildFile; fileRef = 41FE0DD01959CB3F00486424 /* types.h */; };
-		41FE0FF81959CB3F00486424 /* vector3.h in Headers */ = {isa = PBXBuildFile; fileRef = 41FE0DD31959CB3F00486424 /* vector3.h */; };
-		41FE0FF91959CB3F00486424 /* version.h in Headers */ = {isa = PBXBuildFile; fileRef = 41FE0DD51959CB3F00486424 /* version.h */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -821,48 +803,6 @@
 		41FE0D7B1959CB3F00486424 /* ioapi.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ioapi.h; sourceTree = "<group>"; };
 		41FE0D7C1959CB3F00486424 /* unzip.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = unzip.c; sourceTree = "<group>"; };
 		41FE0D7D1959CB3F00486424 /* unzip.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = unzip.h; sourceTree = "<group>"; };
-		41FE0DAB1959CB3F00486424 /* ai_assert.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ai_assert.h; sourceTree = "<group>"; };
-		41FE0DAC1959CB3F00486424 /* anim.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = anim.h; sourceTree = "<group>"; };
-		41FE0DAD1959CB3F00486424 /* camera.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = camera.h; sourceTree = "<group>"; };
-		41FE0DAE1959CB3F00486424 /* cexport.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = cexport.h; sourceTree = "<group>"; };
-		41FE0DAF1959CB3F00486424 /* cfileio.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = cfileio.h; sourceTree = "<group>"; };
-		41FE0DB01959CB3F00486424 /* cimport.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = cimport.h; sourceTree = "<group>"; };
-		41FE0DB11959CB3F00486424 /* color4.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = color4.h; sourceTree = "<group>"; };
-		41FE0DB21959CB3F00486424 /* color4.inl */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = color4.inl; sourceTree = "<group>"; };
-		41FE0DB41959CB3F00486424 /* poppack1.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = poppack1.h; sourceTree = "<group>"; };
-		41FE0DB51959CB3F00486424 /* pushpack1.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = pushpack1.h; sourceTree = "<group>"; };
-		41FE0DB61959CB3F00486424 /* config.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = config.h; sourceTree = "<group>"; };
-		41FE0DB71959CB3F00486424 /* DefaultLogger.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = DefaultLogger.hpp; sourceTree = "<group>"; };
-		41FE0DB81959CB3F00486424 /* defs.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = defs.h; sourceTree = "<group>"; };
-		41FE0DB91959CB3F00486424 /* Exporter.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Exporter.hpp; sourceTree = "<group>"; };
-		41FE0DBA1959CB3F00486424 /* Importer.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Importer.hpp; sourceTree = "<group>"; };
-		41FE0DBB1959CB3F00486424 /* importerdesc.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = importerdesc.h; sourceTree = "<group>"; };
-		41FE0DBC1959CB3F00486424 /* IOStream.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = IOStream.hpp; sourceTree = "<group>"; };
-		41FE0DBD1959CB3F00486424 /* IOSystem.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = IOSystem.hpp; sourceTree = "<group>"; };
-		41FE0DBE1959CB3F00486424 /* light.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = light.h; sourceTree = "<group>"; };
-		41FE0DBF1959CB3F00486424 /* Logger.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Logger.hpp; sourceTree = "<group>"; };
-		41FE0DC01959CB3F00486424 /* LogStream.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = LogStream.hpp; sourceTree = "<group>"; };
-		41FE0DC11959CB3F00486424 /* material.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = material.h; sourceTree = "<group>"; };
-		41FE0DC21959CB3F00486424 /* material.inl */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = material.inl; sourceTree = "<group>"; };
-		41FE0DC31959CB3F00486424 /* matrix3x3.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = matrix3x3.h; sourceTree = "<group>"; };
-		41FE0DC41959CB3F00486424 /* matrix3x3.inl */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = matrix3x3.inl; sourceTree = "<group>"; };
-		41FE0DC51959CB3F00486424 /* matrix4x4.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = matrix4x4.h; sourceTree = "<group>"; };
-		41FE0DC61959CB3F00486424 /* matrix4x4.inl */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = matrix4x4.inl; sourceTree = "<group>"; };
-		41FE0DC71959CB3F00486424 /* mesh.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = mesh.h; sourceTree = "<group>"; };
-		41FE0DC81959CB3F00486424 /* metadata.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = metadata.h; sourceTree = "<group>"; };
-		41FE0DC91959CB3F00486424 /* NullLogger.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = NullLogger.hpp; sourceTree = "<group>"; };
-		41FE0DCA1959CB3F00486424 /* postprocess.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = postprocess.h; sourceTree = "<group>"; };
-		41FE0DCB1959CB3F00486424 /* ProgressHandler.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = ProgressHandler.hpp; sourceTree = "<group>"; };
-		41FE0DCC1959CB3F00486424 /* quaternion.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = quaternion.h; sourceTree = "<group>"; };
-		41FE0DCD1959CB3F00486424 /* quaternion.inl */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = quaternion.inl; sourceTree = "<group>"; };
-		41FE0DCE1959CB3F00486424 /* scene.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = scene.h; sourceTree = "<group>"; };
-		41FE0DCF1959CB3F00486424 /* texture.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = texture.h; sourceTree = "<group>"; };
-		41FE0DD01959CB3F00486424 /* types.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = types.h; sourceTree = "<group>"; };
-		41FE0DD11959CB3F00486424 /* vector2.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = vector2.h; sourceTree = "<group>"; };
-		41FE0DD21959CB3F00486424 /* vector2.inl */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = vector2.inl; sourceTree = "<group>"; };
-		41FE0DD31959CB3F00486424 /* vector3.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = vector3.h; sourceTree = "<group>"; };
-		41FE0DD41959CB3F00486424 /* vector3.inl */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = vector3.inl; sourceTree = "<group>"; };
-		41FE0DD51959CB3F00486424 /* version.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = version.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -982,7 +922,6 @@
 				41FE0B0E1959CB3E00486424 /* code */,
 				41FE0C621959CB3F00486424 /* contrib */,
 				413B2C35195A9D260071AC6A /* include */,
-				41FE0DA91959CB3F00486424 /* include */,
 			);
 			name = assimp;
 			sourceTree = "<group>";
@@ -1460,72 +1399,6 @@
 			path = unzip;
 			sourceTree = "<group>";
 		};
-		41FE0DA91959CB3F00486424 /* include */ = {
-			isa = PBXGroup;
-			children = (
-				41FE0DAA1959CB3F00486424 /* assimp */,
-			);
-			name = include;
-			path = assimp/include;
-			sourceTree = "<group>";
-		};
-		41FE0DAA1959CB3F00486424 /* assimp */ = {
-			isa = PBXGroup;
-			children = (
-				41FE0DAB1959CB3F00486424 /* ai_assert.h */,
-				41FE0DAC1959CB3F00486424 /* anim.h */,
-				41FE0DAD1959CB3F00486424 /* camera.h */,
-				41FE0DAE1959CB3F00486424 /* cexport.h */,
-				41FE0DAF1959CB3F00486424 /* cfileio.h */,
-				41FE0DB01959CB3F00486424 /* cimport.h */,
-				41FE0DB11959CB3F00486424 /* color4.h */,
-				41FE0DB21959CB3F00486424 /* color4.inl */,
-				41FE0DB31959CB3F00486424 /* Compiler */,
-				41FE0DB61959CB3F00486424 /* config.h */,
-				41FE0DB71959CB3F00486424 /* DefaultLogger.hpp */,
-				41FE0DB81959CB3F00486424 /* defs.h */,
-				41FE0DB91959CB3F00486424 /* Exporter.hpp */,
-				41FE0DBA1959CB3F00486424 /* Importer.hpp */,
-				41FE0DBB1959CB3F00486424 /* importerdesc.h */,
-				41FE0DBC1959CB3F00486424 /* IOStream.hpp */,
-				41FE0DBD1959CB3F00486424 /* IOSystem.hpp */,
-				41FE0DBE1959CB3F00486424 /* light.h */,
-				41FE0DBF1959CB3F00486424 /* Logger.hpp */,
-				41FE0DC01959CB3F00486424 /* LogStream.hpp */,
-				41FE0DC11959CB3F00486424 /* material.h */,
-				41FE0DC21959CB3F00486424 /* material.inl */,
-				41FE0DC31959CB3F00486424 /* matrix3x3.h */,
-				41FE0DC41959CB3F00486424 /* matrix3x3.inl */,
-				41FE0DC51959CB3F00486424 /* matrix4x4.h */,
-				41FE0DC61959CB3F00486424 /* matrix4x4.inl */,
-				41FE0DC71959CB3F00486424 /* mesh.h */,
-				41FE0DC81959CB3F00486424 /* metadata.h */,
-				41FE0DC91959CB3F00486424 /* NullLogger.hpp */,
-				41FE0DCA1959CB3F00486424 /* postprocess.h */,
-				41FE0DCB1959CB3F00486424 /* ProgressHandler.hpp */,
-				41FE0DCC1959CB3F00486424 /* quaternion.h */,
-				41FE0DCD1959CB3F00486424 /* quaternion.inl */,
-				41FE0DCE1959CB3F00486424 /* scene.h */,
-				41FE0DCF1959CB3F00486424 /* texture.h */,
-				41FE0DD01959CB3F00486424 /* types.h */,
-				41FE0DD11959CB3F00486424 /* vector2.h */,
-				41FE0DD21959CB3F00486424 /* vector2.inl */,
-				41FE0DD31959CB3F00486424 /* vector3.h */,
-				41FE0DD41959CB3F00486424 /* vector3.inl */,
-				41FE0DD51959CB3F00486424 /* version.h */,
-			);
-			path = assimp;
-			sourceTree = "<group>";
-		};
-		41FE0DB31959CB3F00486424 /* Compiler */ = {
-			isa = PBXGroup;
-			children = (
-				41FE0DB41959CB3F00486424 /* poppack1.h */,
-				41FE0DB51959CB3F00486424 /* pushpack1.h */,
-			);
-			path = Compiler;
-			sourceTree = "<group>";
-		};
 /* End PBXGroup section */
 
 /* Begin PBXHeadersBuildPhase section */
@@ -1533,12 +1406,10 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				41FE0FF21959CB3F00486424 /* ProgressHandler.hpp in Headers */,
 				41FE0EEB1959CB3F00486424 /* SMDLoader.h in Headers */,
 				41FE0ED41959CB3F00486424 /* Q3BSPZipArchive.h in Headers */,
 				41FE0E7F1959CB3F00486424 /* LWOLoader.h in Headers */,
 				41FE0EBA1959CB3F00486424 /* OgreXmlSerializer.h in Headers */,
-				41FE0FF81959CB3F00486424 /* vector3.h in Headers */,
 				41FE0EBC1959CB3F00486424 /* OptimizeGraph.h in Headers */,
 				41FE0E071959CB3F00486424 /* static_assert.hpp in Headers */,
 				41FE0F201959CB3F00486424 /* ConvertUTF.h in Headers */,
@@ -1558,20 +1429,16 @@
 				41FE0E8B1959CB3F00486424 /* MD3FileData.h in Headers */,
 				413B2C7E195A9D260071AC6A /* quaternion.h in Headers */,
 				41FE0E551959CB3F00486424 /* GenVertexNormalsProcess.h in Headers */,
-				41FE0FF91959CB3F00486424 /* version.h in Headers */,
 				41FE0EA91959CB3F00486424 /* ObjFileMtlImporter.h in Headers */,
 				41FE0E031959CB3F00486424 /* scoped_array.hpp in Headers */,
 				41FE0FBB1959CB3F00486424 /* unzip.h in Headers */,
 				413B2C7F195A9D260071AC6A /* scene.h in Headers */,
-				41FE0FF51959CB3F00486424 /* texture.h in Headers */,
 				41FE0F021959CB3F00486424 /* StringComparison.h in Headers */,
 				41FE0EDF1959CB3F00486424 /* RemoveVCProcess.h in Headers */,
 				41FE0E051959CB3F00486424 /* shared_array.hpp in Headers */,
 				41FE0E561959CB3F00486424 /* HalfLifeFileData.h in Headers */,
-				41FE0FF61959CB3F00486424 /* types.h in Headers */,
 				41FE0E8D1959CB3F00486424 /* MD3Loader.h in Headers */,
 				41FE0E191959CB3F00486424 /* ColladaParser.h in Headers */,
-				41FE0FE11959CB3F00486424 /* DefaultLogger.hpp in Headers */,
 				41FE0EAC1959CB3F00486424 /* ObjTools.h in Headers */,
 				41FE0E301959CB3F00486424 /* FBXCompileConfig.h in Headers */,
 				41FE0F181959CB3F00486424 /* XFileImporter.h in Headers */,
@@ -1588,7 +1455,6 @@
 				41FE0DFE1959CB3F00486424 /* lexical_cast.hpp in Headers */,
 				41FE0F001959CB3F00486424 /* STLLoader.h in Headers */,
 				41FE0DF51959CB3F00486424 /* BlenderModifier.h in Headers */,
-				41FE0FDE1959CB3F00486424 /* poppack1.h in Headers */,
 				41FE0EE51959CB3F00486424 /* ScenePrivate.h in Headers */,
 				41FE0E701959CB3F00486424 /* IRRMeshLoader.h in Headers */,
 				41FE0F1E1959CB3F00486424 /* clipper.hpp in Headers */,
@@ -1601,14 +1467,12 @@
 				41FE0EB81959CB3F00486424 /* OgreStructs.h in Headers */,
 				41FE0E961959CB3F00486424 /* MDCNormalTable.h in Headers */,
 				41FE0EEC1959CB3F00486424 /* SmoothingGroups.h in Headers */,
-				41FE0FE41959CB3F00486424 /* Importer.hpp in Headers */,
 				41FE0DD91959CB3F00486424 /* 3DSLoader.h in Headers */,
 				41FE0F0F1959CB3F00486424 /* UnrealLoader.h in Headers */,
 				41FE0EC51959CB3F00486424 /* PlyParser.h in Headers */,
 				41FE0E251959CB3F00486424 /* DefaultIOSystem.h in Headers */,
 				41FE0E321959CB3F00486424 /* FBXConverter.h in Headers */,
 				41FE0E1F1959CB3F00486424 /* CSMLoader.h in Headers */,
-				41FE0FE01959CB3F00486424 /* config.h in Headers */,
 				413B2C67195A9D260071AC6A /* cimport.h in Headers */,
 				41FE0EC61959CB3F00486424 /* PolyTools.h in Headers */,
 				41FE0E4E1959CB3F00486424 /* FindInvalidDataProcess.h in Headers */,
@@ -1620,7 +1484,6 @@
 				41FE0EB01959CB3F00486424 /* OgreBinarySerializer.h in Headers */,
 				41FE0E7B1959CB3F00486424 /* LWOAnimation.h in Headers */,
 				41FE0E901959CB3F00486424 /* MD5Loader.h in Headers */,
-				41FE0FE71959CB3F00486424 /* IOSystem.hpp in Headers */,
 				41FE0FAA1959CB3F00486424 /* irrXML.h in Headers */,
 				41FE0E841959CB3F00486424 /* MakeVerboseFormat.h in Headers */,
 				41FE0EFE1959CB3F00486424 /* STLExporter.h in Headers */,
@@ -1633,18 +1496,13 @@
 				41FE0DFB1959CB3F00486424 /* BlobIOSystem.h in Headers */,
 				41FE0E931959CB3F00486424 /* MDCFileData.h in Headers */,
 				41FE0F151959CB3F00486424 /* Win32DebugLogStream.h in Headers */,
-				41FE0FEC1959CB3F00486424 /* matrix3x3.h in Headers */,
 				41FE0E531959CB3F00486424 /* GenFaceNormalsProcess.h in Headers */,
-				41FE0FF01959CB3F00486424 /* NullLogger.hpp in Headers */,
 				41FE0E571959CB3F00486424 /* Hash.h in Headers */,
 				41FE0ED91959CB3F00486424 /* RawLoader.h in Headers */,
-				41FE0FD81959CB3F00486424 /* anim.h in Headers */,
-				41FE0FDD1959CB3F00486424 /* color4.h in Headers */,
 				413B2C62195A9D260071AC6A /* ai_assert.h in Headers */,
 				41FE0E691959CB3F00486424 /* Importer.h in Headers */,
 				41FE0E921959CB3F00486424 /* MD5Parser.h in Headers */,
 				41FE0E511959CB3F00486424 /* GenericProperty.h in Headers */,
-				41FE0FED1959CB3F00486424 /* matrix4x4.h in Headers */,
 				41FE0EA71959CB3F00486424 /* ObjFileImporter.h in Headers */,
 				413B2C82195A9D260071AC6A /* vector2.h in Headers */,
 				41FE0E371959CB3F00486424 /* FBXDocumentUtil.h in Headers */,
@@ -1663,13 +1521,11 @@
 				413B2B9B195A9A170071AC6A /* randomc.h in Headers */,
 				41FE0E111959CB3F00486424 /* COBLoader.h in Headers */,
 				41FE0EAE1959CB3F00486424 /* OFFLoader.h in Headers */,
-				41FE0FEF1959CB3F00486424 /* metadata.h in Headers */,
 				41FE0E971959CB3F00486424 /* MDLDefaultColorMap.h in Headers */,
 				41FE0ECB1959CB3F00486424 /* ProcessHelper.h in Headers */,
 				413B2C79195A9D260071AC6A /* mesh.h in Headers */,
 				41FE0EEE1959CB3F00486424 /* SortByPTypeProcess.h in Headers */,
 				41FE0F1A1959CB3F00486424 /* XFileParser.h in Headers */,
-				41FE0FD91959CB3F00486424 /* camera.h in Headers */,
 				41FE0DE01959CB3F00486424 /* assbin_chunks.h in Headers */,
 				41FE0E001959CB3F00486424 /* common_factor_rt.hpp in Headers */,
 				413B2C74195A9D260071AC6A /* Logger.hpp in Headers */,
@@ -1678,7 +1534,6 @@
 				413B2C73195A9D260071AC6A /* light.h in Headers */,
 				41FE0ED01959CB3F00486424 /* Q3BSPFileImporter.h in Headers */,
 				41FE0E501959CB3F00486424 /* FixNormalsStep.h in Headers */,
-				41FE0FE31959CB3F00486424 /* Exporter.hpp in Headers */,
 				41FE0E951959CB3F00486424 /* MDCLoader.h in Headers */,
 				41FE0E271959CB3F00486424 /* DefaultProgressHandler.h in Headers */,
 				41FE0F111959CB3F00486424 /* ValidateDataStructure.h in Headers */,
@@ -2090,9 +1945,37 @@
 				EXECUTABLE_PREFIX = lib;
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"DEBUG=1",
-					ASSIMP_BUILD_NO_OGRE_IMPORTER,
 					ASSIMP_BUILD_BOOST_WORKAROUND,
 					ASSIMP_BUILD_NO_OWN_ZLIB,
+					ASSIMP_BUILD_NO_MD3_IMPORTER,
+					ASSIMP_BUILD_NO_MDL_IMPORTER,
+					ASSIMP_BUILD_NO_MD2_IMPORTER,
+					ASSIMP_BUILD_NO_ASE_IMPORTER,
+					ASSIMP_BUILD_NO_HMP_IMPORTER,
+					ASSIMP_BUILD_NO_SMD_IMPORTER,
+					ASSIMP_BUILD_NO_MDC_IMPORTER,
+					ASSIMP_BUILD_NO_MD5_IMPORTER,
+					ASSIMP_BUILD_NO_LWO_IMPORTER,
+					ASSIMP_BUILD_NO_NFF_IMPORTER,
+					ASSIMP_BUILD_NO_RAW_IMPORTER,
+					ASSIMP_BUILD_NO_OFF_IMPORTER,
+					ASSIMP_BUILD_NO_AC_IMPORTER,
+					ASSIMP_BUILD_NO_BVH_IMPORTER,
+					ASSIMP_BUILD_NO_IRRMESH_IMPORTER,
+					ASSIMP_BUILD_NO_IRR_IMPORTER,
+					ASSIMP_BUILD_NO_Q3D_IMPORTER,
+					ASSIMP_BUILD_NO_B3D_IMPORTER,
+					ASSIMP_BUILD_NO_TERRAGEN_IMPORTER,
+					ASSIMP_BUILD_NO_CSM_IMPORTER,
+					ASSIMP_BUILD_NO_3D_IMPORTER,
+					ASSIMP_BUILD_NO_LWS_IMPORTER,
+					ASSIMP_BUILD_NO_OGRE_IMPORTER,
+					ASSIMP_BUILD_NO_MS3D_IMPORTER,
+					ASSIMP_BUILD_NO_COB_IMPORTER,
+					ASSIMP_BUILD_NO_Q3BSP_IMPORTER,
+					ASSIMP_BUILD_NO_NDO_IMPORTER,
+					ASSIMP_BUILD_NO_IFC_IMPORTER,
+					ASSIMP_BUILD_NO_XGL_IMPORTER,
 					"$(inherited)",
 				);
 				HEADER_SEARCH_PATHS = assimp/code/BoostWorkaround;
@@ -2107,9 +1990,37 @@
 			buildSettings = {
 				EXECUTABLE_PREFIX = lib;
 				GCC_PREPROCESSOR_DEFINITIONS = (
-					ASSIMP_BUILD_NO_OGRE_IMPORTER,
 					ASSIMP_BUILD_BOOST_WORKAROUND,
 					ASSIMP_BUILD_NO_OWN_ZLIB,
+					ASSIMP_BUILD_NO_MD3_IMPORTER,
+					ASSIMP_BUILD_NO_MDL_IMPORTER,
+					ASSIMP_BUILD_NO_MD2_IMPORTER,
+					ASSIMP_BUILD_NO_ASE_IMPORTER,
+					ASSIMP_BUILD_NO_HMP_IMPORTER,
+					ASSIMP_BUILD_NO_SMD_IMPORTER,
+					ASSIMP_BUILD_NO_MDC_IMPORTER,
+					ASSIMP_BUILD_NO_MD5_IMPORTER,
+					ASSIMP_BUILD_NO_LWO_IMPORTER,
+					ASSIMP_BUILD_NO_NFF_IMPORTER,
+					ASSIMP_BUILD_NO_RAW_IMPORTER,
+					ASSIMP_BUILD_NO_OFF_IMPORTER,
+					ASSIMP_BUILD_NO_AC_IMPORTER,
+					ASSIMP_BUILD_NO_BVH_IMPORTER,
+					ASSIMP_BUILD_NO_IRRMESH_IMPORTER,
+					ASSIMP_BUILD_NO_IRR_IMPORTER,
+					ASSIMP_BUILD_NO_Q3D_IMPORTER,
+					ASSIMP_BUILD_NO_B3D_IMPORTER,
+					ASSIMP_BUILD_NO_TERRAGEN_IMPORTER,
+					ASSIMP_BUILD_NO_CSM_IMPORTER,
+					ASSIMP_BUILD_NO_3D_IMPORTER,
+					ASSIMP_BUILD_NO_LWS_IMPORTER,
+					ASSIMP_BUILD_NO_OGRE_IMPORTER,
+					ASSIMP_BUILD_NO_MS3D_IMPORTER,
+					ASSIMP_BUILD_NO_COB_IMPORTER,
+					ASSIMP_BUILD_NO_Q3BSP_IMPORTER,
+					ASSIMP_BUILD_NO_NDO_IMPORTER,
+					ASSIMP_BUILD_NO_IFC_IMPORTER,
+					ASSIMP_BUILD_NO_XGL_IMPORTER,
 				);
 				HEADER_SEARCH_PATHS = assimp/code/BoostWorkaround;
 				PRODUCT_NAME = "$(TARGET_NAME)";
