@@ -14,7 +14,7 @@
 		412F12981FF281240003687F /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 412F12971FF281240003687F /* QuartzCore.framework */; };
 		412F129A1FF281390003687F /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 412F12991FF281390003687F /* CoreGraphics.framework */; };
 		412F129C1FF2815A0003687F /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 412F129B1FF2815A0003687F /* Cocoa.framework */; };
-		41C841CC1FF26BB000E1A99F /* liblib-SLExternal-macx.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 41C841CA1FF26BB000E1A99F /* liblib-SLExternal-macx.a */; };
+		41B159D11FF3FA79002D8D73 /* liblib-SLExternal-macxcode.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 41B159D21FF3FA79002D8D73 /* liblib-SLExternal-macxcode.a */; };
 		41C841CD1FF26BB000E1A99F /* liblib-SLProject.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 41C841CB1FF26BB000E1A99F /* liblib-SLProject.a */; };
 		41C841DA1FF26D0200E1A99F /* libopencv_imgcodecs.3.2.0.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 41C841CE1FF26D0100E1A99F /* libopencv_imgcodecs.3.2.0.dylib */; };
 		41C841DB1FF26D0200E1A99F /* libopencv_aruco.3.2.0.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 41C841CF1FF26D0100E1A99F /* libopencv_aruco.3.2.0.dylib */; };
@@ -52,7 +52,7 @@
 		412F12991FF281390003687F /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
 		412F129B1FF2815A0003687F /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
 		41A062931FED08E3000AC2C1 /* app-Demo-GLFW */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = "app-Demo-GLFW"; sourceTree = BUILT_PRODUCTS_DIR; };
-		41C841CA1FF26BB000E1A99F /* liblib-SLExternal-macx.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = "liblib-SLExternal-macx.a"; path = "../_bin-Debug-macxcode/liblib-SLExternal-macx.a"; sourceTree = "<group>"; };
+		41B159D21FF3FA79002D8D73 /* liblib-SLExternal-macxcode.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; path = "liblib-SLExternal-macxcode.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		41C841CB1FF26BB000E1A99F /* liblib-SLProject.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = "liblib-SLProject.a"; path = "../_bin-Debug-macxcode/liblib-SLProject.a"; sourceTree = "<group>"; };
 		41C841CE1FF26D0100E1A99F /* libopencv_imgcodecs.3.2.0.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libopencv_imgcodecs.3.2.0.dylib; path = ../_lib/prebuilt/OpenCV/macx/libopencv_imgcodecs.3.2.0.dylib; sourceTree = "<group>"; };
 		41C841CF1FF26D0100E1A99F /* libopencv_aruco.3.2.0.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libopencv_aruco.3.2.0.dylib; path = ../_lib/prebuilt/OpenCV/macx/libopencv_aruco.3.2.0.dylib; sourceTree = "<group>"; };
@@ -74,6 +74,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				41B159D11FF3FA79002D8D73 /* liblib-SLExternal-macxcode.a in Frameworks */,
 				412F129C1FF2815A0003687F /* Cocoa.framework in Frameworks */,
 				412F129A1FF281390003687F /* CoreGraphics.framework in Frameworks */,
 				412F12981FF281240003687F /* QuartzCore.framework in Frameworks */,
@@ -93,7 +94,6 @@
 				41C841E31FF26D0200E1A99F /* libopencv_imgproc.3.2.0.dylib in Frameworks */,
 				41C841E41FF26D0200E1A99F /* libopencv_core.3.2.0.dylib in Frameworks */,
 				41C841E51FF26D0200E1A99F /* libopencv_flann.3.2.0.dylib in Frameworks */,
-				41C841CC1FF26BB000E1A99F /* liblib-SLExternal-macx.a in Frameworks */,
 				41C841CD1FF26BB000E1A99F /* liblib-SLProject.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -108,7 +108,7 @@
 				412F12951FF280D40003687F /* CoreFoundation.framework */,
 				412F12991FF281390003687F /* CoreGraphics.framework */,
 				412F12931FF280B30003687F /* IOKit.framework */,
-				41C841CA1FF26BB000E1A99F /* liblib-SLExternal-macx.a */,
+				41B159D21FF3FA79002D8D73 /* liblib-SLExternal-macxcode.a */,
 				41C841CB1FF26BB000E1A99F /* liblib-SLProject.a */,
 				41C841CF1FF26D0100E1A99F /* libopencv_aruco.3.2.0.dylib */,
 				41C841FC1FF2711B00E1A99F /* libopencv_calib3d.3.2.0.dylib */,

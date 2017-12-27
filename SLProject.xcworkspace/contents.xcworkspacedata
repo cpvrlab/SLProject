@@ -33,7 +33,7 @@
       location = "group:app-Demo-iOS/app-Demo-iOS.xcodeproj">
    </FileRef>
    <FileRef
-      location = "group:lib-SLExternal/lib-SLExternal-macx.xcodeproj">
+      location = "group:lib-SLExternal/lib-SLExternal-macxcode.xcodeproj">
    </FileRef>
    <FileRef
       location = "group:lib-SLProject/lib-SLProject.xcodeproj">

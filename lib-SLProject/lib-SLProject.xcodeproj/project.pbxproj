@@ -615,19 +615,11 @@
 			name = Math;
 			sourceTree = "<group>";
 		};
-		41030CFD1FED4BC7005CFF1A /* Frameworks */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			name = Frameworks;
-			sourceTree = "<group>";
-		};
 		4168FDD71FED45EA007C56B3 = {
 			isa = PBXGroup;
 			children = (
 				41030BF31FED470E005CFF1A /* Animation */,
 				41030B931FED468F005CFF1A /* CV */,
-				41030CFD1FED4BC7005CFF1A /* Frameworks */,
 				41030B921FED468B005CFF1A /* GL */,
 				41030C341FED48E9005CFF1A /* Math */,
 				41030B911FED4682005CFF1A /* Meshes */,
