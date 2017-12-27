@@ -4,15 +4,25 @@
 <dict>
 	<key>SchemeUserState</key>
 	<dict>
-		<key>lib-SLExternal-macx.xcscheme</key>
+		<key>ch06_ColorCube.xcscheme</key>
 		<dict>
 			<key>orderHint</key>
-			<integer>1</integer>
+			<integer>5</integer>
+		</dict>
+		<key>ch07_DiffuseCube.xcscheme</key>
+		<dict>
+			<key>orderHint</key>
+			<integer>4</integer>
+		</dict>
+		<key>cv01_ChangeBrightnessAndContrast.xcscheme</key>
+		<dict>
+			<key>orderHint</key>
+			<integer>5</integer>
 		</dict>
 	</dict>
 	<key>SuppressBuildableAutocreation</key>
 	<dict>
-		<key>4126203E1FEE92C8008632F6</key>
+		<key>4160DA4C1FF3C88400343C0D</key>
 		<dict>
 			<key>primary</key>
 			<true/>

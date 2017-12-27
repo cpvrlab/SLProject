@@ -7,13 +7,15 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		41030D081FED58EC005CFF1A /* glfwMain.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 41030D071FED58EC005CFF1A /* glfwMain.cpp */; };
 		41030D111FED595B005CFF1A /* OpenGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 41030D101FED595B005CFF1A /* OpenGL.framework */; };
 		412F12941FF280B30003687F /* IOKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 412F12931FF280B30003687F /* IOKit.framework */; };
 		412F12961FF280D40003687F /* CoreFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 412F12951FF280D40003687F /* CoreFoundation.framework */; };
 		412F12981FF281240003687F /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 412F12971FF281240003687F /* QuartzCore.framework */; };
 		412F129A1FF281390003687F /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 412F12991FF281390003687F /* CoreGraphics.framework */; };
 		412F129C1FF2815A0003687F /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 412F129B1FF2815A0003687F /* Cocoa.framework */; };
+		413078D41FF3E25000BBE7B5 /* NewNodeGui.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 413078D01FF3E24F00BBE7B5 /* NewNodeGui.cpp */; };
+		413078D51FF3E25000BBE7B5 /* glfwMain.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 413078D11FF3E24F00BBE7B5 /* glfwMain.cpp */; };
+		413078D61FF3E25000BBE7B5 /* NewNodeSceneView.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 413078D21FF3E25000BBE7B5 /* NewNodeSceneView.cpp */; };
 		41C841CC1FF26BB000E1A99F /* liblib-SLExternal-macx.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 41C841CA1FF26BB000E1A99F /* liblib-SLExternal-macx.a */; };
 		41C841CD1FF26BB000E1A99F /* liblib-SLProject.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 41C841CB1FF26BB000E1A99F /* liblib-SLProject.a */; };
 		41C841DA1FF26D0200E1A99F /* libopencv_imgcodecs.3.2.0.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 41C841CE1FF26D0100E1A99F /* libopencv_imgcodecs.3.2.0.dylib */; };
@@ -44,14 +46,18 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		41030D071FED58EC005CFF1A /* glfwMain.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = glfwMain.cpp; path = source/glfwMain.cpp; sourceTree = "<group>"; };
 		41030D101FED595B005CFF1A /* OpenGL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGL.framework; path = System/Library/Frameworks/OpenGL.framework; sourceTree = SDKROOT; };
 		412F12931FF280B30003687F /* IOKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = IOKit.framework; path = System/Library/Frameworks/IOKit.framework; sourceTree = SDKROOT; };
 		412F12951FF280D40003687F /* CoreFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreFoundation.framework; path = System/Library/Frameworks/CoreFoundation.framework; sourceTree = SDKROOT; };
 		412F12971FF281240003687F /* QuartzCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuartzCore.framework; path = System/Library/Frameworks/QuartzCore.framework; sourceTree = SDKROOT; };
 		412F12991FF281390003687F /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
 		412F129B1FF2815A0003687F /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
-		41A062931FED08E3000AC2C1 /* app-Demo-GLFW */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = "app-Demo-GLFW"; sourceTree = BUILT_PRODUCTS_DIR; };
+		413078CF1FF3E24F00BBE7B5 /* NewNodeGui.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NewNodeGui.h; sourceTree = "<group>"; };
+		413078D01FF3E24F00BBE7B5 /* NewNodeGui.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = NewNodeGui.cpp; sourceTree = "<group>"; };
+		413078D11FF3E24F00BBE7B5 /* glfwMain.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = glfwMain.cpp; sourceTree = "<group>"; };
+		413078D21FF3E25000BBE7B5 /* NewNodeSceneView.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = NewNodeSceneView.cpp; sourceTree = "<group>"; };
+		413078D31FF3E25000BBE7B5 /* NewNodeSceneView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NewNodeSceneView.h; sourceTree = "<group>"; };
+		41A062931FED08E3000AC2C1 /* app-NodeManipulationDemo */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = "app-NodeManipulationDemo"; sourceTree = BUILT_PRODUCTS_DIR; };
 		41C841CA1FF26BB000E1A99F /* liblib-SLExternal-macx.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = "liblib-SLExternal-macx.a"; path = "../_bin-Debug-macxcode/liblib-SLExternal-macx.a"; sourceTree = "<group>"; };
 		41C841CB1FF26BB000E1A99F /* liblib-SLProject.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = "liblib-SLProject.a"; path = "../_bin-Debug-macxcode/liblib-SLProject.a"; sourceTree = "<group>"; };
 		41C841CE1FF26D0100E1A99F /* libopencv_imgcodecs.3.2.0.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libopencv_imgcodecs.3.2.0.dylib; path = ../_lib/prebuilt/OpenCV/macx/libopencv_imgcodecs.3.2.0.dylib; sourceTree = "<group>"; };
@@ -132,7 +138,11 @@
 		41A0628A1FED08E3000AC2C1 = {
 			isa = PBXGroup;
 			children = (
-				41030D071FED58EC005CFF1A /* glfwMain.cpp */,
+				413078D11FF3E24F00BBE7B5 /* glfwMain.cpp */,
+				413078D01FF3E24F00BBE7B5 /* NewNodeGui.cpp */,
+				413078CF1FF3E24F00BBE7B5 /* NewNodeGui.h */,
+				413078D21FF3E25000BBE7B5 /* NewNodeSceneView.cpp */,
+				413078D31FF3E25000BBE7B5 /* NewNodeSceneView.h */,
 				41030D091FED5923005CFF1A /* Frameworks */,
 				41A062941FED08E3000AC2C1 /* Products */,
 			);
@@ -141,7 +151,7 @@
 		41A062941FED08E3000AC2C1 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				41A062931FED08E3000AC2C1 /* app-Demo-GLFW */,
+				41A062931FED08E3000AC2C1 /* app-NodeManipulationDemo */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -149,9 +159,9 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		41A062921FED08E3000AC2C1 /* app-Demo-GLFW */ = {
+		41A062921FED08E3000AC2C1 /* app-NodeManipulationDemo */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 41A0629A1FED08E3000AC2C1 /* Build configuration list for PBXNativeTarget "app-Demo-GLFW" */;
+			buildConfigurationList = 41A0629A1FED08E3000AC2C1 /* Build configuration list for PBXNativeTarget "app-NodeManipulationDemo" */;
 			buildPhases = (
 				41A0628F1FED08E3000AC2C1 /* Sources */,
 				41A062901FED08E3000AC2C1 /* Frameworks */,
@@ -162,9 +172,9 @@
 			);
 			dependencies = (
 			);
-			name = "app-Demo-GLFW";
+			name = "app-NodeManipulationDemo";
 			productName = "app-Demo-GLFW";
-			productReference = 41A062931FED08E3000AC2C1 /* app-Demo-GLFW */;
+			productReference = 41A062931FED08E3000AC2C1 /* app-NodeManipulationDemo */;
 			productType = "com.apple.product-type.tool";
 		};
 /* End PBXNativeTarget section */
@@ -182,7 +192,7 @@
 					};
 				};
 			};
-			buildConfigurationList = 41A0628E1FED08E3000AC2C1 /* Build configuration list for PBXProject "app-Demo-GLFW" */;
+			buildConfigurationList = 41A0628E1FED08E3000AC2C1 /* Build configuration list for PBXProject "app-NodeManipulationDemo" */;
 			compatibilityVersion = "Xcode 8.0";
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
@@ -194,7 +204,7 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				41A062921FED08E3000AC2C1 /* app-Demo-GLFW */,
+				41A062921FED08E3000AC2C1 /* app-NodeManipulationDemo */,
 			);
 		};
 /* End PBXProject section */
@@ -220,7 +230,9 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				41030D081FED58EC005CFF1A /* glfwMain.cpp in Sources */,
+				413078D51FF3E25000BBE7B5 /* glfwMain.cpp in Sources */,
+				413078D61FF3E25000BBE7B5 /* NewNodeSceneView.cpp in Sources */,
+				413078D41FF3E25000BBE7B5 /* NewNodeGui.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -391,7 +403,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		41A0628E1FED08E3000AC2C1 /* Build configuration list for PBXProject "app-Demo-GLFW" */ = {
+		41A0628E1FED08E3000AC2C1 /* Build configuration list for PBXProject "app-NodeManipulationDemo" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				41A062981FED08E3000AC2C1 /* Debug */,
@@ -400,7 +412,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		41A0629A1FED08E3000AC2C1 /* Build configuration list for PBXNativeTarget "app-Demo-GLFW" */ = {
+		41A0629A1FED08E3000AC2C1 /* Build configuration list for PBXNativeTarget "app-NodeManipulationDemo" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				41A0629B1FED08E3000AC2C1 /* Debug */,

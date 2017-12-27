@@ -311,6 +311,10 @@
 		417E0EE2148A71220015B5B0 /* Pool+Y0512_C.png in Resources */ = {isa = PBXBuildFile; fileRef = 417E0EDC148A71220015B5B0 /* Pool+Y0512_C.png */; };
 		417E0EE3148A71220015B5B0 /* Pool+Z0512_C.png in Resources */ = {isa = PBXBuildFile; fileRef = 417E0EDD148A71220015B5B0 /* Pool+Z0512_C.png */; };
 		418015141959B51200D3226D /* SLNode.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 418015131959B51200D3226D /* SLNode.cpp */; };
+		418178271FC5D68F00200D02 /* SLDeviceRotation.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 418178251FC5D68F00200D02 /* SLDeviceRotation.cpp */; };
+		418178281FC5D68F00200D02 /* SLDeviceLocation.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 418178261FC5D68F00200D02 /* SLDeviceLocation.cpp */; };
+		4181782B1FC5D76500200D02 /* SLPoints.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4181782A1FC5D76500200D02 /* SLPoints.cpp */; };
+		4181782F1FC7110600200D02 /* CoreLocation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4181782D1FC70F6E00200D02 /* CoreLocation.framework */; };
 		418BF4411B8B0D4F0049E387 /* BumpNormal.frag in Resources */ = {isa = PBXBuildFile; fileRef = 418BF4141B8B0D4F0049E387 /* BumpNormal.frag */; };
 		418BF4421B8B0D4F0049E387 /* BumpNormal.vert in Resources */ = {isa = PBXBuildFile; fileRef = 418BF4151B8B0D4F0049E387 /* BumpNormal.vert */; };
 		418BF4431B8B0D4F0049E387 /* BumpNormalEarth.frag in Resources */ = {isa = PBXBuildFile; fileRef = 418BF4161B8B0D4F0049E387 /* BumpNormalEarth.frag */; };
@@ -555,6 +559,7 @@
 		41BEFC071B78F84F009EF31F /* AVFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 41BEFC061B78F84F009EF31F /* AVFoundation.framework */; };
 		41BEFC0A1B78F85A009EF31F /* CoreMedia.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 41BEFC091B78F85A009EF31F /* CoreMedia.framework */; };
 		41BEFC0C1B78F866009EF31F /* CoreVideo.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 41BEFC0B1B78F865009EF31F /* CoreVideo.framework */; };
+		41C1FD621FD18EF800B1C190 /* spa.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 41C1FD601FD18EF800B1C190 /* spa.cpp */; };
 		41C48E8B1F0124750059B48C /* SLGLImGui.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 41C48E8A1F0124750059B48C /* SLGLImGui.cpp */; };
 		41C48E921F01250E0059B48C /* imgui_draw.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 41C48E8F1F01250E0059B48C /* imgui_draw.cpp */; };
 		41C48E931F01250E0059B48C /* imgui.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 41C48E901F01250E0059B48C /* imgui.cpp */; };
@@ -583,7 +588,6 @@
 		41FC947D19F7D6410026919B /* SLGLShader.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 41FC947619F7D6410026919B /* SLGLShader.cpp */; };
 		41FC947F19F7D6410026919B /* SLGLState.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 41FC947819F7D6410026919B /* SLGLState.cpp */; };
 		41FC948019F7D6410026919B /* SLGLTexture.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 41FC947919F7D6410026919B /* SLGLTexture.cpp */; };
-		41FD158E1E5455FB00BA1B7A /* Wavefront-OBJ in Resources */ = {isa = PBXBuildFile; fileRef = 41FD158D1E5455FB00BA1B7A /* Wavefront-OBJ */; };
 		41FD9D111E523AD70063A1B7 /* Font07.png in Resources */ = {isa = PBXBuildFile; fileRef = 41FD9D061E523AD70063A1B7 /* Font07.png */; };
 		41FD9D121E523AD70063A1B7 /* Font08.png in Resources */ = {isa = PBXBuildFile; fileRef = 41FD9D071E523AD70063A1B7 /* Font08.png */; };
 		41FD9D131E523AD70063A1B7 /* Font09.png in Resources */ = {isa = PBXBuildFile; fileRef = 41FD9D081E523AD70063A1B7 /* Font09.png */; };
@@ -965,6 +969,13 @@
 		417E0EDC148A71220015B5B0 /* Pool+Y0512_C.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "Pool+Y0512_C.png"; path = "../_data/images/textures/Pool+Y0512_C.png"; sourceTree = "<group>"; };
 		417E0EDD148A71220015B5B0 /* Pool+Z0512_C.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "Pool+Z0512_C.png"; path = "../_data/images/textures/Pool+Z0512_C.png"; sourceTree = "<group>"; };
 		418015131959B51200D3226D /* SLNode.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SLNode.cpp; path = "../lib-SLProject/source/SLNode.cpp"; sourceTree = SOURCE_ROOT; };
+		418178221FC5D66B00200D02 /* SLDeviceRotation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SLDeviceRotation.h; path = ../include/SLDeviceRotation.h; sourceTree = SOURCE_ROOT; };
+		418178241FC5D66B00200D02 /* SLDeviceLocation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SLDeviceLocation.h; path = ../include/SLDeviceLocation.h; sourceTree = SOURCE_ROOT; };
+		418178251FC5D68F00200D02 /* SLDeviceRotation.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SLDeviceRotation.cpp; path = "../lib-SLProject/source/SLDeviceRotation.cpp"; sourceTree = SOURCE_ROOT; };
+		418178261FC5D68F00200D02 /* SLDeviceLocation.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SLDeviceLocation.cpp; path = "../lib-SLProject/source/SLDeviceLocation.cpp"; sourceTree = SOURCE_ROOT; };
+		418178291FC5D74F00200D02 /* SLPoints.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SLPoints.h; path = ../include/SLPoints.h; sourceTree = SOURCE_ROOT; };
+		4181782A1FC5D76500200D02 /* SLPoints.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SLPoints.cpp; path = "../lib-SLProject/source/SLPoints.cpp"; sourceTree = SOURCE_ROOT; };
+		4181782D1FC70F6E00200D02 /* CoreLocation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreLocation.framework; path = System/Library/Frameworks/CoreLocation.framework; sourceTree = SDKROOT; };
 		418BF4141B8B0D4F0049E387 /* BumpNormal.frag */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = BumpNormal.frag; path = ../_data/shaders/BumpNormal.frag; sourceTree = SOURCE_ROOT; };
 		418BF4151B8B0D4F0049E387 /* BumpNormal.vert */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = BumpNormal.vert; path = ../_data/shaders/BumpNormal.vert; sourceTree = SOURCE_ROOT; };
 		418BF4161B8B0D4F0049E387 /* BumpNormalEarth.frag */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = BumpNormalEarth.frag; path = ../_data/shaders/BumpNormalEarth.frag; sourceTree = SOURCE_ROOT; };
@@ -1416,6 +1427,8 @@
 		41BEFC061B78F84F009EF31F /* AVFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AVFoundation.framework; path = System/Library/Frameworks/AVFoundation.framework; sourceTree = SDKROOT; };
 		41BEFC091B78F85A009EF31F /* CoreMedia.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreMedia.framework; path = System/Library/Frameworks/CoreMedia.framework; sourceTree = SDKROOT; };
 		41BEFC0B1B78F865009EF31F /* CoreVideo.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreVideo.framework; path = System/Library/Frameworks/CoreVideo.framework; sourceTree = SDKROOT; };
+		41C1FD601FD18EF800B1C190 /* spa.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = spa.cpp; path = "../lib-SLExternal/spa/spa.cpp"; sourceTree = SOURCE_ROOT; };
+		41C1FD611FD18EF800B1C190 /* spa.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = spa.h; path = "../lib-SLExternal/spa/spa.h"; sourceTree = SOURCE_ROOT; };
 		41C48E8A1F0124750059B48C /* SLGLImGui.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SLGLImGui.cpp; path = "../lib-SLProject/source/GL/SLGLImGui.cpp"; sourceTree = SOURCE_ROOT; };
 		41C48E8D1F0124AE0059B48C /* SLDemoGui.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SLDemoGui.h; path = ../include/SLDemoGui.h; sourceTree = SOURCE_ROOT; };
 		41C48E8E1F0124AE0059B48C /* SLGLImGui.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SLGLImGui.h; path = ../include/SLGLImGui.h; sourceTree = SOURCE_ROOT; };
@@ -1462,7 +1475,6 @@
 		41FC947619F7D6410026919B /* SLGLShader.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SLGLShader.cpp; path = "../lib-SLProject/source/GL/SLGLShader.cpp"; sourceTree = SOURCE_ROOT; };
 		41FC947819F7D6410026919B /* SLGLState.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SLGLState.cpp; path = "../lib-SLProject/source/GL/SLGLState.cpp"; sourceTree = SOURCE_ROOT; };
 		41FC947919F7D6410026919B /* SLGLTexture.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SLGLTexture.cpp; path = "../lib-SLProject/source/GL/SLGLTexture.cpp"; sourceTree = SOURCE_ROOT; };
-		41FD158D1E5455FB00BA1B7A /* Wavefront-OBJ */ = {isa = PBXFileReference; lastKnownFileType = folder; name = "Wavefront-OBJ"; path = "../_data/models/Wavefront-OBJ"; sourceTree = "<group>"; };
 		41FD9D061E523AD70063A1B7 /* Font07.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = Font07.png; path = ../_data/images/fonts/Font07.png; sourceTree = "<group>"; };
 		41FD9D071E523AD70063A1B7 /* Font08.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = Font08.png; path = ../_data/images/fonts/Font08.png; sourceTree = "<group>"; };
 		41FD9D081E523AD70063A1B7 /* Font09.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = Font09.png; path = ../_data/images/fonts/Font09.png; sourceTree = "<group>"; };
@@ -1487,6 +1499,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4181782F1FC7110600200D02 /* CoreLocation.framework in Frameworks */,
 				419BEFC51DE5C91E00C3E171 /* opencv2.framework in Frameworks */,
 				41A16C3C1B836835001EA07E /* CoreMotion.framework in Frameworks */,
 				41BEFC0C1B78F866009EF31F /* CoreVideo.framework in Frameworks */,
@@ -1506,6 +1519,7 @@
 		4124F2A116D4FD4B004379A0 /* lib-SLExternal */ = {
 			isa = PBXGroup;
 			children = (
+				41C1FD5E1FD18ED100B1C190 /* spa */,
 				41CF01DB1F096ABB00CA36C9 /* Shoemake */,
 				41C48E8F1F01250E0059B48C /* imgui_draw.cpp */,
 				41C48E901F01250E0059B48C /* imgui.cpp */,
@@ -1574,6 +1588,10 @@
 		41627E8D15CA8CA90023B936 /* SL */ = {
 			isa = PBXGroup;
 			children = (
+				418178261FC5D68F00200D02 /* SLDeviceLocation.cpp */,
+				418178251FC5D68F00200D02 /* SLDeviceRotation.cpp */,
+				418178241FC5D66B00200D02 /* SLDeviceLocation.h */,
+				418178221FC5D66B00200D02 /* SLDeviceRotation.h */,
 				414FE8F31F1506CF00F2FD4D /* SLTransferFunction.h */,
 				414FE8F01F1506BC00F2FD4D /* SLTransferFunction.cpp */,
 				41C48EA01F0128130059B48C /* SLDemoGui.cpp */,
@@ -1702,7 +1720,6 @@
 		417E0E44148A6EBC0015B5B0 /* Models */ = {
 			isa = PBXGroup;
 			children = (
-				41FD158D1E5455FB00BA1B7A /* Wavefront-OBJ */,
 				41901CFB1959C5BB006795A8 /* 3DS */,
 				41901CF91959C5AC006795A8 /* DAE */,
 				41901CF71959C58D006795A8 /* FBX */,
@@ -2031,6 +2048,8 @@
 		418E0C5814892A3D00C6274F /* Meshes */ = {
 			isa = PBXGroup;
 			children = (
+				4181782A1FC5D76500200D02 /* SLPoints.cpp */,
+				418178291FC5D74F00200D02 /* SLPoints.h */,
 				414333881DE041310027E1C3 /* SLCoordAxis.cpp */,
 				414333891DE041310027E1C3 /* SLTriangle.cpp */,
 				414333821DE03F0C0027E1C3 /* SLLightDirect.cpp */,
@@ -2467,6 +2486,7 @@
 		419BCD3A14865C0800D576F1 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				4181782D1FC70F6E00200D02 /* CoreLocation.framework */,
 				41FE0B041959C9DA00486424 /* lib-SLExternal.xcodeproj */,
 				41BEFC0B1B78F865009EF31F /* CoreVideo.framework */,
 				41BEFC091B78F85A009EF31F /* CoreMedia.framework */,
@@ -2551,6 +2571,15 @@
 			path = comgr;
 			sourceTree = "<group>";
 		};
+		41C1FD5E1FD18ED100B1C190 /* spa */ = {
+			isa = PBXGroup;
+			children = (
+				41C1FD601FD18EF800B1C190 /* spa.cpp */,
+				41C1FD611FD18EF800B1C190 /* spa.h */,
+			);
+			path = spa;
+			sourceTree = "<group>";
+		};
 		41CF01DB1F096ABB00CA36C9 /* Shoemake */ = {
 			isa = PBXGroup;
 			children = (
@@ -2598,7 +2627,7 @@
 		419BCD2E14865C0800D576F1 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastUpgradeCheck = 0830;
+				LastUpgradeCheck = 0910;
 				TargetAttributes = {
 					419BCD3614865C0800D576F1 = {
 						DevelopmentTeam = 858Y9EWZ4B;
@@ -2830,7 +2859,6 @@
 				417981A21F13833000EB5315 /* i0142_0000b.png in Resources */,
 				417981A61F13833000EB5315 /* i0146_0000b.png in Resources */,
 				417E0ED3148A70DE0015B5B0 /* tree1_1024_C.png in Resources */,
-				41FD158E1E5455FB00BA1B7A /* Wavefront-OBJ in Resources */,
 				417981661F13833000EB5315 /* i0082_0000b.png in Resources */,
 				417981631F13833000EB5315 /* i0079_0000b.png in Resources */,
 				4179811A1F13833000EB5315 /* i0006_0000b.png in Resources */,
@@ -3065,6 +3093,7 @@
 				41E9843A1E3BABB1003D5CCF /* SLCVImage.cpp in Sources */,
 				418E0C4B148929C800C6274F /* SLRay.cpp in Sources */,
 				41CF01DC1F096ABB00CA36C9 /* Decompose.cpp in Sources */,
+				418178271FC5D68F00200D02 /* SLDeviceRotation.cpp in Sources */,
 				418E0C4C148929C800C6274F /* SLRaytracer.cpp in Sources */,
 				418E0C4D148929C800C6274F /* SLRectangle.cpp in Sources */,
 				41483533182CBE2700312D36 /* SLPathtracer.cpp in Sources */,
@@ -3133,6 +3162,7 @@
 				41FC947D19F7D6410026919B /* SLGLShader.cpp in Sources */,
 				419808F11959BA670048085E /* ValidateDataStructure.cpp in Sources */,
 				419808A81959BA670048085E /* SceneCombiner.cpp in Sources */,
+				418178281FC5D68F00200D02 /* SLDeviceLocation.cpp in Sources */,
 				419808BD1959BA670048085E /* 3DSConverter.cpp in Sources */,
 				4143338C1DE041310027E1C3 /* SLTriangle.cpp in Sources */,
 				419808C81959BA670048085E /* CSMLoader.cpp in Sources */,
@@ -3167,6 +3197,7 @@
 				4198087C1959BA670048085E /* FBXParser.cpp in Sources */,
 				419808B21959BA670048085E /* TriangulateProcess.cpp in Sources */,
 				419808641959BA670048085E /* AssimpCExport.cpp in Sources */,
+				41C1FD621FD18EF800B1C190 /* spa.cpp in Sources */,
 				419808721959BA670048085E /* DXFLoader.cpp in Sources */,
 				419808DE1959BA670048085E /* MDLMaterialLoader.cpp in Sources */,
 				41B86C5A1C4FE21400BB409D /* SLGLVertexBuffer.cpp in Sources */,
@@ -3182,6 +3213,7 @@
 				4198089B1959BA670048085E /* OgreMaterial.cpp in Sources */,
 				419808911959BA670048085E /* MD5Parser.cpp in Sources */,
 				419808B01959BA670048085E /* TerragenLoader.cpp in Sources */,
+				4181782B1FC5D76500200D02 /* SLPoints.cpp in Sources */,
 				419808CA1959BA670048085E /* FBXDeformer.cpp in Sources */,
 				419808F21959BA670048085E /* VertexTriangleAdjacency.cpp in Sources */,
 				419808E11959BA670048085E /* ObjFileMtlImporter.cpp in Sources */,
@@ -3278,12 +3310,18 @@
 				ALWAYS_SEARCH_USER_PATHS = YES;
 				CLANG_CXX_LANGUAGE_STANDARD = "c++0x";
 				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
 				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
 				CLANG_WARN_CONSTANT_CONVERSION = YES;
 				CLANG_WARN_EMPTY_BODY = YES;
 				CLANG_WARN_ENUM_CONVERSION = YES;
 				CLANG_WARN_INFINITE_RECURSION = YES;
 				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
 				CLANG_WARN_SUSPICIOUS_MOVE = YES;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
@@ -3367,12 +3405,18 @@
 				ALWAYS_SEARCH_USER_PATHS = YES;
 				CLANG_CXX_LANGUAGE_STANDARD = "c++0x";
 				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
 				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
 				CLANG_WARN_CONSTANT_CONVERSION = YES;
 				CLANG_WARN_EMPTY_BODY = YES;
 				CLANG_WARN_ENUM_CONVERSION = YES;
 				CLANG_WARN_INFINITE_RECURSION = YES;
 				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
 				CLANG_WARN_SUSPICIOUS_MOVE = YES;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
