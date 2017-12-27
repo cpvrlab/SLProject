@@ -15,9 +15,9 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "4126203E1FEE92C8008632F6"
-               BuildableName = "liblib-SLExternal-macx.a"
-               BlueprintName = "lib-SLExternal-macx"
-               ReferencedContainer = "container:lib-SLExternal-macx.xcodeproj">
+               BuildableName = "liblib-SLExternal-macxcode.a"
+               BlueprintName = "lib-SLExternal-macxcode"
+               ReferencedContainer = "container:lib-SLExternal-macxcode.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>
@@ -48,9 +48,9 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "4126203E1FEE92C8008632F6"
-            BuildableName = "liblib-SLExternal-macx.a"
-            BlueprintName = "lib-SLExternal-macx"
-            ReferencedContainer = "container:lib-SLExternal-macx.xcodeproj">
+            BuildableName = "liblib-SLExternal-macxcode.a"
+            BlueprintName = "lib-SLExternal-macxcode"
+            ReferencedContainer = "container:lib-SLExternal-macxcode.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
       <AdditionalOptions>
@@ -66,9 +66,9 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "4126203E1FEE92C8008632F6"
-            BuildableName = "liblib-SLExternal-macx.a"
-            BlueprintName = "lib-SLExternal-macx"
-            ReferencedContainer = "container:lib-SLExternal-macx.xcodeproj">
+            BuildableName = "liblib-SLExternal-macxcode.a"
+            BlueprintName = "lib-SLExternal-macxcode"
+            ReferencedContainer = "container:lib-SLExternal-macxcode.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
    </ProfileAction>

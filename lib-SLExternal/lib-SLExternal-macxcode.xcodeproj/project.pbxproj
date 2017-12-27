@@ -483,7 +483,7 @@
 		412079A61FEEB32400C81B0E /* glfw3.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = glfw3.h; path = glfw3/include/GLFW/glfw3.h; sourceTree = "<group>"; };
 		412079A71FEEB32400C81B0E /* glfw3native.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = glfw3native.h; path = glfw3/include/GLFW/glfw3native.h; sourceTree = "<group>"; };
 		412079AA1FEEB33A00C81B0E /* internal.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = internal.h; path = glfw3/src/internal.h; sourceTree = "<group>"; };
-		4126203F1FEE92C8008632F6 /* liblib-SLExternal-macx.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "liblib-SLExternal-macx.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		4126203F1FEE92C8008632F6 /* liblib-SLExternal-macxcode.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "liblib-SLExternal-macxcode.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		412F12831FF27B380003687F /* cocoa_monitor.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = cocoa_monitor.m; path = glfw3/src/cocoa_monitor.m; sourceTree = "<group>"; };
 		412F12841FF27B380003687F /* iokit_joystick.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = iokit_joystick.h; path = glfw3/src/iokit_joystick.h; sourceTree = "<group>"; };
 		412F12851FF27B380003687F /* cocoa_window.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = cocoa_window.m; path = glfw3/src/cocoa_window.m; sourceTree = "<group>"; };
@@ -1045,7 +1045,7 @@
 		412620401FEE92C8008632F6 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				4126203F1FEE92C8008632F6 /* liblib-SLExternal-macx.a */,
+				4126203F1FEE92C8008632F6 /* liblib-SLExternal-macxcode.a */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -1994,9 +1994,9 @@
 /* End PBXHeadersBuildPhase section */
 
 /* Begin PBXNativeTarget section */
-		4126203E1FEE92C8008632F6 /* lib-SLExternal-macx */ = {
+		4126203E1FEE92C8008632F6 /* lib-SLExternal-macxcode */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 4126204A1FEE92C8008632F6 /* Build configuration list for PBXNativeTarget "lib-SLExternal-macx" */;
+			buildConfigurationList = 4126204A1FEE92C8008632F6 /* Build configuration list for PBXNativeTarget "lib-SLExternal-macxcode" */;
 			buildPhases = (
 				4126203B1FEE92C8008632F6 /* Sources */,
 				4126203C1FEE92C8008632F6 /* Frameworks */,
@@ -2006,9 +2006,9 @@
 			);
 			dependencies = (
 			);
-			name = "lib-SLExternal-macx";
+			name = "lib-SLExternal-macxcode";
 			productName = "lib-SLExternal-macx";
-			productReference = 4126203F1FEE92C8008632F6 /* liblib-SLExternal-macx.a */;
+			productReference = 4126203F1FEE92C8008632F6 /* liblib-SLExternal-macxcode.a */;
 			productType = "com.apple.product-type.library.static";
 		};
 /* End PBXNativeTarget section */
@@ -2038,7 +2038,7 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				4126203E1FEE92C8008632F6 /* lib-SLExternal-macx */,
+				4126203E1FEE92C8008632F6 /* lib-SLExternal-macxcode */,
 			);
 		};
 /* End PBXProject section */
@@ -2491,7 +2491,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		4126204A1FEE92C8008632F6 /* Build configuration list for PBXNativeTarget "lib-SLExternal-macx" */ = {
+		4126204A1FEE92C8008632F6 /* Build configuration list for PBXNativeTarget "lib-SLExternal-macxcode" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				4126204B1FEE92C8008632F6 /* Debug */,
