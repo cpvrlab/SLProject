@@ -36,6 +36,7 @@
 #include <SLCVTrackedChessboard.h>
 #include <SLCVTrackedFeatures.h>
 #include <SLTransferFunction.h>
+#include <SLSkybox.h>
 
 SLNode* SphereGroup(SLint, SLfloat, SLfloat, SLfloat, SLfloat, SLint, SLMaterial*, SLMaterial*);
 //-----------------------------------------------------------------------------
@@ -398,9 +399,6 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
                                             1, 1, "rectF", matFloor), "rectFNode"); 
         floor->rotate(-90, 1,0,0);
         scene->addChild(floor);
-
-        // scene sky box
-        // TODO...
 
         // table
         SLNode* table = importer.load("DAE/Table/table.dae");
@@ -1613,16 +1611,9 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         _info = "Sky box cube with cubemap skybox shader";
 
         // Create textures and materials
-        SLGLTexture* cubeMap = new SLGLTexture("mountain_lake+X1024_C.jpg","mountain_lake-X1024_C.jpg"
-                                              ,"mountain_lake+Y1024_C.jpg","mountain_lake-Y1024_C.jpg"
-                                              ,"mountain_lake+Z1024_C.jpg","mountain_lake-Z1024_C.jpg");
-        SLMaterial* matCubeMap = new SLMaterial("matCubeMap");
-        matCubeMap->textures().push_back(cubeMap);
-        SLGLProgram* sp = new SLGLGenericProgram("SkyBox.vert", "SkyBox.frag");
-        sp->addUniform1f(new SLGLUniform1f(UT_const, "u_centerX", 0.0f));
-        sp->addUniform1f(new SLGLUniform1f(UT_const, "u_centerY", 0.0f));
-        sp->addUniform1f(new SLGLUniform1f(UT_const, "u_centerZ", 0.0f));
-        matCubeMap->program(sp);
+        SLSkybox* skybox = new SLSkybox("mountain_lake+X1024_C.jpg","mountain_lake-X1024_C.jpg",
+                                        "mountain_lake+Y1024_C.jpg","mountain_lake-Y1024_C.jpg",
+                                        "mountain_lake+Z1024_C.jpg","mountain_lake-Z1024_C.jpg");
 
         // Create a scene group node
         SLNode* scene = new SLNode("scene node");
@@ -1641,11 +1632,22 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         light1->lookAt(0,0,0);
         light1->name("light node");
         scene->addChild(light1);
+        
+        // Coordinate axis
+        SLNode *axis = new SLNode(new SLCoordAxis(), "Axis Node");
+        axis->setDrawBitsRec(SL_DB_WIREMESH, false);
+        axis->scale(2);
+        axis->rotate(-90, 1, 0, 0);
+        scene->addChild(axis);
 
-        SLNode* boxNode = new SLNode(new SLBox(10,10,10, -10,-10,-10, "box", matCubeMap));
-        scene->addChild(boxNode);
-
+        // Yellow center box
+        SLMaterial* yellow = new SLMaterial("mY", SLCol4f(1,1,0,0.5f));
+        SLNode *box = new SLNode(new SLBox(-.5f,-.5f,-.5f, .5f,.5f,.5f, "Box", yellow), "Box Node");
+        scene->addChild(box);
+        
+        
         sv->camera(cam1);
+        sv->skybox(skybox);
 
         // pass the scene group as root node
         _root3D = scene;

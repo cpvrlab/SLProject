@@ -283,6 +283,7 @@
 				SDKROOT = macosx;
 				SHARED_PRECOMPS_DIR = "$(PROJECT_DIR)/../intermediate/$(PROJECT_NAME)/$(CONFIGURATION)";
 				SYMROOT = "$(PROJECT_DIR)/../_bin-$(CONFIGURATION)-macxcode";
+				WARNING_LDFLAGS = "-Wno";
 			};
 			name = Debug;
 		};
@@ -335,6 +336,7 @@
 				SDKROOT = macosx;
 				SHARED_PRECOMPS_DIR = "$(PROJECT_DIR)/../intermediate/$(PROJECT_NAME)/$(CONFIGURATION)";
 				SYMROOT = "$(PROJECT_DIR)/../_bin-$(CONFIGURATION)-macxcode";
+				WARNING_LDFLAGS = "-Wno";
 			};
 			name = Release;
 		};

@@ -2422,7 +2422,7 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SHARED_PRECOMPS_DIR = "$(PROJECT_DIR)/../intermediate/$(PROJECT_NAME)/$(CONFIGURATION)";
 				SYMROOT = "$(PROJECT_DIR)/../_bin-$(CONFIGURATION)-macxcode";
-				WARNING_CFLAGS = "-Wno-address-of-packed-member";
+				WARNING_CFLAGS = "-Wno-everything";
 			};
 			name = Debug;
 		};
@@ -2477,7 +2477,7 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SHARED_PRECOMPS_DIR = "$(PROJECT_DIR)/../intermediate/$(PROJECT_NAME)/$(CONFIGURATION)";
 				SYMROOT = "$(PROJECT_DIR)/../_bin-$(CONFIGURATION)-macxcode";
-				WARNING_CFLAGS = "-Wno-address-of-packed-member";
+				WARNING_CFLAGS = "-Wno-everything";
 			};
 			name = Release;
 		};

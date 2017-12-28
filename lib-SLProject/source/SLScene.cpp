@@ -220,9 +220,12 @@ void SLScene::unInit()
 
     // reset existing sceneviews
     for (auto sv : _sceneViews)
-        if (sv != nullptr)
-            sv->camera(sv->sceneViewCamera());
-
+    {   if (sv != nullptr)
+        {   sv->camera(sv->sceneViewCamera());
+            sv->skybox(nullptr);
+        }
+    }
+    
     // delete entire scene graph
     delete _root3D;
     _root3D = nullptr;

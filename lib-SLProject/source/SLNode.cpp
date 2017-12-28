@@ -392,7 +392,7 @@ void SLNode::cull2DRec(SLSceneView* sv)
         
     // Add all nodes to the opaque list
     // A node that has alpha meshes still can have opaque meshes  
-    sv->visibleNodes()->push_back(this);
+    sv->visibleNodes2D()->push_back(this);
 }
 //-----------------------------------------------------------------------------
 /*!

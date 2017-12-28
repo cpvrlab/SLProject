@@ -14,6 +14,7 @@
 #endif
 
 #include <SLNode.h>
+#include <SLSkybox.h>
 #include <SLRay.h>
 #include <SLRaytracer.h>
 #include <SLSceneView.h>
@@ -162,7 +163,8 @@ void SLMesh::draw(SLSceneView* sv, SLNode* node)
     SLGLPrimitiveType primitiveType = _primitive;
 
     // Set polygon mode
-    if (sv->drawBit(SL_DB_WIREMESH) || node->drawBit(SL_DB_WIREMESH))
+    if ((sv->drawBit(SL_DB_WIREMESH) || node->drawBit(SL_DB_WIREMESH)) &&
+        typeid(*node)!=typeid(SLSkybox))
     {
         #ifdef SL_GLES
         primitiveType = PT_lineLoop; // There is no polygon line or point mode on ES2!

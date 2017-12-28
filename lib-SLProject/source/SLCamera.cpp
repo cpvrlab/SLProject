@@ -231,7 +231,9 @@ void SLCamera::drawMeshes(SLSceneView* sv)
         }
 
         _vao.drawArrayAsColored(PT_lines, SLCol4f::WHITE*0.7f);
-        _background.renderInScene(farLT, farLB, farRT, farRB);
+        
+        if (!sv->skybox())
+            _background.renderInScene(farLT, farLB, farRT, farRB);
     }
 }
 //-----------------------------------------------------------------------------
@@ -708,7 +710,7 @@ SLbool SLCamera::onMouseMove(const SLMouseButton button,
             rot.translate(-rtP);
 
             _om.setMatrix(rot * _om);
-            needWMUpdate();
+            needUpdate();
         }
         else if (_camAnim==CA_walkingYUp) //...................................
         {
@@ -721,6 +723,7 @@ SLbool SLCamera::onMouseMove(const SLMouseButton button,
 
             forward.set(rot.multVec(forward));
             lookAt(position + forward);
+            needUpdate();
         }
         else if (_camAnim==CA_walkingZUp) //...................................
         {
@@ -733,6 +736,7 @@ SLbool SLCamera::onMouseMove(const SLMouseButton button,
 
             forward.set(rot.multVec(forward));
             lookAt(position + forward, SLVec3f(0, 0, 1));
+            needWMUpdate();
         }
 
         _oldTouchPos1.set((SLfloat)x,(SLfloat)y);
@@ -824,6 +828,7 @@ SLbool SLCamera::onMouseWheel(const SLint delta, const SLKey mod)
             else lookAtDist = _focalDist;
 
             translate(SLVec3f(0, 0, -sign*lookAtDist*_dPos), TS_object);
+            needUpdate();
 
             _lookAtRay.length = FLT_MAX;
         }

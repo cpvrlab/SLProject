@@ -345,6 +345,9 @@
     <ClInclude Include="..\include\SLDeviceRotation.h">
       <Filter>SL</Filter>
     </ClInclude>
+    <ClInclude Include="..\include\SLSkybox.h">
+      <Filter>Nodes</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="source\SLAABBox.cpp">
@@ -574,6 +577,9 @@
     </ClCompile>
     <ClCompile Include="source\SLDeviceRotation.cpp">
       <Filter>SL</Filter>
+    </ClCompile>
+    <ClCompile Include="source\SL\SLSkybox.cpp">
+      <Filter>Nodes</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

@@ -128,6 +128,8 @@ void SLSceneView::init(SLstring name,
     _scrWdivH = (SLfloat)_scrW / (SLfloat)_scrH;
       
     _renderType = RT_gl;
+    
+    _skybox = nullptr;
 
     _gui.init();
 
@@ -285,6 +287,7 @@ void SLSceneView::onInitialize()
     
     _blendNodes.clear();
     _visibleNodes.clear();
+    _visibleNodes2D.clear();
 
     _raytracer.clearData();
     _renderType = RT_gl;
@@ -449,6 +452,11 @@ and SLSceneView::_blendNodes with the visible transparent nodes.
 Nodes that are not visible with the current camera are not drawn. 
 </li>
 <li>
+<b>Draw Skybox</b>:
+The skybox is draw as first object with frozen depth buffer.
+The skybox is allways around the active camera.
+</li>
+<li>
 <b>Draw Opaque and Blended Nodes</b>:
 By calling the SLSceneView::draw3D all nodes in the vectors 
 SLSceneView::_visibleNodes and SLSceneView::_blendNodes will be drawn.
@@ -495,10 +503,10 @@ SLbool SLSceneView::draw3DGL(SLfloat elapsedTimeMS)
     // Clear buffers
     _stateGL->clearColor(_camera->background().colors()[0]);
     _stateGL->clearColorDepthBuffer();
-
-    // render gradient or textured background
-    if (!_camera->background().isUniform())
-         _camera->background().render(_scrW, _scrH);
+    
+    // Render gradient or textured background from active camera
+    if (!_skybox && !_camera->background().isUniform())
+        _camera->background().render(_scrW, _scrH);
 
     // Change state (only when changed)
     _stateGL->multiSample(_doMultiSampling);
@@ -517,6 +525,7 @@ SLbool SLSceneView::draw3DGL(SLfloat elapsedTimeMS)
     if (_camera->projection() > P_monoOrthographic)
          _camera->setView(this, ET_left);
     else _camera->setView(this, ET_center);
+    
 
     ////////////////////////
     // 4. Frustum Culling //
@@ -529,12 +538,21 @@ SLbool SLSceneView::draw3DGL(SLfloat elapsedTimeMS)
         s->root3D()->cull3DRec(this);
    
     _cullTimeMS = s->timeMilliSec() - startMS;
+    
+    
+    ////////////////////
+    // 5. Draw skybox //
+    ////////////////////
+    
+    if (_skybox)
+        _skybox->drawAroundCamera(this);
 
     ////////////////////////////////////
     // 5. Draw Opaque & Blended Nodes //
     ////////////////////////////////////
 
     startMS = s->timeMilliSec();
+    
     draw3DGLAll();
    
     // For stereo draw for right eye
@@ -749,7 +767,7 @@ void SLSceneView::draw2DGL()
         _stateGL->viewport(0, 0, _scrW, _scrH);   
 
         // 2. Pseudo 2D Frustum Culling
-        _visibleNodes.clear();     
+        _visibleNodes2D.clear();
         if (s->root2D())
             s->root2D()->cull2DRec(this);
 
@@ -785,7 +803,7 @@ void SLSceneView::draw2DGLAll()
 
     // Draw all 2D nodes blended (mostly text font textures)
     // draw the shapes directly with their wm transform
-    for(auto node : _visibleNodes)
+    for(auto node : _visibleNodes2D)
     {
         // Apply world transform
         _stateGL->modelViewMatrix.multiply(node->updateAndGetWM().m());
@@ -1438,7 +1456,7 @@ SLstring SLSceneView::windowTitle()
                 _pathtracer.numThreads());
     } else
     {   
-        SLuint nr = (uint)_visibleNodes.size() + (uint)_blendNodes.size();
+        SLuint nr = (uint)_visibleNodes.size();
         if (s->fps() > 5)
             sprintf(title, "%s (fps: %4.0f, %u nodes of %u rendered)",
                     s->name().c_str(), s->fps(), nr, _stats3D.numNodes);

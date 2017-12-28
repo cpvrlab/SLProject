@@ -106,6 +106,7 @@ HEADERS += \
 ../include/SLScene.h \
 ../include/SLSceneView.h \
 ../include/SLSkeleton.h \
+../include/SLSkybox.h \
 ../include/SLSphere.h \
 ../include/SLSpheric.h \
 ../include/SLTexFont.h \
@@ -191,9 +192,10 @@ source/SLScene.cpp \
 source/SLSceneView.cpp \
 source/SLScene_onLoad.cpp \
 source/SLSkeleton.cpp \
+source/SL/SLSkybox.cpp \
 source/SLSpheric.cpp \
 source/SLText.cpp \
-source/SLTransferFunction.cpp \
+source/SLTransferFunction.cpp
 
 OTHER_FILES += \
 ../_data/shaders/*.vert \
