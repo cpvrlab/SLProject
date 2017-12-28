@@ -2026,7 +2026,7 @@
 					};
 				};
 			};
-			buildConfigurationList = 4126203A1FEE92C8008632F6 /* Build configuration list for PBXProject "lib-SLExternal-macx" */;
+			buildConfigurationList = 4126203A1FEE92C8008632F6 /* Build configuration list for PBXProject "lib-SLExternal-macxcode" */;
 			compatibilityVersion = "Xcode 8.0";
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
@@ -2422,6 +2422,7 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SHARED_PRECOMPS_DIR = "$(PROJECT_DIR)/../intermediate/$(PROJECT_NAME)/$(CONFIGURATION)";
 				SYMROOT = "$(PROJECT_DIR)/../_bin-$(CONFIGURATION)-macxcode";
+				WARNING_CFLAGS = "-Wno-address-of-packed-member";
 			};
 			name = Debug;
 		};
@@ -2476,13 +2477,14 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SHARED_PRECOMPS_DIR = "$(PROJECT_DIR)/../intermediate/$(PROJECT_NAME)/$(CONFIGURATION)";
 				SYMROOT = "$(PROJECT_DIR)/../_bin-$(CONFIGURATION)-macxcode";
+				WARNING_CFLAGS = "-Wno-address-of-packed-member";
 			};
 			name = Release;
 		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		4126203A1FEE92C8008632F6 /* Build configuration list for PBXProject "lib-SLExternal-macx" */ = {
+		4126203A1FEE92C8008632F6 /* Build configuration list for PBXProject "lib-SLExternal-macxcode" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				412620481FEE92C8008632F6 /* Debug */,

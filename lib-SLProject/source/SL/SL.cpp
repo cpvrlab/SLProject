@@ -97,6 +97,7 @@ void SL::exitMsg(const SLchar* msg, const SLint line, const SLchar* file)
     #if defined(SL_OS_ANDROID)
     __android_log_print(ANDROID_LOG_INFO, "SLProject", 
                         "Exit %s at line %d in %s\n", msg, line, file);
+    #else
     SL::log("Exit %s at line %d in %s\n", msg, line, file);
     #endif
    

@@ -562,7 +562,7 @@ void SLAssimpImporter::loadSkeleton(SLJoint* parent, aiNode* node)
         _jointIndex = 0;
 
         joint = _skeleton->createJoint(name, _jointIndex++);
-        _skeleton->root(joint);
+        _skeleton->rootJoint(joint);
     }
     else
     {
