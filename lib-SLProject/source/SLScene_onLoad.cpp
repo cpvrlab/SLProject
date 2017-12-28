@@ -2694,8 +2694,8 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         SLMaterial* cream = new SLMaterial("cream", grayRGB,  SLCol4f::BLACK, 0);
         SLMaterial* red   = new SLMaterial("red",   redRGB ,  SLCol4f::BLACK, 0);
         SLMaterial* blue  = new SLMaterial("blue",  blueRGB,  SLCol4f::BLACK, 0);
-        SLMaterial* gray  = new SLMaterial("gray",  SLCol4f::WHITE*0.3f, SLCol4f::WHITE*10, 250, 0);
-        SLMaterial* black = new SLMaterial("black",  SLCol4f::WHITE*0.2f, SLCol4f::WHITE*10, 250, 0);
+        //SLMaterial* gray  = new SLMaterial("gray",  SLCol4f::WHITE*0.3f, SLCol4f::WHITE*10, 250, 0);
+        //SLMaterial* black = new SLMaterial("black",  SLCol4f::WHITE*0.2f, SLCol4f::WHITE*10, 250, 0);
         //black->diffuse(SLCol4f(0.1f,0.1f,0.1f, 0.1f));
 
 

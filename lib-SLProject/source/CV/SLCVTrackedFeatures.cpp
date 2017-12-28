@@ -646,7 +646,7 @@ bool SLCVTrackedFeatures::calculatePose()
     // Pose optimization
     if (foundPose)
     {
-        SLfloat matchesBefore = (SLfloat)_currentFrame.inlierMatches.size();
+        //SLfloat matchesBefore = (SLfloat)_currentFrame.inlierMatches.size();
 
 
         /////////////////////

@@ -189,7 +189,7 @@ void SLDemoGui::buildDemoGui(SLScene* s, SLSceneView* sv)
         ImGui::SameLine();
         ImGui::Text("Version %s", SL::version.c_str());
         ImGui::Separator();
-        ImGui::TextWrapped(infoAbout.c_str());
+        ImGui::TextWrapped("%s", infoAbout.c_str());
         ImGui::End();
     }
 
@@ -199,7 +199,7 @@ void SLDemoGui::buildDemoGui(SLScene* s, SLSceneView* sv)
         ImGui::Begin("Help on Interaction", &showHelp);
         ImGui::Separator();
 
-        ImGui::TextWrapped(infoHelp.c_str());
+        ImGui::TextWrapped("%s", infoHelp.c_str());
         ImGui::End();
     }
 
@@ -207,7 +207,7 @@ void SLDemoGui::buildDemoGui(SLScene* s, SLSceneView* sv)
     {
         centerNextWindow(sv);
         ImGui::Begin("Help on Camera Calibration", &showHelpCalibration, ImVec2(400,0));
-        ImGui::TextWrapped(infoCalibrate.c_str());
+        ImGui::TextWrapped("%s", infoCalibrate.c_str());
         ImGui::End();
     }
 
@@ -215,14 +215,13 @@ void SLDemoGui::buildDemoGui(SLScene* s, SLSceneView* sv)
     {
         centerNextWindow(sv);
         ImGui::Begin("Credits for all Contributors and external Libraries", &showCredits);
-        ImGui::TextWrapped(infoCredits.c_str());
+        ImGui::TextWrapped("%s", infoCredits.c_str());
         ImGui::End();
     }
 
     if (showStatsTiming)
     {
         SLRenderType rType = sv->renderType();
-        SLCamera* cam = sv->camera();
         SLfloat ft = s->frameTimesMS().average();
         SLchar m[2550];   // message character array
         m[0]=0;           // set zero length
@@ -290,7 +289,7 @@ void SLDemoGui::buildDemoGui(SLScene* s, SLSceneView* sv)
 
             ImGui::PushFont(ImGui::GetIO().Fonts->Fonts[1]);
             ImGui::Begin("Timing", &showStatsTiming, ImVec2(300,0));
-            ImGui::TextWrapped(m);
+            ImGui::TextWrapped("%s", m);
             ImGui::End();
             ImGui::PopFont();
         }
@@ -301,7 +300,6 @@ void SLDemoGui::buildDemoGui(SLScene* s, SLSceneView* sv)
         SLchar m[2550];   // message character array
         m[0]=0;           // set zero length
 
-        SLNodeStats& stats2D  = sv->stats2D();
         SLNodeStats& stats3D  = sv->stats3D();
         SLfloat vox           = (SLfloat)stats3D.numVoxels;
         SLfloat voxEmpty      = (SLfloat)stats3D.numVoxEmpty;
@@ -416,7 +414,7 @@ void SLDemoGui::buildDemoGui(SLScene* s, SLSceneView* sv)
         ImGui::SetNextWindowPos(ImVec2(0,sv->scrH()-h));
         ImGui::SetNextWindowSize(ImVec2(w,h));
         ImGui::Begin("Scene Information", &showInfosScene, window_flags);
-        ImGui::TextWrapped(info.c_str());
+        ImGui::TextWrapped("%s", info.c_str());
         ImGui::End();
     }
 
@@ -443,8 +441,7 @@ void SLDemoGui::buildDemoGui(SLScene* s, SLSceneView* sv)
 
     if (showInfosSensors)
     {
-        SLGLState* stateGL = SLGLState::getInstance();
-        SLchar m[2550];   // message character array
+        SLchar m[1024];   // message character array
         m[0]=0;           // set zero length
         SLVec3d offsetToOrigin = s->devLoc().originENU() - s->devLoc().locENU();
         sprintf(m+strlen(m), "Uses Rotation       : %s\n",    s->devRot().isUsed() ? "yes" : "no");
@@ -1271,7 +1268,7 @@ void SLDemoGui::addSceneGraphNode(SLScene* s, SLNode* node)
             if (s->selectedMesh()==mesh)
                 meshFlags |= ImGuiTreeNodeFlags_Selected;
           //ImGui::TreeNodeEx(mesh->name().c_str(), meshFlags);
-            ImGui::TreeNodeEx(mesh, meshFlags, mesh->name().c_str());
+            ImGui::TreeNodeEx(mesh, meshFlags, "%s", mesh->name().c_str());
 
             if (ImGui::IsItemClicked())
                 s->selectNodeMesh(node, mesh);
@@ -1413,7 +1410,7 @@ void SLDemoGui::buildProperties(SLScene* s)
                 typeid(*node)==typeid(SLLightRect) ||
                 typeid(*node)==typeid(SLLightDirect))
             {
-                SLLight* light;
+                SLLight* light = nullptr;
                 SLstring typeName;
                 if (typeid(*node)==typeid(SLLightSpot))
                 {   light = (SLLight*)(SLLightSpot*)node;
@@ -1428,7 +1425,7 @@ void SLDemoGui::buildProperties(SLScene* s)
                     typeName = "Light (directional):";
                 }
 
-                if (ImGui::TreeNode(typeName.c_str()))
+                if (light && ImGui::TreeNode(typeName.c_str()))
                 {
                     SLbool on = light->isOn();
                     if (ImGui::Checkbox("Is on", &on))
@@ -1544,9 +1541,9 @@ void SLDemoGui::buildProperties(SLScene* s)
 
                 if (m->textures().size() && ImGui::TreeNode("Textures"))
                 {
-                    ImGui::Text("No. of textures: %u", m->textures().size());
+                    ImGui::Text("No. of textures: %lu", m->textures().size());
 
-                    SLfloat lineH = ImGui::GetTextLineHeightWithSpacing();
+                    //SLfloat lineH = ImGui::GetTextLineHeightWithSpacing();
                     SLfloat texW  = ImGui::GetWindowWidth() - 4*ImGui::GetTreeNodeToLabelSpacing() - 10;
 
 

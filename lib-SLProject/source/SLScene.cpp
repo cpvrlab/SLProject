@@ -55,10 +55,10 @@ the C-interface function slCreateScene in SLInterface.cpp that is called by the
 platform and UI-toolkit dependent window initialization.
 As examples you can see it in:
   - app-Demo-GLFW: glfwMain.cpp in function main()
-  - app-Demo-Qt: qtGLWidget::initializeGL()
-  - app-Viewer-Qt: qtGLWidget::initializeGL()
   - app-Demo-Android: Java_ch_fhnw_comgRT_glES2Lib_onInit()
   - app-Demo-iOS: ViewController.m in method viewDidLoad()
+  - _old/app-Demo-Qt: qtGLWidget::initializeGL()
+  - _old/app-Viewer-Qt: qtGLWidget::initializeGL()
 */
 SLScene::SLScene(SLstring name) : SLObject(name)
 {  
@@ -507,6 +507,13 @@ void SLScene::onAfterLoad()
         SLCVCapture::open("../_data/videos/testvid_" + string(SL_TRACKER_IMAGE_NAME) +".mp4");
         #else
         SLCVCapture::open(0);
+        SLCVCapture::grabAndAdjustForSL();
+        _videoTexture.copyVideoImage(SLCVCapture::lastFrame.cols,
+                                     SLCVCapture::lastFrame.rows,
+                                     SLCVCapture::format,
+                                     SLCVCapture::lastFrame.data,
+                                     SLCVCapture::lastFrame.isContinuous(),
+                                     true);
         #endif
     }
     #endif

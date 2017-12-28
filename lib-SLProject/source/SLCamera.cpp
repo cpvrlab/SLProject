@@ -674,7 +674,6 @@ SLbool SLCamera::onMouseMove(const SLMouseButton button,
         SLVec3f position = this->translationOS();
         SLVec3f forward =  this->forwardOS();
         SLVec3f right =    this->rightOS();
-        SLVec3f up =       this->upOS();
 
         // The lookAt point
         SLVec3f laP = position + _focalDist * forward;

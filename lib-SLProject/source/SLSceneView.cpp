@@ -321,7 +321,6 @@ void SLSceneView::onInitialize()
     if (s->root2D() && s->root2D()->aabb()->radiusOS()==0)
     {
         // build axis aligned bounding box hierarchy after init
-        clock_t t = clock();
         s->root2D()->updateAABBRec();
 
         // Collect node statistics
@@ -773,7 +772,6 @@ SLSceneView::draw2DGLAll draws 2D stuff in ortho projection.
 */
 void SLSceneView::draw2DGLAll()
 {
-    SLScene* s = SLScene::current;
     SLfloat w2 = (SLfloat)_scrWdiv2;
     SLfloat h2 = (SLfloat)_scrHdiv2;
     SLfloat depth = 1.0f;               // Render depth between -1 & 1
@@ -1455,8 +1453,7 @@ SLstring SLSceneView::windowTitle()
 Starts the ray tracing & sets the RT menu
 */
 void SLSceneView::startRaytracing(SLint maxDepth)
-{  
-    SLScene* s = SLScene::current;
+{
     _renderType = RT_rt;
     _stopRT = false;
     _raytracer.maxDepth(maxDepth);
@@ -1497,7 +1494,6 @@ SLbool SLSceneView::draw3DRT()
     // React on the stop flag (e.g. ESC)
     if(_stopRT)
     {   _renderType = RT_gl;
-        SLScene* s = SLScene::current;
         updated = true;
     }
 
@@ -1508,8 +1504,7 @@ SLbool SLSceneView::draw3DRT()
 Starts the pathtracing
 */
 void SLSceneView::startPathtracing(SLint maxDepth, SLint samples)
-{  
-    SLScene* s = SLScene::current;
+{
     _renderType = RT_pt;
     _stopPT = false;
     _pathtracer.maxDepth(maxDepth);
@@ -1548,7 +1543,6 @@ SLbool SLSceneView::draw3DPT()
     // React on the stop flag (e.g. ESC)
     if(_stopPT)
     {   _renderType = RT_gl;
-        SLScene* s = SLScene::current;
         updated = true;
     }
 
