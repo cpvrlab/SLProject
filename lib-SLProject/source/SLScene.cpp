@@ -488,6 +488,7 @@ bool SLScene::onUpdate()
     /////////////////////
 
     // The updateAABBRec call won't generate any overhead if nothing changed
+    SLNode::numWMUpdates = 0;
     SLGLState::getInstance()->modelViewMatrix.identity();
     if (_root3D)
         _root3D->updateAABBRec();

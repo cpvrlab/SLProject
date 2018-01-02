@@ -22,6 +22,9 @@
 #include <SLCVTracked.h>
 
 //-----------------------------------------------------------------------------
+// Static update counter
+SLuint SLNode::numWMUpdates = 0;
+//-----------------------------------------------------------------------------
 /*! 
 Default constructor just setting the name. 
 */ 
@@ -643,6 +646,7 @@ void SLNode::updateWM() const
     _wmN.setMatrix(_wm.mat3());
 
     _isWMUpToDate = true;
+    numWMUpdates++;
 }
 //-----------------------------------------------------------------------------
 /*!
@@ -694,6 +698,11 @@ SLAABBox& SLNode::updateAABBRec()
     {   _aabb.minWS(SLVec3f( FLT_MAX, FLT_MAX, FLT_MAX));
         _aabb.maxWS(SLVec3f(-FLT_MAX,-FLT_MAX,-FLT_MAX));  
     }
+    
+    if (typeid(*this)==typeid(SLCamera))
+    {
+        ((SLCamera*)this)->buildAABB(_aabb, updateAndGetWM());
+    }
 
     // Build or update AABB of meshes & merge them to the nodes aabb in WS
     for (auto mesh : _meshes)
@@ -704,13 +713,14 @@ SLAABBox& SLNode::updateAABBRec()
     
     // Merge children in WS except for cameras except if cameras have children
     for (auto child : _children)
-    {
+    {   /*
         bool childIsCamera = typeid(*child)==typeid(SLCamera);
         bool cameraHasChildren = false;
         if (childIsCamera)
             cameraHasChildren = child->children().size() > 0;
             
         if (!childIsCamera || cameraHasChildren)
+        */
             _aabb.mergeWS(child->updateAABBRec());
     }
 

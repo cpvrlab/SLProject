@@ -33,13 +33,13 @@ SLCamera::SLCamera(SLstring name) : SLNode(name),
       _unitScaling(1.0f),
       _movedLastFrame(false)
 {
-    _fovInit            = 0;
-    _aspect             = 0;
-    _clipNear           = 0.1f;
-    _clipFar            = 300.0f;
-    _fov                = 45;                 //currentFOV;
-    _projection         = P_monoPerspective;  //currentProjection;
-    _camAnim            = CA_turntableYUp;    //currentAnimation
+    _fovInit    = 0;
+    _aspect     = 640.0f/480.0f;        // will be overwritten in setProjection
+    _clipNear   = 0.1f;
+    _clipFar    = 300.0f;
+    _fov        = 45.0;                 //currentFOV;
+    _projection = P_monoPerspective;    //currentProjection;
+    _camAnim    = CA_turntableYUp;      //currentAnimation
 
     // depth of field parameters
     _lensDiameter = 0.3f;
@@ -247,7 +247,7 @@ void SLCamera::statsRec(SLNodeStats &stats)
 //-----------------------------------------------------------------------------
 /*!
 SLCamera::calcMinMax calculates the axis alligned minimum and maximum point of
-the camera position and the 4 near clipping plane points.
+the camera position and the 4 near clipping plane points in object space (OS).
 */
 void SLCamera::calcMinMax(SLVec3f &minV, SLVec3f &maxV)
 {
@@ -256,7 +256,7 @@ void SLCamera::calcMinMax(SLVec3f &minV, SLVec3f &maxV)
     SLfloat tN = tanFov * _clipNear; //top near
     SLfloat rN = tN * _aspect;       //right near
 
-    // frustum pyramid lines
+    // The camera center
     P[0].set(0,0,0);
 
     // around near clipping plane
@@ -280,6 +280,21 @@ void SLCamera::calcMinMax(SLVec3f &minV, SLVec3f &maxV)
     }
 }
 //-----------------------------------------------------------------------------
+/*!
+ SLCamera::buildAABB builds the passed axis-aligned bounding box in OS and
+ updates the min & max points in WS with the passed WM of the node. The camera
+ node has no mesh accociated, so we have to calculate the min and max point
+ from the camera frustum.
+ */
+void SLCamera::buildAABB(SLAABBox &aabb, SLMat4f wmNode)
+{
+    SLVec3f minP, maxP;
+    calcMinMax(minP, maxP);
+    
+    // Apply world matrix
+    aabb.fromOStoWS(minP, maxP, wmNode);
+}
+//-----------------------------------------------------------------------------
 //! Returns the projection type as string
 SLstring SLCamera::projectionToStr(SLProjection p)
 {
@@ -296,7 +311,7 @@ SLstring SLCamera::projectionToStr(SLProjection p)
         case P_stereoColorRG:        return "Red-Green";
         case P_stereoColorRB:        return "Red-Blue";
         case P_stereoColorYB:        return "Yellow-Blue";
-        default:                   return "Unknown";
+        default:                     return "Unknown";
     }
 }
 //-----------------------------------------------------------------------------

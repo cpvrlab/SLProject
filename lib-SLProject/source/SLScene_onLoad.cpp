@@ -2081,9 +2081,8 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
 
         init();
 
-        SLLightSpot* light1 = new SLLightSpot(7,7,0, 0.1f, 5, 10);
-        light1->attenuation(0,0,1);
-        light1->translate(-3, 5, 2, TS_object);
+        SLLightSpot* light1 = new SLLightSpot(0.1f);
+        light1->translate(0, 10, 0);
 
         // build a basic scene to have a reference for the occuring rotations
         SLMaterial* genericMat = new SLMaterial("some material");

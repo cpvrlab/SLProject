@@ -540,14 +540,11 @@ the min & max points in WS with the passed WM of the node.
 void SLMesh::buildAABB(SLAABBox &aabb, SLMat4f wmNode)
 {   
     // update acceleration struct and calculate min max
-    //updateAccelStruct();
     if (_skeleton)
-    {
-        minP = _skeleton->minOS();
+    {   minP = _skeleton->minOS();
         maxP = _skeleton->maxOS();
-    }     
-    else {
-        // for now we just update the acceleration struct for non skinned meshes
+    } else
+    {   // for now we just update the acceleration struct for non skinned meshes
         // Building the entire voxelization of a mesh every frame is not feasible
         updateAccelStruct();
     }

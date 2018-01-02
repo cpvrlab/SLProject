@@ -343,8 +343,9 @@ void SLDemoGui::buildDemoGui(SLScene* s, SLSceneView* sv)
         sprintf(m+strlen(m), "- Opaque Nodes  : %5d (%3d%%)\n", numOpaqueNodes, numOpaquePC);
         sprintf(m+strlen(m), "- Blended Nodes : %5d (%3d%%)\n", numBlendedNodes, numBlendedPC);
         sprintf(m+strlen(m), "- Visible Nodes : %5d (%3d%%)\n", numVisibleNodes, numVisiblePC);
-        sprintf(m+strlen(m), "No. of Meshes   : %u\n", stats3D.numMeshes);
-        sprintf(m+strlen(m), "No. of Triangles: %u\n", stats3D.numTriangles);
+        sprintf(m+strlen(m), "- WM Updates    : %5d\n", SLNode::numWMUpdates);
+        sprintf(m+strlen(m), "No. of Meshes   : %5u\n", stats3D.numMeshes);
+        sprintf(m+strlen(m), "No. of Triangles: %5u\n", stats3D.numTriangles);
         sprintf(m+strlen(m), "CPU MB in Total : %6.2f (100%%)\n", cpuMBTotal);
         sprintf(m+strlen(m), "-   MB in Tex.  : %6.2f (%3d%%)\n", cpuMBTexture, cpuMBTexturePC);
         sprintf(m+strlen(m), "-   MB in Meshes: %6.2f (%3d%%)\n", cpuMBMeshes, cpuMBMeshesPC);
