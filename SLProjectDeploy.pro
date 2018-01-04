@@ -53,12 +53,12 @@ textures.files = \
   ../_data/images/textures/rusty-metal_2048N.png \
   ../_data/images/textures/rusty-metal_2048M.png \
   ../_data/images/textures/rusty-metal_2048R.png \
-  ../_data/images/textures/mountain_lake+X1024_C.jpg \
-  ../_data/images/textures/mountain_lake-X1024_C.jpg \
-  ../_data/images/textures/mountain_lake+Y1024_C.jpg \
-  ../_data/images/textures/mountain_lake-Y1024_C.jpg \
-  ../_data/images/textures/mountain_lake+Z1024_C.jpg \
-  ../_data/images/textures/mountain_lake-Z1024_C.jpg \
+  ../_data/images/textures/Desert+X1024_C.jpg \
+  ../_data/images/textures/Desert-X1024_C.jpg \
+  ../_data/images/textures/Desert+Y1024_C.jpg \
+  ../_data/images/textures/Desert-Y1024_C.jpg \
+  ../_data/images/textures/Desert+Z1024_C.jpg \
+  ../_data/images/textures/Desert-Z1024_C.jpg \
   ../_data/images/textures/Testmap_0512_C.png \
   ../_data/images/textures/tile1_0256_C.jpg \
   ../_data/images/textures/tree1_1024_C.png \

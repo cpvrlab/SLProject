@@ -38,6 +38,8 @@ class SLSkybox: public SLNode
                                      SLstring name = "Default Skybox");
                    ~SLSkybox        (){;}
     
+        SLCol4f     colorAtDir      (SLVec3f dir);
+    
         void        drawAroundCamera (SLSceneView* sv);
 };
 //-----------------------------------------------------------------------------

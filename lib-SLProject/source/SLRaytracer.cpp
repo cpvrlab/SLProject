@@ -373,7 +373,6 @@ void SLRaytracer::setPrimaryRay(SLfloat x, SLfloat y,
 {   
     primaryRay->x = x;
     primaryRay->y = y;
-    primaryRay->backgroundColor = _sv->camera()->background().colorAtPos(x,y);
 
     // calculate ray from eye to pixel (See also prepareImage())
     if (_cam->projection() == P_monoOrthographic)
@@ -385,6 +384,10 @@ void SLRaytracer::setPrimaryRay(SLfloat x, SLfloat y,
         primaryRay->setDir(primaryDir);
         primaryRay->origin = _EYE;
     }
+    
+    if (_sv->skybox())
+         primaryRay->backgroundColor = _sv->skybox()->colorAtDir(primaryRay->dir);
+    else primaryRay->backgroundColor = _sv->camera()->background().colorAtPos(x,y);
 }
 //-----------------------------------------------------------------------------
 /*!

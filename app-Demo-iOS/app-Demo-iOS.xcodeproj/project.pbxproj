@@ -567,6 +567,12 @@
 		41B7BDDD1E49B4BC007B8B39 /* cursor.png in Resources */ = {isa = PBXBuildFile; fileRef = 41B7BDDC1E49B4BC007B8B39 /* cursor.png */; };
 		41B7BDE01E49B553007B8B39 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 41B7BDDF1E49B553007B8B39 /* Images.xcassets */; };
 		41B86C5A1C4FE21400BB409D /* SLGLVertexBuffer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 41B86C591C4FE21400BB409D /* SLGLVertexBuffer.cpp */; };
+		41B91A661FFE77F60026FEC1 /* Dessert-Z1024_C.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 41B91A601FFE77F50026FEC1 /* Dessert-Z1024_C.jpg */; };
+		41B91A671FFE77F60026FEC1 /* Dessert+X1024_C.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 41B91A611FFE77F50026FEC1 /* Dessert+X1024_C.jpg */; };
+		41B91A681FFE77F60026FEC1 /* Dessert-X1024_C.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 41B91A621FFE77F50026FEC1 /* Dessert-X1024_C.jpg */; };
+		41B91A691FFE77F60026FEC1 /* Dessert+Y1024_C.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 41B91A631FFE77F60026FEC1 /* Dessert+Y1024_C.jpg */; };
+		41B91A6A1FFE77F60026FEC1 /* Dessert+Z1024_C.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 41B91A641FFE77F60026FEC1 /* Dessert+Z1024_C.jpg */; };
+		41B91A6B1FFE77F60026FEC1 /* Dessert-Y1024_C.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 41B91A651FFE77F60026FEC1 /* Dessert-Y1024_C.jpg */; };
 		41BEFC071B78F84F009EF31F /* AVFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 41BEFC061B78F84F009EF31F /* AVFoundation.framework */; };
 		41BEFC0A1B78F85A009EF31F /* CoreMedia.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 41BEFC091B78F85A009EF31F /* CoreMedia.framework */; };
 		41BEFC0C1B78F866009EF31F /* CoreVideo.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 41BEFC0B1B78F865009EF31F /* CoreVideo.framework */; };
@@ -1446,6 +1452,12 @@
 		41B86C591C4FE21400BB409D /* SLGLVertexBuffer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SLGLVertexBuffer.cpp; path = "../lib-SLProject/source/GL/SLGLVertexBuffer.cpp"; sourceTree = SOURCE_ROOT; };
 		41B86C5C1C4FE23A00BB409D /* SLGLVertexBuffer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SLGLVertexBuffer.h; path = ../include/SLGLVertexBuffer.h; sourceTree = SOURCE_ROOT; };
 		41B86C5D1C4FE23A00BB409D /* SLGLEnums.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SLGLEnums.h; path = ../include/SLGLEnums.h; sourceTree = SOURCE_ROOT; };
+		41B91A601FFE77F50026FEC1 /* Dessert-Z1024_C.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; name = "Dessert-Z1024_C.jpg"; path = "../_data/images/textures/Dessert-Z1024_C.jpg"; sourceTree = "<group>"; };
+		41B91A611FFE77F50026FEC1 /* Dessert+X1024_C.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; name = "Dessert+X1024_C.jpg"; path = "../_data/images/textures/Dessert+X1024_C.jpg"; sourceTree = "<group>"; };
+		41B91A621FFE77F50026FEC1 /* Dessert-X1024_C.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; name = "Dessert-X1024_C.jpg"; path = "../_data/images/textures/Dessert-X1024_C.jpg"; sourceTree = "<group>"; };
+		41B91A631FFE77F60026FEC1 /* Dessert+Y1024_C.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; name = "Dessert+Y1024_C.jpg"; path = "../_data/images/textures/Dessert+Y1024_C.jpg"; sourceTree = "<group>"; };
+		41B91A641FFE77F60026FEC1 /* Dessert+Z1024_C.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; name = "Dessert+Z1024_C.jpg"; path = "../_data/images/textures/Dessert+Z1024_C.jpg"; sourceTree = "<group>"; };
+		41B91A651FFE77F60026FEC1 /* Dessert-Y1024_C.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; name = "Dessert-Y1024_C.jpg"; path = "../_data/images/textures/Dessert-Y1024_C.jpg"; sourceTree = "<group>"; };
 		41B9939A148AAD2B00D98AB7 /* SceneLib-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "SceneLib-Info.plist"; sourceTree = SOURCE_ROOT; };
 		41BEFC061B78F84F009EF31F /* AVFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AVFoundation.framework; path = System/Library/Frameworks/AVFoundation.framework; sourceTree = SDKROOT; };
 		41BEFC091B78F85A009EF31F /* CoreMedia.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreMedia.framework; path = System/Library/Frameworks/CoreMedia.framework; sourceTree = SDKROOT; };
@@ -1763,6 +1775,12 @@
 		417E0E99148A6F910015B5B0 /* Textures */ = {
 			isa = PBXGroup;
 			children = (
+				41B91A621FFE77F50026FEC1 /* Dessert-X1024_C.jpg */,
+				41B91A651FFE77F60026FEC1 /* Dessert-Y1024_C.jpg */,
+				41B91A601FFE77F50026FEC1 /* Dessert-Z1024_C.jpg */,
+				41B91A611FFE77F50026FEC1 /* Dessert+X1024_C.jpg */,
+				41B91A631FFE77F60026FEC1 /* Dessert+Y1024_C.jpg */,
+				41B91A641FFE77F60026FEC1 /* Dessert+Z1024_C.jpg */,
 				41EA2F4C1F558DDF00C34BC7 /* features_stones.png */,
 				417980451F13832F00EB5315 /* i0000_0000b.png */,
 				417980461F13832F00EB5315 /* i0001_0000b.png */,
@@ -2787,6 +2805,7 @@
 				418BF4661B8B0D500049E387 /* StereoOculusDistortionMesh.vert in Resources */,
 				418BF44E1B8B0D500049E387 /* FontTex.vert in Resources */,
 				417981B21F13833000EB5315 /* i0158_0000b.png in Resources */,
+				41B91A6B1FFE77F60026FEC1 /* Dessert-Y1024_C.jpg in Resources */,
 				41FD9D1A1E523AD70063A1B7 /* Font22.png in Resources */,
 				417981821F13833000EB5315 /* i0110_0000b.png in Resources */,
 				417981AE1F13833000EB5315 /* i0154_0000b.png in Resources */,
@@ -2801,6 +2820,7 @@
 				414D37F81EE6A7DC009DB259 /* rusty-metal_2048R.png in Resources */,
 				417981BE1F13833000EB5315 /* i0170_0000b.png in Resources */,
 				417981921F13833000EB5315 /* i0126_0000b.png in Resources */,
+				41B91A661FFE77F60026FEC1 /* Dessert-Z1024_C.jpg in Resources */,
 				41C48E9C1F01254A0059B48C /* Karla-Regular.ttf in Resources */,
 				41C99E7A18D4316A0045FD2D /* Icon_144.png in Resources */,
 				417981CD1F13833000EB5315 /* i0185_0000b.png in Resources */,
@@ -2816,6 +2836,7 @@
 				414D37EC1EE6A72C009DB259 /* PerPixCookTorrance.frag in Resources */,
 				417981CB1F13833000EB5315 /* i0183_0000b.png in Resources */,
 				4179814A1F13833000EB5315 /* i0054_0000b.png in Resources */,
+				41B91A691FFE77F60026FEC1 /* Dessert+Y1024_C.jpg in Resources */,
 				417E0EC1148A70DE0015B5B0 /* Chess0256_C.bmp in Resources */,
 				41B7BDDD1E49B4BC007B8B39 /* cursor.png in Resources */,
 				417981A41F13833000EB5315 /* i0144_0000b.png in Resources */,
@@ -2871,6 +2892,7 @@
 				CF3F571D1DE592F200928DDD /* PerVrtBlinnColorAttrib.vert in Resources */,
 				417981731F13833000EB5315 /* i0095_0000b.png in Resources */,
 				417E0ECE148A70DE0015B5B0 /* MuttenzerBox+X0512_C.png in Resources */,
+				41B91A6A1FFE77F60026FEC1 /* Dessert+Z1024_C.jpg in Resources */,
 				417981B71F13833000EB5315 /* i0163_0000b.png in Resources */,
 				417E0ECF148A70DE0015B5B0 /* MuttenzerBox+Y0512_C.png in Resources */,
 				417E0ED0148A70DE0015B5B0 /* MuttenzerBox+Z0512_C.png in Resources */,
@@ -2907,6 +2929,7 @@
 				4179811A1F13833000EB5315 /* i0006_0000b.png in Resources */,
 				417981DA1F13833000EB5315 /* i0198_0000b.png in Resources */,
 				418BF4441B8B0D4F0049E387 /* BumpNormalParallax.frag in Resources */,
+				41B91A671FFE77F60026FEC1 /* Dessert+X1024_C.jpg in Resources */,
 				417981AC1F13833000EB5315 /* i0152_0000b.png in Resources */,
 				417981A01F13833000EB5315 /* i0140_0000b.png in Resources */,
 				417981211F13833000EB5315 /* i0013_0000b.png in Resources */,
@@ -2999,6 +3022,7 @@
 				41FD9D1B1E523AD70063A1B7 /* Font24.png in Resources */,
 				41C99E7C18D431B50045FD2D /* Icon_72.png in Resources */,
 				4156500C148AA62400A3CAA6 /* ViewController_iPad.xib in Resources */,
+				41B91A681FFE77F60026FEC1 /* Dessert-X1024_C.jpg in Resources */,
 				417981AD1F13833000EB5315 /* i0153_0000b.png in Resources */,
 				417981691F13833000EB5315 /* i0085_0000b.png in Resources */,
 				417981C81F13833000EB5315 /* i0180_0000b.png in Resources */,

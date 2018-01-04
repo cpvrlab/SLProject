@@ -1611,33 +1611,31 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         _info = "Sky box cube with cubemap skybox shader";
 
         // Create textures and materials
-        SLSkybox* skybox = new SLSkybox("mountain_lake+X1024_C.jpg","mountain_lake-X1024_C.jpg",
-                                        "mountain_lake+Y1024_C.jpg","mountain_lake-Y1024_C.jpg",
-                                        "mountain_lake+Z1024_C.jpg","mountain_lake-Z1024_C.jpg");
-
+        SLSkybox* skybox = new SLSkybox("Desert+X1024_C.jpg","Desert-X1024_C.jpg",
+                                        "Desert+Y1024_C.jpg","Desert-Y1024_C.jpg",
+                                        "Desert+Z1024_C.jpg","Desert-Z1024_C.jpg");
         // Create a scene group node
         SLNode* scene = new SLNode("scene node");
 
         // Create camera in the center
         SLCamera* cam1 = new SLCamera("Camera 1");
-        cam1->translation(0,0,0);
-        cam1->lookAt(0, 0, -1);
+        cam1->translation(0,0,1);
+        cam1->lookAt(0, 0, 0);
         cam1->background().colors(SLCol4f(0.5f,0.5f,0.5f));
         cam1->setInitialState();
         scene->addChild(cam1);
-
-        // Create a light source node
-        SLLightSpot* light1 = new SLLightSpot(0.3f);
-        light1->translation(0,0,5);
-        light1->lookAt(0,0,0);
-        light1->name("light node");
-        scene->addChild(light1);
+        
+        // Create directional light for the sun light
+        SLLightDirect* light = new SLLightDirect(1.0f);
+        light->attenuation(1,0,0);
+        light->translate(1,1,-1);
+        light->lookAt(-1, -1, 1);
+        scene->addChild(light);
         
         // Coordinate axis
         SLNode *axis = new SLNode(new SLCoordAxis(), "Axis Node");
         axis->setDrawBitsRec(SL_DB_WIREMESH, false);
         axis->scale(2);
-        axis->rotate(-90, 1, 0, 0);
         scene->addChild(axis);
 
         // Yellow center box
