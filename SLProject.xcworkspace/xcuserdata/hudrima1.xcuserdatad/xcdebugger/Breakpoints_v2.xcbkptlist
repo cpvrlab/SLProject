@@ -138,11 +138,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "lib-SLProject/source/SLNode.cpp"
-            timestampString = "536605018.170169"
+            timestampString = "536859950.841968"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "714"
-            endingLineNumber = "714"
+            startingLineNumber = "724"
+            endingLineNumber = "724"
             landmarkName = "SLNode::updateAABBRec()"
             landmarkType = "7">
             <Locations>
@@ -186,11 +186,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "lib-SLProject/source/SLNode.cpp"
-            timestampString = "536605018.170215"
+            timestampString = "536859950.842028"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "722"
-            endingLineNumber = "722"
+            startingLineNumber = "732"
+            endingLineNumber = "732"
             landmarkName = "SLNode::updateAABBRec()"
             landmarkType = "7">
          </BreakpointContent>
@@ -288,6 +288,38 @@
             startingLineNumber = "193"
             endingLineNumber = "193"
             landmarkName = "SLGLProgram::beginUse(SLMaterial* mat)"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "lib-SLProject/source/SLDemoGui.cpp"
+            timestampString = "536946584.571215"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "1352"
+            endingLineNumber = "1352"
+            landmarkName = "SLDemoGui::buildProperties(SLScene* s)"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "lib-SLProject/source/SLDemoGui.cpp"
+            timestampString = "536946584.571362"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "1351"
+            endingLineNumber = "1351"
+            landmarkName = "SLDemoGui::buildProperties(SLScene* s)"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>

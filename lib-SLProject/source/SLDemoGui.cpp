@@ -356,7 +356,7 @@ void SLDemoGui::buildDemoGui(SLScene* s, SLSceneView* sv)
 
         sprintf(m+strlen(m), "No. of Voxels   : %d\n", stats3D.numVoxels);
         sprintf(m+strlen(m), "- empty Voxels  : %4.1f%%\n", voxelsEmpty);
-        sprintf(m+strlen(m), "Avg. Tria/Voxel : %4.1F\n", avgTriPerVox);
+        sprintf(m+strlen(m), "Avg. Tria/Voxel : %4.1f\n", avgTriPerVox);
         sprintf(m+strlen(m), "Max. Tria/Voxel : %d\n", stats3D.numVoxMaxTria);
 
         // Switch to fixed font

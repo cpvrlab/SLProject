@@ -165,15 +165,25 @@ bool SLNode::removeMesh(SLstring name)
     return false;
 }
 //-----------------------------------------------------------------------------
-/*! 
-SLNode::findMesh finds the specified mesh by name.
+/*! SLNode::findMesh finds the specified mesh by name. With recursive search
+all child nodes are searched too.
 */
-SLMesh* SLNode::findMesh(SLstring name)
+SLMesh* SLNode::findMesh(SLstring name, SLbool recursive)
 {  
     assert(name!="");
     for (auto mesh : _meshes)
         if (mesh->name() == name) return mesh;
-    return 0;
+    
+    if (recursive && children().size() > 0)
+    {
+        for (auto child : _children)
+        {   SLMesh* foundMesh = child->findMesh(name, true);
+            if (foundMesh)
+                return foundMesh;
+        }
+    }
+    
+    return nullptr;
 }
 //-----------------------------------------------------------------------------
 /*!

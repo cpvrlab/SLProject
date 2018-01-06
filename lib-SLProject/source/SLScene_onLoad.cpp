@@ -1609,11 +1609,29 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         // Set scene name and info string
         name("Sky Box Texture Example");
         _info = "Sky box cube with cubemap skybox shader";
-
+        
         // Create textures and materials
         SLSkybox* skybox = new SLSkybox("Desert+X1024_C.jpg","Desert-X1024_C.jpg",
                                         "Desert+Y1024_C.jpg","Desert-Y1024_C.jpg",
                                         "Desert+Z1024_C.jpg","Desert-Z1024_C.jpg");
+        SLGLTexture* skyboxTex = skybox->meshes()[0]->mat->textures()[0];
+        
+        // Create reflection & glass shaders
+        SLGLProgram* reflect = new SLGLGenericProgram("Reflect.vert", "Reflect.frag");
+        SLGLProgram* refract = new SLGLGenericProgram("RefractReflect.vert", "RefractReflect.frag");
+        
+        // Material for mirror
+        SLMaterial* refl=new SLMaterial("refl", SLCol4f::BLACK, SLCol4f::WHITE, 1000, 1.0f);
+        refl->textures().push_back(skyboxTex);
+        refl->program(reflect);
+        
+        // Material for glass
+        SLMaterial* refr=new SLMaterial("refr", SLCol4f::BLACK, SLCol4f::BLACK, 100, 0.05f, 0.95f, 1.5f);
+        refr->translucency(1000);
+        refr->transmissiv(SLCol4f::WHITE);
+        refr->textures().push_back(skyboxTex);
+        refr->program(refract);
+        
         // Create a scene group node
         SLNode* scene = new SLNode("scene node");
 
@@ -1643,6 +1661,13 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         SLNode *box = new SLNode(new SLBox(-.5f,-.5f,-.5f, .5f,.5f,.5f, "Box", yellow), "Box Node");
         scene->addChild(box);
         
+        SLAssimpImporter importer;
+        SLNode* teapot = importer.load("FBX/Teapot/Teapot.fbx", true);
+        teapot->translate(-2,0,0);
+        teapot->rotate(-90, 1,0,0);
+        teapot->findMesh("Teapot", true)->mat = refl;
+        
+        scene->addChild(teapot);
         
         sv->camera(cam1);
         sv->skybox(skybox);
