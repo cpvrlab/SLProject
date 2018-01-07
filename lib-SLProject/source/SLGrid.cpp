@@ -60,7 +60,7 @@ void SLGrid::buildMesh(SLMaterial* material)
     }
 
     //Set one default material index
-    mat = material;
+    mat(material);
    
     // delta vector
     SLVec3f d = _max - _min;

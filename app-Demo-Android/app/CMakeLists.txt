@@ -56,7 +56,8 @@ file(GLOB_RECURSE SLPROJECT_SOURCES     ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SL
                                         ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/SL/SLFileSystem.cpp
                                         ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/SL/SLImporter.cpp 
                                         ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/SL/SLInterface.cpp 
-                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/SL/SLTexFont.cpp 
+                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/SL/SLTexFont.cpp
+                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/SL/SLSkybox.cpp
                                         ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/SL/SLTimer.cpp
                                         ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/GL/SLGLImGui.cpp
                                         ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/GL/SLGLOculus.cpp 
@@ -222,7 +223,7 @@ file(GLOB_RECURSE TEXTURES      ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/images/t
                                 ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/images/textures/LiveVideoError.png
                                 ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/images/textures/LogoCPVR_256L.png
                                 ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/images/textures/features_stones.png
-                                ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/images/textures/mountain_lake*_C.jpg
+                                ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/images/textures/Desert*_C.jpg
                                 ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/images/textures/i*_0000b.png)
 
 file(GLOB_RECURSE FONTS         ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/images/fonts/*.png

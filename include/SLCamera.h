@@ -57,6 +57,7 @@ class SLCamera: public SLNode
     virtual SLbool          camUpdate           (SLfloat timeMS);
             void            preShade            (SLRay* ray){(void)ray;}
             void            calcMinMax          (SLVec3f &minV, SLVec3f &maxV);
+            void            buildAABB           (SLAABBox &aabb, SLMat4f wmNode);
 
             // Event handlers for camera animation
     virtual SLbool          onMouseDown     (const SLMouseButton button, 

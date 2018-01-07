@@ -182,7 +182,7 @@ SLCol4f SLPathtracer::trace(SLRay* ray, SLbool em)
         return SLCol4f::BLACK;
 
     // hit material
-    SLMaterial* mat = ray->hitMesh->mat;
+    SLMaterial* mat = ray->hitMesh->mat();
     ray->hitMesh->preShade(ray);
 
     SLCol4f objectEmission = mat->emissive();

@@ -42,9 +42,10 @@ class SLAssimpImporter : public SLImporter
                                  SLLogVerbosity logFileVerb = LV_diagnostic)
                     : SLImporter(logFile, logConsoleVerb, logFileVerb) { }
 
-            SLNode*     load    (SLstring pathFilename,
-                                SLbool loadMeshesOnly = true,
-                                SLuint flags =
+            SLNode*     load    (SLstring pathFilename
+                                ,SLbool loadMeshesOnly = true
+                                ,SLMaterial* overrideMat = nullptr
+                                ,SLuint flags =
                                  SLProcess_Triangulate
                                 |SLProcess_JoinIdenticalVertices
                                 |SLProcess_RemoveRedundantMaterials

@@ -10,11 +10,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "../lib-SLProject/source/SLSceneView.cpp"
-            timestampString = "536148594.517141"
+            timestampString = "537037453.304626"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "957"
-            endingLineNumber = "957"
+            startingLineNumber = "975"
+            endingLineNumber = "975"
             landmarkName = "SLSceneView::onMouseMove(SLint x, SLint y)"
             landmarkType = "7">
          </BreakpointContent>
@@ -168,22 +168,6 @@
             startingLineNumber = "232"
             endingLineNumber = "232"
             landmarkName = "SLCVCalibration::calcBoardCorners3D(SLCVSize boardSize, SLfloat squareSize, SLCVVPoint3f&amp; objectPoints3D)"
-            landmarkType = "7">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            shouldBeEnabled = "Yes"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "../lib-SLProject/source/SLScene_onLoad.cpp"
-            timestampString = "536148594.517657"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "779"
-            endingLineNumber = "779"
-            landmarkName = "SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>

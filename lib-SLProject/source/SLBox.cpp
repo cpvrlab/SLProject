@@ -51,7 +51,7 @@ void SLBox::buildMesh(SLMaterial* material)
     N.resize(P.size());
     
     //Set one default material index
-    mat = material;
+    mat(material);
     
     SLint p=0, i=0;
    
