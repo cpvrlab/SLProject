@@ -160,6 +160,8 @@ class SLNode: public SLObject, public SLEventHandler
             bool            removeMesh          (SLstring name);
             SLMesh*         findMesh            (SLstring name,
                                                  SLbool recursive = false);
+            void            setAllMeshMaterials (SLMaterial* mat,
+                                                 SLbool recursive = true);
             SLbool          containsMesh        (const SLMesh* mesh);
     virtual void            drawMeshes          (SLSceneView* sv);
                

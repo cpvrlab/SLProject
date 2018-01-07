@@ -69,15 +69,17 @@ class SLRaytracer: public SLGLTexture, public SLEventHandler
             // Setters
             void        state           (SLRTState state) {if (_state!=rtBusy) _state=state;}
             void        maxDepth        (SLint depth)     {_maxDepth = depth; state(rtReady);}
-            void        distributed     (SLbool distrib)  {_distributed = distrib;}
-            void        continuous      (SLbool cont)     {_continuous = cont; state(rtReady);}
+            void        doDistributed   (SLbool distrib)  {_doDistributed = distrib;}
+            void        doContinuous    (SLbool cont)     {_doContinuous = cont; state(rtReady);}
+            void        doFresnel       (SLbool fresnel)  {_doFresnel = fresnel; state(rtReady);}
             void        aaSamples       (SLint samples)   {_aaSamples = samples; state(rtReady);}
             
             // Getters
             SLRTState   state           () const {return _state;}
             SLint       maxDepth        () const {return _maxDepth;}
-            SLbool      distributed     () const {return _distributed;}
-            SLbool      continuous      () const {return _continuous;}
+            SLbool      doDistributed   () const {return _doDistributed;}
+            SLbool      doContinuous    () const {return _doContinuous;}
+            SLbool      doFresnel       () const {return _doFresnel;}
             SLint       aaSamples       () const {return _aaSamples;}
             SLint       numThreads      () const {return SL::maxThreads();}
             SLint       pcRendered      () const {return _pcRendered;}
@@ -95,8 +97,9 @@ class SLRaytracer: public SLGLTexture, public SLEventHandler
             SLRTState   _state;         //!< RT state;
             SLCamera*   _cam;           //!< shortcut to the camera
             SLint       _maxDepth;      //!< Max. allowed recursion depth
-            SLbool      _continuous;    //!< if true state goes into ready again
-            SLbool      _distributed;   //!< Flag for parallel distributed RT
+            SLbool      _doContinuous;  //!< if true state goes into ready again
+            SLbool      _doDistributed; //!< Flag for parallel distributed RT
+            SLbool      _doFresnel;     //!< Flag for Fresnel reflection
             SLint       _pcRendered;    //!< % rendered
             SLfloat     _renderSec;     //!< Rendering time in seconds
 

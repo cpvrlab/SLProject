@@ -15,6 +15,7 @@
 //-----------------------------------------------------------------------------
 // Include standard C++ libraries
 #include <iostream>
+#include <iomanip>
 #include <sstream>
 #include <fstream>
 #include <vector>

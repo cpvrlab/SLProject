@@ -252,47 +252,53 @@ void SLDemoGui::buildDemoGui(SLScene* s, SLSceneView* sv)
             SLfloat draw2DTimePC    = SL_clamp(draw2DTime   / ft * 100.0f, 0.0f,100.0f);
             SLfloat cullTimePC      = SL_clamp(cullTime     / ft * 100.0f, 0.0f,100.0f);
 
-            ImGui::PushFont(ImGui::GetIO().Fonts->Fonts[1]);
-            ImGui::Begin("Timing", &showStatsTiming, ImVec2(300,0));
-            ImGui::Text("Renderer      : OpenGL");
-            ImGui::Text("Frame size    : %d x %d", sv->scrW(), sv->scrH());
-            ImGui::Text("NO. drawcalls : %d\n", SLGLVertexArray::totalDrawCalls);
-            ImGui::Text("Frames per s. : %4.1f", s->fps());
-            ImGui::Text("Frame time    : %4.1f ms (100%%)", ft);
-            ImGui::Text("  Capture     : %4.1f ms (%3d%%)", captureTime,  (SLint)captureTimePC);
-            ImGui::Text("  Update      : %4.1f ms (%3d%%)", updateTime,   (SLint)updateTimePC);
-            ImGui::Text("    Tracking  : %4.1f ms (%3d%%)", trackingTime, (SLint)trackingTimePC);
-            ImGui::Text("      Detect  : %4.1f ms (%3d%%)", detectTime,   (SLint)detectTimePC);
-            ImGui::Text("      Match   : %4.1f ms (%3d%%)", matchTime,    (SLint)matchTimePC);
-            ImGui::Text("      Opt.Flow: %4.1f ms (%3d%%)", optFlowTime,  (SLint)optFlowTimePC);
-            ImGui::Text("      Pose    : %4.1f ms (%3d%%)", poseTime,     (SLint)poseTimePC);
-            ImGui::Text("  Culling     : %4.1f ms (%3d%%)", cullTime,     (SLint)cullTimePC);
-            ImGui::Text("  Drawing 3D  : %4.1f ms (%3d%%)", draw3DTime,   (SLint)draw3DTimePC);
-            ImGui::Text("  Drawing 2D  : %4.1f ms (%3d%%)", draw2DTime,   (SLint)draw2DTimePC);
-
-            ImGui::End();
-            ImGui::PopFont();
-
+            sprintf(m+strlen(m), "Renderer      : OpenGL\n");
+            sprintf(m+strlen(m), "Frame size    : %d x %d\n", sv->scrW(), sv->scrH());
+            sprintf(m+strlen(m), "NO. drawcalls : %d\n", SLGLVertexArray::totalDrawCalls);
+            sprintf(m+strlen(m), "Frames per s. : %4.1f\n", s->fps());
+            sprintf(m+strlen(m), "Frame time    : %4.1f ms (100%%)\n", ft);
+            sprintf(m+strlen(m), "  Capture     : %4.1f ms (%3d%%)\n", captureTime,  (SLint)captureTimePC);
+            sprintf(m+strlen(m), "  Update      : %4.1f ms (%3d%%)\n", updateTime,   (SLint)updateTimePC);
+            sprintf(m+strlen(m), "    Tracking  : %4.1f ms (%3d%%)\n", trackingTime, (SLint)trackingTimePC);
+            sprintf(m+strlen(m), "      Detect  : %4.1f ms (%3d%%)\n", detectTime,   (SLint)detectTimePC);
+            sprintf(m+strlen(m), "      Match   : %4.1f ms (%3d%%)\n", matchTime,    (SLint)matchTimePC);
+            sprintf(m+strlen(m), "      Opt.Flow: %4.1f ms (%3d%%)\n", optFlowTime,  (SLint)optFlowTimePC);
+            sprintf(m+strlen(m), "      Pose    : %4.1f ms (%3d%%)\n", poseTime,     (SLint)poseTimePC);
+            sprintf(m+strlen(m), "  Culling     : %4.1f ms (%3d%%)\n", cullTime,     (SLint)cullTimePC);
+            sprintf(m+strlen(m), "  Drawing 3D  : %4.1f ms (%3d%%)\n", draw3DTime,   (SLint)draw3DTimePC);
+            sprintf(m+strlen(m), "  Drawing 2D  : %4.1f ms (%3d%%)\n", draw2DTime,   (SLint)draw2DTimePC);
         } else
         if (rType == RT_rt)
         {
             SLRaytracer* rt = sv->raytracer();
-            SLint primaries = sv->scrW() * sv->scrH();
-            SLuint total = primaries + SLRay::reflectedRays + SLRay::subsampledRays + SLRay::refractedRays + SLRay::shadowRays;
-            SLfloat rpms = rt->renderSec() ? total/rt->renderSec()/1000.0f : 0.0f;
+            SLuint rayPrimaries = sv->scrW() * sv->scrH();
+            SLuint rayTotal = rayPrimaries + SLRay::reflectedRays + SLRay::subsampledRays + SLRay::refractedRays + SLRay::shadowRays;
+            SLfloat rpms = rt->renderSec() ? rayTotal/rt->renderSec()/1000.0f : 0.0f;
+
             sprintf(m+strlen(m), "Renderer      : Ray Tracer\n");
             sprintf(m+strlen(m), "Frame size    : %d x %d\n", sv->scrW(), sv->scrH());
-            sprintf(m+strlen(m), "Frames per s. : %4.1f\n", s->fps());
-            sprintf(m+strlen(m), "Frame Time    : %4.2f sec.\n", rt->renderSec());
-            sprintf(m+strlen(m), "Rays per ms   : %6.0f\n", rpms);
+            sprintf(m+strlen(m), "Frames per s. : %0.2f\n", 1.0f/rt->renderSec());
+            sprintf(m+strlen(m), "Frame Time    : %0.2f sec.\n", rt->renderSec());
+            sprintf(m+strlen(m), "Rays per ms   : %0.0f\n", rpms);
             sprintf(m+strlen(m), "Threads       : %d\n", rt->numThreads());
-
-            ImGui::PushFont(ImGui::GetIO().Fonts->Fonts[1]);
-            ImGui::Begin("Timing", &showStatsTiming, ImVec2(300,0));
-            ImGui::TextWrapped("%s", m);
-            ImGui::End();
-            ImGui::PopFont();
+            sprintf(m+strlen(m), "-------------------------------\n");
+            sprintf(m+strlen(m), "Primary rays  : %8d (%3d%%)\n", rayPrimaries,          (int)((float)rayPrimaries/(float)rayTotal*100.0f));
+            sprintf(m+strlen(m), "Reflected rays: %8d (%3d%%)\n", SLRay::reflectedRays,  (int)((float)SLRay::reflectedRays/(float)rayTotal*100.0f));
+            sprintf(m+strlen(m), "Refracted rays: %8d (%3d%%)\n", SLRay::refractedRays,  (int)((float)SLRay::refractedRays/(float)rayTotal*100.0f));
+            sprintf(m+strlen(m), "TIR rays      : %8d\n",         SLRay::tirRays);
+            sprintf(m+strlen(m), "Shadow rays   : %8d (%3d%%)\n", SLRay::shadowRays,     (int)((float)SLRay::shadowRays/(float)rayTotal*100.0f));
+            sprintf(m+strlen(m), "AA rays       : %8d (%3d%%)\n", SLRay::subsampledRays, (int)((float)SLRay::subsampledRays/(float)rayTotal*100.0f));
+            sprintf(m+strlen(m), "Total rays    : %8d (%3d%%)\n", rayTotal, 100);
+            sprintf(m+strlen(m), "-------------------------------\n");
+            sprintf(m+strlen(m), "Maximum depth : %u\n", SLRay::maxDepthReached);
+            sprintf(m+strlen(m), "Average depth : %0.3f\n", SLRay::avgDepth/rayPrimaries);
         }
+
+        ImGui::PushFont(ImGui::GetIO().Fonts->Fonts[1]);
+        ImGui::Begin("Timing", &showStatsTiming, ImVec2(300,0));
+        ImGui::TextWrapped("%s", m);
+        ImGui::End();
+        ImGui::PopFont();
     }
 
     if (showStatsScene)
@@ -595,6 +601,8 @@ void SLDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
                         sv->onCommand(C_sceneLargeModel);
                     if (ImGui::MenuItem("Mesh Loader", 0, curS==C_sceneMeshLoad))
                         sv->onCommand(C_sceneMeshLoad);
+                    if (ImGui::MenuItem("Revolver Meshes", 0, curS==C_sceneRevolver))
+                        sv->onCommand(C_sceneRevolver);
                     if (ImGui::MenuItem("Texture Blending", 0, curS==C_sceneTextureBlend))
                         sv->onCommand(C_sceneTextureBlend);
                     if (ImGui::MenuItem("Texture Filters", 0, curS==C_sceneTextureFilter))
@@ -627,8 +635,6 @@ void SLDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
                         sv->onCommand(C_sceneShaderBumpNormal);
                     if (ImGui::MenuItem("Parallax Mapping", 0, curS==C_sceneShaderBumpParallax))
                         sv->onCommand(C_sceneShaderBumpParallax);
-                    if (ImGui::MenuItem("Glass Shader", 0, curS==C_sceneRevolver))
-                        sv->onCommand(C_sceneRevolver);
                     if (ImGui::MenuItem("Skybox Shader", 0, curS==C_sceneShaderSkyBox))
                         sv->onCommand(C_sceneShaderSkyBox);
                     if (ImGui::MenuItem("Earth Shader", 0, curS==C_sceneShaderEarth))
@@ -966,11 +972,18 @@ void SLDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
             {
                 SLRaytracer* rt = sv->raytracer();
 
-                if (ImGui::MenuItem("Parallel distributed", 0, rt->distributed()))
-                    sv->onCommand(C_rtDistributed);
+                if (ImGui::MenuItem("Parallel distributed", 0, rt->doDistributed()))
+                {   rt->doDistributed(!rt->doDistributed());
+                    sv->startRaytracing(rt->maxDepth());
+                }
 
-                if (ImGui::MenuItem("Continuously", 0, rt->continuous()))
-                    sv->onCommand(C_rtContinuously);
+                if (ImGui::MenuItem("Continuously", 0, rt->doContinuous()))
+                    rt->doContinuous(!rt->doContinuous());
+
+                if (ImGui::MenuItem("Fresnel Reflection", 0, rt->doFresnel()))
+                {   rt->doFresnel(!rt->doFresnel());
+                    sv->startRaytracing(rt->maxDepth());
+                }
 
                 if (ImGui::BeginMenu("Max. Depth"))
                 {
@@ -1268,7 +1281,7 @@ void SLDemoGui::addSceneGraphNode(SLScene* s, SLNode* node)
             ImGuiTreeNodeFlags meshFlags = ImGuiTreeNodeFlags_Leaf;
             if (s->selectedMesh()==mesh)
                 meshFlags |= ImGuiTreeNodeFlags_Selected;
-          //ImGui::TreeNodeEx(mesh->name().c_str(), meshFlags);
+
             ImGui::TreeNodeEx(mesh, meshFlags, "%s", mesh->name().c_str());
 
             if (ImGui::IsItemClicked())
@@ -1478,7 +1491,7 @@ void SLDemoGui::buildProperties(SLScene* s)
         if (mesh)
         {   SLuint v = (SLuint)mesh->P.size();
             SLuint t = (SLuint)(mesh->I16.size() ? mesh->I16.size() : mesh->I32.size());
-            SLMaterial* m = mesh->mat;
+            SLMaterial* m = mesh->mat();
             ImGui::Text("Mesh Name       : %s", mesh->name().c_str());
             ImGui::Text("No. of Vertices : %u", v);
             ImGui::Text("No. of Triangles: %u", t);
@@ -1562,7 +1575,12 @@ void SLDemoGui::buildProperties(SLScene* s)
                             ImGui::Text("Type    : %s", t->typeName().c_str());
 
                             if (t->depth() > 1)
-                                ImGui::Text("3D textures can not be displayed.");
+                            {
+                                if (t->target() == GL_TEXTURE_CUBE_MAP)
+                                    ImGui::Text("Cube maps can not be displayed.");
+                                else if (t->target() == GL_TEXTURE_3D)
+                                    ImGui::Text("3D textures can not be displayed.");
+                            }
                             else
                             {   if (typeid(*t)==typeid(SLTransferFunction))
                                 {

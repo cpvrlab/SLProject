@@ -368,7 +368,7 @@ void SLSceneView::onResize(SLint width, SLint height)
         // Stop raytracing & pathtracing on resize
         if (_renderType != RT_gl)
         {   _renderType = RT_gl;
-            _raytracer.continuous(false);
+            _raytracer.doContinuous(false);
         }
     }
 }
@@ -973,11 +973,11 @@ SLbool SLSceneView::onMouseMove(SLint x, SLint y)
                             _mouseDownR ? MB_right : MB_middle;
       
         // Handle move in RT mode
-        if (_renderType == RT_rt && !_raytracer.continuous())
+        if (_renderType == RT_rt && !_raytracer.doContinuous())
         {   if (_raytracer.state()==rtFinished)
                 _raytracer.state(rtMoveGL);
             else
-            {   _raytracer.continuous(false);
+            {   _raytracer.doContinuous(false);
             }
             _renderType = RT_gl;
         }
@@ -1023,7 +1023,7 @@ SLbool SLSceneView::onMouseWheel(SLint delta, SLKey mod)
     }
 
     // Handle mouse wheel in RT mode
-    if (_renderType == RT_rt && !_raytracer.continuous() && 
+    if (_renderType == RT_rt && !_raytracer.doContinuous() && 
         _raytracer.state()==rtFinished)
         _raytracer.state(rtReady);
     SLbool result = false;
@@ -1054,7 +1054,7 @@ SLbool SLSceneView::onDoubleClick(SLMouseButton button,
     if (button == MB_left)
     {   _mouseDownR = false;
       
-        SLRay pickRay;
+        SLRay pickRay(this);
         if (_camera) 
         {   _camera->eyeToPixelRay((SLfloat)x, (SLfloat)y, &pickRay);
             s->root3D()->hitRec(&pickRay);
@@ -1272,13 +1272,13 @@ SLbool SLSceneView::onCommand(SLCommand cmd)
         {
             case C_projPersp:
                 _camera->projection(P_monoPerspective);
-                if (_renderType == RT_rt && !_raytracer.continuous() &&
+                if (_renderType == RT_rt && !_raytracer.doContinuous() &&
                     _raytracer.state() == rtFinished)
                     _raytracer.state(rtReady);
                 break;
             case C_projOrtho:
                 _camera->projection(P_monoOrthographic);
-                if (_renderType == RT_rt && !_raytracer.continuous() &&
+                if (_renderType == RT_rt && !_raytracer.doContinuous() &&
                     _raytracer.state() == rtFinished)
                     _raytracer.state(rtReady);
                 break;
@@ -1381,13 +1381,6 @@ SLbool SLSceneView::onCommand(SLCommand cmd)
         case C_renderOpenGL:
             _renderType = RT_gl;
             return true;
-        case C_rtContinuously:
-            _raytracer.continuous(!_raytracer.continuous());
-            return true;
-        case C_rtDistributed:
-            _raytracer.distributed(!_raytracer.distributed());
-            startRaytracing(5);
-            return true;
         case C_rt1: startRaytracing(1); return true;
         case C_rt2: startRaytracing(2); return true;
         case C_rt3: startRaytracing(3); return true;
@@ -1437,7 +1430,7 @@ SLstring SLSceneView::windowTitle()
     SLchar title[255];
 
     if (_renderType == RT_rt)
-    {   if (_raytracer.continuous())
+    {   if (_raytracer.doContinuous())
         {   sprintf(title, "%s (fps: %4.1f, Threads: %d)", 
                     s->name().c_str(), 
                     s->fps(),
@@ -1501,7 +1494,7 @@ SLbool SLSceneView::draw3DRT()
             mesh->updateAccelStruct();
 
         // Start raytracing
-        if (_raytracer.distributed())
+        if (_raytracer.doDistributed())
              _raytracer.renderDistrib(this);
         else _raytracer.renderClassic(this);
     }

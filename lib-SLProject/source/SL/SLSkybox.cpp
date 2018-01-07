@@ -81,9 +81,9 @@ void SLSkybox::drawAroundCamera(SLSceneView* sv)
 SLCol4f SLSkybox::colorAtDir(SLVec3f dir)
 {
     assert(_meshes.size() > 0);
-    assert(_meshes[0]->mat->textures().size() > 0);
+    assert(_meshes[0]->mat()->textures().size() > 0);
     
-    SLGLTexture* tex = _meshes[0]->mat->textures()[0];
+    SLGLTexture* tex = _meshes[0]->mat()->textures()[0];
     
     return tex->getTexelf(dir);
 }

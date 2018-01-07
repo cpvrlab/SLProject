@@ -31,8 +31,8 @@ in SLScene::unInit().
 SLMesh::SLMesh(SLstring name) : SLObject(name)
 {   
     _primitive = PT_triangles;
-    mat = nullptr;
-    matOut = nullptr;
+    mat(nullptr);
+    matOut(nullptr);
     _finalP = &P;
     _finalN = &N;
     minP.set( FLT_MAX,  FLT_MAX,  FLT_MAX);
@@ -102,18 +102,18 @@ void SLMesh::init(SLNode* node)
     // Set default materials if no materials are asigned
     // If colors are available use diffuse color attribute shader
     // otherwise use the default gray material
-    if (!mat)
+    if (!mat())
     {   if (C.size())
-             mat = SLMaterial::diffuseAttrib();
-        else mat = SLMaterial::defaultGray();
+             mat(SLMaterial::diffuseAttrib());
+        else mat(SLMaterial::defaultGray());
     }
 
     // set transparent flag of the node if mesh contains alpha material
-    if (!node->aabb()->hasAlpha() && mat->hasAlpha())
+    if (!node->aabb()->hasAlpha() && mat()->hasAlpha())
         node->aabb()->hasAlpha(true);
 
     // build tangents for bump mapping
-    if (mat->needsTangents() && Tc.size() && !T.size())
+    if (mat()->needsTangents() && Tc.size() && !T.size())
         calcTangents();
 }
 //-----------------------------------------------------------------------------
@@ -190,8 +190,8 @@ void SLMesh::draw(SLSceneView* sv, SLNode* node)
     /////////////////////////////
 
     // 2.a) Apply mesh material if exists & differs from current
-    if (mat != SLMaterial::current || SLMaterial::current->program()==nullptr)
-        mat->activate(_stateGL, *node->drawBits());
+    if (mat() != SLMaterial::current || SLMaterial::current->program()==nullptr)
+        mat()->activate(_stateGL, *node->drawBits());
 
     // 2.b) Pass the matrices to the shader program
     SLGLProgram* sp = SLMaterial::current->program();
@@ -217,9 +217,9 @@ void SLMesh::draw(SLSceneView* sv, SLNode* node)
         sp->uniformMatrix3fv(locNM, 1, (SLfloat*)_stateGL->normalMatrix());
     }
     if (locTM>=0)
-    {   if (mat->has3DTexture() && mat->textures()[0]->autoCalcTM3D())
+    {   if (_mat->has3DTexture() && _mat->textures()[0]->autoCalcTM3D())
              calcTex3DMatrix(node);
-        else _stateGL->textureMatrix = mat->textures()[0]->tm();
+        else _stateGL->textureMatrix = _mat->textures()[0]->tm();
         sp->uniformMatrix4fv(locTM, 1, (SLfloat*)&_stateGL->textureMatrix);
     }
 
@@ -758,7 +758,7 @@ SLbool SLMesh::hitTriangleOS(SLRay* ray, SLNode* node, SLuint iT)
 {
     assert(ray  && "ray pointer is null");
     assert(node && "node pointer is null");
-    assert(mat  && "material pointer is null");
+    assert(_mat && "material pointer is null");
 
     #if _DEBUG
     ++SLRay::tests;
@@ -912,7 +912,7 @@ void SLMesh::preShade(SLRay* ray)
     ray->hitNormal.normalize();
    
     // calculate interpolated texture coordinates
-    SLVGLTexture& textures = ray->hitMesh->mat->textures();
+    SLVGLTexture& textures = ray->hitMesh->mat()->textures();
     if (textures.size() > 0 && Tc.size() > 0)
     {   SLVec2f Tu(Tc[iB] - Tc[iA]);
         SLVec2f Tv(Tc[iC] - Tc[iA]);

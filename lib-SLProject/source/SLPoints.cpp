@@ -30,7 +30,7 @@ SLPoints::SLPoints(SLVVec3f& points,
 
     P = points;
 
-    mat = material;
+    mat(material);
 }
 //-----------------------------------------------------------------------------
 //! SLPoints ctor for a random point cloud with the rnd generator.
@@ -45,6 +45,6 @@ SLPoints::SLPoints(SLfloat nPoints, SLRnd3f& rnd, SLstring name,
     for (int i=0; i<nPoints; ++i)
         P.push_back(rnd.generate());
 
-    mat = material;
+    mat(material);
 }
 //-----------------------------------------------------------------------------

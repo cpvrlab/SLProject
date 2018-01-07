@@ -185,6 +185,31 @@ SLMesh* SLNode::findMesh(SLstring name, SLbool recursive)
     
     return nullptr;
 }
+
+//-----------------------------------------------------------------------------
+/*! SLNode::setAllMeshMaterials set on all meshes of the node to the passed
+material. If recursive is true the material is also applied to all child node
+and their meshes.
+*/
+void SLNode::setAllMeshMaterials(SLMaterial* mat, SLbool recursive)
+{
+    assert(mat!=nullptr);
+    
+    // Reset the nodes alpha flag
+    _aabb.hasAlpha(false);
+    
+    for (auto mesh : _meshes)
+    {   mesh->mat(mat);
+
+        // set transparent flag of the node if mesh contains alpha material
+        if (!_aabb.hasAlpha() && mat->hasAlpha())
+            _aabb.hasAlpha(true);
+    }
+    
+    if (recursive && children().size() > 0)
+        for (auto child : _children)
+            child->setAllMeshMaterials(mat, recursive);
+}
 //-----------------------------------------------------------------------------
 /*!
 Returns true if the node contains the provided mesh
@@ -234,8 +259,8 @@ the opaque pass only the opaque meshes.
 void SLNode::drawMeshes(SLSceneView* sv)
 {
     for (auto mesh : _meshes)
-        if (( _stateGL->blend() &&  mesh->mat->hasAlpha()) ||
-            (!_stateGL->blend() && !mesh->mat->hasAlpha()))
+        if (( _stateGL->blend() &&  mesh->mat()->hasAlpha()) ||
+            (!_stateGL->blend() && !mesh->mat()->hasAlpha()))
             mesh->draw(sv, this);
 }
 //-----------------------------------------------------------------------------
@@ -757,10 +782,10 @@ void SLNode::dumpRec()
     if (_meshes.size() > 0)
     {   for (auto mesh : _meshes)
         {   for (SLint i = 0; i < _depth; ++i) cout << "   ";
-            cout << "- Mesh: " << mesh->name();
+                cout << "- Mesh: " << mesh->name();
             cout << ", " << mesh->numI()*3 << " tri";
-            if (mesh->mat)
-            cout << ", Mat: " << mesh->mat->name();
+            if (mesh->mat())
+                cout << ", Mat: " << mesh->mat()->name();
             cout << endl;
         }
     }

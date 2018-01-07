@@ -355,6 +355,7 @@ void SLCamera::setProjection(SLSceneView* sv, const SLEyeType eye)
     _scrW = sv->scrW();
     _scrH = sv->scrH();
     _aspect = sv->scrWdivH();
+    _lookAtRay.sv = sv;
 
     switch (_projection)
     {
@@ -475,6 +476,7 @@ nodes inverse world matrix.
 void SLCamera::setView(SLSceneView* sv, const SLEyeType eye)
 {
     SLScene* s = SLScene::current;
+    _lookAtRay.sv = sv;
 
     if (_camAnim == CA_deviceRotYUp)
     {

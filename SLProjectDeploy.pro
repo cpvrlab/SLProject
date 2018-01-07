@@ -400,6 +400,12 @@ models_FBX_Duck.files = \
 models_FBX_Axes.files = \
   ../_data/models/FBX/Axes/axes_blender.fbx \
 
+models_FBX_Suzanne.files = \
+  ../_data/models/FBX/Suzanne/Suzanne.fbx \
+
+models_FBX_Teapot.files = \
+  ../_data/models/FBX/Teapot/Teapot.fbx \
+
 models_FBX_Christoffel.files = \
   ../_data/models/FBX/Christoffel/Bern-Bahnhofsplatz.fbx \
   ../_data/models/FBX/Christoffel/Christoffel.jpg \
@@ -494,6 +500,8 @@ macx: {
     models_DAE_Crate.path = Contents/_data/models/DAE/Crate
     models_FBX_Duck.path = Contents/_data/models/FBX/Duck
     models_FBX_Axes.path = Contents/_data/models/FBX/Axes
+    models_FBX_Suzanne.path = Contents/_data/models/FBX/Suzanne
+    models_FBX_Teapot.path = Contents/_data/models/FBX/Teapot
     models_FBX_Christoffel.path = Contents/_data/models/FBX/Christoffel
     calibrations.path = Contents/_data/calibrations
     cvlibs.path = Contents/Frameworks
@@ -509,6 +517,8 @@ macx: {
     QMAKE_BUNDLE_DATA += models_DAE_Crate
     QMAKE_BUNDLE_DATA += models_FBX_Duck
     QMAKE_BUNDLE_DATA += models_FBX_Axes
+    QMAKE_BUNDLE_DATA += models_FBX_Suzanne
+    QMAKE_BUNDLE_DATA += models_FBX_Teapot
     QMAKE_BUNDLE_DATA += models_FBX_Christoffel
     QMAKE_BUNDLE_DATA += calibrations
     QMAKE_BUNDLE_DATA += cvlibs
