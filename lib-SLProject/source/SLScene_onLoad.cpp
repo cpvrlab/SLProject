@@ -260,28 +260,28 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         //Test2 = cv::Mat::eye(4, 4, CV_64F);
         //cout << "Test2: " << Test2 << endl;
 
-        cv::Mat Test = cv::Mat::zeros(4, 4, CV_64F);
-        cout << "Test: " << Test << endl;
-        Test.at<double>(0, 0) = 1.0;
-        Test.at<double>(0, 1) = 2.0;
-        Test.at<double>(0, 2) = 3.0;
-        Test.at<double>(0, 3) = 4.0;
-        cout << "Test: " << Test << endl;
-        Test.row(1) = Test.row(0) * 2;
-        cout << "Test: " << Test << endl;
-        Test.row(2) = Test.row(0) * 3;
-        Test.row(3) = Test.row(0) * 4;
-        cout << "Test: " << Test << endl;
+        //cv::Mat Test = cv::Mat::zeros(4, 4, CV_64F);
+        //cout << "Test: " << Test << endl;
+        //Test.at<double>(0, 0) = 1.0;
+        //Test.at<double>(0, 1) = 2.0;
+        //Test.at<double>(0, 2) = 3.0;
+        //Test.at<double>(0, 3) = 4.0;
+        //cout << "Test: " << Test << endl;
+        //Test.row(1) = Test.row(0) * 2;
+        //cout << "Test: " << Test << endl;
+        //Test.row(2) = Test.row(0) * 3;
+        //Test.row(3) = Test.row(0) * 4;
+        //cout << "Test: " << Test << endl;
 
-        //load scale
-        cv::Mat _t(3, 1, CV_32F);
-        _t.at<float>(0, 0) = 100;
-        _t.at<float>(1, 0) = 200;
-        _t.at<float>(2, 0) = 300;
-        cout << "t: " << _t << endl;
+        ////load scale
+        //cv::Mat _t(3, 1, CV_32F);
+        //_t.at<float>(0, 0) = 100;
+        //_t.at<float>(1, 0) = 200;
+        //_t.at<float>(2, 0) = 300;
+        //cout << "t: " << _t << endl;
 
-        Test.rowRange(0, 3).col(3) += _t;
-        cout << "Test: " << Test << endl;
+        //Test.rowRange(0, 3).col(3) += _t;
+        //cout << "Test: " << Test << endl;
 
         // Set scene name and info string
         name("Track Keyframe based Features");
@@ -315,8 +315,8 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
 
         //load map points and keyframes from json file
         //SLCVSlamStateLoader loader("../_data/calibrations/orb-slam-state-2.json", vocabulary);
-        SLCVSlamStateLoader loader("../_data/calibrations/orb-slam-state-buero-test.json", vocabulary, false);
-        //SLCVSlamStateLoader loader("../_data/calibrations/orb-slam-state-buero1.json", vocabulary);
+        //SLCVSlamStateLoader loader("../_data/calibrations/orb-slam-state-buero-test.json", vocabulary, false);
+        SLCVSlamStateLoader loader("../_data/calibrations/orb-slam-state-buero4.json", vocabulary);
         loader.load(map->mapPoints(), *kfDB );
 
         SLLightSpot* light1 = new SLLightSpot(10, 10, 10, 0.3f);

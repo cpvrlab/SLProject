@@ -1087,6 +1087,9 @@ Mat SLCVTrackedRaulMur::buildTransMat(float &val, int type)
 
 void SLCVTrackedRaulMur::rotate(float value, int type)
 {
+    //transform to degree
+    value *= SL_DEG2RAD;
+
     Mat rot = buildRotMat(value, type);
     cout << "rot: " << rot << endl;
 

@@ -37,6 +37,7 @@
 #include <SLCVTrackedRaulMur.h>
 
 #include <imgui.h>
+#include <imgui_internal.h>
 
 #define IM_ARRAYSIZE(_ARR)  ((int)(sizeof(_ARR)/sizeof(*_ARR)))
 
@@ -1740,140 +1741,163 @@ void SLDemoGui::buildInfosTracking(SLScene* s, SLSceneView* sv)
     ImGui::Text("Pose Difference : %f ", raulMurTracker->poseDifference());
     ImGui::Separator();
 
+    SLbool b;
     //-------------------------------------------------------------------------
     //keypoints infos
-    ImGui::Text("KeyPoints");
-
-    //show 2D key points in video image
-    SLbool b = raulMurTracker->showKeyPoints();
-    if (ImGui::Checkbox("KeyPts", &b))
+    if (ImGui::CollapsingHeader("KeyPoints"))
     {
-        raulMurTracker->showKeyPoints(b);
-    }
+        //ImGui::Text("KeyPoints");
 
-    //show matched 2D key points in video image
-    b = raulMurTracker->showKeyPointsMatched();
-    if (ImGui::Checkbox("KeyPts Matched", &b))
-    {
-        raulMurTracker->showKeyPointsMatched(b);
-    }
+        //show 2D key points in video image
+        b = raulMurTracker->showKeyPoints();
+        if (ImGui::Checkbox("KeyPts", &b))
+        {
+            raulMurTracker->showKeyPoints(b);
+        }
 
-    //undistort image
-    SLCVCalibration* ac = s->activeCalib();
-    b = (ac->showUndistorted() && ac->state() == CS_calibrated);
-    if (ImGui::Checkbox("Undistort Image", &b))
-    {
-        ac->showUndistorted(b);
-    }
+        //show matched 2D key points in video image
+        b = raulMurTracker->showKeyPointsMatched();
+        if (ImGui::Checkbox("KeyPts Matched", &b))
+        {
+            raulMurTracker->showKeyPointsMatched(b);
+        }
 
-    ImGui::Separator();
+        //undistort image
+        SLCVCalibration* ac = s->activeCalib();
+        b = (ac->showUndistorted() && ac->state() == CS_calibrated);
+        if (ImGui::Checkbox("Undistort Image", &b))
+        {
+            ac->showUndistorted(b);
+        }
+        //ImGui::Separator();
+    }
 
     //-------------------------------------------------------------------------
     //mappoints infos
-    ImGui::Text("MapPoints");
-    //number of map points
-    ImGui::Text("Count : %d ", raulMurTracker->mapPointsCount());
-    //show mappoints scene objects
-    if (mapPoints)
+    if (ImGui::CollapsingHeader("MapPoints"))
     {
-        b = !mapPoints->drawBits()->get(SL_DB_HIDDEN);
-        if (ImGui::Checkbox("Show All", &b))
+        //ImGui::Text("MapPoints");
+        //number of map points
+        ImGui::Text("Count : %d ", raulMurTracker->mapPointsCount());
+        //show mappoints scene objects
+        if (mapPoints)
         {
-            mapPoints->drawBits()->set(SL_DB_HIDDEN, !b);
-        }
-    }
-    //show and update matches to mappoints
-    b = raulMurTracker->showMatchesPC();
-    if (ImGui::Checkbox("Show Matches to Map", &b))
-    {
-        raulMurTracker->showMatchesPC(b);
-    }
-    //show and update local map points
-    b = raulMurTracker->showLocalMapPC();
-    if (ImGui::Checkbox("Show Local Map", &b))
-    {
-        raulMurTracker->showLocalMapPC(b);
-    }
-
-    ImGui::Separator();
-
-    //-------------------------------------------------------------------------
-    //keyframe infos
-    ImGui::Text("KeyFrames");
-    //add number of keyframes
-    if (keyFrames) {
-        ImGui::Text("Number of Keyframes : %d ", keyFrames->children().size());
-    }
-    //show keyframe scene objects
-    if (keyFrames)
-    {
-        b = !keyFrames->drawBits()->get(SL_DB_HIDDEN);
-        if (ImGui::Checkbox("Show", &b))
-        {
-            keyFrames->drawBits()->set(SL_DB_HIDDEN, !b);
-            for (SLNode* child : keyFrames->children()) {
-                if (child)
-                    child->drawBits()->set(SL_DB_HIDDEN, !b);
+            b = !mapPoints->drawBits()->get(SL_DB_HIDDEN);
+            if (ImGui::Checkbox("Show All", &b))
+            {
+                mapPoints->drawBits()->set(SL_DB_HIDDEN, !b);
             }
         }
-    }
+        //show and update matches to mappoints
+        b = raulMurTracker->showMatchesPC();
+        if (ImGui::Checkbox("Show Matches to Map", &b))
+        {
+            raulMurTracker->showMatchesPC(b);
+        }
+        //show and update local map points
+        b = raulMurTracker->showLocalMapPC();
+        if (ImGui::Checkbox("Show Local Map", &b))
+        {
+            raulMurTracker->showLocalMapPC(b);
+        }
 
-    //get keyframe database
-    if (SLCVKeyFrameDB* kfDB = raulMurTracker->getKfDB())
+        //ImGui::Separator();
+    }
+    //-------------------------------------------------------------------------
+    //keyframe infos
+    if (ImGui::CollapsingHeader("KeyFrames"))
     {
-        //if backgound rendering is active kf images will be rendered on 
-        //near clipping plane if kf is not the active camera
-        b = kfDB->renderKfBackground();
-        if (ImGui::Checkbox("Show Image", &b))
+        //ImGui::Text("KeyFrames");
+        //add number of keyframes
+        if (keyFrames) {
+            ImGui::Text("Number of Keyframes : %d ", keyFrames->children().size());
+        }
+        //show keyframe scene objects
+        if (keyFrames)
         {
-            kfDB->renderKfBackground(b);
+            b = !keyFrames->drawBits()->get(SL_DB_HIDDEN);
+            if (ImGui::Checkbox("Show", &b))
+            {
+                keyFrames->drawBits()->set(SL_DB_HIDDEN, !b);
+                for (SLNode* child : keyFrames->children()) {
+                    if (child)
+                        child->drawBits()->set(SL_DB_HIDDEN, !b);
+                }
+            }
         }
 
-        //allow SLCVCameras as active camera so that we can look through it
-        b = kfDB->allowAsActiveCam();
-        if (ImGui::Checkbox("Allow as Active Cam", &b))
+        //get keyframe database
+        if (SLCVKeyFrameDB* kfDB = raulMurTracker->getKfDB())
         {
-            kfDB->allowAsActiveCam(b);
+            //if backgound rendering is active kf images will be rendered on 
+            //near clipping plane if kf is not the active camera
+            b = kfDB->renderKfBackground();
+            if (ImGui::Checkbox("Show Image", &b))
+            {
+                kfDB->renderKfBackground(b);
+            }
+
+            //allow SLCVCameras as active camera so that we can look through it
+            b = kfDB->allowAsActiveCam();
+            if (ImGui::Checkbox("Allow as Active Cam", &b))
+            {
+                kfDB->allowAsActiveCam(b);
+            }
         }
+        //ImGui::Separator();
     }
-    ImGui::Separator();
 
     //-------------------------------------------------------------------------
-    ImGui::Text("Alignment");
-    //slider to adjust transformation value
-    ImGui::SliderFloat("Value", &SLGLImGui::transformationValue, -10.f, 10.f, "%5.2f");
-    //ImGui::SliderFloat2("Value", &SLGLImGui::transformationValue, -10.f, 10.f, "%0.0f", 0.01f);
-    //ImGui::InputFloat("Value", &SLGLImGui::transformationValue, 0.1f, 1.f);
-    //ImGui::InputFloat("Value", &SLGLImGui::transformationValue, 0.1f, 1.f);
+    if (ImGui::CollapsingHeader("Alignment"))
+    {
+        //ImGui::Text("Alignment");
+        //slider to adjust transformation value
+        //ImGui::SliderFloat("Value", &SLGLImGui::transformationValue, -10.f, 10.f, "%5.2f");
 
-    //Buttons for transformations
-    if (ImGui::Button("RotX" )) {
-        raulMurTracker->applyTransformation(SLGLImGui::transformationValue, SLCVTrackedRaulMur::ROT_X);
-    } ImGui::SameLine();
-    if (ImGui::Button("RotY")) {
-        raulMurTracker->applyTransformation(SLGLImGui::transformationValue, SLCVTrackedRaulMur::ROT_Y);
-    } ImGui::SameLine();
-    if (ImGui::Button("RotZ")) {
-        raulMurTracker->applyTransformation(SLGLImGui::transformationValue, SLCVTrackedRaulMur::ROT_Z);
+        //rotation
+        ImGui::InputFloat("Rot. Value", &SLGLImGui::transformationRotValue, 0.1f);
+        SLGLImGui::transformationRotValue = ImClamp(SLGLImGui::transformationRotValue, -360.0f, 360.0f);
+       
+        static SLfloat sp = 3; //spacing
+        SLfloat bW = (ImGui::GetContentRegionAvailWidth() - 2*sp) / 3;
+        if (ImGui::Button("RotX", ImVec2(bW, 0.0f))) {
+            raulMurTracker->applyTransformation(SLGLImGui::transformationRotValue, SLCVTrackedRaulMur::ROT_X);
+        } ImGui::SameLine(0.0, sp);
+        if (ImGui::Button("RotY", ImVec2(bW, 0.0f))) {
+            raulMurTracker->applyTransformation(SLGLImGui::transformationRotValue, SLCVTrackedRaulMur::ROT_Y);
+        } ImGui::SameLine(0.0, sp);
+        if (ImGui::Button("RotZ", ImVec2(bW, 0.0f))) {
+            raulMurTracker->applyTransformation(SLGLImGui::transformationRotValue, SLCVTrackedRaulMur::ROT_Z);
+        }
+        ImGui::Separator();
+
+        //translation
+        ImGui::InputFloat("Transl. Value", &SLGLImGui::transformationTransValue, 0.1f);
+
+        if (ImGui::Button("TransX", ImVec2(bW, 0.0f))) {
+            raulMurTracker->applyTransformation(SLGLImGui::transformationTransValue, SLCVTrackedRaulMur::TRANS_X);
+        } ImGui::SameLine(0.0, sp);
+        if (ImGui::Button("TransY", ImVec2(bW, 0.0f))) {
+            raulMurTracker->applyTransformation(SLGLImGui::transformationTransValue, SLCVTrackedRaulMur::TRANS_Y);
+        } ImGui::SameLine(0.0, sp);
+        if (ImGui::Button("TransZ", ImVec2(bW, 0.0f))) {
+            raulMurTracker->applyTransformation(SLGLImGui::transformationTransValue, SLCVTrackedRaulMur::TRANS_Z);
+        }
+        ImGui::Separator();
+
+        //scale
+        ImGui::InputFloat("Scale Value", &SLGLImGui::transformationScaleValue, 0.1f);
+        SLGLImGui::transformationScaleValue = ImClamp(SLGLImGui::transformationScaleValue, 0.0f, 1000.0f);
+
+        if (ImGui::Button("Scale", ImVec2(ImGui::GetContentRegionAvailWidth(), 0.0f))) {
+            raulMurTracker->applyTransformation(SLGLImGui::transformationScaleValue, SLCVTrackedRaulMur::SCALE);
+        }
+        ImGui::Separator();
+
+        if (ImGui::Button("Save State", ImVec2(ImGui::GetContentRegionAvailWidth(), 0.0f))) {
+            raulMurTracker->saveState();
+        }
     }
-
-    if (ImGui::Button("TransX")) {
-        raulMurTracker->applyTransformation(SLGLImGui::transformationValue, SLCVTrackedRaulMur::TRANS_X);
-    } ImGui::SameLine();
-    if (ImGui::Button("TransY")) {
-        raulMurTracker->applyTransformation(SLGLImGui::transformationValue, SLCVTrackedRaulMur::TRANS_Y);
-    } ImGui::SameLine(); 
-    if (ImGui::Button("TransZ")) {
-        raulMurTracker->applyTransformation(SLGLImGui::transformationValue, SLCVTrackedRaulMur::TRANS_Z);
-    } 
-
-    if (ImGui::Button("Scale")) {
-        raulMurTracker->applyTransformation(SLGLImGui::transformationValue, SLCVTrackedRaulMur::SCALE);
-    } ImGui::PushItemWidth(2);
-
-    if (ImGui::Button("Save State")) {
-        raulMurTracker->saveState();
-    } ImGui::PushItemWidth(2);
 
     ImGui::End();
 }
