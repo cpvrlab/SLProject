@@ -183,6 +183,8 @@
 		41030CFA1FED49E2005CFF1A /* SLTimer.h in Headers */ = {isa = PBXBuildFile; fileRef = 41030CB91FED49E1005CFF1A /* SLTimer.h */; };
 		41030CFB1FED49E2005CFF1A /* SLDrawBits.h in Headers */ = {isa = PBXBuildFile; fileRef = 41030CBA1FED49E1005CFF1A /* SLDrawBits.h */; };
 		41030CFC1FED49E2005CFF1A /* SLSpheric.h in Headers */ = {isa = PBXBuildFile; fileRef = 41030CBB1FED49E1005CFF1A /* SLSpheric.h */; };
+		41B5768A1FF53D1A00542824 /* SLSkybox.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 41B576881FF53D1A00542824 /* SLSkybox.cpp */; };
+		41B5768D1FF53D8B00542824 /* SLSkybox.h in Headers */ = {isa = PBXBuildFile; fileRef = 41B5768C1FF53D8B00542824 /* SLSkybox.h */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -363,6 +365,74 @@
 		41030CBA1FED49E1005CFF1A /* SLDrawBits.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SLDrawBits.h; path = ../include/SLDrawBits.h; sourceTree = "<group>"; };
 		41030CBB1FED49E1005CFF1A /* SLSpheric.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SLSpheric.h; path = ../include/SLSpheric.h; sourceTree = "<group>"; };
 		4168FDE01FED45EA007C56B3 /* liblib-SLProject.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "liblib-SLProject.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		41B576461FF5399D00542824 /* ADSTex.vert */ = {isa = PBXFileReference; explicitFileType = sourcecode.glsl; fileEncoding = 4; name = ADSTex.vert; path = ../_data/shaders/ADSTex.vert; sourceTree = "<group>"; };
+		41B576471FF5399D00542824 /* ADSTex3D.vert */ = {isa = PBXFileReference; explicitFileType = sourcecode.glsl; fileEncoding = 4; name = ADSTex3D.vert; path = ../_data/shaders/ADSTex3D.vert; sourceTree = "<group>"; };
+		41B576481FF5399D00542824 /* PerPixBlinnSkinned.vert */ = {isa = PBXFileReference; explicitFileType = sourcecode.glsl; fileEncoding = 4; name = PerPixBlinnSkinned.vert; path = ../_data/shaders/PerPixBlinnSkinned.vert; sourceTree = "<group>"; };
+		41B576491FF5399D00542824 /* Reflect.vert */ = {isa = PBXFileReference; explicitFileType = sourcecode.glsl; fileEncoding = 4; name = Reflect.vert; path = ../_data/shaders/Reflect.vert; sourceTree = "<group>"; };
+		41B5764A1FF5399D00542824 /* ColorUniform.vert */ = {isa = PBXFileReference; explicitFileType = sourcecode.glsl; fileEncoding = 4; name = ColorUniform.vert; path = ../_data/shaders/ColorUniform.vert; sourceTree = "<group>"; };
+		41B5764B1FF5399D00542824 /* SkyBox.frag */ = {isa = PBXFileReference; explicitFileType = sourcecode.glsl; fileEncoding = 4; name = SkyBox.frag; path = ../_data/shaders/SkyBox.frag; sourceTree = "<group>"; };
+		41B5764C1FF5399D00542824 /* BumpNormalEarth.frag */ = {isa = PBXFileReference; explicitFileType = sourcecode.glsl; fileEncoding = 4; name = BumpNormalEarth.frag; path = ../_data/shaders/BumpNormalEarth.frag; sourceTree = "<group>"; };
+		41B5764D1FF5399E00542824 /* Wave.vert */ = {isa = PBXFileReference; explicitFileType = sourcecode.glsl; fileEncoding = 4; name = Wave.vert; path = ../_data/shaders/Wave.vert; sourceTree = "<group>"; };
+		41B5764E1FF5399E00542824 /* RefractReflectDisp.vert */ = {isa = PBXFileReference; explicitFileType = sourcecode.glsl; fileEncoding = 4; name = RefractReflectDisp.vert; path = ../_data/shaders/RefractReflectDisp.vert; sourceTree = "<group>"; };
+		41B5764F1FF5399E00542824 /* PerVrtBlinnSkinned.vert */ = {isa = PBXFileReference; explicitFileType = sourcecode.glsl; fileEncoding = 4; name = PerVrtBlinnSkinned.vert; path = ../_data/shaders/PerVrtBlinnSkinned.vert; sourceTree = "<group>"; };
+		41B576501FF5399E00542824 /* StereoOculusDistortionMesh.frag */ = {isa = PBXFileReference; explicitFileType = sourcecode.glsl; fileEncoding = 4; name = StereoOculusDistortionMesh.frag; path = ../_data/shaders/StereoOculusDistortionMesh.frag; sourceTree = "<group>"; };
+		41B576511FF5399E00542824 /* StereoOculus.frag */ = {isa = PBXFileReference; explicitFileType = sourcecode.glsl; fileEncoding = 4; name = StereoOculus.frag; path = ../_data/shaders/StereoOculus.frag; sourceTree = "<group>"; };
+		41B576521FF5399E00542824 /* RefractReflect.frag */ = {isa = PBXFileReference; explicitFileType = sourcecode.glsl; fileEncoding = 4; name = RefractReflect.frag; path = ../_data/shaders/RefractReflect.frag; sourceTree = "<group>"; };
+		41B576531FF5399E00542824 /* SceneOculus.vert */ = {isa = PBXFileReference; explicitFileType = sourcecode.glsl; fileEncoding = 4; name = SceneOculus.vert; path = ../_data/shaders/SceneOculus.vert; sourceTree = "<group>"; };
+		41B576541FF5399E00542824 /* FontTex.vert */ = {isa = PBXFileReference; explicitFileType = sourcecode.glsl; fileEncoding = 4; name = FontTex.vert; path = ../_data/shaders/FontTex.vert; sourceTree = "<group>"; };
+		41B576551FF5399E00542824 /* Diffuse.frag */ = {isa = PBXFileReference; explicitFileType = sourcecode.glsl; fileEncoding = 4; name = Diffuse.frag; path = ../_data/shaders/Diffuse.frag; sourceTree = "<group>"; };
+		41B576561FF5399E00542824 /* BumpNormalParallax.frag */ = {isa = PBXFileReference; explicitFileType = sourcecode.glsl; fileEncoding = 4; name = BumpNormalParallax.frag; path = ../_data/shaders/BumpNormalParallax.frag; sourceTree = "<group>"; };
+		41B576571FF5399E00542824 /* SkyBox.vert */ = {isa = PBXFileReference; explicitFileType = sourcecode.glsl; fileEncoding = 4; name = SkyBox.vert; path = ../_data/shaders/SkyBox.vert; sourceTree = "<group>"; };
+		41B576581FF5399E00542824 /* TextureOnly3D.vert */ = {isa = PBXFileReference; explicitFileType = sourcecode.glsl; fileEncoding = 4; name = TextureOnly3D.vert; path = ../_data/shaders/TextureOnly3D.vert; sourceTree = "<group>"; };
+		41B576591FF5399E00542824 /* PerPixBlinnTex.frag */ = {isa = PBXFileReference; explicitFileType = sourcecode.glsl; fileEncoding = 4; name = PerPixBlinnTex.frag; path = ../_data/shaders/PerPixBlinnTex.frag; sourceTree = "<group>"; };
+		41B5765A1FF5399F00542824 /* PerPixBlinnTexSkinned.vert */ = {isa = PBXFileReference; explicitFileType = sourcecode.glsl; fileEncoding = 4; name = PerPixBlinnTexSkinned.vert; path = ../_data/shaders/PerPixBlinnTexSkinned.vert; sourceTree = "<group>"; };
+		41B5765B1FF5399F00542824 /* VolumeRenderingRayCast.frag */ = {isa = PBXFileReference; explicitFileType = sourcecode.glsl; fileEncoding = 4; name = VolumeRenderingRayCast.frag; path = ../_data/shaders/VolumeRenderingRayCast.frag; sourceTree = "<group>"; };
+		41B5765C1FF5399F00542824 /* VolumeRenderingRayCast.vert */ = {isa = PBXFileReference; explicitFileType = sourcecode.glsl; fileEncoding = 4; name = VolumeRenderingRayCast.vert; path = ../_data/shaders/VolumeRenderingRayCast.vert; sourceTree = "<group>"; };
+		41B5765D1FF5399F00542824 /* ADSTex3D.frag */ = {isa = PBXFileReference; explicitFileType = sourcecode.glsl; fileEncoding = 4; name = ADSTex3D.frag; path = ../_data/shaders/ADSTex3D.frag; sourceTree = "<group>"; };
+		41B5765E1FF5399F00542824 /* ErrorTex.vert */ = {isa = PBXFileReference; explicitFileType = sourcecode.glsl; fileEncoding = 4; name = ErrorTex.vert; path = ../_data/shaders/ErrorTex.vert; sourceTree = "<group>"; };
+		41B5765F1FF5399F00542824 /* RefractReflect.vert */ = {isa = PBXFileReference; explicitFileType = sourcecode.glsl; fileEncoding = 4; name = RefractReflect.vert; path = ../_data/shaders/RefractReflect.vert; sourceTree = "<group>"; };
+		41B576601FF5399F00542824 /* Reflect.frag */ = {isa = PBXFileReference; explicitFileType = sourcecode.glsl; fileEncoding = 4; name = Reflect.frag; path = ../_data/shaders/Reflect.frag; sourceTree = "<group>"; };
+		41B576611FF5399F00542824 /* StereoOculus.vert */ = {isa = PBXFileReference; explicitFileType = sourcecode.glsl; fileEncoding = 4; name = StereoOculus.vert; path = ../_data/shaders/StereoOculus.vert; sourceTree = "<group>"; };
+		41B576621FF5399F00542824 /* StereoOculusDistortionMesh.vert */ = {isa = PBXFileReference; explicitFileType = sourcecode.glsl; fileEncoding = 4; name = StereoOculusDistortionMesh.vert; path = ../_data/shaders/StereoOculusDistortionMesh.vert; sourceTree = "<group>"; };
+		41B576631FF539A000542824 /* ShadowMapping.vert */ = {isa = PBXFileReference; explicitFileType = sourcecode.glsl; fileEncoding = 4; name = ShadowMapping.vert; path = ../_data/shaders/ShadowMapping.vert; sourceTree = "<group>"; };
+		41B576641FF539A000542824 /* PerPixCookTorranceTex.vert */ = {isa = PBXFileReference; explicitFileType = sourcecode.glsl; fileEncoding = 4; name = PerPixCookTorranceTex.vert; path = ../_data/shaders/PerPixCookTorranceTex.vert; sourceTree = "<group>"; };
+		41B576651FF539A000542824 /* Terrain.vert */ = {isa = PBXFileReference; explicitFileType = sourcecode.glsl; fileEncoding = 4; name = Terrain.vert; path = ../_data/shaders/Terrain.vert; sourceTree = "<group>"; };
+		41B576661FF539A000542824 /* Color.frag */ = {isa = PBXFileReference; explicitFileType = sourcecode.glsl; fileEncoding = 4; name = Color.frag; path = ../_data/shaders/Color.frag; sourceTree = "<group>"; };
+		41B576671FF539A000542824 /* PerPixCookTorranceTex.frag */ = {isa = PBXFileReference; explicitFileType = sourcecode.glsl; fileEncoding = 4; name = PerPixCookTorranceTex.frag; path = ../_data/shaders/PerPixCookTorranceTex.frag; sourceTree = "<group>"; };
+		41B576681FF539A000542824 /* PerVrtBlinn.vert */ = {isa = PBXFileReference; explicitFileType = sourcecode.glsl; fileEncoding = 4; name = PerVrtBlinn.vert; path = ../_data/shaders/PerVrtBlinn.vert; sourceTree = "<group>"; };
+		41B576691FF539A000542824 /* PerPixCookTorrance.frag */ = {isa = PBXFileReference; explicitFileType = sourcecode.glsl; fileEncoding = 4; name = PerPixCookTorrance.frag; path = ../_data/shaders/PerPixCookTorrance.frag; sourceTree = "<group>"; };
+		41B5766A1FF539A100542824 /* PerPixBlinnTex.vert */ = {isa = PBXFileReference; explicitFileType = sourcecode.glsl; fileEncoding = 4; name = PerPixBlinnTex.vert; path = ../_data/shaders/PerPixBlinnTex.vert; sourceTree = "<group>"; };
+		41B5766B1FF539A100542824 /* PerVrtBlinnColorAttrib.vert */ = {isa = PBXFileReference; explicitFileType = sourcecode.glsl; fileEncoding = 4; name = PerVrtBlinnColorAttrib.vert; path = ../_data/shaders/PerVrtBlinnColorAttrib.vert; sourceTree = "<group>"; };
+		41B5766C1FF539A100542824 /* ShadowMapping.frag */ = {isa = PBXFileReference; explicitFileType = sourcecode.glsl; fileEncoding = 4; name = ShadowMapping.frag; path = ../_data/shaders/ShadowMapping.frag; sourceTree = "<group>"; };
+		41B5766D1FF539A100542824 /* PerVrtBlinnTexSkinned.vert */ = {isa = PBXFileReference; explicitFileType = sourcecode.glsl; fileEncoding = 4; name = PerVrtBlinnTexSkinned.vert; path = ../_data/shaders/PerVrtBlinnTexSkinned.vert; sourceTree = "<group>"; };
+		41B5766E1FF539A100542824 /* BumpNormal.frag */ = {isa = PBXFileReference; explicitFileType = sourcecode.glsl; fileEncoding = 4; name = BumpNormal.frag; path = ../_data/shaders/BumpNormal.frag; sourceTree = "<group>"; };
+		41B5766F1FF539A100542824 /* ErrorTex.frag */ = {isa = PBXFileReference; explicitFileType = sourcecode.glsl; fileEncoding = 4; name = ErrorTex.frag; path = ../_data/shaders/ErrorTex.frag; sourceTree = "<group>"; };
+		41B576701FF539A200542824 /* PerVrtBlinn.frag */ = {isa = PBXFileReference; explicitFileType = sourcecode.glsl; fileEncoding = 4; name = PerVrtBlinn.frag; path = ../_data/shaders/PerVrtBlinn.frag; sourceTree = "<group>"; };
+		41B576711FF539A200542824 /* PerPixBlinn.vert */ = {isa = PBXFileReference; explicitFileType = sourcecode.glsl; fileEncoding = 4; name = PerPixBlinn.vert; path = ../_data/shaders/PerPixBlinn.vert; sourceTree = "<group>"; };
+		41B576721FF539A200542824 /* PerPixBlinn.frag */ = {isa = PBXFileReference; explicitFileType = sourcecode.glsl; fileEncoding = 4; name = PerPixBlinn.frag; path = ../_data/shaders/PerPixBlinn.frag; sourceTree = "<group>"; };
+		41B576731FF539A200542824 /* BumpNormal.vert */ = {isa = PBXFileReference; explicitFileType = sourcecode.glsl; fileEncoding = 4; name = BumpNormal.vert; path = ../_data/shaders/BumpNormal.vert; sourceTree = "<group>"; };
+		41B576741FF539A300542824 /* Earth.frag */ = {isa = PBXFileReference; explicitFileType = sourcecode.glsl; fileEncoding = 4; name = Earth.frag; path = ../_data/shaders/Earth.frag; sourceTree = "<group>"; };
+		41B576751FF539A300542824 /* Terrain.frag */ = {isa = PBXFileReference; explicitFileType = sourcecode.glsl; fileEncoding = 4; name = Terrain.frag; path = ../_data/shaders/Terrain.frag; sourceTree = "<group>"; };
+		41B576761FF539A300542824 /* Diffuse.vert */ = {isa = PBXFileReference; explicitFileType = sourcecode.glsl; fileEncoding = 4; name = Diffuse.vert; path = ../_data/shaders/Diffuse.vert; sourceTree = "<group>"; };
+		41B576771FF539A300542824 /* ADS.frag */ = {isa = PBXFileReference; explicitFileType = sourcecode.glsl; fileEncoding = 4; name = ADS.frag; path = ../_data/shaders/ADS.frag; sourceTree = "<group>"; };
+		41B576781FF539A300542824 /* RefractReflectDisp.frag */ = {isa = PBXFileReference; explicitFileType = sourcecode.glsl; fileEncoding = 4; name = RefractReflectDisp.frag; path = ../_data/shaders/RefractReflectDisp.frag; sourceTree = "<group>"; };
+		41B576791FF539A400542824 /* TextureOnly3D.frag */ = {isa = PBXFileReference; explicitFileType = sourcecode.glsl; fileEncoding = 4; name = TextureOnly3D.frag; path = ../_data/shaders/TextureOnly3D.frag; sourceTree = "<group>"; };
+		41B5767A1FF539A400542824 /* Wave.frag */ = {isa = PBXFileReference; explicitFileType = sourcecode.glsl; fileEncoding = 4; name = Wave.frag; path = ../_data/shaders/Wave.frag; sourceTree = "<group>"; };
+		41B5767B1FF539A400542824 /* PerVrtBlinnTex.frag */ = {isa = PBXFileReference; explicitFileType = sourcecode.glsl; fileEncoding = 4; name = PerVrtBlinnTex.frag; path = ../_data/shaders/PerVrtBlinnTex.frag; sourceTree = "<group>"; };
+		41B5767C1FF539A400542824 /* ADSTex.frag */ = {isa = PBXFileReference; explicitFileType = sourcecode.glsl; fileEncoding = 4; name = ADSTex.frag; path = ../_data/shaders/ADSTex.frag; sourceTree = "<group>"; };
+		41B5767D1FF539A500542824 /* ColorAttribute.vert */ = {isa = PBXFileReference; explicitFileType = sourcecode.glsl; fileEncoding = 4; name = ColorAttribute.vert; path = ../_data/shaders/ColorAttribute.vert; sourceTree = "<group>"; };
+		41B5767E1FF539A500542824 /* FontTex.frag */ = {isa = PBXFileReference; explicitFileType = sourcecode.glsl; fileEncoding = 4; name = FontTex.frag; path = ../_data/shaders/FontTex.frag; sourceTree = "<group>"; };
+		41B5767F1FF539A500542824 /* ColorUniformPoint.vert */ = {isa = PBXFileReference; explicitFileType = sourcecode.glsl; fileEncoding = 4; name = ColorUniformPoint.vert; path = ../_data/shaders/ColorUniformPoint.vert; sourceTree = "<group>"; };
+		41B576801FF539A500542824 /* SceneOculus.frag */ = {isa = PBXFileReference; explicitFileType = sourcecode.glsl; fileEncoding = 4; name = SceneOculus.frag; path = ../_data/shaders/SceneOculus.frag; sourceTree = "<group>"; };
+		41B576811FF539A500542824 /* WaveRefractReflect.vert */ = {isa = PBXFileReference; explicitFileType = sourcecode.glsl; fileEncoding = 4; name = WaveRefractReflect.vert; path = ../_data/shaders/WaveRefractReflect.vert; sourceTree = "<group>"; };
+		41B576821FF539A500542824 /* PerVrtBlinnTex.vert */ = {isa = PBXFileReference; explicitFileType = sourcecode.glsl; fileEncoding = 4; name = PerVrtBlinnTex.vert; path = ../_data/shaders/PerVrtBlinnTex.vert; sourceTree = "<group>"; };
+		41B576831FF539A600542824 /* TextureOnly.vert */ = {isa = PBXFileReference; explicitFileType = sourcecode.glsl; fileEncoding = 4; name = TextureOnly.vert; path = ../_data/shaders/TextureOnly.vert; sourceTree = "<group>"; };
+		41B576841FF539A600542824 /* PerPixCookTorrance.vert */ = {isa = PBXFileReference; explicitFileType = sourcecode.glsl; fileEncoding = 4; name = PerPixCookTorrance.vert; path = ../_data/shaders/PerPixCookTorrance.vert; sourceTree = "<group>"; };
+		41B576851FF539A600542824 /* TextureOnly.frag */ = {isa = PBXFileReference; explicitFileType = sourcecode.glsl; fileEncoding = 4; name = TextureOnly.frag; path = ../_data/shaders/TextureOnly.frag; sourceTree = "<group>"; };
+		41B576861FF539A600542824 /* VolumeRenderingRayCastLighted.frag */ = {isa = PBXFileReference; explicitFileType = sourcecode.glsl; fileEncoding = 4; name = VolumeRenderingRayCastLighted.frag; path = ../_data/shaders/VolumeRenderingRayCastLighted.frag; sourceTree = "<group>"; };
+		41B576871FF539A600542824 /* ADS.vert */ = {isa = PBXFileReference; explicitFileType = sourcecode.glsl; fileEncoding = 4; name = ADS.vert; path = ../_data/shaders/ADS.vert; sourceTree = "<group>"; };
+		41B576881FF53D1A00542824 /* SLSkybox.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = SLSkybox.cpp; path = source/SL/SLSkybox.cpp; sourceTree = "<group>"; };
+		41B5768C1FF53D8B00542824 /* SLSkybox.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SLSkybox.h; path = ../include/SLSkybox.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -382,8 +452,6 @@
 				41030BBF1FED4702005CFF1A /* SLAABBox.cpp */,
 				41030C9C1FED49DC005CFF1A /* SLAABBox.h */,
 				41030CA91FED49DE005CFF1A /* SLAccelStruct.h */,
-				41030BA21FED46FF005CFF1A /* SLBackground.cpp */,
-				41030CB31FED49E0005CFF1A /* SLBackground.h */,
 				41030BA31FED46FF005CFF1A /* SLCamera.cpp */,
 				41030CAC1FED49DF005CFF1A /* SLCamera.h */,
 				41030BB81FED4701005CFF1A /* SLCompactGrid.cpp */,
@@ -397,6 +465,8 @@
 				41030C851FED49D9005CFF1A /* SLLightSpot.h */,
 				41030BA71FED4700005CFF1A /* SLNode.cpp */,
 				41030CA31FED49DE005CFF1A /* SLNode.h */,
+				41B576881FF53D1A00542824 /* SLSkybox.cpp */,
+				41B5768C1FF53D8B00542824 /* SLSkybox.h */,
 			);
 			name = Nodes;
 			sourceTree = "<group>";
@@ -404,21 +474,14 @@
 		41030B911FED4682005CFF1A /* Meshes */ = {
 			isa = PBXGroup;
 			children = (
+				4166ED032002305500B42D17 /* Revolver */,
 				41030C941FED49DB005CFF1A /* SLCompactGrid.h */,
 				41030BC21FED4702005CFF1A /* SLBox.cpp */,
 				41030CAB1FED49DF005CFF1A /* SLBox.h */,
-				41030BAE1FED4700005CFF1A /* SLCone.cpp */,
-				41030C9B1FED49DC005CFF1A /* SLCone.h */,
 				41030BB21FED4700005CFF1A /* SLCoordAxis.cpp */,
 				41030CB01FED49E0005CFF1A /* SLCoordAxis.h */,
-				41030BAC1FED4700005CFF1A /* SLCylinder.cpp */,
-				41030C9A1FED49DC005CFF1A /* SLCylinder.h */,
-				41030BAF1FED4700005CFF1A /* SLDisk.cpp */,
-				41030C9E1FED49DD005CFF1A /* SLDisk.h */,
 				41030B971FED46FF005CFF1A /* SLGrid.cpp */,
 				41030C991FED49DC005CFF1A /* SLGrid.h */,
-				41030BBB1FED4701005CFF1A /* SLLens.cpp */,
-				41030C8C1FED49DA005CFF1A /* SLLens.h */,
 				41030B991FED46FF005CFF1A /* SLMesh.cpp */,
 				41030C811FED49D9005CFF1A /* SLMesh.h */,
 				41030B9C1FED46FF005CFF1A /* SLPoints.cpp */,
@@ -428,16 +491,10 @@
 				41030CB81FED49E1005CFF1A /* SLPolyline.h */,
 				41030BBD1FED4702005CFF1A /* SLRectangle.cpp */,
 				41030C971FED49DC005CFF1A /* SLRectangle.h */,
-				41030BA61FED4700005CFF1A /* SLRevolver.cpp */,
-				41030C7B1FED49D8005CFF1A /* SLRevolver.h */,
-				41030C881FED49DA005CFF1A /* SLSphere.h */,
-				41030BB31FED4700005CFF1A /* SLSpheric.cpp */,
-				41030CBB1FED49E1005CFF1A /* SLSpheric.h */,
 				41030B9F1FED46FF005CFF1A /* SLText.cpp */,
 				41030CB61FED49E1005CFF1A /* SLText.h */,
 				41030BC31FED4703005CFF1A /* SLTriangle.cpp */,
 				41030C8B1FED49DA005CFF1A /* SLTriangle.h */,
-				41030C8A1FED49DA005CFF1A /* SLVolume.h */,
 				41030C901FED49DB005CFF1A /* TriangleBoxIntersect.h */,
 			);
 			name = Meshes;
@@ -506,15 +563,16 @@
 		41030B941FED4697005CFF1A /* Scene */ = {
 			isa = PBXGroup;
 			children = (
-				41030C821FED49D9005CFF1A /* SLInputManager.h */,
-				41030CAD1FED49DF005CFF1A /* SLImporter.h */,
-				41030C921FED49DB005CFF1A /* SLDemoGui.h */,
-				41030CB91FED49E1005CFF1A /* SLTimer.h */,
+				41030BA21FED46FF005CFF1A /* SLBackground.cpp */,
+				41030CB31FED49E0005CFF1A /* SLBackground.h */,
 				41030BA41FED46FF005CFF1A /* SLDemoGui.cpp */,
+				41030C921FED49DB005CFF1A /* SLDemoGui.h */,
 				41030BB51FED4701005CFF1A /* SLDeviceLocation.cpp */,
 				41030BB91FED4701005CFF1A /* SLDeviceRotation.cpp */,
+				41030CAD1FED49DF005CFF1A /* SLImporter.h */,
 				41030BB71FED4701005CFF1A /* SLInputDevice.cpp */,
 				41030BA81FED4700005CFF1A /* SLInputManager.cpp */,
+				41030C821FED49D9005CFF1A /* SLInputManager.h */,
 				41030B9B1FED46FF005CFF1A /* SLMaterial.cpp */,
 				41030C891FED49DA005CFF1A /* SLMaterial.h */,
 				41030BBE1FED4702005CFF1A /* SLSamples2D.cpp */,
@@ -523,7 +581,7 @@
 				41030CA71FED49DE005CFF1A /* SLScene.h */,
 				41030BAD1FED4700005CFF1A /* SLSceneView.cpp */,
 				41030CB51FED49E0005CFF1A /* SLSceneView.h */,
-				41030BB41FED4700005CFF1A /* SLTransferFunction.cpp */,
+				41030CB91FED49E1005CFF1A /* SLTimer.h */,
 			);
 			name = Scene;
 			sourceTree = "<group>";
@@ -531,6 +589,7 @@
 		41030B951FED46A2005CFF1A /* SL */ = {
 			isa = PBXGroup;
 			children = (
+				41030BB41FED4700005CFF1A /* SLTransferFunction.cpp */,
 				41030C841FED49D9005CFF1A /* SLTransferFunction.h */,
 				41030C871FED49DA005CFF1A /* SLInterface.h */,
 				41030CA11FED49DD005CFF1A /* SLParallel.h */,
@@ -615,6 +674,27 @@
 			name = Math;
 			sourceTree = "<group>";
 		};
+		4166ED032002305500B42D17 /* Revolver */ = {
+			isa = PBXGroup;
+			children = (
+				41030BA61FED4700005CFF1A /* SLRevolver.cpp */,
+				41030C7B1FED49D8005CFF1A /* SLRevolver.h */,
+				41030BAE1FED4700005CFF1A /* SLCone.cpp */,
+				41030C9B1FED49DC005CFF1A /* SLCone.h */,
+				41030BAC1FED4700005CFF1A /* SLCylinder.cpp */,
+				41030C9A1FED49DC005CFF1A /* SLCylinder.h */,
+				41030BAF1FED4700005CFF1A /* SLDisk.cpp */,
+				41030C9E1FED49DD005CFF1A /* SLDisk.h */,
+				41030BBB1FED4701005CFF1A /* SLLens.cpp */,
+				41030C8C1FED49DA005CFF1A /* SLLens.h */,
+				41030C881FED49DA005CFF1A /* SLSphere.h */,
+				41030BB31FED4700005CFF1A /* SLSpheric.cpp */,
+				41030CBB1FED49E1005CFF1A /* SLSpheric.h */,
+				41030C8A1FED49DA005CFF1A /* SLVolume.h */,
+			);
+			name = Revolver;
+			sourceTree = "<group>";
+		};
 		4168FDD71FED45EA007C56B3 = {
 			isa = PBXGroup;
 			children = (
@@ -627,6 +707,7 @@
 				4168FDE11FED45EA007C56B3 /* Products */,
 				41030B961FED46A8005CFF1A /* RayAndPathTracer */,
 				41030B941FED4697005CFF1A /* Scene */,
+				41B576451FF5397D00542824 /* Shaders */,
 				41030B951FED46A2005CFF1A /* SL */,
 			);
 			sourceTree = "<group>";
@@ -637,6 +718,79 @@
 				4168FDE01FED45EA007C56B3 /* liblib-SLProject.a */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		41B576451FF5397D00542824 /* Shaders */ = {
+			isa = PBXGroup;
+			children = (
+				41B576771FF539A300542824 /* ADS.frag */,
+				41B576871FF539A600542824 /* ADS.vert */,
+				41B5767C1FF539A400542824 /* ADSTex.frag */,
+				41B576461FF5399D00542824 /* ADSTex.vert */,
+				41B5765D1FF5399F00542824 /* ADSTex3D.frag */,
+				41B576471FF5399D00542824 /* ADSTex3D.vert */,
+				41B5766E1FF539A100542824 /* BumpNormal.frag */,
+				41B576731FF539A200542824 /* BumpNormal.vert */,
+				41B5764C1FF5399D00542824 /* BumpNormalEarth.frag */,
+				41B576561FF5399E00542824 /* BumpNormalParallax.frag */,
+				41B576661FF539A000542824 /* Color.frag */,
+				41B5767D1FF539A500542824 /* ColorAttribute.vert */,
+				41B5764A1FF5399D00542824 /* ColorUniform.vert */,
+				41B5767F1FF539A500542824 /* ColorUniformPoint.vert */,
+				41B576551FF5399E00542824 /* Diffuse.frag */,
+				41B576761FF539A300542824 /* Diffuse.vert */,
+				41B576741FF539A300542824 /* Earth.frag */,
+				41B5766F1FF539A100542824 /* ErrorTex.frag */,
+				41B5765E1FF5399F00542824 /* ErrorTex.vert */,
+				41B5767E1FF539A500542824 /* FontTex.frag */,
+				41B576541FF5399E00542824 /* FontTex.vert */,
+				41B576721FF539A200542824 /* PerPixBlinn.frag */,
+				41B576711FF539A200542824 /* PerPixBlinn.vert */,
+				41B576481FF5399D00542824 /* PerPixBlinnSkinned.vert */,
+				41B576591FF5399E00542824 /* PerPixBlinnTex.frag */,
+				41B5766A1FF539A100542824 /* PerPixBlinnTex.vert */,
+				41B5765A1FF5399F00542824 /* PerPixBlinnTexSkinned.vert */,
+				41B576691FF539A000542824 /* PerPixCookTorrance.frag */,
+				41B576841FF539A600542824 /* PerPixCookTorrance.vert */,
+				41B576671FF539A000542824 /* PerPixCookTorranceTex.frag */,
+				41B576641FF539A000542824 /* PerPixCookTorranceTex.vert */,
+				41B576701FF539A200542824 /* PerVrtBlinn.frag */,
+				41B576681FF539A000542824 /* PerVrtBlinn.vert */,
+				41B5766B1FF539A100542824 /* PerVrtBlinnColorAttrib.vert */,
+				41B5764F1FF5399E00542824 /* PerVrtBlinnSkinned.vert */,
+				41B5767B1FF539A400542824 /* PerVrtBlinnTex.frag */,
+				41B576821FF539A500542824 /* PerVrtBlinnTex.vert */,
+				41B5766D1FF539A100542824 /* PerVrtBlinnTexSkinned.vert */,
+				41B576601FF5399F00542824 /* Reflect.frag */,
+				41B576491FF5399D00542824 /* Reflect.vert */,
+				41B576521FF5399E00542824 /* RefractReflect.frag */,
+				41B5765F1FF5399F00542824 /* RefractReflect.vert */,
+				41B576781FF539A300542824 /* RefractReflectDisp.frag */,
+				41B5764E1FF5399E00542824 /* RefractReflectDisp.vert */,
+				41B576801FF539A500542824 /* SceneOculus.frag */,
+				41B576531FF5399E00542824 /* SceneOculus.vert */,
+				41B5766C1FF539A100542824 /* ShadowMapping.frag */,
+				41B576631FF539A000542824 /* ShadowMapping.vert */,
+				41B5764B1FF5399D00542824 /* SkyBox.frag */,
+				41B576571FF5399E00542824 /* SkyBox.vert */,
+				41B576511FF5399E00542824 /* StereoOculus.frag */,
+				41B576611FF5399F00542824 /* StereoOculus.vert */,
+				41B576501FF5399E00542824 /* StereoOculusDistortionMesh.frag */,
+				41B576621FF5399F00542824 /* StereoOculusDistortionMesh.vert */,
+				41B576751FF539A300542824 /* Terrain.frag */,
+				41B576651FF539A000542824 /* Terrain.vert */,
+				41B576851FF539A600542824 /* TextureOnly.frag */,
+				41B576831FF539A600542824 /* TextureOnly.vert */,
+				41B576791FF539A400542824 /* TextureOnly3D.frag */,
+				41B576581FF5399E00542824 /* TextureOnly3D.vert */,
+				41B5765B1FF5399F00542824 /* VolumeRenderingRayCast.frag */,
+				41B5765C1FF5399F00542824 /* VolumeRenderingRayCast.vert */,
+				41B576861FF539A600542824 /* VolumeRenderingRayCastLighted.frag */,
+				41B5767A1FF539A400542824 /* Wave.frag */,
+				41B5764D1FF5399E00542824 /* Wave.vert */,
+				41B576811FF539A500542824 /* WaveRefractReflect.vert */,
+			);
+			name = Shaders;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -702,6 +856,7 @@
 				41030CF41FED49E2005CFF1A /* SLBackground.h in Headers */,
 				41030CEC1FED49E2005CFF1A /* SLBox.h in Headers */,
 				41030CE11FED49E2005CFF1A /* SLPathtracer.h in Headers */,
+				41B5768D1FF53D8B00542824 /* SLSkybox.h in Headers */,
 				41030C751FED497E005CFF1A /* SLCVRaulMurExtractorNode.h in Headers */,
 				41030C431FED492C005CFF1A /* SLMat4.h in Headers */,
 				41030CC41FED49E2005CFF1A /* SLSamples2D.h in Headers */,
@@ -879,6 +1034,7 @@
 				41030BE21FED4703005CFF1A /* SLTransferFunction.cpp in Sources */,
 				41030BE51FED4703005CFF1A /* SLInputDevice.cpp in Sources */,
 				41030C101FED48A3005CFF1A /* SLCVTracked.cpp in Sources */,
+				41B5768A1FF53D1A00542824 /* SLSkybox.cpp in Sources */,
 				41030BCB1FED4703005CFF1A /* SLScene_onLoad.cpp in Sources */,
 				41030BDE1FED4703005CFF1A /* SLJoint.cpp in Sources */,
 				41030BE91FED4703005CFF1A /* SLLens.cpp in Sources */,
@@ -1044,6 +1200,10 @@
 				SHARED_PRECOMPS_DIR = "$(PROJECT_DIR)/../intermediate/$(PROJECT_NAME)/$(CONFIGURATION)";
 				SKIP_INSTALL = NO;
 				SYMROOT = "$(PROJECT_DIR)/../_bin-$(CONFIGURATION)-macxcode";
+				WARNING_CFLAGS = (
+					"-Wno-int-to-void-pointer-cast",
+					"-Wno-address-of-packed-member",
+				);
 			};
 			name = Debug;
 		};
@@ -1096,6 +1256,10 @@
 				SHARED_PRECOMPS_DIR = "$(PROJECT_DIR)/../intermediate/$(PROJECT_NAME)/$(CONFIGURATION)";
 				SKIP_INSTALL = NO;
 				SYMROOT = "$(PROJECT_DIR)/../_bin-$(CONFIGURATION)-macxcode";
+				WARNING_CFLAGS = (
+					"-Wno-int-to-void-pointer-cast",
+					"-Wno-address-of-packed-member",
+				);
 			};
 			name = Release;
 		};

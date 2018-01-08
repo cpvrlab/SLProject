@@ -90,7 +90,7 @@ void SLRectangle::buildMesh(SLMaterial* material)
     curN.normalize();
    
     //Set one default material index
-    mat = material;
+    mat(material);
    
     // define delta vectors dX & dY and deltas for texCoord dS,dT
     SLVec3f dX = e1 / (SLfloat)_resX;

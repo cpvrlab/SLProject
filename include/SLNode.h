@@ -71,9 +71,9 @@ struct SLNodeStats
     void print()
     {
         SLfloat voxelsEmpty  = numVoxels ? (SLfloat)numVoxEmpty / 
-                                            (SLfloat)numVoxels*100.0f : 0;
+                                           (SLfloat)numVoxels*100.0f : 0;
         SLfloat avgTriPerVox = numVoxels ? (SLfloat)numTriangles / 
-                                            (SLfloat)(numVoxels-numVoxEmpty) : 0;
+                                           (SLfloat)(numVoxels-numVoxEmpty) : 0;
         SL_LOG("Voxels         : %d\n", numVoxels);
         SL_LOG("Voxels empty   : %4.1f%%\n", voxelsEmpty); 
         SL_LOG("Avg. Tria/Voxel: %4.1f\n", avgTriPerVox);
@@ -158,7 +158,10 @@ class SLNode: public SLObject, public SLEventHandler
             bool            removeMesh          ();
             bool            removeMesh          (SLMesh* mesh);
             bool            removeMesh          (SLstring name);
-            SLMesh*         findMesh            (SLstring name);
+            SLMesh*         findMesh            (SLstring name,
+                                                 SLbool recursive = false);
+            void            setAllMeshMaterials (SLMaterial* mat,
+                                                 SLbool recursive = true);
             SLbool          containsMesh        (const SLMesh* mesh);
     virtual void            drawMeshes          (SLSceneView* sv);
                
@@ -262,6 +265,8 @@ class SLNode: public SLObject, public SLEventHandler
       const SLSkeleton*     skeleton            ();
             SLCVTracked*    tracker             () {return _tracker;}
 
+    static  SLuint          numWMUpdates;       //!< NO. of calls to updateWM per frame
+    
     private:
             void            updateWM            () const;   
             template<typename T>            

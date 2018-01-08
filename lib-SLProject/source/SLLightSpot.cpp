@@ -105,8 +105,8 @@ void SLLightSpot::init()
    
     // Set emissive light material to the lights diffuse color
     if (_meshes.size() > 0)
-        if (_meshes[0]->mat)
-            _meshes[0]->mat->emissive(_isOn ? diffuse() : SLCol4f::BLACK);   
+        if (_meshes[0]->mat())
+            _meshes[0]->mat()->emissive(_isOn ? diffuse() : SLCol4f::BLACK);
 }
 //-----------------------------------------------------------------------------
 /*!
@@ -146,8 +146,8 @@ void SLLightSpot::drawMeshes(SLSceneView* sv)
    
         // Set emissive light material to the lights diffuse color
         if (_meshes.size() > 0)
-            if (_meshes[0]->mat)
-                _meshes[0]->mat->emissive(_isOn ? diffuse() : SLCol4f::BLACK);   
+            if (_meshes[0]->mat())
+                _meshes[0]->mat()->emissive(_isOn ? diffuse() : SLCol4f::BLACK);
    
         // now draw the meshes of the node
         SLNode::drawMeshes(sv);
@@ -172,10 +172,10 @@ SLfloat SLLightSpot::shadowTest(SLRay* ray,         // ray of hit point
         if (shadowRay.length < lightDist)
         {  
             // Handle shadow value of transparent materials
-            if (shadowRay.hitMesh->mat->hasAlpha())
+            if (shadowRay.hitMesh->mat()->hasAlpha())
             {   shadowRay.hitMesh->preShade(&shadowRay);
                 SLfloat shadowTransp = SL_abs(shadowRay.dir.dot(shadowRay.hitNormal));
-                return shadowTransp * shadowRay.hitMesh->mat->kt();
+                return shadowTransp * shadowRay.hitMesh->mat()->kt();
             }
             else return 0.0f;
         } 
@@ -256,10 +256,10 @@ SLfloat SLLightSpot::shadowTestMC(SLRay* ray,         // ray of hit point
         if (shadowRay.length < lightDist)
         {
             // Handle shadow value of transparent materials
-            if (shadowRay.hitMesh->mat->hasAlpha())
+            if (shadowRay.hitMesh->mat()->hasAlpha())
             {   shadowRay.hitMesh->preShade(&shadowRay);
                 SLfloat shadowTransp = SL_abs(shadowRay.dir.dot(shadowRay.hitNormal));
-                return shadowTransp * shadowRay.hitMesh->mat->kt();
+                return shadowTransp * shadowRay.hitMesh->mat()->kt();
             }
             else return 0.0f;
         }

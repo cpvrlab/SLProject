@@ -336,6 +336,7 @@
     <ClInclude Include="..\include\SLQuat4.h" />
     <ClInclude Include="..\include\SLRnd3f.h" />
     <ClInclude Include="..\include\SLSkeleton.h" />
+    <ClInclude Include="..\include\SLSkybox.h" />
     <ClInclude Include="..\include\SLSphere.h" />
     <ClInclude Include="..\include\SLTexFont.h" />
     <ClInclude Include="..\include\SLTimer.h" />
@@ -444,6 +445,7 @@
     <ClCompile Include="source\SL\SLFileSystem.cpp" />
     <ClCompile Include="source\SL\SLImporter.cpp" />
     <ClCompile Include="source\SL\SLInterface.cpp" />
+    <ClCompile Include="source\SL\SLSkybox.cpp" />
     <ClCompile Include="source\SL\SLTexFont.cpp" />
     <ClCompile Include="source\SL\SLTimer.cpp" />
     <ClCompile Include="source\SL\stdafx.cpp">

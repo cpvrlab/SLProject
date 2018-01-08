@@ -54,12 +54,16 @@ class SLVec3
             void    set         (const SLVec3<T>& v)    {x=v.x;  y=v.y;  z=v.z;}
 
     // Component wise compare
-    inline  SLint   operator == (const SLVec3& v) const {return (x==v.x && y==v.y && z==v.z);}
-    inline  SLint   operator != (const SLVec3& v) const {return (x!=v.x || y!=v.y || z!=v.z);}
-    inline  SLint   operator <= (const SLVec3& v) const {return (x<=v.x && y<=v.y && z<=v.z);}
-    inline  SLint   operator >= (const SLVec3& v) const {return (x>=v.x && y>=v.y && z>=v.z);}
-    inline  SLint   operator <  (const SLVec3& v) const {return (x< v.x && y< v.y && z< v.z);}
-    inline  SLint   operator >  (const SLVec3& v) const {return (x> v.x && y> v.y && z> v.z);}
+    inline  SLbool  operator == (const SLVec3& v) const {return (x==v.x && y==v.y && z==v.z);}
+    inline  SLbool  operator != (const SLVec3& v) const {return (x!=v.x || y!=v.y || z!=v.z);}
+    inline  SLbool  operator <= (const SLVec3& v) const {return (x<=v.x && y<=v.y && z<=v.z);}
+    inline  SLbool  operator >= (const SLVec3& v) const {return (x>=v.x && y>=v.y && z>=v.z);}
+    inline  SLbool  operator <  (const SLVec3& v) const {return (x< v.x && y< v.y && z< v.z);}
+    inline  SLbool  operator >  (const SLVec3& v) const {return (x> v.x && y> v.y && z> v.z);}
+    inline  SLbool  operator <= (const T v)       const {return (x<=v && y<=v && z<=v);}
+    inline  SLbool  operator >= (const T v)       const {return (x>=v && y>=v && z>=v);}
+    inline  SLbool  operator <  (const T v)       const {return (x< v && y< v && z< v);}
+    inline  SLbool  operator >  (const T v)       const {return (x> v && y> v && z> v);}
    
     // Operators with temp. allocation
     inline  SLVec3  operator -  (void) const            {return SLVec3(-x, -y, -z);}

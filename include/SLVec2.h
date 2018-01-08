@@ -42,10 +42,16 @@ class SLVec2
     void     set        (const SLVec2& v)       {x=v.x; y=v.y;}
 
     // Component wise compare
-    inline  SLint    operator == (const SLVec2& v) const {return (x==v.x && y==v.y);}
-    inline  SLint    operator != (const SLVec2& v) const {return (x!=v.x || y!=v.y);}
-    inline  SLint    operator <= (const SLVec2& v) const {return (x<=v.x && y<=v.y);}
-    inline  SLint    operator >= (const SLVec2& v) const {return (x>=v.x && y>=v.y);}
+    inline  SLbool   operator == (const SLVec2& v) const {return (x==v.x && y==v.y);}
+    inline  SLbool   operator != (const SLVec2& v) const {return (x!=v.x || y!=v.y);}
+    inline  SLbool   operator <= (const SLVec2& v) const {return (x<=v.x && y<=v.y);}
+    inline  SLbool   operator >= (const SLVec2& v) const {return (x>=v.x && y>=v.y);}
+    inline  SLbool   operator <  (const SLVec2& v) const {return (x<v.x && y<v.y);}
+    inline  SLbool   operator >  (const SLVec2& v) const {return (x>v.x && y>v.y);}
+    inline  SLbool   operator <= (const T v)       const {return (x<=v && y<=v);}
+    inline  SLbool   operator >= (const T v)       const {return (x>=v && y>=v);}
+    inline  SLbool   operator <  (const T v)       const {return (x< v && y< v);}
+    inline  SLbool   operator >  (const T v)       const {return (x> v && y> v);}
 
     // Operators with temp. allocation
     inline  SLVec2   operator +  (const SLVec2& v) const {return SLVec2(x+v.x, y+v.y);}

@@ -20,6 +20,16 @@
 		4124EC131959C137003AA059 /* cdt.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4124EC0B1959C137003AA059 /* cdt.cc */; };
 		4124EC141959C137003AA059 /* sweep_context.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4124EC0D1959C137003AA059 /* sweep_context.cc */; };
 		4124EC151959C137003AA059 /* sweep.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4124EC0F1959C137003AA059 /* sweep.cc */; };
+		412F89721FF58D94004D5982 /* ADSTex.vert in Resources */ = {isa = PBXBuildFile; fileRef = 412F89681FF58D91004D5982 /* ADSTex.vert */; };
+		412F89731FF58D94004D5982 /* ADSTex3D.vert in Resources */ = {isa = PBXBuildFile; fileRef = 412F89691FF58D92004D5982 /* ADSTex3D.vert */; };
+		412F89741FF58D94004D5982 /* ADSTex3D.frag in Resources */ = {isa = PBXBuildFile; fileRef = 412F896A1FF58D92004D5982 /* ADSTex3D.frag */; };
+		412F89751FF58D94004D5982 /* ADSTex.frag in Resources */ = {isa = PBXBuildFile; fileRef = 412F896B1FF58D92004D5982 /* ADSTex.frag */; };
+		412F89761FF58D94004D5982 /* SkyBox.frag in Resources */ = {isa = PBXBuildFile; fileRef = 412F896C1FF58D93004D5982 /* SkyBox.frag */; };
+		412F89771FF58D94004D5982 /* SkyBox.vert in Resources */ = {isa = PBXBuildFile; fileRef = 412F896D1FF58D93004D5982 /* SkyBox.vert */; };
+		412F89781FF58D94004D5982 /* ColorUniformPoint.vert in Resources */ = {isa = PBXBuildFile; fileRef = 412F896E1FF58D93004D5982 /* ColorUniformPoint.vert */; };
+		412F89791FF58D94004D5982 /* ADS.frag in Resources */ = {isa = PBXBuildFile; fileRef = 412F896F1FF58D93004D5982 /* ADS.frag */; };
+		412F897A1FF58D94004D5982 /* VolumeRenderingRayCastLighted.frag in Resources */ = {isa = PBXBuildFile; fileRef = 412F89701FF58D94004D5982 /* VolumeRenderingRayCastLighted.frag */; };
+		412F897B1FF58D94004D5982 /* ADS.vert in Resources */ = {isa = PBXBuildFile; fileRef = 412F89711FF58D94004D5982 /* ADS.vert */; };
 		413B3631156CF93100B8284A /* SLCurveBezier.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 413B362D156CF93100B8284A /* SLCurveBezier.cpp */; };
 		413B3635156CF97900B8284A /* SLAnimation.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 413B3634156CF97900B8284A /* SLAnimation.cpp */; };
 		414333791DE03D590027E1C3 /* SLCVCalibration.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 414333751DE03D590027E1C3 /* SLCVCalibration.cpp */; };
@@ -64,6 +74,12 @@
 		41627EA615CA8CE70023B936 /* SLTexFont.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 41627E9A15CA8CE70023B936 /* SLTexFont.cpp */; };
 		41627EA815CA8CE70023B936 /* stdafx.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 41627EA015CA8CE70023B936 /* stdafx.cpp */; };
 		41654BD914866F6B0003DF5E /* SLPlane.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 41654BD214866F6B0003DF5E /* SLPlane.cpp */; };
+		4166ED0A200260D700B42D17 /* Desert-X1024_C.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 4166ED04200260D600B42D17 /* Desert-X1024_C.jpg */; };
+		4166ED0B200260D700B42D17 /* Desert-Y1024_C.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 4166ED05200260D600B42D17 /* Desert-Y1024_C.jpg */; };
+		4166ED0C200260D700B42D17 /* Desert+X1024_C.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 4166ED06200260D600B42D17 /* Desert+X1024_C.jpg */; };
+		4166ED0D200260D700B42D17 /* Desert+Y1024_C.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 4166ED07200260D600B42D17 /* Desert+Y1024_C.jpg */; };
+		4166ED0E200260D700B42D17 /* Desert-Z1024_C.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 4166ED08200260D700B42D17 /* Desert-Z1024_C.jpg */; };
+		4166ED0F200260D700B42D17 /* Desert+Z1024_C.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 4166ED09200260D700B42D17 /* Desert+Z1024_C.jpg */; };
 		417981141F13833000EB5315 /* i0000_0000b.png in Resources */ = {isa = PBXBuildFile; fileRef = 417980451F13832F00EB5315 /* i0000_0000b.png */; };
 		417981151F13833000EB5315 /* i0001_0000b.png in Resources */ = {isa = PBXBuildFile; fileRef = 417980461F13832F00EB5315 /* i0001_0000b.png */; };
 		417981161F13833000EB5315 /* i0002_0000b.png in Resources */ = {isa = PBXBuildFile; fileRef = 417980471F13832F00EB5315 /* i0002_0000b.png */; };
@@ -553,6 +569,7 @@
 		41A355071A7E63E100791841 /* SLSkeleton.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 41A355001A7E63E100791841 /* SLSkeleton.cpp */; };
 		41A3550A1A7E676800791841 /* SLInputDevice.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 41A355081A7E676800791841 /* SLInputDevice.cpp */; };
 		41A3550B1A7E676800791841 /* SLInputManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 41A355091A7E676800791841 /* SLInputManager.cpp */; };
+		41A6A0801FF5887200C795A4 /* SLSkybox.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 41A6A07F1FF5887200C795A4 /* SLSkybox.cpp */; };
 		41B7BDDD1E49B4BC007B8B39 /* cursor.png in Resources */ = {isa = PBXBuildFile; fileRef = 41B7BDDC1E49B4BC007B8B39 /* cursor.png */; };
 		41B7BDE01E49B553007B8B39 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 41B7BDDF1E49B553007B8B39 /* Images.xcassets */; };
 		41B86C5A1C4FE21400BB409D /* SLGLVertexBuffer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 41B86C591C4FE21400BB409D /* SLGLVertexBuffer.cpp */; };
@@ -637,6 +654,16 @@
 		4124EC0E1959C137003AA059 /* sweep_context.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = sweep_context.h; path = "../lib-SLExternal/assimp/contrib/poly2tri/poly2tri/sweep/sweep_context.h"; sourceTree = SOURCE_ROOT; };
 		4124EC0F1959C137003AA059 /* sweep.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = sweep.cc; path = "../lib-SLExternal/assimp/contrib/poly2tri/poly2tri/sweep/sweep.cc"; sourceTree = SOURCE_ROOT; };
 		4124EC101959C137003AA059 /* sweep.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = sweep.h; path = "../lib-SLExternal/assimp/contrib/poly2tri/poly2tri/sweep/sweep.h"; sourceTree = SOURCE_ROOT; };
+		412F89681FF58D91004D5982 /* ADSTex.vert */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = ADSTex.vert; path = ../_data/shaders/ADSTex.vert; sourceTree = "<group>"; };
+		412F89691FF58D92004D5982 /* ADSTex3D.vert */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = ADSTex3D.vert; path = ../_data/shaders/ADSTex3D.vert; sourceTree = "<group>"; };
+		412F896A1FF58D92004D5982 /* ADSTex3D.frag */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = ADSTex3D.frag; path = ../_data/shaders/ADSTex3D.frag; sourceTree = "<group>"; };
+		412F896B1FF58D92004D5982 /* ADSTex.frag */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = ADSTex.frag; path = ../_data/shaders/ADSTex.frag; sourceTree = "<group>"; };
+		412F896C1FF58D93004D5982 /* SkyBox.frag */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = SkyBox.frag; path = ../_data/shaders/SkyBox.frag; sourceTree = "<group>"; };
+		412F896D1FF58D93004D5982 /* SkyBox.vert */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = SkyBox.vert; path = ../_data/shaders/SkyBox.vert; sourceTree = "<group>"; };
+		412F896E1FF58D93004D5982 /* ColorUniformPoint.vert */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = ColorUniformPoint.vert; path = ../_data/shaders/ColorUniformPoint.vert; sourceTree = "<group>"; };
+		412F896F1FF58D93004D5982 /* ADS.frag */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = ADS.frag; path = ../_data/shaders/ADS.frag; sourceTree = "<group>"; };
+		412F89701FF58D94004D5982 /* VolumeRenderingRayCastLighted.frag */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = VolumeRenderingRayCastLighted.frag; path = ../_data/shaders/VolumeRenderingRayCastLighted.frag; sourceTree = "<group>"; };
+		412F89711FF58D94004D5982 /* ADS.vert */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = ADS.vert; path = ../_data/shaders/ADS.vert; sourceTree = "<group>"; };
 		413B362C156CF93100B8284A /* SLCurve.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SLCurve.h; path = ../include/SLCurve.h; sourceTree = SOURCE_ROOT; };
 		413B362D156CF93100B8284A /* SLCurveBezier.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SLCurveBezier.cpp; path = "../lib-SLProject/source/math/SLCurveBezier.cpp"; sourceTree = SOURCE_ROOT; };
 		413B362E156CF93100B8284A /* SLCurveBezier.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SLCurveBezier.h; path = ../include/SLCurveBezier.h; sourceTree = SOURCE_ROOT; };
@@ -720,6 +747,12 @@
 		41654BD514866F6B0003DF5E /* SLVec3.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SLVec3.h; path = ../include/SLVec3.h; sourceTree = SOURCE_ROOT; };
 		41654BD614866F6B0003DF5E /* SLVec4.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SLVec4.h; path = ../include/SLVec4.h; sourceTree = SOURCE_ROOT; };
 		41654BD714866F6B0003DF5E /* TriangleBoxIntersect.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TriangleBoxIntersect.h; path = ../include/TriangleBoxIntersect.h; sourceTree = SOURCE_ROOT; };
+		4166ED04200260D600B42D17 /* Desert-X1024_C.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; name = "Desert-X1024_C.jpg"; path = "../_data/images/textures/Desert-X1024_C.jpg"; sourceTree = "<group>"; };
+		4166ED05200260D600B42D17 /* Desert-Y1024_C.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; name = "Desert-Y1024_C.jpg"; path = "../_data/images/textures/Desert-Y1024_C.jpg"; sourceTree = "<group>"; };
+		4166ED06200260D600B42D17 /* Desert+X1024_C.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; name = "Desert+X1024_C.jpg"; path = "../_data/images/textures/Desert+X1024_C.jpg"; sourceTree = "<group>"; };
+		4166ED07200260D600B42D17 /* Desert+Y1024_C.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; name = "Desert+Y1024_C.jpg"; path = "../_data/images/textures/Desert+Y1024_C.jpg"; sourceTree = "<group>"; };
+		4166ED08200260D700B42D17 /* Desert-Z1024_C.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; name = "Desert-Z1024_C.jpg"; path = "../_data/images/textures/Desert-Z1024_C.jpg"; sourceTree = "<group>"; };
+		4166ED09200260D700B42D17 /* Desert+Z1024_C.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; name = "Desert+Z1024_C.jpg"; path = "../_data/images/textures/Desert+Z1024_C.jpg"; sourceTree = "<group>"; };
 		416EE8ED148E388300AE5F6B /* Default@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "Default@2x.png"; path = "images/Default@2x.png"; sourceTree = SOURCE_ROOT; };
 		416EE8EE148E388300AE5F6B /* Icon@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "Icon@2x.png"; path = "images/Icon@2x.png"; sourceTree = SOURCE_ROOT; };
 		417980451F13832F00EB5315 /* i0000_0000b.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = i0000_0000b.png; path = ../_data/images/textures/i0000_0000b.png; sourceTree = SOURCE_ROOT; };
@@ -1416,6 +1449,8 @@
 		41A355001A7E63E100791841 /* SLSkeleton.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SLSkeleton.cpp; path = "../lib-SLProject/source/SLSkeleton.cpp"; sourceTree = SOURCE_ROOT; };
 		41A355081A7E676800791841 /* SLInputDevice.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SLInputDevice.cpp; path = "../lib-SLProject/source/SLInputDevice.cpp"; sourceTree = SOURCE_ROOT; };
 		41A355091A7E676800791841 /* SLInputManager.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SLInputManager.cpp; path = "../lib-SLProject/source/SLInputManager.cpp"; sourceTree = SOURCE_ROOT; };
+		41A6A07F1FF5887200C795A4 /* SLSkybox.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SLSkybox.cpp; path = "../lib-SLProject/source/SL/SLSkybox.cpp"; sourceTree = SOURCE_ROOT; };
+		41A6A0811FF588A400C795A4 /* SLSkybox.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SLSkybox.h; path = ../include/SLSkybox.h; sourceTree = SOURCE_ROOT; };
 		41ABC8BE1B875C1E009F6C37 /* opencv2.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = opencv2.framework; path = ../_lib/prebuilt/OpenCV/ios/opencv2.framework; sourceTree = SOURCE_ROOT; };
 		41B3821E18D593D1000F37CC /* SLAverage.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SLAverage.h; path = ../include/SLAverage.h; sourceTree = SOURCE_ROOT; };
 		41B7BDDC1E49B4BC007B8B39 /* cursor.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = cursor.png; path = ../_data/images/textures/cursor.png; sourceTree = "<group>"; };
@@ -1661,8 +1696,12 @@
 		417E0E43148A6EA40015B5B0 /* Shaders */ = {
 			isa = PBXGroup;
 			children = (
-				417981E41F13836300EB5315 /* VolumeRenderingRayCast.frag */,
-				417981E51F13836300EB5315 /* VolumeRenderingRayCast.vert */,
+				412F896F1FF58D93004D5982 /* ADS.frag */,
+				412F89711FF58D94004D5982 /* ADS.vert */,
+				412F896B1FF58D92004D5982 /* ADSTex.frag */,
+				412F89681FF58D91004D5982 /* ADSTex.vert */,
+				412F896A1FF58D92004D5982 /* ADSTex3D.frag */,
+				412F89691FF58D92004D5982 /* ADSTex3D.vert */,
 				418BF4141B8B0D4F0049E387 /* BumpNormal.frag */,
 				418BF4151B8B0D4F0049E387 /* BumpNormal.vert */,
 				418BF4161B8B0D4F0049E387 /* BumpNormalEarth.frag */,
@@ -1670,6 +1709,7 @@
 				418BF4181B8B0D4F0049E387 /* Color.frag */,
 				418BF4191B8B0D4F0049E387 /* ColorAttribute.vert */,
 				418BF41A1B8B0D4F0049E387 /* ColorUniform.vert */,
+				412F896E1FF58D93004D5982 /* ColorUniformPoint.vert */,
 				418BF41B1B8B0D4F0049E387 /* Diffuse.frag */,
 				418BF41C1B8B0D4F0049E387 /* Diffuse.vert */,
 				418BF41D1B8B0D4F0049E387 /* Earth.frag */,
@@ -1702,6 +1742,8 @@
 				418BF4331B8B0D4F0049E387 /* RefractReflectDisp.vert */,
 				418BF4341B8B0D4F0049E387 /* ShadowMapping.frag */,
 				418BF4351B8B0D4F0049E387 /* ShadowMapping.vert */,
+				412F896C1FF58D93004D5982 /* SkyBox.frag */,
+				412F896D1FF58D93004D5982 /* SkyBox.vert */,
 				418BF4361B8B0D4F0049E387 /* StereoOculus.frag */,
 				418BF4371B8B0D4F0049E387 /* StereoOculus.vert */,
 				418BF4381B8B0D4F0049E387 /* StereoOculusDistortionMesh.frag */,
@@ -1710,6 +1752,9 @@
 				418BF43B1B8B0D4F0049E387 /* TextureOnly.vert */,
 				418BF43C1B8B0D4F0049E387 /* TextureOnly3D.frag */,
 				418BF43D1B8B0D4F0049E387 /* TextureOnly3D.vert */,
+				417981E41F13836300EB5315 /* VolumeRenderingRayCast.frag */,
+				417981E51F13836300EB5315 /* VolumeRenderingRayCast.vert */,
+				412F89701FF58D94004D5982 /* VolumeRenderingRayCastLighted.frag */,
 				418BF43E1B8B0D4F0049E387 /* Wave.frag */,
 				418BF43F1B8B0D4F0049E387 /* Wave.vert */,
 				418BF4401B8B0D4F0049E387 /* WaveRefractReflect.vert */,
@@ -1730,6 +1775,12 @@
 		417E0E99148A6F910015B5B0 /* Textures */ = {
 			isa = PBXGroup;
 			children = (
+				4166ED04200260D600B42D17 /* Desert-X1024_C.jpg */,
+				4166ED05200260D600B42D17 /* Desert-Y1024_C.jpg */,
+				4166ED08200260D700B42D17 /* Desert-Z1024_C.jpg */,
+				4166ED06200260D600B42D17 /* Desert+X1024_C.jpg */,
+				4166ED07200260D600B42D17 /* Desert+Y1024_C.jpg */,
+				4166ED09200260D700B42D17 /* Desert+Z1024_C.jpg */,
 				41EA2F4C1F558DDF00C34BC7 /* features_stones.png */,
 				417980451F13832F00EB5315 /* i0000_0000b.png */,
 				417980461F13832F00EB5315 /* i0001_0000b.png */,
@@ -2014,6 +2065,8 @@
 				418015131959B51200D3226D /* SLNode.cpp */,
 				418E0C6714892AC000C6274F /* SLNode.h */,
 				418E0C39148929C800C6274F /* SLSamples2D.cpp */,
+				41A6A0811FF588A400C795A4 /* SLSkybox.h */,
+				41A6A07F1FF5887200C795A4 /* SLSkybox.cpp */,
 				418E0C3C148929C800C6274F /* SLText.cpp */,
 				418E0C7214892AC000C6274F /* SLText.h */,
 			);
@@ -2673,11 +2726,13 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				412F89781FF58D94004D5982 /* ColorUniformPoint.vert in Resources */,
 				417981C91F13833000EB5315 /* i0181_0000b.png in Resources */,
 				414D37F51EE6A7DC009DB259 /* rusty-metal_2048C.png in Resources */,
 				4179814E1F13833000EB5315 /* i0058_0000b.png in Resources */,
 				417981971F13833000EB5315 /* i0131_0000b.png in Resources */,
 				419BEFC71DE5EE9300C3E171 /* aruco_detector_params.yml in Resources */,
+				4166ED0F200260D700B42D17 /* Desert+Z1024_C.jpg in Resources */,
 				41B7BDE01E49B553007B8B39 /* Images.xcassets in Resources */,
 				418BF4601B8B0D500049E387 /* RefractReflectDisp.vert in Resources */,
 				418BF4491B8B0D4F0049E387 /* Diffuse.vert in Resources */,
@@ -2695,6 +2750,7 @@
 				419E11AA1B74B02000203E70 /* LiveVideoError.png in Resources */,
 				411BA72918C0716700F10475 /* Icon_76.png in Resources */,
 				414D37F61EE6A7DC009DB259 /* rusty-metal_2048M.png in Resources */,
+				412F897B1FF58D94004D5982 /* ADS.vert in Resources */,
 				418BF4681B8B0D500049E387 /* TextureOnly.vert in Resources */,
 				417981A91F13833000EB5315 /* i0149_0000b.png in Resources */,
 				418BF44C1B8B0D500049E387 /* ErrorTex.vert in Resources */,
@@ -2727,6 +2783,7 @@
 				417E0EBA148A70DE0015B5B0 /* bricks1_0256_C.jpg in Resources */,
 				417981C41F13833000EB5315 /* i0176_0000b.png in Resources */,
 				417981281F13833000EB5315 /* i0020_0000b.png in Resources */,
+				4166ED0C200260D700B42D17 /* Desert+X1024_C.jpg in Resources */,
 				41FD9D131E523AD70063A1B7 /* Font09.png in Resources */,
 				417981CF1F13833000EB5315 /* i0187_0000b.png in Resources */,
 				4179811E1F13833000EB5315 /* i0010_0000b.png in Resources */,
@@ -2744,15 +2801,18 @@
 				417E0EBC148A70DE0015B5B0 /* brickwall0512_C.jpg in Resources */,
 				417981BB1F13833000EB5315 /* i0167_0000b.png in Resources */,
 				417981B01F13833000EB5315 /* i0156_0000b.png in Resources */,
+				412F89721FF58D94004D5982 /* ADSTex.vert in Resources */,
 				417981861F13833000EB5315 /* i0114_0000b.png in Resources */,
 				417981501F13833000EB5315 /* i0060_0000b.png in Resources */,
 				418BF4661B8B0D500049E387 /* StereoOculusDistortionMesh.vert in Resources */,
 				418BF44E1B8B0D500049E387 /* FontTex.vert in Resources */,
+				4166ED0A200260D700B42D17 /* Desert-X1024_C.jpg in Resources */,
 				417981B21F13833000EB5315 /* i0158_0000b.png in Resources */,
 				41FD9D1A1E523AD70063A1B7 /* Font22.png in Resources */,
 				417981821F13833000EB5315 /* i0110_0000b.png in Resources */,
 				417981AE1F13833000EB5315 /* i0154_0000b.png in Resources */,
 				418BF4501B8B0D500049E387 /* PerPixBlinn.vert in Resources */,
+				4166ED0D200260D700B42D17 /* Desert+Y1024_C.jpg in Resources */,
 				417981441F13833000EB5315 /* i0048_0000b.png in Resources */,
 				417981981F13833000EB5315 /* i0132_0000b.png in Resources */,
 				417981B41F13833000EB5315 /* i0160_0000b.png in Resources */,
@@ -2786,10 +2846,13 @@
 				41FD9D181E523AD70063A1B7 /* Font18.png in Resources */,
 				417E0EC2148A70DE0015B5B0 /* earth1024_C.jpg in Resources */,
 				418BF44F1B8B0D500049E387 /* PerPixBlinn.frag in Resources */,
+				4166ED0E200260D700B42D17 /* Desert-Z1024_C.jpg in Resources */,
+				412F89771FF58D94004D5982 /* SkyBox.vert in Resources */,
 				417981DF1F13833000EB5315 /* i0203_0000b.png in Resources */,
 				417981711F13833000EB5315 /* i0093_0000b.png in Resources */,
 				417E0EC3148A70DE0015B5B0 /* earth1024_G.jpg in Resources */,
 				411BA73118C0773B00F10475 /* Default-Portrait@2~ipad.png in Resources */,
+				412F89791FF58D94004D5982 /* ADS.frag in Resources */,
 				41FD9D121E523AD70063A1B7 /* Font08.png in Resources */,
 				4179819D1F13833000EB5315 /* i0137_0000b.png in Resources */,
 				418BF46A1B8B0D500049E387 /* TextureOnly3D.vert in Resources */,
@@ -2823,6 +2886,7 @@
 				417E0ECB148A70DE0015B5B0 /* MuttenzerBox-X0512_C.png in Resources */,
 				417981581F13833000EB5315 /* i0068_0000b.png in Resources */,
 				417E0ECC148A70DE0015B5B0 /* MuttenzerBox-Y0512_C.png in Resources */,
+				412F897A1FF58D94004D5982 /* VolumeRenderingRayCastLighted.frag in Resources */,
 				417981721F13833000EB5315 /* i0094_0000b.png in Resources */,
 				418BF4541B8B0D500049E387 /* PerPixBlinnTexSkinned.vert in Resources */,
 				417E0ECD148A70DE0015B5B0 /* MuttenzerBox-Z0512_C.png in Resources */,
@@ -2836,6 +2900,7 @@
 				4179817D1F13833000EB5315 /* i0105_0000b.png in Resources */,
 				4179816C1F13833000EB5315 /* i0088_0000b.png in Resources */,
 				417E0ED1148A70DE0015B5B0 /* Testmap_0512_C.png in Resources */,
+				412F89751FF58D94004D5982 /* ADSTex.frag in Resources */,
 				417E0ED2148A70DE0015B5B0 /* tile1_0256_C.jpg in Resources */,
 				417981951F13833000EB5315 /* i0129_0000b.png in Resources */,
 				417981BC1F13833000EB5315 /* i0168_0000b.png in Resources */,
@@ -2859,6 +2924,7 @@
 				417981A21F13833000EB5315 /* i0142_0000b.png in Resources */,
 				417981A61F13833000EB5315 /* i0146_0000b.png in Resources */,
 				417E0ED3148A70DE0015B5B0 /* tree1_1024_C.png in Resources */,
+				412F89741FF58D94004D5982 /* ADSTex3D.frag in Resources */,
 				417981661F13833000EB5315 /* i0082_0000b.png in Resources */,
 				417981631F13833000EB5315 /* i0079_0000b.png in Resources */,
 				4179811A1F13833000EB5315 /* i0006_0000b.png in Resources */,
@@ -2909,6 +2975,7 @@
 				417E0EDE148A71220015B5B0 /* Pool-X0512_C.png in Resources */,
 				417E0EDF148A71220015B5B0 /* Pool-Y0512_C.png in Resources */,
 				417981491F13833000EB5315 /* i0053_0000b.png in Resources */,
+				4166ED0B200260D700B42D17 /* Desert-Y1024_C.jpg in Resources */,
 				417981321F13833000EB5315 /* i0030_0000b.png in Resources */,
 				4179817E1F13833000EB5315 /* i0106_0000b.png in Resources */,
 				4179816A1F13833000EB5315 /* i0086_0000b.png in Resources */,
@@ -2930,6 +2997,7 @@
 				417981C21F13833000EB5315 /* i0174_0000b.png in Resources */,
 				417981881F13833000EB5315 /* i0116_0000b.png in Resources */,
 				418BF4581B8B0D500049E387 /* PerVrtBlinnTex.frag in Resources */,
+				412F89761FF58D94004D5982 /* SkyBox.frag in Resources */,
 				417981E61F13836300EB5315 /* VolumeRenderingRayCast.frag in Resources */,
 				417981601F13833000EB5315 /* i0076_0000b.png in Resources */,
 				417981DD1F13833000EB5315 /* i0201_0000b.png in Resources */,
@@ -2988,6 +3056,7 @@
 				417981231F13833000EB5315 /* i0015_0000b.png in Resources */,
 				418BF45A1B8B0D500049E387 /* PerVrtBlinnTexSkinned.vert in Resources */,
 				4153D4F018D43FF000F47146 /* Default-568h@2x.png in Resources */,
+				412F89731FF58D94004D5982 /* ADSTex3D.vert in Resources */,
 				4197E73814C85BE300AE1D23 /* Default-Portrait~ipad.png in Resources */,
 				417981801F13833000EB5315 /* i0108_0000b.png in Resources */,
 				4197E73A14C85C6C00AE1D23 /* Default-Landscape~ipad.png in Resources */,
@@ -3161,6 +3230,7 @@
 				419808811959BA670048085E /* GenFaceNormalsProcess.cpp in Sources */,
 				41FC947D19F7D6410026919B /* SLGLShader.cpp in Sources */,
 				419808F11959BA670048085E /* ValidateDataStructure.cpp in Sources */,
+				41A6A0801FF5887200C795A4 /* SLSkybox.cpp in Sources */,
 				419808A81959BA670048085E /* SceneCombiner.cpp in Sources */,
 				418178281FC5D68F00200D02 /* SLDeviceLocation.cpp in Sources */,
 				419808BD1959BA670048085E /* 3DSConverter.cpp in Sources */,

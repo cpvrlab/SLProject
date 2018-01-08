@@ -77,7 +77,7 @@ void SLPolygon::buildMesh(SLMaterial* material)
     n.normalize();
    
     //Set one default material index
-    mat = material;
+    mat(material);
    
     //Copy vertices and normals
     for (SLushort i=0; i<P.size(); ++i)

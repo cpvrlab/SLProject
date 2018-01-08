@@ -198,8 +198,6 @@ enum SLCommand
     C_mirrorVScndVideoToggle,       // Mirror video image from secondary camera vertically
 
     C_renderOpenGL,     // Render with GL
-    C_rtContinuously,   // Do ray tracing continuously
-    C_rtDistributed,    // Do ray tracing distributed
     C_rtStop,           // Stop ray tracing
     C_rt1,              //1: Do ray tracing with max. depth 1
     C_rt2,              //2: Do ray tracing with max. depth 2
