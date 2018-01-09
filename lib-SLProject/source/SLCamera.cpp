@@ -729,6 +729,44 @@ SLbool SLCamera::onMouseMove(const SLMouseButton button,
             _om.setMatrix(rot * _om);
             needUpdate();
         }
+        else if (_camAnim==CA_trackball) //....................................
+        {
+            // calculate current mouse vector at currenct mouse position
+            SLVec3f curMouseVec = trackballVec(x, y);
+            SLVec3f oldMouseVec = trackballVec(_oldTouchPos1.x, _oldTouchPos1.y);
+
+            // calculate angle between the old and the current mouse vector
+            // Take care that the dot product isn't greater than 1.0 otherwise
+            // the acos will return indefined.
+            SLfloat dot = oldMouseVec.dot(curMouseVec);
+            SLfloat angle = acos(dot>1?1:dot) * SL_RAD2DEG;
+            
+            // calculate rotation axis with the cross product
+            SLVec3f axis = oldMouseVec ^ curMouseVec;
+            
+            // Because we calculate the mouse vectors from integer mouse positions
+            // we can get some numerical instability from the dot product when the
+            // mouse is on the silhouette of the virtual sphere.
+            // We calculate therefore an alternative for the angle from the mouse
+            // motion length.
+            SLVec2f dMouse(_oldTouchPos1.x-x, _oldTouchPos1.y-y);
+            SLfloat dMouseLenght = dMouse.length();
+            if (angle > dMouseLenght) angle = dMouseLenght*0.2f;
+            
+            // To stabilise the axis we average it with the last axis
+            //if (lastAxis != SLVec3f::ZERO) axis = (axis + lastAxis) / 2.0f;
+            
+            SL_LOG("Axis: %s, angle: %0.0f\n", axis.toString().c_str(), angle);
+            
+            // Create rotation from one rotation around one axis
+            SLMat4f rot;
+            rot.translate(rtP);
+            rot.rotate(angle, axis);
+            rot.translate(-rtP);
+            _om.setMatrix(rot * _om);
+            
+            needUpdate();
+        }
         else if (_camAnim==CA_walkingYUp) //...................................
         {
             dY *= 0.5f;
@@ -824,7 +862,9 @@ SLbool SLCamera::onMouseWheel(const SLint delta, const SLKey mod)
     SLScene* s = SLScene::current;
     SLfloat sign = (SLfloat)SL_sign(delta);
 
-    if (_camAnim==CA_turntableYUp || _camAnim==CA_turntableZUp) //....................
+    if (_camAnim==CA_turntableYUp ||
+        _camAnim==CA_turntableZUp ||
+        _camAnim==CA_trackball) //..............................................
     {   if (mod==K_none)
         {
             // Determine the lookAt point by ray cast
@@ -1180,6 +1220,34 @@ SLstring SLCamera::toString() const
     ss << "Animation: " << animationStr()  << endl;
     ss << vm.toString() << endl;
     return ss.str();
+}
+//-----------------------------------------------------------------------------
+//! Returns a vector from the window center to a virtual trackball at [x,y].
+/*! The trackball vector is a vector from the window center to a hemisphere
+over the window at the specified cursor position. With two trackball vectors
+you can calculate a single rotation axis with the cross product. This routine
+is used for the trackball camera animation.
+*/
+SLVec3f SLCamera::trackballVec(const SLint x, const SLint y)
+{
+    SLVec3f vec;
+    
+    //Calculate x & y component to the virtual unit sphere
+    SLfloat halfSide = (SLfloat)(_scrW < _scrH ? _scrW/2 : _scrH/2);
+    vec.x =  (SLfloat)(x - _scrW/2.0f)  / halfSide;
+    vec.y = -(SLfloat)(y - _scrH/2.0f) / halfSide;
+    
+    // d = length of vector x,y
+    SLfloat d = sqrt(vec.x*vec.x + vec.y*vec.y);
+    
+    // z component with pytagoras
+    if (d < 1.0f)
+        vec.z = sqrt(1.0f - d*d);
+    else
+    {   vec.z = 0.0f;
+        vec.normalize(); // d >= 1, so normalize
+    }
+    return vec;
 }
 //-----------------------------------------------------------------------------
 

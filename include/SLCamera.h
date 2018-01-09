@@ -37,6 +37,7 @@ these event handlers.\n
 The following camera animations are available:\n
    - SLCamAnim::CA_turntableYUp
    - SLCamAnim::CA_turntableZUp
+   - SLCamAnim::CA_trackball
    - SLCamAnim::CA_walkingYUp
    - SLCamAnim::CA_walkingZUp
    - SLCamAnim::CA_deviceRotYUp
@@ -60,26 +61,27 @@ class SLCamera: public SLNode
             void            buildAABB           (SLAABBox &aabb, SLMat4f wmNode);
 
             // Event handlers for camera animation
-    virtual SLbool          onMouseDown     (const SLMouseButton button, 
-                                             const SLint x, const SLint y, 
-                                             const SLKey mod); 
-    virtual SLbool          onMouseMove     (const SLMouseButton button, 
-                                             const SLint x, const SLint y,
-                                             const SLKey mod);
-    virtual SLbool          onMouseUp       (const SLMouseButton button, 
-                                             const SLint x, const SLint y, 
-                                             const SLKey mod);
-    virtual SLbool          onMouseWheel    (const SLint delta, const SLKey mod);
-    virtual SLbool          onTouch2Down    (const SLint x1, const SLint y1,
-                                             const SLint x2, const SLint y2);
-    virtual SLbool          onTouch2Move    (const SLint x1, const SLint y1,
-                                             const SLint x2, const SLint y2);
-    virtual SLbool          onTouch2Up      (const SLint x1, const SLint y1,
-                                             const SLint x2, const SLint y2);
-    virtual SLbool          onKeyPress      (const SLKey key, const SLKey mod);
-    virtual SLbool          onKeyRelease    (const SLKey key, const SLKey mod);
+    virtual SLbool          onMouseDown         (const SLMouseButton button,
+                                                 const SLint x, const SLint y,
+                                                 const SLKey mod);
+    virtual SLbool          onMouseMove         (const SLMouseButton button,
+                                                 const SLint x, const SLint y,
+                                                 const SLKey mod);
+    virtual SLbool          onMouseUp           (const SLMouseButton button,
+                                                 const SLint x, const SLint y,
+                                                 const SLKey mod);
+    virtual SLbool          onMouseWheel        (const SLint delta, const SLKey mod);
+    virtual SLbool          onTouch2Down        (const SLint x1, const SLint y1,
+                                                 const SLint x2, const SLint y2);
+    virtual SLbool          onTouch2Move        (const SLint x1, const SLint y1,
+                                                 const SLint x2, const SLint y2);
+    virtual SLbool          onTouch2Up          (const SLint x1, const SLint y1,
+                                                 const SLint x2, const SLint y2);
+    virtual SLbool          onKeyPress          (const SLKey key, const SLKey mod);
+    virtual SLbool          onKeyRelease        (const SLKey key, const SLKey mod);
                             
             void            eyeToPixelRay       (SLfloat x, SLfloat y, SLRay* ray);
+            SLVec3f         trackballVec        (const SLint x, const SLint y);
             SLbool          isInFrustum         (SLAABBox* aabb);
                             
             // Apply projection, viewport and view transformations

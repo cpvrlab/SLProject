@@ -1133,6 +1133,9 @@ void SLDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
 
                 if (ImGui::MenuItem("Turntable Z up", 0, ca==CA_turntableZUp))
                     sv->camera()->camAnim(CA_turntableZUp);
+                
+                if (ImGui::MenuItem("Trackball", 0, ca==CA_trackball))
+                    sv->camera()->camAnim(CA_trackball);
 
                 if (ImGui::MenuItem("Walk Y up", 0, ca==CA_walkingYUp))
                     sv->camera()->camAnim(CA_walkingYUp);
