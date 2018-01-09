@@ -734,6 +734,7 @@ SLbool SLCamera::onMouseMove(const SLMouseButton button,
             // calculate current mouse vector at currenct mouse position
             SLVec3f curMouseVec = trackballVec(x, y);
             SLVec3f oldMouseVec = trackballVec(_oldTouchPos1.x, _oldTouchPos1.y);
+            
 
             // calculate angle between the old and the current mouse vector
             // Take care that the dot product isn't greater than 1.0 otherwise
@@ -741,31 +742,39 @@ SLbool SLCamera::onMouseMove(const SLMouseButton button,
             SLfloat dot = oldMouseVec.dot(curMouseVec);
             SLfloat angle = acos(dot>1?1:dot) * SL_RAD2DEG;
             
-            // calculate rotation axis with the cross product
-            SLVec3f axis = oldMouseVec ^ curMouseVec;
-            
-            // Because we calculate the mouse vectors from integer mouse positions
-            // we can get some numerical instability from the dot product when the
-            // mouse is on the silhouette of the virtual sphere.
-            // We calculate therefore an alternative for the angle from the mouse
-            // motion length.
-            SLVec2f dMouse(_oldTouchPos1.x-x, _oldTouchPos1.y-y);
-            SLfloat dMouseLenght = dMouse.length();
-            if (angle > dMouseLenght) angle = dMouseLenght*0.2f;
-            
-            // To stabilise the axis we average it with the last axis
-            //if (lastAxis != SLVec3f::ZERO) axis = (axis + lastAxis) / 2.0f;
-            
-            SL_LOG("Axis: %s, angle: %0.0f\n", axis.toString().c_str(), angle);
-            
-            // Create rotation from one rotation around one axis
-            SLMat4f rot;
-            rot.translate(rtP);
-            rot.rotate(angle, axis);
-            rot.translate(-rtP);
-            _om.setMatrix(rot * _om);
-            
-            needUpdate();
+            if (angle > 2.0f)
+            {
+                // calculate rotation axis with the cross product
+                SLVec3f axis;
+                axis.cross(oldMouseVec, curMouseVec);
+                
+                // Because we calculate the mouse vectors from integer mouse positions
+                // we can get some numerical instability from the dot product when the
+                // mouse is on the silhouette of the virtual sphere.
+                // We calculate therefore an alternative for the angle from the mouse
+                // motion length.
+                SLVec2f dMouse(_oldTouchPos1.x-x, _oldTouchPos1.y-y);
+                SLfloat dMouseLenght = dMouse.length();
+                if (angle > dMouseLenght) angle = dMouseLenght*0.2f;
+                
+                SL_LOG("dMouse: %0.3f, %0.3f\n", dMouse.x, dMouse.y);
+                SL_LOG("oldMouseVec: %0.3f, %0.3f, %0.3f\n", oldMouseVec.x, oldMouseVec.y, oldMouseVec.z);
+                SL_LOG("curMouseVec: %0.3f, %0.3f, %0.3f\n", curMouseVec.x, curMouseVec.y, curMouseVec.z);
+                
+                // To stabilise the axis we average it with the last axis
+                //if (lastAxis != SLVec3f::ZERO) axis = (axis + lastAxis) / 2.0f;
+                
+                SL_LOG("Axis: %0.2f, %0.2f, %0.2f, angle: %0.5f\n\n", axis.x, axis.y, axis.z, angle);
+                
+                // Create rotation from one rotation around one axis
+                SLMat4f rot;
+                rot.translate(rtP);
+                rot.rotate(angle, axis);
+                rot.translate(-rtP);
+                _om.setMatrix(rot * _om);
+                
+                needUpdate();
+            }
         }
         else if (_camAnim==CA_walkingYUp) //...................................
         {
