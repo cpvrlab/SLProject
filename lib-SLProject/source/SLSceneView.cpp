@@ -790,9 +790,10 @@ SLSceneView::draw2DGLAll draws 2D stuff in ortho projection.
 */
 void SLSceneView::draw2DGLAll()
 {
-    SLfloat w2 = (SLfloat)_scrWdiv2;
-    SLfloat h2 = (SLfloat)_scrHdiv2;
-    SLfloat depth = 1.0f;               // Render depth between -1 & 1
+    SLfloat w2 = (SLfloat)_scrWdiv2;            // half widht
+    SLfloat h2 = (SLfloat)_scrHdiv2;            // half height
+    SLfloat depth = 1.0f;                       // Render depth between -1 & 1
+    SLfloat cs = SL_min(_scrW, _scrH) * 0.01f;  // center size
 
     _stateGL->pushModelViewMatrix();
     _stateGL->modelViewMatrix.identity();
@@ -812,44 +813,51 @@ void SLSceneView::draw2DGLAll()
         node->drawMeshes(this);
     }
    
-    // 2D finger touch points on desktop OS
-    #ifndef SL_GLES
-    if (_touchDowns)
-    {   _stateGL->multiSample(true);
-        _stateGL->pushModelViewMatrix();  
-      
-        // Go to lower-left screen corner
-        _stateGL->modelViewMatrix.translate(-w2, -h2, depth);
-      
-        SLVVec3f touch;
-        touch.resize(_touchDowns);
-        for (SLint i=0; i<_touchDowns; ++i)
-        {   touch[i].x = (SLfloat)_touch[i].x;
-            touch[i].y = (SLfloat)(_scrH - _touch[i].y);
-            touch[i].z = 0.0f;
-        }
-      
-        _vaoTouch.generateVertexPos(&touch);
-      
-        SLCol4f yelloAlpha(1.0f, 1.0f, 0.0f, 0.5f);
-        _vaoTouch.drawArrayAsColored(PT_points, yelloAlpha, 21);
-        _stateGL->popModelViewMatrix();
-    }
-
-    // Draw turntable rotation point
+    // Draw rotation helpers during camera animations
     if ((_mouseDownL || _mouseDownM) && _touchDowns==0)
-    {   if (_camera->camAnim()==CA_turntableYUp || _camera->camAnim()==CA_turntableZUp)
-        {   _stateGL->multiSample(true);
+    {
+        if (_camera->camAnim() == CA_turntableYUp ||
+            _camera->camAnim() == CA_turntableZUp)
+        {
             _stateGL->pushModelViewMatrix();
             _stateGL->modelViewMatrix.translate(0, 0, depth);
-            SLVVec3f cross = {{0,0,0}};
-            _vaoTouch.generateVertexPos(&cross);
+            
+            SLVVec3f centerRombusPoints = {{-cs,0,0},{0,-cs,0},{cs,0,0},{0,cs,0}};
+            _vaoTouch.clearAttribs();
+            _vaoTouch.generateVertexPos(&centerRombusPoints);
             SLCol4f yelloAlpha(1.0f, 1.0f, 0.0f, 0.5f);
-            _vaoTouch.drawArrayAsColored(PT_points, yelloAlpha, (SLfloat)SL::dpi/12.0f);
+            
+            _vaoTouch.drawArrayAsColored(PT_lineLoop, yelloAlpha);
+            
+            _stateGL->popModelViewMatrix();
+        } else
+        if (_camera->camAnim() == CA_trackball)
+        {
+            _stateGL->pushModelViewMatrix();
+            _stateGL->modelViewMatrix.translate(0, 0, depth);
+            
+            // radius = half width or height
+            SLfloat r = (SLfloat)(_scrW < _scrH ? _scrW/2 : _scrH/2) * _camera->trackballSize();
+            
+            SLVVec3f rombusAndCirclePoints; // = {{-cs,0,0},{0,-cs,0},{cs,0,0},{0,cs,0}};
+            
+            // Add points for circle over window
+            SLint circlePoints = 60;
+            SLfloat deltaPhi = SL_2PI / (SLfloat)circlePoints;
+            for (SLint i=0; i<circlePoints; ++i)
+            {   SLVec2f c;
+                c.fromPolar(r, i*deltaPhi);
+                rombusAndCirclePoints.push_back(SLVec3f(c.x, c.y, 0));
+            }
+            _vaoTouch.clearAttribs();
+            _vaoTouch.generateVertexPos(&rombusAndCirclePoints);
+            SLCol4f yelloAlpha(1.0f, 1.0f, 0.0f, 0.5f);
+            
+            _vaoTouch.drawArrayAsColored(PT_lineLoop, yelloAlpha);
+            
             _stateGL->popModelViewMatrix();
         }
     }
-    #endif
 
     _stateGL->popModelViewMatrix();        
 
@@ -1170,11 +1178,6 @@ SLbool SLSceneView::onKeyPress(SLKey key, SLKey mod)
     {   _gui.onKeyPress(key, mod);
         return true;
     }
-    
-    if (key == '5') { _camera->unitScaling(_camera->unitScaling()+0.1f); SL_LOG("New unit scaling: %f", _camera->unitScaling()); return true; }
-    if (key == '6') { _camera->unitScaling(_camera->unitScaling()-0.1f); SL_LOG("New unit scaling: %f", _camera->unitScaling()); return true; }
-    if (key == '7') return onCommand(C_dpiInc);
-    if (key == '8') return onCommand(C_dpiDec);
 
     if (key=='N') return onCommand(C_normalsToggle);
     if (key=='P') return onCommand(C_wireMeshToggle);

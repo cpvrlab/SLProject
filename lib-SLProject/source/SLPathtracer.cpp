@@ -169,7 +169,7 @@ Recursively traces Ray in Scene.
 SLCol4f SLPathtracer::trace(SLRay* ray, SLbool em)
 {
     SLScene* s = SLScene::current;
-    SLCol4f finalColor(SLCol4f::BLACK);
+    SLCol4f finalColor(ray->backgroundColor);
 
     // Participating Media init
     SLfloat  absorbtion = 1.0f;    // used to calculate absorbtion along the ray

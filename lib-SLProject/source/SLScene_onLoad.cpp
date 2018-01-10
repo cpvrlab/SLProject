@@ -1613,7 +1613,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         SLMaterial* white = new SLMaterial("white", SLCol4f::WHITE, SLCol4f::WHITE, 10);
         
         // Material for mirror
-        SLMaterial* refl = new SLMaterial("refl", SLCol4f::BLACK, SLCol4f::BLACK, 1000, 1.0f);
+        SLMaterial* refl = new SLMaterial("refl", SLCol4f::BLACK, SLCol4f::WHITE, 1000, 1.0f);
         refl->textures().push_back(skyboxTex);
         refl->program(new SLGLGenericProgram("Reflect.vert", "Reflect.frag"));
         
@@ -1633,6 +1633,8 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         cam1->setInitialState();
         scene->addChild(cam1);
         
+        /*
+        // There is no light needed in this scene. All reflections come from cube maps
         // Create directional light for the sun light
         SLLightDirect* light = new SLLightDirect(0.5f);
         light->ambient(SLCol4f(0.3f, 0.3f, 0.3f));
@@ -1640,6 +1642,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         light->translate(1,1,-1);
         light->lookAt(-1, -1, 1);
         scene->addChild(light);
+        */
         
         // Center sphere
         SLNode* sphere = new SLNode(new SLSphere(0.5f, 32, 32, "Sphere", refr));
