@@ -1059,7 +1059,19 @@ void SLDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
 
             if (ImGui::MenuItem("Reset"))
                 sv->onCommand(C_camReset);
-
+            
+            if (ImGui::BeginMenu("Look from"))
+            {
+                if (ImGui::MenuItem("Left (+X)",   "3"))        cam->lookFrom( SLVec3f::AXISX);
+                if (ImGui::MenuItem("Right (-X)",  "CTRL-3"))   cam->lookFrom(-SLVec3f::AXISX);
+                if (ImGui::MenuItem("Top (+Y)",    "7"))        cam->lookFrom( SLVec3f::AXISY, -SLVec3f::AXISZ);
+                if (ImGui::MenuItem("Bottom (+Y)", "CTRL-7"))   cam->lookFrom(-SLVec3f::AXISY,  SLVec3f::AXISZ);
+                if (ImGui::MenuItem("Front (+Z)",  "1"))        cam->lookFrom( SLVec3f::AXISZ);
+                if (ImGui::MenuItem("Back (-Z)",   "CTRL-1"))   cam->lookFrom(-SLVec3f::AXISZ);
+                
+                ImGui::EndMenu();
+            }
+            
             if (s->numSceneCameras())
             {
                 if (ImGui::MenuItem("Set next camera in Scene"))
@@ -1078,10 +1090,10 @@ void SLDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
 
                 ImGui::PushItemWidth(100);
 
-                if (ImGui::MenuItem("Perspective", 0, proj==P_monoPerspective))
+                if (ImGui::MenuItem("Perspective", "5", proj==P_monoPerspective))
                     sv->onCommand(C_projPersp);
 
-                if (ImGui::MenuItem("Orthographic", 0, proj==P_monoOrthographic))
+                if (ImGui::MenuItem("Orthographic", "5", proj==P_monoOrthographic))
                     sv->onCommand(C_projOrtho);
 
                 if (ImGui::BeginMenu("Stereo"))
@@ -1111,12 +1123,12 @@ void SLDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
 
                 if (ImGui::SliderFloat("Near Clip", &clipN, 0.001f, 10.f))
                     cam->clipNear(clipN);
+                
+                if (ImGui::SliderFloat("Focal Dist.", &focalDist, clipN, clipF))
+                    cam->focalDist(focalDist);
 
                 if (ImGui::SliderFloat("Far Clip",  &clipF, clipN, SL_min(clipF*1.1f,1000000.f)))
                     cam->clipFar(clipF);
-
-                if (ImGui::SliderFloat("Focal Dist.", &focalDist, clipN, clipF))
-                    cam->focalDist(focalDist);
 
                 ImGui::PopItemWidth();
                 ImGui::EndMenu();

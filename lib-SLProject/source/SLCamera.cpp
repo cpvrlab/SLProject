@@ -31,7 +31,8 @@ SLCamera::SLCamera(SLstring name) : SLNode(name),
       _moveDir(0, 0, 0),
       _acceleration(0, 0, 0),
       _unitScaling(1.0f),
-      _movedLastFrame(false)
+      _movedLastFrame(false),
+      _trackballSize(0.8f)
 {
     _fovInit    = 0;
     _aspect     = 640.0f/480.0f;        // will be overwritten in setProjection
@@ -147,10 +148,11 @@ void SLCamera::drawMeshes(SLSceneView* sv)
             const SLMat4f& vm = updateAndGetWMI();
             SLVVec3f P;
             SLVec3f pos(vm.translation());
-            SLfloat t = tan(SL_DEG2RAD*_fov*0.5f) * pos.length();
-            SLfloat b = -t;
-            SLfloat l = -sv->scrWdivH() * t;
-            SLfloat r = -l;
+            SLfloat t = tan(SL_DEG2RAD*_fov*0.5f) * pos.length();   // top
+            SLfloat b = -t;                                         // bottom
+            SLfloat l = -sv->scrWdivH() * t;                        // left
+            SLfloat r = -l;                                         // right
+            SLfloat c =  SL_min(l,r)*0.05f;                         // size of cross at focal point
 
             // small line in view direction
             P.push_back(SLVec3f(0,0,0)); P.push_back(SLVec3f(0,0,_clipNear*4));
@@ -174,6 +176,11 @@ void SLCamera::drawMeshes(SLSceneView* sv)
             P.push_back(SLVec3f(r,b,-_focalDist)); P.push_back(SLVec3f(l,b,-_focalDist));
             P.push_back(SLVec3f(l,b,-_focalDist)); P.push_back(SLVec3f(l,t,-_focalDist));
             P.push_back(SLVec3f(l,t,-_focalDist)); P.push_back(SLVec3f(r,t,-_focalDist));
+            
+            // cross at focal point in focal distance
+            P.push_back(SLVec3f(-c, 0, -_focalDist  )); P.push_back(SLVec3f(c, 0,-_focalDist  ));
+            P.push_back(SLVec3f( 0,-c, -_focalDist  )); P.push_back(SLVec3f(0, c,-_focalDist  ));
+            P.push_back(SLVec3f( 0, 0, -_focalDist-c)); P.push_back(SLVec3f(0, 0,-_focalDist+c));
 
             // around near clipping plane
             P.push_back(SLVec3f(r,t,_clipNear)); P.push_back(SLVec3f(r,b,_clipNear));
@@ -183,7 +190,7 @@ void SLCamera::drawMeshes(SLSceneView* sv)
 
             _vao.generateVertexPos(&P);
         }
-        else
+        else if(_projection == P_monoPerspective)
         {
             SLVVec3f P;
             SLfloat aspect = sv->scrWdivH();
@@ -194,6 +201,7 @@ void SLCamera::drawMeshes(SLSceneView* sv)
             SLfloat tP =  tanFov * _focalDist;  //top projection at focal distance
             SLfloat rP =  tP * aspect;          //right projection at focal distance
             SLfloat lP = -tP * aspect;          //left projection at focal distance
+            SLfloat cP =  SL_min(lP,rP)*0.05f;  //size of cross at focal point
             SLfloat tN =  tanFov * _clipNear;   //top near
             SLfloat rN =  tN * aspect;          //right near
             SLfloat lN = -tN * aspect;          //left near
@@ -220,6 +228,11 @@ void SLCamera::drawMeshes(SLSceneView* sv)
             P.push_back(SLVec3f(rP,-tP,-_focalDist)); P.push_back(SLVec3f(lP,-tP,-_focalDist));
             P.push_back(SLVec3f(lP,-tP,-_focalDist)); P.push_back(SLVec3f(lP, tP,-_focalDist));
             P.push_back(SLVec3f(lP, tP,-_focalDist)); P.push_back(SLVec3f(rP, tP,-_focalDist));
+            
+            // cross at focal point in focal distance
+            P.push_back(SLVec3f(-cP,  0, -_focalDist   )); P.push_back(SLVec3f(cP,  0,-_focalDist   ));
+            P.push_back(SLVec3f(  0,-cP, -_focalDist   )); P.push_back(SLVec3f( 0, cP,-_focalDist   ));
+            P.push_back(SLVec3f(  0,  0, -_focalDist-cP)); P.push_back(SLVec3f( 0,  0,-_focalDist+cP));
 
             // around near clipping plane
             P.push_back(SLVec3f(rN, tN,-_clipNear)); P.push_back(SLVec3f(rN,-tN,-_clipNear));
@@ -355,7 +368,6 @@ void SLCamera::setProjection(SLSceneView* sv, const SLEyeType eye)
     _scrW = sv->scrW();
     _scrH = sv->scrH();
     _aspect = sv->scrWdivH();
-    _lookAtRay.sv = sv;
 
     switch (_projection)
     {
@@ -476,7 +488,6 @@ nodes inverse world matrix.
 void SLCamera::setView(SLSceneView* sv, const SLEyeType eye)
 {
     SLScene* s = SLScene::current;
-    _lookAtRay.sv = sv;
 
     if (_camAnim == CA_deviceRotYUp)
     {
@@ -610,7 +621,7 @@ void SLCamera::setView(SLSceneView* sv, const SLEyeType eye)
                     rotation = s->oculus()->orientation(eye);
                     trackingPos.translate(-s->oculus()->position(eye));
                 }
- //todo               else rotation = s->deviceRotation();
+                //todo else rotation = s->deviceRotation();
 
                 SLfloat rotX, rotY, rotZ;
                 rotation.toMat4().toEulerAnglesZYX(rotZ, rotY, rotX);
@@ -644,6 +655,14 @@ void SLCamera::setView(SLSceneView* sv, const SLEyeType eye)
     }
 }
 //-----------------------------------------------------------------------------
+//! Sets the view to look from a direction towards the current focal point
+void SLCamera::lookFrom(const SLVec3f fromDir, const SLVec3f upDir)
+{
+    SLVec3f lookAt = focalPointWS();
+    this->translation(lookAt + _focalDist * fromDir);
+    this->lookAt(lookAt, upDir);
+}
+//-----------------------------------------------------------------------------
 //! SLCamera::animationStr() returns the animation enum as string
 SLstring SLCamera::animationStr() const
 {
@@ -670,15 +689,12 @@ SLbool SLCamera::onMouseDown(const SLMouseButton button,
 {
     SLScene* s = SLScene::current;
 
-    // Determine the lookAt point by ray cast to the screen center
-    eyeToPixelRay((SLfloat)(_scrW>>1), (SLfloat)(_scrH>>1), &_lookAtRay);
-
-    if (s->root3D())
-        s->root3D()->hitRec(&_lookAtRay);
-
     // Init both position in case that the second finger came with delay
     _oldTouchPos1.set((SLfloat)x, (SLfloat)y);
     _oldTouchPos2.set((SLfloat)x, (SLfloat)y);
+    
+    if (_camAnim==CA_trackball)
+        _trackballStartVec = trackballVec(x,y);
 
     return false;
 }
@@ -690,18 +706,12 @@ SLbool SLCamera::onMouseMove(const SLMouseButton button,
     if (button == MB_left) //==================================================
     {
         // new vars needed
-        SLVec3f position = this->translationOS();
-        SLVec3f forward =  this->forwardOS();
-        SLVec3f right =    this->rightOS();
+        SLVec3f positionVS = this->translationOS();
+        SLVec3f forwardVS  = this->forwardOS();
+        SLVec3f rightVS    = this->rightOS();
 
         // The lookAt point
-        SLVec3f laP = position + _focalDist * forward;
-
-        // Determine rotation point as the center of the AABB of the hitNode
-        SLVec3f rtP;
-        if (_lookAtRay.hitNode) //_lookAtRay.length < FLT_MAX &&
-             rtP = _lookAtRay.hitNode->aabb()->centerWS();
-        else rtP = laP;
+        SLVec3f lookAtPoint = positionVS + _focalDist * forwardVS;
 
         // Determine rot angles around x- & y-axis
         SLfloat dY = (y-_oldTouchPos1.y) * _rotFactor;
@@ -710,10 +720,10 @@ SLbool SLCamera::onMouseMove(const SLMouseButton button,
         if (_camAnim==CA_turntableYUp) //......................................
         {
             SLMat4f rot;
-            rot.translate(rtP);
+            rot.translate(lookAtPoint);
             rot.rotate(-dX, SLVec3f(0,1,0));
-            rot.rotate(-dY, right);
-            rot.translate(-rtP);
+            rot.rotate(-dY, rightVS);
+            rot.translate(-lookAtPoint);
 
             _om.setMatrix(rot * _om);
             needUpdate();
@@ -721,60 +731,60 @@ SLbool SLCamera::onMouseMove(const SLMouseButton button,
         else if (_camAnim==CA_turntableZUp) //.................................
         {
             SLMat4f rot;
-            rot.translate(rtP);
+            rot.translate(lookAtPoint);
             rot.rotate(dX, SLVec3f(0,0,1));
-            rot.rotate(dY, right);
-            rot.translate(-rtP);
+            rot.rotate(dY, rightVS);
+            rot.translate(-lookAtPoint);
 
             _om.setMatrix(rot * _om);
             needUpdate();
         }
         else if (_camAnim==CA_trackball) //....................................
         {
+            // Reference: https://en.wikibooks.org/wiki/OpenGL_Programming/Modern_OpenGL_Tutorial_Arcball
             // calculate current mouse vector at currenct mouse position
             SLVec3f curMouseVec = trackballVec(x, y);
-            SLVec3f oldMouseVec = trackballVec(_oldTouchPos1.x, _oldTouchPos1.y);
-            
 
             // calculate angle between the old and the current mouse vector
             // Take care that the dot product isn't greater than 1.0 otherwise
             // the acos will return indefined.
-            SLfloat dot = oldMouseVec.dot(curMouseVec);
+            SLfloat dot = _trackballStartVec.dot(curMouseVec);
             SLfloat angle = acos(dot>1?1:dot) * SL_RAD2DEG;
             
-            if (angle > 2.0f)
-            {
-                // calculate rotation axis with the cross product
-                SLVec3f axis;
-                axis.cross(oldMouseVec, curMouseVec);
-                
-                // Because we calculate the mouse vectors from integer mouse positions
-                // we can get some numerical instability from the dot product when the
-                // mouse is on the silhouette of the virtual sphere.
-                // We calculate therefore an alternative for the angle from the mouse
-                // motion length.
-                SLVec2f dMouse(_oldTouchPos1.x-x, _oldTouchPos1.y-y);
-                SLfloat dMouseLenght = dMouse.length();
-                if (angle > dMouseLenght) angle = dMouseLenght*0.2f;
-                
-                SL_LOG("dMouse: %0.3f, %0.3f\n", dMouse.x, dMouse.y);
-                SL_LOG("oldMouseVec: %0.3f, %0.3f, %0.3f\n", oldMouseVec.x, oldMouseVec.y, oldMouseVec.z);
-                SL_LOG("curMouseVec: %0.3f, %0.3f, %0.3f\n", curMouseVec.x, curMouseVec.y, curMouseVec.z);
-                
-                // To stabilise the axis we average it with the last axis
-                //if (lastAxis != SLVec3f::ZERO) axis = (axis + lastAxis) / 2.0f;
-                
-                SL_LOG("Axis: %0.2f, %0.2f, %0.2f, angle: %0.5f\n\n", axis.x, axis.y, axis.z, angle);
-                
-                // Create rotation from one rotation around one axis
-                SLMat4f rot;
-                rot.translate(rtP);
-                rot.rotate(angle, axis);
-                rot.translate(-rtP);
-                _om.setMatrix(rot * _om);
-                
-                needUpdate();
-            }
+
+            // calculate rotation axis with the cross product
+            SLVec3f axisVS;
+            axisVS.cross(_trackballStartVec, curMouseVec);
+            
+            // To stabilise the axis we average it with the last axis
+            static SLVec3f lastAxisVS = SLVec3f::ZERO;
+            if (lastAxisVS != SLVec3f::ZERO) axisVS = (axisVS + lastAxisVS) / 2.0f;
+            
+            // Because we calculate the mouse vectors from integer mouse positions
+            // we can get some numerical instability from the dot product when the
+            // mouse is on the silhouette of the virtual sphere.
+            // We calculate therefore an alternative for the angle from the mouse
+            // motion length.
+            SLVec2f dMouse(_oldTouchPos1.x-x, _oldTouchPos1.y-y);
+            SLfloat dMouseLenght = dMouse.length();
+            if (angle > dMouseLenght) angle = dMouseLenght*0.2f;
+            
+            // Transform rotation axis into world space
+            // Remember: The cameras om is the view matrix inversed
+            SLVec3f axisWS = _om.mat3() * axisVS;
+            
+            // Create rotation from one rotation around one axis
+            SLMat4f rot;
+            rot.translate(lookAtPoint);             // undo camera translation
+            rot.rotate((SLfloat)-angle, axisWS);    // create incremental rotation
+            rot.translate(-lookAtPoint);            // redo camera translation
+            _om.setMatrix(rot * _om);               // accumulate rotation to the existing camera matrix
+            
+            // set current to last
+            _trackballStartVec = curMouseVec;
+            lastAxisVS = axisVS;
+            
+            needUpdate();
         }
         else if (_camAnim==CA_walkingYUp) //...................................
         {
@@ -783,10 +793,10 @@ SLbool SLCamera::onMouseMove(const SLMouseButton button,
 
             SLMat4f rot;
             rot.rotate(-dX, SLVec3f(0, 1, 0));
-            rot.rotate(-dY, right);
+            rot.rotate(-dY, rightVS);
 
-            forward.set(rot.multVec(forward));
-            lookAt(position + forward);
+            forwardVS.set(rot.multVec(forwardVS));
+            lookAt(positionVS + forwardVS);
             needUpdate();
         }
         else if (_camAnim==CA_walkingZUp) //...................................
@@ -796,10 +806,10 @@ SLbool SLCamera::onMouseMove(const SLMouseButton button,
 
             SLMat4f rot;
             rot.rotate(-dX, SLVec3f(0, 0, 1));
-            rot.rotate(-dY, right);
+            rot.rotate(-dY, rightVS);
 
-            forward.set(rot.multVec(forward));
-            lookAt(position + forward, SLVec3f(0, 0, 1));
+            forwardVS.set(rot.multVec(forwardVS));
+            lookAt(positionVS + forwardVS, SLVec3f(0, 0, 1));
             needWMUpdate();
         }
 
@@ -807,34 +817,26 @@ SLbool SLCamera::onMouseMove(const SLMouseButton button,
     }
     else
     if (button == MB_middle) //================================================
-    {   if (_camAnim==CA_turntableYUp || _camAnim==CA_turntableZUp)
+    {   if (_camAnim == CA_turntableYUp ||
+            _camAnim == CA_turntableZUp ||
+            _camAnim == CA_trackball)
         {
             // Calculate the fraction delta of the mouse movement
             SLVec2f dMouse(x-_oldTouchPos1.x, _oldTouchPos1.y-y);
             dMouse.x /= (SLfloat)_scrW;
             dMouse.y /= (SLfloat)_scrH;
 
-            // Scale the mouse delta by the lookAt distance
-            SLfloat lookAtDist;
-            if (_lookAtRay.length < FLT_MAX)
-                lookAtDist = _lookAtRay.length;
-            else lookAtDist = _focalDist;
-
             // scale factor depending on the space size at focal dist
-            SLfloat spaceH = tan(SL_DEG2RAD*_fov/2) * lookAtDist * 2.0f;
+            SLfloat spaceH = tan(SL_DEG2RAD*_fov/2) * _focalDist * 2.0f;
             SLfloat spaceW = spaceH * _aspect;
 
             dMouse.x *= spaceW;
             dMouse.y *= spaceH;
 
             if (mod==K_ctrl)
-            {
-                translate(SLVec3f(-dMouse.x, 0, dMouse.y), TS_object);
-
-            } else
-            {
-                translate(SLVec3f(-dMouse.x, -dMouse.y, 0), TS_object);
-            }
+                 translate(SLVec3f(-dMouse.x, 0, dMouse.y), TS_object);
+            else translate(SLVec3f(-dMouse.x, -dMouse.y, 0), TS_object);
+            
             _oldTouchPos1.set((SLfloat)x,(SLfloat)y);
         }
     } //=======================================================================
@@ -849,17 +851,14 @@ SLbool SLCamera::onMouseUp(const SLMouseButton button,
     //_acceleration.set(0.0f, 0.0f, 0.0f);
 
     //SL_LOG("onMouseUp\n");
-    if (button == MB_left) //===============================================
-    {   if (_camAnim==CA_turntableYUp) //.........................................
-        {   return true;
-        }
-        else if (_camAnim==CA_walkingYUp) //......................................
-        {  return true;
-        }
-    } else if (button == MB_middle) //======================================
+    if (button == MB_left)
+    {   if (_camAnim==CA_turntableYUp)
+            return true;
+        else if (_camAnim==CA_walkingYUp)
+            return true;
+    } else if (button == MB_middle)
     {   return true;
     }
-    //=========================================================================
     return false;
 }
 //-----------------------------------------------------------------------------
@@ -873,30 +872,13 @@ SLbool SLCamera::onMouseWheel(const SLint delta, const SLKey mod)
 
     if (_camAnim==CA_turntableYUp ||
         _camAnim==CA_turntableZUp ||
-        _camAnim==CA_trackball) //..............................................
+        _camAnim==CA_trackball) //.............................................
     {   if (mod==K_none)
         {
-            // Determine the lookAt point by ray cast
-            eyeToPixelRay((SLfloat)(_scrW>>1),
-                        (SLfloat)(_scrH>>1), &_lookAtRay);
-
-            if (s->root3D())
-                s->root3D()->hitRec(&_lookAtRay);
-
-            if (_lookAtRay.length < FLT_MAX)
-                _lookAtRay.hitPoint = _lookAtRay.origin +
-                                      _lookAtRay.dir*_lookAtRay.length;
-
-            // Scale the mouse delta by the lookAt distance
-            SLfloat lookAtDist;
-            if (_lookAtRay.hitNode)
-                 lookAtDist = _lookAtRay.length;
-            else lookAtDist = _focalDist;
-
-            translate(SLVec3f(0, 0, -sign*lookAtDist*_dPos), TS_object);
+            translate(SLVec3f(0, 0, -sign*_focalDist*_dPos), TS_object);
+            _focalDist += -sign*_focalDist*_dPos;
+            
             needUpdate();
-
-            _lookAtRay.length = FLT_MAX;
         }
         if (mod==K_ctrl)
         {   _eyeSeparation *= (1.0f + sign*0.1f);
@@ -905,12 +887,8 @@ SLbool SLCamera::onMouseWheel(const SLint delta, const SLKey mod)
         {   _fov += sign*5.0f;
             currentFOV = _fov;
         }
-        if (mod==K_shift)
-        {  _focalDist *= (1.0f + sign*0.05f);
-        }
-        return true;
     }
-    else if (_camAnim==CA_walkingYUp || _camAnim==CA_walkingZUp) //...................
+    else if (_camAnim==CA_walkingYUp || _camAnim==CA_walkingZUp) //............
     {
         _maxSpeed *= (1.0f + sign*0.1f);
     }
@@ -925,12 +903,6 @@ SLbool SLCamera::onTouch2Down(const SLint x1, const SLint y1,
                               const SLint x2, const SLint y2)
 {
     SLScene* s = SLScene::current;
-
-    // Determine the lookAt point by ray cast
-    eyeToPixelRay((SLfloat)(_scrW>>1),
-                  (SLfloat)(_scrH>>1), &_lookAtRay);
-
-    s->root3D()->hitRec(&_lookAtRay);
 
     _oldTouchPos1.set((SLfloat)x1, (SLfloat)y1);
     _oldTouchPos2.set((SLfloat)x2, (SLfloat)y2);
@@ -965,17 +937,9 @@ SLbool SLCamera::onTouch2Move(const SLint x1, const SLint y1,
     avgDelta1.toPolar(r1, phi1);
     avgDelta2.toPolar(r2, phi2);
 
-    // Scale the mouse delta by the lookAt distance
-    SLfloat lookAtDist;
-    if (_lookAtRay.length < FLT_MAX)
-        lookAtDist = _lookAtRay.length;
-    else lookAtDist = _focalDist;
-
     // scale factor depending on the space sice at focal dist
-    SLfloat spaceH = tan(SL_DEG2RAD*_fov/2) * lookAtDist * 2.0f;
+    SLfloat spaceH = tan(SL_DEG2RAD*_fov/2) * _focalDist * 2.0f;
     SLfloat spaceW = spaceH * _aspect;
-
-    //SL_LOG("avgDelta1: (%05.2f,%05.2f), dPhi=%05.2f\n", avgDelta1.x, avgDelta1.y, SL_abs(phi1-phi2));
 
     // if fingers move parallel slide camera vertically or horizontally
     if (SL_abs(phi1-phi2) < 0.2f)
@@ -1028,7 +992,7 @@ SLbool SLCamera::onTouch2Move(const SLint x1, const SLint y1,
 
             // apply delta to the z-position
             translate(SLVec3f(0, 0, delta), TS_object);
-
+            _focalDist += delta;
         }
         else if (_camAnim == CA_walkingYUp)
         {
@@ -1067,12 +1031,28 @@ SLbool SLCamera::onKeyPress(const SLKey key, const SLKey mod)
         case 'D': _moveDir.x += 1.0f; return true;
         case 'Q': _moveDir.y += 1.0f; return true;
         case 'E': _moveDir.y -= 1.0f; return true;
-        // @todo    I tried implementing 'sprint' on pressed down shift
-        //          but modifier keys don't fire a normal key press event...
-        //          fix that please. This is why speed control is on 1 and 2 for now
-        case '1': _maxSpeed = 10.0f; return true;
-        case '2': _maxSpeed = 20.0f; return true;
-
+            
+        // View setting as in standard Blender
+        case '1':
+            if (mod==K_ctrl)
+                 lookFrom(-SLVec3f::AXISZ);
+            else lookFrom( SLVec3f::AXISZ);
+            return true;
+        case '3':
+            if (mod==K_ctrl)
+                 lookFrom(-SLVec3f::AXISX);
+            else lookFrom( SLVec3f::AXISX);
+            return true;
+        case '7':
+            if (mod==K_ctrl)
+                 lookFrom(-SLVec3f::AXISY, SLVec3f::AXISZ);
+            else lookFrom( SLVec3f::AXISY,-SLVec3f::AXISZ);
+            return true;
+        case '5':
+            if (_projection == P_monoPerspective)
+                 _projection = P_monoOrthographic;
+            else _projection = P_monoPerspective;
+            return true;
         case (SLchar)K_down: return onMouseWheel( 1, mod);
         case (SLchar)K_up:   return onMouseWheel(-1, mod);
 
@@ -1242,9 +1222,10 @@ SLVec3f SLCamera::trackballVec(const SLint x, const SLint y)
     SLVec3f vec;
     
     //Calculate x & y component to the virtual unit sphere
-    SLfloat halfSide = (SLfloat)(_scrW < _scrH ? _scrW/2 : _scrH/2);
-    vec.x =  (SLfloat)(x - _scrW/2.0f)  / halfSide;
-    vec.y = -(SLfloat)(y - _scrH/2.0f) / halfSide;
+    SLfloat r = (SLfloat)(_scrW<_scrH ? _scrW/2 : _scrH/2) * _trackballSize;
+    
+    vec.x =  (SLfloat)(x - _scrW*0.5f) / r;
+    vec.y = -(SLfloat)(y - _scrH*0.5f) / r;
     
     // d = length of vector x,y
     SLfloat d = sqrt(vec.x*vec.x + vec.y*vec.y);
