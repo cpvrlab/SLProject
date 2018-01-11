@@ -185,7 +185,7 @@ void SLDemoGui::buildDemoGui(SLScene* s, SLSceneView* sv)
 
         centerNextWindow(sv);
         ImGui::Begin("About SLProject", &showAbout);
-        ImGui::Image((ImTextureID)cpvrLogo->texName(), ImVec2(100,100), ImVec2(0,1), ImVec2(1,0));
+        ImGui::Image((ImTextureID)(intptr_t)cpvrLogo->texName(), ImVec2(100,100), ImVec2(0,1), ImVec2(1,0));
         ImGui::SameLine();
         ImGui::Text("Version %s", SL::version.c_str());
         ImGui::Separator();
@@ -493,7 +493,7 @@ void SLDemoGui::buildDemoGui(SLScene* s, SLSceneView* sv)
 
         // Get scene nodes once
         if (!bern)
-        {   bern        = s->root3D()->findChild<SLNode>("RootNode");
+        {   bern        = s->root3D()->findChild<SLNode>("Bern-Bahnhofsplatz.fbx");
             boden       = bern->findChild<SLNode>("Boden", false);
             balda_stahl = bern->findChild<SLNode>("Baldachin-Stahl", false);
             balda_glas  = bern->findChild<SLNode>("Baldachin-Glas", false);
@@ -577,6 +577,9 @@ void SLDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
     SLbool hasAnimations = (s->animManager().allAnimNames().size() > 0);
     static SLint curAnimIx = -1;
     if (!hasAnimations) curAnimIx = -1;
+    
+    //Maybe I have to use it for menu shortcuts
+    //ImGui::GetIO().WantCaptureKeyboard = true;
 
     if (ImGui::BeginMainMenuBar())
     {
@@ -1291,7 +1294,7 @@ void SLDemoGui::addSceneGraphNode(SLScene* s, SLNode* node)
     {
         for(auto mesh : node->meshes())
         {
-            ImGui::PushStyleColor(ImGuiCol_Text, ImColor(1.0f,1.0f,0.0f));
+            ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.0f,1.0f,0.0f,1.0f));
 
             ImGuiTreeNodeFlags meshFlags = ImGuiTreeNodeFlags_Leaf;
             if (s->selectedMesh()==mesh)
@@ -1317,7 +1320,6 @@ void SLDemoGui::buildProperties(SLScene* s)
 {
     SLNode* node = s->selectedNode();
     SLMesh* mesh = s->selectedMesh();
-    ImGuiColorEditFlags colFlags = ImGuiColorEditFlags_NoSliders;
 
     ImGui::PushFont(ImGui::GetIO().Fonts->Fonts[1]);
     ImGui::Begin("Properties", &showProperties);
@@ -1499,7 +1501,7 @@ void SLDemoGui::buildProperties(SLScene* s)
         ImGui::TreePop();
     }
 
-    ImGui::PushStyleColor(ImGuiCol_Text, ImColor(1.0f,1.0f,0.0f));
+    ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.0f,1.0f,0.0f,1.0f));
     ImGui::Separator();
     if (ImGui::TreeNode("Mesh Properties"))
     {
@@ -1518,19 +1520,19 @@ void SLDemoGui::buildProperties(SLScene* s)
                 if (ImGui::TreeNode("Reflection colors"))
                 {
                     SLCol4f ac = m->ambient();
-                    if (ImGui::ColorEdit3("Ambient color",  (float*)&ac, colFlags))
+                    if (ImGui::ColorEdit3("Ambient color",  (float*)&ac))
                         m->ambient(ac);
 
                     SLCol4f dc = m->diffuse();
-                    if (ImGui::ColorEdit3("Diffuse color",  (float*)&dc, colFlags))
+                    if (ImGui::ColorEdit3("Diffuse color",  (float*)&dc))
                         m->diffuse(dc);
 
                     SLCol4f sc = m->specular();
-                    if (ImGui::ColorEdit3("Specular color",  (float*)&sc, colFlags))
+                    if (ImGui::ColorEdit3("Specular color",  (float*)&sc))
                         m->specular(sc);
 
                     SLCol4f ec = m->emissive();
-                    if (ImGui::ColorEdit3("Emissive color",  (float*)&ec, colFlags))
+                    if (ImGui::ColorEdit3("Emissive color",  (float*)&ec))
                         m->emissive(ec);
 
                     ImGui::TreePop();
@@ -1579,7 +1581,7 @@ void SLDemoGui::buildProperties(SLScene* s)
                     for (SLint i=0; i<m->textures().size(); ++i)
                     {
                         SLGLTexture* t = m->textures()[i];
-                        void* tid = (ImTextureID)t->texName();
+                        void* tid = (ImTextureID)(intptr_t)t->texName();
                         SLfloat w = (SLfloat)t->width();
                         SLfloat h = (SLfloat)t->height();
                         SLfloat h_to_w = h / w;
@@ -1606,7 +1608,7 @@ void SLDemoGui::buildProperties(SLScene* s)
                                         {
                                             SLCol3f color = tf->colors()[c].color;
                                             SLchar label[20]; sprintf(label, "Color %u", c);
-                                            if (ImGui::ColorEdit3(label, (float*)&color, colFlags))
+                                            if (ImGui::ColorEdit3(label, (float*)&color))
                                             {   tf->colors()[c].color = color;
                                                 tf->generateTexture();
                                             }

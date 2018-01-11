@@ -58,7 +58,7 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "lib-SLProject/source/SLSceneView.cpp"
-            timestampString = "537290191.632311"
+            timestampString = "537369238.854874"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "1456"
@@ -138,7 +138,7 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "lib-SLProject/source/SLCamera.cpp"
-            timestampString = "537290191.632394"
+            timestampString = "537372573.246664"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "308"
@@ -208,6 +208,38 @@
             startingLineNumber = "193"
             endingLineNumber = "193"
             landmarkName = "SLGLProgram::beginUse(SLMaterial* mat)"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "lib-SLProject/source/SLSceneView.cpp"
+            timestampString = "537369238.856126"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "613"
+            endingLineNumber = "613"
+            landmarkName = "SLSceneView::draw3DGLNodes(SLVNode &amp;nodes, SLbool alphaBlended, SLbool depthSorted)"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "lib-SLProject/source/SLSceneView.cpp"
+            timestampString = "537369238.856319"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "1178"
+            endingLineNumber = "1178"
+            landmarkName = "SLSceneView::onKeyPress(SLKey key, SLKey mod)"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
