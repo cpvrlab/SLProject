@@ -33,8 +33,14 @@ SLCVSize            SLCVCapture::captureSize;
 SLfloat             SLCVCapture::startCaptureTimeMS;
 SLbool              SLCVCapture::hasSecondaryCamera = true;
 SLint               SLCVCapture::requestedSizeIndex = 0;
+SLstring            SLCVCapture::videoDefaultPath = "../_data/videos/";
+SLstring            SLCVCapture::videoFilename = "";
+SLbool              SLCVCapture::videoLoops = true;
 //-----------------------------------------------------------------------------
 //! Opens the capture device and returns the frame size
+/* This so far called in SLScene::onAfterLoad if a scene uses a live video by
+setting the the SLScene::_videoType to VT_MAIN or VT_SCND.
+*/
 SLVec2i SLCVCapture::open(SLint deviceNum)
 {
     try
@@ -48,11 +54,8 @@ SLVec2i SLCVCapture::open(SLint deviceNum)
 
         SLint w = (int)_captureDevice.get(CV_CAP_PROP_FRAME_WIDTH);
         SLint h = (int)_captureDevice.get(CV_CAP_PROP_FRAME_HEIGHT);
-        cout << "CV_CAP_PROP_FRAME_WIDTH : " << w << endl;
-        cout << "CV_CAP_PROP_FRAME_HEIGHT: " << h << endl;
-
-        //_captureDevice.set(CV_CAP_PROP_FRAME_WIDTH, 640);
-        //_captureDevice.set(CV_CAP_PROP_FRAME_HEIGHT, 480);
+        SL_LOG("CV_CAP_PROP_FRAME_WIDTH : %d\n", w);
+        SL_LOG("CV_CAP_PROP_FRAME_HEIGHT: %d\n", h);
 
         hasSecondaryCamera = false;
 
@@ -65,25 +68,37 @@ SLVec2i SLCVCapture::open(SLint deviceNum)
     return SLVec2i::ZERO;
 }
 //-----------------------------------------------------------------------------
-//! Takes a filepath to a Videofile and opens it instead of a camerafeed.
-SLVec2i SLCVCapture::open(SLstring filePath)
+//! Opens the video file instead of a camera feed.
+/* This so far called in SLScene::onAfterLoad if a scene uses a video by
+setting the the SLScene::_videoType to VT_FILE.
+*/
+SLVec2i SLCVCapture::openFile()
 {
     try
-    {   _captureDevice.open(filePath);
+    {   // Load the file directly
+        if (!SLFileSystem::fileExists(videoFilename))
+        {   videoFilename = videoDefaultPath + videoFilename;
+            if (!SLFileSystem::fileExists(videoFilename))
+            {   SLstring msg = "SLCVCapture::openFile: File not found: " + videoFilename;
+                SL_EXIT_MSG(msg.c_str());
+            }
+        }
+
+        _captureDevice.open(videoFilename);
 
         if (!_captureDevice.isOpened())
             return SLVec2i::ZERO;
 
         if (SL::noTestIsRunning())
-            SL_LOG("Capture devices created.\n");
+            SL_LOG("Capture devices created with video.\n");
 
         SLint w = (int)_captureDevice.get(CV_CAP_PROP_FRAME_WIDTH);
         SLint h = (int)_captureDevice.get(CV_CAP_PROP_FRAME_HEIGHT);
-        cout << "CV_CAP_PROP_FRAME_WIDTH : " << w << endl;
-        cout << "CV_CAP_PROP_FRAME_HEIGHT: " << h << endl;
+        SL_LOG("CV_CAP_PROP_FRAME_WIDTH : %d\n", w);
+        SL_LOG("CV_CAP_PROP_FRAME_HEIGHT: %d\n", h);
 
-        //_captureDevice.set(CV_CAP_PROP_FRAME_WIDTH, 640);
-        //_captureDevice.set(CV_CAP_PROP_FRAME_HEIGHT, 480);
+        if (videoLoops)
+            _captureDevice.set(CV_CAP_PROP_POS_AVI_RATIO, 0);
 
         hasSecondaryCamera = false;
 
@@ -91,9 +106,15 @@ SLVec2i SLCVCapture::open(SLstring filePath)
     }
     catch (exception e)
     {
-        SL_LOG("Exception during OpenCV video capture creation\n");
+        SL_LOG("Exception during OpenCV video capture creation with video file\n");
     }
     return SLVec2i::ZERO;
+}
+//-----------------------------------------------------------------------------
+void SLCVCapture::release()
+{
+    if (_captureDevice.isOpened())
+        _captureDevice.release();
 }
 //-----------------------------------------------------------------------------
 /*! Grabs a new frame from the OpenCV capture device and adjusts it for SL

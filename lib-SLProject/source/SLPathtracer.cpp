@@ -154,6 +154,7 @@ void SLPathtracer::renderSlices(const bool isMainThread, SLint currentSample)
             {  
                 if (SLScene::current->timeSec()-t1 > 0.5f)
                 {  
+                    finishBeforeUpdate();
                     _sv->onWndUpdate(); // update window
                     t1 = SLScene::current->timeSec();
                 }

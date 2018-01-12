@@ -140,7 +140,9 @@ Credits for external libraries:\n\
 - glew: glew.sourceforge.net\n\
 - glfw: glfw.org\n\
 - OpenCV: opencv.org\n\
-- OpenGL: opengl.org";
+- OpenGL: opengl.org\n\
+- spa: Solar Position Algorithm\n\
+- zlib: zlib.net";
 
 SLstring SLDemoGui::infoHelp =
 "Help for mouse or finger control:\n\
@@ -624,11 +626,11 @@ void SLDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
 
                 if (ImGui::BeginMenu("Shader"))
                 {
-                    if (ImGui::MenuItem("Per Vertex Blinn-Phong Lighting", 0, curS==C_sceneShaderPerVertexBlinn))
+                    if (ImGui::MenuItem("Per Vertex Blinn-Phong", 0, curS==C_sceneShaderPerVertexBlinn))
                         sv->onCommand(C_sceneShaderPerVertexBlinn);
-                    if (ImGui::MenuItem("Per Pixel Blinn-Phing Lighting", 0, curS==C_sceneShaderPerPixelBlinn))
+                    if (ImGui::MenuItem("Per Pixel Blinn-Phing", 0, curS==C_sceneShaderPerPixelBlinn))
                         sv->onCommand(C_sceneShaderPerPixelBlinn);
-                    if (ImGui::MenuItem("Per Pixel Cook-Torrance Lighting", 0, curS==C_sceneShaderPerPixelCookTorrance))
+                    if (ImGui::MenuItem("Per Pixel Cook-Torrance", 0, curS==C_sceneShaderPerPixelCookTorrance))
                         sv->onCommand(C_sceneShaderPerPixelCookTorrance);
                     if (ImGui::MenuItem("Per Vertex Wave", 0, curS==C_sceneShaderPerVertexWave))
                         sv->onCommand(C_sceneShaderPerVertexWave);
@@ -662,6 +664,10 @@ void SLDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
 
                 if (ImGui::BeginMenu("Using Video"))
                 {
+                    if (ImGui::MenuItem("Texture from Video Live", 0, curS==C_sceneVideoTextureLive))
+                        sv->onCommand(C_sceneVideoTextureLive);
+                    if (ImGui::MenuItem("Texture from Video File", 0, curS==C_sceneVideoTextureFile))
+                        sv->onCommand(C_sceneVideoTextureFile);
                     if (ImGui::MenuItem("Track ArUco Marker (Main)", 0, curS==C_sceneVideoTrackArucoMain))
                         sv->onCommand(C_sceneVideoTrackArucoMain);
                     if (ImGui::MenuItem("Track ArUco Marker (Scnd)", 0, curS==C_sceneVideoTrackArucoScnd, SLCVCapture::hasSecondaryCamera))
@@ -672,8 +678,6 @@ void SLDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
                         sv->onCommand(C_sceneVideoTrackChessScnd);
                     if (ImGui::MenuItem("Track Features (Main)", 0, curS==C_sceneVideoTrackFeature2DMain))
                         sv->onCommand(C_sceneVideoTrackFeature2DMain);
-                    if (ImGui::MenuItem("Texture from live video", 0, curS==C_sceneVideoTexture))
-                        sv->onCommand(C_sceneVideoTexture);
                     if (ImGui::MenuItem("Sensor AR (Main)", 0, curS==C_sceneVideoSensorAR))
                         sv->onCommand(C_sceneVideoSensorAR);
                     if (ImGui::MenuItem("Christoffel Tower AR (Main)", 0, curS==C_sceneVideoChristoffel))
@@ -726,7 +730,7 @@ void SLDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
 
             ImGui::Separator();
 
-            if (ImGui::MenuItem("Quit & Save"))
+            if (ImGui::MenuItem("Quit & Save", "ESC"))
                 sv->onCommand(C_quit);
 
             ImGui::EndMenu();
@@ -911,13 +915,13 @@ void SLDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
 
         if (ImGui::BeginMenu("Renderer"))
         {
-            if (ImGui::MenuItem("OpenGL", 0, rType==RT_gl))
+            if (ImGui::MenuItem("OpenGL (GL)", 0, rType==RT_gl))
                 sv->onCommand(C_renderOpenGL);
 
-            if (ImGui::MenuItem("Ray Tracing", 0, rType==RT_rt))
+            if (ImGui::MenuItem("Ray Tracing (RT)", 0, rType==RT_rt))
                 sv->onCommand(C_rt5);
 
-            if (ImGui::MenuItem("Path Tracing", 0, rType==RT_pt))
+            if (ImGui::MenuItem("Path Tracing (PT)", 0, rType==RT_pt))
                 sv->onCommand(C_pt10);
 
             ImGui::EndMenu();
@@ -925,7 +929,7 @@ void SLDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
 
         if (rType == RT_gl)
         {
-            if (ImGui::BeginMenu("Setting"))
+            if (ImGui::BeginMenu("GL-Setting"))
             {
                 if (ImGui::MenuItem("Wired Mesh", 0, sv->drawBits()->get(SL_DB_WIREMESH)))
                     sv->onCommand(C_wireMeshToggle);
@@ -971,7 +975,7 @@ void SLDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
         }
         else if (rType == RT_rt)
         {
-            if (ImGui::BeginMenu("Settings"))
+            if (ImGui::BeginMenu("RT-Settings"))
             {
                 SLRaytracer* rt = sv->raytracer();
 
@@ -1004,7 +1008,7 @@ void SLDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
                     ImGui::EndMenu();
                 }
 
-                if (ImGui::BeginMenu("Anti-Aliasing Sub Samples"))
+                if (ImGui::BeginMenu("Anti-Aliasing Samples"))
                 {
                     if (ImGui::MenuItem("Off", 0, rt->aaSamples()==1))
                         rt->aaSamples(1);
@@ -1028,7 +1032,7 @@ void SLDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
         }
         else if (rType == RT_pt)
         {
-            if (ImGui::BeginMenu("Settings"))
+            if (ImGui::BeginMenu("PT-Settings"))
             {
                 SLPathtracer* pt = sv->pathtracer();
 
@@ -1071,17 +1075,17 @@ void SLDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
                 if (ImGui::MenuItem("Bottom (+Y)", "CTRL-7"))   cam->lookFrom(-SLVec3f::AXISY,  SLVec3f::AXISZ);
                 if (ImGui::MenuItem("Front (+Z)",  "1"))        cam->lookFrom( SLVec3f::AXISZ);
                 if (ImGui::MenuItem("Back (-Z)",   "CTRL-1"))   cam->lookFrom(-SLVec3f::AXISZ);
+
+                if (s->numSceneCameras())
+                {
+                    if (ImGui::MenuItem("Next camera in Scene", "TAB"))
+                        sv->onCommand(C_camSetNextInScene);
+
+                    if (ImGui::MenuItem("Sceneview Camera", "TAB"))
+                        sv->onCommand(C_camSetSceneViewCamera);
+                }
                 
                 ImGui::EndMenu();
-            }
-            
-            if (s->numSceneCameras())
-            {
-                if (ImGui::MenuItem("Set next camera in Scene"))
-                    sv->onCommand(C_camSetNextInScene);
-
-                if (ImGui::MenuItem("Set SceneView Camera"))
-                    sv->onCommand(C_camSetSceneViewCamera);
             }
 
             if (ImGui::BeginMenu("Projection"))
@@ -1158,10 +1162,10 @@ void SLDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
                 if (ImGui::MenuItem("Walk Z up", 0, ca==CA_walkingZUp))
                     sv->camera()->camAnim(CA_walkingZUp);
 
-                if (ImGui::MenuItem("IMU rotated Y up", 0, ca==CA_deviceRotYUp))
+                if (ImGui::MenuItem("IMU rotated", 0, ca==CA_deviceRotYUp))
                     sv->camera()->camAnim(CA_deviceRotYUp);
 
-                if (ImGui::MenuItem("IMU rotated & GPS located Y up", 0, ca == CA_deviceRotLocYUp))
+                if (ImGui::MenuItem("IMU rotated & GPS located", 0, ca == CA_deviceRotLocYUp))
                     sv->camera()->camAnim(CA_deviceRotLocYUp);
 
                 if (ca==CA_walkingZUp || ca==CA_walkingYUp || ca==CA_deviceRotYUp)
