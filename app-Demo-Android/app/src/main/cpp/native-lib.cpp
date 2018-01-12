@@ -88,6 +88,7 @@ JNIEXPORT void JNICALL Java_ch_fhnw_comgr_GLES3Lib_onInit(JNIEnv *env, jobject o
                   devicePath + "/shaders/",
                   devicePath + "/models/",
                   devicePath + "/textures/",
+                  devicePath + "/videos/",
                   devicePath + "/fonts/",
                   devicePath + "/calibrations/",
                   devicePath + "/config/"

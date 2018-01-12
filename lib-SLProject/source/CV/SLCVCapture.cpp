@@ -97,9 +97,6 @@ SLVec2i SLCVCapture::openFile()
         SL_LOG("CV_CAP_PROP_FRAME_WIDTH : %d\n", w);
         SL_LOG("CV_CAP_PROP_FRAME_HEIGHT: %d\n", h);
 
-        if (videoLoops)
-            _captureDevice.set(CV_CAP_PROP_POS_AVI_RATIO, 0);
-
         hasSecondaryCamera = false;
 
         return SLVec2i(w, h);
@@ -115,6 +112,8 @@ void SLCVCapture::release()
 {
     if (_captureDevice.isOpened())
         _captureDevice.release();
+
+    videoFilename = "";
 }
 //-----------------------------------------------------------------------------
 /*! Grabs a new frame from the OpenCV capture device and adjusts it for SL
@@ -127,7 +126,15 @@ void SLCVCapture::grabAndAdjustForSL()
     {   if (_captureDevice.isOpened())
         {
             if (!_captureDevice.read(lastFrame))
-                return;
+            {
+                // Try to loop the video
+                if (videoFilename != "" && videoLoops)
+                {   _captureDevice.set(CV_CAP_PROP_POS_FRAMES, 0);
+                    if (!_captureDevice.read(lastFrame))
+                        return;
+                }
+                else return;
+            }
 
             adjustForSL();
         }

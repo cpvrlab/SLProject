@@ -54,6 +54,7 @@ void slCreateScene(SLVstring& cmdLineArgs,
                    SLstring shaderPath,
                    SLstring modelPath,
                    SLstring texturePath,
+                   SLstring videoPath,
                    SLstring fontPath,
                    SLstring calibrationPath,
                    SLstring configPath)
@@ -65,6 +66,7 @@ void slCreateScene(SLVstring& cmdLineArgs,
     SLGLTexture::defaultPath      = texturePath;
     SLGLTexture::defaultPathFonts = fontPath;
     SLAssimpImporter::defaultPath = modelPath;
+    SLCVCapture::videoDefaultPath = videoPath;
     SLCVCalibration::calibIniPath = calibrationPath;
     SL::configPath                = configPath;
 
@@ -75,6 +77,7 @@ void slCreateScene(SLVstring& cmdLineArgs,
     SL_LOG("Path to Models  : %s\n", modelPath.c_str());
     SL_LOG("Path to Shaders : %s\n", shaderPath.c_str());
     SL_LOG("Path to Textures: %s\n", texturePath.c_str());
+    SL_LOG("Path to Textures: %s\n", videoPath.c_str());
     SL_LOG("Path to Fonts   : %s\n", fontPath.c_str());
     SL_LOG("Path to Calibr. : %s\n", calibrationPath.c_str());
     SL_LOG("Path to Config. : %s\n", configPath.c_str());

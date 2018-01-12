@@ -2214,12 +2214,13 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         if (SL::currentSceneID == C_sceneVideoTextureLive)
         {   name("Texture from live video");
             _info = "Minimal texture mapping example with live video source.";
-            videoType(VT_SCND);
+            videoType(VT_SCND); // on desktop it will be the main camera
         } else
         {   name("Texture from video file");
             _info = "Minimal texture mapping example with video file source.";
             videoType(VT_FILE);
             SLCVCapture::videoFilename = "street3.mp4";
+            SLCVCapture::videoLoops = true;
         }
 
         // Back wall material with live video texture

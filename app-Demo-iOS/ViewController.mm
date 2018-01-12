@@ -113,7 +113,7 @@ float GetSeconds()
     screenScale = [UIScreen mainScreen].scale;
     float dpi;
     if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad)
-        dpi = 132 * screenScale;
+         dpi = 132 * screenScale;
     else if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPhone)
          dpi = 163 * screenScale;
     else dpi = 160 * screenScale;
@@ -124,6 +124,7 @@ float GetSeconds()
     
     //////////////////////////
     slCreateScene(cmdLineArgs,
+                  exeDir,
                   exeDir,
                   exeDir,
                   exeDir,
