@@ -169,6 +169,7 @@ void SLRay::reflect(SLRay* reflected)
     reflected->isOutside = isOutside;
     reflected->x = x;
     reflected->y = y;
+    reflected->sv = sv;
     if (sv->skybox())
          reflected->backgroundColor = sv->skybox()->colorAtDir(reflected->dir);
     else reflected->backgroundColor = backgroundColor;

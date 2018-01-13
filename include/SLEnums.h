@@ -240,6 +240,7 @@ enum SLTextAlign
 enum SLCamAnim
 {   CA_turntableYUp,        //!< Orbiting around central object w. turnrable rotation around y & right axis.
     CA_turntableZUp,        //!< Orbiting around central object w. turnrable rotation around z & right axis.
+    CA_trackball,           //!< Orbiting around central object w. one rotation around one axis
     CA_walkingYUp,          //!< Walk translation with AWSD and look around rotation around y & right axis.
     CA_walkingZUp,          //!< Walk translation with AWSD and look around rotation around z & right axis.
     CA_deviceRotYUp,        //!< The device rotation controls the camera rotation.
