@@ -750,7 +750,6 @@ SLbool SLCamera::onMouseMove(const SLMouseButton button,
             // the acos will return indefined.
             SLfloat dot = _trackballStartVec.dot(curMouseVec);
             SLfloat angle = acos(dot>1?1:dot) * SL_RAD2DEG;
-            
 
             // calculate rotation axis with the cross product
             SLVec3f axisVS;

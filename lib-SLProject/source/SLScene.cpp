@@ -176,10 +176,8 @@ SLScene::~SLScene()
    
     current = nullptr;
 
-    #ifdef SL_USES_CVCAPTURE
     // release the capture device
     SLCVCapture::release();
-    #endif
 
     SL_LOG("Destructor      : ~SLScene\n");
     SL_LOG("------------------------------------------------------------------\n");
@@ -264,7 +262,11 @@ void SLScene::unInit()
     for (auto t : _trackers) delete t;
         _trackers.clear();
 
-    _videoType = VT_NONE;
+    // close video if running
+    if (_videoType != VT_NONE)
+    {   SLCVCapture::release();
+        _videoType = VT_NONE;
+    }
 
     _eventHandlers.clear();
 
@@ -505,20 +507,49 @@ bool SLScene::onUpdate()
 void SLScene::onAfterLoad()
 {
     #ifdef SL_USES_CVCAPTURE
-    if (_videoType!=VT_NONE)
+    if (_videoType != VT_NONE)
     {   if (!SLCVCapture::isOpened())
-        #ifdef SL_VIDEO_DEBUG
-        SLCVCapture::open("../_data/videos/testvid_" + string(SL_TRACKER_IMAGE_NAME) +".mp4");
-        #else
-        SLCVCapture::open(0);
-        SLCVCapture::grabAndAdjustForSL();
-        _videoTexture.copyVideoImage(SLCVCapture::lastFrame.cols,
-                                     SLCVCapture::lastFrame.rows,
-                                     SLCVCapture::format,
-                                     SLCVCapture::lastFrame.data,
-                                     SLCVCapture::lastFrame.isContinuous(),
-                                     true);
-        #endif
+        {
+            SLVec2i videoSize;
+            if (_videoType == VT_FILE && SLCVCapture::videoFilename != "")
+                 videoSize = SLCVCapture::openFile();
+            else videoSize = SLCVCapture::open(0);
+
+            if (videoSize != SLVec2i::ZERO)
+            {
+                SLCVCapture::grabAndAdjustForSL();
+                _videoTexture.copyVideoImage(SLCVCapture::lastFrame.cols,
+                                             SLCVCapture::lastFrame.rows,
+                                             SLCVCapture::format,
+                                             SLCVCapture::lastFrame.data,
+                                             SLCVCapture::lastFrame.isContinuous(),
+                                             true);
+            } else
+            {
+                _videoTexture.setVideoImage("LiveVideoError.png");
+            }
+        }
+    }
+    #else
+    if (_videoType == VT_FILE && SLCVCapture::videoFilename != "")
+    {   if (!SLCVCapture::isOpened())
+        {
+            SLVec2i videoSize = SLCVCapture::openFile();
+
+            if (videoSize != SLVec2i::ZERO)
+            {
+                SLCVCapture::grabAndAdjustForSL();
+                _videoTexture.copyVideoImage(SLCVCapture::lastFrame.cols,
+                                             SLCVCapture::lastFrame.rows,
+                                             SLCVCapture::format,
+                                             SLCVCapture::lastFrame.data,
+                                             SLCVCapture::lastFrame.isContinuous(),
+                                             true);
+            } else
+            {
+                _videoTexture.setVideoImage("LiveVideoError.png");
+            }
+        }
     }
     #endif
 }

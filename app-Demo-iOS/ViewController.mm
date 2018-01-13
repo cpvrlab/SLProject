@@ -113,7 +113,7 @@ float GetSeconds()
     screenScale = [UIScreen mainScreen].scale;
     float dpi;
     if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad)
-        dpi = 132 * screenScale;
+         dpi = 132 * screenScale;
     else if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPhone)
          dpi = 163 * screenScale;
     else dpi = 160 * screenScale;
@@ -124,6 +124,7 @@ float GetSeconds()
     
     //////////////////////////
     slCreateScene(cmdLineArgs,
+                  exeDir,
                   exeDir,
                   exeDir,
                   exeDir,
@@ -452,19 +453,25 @@ float GetSeconds()
 */
 - (void) setVideoType:(int)videoType
 {
-    if (videoType == 0) // VT_NONE (No video needed. Turn off any video)
+    if (videoType == VT_NONE) // No video needed. Turn off any video
     {
         if (m_avSession != nil && ![m_avSession isRunning])
-        {
-            printf("Stopping AV Session\n");
+        {   printf("Stopping AV Session\n");
             [m_avSession stopRunning];
         }
     }
-    else if (videoType == 1) // VT_MAIN (Main video needed)
+    if (videoType == VT_FILE) // Turn off any live video
+    {
+        if (m_avSession != nil && ![m_avSession isRunning])
+        {   printf("Stopping AV Session\n");
+            [m_avSession stopRunning];
+        }
+        SLCVCapture::grabAndAdjustForSL();
+    }
+    else if (videoType == VT_MAIN) // back facing video needed
     {
         if (m_avSession == nil)
-        {
-            printf("Creating AV Session for Front Camera\n");
+        {   printf("Creating AV Session for Front Camera\n");
             [self setupVideo:false];
             printf("Starting AV Session\n");
             [m_avSession startRunning];
@@ -472,16 +479,13 @@ float GetSeconds()
         else if (m_lastVideoType == videoType)
         {
             if (![m_avSession isRunning])
-            {
-                printf("Starting AV Session\n");
+            {   printf("Starting AV Session\n");
                 [m_avSession startRunning];
             }
         }
         else
-        {
-            if ([m_avSession isRunning])
-            {
-                printf("Deleting AV Session\n");
+        {   if ([m_avSession isRunning])
+            {   printf("Deleting AV Session\n");
                 [m_avSession stopRunning];
                 m_avSession = nil;
             }
@@ -491,28 +495,23 @@ float GetSeconds()
             [m_avSession startRunning];
         }
     }
-    else if (videoType == 2) // VT_SCND (Secondary video from selfie camera)
+    else if (videoType == VT_SCND) // Video from selfie camera needed
     {
         if (m_avSession == nil)
-        {
-            printf("Creating AV Session for Back Camera\n");
+        {   printf("Creating AV Session for Back Camera\n");
             [self setupVideo:true];
             printf("Starting AV Session\n");
             [m_avSession startRunning];
         }
         else if (m_lastVideoType == videoType)
-        {
-            if (![m_avSession isRunning])
-            {
-                printf("Starting AV Session\n");
+        {   if (![m_avSession isRunning])
+            {   printf("Starting AV Session\n");
                 [m_avSession startRunning];
             }
         }
         else
-        {
-            if ([m_avSession isRunning])
-            {
-                printf("Deleting AV Session\n");
+        {   if ([m_avSession isRunning])
+            {   printf("Deleting AV Session\n");
                 [m_avSession stopRunning];
                 m_avSession = nil;
             }

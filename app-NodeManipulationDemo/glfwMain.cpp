@@ -431,6 +431,7 @@ int main(int argc, char *argv[])
                   exeDir + "../_data/shaders/",
                   exeDir + "../_data/models/",
                   exeDir + "../_data/images/textures/",
+                  exeDir + "../_data/videos/",
                   exeDir + "../_data/images/fonts/",
                   exeDir + "../_data/calibrations/",
                   configPath);

@@ -280,6 +280,9 @@ textures.files = \
   ../_data/images/textures/i0205_0000b.png \
   ../_data/images/textures/i0206_0000b.png \
 
+videos.files =  \
+  ../_data/videos/street3.mp4 \
+
 fonts.files =  \
   ../_data/images/fonts/Font07.png \
   ../_data/images/fonts/Font08.png \
@@ -434,18 +437,19 @@ defineTest(copyToDestdir) {
 
 # OpenCV
 win32 {
-    copyToDestdir($$PWD\_lib\prebuilt\OpenCV\x64\vc12\bin\opencv_aruco320.lib)
-    copyToDestdir($$PWD\_lib\prebuilt\OpenCV\x64\vc12\bin\opencv_calib3d320.lib)
-    copyToDestdir($$PWD\_lib\prebuilt\OpenCV\x64\vc12\bin\opencv_core320.lib)
-    copyToDestdir($$PWD\_lib\prebuilt\OpenCV\x64\vc12\bin\opencv_features2d320.lib)
-    copyToDestdir($$PWD\_lib\prebuilt\OpenCV\x64\vc12\bin\opencv_highgui320.lib)
-    copyToDestdir($$PWD\_lib\prebuilt\OpenCV\x64\vc12\bin\opencv_flann320.lib)
-    copyToDestdir($$PWD\_lib\prebuilt\OpenCV\x64\vc12\bin\opencv_imgproc320.lib)
-    copyToDestdir($$PWD\_lib\prebuilt\OpenCV\x64\vc12\bin\opencv_imgcodecs320.lib)
-    copyToDestdir($$PWD\_lib\prebuilt\OpenCV\x64\vc12\bin\opencv_objdetect320.lib)
-    copyToDestdir($$PWD\_lib\prebuilt\OpenCV\x64\vc12\bin\opencv_video320.lib)
-    copyToDestdir($$PWD\_lib\prebuilt\OpenCV\x64\vc12\bin\opencv_videoio320.lib)
-    copyToDestdir($$PWD\_lib\prebuilt\OpenCV\x64\vc12\bin\opencv_xfeatures2d320.lib)
+    copyToDestdir($$PWD\_lib\prebuilt\OpenCV\x64\vc14\bin\opencv_aruco320.dll)
+    copyToDestdir($$PWD\_lib\prebuilt\OpenCV\x64\vc14\bin\opencv_calib3d320.dll)
+    copyToDestdir($$PWD\_lib\prebuilt\OpenCV\x64\vc14\bin\opencv_core320.dll)
+    copyToDestdir($$PWD\_lib\prebuilt\OpenCV\x64\vc14\bin\opencv_features2d320.dll)
+    copyToDestdir($$PWD\_lib\prebuilt\OpenCV\x64\vc14\bin\opencv_highgui320.dll)
+    copyToDestdir($$PWD\_lib\prebuilt\OpenCV\x64\vc14\bin\opencv_flann320.dll)
+    copyToDestdir($$PWD\_lib\prebuilt\OpenCV\x64\vc14\bin\opencv_ffmpeg320_64.dll)
+    copyToDestdir($$PWD\_lib\prebuilt\OpenCV\x64\vc14\bin\opencv_imgproc320.dll)
+    copyToDestdir($$PWD\_lib\prebuilt\OpenCV\x64\vc14\bin\opencv_imgcodecs320.dll)
+    copyToDestdir($$PWD\_lib\prebuilt\OpenCV\x64\vc14\bin\opencv_objdetect320.dll)
+    copyToDestdir($$PWD\_lib\prebuilt\OpenCV\x64\vc14\bin\opencv_video320.dll)
+    copyToDestdir($$PWD\_lib\prebuilt\OpenCV\x64\vc14\bin\opencv_videoio320.dll)
+    copyToDestdir($$PWD\_lib\prebuilt\OpenCV\x64\vc14\bin\opencv_xfeatures2d320.dll)
 }
 macx {
     cvlibs.files += \
@@ -490,6 +494,7 @@ unix:!macx:!android {
 # Deployment
 macx: {
     textures.path = Contents/_data/images/textures
+    videos.path = Contents/_data/videos
     fonts.path = Contents/_data/images/fonts
     shaders.path = Contents/_data/shaders
     models_3DS_Halloween.path = Contents/_data/models/3DS/Halloween
@@ -507,6 +512,7 @@ macx: {
     cvlibs.path = Contents/Frameworks
 
     QMAKE_BUNDLE_DATA += textures
+    QMAKE_BUNDLE_DATA += videos
     QMAKE_BUNDLE_DATA += fonts
     QMAKE_BUNDLE_DATA += shaders
     QMAKE_BUNDLE_DATA += models_3DS_Halloween

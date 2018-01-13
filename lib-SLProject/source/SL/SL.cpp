@@ -19,7 +19,7 @@
 
 //-----------------------------------------------------------------------------
 //! Default values for static fields
-SLstring        SL::version             = "2.1.200";
+SLstring        SL::version             = "2.2.000";
 SLint           SL::dpi                 = 0;
 SLint           SL::testDurationSec     = 0;
 SLint           SL::testFactor          = 1;

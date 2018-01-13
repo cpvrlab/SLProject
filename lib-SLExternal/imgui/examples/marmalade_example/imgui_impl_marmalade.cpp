@@ -27,7 +27,7 @@ static char*        g_ClipboardText = NULL;
 static bool         g_osdKeyboardEnabled = false;
 
 // use this setting to scale the interface - e.g. on device you could use 2 or 3 scale factor
-static ImVec2       g_scale = ImVec2(1.0f,1.0f);
+static ImVec2       g_RenderScale = ImVec2(1.0f,1.0f);
 
 // This is the main rendering function that you have to implement and provide to ImGui (via setting up 'RenderDrawListsFn' in the ImGuiIO structure)
 void ImGui_Marmalade_RenderDrawLists(ImDrawData* draw_data)
@@ -48,9 +48,9 @@ void ImGui_Marmalade_RenderDrawLists(ImDrawData* draw_data)
 
         for( int i=0; i < nVert; i++ )
         {
-            // TODO: optimize multiplication on gpu using vertex shader
-            pVertStream[i].x = cmd_list->VtxBuffer[i].pos.x * g_scale.x;
-            pVertStream[i].y = cmd_list->VtxBuffer[i].pos.y * g_scale.y;
+            // TODO: optimize multiplication on gpu using vertex shader/projection matrix.
+            pVertStream[i].x = cmd_list->VtxBuffer[i].pos.x * g_RenderScale.x;
+            pVertStream[i].y = cmd_list->VtxBuffer[i].pos.y * g_RenderScale.y;
             pUVStream[i].x = cmd_list->VtxBuffer[i].uv.x;
             pUVStream[i].y = cmd_list->VtxBuffer[i].uv.y;
             pColStream[i] = cmd_list->VtxBuffer[i].col;
@@ -220,6 +220,7 @@ bool    ImGui_Marmalade_Init(bool install_callbacks)
     io.KeyMap[ImGuiKey_PageDown] = s3eKeyPageDown;
     io.KeyMap[ImGuiKey_Home] = s3eKeyHome;
     io.KeyMap[ImGuiKey_End] = s3eKeyEnd;
+    io.KeyMap[ImGuiKey_Insert] = s3eKeyInsert;
     io.KeyMap[ImGuiKey_Delete] = s3eKeyDelete;
     io.KeyMap[ImGuiKey_Backspace] = s3eKeyBackspace;
     io.KeyMap[ImGuiKey_Enter] = s3eKeyEnter;
@@ -273,7 +274,7 @@ void ImGui_Marmalade_NewFrame()
     double mouse_x, mouse_y;
     mouse_x = s3ePointerGetX();
     mouse_y = s3ePointerGetY();
-    io.MousePos = ImVec2((float)mouse_x/g_scale.x, (float)mouse_y/g_scale.y);   // Mouse position in screen coordinates (set to -1,-1 if no mouse / on another screen, etc.)
+    io.MousePos = ImVec2((float)mouse_x/g_scale.x, (float)mouse_y/g_scale.y);   // Mouse position (set to -FLT_MAX,-FLT_MAX if no mouse / on another screen, etc.)
 
     for (int i = 0; i < 3; i++)
     {
@@ -287,7 +288,7 @@ void ImGui_Marmalade_NewFrame()
     // TODO: Hide OS mouse cursor if ImGui is drawing it
     // s3ePointerSetInt(S3E_POINTER_HIDE_CURSOR,(io.MouseDrawCursor ? 0 : 1));
 
-    // Start the frame
+    // Start the frame. This call will update the io.WantCaptureMouse, io.WantCaptureKeyboard flag that you can use to dispatch inputs (or not) to your application.
     ImGui::NewFrame();
 
      // Show/hide OSD keyboard

@@ -32,6 +32,7 @@
 #include <SLGrid.h>
 #include <SLLens.h>
 #include <SLCoordAxis.h>
+#include <SLCVCapture.h>
 #include <SLCVTrackedAruco.h>
 #include <SLCVTrackedChessboard.h>
 #include <SLCVTrackedFeatures.h>
@@ -1164,7 +1165,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         cam1->clipFar(100);
         cam1->translation(0,0,15);
         cam1->lookAt(0, 0, 0);
-        cam1->focalDist(5);
+        cam1->focalDist(15);
         cam1->background().colors(SLCol4f(0.1f,0.1f,0.1f));
         cam1->setInitialState();
 
@@ -1305,6 +1306,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         cam1->translation(0,0,28);
         cam1->lookAt(0,0,0);
         cam1->background().colors(SLCol4f(0.2f,0.2f,0.2f));
+        cam1->focalDist(28);
         cam1->setInitialState();
         scene->addChild(cam1);
 
@@ -1376,7 +1378,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         SLCamera* cam1 = new SLCamera("Camera 1");
         cam1->translation(0,3,8);
         cam1->lookAt(0, 0, 0);
-        cam1->focalDist(8);
+        cam1->focalDist(cam1->translationOS().length());
         cam1->background().colors(SLCol4f(0.1f,0.4f,0.8f));
         cam1->setInitialState();
 
@@ -1427,7 +1429,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         SLCamera* cam1 = new SLCamera("Camera 1");
         cam1->translation(0,3,8);
         cam1->lookAt(0, 0, 0);
-        cam1->focalDist(8);
+        cam1->focalDist(cam1->translationOS().length());
         cam1->background().colors(SLCol4f(0.1f,0.4f,0.8f));
         cam1->setInitialState();
 
@@ -1609,9 +1611,6 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
                                         "Desert+Z1024_C.jpg","Desert-Z1024_C.jpg");
         SLGLTexture* skyboxTex = skybox->meshes()[0]->mat()->textures()[0];
         
-        // White Material
-        SLMaterial* white = new SLMaterial("white", SLCol4f::WHITE, SLCol4f::WHITE, 10);
-        
         // Material for mirror
         SLMaterial* refl = new SLMaterial("refl", SLCol4f::BLACK, SLCol4f::WHITE, 1000, 1.0f);
         refl->textures().push_back(skyboxTex);
@@ -1633,8 +1632,8 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         cam1->setInitialState();
         scene->addChild(cam1);
         
-        /*
         // There is no light needed in this scene. All reflections come from cube maps
+        // But ray tracing needs light sources
         // Create directional light for the sun light
         SLLightDirect* light = new SLLightDirect(0.5f);
         light->ambient(SLCol4f(0.3f, 0.3f, 0.3f));
@@ -1642,7 +1641,6 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         light->translate(1,1,-1);
         light->lookAt(-1, -1, 1);
         scene->addChild(light);
-        */
         
         // Center sphere
         SLNode* sphere = new SLNode(new SLSphere(0.5f, 32, 32, "Sphere", refr));
@@ -1889,6 +1887,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         SLCamera* cam1 = new SLCamera("Camera 1");
         cam1->translation(0,2,10);
         cam1->lookAt(0, 2, 0);
+        cam1->focalDist(10);
         cam1->setInitialState();
         cam1->background().colors(SLCol4f(0.1f,0.4f,0.8f));
         cam1->setInitialState();
@@ -2095,7 +2094,6 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         const SLint gridHalf = gridSize / 2;
         const SLint nodesPerLvl = gridSize * gridSize;
 
-
         // node spacing per level
         // nodes are 1^3 in size, we want to space the levels so that the densest levels meet
         // (so exactly 1 unit spacing between blocks)
@@ -2146,7 +2144,6 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         name("Astroboy army skinned on CPU");
         _info = "Mass animation scene of identitcal Astroboy models";
 
-
         // Create materials
         SLMaterial* m1 = new SLMaterial("m1", SLCol4f::GRAY); m1->specular(SLCol4f::BLACK);
 
@@ -2161,6 +2158,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         SLCamera* cam1 = new SLCamera;
         cam1->translation(0, 20, 20);
         cam1->lookAt(0, 0, 0);
+        cam1->focalDist(cam1->translationOS().length());
         cam1->background().colors(SLCol4f(0.1f,0.4f,0.8f));
         cam1->setInitialState();
 
@@ -2209,40 +2207,56 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         _root3D = scene;
     }
     else
-    if (SL::currentSceneID == C_sceneVideoTexture) //..............................................
+    if (SL::currentSceneID == C_sceneVideoTextureLive ||
+        SL::currentSceneID == C_sceneVideoTextureFile) //..........................................
     {
         // Set scene name and info string
-        name("Live Video Texture Example");
-        _info = "Minimal texture mapping example with live video source.";
+        if (SL::currentSceneID == C_sceneVideoTextureLive)
+        {   name("Texture from live video");
+            _info = "Minimal texture mapping example with live video source.";
+            videoType(VT_SCND); // on desktop it will be the main camera
+        } else
+        {   name("Texture from video file");
+            _info = "Minimal texture mapping example with video file source.";
+            videoType(VT_FILE);
+            SLCVCapture::videoFilename = "street3.mp4";
+            SLCVCapture::videoLoops = true;
+        }
 
         // Back wall material with live video texture
         SLMaterial* m1 = new SLMaterial("mat3", &_videoTexture);
-        videoType(VT_SCND);
+
+        // Create a root scene group for all nodes
+        SLNode* scene = new SLNode("scene node");
 
         // Create a camera node
         SLCamera* cam1 = new SLCamera("Camera 1");
         cam1->translation(0,0,20);
+        cam1->focalDist(20);
         cam1->lookAt(0, 0, 0);
         cam1->background().colors(SLCol4f(0.7f,0.7f,0.7f), SLCol4f(0.2f,0.2f,0.2f));
         cam1->setInitialState();
-
-        // Create a light source node
-        SLLightSpot* light1 = new SLLightSpot(0.3f);
-        light1->translation(0,0,5);
-        light1->lookAt(0, 0, 0);
-        light1->name("light node");
+        scene->addChild(cam1);
 
         // Create rectangle meshe and nodes
         SLfloat h = 5.0f;
         SLfloat w = h * sv->scrWdivH();
         SLMesh* rectMesh = new SLRectangle(SLVec2f(-w,-h), SLVec2f(w,h), 1,1, "rect mesh", m1);
         SLNode* rectNode = new SLNode(rectMesh, "rect node");
-
-        // Create a scene group and add all nodes
-        SLNode* scene = new SLNode("scene node");
-        scene->addChild(light1);
-        scene->addChild(cam1);
+        rectNode->translation(0,0,-5);
         scene->addChild(rectNode);
+
+        // Center sphere
+        SLNode* sphere = new SLNode(new SLSphere(2, 32, 32, "Sphere", m1));
+        sphere->rotate(-90, 1,0,0);
+        scene->addChild(sphere);
+
+        // Create a light source node
+        SLLightSpot* light1 = new SLLightSpot(0.3f);
+        light1->translation(0,0,5);
+        light1->lookAt(0, 0, 0);
+        light1->name("light node");
+        scene->addChild(light1);
 
         _root3D = scene;
 
@@ -2719,7 +2733,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         cam1->translation(0.0f, 0.40f, 6.35f);
         cam1->lookAt(0.0f,-0.05f, 0.0f);
         cam1->fov(27);
-        cam1->focalDist(6.35f);
+        cam1->focalDist(cam1->translationOS().length());
         cam1->background().colors(SLCol4f(0.0f,0.0f,0.0f));
         cam1->setInitialState();
       
@@ -2778,7 +2792,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         SLCamera* cam1 = new SLCamera();
         cam1->translation(0, 0.1f, 2.5f);
         cam1->lookAt(0, 0, 0);
-        cam1->focalDist(4);
+        cam1->focalDist(cam1->translationOS().length());
         cam1->background().colors(SLCol4f(0.1f,0.4f,0.8f));
         cam1->setInitialState();
 
@@ -2823,7 +2837,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         SLCamera* cam1 = new SLCamera;
         cam1->translation(0, 0.1f, 6);
         cam1->lookAt(0, 0, 0);
-        cam1->focalDist(6);
+        cam1->focalDist(cam1->translationOS().length());
         cam1->background().colors(SLCol4f(0.1f,0.4f,0.8f));
         cam1->setInitialState();
         
@@ -2888,7 +2902,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         SLCamera* cam1 = new SLCamera("Camera 1");
         cam1->translation(0, 2, 7);
         cam1->lookAt(0, 0, 0);
-        cam1->focalDist(7);
+        cam1->focalDist(cam1->translationOS().length());
         cam1->lensDiameter(0.4f);
         cam1->lensSamples()->samples(numSamples, numSamples);
         cam1->background().colors(SLCol4f(0.1f,0.4f,0.8f));
@@ -2949,7 +2963,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         SLCamera* cam1 = new SLCamera;
         cam1->translation(0, 8, 0);
         cam1->lookAt(0, 0, 0);
-        cam1->focalDist(6);
+        cam1->focalDist(cam1->translationOS().length());
         cam1->lensDiameter(0.4f);
         cam1->lensSamples()->samples(numSamples, numSamples);
         cam1->background().colors(SLCol4f(0.1f, 0.4f, 0.8f));

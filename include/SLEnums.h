@@ -110,7 +110,8 @@ enum SLCommand
     C_sceneAnimationNode,
     C_sceneAnimationArmy,
 
-    C_sceneVideoTexture,
+    C_sceneVideoTextureLive,
+    C_sceneVideoTextureFile,
     C_sceneVideoChristoffel,
     C_sceneVideoCalibrateMain,
     C_sceneVideoCalibrateScnd,
@@ -395,6 +396,7 @@ enum SLVideoType
 {   VT_NONE =  0,  //!< No camera needed
     VT_MAIN =  1,  //!< Main camera on all on all all devices
     VT_SCND =  2,  //!< Selfie camera on mobile devices
+    VT_FILE =  3,  //!< Loads a video from file with OpenCV
 };
 //-----------------------------------------------------------------------------
 //! Feature detector-decriptor types

@@ -86,13 +86,15 @@ SLbool SLRaytracer::renderClassic(SLSceneView* sv)
             _images[0]->setPixeliRGB(x, y, color);
 
             SLRay::avgDepth += SLRay::depthReached;
-            SLRay::maxDepthReached = SL_max(SLRay::depthReached, SLRay::maxDepthReached);
+            SLRay::maxDepthReached = SL_max(SLRay::depthReached,
+                                            SLRay::maxDepthReached);
         }
 
         // Update image after 500 ms
         double t2 = SLScene::current->timeSec();
         if (t2-t1 > 0.5)
         {   _pcRendered = (SLint)((SLfloat)y/(SLfloat)_images[0]->height()*100);
+            finishBeforeUpdate();
             _sv->onWndUpdate();
             t1 = SLScene::current->timeSec();
         }
@@ -213,7 +215,8 @@ void SLRaytracer::renderSlices(const bool isMainThread)
                 _images[0]->setPixeliRGB(x, y, color);
 
                 SLRay::avgDepth += SLRay::depthReached;
-                SLRay::maxDepthReached = SL_max(SLRay::depthReached, SLRay::maxDepthReached);
+                SLRay::maxDepthReached = SL_max(SLRay::depthReached,
+                                                SLRay::maxDepthReached);
             }
 
             // Update image after 500 ms
@@ -221,6 +224,7 @@ void SLRaytracer::renderSlices(const bool isMainThread)
             {   if (SLScene::current->timeSec() - t1 > 0.5)
                 {   _pcRendered = (SLint)((SLfloat)y/(SLfloat)_images[0]->height()*100);
                     if (_aaSamples > 0) _pcRendered /= 2;
+                    finishBeforeUpdate();
                     _sv->onWndUpdate();
                     t1 = SLScene::current->timeSec();
                 }
@@ -286,7 +290,8 @@ void SLRaytracer::renderSlicesMS(const bool isMainThread)
                         ////////////////////////////
                   
                         SLRay::avgDepth += SLRay::depthReached;
-                        SLRay::maxDepthReached = SL_max(SLRay::depthReached, SLRay::maxDepthReached);   
+                        SLRay::maxDepthReached = SL_max(SLRay::depthReached,
+                                                        SLRay::maxDepthReached);
                     }
                 }
                 color /= (SLfloat)_cam->lensSamples()->samples();
@@ -298,7 +303,8 @@ void SLRaytracer::renderSlicesMS(const bool isMainThread)
 
             if (isMainThread && !_doContinuous)
             {   if (SLScene::current->timeSec() - t1 > 0.5)
-                {   _sv->onWndUpdate();
+                {   finishBeforeUpdate();
+                    _sv->onWndUpdate();
                     t1 = SLScene::current->timeSec();
                 }
             }
@@ -327,7 +333,7 @@ SLCol4f SLRaytracer::trace(SLRay* ray)
         SLfloat kt = ray->hitMesh->mat()->kt();
         SLfloat kr = ray->hitMesh->mat()->kr();
         
-        if (ray->depth < SLRay::maxDepth && ray->contrib > 1.0f/128.0f) //SLRay::minContrib)
+        if (ray->depth < SLRay::maxDepth && ray->contrib > SLRay::minContrib)
         {
             if (!_doFresnel)
             {   // Do classic refraction and/or reflection
@@ -593,6 +599,7 @@ void SLRaytracer::sampleAAPixels(const bool isMainThread)
         {   t2 = SLScene::current->timeSec();
             if (t2-t1 > 0.5)
             {   _pcRendered = 50 + (SLint)((SLfloat)_next/(SLfloat)_aaPixels.size()*50);
+                finishBeforeUpdate();
                 _sv->onWndUpdate();
                 t1 = SLScene::current->timeSec();
             }
@@ -785,5 +792,17 @@ void SLRaytracer::saveImage()
     SLchar filename[255];  
     sprintf(filename,"Raytraced_%d_%d.png", _maxDepth, no++);
     _images[0]->savePNG(filename);
+}
+//-----------------------------------------------------------------------------
+//! Must be called before an inbetween frame update
+/* Ray and path tracing usually take much more time to render one frame.
+We therefore call every half second _sv->onWndUpdate() that initiates another
+paint message from the top-level UI system of the OS. We therefore have to
+finish our UI and end OpenGL rendering properly.
+*/
+void SLRaytracer::finishBeforeUpdate()
+{
+    ImGui::Render();
+    _stateGL->unbindAnythingAndFlush();
 }
 //-----------------------------------------------------------------------------
