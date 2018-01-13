@@ -598,7 +598,6 @@
 		41EA2F4D1F558DDF00C34BC7 /* features_stones.png in Resources */ = {isa = PBXBuildFile; fileRef = 41EA2F4C1F558DDF00C34BC7 /* features_stones.png */; };
 		41EBB5E31C44D99500C9BAA5 /* SLGLVertexArrayExt.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 41EBB5E21C44D99500C9BAA5 /* SLGLVertexArrayExt.cpp */; };
 		41EDCB591B67B47B00DDC945 /* SLCompactGrid.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 41EDCB571B67B47B00DDC945 /* SLCompactGrid.cpp */; };
-		41F365172008E49B00782F42 /* street1.mp4 in Resources */ = {isa = PBXBuildFile; fileRef = 41F365152008E49A00782F42 /* street1.mp4 */; };
 		41F365182008E49B00782F42 /* street3.mp4 in Resources */ = {isa = PBXBuildFile; fileRef = 41F365162008E49A00782F42 /* street3.mp4 */; };
 		41FC8AA61959BF9F004A9E57 /* clipper.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 41FC8AA41959BF9F004A9E57 /* clipper.cpp */; };
 		41FC8AAE1959BFBA004A9E57 /* irrXML.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 41FC8AAC1959BFBA004A9E57 /* irrXML.cpp */; };
@@ -1498,7 +1497,6 @@
 		41EBB5E01C44D96900C9BAA5 /* SLGLVertexArrayExt.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SLGLVertexArrayExt.h; path = ../include/SLGLVertexArrayExt.h; sourceTree = SOURCE_ROOT; };
 		41EBB5E21C44D99500C9BAA5 /* SLGLVertexArrayExt.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SLGLVertexArrayExt.cpp; path = "../lib-SLProject/source/GL/SLGLVertexArrayExt.cpp"; sourceTree = SOURCE_ROOT; };
 		41EDCB571B67B47B00DDC945 /* SLCompactGrid.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SLCompactGrid.cpp; path = "../lib-SLProject/source/SLCompactGrid.cpp"; sourceTree = SOURCE_ROOT; };
-		41F365152008E49A00782F42 /* street1.mp4 */ = {isa = PBXFileReference; lastKnownFileType = file; name = street1.mp4; path = ../_data/videos/street1.mp4; sourceTree = "<group>"; };
 		41F365162008E49A00782F42 /* street3.mp4 */ = {isa = PBXFileReference; lastKnownFileType = file; name = street3.mp4; path = ../_data/videos/street3.mp4; sourceTree = "<group>"; };
 		41FC8AA41959BF9F004A9E57 /* clipper.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = clipper.cpp; path = "../lib-SLExternal/assimp/contrib/clipper/clipper.cpp"; sourceTree = SOURCE_ROOT; };
 		41FC8AA51959BF9F004A9E57 /* clipper.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = clipper.hpp; path = "../lib-SLExternal/assimp/contrib/clipper/clipper.hpp"; sourceTree = SOURCE_ROOT; };
@@ -2654,7 +2652,6 @@
 		41F365142008E47600782F42 /* Videos */ = {
 			isa = PBXGroup;
 			children = (
-				41F365152008E49A00782F42 /* street1.mp4 */,
 				41F365162008E49A00782F42 /* street3.mp4 */,
 			);
 			name = Videos;
@@ -3015,7 +3012,6 @@
 				412F89761FF58D94004D5982 /* SkyBox.frag in Resources */,
 				417981E61F13836300EB5315 /* VolumeRenderingRayCast.frag in Resources */,
 				417981601F13833000EB5315 /* i0076_0000b.png in Resources */,
-				41F365172008E49B00782F42 /* street1.mp4 in Resources */,
 				417981DD1F13833000EB5315 /* i0201_0000b.png in Resources */,
 				417981B51F13833000EB5315 /* i0161_0000b.png in Resources */,
 				417981291F13833000EB5315 /* i0021_0000b.png in Resources */,

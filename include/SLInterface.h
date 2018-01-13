@@ -68,6 +68,7 @@ void    slLocationLLA           (double latitudeDEG, double longitudeDEG, double
 string  slGetWindowTitle        (int sceneViewIndex);
 int     slGetVideoType          ();
 int     slGetVideoSizeIndex     ();
+void    slGrabVideoFileFrame    ();
 void    slCopyVideoImage        (int srcW, int srcH, SLPixelFormat glFormat, SLuchar* data, bool isContinuous);
 void    slCopyVideoYUVPlanes    (int srcW, int srcH,
                                  SLuchar* y, int ySize, int yPixStride, int yLineStride,

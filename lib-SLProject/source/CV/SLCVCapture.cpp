@@ -87,7 +87,10 @@ SLVec2i SLCVCapture::openFile()
         _captureDevice.open(videoFilename);
 
         if (!_captureDevice.isOpened())
+        {
+            SL_LOG("SLCVCapture::openFile: Failed to open video file.");
             return SLVec2i::ZERO;
+        }
 
         if (SL::noTestIsRunning())
             SL_LOG("Capture devices created with video.\n");
@@ -103,7 +106,7 @@ SLVec2i SLCVCapture::openFile()
     }
     catch (exception e)
     {
-        SL_LOG("Exception during OpenCV video capture creation with video file\n");
+        SL_LOG("SLCVCapture::openFile: Exception during OpenCV video capture creation with video file\n");
     }
     return SLVec2i::ZERO;
 }
@@ -116,7 +119,10 @@ void SLCVCapture::release()
     videoFilename = "";
 }
 //-----------------------------------------------------------------------------
-/*! Grabs a new frame from the OpenCV capture device and adjusts it for SL
+/*! Grabs a new frame from the OpenCV capture device or video file and calls
+SLCVCapture::adjustForSL. This function can also be called by Android or iOS
+app for grabbing a frame of a video file. Android and iOS use their own
+capture functionality.
 */
 void SLCVCapture::grabAndAdjustForSL()
 {
@@ -141,9 +147,8 @@ void SLCVCapture::grabAndAdjustForSL()
         else
         {   static bool logOnce = true;
             if (logOnce)
-            {
-                if (SL::noTestIsRunning())
-                    SL_LOG("OpenCV: Capture Device is not open!\n");
+            {   if (SL::noTestIsRunning())
+                    SL_LOG("OpenCV: Capture device or video file is not open!\n");
                 logOnce = false;
             }
         }

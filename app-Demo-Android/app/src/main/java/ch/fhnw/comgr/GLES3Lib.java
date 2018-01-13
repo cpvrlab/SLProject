@@ -40,6 +40,7 @@ public class GLES3Lib {
     public static final int VIDEO_TYPE_NONE = 0;
     public static final int VIDEO_TYPE_MAIN = 1;    // Maps to Androids back facing camera
     public static final int VIDEO_TYPE_SCND = 2;    // Maps to Androids front facing camera
+    public static final int VIDEO_TYPE_FILE = 3;    // Maps to Androids front facing camera
 
     public static native void    onInit             (int width, int height, int dotsPerInch, String FilePath);
     public static native boolean onUpdateAndPaint   ();
@@ -61,6 +62,7 @@ public class GLES3Lib {
     public static native void    onLocationLLA      (double latitudeDEG, double longitudeDEG, double altitudeM, float accuracyM);
     public static native int     getVideoType       ();
     public static native int     getVideoSizeIndex  ();
+    public static native void    grabVideoFileFrame ();
     public static native void    copyVideoImage     (int imgWidth, int imgHeight, byte[] imgBuffer);
     public static native void    copyVideoYUVPlanes (int srcW, int srcH,
                                                      byte[] y, int ySize, int yPixStride, int yLineStride,

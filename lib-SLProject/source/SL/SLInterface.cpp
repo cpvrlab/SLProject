@@ -457,6 +457,15 @@ int slGetVideoSizeIndex()
     return SLCVCapture::requestedSizeIndex;
 }
 //-----------------------------------------------------------------------------
+/*! Global function to grab the next frame with the OpenCV capture device. This
+should be used by Android and iOS apps for grabbing the next video frame from
+a video file.
+*/
+void slGrabVideoFileFrame()
+{
+    SLCVCapture::grabAndAdjustForSL();
+}
+//-----------------------------------------------------------------------------
 /*! Global function to copy a new video image to the SLScene::_videoTexture.
 An application can grab the live video image with OpenCV via slGrabCopyVideoImage
 or with another OS dependent framework.

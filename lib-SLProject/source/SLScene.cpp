@@ -524,6 +524,9 @@ void SLScene::onAfterLoad()
                                              SLCVCapture::lastFrame.data,
                                              SLCVCapture::lastFrame.isContinuous(),
                                              true);
+            } else
+            {
+                _videoTexture.setVideoImage("LiveVideoError.png");
             }
         }
     }
@@ -542,6 +545,9 @@ void SLScene::onAfterLoad()
                                              SLCVCapture::lastFrame.data,
                                              SLCVCapture::lastFrame.isContinuous(),
                                              true);
+            } else
+            {
+                _videoTexture.setVideoImage("LiveVideoError.png");
             }
         }
     }
