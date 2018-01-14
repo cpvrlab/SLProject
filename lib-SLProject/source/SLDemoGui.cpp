@@ -129,7 +129,8 @@ in real time rendering and ray tracing. The framework is developed \
 in C++ with OpenGL ES so that it can run also on mobile devices. \
 Ray tracing provides in addition high quality transparencies, reflections and soft shadows. \
 Click to close and use the menu to choose different scenes and view settings. \
-For more information please visit: https://github.com/cpvrlab/SLProject";
+For more information please visit: https://github.com/cpvrlab/SLProject\n\
+";
 
 SLstring SLDemoGui::infoCredits =
 "Contributors since 2005 in alphabetic order: Martin Christen, Manuel Frischknecht, Michael \
@@ -142,7 +143,8 @@ Credits for external libraries:\n\
 - OpenCV: opencv.org\n\
 - OpenGL: opengl.org\n\
 - spa: Solar Position Algorithm\n\
-- zlib: zlib.net";
+- zlib: zlib.net\n\
+";
 
 SLstring SLDemoGui::infoHelp =
 "Help for mouse or finger control:\n\
@@ -150,7 +152,9 @@ SLstring SLDemoGui::infoHelp =
 - Use mouse-wheel or pinch 2 fingers to go forward/backward\n\
 - Use CTRL-mouse or 2 fingers to move sidewards/up-down\n\
 - Double click or double tap to select object\n\
-- If no menu is visible press ESC";
+- On Desktop see shortcuts behind menu commands\n\
+- Check out the different test scenes under File > Load Test Scene\n\
+";
 
 SLstring SLDemoGui::infoCalibrate =
 "The calibration process requires a chessboard image to be printed \
@@ -161,7 +165,8 @@ chessboard corners. To take an image you have to click with the mouse \
 or tap with finger into the screen. You can mirror the video image under \
 Preferences > Video. \n\
 After calibration the yellow wireframe cube should stick on the chessboard.\n\n\
-Please close first this info dialog.";
+Please close first this info dialog.\n\
+";
 
 //-----------------------------------------------------------------------------
 //! This is the main building function for the GUI of the Demo apps
@@ -738,19 +743,19 @@ void SLDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
 
         if (ImGui::BeginMenu("Preferences"))
         {
-            if (ImGui::MenuItem("Slow down on Idle", 0, sv->waitEvents()))
-                sv->onCommand(C_waitEventsToggle);
+            if (ImGui::MenuItem("Slow down on Idle", "I", sv->waitEvents()))
+                sv->onCommand(C_waitOnIdleToggle);
 
-            if (ImGui::MenuItem("Do Multi Sampling", 0, sv->doMultiSampling()))
+            if (ImGui::MenuItem("Do Multi Sampling", "M", sv->doMultiSampling()))
                 sv->onCommand(C_multiSampleToggle);
 
-            if (ImGui::MenuItem("Do Frustum Culling", 0, sv->doFrustumCulling()))
+            if (ImGui::MenuItem("Do Frustum Culling", "F", sv->doFrustumCulling()))
                 sv->onCommand(C_frustCullToggle);
 
-            if (ImGui::MenuItem("Do Depth Test", 0, sv->doDepthTest()))
+            if (ImGui::MenuItem("Do Depth Test", "T", sv->doDepthTest()))
                 sv->onCommand(C_depthTestToggle);
 
-            if (ImGui::MenuItem("Animation off", 0, s->stopAnimations()))
+            if (ImGui::MenuItem("Animation off", "O", s->stopAnimations()))
                 s->stopAnimations(!s->stopAnimations());
 
             ImGui::Separator();
@@ -915,10 +920,10 @@ void SLDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
 
         if (ImGui::BeginMenu("Renderer"))
         {
-            if (ImGui::MenuItem("OpenGL (GL)", 0, rType==RT_gl))
+            if (ImGui::MenuItem("OpenGL (GL)", "G", rType==RT_gl))
                 sv->onCommand(C_renderOpenGL);
 
-            if (ImGui::MenuItem("Ray Tracing (RT)", 0, rType==RT_rt))
+            if (ImGui::MenuItem("Ray Tracing (RT)", "R", rType==RT_rt))
                 sv->onCommand(C_rt5);
 
             if (ImGui::MenuItem("Path Tracing (PT)", 0, rType==RT_pt))
@@ -931,29 +936,26 @@ void SLDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
         {
             if (ImGui::BeginMenu("GL-Setting"))
             {
-                if (ImGui::MenuItem("Wired Mesh", 0, sv->drawBits()->get(SL_DB_WIREMESH)))
+                if (ImGui::MenuItem("Wired Mesh", "P", sv->drawBits()->get(SL_DB_WIREMESH)))
                     sv->onCommand(C_wireMeshToggle);
 
-                if (ImGui::MenuItem("Normals", 0, sv->drawBits()->get(SL_DB_NORMALS)))
+                if (ImGui::MenuItem("Normals", "N", sv->drawBits()->get(SL_DB_NORMALS)))
                     sv->onCommand(C_normalsToggle);
 
-                if (ImGui::MenuItem("Voxels", 0, sv->drawBits()->get(SL_DB_VOXELS)))
-                    sv->onCommand(C_voxelsToggle);
-
-                if (ImGui::MenuItem("Axis", 0, sv->drawBits()->get(SL_DB_AXIS)))
-                    sv->onCommand(C_axisToggle);
-
-                if (ImGui::MenuItem("Bounding Boxes", 0, sv->drawBits()->get(SL_DB_BBOX)))
+                if (ImGui::MenuItem("Bounding Boxes", "B", sv->drawBits()->get(SL_DB_BBOX)))
                     sv->onCommand(C_bBoxToggle);
 
-                if (ImGui::MenuItem("Skeleton", 0, sv->drawBits()->get(SL_DB_SKELETON)))
-                    sv->onCommand(C_skeletonToggle);
+                if (ImGui::MenuItem("Voxels", "V", sv->drawBits()->get(SL_DB_VOXELS)))
+                    sv->onCommand(C_voxelsToggle);
 
-                if (ImGui::MenuItem("Back Faces", 0, sv->drawBits()->get(SL_DB_CULLOFF)))
+                if (ImGui::MenuItem("Axis", "X", sv->drawBits()->get(SL_DB_AXIS)))
+                    sv->onCommand(C_axisToggle);
+
+                if (ImGui::MenuItem("Back Faces", "C", sv->drawBits()->get(SL_DB_CULLOFF)))
                     sv->onCommand(C_faceCullToggle);
 
-                if (ImGui::MenuItem("Textures off", 0, sv->drawBits()->get(SL_DB_TEXOFF)))
-                    sv->onCommand(C_textureToggle);
+                if (ImGui::MenuItem("Skeleton", "K", sv->drawBits()->get(SL_DB_SKELETON)))
+                    sv->onCommand(C_skeletonToggle);
 
                 if (ImGui::MenuItem("All off"))
                     sv->drawBits()->allOff();
@@ -1072,7 +1074,7 @@ void SLDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
                 if (ImGui::MenuItem("Left (+X)",   "3"))        cam->lookFrom( SLVec3f::AXISX);
                 if (ImGui::MenuItem("Right (-X)",  "CTRL-3"))   cam->lookFrom(-SLVec3f::AXISX);
                 if (ImGui::MenuItem("Top (+Y)",    "7"))        cam->lookFrom( SLVec3f::AXISY, -SLVec3f::AXISZ);
-                if (ImGui::MenuItem("Bottom (+Y)", "CTRL-7"))   cam->lookFrom(-SLVec3f::AXISY,  SLVec3f::AXISZ);
+                if (ImGui::MenuItem("Bottom (-Y)", "CTRL-7"))   cam->lookFrom(-SLVec3f::AXISY,  SLVec3f::AXISZ);
                 if (ImGui::MenuItem("Front (+Z)",  "1"))        cam->lookFrom( SLVec3f::AXISZ);
                 if (ImGui::MenuItem("Back (-Z)",   "CTRL-1"))   cam->lookFrom(-SLVec3f::AXISZ);
 
@@ -1145,7 +1147,7 @@ void SLDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
             {
                 SLCamAnim ca = cam->camAnim();
 
-                ImGui::PushItemWidth(80);
+                ImGui::PushItemWidth(100);
 
                 if (ImGui::MenuItem("Turntable Y up", 0, ca==CA_turntableYUp))
                     sv->camera()->camAnim(CA_turntableYUp);
@@ -1186,6 +1188,8 @@ void SLDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
             SLVstring animations = s->animManager().allAnimNames();
             if (curAnimIx == -1) curAnimIx = 0;
             SLAnimPlayback* anim = s->animManager().allAnimPlayback(curAnimIx);
+
+            ImGui::PushItemWidth(100);
 
             if (myComboBox("", &curAnimIx, animations))
                 anim = s->animManager().allAnimPlayback(curAnimIx);
@@ -1233,6 +1237,7 @@ void SLDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
             if (ImGui::Combo("Easing", &curEasing, easings,  IM_ARRAYSIZE(easings)))
                 anim->easing((SLEasingCurve)curEasing);
 
+            ImGui::PopItemWidth();
             ImGui::EndMenu();
         }
 

@@ -390,8 +390,9 @@ SLbool SLSceneView::onPaint()
         if (testRunIsFinished())
             return false;
     
-    // Init and build GUI
-    _gui.onInitNewFrame(s, this);
+    // Init and build GUI for all projections except distorted stereo
+    if (_camera && _camera->projection() != P_stereoSideBySideD)
+        _gui.onInitNewFrame(s, this);
 
     // Clear NO. of draw calls afer UI creation
     SLGLVertexArray::totalDrawCalls = 0;
@@ -776,7 +777,8 @@ void SLSceneView::draw2DGL()
 
         // 4. Draw ImGui UI
         if (_gui.build)
-        {   ImGui::Render();
+        {
+            ImGui::Render();
             _gui.onPaint(ImGui::GetDrawData());
         }
     }
@@ -1179,17 +1181,27 @@ SLbool SLSceneView::onKeyPress(SLKey key, SLKey mod)
         return true;
     }
 
-    if (key=='N') return onCommand(C_normalsToggle);
-    if (key=='P') return onCommand(C_wireMeshToggle);
-    if (key=='C') return onCommand(C_faceCullToggle);
-    if (key=='T') return onCommand(C_textureToggle);
+    // We have to coordinate these shortcuts in SLDemoGui::buildMenuBar
     if (key=='M') return onCommand(C_multiSampleToggle);
+    if (key=='I') return onCommand(C_waitOnIdleToggle);
     if (key=='F') return onCommand(C_frustCullToggle);
+    if (key=='T') return onCommand(C_depthTestToggle);
+    if (key=='O') {s->stopAnimations(!s->stopAnimations()); return true;}
+
+    if (key=='G') return onCommand(C_renderOpenGL);
+    if (key=='R') return onCommand(C_rt5);
+
+    if (key=='P') return onCommand(C_wireMeshToggle);
+    if (key=='N') return onCommand(C_normalsToggle);
     if (key=='B') return onCommand(C_bBoxToggle);
+    if (key=='V') return onCommand(C_voxelsToggle);
+    if (key=='X') return onCommand(C_axisToggle);
+    if (key=='C') return onCommand(C_faceCullToggle);
+    if (key=='K') return onCommand(C_skeletonToggle);
 
     if (key==K_tab) return onCommand(C_camSetNextInScene);
 
-    if (key==K_esc)
+    if (key==K_esc && mod==K_ctrl)
     {   if(_renderType == RT_rt)
         {  _stopRT = true;
             return false;
@@ -1364,7 +1376,7 @@ SLbool SLSceneView::onCommand(SLCommand cmd)
 
         case C_camSetSceneViewCamera: switchToSceneViewCamera(); return true;
 
-        case C_waitEventsToggle:   _waitEvents = !_waitEvents; return true;
+        case C_waitOnIdleToggle:   _waitEvents = !_waitEvents; return true;
         case C_multiSampleToggle:
             _doMultiSampling = !_doMultiSampling;
             _raytracer.aaSamples(_doMultiSampling ? 3 : 1);
@@ -1379,7 +1391,6 @@ SLbool SLSceneView::onCommand(SLCommand cmd)
         case C_skeletonToggle:     _drawBits.toggle(SL_DB_SKELETON); return true;
         case C_voxelsToggle:       _drawBits.toggle(SL_DB_VOXELS);   return true;
         case C_faceCullToggle:     _drawBits.toggle(SL_DB_CULLOFF);  return true;
-        case C_textureToggle:      _drawBits.toggle(SL_DB_TEXOFF);   return true;
 
         case C_renderOpenGL:
             _renderType = RT_gl;

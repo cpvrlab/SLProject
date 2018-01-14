@@ -137,16 +137,15 @@ enum SLCommand
     C_multiSampleToggle,    // Toggles multisampling
     C_depthTestToggle,      // Toggles the depth test flag
     C_frustCullToggle,      // Toggles frustum culling
-    C_waitEventsToggle,     // Toggles the wait event flag
+    C_waitOnIdleToggle,     // Toggles the wait event flag
 
-    C_skeletonToggle,       // Toggles skeleton drawing bit
+    C_wireMeshToggle,       // Toggles wireframe drawing bit
+    C_normalsToggle,        // Toggles normal drawing bit
     C_bBoxToggle,           // Toggles bounding box drawing bit
     C_axisToggle,           // Toggles axis drawing bit
     C_faceCullToggle,       // Toggles face culling
-    C_wireMeshToggle,       // Toggles wireframe drawing bit
-    C_normalsToggle,        // Toggles normal drawing bit
-    C_textureToggle,        // Texture drawing bit toggle
-    C_voxelsToggle,         // Voxel drawing bit toggle
+    C_voxelsToggle,         // Toggles Voxel drawing bit toggle
+    C_skeletonToggle,       // Toggles skeleton drawing bit
    
     C_projPersp,            // Perspective projection
     C_projOrtho,            // Orthographic projection

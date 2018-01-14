@@ -1023,13 +1023,15 @@ The key code constants are defined in SL.h
 */
 SLbool SLCamera::onKeyPress(const SLKey key, const SLKey mod)
 {
+    // Keep in sync with SLDemoGui::buildMenuBar
     switch ((SLchar)key)
-    {   case 'W': _moveDir.z -= 1.0f; return true;
-        case 'S': _moveDir.z += 1.0f; return true;
-        case 'A': _moveDir.x -= 1.0f; return true;
+    {
         case 'D': _moveDir.x += 1.0f; return true;
+        case 'A': _moveDir.x -= 1.0f; return true;
         case 'Q': _moveDir.y += 1.0f; return true;
         case 'E': _moveDir.y -= 1.0f; return true;
+        case 'S': _moveDir.z += 1.0f; return true;
+        case 'W': _moveDir.z -= 1.0f; return true;
             
         // View setting as in standard Blender
         case '1':
