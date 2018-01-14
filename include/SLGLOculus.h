@@ -53,9 +53,10 @@ class SLGLOculus
             SLfloat     resolutionScale     () { return _resolutionScale; }
             void        renderResolution    (SLint width, SLint height);
             void        beginFrame          ();
-            void        endFrame            (SLint width, SLint height, SLuint tex);
-            void        renderDistortion    (SLint width, SLint height, SLuint tex);
-            
+            void        renderDistortion    (SLint width,
+                                             SLint height,
+                                             SLuint tex,
+                                             SLCol4f background);
             // Setters
             void        lowPersistance      (SLbool val);
             void        timeWarp            (SLbool val);

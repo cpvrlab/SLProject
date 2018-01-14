@@ -43,9 +43,6 @@ typedef SLbool (SL_STDCALL *cbOnWndUpdate)(void);
 //! Callback function typedef for select node 
 typedef void (SL_STDCALL *cbOnSelectNodeMesh)(SLNode*, SLMesh*);
 
-//! Callback function typedef for showing and hiding the system cursor
-typedef void(SL_STDCALL *cbOnShowSysCursor)(bool);
-
 //! Callback function typedef for ImGui build function
 typedef void(SL_STDCALL *cbOnBuildImGui)(SLScene* s, SLSceneView* sv);
 
@@ -76,7 +73,6 @@ class SLSceneView: public SLObject
                                              SLint screenHeight,
                                              void* onWndUpdateCallback,
                                              void* onSelectNodeMeshCallback,
-                                             void* onToggleSystemCursorCallback,
                                              void* onBuildImGui);
 
 		      // virtual hooks for subclasses of SLSceneView
@@ -137,7 +133,6 @@ class SLSceneView: public SLObject
             // Callback routines
             cbOnWndUpdate       onWndUpdate;        //!< Callback for intermediate window repaint
             cbOnSelectNodeMesh  onSelectedNodeMesh; //!< Callback on node selection
-            cbOnShowSysCursor   onShowSysCursor;    //!< Callback for hiding and showing system cursor
    
             // Setters
             void            camera              (SLCamera* camera) {_camera = camera;}
@@ -214,8 +209,7 @@ class SLSceneView: public SLObject
             SLVec2i         _touch[3];          //!< up to 3 finger touch coordinates
             SLGLVertexArrayExt _vaoTouch;       //!< Buffer for touch pos. rendering
             SLGLVertexArrayExt _vaoCursor;      //!< Virtual cursor for stereo rendering
-            
-            SLVec2i         _posCursor;         //!< Cursor position as reported by the os
+
             SLint           _scrW;              //!< Screen width in pixels
             SLint           _scrH;              //!< Screen height in pixels
             SLint           _scrWdiv2;          //!< Screen half width in pixels
@@ -223,7 +217,6 @@ class SLSceneView: public SLObject
             SLfloat         _scrWdivH;          //!< Screen side aspect ratio
 
             SLGLOculusFB    _oculusFB;          //!< Oculus framebuffer
-			SLbool			_vrMode;			//!< Flag if we're in VR mode (forces camera to stereoD)
 
             SLVNode         _blendNodes;        //!< Vector of visible and blended nodes
             SLVNode         _visibleNodes;      //!< Vector of all visible nodes

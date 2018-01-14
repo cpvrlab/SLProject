@@ -56,7 +56,6 @@ void SLGLOculus::init()
     _resolution.set(1920, 1080);
     renderResolution(1920, 1080);
 
-
     for (SLint i = 0; i < 2; ++i)
     {
         _position[i].set(0, 0, 0);
@@ -75,19 +74,18 @@ void SLGLOculus::init()
 //-----------------------------------------------------------------------------
 /*! Renders the distortion mesh with time warp and chromatic abberation
 */
-void SLGLOculus::renderDistortion(SLint width, SLint height, SLuint tex)
+void SLGLOculus::renderDistortion(SLint width, SLint height,
+                                  SLuint tex, SLCol4f background)
 {
     SLGLProgram* sp = SLScene::current->programs(SP_stereoOculusDistortion);
 
     glViewport(0, 0, width, height);
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
-    glClearColor(0, 0, 0, 1);
     glClear(GL_COLOR_BUFFER_BIT);
     glDisable(GL_DEPTH_TEST);
     glDisable(GL_CULL_FACE);
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, tex);
-
 
     sp->beginUse();
     
@@ -110,8 +108,6 @@ void SLGLOculus::renderDistortion(SLint width, SLint height, SLuint tex)
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_CULL_FACE);
 }
-
-
 
 //-----------------------------------------------------------------------------
 /*! Returns the view adjust vector as reported by the HMD for the specified eye
@@ -204,13 +200,6 @@ void SLGLOculus::beginFrame()
         calculateHmdValues();
 }
 
-//-----------------------------------------------------------------------------
-/*! endFrame handles correct frame timing
-*/
-void SLGLOculus::endFrame(SLint width, SLint height, SLuint tex)
-{
-	renderDistortion(width, height, tex);
-}
 //-----------------------------------------------------------------------------
 /*! Returns the Oculus orientation as quaternion. If no Oculus Rift is 
 recognized it returns a unit quaternion.

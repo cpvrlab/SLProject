@@ -1032,6 +1032,10 @@ SLbool SLCamera::onKeyPress(const SLKey key, const SLKey mod)
         case 'E': _moveDir.y -= 1.0f; return true;
         case 'S': _moveDir.z += 1.0f; return true;
         case 'W': _moveDir.z -= 1.0f; return true;
+        case (SLchar)K_up:   _moveDir.z += 1.0f; return true;
+        case (SLchar)K_down: _moveDir.z -= 1.0f; return true;
+        case (SLchar)K_right:_moveDir.x += 1.0f; return true;
+        case (SLchar)K_left: _moveDir.x -= 1.0f; return true;
             
         // View setting as in standard Blender
         case '1':
@@ -1049,13 +1053,6 @@ SLbool SLCamera::onKeyPress(const SLKey key, const SLKey mod)
                  lookFrom(-SLVec3f::AXISY, SLVec3f::AXISZ);
             else lookFrom( SLVec3f::AXISY,-SLVec3f::AXISZ);
             return true;
-        case '5':
-            if (_projection == P_monoPerspective)
-                 _projection = P_monoOrthographic;
-            else _projection = P_monoPerspective;
-            return true;
-        case (SLchar)K_down: return onMouseWheel( 1, mod);
-        case (SLchar)K_up:   return onMouseWheel(-1, mod);
 
         default:  return false;
     }
@@ -1067,12 +1064,17 @@ SLCamera::onKeyRelease gets called when a key is released
 SLbool SLCamera::onKeyRelease(const SLKey key, const SLKey mod)
 {
     switch ((SLchar)key)
-    {   case 'W': _moveDir.z += 1.0f; return true;
-        case 'S': _moveDir.z -= 1.0f; return true;
-        case 'A': _moveDir.x += 1.0f; return true;
+    {
         case 'D': _moveDir.x -= 1.0f; return true;
+        case 'A': _moveDir.x += 1.0f; return true;
         case 'Q': _moveDir.y -= 1.0f; return true;
         case 'E': _moveDir.y += 1.0f; return true;
+        case 'S': _moveDir.z -= 1.0f; return true;
+        case 'W': _moveDir.z += 1.0f; return true;
+        case (SLchar)K_up:   _moveDir.z -= 1.0f; return true;
+        case (SLchar)K_down: _moveDir.z += 1.0f; return true;
+        case (SLchar)K_right:_moveDir.x -= 1.0f; return true;
+        case (SLchar)K_left: _moveDir.x += 1.0f; return true;
     }
 
     return false;

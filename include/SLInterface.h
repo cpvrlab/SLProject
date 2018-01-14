@@ -40,7 +40,6 @@ int     slCreateSceneView       (int screenWidth,
                                  void* onWndUpdateCallback,
                                  void* onSelectNodeMeshCallback = 0,
                                  void* onNewSceneViewCallback = 0,
-                                 void* onShowSystemCursorCallback = 0,
                                  void* onBuildImGui = 0);
 int     slNewSceneView          ();
 bool    slShouldClose           ();

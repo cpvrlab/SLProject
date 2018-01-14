@@ -1294,7 +1294,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         _root3D = scene;
     }
     else
-    if (SL::currentSceneID == C_sceneShaderPerPixelCookTorrance) //................................
+    if (SL::currentSceneID == C_sceneShaderCookTorrance) //................................
     {
         name("Cook-Torrance per pixel lighting");
        _info = "Cook-Torrance light model. Left-Right: roughness 0.05-1, Top-Down: metallic: 1-0. The center sphere has roughness and metallic encoded in textures.";
@@ -1741,7 +1741,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         _root3D = scene;
     }
     else
-    if (SL::currentSceneID == C_sceneVolumeRayCastHeadMRI) //......................................
+    if (SL::currentSceneID == C_sceneVolumeRayCast) //......................................
     {
         name("Volume Ray Cast Head MRI");
 
@@ -1806,7 +1806,7 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         _root3D = scene;
     }
     else
-    if (SL::currentSceneID == C_sceneVolumeRayCastLightedMRIHead) //...............................
+    if (SL::currentSceneID == C_sceneVolumeRayCastLighted) //...............................
     {
         name("Volume Ray Cast Lighted Head MRI");
 

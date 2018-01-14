@@ -584,9 +584,6 @@ void SLDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
     SLbool hasAnimations = (s->animManager().allAnimNames().size() > 0);
     static SLint curAnimIx = -1;
     if (!hasAnimations) curAnimIx = -1;
-    
-    //Maybe I have to use it for menu shortcuts
-    //ImGui::GetIO().WantCaptureKeyboard = true;
 
     if (ImGui::BeginMainMenuBar())
     {
@@ -635,8 +632,8 @@ void SLDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
                         sv->onCommand(C_sceneShaderPerVertexBlinn);
                     if (ImGui::MenuItem("Per Pixel Blinn-Phing", 0, curS==C_sceneShaderPerPixelBlinn))
                         sv->onCommand(C_sceneShaderPerPixelBlinn);
-                    if (ImGui::MenuItem("Per Pixel Cook-Torrance", 0, curS==C_sceneShaderPerPixelCookTorrance))
-                        sv->onCommand(C_sceneShaderPerPixelCookTorrance);
+                    if (ImGui::MenuItem("Per Pixel Cook-Torrance", 0, curS==C_sceneShaderCookTorrance))
+                        sv->onCommand(C_sceneShaderCookTorrance);
                     if (ImGui::MenuItem("Per Vertex Wave", 0, curS==C_sceneShaderPerVertexWave))
                         sv->onCommand(C_sceneShaderPerVertexWave);
                     if (ImGui::MenuItem("Water", 0, curS==C_sceneShaderWater))
@@ -655,14 +652,14 @@ void SLDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
 
                 if (ImGui::BeginMenu("Animation"))
                 {
+                    if (ImGui::MenuItem("Node Animation", 0, curS==C_sceneAnimationNode))
+                        sv->onCommand(C_sceneAnimationNode);
                     if (ImGui::MenuItem("Mass Animation", 0, curS==C_sceneAnimationMass))
                         sv->onCommand(C_sceneAnimationMass);
                     if (ImGui::MenuItem("Astroboy Army", 0, curS==C_sceneAnimationArmy))
                         sv->onCommand(C_sceneAnimationArmy);
                     if (ImGui::MenuItem("Skeletal Animation", 0, curS==C_sceneAnimationSkeletal))
                         sv->onCommand(C_sceneAnimationSkeletal);
-                    if (ImGui::MenuItem("Node Animation", 0, curS==C_sceneAnimationNode))
-                        sv->onCommand(C_sceneAnimationNode);
 
                     ImGui::EndMenu();
                 }
@@ -693,12 +690,12 @@ void SLDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
 
                 if (ImGui::BeginMenu("Volume Rendering"))
                 {
-                    if (ImGui::MenuItem("Head MRI Ray Cast", 0, curS==C_sceneVolumeRayCastHeadMRI))
-                        sv->onCommand(C_sceneVolumeRayCastHeadMRI);
+                    if (ImGui::MenuItem("Head MRI Ray Cast", 0, curS==C_sceneVolumeRayCast))
+                        sv->onCommand(C_sceneVolumeRayCast);
 
                     #ifndef SL_GLES
-                    if (ImGui::MenuItem("Head MRI Ray Cast Lighted", 0, curS==C_sceneVolumeRayCastLightedMRIHead))
-                        sv->onCommand(C_sceneVolumeRayCastLightedMRIHead);
+                    if (ImGui::MenuItem("Head MRI Ray Cast Lighted", 0, curS==C_sceneVolumeRayCastLighted))
+                        sv->onCommand(C_sceneVolumeRayCastLighted);
                     #endif
 
                     ImGui::EndMenu();
