@@ -1,7 +1,7 @@
 //#############################################################################
 //  File:      SLOculus.cpp
 //  Purpose:   Wrapper around Oculus Rift
-//  Author:    Marc Wacker, Roman Kühne, Marcus Hudritsch
+//  Author:    Marc Wacker, Roman Kuehne, Marcus Hudritsch
 //  Date:      July 2014
 //  Codestyle: https://github.com/cpvrlab/SLProject/wiki/Coding-Style-Guidelines
 //  Copyright: Marcus Hudritsch
@@ -81,6 +81,7 @@ void SLGLOculus::renderDistortion(SLint width, SLint height,
 
     glViewport(0, 0, width, height);
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    glClearColor(0,0,0,1);
     glClear(GL_COLOR_BUFFER_BIT);
     glDisable(GL_DEPTH_TEST);
     glDisable(GL_CULL_FACE);
