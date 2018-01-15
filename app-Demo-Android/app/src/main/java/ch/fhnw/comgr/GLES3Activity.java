@@ -110,14 +110,6 @@ public class GLES3Activity extends Activity implements View.OnTouchListener, Sen
     @Override
     protected void onPause() {
         Log.i(TAG, "GLES3Activity.onPause");
-
-        // The ActivityCompat.requestPermissions calls also onPause
-        if (!_permissionRequestIsOpen) {
-            myView.queueEvent(new Runnable() {public void run() {GLES3Lib.onClose();}});
-            cameraStop();
-            finishAndRemoveTask();
-        }
-
         super.onPause();
     }
 

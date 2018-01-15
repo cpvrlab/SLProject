@@ -53,9 +53,10 @@ class SLGLOculus
             SLfloat     resolutionScale     () { return _resolutionScale; }
             void        renderResolution    (SLint width, SLint height);
             void        beginFrame          ();
-            void        endFrame            (SLint width, SLint height, SLuint tex);
-            void        renderDistortion    (SLint width, SLint height, SLuint tex);
-            
+            void        renderDistortion    (SLint width,
+                                             SLint height,
+                                             SLuint tex,
+                                             SLCol4f background);
             // Setters
             void        lowPersistance      (SLbool val);
             void        timeWarp            (SLbool val);
@@ -78,13 +79,12 @@ class SLGLOculus
 
             // SL variables that can be accessed via getters
             SLVec2i         _outputRes;                 //!< output resolution used for ortho projection
+    
             SLQuat4f        _orientation[2];            //!< eye orientation
             SLVec3f         _position[2];               //!< eye position
-                        
             SLMat4f         _projection[2];             //!< projection matrices for left and right eye
             SLMat4f         _orthoProjection[2];        //!< projection for 2d elements
             SLVec3f         _viewAdjust[2];             //!< view adjust vector
-
             SLGLVertexArray _distortionMeshVAO[2];      //!< distortion meshes for left and right eye 
             
             SLfloat         _resolutionScale;           //!< required resolution scale for a 1.0 min pixel density
@@ -104,8 +104,6 @@ class SLGLOculus
             SLVec2i         _rtSize;                    //!< Required resolution for the render target
             
             SLbool          _hmdSettingsChanged;        //!< settings need to be updated flag
-
-
 };
 //-----------------------------------------------------------------------------
 

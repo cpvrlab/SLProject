@@ -141,7 +141,6 @@ float GetSeconds()
                                 (void*)&onPaintRTGL,
                                 0,
                                 0,
-                                0,
                                 (void*)SLDemoGui::buildDemoGui);
     ///////////////////////////////////////////////////////////////////////
     

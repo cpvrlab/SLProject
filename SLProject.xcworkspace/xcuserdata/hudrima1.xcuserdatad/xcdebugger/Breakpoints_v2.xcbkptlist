@@ -58,13 +58,13 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "lib-SLProject/source/SLSceneView.cpp"
-            timestampString = "537552869.431985"
+            timestampString = "537630717.235931"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "1456"
-            endingLineNumber = "1456"
-            landmarkName = "SLSceneView::windowTitle()"
-            landmarkType = "7">
+            startingLineNumber = "1457"
+            endingLineNumber = "1457"
+            landmarkName = "unknown"
+            landmarkType = "0">
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
@@ -218,11 +218,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "lib-SLProject/source/SLSceneView.cpp"
-            timestampString = "537552869.432461"
+            timestampString = "537630717.2364661"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "613"
-            endingLineNumber = "613"
+            startingLineNumber = "614"
+            endingLineNumber = "614"
             landmarkName = "SLSceneView::draw3DGLNodes(SLVNode &amp;nodes, SLbool alphaBlended, SLbool depthSorted)"
             landmarkType = "7">
          </BreakpointContent>
@@ -240,6 +240,22 @@
             startingLineNumber = "267"
             endingLineNumber = "267"
             landmarkName = "SLScene::unInit()"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "lib-SLProject/source/SLSceneView.cpp"
+            timestampString = "537630717.237203"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "236"
+            endingLineNumber = "236"
+            landmarkName = "SLSceneView::initSceneViewCamera(const SLVec3f&amp; dir, SLProjection proj)"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>

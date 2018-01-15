@@ -19,7 +19,6 @@ textures.files = \
   ../_data/images/textures/Checkerboard0512_C.png \
   ../_data/images/textures/Chess0256_C.bmp \
   ../_data/images/textures/CompileError.png \
-  ../_data/images/textures/cursor.png \
   ../_data/images/textures/earth1024_C.jpg \
   ../_data/images/textures/earth1024_G.jpg \
   ../_data/images/textures/earth1024_H.jpg \

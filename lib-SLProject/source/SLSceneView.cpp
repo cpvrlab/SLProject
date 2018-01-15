@@ -79,13 +79,11 @@ void SLSceneView::init(SLstring name,
                        SLint screenHeight,
                        void* onWndUpdateCallback,
                        void* onSelectNodeMeshCallback,
-                       void* onShowSystemCursorCallback,
                        void* onBuildImGui)
 {  
     _name = name;
     _scrW = screenWidth;
     _scrH = screenHeight;
-	_vrMode = false;
     _gotPainted = true;
 
     // The window update callback function is used to refresh the ray tracing
@@ -96,11 +94,6 @@ void SLSceneView::init(SLstring name,
     // The on select node callback is called when a node got selected on double
     // click, so that the UI can react on it.
     onSelectedNodeMesh = (cbOnSelectNodeMesh)onSelectNodeMeshCallback;
-
-    // We need access to the system specific cursor and be able to hide it
-    // if we need to draw our own.
-    // @todo could be simplified if we implemented our own SLApp class
-    onShowSysCursor = (cbOnShowSysCursor)onShowSystemCursorCallback;
 
     // Set the ImGui build function. Every sceneview could have it's own GUI.
     _gui.build = (cbOnBuildImGui)onBuildImGui;
@@ -150,10 +143,7 @@ void SLSceneView::initSceneViewCamera(const SLVec3f& dir, SLProjection proj)
     _sceneViewCamera.maxSpeed(40);
     _sceneViewCamera.eyeSeparation(_sceneViewCamera.focalDist()/30.0f);
     _sceneViewCamera.setProjection(this, ET_center);
-  
-	// ignore projection if in vr mode
-	if(!_vrMode)
-		_sceneViewCamera.projection(proj);
+    _sceneViewCamera.projection(proj);
 
     // fit scenes bounding box in view frustum
     SLScene* s = SLScene::current;
@@ -242,8 +232,8 @@ void SLSceneView::initSceneViewCamera(const SLVec3f& dir, SLProjection proj)
     _sceneViewCamera.updateAABBRec();
     _sceneViewCamera.setInitialState();
 
-	// if no camera exists or in VR mode use the sceneViewCamera
-	if(_camera == nullptr || _vrMode)
+    // if no camera exists or in VR mode use the sceneViewCamera
+    if(_camera == nullptr)
         _camera = &_sceneViewCamera;
 	
     _camera->needUpdate();
@@ -390,8 +380,9 @@ SLbool SLSceneView::onPaint()
         if (testRunIsFinished())
             return false;
     
-    // Init and build GUI
-    _gui.onInitNewFrame(s, this);
+    // Init and build GUI for all projections except distorted stereo
+    if (_camera && _camera->projection() != P_stereoSideBySideD)
+        _gui.onInitNewFrame(s, this);
 
     // Clear NO. of draw calls afer UI creation
     SLGLVertexArray::totalDrawCalls = 0;
@@ -412,7 +403,8 @@ SLbool SLSceneView::onPaint()
 
     // Finish Oculus framebuffer
     if (_camera && _camera->projection() == P_stereoSideBySideD)
-        s->oculus()->endFrame(_scrW, _scrH, _oculusFB.texID());
+        s->oculus()->renderDistortion(_scrW, _scrH, _oculusFB.texID(),
+                                      _camera->background().colors()[0]);
 
     // Set gotPainted only to true if RT is not busy
     _gotPainted = _renderType==RT_gl || raytracer()->state()!=rtBusy;
@@ -776,7 +768,8 @@ void SLSceneView::draw2DGL()
 
         // 4. Draw ImGui UI
         if (_gui.build)
-        {   ImGui::Render();
+        {
+            ImGui::Render();
             _gui.onPaint(ImGui::GetDrawData());
         }
     }
@@ -969,9 +962,6 @@ SLbool SLSceneView::onMouseMove(SLint x, SLint y)
         return true;
 
     if (!s->root3D()) return false;
-
-    // save cursor position
-    _posCursor.set(x, y);
 
     _touchDowns = 0;
     SLbool result = false;
@@ -1179,17 +1169,33 @@ SLbool SLSceneView::onKeyPress(SLKey key, SLKey mod)
         return true;
     }
 
-    if (key=='N') return onCommand(C_normalsToggle);
-    if (key=='P') return onCommand(C_wireMeshToggle);
-    if (key=='C') return onCommand(C_faceCullToggle);
-    if (key=='T') return onCommand(C_textureToggle);
+    // We have to coordinate these shortcuts in SLDemoGui::buildMenuBar
     if (key=='M') return onCommand(C_multiSampleToggle);
+    if (key=='I') return onCommand(C_waitOnIdleToggle);
     if (key=='F') return onCommand(C_frustCullToggle);
+    if (key=='T') return onCommand(C_depthTestToggle);
+    if (key=='O') {s->stopAnimations(!s->stopAnimations()); return true;}
+
+    if (key=='G') return onCommand(C_renderOpenGL);
+    if (key=='R') return onCommand(C_rt5);
+
+    if (key=='P') return onCommand(C_wireMeshToggle);
+    if (key=='N') return onCommand(C_normalsToggle);
     if (key=='B') return onCommand(C_bBoxToggle);
+    if (key=='V') return onCommand(C_voxelsToggle);
+    if (key=='X') return onCommand(C_axisToggle);
+    if (key=='C') return onCommand(C_faceCullToggle);
+    if (key=='K') return onCommand(C_skeletonToggle);
+
+    if (key=='5')
+    {   if (_camera->projection() == P_monoPerspective)
+             return onCommand(C_projOrtho);
+        else return onCommand(C_projPersp);
+    }
 
     if (key==K_tab) return onCommand(C_camSetNextInScene);
 
-    if (key==K_esc)
+    if (key==K_esc && mod==K_ctrl)
     {   if(_renderType == RT_rt)
         {  _stopRT = true;
             return false;
@@ -1268,8 +1274,9 @@ SLbool SLSceneView::onCommand(SLCommand cmd)
     // Handle all camera commands
     if (_camera)
     {
-        SLProjection prevProjection = _camera->projection();
-        SLbool perspectiveChanged = prevProjection != (SLProjection)(cmd - C_projPersp);
+        // Special treatment for turning OFF distorted stereo
+        if (_camera->projection()==P_stereoSideBySideD && cmd!=C_projSideBySideD)
+            ImGui::Render();
 
         switch (cmd)
         {
@@ -1318,20 +1325,6 @@ SLbool SLSceneView::onCommand(SLCommand cmd)
             case C_camSetSceneViewCamera: switchToSceneViewCamera(); return true;
             default: break;
         }
-
-        // special treatment for the menu position in side-by-side projection
-        if (perspectiveChanged)
-        {   if (cmd == C_projSideBySideD)
-            {   _vrMode = true;
-                if (onShowSysCursor)
-                    onShowSysCursor(false);
-            }
-            else if (prevProjection == P_stereoSideBySideD)
-            {   _vrMode = false;
-                if (onShowSysCursor)
-                    onShowSysCursor(true);
-            }
-        }
     }
 
     // Handle all other commands
@@ -1364,7 +1357,7 @@ SLbool SLSceneView::onCommand(SLCommand cmd)
 
         case C_camSetSceneViewCamera: switchToSceneViewCamera(); return true;
 
-        case C_waitEventsToggle:   _waitEvents = !_waitEvents; return true;
+        case C_waitOnIdleToggle:   _waitEvents = !_waitEvents; return true;
         case C_multiSampleToggle:
             _doMultiSampling = !_doMultiSampling;
             _raytracer.aaSamples(_doMultiSampling ? 3 : 1);
@@ -1379,7 +1372,6 @@ SLbool SLSceneView::onCommand(SLCommand cmd)
         case C_skeletonToggle:     _drawBits.toggle(SL_DB_SKELETON); return true;
         case C_voxelsToggle:       _drawBits.toggle(SL_DB_VOXELS);   return true;
         case C_faceCullToggle:     _drawBits.toggle(SL_DB_CULLOFF);  return true;
-        case C_textureToggle:      _drawBits.toggle(SL_DB_TEXOFF);   return true;
 
         case C_renderOpenGL:
             _renderType = RT_gl;

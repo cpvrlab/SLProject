@@ -102,7 +102,6 @@ JNIEXPORT void JNICALL Java_ch_fhnw_comgr_GLES3Lib_onInit(JNIEnv *env, jobject o
                                 (void *) &Java_renderRaytracingCallback,
                                 0,
                                 0,
-                                0,
                                 (void*)SLDemoGui::buildDemoGui);
     delete cmdLineArgs;
 }

@@ -115,7 +115,6 @@ int slCreateSceneView(int screenWidth,
                       void* onWndUpdateCallback,
                       void* onSelectNodeMeshCallback,
                       void* onNewSceneViewCallback,
-                      void* onShowSystemCursorCallback,
                       void* onBuildImGui)
 {
     assert(SLScene::current && "No SLScene::current!");
@@ -135,7 +134,6 @@ int slCreateSceneView(int screenWidth,
              screenHeight, 
              onWndUpdateCallback,
              onSelectNodeMeshCallback,
-             onShowSystemCursorCallback,
              onBuildImGui);
 
     // Load configuration no matter if ImGui is used
