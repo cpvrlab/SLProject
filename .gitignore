@@ -21,6 +21,8 @@
 *~
 _data/images/sequences/rgbd_dataset_freiburg1_desk
 _data/calibrations/orb-slam-state-*
+_data/calibrations/street*
+_data/calibrations/ORBvoc.txt
 _data/calibrations/imgs
 _data/videos
 lib-SLExternal/g2o/BUILD*
