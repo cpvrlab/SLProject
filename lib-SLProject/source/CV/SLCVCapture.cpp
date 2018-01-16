@@ -244,8 +244,10 @@ void SLCVCapture::adjustForSL()
     //resize image
     //cv::resize(lastFrame, lastFrame, 
     //    cv::Size( s->sceneViews()[0]->scrW(), s->sceneViews()[0]->scrH()));
-    cv::resize(lastFrame, lastFrame,
-        cv::Size(640, 480));
+
+    //todo: Achtung: Dieses resize wird zum laden von Videos benötigt!!!!
+    //cv::resize(lastFrame, lastFrame,
+    //    cv::Size(640, 480));
 
     //////////////////
     // 2) Mirroring //
