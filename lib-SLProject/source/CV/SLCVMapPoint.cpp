@@ -1,6 +1,6 @@
 //#############################################################################
 //  File:      SLCVMapPoint.cpp
-//  Author:    Michael Göttlicher
+//  Author:    Michael Gï¿½ttlicher
 //  Date:      October 2017
 //  Codestyle: https://github.com/cpvrlab/SLProject/wiki/Coding-Style-Guidelines
 //  Copyright: Marcus Hudritsch
@@ -12,7 +12,7 @@
 #include "SLCVMapPoint.h"
 #include <SLCVKeyFrame.h>
 #include <SLCVFrame.h>
-#include <OrbSlam\ORBmatcher.h>
+#include <OrbSlam/ORBmatcher.h>
 //-----------------------------------------------------------------------------
 SLVec3f SLCVMapPoint::worldPosVec()
 { 

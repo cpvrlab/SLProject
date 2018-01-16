@@ -19,7 +19,7 @@
 */
 
 #include <stdafx.h>
-#include <OrbSlam\ORBmatcher.h>
+#include <OrbSlam/ORBmatcher.h>
 
 #include<limits.h>
 
@@ -28,7 +28,7 @@
 
 #include <DBoW2/DBoW2/FeatureVector.h>
 
-#ifdef _WINDOWS
+#if defined(_WINDOWS) || defined(_ANDROID)
 #include<stdint.h>
 #else
 #include<stdint-gcc.h>

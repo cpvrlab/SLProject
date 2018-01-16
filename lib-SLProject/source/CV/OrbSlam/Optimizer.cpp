@@ -21,17 +21,17 @@
 #include <stdafx.h>
 #include <OrbSlam/Optimizer.h>
 
-#include "Thirdparty/g2o/g2o/core/block_solver.h"
-#include "Thirdparty/g2o/g2o/core/optimization_algorithm_levenberg.h"
-#include "Thirdparty/g2o/g2o/solvers/eigen/linear_solver_eigen.h"
-#include "Thirdparty/g2o/g2o/types/sba/types_six_dof_expmap.h"
-#include "Thirdparty/g2o/g2o/core/robust_kernel_impl.h"
-#include "Thirdparty/g2o/g2o/solvers/dense/linear_solver_dense.h"
-#include "Thirdparty/g2o/g2o/types/sim3/types_seven_dof_expmap.h"
+#include <g2o/core/block_solver.h>
+#include <g2o/core/optimization_algorithm_levenberg.h>
+#include <g2o/solvers/eigen/linear_solver_eigen.h>
+#include <g2o/types/sba/types_six_dof_expmap.h>
+#include <g2o/core/robust_kernel_impl.h>
+#include <g2o/solvers/dense/linear_solver_dense.h>
+#include <g2o/types/sim3/types_seven_dof_expmap.h>
 
 #include <Eigen/StdVector>
 
-#include <OrbSlam\Converter.h>
+#include <OrbSlam/Converter.h>
 
 #include <mutex>
 

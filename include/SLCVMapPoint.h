@@ -44,7 +44,7 @@ public:
     SLCVKeyFrame* refKf() const { return mpRefKF; }
 
     void AddObservation(SLCVKeyFrame* pKF, size_t idx);
-    std::map<SLCVKeyFrame*, size_t> SLCVMapPoint::GetObservations() const { return mObservations; }
+    std::map<SLCVKeyFrame*, size_t> GetObservations() const { return mObservations; }
 
     int GetIndexInKeyFrame(SLCVKeyFrame* pKF);
 

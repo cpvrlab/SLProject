@@ -14,7 +14,7 @@
 #include <string>
 #include <sstream>
 
-#ifdef _WINDOWS
+#if defined(_WINDOWS) || defined(_ANDROID)
 #include <stdint.h>
 #else
 #include <stdint-gcc.h>

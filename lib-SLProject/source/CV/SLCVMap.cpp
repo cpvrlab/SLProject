@@ -1,6 +1,6 @@
 //#############################################################################
 //  File:      SLCVMap.cpp
-//  Author:    Michael Göttlicher
+//  Author:    Michael Gï¿½ttlicher
 //  Date:      October 2017
 //  Codestyle: https://github.com/cpvrlab/SLProject/wiki/Coding-Style-Guidelines
 //  Copyright: Marcus Hudritsch
@@ -15,7 +15,7 @@
 #include <SLPoints.h>
 
 //-----------------------------------------------------------------------------
-SLCVMap::SLCVMap(const string& name="Map")
+SLCVMap::SLCVMap(const string& name)
 {
 
 }

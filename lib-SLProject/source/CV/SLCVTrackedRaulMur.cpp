@@ -1,6 +1,6 @@
 //#############################################################################
 //  File:      SLCVTrackedRaulMur.cpp
-//  Author:    Michael Göttlicher
+//  Author:    Michael Gï¿½ttlicher
 //  Date:      Dez 2017
 //  Codestyle: https://github.com/cpvrlab/SLProject/wiki/Coding-Style-Guidelines
 //  Copyright: Marcus Hudritsch, Michael Goettlicher
@@ -41,9 +41,6 @@ SLCVTrackedRaulMur::SLCVTrackedRaulMur(SLNode *node, ORBVocabulary* vocabulary,
     _mapLocalPC(mapLocalPC),
     _keyFrames(keyFrames)
 {
-    //Load ORB Vocabulary
-    cout << endl << "Loading ORB Vocabulary. This could take a while..." << endl;
-
     //instantiate Orb extractor
     _extractor = new ORBextractor(1500, 1.44f, 4, 30, 20);
 
@@ -803,7 +800,7 @@ void SLCVTrackedRaulMur::SearchLocalPoints()
 bool SLCVTrackedRaulMur::TrackReferenceKeyFrame()
 {
     //This routine is called if current tracking state is OK but we have NO valid motion model
-    //1. Berechnung des BoW-Vectors für den current frame
+    //1. Berechnung des BoW-Vectors fï¿½r den current frame
     //2. using BoW we search mappoint matches (from reference keyframe) with orb in current frame (ORB that belong to the same vocabulary node (at a certain level))
     //3. if there are less than 15 matches return.
     //4. we use the pose found for the last frame as initial pose for the current frame
@@ -1222,7 +1219,7 @@ void SLCVTrackedRaulMur::applyTransformation(double value, TransformType type)
 
 void SLCVTrackedRaulMur::saveState()
 {
-    string filename = "../_data/calibrations/orb-slam-state-buero-test.json";
+    string filename = "../_data/calibrations/street1_manip.json";
     cv::FileStorage fs(filename, cv::FileStorage::WRITE);
 
     //save keyframes (without graph/neigbourhood information)
@@ -1291,7 +1288,7 @@ void SLCVTrackedRaulMur::saveState()
         //add position
         fs << "mWorldPos" << mpt.worldPos();
         //save keyframe observations
-        auto& observations = mpt.GetObservations();
+        auto observations = mpt.GetObservations();
         vector<int> observingKfIds;
         vector<int> corrKpIndices; //corresponding keypoint indices in observing keyframe
         for (auto it : observations)

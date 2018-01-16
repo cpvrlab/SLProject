@@ -291,8 +291,8 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         cam1->translation(0, 2, 60);
         cam1->lookAt(15, 15, 0);
         cam1->fov(_activeCalib->cameraFovDeg());
-        cam1->clipNear(1.f);
-        cam1->clipFar(1000.0f); // Increase to infinity?
+        cam1->clipNear(0.001f);
+        cam1->clipFar(1000000.0f); // Increase to infinity?
         cam1->setInitialState();
         cam1->background().texture(&_videoTexture);
         videoType(VT_MAIN);
@@ -301,7 +301,11 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
 
 
         ORBVocabulary* vocabulary = new ORBVocabulary();
+#if defined(SL_OS_IOS) || defined(SL_OS_ANDROID)
+        string strVocFile = SLCVCalibration::calibIniPath + "ORBvoc.txt";
+#else
         string strVocFile = "D:/Development/ORB_SLAM2/Vocabulary/ORBvoc.txt";
+#endif
         bool bVocLoad = vocabulary->loadFromTextFile(strVocFile);
         if (!bVocLoad)
         {
@@ -316,7 +320,23 @@ void SLScene::onLoad(SLSceneView* sv, SLCommand sceneName)
         //load map points and keyframes from json file
         //SLCVSlamStateLoader loader("../_data/calibrations/orb-slam-state-2.json", vocabulary);
         //SLCVSlamStateLoader loader("../_data/calibrations/orb-slam-state-buero-test.json", vocabulary, false);
-        SLCVSlamStateLoader loader("../_data/calibrations/orb-slam-state-buero4.json", vocabulary);
+        //SLCVSlamStateLoader loader("../_data/calibrations/orb-slam-state-buero3.json", vocabulary);
+
+        string mapPath = SLCVCalibration::calibIniPath + "street1_manip.json";
+        if (SLFileSystem::fileExists(mapPath)) {
+            cout << "file exists!" << endl;
+        }
+
+        mapPath = "calibrations/test.yml";
+        if (SLFileSystem::fileExists(mapPath)) {
+            cout << "file exists!" << endl;
+        }
+
+#if defined(SL_OS_IOS) || defined(SL_OS_ANDROID)
+        SLCVSlamStateLoader loader(SLCVCalibration::calibIniPath + "street1_manip.json", vocabulary, false);
+#else
+        SLCVSlamStateLoader loader("../_data/calibrations/street1_manip.json", vocabulary, false );
+#endif
         loader.load(map->mapPoints(), *kfDB );
 
         SLLightSpot* light1 = new SLLightSpot(10, 10, 10, 0.3f);

@@ -4,6 +4,7 @@
 
 cmake_minimum_required(VERSION 3.4.1)
 
+add_definitions(-D_ANDROID)
 add_definitions(-DSL_GUI_JAVA)
 add_definitions(-DSL_GLES2)
 
@@ -47,6 +48,11 @@ add_definitions(-DASSIMP_BUILD_NO_XGL_IMPORTER)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/src/main/jniInclude/include)
 
 #
+# g2o
+#
+#include_directories(${CMAKE_CURRENT_SOURCE_DIR}/src/main/jniIncludeG2O/include)
+
+#
 # SLProject
 #
 file(GLOB_RECURSE SLPROJECT_SOURCES     ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/math/SLCurveBezier.cpp
@@ -78,6 +84,24 @@ file(GLOB_RECURSE SLPROJECT_SOURCES     ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SL
                                         ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/CV/SLCVTrackedAruco.cpp
                                         ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/CV/SLCVTrackedChessboard.cpp
                                         ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/CV/SLCVTrackedFeatures.cpp
+
+
+                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/CV/OrbSlam/Converter.cpp
+                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/CV/OrbSlam/Optimizer.cpp
+                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/CV/OrbSlam/ORBmatcher.cpp
+                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/CV/OrbSlam/PnPsolver.cpp
+
+                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/CV/ORBextractor.cpp
+                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/CV/SLCVCamera.cpp
+                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/CV/SLCVFrame.cpp
+                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/CV/SLCVKeyFrame.cpp
+                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/CV/SLCVKeyFrameDB.cpp
+                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/CV/SLCVMap.cpp
+                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/CV/SLCVMapPoint.cpp
+                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/CV/SLCVSlamStateLoader.cpp
+                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/CV/SLCVTrackedRaulMur.cpp
+
+
                                         ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/SLAABBox.cpp 
                                         ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/SLAnimation.cpp 
                                         ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/SLAnimManager.cpp 
@@ -112,7 +136,7 @@ file(GLOB_RECURSE SLPROJECT_SOURCES     ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SL
                                         ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/SLPoints.cpp
                                         ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/SLRay.cpp 
                                         ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/SLRaytracer.cpp 
-                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/SLRectangle.cpp 
+                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/SLRectangle.cpp
                                         ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/SLRevolver.cpp 
                                         ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/SLSamples2D.cpp 
                                         ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLProject/source/SLScene.cpp 
@@ -142,6 +166,13 @@ file(GLOB_RECURSE SLEXTERNAL_SOURCES    ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SL
                                         ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLExternal/Shoemake/EulerAngles.cpp
                                         ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLExternal/Shoemake/EulerAngles.h
                                         ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLExternal/Shoemake/TypeDefs.h
+
+                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLExternal/DBoW2/DUtils/Random.cpp
+                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLExternal/DBoW2/DUtils/Timestamp.cpp
+                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLExternal/DBoW2/DBoW2/BowVector.cpp
+                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLExternal/DBoW2/DBoW2/FeatureVector.cpp
+                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLExternal/DBoW2/DBoW2/FORB.cpp
+                                        ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLExternal/DBoW2/DBoW2/ScoringObject.cpp
                                         )
 
 list(REMOVE_ITEM SLEXTERNAL_SOURCES     ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLExternal/assimp/code/OgreMesh.cpp
@@ -149,6 +180,7 @@ list(REMOVE_ITEM SLEXTERNAL_SOURCES     ${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SL
                                         )
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../../include)
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../../include/OrbSlam)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLExternal)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLExternal/imgui)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLExternal/randomc)
@@ -161,6 +193,12 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLExternal/assimp/cont
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLExternal/assimp/contrib/irrXML)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLExternal/assimp/contrib/poly2tri)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLExternal/assimp/code/BoostWorkaround)
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLExternal/eigen)
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLExternal/g2o)
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLExternal/g2o/BUILD_ANDROID)
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLExternal/DBoW2/DBoW2)
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLExternal/DBoW2/DUtils)
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLExternal/DBoW2)
 
 #
 # OpenCV
@@ -168,6 +206,24 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../../lib-SLExternal/assimp/code
 add_library(lib_opencv SHARED IMPORTED)
 set_target_properties(lib_opencv PROPERTIES IMPORTED_LOCATION ${CMAKE_CURRENT_SOURCE_DIR}/../../_lib/prebuilt/OpenCV/android/${ANDROID_ABI}/libopencv_java3.so)
 
+#
+# g2o (graph optimization for bundle adjustment)
+#
+add_library(lib_g2o_types_slam3d SHARED IMPORTED)
+set_target_properties(lib_g2o_types_slam3d PROPERTIES IMPORTED_LOCATION ${CMAKE_CURRENT_SOURCE_DIR}/../../_lib/prebuilt/g2o/android/${ANDROID_ABI}/libg2o_types_slam3d.so)
+add_library(lib_g2o_core SHARED IMPORTED)
+set_target_properties(lib_g2o_core PROPERTIES IMPORTED_LOCATION ${CMAKE_CURRENT_SOURCE_DIR}/../../_lib/prebuilt/g2o/android/${ANDROID_ABI}/libg2o_core.so)
+add_library(lib_g2o_stuff SHARED IMPORTED)
+set_target_properties(lib_g2o_stuff PROPERTIES IMPORTED_LOCATION ${CMAKE_CURRENT_SOURCE_DIR}/../../_lib/prebuilt/g2o/android/${ANDROID_ABI}/libg2o_stuff.so)
+add_library(lib_g2o_solver_dense SHARED IMPORTED)
+set_target_properties(lib_g2o_solver_dense PROPERTIES IMPORTED_LOCATION ${CMAKE_CURRENT_SOURCE_DIR}/../../_lib/prebuilt/g2o/android/${ANDROID_ABI}/libg2o_solver_dense.so)
+add_library(lib_g2o_solver_eigen SHARED IMPORTED)
+set_target_properties(lib_g2o_solver_eigen PROPERTIES IMPORTED_LOCATION ${CMAKE_CURRENT_SOURCE_DIR}/../../_lib/prebuilt/g2o/android/${ANDROID_ABI}/libg2o_solver_eigen.so)
+add_library(lib_g2o_types_sba SHARED IMPORTED)
+set_target_properties(lib_g2o_types_sba PROPERTIES IMPORTED_LOCATION ${CMAKE_CURRENT_SOURCE_DIR}/../../_lib/prebuilt/g2o/android/${ANDROID_ABI}/libg2o_types_sba.so)
+add_library(lib_g2o_types_sim3 SHARED IMPORTED)
+set_target_properties(lib_g2o_types_sim3 PROPERTIES IMPORTED_LOCATION ${CMAKE_CURRENT_SOURCE_DIR}/../../_lib/prebuilt/g2o/android/${ANDROID_ABI}/libg2o_types_sim3.so)
+#message(${CMAKE_CURRENT_SOURCE_DIR}/../../_lib/prebuilt/g2o/android/${ANDROID_ABI}/libg2o_types_slam3d.so)
 
 add_library(native-lib
             SHARED
@@ -190,6 +246,13 @@ set(OPENGL_LIB_v3 GLESv3)
 
 target_link_libraries(  native-lib
                         lib_opencv
+                        lib_g2o_types_slam3d
+                        lib_g2o_core
+                        lib_g2o_stuff
+                        lib_g2o_solver_dense
+                        lib_g2o_solver_eigen
+                        lib_g2o_types_sba
+                        lib_g2o_types_sim3
                         #${OPENGL_LIB_v2}
                         ${OPENGL_LIB_v3}
                         ${log-lib}
@@ -232,7 +295,10 @@ file(GLOB_RECURSE SHADERS       ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/shaders/
                                 ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/shaders/*.frag)
 
 file(GLOB_RECURSE CALIBRATIONS  ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/calibrations/calib_in_params.yml
-                                ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/calibrations/aruco_detector_params.yml)
+                                ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/calibrations/aruco_detector_params.yml
+                                ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/calibrations/street1_manip.json
+                                ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/calibrations/test.yml
+                                ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/calibrations/ORBvoc.txt)
 
 file(GLOB_RECURSE CONFIG        ${CMAKE_CURRENT_SOURCE_DIR}/../../_data/config/dummyFile.txt)
 

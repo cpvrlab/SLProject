@@ -506,7 +506,7 @@ bool SLScene::onUpdate()
     return sceneHasChanged;
 }
 
-#define SL_VIDEO_DEBUG 1;
+//#define SL_VIDEO_DEBUG 1;
 
 //-----------------------------------------------------------------------------
 //! SLScene::onAfterLoad gets called after onLoad
@@ -524,7 +524,9 @@ void SLScene::onAfterLoad()
         //SLCVCapture::open("D:/Development/ORB_SLAM2/data/buero_handy_2.mp4");
         //SLCVCapture::open("D:/Development/ORB_SLAM2/data/buero_handy_calib.mp4");
         //SLCVCapture::open("D:/Development/ORB_SLAM2/data/buero_handy_calib_43.mp4");
-        SLCVCapture::open("D:/Development/ORB_SLAM2/data/buero_handy_3_43.mp4");
+
+        //SLCVCapture::open("D:/Development/ORB_SLAM2/data/buero_handy_3_43.mp4");
+        SLCVCapture::open("D:/Development/ORB_SLAM2/data/street3.mp4");
         #else
         SLCVCapture::open(0);
         #endif
@@ -698,12 +700,12 @@ SLCamera* SLScene::nextCameraInScene(SLSceneView* activeSV)
 
     //find next camera, that is not of type SLCVCamera if "allow SLCVCamera as
     //active camera" is deactivated
-    do {
+ /*   do {
         activeIndex = activeIndex > cams.size()-2 ? 0 : ++activeIndex;
     }
     while ( dynamic_cast<SLCVCamera*>(cams[activeIndex]) && 
         !dynamic_cast<SLCVCamera*>(cams[activeIndex])->allowAsActiveCam());
-
+*/
     return cams[activeIndex];
 }
 //------------------------------------------------------------------------------

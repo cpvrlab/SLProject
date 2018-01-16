@@ -1732,7 +1732,7 @@ void SLDemoGui::buildInfosTracking(SLScene* s, SLSceneView* sv)
     //-------------------------------------------------------------------------
     //numbers
     //add tracking state
-    ImGui::Text("Tracking State : %s ", raulMurTracker->getPrintableState());
+    ImGui::Text("Tracking State : %s ", raulMurTracker->getPrintableState().c_str());
     //mean reprojection error
     ImGui::Text("Mean Reproj. Error : %f ", raulMurTracker->meanReprojectionError());
     //add number of matches map points in current frame
