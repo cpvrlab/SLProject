@@ -79,7 +79,7 @@ enum SLCommand
 
     C_sceneAll = 0,         // Loads all scenes one after the other
     C_sceneMinimal,
-    C_sceneSensorTest,
+    C_sceneVideoSensorAR,
     C_sceneFigure,
     C_sceneMeshLoad,
     C_sceneVRSizeTest,

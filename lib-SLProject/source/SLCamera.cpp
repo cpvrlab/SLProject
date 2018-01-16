@@ -727,8 +727,8 @@ SLbool SLCamera::onMouseMove(const SLMouseButton button,
     {
         // new vars needed
         SLVec3f positionVS = this->translationOS();
-        SLVec3f forwardVS  = this->forwardOS();
-        SLVec3f rightVS    = this->rightOS();
+        SLVec3f forwardVS = this->forwardOS();
+        SLVec3f rightVS = this->rightOS();
 
         // The lookAt point
         SLVec3f lookAtPoint = positionVS + _focalDist * forwardVS;
@@ -759,7 +759,7 @@ SLbool SLCamera::onMouseMove(const SLMouseButton button,
             _om.setMatrix(rot * _om);
             needUpdate();
         }
-        else if (_camAnim==CA_trackball) //....................................
+        else if (_camAnim == CA_trackball) //....................................
         {
             // Reference: https://en.wikibooks.org/wiki/OpenGL_Programming/Modern_OpenGL_Tutorial_Arcball
             // calculate current mouse vector at currenct mouse position
@@ -769,40 +769,41 @@ SLbool SLCamera::onMouseMove(const SLMouseButton button,
             // Take care that the dot product isn't greater than 1.0 otherwise
             // the acos will return indefined.
             SLfloat dot = _trackballStartVec.dot(curMouseVec);
-            SLfloat angle = acos(dot>1?1:dot) * SL_RAD2DEG;
+            SLfloat angle = acos(dot>1 ? 1 : dot) * SL_RAD2DEG;
+
 
             // calculate rotation axis with the cross product
             SLVec3f axisVS;
             axisVS.cross(_trackballStartVec, curMouseVec);
-            
+
             // To stabilise the axis we average it with the last axis
             static SLVec3f lastAxisVS = SLVec3f::ZERO;
             if (lastAxisVS != SLVec3f::ZERO) axisVS = (axisVS + lastAxisVS) / 2.0f;
-            
+
             // Because we calculate the mouse vectors from integer mouse positions
             // we can get some numerical instability from the dot product when the
             // mouse is on the silhouette of the virtual sphere.
             // We calculate therefore an alternative for the angle from the mouse
             // motion length.
-            SLVec2f dMouse(_oldTouchPos1.x-x, _oldTouchPos1.y-y);
+            SLVec2f dMouse(_oldTouchPos1.x - x, _oldTouchPos1.y - y);
             SLfloat dMouseLenght = dMouse.length();
             if (angle > dMouseLenght) angle = dMouseLenght*0.2f;
-            
+
             // Transform rotation axis into world space
             // Remember: The cameras om is the view matrix inversed
             SLVec3f axisWS = _om.mat3() * axisVS;
-            
+
             // Create rotation from one rotation around one axis
             SLMat4f rot;
             rot.translate(lookAtPoint);             // undo camera translation
             rot.rotate((SLfloat)-angle, axisWS);    // create incremental rotation
             rot.translate(-lookAtPoint);            // redo camera translation
             _om.setMatrix(rot * _om);               // accumulate rotation to the existing camera matrix
-            
-            // set current to last
+
+                                                    // set current to last
             _trackballStartVec = curMouseVec;
             lastAxisVS = axisVS;
-            
+
             needUpdate();
         }
         else if (_camAnim == CA_walkingYUp) //...................................
@@ -836,9 +837,10 @@ SLbool SLCamera::onMouseMove(const SLMouseButton button,
     }
     else
         if (button == MB_middle) //================================================
-    {   if (_camAnim == CA_turntableYUp ||
-            _camAnim == CA_turntableZUp ||
-            _camAnim == CA_trackball)
+        {
+            if (_camAnim == CA_turntableYUp ||
+                _camAnim == CA_turntableZUp ||
+                _camAnim == CA_trackball)
             {
                 // Calculate the fraction delta of the mouse movement
                 SLVec2f dMouse(x - _oldTouchPos1.x, _oldTouchPos1.y - y);
@@ -846,17 +848,16 @@ SLbool SLCamera::onMouseMove(const SLMouseButton button,
                 dMouse.y /= (SLfloat)_scrH;
 
                 // scale factor depending on the space size at focal dist
-            SLfloat spaceH = tan(SL_DEG2RAD*_fov/2) * _focalDist * 2.0f;
+                SLfloat spaceH = tan(SL_DEG2RAD*_fov / 2) * _focalDist * 2.0f;
                 SLfloat spaceW = spaceH * _aspect;
 
                 dMouse.x *= spaceW;
                 dMouse.y *= spaceH;
 
                 if (mod == K_ctrl)
-                 translate(SLVec3f(-dMouse.x, 0, dMouse.y), TS_object);
-            else translate(SLVec3f(-dMouse.x, -dMouse.y, 0), TS_object);
-            
-                else
+                    translate(SLVec3f(-dMouse.x, 0, dMouse.y), TS_object);
+                else translate(SLVec3f(-dMouse.x, -dMouse.y, 0), TS_object);
+
                 _oldTouchPos1.set((SLfloat)x, (SLfloat)y);
             }
         } //=======================================================================
@@ -896,6 +897,8 @@ SLbool SLCamera::onMouseWheel(const SLint delta, const SLKey mod)
     if (_camAnim==CA_turntableYUp ||
         _camAnim==CA_turntableZUp ||
         _camAnim==CA_trackball) //.............................................
+    {
+        if (mod == K_none)
         {
             translate(SLVec3f(0, 0, -sign*_focalDist*_dPos), TS_object);
             _focalDist += -sign*_focalDist*_dPos;
@@ -1050,37 +1053,38 @@ The key code constants are defined in SL.h
 */
 SLbool SLCamera::onKeyPress(const SLKey key, const SLKey mod)
 {
-    // Keep in sync with SLDemoGui::buildMenuBar
     switch ((SLchar)key)
     {
     case 'W': _moveDir.z -= 1.0f; return true;
+    case 'S': _moveDir.z += 1.0f; return true;
+    case 'A': _moveDir.x -= 1.0f; return true;
     case 'D': _moveDir.x += 1.0f; return true;
-        case 'A': _moveDir.x -= 1.0f; return true;
     case 'Q': _moveDir.y += 1.0f; return true;
     case 'E': _moveDir.y -= 1.0f; return true;
-        case 'S': _moveDir.z += 1.0f; return true;
-        case 'W': _moveDir.z -= 1.0f; return true;
-        case (SLchar)K_up:   _moveDir.z += 1.0f; return true;
-        case (SLchar)K_down: _moveDir.z -= 1.0f; return true;
-        case (SLchar)K_right:_moveDir.x += 1.0f; return true;
-        case (SLchar)K_left: _moveDir.x -= 1.0f; return true;
-            
+
         // View setting as in standard Blender
-        case '1':
-            if (mod==K_ctrl)
-                 lookFrom(-SLVec3f::AXISZ);
-            else lookFrom( SLVec3f::AXISZ);
-            return true;
-        case '3':
-            if (mod==K_ctrl)
-                 lookFrom(-SLVec3f::AXISX);
-            else lookFrom( SLVec3f::AXISX);
-            return true;
-        case '7':
-            if (mod==K_ctrl)
-                 lookFrom(-SLVec3f::AXISY, SLVec3f::AXISZ);
-            else lookFrom( SLVec3f::AXISY,-SLVec3f::AXISZ);
-            return true;
+    case '1':
+        if (mod == K_ctrl)
+            lookFrom(-SLVec3f::AXISZ);
+        else lookFrom(SLVec3f::AXISZ);
+        return true;
+    case '3':
+        if (mod == K_ctrl)
+            lookFrom(-SLVec3f::AXISX);
+        else lookFrom(SLVec3f::AXISX);
+        return true;
+    case '7':
+        if (mod == K_ctrl)
+            lookFrom(-SLVec3f::AXISY, SLVec3f::AXISZ);
+        else lookFrom(SLVec3f::AXISY, -SLVec3f::AXISZ);
+        return true;
+    case '5':
+        if (_projection == P_monoPerspective)
+            _projection = P_monoOrthographic;
+        else _projection = P_monoPerspective;
+        return true;
+    case (SLchar)K_down: return onMouseWheel(1, mod);
+    case (SLchar)K_up:   return onMouseWheel(-1, mod);
 
     default:  return false;
     }
@@ -1094,16 +1098,11 @@ SLbool SLCamera::onKeyRelease(const SLKey key, const SLKey mod)
     switch ((SLchar)key)
     {
     case 'W': _moveDir.z += 1.0f; return true;
+    case 'S': _moveDir.z -= 1.0f; return true;
+    case 'A': _moveDir.x += 1.0f; return true;
     case 'D': _moveDir.x -= 1.0f; return true;
-        case 'A': _moveDir.x += 1.0f; return true;
     case 'Q': _moveDir.y -= 1.0f; return true;
     case 'E': _moveDir.y += 1.0f; return true;
-        case 'S': _moveDir.z -= 1.0f; return true;
-        case 'W': _moveDir.z += 1.0f; return true;
-        case (SLchar)K_up:   _moveDir.z -= 1.0f; return true;
-        case (SLchar)K_down: _moveDir.z += 1.0f; return true;
-        case (SLchar)K_right:_moveDir.x -= 1.0f; return true;
-        case (SLchar)K_left: _moveDir.x += 1.0f; return true;
     }
 
     return false;

@@ -51,7 +51,7 @@ SLPoints::SLPoints(const SLVVec3f& points,
     P = points;
     N = normals;
 
-    mat = material;
+    mat(material);
 }
 //-----------------------------------------------------------------------------
 //! SLPoints ctor for a random point cloud with the rnd generator.
